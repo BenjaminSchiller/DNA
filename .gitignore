@@ -1,5 +1,5 @@
 build.xml
 cc.jar
-./data/
+data/
 .project
 .classpath
