@@ -8,10 +8,10 @@ import dynamicGraphs.graph.Node;
 import dynamicGraphs.metrics.triangles.ClusteringCoefficient;
 import dynamicGraphs.util.ArrayUtils;
 
-public class OpenTriangleCCBasic extends ClusteringCoefficient {
+public class OtcComp extends ClusteringCoefficient {
 
-	public OpenTriangleCCBasic(Graph g) {
-		super(g, "SEP", false, false, false);
+	public OtcComp(Graph g) {
+		super(g, "OTC_COMP", false, false, false);
 	}
 
 	@Override

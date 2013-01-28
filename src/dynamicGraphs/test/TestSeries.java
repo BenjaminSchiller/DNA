@@ -7,8 +7,8 @@ import dynamicGraphs.diff.generator.RandomDiff;
 import dynamicGraphs.graph.Graph;
 import dynamicGraphs.graph.generator.RandomGraph;
 import dynamicGraphs.metrics.Metric;
-import dynamicGraphs.metrics.triangles.open.OpenTriangleCCBasic;
-import dynamicGraphs.metrics.triangles.open.OpenTriangleCounting;
+import dynamicGraphs.metrics.triangles.open.OtcComp;
+import dynamicGraphs.metrics.triangles.open.OtcIncrByDiff;
 import dynamicGraphs.util.ArrayUtils;
 import dynamicGraphs.util.Stats;
 
@@ -63,8 +63,8 @@ public class TestSeries {
 			boolean incremental) throws DiffNotApplicableException {
 		Graph g = RandomGraph.generate(nodes, edges, true);
 		Diff[] d = getDiffs(g, steps, add);
-		OpenTriangleCounting otc = new OpenTriangleCounting(g);
-		OpenTriangleCCBasic basic = new OpenTriangleCCBasic(g);
+		OtcIncrByDiff otc = new OtcIncrByDiff(g);
+		OtcComp basic = new OtcComp(g);
 		Metric[] metrics = new Metric[] { otc, basic };
 
 		Series s = new Series(g, d, metrics);

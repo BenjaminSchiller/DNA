@@ -11,10 +11,10 @@ import dynamicGraphs.graph.Graph;
 import dynamicGraphs.graph.Node;
 import dynamicGraphs.metrics.Metric;
 
-public class OpenTriangleCounting extends Metric {
+public class OtcIncrByDiff extends Metric {
 
-	public OpenTriangleCounting(Graph g) {
-		super(g, "INC", true, false, true);
+	public OtcIncrByDiff(Graph g) {
+		super(g, "OTC_INCR_BY_DIFF", true, false, true);
 		this.triangles = new ArrayList<Set<OpenTriangle>>(g.getNodes().length);
 		this.potentialTriangles = new ArrayList<Set<OpenTriangle>>(
 				g.getNodes().length);
@@ -218,10 +218,10 @@ public class OpenTriangleCounting extends Metric {
 
 	@Override
 	public boolean equals(Metric m) {
-		if (m == null || !(m instanceof OpenTriangleCounting)) {
+		if (m == null || !(m instanceof OtcIncrByDiff)) {
 			return false;
 		}
-		OpenTriangleCounting otc = (OpenTriangleCounting) m;
+		OtcIncrByDiff otc = (OtcIncrByDiff) m;
 		if (this.allTriangles.size() != otc.allTriangles.size()
 				|| !this.allTriangles.containsAll(otc.allTriangles)) {
 			System.out.println(this.allTriangles.size() + " != "

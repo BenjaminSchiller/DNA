@@ -7,7 +7,7 @@ import dynamicGraphs.graph.Graph;
 import dynamicGraphs.graph.generator.RandomGraph;
 import dynamicGraphs.io.DiffReader;
 import dynamicGraphs.io.GraphReader;
-import dynamicGraphs.metrics.triangles.open.OpenTriangleCounting;
+import dynamicGraphs.metrics.triangles.open.OtcIncrByDiff;
 import dynamicGraphs.util.Timer;
 
 public class TestOpenTriangleCounting {
@@ -27,7 +27,7 @@ public class TestOpenTriangleCounting {
 	public static void random(boolean compute)
 			throws DiffNotApplicableException {
 		Graph g = RandomGraph.generate(1000, 10000, false);
-		OpenTriangleCounting otc = new OpenTriangleCounting(g);
+		OtcIncrByDiff otc = new OtcIncrByDiff(g);
 		otc.compute();
 		for (int i = 0; i < 10; i++) {
 			Diff d = RandomDiff.generate(g, 1100, 10000, true);
@@ -35,7 +35,7 @@ public class TestOpenTriangleCounting {
 			g.apply(d);
 			otc.applyAfterDiff(d);
 			if (compute) {
-				OpenTriangleCounting otc2 = new OpenTriangleCounting(g);
+				OtcIncrByDiff otc2 = new OtcIncrByDiff(g);
 				// System.out.println(g.getTimestamp() + ": " + otc.toString());
 				otc2.compute();
 				System.out.println(otc.equals(otc2) ? "OK" : ":-(");
@@ -50,7 +50,7 @@ public class TestOpenTriangleCounting {
 		Graph g3 = GraphReader.read("data/otc/g-13-3.txt");
 		Graph[] graphs = new Graph[] { g0, g1, g2, g3 };
 		for (Graph g : graphs) {
-			OpenTriangleCounting otc = new OpenTriangleCounting(g);
+			OtcIncrByDiff otc = new OtcIncrByDiff(g);
 			otc.compute();
 			System.out.println(g.getTimestamp() + ": " + otc.toString());
 		}
@@ -58,7 +58,7 @@ public class TestOpenTriangleCounting {
 		System.out.println("\n");
 
 		Graph g = GraphReader.read("data/otc/g-13-0.txt");
-		OpenTriangleCounting otc = new OpenTriangleCounting(g);
+		OtcIncrByDiff otc = new OtcIncrByDiff(g);
 		otc.compute();
 		Diff d0 = DiffReader.read("data/otc/d-13-0-1.txt", g);
 		Diff d1 = DiffReader.read("data/otc/d-13-1-2.txt", g);
@@ -68,7 +68,7 @@ public class TestOpenTriangleCounting {
 			otc.applyBeforeDiff(d);
 			g.apply(d);
 			otc.applyAfterDiff(d);
-			OpenTriangleCounting otc2 = new OpenTriangleCounting(g);
+			OtcIncrByDiff otc2 = new OtcIncrByDiff(g);
 			otc2.compute();
 			System.out.println(g.getTimestamp() + ": " + otc.toString());
 			System.out.println(g.getTimestamp() + ": " + otc2.toString());
