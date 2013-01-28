@@ -2,6 +2,7 @@ package dynamicGraphs.metrics.triangles.open;
 
 import dynamicGraphs.diff.Diff;
 import dynamicGraphs.diff.DiffNotApplicableException;
+import dynamicGraphs.graph.Edge;
 import dynamicGraphs.graph.Graph;
 import dynamicGraphs.graph.Node;
 import dynamicGraphs.metrics.triangles.ClusteringCoefficient;
@@ -10,11 +11,11 @@ import dynamicGraphs.util.ArrayUtils;
 public class OpenTriangleCCBasic extends ClusteringCoefficient {
 
 	public OpenTriangleCCBasic(Graph g) {
-		super(g, "SEP", false);
+		super(g, "SEP", false, false, false);
 	}
 
 	@Override
-	protected boolean computeMetric() {
+	protected boolean compute_() {
 		int triangles = 0;
 		int potential = 0;
 		for (Node n : this.g.getNodes()) {
@@ -41,15 +42,30 @@ public class OpenTriangleCCBasic extends ClusteringCoefficient {
 	}
 
 	@Override
-	protected boolean applyDiffBefore(Diff d) throws DiffNotApplicableException {
+	protected boolean applyBeforeDiff_(Diff d)
+			throws DiffNotApplicableException {
 		throw new DiffNotApplicableException(this.getKey()
-				+ " cannot be computed incrementally");
+				+ " - cannot be applied before diff");
 	}
 
 	@Override
-	protected boolean applyDiffAfter(Diff d) throws DiffNotApplicableException {
+	protected boolean applyAfterEdgeAddition_(Diff d, Edge e)
+			throws DiffNotApplicableException {
 		throw new DiffNotApplicableException(this.getKey()
-				+ " cannot be computed incrementally");
+				+ " - cannot be applied after edge addition");
+	}
+
+	@Override
+	protected boolean applyAfterEdgeRemoval_(Diff d, Edge e)
+			throws DiffNotApplicableException {
+		throw new DiffNotApplicableException(this.getKey()
+				+ " - cannot be applied after edge removal");
+	}
+
+	@Override
+	protected boolean applyAfterDiff_(Diff d) throws DiffNotApplicableException {
+		throw new DiffNotApplicableException(this.getKey()
+				+ " - cannot be applied after diff");
 	}
 
 }

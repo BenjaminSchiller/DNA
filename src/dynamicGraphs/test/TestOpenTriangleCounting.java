@@ -31,9 +31,9 @@ public class TestOpenTriangleCounting {
 		otc.compute();
 		for (int i = 0; i < 10; i++) {
 			Diff d = RandomDiff.generate(g, 1100, 10000, true);
-			otc.applyBefore(d);
+			otc.applyBeforeDiff(d);
 			g.apply(d);
-			otc.applyAfter(d);
+			otc.applyAfterDiff(d);
 			if (compute) {
 				OpenTriangleCounting otc2 = new OpenTriangleCounting(g);
 				// System.out.println(g.getTimestamp() + ": " + otc.toString());
@@ -65,9 +65,9 @@ public class TestOpenTriangleCounting {
 		Diff d2 = DiffReader.read("data/otc/d-13-2-3.txt", g);
 		Diff[] diffs = new Diff[] { d0, d1, d2 };
 		for (Diff d : diffs) {
-			otc.applyBefore(d);
+			otc.applyBeforeDiff(d);
 			g.apply(d);
-			otc.applyAfter(d);
+			otc.applyAfterDiff(d);
 			OpenTriangleCounting otc2 = new OpenTriangleCounting(g);
 			otc2.compute();
 			System.out.println(g.getTimestamp() + ": " + otc.toString());

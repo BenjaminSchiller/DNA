@@ -1,6 +1,7 @@
 package dynamicGraphs.metrics.degree;
 
 import dynamicGraphs.diff.Diff;
+import dynamicGraphs.diff.DiffNotApplicableException;
 import dynamicGraphs.graph.Edge;
 import dynamicGraphs.graph.Graph;
 import dynamicGraphs.graph.Node;
@@ -9,7 +10,7 @@ import dynamicGraphs.util.ArrayUtils;
 
 public class DegreeDistribution extends Metric {
 	public DegreeDistribution(Graph g) {
-		super(g, "DegreeDistribution", true);
+		super(g, "DegreeDistribution", true, false, false);
 		this.degrees = new int[this.g.getNodes().length];
 		this.inDegrees = new int[this.g.getNodes().length];
 		this.outDegrees = new int[this.g.getNodes().length];
@@ -62,7 +63,7 @@ public class DegreeDistribution extends Metric {
 	}
 
 	@Override
-	protected boolean computeMetric() {
+	protected boolean compute_() {
 		for (Node n : this.g.getNodes()) {
 			this.inDegrees[n.getIndex()] = n.getIn().size();
 			this.outDegrees[n.getIndex()] = n.getOut().size();
@@ -77,7 +78,7 @@ public class DegreeDistribution extends Metric {
 	}
 
 	@Override
-	protected boolean applyDiffBefore(Diff d) {
+	protected boolean applyBeforeDiff_(Diff d) {
 		int added = 0;
 		int removed = 0;
 
@@ -145,8 +146,20 @@ public class DegreeDistribution extends Metric {
 	}
 
 	@Override
-	protected boolean applyDiffAfter(Diff d) {
-		return true;
+	protected boolean applyAfterDiff_(Diff d) throws DiffNotApplicableException {
+		throw new DiffNotApplicableException("after diff");
+	}
+
+	@Override
+	protected boolean applyAfterEdgeAddition_(Diff d, Edge e)
+			throws DiffNotApplicableException {
+		throw new DiffNotApplicableException("edge addition");
+	}
+
+	@Override
+	protected boolean applyAfterEdgeRemoval_(Diff d, Edge e)
+			throws DiffNotApplicableException {
+		throw new DiffNotApplicableException("edge removal");
 	}
 
 	@Override

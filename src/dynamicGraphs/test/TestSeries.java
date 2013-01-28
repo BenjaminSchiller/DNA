@@ -68,7 +68,7 @@ public class TestSeries {
 		Metric[] metrics = new Metric[] { otc, basic };
 
 		Series s = new Series(g, d, metrics);
-		s.process(incremental);
+		s.processIncremental();
 		return s;
 	}
 

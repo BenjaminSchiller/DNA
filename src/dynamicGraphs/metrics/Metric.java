@@ -2,18 +2,27 @@ package dynamicGraphs.metrics;
 
 import dynamicGraphs.diff.Diff;
 import dynamicGraphs.diff.DiffNotApplicableException;
+import dynamicGraphs.graph.Edge;
 import dynamicGraphs.graph.Graph;
 
 public abstract class Metric {
-	public Metric(Graph g, String key, boolean incremental) {
+	public Metric(Graph g, String key, boolean appliedBeforeDiff,
+			boolean appliedAfterEdge, boolean appliedAfterDiff) {
 		this.g = g;
 		this.timestamp = Long.MIN_VALUE;
 		this.key = key;
-		this.incremental = incremental;
+		this.appliedBeforeDiff = appliedBeforeDiff;
+		// this.appliedBeforeEdge = appliedBeforeEdge;
+		this.appliedAfterEdge = appliedAfterEdge;
+		this.appliedAfterDiff = appliedAfterDiff;
 	}
-	
-	public String toString(){
+
+	public String toString() {
 		return this.key + " @ " + this.timestamp;
+	}
+
+	protected String getFilename(String key) {
+		return this.key + "__" + key + "__" + this.timestamp + ".txt";
 	}
 
 	private long timestamp;
@@ -31,36 +40,6 @@ public abstract class Metric {
 	public String getKey() {
 		return this.key;
 	}
-	
-	private boolean incremental;
-	
-	public boolean isIncremental(){
-		return this.incremental;
-	}
-
-	protected String getFilename(String key) {
-		return this.key + "__" + key + "__" + this.timestamp + ".txt";
-	}
-
-	public boolean applyBefore(Diff d) throws DiffNotApplicableException {
-		if (!this.isApplicableBefore(d)) {
-			throw new DiffNotApplicableException(this, d);
-		}
-		this.timestamp = d.getTo();
-		return this.applyDiffBefore(d);
-	}
-
-	public boolean applyAfter(Diff d) throws DiffNotApplicableException {
-		if (!this.isApplicableAfter(d)) {
-			throw new DiffNotApplicableException(this, d);
-		}
-		return this.applyDiffAfter(d);
-	}
-
-	public boolean compute() {
-		this.timestamp = this.g.getTimestamp();
-		return this.computeMetric();
-	}
 
 	protected Graph g;
 
@@ -72,23 +51,92 @@ public abstract class Metric {
 		return this.g.getNodes().length;
 	}
 
-	public boolean isApplicableBefore(Diff d) {
-		return d.getNodes() == this.getNodes()
-				&& d.getFrom() == this.getTimestamp();
-	}
-
-	public boolean isApplicableAfter(Diff d) {
-		return d.getNodes() == this.getNodes()
-				&& d.getTo() == this.getTimestamp();
-	}
-
-	protected abstract boolean computeMetric();
-
-	protected abstract boolean applyDiffBefore(Diff d)
-			throws DiffNotApplicableException;
-
-	protected abstract boolean applyDiffAfter(Diff d)
-			throws DiffNotApplicableException;
-
 	public abstract boolean equals(Metric m);
+
+	/*
+	 * APPLY BEFORE DIFF
+	 */
+
+	private boolean appliedBeforeDiff;
+
+	public boolean isAppliedBeforeDiff() {
+		return this.appliedBeforeDiff;
+	}
+
+	public boolean applyBeforeDiff(Diff d) throws DiffNotApplicableException {
+		if (d.getNodes() != this.getNodes()
+				|| d.getFrom() != this.getTimestamp()) {
+			throw new DiffNotApplicableException(this, d);
+		}
+		this.timestamp = d.getTo();
+		return this.applyBeforeDiff_(d);
+	}
+
+	protected abstract boolean applyBeforeDiff_(Diff d)
+			throws DiffNotApplicableException;
+
+	/*
+	 * APPLY AFTER EDGE
+	 */
+
+	private boolean appliedAfterEdge;
+
+	public boolean isAppliedAfterEdge() {
+		return this.appliedAfterEdge;
+	}
+
+	public boolean applyAfterEdgeAddition(Diff d, Edge e)
+			throws DiffNotApplicableException {
+		this.timestamp = d.getTo();
+		return this.applyAfterEdgeAddition_(d, e);
+	}
+
+	protected abstract boolean applyAfterEdgeAddition_(Diff d, Edge e)
+			throws DiffNotApplicableException;
+
+	public boolean applyAfterEdgeRemoval(Diff d, Edge e)
+			throws DiffNotApplicableException {
+		this.timestamp = d.getTo();
+		return this.applyAfterEdgeRemoval_(d, e);
+	}
+
+	protected abstract boolean applyAfterEdgeRemoval_(Diff d, Edge e)
+			throws DiffNotApplicableException;
+
+	/*
+	 * APPLY AFTER DIFF
+	 */
+
+	private boolean appliedAfterDiff;
+
+	public boolean isAppliedAfterDiff() {
+		return this.appliedAfterDiff;
+	}
+
+	public boolean applyAfterDiff(Diff d) throws DiffNotApplicableException {
+		if (d.getNodes() != this.getNodes() || d.getTo() != this.getTimestamp()) {
+			throw new DiffNotApplicableException(this, d);
+		}
+		this.timestamp = d.getTo();
+		return this.applyAfterDiff_(d);
+	}
+
+	protected abstract boolean applyAfterDiff_(Diff d)
+			throws DiffNotApplicableException;
+
+	/*
+	 * COMPUTE
+	 */
+
+	public boolean isComputed() {
+		return !this.isAppliedBeforeDiff() && !this.isAppliedAfterEdge()
+				&& !this.isAppliedAfterDiff();
+	}
+
+	public boolean compute() {
+		this.timestamp = this.g.getTimestamp();
+		return this.compute_();
+	}
+
+	protected abstract boolean compute_();
 }

@@ -5,8 +5,10 @@ import dynamicGraphs.metrics.Metric;
 import dynamicGraphs.util.ArrayUtils;
 
 public abstract class ClusteringCoefficient extends Metric {
-	public ClusteringCoefficient(Graph g, String key, boolean incremental) {
-		super(g, key, incremental);
+	public ClusteringCoefficient(Graph g, String key,
+			boolean appliedBeforeDiff, boolean appliedAfterEdge,
+			boolean appliedAfterDiff) {
+		super(g, key, appliedBeforeDiff, appliedAfterEdge, appliedAfterDiff);
 		this.globalCC = -1;
 		this.localCC = new double[g.getNodes().length];
 		this.averageCC = -1;

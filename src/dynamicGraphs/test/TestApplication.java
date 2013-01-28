@@ -26,9 +26,9 @@ public class TestApplication {
 		for (int i = 0; i < 4; i++) {
 			System.out.println();
 			Diff d = getDiff(i, g);
-			dd.applyBefore(d);
+			dd.applyBeforeDiff(d);
 			g.apply(d);
-			dd.applyAfter(d);
+			// dd.applyAfterDiff(d);
 			print(g, dd);
 			GraphWriter.write(g);
 			DiffWriter.write(d);

@@ -8,7 +8,8 @@ public class DiffNotApplicableException extends Exception {
 	private static final long serialVersionUID = 8040477205471869212L;
 
 	public DiffNotApplicableException(Metric m, Diff d) {
-		this(DiffNotApplicableException.getMsg(m, d) + "\n" + m + "\n" + d);
+		this(DiffNotApplicableException.getMsg(m, d) + "\n" + m.getGraph()
+				+ "\n" + d + "\n" + m);
 	}
 
 	public DiffNotApplicableException(Graph g, Diff d) {

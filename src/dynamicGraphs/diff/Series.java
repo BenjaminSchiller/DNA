@@ -1,5 +1,6 @@
 package dynamicGraphs.diff;
 
+import dynamicGraphs.graph.Edge;
 import dynamicGraphs.graph.Graph;
 import dynamicGraphs.metrics.Metric;
 import dynamicGraphs.util.ArrayUtils;
@@ -29,25 +30,7 @@ public class Series {
 
 	private Stats[][] steps;
 
-	public void processIncremental() throws DiffNotApplicableException {
-		this.process(true);
-	}
-
 	public void processIterative() throws DiffNotApplicableException {
-		this.process(false);
-	}
-
-	public static Series[] process(Graph g, Diff[] diffs, Metric[] metrics,
-			boolean iterative, int runs) throws DiffNotApplicableException {
-		Series[] s = new Series[runs];
-		for (int i = 0; i < s.length; i++) {
-			s[i] = new Series(g, diffs, metrics);
-			s[i].process(iterative);
-		}
-		return s;
-	}
-
-	public void process(boolean incremental) throws DiffNotApplicableException {
 		for (int m = 0; m < this.metrics.length; m++) {
 			this.init[m] = new MetricStats(this.metrics[m]);
 			this.metrics[m].compute();
@@ -55,27 +38,98 @@ public class Series {
 		}
 		for (int d = 0; d < this.diffs.length; d++) {
 			for (int m = 0; m < this.metrics.length; m++) {
-				if (incremental && this.metrics[m].isIncremental()) {
-					this.steps[m][d] = new MetricStats(this.metrics[m]);
-					this.metrics[m].applyBefore(this.diffs[d]);
-					this.steps[m][d].end();
-				}
-			}
-			this.diffApplication[d] = new GraphStats(this.g);
-			g.apply(this.diffs[d]);
-			this.diffApplication[d].end();
-			for (int m = 0; m < this.metrics.length; m++) {
-				if (incremental && this.metrics[m].isIncremental()) {
-					this.steps[m][d].restart();
-					this.metrics[m].applyAfter(this.diffs[d]);
-					this.steps[m][d].end();
-				} else {
-					this.steps[m][d] = new MetricStats(this.metrics[m]);
-					this.metrics[m].compute();
-					this.steps[m][d].end();
-				}
+				this.steps[m][d] = new MetricStats(this.metrics[m]);
+				this.metrics[m].compute();
+				this.steps[m][d].end();
 			}
 		}
+	}
+
+	public void processIncremental() throws DiffNotApplicableException {
+		for (int m = 0; m < this.metrics.length; m++) {
+			this.init[m] = new MetricStats(this.metrics[m]);
+			this.metrics[m].compute();
+			this.init[m].end();
+		}
+		for (int d = 0; d < this.diffs.length; d++) {
+			// APPLY BEFORE DIFF
+			for (int m = 0; m < this.metrics.length; m++) {
+				this.steps[m][d] = new MetricStats(this.metrics[m]);
+				if (this.metrics[m].isAppliedBeforeDiff()) {
+					this.metrics[m].applyBeforeDiff(this.diffs[d]);
+				}
+				this.steps[m][d].end();
+			}
+
+			this.diffApplication[d] = new GraphStats(this.g);
+			this.diffApplication[d].end();
+
+			// REMOVE EDGES
+			for (Edge e : this.diffs[d].getRemovedEdges()) {
+				this.diffApplication[d].restart();
+				if (!this.g.removeEdge(e)) {
+					continue;
+				}
+				this.diffApplication[d].end();
+				// APPLY AFTER EDGE
+				for (int m = 0; m < this.metrics.length; m++) {
+					if (this.metrics[m].isAppliedAfterEdge()) {
+						this.steps[m][d].restart();
+						this.metrics[m].applyAfterEdgeRemoval(this.diffs[d], e);
+						this.steps[m][d].end();
+					}
+				}
+			}
+
+			// ADD EDGES
+			for (Edge e : this.diffs[d].getAddedEdges()) {
+				this.diffApplication[d].restart();
+				if (!this.g.addEdge(e)) {
+					continue;
+				}
+				this.diffApplication[d].end();
+				// APPLY AFTER EDGE
+				for (int m = 0; m < this.metrics.length; m++) {
+					if (this.metrics[m].isAppliedAfterEdge()) {
+						this.steps[m][d].restart();
+						this.metrics[m]
+								.applyAfterEdgeAddition(this.diffs[d], e);
+						this.steps[m][d].end();
+					}
+				}
+			}
+
+			// APPLY AFTER DIFF
+			for (int m = 0; m < this.metrics.length; m++) {
+				this.steps[m][d].restart();
+				if (this.metrics[m].isAppliedAfterDiff()) {
+					this.metrics[m].applyAfterDiff(this.diffs[d]);
+				}
+				this.steps[m][d].end();
+			}
+		}
+	}
+
+	public static Series[] processIterative(Graph g, Diff[] diffs,
+			Metric[] metrics, boolean iterative, int runs)
+			throws DiffNotApplicableException {
+		Series[] s = new Series[runs];
+		for (int i = 0; i < s.length; i++) {
+			s[i] = new Series(g, diffs, metrics);
+			s[i].processIterative();
+		}
+		return s;
+	}
+
+	public static Series[] processIncremental(Graph g, Diff[] diffs,
+			Metric[] metrics, boolean iterative, int runs)
+			throws DiffNotApplicableException {
+		Series[] s = new Series[runs];
+		for (int i = 0; i < s.length; i++) {
+			s[i] = new Series(g, diffs, metrics);
+			s[i].processIncremental();
+		}
+		return s;
 	}
 
 	public void printStats() {

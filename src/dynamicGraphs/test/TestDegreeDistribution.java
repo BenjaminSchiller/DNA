@@ -20,9 +20,9 @@ public class TestDegreeDistribution {
 
 		for (int i = 0; i < 10; i++) {
 			Diff d = TestDegreeDistribution.getDiff(g);
-			dd.applyBefore(d);
+			dd.applyBeforeDiff(d);
 			g.apply(d);
-			dd.applyAfter(d);
+			// dd.applyAfterDiff(d);
 			DegreeDistribution dd2 = new DegreeDistribution(g);
 			dd2.compute();
 			System.out.println(dd.equals(dd2));

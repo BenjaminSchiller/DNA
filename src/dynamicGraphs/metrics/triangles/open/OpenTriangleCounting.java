@@ -5,6 +5,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import dynamicGraphs.diff.Diff;
+import dynamicGraphs.diff.DiffNotApplicableException;
 import dynamicGraphs.graph.Edge;
 import dynamicGraphs.graph.Graph;
 import dynamicGraphs.graph.Node;
@@ -13,7 +14,7 @@ import dynamicGraphs.metrics.Metric;
 public class OpenTriangleCounting extends Metric {
 
 	public OpenTriangleCounting(Graph g) {
-		super(g, "INC", true);
+		super(g, "INC", true, false, true);
 		this.triangles = new ArrayList<Set<OpenTriangle>>(g.getNodes().length);
 		this.potentialTriangles = new ArrayList<Set<OpenTriangle>>(
 				g.getNodes().length);
@@ -42,7 +43,7 @@ public class OpenTriangleCounting extends Metric {
 	}
 
 	@Override
-	protected boolean computeMetric() {
+	protected boolean compute_() {
 		try {
 			for (Node n : this.g.getNodes()) {
 				for (Node u : n.getNeighbors()) {
@@ -67,7 +68,7 @@ public class OpenTriangleCounting extends Metric {
 	}
 
 	@Override
-	protected boolean applyDiffBefore(Diff d) {
+	protected boolean applyBeforeDiff_(Diff d) {
 		try {
 			for (Edge e : d.getRemovedEdges()) {
 				Node v = e.getSrc();
@@ -122,7 +123,7 @@ public class OpenTriangleCounting extends Metric {
 	}
 
 	@Override
-	protected boolean applyDiffAfter(Diff d) {
+	protected boolean applyAfterDiff_(Diff d) {
 		try {
 			for (Edge e : d.getAddedEdges()) {
 				Node v = e.getSrc();
@@ -253,5 +254,19 @@ public class OpenTriangleCounting extends Metric {
 			}
 		}
 		return true;
+	}
+
+	@Override
+	protected boolean applyAfterEdgeAddition_(Diff d, Edge e)
+			throws DiffNotApplicableException {
+		throw new DiffNotApplicableException(this.getKey()
+				+ " - cannot be applied after edge addition");
+	}
+
+	@Override
+	protected boolean applyAfterEdgeRemoval_(Diff d, Edge e)
+			throws DiffNotApplicableException {
+		throw new DiffNotApplicableException(this.getKey()
+				+ " - cannot be applied after edge deletion");
 	}
 }
