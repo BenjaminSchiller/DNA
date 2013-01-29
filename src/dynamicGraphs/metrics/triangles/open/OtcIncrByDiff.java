@@ -9,37 +9,38 @@ import dynamicGraphs.diff.DiffNotApplicableException;
 import dynamicGraphs.graph.Edge;
 import dynamicGraphs.graph.Graph;
 import dynamicGraphs.graph.Node;
-import dynamicGraphs.metrics.Metric;
+import dynamicGraphs.metrics.triangles.ClusteringCoefficient;
 
-public class OtcIncrByDiff extends Metric {
+public class OtcIncrByDiff extends ClusteringCoefficient {
 
 	public OtcIncrByDiff(Graph g) {
 		super(g, "OTC_INCR_BY_DIFF", true, false, true);
-		this.triangles = new ArrayList<Set<OpenTriangle>>(g.getNodes().length);
-		this.potentialTriangles = new ArrayList<Set<OpenTriangle>>(
+		this.nodeTriangles = new ArrayList<Set<OpenTriangle>>(
+				g.getNodes().length);
+		this.nodePotentials = new ArrayList<Set<OpenTriangle>>(
 				g.getNodes().length);
 		for (int i = 0; i < g.getNodes().length; i++) {
-			this.triangles.add(new HashSet<OpenTriangle>());
-			this.potentialTriangles.add(new HashSet<OpenTriangle>());
+			this.nodeTriangles.add(new HashSet<OpenTriangle>());
+			this.nodePotentials.add(new HashSet<OpenTriangle>());
 		}
-		this.allTriangles = new HashSet<OpenTriangle>();
-		this.allPotentialTriangles = new HashSet<OpenTriangle>();
+		this.triangles = new HashSet<OpenTriangle>();
+		this.potentials = new HashSet<OpenTriangle>();
 	}
 
-	private ArrayList<Set<OpenTriangle>> triangles;
+	private ArrayList<Set<OpenTriangle>> nodeTriangles;
 
-	private ArrayList<Set<OpenTriangle>> potentialTriangles;
+	private ArrayList<Set<OpenTriangle>> nodePotentials;
 
-	private Set<OpenTriangle> allTriangles;
+	private Set<OpenTriangle> triangles;
 
-	private Set<OpenTriangle> allPotentialTriangles;
+	private Set<OpenTriangle> potentials;
 
-	public Set<OpenTriangle> getAllTriangles() {
-		return this.allTriangles;
+	public Set<OpenTriangle> getTriangles() {
+		return this.triangles;
 	}
 
-	public Set<OpenTriangle> getAllPotentialTriangles() {
-		return this.allPotentialTriangles;
+	public Set<OpenTriangle> getPotentials() {
+		return this.potentials;
 	}
 
 	@Override
@@ -53,9 +54,15 @@ public class OtcIncrByDiff extends Metric {
 						}
 						OpenTriangle t;
 						t = new OpenTriangle(n, u, v);
-						this.allPotentialTriangles.add(t);
+						if (this.potentials.add(t)) {
+							this.potentialCount++;
+							this.nodePotentialCount[n.getIndex()]++;
+						}
 						if (u.hasOut(v)) {
-							this.allTriangles.add(t);
+							if (this.triangles.add(t)) {
+								this.triangleCount++;
+								this.nodeTriangleCount[n.getIndex()]++;
+							}
 						}
 					}
 				}
@@ -177,33 +184,37 @@ public class OtcIncrByDiff extends Metric {
 		}
 	}
 
-	private boolean remove(OpenTriangle t, int type) {
-		if (this.allTriangles.remove(t)) {
-			// System.out.println("  (" + type + ") removing " + t);
-			return true;
-		}
-		return false;
-	}
-
 	private boolean add(OpenTriangle t, int type) {
-		if (this.allTriangles.add(t)) {
-			// System.out.println("  (" + type + ") adding " + t);
+		if (this.triangles.add(t)) {
+			this.triangleCount++;
+			this.nodeTriangleCount[t.getOrigin().getIndex()]++;
 			return true;
 		}
 		return false;
 	}
 
-	private boolean removePotential(OpenTriangle t, int type) {
-		if (this.allPotentialTriangles.remove(t)) {
-			// System.out.println("  (" + type + ") removing potential " + t);
+	private boolean remove(OpenTriangle t, int type) {
+		if (this.triangles.remove(t)) {
+			this.triangleCount--;
+			this.nodeTriangleCount[t.getOrigin().getIndex()]--;
 			return true;
 		}
 		return false;
 	}
 
 	private boolean addPotential(OpenTriangle t, int type) {
-		if (this.allPotentialTriangles.add(t)) {
-			// System.out.println("  (" + type + ") adding potential " + t);
+		if (this.potentials.add(t)) {
+			this.potentialCount++;
+			this.nodePotentialCount[t.getOrigin().getIndex()]++;
+			return true;
+		}
+		return false;
+	}
+
+	private boolean removePotential(OpenTriangle t, int type) {
+		if (this.potentials.remove(t)) {
+			this.potentialCount--;
+			this.nodePotentialCount[t.getOrigin().getIndex()]--;
 			return true;
 		}
 		return false;
@@ -214,46 +225,6 @@ public class OtcIncrByDiff extends Metric {
 		s.addAll(s1);
 		s.retainAll(s2);
 		return s;
-	}
-
-	@Override
-	public boolean equals(Metric m) {
-		if (m == null || !(m instanceof OtcIncrByDiff)) {
-			return false;
-		}
-		OtcIncrByDiff otc = (OtcIncrByDiff) m;
-		if (this.allTriangles.size() != otc.allTriangles.size()
-				|| !this.allTriangles.containsAll(otc.allTriangles)) {
-			System.out.println(this.allTriangles.size() + " != "
-					+ otc.allTriangles.size());
-			return false;
-		}
-		if (this.allPotentialTriangles.size() != otc.allPotentialTriangles
-				.size()
-				|| !this.allPotentialTriangles
-						.containsAll(otc.allPotentialTriangles)) {
-			return false;
-		}
-		if (this.triangles.size() != otc.triangles.size()
-				|| this.potentialTriangles.size() != otc.potentialTriangles
-						.size()) {
-			return false;
-		}
-		for (int i = 0; i < this.triangles.size(); i++) {
-			if (this.triangles.get(i).size() != otc.triangles.get(i).size()
-					|| !this.triangles.get(i).containsAll(otc.triangles.get(i))) {
-				return false;
-			}
-		}
-		for (int i = 0; i < this.triangles.size(); i++) {
-			if (this.potentialTriangles.get(i).size() != otc.potentialTriangles
-					.get(i).size()
-					|| !this.potentialTriangles.get(i).containsAll(
-							otc.potentialTriangles.get(i))) {
-				return false;
-			}
-		}
-		return true;
 	}
 
 	@Override

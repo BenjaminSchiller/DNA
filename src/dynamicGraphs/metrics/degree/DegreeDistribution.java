@@ -199,4 +199,9 @@ public class DegreeDistribution extends Metric {
 		return true;
 	}
 
+	@Override
+	public boolean cleanupApplication() {
+		return true;
+	}
+
 }

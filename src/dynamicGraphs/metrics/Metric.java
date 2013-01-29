@@ -125,6 +125,12 @@ public abstract class Metric {
 			throws DiffNotApplicableException;
 
 	/*
+	 * APPLY CLEANUP
+	 */
+
+	public abstract boolean cleanupApplication();
+
+	/*
 	 * COMPUTE
 	 */
 

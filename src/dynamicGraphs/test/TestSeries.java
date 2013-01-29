@@ -9,6 +9,7 @@ import dynamicGraphs.graph.generator.RandomGraph;
 import dynamicGraphs.metrics.Metric;
 import dynamicGraphs.metrics.triangles.open.OtcComp;
 import dynamicGraphs.metrics.triangles.open.OtcIncrByDiff;
+import dynamicGraphs.metrics.triangles.open.OtcIncrByEdge;
 import dynamicGraphs.util.ArrayUtils;
 import dynamicGraphs.util.Stats;
 
@@ -23,7 +24,7 @@ public class TestSeries {
 
 		int nodes = 500;
 		int edges = 10 * nodes;
-		int runs = 3;
+		int runs = 1;
 
 		if (args.length > 0) {
 			nodes = Integer.parseInt(args[0]);
@@ -63,12 +64,13 @@ public class TestSeries {
 			boolean incremental) throws DiffNotApplicableException {
 		Graph g = RandomGraph.generate(nodes, edges, true);
 		Diff[] d = getDiffs(g, steps, add);
-		OtcIncrByDiff otc = new OtcIncrByDiff(g);
-		OtcComp basic = new OtcComp(g);
-		Metric[] metrics = new Metric[] { otc, basic };
+		OtcIncrByDiff diff = new OtcIncrByDiff(g);
+		OtcIncrByEdge edge = new OtcIncrByEdge(g);
+		OtcComp comp = new OtcComp(g);
+		Metric[] metrics = new Metric[] { diff, edge, comp };
 
 		Series s = new Series(g, d, metrics);
-		s.processIncremental();
+		s.process(false);
 		return s;
 	}
 

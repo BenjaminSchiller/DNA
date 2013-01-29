@@ -16,6 +16,7 @@ public class Series {
 		this.diffApplication = new Stats[this.diffs.length];
 		this.init = new Stats[this.metrics.length];
 		this.steps = new Stats[this.metrics.length][this.diffs.length];
+		this.total = new Stats[this.diffs.length];
 	}
 
 	private Graph g;
@@ -30,28 +31,23 @@ public class Series {
 
 	private Stats[][] steps;
 
-	public void processIterative() throws DiffNotApplicableException {
-		for (int m = 0; m < this.metrics.length; m++) {
-			this.init[m] = new MetricStats(this.metrics[m]);
-			this.metrics[m].compute();
-			this.init[m].end();
-		}
-		for (int d = 0; d < this.diffs.length; d++) {
-			for (int m = 0; m < this.metrics.length; m++) {
-				this.steps[m][d] = new MetricStats(this.metrics[m]);
-				this.metrics[m].compute();
-				this.steps[m][d].end();
-			}
-		}
-	}
+	private Stats[] total;
 
-	public void processIncremental() throws DiffNotApplicableException {
+	public void process(boolean checkEquality)
+			throws DiffNotApplicableException {
 		for (int m = 0; m < this.metrics.length; m++) {
 			this.init[m] = new MetricStats(this.metrics[m]);
 			this.metrics[m].compute();
 			this.init[m].end();
 		}
+
+		if (checkEquality) {
+			Series.checkEquality(this.metrics);
+		}
+
 		for (int d = 0; d < this.diffs.length; d++) {
+			this.total[d] = new GraphStats(this.g);
+
 			// APPLY BEFORE DIFF
 			for (int m = 0; m < this.metrics.length; m++) {
 				this.steps[m][d] = new MetricStats(this.metrics[m]);
@@ -67,10 +63,11 @@ public class Series {
 			// REMOVE EDGES
 			for (Edge e : this.diffs[d].getRemovedEdges()) {
 				this.diffApplication[d].restart();
-				if (!this.g.removeEdge(e)) {
+				boolean removed = this.g.removeEdge(e);
+				this.diffApplication[d].end();
+				if (!removed) {
 					continue;
 				}
-				this.diffApplication[d].end();
 				// APPLY AFTER EDGE
 				for (int m = 0; m < this.metrics.length; m++) {
 					if (this.metrics[m].isAppliedAfterEdge()) {
@@ -84,10 +81,11 @@ public class Series {
 			// ADD EDGES
 			for (Edge e : this.diffs[d].getAddedEdges()) {
 				this.diffApplication[d].restart();
-				if (!this.g.addEdge(e)) {
+				boolean added = this.g.addEdge(e);
+				this.diffApplication[d].end();
+				if (!added) {
 					continue;
 				}
-				this.diffApplication[d].end();
 				// APPLY AFTER EDGE
 				for (int m = 0; m < this.metrics.length; m++) {
 					if (this.metrics[m].isAppliedAfterEdge()) {
@@ -99,6 +97,8 @@ public class Series {
 				}
 			}
 
+			this.g.setTimestamp(this.diffs[d].getTo());
+
 			// APPLY AFTER DIFF
 			for (int m = 0; m < this.metrics.length; m++) {
 				this.steps[m][d].restart();
@@ -107,29 +107,50 @@ public class Series {
 				}
 				this.steps[m][d].end();
 			}
+
+			// COMPUTE / CLEANUP
+			for (int m = 0; m < this.metrics.length; m++) {
+				this.steps[m][d].restart();
+				if (this.metrics[m].isComputed()) {
+					this.metrics[m].compute();
+				} else {
+					this.metrics[m].cleanupApplication();
+				}
+				this.steps[m][d].end();
+			}
+
+			if (checkEquality) {
+				Series.checkEquality(this.metrics);
+			}
+
+			this.total[d].end();
 		}
 	}
 
-	public static Series[] processIterative(Graph g, Diff[] diffs,
-			Metric[] metrics, boolean iterative, int runs)
-			throws DiffNotApplicableException {
-		Series[] s = new Series[runs];
-		for (int i = 0; i < s.length; i++) {
-			s[i] = new Series(g, diffs, metrics);
-			s[i].processIterative();
+	public static boolean checkEquality(Metric[] metrics) {
+		if (metrics.length == 0) {
+			return true;
 		}
-		return s;
-	}
-
-	public static Series[] processIncremental(Graph g, Diff[] diffs,
-			Metric[] metrics, boolean iterative, int runs)
-			throws DiffNotApplicableException {
-		Series[] s = new Series[runs];
-		for (int i = 0; i < s.length; i++) {
-			s[i] = new Series(g, diffs, metrics);
-			s[i].processIncremental();
+		System.out.println("comparing " + metrics.length + " metrics @ "
+				+ metrics[0].getTimestamp());
+		boolean ok = true;
+		for (Metric m : metrics) {
+			System.out.println("  " + m);
 		}
-		return s;
+		for (int i = 0; i < metrics.length; i++) {
+			for (int j = i + 1; j < metrics.length; j++) {
+				Metric m1 = metrics[i];
+				Metric m2 = metrics[j];
+				if (m1.equals(m2)) {
+					System.out.println("    OK - " + m1.getKey() + " == "
+							+ m2.getKey());
+				} else {
+					System.out.println("    !! - " + m1.getKey() + " != "
+							+ m2.getKey());
+				}
+			}
+		}
+		return ok;
 	}
 
 	public void printStats() {
@@ -156,21 +177,27 @@ public class Series {
 	}
 
 	public static void printStats(Series[] series) {
+		double[] avg = new double[series.length];
+		double[] total = new double[series.length];
+
 		for (int m = 0; m < series[0].metrics.length; m++) {
-			double[] avg = new double[series.length];
-			double[] total = new double[series.length];
 			for (int i = 0; i < series.length; i++) {
 				avg[i] = Stats.avgRuntime(series[i].steps[m]);
 				total[i] = Stats.totalRuntime(series[i].steps[m]);
 			}
-			// System.out.println(series[0].metrics[m] + " ==> "
-			// + (int) ArrayUtils.med(total) + " msec (step: "
-			// + (int) ArrayUtils.med(avg) + " msec)");
 			System.out.println(series[0].metrics[m].getKey() + "	"
 					+ series[0].metrics[m].getTimestamp() + "	"
 					+ (int) ArrayUtils.med(total) + "	"
 					+ (int) ArrayUtils.med(avg));
 
 		}
+
+		for (int i = 0; i < series.length; i++) {
+			avg[i] = Stats.avgRuntime(series[i].total);
+			total[i] = Stats.totalRuntime(series[i].total);
+		}
+		System.out.println("TOTAL" + "	" + series[0].metrics[0].getTimestamp()
+				+ "	" + (int) ArrayUtils.med(total) + "	"
+				+ (int) ArrayUtils.med(avg));
 	}
 }

@@ -1,6 +1,7 @@
 package dynamicGraphs.metrics.triangles;
 
 import dynamicGraphs.graph.Graph;
+import dynamicGraphs.graph.Node;
 import dynamicGraphs.metrics.Metric;
 import dynamicGraphs.util.ArrayUtils;
 
@@ -12,13 +13,21 @@ public abstract class ClusteringCoefficient extends Metric {
 		this.globalCC = -1;
 		this.localCC = new double[g.getNodes().length];
 		this.averageCC = -1;
+		this.nodeTriangleCount = new long[g.getNodes().length];
+		this.nodePotentialCount = new long[g.getNodes().length];
 	}
 
-	protected double globalCC;
+	public String toString() {
+		return this.triangleCount + "/" + this.potentialCount + " => "
+				+ String.format("%.5f", this.globalCC) + " / " + String.format("%.5f", this.averageCC) + " CC("
+				+ this.getKey() + ")";
+	}
 
-	protected double[] localCC;
+	private double globalCC;
 
-	protected double averageCC;
+	private double[] localCC;
+
+	private double averageCC;
 
 	public double getGlobalCC() {
 		return globalCC;
@@ -32,13 +41,77 @@ public abstract class ClusteringCoefficient extends Metric {
 		return averageCC;
 	}
 
+	protected long triangleCount;
+
+	protected long potentialCount;
+
+	protected long[] nodeTriangleCount;
+
+	protected long[] nodePotentialCount;
+
+	public long getTriangleCount() {
+		return this.triangleCount;
+	}
+
+	public long getPotentialCount() {
+		return this.potentialCount;
+	}
+
+	protected void computeCC() {
+		this.globalCC = (double) this.triangleCount
+				/ (double) this.potentialCount;
+		for (int i = 0; i < this.nodeTriangleCount.length; i++) {
+			if (this.nodePotentialCount[i] == 0) {
+				this.localCC[i] = 0;
+			} else {
+				this.localCC[i] = (double) this.nodeTriangleCount[i]
+						/ (double) this.nodePotentialCount[i];
+			}
+		}
+		this.averageCC = ArrayUtils.avg(this.localCC);
+	}
+
 	@Override
 	public boolean equals(Metric m) {
 		if (m == null || !(m instanceof ClusteringCoefficient)) {
 			return false;
 		}
-		ClusteringCoefficient ot = (ClusteringCoefficient) m;
-		return this.globalCC == ot.globalCC && this.averageCC == ot.averageCC
-				&& ArrayUtils.equals(this.localCC, ot.localCC);
+		ClusteringCoefficient cc = (ClusteringCoefficient) m;
+		return this.globalCC == cc.globalCC && this.averageCC == cc.averageCC
+				&& ArrayUtils.equals(this.localCC, cc.localCC);
+	}
+
+	@Override
+	protected boolean compute_() {
+		this.triangleCount = 0;
+		this.potentialCount = 0;
+		for (Node n : this.g.getNodes()) {
+			this.nodeTriangleCount[n.getIndex()] = 0;
+			this.nodePotentialCount[n.getIndex()] = 0;
+			for (Node u : n.getNeighbors()) {
+				for (Node v : n.getNeighbors()) {
+					if (u.equals(v)) {
+						continue;
+					}
+					this.nodePotentialCount[n.getIndex()]++;
+					if (v.hasOut(u)) {
+						this.nodeTriangleCount[n.getIndex()]++;
+					}
+				}
+			}
+			this.nodeTriangleCount[n.getIndex()] = this.nodeTriangleCount[n
+					.getIndex()];
+			this.nodePotentialCount[n.getIndex()] = this.nodePotentialCount[n
+					.getIndex()];
+			this.triangleCount += this.nodeTriangleCount[n.getIndex()];
+			this.potentialCount += this.nodePotentialCount[n.getIndex()];
+		}
+		this.computeCC();
+		return true;
+	}
+
+	public boolean cleanupApplication() {
+		this.computeCC();
+		return true;
 	}
 }
