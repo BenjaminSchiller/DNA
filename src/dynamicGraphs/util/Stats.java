@@ -1,16 +1,32 @@
 package dynamicGraphs.util;
 
-import java.util.Arrays;
+import dynamicGraphs.diff.Diff;
+import dynamicGraphs.graph.Graph;
+import dynamicGraphs.metrics.Metric;
 
 public class Stats {
 	public Stats() {
-		this(null);
+		this.name = null;
+		this.memory = null;
+		this.timer = new Timer();
 	}
 
 	public Stats(String name) {
 		this.name = name;
 		this.memory = null;
 		this.timer = new Timer();
+	}
+
+	public Stats(Graph g) {
+		this(g.toString());
+	}
+
+	public Stats(Metric m) {
+		this(m.toString());
+	}
+
+	public Stats(Diff d) {
+		this(d.toString());
 	}
 
 	public String toString() {

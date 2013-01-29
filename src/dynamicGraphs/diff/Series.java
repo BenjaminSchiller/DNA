@@ -4,8 +4,6 @@ import dynamicGraphs.graph.Edge;
 import dynamicGraphs.graph.Graph;
 import dynamicGraphs.metrics.Metric;
 import dynamicGraphs.util.ArrayUtils;
-import dynamicGraphs.util.GraphStats;
-import dynamicGraphs.util.MetricStats;
 import dynamicGraphs.util.Stats;
 
 public class Series {
@@ -36,7 +34,7 @@ public class Series {
 	public void process(boolean checkEquality)
 			throws DiffNotApplicableException {
 		for (int m = 0; m < this.metrics.length; m++) {
-			this.init[m] = new MetricStats(this.metrics[m]);
+			this.init[m] = new Stats(this.metrics[m]);
 			this.metrics[m].compute();
 			this.init[m].end();
 		}
@@ -46,18 +44,18 @@ public class Series {
 		}
 
 		for (int d = 0; d < this.diffs.length; d++) {
-			this.total[d] = new GraphStats(this.g);
+			this.total[d] = new Stats(this.g);
 
 			// APPLY BEFORE DIFF
 			for (int m = 0; m < this.metrics.length; m++) {
-				this.steps[m][d] = new MetricStats(this.metrics[m]);
+				this.steps[m][d] = new Stats(this.metrics[m]);
 				if (this.metrics[m].isAppliedBeforeDiff()) {
 					this.metrics[m].applyBeforeDiff(this.diffs[d]);
 				}
 				this.steps[m][d].end();
 			}
 
-			this.diffApplication[d] = new GraphStats(this.g);
+			this.diffApplication[d] = new Stats(this.g);
 			this.diffApplication[d].end();
 
 			// REMOVE EDGES
