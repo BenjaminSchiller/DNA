@@ -2,7 +2,6 @@ package dynamicGraphs.test;
 
 import dynamicGraphs.diff.Diff;
 import dynamicGraphs.diff.DiffNotApplicableException;
-import dynamicGraphs.diff.Series;
 import dynamicGraphs.diff.generator.RandomDiff;
 import dynamicGraphs.graph.Graph;
 import dynamicGraphs.graph.generator.RandomGraph;
@@ -10,6 +9,7 @@ import dynamicGraphs.metrics.Metric;
 import dynamicGraphs.metrics.triangles.open.OtcComp;
 import dynamicGraphs.metrics.triangles.open.OtcIncrByDiff;
 import dynamicGraphs.metrics.triangles.open.OtcIncrByEdge;
+import dynamicGraphs.series.Series;
 import dynamicGraphs.util.ArrayUtils;
 import dynamicGraphs.util.Stats;
 

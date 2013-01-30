@@ -18,7 +18,7 @@ public class TestOpenTriangleCounting {
 	 */
 	public static void main(String[] args) throws DiffNotApplicableException {
 		for (int i = 0; i < 10; i++) {
-			Timer t = new Timer();
+			Timer t = new Timer("");
 			random(true);
 			System.out.println(t.end());
 		}

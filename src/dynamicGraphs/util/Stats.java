@@ -8,13 +8,13 @@ public class Stats {
 	public Stats() {
 		this.name = null;
 		this.memory = null;
-		this.timer = new Timer();
+		this.timer = new Timer("");
 	}
 
 	public Stats(String name) {
 		this.name = name;
 		this.memory = null;
-		this.timer = new Timer();
+		this.timer = new Timer("");
 	}
 
 	public Stats(Graph g) {

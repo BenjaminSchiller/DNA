@@ -1,5 +1,7 @@
-package dynamicGraphs.diff;
+package dynamicGraphs.series;
 
+import dynamicGraphs.diff.Diff;
+import dynamicGraphs.diff.DiffNotApplicableException;
 import dynamicGraphs.graph.Edge;
 import dynamicGraphs.graph.Graph;
 import dynamicGraphs.metrics.Metric;
