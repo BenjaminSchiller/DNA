@@ -23,6 +23,10 @@ public class Writer {
 		this.writer.write(line + "\n");
 	}
 
+	public void writeln(double line) throws IOException {
+		this.writer.write(line + "\n");
+	}
+
 	public void writeKeyword(String keyword) throws IOException {
 		this.writer.write(Keywords.asLine(keyword) + "\n");
 	}
