@@ -16,14 +16,6 @@ public class OtcIncrByEdge extends ClusteringCoefficient {
 		super(g, "OTC_INCR_BY_EDGE", false, true, false);
 	}
 
-	protected long allTriangles;
-
-	protected long allPotentialTriangles;
-
-	protected long[] triangles;
-
-	protected long[] potentialTriangles;
-
 	@Override
 	protected boolean applyBeforeDiff_(Diff d)
 			throws DiffNotApplicableException {
@@ -78,9 +70,46 @@ public class OtcIncrByEdge extends ClusteringCoefficient {
 	@Override
 	protected boolean applyAfterEdgeRemoval_(Diff d, Edge e)
 			throws DiffNotApplicableException {
-		System.out.println(".........");
-		// TODO implement
-		return false;
+		Node v = e.getSrc();
+		Node w = e.getDst();
+		// (1)
+		for (Node x : v.getNeighbors()) {
+			if (w.hasNeighbor(x)) {
+				this.remove(x);
+			}
+		}
+		if (!v.hasIn(w)) {
+			return true;
+		}
+		// (2)
+		for (Node x : v.getNeighbors()) {
+			if (w.hasIn(x)) {
+				this.remove(v);
+			}
+		}
+		// (3)
+		for (Node x : v.getNeighbors()) {
+			if (w.hasOut(x)) {
+				this.remove(v);
+			}
+		}
+		// (4)
+		for (Node x : w.getNeighbors()) {
+			if (v.hasIn(x)) {
+				this.remove(w);
+			}
+		}
+		// (5)
+		for (Node x : w.getNeighbors()) {
+			if (v.hasOut(x)) {
+				this.remove(w);
+			}
+		}
+		// (6)
+		this.removePotentials(v, 2 * v.getNeighbors().size());
+		// (7)
+		this.removePotentials(w, 2 * w.getNeighbors().size());
+		return true;
 	}
 
 	@Override

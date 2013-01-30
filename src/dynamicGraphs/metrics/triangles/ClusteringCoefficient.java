@@ -114,4 +114,14 @@ public abstract class ClusteringCoefficient extends Metric {
 		this.computeCC();
 		return true;
 	}
+	
+	public void reset_(){
+		this.averageCC = 0;
+		this.globalCC = 0;
+		this.localCC = null;
+		this.triangleCount = 0;
+		this.potentialCount = 0;
+		this.nodeTriangleCount = null;
+		this.nodePotentialCount = null;
+	}
 }

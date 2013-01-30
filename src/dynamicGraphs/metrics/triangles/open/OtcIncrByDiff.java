@@ -67,6 +67,7 @@ public class OtcIncrByDiff extends ClusteringCoefficient {
 					}
 				}
 			}
+			this.computeCC();
 			return true;
 		} catch (InvalidOpenTriangleException e) {
 			e.printStackTrace();
@@ -239,5 +240,14 @@ public class OtcIncrByDiff extends ClusteringCoefficient {
 			throws DiffNotApplicableException {
 		throw new DiffNotApplicableException(this.getKey()
 				+ " - cannot be applied after edge deletion");
+	}
+
+	@Override
+	public void reset_() {
+		super.reset_();
+		this.triangles = null;
+		this.potentials = null;
+		this.nodeTriangles = null;
+		this.nodePotentials = null;
 	}
 }

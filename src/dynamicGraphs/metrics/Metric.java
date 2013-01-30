@@ -145,4 +145,15 @@ public abstract class Metric {
 	}
 
 	protected abstract boolean compute_();
+	
+	/*
+	 * RESET
+	 */
+	
+	public void reset(){
+		this.g = null;
+		this.reset_();
+	}
+
+	public abstract void reset_();
 }

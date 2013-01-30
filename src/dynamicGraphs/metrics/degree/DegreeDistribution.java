@@ -204,4 +204,15 @@ public class DegreeDistribution extends Metric {
 		return true;
 	}
 
+	@Override
+	public void reset_() {
+		this.D = null;
+		this.DIn = null;
+		this.DOut = null;
+		this.edges = 0;
+		this.degrees = null;
+		this.inDegrees = null;
+		this.outDegrees = null;
+	}
+
 }
