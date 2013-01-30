@@ -22,7 +22,7 @@ public class TestOtc {
 		Metric[] metrics = new Metric[] { new OtcComp(g), new OtcIncrByEdge(g),
 				new OtcIncrByDiff(g) };
 		int add = 1000;
-		int remove = 0;
+		int remove = 10000;
 		Diff d1 = RandomDiff.generate(g, add, remove, true, 0, 1);
 		Diff d2 = RandomDiff.generate(g, add, remove, true, 1, 2);
 		Diff d3 = RandomDiff.generate(g, add, remove, true, 2, 3);

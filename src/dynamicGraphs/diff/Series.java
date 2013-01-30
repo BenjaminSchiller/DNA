@@ -12,7 +12,7 @@ public class Series {
 		this.diffs = diffs;
 		this.metrics = metrics;
 		this.diffApplication = new Stats[this.diffs.length];
-		this.init = new Stats[this.metrics.length];
+		this.initialComputation = new Stats[this.metrics.length];
 		this.steps = new Stats[this.metrics.length][this.diffs.length];
 		this.total = new Stats[this.diffs.length];
 	}
@@ -23,9 +23,9 @@ public class Series {
 
 	private Metric[] metrics;
 
-	private Stats[] diffApplication;
+	private Stats[] initialComputation;
 
-	private Stats[] init;
+	private Stats[] diffApplication;
 
 	private Stats[][] steps;
 
@@ -34,9 +34,9 @@ public class Series {
 	public void process(boolean checkEquality)
 			throws DiffNotApplicableException {
 		for (int m = 0; m < this.metrics.length; m++) {
-			this.init[m] = new Stats(this.metrics[m]);
+			this.initialComputation[m] = new Stats(this.metrics[m]);
 			this.metrics[m].compute();
-			this.init[m].end();
+			this.initialComputation[m].end();
 		}
 
 		if (checkEquality) {
@@ -123,6 +123,12 @@ public class Series {
 
 			this.total[d].end();
 		}
+
+		this.g = null;
+		this.diffs = null;
+		for (Metric m : this.metrics) {
+			m.reset();
+		}
 	}
 
 	public static boolean checkEquality(Metric[] metrics) {
@@ -153,7 +159,7 @@ public class Series {
 
 	public void printStats() {
 		System.out.println("INIT:");
-		for (Stats s : this.init) {
+		for (Stats s : this.initialComputation) {
 			System.out.println("  " + s);
 		}
 		System.out.println("STEPS:");
@@ -178,24 +184,45 @@ public class Series {
 		double[] avg = new double[series.length];
 		double[] total = new double[series.length];
 
+		double[] avgSum = new double[series.length];
+		double[] totalSum = new double[series.length];
+
 		for (int m = 0; m < series[0].metrics.length; m++) {
 			for (int i = 0; i < series.length; i++) {
 				avg[i] = Stats.avgRuntime(series[i].steps[m]);
 				total[i] = Stats.totalRuntime(series[i].steps[m]);
+				avgSum[i] += Stats.avgRuntime(series[i].steps[m]);
+				totalSum[i] += Stats.totalRuntime(series[i].steps[m]);
 			}
 			System.out.println(series[0].metrics[m].getKey() + "	"
 					+ series[0].metrics[m].getTimestamp() + "	"
-					+ (int) ArrayUtils.med(total) + "	"
-					+ (int) ArrayUtils.med(avg));
+					+ (ArrayUtils.med(total) / 1000) + "	"
+					+ (ArrayUtils.med(avg) / 1000));
 
 		}
 
 		for (int i = 0; i < series.length; i++) {
+			avg[i] = Stats.avgRuntime(series[i].diffApplication);
+			total[i] = Stats.totalRuntime(series[i].diffApplication);
+			avgSum[i] += Stats.avgRuntime(series[i].diffApplication);
+			totalSum[i] += Stats.totalRuntime(series[i].diffApplication);
+		}
+		System.out.println("GRAPH" + "	" + series[0].metrics[0].getTimestamp()
+				+ "	" + (ArrayUtils.med(total) / 1000) + "	"
+				+ (ArrayUtils.med(avg) / 1000));
+
+		for (int i = 0; i < series.length; i++) {
 			avg[i] = Stats.avgRuntime(series[i].total);
 			total[i] = Stats.totalRuntime(series[i].total);
+			avgSum[i] += Stats.avgRuntime(series[i].total);
+			totalSum[i] += Stats.totalRuntime(series[i].total);
 		}
 		System.out.println("TOTAL" + "	" + series[0].metrics[0].getTimestamp()
-				+ "	" + (int) ArrayUtils.med(total) + "	"
-				+ (int) ArrayUtils.med(avg));
+				+ "	" + (ArrayUtils.med(total) / 1000) + "	"
+				+ (ArrayUtils.med(avg) / 1000));
+
+		System.out.println("SUM" + "	" + series[0].metrics[0].getTimestamp()
+				+ "	" + (ArrayUtils.med(totalSum) / 1000) + "	"
+				+ (ArrayUtils.med(avgSum) / 1000));
 	}
 }

@@ -33,7 +33,7 @@ public class TestSeries {
 		}
 
 		int add = edges;
-		int[] steps = new int[] { 1, 2, 5, 20, 50, 100, 200, 500 };
+		int[] steps = new int[] { 1, 2, 5, 20, 50, 100, 200 };
 		boolean incremental = true;
 
 		System.out.println("nodes: " + nodes);
@@ -43,8 +43,8 @@ public class TestSeries {
 		System.out.println("steps: " + ArrayUtils.toString(steps));
 
 		for (int s : steps) {
+			System.out.println();
 			runs(nodes, edges, s, add / s, runs, incremental);
-			System.out.println("\n");
 		}
 
 		stats.end();
