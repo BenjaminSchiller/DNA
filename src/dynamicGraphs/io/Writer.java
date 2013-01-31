@@ -1,14 +1,16 @@
 package dynamicGraphs.io;
 
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 
 public class Writer {
 	private BufferedWriter writer;
 
-	public Writer(String filename) throws IOException {
-		this.writer = new BufferedWriter(new FileWriter(filename));
+	public Writer(String path) throws IOException {
+		(new File(path)).getParentFile().mkdirs();
+		this.writer = new BufferedWriter(new FileWriter(path));
 	}
 
 	public void writeln(String line) throws IOException {
