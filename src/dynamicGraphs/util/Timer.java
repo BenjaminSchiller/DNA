@@ -1,5 +1,7 @@
 package dynamicGraphs.util;
 
+import dynamicGraphs.series.RunTime;
+
 public class Timer {
 	private String name;
 
