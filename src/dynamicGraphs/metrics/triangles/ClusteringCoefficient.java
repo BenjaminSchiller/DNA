@@ -3,24 +3,30 @@ package dynamicGraphs.metrics.triangles;
 import dynamicGraphs.graph.Graph;
 import dynamicGraphs.graph.Node;
 import dynamicGraphs.metrics.Metric;
+import dynamicGraphs.series.Distribution;
+import dynamicGraphs.series.Value;
 import dynamicGraphs.util.ArrayUtils;
 
 public abstract class ClusteringCoefficient extends Metric {
-	public ClusteringCoefficient(Graph g, String key,
-			boolean appliedBeforeDiff, boolean appliedAfterEdge,
-			boolean appliedAfterDiff) {
-		super(g, key, appliedBeforeDiff, appliedAfterEdge, appliedAfterDiff);
+	public ClusteringCoefficient(String key, boolean appliedBeforeDiff,
+			boolean appliedAfterEdge, boolean appliedAfterDiff) {
+		super(key, appliedBeforeDiff, appliedAfterEdge, appliedAfterDiff);
+	}
+
+	public String toString() {
+		return this.triangleCount + "/" + this.potentialCount + " => "
+				+ String.format("%.5f", this.globalCC) + " / "
+				+ String.format("%.5f", this.averageCC) + " CC("
+				+ this.getName() + ")";
+	}
+
+	@Override
+	protected void init(Graph g) {
 		this.globalCC = -1;
 		this.localCC = new double[g.getNodes().length];
 		this.averageCC = -1;
 		this.nodeTriangleCount = new long[g.getNodes().length];
 		this.nodePotentialCount = new long[g.getNodes().length];
-	}
-
-	public String toString() {
-		return this.triangleCount + "/" + this.potentialCount + " => "
-				+ String.format("%.5f", this.globalCC) + " / " + String.format("%.5f", this.averageCC) + " CC("
-				+ this.getKey() + ")";
 	}
 
 	private double globalCC;
@@ -114,8 +120,8 @@ public abstract class ClusteringCoefficient extends Metric {
 		this.computeCC();
 		return true;
 	}
-	
-	public void reset_(){
+
+	public void reset_() {
 		this.averageCC = 0;
 		this.globalCC = 0;
 		this.localCC = null;
@@ -123,5 +129,20 @@ public abstract class ClusteringCoefficient extends Metric {
 		this.potentialCount = 0;
 		this.nodeTriangleCount = null;
 		this.nodePotentialCount = null;
+	}
+
+	@Override
+	public Value[] getValues() {
+		Value v1 = new Value("averageClusteringCoefficient", this.averageCC);
+		Value v2 = new Value("globalClusteringCoefficient", this.globalCC);
+		Value v3 = new Value("triangleCount", this.triangleCount);
+		Value v4 = new Value("potentialTriangleCount", this.potentialCount);
+		return new Value[] { v1, v2, v3, v4 };
+	}
+
+	@Override
+	public Distribution[] getDistributions() {
+		// TODO add possibility other than distribution to store values like LCC
+		return new Distribution[] {};
 	}
 }

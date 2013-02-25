@@ -1,19 +1,15 @@
 package dynamicGraphs.metrics.triangles.open;
 
-import java.util.HashSet;
-import java.util.Set;
-
 import dynamicGraphs.diff.Diff;
 import dynamicGraphs.diff.DiffNotApplicableException;
 import dynamicGraphs.graph.Edge;
-import dynamicGraphs.graph.Graph;
 import dynamicGraphs.graph.Node;
 import dynamicGraphs.metrics.triangles.ClusteringCoefficient;
 
 public class OtcIncrByEdge extends ClusteringCoefficient {
 
-	public OtcIncrByEdge(Graph g) {
-		super(g, "OTC_INCR_BY_EDGE", false, true, false);
+	public OtcIncrByEdge() {
+		super("otcIncrByEdge", false, true, false);
 	}
 
 	@Override
@@ -135,13 +131,6 @@ public class OtcIncrByEdge extends ClusteringCoefficient {
 	private void removePotentials(Node origin, int count) {
 		this.potentialCount -= count;
 		this.nodePotentialCount[origin.getIndex()] -= count;
-	}
-
-	private Set<Node> intersect(Set<Node> s1, Set<Node> s2) {
-		Set<Node> s = new HashSet<Node>();
-		s.addAll(s1);
-		s.retainAll(s2);
-		return s;
 	}
 
 }

@@ -15,6 +15,10 @@ public class Value {
 		this.value = value;
 	}
 
+	public String toString() {
+		return "value(" + this.name + ") = " + this.value;
+	}
+
 	private String name;
 
 	public String getName() {

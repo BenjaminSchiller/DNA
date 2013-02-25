@@ -6,18 +6,13 @@ import dynamicGraphs.graph.Edge;
 import dynamicGraphs.graph.Graph;
 import dynamicGraphs.graph.Node;
 import dynamicGraphs.metrics.Metric;
+import dynamicGraphs.series.Distribution;
+import dynamicGraphs.series.Value;
 import dynamicGraphs.util.ArrayUtils;
 
 public class DegreeDistribution extends Metric {
-	public DegreeDistribution(Graph g) {
-		super(g, "DegreeDistribution", true, false, false);
-		this.degrees = new int[this.g.getNodes().length];
-		this.inDegrees = new int[this.g.getNodes().length];
-		this.outDegrees = new int[this.g.getNodes().length];
-		this.D = new int[0];
-		this.DIn = new int[0];
-		this.DOut = new int[0];
-		this.edges = 0;
+	public DegreeDistribution() {
+		super("degreeDistribution", true, false, false);
 	}
 
 	private int[] degrees;
@@ -33,6 +28,17 @@ public class DegreeDistribution extends Metric {
 	private int[] DOut;
 
 	private int edges;
+
+	@Override
+	protected void init(Graph g) {
+		this.degrees = new int[this.g.getNodes().length];
+		this.inDegrees = new int[this.g.getNodes().length];
+		this.outDegrees = new int[this.g.getNodes().length];
+		this.D = new int[0];
+		this.DIn = new int[0];
+		this.DOut = new int[0];
+		this.edges = 0;
+	}
 
 	public int[] getDegrees() {
 		return this.degrees;
@@ -74,6 +80,7 @@ public class DegreeDistribution extends Metric {
 			this.D = ArrayUtils.incr(this.D, this.degrees[n.getIndex()]);
 		}
 		this.edges = this.g.getEdges().size();
+
 		return true;
 	}
 
@@ -213,6 +220,31 @@ public class DegreeDistribution extends Metric {
 		this.degrees = null;
 		this.inDegrees = null;
 		this.outDegrees = null;
+	}
+
+	@Override
+	protected Value[] getValues() {
+		Value v1 = new Value("edges", this.edges);
+		return new Value[] { v1 };
+	}
+
+	@Override
+	protected Distribution[] getDistributions() {
+		Distribution d1 = new Distribution("degree", this.makeDistribution(
+				this.D, this.getNodes()));
+		Distribution d2 = new Distribution("inDegree", this.makeDistribution(
+				this.DIn, this.getNodes()));
+		Distribution d3 = new Distribution("outDegree", this.makeDistribution(
+				this.DOut, this.getNodes()));
+		return new Distribution[] { d1, d2, d3 };
+	}
+
+	private double[] makeDistribution(int[] values, int total) {
+		double[] distribution = new double[values.length];
+		for (int i = 0; i < values.length; i++) {
+			distribution[i] = (double) values[i] / (double) total;
+		}
+		return distribution;
 	}
 
 }

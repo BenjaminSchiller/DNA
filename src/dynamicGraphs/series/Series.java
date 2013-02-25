@@ -1,230 +1,253 @@
 package dynamicGraphs.series;
 
+import java.io.IOException;
+import java.util.HashMap;
+
 import dynamicGraphs.diff.Diff;
 import dynamicGraphs.diff.DiffNotApplicableException;
+import dynamicGraphs.diff.generator.DiffGenerator;
 import dynamicGraphs.graph.Edge;
 import dynamicGraphs.graph.Graph;
+import dynamicGraphs.graph.generator.GraphGenerator;
+import dynamicGraphs.io.Path;
 import dynamicGraphs.metrics.Metric;
-import dynamicGraphs.util.ArrayUtils;
-import dynamicGraphs.util.Stats;
+import dynamicGraphs.util.Rand;
+import dynamicGraphs.util.Timer;
 
 public class Series {
-	public Series(Graph g, Diff[] diffs, Metric[] metrics) {
-		this.g = g;
-		this.diffs = diffs;
-		this.metrics = metrics;
-		this.diffApplication = new Stats[this.diffs.length];
-		this.initialComputation = new Stats[this.metrics.length];
-		this.steps = new Stats[this.metrics.length][this.diffs.length];
-		this.total = new Stats[this.diffs.length];
-	}
-
 	private Graph g;
 
-	private Diff[] diffs;
+	private GraphGenerator gg;
+
+	private DiffGenerator dg;
 
 	private Metric[] metrics;
 
-	private Stats[] initialComputation;
+	private String path;
 
-	private Stats[] diffApplication;
-
-	private Stats[][] steps;
-
-	private Stats[] total;
-
-	public void process(boolean checkEquality)
-			throws DiffNotApplicableException {
-		for (int m = 0; m < this.metrics.length; m++) {
-			this.initialComputation[m] = new Stats(this.metrics[m]);
-			this.metrics[m].compute();
-			this.initialComputation[m].end();
-		}
-
-		if (checkEquality) {
-			Series.checkEquality(this.metrics);
-		}
-
-		for (int d = 0; d < this.diffs.length; d++) {
-			this.total[d] = new Stats(this.g);
-
-			// APPLY BEFORE DIFF
-			for (int m = 0; m < this.metrics.length; m++) {
-				this.steps[m][d] = new Stats(this.metrics[m]);
-				if (this.metrics[m].isAppliedBeforeDiff()) {
-					this.metrics[m].applyBeforeDiff(this.diffs[d]);
-				}
-				this.steps[m][d].end();
-			}
-
-			this.diffApplication[d] = new Stats(this.g);
-			this.diffApplication[d].end();
-
-			// REMOVE EDGES
-			for (Edge e : this.diffs[d].getRemovedEdges()) {
-				this.diffApplication[d].restart();
-				boolean removed = this.g.removeEdge(e);
-				this.diffApplication[d].end();
-				if (!removed) {
-					continue;
-				}
-				// APPLY AFTER EDGE
-				for (int m = 0; m < this.metrics.length; m++) {
-					if (this.metrics[m].isAppliedAfterEdge()) {
-						this.steps[m][d].restart();
-						this.metrics[m].applyAfterEdgeRemoval(this.diffs[d], e);
-						this.steps[m][d].end();
-					}
-				}
-			}
-
-			// ADD EDGES
-			for (Edge e : this.diffs[d].getAddedEdges()) {
-				this.diffApplication[d].restart();
-				boolean added = this.g.addEdge(e);
-				this.diffApplication[d].end();
-				if (!added) {
-					continue;
-				}
-				// APPLY AFTER EDGE
-				for (int m = 0; m < this.metrics.length; m++) {
-					if (this.metrics[m].isAppliedAfterEdge()) {
-						this.steps[m][d].restart();
-						this.metrics[m]
-								.applyAfterEdgeAddition(this.diffs[d], e);
-						this.steps[m][d].end();
-					}
-				}
-			}
-
-			this.g.setTimestamp(this.diffs[d].getTo());
-
-			// APPLY AFTER DIFF
-			for (int m = 0; m < this.metrics.length; m++) {
-				this.steps[m][d].restart();
-				if (this.metrics[m].isAppliedAfterDiff()) {
-					this.metrics[m].applyAfterDiff(this.diffs[d]);
-				}
-				this.steps[m][d].end();
-			}
-
-			// COMPUTE / CLEANUP
-			for (int m = 0; m < this.metrics.length; m++) {
-				this.steps[m][d].restart();
-				if (this.metrics[m].isComputed()) {
-					this.metrics[m].compute();
-				} else {
-					this.metrics[m].cleanupApplication();
-				}
-				this.steps[m][d].end();
-			}
-
-			if (checkEquality) {
-				Series.checkEquality(this.metrics);
-			}
-
-			this.total[d].end();
-		}
-
+	public Series(GraphGenerator gg, DiffGenerator dg, Metric[] metrics,
+			String path) {
 		this.g = null;
-		this.diffs = null;
-		for (Metric m : this.metrics) {
-			m.reset();
-		}
+		this.gg = gg;
+		this.dg = dg;
+		this.metrics = metrics;
+		this.path = path;
 	}
 
-	public static boolean checkEquality(Metric[] metrics) {
-		if (metrics.length == 0) {
-			return true;
+	public SeriesData generate(int runs, int diffs) throws IOException,
+			DiffNotApplicableException {
+
+		SeriesData sd = new SeriesData(runs);
+
+		// generate all runs
+		for (int r = 0; r < runs; r++) {
+			sd.addRun(this.generateRun(r, diffs));
 		}
-		System.out.println("comparing " + metrics.length + " metrics @ "
-				+ metrics[0].getTimestamp());
-		boolean ok = true;
+
+		return sd;
+	}
+
+	public RunData generateRun(int run, int diffs) throws IOException,
+			DiffNotApplicableException {
+
+		RunData rd = new RunData(run, diffs + 1);
+
+		// generate initial data
+		DiffData initialData = this.generateInitialData();
+		rd.addDiff(initialData);
+		initialData.write(Path.getPath(this.path, rd, initialData));
+
+		// generate diff data
+		for (int i = 0; i < diffs; i++) {
+			DiffData diffData = this.generateNextDiff();
+			rd.addDiff(diffData);
+			diffData.write(Path.getPath(this.path, rd, diffData));
+		}
+
+		return rd;
+	}
+
+	public DiffData generateInitialData() {
+
+		Timer totalTimer = new Timer("total");
+
+		long seed = System.currentTimeMillis();
+		Rand.init(seed);
+
+		// generate graph
+		Timer graphGenerationTimer = new Timer("graphGeneration");
+		this.g = this.gg.generate();
+		graphGenerationTimer.end();
+		for (Metric m : this.metrics) {
+			m.setGraph(this.g);
+		}
+
+		// initialize data
+		DiffData initialData = new DiffData(this.g.getTimestamp(), 0, 4,
+				this.metrics.length, this.metrics.length);
+
+		// initial computation of all metrics
 		for (Metric m : metrics) {
-			System.out.println("  " + m);
+			Timer metricTimer = new Timer(m.getName());
+			m.compute();
+			metricTimer.end();
+			initialData.addMetric(m.getData());
+			initialData.addMetricRuntime(metricTimer.getRuntime());
 		}
-		for (int i = 0; i < metrics.length; i++) {
-			for (int j = i + 1; j < metrics.length; j++) {
-				Metric m1 = metrics[i];
-				Metric m2 = metrics[j];
-				if (m1.equals(m2)) {
-					System.out.println("    OK - " + m1.getKey() + " == "
-							+ m2.getKey());
-				} else {
-					System.out.println("    !! - " + m1.getKey() + " != "
-							+ m2.getKey());
+
+		totalTimer.end();
+
+		// add general runtimes
+		initialData.addGeneralRuntime(totalTimer.getRuntime());
+		initialData.addGeneralRuntime(graphGenerationTimer.getRuntime());
+		Series.addSummaryRuntimes(initialData);
+
+		// add values
+		initialData.addValue(new Value("randomSeed", seed));
+
+		return initialData;
+	}
+
+	public DiffData generateNextDiff() throws DiffNotApplicableException {
+
+		long seed = System.currentTimeMillis();
+		Rand.init(seed);
+
+		int addedEdges = 0;
+		int removedEdges = 0;
+
+		Timer totalTimer = new Timer("total");
+
+		Timer diffGenerationTimer = new Timer("diffGeneration");
+		Diff d = dg.generate(g);
+		diffGenerationTimer.end();
+
+		DiffData diffData = new DiffData(d.getTo(), 5, 5, metrics.length,
+				metrics.length);
+
+		Timer graphUpdateTimer = new Timer("graphUpdate");
+
+		// init metric timers
+		HashMap<Metric, Timer> timer = new HashMap<Metric, Timer>();
+		for (Metric m : this.metrics) {
+			Timer t = new Timer(m.getName());
+			t.end();
+			timer.put(m, t);
+		}
+
+		// apply before diff
+		for (Metric m : this.metrics) {
+			if (m.isAppliedBeforeDiff()) {
+				timer.get(m).restart();
+				m.applyBeforeDiff(d);
+				timer.get(m).end();
+			}
+		}
+
+		// remove edges
+		for (Edge e : d.getRemovedEdges()) {
+			graphUpdateTimer.restart();
+			boolean removed = this.g.removeEdge(e);
+			graphUpdateTimer.end();
+			if (!removed) {
+				continue;
+			}
+			removedEdges++;
+			// apply after edge
+			for (Metric m : this.metrics) {
+				if (m.isAppliedAfterEdge()) {
+					timer.get(m).restart();
+					m.applyAfterEdgeRemoval(d, e);
+					timer.get(m).restart();
 				}
 			}
 		}
-		return ok;
-	}
 
-	public void printStats() {
-		System.out.println("INIT:");
-		for (Stats s : this.initialComputation) {
-			System.out.println("  " + s);
-		}
-		System.out.println("STEPS:");
-		for (int m = 0; m < this.metrics.length; m++) {
-			System.out.println("*** " + this.metrics[m]);
-			for (int d = 0; d < this.diffs.length; d++) {
-				System.out.println("  " + this.steps[m][d]);
+		// add edges
+		for (Edge e : d.getAddedEdges()) {
+			graphUpdateTimer.restart();
+			boolean added = this.g.addEdge(e);
+			graphUpdateTimer.end();
+			if (!added) {
+				continue;
 			}
-			System.out.println("  - - - - - - - -  - -");
-			System.out.println("  " + Stats.avg(this.steps[m]));
-		}
-	}
-
-	public void printSummaryStats() {
-		for (int m = 0; m < this.metrics.length; m++) {
-			System.out.println(this.metrics[m] + " --- "
-					+ Stats.avg(this.steps[m]));
-		}
-	}
-
-	public static void printStats(Series[] series) {
-		double[] avg = new double[series.length];
-		double[] total = new double[series.length];
-
-		double[] avgSum = new double[series.length];
-		double[] totalSum = new double[series.length];
-
-		for (int m = 0; m < series[0].metrics.length; m++) {
-			for (int i = 0; i < series.length; i++) {
-				avg[i] = Stats.avgRuntime(series[i].steps[m]);
-				total[i] = Stats.totalRuntime(series[i].steps[m]);
-				avgSum[i] += Stats.avgRuntime(series[i].steps[m]);
-				totalSum[i] += Stats.totalRuntime(series[i].steps[m]);
+			addedEdges++;
+			// apply after edge
+			for (Metric m : this.metrics) {
+				if (m.isAppliedAfterEdge()) {
+					timer.get(m).restart();
+					m.applyAfterEdgeAddition(d, e);
+					timer.get(m).end();
+				}
 			}
-			System.out.println(series[0].metrics[m].getKey() + "	"
-					+ series[0].metrics[m].getTimestamp() + "	"
-					+ (ArrayUtils.med(total) / 1000) + "	"
-					+ (ArrayUtils.med(avg) / 1000));
-
 		}
 
-		for (int i = 0; i < series.length; i++) {
-			avg[i] = Stats.avgRuntime(series[i].diffApplication);
-			total[i] = Stats.totalRuntime(series[i].diffApplication);
-			avgSum[i] += Stats.avgRuntime(series[i].diffApplication);
-			totalSum[i] += Stats.totalRuntime(series[i].diffApplication);
-		}
-		System.out.println("GRAPH" + "	" + series[0].metrics[0].getTimestamp()
-				+ "	" + (ArrayUtils.med(total) / 1000) + "	"
-				+ (ArrayUtils.med(avg) / 1000));
+		this.g.setTimestamp(d.getTo());
 
-		for (int i = 0; i < series.length; i++) {
-			avg[i] = Stats.avgRuntime(series[i].total);
-			total[i] = Stats.totalRuntime(series[i].total);
-			avgSum[i] += Stats.avgRuntime(series[i].total);
-			totalSum[i] += Stats.totalRuntime(series[i].total);
+		// apply after diff
+		for (Metric m : this.metrics) {
+			if (m.isAppliedAfterDiff()) {
+				timer.get(m).restart();
+				m.applyAfterDiff(d);
+				timer.get(m).end();
+			}
 		}
-		System.out.println("TOTAL" + "	" + series[0].metrics[0].getTimestamp()
-				+ "	" + (ArrayUtils.med(total) / 1000) + "	"
-				+ (ArrayUtils.med(avg) / 1000));
 
-		System.out.println("SUM" + "	" + series[0].metrics[0].getTimestamp()
-				+ "	" + (ArrayUtils.med(totalSum) / 1000) + "	"
-				+ (ArrayUtils.med(avgSum) / 1000));
+		// compute / cleanup
+		for (Metric m : this.metrics) {
+			timer.get(m).restart();
+			if (m.isComputed()) {
+				m.compute();
+			} else {
+				m.cleanupApplication();
+			}
+			timer.get(m).end();
+		}
+
+		totalTimer.end();
+
+		// add values
+		diffData.addValue(new Value("edgesToAdd", d.getAddedEdges().size()));
+		diffData.addValue(new Value("addedEdges", addedEdges));
+		diffData.addValue(new Value("edgesToRemove", d.getRemovedEdges().size()));
+		diffData.addValue(new Value("removedEdges", removedEdges));
+		diffData.addValue(new Value("randomSeed", seed));
+
+		// add metric data
+		for (Metric m : this.metrics) {
+			diffData.addMetric(m.getData());
+		}
+
+		// add metric runtimes
+		for (Metric m : this.metrics) {
+			diffData.addMetricRuntime(timer.get(m).getRuntime());
+		}
+
+		// add general runtimes
+		diffData.addGeneralRuntime(totalTimer.getRuntime());
+		diffData.addGeneralRuntime(diffGenerationTimer.getRuntime());
+		diffData.addGeneralRuntime(graphUpdateTimer.getRuntime());
+		Series.addSummaryRuntimes(diffData);
+
+		return diffData;
+	}
+
+	private static void addSummaryRuntimes(DiffData diffData) {
+		long total = diffData.getGeneralRuntime("total").getRuntime();
+		long sum = Series.sumRuntimes(diffData) - total;
+		long overhead = total - sum;
+		diffData.addGeneralRuntime(new RunTime("sum", sum));
+		diffData.addGeneralRuntime(new RunTime("overhead", overhead));
+	}
+
+	private static long sumRuntimes(DiffData diffData) {
+		long sum = 0;
+		for (RunTime rt : diffData.getGeneralRuntimes()) {
+			sum += rt.getRuntime();
+		}
+		for (RunTime rt : diffData.getMetricRuntimes()) {
+			sum += rt.getRuntime();
+		}
+		return sum;
 	}
 }

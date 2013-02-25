@@ -1,25 +1,24 @@
 package dynamicGraphs.series;
 
-import java.util.Collection;
-import java.util.HashMap;
+import java.util.ArrayList;
 
 public class RunData {
 
 	public RunData(int run) {
 		this.run = run;
-		this.diffs = new HashMap<Long, DiffData>();
+		this.diffs = new ArrayList<DiffData>();
 	}
 
 	public RunData(int run, int size) {
 		this.run = run;
-		this.diffs = new HashMap<Long, DiffData>(size);
+		this.diffs = new ArrayList<DiffData>(size);
 	}
 
 	public RunData(int run, DiffData[] diffs) {
 		this.run = run;
-		this.diffs = new HashMap<Long, DiffData>(diffs.length);
+		this.diffs = new ArrayList<DiffData>(diffs.length);
 		for (DiffData diff : diffs) {
-			this.diffs.put(diff.getTimestamp(), diff);
+			this.diffs.add(diff);
 		}
 	}
 
@@ -29,17 +28,13 @@ public class RunData {
 		return this.run;
 	}
 
-	private HashMap<Long, DiffData> diffs;
+	private ArrayList<DiffData> diffs;
 
-	public Collection<DiffData> getDiffs() {
-		return this.diffs.values();
-	}
-
-	public DiffData getDiff(long timestamp) {
-		return this.diffs.get(timestamp);
+	public ArrayList<DiffData> getDiffs() {
+		return this.diffs;
 	}
 
 	public void addDiff(DiffData diff) {
-		this.diffs.put(diff.getTimestamp(), diff);
+		this.diffs.add(diff);
 	}
 }

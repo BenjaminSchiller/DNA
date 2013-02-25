@@ -1,5 +1,6 @@
 package dynamicGraphs.series;
 
+import java.io.IOException;
 import java.util.Collection;
 import java.util.HashMap;
 
@@ -7,22 +8,28 @@ public class DiffData {
 
 	public DiffData(long timestamp) {
 		this.timestamp = timestamp;
+		this.values = new HashMap<String, Value>();
 		this.generalRuntimes = new HashMap<String, RunTime>();
 		this.metricRuntimes = new HashMap<String, RunTime>();
 		this.metrics = new HashMap<String, MetricData>();
 	}
 
-	public DiffData(long timestamp, int sizeGeneralRuntimes,
+	public DiffData(long timestamp, int sizeValues, int sizeGeneralRuntimes,
 			int sizeMetricRuntimes, int sizeMetrics) {
 		this.timestamp = timestamp;
+		this.values = new HashMap<String, Value>(sizeValues);
 		this.generalRuntimes = new HashMap<String, RunTime>(sizeGeneralRuntimes);
 		this.metricRuntimes = new HashMap<String, RunTime>(sizeMetricRuntimes);
 		this.metrics = new HashMap<String, MetricData>(sizeMetrics);
 	}
 
-	public DiffData(long timestamp, RunTime[] generalRuntimes,
+	public DiffData(long timestamp, Value[] values, RunTime[] generalRuntimes,
 			RunTime[] metricRuntimes, MetricData[] metrics) {
 		this.timestamp = timestamp;
+		this.values = new HashMap<String, Value>(values.length);
+		for (Value value : values) {
+			this.addValue(value);
+		}
 		this.generalRuntimes = new HashMap<String, RunTime>(
 				generalRuntimes.length);
 		for (RunTime runtime : generalRuntimes) {
@@ -43,6 +50,20 @@ public class DiffData {
 
 	public long getTimestamp() {
 		return this.timestamp;
+	}
+
+	private HashMap<String, Value> values;
+
+	public Collection<Value> getValues() {
+		return this.values.values();
+	}
+
+	public Value getValue(String name) {
+		return this.values.get(name);
+	}
+
+	public void addValue(Value value) {
+		this.values.put(value.getName(), value);
 	}
 
 	private HashMap<String, RunTime> generalRuntimes;
@@ -86,4 +107,26 @@ public class DiffData {
 	public void addMetric(MetricData metric) {
 		this.metrics.put(metric.getName(), metric);
 	}
+
+	public void write(String dir) throws IOException {
+		for(Value v : this.getValues()){
+			v.write(dir + "_stats/");
+		}
+		for (RunTime rt : this.getGeneralRuntimes()) {
+			rt.write(dir + "_runtime/");
+		}
+		for (RunTime rt : this.getMetricRuntimes()) {
+			rt.write(dir + "_metrics/");
+		}
+		for (MetricData metricData : this.getMetrics()) {
+			for (Value v : metricData.getValues()) {
+				v.write(dir + metricData.getName() + "/");
+			}
+			for (Distribution d : metricData.getDistributions()) {
+				d.write(dir + metricData.getName() + "/");
+			}
+		}
+	}
+
+	// TODO add reader
 }

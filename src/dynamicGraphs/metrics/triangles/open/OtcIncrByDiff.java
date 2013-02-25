@@ -13,8 +13,12 @@ import dynamicGraphs.metrics.triangles.ClusteringCoefficient;
 
 public class OtcIncrByDiff extends ClusteringCoefficient {
 
-	public OtcIncrByDiff(Graph g) {
-		super(g, "OTC_INCR_BY_DIFF", true, false, true);
+	public OtcIncrByDiff() {
+		super("otcIncrByDiff", true, false, true);
+	}
+
+	@Override
+	protected void init(Graph g) {
 		this.nodeTriangles = new ArrayList<Set<OpenTriangle>>(
 				g.getNodes().length);
 		this.nodePotentials = new ArrayList<Set<OpenTriangle>>(
@@ -231,14 +235,14 @@ public class OtcIncrByDiff extends ClusteringCoefficient {
 	@Override
 	protected boolean applyAfterEdgeAddition_(Diff d, Edge e)
 			throws DiffNotApplicableException {
-		throw new DiffNotApplicableException(this.getKey()
+		throw new DiffNotApplicableException(this.getName()
 				+ " - cannot be applied after edge addition");
 	}
 
 	@Override
 	protected boolean applyAfterEdgeRemoval_(Diff d, Edge e)
 			throws DiffNotApplicableException {
-		throw new DiffNotApplicableException(this.getKey()
+		throw new DiffNotApplicableException(this.getName()
 				+ " - cannot be applied after edge deletion");
 	}
 

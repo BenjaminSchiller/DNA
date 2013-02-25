@@ -19,9 +19,13 @@ public class Distribution {
 		this.values = values;
 	}
 
+	public String toString() {
+		return "distribution(" + this.name + ")";
+	}
+
 	private String name;
-	
-	public String getName(){
+
+	public String getName() {
 		return this.name;
 	}
 
@@ -30,8 +34,8 @@ public class Distribution {
 	}
 
 	private double[] values;
-	
-	public double[] getValues(){
+
+	public double[] getValues() {
 		return this.values;
 	}
 

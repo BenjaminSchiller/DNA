@@ -4,25 +4,26 @@ import dynamicGraphs.diff.Diff;
 import dynamicGraphs.diff.DiffNotApplicableException;
 import dynamicGraphs.graph.Edge;
 import dynamicGraphs.graph.Graph;
+import dynamicGraphs.series.Distribution;
+import dynamicGraphs.series.MetricData;
+import dynamicGraphs.series.Value;
 
 public abstract class Metric {
-	public Metric(Graph g, String key, boolean appliedBeforeDiff,
+	public Metric(String name, boolean appliedBeforeDiff,
 			boolean appliedAfterEdge, boolean appliedAfterDiff) {
-		this.g = g;
 		this.timestamp = Long.MIN_VALUE;
-		this.key = key;
+		this.name = name;
 		this.appliedBeforeDiff = appliedBeforeDiff;
-		// this.appliedBeforeEdge = appliedBeforeEdge;
 		this.appliedAfterEdge = appliedAfterEdge;
 		this.appliedAfterDiff = appliedAfterDiff;
 	}
 
 	public String toString() {
-		return this.key + " @ " + this.timestamp;
+		return this.name + " @ " + this.timestamp;
 	}
 
 	protected String getFilename(String key) {
-		return this.key + "__" + key + "__" + this.timestamp + ".txt";
+		return this.name + "__" + key + "__" + this.timestamp + ".txt";
 	}
 
 	private long timestamp;
@@ -35,10 +36,10 @@ public abstract class Metric {
 		this.timestamp = timestamp;
 	}
 
-	private String key;
+	private String name;
 
-	public String getKey() {
-		return this.key;
+	public String getName() {
+		return this.name;
 	}
 
 	protected Graph g;
@@ -49,6 +50,11 @@ public abstract class Metric {
 
 	public int getNodes() {
 		return this.g.getNodes().length;
+	}
+
+	public void setGraph(Graph g) {
+		this.g = g;
+		this.init(g);
 	}
 
 	public abstract boolean equals(Metric m);
@@ -145,15 +151,30 @@ public abstract class Metric {
 	}
 
 	protected abstract boolean compute_();
-	
+
 	/*
 	 * RESET
 	 */
-	
-	public void reset(){
+
+	public void reset() {
 		this.g = null;
 		this.reset_();
 	}
 
 	public abstract void reset_();
+
+	/*
+	 * METRIC DATA
+	 */
+
+	public MetricData getData() {
+		return new MetricData(this.name, this.getValues(),
+				this.getDistributions());
+	}
+
+	protected abstract Value[] getValues();
+
+	protected abstract Distribution[] getDistributions();
+
+	protected abstract void init(Graph g);
 }
