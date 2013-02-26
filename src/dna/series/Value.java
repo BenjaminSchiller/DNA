@@ -36,7 +36,11 @@ public class Value {
 	}
 
 	public void write(String dir) throws IOException {
-		Writer w = new Writer(dir + this.getFilename());
+		this.write(dir, this.getFilename());
+	}
+
+	public void write(String dir, String filename) throws IOException {
+		Writer w = new Writer(dir + filename);
 		w.writeln(this.value);
 		w.close();
 	}

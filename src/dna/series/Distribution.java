@@ -38,8 +38,12 @@ public class Distribution {
 	public double[] getValues() {
 		return this.values;
 	}
-
+	
 	public void write(String dir) throws IOException {
+		this.write(dir, this.getFilename());
+	}
+
+	public void write(String dir, String filename) throws IOException {
 		if (this.values == null) {
 			throw new NullPointerException("no values for distribution \""
 					+ this.name + "\" set to be written to " + dir);
