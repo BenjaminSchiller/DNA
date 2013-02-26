@@ -19,6 +19,7 @@ public class OtcIncrByDiff extends ClusteringCoefficient {
 
 	@Override
 	protected void init(Graph g) {
+		super.init(g);
 		this.nodeTriangles = new ArrayList<Set<OpenTriangle>>(
 				g.getNodes().length);
 		this.nodePotentials = new ArrayList<Set<OpenTriangle>>(
