@@ -30,6 +30,8 @@ public class Keywords {
 	public static final String diffListofRemovedEdges = "List of removed Edges";
 	
 	public static final String distributionDelimiter = "	";
+	
+	public static final String valuesDelimiter = "	";
 
 	public static String asLine(String keyword) {
 		return Keywords.pre + keyword;
