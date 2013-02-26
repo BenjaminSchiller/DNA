@@ -50,22 +50,13 @@ public class Graph {
 
 		this.timestamp = d.getTo();
 
-		int added = 0;
 		for (Edge e : d.getAddedEdges()) {
-			added += this.addEdge(e) ? 1 : 0;
+			this.addEdge(e);
 		}
 
-		int removed = 0;
 		for (Edge e : d.getRemovedEdges()) {
-			removed += this.removeEdge(e) ? 1 : 0;
+			this.removeEdge(e);
 		}
-		
-		// TODO set added/removed as statistic
-
-		// System.out.println("Diff@G: " + d.getFrom() + "->" + d.getTo() +
-		// " A("
-		// + added + "/" + d.getAddedEdges().size() + ") R(" + removed
-		// + "/" + d.getRemovedEdges().size() + ")");
 	}
 
 	private Node[] nodes;
