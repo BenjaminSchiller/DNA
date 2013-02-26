@@ -4,19 +4,28 @@ import java.util.ArrayList;
 
 public class SeriesData {
 
-	public SeriesData() {
+	public SeriesData(String dir) {
+		this.dir = dir;
 		this.runs = new ArrayList<RunData>();
 	}
 
-	public SeriesData(int size) {
+	public SeriesData(String dir, int size) {
+		this.dir = dir;
 		this.runs = new ArrayList<RunData>(size);
 	}
 
-	public SeriesData(RunData[] runs) {
+	public SeriesData(String dir, RunData[] runs) {
+		this.dir = dir;
 		this.runs = new ArrayList<RunData>(runs.length);
 		for (RunData run : runs) {
 			this.runs.add(run);
 		}
+	}
+
+	private String dir;
+
+	public String getDir() {
+		return this.dir;
 	}
 
 	private ArrayList<RunData> runs;

@@ -37,7 +37,7 @@ public class Series {
 	public SeriesData generate(int runs, int diffs) throws IOException,
 			DiffNotApplicableException {
 
-		SeriesData sd = new SeriesData(runs);
+		SeriesData sd = new SeriesData(this.path, runs);
 
 		// generate all runs
 		for (int r = 0; r < runs; r++) {
@@ -87,6 +87,7 @@ public class Series {
 				this.metrics.length, this.metrics.length);
 
 		// initial computation of all metrics
+		Timer allMetricsTimer = new Timer("metrics");
 		for (Metric m : metrics) {
 			Timer metricTimer = new Timer(m.getName());
 			m.compute();
@@ -94,12 +95,14 @@ public class Series {
 			initialData.addMetric(m.getData());
 			initialData.addMetricRuntime(metricTimer.getRuntime());
 		}
+		allMetricsTimer.end();
 
 		totalTimer.end();
 
 		// add general runtimes
 		initialData.addGeneralRuntime(totalTimer.getRuntime());
 		initialData.addGeneralRuntime(graphGenerationTimer.getRuntime());
+		initialData.addGeneralRuntime(allMetricsTimer.getRuntime());
 		Series.addSummaryRuntimes(initialData);
 
 		// add values
@@ -134,13 +137,17 @@ public class Series {
 			t.end();
 			timer.put(m, t);
 		}
+		Timer metricsTotal = new Timer("metrics");
+		metricsTotal.end();
 
 		// apply before diff
 		for (Metric m : this.metrics) {
 			if (m.isAppliedBeforeDiff()) {
 				timer.get(m).restart();
+				metricsTotal.restart();
 				m.applyBeforeDiff(d);
 				timer.get(m).end();
+				metricsTotal.end();
 			}
 		}
 
@@ -157,8 +164,10 @@ public class Series {
 			for (Metric m : this.metrics) {
 				if (m.isAppliedAfterEdge()) {
 					timer.get(m).restart();
+					metricsTotal.restart();
 					m.applyAfterEdgeRemoval(d, e);
-					timer.get(m).restart();
+					timer.get(m).end();
+					metricsTotal.end();
 				}
 			}
 		}
@@ -176,8 +185,10 @@ public class Series {
 			for (Metric m : this.metrics) {
 				if (m.isAppliedAfterEdge()) {
 					timer.get(m).restart();
+					metricsTotal.restart();
 					m.applyAfterEdgeAddition(d, e);
 					timer.get(m).end();
+					metricsTotal.end();
 				}
 			}
 		}
@@ -188,20 +199,24 @@ public class Series {
 		for (Metric m : this.metrics) {
 			if (m.isAppliedAfterDiff()) {
 				timer.get(m).restart();
+				metricsTotal.restart();
 				m.applyAfterDiff(d);
 				timer.get(m).end();
+				metricsTotal.end();
 			}
 		}
 
 		// compute / cleanup
 		for (Metric m : this.metrics) {
 			timer.get(m).restart();
+			metricsTotal.restart();
 			if (m.isComputed()) {
 				m.compute();
 			} else {
 				m.cleanupApplication();
 			}
 			timer.get(m).end();
+			metricsTotal.end();
 		}
 
 		totalTimer.end();
@@ -227,6 +242,7 @@ public class Series {
 		diffData.addGeneralRuntime(totalTimer.getRuntime());
 		diffData.addGeneralRuntime(diffGenerationTimer.getRuntime());
 		diffData.addGeneralRuntime(graphUpdateTimer.getRuntime());
+		diffData.addGeneralRuntime(metricsTotal.getRuntime());
 		Series.addSummaryRuntimes(diffData);
 
 		return diffData;
@@ -234,7 +250,8 @@ public class Series {
 
 	private static void addSummaryRuntimes(DiffData diffData) {
 		long total = diffData.getGeneralRuntime("total").getRuntime();
-		long sum = Series.sumRuntimes(diffData) - total;
+		long metrics = diffData.getGeneralRuntime("metrics").getRuntime();
+		long sum = Series.sumRuntimes(diffData) - total - metrics;
 		long overhead = total - sum;
 		diffData.addGeneralRuntime(new RunTime("sum", sum));
 		diffData.addGeneralRuntime(new RunTime("overhead", overhead));
