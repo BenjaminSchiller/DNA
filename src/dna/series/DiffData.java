@@ -4,41 +4,40 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.HashMap;
 
+import dna.settings.Filenames;
 import dna.util.Log;
 
 public class DiffData {
 
 	public DiffData(long timestamp) {
 		this.timestamp = timestamp;
-		this.values = new HashMap<String, Value>();
-		this.generalRuntimes = new HashMap<String, RunTime>();
-		this.metricRuntimes = new HashMap<String, RunTime>();
+		this.values = new ValueList();
+		this.generalRuntimes = new RunTimeList();
+		this.metricRuntimes = new RunTimeList();
 		this.metrics = new HashMap<String, MetricData>();
 	}
 
 	public DiffData(long timestamp, int sizeValues, int sizeGeneralRuntimes,
 			int sizeMetricRuntimes, int sizeMetrics) {
 		this.timestamp = timestamp;
-		this.values = new HashMap<String, Value>(sizeValues);
-		this.generalRuntimes = new HashMap<String, RunTime>(sizeGeneralRuntimes);
-		this.metricRuntimes = new HashMap<String, RunTime>(sizeMetricRuntimes);
+		this.values = new ValueList(sizeValues);
+		this.generalRuntimes = new RunTimeList(sizeGeneralRuntimes);
+		this.metricRuntimes = new RunTimeList(sizeMetricRuntimes);
 		this.metrics = new HashMap<String, MetricData>(sizeMetrics);
 	}
 
 	public DiffData(long timestamp, Value[] values, RunTime[] generalRuntimes,
 			RunTime[] metricRuntimes, MetricData[] metrics) {
 		this.timestamp = timestamp;
-		this.values = new HashMap<String, Value>(values.length);
+		this.values = new ValueList(values.length);
 		for (Value value : values) {
 			this.addValue(value);
 		}
-		this.generalRuntimes = new HashMap<String, RunTime>(
-				generalRuntimes.length);
+		this.generalRuntimes = new RunTimeList(generalRuntimes.length);
 		for (RunTime runtime : generalRuntimes) {
 			this.addGeneralRuntime(runtime);
 		}
-		this.metricRuntimes = new HashMap<String, RunTime>(
-				metricRuntimes.length);
+		this.metricRuntimes = new RunTimeList(metricRuntimes.length);
 		for (RunTime runtime : metricRuntimes) {
 			this.addMetricRuntime(runtime);
 		}
@@ -54,10 +53,10 @@ public class DiffData {
 		return this.timestamp;
 	}
 
-	private HashMap<String, Value> values;
+	private ValueList values;
 
 	public Collection<Value> getValues() {
-		return this.values.values();
+		return this.values.getList();
 	}
 
 	public Value getValue(String name) {
@@ -65,13 +64,13 @@ public class DiffData {
 	}
 
 	public void addValue(Value value) {
-		this.values.put(value.getName(), value);
+		this.values.add(value);
 	}
 
-	private HashMap<String, RunTime> generalRuntimes;
+	private RunTimeList generalRuntimes;
 
 	public Collection<RunTime> getGeneralRuntimes() {
-		return this.generalRuntimes.values();
+		return this.generalRuntimes.getList();
 	}
 
 	public RunTime getGeneralRuntime(String name) {
@@ -79,13 +78,13 @@ public class DiffData {
 	}
 
 	public void addGeneralRuntime(RunTime runtime) {
-		this.generalRuntimes.put(runtime.getName(), runtime);
+		this.generalRuntimes.add(runtime);
 	}
 
-	private HashMap<String, RunTime> metricRuntimes;
+	private RunTimeList metricRuntimes;
 
 	public Collection<RunTime> getMetricRuntimes() {
-		return this.metricRuntimes.values();
+		return this.metricRuntimes.getList();
 	}
 
 	public RunTime getMetricRuntime(String name) {
@@ -93,7 +92,7 @@ public class DiffData {
 	}
 
 	public void addMetricRuntime(RunTime runtime) {
-		this.metricRuntimes.put(runtime.getName(), runtime);
+		this.metricRuntimes.add(runtime);
 	}
 
 	private HashMap<String, MetricData> metrics;
@@ -112,21 +111,18 @@ public class DiffData {
 
 	public void write(String dir) throws IOException {
 		Log.debug("writing DiffData for " + this.timestamp + " to " + dir);
-		for (Value v : this.getValues()) {
-			v.write(dir + "_stats/");
-		}
-		for (RunTime rt : this.getGeneralRuntimes()) {
-			rt.write(dir + "_runtime/");
-		}
-		for (RunTime rt : this.getMetricRuntimes()) {
-			rt.write(dir + "_metrics/");
-		}
+
+		this.values.write(dir, Filenames.stats);
+		this.generalRuntimes.write(dir, Filenames.generalRuntime);
+		this.metricRuntimes.write(dir, Filenames.metricRuntime);
+
 		for (MetricData metricData : this.getMetrics()) {
-			for (Value v : metricData.getValues()) {
-				v.write(dir + metricData.getName() + "/");
-			}
+			// TODO adapt MetricData to also use ValueList
+			// for (Value v : metricData.getValues()) {
+			// v.write(dir + metricData.getName() + "/");
+			// }
 			for (Distribution d : metricData.getDistributions()) {
-				d.write(dir + metricData.getName() + "/");
+				// d.write(dir + metricData.getName() + "/");
 			}
 		}
 	}

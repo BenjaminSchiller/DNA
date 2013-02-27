@@ -2,10 +2,11 @@ package dna.series;
 
 import java.io.IOException;
 
-import dna.io.Keywords;
-import dna.io.Suffix;
 import dna.io.Writer;
+import dna.settings.Keywords;
+import dna.settings.Suffix;
 
+// TODO change to Data
 public class Values {
 	public Values(double[][] values, String name) {
 		this.values = values;
@@ -33,12 +34,12 @@ public class Values {
 	}
 
 	public void write(String dir, String filename) throws IOException {
-		Writer writer = new Writer(dir + filename);
+		Writer writer = new Writer(dir, filename);
 		for (int i = 0; i < this.values.length; i++) {
 			StringBuffer buff = new StringBuffer();
 			for (int j = 0; j < this.values[i].length; j++) {
 				if (j > 0) {
-					buff.append(Keywords.valuesDelimiter);
+					buff.append(Keywords.dataDelimiter);
 				}
 				buff.append(this.values[i][j]);
 				if (this.values[i][j] == Double.NaN) {

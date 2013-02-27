@@ -4,7 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 
-import dna.io.Path;
+import dna.io.Dir;
 import dna.plot.Gnuplot.PlotStyle;
 import dna.plot.data.PlotData;
 import dna.plot.data.PlotData.PlotType;
@@ -16,6 +16,7 @@ import dna.series.RunTime;
 import dna.series.SeriesData;
 import dna.series.Value;
 import dna.series.Values;
+import dna.settings.Suffix;
 import dna.util.Log;
 
 public class Plotting {
@@ -48,8 +49,10 @@ public class Plotting {
 							.getMetric(metric.getName());
 					Distribution d = metricData.getDistribution(distribution
 							.getName());
-					String path = Path.getPath(seriesData.getDir(), runData,
-							diffData, metricData) + d.getFilename();
+					String path = Dir.getMetricDataDir(seriesData.getDir(), runData,
+							diffData, metricData)
+							+ d.getName()
+							+ Suffix.distribution;
 					data[i] = PlotData.get(path, PlotStyle.linespoint,
 							diffData.getTimestamp() + "", PlotType.average);
 					i++;

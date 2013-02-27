@@ -9,7 +9,7 @@ import dna.diff.generator.DiffGenerator;
 import dna.graph.Edge;
 import dna.graph.Graph;
 import dna.graph.generator.GraphGenerator;
-import dna.io.Path;
+import dna.io.Dir;
 import dna.metrics.Metric;
 import dna.util.Log;
 import dna.util.Rand;
@@ -86,13 +86,13 @@ public class Series {
 		// generate initial data
 		DiffData initialData = this.generateInitialData();
 		rd.addDiff(initialData);
-		initialData.write(Path.getPath(this.dir, rd, initialData));
+		initialData.write(Dir.getDiffDataDir(this.dir, rd, initialData));
 
 		// generate diff data
 		for (int i = 0; i < diffs; i++) {
 			DiffData diffData = this.generateNextDiff();
 			rd.addDiff(diffData);
-			diffData.write(Path.getPath(this.dir, rd, diffData));
+			diffData.write(Dir.getDiffDataDir(this.dir, rd, diffData));
 		}
 
 		timer.end();

@@ -3,7 +3,7 @@ package dna.series;
 import java.io.IOException;
 import java.util.ArrayList;
 
-import dna.io.Path;
+import dna.io.Dir;
 import dna.util.Log;
 
 public class RunData {
@@ -49,7 +49,7 @@ public class RunData {
 	public void write(String seriesDir) throws IOException {
 		Log.debug("writing RunData " + this.run + " in " + seriesDir);
 		for (DiffData d : this.diffs) {
-			d.write(Path.getPath(seriesDir, this, d));
+			d.write(Dir.getDiffDataDir(seriesDir, this, d));
 		}
 	}
 }

@@ -1,4 +1,4 @@
-package dna.io;
+package dna.settings;
 
 public class Keywords {
 	public static final String pre = "# ";
@@ -31,7 +31,7 @@ public class Keywords {
 	
 	public static final String distributionDelimiter = "	";
 	
-	public static final String valuesDelimiter = "	";
+	public static final String dataDelimiter = "	";
 
 	public static String asLine(String keyword) {
 		return Keywords.pre + keyword;

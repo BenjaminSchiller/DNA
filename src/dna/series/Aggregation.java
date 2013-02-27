@@ -2,7 +2,26 @@ package dna.series;
 
 import dna.util.ArrayUtils;
 
+/**
+ * 
+ * This class provides methods to aggregate data from different sources, e.g.,
+ * multiple runs of the same configuration, int a unified datastructure.
+ * 
+ * @author benni
+ * 
+ */
 public class Aggregation {
+
+	/**
+	 * aggregates all data in the given series, i.e., agregate each diff of all
+	 * runs.
+	 * 
+	 * @param seriesData
+	 *            data of the series to be aggregated
+	 * @return RunData object containing aggregated versions of all
+	 * @throws AggregationException
+	 *             in case the various values are not consistent in all runs
+	 */
 	public static RunData aggregate(SeriesData seriesData)
 			throws AggregationException {
 		Aggregation.test(seriesData);
@@ -66,19 +85,22 @@ public class Aggregation {
 				aggregatedDiff.addMetricRuntime(new RunTime(rt.getName(),
 						(long) ArrayUtils.med(values)));
 			}
-			
+
 			aggregatedRun.addDiff(aggregatedDiff);
 		}
 
 		return aggregatedRun;
 	}
 
-	public static DiffData aggregate(DiffData[] diffs) {
-		DiffData diff = new DiffData(diffs[0].getTimestamp());
-		// TODO implement
-		return diff;
-	}
-
+	/**
+	 * Computes the average value of a list of values.
+	 * 
+	 * @param list
+	 *            list of values to compute the average of.
+	 * @param name
+	 *            name for the computed value
+	 * @return average value of the given list of values.
+	 */
 	public static Value average(Value[] list, String name) {
 		double[] values = new double[list.length];
 
@@ -89,6 +111,16 @@ public class Aggregation {
 		return new Value(name, ArrayUtils.avg(values));
 	}
 
+	/**
+	 * Average Values object of a list of Values objects.
+	 * 
+	 * @param list
+	 *            list of Values object to compute the average for
+	 * @param name
+	 *            name of the new Values object
+	 * @return average Values object of the given list
+	 * @throws AggregationException
+	 */
 	public static Values average(Values[] list, String name)
 			throws AggregationException {
 		Aggregation.test(list);

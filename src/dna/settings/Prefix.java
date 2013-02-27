@@ -1,4 +1,4 @@
-package dna.io;
+package dna.settings;
 
 public class Prefix {
 	public static final String distributionsGnuplotScript = "___";
@@ -14,4 +14,6 @@ public class Prefix {
 	public static final String runtimesDataFile = "___runtimes.";
 	
 	public static final String runtimesPlot = "runtimes.";
+	
+	public static final String metricDataDir = "metric.";
 }

@@ -6,12 +6,13 @@ import java.util.ArrayList;
 
 import com.sun.media.sound.InvalidFormatException;
 
-import dna.io.Keywords;
 import dna.io.Reader;
-import dna.io.Suffix;
 import dna.io.Writer;
+import dna.settings.Keywords;
+import dna.settings.Suffix;
 import dna.util.SuffixFilenameFilter;
 
+// TODO combine with Data object?!?
 public class Distribution {
 
 	public Distribution(String name, double[] values) {
@@ -29,18 +30,10 @@ public class Distribution {
 		return this.name;
 	}
 
-	public String getFilename() {
-		return this.name + Suffix.distribution;
-	}
-
 	private double[] values;
 
 	public double[] getValues() {
 		return this.values;
-	}
-	
-	public void write(String dir) throws IOException {
-		this.write(dir, this.getFilename());
 	}
 
 	public void write(String dir, String filename) throws IOException {
@@ -48,28 +41,19 @@ public class Distribution {
 			throw new NullPointerException("no values for distribution \""
 					+ this.name + "\" set to be written to " + dir);
 		}
-		Writer w = new Writer(dir + this.getFilename());
+		Writer w = new Writer(dir, filename);
 		for (int i = 0; i < this.values.length; i++) {
 			w.writeln(i + Keywords.distributionDelimiter + this.values[i]);
 		}
 		w.close();
 	}
 
-	public static void write(Distribution[] distributions, String dir)
-			throws IOException {
-		for (Distribution d : distributions) {
-			d.write(dir);
-		}
-	}
-
-	public static Distribution read(String path, boolean readValues)
-			throws IOException {
-		String name = (new File(path)).getName().replace(Suffix.distribution,
-				"");
+	public static Distribution read(String dir, String filename, String name,
+			boolean readValues) throws IOException {
 		if (!readValues) {
 			return new Distribution(name, null);
 		}
-		Reader r = new Reader(path);
+		Reader r = new Reader(dir, filename);
 		ArrayList<Double> list = new ArrayList<Double>();
 		String line = null;
 		int index = 0;
@@ -96,8 +80,9 @@ public class Distribution {
 				Suffix.distribution));
 		Distribution[] distributions = new Distribution[files.length];
 		for (int i = 0; i < files.length; i++) {
-			distributions[i] = Distribution.read(files[i].getAbsolutePath(),
-					readValues);
+			// FIXME set correct path
+			// distributions[i] = Distribution.read(files[i].getAbsolutePath(),
+			// readValues);
 		}
 		return distributions;
 	}

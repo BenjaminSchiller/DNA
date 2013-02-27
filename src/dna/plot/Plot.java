@@ -4,9 +4,9 @@ import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
 
-import dna.io.Settings;
 import dna.io.Writer;
 import dna.plot.data.PlotData;
+import dna.settings.Settings;
 import dna.util.Execute;
 import dna.util.Log;
 
@@ -56,8 +56,8 @@ public class Plot {
 		this.scriptFilename = scriptFilename;
 	}
 
-	public void write(String filename) throws IOException {
-		Writer writer = new Writer(filename);
+	public void write(String dir, String filename) throws IOException {
+		Writer writer = new Writer(dir, filename);
 		List<String> script = this.getScript();
 		for (String line : script) {
 			writer.writeln(line);
@@ -120,7 +120,7 @@ public class Plot {
 
 	public void generate() throws IOException, InterruptedException {
 		Log.info("  => \"" + this.filename + "\" in " + this.dir);
-		this.write(this.dir + this.scriptFilename);
+		this.write(this.dir, this.scriptFilename);
 		Execute.exec(Settings.gnuplotPath + " " + this.dir
 				+ this.scriptFilename, true);
 	}
