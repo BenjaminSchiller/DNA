@@ -141,10 +141,6 @@ public class DegreeDistribution extends Metric {
 		}
 		this.edges -= removed;
 
-		System.out.println("Diff@DD: A(" + added + "/"
-				+ d.getAddedEdges().size() + ") R(" + removed + "/"
-				+ d.getRemovedEdges().size() + ")");
-
 		this.D = ArrayUtils.truncate(this.D, 0);
 		this.DIn = ArrayUtils.truncate(this.DIn, 0);
 		this.DOut = ArrayUtils.truncate(this.DOut, 0);
