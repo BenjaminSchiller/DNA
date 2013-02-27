@@ -7,11 +7,19 @@ import java.io.IOException;
 
 import com.sun.media.sound.InvalidFormatException;
 
+import dna.settings.Keywords;
+
+/**
+ * Simple file reader that reads data from a file one line at a time.
+ * 
+ * @author benni
+ * 
+ */
 public class Reader {
 	private BufferedReader reader;
 
-	public Reader(String filename) throws FileNotFoundException {
-		this.reader = new BufferedReader(new FileReader(filename));
+	public Reader(String dir, String filename) throws FileNotFoundException {
+		this.reader = new BufferedReader(new FileReader(dir + filename));
 	}
 
 	public String readString() throws IOException {

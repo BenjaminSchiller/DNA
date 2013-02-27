@@ -6,20 +6,26 @@ import java.util.TreeSet;
 
 import dna.graph.Edge;
 import dna.graph.Graph;
+import dna.settings.Keywords;
 
+/**
+ * Allows to write a Graph object to a file that can be read in again using
+ * GraphReader.
+ * 
+ * @author benni
+ * 
+ */
 public class GraphWriter {
-	public static boolean write(Graph g) {
-		return GraphWriter.write(g, g.getFilename());
+
+	public static boolean write(Graph g, String dir, String filename) {
+		return GraphWriter.write(g, dir, filename, true);
 	}
 
-	public static boolean write(Graph g, String filename) {
-		return GraphWriter.write(g, filename, true);
-	}
-
-	public static boolean write(Graph g, String filename, boolean sortEdges) {
+	public static boolean write(Graph g, String dir, String filename,
+			boolean sortEdges) {
 		Writer writer = null;
 		try {
-			writer = new Writer(filename);
+			writer = new Writer(dir, filename);
 
 			writer.writeKeyword(Keywords.graphName);
 			writer.writeln(g.getName());

@@ -6,20 +6,26 @@ import java.util.TreeSet;
 
 import dna.diff.Diff;
 import dna.graph.Edge;
+import dna.settings.Keywords;
 
+/**
+ * 
+ * Allow to write a Diff object to a file that can be read using DiffReader.
+ * 
+ * @author benni
+ * 
+ */
 public class DiffWriter {
-	public static boolean write(Diff d) {
-		return DiffWriter.write(d, d.getFilename());
+
+	public static boolean write(Diff d, String dir, String filename) {
+		return DiffWriter.write(d, dir, filename, true);
 	}
 
-	public static boolean write(Diff d, String filename) {
-		return DiffWriter.write(d, filename, true);
-	}
-
-	public static boolean write(Diff d, String filename, boolean sortEdges) {
+	public static boolean write(Diff d, String src, String filename,
+			boolean sortEdges) {
 		Writer writer = null;
 		try {
-			writer = new Writer(filename);
+			writer = new Writer(src, filename);
 
 			writer.writeKeyword(Keywords.diffNodes);
 			writer.writeln(d.getNodes());

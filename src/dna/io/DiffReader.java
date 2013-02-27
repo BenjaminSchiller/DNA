@@ -8,12 +8,20 @@ import com.sun.media.sound.InvalidFormatException;
 import dna.diff.Diff;
 import dna.graph.Edge;
 import dna.graph.Graph;
+import dna.settings.Keywords;
 
+/**
+ * 
+ * Allow to read a Diff object from a file that was written using DiffWriter.
+ * 
+ * @author benni
+ * 
+ */
 public class DiffReader {
-	public static Diff read(String filename, Graph g) {
+	public static Diff read(String dir, String filename, Graph g) {
 		Reader reader = null;
 		try {
-			reader = new Reader(filename);
+			reader = new Reader(dir, filename);
 
 			reader.readKeyword(Keywords.diffNodes);
 			int nodes = reader.readInt();

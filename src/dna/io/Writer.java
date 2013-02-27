@@ -5,12 +5,20 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 
+import dna.settings.Keywords;
+
+/**
+ * Simple file writer that writes data to a file one line at a time.
+ * 
+ * @author benni
+ * 
+ */
 public class Writer {
 	private BufferedWriter writer;
 
-	public Writer(String path) throws IOException {
-		(new File(path)).getParentFile().mkdirs();
-		this.writer = new BufferedWriter(new FileWriter(path));
+	public Writer(String dir, String filename) throws IOException {
+		(new File(dir)).mkdirs();
+		this.writer = new BufferedWriter(new FileWriter(dir + filename));
 	}
 
 	public void writeln(String line) throws IOException {
