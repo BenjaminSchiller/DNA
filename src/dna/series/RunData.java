@@ -1,6 +1,10 @@
 package dna.series;
 
+import java.io.IOException;
 import java.util.ArrayList;
+
+import dna.io.Path;
+import dna.util.Log;
 
 public class RunData {
 
@@ -34,7 +38,18 @@ public class RunData {
 		return this.diffs;
 	}
 
+	public DiffData getDiff(int index) {
+		return this.diffs.get(index);
+	}
+
 	public void addDiff(DiffData diff) {
 		this.diffs.add(diff);
+	}
+
+	public void write(String seriesDir) throws IOException {
+		Log.debug("writing RunData " + this.run + " in " + seriesDir);
+		for (DiffData d : this.diffs) {
+			d.write(Path.getPath(seriesDir, this, d));
+		}
 	}
 }
