@@ -8,6 +8,7 @@ import dna.io.Settings;
 import dna.io.Writer;
 import dna.plot.data.PlotData;
 import dna.util.Execute;
+import dna.util.Log;
 
 public class Plot {
 
@@ -118,7 +119,7 @@ public class Plot {
 	}
 
 	public void generate() throws IOException, InterruptedException {
-		System.out.println("plotting " + this.filename + " in " + this.dir);
+		Log.info("  => \"" + this.filename + "\" in " + this.dir);
 		this.write(this.dir + this.scriptFilename);
 		Execute.exec(Settings.gnuplotPath + " " + this.dir
 				+ this.scriptFilename, true);

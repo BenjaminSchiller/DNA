@@ -16,18 +16,27 @@ import dna.series.RunTime;
 import dna.series.SeriesData;
 import dna.series.Value;
 import dna.series.Values;
+import dna.util.Log;
 
 public class Plotting {
 	public static void plotRun(SeriesData seriesData, RunData runData,
 			String dstDir) throws IOException, InterruptedException {
+		Log.infoSep();
+		Log.info("plotting all for run " + runData.getRun() + " of "
+				+ seriesData.getRuns().size() + " in " + seriesData.getDir());
 		Plotting.plotDistributions(seriesData, runData, dstDir);
-		Plotting.plotValues(runData, dstDir);
-		Plotting.plotRuntimes(runData, dstDir);
+		Plotting.plotValues(seriesData, runData, dstDir);
+		Plotting.plotRuntimes(seriesData, runData, dstDir);
+		Log.infoSep();
 	}
 
 	public static void plotDistributions(SeriesData seriesData,
 			RunData runData, String dstDir) throws IOException,
 			InterruptedException {
+		Log.infoSep();
+		Log.info("plotting distributions for run " + runData.getRun() + "/"
+				+ seriesData.getRuns().size() + " in " + seriesData.getDir());
+
 		for (MetricData metric : runData.getDiffs().get(0).getMetrics()) {
 			(new File(dstDir)).mkdirs();
 
@@ -57,8 +66,12 @@ public class Plotting {
 		}
 	}
 
-	public static void plotValues(RunData runData, String dstDir)
-			throws IOException, InterruptedException {
+	public static void plotValues(SeriesData seriesData, RunData runData,
+			String dstDir) throws IOException, InterruptedException {
+		Log.infoSep();
+		Log.info("plotting values for run " + runData.getRun() + " of "
+				+ seriesData.getRuns().size() + " in " + seriesData.getDir());
+
 		for (MetricData metric : runData.getDiffs().get(0).getMetrics()) {
 			(new File(dstDir)).mkdirs();
 
@@ -94,13 +107,19 @@ public class Plotting {
 		}
 	}
 
-	public static void plotRuntimes(RunData runData, String dstDir)
-			throws IOException, InterruptedException {
-		int start = runData.getDiffs().size() > 1 ? 1 : 0;
+	public static void plotRuntimes(SeriesData seriesData, RunData runData,
+			String dstDir) throws IOException, InterruptedException {
+		Log.infoSep();
+		Log.info("plotting runtimes for run " + runData.getRun() + " of "
+				+ seriesData.getRuns().size() + " in " + seriesData.getDir());
+
+		if (runData.getDiffs().size() < 2) {
+			return;
+		}
 		ArrayList<RunTime> generalRuntimes = new ArrayList<RunTime>(runData
-				.getDiffs().get(start).getGeneralRuntimes());
+				.getDiffs().get(1).getGeneralRuntimes());
 		ArrayList<RunTime> metricRuntimes = new ArrayList<RunTime>(runData
-				.getDiffs().get(start).getMetricRuntimes());
+				.getDiffs().get(1).getMetricRuntimes());
 
 		Values[] general = new Values[generalRuntimes.size()];
 		Values[] metric = new Values[metricRuntimes.size()];
@@ -117,13 +136,20 @@ public class Plotting {
 			all[i + general.length] = metric[i];
 		}
 
-		Plotting.plot(general, dstDir, PlotFilenames.getRuntimesPlot("general"));
-		Plotting.plot(metric, dstDir, PlotFilenames.getRuntimesPlot("metric"));
-		Plotting.plot(all, dstDir, PlotFilenames.getRuntimesPlot("all"));
+		Plotting.plot(general, dstDir,
+				PlotFilenames.getRuntimesPlot("general"), PlotFilenames
+						.getRuntimesGnuplotScript(PlotFilenames
+								.getRuntimesPlot("general")));
+		Plotting.plot(metric, dstDir, PlotFilenames.getRuntimesPlot("metric"),
+				PlotFilenames.getRuntimesGnuplotScript(PlotFilenames
+						.getRuntimesPlot("metric")));
+		Plotting.plot(all, dstDir, PlotFilenames.getRuntimesPlot("all"),
+				PlotFilenames.getRuntimesGnuplotScript(PlotFilenames
+						.getRuntimesPlot("all")));
 	}
 
-	public static void plot(Values[] values, String dstDir, String filename)
-			throws IOException, InterruptedException {
+	public static void plot(Values[] values, String dstDir, String filename,
+			String script) throws IOException, InterruptedException {
 		PlotData[] data = new PlotData[values.length];
 		for (int i = 0; i < values.length; i++) {
 			values[i].write(dstDir,
@@ -134,19 +160,18 @@ public class Plotting {
 							PlotType.average);
 		}
 
-		Plot plot = new Plot(data, dstDir, filename,
-				PlotFilenames.getRuntimesGnuplotScript(filename));
+		Plot plot = new Plot(data, dstDir, filename, script);
 		plot.generate();
 	}
 
 	private static Values getGeneralRuntimes(RunData runData, String name) {
-		double[][] values = new double[runData.getDiffs().size()][2];
-		for (int i = 0; i < runData.getDiffs().size(); i++) {
-			values[i][0] = runData.getDiffs().get(i).getTimestamp();
+		double[][] values = new double[runData.getDiffs().size() - 1][2];
+		for (int i = 1; i < runData.getDiffs().size(); i++) {
+			values[i - 1][0] = runData.getDiffs().get(i).getTimestamp();
 			if (runData.getDiffs().get(i).getGeneralRuntime(name) == null) {
-				values[i][1] = Double.NaN;
+				values[i - 1][1] = Double.NaN;
 			} else {
-				values[i][1] = runData.getDiffs().get(i)
+				values[i - 1][1] = runData.getDiffs().get(i)
 						.getGeneralRuntime(name).getRuntime();
 			}
 		}
@@ -154,14 +179,14 @@ public class Plotting {
 	}
 
 	private static Values getMetricRuntimes(RunData runData, String name) {
-		double[][] values = new double[runData.getDiffs().size()][2];
-		for (int i = 0; i < runData.getDiffs().size(); i++) {
-			values[i][0] = runData.getDiffs().get(i).getTimestamp();
+		double[][] values = new double[runData.getDiffs().size() - 1][2];
+		for (int i = 1; i < runData.getDiffs().size(); i++) {
+			values[i - 1][0] = runData.getDiffs().get(i).getTimestamp();
 			if (runData.getDiffs().get(i).getMetricRuntime(name) == null) {
-				values[i][1] = Double.NaN;
+				values[i - 1][1] = Double.NaN;
 			} else {
-				values[i][1] = runData.getDiffs().get(i).getMetricRuntime(name)
-						.getRuntime();
+				values[i - 1][1] = runData.getDiffs().get(i)
+						.getMetricRuntime(name).getRuntime();
 			}
 		}
 		return new Values(values, name);

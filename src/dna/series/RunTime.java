@@ -11,9 +11,9 @@ import dna.util.SuffixFilenameFilter;
 public class RunTime {
 	private String name;
 
-	private long runtime;
+	private double runtime;
 
-	public RunTime(String name, long time) {
+	public RunTime(String name, double time) {
 		this.name = name;
 		this.runtime = time;
 	}
@@ -26,15 +26,15 @@ public class RunTime {
 		return this.name;
 	}
 
-	public long getRuntime() {
+	public double getRuntime() {
 		return this.runtime;
 	}
 
-	public long getSec() {
+	public double getSec() {
 		return this.runtime / 1000;
 	}
 
-	public long getMSec() {
+	public double getMSec() {
 		return this.runtime;
 	}
 

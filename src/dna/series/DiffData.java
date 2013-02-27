@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.HashMap;
 
+import dna.util.Log;
+
 public class DiffData {
 
 	public DiffData(long timestamp) {
@@ -109,7 +111,8 @@ public class DiffData {
 	}
 
 	public void write(String dir) throws IOException {
-		for(Value v : this.getValues()){
+		Log.debug("writing DiffData for " + this.timestamp + " to " + dir);
+		for (Value v : this.getValues()) {
 			v.write(dir + "_stats/");
 		}
 		for (RunTime rt : this.getGeneralRuntimes()) {

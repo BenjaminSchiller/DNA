@@ -11,6 +11,7 @@ import dna.graph.Graph;
 import dna.graph.generator.GraphGenerator;
 import dna.io.Path;
 import dna.metrics.Metric;
+import dna.util.Log;
 import dna.util.Rand;
 import dna.util.Timer;
 
@@ -23,7 +24,7 @@ public class Series {
 
 	private Metric[] metrics;
 
-	private String path;
+	private String dir;
 
 	public Series(GraphGenerator gg, DiffGenerator dg, Metric[] metrics,
 			String path) {
@@ -31,18 +32,44 @@ public class Series {
 		this.gg = gg;
 		this.dg = dg;
 		this.metrics = metrics;
-		this.path = path;
+		this.dir = path;
 	}
 
 	public SeriesData generate(int runs, int diffs) throws IOException,
-			DiffNotApplicableException {
+			DiffNotApplicableException, AggregationException {
 
-		SeriesData sd = new SeriesData(this.path, runs);
+		Log.infoSep();
+		Timer timer = new Timer("seriesGeneration");
+		Log.info("generating series");
+		Log.infoSep();
+		Log.info("gg = " + this.gg.getName());
+		Log.info("dg = " + this.dg.getName());
+		Log.info("p  = " + this.dir);
+		StringBuffer buff = new StringBuffer("");
+		for (Metric m : this.metrics) {
+			if (buff.length() > 0) {
+				buff.append("\n     ");
+			}
+			buff.append(m.getName());
+		}
+		Log.info("m  = " + buff.toString());
+
+		SeriesData sd = new SeriesData(this.dir, runs);
 
 		// generate all runs
 		for (int r = 0; r < runs; r++) {
 			sd.addRun(this.generateRun(r, diffs));
 		}
+
+		// aggregate runs
+		RunData aggregation = Aggregation.aggregate(sd);
+		sd.setAggregation(aggregation);
+		aggregation.write(this.dir);
+
+		Log.infoSep();
+		timer.end();
+		Log.info("total time: " + timer.toString());
+		Log.infoSep();
 
 		return sd;
 	}
@@ -50,19 +77,26 @@ public class Series {
 	public RunData generateRun(int run, int diffs) throws IOException,
 			DiffNotApplicableException {
 
+		Log.infoSep();
+		Timer timer = new Timer("runGeneration");
+		Log.info("run " + run + " (" + diffs + " diffs)");
+
 		RunData rd = new RunData(run, diffs + 1);
 
 		// generate initial data
 		DiffData initialData = this.generateInitialData();
 		rd.addDiff(initialData);
-		initialData.write(Path.getPath(this.path, rd, initialData));
+		initialData.write(Path.getPath(this.dir, rd, initialData));
 
 		// generate diff data
 		for (int i = 0; i < diffs; i++) {
 			DiffData diffData = this.generateNextDiff();
 			rd.addDiff(diffData);
-			diffData.write(Path.getPath(this.path, rd, diffData));
+			diffData.write(Path.getPath(this.dir, rd, diffData));
 		}
+
+		timer.end();
+		Log.info(timer.toString());
 
 		return rd;
 	}
@@ -71,7 +105,10 @@ public class Series {
 
 		Timer totalTimer = new Timer("total");
 
+		Log.info("    inital data");
+
 		long seed = System.currentTimeMillis();
+		// seed = 0;
 		Rand.init(seed);
 
 		// generate graph
@@ -114,6 +151,7 @@ public class Series {
 	public DiffData generateNextDiff() throws DiffNotApplicableException {
 
 		long seed = System.currentTimeMillis();
+		// seed = 0;
 		Rand.init(seed);
 
 		int addedEdges = 0;
@@ -124,6 +162,8 @@ public class Series {
 		Timer diffGenerationTimer = new Timer("diffGeneration");
 		Diff d = dg.generate(g);
 		diffGenerationTimer.end();
+
+		Log.info("    " + d.toString());
 
 		DiffData diffData = new DiffData(d.getTo(), 5, 5, metrics.length,
 				metrics.length);
@@ -141,15 +181,15 @@ public class Series {
 		metricsTotal.end();
 
 		// apply before diff
+		metricsTotal.restart();
 		for (Metric m : this.metrics) {
 			if (m.isAppliedBeforeDiff()) {
 				timer.get(m).restart();
-				metricsTotal.restart();
 				m.applyBeforeDiff(d);
 				timer.get(m).end();
-				metricsTotal.end();
 			}
 		}
+		metricsTotal.end();
 
 		// remove edges
 		for (Edge e : d.getRemovedEdges()) {
@@ -161,15 +201,15 @@ public class Series {
 			}
 			removedEdges++;
 			// apply after edge
+			metricsTotal.restart();
 			for (Metric m : this.metrics) {
 				if (m.isAppliedAfterEdge()) {
 					timer.get(m).restart();
-					metricsTotal.restart();
 					m.applyAfterEdgeRemoval(d, e);
 					timer.get(m).end();
-					metricsTotal.end();
 				}
 			}
+			metricsTotal.end();
 		}
 
 		// add edges
@@ -182,42 +222,42 @@ public class Series {
 			}
 			addedEdges++;
 			// apply after edge
+			metricsTotal.restart();
 			for (Metric m : this.metrics) {
 				if (m.isAppliedAfterEdge()) {
 					timer.get(m).restart();
-					metricsTotal.restart();
 					m.applyAfterEdgeAddition(d, e);
 					timer.get(m).end();
-					metricsTotal.end();
 				}
 			}
+			metricsTotal.end();
 		}
 
 		this.g.setTimestamp(d.getTo());
 
 		// apply after diff
+		metricsTotal.restart();
 		for (Metric m : this.metrics) {
 			if (m.isAppliedAfterDiff()) {
 				timer.get(m).restart();
-				metricsTotal.restart();
 				m.applyAfterDiff(d);
 				timer.get(m).end();
-				metricsTotal.end();
 			}
 		}
+		metricsTotal.end();
 
 		// compute / cleanup
+		metricsTotal.restart();
 		for (Metric m : this.metrics) {
 			timer.get(m).restart();
-			metricsTotal.restart();
 			if (m.isComputed()) {
 				m.compute();
 			} else {
 				m.cleanupApplication();
 			}
 			timer.get(m).end();
-			metricsTotal.end();
 		}
+		metricsTotal.end();
 
 		totalTimer.end();
 
@@ -249,10 +289,10 @@ public class Series {
 	}
 
 	private static void addSummaryRuntimes(DiffData diffData) {
-		long total = diffData.getGeneralRuntime("total").getRuntime();
-		long metrics = diffData.getGeneralRuntime("metrics").getRuntime();
-		long sum = Series.sumRuntimes(diffData) - total - metrics;
-		long overhead = total - sum;
+		double total = diffData.getGeneralRuntime("total").getRuntime();
+		double metrics = diffData.getGeneralRuntime("metrics").getRuntime();
+		double sum = Series.sumRuntimes(diffData) - total - metrics;
+		double overhead = total - sum;
 		diffData.addGeneralRuntime(new RunTime("sum", sum));
 		diffData.addGeneralRuntime(new RunTime("overhead", overhead));
 	}
