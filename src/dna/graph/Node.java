@@ -5,6 +5,9 @@ import java.util.Set;
 
 /**
  * 
+ * Represents a node with a list of incoming and outgoing edges as well as a
+ * neighbor list (intersection of incoming and outgoing edges).
+ * 
  * @author benni
  * 
  */

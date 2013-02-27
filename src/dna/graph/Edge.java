@@ -1,7 +1,14 @@
 package dna.graph;
 
-import dna.io.Keywords;
+import dna.settings.Keywords;
 
+/**
+ * 
+ * Represents a directed edge from a source to a destination node.
+ * 
+ * @author benni
+ * 
+ */
 public class Edge implements Comparable<Edge> {
 	/**
 	 * 

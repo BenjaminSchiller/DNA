@@ -32,10 +32,6 @@ public class Graph {
 				+ "/E=" + this.edges.size() + ")";
 	}
 
-	public String getFilename() {
-		return "data/g-" + this.nodes.length + "-" + this.timestamp + ".txt";
-	}
-
 	/**
 	 * applies the given diff to this graph, i.e., add / remove the respective
 	 * edges and change the timestamp
