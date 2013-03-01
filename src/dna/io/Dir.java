@@ -1,31 +1,90 @@
 package dna.io;
 
-import dna.series.DiffData;
-import dna.series.MetricData;
-import dna.series.RunData;
+import java.io.File;
+
+import dna.settings.Names;
 import dna.settings.Prefix;
+import dna.util.PrefixFilenameFilter;
 
 /**
  * 
- * Determines the default path for RunData, DiffData, and MetricData objects.
+ * Gives the default storage path for data objects.
  * 
  * @author benni
  * 
  */
 public class Dir {
-	public static String getRunDataDir(String seriesDir, RunData runData) {
-		return seriesDir + runData.getRun() + "/";
+	public static final String delimiter = "/";
+
+	/*
+	 * AGGREGATION
+	 */
+
+	public static String getAggregationDataDir(String dir) {
+		return dir + Names.runAggregation + Dir.delimiter;
 	}
 
-	public static String getDiffDataDir(String seriesDir, RunData runData,
-			DiffData diffData) {
-		return Dir.getRunDataDir(seriesDir, runData) + diffData.getTimestamp()
-				+ "/";
+	/*
+	 * RUN data
+	 */
+
+	public static String getRunDataDir(String dir, int run) {
+		return dir + Prefix.runDataDir + run + Dir.delimiter;
 	}
 
-	public static String getMetricDataDir(String seriesDir, RunData runData,
-			DiffData diffData, MetricData metricData) {
-		return Dir.getDiffDataDir(seriesDir, runData, diffData)
-				+ Prefix.metricDataDir + metricData.getName() + "/";
+	public static String[] getRuns(String dir) {
+		return (new File(dir))
+				.list(new PrefixFilenameFilter(Prefix.runDataDir));
+	}
+
+	public static int getRun(String runFolderName) {
+		return Integer.parseInt(runFolderName.replaceFirst(Prefix.runDataDir,
+				""));
+	}
+
+	/*
+	 * DIFF data
+	 */
+
+	public static String getDiffDataDir(String dir, long timestamp) {
+		return dir + Prefix.diffDataDir + timestamp + Dir.delimiter;
+	}
+
+	public static String getDiffDataDir(String dir, int run, long timestamp) {
+		return Dir.getRunDataDir(dir, run) + Prefix.diffDataDir + timestamp
+				+ Dir.delimiter;
+	}
+
+	public static String[] getDiffs(String dir) {
+		return (new File(dir))
+				.list(new PrefixFilenameFilter(Prefix.diffDataDir));
+	}
+
+	public static long getTimestamp(String diffFolderName) {
+		return Long.parseLong(diffFolderName.replaceFirst(Prefix.diffDataDir,
+				""));
+	}
+
+	/*
+	 * METRIC data
+	 */
+
+	public static String getMetricDataDir(String dir, String name) {
+		return dir + Prefix.metricDataDir + name + Dir.delimiter;
+	}
+
+	public static String getMetricDataDir(String dir, int run, long timestamp,
+			String name) {
+		return Dir.getDiffDataDir(dir, run, timestamp) + Prefix.metricDataDir
+				+ name + Dir.delimiter;
+	}
+
+	public static String[] getMetrics(String dir) {
+		return (new File(dir)).list(new PrefixFilenameFilter(
+				Prefix.metricDataDir));
+	}
+
+	public static String getMetricName(String metricFolderName) {
+		return metricFolderName.replaceFirst(Prefix.metricDataDir, "");
 	}
 }

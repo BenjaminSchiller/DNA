@@ -11,6 +11,11 @@ import dna.graph.Graph;
 import dna.graph.generator.GraphGenerator;
 import dna.io.Dir;
 import dna.metrics.Metric;
+import dna.series.data.DiffData;
+import dna.series.data.RunData;
+import dna.series.data.RunTime;
+import dna.series.data.SeriesData;
+import dna.series.data.Value;
 import dna.util.Log;
 import dna.util.Rand;
 import dna.util.Timer;
@@ -64,7 +69,7 @@ public class Series {
 		// aggregate runs
 		RunData aggregation = Aggregation.aggregate(sd);
 		sd.setAggregation(aggregation);
-		aggregation.write(this.dir);
+		aggregation.write(Dir.getAggregationDataDir(dir));
 
 		Log.infoSep();
 		timer.end();
@@ -85,14 +90,16 @@ public class Series {
 
 		// generate initial data
 		DiffData initialData = this.generateInitialData();
-		rd.addDiff(initialData);
-		initialData.write(Dir.getDiffDataDir(this.dir, rd, initialData));
+		rd.getDiffs().add(initialData);
+		initialData.write(Dir.getDiffDataDir(this.dir, run,
+				initialData.getTimestamp()));
 
 		// generate diff data
 		for (int i = 0; i < diffs; i++) {
 			DiffData diffData = this.generateNextDiff();
-			rd.addDiff(diffData);
-			diffData.write(Dir.getDiffDataDir(this.dir, rd, diffData));
+			rd.getDiffs().add(diffData);
+			diffData.write(Dir.getDiffDataDir(this.dir, run,
+					diffData.getTimestamp()));
 		}
 
 		timer.end();
@@ -129,21 +136,21 @@ public class Series {
 			Timer metricTimer = new Timer(m.getName());
 			m.compute();
 			metricTimer.end();
-			initialData.addMetric(m.getData());
-			initialData.addMetricRuntime(metricTimer.getRuntime());
+			initialData.getMetrics().add(m.getData());
+			initialData.getMetricRuntimes().add(metricTimer.getRuntime());
 		}
 		allMetricsTimer.end();
 
 		totalTimer.end();
 
 		// add general runtimes
-		initialData.addGeneralRuntime(totalTimer.getRuntime());
-		initialData.addGeneralRuntime(graphGenerationTimer.getRuntime());
-		initialData.addGeneralRuntime(allMetricsTimer.getRuntime());
+		initialData.getGeneralRuntimes().add(totalTimer.getRuntime());
+		initialData.getGeneralRuntimes().add(graphGenerationTimer.getRuntime());
+		initialData.getGeneralRuntimes().add(allMetricsTimer.getRuntime());
 		Series.addSummaryRuntimes(initialData);
 
 		// add values
-		initialData.addValue(new Value("randomSeed", seed));
+		initialData.getValues().add(new Value("randomSeed", seed));
 
 		return initialData;
 	}
@@ -262,47 +269,50 @@ public class Series {
 		totalTimer.end();
 
 		// add values
-		diffData.addValue(new Value("edgesToAdd", d.getAddedEdges().size()));
-		diffData.addValue(new Value("addedEdges", addedEdges));
-		diffData.addValue(new Value("edgesToRemove", d.getRemovedEdges().size()));
-		diffData.addValue(new Value("removedEdges", removedEdges));
-		diffData.addValue(new Value("randomSeed", seed));
+		diffData.getValues().add(
+				new Value("edgesToAdd", d.getAddedEdges().size()));
+		diffData.getValues().add(new Value("addedEdges", addedEdges));
+		diffData.getValues().add(
+				new Value("edgesToRemove", d.getRemovedEdges().size()));
+		diffData.getValues().add(new Value("removedEdges", removedEdges));
+		diffData.getValues().add(new Value("randomSeed", seed));
 
 		// add metric data
 		for (Metric m : this.metrics) {
-			diffData.addMetric(m.getData());
+			diffData.getMetrics().add(m.getData());
 		}
 
 		// add metric runtimes
 		for (Metric m : this.metrics) {
-			diffData.addMetricRuntime(timer.get(m).getRuntime());
+			diffData.getMetricRuntimes().add(timer.get(m).getRuntime());
 		}
 
 		// add general runtimes
-		diffData.addGeneralRuntime(totalTimer.getRuntime());
-		diffData.addGeneralRuntime(diffGenerationTimer.getRuntime());
-		diffData.addGeneralRuntime(graphUpdateTimer.getRuntime());
-		diffData.addGeneralRuntime(metricsTotal.getRuntime());
+		diffData.getGeneralRuntimes().add(totalTimer.getRuntime());
+		diffData.getGeneralRuntimes().add(diffGenerationTimer.getRuntime());
+		diffData.getGeneralRuntimes().add(graphUpdateTimer.getRuntime());
+		diffData.getGeneralRuntimes().add(metricsTotal.getRuntime());
 		Series.addSummaryRuntimes(diffData);
 
 		return diffData;
 	}
 
 	private static void addSummaryRuntimes(DiffData diffData) {
-		double total = diffData.getGeneralRuntime("total").getRuntime();
-		double metrics = diffData.getGeneralRuntime("metrics").getRuntime();
+		double total = diffData.getGeneralRuntimes().get("total").getRuntime();
+		double metrics = diffData.getGeneralRuntimes().get("metrics")
+				.getRuntime();
 		double sum = Series.sumRuntimes(diffData) - total - metrics;
 		double overhead = total - sum;
-		diffData.addGeneralRuntime(new RunTime("sum", sum));
-		diffData.addGeneralRuntime(new RunTime("overhead", overhead));
+		diffData.getGeneralRuntimes().add(new RunTime("sum", sum));
+		diffData.getGeneralRuntimes().add(new RunTime("overhead", overhead));
 	}
 
 	private static long sumRuntimes(DiffData diffData) {
 		long sum = 0;
-		for (RunTime rt : diffData.getGeneralRuntimes()) {
+		for (RunTime rt : diffData.getGeneralRuntimes().getList()) {
 			sum += rt.getRuntime();
 		}
-		for (RunTime rt : diffData.getMetricRuntimes()) {
+		for (RunTime rt : diffData.getMetricRuntimes().getList()) {
 			sum += rt.getRuntime();
 		}
 		return sum;

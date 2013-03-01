@@ -6,8 +6,8 @@ import dna.graph.Edge;
 import dna.graph.Graph;
 import dna.graph.Node;
 import dna.metrics.Metric;
-import dna.series.Distribution;
-import dna.series.Value;
+import dna.series.data.Distribution;
+import dna.series.data.Value;
 import dna.util.ArrayUtils;
 
 public class DegreeDistribution extends Metric {

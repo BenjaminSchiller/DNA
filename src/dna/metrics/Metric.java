@@ -4,9 +4,9 @@ import dna.diff.Diff;
 import dna.diff.DiffNotApplicableException;
 import dna.graph.Edge;
 import dna.graph.Graph;
-import dna.series.Distribution;
-import dna.series.MetricData;
-import dna.series.Value;
+import dna.series.data.Distribution;
+import dna.series.data.MetricData;
+import dna.series.data.Value;
 
 public abstract class Metric {
 	public Metric(String name, boolean appliedBeforeDiff,

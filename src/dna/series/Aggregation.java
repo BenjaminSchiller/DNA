@@ -1,5 +1,10 @@
 package dna.series;
 
+import dna.series.data.DiffData;
+import dna.series.data.RunData;
+import dna.series.data.RunTime;
+import dna.series.data.SeriesData;
+import dna.series.data.Value;
 import dna.util.ArrayUtils;
 
 /**
@@ -31,7 +36,7 @@ public class Aggregation {
 		for (int i = 0; i < seriesData.getRun(0).getDiffs().size(); i++) {
 			DiffData[] diffs = new DiffData[seriesData.getRuns().size()];
 			for (int j = 0; j < seriesData.getRuns().size(); j++) {
-				diffs[j] = seriesData.getRun(j).getDiff(i);
+				diffs[j] = seriesData.getRun(j).getDiffs().get(i);
 			}
 			Aggregation.test(diffs);
 
@@ -40,53 +45,56 @@ public class Aggregation {
 					.getValues().size(), d.getGeneralRuntimes().size(), d
 					.getMetricRuntimes().size(), d.getMetrics().size());
 
-			for (Value v : d.getValues()) {
+			for (Value v : d.getValues().getList()) {
 				double[] values = new double[diffs.length];
 				for (int j = 0; j < diffs.length; j++) {
 					try {
-						values[j] = diffs[j].getValue(v.getName()).getValue();
+						values[j] = diffs[j].getValues().get(v.getName())
+								.getValue();
 					} catch (NullPointerException e) {
 						throw new AggregationException("value " + v.getName()
 								+ " not found @ " + j);
 					}
 				}
-				aggregatedDiff.addValue(new Value(v.getName(), ArrayUtils
-						.med(values)));
+				aggregatedDiff.getValues().add(
+						new Value(v.getName(), ArrayUtils.med(values)));
 			}
 
-			for (RunTime rt : d.getGeneralRuntimes()) {
+			for (RunTime rt : d.getGeneralRuntimes().getList()) {
 				double[] values = new double[diffs.length];
 				for (int j = 0; j < diffs.length; j++) {
 					try {
-						values[j] = diffs[j].getGeneralRuntime(rt.getName())
-								.getRuntime();
+						values[j] = diffs[j].getGeneralRuntimes()
+								.get(rt.getName()).getRuntime();
 					} catch (NullPointerException e) {
 						throw new AggregationException("general-runtime "
 								+ rt.getRuntime() + " not found @ " + j);
 					}
 				}
 
-				aggregatedDiff.addGeneralRuntime(new RunTime(rt.getName(),
-						(long) ArrayUtils.med(values)));
+				aggregatedDiff.getGeneralRuntimes()
+						.add(new RunTime(rt.getName(), (long) ArrayUtils
+								.med(values)));
 			}
 
-			for (RunTime rt : d.getMetricRuntimes()) {
+			for (RunTime rt : d.getMetricRuntimes().getList()) {
 				double[] values = new double[diffs.length];
 				for (int j = 0; j < diffs.length; j++) {
 					try {
-						values[j] = diffs[j].getMetricRuntime(rt.getName())
-								.getRuntime();
+						values[j] = diffs[j].getMetricRuntimes()
+								.get(rt.getName()).getRuntime();
 					} catch (NullPointerException e) {
 						throw new AggregationException("metric-runtime "
 								+ rt.getRuntime() + " not found @ " + j);
 					}
 				}
 
-				aggregatedDiff.addMetricRuntime(new RunTime(rt.getName(),
-						(long) ArrayUtils.med(values)));
+				aggregatedDiff.getMetricRuntimes()
+						.add(new RunTime(rt.getName(), (long) ArrayUtils
+								.med(values)));
 			}
 
-			aggregatedRun.addDiff(aggregatedDiff);
+			aggregatedRun.getDiffs().add(aggregatedDiff);
 		}
 
 		return aggregatedRun;

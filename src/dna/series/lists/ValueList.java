@@ -1,38 +1,19 @@
-package dna.series;
+package dna.series.lists;
 
 import java.io.IOException;
-import java.util.Collection;
-import java.util.HashMap;
 
 import dna.io.Reader;
 import dna.io.Writer;
+import dna.series.data.Value;
 
-public class ValueList {
+public class ValueList extends List<Value> {
 
 	public ValueList() {
-		this.map = new HashMap<String, Value>();
+		super();
 	}
 
 	public ValueList(int size) {
-		this.map = new HashMap<String, Value>(size);
-	}
-
-	private HashMap<String, Value> map;
-
-	public Collection<String> getNames() {
-		return this.map.keySet();
-	}
-
-	public Collection<Value> getList() {
-		return this.map.values();
-	}
-
-	public Value get(String name) {
-		return this.map.get(name);
-	}
-
-	public void add(Value value) {
-		this.map.put(value.getName(), value);
+		super(size);
 	}
 
 	public void write(String dir, String filename) throws IOException {

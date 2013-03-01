@@ -1,6 +1,6 @@
 package dna.util;
 
-import dna.series.RunTime;
+import dna.series.data.RunTime;
 
 public class Timer {
 	private String name;

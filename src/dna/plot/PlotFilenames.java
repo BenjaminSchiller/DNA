@@ -1,8 +1,8 @@
 package dna.plot;
 
-import dna.series.Distribution;
-import dna.series.MetricData;
 import dna.series.Values;
+import dna.series.data.Distribution;
+import dna.series.data.MetricData;
 import dna.settings.Prefix;
 import dna.settings.Suffix;
 
