@@ -1,10 +1,8 @@
-package dna.plot;
+package dna.io.filesystem;
 
 import dna.series.Values;
 import dna.series.data.Distribution;
 import dna.series.data.MetricData;
-import dna.settings.Prefix;
-import dna.settings.Suffix;
 
 public class PlotFilenames {
 	public static final String delimiter = ".";

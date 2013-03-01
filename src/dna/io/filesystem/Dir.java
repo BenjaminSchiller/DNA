@@ -1,10 +1,8 @@
-package dna.io;
+package dna.io.filesystem;
 
 import java.io.File;
 
-import dna.settings.Names;
-import dna.settings.Prefix;
-import dna.util.PrefixFilenameFilter;
+import dna.io.filter.PrefixFilenameFilter;
 
 /**
  * 

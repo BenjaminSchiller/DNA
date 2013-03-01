@@ -1,4 +1,4 @@
-package dna.settings;
+package dna.io.filesystem;
 
 public class Prefix {
 	public static final String distributionsGnuplotScript = "zz___";

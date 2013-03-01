@@ -2,7 +2,7 @@ package dna.series.lists;
 
 import java.io.IOException;
 
-import dna.io.Dir;
+import dna.io.filesystem.Dir;
 import dna.series.data.RunData;
 
 public class RunDataList extends SortedList<RunData> {

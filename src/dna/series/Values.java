@@ -3,8 +3,8 @@ package dna.series;
 import java.io.IOException;
 
 import dna.io.Writer;
-import dna.settings.Keywords;
-import dna.settings.Suffix;
+import dna.io.etc.Keywords;
+import dna.io.filesystem.Suffix;
 
 // TODO change to Data
 public class Values {

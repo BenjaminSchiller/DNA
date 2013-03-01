@@ -4,8 +4,8 @@ import java.io.IOException;
 
 import dna.io.Reader;
 import dna.io.Writer;
+import dna.io.filesystem.Suffix;
 import dna.series.data.RunTime;
-import dna.settings.Suffix;
 
 public class RunTimeList extends List<RunTime> {
 

@@ -1,4 +1,4 @@
-package dna.util;
+package dna.io.filter;
 
 import java.io.File;
 import java.io.FilenameFilter;

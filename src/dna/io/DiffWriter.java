@@ -6,7 +6,7 @@ import java.util.TreeSet;
 
 import dna.diff.Diff;
 import dna.graph.Edge;
-import dna.settings.Keywords;
+import dna.io.etc.Keywords;
 
 /**
  * 

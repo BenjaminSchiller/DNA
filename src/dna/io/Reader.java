@@ -7,7 +7,7 @@ import java.io.IOException;
 
 import com.sun.media.sound.InvalidFormatException;
 
-import dna.settings.Keywords;
+import dna.io.etc.Keywords;
 
 /**
  * Simple file reader that reads data from a file one line at a time.

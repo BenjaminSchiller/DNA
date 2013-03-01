@@ -1,9 +1,8 @@
-package dna.io;
+package dna.io.filesystem;
 
 import java.io.File;
 
-import dna.settings.Suffix;
-import dna.util.SuffixFilenameFilter;
+import dna.io.filter.SuffixFilenameFilter;
 
 public class Files {
 	/*

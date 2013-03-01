@@ -6,9 +6,9 @@ import java.util.List;
 
 import dna.io.Writer;
 import dna.plot.data.PlotData;
-import dna.settings.Settings;
 import dna.util.Execute;
 import dna.util.Log;
+import dna.util.Settings;
 
 public class Plot {
 

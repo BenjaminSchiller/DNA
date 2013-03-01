@@ -4,7 +4,9 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 
-import dna.io.Dir;
+import dna.io.filesystem.Dir;
+import dna.io.filesystem.PlotFilenames;
+import dna.io.filesystem.Suffix;
 import dna.plot.Gnuplot.PlotStyle;
 import dna.plot.data.PlotData;
 import dna.plot.data.PlotData.PlotType;
@@ -16,7 +18,6 @@ import dna.series.data.RunData;
 import dna.series.data.RunTime;
 import dna.series.data.SeriesData;
 import dna.series.data.Value;
-import dna.settings.Suffix;
 import dna.util.Log;
 
 public class Plotting {

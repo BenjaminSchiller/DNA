@@ -1,4 +1,4 @@
-package dna.settings;
+package dna.io.filesystem;
 
 public class Names {
 	public static final String diffStats = "___stats";

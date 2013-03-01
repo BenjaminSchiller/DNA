@@ -1,4 +1,4 @@
-package dna.settings;
+package dna.io.filesystem;
 
 /**
  * Suffixes for various files written as output / result data.

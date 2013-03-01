@@ -6,7 +6,7 @@ import java.util.TreeSet;
 
 import dna.graph.Edge;
 import dna.graph.Graph;
-import dna.settings.Keywords;
+import dna.io.etc.Keywords;
 
 /**
  * Allows to write a Graph object to a file that can be read in again using

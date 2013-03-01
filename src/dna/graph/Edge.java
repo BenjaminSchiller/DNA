@@ -1,6 +1,6 @@
 package dna.graph;
 
-import dna.settings.Keywords;
+import dna.io.etc.Keywords;
 
 /**
  * 

@@ -2,7 +2,7 @@ package dna.series.lists;
 
 import java.io.IOException;
 
-import dna.io.Files;
+import dna.io.filesystem.Files;
 import dna.series.data.Distribution;
 
 public class DistributionList extends List<Distribution> {

@@ -7,7 +7,7 @@ import com.sun.media.sound.InvalidFormatException;
 
 import dna.graph.Edge;
 import dna.graph.Graph;
-import dna.settings.Keywords;
+import dna.io.etc.Keywords;
 
 /**
  * 

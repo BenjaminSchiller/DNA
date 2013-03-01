@@ -9,7 +9,7 @@ import dna.diff.generator.DiffGenerator;
 import dna.graph.Edge;
 import dna.graph.Graph;
 import dna.graph.generator.GraphGenerator;
-import dna.io.Dir;
+import dna.io.filesystem.Dir;
 import dna.metrics.Metric;
 import dna.series.data.DiffData;
 import dna.series.data.RunData;

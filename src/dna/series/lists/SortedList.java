@@ -3,19 +3,13 @@ package dna.series.lists;
 import java.io.IOException;
 import java.util.ArrayList;
 
-public abstract class SortedList<T extends ListItem> {
+public abstract class SortedList<T> {
 	public SortedList() {
 		this.list = new ArrayList<T>();
 	}
 
 	public SortedList(int size) {
 		this.list = new ArrayList<T>(size);
-	}
-
-	protected String name;
-
-	public String getName() {
-		return this.name;
 	}
 
 	public ArrayList<T> list;

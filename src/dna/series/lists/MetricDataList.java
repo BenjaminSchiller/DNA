@@ -2,7 +2,7 @@ package dna.series.lists;
 
 import java.io.IOException;
 
-import dna.io.Dir;
+import dna.io.filesystem.Dir;
 import dna.series.data.MetricData;
 
 public class MetricDataList extends List<MetricData> {

@@ -5,7 +5,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 
-import dna.settings.Keywords;
+import dna.io.etc.Keywords;
 
 /**
  * Simple file writer that writes data to a file one line at a time.

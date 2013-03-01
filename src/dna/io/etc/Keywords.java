@@ -1,4 +1,4 @@
-package dna.settings;
+package dna.io.etc;
 
 public class Keywords {
 	public static final String pre = "# ";
