@@ -1,4 +1,7 @@
 /data/
 /plots/
+/deploy/
+/build/
 .project
 .classpath
+/src/dna/Test.java
