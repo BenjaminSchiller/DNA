@@ -33,6 +33,6 @@ public class Timer {
 	}
 
 	public String toString() {
-		return this.duration + " msec";
+		return this.duration + " msec / " + (this.duration / 1000) + " sec";
 	}
 }
