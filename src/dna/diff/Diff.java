@@ -3,12 +3,12 @@ package dna.diff;
 import java.util.HashSet;
 import java.util.Set;
 
-import dna.graph.Edge;
+import dna.graph.old.OldEdge;
 
 public class Diff {
 	public Diff(int nodes, long from, long to) {
-		this.addedEdges = new HashSet<Edge>();
-		this.removedEdges = new HashSet<Edge>();
+		this.addedEdges = new HashSet<OldEdge>();
+		this.removedEdges = new HashSet<OldEdge>();
 		this.nodes = nodes;
 		this.from = from;
 		this.to = to;
@@ -24,33 +24,33 @@ public class Diff {
 				+ ".txt";
 	}
 
-	private Set<Edge> addedEdges;
+	private Set<OldEdge> addedEdges;
 
-	public Set<Edge> getAddedEdges() {
+	public Set<OldEdge> getAddedEdges() {
 		return this.addedEdges;
 	}
 
-	public boolean addAddedEdges(Edge e) {
+	public boolean addAddedEdges(OldEdge e) {
 		this.removedEdges.remove(e);
 		return this.addedEdges.add(e);
 	}
 
-	public boolean addsEdge(Edge e) {
+	public boolean addsEdge(OldEdge e) {
 		return this.addedEdges.contains(e);
 	}
 
-	private Set<Edge> removedEdges;
+	private Set<OldEdge> removedEdges;
 
-	public Set<Edge> getRemovedEdges() {
+	public Set<OldEdge> getRemovedEdges() {
 		return this.removedEdges;
 	}
 
-	public boolean addRemovedEdge(Edge e) {
+	public boolean addRemovedEdge(OldEdge e) {
 		this.addedEdges.remove(e);
 		return this.removedEdges.add(e);
 	}
 
-	public boolean removesEdge(Edge e) {
+	public boolean removesEdge(OldEdge e) {
 		return this.removedEdges.contains(e);
 	}
 

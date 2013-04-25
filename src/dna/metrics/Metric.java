@@ -2,8 +2,8 @@ package dna.metrics;
 
 import dna.diff.Diff;
 import dna.diff.DiffNotApplicableException;
-import dna.graph.Edge;
-import dna.graph.Graph;
+import dna.graph.old.OldEdge;
+import dna.graph.old.OldGraph;
 import dna.series.data.Distribution;
 import dna.series.data.MetricData;
 import dna.series.data.Value;
@@ -42,9 +42,9 @@ public abstract class Metric {
 		return this.name;
 	}
 
-	protected Graph g;
+	protected OldGraph g;
 
-	public Graph getGraph() {
+	public OldGraph getGraph() {
 		return this.g;
 	}
 
@@ -52,7 +52,7 @@ public abstract class Metric {
 		return this.g.getNodes().length;
 	}
 
-	public void setGraph(Graph g) {
+	public void setGraph(OldGraph g) {
 		this.g = g;
 		this.init(g);
 	}
@@ -91,22 +91,22 @@ public abstract class Metric {
 		return this.appliedAfterEdge;
 	}
 
-	public boolean applyAfterEdgeAddition(Diff d, Edge e)
+	public boolean applyAfterEdgeAddition(Diff d, OldEdge e)
 			throws DiffNotApplicableException {
 		this.timestamp = d.getTo();
 		return this.applyAfterEdgeAddition_(d, e);
 	}
 
-	protected abstract boolean applyAfterEdgeAddition_(Diff d, Edge e)
+	protected abstract boolean applyAfterEdgeAddition_(Diff d, OldEdge e)
 			throws DiffNotApplicableException;
 
-	public boolean applyAfterEdgeRemoval(Diff d, Edge e)
+	public boolean applyAfterEdgeRemoval(Diff d, OldEdge e)
 			throws DiffNotApplicableException {
 		this.timestamp = d.getTo();
 		return this.applyAfterEdgeRemoval_(d, e);
 	}
 
-	protected abstract boolean applyAfterEdgeRemoval_(Diff d, Edge e)
+	protected abstract boolean applyAfterEdgeRemoval_(Diff d, OldEdge e)
 			throws DiffNotApplicableException;
 
 	/*
@@ -176,5 +176,5 @@ public abstract class Metric {
 
 	protected abstract Distribution[] getDistributions();
 
-	protected abstract void init(Graph g);
+	protected abstract void init(OldGraph g);
 }

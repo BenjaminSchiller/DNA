@@ -6,9 +6,9 @@ import java.util.Set;
 
 import dna.diff.Diff;
 import dna.diff.DiffNotApplicableException;
-import dna.graph.Edge;
-import dna.graph.Graph;
-import dna.graph.Node;
+import dna.graph.old.OldEdge;
+import dna.graph.old.OldGraph;
+import dna.graph.old.OldNode;
 import dna.metrics.triangles.ClusteringCoefficient;
 
 public class OtcIncrByDiff extends ClusteringCoefficient {
@@ -18,7 +18,7 @@ public class OtcIncrByDiff extends ClusteringCoefficient {
 	}
 
 	@Override
-	protected void init(Graph g) {
+	protected void init(OldGraph g) {
 		super.init(g);
 		this.nodeTriangles = new ArrayList<Set<OpenTriangle>>(
 				g.getNodes().length);
@@ -51,9 +51,9 @@ public class OtcIncrByDiff extends ClusteringCoefficient {
 	@Override
 	protected boolean compute_() {
 		try {
-			for (Node n : this.g.getNodes()) {
-				for (Node u : n.getNeighbors()) {
-					for (Node v : n.getNeighbors()) {
+			for (OldNode n : this.g.getNodes()) {
+				for (OldNode u : n.getNeighbors()) {
+					for (OldNode v : n.getNeighbors()) {
 						if (u.getIndex() == v.getIndex()) {
 							continue;
 						}
@@ -83,36 +83,36 @@ public class OtcIncrByDiff extends ClusteringCoefficient {
 	@Override
 	protected boolean applyBeforeDiff_(Diff d) {
 		try {
-			for (Edge e : d.getRemovedEdges()) {
-				Node v = e.getSrc();
-				Node w = e.getDst();
+			for (OldEdge e : d.getRemovedEdges()) {
+				OldNode v = e.getSrc();
+				OldNode w = e.getDst();
 				// System.out.println("removing edge: " + e);
 				// (1)
-				for (Node x : intersect(v.getNeighbors(), w.getNeighbors())) {
+				for (OldNode x : intersect(v.getNeighbors(), w.getNeighbors())) {
 					this.remove(new OpenTriangle(x, v, w), 1);
 				}
-				if (!this.g.containsEdge(new Edge(w, v))) {
+				if (!this.g.containsEdge(new OldEdge(w, v))) {
 					// System.out.println("continue...");
 					continue;
 				}
 				// (2)
-				for (Node x : intersect(v.getNeighbors(), w.getIn())) {
+				for (OldNode x : intersect(v.getNeighbors(), w.getIn())) {
 					this.remove(new OpenTriangle(v, x, w), 2);
 				}
 				// (3)
-				for (Node x : intersect(v.getNeighbors(), w.getOut())) {
+				for (OldNode x : intersect(v.getNeighbors(), w.getOut())) {
 					this.remove(new OpenTriangle(v, w, x), 3);
 				}
 				// (4)
-				for (Node x : intersect(w.getNeighbors(), v.getIn())) {
+				for (OldNode x : intersect(w.getNeighbors(), v.getIn())) {
 					this.remove(new OpenTriangle(w, x, v), 4);
 				}
 				// (5)
-				for (Node x : intersect(w.getNeighbors(), v.getOut())) {
+				for (OldNode x : intersect(w.getNeighbors(), v.getOut())) {
 					this.remove(new OpenTriangle(w, v, x), 5);
 				}
 				// (6)
-				for (Node x : v.getNeighbors()) {
+				for (OldNode x : v.getNeighbors()) {
 					if (x.equals(w)) {
 						continue;
 					}
@@ -120,7 +120,7 @@ public class OtcIncrByDiff extends ClusteringCoefficient {
 					this.removePotential(new OpenTriangle(v, x, w), 6);
 				}
 				// (7)
-				for (Node x : w.getNeighbors()) {
+				for (OldNode x : w.getNeighbors()) {
 					if (x.equals(v)) {
 						continue;
 					}
@@ -138,36 +138,36 @@ public class OtcIncrByDiff extends ClusteringCoefficient {
 	@Override
 	protected boolean applyAfterDiff_(Diff d) {
 		try {
-			for (Edge e : d.getAddedEdges()) {
-				Node v = e.getSrc();
-				Node w = e.getDst();
+			for (OldEdge e : d.getAddedEdges()) {
+				OldNode v = e.getSrc();
+				OldNode w = e.getDst();
 				// System.out.println("adding edge: " + e);
 				// (1)
-				for (Node x : intersect(v.getNeighbors(), w.getNeighbors())) {
+				for (OldNode x : intersect(v.getNeighbors(), w.getNeighbors())) {
 					this.add(new OpenTriangle(x, v, w), 1);
 				}
-				if (!this.g.containsEdge(new Edge(w, v))) {
+				if (!this.g.containsEdge(new OldEdge(w, v))) {
 					// System.out.println("continue...");
 					continue;
 				}
 				// (2)
-				for (Node x : intersect(v.getNeighbors(), w.getIn())) {
+				for (OldNode x : intersect(v.getNeighbors(), w.getIn())) {
 					this.add(new OpenTriangle(v, x, w), 2);
 				}
 				// (3)
-				for (Node x : intersect(v.getNeighbors(), w.getOut())) {
+				for (OldNode x : intersect(v.getNeighbors(), w.getOut())) {
 					this.add(new OpenTriangle(v, w, x), 3);
 				}
 				// (4)
-				for (Node x : intersect(w.getNeighbors(), v.getIn())) {
+				for (OldNode x : intersect(w.getNeighbors(), v.getIn())) {
 					this.add(new OpenTriangle(w, x, v), 4);
 				}
 				// (5)
-				for (Node x : intersect(w.getNeighbors(), v.getOut())) {
+				for (OldNode x : intersect(w.getNeighbors(), v.getOut())) {
 					this.add(new OpenTriangle(w, v, x), 5);
 				}
 				// (6)
-				for (Node x : v.getNeighbors()) {
+				for (OldNode x : v.getNeighbors()) {
 					if (x.equals(w)) {
 						continue;
 					}
@@ -175,7 +175,7 @@ public class OtcIncrByDiff extends ClusteringCoefficient {
 					this.addPotential(new OpenTriangle(v, x, w), 6);
 				}
 				// (7)
-				for (Node x : w.getNeighbors()) {
+				for (OldNode x : w.getNeighbors()) {
 					if (x.equals(v)) {
 						continue;
 					}
@@ -226,22 +226,22 @@ public class OtcIncrByDiff extends ClusteringCoefficient {
 		return false;
 	}
 
-	private Set<Node> intersect(Set<Node> s1, Set<Node> s2) {
-		Set<Node> s = new HashSet<Node>();
+	private Set<OldNode> intersect(Set<OldNode> s1, Set<OldNode> s2) {
+		Set<OldNode> s = new HashSet<OldNode>();
 		s.addAll(s1);
 		s.retainAll(s2);
 		return s;
 	}
 
 	@Override
-	protected boolean applyAfterEdgeAddition_(Diff d, Edge e)
+	protected boolean applyAfterEdgeAddition_(Diff d, OldEdge e)
 			throws DiffNotApplicableException {
 		throw new DiffNotApplicableException(this.getName()
 				+ " - cannot be applied after edge addition");
 	}
 
 	@Override
-	protected boolean applyAfterEdgeRemoval_(Diff d, Edge e)
+	protected boolean applyAfterEdgeRemoval_(Diff d, OldEdge e)
 			throws DiffNotApplicableException {
 		throw new DiffNotApplicableException(this.getName()
 				+ " - cannot be applied after edge deletion");

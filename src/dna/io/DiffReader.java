@@ -6,8 +6,8 @@ import java.io.IOException;
 import com.sun.media.sound.InvalidFormatException;
 
 import dna.diff.Diff;
-import dna.graph.Edge;
-import dna.graph.Graph;
+import dna.graph.old.OldEdge;
+import dna.graph.old.OldGraph;
 import dna.io.etc.Keywords;
 
 /**
@@ -18,7 +18,7 @@ import dna.io.etc.Keywords;
  * 
  */
 public class DiffReader {
-	public static Diff read(String dir, String filename, Graph g) {
+	public static Diff read(String dir, String filename, OldGraph g) {
 		Reader reader = null;
 		try {
 			reader = new Reader(dir, filename);
@@ -45,7 +45,7 @@ public class DiffReader {
 			while ((line = reader.readString()) != null
 					&& !line.equals(Keywords
 							.asLine(Keywords.diffListofRemovedEdges))) {
-				d.addAddedEdges(Edge.fromString(line, g));
+				d.addAddedEdges(OldEdge.fromString(line, g));
 			}
 			if (d.getAddedEdges().size() != added) {
 				throw new InvalidFormatException("expected " + added
@@ -53,7 +53,7 @@ public class DiffReader {
 			}
 
 			while ((line = reader.readString()) != null) {
-				d.addRemovedEdge(Edge.fromString(line, g));
+				d.addRemovedEdge(OldEdge.fromString(line, g));
 			}
 			if (d.getRemovedEdges().size() != removed) {
 				throw new InvalidFormatException("expected " + removed

@@ -4,8 +4,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.TreeSet;
 
-import dna.graph.Edge;
-import dna.graph.Graph;
+import dna.graph.old.OldEdge;
+import dna.graph.old.OldGraph;
 import dna.io.etc.Keywords;
 
 /**
@@ -17,11 +17,11 @@ import dna.io.etc.Keywords;
  */
 public class GraphWriter {
 
-	public static boolean write(Graph g, String dir, String filename) {
+	public static boolean write(OldGraph g, String dir, String filename) {
 		return GraphWriter.write(g, dir, filename, true);
 	}
 
-	public static boolean write(Graph g, String dir, String filename,
+	public static boolean write(OldGraph g, String dir, String filename,
 			boolean sortEdges) {
 		Writer writer = null;
 		try {
@@ -41,13 +41,13 @@ public class GraphWriter {
 
 			writer.writeKeyword(Keywords.graphListOfEdges);
 			if (sortEdges) {
-				ArrayList<Edge> sorted = new ArrayList<Edge>(new TreeSet<Edge>(
+				ArrayList<OldEdge> sorted = new ArrayList<OldEdge>(new TreeSet<OldEdge>(
 						g.getEdges()));
-				for (Edge e : sorted) {
+				for (OldEdge e : sorted) {
 					writer.writeln(e.getStringRepresentation());
 				}
 			} else {
-				for (Edge e : g.getEdges()) {
+				for (OldEdge e : g.getEdges()) {
 					writer.writeln(e.getStringRepresentation());
 				}
 			}

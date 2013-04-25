@@ -3,8 +3,8 @@ package dna.diff.generator;
 import java.util.ArrayList;
 
 import dna.diff.Diff;
-import dna.graph.Edge;
-import dna.graph.Graph;
+import dna.graph.old.OldEdge;
+import dna.graph.old.OldGraph;
 import dna.util.Rand;
 
 public class RandomDiff extends DiffGenerator {
@@ -22,12 +22,12 @@ public class RandomDiff extends DiffGenerator {
 	private boolean undirected;
 
 	@Override
-	public Diff generate(Graph g) {
+	public Diff generate(OldGraph g) {
 		Diff d = new Diff(g.getNodes().length, g.getTimestamp(),
 				g.getTimestamp() + 1);
 
 		while (d.getAddedEdges().size() < add) {
-			Edge e = Rand.edge(g);
+			OldEdge e = Rand.edge(g);
 			if (g.containsEdge(e)) {
 				continue;
 			}
@@ -37,9 +37,9 @@ public class RandomDiff extends DiffGenerator {
 			}
 		}
 
-		ArrayList<Edge> edges = new ArrayList<Edge>(g.getEdges());
+		ArrayList<OldEdge> edges = new ArrayList<OldEdge>(g.getEdges());
 		while (d.getRemovedEdges().size() < remove) {
-			Edge e = edges.get(Rand.rand.nextInt(edges.size()));
+			OldEdge e = edges.get(Rand.rand.nextInt(edges.size()));
 			d.addRemovedEdge(e);
 			if (undirected) {
 				d.addRemovedEdge(e.invert());

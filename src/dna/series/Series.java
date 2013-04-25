@@ -6,9 +6,9 @@ import java.util.HashMap;
 import dna.diff.Diff;
 import dna.diff.DiffNotApplicableException;
 import dna.diff.generator.DiffGenerator;
-import dna.graph.Edge;
-import dna.graph.Graph;
-import dna.graph.generator.GraphGenerator;
+import dna.graph.old.OldEdge;
+import dna.graph.old.OldGraph;
+import dna.graph.old.OldGraphGenerator;
 import dna.io.filesystem.Dir;
 import dna.metrics.Metric;
 import dna.series.data.DiffData;
@@ -21,9 +21,9 @@ import dna.util.Rand;
 import dna.util.Timer;
 
 public class Series {
-	private Graph g;
+	private OldGraph g;
 
-	private GraphGenerator gg;
+	private OldGraphGenerator gg;
 
 	private DiffGenerator dg;
 
@@ -31,7 +31,7 @@ public class Series {
 
 	private String dir;
 
-	public Series(GraphGenerator gg, DiffGenerator dg, Metric[] metrics,
+	public Series(OldGraphGenerator gg, DiffGenerator dg, Metric[] metrics,
 			String path) {
 		this.g = null;
 		this.gg = gg;
@@ -199,7 +199,7 @@ public class Series {
 		metricsTotal.end();
 
 		// remove edges
-		for (Edge e : d.getRemovedEdges()) {
+		for (OldEdge e : d.getRemovedEdges()) {
 			graphUpdateTimer.restart();
 			boolean removed = this.g.removeEdge(e);
 			graphUpdateTimer.end();
@@ -220,7 +220,7 @@ public class Series {
 		}
 
 		// add edges
-		for (Edge e : d.getAddedEdges()) {
+		for (OldEdge e : d.getAddedEdges()) {
 			graphUpdateTimer.restart();
 			boolean added = this.g.addEdge(e);
 			graphUpdateTimer.end();

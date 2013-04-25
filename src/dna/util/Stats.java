@@ -1,7 +1,7 @@
 package dna.util;
 
 import dna.diff.Diff;
-import dna.graph.Graph;
+import dna.graph.old.OldGraph;
 import dna.metrics.Metric;
 
 public class Stats {
@@ -17,7 +17,7 @@ public class Stats {
 		this.timer = new Timer("");
 	}
 
-	public Stats(Graph g) {
+	public Stats(OldGraph g) {
 		this(g.toString());
 	}
 

@@ -2,9 +2,9 @@ package dna.metrics.degree;
 
 import dna.diff.Diff;
 import dna.diff.DiffNotApplicableException;
-import dna.graph.Edge;
-import dna.graph.Graph;
-import dna.graph.Node;
+import dna.graph.old.OldEdge;
+import dna.graph.old.OldGraph;
+import dna.graph.old.OldNode;
 import dna.metrics.Metric;
 import dna.series.data.Distribution;
 import dna.series.data.Value;
@@ -30,7 +30,7 @@ public class DegreeDistribution extends Metric {
 	private int edges;
 
 	@Override
-	protected void init(Graph g) {
+	protected void init(OldGraph g) {
 		this.degrees = new int[this.g.getNodes().length];
 		this.inDegrees = new int[this.g.getNodes().length];
 		this.outDegrees = new int[this.g.getNodes().length];
@@ -70,7 +70,7 @@ public class DegreeDistribution extends Metric {
 
 	@Override
 	protected boolean compute_() {
-		for (Node n : this.g.getNodes()) {
+		for (OldNode n : this.g.getNodes()) {
 			this.inDegrees[n.getIndex()] = n.getIn().size();
 			this.outDegrees[n.getIndex()] = n.getOut().size();
 			this.degrees[n.getIndex()] = n.getIn().size() + n.getOut().size();
@@ -89,7 +89,7 @@ public class DegreeDistribution extends Metric {
 		int added = 0;
 		int removed = 0;
 
-		for (Edge e : d.getAddedEdges()) {
+		for (OldEdge e : d.getAddedEdges()) {
 			if (this.g.containsEdge(e)) {
 				continue;
 			}
@@ -115,7 +115,7 @@ public class DegreeDistribution extends Metric {
 		}
 		this.edges += added;
 
-		for (Edge e : d.getRemovedEdges()) {
+		for (OldEdge e : d.getRemovedEdges()) {
 			if (!this.g.containsEdge(e)) {
 				continue;
 			}
@@ -154,13 +154,13 @@ public class DegreeDistribution extends Metric {
 	}
 
 	@Override
-	protected boolean applyAfterEdgeAddition_(Diff d, Edge e)
+	protected boolean applyAfterEdgeAddition_(Diff d, OldEdge e)
 			throws DiffNotApplicableException {
 		throw new DiffNotApplicableException("edge addition");
 	}
 
 	@Override
-	protected boolean applyAfterEdgeRemoval_(Diff d, Edge e)
+	protected boolean applyAfterEdgeRemoval_(Diff d, OldEdge e)
 			throws DiffNotApplicableException {
 		throw new DiffNotApplicableException("edge removal");
 	}

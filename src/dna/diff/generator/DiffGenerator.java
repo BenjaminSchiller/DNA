@@ -1,7 +1,7 @@
 package dna.diff.generator;
 
 import dna.diff.Diff;
-import dna.graph.Graph;
+import dna.graph.old.OldGraph;
 
 public abstract class DiffGenerator {
 
@@ -15,6 +15,6 @@ public abstract class DiffGenerator {
 		return this.name;
 	}
 
-	public abstract Diff generate(Graph g);
+	public abstract Diff generate(OldGraph g);
 
 }

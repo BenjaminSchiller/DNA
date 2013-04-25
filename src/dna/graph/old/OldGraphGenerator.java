@@ -1,6 +1,5 @@
-package dna.graph.generator;
+package dna.graph.old;
 
-import dna.graph.Graph;
 
 /**
  * 
@@ -9,9 +8,9 @@ import dna.graph.Graph;
  * @author benni
  * 
  */
-public abstract class GraphGenerator {
+public abstract class OldGraphGenerator {
 
-	public GraphGenerator(String name) {
+	public OldGraphGenerator(String name) {
 		this.name = name;
 	}
 
@@ -30,5 +29,5 @@ public abstract class GraphGenerator {
 	 * 
 	 * @return newly generated graph object
 	 */
-	public abstract Graph generate();
+	public abstract OldGraph generate();
 }

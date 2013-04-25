@@ -1,6 +1,6 @@
 package dna.diff;
 
-import dna.graph.Graph;
+import dna.graph.old.OldGraph;
 import dna.metrics.Metric;
 
 public class DiffNotApplicableException extends Exception {
@@ -12,7 +12,7 @@ public class DiffNotApplicableException extends Exception {
 				+ "\n" + d + "\n" + m);
 	}
 
-	public DiffNotApplicableException(Graph g, Diff d) {
+	public DiffNotApplicableException(OldGraph g, Diff d) {
 		this(DiffNotApplicableException.getMsg(g, d) + "\n" + g + "\n" + d);
 	}
 
@@ -20,7 +20,7 @@ public class DiffNotApplicableException extends Exception {
 		super("Diff cannot be applied - " + msg);
 	}
 
-	private static String getMsg(Graph g, Diff d) {
+	private static String getMsg(OldGraph g, Diff d) {
 		if (g.getNodes().length != d.getNodes()) {
 			return "# of nodes G-" + g.getNodes().length + " != "
 					+ d.getNodes() + "-D";

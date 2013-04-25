@@ -5,8 +5,8 @@ import java.io.IOException;
 
 import com.sun.media.sound.InvalidFormatException;
 
-import dna.graph.Edge;
-import dna.graph.Graph;
+import dna.graph.old.OldEdge;
+import dna.graph.old.OldGraph;
 import dna.io.etc.Keywords;
 
 /**
@@ -17,7 +17,7 @@ import dna.io.etc.Keywords;
  * 
  */
 public class GraphReader {
-	public static Graph read(String dir, String filename) {
+	public static OldGraph read(String dir, String filename) {
 		Reader reader = null;
 		try {
 			reader = new Reader(dir, filename);
@@ -34,12 +34,12 @@ public class GraphReader {
 			reader.readKeyword(Keywords.graphTimestamp);
 			long timestamp = reader.readLong();
 
-			Graph g = new Graph(name, nodes, timestamp);
+			OldGraph g = new OldGraph(name, nodes, timestamp);
 
 			reader.readKeyword(Keywords.graphListOfEdges);
 			String line = null;
 			while ((line = reader.readString()) != null) {
-				g.addEdge(Edge.fromString(line, g));
+				g.addEdge(OldEdge.fromString(line, g));
 			}
 
 			if (edges != g.getEdges().size()) {

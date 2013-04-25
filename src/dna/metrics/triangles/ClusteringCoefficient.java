@@ -1,7 +1,7 @@
 package dna.metrics.triangles;
 
-import dna.graph.Graph;
-import dna.graph.Node;
+import dna.graph.old.OldGraph;
+import dna.graph.old.OldNode;
 import dna.metrics.Metric;
 import dna.series.data.Distribution;
 import dna.series.data.Value;
@@ -21,7 +21,7 @@ public abstract class ClusteringCoefficient extends Metric {
 	}
 
 	@Override
-	protected void init(Graph g) {
+	protected void init(OldGraph g) {
 		this.globalCC = -1;
 		this.localCC = new double[g.getNodes().length];
 		this.averageCC = -1;
@@ -91,11 +91,11 @@ public abstract class ClusteringCoefficient extends Metric {
 	protected boolean compute_() {
 		this.triangleCount = 0;
 		this.potentialCount = 0;
-		for (Node n : this.g.getNodes()) {
+		for (OldNode n : this.g.getNodes()) {
 			this.nodeTriangleCount[n.getIndex()] = 0;
 			this.nodePotentialCount[n.getIndex()] = 0;
-			for (Node u : n.getNeighbors()) {
-				for (Node v : n.getNeighbors()) {
+			for (OldNode u : n.getNeighbors()) {
+				for (OldNode v : n.getNeighbors()) {
 					if (u.equals(v)) {
 						continue;
 					}

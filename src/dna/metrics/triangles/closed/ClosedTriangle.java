@@ -3,31 +3,31 @@ package dna.metrics.triangles.closed;
 import java.util.HashSet;
 import java.util.Set;
 
-import dna.graph.Graph;
-import dna.graph.Node;
+import dna.graph.old.OldGraph;
+import dna.graph.old.OldNode;
 import dna.metrics.triangles.open.OpenTriangle;
 
 public class ClosedTriangle {
-	public ClosedTriangle(Node v1, Node v2, Node v3) {
-		this.nodes = new HashSet<Node>();
+	public ClosedTriangle(OldNode v1, OldNode v2, OldNode v3) {
+		this.nodes = new HashSet<OldNode>();
 		this.nodes.add(v1);
 		this.nodes.add(v2);
 		this.nodes.add(v3);
 	}
 
-	private Set<Node> nodes;
+	private Set<OldNode> nodes;
 
-	public Set<Node> getNodes() {
+	public Set<OldNode> getNodes() {
 		return this.nodes;
 	}
 
-	public boolean containsNode(Node node) {
+	public boolean containsNode(OldNode node) {
 		return this.nodes.contains(node);
 	}
 
 	public String toString() {
 		StringBuffer buff = new StringBuffer();
-		for (Node node : this.nodes) {
+		for (OldNode node : this.nodes) {
 			if (buff.length() == 0) {
 				buff.append("T(" + node.getIndex());
 			} else {
@@ -40,7 +40,7 @@ public class ClosedTriangle {
 
 	public String getStringRepresentation() {
 		StringBuffer buff = new StringBuffer();
-		for (Node node : this.nodes) {
+		for (OldNode node : this.nodes) {
 			if (buff.length() == 0) {
 				buff.append(node.getIndex());
 			} else {
@@ -50,7 +50,7 @@ public class ClosedTriangle {
 		return buff.toString();
 	}
 
-	public static ClosedTriangle fromString(String s, Graph g) {
+	public static ClosedTriangle fromString(String s, OldGraph g) {
 		String[] temp = s.split("|");
 		return new ClosedTriangle(g.getNode(Integer.parseInt(temp[0])),
 				g.getNode(Integer.parseInt(temp[1])), g.getNode(Integer

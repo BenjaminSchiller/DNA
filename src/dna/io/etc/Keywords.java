@@ -15,6 +15,10 @@ public class Keywords {
 
 	public static final String edgeDelimiter = " ";
 
+	public static final String directedEdgeDelimiter = " -> ";
+
+	public static final String undirectedEdgeDelimiter = " <-> ";
+
 	public static final String diffNodes = "Nodes";
 
 	public static final String diffFrom = "From Timestamp";

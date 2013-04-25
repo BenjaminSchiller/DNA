@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.TreeSet;
 
 import dna.diff.Diff;
-import dna.graph.Edge;
+import dna.graph.old.OldEdge;
 import dna.io.etc.Keywords;
 
 /**
@@ -44,26 +44,26 @@ public class DiffWriter {
 
 			writer.writeKeyword(Keywords.diffListOfAddedEdges);
 			if (sortEdges) {
-				ArrayList<Edge> sorted = new ArrayList<Edge>(new TreeSet<Edge>(
+				ArrayList<OldEdge> sorted = new ArrayList<OldEdge>(new TreeSet<OldEdge>(
 						d.getAddedEdges()));
-				for (Edge e : sorted) {
+				for (OldEdge e : sorted) {
 					writer.writeln(e.getStringRepresentation());
 				}
 			} else {
-				for (Edge e : d.getAddedEdges()) {
+				for (OldEdge e : d.getAddedEdges()) {
 					writer.writeln(e.getStringRepresentation());
 				}
 			}
 
 			writer.writeKeyword(Keywords.diffListofRemovedEdges);
 			if (sortEdges) {
-				ArrayList<Edge> sorted = new ArrayList<Edge>(new TreeSet<Edge>(
+				ArrayList<OldEdge> sorted = new ArrayList<OldEdge>(new TreeSet<OldEdge>(
 						d.getRemovedEdges()));
-				for (Edge e : sorted) {
+				for (OldEdge e : sorted) {
 					writer.writeln(e.getStringRepresentation());
 				}
 			} else {
-				for (Edge e : d.getRemovedEdges()) {
+				for (OldEdge e : d.getRemovedEdges()) {
 					writer.writeln(e.getStringRepresentation());
 				}
 			}

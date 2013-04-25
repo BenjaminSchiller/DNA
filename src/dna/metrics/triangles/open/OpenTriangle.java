@@ -1,10 +1,10 @@
 package dna.metrics.triangles.open;
 
-import dna.graph.Graph;
-import dna.graph.Node;
+import dna.graph.old.OldGraph;
+import dna.graph.old.OldNode;
 
 public class OpenTriangle {
-	public OpenTriangle(Node origin, Node from, Node to)
+	public OpenTriangle(OldNode origin, OldNode from, OldNode to)
 			throws InvalidOpenTriangleException {
 		this.origin = origin;
 		this.from = from;
@@ -14,21 +14,21 @@ public class OpenTriangle {
 		}
 	}
 
-	private Node origin;
+	private OldNode origin;
 
-	private Node from;
+	private OldNode from;
 
-	private Node to;
+	private OldNode to;
 
-	public Node getOrigin() {
+	public OldNode getOrigin() {
 		return this.origin;
 	}
 
-	public Node getFrom() {
+	public OldNode getFrom() {
 		return this.from;
 	}
 
-	public Node getTo() {
+	public OldNode getTo() {
 		return this.to;
 	}
 
@@ -42,7 +42,7 @@ public class OpenTriangle {
 				+ this.to.getIndex();
 	}
 
-	public static OpenTriangle fromString(String s, Graph g)
+	public static OpenTriangle fromString(String s, OldGraph g)
 			throws NumberFormatException, InvalidOpenTriangleException {
 		String[] temp1 = s.split("|");
 		String[] temp2 = temp1[1].split("->");

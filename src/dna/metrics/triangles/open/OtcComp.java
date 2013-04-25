@@ -2,7 +2,7 @@ package dna.metrics.triangles.open;
 
 import dna.diff.Diff;
 import dna.diff.DiffNotApplicableException;
-import dna.graph.Edge;
+import dna.graph.old.OldEdge;
 import dna.metrics.triangles.ClusteringCoefficient;
 
 public class OtcComp extends ClusteringCoefficient {
@@ -19,14 +19,14 @@ public class OtcComp extends ClusteringCoefficient {
 	}
 
 	@Override
-	protected boolean applyAfterEdgeAddition_(Diff d, Edge e)
+	protected boolean applyAfterEdgeAddition_(Diff d, OldEdge e)
 			throws DiffNotApplicableException {
 		throw new DiffNotApplicableException(this.getName()
 				+ " - cannot be applied after edge addition");
 	}
 
 	@Override
-	protected boolean applyAfterEdgeRemoval_(Diff d, Edge e)
+	protected boolean applyAfterEdgeRemoval_(Diff d, OldEdge e)
 			throws DiffNotApplicableException {
 		throw new DiffNotApplicableException(this.getName()
 				+ " - cannot be applied after edge removal");

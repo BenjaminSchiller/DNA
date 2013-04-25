@@ -1,7 +1,5 @@
-package dna.graph.generator;
+package dna.graph.old;
 
-import dna.graph.Edge;
-import dna.graph.Graph;
 import dna.util.Rand;
 
 /**
@@ -13,7 +11,7 @@ import dna.util.Rand;
  * @author benni
  * 
  */
-public class RandomGraph extends GraphGenerator {
+public class OldRandomGraph extends OldGraphGenerator {
 
 	/**
 	 * 
@@ -25,7 +23,7 @@ public class RandomGraph extends GraphGenerator {
 	 *            if true, an undirected graph is generated where for each edge
 	 *            (a->b), the inverse (b->a) is added as well.
 	 */
-	public RandomGraph(int nodes, int edges, boolean undirected) {
+	public OldRandomGraph(int nodes, int edges, boolean undirected) {
 		super("RandomGraph-" + nodes + "-" + edges + "-" + undirected);
 		this.nodes = nodes;
 		this.edges = edges;
@@ -38,10 +36,10 @@ public class RandomGraph extends GraphGenerator {
 
 	private boolean undirected;
 
-	public Graph generate() {
-		Graph g = new Graph("Random Graph", this.nodes, 0);
+	public OldGraph generate() {
+		OldGraph g = new OldGraph("Random Graph", this.nodes, 0);
 		while (g.getEdges().size() < this.edges) {
-			Edge e = Rand.edge(g);
+			OldEdge e = Rand.edge(g);
 			g.addEdge(e);
 			if (this.undirected) {
 				g.addEdge(e.invert());
