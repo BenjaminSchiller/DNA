@@ -1,7 +1,6 @@
 package dna.graph.undirected;
 
 import java.util.ArrayList;
-import java.util.Collection;
 
 public class UndirectedNodeAl extends UndirectedNode {
 
@@ -24,11 +23,7 @@ public class UndirectedNodeAl extends UndirectedNode {
 
 	@Override
 	public boolean addEdge(UndirectedEdge e) {
-		if (!this.hasEdge(e)) {
-			this.edges.add(e);
-			return true;
-		}
-		return false;
+		return !this.edges.contains(e) && this.edges.add(e);
 	}
 
 	@Override
@@ -37,7 +32,7 @@ public class UndirectedNodeAl extends UndirectedNode {
 	}
 
 	@Override
-	public Collection<UndirectedEdge> getEdges() {
+	public Iterable<UndirectedEdge> getEdges() {
 		return this.edges;
 	}
 

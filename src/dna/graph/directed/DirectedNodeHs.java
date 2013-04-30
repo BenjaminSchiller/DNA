@@ -1,7 +1,8 @@
 package dna.graph.directed;
 
-import java.util.Collection;
 import java.util.HashSet;
+
+import com.google.common.collect.Iterables;
 
 public class DirectedNodeHs extends DirectedNode {
 
@@ -9,19 +10,22 @@ public class DirectedNodeHs extends DirectedNode {
 
 	private HashSet<DirectedEdge> out;
 
+	private Iterable<DirectedEdge> all;
+
 	public DirectedNodeHs(int index) {
 		super(index);
 		this.in = new HashSet<DirectedEdge>();
 		this.out = new HashSet<DirectedEdge>();
+		this.all = Iterables.unmodifiableIterable(Iterables.concat(in, out));
 	}
 
 	@Override
-	public Collection<DirectedEdge> getIncomingEdges() {
+	public Iterable<DirectedEdge> getIncomingEdges() {
 		return this.in;
 	}
 
 	@Override
-	public Collection<DirectedEdge> getOutgoingEdges() {
+	public Iterable<DirectedEdge> getOutgoingEdges() {
 		return this.out;
 	}
 
@@ -61,6 +65,11 @@ public class DirectedNodeHs extends DirectedNode {
 			return this.in.remove(e);
 		}
 		return false;
+	}
+
+	@Override
+	public Iterable<DirectedEdge> getEdges() {
+		return this.all;
 	}
 
 }

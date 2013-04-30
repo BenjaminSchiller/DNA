@@ -1,35 +1,13 @@
 package dna.graph.undirected;
 
-import java.util.ArrayList;
-import java.util.Collection;
+import dna.graph.edges.EdgesAl;
+import dna.graph.nodes.NodesAl;
 
-public class UndirectedGraphAlAl extends UndirectedGraphAl {
-
-	private ArrayList<UndirectedEdge> edges;
+public class UndirectedGraphAlAl extends UndirectedGraph {
 
 	public UndirectedGraphAlAl(String name, long timestamp, int nodes, int edges) {
-		super(name, timestamp, nodes);
-		this.edges = new ArrayList<UndirectedEdge>(edges);
-	}
-
-	@Override
-	public int getEdgeCount() {
-		return this.edges.size();
-	}
-
-	@Override
-	public Collection<UndirectedEdge> getEdges() {
-		return this.edges;
-	}
-
-	@Override
-	public boolean addEdge(UndirectedEdge e) {
-		return e != null && this.edges.add(e);
-	}
-
-	@Override
-	public boolean removeEdge(UndirectedEdge e) {
-		return e != null && this.edges.remove(e);
+		super(name, timestamp, new NodesAl<UndirectedNode, UndirectedEdge>(
+				nodes), new EdgesAl<UndirectedEdge>(edges));
 	}
 
 }
