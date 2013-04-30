@@ -32,10 +32,14 @@ public class Keywords {
 	public static final String diffListOfAddedEdges = "List of added Edges";
 
 	public static final String diffListofRemovedEdges = "List of removed Edges";
-	
+
 	public static final String distributionDelimiter = "	";
-	
+
 	public static final String dataDelimiter = "	";
+
+	public static final String updateDelimiter1 = "#";
+
+	public static final String updateDelimiter2 = ";";
 
 	public static String asLine(String keyword) {
 		return Keywords.pre + keyword;
