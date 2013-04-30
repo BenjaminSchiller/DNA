@@ -3,9 +3,16 @@ package dna.graph;
 import dna.util.parameters.Parameter;
 import dna.util.parameters.ParameterList;
 
-public abstract class GraphGenerator<EdgeType extends Edge> extends
-		ParameterList {
-	protected GraphDatastructures<EdgeType> datastructures;
+public abstract class GraphGenerator<G extends Graph<N, E>, N extends Node<E>, E extends Edge>
+		extends ParameterList {
+
+	protected GraphDatastructures<G, N, E> datastructures;
+
+	protected long timestampInit;
+
+	protected int nodesInit;
+
+	protected int edgesInit;
 
 	/**
 	 * 
@@ -14,16 +21,20 @@ public abstract class GraphGenerator<EdgeType extends Edge> extends
 	 * @param datastructures
 	 */
 	public GraphGenerator(String name, Parameter[] params,
-			GraphDatastructures<EdgeType> datastructures) {
+			GraphDatastructures<G, N, E> datastructures, long timestampInit,
+			int nodesInit, int edgesInit) {
 		super(name, params);
 		this.datastructures = datastructures;
+		this.timestampInit = timestampInit;
+		this.nodesInit = nodesInit;
+		this.edgesInit = edgesInit;
 	}
 
 	/**
 	 * 
 	 * @return
 	 */
-	public GraphDatastructures<EdgeType> getDatastructures() {
+	public GraphDatastructures<G, N, E> getDatastructures() {
 		return datastructures;
 	}
 
@@ -33,5 +44,10 @@ public abstract class GraphGenerator<EdgeType extends Edge> extends
 	 * 
 	 * @return generated graph of the specified type
 	 */
-	public abstract Graph<? extends Node<EdgeType>, EdgeType> generate();
+	public abstract G generate();
+
+	protected G init() {
+		return this.datastructures.newGraphInstance(this.getName(),
+				this.timestampInit, this.nodesInit, this.edgesInit);
+	}
 }
