@@ -1,18 +1,16 @@
 package dna.graph.directed;
 
 import dna.graph.Edge;
-import dna.graph.undirected.UndirectedEdge;
 import dna.io.etc.Keywords;
 
-public class DirectedEdge extends Edge implements
-		Comparable<DirectedEdge> {
-	private DirectedNode src;
+public class DirectedEdge extends Edge implements Comparable<DirectedEdge> {
+	protected DirectedNode src;
 
 	public DirectedNode getSrc() {
 		return this.src;
 	}
 
-	private DirectedNode dst;
+	protected DirectedNode dst;
 
 	public DirectedNode getDst() {
 		return this.dst;
@@ -24,7 +22,7 @@ public class DirectedEdge extends Edge implements
 	}
 
 	public String toString() {
-		return this.src.getIndex() + " <-> " + this.dst.getIndex();
+		return this.src.getIndex() + " -> " + this.dst.getIndex();
 	}
 
 	/**
@@ -37,7 +35,7 @@ public class DirectedEdge extends Edge implements
 	}
 
 	public boolean equals(Object o) {
-		return o != null && o instanceof UndirectedEdge
+		return o != null && o instanceof DirectedEdge
 				&& this.src.getIndex() == ((DirectedEdge) o).src.getIndex()
 				&& this.dst.getIndex() == ((DirectedEdge) o).dst.getIndex();
 	}

@@ -1,7 +1,5 @@
 package dna.graph.directed;
 
-import java.util.Collection;
-
 import dna.graph.Node;
 
 public abstract class DirectedNode extends Node<DirectedEdge> {
@@ -10,12 +8,18 @@ public abstract class DirectedNode extends Node<DirectedEdge> {
 		super(index);
 	}
 
-	public abstract Collection<DirectedEdge> getIncomingEdges();
+	public abstract Iterable<DirectedEdge> getIncomingEdges();
 
-	public abstract Collection<DirectedEdge> getOutgoingEdges();
+	public abstract Iterable<DirectedEdge> getOutgoingEdges();
 
 	public abstract int getInDegree();
 
 	public abstract int getOutDegree();
+
+	public void print() {
+		System.out.println(this.toString());
+		System.out.println("In: " + this.getIncomingEdges());
+		System.out.println("Out: " + this.getOutgoingEdges());
+	}
 
 }
