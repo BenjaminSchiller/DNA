@@ -1,7 +1,6 @@
 package dna.graph;
 
-public abstract class Node<EdgeType extends Edge> implements
-		Comparable<Node<EdgeType>> {
+public abstract class Node<E extends Edge> implements Comparable<Node<E>> {
 
 	protected int index;
 
@@ -13,14 +12,18 @@ public abstract class Node<EdgeType extends Edge> implements
 		this.index = index;
 	}
 
-	public abstract boolean hasEdge(EdgeType e);
+	public abstract boolean hasEdge(E e);
 
-	public abstract boolean addEdge(EdgeType e);
+	public abstract boolean addEdge(E e);
 
-	public abstract boolean removeEdge(EdgeType e);
+	public abstract boolean removeEdge(E e);
+
+	public abstract Iterable<E> getEdges();
+
+	public abstract void print();
 
 	public String toString() {
-		return "N(" + this.index + ")";
+		return "" + this.index;
 	}
 
 	public String getStringRepresentation() {
@@ -31,8 +34,15 @@ public abstract class Node<EdgeType extends Edge> implements
 		return this.getStringRepresentation().hashCode();
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
-	public int compareTo(Node<EdgeType> o) {
+	public boolean equals(Object obj) {
+		return obj != null && obj instanceof Node
+				&& ((Node<E>) obj).getIndex() == this.index;
+	}
+
+	@Override
+	public int compareTo(Node<E> o) {
 		return this.index - o.index;
 	}
 }

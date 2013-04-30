@@ -2,7 +2,7 @@ package dna.graph;
 
 import java.util.Collection;
 
-public abstract class Graph<NodeType extends Node<EdgeType>, EdgeType extends Edge> {
+public abstract class Graph<N extends Node<E>, E extends Edge> {
 	protected String name;
 
 	public String getName() {
@@ -25,21 +25,35 @@ public abstract class Graph<NodeType extends Node<EdgeType>, EdgeType extends Ed
 				+ this.getNodeCount() + "/" + this.getEdgeCount() + ")";
 	}
 
-	public abstract NodeType getNode(int index);
+	public void print() {
+		System.out.println(this.toString());
+		System.out.println("  V = " + this.getNodes());
+		System.out.println("  E = " + this.getEdges());
+	}
+
+	public abstract N getNode(int index);
 
 	public abstract int getNodeCount();
 
-	public abstract Collection<NodeType> getNodes();
+	public abstract Collection<N> getNodes();
 
-	public abstract boolean addNode(NodeType n);
+	public abstract boolean addNode(N n);
 
-	public abstract boolean removeNode(NodeType n);
+	public abstract boolean removeNode(N n);
+
+	public abstract boolean containsNode(N n);
+
+	public abstract Node<E> getRandomNode();
 
 	public abstract int getEdgeCount();
 
-	public abstract Collection<EdgeType> getEdges();
+	public abstract Collection<E> getEdges();
 
-	public abstract boolean addEdge(EdgeType e);
+	public abstract boolean addEdge(E e);
 
-	public abstract boolean removeEdge(EdgeType e);
+	public abstract boolean removeEdge(E e);
+
+	public abstract boolean containsEdge(E e);
+
+	public abstract E getRandomEdge();
 }
