@@ -11,7 +11,7 @@ import dna.io.etc.Keywords;
  */
 public class UndirectedEdge extends Edge implements Comparable<UndirectedEdge> {
 
-	private UndirectedNode node1;
+	protected UndirectedNode node1;
 
 	/**
 	 * 
@@ -21,7 +21,7 @@ public class UndirectedEdge extends Edge implements Comparable<UndirectedEdge> {
 		return this.node1;
 	}
 
-	private UndirectedNode node2;
+	protected UndirectedNode node2;
 
 	/**
 	 * 
