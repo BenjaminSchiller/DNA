@@ -1,16 +1,15 @@
 package dna.graph;
 
-public class GraphDatastructures<EdgeType extends Edge> {
+public abstract class GraphDatastructures<G extends Graph<N, E>, N extends Node<E>, E extends Edge> {
 
-	protected Class<? extends Graph<? extends Node<EdgeType>, EdgeType>> graphType;
+	protected Class<G> graphType;
 
-	protected Class<? extends Node<EdgeType>> nodeType;
+	protected Class<N> nodeType;
 
-	protected Class<EdgeType> edgeType;
+	protected Class<E> edgeType;
 
-	public GraphDatastructures(
-			Class<? extends Graph<? extends Node<EdgeType>, EdgeType>> graphType,
-			Class<? extends Node<EdgeType>> nodeType, Class<EdgeType> edgeType) {
+	public GraphDatastructures(Class<G> graphType, Class<N> nodeType,
+			Class<E> edgeType) {
 		this.graphType = graphType;
 		this.nodeType = nodeType;
 		this.edgeType = edgeType;
@@ -21,16 +20,23 @@ public class GraphDatastructures<EdgeType extends Edge> {
 				+ "\nEdgeType: " + this.edgeType;
 	}
 
-	public Class<? extends Graph<? extends Node<EdgeType>, EdgeType>> getGraphType() {
+	public Class<G> getGraphType() {
 		return graphType;
 	}
 
-	public Class<? extends Node<EdgeType>> getNodeType() {
+	public Class<N> getNodeType() {
 		return nodeType;
 	}
 
-	public Class<EdgeType> getEdgeType() {
+	public Class<E> getEdgeType() {
 		return edgeType;
 	}
+
+	public abstract G newGraphInstance(String name, long timestamp, int nodes,
+			int edges);
+
+	public abstract N newNodeInstance(int index);
+
+	public abstract E newEdgeInstance(N src, N dst);
 
 }
