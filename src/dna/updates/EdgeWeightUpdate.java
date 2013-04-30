@@ -1,0 +1,32 @@
+package dna.updates;
+
+import dna.graph.Edge;
+import dna.graph.Graph;
+import dna.graph.Node;
+import dna.util.Log;
+
+public class EdgeWeightUpdate<E extends Edge> extends EdgeUpdate<E> {
+
+	private double weight;
+
+	public EdgeWeightUpdate(E edge, double weight) {
+		super(edge, UpdateType.EdgeWeightUpdate);
+		this.weight = weight;
+	}
+
+	public double getWeight() {
+		return this.weight;
+	}
+
+	public String toString() {
+		return "w(" + this.edge + ") = " + this.weight;
+	}
+
+	@Override
+	public boolean apply(Graph<? extends Node<E>, ? extends E> graph) {
+		Log.debug("=> " + this.toString());
+		// TODO implement edge weight update
+		return false;
+	}
+
+}
