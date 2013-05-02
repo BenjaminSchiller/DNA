@@ -47,11 +47,68 @@ public class DirectedGraphDatastructures extends
 	}
 
 	@Override
+	public DirectedNode newNodeInstance(int index, double weight) {
+		try {
+			Constructor<DirectedNode> constr = this.nodeType.getConstructor(
+					int.class, double.class);
+			return constr.newInstance(index, weight);
+		} catch (InstantiationException | IllegalAccessException
+				| IllegalArgumentException | InvocationTargetException
+				| NoSuchMethodException | SecurityException e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
+
+	@Override
+	public DirectedNode newNodeInstance(String str) {
+		try {
+			Constructor<DirectedNode> constr = this.nodeType
+					.getConstructor(String.class);
+			return constr.newInstance(str);
+		} catch (InstantiationException | IllegalAccessException
+				| IllegalArgumentException | InvocationTargetException
+				| NoSuchMethodException | SecurityException e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
+
+	@Override
 	public DirectedEdge newEdgeInstance(DirectedNode src, DirectedNode dst) {
 		try {
 			Constructor<DirectedEdge> constr = this.edgeType.getConstructor(
 					DirectedNode.class, DirectedNode.class);
 			return constr.newInstance(src, dst);
+		} catch (NoSuchMethodException | SecurityException
+				| InstantiationException | IllegalAccessException
+				| IllegalArgumentException | InvocationTargetException e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
+
+	@Override
+	public DirectedEdge newEdgeInstance(DirectedNode src, DirectedNode dst,
+			double weight) {
+		try {
+			Constructor<DirectedEdge> constr = this.edgeType.getConstructor(
+					DirectedNode.class, DirectedNode.class, double.class);
+			return constr.newInstance(src, dst, weight);
+		} catch (NoSuchMethodException | SecurityException
+				| InstantiationException | IllegalAccessException
+				| IllegalArgumentException | InvocationTargetException e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
+
+	@Override
+	public DirectedEdge newEdgeInstance(String str, DirectedGraph graph) {
+		try {
+			Constructor<DirectedEdge> constr = this.edgeType.getConstructor(
+					String.class, DirectedGraph.class);
+			return constr.newInstance(str, graph);
 		} catch (NoSuchMethodException | SecurityException
 				| InstantiationException | IllegalAccessException
 				| IllegalArgumentException | InvocationTargetException e) {

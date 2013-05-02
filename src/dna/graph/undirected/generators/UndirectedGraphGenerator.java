@@ -13,44 +13,91 @@ import dna.graph.undirected.UndirectedNode;
 import dna.util.parameters.Parameter;
 
 public abstract class UndirectedGraphGenerator extends
-		GraphGenerator<UndirectedEdge> {
+		GraphGenerator<UndirectedGraph, UndirectedNode, UndirectedEdge> {
 
-	public UndirectedGraphGenerator(String name, Parameter p1,
-			GraphDatastructures<UndirectedEdge> datastructures) {
-		super(name, new Parameter[] { p1 }, datastructures);
+	public UndirectedGraphGenerator(
+			String name,
+			GraphDatastructures<UndirectedGraph, UndirectedNode, UndirectedEdge> datastructures,
+			long timestampInit, int nodesInit, int edgesInit) {
+		super(name, new Parameter[] {}, datastructures, timestampInit,
+				nodesInit, edgesInit);
 	}
 
-	public UndirectedGraphGenerator(String name, Parameter p1, Parameter p2,
-			GraphDatastructures<UndirectedEdge> datastructures) {
-		super(name, new Parameter[] { p1, p2 }, datastructures);
+	public UndirectedGraphGenerator(
+			String name,
+			Parameter p1,
+			GraphDatastructures<UndirectedGraph, UndirectedNode, UndirectedEdge> datastructures,
+			long timestampInit, int nodesInit, int edgesInit) {
+		super(name, new Parameter[] { p1 }, datastructures, timestampInit,
+				nodesInit, edgesInit);
 	}
 
-	public UndirectedGraphGenerator(String name, Parameter p1, Parameter p2,
-			Parameter p3, GraphDatastructures<UndirectedEdge> datastructures) {
-		super(name, new Parameter[] { p1, p2, p3 }, datastructures);
+	public UndirectedGraphGenerator(
+			String name,
+			Parameter p1,
+			Parameter p2,
+			GraphDatastructures<UndirectedGraph, UndirectedNode, UndirectedEdge> datastructures,
+			long timestampInit, int nodesInit, int edgesInit) {
+		super(name, new Parameter[] { p1, p2 }, datastructures, timestampInit,
+				nodesInit, edgesInit);
 	}
 
-	public UndirectedGraphGenerator(String name, Parameter p1, Parameter p2,
-			Parameter p3, Parameter p4,
-			GraphDatastructures<UndirectedEdge> datastructures) {
-		super(name, new Parameter[] { p1, p2, p3, p4 }, datastructures);
+	public UndirectedGraphGenerator(
+			String name,
+			Parameter p1,
+			Parameter p2,
+			Parameter p3,
+			GraphDatastructures<UndirectedGraph, UndirectedNode, UndirectedEdge> datastructures,
+			long timestampInit, int nodesInit, int edgesInit) {
+		super(name, new Parameter[] { p1, p2, p3 }, datastructures,
+				timestampInit, nodesInit, edgesInit);
 	}
 
-	public UndirectedGraphGenerator(String name, Parameter p1, Parameter p2,
-			Parameter p3, Parameter p4, Parameter p5,
-			GraphDatastructures<UndirectedEdge> datastructures) {
-		super(name, new Parameter[] { p1, p2, p3, p4, p5 }, datastructures);
+	public UndirectedGraphGenerator(
+			String name,
+			Parameter p1,
+			Parameter p2,
+			Parameter p3,
+			Parameter p4,
+			GraphDatastructures<UndirectedGraph, UndirectedNode, UndirectedEdge> datastructures,
+			long timestampInit, int nodesInit, int edgesInit) {
+		super(name, new Parameter[] { p1, p2, p3, p4 }, datastructures,
+				timestampInit, nodesInit, edgesInit);
 	}
 
-	public UndirectedGraphGenerator(String name, Parameter p1, Parameter p2,
-			Parameter p3, Parameter p4, Parameter p5, Parameter p6,
-			GraphDatastructures<UndirectedEdge> datastructures) {
-		super(name, new Parameter[] { p1, p2, p3, p4, p5, p6 }, datastructures);
+	public UndirectedGraphGenerator(
+			String name,
+			Parameter p1,
+			Parameter p2,
+			Parameter p3,
+			Parameter p4,
+			Parameter p5,
+			GraphDatastructures<UndirectedGraph, UndirectedNode, UndirectedEdge> datastructures,
+			long timestampInit, int nodesInit, int edgesInit) {
+		super(name, new Parameter[] { p1, p2, p3, p4, p5 }, datastructures,
+				timestampInit, nodesInit, edgesInit);
 	}
 
-	public UndirectedGraphGenerator(String name, Parameter[] params,
-			GraphDatastructures<UndirectedEdge> datastructures) {
-		super(name, params, datastructures);
+	public UndirectedGraphGenerator(
+			String name,
+			Parameter p1,
+			Parameter p2,
+			Parameter p3,
+			Parameter p4,
+			Parameter p5,
+			Parameter p6,
+			GraphDatastructures<UndirectedGraph, UndirectedNode, UndirectedEdge> datastructures,
+			long timestampInit, int nodesInit, int edgesInit) {
+		super(name, new Parameter[] { p1, p2, p3, p4, p5, p6 }, datastructures,
+				timestampInit, nodesInit, edgesInit);
+	}
+
+	public UndirectedGraphGenerator(
+			String name,
+			Parameter[] params,
+			GraphDatastructures<UndirectedGraph, UndirectedNode, UndirectedEdge> datastructures,
+			long timestampInit, int nodesInit, int edgesInit) {
+		super(name, params, datastructures, timestampInit, nodesInit, edgesInit);
 	}
 
 	protected UndirectedGraph getGraphInstance(String name, long timestamp,
