@@ -2,6 +2,8 @@ package dna.updates;
 
 import java.util.ArrayList;
 
+import com.google.common.collect.Iterables;
+
 import dna.graph.Edge;
 import dna.graph.Graph;
 import dna.graph.Node;
@@ -20,6 +22,9 @@ public class Batch<E extends Edge> {
 
 	ArrayList<Update<E>> edgeWeightUpdates;
 
+	private Iterable<Update<E>> all;
+
+	@SuppressWarnings("unchecked")
 	public Batch() {
 		this.nodeAdditions = new ArrayList<Update<E>>();
 		this.nodeRemovals = new ArrayList<Update<E>>();
@@ -27,18 +32,19 @@ public class Batch<E extends Edge> {
 		this.edgeAdditions = new ArrayList<Update<E>>();
 		this.edgeRemovals = new ArrayList<Update<E>>();
 		this.edgeWeightUpdates = new ArrayList<Update<E>>();
+		this.all = Iterables.unmodifiableIterable(Iterables.concat(
+				this.nodeAdditions, this.nodeRemovals, this.nodeWeightUpdates,
+				this.edgeAdditions, this.edgeRemovals, this.edgeWeightUpdates));
 	}
 
 	public Batch(int nodeAdditions, int nodeRemovals, int nodeWeightUpdates,
 			int edgeAdditions, int edgeRemovals, int edgeWeightUpdates) {
 		this.nodeAdditions = new ArrayList<Update<E>>(nodeAdditions);
 		this.nodeRemovals = new ArrayList<Update<E>>(nodeRemovals);
-		this.nodeWeightUpdates = new ArrayList<Update<E>>(
-				nodeWeightUpdates);
+		this.nodeWeightUpdates = new ArrayList<Update<E>>(nodeWeightUpdates);
 		this.edgeAdditions = new ArrayList<Update<E>>(edgeAdditions);
 		this.edgeRemovals = new ArrayList<Update<E>>(edgeRemovals);
-		this.edgeWeightUpdates = new ArrayList<Update<E>>(
-				edgeWeightUpdates);
+		this.edgeWeightUpdates = new ArrayList<Update<E>>(edgeWeightUpdates);
 	}
 
 	public boolean add(Update<E> update) {
@@ -69,28 +75,32 @@ public class Batch<E extends Edge> {
 		return false;
 	}
 
-	public ArrayList<Update<E>> getNodeAdditions() {
+	public Iterable<Update<E>> getNodeAdditions() {
 		return nodeAdditions;
 	}
 
-	public ArrayList<Update<E>> getNodeRemovals() {
+	public Iterable<Update<E>> getNodeRemovals() {
 		return nodeRemovals;
 	}
 
-	public ArrayList<Update<E>> getNodeWeightUpdates() {
+	public Iterable<Update<E>> getNodeWeightUpdates() {
 		return nodeWeightUpdates;
 	}
 
-	public ArrayList<Update<E>> getEdgeAdditions() {
+	public Iterable<Update<E>> getEdgeAdditions() {
 		return edgeAdditions;
 	}
 
-	public ArrayList<Update<E>> getEdgeRemovals() {
+	public Iterable<Update<E>> getEdgeRemovals() {
 		return edgeRemovals;
 	}
 
-	public ArrayList<Update<E>> getEdgeWeightUpdates() {
+	public Iterable<Update<E>> getEdgeWeightUpdates() {
 		return edgeWeightUpdates;
+	}
+
+	public Iterable<Update<E>> getAllUpdates() {
+		return this.all;
 	}
 
 	public int getSize() {
@@ -115,16 +125,14 @@ public class Batch<E extends Edge> {
 	}
 
 	@SuppressWarnings("unchecked")
-	public boolean apply(
-			Graph<? extends Node<E>, ? extends E> graph) {
+	public boolean apply(Graph<? extends Node<E>, ? extends E> graph) {
 		boolean success = true;
 		Graph<Node<E>, E> g = (Graph<Node<E>, E>) graph;
 		success &= this.apply(g, this.nodeAdditions);
 		return success;
 	}
 
-	private boolean apply(Graph<Node<E>, E> g,
-			ArrayList<Update<E>> updates) {
+	private boolean apply(Graph<Node<E>, E> g, ArrayList<Update<E>> updates) {
 		boolean success = true;
 		for (Update<E> u : updates) {
 			success &= u.apply(g);
@@ -132,7 +140,4 @@ public class Batch<E extends Edge> {
 		return success;
 	}
 
-	// TODO add different ways to apply a batch to a graph
-
-	// TODO read / write batch
 }
