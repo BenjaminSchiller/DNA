@@ -4,6 +4,7 @@ import dna.graph.Edge;
 import dna.graph.Graph;
 import dna.graph.Node;
 import dna.graph.WeightedNode;
+import dna.io.etc.Keywords;
 import dna.util.Log;
 
 public class NodeWeightUpdate<E extends Edge> extends NodeUpdate<E> {
@@ -28,6 +29,12 @@ public class NodeWeightUpdate<E extends Edge> extends NodeUpdate<E> {
 		Log.debug("=> " + this.toString());
 		((WeightedNode) this.node).setWeight(this.weight);
 		return true;
+	}
+
+	@Override
+	protected String getStringRepresentation_() {
+		return this.node.getStringRepresentation() + Keywords.updateDelimiter2
+				+ this.weight;
 	}
 
 }

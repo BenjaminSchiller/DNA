@@ -22,4 +22,9 @@ public class NodeAddition<E extends Edge> extends NodeUpdate<E> {
 		return ((Graph<Node<E>, E>) graph).addNode((Node<E>) this.node);
 	}
 
+	@Override
+	protected String getStringRepresentation_() {
+		return this.node.getStringRepresentation();
+	}
+
 }

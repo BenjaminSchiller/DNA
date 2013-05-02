@@ -3,6 +3,7 @@ package dna.updates;
 import dna.graph.Edge;
 import dna.graph.Graph;
 import dna.graph.Node;
+import dna.io.etc.Keywords;
 import dna.util.Log;
 
 public class EdgeWeightUpdate<E extends Edge> extends EdgeUpdate<E> {
@@ -27,6 +28,12 @@ public class EdgeWeightUpdate<E extends Edge> extends EdgeUpdate<E> {
 		Log.debug("=> " + this.toString());
 		// TODO implement edge weight update
 		return false;
+	}
+
+	@Override
+	protected String getStringRepresentation_() {
+		return this.edge.getStringRepresentation() + Keywords.updateDelimiter2
+				+ this.weight;
 	}
 
 }

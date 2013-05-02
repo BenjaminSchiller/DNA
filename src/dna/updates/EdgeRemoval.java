@@ -17,11 +17,14 @@ public class EdgeRemoval<E extends Edge> extends EdgeUpdate<E> {
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public boolean apply(
-			Graph<? extends Node<E>, ? extends E> graph) {
+	public boolean apply(Graph<? extends Node<E>, ? extends E> graph) {
 		Log.debug("=> " + this.toString());
-		return ((Graph<Node<E>, E>) graph)
-				.removeEdge((E) this.edge);
+		return ((Graph<Node<E>, E>) graph).removeEdge((E) this.edge);
+	}
+
+	@Override
+	protected String getStringRepresentation_() {
+		return this.edge.getStringRepresentation();
 	}
 
 }

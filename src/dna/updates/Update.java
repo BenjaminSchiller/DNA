@@ -3,6 +3,7 @@ package dna.updates;
 import dna.graph.Edge;
 import dna.graph.Graph;
 import dna.graph.Node;
+import dna.io.etc.Keywords;
 
 public abstract class Update<E extends Edge> {
 
@@ -20,8 +21,12 @@ public abstract class Update<E extends Edge> {
 		return this.type;
 	}
 
-	public abstract boolean apply(
-			Graph<? extends Node<E>, ? extends E> graph);
+	public abstract boolean apply(Graph<? extends Node<E>, ? extends E> graph);
 
-	// TODO read update from string
+	public String getStringRepresentation() {
+		return this.type + Keywords.updateDelimiter1
+				+ this.getStringRepresentation_();
+	}
+
+	protected abstract String getStringRepresentation_();
 }
