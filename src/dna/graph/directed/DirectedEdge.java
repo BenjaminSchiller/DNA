@@ -16,6 +16,14 @@ public class DirectedEdge extends Edge implements Comparable<DirectedEdge> {
 		return this.dst;
 	}
 
+	public DirectedEdge(String s, DirectedGraph g) {
+		String[] temp = s.split(Keywords.directedEdgeDelimiter);
+		DirectedNode src = g.getNode(Integer.parseInt(temp[0]));
+		DirectedNode dst = g.getNode(Integer.parseInt(temp[1]));
+		this.src = src;
+		this.dst = dst;
+	}
+
 	public DirectedEdge(DirectedNode src, DirectedNode dst) {
 		this.src = src;
 		this.dst = dst;

@@ -11,27 +11,6 @@ import dna.io.etc.Keywords;
  */
 public class UndirectedEdge extends Edge implements Comparable<UndirectedEdge> {
 
-	protected UndirectedNode node1;
-
-	/**
-	 * 
-	 * @return first node connected by this edge (the node with the lower index)
-	 */
-	public UndirectedNode getNode1() {
-		return this.node1;
-	}
-
-	protected UndirectedNode node2;
-
-	/**
-	 * 
-	 * @return second node connected by this edge (the node with the higher
-	 *         index)
-	 */
-	public UndirectedNode getNode2() {
-		return this.node2;
-	}
-
 	/**
 	 * 
 	 * The node with the lower index is stored as the first node. In case
@@ -61,6 +40,36 @@ public class UndirectedEdge extends Edge implements Comparable<UndirectedEdge> {
 		this.init(node1, node2);
 	}
 
+	/**
+	 * 
+	 * @return String representation of this edge
+	 */
+	public String getStringRepresentation() {
+		return this.node1.getIndex() + Keywords.undirectedEdgeDelimiter
+				+ this.node2.getIndex();
+	}
+	
+	protected UndirectedNode node1;
+
+	/**
+	 * 
+	 * @return first node connected by this edge (the node with the lower index)
+	 */
+	public UndirectedNode getNode1() {
+		return this.node1;
+	}
+
+	protected UndirectedNode node2;
+
+	/**
+	 * 
+	 * @return second node connected by this edge (the node with the higher
+	 *         index)
+	 */
+	public UndirectedNode getNode2() {
+		return this.node2;
+	}
+
 	private void init(UndirectedNode node1, UndirectedNode node2) {
 		if (node1.getIndex() > node2.getIndex()) {
 			this.node1 = node2;
@@ -73,15 +82,6 @@ public class UndirectedEdge extends Edge implements Comparable<UndirectedEdge> {
 
 	public String toString() {
 		return this.node1.getIndex() + " <-> " + this.node2.getIndex();
-	}
-
-	/**
-	 * 
-	 * @return String representation of this edge
-	 */
-	public String getStringRepresentation() {
-		return this.node1.getIndex() + Keywords.undirectedEdgeDelimiter
-				+ this.node2.getIndex();
 	}
 
 	public boolean equals(Object o) {

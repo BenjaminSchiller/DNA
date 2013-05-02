@@ -18,6 +18,8 @@ public class Keywords {
 	public static final String directedEdgeDelimiter = " -> ";
 
 	public static final String undirectedEdgeDelimiter = " <-> ";
+	
+	public static final String edgeWeightDelimiter = "|";
 
 	public static final String diffNodes = "Nodes";
 
