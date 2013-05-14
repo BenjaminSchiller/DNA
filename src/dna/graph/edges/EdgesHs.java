@@ -14,6 +14,16 @@ public class EdgesHs<E extends Edge> extends Edges<E> {
 	}
 
 	@Override
+	public E getEdge(E e) {
+		for (E edge : this.edges) {
+			if (edge.equals(e)) {
+				return edge;
+			}
+		}
+		return null;
+	}
+
+	@Override
 	public int getEdgeCount() {
 		return this.edges.size();
 	}

@@ -45,6 +45,8 @@ public abstract class Graph<N extends Node<E>, E extends Edge> {
 
 	public abstract Node<E> getRandomNode();
 
+	public abstract E getEdge(E e);
+
 	public abstract int getEdgeCount();
 
 	public abstract Collection<E> getEdges();

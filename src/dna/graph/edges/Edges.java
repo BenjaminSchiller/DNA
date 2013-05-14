@@ -6,6 +6,8 @@ import dna.graph.Edge;
 
 public abstract class Edges<E extends Edge> {
 
+	public abstract E getEdge(E e);
+
 	public abstract int getEdgeCount();
 
 	public abstract Collection<E> getEdges();

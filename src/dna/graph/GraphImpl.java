@@ -40,11 +40,11 @@ public class GraphImpl<N extends Node<E>, E extends Edge> extends Graph<N, E> {
 
 	@Override
 	public boolean removeNode(N n) {
-		if(!this.nodes.removeNode(n)){
+		if (!this.nodes.removeNode(n)) {
 			return false;
 		}
 		boolean success = true;
-		for(E e : n.getEdges()){
+		for (E e : n.getEdges()) {
 			success &= this.edges.removeEdge(e);
 		}
 		return success;
@@ -58,6 +58,11 @@ public class GraphImpl<N extends Node<E>, E extends Edge> extends Graph<N, E> {
 	@Override
 	public Node<E> getRandomNode() {
 		return this.nodes.getRandomNode();
+	}
+
+	@Override
+	public E getEdge(E e) {
+		return this.edges.getEdge(e);
 	}
 
 	@Override
