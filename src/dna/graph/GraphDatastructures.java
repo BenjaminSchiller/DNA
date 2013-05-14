@@ -1,5 +1,8 @@
 package dna.graph;
 
+import dna.io.BatchReader;
+import dna.io.BatchWriter;
+
 public abstract class GraphDatastructures<G extends Graph<N, E>, N extends Node<E>, E extends Edge> {
 
 	protected Class<G> graphType;
@@ -38,13 +41,21 @@ public abstract class GraphDatastructures<G extends Graph<N, E>, N extends Node<
 	public abstract N newNodeInstance(int index);
 
 	public abstract N newNodeInstance(int index, double weight);
-	
+
 	public abstract N newNodeInstance(String str);
 
 	public abstract E newEdgeInstance(N src, N dst);
 
 	public abstract E newEdgeInstance(N src, N dst, double weight);
-	
+
 	public abstract E newEdgeInstance(String str, G graph);
+
+	public BatchReader<G, N, E> getBatchReader() {
+		return new BatchReader<G, N, E>(this);
+	}
+
+	public BatchWriter<G, N, E> getBatchWriter() {
+		return new BatchWriter<G, N, E>();
+	}
 
 }
