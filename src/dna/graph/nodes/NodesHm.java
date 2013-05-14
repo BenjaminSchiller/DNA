@@ -5,9 +5,9 @@ import java.util.HashMap;
 
 import dna.graph.Edge;
 import dna.graph.Node;
+import dna.util.Rand;
 
-public class NodesHm<N extends Node<E>, E extends Edge>
-		extends Nodes<N, E> {
+public class NodesHm<N extends Node<E>, E extends Edge> extends Nodes<N, E> {
 
 	private HashMap<Integer, N> nodes;
 
@@ -49,10 +49,11 @@ public class NodesHm<N extends Node<E>, E extends Edge>
 		return this.nodes.containsKey(n.getIndex());
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public N getRandomNode() {
-		// TODO implement random directed node @hs
-		return null;
+		N[] nodes = (N[]) this.nodes.values().toArray();
+		return nodes[Rand.rand.nextInt(nodes.length)];
 	}
 
 }

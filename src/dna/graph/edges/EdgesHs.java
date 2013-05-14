@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.HashSet;
 
 import dna.graph.Edge;
+import dna.util.Rand;
 
 public class EdgesHs<E extends Edge> extends Edges<E> {
 
@@ -48,10 +49,11 @@ public class EdgesHs<E extends Edge> extends Edges<E> {
 		return this.edges.contains(e);
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public E getRandomEdge() {
-		// TODO implement random directed edge @hs
-		return null;
+		E[] edges = (E[]) this.edges.toArray();
+		return edges[Rand.rand.nextInt(edges.length)];
 	}
 
 }

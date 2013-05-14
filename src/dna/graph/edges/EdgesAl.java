@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 import dna.graph.Edge;
+import dna.util.Rand;
 
 public class EdgesAl<E extends Edge> extends Edges<E> {
 
@@ -50,8 +51,7 @@ public class EdgesAl<E extends Edge> extends Edges<E> {
 
 	@Override
 	public E getRandomEdge() {
-		// TODO implement random directed edge @ al
-		return null;
+		return this.edges.get(Rand.rand.nextInt(this.edges.size()));
 	}
 
 }

@@ -5,9 +5,9 @@ import java.util.Collection;
 
 import dna.graph.Edge;
 import dna.graph.Node;
+import dna.util.Rand;
 
-public class NodesA<N extends Node<E>, E extends Edge>
-		extends Nodes<N, E> {
+public class NodesA<N extends Node<E>, E extends Edge> extends Nodes<N, E> {
 
 	private N[] nodes;
 
@@ -77,7 +77,6 @@ public class NodesA<N extends Node<E>, E extends Edge>
 
 	@Override
 	public N getRandomNode() {
-		// TODO get random node @ directed A
-		return null;
+		return this.nodes[Rand.rand.nextInt(this.nodes.length)];
 	}
 }
