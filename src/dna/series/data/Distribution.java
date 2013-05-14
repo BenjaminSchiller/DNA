@@ -10,7 +10,6 @@ import dna.io.Writer;
 import dna.io.etc.Keywords;
 import dna.series.lists.ListItem;
 
-// TODO combine with Data object?!?
 public class Distribution implements ListItem {
 
 	public Distribution(String name, double[] values) {

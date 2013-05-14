@@ -11,7 +11,6 @@ import java.util.Set;
  * @author benni
  * 
  */
-// TODO add list / sets of edges
 public class OldNode {
 	/**
 	 * 
