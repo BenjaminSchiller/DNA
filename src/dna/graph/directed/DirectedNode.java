@@ -12,6 +12,8 @@ public abstract class DirectedNode extends Node<DirectedEdge> {
 
 	public abstract Iterable<DirectedEdge> getOutgoingEdges();
 
+	public abstract int getDegree();
+
 	public abstract int getInDegree();
 
 	public abstract int getOutDegree();

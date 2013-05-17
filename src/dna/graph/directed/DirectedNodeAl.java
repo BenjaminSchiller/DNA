@@ -30,6 +30,11 @@ public class DirectedNodeAl extends DirectedNode {
 	}
 
 	@Override
+	public int getDegree() {
+		return this.in.size() + this.out.size();
+	}
+
+	@Override
 	public int getInDegree() {
 		return this.in.size();
 	}
