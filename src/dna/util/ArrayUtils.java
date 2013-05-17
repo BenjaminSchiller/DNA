@@ -16,6 +16,18 @@ public class ArrayUtils {
 		}
 	}
 
+	public static double[] incr(double[] values, int index) {
+		try {
+			values[index]++;
+			return values;
+		} catch (ArrayIndexOutOfBoundsException e) {
+			double[] valuesNew = new double[index + 1];
+			System.arraycopy(values, 0, valuesNew, 0, values.length);
+			valuesNew[index] = 1;
+			return valuesNew;
+		}
+	}
+
 	public static int[] decr(int[] values, int index) {
 		try {
 			values[index]--;
@@ -25,6 +37,12 @@ public class ArrayUtils {
 			System.arraycopy(values, 0, valuesNew, 0, values.length);
 			valuesNew[index] = -1;
 			return valuesNew;
+		}
+	}
+
+	public static void divide(double[] values, double by) {
+		for (int i = 0; i < values.length; i++) {
+			values[i] /= by;
 		}
 	}
 
@@ -89,18 +107,6 @@ public class ArrayUtils {
 		return true;
 	}
 
-	public static boolean equals(double[] v1, double[] v2) {
-		if (v1.length != v2.length) {
-			return false;
-		}
-		for (int i = 0; i < v1.length; i++) {
-			if (v1[i] != v2[i]) {
-				return false;
-			}
-		}
-		return true;
-	}
-
 	public static double avg(double[] values) {
 		double avg = 0;
 		for (double v : values) {
@@ -112,5 +118,48 @@ public class ArrayUtils {
 	public static double med(double[] values) {
 		Arrays.sort(values);
 		return values[values.length / 2];
+	}
+
+	/**
+	 * 
+	 * @param v1
+	 *            arrays of values
+	 * @param v2
+	 *            array of values to compare arrays are not equal
+	 * @return true if both arrays have the same length and all values are equal
+	 */
+	public static boolean equals(double[] v1, double[] v2) {
+		return ArrayUtils.equals(v1, v2, null);
+	}
+
+	/**
+	 * 
+	 * @param v1
+	 *            arrays of values
+	 * @param v2
+	 *            array of values to compare
+	 * @param name
+	 *            if a name is given, debug log output is printed in case the
+	 *            arrays are not equal
+	 * @return true if both arrays have the same length and all values are equal
+	 */
+	public static boolean equals(double[] v1, double[] v2, String name) {
+		if (v1.length != v2.length) {
+			if (name != null) {
+				Log.debug(name + " - length differs: " + v1.length + " != "
+						+ v2.length);
+			}
+			return false;
+		}
+		for (int i = 0; i < v1.length; i++) {
+			if (v1[i] != v2[i]) {
+				if (name != null) {
+					Log.debug(name + " - values @ index " + i + " differs: "
+							+ v1[i] + " != " + v2[i]);
+				}
+				return false;
+			}
+		}
+		return true;
 	}
 }
