@@ -8,6 +8,8 @@ import dna.graph.Edge;
 import dna.graph.Graph;
 import dna.graph.GraphDatastructures;
 import dna.graph.Node;
+import dna.graph.directed.DirectedGraphDatastructures;
+import dna.graph.undirected.UndirectedGraphDatastructures;
 
 public class Batch<E extends Edge> {
 
@@ -26,6 +28,16 @@ public class Batch<E extends Edge> {
 	private Iterable<Update<E>> all;
 
 	private GraphDatastructures<Graph<Node<E>, E>, Node<E>, E> ds;
+
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public Batch(DirectedGraphDatastructures ds) {
+		this((GraphDatastructures) ds);
+	}
+
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public Batch(UndirectedGraphDatastructures ds) {
+		this((GraphDatastructures) ds);
+	}
 
 	@SuppressWarnings("unchecked")
 	public Batch(GraphDatastructures<Graph<Node<E>, E>, Node<E>, E> ds) {
