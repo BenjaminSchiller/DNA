@@ -1,6 +1,7 @@
 package dna.updates.directed;
 
 import dna.graph.Graph;
+import dna.graph.GraphDatastructures;
 import dna.graph.Node;
 import dna.graph.directed.DirectedEdge;
 import dna.graph.directed.DirectedGraph;
@@ -21,18 +22,18 @@ public class RandomDirectedNodeAdditions extends DirectedBatchGenerator {
 		this.additions = additions;
 	}
 
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Override
 	public Batch<DirectedEdge> generate(
 			Graph<? extends Node<DirectedEdge>, DirectedEdge> graph) {
 		DirectedGraph g = (DirectedGraph) graph;
-		Batch<DirectedEdge> batch = new Batch<DirectedEdge>(this.additions, 0,
-				0, 0, 0, 0);
+		Batch<DirectedEdge> batch = new Batch<DirectedEdge>(
+				(GraphDatastructures) this.ds, this.additions, 0, 0, 0, 0, 0);
 		int index = graph.getNodeCount();
 		while (batch.getSize() < this.additions) {
-			DirectedNode n = (DirectedNode) this.datastructures
-					.newNodeInstance(index);
+			DirectedNode n = (DirectedNode) this.ds.newNodeInstance(index);
 			if (!g.containsNode(n)) {
-				batch.add(new NodeAddition<DirectedEdge>(this.datastructures
+				batch.add(new NodeAddition<DirectedEdge>(this.ds
 						.newNodeInstance(index)));
 			}
 			index++;

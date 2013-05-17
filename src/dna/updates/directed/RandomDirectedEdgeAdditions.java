@@ -3,6 +3,7 @@ package dna.updates.directed;
 import java.util.HashSet;
 
 import dna.graph.Graph;
+import dna.graph.GraphDatastructures;
 import dna.graph.Node;
 import dna.graph.directed.DirectedEdge;
 import dna.graph.directed.DirectedGraph;
@@ -23,12 +24,13 @@ public class RandomDirectedEdgeAdditions extends DirectedBatchGenerator {
 		this.additions = additions;
 	}
 
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
 	public Batch<DirectedEdge> generate(
 			Graph<? extends Node<DirectedEdge>, DirectedEdge> graph) {
 		DirectedGraph g = (DirectedGraph) graph;
-		Batch<DirectedEdge> batch = new Batch<DirectedEdge>(0, 0, 0,
-				this.additions, 0, 0);
+		Batch<DirectedEdge> batch = new Batch<DirectedEdge>(
+				(GraphDatastructures) this.ds, 0, 0, 0, this.additions, 0, 0);
 		HashSet<DirectedEdge> added = new HashSet<DirectedEdge>(this.additions);
 		while (batch.getSize() < this.additions) {
 			DirectedNode n1 = (DirectedNode) g.getRandomNode();
@@ -36,7 +38,7 @@ public class RandomDirectedEdgeAdditions extends DirectedBatchGenerator {
 			if (n1.equals(n2)) {
 				continue;
 			}
-			DirectedEdge e = this.datastructures.newEdgeInstance(n1, n2);
+			DirectedEdge e = this.ds.newEdgeInstance(n1, n2);
 			if (g.containsEdge(e) || added.contains(e)) {
 				continue;
 			}

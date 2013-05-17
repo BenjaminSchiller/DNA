@@ -6,26 +6,29 @@ import com.google.common.collect.Iterables;
 
 import dna.graph.Edge;
 import dna.graph.Graph;
+import dna.graph.GraphDatastructures;
 import dna.graph.Node;
 
 public class Batch<E extends Edge> {
 
-	ArrayList<Update<E>> nodeAdditions;
+	private ArrayList<Update<E>> nodeAdditions;
 
-	ArrayList<Update<E>> nodeRemovals;
+	private ArrayList<Update<E>> nodeRemovals;
 
-	ArrayList<Update<E>> nodeWeightUpdates;
+	private ArrayList<Update<E>> nodeWeightUpdates;
 
-	ArrayList<Update<E>> edgeAdditions;
+	private ArrayList<Update<E>> edgeAdditions;
 
-	ArrayList<Update<E>> edgeRemovals;
+	private ArrayList<Update<E>> edgeRemovals;
 
-	ArrayList<Update<E>> edgeWeightUpdates;
+	private ArrayList<Update<E>> edgeWeightUpdates;
 
 	private Iterable<Update<E>> all;
 
+	private GraphDatastructures<Graph<Node<E>, E>, Node<E>, E> ds;
+
 	@SuppressWarnings("unchecked")
-	public Batch() {
+	public Batch(GraphDatastructures<Graph<Node<E>, E>, Node<E>, E> ds) {
 		this.nodeAdditions = new ArrayList<Update<E>>();
 		this.nodeRemovals = new ArrayList<Update<E>>();
 		this.nodeWeightUpdates = new ArrayList<Update<E>>();
@@ -35,9 +38,11 @@ public class Batch<E extends Edge> {
 		this.all = Iterables.unmodifiableIterable(Iterables.concat(
 				this.nodeAdditions, this.nodeRemovals, this.nodeWeightUpdates,
 				this.edgeAdditions, this.edgeRemovals, this.edgeWeightUpdates));
+		this.ds = ds;
 	}
 
-	public Batch(int nodeAdditions, int nodeRemovals, int nodeWeightUpdates,
+	public Batch(GraphDatastructures<Graph<Node<E>, E>, Node<E>, E> ds,
+			int nodeAdditions, int nodeRemovals, int nodeWeightUpdates,
 			int edgeAdditions, int edgeRemovals, int edgeWeightUpdates) {
 		this.nodeAdditions = new ArrayList<Update<E>>(nodeAdditions);
 		this.nodeRemovals = new ArrayList<Update<E>>(nodeRemovals);
@@ -45,6 +50,7 @@ public class Batch<E extends Edge> {
 		this.edgeAdditions = new ArrayList<Update<E>>(edgeAdditions);
 		this.edgeRemovals = new ArrayList<Update<E>>(edgeRemovals);
 		this.edgeWeightUpdates = new ArrayList<Update<E>>(edgeWeightUpdates);
+		this.ds = ds;
 	}
 
 	public boolean add(Update<E> update) {
@@ -107,6 +113,10 @@ public class Batch<E extends Edge> {
 		return this.nodeAdditions.size() + this.nodeRemovals.size()
 				+ this.nodeWeightUpdates.size() + this.edgeAdditions.size()
 				+ this.edgeRemovals.size() + this.edgeWeightUpdates.size();
+	}
+
+	public GraphDatastructures<Graph<Node<E>, E>, Node<E>, E> getGraphDatastructures() {
+		return this.ds;
 	}
 
 	public void print() {

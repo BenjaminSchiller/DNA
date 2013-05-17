@@ -10,12 +10,12 @@ import dna.util.parameters.ParameterList;
 public abstract class BatchGenerator<G extends Graph<N, E>, N extends Node<E>, E extends Edge>
 		extends ParameterList {
 
-	protected GraphDatastructures<G, N, E> datastructures;
+	protected GraphDatastructures<G, N, E> ds;
 
 	public BatchGenerator(String name, Parameter[] params,
-			GraphDatastructures<G, N, E> datastructures) {
+			GraphDatastructures<G, N, E> ds) {
 		super(name, params);
-		this.datastructures = datastructures;
+		this.ds = ds;
 	}
 
 	public abstract Batch<E> generate(Graph<? extends Node<E>, E> graph);

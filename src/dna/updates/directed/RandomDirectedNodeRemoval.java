@@ -3,6 +3,7 @@ package dna.updates.directed;
 import java.util.HashSet;
 
 import dna.graph.Graph;
+import dna.graph.GraphDatastructures;
 import dna.graph.Node;
 import dna.graph.directed.DirectedEdge;
 import dna.graph.directed.DirectedGraph;
@@ -23,12 +24,13 @@ public class RandomDirectedNodeRemoval extends DirectedBatchGenerator {
 		this.removals = removals;
 	}
 
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Override
 	public Batch<DirectedEdge> generate(
 			Graph<? extends Node<DirectedEdge>, DirectedEdge> graph) {
 		DirectedGraph g = (DirectedGraph) graph;
-		Batch<DirectedEdge> batch = new Batch<DirectedEdge>(0, this.removals,
-				0, 0, 0, 0);
+		Batch<DirectedEdge> batch = new Batch<DirectedEdge>(
+				(GraphDatastructures) this.ds, 0, this.removals, 0, 0, 0, 0);
 		HashSet<DirectedNode> removed = new HashSet<DirectedNode>(this.removals);
 		while (batch.getSize() < this.removals) {
 			DirectedNode n = (DirectedNode) g.getRandomNode();
