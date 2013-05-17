@@ -11,9 +11,10 @@ public class GraphImpl<N extends Node<E>, E extends Edge> extends Graph<N, E> {
 
 	private Edges<E> edges;
 
-	public GraphImpl(String name, long timestamp, Nodes<N, E> nodes,
+	public GraphImpl(String name, long timestamp,
+			GraphDatastructures<Graph<N, E>, N, E> ds, Nodes<N, E> nodes,
 			Edges<E> edges) {
-		super(name, timestamp);
+		super(name, timestamp, ds);
 		this.nodes = nodes;
 		this.edges = edges;
 	}

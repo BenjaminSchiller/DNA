@@ -3,6 +3,14 @@ package dna.graph;
 import java.util.Collection;
 
 public abstract class Graph<N extends Node<E>, E extends Edge> {
+
+	public Graph(String name, long timestamp,
+			GraphDatastructures<Graph<N, E>, N, E> ds) {
+		this.name = name;
+		this.timestamp = timestamp;
+		this.ds = ds;
+	}
+
 	protected String name;
 
 	public String getName() {
@@ -15,9 +23,10 @@ public abstract class Graph<N extends Node<E>, E extends Edge> {
 		return this.timestamp;
 	}
 
-	public Graph(String name, long timestamp) {
-		this.name = name;
-		this.timestamp = timestamp;
+	protected GraphDatastructures<Graph<N, E>, N, E> ds;
+
+	public GraphDatastructures<Graph<N, E>, N, E> getGraphDatastructures() {
+		return this.ds;
 	}
 
 	public String toString() {

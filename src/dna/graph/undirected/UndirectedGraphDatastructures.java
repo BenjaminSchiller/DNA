@@ -23,9 +23,9 @@ public class UndirectedGraphDatastructures extends
 			int nodes, int edges) {
 		try {
 			Constructor<UndirectedGraph> constr = this.graphType
-					.getConstructor(String.class, long.class, int.class,
-							int.class);
-			return constr.newInstance(name, timestamp, nodes, edges);
+					.getConstructor(String.class, long.class,
+							GraphDatastructures.class, int.class, int.class);
+			return constr.newInstance(name, timestamp, this, nodes, edges);
 		} catch (NoSuchMethodException | SecurityException
 				| InstantiationException | IllegalAccessException
 				| IllegalArgumentException | InvocationTargetException e) {
