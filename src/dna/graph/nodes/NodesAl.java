@@ -11,8 +11,11 @@ public class NodesAl<N extends Node<E>, E extends Edge> extends Nodes<N, E> {
 
 	private ArrayList<N> nodes;
 
+	private int maxIndex;
+
 	public NodesAl(int nodes) {
 		this.nodes = new ArrayList<N>(nodes);
+		this.maxIndex = -1;
 	}
 
 	@Override
@@ -51,6 +54,11 @@ public class NodesAl<N extends Node<E>, E extends Edge> extends Nodes<N, E> {
 	}
 
 	@Override
+	public int getMaxNodeIndex() {
+		return this.maxIndex;
+	}
+
+	@Override
 	public int getNodeCount() {
 		return this.nodes.size();
 	}
@@ -62,12 +70,30 @@ public class NodesAl<N extends Node<E>, E extends Edge> extends Nodes<N, E> {
 
 	@Override
 	public boolean addNode(N n) {
-		return !this.nodes.contains(n) && this.nodes.add(n);
+		if (this.nodes.contains(n) || !this.nodes.add(n)) {
+			return false;
+		}
+		if (n.getIndex() > this.maxIndex) {
+			this.maxIndex = n.getIndex();
+		}
+		return true;
 	}
 
 	@Override
 	public boolean removeNode(N n) {
-		return this.nodes.remove(n);
+		if (!this.nodes.remove(n)) {
+			return false;
+		}
+		if (this.maxIndex == n.getIndex()) {
+			int max = -1;
+			for (N node : this.getNodes()) {
+				if (node.getIndex() > max) {
+					max = node.getIndex();
+				}
+			}
+			this.maxIndex = max;
+		}
+		return true;
 	}
 
 	@Override

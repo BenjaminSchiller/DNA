@@ -11,13 +11,21 @@ public class NodesHm<N extends Node<E>, E extends Edge> extends Nodes<N, E> {
 
 	private HashMap<Integer, N> nodes;
 
+	private int maxIndex;
+
 	public NodesHm(int nodes) {
 		this.nodes = new HashMap<Integer, N>(nodes);
+		this.maxIndex = -1;
 	}
 
 	@Override
 	public N getNode(int index) {
 		return this.nodes.get(index);
+	}
+
+	@Override
+	public int getMaxNodeIndex() {
+		return this.maxIndex;
 	}
 
 	@Override
@@ -34,6 +42,9 @@ public class NodesHm<N extends Node<E>, E extends Edge> extends Nodes<N, E> {
 	public boolean addNode(N n) {
 		if (!this.nodes.containsKey(n.getIndex())) {
 			this.nodes.put(n.getIndex(), n);
+			if (n.getIndex() > this.maxIndex) {
+				this.maxIndex = n.getIndex();
+			}
 			return true;
 		}
 		return false;
@@ -41,7 +52,17 @@ public class NodesHm<N extends Node<E>, E extends Edge> extends Nodes<N, E> {
 
 	@Override
 	public boolean removeNode(N n) {
-		return this.nodes.remove(n.getIndex()) != null;
+		if (this.nodes.remove(n.getIndex()) == null) {
+			return false;
+		}
+		if (n.getIndex() == this.maxIndex) {
+			int max = this.maxIndex - 1;
+			while (!this.nodes.containsKey(max)) {
+				max--;
+			}
+			this.maxIndex = max;
+		}
+		return true;
 	}
 
 	@Override
@@ -52,6 +73,7 @@ public class NodesHm<N extends Node<E>, E extends Edge> extends Nodes<N, E> {
 	@SuppressWarnings("unchecked")
 	@Override
 	public N getRandomNode() {
+		// TODO get random node over iterator instead of creating an array
 		N[] nodes = (N[]) this.nodes.values().toArray();
 		return nodes[Rand.rand.nextInt(nodes.length)];
 	}

@@ -25,6 +25,11 @@ public class GraphImpl<N extends Node<E>, E extends Edge> extends Graph<N, E> {
 	}
 
 	@Override
+	public int getMaxNodeIndex() {
+		return this.nodes.getMaxNodeIndex();
+	}
+
+	@Override
 	public int getNodeCount() {
 		return this.nodes.getNodeCount();
 	}

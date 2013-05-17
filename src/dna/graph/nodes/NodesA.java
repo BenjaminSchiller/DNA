@@ -28,6 +28,11 @@ public class NodesA<N extends Node<E>, E extends Edge> extends Nodes<N, E> {
 	}
 
 	@Override
+	public int getMaxNodeIndex() {
+		return this.nodes.length - 1;
+	}
+
+	@Override
 	public int getNodeCount() {
 		return this.nodeCount;
 	}
@@ -65,6 +70,7 @@ public class NodesA<N extends Node<E>, E extends Edge> extends Nodes<N, E> {
 			return false;
 		}
 		this.nodes[n.getIndex()] = null;
+		// TODO decrease size of array in case last node is removed
 		this.nodeCount--;
 		return true;
 	}

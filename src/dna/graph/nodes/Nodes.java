@@ -8,6 +8,8 @@ import dna.graph.Node;
 public abstract class Nodes<N extends Node<E>, E extends Edge> {
 
 	public abstract N getNode(int index);
+	
+	public abstract int getMaxNodeIndex();
 
 	public abstract int getNodeCount();
 
