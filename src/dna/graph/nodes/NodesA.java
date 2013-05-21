@@ -1,10 +1,11 @@
 package dna.graph.nodes;
 
-import java.util.Arrays;
 import java.util.Collection;
+import java.util.LinkedList;
 
 import dna.graph.Edge;
 import dna.graph.Node;
+import dna.util.ArrayUtils;
 import dna.util.Rand;
 
 public class NodesA<N extends Node<E>, E extends Edge> extends Nodes<N, E> {
@@ -39,7 +40,13 @@ public class NodesA<N extends Node<E>, E extends Edge> extends Nodes<N, E> {
 
 	@Override
 	public Collection<N> getNodes() {
-		return Arrays.asList(this.nodes);
+		Collection<N> collection = new LinkedList<N>();
+		for (N n : this.nodes) {
+			if (n != null) {
+				collection.add(n);
+			}
+		}
+		return collection;
 	}
 
 	@SuppressWarnings("unchecked")
@@ -61,6 +68,7 @@ public class NodesA<N extends Node<E>, E extends Edge> extends Nodes<N, E> {
 		return true;
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public boolean removeNode(N n) {
 		if (this.nodes.length <= n.getIndex()) {
@@ -70,7 +78,9 @@ public class NodesA<N extends Node<E>, E extends Edge> extends Nodes<N, E> {
 			return false;
 		}
 		this.nodes[n.getIndex()] = null;
-		// TODO decrease size of array in case last node is removed
+		if (n.getIndex() == this.nodes.length - 1) {
+			this.nodes = (N[]) ArrayUtils.truncate(this.nodes);
+		}
 		this.nodeCount--;
 		return true;
 	}
@@ -83,6 +93,10 @@ public class NodesA<N extends Node<E>, E extends Edge> extends Nodes<N, E> {
 
 	@Override
 	public N getRandomNode() {
-		return this.nodes[Rand.rand.nextInt(this.nodes.length)];
+		int index = Rand.rand.nextInt(this.nodes.length);
+		while (this.nodes[index] == null) {
+			index = Rand.rand.nextInt(this.nodes.length);
+		}
+		return this.nodes[index];
 	}
 }
