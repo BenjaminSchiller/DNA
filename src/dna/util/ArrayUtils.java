@@ -110,6 +110,29 @@ public class ArrayUtils {
 		return valuesNew;
 	}
 
+	/**
+	 * truncates the given array by removing all fields at the end that are null
+	 * 
+	 * @param values
+	 *            array to truncate
+	 * @return truncated array
+	 */
+	public static Object[] truncate(Object[] values) {
+		if (values[values.length - 1] != null) {
+			return values;
+		}
+		int index = values.length - 1;
+		for (int i = values.length - 1; i >= 0; i--) {
+			if (values[i] != null) {
+				break;
+			}
+			index--;
+		}
+		Object[] valuesNew = new Object[index + 1];
+		System.arraycopy(values, 0, valuesNew, 0, index + 1);
+		return valuesNew;
+	}
+
 	public static int sum(int[] values) {
 		int sum = 0;
 		for (int v : values) {
