@@ -7,6 +7,13 @@ import dna.graph.directed.DirectedNode;
 import dna.updates.BatchGenerator;
 import dna.util.parameters.Parameter;
 
+/**
+ * 
+ * implements the abstract class for a directed batch generator
+ * 
+ * @author benni
+ * 
+ */
 public abstract class DirectedBatchGenerator extends
 		BatchGenerator<DirectedGraph, DirectedNode, DirectedEdge> {
 

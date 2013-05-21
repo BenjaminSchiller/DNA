@@ -13,10 +13,26 @@ import dna.updates.Batch;
 import dna.updates.EdgeAddition;
 import dna.util.parameters.IntParameter;
 
+/**
+ * 
+ * batch generator for random edge additions. edges are added uniformly at
+ * random from all possible (non-existing) edges in the graph. no edge is added
+ * twice.
+ * 
+ * @author benni
+ * 
+ */
 public class RandomDirectedEdgeAdditions extends DirectedBatchGenerator {
 
 	private int additions;
 
+	/**
+	 * 
+	 * @param additions
+	 *            number of random edges to add per batch
+	 * @param datastructures
+	 *            datastructures
+	 */
 	public RandomDirectedEdgeAdditions(int additions,
 			DirectedGraphDatastructures datastructures) {
 		super("randomDirectedEdgeAdditions", new IntParameter("additions",

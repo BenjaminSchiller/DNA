@@ -13,10 +13,26 @@ import dna.updates.Batch;
 import dna.updates.NodeRemoval;
 import dna.util.parameters.IntParameter;
 
+/**
+ * 
+ * batch generator for random node removals. the nodes to be removed are
+ * selected uniformly at random from all existing nodes. no node is removed
+ * twice.
+ * 
+ * @author benni
+ * 
+ */
 public class RandomDirectedNodeRemoval extends DirectedBatchGenerator {
 
 	private int removals;
 
+	/**
+	 * 
+	 * @param removals
+	 *            nodes to remove with reach batch
+	 * @param datastructures
+	 *            datastructures
+	 */
 	public RandomDirectedNodeRemoval(int removals,
 			DirectedGraphDatastructures datastructures) {
 		super("randomDirectedNodeRemoval", new IntParameter("removals",

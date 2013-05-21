@@ -12,10 +12,26 @@ import dna.updates.Batch;
 import dna.updates.EdgeRemoval;
 import dna.util.parameters.IntParameter;
 
+/**
+ * 
+ * batch generator for random edge removals. the edges to be removed are chosen
+ * uniformly at random from all existing edges. no edge is added for removal
+ * twice.
+ * 
+ * @author benni
+ * 
+ */
 public class RandomDirectedEdgeRemoval extends DirectedBatchGenerator {
 
 	private int removals;
 
+	/**
+	 * 
+	 * @param removals
+	 *            number of egdes to remove with each batch
+	 * @param datastructures
+	 *            datastructures
+	 */
 	public RandomDirectedEdgeRemoval(int removals,
 			DirectedGraphDatastructures datastructures) {
 		super("randomDirectedEdgeRemoval", new IntParameter("removals",
