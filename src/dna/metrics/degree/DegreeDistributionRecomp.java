@@ -93,7 +93,6 @@ public class DegreeDistributionRecomp extends DegreeDistribution {
 		this.edges = 0;
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public boolean isApplicable(Graph g) {
 		return DirectedNode.class.isAssignableFrom(g.getGraphDatastructures()
@@ -102,7 +101,6 @@ public class DegreeDistributionRecomp extends DegreeDistribution {
 						.getGraphDatastructures().getNodeType());
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public boolean isApplicable(Batch b) {
 		return DirectedNode.class.isAssignableFrom(b.getGraphDatastructures()
