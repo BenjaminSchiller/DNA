@@ -1,6 +1,7 @@
 package dna.metrics.degree;
 
 import java.util.Collection;
+import java.util.HashSet;
 
 import dna.graph.Graph;
 import dna.graph.directed.DirectedEdge;
@@ -180,6 +181,42 @@ public class DegreeDistributionUpdate extends DegreeDistribution {
 			} else if (u instanceof NodeRemoval) {
 
 				this.nodes--;
+
+				UndirectedNode n = (UndirectedNode) ((NodeRemoval) u).getNode();
+
+				HashSet<Integer> changes = new HashSet<Integer>();
+
+				for (UndirectedEdge e : n.getEdges()) {
+					UndirectedNode node = e.getNode1();
+					if (n.equals(node)) {
+						node = e.getNode2();
+					}
+					this.degreeCount = ArrayUtils.decr(this.degreeCount,
+							node.getDegree());
+					this.degreeCount = ArrayUtils.incr(this.degreeCount,
+							node.getDegree() - 1);
+					changes.add(node.getDegree());
+					changes.add(node.getDegree() + 1);
+					this.edges--;
+				}
+				this.degreeCount = ArrayUtils.decr(this.degreeCount,
+						n.getDegree());
+				changes.add(n.getDegree());
+
+				for (int change : changes) {
+					if (this.degreeCount.length <= change) {
+						this.degreeDistribution = ArrayUtils.set(
+								this.degreeDistribution, change, 0);
+						continue;
+					}
+					this.degreeDistribution = ArrayUtils.set(
+							this.degreeDistribution, change,
+							(double) this.degreeCount[change] / this.nodes);
+				}
+
+				this.degreeDistribution = ArrayUtils.truncate(
+						this.degreeDistribution, 0);
+				this.degreeCount = ArrayUtils.truncate(this.degreeCount, 0);
 
 				// TODO remove node update for DD (undirected)
 
