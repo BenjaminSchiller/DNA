@@ -23,6 +23,10 @@ public abstract class Graph<N extends Node<E>, E extends Edge> {
 		return this.timestamp;
 	}
 
+	public void setTimestamp(long timestamp) {
+		this.timestamp = timestamp;
+	}
+
 	protected GraphDatastructures<Graph<N, E>, N, E> ds;
 
 	public GraphDatastructures<Graph<N, E>, N, E> getGraphDatastructures() {
