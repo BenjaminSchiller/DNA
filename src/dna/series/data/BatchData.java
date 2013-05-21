@@ -9,9 +9,9 @@ import dna.series.lists.RunTimeList;
 import dna.series.lists.ValueList;
 import dna.util.Log;
 
-public class DiffData {
+public class BatchData {
 
-	public DiffData(long timestamp) {
+	public BatchData(long timestamp) {
 		this.timestamp = timestamp;
 		this.stats = new ValueList();
 		this.generalRuntimes = new RunTimeList();
@@ -19,7 +19,7 @@ public class DiffData {
 		this.metrics = new MetricDataList();
 	}
 
-	public DiffData(long timestamp, int sizeValues, int sizeGeneralRuntimes,
+	public BatchData(long timestamp, int sizeValues, int sizeGeneralRuntimes,
 			int sizeMetricRuntimes, int sizeMetrics) {
 		this.timestamp = timestamp;
 		this.stats = new ValueList(sizeValues);
@@ -28,7 +28,7 @@ public class DiffData {
 		this.metrics = new MetricDataList(sizeMetrics);
 	}
 
-	public DiffData(long timestamp, ValueList values,
+	public BatchData(long timestamp, ValueList values,
 			RunTimeList generalRuntimes, RunTimeList metricRuntimes,
 			MetricDataList metrics) {
 		this.timestamp = timestamp;
@@ -78,7 +78,7 @@ public class DiffData {
 		this.metrics.write(dir);
 	}
 
-	public static DiffData read(String dir, long timestamp,
+	public static BatchData read(String dir, long timestamp,
 			boolean readDistributionValues) throws IOException {
 		ValueList values = ValueList.read(dir,
 				Files.getValuesFilename(Names.diffStats));
@@ -88,7 +88,7 @@ public class DiffData {
 				Files.getRuntimesFilename(Names.diffMetricRuntimes));
 		MetricDataList metrics = MetricDataList.read(dir,
 				readDistributionValues);
-		return new DiffData(timestamp, values, generalRuntimes, metricRuntimes,
+		return new BatchData(timestamp, values, generalRuntimes, metricRuntimes,
 				metrics);
 	}
 

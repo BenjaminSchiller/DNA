@@ -18,10 +18,10 @@ public class RunData {
 		this.diffs = new DiffDataList(size);
 	}
 
-	public RunData(int run, DiffData[] diffs) {
+	public RunData(int run, BatchData[] diffs) {
 		this.run = run;
 		this.diffs = new DiffDataList(diffs.length);
-		for (DiffData diff : diffs) {
+		for (BatchData diff : diffs) {
 			this.diffs.add(diff);
 		}
 	}
@@ -34,13 +34,13 @@ public class RunData {
 
 	private DiffDataList diffs;
 
-	public DiffDataList getDiffs() {
+	public DiffDataList getBatches() {
 		return this.diffs;
 	}
 
 	public void write(String dir) throws IOException {
 		Log.debug("writing RunData " + this.run + " in " + dir);
-		for (DiffData d : this.diffs.getList()) {
+		for (BatchData d : this.diffs.getList()) {
 			d.write(Dir.getDiffDataDir(dir, d.getTimestamp()));
 		}
 	}
@@ -51,8 +51,8 @@ public class RunData {
 		String[] diffs = Dir.getDiffs(dir);
 		RunData runData = new RunData(run, diffs.length);
 		for (String diff : diffs) {
-			runData.getDiffs().add(
-					DiffData.read(dir, Dir.getTimestamp(diff),
+			runData.getBatches().add(
+					BatchData.read(dir, Dir.getTimestamp(diff),
 							readDistributionValues));
 		}
 		return runData;
