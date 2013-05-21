@@ -1,6 +1,6 @@
 package dna.series;
 
-import dna.series.data.DiffData;
+import dna.series.data.BatchData;
 import dna.series.data.RunData;
 import dna.series.data.RunTime;
 import dna.series.data.SeriesData;
@@ -31,17 +31,17 @@ public class Aggregation {
 			throws AggregationException {
 		Aggregation.test(seriesData);
 
-		RunData aggregatedRun = new RunData(-1, seriesData.getRun(0).getDiffs()
+		RunData aggregatedRun = new RunData(-1, seriesData.getRun(0).getBatches()
 				.size());
-		for (int i = 0; i < seriesData.getRun(0).getDiffs().size(); i++) {
-			DiffData[] diffs = new DiffData[seriesData.getRuns().size()];
+		for (int i = 0; i < seriesData.getRun(0).getBatches().size(); i++) {
+			BatchData[] diffs = new BatchData[seriesData.getRuns().size()];
 			for (int j = 0; j < seriesData.getRuns().size(); j++) {
-				diffs[j] = seriesData.getRun(j).getDiffs().get(i);
+				diffs[j] = seriesData.getRun(j).getBatches().get(i);
 			}
 			Aggregation.test(diffs);
 
-			DiffData d = diffs[0];
-			DiffData aggregatedDiff = new DiffData(d.getTimestamp(), d
+			BatchData d = diffs[0];
+			BatchData aggregatedDiff = new BatchData(d.getTimestamp(), d
 					.getValues().size(), d.getGeneralRuntimes().size(), d
 					.getMetricRuntimes().size(), d.getMetrics().size());
 
@@ -94,7 +94,7 @@ public class Aggregation {
 								.med(values)));
 			}
 
-			aggregatedRun.getDiffs().add(aggregatedDiff);
+			aggregatedRun.getBatches().add(aggregatedDiff);
 		}
 
 		return aggregatedRun;
@@ -147,19 +147,19 @@ public class Aggregation {
 	}
 
 	private static void test(SeriesData seriesData) throws AggregationException {
-		int diffs = seriesData.getRun(0).getDiffs().size();
+		int diffs = seriesData.getRun(0).getBatches().size();
 		for (int i = 0; i < seriesData.getRuns().size(); i++) {
-			if (diffs != seriesData.getRun(i).getDiffs().size()) {
+			if (diffs != seriesData.getRun(i).getBatches().size()) {
 				throw new AggregationException(
 						"cannot aggregate runs with different # of diffs: "
-								+ seriesData.getRun(i).getDiffs().size()
+								+ seriesData.getRun(i).getBatches().size()
 								+ " != " + diffs + " @");
 			}
 		}
 	}
 
-	private static void test(DiffData[] diffs) throws AggregationException {
-		DiffData d = diffs[0];
+	private static void test(BatchData[] diffs) throws AggregationException {
+		BatchData d = diffs[0];
 		for (int i = 0; i < diffs.length; i++) {
 			if (d.getTimestamp() != diffs[i].getTimestamp()) {
 				throw new AggregationException(

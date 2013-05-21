@@ -11,7 +11,7 @@ import dna.graph.old.OldGraph;
 import dna.graph.old.OldGraphGenerator;
 import dna.io.filesystem.Dir;
 import dna.metrics.Metric;
-import dna.series.data.DiffData;
+import dna.series.data.BatchData;
 import dna.series.data.RunData;
 import dna.series.data.RunTime;
 import dna.series.data.SeriesData;
@@ -89,16 +89,16 @@ public class Series {
 		RunData rd = new RunData(run, diffs + 1);
 
 		// generate initial data
-		DiffData initialData = this.generateInitialData();
-		rd.getDiffs().add(initialData);
-		initialData.write(Dir.getDiffDataDir(this.dir, run,
+		BatchData initialData = this.generateInitialData();
+		rd.getBatches().add(initialData);
+		initialData.write(Dir.getBatchDataDir(this.dir, run,
 				initialData.getTimestamp()));
 
 		// generate diff data
 		for (int i = 0; i < diffs; i++) {
-			DiffData diffData = this.generateNextDiff();
-			rd.getDiffs().add(diffData);
-			diffData.write(Dir.getDiffDataDir(this.dir, run,
+			BatchData diffData = this.generateNextDiff();
+			rd.getBatches().add(diffData);
+			diffData.write(Dir.getBatchDataDir(this.dir, run,
 					diffData.getTimestamp()));
 		}
 
@@ -108,7 +108,7 @@ public class Series {
 		return rd;
 	}
 
-	public DiffData generateInitialData() {
+	public BatchData generateInitialData() {
 
 		Timer totalTimer = new Timer("total");
 
@@ -127,7 +127,7 @@ public class Series {
 		}
 
 		// initialize data
-		DiffData initialData = new DiffData(this.g.getTimestamp(), 0, 4,
+		BatchData initialData = new BatchData(this.g.getTimestamp(), 0, 4,
 				this.metrics.length, this.metrics.length);
 
 		// initial computation of all metrics
@@ -155,7 +155,7 @@ public class Series {
 		return initialData;
 	}
 
-	public DiffData generateNextDiff() throws DiffNotApplicableException {
+	public BatchData generateNextDiff() throws DiffNotApplicableException {
 
 		long seed = System.currentTimeMillis();
 		// seed = 0;
@@ -172,7 +172,7 @@ public class Series {
 
 		Log.info("    " + d.toString());
 
-		DiffData diffData = new DiffData(d.getTo(), 5, 5, metrics.length,
+		BatchData diffData = new BatchData(d.getTo(), 5, 5, metrics.length,
 				metrics.length);
 
 		Timer graphUpdateTimer = new Timer("graphUpdate");
@@ -297,7 +297,7 @@ public class Series {
 		return diffData;
 	}
 
-	private static void addSummaryRuntimes(DiffData diffData) {
+	private static void addSummaryRuntimes(BatchData diffData) {
 		double total = diffData.getGeneralRuntimes().get("total").getRuntime();
 		double metrics = diffData.getGeneralRuntimes().get("metrics")
 				.getRuntime();
@@ -307,7 +307,7 @@ public class Series {
 		diffData.getGeneralRuntimes().add(new RunTime("overhead", overhead));
 	}
 
-	private static long sumRuntimes(DiffData diffData) {
+	private static long sumRuntimes(BatchData diffData) {
 		long sum = 0;
 		for (RunTime rt : diffData.getGeneralRuntimes().getList()) {
 			sum += rt.getRuntime();

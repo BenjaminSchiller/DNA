@@ -48,7 +48,7 @@ public class Dir {
 		return dir + Prefix.diffDataDir + timestamp + Dir.delimiter;
 	}
 
-	public static String getDiffDataDir(String dir, int run, long timestamp) {
+	public static String getBatchDataDir(String dir, int run, long timestamp) {
 		return Dir.getRunDataDir(dir, run) + Prefix.diffDataDir + timestamp
 				+ Dir.delimiter;
 	}
@@ -73,7 +73,7 @@ public class Dir {
 
 	public static String getMetricDataDir(String dir, int run, long timestamp,
 			String name) {
-		return Dir.getDiffDataDir(dir, run, timestamp) + Prefix.metricDataDir
+		return Dir.getBatchDataDir(dir, run, timestamp) + Prefix.metricDataDir
 				+ name + Dir.delimiter;
 	}
 
