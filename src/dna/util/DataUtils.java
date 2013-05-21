@@ -18,7 +18,7 @@ public class DataUtils {
 			return true;
 		}
 		if (name != null) {
-			Log.debug(name + " - values differ: " + v1 + " != " + v2);
+			Log.warn(name + " - values differ: " + v1 + " != " + v2);
 		}
 		return false;
 	}
