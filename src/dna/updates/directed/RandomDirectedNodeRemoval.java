@@ -30,7 +30,8 @@ public class RandomDirectedNodeRemoval extends DirectedBatchGenerator {
 			Graph<? extends Node<DirectedEdge>, DirectedEdge> graph) {
 		DirectedGraph g = (DirectedGraph) graph;
 		Batch<DirectedEdge> batch = new Batch<DirectedEdge>(
-				(GraphDatastructures) this.ds, 0, this.removals, 0, 0, 0, 0);
+				(GraphDatastructures) this.ds, graph.getTimestamp(),
+				graph.getTimestamp() + 1, 0, this.removals, 0, 0, 0, 0);
 		HashSet<DirectedNode> removed = new HashSet<DirectedNode>(this.removals);
 		while (batch.getSize() < this.removals) {
 			DirectedNode n = (DirectedNode) g.getRandomNode();

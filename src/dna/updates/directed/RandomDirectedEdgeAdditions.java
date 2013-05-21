@@ -30,7 +30,8 @@ public class RandomDirectedEdgeAdditions extends DirectedBatchGenerator {
 			Graph<? extends Node<DirectedEdge>, DirectedEdge> graph) {
 		DirectedGraph g = (DirectedGraph) graph;
 		Batch<DirectedEdge> batch = new Batch<DirectedEdge>(
-				(GraphDatastructures) this.ds, 0, 0, 0, this.additions, 0, 0);
+				(GraphDatastructures) this.ds, graph.getTimestamp(),
+				graph.getTimestamp() + 1, 0, 0, 0, this.additions, 0, 0);
 		HashSet<DirectedEdge> added = new HashSet<DirectedEdge>(this.additions);
 		while (batch.getSize() < this.additions) {
 			DirectedNode n1 = (DirectedNode) g.getRandomNode();

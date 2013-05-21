@@ -29,7 +29,8 @@ public class BatchReader<G extends Graph<N, E>, N extends Node<E>, E extends Edg
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public Batch<E> read(String dir, String filename, G g) {
 		Reader reader = null;
-		Batch<E> b = new Batch<E>((GraphDatastructures) this.ds);
+		// TODO add from/to for batch to IO
+		Batch<E> b = new Batch<E>((GraphDatastructures) this.ds, 0, 0);
 		try {
 			reader = new Reader(dir, filename);
 
