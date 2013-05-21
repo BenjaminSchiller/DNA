@@ -12,6 +12,13 @@ import dna.graph.undirected.UndirectedGraph;
 import dna.graph.undirected.UndirectedNode;
 import dna.util.parameters.Parameter;
 
+/**
+ * 
+ * abstract class for an undirected graph generator
+ * 
+ * @author benni
+ * 
+ */
 public abstract class UndirectedGraphGenerator extends
 		GraphGenerator<UndirectedGraph, UndirectedNode, UndirectedEdge> {
 

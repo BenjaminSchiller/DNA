@@ -7,15 +7,53 @@ import dna.graph.undirected.UndirectedNode;
 import dna.util.Rand;
 import dna.util.parameters.IntParameter;
 
+/**
+ * 
+ * graph generator for a random undirected graph. given a number of nodes and
+ * edges, the edges are chosen uniformly at random from the number of all
+ * possible edges.
+ * 
+ * @author benni
+ * 
+ */
 public class RandomUndirectedGraph extends UndirectedGraphGenerator {
 
 	private int nodes;
 
 	private int edges;
 
-	public RandomUndirectedGraph(int nodesInit, int nodes, int edgesInit,
-			int edges, long timestampInit,
+	/**
+	 * 
+	 * @param nodes
+	 *            number of ndoes to generate
+	 * @param edges
+	 *            number of edges to randomly assign between the nodes
+	 * @param datastructures
+	 *            datastructures
+	 */
+	public RandomUndirectedGraph(int nodes, int edges,
 			UndirectedGraphDatastructures datastructures) {
+		this(nodes, edges, datastructures, 0, nodes, edges);
+	}
+
+	/**
+	 * 
+	 * @param nodes
+	 *            number of ndoes to generate
+	 * @param edges
+	 *            number of edges to randomly assign between the nodes
+	 * @param datastructures
+	 *            datastructures
+	 * @param timestampInit
+	 *            timestamp to assign to the generated graph
+	 * @param nodesInit
+	 *            number of nodes to initialize the datastructures with
+	 * @param edgesInit
+	 *            number of edges to initialize the datastructures with
+	 */
+	public RandomUndirectedGraph(int nodes, int edges,
+			UndirectedGraphDatastructures datastructures, long timestampInit,
+			int nodesInit, int edgesInit) {
 		super("randomUndirectedGraph", new IntParameter("nodes", nodes),
 				new IntParameter("edges", edges), datastructures,
 				timestampInit, nodesInit, edgesInit);

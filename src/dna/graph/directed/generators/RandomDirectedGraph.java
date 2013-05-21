@@ -7,17 +7,49 @@ import dna.graph.directed.DirectedNode;
 import dna.util.Rand;
 import dna.util.parameters.IntParameter;
 
+/**
+ * 
+ * graph generator for a random directed graph. given a number of nodes and edges, the
+ * edges are chosen uniformly at random from the number of all possible edges.
+ * 
+ * @author benni
+ * 
+ */
 public class RandomDirectedGraph extends DirectedGraphGenerator {
 
 	private int nodes;
 
 	private int edges;
 
+	/**
+	 * 
+	 * @param nodes
+	 *            number of nodes to generate
+	 * @param edges
+	 *            number of edges to randomly assign between the nodes
+	 * @param datastructures
+	 *            datastructures
+	 */
 	public RandomDirectedGraph(int nodes, int edges,
 			DirectedGraphDatastructures datastructures) {
 		this(nodes, edges, datastructures, 0, nodes, edges);
 	}
 
+	/**
+	 * 
+	 * @param nodes
+	 *            number of ndoes to generate
+	 * @param edges
+	 *            number of edges to randomly assign between the nodes
+	 * @param datastructures
+	 *            datastructures
+	 * @param timestampInit
+	 *            timestamp to assign to the generated graph
+	 * @param nodesInit
+	 *            number of nodes to initialize the datastructures with
+	 * @param edgesInit
+	 *            number of edges to initialize the datastructures with
+	 */
 	public RandomDirectedGraph(int nodes, int edges,
 			DirectedGraphDatastructures datastructures, long timestampInit,
 			int nodesInit, int edgesInit) {

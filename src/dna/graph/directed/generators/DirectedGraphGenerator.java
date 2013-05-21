@@ -7,6 +7,13 @@ import dna.graph.directed.DirectedGraphDatastructures;
 import dna.graph.directed.DirectedNode;
 import dna.util.parameters.Parameter;
 
+/**
+ * 
+ * abstract class for a directed graph generator
+ * 
+ * @author benni
+ * 
+ */
 public abstract class DirectedGraphGenerator extends
 		GraphGenerator<DirectedGraph, DirectedNode, DirectedEdge> {
 
