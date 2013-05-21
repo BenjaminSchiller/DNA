@@ -12,6 +12,12 @@ public abstract class DirectedBatchGenerator extends
 
 	public DirectedBatchGenerator(
 			String name,
+			GraphDatastructures<DirectedGraph, DirectedNode, DirectedEdge> datastructures) {
+		super(name, new Parameter[] {}, datastructures);
+	}
+
+	public DirectedBatchGenerator(
+			String name,
 			Parameter p1,
 			GraphDatastructures<DirectedGraph, DirectedNode, DirectedEdge> datastructures) {
 		super(name, new Parameter[] { p1 }, datastructures);
