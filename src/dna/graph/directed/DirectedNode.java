@@ -12,6 +12,12 @@ public abstract class DirectedNode extends Node<DirectedEdge> {
 
 	public abstract Iterable<DirectedEdge> getOutgoingEdges();
 
+	public abstract Iterable<DirectedNode> getNeighbors();
+
+	public abstract int getNeighborCount();
+
+	public abstract boolean hasNeighbor(DirectedNode n);
+
 	public abstract int getDegree();
 
 	public abstract int getInDegree();
