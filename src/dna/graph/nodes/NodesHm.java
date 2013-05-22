@@ -4,6 +4,8 @@ import java.util.Collection;
 import java.util.HashMap;
 
 import dna.graph.Edge;
+import dna.graph.Graph;
+import dna.graph.GraphDatastructures;
 import dna.graph.Node;
 import dna.util.Rand;
 
@@ -13,7 +15,8 @@ public class NodesHm<N extends Node<E>, E extends Edge> extends Nodes<N, E> {
 
 	private int maxIndex;
 
-	public NodesHm(int nodes) {
+	public NodesHm(int nodes, GraphDatastructures<Graph<N, E>, N, E> ds) {
+		super(ds);
 		this.nodes = new HashMap<Integer, N>(nodes);
 		this.maxIndex = -1;
 	}

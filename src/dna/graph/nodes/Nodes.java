@@ -3,12 +3,20 @@ package dna.graph.nodes;
 import java.util.Collection;
 
 import dna.graph.Edge;
+import dna.graph.Graph;
+import dna.graph.GraphDatastructures;
 import dna.graph.Node;
 
 public abstract class Nodes<N extends Node<E>, E extends Edge> {
 
+	protected GraphDatastructures<Graph<N, E>, N, E> ds;
+
+	public Nodes(GraphDatastructures<Graph<N, E>, N, E> ds) {
+		this.ds = ds;
+	}
+
 	public abstract N getNode(int index);
-	
+
 	public abstract int getMaxNodeIndex();
 
 	public abstract int getNodeCount();
