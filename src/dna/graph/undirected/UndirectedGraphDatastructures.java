@@ -77,6 +77,11 @@ public class UndirectedGraphDatastructures extends
 	}
 
 	@Override
+	public UndirectedNode[] newNodeArray(int length) {
+		return new UndirectedNode[length];
+	}
+
+	@Override
 	public UndirectedEdge newEdgeInstance(UndirectedNode src, UndirectedNode dst) {
 		try {
 			Constructor<UndirectedEdge> constr = this.edgeType.getConstructor(

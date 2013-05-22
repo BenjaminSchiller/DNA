@@ -44,6 +44,8 @@ public abstract class GraphDatastructures<G extends Graph<N, E>, N extends Node<
 
 	public abstract N newNodeInstance(String str);
 
+	public abstract N[] newNodeArray(int length);
+
 	public abstract E newEdgeInstance(N src, N dst);
 
 	public abstract E newEdgeInstance(N src, N dst, double weight);

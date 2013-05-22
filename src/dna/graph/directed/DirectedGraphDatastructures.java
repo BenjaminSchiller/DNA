@@ -76,6 +76,11 @@ public class DirectedGraphDatastructures extends
 	}
 
 	@Override
+	public DirectedNode[] newNodeArray(int length) {
+		return new DirectedNode[length];
+	}
+
+	@Override
 	public DirectedEdge newEdgeInstance(DirectedNode src, DirectedNode dst) {
 		try {
 			Constructor<DirectedEdge> constr = this.edgeType.getConstructor(
