@@ -60,4 +60,8 @@ public class DirectedEdge extends Edge implements Comparable<DirectedEdge> {
 		return this.dst.getIndex() - e.dst.getIndex();
 	}
 
+	public DirectedEdge invert() {
+		return new DirectedEdge(this.dst, this.src);
+	}
+
 }
