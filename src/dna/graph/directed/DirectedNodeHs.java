@@ -12,10 +12,13 @@ public class DirectedNodeHs extends DirectedNode {
 
 	private Iterable<DirectedEdge> all;
 
+	private HashSet<DirectedNode> neighbors;
+
 	public DirectedNodeHs(int index) {
 		super(index);
 		this.in = new HashSet<DirectedEdge>();
 		this.out = new HashSet<DirectedEdge>();
+		this.neighbors = new HashSet<DirectedNode>();
 		this.all = Iterables.unmodifiableIterable(Iterables.concat(in, out));
 	}
 
@@ -27,6 +30,26 @@ public class DirectedNodeHs extends DirectedNode {
 	@Override
 	public Iterable<DirectedEdge> getOutgoingEdges() {
 		return this.out;
+	}
+
+	@Override
+	public Iterable<DirectedNode> getNeighbors() {
+		return this.neighbors;
+	}
+
+	@Override
+	public int getNeighborCount() {
+		return this.neighbors.size();
+	}
+
+	@Override
+	public boolean hasNeighbor(DirectedNode n) {
+		return this.neighbors.contains(n);
+	}
+
+	@Override
+	public Iterable<DirectedEdge> getEdges() {
+		return this.all;
 	}
 
 	@Override
@@ -53,10 +76,18 @@ public class DirectedNodeHs extends DirectedNode {
 	@Override
 	public boolean addEdge(DirectedEdge e) {
 		if (e.getSrc().getIndex() == this.index) {
-			return this.out.add(e);
+			boolean success = this.out.add(e);
+			if (this.in.contains(e.invert())) {
+				success &= this.neighbors.add(e.getDst());
+			}
+			return success;
 		}
 		if (e.getDst().getIndex() == this.index) {
-			return this.in.add(e);
+			boolean success = this.in.add(e);
+			if (this.out.contains(e.invert())) {
+				success &= this.neighbors.add(e.getSrc());
+			}
+			return success;
 		}
 		return false;
 	}
@@ -64,17 +95,14 @@ public class DirectedNodeHs extends DirectedNode {
 	@Override
 	public boolean removeEdge(DirectedEdge e) {
 		if (e.getSrc().getIndex() == this.index) {
+			this.neighbors.remove(e.getDst());
 			return this.out.remove(e);
 		}
 		if (e.getDst().getIndex() == this.index) {
+			this.neighbors.remove(e.getSrc());
 			return this.in.remove(e);
 		}
 		return false;
-	}
-
-	@Override
-	public Iterable<DirectedEdge> getEdges() {
-		return this.all;
 	}
 
 }

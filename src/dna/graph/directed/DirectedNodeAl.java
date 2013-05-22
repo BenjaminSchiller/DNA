@@ -12,11 +12,14 @@ public class DirectedNodeAl extends DirectedNode {
 
 	private Iterable<DirectedEdge> all;
 
+	private ArrayList<DirectedNode> neighbors;
+
 	public DirectedNodeAl(int index) {
 		super(index);
 		this.in = new ArrayList<DirectedEdge>();
 		this.out = new ArrayList<DirectedEdge>();
 		this.all = Iterables.unmodifiableIterable(Iterables.concat(in, out));
+		this.neighbors = new ArrayList<DirectedNode>();
 	}
 
 	@Override
@@ -27,6 +30,26 @@ public class DirectedNodeAl extends DirectedNode {
 	@Override
 	public Iterable<DirectedEdge> getOutgoingEdges() {
 		return this.out;
+	}
+
+	@Override
+	public Iterable<DirectedEdge> getEdges() {
+		return this.all;
+	}
+
+	@Override
+	public Iterable<DirectedNode> getNeighbors() {
+		return this.neighbors;
+	}
+
+	@Override
+	public int getNeighborCount() {
+		return this.neighbors.size();
+	}
+
+	@Override
+	public boolean hasNeighbor(DirectedNode n) {
+		return this.neighbors.contains(n);
 	}
 
 	@Override
@@ -53,10 +76,18 @@ public class DirectedNodeAl extends DirectedNode {
 	@Override
 	public boolean addEdge(DirectedEdge e) {
 		if (e.getSrc().getIndex() == this.index) {
-			return !this.out.contains(e) && this.out.add(e);
+			boolean success = !this.out.contains(e) && this.out.add(e);
+			if (success && this.in.contains(e.invert())) {
+				success &= this.neighbors.add(e.getDst());
+			}
+			return success;
 		}
 		if (e.getDst().getIndex() == this.index) {
-			return !this.in.contains(e) && this.in.add(e);
+			boolean success = !this.in.contains(e) && this.in.add(e);
+			if (success && this.out.contains(e.invert())) {
+				success &= this.neighbors.add(e.getSrc());
+			}
+			return success;
 		}
 		return false;
 	}
@@ -64,16 +95,13 @@ public class DirectedNodeAl extends DirectedNode {
 	@Override
 	public boolean removeEdge(DirectedEdge e) {
 		if (e.getSrc().getIndex() == this.index) {
+			this.neighbors.remove(e.getDst());
 			return this.out.remove(e);
 		}
 		if (e.getDst().getIndex() == this.index) {
+			this.neighbors.remove(e.getSrc());
 			return this.in.remove(e);
 		}
 		return false;
-	}
-
-	@Override
-	public Iterable<DirectedEdge> getEdges() {
-		return this.all;
 	}
 }
