@@ -293,25 +293,6 @@ public class DegreeDistributionUpdate extends DegreeDistribution {
 		return false;
 	}
 
-	@Override
-	public boolean cleanup() {
-		this.degreeDistribution = new double[this.degreeCount.length];
-		this.inDegreeDistribution = new double[this.inDegreeCount.length];
-		this.outDegreeDistribution = new double[this.outDegreeCount.length];
-
-		this.fill(this.degreeCount, this.degreeDistribution, this.nodes);
-		this.fill(this.inDegreeCount, this.inDegreeDistribution, this.nodes);
-		this.fill(this.outDegreeCount, this.outDegreeDistribution, this.nodes);
-
-		return true;
-	}
-
-	private void fill(int[] src, double[] dst, double divideBy) {
-		for (int i = 0; i < src.length; i++) {
-			dst[i] = (double) src[i] / divideBy;
-		}
-	}
-
 	@SuppressWarnings("unchecked")
 	@Override
 	public boolean compute() {
@@ -327,7 +308,7 @@ public class DegreeDistributionUpdate extends DegreeDistribution {
 				this.outDegreeCount = ArrayUtils.incr(this.outDegreeCount,
 						n.getOutDegree());
 			}
-			this.cleanup();
+			this.finalizeComputation();
 			return true;
 		} else if (UndirectedNode.class.isAssignableFrom(this.g
 				.getGraphDatastructures().getNodeType())) {
@@ -336,12 +317,30 @@ public class DegreeDistributionUpdate extends DegreeDistribution {
 				this.degreeCount = ArrayUtils.incr(this.degreeCount,
 						n.getDegree());
 			}
-			this.cleanup();
+			this.finalizeComputation();
 			return true;
 		}
 		Log.error("DD - unsupported node type "
 				+ this.g.getGraphDatastructures().getNodeType());
 		return false;
+	}
+
+	public boolean finalizeComputation() {
+		this.degreeDistribution = new double[this.degreeCount.length];
+		this.inDegreeDistribution = new double[this.inDegreeCount.length];
+		this.outDegreeDistribution = new double[this.outDegreeCount.length];
+
+		this.fill(this.degreeCount, this.degreeDistribution, this.nodes);
+		this.fill(this.inDegreeCount, this.inDegreeDistribution, this.nodes);
+		this.fill(this.outDegreeCount, this.outDegreeDistribution, this.nodes);
+
+		return true;
+	}
+
+	private void fill(int[] src, double[] dst, double divideBy) {
+		for (int i = 0; i < src.length; i++) {
+			dst[i] = (double) src[i] / divideBy;
+		}
 	}
 
 	@Override

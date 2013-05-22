@@ -138,12 +138,6 @@ public abstract class MetricNew extends ParameterList {
 	public abstract boolean applyAfterUpdate(Update u);
 
 	/**
-	 * 
-	 * @return true, if successful; false otherwise
-	 */
-	public abstract boolean cleanup();
-
-	/**
 	 * performs the initial computation of the metric for the initial graph
 	 * 
 	 * @return true, if successful; false otherwise
