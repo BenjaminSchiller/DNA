@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 import dna.graph.Edge;
+import dna.graph.Graph;
+import dna.graph.GraphDatastructures;
 import dna.graph.Node;
 import dna.util.Rand;
 
@@ -13,7 +15,8 @@ public class NodesAl<N extends Node<E>, E extends Edge> extends Nodes<N, E> {
 
 	private int maxIndex;
 
-	public NodesAl(int nodes) {
+	public NodesAl(int nodes, GraphDatastructures<Graph<N, E>, N, E> ds) {
+		super(ds);
 		this.nodes = new ArrayList<N>(nodes);
 		this.maxIndex = -1;
 	}

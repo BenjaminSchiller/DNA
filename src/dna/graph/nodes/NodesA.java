@@ -4,8 +4,9 @@ import java.util.Collection;
 import java.util.LinkedList;
 
 import dna.graph.Edge;
+import dna.graph.Graph;
+import dna.graph.GraphDatastructures;
 import dna.graph.Node;
-import dna.util.ArrayUtils;
 import dna.util.Rand;
 
 public class NodesA<N extends Node<E>, E extends Edge> extends Nodes<N, E> {
@@ -15,7 +16,8 @@ public class NodesA<N extends Node<E>, E extends Edge> extends Nodes<N, E> {
 	private int nodeCount;
 
 	@SuppressWarnings("unchecked")
-	public NodesA(int nodes) {
+	public NodesA(int nodes, GraphDatastructures<Graph<N, E>, N, E> ds) {
+		super(ds);
 		this.nodes = (N[]) new Node[nodes];
 		this.nodeCount = 0;
 	}
@@ -68,7 +70,6 @@ public class NodesA<N extends Node<E>, E extends Edge> extends Nodes<N, E> {
 		return true;
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public boolean removeNode(N n) {
 		if (this.nodes.length <= n.getIndex()) {
@@ -78,10 +79,23 @@ public class NodesA<N extends Node<E>, E extends Edge> extends Nodes<N, E> {
 			return false;
 		}
 		this.nodes[n.getIndex()] = null;
-		if (n.getIndex() == this.nodes.length - 1) {
-			this.nodes = (N[]) ArrayUtils.truncate(this.nodes);
-		}
+
 		this.nodeCount--;
+
+		if (this.nodes[this.nodes.length - 1] != null) {
+			return true;
+		}
+		int index = this.nodes.length - 1;
+		for (int i = this.nodes.length - 1; i >= 0; i--) {
+			if (this.nodes[i] != null) {
+				break;
+			}
+			index--;
+		}
+		N[] nodesNew = this.ds.newNodeArray(index + 1);
+		System.arraycopy(this.nodes, 0, nodesNew, 0, index + 1);
+		this.nodes = nodesNew;
+
 		return true;
 	}
 
