@@ -47,17 +47,17 @@ public class Plotting {
 					.getList()) {
 				PlotData[] data = new PlotData[runData.getBatches().size()];
 				int i = 0;
-				for (BatchData diffData : runData.getBatches().getList()) {
-					MetricData metricData = diffData.getMetrics().get(
+				for (BatchData batchData : runData.getBatches().getList()) {
+					MetricData metricData = batchData.getMetrics().get(
 							metric.getName());
 					Distribution d = metricData.getDistributions().get(
 							distribution.getName());
 					String path = Dir.getMetricDataDir(seriesData.getDir(),
-							runData.getRun(), diffData.getTimestamp(),
+							runData.getRun(), batchData.getTimestamp(),
 							metricData.getName())
 							+ d.getName() + Suffix.distribution;
 					data[i] = PlotData.get(path, PlotStyle.linespoint,
-							diffData.getTimestamp() + "", PlotType.average);
+							batchData.getTimestamp() + "", PlotType.average);
 					i++;
 				}
 
@@ -85,10 +85,10 @@ public class Plotting {
 			for (Value value : metric.getValues().getList()) {
 				double[][] values = new double[runData.getBatches().size()][2];
 				int i = 0;
-				for (BatchData diffData : runData.getBatches().getList()) {
-					MetricData metricData = diffData.getMetrics().get(
+				for (BatchData batchData : runData.getBatches().getList()) {
+					MetricData metricData = batchData.getMetrics().get(
 							metric.getName());
-					values[i][0] = diffData.getTimestamp();
+					values[i][0] = batchData.getTimestamp();
 					values[i][1] = metricData.getValues().get(value.getName())
 							.getValue();
 					i++;
