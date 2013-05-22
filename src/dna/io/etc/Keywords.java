@@ -18,22 +18,8 @@ public class Keywords {
 	public static final String directedEdgeDelimiter = " -> ";
 
 	public static final String undirectedEdgeDelimiter = " <-> ";
-	
+
 	public static final String edgeWeightDelimiter = "|";
-
-	public static final String diffNodes = "Nodes";
-
-	public static final String diffFrom = "From Timestamp";
-
-	public static final String diffTo = "To Timestamp";
-
-	public static final String diffAddedEdges = "Added Edges";
-
-	public static final String diffRemovedEdges = "Removed Edges";
-
-	public static final String diffListOfAddedEdges = "List of added Edges";
-
-	public static final String diffListofRemovedEdges = "List of removed Edges";
 
 	public static final String distributionDelimiter = "	";
 

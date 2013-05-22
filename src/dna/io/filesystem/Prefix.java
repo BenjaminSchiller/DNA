@@ -17,7 +17,7 @@ public class Prefix {
 	
 	public static final String runDataDir = "run.";
 	
-	public static final String diffDataDir = "diff.";
+	public static final String batchDataDir = "batch.";
 	
 	public static final String metricDataDir = "metric.";
 }

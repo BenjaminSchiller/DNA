@@ -48,8 +48,7 @@ public abstract class Metric extends ParameterList {
 		this(name, type, new Parameter[] { p1 });
 	}
 
-	public Metric(String name, ApplicationType type, Parameter p1,
-			Parameter p2) {
+	public Metric(String name, ApplicationType type, Parameter p1, Parameter p2) {
 		this(name, type, new Parameter[] { p1, p2 });
 	}
 
@@ -220,8 +219,8 @@ public abstract class Metric extends ParameterList {
 	 * @param m
 	 *            metric to compare to
 	 * @return true, if the metric is of the same type and all computed values
-	 *         are equal (can be used to compare different mplementations of the
-	 *         same metric)
+	 *         are equal (can be used to compare different implementations of
+	 *         the same metric)
 	 */
 	public abstract boolean equals(Metric m);
 

@@ -41,25 +41,25 @@ public class Dir {
 	}
 
 	/*
-	 * DIFF data
+	 * BATCH data
 	 */
 
-	public static String getDiffDataDir(String dir, long timestamp) {
-		return dir + Prefix.diffDataDir + timestamp + Dir.delimiter;
+	public static String getBatchDataDir(String dir, long timestamp) {
+		return dir + Prefix.batchDataDir + timestamp + Dir.delimiter;
 	}
 
 	public static String getBatchDataDir(String dir, int run, long timestamp) {
-		return Dir.getRunDataDir(dir, run) + Prefix.diffDataDir + timestamp
+		return Dir.getRunDataDir(dir, run) + Prefix.batchDataDir + timestamp
 				+ Dir.delimiter;
 	}
 
-	public static String[] getDiffs(String dir) {
-		return (new File(dir))
-				.list(new PrefixFilenameFilter(Prefix.diffDataDir));
+	public static String[] getBatches(String dir) {
+		return (new File(dir)).list(new PrefixFilenameFilter(
+				Prefix.batchDataDir));
 	}
 
-	public static long getTimestamp(String diffFolderName) {
-		return Long.parseLong(diffFolderName.replaceFirst(Prefix.diffDataDir,
+	public static long getTimestamp(String batchFolderName) {
+		return Long.parseLong(batchFolderName.replaceFirst(Prefix.batchDataDir,
 				""));
 	}
 

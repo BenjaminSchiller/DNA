@@ -69,27 +69,27 @@ public class BatchData {
 	}
 
 	public void write(String dir) throws IOException {
-		Log.debug("writing DiffData for " + this.timestamp + " to " + dir);
-		this.stats.write(dir, Files.getValuesFilename(Names.diffStats));
+		Log.debug("writing BatchData for " + this.timestamp + " to " + dir);
+		this.stats.write(dir, Files.getValuesFilename(Names.batchStats));
 		this.generalRuntimes.write(dir,
-				Files.getRuntimesFilename(Names.diffGeneralRuntimes));
+				Files.getRuntimesFilename(Names.batchGeneralRuntimes));
 		this.metricRuntimes.write(dir,
-				Files.getRuntimesFilename(Names.diffMetricRuntimes));
+				Files.getRuntimesFilename(Names.batchMetricRuntimes));
 		this.metrics.write(dir);
 	}
 
 	public static BatchData read(String dir, long timestamp,
 			boolean readDistributionValues) throws IOException {
 		ValueList values = ValueList.read(dir,
-				Files.getValuesFilename(Names.diffStats));
+				Files.getValuesFilename(Names.batchStats));
 		RunTimeList generalRuntimes = RunTimeList.read(dir,
-				Files.getRuntimesFilename(Names.diffGeneralRuntimes));
+				Files.getRuntimesFilename(Names.batchGeneralRuntimes));
 		RunTimeList metricRuntimes = RunTimeList.read(dir,
-				Files.getRuntimesFilename(Names.diffMetricRuntimes));
+				Files.getRuntimesFilename(Names.batchMetricRuntimes));
 		MetricDataList metrics = MetricDataList.read(dir,
 				readDistributionValues);
-		return new BatchData(timestamp, values, generalRuntimes, metricRuntimes,
-				metrics);
+		return new BatchData(timestamp, values, generalRuntimes,
+				metricRuntimes, metrics);
 	}
 
 }
