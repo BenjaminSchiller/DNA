@@ -10,7 +10,7 @@ import dna.util.parameters.Parameter;
 import dna.util.parameters.ParameterList;
 
 @SuppressWarnings("rawtypes")
-public abstract class MetricNew extends ParameterList {
+public abstract class Metric extends ParameterList {
 
 	public static enum ApplicationType {
 		BeforeBatch, AfterBatch, BeforeAndAfterBatch, BeforeUpdate, AfterUpdate, BeforeAndAfterUpdate, Recomputation
@@ -40,35 +40,35 @@ public abstract class MetricNew extends ParameterList {
 		return this.type == ApplicationType.Recomputation;
 	}
 
-	public MetricNew(String name, ApplicationType type) {
+	public Metric(String name, ApplicationType type) {
 		this(name, type, new Parameter[] {});
 	}
 
-	public MetricNew(String name, ApplicationType type, Parameter p1) {
+	public Metric(String name, ApplicationType type, Parameter p1) {
 		this(name, type, new Parameter[] { p1 });
 	}
 
-	public MetricNew(String name, ApplicationType type, Parameter p1,
+	public Metric(String name, ApplicationType type, Parameter p1,
 			Parameter p2) {
 		this(name, type, new Parameter[] { p1, p2 });
 	}
 
-	public MetricNew(String name, ApplicationType type, Parameter p1,
+	public Metric(String name, ApplicationType type, Parameter p1,
 			Parameter p2, Parameter p3) {
 		this(name, type, new Parameter[] { p1, p2, p3 });
 	}
 
-	public MetricNew(String name, ApplicationType type, Parameter p1,
+	public Metric(String name, ApplicationType type, Parameter p1,
 			Parameter p2, Parameter p3, Parameter p4) {
 		this(name, type, new Parameter[] { p1, p2, p3, p4 });
 	}
 
-	public MetricNew(String name, ApplicationType type, Parameter p1,
+	public Metric(String name, ApplicationType type, Parameter p1,
 			Parameter p2, Parameter p3, Parameter p4, Parameter p5) {
 		this(name, type, new Parameter[] { p1, p2, p3, p4, p5 });
 	}
 
-	public MetricNew(String name, ApplicationType type, Parameter[] params) {
+	public Metric(String name, ApplicationType type, Parameter[] params) {
 		super(name, params);
 		this.type = type;
 		this.timestamp = Long.MIN_VALUE;
@@ -223,7 +223,7 @@ public abstract class MetricNew extends ParameterList {
 	 *         are equal (can be used to compare different mplementations of the
 	 *         same metric)
 	 */
-	public abstract boolean equals(MetricNew m);
+	public abstract boolean equals(Metric m);
 
 	/**
 	 * 
@@ -248,6 +248,6 @@ public abstract class MetricNew extends ParameterList {
 	 * @return true, if the metric can be compared, i.e., they compute the same
 	 *         properties of a graph
 	 */
-	public abstract boolean isComparableTo(MetricNew m);
+	public abstract boolean isComparableTo(Metric m);
 
 }

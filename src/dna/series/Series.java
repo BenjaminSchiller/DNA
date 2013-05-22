@@ -6,7 +6,7 @@ import java.util.HashMap;
 import dna.graph.Graph;
 import dna.graph.GraphGenerator;
 import dna.io.filesystem.Dir;
-import dna.metrics.MetricNew;
+import dna.metrics.Metric;
 import dna.series.data.BatchData;
 import dna.series.data.RunData;
 import dna.series.data.RunTime;
@@ -22,7 +22,7 @@ import dna.util.Timer;
 @SuppressWarnings("rawtypes")
 public class Series {
 
-	public Series(GraphGenerator gg, BatchGenerator bg, MetricNew[] metrics,
+	public Series(GraphGenerator gg, BatchGenerator bg, Metric[] metrics,
 			String dir) {
 		this.gg = gg;
 		this.bg = bg;
@@ -41,7 +41,7 @@ public class Series {
 		Log.info("bg = " + this.bg.getDescription());
 		Log.info("p  = " + this.dir);
 		StringBuffer buff = new StringBuffer("");
-		for (MetricNew m : this.metrics) {
+		for (Metric m : this.metrics) {
 			if (buff.length() > 0) {
 				buff.append("\n     ");
 			}
@@ -134,7 +134,7 @@ public class Series {
 		Timer graphGenerationTimer = new Timer("graphGeneration");
 		this.g = this.gg.generate();
 		graphGenerationTimer.end();
-		for (MetricNew m : this.metrics) {
+		for (Metric m : this.metrics) {
 			m.setGraph(this.g);
 		}
 
@@ -144,7 +144,7 @@ public class Series {
 
 		// initial computation of all metrics
 		Timer allMetricsTimer = new Timer("metrics");
-		for (MetricNew m : metrics) {
+		for (Metric m : metrics) {
 			Timer metricTimer = new Timer(m.getName());
 			m.compute();
 			metricTimer.end();
@@ -196,8 +196,8 @@ public class Series {
 		Timer graphUpdateTimer = new Timer("graphUpdate");
 
 		// init metric timers
-		HashMap<MetricNew, Timer> timer = new HashMap<MetricNew, Timer>();
-		for (MetricNew m : this.metrics) {
+		HashMap<Metric, Timer> timer = new HashMap<Metric, Timer>();
+		for (Metric m : this.metrics) {
 			Timer t = new Timer(m.getName());
 			t.end();
 			timer.put(m, t);
@@ -207,7 +207,7 @@ public class Series {
 
 		// apply before batch
 		metricsTotal.restart();
-		for (MetricNew m : this.metrics) {
+		for (Metric m : this.metrics) {
 			if (m.isAppliedBeforeBatch()) {
 				timer.get(m).restart();
 				m.applyBeforeBatch(b);
@@ -235,7 +235,7 @@ public class Series {
 
 		// apply after batch
 		metricsTotal.restart();
-		for (MetricNew m : this.metrics) {
+		for (Metric m : this.metrics) {
 			if (m.isAppliedAfterBatch()) {
 				timer.get(m).restart();
 				m.applyAfterBatch(b);
@@ -246,7 +246,7 @@ public class Series {
 
 		// compute / cleanup
 		metricsTotal.restart();
-		for (MetricNew m : this.metrics) {
+		for (Metric m : this.metrics) {
 			if (m.isRecomputed()) {
 				timer.get(m).restart();
 				m.recompute();
@@ -283,12 +283,12 @@ public class Series {
 		batchData.getValues().add(new Value("randomSeed", seed));
 
 		// add metric data
-		for (MetricNew m : this.metrics) {
+		for (Metric m : this.metrics) {
 			batchData.getMetrics().add(m.getData());
 		}
 
 		// add metric runtimes
-		for (MetricNew m : this.metrics) {
+		for (Metric m : this.metrics) {
 			batchData.getMetricRuntimes().add(timer.get(m).getRuntime());
 		}
 
@@ -305,14 +305,14 @@ public class Series {
 
 	@SuppressWarnings("unchecked")
 	private int applyUpdates(Iterable<Update> updates, Timer graphUpdateTimer,
-			Timer metricsTotal, HashMap<MetricNew, Timer> timer) {
+			Timer metricsTotal, HashMap<Metric, Timer> timer) {
 
 		int counter = 0;
 		for (Update u : updates) {
 
 			// apply update to metrics beforehand
 			metricsTotal.restart();
-			for (MetricNew m : this.metrics) {
+			for (Metric m : this.metrics) {
 				if (m.isAppliedBeforeUpdate()) {
 					timer.get(m).restart();
 					m.applyBeforeUpdate(u);
@@ -334,7 +334,7 @@ public class Series {
 
 			// apply update to metrics afterwards
 			metricsTotal.restart();
-			for (MetricNew m : this.metrics) {
+			for (Metric m : this.metrics) {
 				if (m.isAppliedAfterUpdate()) {
 					timer.get(m).restart();
 					m.applyAfterUpdate(u);
@@ -373,7 +373,7 @@ public class Series {
 
 	private BatchGenerator bg;
 
-	private MetricNew[] metrics;
+	private Metric[] metrics;
 
 	private String dir;
 
@@ -387,7 +387,7 @@ public class Series {
 		return this.bg;
 	}
 
-	public MetricNew[] getMetrics() {
+	public Metric[] getMetrics() {
 		return this.metrics;
 	}
 
