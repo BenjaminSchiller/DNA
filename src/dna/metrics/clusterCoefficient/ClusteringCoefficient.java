@@ -1,14 +1,14 @@
 package dna.metrics.clusterCoefficient;
 
 import dna.graph.Graph;
-import dna.metrics.MetricNew;
+import dna.metrics.Metric;
 import dna.series.data.Distribution;
 import dna.series.data.Value;
 import dna.util.ArrayUtils;
 import dna.util.DataUtils;
 
 @SuppressWarnings("rawtypes")
-public abstract class ClusteringCoefficient extends MetricNew {
+public abstract class ClusteringCoefficient extends Metric {
 
 	public ClusteringCoefficient(String name, ApplicationType type) {
 		super(name, type);
@@ -64,7 +64,7 @@ public abstract class ClusteringCoefficient extends MetricNew {
 	}
 
 	@Override
-	public boolean equals(MetricNew m) {
+	public boolean equals(Metric m) {
 		if (m == null || !(m instanceof ClusteringCoefficient)) {
 			return false;
 		}
@@ -85,7 +85,7 @@ public abstract class ClusteringCoefficient extends MetricNew {
 	}
 
 	@Override
-	public boolean isComparableTo(MetricNew m) {
+	public boolean isComparableTo(Metric m) {
 		return m != null && m instanceof ClusteringCoefficient;
 	}
 

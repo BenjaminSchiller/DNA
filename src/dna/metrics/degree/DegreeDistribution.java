@@ -2,13 +2,13 @@ package dna.metrics.degree;
 
 import dna.graph.directed.DirectedNode;
 import dna.graph.undirected.UndirectedNode;
-import dna.metrics.MetricNew;
+import dna.metrics.Metric;
 import dna.series.data.Distribution;
 import dna.series.data.Value;
 import dna.util.ArrayUtils;
 import dna.util.DataUtils;
 
-public abstract class DegreeDistribution extends MetricNew {
+public abstract class DegreeDistribution extends Metric {
 
 	protected double[] degreeDistribution;
 
@@ -59,7 +59,7 @@ public abstract class DegreeDistribution extends MetricNew {
 	}
 
 	@Override
-	public boolean equals(MetricNew m) {
+	public boolean equals(Metric m) {
 		if (m == null || !(m instanceof DegreeDistribution)) {
 			return false;
 		}
@@ -75,7 +75,7 @@ public abstract class DegreeDistribution extends MetricNew {
 	}
 
 	@Override
-	public boolean isComparableTo(MetricNew m) {
+	public boolean isComparableTo(Metric m) {
 		return m != null && m instanceof DegreeDistribution;
 	}
 
