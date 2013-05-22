@@ -20,9 +20,9 @@ import dna.util.Rand;
 import dna.util.Timer;
 
 @SuppressWarnings("rawtypes")
-public class SeriesNew {
+public class Series {
 
-	public SeriesNew(GraphGenerator gg, BatchGenerator bg, MetricNew[] metrics,
+	public Series(GraphGenerator gg, BatchGenerator bg, MetricNew[] metrics,
 			String dir) {
 		this.gg = gg;
 		this.bg = bg;
