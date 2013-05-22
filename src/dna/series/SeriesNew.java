@@ -79,6 +79,7 @@ public class SeriesNew {
 
 		// generate initial data
 		BatchData initialData = this.generateInitialData();
+		this.compareMetrics();
 		rd.getBatches().add(initialData);
 		initialData.write(Dir.getBatchDataDir(this.dir, run,
 				initialData.getTimestamp()));
@@ -246,13 +247,11 @@ public class SeriesNew {
 		// compute / cleanup
 		metricsTotal.restart();
 		for (MetricNew m : this.metrics) {
-			timer.get(m).restart();
 			if (m.isRecomputed()) {
+				timer.get(m).restart();
 				m.recompute();
-			} else {
-				m.cleanup();
+				timer.get(m).end();
 			}
-			timer.get(m).end();
 		}
 		metricsTotal.end();
 

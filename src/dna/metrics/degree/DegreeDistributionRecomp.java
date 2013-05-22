@@ -37,11 +37,6 @@ public class DegreeDistributionRecomp extends DegreeDistribution {
 		return false;
 	}
 
-	@Override
-	public boolean cleanup() {
-		return false;
-	}
-
 	@SuppressWarnings("unchecked")
 	@Override
 	public boolean compute() {
