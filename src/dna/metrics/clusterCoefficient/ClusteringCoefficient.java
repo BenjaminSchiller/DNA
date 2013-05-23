@@ -84,9 +84,4 @@ public abstract class ClusteringCoefficient extends Metric {
 		return success;
 	}
 
-	@Override
-	public boolean isComparableTo(Metric m) {
-		return m != null && m instanceof ClusteringCoefficient;
-	}
-
 }

@@ -14,7 +14,7 @@ import dna.util.Log;
 public class DegreeDistributionRecomp extends DegreeDistribution {
 
 	public DegreeDistributionRecomp() {
-		super("degreeDistributionRecomputation", ApplicationType.Recomputation);
+		super("degreeDistributionRecomp", ApplicationType.Recomputation);
 	}
 
 	@Override
