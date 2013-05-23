@@ -14,7 +14,7 @@ import dna.util.ArrayUtils;
 
 @SuppressWarnings("rawtypes")
 public class OpenTriangleClusteringCoefficientUpdate extends
-		ClusteringCoefficient {
+		OpenTriangleClusteringCoefficient {
 
 	public OpenTriangleClusteringCoefficientUpdate() {
 		super("openTriangleClusteringCoefficientUpdate",

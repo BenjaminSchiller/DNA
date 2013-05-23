@@ -10,7 +10,7 @@ import dna.util.ArrayUtils;
 
 @SuppressWarnings("rawtypes")
 public class OpenTriangleClusteringCoefficientRecomp extends
-		ClusteringCoefficient {
+		OpenTriangleClusteringCoefficient {
 
 	public OpenTriangleClusteringCoefficientRecomp() {
 		super("openTriangleClusteringCoefficientRecomp",
