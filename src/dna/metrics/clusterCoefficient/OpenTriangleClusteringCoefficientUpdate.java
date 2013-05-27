@@ -1,6 +1,5 @@
 package dna.metrics.clusterCoefficient;
 
-import dna.graph.Graph;
 import dna.graph.directed.DirectedEdge;
 import dna.graph.directed.DirectedGraph;
 import dna.graph.directed.DirectedNode;
@@ -128,47 +127,6 @@ public class OpenTriangleClusteringCoefficientUpdate extends
 		return true;
 	}
 
-	private void addTriangle(DirectedNode origin) {
-		this.triangleCount++;
-		this.nodeTriangleCount[origin.getIndex()]++;
-		this.update(origin.getIndex());
-	}
-
-	private void removeTriangle(DirectedNode origin) {
-		this.triangleCount--;
-		this.nodeTriangleCount[origin.getIndex()]--;
-		this.update(origin.getIndex());
-	}
-
-	private void addPotentials(DirectedNode origin, int count) {
-		this.potentialCount += count;
-		this.nodePotentialCount[origin.getIndex()] += count;
-		this.update(origin.getIndex());
-	}
-
-	private void removePotentials(DirectedNode origin, int count) {
-		this.potentialCount -= count;
-		this.nodePotentialCount[origin.getIndex()] -= count;
-		this.update(origin.getIndex());
-	}
-
-	private void update(int index) {
-		if (this.nodePotentialCount[index] == 0) {
-			this.localCC[index] = 0;
-		} else {
-			this.localCC[index] = (double) this.nodeTriangleCount[index]
-					/ this.nodePotentialCount[index];
-		}
-		if (this.potentialCount == 0) {
-			this.globalCC = 0;
-			this.averageCC = 0;
-		} else {
-			this.globalCC = (double) this.triangleCount
-					/ (double) this.potentialCount;
-			this.averageCC = ArrayUtils.avg(this.localCC);
-		}
-	}
-
 	@Override
 	public boolean compute() {
 		this.triangleCount = 0;
@@ -213,18 +171,6 @@ public class OpenTriangleClusteringCoefficientUpdate extends
 	@Override
 	public boolean recompute() {
 		return false;
-	}
-
-	@Override
-	public boolean isApplicable(Graph g) {
-		return DirectedNode.class.isAssignableFrom(g.getGraphDatastructures()
-				.getNodeType());
-	}
-
-	@Override
-	public boolean isApplicable(Batch b) {
-		return DirectedNode.class.isAssignableFrom(b.getGraphDatastructures()
-				.getNodeType());
 	}
 
 }

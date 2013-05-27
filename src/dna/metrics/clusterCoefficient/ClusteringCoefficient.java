@@ -1,6 +1,7 @@
 package dna.metrics.clusterCoefficient;
 
 import dna.graph.Graph;
+import dna.graph.Node;
 import dna.metrics.Metric;
 import dna.series.data.Distribution;
 import dna.series.data.Value;
@@ -82,6 +83,47 @@ public abstract class ClusteringCoefficient extends Metric {
 		success &= ArrayUtils.equals(this.nodePotentialCount,
 				cc.nodePotentialCount, "nodePotentialCount");
 		return success;
+	}
+
+	protected void addTriangle(Node origin) {
+		this.triangleCount++;
+		this.nodeTriangleCount[origin.getIndex()]++;
+		this.updateNode(origin.getIndex());
+	}
+
+	protected void removeTriangle(Node origin) {
+		this.triangleCount--;
+		this.nodeTriangleCount[origin.getIndex()]--;
+		this.updateNode(origin.getIndex());
+	}
+
+	protected void addPotentials(Node origin, int count) {
+		this.potentialCount += count;
+		this.nodePotentialCount[origin.getIndex()] += count;
+		this.updateNode(origin.getIndex());
+	}
+
+	protected void removePotentials(Node origin, int count) {
+		this.potentialCount -= count;
+		this.nodePotentialCount[origin.getIndex()] -= count;
+		this.updateNode(origin.getIndex());
+	}
+
+	protected void updateNode(int index) {
+		if (this.nodePotentialCount[index] == 0) {
+			this.localCC[index] = 0;
+		} else {
+			this.localCC[index] = (double) this.nodeTriangleCount[index]
+					/ this.nodePotentialCount[index];
+		}
+		if (this.potentialCount == 0) {
+			this.globalCC = 0;
+			this.averageCC = 0;
+		} else {
+			this.globalCC = (double) this.triangleCount
+					/ (double) this.potentialCount;
+			this.averageCC = ArrayUtils.avg(this.localCC);
+		}
 	}
 
 }
