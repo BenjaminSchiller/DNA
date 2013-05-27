@@ -1,6 +1,5 @@
 package dna.metrics.clusterCoefficient;
 
-import dna.graph.Graph;
 import dna.graph.directed.DirectedEdge;
 import dna.graph.directed.DirectedGraph;
 import dna.graph.directed.DirectedNode;
@@ -81,18 +80,6 @@ public class OpenTriangleClusteringCoefficientRecomp extends
 	@Override
 	public boolean recompute() {
 		return this.compute();
-	}
-
-	@Override
-	public boolean isApplicable(Graph g) {
-		return DirectedNode.class.isAssignableFrom(g.getGraphDatastructures()
-				.getNodeType());
-	}
-
-	@Override
-	public boolean isApplicable(Batch b) {
-		return DirectedNode.class.isAssignableFrom(b.getGraphDatastructures()
-				.getNodeType());
 	}
 
 }

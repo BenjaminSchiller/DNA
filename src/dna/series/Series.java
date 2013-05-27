@@ -103,7 +103,7 @@ public class Series {
 	private boolean compareMetrics() {
 		boolean ok = true;
 		for (int i = 0; i < this.metrics.length; i++) {
-			for (int j = 0; j < this.metrics.length; j++) {
+			for (int j = i + 1; j < this.metrics.length; j++) {
 				if (i == j) {
 					continue;
 				}
@@ -127,7 +127,7 @@ public class Series {
 		Log.info("    inital data");
 
 		long seed = System.currentTimeMillis();
-		// seed = 0;
+		seed = 0;
 		Rand.init(seed);
 
 		// generate graph
@@ -172,7 +172,7 @@ public class Series {
 	public BatchData generateNextBatch(long timestamp) {
 
 		long seed = System.currentTimeMillis();
-		// seed = 0;
+		seed = 0;
 		Rand.init(seed);
 
 		int addedNodes = 0;
