@@ -77,9 +77,4 @@ public class OpenTriangleClusteringCoefficientRecomp extends
 		return true;
 	}
 
-	@Override
-	public boolean recompute() {
-		return this.compute();
-	}
-
 }

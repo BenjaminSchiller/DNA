@@ -168,9 +168,4 @@ public class OpenTriangleClusteringCoefficientUpdate extends
 		return true;
 	}
 
-	@Override
-	public boolean recompute() {
-		return false;
-	}
-
 }

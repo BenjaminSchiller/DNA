@@ -148,9 +148,4 @@ public class ClosedTriangleClusteringCoefficientUpdate extends
 		return true;
 	}
 
-	@Override
-	public boolean recompute() {
-		return false;
-	}
-
 }

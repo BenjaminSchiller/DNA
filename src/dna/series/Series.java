@@ -146,6 +146,7 @@ public class Series {
 		Timer allMetricsTimer = new Timer("metrics");
 		for (Metric m : metrics) {
 			Timer metricTimer = new Timer(m.getName());
+			m.init();
 			m.compute();
 			metricTimer.end();
 			initialData.getMetrics().add(m.getData());
@@ -249,7 +250,8 @@ public class Series {
 		for (Metric m : this.metrics) {
 			if (m.isRecomputed()) {
 				timer.get(m).restart();
-				m.recompute();
+				m.init();
+				m.compute();
 				timer.get(m).end();
 			}
 		}
