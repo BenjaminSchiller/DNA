@@ -37,6 +37,11 @@ public class Writer {
 		this.writer.write(line + "\n");
 	}
 
+	@SuppressWarnings("rawtypes")
+	public void writeln(Class line) throws IOException {
+		this.writer.write(line.getCanonicalName() + "\n");
+	}
+
 	public void writeKeyword(String keyword) throws IOException {
 		this.writer.write(Keywords.asLine(keyword) + "\n");
 	}
