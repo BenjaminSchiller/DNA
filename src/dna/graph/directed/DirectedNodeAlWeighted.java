@@ -1,12 +1,24 @@
 package dna.graph.directed;
 
 import dna.graph.WeightedNode;
+import dna.io.etc.Keywords;
 
 public class DirectedNodeAlWeighted extends DirectedNodeAl implements
 		WeightedNode {
 
 	public DirectedNodeAlWeighted(int index) {
-		this(index, 0);
+		super(index);
+		this.weight = 0;
+	}
+
+	public DirectedNodeAlWeighted(String str) {
+		super(str.split(Keywords.nodeWeightDelimiter)[0]);
+		if (str.contains(Keywords.nodeWeightDelimiter)) {
+			this.weight = Double.parseDouble(str
+					.split(Keywords.nodeWeightDelimiter)[1]);
+		} else {
+			this.weight = 0;
+		}
 	}
 
 	public DirectedNodeAlWeighted(int index, double weight) {
@@ -26,6 +38,12 @@ public class DirectedNodeAlWeighted extends DirectedNodeAl implements
 
 	public void setWeight(double weight) {
 		this.weight = weight;
+	}
+
+	@Override
+	public String getStringRepresentation() {
+		return super.getStringRepresentation() + Keywords.nodeWeightDelimiter
+				+ this.weight;
 	}
 
 }

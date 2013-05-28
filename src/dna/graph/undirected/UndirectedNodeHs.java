@@ -11,6 +11,11 @@ public class UndirectedNodeHs extends UndirectedNode {
 		this.edges = new HashSet<UndirectedEdge>();
 	}
 
+	public UndirectedNodeHs(String str) {
+		super(str);
+		this.edges = new HashSet<UndirectedEdge>();
+	}
+
 	@Override
 	public int getDegree() {
 		return this.edges.size();

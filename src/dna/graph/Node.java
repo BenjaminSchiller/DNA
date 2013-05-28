@@ -12,6 +12,10 @@ public abstract class Node<E extends Edge> implements Comparable<Node<E>> {
 		this.index = index;
 	}
 
+	public Node(String str) {
+		this.index = Integer.parseInt(str);
+	}
+
 	public abstract boolean hasEdge(E e);
 
 	public abstract boolean addEdge(E e);
