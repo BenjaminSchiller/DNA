@@ -22,6 +22,14 @@ public class DirectedNodeHs extends DirectedNode {
 		this.all = Iterables.unmodifiableIterable(Iterables.concat(in, out));
 	}
 
+	public DirectedNodeHs(String str) {
+		super(Integer.parseInt(str));
+		this.in = new HashSet<DirectedEdge>();
+		this.out = new HashSet<DirectedEdge>();
+		this.neighbors = new HashSet<DirectedNode>();
+		this.all = Iterables.unmodifiableIterable(Iterables.concat(in, out));
+	}
+
 	@Override
 	public Iterable<DirectedEdge> getIncomingEdges() {
 		return this.in;

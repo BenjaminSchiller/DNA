@@ -11,6 +11,11 @@ public class UndirectedNodeAl extends UndirectedNode {
 		this.edges = new ArrayList<UndirectedEdge>();
 	}
 
+	public UndirectedNodeAl(String str) {
+		super(str);
+		this.edges = new ArrayList<UndirectedEdge>();
+	}
+
 	@Override
 	public int getDegree() {
 		return this.edges.size();
