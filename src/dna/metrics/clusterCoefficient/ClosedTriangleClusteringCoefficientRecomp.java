@@ -47,9 +47,4 @@ public class ClosedTriangleClusteringCoefficientRecomp extends
 		return false;
 	}
 
-	@Override
-	public boolean recompute() {
-		return this.compute();
-	}
-
 }

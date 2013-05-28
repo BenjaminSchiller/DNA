@@ -344,12 +344,7 @@ public class DegreeDistributionUpdate extends DegreeDistribution {
 	}
 
 	@Override
-	public boolean recompute() {
-		return this.compute();
-	}
-
-	@Override
-	protected void init_(Graph g) {
+	protected void init_() {
 		this.degreeCount = new int[0];
 		this.inDegreeCount = new int[0];
 		this.outDegreeCount = new int[0];

@@ -93,7 +93,6 @@ public abstract class Metric extends ParameterList {
 
 	public void setGraph(Graph g) {
 		this.g = g;
-		this.init(this.g);
 	}
 
 	/*
@@ -143,14 +142,6 @@ public abstract class Metric extends ParameterList {
 	 */
 	public abstract boolean compute();
 
-	/**
-	 * called to recompute the metric for the complete graph after the
-	 * application of a batch update
-	 * 
-	 * @return true, if successful; false otherwise
-	 */
-	public abstract boolean recompute();
-
 	/*
 	 * INIT
 	 */
@@ -158,14 +149,14 @@ public abstract class Metric extends ParameterList {
 	/**
 	 * initialization of data structures
 	 */
-	public void init(Graph g) {
-		this.init_(g);
+	public void init() {
+		this.init_();
 	}
 
 	/**
 	 * initialization of data structures
 	 */
-	protected abstract void init_(Graph g);
+	protected abstract void init_();
 
 	/*
 	 * RESET
