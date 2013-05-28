@@ -34,6 +34,11 @@ public class Reader {
 		return Long.parseLong(this.readString());
 	}
 
+	@SuppressWarnings("rawtypes")
+	public Class readClass() throws ClassNotFoundException, IOException {
+		return Class.forName(this.readString());
+	}
+
 	public void readKeyword(String keyword) throws IOException {
 		String line = this.readString();
 		if (!line.equals(Keywords.asLine(keyword))) {
