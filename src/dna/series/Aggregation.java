@@ -156,7 +156,7 @@ public class Aggregation {
 		return new Values(values, name);
 	}
 
-	/**
+	/** UNDER CONSTRUCTION
 	 * Calculates the maximum of Value objects of a list of Values objects.
 	 * 
 	 * @param list list of Values object to compute the maximum for
@@ -176,10 +176,15 @@ public class Aggregation {
 			for (int j = 0; j < list.length; j++) {
 				temp[j] = list[j].getValues()[i][1];
 			}
-			values[i][1] = ArrayUtils.max(temp);
+			values[i][1] = ArrayUtils.avg(temp);
 		}
+
+		
+		
 		return new Values(values, name);
 	}
+	
+	
 	
 	private static void test(SeriesData seriesData) throws AggregationException {
 		int batches = seriesData.getRun(0).getBatches().size();

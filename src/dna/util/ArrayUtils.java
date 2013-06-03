@@ -2,6 +2,7 @@ package dna.util;
 
 import java.util.Arrays;
 import java.util.Set;
+import java.util.List;
 
 public class ArrayUtils {
 	public static int[] incr(int[] values, int index) {
@@ -227,7 +228,6 @@ public class ArrayUtils {
 		return true;
 	}
 
-	
 	/**
 	 * Calculates the average over an given array of doubles.
 	 * 
@@ -235,12 +235,20 @@ public class ArrayUtils {
 	 * @return average value of the given double array
 	 */
 	public static double avg(double[] values) {
+		int counter = 0;
 		double avg = 0;
+		
 		for (double v : values) {
-			avg += v;
+			if(!Double.isNaN(v))
+				avg += v;
+			else
+				counter++;
 
 		}
-		return avg / values.length;
+		if((values.length-counter) == 0)
+			return Double.NaN;
+		else
+			return avg / (values.length-counter);
 	}
 
 	/**
@@ -355,6 +363,54 @@ public class ArrayUtils {
 	 * Calculates the median over an given array of doubles.
 	 * Due to the Arrays.sort call, a copy of the input array is used to calculate the median.
 	 * Therefore use with caution: runtime O(n) with n being the size of the input array. 
+	 * 
+	 * @param values double array the median is calculated from
+	 * @return median of the given double array
+	 */
+	/**
+	 * Calculates the maximum over an given array of doubles.
+	 * 
+	 * @param values double array the maximum is calculated from
+	 * @return maximum value of the given double array
+	 */
+	public static double max(double[] values) {
+		try{
+			double max = values[0];
+			for(double v : values) {
+				if(!Double.isNaN(v)) {
+					if(v > max)
+						max = v;
+				}
+			}
+			return max;
+		} catch (ArrayIndexOutOfBoundsException e) {
+			return 0;
+		}
+	}
+	
+	/**
+	 * Calculates the minimum over an given array of doubles.
+	 * 
+	 * @param values double array the minimum is calculated from
+	 * @return minimum value of the given double array
+	 */
+	public static double min(double[] values) {
+		try{
+			double min = values[0];
+			for(double v : values) {
+				if(!Double.isNaN(v)) {
+					if(v < min)
+						min = v;
+				}
+			}
+			return min;
+		} catch (ArrayIndexOutOfBoundsException e) {
+			return 0;
+		}
+	}
+	
+	/**
+	 * Calculates the median over an given array of doubles.
 	 * 
 	 * @param values double array the median is calculated from
 	 * @return median of the given double array
