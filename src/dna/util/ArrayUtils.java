@@ -259,7 +259,6 @@ public class ArrayUtils {
 		return true;
 	}
 
-	
 	/**
 	 * Calculates the average over an given array of doubles.
 	 * 
@@ -267,12 +266,16 @@ public class ArrayUtils {
 	 * @return average value of the given double array
 	 */
 	public static double avg(double[] values) {
+		int counter = 0;
 		double avg = 0;
+		
 		for (double v : values) {
 			avg += v;
-
 		}
-		return avg / values.length;
+		if((values.length-counter) == 0)
+			return Double.NaN;
+		else
+			return avg / (values.length-counter);
 	}
 
 	/**
@@ -568,8 +571,7 @@ public class ArrayUtils {
 
 		return conf;
 	}
-	
-	
+
 	/**
 	 * 
 	 * @param v1

@@ -102,7 +102,7 @@ public class BatchData {
 	 * @author Rwilmes
 	 * @date 24.06.2013
 	 */
-	public static boolean sameType(DiffData d1, DiffData d2) {
+	public static boolean sameType(BatchData d1, BatchData d2) {
 		//if(d1.getName().equals(d2.getName()))
 		//	return false;
 		
