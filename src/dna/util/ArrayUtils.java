@@ -3,9 +3,13 @@ package dna.util;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Set;
+<<<<<<< HEAD
 import java.util.Vector;
 
 import dna.util.parameters.Parameter;
+=======
+import java.util.List;
+>>>>>>> datatype NodeValueList added
 
 public class ArrayUtils {
 
@@ -351,13 +355,20 @@ public class ArrayUtils {
 	/**
 	 * Calculates the average over an given array of doubles.
 	 * 
+<<<<<<< HEAD
 	 * @param values
 	 *            double array the average is calculated from
+=======
+	 * @param values double array the average is calculated from
+>>>>>>> datatype NodeValueList added
 	 * @return average value of the given double array
 	 */
 	public static double avg(double[] values) {
+		int counter = 0;
 		double avg = 0;
+		
 		for (double v : values) {
+<<<<<<< HEAD
 			avg += v;
 
 		}
@@ -417,11 +428,21 @@ public class ArrayUtils {
 		for (int v : values) {
 			avg += v;
 
+=======
+			if(!Double.isNaN(v))
+				avg += v;
+			else
+				counter++;
+>>>>>>> datatype NodeValueList added
 		}
-		return avg / values.length;
+		if((values.length-counter) == 0)
+			return Double.NaN;
+		else
+			return avg / (values.length-counter);
 	}
 
 	/**
+<<<<<<< HEAD
 	 * Calculates the average over an given array of longs.
 	 * 
 	 * @param values
@@ -474,6 +495,20 @@ public class ArrayUtils {
 						max = v;
 				} else {
 					Log.warn("Double.NaN detected");
+=======
+	 * Calculates the maximum over an given array of doubles.
+	 * 
+	 * @param values double array the maximum is calculated from
+	 * @return maximum value of the given double array
+	 */
+	public static double max(double[] values) {
+		try{
+			double max = values[0];
+			for(double v : values) {
+				if(!Double.isNaN(v)) {
+					if(v > max)
+						max = v;
+>>>>>>> datatype NodeValueList added
 				}
 			}
 			return max;
@@ -481,6 +516,7 @@ public class ArrayUtils {
 			return 0;
 		}
 	}
+<<<<<<< HEAD
 
 	/**
 	 * Calculates the maximum over an given array of integers.
@@ -587,6 +623,22 @@ public class ArrayUtils {
 						min = v;
 				} else {
 					Log.warn("Double.NaN detected");
+=======
+	
+	/**
+	 * Calculates the minimum over an given array of doubles.
+	 * 
+	 * @param values double array the minimum is calculated from
+	 * @return minimum value of the given double array
+	 */
+	public static double min(double[] values) {
+		try{
+			double min = values[0];
+			for(double v : values) {
+				if(!Double.isNaN(v)) {
+					if(v < min)
+						min = v;
+>>>>>>> datatype NodeValueList added
 				}
 			}
 			return min;
@@ -594,6 +646,7 @@ public class ArrayUtils {
 			return 0;
 		}
 	}
+<<<<<<< HEAD
 
 	/**
 	 * Calculates the median over an given array of doubles. Caution: Due to the
@@ -672,11 +725,36 @@ public class ArrayUtils {
 	 * 
 	 * @param values
 	 *            double array the variance is calculated from
+=======
+	
+	/**
+	 * Calculates the median over an given array of doubles.
+	 * 
+	 * @param values double array the median is calculated from
+	 * @return median of the given double array
+	 */
+	public static double med(double[] values) {
+		int counter = 0;
+		for(double v : values){
+			if(Double.isNaN(v)){
+				counter++;
+			}
+		}
+		Arrays.sort(values);
+		return values[(values.length-counter) / 2];
+	}
+
+	/**
+	 * Calculates the variance of the given array
+	 * 
+	 * @param values double array the variance is calculated from
+>>>>>>> datatype NodeValueList added
 	 * @return variance of the given double array
 	 */
 	public static double var(double[] values) {
 		double mean = ArrayUtils.avg(values);
 		double x = 0;
+<<<<<<< HEAD
 		for (double v : values) {
 			x += (v - mean) * (v - mean);
 		}
@@ -968,8 +1046,56 @@ public class ArrayUtils {
 		double[] conf = { low, high };
 
 		return conf;
+=======
+		int counter = 0;
+		for(double v : values) {
+			if(!Double.isNaN(v)){
+				x += (v - mean)*(v - mean);
+			} else {
+				counter++;
+			}
+		}
+		return  x / (values.length-1-counter);
+>>>>>>> datatype NodeValueList added
 	}
+	
+	/**
+	 * Calculates the confidence interval of the given array.
+	 * Student-t distribution with 0,95 confidence niveau.
+	 * 
+	 * @param values double array the confidence is calculated from
+	 * @return confidence of the given double array
+	 */
+	//public static java.util.List<java.util.Map.Entry<String,Double>> conf(double[] values) {
+	public static double[] conf(double[] values) {
+		double var = ArrayUtils.var(values);
+		double mean = ArrayUtils.avg(values);
+		
+		int counter = 0;
+		for(double v : values){
+			if(Double.isNaN(v))
+				counter++;
+		}
+		double t = Quantiles.getStudentT(0.95, values.length-1-counter); 
+		double x = t * (Math.sqrt(var) / Math.sqrt(values.length-counter));
 
+		double low = mean - x;
+		double high = mean + x;
+		
+		double[] conf = {low, high};
+		
+		//todo: implement interval object, or better: valuepair object
+		/*java.util.List<java.util.Map.Entry<String,Double>> confidenceInterval = new java.util.ArrayList<>();
+		java.util.Map.Entry<String,Double> pair1=new java.util.AbstractMap.SimpleEntry<>("low", low);
+		java.util.Map.Entry<String,Double> pair2=new java.util.AbstractMap.SimpleEntry<>("high", high);
+		
+		confidenceInterval.add(pair1);
+		confidenceInterval.add(pair2);
+		*/
+		
+		return conf;
+	}
+	
 	/**
 	 * 
 	 * @param v1

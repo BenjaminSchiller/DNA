@@ -44,6 +44,92 @@ import dna.util.Config;
 public class Aggregation {
 
 	/**
+<<<<<<< HEAD
+=======
+	 * aggregates all data in the given series, i.e., aggregate each diff of all
+	 * runs.
+	 * 
+	 * @param seriesData
+	 *            data of the series to be aggregated
+	 * @return RunData object containing aggregated versions of all
+	 * @throws AggregationException
+	 *             in case the various values are not consistent in all runs
+	 */
+	public static RunData aggregate(SeriesData seriesData)
+			throws AggregationException {
+		Aggregation.test(seriesData);
+
+		RunData aggregatedRun = new RunData(-1, seriesData.getRun(0).getDiffs()
+				.size());
+		for (int i = 0; i < seriesData.getRun(0).getDiffs().size(); i++) {
+			DiffData[] diffs = new DiffData[seriesData.getRuns().size()];
+			for (int j = 0; j < seriesData.getRuns().size(); j++) {
+				diffs[j] = seriesData.getRun(j).getDiffs().get(i);
+			}
+			Aggregation.test(diffs);
+
+			DiffData d = diffs[0];
+			DiffData aggregatedDiff = new DiffData(d.getTimestamp(), d
+					.getValues().size(), d.getGeneralRuntimes().size(), d
+					.getMetricRuntimes().size(), d.getMetrics().size());
+
+			for (Value v : d.getValues().getList()) {
+				double[] values = new double[diffs.length];
+				for (int j = 0; j < diffs.length; j++) {
+					try {
+						values[j] = diffs[j].getValues().get(v.getName())
+								.getValue();
+					} catch (NullPointerException e) {
+						throw new AggregationException("value " + v.getName()
+								+ " not found @ " + j);
+					}
+				}
+				aggregatedDiff.getValues().add(
+						new Value(v.getName(), ArrayUtils.med(values)));
+			}
+
+			for (RunTime rt : d.getGeneralRuntimes().getList()) {
+				double[] values = new double[diffs.length];
+				for (int j = 0; j < diffs.length; j++) {
+					try {
+						values[j] = diffs[j].getGeneralRuntimes()
+								.get(rt.getName()).getRuntime();
+					} catch (NullPointerException e) {
+						throw new AggregationException("general-runtime "
+								+ rt.getRuntime() + " not found @ " + j);
+					}
+				}
+
+				aggregatedDiff.getGeneralRuntimes()
+						.add(new RunTime(rt.getName(), (long) ArrayUtils
+								.med(values)));
+			}
+
+			for (RunTime rt : d.getMetricRuntimes().getList()) {
+				double[] values = new double[diffs.length];
+				for (int j = 0; j < diffs.length; j++) {
+					try {
+						values[j] = diffs[j].getMetricRuntimes()
+								.get(rt.getName()).getRuntime();
+					} catch (NullPointerException e) {
+						throw new AggregationException("metric-runtime "
+								+ rt.getRuntime() + " not found @ " + j);
+					}
+				}
+
+				aggregatedDiff.getMetricRuntimes()
+						.add(new RunTime(rt.getName(), (long) ArrayUtils
+								.med(values)));
+			}
+
+			aggregatedRun.getDiffs().add(aggregatedDiff);
+		}
+
+		return aggregatedRun;
+	}
+
+	/**
+>>>>>>> datatype NodeValueList added
 	 * Computes the average value of a list of values.
 	 * 
 	 * @param list
@@ -88,6 +174,7 @@ public class Aggregation {
 		return new Values(values, name);
 	}
 
+<<<<<<< HEAD
 	/**
 	 * Calculates the maximum of Value objects of a list of Values objects.
 	 * 
@@ -102,6 +189,19 @@ public class Aggregation {
 	 */
 	public static Values maximum(Values[] list, String name)
 			throws AggregationException {
+=======
+	/** UNDER CONSTRUCTION
+	 * Calculates the maximum of Value objects of a list of Values objects.
+	 * 
+	 * @param list list of Values object to compute the maximum for
+	 *            
+	 * @param name name of the new Values object
+	 *            
+	 * @return maximum Values object of the given list
+	 * @throws AggregationException
+	 */
+	public static Values maximum(Values[] list, String name) throws AggregationException {
+>>>>>>> datatype NodeValueList added
 		Aggregation.test(list);
 
 		double[][] values = new double[list[0].getValues().length][2];
@@ -110,6 +210,28 @@ public class Aggregation {
 			double[] temp = new double[list.length];
 			for (int j = 0; j < list.length; j++) {
 				temp[j] = list[j].getValues()[i][1];
+<<<<<<< HEAD
+=======
+			}
+			values[i][1] = ArrayUtils.avg(temp);
+		}
+
+		
+		
+		return new Values(values, name);
+	}
+	
+	
+	
+	private static void test(SeriesData seriesData) throws AggregationException {
+		int diffs = seriesData.getRun(0).getDiffs().size();
+		for (int i = 0; i < seriesData.getRuns().size(); i++) {
+			if (diffs != seriesData.getRun(i).getDiffs().size()) {
+				throw new AggregationException(
+						"cannot aggregate runs with different # of diffs: "
+								+ seriesData.getRun(i).getDiffs().size()
+								+ " != " + diffs + " @");
+>>>>>>> datatype NodeValueList added
 			}
 			values[i][1] = ArrayUtils.max(temp);
 		}
