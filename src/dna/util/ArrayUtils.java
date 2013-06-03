@@ -5,6 +5,7 @@ import java.util.Iterator;
 import java.util.Set;
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import java.util.Vector;
 
 import dna.util.parameters.Parameter;
@@ -13,6 +14,9 @@ import java.util.List;
 >>>>>>> datatype NodeValueList added
 =======
 >>>>>>> Codeupdate 13-06-10.
+=======
+import java.util.List;
+>>>>>>> datatype NodeValueList added
 
 public class ArrayUtils {
 
@@ -355,6 +359,7 @@ public class ArrayUtils {
 		return true;
 	}
 
+<<<<<<< HEAD
 	
 	/**
 	 * Calculates the average over an given array of doubles.
@@ -365,15 +370,33 @@ public class ArrayUtils {
 =======
 	 * @param values double array the average is calculated from
 >>>>>>> datatype NodeValueList added
+=======
+	/**
+	 * Calculates the average over an given array of doubles.
+	 * 
+	 * @param values double array the average is calculated from
+>>>>>>> datatype NodeValueList added
 	 * @return average value of the given double array
 	 */
 	public static double avg(double[] values) {
+		int counter = 0;
 		double avg = 0;
+		
 		for (double v : values) {
+<<<<<<< HEAD
 			avg += v;
 
+=======
+			if(!Double.isNaN(v))
+				avg += v;
+			else
+				counter++;
+>>>>>>> datatype NodeValueList added
 		}
-		return avg / values.length;
+		if((values.length-counter) == 0)
+			return Double.NaN;
+		else
+			return avg / (values.length-counter);
 	}
 
 	/**
@@ -436,6 +459,7 @@ public class ArrayUtils {
 	}
 
 	/**
+<<<<<<< HEAD
 	 * Calculates the average over an given array of integers.
 	 * 
 	 * @param values
@@ -520,6 +544,8 @@ public class ArrayUtils {
 				} else {
 					Log.warn("Double.NaN detected");
 =======
+=======
+>>>>>>> datatype NodeValueList added
 	 * Calculates the maximum over an given array of doubles.
 	 * 
 	 * @param values double array the maximum is calculated from
@@ -529,6 +555,7 @@ public class ArrayUtils {
 		try{
 			double max = values[0];
 			for(double v : values) {
+<<<<<<< HEAD
 				if(v > max)
 					max = v;
 			}
@@ -555,6 +582,11 @@ public class ArrayUtils {
 				}
 				else {
 					Log.warn("Double.NaN detected");
+=======
+				if(!Double.isNaN(v)) {
+					if(v > max)
+						max = v;
+>>>>>>> datatype NodeValueList added
 				}
 			}
 			return max;
@@ -562,6 +594,7 @@ public class ArrayUtils {
 			return 0;
 		}
 	}
+<<<<<<< HEAD
 <<<<<<< HEAD
 
 	/**
@@ -690,6 +723,8 @@ public class ArrayUtils {
 					Log.warn("Double.NaN detected");
 =======
 	
+=======
+>>>>>>> datatype NodeValueList added
 	
 	/**
 	 * Calculates the minimum over an given array of doubles.
@@ -701,6 +736,7 @@ public class ArrayUtils {
 		try{
 			double min = values[0];
 			for(double v : values) {
+<<<<<<< HEAD
 				if(v < min)
 					min = v;
 			}
@@ -727,6 +763,11 @@ public class ArrayUtils {
 				}
 				else {
 					Log.warn("Double.NaN detected");
+=======
+				if(!Double.isNaN(v)) {
+					if(v < min)
+						min = v;
+>>>>>>> datatype NodeValueList added
 				}
 			}
 			return min;
@@ -734,6 +775,7 @@ public class ArrayUtils {
 			return 0;
 		}
 	}
+<<<<<<< HEAD
 <<<<<<< HEAD
 
 	/**
@@ -859,11 +901,36 @@ public class ArrayUtils {
 	 * 
 	 * @param values double array the variance is calculated from
 >>>>>>> datatype NodeValueList added
+=======
+	
+	/**
+	 * Calculates the median over an given array of doubles.
+	 * 
+	 * @param values double array the median is calculated from
+	 * @return median of the given double array
+	 */
+	public static double med(double[] values) {
+		int counter = 0;
+		for(double v : values){
+			if(Double.isNaN(v)){
+				counter++;
+			}
+		}
+		Arrays.sort(values);
+		return values[(values.length-counter) / 2];
+	}
+
+	/**
+	 * Calculates the variance of the given array
+	 * 
+	 * @param values double array the variance is calculated from
+>>>>>>> datatype NodeValueList added
 	 * @return variance of the given double array
 	 */
 	public static double var(double[] values) {
 		double mean = ArrayUtils.avg(values);
 		double x = 0;
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 		for (double v : values) {
@@ -1182,16 +1249,24 @@ public class ArrayUtils {
 =======
 =======
 >>>>>>> Codeupdate 13-06-10.
+=======
+>>>>>>> datatype NodeValueList added
 		int counter = 0;
 		for(double v : values) {
 			if(!Double.isNaN(v)){
 				x += (v - mean)*(v - mean);
 			} else {
+<<<<<<< HEAD
 				Log.warn("Double.NaN detected");
+=======
+>>>>>>> datatype NodeValueList added
 				counter++;
 			}
 		}
 		return  x / (values.length-1-counter);
+<<<<<<< HEAD
+>>>>>>> datatype NodeValueList added
+=======
 >>>>>>> datatype NodeValueList added
 	}
 	
@@ -1202,10 +1277,15 @@ public class ArrayUtils {
 	 * @param values double array the confidence is calculated from
 	 * @return confidence of the given double array
 	 */
+<<<<<<< HEAD
+=======
+	//public static java.util.List<java.util.Map.Entry<String,Double>> conf(double[] values) {
+>>>>>>> datatype NodeValueList added
 	public static double[] conf(double[] values) {
 		double var = ArrayUtils.var(values);
 		double mean = ArrayUtils.avg(values);
 		
+<<<<<<< HEAD
 		double t = Settings.getStudentT(0.95, values.length-1); 
 		double x = t * (Math.sqrt(var) / Math.sqrt(values.length));
 
@@ -1228,23 +1308,45 @@ public class ArrayUtils {
 		double var = ArrayUtils.varIncludingNaN(values);
 		double mean = ArrayUtils.avgIncludingNaN(values);
 		
+=======
+>>>>>>> datatype NodeValueList added
 		int counter = 0;
 		for(double v : values){
 			if(Double.isNaN(v))
 				counter++;
 		}
+<<<<<<< HEAD
 		double t = Settings.getStudentT(0.95, values.length-1-counter); 
+=======
+		double t = Quantiles.getStudentT(0.95, values.length-1-counter); 
+>>>>>>> datatype NodeValueList added
 		double x = t * (Math.sqrt(var) / Math.sqrt(values.length-counter));
 
 		double low = mean - x;
 		double high = mean + x;
 		
 		double[] conf = {low, high};
+<<<<<<< HEAD
 
 		return conf;
 	}
 	
 	
+=======
+		
+		//todo: implement interval object, or better: valuepair object
+		/*java.util.List<java.util.Map.Entry<String,Double>> confidenceInterval = new java.util.ArrayList<>();
+		java.util.Map.Entry<String,Double> pair1=new java.util.AbstractMap.SimpleEntry<>("low", low);
+		java.util.Map.Entry<String,Double> pair2=new java.util.AbstractMap.SimpleEntry<>("high", high);
+		
+		confidenceInterval.add(pair1);
+		confidenceInterval.add(pair2);
+		*/
+		
+		return conf;
+	}
+	
+>>>>>>> datatype NodeValueList added
 	/**
 	 * 
 	 * @param v1
