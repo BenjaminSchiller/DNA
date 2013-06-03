@@ -2,6 +2,7 @@ package dna.util;
 
 import java.util.Arrays;
 import java.util.Set;
+import java.util.List;
 
 public class ArrayUtils {
 	public static int[] incr(int[] values, int index) {
@@ -155,19 +156,144 @@ public class ArrayUtils {
 		return true;
 	}
 
+	/**
+	 * Calculates the average over an given array of doubles.
+	 * 
+	 * @param values double array the average is calculated from
+	 * @return average value of the given double array
+	 */
 	public static double avg(double[] values) {
+		int counter = 0;
 		double avg = 0;
+		
 		for (double v : values) {
-			avg += v;
+			if(!Double.isNaN(v))
+				avg += v;
+			else
+				counter++;
 		}
-		return avg / values.length;
+		if((values.length-counter) == 0)
+			return Double.NaN;
+		else
+			return avg / (values.length-counter);
 	}
 
+	/**
+	 * Calculates the maximum over an given array of doubles.
+	 * 
+	 * @param values double array the maximum is calculated from
+	 * @return maximum value of the given double array
+	 */
+	public static double max(double[] values) {
+		try{
+			double max = values[0];
+			for(double v : values) {
+				if(!Double.isNaN(v)) {
+					if(v > max)
+						max = v;
+				}
+			}
+			return max;
+		} catch (ArrayIndexOutOfBoundsException e) {
+			return 0;
+		}
+	}
+	
+	/**
+	 * Calculates the minimum over an given array of doubles.
+	 * 
+	 * @param values double array the minimum is calculated from
+	 * @return minimum value of the given double array
+	 */
+	public static double min(double[] values) {
+		try{
+			double min = values[0];
+			for(double v : values) {
+				if(!Double.isNaN(v)) {
+					if(v < min)
+						min = v;
+				}
+			}
+			return min;
+		} catch (ArrayIndexOutOfBoundsException e) {
+			return 0;
+		}
+	}
+	
+	/**
+	 * Calculates the median over an given array of doubles.
+	 * 
+	 * @param values double array the median is calculated from
+	 * @return median of the given double array
+	 */
 	public static double med(double[] values) {
+		int counter = 0;
+		for(double v : values){
+			if(Double.isNaN(v)){
+				counter++;
+			}
+		}
 		Arrays.sort(values);
-		return values[values.length / 2];
+		return values[(values.length-counter) / 2];
 	}
 
+	/**
+	 * Calculates the variance of the given array
+	 * 
+	 * @param values double array the variance is calculated from
+	 * @return variance of the given double array
+	 */
+	public static double var(double[] values) {
+		double mean = ArrayUtils.avg(values);
+		double x = 0;
+		int counter = 0;
+		for(double v : values) {
+			if(!Double.isNaN(v)){
+				x += (v - mean)*(v - mean);
+			} else {
+				counter++;
+			}
+		}
+		return  x / (values.length-1-counter);
+	}
+	
+	/**
+	 * Calculates the confidence interval of the given array.
+	 * Student-t distribution with 0,95 confidence niveau.
+	 * 
+	 * @param values double array the confidence is calculated from
+	 * @return confidence of the given double array
+	 */
+	//public static java.util.List<java.util.Map.Entry<String,Double>> conf(double[] values) {
+	public static double[] conf(double[] values) {
+		double var = ArrayUtils.var(values);
+		double mean = ArrayUtils.avg(values);
+		
+		int counter = 0;
+		for(double v : values){
+			if(Double.isNaN(v))
+				counter++;
+		}
+		double t = Quantiles.getStudentT(0.95, values.length-1-counter); 
+		double x = t * (Math.sqrt(var) / Math.sqrt(values.length-counter));
+
+		double low = mean - x;
+		double high = mean + x;
+		
+		double[] conf = {low, high};
+		
+		//todo: implement interval object, or better: valuepair object
+		/*java.util.List<java.util.Map.Entry<String,Double>> confidenceInterval = new java.util.ArrayList<>();
+		java.util.Map.Entry<String,Double> pair1=new java.util.AbstractMap.SimpleEntry<>("low", low);
+		java.util.Map.Entry<String,Double> pair2=new java.util.AbstractMap.SimpleEntry<>("high", high);
+		
+		confidenceInterval.add(pair1);
+		confidenceInterval.add(pair2);
+		*/
+		
+		return conf;
+	}
+	
 	/**
 	 * 
 	 * @param v1
