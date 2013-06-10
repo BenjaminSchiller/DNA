@@ -7,6 +7,7 @@ import dna.graph.undirected.UndirectedEdge;
 import dna.graph.undirected.UndirectedGraph;
 import dna.graph.undirected.UndirectedNode;
 import dna.updates.Batch;
+import dna.util.parameters.ParameterList;
 
 /**
  * 
@@ -22,33 +23,61 @@ public class UndirectedBatchCombinator extends UndirectedBatchGenerator {
 	private UndirectedBatchGenerator[] generators;
 
 	public UndirectedBatchCombinator(
+			String name,
 			UndirectedBatchGenerator g1,
 			UndirectedBatchGenerator g2,
 			GraphDatastructures<UndirectedGraph, UndirectedNode, UndirectedEdge> ds) {
-		this(new UndirectedBatchGenerator[] { g1, g2 }, ds);
+		this(name, new UndirectedBatchGenerator[] { g1, g2 }, ds);
 	}
 
 	public UndirectedBatchCombinator(
+			String name,
 			UndirectedBatchGenerator g1,
 			UndirectedBatchGenerator g2,
 			UndirectedBatchGenerator g3,
 			GraphDatastructures<UndirectedGraph, UndirectedNode, UndirectedEdge> ds) {
-		this(new UndirectedBatchGenerator[] { g1, g2, g3 }, ds);
+		this(name, new UndirectedBatchGenerator[] { g1, g2, g3 }, ds);
 	}
 
 	public UndirectedBatchCombinator(
+			String name,
 			UndirectedBatchGenerator g1,
 			UndirectedBatchGenerator g2,
 			UndirectedBatchGenerator g3,
 			UndirectedBatchGenerator g4,
 			GraphDatastructures<UndirectedGraph, UndirectedNode, UndirectedEdge> ds) {
-		this(new UndirectedBatchGenerator[] { g1, g2, g3, g4 }, ds);
+		this(name, new UndirectedBatchGenerator[] { g1, g2, g3, g4 }, ds);
 	}
 
 	public UndirectedBatchCombinator(
+			String name,
+			UndirectedBatchGenerator g1,
+			UndirectedBatchGenerator g2,
+			UndirectedBatchGenerator g3,
+			UndirectedBatchGenerator g4,
+			UndirectedBatchGenerator g5,
+			GraphDatastructures<UndirectedGraph, UndirectedNode, UndirectedEdge> ds) {
+		this(name, new UndirectedBatchGenerator[] { g1, g2, g3, g4, g5 }, ds);
+	}
+
+	public UndirectedBatchCombinator(
+			String name,
+			UndirectedBatchGenerator g1,
+			UndirectedBatchGenerator g2,
+			UndirectedBatchGenerator g3,
+			UndirectedBatchGenerator g4,
+			UndirectedBatchGenerator g5,
+			UndirectedBatchGenerator g6,
+			GraphDatastructures<UndirectedGraph, UndirectedNode, UndirectedEdge> ds) {
+		this(name, new UndirectedBatchGenerator[] { g1, g2, g3, g4, g5, g6 },
+				ds);
+	}
+
+	public UndirectedBatchCombinator(
+			String name,
 			UndirectedBatchGenerator[] generators,
 			GraphDatastructures<UndirectedGraph, UndirectedNode, UndirectedEdge> ds) {
-		super("undirectedBatchGenerator", ds);
+		super(name, ParameterList.getParameters(generators), ds);
 		this.generators = generators;
 	}
 
