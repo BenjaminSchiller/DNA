@@ -10,6 +10,12 @@ import dna.series.data.Distribution;
 import dna.series.data.DistributionInt;
 import dna.series.data.DistributionLong;
 import dna.series.data.NodeValueList;
+import dna.series.aggdata.AggregatedData;
+import dna.series.aggdata.AggregatedDistribution;
+import dna.series.aggdata.AggregatedNodeValueList;
+import dna.series.aggdata.AggregatedValue;
+import dna.series.data.Data;
+import dna.series.data.DiffData;
 import dna.series.data.RunData;
 import dna.series.data.RunTime;
 import dna.series.data.SeriesData;
@@ -156,7 +162,7 @@ public class Aggregation {
 		return new Values(values, name);
 	}
 
-	/** UNDER CONSTRUCTION
+	/**
 	 * Calculates the maximum of Value objects of a list of Values objects.
 	 * 
 	 * @param list list of Values object to compute the maximum for
@@ -176,15 +182,10 @@ public class Aggregation {
 			for (int j = 0; j < list.length; j++) {
 				temp[j] = list[j].getValues()[i][1];
 			}
-			values[i][1] = ArrayUtils.avg(temp);
+			values[i][1] = ArrayUtils.max(temp);
 		}
-
-		
-		
 		return new Values(values, name);
 	}
-	
-	
 	
 	private static void test(SeriesData seriesData) throws AggregationException {
 		int batches = seriesData.getRun(0).getBatches().size();

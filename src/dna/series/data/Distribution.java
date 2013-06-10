@@ -8,6 +8,7 @@ import com.sun.media.sound.InvalidFormatException;
 import dna.io.Reader;
 import dna.io.Writer;
 import dna.io.etc.Keywords;
+import dna.util.Log;
 
 
 /**
@@ -32,6 +33,12 @@ public class Distribution extends Data {
 	}
 		
 	// class methods
+	public Distribution(String name, double value) {
+		Log.warn("Distribution initialized with a single value");
+		double[] temp = { value };
+		this.values = temp;
+	}
+	
 	public String toString() {
 		return "distribution(" + super.getName() + ")";
 	}
