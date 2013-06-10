@@ -103,6 +103,8 @@ public class ClosedTriangleClusteringCoefficientUpdate extends
 			this.nodeTriangleCount = ArrayUtils.truncate(
 					this.nodeTriangleCount, Long.MIN_VALUE);
 
+			this.averageCC = ArrayUtils.avgIgnoreNaN(this.localCC);
+
 		} else if (u instanceof EdgeAddition) {
 			DirectedEdge e = (DirectedEdge) ((EdgeAddition) u).getEdge();
 			DirectedNode a = e.getSrc();
