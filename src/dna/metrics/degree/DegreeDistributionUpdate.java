@@ -110,41 +110,43 @@ public class DegreeDistributionUpdate extends DegreeDistribution {
 				// UPDATE values SRC
 				this.degreeDistribution = ArrayUtils.set(
 						this.degreeDistribution, e.getSrc().getDegree(),
-						this.degreeCount[e.getSrc().getDegree()] / this.nodes);
+						this.degreeCount[e.getSrc().getDegree()] / this.nodes,
+						0);
 				this.degreeDistribution = ArrayUtils.set(
 						this.degreeDistribution, e.getSrc().getDegree()
 								+ change, this.degreeCount[e.getSrc()
 								.getDegree() + change]
-								/ this.nodes);
+								/ this.nodes, 0);
 				this.outDegreeDistribution = ArrayUtils.set(
 						this.outDegreeDistribution, e.getSrc().getOutDegree(),
 						this.outDegreeCount[e.getSrc().getOutDegree()]
-								/ this.nodes);
+								/ this.nodes, 0);
 				this.outDegreeDistribution = ArrayUtils.set(
 						this.outDegreeDistribution, e.getSrc().getOutDegree()
 								+ change, this.outDegreeCount[e.getSrc()
 								.getOutDegree() + change]
-								/ this.nodes);
+								/ this.nodes, 0);
 
 				// UPDATE values DST
 
 				this.degreeDistribution = ArrayUtils.set(
 						this.degreeDistribution, e.getDst().getDegree(),
-						this.degreeCount[e.getDst().getDegree()] / this.nodes);
+						this.degreeCount[e.getDst().getDegree()] / this.nodes,
+						0);
 				this.degreeDistribution = ArrayUtils.set(
 						this.degreeDistribution, e.getDst().getDegree()
 								+ change, this.degreeCount[e.getDst()
 								.getDegree() + change]
-								/ this.nodes);
+								/ this.nodes, 0);
 				this.inDegreeDistribution = ArrayUtils.set(
 						this.inDegreeDistribution, e.getDst().getInDegree(),
 						this.inDegreeCount[e.getDst().getInDegree()]
-								/ this.nodes);
+								/ this.nodes, 0);
 				this.inDegreeDistribution = ArrayUtils.set(
 						this.inDegreeDistribution, e.getDst().getInDegree()
 								+ change, this.inDegreeCount[e.getDst()
 								.getInDegree() + change]
-								/ this.nodes);
+								/ this.nodes, 0);
 
 				this.degreeDistribution = ArrayUtils.truncate(
 						this.degreeDistribution, 0);
@@ -206,12 +208,12 @@ public class DegreeDistributionUpdate extends DegreeDistribution {
 				for (int change : changes) {
 					if (this.degreeCount.length <= change) {
 						this.degreeDistribution = ArrayUtils.set(
-								this.degreeDistribution, change, 0);
+								this.degreeDistribution, change, 0, 0);
 						continue;
 					}
 					this.degreeDistribution = ArrayUtils.set(
 							this.degreeDistribution, change,
-							(double) this.degreeCount[change] / this.nodes);
+							(double) this.degreeCount[change] / this.nodes, 0);
 				}
 
 				this.degreeDistribution = ArrayUtils.truncate(
@@ -249,23 +251,23 @@ public class DegreeDistributionUpdate extends DegreeDistribution {
 				this.degreeDistribution = ArrayUtils
 						.set(this.degreeDistribution, e.getNode1().getDegree(),
 								this.degreeCount[e.getNode1().getDegree()]
-										/ this.nodes);
+										/ this.nodes, 0);
 				this.degreeDistribution = ArrayUtils.set(
 						this.degreeDistribution, e.getNode1().getDegree()
 								+ change, this.degreeCount[e.getNode1()
 								.getDegree() + change]
-								/ this.nodes);
+								/ this.nodes, 0);
 
 				// UPDATE values node2
 				this.degreeDistribution = ArrayUtils
 						.set(this.degreeDistribution, e.getNode2().getDegree(),
 								this.degreeCount[e.getNode2().getDegree()]
-										/ this.nodes);
+										/ this.nodes, 0);
 				this.degreeDistribution = ArrayUtils.set(
 						this.degreeDistribution, e.getNode2().getDegree()
 								+ change, this.degreeCount[e.getNode2()
 								.getDegree() + change]
-								/ this.nodes);
+								/ this.nodes, 0);
 
 				this.degreeDistribution = ArrayUtils.truncate(
 						this.degreeDistribution, 0);

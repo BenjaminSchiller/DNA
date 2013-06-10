@@ -59,13 +59,15 @@ public class ClosedTriangleClusteringCoefficientUpdate extends
 	private boolean applyBeforeUpdateDirected(Update u) {
 		if (u instanceof NodeAddition) {
 			Node n = ((NodeAddition) u).getNode();
-			this.localCC = ArrayUtils.set(this.localCC, n.getIndex(), 0);
+			this.localCC = ArrayUtils.set(this.localCC, n.getIndex(), 0,
+					Double.NaN);
 			this.nodePotentialCount = ArrayUtils.set(this.nodePotentialCount,
-					n.getIndex(), 0);
+					n.getIndex(), 0, Long.MIN_VALUE);
 			this.nodeTriangleCount = ArrayUtils.set(this.nodeTriangleCount,
-					n.getIndex(), 0);
+					n.getIndex(), 0, Long.MIN_VALUE);
+			this.averageCC = ArrayUtils.avgIgnoreNaN(this.localCC);
 		} else if (u instanceof NodeRemoval) {
-			
+
 			DirectedNode n = (DirectedNode) ((NodeRemoval) u).getNode();
 
 			DirectedNode[] neighbors = new DirectedNode[n.getNeighborCount()];
@@ -147,11 +149,12 @@ public class ClosedTriangleClusteringCoefficientUpdate extends
 	private boolean applyBeforeUpdateUndirected(Update u) {
 		if (u instanceof NodeAddition) {
 			Node n = ((NodeAddition) u).getNode();
-			this.localCC = ArrayUtils.set(this.localCC, n.getIndex(), 0);
+			this.localCC = ArrayUtils.set(this.localCC, n.getIndex(), 0,
+					Double.NaN);
 			this.nodePotentialCount = ArrayUtils.set(this.nodePotentialCount,
-					n.getIndex(), 0);
+					n.getIndex(), 0, Long.MIN_VALUE);
 			this.nodeTriangleCount = ArrayUtils.set(this.nodeTriangleCount,
-					n.getIndex(), 0);
+					n.getIndex(), 0, Long.MIN_VALUE);
 		} else if (u instanceof NodeRemoval) {
 			UndirectedNode n = (UndirectedNode) ((NodeRemoval) u).getNode();
 
