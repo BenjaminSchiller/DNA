@@ -2,6 +2,7 @@ package dna.series.aggdata;
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -29,11 +30,18 @@ import dna.series.lists.ListItem;
 =======
  * AggregatedData is the super-class for all provided aggregation data-structures.
 >>>>>>> Codeupdate 13-06-24
+=======
+import dna.series.lists.ListItem;
+
+/**
+ * AggregatedData is the super-class for all provided aggregated data-structures.
+>>>>>>> Codeupdate 13-06-10.
  * 
  * @author Rwilmes
  * @date 10.06.2013
  */
 public class AggregatedData implements ListItem {
+<<<<<<< HEAD
 <<<<<<< HEAD
 
 	// member variables
@@ -190,12 +198,22 @@ public class AggregatedData implements ListItem {
 	private String name;
 	
 	// constructors
+=======
+	
+	// class variables
+	private String name;
+	private double value;
+	private double[] values;
+	
+	// class methods
+>>>>>>> Codeupdate 13-06-10.
 	public AggregatedData() { }
 	
 	public AggregatedData(String name) {
 		this.name = name;
 	}
 	
+<<<<<<< HEAD
 	// get methods
 	public String getName() {
 		return this.name;
@@ -236,4 +254,31 @@ public class AggregatedData implements ListItem {
 		write(inputData.getValues(), dir, filename);
 	}
 >>>>>>> Codeupdate 13-06-24
+=======
+	public AggregatedData(String name, double value) {
+		this.name = name;
+		this.value = value;
+	}
+	
+	public AggregatedData(String name, double[] values) {
+		this.name = name;
+		this.values = values;
+	}
+	
+	public String getName(){
+		return this.name;
+	}
+	
+	public double getValue() {
+		return this.value;
+	}
+	
+	public double getValue(int index) {
+		return this.values[index];
+	}
+	
+	public double[] getValues() {
+		return this.values;
+	}
+>>>>>>> Codeupdate 13-06-10.
 }

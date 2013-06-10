@@ -360,6 +360,7 @@ public class ArrayUtils {
 	}
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 	
 	/**
 	 * Calculates the average over an given array of doubles.
@@ -371,6 +372,9 @@ public class ArrayUtils {
 	 * @param values double array the average is calculated from
 >>>>>>> datatype NodeValueList added
 =======
+=======
+	
+>>>>>>> Codeupdate 13-06-10.
 	/**
 	 * Calculates the average over an given array of doubles.
 	 * 
@@ -379,6 +383,21 @@ public class ArrayUtils {
 	 * @return average value of the given double array
 	 */
 	public static double avg(double[] values) {
+		double avg = 0;
+		for (double v : values) {
+			avg += v;
+
+		}
+		return avg / values.length;
+	}
+
+	/**
+	 * Calculates the average over an given array of doubles, considering Double.NaN's.
+	 * 
+	 * @param values double array the average is calculated from
+	 * @return average value of the given double array
+	 */
+	public static double avgIncludingNaN(double[] values) {
 		int counter = 0;
 		double avg = 0;
 		
@@ -390,6 +409,7 @@ public class ArrayUtils {
 			if(!Double.isNaN(v))
 				avg += v;
 			else
+				Log.warn("Double.NaN detected");
 				counter++;
 >>>>>>> datatype NodeValueList added
 		}
@@ -398,6 +418,7 @@ public class ArrayUtils {
 		else
 			return avg / (values.length-counter);
 	}
+<<<<<<< HEAD
 
 	/**
 	 * Calculates the average over an given array of doubles, considering Double.NaN's.
@@ -443,6 +464,9 @@ public class ArrayUtils {
 			return avg / (values.length - counter);
 	}
 
+=======
+	
+>>>>>>> Codeupdate 13-06-10.
 	public static double avgIgnoreNaN(double[] values) {
 		double avg = 0;
 		int counter = 0;
@@ -556,6 +580,9 @@ public class ArrayUtils {
 			double max = values[0];
 			for(double v : values) {
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> Codeupdate 13-06-10.
 				if(v > max)
 					max = v;
 			}
@@ -575,6 +602,7 @@ public class ArrayUtils {
 		try{
 			double max = values[0];
 			for(double v : values) {
+<<<<<<< HEAD
 				if(!Double.isNaN(v)) {
 					if(v > max)
 						max = v;
@@ -583,10 +611,15 @@ public class ArrayUtils {
 				else {
 					Log.warn("Double.NaN detected");
 =======
+=======
+>>>>>>> Codeupdate 13-06-10.
 				if(!Double.isNaN(v)) {
 					if(v > max)
 						max = v;
 >>>>>>> datatype NodeValueList added
+				}
+				else {
+					Log.warn("Double.NaN detected");
 				}
 			}
 			return max;
@@ -596,7 +629,12 @@ public class ArrayUtils {
 	}
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
+=======
+	
+	
+>>>>>>> Codeupdate 13-06-10.
 	/**
 	 * Calculates the maximum over an given array of integers.
 	 * 
@@ -626,7 +664,34 @@ public class ArrayUtils {
 			for(double v : values) {
 				if(v < min)
 					min = v;
+<<<<<<< HEAD
 >>>>>>> Codeupdate 13-06-18
+=======
+			}
+			return min;
+		} catch (ArrayIndexOutOfBoundsException e) {
+			return 0;
+		}
+	}
+	
+	/**
+	 * Calculates the minimum over an given array of doubles, while considering Double.NaN's.
+	 * 
+	 * @param values double array the minimum is calculated from
+	 * @return minimum value of the given double array
+	 */
+	public static double minIncludingNaN(double[] values) {
+		try{
+			double min = values[0];
+			for(double v : values) {
+				if(!Double.isNaN(v)) {
+					if(v < min)
+						min = v;
+				}
+				else {
+					Log.warn("Double.NaN detected");
+				}
+>>>>>>> Codeupdate 13-06-10.
 			}
 			return max;
 		} catch (ArrayIndexOutOfBoundsException e) {
@@ -635,7 +700,12 @@ public class ArrayUtils {
 =======
 >>>>>>> Codeupdate 13-06-24
 	}
+<<<<<<< HEAD
 
+=======
+	
+	
+>>>>>>> Codeupdate 13-06-10.
 	/**
 	 * Calculates the maximum over an given array of longs.
 	 * 
@@ -643,31 +713,121 @@ public class ArrayUtils {
 	 *            long array the maximum is calculated from
 	 * @return maximum value of the given long array
 	 */
+<<<<<<< HEAD
 	public static long max(long[] values) {
 		try {
 			long max = values[0];
 			for (long v : values) {
 				if (v > max)
 					max = v;
+=======
+	public static double med(double[] values) {
+		Arrays.sort(values);
+		return values[values.length / 2];
+	}
+
+	/**
+	 * Calculates the median over an given array of doubles, while considering Double.NaN's.
+	 * 
+	 * @param values double array the median is calculated from
+	 * @return median of the given double array
+	 */
+	public static double medIncludingNaN(double[] values) {
+		int counter = 0;
+		for(double v : values){
+			if(Double.isNaN(v)){
+				Log.warn("Double.NaN detected");
+				counter++;
+>>>>>>> Codeupdate 13-06-10.
 			}
 			return max;
 		} catch (ArrayIndexOutOfBoundsException e) {
 			return 0;
 		}
 	}
-
+	
 	/**
+<<<<<<< HEAD
 	 * Calculates the minimum over an given array of doubles.
+=======
+	 * Calculates the variance of the given array.
+>>>>>>> Codeupdate 13-06-10.
 	 * 
 	 * @param values
 	 *            double array the minimum is calculated from
 	 * @return minimum value of the given double array
 	 */
+<<<<<<< HEAD
 	public static double min(double[] values) {
 		double min = values[0];
 		for (double v : values) {
 			if (v < min)
 				min = v;
+=======
+	public static double var(double[] values) {
+		double mean = ArrayUtils.avg(values);
+		double x = 0;
+		for(double v : values) {
+			x += (v - mean)*(v - mean);
+		}
+		return  x / (values.length-1);
+	}
+	
+	/**
+	 * Calculates the variance, variance-low and variance-up of the given array.
+	 * 
+	 * @param values double array the variances are calculated from
+	 * @param avg the average of the given values
+	 * @return variances of the given double array
+	 */
+	public static double[] varLowUp(double[] values, double avg) {
+		double var = 0;
+		double varLow = 0;
+		double varUp = 0;
+		int countLow = 0;
+		int countUp = 0;
+		for (double v : values) {
+			var += Math.pow(v - avg, 2);
+			if (v < avg) {
+				varLow += Math.pow(v - avg, 2);
+				countLow++;
+			} else if (v > avg) {
+				varUp += Math.pow(v - avg, 2);
+				countUp++;
+			}
+		}
+		var /= values.length;
+		if (countLow == 0) {
+			varLow = 0;
+		} else {
+			varLow /= countLow;
+		}
+		if (countUp == 0) {
+			varUp = 0;
+		} else {
+			varUp /= countUp;
+		}
+		return new double[] { var, varLow, varUp };
+	}
+	
+	/**
+	 * Calculates the variance of the given array, while considering Double.NaN's.
+	 * 
+	 * @param values double array the variance is calculated from
+	 * @return variance of the given double array
+	 */
+	public static double varIncludingNaN(double[] values) {
+		double mean = ArrayUtils.avgIncludingNaN(values);
+		double x = 0;
+		int counter = 0;
+		for(double v : values) {
+			if(!Double.isNaN(v)){
+				x += (v - mean)*(v - mean);
+			} else {
+				Log.warn("Double.NaN detected");
+				counter++;
+			}
+>>>>>>> Codeupdate 13-06-10.
 		}
 		return min;
 	}
@@ -679,6 +839,7 @@ public class ArrayUtils {
 	 *            integer array the minimum is calculated from
 	 * @return minimum value of the given integer array
 	 */
+<<<<<<< HEAD
 	public static int min(int[] values) {
 		int min = values[0];
 		for (int v : values) {
@@ -1281,11 +1442,16 @@ public class ArrayUtils {
 =======
 	//public static java.util.List<java.util.Map.Entry<String,Double>> conf(double[] values) {
 >>>>>>> datatype NodeValueList added
+=======
+>>>>>>> Codeupdate 13-06-10.
 	public static double[] conf(double[] values) {
 		double var = ArrayUtils.var(values);
 		double mean = ArrayUtils.avg(values);
 		
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> Codeupdate 13-06-10.
 		double t = Settings.getStudentT(0.95, values.length-1); 
 		double x = t * (Math.sqrt(var) / Math.sqrt(values.length));
 
@@ -1308,24 +1474,32 @@ public class ArrayUtils {
 		double var = ArrayUtils.varIncludingNaN(values);
 		double mean = ArrayUtils.avgIncludingNaN(values);
 		
+<<<<<<< HEAD
 =======
 >>>>>>> datatype NodeValueList added
+=======
+>>>>>>> Codeupdate 13-06-10.
 		int counter = 0;
 		for(double v : values){
 			if(Double.isNaN(v))
 				counter++;
 		}
 <<<<<<< HEAD
+<<<<<<< HEAD
 		double t = Settings.getStudentT(0.95, values.length-1-counter); 
 =======
 		double t = Quantiles.getStudentT(0.95, values.length-1-counter); 
 >>>>>>> datatype NodeValueList added
+=======
+		double t = Settings.getStudentT(0.95, values.length-1-counter); 
+>>>>>>> Codeupdate 13-06-10.
 		double x = t * (Math.sqrt(var) / Math.sqrt(values.length-counter));
 
 		double low = mean - x;
 		double high = mean + x;
 		
 		double[] conf = {low, high};
+<<<<<<< HEAD
 <<<<<<< HEAD
 
 		return conf;
@@ -1347,6 +1521,13 @@ public class ArrayUtils {
 	}
 	
 >>>>>>> datatype NodeValueList added
+=======
+
+		return conf;
+	}
+	
+	
+>>>>>>> Codeupdate 13-06-10.
 	/**
 	 * 
 	 * @param v1

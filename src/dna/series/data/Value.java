@@ -16,7 +16,10 @@ public class Value extends Data {
 	public Value(String name, double[] values) {
 		Log.warn("Value object initialized with to much arguments");
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> Codeupdate 13-06-10.
 	}
 
 	// class methods
@@ -36,6 +39,7 @@ public class Value extends Data {
 	public double getValue() {
 		return this.value;
 	}
+<<<<<<< HEAD
 <<<<<<< HEAD
 	
 <<<<<<< HEAD
@@ -62,5 +66,11 @@ public class Value extends Data {
 >>>>>>> Codeupdate 13-06-10.
 =======
 >>>>>>> Codeupdate 13-06-18
+=======
+	
+	public String getType() {
+		return "Value";
+	}
+>>>>>>> Codeupdate 13-06-10.
 
 }

@@ -24,6 +24,7 @@ public class Distribution extends Data {
 	// constructors
 =======
 import dna.io.etc.Keywords;
+<<<<<<< HEAD
 
 
 /**
@@ -47,6 +48,12 @@ public class Distribution extends Data {
 	
 	// constructors
 >>>>>>> Codeupdate 13-06-18
+=======
+import dna.util.Log;
+
+public class Distribution extends Data {
+//public class Distribution implements ListItem {
+>>>>>>> Codeupdate 13-06-10.
 	public Distribution(String name, double[] values) {
 		super(name);
 		this.values = values;
@@ -57,9 +64,12 @@ public class Distribution extends Data {
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 	public Distribution(String name) {
 		super(name);
 =======
+=======
+>>>>>>> Codeupdate 13-06-10.
 	public Distribution(String name, double value) {
 		Log.warn("Distribution initialized with a single value");
 		double[] temp = { value };
@@ -89,6 +99,7 @@ public class Distribution extends Data {
 		return this.values;
 	}
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -132,6 +143,12 @@ public class Distribution extends Data {
 	 * 
 	 * @param filename String representing the desired filename for the Distribution.
 	 */
+=======
+	public String getType() {
+		return "Distribution";
+	}
+	
+>>>>>>> Codeupdate 13-06-10.
 	public void write(String dir, String filename) throws IOException {
 		if (this.values == null) {
 			throw new NullPointerException("no values for distribution \""
