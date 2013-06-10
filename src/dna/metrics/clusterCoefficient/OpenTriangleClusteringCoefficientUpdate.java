@@ -17,7 +17,7 @@ public class OpenTriangleClusteringCoefficientUpdate extends
 
 	public OpenTriangleClusteringCoefficientUpdate() {
 		super("openTriangleClusteringCoefficientUpdate",
-				ApplicationType.AfterUpdate);
+				ApplicationType.BeforeAndAfterUpdate);
 	}
 
 	@Override
@@ -32,7 +32,52 @@ public class OpenTriangleClusteringCoefficientUpdate extends
 
 	@Override
 	public boolean applyBeforeUpdate(Update u) {
-		return false;
+		if (u instanceof EdgeRemoval) {
+			DirectedEdge e = (DirectedEdge) ((EdgeRemoval) u).getEdge();
+			DirectedNode a = e.getSrc();
+			DirectedNode b = e.getDst();
+
+			// t1
+			for (DirectedNode c : a.getNeighbors()) {
+				if (b.hasNeighbor(c)) {
+					this.removeTriangle(c);
+				}
+			}
+			
+			// t2 / t3
+			if(a.hasNeighbor(b)){
+				// t2
+				for (DirectedNode c : a.getNeighbors()) {
+					if (!a.hasNeighbor(b)) {
+						continue;
+					}
+					if (c.hasEdge(new DirectedEdge(c, b))) {
+						this.removeTriangle(a);
+					}
+					if (c.hasEdge(new DirectedEdge(b, c))) {
+						this.removeTriangle(a);
+					}
+				}
+				
+				// t3
+				for (DirectedNode c : b.getNeighbors()) {
+					if (c.hasEdge(new DirectedEdge(c, a))) {
+						this.removeTriangle(b);
+					}
+					if (c.hasEdge(new DirectedEdge(a, c))) {
+						this.removeTriangle(b);
+					}
+				}
+				
+			}
+
+			// p
+			if (a.hasNeighbor(b)) {
+				this.removePotentials(a, 2 * (a.getNeighborCount() - 1));
+				this.removePotentials(b, 2 * (b.getNeighborCount() - 1));
+			}
+		}
+		return true;
 	}
 
 	@Override
@@ -43,86 +88,50 @@ public class OpenTriangleClusteringCoefficientUpdate extends
 			// TODO implement node removal @ openTriangle CC update
 		} else if (u instanceof EdgeAddition) {
 			DirectedEdge e = (DirectedEdge) ((EdgeAddition) u).getEdge();
-			DirectedNode v = e.getSrc();
-			DirectedNode w = e.getDst();
-			// (1)
-			for (DirectedNode x : v.getNeighbors()) {
-				if (w.hasNeighbor(x)) {
-					this.addTriangle(x);
+			DirectedNode a = e.getSrc();
+			DirectedNode b = e.getDst();
+
+			// t1
+			for (DirectedNode c : a.getNeighbors()) {
+				if (b.hasNeighbor(c)) {
+					this.addTriangle(c);
 				}
 			}
-			if (!v.hasEdge(new DirectedEdge(w, v))) {
-				return true;
-			}
-			// (2)
-			for (DirectedNode x : v.getNeighbors()) {
-				if (w.hasEdge(new DirectedEdge(x, w))) {
-					this.addTriangle(v);
+
+			// t2 / t3
+			if (a.hasNeighbor(b)) {
+				
+				// t2
+				for (DirectedNode c : a.getNeighbors()) {
+					if (!a.hasNeighbor(b)) {
+						continue;
+					}
+					if (c.hasEdge(new DirectedEdge(c, b))) {
+						this.addTriangle(a);
+					}
+					if (c.hasEdge(new DirectedEdge(b, c))) {
+						this.addTriangle(a);
+					}
 				}
-			}
-			// (3)
-			for (DirectedNode x : v.getNeighbors()) {
-				if (w.hasEdge(new DirectedEdge(w, x))) {
-					this.addTriangle(v);
+				
+				// t3
+				for (DirectedNode c : b.getNeighbors()) {
+					if (c.hasEdge(new DirectedEdge(c, a))) {
+						this.addTriangle(b);
+					}
+					if (c.hasEdge(new DirectedEdge(a, c))) {
+						this.addTriangle(b);
+					}
 				}
+				
 			}
-			// (4)
-			for (DirectedNode x : w.getNeighbors()) {
-				if (v.hasEdge(new DirectedEdge(x, v))) {
-					this.addTriangle(w);
-				}
+
+			// p
+			if (a.hasNeighbor(b)) {
+				this.addPotentials(a, 2 * (a.getNeighborCount() - 1));
+				this.addPotentials(b, 2 * (b.getNeighborCount() - 1));
 			}
-			// (5)
-			for (DirectedNode x : w.getNeighbors()) {
-				if (v.hasEdge(new DirectedEdge(v, x))) {
-					this.addTriangle(w);
-				}
-			}
-			// (6)
-			this.addPotentials(v, 2 * v.getNeighborCount() - 2);
-			// (7)
-			this.addPotentials(w, 2 * w.getNeighborCount() - 2);
-		} else if (u instanceof EdgeRemoval) {
-			DirectedEdge e = (DirectedEdge) ((EdgeRemoval) u).getEdge();
-			DirectedNode v = e.getSrc();
-			DirectedNode w = e.getDst();
-			// (1)
-			for (DirectedNode x : v.getNeighbors()) {
-				if (w.hasNeighbor(x)) {
-					this.removeTriangle(x);
-				}
-			}
-			if (!v.hasEdge(new DirectedEdge(w, v))) {
-				return true;
-			}
-			// (2)
-			for (DirectedNode x : v.getNeighbors()) {
-				if (w.hasEdge(new DirectedEdge(x, w))) {
-					this.removeTriangle(v);
-				}
-			}
-			// (3)
-			for (DirectedNode x : v.getNeighbors()) {
-				if (w.hasEdge(new DirectedEdge(w, x))) {
-					this.removeTriangle(v);
-				}
-			}
-			// (4)
-			for (DirectedNode x : w.getNeighbors()) {
-				if (v.hasEdge(new DirectedEdge(x, v))) {
-					this.removeTriangle(w);
-				}
-			}
-			// (5)
-			for (DirectedNode x : w.getNeighbors()) {
-				if (v.hasEdge(new DirectedEdge(v, x))) {
-					this.removeTriangle(w);
-				}
-			}
-			// (6)
-			this.removePotentials(v, 2 * v.getNeighborCount());
-			// (7)
-			this.removePotentials(w, 2 * w.getNeighborCount());
+
 		}
 		return true;
 	}
