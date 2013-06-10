@@ -14,6 +14,7 @@ import dna.series.data.SeriesData;
 import dna.series.data.Value;
 import dna.updates.Batch;
 import dna.updates.BatchGenerator;
+import dna.updates.BatchSanitizationStats;
 import dna.updates.Update;
 import dna.util.Log;
 import dna.util.Rand;
@@ -217,9 +218,15 @@ public class Series {
 		}
 		metricsTotal.end();
 
-		this.applyUpdates(b.getEdgeRemovals(), graphUpdateTimer, metricsTotal,
-				timer);
+		BatchSanitizationStats sanitizationStats = b.sanitize();
+		if (sanitizationStats.getTotal() > 0) {
+			Log.info("      " + sanitizationStats);
+			Log.info("      => " + b.toString());
+		}
+
 		this.applyUpdates(b.getNodeRemovals(), graphUpdateTimer, metricsTotal,
+				timer);
+		this.applyUpdates(b.getEdgeRemovals(), graphUpdateTimer, metricsTotal,
 				timer);
 
 		this.applyUpdates(b.getNodeAdditions(), graphUpdateTimer, metricsTotal,
@@ -281,6 +288,19 @@ public class Series {
 				new Value("edgeWeightsToUpdate", b.getEdgeWeightUpdateCount()));
 		batchData.getValues().add(
 				new Value("updatedEdgeWeights", updatedEdgeWeights));
+
+		batchData.getValues().add(
+				new Value("deletedEdgeAdditions", sanitizationStats
+						.getDeletedEdgeAdditions()));
+		batchData.getValues().add(
+				new Value("deletedEdgeAdditions", sanitizationStats
+						.getDeletedEdgeRemovals()));
+		batchData.getValues().add(
+				new Value("deletedNodeWeightUpdates", sanitizationStats
+						.getDeletedNodeWeightUpdates()));
+		batchData.getValues().add(
+				new Value("deletedEdgeWeightUpdates", sanitizationStats
+						.getDeletedEdgeWeightUpdates()));
 
 		batchData.getValues().add(new Value("randomSeed", seed));
 

@@ -1,6 +1,7 @@
 package dna.updates;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 
 import com.google.common.collect.Iterables;
 
@@ -8,8 +9,11 @@ import dna.graph.Edge;
 import dna.graph.Graph;
 import dna.graph.GraphDatastructures;
 import dna.graph.Node;
+import dna.graph.directed.DirectedEdge;
 import dna.graph.directed.DirectedGraphDatastructures;
+import dna.graph.undirected.UndirectedEdge;
 import dna.graph.undirected.UndirectedGraphDatastructures;
+import dna.util.Log;
 
 public class Batch<E extends Edge> {
 
@@ -214,4 +218,116 @@ public class Batch<E extends Edge> {
 		return success;
 	}
 
+	/**
+	 * performs a sanitization of the updates stored in this batch, i.e.,
+	 * deleted all edge removals that point to a node which is removed anyways
+	 * and delete all edge additions that point to a node that is removed but
+	 * not added again
+	 * 
+	 * @return
+	 */
+	@SuppressWarnings({ "rawtypes" })
+	public BatchSanitizationStats sanitize() {
+		BatchSanitizationStats stats = new BatchSanitizationStats();
+
+		HashSet<Node> removedN = new HashSet<Node>(this.getNodeRemovalCount());
+		for (Update u : this.nodeRemovals) {
+			removedN.add(((NodeRemoval) u).getNode());
+		}
+
+		HashSet<Node> addedN = new HashSet<Node>(this.getNodeAdditionCount());
+		for (Update u : this.nodeAdditions) {
+			addedN.add(((NodeAddition) u).getNode());
+		}
+
+		HashSet<Edge> removedE = new HashSet<Edge>(this.getEdgeRemovalCount());
+		for (Update u : this.edgeRemovals) {
+			removedE.add(((EdgeRemoval) u).getEdge());
+		}
+
+		/**
+		 * delete edge removals of nodes which are going to be deleted anyways
+		 */
+		HashSet<EdgeRemoval> edgeRemovalsToDelete = new HashSet<EdgeRemoval>();
+		for (Update u : this.edgeRemovals) {
+			Edge e = ((EdgeRemoval) u).getEdge();
+			Node[] n = this.getNodesFromEdge(e);
+			if (removedN.contains(n[0]) || removedN.contains(n[1])) {
+				edgeRemovalsToDelete.add((EdgeRemoval) u);
+			}
+		}
+		for (EdgeRemoval u : edgeRemovalsToDelete) {
+			this.edgeRemovals.remove(u);
+		}
+		stats.setDeletedEdgeRemovals(edgeRemovalsToDelete.size());
+
+		/**
+		 * delete edge additions of nodes which are going to be deleted anyways
+		 * (only keep them in case the node is afterwards added again)
+		 */
+		HashSet<EdgeAddition> edgeAdditionsToDelete = new HashSet<EdgeAddition>();
+		for (Update u : this.edgeAdditions) {
+			Edge e = ((EdgeAddition) u).getEdge();
+			Node[] n = this.getNodesFromEdge(e);
+			if ((removedN.contains(n[0]) && !addedN.contains(n[0]))
+					|| (removedN.contains(n[1]) && !addedN.contains(n[1]))) {
+				edgeAdditionsToDelete.add((EdgeAddition) u);
+			}
+		}
+		for (EdgeAddition u : edgeAdditionsToDelete) {
+			this.edgeAdditions.remove(u);
+		}
+		stats.setDeletedEdgeAdditions(edgeAdditionsToDelete.size());
+
+		/**
+		 * delete node weight updates for nodes that are removed anyways
+		 */
+		HashSet<NodeWeightUpdate> nodeWeightUpdatesToDelete = new HashSet<NodeWeightUpdate>();
+		for (Update u : this.nodeWeightUpdates) {
+			Node n = ((NodeWeightUpdate) u).getNode();
+			if (removedN.contains(n)) {
+				nodeWeightUpdatesToDelete.add((NodeWeightUpdate) u);
+			}
+		}
+		for (NodeWeightUpdate u : nodeWeightUpdatesToDelete) {
+			this.nodeWeightUpdates.remove(u);
+		}
+		stats.setDeletedNodeWeightUpdates(nodeWeightUpdatesToDelete.size());
+
+		/**
+		 * delete edge weight updates for edges that are removed anyways (either
+		 * by themselves or because they point to a node that is to be removed)
+		 */
+		HashSet<EdgeWeightUpdate> edgeWeightUpdatesToDelete = new HashSet<EdgeWeightUpdate>();
+		for (Update u : this.edgeWeightUpdates) {
+			Edge e = ((EdgeWeightUpdate) u).getEdge();
+			Node[] n = this.getNodesFromEdge(e);
+			if (removedE.contains(e) || removedN.contains(n[0])
+					|| removedN.contains(n[1])) {
+				edgeWeightUpdatesToDelete.add((EdgeWeightUpdate) u);
+				continue;
+			}
+		}
+		for (EdgeWeightUpdate u : edgeWeightUpdatesToDelete) {
+			this.edgeWeightUpdates.remove(u);
+		}
+		stats.setDeletedEdgeWeightUpdates(edgeWeightUpdatesToDelete.size());
+
+		return stats;
+	}
+
+	@SuppressWarnings("rawtypes")
+	private Node[] getNodesFromEdge(Edge e) {
+		if (e instanceof DirectedEdge) {
+			return new Node[] { ((DirectedEdge) e).getSrc(),
+					((DirectedEdge) e).getDst() };
+		} else if (e instanceof UndirectedEdge) {
+			return new Node[] { ((UndirectedEdge) e).getNode1(),
+					((UndirectedEdge) e).getNode2() };
+		} else {
+			Log.error("edge type '" + e.getClass().getCanonicalName()
+					+ "' not supported in batch sanitization");
+			return null;
+		}
+	}
 }
