@@ -53,6 +53,18 @@ public class ArrayUtils {
 		}
 	}
 
+	public static long[] set(long[] values, int index, long value) {
+		try {
+			values[index] = value;
+			return values;
+		} catch (ArrayIndexOutOfBoundsException e) {
+			long[] valuesNew = new long[index + 1];
+			System.arraycopy(values, 0, valuesNew, 0, values.length);
+			valuesNew[index] = value;
+			return valuesNew;
+		}
+	}
+
 	public static void divide(double[] values, double by) {
 		for (int i = 0; i < values.length; i++) {
 			values[i] /= by;
@@ -102,6 +114,58 @@ public class ArrayUtils {
 		int index = values.length - 1;
 		for (int i = values.length - 1; i >= 0; i--) {
 			if (values[i] != value) {
+				break;
+			}
+			index--;
+		}
+		double[] valuesNew = new double[index + 1];
+		System.arraycopy(values, 0, valuesNew, 0, index + 1);
+		return valuesNew;
+	}
+
+	/**
+	 * truncates the given array by removing all fields at the end that contain
+	 * the given value, e.g., {0,1,0,2,3,0,0} => {0,1,0,2,3} for value=0
+	 * 
+	 * @param values
+	 *            array to truncate
+	 * @param value
+	 *            value to remove from the end of the array
+	 * @return truncated array
+	 */
+	public static long[] truncate(long[] values, long value) {
+		if (values[values.length - 1] != value) {
+			return values;
+		}
+		int index = values.length - 1;
+		for (int i = values.length - 1; i >= 0; i--) {
+			if (values[i] != value) {
+				break;
+			}
+			index--;
+		}
+		long[] valuesNew = new long[index + 1];
+		System.arraycopy(values, 0, valuesNew, 0, index + 1);
+		return valuesNew;
+	}
+
+	/**
+	 * truncates the given array by removing all fields at the end that contain
+	 * the given value, e.g., {0,1,0,2,3,0,0} => {0,1,0,2,3} for value=0
+	 * 
+	 * @param values
+	 *            array to truncate
+	 * @param value
+	 *            value to remove from the end of the array
+	 * @return truncated array
+	 */
+	public static double[] truncateNaN(double[] values) {
+		if (!Double.isNaN(values[values.length - 1])) {
+			return values;
+		}
+		int index = values.length - 1;
+		for (int i = values.length - 1; i >= 0; i--) {
+			if (!Double.isNaN(values[i])) {
 				break;
 			}
 			index--;
@@ -326,7 +390,8 @@ public class ArrayUtils {
 			return false;
 		}
 		for (int i = 0; i < v1.length; i++) {
-			if (v1[i] != v2[i]) {
+			if (v1[i] != v2[i]
+					&& (!Double.isNaN(v1[i]) || !Double.isNaN(v2[i]))) {
 				if (name != null) {
 					Log.warn(name + " - values @ index " + i + " differs: "
 							+ v1[i] + " != " + v2[i]);
@@ -378,5 +443,29 @@ public class ArrayUtils {
 			}
 		}
 		return true;
+	}
+
+	public static double[] init(int length, double value) {
+		double[] array = new double[length];
+		for (int i = 0; i < array.length; i++) {
+			array[i] = value;
+		}
+		return array;
+	}
+
+	public static int[] init(int length, int value) {
+		int[] array = new int[length];
+		for (int i = 0; i < array.length; i++) {
+			array[i] = value;
+		}
+		return array;
+	}
+
+	public static long[] init(int length, long value) {
+		long[] array = new long[length];
+		for (int i = 0; i < array.length; i++) {
+			array[i] = value;
+		}
+		return array;
 	}
 }

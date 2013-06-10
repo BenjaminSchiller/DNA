@@ -14,7 +14,7 @@ public class DataUtils {
 	 * @return true if both values are equal
 	 */
 	public static boolean equals(double v1, double v2, String name) {
-		if (v1 == v2) {
+		if (v1 == v2 || (Double.isNaN(v1) && Double.isNaN(v2))) {
 			return true;
 		}
 		if (name != null) {
