@@ -19,8 +19,9 @@ public abstract class GraphDatastructures<G extends Graph<N, E>, N extends Node<
 	}
 
 	public String toString() {
-		return "GraphType: " + this.graphType + "\nNodeType: " + this.nodeType
-				+ "\nEdgeType: " + this.edgeType;
+		return this.graphType.getSimpleName() + " / "
+				+ this.nodeType.getSimpleName() + " / "
+				+ this.edgeType.getSimpleName();
 	}
 
 	public Class<G> getGraphType() {
