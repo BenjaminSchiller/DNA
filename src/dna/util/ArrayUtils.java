@@ -40,7 +40,8 @@ public class ArrayUtils {
 		}
 	}
 
-	public static double[] set(double[] values, int index, double value) {
+	public static double[] set(double[] values, int index, double value,
+			double defaultValue) {
 		try {
 			values[index] = value;
 			return values;
@@ -48,11 +49,15 @@ public class ArrayUtils {
 			double[] valuesNew = new double[index + 1];
 			System.arraycopy(values, 0, valuesNew, 0, values.length);
 			valuesNew[index] = value;
+			for (int i = index - 1; i >= values.length; i--) {
+				valuesNew[i] = defaultValue;
+			}
 			return valuesNew;
 		}
 	}
 
-	public static long[] set(long[] values, int index, long value) {
+	public static long[] set(long[] values, int index, long value,
+			long defaultValue) {
 		try {
 			values[index] = value;
 			return values;
@@ -60,6 +65,9 @@ public class ArrayUtils {
 			long[] valuesNew = new long[index + 1];
 			System.arraycopy(values, 0, valuesNew, 0, values.length);
 			valuesNew[index] = value;
+			for (int i = index - 1; i >= values.length; i--) {
+				valuesNew[i] = defaultValue;
+			}
 			return valuesNew;
 		}
 	}
