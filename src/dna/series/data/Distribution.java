@@ -8,15 +8,21 @@ import com.sun.media.sound.InvalidFormatException;
 import dna.io.Reader;
 import dna.io.Writer;
 import dna.io.etc.Keywords;
-import dna.series.lists.ListItem;
+import dna.util.Log;
 
-public class Distribution implements ListItem {
-
+public class Distribution extends Data {
+//public class Distribution implements ListItem {
 	public Distribution(String name, double[] values) {
 		this.name = name;
 		this.values = values;
 	}
 
+	public Distribution(String name, double value) {
+		Log.warn("Distribution initialized with a single value");
+		double[] temp = { value };
+		this.values = temp;
+	}
+	
 	public String toString() {
 		return "distribution(" + this.name + ")";
 	}
@@ -33,6 +39,10 @@ public class Distribution implements ListItem {
 		return this.values;
 	}
 
+	public String getType() {
+		return "Distribution";
+	}
+	
 	public void write(String dir, String filename) throws IOException {
 		if (this.values == null) {
 			throw new NullPointerException("no values for distribution \""
