@@ -33,11 +33,17 @@ public class Series {
 
 	public SeriesData generate(int runs, int batches)
 			throws AggregationException, IOException {
+		return this.generate(runs, batches, true);
+	}
+
+	public SeriesData generate(int runs, int batches, boolean compare)
+			throws AggregationException, IOException {
 
 		Log.infoSep();
 		Timer timer = new Timer("seriesGeneration");
 		Log.info("generating series");
 		Log.infoSep();
+		Log.info("ds = " + this.gg.getDatastructures());
 		Log.info("gg = " + this.gg.getDescription());
 		Log.info("bg = " + this.bg.getDescription());
 		Log.info("p  = " + this.dir);
@@ -54,7 +60,7 @@ public class Series {
 
 		// generate all runs
 		for (int r = 0; r < runs; r++) {
-			sd.addRun(this.generateRun(r, batches));
+			sd.addRun(this.generateRun(r, batches, compare));
 		}
 
 		// aggregate all runs
@@ -70,7 +76,8 @@ public class Series {
 		return sd;
 	}
 
-	public RunData generateRun(int run, int batches) throws IOException {
+	public RunData generateRun(int run, int batches, boolean compare)
+			throws IOException {
 
 		Log.infoSep();
 		Timer timer = new Timer("runGeneration");
@@ -80,7 +87,9 @@ public class Series {
 
 		// generate initial data
 		BatchData initialData = this.generateInitialData();
-		this.compareMetrics();
+		if (compare) {
+			this.compareMetrics();
+		}
 		rd.getBatches().add(initialData);
 		initialData.write(Dir.getBatchDataDir(this.dir, run,
 				initialData.getTimestamp()));
@@ -88,7 +97,9 @@ public class Series {
 		// generate batch data
 		for (int i = 0; i < batches; i++) {
 			BatchData batchData = this.generateNextBatch(i + 1);
-			this.compareMetrics();
+			if (compare) {
+				this.compareMetrics();
+			}
 			rd.getBatches().add(batchData);
 			batchData.write(Dir.getBatchDataDir(this.dir, run,
 					batchData.getTimestamp()));
