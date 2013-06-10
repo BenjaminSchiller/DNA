@@ -60,7 +60,7 @@ public abstract class ClosedTriangleClusteringCoefficient extends
 		}
 
 		this.update();
-		this.averageCC = ArrayUtils.avg(this.localCC);
+		this.averageCC = ArrayUtils.avgIgnoreNaN(this.localCC);
 
 		return true;
 	}
@@ -113,7 +113,7 @@ public abstract class ClosedTriangleClusteringCoefficient extends
 			this.globalCC = (double) this.triangleCount
 					/ (double) this.potentialCount;
 		}
-		this.averageCC = ArrayUtils.avg(this.localCC);
+		this.averageCC = ArrayUtils.avgIgnoreNaN(this.localCC);
 	}
 
 	@Override

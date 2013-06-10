@@ -1,6 +1,5 @@
 package dna.metrics.clusterCoefficient;
 
-import dna.graph.Graph;
 import dna.graph.Node;
 import dna.metrics.Metric;
 import dna.series.data.Distribution;
@@ -31,14 +30,16 @@ public abstract class ClusteringCoefficient extends Metric {
 	protected long[] nodePotentialCount;
 
 	@Override
-	protected void init_(Graph g) {
+	protected void init_() {
 		this.globalCC = 0;
 		this.averageCC = 0;
-		this.localCC = new double[g.getNodeCount()];
+		this.localCC = ArrayUtils.init(g.getMaxNodeIndex() + 1, Double.NaN);
 		this.triangleCount = 0;
 		this.potentialCount = 0;
-		this.nodeTriangleCount = new long[g.getNodeCount()];
-		this.nodePotentialCount = new long[g.getNodeCount()];
+		this.nodeTriangleCount = ArrayUtils.init(g.getMaxNodeIndex() + 1,
+				Long.MIN_VALUE);
+		this.nodePotentialCount = ArrayUtils.init(g.getMaxNodeIndex() + 1,
+				Long.MIN_VALUE);
 	}
 
 	@Override
@@ -122,7 +123,7 @@ public abstract class ClusteringCoefficient extends Metric {
 		} else {
 			this.globalCC = (double) this.triangleCount
 					/ (double) this.potentialCount;
-			this.averageCC = ArrayUtils.avg(this.localCC);
+			this.averageCC = ArrayUtils.avgIgnoreNaN(this.localCC);
 		}
 	}
 
