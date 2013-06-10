@@ -1,5 +1,6 @@
 package dna.metrics.clusterCoefficient;
 
+import dna.graph.Node;
 import dna.graph.directed.DirectedEdge;
 import dna.graph.directed.DirectedNode;
 import dna.graph.undirected.UndirectedEdge;
@@ -10,6 +11,7 @@ import dna.updates.EdgeRemoval;
 import dna.updates.NodeAddition;
 import dna.updates.NodeRemoval;
 import dna.updates.Update;
+import dna.util.ArrayUtils;
 
 @SuppressWarnings("rawtypes")
 public class ClosedTriangleClusteringCoefficientUpdate extends
@@ -56,9 +58,49 @@ public class ClosedTriangleClusteringCoefficientUpdate extends
 
 	private boolean applyBeforeUpdateDirected(Update u) {
 		if (u instanceof NodeAddition) {
-			// TODO implement closed triangle CC update (node addition D)
+			Node n = ((NodeAddition) u).getNode();
+			this.localCC = ArrayUtils.set(this.localCC, n.getIndex(), 0);
+			this.nodePotentialCount = ArrayUtils.set(this.nodePotentialCount,
+					n.getIndex(), 0);
+			this.nodeTriangleCount = ArrayUtils.set(this.nodeTriangleCount,
+					n.getIndex(), 0);
 		} else if (u instanceof NodeRemoval) {
-			// TODO implement closed triangle CC update (node removal D)
+			
+			DirectedNode n = (DirectedNode) ((NodeRemoval) u).getNode();
+
+			DirectedNode[] neighbors = new DirectedNode[n.getNeighborCount()];
+			int index = 0;
+			for (DirectedNode neighbor : n.getNeighbors()) {
+				neighbors[index++] = neighbor;
+			}
+
+			for (int i = 0; i < neighbors.length; i++) {
+				for (int j = i + 1; j < neighbors.length; j++) {
+					if (neighbors[i].hasEdge(new DirectedEdge(neighbors[i],
+							neighbors[j]))
+							&& neighbors[i].hasEdge(new DirectedEdge(
+									neighbors[j], neighbors[i]))) {
+						this.removeTriangle(n);
+						this.removeTriangle(neighbors[i]);
+						this.removeTriangle(neighbors[j]);
+					}
+				}
+				this.removePotentials(neighbors[i],
+						neighbors[i].getNeighborCount() - 1);
+			}
+
+			this.removePotentials(n,
+					n.getNeighborCount() * (n.getNeighborCount() - 1) / 2);
+
+			this.localCC[n.getIndex()] = Double.NaN;
+			this.nodePotentialCount[n.getIndex()] = Long.MIN_VALUE;
+			this.nodeTriangleCount[n.getIndex()] = Long.MIN_VALUE;
+			this.localCC = ArrayUtils.truncateNaN(this.localCC);
+			this.nodePotentialCount = ArrayUtils.truncate(
+					this.nodePotentialCount, Long.MIN_VALUE);
+			this.nodeTriangleCount = ArrayUtils.truncate(
+					this.nodeTriangleCount, Long.MIN_VALUE);
+
 		} else if (u instanceof EdgeAddition) {
 			DirectedEdge e = (DirectedEdge) ((EdgeAddition) u).getEdge();
 			DirectedNode a = e.getSrc();
@@ -104,9 +146,44 @@ public class ClosedTriangleClusteringCoefficientUpdate extends
 
 	private boolean applyBeforeUpdateUndirected(Update u) {
 		if (u instanceof NodeAddition) {
-			// TODO implement closed triangle CC update (node addition U)
+			Node n = ((NodeAddition) u).getNode();
+			this.localCC = ArrayUtils.set(this.localCC, n.getIndex(), 0);
+			this.nodePotentialCount = ArrayUtils.set(this.nodePotentialCount,
+					n.getIndex(), 0);
+			this.nodeTriangleCount = ArrayUtils.set(this.nodeTriangleCount,
+					n.getIndex(), 0);
 		} else if (u instanceof NodeRemoval) {
-			// TODO implement closed triangle CC update (node removal U)
+			UndirectedNode n = (UndirectedNode) ((NodeRemoval) u).getNode();
+
+			UndirectedNode[] neighbors = new UndirectedNode[n.getDegree()];
+			int index = 0;
+			for (UndirectedEdge e : n.getEdges()) {
+				neighbors[index++] = e.getDifferingNode(n);
+			}
+
+			for (int i = 0; i < neighbors.length; i++) {
+				for (int j = i + 1; j < neighbors.length; j++) {
+					if (neighbors[i].hasEdge(new UndirectedEdge(neighbors[i],
+							neighbors[j]))) {
+						this.removeTriangle(n);
+						this.removeTriangle(neighbors[i]);
+						this.removeTriangle(neighbors[j]);
+					}
+				}
+				this.removePotentials(neighbors[i],
+						neighbors[i].getDegree() - 1);
+			}
+
+			this.removePotentials(n, n.getDegree() * (n.getDegree() - 1) / 2);
+
+			this.localCC[n.getIndex()] = Double.NaN;
+			this.nodePotentialCount[n.getIndex()] = Long.MIN_VALUE;
+			this.nodeTriangleCount[n.getIndex()] = Long.MIN_VALUE;
+			this.localCC = ArrayUtils.truncateNaN(this.localCC);
+			this.nodePotentialCount = ArrayUtils.truncate(
+					this.nodePotentialCount, Long.MIN_VALUE);
+			this.nodeTriangleCount = ArrayUtils.truncate(
+					this.nodeTriangleCount, Long.MIN_VALUE);
 		} else if (u instanceof EdgeAddition) {
 			UndirectedEdge e = (UndirectedEdge) ((EdgeAddition) u).getEdge();
 			UndirectedNode a = e.getNode1();
