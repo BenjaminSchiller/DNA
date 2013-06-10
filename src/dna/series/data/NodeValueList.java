@@ -12,12 +12,6 @@ import dna.util.Log;
 
 /**
  * A NodeValueList is an object containing an array with 1 value for each node. The node index is used as 
-=======
-import dna.series.lists.ListItem;
-
-/**
- * NodeValueList is a class containing an array with 1 value for each node. The node index is used as 
->>>>>>> datatype NodeValueList added
  * the index for the array. If a node is removed from the graph, his former value is replaced by a Double.NaN.
  * When inserting new nodevalues with out-of-bound indeces, the array is expanded accordingly.
  * 
@@ -96,7 +90,7 @@ public class NodeValueList extends Data {
 		String line = null;
 		int index = 0;
 		while ((line = r.readString()) != null) {
-			String[] temp = line.split(Keywords.distributionDelimiter);
+			String[] temp = line.split(Keywords.dataDelimiter);
 			if (Integer.parseInt(temp[0]) != index) {
 				throw new InvalidFormatException("expected index " + index
 						+ " but found " + temp[0] + " @ \"" + line + "\"");
