@@ -15,6 +15,13 @@ public class Value extends Data {
 	
 	public Value(String name, double[] values) {
 		Log.warn("Value object initialized with to much arguments");
+<<<<<<< HEAD
+=======
+	}
+
+	public String toString() {
+		return "value(" + this.name + ") = " + this.value;
+>>>>>>> Codeupdate 13-06-10.
 	}
 
 	// class methods
@@ -26,6 +33,7 @@ public class Value extends Data {
 		return this.value;
 	}
 	
+<<<<<<< HEAD
 	/*public static Value read(String dir, String filename) {
 		Reader r = new Reader(dir, filename);
 
@@ -42,5 +50,10 @@ public class Value extends Data {
 		r.close();
 		return new AggregatedValue(name, tempDouble);
 	}*/
+=======
+	public String getType() {
+		return "Value";
+	}
+>>>>>>> Codeupdate 13-06-10.
 
 }
