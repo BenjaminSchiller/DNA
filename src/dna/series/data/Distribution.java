@@ -40,13 +40,13 @@ public class Distribution extends Data {
 		return this.values;
 	}
 
-	
 	// IO Methods
 	/**
 	 * @param dir String which contains the path / directory the Distribution will be written to.
 	 * 
 	 * @param filename String representing the desired filename for the Distribution.
 	 */
+
 	public void write(String dir, String filename) throws IOException {
 		if (this.values == null) {
 			throw new NullPointerException("no values for distribution \""
