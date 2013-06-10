@@ -8,7 +8,7 @@ import com.sun.media.sound.InvalidFormatException;
 import dna.io.Reader;
 import dna.io.Writer;
 import dna.io.etc.Keywords;
-import dna.series.lists.ListItem;
+import dna.util.Log;
 
 /**
  * NodeValueList is a class containing an array with 1 value for each node. The node index is used as 
@@ -18,13 +18,13 @@ import dna.series.lists.ListItem;
  * @author Rwilmes
  * @date 03.06.2013
  */
-public class NodeValueList implements ListItem {
+public class NodeValueList extends Data {
 
 	// class variables
 	private double[] values;
 	private String name;
 	
-	// constructor
+	// constructors
 	public NodeValueList(String name, int size) {
 		this.name = name;
 		this.values = new double[size];
@@ -35,7 +35,17 @@ public class NodeValueList implements ListItem {
 		this.values = values;
 	}
 	
-	// class methods
+	public NodeValueList(String name, double value) {
+		Log.warn("NodeValueList initialized with a single value");
+		double[] temp = { value };
+		this.values = temp;
+	}
+	
+	// get methods
+	public String getType() {
+		return "NodeValueList";
+	}
+	
 	public String getName() {
 		return this.name;
 	}
@@ -48,6 +58,7 @@ public class NodeValueList implements ListItem {
 		return this.values[index];
 	}
 	
+	// other methods
 	public void set(int index, double value) {
 		try {
 			values[index] = value;
@@ -93,7 +104,7 @@ public class NodeValueList implements ListItem {
 		}
 		Writer w = new Writer(dir, filename);
 		for (int i = 0; i < this.values.length; i++) {
-			w.writeln(i + Keywords.distributionDelimiter + this.values[i]);
+			w.writeln(i + Keywords.dataDelimiter + this.values[i]);
 		}
 		w.close();
 	}
@@ -117,7 +128,7 @@ public class NodeValueList implements ListItem {
 		String line = null;
 		int index = 0;
 		while ((line = r.readString()) != null) {
-			String[] temp = line.split(Keywords.distributionDelimiter);
+			String[] temp = line.split(Keywords.dataDelimiter);
 			if (Integer.parseInt(temp[0]) != index) {
 				throw new InvalidFormatException("expected index " + index
 						+ " but found " + temp[0] + " @ \"" + line + "\"");

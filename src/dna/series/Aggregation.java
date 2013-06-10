@@ -1,11 +1,17 @@
 package dna.series;
 
+import dna.series.aggdata.AggregatedData;
+import dna.series.aggdata.AggregatedDistribution;
+import dna.series.aggdata.AggregatedNodeValueList;
+import dna.series.aggdata.AggregatedValue;
 import dna.series.data.BatchData;
+import dna.series.data.Data;
 import dna.series.data.RunData;
 import dna.series.data.RunTime;
 import dna.series.data.SeriesData;
 import dna.series.data.Value;
 import dna.util.ArrayUtils;
+import dna.util.Log;
 
 /**
  * 
@@ -18,11 +24,7 @@ import dna.util.ArrayUtils;
 public class Aggregation {
 
 	/**
-<<<<<<< HEAD
 	 * aggregates all data in the given series, i.e., agregate each batch of all
-=======
-	 * aggregates all data in the given series, i.e., aggregate each diff of all
->>>>>>> datatype NodeValueList added
 	 * runs.
 	 * 
 	 * @param seriesData
@@ -150,7 +152,7 @@ public class Aggregation {
 		return new Values(values, name);
 	}
 
-	/** UNDER CONSTRUCTION
+	/**
 	 * Calculates the maximum of Value objects of a list of Values objects.
 	 * 
 	 * @param list list of Values object to compute the maximum for
@@ -170,15 +172,10 @@ public class Aggregation {
 			for (int j = 0; j < list.length; j++) {
 				temp[j] = list[j].getValues()[i][1];
 			}
-			values[i][1] = ArrayUtils.avg(temp);
+			values[i][1] = ArrayUtils.max(temp);
 		}
-
-		
-		
 		return new Values(values, name);
 	}
-	
-	
 	
 	private static void test(SeriesData seriesData) throws AggregationException {
 		int batches = seriesData.getRun(0).getBatches().size();
@@ -261,5 +258,134 @@ public class Aggregation {
 				}
 			}
 		}
+	}
+	
+	/**
+	 * Aggregates the values of one Data object and thus returns a AggregatedData object.
+	 * The method distinguishes between different Datatypes via switch-case.
+	 * 
+	 * @param inputData Data object that is about to be aggregated
+	 *            
+	 * @param name name of the new AggregatedData object
+	 *            
+	 * @return AggregatedData object containing the aggregated values
+	 * @throws AggregationException
+	 */
+	public static AggregatedData aggregateData(Data inputData, String name) {
+		switch (inputData.getType()) {
+		
+			case "Value" : 	// Aggregation on single value??
+				AggregatedValue aggregatedData0 = new AggregatedValue(name, inputData.getValue());
+				return aggregatedData0;
+
+			case "NodeValueList" :	// AggregatedNodeValueList array strucutre:  { 0, 0, avg, min, max, median, variance, variance-low, variance-up, confidence-low, confidence-up }
+				double[] values1 = inputData.getValues();
+				
+				double avg1 = ArrayUtils.avg(values1);
+				double[] varLowUp1 = ArrayUtils.varLowUp(values1, avg1);
+				double[] conf1 = ArrayUtils.conf(values1);
+				
+				double[] temp1 = { 0, 0, avg1, ArrayUtils.min(values1), ArrayUtils.max(values1), ArrayUtils.med(values1), varLowUp1[0] , varLowUp1[1], varLowUp1[2], conf1[0], conf1[1]};
+				
+				AggregatedNodeValueList aggregatedData1 = new AggregatedNodeValueList(name, temp1);
+				return aggregatedData1;
+				
+			case "Distribution" :	// AggregatedDistribution array structure:  { x, Aggregated-y, avg, min, max, median, variance, variance-low, variance-up, confidence-low, confidence-up }
+				double[] values2 = inputData.getValues();
+				
+				double avg2 = ArrayUtils.avg(values2);
+				double[] varLowUp2 = ArrayUtils.varLowUp(values2, avg2);
+				double[] conf2 = ArrayUtils.conf(values2);
+				
+				double[] temp2 = { 0, 0, avg2, ArrayUtils.min(values2), ArrayUtils.max(values2), ArrayUtils.med(values2), varLowUp2[0] , varLowUp2[1], varLowUp2[2], conf2[0], conf2[1]};
+				
+				AggregatedDistribution aggregatedData2 = new AggregatedDistribution(name, temp2);
+				return aggregatedData2;
+		}
+		
+		// none of the common data types
+		Log.warn("Attempting aggregation for unknown datatype!");
+		return new AggregatedData();
+	}
+	
+	/**
+	 * Aggregates the values of a list of Data objects and returns a list of AggregatedData objects.
+	 * 
+	 * @param inputData Array of Data objects that are about to be aggregated
+	 *            
+	 * @param name name of the new AggregatedData object
+	 *            
+	 * @return AggregatedData[] array containing the objects with the aggregated values
+	 * @throws AggregationException
+	 */
+	public static AggregatedData[] aggregateData(Data[] inputData, String name) {
+		String dataType = inputData[0].getType();
+		switch (dataType) {
+		
+			case "Value" : 	// AggregatedValue array structure:  { 0, 0, avg, min, max, median, variance, variance-low, variance-up, confidence-low, confidence-up }
+				// aggregation of values: put all values in an array and calculate aggregated values over the array
+				double[] values0 = new double[inputData.length];
+				for (int i = 0; i < values0.length-1; i++) {
+					values0[i] = inputData[i].getValue();
+				}
+				
+				double avg0 = ArrayUtils.avg(values0);
+				double[] varLowUp0 = ArrayUtils.varLowUp(values0, avg0);
+				double[] conf0 = ArrayUtils.conf(values0);
+				
+				double[] temp0 = { 0, 0, avg0, ArrayUtils.min(values0), ArrayUtils.max(values0), ArrayUtils.med(values0), varLowUp0[0], varLowUp0[1], varLowUp0[2], conf0[0], conf0[1] };
+				
+				AggregatedValue[] aggregatedData0 = { new AggregatedValue(name, temp0) };
+				return aggregatedData0;
+				
+			case "NodeValueList" :	// AggregatedNodeValueList array structure:  { 0, 0, avg, min, max, median, variance, variance-low, variance-up, confidence-low, confidence-up }
+				int amountValues1 = inputData[0].getValues().length; 
+				int amountLists1 = inputData.length;
+				
+				AggregatedNodeValueList[] aggregatedData1 = new AggregatedNodeValueList[amountValues1];
+
+				for (int i = 0; i < amountValues1; i++) {
+					for (int j = 0; j < amountLists1; j++) {
+						double[] values1 = new double[amountLists1];
+						values1[j] = inputData[j].getValues()[i];
+						
+						double avg1 = ArrayUtils.avg(values1);
+						double[] varLowUp1 = ArrayUtils.varLowUp(values1, avg1);
+						double[] conf1 = ArrayUtils.conf(values1);
+						// AggregatedNodeValueList array strucutre:  { 0, 0, avg, min, max, median, variance, variance-low, variance-up, confidence-low, confidence-up }
+						double[] temp1 = { 0, 0, avg1, ArrayUtils.min(values1), ArrayUtils.max(values1), ArrayUtils.med(values1), varLowUp1[0] , varLowUp1[1], varLowUp1[2], conf1[0], conf1[1]};
+						
+						aggregatedData1[i] = new AggregatedNodeValueList(name, temp1);
+					}
+				}
+				return aggregatedData1;
+
+			case "Distribution" :	// AggregatedDistribution array structure:  { x, Aggregated-y, avg, min, max, median, variance, variance-low, variance-up, confidence-low, confidence-up }
+				int amountValues2 = inputData[0].getValues().length; 
+				int amountDistributions2 = inputData.length;
+				
+				AggregatedDistribution[] aggregatedData2 = new AggregatedDistribution[amountValues2];
+
+				for (int i = 0; i < amountValues2; i++) {
+					for (int j = 0; j < amountDistributions2; j++) {
+						double[] values2 = new double[amountDistributions2];
+						values2[j] = inputData[j].getValues()[i];
+						
+						double avg2 = ArrayUtils.avg(values2);
+						double[] varLowUp2 = ArrayUtils.varLowUp(values2, avg2);
+						double[] conf2 = ArrayUtils.conf(values2);
+						// AggregatedDistribution array structure:  { x, Aggregated-y, avg, min, max, median, variance, variance-low, variance-up, confidence-low, confidence-up }
+						double[] temp2 = { 0, 0, avg2, ArrayUtils.min(values2), ArrayUtils.max(values2), ArrayUtils.med(values2), varLowUp2[0] , varLowUp2[1], varLowUp2[2], conf2[0], conf2[1]};
+						
+						aggregatedData2[i] = new AggregatedDistribution(name, temp2);
+					}
+				}
+				return aggregatedData2;
+		}
+		
+		// none of the common data types
+		Log.warn("Attempting aggregation for unknown datatype!");
+		AggregatedData[] add = { new AggregatedData() };
+		return add;
 	}
 }
