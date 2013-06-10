@@ -8,81 +8,44 @@ import com.sun.media.sound.InvalidFormatException;
 import dna.io.Reader;
 import dna.io.Writer;
 import dna.io.etc.Keywords;
-<<<<<<< HEAD
 import dna.util.Log;
 
 /**
- * A NodeValueList is an object containing an array with 1 value for each node. The node index is used as 
-=======
-import dna.series.lists.ListItem;
-
-/**
  * NodeValueList is a class containing an array with 1 value for each node. The node index is used as 
->>>>>>> datatype NodeValueList added
  * the index for the array. If a node is removed from the graph, his former value is replaced by a Double.NaN.
  * When inserting new nodevalues with out-of-bound indeces, the array is expanded accordingly.
  * 
  * @author Rwilmes
  * @date 03.06.2013
  */
-<<<<<<< HEAD
 public class NodeValueList extends Data {
-
-	// member variables
-	private double[] values;
-	
-	// constructors
-	public NodeValueList(int size) {
-		super();
-		this.values = new double[size];
-	}
-	
-	public NodeValueList(String name, int size) {
-		super(name);
-=======
-public class NodeValueList implements ListItem {
 
 	// class variables
 	private double[] values;
 	private String name;
 	
-	// constructor
+	// constructors
 	public NodeValueList(String name, int size) {
 		this.name = name;
->>>>>>> datatype NodeValueList added
 		this.values = new double[size];
 	}
 	
 	public NodeValueList(String name, double[] values){
-<<<<<<< HEAD
-		super(name);
-		this.values = values;
-	}
-	
-	// get methods
-	public double[] getValues() {
-		return this.values;
-	}
-	
-	public double getValue(int index) {
-		try{
-			return this.values[index];
-		} catch (ArrayIndexOutOfBoundsException e) {
-			Log.error("AggregatedNodeValueList IndexOutOfBoundsException");
-		}
-		return 0;
-	}
-	
-	// class methods
-	public String toString() {
-		return "nodevaluelist(" + super.getName() + ")";
-	}
-=======
 		this.name = name;
 		this.values = values;
 	}
 	
-	// class methods
+	public NodeValueList(String name, double value) {
+		Log.warn("NodeValueList initialized with a single value");
+		double[] temp = { value };
+		this.values = temp;
+	}
+	
+	// get methods
+	public String getType() {
+		return "NodeValueList";
+	}
+	
 	public String getName() {
 		return this.name;
 	}
@@ -95,6 +58,7 @@ public class NodeValueList implements ListItem {
 		return this.values[index];
 	}
 	
+	// other methods
 	public void set(int index, double value) {
 		try {
 			values[index] = value;
@@ -126,7 +90,6 @@ public class NodeValueList implements ListItem {
 	}
 	
 	
->>>>>>> datatype NodeValueList added
 	// IO methods
 	/**
 	 * 
@@ -137,19 +100,11 @@ public class NodeValueList implements ListItem {
 	public void write(String dir, String filename) throws IOException {
 		if (this.values == null) {
 			throw new NullPointerException("no values for nodevaluelist \""
-<<<<<<< HEAD
-					+ super.getName() + "\" set to be written to " + dir);
-		}
-		Writer w = new Writer(dir, filename);
-		for (int i = 0; i < this.values.length; i++) {
-			w.writeln(i + Keywords.dataDelimiter + this.values[i]);
-=======
 					+ this.name + "\" set to be written to " + dir);
 		}
 		Writer w = new Writer(dir, filename);
 		for (int i = 0; i < this.values.length; i++) {
-			w.writeln(i + Keywords.distributionDelimiter + this.values[i]);
->>>>>>> datatype NodeValueList added
+			w.writeln(i + Keywords.dataDelimiter + this.values[i]);
 		}
 		w.close();
 	}
@@ -173,11 +128,7 @@ public class NodeValueList implements ListItem {
 		String line = null;
 		int index = 0;
 		while ((line = r.readString()) != null) {
-<<<<<<< HEAD
 			String[] temp = line.split(Keywords.dataDelimiter);
-=======
-			String[] temp = line.split(Keywords.distributionDelimiter);
->>>>>>> datatype NodeValueList added
 			if (Integer.parseInt(temp[0]) != index) {
 				throw new InvalidFormatException("expected index " + index
 						+ " but found " + temp[0] + " @ \"" + line + "\"");
@@ -192,10 +143,6 @@ public class NodeValueList implements ListItem {
 		r.close();
 		return new NodeValueList(name, values);
 	}
-<<<<<<< HEAD
-
-=======
->>>>>>> datatype NodeValueList added
 }
 	
 	

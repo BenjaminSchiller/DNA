@@ -1,6 +1,7 @@
 package dna.series.aggdata;
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 import java.io.IOException;
 import java.util.ArrayList;
 
@@ -11,10 +12,15 @@ import dna.series.lists.ListItem;
 /**
  * AggregatedData is the super-class for all provided aggregation data-structures.
 =======
+=======
+>>>>>>> Codeupdate 13-06-10.
 import dna.series.lists.ListItem;
 
 /**
  * AggregatedData is the super-class for all provided aggregated data-structures.
+<<<<<<< HEAD
+>>>>>>> Codeupdate 13-06-10.
+=======
 >>>>>>> Codeupdate 13-06-10.
  * 
  * @author Rwilmes
@@ -22,6 +28,7 @@ import dna.series.lists.ListItem;
  */
 public class AggregatedData implements ListItem {
 	
+<<<<<<< HEAD
 <<<<<<< HEAD
 	// member variables
 	private String name;
@@ -33,12 +40,21 @@ public class AggregatedData implements ListItem {
 	
 	// constructors
 >>>>>>> Codeupdate 13-06-10.
+=======
+	// class variables
+	private String name;
+	private double value;
+	private double[] values;
+	
+	// class methods
+>>>>>>> Codeupdate 13-06-10.
 	public AggregatedData() { }
 	
 	public AggregatedData(String name) {
 		this.name = name;
 	}
 	
+<<<<<<< HEAD
 <<<<<<< HEAD
 	// get methods
 	public String getName() {
@@ -134,6 +150,8 @@ public class AggregatedData implements ListItem {
 		}
 		w.close();
 =======
+=======
+>>>>>>> Codeupdate 13-06-10.
 	public AggregatedData(String name, double value) {
 		this.name = name;
 		this.value = value;
@@ -144,6 +162,7 @@ public class AggregatedData implements ListItem {
 		this.values = values;
 	}
 	
+<<<<<<< HEAD
 	public String getName() {
 		return this.name;
 	}
@@ -203,5 +222,21 @@ public class AggregatedData implements ListItem {
 	
 	public static void write(AggregatedDistribution inputData, String dir, String filename) throws IOException {
 		write(inputData.getValues(), dir, filename);
+=======
+	public String getName(){
+		return this.name;
+	}
+	
+	public double getValue() {
+		return this.value;
+	}
+	
+	public double getValue(int index) {
+		return this.values[index];
+	}
+	
+	public double[] getValues() {
+		return this.values;
+>>>>>>> Codeupdate 13-06-10.
 	}
 }
