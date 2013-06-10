@@ -1,12 +1,16 @@
 package dna.series.data;
 
-import dna.series.lists.ListItem;
+import dna.util.Log;
 
-public class Value implements ListItem {
+public class Value extends Data {
 
 	public Value(String name, double value) {
 		this.name = name;
 		this.value = value;
+	}
+	
+	public Value(String name, double[] values) {
+		Log.warn("Value object initialized with to much arguments");
 	}
 
 	public String toString() {
@@ -23,6 +27,10 @@ public class Value implements ListItem {
 
 	public double getValue() {
 		return this.value;
+	}
+	
+	public String getType() {
+		return "Value";
 	}
 
 }
