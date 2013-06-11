@@ -33,11 +33,11 @@ public class Series {
 
 	public SeriesData generate(int runs, int batches)
 			throws AggregationException, IOException {
-		return this.generate(runs, batches, true);
+		return this.generate(runs, batches, true, true);
 	}
 
-	public SeriesData generate(int runs, int batches, boolean compare)
-			throws AggregationException, IOException {
+	public SeriesData generate(int runs, int batches, boolean compare,
+			boolean write) throws AggregationException, IOException {
 
 		Log.infoSep();
 		Timer timer = new Timer("seriesGeneration");
@@ -60,13 +60,15 @@ public class Series {
 
 		// generate all runs
 		for (int r = 0; r < runs; r++) {
-			sd.addRun(this.generateRun(r, batches, compare));
+			sd.addRun(this.generateRun(r, batches, compare, write));
 		}
 
 		// aggregate all runs
 		RunData aggregation = Aggregation.aggregate(sd);
 		sd.setAggregation(aggregation);
-		aggregation.write(Dir.getAggregationDataDir(dir));
+		if (write) {
+			aggregation.write(Dir.getAggregationDataDir(dir));
+		}
 
 		Log.infoSep();
 		timer.end();
@@ -76,8 +78,8 @@ public class Series {
 		return sd;
 	}
 
-	public RunData generateRun(int run, int batches, boolean compare)
-			throws IOException {
+	public RunData generateRun(int run, int batches, boolean compare,
+			boolean write) throws IOException {
 
 		Log.infoSep();
 		Timer timer = new Timer("runGeneration");
@@ -85,14 +87,19 @@ public class Series {
 
 		RunData rd = new RunData(run, batches + 1);
 
+		// reset batch generator
+		this.bg.reset();
+
 		// generate initial data
 		BatchData initialData = this.generateInitialData();
 		if (compare) {
 			this.compareMetrics();
 		}
 		rd.getBatches().add(initialData);
-		initialData.write(Dir.getBatchDataDir(this.dir, run,
-				initialData.getTimestamp()));
+		if (write) {
+			initialData.write(Dir.getBatchDataDir(this.dir, run,
+					initialData.getTimestamp()));
+		}
 
 		// generate batch data
 		for (int i = 0; i < batches; i++) {
@@ -101,8 +108,10 @@ public class Series {
 				this.compareMetrics();
 			}
 			rd.getBatches().add(batchData);
-			batchData.write(Dir.getBatchDataDir(this.dir, run,
-					batchData.getTimestamp()));
+			if (write) {
+				batchData.write(Dir.getBatchDataDir(this.dir, run,
+						batchData.getTimestamp()));
+			}
 		}
 
 		timer.end();
