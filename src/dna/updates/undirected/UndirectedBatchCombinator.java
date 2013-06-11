@@ -94,4 +94,11 @@ public class UndirectedBatchCombinator extends UndirectedBatchGenerator {
 		return b;
 	}
 
+	@Override
+	public void reset() {
+		for (UndirectedBatchGenerator bg : this.generators) {
+			bg.reset();
+		}
+	}
+
 }

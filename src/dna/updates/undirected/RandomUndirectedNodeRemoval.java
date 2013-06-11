@@ -60,4 +60,8 @@ public class RandomUndirectedNodeRemoval extends UndirectedBatchGenerator {
 		}
 		return batch;
 	}
+
+	@Override
+	public void reset() {
+	}
 }
