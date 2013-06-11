@@ -57,4 +57,8 @@ public class RandomDirectedNodeAdditions extends DirectedBatchGenerator {
 		return batch;
 	}
 
+	@Override
+	public void reset() {
+	}
+
 }

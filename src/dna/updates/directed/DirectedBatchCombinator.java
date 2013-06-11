@@ -7,6 +7,7 @@ import dna.graph.directed.DirectedEdge;
 import dna.graph.directed.DirectedGraph;
 import dna.graph.directed.DirectedNode;
 import dna.updates.Batch;
+import dna.updates.undirected.UndirectedBatchGenerator;
 import dna.util.parameters.ParameterList;
 
 /**
@@ -74,6 +75,13 @@ public class DirectedBatchCombinator extends DirectedBatchGenerator {
 			b.addAll(bg.generate(graph).getAllUpdates());
 		}
 		return b;
+	}
+
+	@Override
+	public void reset() {
+		for (DirectedBatchGenerator bg : this.generators) {
+			bg.reset();
+		}
 	}
 
 }

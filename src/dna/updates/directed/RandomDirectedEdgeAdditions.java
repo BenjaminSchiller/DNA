@@ -66,4 +66,8 @@ public class RandomDirectedEdgeAdditions extends DirectedBatchGenerator {
 		return batch;
 	}
 
+	@Override
+	public void reset() {
+	}
+
 }

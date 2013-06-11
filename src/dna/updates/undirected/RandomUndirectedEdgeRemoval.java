@@ -59,4 +59,8 @@ public class RandomUndirectedEdgeRemoval extends UndirectedBatchGenerator {
 		}
 		return batch;
 	}
+
+	@Override
+	public void reset() {
+	}
 }

@@ -57,4 +57,8 @@ public class RandomUndirectedNodeAdditions extends UndirectedBatchGenerator {
 		return batch;
 	}
 
+	@Override
+	public void reset() {
+	}
+
 }

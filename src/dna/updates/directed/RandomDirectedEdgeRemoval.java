@@ -58,4 +58,8 @@ public class RandomDirectedEdgeRemoval extends DirectedBatchGenerator {
 		}
 		return batch;
 	}
+
+	@Override
+	public void reset() {
+	}
 }
