@@ -14,7 +14,7 @@ import dna.metrics.triangles.ClusteringCoefficient;
 public class OtcIncrByDiff extends ClusteringCoefficient {
 
 	public OtcIncrByDiff() {
-		super("otcIncrByDiff", true, false, true);
+		super("otcIncrByDiff", true, false, false);
 	}
 
 	@Override

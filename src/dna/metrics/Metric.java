@@ -69,6 +69,7 @@ public abstract class Metric {
 		return this.appliedBeforeDiff;
 	}
 
+	// //Was geändert
 	public boolean applyBeforeDiff(Diff d) throws DiffNotApplicableException {
 		if (d.getNodes() != this.getNodes()
 				|| d.getFrom() != this.getTimestamp()) {
