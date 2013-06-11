@@ -64,14 +64,16 @@ public abstract class DegreeDistribution extends Metric {
 			return false;
 		}
 		DegreeDistribution dd = (DegreeDistribution) m;
-		return DataUtils.equals(this.nodes, dd.nodes, "DD/nodes")
-				&& DataUtils.equals(this.edges, dd.edges, "DD/edges")
-				&& ArrayUtils.equals(this.degreeDistribution,
-						dd.degreeDistribution, "DD/degreeDistribution")
-				&& ArrayUtils.equals(this.inDegreeDistribution,
-						dd.inDegreeDistribution, "DD/inDegreeDistribution")
-				&& ArrayUtils.equals(this.outDegreeDistribution,
-						dd.outDegreeDistribution, "DD/outDegreeDistribution");
+		boolean success = true;
+		success &= DataUtils.equals(this.nodes, dd.nodes, "DD/nodes");
+		success &= DataUtils.equals(this.edges, dd.edges, "DD/edges");
+		success &= ArrayUtils.equals(this.degreeDistribution,
+				dd.degreeDistribution, "DD/degreeDistribution");
+		success &= ArrayUtils.equals(this.inDegreeDistribution,
+				dd.inDegreeDistribution, "DD/inDegreeDistribution");
+		success &= ArrayUtils.equals(this.outDegreeDistribution,
+				dd.outDegreeDistribution, "DD/outDegreeDistribution");
+		return success;
 	}
 
 	@Override
