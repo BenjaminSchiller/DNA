@@ -64,6 +64,7 @@ public abstract class Metric extends ParameterList {
 		this.timestamp = Long.MIN_VALUE;
 	}
 
+<<<<<<< HEAD
 	protected static Parameter[] combine(Parameter[] p1, Parameter[] p2) {
 		if (p2.length == 0) {
 			return p1;
@@ -73,6 +74,13 @@ public abstract class Metric extends ParameterList {
 		Parameter[] p = new Parameter[p1.length + p2.length];
 		for (int i = 0; i < p1.length; i++) {
 			p[i] = p1[i];
+=======
+	// //Was geändert
+	public boolean applyBeforeDiff(Diff d) throws DiffNotApplicableException {
+		if (d.getNodes() != this.getNodes()
+				|| d.getFrom() != this.getTimestamp()) {
+			throw new DiffNotApplicableException(this, d);
+>>>>>>> neue klassen
 		}
 		for (int i = 0; i < p2.length; i++) {
 			p[p1.length + i] = p2[i];

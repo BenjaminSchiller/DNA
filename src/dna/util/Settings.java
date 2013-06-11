@@ -2,6 +2,7 @@ package dna.util;
 
 public class Settings {
 <<<<<<< HEAD
+<<<<<<< HEAD
 	// sorted by degree of freedom:
 	// 1,2,3,...,29,30,40,50,60,70,80,90,100,200,300,400,500,infinity
 	private static final double[] Q95 = { 12.71, 4.303, 3.182, 2.776, 2.571,
@@ -106,4 +107,7 @@ public class Settings {
 		return Q95[41];
 	}
 >>>>>>> Codeupdate 13-06-10.
+=======
+	public static final String gnuplotPath = "C:\\Program Files (x86)\\gnuplot\\bin\\gnuplot.exe";
+>>>>>>> neue klassen
 }
