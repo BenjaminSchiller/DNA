@@ -1,13 +1,5 @@
 package dna.series.data;
 
-import java.io.IOException;
-import java.util.ArrayList;
-
-import com.sun.media.sound.InvalidFormatException;
-
-import dna.io.Reader;
-import dna.io.Writer;
-import dna.io.etc.Keywords;
 import dna.util.Log;
 
 /**
@@ -22,74 +14,31 @@ public class NodeValueList extends Data {
 
 	// class variables
 	private double[] values;
-	private String name;
 	
 	// constructors
 	public NodeValueList(String name, int size) {
-		this.name = name;
-		this.values = new double[size];
+		super(name);
+		values = new double[size];
 	}
 	
 	public NodeValueList(String name, double[] values){
-		this.name = name;
+		super(name);
 		this.values = values;
 	}
 	
-	public NodeValueList(String name, double value) {
-		Log.warn("NodeValueList initialized with a single value");
-		double[] temp = { value };
-		this.values = temp;
-	}
-	
-	// get methods
-	public String getType() {
-		return "NodeValueList";
-	}
-	
-	public String getName() {
-		return this.name;
-	}
-	
+	// class methods
 	public double[] getValues() {
 		return this.values;
 	}
-
+	
 	public double getValue(int index) {
-		return this.values[index];
-	}
-	
-	// other methods
-	public void set(int index, double value) {
-		try {
-			values[index] = value;
-		} catch (ArrayIndexOutOfBoundsException e) {
-			double[] valuesNew = new double[index + 1];
-			System.arraycopy(values, 0, valuesNew, 0, values.length);
-			valuesNew[index] = value;
-			this.values = valuesNew;
-		}
-	}
-	
-	public void remove(int index){
-		this.values[index] = Double.NaN;
-	}
-	
-	public void setValues(double[] values){
-		this.values = values;
-	}
-	
-	public boolean exists(int index) {
 		try{
-			if(this.values[index] != Double.NaN)
-				return true;
-			else
-				return false;
+			return this.values[index];
 		} catch (ArrayIndexOutOfBoundsException e) {
-			return false;
+			Log.error("AggregatedNodeValueList IndexOutOfBoundsException");
 		}
+		return 0;
 	}
-	
-	
 	// IO methods
 	/**
 	 * 
@@ -97,7 +46,7 @@ public class NodeValueList extends Data {
 	 * 
 	 * @param filename String representing the desired filename for the NodeValueList.
 	 */
-	public void write(String dir, String filename) throws IOException {
+	/*public void write(String dir, String filename) throws IOException {
 		if (this.values == null) {
 			throw new NullPointerException("no values for nodevaluelist \""
 					+ this.name + "\" set to be written to " + dir);
@@ -107,7 +56,7 @@ public class NodeValueList extends Data {
 			w.writeln(i + Keywords.dataDelimiter + this.values[i]);
 		}
 		w.close();
-	}
+	}*/
 	
 	/**
 	 * 
@@ -118,7 +67,7 @@ public class NodeValueList extends Data {
 	 * @param readValues Boolean. True:  values from the file will be read.
 	 * 							  False: empty NodeValueList will be created.	
 	 */
-	public static NodeValueList read(String dir, String filename, String name,
+	/*public static NodeValueList read(String dir, String filename, String name,
 			boolean readValues) throws IOException {
 		if (!readValues) {
 			return new NodeValueList(name, null);
@@ -143,6 +92,7 @@ public class NodeValueList extends Data {
 		r.close();
 		return new NodeValueList(name, values);
 	}
+	*/
 }
 	
 	

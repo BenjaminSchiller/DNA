@@ -13,8 +13,6 @@ public class Data implements ListItem {
 
 	// class variables
 	private String name;
-	private double value;
-	private double[] values;
 	
 	// constructors
 	public Data() {}
@@ -23,30 +21,28 @@ public class Data implements ListItem {
 		this.name = name;
 	}
 	
-	public Data(String name, double value) {
-		this.name = name;
-		this.value = value;
-	}
-	
-	public Data(String name, double[] values) {
-		this.name = name;
-		this.values = values;
-	}
-	
 	// get methods
 	public String getName() {
 		return this.name;
 	}
 	
-	public String getType() {
-		return "Data";
-	}
-	
-	public double getValue() {
-		return this.value;
-	}
-	
-	public double[] getValues() {
-		return this.values;
-	}
+	// IO methods
+	/**
+	 * 
+	 * @param dir String which contains the path / directory the Data will be written to.
+	 * 
+	 * @param filename String representing the desired filename for the Data.
+	 */
+	/*
+	public void write(String dir, String filename) throws IOException {
+		if (this.values == null) {
+			throw new NullPointerException("no values for data \""
+					+ this.name + "\" set to be written to " + dir);
+		}
+		Writer w = new Writer(dir, filename);
+		for (int i = 0; i < this.values.length; i++) {
+			w.writeln(i + Keywords.dataDelimiter + this.values[i]);
+		}
+		w.close();
+	}*/
 }

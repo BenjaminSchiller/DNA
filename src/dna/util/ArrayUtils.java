@@ -257,9 +257,10 @@ public class ArrayUtils {
 		for (double v : values) {
 			if(!Double.isNaN(v))
 				avg += v;
-			else
+			else {
 				Log.warn("Double.NaN detected");
 				counter++;
+			}
 		}
 		if((values.length-counter) == 0)
 			return Double.NaN;
@@ -333,7 +334,14 @@ public class ArrayUtils {
 	 * @return minimum value of the given double array
 	 */
 	public static double min(double[] values) {
-		try{
+		double min = values[0];
+		for(double v : values) {
+			if(v < min)
+				min = v;
+		}
+		return min;
+		
+		/*try{
 			double min = values[0];
 			for(double v : values) {
 				if(v < min)
@@ -342,7 +350,7 @@ public class ArrayUtils {
 			return min;
 		} catch (ArrayIndexOutOfBoundsException e) {
 			return 0;
-		}
+		}*/
 	}
 	
 	/**
@@ -377,8 +385,11 @@ public class ArrayUtils {
 	 * @return median of the given double array
 	 */
 	public static double med(double[] values) {
-		Arrays.sort(values);
-		return values[values.length / 2];
+		double[] temp = new double[values.length];
+		System.arraycopy( values, 0, temp, 0, values.length);
+		
+		Arrays.sort(temp);
+		return temp[temp.length / 2];
 	}
 
 	/**
@@ -388,15 +399,17 @@ public class ArrayUtils {
 	 * @return median of the given double array
 	 */
 	public static double medIncludingNaN(double[] values) {
+		double[] temp = new double[values.length];
+		System.arraycopy( values, 0, temp, 0, values.length);
 		int counter = 0;
-		for(double v : values){
+		for(double v : temp){
 			if(Double.isNaN(v)){
 				Log.warn("Double.NaN detected");
 				counter++;
 			}
 		}
-		Arrays.sort(values);
-		return values[(values.length-counter) / 2];
+		Arrays.sort(temp);
+		return temp[(temp.length-counter) / 2];
 	}
 	
 	/**
