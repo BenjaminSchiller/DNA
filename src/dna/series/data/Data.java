@@ -23,6 +23,7 @@ public class Data implements ListItem {
 >>>>>>> Codeupdate 13-06-24
 	private String name;
 <<<<<<< HEAD
+<<<<<<< HEAD
 	private double value;
 	private double[] values;
 >>>>>>> Codeupdate 13-06-10.
@@ -34,6 +35,8 @@ public class Data implements ListItem {
 	private double value;
 	private double[] values;
 >>>>>>> Codeupdate 13-06-10.
+=======
+>>>>>>> Codeupdate 13-06-18
 	
 	// constructors
 	public Data() {}
@@ -42,6 +45,7 @@ public class Data implements ListItem {
 		this.name = name;
 	}
 	
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -64,11 +68,14 @@ public class Data implements ListItem {
 >>>>>>> Codeupdate 13-06-18
 =======
 >>>>>>> Codeupdate 13-06-10.
+=======
+>>>>>>> Codeupdate 13-06-18
 	// get methods
 	public String getName() {
 		return this.name;
 	}
 	
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -97,6 +104,8 @@ public class Data implements ListItem {
 <<<<<<< HEAD
 >>>>>>> Codeupdate 13-06-10.
 =======
+=======
+>>>>>>> Codeupdate 13-06-18
 	// IO methods
 	/**
 	 * 
@@ -116,9 +125,12 @@ public class Data implements ListItem {
 		}
 		w.close();
 	}*/
+<<<<<<< HEAD
 >>>>>>> Codeupdate 13-06-18
 =======
 >>>>>>> Codeupdate 13-06-24
 =======
 >>>>>>> Codeupdate 13-06-10.
+=======
+>>>>>>> Codeupdate 13-06-18
 }

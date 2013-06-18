@@ -25,6 +25,7 @@ public class Value extends Data {
 	// class methods
 	public String toString() {
 <<<<<<< HEAD
+<<<<<<< HEAD
 		return "value(" + this.name + ") = " + this.value;
 >>>>>>> Codeupdate 13-06-10.
 	}
@@ -33,12 +34,15 @@ public class Value extends Data {
 	public String toString() {
 =======
 >>>>>>> Codeupdate 13-06-18
+=======
+>>>>>>> Codeupdate 13-06-18
 		return "value(" + super.getName() + ") = " + this.value;
 	}
 
 	public double getValue() {
 		return this.value;
 	}
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 	
@@ -72,5 +76,7 @@ public class Value extends Data {
 		return "Value";
 	}
 >>>>>>> Codeupdate 13-06-10.
+=======
+>>>>>>> Codeupdate 13-06-18
 
 }

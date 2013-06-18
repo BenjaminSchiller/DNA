@@ -3,6 +3,7 @@ package dna.series.data;
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> Codeupdate 13-06-24
 =======
@@ -42,6 +43,8 @@ import dna.util.Log;
 >>>>>>> datatype NodeValueList added
 =======
 import dna.io.etc.Keywords;
+=======
+>>>>>>> Codeupdate 13-06-18
 import dna.util.Log;
 
 /**
@@ -119,19 +122,19 @@ public class NodeValueList extends Data {
 
 	// class variables
 	private double[] values;
-	private String name;
 	
 	// constructors
 	public NodeValueList(String name, int size) {
-		this.name = name;
-		this.values = new double[size];
+		super(name);
+		values = new double[size];
 	}
 	
 	public NodeValueList(String name, double[] values){
-		this.name = name;
+		super(name);
 		this.values = values;
 	}
 	
+<<<<<<< HEAD
 <<<<<<< HEAD
 	// class methods
 >>>>>>> datatype NodeValueList added
@@ -280,20 +283,27 @@ public class NodeValueList extends Data {
 		return "nodevaluelist(" + super.getName() + ")";
 	}
 =======
-	
-	public boolean exists(int index) {
-		try{
-			if(this.values[index] != Double.NaN)
-				return true;
-			else
-				return false;
-		} catch (ArrayIndexOutOfBoundsException e) {
-			return false;
-		}
+=======
+	// class methods
+	public double[] getValues() {
+		return this.values;
 	}
+>>>>>>> Codeupdate 13-06-18
+	
+	public double getValue(int index) {
+		try{
+			return this.values[index];
+		} catch (ArrayIndexOutOfBoundsException e) {
+			Log.error("AggregatedNodeValueList IndexOutOfBoundsException");
+		}
+		return 0;
+	}
+<<<<<<< HEAD
 	
 	
 >>>>>>> datatype NodeValueList added
+=======
+>>>>>>> Codeupdate 13-06-18
 	// IO methods
 	/**
 	 * 
@@ -301,7 +311,7 @@ public class NodeValueList extends Data {
 	 * 
 	 * @param filename String representing the desired filename for the NodeValueList.
 	 */
-	public void write(String dir, String filename) throws IOException {
+	/*public void write(String dir, String filename) throws IOException {
 		if (this.values == null) {
 			throw new NullPointerException("no values for nodevaluelist \""
 <<<<<<< HEAD
@@ -323,7 +333,7 @@ public class NodeValueList extends Data {
 >>>>>>> Codeupdate 13-06-10.
 		}
 		w.close();
-	}
+	}*/
 	
 	/**
 	 * 
@@ -338,7 +348,7 @@ public class NodeValueList extends Data {
 =======
 >>>>>>> datatype NodeValueList added
 	 */
-	public static NodeValueList read(String dir, String filename, String name,
+	/*public static NodeValueList read(String dir, String filename, String name,
 			boolean readValues) throws IOException {
 		if (!readValues) {
 			return new NodeValueList(name, null);
@@ -390,6 +400,7 @@ public class NodeValueList extends Data {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 }
 =======
@@ -404,6 +415,9 @@ public class NodeValueList extends Data {
 	
 >>>>>>> datatype NodeValueList added
 =======
+=======
+	*/
+>>>>>>> Codeupdate 13-06-18
 }
 	
 	

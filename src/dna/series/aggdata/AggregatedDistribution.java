@@ -3,6 +3,7 @@ package dna.series.aggdata;
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import java.io.IOException;
 import java.util.ArrayList;
 
@@ -51,6 +52,17 @@ import dna.io.etc.Keywords;
 =======
  * 
 >>>>>>> Codeupdate 13-06-10.
+=======
+import java.io.IOException;
+
+import dna.io.Writer;
+import dna.io.etc.Keywords;
+
+/**
+ * AggregatedDistribution is a class containing the values of an aggregated distribution.
+ * Array structure as follows: values = { x (diff number), avg, min, max, median, variance, variance-low, variance-up, confidence-low, confidence-up }
+ *
+>>>>>>> Codeupdate 13-06-18
  * @author Rwilmes
  * @date 10.06.2013
  */
@@ -125,6 +137,7 @@ public class AggregatedDistribution extends AggregatedData {
 		return new AggregatedDistribution(name, values);
 	}
 
+<<<<<<< HEAD
 	public void write(String dir, String filename) throws IOException {
 		Writer w = new Writer(dir, filename);
 		AggregatedValue[] tempData = this.getValues();
@@ -202,37 +215,17 @@ public class AggregatedDistribution extends AggregatedData {
 <<<<<<< HEAD
 <<<<<<< HEAD
 =======
+=======
+>>>>>>> Codeupdate 13-06-18
 	// constructors
 	public AggregatedDistribution(String name) {
-		this.name = name;
+		super(name);
 	}
 	
 	public AggregatedDistribution(String name, double[] values) {
-		this.name = name;
-		this.values = values;
+		super(name, values);
 	}
-	
-	// class methods
-	public void setValue(int index, double value) {
-		try{
-			this.values[index] = value;
-		} catch (ArrayIndexOutOfBoundsException e) {
-			Log.error("AggregatedDistribution IndexOutOfBoundsException");
-		}
-	}
-	
-	public void setValues(double[] values) {
-		this.values = values;
-	}
-	
-	public double getValue(int index) {
-		try{
-			return this.values[index];
-		} catch (ArrayIndexOutOfBoundsException e) {
-			Log.error("AggregatedDistribution IndexOutOfBoundsException");
-		}
-		return 0;
-	}
+<<<<<<< HEAD
 >>>>>>> Codeupdate 13-06-10.
 	
 	public double[] getValues() {
@@ -298,4 +291,7 @@ public class AggregatedDistribution extends AggregatedData {
 >>>>>>> Codeupdate 13-06-24
 =======
 >>>>>>> Codeupdate 13-06-10.
+=======
+
+>>>>>>> Codeupdate 13-06-18
 }

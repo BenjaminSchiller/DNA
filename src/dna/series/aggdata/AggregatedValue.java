@@ -32,13 +32,18 @@ import dna.io.etc.Keywords;
 =======
 /**
  * AggregatedValue is a class containing the aggregated values of a list of values.
+<<<<<<< HEAD
 >>>>>>> Codeupdate 13-06-10.
+=======
+ * Array structure as follows: values = { avg, min, max, median, variance, variance-low, variance-up, confidence-low, confidence-up }
+>>>>>>> Codeupdate 13-06-18
  * 
  * @author Rwilmes
  * @date 10.06.2013
  */
 public class AggregatedValue extends AggregatedData {
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -219,17 +224,15 @@ public class AggregatedValue extends AggregatedData {
 	
 	// get methods
 =======
+=======
+>>>>>>> Codeupdate 13-06-18
 	// constructors
 	public AggregatedValue(String name) {
-		this.name = name;
-	}
-	
-	public AggregatedValue(String name, double value) {
-		this.name = name;
-		this.value = value;
+		super(name);
 	}
 	
 	public AggregatedValue(String name, double[] values) {
+<<<<<<< HEAD
 		this.name = name;
 		this.values = values;
 	}
@@ -288,6 +291,9 @@ public class AggregatedValue extends AggregatedData {
 	
 	public String getType() {
 		return this.type;
+=======
+		super(name, values);
+>>>>>>> Codeupdate 13-06-18
 	}
 
 }

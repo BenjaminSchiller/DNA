@@ -4,6 +4,7 @@ package dna.series.aggdata;
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -54,12 +55,19 @@ import dna.io.etc.Keywords;
 >>>>>>> Codeupdate 13-06-24
 =======
 >>>>>>> Codeupdate 13-06-10.
+=======
+
+/**
+ * AggregatedNodeValueList is a class containing the values of an aggregated NodeValueList.
+ * Array structure as follows: values = { x (diff number), avg, min, max, median, variance, variance-low, variance-up, confidence-low, confidence-up }
+>>>>>>> Codeupdate 13-06-18
  * 
  * @author Rwilmes
  * @date 10.06.2013
  */
 public class AggregatedNodeValueList extends AggregatedData {
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -413,37 +421,17 @@ public class AggregatedNodeValueList extends AggregatedData {
 	}
 <<<<<<< HEAD
 =======
+=======
+>>>>>>> Codeupdate 13-06-18
 	// constructors
 	public AggregatedNodeValueList(String name) {
-		this.name = name;
+		super(name);
 	}
 	
 	public AggregatedNodeValueList(String name, double[] values) {
-		this.name = name;
-		this.values = values;
+		super(name, values);
 	}
-	
-	// class methods
-	public void setValue(int index, double value) {
-		try{
-			this.values[index] = value;
-		} catch (ArrayIndexOutOfBoundsException e) {
-			Log.error("AggregatedNodeValueList IndexOutOfBoundsException");
-		}
-	}
-	
-	public void setValues(double[] values) {
-		this.values = values;
-	}
-	
-	public double getValue(int index) {
-		try{
-			return this.values[index];
-		} catch (ArrayIndexOutOfBoundsException e) {
-			Log.error("AggregatedNodeValueList IndexOutOfBoundsException");
-		}
-		return 0;
-	}
+<<<<<<< HEAD
 >>>>>>> Codeupdate 13-06-10.
 	
 	public double[] getValues() {
@@ -513,4 +501,7 @@ public class AggregatedNodeValueList extends AggregatedData {
 >>>>>>> Codeupdate 13-06-24
 =======
 >>>>>>> Codeupdate 13-06-10.
+=======
+
+>>>>>>> Codeupdate 13-06-18
 }

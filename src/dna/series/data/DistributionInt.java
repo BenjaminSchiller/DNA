@@ -3,6 +3,7 @@ package dna.series.data;
 import java.io.IOException;
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> Codeupdate 13-06-24
 import java.util.ArrayList;
@@ -37,10 +38,14 @@ import dna.io.etc.Keywords;
 >>>>>>> Codeupdate 13-06-18
 =======
 >>>>>>> Codeupdate 13-06-24
+=======
+
+>>>>>>> Codeupdate 13-06-18
 public class DistributionInt extends Distribution {
 
 	// class variables
 	private int[] values;
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 	private int denominator;
@@ -98,10 +103,21 @@ public class DistributionInt extends Distribution {
 <<<<<<< HEAD
 	// class methods
 >>>>>>> Codeupdate 13-06-18
+=======
+	
+	// constructors
+	public DistributionInt(String name, int[] values) {
+		super(name);
+		this.values = values;
+	}
+	
+	// class methods
+>>>>>>> Codeupdate 13-06-18
 	public int[] getIntValues() {
 		return this.values;
 	}
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 	public int getDenominator() {
 		return this.denominator;
@@ -311,6 +327,18 @@ public class DistributionInt extends Distribution {
 >>>>>>> Codeupdate 13-06-24
 	}
 
+=======
+	// IO methods
+	public void write(String dir, String filename) throws IOException {
+		super.write(dir, filename);
+	}
+
+	public static Distribution read(String dir, String filename, String name,
+			boolean readValues) throws IOException {
+		return Distribution.read(dir, filename, name, readValues);
+	}
+	
+>>>>>>> Codeupdate 13-06-18
 	public int getMin() {
 		int y = 0;
 		while(values[y] < 0) {
@@ -324,6 +352,7 @@ public class DistributionInt extends Distribution {
 		return values.length-1;
 	}
 	
+<<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> Codeupdate 13-06-18
 =======
@@ -389,4 +418,6 @@ public class DistributionInt extends Distribution {
 
 	
 >>>>>>> Codeupdate 13-06-24
+=======
+>>>>>>> Codeupdate 13-06-18
 }
