@@ -5,6 +5,7 @@ import java.io.IOException;
 import dna.io.Writer;
 import dna.io.etc.Keywords;
 import dna.series.lists.ListItem;
+import dna.util.Log;
 
 /**
  * AggregatedData is the super-class for all provided aggregation data-structures.

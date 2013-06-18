@@ -110,6 +110,4 @@ public class DistributionInt extends Distribution {
 		return new DistributionInt(name, values, denominator);
 	}
 	
-
-	
 }

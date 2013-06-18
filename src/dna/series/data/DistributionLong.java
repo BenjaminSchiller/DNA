@@ -110,5 +110,4 @@ public class DistributionLong extends Distribution {
 		return new DistributionLong(name, values, denominator);
 	}
 
-
 }
