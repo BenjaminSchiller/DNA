@@ -263,7 +263,7 @@ public class Aggregation {
 			}
 		}
 	}
-	
+	/*
 	/**
 	 * Tests the obejcts of an arry of Data objects if they are compatible for an aggregation.
 	 * Throws AggregationException when not.
@@ -354,7 +354,6 @@ public class Aggregation {
 	 */
 	public static AggregatedData aggregateData(Data[] inputData, String name) throws AggregationException {
 		Aggregation.test(inputData);
-		
 		
 		if(inputData[0] instanceof Value) {
 			// AggregatedValue array structure:  { avg, min, max, median, variance, variance-low, variance-up, confidence-low, confidence-up }

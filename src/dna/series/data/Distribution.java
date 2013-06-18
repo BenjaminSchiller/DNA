@@ -27,6 +27,7 @@ public class Distribution extends Data {
 		super(name);
 		this.values = values;
 	}
+
 	public Distribution(String name) {
 		super(name);
 	}
