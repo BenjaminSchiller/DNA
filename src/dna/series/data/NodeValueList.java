@@ -1,5 +1,6 @@
 package dna.series.data;
 
+<<<<<<< HEAD
 import java.io.IOException;
 import java.util.ArrayList;
 
@@ -19,6 +20,8 @@ import dna.util.Log;
  * nodevalues with out-of-bound indeces, the array is expanded accordingly.
 =======
 import dna.io.etc.Keywords;
+=======
+>>>>>>> Codeupdate 13-06-18
 import dna.util.Log;
 
 /**
@@ -61,19 +64,19 @@ public class NodeValueList extends Data {
 
 	// class variables
 	private double[] values;
-	private String name;
 	
 	// constructors
 	public NodeValueList(String name, int size) {
-		this.name = name;
-		this.values = new double[size];
+		super(name);
+		values = new double[size];
 	}
 	
 	public NodeValueList(String name, double[] values){
-		this.name = name;
+		super(name);
 		this.values = values;
 	}
 	
+<<<<<<< HEAD
 	public NodeValueList(String name, double value) {
 		Log.warn("NodeValueList initialized with a single value");
 		double[] temp = { value };
@@ -179,19 +182,21 @@ public class NodeValueList extends Data {
 	public void setValues(double[] values){
 		this.values = values;
 	}
-	
-	public boolean exists(int index) {
-		try{
-			if(this.values[index] != Double.NaN)
-				return true;
-			else
-				return false;
-		} catch (ArrayIndexOutOfBoundsException e) {
-			return false;
-		}
+=======
+	// class methods
+	public double[] getValues() {
+		return this.values;
 	}
+>>>>>>> Codeupdate 13-06-18
 	
-	
+	public double getValue(int index) {
+		try{
+			return this.values[index];
+		} catch (ArrayIndexOutOfBoundsException e) {
+			Log.error("AggregatedNodeValueList IndexOutOfBoundsException");
+		}
+		return 0;
+	}
 	// IO methods
 	/**
 	 * 
@@ -199,7 +204,7 @@ public class NodeValueList extends Data {
 	 * 
 	 * @param filename String representing the desired filename for the NodeValueList.
 	 */
-	public void write(String dir, String filename) throws IOException {
+	/*public void write(String dir, String filename) throws IOException {
 		if (this.values == null) {
 			throw new NullPointerException("no values for nodevaluelist \""
 					+ this.name + "\" set to be written to " + dir);
@@ -209,7 +214,7 @@ public class NodeValueList extends Data {
 			w.writeln(i + Keywords.dataDelimiter + this.values[i]);
 		}
 		w.close();
-	}
+	}*/
 	
 	/**
 	 * 
@@ -221,7 +226,7 @@ public class NodeValueList extends Data {
 	 * 							  False: empty NodeValueList will be created.	
 >>>>>>> datatype NodeValueList added
 	 */
-	public static NodeValueList read(String dir, String filename, String name,
+	/*public static NodeValueList read(String dir, String filename, String name,
 			boolean readValues) throws IOException {
 		if (!readValues) {
 			return new NodeValueList(name, null);
@@ -259,9 +264,13 @@ public class NodeValueList extends Data {
 		return new NodeValueList(name, values);
 	}
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 }
 =======
+=======
+	*/
+>>>>>>> Codeupdate 13-06-18
 }
 	
 	

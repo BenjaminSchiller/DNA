@@ -1,6 +1,7 @@
 package dna.series.data;
 
 import java.io.IOException;
+<<<<<<< HEAD
 import java.util.ArrayList;
 
 import com.sun.media.sound.InvalidFormatException;
@@ -67,10 +68,37 @@ public class DistributionLong extends Distribution {
 
 	public void setDenominator(long denominator) {
 		this.denominator = denominator;
+=======
+
+public class DistributionLong extends Distribution {
+	
+	// class variables
+	private long[] values;
+	
+	// constructor
+	public DistributionLong(String name, long[] values) {
+		super(name);
+		this.values = values;
+	}
+	
+	// class methods
+	public long[] getLongValues() {
+		return this.values;
+	}
+	
+	// IO methods
+	public void write(String dir, String filename) throws IOException {
+		super.write(dir, filename);
+	}
+	public static Distribution read(String dir, String filename, String name,
+			boolean readValues) throws IOException {
+		return Distribution.read(dir, filename, name, readValues);
+>>>>>>> Codeupdate 13-06-18
 	}
 
 	public long getMin() {
 		int y = 0;
+<<<<<<< HEAD
 		while (values[y] < 0) {
 			y++;
 
@@ -238,4 +266,16 @@ public class DistributionLong extends Distribution {
 		return ArrayUtils.equals(d1.getLongValues(), d2.getLongValues());
 	}
 
+=======
+		while(values[y] < 0) {
+			y++;
+			
+		}
+		return (long) y;
+	}
+	
+	public long getMax() {
+		return (long) values.length-1;
+	}
+>>>>>>> Codeupdate 13-06-18
 }

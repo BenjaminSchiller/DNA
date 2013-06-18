@@ -28,12 +28,23 @@ import dna.util.Log;
 
 public class Distribution extends Data {
 //public class Distribution implements ListItem {
+<<<<<<< HEAD
 >>>>>>> Codeupdate 13-06-10.
+=======
+
+	// class variables
+	private double[] values;
+	
+	// constructors
+>>>>>>> Codeupdate 13-06-18
 	public Distribution(String name, double[] values) {
 		super(name);
 		this.values = values;
 	}
+	
+	//public Distribution() { }
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 	public Distribution(String name) {
 		super(name);
@@ -49,6 +60,13 @@ public class Distribution extends Data {
 >>>>>>> Codeupdate 13-06-10.
 	}
 
+=======
+	
+	public Distribution(String name) {
+		super(name);
+	}
+		
+>>>>>>> Codeupdate 13-06-18
 	// class methods
 	public String toString() {
 		return "distribution(" + super.getName() + ")";
@@ -58,6 +76,7 @@ public class Distribution extends Data {
 		return this.values;
 	}
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 	// IO Methods
 	/**
@@ -71,13 +90,26 @@ public class Distribution extends Data {
 =======
 	public String getType() {
 		return "Distribution";
+=======
+	public double getValue(int index) {
+		try{
+			return this.values[index];
+		} catch (ArrayIndexOutOfBoundsException e) {
+			Log.error("AggregatedNodeValueList IndexOutOfBoundsException");
+		}
+		return 0;
+>>>>>>> Codeupdate 13-06-18
 	}
 	
 >>>>>>> Codeupdate 13-06-10.
 	public void write(String dir, String filename) throws IOException {
 		if (this.values == null) {
 			throw new NullPointerException("no values for distribution \""
+<<<<<<< HEAD
 					+ this.getName() + "\" set to be written to " + dir);
+=======
+					+ super.getName() + "\" set to be written to " + dir);
+>>>>>>> Codeupdate 13-06-18
 		}
 		Writer w = new Writer(dir, filename);
 		for (int i = 0; i < this.values.length; i++) {

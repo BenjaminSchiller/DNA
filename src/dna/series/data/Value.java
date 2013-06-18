@@ -19,19 +19,24 @@ public class Value extends Data {
 =======
 	}
 
+	// class methods
 	public String toString() {
+<<<<<<< HEAD
 		return "value(" + this.name + ") = " + this.value;
 >>>>>>> Codeupdate 13-06-10.
 	}
 
 	// class methods
 	public String toString() {
+=======
+>>>>>>> Codeupdate 13-06-18
 		return "value(" + super.getName() + ") = " + this.value;
 	}
 
 	public double getValue() {
 		return this.value;
 	}
+<<<<<<< HEAD
 	
 <<<<<<< HEAD
 	/*public static Value read(String dir, String filename) {
@@ -55,5 +60,7 @@ public class Value extends Data {
 		return "Value";
 	}
 >>>>>>> Codeupdate 13-06-10.
+=======
+>>>>>>> Codeupdate 13-06-18
 
 }

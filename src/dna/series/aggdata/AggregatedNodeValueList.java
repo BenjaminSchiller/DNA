@@ -1,6 +1,7 @@
 package dna.series.aggdata;
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -27,12 +28,19 @@ import dna.util.Log;
 /**
  * AggregatedNodeValueList is a class containing the values of an aggregated NodeValueList.
 >>>>>>> Codeupdate 13-06-10.
+=======
+
+/**
+ * AggregatedNodeValueList is a class containing the values of an aggregated NodeValueList.
+ * Array structure as follows: values = { x (diff number), avg, min, max, median, variance, variance-low, variance-up, confidence-low, confidence-up }
+>>>>>>> Codeupdate 13-06-18
  * 
  * @author Rwilmes
  * @date 10.06.2013
  */
 public class AggregatedNodeValueList extends AggregatedData {
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 	// member variables
 	private AggregatedValue[] values;
@@ -362,37 +370,17 @@ public class AggregatedNodeValueList extends AggregatedData {
 	private String type = "AggregatedNodeValueList";
 	private double[] values; // array containing the aggregated values for this object. Structure as follows: values = { 0, 0, avg, min, max, median, variance, variance-low, variance-up, confidence-low, confidence-up }
 	
+=======
+>>>>>>> Codeupdate 13-06-18
 	// constructors
 	public AggregatedNodeValueList(String name) {
-		this.name = name;
+		super(name);
 	}
 	
 	public AggregatedNodeValueList(String name, double[] values) {
-		this.name = name;
-		this.values = values;
+		super(name, values);
 	}
-	
-	// class methods
-	public void setValue(int index, double value) {
-		try{
-			this.values[index] = value;
-		} catch (ArrayIndexOutOfBoundsException e) {
-			Log.error("AggregatedNodeValueList IndexOutOfBoundsException");
-		}
-	}
-	
-	public void setValues(double[] values) {
-		this.values = values;
-	}
-	
-	public double getValue(int index) {
-		try{
-			return this.values[index];
-		} catch (ArrayIndexOutOfBoundsException e) {
-			Log.error("AggregatedNodeValueList IndexOutOfBoundsException");
-		}
-		return 0;
-	}
+<<<<<<< HEAD
 	
 	public double[] getValues() {
 		return this.values;
@@ -407,4 +395,7 @@ public class AggregatedNodeValueList extends AggregatedData {
 	}
 	
 >>>>>>> Codeupdate 13-06-10.
+=======
+
+>>>>>>> Codeupdate 13-06-18
 }
