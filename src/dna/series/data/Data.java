@@ -17,8 +17,6 @@ public class Data implements ListItem {
 =======
 	// class variables
 	private String name;
-	private double value;
-	private double[] values;
 >>>>>>> Codeupdate 13-06-10.
 	
 	// constructors

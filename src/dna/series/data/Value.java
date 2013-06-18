@@ -25,9 +25,5 @@ public class Value extends Data {
 	public double getValue() {
 		return this.value;
 	}
-	
-	public String getType() {
-		return "Value";
-	}
 
 }

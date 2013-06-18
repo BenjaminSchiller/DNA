@@ -24,6 +24,11 @@ public class Distribution extends Data {
 	private double[] values;
 	
 	// constructors
+
+	// class variables
+	private double[] values;
+	
+	// constructors
 	public Distribution(String name, double[] values) {
 		super(name);
 		this.values = values;
@@ -33,12 +38,12 @@ public class Distribution extends Data {
 	}
 		
 	// class methods
-	public Distribution(String name, double value) {
-		Log.warn("Distribution initialized with a single value");
-		double[] temp = { value };
-		this.values = temp;
-	}
 	
+	public Distribution(String name) {
+		super(name);
+	}
+		
+	// class methods
 	public String toString() {
 		return "distribution(" + super.getName() + ")";
 	}
@@ -47,6 +52,14 @@ public class Distribution extends Data {
 		return this.values;
 	}
 
+	public double getValue(int index) {
+		try{
+			return this.values[index];
+		} catch (ArrayIndexOutOfBoundsException e) {
+			Log.error("AggregatedNodeValueList IndexOutOfBoundsException");
+		}
+		return 0;
+	}
 	
 	// IO Methods
 	/**

@@ -269,7 +269,7 @@ public class Aggregation {
 			}
 		}
 	}
-	
+	/*
 	/**
 	 * Tests the obejcts of an arry of Data objects if they are compatible for an aggregation.
 	 * Throws AggregationException when not.
@@ -346,7 +346,7 @@ public class Aggregation {
 				}	
 			}
 		}
-	}
+	}*/
 	
 	
 	/**

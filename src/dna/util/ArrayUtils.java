@@ -257,7 +257,7 @@ public class ArrayUtils {
 		for (double v : values) {
 			if(!Double.isNaN(v))
 				avg += v;
-			else
+			else {
 				Log.warn("Double.NaN detected");
 				counter++;
 
@@ -435,7 +435,14 @@ public class ArrayUtils {
 	 * @return minimum value of the given double array
 	 */
 	public static double min(double[] values) {
-		try{
+		double min = values[0];
+		for(double v : values) {
+			if(v < min)
+				min = v;
+		}
+		return min;
+		
+		/*try{
 			double min = values[0];
 			for(double v : values) {
 				if(v < min)
@@ -444,7 +451,7 @@ public class ArrayUtils {
 			return min;
 		} catch (ArrayIndexOutOfBoundsException e) {
 			return 0;
-		}
+		}*/
 	}
 	
 	/**
