@@ -324,17 +324,6 @@ public class ArrayUtils {
 				min = v;
 		}
 		return min;
-		
-		/*try{
-			double min = values[0];
-			for(double v : values) {
-				if(v < min)
-					min = v;
-			}
-			return min;
-		} catch (ArrayIndexOutOfBoundsException e) {
-			return 0;
-		}*/
 	}
 	
 	/**
@@ -364,6 +353,8 @@ public class ArrayUtils {
 	
 	/**
 	 * Calculates the median over an given array of doubles.
+	 * Due to the Arrays.sort call, a copy of the input array is used to calculate the median.
+	 * Therefore use with caution: runtime O(n) with n being the size of the input array. 
 	 * 
 	 * @param values double array the median is calculated from
 	 * @return median of the given double array
@@ -378,6 +369,8 @@ public class ArrayUtils {
 
 	/**
 	 * Calculates the median over an given array of doubles, while considering Double.NaN's.
+	 * Due to the Arrays.sort call, a copy of the input array is used to calculate the median.
+	 * Therefore use with caution: runtime O(n) with n being the size of the input array. 
 	 * 
 	 * @param values double array the median is calculated from
 	 * @return median of the given double array
