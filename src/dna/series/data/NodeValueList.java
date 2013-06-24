@@ -1,5 +1,13 @@
 package dna.series.data;
 
+import java.io.IOException;
+import java.util.ArrayList;
+
+import com.sun.media.sound.InvalidFormatException;
+
+import dna.io.Reader;
+import dna.io.Writer;
+import dna.io.etc.Keywords;
 import dna.util.Log;
 
 /**
@@ -51,7 +59,7 @@ public class NodeValueList extends Data {
 	 * 
 	 * @param filename String representing the desired filename for the NodeValueList.
 	 */
-	/*public void write(String dir, String filename) throws IOException {
+	public void write(String dir, String filename) throws IOException {
 		if (this.values == null) {
 			throw new NullPointerException("no values for nodevaluelist \""
 					+ super.getName() + "\" set to be written to " + dir);
@@ -61,7 +69,7 @@ public class NodeValueList extends Data {
 			w.writeln(i + Keywords.dataDelimiter + this.values[i]);
 		}
 		w.close();
-	}*/
+	}
 	
 	/**
 	 * 
@@ -72,7 +80,7 @@ public class NodeValueList extends Data {
 	 * @param readValues Boolean. True:  values from the file will be read.
 	 * 							  False: empty NodeValueList will be created.	
 	 */
-	/*public static NodeValueList read(String dir, String filename, String name,
+	public static NodeValueList read(String dir, String filename, String name,
 			boolean readValues) throws IOException {
 		if (!readValues) {
 			return new NodeValueList(name, null);
@@ -97,7 +105,7 @@ public class NodeValueList extends Data {
 		r.close();
 		return new NodeValueList(name, values);
 	}
-	*/
+
 }
 	
 	
