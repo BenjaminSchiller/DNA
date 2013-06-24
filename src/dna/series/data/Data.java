@@ -14,6 +14,7 @@ public class Data implements ListItem {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 	// member variables
 	private String name;
 =======
@@ -31,6 +32,9 @@ public class Data implements ListItem {
 >>>>>>> Codeupdate 13-06-18
 =======
 	// class variables
+=======
+	// member variables
+>>>>>>> Codeupdate 13-06-24
 	private String name;
 	private double value;
 	private double[] values;
@@ -80,12 +84,16 @@ public class Data implements ListItem {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> Codeupdate 13-06-24
 =======
 >>>>>>> Codeupdate 13-06-24
 	public static boolean equals(Object o1, Object o2) {
 	    return o1.getClass() == o2.getClass();
 	}
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 =======
 =======
@@ -133,4 +141,6 @@ public class Data implements ListItem {
 >>>>>>> Codeupdate 13-06-10.
 =======
 >>>>>>> Codeupdate 13-06-18
+=======
+>>>>>>> Codeupdate 13-06-24
 }

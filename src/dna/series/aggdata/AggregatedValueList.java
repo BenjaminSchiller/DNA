@@ -5,8 +5,13 @@ import java.io.IOException;
 import dna.io.Reader;
 import dna.io.Writer;
 <<<<<<< HEAD
+<<<<<<< HEAD
 import dna.series.lists.List;
 import dna.util.Config;
+=======
+import dna.io.etc.Keywords;
+import dna.series.lists.List;
+>>>>>>> Codeupdate 13-06-24
 =======
 import dna.io.etc.Keywords;
 import dna.series.lists.List;
@@ -21,6 +26,10 @@ import dna.series.lists.List;
 public class AggregatedValueList extends List<AggregatedValue> {
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+	
+>>>>>>> Codeupdate 13-06-24
 =======
 	
 >>>>>>> Codeupdate 13-06-24
@@ -39,9 +48,14 @@ public class AggregatedValueList extends List<AggregatedValue> {
 		for (String name : this.map.keySet()) {
 			String temp = "";
 <<<<<<< HEAD
+<<<<<<< HEAD
 			for (int i = 0; i < this.map.get(name).getValues().length; i++) {
 				temp += Config.get("AGGREGATED_DATA_DELIMITER")
 						+ this.map.get(name).getValues()[i];
+=======
+			for(int i = 0; i < this.map.get(name).getValues().length; i++) {
+				temp += Keywords.aggregatedDataDelimiter + this.map.get(name).getValues()[i];
+>>>>>>> Codeupdate 13-06-24
 =======
 			for(int i = 0; i < this.map.get(name).getValues().length; i++) {
 				temp += Keywords.aggregatedDataDelimiter + this.map.get(name).getValues()[i];
@@ -53,6 +67,7 @@ public class AggregatedValueList extends List<AggregatedValue> {
 	}
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 	public static AggregatedValueList read(String dir, String filename,
 			boolean readValues) throws IOException {
 		if (!readValues) {
@@ -62,10 +77,15 @@ public class AggregatedValueList extends List<AggregatedValue> {
 	public static AggregatedValueList read(String dir, String filename)
 			throws IOException {
 >>>>>>> Codeupdate 13-06-24
+=======
+	public static AggregatedValueList read(String dir, String filename)
+			throws IOException {
+>>>>>>> Codeupdate 13-06-24
 		AggregatedValueList list = new AggregatedValueList();
 		Reader r = new Reader(dir, filename);
 		String line = null;
 		while ((line = r.readString()) != null) {
+<<<<<<< HEAD
 <<<<<<< HEAD
 			String[] temp = line.split(Config.get("AGGREGATED_DATA_DELIMITER"));
 			double[] values = new double[temp.length - 1];
@@ -74,12 +94,17 @@ public class AggregatedValueList extends List<AggregatedValue> {
 			}
 			list.add(new AggregatedValue(temp[0], values));
 =======
+=======
+>>>>>>> Codeupdate 13-06-24
 			String[] temp = line.split(Keywords.aggregatedDataDelimiter);
 			double[] tempDouble = new double[temp.length];
 			for(int i = 0; i < temp.length; i++) {
 				tempDouble[i] = Double.parseDouble(temp[i]);
 			}
 			list.add(new AggregatedValue(filename + temp[0], tempDouble));
+<<<<<<< HEAD
+>>>>>>> Codeupdate 13-06-24
+=======
 >>>>>>> Codeupdate 13-06-24
 		}
 		r.close();

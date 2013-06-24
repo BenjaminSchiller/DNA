@@ -3,6 +3,7 @@ package dna.series.aggdata;
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import java.io.IOException;
 
 import dna.io.Reader;
@@ -37,12 +38,22 @@ import dna.io.etc.Keywords;
 =======
  * Array structure as follows: values = { avg, min, max, median, variance, variance-low, variance-up, confidence-low, confidence-up }
 >>>>>>> Codeupdate 13-06-18
+=======
+import java.io.IOException;
+
+import dna.io.Reader;
+import dna.io.etc.Keywords;
+
+/**
+ * An AggregatedValue object contains aggregated values.
+>>>>>>> Codeupdate 13-06-24
  * 
  * @author Rwilmes
  * @date 10.06.2013
  */
 public class AggregatedValue extends AggregatedData {
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -226,12 +237,18 @@ public class AggregatedValue extends AggregatedData {
 =======
 =======
 >>>>>>> Codeupdate 13-06-18
+=======
+	// member variables
+	private double[] values;
+	
+>>>>>>> Codeupdate 13-06-24
 	// constructors
 	public AggregatedValue(String name) {
 		super(name);
 	}
 	
 	public AggregatedValue(String name, double[] values) {
+<<<<<<< HEAD
 <<<<<<< HEAD
 		this.name = name;
 		this.values = values;
@@ -247,11 +264,21 @@ public class AggregatedValue extends AggregatedData {
 	}
 	
 >>>>>>> Codeupdate 13-06-10.
+=======
+		super(name);
+		this.values = values;
+	}
+	
+	// get methods
+>>>>>>> Codeupdate 13-06-24
 	public double[] getValues() {
 		return this.values;
 	}
 	
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> Codeupdate 13-06-24
 	// IO methods
 	/**
 	 * @param dir String which contains the path to the directory the AggregatedValue will be read from.
@@ -280,6 +307,7 @@ public class AggregatedValue extends AggregatedData {
 
 		r.close();
 		return new AggregatedValue(name, tempDouble);
+<<<<<<< HEAD
 	}
 
 }
@@ -294,6 +322,8 @@ public class AggregatedValue extends AggregatedData {
 =======
 		super(name, values);
 >>>>>>> Codeupdate 13-06-18
+=======
+>>>>>>> Codeupdate 13-06-24
 	}
 
 }

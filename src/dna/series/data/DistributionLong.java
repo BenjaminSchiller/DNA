@@ -4,12 +4,16 @@ import java.io.IOException;
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> Codeupdate 13-06-24
 import java.util.ArrayList;
 
 import com.sun.media.sound.InvalidFormatException;
 
 import dna.io.Reader;
 import dna.io.Writer;
+<<<<<<< HEAD
 import dna.util.ArrayUtils;
 import dna.util.Config;
 
@@ -79,6 +83,8 @@ import com.sun.media.sound.InvalidFormatException;
 
 import dna.io.Reader;
 import dna.io.Writer;
+=======
+>>>>>>> Codeupdate 13-06-24
 import dna.io.etc.Keywords;
 
 /**
@@ -88,13 +94,17 @@ import dna.io.etc.Keywords;
  * @author Rwilmes
  * @date 17.06.2013
  */
+<<<<<<< HEAD
 =======
 
 >>>>>>> Codeupdate 13-06-18
+=======
+>>>>>>> Codeupdate 13-06-24
 public class DistributionLong extends Distribution {
 	
 	// class variables
 	private long[] values;
+<<<<<<< HEAD
 <<<<<<< HEAD
 	private long denominator;
 	
@@ -107,19 +117,28 @@ public class DistributionLong extends Distribution {
 	
 	// get methods
 =======
+=======
+	private long denominator;
+>>>>>>> Codeupdate 13-06-24
 	
 	// constructor
-	public DistributionLong(String name, long[] values) {
+	public DistributionLong(String name, long[] values, long denominator) {
 		super(name);
 		this.values = values;
+		this.denominator = denominator;
 	}
 	
+<<<<<<< HEAD
 	// class methods
 >>>>>>> Codeupdate 13-06-18
+=======
+	// get methods
+>>>>>>> Codeupdate 13-06-24
 	public long[] getLongValues() {
 		return this.values;
 	}
 	
+<<<<<<< HEAD
 <<<<<<< HEAD
 	public long getDenominator() {
 		return this.denominator;
@@ -309,12 +328,12 @@ public class DistributionLong extends Distribution {
 	// IO methods
 	public void write(String dir, String filename) throws IOException {
 		super.write(dir, filename);
+=======
+	public long getDenominator() {
+		return this.denominator;
+>>>>>>> Codeupdate 13-06-24
 	}
-	public static Distribution read(String dir, String filename, String name,
-			boolean readValues) throws IOException {
-		return Distribution.read(dir, filename, name, readValues);
-	}
-
+	
 	public long getMin() {
 		int y = 0;
 >>>>>>> Codeupdate 13-06-18
@@ -330,8 +349,11 @@ public class DistributionLong extends Distribution {
 	}
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> Codeupdate 13-06-18
 =======
+=======
+>>>>>>> Codeupdate 13-06-24
 	
 	// IO Methods
 	/**
@@ -393,7 +415,10 @@ public class DistributionLong extends Distribution {
 	}
 
 
+<<<<<<< HEAD
 >>>>>>> Codeupdate 13-06-24
 =======
 >>>>>>> Codeupdate 13-06-18
+=======
+>>>>>>> Codeupdate 13-06-24
 }

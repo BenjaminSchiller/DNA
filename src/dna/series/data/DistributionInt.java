@@ -4,6 +4,9 @@ import java.io.IOException;
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> Codeupdate 13-06-24
 =======
 >>>>>>> Codeupdate 13-06-24
 import java.util.ArrayList;
@@ -12,6 +15,7 @@ import com.sun.media.sound.InvalidFormatException;
 
 import dna.io.Reader;
 import dna.io.Writer;
+<<<<<<< HEAD
 <<<<<<< HEAD
 import dna.util.ArrayUtils;
 import dna.util.Config;
@@ -22,16 +26,22 @@ import dna.util.Config;
  * numbers see DistributionLong. Additional values are used for compared
  * distributions.
 =======
+=======
+>>>>>>> Codeupdate 13-06-24
 import dna.io.etc.Keywords;
 
 /**
  * DistributionInt is an object which represents an distribution by whole numbers and its denominator.
  * Integer data-structures are used. For larger numbers see DistributionLong.
+<<<<<<< HEAD
+>>>>>>> Codeupdate 13-06-24
+=======
 >>>>>>> Codeupdate 13-06-24
  * 
  * @author Rwilmes
  * @date 17.06.2013
  */
+<<<<<<< HEAD
 <<<<<<< HEAD
 =======
 
@@ -41,10 +51,13 @@ import dna.io.etc.Keywords;
 =======
 
 >>>>>>> Codeupdate 13-06-18
+=======
+>>>>>>> Codeupdate 13-06-24
 public class DistributionInt extends Distribution {
 
 	// class variables
 	private int[] values;
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -104,13 +117,18 @@ public class DistributionInt extends Distribution {
 	// class methods
 >>>>>>> Codeupdate 13-06-18
 =======
+=======
+	private int denominator;
+>>>>>>> Codeupdate 13-06-24
 	
 	// constructors
-	public DistributionInt(String name, int[] values) {
+	public DistributionInt(String name, int[] values, int denominator) {
 		super(name);
 		this.values = values;
+		this.denominator = denominator;
 	}
 	
+<<<<<<< HEAD
 	// class methods
 >>>>>>> Codeupdate 13-06-18
 	public int[] getIntValues() {
@@ -339,6 +357,17 @@ public class DistributionInt extends Distribution {
 	}
 	
 >>>>>>> Codeupdate 13-06-18
+=======
+	// get methods
+	public int[] getIntValues() {
+		return this.values;
+	}
+	
+	public int getDenominator() {
+		return this.denominator;
+	}
+
+>>>>>>> Codeupdate 13-06-24
 	public int getMin() {
 		int y = 0;
 		while(values[y] < 0) {
@@ -354,8 +383,11 @@ public class DistributionInt extends Distribution {
 	
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> Codeupdate 13-06-18
 =======
+=======
+>>>>>>> Codeupdate 13-06-24
 	// IO Methods
 	/**
 	 * @param dir String which contains the path / directory the Distribution will be written to.
@@ -417,7 +449,10 @@ public class DistributionInt extends Distribution {
 	
 
 	
+<<<<<<< HEAD
 >>>>>>> Codeupdate 13-06-24
 =======
 >>>>>>> Codeupdate 13-06-18
+=======
+>>>>>>> Codeupdate 13-06-24
 }
