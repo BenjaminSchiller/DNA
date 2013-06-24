@@ -12,10 +12,14 @@ import dna.series.lists.ListItem;
 public class Data implements ListItem {
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 	// member variables
 	private String name;
 =======
 	// class variables
+=======
+	// member variables
+>>>>>>> Codeupdate 13-06-24
 	private String name;
 <<<<<<< HEAD
 	private double value;
@@ -54,10 +58,14 @@ public class Data implements ListItem {
 	
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> Codeupdate 13-06-24
 	public static boolean equals(Object o1, Object o2) {
 	    return o1.getClass() == o2.getClass();
 	}
 
+<<<<<<< HEAD
 =======
 	public String getType() {
 		return "Data";
@@ -92,4 +100,6 @@ public class Data implements ListItem {
 		w.close();
 	}*/
 >>>>>>> Codeupdate 13-06-18
+=======
+>>>>>>> Codeupdate 13-06-24
 }

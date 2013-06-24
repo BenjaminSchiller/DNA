@@ -24,15 +24,25 @@ public class Distribution extends Data {
 	// constructors
 =======
 import dna.io.etc.Keywords;
-import dna.util.Log;
 
+
+/**
+ * NodeValueList is a class containing an array with 1 value for each node. The node index is used as 
+ * the index for the array. If a node is removed from the graph, his former value is replaced by a Double.NaN.
+ * When inserting new nodevalues with out-of-bound indeces, the array is expanded accordingly.
+ * 
+ * @date 24.06.2013
+ */
 public class Distribution extends Data {
+<<<<<<< HEAD
 //public class Distribution implements ListItem {
 <<<<<<< HEAD
 >>>>>>> Codeupdate 13-06-10.
 =======
+=======
+>>>>>>> Codeupdate 13-06-24
 
-	// class variables
+	// member variables
 	private double[] values;
 	
 	// constructors
@@ -41,6 +51,7 @@ public class Distribution extends Data {
 		super(name);
 		this.values = values;
 	}
+<<<<<<< HEAD
 	
 	//public Distribution() { }
 
@@ -62,6 +73,8 @@ public class Distribution extends Data {
 
 =======
 	
+=======
+>>>>>>> Codeupdate 13-06-24
 	public Distribution(String name) {
 		super(name);
 	}
@@ -76,6 +89,7 @@ public class Distribution extends Data {
 		return this.values;
 	}
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 	// IO Methods
@@ -110,6 +124,19 @@ public class Distribution extends Data {
 =======
 					+ super.getName() + "\" set to be written to " + dir);
 >>>>>>> Codeupdate 13-06-18
+=======
+	
+	// IO Methods
+	/**
+	 * @param dir String which contains the path / directory the Distribution will be written to.
+	 * 
+	 * @param filename String representing the desired filename for the Distribution.
+	 */
+	public void write(String dir, String filename) throws IOException {
+		if (this.values == null) {
+			throw new NullPointerException("no values for distribution \""
+					+ this.getName() + "\" set to be written to " + dir);
+>>>>>>> Codeupdate 13-06-24
 		}
 		Writer w = new Writer(dir, filename);
 		for (int i = 0; i < this.values.length; i++) {
@@ -119,6 +146,7 @@ public class Distribution extends Data {
 	}
 
 	/**
+<<<<<<< HEAD
 	 * @param dir
 	 *            String which contains the path to the directory the
 	 *            Distribution will be read from.
@@ -130,6 +158,14 @@ public class Distribution extends Data {
 	 * @param readValues
 	 *            Boolean. True: values from the file will be read. False: empty
 	 *            Distribution will be created.
+=======
+	 * @param dir String which contains the path to the directory the Distribution will be read from.
+	 * 
+	 * @param filename String representing the filename the Distribution will be read from.
+	 * 
+	 * @param readValues Boolean. True:  values from the file will be read.
+	 * 							  False: empty Distribution will be created.	
+>>>>>>> Codeupdate 13-06-24
 	 */
 	public static Distribution read(String dir, String filename, String name,
 			boolean readValues) throws IOException {

@@ -1,6 +1,9 @@
 package dna.series.data;
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> Codeupdate 13-06-24
 import java.io.IOException;
 import java.util.ArrayList;
 
@@ -8,6 +11,7 @@ import com.sun.media.sound.InvalidFormatException;
 
 import dna.io.Reader;
 import dna.io.Writer;
+<<<<<<< HEAD
 <<<<<<< HEAD
 import dna.util.ArrayUtils;
 import dna.util.Config;
@@ -22,10 +26,13 @@ import dna.util.Log;
 import dna.io.etc.Keywords;
 =======
 >>>>>>> Codeupdate 13-06-18
+=======
+import dna.io.etc.Keywords;
+>>>>>>> Codeupdate 13-06-24
 import dna.util.Log;
 
 /**
- * NodeValueList is a class containing an array with 1 value for each node. The node index is used as 
+ * A NodeValueList is an object containing an array with 1 value for each node. The node index is used as 
  * the index for the array. If a node is removed from the graph, his former value is replaced by a Double.NaN.
  * When inserting new nodevalues with out-of-bound indeces, the array is expanded accordingly.
 >>>>>>> datatype NodeValueList added
@@ -62,7 +69,7 @@ public class NodeValueList implements ListItem {
 public class NodeValueList extends Data {
 >>>>>>> Codeupdate 13-06-10.
 
-	// class variables
+	// member variables
 	private double[] values;
 	
 	// constructors
@@ -76,6 +83,7 @@ public class NodeValueList extends Data {
 		this.values = values;
 	}
 	
+<<<<<<< HEAD
 <<<<<<< HEAD
 	public NodeValueList(String name, double value) {
 		Log.warn("NodeValueList initialized with a single value");
@@ -184,6 +192,9 @@ public class NodeValueList extends Data {
 	}
 =======
 	// class methods
+=======
+	// get methods
+>>>>>>> Codeupdate 13-06-24
 	public double[] getValues() {
 		return this.values;
 	}
@@ -197,6 +208,11 @@ public class NodeValueList extends Data {
 		}
 		return 0;
 	}
+	
+	// class methods
+	public String toString() {
+		return "nodevaluelist(" + super.getName() + ")";
+	}
 	// IO methods
 	/**
 	 * 
@@ -204,17 +220,17 @@ public class NodeValueList extends Data {
 	 * 
 	 * @param filename String representing the desired filename for the NodeValueList.
 	 */
-	/*public void write(String dir, String filename) throws IOException {
+	public void write(String dir, String filename) throws IOException {
 		if (this.values == null) {
 			throw new NullPointerException("no values for nodevaluelist \""
-					+ this.name + "\" set to be written to " + dir);
+					+ super.getName() + "\" set to be written to " + dir);
 		}
 		Writer w = new Writer(dir, filename);
 		for (int i = 0; i < this.values.length; i++) {
 			w.writeln(i + Keywords.dataDelimiter + this.values[i]);
 		}
 		w.close();
-	}*/
+	}
 	
 	/**
 	 * 
@@ -226,7 +242,7 @@ public class NodeValueList extends Data {
 	 * 							  False: empty NodeValueList will be created.	
 >>>>>>> datatype NodeValueList added
 	 */
-	/*public static NodeValueList read(String dir, String filename, String name,
+	public static NodeValueList read(String dir, String filename, String name,
 			boolean readValues) throws IOException {
 		if (!readValues) {
 			return new NodeValueList(name, null);
@@ -265,12 +281,16 @@ public class NodeValueList extends Data {
 	}
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 }
 =======
 =======
 	*/
 >>>>>>> Codeupdate 13-06-18
+=======
+
+>>>>>>> Codeupdate 13-06-24
 }
 	
 	

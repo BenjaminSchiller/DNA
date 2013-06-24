@@ -25,19 +25,30 @@ import dna.util.Log;
  * 
 =======
 import java.io.IOException;
+import java.util.ArrayList;
 
-import dna.io.Writer;
+import com.sun.media.sound.InvalidFormatException;
+
+import dna.io.Reader;
 import dna.io.etc.Keywords;
 
 /**
+<<<<<<< HEAD
  * AggregatedDistribution is a class containing the values of an aggregated distribution.
  * Array structure as follows: values = { x (diff number), avg, min, max, median, variance, variance-low, variance-up, confidence-low, confidence-up }
  *
 >>>>>>> Codeupdate 13-06-18
+=======
+ * AggregatedDistribution is a class containing the values of an aggregated Distribution.
+ * It contains an array of AggregatedValue objects.
+ * AggregatedValue object array structure: { x (diff number), avg, min, max, median, variance, variance-low, variance-up, confidence-low, confidence-up }
+ * 
+>>>>>>> Codeupdate 13-06-24
  * @author Rwilmes
  * @date 10.06.2013
  */
 public class AggregatedDistribution extends AggregatedData {
+<<<<<<< HEAD
 
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -156,14 +167,27 @@ public class AggregatedDistribution extends AggregatedData {
 
 =======
 >>>>>>> Codeupdate 13-06-18
+=======
+	
+	// member variables
+	private AggregatedValue[] values;
+	
+>>>>>>> Codeupdate 13-06-24
 	// constructors
 	public AggregatedDistribution(String name) {
 		super(name);
 	}
 	
-	public AggregatedDistribution(String name, double[] values) {
-		super(name, values);
+	public AggregatedDistribution(String name, AggregatedValue[] values) {
+		super(name);
+		this.values = values;
 	}
+	
+	// get methods
+	public AggregatedValue[] getValues() {
+		return this.values;
+	}
+<<<<<<< HEAD
 <<<<<<< HEAD
 	
 	public double[] getValues() {
@@ -182,4 +206,48 @@ public class AggregatedDistribution extends AggregatedData {
 =======
 
 >>>>>>> Codeupdate 13-06-18
+=======
+	
+
+	// IO methods
+	/**
+	 * @param dir String which contains the path to the directory the AggregatedDistribution will be read from.
+	 * 
+	 * @param filename String representing the filename the Distribution will be read from.
+	 * 
+	 * @param readValues Boolean. True:  values from the file will be read.
+	 * 							  False: empty Distribution will be created.	
+	 */
+	public static AggregatedDistribution read(String dir, String filename, String name,
+			boolean readValues) throws IOException {
+		if (!readValues) {
+			return new AggregatedDistribution(name, null);
+		}
+		Reader r = new Reader(dir, filename);
+		ArrayList<AggregatedValue> list = new ArrayList<AggregatedValue>();
+		String line = null;
+		int index = 0;
+		while ((line = r.readString()) != null) {
+			String[] temp = line.split(Keywords.aggregatedDataDelimiter);
+			if (Integer.parseInt(temp[0]) != index) {
+				throw new InvalidFormatException("expected index " + index
+						+ " but found " + temp[0] + " @ \"" + line + "\"");
+			}
+			double[] tempDouble = new double[temp.length];
+			for(int i = 0; i < tempDouble.length; i++) {
+				tempDouble[i] = Double.parseDouble(temp[i]);
+			}
+
+			AggregatedValue tempV = new AggregatedValue(name + temp[0], tempDouble);
+			list.add(tempV);
+			index++;
+		}
+		AggregatedValue[] values = new AggregatedValue[list.size()];
+		for (int i = 0; i < list.size(); i++) {
+			values[i] = list.get(i);
+		}
+		r.close();
+		return new AggregatedDistribution(name, values);
+	}
+>>>>>>> Codeupdate 13-06-24
 }
