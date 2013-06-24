@@ -6,8 +6,7 @@ import dna.io.Reader;
 import dna.io.etc.Keywords;
 
 /**
- * AggregatedValue is a class containing the aggregated values of a list of values.
- * Array structure as follows: values = { avg, min, max, median, variance, variance-low, variance-up, confidence-low, confidence-up }
+ * An AggregatedValue object contains aggregated values.
  * 
  * @author Rwilmes
  * @date 10.06.2013
