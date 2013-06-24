@@ -571,6 +571,42 @@ public class MetricData implements ListItem {
 				+ Config.get("SUFFIX_METRIC_QUALITY"), MetricType.quality,
 				comparedValues, comparedDistributions, comparedNodeValues);
 	}
+	
+	/**
+	 * Tests if two MetricData objects are of the same type.
+	 * Therefore it checks if they got the same distributions and metrics.
+	 * 
+	 * @returns true	- when they are of the same type 
+	 * 			false	- else
+	 * 
+	 * @author Rwilmes
+	 * @date 24.06.2013
+	 */
+	public static boolean sameType(MetricData m1, MetricData m2) {
+		//if(m1.getName().equals(m2.getName()))
+		//	return false;
+		
+		ValueList list1 = m1.getValues();
+		ValueList list2 = m2.getValues();
+		
+		DistributionList dlist1 = m1.getDistributions();
+		DistributionList dlist2 = m2.getDistributions();
+		
+		if(list1.size() != list2.size() || dlist1.size() != dlist2.size())
+			return false;
+
+		for(String k : list1.getNames()) {
+			if(!list1.get(k).equals(list2.get(k))) {
+				return false;
+			}
+		}
+		for(String k : dlist1.getNames()) {
+			if(!dlist1.get(k).equals(dlist2.get(k))) {
+				return false;
+			}
+		}
+		return true;
+	}
 
 	/**
 	 * Counts the similarities between two MetricData objects. Every Value,

@@ -93,6 +93,38 @@ public class BatchData {
 		return new BatchData(timestamp, values, generalRuntimes,
 				metricRuntimes, metrics);
 	}
+	
+	
+	/**
+	 * This method tests if two different DiffData (= BatchData) objects can be aggregated.
+	 * Checks:		- same timestamp
+	 * 				- same amount of metrics
+	 * 				- same metrics (uses MetricData.symeType())
+	 * 
+	 * @author Rwilmes
+	 * @date 24.06.2013
+	 */
+	public static boolean sameType(DiffData d1, DiffData d2) {
+		//if(d1.getName().equals(d2.getName()))
+		//	return false;
+		
+		if(d1.getTimestamp() != d2.getTimestamp())
+			return false;
+		
+		MetricDataList list1 = d1.getMetrics();
+		MetricDataList list2 = d2.getMetrics();
+		
+		if(list1.size() != list2.size())
+			return false;
+		
+		for(String k : list1.getNames()) {
+			if(!MetricData.sameType(list1.get(k), list2.get(k))) {
+				return false;
+			}
+		}
+
+		return true;
+	}
 
 	/**
 	 * This method tests if two different BatchData objects can be aggregated.
