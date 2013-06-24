@@ -8,7 +8,6 @@ import com.sun.media.sound.InvalidFormatException;
 import dna.io.Reader;
 import dna.io.Writer;
 import dna.io.etc.Keywords;
-import dna.util.Log;
 
 
 /**
@@ -24,21 +23,10 @@ public class Distribution extends Data {
 	private double[] values;
 	
 	// constructors
-
-	// class variables
-	private double[] values;
-	
-	// constructors
 	public Distribution(String name, double[] values) {
 		super(name);
 		this.values = values;
 	}
-	public Distribution(String name) {
-		super(name);
-	}
-		
-	// class methods
-	
 	public Distribution(String name) {
 		super(name);
 	}
@@ -52,14 +40,6 @@ public class Distribution extends Data {
 		return this.values;
 	}
 
-	public double getValue(int index) {
-		try{
-			return this.values[index];
-		} catch (ArrayIndexOutOfBoundsException e) {
-			Log.error("AggregatedNodeValueList IndexOutOfBoundsException");
-		}
-		return 0;
-	}
 	
 	// IO Methods
 	/**

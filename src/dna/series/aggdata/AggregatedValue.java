@@ -1,6 +1,5 @@
 package dna.series.aggdata;
 
-<<<<<<< HEAD
 import java.io.IOException;
 
 import dna.io.Reader;
@@ -8,17 +7,12 @@ import dna.io.etc.Keywords;
 
 /**
  * An AggregatedValue object contains aggregated values.
-=======
-/**
- * AggregatedValue is a class containing the aggregated values of a list of values.
- * Array structure as follows: values = { avg, min, max, median, variance, variance-low, variance-up, confidence-low, confidence-up }
  * 
  * @author Rwilmes
  * @date 10.06.2013
  */
 public class AggregatedValue extends AggregatedData {
 
-<<<<<<< HEAD
 	// member variables
 	private double[] values;
 	
@@ -33,37 +27,10 @@ public class AggregatedValue extends AggregatedData {
 	}
 	
 	// get methods
-=======
-	// class variables
-	private String name;
-	private String type = "AggregatedValue";
-	private double value;
-	private double[] values; // AggregatedValue array structure:  { 0, 0, avg, min, max, median, variance, variance-low, variance-up, confidence-low, confidence-up }
-	
-	// constructors
-	public AggregatedValue(String name) {
-		super(name);
-	}
-	
-	public AggregatedValue(String name, double[] values) {
-		super(name, values);
-	}
-	
-	// class methods
-	public void setValue(double value) {
-		this.value = value;
-	}
-	
-	public double getValue() {
-		return this.value;
-	}
-	
->>>>>>> Codeupdate 13-06-10.
 	public double[] getValues() {
 		return this.values;
 	}
 	
-<<<<<<< HEAD
 	// IO methods
 	/**
 	 * @param dir String which contains the path to the directory the AggregatedValue will be read from.
@@ -92,14 +59,6 @@ public class AggregatedValue extends AggregatedData {
 
 		r.close();
 		return new AggregatedValue(name, tempDouble);
-=======
-	public String getName() {
-		return this.name;
-	}
-	
-	public String getType() {
-		return this.type;
->>>>>>> Codeupdate 13-06-10.
 	}
 
 }

@@ -6,7 +6,6 @@ import java.io.IOException;
 import dna.io.Writer;
 import dna.io.etc.Keywords;
 import dna.series.lists.ListItem;
-import dna.util.Log;
 
 /**
  * AggregatedData is the super-class for all provided aggregation data-structures.
@@ -30,9 +29,8 @@ public class AggregatedData implements ListItem {
 =======
 	// class variables
 	private String name;
-	private double[] values;
 	
-	// class methods
+	// constructors
 >>>>>>> Codeupdate 13-06-10.
 	public AggregatedData() { }
 	
@@ -91,22 +89,9 @@ public class AggregatedData implements ListItem {
 		return this.name;
 	}
 	
-	public double[] getValues() {
-		return this.values;
-	}
-	
-	public double getValue(int index) {
-		try{
-			return this.values[index];
-		} catch (ArrayIndexOutOfBoundsException e) {
-			Log.error("AggregatedNodeValueList IndexOutOfBoundsException");
-		}
-		return 0;
-	}
-	
 	// IO methods
 	/**
-	 * Method to write the context of a single AggregatedData object to a specified location.
+	 * Method to write the context of an Array of AggregatedValue objects to a specified location.
 	 * 
 	 * @param dir String which contains the path / directory the Data will be written to.
 	 * 
@@ -137,19 +122,27 @@ public class AggregatedData implements ListItem {
 	 * @param dir String which contains the path / directory the Data will be written to.
 	 * @param filename String representing the desired filename for the Data.
 	 */
-	public static void write(AggregatedData[] inputData, String dir, String filename) throws IOException {
+	public static void write(AggregatedValue[] inputData, String dir, String filename) throws IOException {
 		Writer w = new Writer(dir, filename);
 		
-		for(AggregatedData aggData : inputData) {
-			String temp = "";
-			for (int i = 0; i < aggData.getValues().length; i++) {
+		for(AggregatedValue aggData : inputData) {			
+			String temp = "" + (int) aggData.getValues()[0] + Keywords.aggregatedDataDelimiter;
+			for (int i = 1; i < aggData.getValues().length; i++) {
 				if(i == aggData.getValues().length-1)
 					temp += aggData.getValues()[i];
 				else
-					temp += aggData.getValues()[i] + "\t";
+					temp += aggData.getValues()[i] + Keywords.aggregatedDataDelimiter;
 			}
 			w.writeln(temp);
 		}
 		w.close();
+	}
+	
+	public static void write(AggregatedNodeValueList inputData, String dir, String filename) throws IOException {
+		write(inputData.getValues(), dir, filename);
+	}
+	
+	public static void write(AggregatedDistribution inputData, String dir, String filename) throws IOException {
+		write(inputData.getValues(), dir, filename);
 	}
 }

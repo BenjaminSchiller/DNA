@@ -99,5 +99,49 @@ public class AggregatedNodeValueList extends AggregatedData {
 		super(name, values);
 	}
 
->>>>>>> Codeupdate 13-06-10.
+	// get methods
+	public AggregatedValue[] getValues() {
+		return this.values;
+	}
+	
+	// IO methods
+	/**
+	 * @param dir String which contains the path to the directory the AggregatedNodeValueList will be read from.
+	 * 
+	 * @param filename String representing the filename the Distribution will be read from.
+	 * 
+	 * @param readValues Boolean. True:  values from the file will be read.
+	 * 							  False: empty AggregatedNodeValueList will be created.	
+	 */
+	public static AggregatedNodeValueList read(String dir, String filename, String name,
+			boolean readValues) throws IOException {
+		if (!readValues) {
+			return new AggregatedNodeValueList(name, null);
+		}
+		Reader r = new Reader(dir, filename);
+		ArrayList<AggregatedValue> list = new ArrayList<AggregatedValue>();
+		String line = null;
+		int index = 0;
+		while ((line = r.readString()) != null) {
+			String[] temp = line.split(Keywords.aggregatedDataDelimiter);
+			if (Integer.parseInt(temp[0]) != index) {
+				throw new InvalidFormatException("expected index " + index
+						+ " but found " + temp[0] + " @ \"" + line + "\"");
+			}
+			double[] tempDouble = new double[temp.length];
+			for(int i = 0; i < tempDouble.length; i++) {
+				tempDouble[i] = Double.parseDouble(temp[i]);
+			}
+
+			AggregatedValue tempV = new AggregatedValue(name + temp[0], tempDouble);
+			list.add(tempV);
+			index++;
+		}
+		AggregatedValue[] values = new AggregatedValue[list.size()];
+		for (int i = 0; i < list.size(); i++) {
+			values[i] = list.get(i);
+		}
+		r.close();
+		return new AggregatedNodeValueList(name, values);
+	}
 }
