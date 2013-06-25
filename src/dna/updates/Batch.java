@@ -188,6 +188,7 @@ public class Batch<E extends Edge> {
 	}
 
 	public void print() {
+		System.out.println(this.toString());
 		this.print(this.nodeAdditions);
 		this.print(this.nodeRemovals);
 		this.print(this.nodeWeightUpdates);
