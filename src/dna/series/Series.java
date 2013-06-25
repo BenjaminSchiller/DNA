@@ -368,7 +368,7 @@ public class Series {
 			boolean success = u.apply(this.g);
 			graphUpdateTimer.end();
 			if (!success) {
-				Log.error("count not apply update " + u.toString()
+				Log.error("could not apply update " + u.toString()
 						+ " (BUT metric before update already applied)");
 				continue;
 			}
