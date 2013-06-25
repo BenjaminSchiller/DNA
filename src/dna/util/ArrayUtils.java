@@ -1049,8 +1049,7 @@ public class ArrayUtils {
 	
 	/**
 	 * Calculates the median over an given array of doubles.
-	 * Due to the Arrays.sort call, a copy of the input array is used to calculate the median.
-	 * Therefore use with caution: runtime O(n) with n being the size of the input array. 
+	 * Caution: Due to the Arrays.sort call, the input array will be sorted.
 	 * 
 	 * @param values double array the median is calculated from
 	 * @return median of the given double array
