@@ -17,23 +17,23 @@ public class Memory {
 
 	private long used;
 
-	public long getTotal() {
-		return this.total / 1024 / 1024;
+	public double getTotal() {
+		return (double) this.total / 1024.0 / 1024.0;
 	}
 
-	public long getFree() {
-		return this.free / 1024 / 1024;
+	public double getFree() {
+		return (double) this.free / 1024.0 / 1024.0;
 	}
 
-	public long getMax() {
-		return this.max / 1024 / 1024;
+	public double getMax() {
+		return (double) this.max / 1024.0 / 1024.0;
 	}
 
-	public long getUsed() {
-		return this.used / 1024 / 1024;
+	public double getUsed() {
+		return (double) this.used / 1024.0 / 1024.0;
 	}
 
 	public String toString() {
-		return this.getUsed() + " Mb";
+		return (double) this.getUsed() + " Mb";
 	}
 }
