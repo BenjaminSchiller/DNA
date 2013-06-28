@@ -14,10 +14,6 @@ import dna.series.lists.List;
  * @date 24.06.2013
  */
 public class AggregatedValueList extends List<AggregatedValue> {
-<<<<<<< HEAD
-=======
-
->>>>>>> origin/datastructures
 	
 	// constructors
 	public AggregatedValueList() {

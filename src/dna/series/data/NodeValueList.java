@@ -24,20 +24,9 @@ public class NodeValueList extends Data {
 	private double[] values;
 	
 	// constructors
-<<<<<<< HEAD
-	public NodeValueList(int size) {
-		super();
-		this.values = new double[size];
-	}
-	
-	public NodeValueList(String name, int size) {
-		super(name);
-		this.values = new double[size];
-=======
 	public NodeValueList(String name, int size) {
 		super(name);
 		values = new double[size];
->>>>>>> origin/datastructures
 	}
 	
 	public NodeValueList(String name, double[] values){

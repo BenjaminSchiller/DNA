@@ -1,10 +1,7 @@
 package dna.series.aggdata;
 
 import java.io.IOException;
-<<<<<<< HEAD
 import java.util.ArrayList;
-=======
->>>>>>> origin/datastructures
 
 import dna.io.Writer;
 import dna.io.etc.Keywords;
@@ -45,7 +42,6 @@ public class AggregatedData implements ListItem {
 		Writer w = new Writer(dir, filename);
 		
 		for(AggregatedValue aggData : inputData) {			
-<<<<<<< HEAD
 			String temp = "" + aggData.getName() + Keywords.aggregatedDataDelimiter;
 			for (int i = 0; i < aggData.getValues().length; i++) {
 				if(i == aggData.getValues().length-1)
@@ -64,10 +60,6 @@ public class AggregatedData implements ListItem {
 		for(AggregatedValue aggData : inputData) {			
 			String temp = "" + aggData.getName() + Keywords.aggregatedDataDelimiter;
 			for (int i = 0; i < aggData.getValues().length; i++) {
-=======
-			String temp = "" + (int) aggData.getValues()[0] + Keywords.aggregatedDataDelimiter;
-			for (int i = 1; i < aggData.getValues().length; i++) {
->>>>>>> origin/datastructures
 				if(i == aggData.getValues().length-1)
 					temp += aggData.getValues()[i];
 				else
@@ -78,7 +70,6 @@ public class AggregatedData implements ListItem {
 		w.close();
 	}
 	
-<<<<<<< HEAD
 	public static void write(AggregatedValue inputData, String dir, String filename) throws IOException {
 		Writer w = new Writer(dir, filename);
 		
@@ -127,13 +118,5 @@ public class AggregatedData implements ListItem {
 			w.writeln(temp);
 		}
 		w.close();
-=======
-	public static void write(AggregatedNodeValueList inputData, String dir, String filename) throws IOException {
-		write(inputData.getValues(), dir, filename);
-	}
-	
-	public static void write(AggregatedDistribution inputData, String dir, String filename) throws IOException {
-		write(inputData.getValues(), dir, filename);
->>>>>>> origin/datastructures
 	}
 }
