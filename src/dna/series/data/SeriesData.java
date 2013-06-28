@@ -36,6 +36,7 @@ public class SeriesData {
 		}
 		this.aggregation = null;
 	}
+<<<<<<< HEAD
 
 <<<<<<< HEAD
 	public SeriesData(String dir, String name, RunData[] runs,
@@ -47,6 +48,12 @@ public class SeriesData {
 		this(dir, runs);
 		this.aggregation = aggregation;
 >>>>>>> Codeupdate 13-06-28
+=======
+	
+	public SeriesData(String dir, RunData[] runs, String name, AggregatedSeries aggregation) {
+		this(dir, name, runs);
+		//this.aggregation = aggregation;
+>>>>>>> An rebase angepasst.
 	}
 
 	private String dir;
@@ -75,13 +82,13 @@ public class SeriesData {
 		this.runs.add(run);
 	}
 
-	private AggregatedSeries aggregation;
+	private RunData aggregation;
 
-	public AggregatedSeries getAggregation() {
+	public RunData getAggregation() {
 		return this.aggregation;
 	}
 
-	public void setAggregation(AggregatedSeries aggregation) {
+	public void setAggregation(RunData aggregation) {
 		this.aggregation = aggregation;
 	}
 
