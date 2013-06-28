@@ -47,7 +47,6 @@ public class AggregatedDistribution extends AggregatedData {
 		return this.values;
 	}
 	
-
 	// IO methods
 	/**
 	 * @param dir String which contains the path to the directory the AggregatedDistribution will be read from.

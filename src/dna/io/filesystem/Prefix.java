@@ -20,4 +20,5 @@ public class Prefix {
 	public static final String batchDataDir = "batch.";
 	
 	public static final String metricDataDir = "metric.";
+
 }

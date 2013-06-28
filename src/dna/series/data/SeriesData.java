@@ -2,6 +2,8 @@ package dna.series.data;
 
 import java.util.ArrayList;
 
+import dna.series.aggdata.AggregatedSeries;
+
 public class SeriesData {
 
 	public SeriesData(String dir, String name) {
@@ -26,9 +28,8 @@ public class SeriesData {
 		this.aggregation = null;
 	}
 
-	public SeriesData(String dir, String name, RunData[] runs,
-			RunData aggregation) {
-		this(dir, name, runs);
+	public SeriesData(String dir, RunData[] runs, AggregatedSeries aggregation) {
+		this(dir, runs);
 		this.aggregation = aggregation;
 	}
 
@@ -58,13 +59,13 @@ public class SeriesData {
 		this.runs.add(run);
 	}
 
-	private RunData aggregation;
+	private AggregatedSeries aggregation;
 
-	public RunData getAggregation() {
+	public AggregatedSeries getAggregation() {
 		return this.aggregation;
 	}
 
-	public void setAggregation(RunData aggregation) {
+	public void setAggregation(AggregatedSeries aggregation) {
 		this.aggregation = aggregation;
 	}
 }
