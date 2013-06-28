@@ -27,10 +27,10 @@ public class SeriesData {
 		}
 		this.aggregation = null;
 	}
-
-	public SeriesData(String dir, RunData[] runs, AggregatedSeries aggregation) {
-		this(dir, runs);
-		this.aggregation = aggregation;
+	
+	public SeriesData(String dir, RunData[] runs, String name, AggregatedSeries aggregation) {
+		this(dir, name, runs);
+		//this.aggregation = aggregation;
 	}
 
 	private String dir;
@@ -59,13 +59,13 @@ public class SeriesData {
 		this.runs.add(run);
 	}
 
-	private AggregatedSeries aggregation;
+	private RunData aggregation;
 
-	public AggregatedSeries getAggregation() {
+	public RunData getAggregation() {
 		return this.aggregation;
 	}
 
-	public void setAggregation(AggregatedSeries aggregation) {
+	public void setAggregation(RunData aggregation) {
 		this.aggregation = aggregation;
 	}
 }
