@@ -3,11 +3,15 @@ package dna.series.data;
 import java.io.IOException;
 import java.util.ArrayList;
 
+<<<<<<< HEAD
 import dna.io.filesystem.Dir;
 import dna.metrics.Metric.MetricType;
 import dna.series.aggdata.AggregatedSeries;
 import dna.series.lists.MetricDataList;
 import dna.util.Log;
+=======
+import dna.series.aggdata.AggregatedSeries;
+>>>>>>> Codeupdate 13-06-28
 
 public class SeriesData {
 
@@ -33,10 +37,16 @@ public class SeriesData {
 		this.aggregation = null;
 	}
 
+<<<<<<< HEAD
 	public SeriesData(String dir, String name, RunData[] runs,
 			AggregatedSeries aggregation) {
 		this(dir, name, runs);
 		// this.aggregation = aggregation;
+=======
+	public SeriesData(String dir, RunData[] runs, AggregatedSeries aggregation) {
+		this(dir, runs);
+		this.aggregation = aggregation;
+>>>>>>> Codeupdate 13-06-28
 	}
 
 	private String dir;

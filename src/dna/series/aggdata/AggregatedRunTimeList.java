@@ -1,5 +1,6 @@
 package dna.series.aggdata;
 
+<<<<<<< HEAD
 import java.io.IOException;
 
 import dna.io.Reader;
@@ -7,10 +8,13 @@ import dna.io.Writer;
 import dna.series.lists.List;
 import dna.util.Config;
 
+=======
+>>>>>>> Codeupdate 13-06-28
 /**
  * An AggregatedRunTimeList object contains aggregated values of a RunTimeList.
  * 
  * @author Rwilmes
+<<<<<<< HEAD
  * @date 04.07.2013
  */
 public class AggregatedRunTimeList extends List<AggregatedValue> {
@@ -82,4 +86,29 @@ public class AggregatedRunTimeList extends List<AggregatedValue> {
 		return list;
 	}
 
+=======
+ * @date 27.06.2013
+ */
+public class AggregatedRunTimeList extends AggregatedData {
+
+	// member variables
+	private AggregatedValue[] values;
+	
+	// constructors
+	public AggregatedRunTimeList(String name) {
+		super(name);
+	}
+	
+	public AggregatedRunTimeList(String name, AggregatedValue[] values) {
+		super(name);
+		this.values = values;
+	}
+	
+	// get methods
+	public AggregatedValue[] getValues() {
+		return this.values;
+	}
+	
+	
+>>>>>>> Codeupdate 13-06-28
 }

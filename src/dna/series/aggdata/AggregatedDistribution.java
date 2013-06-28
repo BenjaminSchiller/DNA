@@ -320,7 +320,6 @@ public class AggregatedDistribution extends AggregatedData {
 >>>>>>> Codeupdate 13-06-18
 =======
 	
-
 	// IO methods
 	/**
 	 * @param dir String which contains the path to the directory the AggregatedDistribution will be read from.

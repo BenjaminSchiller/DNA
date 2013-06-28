@@ -24,10 +24,13 @@ import dna.series.lists.List;
  * @date 24.06.2013
  */
 public class AggregatedValueList extends List<AggregatedValue> {
+<<<<<<< HEAD
 
 <<<<<<< HEAD
 <<<<<<< HEAD
 =======
+=======
+>>>>>>> Codeupdate 13-06-28
 	
 >>>>>>> Codeupdate 13-06-24
 =======

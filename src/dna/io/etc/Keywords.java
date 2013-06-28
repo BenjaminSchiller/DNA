@@ -2,6 +2,8 @@ package dna.io.etc;
 
 public class Keywords {
 	public static final String pre = "# ";
+	
+	public static final String batchData = "BatchData";
 
 	public static final String graphName = "Name";
 

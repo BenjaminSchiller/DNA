@@ -99,9 +99,14 @@ public class NodeValueList extends Data {
 	private double[] values;
 	
 	// constructors
+	public NodeValueList(int size) {
+		super();
+		this.values = new double[size];
+	}
+	
 	public NodeValueList(String name, int size) {
 		super(name);
-		values = new double[size];
+		this.values = new double[size];
 	}
 	
 	public NodeValueList(String name, double[] values){

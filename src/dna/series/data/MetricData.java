@@ -8,12 +8,18 @@ import dna.series.lists.DistributionList;
 import dna.series.lists.ListItem;
 import dna.series.lists.NodeValueListList;
 import dna.series.lists.ValueList;
+<<<<<<< HEAD
 import dna.util.ArrayUtils;
 import dna.util.Config;
+=======
+>>>>>>> Codeupdate 13-06-28
 import dna.util.Log;
 
 public class MetricData implements ListItem {
 
+	
+	
+	
 	public MetricData(String name) {
 		this.name = name;
 		this.values = new ValueList();
@@ -44,6 +50,7 @@ public class MetricData implements ListItem {
 		this.type = type;
 		this.values = new ValueList(sizeValues);
 		this.distributions = new DistributionList(sizeDistributions);
+<<<<<<< HEAD
 		this.nodevalues = new NodeValueListList(sizeNodeValueList);
 	}
 
@@ -57,6 +64,16 @@ public class MetricData implements ListItem {
 			this.distributions.add(d);
 		}
 		this.nodevalues = new NodeValueListList();
+=======
+		this.nodevalues = new NodeValueListList();
+	}
+	
+	public MetricData(String name, int sizeValues, int sizeDistributions, int sizeNodeValueList) {
+		this.name = name;
+		this.values = new ValueList(sizeValues);
+		this.distributions = new DistributionList(sizeDistributions);
+		this.nodevalues = new NodeValueListList(sizeNodeValueList);
+>>>>>>> Codeupdate 13-06-28
 	}
 
 	public MetricData(String name, MetricType type, Value[] values,
@@ -68,6 +85,20 @@ public class MetricData implements ListItem {
 		for (Distribution d : distributions) {
 			this.distributions.add(d);
 		}
+<<<<<<< HEAD
+=======
+		this.nodevalues = new NodeValueListList();
+	}
+	
+	public MetricData(String name, Value[] values, Distribution[] distributions, NodeValueList[] nodevalues) {
+		this(name, values.length, distributions.length, nodevalues.length);
+		for (Value v : values) {
+			this.values.add(v);
+		}
+		for (Distribution d : distributions) {
+			this.distributions.add(d);
+		}
+>>>>>>> Codeupdate 13-06-28
 		for (NodeValueList n : nodevalues) {
 			this.nodevalues.add(n);
 		}
@@ -88,6 +119,7 @@ public class MetricData implements ListItem {
 		this.type = type;
 		this.values = values;
 		this.distributions = distributions;
+<<<<<<< HEAD
 		this.nodevalues = nodevalues;
 	}
 
@@ -95,8 +127,25 @@ public class MetricData implements ListItem {
 
 	public NodeValueListList getNodeValues() {
 		return this.nodevalues;
+=======
+		this.nodevalues = new NodeValueListList();
+	}
+	
+	public MetricData(String name, ValueList values,
+			DistributionList distributions, NodeValueListList nodevalues) {
+		this.name = name;
+		this.values = values;
+		this.distributions = distributions;
+		this.nodevalues = nodevalues;
+>>>>>>> Codeupdate 13-06-28
 	}
 
+	private NodeValueListList nodevalues;
+	
+	public NodeValueListList getNodeValues() {
+		return this.nodevalues;
+	}
+	
 	String name;
 
 	public String getName() {
@@ -131,6 +180,8 @@ public class MetricData implements ListItem {
 		this.distributions.write(dir);
 		this.nodevalues.write(dir);
 	}
+	
+	
 
 	/**
 	 * Reads a MetricData object from filesystem. Convention: MetricData objects
@@ -608,6 +659,16 @@ public class MetricData implements ListItem {
 		return true;
 	}
 	
+	public static MetricData read(String dir, String name,
+			boolean readDistributionValues, boolean readNodeValues) throws IOException {
+		ValueList values = ValueList.read(dir,
+				Files.getValuesFilename(Names.metricDataValues));
+		DistributionList distributions = DistributionList.read(dir,
+				readDistributionValues);
+		NodeValueListList nodevalues = NodeValueListList.read(dir, readNodeValues);
+		return new MetricData(name, values, distributions, nodevalues);
+	}
+	
 	/**
 	 * Tests if two MetricData objects are of the same type.
 	 * Therefore it checks if they got the same distributions and metrics.
@@ -627,20 +688,31 @@ public class MetricData implements ListItem {
 		
 		DistributionList dlist1 = m1.getDistributions();
 		DistributionList dlist2 = m2.getDistributions();
-		
-		if(list1.size() != list2.size() || dlist1.size() != dlist2.size())
+
+		if(list1.size() != list2.size()) {
+			Log.warn("different amount of values on metric " + m1.getName() + " and metric " + m2.getName());
 			return false;
+		}
+		
+		if(dlist1.size() != dlist2.size()) {
+			Log.warn("different amount of distributions on metric " + m1.getName() + " and metric " + m2.getName());
+			return false;
+		}
 
 		for(String k : list1.getNames()) {
-			if(!list1.get(k).equals(list2.get(k))) {
+			if(!list1.get(k).getName().equals(list2.get(k).getName())) {
+				Log.warn("different values on metric " + m1.getName() + " and metric " + m2.getName());
 				return false;
 			}
 		}
+		
 		for(String k : dlist1.getNames()) {
-			if(!dlist1.get(k).equals(dlist2.get(k))) {
+			if(!dlist1.get(k).getName().equals(dlist2.get(k).getName())) {
+				Log.warn("different distributions on metric " + m1.getName() + " and metric " + m2.getName());
 				return false;
 			}
 		}
+		
 		return true;
 	}
 

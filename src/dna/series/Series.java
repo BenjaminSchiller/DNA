@@ -8,8 +8,13 @@ import dna.graph.generators.GraphGenerator;
 import dna.io.filesystem.Dir;
 import dna.io.filter.PrefixFilenameFilter;
 import dna.metrics.Metric;
+<<<<<<< HEAD
 import dna.metrics.MetricNotApplicableException;
 import dna.series.aggdata.AggregatedSeries;
+=======
+import dna.series.aggdata.AggregatedSeries;
+import dna.series.data.BatchData;
+>>>>>>> Codeupdate 13-06-28
 import dna.series.data.RunData;
 import dna.series.data.SeriesData;
 import dna.updates.generators.BatchGenerator;
@@ -62,15 +67,61 @@ public class Series {
 	}
 
 	public SeriesData generate(int runs, int batches, boolean compare,
+<<<<<<< HEAD
 			boolean write) throws AggregationException, IOException,
 			MetricNotApplicableException {
 		return SeriesGeneration.generate(this, runs, batches, compare, write);
+=======
+			boolean write) throws AggregationException, IOException {
+
+		Log.infoSep();
+		Timer timer = new Timer("seriesGeneration");
+		Log.info("generating series");
+		Log.infoSep();
+		Log.info("ds = " + this.gg.getDatastructures());
+		Log.info("gg = " + this.gg.getDescription());
+		Log.info("bg = " + this.bg.getDescription());
+		Log.info("p  = " + this.dir);
+		StringBuffer buff = new StringBuffer("");
+		for (Metric m : this.metrics) {
+			if (buff.length() > 0) {
+				buff.append("\n     ");
+			}
+			buff.append(m.getDescription());
+		}
+		Log.info("m  = " + buff.toString());
+
+		SeriesData sd = new SeriesData(this.dir, runs);
+
+		// generate all runs
+	
+		for (int r = 0; r < runs; r++) {
+			sd.addRun(this.generateRun(r, batches, compare, write));
+		}
+		
+		// aggregate all runs
+		Log.infoSep();
+		Log.info("Aggregating SeriesData");
+		AggregatedSeries aggregation = Aggregation.aggregateData(sd);
+		if (write) {
+			Log.info("Writing aggregated series in " + dir);
+			aggregation.write(Dir.getAggregationDataDir(dir));
+			Log.info("Finished writing aggregated series in " + dir);	
+		}
+		Log.infoSep();
+		timer.end();
+		Log.info("total time: " + timer.toString());
+		Log.infoSep();
+
+		return sd;
+>>>>>>> Codeupdate 13-06-28
 	}
 
 	private GraphGenerator graphGenerator;
 
 	private BatchGenerator batchGenerator;
 
+<<<<<<< HEAD
 	private Metric[] metrics;
 
 	private String dir;
@@ -81,6 +132,35 @@ public class Series {
 
 	public GraphGenerator getGraphGenerator() {
 		return this.graphGenerator;
+=======
+		// generate initial data
+		BatchData initialData = this.generateInitialData();
+		if (compare) {
+			this.compareMetrics();
+		}
+		rd.getBatches().add(initialData);
+		if (write) {
+			initialData.write(Dir.getBatchDataDir(this.dir, run,
+					initialData.getTimestamp()));
+		}
+		// generate batch data
+		for (int i = 0; i < batches; i++) {
+			BatchData batchData = this.generateNextBatch(i + 1);
+			if (compare) {
+				this.compareMetrics();
+			}
+			rd.getBatches().add(batchData);
+			if (write) {
+				batchData.write(Dir.getBatchDataDir(this.dir, run,
+						batchData.getTimestamp()));
+			}
+		}
+		
+		timer.end();
+		Log.info(timer.toString());
+
+		return rd;
+>>>>>>> Codeupdate 13-06-28
 	}
 
 	public BatchGenerator getBatchGenerator() {
