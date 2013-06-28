@@ -20,6 +20,14 @@ public class Files {
 	public static String getDistributionName(String filename) {
 		return filename.replace(Suffix.distribution, "");
 	}
+	
+	public static String getNodeValueListFilename(String name) {
+		return name + Suffix.nodeValueList;
+	}
+	
+	public static String getNodeValueListName(String filename) {
+		return filename.replace(Suffix.nodeValueList, "");
+	}
 
 	/*
 	 * RUNTIMES

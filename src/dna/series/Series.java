@@ -7,6 +7,7 @@ import dna.graph.Graph;
 import dna.graph.GraphGenerator;
 import dna.io.filesystem.Dir;
 import dna.metrics.Metric;
+import dna.series.aggdata.AggregatedSeries;
 import dna.series.data.BatchData;
 import dna.series.data.RunData;
 import dna.series.data.RunTime;
@@ -59,17 +60,20 @@ public class Series {
 		SeriesData sd = new SeriesData(this.dir, runs);
 
 		// generate all runs
+	
 		for (int r = 0; r < runs; r++) {
 			sd.addRun(this.generateRun(r, batches, compare, write));
 		}
-
+		
 		// aggregate all runs
-		RunData aggregation = Aggregation.aggregate(sd);
-		sd.setAggregation(aggregation);
+		Log.infoSep();
+		Log.info("Aggregating SeriesData");
+		AggregatedSeries aggregation = Aggregation.aggregateData(sd);
 		if (write) {
+			Log.info("Writing aggregated series in " + dir);
 			aggregation.write(Dir.getAggregationDataDir(dir));
+			Log.info("Finished writing aggregated series in " + dir);	
 		}
-
 		Log.infoSep();
 		timer.end();
 		Log.info("total time: " + timer.toString());
@@ -100,7 +104,6 @@ public class Series {
 			initialData.write(Dir.getBatchDataDir(this.dir, run,
 					initialData.getTimestamp()));
 		}
-
 		// generate batch data
 		for (int i = 0; i < batches; i++) {
 			BatchData batchData = this.generateNextBatch(i + 1);
@@ -113,12 +116,11 @@ public class Series {
 						batchData.getTimestamp()));
 			}
 		}
-
+		
 		timer.end();
 		Log.info(timer.toString());
 
 		return rd;
-
 	}
 
 	private boolean compareMetrics() {
