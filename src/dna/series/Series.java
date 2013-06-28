@@ -3,7 +3,6 @@ package dna.series;
 import java.io.IOException;
 import java.util.HashMap;
 
-import dna.graph.Edge;
 import dna.graph.Graph;
 import dna.graph.GraphGenerator;
 import dna.io.filesystem.Dir;
@@ -16,7 +15,6 @@ import dna.series.data.Value;
 import dna.updates.Batch;
 import dna.updates.BatchGenerator;
 import dna.updates.BatchSanitizationStats;
-import dna.updates.EdgeAddition;
 import dna.updates.Update;
 import dna.util.Log;
 import dna.util.Memory;
@@ -65,15 +63,14 @@ public class Series {
 		SeriesData sd = new SeriesData(this.dir, this.name, runs);
 
 		// generate all runs
-
 		for (int r = 0; r < runs; r++) {
 			sd.addRun(this.generateRun(r, batches, compare, write));
 		}
-
+		
 		// aggregate all runs
 		Log.infoSep();
 		Log.info("Aggregating SeriesData");
-		sd.setAggregation(Aggregation.aggregate(sd));
+		sd.setAggregation(Aggregation.aggregateData(sd));
 		if (write) {
 			Log.info("Writing aggregated series in " + dir);
 			sd.getAggregation().write(Dir.getAggregationDataDir(dir));
@@ -121,7 +118,7 @@ public class Series {
 						batchData.getTimestamp()));
 			}
 		}
-
+		
 		timer.end();
 		Log.info(timer.toString());
 
