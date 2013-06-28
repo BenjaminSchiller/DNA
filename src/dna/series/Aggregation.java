@@ -277,6 +277,7 @@ public class Aggregation {
 		return new Values(values, name);
 	}
 	
+<<<<<<< HEAD
 	private static void test(SeriesData seriesData) throws AggregationException {
 		int diffs = seriesData.getRun(0).getDiffs().size();
 		for (int i = 0; i < seriesData.getRuns().size(); i++) {
@@ -317,6 +318,8 @@ public class Aggregation {
 		return new Values(values, name);
 	}
 	
+=======
+>>>>>>> Nachbesserung Merge 28.06.2013
 	private static void test(SeriesData seriesData) throws AggregationException {
 		int batches = seriesData.getRun(0).getBatches().size();
 		for (int i = 0; i < seriesData.getRuns().size(); i++) {

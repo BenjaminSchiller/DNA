@@ -4,6 +4,7 @@ public class Settings {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 	// sorted by degree of freedom:
 	// 1,2,3,...,29,30,40,50,60,70,80,90,100,200,300,400,500,infinity
 	private static final double[] Q95 = { 12.71, 4.303, 3.182, 2.776, 2.571,
@@ -117,6 +118,10 @@ public class Settings {
 <<<<<<< HEAD
 >>>>>>> gnuplot path change
 =======
+=======
+	public static final String gnuplotPath = "/usr/bin/gnuplot";	// unix
+	//public static final String gnuplotPath = "f:\\!proxx\\gnuplot\\bin\\gnuplot.exe";	// rwilmes windows
+>>>>>>> Nachbesserung Merge 28.06.2013
 	
 	// sorted by degree of freedom: 1,2,3,...,29,30,40,50,60,70,80,90,100,200,300,400,500,infinity
 	private static final double[] Q95 = {12.71, 4.303, 3.182, 2.776, 2.571, 2.447, 2.365, 2.306, 2.262, 2.228, 2.201, 2.179, 2.160, 2.145, 2.131, 2.120, 2.110, 2.101, 2.093, 2.086, 2.080, 2.074, 2.069, 2.064, 2.060, 2.056, 2.052, 2.048, 2.045, 2.042, 2.021, 2.009, 2.000, 1.994, 1.990, 1.987, 1.984, 1.972, 1.968, 1.966, 1.965, 1.960}; 

@@ -25,6 +25,7 @@ import dna.series.lists.List;
  */
 public class AggregatedValueList extends List<AggregatedValue> {
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -34,6 +35,8 @@ public class AggregatedValueList extends List<AggregatedValue> {
 	
 >>>>>>> Codeupdate 13-06-24
 =======
+=======
+>>>>>>> Nachbesserung Merge 28.06.2013
 	
 >>>>>>> Codeupdate 13-06-24
 	// constructors

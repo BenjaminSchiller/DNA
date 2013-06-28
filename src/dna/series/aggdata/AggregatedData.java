@@ -4,6 +4,7 @@ package dna.series.aggdata;
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -28,6 +29,10 @@ import dna.util.Log;
 =======
 import java.io.IOException;
 import java.util.ArrayList;
+=======
+import java.io.IOException;
+import java.util.ArrayList;
+>>>>>>> Nachbesserung Merge 28.06.2013
 
 import dna.io.Writer;
 import dna.io.etc.Keywords;
@@ -251,6 +256,7 @@ public class AggregatedData implements ListItem {
 		Writer w = new Writer(dir, filename);
 		
 		for(AggregatedValue aggData : inputData) {			
+<<<<<<< HEAD
 			String temp = "" + (int) aggData.getValues()[0] + Keywords.aggregatedDataDelimiter;
 			for (int i = 1; i < aggData.getValues().length; i++) {
 				if(i == aggData.getValues().length-1)
@@ -306,6 +312,8 @@ public class AggregatedData implements ListItem {
 		Writer w = new Writer(dir, filename);
 		
 		for(AggregatedValue aggData : inputData) {			
+=======
+>>>>>>> Nachbesserung Merge 28.06.2013
 			String temp = "" + aggData.getName() + Keywords.aggregatedDataDelimiter;
 			for (int i = 0; i < aggData.getValues().length; i++) {
 				if(i == aggData.getValues().length-1)

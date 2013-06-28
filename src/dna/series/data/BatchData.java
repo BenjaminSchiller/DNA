@@ -126,6 +126,7 @@ public class BatchData {
 
 		return true;
 	}
+<<<<<<< HEAD
 
 	/**
 	 * This method tests if two different BatchData objects can be aggregated.
@@ -160,5 +161,7 @@ public class BatchData {
 
 		return true;
 	}
+=======
+>>>>>>> Nachbesserung Merge 28.06.2013
 
 }

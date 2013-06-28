@@ -99,6 +99,7 @@ public class NodeValueList extends Data {
 	private double[] values;
 	
 	// constructors
+<<<<<<< HEAD
 	public NodeValueList(int size) {
 		super();
 		this.values = new double[size];
@@ -139,6 +140,8 @@ public class NodeValueList extends Data {
 	private double[] values;
 	
 	// constructors
+=======
+>>>>>>> Nachbesserung Merge 28.06.2013
 	public NodeValueList(String name, int size) {
 		super(name);
 		values = new double[size];
