@@ -17,6 +17,7 @@ import dna.updates.BatchGenerator;
 import dna.updates.BatchSanitizationStats;
 import dna.updates.Update;
 import dna.util.Log;
+import dna.util.Memory;
 import dna.util.Rand;
 import dna.util.Timer;
 
@@ -24,11 +25,12 @@ import dna.util.Timer;
 public class Series {
 
 	public Series(GraphGenerator gg, BatchGenerator bg, Metric[] metrics,
-			String dir) {
+			String dir, String name) {
 		this.gg = gg;
 		this.bg = bg;
 		this.metrics = metrics;
 		this.dir = dir;
+		this.name = name;
 	}
 
 	public SeriesData generate(int runs, int batches)
@@ -56,7 +58,7 @@ public class Series {
 		}
 		Log.info("m  = " + buff.toString());
 
-		SeriesData sd = new SeriesData(this.dir, runs);
+		SeriesData sd = new SeriesData(this.dir, this.name, runs);
 
 		// generate all runs
 		for (int r = 0; r < runs; r++) {
@@ -186,6 +188,12 @@ public class Series {
 		// add values
 		initialData.getValues().add(new Value("randomSeed", seed));
 
+		// call garbage collection
+		System.gc();
+		// record memory usage
+		double mem = (new Memory()).getUsed();
+		initialData.getValues().add(new Value(SeriesStats.memory, mem));
+
 		return initialData;
 
 	}
@@ -288,41 +296,61 @@ public class Series {
 
 		// add values
 		batchData.getValues().add(
-				new Value("nodesToAdd", b.getNodeAdditionCount()));
-		batchData.getValues().add(new Value("addedNodes", addedNodes));
+				new Value(SeriesStats.nodesToAdd, b.getNodeAdditionCount()));
+		batchData.getValues()
+				.add(new Value(SeriesStats.addedNodes, addedNodes));
 		batchData.getValues().add(
-				new Value("nodesToRemove", b.getNodeRemovalCount()));
-		batchData.getValues().add(new Value("removedNodes", removedNodes));
+				new Value(SeriesStats.nodesToRemove, b.getNodeRemovalCount()));
 		batchData.getValues().add(
-				new Value("nodeWeightsToUpdate", b.getNodeWeightUpdateCount()));
+				new Value(SeriesStats.removedNodes, removedNodes));
 		batchData.getValues().add(
-				new Value("updatedNodeWeights", updatedNodeWeights));
+				new Value(SeriesStats.nodeWeightsToUpdate, b
+						.getNodeWeightUpdateCount()));
+		batchData.getValues().add(
+				new Value(SeriesStats.updatedNodeWeights, updatedNodeWeights));
 
 		batchData.getValues().add(
-				new Value("edgesToAdd", b.getEdgeAdditionCount()));
-		batchData.getValues().add(new Value("addedEdges", addedEdges));
+				new Value(SeriesStats.edgesToAdd, b.getEdgeAdditionCount()));
+		batchData.getValues()
+				.add(new Value(SeriesStats.addedEdges, addedEdges));
 		batchData.getValues().add(
-				new Value("edgesToRemove", b.getEdgeRemovalCount()));
-		batchData.getValues().add(new Value("removedEdges", removedEdges));
+				new Value(SeriesStats.edgesToRemove, b.getEdgeRemovalCount()));
 		batchData.getValues().add(
-				new Value("edgeWeightsToUpdate", b.getEdgeWeightUpdateCount()));
+				new Value(SeriesStats.removedEdges, removedEdges));
 		batchData.getValues().add(
-				new Value("updatedEdgeWeights", updatedEdgeWeights));
+				new Value(SeriesStats.edgeWeightsToUpdate, b
+						.getEdgeWeightUpdateCount()));
+		batchData.getValues().add(
+				new Value(SeriesStats.updatedEdgeWeights, updatedEdgeWeights));
 
 		batchData.getValues().add(
-				new Value("deletedEdgeAdditions", sanitizationStats
+				new Value(SeriesStats.deletedNodeAdditions, sanitizationStats
+						.getDeletedNodeAdditions()));
+		batchData.getValues().add(
+				new Value(SeriesStats.deletedEdgeAdditions, sanitizationStats
 						.getDeletedEdgeAdditions()));
 		batchData.getValues().add(
-				new Value("deletedEdgeAdditions", sanitizationStats
+				new Value(SeriesStats.deletedNodeRemovals, sanitizationStats
+						.getDeletedNodeRemovals()));
+		batchData.getValues().add(
+				new Value(SeriesStats.deletedEdgeRemovals, sanitizationStats
 						.getDeletedEdgeRemovals()));
 		batchData.getValues().add(
-				new Value("deletedNodeWeightUpdates", sanitizationStats
-						.getDeletedNodeWeightUpdates()));
+				new Value(SeriesStats.deletedNodeWeightUpdates,
+						sanitizationStats.getDeletedNodeWeightUpdates()));
 		batchData.getValues().add(
-				new Value("deletedEdgeWeightUpdates", sanitizationStats
-						.getDeletedEdgeWeightUpdates()));
+				new Value(SeriesStats.deletedEdgeWeightUpdates,
+						sanitizationStats.getDeletedEdgeWeightUpdates()));
 
-		batchData.getValues().add(new Value("randomSeed", seed));
+		batchData.getValues().add(new Value(SeriesStats.randomSeed, seed));
+
+		// release batch
+		b = null;
+		// call garbage collection
+		System.gc();
+		// record memory usage
+		double mem = (new Memory()).getUsed();
+		batchData.getValues().add(new Value(SeriesStats.memory, mem));
 
 		// add metric data
 		for (Metric m : this.metrics) {
@@ -421,6 +449,8 @@ public class Series {
 
 	private Graph g;
 
+	private String name;
+
 	public GraphGenerator getGraphGenerator() {
 		return this.gg;
 	}
@@ -439,6 +469,10 @@ public class Series {
 
 	public Graph getGraph() {
 		return this.g;
+	}
+
+	public String getName() {
+		return this.name;
 	}
 
 }
