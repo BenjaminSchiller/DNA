@@ -28,8 +28,14 @@ public class SeriesData {
 		this.aggregation = null;
 	}
 
+<<<<<<< HEAD
 	public SeriesData(String dir, RunData[] runs, AggregatedSeries aggregation) {
 		this(dir, runs);
+=======
+	public SeriesData(String dir, String name, RunData[] runs,
+			RunData aggregation) {
+		this(dir, name, runs);
+>>>>>>> upstream/master
 		this.aggregation = aggregation;
 	}
 
