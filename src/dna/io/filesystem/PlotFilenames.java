@@ -7,8 +7,6 @@ import dna.series.data.MetricData;
 public class PlotFilenames {
 	public static final String delimiter = ".";
 	
-	public static final String statsName = "statistics";
-	
 	public static final String generalRuntimes = "general";
 	
 	public static final String metricRuntimes = "metrics";
