@@ -24,6 +24,8 @@ import dna.util.Timer;
 @SuppressWarnings("rawtypes")
 public class Series {
 
+	public static boolean callGC = false;
+
 	public Series(GraphGenerator gg, BatchGenerator bg, Metric[] metrics,
 			String dir, String name) {
 		this.gg = gg;
@@ -61,17 +63,20 @@ public class Series {
 		SeriesData sd = new SeriesData(this.dir, this.name, runs);
 
 		// generate all runs
+
 		for (int r = 0; r < runs; r++) {
 			sd.addRun(this.generateRun(r, batches, compare, write));
 		}
 
 		// aggregate all runs
-		RunData aggregation = Aggregation.aggregate(sd);
-		sd.setAggregation(aggregation);
+		Log.infoSep();
+		Log.info("Aggregating SeriesData");
+		sd.setAggregation(Aggregation.aggregate(sd));
 		if (write) {
-			aggregation.write(Dir.getAggregationDataDir(dir));
+			Log.info("Writing aggregated series in " + dir);
+			sd.getAggregation().write(Dir.getAggregationDataDir(dir));
+			Log.info("Finished writing aggregated series in " + dir);
 		}
-
 		Log.infoSep();
 		timer.end();
 		Log.info("total time: " + timer.toString());
@@ -102,7 +107,6 @@ public class Series {
 			initialData.write(Dir.getBatchDataDir(this.dir, run,
 					initialData.getTimestamp()));
 		}
-
 		// generate batch data
 		for (int i = 0; i < batches; i++) {
 			BatchData batchData = this.generateNextBatch(i + 1);
@@ -120,7 +124,6 @@ public class Series {
 		Log.info(timer.toString());
 
 		return rd;
-
 	}
 
 	private boolean compareMetrics() {
@@ -189,7 +192,9 @@ public class Series {
 		initialData.getValues().add(new Value("randomSeed", seed));
 
 		// call garbage collection
-		System.gc();
+		if (Series.callGC) {
+			System.gc();
+		}
 		// record memory usage
 		double mem = (new Memory()).getUsed();
 		initialData.getValues().add(new Value(SeriesStats.memory, mem));
@@ -347,7 +352,9 @@ public class Series {
 		// release batch
 		b = null;
 		// call garbage collection
-		System.gc();
+		if (Series.callGC) {
+			System.gc();
+		}
 		// record memory usage
 		double mem = (new Memory()).getUsed();
 		batchData.getValues().add(new Value(SeriesStats.memory, mem));
