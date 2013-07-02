@@ -2,7 +2,6 @@ package dna.util;
 
 import java.util.Arrays;
 import java.util.Set;
-import java.util.List;
 
 public class ArrayUtils {
 	public static int[] incr(int[] values, int index) {
@@ -29,12 +28,36 @@ public class ArrayUtils {
 		}
 	}
 
+	public static long[] incr(long[] values, int index) {
+		try {
+			values[index]++;
+			return values;
+		} catch (ArrayIndexOutOfBoundsException e) {
+			long[] valuesNew = new long[index + 1];
+			System.arraycopy(values, 0, valuesNew, 0, values.length);
+			valuesNew[index] = 1;
+			return valuesNew;
+		}
+	}
+
 	public static int[] decr(int[] values, int index) {
 		try {
 			values[index]--;
 			return values;
 		} catch (ArrayIndexOutOfBoundsException e) {
 			int[] valuesNew = new int[index + 1];
+			System.arraycopy(values, 0, valuesNew, 0, values.length);
+			valuesNew[index] = -1;
+			return valuesNew;
+		}
+	}
+
+	public static long[] decr(long[] values, int index) {
+		try {
+			values[index]--;
+			return values;
+		} catch (ArrayIndexOutOfBoundsException e) {
+			long[] valuesNew = new long[index + 1];
 			System.arraycopy(values, 0, valuesNew, 0, values.length);
 			valuesNew[index] = -1;
 			return valuesNew;
@@ -191,6 +214,14 @@ public class ArrayUtils {
 		return sum;
 	}
 
+	public static long sum(long[] values) {
+		long sum = 0;
+		for (long v : values) {
+			sum += v;
+		}
+		return sum;
+	}
+
 	public static double sum(double[] values) {
 		double sum = 0;
 		for (double v : values) {
@@ -228,11 +259,11 @@ public class ArrayUtils {
 		return true;
 	}
 
-	
 	/**
 	 * Calculates the average over an given array of doubles.
 	 * 
-	 * @param values double array the average is calculated from
+	 * @param values
+	 *            double array the average is calculated from
 	 * @return average value of the given double array
 	 */
 	public static double avg(double[] values) {
@@ -245,64 +276,58 @@ public class ArrayUtils {
 	}
 
 	/**
-	 * Calculates the average over an given array of doubles, considering Double.NaN's.
+	 * Calculates the average over an given array of doubles, considering
+	 * Double.NaN's.
 	 * 
-	 * @param values double array the average is calculated from
+	 * @param values
+	 *            double array the average is calculated from
 	 * @return average value of the given double array
 	 */
 	public static double avgIncludingNaN(double[] values) {
 		int counter = 0;
 		double avg = 0;
-		
-		for (double v : values) {
-			if(!Double.isNaN(v))
-				avg += v;
-			else {
-				Log.warn("Double.NaN detected");
-				counter++;
 
-		}
-		if((values.length-counter) == 0)
-			return Double.NaN;
-		else
-			return avg / (values.length-counter);
-	}
-	
-	/**
-	 * Calculates the average over an given array of doubles, considering Double.NaN's.
-	 * 
-	 * @param values double array the average is calculated from
-	 * @return average value of the given double array
-	 */
-	public static double avgIncludingNaN(double[] values) {
-		int counter = 0;
-		double avg = 0;
-		
 		for (double v : values) {
-			if(!Double.isNaN(v))
+			if (!Double.isNaN(v))
 				avg += v;
 			else {
 				Log.warn("Double.NaN detected");
 				counter++;
 			}
 		}
-		if((values.length-counter) == 0)
+		if ((values.length - counter) == 0)
 			return Double.NaN;
 		else
-			return avg / (values.length-counter);
+			return avg / (values.length - counter);
 	}
-	
+
+	public static double avgIgnoreNaN(double[] values) {
+		double avg = 0;
+		int counter = 0;
+		for (double v : values) {
+			if (!Double.isNaN(v)) {
+				avg += v;
+				counter++;
+			}
+		}
+		if (counter == 0) {
+			return 0;
+		}
+		return avg / (double) counter;
+	}
+
 	/**
 	 * Calculates the maximum over an given array of doubles.
 	 * 
-	 * @param values double array the maximum is calculated from
+	 * @param values
+	 *            double array the maximum is calculated from
 	 * @return maximum value of the given double array
 	 */
 	public static double max(double[] values) {
-		try{
+		try {
 			double max = values[0];
-			for(double v : values) {
-				if(v > max)
+			for (double v : values) {
+				if (v > max)
 					max = v;
 			}
 			return max;
@@ -310,22 +335,23 @@ public class ArrayUtils {
 			return 0;
 		}
 	}
-	
+
 	/**
-	 * Calculates the maximum over an given array of doubles, while considering Double.NaN's.
+	 * Calculates the maximum over an given array of doubles, while considering
+	 * Double.NaN's.
 	 * 
-	 * @param values double array the maximum is calculated from
+	 * @param values
+	 *            double array the maximum is calculated from
 	 * @return maximum value of the given double array
 	 */
 	public static double maxIncludingNaN(double[] values) {
-		try{
+		try {
 			double max = values[0];
-			for(double v : values) {
-				if(!Double.isNaN(v)) {
-					if(v > max)
+			for (double v : values) {
+				if (!Double.isNaN(v)) {
+					if (v > max)
 						max = v;
-				}
-				else {
+				} else {
 					Log.warn("Double.NaN detected");
 				}
 			}
@@ -334,38 +360,39 @@ public class ArrayUtils {
 			return 0;
 		}
 	}
-	
-	
+
 	/**
 	 * Calculates the minimum over an given array of doubles.
 	 * 
-	 * @param values double array the minimum is calculated from
+	 * @param values
+	 *            double array the minimum is calculated from
 	 * @return minimum value of the given double array
 	 */
 	public static double min(double[] values) {
 		double min = values[0];
-		for(double v : values) {
-			if(v < min)
+		for (double v : values) {
+			if (v < min)
 				min = v;
 		}
 		return min;
 	}
-	
+
 	/**
-	 * Calculates the minimum over an given array of doubles, while considering Double.NaN's.
+	 * Calculates the minimum over an given array of doubles, while considering
+	 * Double.NaN's.
 	 * 
-	 * @param values double array the minimum is calculated from
+	 * @param values
+	 *            double array the minimum is calculated from
 	 * @return minimum value of the given double array
 	 */
 	public static double minIncludingNaN(double[] values) {
-		try{
+		try {
 			double min = values[0];
-			for(double v : values) {
-				if(!Double.isNaN(v)) {
-					if(v < min)
+			for (double v : values) {
+				if (!Double.isNaN(v)) {
+					if (v < min)
 						min = v;
-				}
-				else {
+				} else {
 					Log.warn("Double.NaN detected");
 				}
 			}
@@ -374,157 +401,70 @@ public class ArrayUtils {
 			return 0;
 		}
 	}
-	
-	
+
 	/**
-	 * Calculates the median over an given array of doubles.
-	 * Caution: Due to the Arrays.sort call, the input array will be sorted.
+	 * Calculates the median over an given array of doubles. Caution: Due to the
+	 * Arrays.sort call, the input array will be sorted.
 	 * 
-	 * @param values double array the median is calculated from
-	 * @return median of the given double array
-	 */
-	/**
-	 * Calculates the maximum over an given array of doubles.
-	 * 
-	 * @param values double array the maximum is calculated from
-	 * @return maximum value of the given double array
-	 */
-	public static double max(double[] values) {
-		try{
-			double max = values[0];
-			for(double v : values) {
-				if(v > max)
-					max = v;
-			}
-			return max;
-		} catch (ArrayIndexOutOfBoundsException e) {
-			return 0;
-		}
-	}
-	
-	/**
-	 * Calculates the maximum over an given array of doubles, while considering Double.NaN's.
-	 * 
-	 * @param values double array the maximum is calculated from
-	 * @return maximum value of the given double array
-	 */
-	public static double maxIncludingNaN(double[] values) {
-		try{
-			double max = values[0];
-			for(double v : values) {
-				if(!Double.isNaN(v)) {
-					if(v > max)
-						max = v;
-				}
-				else {
-					Log.warn("Double.NaN detected");
-				}
-			}
-			return max;
-		} catch (ArrayIndexOutOfBoundsException e) {
-			return 0;
-		}
-	}
-	
-	
-	/**
-	 * Calculates the minimum over an given array of doubles.
-	 * 
-	 * @param values double array the minimum is calculated from
-	 * @return minimum value of the given double array
-	 */
-	public static double min(double[] values) {
-		double min = values[0];
-		for(double v : values) {
-			if(v < min)
-				min = v;
-		}
-		return min;
-	}
-	
-	/**
-	 * Calculates the minimum over an given array of doubles, while considering Double.NaN's.
-	 * 
-	 * @param values double array the minimum is calculated from
-	 * @return minimum value of the given double array
-	 */
-	public static double minIncludingNaN(double[] values) {
-		try{
-			double min = values[0];
-			for(double v : values) {
-				if(!Double.isNaN(v)) {
-					if(v < min)
-						min = v;
-				}
-				else {
-					Log.warn("Double.NaN detected");
-				}
-			}
-			return min;
-		} catch (ArrayIndexOutOfBoundsException e) {
-			return 0;
-		}
-	}
-	
-	
-	/**
-	 * Calculates the median over an given array of doubles.
-	 * Due to the Arrays.sort call, a copy of the input array is used to calculate the median.
-	 * Therefore use with caution: runtime O(n) with n being the size of the input array. 
-	 * 
-	 * @param values double array the median is calculated from
+	 * @param values
+	 *            double array the median is calculated from
 	 * @return median of the given double array
 	 */
 	public static double med(double[] values) {
 		double[] temp = new double[values.length];
-		System.arraycopy( values, 0, temp, 0, values.length);
-		
+		System.arraycopy(values, 0, temp, 0, values.length);
+
 		Arrays.sort(temp);
 		return temp[temp.length / 2];
 	}
 
 	/**
-	 * Calculates the median over an given array of doubles, while considering Double.NaN's.
-	 * Due to the Arrays.sort call, a copy of the input array is used to calculate the median.
-	 * Therefore use with caution: runtime O(n) with n being the size of the input array. 
+	 * Calculates the median over an given array of doubles, while considering
+	 * Double.NaN's. Due to the Arrays.sort call, a copy of the input array is
+	 * used to calculate the median. Therefore use with caution: runtime O(n)
+	 * with n being the size of the input array.
 	 * 
-	 * @param values double array the median is calculated from
+	 * @param values
+	 *            double array the median is calculated from
 	 * @return median of the given double array
 	 */
 	public static double medIncludingNaN(double[] values) {
 		double[] temp = new double[values.length];
-		System.arraycopy( values, 0, temp, 0, values.length);
+		System.arraycopy(values, 0, temp, 0, values.length);
 		int counter = 0;
-		for(double v : temp){
-			if(Double.isNaN(v)){
+		for (double v : temp) {
+			if (Double.isNaN(v)) {
 				Log.warn("Double.NaN detected");
 				counter++;
 			}
 		}
 		Arrays.sort(temp);
-		return temp[(temp.length-counter) / 2];
+		return temp[(temp.length - counter) / 2];
 	}
-	
+
 	/**
 	 * Calculates the variance of the given array.
 	 * 
-	 * @param values double array the variance is calculated from
+	 * @param values
+	 *            double array the variance is calculated from
 	 * @return variance of the given double array
 	 */
 	public static double var(double[] values) {
 		double mean = ArrayUtils.avg(values);
 		double x = 0;
-		for(double v : values) {
-			x += (v - mean)*(v - mean);
+		for (double v : values) {
+			x += (v - mean) * (v - mean);
 		}
-		return  x / (values.length-1);
+		return x / (values.length - 1);
 	}
-	
+
 	/**
 	 * Calculates the variance, variance-low and variance-up of the given array.
 	 * 
-	 * @param values double array the variances are calculated from
-	 * @param avg the average of the given values
+	 * @param values
+	 *            double array the variances are calculated from
+	 * @param avg
+	 *            the average of the given values
 	 * @return variances of the given double array
 	 */
 	public static double[] varLowUp(double[] values, double avg) {
@@ -556,78 +496,30 @@ public class ArrayUtils {
 		}
 		return new double[] { var, varLow, varUp };
 	}
-	
+
 	/**
-	 * Calculates the variance of the given array, while considering Double.NaN's.
+	 * Calculates the variance of the given array, while considering
+	 * Double.NaN's.
 	 * 
-	 * @param values double array the variance is calculated from
+	 * @param values
+	 *            double array the variance is calculated from
 	 * @return variance of the given double array
 	 */
 	public static double varIncludingNaN(double[] values) {
 		double mean = ArrayUtils.avgIncludingNaN(values);
 		double x = 0;
 		int counter = 0;
-		for(double v : values) {
-			if(!Double.isNaN(v)){
-				x += (v - mean)*(v - mean);
+		for (double v : values) {
+			if (!Double.isNaN(v)) {
+				x += (v - mean) * (v - mean);
 			} else {
 				Log.warn("Double.NaN detected");
 				counter++;
 			}
 		}
-		return  x / (values.length-1-counter);
+		return x / (values.length - 1 - counter);
 	}
-	
-	/**
-	 * Calculates the confidence interval of the given array.
-	 * Student-t distribution with 0,95 confidence niveau.
-	 * 
-	 * @param values double array the confidence is calculated from
-	 * @return confidence of the given double array
-	 */
-	public static double[] conf(double[] values) {
-		double var = ArrayUtils.var(values);
-		double mean = ArrayUtils.avg(values);
-		
-		double t = Settings.getStudentT(0.95, values.length-1); 
-		double x = t * (Math.sqrt(var) / Math.sqrt(values.length));
 
-		double low = mean - x;
-		double up = mean + x;
-		
-		double[] conf = {low, up};
-
-		return conf;
-	}
-	
-	/**
-	 * Calculates the confidence interval of the given array, while considering Double.NaN's.
-	 * Student-t distribution with 0,95 confidence niveau.
-	 * 
-	 * @param values double array the confidence is calculated from
-	 * @return confidence of the given double array
-	 */
-	public static double[] confIncludingNaN(double[] values) {
-		double var = ArrayUtils.varIncludingNaN(values);
-		double mean = ArrayUtils.avgIncludingNaN(values);
-		
-		int counter = 0;
-		for(double v : values){
-			if(Double.isNaN(v))
-				counter++;
-		}
-		double t = Settings.getStudentT(0.95, values.length-1-counter); 
-		double x = t * (Math.sqrt(var) / Math.sqrt(values.length-counter));
-
-		double low = mean - x;
-		double high = mean + x;
-		
-		double[] conf = {low, high};
-
-		return conf;
-	}
-	
-	
 	/**
 	 * 
 	 * @param v1
