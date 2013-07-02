@@ -6,6 +6,7 @@ import java.util.ArrayList;
 
 import dna.io.filesystem.Dir;
 import dna.io.filesystem.PlotFilenames;
+import dna.io.filesystem.Prefix;
 import dna.io.filesystem.Suffix;
 import dna.plot.Gnuplot.PlotStyle;
 import dna.plot.data.PlotData;
@@ -196,7 +197,7 @@ public class Plotting {
 			throws IOException, InterruptedException {
 		PlotData[] data = new PlotData[seriesData.length];
 		int index1 = 0;
-		String m = metric == null ? PlotFilenames.statsName : metric;
+		String m = metric == null ? Prefix.statsPlot : metric;
 
 		for (SeriesData s : seriesData) {
 			double[][] values = new double[s.getAggregation().getBatches()
