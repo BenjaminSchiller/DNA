@@ -3,6 +3,7 @@ package dna.series;
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -29,10 +30,14 @@ import dna.series.data.MetricData;
 =======
 =======
 =======
+=======
+import java.io.IOException;
+>>>>>>> changed aggregation to read values from filesystem
 import java.util.ArrayList;
 import java.util.HashMap;
 
 import dna.io.etc.Keywords;
+import dna.io.filesystem.Dir;
 import dna.io.filesystem.Names;
 >>>>>>> Codeupdate 13-06-28
 import dna.series.data.BatchData;
@@ -55,6 +60,7 @@ import dna.series.data.DiffData;
 import dna.series.data.Distribution;
 import dna.series.data.DistributionInt;
 import dna.series.data.DistributionLong;
+import dna.series.data.MetricData;
 import dna.series.data.NodeValueList;
 >>>>>>> Codeupdate 13-06-18
 =======
@@ -71,6 +77,7 @@ import dna.series.data.RunData;
 import dna.series.data.SeriesData;
 import dna.series.data.Value;
 import dna.series.lists.DistributionList;
+import dna.series.lists.MetricDataList;
 import dna.series.lists.NodeValueListList;
 <<<<<<< HEAD
 import dna.series.lists.RunTimeList;
@@ -1313,7 +1320,7 @@ public class Aggregation {
 	 * @return AggregatedSeries object containing the aggregated values
 	 * @throws AggregationException
 	 */
-	public static AggregatedSeries aggregateData(SeriesData seriesData) throws AggregationException {
+	public static AggregatedSeries aggregateData(SeriesData seriesData) throws AggregationException, IOException {
 		ArrayList<RunData> rdList = seriesData.getRuns();
 		int runs = rdList.size();
 		int batches = rdList.get(0).getBatches().size();
@@ -1390,6 +1397,7 @@ public class Aggregation {
 			
 			// iterate over metrics
 			for(String metricX : rdList.get(0).getBatches().get(batchX).getMetrics().getNames()) {
+				
 				// aggDataList containing all aggregated Data for one metric X
 				AggregatedDataList aggDataList = new AggregatedDataList();
 				
@@ -1397,11 +1405,19 @@ public class Aggregation {
 				NodeValueListList nvList1 = rdList.get(0).getBatches().get(batchX).getMetrics().get(metricX).getNodeValues();
 				ValueList nList1 = rdList.get(0).getBatches().get(batchX).getMetrics().get(metricX).getValues();
 				
+				// reading metric X for batch X for each run from filesystem
+				MetricData[] Metrics = new MetricData[runs];
+				for(int i = 0; i < runs; i++) {
+					String dir = Dir.getBatchDataDir(Dir.getRunDataDir(seriesData.getDir(), i), batchX);
+					System.out.println("READ: " + Dir.getMetricDataDir(dir, metricX) + " NAME: " + metricX);
+					Metrics[i] =  MetricData.read(Dir.getMetricDataDir(dir, metricX), metricX, true, true);
+				}
+				
 				for(String distributionX : dbList1.getNames()) {
 					Distribution[] distTemp1 = new Distribution[runs];
 					
 					for(int i = 0; i < runs; i++) {
-						distTemp1[i] = rdList.get(i).getBatches().get(batchX).getMetrics().get(metricX).getDistributions().get(distributionX);
+						distTemp1[i] = Metrics[i].getDistributions().get(distributionX);
 					}
 
 					// aggregates distributionX for batchX for every run
@@ -1412,7 +1428,7 @@ public class Aggregation {
 					NodeValueList[] nvlTemp1 = new NodeValueList[runs];
 					
 					for(int i = 0; i < runs; i++) {
-						nvlTemp1[i] = rdList.get(i).getBatches().get(batchX).getMetrics().get(metricX).getNodeValues().get(nodevaluelistX);
+						nvlTemp1[i] = Metrics[i].getNodeValues().get(nodevaluelistX);
 					}
 					// aggregates NodeValueListX for batchX for every run
 					AggregatedNodeValueList aggNvl = (AggregatedNodeValueList) Aggregation.aggregateData(nvlTemp1, nodevaluelistX);
@@ -1423,7 +1439,7 @@ public class Aggregation {
 					Value[] valueTemp1 = new Value[runs];
 					
 					for(int i = 0; i < runs; i++) {
-						valueTemp1[i] = rdList.get(i).getBatches().get(batchX).getMetrics().get(metricX).getValues().get(valueX);
+						valueTemp1[i] = Metrics[i].getValues().get(valueX);
 					}
 					// aggregates ValueX for batchX for every run
 					AggregatedValue aggValue = (AggregatedValue) Aggregation.aggregateData(valueTemp1, valueX);
