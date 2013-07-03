@@ -21,7 +21,7 @@ public class NodeValueListList extends List<NodeValueList> {
 	}
 	
 	public static NodeValueListList read(String dir, boolean readNodeValues) throws IOException {
-		String[] NodeValueLists = Files.getDistributions(dir);
+		String[] NodeValueLists = Files.getNodeValueLists(dir);
 		NodeValueListList list = new NodeValueListList(NodeValueLists.length);
 		for (String nodeValueList : NodeValueLists) {
 			list.add(NodeValueList.read(dir, nodeValueList,

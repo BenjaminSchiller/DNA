@@ -20,15 +20,6 @@ public class Files {
 	public static String getDistributionName(String filename) {
 		return filename.replace(Suffix.distribution, "");
 	}
-	
-	public static String getNodeValueListFilename(String name) {
-		return name + Suffix.nodeValueList;
-	}
-	
-	public static String getNodeValueListName(String filename) {
-		return filename.replace(Suffix.nodeValueList, "");
-	}
-
 	/*
 	 * RUNTIMES
 	 */
@@ -58,4 +49,19 @@ public class Files {
 	public static String getValuesName(String filename) {
 		return filename.replace(Suffix.values, "");
 	}
+	/*
+	 * NODEVALUELISTS
+	 */
+	public static String getNodeValueListFilename(String name) {
+		return name + Suffix.nodeValueList;
+	}
+
+	public static String[] getNodeValueLists(String dir) {
+		return (new File(dir)).list(new SuffixFilenameFilter(
+				Suffix.nodeValueList));
+	}
+
+	public static String getNodeValueListName(String filename) {
+		return filename.replace(Suffix.nodeValueList, "");
+	}	
 }
