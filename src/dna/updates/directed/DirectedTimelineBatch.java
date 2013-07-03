@@ -14,8 +14,9 @@ public class DirectedTimelineBatch extends DirectedBatchGenerator {
 
 	private int timestamp;
 
-	public DirectedTimelineBatch(DirectedBatchGenerator[] generators,
-			GraphDatastructures<DirectedGraph, DirectedNode, DirectedEdge> ds) {
+	public DirectedTimelineBatch(
+			GraphDatastructures<DirectedGraph, DirectedNode, DirectedEdge> ds,
+			DirectedBatchGenerator... generators) {
 		super("directedTimelineBatch", ds);
 		this.generators = generators;
 		this.timestamp = 0;

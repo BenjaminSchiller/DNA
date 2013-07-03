@@ -15,8 +15,9 @@ public class UndirectedTimelineBatch extends UndirectedBatchGenerator {
 	private int timestamp;
 
 	public UndirectedTimelineBatch(
-			UndirectedBatchGenerator[] generators,
-			GraphDatastructures<UndirectedGraph, UndirectedNode, UndirectedEdge> ds) {
+
+	GraphDatastructures<UndirectedGraph, UndirectedNode, UndirectedEdge> ds,
+			UndirectedBatchGenerator... generators) {
 		super("undirectedTimelineBatch", ds);
 		this.generators = generators;
 		this.timestamp = 0;
