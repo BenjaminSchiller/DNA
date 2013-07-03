@@ -3,6 +3,7 @@ package dna.series;
 import java.io.IOException;
 import java.util.HashMap;
 
+import dna.graph.Edge;
 import dna.graph.Graph;
 import dna.graph.GraphGenerator;
 import dna.io.filesystem.Dir;
@@ -15,6 +16,7 @@ import dna.series.data.Value;
 import dna.updates.Batch;
 import dna.updates.BatchGenerator;
 import dna.updates.BatchSanitizationStats;
+import dna.updates.EdgeAddition;
 import dna.updates.Update;
 import dna.util.Log;
 import dna.util.Memory;
@@ -400,6 +402,7 @@ public class Series {
 
 			// update graph datastructures
 			graphUpdateTimer.restart();
+
 			boolean success = u.apply(this.g);
 			graphUpdateTimer.end();
 			if (!success) {
