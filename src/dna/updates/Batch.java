@@ -207,7 +207,14 @@ public class Batch<E extends Edge> {
 	public boolean apply(Graph<? extends Node<E>, ? extends E> graph) {
 		boolean success = true;
 		Graph<Node<E>, E> g = (Graph<Node<E>, E>) graph;
+		success &= this.apply(g, this.nodeRemovals);
+		success &= this.apply(g, this.edgeRemovals);
+
 		success &= this.apply(g, this.nodeAdditions);
+		success &= this.apply(g, this.edgeAdditions);
+
+		success &= this.apply(g, this.nodeWeightUpdates);
+		success &= this.apply(g, this.edgeWeightUpdates);
 		return success;
 	}
 
