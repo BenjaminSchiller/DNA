@@ -3,6 +3,7 @@ package dna.series;
 import java.io.IOException;
 import java.util.HashMap;
 
+import dna.graph.Edge;
 import dna.graph.Graph;
 import dna.graph.GraphGenerator;
 import dna.io.filesystem.Dir;
@@ -16,6 +17,7 @@ import dna.series.data.Value;
 import dna.updates.Batch;
 import dna.updates.BatchGenerator;
 import dna.updates.BatchSanitizationStats;
+import dna.updates.EdgeAddition;
 import dna.updates.Update;
 import dna.util.Log;
 import dna.util.Memory;
@@ -24,6 +26,8 @@ import dna.util.Timer;
 
 @SuppressWarnings("rawtypes")
 public class Series {
+
+	public static boolean callGC = false;
 
 	public Series(GraphGenerator gg, BatchGenerator bg, Metric[] metrics,
 			String dir, String name) {
@@ -62,7 +66,7 @@ public class Series {
 		SeriesData sd = new SeriesData(this.dir, this.name, runs);
 
 		// generate all runs
-	
+
 		for (int r = 0; r < runs; r++) {
 			sd.addRun(this.generateRun(r, batches, compare, write));
 		}
@@ -70,10 +74,11 @@ public class Series {
 		// aggregate all runs
 		Log.infoSep();
 		Log.info("Aggregating SeriesData");
-		AggregatedSeries aggregation = Aggregation.aggregateData(sd);
+		sd.setAggregation(Aggregation.aggregate(sd));
 		if (write) {
 			Log.info("Writing aggregated series in " + dir);
-			aggregation.write(Dir.getAggregationDataDir(dir));
+			sd.getAggregation().write(Dir.getAggregationDataDir(dir));
+			Log.info("Finished writing aggregated series in " + dir);
 			Log.info("Finished writing aggregated series in " + dir);	
 		}
 		Log.infoSep();
@@ -191,7 +196,9 @@ public class Series {
 		initialData.getValues().add(new Value("randomSeed", seed));
 
 		// call garbage collection
-		System.gc();
+		if (Series.callGC) {
+			System.gc();
+		}
 		// record memory usage
 		double mem = (new Memory()).getUsed();
 		initialData.getValues().add(new Value(SeriesStats.memory, mem));
@@ -349,7 +356,9 @@ public class Series {
 		// release batch
 		b = null;
 		// call garbage collection
-		System.gc();
+		if (Series.callGC) {
+			System.gc();
+		}
 		// record memory usage
 		double mem = (new Memory()).getUsed();
 		batchData.getValues().add(new Value(SeriesStats.memory, mem));
@@ -395,6 +404,7 @@ public class Series {
 
 			// update graph datastructures
 			graphUpdateTimer.restart();
+
 			boolean success = u.apply(this.g);
 			graphUpdateTimer.end();
 			if (!success) {

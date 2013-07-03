@@ -2,6 +2,7 @@ package dna.graph.edges;
 
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Iterator;
 
 import dna.graph.Edge;
 import dna.util.Rand;
@@ -52,8 +53,17 @@ public class EdgesHs<E extends Edge> extends Edges<E> {
 	@SuppressWarnings("unchecked")
 	@Override
 	public E getRandomEdge() {
-		E[] edges = (E[]) this.edges.toArray();
-		return edges[Rand.rand.nextInt(edges.length)];
+		int index = Rand.rand.nextInt(this.edges.size());
+		int counter = 0;
+		Iterator<E> iter = this.edges.iterator();
+		while (iter.hasNext()) {
+			if (counter == index) {
+				return iter.next();
+			}
+			iter.next();
+			counter++;
+		}
+		return null;
 	}
 
 }
