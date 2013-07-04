@@ -5,7 +5,14 @@ import java.io.IOException;
 import dna.io.filesystem.Files;
 import dna.series.data.NodeValueList;
 
+/**
+ * An NodeValueListList lists NodeValueList objects.
+ * 
+ * @author Rwilmes
+ * @date 04.07.2013
+ */
 public class NodeValueListList extends List<NodeValueList> {
+	
 	public NodeValueListList() {
 		super();
 	}
