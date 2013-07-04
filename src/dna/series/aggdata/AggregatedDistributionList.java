@@ -21,6 +21,7 @@ public class AggregatedDistributionList extends List<AggregatedDistribution> {
 	public AggregatedDistributionList(int size) {
 		super(size);
 	}
+<<<<<<< HEAD
 
 	// IO methods
 	public void write(String dir) throws IOException {
@@ -41,4 +42,14 @@ public class AggregatedDistributionList extends List<AggregatedDistribution> {
 		}
 		return list;
 	}
+=======
+	
+	// IO methods
+	public void write(String dir) throws IOException {
+		for (AggregatedDistribution n : this.getList()) {
+			AggregatedData.write(n, dir, Files.getDistributionFilename(n.getName()));
+		}
+	}
+	
+>>>>>>> reworked aggregation
 }

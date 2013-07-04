@@ -23,6 +23,7 @@ import com.sun.media.sound.InvalidFormatException;
 import dna.io.Reader;
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import dna.io.Writer;
 import dna.io.filesystem.Files;
 import dna.plot.data.PlotData.NodeValueListOrder;
@@ -52,6 +53,9 @@ import dna.util.Log;
  * Array structure as follows: values = { x (diff number), avg, min, max, median, variance, variance-low, variance-up, confidence-low, confidence-up }
 >>>>>>> Codeupdate 13-06-18
 =======
+=======
+import dna.io.Writer;
+>>>>>>> reworked aggregation
 import dna.io.etc.Keywords;
 
 /**
@@ -532,6 +536,9 @@ public class AggregatedNodeValueList extends AggregatedData {
 		return this.values;
 	}
 	
+	public String getName() {
+		return super.getName();
+	}
 	// IO methods
 	/**
 	 * @param dir String which contains the path to the directory the AggregatedNodeValueList will be read from.
@@ -572,5 +579,27 @@ public class AggregatedNodeValueList extends AggregatedData {
 		r.close();
 		return new AggregatedNodeValueList(name, values);
 	}
+<<<<<<< HEAD
 >>>>>>> Codeupdate 13-06-24
+=======
+	
+	public void write(String dir, String filename) throws IOException {
+		Writer w = new Writer(dir, filename);
+		AggregatedValue[] tempData = this.getValues();
+		
+		for(AggregatedValue aggData : tempData) {			
+			String temp = "" + (int) aggData.getValues()[0] + Keywords.aggregatedDataDelimiter;
+			for (int i = 1; i < aggData.getValues().length; i++) {
+				if(i == aggData.getValues().length-1)
+					temp += aggData.getValues()[i];
+				else
+					temp += aggData.getValues()[i] + Keywords.aggregatedDataDelimiter;
+			}
+			w.writeln(temp);
+		}
+		w.close();
+	}
+	
+	
+>>>>>>> reworked aggregation
 }

@@ -21,13 +21,18 @@ public class AggregatedMetricList extends List<AggregatedMetric> {
 	public AggregatedMetricList(int size) {
 		super(size);
 	}
+<<<<<<< HEAD
 
 	// IO Methods
+=======
+	
+>>>>>>> reworked aggregation
 	public void write(String dir) throws IOException {
 		for (AggregatedMetric metricData : this.getList()) {
 			metricData.write(Dir.getMetricDataDir(dir, metricData.getName()));
 		}
 	}
+<<<<<<< HEAD
 
 	public static AggregatedMetricList read(String dir, boolean readValues)
 			throws IOException {
@@ -39,4 +44,7 @@ public class AggregatedMetricList extends List<AggregatedMetric> {
 		}
 		return list;
 	}
+=======
+	
+>>>>>>> reworked aggregation
 }
