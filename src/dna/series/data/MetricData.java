@@ -12,9 +12,6 @@ import dna.util.Log;
 
 public class MetricData implements ListItem {
 
-	
-	
-	
 	public MetricData(String name) {
 		this.name = name;
 		this.values = new ValueList();
@@ -106,8 +103,6 @@ public class MetricData implements ListItem {
 		this.nodevalues.write(dir);
 	}
 	
-	
-
 	public static MetricData read(String dir, String name,
 			boolean readDistributionValues) throws IOException {
 		ValueList values = ValueList.read(dir,
