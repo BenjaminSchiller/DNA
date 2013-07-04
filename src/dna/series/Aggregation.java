@@ -2,15 +2,16 @@ package dna.series;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 
-import dna.io.etc.Keywords;
 import dna.io.filesystem.Dir;
 import dna.io.filesystem.Names;
 import dna.series.aggdata.AggregatedData;
-import dna.series.aggdata.AggregatedDataList;
 import dna.series.aggdata.AggregatedDistribution;
+import dna.series.aggdata.AggregatedDistributionList;
+import dna.series.aggdata.AggregatedMetric;
+import dna.series.aggdata.AggregatedMetricList;
 import dna.series.aggdata.AggregatedNodeValueList;
+import dna.series.aggdata.AggregatedNodeValueListList;
 import dna.series.aggdata.AggregatedRunTimeList;
 import dna.series.aggdata.AggregatedSeries;
 import dna.series.aggdata.AggregatedValue;
@@ -26,7 +27,6 @@ import dna.series.data.RunTime;
 import dna.series.data.SeriesData;
 import dna.series.data.Value;
 import dna.series.lists.DistributionList;
-import dna.series.lists.MetricDataList;
 import dna.series.lists.NodeValueListList;
 import dna.series.lists.ValueList;
 import dna.util.ArrayUtils;
@@ -465,21 +465,16 @@ public class Aggregation {
 
 		// for every run collect data of same batch of same metric of same type and aggregated them
 		// note: compatibility between batches and metrics already checked above
-		@SuppressWarnings("unchecked")
-		// array containing all aggregated data
-		HashMap<String, AggregatedDataList>[] aggDataListMapArray = new HashMap[batches];
-
-		// iterate over batches
-		for(int batchX = 0; batchX < batches; batchX++) {
-
-			HashMap<String, AggregatedDataList> aggDataListMap = new HashMap<String, AggregatedDataList>();
-
-			//the aggBatchDataList contains statistical information of a batch like general runtimes, metric runtimes and other batch statistics
-			AggregatedDataList aggBatchDataList = new AggregatedDataList();
-			
-			// iterate over general runtimes
-			AggregatedValue[] aggRTLgenTemp = new AggregatedValue[rdList.get(0).getBatches().get(batchX).getGeneralRuntimes().getNames().size()];
-			int counter = 0;
+		/*
+		 * BATCHES
+		 */
+		AggregatedBatch[] aggBatches = new AggregatedBatch[batches];
+		
+		for(int batchX = 0; batchX < batches; batchX++) {			
+			/*
+			 * GENERAL RUNTIMES
+			 */
+			AggregatedRunTimeList aggGeneralRuntime = new AggregatedRunTimeList(Names.batchGeneralRuntimes);
 			for(String genRuntimeX : rdList.get(0).getBatches().get(batchX).getGeneralRuntimes().getNames()) {
 				Value[] valuesTemp = new Value[runs];
 				
@@ -487,32 +482,30 @@ public class Aggregation {
 					Value tempValue = new Value(rdList.get(i).getBatches().get(batchX).getGeneralRuntimes().get(genRuntimeX).getName(), rdList.get(i).getBatches().get(batchX).getGeneralRuntimes().get(genRuntimeX).getRuntime());
 					valuesTemp[i] = tempValue;
 				}
-				
-				AggregatedValue aggValueTemp = (AggregatedValue) Aggregation.aggregateData(valuesTemp, valuesTemp[0].getName());				
-				aggRTLgenTemp[counter] = aggValueTemp;
-				counter++;
+				AggregatedValue aggValueTemp = (AggregatedValue) Aggregation.aggregateData(valuesTemp, valuesTemp[0].getName());	
+				aggGeneralRuntime.add(aggValueTemp);
 			}
-			AggregatedRunTimeList aggRTLgen = new AggregatedRunTimeList(Names.batchGeneralRuntimes, aggRTLgenTemp);
-			aggBatchDataList.add(aggRTLgen);
 			
-			// iterate over metric runtimes
-			AggregatedValue[] aggRTLmetTemp = new AggregatedValue[rdList.get(0).getBatches().get(batchX).getMetricRuntimes().getNames().size()];
-			counter = 0;
+			/*
+			 * METRIC RUNTIMES
+			 */
+			AggregatedRunTimeList aggMetricRuntime = new AggregatedRunTimeList(Names.batchMetricRuntimes);
 			for(String metRuntimeX : rdList.get(0).getBatches().get(batchX).getMetricRuntimes().getNames()) {
 				Value[] valuesTemp = new Value[runs];
 				
 				for(int i = 0; i < runs; i++) {
 					Value tempValue = new Value(rdList.get(i).getBatches().get(batchX).getMetricRuntimes().get(metRuntimeX).getName(), rdList.get(0).getBatches().get(batchX).getMetricRuntimes().get(metRuntimeX).getRuntime());
 					valuesTemp[i] = tempValue;
+					
 				}
 				AggregatedValue aggValueTemp = (AggregatedValue) Aggregation.aggregateData(valuesTemp, valuesTemp[0].getName());
-				aggRTLmetTemp[counter] = aggValueTemp;
-				counter++;
+				aggMetricRuntime.add(aggValueTemp);
 			}
-			AggregatedRunTimeList aggRTLmet = new AggregatedRunTimeList(Names.batchMetricRuntimes, aggRTLmetTemp);
-			aggBatchDataList.add(aggRTLmet);
 			
-			// iterate over batch statistics
+			/*
+			 * BATCH STATISTICS
+			 */
+			AggregatedValueList aggStats = new AggregatedValueList();
 			for(String statX : rdList.get(0).getBatches().get(batchX).getValues().getNames()) {
 				Value[] valuesTemp = new Value[runs];
 				
@@ -521,67 +514,63 @@ public class Aggregation {
 				}
 			
 				AggregatedValue aggValueTemp = (AggregatedValue) Aggregation.aggregateData(valuesTemp, statX);
-				aggBatchDataList.add(aggValueTemp);
+				aggStats.add(aggValueTemp);
 			}
-			aggDataListMap.put(Keywords.batchData, aggBatchDataList); 
 			
-			// iterate over metrics
+			/*
+			 * METRICS
+			 */
+			AggregatedMetricList aggMetrics = new AggregatedMetricList();
 			for(String metricX : rdList.get(0).getBatches().get(batchX).getMetrics().getNames()) {
-				
-				// aggDataList containing all aggregated Data for one metric X
-				AggregatedDataList aggDataList = new AggregatedDataList();
-				
 				DistributionList dbList1 = rdList.get(0).getBatches().get(batchX).getMetrics().get(metricX).getDistributions();
 				NodeValueListList nvList1 = rdList.get(0).getBatches().get(batchX).getMetrics().get(metricX).getNodeValues();
 				ValueList nList1 = rdList.get(0).getBatches().get(batchX).getMetrics().get(metricX).getValues();
 				
 				// reading metric X for batch X for each run from filesystem
 				MetricData[] Metrics = new MetricData[runs];
+				
 				for(int i = 0; i < runs; i++) {
 					String dir = Dir.getBatchDataDir(Dir.getRunDataDir(seriesData.getDir(), i), batchX);
-					System.out.println("READ: " + Dir.getMetricDataDir(dir, metricX) + " NAME: " + metricX);
 					Metrics[i] =  MetricData.read(Dir.getMetricDataDir(dir, metricX), metricX, true, true);
 				}
 				
+				// DISTRIBUTIONS
+				AggregatedDistributionList aggDistributions = new AggregatedDistributionList();
 				for(String distributionX : dbList1.getNames()) {
 					Distribution[] distTemp1 = new Distribution[runs];
 					
 					for(int i = 0; i < runs; i++) {
 						distTemp1[i] = Metrics[i].getDistributions().get(distributionX);
 					}
-
-					// aggregates distributionX for batchX for every run
-					AggregatedDistribution aggDist = (AggregatedDistribution) Aggregation.aggregateData(distTemp1, distributionX);
-					aggDataList.add(aggDist);
+					aggDistributions.add((AggregatedDistribution) Aggregation.aggregateData(distTemp1, distributionX));
 				}
+				
+				// NODEVALUELISTS
+				AggregatedNodeValueListList aggNodeValues = new AggregatedNodeValueListList();
 				for(String nodevaluelistX : nvList1.getNames()) {
 					NodeValueList[] nvlTemp1 = new NodeValueList[runs];
 					
 					for(int i = 0; i < runs; i++) {
 						nvlTemp1[i] = Metrics[i].getNodeValues().get(nodevaluelistX);
 					}
-					// aggregates NodeValueListX for batchX for every run
-					AggregatedNodeValueList aggNvl = (AggregatedNodeValueList) Aggregation.aggregateData(nvlTemp1, nodevaluelistX);
-					aggDataList.add(aggNvl);
+					aggNodeValues.add((AggregatedNodeValueList) Aggregation.aggregateData(nvlTemp1, nodevaluelistX));
 				}
 				
+				// VALUES
+				AggregatedValueList aggValues = new AggregatedValueList();
 				for(String valueX : nList1.getNames()) {
 					Value[] valueTemp1 = new Value[runs];
 					
 					for(int i = 0; i < runs; i++) {
 						valueTemp1[i] = Metrics[i].getValues().get(valueX);
 					}
-					// aggregates ValueX for batchX for every run
-					AggregatedValue aggValue = (AggregatedValue) Aggregation.aggregateData(valueTemp1, valueX);
-					aggDataList.add(aggValue);
+					aggValues.add((AggregatedValue) Aggregation.aggregateData(valueTemp1, valueX));
 				}
-				aggDataListMap.put(metricX, aggDataList);
-				
+				aggMetrics.add(new AggregatedMetric(metricX, aggValues, aggDistributions, aggNodeValues));
 			}
-			
-			aggDataListMapArray[batchX] = aggDataListMap;
+			aggBatches[batchX] = new AggregatedBatch(batchX, aggStats, aggGeneralRuntime, aggMetricRuntime, aggMetrics);
 		}
-		AggregatedSeries aggregatedSeries = new AggregatedSeries(aggDataListMapArray);
-		return aggregatedSeries;
+		
+		return new AggregatedSeries(aggBatches);
 	}
 }
