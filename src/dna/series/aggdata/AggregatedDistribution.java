@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import com.sun.media.sound.InvalidFormatException;
 
 import dna.io.Reader;
+import dna.io.Writer;
 import dna.io.etc.Keywords;
 
 /**
@@ -76,4 +77,22 @@ public class AggregatedDistribution extends AggregatedData {
 		r.close();
 		return new AggregatedDistribution(name, values);
 	}
+	
+	public void write(String dir, String filename) throws IOException {
+		Writer w = new Writer(dir, filename);
+		AggregatedValue[] tempData = this.getValues();
+		
+		for(AggregatedValue aggData : tempData) {			
+			String temp = "" + (int) aggData.getValues()[0] + Keywords.aggregatedDataDelimiter;
+			for (int i = 1; i < aggData.getValues().length; i++) {
+				if(i == aggData.getValues().length-1)
+					temp += aggData.getValues()[i];
+				else
+					temp += aggData.getValues()[i] + Keywords.aggregatedDataDelimiter;
+			}
+			w.writeln(temp);
+		}
+		w.close();
+	}
+
 }
