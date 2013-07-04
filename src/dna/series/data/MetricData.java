@@ -17,9 +17,6 @@ import dna.util.Log;
 
 public class MetricData implements ListItem {
 
-	
-	
-	
 	public MetricData(String name) {
 		this.name = name;
 		this.values = new ValueList();
@@ -181,6 +178,7 @@ public class MetricData implements ListItem {
 		this.nodevalues.write(dir);
 	}
 	
+<<<<<<< HEAD
 	
 
 	/**
@@ -214,6 +212,10 @@ public class MetricData implements ListItem {
 			Log.warn("Attempting to read metric " + name + " at " + dir
 					+ " ! No MetricType detected!");
 		}
+=======
+	public static MetricData read(String dir, String name,
+			boolean readDistributionValues) throws IOException {
+>>>>>>> added reading of NodeValueListList's to MetricData
 		ValueList values = ValueList.read(dir,
 				Files.getValuesFilename(Config.get("METRIC_DATA_VALUES")));
 		DistributionList distributions = DistributionList.read(dir, readValues);
