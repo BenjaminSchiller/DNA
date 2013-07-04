@@ -2,6 +2,7 @@ package dna.util;
 
 import java.util.Arrays;
 import java.util.Set;
+import java.util.List;
 
 public class ArrayUtils {
 	public static int[] incr(int[] values, int index) {
@@ -520,6 +521,58 @@ public class ArrayUtils {
 		return x / (values.length - 1 - counter);
 	}
 
+	/**
+	 * 
+	/**
+	 * Calculates the confidence interval of the given array.
+	 * Student-t distribution with 0,95 confidence niveau.
+	 * 
+	 * @param values double array the confidence is calculated from
+	 * @return confidence of the given double array
+	 */
+	public static double[] conf(double[] values) {
+		double var = ArrayUtils.var(values);
+		double mean = ArrayUtils.avg(values);
+		
+		double t = Settings.getStudentT(0.95, values.length-1); 
+		double x = t * (Math.sqrt(var) / Math.sqrt(values.length));
+
+		double low = mean - x;
+		double up = mean + x;
+		
+		double[] conf = {low, up};
+
+		return conf;
+	}
+	
+	/**
+	 * Calculates the confidence interval of the given array, while considering Double.NaN's.
+	 * Student-t distribution with 0,95 confidence niveau.
+	 * 
+	 * @param values double array the confidence is calculated from
+	 * @return confidence of the given double array
+	 */
+	public static double[] confIncludingNaN(double[] values) {
+		double var = ArrayUtils.varIncludingNaN(values);
+		double mean = ArrayUtils.avgIncludingNaN(values);
+		
+		int counter = 0;
+		for(double v : values){
+			if(Double.isNaN(v))
+				counter++;
+		}
+		double t = Settings.getStudentT(0.95, values.length-1-counter); 
+		double x = t * (Math.sqrt(var) / Math.sqrt(values.length-counter));
+
+		double low = mean - x;
+		double high = mean + x;
+		
+		double[] conf = {low, high};
+
+		return conf;
+	}
+	
+	
 	/**
 	 * 
 	 * @param v1
