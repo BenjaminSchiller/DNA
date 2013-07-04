@@ -6,6 +6,9 @@ import dna.io.filesystem.Files;
 import dna.series.data.NodeValueList;
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> NodeValueListList code adjustments
 /**
  * An NodeValueListList lists NodeValueList objects.
  * 
@@ -13,10 +16,14 @@ import dna.series.data.NodeValueList;
  * @date 04.07.2013
  */
 public class NodeValueListList extends List<NodeValueList> {
+<<<<<<< HEAD
 
 =======
 public class NodeValueListList extends List<NodeValueList> {
 >>>>>>> Codeupdate 13-06-28
+=======
+	
+>>>>>>> NodeValueListList code adjustments
 	public NodeValueListList() {
 		super();
 	}
