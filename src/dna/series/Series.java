@@ -7,6 +7,7 @@ import dna.graph.Graph;
 import dna.graph.GraphGenerator;
 import dna.io.filesystem.Dir;
 import dna.metrics.Metric;
+import dna.metrics.MetricNotApplicableException;
 import dna.series.data.BatchData;
 import dna.series.data.RunData;
 import dna.series.data.RunTime;
@@ -36,12 +37,14 @@ public class Series {
 	}
 
 	public SeriesData generate(int runs, int batches)
-			throws AggregationException, IOException {
+			throws AggregationException, IOException,
+			MetricNotApplicableException {
 		return this.generate(runs, batches, true, true);
 	}
 
 	public SeriesData generate(int runs, int batches, boolean compare,
-			boolean write) throws AggregationException, IOException {
+			boolean write) throws AggregationException, IOException,
+			MetricNotApplicableException {
 
 		Log.infoSep();
 		Timer timer = new Timer("seriesGeneration");
@@ -66,11 +69,11 @@ public class Series {
 		for (int r = 0; r < runs; r++) {
 			sd.addRun(this.generateRun(r, batches, compare, write));
 		}
-		
+
 		// aggregate all runs
 		Log.infoSep();
 		Log.info("Aggregating SeriesData");
-		sd.setAggregation(Aggregation.aggregateData(sd));
+		sd.setAggregation(Aggregation.aggregate(sd));
 		if (write) {
 			Log.info("Writing aggregated series in " + dir);
 			sd.getAggregation().write(Dir.getAggregationDataDir(dir));
@@ -85,7 +88,7 @@ public class Series {
 	}
 
 	public RunData generateRun(int run, int batches, boolean compare,
-			boolean write) throws IOException {
+			boolean write) throws IOException, MetricNotApplicableException {
 
 		Log.infoSep();
 		Timer timer = new Timer("runGeneration");
@@ -118,7 +121,7 @@ public class Series {
 						batchData.getTimestamp()));
 			}
 		}
-		
+
 		timer.end();
 		Log.info(timer.toString());
 
@@ -145,7 +148,7 @@ public class Series {
 		return ok;
 	}
 
-	public BatchData generateInitialData() {
+	public BatchData generateInitialData() throws MetricNotApplicableException {
 
 		Timer totalTimer = new Timer("total");
 
@@ -171,6 +174,9 @@ public class Series {
 		Timer allMetricsTimer = new Timer("metrics");
 		for (Metric m : metrics) {
 			Timer metricTimer = new Timer(m.getName());
+			if (!m.isApplicable(this.g)) {
+				throw new MetricNotApplicableException(m, this.g);
+			}
 			m.init();
 			m.compute();
 			metricTimer.end();
@@ -203,7 +209,8 @@ public class Series {
 	}
 
 	@SuppressWarnings("unchecked")
-	public BatchData generateNextBatch(long timestamp) {
+	public BatchData generateNextBatch(long timestamp)
+			throws MetricNotApplicableException {
 
 		long seed = System.currentTimeMillis();
 		seed = 0;
@@ -232,6 +239,9 @@ public class Series {
 		// init metric timers
 		HashMap<Metric, Timer> timer = new HashMap<Metric, Timer>();
 		for (Metric m : this.metrics) {
+			if (!m.isApplicable(b)) {
+				throw new MetricNotApplicableException(m, b);
+			}
 			Timer t = new Timer(m.getName());
 			t.end();
 			timer.put(m, t);

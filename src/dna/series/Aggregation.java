@@ -5,6 +5,7 @@ import java.util.ArrayList;
 
 import dna.io.filesystem.Dir;
 import dna.io.filesystem.Names;
+import dna.series.aggdata.AggregatedBatch;
 import dna.series.aggdata.AggregatedData;
 import dna.series.aggdata.AggregatedDistribution;
 import dna.series.aggdata.AggregatedDistributionList;
@@ -15,6 +16,7 @@ import dna.series.aggdata.AggregatedNodeValueListList;
 import dna.series.aggdata.AggregatedRunTimeList;
 import dna.series.aggdata.AggregatedSeries;
 import dna.series.aggdata.AggregatedValue;
+import dna.series.aggdata.AggregatedValueList;
 import dna.series.data.BatchData;
 import dna.series.data.Data;
 import dna.series.data.Distribution;
