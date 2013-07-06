@@ -72,12 +72,11 @@ public class Series {
 
 		// aggregate all runs
 		Log.infoSep();
-		Log.info("Aggregating SeriesData");
+		Log.info("aggregating data for " + sd.getRuns().size() + " runs");
 		sd.setAggregation(Aggregation.aggregate(sd));
 		if (write) {
-			Log.info("Writing aggregated series in " + dir);
+			Log.info("writing aggregated data in " + dir);
 			sd.getAggregation().write(Dir.getAggregationDataDir(dir));
-			Log.info("Finished writing aggregated series in " + dir);
 		}
 		Log.infoSep();
 		timer.end();
@@ -155,7 +154,7 @@ public class Series {
 		Log.info("    inital data");
 
 		long seed = System.currentTimeMillis();
-		seed = 0;
+		// seed = 0;
 		Rand.init(seed);
 
 		// generate graph
@@ -213,7 +212,7 @@ public class Series {
 			throws MetricNotApplicableException {
 
 		long seed = System.currentTimeMillis();
-		seed = 0;
+		// seed = 0;
 		Rand.init(seed);
 
 		int addedNodes = 0;
