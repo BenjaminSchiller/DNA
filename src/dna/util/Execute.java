@@ -28,7 +28,9 @@ public class Execute {
 			BufferedReader br = new BufferedReader(isr);
 			String line = null;
 			while ((line = br.readLine()) != null) {
-				System.out.println("err: " + line);
+				if (!line.startsWith("Warning: ")) {
+					System.out.println("err: " + line);
+				}
 			}
 		}
 		p.waitFor();
