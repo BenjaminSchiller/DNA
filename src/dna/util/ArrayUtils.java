@@ -523,47 +523,54 @@ public class ArrayUtils {
 	 * Calculates the confidence interval of the given array.
 	 * Student-t distribution with 0,95 confidence niveau.
 	 * 
-	 * @param values double array the confidence is calculated from
+	 * @param values
+	 *            double array the confidence is calculated from
 	 * @return confidence of the given double array
 	 */
 	public static double[] conf(double[] values) {
+
+		if (values.length == 1) {
+			return new double[] { values[0], values[0] };
+		}
+
 		double var = ArrayUtils.var(values);
 		double mean = ArrayUtils.avg(values);
-		
-		double t = Settings.getStudentT(0.95, values.length-1); 
+
+		double t = Settings.getStudentT(0.95, values.length - 1);
 		double x = t * (Math.sqrt(var) / Math.sqrt(values.length));
 
 		double low = mean - x;
 		double up = mean + x;
-		
-		double[] conf = {low, up};
+
+		double[] conf = { low, up };
 
 		return conf;
 	}
-	
+
 	/**
-	 * Calculates the confidence interval of the given array, while considering Double.NaN's.
-	 * Student-t distribution with 0,95 confidence niveau.
+	 * Calculates the confidence interval of the given array, while considering
+	 * Double.NaN's. Student-t distribution with 0,95 confidence niveau.
 	 * 
-	 * @param values double array the confidence is calculated from
+	 * @param values
+	 *            double array the confidence is calculated from
 	 * @return confidence of the given double array
 	 */
 	public static double[] confIncludingNaN(double[] values) {
 		double var = ArrayUtils.varIncludingNaN(values);
 		double mean = ArrayUtils.avgIncludingNaN(values);
-		
+
 		int counter = 0;
-		for(double v : values){
-			if(Double.isNaN(v))
+		for (double v : values) {
+			if (Double.isNaN(v))
 				counter++;
 		}
-		double t = Settings.getStudentT(0.95, values.length-1-counter); 
-		double x = t * (Math.sqrt(var) / Math.sqrt(values.length-counter));
+		double t = Settings.getStudentT(0.95, values.length - 1 - counter);
+		double x = t * (Math.sqrt(var) / Math.sqrt(values.length - counter));
 
 		double low = mean - x;
 		double high = mean + x;
-		
-		double[] conf = {low, high};
+
+		double[] conf = { low, high };
 
 		return conf;
 	}
