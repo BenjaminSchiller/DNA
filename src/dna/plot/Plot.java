@@ -124,4 +124,8 @@ public class Plot {
 		Execute.exec(Settings.gnuplotPath + " " + this.dir
 				+ this.scriptFilename, true);
 	}
+
+	public void setTitle(String title) {
+		this.title = title;
+	}
 }
