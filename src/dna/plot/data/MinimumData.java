@@ -22,7 +22,7 @@ public class MinimumData extends PlotData {
 	@Override
 	public String getEntry(int lt, int lw, double offsetX, double offsetY) {
 		StringBuffer buff = new StringBuffer();
-		buff.append("'" + this.data + "' using ($1 + " + offsetX + "):($4 + "
+		buff.append("'" + this.data + "' using ($1 + " + offsetX + "):($3 + "
 				+ offsetY + ") with " + this.style);
 		buff.append(" lt " + lt + " lw " + lw);
 		buff.append(title == null ? " notitle" : " title \"" + this.title
