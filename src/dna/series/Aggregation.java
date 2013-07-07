@@ -44,88 +44,89 @@ import dna.util.Log;
  */
 public class Aggregation {
 
-	/**
-	 * aggregates all data in the given series, i.e., agregate each batch of all
-	 * runs.
-	 * 
-	 * @param seriesData
-	 *            data of the series to be aggregated
-	 * @return RunData object containing aggregated versions of all
-	 * @throws AggregationException
-	 *             in case the various values are not consistent in all runs
-	 */
-	public static RunData aggregate(SeriesData seriesData)
-			throws AggregationException {
-		Aggregation.test(seriesData);
-
-		RunData aggregatedRun = new RunData(-1, seriesData.getRun(0)
-				.getBatches().size());
-		for (int i = 0; i < seriesData.getRun(0).getBatches().size(); i++) {
-			BatchData[] batch = new BatchData[seriesData.getRuns().size()];
-			for (int j = 0; j < seriesData.getRuns().size(); j++) {
-				batch[j] = seriesData.getRun(j).getBatches().get(i);
-			}
-			Aggregation.test(batch);
-
-			BatchData d = batch[0];
-			BatchData aggregatedBatch = new BatchData(d.getTimestamp(), d
-					.getValues().size(), d.getGeneralRuntimes().size(), d
-					.getMetricRuntimes().size(), d.getMetrics().size());
-
-			for (Value v : d.getValues().getList()) {
-				double[] values = new double[batch.length];
-				for (int j = 0; j < batch.length; j++) {
-					try {
-						values[j] = batch[j].getValues().get(v.getName())
-								.getValue();
-					} catch (NullPointerException e) {
-						throw new AggregationException("value " + v.getName()
-								+ " not found @ " + j);
-					}
-				}
-				aggregatedBatch.getValues().add(
-						new Value(v.getName(), ArrayUtils.med(values)));
-			}
-
-			for (RunTime rt : d.getGeneralRuntimes().getList()) {
-				double[] values = new double[batch.length];
-				for (int j = 0; j < batch.length; j++) {
-					try {
-						values[j] = batch[j].getGeneralRuntimes()
-								.get(rt.getName()).getRuntime();
-					} catch (NullPointerException e) {
-						throw new AggregationException("general-runtime "
-								+ rt.getRuntime() + " not found @ " + j);
-					}
-				}
-
-				aggregatedBatch.getGeneralRuntimes()
-						.add(new RunTime(rt.getName(), (long) ArrayUtils
-								.med(values)));
-			}
-
-			for (RunTime rt : d.getMetricRuntimes().getList()) {
-				double[] values = new double[batch.length];
-				for (int j = 0; j < batch.length; j++) {
-					try {
-						values[j] = batch[j].getMetricRuntimes()
-								.get(rt.getName()).getRuntime();
-					} catch (NullPointerException e) {
-						throw new AggregationException("metric-runtime "
-								+ rt.getRuntime() + " not found @ " + j);
-					}
-				}
-
-				aggregatedBatch.getMetricRuntimes()
-						.add(new RunTime(rt.getName(), (long) ArrayUtils
-								.med(values)));
-			}
-
-			aggregatedRun.getBatches().add(aggregatedBatch);
-		}
-
-		return aggregatedRun;
-	}
+	// /**
+	// * aggregates all data in the given series, i.e., agregate each batch of
+	// all
+	// * runs.
+	// *
+	// * @param seriesData
+	// * data of the series to be aggregated
+	// * @return RunData object containing aggregated versions of all
+	// * @throws AggregationException
+	// * in case the various values are not consistent in all runs
+	// */
+	// public static RunData aggredwdwdwddgate(SeriesData seriesData)
+	// throws AggregationException {
+	// Aggregation.test(seriesData);
+	//
+	// RunData aggregatedRun = new RunData(-1, seriesData.getRun(0)
+	// .getBatches().size());
+	// for (int i = 0; i < seriesData.getRun(0).getBatches().size(); i++) {
+	// BatchData[] batch = new BatchData[seriesData.getRuns().size()];
+	// for (int j = 0; j < seriesData.getRuns().size(); j++) {
+	// batch[j] = seriesData.getRun(j).getBatches().get(i);
+	// }
+	// Aggregation.test(batch);
+	//
+	// BatchData d = batch[0];
+	// BatchData aggregatedBatch = new BatchData(d.getTimestamp(), d
+	// .getValues().size(), d.getGeneralRuntimes().size(), d
+	// .getMetricRuntimes().size(), d.getMetrics().size());
+	//
+	// for (Value v : d.getValues().getList()) {
+	// double[] values = new double[batch.length];
+	// for (int j = 0; j < batch.length; j++) {
+	// try {
+	// values[j] = batch[j].getValues().get(v.getName())
+	// .getValue();
+	// } catch (NullPointerException e) {
+	// throw new AggregationException("value " + v.getName()
+	// + " not found @ " + j);
+	// }
+	// }
+	// aggregatedBatch.getValues().add(
+	// new Value(v.getName(), ArrayUtils.med(values)));
+	// }
+	//
+	// for (RunTime rt : d.getGeneralRuntimes().getList()) {
+	// double[] values = new double[batch.length];
+	// for (int j = 0; j < batch.length; j++) {
+	// try {
+	// values[j] = batch[j].getGeneralRuntimes()
+	// .get(rt.getName()).getRuntime();
+	// } catch (NullPointerException e) {
+	// throw new AggregationException("general-runtime "
+	// + rt.getRuntime() + " not found @ " + j);
+	// }
+	// }
+	//
+	// aggregatedBatch.getGeneralRuntimes()
+	// .add(new RunTime(rt.getName(), (long) ArrayUtils
+	// .med(values)));
+	// }
+	//
+	// for (RunTime rt : d.getMetricRuntimes().getList()) {
+	// double[] values = new double[batch.length];
+	// for (int j = 0; j < batch.length; j++) {
+	// try {
+	// values[j] = batch[j].getMetricRuntimes()
+	// .get(rt.getName()).getRuntime();
+	// } catch (NullPointerException e) {
+	// throw new AggregationException("metric-runtime "
+	// + rt.getRuntime() + " not found @ " + j);
+	// }
+	// }
+	//
+	// aggregatedBatch.getMetricRuntimes()
+	// .add(new RunTime(rt.getName(), (long) ArrayUtils
+	// .med(values)));
+	// }
+	//
+	// aggregatedRun.getBatches().add(aggregatedBatch);
+	// }
+	//
+	// return aggregatedRun;
+	// }
 
 	/**
 	 * Computes the average value of a list of values.
@@ -548,7 +549,7 @@ public class Aggregation {
 				for (int i = 0; i < runs; i++) {
 					Value tempValue = new Value(rdList.get(i).getBatches()
 							.get(batchX).getMetricRuntimes().get(metRuntimeX)
-							.getName(), rdList.get(0).getBatches().get(batchX)
+							.getName(), rdList.get(i).getBatches().get(batchX)
 							.getMetricRuntimes().get(metRuntimeX).getRuntime());
 					valuesTemp[i] = tempValue;
 
@@ -567,7 +568,7 @@ public class Aggregation {
 				Value[] valuesTemp = new Value[runs];
 
 				for (int i = 0; i < runs; i++) {
-					valuesTemp[i] = rdList.get(0).getBatches().get(batchX)
+					valuesTemp[i] = rdList.get(i).getBatches().get(batchX)
 							.getValues().get(statX);
 				}
 
