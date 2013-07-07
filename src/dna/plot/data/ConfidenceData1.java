@@ -6,9 +6,9 @@ import dna.plot.Gnuplot.PlotStyle;
  * @author benni
  * 
  */
-public class ConfidenceData extends PlotData {
+public class ConfidenceData1 extends PlotData {
 
-	public ConfidenceData(String data, PlotStyle style, String title) {
+	public ConfidenceData1(String data, PlotStyle style, String title) {
 		super(data, style, title);
 	}
 
