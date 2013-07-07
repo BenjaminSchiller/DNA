@@ -202,6 +202,10 @@ public class Series {
 		// record memory usage
 		double mem = (new Memory()).getUsed();
 		initialData.getValues().add(new Value(SeriesStats.memory, mem));
+		initialData.getValues().add(
+				new Value(SeriesStats.nodes, this.g.getNodeCount()));
+		initialData.getValues().add(
+				new Value(SeriesStats.edges, this.g.getEdgeCount()));
 
 		return initialData;
 
@@ -366,6 +370,12 @@ public class Series {
 		// record memory usage
 		double mem = (new Memory()).getUsed();
 		batchData.getValues().add(new Value(SeriesStats.memory, mem));
+
+		// add nodes/edges count
+		batchData.getValues().add(
+				new Value(SeriesStats.nodes, this.g.getNodeCount()));
+		batchData.getValues().add(
+				new Value(SeriesStats.edges, this.g.getEdgeCount()));
 
 		// add metric data
 		for (Metric m : this.metrics) {
