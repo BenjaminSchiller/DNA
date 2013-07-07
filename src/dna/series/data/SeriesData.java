@@ -60,13 +60,13 @@ public class SeriesData {
 		this.runs.add(run);
 	}
 
-	private RunData aggregation;
+	private AggregatedSeries aggregation;
 
-	public RunData getAggregation() {
+	public AggregatedSeries getAggregation() {
 		return this.aggregation;
 	}
 
-	public void setAggregation(RunData aggregation) {
+	public void setAggregation(AggregatedSeries aggregation) {
 		this.aggregation = aggregation;
 	}
 }

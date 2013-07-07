@@ -120,4 +120,26 @@ public class AggregatedValue extends AggregatedData {
 		w.close();
 	}
 
+	public AggregatedValue clone() {
+		double[] values = new double[this.values.length];
+		for (int i = 0; i < this.values.length; i++) {
+			values[i] = this.values[i];
+		}
+		return new AggregatedValue(this.getName(), values);
+	}
+
+	public AggregatedValue clone(double factor) {
+		double[] values = new double[this.values.length];
+		for (int i = 0; i < this.values.length; i++) {
+			values[i] = this.values[i] * factor;
+		}
+		return new AggregatedValue(this.getName(), values);
+	}
+
+	public static AggregatedValue getNaN() {
+		return new AggregatedValue("NaN", new double[] { Double.NaN,
+				Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN,
+				Double.NaN, Double.NaN, Double.NaN });
+	}
+
 }
