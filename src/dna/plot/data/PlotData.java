@@ -9,7 +9,7 @@ import dna.plot.Gnuplot.PlotStyle;
  */
 public abstract class PlotData {
 	public static enum PlotType {
-		average, median, minimum, maximum, variance, confidence, function
+		average, median, minimum, maximum, variance, confidence1, confidence2, function
 	}
 
 	protected String data;
@@ -41,8 +41,10 @@ public abstract class PlotData {
 			return new MaximumData(data, style, title);
 		case variance:
 			return new VarianceData(data, style, title);
-		case confidence:
-			return new ConfidenceData(data, style, title);
+		case confidence1:
+			return new ConfidenceData1(data, style, title);
+		case confidence2:
+			return new ConfidenceData2(data, style, title);
 		case function:
 			return new FunctionData(data, style, title);
 		default:
