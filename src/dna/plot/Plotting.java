@@ -155,14 +155,14 @@ public class Plotting {
 		Plotting.plot(general, generalNames, generalX, dstDir, PlotFilenames
 				.getRuntimesPlot(PlotFilenames.generalRuntimes), PlotFilenames
 				.getRuntimesGnuplotScript(PlotFilenames
-						.getRuntimesPlot(PlotFilenames.generalRuntimes)), type,
-				style);
+						.getRuntimesPlot(PlotFilenames.generalRuntimes)),
+				"general runtimes (" + type + ")", type, style);
 
 		Plotting.plot(metrics, metricsNames, metricsX, dstDir, PlotFilenames
 				.getRuntimesPlot(PlotFilenames.metricRuntimes), PlotFilenames
 				.getRuntimesGnuplotScript(PlotFilenames
-						.getRuntimesPlot(PlotFilenames.metricRuntimes)), type,
-				style);
+						.getRuntimesPlot(PlotFilenames.metricRuntimes)),
+				"metric runtimes (" + type + ")", type, style);
 	}
 
 	private static void plotDistributon(SeriesData[] seriesData, String dstDir,
@@ -237,7 +237,7 @@ public class Plotting {
 
 	public static void plot(AggregatedValue[][] values, String[] names,
 			double[][] x, String dstDir, String filename, String script,
-			PlotType type, PlotStyle style) throws IOException,
+			String title, PlotType type, PlotStyle style) throws IOException,
 			InterruptedException {
 		PlotData[] data = new PlotData[values.length];
 		for (int i = 0; i < values.length; i++) {
@@ -249,6 +249,7 @@ public class Plotting {
 		}
 
 		Plot plot = new Plot(data, dstDir, filename, script);
+		plot.setTitle(title);
 		plot.generate();
 	}
 
