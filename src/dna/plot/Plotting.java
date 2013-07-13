@@ -98,10 +98,49 @@ public class Plotting {
 			}
 		}
 
-		int gr = SeriesStats.generalRuntimesPlot.length * seriesData.length;
+		int gr = SeriesStats.generalRuntimesOfCombinedPlot.length
+				* seriesData.length;
 		int mr = 0;
 		for (SeriesData s : seriesData) {
 			mr += s.getAggregation().getBatches()[0].getMetricRuntimes().size();
+		}
+
+		for (String runtime : SeriesStats.generalRuntimesToPlot) {
+			AggregatedValue[][] runtimes = new AggregatedValue[seriesData.length][];
+			String[] names = new String[seriesData.length];
+			double[][] x = new double[seriesData.length][];
+			int index = 0;
+			for (SeriesData s : seriesData) {
+				runtimes[index] = getGeneralRuntimes(s.getAggregation(),
+						runtime);
+				x[index] = getX(s.getAggregation());
+				names[index] = s.getName();
+				index++;
+			}
+			Plotting.plot(runtimes, names, x, dstDir, PlotFilenames
+					.getRuntimesStatisticPlot(runtime), PlotFilenames
+					.getRuntimesGnuplotScript(PlotFilenames
+							.getRuntimesStatisticPlot(runtime)), runtime + " ("
+					+ type + ")", type, style);
+		}
+
+		for (String metric : seriesData[0].getAggregation().getBatches()[0]
+				.getMetricRuntimes().getNames()) {
+			AggregatedValue[][] runtimes = new AggregatedValue[seriesData.length][];
+			String[] names = new String[seriesData.length];
+			double[][] x = new double[seriesData.length][];
+			int index = 0;
+			for (SeriesData s : seriesData) {
+				runtimes[index] = getMetricRuntimes(s.getAggregation(), metric);
+				x[index] = getX(s.getAggregation());
+				names[index] = s.getName();
+				index++;
+			}
+			Plotting.plot(runtimes, names, x, dstDir, PlotFilenames
+					.getRuntimesMetricPlot(metric), PlotFilenames
+					.getRuntimesGnuplotScript(PlotFilenames
+							.getRuntimesMetricPlot(metric)), metric + " ("
+					+ type + ")", type, style);
 		}
 
 		AggregatedValue[][] general = new AggregatedValue[gr][];
@@ -114,7 +153,7 @@ public class Plotting {
 		int index1 = 0;
 		int index2 = 0;
 		for (SeriesData s : seriesData) {
-			for (String runtime : SeriesStats.generalRuntimesPlot) {
+			for (String runtime : SeriesStats.generalRuntimesOfCombinedPlot) {
 				general[index1] = getGeneralRuntimes(s.getAggregation(),
 						runtime);
 				generalX[index1] = getX(s.getAggregation());
@@ -152,16 +191,21 @@ public class Plotting {
 		// index += metricCount;
 		// }
 
-		Plotting.plot(general, generalNames, generalX, dstDir, PlotFilenames
-				.getRuntimesPlot(PlotFilenames.generalRuntimes), PlotFilenames
-				.getRuntimesGnuplotScript(PlotFilenames
-						.getRuntimesPlot(PlotFilenames.generalRuntimes)),
+		Plotting.plot(
+				general,
+				generalNames,
+				generalX,
+				dstDir,
+				PlotFilenames
+						.getRuntimesStatisticPlot(PlotFilenames.generalRuntimes),
+				PlotFilenames.getRuntimesGnuplotScript(PlotFilenames
+						.getRuntimesStatisticPlot(PlotFilenames.generalRuntimes)),
 				"general runtimes (" + type + ")", type, style);
 
 		Plotting.plot(metrics, metricsNames, metricsX, dstDir, PlotFilenames
-				.getRuntimesPlot(PlotFilenames.metricRuntimes), PlotFilenames
-				.getRuntimesGnuplotScript(PlotFilenames
-						.getRuntimesPlot(PlotFilenames.metricRuntimes)),
+				.getRuntimesMetricPlot(PlotFilenames.metricRuntimes),
+				PlotFilenames.getRuntimesGnuplotScript(PlotFilenames
+						.getRuntimesMetricPlot(PlotFilenames.metricRuntimes)),
 				"metric runtimes (" + type + ")", type, style);
 	}
 

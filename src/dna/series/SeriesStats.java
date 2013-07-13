@@ -34,14 +34,18 @@ public class SeriesStats {
 	public static final String metricsRuntime = "metrics";
 	public static final String graphGenerationRuntime = "graphGeneration";
 	public static final String batchGenerationRuntime = "batchGeneration";
+	public static final String graphUpdateRuntime = "graphUpdate";
 	public static final String sumRuntime = "sum";
 	public static final String overheadRuntime = "overhead";
 
 	public static final String[] statisticsToPlot = new String[] { memory,
 			nodes, edges };
 
-	public static final String[] generalRuntimesPlot = new String[] {
+	public static final String[] generalRuntimesToPlot = new String[] {
+			batchGenerationRuntime, graphUpdateRuntime };
+
+	public static final String[] generalRuntimesOfCombinedPlot = new String[] {
 			totalRuntime, metricsRuntime, batchGenerationRuntime, sumRuntime,
-			overheadRuntime };
+			graphUpdateRuntime, overheadRuntime };
 
 }
