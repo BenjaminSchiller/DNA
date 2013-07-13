@@ -89,11 +89,11 @@ public class PlotFilenames {
 		return Prefix.runtimesGnuplotScript + name;
 	}
 
-	public static String getRuntimesPlot(Values v) {
-		return Prefix.runtimesPlot + v.getName();
+	public static String getRuntimesMetricPlot(String name) {
+		return Prefix.runtimesMetricPlot + name;
 	}
 
-	public static String getRuntimesPlot(String name) {
-		return Prefix.runtimesPlot + name;
+	public static String getRuntimesStatisticPlot(String name) {
+		return Prefix.runtimesStatisticPlot + name;
 	}
 }
