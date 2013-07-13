@@ -13,7 +13,9 @@ public class Prefix {
 	
 	public static final String runtimesDataFile = "zz___runtimes.";
 	
-	public static final String runtimesPlot = "z_runtimes.";
+	public static final String runtimesMetricPlot = "z_runtimes.metric.";
+	
+	public static final String runtimesStatisticPlot = "z_runtimes.statistic.";
 	
 	public static final String statsPlot = "z_statistics";
 	

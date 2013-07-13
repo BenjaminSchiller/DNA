@@ -1,13 +1,17 @@
 package dna.series;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 
 import dna.graph.Graph;
 import dna.graph.GraphGenerator;
 import dna.io.filesystem.Dir;
+import dna.io.filesystem.Prefix;
+import dna.io.filter.PrefixFilenameFilter;
 import dna.metrics.Metric;
 import dna.metrics.MetricNotApplicableException;
+import dna.series.aggdata.AggregatedSeries;
 import dna.series.data.BatchData;
 import dna.series.data.RunData;
 import dna.series.data.RunTime;
@@ -34,6 +38,23 @@ public class Series {
 		this.metrics = metrics;
 		this.dir = dir;
 		this.name = name;
+	}
+
+	public static SeriesData get(String dir, String name)
+			throws NumberFormatException, IOException {
+		SeriesData seriesData = new SeriesData(dir, name);
+		int runs = (new File(dir)).listFiles(new PrefixFilenameFilter(
+				Prefix.runDataDir)).length;
+		for (int run = 0; run < runs; run++) {
+			String runDir = Dir.getRunDataDir(dir, run);
+			System.out.println(run + ": " + runDir);
+			RunData runData = RunData.read(dir, run, false);
+			seriesData.addRun(runData);
+		}
+		AggregatedSeries aggregation = null;
+		// TODO read aggregated data!!!!
+		seriesData.setAggregation(aggregation);
+		return seriesData;
 	}
 
 	public SeriesData generate(int runs, int batches)
@@ -154,7 +175,7 @@ public class Series {
 		Log.info("    inital data");
 
 		long seed = System.currentTimeMillis();
-		// seed = 0;
+		seed = 0;
 		Rand.init(seed);
 
 		// generate graph
@@ -216,7 +237,7 @@ public class Series {
 			throws MetricNotApplicableException {
 
 		long seed = System.currentTimeMillis();
-		// seed = 0;
+		seed = 0;
 		Rand.init(seed);
 
 		int addedNodes = 0;
@@ -226,9 +247,10 @@ public class Series {
 		int removedEdges = 0;
 		int updatedEdgeWeights = 0;
 
-		Timer totalTimer = new Timer("total");
+		Timer totalTimer = new Timer(SeriesStats.totalRuntime);
 
-		Timer batchGenerationTimer = new Timer("batchGeneration");
+		Timer batchGenerationTimer = new Timer(
+				SeriesStats.batchGenerationRuntime);
 		Batch b = this.bg.generate(this.g);
 		batchGenerationTimer.end();
 
@@ -237,7 +259,7 @@ public class Series {
 		BatchData batchData = new BatchData(b.getTo(), 5, 5, metrics.length,
 				metrics.length);
 
-		Timer graphUpdateTimer = new Timer("graphUpdate");
+		Timer graphUpdateTimer = new Timer(SeriesStats.graphUpdateRuntime);
 
 		// init metric timers
 		HashMap<Metric, Timer> timer = new HashMap<Metric, Timer>();
@@ -249,7 +271,7 @@ public class Series {
 			t.end();
 			timer.put(m, t);
 		}
-		Timer metricsTotal = new Timer("metrics");
+		Timer metricsTotal = new Timer(SeriesStats.metricsRuntime);
 		metricsTotal.end();
 
 		// apply before batch
