@@ -3,6 +3,7 @@ package dna.series;
 import java.io.IOException;
 import java.util.HashMap;
 
+import dna.graph.Edge;
 import dna.graph.Graph;
 import dna.graph.GraphGenerator;
 import dna.io.filesystem.Dir;
@@ -14,29 +15,41 @@ import dna.series.data.SeriesData;
 import dna.series.data.Value;
 import dna.updates.Batch;
 import dna.updates.BatchGenerator;
+import dna.updates.BatchSanitizationStats;
+import dna.updates.EdgeAddition;
 import dna.updates.Update;
 import dna.util.Log;
+import dna.util.Memory;
 import dna.util.Rand;
 import dna.util.Timer;
 
 @SuppressWarnings("rawtypes")
 public class Series {
 
+	public static boolean callGC = false;
+
 	public Series(GraphGenerator gg, BatchGenerator bg, Metric[] metrics,
-			String dir) {
+			String dir, String name) {
 		this.gg = gg;
 		this.bg = bg;
 		this.metrics = metrics;
 		this.dir = dir;
+		this.name = name;
 	}
 
 	public SeriesData generate(int runs, int batches)
 			throws AggregationException, IOException {
+		return this.generate(runs, batches, true, true);
+	}
+
+	public SeriesData generate(int runs, int batches, boolean compare,
+			boolean write) throws AggregationException, IOException {
 
 		Log.infoSep();
 		Timer timer = new Timer("seriesGeneration");
 		Log.info("generating series");
 		Log.infoSep();
+		Log.info("ds = " + this.gg.getDatastructures());
 		Log.info("gg = " + this.gg.getDescription());
 		Log.info("bg = " + this.bg.getDescription());
 		Log.info("p  = " + this.dir);
@@ -49,18 +62,23 @@ public class Series {
 		}
 		Log.info("m  = " + buff.toString());
 
-		SeriesData sd = new SeriesData(this.dir, runs);
+		SeriesData sd = new SeriesData(this.dir, this.name, runs);
 
 		// generate all runs
+
 		for (int r = 0; r < runs; r++) {
-			sd.addRun(this.generateRun(r, batches));
+			sd.addRun(this.generateRun(r, batches, compare, write));
 		}
 
 		// aggregate all runs
-		RunData aggregation = Aggregation.aggregate(sd);
-		sd.setAggregation(aggregation);
-		aggregation.write(Dir.getAggregationDataDir(dir));
-
+		Log.infoSep();
+		Log.info("Aggregating SeriesData");
+		sd.setAggregation(Aggregation.aggregate(sd));
+		if (write) {
+			Log.info("Writing aggregated series in " + dir);
+			sd.getAggregation().write(Dir.getAggregationDataDir(dir));
+			Log.info("Finished writing aggregated series in " + dir);
+		}
 		Log.infoSep();
 		timer.end();
 		Log.info("total time: " + timer.toString());
@@ -69,7 +87,8 @@ public class Series {
 		return sd;
 	}
 
-	public RunData generateRun(int run, int batches) throws IOException {
+	public RunData generateRun(int run, int batches, boolean compare,
+			boolean write) throws IOException {
 
 		Log.infoSep();
 		Timer timer = new Timer("runGeneration");
@@ -77,33 +96,42 @@ public class Series {
 
 		RunData rd = new RunData(run, batches + 1);
 
+		// reset batch generator
+		this.bg.reset();
+
 		// generate initial data
 		BatchData initialData = this.generateInitialData();
-		this.compareMetrics();
+		if (compare) {
+			this.compareMetrics();
+		}
 		rd.getBatches().add(initialData);
-		initialData.write(Dir.getBatchDataDir(this.dir, run,
-				initialData.getTimestamp()));
-
+		if (write) {
+			initialData.write(Dir.getBatchDataDir(this.dir, run,
+					initialData.getTimestamp()));
+		}
 		// generate batch data
 		for (int i = 0; i < batches; i++) {
 			BatchData batchData = this.generateNextBatch(i + 1);
-			this.compareMetrics();
+			if (compare) {
+				this.compareMetrics();
+			}
 			rd.getBatches().add(batchData);
-			batchData.write(Dir.getBatchDataDir(this.dir, run,
-					batchData.getTimestamp()));
+			if (write) {
+				batchData.write(Dir.getBatchDataDir(this.dir, run,
+						batchData.getTimestamp()));
+			}
 		}
 
 		timer.end();
 		Log.info(timer.toString());
 
 		return rd;
-
 	}
 
 	private boolean compareMetrics() {
 		boolean ok = true;
 		for (int i = 0; i < this.metrics.length; i++) {
-			for (int j = 0; j < this.metrics.length; j++) {
+			for (int j = i + 1; j < this.metrics.length; j++) {
 				if (i == j) {
 					continue;
 				}
@@ -127,7 +155,7 @@ public class Series {
 		Log.info("    inital data");
 
 		long seed = System.currentTimeMillis();
-		// seed = 0;
+		seed = 0;
 		Rand.init(seed);
 
 		// generate graph
@@ -146,6 +174,7 @@ public class Series {
 		Timer allMetricsTimer = new Timer("metrics");
 		for (Metric m : metrics) {
 			Timer metricTimer = new Timer(m.getName());
+			m.init();
 			m.compute();
 			metricTimer.end();
 			initialData.getMetrics().add(m.getData());
@@ -164,6 +193,14 @@ public class Series {
 		// add values
 		initialData.getValues().add(new Value("randomSeed", seed));
 
+		// call garbage collection
+		if (Series.callGC) {
+			System.gc();
+		}
+		// record memory usage
+		double mem = (new Memory()).getUsed();
+		initialData.getValues().add(new Value(SeriesStats.memory, mem));
+
 		return initialData;
 
 	}
@@ -172,7 +209,7 @@ public class Series {
 	public BatchData generateNextBatch(long timestamp) {
 
 		long seed = System.currentTimeMillis();
-		// seed = 0;
+		seed = 0;
 		Rand.init(seed);
 
 		int addedNodes = 0;
@@ -216,9 +253,15 @@ public class Series {
 		}
 		metricsTotal.end();
 
-		this.applyUpdates(b.getEdgeRemovals(), graphUpdateTimer, metricsTotal,
-				timer);
+		BatchSanitizationStats sanitizationStats = b.sanitize();
+		if (sanitizationStats.getTotal() > 0) {
+			Log.info("      " + sanitizationStats);
+			Log.info("      => " + b.toString());
+		}
+
 		this.applyUpdates(b.getNodeRemovals(), graphUpdateTimer, metricsTotal,
+				timer);
+		this.applyUpdates(b.getEdgeRemovals(), graphUpdateTimer, metricsTotal,
 				timer);
 
 		this.applyUpdates(b.getNodeAdditions(), graphUpdateTimer, metricsTotal,
@@ -249,7 +292,8 @@ public class Series {
 		for (Metric m : this.metrics) {
 			if (m.isRecomputed()) {
 				timer.get(m).restart();
-				m.recompute();
+				m.init();
+				m.compute();
 				timer.get(m).end();
 			}
 		}
@@ -259,28 +303,63 @@ public class Series {
 
 		// add values
 		batchData.getValues().add(
-				new Value("nodesToAdd", b.getNodeAdditionCount()));
-		batchData.getValues().add(new Value("addedNodes", addedNodes));
+				new Value(SeriesStats.nodesToAdd, b.getNodeAdditionCount()));
+		batchData.getValues()
+				.add(new Value(SeriesStats.addedNodes, addedNodes));
 		batchData.getValues().add(
-				new Value("nodesToRemove", b.getNodeRemovalCount()));
-		batchData.getValues().add(new Value("removedNodes", removedNodes));
+				new Value(SeriesStats.nodesToRemove, b.getNodeRemovalCount()));
 		batchData.getValues().add(
-				new Value("nodeWeightsToUpdate", b.getNodeWeightUpdateCount()));
+				new Value(SeriesStats.removedNodes, removedNodes));
 		batchData.getValues().add(
-				new Value("updatedNodeWeights", updatedNodeWeights));
+				new Value(SeriesStats.nodeWeightsToUpdate, b
+						.getNodeWeightUpdateCount()));
+		batchData.getValues().add(
+				new Value(SeriesStats.updatedNodeWeights, updatedNodeWeights));
 
 		batchData.getValues().add(
-				new Value("edgesToAdd", b.getEdgeAdditionCount()));
-		batchData.getValues().add(new Value("addedEdges", addedEdges));
+				new Value(SeriesStats.edgesToAdd, b.getEdgeAdditionCount()));
+		batchData.getValues()
+				.add(new Value(SeriesStats.addedEdges, addedEdges));
 		batchData.getValues().add(
-				new Value("edgesToRemove", b.getEdgeRemovalCount()));
-		batchData.getValues().add(new Value("removedEdges", removedEdges));
+				new Value(SeriesStats.edgesToRemove, b.getEdgeRemovalCount()));
 		batchData.getValues().add(
-				new Value("edgeWeightsToUpdate", b.getEdgeWeightUpdateCount()));
+				new Value(SeriesStats.removedEdges, removedEdges));
 		batchData.getValues().add(
-				new Value("updatedEdgeWeights", updatedEdgeWeights));
+				new Value(SeriesStats.edgeWeightsToUpdate, b
+						.getEdgeWeightUpdateCount()));
+		batchData.getValues().add(
+				new Value(SeriesStats.updatedEdgeWeights, updatedEdgeWeights));
 
-		batchData.getValues().add(new Value("randomSeed", seed));
+		batchData.getValues().add(
+				new Value(SeriesStats.deletedNodeAdditions, sanitizationStats
+						.getDeletedNodeAdditions()));
+		batchData.getValues().add(
+				new Value(SeriesStats.deletedEdgeAdditions, sanitizationStats
+						.getDeletedEdgeAdditions()));
+		batchData.getValues().add(
+				new Value(SeriesStats.deletedNodeRemovals, sanitizationStats
+						.getDeletedNodeRemovals()));
+		batchData.getValues().add(
+				new Value(SeriesStats.deletedEdgeRemovals, sanitizationStats
+						.getDeletedEdgeRemovals()));
+		batchData.getValues().add(
+				new Value(SeriesStats.deletedNodeWeightUpdates,
+						sanitizationStats.getDeletedNodeWeightUpdates()));
+		batchData.getValues().add(
+				new Value(SeriesStats.deletedEdgeWeightUpdates,
+						sanitizationStats.getDeletedEdgeWeightUpdates()));
+
+		batchData.getValues().add(new Value(SeriesStats.randomSeed, seed));
+
+		// release batch
+		b = null;
+		// call garbage collection
+		if (Series.callGC) {
+			System.gc();
+		}
+		// record memory usage
+		double mem = (new Memory()).getUsed();
+		batchData.getValues().add(new Value(SeriesStats.memory, mem));
 
 		// add metric data
 		for (Metric m : this.metrics) {
@@ -323,10 +402,11 @@ public class Series {
 
 			// update graph datastructures
 			graphUpdateTimer.restart();
+
 			boolean success = u.apply(this.g);
 			graphUpdateTimer.end();
 			if (!success) {
-				Log.error("count not apply update " + u.toString()
+				Log.error("could not apply update " + u.toString()
 						+ " (BUT metric before update already applied)");
 				continue;
 			}
@@ -379,6 +459,8 @@ public class Series {
 
 	private Graph g;
 
+	private String name;
+
 	public GraphGenerator getGraphGenerator() {
 		return this.gg;
 	}
@@ -397,6 +479,10 @@ public class Series {
 
 	public Graph getGraph() {
 		return this.g;
+	}
+
+	public String getName() {
+		return this.name;
 	}
 
 }

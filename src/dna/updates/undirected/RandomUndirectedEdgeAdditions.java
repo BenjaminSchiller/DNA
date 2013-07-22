@@ -67,4 +67,8 @@ public class RandomUndirectedEdgeAdditions extends UndirectedBatchGenerator {
 		return batch;
 	}
 
+	@Override
+	public void reset() {
+	}
+
 }

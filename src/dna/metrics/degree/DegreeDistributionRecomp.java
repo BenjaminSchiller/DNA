@@ -14,7 +14,7 @@ import dna.util.Log;
 public class DegreeDistributionRecomp extends DegreeDistribution {
 
 	public DegreeDistributionRecomp() {
-		super("degreeDistributionRecomputation", ApplicationType.Recomputation);
+		super("degreeDistributionRecomp", ApplicationType.Recomputation);
 	}
 
 	@Override
@@ -75,12 +75,7 @@ public class DegreeDistributionRecomp extends DegreeDistribution {
 	}
 
 	@Override
-	public boolean recompute() {
-		return this.compute();
-	}
-
-	@Override
-	protected void init_(Graph g) {
+	protected void init_() {
 		this.degreeDistribution = new double[0];
 		this.inDegreeDistribution = new double[0];
 		this.outDegreeDistribution = new double[0];

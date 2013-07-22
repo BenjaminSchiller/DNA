@@ -4,28 +4,31 @@ import java.util.ArrayList;
 
 public class SeriesData {
 
-	public SeriesData(String dir) {
+	public SeriesData(String dir, String name) {
 		this.dir = dir;
+		this.name = name;
 		this.runs = new ArrayList<RunData>();
 		this.aggregation = null;
 	}
 
-	public SeriesData(String dir, int size) {
+	public SeriesData(String dir, String name, int size) {
 		this.dir = dir;
+		this.name = name;
 		this.runs = new ArrayList<RunData>(size);
 		this.aggregation = null;
 	}
 
-	public SeriesData(String dir, RunData[] runs) {
-		this(dir, runs.length);
+	public SeriesData(String dir, String name, RunData[] runs) {
+		this(dir, name, runs.length);
 		for (RunData run : runs) {
 			this.runs.add(run);
 		}
 		this.aggregation = null;
 	}
 
-	public SeriesData(String dir, RunData[] runs, RunData aggregation) {
-		this(dir, runs);
+	public SeriesData(String dir, String name, RunData[] runs,
+			RunData aggregation) {
+		this(dir, name, runs);
 		this.aggregation = aggregation;
 	}
 
@@ -33,6 +36,12 @@ public class SeriesData {
 
 	public String getDir() {
 		return this.dir;
+	}
+
+	private String name;
+
+	public String getName() {
+		return this.name;
 	}
 
 	private ArrayList<RunData> runs;

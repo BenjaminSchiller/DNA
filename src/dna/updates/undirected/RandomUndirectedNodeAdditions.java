@@ -49,12 +49,15 @@ public class RandomUndirectedNodeAdditions extends UndirectedBatchGenerator {
 		while (batch.getSize() < this.additions) {
 			UndirectedNode n = (UndirectedNode) this.ds.newNodeInstance(index);
 			if (!g.containsNode(n)) {
-				batch.add(new NodeAddition<UndirectedEdge>(this.ds
-						.newNodeInstance(index)));
+				batch.add(new NodeAddition<UndirectedEdge>(n));
 			}
 			index++;
 		}
 		return batch;
+	}
+
+	@Override
+	public void reset() {
 	}
 
 }

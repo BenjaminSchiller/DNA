@@ -13,11 +13,14 @@ public class Prefix {
 	
 	public static final String runtimesDataFile = "zz___runtimes.";
 	
-	public static final String runtimesPlot = "runtimes.";
+	public static final String runtimesPlot = "z_runtimes.";
+	
+	public static final String statsPlot = "z_statistics";
 	
 	public static final String runDataDir = "run.";
 	
 	public static final String batchDataDir = "batch.";
 	
 	public static final String metricDataDir = "metric.";
+
 }

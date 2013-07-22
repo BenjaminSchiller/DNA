@@ -48,7 +48,7 @@ public class UndirectedEdge extends Edge implements Comparable<UndirectedEdge> {
 		return this.node1.getIndex() + Keywords.undirectedEdgeDelimiter
 				+ this.node2.getIndex();
 	}
-	
+
 	protected UndirectedNode node1;
 
 	/**
@@ -103,6 +103,24 @@ public class UndirectedEdge extends Edge implements Comparable<UndirectedEdge> {
 			return this.node1.getIndex() - e.node1.getIndex();
 		}
 		return this.node2.getIndex() - e.node2.getIndex();
+	}
+
+	/**
+	 * 
+	 * @param n
+	 *            node to get the differing one connected by this edge
+	 * @return null of the given node is not one of the two nodes connected by
+	 *         this edge; otherwise, the connected node different from this one
+	 *         is returned
+	 */
+	public UndirectedNode getDifferingNode(UndirectedNode n) {
+		if (this.node1.equals(n)) {
+			return this.node2;
+		} else if (this.node2.equals(n)) {
+			return this.node1;
+		} else {
+			return null;
+		}
 	}
 
 }

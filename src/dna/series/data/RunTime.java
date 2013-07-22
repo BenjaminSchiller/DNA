@@ -10,7 +10,7 @@ public class RunTime implements ListItem {
 	}
 
 	public String toString() {
-		return "runtime(" + this.name + "): " + this.runtime + " msec";
+		return "runtime(" + this.name + "): " + this.getMilliSec() + " msec";
 	}
 
 	private String name;
@@ -26,10 +26,14 @@ public class RunTime implements ListItem {
 	}
 
 	public double getSec() {
-		return this.runtime / 1000;
+		return this.getMilliSec() / 1000.0;
 	}
 
-	public double getMSec() {
+	public double getMilliSec() {
+		return this.getNanoSec() / 1000.0 / 1000.0;
+	}
+
+	public double getNanoSec() {
 		return this.runtime;
 	}
 

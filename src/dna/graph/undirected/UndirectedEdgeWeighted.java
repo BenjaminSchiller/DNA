@@ -18,8 +18,12 @@ public class UndirectedEdgeWeighted extends UndirectedEdge implements
 
 	public UndirectedEdgeWeighted(String str, UndirectedGraph graph) {
 		super(str.split(Keywords.edgeWeightDelimiter)[0], graph);
-		this.weight = Double.parseDouble(str
-				.split(Keywords.edgeWeightDelimiter)[1]);
+		if (str.contains(Keywords.edgeWeightDelimiter)) {
+			this.weight = Double.parseDouble(str
+					.split(Keywords.edgeWeightDelimiter)[1]);
+		} else {
+			this.weight = 0;
+		}
 	}
 
 	/**

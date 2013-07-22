@@ -22,6 +22,14 @@ public class DirectedNodeAl extends DirectedNode {
 		this.neighbors = new ArrayList<DirectedNode>();
 	}
 
+	public DirectedNodeAl(String str) {
+		super(str);
+		this.in = new ArrayList<DirectedEdge>();
+		this.out = new ArrayList<DirectedEdge>();
+		this.all = Iterables.unmodifiableIterable(Iterables.concat(in, out));
+		this.neighbors = new ArrayList<DirectedNode>();
+	}
+
 	@Override
 	public Iterable<DirectedEdge> getIncomingEdges() {
 		return this.in;

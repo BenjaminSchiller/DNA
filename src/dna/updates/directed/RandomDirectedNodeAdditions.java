@@ -49,12 +49,15 @@ public class RandomDirectedNodeAdditions extends DirectedBatchGenerator {
 		while (batch.getSize() < this.additions) {
 			DirectedNode n = (DirectedNode) this.ds.newNodeInstance(index);
 			if (!g.containsNode(n)) {
-				batch.add(new NodeAddition<DirectedEdge>(this.ds
-						.newNodeInstance(index)));
+				batch.add(new NodeAddition<DirectedEdge>(n));
 			}
 			index++;
 		}
 		return batch;
+	}
+
+	@Override
+	public void reset() {
 	}
 
 }

@@ -1,6 +1,5 @@
 package dna.metrics.clusterCoefficient;
 
-import dna.graph.Graph;
 import dna.graph.directed.DirectedEdge;
 import dna.graph.directed.DirectedGraph;
 import dna.graph.directed.DirectedNode;
@@ -10,7 +9,7 @@ import dna.util.ArrayUtils;
 
 @SuppressWarnings("rawtypes")
 public class OpenTriangleClusteringCoefficientRecomp extends
-		ClusteringCoefficient {
+		OpenTriangleClusteringCoefficient {
 
 	public OpenTriangleClusteringCoefficientRecomp() {
 		super("openTriangleClusteringCoefficientRecomp",
@@ -73,26 +72,9 @@ public class OpenTriangleClusteringCoefficientRecomp extends
 			this.globalCC = (double) this.triangleCount
 					/ (double) this.potentialCount;
 		}
-		this.averageCC = ArrayUtils.avg(this.localCC);
+		this.averageCC = ArrayUtils.avgIgnoreNaN(this.localCC);
 
 		return true;
-	}
-
-	@Override
-	public boolean recompute() {
-		return this.compute();
-	}
-
-	@Override
-	public boolean isApplicable(Graph g) {
-		return DirectedNode.class.isAssignableFrom(g.getGraphDatastructures()
-				.getNodeType());
-	}
-
-	@Override
-	public boolean isApplicable(Batch b) {
-		return DirectedNode.class.isAssignableFrom(b.getGraphDatastructures()
-				.getNodeType());
 	}
 
 }

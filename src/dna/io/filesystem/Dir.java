@@ -22,6 +22,17 @@ public class Dir {
 		return dir + Names.runAggregation + Dir.delimiter;
 	}
 
+	public static String getAggregationBatchDir(String dir, long run) {
+		return Dir.getAggregationDataDir(dir) + Prefix.batchDataDir + run
+				+ Dir.delimiter;
+	}
+
+	public static String getAggregatedMetricDataDir(String dir, long timestamp,
+			String name) {
+		return Dir.getAggregationBatchDir(dir, timestamp) + name
+				+ Dir.delimiter;
+	}
+
 	/*
 	 * RUN data
 	 */

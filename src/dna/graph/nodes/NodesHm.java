@@ -73,12 +73,17 @@ public class NodesHm<N extends Node<E>, E extends Edge> extends Nodes<N, E> {
 		return this.nodes.containsKey(n.getIndex());
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public N getRandomNode() {
-		// TODO get random node over iterator instead of creating an array
-		N[] nodes = (N[]) this.nodes.values().toArray();
-		return nodes[Rand.rand.nextInt(nodes.length)];
+		int index = Rand.rand.nextInt(this.nodes.size());
+		int counter = 0;
+		for (N node : this.nodes.values()) {
+			if (counter == index) {
+				return node;
+			}
+			counter++;
+		}
+		return null;
 	}
 
 }

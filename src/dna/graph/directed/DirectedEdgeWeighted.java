@@ -15,10 +15,14 @@ public class DirectedEdgeWeighted extends DirectedEdge implements WeightedEdge {
 		this.weight = weight;
 	}
 
-	public DirectedEdgeWeighted(String s, DirectedGraph g) {
-		super(s.split(Keywords.edgeWeightDelimiter)[0], g);
-		this.weight = Double
-				.parseDouble(s.split(Keywords.edgeWeightDelimiter)[1]);
+	public DirectedEdgeWeighted(String str, DirectedGraph g) {
+		super(str.split(Keywords.edgeWeightDelimiter)[0], g);
+		if (str.contains(Keywords.edgeWeightDelimiter)) {
+			this.weight = Double.parseDouble(str
+					.split(Keywords.edgeWeightDelimiter)[1]);
+		} else {
+			this.weight = 0;
+		}
 	}
 
 	public String getStringRepresentation() {

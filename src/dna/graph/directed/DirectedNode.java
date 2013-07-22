@@ -8,6 +8,10 @@ public abstract class DirectedNode extends Node<DirectedEdge> {
 		super(index);
 	}
 
+	public DirectedNode(String str) {
+		super(str);
+	}
+
 	public abstract Iterable<DirectedEdge> getIncomingEdges();
 
 	public abstract Iterable<DirectedEdge> getOutgoingEdges();
@@ -28,6 +32,7 @@ public abstract class DirectedNode extends Node<DirectedEdge> {
 		System.out.println(this.toString());
 		System.out.println("In: " + this.getIncomingEdges());
 		System.out.println("Out: " + this.getOutgoingEdges());
+		System.out.println("Neighbors: " + this.getNeighbors());
 	}
 
 }
