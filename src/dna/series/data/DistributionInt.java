@@ -9,37 +9,47 @@ import dna.io.Reader;
 import dna.io.Writer;
 import dna.io.etc.Keywords;
 
-
 /**
- * NodeValueList is a class containing an array with 1 value for each node. The node index is used as 
- * the index for the array. If a node is removed from the graph, his former value is replaced by a Double.NaN.
- * When inserting new nodevalues with out-of-bound indeces, the array is expanded accordingly.
+ * DistributionInt is an object which represents an distribution by whole numbers and its denominator.
+ * Integer data-structures are used. For larger numbers see DistributionLong.
  * 
- * @date 24.06.2013
+ * @author Rwilmes
+ * @date 17.06.2013
  */
-public class Distribution extends Data {
+public class DistributionInt extends Distribution {
 
-	// member variables
-	private double[] values;
+	// class variables
+	private int[] values;
+	private int denominator;
 	
 	// constructors
-	public Distribution(String name, double[] values) {
+	public DistributionInt(String name, int[] values, int denominator) {
 		super(name);
 		this.values = values;
+		this.denominator = denominator;
 	}
-	public Distribution(String name) {
-		super(name);
-	}
-		
-	// class methods
-	public String toString() {
-		return "distribution(" + super.getName() + ")";
-	}
-
-	public double[] getValues() {
+	
+	// get methods
+	public int[] getIntValues() {
 		return this.values;
 	}
+	
+	public int getDenominator() {
+		return this.denominator;
+	}
 
+	public int getMin() {
+		int y = 0;
+		while(values[y] < 0) {
+			y++;
+			
+		}
+		return y;
+	}
+	
+	public int getMax() {
+		return values.length-1;
+	}
 	
 	// IO Methods
 	/**
@@ -53,6 +63,9 @@ public class Distribution extends Data {
 					+ this.getName() + "\" set to be written to " + dir);
 		}
 		Writer w = new Writer(dir, filename);
+
+		w.writeln(this.denominator);	// write denominator in first line
+		
 		for (int i = 0; i < this.values.length; i++) {
 			w.writeln(i + Keywords.distributionDelimiter + this.values[i]);
 		}
@@ -67,30 +80,36 @@ public class Distribution extends Data {
 	 * @param readValues Boolean. True:  values from the file will be read.
 	 * 							  False: empty Distribution will be created.	
 	 */
-	public static Distribution read(String dir, String filename, String name,
+	public static DistributionInt read(String dir, String filename, String name,
 			boolean readValues) throws IOException {
 		if (!readValues) {
-			return new Distribution(name, null);
+			return new DistributionInt(name, null,0);
 		}
 		Reader r = new Reader(dir, filename);
-		ArrayList<Double> list = new ArrayList<Double>();
+		ArrayList<Integer> list = new ArrayList<Integer>();
 		String line = null;
 		int index = 0;
+		
+		line = r.readString();
+		int denominator = Integer.parseInt(line);
+		
 		while ((line = r.readString()) != null) {
 			String[] temp = line.split(Keywords.distributionDelimiter);
 			if (Integer.parseInt(temp[0]) != index) {
 				throw new InvalidFormatException("expected index " + index
 						+ " but found " + temp[0] + " @ \"" + line + "\"");
 			}
-			list.add(Double.parseDouble(temp[1]));
+			list.add(Integer.parseInt(temp[1]));
 			index++;
 		}
-		double[] values = new double[list.size()];
+		int[] values = new int[list.size()];
 		for (int i = 0; i < list.size(); i++) {
 			values[i] = list.get(i);
 		}
 		r.close();
-		return new Distribution(name, values);
+		return new DistributionInt(name, values, denominator);
 	}
+	
 
+	
 }

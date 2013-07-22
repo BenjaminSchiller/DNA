@@ -8,6 +8,7 @@ import dna.graph.Graph;
 import dna.graph.GraphGenerator;
 import dna.io.filesystem.Dir;
 import dna.metrics.Metric;
+import dna.series.aggdata.AggregatedSeries;
 import dna.series.data.BatchData;
 import dna.series.data.RunData;
 import dna.series.data.RunTime;
@@ -69,7 +70,7 @@ public class Series {
 		for (int r = 0; r < runs; r++) {
 			sd.addRun(this.generateRun(r, batches, compare, write));
 		}
-
+		
 		// aggregate all runs
 		Log.infoSep();
 		Log.info("Aggregating SeriesData");
@@ -78,6 +79,7 @@ public class Series {
 			Log.info("Writing aggregated series in " + dir);
 			sd.getAggregation().write(Dir.getAggregationDataDir(dir));
 			Log.info("Finished writing aggregated series in " + dir);
+			Log.info("Finished writing aggregated series in " + dir);	
 		}
 		Log.infoSep();
 		timer.end();
@@ -121,7 +123,7 @@ public class Series {
 						batchData.getTimestamp()));
 			}
 		}
-
+		
 		timer.end();
 		Log.info(timer.toString());
 
