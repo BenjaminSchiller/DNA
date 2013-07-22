@@ -10,6 +10,7 @@ public class Rand {
 	public static void init(long seed) {
 		Rand.seed = seed;
 		Rand.rand = new Random(seed);
+		Log.debug("initializing Rand with seed " + Rand.seed);
 	}
 
 }
