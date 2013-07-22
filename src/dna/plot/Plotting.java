@@ -11,7 +11,7 @@ import dna.plot.Gnuplot.PlotStyle;
 import dna.plot.data.PlotData;
 import dna.plot.data.PlotData.PlotType;
 import dna.series.Values;
-import dna.series.data.DiffData;
+import dna.series.data.BatchData;
 import dna.series.data.Distribution;
 import dna.series.data.MetricData;
 import dna.series.data.RunData;
@@ -39,25 +39,25 @@ public class Plotting {
 		Log.info("plotting distributions for run " + runData.getRun() + "/"
 				+ seriesData.getRuns().size() + " in " + seriesData.getDir());
 
-		for (MetricData metric : runData.getDiffs().get(0).getMetrics()
+		for (MetricData metric : runData.getBatches().get(0).getMetrics()
 				.getList()) {
 			(new File(dstDir)).mkdirs();
 
 			for (Distribution distribution : metric.getDistributions()
 					.getList()) {
-				PlotData[] data = new PlotData[runData.getDiffs().size()];
+				PlotData[] data = new PlotData[runData.getBatches().size()];
 				int i = 0;
-				for (DiffData diffData : runData.getDiffs().getList()) {
-					MetricData metricData = diffData.getMetrics().get(
+				for (BatchData batchData : runData.getBatches().getList()) {
+					MetricData metricData = batchData.getMetrics().get(
 							metric.getName());
 					Distribution d = metricData.getDistributions().get(
 							distribution.getName());
 					String path = Dir.getMetricDataDir(seriesData.getDir(),
-							runData.getRun(), diffData.getTimestamp(),
+							runData.getRun(), batchData.getTimestamp(),
 							metricData.getName())
 							+ d.getName() + Suffix.distribution;
 					data[i] = PlotData.get(path, PlotStyle.linespoint,
-							diffData.getTimestamp() + "", PlotType.average);
+							batchData.getTimestamp() + "", PlotType.average);
 					i++;
 				}
 
@@ -78,17 +78,17 @@ public class Plotting {
 		Log.info("plotting values for run " + runData.getRun() + " of "
 				+ seriesData.getRuns().size() + " in " + seriesData.getDir());
 
-		for (MetricData metric : runData.getDiffs().get(0).getMetrics()
+		for (MetricData metric : runData.getBatches().get(0).getMetrics()
 				.getList()) {
 			(new File(dstDir)).mkdirs();
 
 			for (Value value : metric.getValues().getList()) {
-				double[][] values = new double[runData.getDiffs().size()][2];
+				double[][] values = new double[runData.getBatches().size()][2];
 				int i = 0;
-				for (DiffData diffData : runData.getDiffs().getList()) {
-					MetricData metricData = diffData.getMetrics().get(
+				for (BatchData batchData : runData.getBatches().getList()) {
+					MetricData metricData = batchData.getMetrics().get(
 							metric.getName());
-					values[i][0] = diffData.getTimestamp();
+					values[i][0] = batchData.getTimestamp();
 					values[i][1] = metricData.getValues().get(value.getName())
 							.getValue();
 					i++;
@@ -120,13 +120,13 @@ public class Plotting {
 		Log.info("plotting runtimes for run " + runData.getRun() + " of "
 				+ seriesData.getRuns().size() + " in " + seriesData.getDir());
 
-		if (runData.getDiffs().size() < 2) {
+		if (runData.getBatches().size() < 2) {
 			return;
 		}
 		ArrayList<RunTime> generalRuntimes = new ArrayList<RunTime>(runData
-				.getDiffs().get(1).getGeneralRuntimes().getList());
+				.getBatches().get(1).getGeneralRuntimes().getList());
 		ArrayList<RunTime> metricRuntimes = new ArrayList<RunTime>(runData
-				.getDiffs().get(1).getMetricRuntimes().getList());
+				.getBatches().get(1).getMetricRuntimes().getList());
 
 		Values[] general = new Values[generalRuntimes.size()];
 		Values[] metric = new Values[metricRuntimes.size()];
@@ -172,13 +172,13 @@ public class Plotting {
 	}
 
 	private static Values getGeneralRuntimes(RunData runData, String name) {
-		double[][] values = new double[runData.getDiffs().size() - 1][2];
-		for (int i = 1; i < runData.getDiffs().size(); i++) {
-			values[i - 1][0] = runData.getDiffs().get(i).getTimestamp();
-			if (runData.getDiffs().get(i).getGeneralRuntimes().get(name) == null) {
+		double[][] values = new double[runData.getBatches().size() - 1][2];
+		for (int i = 1; i < runData.getBatches().size(); i++) {
+			values[i - 1][0] = runData.getBatches().get(i).getTimestamp();
+			if (runData.getBatches().get(i).getGeneralRuntimes().get(name) == null) {
 				values[i - 1][1] = Double.NaN;
 			} else {
-				values[i - 1][1] = runData.getDiffs().get(i)
+				values[i - 1][1] = runData.getBatches().get(i)
 						.getGeneralRuntimes().get(name).getRuntime();
 			}
 		}
@@ -186,13 +186,13 @@ public class Plotting {
 	}
 
 	private static Values getMetricRuntimes(RunData runData, String name) {
-		double[][] values = new double[runData.getDiffs().size() - 1][2];
-		for (int i = 1; i < runData.getDiffs().size(); i++) {
-			values[i - 1][0] = runData.getDiffs().get(i).getTimestamp();
-			if (runData.getDiffs().get(i).getMetricRuntimes().get(name) == null) {
+		double[][] values = new double[runData.getBatches().size() - 1][2];
+		for (int i = 1; i < runData.getBatches().size(); i++) {
+			values[i - 1][0] = runData.getBatches().get(i).getTimestamp();
+			if (runData.getBatches().get(i).getMetricRuntimes().get(name) == null) {
 				values[i - 1][1] = Double.NaN;
 			} else {
-				values[i - 1][1] = runData.getDiffs().get(i)
+				values[i - 1][1] = runData.getBatches().get(i)
 						.getMetricRuntimes().get(name).getRuntime();
 			}
 		}

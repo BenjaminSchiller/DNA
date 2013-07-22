@@ -3,59 +3,49 @@ package dna.series;
 import java.io.IOException;
 import java.util.HashMap;
 
-import dna.diff.Diff;
-import dna.diff.DiffNotApplicableException;
-import dna.diff.generator.DiffGenerator;
-import dna.graph.Edge;
 import dna.graph.Graph;
-import dna.graph.generator.GraphGenerator;
+import dna.graph.GraphGenerator;
 import dna.io.filesystem.Dir;
 import dna.metrics.Metric;
-import dna.series.data.DiffData;
+import dna.series.data.BatchData;
 import dna.series.data.RunData;
 import dna.series.data.RunTime;
 import dna.series.data.SeriesData;
 import dna.series.data.Value;
+import dna.updates.Batch;
+import dna.updates.BatchGenerator;
+import dna.updates.Update;
 import dna.util.Log;
 import dna.util.Rand;
 import dna.util.Timer;
 
+@SuppressWarnings("rawtypes")
 public class Series {
-	private Graph g;
 
-	private GraphGenerator gg;
-
-	private DiffGenerator dg;
-
-	private Metric[] metrics;
-
-	private String dir;
-
-	public Series(GraphGenerator gg, DiffGenerator dg, Metric[] metrics,
-			String path) {
-		this.g = null;
+	public Series(GraphGenerator gg, BatchGenerator bg, Metric[] metrics,
+			String dir) {
 		this.gg = gg;
-		this.dg = dg;
+		this.bg = bg;
 		this.metrics = metrics;
-		this.dir = path;
+		this.dir = dir;
 	}
 
-	public SeriesData generate(int runs, int diffs) throws IOException,
-			DiffNotApplicableException, AggregationException {
+	public SeriesData generate(int runs, int batches)
+			throws AggregationException, IOException {
 
 		Log.infoSep();
 		Timer timer = new Timer("seriesGeneration");
 		Log.info("generating series");
 		Log.infoSep();
-		Log.info("gg = " + this.gg.getName());
-		Log.info("dg = " + this.dg.getName());
+		Log.info("gg = " + this.gg.getDescription());
+		Log.info("bg = " + this.bg.getDescription());
 		Log.info("p  = " + this.dir);
 		StringBuffer buff = new StringBuffer("");
 		for (Metric m : this.metrics) {
 			if (buff.length() > 0) {
 				buff.append("\n     ");
 			}
-			buff.append(m.getName());
+			buff.append(m.getDescription());
 		}
 		Log.info("m  = " + buff.toString());
 
@@ -63,10 +53,10 @@ public class Series {
 
 		// generate all runs
 		for (int r = 0; r < runs; r++) {
-			sd.addRun(this.generateRun(r, diffs));
+			sd.addRun(this.generateRun(r, batches));
 		}
 
-		// aggregate runs
+		// aggregate all runs
 		RunData aggregation = Aggregation.aggregate(sd);
 		sd.setAggregation(aggregation);
 		aggregation.write(Dir.getAggregationDataDir(dir));
@@ -79,36 +69,58 @@ public class Series {
 		return sd;
 	}
 
-	public RunData generateRun(int run, int diffs) throws IOException,
-			DiffNotApplicableException {
+	public RunData generateRun(int run, int batches) throws IOException {
 
 		Log.infoSep();
 		Timer timer = new Timer("runGeneration");
-		Log.info("run " + run + " (" + diffs + " diffs)");
+		Log.info("run " + run + " (" + batches + " batches)");
 
-		RunData rd = new RunData(run, diffs + 1);
+		RunData rd = new RunData(run, batches + 1);
 
 		// generate initial data
-		DiffData initialData = this.generateInitialData();
-		rd.getDiffs().add(initialData);
-		initialData.write(Dir.getDiffDataDir(this.dir, run,
+		BatchData initialData = this.generateInitialData();
+		this.compareMetrics();
+		rd.getBatches().add(initialData);
+		initialData.write(Dir.getBatchDataDir(this.dir, run,
 				initialData.getTimestamp()));
 
-		// generate diff data
-		for (int i = 0; i < diffs; i++) {
-			DiffData diffData = this.generateNextDiff();
-			rd.getDiffs().add(diffData);
-			diffData.write(Dir.getDiffDataDir(this.dir, run,
-					diffData.getTimestamp()));
+		// generate batch data
+		for (int i = 0; i < batches; i++) {
+			BatchData batchData = this.generateNextBatch(i + 1);
+			this.compareMetrics();
+			rd.getBatches().add(batchData);
+			batchData.write(Dir.getBatchDataDir(this.dir, run,
+					batchData.getTimestamp()));
 		}
 
 		timer.end();
 		Log.info(timer.toString());
 
 		return rd;
+
 	}
 
-	public DiffData generateInitialData() {
+	private boolean compareMetrics() {
+		boolean ok = true;
+		for (int i = 0; i < this.metrics.length; i++) {
+			for (int j = 0; j < this.metrics.length; j++) {
+				if (i == j) {
+					continue;
+				}
+				if (!this.metrics[i].isComparableTo(this.metrics[j])) {
+					continue;
+				}
+				if (!this.metrics[i].equals(this.metrics[j])) {
+					Log.error(this.metrics[i].getDescription() + " != "
+							+ this.metrics[j].getDescription());
+					ok = false;
+				}
+			}
+		}
+		return ok;
+	}
+
+	public BatchData generateInitialData() {
 
 		Timer totalTimer = new Timer("total");
 
@@ -127,7 +139,7 @@ public class Series {
 		}
 
 		// initialize data
-		DiffData initialData = new DiffData(this.g.getTimestamp(), 0, 4,
+		BatchData initialData = new BatchData(this.g.getTimestamp(), 0, 4,
 				this.metrics.length, this.metrics.length);
 
 		// initial computation of all metrics
@@ -147,32 +159,38 @@ public class Series {
 		initialData.getGeneralRuntimes().add(totalTimer.getRuntime());
 		initialData.getGeneralRuntimes().add(graphGenerationTimer.getRuntime());
 		initialData.getGeneralRuntimes().add(allMetricsTimer.getRuntime());
-		Series.addSummaryRuntimes(initialData);
+		addSummaryRuntimes(initialData);
 
 		// add values
 		initialData.getValues().add(new Value("randomSeed", seed));
 
 		return initialData;
+
 	}
 
-	public DiffData generateNextDiff() throws DiffNotApplicableException {
+	@SuppressWarnings("unchecked")
+	public BatchData generateNextBatch(long timestamp) {
 
 		long seed = System.currentTimeMillis();
 		// seed = 0;
 		Rand.init(seed);
 
+		int addedNodes = 0;
+		int removedNodes = 0;
+		int updatedNodeWeights = 0;
 		int addedEdges = 0;
 		int removedEdges = 0;
+		int updatedEdgeWeights = 0;
 
 		Timer totalTimer = new Timer("total");
 
-		Timer diffGenerationTimer = new Timer("diffGeneration");
-		Diff d = dg.generate(g);
-		diffGenerationTimer.end();
+		Timer batchGenerationTimer = new Timer("batchGeneration");
+		Batch b = this.bg.generate(this.g);
+		batchGenerationTimer.end();
 
-		Log.info("    " + d.toString());
+		Log.info("    " + b.toString());
 
-		DiffData diffData = new DiffData(d.getTo(), 5, 5, metrics.length,
+		BatchData batchData = new BatchData(b.getTo(), 5, 5, metrics.length,
 				metrics.length);
 
 		Timer graphUpdateTimer = new Timer("graphUpdate");
@@ -187,67 +205,40 @@ public class Series {
 		Timer metricsTotal = new Timer("metrics");
 		metricsTotal.end();
 
-		// apply before diff
+		// apply before batch
 		metricsTotal.restart();
 		for (Metric m : this.metrics) {
-			if (m.isAppliedBeforeDiff()) {
+			if (m.isAppliedBeforeBatch()) {
 				timer.get(m).restart();
-				m.applyBeforeDiff(d);
+				m.applyBeforeBatch(b);
 				timer.get(m).end();
 			}
 		}
 		metricsTotal.end();
 
-		// remove edges
-		for (Edge e : d.getRemovedEdges()) {
-			graphUpdateTimer.restart();
-			boolean removed = this.g.removeEdge(e);
-			graphUpdateTimer.end();
-			if (!removed) {
-				continue;
-			}
-			removedEdges++;
-			// apply after edge
-			metricsTotal.restart();
-			for (Metric m : this.metrics) {
-				if (m.isAppliedAfterEdge()) {
-					timer.get(m).restart();
-					m.applyAfterEdgeRemoval(d, e);
-					timer.get(m).end();
-				}
-			}
-			metricsTotal.end();
-		}
+		this.applyUpdates(b.getEdgeRemovals(), graphUpdateTimer, metricsTotal,
+				timer);
+		this.applyUpdates(b.getNodeRemovals(), graphUpdateTimer, metricsTotal,
+				timer);
 
-		// add edges
-		for (Edge e : d.getAddedEdges()) {
-			graphUpdateTimer.restart();
-			boolean added = this.g.addEdge(e);
-			graphUpdateTimer.end();
-			if (!added) {
-				continue;
-			}
-			addedEdges++;
-			// apply after edge
-			metricsTotal.restart();
-			for (Metric m : this.metrics) {
-				if (m.isAppliedAfterEdge()) {
-					timer.get(m).restart();
-					m.applyAfterEdgeAddition(d, e);
-					timer.get(m).end();
-				}
-			}
-			metricsTotal.end();
-		}
+		this.applyUpdates(b.getNodeAdditions(), graphUpdateTimer, metricsTotal,
+				timer);
+		this.applyUpdates(b.getEdgeAdditions(), graphUpdateTimer, metricsTotal,
+				timer);
 
-		this.g.setTimestamp(d.getTo());
+		this.applyUpdates(b.getNodeWeightUpdates(), graphUpdateTimer,
+				metricsTotal, timer);
+		this.applyUpdates(b.getEdgeWeightUpdates(), graphUpdateTimer,
+				metricsTotal, timer);
 
-		// apply after diff
+		this.g.setTimestamp(timestamp);
+
+		// apply after batch
 		metricsTotal.restart();
 		for (Metric m : this.metrics) {
-			if (m.isAppliedAfterDiff()) {
+			if (m.isAppliedAfterBatch()) {
 				timer.get(m).restart();
-				m.applyAfterDiff(d);
+				m.applyAfterBatch(b);
 				timer.get(m).end();
 			}
 		}
@@ -256,65 +247,156 @@ public class Series {
 		// compute / cleanup
 		metricsTotal.restart();
 		for (Metric m : this.metrics) {
-			timer.get(m).restart();
-			if (m.isComputed()) {
-				m.compute();
-			} else {
-				m.cleanupApplication();
+			if (m.isRecomputed()) {
+				timer.get(m).restart();
+				m.recompute();
+				timer.get(m).end();
 			}
-			timer.get(m).end();
 		}
 		metricsTotal.end();
 
 		totalTimer.end();
 
 		// add values
-		diffData.getValues().add(
-				new Value("edgesToAdd", d.getAddedEdges().size()));
-		diffData.getValues().add(new Value("addedEdges", addedEdges));
-		diffData.getValues().add(
-				new Value("edgesToRemove", d.getRemovedEdges().size()));
-		diffData.getValues().add(new Value("removedEdges", removedEdges));
-		diffData.getValues().add(new Value("randomSeed", seed));
+		batchData.getValues().add(
+				new Value("nodesToAdd", b.getNodeAdditionCount()));
+		batchData.getValues().add(new Value("addedNodes", addedNodes));
+		batchData.getValues().add(
+				new Value("nodesToRemove", b.getNodeRemovalCount()));
+		batchData.getValues().add(new Value("removedNodes", removedNodes));
+		batchData.getValues().add(
+				new Value("nodeWeightsToUpdate", b.getNodeWeightUpdateCount()));
+		batchData.getValues().add(
+				new Value("updatedNodeWeights", updatedNodeWeights));
+
+		batchData.getValues().add(
+				new Value("edgesToAdd", b.getEdgeAdditionCount()));
+		batchData.getValues().add(new Value("addedEdges", addedEdges));
+		batchData.getValues().add(
+				new Value("edgesToRemove", b.getEdgeRemovalCount()));
+		batchData.getValues().add(new Value("removedEdges", removedEdges));
+		batchData.getValues().add(
+				new Value("edgeWeightsToUpdate", b.getEdgeWeightUpdateCount()));
+		batchData.getValues().add(
+				new Value("updatedEdgeWeights", updatedEdgeWeights));
+
+		batchData.getValues().add(new Value("randomSeed", seed));
 
 		// add metric data
 		for (Metric m : this.metrics) {
-			diffData.getMetrics().add(m.getData());
+			batchData.getMetrics().add(m.getData());
 		}
 
 		// add metric runtimes
 		for (Metric m : this.metrics) {
-			diffData.getMetricRuntimes().add(timer.get(m).getRuntime());
+			batchData.getMetricRuntimes().add(timer.get(m).getRuntime());
 		}
 
 		// add general runtimes
-		diffData.getGeneralRuntimes().add(totalTimer.getRuntime());
-		diffData.getGeneralRuntimes().add(diffGenerationTimer.getRuntime());
-		diffData.getGeneralRuntimes().add(graphUpdateTimer.getRuntime());
-		diffData.getGeneralRuntimes().add(metricsTotal.getRuntime());
-		Series.addSummaryRuntimes(diffData);
+		batchData.getGeneralRuntimes().add(totalTimer.getRuntime());
+		batchData.getGeneralRuntimes().add(batchGenerationTimer.getRuntime());
+		batchData.getGeneralRuntimes().add(graphUpdateTimer.getRuntime());
+		batchData.getGeneralRuntimes().add(metricsTotal.getRuntime());
+		addSummaryRuntimes(batchData);
 
-		return diffData;
+		return batchData;
+
 	}
 
-	private static void addSummaryRuntimes(DiffData diffData) {
-		double total = diffData.getGeneralRuntimes().get("total").getRuntime();
-		double metrics = diffData.getGeneralRuntimes().get("metrics")
+	@SuppressWarnings("unchecked")
+	private int applyUpdates(Iterable<Update> updates, Timer graphUpdateTimer,
+			Timer metricsTotal, HashMap<Metric, Timer> timer) {
+
+		int counter = 0;
+		for (Update u : updates) {
+
+			// apply update to metrics beforehand
+			metricsTotal.restart();
+			for (Metric m : this.metrics) {
+				if (m.isAppliedBeforeUpdate()) {
+					timer.get(m).restart();
+					m.applyBeforeUpdate(u);
+					timer.get(m).end();
+				}
+			}
+			metricsTotal.end();
+
+			// update graph datastructures
+			graphUpdateTimer.restart();
+			boolean success = u.apply(this.g);
+			graphUpdateTimer.end();
+			if (!success) {
+				Log.error("count not apply update " + u.toString()
+						+ " (BUT metric before update already applied)");
+				continue;
+			}
+			counter++;
+
+			// apply update to metrics afterwards
+			metricsTotal.restart();
+			for (Metric m : this.metrics) {
+				if (m.isAppliedAfterUpdate()) {
+					timer.get(m).restart();
+					m.applyAfterUpdate(u);
+					timer.get(m).end();
+				}
+			}
+			metricsTotal.end();
+		}
+
+		return counter;
+
+	}
+
+	private static void addSummaryRuntimes(BatchData batchData) {
+		double total = batchData.getGeneralRuntimes().get("total").getRuntime();
+		double metrics = batchData.getGeneralRuntimes().get("metrics")
 				.getRuntime();
-		double sum = Series.sumRuntimes(diffData) - total - metrics;
+		double sum = sumRuntimes(batchData) - total - metrics;
 		double overhead = total - sum;
-		diffData.getGeneralRuntimes().add(new RunTime("sum", sum));
-		diffData.getGeneralRuntimes().add(new RunTime("overhead", overhead));
+		batchData.getGeneralRuntimes().add(new RunTime("sum", sum));
+		batchData.getGeneralRuntimes().add(new RunTime("overhead", overhead));
 	}
 
-	private static long sumRuntimes(DiffData diffData) {
+	private static long sumRuntimes(BatchData batchData) {
 		long sum = 0;
-		for (RunTime rt : diffData.getGeneralRuntimes().getList()) {
+		for (RunTime rt : batchData.getGeneralRuntimes().getList()) {
 			sum += rt.getRuntime();
 		}
-		for (RunTime rt : diffData.getMetricRuntimes().getList()) {
+		for (RunTime rt : batchData.getMetricRuntimes().getList()) {
 			sum += rt.getRuntime();
 		}
 		return sum;
 	}
+
+	private GraphGenerator gg;
+
+	private BatchGenerator bg;
+
+	private Metric[] metrics;
+
+	private String dir;
+
+	private Graph g;
+
+	public GraphGenerator getGraphGenerator() {
+		return this.gg;
+	}
+
+	public BatchGenerator getBatchGenerator() {
+		return this.bg;
+	}
+
+	public Metric[] getMetrics() {
+		return this.metrics;
+	}
+
+	public String getDir() {
+		return this.dir;
+	}
+
+	public Graph getGraph() {
+		return this.g;
+	}
+
 }

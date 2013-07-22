@@ -6,7 +6,6 @@ import dna.io.Writer;
 import dna.io.etc.Keywords;
 import dna.io.filesystem.Suffix;
 
-// TODO change to Data
 public class Values {
 	public Values(double[][] values, String name) {
 		this.values = values;

@@ -1,74 +1,58 @@
 package dna.metrics;
 
-import dna.diff.Diff;
-import dna.diff.DiffNotApplicableException;
-import dna.graph.Edge;
 import dna.graph.Graph;
 import dna.series.data.Distribution;
 import dna.series.data.MetricData;
 import dna.series.data.Value;
+import dna.updates.Batch;
+import dna.updates.Update;
+import dna.util.parameters.Parameter;
+import dna.util.parameters.ParameterList;
 
-public abstract class Metric {
-	public Metric(String name, boolean appliedBeforeDiff,
-			boolean appliedAfterEdge, boolean appliedAfterDiff) {
-		this.timestamp = Long.MIN_VALUE;
-		this.name = name;
-		this.appliedBeforeDiff = appliedBeforeDiff;
-		this.appliedAfterEdge = appliedAfterEdge;
-		this.appliedAfterDiff = appliedAfterDiff;
+@SuppressWarnings("rawtypes")
+public abstract class Metric extends ParameterList {
+
+	public static enum ApplicationType {
+		BeforeBatch, AfterBatch, BeforeAndAfterBatch, BeforeUpdate, AfterUpdate, BeforeAndAfterUpdate, Recomputation
+	};
+
+	public boolean isAppliedBeforeBatch() {
+		return this.type == ApplicationType.BeforeBatch
+				|| this.type == ApplicationType.BeforeAndAfterBatch;
 	}
 
-	public String toString() {
-		return this.name + " @ " + this.timestamp;
+	public boolean isAppliedAfterBatch() {
+		return this.type == ApplicationType.AfterBatch
+				|| this.type == ApplicationType.BeforeAndAfterBatch;
 	}
 
-	protected String getFilename(String key) {
-		return this.name + "__" + key + "__" + this.timestamp + ".txt";
+	public boolean isAppliedBeforeUpdate() {
+		return this.type == ApplicationType.BeforeUpdate
+				|| this.type == ApplicationType.BeforeAndAfterUpdate;
 	}
 
-	private long timestamp;
-
-	public long getTimestamp() {
-		return this.timestamp;
+	public boolean isAppliedAfterUpdate() {
+		return this.type == ApplicationType.AfterUpdate
+				|| this.type == ApplicationType.BeforeAndAfterUpdate;
 	}
 
-	protected void setTimestamp(long timestamp) {
-		this.timestamp = timestamp;
+	public boolean isRecomputed() {
+		return this.type == ApplicationType.Recomputation;
 	}
 
-	private String name;
-
-	public String getName() {
-		return this.name;
+	public Metric(String name, ApplicationType type) {
+		this(name, type, new Parameter[] {});
 	}
 
-	protected Graph g;
-
-	public Graph getGraph() {
-		return this.g;
+	public Metric(String name, ApplicationType type, Parameter p1) {
+		this(name, type, new Parameter[] { p1 });
 	}
 
-	public int getNodes() {
-		return this.g.getNodes().length;
+	public Metric(String name, ApplicationType type, Parameter p1, Parameter p2) {
+		this(name, type, new Parameter[] { p1, p2 });
 	}
 
-	public void setGraph(Graph g) {
-		this.g = g;
-		this.init(g);
-	}
-
-	public abstract boolean equals(Metric m);
-
-	/*
-	 * APPLY BEFORE DIFF
-	 */
-
-	private boolean appliedBeforeDiff;
-
-	public boolean isAppliedBeforeDiff() {
-		return this.appliedBeforeDiff;
-	}
-
+<<<<<<< HEAD
 	// //Was geändert
 	public boolean applyBeforeDiff(Diff d) throws DiffNotApplicableException {
 		if (d.getNodes() != this.getNodes()
@@ -77,105 +61,203 @@ public abstract class Metric {
 		}
 		this.timestamp = d.getTo();
 		return this.applyBeforeDiff_(d);
+=======
+	public Metric(String name, ApplicationType type, Parameter p1,
+			Parameter p2, Parameter p3) {
+		this(name, type, new Parameter[] { p1, p2, p3 });
+>>>>>>> 6daced0948ebf67b3bfe01bd78e15e88e0c41fcc
 	}
 
-	protected abstract boolean applyBeforeDiff_(Diff d)
-			throws DiffNotApplicableException;
+	public Metric(String name, ApplicationType type, Parameter p1,
+			Parameter p2, Parameter p3, Parameter p4) {
+		this(name, type, new Parameter[] { p1, p2, p3, p4 });
+	}
+
+	public Metric(String name, ApplicationType type, Parameter p1,
+			Parameter p2, Parameter p3, Parameter p4, Parameter p5) {
+		this(name, type, new Parameter[] { p1, p2, p3, p4, p5 });
+	}
+
+	public Metric(String name, ApplicationType type, Parameter[] params) {
+		super(name, params);
+		this.type = type;
+		this.timestamp = Long.MIN_VALUE;
+	}
+
+	protected ApplicationType type;
+
+	public ApplicationType getApplicationType() {
+		return this.type;
+	}
+
+	private long timestamp;
+
+	public long getTimestamp() {
+		return this.timestamp;
+	}
+
+	protected Graph g;
+
+	public Graph getGraoh() {
+		return this.g;
+	}
+
+	public void setGraph(Graph g) {
+		this.g = g;
+		this.init(this.g);
+	}
 
 	/*
-	 * APPLY AFTER EDGE
+	 * APPLICATION
 	 */
 
-	private boolean appliedAfterEdge;
+	/**
+	 * called before the batch is applied to the graph
+	 * 
+	 * @param b
+	 *            batch of changes
+	 * @return true, if successful; false otherwise
+	 */
+	public abstract boolean applyBeforeBatch(Batch b);
 
-	public boolean isAppliedAfterEdge() {
-		return this.appliedAfterEdge;
-	}
+	/**
+	 * called after the batch is applied to the graph
+	 * 
+	 * @param b
+	 *            batch of changes
+	 * @return true, if successful; false otherwise
+	 */
+	public abstract boolean applyAfterBatch(Batch b);
 
-	public boolean applyAfterEdgeAddition(Diff d, Edge e)
-			throws DiffNotApplicableException {
-		this.timestamp = d.getTo();
-		return this.applyAfterEdgeAddition_(d, e);
-	}
+	/**
+	 * called before the update is applied to the graph
+	 * 
+	 * @param u
+	 *            update
+	 * @return true, if successful; false otherwise
+	 */
+	public abstract boolean applyBeforeUpdate(Update u);
 
-	protected abstract boolean applyAfterEdgeAddition_(Diff d, Edge e)
-			throws DiffNotApplicableException;
+	/**
+	 * called after the update is applied to the graph
+	 * 
+	 * @param u
+	 *            update
+	 * @return true, if successful; false otherwise
+	 */
+	public abstract boolean applyAfterUpdate(Update u);
 
-	public boolean applyAfterEdgeRemoval(Diff d, Edge e)
-			throws DiffNotApplicableException {
-		this.timestamp = d.getTo();
-		return this.applyAfterEdgeRemoval_(d, e);
-	}
+	/**
+	 * performs the initial computation of the metric for the initial graph
+	 * 
+	 * @return true, if successful; false otherwise
+	 */
+	public abstract boolean compute();
 
-	protected abstract boolean applyAfterEdgeRemoval_(Diff d, Edge e)
-			throws DiffNotApplicableException;
+	/**
+	 * called to recompute the metric for the complete graph after the
+	 * application of a batch update
+	 * 
+	 * @return true, if successful; false otherwise
+	 */
+	public abstract boolean recompute();
 
 	/*
-	 * APPLY AFTER DIFF
+	 * INIT
 	 */
 
-	private boolean appliedAfterDiff;
-
-	public boolean isAppliedAfterDiff() {
-		return this.appliedAfterDiff;
-	}
-
-	public boolean applyAfterDiff(Diff d) throws DiffNotApplicableException {
-		if (d.getNodes() != this.getNodes() || d.getTo() != this.getTimestamp()) {
-			throw new DiffNotApplicableException(this, d);
-		}
-		this.timestamp = d.getTo();
-		return this.applyAfterDiff_(d);
-	}
-
-	protected abstract boolean applyAfterDiff_(Diff d)
-			throws DiffNotApplicableException;
-
-	/*
-	 * APPLY CLEANUP
+	/**
+	 * initialization of data structures
 	 */
+	public void init(Graph g) {
+		this.init_(g);
+	}
 
-	public abstract boolean cleanupApplication();
-
-	/*
-	 * COMPUTE
+	/**
+	 * initialization of data structures
 	 */
-
-	public boolean isComputed() {
-		return !this.isAppliedBeforeDiff() && !this.isAppliedAfterEdge()
-				&& !this.isAppliedAfterDiff();
-	}
-
-	public boolean compute() {
-		this.timestamp = this.g.getTimestamp();
-		return this.compute_();
-	}
-
-	protected abstract boolean compute_();
+	protected abstract void init_(Graph g);
 
 	/*
 	 * RESET
 	 */
 
+	/**
+	 * reset of all data structures
+	 */
 	public void reset() {
 		this.g = null;
+		this.timestamp = Long.MIN_VALUE;
 		this.reset_();
 	}
 
+	/**
+	 * reset of all data structures
+	 */
 	public abstract void reset_();
 
 	/*
-	 * METRIC DATA
+	 * DATA
 	 */
 
+	/**
+	 * 
+	 * @return all data computed by this metric
+	 */
 	public MetricData getData() {
-		return new MetricData(this.name, this.getValues(),
+		return new MetricData(this.getName(), this.getValues(),
 				this.getDistributions());
 	}
 
+	/**
+	 * 
+	 * @return all the values computed by this metric
+	 */
 	protected abstract Value[] getValues();
 
+	/**
+	 * 
+	 * @return all the distributions computed by this metric
+	 */
 	protected abstract Distribution[] getDistributions();
 
-	protected abstract void init(Graph g);
+	/*
+	 * EQUALS
+	 */
+
+	/**
+	 * 
+	 * @param m
+	 *            metric to compare to
+	 * @return true, if the metric is of the same type and all computed values
+	 *         are equal (can be used to compare different implementations of
+	 *         the same metric)
+	 */
+	public abstract boolean equals(Metric m);
+
+	/**
+	 * 
+	 * @param g
+	 *            graph to check for applicability
+	 * @return true, if the metric can be applied to the given graph
+	 */
+	public abstract boolean isApplicable(Graph g);
+
+	/**
+	 * 
+	 * @param b
+	 *            batch to check for applicability
+	 * @return true, if the batch can be applied to this graph (also false in
+	 *         case of a re-computation metric)
+	 */
+	public abstract boolean isApplicable(Batch b);
+
+	/**
+	 * 
+	 * @param m
+	 * @return true, if the metric can be compared, i.e., they compute the same
+	 *         properties of a graph
+	 */
+	public abstract boolean isComparableTo(Metric m);
+
 }

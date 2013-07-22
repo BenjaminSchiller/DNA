@@ -3,26 +3,26 @@ package dna.series.data;
 import java.io.IOException;
 
 import dna.io.filesystem.Dir;
-import dna.series.lists.DiffDataList;
+import dna.series.lists.BatchDataList;
 import dna.util.Log;
 
 public class RunData {
 
 	public RunData(int run) {
 		this.run = run;
-		this.diffs = new DiffDataList();
+		this.batches = new BatchDataList();
 	}
 
 	public RunData(int run, int size) {
 		this.run = run;
-		this.diffs = new DiffDataList(size);
+		this.batches = new BatchDataList(size);
 	}
 
-	public RunData(int run, DiffData[] diffs) {
+	public RunData(int run, BatchData[] batches) {
 		this.run = run;
-		this.diffs = new DiffDataList(diffs.length);
-		for (DiffData diff : diffs) {
-			this.diffs.add(diff);
+		this.batches = new BatchDataList(batches.length);
+		for (BatchData batch : batches) {
+			this.batches.add(batch);
 		}
 	}
 
@@ -32,27 +32,27 @@ public class RunData {
 		return this.run;
 	}
 
-	private DiffDataList diffs;
+	private BatchDataList batches;
 
-	public DiffDataList getDiffs() {
-		return this.diffs;
+	public BatchDataList getBatches() {
+		return this.batches;
 	}
 
 	public void write(String dir) throws IOException {
 		Log.debug("writing RunData " + this.run + " in " + dir);
-		for (DiffData d : this.diffs.getList()) {
-			d.write(Dir.getDiffDataDir(dir, d.getTimestamp()));
+		for (BatchData d : this.batches.getList()) {
+			d.write(Dir.getBatchDataDir(dir, d.getTimestamp()));
 		}
 	}
 
 	public static RunData read(String dir, int run,
 			boolean readDistributionValues) throws NumberFormatException,
 			IOException {
-		String[] diffs = Dir.getDiffs(dir);
-		RunData runData = new RunData(run, diffs.length);
-		for (String diff : diffs) {
-			runData.getDiffs().add(
-					DiffData.read(dir, Dir.getTimestamp(diff),
+		String[] batches = Dir.getBatches(dir);
+		RunData runData = new RunData(run, batches.length);
+		for (String batch : batches) {
+			runData.getBatches().add(
+					BatchData.read(dir, Dir.getTimestamp(batch),
 							readDistributionValues));
 		}
 		return runData;

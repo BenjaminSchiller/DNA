@@ -4,4 +4,4 @@
 /build/
 .project
 .classpath
-/src/dna/Test.java
+/src/dna/Test*.java

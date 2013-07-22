@@ -2,9 +2,6 @@ package dna.util;
 
 import java.util.Random;
 
-import dna.graph.Edge;
-import dna.graph.Graph;
-
 public class Rand {
 	public static long seed = System.currentTimeMillis();
 
@@ -15,12 +12,4 @@ public class Rand {
 		Rand.rand = new Random(seed);
 	}
 
-	public static Edge edge(Graph g) {
-		int src = Rand.rand.nextInt(g.getNodes().length);
-		int dst = Rand.rand.nextInt(g.getNodes().length);
-		if (src != dst) {
-			return new Edge(g.getNode(src), g.getNode(dst));
-		}
-		return Rand.edge(g);
-	}
 }

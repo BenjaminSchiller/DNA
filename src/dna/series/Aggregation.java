@@ -1,6 +1,6 @@
 package dna.series;
 
-import dna.series.data.DiffData;
+import dna.series.data.BatchData;
 import dna.series.data.RunData;
 import dna.series.data.RunTime;
 import dna.series.data.SeriesData;
@@ -18,7 +18,7 @@ import dna.util.ArrayUtils;
 public class Aggregation {
 
 	/**
-	 * aggregates all data in the given series, i.e., agregate each diff of all
+	 * aggregates all data in the given series, i.e., agregate each batch of all
 	 * runs.
 	 * 
 	 * @param seriesData
@@ -31,40 +31,40 @@ public class Aggregation {
 			throws AggregationException {
 		Aggregation.test(seriesData);
 
-		RunData aggregatedRun = new RunData(-1, seriesData.getRun(0).getDiffs()
+		RunData aggregatedRun = new RunData(-1, seriesData.getRun(0).getBatches()
 				.size());
-		for (int i = 0; i < seriesData.getRun(0).getDiffs().size(); i++) {
-			DiffData[] diffs = new DiffData[seriesData.getRuns().size()];
+		for (int i = 0; i < seriesData.getRun(0).getBatches().size(); i++) {
+			BatchData[] batch = new BatchData[seriesData.getRuns().size()];
 			for (int j = 0; j < seriesData.getRuns().size(); j++) {
-				diffs[j] = seriesData.getRun(j).getDiffs().get(i);
+				batch[j] = seriesData.getRun(j).getBatches().get(i);
 			}
-			Aggregation.test(diffs);
+			Aggregation.test(batch);
 
-			DiffData d = diffs[0];
-			DiffData aggregatedDiff = new DiffData(d.getTimestamp(), d
+			BatchData d = batch[0];
+			BatchData aggregatedBatch = new BatchData(d.getTimestamp(), d
 					.getValues().size(), d.getGeneralRuntimes().size(), d
 					.getMetricRuntimes().size(), d.getMetrics().size());
 
 			for (Value v : d.getValues().getList()) {
-				double[] values = new double[diffs.length];
-				for (int j = 0; j < diffs.length; j++) {
+				double[] values = new double[batch.length];
+				for (int j = 0; j < batch.length; j++) {
 					try {
-						values[j] = diffs[j].getValues().get(v.getName())
+						values[j] = batch[j].getValues().get(v.getName())
 								.getValue();
 					} catch (NullPointerException e) {
 						throw new AggregationException("value " + v.getName()
 								+ " not found @ " + j);
 					}
 				}
-				aggregatedDiff.getValues().add(
+				aggregatedBatch.getValues().add(
 						new Value(v.getName(), ArrayUtils.med(values)));
 			}
 
 			for (RunTime rt : d.getGeneralRuntimes().getList()) {
-				double[] values = new double[diffs.length];
-				for (int j = 0; j < diffs.length; j++) {
+				double[] values = new double[batch.length];
+				for (int j = 0; j < batch.length; j++) {
 					try {
-						values[j] = diffs[j].getGeneralRuntimes()
+						values[j] = batch[j].getGeneralRuntimes()
 								.get(rt.getName()).getRuntime();
 					} catch (NullPointerException e) {
 						throw new AggregationException("general-runtime "
@@ -72,16 +72,16 @@ public class Aggregation {
 					}
 				}
 
-				aggregatedDiff.getGeneralRuntimes()
+				aggregatedBatch.getGeneralRuntimes()
 						.add(new RunTime(rt.getName(), (long) ArrayUtils
 								.med(values)));
 			}
 
 			for (RunTime rt : d.getMetricRuntimes().getList()) {
-				double[] values = new double[diffs.length];
-				for (int j = 0; j < diffs.length; j++) {
+				double[] values = new double[batch.length];
+				for (int j = 0; j < batch.length; j++) {
 					try {
-						values[j] = diffs[j].getMetricRuntimes()
+						values[j] = batch[j].getMetricRuntimes()
 								.get(rt.getName()).getRuntime();
 					} catch (NullPointerException e) {
 						throw new AggregationException("metric-runtime "
@@ -89,12 +89,12 @@ public class Aggregation {
 					}
 				}
 
-				aggregatedDiff.getMetricRuntimes()
+				aggregatedBatch.getMetricRuntimes()
 						.add(new RunTime(rt.getName(), (long) ArrayUtils
 								.med(values)));
 			}
 
-			aggregatedRun.getDiffs().add(aggregatedDiff);
+			aggregatedRun.getBatches().add(aggregatedBatch);
 		}
 
 		return aggregatedRun;
@@ -147,50 +147,50 @@ public class Aggregation {
 	}
 
 	private static void test(SeriesData seriesData) throws AggregationException {
-		int diffs = seriesData.getRun(0).getDiffs().size();
+		int batches = seriesData.getRun(0).getBatches().size();
 		for (int i = 0; i < seriesData.getRuns().size(); i++) {
-			if (diffs != seriesData.getRun(i).getDiffs().size()) {
+			if (batches != seriesData.getRun(i).getBatches().size()) {
 				throw new AggregationException(
-						"cannot aggregate runs with different # of diffs: "
-								+ seriesData.getRun(i).getDiffs().size()
-								+ " != " + diffs + " @");
+						"cannot aggregate runs with different # of batches: "
+								+ seriesData.getRun(i).getBatches().size()
+								+ " != " + batches + " @");
 			}
 		}
 	}
 
-	private static void test(DiffData[] diffs) throws AggregationException {
-		DiffData d = diffs[0];
-		for (int i = 0; i < diffs.length; i++) {
-			if (d.getTimestamp() != diffs[i].getTimestamp()) {
+	private static void test(BatchData[] batches) throws AggregationException {
+		BatchData d = batches[0];
+		for (int i = 0; i < batches.length; i++) {
+			if (d.getTimestamp() != batches[i].getTimestamp()) {
 				throw new AggregationException(
-						"cannot aggregate diffs with different timestamps: "
-								+ diffs[i] + " != " + d.getTimestamp() + " @ "
+						"cannot aggregate batches with different timestamps: "
+								+ batches[i] + " != " + d.getTimestamp() + " @ "
 								+ i);
 			}
-			if (d.getValues().size() != diffs[i].getValues().size()) {
+			if (d.getValues().size() != batches[i].getValues().size()) {
 				throw new AggregationException(
-						"cannot aggregate diffs with different # of values: "
-								+ diffs[i].getValues().size() + " != "
+						"cannot aggregate batches with different # of values: "
+								+ batches[i].getValues().size() + " != "
 								+ d.getValues().size() + " @ " + i);
 			}
-			if (d.getGeneralRuntimes().size() != diffs[i].getGeneralRuntimes()
+			if (d.getGeneralRuntimes().size() != batches[i].getGeneralRuntimes()
 					.size()) {
 				throw new AggregationException(
-						"cannot aggregate diffs with different # of general-runtimes: "
-								+ diffs[i].getGeneralRuntimes().size() + " != "
+						"cannot aggregate batches with different # of general-runtimes: "
+								+ batches[i].getGeneralRuntimes().size() + " != "
 								+ d.getGeneralRuntimes().size() + " @ " + i);
 			}
-			if (d.getMetricRuntimes().size() != diffs[i].getMetricRuntimes()
+			if (d.getMetricRuntimes().size() != batches[i].getMetricRuntimes()
 					.size()) {
 				throw new AggregationException(
-						"cannot aggregate diffs with different # of metric-runtimes: "
-								+ diffs[i].getMetricRuntimes().size() + " != "
+						"cannot aggregate batches with different # of metric-runtimes: "
+								+ batches[i].getMetricRuntimes().size() + " != "
 								+ d.getMetricRuntimes().size() + " @ " + i);
 			}
-			if (d.getMetrics().size() != diffs[i].getMetrics().size()) {
+			if (d.getMetrics().size() != batches[i].getMetrics().size()) {
 				throw new AggregationException(
-						"cannot aggregate diffs with different # of metrics: "
-								+ diffs[i].getMetrics().size() + " != "
+						"cannot aggregate batches with different # of metrics: "
+								+ batches[i].getMetrics().size() + " != "
 								+ d.getMetrics().size() + " @ " + i);
 			}
 
