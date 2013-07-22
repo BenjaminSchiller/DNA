@@ -12,7 +12,7 @@ import dna.util.Settings;
 
 public class Plot {
 
-	private String terminal = "png";
+	private String terminal = "png large";
 
 	private String extension = "png";
 
