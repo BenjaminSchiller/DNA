@@ -65,6 +65,7 @@ public abstract class Metric extends ParameterList {
 	}
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 	protected static Parameter[] combine(Parameter[] p1, Parameter[] p2) {
 		if (p2.length == 0) {
 			return p1;
@@ -86,6 +87,39 @@ public abstract class Metric extends ParameterList {
 			p[p1.length + i] = p2[i];
 		}
 		return p;
+=======
+	// <<<<<<< HEAD
+	// // //Was geändert
+	// public boolean applyBeforeDiff(Diff d) throws DiffNotApplicableException
+	// {
+	// if (d.getNodes() != this.getNodes()
+	// || d.getFrom() != this.getTimestamp()) {
+	// throw new DiffNotApplicableException(this, d);
+	// }
+	// this.timestamp = d.getTo();
+	// return this.applyBeforeDiff_(d);
+	// =======
+	// public Metric(String name, ApplicationType type, Parameter p1,
+	// Parameter p2, Parameter p3) {
+	// this(name, type, new Parameter[] { p1, p2, p3 });
+	// >>>>>>> 6daced0948ebf67b3bfe01bd78e15e88e0c41fcc
+	// }
+
+	public Metric(String name, ApplicationType type, Parameter p1,
+			Parameter p2, Parameter p3, Parameter p4) {
+		this(name, type, new Parameter[] { p1, p2, p3, p4 });
+	}
+
+	public Metric(String name, ApplicationType type, Parameter p1,
+			Parameter p2, Parameter p3, Parameter p4, Parameter p5) {
+		this(name, type, new Parameter[] { p1, p2, p3, p4, p5 });
+	}
+
+	public Metric(String name, ApplicationType type, Parameter[] params) {
+		super(name, params);
+		this.type = type;
+		this.timestamp = Long.MIN_VALUE;
+>>>>>>> merge + update
 	}
 
 	protected ApplicationType type;
