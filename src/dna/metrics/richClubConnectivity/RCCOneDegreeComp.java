@@ -1,40 +1,95 @@
 package dna.metrics.richClubConnectivity;
 
-import dna.diff.Diff;
-import dna.diff.DiffNotApplicableException;
-import dna.graph.Edge;
+import java.util.Collection;
+
+import dna.graph.Graph;
+import dna.graph.directed.DirectedEdge;
+import dna.graph.directed.DirectedNode;
+import dna.metrics.Metric;
+import dna.updates.Batch;
+import dna.updates.Update;
 
 public class RCCOneDegreeComp extends RCCOneDegree {
 
 	public RCCOneDegreeComp() {
-		super("RCCOneDegreeComp", false, false, false);
-	}
-
-	protected boolean compute_() {
-		super.reset_();
-		return super.compute_();
+		super("RCCOneDegreeComp", ApplicationType.Recomputation);
 	}
 
 	@Override
-	protected boolean applyBeforeDiff_(Diff d)
-			throws DiffNotApplicableException {
-		throw new DiffNotApplicableException("before diff");
+	public boolean compute() {
+
+		if (DirectedNode.class.isAssignableFrom(this.g.getGraphDatastructures()
+				.getNodeType())) {
+			for (DirectedNode n : (Collection<DirectedNode>) this.g.getNodes()) {
+
+				int degree = n.getOutDegree();
+				if (degree >= k) {
+					this.richClub.add(n);
+
+				}
+			}
+			for (DirectedNode n : this.richClub) {
+				for (DirectedEdge w : n.getOutgoingEdges()) {
+					if (richClub.contains(w.getDst())) {
+						this.richClubEdges++;
+					}
+				}
+			}
+
+			int richClubMembers = richClub.size();
+			this.richClubCoeffizient = (double) this.richClubEdges
+					/ (double) (richClubMembers * (richClubMembers - 1));
+			return true;
+		}
+		return false;
 	}
 
 	@Override
-	protected boolean applyAfterEdgeAddition_(Diff d, Edge e)
-			throws DiffNotApplicableException {
-		throw new DiffNotApplicableException("after edge addition");
+	public boolean applyBeforeBatch(Batch b) {
+		// TODO Auto-generated method stub
+		return false;
 	}
 
 	@Override
-	protected boolean applyAfterEdgeRemoval_(Diff d, Edge e)
-			throws DiffNotApplicableException {
-		throw new DiffNotApplicableException("after edge removal");
+	public boolean applyAfterBatch(Batch b) {
+		// TODO Auto-generated method stub
+		return false;
 	}
 
 	@Override
-	protected boolean applyAfterDiff_(Diff d) throws DiffNotApplicableException {
-		throw new DiffNotApplicableException("after diff");
+	public boolean applyBeforeUpdate(Update u) {
+		// TODO Auto-generated method stub
+		return false;
 	}
+
+	@Override
+	public boolean applyAfterUpdate(Update u) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	protected void init_() {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public boolean isApplicable(Graph g) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean isApplicable(Batch b) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean isComparableTo(Metric m) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
 }

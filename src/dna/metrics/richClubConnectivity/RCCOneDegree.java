@@ -3,8 +3,7 @@ package dna.metrics.richClubConnectivity;
 import java.util.HashSet;
 import java.util.Set;
 
-import dna.graph.Graph;
-import dna.graph.Node;
+import dna.graph.directed.DirectedNode;
 import dna.metrics.Metric;
 import dna.series.data.Distribution;
 import dna.series.data.Value;
@@ -14,43 +13,18 @@ public abstract class RCCOneDegree extends Metric {
 	protected int k;
 	protected double richClubCoeffizient;
 	protected int richClubEdges;
-	protected Set<Node> richClub;
+	protected Set<DirectedNode> richClub;
 
-	public RCCOneDegree(String name, boolean appliedBeforeDiff,
-			boolean appliedAfterEdge, boolean appliedAfterDiff) {
-		super(name, appliedBeforeDiff, appliedAfterEdge, appliedAfterDiff);
+	public RCCOneDegree(String name, ApplicationType type) {
+		super(name, type);
 	}
 
 	@Override
-	protected void init(Graph g) {
+	public void init() {
 		this.k = 15;
 		this.richClubCoeffizient = 0d;
 		this.richClubEdges = 0;
-		this.richClub = new HashSet<Node>();
-	}
-
-	@Override
-	protected boolean compute_() {
-		for (Node n : this.g.getNodes()) {
-			int degree = n.getOut().size();
-			if (degree >= k) {
-				this.richClub.add(n);
-
-			}
-		}
-		for (Node n : this.richClub) {
-			for (Node w : n.getOut()) {
-				if (richClub.contains(w)) {
-					this.richClubEdges++;
-				}
-			}
-		}
-
-		int richClubMembers = richClub.size();
-		this.richClubCoeffizient = (double) this.richClubEdges
-				/ (double) (richClubMembers * (richClubMembers - 1));
-
-		return true;
+		this.richClub = new HashSet<DirectedNode>();
 	}
 
 	@Override
@@ -91,14 +65,8 @@ public abstract class RCCOneDegree extends Metric {
 		return richClubEdges;
 	}
 
-	public Set<Node> getRichClub() {
+	public Set<DirectedNode> getRichClub() {
 		return richClub;
-	}
-
-	@Override
-	public boolean cleanupApplication() {
-		// TODO Auto-generated method stub
-		return false;
 	}
 
 	@Override
@@ -106,7 +74,7 @@ public abstract class RCCOneDegree extends Metric {
 		this.k = 15;
 		this.richClubCoeffizient = 0d;
 		this.richClubEdges = 0;
-		this.richClub = new HashSet<Node>();
+		this.richClub = new HashSet<DirectedNode>();
 	}
 
 	@Override
