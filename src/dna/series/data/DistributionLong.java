@@ -10,52 +10,56 @@ import dna.io.Writer;
 import dna.io.etc.Keywords;
 
 /**
- * DistributionLong is an object which represents an distribution by whole numbers and its denominator.
- * Due to the use of long numbers it provides a way to represent distributions with large numbers.
+ * DistributionLong is an object which represents an distribution by whole
+ * numbers and its denominator. Due to the use of long numbers it provides a way
+ * to represent distributions with large numbers.
  * 
  * @author Rwilmes
  * @date 17.06.2013
  */
 public class DistributionLong extends Distribution {
-	
+
 	// class variables
 	private long[] values;
 	private long denominator;
-	
+
 	// constructor
 	public DistributionLong(String name, long[] values, long denominator) {
 		super(name);
 		this.values = values;
 		this.denominator = denominator;
 	}
-	
+
 	// get methods
 	public long[] getLongValues() {
 		return this.values;
 	}
-	
+
 	public long getDenominator() {
 		return this.denominator;
 	}
-	
+
 	public long getMin() {
 		int y = 0;
-		while(values[y] < 0) {
+		while (values[y] < 0) {
 			y++;
-			
+
 		}
 		return (long) y;
 	}
-	
+
 	public long getMax() {
-		return (long) values.length-1;
+		return (long) values.length - 1;
 	}
-	
+
 	// IO Methods
 	/**
-	 * @param dir String which contains the path / directory the Distribution will be written to.
+	 * @param dir
+	 *            String which contains the path / directory the Distribution
+	 *            will be written to.
 	 * 
-	 * @param filename String representing the desired filename for the Distribution.
+	 * @param filename
+	 *            String representing the desired filename for the Distribution.
 	 */
 	public void write(String dir, String filename) throws IOException {
 		if (this.values == null) {
@@ -64,35 +68,40 @@ public class DistributionLong extends Distribution {
 		}
 		Writer w = new Writer(dir, filename);
 
-		w.writeln(this.denominator);	// write denominator in first line
-		
+		w.writeln(this.denominator); // write denominator in first line
+
 		for (int i = 0; i < this.values.length; i++) {
 			w.writeln(i + Keywords.distributionDelimiter + this.values[i]);
 		}
 		w.close();
 	}
-	
+
 	/**
-	 * @param dir String which contains the path to the directory the Distribution will be read from.
+	 * @param dir
+	 *            String which contains the path to the directory the
+	 *            Distribution will be read from.
 	 * 
-	 * @param filename String representing the filename the Distribution will be read from.
+	 * @param filename
+	 *            String representing the filename the Distribution will be read
+	 *            from.
 	 * 
-	 * @param readValues Boolean. True:  values from the file will be read.
-	 * 							  False: empty Distribution will be created.	
+	 * @param readValues
+	 *            Boolean. True: values from the file will be read. False: empty
+	 *            Distribution will be created.
 	 */
-	public static DistributionLong read(String dir, String filename, String name,
-			boolean readValues) throws IOException {
+	public static DistributionLong read(String dir, String filename,
+			String name, boolean readValues) throws IOException {
 		if (!readValues) {
-			return new DistributionLong(name, null,0);
+			return new DistributionLong(name, null, 0);
 		}
 		Reader r = new Reader(dir, filename);
 		ArrayList<Long> list = new ArrayList<Long>();
 		String line = null;
 		int index = 0;
-		
+
 		line = r.readString();
 		long denominator = Long.parseLong(line);
-		
+
 		while ((line = r.readString()) != null) {
 			String[] temp = line.split(Keywords.distributionDelimiter);
 			if (Integer.parseInt(temp[0]) != index) {

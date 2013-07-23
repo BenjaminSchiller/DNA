@@ -10,8 +10,9 @@ import dna.io.Writer;
 import dna.io.etc.Keywords;
 
 /**
- * DistributionInt is an object which represents an distribution by whole numbers and its denominator.
- * Integer data-structures are used. For larger numbers see DistributionLong.
+ * DistributionInt is an object which represents an distribution by whole
+ * numbers and its denominator. Integer data-structures are used. For larger
+ * numbers see DistributionLong.
  * 
  * @author Rwilmes
  * @date 17.06.2013
@@ -21,41 +22,44 @@ public class DistributionInt extends Distribution {
 	// class variables
 	private int[] values;
 	private int denominator;
-	
+
 	// constructors
 	public DistributionInt(String name, int[] values, int denominator) {
 		super(name);
 		this.values = values;
 		this.denominator = denominator;
 	}
-	
+
 	// get methods
 	public int[] getIntValues() {
 		return this.values;
 	}
-	
+
 	public int getDenominator() {
 		return this.denominator;
 	}
 
 	public int getMin() {
 		int y = 0;
-		while(values[y] < 0) {
+		while (values[y] < 0) {
 			y++;
-			
+
 		}
 		return y;
 	}
-	
+
 	public int getMax() {
-		return values.length-1;
+		return values.length - 1;
 	}
-	
+
 	// IO Methods
 	/**
-	 * @param dir String which contains the path / directory the Distribution will be written to.
+	 * @param dir
+	 *            String which contains the path / directory the Distribution
+	 *            will be written to.
 	 * 
-	 * @param filename String representing the desired filename for the Distribution.
+	 * @param filename
+	 *            String representing the desired filename for the Distribution.
 	 */
 	public void write(String dir, String filename) throws IOException {
 		if (this.values == null) {
@@ -64,8 +68,8 @@ public class DistributionInt extends Distribution {
 		}
 		Writer w = new Writer(dir, filename);
 
-		w.writeln(this.denominator);	// write denominator in first line
-		
+		w.writeln(this.denominator); // write denominator in first line
+
 		for (int i = 0; i < this.values.length; i++) {
 			w.writeln(i + Keywords.distributionDelimiter + this.values[i]);
 		}
@@ -73,26 +77,31 @@ public class DistributionInt extends Distribution {
 	}
 
 	/**
-	 * @param dir String which contains the path to the directory the Distribution will be read from.
+	 * @param dir
+	 *            String which contains the path to the directory the
+	 *            Distribution will be read from.
 	 * 
-	 * @param filename String representing the filename the Distribution will be read from.
+	 * @param filename
+	 *            String representing the filename the Distribution will be read
+	 *            from.
 	 * 
-	 * @param readValues Boolean. True:  values from the file will be read.
-	 * 							  False: empty Distribution will be created.	
+	 * @param readValues
+	 *            Boolean. True: values from the file will be read. False: empty
+	 *            Distribution will be created.
 	 */
-	public static DistributionInt read(String dir, String filename, String name,
-			boolean readValues) throws IOException {
+	public static DistributionInt read(String dir, String filename,
+			String name, boolean readValues) throws IOException {
 		if (!readValues) {
-			return new DistributionInt(name, null,0);
+			return new DistributionInt(name, null, 0);
 		}
 		Reader r = new Reader(dir, filename);
 		ArrayList<Integer> list = new ArrayList<Integer>();
 		String line = null;
 		int index = 0;
-		
+
 		line = r.readString();
 		int denominator = Integer.parseInt(line);
-		
+
 		while ((line = r.readString()) != null) {
 			String[] temp = line.split(Keywords.distributionDelimiter);
 			if (Integer.parseInt(temp[0]) != index) {
@@ -109,5 +118,5 @@ public class DistributionInt extends Distribution {
 		r.close();
 		return new DistributionInt(name, values, denominator);
 	}
-	
+
 }

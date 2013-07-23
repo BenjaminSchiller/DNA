@@ -20,12 +20,9 @@ import dna.series.aggdata.AggregatedValueList;
 import dna.series.data.BatchData;
 import dna.series.data.Data;
 import dna.series.data.Distribution;
-import dna.series.data.DistributionInt;
-import dna.series.data.DistributionLong;
 import dna.series.data.MetricData;
 import dna.series.data.NodeValueList;
 import dna.series.data.RunData;
-import dna.series.data.RunTime;
 import dna.series.data.SeriesData;
 import dna.series.data.Value;
 import dna.series.lists.DistributionList;
@@ -381,10 +378,13 @@ public class Aggregation {
 			throws AggregationException {
 		// check if inputData got the proper format to be aggregated
 		Aggregation.test(inputData);
-		
-		if(inputData[0] instanceof Value) {
-			// AggregatedValue array structure:  { avg, min, max, median, variance, variance-low, variance-up, confidence-low, confidence-up }
-			// aggregation of values: put all values in an array and calculate aggregated values over the array
+
+		if (inputData[0] instanceof Value) {
+			// AggregatedValue array structure: { avg, min, max, median,
+			// variance, variance-low, variance-up, confidence-low,
+			// confidence-up }
+			// aggregation of values: put all values in an array and calculate
+			// aggregated values over the array
 			double[] values0 = new double[inputData.length];
 			for (int i = 0; i < values0.length; i++) {
 				values0[i] = ((Value) inputData[i]).getValue();

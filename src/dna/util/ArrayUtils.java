@@ -259,11 +259,11 @@ public class ArrayUtils {
 		return true;
 	}
 
-	
 	/**
 	 * Calculates the average over an given array of doubles.
 	 * 
-	 * @param values double array the average is calculated from
+	 * @param values
+	 *            double array the average is calculated from
 	 * @return average value of the given double array
 	 */
 	public static double avg(double[] values) {
@@ -403,8 +403,8 @@ public class ArrayUtils {
 	}
 
 	/**
-	 * Calculates the median over an given array of doubles.
-	 * Caution: Due to the Arrays.sort call, the input array will be sorted.
+	 * Calculates the median over an given array of doubles. Caution: Due to the
+	 * Arrays.sort call, the input array will be sorted.
 	 * 
 	 * @param values
 	 *            double array the median is calculated from
@@ -419,9 +419,10 @@ public class ArrayUtils {
 	}
 
 	/**
-	 * Calculates the median over an given array of doubles, while considering Double.NaN's.
-	 * Due to the Arrays.sort call, a copy of the input array is used to calculate the median.
-	 * Therefore use with caution: runtime O(n) with n being the size of the input array. 
+	 * Calculates the median over an given array of doubles, while considering
+	 * Double.NaN's. Due to the Arrays.sort call, a copy of the input array is
+	 * used to calculate the median. Therefore use with caution: runtime O(n)
+	 * with n being the size of the input array.
 	 * 
 	 * @param values
 	 *            double array the median is calculated from
@@ -440,7 +441,7 @@ public class ArrayUtils {
 		Arrays.sort(temp);
 		return temp[(temp.length - counter) / 2];
 	}
-	
+
 	/**
 	 * Calculates the variance of the given array.
 	 * 
@@ -518,10 +519,10 @@ public class ArrayUtils {
 		}
 		return x / (values.length - 1 - counter);
 	}
-	
+
 	/**
-	 * Calculates the confidence interval of the given array.
-	 * Student-t distribution with 0,95 confidence niveau.
+	 * Calculates the confidence interval of the given array. Student-t
+	 * distribution with 0,95 confidence niveau.
 	 * 
 	 * @param values
 	 *            double array the confidence is calculated from
