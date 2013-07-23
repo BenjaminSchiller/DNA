@@ -5,8 +5,9 @@ import java.util.List;
 import java.util.Queue;
 import java.util.Stack;
 
-import dna.graph.Graph;
-import dna.graph.Node;
+import dna.graph.undirected.UndirectedEdge;
+import dna.graph.undirected.UndirectedGraph;
+import dna.graph.undirected.UndirectedNode;
 import dna.metrics.Metric;
 import dna.series.data.Distribution;
 import dna.series.data.Value;
@@ -16,48 +17,51 @@ public abstract class BetweenessCentrality extends Metric {
 	protected int[] shortesPathCount;
 	protected int[] distanceToRoot;
 	protected double[] betweeneesCentralityScore;
-	protected List<Node>[] parentVertices;
+	protected List<UndirectedNode>[] parentVertices;
 
-	public BetweenessCentrality(String name, boolean appliedBeforeDiff,
-			boolean appliedAfterEdge, boolean appliedAfterDiff) {
-		super(name, appliedBeforeDiff, appliedAfterEdge, appliedAfterDiff);
+	public BetweenessCentrality(String name, ApplicationType type) {
+		super(name, type);
 	}
 
 	@Override
-	protected void init(Graph g) {
-		this.shortesPathCount = new int[this.g.getNodes().length];
-		this.distanceToRoot = new int[this.g.getNodes().length];
-		this.betweeneesCentralityScore = new double[this.g.getNodes().length];
-		this.parentVertices = new List[this.g.getNodes().length];
+	public void init() {
+		this.shortesPathCount = new int[this.g.getNodes().size()];
+		this.distanceToRoot = new int[this.g.getNodes().size()];
+		this.betweeneesCentralityScore = new double[this.g.getNodes().size()];
+		this.parentVertices = new List[this.g.getNodes().size()];
 	}
 
 	@Override
 	public void reset_() {
-		this.shortesPathCount = new int[this.g.getNodes().length];
-		this.distanceToRoot = new int[this.g.getNodes().length];
-		this.betweeneesCentralityScore = new double[this.g.getNodes().length];
-		this.parentVertices = new List[this.g.getNodes().length];
+		this.shortesPathCount = new int[this.g.getNodes().size()];
+		this.distanceToRoot = new int[this.g.getNodes().size()];
+		this.betweeneesCentralityScore = new double[this.g.getNodes().size()];
+		this.parentVertices = new List[this.g.getNodes().size()];
 	}
 
 	@Override
-	protected boolean compute_() {
-		Queue<Node> q = new LinkedList<Node>();
-		Stack<Node> s = new Stack<Node>();
-		for (Node n : this.g.getNodes()) {
+	public boolean compute() {
+		Queue<UndirectedNode> q = new LinkedList<UndirectedNode>();
+		Stack<UndirectedNode> s = new Stack<UndirectedNode>();
+		UndirectedGraph g = (UndirectedGraph) this.g;
+		for (UndirectedNode n : g.getNodes()) {
 			// stage ONE
 			// TODO:Stage One Passt Noch Nicht
 			s.clear();
 			q.clear();
-			this.parentVertices[n.getIndex()] = new LinkedList<Node>();
+			this.parentVertices[n.getIndex()] = new LinkedList<UndirectedNode>();
 			this.shortesPathCount[n.getIndex()] = 1;
 			this.distanceToRoot[n.getIndex()] = -1;
 			q.add(n);
 
 			// stage 2
 			while (!q.isEmpty()) {
-				Node v = q.poll();
+				UndirectedNode v = q.poll();
 				s.push(v);
-				for (Node neighbour : v.getNeighbors()) {
+				for (UndirectedEdge ed : v.getEdges()) {
+					UndirectedNode neighbour = ed.getNode1();
+					if (neighbour == v)
+						neighbour = ed.getNode2();
 					if (distanceToRoot[neighbour.getIndex()] != -1) {
 						q.add(neighbour);
 						distanceToRoot[neighbour.getIndex()] = distanceToRoot[v
@@ -74,10 +78,10 @@ public abstract class BetweenessCentrality extends Metric {
 			}
 
 			// stage 3
-			double[] temp = new double[this.g.getNodes().length];
+			double[] temp = new double[this.g.getNodes().size()];
 			while (!s.isEmpty()) {
-				Node w = s.pop();
-				for (Node parent : this.parentVertices[w.getIndex()]) {
+				UndirectedNode w = s.pop();
+				for (UndirectedNode parent : this.parentVertices[w.getIndex()]) {
 					temp[parent.getIndex()] = temp[parent.getIndex()]
 							+ this.shortesPathCount[parent.getIndex()]
 							/ this.shortesPathCount[w.getIndex()]
@@ -95,11 +99,6 @@ public abstract class BetweenessCentrality extends Metric {
 
 	@Override
 	public boolean equals(Metric m) {
-		return false;
-	}
-
-	@Override
-	public boolean cleanupApplication() {
 		return false;
 	}
 
