@@ -1,26 +1,31 @@
 package dna.metrics.connectedComponents;
 
 import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.Queue;
 import java.util.Set;
-import java.util.Stack;
 
-import sun.misc.Queue;
-import dna.diff.Diff;
-import dna.diff.DiffNotApplicableException;
-import dna.graph.Edge;
 import dna.graph.Graph;
-import dna.graph.Node;
+import dna.graph.undirected.UndirectedEdge;
+import dna.graph.undirected.UndirectedNode;
+import dna.metrics.Metric;
+import dna.updates.Batch;
+import dna.updates.EdgeAddition;
+import dna.updates.EdgeRemoval;
+import dna.updates.NodeAddition;
+import dna.updates.NodeRemoval;
+import dna.updates.Update;
 
 public class CCUndirectedDyn extends CCUndirected {
 
 	boolean searchSmallerComponent;
 
 	public CCUndirectedDyn() {
-		super("CCdirectedDyn()", false, true, false);
+		super("CCUndirectedDyn()", ApplicationType.AfterUpdate);
 	}
 
-	protected void init(Graph g) {
-		super.init(g);
+	public void init() {
+		super.init();
 		searchSmallerComponent = false;
 	}
 
@@ -28,21 +33,197 @@ public class CCUndirectedDyn extends CCUndirected {
 		this.searchSmallerComponent = searchSmallerComponent;
 	}
 
-	@Override
-	protected boolean applyBeforeDiff_(Diff d)
-			throws DiffNotApplicableException {
-		throw new DiffNotApplicableException("before diff");
+	private void updateComponentIndex(int component, SpanningTreeNode dst) {
+		Queue<SpanningTreeNode> q = new LinkedList<SpanningTreeNode>();
+		q.add(dst);
+
+		while (!q.isEmpty()) {
+			SpanningTreeNode temp = (SpanningTreeNode) q.poll();
+			for (SpanningTreeNode n : temp.getChildren()) {
+				q.add(n);
+
+			}
+			this.nodeComponentMembership[temp.getNode().getIndex()] = component;
+		}
+
+	}
+
+	private boolean saveRemove(SpanningTreeNode srcTreeElement,
+			SpanningTreeNode dstTreeElement) {
+		Queue<SpanningTreeNode> q = new LinkedList<SpanningTreeNode>();
+		dstTreeElement.setParent(null);
+		q.add(dstTreeElement);
+
+		Set<UndirectedNode> nodes = bfsDYN(dstTreeElement);
+
+		for (UndirectedEdge ed : dstTreeElement.getNode().getEdges()) {
+			UndirectedNode n = ed.getNode1();
+			if (n == dstTreeElement.getNode())
+				n = ed.getNode2();
+
+			if (!nodes.contains(n)
+					&& this.nodeComponentMembership[n.getIndex()] == this.nodeComponentMembership[dstTreeElement
+							.getNode().getIndex()]) {
+				dstTreeElement.setParent(this.nodesTreeElement[n.getIndex()]);
+				return true;
+			}
+		}
+
+		while (!q.isEmpty()) {
+			SpanningTreeNode temp = (SpanningTreeNode) q.poll();
+
+			for (UndirectedEdge ed : temp.getNode().getEdges()) {
+				UndirectedNode n = ed.getNode1();
+				if (n == temp.getNode())
+					n = ed.getNode2();
+
+				if (!temp.getChildren().contains(n) || !nodes.contains(n)) {
+					SpanningTreeNode child = temp;
+					SpanningTreeNode parent = this.nodesTreeElement[n
+							.getIndex()];
+					parent.addChild(child);
+					child.setParent(parent);
+
+					while (parent.getParent() != null) {
+						child.setParent(parent);
+						parent.addChild(child);
+						child = parent;
+						parent = parent.getParent();
+					}
+					return true;
+				}
+
+			}
+
+			for (SpanningTreeNode spanningTreeNode : temp.getChildren()) {
+				q.add(spanningTreeNode);
+			}
+
+		}
+
+		return false;
+	}
+
+	private Set<UndirectedNode> bfsDYN(SpanningTreeNode treeElement) {
+		Set<UndirectedNode> nodes = new HashSet<UndirectedNode>();
+
+		Queue<SpanningTreeNode> q = new LinkedList<SpanningTreeNode>();
+		q.add(treeElement);
+		while (!q.isEmpty()) {
+			SpanningTreeNode temp = (SpanningTreeNode) q.poll();
+			for (SpanningTreeNode n : temp.getChildren()) {
+				q.add(n);
+				nodes.add(n.getNode());
+			}
+
+		}
+
+		return nodes;
+
 	}
 
 	@Override
-	protected boolean applyAfterEdgeAddition_(Diff d, Edge e) {
-		Node src = e.getSrc();
-		Node dst = e.getDst();
-		if (this.nodeComponentMembership[src.getIndex()] != this.nodeComponentMembership[dst
+	public boolean applyBeforeBatch(Batch b) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean applyAfterBatch(Batch b) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean applyBeforeUpdate(Update u) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean applyAfterUpdate(Update u) {
+		if (u instanceof NodeAddition) {
+			return applyAfterNodeAddition(u);
+		} else if (u instanceof NodeRemoval) {
+			return applyAfterNodeRemoval(u);
+		} else if (u instanceof EdgeAddition) {
+			return applyAfterEdgeAddition(u);
+		} else if (u instanceof EdgeRemoval) {
+			return applyAfterEdgeRemoval(u);
+		}
+		return false;
+	}
+
+	private boolean applyAfterEdgeRemoval(Update u) {
+		UndirectedEdge e = (UndirectedEdge) ((EdgeAddition) u).getEdge();
+		UndirectedNode n1 = e.getNode1();
+		UndirectedNode n2 = e.getNode2();
+
+		if (this.nodeComponentMembership[n1.getIndex()] == this.nodeComponentMembership[n2
 				.getIndex()]) {
 
-			SpanningTreeNode temp = this.nodesTreeElement[dst.getIndex()];
-			SpanningTreeNode newParent = this.nodesTreeElement[src.getIndex()];
+			SpanningTreeNode n1TreeElement = this.nodesTreeElement[n1
+					.getIndex()];
+			SpanningTreeNode n2TreeElement = this.nodesTreeElement[n2
+					.getIndex()];
+
+			if (n1TreeElement.getChildren().contains(n2TreeElement)
+					|| n2TreeElement.getChildren().contains(n1TreeElement)) {
+
+				boolean neighbourFound = false;
+
+				for (UndirectedEdge ude : n2.getEdges()) {
+					UndirectedNode n = ude.getNode1();
+					if (n == n2)
+						n = ude.getNode2();
+					if (n1TreeElement.getParent().getNode() == n) {
+						SpanningTreeNode newparent = nodesTreeElement[n
+								.getIndex()];
+						newparent.addChild(n2TreeElement);
+						n2TreeElement.setParent(newparent);
+						neighbourFound = true;
+					}
+
+					for (SpanningTreeNode stn : n1TreeElement.getChildren()) {
+						if (stn.getNode() == n) {
+							SpanningTreeNode newparent = nodesTreeElement[n
+									.getIndex()];
+							newparent.addChild(n2TreeElement);
+							n2TreeElement.setParent(newparent);
+							neighbourFound = true;
+						}
+					}
+				}
+
+				if (!neighbourFound) {
+
+					neighbourFound = saveRemove(n1TreeElement, n2TreeElement);
+				}
+
+				if (!neighbourFound) {
+
+					n2TreeElement.setParent(null);
+					n2TreeElement.setRoot(true);
+					n1TreeElement.removeChild(n2TreeElement);
+					updateComponentIndex(n2.getIndex(), n2TreeElement);
+					this.componentList.add(n2TreeElement);
+				}
+			}
+		}
+
+		return true;
+	}
+
+	private boolean applyAfterEdgeAddition(Update u) {
+		UndirectedEdge e = (UndirectedEdge) ((EdgeAddition) u).getEdge();
+		UndirectedNode n1 = e.getNode1();
+		UndirectedNode n2 = e.getNode2();
+
+		if (this.nodeComponentMembership[n1.getIndex()] != this.nodeComponentMembership[n2
+				.getIndex()]) {
+
+			SpanningTreeNode temp = this.nodesTreeElement[n2.getIndex()];
+			SpanningTreeNode newParent = this.nodesTreeElement[n1.getIndex()];
 
 			while (!temp.isRoot()) {
 				SpanningTreeNode newChild = temp.getParent();
@@ -56,179 +237,54 @@ public class CCUndirectedDyn extends CCUndirected {
 			temp.removeChild(newParent);
 			temp.setParent(newParent);
 			temp.setRoot(false);
-			updateComponentIndex(this.nodeComponentMembership[src.getIndex()],
-					this.nodesTreeElement[dst.getIndex()]);
+			updateComponentIndex(this.nodeComponentMembership[n1.getIndex()],
+					this.nodesTreeElement[n2.getIndex()]);
 
 		}
 
 		return true;
 	}
 
-	private void updateComponentIndex(int component, SpanningTreeNode dst) {
-		Queue q = new Queue();
-		q.enqueue(dst);
-		try {
-			while (!q.isEmpty()) {
-				SpanningTreeNode temp = (SpanningTreeNode) q.dequeue();
-				for (SpanningTreeNode n : temp.getChildren()) {
-					q.enqueue(n);
-
-				}
-				this.nodeComponentMembership[temp.getNode().getIndex()] = component;
-			}
-
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-
+	private boolean applyAfterNodeRemoval(Update u) {
+		// TODO Auto-generated method stub
+		return false;
 	}
 
-	@Override
-	protected boolean applyAfterEdgeRemoval_(Diff d, Edge e)
-			throws DiffNotApplicableException {
-
-		Node src = e.getSrc();
-		Node dst = e.getDst();
-
-		if (this.nodeComponentMembership[src.getIndex()] == this.nodeComponentMembership[dst
-				.getIndex()]) {
-
-			SpanningTreeNode srcTreeElement = this.nodesTreeElement[src
-					.getIndex()];
-			SpanningTreeNode dstTreeElement = this.nodesTreeElement[dst
-					.getIndex()];
-
-			if (srcTreeElement.getChildren().contains(dstTreeElement)) {
-
-				if (src.getNeighbors().contains(dst.getNeighbors())) {
-
-					for (Node n : src.getNeighbors()) {
-						if (dst.getNeighbors().contains(n)) {
-							SpanningTreeNode newparent = nodesTreeElement[n
-									.getIndex()];
-							newparent.addChild(dstTreeElement);
-							dstTreeElement.setParent(newparent);
-						}
-					}
-
-				} else {
-
-					boolean edgeRemovedWithoutSeperation = saveRemove(
-							srcTreeElement, dstTreeElement);
-
-					if (edgeRemovedWithoutSeperation) {
-
-						dstTreeElement.setParent(null);
-						dstTreeElement.setRoot(true);
-						srcTreeElement.removeChild(dstTreeElement);
-						updateComponentIndex(dst.getIndex(), dstTreeElement);
-						this.componentList.add(dstTreeElement);
-					}
-				}
-			}
-		}
+	private boolean applyAfterNodeAddition(Update u) {
+		UndirectedNode n = (UndirectedNode) ((NodeAddition) u).getNode();
+		SpanningTreeNode stn = new SpanningTreeNode(n);
+		this.componentList.add(stn);
 		return true;
 	}
 
-	private boolean saveRemovedfs(SpanningTreeNode node) {
-		boolean[] visited = new boolean[this.g.getNodes().length];
-		Stack<SpanningTreeNode> s = new Stack<SpanningTreeNode>();
-		s.push(node);
-		while (!s.isEmpty()) {
-			SpanningTreeNode temp = s.pop();
-			visited[temp.getNode().getIndex()] = true;
-			if (temp.isRoot()) {
-
-				return true;
-			}
-			for (Node n : temp.getNode().getNeighbors()) {
-				if (!visited[n.getIndex()]) {
-
-				}
-			}
-		}
+	@Override
+	public boolean compute() {
+		// TODO Auto-generated method stub
 		return false;
 	}
 
-	private boolean saveRemove(SpanningTreeNode srcTreeElement,
-			SpanningTreeNode dstTreeElement) {
-		try {
-			Queue q = new Queue();
-			dstTreeElement.setParent(null);
-			q.enqueue(dstTreeElement);
-
-			Set<Node> nodes = bfs(dstTreeElement);
-
-			for (Node n : dstTreeElement.getNode().getNeighbors()) {
-				if (!nodes.contains(n)
-						&& this.nodeComponentMembership[n.getIndex()] == this.nodeComponentMembership[dstTreeElement
-								.getNode().getIndex()]) {
-					dstTreeElement
-							.setParent(this.nodesTreeElement[n.getIndex()]);
-					return true;
-				}
-			}
-
-			while (!q.isEmpty()) {
-				SpanningTreeNode temp = (SpanningTreeNode) q.dequeue();
-
-				for (Node n : temp.getNode().getNeighbors()) {
-
-					if (!temp.getChildren().contains(n) || !nodes.contains(n)) {
-						SpanningTreeNode child = temp;
-						SpanningTreeNode parent = this.nodesTreeElement[n
-								.getIndex()];
-						parent.addChild(child);
-						child.setParent(parent);
-
-						while (parent.getParent() != null) {
-							child.setParent(parent);
-							parent.addChild(child);
-							child = parent;
-							parent = parent.getParent();
-						}
-						return true;
-					}
-
-				}
-
-				for (SpanningTreeNode spanningTreeNode : temp.getChildren()) {
-					q.enqueue(spanningTreeNode);
-				}
-
-			}
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return false;
-	}
-
-	private Set<Node> bfs(SpanningTreeNode treeElement) {
-		Set<Node> nodes = new HashSet<Node>();
-		try {
-			Queue q = new Queue();
-			q.enqueue(treeElement);
-			while (!q.isEmpty()) {
-				SpanningTreeNode temp = (SpanningTreeNode) q.dequeue();
-				for (SpanningTreeNode n : temp.getChildren()) {
-					q.enqueue(n);
-					nodes.add(n.getNode());
-				}
-
-			}
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
-		return nodes;
+	@Override
+	protected void init_() {
+		// TODO Auto-generated method stub
 
 	}
 
 	@Override
-	protected boolean applyAfterDiff_(Diff d) throws DiffNotApplicableException {
-		throw new DiffNotApplicableException("after diff");
+	public boolean isApplicable(Graph g) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean isApplicable(Batch b) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean isComparableTo(Metric m) {
+		// TODO Auto-generated method stub
+		return false;
 	}
 
 }
