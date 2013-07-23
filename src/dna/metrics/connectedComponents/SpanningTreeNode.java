@@ -3,18 +3,18 @@ package dna.metrics.connectedComponents;
 import java.util.HashSet;
 import java.util.Set;
 
-import dna.graph.Node;
+import dna.graph.undirected.UndirectedNode;
 
 public class SpanningTreeNode {
 
-	private Node node;
+	private UndirectedNode node;
 
 	private SpanningTreeNode parent;
 	private Set<SpanningTreeNode> children;
 	private boolean root;
 	private int weight;
 
-	public SpanningTreeNode(Node node) {
+	public SpanningTreeNode(UndirectedNode node) {
 		this.node = node;
 		this.children = new HashSet<>();
 		this.parent = null;
@@ -46,7 +46,7 @@ public class SpanningTreeNode {
 		this.children = children;
 	}
 
-	public Node getNode() {
+	public UndirectedNode getNode() {
 		return this.node;
 	}
 
