@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Map;
 
 import sun.misc.Queue;
-import dna.graph.Graph;
 import dna.graph.Node;
 import dna.metrics.Metric;
 import dna.series.data.Distribution;
@@ -27,27 +26,26 @@ public abstract class CCDirected extends Metric {
 	protected List<List<ComponentVertex>> components;
 	protected int[] nodeComponentMembership2;
 
-	public CCDirected(String name, boolean appliedBeforeDiff,
-			boolean appliedAfterEdge, boolean appliedAfterDiff) {
-		super(name, appliedBeforeDiff, appliedAfterEdge, appliedAfterDiff);
+	public CCDirected(String name, ApplicationType type) {
+		super(name, type);
 	}
 
 	@Override
-	protected void init(Graph g) {
-		this.nodeComponentMembership = new int[this.g.getNodes().length];
-		this.nodesTreeElement = new SpanningTreeNode[this.g.getNodes().length];
-		this.visited = new boolean[this.g.getNodes().length];
-		this.discoverd = new boolean[this.g.getNodes().length];
+	public void init() {
+		this.nodeComponentMembership = new int[this.g.getNodes().size()];
+		this.nodesTreeElement = new SpanningTreeNode[this.g.getNodes().size()];
+		this.visited = new boolean[this.g.getNodes().size()];
+		this.discoverd = new boolean[this.g.getNodes().size()];
 		this.reachableNodesFromComponet = new HashMap<Integer, List<Node>>();
 		this.compCounter = 0;
 	}
 
 	@Override
 	public void reset_() {
-		this.nodeComponentMembership = new int[this.g.getNodes().length];
-		this.nodesTreeElement = new SpanningTreeNode[this.g.getNodes().length];
-		this.visited = new boolean[this.g.getNodes().length];
-		this.discoverd = new boolean[this.g.getNodes().length];
+		this.nodeComponentMembership = new int[this.g.getNodes().size()];
+		this.nodesTreeElement = new SpanningTreeNode[this.g.getNodes().size()];
+		this.visited = new boolean[this.g.getNodes().size()];
+		this.discoverd = new boolean[this.g.getNodes().size()];
 		this.reachableNodesFromComponet = new HashMap<Integer, List<Node>>();
 		this.compCounter = 0;
 	}
@@ -56,7 +54,7 @@ public abstract class CCDirected extends Metric {
 	protected boolean compute_() {
 		for (Node n : this.g.getNodes()) {
 			if (!visited[n.getIndex()]) {
-				this.discoverd = new boolean[this.g.getNodes().length];
+				this.discoverd = new boolean[this.g.getNodes().size()];
 				bfs(n);
 			}
 		}
@@ -120,12 +118,6 @@ public abstract class CCDirected extends Metric {
 	}
 
 	@Override
-	public boolean cleanupApplication() {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
 	protected Value[] getValues() {
 		Value v1 = new Value("NumberofComponents", countComponents());
 		Value v2 = new Value("AverageComponentSize",
@@ -152,7 +144,7 @@ public abstract class CCDirected extends Metric {
 			}
 		}
 
-		return this.g.getNodes().length / compSize.size();
+		return this.g.getNodes().size() / compSize.size();
 	}
 
 	@Override
