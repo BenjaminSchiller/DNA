@@ -1,7 +1,7 @@
 package dna.util.parameters;
 
 public class DoubleParameter extends Parameter {
-	
+
 	private double value;
 
 	public DoubleParameter(String name, double value) {
@@ -13,8 +13,8 @@ public class DoubleParameter extends Parameter {
 	public String getValue() {
 		return Double.toString(this.value);
 	}
-	
-	public double returnDoubleValue(){
+
+	public double returnDoubleValue() {
 		return this.value;
 	}
 

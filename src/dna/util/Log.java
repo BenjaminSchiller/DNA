@@ -6,8 +6,8 @@ public class Log {
 	};
 
 	private static LogLevel logLevel = LogLevel.info;
-	
-	public static void setLogLevel(LogLevel logLevel){
+
+	public static void setLogLevel(LogLevel logLevel) {
 		Log.logLevel = logLevel;
 	}
 

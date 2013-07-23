@@ -20,7 +20,7 @@ public class AggregatedBatch {
 	private AggregatedRunTimeList generalRuntimes;
 	private AggregatedRunTimeList metricRuntimes;
 	private AggregatedMetricList metrics;
-	
+
 	// constructors
 	public AggregatedBatch(long timestamp) {
 		this.timestamp = timestamp;
@@ -29,9 +29,9 @@ public class AggregatedBatch {
 		this.metricRuntimes = new AggregatedRunTimeList();
 		this.metrics = new AggregatedMetricList();
 	}
-	
-	public AggregatedBatch(long timestamp, int sizeValues, int sizeGeneralRuntimes,
-			int sizeMetricRuntimes, int sizeMetrics) {
+
+	public AggregatedBatch(long timestamp, int sizeValues,
+			int sizeGeneralRuntimes, int sizeMetricRuntimes, int sizeMetrics) {
 		this.timestamp = timestamp;
 		this.stats = new AggregatedValueList(sizeValues);
 		this.generalRuntimes = new AggregatedRunTimeList(sizeGeneralRuntimes);
@@ -39,37 +39,37 @@ public class AggregatedBatch {
 		this.metrics = new AggregatedMetricList(sizeMetrics);
 	}
 
-	public AggregatedBatch(long timestamp, AggregatedValueList values, 
-			AggregatedRunTimeList generalRuntimes, AggregatedRunTimeList metricRuntimes,
-			AggregatedMetricList metrics) {
+	public AggregatedBatch(long timestamp, AggregatedValueList values,
+			AggregatedRunTimeList generalRuntimes,
+			AggregatedRunTimeList metricRuntimes, AggregatedMetricList metrics) {
 		this.timestamp = timestamp;
 		this.stats = values;
 		this.generalRuntimes = generalRuntimes;
 		this.metricRuntimes = metricRuntimes;
 		this.metrics = metrics;
 	}
-	
+
 	// methods
 	public long getTimestamp() {
 		return this.timestamp;
 	}
-	
+
 	public AggregatedValueList getValues() {
 		return this.stats;
 	}
-	
+
 	public AggregatedRunTimeList getGeneralRuntimes() {
 		return this.generalRuntimes;
 	}
-	
+
 	public AggregatedRunTimeList getMetricRuntimes() {
 		return this.metricRuntimes;
 	}
-	
+
 	public AggregatedMetricList getMetrics() {
 		return this.metrics;
 	}
-	
+
 	// IO methods
 	public void write(String dir) throws IOException {
 		Log.debug("writing AggregatedBatchfor " + this.timestamp + " to " + dir);

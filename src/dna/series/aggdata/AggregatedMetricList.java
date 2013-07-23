@@ -21,11 +21,11 @@ public class AggregatedMetricList extends List<AggregatedMetric> {
 	public AggregatedMetricList(int size) {
 		super(size);
 	}
-	
+
 	public void write(String dir) throws IOException {
 		for (AggregatedMetric metricData : this.getList()) {
 			metricData.write(Dir.getMetricDataDir(dir, metricData.getName()));
 		}
 	}
-	
+
 }

@@ -14,7 +14,7 @@ import dna.series.lists.List;
  * @date 24.06.2013
  */
 public class AggregatedValueList extends List<AggregatedValue> {
-	
+
 	// constructors
 	public AggregatedValueList() {
 		super();
@@ -29,8 +29,9 @@ public class AggregatedValueList extends List<AggregatedValue> {
 		Writer w = new Writer(dir, filename);
 		for (String name : this.map.keySet()) {
 			String temp = "";
-			for(int i = 0; i < this.map.get(name).getValues().length; i++) {
-				temp += Keywords.aggregatedDataDelimiter + this.map.get(name).getValues()[i];
+			for (int i = 0; i < this.map.get(name).getValues().length; i++) {
+				temp += Keywords.aggregatedDataDelimiter
+						+ this.map.get(name).getValues()[i];
 			}
 			w.writeln(name + temp);
 		}
@@ -45,7 +46,7 @@ public class AggregatedValueList extends List<AggregatedValue> {
 		while ((line = r.readString()) != null) {
 			String[] temp = line.split(Keywords.aggregatedDataDelimiter);
 			double[] tempDouble = new double[temp.length];
-			for(int i = 0; i < temp.length; i++) {
+			for (int i = 0; i < temp.length; i++) {
 				tempDouble[i] = Double.parseDouble(temp[i]);
 			}
 			list.add(new AggregatedValue(filename + temp[0], tempDouble));
