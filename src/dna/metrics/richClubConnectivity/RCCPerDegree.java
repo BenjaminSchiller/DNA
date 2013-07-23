@@ -1,31 +1,28 @@
 package dna.metrics.richClubConnectivity;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Set;
 
-import dna.graph.Graph;
-import dna.graph.Node;
+import dna.graph.directed.DirectedNode;
 import dna.metrics.Metric;
 import dna.series.data.Distribution;
 import dna.series.data.Value;
 
 //TODO:bei dyn noch bei bisher leeres degree vom vorherigem abziehen
 public abstract class RCCPerDegree extends Metric {
-	protected HashMap<Integer, Set<Node>> richClubs;
+	protected HashMap<Integer, Set<DirectedNode>> richClubs;
 	protected HashMap<Integer, Double> richClubCoefficienten;
 	protected HashMap<Integer, Integer> richClubEdges;
 
 	protected int highestDegree;
 
-	public RCCPerDegree(String name, boolean appliedBeforeDiff,
-			boolean appliedAfterEdge, boolean appliedAfterDiff) {
-		super(name, appliedBeforeDiff, appliedAfterEdge, appliedAfterDiff);
+	public RCCPerDegree(String name, ApplicationType type) {
+		super(name, type);
 	}
 
 	@Override
-	protected void init(Graph g) {
-		this.richClubs = new HashMap<Integer, Set<Node>>();
+	public void init() {
+		this.richClubs = new HashMap<Integer, Set<DirectedNode>>();
 		this.richClubCoefficienten = new HashMap<Integer, Double>();
 		this.richClubEdges = new HashMap<Integer, Integer>();
 		this.highestDegree = 0;
@@ -33,50 +30,10 @@ public abstract class RCCPerDegree extends Metric {
 
 	@Override
 	public void reset_() {
-		this.richClubs = new HashMap<Integer, Set<Node>>();
+		this.richClubs = new HashMap<Integer, Set<DirectedNode>>();
 		this.richClubCoefficienten = new HashMap<Integer, Double>();
 		this.richClubEdges = new HashMap<Integer, Integer>();
 		this.highestDegree = 0;
-	}
-
-	@Override
-	protected boolean compute_() {
-
-		for (Node n : this.g.getNodes()) {
-			int degree = n.getOut().size();
-			this.highestDegree = Math.max(highestDegree, degree);
-			if (richClubs.containsKey(degree)) {
-				this.richClubs.get(degree).add(n);
-			} else {
-				Set<Node> temp = new HashSet<Node>();
-				temp.add(n);
-				this.richClubs.put(degree, temp);
-			}
-		}
-
-		HashSet<Node> currentrichclub = new HashSet<Node>();
-		for (int currentDegree : this.richClubs.keySet()) {
-			int edges = 0;
-			for (Node n : richClubs.get(currentDegree)) {
-
-				for (Node d : n.getOut()) {
-					if (d.getOut().size() >= currentDegree) {
-						edges++;
-					}
-				}
-				for (Node d : n.getIn()) {
-					if (d.getOut().size() >= currentDegree) {
-						edges++;
-					}
-				}
-			}
-			richClubEdges.put(currentDegree, edges);
-			currentrichclub.addAll(richClubs.get(currentDegree));
-		}
-
-		calculateRCC();
-
-		return true;
 	}
 
 	protected void calculateRCC() {
@@ -101,12 +58,6 @@ public abstract class RCCPerDegree extends Metric {
 	}
 
 	@Override
-	public boolean cleanupApplication() {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
 	protected Value[] getValues() {
 		return new Value[] {};
 	}
@@ -115,16 +66,7 @@ public abstract class RCCPerDegree extends Metric {
 	protected Distribution[] getDistributions() {
 		Distribution d1 = new Distribution("rCC#Members",
 				this.makeDistribution(this.richClubCoefficienten));
-		Distribution d2 = new Distribution("Degrees", degrees());
-		return new Distribution[] { d1, d2 };
-	}
-
-	private double[] degrees() {
-		double[] result = new double[this.g.getNodes().length];
-		for (Node n : this.g.getNodes()) {
-			result[n.getIndex()] = n.getOut().size();
-		}
-		return result;
+		return new Distribution[] { d1 };
 	}
 
 	private double[] makeDistribution(
