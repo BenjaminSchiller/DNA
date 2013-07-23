@@ -52,21 +52,22 @@ public abstract class Metric extends ParameterList {
 		this(name, type, new Parameter[] { p1, p2 });
 	}
 
-<<<<<<< HEAD
-	// //Was geändert
-	public boolean applyBeforeDiff(Diff d) throws DiffNotApplicableException {
-		if (d.getNodes() != this.getNodes()
-				|| d.getFrom() != this.getTimestamp()) {
-			throw new DiffNotApplicableException(this, d);
-		}
-		this.timestamp = d.getTo();
-		return this.applyBeforeDiff_(d);
-=======
-	public Metric(String name, ApplicationType type, Parameter p1,
-			Parameter p2, Parameter p3) {
-		this(name, type, new Parameter[] { p1, p2, p3 });
->>>>>>> 6daced0948ebf67b3bfe01bd78e15e88e0c41fcc
-	}
+	// <<<<<<< HEAD
+	// // //Was geändert
+	// public boolean applyBeforeDiff(Diff d) throws DiffNotApplicableException
+	// {
+	// if (d.getNodes() != this.getNodes()
+	// || d.getFrom() != this.getTimestamp()) {
+	// throw new DiffNotApplicableException(this, d);
+	// }
+	// this.timestamp = d.getTo();
+	// return this.applyBeforeDiff_(d);
+	// =======
+	// public Metric(String name, ApplicationType type, Parameter p1,
+	// Parameter p2, Parameter p3) {
+	// this(name, type, new Parameter[] { p1, p2, p3 });
+	// >>>>>>> 6daced0948ebf67b3bfe01bd78e15e88e0c41fcc
+	// }
 
 	public Metric(String name, ApplicationType type, Parameter p1,
 			Parameter p2, Parameter p3, Parameter p4) {
