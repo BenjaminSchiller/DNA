@@ -6,64 +6,23 @@ import java.util.Map;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-import dna.graph.Graph;
-import dna.graph.Node;
+import dna.graph.directed.DirectedNode;
 import dna.metrics.Metric;
+import dna.metrics.degree.DegreeDistribution;
 import dna.series.data.Distribution;
 import dna.series.data.Value;
 
 public abstract class RCCFirstKNodes extends Metric {
-	private SortedSet<Integer> degrees;
-	protected LinkedList<Node> richClub;
-	protected LinkedList<Node> rest;
-	private Map<Integer, LinkedList<Node>> nodesSortedByDegree;
+	protected SortedSet<Integer> degrees;
+	protected LinkedList<DirectedNode> richClub;
+	protected LinkedList<DirectedNode> rest;
+	protected Map<Integer, LinkedList<DirectedNode>> nodesSortedByDegree;
 	protected int richClubSize;
 	protected int edgesBetweenRichClub;
 	protected double rCC;
 
-	public RCCFirstKNodes(String name, boolean appliedBeforeDiff,
-			boolean appliedAfterEdge, boolean appliedAfterDiff) {
-		super(name, appliedBeforeDiff, appliedAfterEdge, appliedAfterDiff);
-	}
-
-	@Override
-	protected boolean compute_() {
-		for (Node n : this.g.getNodes()) {
-			int degree = n.getIn().size();
-			this.degrees.add(degree);
-			if (nodesSortedByDegree.containsKey(degree)) {
-				this.nodesSortedByDegree.get(degree).add(n);
-			} else {
-				LinkedList<Node> temp = new LinkedList<>();
-				temp.add(n);
-				this.nodesSortedByDegree.put(degree, temp);
-			}
-
-		}
-
-		LinkedList<Node> temp = new LinkedList<Node>();
-		int size = this.degrees.size();
-		for (int i = 0; i < size; i++) {
-			int currentDegree = this.degrees.last();
-			this.degrees.remove(currentDegree);
-			temp.addAll(nodesSortedByDegree.get(currentDegree));
-		}
-
-		// First k biggest Nodes to richClub
-		richClub.addAll(temp.subList(0, richClubSize));
-		// the rest are maintained in Rest
-		rest.addAll(temp.subList(richClubSize, temp.size()));
-
-		for (Node n : richClub) {
-			for (Node des : n.getOut()) {
-				if (richClub.contains(des)) {
-					edgesBetweenRichClub++;
-				}
-			}
-		}
-
-		caculateRCC();
-		return true;
+	public RCCFirstKNodes(String name, ApplicationType type) {
+		super(name, type);
 	}
 
 	protected void caculateRCC() {
@@ -78,19 +37,13 @@ public abstract class RCCFirstKNodes extends Metric {
 	}
 
 	@Override
-	public boolean cleanupApplication() {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
 	public void reset_() {
 		this.edgesBetweenRichClub = 0;
 		this.richClubSize = 500;
 		this.rCC = 0d;
-		this.richClub = new LinkedList<Node>();
-		this.rest = new LinkedList<Node>();
-		this.nodesSortedByDegree = new HashMap<Integer, LinkedList<Node>>();
+		this.richClub = new LinkedList<DirectedNode>();
+		this.rest = new LinkedList<DirectedNode>();
+		this.nodesSortedByDegree = new HashMap<Integer, LinkedList<DirectedNode>>();
 		this.degrees = new TreeSet<Integer>();
 
 	}
@@ -109,14 +62,19 @@ public abstract class RCCFirstKNodes extends Metric {
 	}
 
 	@Override
-	protected void init(Graph g) {
+	protected void init_() {
 		this.edgesBetweenRichClub = 0;
 		this.richClubSize = 500;
 		this.rCC = 0d;
-		this.richClub = new LinkedList<Node>();
-		this.rest = new LinkedList<Node>();
-		this.nodesSortedByDegree = new HashMap<Integer, LinkedList<Node>>();
+		this.richClub = new LinkedList<DirectedNode>();
+		this.rest = new LinkedList<DirectedNode>();
+		this.nodesSortedByDegree = new HashMap<Integer, LinkedList<DirectedNode>>();
 		this.degrees = new TreeSet<Integer>();
+	}
+
+	@Override
+	public boolean isComparableTo(Metric m) {
+		return m != null && m instanceof DegreeDistribution;
 	}
 
 }
