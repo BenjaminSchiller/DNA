@@ -1,42 +1,35 @@
 package dna.metrics.connectedComponents;
 
-import dna.diff.Diff;
-import dna.diff.DiffNotApplicableException;
-import dna.graph.Edge;
-import dna.graph.Node;
+import java.util.Collection;
+
+import dna.graph.Graph;
+import dna.graph.undirected.UndirectedEdge;
+import dna.graph.undirected.UndirectedNode;
+import dna.metrics.Metric;
+import dna.updates.Batch;
+import dna.updates.Update;
 
 public class CCUndirectedDynBatch extends CCUndirected {
 
 	public CCUndirectedDynBatch() {
-		super("CCdirectedComp", true, false, true);
+		super("CCdirectedComp", ApplicationType.AfterBatch);
 	}
 
 	@Override
-	protected boolean applyBeforeDiff_(Diff d) {
-		// throws DiffNotApplicableException {
-		// throw new DiffNotApplicableException("before diff");
-		return true;
+	public boolean applyBeforeBatch(Batch b) {
+		// TODO Auto-generated method stub
+		return false;
 	}
 
 	@Override
-	protected boolean applyAfterEdgeAddition_(Diff d, Edge e)
-			throws DiffNotApplicableException {
-		throw new DiffNotApplicableException("before edge addition");
-	}
-
-	@Override
-	protected boolean applyAfterEdgeRemoval_(Diff d, Edge e)
-			throws DiffNotApplicableException {
-		throw new DiffNotApplicableException("before edge removal");
-	}
-
-	@Override
-	protected boolean applyAfterDiff_(Diff d) throws DiffNotApplicableException {
+	public boolean applyAfterBatch(Batch b) {
 		int r = 0;
-		boolean[][] a = new boolean[this.g.getNodes().length][this.g.getNodes().length];
-		for (Edge e : d.getRemovedEdges()) {
-			Node src = e.getSrc();
-			Node dst = e.getDst();
+		boolean[][] a = new boolean[this.g.getNodes().size()][this.g.getNodes()
+				.size()];
+		for (UndirectedEdge e : (Collection<UndirectedEdge>) b
+				.getEdgeRemovals()) {
+			UndirectedNode src = e.getNode1();
+			UndirectedNode dst = e.getNode2();
 			SpanningTreeNode dstTreeElement = this.nodesTreeElement[dst
 					.getIndex()];
 			SpanningTreeNode srcTreeElement = this.nodesTreeElement[src
@@ -44,10 +37,16 @@ public class CCUndirectedDynBatch extends CCUndirected {
 			if (srcTreeElement.getChildren().contains(dstTreeElement)) {
 
 				boolean foundNeighbour = false;
-				for (Node n : src.getNeighbors()) {
+				for (UndirectedEdge edge : src.getEdges()) {
+					UndirectedNode n = edge.getNode1();
+					if (src == n)
+						n = edge.getNode2();
 					a[src.getIndex()][n.getIndex()] = true;
 				}
-				for (Node n : e.getDst().getNeighbors()) {
+				for (UndirectedEdge edge : dst.getEdges()) {
+					UndirectedNode n = edge.getNode1();
+					if (src == n)
+						n = edge.getNode2();
 					if (a[src.getIndex()][n.getIndex()]) {
 						foundNeighbour = true;
 						break;
@@ -63,12 +62,13 @@ public class CCUndirectedDynBatch extends CCUndirected {
 		if (r > 0) {
 			r = 0;
 			this.reset_();
-			this.compute_();
+			this.compute();
 		} else {
 			int f = 0;
-			for (Edge e : d.getAddedEdges()) {
-				Node src = e.getSrc();
-				Node dst = e.getDst();
+			for (UndirectedEdge e : (Collection<UndirectedEdge>) b
+					.getEdgeAdditions()) {
+				UndirectedNode src = e.getNode1();
+				UndirectedNode dst = e.getNode2();
 				SpanningTreeNode dstTreeElement = this.nodesTreeElement[dst
 						.getIndex()];
 				SpanningTreeNode srcTreeElement = this.nodesTreeElement[src
@@ -82,11 +82,53 @@ public class CCUndirectedDynBatch extends CCUndirected {
 
 			if (f > 100) {
 				this.reset_();
-				this.compute_();
+				this.compute();
 			}
 		}
 
 		return true;
+	}
+
+	@Override
+	public boolean applyBeforeUpdate(Update u) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean applyAfterUpdate(Update u) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean compute() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	protected void init_() {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public boolean isApplicable(Graph g) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean isApplicable(Batch b) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean isComparableTo(Metric m) {
+		// TODO Auto-generated method stub
+		return false;
 	}
 
 }
