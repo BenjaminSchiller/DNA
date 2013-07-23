@@ -1,41 +1,67 @@
 package dna.metrics.betweenessCentrality;
 
-import dna.diff.Diff;
-import dna.diff.DiffNotApplicableException;
-import dna.graph.Edge;
+import dna.graph.Graph;
+import dna.metrics.Metric;
+import dna.updates.Batch;
+import dna.updates.Update;
 
 public class BCComp extends BetweenessCentrality {
 
 	public BCComp() {
-		super("BCComp", false, false, false);
+		super("BCComp", ApplicationType.Recomputation);
 	}
 
-	protected boolean compute_() {
+	public boolean compute_() {
 		super.reset_();
-		return super.compute_();
+		return super.compute();
 	}
 
 	@Override
-	protected boolean applyBeforeDiff_(Diff d)
-			throws DiffNotApplicableException {
-		throw new DiffNotApplicableException("before diff");
+	public boolean applyBeforeBatch(Batch b) {
+		// TODO Auto-generated method stub
+		return false;
 	}
 
 	@Override
-	protected boolean applyAfterEdgeAddition_(Diff d, Edge e)
-			throws DiffNotApplicableException {
-		throw new DiffNotApplicableException("after edge addition");
+	public boolean applyAfterBatch(Batch b) {
+		// TODO Auto-generated method stub
+		return false;
 	}
 
 	@Override
-	protected boolean applyAfterEdgeRemoval_(Diff d, Edge e)
-			throws DiffNotApplicableException {
-		throw new DiffNotApplicableException("after edge removal");
+	public boolean applyBeforeUpdate(Update u) {
+		// TODO Auto-generated method stub
+		return false;
 	}
 
 	@Override
-	protected boolean applyAfterDiff_(Diff d) throws DiffNotApplicableException {
-		throw new DiffNotApplicableException("after diff");
+	public boolean applyAfterUpdate(Update u) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	protected void init_() {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public boolean isApplicable(Graph g) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean isApplicable(Batch b) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean isComparableTo(Metric m) {
+		// TODO Auto-generated method stub
+		return false;
 	}
 
 }

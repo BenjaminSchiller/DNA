@@ -1,44 +1,86 @@
 package dna.metrics.betweenessCentrality;
 
+import java.util.Collection;
 import java.util.LinkedList;
 import java.util.Queue;
 
-import dna.diff.Diff;
-import dna.diff.DiffNotApplicableException;
-import dna.graph.Edge;
-import dna.graph.Node;
+import dna.graph.Graph;
+import dna.graph.undirected.UndirectedEdge;
+import dna.graph.undirected.UndirectedNode;
+import dna.metrics.Metric;
+import dna.updates.Batch;
+import dna.updates.EdgeAddition;
+import dna.updates.EdgeRemoval;
+import dna.updates.NodeAddition;
+import dna.updates.NodeRemoval;
+import dna.updates.Update;
 
 public class BCDyn extends BetweenessCentrality {
 
 	public BCDyn() {
-		super("BCDyn", false, true, false);
+		super("BCDyn", ApplicationType.AfterUpdate);
 	}
 
 	@Override
-	protected boolean applyBeforeDiff_(Diff d)
-			throws DiffNotApplicableException {
-		throw new DiffNotApplicableException("before diff");
+	public boolean applyBeforeBatch(Batch b) {
+		// TODO Auto-generated method stub
+		return false;
 	}
 
 	@Override
-	protected boolean applyAfterEdgeAddition_(Diff d, Edge e) {
-		Node src = e.getSrc();
-		Node dst = e.getDst();
+	public boolean applyAfterBatch(Batch b) {
+		// TODO Auto-generated method stub
+		return false;
+	}
 
-		Queue<Node> qBFS = new LinkedList<Node>();
+	@Override
+	public boolean applyBeforeUpdate(Update u) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean applyAfterUpdate(Update u) {
+		if (u instanceof NodeAddition) {
+			return applyAfterNodeAddition(u);
+		} else if (u instanceof NodeRemoval) {
+			return applyAfterNodeRemoval(u);
+		} else if (u instanceof EdgeAddition) {
+			return applyAfterEdgeAddition(u);
+		} else if (u instanceof EdgeRemoval) {
+			return applyAfterEdgeRemoval(u);
+		}
+		return false;
+	}
+
+	private boolean applyAfterEdgeRemoval(Update u) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	private boolean applyAfterEdgeAddition(Update u) {
+		UndirectedEdge e = (UndirectedEdge) ((EdgeAddition) u).getEdge();
+
+		UndirectedNode src = e.getNode1();
+		UndirectedNode dst = e.getNode2();
+
+		Queue<UndirectedNode> qBFS = new LinkedList<UndirectedNode>();
 		// TODO:Levels einrichten
-		Queue<Node>[] qLevel = new Queue[this.g.getNodes().length];
-		int[] distanceP = new int[this.g.getNodes().length];
-		boolean[] visited = new boolean[this.g.getNodes().length];
+		Queue<UndirectedNode>[] qLevel = new Queue[this.g.getNodes().size()];
+		int[] distanceP = new int[this.g.getNodes().size()];
+		boolean[] visited = new boolean[this.g.getNodes().size()];
 		int[] shortestPaths = this.shortesPathCount;
 
 		for (int i = 0; i < qLevel.length; i++) {
-			qLevel[i] = new LinkedList<Node>();
+			qLevel[i] = new LinkedList<UndirectedNode>();
 		}
 		// Stage 2
 		while (!qBFS.isEmpty()) {
-			Node v = qBFS.poll();
-			for (Node n : v.getNeighbors()) {
+			UndirectedNode v = qBFS.poll();
+			for (UndirectedEdge ed : v.getEdges()) {
+				UndirectedNode n = ed.getNode1();
+				if (n == v)
+					n = ed.getNode2();
 				if (this.distanceToRoot[n.getIndex()] == this.distanceToRoot[v
 						.getIndex()] + 1) {
 					if (!visited[n.getIndex()]) {
@@ -59,11 +101,11 @@ public class BCDyn extends BetweenessCentrality {
 		}
 
 		// Stage 3
-		double[] temp = new double[this.g.getNodes().length];
+		double[] temp = new double[this.g.getNodes().size()];
 		for (int i = qLevel.length - 1; i >= 0; i--) {
 			while (!qLevel[i].isEmpty()) {
-				Node w = qLevel[i].poll();
-				for (Node n : this.parentVertices[w.getIndex()]) {
+				UndirectedNode w = qLevel[i].poll();
+				for (UndirectedNode n : this.parentVertices[w.getIndex()]) {
 					if (!visited[n.getIndex()]) {
 						qLevel[i - 1].add(n);
 						visited[n.getIndex()] = true;
@@ -94,21 +136,44 @@ public class BCDyn extends BetweenessCentrality {
 			}
 		}
 		this.shortesPathCount = shortestPaths;
-		for (Node v : this.g.getNodes()) {
+		for (UndirectedNode v : (Collection<UndirectedNode>) this.g.getNodes()) {
 			// TODO: das Array aus betwennes
 		}
 		return true;
 	}
 
-	@Override
-	protected boolean applyAfterEdgeRemoval_(Diff d, Edge e)
-			throws DiffNotApplicableException {
-		throw new DiffNotApplicableException("after edge removal");
+	private boolean applyAfterNodeRemoval(Update u) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	private boolean applyAfterNodeAddition(Update u) {
+		// TODO Auto-generated method stub
+		return false;
 	}
 
 	@Override
-	protected boolean applyAfterDiff_(Diff d) throws DiffNotApplicableException {
-		throw new DiffNotApplicableException("after diff");
+	protected void init_() {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public boolean isApplicable(Graph g) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean isApplicable(Batch b) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean isComparableTo(Metric m) {
+		// TODO Auto-generated method stub
+		return false;
 	}
 
 }
