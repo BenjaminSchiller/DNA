@@ -1,12 +1,10 @@
 package dna.metrics.richClubConnectivity;
 
 import dna.graph.Edge;
-import dna.graph.Graph;
 import dna.graph.Node;
 import dna.graph.directed.DirectedEdge;
 import dna.graph.directed.DirectedNode;
 import dna.graph.undirected.UndirectedNode;
-import dna.metrics.Metric;
 import dna.updates.Batch;
 import dna.updates.EdgeAddition;
 import dna.updates.EdgeRemoval;
@@ -17,6 +15,7 @@ import dna.updates.Update;
 import dna.util.ArrayUtils;
 import dna.util.Log;
 
+@SuppressWarnings("rawtypes")
 public class RCCKNodeIntervalDyn extends RCCKNodeInterval {
 
 	public RCCKNodeIntervalDyn() {
@@ -241,36 +240,6 @@ public class RCCKNodeIntervalDyn extends RCCKNodeInterval {
 	}
 
 	private boolean applyAfterNodeAdditionDirected(Update u) {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public boolean compute() {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	protected void init_() {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public boolean isApplicable(Graph g) {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public boolean isApplicable(Batch b) {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public boolean isComparableTo(Metric m) {
 		// TODO Auto-generated method stub
 		return false;
 	}
