@@ -3,11 +3,17 @@ package dna.metrics.richClubConnectivity;
 import java.util.HashSet;
 import java.util.Set;
 
+import dna.graph.Graph;
+import dna.graph.directed.DirectedEdge;
+import dna.graph.directed.DirectedGraph;
 import dna.graph.directed.DirectedNode;
+import dna.graph.undirected.UndirectedNode;
 import dna.metrics.Metric;
 import dna.series.data.Distribution;
 import dna.series.data.Value;
+import dna.updates.Batch;
 
+@SuppressWarnings("rawtypes")
 public abstract class RCCOneDegree extends Metric {
 
 	protected int k;
@@ -20,11 +26,41 @@ public abstract class RCCOneDegree extends Metric {
 	}
 
 	@Override
-	public void init() {
+	public void init_() {
 		this.k = 15;
 		this.richClubCoeffizient = 0d;
 		this.richClubEdges = 0;
 		this.richClub = new HashSet<DirectedNode>();
+	}
+
+	@Override
+	public boolean compute() {
+		DirectedGraph g = (DirectedGraph) this.g;
+
+		if (DirectedNode.class.isAssignableFrom(this.g.getGraphDatastructures()
+				.getNodeType())) {
+			for (DirectedNode n : g.getNodes()) {
+
+				int degree = n.getOutDegree();
+				if (degree >= k) {
+					this.richClub.add(n);
+
+				}
+			}
+			for (DirectedNode n : this.richClub) {
+				for (DirectedEdge w : n.getOutgoingEdges()) {
+					if (richClub.contains(w.getDst())) {
+						this.richClubEdges++;
+					}
+				}
+			}
+
+			int richClubMembers = richClub.size();
+			this.richClubCoeffizient = (double) this.richClubEdges
+					/ (double) (richClubMembers * (richClubMembers - 1));
+			return true;
+		}
+		return false;
 	}
 
 	@Override
@@ -88,6 +124,28 @@ public abstract class RCCOneDegree extends Metric {
 	@Override
 	protected Distribution[] getDistributions() {
 		return new Distribution[] {};
+	}
+
+	@Override
+	public boolean isApplicable(Graph g) {
+		return DirectedNode.class.isAssignableFrom(g.getGraphDatastructures()
+				.getNodeType())
+				|| UndirectedNode.class.isAssignableFrom(g
+						.getGraphDatastructures().getNodeType());
+	}
+
+	@Override
+	public boolean isApplicable(Batch b) {
+		return DirectedNode.class.isAssignableFrom(b.getGraphDatastructures()
+				.getNodeType())
+				|| UndirectedNode.class.isAssignableFrom(b
+						.getGraphDatastructures().getNodeType());
+	}
+
+	@Override
+	public boolean isComparableTo(Metric m) {
+		return m != null && m instanceof RCCOneDegree;
+
 	}
 
 }
