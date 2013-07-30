@@ -5,10 +5,8 @@ import java.util.LinkedList;
 import java.util.Queue;
 import java.util.Set;
 
-import dna.graph.Graph;
 import dna.graph.undirected.UndirectedEdge;
 import dna.graph.undirected.UndirectedNode;
-import dna.metrics.Metric;
 import dna.updates.Batch;
 import dna.updates.EdgeAddition;
 import dna.updates.EdgeRemoval;
@@ -16,6 +14,7 @@ import dna.updates.NodeAddition;
 import dna.updates.NodeRemoval;
 import dna.updates.Update;
 
+@SuppressWarnings("rawtypes")
 public class CCUndirectedDyn extends CCUndirected {
 
 	boolean searchSmallerComponent;
@@ -255,36 +254,6 @@ public class CCUndirectedDyn extends CCUndirected {
 		SpanningTreeNode stn = new SpanningTreeNode(n);
 		this.componentList.add(stn);
 		return true;
-	}
-
-	@Override
-	public boolean compute() {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	protected void init_() {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public boolean isApplicable(Graph g) {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public boolean isApplicable(Batch b) {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public boolean isComparableTo(Metric m) {
-		// TODO Auto-generated method stub
-		return false;
 	}
 
 }

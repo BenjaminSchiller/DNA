@@ -2,13 +2,12 @@ package dna.metrics.connectedComponents;
 
 import java.util.Collection;
 
-import dna.graph.Graph;
 import dna.graph.undirected.UndirectedEdge;
 import dna.graph.undirected.UndirectedNode;
-import dna.metrics.Metric;
 import dna.updates.Batch;
 import dna.updates.Update;
 
+@SuppressWarnings("rawtypes")
 public class CCUndirectedDynBatch extends CCUndirected {
 
 	public CCUndirectedDynBatch() {
@@ -97,36 +96,6 @@ public class CCUndirectedDynBatch extends CCUndirected {
 
 	@Override
 	public boolean applyAfterUpdate(Update u) {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public boolean compute() {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	protected void init_() {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public boolean isApplicable(Graph g) {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public boolean isApplicable(Batch b) {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public boolean isComparableTo(Metric m) {
 		// TODO Auto-generated method stub
 		return false;
 	}

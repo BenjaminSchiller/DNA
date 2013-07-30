@@ -5,13 +5,18 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 
+import dna.graph.Graph;
+import dna.graph.directed.DirectedNode;
 import dna.graph.undirected.UndirectedEdge;
+import dna.graph.undirected.UndirectedGraph;
 import dna.graph.undirected.UndirectedNode;
 import dna.metrics.Metric;
 import dna.series.data.Distribution;
 import dna.series.data.Value;
+import dna.updates.Batch;
 import dna.util.ArrayUtils;
 
+@SuppressWarnings("rawtypes")
 public abstract class CCUndirected extends Metric {
 
 	protected int[] nodeComponentMembership;
@@ -24,7 +29,7 @@ public abstract class CCUndirected extends Metric {
 	}
 
 	@Override
-	public void init() {
+	public void init_() {
 		this.nodeComponentMembership = new int[this.g.getNodes().size()];
 		this.nodesTreeElement = new SpanningTreeNode[this.g.getNodes().size()];
 		this.visited = new boolean[this.g.getNodes().size()];
@@ -37,6 +42,22 @@ public abstract class CCUndirected extends Metric {
 		this.visited = new boolean[this.g.getNodes().size()];
 		this.nodesTreeElement = new SpanningTreeNode[this.g.getNodes().size()];
 		this.componentList = new ArrayList<SpanningTreeNode>();
+	}
+
+	@Override
+	public boolean compute() {
+		UndirectedGraph g = (UndirectedGraph) this.g;
+		for (UndirectedNode n : g.getNodes()) {
+			if (!this.visited[n.getIndex()]) {
+				bfs(n);
+			}
+		}
+		for (SpanningTreeNode n : nodesTreeElement) {
+			if (n.getWeight() == 0) {
+				calculateWeights(n);
+			}
+		}
+		return true;
 	}
 
 	protected void calculateWeights(SpanningTreeNode n) {
@@ -138,6 +159,27 @@ public abstract class CCUndirected extends Metric {
 
 	public int[] getNodeComponentMembership() {
 		return nodeComponentMembership;
+	}
+
+	@Override
+	public boolean isComparableTo(Metric m) {
+		return m != null && m instanceof CCUndirected;
+	}
+
+	@Override
+	public boolean isApplicable(Graph g) {
+		return DirectedNode.class.isAssignableFrom(g.getGraphDatastructures()
+				.getNodeType())
+				|| UndirectedNode.class.isAssignableFrom(g
+						.getGraphDatastructures().getNodeType());
+	}
+
+	@Override
+	public boolean isApplicable(Batch b) {
+		return DirectedNode.class.isAssignableFrom(b.getGraphDatastructures()
+				.getNodeType())
+				|| UndirectedNode.class.isAssignableFrom(b
+						.getGraphDatastructures().getNodeType());
 	}
 
 }
