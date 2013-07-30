@@ -1,8 +1,5 @@
 package dna.metrics.richClubConnectivity;
 
-import java.util.Collection;
-import java.util.LinkedList;
-
 import dna.graph.Graph;
 import dna.graph.directed.DirectedEdge;
 import dna.graph.directed.DirectedNode;
@@ -14,56 +11,14 @@ import dna.updates.NodeAddition;
 import dna.updates.NodeRemoval;
 import dna.updates.Update;
 
+@SuppressWarnings("rawtypes")
 public class RCCFirstKNodesDyn extends RCCFirstKNodes {
 
 	public RCCFirstKNodesDyn() {
 		super("RCCFirstKNodesDyn", ApplicationType.AfterUpdate);
 	}
 
-	@Override
-	public boolean compute() {
-		if (DirectedNode.class.isAssignableFrom(this.g.getGraphDatastructures()
-				.getNodeType())) {
-			for (DirectedNode n : (Collection<DirectedNode>) this.g.getNodes()) {
-
-				int degree = n.getOutDegree();
-				this.degrees.add(degree);
-				if (nodesSortedByDegree.containsKey(degree)) {
-					this.nodesSortedByDegree.get(degree).add(n);
-				} else {
-					LinkedList<DirectedNode> temp = new LinkedList<>();
-					temp.add(n);
-					this.nodesSortedByDegree.put(degree, temp);
-				}
-
-			}
-
-			LinkedList<DirectedNode> temp = new LinkedList<DirectedNode>();
-			int size = this.degrees.size();
-			for (int i = 0; i < size; i++) {
-				int currentDegree = this.degrees.last();
-				this.degrees.remove(currentDegree);
-				temp.addAll(nodesSortedByDegree.get(currentDegree));
-			}
-
-			// First k biggest Nodes to richClub
-			richClub.addAll(temp.subList(0, richClubSize));
-			// the rest are maintained in Rest
-			rest.addAll(temp.subList(richClubSize, temp.size()));
-
-			for (DirectedNode n : richClub) {
-				for (DirectedEdge e : n.getOutgoingEdges()) {
-					if (richClub.contains(e.getDst())) {
-						edgesBetweenRichClub++;
-					}
-				}
-			}
-		}
-		caculateRCC();
-		return true;
-	}
-
-	private boolean applyAfterEdgeAddition_(Update u) {
+	private boolean applyAfterEdgeAddition(Update u) {
 		DirectedEdge e = (DirectedEdge) ((EdgeUpdate) u).getEdge();
 		DirectedNode src = e.getSrc();
 		DirectedNode dst = e.getDst();
@@ -139,9 +94,9 @@ public class RCCFirstKNodesDyn extends RCCFirstKNodes {
 		} else if (u instanceof NodeRemoval) {
 			return applyAfterNodeRemoval(u);
 		} else if (u instanceof EdgeAddition) {
-			return applyAfterNodeAddition(u);
+			return applyAfterEdgeAddition(u);
 		} else if (u instanceof EdgeRemoval) {
-			return applyAfterNodeRemoval(u);
+			return applyAfterEdgeRemoval(u);
 		}
 		return false;
 	}
