@@ -8,7 +8,8 @@ import dna.metrics.Metric;
 import dna.series.data.Distribution;
 import dna.series.data.Value;
 
-//TODO:bei dyn noch bei bisher leeres degree vom vorherigem abziehen
+@SuppressWarnings("rawtypes")
+// TODO:bei dyn noch bei bisher leeres degree vom vorherigem abziehen
 public abstract class RCCPerDegree extends Metric {
 	protected HashMap<Integer, Set<DirectedNode>> richClubs;
 	protected HashMap<Integer, Double> richClubCoefficienten;
