@@ -1,13 +1,13 @@
 package dna.metrics.connectedComponents;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
-import sun.misc.Queue;
 import dna.graph.Node;
+import dna.graph.directed.DirectedGraph;
+import dna.graph.directed.DirectedNode;
 import dna.metrics.Metric;
 import dna.series.data.Distribution;
 import dna.series.data.Value;
@@ -51,8 +51,9 @@ public abstract class CCDirected extends Metric {
 	}
 
 	@Override
-	protected boolean compute_() {
-		for (Node n : this.g.getNodes()) {
+	public boolean compute() {
+		DirectedGraph g = (DirectedGraph) this.g;
+		for (DirectedNode n : g.getNodes()) {
 			if (!visited[n.getIndex()]) {
 				this.discoverd = new boolean[this.g.getNodes().size()];
 				bfs(n);
@@ -63,40 +64,40 @@ public abstract class CCDirected extends Metric {
 	}
 
 	private void bfs(Node node) {
-		try {
-			compCounter++;
-			int comp = node.getIndex();
-			Queue q = new Queue();
-			q.enqueue(new SpanningTreeNode(node));
-			this.discoverd[node.getIndex()] = true;
-
-			List<Node> reachables = new ArrayList<Node>();
-			while (!q.isEmpty()) {
-				SpanningTreeNode temp = (SpanningTreeNode) q.dequeue();
-				for (Node n : temp.getNode().getOut()) {
-					if (!this.discoverd[n.getIndex()]) {
-						this.discoverd[n.getIndex()] = true;
-						SpanningTreeNode newChild = new SpanningTreeNode(n);
-						newChild.setParent(temp);
-						temp.addChild(newChild);
-						reachables.add(n);
-						q.enqueue(newChild);
-
-					} else if (!this.visited[n.getIndex()]) {
-						this.visited[n.getIndex()] = true;
-						this.nodeComponentMembership[temp.getNode().getIndex()] = comp;
-						this.nodesTreeElement[temp.getNode().getIndex()] = temp;
-						reachables.remove(n);
-					}
-				}
-			}
-
-			reachableNodesFromComponet.put(comp, reachables);
-
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		// try {
+		// compCounter++;
+		// int comp = node.getIndex();
+		// Queue q = new Queue();
+		// q.enqueue(new SpanningTreeNode(node));
+		// this.discoverd[node.getIndex()] = true;
+		//
+		// List<Node> reachables = new ArrayList<Node>();
+		// while (!q.isEmpty()) {
+		// SpanningTreeNode temp = (SpanningTreeNode) q.dequeue();
+		// for (Node n : temp.getNode().getOut()) {
+		// if (!this.discoverd[n.getIndex()]) {
+		// this.discoverd[n.getIndex()] = true;
+		// SpanningTreeNode newChild = new SpanningTreeNode(n);
+		// newChild.setParent(temp);
+		// temp.addChild(newChild);
+		// reachables.add(n);
+		// q.enqueue(newChild);
+		//
+		// } else if (!this.visited[n.getIndex()]) {
+		// this.visited[n.getIndex()] = true;
+		// this.nodeComponentMembership[temp.getNode().getIndex()] = comp;
+		// this.nodesTreeElement[temp.getNode().getIndex()] = temp;
+		// reachables.remove(n);
+		// }
+		// }
+		// }
+		//
+		// reachableNodesFromComponet.put(comp, reachables);
+		//
+		// } catch (InterruptedException e) {
+		// // TODO Auto-generated catch block
+		// e.printStackTrace();
+		// }
 	}
 
 	@Override
