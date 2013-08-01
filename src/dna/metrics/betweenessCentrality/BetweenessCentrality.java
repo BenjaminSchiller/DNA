@@ -1,17 +1,22 @@
 package dna.metrics.betweenessCentrality;
 
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 import java.util.Stack;
 
+import dna.graph.Graph;
+import dna.graph.directed.DirectedNode;
 import dna.graph.undirected.UndirectedEdge;
 import dna.graph.undirected.UndirectedGraph;
 import dna.graph.undirected.UndirectedNode;
 import dna.metrics.Metric;
 import dna.series.data.Distribution;
 import dna.series.data.Value;
+import dna.updates.Batch;
 
+@SuppressWarnings("rawtypes")
 public abstract class BetweenessCentrality extends Metric {
 
 	protected int[] shortesPathCount;
@@ -19,12 +24,14 @@ public abstract class BetweenessCentrality extends Metric {
 	protected double[] betweeneesCentralityScore;
 	protected List<UndirectedNode>[] parentVertices;
 
+	protected HashMap<Integer, HashMap<Integer, ShortestPathTreeElement>> shortestPathTrees = new HashMap<>();
+
 	public BetweenessCentrality(String name, ApplicationType type) {
 		super(name, type);
 	}
 
 	@Override
-	public void init() {
+	public void init_() {
 		this.shortesPathCount = new int[this.g.getNodes().size()];
 		this.distanceToRoot = new int[this.g.getNodes().size()];
 		this.betweeneesCentralityScore = new double[this.g.getNodes().size()];
@@ -49,6 +56,8 @@ public abstract class BetweenessCentrality extends Metric {
 			// TODO:Stage One Passt Noch Nicht
 			s.clear();
 			q.clear();
+			HashMap<Integer, ShortestPathTreeElement> shortestPath = new HashMap<Integer, ShortestPathTreeElement>();
+
 			this.parentVertices[n.getIndex()] = new LinkedList<UndirectedNode>();
 			this.shortesPathCount[n.getIndex()] = 1;
 			this.distanceToRoot[n.getIndex()] = -1;
@@ -57,6 +66,7 @@ public abstract class BetweenessCentrality extends Metric {
 			// stage 2
 			while (!q.isEmpty()) {
 				UndirectedNode v = q.poll();
+
 				s.push(v);
 				for (UndirectedEdge ed : v.getEdges()) {
 					UndirectedNode neighbour = ed.getNode1();
@@ -73,6 +83,18 @@ public abstract class BetweenessCentrality extends Metric {
 								.getIndex()]
 								+ this.shortesPathCount[v.getIndex()];
 						this.parentVertices[neighbour.getIndex()].add(v);
+
+						if (shortestPath.containsKey(neighbour.getIndex())) {
+							shortestPath.get(neighbour.getIndex()).addParent(
+									new ShortestPathTreeElement(v.getDegree()));
+						} else {
+							ShortestPathTreeElement temp = new ShortestPathTreeElement(
+									neighbour.getIndex());
+							temp.addParent(new ShortestPathTreeElement(v
+									.getIndex()));
+							shortestPath.put(neighbour.getIndex(), temp);
+						}
+
 					}
 				}
 			}
@@ -113,6 +135,27 @@ public abstract class BetweenessCentrality extends Metric {
 				this.betweeneesCentralityScore);
 		return new Distribution[] { d1 };
 
+	}
+
+	@Override
+	public boolean isComparableTo(Metric m) {
+		return m != null && m instanceof BetweenessCentrality;
+	}
+
+	@Override
+	public boolean isApplicable(Graph g) {
+		return DirectedNode.class.isAssignableFrom(g.getGraphDatastructures()
+				.getNodeType())
+				|| UndirectedNode.class.isAssignableFrom(g
+						.getGraphDatastructures().getNodeType());
+	}
+
+	@Override
+	public boolean isApplicable(Batch b) {
+		return DirectedNode.class.isAssignableFrom(b.getGraphDatastructures()
+				.getNodeType())
+				|| UndirectedNode.class.isAssignableFrom(b
+						.getGraphDatastructures().getNodeType());
 	}
 
 }
