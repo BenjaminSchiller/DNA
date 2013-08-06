@@ -1,6 +1,5 @@
 package dna.metrics.richClubConnectivity;
 
-import dna.graph.Graph;
 import dna.graph.directed.DirectedEdge;
 import dna.graph.directed.DirectedNode;
 import dna.updates.Batch;
@@ -71,19 +70,16 @@ public class RCCFirstKNodesDyn extends RCCFirstKNodes {
 
 	@Override
 	public boolean applyBeforeBatch(Batch b) {
-		// TODO Auto-generated method stub
 		return false;
 	}
 
 	@Override
 	public boolean applyAfterBatch(Batch b) {
-		// TODO Auto-generated method stub
 		return false;
 	}
 
 	@Override
 	public boolean applyBeforeUpdate(Update u) {
-		// TODO Auto-generated method stub
 		return false;
 	}
 
@@ -102,13 +98,40 @@ public class RCCFirstKNodesDyn extends RCCFirstKNodes {
 	}
 
 	private boolean applyAfterNodeRemoval(Update u) {
-		// TODO Auto-generated method stub
-		return false;
+		DirectedNode node = (DirectedNode) ((NodeRemoval) u).getNode();
+		if (this.richClub.contains(node)) {
+			for (DirectedEdge edge : node.getIncomingEdges()) {
+				if (this.richClub.contains(edge.getSrc())) {
+					this.edgesBetweenRichClub--;
+				}
+			}
+			for (DirectedEdge edge : node.getOutgoingEdges()) {
+				if (this.richClub.contains(edge.getDst())) {
+					this.edgesBetweenRichClub--;
+				}
+			}
+			for (DirectedEdge edge : this.rest.getFirst().getIncomingEdges()) {
+				if (this.richClub.contains(edge.getSrc())) {
+					this.edgesBetweenRichClub++;
+				}
+			}
+			for (DirectedEdge edge : this.rest.getFirst().getOutgoingEdges()) {
+				if (this.richClub.contains(edge.getDst())) {
+					this.edgesBetweenRichClub++;
+				}
+			}
+			this.richClub.remove(node);
+			node = this.rest.removeFirst();
+			this.richClub.addLast(node);
+		}
+
+		return true;
 	}
 
 	private boolean applyAfterNodeAddition(Update u) {
-		// TODO Auto-generated method stub
-		return false;
+		DirectedNode node = (DirectedNode) ((NodeAddition) u).getNode();
+		this.rest.add(node);
+		return true;
 	}
 
 	private boolean applyAfterEdgeRemoval(Update u) {
@@ -149,18 +172,6 @@ public class RCCFirstKNodesDyn extends RCCFirstKNodes {
 			}
 		}
 		return true;
-	}
-
-	@Override
-	public boolean isApplicable(Graph g) {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public boolean isApplicable(Batch b) {
-		// TODO Auto-generated method stub
-		return false;
 	}
 
 }

@@ -5,14 +5,18 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
+import dna.graph.Graph;
 import dna.graph.Node;
 import dna.graph.directed.DirectedGraph;
 import dna.graph.directed.DirectedNode;
+import dna.graph.undirected.UndirectedNode;
 import dna.metrics.Metric;
 import dna.series.data.Distribution;
 import dna.series.data.Value;
+import dna.updates.Batch;
 import dna.util.ArrayUtils;
 
+@SuppressWarnings("rawtypes")
 public abstract class CCDirected extends Metric {
 
 	protected int compCounter;
@@ -31,7 +35,7 @@ public abstract class CCDirected extends Metric {
 	}
 
 	@Override
-	public void init() {
+	public void init_() {
 		this.nodeComponentMembership = new int[this.g.getNodes().size()];
 		this.nodesTreeElement = new SpanningTreeNode[this.g.getNodes().size()];
 		this.visited = new boolean[this.g.getNodes().size()];
@@ -181,4 +185,27 @@ public abstract class CCDirected extends Metric {
 	public int getCompCounter() {
 		return compCounter;
 	}
+
+	@Override
+	public boolean isApplicable(Graph g) {
+		return DirectedNode.class.isAssignableFrom(g.getGraphDatastructures()
+				.getNodeType())
+				|| UndirectedNode.class.isAssignableFrom(g
+						.getGraphDatastructures().getNodeType());
+	}
+
+	@Override
+	public boolean isApplicable(Batch b) {
+		return DirectedNode.class.isAssignableFrom(b.getGraphDatastructures()
+				.getNodeType())
+				|| UndirectedNode.class.isAssignableFrom(b
+						.getGraphDatastructures().getNodeType());
+	}
+
+	@Override
+	public boolean isComparableTo(Metric m) {
+		return m != null && m instanceof CCDirected;
+
+	}
+
 }

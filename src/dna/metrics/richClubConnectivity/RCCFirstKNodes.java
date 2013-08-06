@@ -81,8 +81,16 @@ public abstract class RCCFirstKNodes extends Metric {
 
 	@Override
 	public boolean equals(Metric m) {
-		// TODO Auto-generated method stub
-		return false;
+		if (m == null || !(m instanceof RCCFirstKNodes)) {
+			return false;
+		}
+		RCCFirstKNodes rcc = (RCCFirstKNodes) m;
+
+		boolean success = true;
+		success &= this.richClub.equals(rcc.richClub);
+		success &= (this.rCC == rcc.rCC);
+
+		return success;
 	}
 
 	@Override
