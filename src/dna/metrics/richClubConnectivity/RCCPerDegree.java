@@ -15,7 +15,6 @@ import dna.series.data.Value;
 import dna.updates.Batch;
 
 @SuppressWarnings("rawtypes")
-// TODO:bei dyn noch bei bisher leeres degree vom vorherigem abziehen
 public abstract class RCCPerDegree extends Metric {
 	protected HashMap<Integer, Set<DirectedNode>> richClubs;
 	protected HashMap<Integer, Double> richClubCoefficienten;
@@ -60,7 +59,6 @@ public abstract class RCCPerDegree extends Metric {
 				}
 			}
 
-			HashSet<DirectedNode> currentrichclub = new HashSet<DirectedNode>();
 			for (int currentDegree : this.richClubs.keySet()) {
 				int edges = 0;
 				for (DirectedNode n : richClubs.get(currentDegree)) {
@@ -71,13 +69,12 @@ public abstract class RCCPerDegree extends Metric {
 						}
 					}
 					for (DirectedEdge ed : n.getIncomingEdges()) {
-						if (ed.getSrc().getOutDegree() >= currentDegree) {
+						if (ed.getSrc().getOutDegree() > currentDegree) {
 							edges++;
 						}
 					}
 				}
 				richClubEdges.put(currentDegree, edges);
-				currentrichclub.addAll(richClubs.get(currentDegree));
 			}
 
 			calculateRCC();
@@ -104,8 +101,18 @@ public abstract class RCCPerDegree extends Metric {
 
 	@Override
 	public boolean equals(Metric m) {
-		// TODO Auto-generated method stub
-		return false;
+		if (m == null || !(m instanceof RCCPerDegree)) {
+			return false;
+		}
+		RCCPerDegree rcc = (RCCPerDegree) m;
+
+		boolean success = true;
+		success &= this.richClubCoefficienten.equals(rcc.richClubCoefficienten);
+		success &= this.richClubEdges.equals(rcc.richClubEdges);
+		success &= this.richClubs.equals(rcc.richClubs);
+
+		return success;
+
 	}
 
 	@Override

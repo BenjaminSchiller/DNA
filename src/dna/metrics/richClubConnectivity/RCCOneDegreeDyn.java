@@ -19,19 +19,16 @@ public class RCCOneDegreeDyn extends RCCOneDegree {
 
 	@Override
 	public boolean applyBeforeBatch(Batch b) {
-		// TODO Auto-generated method stub
 		return false;
 	}
 
 	@Override
 	public boolean applyAfterBatch(Batch b) {
-		// TODO Auto-generated method stub
 		return false;
 	}
 
 	@Override
 	public boolean applyBeforeUpdate(Update u) {
-		// TODO Auto-generated method stub
 		return false;
 	}
 
@@ -71,6 +68,11 @@ public class RCCOneDegreeDyn extends RCCOneDegree {
 				this.richClubEdges--;
 			}
 		}
+
+		int richClubMembers = richClub.size();
+		this.richClubCoeffizient = (double) this.richClubEdges
+				/ (double) (richClubMembers * (richClubMembers - 1));
+
 		return true;
 	}
 
@@ -98,6 +100,10 @@ public class RCCOneDegreeDyn extends RCCOneDegree {
 			}
 
 		}
+
+		int richClubMembers = richClub.size();
+		this.richClubCoeffizient = (double) this.richClubEdges
+				/ (double) (richClubMembers * (richClubMembers - 1));
 		return true;
 
 	}
@@ -117,6 +123,10 @@ public class RCCOneDegreeDyn extends RCCOneDegree {
 				}
 			}
 		}
+
+		int richClubMembers = richClub.size();
+		this.richClubCoeffizient = (double) this.richClubEdges
+				/ (double) (richClubMembers * (richClubMembers - 1));
 		return true;
 	}
 
@@ -135,6 +145,10 @@ public class RCCOneDegreeDyn extends RCCOneDegree {
 				}
 			}
 		}
+
+		int richClubMembers = richClub.size();
+		this.richClubCoeffizient = (double) this.richClubEdges
+				/ (double) (richClubMembers * (richClubMembers - 1));
 		return true;
 	}
 

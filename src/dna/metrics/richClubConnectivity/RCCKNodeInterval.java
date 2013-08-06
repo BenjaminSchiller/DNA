@@ -126,8 +126,16 @@ public abstract class RCCKNodeInterval extends Metric {
 
 	@Override
 	public boolean equals(Metric m) {
-		// TODO Auto-generated method stub
-		return false;
+		if (m == null || !(m instanceof RCCKNodeInterval)) {
+			return false;
+		}
+		RCCKNodeInterval rcc = (RCCKNodeInterval) m;
+
+		boolean success = true;
+		success &= this.richClubs.equals(rcc.richClubs);
+		success &= (this.richClubEdges == rcc.richClubEdges);
+		success &= (this.richClubCoefficienten == rcc.richClubCoefficienten);
+		return success;
 	}
 
 	@Override
@@ -144,7 +152,6 @@ public abstract class RCCKNodeInterval extends Metric {
 
 	@Override
 	protected Value[] getValues() {
-		// TODO Auto-generated method stub
 		return new Value[] {};
 	}
 

@@ -52,6 +52,7 @@ public class RCCPerDegreeDyn extends RCCPerDegree {
 		DirectedNode node = (DirectedNode) ((NodeAddition) u).getNode();
 		Set<DirectedNode> richClub = this.richClubs.get(node.getOutDegree());
 		richClub.add(node);
+		calculateRCC();
 		return true;
 	}
 
@@ -62,7 +63,9 @@ public class RCCPerDegreeDyn extends RCCPerDegree {
 		int srcDegree = src.getOutDegree();
 		int dstDegree = dst.getOutDegree();
 
-		this.richClubs.get(srcDegree + 1).remove(src);
+		// Current removal the deleted edge is still in the set from the source
+		// Node
+		this.richClubs.get(srcDegree).remove(src);
 
 		if (this.richClubs.containsKey(srcDegree)) {
 			int updateEdgesNew = 0;
@@ -109,6 +112,7 @@ public class RCCPerDegreeDyn extends RCCPerDegree {
 					this.richClubEdges.get(srcDegree) - 1);
 		}
 
+		calculateRCC();
 		return true;
 	}
 
@@ -119,8 +123,12 @@ public class RCCPerDegreeDyn extends RCCPerDegree {
 		int srcDegree = src.getOutDegree();
 		int dstDegree = dst.getOutDegree();
 
+		// new src Degree exists in richclub
 		if (this.richClubs.containsKey(srcDegree)) {
 			int updateEdgesNew = 0;
+
+			// find all edges that connect the node to nodes with higher or the
+			// same degree
 			for (DirectedEdge n : src.getIncomingEdges()) {
 				if (n.getSrc() != dst && n.getSrc().getOutDegree() >= srcDegree) {
 					updateEdgesNew++;
@@ -132,10 +140,12 @@ public class RCCPerDegreeDyn extends RCCPerDegree {
 				}
 			}
 
+			// update the edge count for the richClub change
 			int temp = this.richClubEdges.get(srcDegree) + updateEdgesNew;
 			this.richClubEdges.put(srcDegree, temp);
 			temp = this.richClubEdges.get(srcDegree - 1) - updateEdgesNew;
 			this.richClubEdges.put(srcDegree - 1, temp);
+
 		} else {
 
 			int updateEdgesNew = 0;
@@ -163,16 +173,20 @@ public class RCCPerDegreeDyn extends RCCPerDegree {
 			int temp = this.richClubEdges.get(dstDegree) + 1;
 			this.richClubEdges.put(dstDegree, temp);
 		}
+
+		// update the rc membership
 		this.richClubs.get(srcDegree).add(src);
 		this.richClubs.get(srcDegree - 1).remove(src);
-
+		calculateRCC();
 		return true;
 	}
 
 	private boolean applyAfterNodeRemoval(Update u) {
-		DirectedNode node = (DirectedNode) ((NodeAddition) u).getNode();
+		DirectedNode node = (DirectedNode) ((NodeRemoval) u).getNode();
 		Set<DirectedNode> richClub = this.richClubs.get(node.getOutDegree());
+		richClub.remove(node);
 		int updateEdges = 0;
+
 		for (DirectedEdge ed : node.getIncomingEdges()) {
 			if (ed.getSrc().getOutDegree() >= node.getOutDegree()) {
 				updateEdges++;
@@ -191,6 +205,7 @@ public class RCCPerDegreeDyn extends RCCPerDegree {
 		}
 		int temp = richClubEdges.get(node.getOutDegree());
 		richClubEdges.put(node.getOutDegree(), temp - updateEdges);
+		calculateRCC();
 		return true;
 	}
 
