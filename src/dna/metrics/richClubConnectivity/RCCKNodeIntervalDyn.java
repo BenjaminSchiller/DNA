@@ -2,7 +2,6 @@ package dna.metrics.richClubConnectivity;
 
 import dna.graph.directed.DirectedEdge;
 import dna.graph.directed.DirectedNode;
-import dna.graph.undirected.UndirectedNode;
 import dna.updates.Batch;
 import dna.updates.EdgeAddition;
 import dna.updates.EdgeRemoval;
@@ -103,19 +102,16 @@ public class RCCKNodeIntervalDyn extends RCCKNodeInterval {
 
 	@Override
 	public boolean applyBeforeBatch(Batch b) {
-		// TODO Auto-generated method stub
 		return false;
 	}
 
 	@Override
 	public boolean applyAfterBatch(Batch b) {
-		// TODO Auto-generated method stub
 		return false;
 	}
 
 	@Override
 	public boolean applyBeforeUpdate(Update u) {
-		// TODO Auto-generated method stub
 		return false;
 	}
 
@@ -124,17 +120,9 @@ public class RCCKNodeIntervalDyn extends RCCKNodeInterval {
 		if (DirectedNode.class.isAssignableFrom(this.g.getGraphDatastructures()
 				.getNodeType())) {
 			return this.applyAfterUpdateDirected(u);
-		} else if (UndirectedNode.class.isAssignableFrom(this.g
-				.getGraphDatastructures().getNodeType())) {
-			return this.applyAfterUpdateUndirected(u);
 		}
 		Log.error("DD - unsupported node type "
 				+ this.g.getGraphDatastructures().getNodeType());
-		return false;
-	}
-
-	private boolean applyAfterUpdateUndirected(Update u) {
-		// TODO Auto-generated method stub
 		return false;
 	}
 
@@ -223,17 +211,14 @@ public class RCCKNodeIntervalDyn extends RCCKNodeInterval {
 	}
 
 	private boolean applyAfterEdgeAdditionDirected(Update u) {
-		// TODO Auto-generated method stub
 		return false;
 	}
 
 	private boolean applyAfterNodeRemovalDirected(Update u) {
-		// TODO Auto-generated method stub
 		return false;
 	}
 
 	private boolean applyAfterNodeAdditionDirected(Update u) {
-		// TODO Auto-generated method stub
 		return false;
 	}
 
