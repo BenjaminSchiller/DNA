@@ -1,4 +1,4 @@
-package genericsWithTest;
+package genericsWithTest.DataStructures;
 
 public abstract class DataStructure<E> {
 	public abstract void add(E element);

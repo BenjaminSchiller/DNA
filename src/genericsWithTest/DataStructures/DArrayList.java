@@ -1,4 +1,4 @@
-package genericsWithTest;
+package genericsWithTest.DataStructures;
 import java.util.ArrayList;
 
 public class DArrayList<E> extends DataStructure<E> {
