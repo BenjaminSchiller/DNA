@@ -38,18 +38,21 @@ public class AggregatedValueList extends List<AggregatedValue> {
 		w.close();
 	}
 
-	public static AggregatedValueList read(String dir, String filename)
-			throws IOException {
+	public static AggregatedValueList read(String dir, String filename,
+			boolean readValues) throws IOException {
+		if (!readValues) {
+			return new AggregatedValueList();
+		}
 		AggregatedValueList list = new AggregatedValueList();
 		Reader r = new Reader(dir, filename);
 		String line = null;
 		while ((line = r.readString()) != null) {
 			String[] temp = line.split(Keywords.aggregatedDataDelimiter);
-			double[] tempDouble = new double[temp.length];
-			for (int i = 0; i < temp.length; i++) {
-				tempDouble[i] = Double.parseDouble(temp[i]);
+			double[] values = new double[temp.length - 1];
+			for (int i = 1; i < temp.length; i++) {
+				values[i - 1] = Double.parseDouble(temp[i]);
 			}
-			list.add(new AggregatedValue(filename + temp[0], tempDouble));
+			list.add(new AggregatedValue(temp[0], values));
 		}
 		r.close();
 		return list;

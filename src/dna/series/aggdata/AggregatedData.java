@@ -2,6 +2,7 @@ package dna.series.aggdata;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import dna.io.Writer;
 import dna.io.etc.Keywords;
@@ -141,4 +142,25 @@ public class AggregatedData implements ListItem {
 		}
 		w.close();
 	}
+
+	public static void write(HashMap<String, double[]> inputData, String dir,
+			String filename) throws IOException {
+		Writer w = new Writer(dir, filename);
+
+		for (String value : inputData.keySet()) {
+			double[] tempValues = inputData.get(value);
+
+			String temp = value + Keywords.aggregatedDataDelimiter
+					+ (int) tempValues[0] + Keywords.aggregatedDataDelimiter;
+			for (int i = 1; i < tempValues.length; i++) {
+				if (i == tempValues.length - 1)
+					temp += tempValues[i];
+				else
+					temp += tempValues[i] + Keywords.aggregatedDataDelimiter;
+			}
+			w.writeln(temp);
+		}
+		w.close();
+	}
+
 }
