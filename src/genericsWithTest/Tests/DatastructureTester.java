@@ -24,8 +24,8 @@ public class DatastructureTester {
 	private Element element;
 	private DataStructure dataStructure;
 
-	public DatastructureTester(Class d, Class e) throws InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, NoSuchMethodException, SecurityException {
-		this.dataStructure = (DataStructure) d.getConstructor().newInstance();
+	public DatastructureTester(Class<?> d, Class<?> e) throws InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, NoSuchMethodException, SecurityException {
+		this.dataStructure = (DataStructure) d.getConstructor(Class.class).newInstance(e);
 		this.element = (Element) e.getConstructor().newInstance();
 	}
 

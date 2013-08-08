@@ -1,20 +1,25 @@
 package genericsWithTest.DataStructures;
+
+import genericsWithTest.Node;
+
 import java.util.ArrayList;
 
-public class DArrayList<E> extends DataStructure<E> {
-	private ArrayList<E> list;
+public class DArrayList extends DataStructure implements INodeListDatastructure {
+	private ArrayList<Object> list;
 
-	public DArrayList() {
+	public DArrayList(Class<?> dT) {
 		this.list = new ArrayList<>();
+		this.dataType = dT;
 	}
 
 	@Override
-	public void add(E element) {
+	public void add(Object element) {
+		super.add(element);
 		list.add(element);
 	}
 
 	@Override
-	public boolean contains(E element) {
+	public boolean contains(Object element) {
 		return list.contains(element);
 	}
 
@@ -23,6 +28,8 @@ public class DArrayList<E> extends DataStructure<E> {
 		return list.size();
 	}
 	
-	
+	public Node get(int i) {
+		return (Node)list.get(i);
+	}
 
 }
