@@ -22,13 +22,12 @@ public class BatchDataList extends SortedList<BatchData> {
 		}
 	}
 
-	public static BatchDataList read(String dir, boolean readDistributionValues)
+	public static BatchDataList read(String dir, boolean readValues)
 			throws IOException {
 		String[] batches = Dir.getBatches(dir);
 		BatchDataList list = new BatchDataList(batches.length);
 		for (String batch : batches) {
-			list.add(BatchData.read(dir, Dir.getTimestamp(batch),
-					readDistributionValues));
+			list.add(BatchData.read(dir, Dir.getTimestamp(batch), readValues));
 		}
 		return list;
 	}

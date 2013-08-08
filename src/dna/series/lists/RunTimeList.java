@@ -4,7 +4,6 @@ import java.io.IOException;
 
 import dna.io.Reader;
 import dna.io.Writer;
-import dna.io.filesystem.Suffix;
 import dna.series.data.RunTime;
 
 public class RunTimeList extends List<RunTime> {
@@ -27,7 +26,7 @@ public class RunTimeList extends List<RunTime> {
 
 	public static RunTimeList read(String dir, String name) throws IOException {
 		RunTimeList list = new RunTimeList();
-		Reader r = new Reader(dir, name + Suffix.runtimes);
+		Reader r = new Reader(dir, name);
 		String line = null;
 		while ((line = r.readString()) != null) {
 			String[] temp = line.split("=");

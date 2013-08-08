@@ -22,12 +22,12 @@ public class RunDataList extends SortedList<RunData> {
 		}
 	}
 
-	public static RunDataList read(String dir, boolean readDistributionValues)
+	public static RunDataList read(String dir, boolean readValues)
 			throws IOException {
 		String[] runs = Dir.getRuns(dir);
 		RunDataList list = new RunDataList(runs.length);
 		for (String run : runs) {
-			list.add(RunData.read(run, Dir.getRun(run), readDistributionValues));
+			list.add(RunData.read(run, Dir.getRun(run), readValues));
 		}
 		return list;
 	}
