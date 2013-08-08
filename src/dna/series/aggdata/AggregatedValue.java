@@ -5,6 +5,7 @@ import java.io.IOException;
 import dna.io.Reader;
 import dna.io.Writer;
 import dna.io.etc.Keywords;
+import dna.io.filesystem.Files;
 
 /**
  * An AggregatedValue object contains aggregated values.
@@ -66,12 +67,29 @@ public class AggregatedValue extends AggregatedData {
 		this.values = values;
 	}
 
+	public AggregatedValue(String name, double[] values, String dir)
+			throws IOException {
+		super(name);
+		this.write(dir, Files.getValuesFilename(name));
+	}
+
 	// get methods
 	public double[] getValues() {
 		return this.values;
 	}
 
 	// IO methods
+	public void write(String dir, String filename) throws IOException {
+		Writer w = new Writer(dir, filename);
+		String temp = "name";
+		for (int i = 0; i < this.values.length; i++) {
+			temp = temp + Keywords.aggregatedDataDelimiter + this.values[i];
+		}
+
+		w.writeln(temp);
+		w.close();
+	}
+
 	/**
 	 * @param dir
 	 *            String which contains the path to the directory the
