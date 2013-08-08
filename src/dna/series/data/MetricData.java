@@ -306,17 +306,27 @@ public class MetricData implements ListItem {
 	 * MetricData object containing the quality of the heuristic in every
 	 * comparable value, distribution or nodevaluelist.
 	 * 
+	 * @param m1
+	 *            First MetricData object for comparison
+	 * 
+	 * @param m2
+	 *            Second MetricData object for comparison
+	 * 
 	 * @returns MetricData object containing the heuristics quality
 	 * 
 	 * @author Rwilmes
-	 * @date 04.08.2013
+	 * @date 08.08.2013
 	 */
 	public static MetricData compare(MetricData m1, MetricData m2) {
 		// check if comparable
-		if (!isComparable2(m1, m2))
+		if (!isComparable2(m1, m2)) {
+			Log.warn("Failed attempt to compare metrics " + m1.getName()
+					+ " & " + m2.getName()
+					+ "! Returning empty MetricData object");
 			return new MetricData(null);
+		}
 		// let m1 be the 'exact' metric
-		if (m2.getType().equals("exact")) {
+		if (!m1.getType().equals("exact")) {
 			MetricData temp = m1;
 			m1 = m2;
 			m2 = temp;
