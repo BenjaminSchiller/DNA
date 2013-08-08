@@ -501,8 +501,8 @@ public class Aggregation {
 		int runs = rdList.size();
 		int batches = rdList.get(0).getBatches().size();
 		Aggregation.test(seriesData);
-		//if (runs < 2)
-		//	throw new AggregationException("Need 2 or more runs to aggregate!");
+		// if (runs < 2)
+		// throw new AggregationException("Need 2 or more runs to aggregate!");
 		// check all RunData-Objects for compatibility
 		for (int i = 0; i < rdList.size() - 1; i++) {
 			if (!RunData.isComparable(rdList.get(i), rdList.get(i + 1)))
@@ -631,10 +631,14 @@ public class Aggregation {
 
 					for (int i = 0; i < runs; i++) {
 						for (int j = 0; j < amountValues; j++) {
-							double[] values = new double[runs]; //
+							double[] values = new double[runs];
 							for (int k = 0; k < runs; k++) {
-								values[k] = Metrics[i].getDistributions()
-										.get(distributionX).getValues()[j]; //
+								try {
+									values[k] = Metrics[i].getDistributions()
+											.get(distributionX).getValues()[j];
+								} catch (ArrayIndexOutOfBoundsException e) {
+									values[k] = 0;
+								}
 							}
 							double[] temp = Aggregation.aggregate(values);
 							double[] temp2 = new double[temp.length + 1];
