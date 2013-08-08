@@ -5,6 +5,10 @@ public class Prefix {
 
 	public static final String distributionsDataFile = "zz___";
 
+	public static final String nodeValueListsGnuplotScript = "zz___";
+
+	public static final String nodeValueListsDataFile = "zz___";
+
 	public static final String valuesGnuplotScript = "zz___";
 
 	public static final String valuesDataFile = "zz___";

@@ -3,6 +3,7 @@ package dna.io.filesystem;
 import dna.series.Values;
 import dna.series.data.Distribution;
 import dna.series.data.MetricData;
+import dna.series.data.NodeValueList;
 
 public class PlotFilenames {
 	public static final String delimiter = ".";
@@ -95,5 +96,31 @@ public class PlotFilenames {
 
 	public static String getRuntimesStatisticPlot(String name) {
 		return Prefix.runtimesStatisticPlot + name;
+	}
+
+	public static String getNodeValueListDataFile(MetricData m, NodeValueList n) {
+		return Prefix.nodeValueListsDataFile + m.getName() + delimiter
+				+ n.getName() + Suffix.data;
+	}
+
+	public static String getNodeValueListGnuplotScript(MetricData m,
+			NodeValueList n) {
+		return PlotFilenames.getNodeValueListGnuplotScript(m.getName(),
+				n.getName());
+	}
+
+	public static String getNodeValueListGnuplotScript(String metric,
+			String nodevaluelist) {
+		return Prefix.nodeValueListsGnuplotScript + metric + delimiter
+				+ nodevaluelist + Suffix.gnuplot;
+	}
+
+	public static String getNodeValueListPlot(MetricData m, NodeValueList n) {
+		return PlotFilenames.getNodeValueListPlot(m.getName(), n.getName());
+	}
+
+	public static String getNodeValueListPlot(String metric,
+			String nodevaluelist) {
+		return metric + delimiter + nodevaluelist;
 	}
 }
