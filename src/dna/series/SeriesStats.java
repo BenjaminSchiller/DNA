@@ -2,6 +2,9 @@ package dna.series;
 
 public class SeriesStats {
 
+	public static final String nodes = "nodes";
+	public static final String edges = "edges";
+
 	public static final String nodesToAdd = "nodesToAdd";
 	public static final String addedNodes = "addedNodes";
 	public static final String nodesToRemove = "nodesToRemove";
@@ -26,18 +29,23 @@ public class SeriesStats {
 	public static final String randomSeed = "randomSeed";
 
 	public static final String memory = "memory";
-	
+
 	public static final String totalRuntime = "total";
 	public static final String metricsRuntime = "metrics";
 	public static final String graphGenerationRuntime = "graphGeneration";
 	public static final String batchGenerationRuntime = "batchGeneration";
+	public static final String graphUpdateRuntime = "graphUpdate";
 	public static final String sumRuntime = "sum";
 	public static final String overheadRuntime = "overhead";
 
-	public static final String[] statisticsToPlot = new String[] { memory };
+	public static final String[] statisticsToPlot = new String[] { memory,
+			nodes, edges };
 
-	public static final String[] generalRuntimesPlot = new String[] {
-			totalRuntime, metricsRuntime, batchGenerationRuntime,
-			sumRuntime, overheadRuntime };
+	public static final String[] generalRuntimesToPlot = new String[] {
+			batchGenerationRuntime, graphUpdateRuntime };
+
+	public static final String[] generalRuntimesOfCombinedPlot = new String[] {
+			totalRuntime, metricsRuntime, batchGenerationRuntime, sumRuntime,
+			graphUpdateRuntime, overheadRuntime };
 
 }

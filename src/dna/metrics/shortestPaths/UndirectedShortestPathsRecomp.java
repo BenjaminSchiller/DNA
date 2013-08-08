@@ -9,7 +9,6 @@ import dna.graph.undirected.UndirectedNode;
 import dna.updates.Batch;
 import dna.updates.Update;
 import dna.util.ArrayUtils;
-import dna.util.Log;
 
 @SuppressWarnings("rawtypes")
 public class UndirectedShortestPathsRecomp extends UndirectedShortestPaths {
@@ -69,7 +68,7 @@ public class UndirectedShortestPathsRecomp extends UndirectedShortestPaths {
 
 		this.cpl = -1;
 		this.diam = this.spl.length - 1;
-		
+
 		return true;
 	}
 }

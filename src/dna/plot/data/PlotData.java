@@ -2,7 +2,6 @@ package dna.plot.data;
 
 import dna.plot.Gnuplot.PlotStyle;
 
-
 /**
  * @author benni
  * 
@@ -29,7 +28,8 @@ public abstract class PlotData {
 	public abstract String getEntry(int lt, int lw, double offsetX,
 			double offsetY);
 
-	public static PlotData get(String data, PlotStyle style, String title, PlotType type) {
+	public static PlotData get(String data, PlotStyle style, String title,
+			PlotType type) {
 		switch (type) {
 		case average:
 			return new AverageData(data, style, title);

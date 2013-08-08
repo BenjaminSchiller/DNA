@@ -20,6 +20,10 @@ public class Files {
 	public static String getDistributionName(String filename) {
 		return filename.replace(Suffix.distribution, "");
 	}
+<<<<<<< HEAD
+=======
+
+>>>>>>> remotes/beniMaster/master
 	/*
 	 * RUNTIMES
 	 */
@@ -49,6 +53,10 @@ public class Files {
 	public static String getValuesName(String filename) {
 		return filename.replace(Suffix.values, "");
 	}
+<<<<<<< HEAD
+=======
+
+>>>>>>> remotes/beniMaster/master
 	/*
 	 * NODEVALUELISTS
 	 */
@@ -63,5 +71,9 @@ public class Files {
 
 	public static String getNodeValueListName(String filename) {
 		return filename.replace(Suffix.nodeValueList, "");
+<<<<<<< HEAD
 	}	
+=======
+	}
+>>>>>>> remotes/beniMaster/master
 }

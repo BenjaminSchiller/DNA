@@ -12,7 +12,7 @@ import dna.util.Settings;
 
 public class Plot {
 
-	private String terminal = "png";
+	private String terminal = "png large";
 
 	private String extension = "png";
 
@@ -123,5 +123,9 @@ public class Plot {
 		this.write(this.dir, this.scriptFilename);
 		Execute.exec(Settings.gnuplotPath + " " + this.dir
 				+ this.scriptFilename, true);
+	}
+
+	public void setTitle(String title) {
+		this.title = title;
 	}
 }

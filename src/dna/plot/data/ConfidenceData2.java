@@ -2,7 +2,6 @@ package dna.plot.data;
 
 import dna.plot.Gnuplot.PlotStyle;
 
-
 /**
  * @author benni
  * 
@@ -22,31 +21,37 @@ public class ConfidenceData2 extends PlotData {
 	public String getEntry(int lt, int lw, double offsetX, double offsetY) {
 		StringBuffer buff = new StringBuffer();
 		// 2 avg
-		// 3 med
-		// 4 min
-		// 5 max
-		// 6 var
-		// 7 varLow
-		// 8 varUp
-		// 9 confLow
-		// 10 confUp
-		// X Min 1stQuartile Median 3rdQuartile Max
-		buff.append("'" + this.data + "' using ($1 + " + offsetX + "):($9 + "
-				+ offsetY + "):($4 + " + offsetY + "):($5 + " + offsetY
-				+ "):($10 + " + offsetY + ") with " + this.style);
+		// 3 min
+		// 4 max
+		// 5 median
+		// 6 variance
+		// 7 variance-low
+		// 8 variance-up
+		// 9 confidence-low
+		// 10 confidence-up
+		// http://www.gnuplot.info/demo/candlesticks.html
+		// whisker plot: x box_min whisker_min whisker_high box_high
+		String x = "($1 + " + offsetX + ")";
+		String box_min = "($9 + " + offsetY + ")";
+		String whisker_min = "($3 + " + offsetY + ")";
+		String whisker_high = "($4 + " + offsetY + ")";
+		String box_high = "($10 + " + offsetY + ")";
+		String median = "($5 + " + offsetY + ")";
+		String average = "($2 + " + offsetY + ")";
+
+		buff.append("'" + this.data + "' using " + x + ":" + box_min + ":"
+				+ whisker_min + ":" + whisker_high + ":" + box_high
+				+ " with candlesticks");
 		buff.append(" lt " + lt + " lw " + lw);
 		buff.append(title == null ? " notitle" : " title \"" + this.title
 				+ "\"");
-		buff.append(",\\\n");
-		buff.append("'' using ($1 + " + offsetX + "):($3 + " + offsetY
-				+ "):($3 + " + offsetY + "):($3 + " + offsetY + "):($3 + "
-				+ offsetY + ") with " + this.style + " lt -1 lw " + lw
-				+ " notitle");
-		buff.append(",\\\n");
-		buff.append("'' using ($1 + " + offsetX + "):($2 + " + offsetY
-				+ ") with " + PlotStyle.lines + " lt " + lt + " lw " + lw
-				+ " notitle");
+		buff.append(" whiskerbars, \\\n");
+		buff.append("'' using " + x + ":" + median + ":" + median + ":"
+				+ median + ":" + median + " with candlesticks");
+		buff.append(" lt " + lt + " lw " + lw + " notitle");
+		buff.append(", \\\n");
+		buff.append("'' using " + x + ":" + average + " with lines");
+		buff.append(" lt " + lt + " lw " + lw + " notitle");
 		return buff.toString();
 	}
-
 }
