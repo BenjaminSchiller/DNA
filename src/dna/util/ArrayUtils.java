@@ -95,6 +95,22 @@ public class ArrayUtils {
 			return valuesNew;
 		}
 	}
+	
+	public static int[] set(int[] values, int index, int value,
+			int defaultValue) {
+		try {
+			values[index] = value;
+			return values;
+		} catch (ArrayIndexOutOfBoundsException e) {
+			int[] valuesNew = new int[index + 1];
+			System.arraycopy(values, 0, valuesNew, 0, values.length);
+			valuesNew[index] = value;
+			for (int i = index - 1; i >= values.length; i--) {
+				valuesNew[i] = defaultValue;
+			}
+			return valuesNew;
+		}
+	}
 
 	public static void divide(double[] values, double by) {
 		for (int i = 0; i < values.length; i++) {

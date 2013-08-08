@@ -8,6 +8,7 @@ import com.sun.media.sound.InvalidFormatException;
 import dna.io.Reader;
 import dna.io.Writer;
 import dna.io.etc.Keywords;
+import dna.util.ArrayUtils;
 
 /**
  * DistributionLong is an object which represents an distribution by whole
@@ -39,6 +40,10 @@ public class DistributionLong extends Distribution {
 		return this.denominator;
 	}
 
+	public void setDenominator(long denominator) {
+		this.denominator = denominator;
+	}
+
 	public long getMin() {
 		int y = 0;
 		while (values[y] < 0) {
@@ -50,6 +55,54 @@ public class DistributionLong extends Distribution {
 
 	public long getMax() {
 		return (long) values.length - 1;
+	}
+
+	/**
+	 * Increments a value of the distribution. Note: Also increments the
+	 * denominator!
+	 * 
+	 * @param index
+	 *            Index of the value that will be incremented.
+	 */
+	public void incr(int index) {
+		this.values = ArrayUtils.incr(this.values, index);
+		this.denominator++;
+	}
+
+	/**
+	 * Decrements a value of the distribution. Note: Also decrements the
+	 * denominator!
+	 * 
+	 * @param index
+	 *            Index of the value that will be decremented.
+	 */
+	public void decr(int index) {
+		this.values = ArrayUtils.decr(this.values, index);
+		this.denominator--;
+	}
+
+	/**
+	 * Truncates the distribution array by erasing all 0 at the end of it's
+	 * value array.
+	 * 
+	 * @param index
+	 *            Index of the value that will be decremented.
+	 */
+	public void truncate() {
+		this.values = ArrayUtils.truncate(this.values, 0);
+	}
+
+	/**
+	 * Truncates the value with a chosen index. Note: The denominator is not
+	 * updated when calling this function!
+	 * 
+	 * @param index
+	 *            Index of the value that will be decremented.
+	 * @param value
+	 *            Value the integer will be set to.
+	 */
+	public void set(int index, long value) {
+		this.values = ArrayUtils.set(this.values, index, value, 0);
 	}
 
 	// IO Methods
