@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 
 import dna.io.filesystem.Dir;
+import dna.io.filesystem.Names;
 import dna.io.filesystem.PlotFilenames;
 import dna.io.filesystem.Prefix;
 import dna.io.filesystem.Suffix;
@@ -14,8 +15,10 @@ import dna.series.SeriesStats;
 import dna.series.aggdata.AggregatedBatch;
 import dna.series.aggdata.AggregatedDistribution;
 import dna.series.aggdata.AggregatedMetric;
+import dna.series.aggdata.AggregatedNodeValueList;
 import dna.series.aggdata.AggregatedSeries;
 import dna.series.aggdata.AggregatedValue;
+import dna.series.aggdata.AggregatedValueList;
 import dna.series.data.SeriesData;
 import dna.util.Log;
 
@@ -49,7 +52,7 @@ public class Plotting {
 		Plotting.plotValues(seriesData, dstDir, type, style);
 		Plotting.plotStatistics(seriesData, dstDir, type, style);
 		Plotting.plotRuntimes(seriesData, dstDir, type, style);
-		// TODO plot nodevaluelists
+		Plotting.plotNodeValueLists(seriesData, dstDir, type, style);
 		Log.infoSep();
 	}
 
@@ -62,6 +65,19 @@ public class Plotting {
 			for (AggregatedDistribution d : m.getDistributions().getList()) {
 				Plotting.plotDistributon(seriesData, dstDir, type, style,
 						m.getName(), d.getName());
+			}
+		}
+	}
+
+	public static void plotNodeValueLists(SeriesData[] seriesData,
+			String dstDir, PlotType type, PlotStyle style) throws IOException,
+			InterruptedException {
+		Log.info("plotting nodevaluelists");
+		for (AggregatedMetric m : seriesData[0].getAggregation().getBatches()[0]
+				.getMetrics().getList()) {
+			for (AggregatedNodeValueList n : m.getNodeValues().getList()) {
+				Plotting.plotNodeValueList(seriesData, dstDir, type, style,
+						m.getName(), n.getName());
 			}
 		}
 	}
@@ -236,6 +252,36 @@ public class Plotting {
 				PlotFilenames
 						.getDistributionGnuplotScript(metric, distribution));
 		plot.setTitle(distribution + " (" + type + ")");
+		plot.generate();
+	}
+
+	private static void plotNodeValueList(SeriesData[] seriesData,
+			String dstDir, PlotType type, PlotStyle style, String metric,
+			String nodevaluelist) throws IOException, InterruptedException {
+		Log.info("nodevaluelist " + nodevaluelist + " of " + metric);
+		int batches = 0;
+		for (SeriesData s : seriesData) {
+			batches += s.getAggregation().getBatches().length;
+		}
+
+		PlotData[] data = new PlotData[batches];
+		int index = 0;
+
+		for (SeriesData s : seriesData) {
+			for (AggregatedBatch b : s.getAggregation().getBatches()) {
+				String path = Dir.getAggregatedMetricDataDir(s.getDir(),
+						b.getTimestamp(), metric)
+						+ nodevaluelist + Suffix.nodeValueList;
+				data[index++] = PlotData.get(path, style, s.getName() + " @ "
+						+ b.getTimestamp(), type);
+			}
+		}
+
+		Plot plot = new Plot(data, dstDir, PlotFilenames.getNodeValueListPlot(
+				metric, nodevaluelist),
+				PlotFilenames.getNodeValueListGnuplotScript(metric,
+						nodevaluelist));
+		plot.setTitle(nodevaluelist + " (" + type + ")");
 		plot.generate();
 	}
 
