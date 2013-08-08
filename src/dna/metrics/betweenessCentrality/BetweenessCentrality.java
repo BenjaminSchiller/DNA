@@ -2,7 +2,6 @@ package dna.metrics.betweenessCentrality;
 
 import java.util.HashMap;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Queue;
 import java.util.Stack;
 
@@ -19,12 +18,9 @@ import dna.updates.Batch;
 @SuppressWarnings("rawtypes")
 public abstract class BetweenessCentrality extends Metric {
 
-	protected int[] shortesPathCount;
-	protected int[] distanceToRoot;
-	protected double[] betweeneesCentralityScore;
-	protected List<UndirectedNode>[] parentVertices;
+	protected HashMap<Integer, Double> betweeneesCentralityScore;
 
-	protected HashMap<Integer, HashMap<Integer, ShortestPathTreeElement>> shortestPathTrees = new HashMap<>();
+	protected HashMap<Integer, HashMap<Integer, ShortestPathTreeElement>> shortestPathTrees;
 
 	public BetweenessCentrality(String name, ApplicationType type) {
 		super(name, type);
@@ -32,18 +28,15 @@ public abstract class BetweenessCentrality extends Metric {
 
 	@Override
 	public void init_() {
-		this.shortesPathCount = new int[this.g.getNodes().size()];
-		this.distanceToRoot = new int[this.g.getNodes().size()];
-		this.betweeneesCentralityScore = new double[this.g.getNodes().size()];
-		this.parentVertices = new List[this.g.getNodes().size()];
+		this.shortestPathTrees = new HashMap<>();
+		this.betweeneesCentralityScore = new HashMap<>();
 	}
 
 	@Override
 	public void reset_() {
-		this.shortesPathCount = new int[this.g.getNodes().size()];
-		this.distanceToRoot = new int[this.g.getNodes().size()];
-		this.betweeneesCentralityScore = new double[this.g.getNodes().size()];
-		this.parentVertices = new List[this.g.getNodes().size()];
+		this.shortestPathTrees = new HashMap<>();
+
+		this.betweeneesCentralityScore = new HashMap<>();
 	}
 
 	@Override
@@ -58,9 +51,11 @@ public abstract class BetweenessCentrality extends Metric {
 			q.clear();
 			HashMap<Integer, ShortestPathTreeElement> shortestPath = new HashMap<Integer, ShortestPathTreeElement>();
 
-			this.parentVertices[n.getIndex()] = new LinkedList<UndirectedNode>();
-			this.shortesPathCount[n.getIndex()] = 1;
-			this.distanceToRoot[n.getIndex()] = -1;
+			ShortestPathTreeElement root = new ShortestPathTreeElement(
+					n.getIndex());
+			root.setDistanceToRoot(0);
+			root.setShortestPathCount(1);
+			shortestPath.put(n.getIndex(), root);
 			q.add(n);
 
 			// stage 2
@@ -72,48 +67,53 @@ public abstract class BetweenessCentrality extends Metric {
 					UndirectedNode neighbour = ed.getNode1();
 					if (neighbour == v)
 						neighbour = ed.getNode2();
-					if (distanceToRoot[neighbour.getIndex()] != -1) {
+					if (!shortestPath.containsKey(neighbour.getIndex())) {
 						q.add(neighbour);
-						distanceToRoot[neighbour.getIndex()] = distanceToRoot[v
-								.getIndex()] + 1;
+						ShortestPathTreeElement temp = new ShortestPathTreeElement(
+								neighbour.getIndex());
+						temp.setDistanceToRoot(shortestPath.get(v.getIndex())
+								.getDistanceToRoot() + 1);
 					}
-					if (distanceToRoot[neighbour.getIndex()] == distanceToRoot[v
-							.getIndex()] + 1) {
-						this.shortesPathCount[neighbour.getIndex()] = this.shortesPathCount[neighbour
-								.getIndex()]
-								+ this.shortesPathCount[v.getIndex()];
-						this.parentVertices[neighbour.getIndex()].add(v);
-
-						if (shortestPath.containsKey(neighbour.getIndex())) {
-							shortestPath.get(neighbour.getIndex()).addParent(
-									new ShortestPathTreeElement(v.getDegree()));
-						} else {
-							ShortestPathTreeElement temp = new ShortestPathTreeElement(
-									neighbour.getIndex());
-							temp.addParent(new ShortestPathTreeElement(v
-									.getIndex()));
-							shortestPath.put(neighbour.getIndex(), temp);
-						}
+					if (shortestPath.get(neighbour.getIndex())
+							.getDistanceToRoot() == shortestPath.get(
+							v.getIndex()).getDistanceToRoot() + 1) {
+						shortestPath
+								.get(neighbour.getIndex())
+								.setShortestPathCount(
+										shortestPath.get(neighbour.getIndex())
+												.getShortestPathCount()
+												+ shortestPath
+														.get(v.getIndex())
+														.getShortestPathCount());
+						shortestPath.get(neighbour).addParent(
+								shortestPath.get(v.getIndex()));
 
 					}
 				}
 			}
 
 			// stage 3
-			double[] temp = new double[this.g.getNodes().size()];
+
 			while (!s.isEmpty()) {
 				UndirectedNode w = s.pop();
-				for (UndirectedNode parent : this.parentVertices[w.getIndex()]) {
-					temp[parent.getIndex()] = temp[parent.getIndex()]
-							+ this.shortesPathCount[parent.getIndex()]
-							/ this.shortesPathCount[w.getIndex()]
-							* (1 + temp[w.getIndex()]);
+				for (ShortestPathTreeElement parent : shortestPath.get(
+						w.getIndex()).getParents()) {
+					parent.setAccumulativSum(parent.getAccumulativSum()
+							+ parent.getShortestPathCount()
+							/ shortestPath.get(w.getIndex())
+									.getShortestPathCount()
+							* (1 + shortestPath.get(w.getIndex())
+									.getAccumulativSum()));
 				}
 				if (w != n) {
-					this.betweeneesCentralityScore[w.getIndex()] = this.betweeneesCentralityScore[w
-							.getIndex()] + temp[w.getIndex()];
+					this.betweeneesCentralityScore.put(w.getIndex(),
+							this.betweeneesCentralityScore.get(w.getIndex())
+									+ shortestPath.get(w.getIndex())
+											.getAccumulativSum());
 				}
 			}
+
+			this.shortestPathTrees.put(n.getIndex(), shortestPath);
 		}
 
 		return true;
@@ -132,9 +132,20 @@ public abstract class BetweenessCentrality extends Metric {
 	@Override
 	protected Distribution[] getDistributions() {
 		Distribution d1 = new Distribution("BetweenessCentrality",
-				this.betweeneesCentralityScore);
+				getDistribution(this.betweeneesCentralityScore));
 		return new Distribution[] { d1 };
 
+	}
+
+	private double[] getDistribution(
+			HashMap<Integer, Double> betweeneesCentralityScore2) {
+		double[] temp = new double[betweeneesCentralityScore2.size()];
+		int counter = 0;
+		for (int i : betweeneesCentralityScore2.keySet()) {
+			temp[counter] = betweeneesCentralityScore2.get(i);
+			counter++;
+		}
+		return temp;
 	}
 
 	@Override

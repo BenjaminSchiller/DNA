@@ -10,6 +10,7 @@ public class ShortestPathTreeElement {
 	private int distanceToRoot;
 	private int shortestPathCount;
 	private int nodeIndex;
+	private double accumulativSum;
 
 	public ShortestPathTreeElement(int nodeIndex) {
 		super();
@@ -18,6 +19,7 @@ public class ShortestPathTreeElement {
 		this.distanceToRoot = -1;
 		this.shortestPathCount = -1;
 		this.nodeIndex = nodeIndex;
+		this.setAccumulativSum(0);
 	}
 
 	public int getNodeIndex() {
@@ -26,6 +28,10 @@ public class ShortestPathTreeElement {
 
 	public void addChild(ShortestPathTreeElement child) {
 		parents.add(child);
+	}
+
+	public void deleteAllParents() {
+		parents.clear();
 	}
 
 	public void addParent(ShortestPathTreeElement parent) {
@@ -70,6 +76,14 @@ public class ShortestPathTreeElement {
 
 	public List<ShortestPathTreeElement> getChildren() {
 		return children;
+	}
+
+	public double getAccumulativSum() {
+		return accumulativSum;
+	}
+
+	public void setAccumulativSum(double accumulativSum) {
+		this.accumulativSum = accumulativSum;
 	}
 
 }
