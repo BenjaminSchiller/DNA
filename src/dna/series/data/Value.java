@@ -6,13 +6,13 @@ public class Value extends Data {
 
 	// class variables
 	private double value;
-
+	
 	// constructors
 	public Value(String name, double value) {
 		super(name);
 		this.value = value;
 	}
-
+	
 	public Value(String name, double[] values) {
 		Log.warn("Value object initialized with to much arguments");
 	}
@@ -25,5 +25,22 @@ public class Value extends Data {
 	public double getValue() {
 		return this.value;
 	}
+	
+	/*public static Value read(String dir, String filename) {
+		Reader r = new Reader(dir, filename);
+
+		String line = null;
+		
+		line = r.readString();
+		String[] temp = line.split(Keywords.aggregatedDataDelimiter);
+
+		double[] tempDouble = new double[temp.length];
+		for(int i = 0; i < tempDouble.length; i++) {
+			tempDouble[i] = Double.parseDouble(temp[i]);
+		}
+
+		r.close();
+		return new AggregatedValue(name, tempDouble);
+	}*/
 
 }

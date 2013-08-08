@@ -25,14 +25,9 @@ public class NodeValueList extends Data {
 	private double[] values;
 
 	// constructors
-	public NodeValueList(int size) {
-		super();
-		this.values = new double[size];
-	}
-
 	public NodeValueList(String name, int size) {
 		super(name);
-		this.values = new double[size];
+		values = new double[size];
 	}
 
 	public NodeValueList(String name, double[] values) {
@@ -101,6 +96,7 @@ public class NodeValueList extends Data {
 		if (!readValues) {
 			return new NodeValueList(name, null);
 		}
+
 		Reader r = new Reader(dir, filename);
 		ArrayList<Double> list = new ArrayList<Double>();
 		String line = null;

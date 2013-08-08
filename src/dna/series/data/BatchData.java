@@ -78,16 +78,15 @@ public class BatchData {
 		this.metrics.write(dir);
 	}
 
-	public static BatchData read(String dir, long timestamp,
-			boolean readDistributionValues) throws IOException {
+	public static BatchData read(String dir, long timestamp, boolean readValues)
+			throws IOException {
 		ValueList values = ValueList.read(dir,
 				Files.getValuesFilename(Names.batchStats));
 		RunTimeList generalRuntimes = RunTimeList.read(dir,
 				Files.getRuntimesFilename(Names.batchGeneralRuntimes));
 		RunTimeList metricRuntimes = RunTimeList.read(dir,
 				Files.getRuntimesFilename(Names.batchMetricRuntimes));
-		MetricDataList metrics = MetricDataList.read(dir,
-				readDistributionValues);
+		MetricDataList metrics = MetricDataList.read(dir, readValues);
 		return new BatchData(timestamp, values, generalRuntimes,
 				metricRuntimes, metrics);
 	}
@@ -95,12 +94,12 @@ public class BatchData {
 	/**
 	 * This method tests if two different BatchData objects can be aggregated.
 	 * Checks: - same timestamp - same amount of metrics - same metrics (uses
-	 * MetricData.symeType())
+	 * MetricData.sameType())
 	 * 
 	 * @author Rwilmes
 	 * @date 24.06.2013
 	 */
-	public static boolean sameType(BatchData b1, BatchData b2) {
+	public static boolean isComparable(BatchData b1, BatchData b2) {
 		if (b1.getTimestamp() != b2.getTimestamp()) {
 			Log.warn("different timestamps on batch " + b1.getTimestamp()
 					+ " and batch " + b2.getTimestamp());
@@ -116,7 +115,7 @@ public class BatchData {
 			return false;
 		}
 		for (String k : list1.getNames()) {
-			if (!MetricData.sameType(list1.get(k), list2.get(k))) {
+			if (!MetricData.isComparable(list1.get(k), list2.get(k))) {
 				Log.warn("different metrics on batch " + b1.getTimestamp()
 						+ " and batch " + b2.getTimestamp());
 				return false;
