@@ -5,8 +5,6 @@ import java.util.ArrayList;
 
 import dna.io.filesystem.Dir;
 import dna.io.filesystem.Suffix;
-import dna.plot.Plotting;
-import dna.series.Values;
 import dna.series.aggdata.AggregatedSeries;
 import dna.series.lists.MetricDataList;
 import dna.util.Log;
@@ -35,7 +33,7 @@ public class SeriesData {
 		this.aggregation = null;
 	}
 
-	public SeriesData(String dir, RunData[] runs, String name,
+	public SeriesData(String dir, String name, RunData[] runs,
 			AggregatedSeries aggregation) {
 		this(dir, name, runs);
 		// this.aggregation = aggregation;
@@ -67,13 +65,13 @@ public class SeriesData {
 		this.runs.add(run);
 	}
 
-	private RunData aggregation;
+	private AggregatedSeries aggregation;
 
-	public RunData getAggregation() {
+	public AggregatedSeries getAggregation() {
 		return this.aggregation;
 	}
 
-	public void setAggregation(RunData aggregation) {
+	public void setAggregation(AggregatedSeries aggregation) {
 		this.aggregation = aggregation;
 	}
 
@@ -155,18 +153,29 @@ public class SeriesData {
 											Dir.getRunDataDir(dir, run), batch),
 									heuristic.getName() + Suffix.quality));
 						if (plotMetrics) {
-							String metricDir1 = Dir.getMetricDataDir(Dir.getBatchDataDir(Dir.getRunDataDir(this.dir, run), batch),exact.getName());
-							String metricDir2 = Dir.getMetricDataDir(Dir.getBatchDataDir(Dir.getRunDataDir(this.dir, run), batch),heuristic.getName());
-							System.out.println("DIRS: " + metricDir1 + " " + metricDir2);
-							
-							Value[] tempValues = new Value[exact.getValues().size() + heuristic.getValues().size()];
+							String metricDir1 = Dir.getMetricDataDir(Dir
+									.getBatchDataDir(
+											Dir.getRunDataDir(this.dir, run),
+											batch), exact.getName());
+							String metricDir2 = Dir.getMetricDataDir(Dir
+									.getBatchDataDir(
+											Dir.getRunDataDir(this.dir, run),
+											batch), heuristic.getName());
+							System.out.println("DIRS: " + metricDir1 + " "
+									+ metricDir2);
+
+							Value[] tempValues = new Value[exact.getValues()
+									.size() + heuristic.getValues().size()];
 							int counter = 0;
 							for (Value v : exact.getValues().getList()) {
-								tempValues[counter] = new Value(exact.getName() + "." + v,v.getValue());
+								tempValues[counter] = new Value(exact.getName()
+										+ "." + v, v.getValue());
 								counter++;
 							}
 							for (Value v : heuristic.getValues().getList()) {
-								tempValues[counter] = new Value(heuristic.getName() + "." + v,v.getValue());
+								tempValues[counter] = new Value(
+										heuristic.getName() + "." + v,
+										v.getValue());
 								counter++;
 							}
 							// TODO INSERT PLOT
@@ -178,5 +187,4 @@ public class SeriesData {
 		}
 
 	}
-
 }

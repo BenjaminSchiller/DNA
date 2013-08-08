@@ -27,13 +27,13 @@ public class NodeValueListList extends List<NodeValueList> {
 		}
 	}
 
-	public static NodeValueListList read(String dir, boolean readNodeValues)
+	public static NodeValueListList read(String dir, boolean readValues)
 			throws IOException {
 		String[] NodeValueLists = Files.getNodeValueLists(dir);
 		NodeValueListList list = new NodeValueListList(NodeValueLists.length);
 		for (String nodeValueList : NodeValueLists) {
 			list.add(NodeValueList.read(dir, nodeValueList,
-					Files.getNodeValueListName(nodeValueList), readNodeValues));
+					Files.getNodeValueListName(nodeValueList), readValues));
 		}
 		return list;
 	}

@@ -20,14 +20,13 @@ public class DistributionList extends List<Distribution> {
 		}
 	}
 
-	public static DistributionList read(String dir,
-			boolean readDistributionValues) throws IOException {
+	public static DistributionList read(String dir, boolean readValues)
+			throws IOException {
 		String[] distributions = Files.getDistributions(dir);
 		DistributionList list = new DistributionList(distributions.length);
 		for (String distribution : distributions) {
 			list.add(Distribution.read(dir, distribution,
-					Files.getDistributionName(distribution),
-					readDistributionValues));
+					Files.getDistributionName(distribution), readValues));
 		}
 		return list;
 	}
