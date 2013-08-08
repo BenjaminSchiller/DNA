@@ -58,6 +58,13 @@ public class DistributionLong extends Distribution {
 	}
 
 	/**
+	 * Recalculates the denominator value.
+	 */
+	public void updateDenominator() {
+		this.denominator = ArrayUtils.sum(this.values);
+	}
+
+	/**
 	 * Increments a value of the distribution. Note: Also increments the
 	 * denominator!
 	 * 
