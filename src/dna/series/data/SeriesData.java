@@ -100,8 +100,8 @@ public class SeriesData {
 		return true;
 	}
 
-	public static SeriesData read(String dir, String name, boolean readValues)
-			throws IOException {
+	public static SeriesData read(String dir, String name,
+			boolean readAggregation, boolean readValues) throws IOException {
 		String[] runs = Dir.getRuns(dir);
 		RunData[] runList = new RunData[runs.length];
 
@@ -110,8 +110,14 @@ public class SeriesData {
 			runList[runId] = RunData.read(Dir.getRunDataDir(dir, runId), runId,
 					readValues);
 		}
+		if (readAggregation) {
+			AggregatedSeries aggr = AggregatedSeries
+					.read(dir, name, readValues);
+			return new SeriesData(dir, name, runList, aggr);
+		} else {
+			return new SeriesData(dir, name, runList);
+		}
 
-		return new SeriesData(dir, name, runList);
 	}
 
 	public void compareMetrics(boolean writeValues, boolean plotMetrics)
