@@ -8,6 +8,7 @@ import com.sun.media.sound.InvalidFormatException;
 import dna.io.Reader;
 import dna.io.Writer;
 import dna.io.etc.Keywords;
+import dna.util.ArrayUtils;
 
 /**
  * DistributionInt is an object which represents an distribution by whole
@@ -24,6 +25,12 @@ public class DistributionInt extends Distribution {
 	private int denominator;
 
 	// constructors
+	public DistributionInt(String name, int[] values) {
+		super(name);
+		this.values = values;
+		this.denominator = ArrayUtils.sum(values);
+	}
+
 	public DistributionInt(String name, int[] values, int denominator) {
 		super(name);
 		this.values = values;
@@ -39,6 +46,10 @@ public class DistributionInt extends Distribution {
 		return this.denominator;
 	}
 
+	public void setDenominator(int denominator) {
+		this.denominator = denominator;
+	}
+
 	public int getMin() {
 		int y = 0;
 		while (values[y] < 0) {
@@ -50,6 +61,54 @@ public class DistributionInt extends Distribution {
 
 	public int getMax() {
 		return values.length - 1;
+	}
+
+	/**
+	 * Increments a value of the distribution. Note: Also increments the
+	 * denominator!
+	 * 
+	 * @param index
+	 *            Index of the value that will be incremented.
+	 */
+	public void incr(int index) {
+		this.values = ArrayUtils.incr(this.values, index);
+		this.denominator++;
+	}
+
+	/**
+	 * Decrements a value of the distribution. Note: Also decrements the
+	 * denominator!
+	 * 
+	 * @param index
+	 *            Index of the value that will be decremented.
+	 */
+	public void decr(int index) {
+		this.values = ArrayUtils.decr(this.values, index);
+		this.denominator--;
+	}
+
+	/**
+	 * Truncates the distribution array by erasing all 0 at the end of it's
+	 * value array.
+	 * 
+	 * @param index
+	 *            Index of the value that will be decremented.
+	 */
+	public void truncate() {
+		this.values = ArrayUtils.truncate(this.values, 0);
+	}
+
+	/**
+	 * Truncates the value with a chosen index. Note: The denominator is not
+	 * updated when calling this function!
+	 * 
+	 * @param index
+	 *            Index of the value that will be decremented.
+	 * @param value
+	 *            Value the integer will be set to.
+	 */
+	public void set(int index, int value) {
+		this.values = ArrayUtils.set(this.values, index, value, 0);
 	}
 
 	// IO Methods
