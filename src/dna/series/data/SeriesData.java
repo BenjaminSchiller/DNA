@@ -120,8 +120,20 @@ public class SeriesData {
 
 	}
 
-	public void compareMetrics(boolean writeValues, boolean plotMetrics)
-			throws IOException, InterruptedException {
+	/**
+	 * This method compares every metric that is flagged with 'heuristic' with
+	 * an 'exact' metric that is comparable, thus calculating a 'quality'
+	 * MetricData object.
+	 * 
+	 * @param writeValues
+	 *            Flag that indicates if the resulting 'quality' MetricData
+	 *            object will be written on the filesystem.
+	 * 
+	 * @author Rwilmes
+	 * @date 15.07.2013
+	 */
+	public void compareMetrics(boolean writeValues) throws IOException,
+			InterruptedException {
 		MetricDataList exacts = new MetricDataList();
 		MetricDataList heuristics = new MetricDataList();
 
@@ -135,62 +147,50 @@ public class SeriesData {
 			}
 		}
 
-		for (int run = 0; run < this.getRuns().size(); run++) {
-			for (int batch = 0; batch < this.getRun(run).getBatches().size(); batch++) {
-				for (MetricData exact : exacts.getList()) {
-					MetricData exactTemp = MetricData.read(Dir
-							.getMetricDataDir(Dir.getBatchDataDir(
-									Dir.getRunDataDir(this.dir, run), batch),
-									exact.getName()), exact.getName(), true);
-					exactTemp.setType("exact");
-					for (MetricData heuristic : heuristics.getList()) {
-						MetricData heuristicTemp = MetricData.read(Dir
-								.getMetricDataDir(
-										Dir.getBatchDataDir(Dir.getRunDataDir(
-												this.dir, run), batch),
-										heuristic.getName()), exact.getName(),
-								true);
-						heuristicTemp.setType("heuristic");
-						MetricData quality = MetricData.compare(exactTemp,
-								heuristicTemp);
-						if (writeValues)
-							quality.write(Dir.getMetricDataDir(
-									Dir.getBatchDataDir(
-											Dir.getRunDataDir(dir, run), batch),
-									heuristic.getName() + Suffix.quality));
-						if (plotMetrics) {
-							String metricDir1 = Dir.getMetricDataDir(Dir
-									.getBatchDataDir(
-											Dir.getRunDataDir(this.dir, run),
-											batch), exact.getName());
-							String metricDir2 = Dir.getMetricDataDir(Dir
-									.getBatchDataDir(
-											Dir.getRunDataDir(this.dir, run),
-											batch), heuristic.getName());
-							System.out.println("DIRS: " + metricDir1 + " "
-									+ metricDir2);
+		for (MetricData heuristic : heuristics.getList()) {
+			boolean compared = false;
+			for (MetricData exact : exacts.getList()) {
+				if (!compared) {
+					if (MetricData.isComparable2(heuristic, exact)) {
+						for (int run = 0; run < this.getRuns().size(); run++) {
+							for (int batch = 0; batch < this.getRun(run)
+									.getBatches().size(); batch++) {
+								MetricData exactTemp = MetricData
+										.read(Dir
+												.getMetricDataDir(
+														Dir.getBatchDataDir(
+																Dir.getRunDataDir(
+																		this.dir,
+																		run),
+																batch), exact
+																.getName()),
+												exact.getName(), true);
+								exactTemp.setType("exact");
 
-							Value[] tempValues = new Value[exact.getValues()
-									.size() + heuristic.getValues().size()];
-							int counter = 0;
-							for (Value v : exact.getValues().getList()) {
-								tempValues[counter] = new Value(exact.getName()
-										+ "." + v, v.getValue());
-								counter++;
+								MetricData heuristicTemp = MetricData.read(Dir
+										.getMetricDataDir(
+												Dir.getBatchDataDir(Dir
+														.getRunDataDir(
+																this.dir, run),
+														batch), heuristic
+														.getName()), exact
+										.getName(), true);
+								heuristicTemp.setType("heuristic");
+
+								MetricData quality = MetricData.compare(
+										exactTemp, heuristicTemp);
+								if (writeValues)
+									quality.write(Dir.getMetricDataDir(
+											Dir.getBatchDataDir(
+													Dir.getRunDataDir(dir, run),
+													batch), heuristic.getName()
+													+ Suffix.quality));
 							}
-							for (Value v : heuristic.getValues().getList()) {
-								tempValues[counter] = new Value(
-										heuristic.getName() + "." + v,
-										v.getValue());
-								counter++;
-							}
-							// TODO INSERT PLOT
 						}
+						compared = true;
 					}
 				}
-
 			}
 		}
-
 	}
 }
