@@ -1,11 +1,12 @@
 package genericsWithTest.DataStructures;
 
+import genericsWithTest.Element;
 import genericsWithTest.Node;
 
 import java.util.ArrayList;
 
 public class DArrayList extends DataStructure implements INodeListDatastructure {
-	private ArrayList<Object> list;
+	private ArrayList<Element> list;
 
 	public DArrayList(Class<?> dT) {
 		this.list = new ArrayList<>();
@@ -13,13 +14,13 @@ public class DArrayList extends DataStructure implements INodeListDatastructure 
 	}
 
 	@Override
-	public void add(Object element) {
+	public void add(Element element) {
 		super.add(element);
 		list.add(element);
 	}
 
 	@Override
-	public boolean contains(Object element) {
+	public boolean contains(Element element) {
 		return list.contains(element);
 	}
 

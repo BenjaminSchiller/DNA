@@ -1,6 +1,7 @@
 package genericsWithTest.DataStructures;
 
 import genericsWithTest.Edge;
+import genericsWithTest.Element;
 
 import java.util.HashSet;
 
@@ -13,13 +14,13 @@ public class DHashSet extends DataStructure implements IEdgeListDatastructure {
 	}
 
 	@Override
-	public void add(Object element) {
+	public void add(Element element) {
 		super.add(element);
 		list.add(element);
 	}
 
 	@Override
-	public boolean contains(Object element) {
+	public boolean contains(Element element) {
 		return list.contains(element);
 	}
 
