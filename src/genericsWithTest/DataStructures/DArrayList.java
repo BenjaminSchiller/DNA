@@ -9,7 +9,7 @@ public class DArrayList extends DataStructure implements INodeListDatastructure 
 	private ArrayList<Element> list;
 	private int maxNodeIndex;
 
-	public DArrayList(Class<?> dT) {
+	public DArrayList(Class<? extends Element> dT) {
 		this.list = new ArrayList<>();
 		this.dataType = dT;
 		this.maxNodeIndex = -1;

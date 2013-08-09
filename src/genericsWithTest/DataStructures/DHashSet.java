@@ -8,7 +8,7 @@ import java.util.HashSet;
 public class DHashSet extends DataStructure implements IEdgeListDatastructure {
 	private HashSet<Object> list;
 
-	public DHashSet(Class<?> dT) {
+	public DHashSet(Class<? extends Element> dT) {
 		this.list = new HashSet<>();
 		this.dataType = dT;
 	}
