@@ -1,16 +1,49 @@
 package genericsWithTest;
 
+import java.lang.reflect.InvocationTargetException;
+
+import genericsWithTest.DataStructures.IEdgeListDatastructure;
+import genericsWithTest.DataStructures.INodeListDatastructure;
+
 public class UndirectedNode extends Node {
+	private IEdgeListDatastructure edges;	
 
-	public UndirectedNode(int index) {
-		super(index);
+	public UndirectedNode(int index, Class<? extends IEdgeListDatastructure> edgeListType, Class<? extends INodeListDatastructure> nodeListType) {
+		super(index, edgeListType, nodeListType);
 	}
 
-	public UndirectedNode(String str) {
-		super(str);
+	public UndirectedNode(String str, Class<? extends IEdgeListDatastructure> edgeListType, Class<? extends INodeListDatastructure> nodeListType) {
+		super(str, edgeListType, nodeListType);
+	}
+	
+	@Override
+	protected void init() {
+		try {
+			this.edges = this.edgeListType.getConstructor().newInstance();
+		} catch (InstantiationException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IllegalAccessException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IllegalArgumentException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (InvocationTargetException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (NoSuchMethodException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (SecurityException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
-	public abstract int getDegree();
+	public int getDegree() {
+		return this.edges.size();
+	}
 
 	public void print() {
 		System.out.println(this.toString());
@@ -19,32 +52,22 @@ public class UndirectedNode extends Node {
 
 	@Override
 	public boolean hasEdge(Edge e) {
-		// TODO Auto-generated method stub
-		return false;
+		return this.edges.contains(e);
 	}
 
 	@Override
 	public boolean addEdge(Edge e) {
-		// TODO Auto-generated method stub
-		return false;
+		return !this.edges.contains(e) && this.edges.add(e);
 	}
 
 	@Override
 	public boolean removeEdge(Edge e) {
-		// TODO Auto-generated method stub
-		return false;
+		return this.edges.removeEdge(e);
 	}
 
 	@Override
 	public Iterable<Edge> getEdges() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public void print() {
-		// TODO Auto-generated method stub
-
+		return this.edges;
 	}
 
 }
