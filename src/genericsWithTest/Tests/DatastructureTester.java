@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import genericsWithTest.Edge;
 import genericsWithTest.Element;
+import genericsWithTest.IElement;
 import genericsWithTest.Node;
 import genericsWithTest.DataStructures.DArrayList;
 import genericsWithTest.DataStructures.DHashSet;
@@ -17,16 +18,20 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
+import static org.mockito.Mockito.*;
+
 @RunWith(Parameterized.class)
 @SuppressWarnings("rawtypes")
 public class DatastructureTester {
 
-	private Element element;
+	private IElement element;
 	private DataStructure dataStructure;
+	private Class<? extends Element> elementClass;
 
-	public DatastructureTester(Class<?> d, Class<?> e) throws InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, NoSuchMethodException, SecurityException {
+	public DatastructureTester(Class<?> d, Class<? extends Element> e) throws InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, NoSuchMethodException, SecurityException {
 		this.dataStructure = (DataStructure) d.getConstructor(Class.class).newInstance(e);
-		this.element = (Element) e.getConstructor().newInstance();
+		this.elementClass = e;
+		this.element = (IElement) e.getConstructor().newInstance();
 	}
 
     @Parameterized.Parameters(name="{0} {1}")
@@ -46,7 +51,7 @@ public class DatastructureTester {
 
 	@Test
 	public void checkAdd() {
-		Element dummy = element.getDummy();
+		IElement dummy = mock(elementClass);
 		dataStructure.add(dummy);
 		assertTrue(dataStructure.contains(dummy));
 		assertEquals(1, dataStructure.size());
