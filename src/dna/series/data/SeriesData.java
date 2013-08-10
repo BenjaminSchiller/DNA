@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import dna.io.filesystem.Dir;
 import dna.io.filesystem.Suffix;
 import dna.series.aggdata.AggregatedSeries;
+import dna.series.data.MetricData.MetricType;
 import dna.series.lists.MetricDataList;
 import dna.util.Log;
 
@@ -165,7 +166,7 @@ public class SeriesData {
 																batch), exact
 																.getName()),
 												exact.getName(), true);
-								exactTemp.setType("exact");
+								exactTemp.setType(MetricType.exact);
 
 								MetricData heuristicTemp = MetricData.read(Dir
 										.getMetricDataDir(
@@ -175,7 +176,7 @@ public class SeriesData {
 														batch), heuristic
 														.getName()), exact
 										.getName(), true);
-								heuristicTemp.setType("heuristic");
+								heuristicTemp.setType(MetricType.heuristic);
 
 								MetricData quality = MetricData.compare(
 										exactTemp, heuristicTemp);

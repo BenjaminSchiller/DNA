@@ -13,6 +13,10 @@ import dna.util.Log;
 
 public class MetricData implements ListItem {
 
+	public static enum MetricType {
+		exact, heuristic, quality
+	}
+
 	public MetricData(String name) {
 		this.name = name;
 		this.values = new ValueList();
@@ -20,7 +24,7 @@ public class MetricData implements ListItem {
 		this.nodevalues = new NodeValueListList();
 	}
 
-	public MetricData(String name, String type) {
+	public MetricData(String name, MetricType type) {
 		this.name = name;
 		this.type = type;
 		this.values = new ValueList();
@@ -36,7 +40,7 @@ public class MetricData implements ListItem {
 		this.nodevalues = new NodeValueListList();
 	}
 
-	public MetricData(String name, String type, int sizeValues,
+	public MetricData(String name, MetricType type, int sizeValues,
 			int sizeDistributions) {
 		this.name = name;
 		this.type = type;
@@ -54,7 +58,7 @@ public class MetricData implements ListItem {
 		this.nodevalues = new NodeValueListList(sizeNodeValueList);
 	}
 
-	public MetricData(String name, String type, int sizeValues,
+	public MetricData(String name, MetricType type, int sizeValues,
 			int sizeDistributions, int sizeNodeValueList) {
 		this.name = name;
 		this.type = type;
@@ -75,7 +79,7 @@ public class MetricData implements ListItem {
 		this.nodevalues = new NodeValueListList();
 	}
 
-	public MetricData(String name, String type, Value[] values,
+	public MetricData(String name, MetricType type, Value[] values,
 			Distribution[] distributions) {
 		this(name, type, values.length, distributions.length);
 		for (Value v : values) {
@@ -102,7 +106,7 @@ public class MetricData implements ListItem {
 		}
 	}
 
-	public MetricData(String name, String type, Value[] values,
+	public MetricData(String name, MetricType type, Value[] values,
 			Distribution[] distributions, NodeValueList[] nodevalues) {
 		this(name, type, values.length, distributions.length, nodevalues.length);
 		for (Value v : values) {
@@ -125,7 +129,7 @@ public class MetricData implements ListItem {
 		this.nodevalues = new NodeValueListList();
 	}
 
-	public MetricData(String name, String type, ValueList values,
+	public MetricData(String name, MetricType type, ValueList values,
 			DistributionList distributions) {
 		this.name = name;
 		this.type = type;
@@ -143,7 +147,7 @@ public class MetricData implements ListItem {
 		this.nodevalues = nodevalues;
 	}
 
-	public MetricData(String name, String type, ValueList values,
+	public MetricData(String name, MetricType type, ValueList values,
 			DistributionList distributions, NodeValueListList nodevalues) {
 		this.name = name;
 		this.type = type;
@@ -164,13 +168,13 @@ public class MetricData implements ListItem {
 		return this.name;
 	}
 
-	String type;
+	private MetricType type;
 
-	public String getType() {
+	public MetricType getType() {
 		return this.type;
 	}
 
-	public void setType(String type) {
+	public void setType(MetricType type) {
 		this.type = type;
 	}
 
@@ -402,8 +406,8 @@ public class MetricData implements ListItem {
 			comparedNodeValues.add(new NodeValueList(
 					nodevalue + Suffix.quality, qualities));
 		}
-
-		return new MetricData(m2.getName() + Suffix.quality, "quality",
-				comparedValues, comparedDistributions, comparedNodeValues);
+		return new MetricData(m2.getName() + Suffix.quality,
+				MetricType.quality, comparedValues, comparedDistributions,
+				comparedNodeValues);
 	}
 }
