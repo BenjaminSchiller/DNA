@@ -1,6 +1,7 @@
 package genericsWithTest;
 
-public interface Element {
-	public Element getDummy();
-	public int getIndex();
+public abstract class Element implements IElement {
+
+	public abstract int getIndex();
+
 }

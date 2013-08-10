@@ -1,11 +1,7 @@
 package genericsWithTest;
 
-public class Edge implements Element {
+public abstract class Edge extends Element implements IElement {
 	private int index;
-	
-	public Edge getDummy() {
-		return new Edge();
-	}
 	
 	public int getIndex() {
 		return index;
