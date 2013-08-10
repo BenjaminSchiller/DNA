@@ -1,7 +1,5 @@
 package genericsWithTest.DataStructures;
 
-import java.util.Collection;
-
 import genericsWithTest.Node;
 
 public interface INodeListDatastructure extends IDataStructure {
@@ -9,5 +7,5 @@ public interface INodeListDatastructure extends IDataStructure {
 
 	public int getMaxNodeIndex();
 	
-	public Collection<Node> getNodes();
+	public boolean removeNode(Node element);
 }

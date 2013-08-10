@@ -1,5 +1,7 @@
 package genericsWithTest.DataStructures;
 
+import java.util.Collection;
+
 import genericsWithTest.Element;
 
 public abstract class DataStructure implements IDataStructure {

@@ -3,10 +3,14 @@ package genericsWithTest.DataStructures;
 import genericsWithTest.Edge;
 import genericsWithTest.Element;
 
+import java.util.Collection;
 import java.util.HashSet;
+import java.util.Iterator;
+
+import Utils.Rand;
 
 public class DHashSet extends DataStructure implements IEdgeListDatastructure {
-	private HashSet<Object> list;
+	private HashSet<Element> list;
 
 	public DHashSet(Class<? extends Element> dT) {
 		this.list = new HashSet<>();
@@ -14,9 +18,9 @@ public class DHashSet extends DataStructure implements IEdgeListDatastructure {
 	}
 
 	@Override
-	public void add(Element element) {
+	public boolean add(Element element) {
 		super.add(element);
-		list.add(element);
+		return element != null && this.list.add(element);
 	}
 
 	@Override
@@ -35,6 +39,33 @@ public class DHashSet extends DataStructure implements IEdgeListDatastructure {
 				return (Edge) o;
 		}
 		return null;
+	}
+
+	@Override
+	public Element getRandom() {
+		int index = Rand.rand.nextInt(this.list.size());
+		int counter = 0;
+		Iterator<Element> iter = this.list.iterator();
+		while (iter.hasNext()) {
+			if (counter == index) {
+				return iter.next();
+			}
+			iter.next();
+			counter++;
+		}
+		return null;
+	}
+
+
+	@Override
+	public Collection<Element> getElements() {
+		return this.list;
+	}
+
+	@Override
+	public boolean removeEdge(Edge element) {
+		// TODO Auto-generated method stub
+		return false;
 	}
 
 }

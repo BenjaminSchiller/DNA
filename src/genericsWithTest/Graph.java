@@ -83,8 +83,8 @@ public class Graph {
 		return nodes.size();
 	}
 
-	public Collection<Node> getNodes() {
-		return nodes.getNodes();
+	public Collection<Element> getNodes() {
+		return nodes.getElements();
 	}
 
 	public boolean addNode(Node n) {
@@ -92,7 +92,7 @@ public class Graph {
 	}
 
 	public boolean removeNode(Node n) {
-		return nodes.remove(n);
+		return nodes.removeNode(n);
 	}
 
 	public boolean containsNode(Node n) {
@@ -111,8 +111,8 @@ public class Graph {
 		return edges.size();
 	}
 
-	public Collection<Edge> getEdges() {
-		return edges.getEdges();
+	public Collection<Element> getEdges() {
+		return edges.getElements();
 	}
 
 	public boolean addEdge(Edge e) {
@@ -120,7 +120,7 @@ public class Graph {
 	}
 
 	public boolean removeEdge(Edge e) {
-		return edges.remove(e);
+		return edges.removeEdge(e);
 	}
 
 	public boolean containsEdge(Edge e) {
