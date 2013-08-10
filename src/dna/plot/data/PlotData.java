@@ -16,7 +16,7 @@ public abstract class PlotData {
 	}
 
 	public static enum NodeValueListOrderBy {
-		index, average, median, minimum, maximum, variance, confidence1, confidence2
+		average, median, minimum, maximum, variance, varianceLow, varianceUp, confidenceLow, confidenceUp
 	}
 
 	protected String data;

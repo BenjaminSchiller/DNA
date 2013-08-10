@@ -18,7 +18,6 @@ import dna.series.aggdata.AggregatedMetric;
 import dna.series.aggdata.AggregatedNodeValueList;
 import dna.series.aggdata.AggregatedSeries;
 import dna.series.aggdata.AggregatedValue;
-import dna.series.aggdata.AggregatedValueList;
 import dna.series.data.SeriesData;
 import dna.util.Log;
 
@@ -48,6 +47,13 @@ public class Plotting {
 		Log.info("plotting all data for " + seriesData.length + " series ("
 				+ type + "/" + style + ")");
 		(new File(dstDir)).mkdirs();
+
+		// read aggregation data
+		for (int i = 0; i < seriesData.length; i++) {
+			seriesData[i].setAggregation(AggregatedSeries.read(
+					seriesData[i].getDir(), seriesData[i].getName() + i + "_"
+							+ Names.runAggregation, true));
+		}
 		Plotting.plotDistributions(seriesData, dstDir, type, style);
 		Plotting.plotValues(seriesData, dstDir, type, style);
 		Plotting.plotStatistics(seriesData, dstDir, type, style);
@@ -126,6 +132,7 @@ public class Plotting {
 			String[] names = new String[seriesData.length];
 			double[][] x = new double[seriesData.length][];
 			int index = 0;
+
 			for (SeriesData s : seriesData) {
 				runtimes[index] = getGeneralRuntimes(s.getAggregation(),
 						runtime);
@@ -246,7 +253,6 @@ public class Plotting {
 						+ b.getTimestamp(), type);
 			}
 		}
-
 		Plot plot = new Plot(data, dstDir, PlotFilenames.getDistributionPlot(
 				metric, distribution),
 				PlotFilenames
