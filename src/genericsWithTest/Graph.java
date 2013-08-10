@@ -3,7 +3,6 @@ package genericsWithTest;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Collection;
 
-import genericsWithTest.DataStructures.DataStructure;
 import genericsWithTest.DataStructures.IEdgeListDatastructure;
 import genericsWithTest.DataStructures.INodeListDatastructure;
 
@@ -80,32 +79,56 @@ public class Graph {
 		return nodes.getMaxNodeIndex();
 	}
 
-	public abstract int getNodeCount();
+	public int getNodeCount() {
+		return nodes.size();
+	}
 
-	public abstract Collection<Node> getNodes();
+	public Collection<Node> getNodes() {
+		return nodes.getNodes();
+	}
 
-	public abstract boolean addNode(Node n);
+	public boolean addNode(Node n) {
+		return nodes.add(n);
+	}
 
-	public abstract boolean removeNode(Node n);
+	public boolean removeNode(Node n) {
+		return nodes.remove(n);
+	}
 
-	public abstract boolean containsNode(Node n);
+	public boolean containsNode(Node n) {
+		return nodes.contains(n);
+	}
 
-	public abstract Node getRandomNode();
+	public Node getRandomNode() {
+		return (Node) nodes.getRandom();
+	}
 
 	public Edge getEdge(Edge e) {
 		return edges.get(e);
 	}
 
-	public abstract int getEdgeCount();
+	public int getEdgeCount() {
+		return edges.size();
+	}
 
-	public abstract Collection<Edge> getEdges();
+	public Collection<Edge> getEdges() {
+		return edges.getEdges();
+	}
 
-	public abstract boolean addEdge(Edge e);
+	public boolean addEdge(Edge e) {
+		return edges.add(e);
+	}
 
-	public abstract boolean removeEdge(Edge e);
+	public boolean removeEdge(Edge e) {
+		return edges.remove(e);
+	}
 
-	public abstract boolean containsEdge(Edge e);
+	public boolean containsEdge(Edge e) {
+		return edges.contains(e);
+	}
 
-	public abstract Edge getRandomEdge();
+	public Edge getRandomEdge() {
+		return (Edge) edges.getRandom();
+	}
 	
 }
