@@ -53,8 +53,8 @@ public class DirectedEdge extends Edge {
 	}
 
 	@Override
-	public int compareTo(Object eIn) {
-		if ( !(eIn instanceof DirectedEdge)) return 0;
+	public int compareTo(Element eIn) {
+		if ( !(eIn instanceof DirectedEdge)) throw new ClassCastException();
 		
 		DirectedEdge e = (DirectedEdge)eIn;
 		

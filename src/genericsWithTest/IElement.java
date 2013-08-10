@@ -1,6 +1,5 @@
 package genericsWithTest;
 
-@SuppressWarnings("rawtypes")
-public interface IElement extends Comparable {
+public interface IElement extends Comparable<Element> {
 	public int getIndex();
 }

@@ -53,11 +53,8 @@ public abstract class Node extends Element implements IElement {
 	}
 
 	@Override
-	public int compareTo(Object o) {
-		if ( o instanceof Node ) {
-			return this.index - ((Node)o).getIndex();
-		} else {
-			return 0;
-		}
+	public int compareTo(Element o) {
+		if ( !(o instanceof Node)) throw new ClassCastException();
+		return this.index - ((Node)o).getIndex();
 	}
 }

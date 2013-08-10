@@ -1,9 +1,6 @@
 package genericsWithTest;
 
-import dna.graph.undirected.UndirectedEdge;
-import dna.graph.undirected.UndirectedGraph;
-import dna.graph.undirected.UndirectedNode;
-import dna.io.etc.Keywords;
+import Utils.Keywords;
 
 public class UndirectedEdge extends Edge {
 
@@ -29,10 +26,10 @@ public class UndirectedEdge extends Edge {
 	 *            graph this undirected edge is belonging to (required to obtain
 	 *            node object pointers)
 	 */
-	public UndirectedEdge(String s, UndirectedGraph g) {
+	public UndirectedEdge(String s, Graph g) {
 		String[] temp = s.split(Keywords.undirectedEdgeDelimiter);
-		UndirectedNode node1 = g.getNode(Integer.parseInt(temp[0]));
-		UndirectedNode node2 = g.getNode(Integer.parseInt(temp[1]));
+		UndirectedNode node1 = (UndirectedNode) g.getNode(Integer.parseInt(temp[0]));
+		UndirectedNode node2 = (UndirectedNode) g.getNode(Integer.parseInt(temp[1]));
 		this.init(node1, node2);
 	}
 
@@ -94,11 +91,8 @@ public class UndirectedEdge extends Edge {
 	}
 
 	@Override
-	public int compareTo(UndirectedEdge e) {
-		if (this.node1 != e.node1) {
-			return this.node1.getIndex() - e.node1.getIndex();
-		}
-		return this.node2.getIndex() - e.node2.getIndex();
+	public int compareTo(Object eIn) {
+
 	}
 
 	/**
@@ -120,15 +114,14 @@ public class UndirectedEdge extends Edge {
 	}	
 	
 	@Override
-	public int compareTo(IElement o) {
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
-	@Override
-	public int compareTo(Object o) {
-		// TODO Auto-generated method stub
-		return 0;
+	public int compareTo(Element eIn) {
+		if ( !(eIn instanceof UndirectedEdge)) throw new ClassCastException();
+		
+		UndirectedEdge e = (UndirectedEdge)eIn;
+		if (this.node1 != e.node1) {
+			return this.node1.getIndex() - e.node1.getIndex();
+		}
+		return this.node2.getIndex() - e.node2.getIndex();
 	}
 
 }

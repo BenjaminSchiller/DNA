@@ -16,12 +16,6 @@ public class UndirectedNode extends Node {
 		System.out.println(this.toString());
 		System.out.println("Edges: " + this.getEdges());
 	}
-	
-	@Override
-	public int compareTo(Object o) {
-		// TODO Auto-generated method stub
-		return 0;
-	}
 
 	@Override
 	public boolean hasEdge(Edge e) {
