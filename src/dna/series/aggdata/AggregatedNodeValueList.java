@@ -13,7 +13,8 @@ import dna.io.etc.Keywords;
  * AggregatedNodeValueList is a class containing the values of an aggregated
  * NodeValueList. It contains an array of AggregatedValue objects.
  * AggregatedValue object array structure: { x (diff number), avg, min, max,
- * median, variance, variance-low, variance-up, confidence-low, confidence-up }
+ * median, variance, variance-low, variance-up, confidence-low, confidence-up,
+ * sort-order } Note: Sort-order fields are for plotting purposes only.
  * 
  * @author Rwilmes
  * @date 10.06.2013
