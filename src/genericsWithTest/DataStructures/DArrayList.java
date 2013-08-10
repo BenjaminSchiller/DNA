@@ -5,6 +5,7 @@ import genericsWithTest.Node;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
 
 import Utils.Rand;
 
@@ -100,6 +101,11 @@ public class DArrayList extends DataStructure implements INodeListDatastructure 
 	@Override
 	public Collection<IElement> getElements() {
 		return this.list;
+	}
+
+	@Override
+	public Iterator<IElement> iterator() {
+		return this.list.iterator();
 	}
 
 }

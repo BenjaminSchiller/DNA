@@ -64,8 +64,12 @@ public class DHashSet extends DataStructure implements IEdgeListDatastructure {
 
 	@Override
 	public boolean removeEdge(Edge element) {
-		// TODO Auto-generated method stub
-		return false;
+		return this.list.remove(element);
+	}
+
+	@Override
+	public Iterator<IElement> iterator() {
+		return this.list.iterator();
 	}
 
 }

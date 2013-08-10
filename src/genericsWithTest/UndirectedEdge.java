@@ -90,11 +90,6 @@ public class UndirectedEdge extends Edge {
 		return this.getStringRepresentation().hashCode();
 	}
 
-	@Override
-	public int compareTo(Object eIn) {
-
-	}
-
 	/**
 	 * 
 	 * @param n
