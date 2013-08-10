@@ -11,6 +11,14 @@ public abstract class PlotData {
 		average, median, minimum, maximum, variance, confidence1, confidence2, function
 	}
 
+	public static enum NodeValueListOrder {
+		ascending, descending
+	}
+
+	public static enum NodeValueListOrderBy {
+		index, average, median, minimum, maximum, variance, confidence1, confidence2
+	}
+
 	protected String data;
 
 	protected PlotStyle style;
