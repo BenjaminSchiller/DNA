@@ -10,6 +10,7 @@ public class Graph {
 	public INodeListDatastructure nodes;
 	public IEdgeListDatastructure edges;
 	public Class<?> nodeEdgeListType;
+	public Class<?> nodeType;
 	private String name;
 	private long timestamp;
 
@@ -20,7 +21,8 @@ public class Graph {
 	 */
 	public Graph(String name, long timestamp, Class<? extends INodeListDatastructure> nodeListType,
 			Class<? extends IEdgeListDatastructure> graphEdgeListType,
-			Class<? extends IEdgeListDatastructure> nodeEdgeListType) {
+			Class<? extends IEdgeListDatastructure> nodeEdgeListType,
+			Class<? extends Node> nodeType) {
 		this.name = name;
 		this.timestamp = timestamp;
 		try {
@@ -46,6 +48,7 @@ public class Graph {
 			e.printStackTrace();
 		}
 		this.nodeEdgeListType = nodeEdgeListType;
+		this.nodeType = nodeType;
 	}
 	
 	public String getName() {
@@ -83,7 +86,7 @@ public class Graph {
 		return nodes.size();
 	}
 
-	public Collection<Element> getNodes() {
+	public Collection<IElement> getNodes() {
 		return nodes.getElements();
 	}
 
@@ -111,7 +114,7 @@ public class Graph {
 		return edges.size();
 	}
 
-	public Collection<Element> getEdges() {
+	public Collection<IElement> getEdges() {
 		return edges.getElements();
 	}
 

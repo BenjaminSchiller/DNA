@@ -1,7 +1,7 @@
 package genericsWithTest.DataStructures;
 
 import genericsWithTest.Edge;
-import genericsWithTest.Element;
+import genericsWithTest.IElement;
 
 import java.util.Collection;
 import java.util.HashSet;
@@ -10,21 +10,21 @@ import java.util.Iterator;
 import Utils.Rand;
 
 public class DHashSet extends DataStructure implements IEdgeListDatastructure {
-	private HashSet<Element> list;
+	private HashSet<IElement> list;
 
-	public DHashSet(Class<? extends Element> dT) {
+	public DHashSet(Class<? extends IElement> dT) {
 		this.list = new HashSet<>();
 		this.dataType = dT;
 	}
 
 	@Override
-	public boolean add(Element element) {
+	public boolean add(IElement element) {
 		super.add(element);
 		return element != null && this.list.add(element);
 	}
 
 	@Override
-	public boolean contains(Element element) {
+	public boolean contains(IElement element) {
 		return list.contains(element);
 	}
 
@@ -42,10 +42,10 @@ public class DHashSet extends DataStructure implements IEdgeListDatastructure {
 	}
 
 	@Override
-	public Element getRandom() {
+	public IElement getRandom() {
 		int index = Rand.rand.nextInt(this.list.size());
 		int counter = 0;
-		Iterator<Element> iter = this.list.iterator();
+		Iterator<IElement> iter = this.list.iterator();
 		while (iter.hasNext()) {
 			if (counter == index) {
 				return iter.next();
@@ -58,7 +58,7 @@ public class DHashSet extends DataStructure implements IEdgeListDatastructure {
 
 
 	@Override
-	public Collection<Element> getElements() {
+	public Collection<IElement> getElements() {
 		return this.list;
 	}
 

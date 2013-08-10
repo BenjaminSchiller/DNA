@@ -2,13 +2,13 @@ package genericsWithTest.DataStructures;
 
 import java.util.Collection;
 
-import genericsWithTest.Element;
+import genericsWithTest.IElement;
 
 public abstract class DataStructure implements IDataStructure {
-	protected Class<? extends Element> dataType;
+	protected Class<? extends IElement> dataType;
 	protected int size;
 
-	public boolean add(Element element) {
+	public boolean add(IElement element) {
 		if (!dataType.isInstance(element))
 			throw new RuntimeException("Datatype to be stored here: " + dataType.getName()
 					+ ", datatype tried to be stored: " + element.getClass().getName());

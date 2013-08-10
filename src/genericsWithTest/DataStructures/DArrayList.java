@@ -1,6 +1,6 @@
 package genericsWithTest.DataStructures;
 
-import genericsWithTest.Element;
+import genericsWithTest.IElement;
 import genericsWithTest.Node;
 
 import java.util.ArrayList;
@@ -9,17 +9,17 @@ import java.util.Collection;
 import Utils.Rand;
 
 public class DArrayList extends DataStructure implements INodeListDatastructure {
-	private ArrayList<Element> list;
+	private ArrayList<IElement> list;
 	private int maxNodeIndex;
 
-	public DArrayList(Class<? extends Element> dT) {
+	public DArrayList(Class<? extends IElement> dT) {
 		this.list = new ArrayList<>();
 		this.dataType = dT;
 		this.maxNodeIndex = -1;
 	}
 
 	@Override
-	public boolean add(Element element) {
+	public boolean add(IElement element) {
 		super.add(element);
 		if (this.list.contains(element) || !this.list.add(element)) {
 			return false;
@@ -29,7 +29,7 @@ public class DArrayList extends DataStructure implements INodeListDatastructure 
 	}
 
 	@Override
-	public boolean contains(Element element) {
+	public boolean contains(IElement element) {
 		return list.contains(element);
 	}
 
@@ -39,7 +39,7 @@ public class DArrayList extends DataStructure implements INodeListDatastructure 
 	}
 	
 	public Node get(int index) {
-		Element n = null;
+		IElement n = null;
 
 		// check node at $index
 		if (this.list.size() > index) {
@@ -52,7 +52,7 @@ public class DArrayList extends DataStructure implements INodeListDatastructure 
 		// check nodes before $index
 		if (n == null || n.getIndex() > index) {
 			for (int i = Math.min(index - 1, this.list.size() - 1); i >= 0; i--) {
-				Element n2 = this.list.get(i);
+				IElement n2 = this.list.get(i);
 				if (n2 != null && n2.getIndex() == index) {
 					return (Node) n2;
 				}
@@ -62,7 +62,7 @@ public class DArrayList extends DataStructure implements INodeListDatastructure 
 		// check nodes after $index
 		if (n == null || n.getIndex() < index) {
 			for (int i = index + 1; i < this.list.size(); i++) {
-				Element n2 = this.list.get(i);
+				IElement n2 = this.list.get(i);
 				if (n2 != null && n2.getIndex() == index) {
 					return (Node) n2;
 				}
@@ -84,7 +84,7 @@ public class DArrayList extends DataStructure implements INodeListDatastructure 
 		}
 		if (this.maxNodeIndex == element.getIndex()) {
 			int max = -1;
-			for (Element n : this.getElements()) {
+			for (IElement n : this.getElements()) {
 				max = Math.max(n.getIndex(), max);
 			}
 			this.maxNodeIndex = max;
@@ -93,12 +93,12 @@ public class DArrayList extends DataStructure implements INodeListDatastructure 
 	}
 
 	@Override
-	public Element getRandom() {
+	public IElement getRandom() {
 		return this.list.get(Rand.rand.nextInt(this.list.size()));
 	}
 
 	@Override
-	public Collection<Element> getElements() {
+	public Collection<IElement> getElements() {
 		return this.list;
 	}
 
