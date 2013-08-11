@@ -26,8 +26,8 @@ public class Graph {
 		this.name = name;
 		this.timestamp = timestamp;
 		try {
-			this.nodes = (INodeListDatastructure) nodeListType.getConstructor().newInstance();
-			this.edges = (IEdgeListDatastructure) graphEdgeListType.getConstructor().newInstance();
+			this.nodes = (INodeListDatastructure) nodeListType.getConstructor(nodeType.getClass()).newInstance(nodeType);
+			this.edges = (IEdgeListDatastructure) graphEdgeListType.getConstructor(nodeType.getClass()).newInstance(nodeType);
 		} catch (InstantiationException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

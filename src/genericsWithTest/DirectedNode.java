@@ -11,6 +11,7 @@ public class DirectedNode extends Node {
 	private IEdgeListDatastructure in;
 	private IEdgeListDatastructure out;
 	private Iterable<Edge> all;
+	public final Class<? extends Edge> edgeType = DirectedEdge.class;
 	
 	private INodeListDatastructure neighbors;
 

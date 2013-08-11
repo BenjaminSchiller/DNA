@@ -6,7 +6,8 @@ import genericsWithTest.DataStructures.IEdgeListDatastructure;
 import genericsWithTest.DataStructures.INodeListDatastructure;
 
 public class UndirectedNode extends Node {
-	private IEdgeListDatastructure edges;	
+	private IEdgeListDatastructure edges;
+	public final Class<? extends Edge> edgeType = UndirectedEdge.class;
 
 	public UndirectedNode(int index, Class<? extends IEdgeListDatastructure> edgeListType, Class<? extends INodeListDatastructure> nodeListType) {
 		super(index, edgeListType, nodeListType);
