@@ -10,6 +10,7 @@ import genericsWithTest.DataStructures.IEdgeListDatastructure;
 import genericsWithTest.DataStructures.INodeListDatastructure;
 
 import java.lang.reflect.InvocationTargetException;
+import java.security.Timestamp;
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -24,6 +25,9 @@ import static org.mockito.Mockito.*;
 public class GraphTester {
 	private Graph graph;
 	private Class<? extends Node> nodeType;
+	private Class<? extends INodeListDatastructure> nodeListType;
+	private Class<? extends IEdgeListDatastructure> graphEdgeListType;
+	private Class<? extends IEdgeListDatastructure> nodeEdgeListType;
 
 	public GraphTester(Class<? extends INodeListDatastructure> nodeListType,
 			Class<? extends IEdgeListDatastructure> graphEdgeListType,
@@ -31,6 +35,9 @@ public class GraphTester {
 			throws InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException,
 			NoSuchMethodException, SecurityException {
 		this.graph = new Graph("Test", 0L, nodeListType, graphEdgeListType, nodeEdgeListType, nodeType);
+		this.nodeListType = nodeListType;
+		this.graphEdgeListType = graphEdgeListType;
+		this.nodeEdgeListType = nodeEdgeListType;
 		this.nodeType = nodeType;
 	}
 
@@ -59,7 +66,49 @@ public class GraphTester {
 	@Test
 	public void addNode() {
 		Node dummy = mock(nodeType);
+		when(dummy.getIndex()).thenReturn(42);
+		
+		assertEquals(-1, graph.getMaxNodeIndex());
 		graph.addNode(dummy);
 		assertTrue(graph.containsNode(dummy));
+		assertEquals(1, graph.getNodeCount());
+		assertEquals(42, graph.getMaxNodeIndex());
+	}
+	
+	@Test
+	public void removeNode() {
+		Node dummy = mock(nodeType);
+		when(dummy.getIndex()).thenReturn(42);
+
+		Node dummy2 = mock(nodeType);
+		when(dummy2.getIndex()).thenReturn(23);
+
+		Node dummy3 = mock(nodeType);
+		when(dummy3.getIndex()).thenReturn(17);
+		
+		assertEquals(-1, graph.getMaxNodeIndex());
+		graph.addNode(dummy);
+		graph.addNode(dummy2);
+		
+		assertEquals(42, graph.getMaxNodeIndex());
+		graph.removeNode(dummy);
+		
+		assertEquals(23, graph.getMaxNodeIndex());
+		
+		assertFalse(graph.containsNode(dummy3));
+		assertFalse(graph.removeNode(dummy3));
+		
+		graph.removeNode(dummy2);
+		assertEquals(-1, graph.getMaxNodeIndex());
+	}
+	
+	@Test
+	public void nameAndTimestamp() {
+		java.util.Date date= new java.util.Date();
+		long ts = date.getTime();
+		String name = Long.toString(ts);
+		Graph g = new Graph(name, ts, nodeListType, graphEdgeListType, nodeEdgeListType, nodeType);
+		assertEquals(name,g.getName());
+		assertEquals(ts, g.getTimestamp());
 	}
 }
