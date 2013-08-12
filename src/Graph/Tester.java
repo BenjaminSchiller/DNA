@@ -1,7 +1,7 @@
 package Graph;
 
-import genericsWithTest.DataStructures.DArrayList;
-import genericsWithTest.DataStructures.DHashSet;
+import DataStructures.DArrayList;
+import DataStructures.DHashSet;
 
 public class Tester {
 

@@ -1,4 +1,4 @@
-package genericsWithTest.DataStructures;
+package DataStructures;
 
 import java.util.Collection;
 

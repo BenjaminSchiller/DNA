@@ -1,9 +1,9 @@
 package Graph;
 
-import genericsWithTest.DataStructures.IEdgeListDatastructure;
-import genericsWithTest.DataStructures.INodeListDatastructure;
-
 import java.lang.reflect.InvocationTargetException;
+
+import DataStructures.IEdgeListDatastructure;
+import DataStructures.INodeListDatastructure;
 
 import com.google.common.collect.Iterables;
 

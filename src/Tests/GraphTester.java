@@ -1,9 +1,4 @@
-package genericsWithTest.Tests;
-
-import genericsWithTest.DataStructures.DArrayList;
-import genericsWithTest.DataStructures.DHashSet;
-import genericsWithTest.DataStructures.IEdgeListDatastructure;
-import genericsWithTest.DataStructures.INodeListDatastructure;
+package Tests;
 
 import java.lang.reflect.InvocationTargetException;
 import java.security.Timestamp;
@@ -14,6 +9,10 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
+import DataStructures.DArrayList;
+import DataStructures.DHashSet;
+import DataStructures.IEdgeListDatastructure;
+import DataStructures.INodeListDatastructure;
 import Graph.DirectedNode;
 import Graph.Graph;
 import Graph.Node;

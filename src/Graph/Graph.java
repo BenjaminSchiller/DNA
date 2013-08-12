@@ -3,8 +3,8 @@ package Graph;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Collection;
 
-import genericsWithTest.DataStructures.IEdgeListDatastructure;
-import genericsWithTest.DataStructures.INodeListDatastructure;
+import DataStructures.IEdgeListDatastructure;
+import DataStructures.INodeListDatastructure;
 
 public class Graph {
 	public INodeListDatastructure nodes;

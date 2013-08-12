@@ -1,7 +1,7 @@
 package Graph;
 
-import genericsWithTest.DataStructures.IEdgeListDatastructure;
-import genericsWithTest.DataStructures.INodeListDatastructure;
+import DataStructures.IEdgeListDatastructure;
+import DataStructures.INodeListDatastructure;
 
 public abstract class Node extends Element implements IElement {
 	protected int index;

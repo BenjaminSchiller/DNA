@@ -1,10 +1,7 @@
-package genericsWithTest.Tests;
+package Tests;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-import genericsWithTest.DataStructures.DArrayList;
-import genericsWithTest.DataStructures.DHashSet;
-import genericsWithTest.DataStructures.DataStructure;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
@@ -14,6 +11,9 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
+import DataStructures.DArrayList;
+import DataStructures.DHashSet;
+import DataStructures.DataStructure;
 import Graph.Edge;
 import Graph.Element;
 import Graph.IElement;

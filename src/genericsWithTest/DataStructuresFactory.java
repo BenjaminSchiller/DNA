@@ -1,9 +1,9 @@
 package genericsWithTest;
 
+import DataStructures.DArrayList;
+import DataStructures.DHashSet;
 import Graph.Graph;
 import Graph.Node;
-import genericsWithTest.DataStructures.DArrayList;
-import genericsWithTest.DataStructures.DHashSet;
 
 public class DataStructuresFactory {
 	public Graph GraphALHS(String name, long timestamp, Class<? extends Node> nodeType) {
