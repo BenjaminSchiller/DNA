@@ -1,5 +1,7 @@
 package genericsWithTest;
 
+import Graph.Graph;
+import Graph.Node;
 import genericsWithTest.DataStructures.DArrayList;
 import genericsWithTest.DataStructures.DHashSet;
 

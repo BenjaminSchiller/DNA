@@ -1,6 +1,6 @@
 package genericsWithTest.DataStructures;
 
-import genericsWithTest.Node;
+import Graph.Node;
 
 public interface INodeListDatastructure extends IDataStructure {
 	public Node get(int element);

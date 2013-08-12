@@ -1,12 +1,11 @@
 package genericsWithTest.DataStructures;
 
-import genericsWithTest.IElement;
-import genericsWithTest.Node;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 
+import Graph.IElement;
+import Graph.Node;
 import Utils.Rand;
 
 public class DArrayList extends DataStructure implements INodeListDatastructure {

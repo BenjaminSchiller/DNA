@@ -1,4 +1,4 @@
-package genericsWithTest;
+package Graph;
 
 public abstract class Element implements IElement {
 

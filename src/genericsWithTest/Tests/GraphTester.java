@@ -1,9 +1,5 @@
 package genericsWithTest.Tests;
 
-import genericsWithTest.DirectedNode;
-import genericsWithTest.Graph;
-import genericsWithTest.Node;
-import genericsWithTest.UndirectedNode;
 import genericsWithTest.DataStructures.DArrayList;
 import genericsWithTest.DataStructures.DHashSet;
 import genericsWithTest.DataStructures.IEdgeListDatastructure;
@@ -18,6 +14,10 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
+import Graph.DirectedNode;
+import Graph.Graph;
+import Graph.Node;
+import Graph.UndirectedNode;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 

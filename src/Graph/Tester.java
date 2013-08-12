@@ -1,4 +1,4 @@
-package genericsWithTest;
+package Graph;
 
 import genericsWithTest.DataStructures.DArrayList;
 import genericsWithTest.DataStructures.DHashSet;

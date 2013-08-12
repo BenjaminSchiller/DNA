@@ -1,12 +1,11 @@
 package genericsWithTest.DataStructures;
 
-import genericsWithTest.Edge;
-import genericsWithTest.IElement;
-
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 
+import Graph.Edge;
+import Graph.IElement;
 import Utils.Rand;
 
 public class DHashSet extends DataStructure implements IEdgeListDatastructure {

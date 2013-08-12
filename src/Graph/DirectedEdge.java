@@ -1,4 +1,4 @@
-package genericsWithTest;
+package Graph;
 
 import Utils.Keywords;
 

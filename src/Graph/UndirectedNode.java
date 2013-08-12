@@ -1,4 +1,4 @@
-package genericsWithTest;
+package Graph;
 
 import java.lang.reflect.InvocationTargetException;
 

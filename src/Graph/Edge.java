@@ -1,4 +1,4 @@
-package genericsWithTest;
+package Graph;
 
 public abstract class Edge extends Element implements IElement {
 	private int index;

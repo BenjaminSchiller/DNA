@@ -2,7 +2,7 @@ package genericsWithTest.DataStructures;
 
 import java.util.Collection;
 
-import genericsWithTest.IElement;
+import Graph.IElement;
 
 public abstract class DataStructure implements IDataStructure {
 	protected Class<? extends IElement> dataType;

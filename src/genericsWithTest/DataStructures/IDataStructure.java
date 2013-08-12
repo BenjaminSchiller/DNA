@@ -2,7 +2,7 @@ package genericsWithTest.DataStructures;
 
 import java.util.Collection;
 
-import genericsWithTest.IElement;
+import Graph.IElement;
 
 public interface IDataStructure extends Iterable {
 	public boolean add(IElement element);

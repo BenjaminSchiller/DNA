@@ -2,10 +2,6 @@ package genericsWithTest.Tests;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-import genericsWithTest.Edge;
-import genericsWithTest.Element;
-import genericsWithTest.IElement;
-import genericsWithTest.Node;
 import genericsWithTest.DataStructures.DArrayList;
 import genericsWithTest.DataStructures.DHashSet;
 import genericsWithTest.DataStructures.DataStructure;
@@ -18,6 +14,10 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
+import Graph.Edge;
+import Graph.Element;
+import Graph.IElement;
+import Graph.Node;
 import static org.mockito.Mockito.*;
 
 @RunWith(Parameterized.class)
