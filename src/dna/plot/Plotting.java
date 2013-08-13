@@ -10,6 +10,8 @@ import dna.io.filesystem.Prefix;
 import dna.io.filesystem.Suffix;
 import dna.plot.Gnuplot.PlotStyle;
 import dna.plot.data.PlotData;
+import dna.plot.data.PlotData.NodeValueListOrder;
+import dna.plot.data.PlotData.NodeValueListOrderBy;
 import dna.plot.data.PlotData.PlotType;
 import dna.series.SeriesStats;
 import dna.series.aggdata.AggregatedBatch;
@@ -32,6 +34,14 @@ public class Plotting {
 			PlotType type, PlotStyle style) throws IOException,
 			InterruptedException {
 		Plotting.plot(new SeriesData[] { seriesData }, dstDir, type, style);
+	}
+
+	public static void plot(SeriesData seriesData, String dstDir,
+			PlotType type, PlotStyle style, NodeValueListOrderBy sortBy,
+			NodeValueListOrder sortOrder) throws IOException,
+			InterruptedException {
+		Plotting.plot(new SeriesData[] { seriesData }, dstDir, type, style,
+				sortBy, sortOrder);
 	}
 
 	public static void plot(SeriesData[] seriesData, String dstDir)
@@ -62,6 +72,30 @@ public class Plotting {
 		Log.infoSep();
 	}
 
+	public static void plot(SeriesData[] seriesData, String dstDir,
+			PlotType type, PlotStyle style, NodeValueListOrderBy sortBy,
+			NodeValueListOrder sortOrder) throws IOException,
+			InterruptedException {
+		Log.infoSep();
+		Log.info("plotting all data for " + seriesData.length + " series ("
+				+ type + "/" + style + ")");
+		(new File(dstDir)).mkdirs();
+
+		// read aggregation data
+		for (int i = 0; i < seriesData.length; i++) {
+			seriesData[i].setAggregation(AggregatedSeries.read(
+					seriesData[i].getDir(), seriesData[i].getName() + i + "_"
+							+ Names.runAggregation, true));
+		}
+		Plotting.plotDistributions(seriesData, dstDir, type, style);
+		Plotting.plotValues(seriesData, dstDir, type, style);
+		Plotting.plotStatistics(seriesData, dstDir, type, style);
+		Plotting.plotRuntimes(seriesData, dstDir, type, style);
+		Plotting.plotNodeValueLists(seriesData, dstDir, type, style, sortBy,
+				sortOrder);
+		Log.infoSep();
+	}
+
 	public static void plotDistributions(SeriesData[] seriesData,
 			String dstDir, PlotType type, PlotStyle style) throws IOException,
 			InterruptedException {
@@ -84,6 +118,21 @@ public class Plotting {
 			for (AggregatedNodeValueList n : m.getNodeValues().getList()) {
 				Plotting.plotNodeValueList(seriesData, dstDir, type, style,
 						m.getName(), n.getName());
+			}
+		}
+	}
+
+	public static void plotNodeValueLists(SeriesData[] seriesData,
+			String dstDir, PlotType type, PlotStyle style,
+			NodeValueListOrderBy sortBy, NodeValueListOrder sortOrder)
+			throws IOException, InterruptedException {
+		Log.info("plotting nodevaluelists sorted by " + sortBy.toString()
+				+ " in " + sortOrder.toString() + " order");
+		for (AggregatedMetric m : seriesData[0].getAggregation().getBatches()[0]
+				.getMetrics().getList()) {
+			for (AggregatedNodeValueList n : m.getNodeValues().getList()) {
+				Plotting.plotNodeValueList(seriesData, dstDir, type, style,
+						m.getName(), n.getName(), sortBy, sortOrder);
 			}
 		}
 	}
@@ -291,6 +340,51 @@ public class Plotting {
 		plot.generate();
 	}
 
+	private static void plotNodeValueList(SeriesData[] seriesData,
+			String dstDir, PlotType type, PlotStyle style, String metric,
+			String nodevaluelist, NodeValueListOrderBy sortBy,
+			NodeValueListOrder sortOrder) throws IOException,
+			InterruptedException {
+		Log.info("nodevaluelist " + nodevaluelist + " of " + metric + " by "
+				+ sortBy.toString() + " in " + sortOrder.toString() + " order");
+		if (metric == null)
+			throw new InterruptedException("null pointer on metric");
+		int batches = 0;
+		for (SeriesData s : seriesData) {
+			batches += s.getAggregation().getBatches().length;
+		}
+
+		PlotData[] data = new PlotData[batches];
+		int index = 0;
+		for (SeriesData s : seriesData) {
+			for (AggregatedBatch b : s.getAggregation().getBatches()) {
+				String path = Dir.getAggregatedMetricDataDir(s.getDir(),
+						b.getTimestamp(), metric)
+						+ nodevaluelist + Suffix.nodeValueList;
+				path = dstDir
+						+ PlotFilenames.getNodeValueListDataFile(metric,
+								nodevaluelist, (int) b.getTimestamp());
+				data[index++] = PlotData.get(path, style, s.getName() + " @ "
+						+ b.getTimestamp(), type);
+
+				String filename = PlotFilenames.getNodeValueListDataFile(
+						metric, nodevaluelist, (int) b.getTimestamp());
+				AggregatedNodeValueList aggrNvlTemp = b.getMetrics()
+						.get(metric).getNodeValues().get(nodevaluelist);
+				aggrNvlTemp.setsortIndex(sortBy, sortOrder);
+				aggrNvlTemp.write(dstDir, filename, true);
+			}
+
+		}
+
+		Plot plot = new Plot(data, dstDir, PlotFilenames.getNodeValueListPlot(
+				metric, nodevaluelist),
+				PlotFilenames.getNodeValueListGnuplotScript(metric,
+						nodevaluelist));
+		plot.setTitle(nodevaluelist + " (" + type + ")");
+		plot.generate();
+	}
+
 	private static void plotValue(SeriesData[] seriesData, String dstDir,
 			PlotType type, PlotStyle style, String metric, String value)
 			throws IOException, InterruptedException {
@@ -313,6 +407,7 @@ public class Plotting {
 				}
 				index2++;
 			}
+
 			String filename = PlotFilenames.getValuesDataFile(m, value, index1);
 			String path = dstDir + filename;
 			try {

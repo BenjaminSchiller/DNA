@@ -43,7 +43,7 @@ public class AggregatedNodeValueList extends AggregatedData {
 	// average, median, minimum, maximum, variance, varianceLow, varianceUp
 	// confidence1, confidence2
 	// set methods
-	public void setSort(NodeValueListOrderBy sortBy,
+	public void setsortIndex(NodeValueListOrderBy sortBy,
 			NodeValueListOrder sortOrder) {
 
 		double[] tempValues = new double[this.values.length];
@@ -257,16 +257,18 @@ public class AggregatedNodeValueList extends AggregatedData {
 				values);
 	}
 
-	public void write(String dir, String filename) throws IOException {
-		this.write(dir, filename, false);
+	public void write(String dir, String filename, boolean writeSorted)
+			throws IOException {
+		if (writeSorted)
+			this.writeSorted(dir, filename);
+		else
+			this.write(dir, filename);
 	}
 
-	public void write(String dir, String filename, boolean writeSortIndex)
-			throws IOException {
+	public void write(String dir, String filename) throws IOException {
 		Writer w = new Writer(dir, filename);
 		AggregatedValue[] tempData = this.getValues();
 
-		int counter = 0;
 		for (AggregatedValue aggData : tempData) {
 			String temp = "" + (int) aggData.getValues()[0]
 					+ Keywords.aggregatedDataDelimiter;
@@ -277,12 +279,33 @@ public class AggregatedNodeValueList extends AggregatedData {
 					temp += aggData.getValues()[i]
 							+ Keywords.aggregatedDataDelimiter;
 			}
-			if (writeSortIndex)
-				temp += Keywords.aggregatedDataDelimiter
-						+ this.getSortIndex()[counter];
 			w.writeln(temp);
-			counter++;
 		}
+		w.close();
+	}
+
+	private void writeSorted(String dir, String filename) throws IOException {
+		Writer w = new Writer(dir, filename);
+		AggregatedValue[] tempData = this.getValues();
+
+		for (int i = 0; i < this.sortIndex.length; i++) {
+			String temp = "";
+
+			for (int j = 0; j < tempData[i].getValues().length; j++) {
+				if (j == 0) {
+					temp += i + Keywords.aggregatedDataDelimiter;
+				} else {
+					if (j == tempData[i].getValues().length - 1) {
+						temp += tempData[sortIndex[i]].getValues()[j];
+					} else {
+						temp += tempData[sortIndex[i]].getValues()[j]
+								+ Keywords.aggregatedDataDelimiter;
+					}
+				}
+			}
+			w.writeln(temp);
+		}
+
 		w.close();
 	}
 
