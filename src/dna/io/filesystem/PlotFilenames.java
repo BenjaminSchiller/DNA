@@ -103,6 +103,12 @@ public class PlotFilenames {
 				+ n.getName() + Suffix.data;
 	}
 
+	public static String getNodeValueListDataFile(String metric,
+			String nodevaluelist, int index) {
+		return Prefix.nodeValueListsDataFile + metric + delimiter
+				+ nodevaluelist + delimiter + index + Suffix.data;
+	}
+
 	public static String getNodeValueListGnuplotScript(MetricData m,
 			NodeValueList n) {
 		return PlotFilenames.getNodeValueListGnuplotScript(m.getName(),

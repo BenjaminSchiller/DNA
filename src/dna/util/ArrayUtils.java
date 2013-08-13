@@ -95,9 +95,8 @@ public class ArrayUtils {
 			return valuesNew;
 		}
 	}
-	
-	public static int[] set(int[] values, int index, int value,
-			int defaultValue) {
+
+	public static int[] set(int[] values, int index, int value, int defaultValue) {
 		try {
 			values[index] = value;
 			return values;
@@ -701,5 +700,13 @@ public class ArrayUtils {
 			array[i] = value;
 		}
 		return array;
+	}
+
+	public static boolean isIncluded(int[] values, int value) {
+		for (int i = 0; i < values.length; i++) {
+			if (values[i] == value)
+				return true;
+		}
+		return false;
 	}
 }
