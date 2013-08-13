@@ -13,11 +13,15 @@ public class DArrayList extends DataStructure implements INodeListDatastructure 
 	private int maxNodeIndex;
 
 	public DArrayList(Class<? extends IElement> dT) {
-		this.list = new ArrayList<>();
+		this.init(dT, defaultSize);
+	}
+	
+	public void init(Class<? extends IElement> dT, int initialSize) {
 		this.dataType = dT;
+		this.list = new ArrayList<>(initialSize);
 		this.maxNodeIndex = -1;
 	}
-
+	
 	@Override
 	public boolean add(IElement element) {
 		super.add(element);

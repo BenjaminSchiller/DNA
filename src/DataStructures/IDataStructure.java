@@ -14,5 +14,7 @@ public interface IDataStructure extends Iterable {
 	public IElement getRandom();
 	
 	public Collection<IElement> getElements();
+	
+	public void reinitializeWithSize(int size);
 
 }

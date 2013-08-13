@@ -12,7 +12,12 @@ public class DHashSet extends DataStructure implements IEdgeListDatastructure {
 	private HashSet<IElement> list;
 
 	public DHashSet(Class<? extends IElement> dT) {
-		this.list = new HashSet<>();
+		this.init(dT, defaultSize);
+	}
+
+	@Override
+	public void init(Class<? extends IElement> dT, int initialSize) {
+		this.list = new HashSet<>(initialSize);
 		this.dataType = dT;
 	}
 
@@ -70,5 +75,4 @@ public class DHashSet extends DataStructure implements IEdgeListDatastructure {
 	public Iterator<IElement> iterator() {
 		return this.list.iterator();
 	}
-
 }

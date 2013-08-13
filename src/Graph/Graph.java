@@ -51,6 +51,15 @@ public class Graph {
 		this.nodeType = nodeType;
 	}
 	
+	public Graph(String name, long timestamp, Class<? extends INodeListDatastructure> nodeListType,
+			Class<? extends IEdgeListDatastructure> graphEdgeListType,
+			Class<? extends IEdgeListDatastructure> nodeEdgeListType, Class<? extends Node> nodeType, int nodeSize,
+			int edgeSize) {
+		this(name, timestamp, nodeListType, graphEdgeListType, nodeEdgeListType, nodeType);
+		this.nodes.reinitializeWithSize(nodeSize);
+		this.edges.reinitializeWithSize(edgeSize);
+	}
+
 	public String getName() {
 		return this.name;
 	}
