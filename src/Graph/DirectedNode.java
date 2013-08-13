@@ -11,7 +11,7 @@ public class DirectedNode extends Node {
 	private IEdgeListDatastructure in;
 	private IEdgeListDatastructure out;
 	private Iterable<Edge> all;
-	public final Class<? extends Edge> edgeType = DirectedEdge.class;
+	public final static Class<? extends Edge> edgeType = DirectedEdge.class;
 	
 	private INodeListDatastructure neighbors;
 
@@ -27,9 +27,9 @@ public class DirectedNode extends Node {
 	
 	protected void init() {
 		try {
-			this.in = this.edgeListType.getConstructor().newInstance();
-			this.out = this.edgeListType.getConstructor().newInstance();
-			this.neighbors = this.nodeListType.getConstructor().newInstance();
+			this.in = this.edgeListType.getConstructor(Class.class).newInstance(edgeType);
+			this.out = this.edgeListType.getConstructor(Class.class).newInstance(edgeType);
+			this.neighbors = this.nodeListType.getConstructor(Class.class).newInstance(this.getClass());
 		} catch (InstantiationException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

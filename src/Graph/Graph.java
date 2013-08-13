@@ -9,8 +9,9 @@ import DataStructures.INodeListDatastructure;
 public class Graph {
 	public INodeListDatastructure nodes;
 	public IEdgeListDatastructure edges;
-	public Class<?> nodeEdgeListType;
-	public Class<?> nodeType;
+	public Class<? extends IEdgeListDatastructure> nodeEdgeListType;
+	public Class<? extends Node> nodeType;
+	public Class<? extends Edge> edgeType;
 	private String name;
 	private long timestamp;
 
@@ -19,6 +20,7 @@ public class Graph {
 	 * Second parameter: type of the *global* edge list (needs to be accessible by another edge)
 	 * Third parameter: local per-node edge list
 	 */
+	@SuppressWarnings("unchecked")
 	public Graph(String name, long timestamp, Class<? extends INodeListDatastructure> nodeListType,
 			Class<? extends IEdgeListDatastructure> graphEdgeListType,
 			Class<? extends IEdgeListDatastructure> nodeEdgeListType,
@@ -26,25 +28,13 @@ public class Graph {
 		this.name = name;
 		this.timestamp = timestamp;
 		try {
-			this.nodes = (INodeListDatastructure) nodeListType.getConstructor(nodeType.getClass()).newInstance(nodeType);
-			this.edges = (IEdgeListDatastructure) graphEdgeListType.getConstructor(nodeType.getClass()).newInstance(nodeType);
-		} catch (InstantiationException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IllegalAccessException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IllegalArgumentException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (InvocationTargetException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (NoSuchMethodException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (SecurityException e) {
-			// TODO Auto-generated catch block
+			this.edgeType = (Class<? extends Edge>) nodeType.getField("edgeType").get(null);
+			this.nodes = (INodeListDatastructure) nodeListType.getConstructor(nodeType.getClass())
+					.newInstance(nodeType);
+			this.edges = (IEdgeListDatastructure) graphEdgeListType.getConstructor(edgeType.getClass()).newInstance(
+					edgeType);
+		} catch (IllegalArgumentException | IllegalAccessException | NoSuchFieldException | SecurityException
+				| InstantiationException | InvocationTargetException | NoSuchMethodException e) {
 			e.printStackTrace();
 		}
 		this.nodeEdgeListType = nodeEdgeListType;

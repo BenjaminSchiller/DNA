@@ -24,14 +24,12 @@ import static org.mockito.Mockito.*;
 @SuppressWarnings("rawtypes")
 public class DatastructureTester {
 
-	private IElement element;
 	private DataStructure dataStructure;
 	private Class<? extends Element> elementClass;
 
 	public DatastructureTester(Class<?> d, Class<? extends Element> e) throws InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, NoSuchMethodException, SecurityException {
 		this.dataStructure = (DataStructure) d.getConstructor(Class.class).newInstance(e);
 		this.elementClass = e;
-		this.element = (IElement) e.getConstructor().newInstance();
 	}
 
     @Parameterized.Parameters(name="{0} {1}")
@@ -39,7 +37,7 @@ public class DatastructureTester {
     	Class[] dataStructures = {DArrayList.class, DHashSet.class};
     	Class[] elements = {Node.class, Edge.class};
     	
-    	ArrayList result = new ArrayList<>();
+    	ArrayList<Object> result = new ArrayList<>();
     	for ( Class sD: dataStructures ) {
     		for ( Class sE: elements) {
     			result.add(new Object[]{sD, sE});

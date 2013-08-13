@@ -1,7 +1,6 @@
 package Tests;
 
 import java.lang.reflect.InvocationTargetException;
-import java.security.Timestamp;
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -40,12 +39,13 @@ public class GraphTester {
 		this.nodeType = nodeType;
 	}
 
+	@SuppressWarnings("rawtypes")
 	@Parameterized.Parameters(name = "{0} {1} {2} {3}")
-	public static Collection testPairs() {
+	public static Collection<Object> testPairs() {
 		Class[] dataStructures = { DArrayList.class, DHashSet.class };
 		Class[] nodeTypes = { UndirectedNode.class, DirectedNode.class };
 
-		ArrayList result = new ArrayList<>();
+		ArrayList<Object> result = new ArrayList<>();
 		for (Class nodeListType : dataStructures) {
 			for (Class edgeListType : dataStructures) {
 				for (Class nodeEdgeListType : dataStructures) {
