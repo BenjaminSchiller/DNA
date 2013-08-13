@@ -5,8 +5,10 @@ import DataStructures.INodeListDatastructure;
 
 public abstract class Node extends Element implements IElement {
 	protected int index;
+	protected double weight;
 	protected Class<? extends IEdgeListDatastructure> edgeListType;
 	protected Class<? extends INodeListDatastructure> nodeListType;
+	public Class<? extends Edge> edgeType;
 	
 	public Node(int index, Class<? extends IEdgeListDatastructure> edgeListType, Class<? extends INodeListDatastructure> nodeListType) {
 		this.index = index;
@@ -56,5 +58,9 @@ public abstract class Node extends Element implements IElement {
 	public int compareTo(Element o) {
 		if ( !(o instanceof Node)) throw new ClassCastException();
 		return this.index - ((Node)o).getIndex();
+	}
+	
+	public void setWeight(double w) {
+		this.weight = w;
 	}
 }

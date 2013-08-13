@@ -14,7 +14,7 @@ public class UndirectedEdge extends Edge {
 	 * @param node2
 	 *            second node connected by this edge
 	 */
-	public UndirectedEdge(UndirectedNode node1, UndirectedNode node2) {
+	public UndirectedEdge(Node node1, Node node2) {
 		this.init(node1, node2);
 	}
 
@@ -42,28 +42,28 @@ public class UndirectedEdge extends Edge {
 				+ this.node2.getIndex();
 	}
 
-	protected UndirectedNode node1;
+	protected Node node1;
 
 	/**
 	 * 
 	 * @return first node connected by this edge (the node with the lower index)
 	 */
-	public UndirectedNode getNode1() {
+	public Node getNode1() {
 		return this.node1;
 	}
 
-	protected UndirectedNode node2;
+	protected Node node2;
 
 	/**
 	 * 
 	 * @return second node connected by this edge (the node with the higher
 	 *         index)
 	 */
-	public UndirectedNode getNode2() {
+	public Node getNode2() {
 		return this.node2;
 	}
 
-	private void init(UndirectedNode node1, UndirectedNode node2) {
+	private void init(Node node1, Node node2) {
 		if (node1.getIndex() > node2.getIndex()) {
 			this.node1 = node2;
 			this.node2 = node1;
@@ -98,7 +98,7 @@ public class UndirectedEdge extends Edge {
 	 *         this edge; otherwise, the connected node different from this one
 	 *         is returned
 	 */
-	public UndirectedNode getDifferingNode(UndirectedNode n) {
+	public Node getDifferingNode(UndirectedNode n) {
 		if (this.node1.equals(n)) {
 			return this.node2;
 		} else if (this.node2.equals(n)) {

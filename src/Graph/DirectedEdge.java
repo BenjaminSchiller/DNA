@@ -3,19 +3,14 @@ package Graph;
 import Utils.Keywords;
 
 public class DirectedEdge extends Edge {
-
-	protected DirectedNode src;
-
-	public DirectedNode getSrc() {
-		return this.src;
+	protected Node src;
+	protected Node dst;
+	
+	public DirectedEdge(Node src, Node dst) {
+		this.src = src;
+		this.dst = dst;		
 	}
-
-	protected DirectedNode dst;
-
-	public DirectedNode getDst() {
-		return this.dst;
-	}
-
+	
 	public DirectedEdge(String s, Graph g) {
 		String[] temp = s.split(Keywords.directedEdgeDelimiter);
 		DirectedNode src = (DirectedNode) g.getNode(Integer.parseInt(temp[0]));
@@ -24,9 +19,12 @@ public class DirectedEdge extends Edge {
 		this.dst = dst;
 	}
 
-	public DirectedEdge(DirectedNode src, DirectedNode dst) {
-		this.src = src;
-		this.dst = dst;
+	public Node getSrc() {
+		return this.src;
+	}
+
+	public Node getDst() {
+		return this.dst;
 	}
 
 	public String toString() {
