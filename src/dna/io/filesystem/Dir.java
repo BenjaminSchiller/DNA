@@ -29,7 +29,7 @@ public class Dir {
 
 	public static String getAggregatedMetricDataDir(String dir, long timestamp,
 			String name) {
-		return Dir.getAggregationBatchDir(dir, timestamp) + name
+		return Dir.getAggregationBatchDir(dir, timestamp) + Prefix.metricDataDir + name
 				+ Dir.delimiter;
 	}
 
