@@ -11,6 +11,7 @@ public class Graph {
 	public IEdgeListDatastructure edges;
 	private String name;
 	private long timestamp;
+	private GraphDataStructure gds;
 
 	/*
 	 * First parameter: type of the list that stores all nodes (needs to be accessible by index)
@@ -22,6 +23,7 @@ public class Graph {
 		this.timestamp = timestamp;
 		this.nodes = gds.newNodeList();
 		this.edges = gds.newGraphEdgeList();
+		this.gds = gds;
 	}
 	
 	public Graph(String name, long timestamp, GraphDataStructure gds, int nodeSize,
@@ -29,6 +31,10 @@ public class Graph {
 		this(name, timestamp, gds);
 		this.nodes.reinitializeWithSize(nodeSize);
 		this.edges.reinitializeWithSize(edgeSize);
+	}
+	
+	public boolean isDirected() {
+		return gds.createsDirected();
 	}
 
 	public String getName() {

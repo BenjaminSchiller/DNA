@@ -3,6 +3,7 @@ package DataStructures;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 
+import Graph.DirectedEdge;
 import Graph.Edge;
 import Graph.Graph;
 import Graph.Node;
@@ -157,5 +158,9 @@ public class GraphDataStructure {
 			e.printStackTrace();
 		}
 		throw new RuntimeException("Could not generate new edge instance");		
+	}
+
+	public boolean createsDirected() {
+		return DirectedEdge.class.isAssignableFrom(edgeType);
 	}
 }
