@@ -8,12 +8,14 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
+import Utils.Keywords;
 import DataStructures.DArrayList;
 import DataStructures.DHashSet;
 import DataStructures.GraphDataStructure;
 import DataStructures.IEdgeListDatastructure;
 import DataStructures.INodeListDatastructure;
 import Graph.DirectedNode;
+import Graph.Edge;
 import Graph.Graph;
 import Graph.Node;
 import Graph.UndirectedNode;
@@ -56,17 +58,66 @@ public class GraphTester {
 
 		return result;
 	}
-
+	
 	@Test
-	public void addNode() {
-		Node dummy = mock(gds.getNodeType());
-		when(dummy.getIndex()).thenReturn(42);
+	public void addNodeByID() {
+		Node n = gds.newNodeInstance(42);
 		
 		assertEquals(-1, graph.getMaxNodeIndex());
-		graph.addNode(dummy);
-		assertTrue(graph.containsNode(dummy));
+		graph.addNode(n);
+		assertTrue(graph.containsNode(n));
 		assertEquals(1, graph.getNodeCount());
 		assertEquals(42, graph.getMaxNodeIndex());
+	}
+	
+	@Test
+	public void addNodeByString() {
+		Node n = gds.newNodeInstance("42");
+
+		assertEquals(-1, graph.getMaxNodeIndex());
+		graph.addNode(n);
+		assertTrue(graph.containsNode(n));
+		assertEquals(1, graph.getNodeCount());
+		assertEquals(42, graph.getMaxNodeIndex());
+	}
+	
+	@Test
+	public void addEdgeByID() {
+		Node n1 = gds.newNodeInstance(1);
+		Node n2 = gds.newNodeInstance(2);
+		graph.addNode(n1);
+		graph.addNode(n2);
+		
+		Edge e = gds.newEdgeInstance(n1, n2);
+		graph.addEdge(e);
+		n1.addEdge(e);
+		n2.addEdge(e);
+		
+		assertTrue(n1.hasEdge(e));
+		assertTrue(n2.hasEdge(e));
+	}
+	
+	@Test
+	public void addEdgeByString() {
+		Node n1 = gds.newNodeInstance(1);
+		Node n2 = gds.newNodeInstance(2);
+		graph.addNode(n1);
+		graph.addNode(n2);
+		
+		String edgeString;
+		if ( graph.isDirected() ) {
+			edgeString = "1" + Keywords.directedEdgeDelimiter + "2";
+		} else {
+			edgeString = "1" + Keywords.undirectedEdgeDelimiter + "2";
+		}
+		
+		Edge e = gds.newEdgeInstance(edgeString, graph);
+		graph.addEdge(e);
+		n1.addEdge(e);
+		n2.addEdge(e);
+		
+		assertTrue(n1.hasEdge(e));
+		assertTrue(n2.hasEdge(e));
 	}
 	
 	@Test
