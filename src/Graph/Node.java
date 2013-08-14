@@ -1,23 +1,20 @@
 package Graph;
 
-import DataStructures.IEdgeListDatastructure;
-import DataStructures.INodeListDatastructure;
+import DataStructures.GraphDataStructure;
 
 public abstract class Node extends Element implements IElement {
 	protected int index;
 	protected double weight;
-	protected Class<? extends IEdgeListDatastructure> edgeListType;
-	protected Class<? extends INodeListDatastructure> nodeListType;
-	public Class<? extends Edge> edgeType;
+	protected GraphDataStructure gds;
 	
-	public Node(int index, Class<? extends IEdgeListDatastructure> edgeListType, Class<? extends INodeListDatastructure> nodeListType) {
+	public Node(int index, GraphDataStructure gds) {
 		this.index = index;
-		this.edgeListType = edgeListType;
-		this.nodeListType = nodeListType;
+		this.gds = gds;
+		this.init();
 	}
 	
-	public Node(String str, Class<? extends IEdgeListDatastructure> edgeListType, Class<? extends INodeListDatastructure> nodeListType) {
-		this(Integer.parseInt(str), edgeListType, nodeListType);
+	public Node(String str, GraphDataStructure gds) {
+		this(Integer.parseInt(str), gds);
 	}
 	
 	protected abstract void init();

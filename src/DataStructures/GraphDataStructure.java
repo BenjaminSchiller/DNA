@@ -14,7 +14,6 @@ public class GraphDataStructure {
 	private Class<? extends Node> nodeType;
 	private Class<? extends Edge> edgeType;
 
-
 	public GraphDataStructure(Class<? extends INodeListDatastructure> nodeListType,
 			Class<? extends IEdgeListDatastructure> graphEdgeListType,
 			Class<? extends IEdgeListDatastructure> nodeEdgeListType,
@@ -23,8 +22,6 @@ public class GraphDataStructure {
 		this.graphEdgeListType = graphEdgeListType;
 		this.nodeEdgeListType = nodeEdgeListType;
 		this.nodeType = nodeType;
-		
-		System.out.println(this.nodeType);
 		
 		try {
 			this.edgeType = (Class<? extends Edge>) nodeType.getField("edgeType").get(null);
@@ -50,6 +47,14 @@ public class GraphDataStructure {
 		return nodeType;
 	}
 	
+	public Class<? extends Edge> getEdgeType() {
+		return edgeType;
+	}
+
+	public void setEdgeType(Class<? extends Edge> edgeType) {
+		this.edgeType = edgeType;
+	}
+
 	public Graph newGraphInstance(String name, long timestamp, int nodes, int edges) {
 		return new Graph(name, timestamp, this, nodes, edges);
 	}
@@ -66,7 +71,7 @@ public class GraphDataStructure {
 		return res;
 	}
 	
-	public IEdgeListDatastructure newEdgeList() {
+	public IEdgeListDatastructure newGraphEdgeList() {
 		IEdgeListDatastructure res = null;
 		try {
 			res = graphEdgeListType.getConstructor(edgeType.getClass()).newInstance(
@@ -78,11 +83,23 @@ public class GraphDataStructure {
 		return res;
 	}
 	
+	public IEdgeListDatastructure newNodeEdgeList() {
+		IEdgeListDatastructure res = null;
+		try {
+			res = nodeEdgeListType.getConstructor(edgeType.getClass()).newInstance(
+					edgeType);
+		} catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException
+				| NoSuchMethodException | SecurityException e) {
+			e.printStackTrace();
+		}
+		return res;
+	}
+	
 	public Node newNodeInstance(int index) {
 		Constructor<? extends Node> c;
 		try {
-			c = nodeType.getConstructor(int.class, Class.class, Class.class);
-			return c.newInstance(index, this.nodeEdgeListType, this.nodeListType);
+			c = nodeType.getConstructor(int.class, GraphDataStructure.class);
+			return c.newInstance(index, this);
 		} catch (NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException
 				| IllegalArgumentException | InvocationTargetException e) {
 			// TODO Auto-generated catch block
@@ -100,8 +117,8 @@ public class GraphDataStructure {
 	public Node newNodeInstance(String str) {
 		Constructor<? extends Node> c;
 		try {
-			c = nodeType.getConstructor(String.class, Class.class, Class.class);
-			return c.newInstance(str, this.nodeEdgeListType, this.nodeListType);
+			c = nodeType.getConstructor(String.class, GraphDataStructure.class);
+			return c.newInstance(str, this);
 		} catch (NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException
 				| IllegalArgumentException | InvocationTargetException e) {
 			// TODO Auto-generated catch block

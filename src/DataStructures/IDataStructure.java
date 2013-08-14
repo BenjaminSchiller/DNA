@@ -4,6 +4,7 @@ import java.util.Collection;
 
 import Graph.IElement;
 
+@SuppressWarnings("rawtypes")
 public interface IDataStructure extends Iterable {
 	public boolean add(IElement element);
 

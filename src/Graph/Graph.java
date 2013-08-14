@@ -21,7 +21,7 @@ public class Graph {
 		this.name = name;
 		this.timestamp = timestamp;
 		this.nodes = gds.newNodeList();
-		this.edges = gds.newEdgeList();
+		this.edges = gds.newGraphEdgeList();
 	}
 	
 	public Graph(String name, long timestamp, GraphDataStructure gds, int nodeSize,

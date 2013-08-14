@@ -1,7 +1,6 @@
 package Graph;
 
-import java.lang.reflect.InvocationTargetException;
-
+import DataStructures.GraphDataStructure;
 import DataStructures.IEdgeListDatastructure;
 import DataStructures.INodeListDatastructure;
 
@@ -15,40 +14,19 @@ public class DirectedNode extends Node {
 	
 	private INodeListDatastructure neighbors;
 
-	public DirectedNode(int i, Class<? extends IEdgeListDatastructure> edgeListType, Class<? extends INodeListDatastructure> nodeListType) {
-		super(i, edgeListType, nodeListType);
-		init();
+	public DirectedNode(int i, GraphDataStructure gds) {
+		super(i, gds);
 	}
 	
-	public DirectedNode(String str, Class<? extends IEdgeListDatastructure> edgeListType, Class<? extends INodeListDatastructure> nodeListType) {
-		super(str, edgeListType, nodeListType);
-		init();
+	public DirectedNode(String str, GraphDataStructure gds) {
+		super(str, gds);
 	}
 	
+	@SuppressWarnings("unchecked")
 	protected void init() {
-		try {
-			this.in = this.edgeListType.getConstructor(Class.class).newInstance(edgeType);
-			this.out = this.edgeListType.getConstructor(Class.class).newInstance(edgeType);
-			this.neighbors = this.nodeListType.getConstructor(Class.class).newInstance(this.getClass());
-		} catch (InstantiationException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IllegalAccessException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IllegalArgumentException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (InvocationTargetException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (NoSuchMethodException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (SecurityException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		this.in = this.gds.newNodeEdgeList();
+		this.out = this.gds.newNodeEdgeList();
+		this.neighbors = this.gds.newNodeList();
 		this.all = Iterables.unmodifiableIterable(Iterables.concat(in, out));
 	}
 
@@ -101,14 +79,17 @@ public class DirectedNode extends Node {
 		return this.all;
 	}
 	
+	@SuppressWarnings("unchecked")
 	public Iterable<DirectedEdge> getIncomingEdges() {
 		return this.in;
 	}
 
+	@SuppressWarnings("unchecked")
 	public Iterable<DirectedEdge> getOutgoingEdges() {
 		return this.out;
 	}
 
+	@SuppressWarnings("unchecked")
 	public Iterable<DirectedNode> getNeighbors() {
 		return this.neighbors;
 	}

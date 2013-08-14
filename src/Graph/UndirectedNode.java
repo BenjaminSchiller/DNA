@@ -1,45 +1,23 @@
 package Graph;
 
-import java.lang.reflect.InvocationTargetException;
-
+import DataStructures.GraphDataStructure;
 import DataStructures.IEdgeListDatastructure;
-import DataStructures.INodeListDatastructure;
 
 public class UndirectedNode extends Node {
 	private IEdgeListDatastructure edges;
 	public final static Class<? extends Edge> edgeType = UndirectedEdge.class;
 
-	public UndirectedNode(int index, Class<? extends IEdgeListDatastructure> edgeListType, Class<? extends INodeListDatastructure> nodeListType) {
-		super(index, edgeListType, nodeListType);
+	public UndirectedNode(int index, GraphDataStructure gds) {
+		super(index, gds);
 	}
 
-	public UndirectedNode(String str, Class<? extends IEdgeListDatastructure> edgeListType, Class<? extends INodeListDatastructure> nodeListType) {
-		super(str, edgeListType, nodeListType);
+	public UndirectedNode(String str, GraphDataStructure gds) {
+		super(str, gds);
 	}
 	
 	@Override
 	protected void init() {
-		try {
-			this.edges = this.edgeListType.getConstructor().newInstance();
-		} catch (InstantiationException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IllegalAccessException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IllegalArgumentException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (InvocationTargetException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (NoSuchMethodException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (SecurityException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		this.edges = this.gds.newNodeEdgeList();
 	}
 
 	public int getDegree() {
