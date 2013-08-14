@@ -1,22 +1,18 @@
 package Factories;
 
-import Utils.Rand;
-import Utils.parameters.Parameter;
-import DataStructures.IEdgeListDatastructure;
-import DataStructures.INodeListDatastructure;
+import DataStructures.GraphDataStructure;
 import Graph.DirectedEdge;
-import Graph.DirectedNode;
 import Graph.Graph;
 import Graph.Node;
+import Utils.Rand;
+import Utils.parameters.Parameter;
 
 public class RandomDirectedGraphGenerator extends DirectedGraphGenerator {
 
 	public RandomDirectedGraphGenerator(String name, long timestampInit, Parameter[] params,
-			Class<? extends INodeListDatastructure> nodeListType,
-			Class<? extends IEdgeListDatastructure> graphEdgeListType,
-			Class<? extends IEdgeListDatastructure> nodeEdgeListType, 
+			GraphDataStructure gds,
 			int nodesInit, int edgesInit) {
-		super(name, params, nodeListType, graphEdgeListType, nodeEdgeListType, DirectedNode.class, timestampInit, nodesInit, edgesInit);
+		super(name, params, gds, timestampInit, nodesInit, edgesInit);
 	}
 
 	@Override
@@ -24,7 +20,7 @@ public class RandomDirectedGraphGenerator extends DirectedGraphGenerator {
 		Graph graph = this.newGraphInstance();
 
 		for (int i = 0; i < this.nodesInit; i++) {
-			Node node = this.newNodeInstance(i);
+			Node node = this.gds.newNodeInstance(i);
 			graph.addNode(node);
 		}
 
@@ -32,7 +28,7 @@ public class RandomDirectedGraphGenerator extends DirectedGraphGenerator {
 			int src = Rand.rand.nextInt(graph.getNodeCount());
 			int dst = Rand.rand.nextInt(graph.getNodeCount());
 			if (src != dst) {
-				DirectedEdge edge = (DirectedEdge) this.newEdgeInstance(graph.getNode(src), graph.getNode(dst));
+				DirectedEdge edge = (DirectedEdge) this.gds.newEdgeInstance(graph.getNode(src), graph.getNode(dst));
 				graph.addEdge(edge);
 				edge.getSrc().addEdge(edge);
 				edge.getDst().addEdge(edge);

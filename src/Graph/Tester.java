@@ -2,10 +2,12 @@ package Graph;
 
 import DataStructures.DArrayList;
 import DataStructures.DHashSet;
+import DataStructures.GraphDataStructure;
 
 public class Tester {
 
 	public static void main(String[] args) {
-		Graph g = new Graph("name", 0L, DArrayList.class, DHashSet.class, DHashSet.class, DirectedNode.class);
+		GraphDataStructure gds = new GraphDataStructure(DArrayList.class, DHashSet.class, DHashSet.class, DirectedNode.class);
+		Graph g = new Graph("name", 0L, gds);
 	}
 }

@@ -10,6 +10,7 @@ import org.junit.runners.Parameterized;
 
 import DataStructures.DArrayList;
 import DataStructures.DHashSet;
+import DataStructures.GraphDataStructure;
 import DataStructures.IEdgeListDatastructure;
 import DataStructures.INodeListDatastructure;
 import Graph.DirectedNode;
@@ -22,21 +23,15 @@ import static org.mockito.Mockito.*;
 @RunWith(Parameterized.class)
 public class GraphTester {
 	private Graph graph;
-	private Class<? extends Node> nodeType;
-	private Class<? extends INodeListDatastructure> nodeListType;
-	private Class<? extends IEdgeListDatastructure> graphEdgeListType;
-	private Class<? extends IEdgeListDatastructure> nodeEdgeListType;
+	private GraphDataStructure gds;
 
 	public GraphTester(Class<? extends INodeListDatastructure> nodeListType,
 			Class<? extends IEdgeListDatastructure> graphEdgeListType,
 			Class<? extends IEdgeListDatastructure> nodeEdgeListType, Class<? extends Node> nodeType)
 			throws InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException,
 			NoSuchMethodException, SecurityException {
-		this.graph = new Graph("Test", 0L, nodeListType, graphEdgeListType, nodeEdgeListType, nodeType);
-		this.nodeListType = nodeListType;
-		this.graphEdgeListType = graphEdgeListType;
-		this.nodeEdgeListType = nodeEdgeListType;
-		this.nodeType = nodeType;
+		this.gds = new GraphDataStructure(nodeListType, graphEdgeListType, nodeEdgeListType, nodeType);
+		this.graph = new Graph("Test", 0L, gds);
 	}
 
 	@SuppressWarnings("rawtypes")
@@ -64,7 +59,7 @@ public class GraphTester {
 
 	@Test
 	public void addNode() {
-		Node dummy = mock(nodeType);
+		Node dummy = mock(gds.getNodeType());
 		when(dummy.getIndex()).thenReturn(42);
 		
 		assertEquals(-1, graph.getMaxNodeIndex());
@@ -76,13 +71,13 @@ public class GraphTester {
 	
 	@Test
 	public void removeNode() {
-		Node dummy = mock(nodeType);
+		Node dummy = mock(gds.getNodeType());
 		when(dummy.getIndex()).thenReturn(42);
 
-		Node dummy2 = mock(nodeType);
+		Node dummy2 = mock(gds.getNodeType());
 		when(dummy2.getIndex()).thenReturn(23);
 
-		Node dummy3 = mock(nodeType);
+		Node dummy3 = mock(gds.getNodeType());
 		when(dummy3.getIndex()).thenReturn(17);
 		
 		assertEquals(-1, graph.getMaxNodeIndex());
@@ -106,7 +101,7 @@ public class GraphTester {
 		java.util.Date date= new java.util.Date();
 		long ts = date.getTime();
 		String name = Long.toString(ts);
-		Graph g = new Graph(name, ts, nodeListType, graphEdgeListType, nodeEdgeListType, nodeType);
+		Graph g = new Graph(name, ts, this.gds);
 		assertEquals(name,g.getName());
 		assertEquals(ts, g.getTimestamp());
 	}

@@ -1,17 +1,14 @@
 package Graph;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.Collection;
 
+import DataStructures.GraphDataStructure;
 import DataStructures.IEdgeListDatastructure;
 import DataStructures.INodeListDatastructure;
 
 public class Graph {
 	public INodeListDatastructure nodes;
 	public IEdgeListDatastructure edges;
-	public Class<? extends IEdgeListDatastructure> nodeEdgeListType;
-	public Class<? extends Node> nodeType;
-	public Class<? extends Edge> edgeType;
 	private String name;
 	private long timestamp;
 
@@ -20,32 +17,16 @@ public class Graph {
 	 * Second parameter: type of the *global* edge list (needs to be accessible by another edge)
 	 * Third parameter: local per-node edge list
 	 */
-	@SuppressWarnings("unchecked")
-	public Graph(String name, long timestamp, Class<? extends INodeListDatastructure> nodeListType,
-			Class<? extends IEdgeListDatastructure> graphEdgeListType,
-			Class<? extends IEdgeListDatastructure> nodeEdgeListType,
-			Class<? extends Node> nodeType) {
+	public Graph(String name, long timestamp, GraphDataStructure gds) {
 		this.name = name;
 		this.timestamp = timestamp;
-		try {
-			this.edgeType = (Class<? extends Edge>) nodeType.getField("edgeType").get(null);
-			this.nodes = (INodeListDatastructure) nodeListType.getConstructor(nodeType.getClass())
-					.newInstance(nodeType);
-			this.edges = (IEdgeListDatastructure) graphEdgeListType.getConstructor(edgeType.getClass()).newInstance(
-					edgeType);
-		} catch (IllegalArgumentException | IllegalAccessException | NoSuchFieldException | SecurityException
-				| InstantiationException | InvocationTargetException | NoSuchMethodException e) {
-			e.printStackTrace();
-		}
-		this.nodeEdgeListType = nodeEdgeListType;
-		this.nodeType = nodeType;
+		this.nodes = gds.newNodeList();
+		this.edges = gds.newEdgeList();
 	}
 	
-	public Graph(String name, long timestamp, Class<? extends INodeListDatastructure> nodeListType,
-			Class<? extends IEdgeListDatastructure> graphEdgeListType,
-			Class<? extends IEdgeListDatastructure> nodeEdgeListType, Class<? extends Node> nodeType, int nodeSize,
+	public Graph(String name, long timestamp, GraphDataStructure gds, int nodeSize,
 			int edgeSize) {
-		this(name, timestamp, nodeListType, graphEdgeListType, nodeEdgeListType, nodeType);
+		this(name, timestamp, gds);
 		this.nodes.reinitializeWithSize(nodeSize);
 		this.edges.reinitializeWithSize(edgeSize);
 	}
