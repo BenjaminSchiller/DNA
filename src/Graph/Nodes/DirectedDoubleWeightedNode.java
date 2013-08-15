@@ -1,12 +1,13 @@
 package Graph.Nodes;
 
+import Utils.Keywords;
 import DataStructures.GraphDataStructure;
 import Graph.IWeighted;
 import Graph.Edges.DirectedDoubleWeightedEdge;
 import Graph.Edges.Edge;
 
 public class DirectedDoubleWeightedNode extends DirectedNode implements IWeighted<Double> {
-	private Double weight;
+	private double weight;
 	public final static Class<? extends Edge> edgeType = DirectedDoubleWeightedEdge.class;
 
 	public DirectedDoubleWeightedNode(int i, Double weight, GraphDataStructure gds) {
@@ -14,17 +15,18 @@ public class DirectedDoubleWeightedNode extends DirectedNode implements IWeighte
 		this.setWeight(weight);
 	}
 	
-	public DirectedDoubleWeightedNode(String str, Double weight, GraphDataStructure gds) {
-		super(str, gds);
-		this.setWeight(weight);
+	public DirectedDoubleWeightedNode(String str, GraphDataStructure gds) {
+		super(str.split(Keywords.nodeWeightDelimiter)[0], gds);
+		if (str.contains(Keywords.nodeWeightDelimiter)) {
+			this.weight = Double.parseDouble(str
+					.split(Keywords.nodeWeightDelimiter)[1]);
+		} else {
+			this.weight = 0;
+		}
 	}
 	
 	public DirectedDoubleWeightedNode(int i, GraphDataStructure gds) {
 		this(i, 1d, gds);
-	}
-	
-	public DirectedDoubleWeightedNode(String str, GraphDataStructure gds) {
-		this(str, 1d, gds);
 	}
 	
 	@Override
@@ -35,5 +37,11 @@ public class DirectedDoubleWeightedNode extends DirectedNode implements IWeighte
 	@Override
 	public Double getWeight() {
 		return this.weight;
+	}
+	
+	@Override
+	public String getStringRepresentation() {
+		return super.getStringRepresentation() + Keywords.nodeWeightDelimiter
+				+ this.weight;
 	}
 }
