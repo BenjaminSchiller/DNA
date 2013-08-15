@@ -18,7 +18,6 @@ import Graph.Graph;
 import Graph.Edges.Edge;
 import Graph.Nodes.*;
 import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
 
 @RunWith(Parameterized.class)
 public class GraphTester {
@@ -121,14 +120,9 @@ public class GraphTester {
 	
 	@Test
 	public void removeNode() {
-		Node dummy = mock(gds.getNodeType());
-		when(dummy.getIndex()).thenReturn(42);
-
-		Node dummy2 = mock(gds.getNodeType());
-		when(dummy2.getIndex()).thenReturn(23);
-
-		Node dummy3 = mock(gds.getNodeType());
-		when(dummy3.getIndex()).thenReturn(17);
+		Node dummy = gds.newNodeInstance(42);
+		Node dummy2 =  gds.newNodeInstance(23);
+		Node dummy3 =  gds.newNodeInstance(17);
 		
 		assertEquals(-1, graph.getMaxNodeIndex());
 		graph.addNode(dummy);
