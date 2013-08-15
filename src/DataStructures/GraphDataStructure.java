@@ -3,6 +3,9 @@ package DataStructures;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 
+import com.sun.org.apache.bcel.internal.classfile.InnerClass;
+
+import Utils.Keywords;
 import Graph.Graph;
 import Graph.Edges.DirectedEdge;
 import Graph.Edges.Edge;
@@ -23,6 +26,26 @@ public class GraphDataStructure {
 		this.graphEdgeListType = graphEdgeListType;
 		this.nodeEdgeListType = nodeEdgeListType;
 		this.nodeType = nodeType;
+		
+		try {
+			this.edgeType = (Class<? extends Edge>) nodeType.getField("edgeType").get(null);
+		} catch (IllegalArgumentException | IllegalAccessException | NoSuchFieldException | SecurityException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	public GraphDataStructure(String gdsString) {
+		String splitted[] = gdsString.split(Keywords.classDelimiter);
+		try {
+			this.nodeListType = (Class<? extends INodeListDatastructure>) Class.forName(splitted[0]);
+			this.graphEdgeListType = (Class<? extends IEdgeListDatastructure>) Class.forName(splitted[1]);
+			this.nodeEdgeListType = (Class<? extends IEdgeListDatastructure>) Class.forName(splitted[2]);
+			this.nodeEdgeListType = (Class<? extends IEdgeListDatastructure>) Class.forName(splitted[3]);
+		} catch (ClassNotFoundException | ClassCastException e) {
+			e.printStackTrace();
+		}
 		
 		try {
 			this.edgeType = (Class<? extends Edge>) nodeType.getField("edgeType").get(null);
@@ -150,5 +173,10 @@ public class GraphDataStructure {
 
 	public boolean createsDirected() {
 		return DirectedEdge.class.isAssignableFrom(edgeType);
+	}
+
+	public String getDataStructures() {
+		return nodeListType.getName() + Keywords.classDelimiter + graphEdgeListType.getName() + Keywords.classDelimiter
+				+ nodeEdgeListType.getName() + Keywords.classDelimiter + nodeType.getName();
 	}
 }

@@ -35,6 +35,8 @@ public class Keywords {
 
 	public static final String updateDelimiter2 = ";";
 
+	public static final String classDelimiter = ";";
+
 	public static String asLine(String keyword) {
 		return Keywords.pre + keyword;
 	}

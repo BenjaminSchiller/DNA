@@ -121,5 +121,9 @@ public class Graph {
 	public Edge getRandomEdge() {
 		return (Edge) edges.getRandom();
 	}
+
+	public GraphDataStructure getGraphDatastructures() {
+		return this.gds;
+	}
 	
 }
