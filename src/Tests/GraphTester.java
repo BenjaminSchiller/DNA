@@ -16,9 +16,7 @@ import DataStructures.IEdgeListDatastructure;
 import DataStructures.INodeListDatastructure;
 import Graph.Graph;
 import Graph.Edges.Edge;
-import Graph.Nodes.DirectedNode;
-import Graph.Nodes.Node;
-import Graph.Nodes.UndirectedNode;
+import Graph.Nodes.*;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
@@ -40,7 +38,8 @@ public class GraphTester {
 	@Parameterized.Parameters(name = "{0} {1} {2} {3}")
 	public static Collection<Object> testPairs() {
 		Class[] dataStructures = { DArrayList.class, DHashSet.class };
-		Class[] nodeTypes = { UndirectedNode.class, DirectedNode.class };
+		Class[] nodeTypes = { UndirectedNode.class, UndirectedDoubleWeightedNode.class,
+				DirectedNode.class, DirectedDoubleWeightedNode.class };
 
 		ArrayList<Object> result = new ArrayList<>();
 		for (Class nodeListType : dataStructures) {
