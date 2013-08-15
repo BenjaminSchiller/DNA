@@ -1,6 +1,6 @@
 package DataStructures;
 
-import Graph.Edge;
+import Graph.Edges.Edge;
 
 public interface IEdgeListDatastructure extends IDataStructure {
 	public Edge get(Edge element);

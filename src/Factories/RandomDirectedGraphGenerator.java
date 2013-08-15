@@ -1,9 +1,9 @@
 package Factories;
 
 import DataStructures.GraphDataStructure;
-import Graph.DirectedEdge;
 import Graph.Graph;
-import Graph.Node;
+import Graph.Edges.DirectedEdge;
+import Graph.Nodes.Node;
 import Utils.Rand;
 import Utils.parameters.Parameter;
 

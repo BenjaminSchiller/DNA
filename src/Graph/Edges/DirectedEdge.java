@@ -1,5 +1,9 @@
-package Graph;
+package Graph.Edges;
 
+import Graph.Element;
+import Graph.Graph;
+import Graph.Nodes.DirectedNode;
+import Graph.Nodes.Node;
 import Utils.Keywords;
 
 public class DirectedEdge extends Edge {

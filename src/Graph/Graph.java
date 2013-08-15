@@ -5,6 +5,8 @@ import java.util.Collection;
 import DataStructures.GraphDataStructure;
 import DataStructures.IEdgeListDatastructure;
 import DataStructures.INodeListDatastructure;
+import Graph.Edges.Edge;
+import Graph.Nodes.Node;
 
 public class Graph {
 	public INodeListDatastructure nodes;

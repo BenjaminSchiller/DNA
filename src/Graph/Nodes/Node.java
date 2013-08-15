@@ -1,6 +1,9 @@
-package Graph;
+package Graph.Nodes;
 
 import DataStructures.GraphDataStructure;
+import Graph.Element;
+import Graph.IElement;
+import Graph.Edges.Edge;
 
 public abstract class Node extends Element implements IElement {
 	protected int index;

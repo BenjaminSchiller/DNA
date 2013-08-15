@@ -1,6 +1,6 @@
 package DataStructures;
 
-import Graph.Node;
+import Graph.Nodes.Node;
 
 public interface INodeListDatastructure extends IDataStructure {
 	public Node get(int element);

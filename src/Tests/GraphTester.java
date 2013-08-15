@@ -14,11 +14,11 @@ import DataStructures.DHashSet;
 import DataStructures.GraphDataStructure;
 import DataStructures.IEdgeListDatastructure;
 import DataStructures.INodeListDatastructure;
-import Graph.DirectedNode;
-import Graph.Edge;
 import Graph.Graph;
-import Graph.Node;
-import Graph.UndirectedNode;
+import Graph.Edges.Edge;
+import Graph.Nodes.DirectedNode;
+import Graph.Nodes.Node;
+import Graph.Nodes.UndirectedNode;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 

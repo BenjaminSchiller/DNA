@@ -3,6 +3,7 @@ package Graph;
 import DataStructures.DArrayList;
 import DataStructures.DHashSet;
 import DataStructures.GraphDataStructure;
+import Graph.Nodes.DirectedNode;
 
 public class Tester {
 

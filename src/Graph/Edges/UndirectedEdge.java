@@ -1,5 +1,9 @@
-package Graph;
+package Graph.Edges;
 
+import Graph.Element;
+import Graph.Graph;
+import Graph.Nodes.Node;
+import Graph.Nodes.UndirectedNode;
 import Utils.Keywords;
 
 public class UndirectedEdge extends Edge {

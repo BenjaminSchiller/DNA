@@ -1,8 +1,10 @@
-package Graph;
+package Graph.Nodes;
 
 import DataStructures.GraphDataStructure;
 import DataStructures.IEdgeListDatastructure;
 import DataStructures.INodeListDatastructure;
+import Graph.Edges.DirectedEdge;
+import Graph.Edges.Edge;
 
 import com.google.common.collect.Iterables;
 

@@ -1,7 +1,9 @@
-package Graph;
+package Graph.Nodes;
 
 import DataStructures.GraphDataStructure;
 import DataStructures.IEdgeListDatastructure;
+import Graph.Edges.Edge;
+import Graph.Edges.UndirectedEdge;
 
 public class UndirectedNode extends Node {
 	private IEdgeListDatastructure edges;

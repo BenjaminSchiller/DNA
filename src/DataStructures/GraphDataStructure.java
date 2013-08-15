@@ -3,10 +3,10 @@ package DataStructures;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 
-import Graph.DirectedEdge;
-import Graph.Edge;
 import Graph.Graph;
-import Graph.Node;
+import Graph.Edges.DirectedEdge;
+import Graph.Edges.Edge;
+import Graph.Nodes.Node;
 
 public class GraphDataStructure {
 	private Class<? extends INodeListDatastructure> nodeListType;

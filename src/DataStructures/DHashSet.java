@@ -4,8 +4,8 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 
-import Graph.Edge;
 import Graph.IElement;
+import Graph.Edges.Edge;
 import Utils.Rand;
 
 public class DHashSet extends DataStructure implements IEdgeListDatastructure {

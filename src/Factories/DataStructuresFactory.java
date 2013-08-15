@@ -4,7 +4,7 @@ import DataStructures.DArrayList;
 import DataStructures.DHashSet;
 import DataStructures.GraphDataStructure;
 import Graph.Graph;
-import Graph.Node;
+import Graph.Nodes.Node;
 
 public class DataStructuresFactory {
 	public Graph GraphALHS(String name, long timestamp, Class<? extends Node> nodeType) {

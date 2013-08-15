@@ -21,10 +21,10 @@ import Factories.DirectedGraphGenerator;
 import Factories.GraphGenerator;
 import Factories.RandomDirectedGraphGenerator;
 import Factories.UndirectedGraphGenerator;
-import Graph.DirectedNode;
 import Graph.Graph;
-import Graph.Node;
-import Graph.UndirectedNode;
+import Graph.Nodes.DirectedNode;
+import Graph.Nodes.Node;
+import Graph.Nodes.UndirectedNode;
 
 @RunWith(Parameterized.class)
 public class GeneratorsTest {

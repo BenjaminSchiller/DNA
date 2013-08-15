@@ -14,10 +14,10 @@ import org.junit.runners.Parameterized;
 import DataStructures.DArrayList;
 import DataStructures.DHashSet;
 import DataStructures.DataStructure;
-import Graph.Edge;
 import Graph.Element;
 import Graph.IElement;
-import Graph.Node;
+import Graph.Edges.Edge;
+import Graph.Nodes.Node;
 import static org.mockito.Mockito.*;
 
 @RunWith(Parameterized.class)
