@@ -109,12 +109,6 @@ public class GraphDataStructure {
 		throw new RuntimeException("Could not generate new node instance");
 	}
 	
-	public Node newNodeInstance(int index, double weight) {
-		Node res = this.newNodeInstance(index);
-		res.setWeight(weight);
-		return res;
-	}
-	
 	public Node newNodeInstance(String str) {
 		Constructor<? extends Node> c;
 		try {
@@ -139,12 +133,6 @@ public class GraphDataStructure {
 			e.printStackTrace();
 		}
 		throw new RuntimeException("Could not generate new edge instance");
-	}
-	
-	public Edge newEdgeInstance(Node src, Node dst, double weight) {
-		Edge res = this.newEdgeInstance(src, dst);
-		res.setWeight(weight);
-		return res;
 	}
 	
 	public Edge newEdgeInstance(String str, Graph graph) {

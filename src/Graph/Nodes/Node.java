@@ -7,7 +7,6 @@ import Graph.Edges.Edge;
 
 public abstract class Node extends Element implements IElement {
 	protected int index;
-	protected double weight;
 	protected GraphDataStructure gds;
 	
 	public Node(int index, GraphDataStructure gds) {
@@ -58,9 +57,5 @@ public abstract class Node extends Element implements IElement {
 	public int compareTo(Element o) {
 		if ( !(o instanceof Node)) throw new ClassCastException();
 		return this.index - ((Node)o).getIndex();
-	}
-	
-	public void setWeight(double w) {
-		this.weight = w;
 	}
 }
