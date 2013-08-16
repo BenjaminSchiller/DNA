@@ -3,8 +3,6 @@ package DataStructures;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 
-import com.sun.org.apache.bcel.internal.classfile.InnerClass;
-
 import Utils.Keywords;
 import Graph.Graph;
 import Graph.Edges.DirectedEdge;
@@ -42,7 +40,7 @@ public class GraphDataStructure {
 			this.nodeListType = (Class<? extends INodeListDatastructure>) Class.forName(splitted[0]);
 			this.graphEdgeListType = (Class<? extends IEdgeListDatastructure>) Class.forName(splitted[1]);
 			this.nodeEdgeListType = (Class<? extends IEdgeListDatastructure>) Class.forName(splitted[2]);
-			this.nodeEdgeListType = (Class<? extends IEdgeListDatastructure>) Class.forName(splitted[3]);
+			this.nodeType = (Class<? extends Node>) Class.forName(splitted[3]);
 		} catch (ClassNotFoundException | ClassCastException e) {
 			e.printStackTrace();
 		}
@@ -53,6 +51,55 @@ public class GraphDataStructure {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((edgeType == null) ? 0 : edgeType.hashCode());
+		result = prime * result + ((graphEdgeListType == null) ? 0 : graphEdgeListType.hashCode());
+		result = prime * result + ((nodeEdgeListType == null) ? 0 : nodeEdgeListType.hashCode());
+		result = prime * result + ((nodeListType == null) ? 0 : nodeListType.hashCode());
+		result = prime * result + ((nodeType == null) ? 0 : nodeType.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		GraphDataStructure other = (GraphDataStructure) obj;
+		if (edgeType == null) {
+			if (other.edgeType != null)
+				return false;
+		} else if (!edgeType.equals(other.edgeType))
+			return false;
+		if (graphEdgeListType == null) {
+			if (other.graphEdgeListType != null)
+				return false;
+		} else if (!graphEdgeListType.equals(other.graphEdgeListType))
+			return false;
+		if (nodeEdgeListType == null) {
+			if (other.nodeEdgeListType != null)
+				return false;
+		} else if (!nodeEdgeListType.equals(other.nodeEdgeListType))
+			return false;
+		if (nodeListType == null) {
+			if (other.nodeListType != null)
+				return false;
+		} else if (!nodeListType.equals(other.nodeListType))
+			return false;
+		if (nodeType == null) {
+			if (other.nodeType != null)
+				return false;
+		} else if (!nodeType.equals(other.nodeType))
+			return false;
+		return true;
 	}
 
 	public Class<? extends INodeListDatastructure> getNodeListType() {

@@ -58,6 +58,14 @@ public class GraphTester {
 	}
 	
 	@Test
+	public void testGraphDataStructureEqualsReadWrite() {
+		String gdsString = gds.getDataStructures();
+		GraphDataStructure gds2 = new GraphDataStructure(gdsString);
+		assertEquals(gds,gds2);
+		System.out.println(gds.hashCode());
+	}
+	
+	@Test
 	public void addNodeByID() {
 		Node n = gds.newNodeInstance(42);
 		
