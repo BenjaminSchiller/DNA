@@ -157,4 +157,51 @@ public class GraphTester {
 		assertEquals(name,g.getName());
 		assertEquals(ts, g.getTimestamp());
 	}
+
+	@Test
+	public void graphEqualityForBasics() {
+		long timestamp = 1L;
+		
+		Graph g1 = new Graph("N", timestamp, this.gds);
+		Graph g2 = new Graph("N", timestamp, this.gds);
+		Graph g3 = new Graph("N", timestamp + 1, this.gds);
+		Graph g4 = new Graph("O", timestamp, this.gds);
+		assertEquals(g1, g2);
+		assertNotEquals(g1, g3);
+		assertNotEquals(g2, g3);
+		assertNotEquals(g1, g4);
+		assertNotEquals(g2, g4);
+		assertNotEquals(g3, g4);
+	}
+	
+	@Test
+	public void graphEqualityForNodes() {
+		long timestamp = 1L;
+		
+		Graph g1 = new Graph("N", timestamp, this.gds);
+		Graph g2 = new Graph("N", timestamp, this.gds);
+		
+		Node g1n1 = this.gds.newNodeInstance(42);
+		Node g1n2 = this.gds.newNodeInstance(23);
+		Node g2n1 = this.gds.newNodeInstance(42);
+		Node g2n2 = this.gds.newNodeInstance(23);
+		
+		g1.addNode(g1n1);
+		assertNotEquals(g1,g2);
+		
+		g2.addNode(g2n1);
+		assertEquals(g1, g2);
+		
+		g1.removeNode(g1n2);
+		assertEquals(g1, g2);
+		
+		g2.removeNode(g2n2);
+		assertEquals(g1, g2);
+		
+		g1.removeNode(g1n1);
+		assertNotEquals(g1,g2);
+		
+		g2.removeNode(g2n1);
+		assertEquals(g1, g2);
+	}
 }

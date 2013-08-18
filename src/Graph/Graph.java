@@ -125,5 +125,51 @@ public class Graph {
 	public GraphDataStructure getGraphDatastructures() {
 		return this.gds;
 	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (obj == null) {
+			return false;
+		}
+		if (getClass() != obj.getClass()) {
+			return false;
+		}
+		Graph other = (Graph) obj;
+		if (edges == null) {
+			if (other.edges != null) {
+				return false;
+			}
+		} else if (!this.getEdges().equals(other.getEdges())) {
+			return false;
+		}
+		if (gds == null) {
+			if (other.gds != null) {
+				return false;
+			}
+		} else if (!gds.equals(other.gds)) {
+			return false;
+		}
+		if (name == null) {
+			if (other.name != null) {
+				return false;
+			}
+		} else if (!name.equals(other.name)) {
+			return false;
+		}
+		if (nodes == null) {
+			if (other.nodes != null) {
+				return false;
+			}
+		} else if (!this.getNodes().equals(other.getNodes())) {
+			return false;
+		}
+		if (timestamp != other.timestamp) {
+			return false;
+		}
+		return true;
+	}
 	
 }
