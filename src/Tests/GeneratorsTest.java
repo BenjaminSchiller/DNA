@@ -2,12 +2,15 @@ package Tests;
 
 import static org.junit.Assert.*;
 
+import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
@@ -25,6 +28,8 @@ import Graph.Graph;
 import Graph.Nodes.DirectedNode;
 import Graph.Nodes.Node;
 import Graph.Nodes.UndirectedNode;
+import IO.GraphReader;
+import IO.GraphWriter;
 
 @RunWith(Parameterized.class)
 public class GeneratorsTest {
@@ -33,6 +38,11 @@ public class GeneratorsTest {
 	private Class<? extends IEdgeListDatastructure> graphEdgeListType;
 	private Class<? extends IEdgeListDatastructure> nodeEdgeListType;
 	private Class<? extends GraphGenerator> generator;
+	private Constructor<? extends GraphGenerator> generatorConstructor;
+	private GraphDataStructure gds;
+	
+    @Rule
+    public TemporaryFolder folder = new TemporaryFolder();
 
 	public GeneratorsTest(Class<? extends INodeListDatastructure> nodeListType,
 			Class<? extends IEdgeListDatastructure> graphEdgeListType,
@@ -45,6 +55,10 @@ public class GeneratorsTest {
 		this.nodeEdgeListType = nodeEdgeListType;
 		this.nodeType = nodeType;
 		this.generator = generator;
+		this.generatorConstructor = generator.getConstructor(String.class, long.class, Parameter[].class,
+				GraphDataStructure.class, int.class, int.class);
+		
+		this.gds = new GraphDataStructure(nodeListType, graphEdgeListType, nodeEdgeListType, nodeType);
 	}
 
 	@SuppressWarnings("rawtypes")
@@ -84,18 +98,34 @@ public class GeneratorsTest {
 
 	@Test
 	public void testGraphGeneration() throws NoSuchMethodException, SecurityException, InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
-		int nodeSize = 10;
-		int edgeSize = 15;
-		
-		GraphDataStructure gds = new GraphDataStructure(nodeListType, graphEdgeListType, nodeEdgeListType, nodeType);
-		
-		Constructor<? extends GraphGenerator> c = generator.getConstructor(String.class, long.class, Parameter[].class,
-			GraphDataStructure.class, int.class, int.class);
-		GraphGenerator gg = c.newInstance("ABC", 0, new Parameter[]{}, gds, nodeSize, edgeSize);
+		int nodeSize = 100;
+		int edgeSize = 150;
+				
+		GraphGenerator gg = this.generatorConstructor.newInstance("ABC", 0, new Parameter[]{}, gds, nodeSize, edgeSize);
 		Graph g = gg.generate();
 		
 		assertEquals(nodeSize, g.getNodeCount());
 		assertEquals(edgeSize, g.getEdgeCount());
+	}
+	
+	@Test
+	public void testWriteRead() throws InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, ClassNotFoundException, IOException {
+		int nodeSize = 200;
+		int edgeSize = 300;
+		
+		GraphGenerator gg = this.generatorConstructor.newInstance("ABC", 0, new Parameter[]{}, gds, nodeSize, edgeSize);
+		Graph g = gg.generate();
+		
+		String tempFolder = folder.getRoot().getAbsolutePath();
+		
+		GraphWriter gw = new GraphWriter();
+		gw.write(g, tempFolder, "g1");
+
+		GraphReader gr = new GraphReader();
+		Graph g2 = gr.read(tempFolder, "g1", null);
+		
+		assertEquals(gds, g2.getGraphDatastructures());
+		assertEquals(g, g2);
 	}
 	
 }

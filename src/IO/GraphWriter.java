@@ -2,11 +2,9 @@ package IO;
 
 import java.io.IOException;
 
-import Utils.Keywords;
 import Graph.Graph;
 import Graph.IElement;
-import Graph.Edges.Edge;
-import Graph.Nodes.Node;
+import Utils.Keywords;
 
 public class GraphWriter {
 
@@ -21,11 +19,9 @@ public class GraphWriter {
 
 			writer.writeKeyword(Keywords.graphNodes);
 			writer.writeln(g.getNodeCount());
-			writer.writeln(g.getGraphDatastructures().getNodeType());
 
 			writer.writeKeyword(Keywords.graphEdges);
 			writer.writeln(g.getEdgeCount());
-			writer.writeln(g.getGraphDatastructures().getEdgeType());
 
 			writer.writeKeyword(Keywords.graphTimestamp);
 			writer.writeln(g.getTimestamp());
