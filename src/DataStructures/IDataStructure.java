@@ -17,5 +17,7 @@ public interface IDataStructure extends Iterable {
 	public Collection<IElement> getElements();
 	
 	public void reinitializeWithSize(int size);
+	
+	public boolean dataEquals(DataStructure that);
 
 }

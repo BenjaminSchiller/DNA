@@ -137,19 +137,17 @@ public class Graph {
 		if (getClass() != obj.getClass()) {
 			return false;
 		}
+		
 		Graph other = (Graph) obj;
-		if (edges == null) {
-			if (other.edges != null) {
-				return false;
-			}
-		} else if (!this.getEdges().equals(other.getEdges())) {
-			return false;
-		}
+
 		if (gds == null) {
 			if (other.gds != null) {
 				return false;
 			}
 		} else if (!gds.equals(other.gds)) {
+			return false;
+		}
+		if (timestamp != other.timestamp) {
 			return false;
 		}
 		if (name == null) {
@@ -159,14 +157,19 @@ public class Graph {
 		} else if (!name.equals(other.name)) {
 			return false;
 		}
+		
+		if (edges == null) {
+			if (other.edges != null) {
+				return false;
+			}
+		} else if (!this.edges.equals(other.edges)) {
+			return false;
+		}
 		if (nodes == null) {
 			if (other.nodes != null) {
 				return false;
 			}
-		} else if (!this.getNodes().equals(other.getNodes())) {
-			return false;
-		}
-		if (timestamp != other.timestamp) {
+		} else if (!this.nodes.equals(other.nodes)) {
 			return false;
 		}
 		return true;

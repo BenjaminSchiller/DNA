@@ -19,4 +19,20 @@ public abstract class DataStructure implements IDataStructure {
 	public void reinitializeWithSize(int size) {
 		this.init(this.dataType, size);
 	}
+	
+	public boolean equals(Object that) {
+		if (that == null) return false;
+		if (! (that instanceof DataStructure)) {
+			return false;
+		}
+		
+		DataStructure thatCasted = (DataStructure)that;
+		if (this.size() != thatCasted.size()) return false;
+		
+		return this.dataEquals(thatCasted);
+	}
+	
+	public boolean dataEquals(DataStructure that) {
+		return this.getElements().containsAll(that.getElements()) && that.getElements().containsAll(this.getElements());
+	}	
 }
