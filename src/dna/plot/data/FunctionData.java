@@ -27,4 +27,9 @@ public class FunctionData extends PlotData {
 				+ "\"");
 		return buff.toString();
 	}
+
+	public String getEntry(int lt, int lw, double offsetX, double offsetY,
+			DistributionPlotType distPlotType) {
+		return this.getEntry(lt, lw, offsetX, offsetY);
+	}
 }
