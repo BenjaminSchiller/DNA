@@ -13,7 +13,8 @@ import dna.util.ArrayUtils;
 /**
  * DistributionInt is an object which represents an distribution by whole
  * numbers and its denominator. Integer data-structures are used. For larger
- * numbers see DistributionLong.
+ * numbers see DistributionLong. Additional values are used for compared
+ * distributions.
  * 
  * @author Rwilmes
  * @date 17.06.2013
@@ -24,17 +25,26 @@ public class DistributionInt extends Distribution {
 	private int[] values;
 	private int denominator;
 
-	// constructors
-	public DistributionInt(String name, int[] values) {
-		super(name);
-		this.values = values;
-		this.denominator = ArrayUtils.sum(values);
-	}
+	// values for comparison
+	private int comparedSum;
+	private int comparedMin;
+	private int comparedMax;
 
+	// constructors
 	public DistributionInt(String name, int[] values, int denominator) {
 		super(name);
 		this.values = values;
 		this.denominator = denominator;
+	}
+
+	public DistributionInt(String name, int[] values, int denominator, int sum,
+			int min, int max) {
+		super(name);
+		this.values = values;
+		this.denominator = denominator;
+		this.comparedSum = sum;
+		this.comparedMin = min;
+		this.comparedMax = max;
 	}
 
 	// get methods
@@ -61,6 +71,18 @@ public class DistributionInt extends Distribution {
 
 	public int getMax() {
 		return values.length - 1;
+	}
+
+	public int getComparedSum() {
+		return this.comparedSum;
+	}
+
+	public int getComparedMin() {
+		return this.comparedMin;
+	}
+
+	public int getComparedMax() {
+		return this.comparedMax;
 	}
 
 	/**
