@@ -5,7 +5,6 @@ import java.util.Collection;
 import java.util.Iterator;
 
 import Graph.IElement;
-import Graph.Edges.Edge;
 import Graph.Nodes.Node;
 import Utils.Rand;
 

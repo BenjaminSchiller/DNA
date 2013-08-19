@@ -16,6 +16,7 @@ public class GraphDataStructure {
 	private Class<? extends Node> nodeType;
 	private Class<? extends Edge> edgeType;
 
+	@SuppressWarnings("unchecked")
 	public GraphDataStructure(Class<? extends INodeListDatastructure> nodeListType,
 			Class<? extends IEdgeListDatastructure> graphEdgeListType,
 			Class<? extends IEdgeListDatastructure> nodeEdgeListType,
@@ -28,7 +29,6 @@ public class GraphDataStructure {
 		try {
 			this.edgeType = (Class<? extends Edge>) nodeType.getField("edgeType").get(null);
 		} catch (IllegalArgumentException | IllegalAccessException | NoSuchFieldException | SecurityException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
@@ -48,7 +48,6 @@ public class GraphDataStructure {
 		try {
 			this.edgeType = (Class<? extends Edge>) nodeType.getField("edgeType").get(null);
 		} catch (IllegalArgumentException | IllegalAccessException | NoSuchFieldException | SecurityException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
@@ -173,7 +172,6 @@ public class GraphDataStructure {
 			return c.newInstance(index, this);
 		} catch (NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException
 				| IllegalArgumentException | InvocationTargetException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		throw new RuntimeException("Could not generate new node instance");
@@ -186,7 +184,6 @@ public class GraphDataStructure {
 			return c.newInstance(str, this);
 		} catch (NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException
 				| IllegalArgumentException | InvocationTargetException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		throw new RuntimeException("Could not generate new node instance");
@@ -199,7 +196,6 @@ public class GraphDataStructure {
 			return c.newInstance(src, dst);
 		} catch (NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException
 				| IllegalArgumentException | InvocationTargetException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		throw new RuntimeException("Could not generate new edge instance");
@@ -212,7 +208,6 @@ public class GraphDataStructure {
 			return c.newInstance(str, graph);
 		} catch (NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException
 				| IllegalArgumentException | InvocationTargetException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		throw new RuntimeException("Could not generate new edge instance");		

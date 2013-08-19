@@ -4,12 +4,9 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 
-import com.google.common.collect.Sets;
-
-import Utils.Rand;
 import Graph.IElement;
-import Graph.Edges.Edge;
 import Graph.Nodes.Node;
+import Utils.Rand;
 
 public class DArray extends DataStructure implements INodeListDatastructure {
 	private IElement[] list;
@@ -76,7 +73,7 @@ public class DArray extends DataStructure implements INodeListDatastructure {
 	}
 
 	@Override
-	public Iterator iterator() {
+	public Iterator<IElement> iterator() {
 		return Arrays.asList(this.list).iterator();
 	}
 
