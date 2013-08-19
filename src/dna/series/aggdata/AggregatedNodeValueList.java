@@ -50,7 +50,11 @@ public class AggregatedNodeValueList extends AggregatedData {
 		int[] sortedIndex = new int[this.values.length];
 
 		switch (sortBy) {
-
+		case index:
+			for (int i = 0; i < this.values.length; i++) {
+				sortedIndex[i] = i;
+			}
+			break;
 		case average:
 			for (int i = 0; i < this.values.length; i++) {
 				tempValues[i] = this.values[i].getAvg();
