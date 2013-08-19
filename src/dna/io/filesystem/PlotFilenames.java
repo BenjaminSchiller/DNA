@@ -14,6 +14,8 @@ public class PlotFilenames {
 
 	public static final String metricRuntimesFraction = "metrics.fraction";
 
+	public static final String distributionCdf = "CDF";
+
 	public static String getDistributionDataFile(MetricData m, Distribution d) {
 		return Prefix.distributionsDataFile + m.getName() + delimiter
 				+ d.getName() + Suffix.data;
@@ -31,12 +33,23 @@ public class PlotFilenames {
 				+ distribution + Suffix.gnuplot;
 	}
 
+	public static String getDistributionCdfGnuplotScript(String metric,
+			String distribution) {
+		return Prefix.distributionsGnuplotScript + metric + delimiter
+				+ distribution + delimiter + distributionCdf + Suffix.gnuplot;
+	}
+
 	public static String getDistributionPlot(MetricData m, Distribution d) {
 		return PlotFilenames.getDistributionPlot(m.getName(), d.getName());
 	}
 
 	public static String getDistributionPlot(String metric, String distribution) {
 		return metric + delimiter + distribution;
+	}
+
+	public static String getDistributionCdfPlot(String metric,
+			String distribution) {
+		return metric + delimiter + distribution + delimiter + distributionCdf;
 	}
 
 	public static String getValuesDataFile(MetricData m, Values v, int index) {
@@ -87,7 +100,7 @@ public class PlotFilenames {
 	}
 
 	public static String getRuntimesGnuplotScript(String name) {
-		return Prefix.runtimesGnuplotScript + name;
+		return Prefix.runtimesGnuplotScript + name + Suffix.gnuplot;
 	}
 
 	public static String getRuntimesMetricPlot(String name) {

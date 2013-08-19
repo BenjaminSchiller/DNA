@@ -39,9 +39,8 @@ public class ConfidenceData2 extends PlotData {
 		String median = "($5 + " + offsetY + ")";
 		String average = "($2 + " + offsetY + ")";
 
-		buff.append("'" + this.data + "' using " + x + ":" + box_min + ":"
-				+ whisker_min + ":" + whisker_high + ":" + box_high
-				+ " with candlesticks");
+		buff.append("'-' using " + x + ":" + box_min + ":" + whisker_min + ":"
+				+ whisker_high + ":" + box_high + " with candlesticks");
 		buff.append(" lt " + lt + " lw " + lw);
 		buff.append(title == null ? " notitle" : " title \"" + this.title
 				+ "\"");
@@ -53,5 +52,10 @@ public class ConfidenceData2 extends PlotData {
 		buff.append("'' using " + x + ":" + average + " with lines");
 		buff.append(" lt " + lt + " lw " + lw + " notitle");
 		return buff.toString();
+	}
+
+	public String getEntry(int lt, int lw, double offsetX, double offsetY,
+			DistributionPlotType distPlotType) {
+		return this.getEntry(lt, lw, offsetX, offsetY);
 	}
 }

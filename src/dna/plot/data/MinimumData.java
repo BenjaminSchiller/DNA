@@ -21,8 +21,24 @@ public class MinimumData extends PlotData {
 	@Override
 	public String getEntry(int lt, int lw, double offsetX, double offsetY) {
 		StringBuffer buff = new StringBuffer();
-		buff.append("'" + this.data + "' using ($1 + " + offsetX + "):($3 + "
-				+ offsetY + ") with " + this.style);
+		buff.append("'-' using ($1 + " + offsetX + "):($3 + " + offsetY
+				+ ") with " + this.style);
+		buff.append(" lt " + lt + " lw " + lw);
+		buff.append(title == null ? " notitle" : " title \"" + this.title
+				+ "\"");
+		return buff.toString();
+	}
+
+	@Override
+	public String getEntry(int lt, int lw, double offsetX, double offsetY,
+			DistributionPlotType distPlotType) {
+		StringBuffer buff = new StringBuffer();
+		if (distPlotType.equals(DistributionPlotType.cdfOnly))
+			buff.append("'-' using ($1 + " + offsetX + "):($3 + " + offsetY
+					+ ") smooth cumulative with " + this.style);
+		else
+			buff.append("'-' using ($1 + " + offsetX + "):($3 + " + offsetY
+					+ ") with " + this.style);
 		buff.append(" lt " + lt + " lw " + lw);
 		buff.append(title == null ? " notitle" : " title \"" + this.title
 				+ "\"");

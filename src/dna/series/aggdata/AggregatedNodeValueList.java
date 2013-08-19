@@ -257,6 +257,18 @@ public class AggregatedNodeValueList extends AggregatedData {
 				values);
 	}
 
+	/**
+	 * Writes a NodeValueList object into a file.
+	 * 
+	 * @param dir
+	 *            Destination directory
+	 * @param filename
+	 *            Destination filename
+	 * @param writeSorted
+	 *            Flag which indicates if the NodeValueList should be written
+	 *            according to its sortIndex.
+	 * @throws IOException
+	 */
 	public void write(String dir, String filename, boolean writeSorted)
 			throws IOException {
 		if (writeSorted)
