@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.Iterator;
 
 import Graph.IElement;
+import Graph.Edges.Edge;
 import Graph.Nodes.Node;
 import Utils.Rand;
 
@@ -111,4 +112,14 @@ public class DArrayList extends DataStructure implements INodeListDatastructure 
 		return this.list.iterator();
 	}
 
+	@Override
+	public boolean remove(IElement element) {
+		if ( element instanceof Node ) return this.removeNode((Node) element);
+		else throw new RuntimeException("Cannot remove a non-node from a node list");
+	}
+
+	@Override
+	public boolean canStore(Class<? extends IElement> o) {
+		return ( o.isAssignableFrom(Node.class));
+	}	
 }
