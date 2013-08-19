@@ -378,7 +378,102 @@ public class MetricData implements ListItem {
 
 		// compare distributions
 		DistributionList comparedDistributions = new DistributionList();
-		// TODO: COMPARE DISTRIBUTIONS
+		for (String distribution : similarDistributions.getNames()) {
+			if (m1.getDistributions().get(distribution) instanceof DistributionInt
+					&& m2.getDistributions().get(distribution) instanceof DistributionInt) {
+				// compare DistributionInt objects
+				int[] values1 = ((DistributionInt) m1.getDistributions().get(
+						distribution)).getIntValues();
+				int[] values2 = ((DistributionInt) m2.getDistributions().get(
+						distribution)).getIntValues();
+				int[] diff = new int[Math.max(values1.length, values2.length)];
+
+				int denom1 = ((DistributionInt) m1.getDistributions().get(
+						distribution)).getDenominator();
+				int denom2 = ((DistributionInt) m2.getDistributions().get(
+						distribution)).getDenominator();
+
+				int sum = 0;
+				int min = 0;
+				int max = 0;
+
+				for (int i = 0; i < diff.length; i++) {
+					int v1 = 0;
+					int v2 = 0;
+
+					try {
+						v1 = values1[i];
+					} catch (ArrayIndexOutOfBoundsException e) {
+					}
+					try {
+						v2 = values2[i];
+					} catch (ArrayIndexOutOfBoundsException e) {
+					}
+
+					diff[i] = v1 - v2;
+
+					if (i == 0) {
+						min = diff[i];
+						max = diff[i];
+					}
+					if (diff[i] < min)
+						min = diff[i];
+					if (diff[i] > max)
+						max = diff[i];
+				}
+				comparedDistributions.add(new DistributionInt(distribution
+						+ Suffix.quality, diff, denom1, sum, min, max));
+			} else {
+				if (m1.getDistributions().get(distribution) instanceof DistributionLong
+						&& m2.getDistributions().get(distribution) instanceof DistributionLong) {
+					// compare DistributionLong objects
+					long[] values1 = ((DistributionLong) m1.getDistributions()
+							.get(distribution)).getLongValues();
+					long[] values2 = ((DistributionLong) m2.getDistributions()
+							.get(distribution)).getLongValues();
+					long[] diff = new long[Math.max(values1.length,
+							values2.length)];
+
+					long denom1 = ((DistributionLong) m1.getDistributions()
+							.get(distribution)).getDenominator();
+					long denom2 = ((DistributionLong) m2.getDistributions()
+							.get(distribution)).getDenominator();
+
+					long sum = 0;
+					long min = 0;
+					long max = 0;
+
+					for (int i = 0; i < diff.length; i++) {
+						long v1 = 0;
+						long v2 = 0;
+
+						try {
+							v1 = values1[i];
+						} catch (ArrayIndexOutOfBoundsException e) {
+						}
+						try {
+							v2 = values2[i];
+						} catch (ArrayIndexOutOfBoundsException e) {
+						}
+
+						diff[i] = v1 - v2;
+
+						if (i == 0) {
+							min = diff[i];
+							max = diff[i];
+						}
+						if (diff[i] < min)
+							min = diff[i];
+						if (diff[i] > max)
+							max = diff[i];
+					}
+					comparedDistributions.add(new DistributionLong(distribution
+							+ Suffix.quality, diff, denom1, sum, min, max));
+				} else {
+					Log.warn("Trying to compare distributions of different or unknown type. Try to use DistributionInt or DistributionLong for comparison!");
+				}
+			}
+		}
 
 		// compare nodevaluelists
 		NodeValueListList comparedNodeValues = new NodeValueListList();

@@ -13,7 +13,8 @@ import dna.util.ArrayUtils;
 /**
  * DistributionLong is an object which represents an distribution by whole
  * numbers and its denominator. Due to the use of long numbers it provides a way
- * to represent distributions with large numbers.
+ * to represent distributions with large numbers. Additional values are used for
+ * compared distributions.
  * 
  * @author Rwilmes
  * @date 17.06.2013
@@ -24,11 +25,26 @@ public class DistributionLong extends Distribution {
 	private long[] values;
 	private long denominator;
 
+	// values for comparison
+	private long comparedSum;
+	private long comparedMin;
+	private long comparedMax;
+
 	// constructor
 	public DistributionLong(String name, long[] values, long denominator) {
 		super(name);
 		this.values = values;
 		this.denominator = denominator;
+	}
+
+	public DistributionLong(String name, long[] values, long denominator,
+			long sum, long min, long max) {
+		super(name);
+		this.values = values;
+		this.denominator = denominator;
+		this.comparedSum = sum;
+		this.comparedMin = min;
+		this.comparedMax = max;
 	}
 
 	// get methods
@@ -55,6 +71,18 @@ public class DistributionLong extends Distribution {
 
 	public long getMax() {
 		return (long) values.length - 1;
+	}
+
+	public long getComparedSum() {
+		return this.comparedSum;
+	}
+
+	public long getComparedMin() {
+		return this.comparedMin;
+	}
+
+	public long getComparedMax() {
+		return this.comparedMax;
 	}
 
 	/**
