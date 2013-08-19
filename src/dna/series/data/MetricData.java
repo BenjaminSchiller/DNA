@@ -402,11 +402,11 @@ public class MetricData implements ListItem {
 					int v2 = 0;
 
 					try {
-						v1 = values1[i];
+						v1 = values1[i] * denom2;
 					} catch (ArrayIndexOutOfBoundsException e) {
 					}
 					try {
-						v2 = values2[i];
+						v2 = values2[i] * denom1;
 					} catch (ArrayIndexOutOfBoundsException e) {
 					}
 
@@ -421,8 +421,9 @@ public class MetricData implements ListItem {
 					if (diff[i] > max)
 						max = diff[i];
 				}
-				comparedDistributions.add(new DistributionInt(distribution
-						+ Suffix.quality, diff, denom1, sum, min, max));
+				comparedDistributions
+						.add(new DistributionInt(distribution + Suffix.quality,
+								diff, denom1 * denom2, sum, min, max));
 			} else {
 				if (m1.getDistributions().get(distribution) instanceof DistributionLong
 						&& m2.getDistributions().get(distribution) instanceof DistributionLong) {
@@ -448,11 +449,11 @@ public class MetricData implements ListItem {
 						long v2 = 0;
 
 						try {
-							v1 = values1[i];
+							v1 = values1[i] * denom2;
 						} catch (ArrayIndexOutOfBoundsException e) {
 						}
 						try {
-							v2 = values2[i];
+							v2 = values2[i] * denom1;
 						} catch (ArrayIndexOutOfBoundsException e) {
 						}
 
@@ -468,7 +469,8 @@ public class MetricData implements ListItem {
 							max = diff[i];
 					}
 					comparedDistributions.add(new DistributionLong(distribution
-							+ Suffix.quality, diff, denom1, sum, min, max));
+							+ Suffix.quality, diff, denom1 * denom2, sum, min,
+							max));
 				} else {
 					Log.warn("Trying to compare distributions of different or unknown type. Try to use DistributionInt or DistributionLong for comparison!");
 				}
