@@ -131,7 +131,7 @@ public class DArray extends DataStructure implements INodeListDatastructure {
 
 	@Override
 	public boolean canStore(Class<? extends IElement> o) {
-		return ( o.isAssignableFrom(Node.class));
+		return ( Node.class.isAssignableFrom(o));
 	}
 
 }

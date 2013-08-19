@@ -84,7 +84,7 @@ public class DHashSet extends DataStructure implements IEdgeListDatastructure {
 
 	@Override
 	public boolean canStore(Class<? extends IElement> o) {
-		return ( o.isAssignableFrom(Edge.class));
+		return ( Edge.class.isAssignableFrom(o));
 	}
 	
 }
