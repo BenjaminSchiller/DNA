@@ -39,8 +39,6 @@ public class GraphReader {
 		reader.readKeyword(Keywords.graphTimestamp);
 		long timestamp = reader.readLong();
 
-		System.out.println("DS:\n" + ds);
-
 		Graph g = ds.newGraphInstance(name, timestamp, nodes, edges);
 		Class eClass = ds.getEdgeType();
 

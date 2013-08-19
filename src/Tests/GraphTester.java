@@ -62,7 +62,6 @@ public class GraphTester {
 		String gdsString = gds.getDataStructures();
 		GraphDataStructure gds2 = new GraphDataStructure(gdsString);
 		assertEquals(gds,gds2);
-		System.out.println(gds.hashCode());
 	}
 	
 	@Test
