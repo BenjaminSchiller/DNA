@@ -1,22 +1,27 @@
 package dna.metrics.connectedComponents;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 
+import dna.graph.Graph;
+import dna.graph.directed.DirectedNode;
 import dna.graph.undirected.UndirectedEdge;
+import dna.graph.undirected.UndirectedGraph;
 import dna.graph.undirected.UndirectedNode;
 import dna.metrics.Metric;
 import dna.series.data.Distribution;
 import dna.series.data.Value;
-import dna.util.ArrayUtils;
+import dna.updates.Batch;
 
+@SuppressWarnings("rawtypes")
 public abstract class CCUndirected extends Metric {
 
-	protected int[] nodeComponentMembership;
+	protected HashMap<Integer, Integer> nodeComponentMembership;
 	protected boolean[] visited;
-	protected SpanningTreeNode[] nodesTreeElement;
+	protected HashMap<Integer, SpanningTreeNode> nodesTreeElement;
 	protected List<SpanningTreeNode> componentList;
 
 	public CCUndirected(String name, ApplicationType type) {
@@ -24,25 +29,41 @@ public abstract class CCUndirected extends Metric {
 	}
 
 	@Override
-	public void init() {
-		this.nodeComponentMembership = new int[this.g.getNodes().size()];
-		this.nodesTreeElement = new SpanningTreeNode[this.g.getNodes().size()];
+	public void init_() {
+		this.nodeComponentMembership = new HashMap<Integer, Integer>();
+		this.nodesTreeElement = new HashMap<Integer, SpanningTreeNode>();
 		this.visited = new boolean[this.g.getNodes().size()];
 		this.componentList = new ArrayList<SpanningTreeNode>();
 	}
 
 	@Override
 	public void reset_() {
-		this.nodeComponentMembership = new int[this.g.getNodes().size()];
+		this.nodeComponentMembership = new HashMap<Integer, Integer>();
 		this.visited = new boolean[this.g.getNodes().size()];
-		this.nodesTreeElement = new SpanningTreeNode[this.g.getNodes().size()];
+		this.nodesTreeElement = new HashMap<Integer, SpanningTreeNode>();
 		this.componentList = new ArrayList<SpanningTreeNode>();
+	}
+
+	@Override
+	public boolean compute() {
+		UndirectedGraph g = (UndirectedGraph) this.g;
+		for (UndirectedNode n : g.getNodes()) {
+			if (!this.visited[n.getIndex()]) {
+				bfs(n);
+			}
+		}
+		for (SpanningTreeNode n : nodesTreeElement.values()) {
+			if (n.getWeight() == 0) {
+				calculateWeights(n);
+			}
+		}
+		return true;
 	}
 
 	protected void calculateWeights(SpanningTreeNode n) {
 
-		if (nodesTreeElement[n.getNode().getIndex()].getChildren() == null) {
-			nodesTreeElement[n.getNode().getIndex()].setWeight(1);
+		if (nodesTreeElement.get(n.getNode().getIndex()).getChildren() == null) {
+			nodesTreeElement.get(n.getNode().getIndex()).setWeight(1);
 		} else {
 			int sumChildren = 0;
 			for (SpanningTreeNode child : n.getChildren()) {
@@ -51,7 +72,8 @@ public abstract class CCUndirected extends Metric {
 				}
 				sumChildren += child.getWeight();
 			}
-			nodesTreeElement[n.getNode().getIndex()].setWeight(sumChildren + 1);
+			nodesTreeElement.get(n.getNode().getIndex()).setWeight(
+					sumChildren + 1);
 		}
 
 	}
@@ -67,8 +89,8 @@ public abstract class CCUndirected extends Metric {
 		visited[node.getIndex()] = true;
 		while (!q.isEmpty()) {
 			SpanningTreeNode temp = (SpanningTreeNode) q.poll();
-			this.nodeComponentMembership[temp.getNode().getIndex()] = comp;
-			this.nodesTreeElement[temp.getNode().getIndex()] = temp;
+			this.nodeComponentMembership.put(temp.getNode().getIndex(), comp);
+			this.nodesTreeElement.put(temp.getNode().getIndex(), temp);
 			for (UndirectedEdge n : temp.getNode().getEdges()) {
 				UndirectedNode des = n.getNode1();
 				if (des != temp.getNode()) {
@@ -94,12 +116,11 @@ public abstract class CCUndirected extends Metric {
 		}
 		CCUndirected cc = (CCUndirected) m;
 
-		if (!ArrayUtils.equals(this.nodeComponentMembership,
-				cc.getNodeComponentMembership())) {
-			return false;
-		}
-
-		return true;
+		boolean success = true;
+		success &= this.nodeComponentMembership
+				.equals(cc.nodeComponentMembership);
+		success &= this.componentList.equals(cc.componentList);
+		return success;
 	}
 
 	// /compcounter
@@ -136,8 +157,29 @@ public abstract class CCUndirected extends Metric {
 		return sumComp;
 	}
 
-	public int[] getNodeComponentMembership() {
+	public HashMap<Integer, Integer> getNodeComponentMembership() {
 		return nodeComponentMembership;
+	}
+
+	@Override
+	public boolean isComparableTo(Metric m) {
+		return m != null && m instanceof CCUndirected;
+	}
+
+	@Override
+	public boolean isApplicable(Graph g) {
+		return DirectedNode.class.isAssignableFrom(g.getGraphDatastructures()
+				.getNodeType())
+				|| UndirectedNode.class.isAssignableFrom(g
+						.getGraphDatastructures().getNodeType());
+	}
+
+	@Override
+	public boolean isApplicable(Batch b) {
+		return DirectedNode.class.isAssignableFrom(b.getGraphDatastructures()
+				.getNodeType())
+				|| UndirectedNode.class.isAssignableFrom(b
+						.getGraphDatastructures().getNodeType());
 	}
 
 }

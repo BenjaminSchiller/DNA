@@ -1,102 +1,142 @@
 package dna.metrics.connectedComponents;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
+import java.util.Stack;
 
-import sun.misc.Queue;
-import dna.graph.Node;
+import dna.graph.Graph;
+import dna.graph.directed.DirectedEdge;
+import dna.graph.directed.DirectedGraph;
+import dna.graph.directed.DirectedNode;
+import dna.graph.undirected.UndirectedNode;
 import dna.metrics.Metric;
 import dna.series.data.Distribution;
 import dna.series.data.Value;
-import dna.util.ArrayUtils;
+import dna.updates.Batch;
 
+@SuppressWarnings("rawtypes")
 public abstract class CCDirected extends Metric {
 
-	protected int compCounter;
 	private boolean[] visited;
-	private boolean[] discoverd;
-	protected int[] nodeComponentMembership;
-	protected SpanningTreeNode[] nodesTreeElement;
-	protected Map<Integer, List<Node>> reachableNodesFromComponet;
 
-	// new algorithm
-	protected List<List<ComponentVertex>> components;
-	protected int[] nodeComponentMembership2;
+	// DAGGER
+	private Stack<DirectedNode> s;
+	private int[] lowLink;
+	private int[] index;
+	private int ind = 0;
+	protected int componentCounter = 0;
+	protected Map<Integer, Integer> containmentEdges;
+	protected Map<Integer, ComponentVertex> dag;
+	protected Map<Integer, ComponentVertex> dagExpired;
 
 	public CCDirected(String name, ApplicationType type) {
 		super(name, type);
 	}
 
 	@Override
-	public void init() {
-		this.nodeComponentMembership = new int[this.g.getNodes().size()];
-		this.nodesTreeElement = new SpanningTreeNode[this.g.getNodes().size()];
-		this.visited = new boolean[this.g.getNodes().size()];
-		this.discoverd = new boolean[this.g.getNodes().size()];
-		this.reachableNodesFromComponet = new HashMap<Integer, List<Node>>();
-		this.compCounter = 0;
+	public void init_() {
+		this.s = new Stack<DirectedNode>();
+		this.lowLink = new int[this.g.getNodeCount()];
+		this.index = new int[this.g.getNodeCount()];
+		this.visited = new boolean[this.g.getNodeCount()];
+		this.dagExpired = new HashMap<>();
+		this.containmentEdges = new HashMap<>();
+		this.dag = new HashMap<>();
 	}
 
 	@Override
 	public void reset_() {
-		this.nodeComponentMembership = new int[this.g.getNodes().size()];
-		this.nodesTreeElement = new SpanningTreeNode[this.g.getNodes().size()];
-		this.visited = new boolean[this.g.getNodes().size()];
-		this.discoverd = new boolean[this.g.getNodes().size()];
-		this.reachableNodesFromComponet = new HashMap<Integer, List<Node>>();
-		this.compCounter = 0;
+		this.s = new Stack<DirectedNode>();
+		this.lowLink = new int[this.g.getNodeCount()];
+		this.index = new int[this.g.getNodeCount()];
+		this.dagExpired = new HashMap<>();
+		this.containmentEdges = new HashMap<>();
+		this.dag = new HashMap<>();
+		this.visited = new boolean[this.g.getNodeCount()];
 	}
 
 	@Override
-	protected boolean compute_() {
-		for (Node n : this.g.getNodes()) {
+	public boolean compute() {
+		DirectedGraph g = (DirectedGraph) this.g;
+		s.clear();
+		ind = 0;
+		for (DirectedNode n : g.getNodes()) {
 			if (!visited[n.getIndex()]) {
-				this.discoverd = new boolean[this.g.getNodes().size()];
-				bfs(n);
+				tarjan(n);
 			}
 		}
-
 		return true;
 	}
 
-	private void bfs(Node node) {
-		try {
-			compCounter++;
-			int comp = node.getIndex();
-			Queue q = new Queue();
-			q.enqueue(new SpanningTreeNode(node));
-			this.discoverd[node.getIndex()] = true;
+	private void tarjan(DirectedNode node) {
+		index[node.getIndex()] = ind;
+		lowLink[node.getIndex()] = ind;
+		visited[node.getIndex()] = true;
+		ind += 1;
+		s.push(node);
 
-			List<Node> reachables = new ArrayList<Node>();
-			while (!q.isEmpty()) {
-				SpanningTreeNode temp = (SpanningTreeNode) q.dequeue();
-				for (Node n : temp.getNode().getOut()) {
-					if (!this.discoverd[n.getIndex()]) {
-						this.discoverd[n.getIndex()] = true;
-						SpanningTreeNode newChild = new SpanningTreeNode(n);
-						newChild.setParent(temp);
-						temp.addChild(newChild);
-						reachables.add(n);
-						q.enqueue(newChild);
+		for (DirectedEdge e : node.getOutgoingEdges()) {
+			if (!visited[e.getDst().getIndex()]) {
+				tarjan(e.getDst());
+				lowLink[node.getIndex()] = Math.min(lowLink[node.getIndex()],
+						lowLink[e.getDst().getIndex()]);
+			} else if (s.contains(e.getDst())) {
+				lowLink[node.getIndex()] = Math.min(lowLink[node.getIndex()],
+						lowLink[e.getDst().getIndex()]);
+			}
+		}
 
-					} else if (!this.visited[n.getIndex()]) {
-						this.visited[n.getIndex()] = true;
-						this.nodeComponentMembership[temp.getNode().getIndex()] = comp;
-						this.nodesTreeElement[temp.getNode().getIndex()] = temp;
-						reachables.remove(n);
+		if (index[node.getIndex()] == lowLink[node.getIndex()]) {
+			DirectedNode n;
+			ComponentVertex newComponent = new ComponentVertex(
+					this.componentCounter);
+			do {
+				n = s.pop();
+				containmentEdges.put(n.getIndex(), componentCounter);
+				for (DirectedEdge ed : n.getOutgoingEdges()) {
+					if (containmentEdges.containsKey(ed.getDst().getIndex())) {
+						if (containmentEdges.get(ed.getDst().getIndex()) != componentCounter) {
+							if (newComponent.ed.containsKey(containmentEdges
+									.get(ed.getDst().getIndex()))) {
+								newComponent.ed.get(
+										containmentEdges.get(ed.getDst()
+												.getIndex())).add(ed);
+							} else {
+								HashSet<DirectedEdge> temp = new HashSet<>();
+								temp.add(ed);
+								newComponent.ed.put(containmentEdges.get(ed
+										.getDst().getIndex()), temp);
+							}
+						}
 					}
 				}
-			}
+				for (DirectedEdge ed : n.getIncomingEdges()) {
+					if (containmentEdges.containsKey(ed.getSrc().getIndex())) {
+						if (containmentEdges.get(ed.getSrc().getIndex()) != componentCounter) {
+							ComponentVertex srcVertex = dag
+									.get(containmentEdges.get(ed.getSrc()
+											.getIndex()));
+							if (srcVertex.ed.containsKey(containmentEdges
+									.get(ed.getDst().getIndex()))) {
+								srcVertex.ed.get(
+										containmentEdges.get(ed.getDst()
+												.getIndex())).add(ed);
+							} else {
+								HashSet<DirectedEdge> temp = new HashSet<>();
+								temp.add(ed);
+								srcVertex.ed.put(containmentEdges.get(ed
+										.getDst().getIndex()), temp);
+							}
+						}
+					}
+				}
 
-			reachableNodesFromComponet.put(comp, reachables);
-
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			} while (n == node);
+			this.dag.put(this.componentCounter, newComponent);
+			componentCounter++;
 		}
+
 	}
 
 	@Override
@@ -106,78 +146,61 @@ public abstract class CCDirected extends Metric {
 		}
 		CCDirected cc = (CCDirected) m;
 
-		if (!ArrayUtils.equals(this.nodeComponentMembership,
-				cc.getNodeComponentMembership())) {
-			return false;
-		}
+		boolean success = true;
+		success &= (this.dag.size() == cc.dag.size());
 
-		if (this.compCounter != cc.getCompCounter()) {
-			return false;
-		}
-		return true;
+		return success;
 	}
 
 	@Override
 	protected Value[] getValues() {
 		Value v1 = new Value("NumberofComponents", countComponents());
-		Value v2 = new Value("AverageComponentSize",
-				calculateAverageComponentSize());
 
-		return new Value[] { v1, v2 };
+		return new Value[] { v1 };
 	}
 
 	private double countComponents() {
-		HashSet<Integer> compSize = new HashSet<Integer>();
-		for (int i = 0; i < nodeComponentMembership.length; i++) {
-			if (!compSize.contains(this.nodeComponentMembership[i])) {
-				compSize.add(this.nodeComponentMembership[i]);
-			}
-		}
-		return compSize.size();
-	}
 
-	private double calculateAverageComponentSize() {
-		HashSet<Integer> compSize = new HashSet<Integer>();
-		for (int i = 0; i < nodeComponentMembership.length; i++) {
-			if (!compSize.contains(this.nodeComponentMembership[i])) {
-				compSize.add(this.nodeComponentMembership[i]);
-			}
-		}
-
-		return this.g.getNodes().size() / compSize.size();
+		return this.dag.size();
 	}
 
 	@Override
 	protected Distribution[] getDistributions() {
 		Distribution d1 = new Distribution("Components", calculateComponents());
-		return new Distribution[] { d1 };
+		return new Distribution[] {};
 	}
 
 	private double[] calculateComponents() {
-		HashMap<Integer, Integer> sum = new HashMap<Integer, Integer>();
-		for (int i = 0; i < nodeComponentMembership.length; i++) {
-			if (sum.containsKey(nodeComponentMembership[i])) {
-				int temp = sum.get(nodeComponentMembership[i]) + 1;
-				sum.put(nodeComponentMembership[i], temp);
-			} else {
-				sum.put(nodeComponentMembership[i], 1);
-			}
-		}
-		double[] components = new double[sum.size()];
+
+		double[] components = new double[dag.size()];
 		int count = 0;
-		for (int s : sum.keySet()) {
-			components[count] = sum.get(s);
+		for (int s : dag.keySet()) {
+
 			count++;
 		}
 
 		return components;
 	}
 
-	public int[] getNodeComponentMembership() {
-		return nodeComponentMembership;
+	@Override
+	public boolean isApplicable(Graph g) {
+		return DirectedNode.class.isAssignableFrom(g.getGraphDatastructures()
+				.getNodeType())
+				|| UndirectedNode.class.isAssignableFrom(g
+						.getGraphDatastructures().getNodeType());
 	}
 
-	public int getCompCounter() {
-		return compCounter;
+	@Override
+	public boolean isApplicable(Batch b) {
+		return DirectedNode.class.isAssignableFrom(b.getGraphDatastructures()
+				.getNodeType())
+				|| UndirectedNode.class.isAssignableFrom(b
+						.getGraphDatastructures().getNodeType());
 	}
+
+	@Override
+	public boolean isComparableTo(Metric m) {
+		return m != null && m instanceof CCDirected;
+	}
+
 }

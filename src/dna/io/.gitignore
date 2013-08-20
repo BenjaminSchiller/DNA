@@ -6,3 +6,5 @@
 /GraphWriter.class
 /Reader.class
 /Writer.class
+/BatchReader.class
+/BatchWriter.class

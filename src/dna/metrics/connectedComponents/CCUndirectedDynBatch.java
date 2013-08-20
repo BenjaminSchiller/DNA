@@ -2,38 +2,38 @@ package dna.metrics.connectedComponents;
 
 import java.util.Collection;
 
-import dna.graph.Graph;
 import dna.graph.undirected.UndirectedEdge;
 import dna.graph.undirected.UndirectedNode;
-import dna.metrics.Metric;
 import dna.updates.Batch;
 import dna.updates.Update;
 
+@SuppressWarnings("rawtypes")
 public class CCUndirectedDynBatch extends CCUndirected {
 
 	public CCUndirectedDynBatch() {
-		super("CCdirectedComp", ApplicationType.AfterBatch);
+		super("CCUndirectedComp", ApplicationType.AfterBatch);
 	}
 
 	@Override
 	public boolean applyBeforeBatch(Batch b) {
-		// TODO Auto-generated method stub
 		return false;
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public boolean applyAfterBatch(Batch b) {
 		int r = 0;
 		boolean[][] a = new boolean[this.g.getNodes().size()][this.g.getNodes()
 				.size()];
-		for (UndirectedEdge e : (Collection<UndirectedEdge>) b
-				.getEdgeRemovals()) {
+		Collection<UndirectedEdge> edgeRemovals = (Collection<UndirectedEdge>) b
+				.getEdgeRemovals();
+		for (UndirectedEdge e : edgeRemovals) {
 			UndirectedNode src = e.getNode1();
 			UndirectedNode dst = e.getNode2();
-			SpanningTreeNode dstTreeElement = this.nodesTreeElement[dst
-					.getIndex()];
-			SpanningTreeNode srcTreeElement = this.nodesTreeElement[src
-					.getIndex()];
+			SpanningTreeNode dstTreeElement = this.nodesTreeElement.get(dst
+					.getIndex());
+			SpanningTreeNode srcTreeElement = this.nodesTreeElement.get(src
+					.getIndex());
 			if (srcTreeElement.getChildren().contains(dstTreeElement)) {
 
 				boolean foundNeighbour = false;
@@ -69,13 +69,13 @@ public class CCUndirectedDynBatch extends CCUndirected {
 					.getEdgeAdditions()) {
 				UndirectedNode src = e.getNode1();
 				UndirectedNode dst = e.getNode2();
-				SpanningTreeNode dstTreeElement = this.nodesTreeElement[dst
-						.getIndex()];
-				SpanningTreeNode srcTreeElement = this.nodesTreeElement[src
-						.getIndex()];
+				SpanningTreeNode dstTreeElement = this.nodesTreeElement.get(dst
+						.getIndex());
+				SpanningTreeNode srcTreeElement = this.nodesTreeElement.get(src
+						.getIndex());
 
-				if (this.nodeComponentMembership[src.getIndex()] != this.nodeComponentMembership[dst
-						.getIndex()]) {
+				if (this.nodeComponentMembership.get(src.getIndex()) != this.nodeComponentMembership
+						.get(dst.getIndex())) {
 					f += 1;
 				}
 			}
@@ -91,43 +91,11 @@ public class CCUndirectedDynBatch extends CCUndirected {
 
 	@Override
 	public boolean applyBeforeUpdate(Update u) {
-		// TODO Auto-generated method stub
 		return false;
 	}
 
 	@Override
 	public boolean applyAfterUpdate(Update u) {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public boolean compute() {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	protected void init_() {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public boolean isApplicable(Graph g) {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public boolean isApplicable(Batch b) {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public boolean isComparableTo(Metric m) {
-		// TODO Auto-generated method stub
 		return false;
 	}
 
