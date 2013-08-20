@@ -1,11 +1,7 @@
 package dna.metrics.richClubConnectivity;
 
-import java.util.Collection;
-
-import dna.graph.Graph;
 import dna.graph.directed.DirectedEdge;
 import dna.graph.directed.DirectedNode;
-import dna.metrics.Metric;
 import dna.updates.Batch;
 import dna.updates.EdgeAddition;
 import dna.updates.EdgeRemoval;
@@ -14,56 +10,25 @@ import dna.updates.NodeAddition;
 import dna.updates.NodeRemoval;
 import dna.updates.Update;
 
-public class RCCOneDegreeDyn extends RCCOneDegree {
+@SuppressWarnings("rawtypes")
+public class RCCOneDegreeDirectedDyn extends RCCOneDegreeDirected {
 
-	public RCCOneDegreeDyn() {
+	public RCCOneDegreeDirectedDyn() {
 		super("RCCOneDegreeDyn", ApplicationType.AfterUpdate);
 	}
 
 	@Override
-	public boolean compute() {
-
-		if (DirectedNode.class.isAssignableFrom(this.g.getGraphDatastructures()
-				.getNodeType())) {
-			for (DirectedNode n : (Collection<DirectedNode>) this.g.getNodes()) {
-
-				int degree = n.getOutDegree();
-				if (degree >= k) {
-					this.richClub.add(n);
-
-				}
-			}
-			for (DirectedNode n : this.richClub) {
-				for (DirectedEdge w : n.getOutgoingEdges()) {
-					if (richClub.contains(w.getDst())) {
-						this.richClubEdges++;
-					}
-				}
-			}
-
-			int richClubMembers = richClub.size();
-			this.richClubCoeffizient = (double) this.richClubEdges
-					/ (double) (richClubMembers * (richClubMembers - 1));
-			return true;
-		}
-		return false;
-	}
-
-	@Override
 	public boolean applyBeforeBatch(Batch b) {
-		// TODO Auto-generated method stub
 		return false;
 	}
 
 	@Override
 	public boolean applyAfterBatch(Batch b) {
-		// TODO Auto-generated method stub
 		return false;
 	}
 
 	@Override
 	public boolean applyBeforeUpdate(Update u) {
-		// TODO Auto-generated method stub
 		return false;
 	}
 
@@ -88,7 +53,6 @@ public class RCCOneDegreeDyn extends RCCOneDegree {
 
 		if (richClub.contains(src)) {
 			if (src.getOutDegree() < k) {
-				richClub.remove(src);
 				for (DirectedEdge n : src.getOutgoingEdges()) {
 					if (richClub.contains(n.getDst())) {
 						this.richClubEdges--;
@@ -99,10 +63,18 @@ public class RCCOneDegreeDyn extends RCCOneDegree {
 						this.richClubEdges--;
 					}
 				}
-			} else if (richClub.contains(dst)) {
+				richClub.remove(src);
+
+			}
+			if (richClub.contains(dst)) {
 				this.richClubEdges--;
 			}
+			int richClubMembers = richClub.size();
+			this.richClubCoeffizient = (double) this.richClubEdges
+					/ (double) (richClubMembers * (richClubMembers - 1));
+
 		}
+
 		return true;
 	}
 
@@ -130,6 +102,10 @@ public class RCCOneDegreeDyn extends RCCOneDegree {
 			}
 
 		}
+
+		int richClubMembers = richClub.size();
+		this.richClubCoeffizient = (double) this.richClubEdges
+				/ (double) (richClubMembers * (richClubMembers - 1));
 		return true;
 
 	}
@@ -149,6 +125,10 @@ public class RCCOneDegreeDyn extends RCCOneDegree {
 				}
 			}
 		}
+
+		int richClubMembers = richClub.size();
+		this.richClubCoeffizient = (double) this.richClubEdges
+				/ (double) (richClubMembers * (richClubMembers - 1));
 		return true;
 	}
 
@@ -167,30 +147,11 @@ public class RCCOneDegreeDyn extends RCCOneDegree {
 				}
 			}
 		}
+
+		int richClubMembers = richClub.size();
+		this.richClubCoeffizient = (double) this.richClubEdges
+				/ (double) (richClubMembers * (richClubMembers - 1));
 		return true;
 	}
 
-	@Override
-	protected void init_() {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public boolean isApplicable(Graph g) {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public boolean isApplicable(Batch b) {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public boolean isComparableTo(Metric m) {
-		// TODO Auto-generated method stub
-		return false;
-	}
 }

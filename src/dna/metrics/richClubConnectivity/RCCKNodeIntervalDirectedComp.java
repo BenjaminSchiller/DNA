@@ -1,13 +1,12 @@
-package dna.metrics.connectedComponents;
+package dna.metrics.richClubConnectivity;
 
 import dna.updates.Batch;
 import dna.updates.Update;
 
 @SuppressWarnings("rawtypes")
-public class CCDirectedComp extends CCDirected {
-
-	public CCDirectedComp() {
-		super("CCDirectedComp", ApplicationType.Recomputation);
+public class RCCKNodeIntervalDirectedComp extends RCCKNodeIntervalDirected {
+	public RCCKNodeIntervalDirectedComp() {
+		super("RCCKNodeIntervalComp", ApplicationType.Recomputation);
 	}
 
 	@Override

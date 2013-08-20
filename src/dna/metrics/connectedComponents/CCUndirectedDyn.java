@@ -5,10 +5,8 @@ import java.util.LinkedList;
 import java.util.Queue;
 import java.util.Set;
 
-import dna.graph.Graph;
 import dna.graph.undirected.UndirectedEdge;
 import dna.graph.undirected.UndirectedNode;
-import dna.metrics.Metric;
 import dna.updates.Batch;
 import dna.updates.EdgeAddition;
 import dna.updates.EdgeRemoval;
@@ -16,6 +14,7 @@ import dna.updates.NodeAddition;
 import dna.updates.NodeRemoval;
 import dna.updates.Update;
 
+@SuppressWarnings("rawtypes")
 public class CCUndirectedDyn extends CCUndirected {
 
 	boolean searchSmallerComponent;
@@ -43,7 +42,8 @@ public class CCUndirectedDyn extends CCUndirected {
 				q.add(n);
 
 			}
-			this.nodeComponentMembership[temp.getNode().getIndex()] = component;
+			this.nodeComponentMembership.put(temp.getNode().getIndex(),
+					component);
 		}
 
 	}
@@ -62,9 +62,10 @@ public class CCUndirectedDyn extends CCUndirected {
 				n = ed.getNode2();
 
 			if (!nodes.contains(n)
-					&& this.nodeComponentMembership[n.getIndex()] == this.nodeComponentMembership[dstTreeElement
-							.getNode().getIndex()]) {
-				dstTreeElement.setParent(this.nodesTreeElement[n.getIndex()]);
+					&& this.nodeComponentMembership.get(n.getIndex()) == this.nodeComponentMembership
+							.get(dstTreeElement.getNode().getIndex())) {
+				dstTreeElement
+						.setParent(this.nodesTreeElement.get(n.getIndex()));
 				return true;
 			}
 		}
@@ -79,8 +80,8 @@ public class CCUndirectedDyn extends CCUndirected {
 
 				if (!temp.getChildren().contains(n) || !nodes.contains(n)) {
 					SpanningTreeNode child = temp;
-					SpanningTreeNode parent = this.nodesTreeElement[n
-							.getIndex()];
+					SpanningTreeNode parent = this.nodesTreeElement.get(n
+							.getIndex());
 					parent.addChild(child);
 					child.setParent(parent);
 
@@ -124,19 +125,16 @@ public class CCUndirectedDyn extends CCUndirected {
 
 	@Override
 	public boolean applyBeforeBatch(Batch b) {
-		// TODO Auto-generated method stub
 		return false;
 	}
 
 	@Override
 	public boolean applyAfterBatch(Batch b) {
-		// TODO Auto-generated method stub
 		return false;
 	}
 
 	@Override
 	public boolean applyBeforeUpdate(Update u) {
-		// TODO Auto-generated method stub
 		return false;
 	}
 
@@ -159,13 +157,13 @@ public class CCUndirectedDyn extends CCUndirected {
 		UndirectedNode n1 = e.getNode1();
 		UndirectedNode n2 = e.getNode2();
 
-		if (this.nodeComponentMembership[n1.getIndex()] == this.nodeComponentMembership[n2
-				.getIndex()]) {
+		if (this.nodeComponentMembership.get(n1.getIndex()) == this.nodeComponentMembership
+				.get(n2.getIndex())) {
 
-			SpanningTreeNode n1TreeElement = this.nodesTreeElement[n1
-					.getIndex()];
-			SpanningTreeNode n2TreeElement = this.nodesTreeElement[n2
-					.getIndex()];
+			SpanningTreeNode n1TreeElement = this.nodesTreeElement.get(n1
+					.getIndex());
+			SpanningTreeNode n2TreeElement = this.nodesTreeElement.get(n2
+					.getIndex());
 
 			if (n1TreeElement.getChildren().contains(n2TreeElement)
 					|| n2TreeElement.getChildren().contains(n1TreeElement)) {
@@ -177,8 +175,8 @@ public class CCUndirectedDyn extends CCUndirected {
 					if (n == n2)
 						n = ude.getNode2();
 					if (n1TreeElement.getParent().getNode() == n) {
-						SpanningTreeNode newparent = nodesTreeElement[n
-								.getIndex()];
+						SpanningTreeNode newparent = nodesTreeElement.get(n
+								.getIndex());
 						newparent.addChild(n2TreeElement);
 						n2TreeElement.setParent(newparent);
 						neighbourFound = true;
@@ -186,8 +184,8 @@ public class CCUndirectedDyn extends CCUndirected {
 
 					for (SpanningTreeNode stn : n1TreeElement.getChildren()) {
 						if (stn.getNode() == n) {
-							SpanningTreeNode newparent = nodesTreeElement[n
-									.getIndex()];
+							SpanningTreeNode newparent = nodesTreeElement.get(n
+									.getIndex());
 							newparent.addChild(n2TreeElement);
 							n2TreeElement.setParent(newparent);
 							neighbourFound = true;
@@ -219,11 +217,12 @@ public class CCUndirectedDyn extends CCUndirected {
 		UndirectedNode n1 = e.getNode1();
 		UndirectedNode n2 = e.getNode2();
 
-		if (this.nodeComponentMembership[n1.getIndex()] != this.nodeComponentMembership[n2
-				.getIndex()]) {
+		if (this.nodeComponentMembership.get(n1.getIndex()) != this.nodeComponentMembership
+				.get(n2.getIndex())) {
 
-			SpanningTreeNode temp = this.nodesTreeElement[n2.getIndex()];
-			SpanningTreeNode newParent = this.nodesTreeElement[n1.getIndex()];
+			SpanningTreeNode temp = this.nodesTreeElement.get(n2.getIndex());
+			SpanningTreeNode newParent = this.nodesTreeElement.get(n1
+					.getIndex());
 
 			while (!temp.isRoot()) {
 				SpanningTreeNode newChild = temp.getParent();
@@ -237,8 +236,9 @@ public class CCUndirectedDyn extends CCUndirected {
 			temp.removeChild(newParent);
 			temp.setParent(newParent);
 			temp.setRoot(false);
-			updateComponentIndex(this.nodeComponentMembership[n1.getIndex()],
-					this.nodesTreeElement[n2.getIndex()]);
+			updateComponentIndex(
+					this.nodeComponentMembership.get(n1.getIndex()),
+					this.nodesTreeElement.get(n2.getIndex()));
 
 		}
 
@@ -246,8 +246,16 @@ public class CCUndirectedDyn extends CCUndirected {
 	}
 
 	private boolean applyAfterNodeRemoval(Update u) {
-		// TODO Auto-generated method stub
-		return false;
+		UndirectedNode n = (UndirectedNode) ((NodeRemoval) u).getNode();
+
+		for (UndirectedEdge e : n.getEdges()) {
+			@SuppressWarnings("unchecked")
+			Update up = (Update) new EdgeRemoval(e);
+			applyAfterEdgeRemoval(up);
+		}
+		this.nodeComponentMembership.remove(n.getIndex());
+		this.nodesTreeElement.remove(n.getIndex());
+		return true;
 	}
 
 	private boolean applyAfterNodeAddition(Update u) {
@@ -255,36 +263,6 @@ public class CCUndirectedDyn extends CCUndirected {
 		SpanningTreeNode stn = new SpanningTreeNode(n);
 		this.componentList.add(stn);
 		return true;
-	}
-
-	@Override
-	public boolean compute() {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	protected void init_() {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public boolean isApplicable(Graph g) {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public boolean isApplicable(Batch b) {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public boolean isComparableTo(Metric m) {
-		// TODO Auto-generated method stub
-		return false;
 	}
 
 }
