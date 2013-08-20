@@ -11,9 +11,13 @@ import dna.updates.NodeRemoval;
 import dna.updates.Update;
 
 @SuppressWarnings("rawtypes")
+<<<<<<< HEAD:src/dna/metrics/richClubConnectivity/RCCOneDegreeDyn.java
 public class RCCOneDegreeDyn extends RCCOneDegree {
+=======
+public class RCCOneDegreeDirectedDyn extends RCCOneDegreeDirected {
+>>>>>>> some stuff:src/dna/metrics/richClubConnectivity/RCCOneDegreeDirectedDyn.java
 
-	public RCCOneDegreeDyn() {
+	public RCCOneDegreeDirectedDyn() {
 		super("RCCOneDegreeDyn", ApplicationType.AfterUpdate);
 	}
 
@@ -53,7 +57,6 @@ public class RCCOneDegreeDyn extends RCCOneDegree {
 
 		if (richClub.contains(src)) {
 			if (src.getOutDegree() < k) {
-				richClub.remove(src);
 				for (DirectedEdge n : src.getOutgoingEdges()) {
 					if (richClub.contains(n.getDst())) {
 						this.richClubEdges--;
@@ -64,15 +67,25 @@ public class RCCOneDegreeDyn extends RCCOneDegree {
 						this.richClubEdges--;
 					}
 				}
-			} else if (richClub.contains(dst)) {
+				richClub.remove(src);
+
+			}
+			if (richClub.contains(dst)) {
 				this.richClubEdges--;
 			}
+			int richClubMembers = richClub.size();
+			this.richClubCoeffizient = (double) this.richClubEdges
+					/ (double) (richClubMembers * (richClubMembers - 1));
+
 		}
 
+<<<<<<< HEAD:src/dna/metrics/richClubConnectivity/RCCOneDegreeDyn.java
 		int richClubMembers = richClub.size();
 		this.richClubCoeffizient = (double) this.richClubEdges
 				/ (double) (richClubMembers * (richClubMembers - 1));
 
+=======
+>>>>>>> some stuff:src/dna/metrics/richClubConnectivity/RCCOneDegreeDirectedDyn.java
 		return true;
 	}
 
