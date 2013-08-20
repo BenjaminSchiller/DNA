@@ -1,7 +1,7 @@
 package Tests;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
+import static org.junit.Assume.*;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
@@ -11,13 +11,12 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
-import DataStructures.DArrayList;
-import DataStructures.DHashSet;
-import DataStructures.DataStructure;
+import Utils.Rand;
+import DataStructures.*;
 import Graph.Element;
 import Graph.IElement;
-import Graph.Edges.Edge;
-import Graph.Nodes.Node;
+import Graph.Edges.*;
+import Graph.Nodes.*;
 import static org.mockito.Mockito.*;
 
 @RunWith(Parameterized.class)
@@ -33,13 +32,16 @@ public class DatastructureTester {
 	}
 
     @Parameterized.Parameters(name="{0} {1}")
-	public static Collection testPairs() {
-    	Class[] dataStructures = {DArrayList.class, DHashSet.class};
-    	Class[] elements = {Node.class, Edge.class};
+	public static Collection testPairs() throws InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, NoSuchMethodException, SecurityException {
+    	Class[] dataStructures = {DArrayList.class, DArray.class, DHashSet.class};
+    	Class[] elements = {DirectedNode.class, UndirectedNode.class, UndirectedEdge.class, DirectedEdge.class};
     	
     	ArrayList<Object> result = new ArrayList<>();
     	for ( Class sD: dataStructures ) {
     		for ( Class sE: elements) {
+    			// Check whether we can store an object of sE in sD
+    			DataStructure ds = (DataStructure) sD.getConstructor(Class.class).newInstance(sE);
+    			if ( !ds.canStore(sE)) continue;
     			result.add(new Object[]{sD, sE});
     		}
     	}
@@ -48,11 +50,87 @@ public class DatastructureTester {
 	}
 
 	@Test
-	public void checkAdd() {
+	public void checkAddAndRemove() {
 		IElement dummy = mock(elementClass);
+		assertFalse(dataStructure.contains(dummy));
+		assertEquals(0, dataStructure.size());
 		dataStructure.add(dummy);
 		assertTrue(dataStructure.contains(dummy));
 		assertEquals(1, dataStructure.size());
+		dataStructure.remove(dummy);
+		assertFalse(dataStructure.contains(dummy));
+		assertEquals(0, dataStructure.size());
+	}
+	
+	@Test
+	public void checkMaxNodeIndexOnAddAndRemove() {
+		assumeTrue(dataStructure instanceof INodeListDatastructure);
+		
+		INodeListDatastructure tempDS;
+		if ( dataStructure instanceof INodeListDatastructure)
+			tempDS = (INodeListDatastructure) dataStructure;
+		else return;
+		
+		IElement[] dummies = new IElement[10];
+		for (int i = 0; i < dummies.length; i++) {
+			dummies[i] = mock(this.elementClass);
+			when(dummies[i].getIndex()).thenReturn(i);
+			tempDS.add(dummies[i]);
+			assertEquals(i, tempDS.getMaxNodeIndex());
+		}
+		
+		/*
+		 * Since we don't know if the data structure really
+		 * used the maxNodeIndex property and did not return
+		 * the count property, we will run some more
+		 * sophisticated tests now
+		 */
+		
+		IElement[] secondDummies = new IElement[10];
+		int[] prevIndex = new int[10];
+		int lastIndex = tempDS.getMaxNodeIndex();
+		
+		for (int i = 0; i < secondDummies.length; i++) {
+			secondDummies[i] = mock(this.elementClass);
+			prevIndex[i] = lastIndex;
+			lastIndex = lastIndex + Rand.rand.nextInt(5000) + 3;
+			when(secondDummies[i].getIndex()).thenReturn(lastIndex);
+			tempDS.add(secondDummies[i]);
+			assertEquals(lastIndex, tempDS.getMaxNodeIndex());
+		}
+		
+		for (int i = secondDummies.length - 1; i >= 0; i--) {
+			tempDS.remove(secondDummies[i]);
+			assertEquals(prevIndex[i], tempDS.getMaxNodeIndex());
+		}
+		
+		assertEquals(dummies[dummies.length-1].getIndex(), tempDS.getMaxNodeIndex());
+	}
+	
+	@Test
+	public void checkCorrectSize() {
+		IElement[] dummies = new IElement[10];
+		for (int i = 0; i < dummies.length; i++) {
+			dummies[i] = mock(this.elementClass);
+			when(dummies[i].getIndex()).thenReturn(i);
+			dataStructure.add(dummies[i]);
+		}
+		assertEquals(dummies.length, dataStructure.size());		
 	}
 
+	@Test
+	public void checkGetRandom() {
+		IElement[] dummies = new IElement[10];
+		for (int i = 0; i < dummies.length; i++) {
+			dummies[i] = mock(elementClass);
+			dataStructure.add(dummies[i]);
+		}
+		
+		IElement random;
+		for ( int i = 0; i < 2 * dummies.length; i++) {
+			random = dataStructure.getRandom();
+			assertTrue(dataStructure.contains(random));
+		}
+	}
+	
 }
