@@ -6,7 +6,9 @@ import static org.junit.Assume.*;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -65,11 +67,7 @@ public class DatastructureTester {
 	@Test
 	public void checkMaxNodeIndexOnAddAndRemove() {
 		assumeTrue(dataStructure instanceof INodeListDatastructure);
-		
-		INodeListDatastructure tempDS;
-		if ( dataStructure instanceof INodeListDatastructure)
-			tempDS = (INodeListDatastructure) dataStructure;
-		else return;
+		INodeListDatastructure tempDS = (INodeListDatastructure) dataStructure;
 		
 		IElement[] dummies = new IElement[10];
 		for (int i = 0; i < dummies.length; i++) {
@@ -117,7 +115,130 @@ public class DatastructureTester {
 		}
 		assertEquals(dummies.length, dataStructure.size());		
 	}
+	
+	@Test
+	public void checkGetNode() {
+		assumeTrue(dataStructure instanceof INodeListDatastructure);
+		INodeListDatastructure tempDS = (INodeListDatastructure) dataStructure;
+		
+		IElement dummy = mock(this.elementClass);
+		when(dummy.getIndex()).thenReturn(42);
+		tempDS.add(dummy);
+		
+		assertEquals(null, tempDS.get(43));
+		assertEquals(42, dummy.getIndex());
+		assertEquals(dummy, tempDS.get(42));
+	}
+	
+	@Test
+	public void checkGetElements() {
+		int size = 20;
+		IElement singleDummy;
+		
+		ArrayList<IElement> dummies = new ArrayList<>();
+		for (int i = 0; i < size; i++) {
+			singleDummy = mock(this.elementClass);
+			
+			/*
+			 * Nodes are stored with an index, so set it please!
+			 */
+			if ( singleDummy instanceof Node ) {
+				when(singleDummy.getIndex()).thenReturn(i);
+			}
+			
+			dataStructure.add(singleDummy);
+			dummies.add(singleDummy);
+		}
+		
+		Collection<IElement> elements = dataStructure.getElements();
+		
+		/*
+		 * Check for the proper size and content
+		 */
+		assertEquals(dummies.size(), elements.size());
+		assertTrue(dummies.containsAll(elements));
+		assertTrue(elements.containsAll(dummies));
+	}
+	
+	@Test
+	public void checkResizement() {
+		int initialSize = dataStructure.getDefaultSize();
+		int goalSize = 10 * initialSize;
+		
+		assertEquals(0, dataStructure.size());
+		
+		IElement singleDummy;
+		
+		for (int i = 0; i < goalSize; i++) {
+			singleDummy = mock(this.elementClass);
+			
+			/*
+			 * Nodes are stored with an index, so set it please!
+			 */
+			if ( singleDummy instanceof Node ) {
+				when(singleDummy.getIndex()).thenReturn(i);
+			}
+			
+			dataStructure.add(singleDummy);
+		}
+		assertEquals(goalSize, dataStructure.size());
+	}
+	
+	@Test
+	public void checkIterator() {
+		int size = 20;
+		IElement singleDummy;
+		
+		ArrayList<IElement> dummies = new ArrayList<>();
+		for (int i = 0; i < size; i++) {
+			singleDummy = mock(this.elementClass);
+			
+			/*
+			 * Nodes are stored with an index, so set it please!
+			 */
+			if ( singleDummy instanceof Node ) {
+				when(singleDummy.getIndex()).thenReturn(i);
+			}
+			
+			dataStructure.add(singleDummy);
+			dummies.add(singleDummy);
+		}
+		
+		Iterator<IElement> elemIterator = dataStructure.iterator();
+		while (elemIterator.hasNext()) {
+			singleDummy = elemIterator.next();
+			assertTrue(dummies.contains(singleDummy));
+			dummies.remove(singleDummy);
+		}
+		assertTrue(dummies.isEmpty());
+	}
 
+	@Ignore @Test
+	public void checkGetNodeWithGaps() {
+		assumeTrue(dataStructure instanceof INodeListDatastructure);
+		INodeListDatastructure tempDS = (INodeListDatastructure) dataStructure;
+		
+		IElement dummy = mock(this.elementClass);
+		when(dummy.getIndex()).thenReturn(42);
+		tempDS.add(dummy);
+		
+		assertEquals(null, tempDS.get(43));
+		assertEquals(42, dummy.getIndex());
+		assertEquals(dummy, tempDS.get(42));
+		
+		/*
+		 * Magic done here: through giving the
+		 * mock another index, we can search for an
+		 * element which has the proper index, but is not
+		 * at the indexed position -- the former
+		 * arraylist implementation in DNA did this 
+		 */
+		
+		when(dummy.getIndex()).thenReturn(23);
+		assertEquals(23, dummy.getIndex());
+		assertEquals(null, tempDS.get(42));
+	}
+	
 	@Test
 	public void checkGetRandom() {
 		IElement[] dummies = new IElement[10];

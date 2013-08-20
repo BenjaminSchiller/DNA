@@ -32,6 +32,10 @@ public abstract class DataStructure implements IDataStructure {
 		return this.dataEquals(thatCasted);
 	}
 	
+	public int getDefaultSize() {
+		return this.defaultSize;
+	}
+	
 	public boolean dataEquals(DataStructure that) {
 		return this.getElements().containsAll(that.getElements()) && that.getElements().containsAll(this.getElements());
 	}	
