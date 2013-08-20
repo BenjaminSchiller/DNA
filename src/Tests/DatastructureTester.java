@@ -27,6 +27,11 @@ public class DatastructureTester {
 
 	private DataStructure dataStructure;
 	private Class<? extends Element> elementClass;
+	private static final Class[] elementClasses = {DirectedNode.class, DirectedDoubleWeightedNode.class,
+		UndirectedNode.class, UndirectedDoubleWeightedNode.class,
+		UndirectedEdge.class, UndirectedDoubleWeightedEdge.class,
+		DirectedEdge.class, DirectedDoubleWeightedEdge.class
+	};
 
 	public DatastructureTester(Class<?> d, Class<? extends Element> e) throws InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, NoSuchMethodException, SecurityException {
 		this.dataStructure = (DataStructure) d.getConstructor(Class.class).newInstance(e);
@@ -36,11 +41,10 @@ public class DatastructureTester {
     @Parameterized.Parameters(name="{0} {1}")
 	public static Collection testPairs() throws InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, NoSuchMethodException, SecurityException {
     	Class[] dataStructures = {DArrayList.class, DArray.class, DHashSet.class};
-    	Class[] elements = {DirectedNode.class, UndirectedNode.class, UndirectedEdge.class, DirectedEdge.class};
-    	
+
     	ArrayList<Object> result = new ArrayList<>();
     	for ( Class sD: dataStructures ) {
-    		for ( Class sE: elements) {
+    		for ( Class sE: elementClasses) {
     			// Check whether we can store an object of sE in sD
     			DataStructure ds = (DataStructure) sD.getConstructor(Class.class).newInstance(sE);
     			if ( !ds.canStore(sE)) continue;
@@ -50,6 +54,34 @@ public class DatastructureTester {
     	
 		return result;
 	}
+    
+    @Test
+    public void checkOnlyOneDatatype() {
+    	IElement dummy;
+    	int exceptionCounter = 0;
+    	
+    	/*
+    	 * Checking whether add() throws the exception we want it to throw
+    	 * does not cover all cases here - we want to ensure that really only
+    	 * instances of one single element class can be stored, and *all* other
+    	 * instance types are rejected
+    	 * 
+    	 * The exception counter will be increased for each *allowed* class and
+    	 * each *rejected* class. There should be no gap in between...
+    	 */ 
+    	
+    	for ( Class otherElementClass: elementClasses ) {
+    		if (elementClass.isAssignableFrom(otherElementClass)) exceptionCounter++;
+    		dummy = mock(otherElementClass);
+    		try {
+    			dataStructure.add(dummy);
+    		} catch ( RuntimeException e ) {
+    			exceptionCounter++;
+    		}
+    	}
+    	  	
+    	assertEquals(elementClasses.length, exceptionCounter);
+    }
 
 	@Test
 	public void checkAddAndRemove() {
