@@ -6,7 +6,7 @@ public abstract class DataStructure implements IDataStructure {
 	protected Class<? extends IElement> dataType;
 	protected int size;
 	protected final int defaultSize = 10;
-
+	
 	public abstract boolean add(IElement element);
 	
 	public boolean canAdd(IElement element) {
@@ -38,7 +38,16 @@ public abstract class DataStructure implements IDataStructure {
 		return this.defaultSize;
 	}
 	
+	public Class<? extends IElement> getDataType() {
+		return this.dataType;
+	}
+	
 	public boolean dataEquals(DataStructure that) {
 		return this.getElements().containsAll(that.getElements()) && that.getElements().containsAll(this.getElements());
-	}	
+	}
+	
+	@Override
+	public boolean canStore(Class<? extends IElement> o) {
+		return dataType.isAssignableFrom(o);
+	}
 }

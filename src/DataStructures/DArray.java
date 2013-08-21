@@ -132,10 +132,4 @@ public class DArray extends DataStructure implements INodeListDatastructure {
 		if ( element instanceof Node ) return this.remove((Node) element);
 		else throw new RuntimeException("Cannot remove a non-node from a node list");
 	}
-
-	@Override
-	public boolean canStore(Class<? extends IElement> o) {
-		return ( Node.class.isAssignableFrom(o));
-	}
-
 }

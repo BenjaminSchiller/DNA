@@ -5,10 +5,11 @@ import java.util.Collection;
 import java.util.Iterator;
 
 import Graph.IElement;
+import Graph.Edges.Edge;
 import Graph.Nodes.Node;
 import Utils.Rand;
 
-public class DArrayList extends DataStructure implements INodeListDatastructure {
+public class DArrayList extends DataStructure implements INodeListDatastructure, IEdgeListDatastructure {
 	private ArrayList<IElement> list;
 	private int maxNodeIndex;
 
@@ -24,6 +25,7 @@ public class DArrayList extends DataStructure implements INodeListDatastructure 
 	
 	public boolean add(IElement element) {
 		if (element instanceof Node) return this.add((Node) element);
+		if (element instanceof Edge) return this.add((Edge) element);
 		throw new RuntimeException("Can't handle element of type " + element.getClass() + " here");
 	}	
 	
@@ -35,6 +37,11 @@ public class DArrayList extends DataStructure implements INodeListDatastructure 
 		this.maxNodeIndex = Math.max(this.maxNodeIndex,element.getIndex());
 		return true;
 	}
+	
+	public boolean add(Edge element) {
+		super.canAdd(element);
+		return !this.list.contains(element) && this.list.add(element);
+	}	
 
 	@Override
 	public boolean contains(IElement element) {
@@ -79,10 +86,26 @@ public class DArrayList extends DataStructure implements INodeListDatastructure 
 
 		return null;
 	}
+	
+	public Edge get(Edge e) {
+		for (IElement edge : this.list) {
+			if (edge.equals(e)) {
+				return (Edge) edge;
+			}
+		}
+		return null;
+	}	
 
 	@Override
 	public int getMaxNodeIndex() {
 		return this.maxNodeIndex;
+	}
+
+	@Override
+	public boolean remove(IElement element) {
+		if ( element instanceof Node ) return this.remove((Node) element);
+		if ( element instanceof Edge ) return this.remove((Edge) element);
+		else throw new RuntimeException("Cannot remove a non-node from a node list");
 	}
 
 	@Override
@@ -99,6 +122,10 @@ public class DArrayList extends DataStructure implements INodeListDatastructure 
 		}
 		return true;
 	}
+	
+	public boolean remove(Edge e) {
+		return this.list.remove(e);
+	}
 
 	@Override
 	public IElement getRandom() {
@@ -114,15 +141,4 @@ public class DArrayList extends DataStructure implements INodeListDatastructure 
 	public Iterator<IElement> iterator() {
 		return this.list.iterator();
 	}
-
-	@Override
-	public boolean remove(IElement element) {
-		if ( element instanceof Node ) return this.remove((Node) element);
-		else throw new RuntimeException("Cannot remove a non-node from a node list");
-	}
-
-	@Override
-	public boolean canStore(Class<? extends IElement> o) {
-		return ( Node.class.isAssignableFrom(o));
-	}	
 }

@@ -6,6 +6,7 @@ import java.util.Iterator;
 
 import Graph.IElement;
 import Graph.Edges.Edge;
+import Graph.Nodes.Node;
 import Utils.Rand;
 
 public class DHashSet extends DataStructure implements IEdgeListDatastructure {
@@ -17,8 +18,8 @@ public class DHashSet extends DataStructure implements IEdgeListDatastructure {
 
 	@Override
 	public void init(Class<? extends IElement> dT, int initialSize) {
-		this.list = new HashSet<>(initialSize);
 		this.dataType = dT;
+		this.list = new HashSet<>(initialSize);
 	}
 
 	public boolean add(IElement element) {
@@ -84,11 +85,5 @@ public class DHashSet extends DataStructure implements IEdgeListDatastructure {
 	public boolean remove(IElement element) {
 		if ( element instanceof Edge ) return this.remove((Edge) element);
 		else throw new RuntimeException("Cannot remove a non-edge from an edge list");
-	}
-
-	@Override
-	public boolean canStore(Class<? extends IElement> o) {
-		return ( Edge.class.isAssignableFrom(o));
-	}
-	
+	}	
 }
