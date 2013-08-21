@@ -21,9 +21,13 @@ public class DHashSet extends DataStructure implements IEdgeListDatastructure {
 		this.dataType = dT;
 	}
 
-	@Override
 	public boolean add(IElement element) {
-		super.add(element);
+		if (element instanceof Edge) return this.add((Edge) element);
+		throw new RuntimeException("Can't handle element of type " + element.getClass() + " here");
+	}
+	
+	public boolean add(Edge element) {
+		super.canAdd(element);
 		return element != null && this.list.add(element);
 	}
 
@@ -67,7 +71,7 @@ public class DHashSet extends DataStructure implements IEdgeListDatastructure {
 	}
 
 	@Override
-	public boolean removeEdge(Edge element) {
+	public boolean remove(Edge element) {
 		return this.list.remove(element);
 	}
 
@@ -78,7 +82,7 @@ public class DHashSet extends DataStructure implements IEdgeListDatastructure {
 
 	@Override
 	public boolean remove(IElement element) {
-		if ( element instanceof Edge ) return this.removeEdge((Edge) element);
+		if ( element instanceof Edge ) return this.remove((Edge) element);
 		else throw new RuntimeException("Cannot remove a non-edge from an edge list");
 	}
 

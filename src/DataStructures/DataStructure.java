@@ -7,7 +7,9 @@ public abstract class DataStructure implements IDataStructure {
 	protected int size;
 	protected final int defaultSize = 10;
 
-	public boolean add(IElement element) {
+	public abstract boolean add(IElement element);
+	
+	public boolean canAdd(IElement element) {
 		if (!dataType.isInstance(element))
 			throw new RuntimeException("Datatype to be stored here: " + dataType.getName()
 					+ ", datatype tried to be stored: " + element.getClass().getName());

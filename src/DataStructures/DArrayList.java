@@ -22,9 +22,13 @@ public class DArrayList extends DataStructure implements INodeListDatastructure 
 		this.maxNodeIndex = -1;
 	}
 	
-	@Override
 	public boolean add(IElement element) {
-		super.add(element);
+		if (element instanceof Node) return this.add((Node) element);
+		throw new RuntimeException("Can't handle element of type " + element.getClass() + " here");
+	}	
+	
+	public boolean add(Node element) {
+		super.canAdd(element);
 		if (this.list.contains(element) || !this.list.add(element)) {
 			return false;
 		}
@@ -82,7 +86,7 @@ public class DArrayList extends DataStructure implements INodeListDatastructure 
 	}
 
 	@Override
-	public boolean removeNode(Node element) {
+	public boolean remove(Node element) {
 		if (!this.list.remove(element)) {
 			return false;
 		}
@@ -113,7 +117,7 @@ public class DArrayList extends DataStructure implements INodeListDatastructure 
 
 	@Override
 	public boolean remove(IElement element) {
-		if ( element instanceof Node ) return this.removeNode((Node) element);
+		if ( element instanceof Node ) return this.remove((Node) element);
 		else throw new RuntimeException("Cannot remove a non-node from a node list");
 	}
 

@@ -43,7 +43,7 @@ public class UndirectedNode extends Node {
 
 	@Override
 	public boolean removeEdge(Edge e) {
-		return this.edges.removeEdge(e);
+		return this.edges.remove(e);
 	}
 
 	@Override

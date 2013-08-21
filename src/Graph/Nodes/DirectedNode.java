@@ -66,12 +66,12 @@ public class DirectedNode extends Node {
 		if ( !(eIn instanceof DirectedEdge)) return false;
 		DirectedEdge e = (DirectedEdge)eIn;
 		if (e.getSrc().getIndex() == this.index) {
-			this.neighbors.removeNode(e.getDst());
-			return this.out.removeEdge(e);
+			this.neighbors.remove(e.getDst());
+			return this.out.remove(e);
 		}
 		if (e.getDst().getIndex() == this.index) {
-			this.neighbors.removeNode(e.getSrc());
-			return this.in.removeEdge(e);
+			this.neighbors.remove(e.getSrc());
+			return this.in.remove(e);
 		}
 		return false;
 	}

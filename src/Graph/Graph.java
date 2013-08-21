@@ -83,7 +83,7 @@ public class Graph {
 	}
 
 	public boolean removeNode(Node n) {
-		return nodes.removeNode(n);
+		return nodes.remove(n);
 	}
 
 	public boolean containsNode(Node n) {
@@ -111,7 +111,7 @@ public class Graph {
 	}
 
 	public boolean removeEdge(Edge e) {
-		return edges.removeEdge(e);
+		return edges.remove(e);
 	}
 
 	public boolean containsEdge(Edge e) {
