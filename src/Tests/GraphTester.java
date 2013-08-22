@@ -9,7 +9,9 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
 import Utils.Keywords;
+import DataStructures.DArray;
 import DataStructures.DArrayList;
+import DataStructures.DHashMap;
 import DataStructures.DHashSet;
 import DataStructures.GraphDataStructure;
 import DataStructures.IEdgeListDatastructure;
@@ -23,6 +25,9 @@ import static org.junit.Assert.*;
 public class GraphTester {
 	private Graph graph;
 	private GraphDataStructure gds;
+	
+	public static Class[] nodeTypes = { UndirectedNode.class, UndirectedDoubleWeightedNode.class,
+			DirectedNode.class, DirectedDoubleWeightedNode.class };	
 
 	public GraphTester(Class<? extends INodeListDatastructure> nodeListType,
 			Class<? extends IEdgeListDatastructure> graphEdgeListType,
@@ -36,9 +41,7 @@ public class GraphTester {
 	@SuppressWarnings("rawtypes")
 	@Parameterized.Parameters(name = "{0} {1} {2} {3}")
 	public static Collection<Object> testPairs() {
-		Class[] dataStructures = { DArrayList.class, DHashSet.class };
-		Class[] nodeTypes = { UndirectedNode.class, UndirectedDoubleWeightedNode.class,
-				DirectedNode.class, DirectedDoubleWeightedNode.class };
+		Class[] dataStructures = { DArray.class, DArrayList.class, DHashMap.class, DHashSet.class };
 
 		ArrayList<Object> result = new ArrayList<>();
 		for (Class nodeListType : dataStructures) {
@@ -127,23 +130,24 @@ public class GraphTester {
 	
 	@Test
 	public void removeNode() {
-		Node dummy = gds.newNodeInstance(42);
-		Node dummy2 =  gds.newNodeInstance(23);
-		Node dummy3 =  gds.newNodeInstance(17);
+		Node dummy = gds.newNodeInstance(0);
+		Node dummy2 =  gds.newNodeInstance(1);
+		Node dummy3 =  gds.newNodeInstance(2);
 		
 		assertEquals(-1, graph.getMaxNodeIndex());
-		graph.addNode(dummy);
-		graph.addNode(dummy2);
+		assertTrue(graph.addNode(dummy));
+		assertTrue(graph.addNode(dummy2));
 		
-		assertEquals(42, graph.getMaxNodeIndex());
-		graph.removeNode(dummy);
+		assertEquals(1, graph.getMaxNodeIndex());
+		assertTrue(graph.removeNode(dummy));
 		
-		assertEquals(23, graph.getMaxNodeIndex());
+		assertEquals(1, graph.getMaxNodeIndex());
 		
 		assertFalse(graph.containsNode(dummy3));
 		assertFalse(graph.removeNode(dummy3));
 		
-		graph.removeNode(dummy2);
+		assertTrue(graph.removeNode(dummy2));
+		assertEquals(0, graph.getNodeCount());
 		assertEquals(-1, graph.getMaxNodeIndex());
 	}
 	
@@ -202,5 +206,33 @@ public class GraphTester {
 		
 		g2.removeNode(g2n1);
 		assertEquals(g1, g2);
+	}
+	
+	@Test
+	public void elementEqualities() throws IllegalArgumentException, IllegalAccessException, NoSuchFieldException, SecurityException {
+		Class<? extends Node> originalNodeType = gds.getNodeType(); 
+				
+		Node n = this.gds.newNodeInstance(0);
+		assertTrue(n.deepEquals(n));
+		
+		System.out.println("My own nodeType: " + gds.getNodeType() + " / " + gds.getEdgeType());
+		
+		for(Class<? extends Node> otherElementClass: nodeTypes) {
+			this.gds.setNodeType(otherElementClass);
+			System.out.println("Type to check against: " + gds.getNodeType() + " / " + gds.getEdgeType());			
+			
+			// Check for edges
+			Edge e = this.gds.newEdgeInstance(n, n);
+			assertTrue(e.deepEquals(e));
+			assertFalse(n.deepEquals(e));
+			assertFalse(e.deepEquals(n));
+			
+			// Check for *other* nodes
+			if ( otherElementClass == originalNodeType ) continue;
+			Node n2 = this.gds.newNodeInstance(1);
+			assertTrue(n2.deepEquals(n2));
+			assertFalse(n.deepEquals(n2));
+			assertFalse(n2.deepEquals(n));			
+		}
 	}
 }

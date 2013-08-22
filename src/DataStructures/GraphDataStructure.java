@@ -24,13 +24,7 @@ public class GraphDataStructure {
 		this.nodeListType = nodeListType;
 		this.graphEdgeListType = graphEdgeListType;
 		this.nodeEdgeListType = nodeEdgeListType;
-		this.nodeType = nodeType;
-		
-		try {
-			this.edgeType = (Class<? extends Edge>) nodeType.getField("edgeType").get(null);
-		} catch (IllegalArgumentException | IllegalAccessException | NoSuchFieldException | SecurityException e) {
-			e.printStackTrace();
-		}
+		this.setNodeType(nodeType);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -115,6 +109,17 @@ public class GraphDataStructure {
 
 	public Class<? extends Node> getNodeType() {
 		return nodeType;
+	}
+	
+	public void setNodeType(Class<? extends Node> newNodeType) {
+		this.nodeType = newNodeType;
+		
+		try {
+			Class<? extends Edge> eT = (Class<? extends Edge>) nodeType.getField("edgeType").get(null);
+			this.setEdgeType(eT);
+		} catch (IllegalArgumentException | IllegalAccessException | NoSuchFieldException | SecurityException e) {
+			e.printStackTrace();
+		}
 	}
 	
 	public Class<? extends Edge> getEdgeType() {
