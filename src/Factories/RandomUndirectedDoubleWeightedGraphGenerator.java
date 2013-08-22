@@ -20,7 +20,7 @@ public class RandomUndirectedDoubleWeightedGraphGenerator extends UndirectedDoub
 		
 		for (int i = 0; i < this.nodesInit; i++) {
 			UndirectedDoubleWeightedNode node = (UndirectedDoubleWeightedNode) this.gds.newNodeInstance(i);
-			node.setWeight(1D);
+			node.setWeight(Rand.rand.nextDouble());
 			graph.addNode(node);
 		}
 
@@ -30,7 +30,7 @@ public class RandomUndirectedDoubleWeightedGraphGenerator extends UndirectedDoub
 			if (src != dst) {
 				UndirectedDoubleWeightedEdge edge = (UndirectedDoubleWeightedEdge) this.gds.newEdgeInstance(
 						graph.getNode(src), graph.getNode(dst));
-				edge.setWeight(1D);
+				edge.setWeight(Rand.rand.nextDouble());
 				
 				graph.addEdge(edge);
 				edge.getNode1().addEdge(edge);
