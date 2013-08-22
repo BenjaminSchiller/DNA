@@ -208,6 +208,7 @@ public class GraphTester {
 		assertEquals(g1, g2);
 	}
 	
+	@SuppressWarnings("unchecked")
 	@Test
 	public void elementEqualities() throws IllegalArgumentException, IllegalAccessException, NoSuchFieldException, SecurityException {
 		Class<? extends Node> originalNodeType = gds.getNodeType(); 
@@ -215,11 +216,8 @@ public class GraphTester {
 		Node n = this.gds.newNodeInstance(0);
 		assertTrue(n.deepEquals(n));
 		
-		System.out.println("My own nodeType: " + gds.getNodeType() + " / " + gds.getEdgeType());
-		
 		for(Class<? extends Node> otherElementClass: nodeTypes) {
 			this.gds.setNodeType(otherElementClass);
-			System.out.println("Type to check against: " + gds.getNodeType() + " / " + gds.getEdgeType());			
 			
 			// Check for edges
 			Edge e = this.gds.newEdgeInstance(n, n);
