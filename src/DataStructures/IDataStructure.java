@@ -19,7 +19,7 @@ public interface IDataStructure extends Iterable {
 	
 	public void reinitializeWithSize(int size);
 	
-	public boolean dataEquals(DataStructure that);
+	public boolean dataEquals(IDataStructure that);
 	
 	public boolean canStore(Class<? extends IElement> o);
 }

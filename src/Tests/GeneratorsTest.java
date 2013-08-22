@@ -121,6 +121,7 @@ public class GeneratorsTest {
 		
 		assertEquals(gds, g2.getGraphDatastructures());
 		assertEquals(g, g2);
+		assertTrue(g.deepEquals(g2));
 	}
 	
 }

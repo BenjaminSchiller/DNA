@@ -42,7 +42,7 @@ public abstract class DataStructure implements IDataStructure {
 		return this.dataType;
 	}
 	
-	public boolean dataEquals(DataStructure that) {
+	public boolean dataEquals(IDataStructure that) {
 		return this.getElements().containsAll(that.getElements()) && that.getElements().containsAll(this.getElements());
 	}
 	
