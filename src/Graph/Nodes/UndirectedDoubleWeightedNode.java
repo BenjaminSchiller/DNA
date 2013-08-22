@@ -38,4 +38,11 @@ public class UndirectedDoubleWeightedNode extends UndirectedNode implements IWei
 	public Double getWeight() {
 		return this.weight;
 	}
+	
+	@Override
+	public String getStringRepresentation() {
+		return super.getStringRepresentation() + Keywords.nodeWeightDelimiter
+				+ this.weight;
+	}
+	
 }

@@ -36,5 +36,10 @@ public class UndirectedDoubleWeightedEdge extends UndirectedEdge implements IWei
 	public Double getWeight() {
 		return this.weight;
 	}
+	
+	public String getStringRepresentation() {
+		return super.getStringRepresentation() + Keywords.edgeWeightDelimiter
+				+ this.weight;
+	}
 
 }
