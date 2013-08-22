@@ -109,6 +109,9 @@ public class DArray extends DataStructure implements INodeListDatastructure {
 					this.maxNodeIndex = this.list[i].getIndex();
 					break;
 				}
+				if( i == 0 && this.maxNodeIndex == element.getIndex()) {
+					this.maxNodeIndex = -1;
+				}
 			}
 		}
 
