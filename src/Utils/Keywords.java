@@ -16,6 +16,8 @@ public class Keywords {
 	public static final String graphListOfEdges = "List of Edges";
 
 	public static final String graphTimestamp = "Timestamp";
+	
+	public static final String graphDataStructures = "Datastructures";
 
 	public static final String nodeWeightDelimiter = "@";
 

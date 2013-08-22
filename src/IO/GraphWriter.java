@@ -15,6 +15,8 @@ public class GraphWriter {
 
 			writer.writeKeyword(Keywords.graphGraph);
 			writer.writeln(g.getName());
+			
+			writer.writeKeyword(Keywords.graphDataStructures);
 			writer.writeln(g.getGraphDatastructures().getDataStructures());
 
 			writer.writeKeyword(Keywords.graphNodes);

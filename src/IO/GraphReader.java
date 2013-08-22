@@ -24,6 +24,8 @@ public class GraphReader {
 
 		reader.readKeyword(Keywords.graphGraph);
 		String name = reader.readString();
+		
+		reader.readKeyword(Keywords.graphDataStructures);
 		String gdsString = reader.readString();
 		
 		if (ds == null) {
