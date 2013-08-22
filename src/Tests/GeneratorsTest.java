@@ -15,19 +15,12 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
 import Utils.parameters.Parameter;
-import DataStructures.DArrayList;
-import DataStructures.DHashSet;
-import DataStructures.GraphDataStructure;
-import DataStructures.IEdgeListDatastructure;
-import DataStructures.INodeListDatastructure;
-import Factories.DirectedGraphGenerator;
+import DataStructures.*;
 import Factories.GraphGenerator;
 import Factories.RandomDirectedGraphGenerator;
-import Factories.UndirectedGraphGenerator;
+import Factories.RandomUndirectedDoubleWeightedGraphGenerator;
 import Graph.Graph;
-import Graph.Nodes.DirectedNode;
 import Graph.Nodes.Node;
-import Graph.Nodes.UndirectedNode;
 import IO.GraphReader;
 import IO.GraphWriter;
 
@@ -55,8 +48,8 @@ public class GeneratorsTest {
 		this.nodeEdgeListType = nodeEdgeListType;
 		this.nodeType = nodeType;
 		this.generator = generator;
-		this.generatorConstructor = generator.getConstructor(String.class, long.class, Parameter[].class,
-				GraphDataStructure.class, int.class, int.class);
+		this.generatorConstructor = generator.getConstructor(String.class, Parameter[].class,
+				GraphDataStructure.class, long.class, int.class, int.class);
 		
 		this.gds = new GraphDataStructure(nodeListType, graphEdgeListType, nodeEdgeListType, nodeType);
 	}
@@ -64,8 +57,8 @@ public class GeneratorsTest {
 	@SuppressWarnings("rawtypes")
 	@Parameterized.Parameters(name = "{0} {1} {2} {3} {4}")
 	public static Collection testPairs() {
-		Class[] dataStructures = { DArrayList.class, DHashSet.class };
-		Class[] graphGenerators = { RandomDirectedGraphGenerator.class };
+		Class[] dataStructures = { DArrayList.class, DArray.class, DHashMap.class, DHashSet.class };
+		Class[] graphGenerators = { RandomDirectedGraphGenerator.class, RandomUndirectedDoubleWeightedGraphGenerator.class };
 
 		ArrayList<Object> result = new ArrayList<>();
 		for (Class nodeListType : dataStructures) {
@@ -81,11 +74,13 @@ public class GeneratorsTest {
 						if (!(IEdgeListDatastructure.class.isAssignableFrom(nodeEdgeListType)))
 							continue;
 						
-						if ( DirectedGraphGenerator.class.isAssignableFrom(generator)) {
-							nodeType = DirectedNode.class;
-						} else if (UndirectedGraphGenerator.class.isAssignableFrom(generator)) {
-							nodeType = UndirectedNode.class;
-						} 
+						try {
+							nodeType = (Class<? extends Node>) generator.getField("nodeType").get(null);
+						} catch (IllegalArgumentException | IllegalAccessException | NoSuchFieldException
+								| SecurityException e) {
+							e.printStackTrace();
+							throw new RuntimeException("Field nodeType is missing in generator");
+						}
 						
 						result.add(new Object[] { nodeListType, edgeListType, nodeEdgeListType, nodeType, generator });
 					}
@@ -101,7 +96,7 @@ public class GeneratorsTest {
 		int nodeSize = 100;
 		int edgeSize = 150;
 				
-		GraphGenerator gg = this.generatorConstructor.newInstance("ABC", 0, new Parameter[]{}, gds, nodeSize, edgeSize);
+		GraphGenerator gg = this.generatorConstructor.newInstance("ABC", new Parameter[]{}, gds, 0, nodeSize, edgeSize);
 		Graph g = gg.generate();
 		
 		assertEquals(nodeSize, g.getNodeCount());
@@ -113,7 +108,7 @@ public class GeneratorsTest {
 		int nodeSize = 200;
 		int edgeSize = 300;
 		
-		GraphGenerator gg = this.generatorConstructor.newInstance("ABC", 0, new Parameter[]{}, gds, nodeSize, edgeSize);
+		GraphGenerator gg = this.generatorConstructor.newInstance("ABC", new Parameter[]{}, gds, 0, nodeSize, edgeSize);
 		Graph g = gg.generate();
 		
 		String tempFolder = folder.getRoot().getAbsolutePath();

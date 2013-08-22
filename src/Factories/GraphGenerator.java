@@ -2,6 +2,7 @@ package Factories;
 
 import DataStructures.GraphDataStructure;
 import Graph.Graph;
+import Graph.Nodes.DirectedNode;
 import Utils.parameters.Parameter;
 import Utils.parameters.ParameterList;
 
@@ -11,6 +12,8 @@ public abstract class GraphGenerator extends ParameterList {
 	protected int edgesInit;
 
 	protected GraphDataStructure gds;
+	
+	public final static Class<DirectedNode> nodeType = null;
 	
 	public GraphGenerator(String name, Parameter[] params, GraphDataStructure gds, long timestampInit, int nodesInit,
 			int edgesInit) {

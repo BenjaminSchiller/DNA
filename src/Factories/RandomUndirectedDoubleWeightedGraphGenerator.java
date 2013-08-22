@@ -2,19 +2,19 @@ package Factories;
 
 import DataStructures.GraphDataStructure;
 import Graph.Graph;
-import Graph.Edges.DirectedEdge;
+import Graph.Edges.UndirectedDoubleWeightedEdge;
 import Graph.Nodes.Node;
+import Graph.Nodes.UndirectedDoubleWeightedNode;
 import Utils.Rand;
 import Utils.parameters.Parameter;
 
-public class RandomDirectedGraphGenerator extends DirectedGraphGenerator {
-	public RandomDirectedGraphGenerator(String name, Parameter[] params,
-			GraphDataStructure gds, long timestampInit,
-			int nodesInit, int edgesInit) {
+public class RandomUndirectedDoubleWeightedGraphGenerator extends UndirectedDoubleWeightedGraphGenerator {
+	public RandomUndirectedDoubleWeightedGraphGenerator(String name, Parameter[] params, GraphDataStructure gds,
+			long timestampInit, int nodesInit, int edgesInit) {
 		super(name, params, gds, timestampInit, nodesInit, edgesInit);
+		// TODO Auto-generated constructor stub
 	}
-
-	@Override
+	
 	public Graph generate() {
 		Graph graph = this.newGraphInstance();
 
@@ -27,10 +27,8 @@ public class RandomDirectedGraphGenerator extends DirectedGraphGenerator {
 			int src = Rand.rand.nextInt(graph.getNodeCount());
 			int dst = Rand.rand.nextInt(graph.getNodeCount());
 			if (src != dst) {
-				DirectedEdge edge = (DirectedEdge) this.gds.newEdgeInstance(graph.getNode(src), graph.getNode(dst));
+				UndirectedDoubleWeightedEdge edge = (UndirectedDoubleWeightedEdge) this.gds.newEdgeInstance(graph.getNode(src), graph.getNode(dst));
 				graph.addEdge(edge);
-				edge.getSrc().addEdge(edge);
-				edge.getDst().addEdge(edge);
 			}
 		}
 
