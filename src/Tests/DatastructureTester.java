@@ -8,7 +8,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -117,7 +116,7 @@ public class DatastructureTester {
 	@Test
 	public void checkMaxNodeIndexOnAddAndRemove() {
 		assumeTrue(dataStructure instanceof INodeListDatastructure);
-		assumeTrue(elementClass.isAssignableFrom(Node.class));
+		assumeTrue(Node.class.isAssignableFrom(elementClass));
 		INodeListDatastructure tempDS = (INodeListDatastructure) dataStructure;
 		
 		IElement[] dummies = new IElement[10];
@@ -170,7 +169,7 @@ public class DatastructureTester {
 	@Test
 	public void checkGetNode() {
 		assumeTrue(dataStructure instanceof INodeListDatastructure);
-		assumeTrue(elementClass.isAssignableFrom(Node.class));
+		assumeTrue(Node.class.isAssignableFrom(this.elementClass));
 		INodeListDatastructure tempDS = (INodeListDatastructure) dataStructure;
 		
 		IElement dummy = mock(this.elementClass);
@@ -265,30 +264,36 @@ public class DatastructureTester {
 		assertTrue(dummies.isEmpty());
 	}
 
-	@Ignore @Test
+	@Test
 	public void checkGetNodeWithGaps() {
+			/*
+			 * Don't run this test for non-node datastructures and
+			 * non-nodes
+			 */
 		assumeTrue(dataStructure instanceof INodeListDatastructure);
+		assumeTrue(Node.class.isAssignableFrom(this.elementClass));
+		
 		INodeListDatastructure tempDS = (INodeListDatastructure) dataStructure;
 		
-		IElement dummy = mock(this.elementClass);
-		when(dummy.getIndex()).thenReturn(42);
-		tempDS.add(dummy);
+		IElement dummy1 = mock(this.elementClass);
+		when(dummy1.getIndex()).thenReturn(0);
+		assertTrue(tempDS.add(dummy1));
+			
+		assertEquals(null, tempDS.get(1));
+		assertEquals(0, dummy1.getIndex());
+		assertEquals(dummy1, tempDS.get(0));
 		
-		assertEquals(null, tempDS.get(43));
-		assertEquals(42, dummy.getIndex());
-		assertEquals(dummy, tempDS.get(42));
+		IElement dummy2 = mock(this.elementClass);
+		when(dummy2.getIndex()).thenReturn(1);
+		assertTrue(tempDS.add(dummy2));
 		
-		/*
-		 * Magic done here: through giving the
-		 * mock another index, we can search for an
-		 * element which has the proper index, but is not
-		 * at the indexed position -- the former
-		 * arraylist implementation in DNA did this 
-		 */
+		assertEquals(1, dummy2.getIndex());
+		assertEquals(dummy2, tempDS.get(1));		
 		
-		when(dummy.getIndex()).thenReturn(23);
-		assertEquals(23, dummy.getIndex());
-		assertEquals(null, tempDS.get(42));
+		// Remove first node and get second one
+		assertTrue(tempDS.remove(dummy1));
+		assertEquals(1, tempDS.size());
+		assertEquals(dummy2, tempDS.get(1));
 	}
 	
 	@Test
