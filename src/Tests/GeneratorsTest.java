@@ -23,6 +23,7 @@ import Factories.IGraphGenerator;
 import Factories.RandomDirectedGraphGenerator;
 import Factories.IRandomGenerator;
 import Factories.RandomUndirectedDoubleWeightedGraphGenerator;
+import Graph.ReadableGraph;
 import Graph.Graph;
 import Graph.Edges.Edge;
 import Graph.Nodes.Node;
@@ -56,7 +57,7 @@ public class GeneratorsTest {
 		this.generatorConstructor = generator.getConstructor(String.class, Parameter[].class,
 				GraphDataStructure.class, long.class, int.class, int.class);
 		
-		this.gds = new GraphDataStructure(nodeListType, graphEdgeListType, nodeEdgeListType, nodeType);
+		this.gds = new GraphDataStructure(ReadableGraph.class, nodeListType, graphEdgeListType, nodeEdgeListType, nodeType);
 	}
 
 	@SuppressWarnings("rawtypes")
@@ -114,7 +115,7 @@ public class GeneratorsTest {
 		int edgeSize = 300;
 		
 		GraphGenerator gg = this.generatorConstructor.newInstance("ABC", new Parameter[]{}, gds, 0, nodeSize, edgeSize);
-		Graph g = gg.generate();
+		ReadableGraph g = (ReadableGraph) gg.generate();
 		
 		String graphName = gds.getDataStructures();
 		
@@ -152,7 +153,7 @@ public class GeneratorsTest {
 		int edgeSize = 250;
 		
 		GraphGenerator gg = this.generatorConstructor.newInstance("ABC", new Parameter[]{}, gds, 0, nodeSize, edgeSize);
-		Graph g = gg.generate();
+		ReadableGraph g = (ReadableGraph) gg.generate();
 		
 		String graphName = gds.getDataStructures();
 		
@@ -185,7 +186,7 @@ public class GeneratorsTest {
 		int edgeSize = 250;
 		
 		GraphGenerator gg = this.generatorConstructor.newInstance("ABC", new Parameter[]{}, gds, 0, nodeSize, edgeSize);
-		Graph g = gg.generate();
+		ReadableGraph g = (ReadableGraph) gg.generate();
 		
 		String graphName = gds.getDataStructures();
 		

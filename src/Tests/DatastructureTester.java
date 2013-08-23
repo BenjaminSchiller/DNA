@@ -167,9 +167,9 @@ public class DatastructureTester {
 	
 	@Test
 	public void checkGetNode() {
-		assumeTrue(dataStructure instanceof INodeListDatastructure);
+		assumeTrue(dataStructure instanceof INodeListDatastructureReadable);
 		assumeTrue(Node.class.isAssignableFrom(this.elementClass));
-		INodeListDatastructure tempDS = (INodeListDatastructure) dataStructure;
+		INodeListDatastructureReadable tempDS = (INodeListDatastructureReadable) dataStructure;
 		
 		Node dummy = (Node) mock(this.elementClass);
 		when(dummy.getIndex()).thenReturn(42);
@@ -182,6 +182,9 @@ public class DatastructureTester {
 	
 	@Test
 	public void checkGetElements() {
+		assumeTrue(dataStructure instanceof INodeListDatastructureReadable);
+		IReadable tempDS = (IReadable) dataStructure;		
+		
 		int size = 20;
 		IElement singleDummy;
 		
@@ -196,11 +199,11 @@ public class DatastructureTester {
 				when(((Node) singleDummy).getIndex()).thenReturn(i);
 			}
 			
-			dataStructure.add(singleDummy);
+			tempDS.add(singleDummy);
 			dummies.add(singleDummy);
 		}
 		
-		Collection<IElement> elements = dataStructure.getElements();
+		Collection<IElement> elements = tempDS.getElements();
 		
 		/*
 		 * Check for the proper size and content
@@ -269,10 +272,10 @@ public class DatastructureTester {
 			 * Don't run this test for non-node datastructures and
 			 * non-nodes
 			 */
-		assumeTrue(dataStructure instanceof INodeListDatastructure);
+		assumeTrue(dataStructure instanceof INodeListDatastructureReadable);
 		assumeTrue(Node.class.isAssignableFrom(this.elementClass));
 		
-		INodeListDatastructure tempDS = (INodeListDatastructure) dataStructure;
+		INodeListDatastructureReadable tempDS = (INodeListDatastructureReadable) dataStructure;
 		
 		Node dummy1 = (Node) mock(this.elementClass);
 		when(dummy1.getIndex()).thenReturn(0);
@@ -297,16 +300,19 @@ public class DatastructureTester {
 	
 	@Test
 	public void checkGetRandom() {
+		assumeTrue(dataStructure instanceof INodeListDatastructureReadable);
+		IReadable tempDS = (IReadable) dataStructure;
+		
 		IElement[] dummies = new IElement[10];
 		for (int i = 0; i < dummies.length; i++) {
 			dummies[i] = mock(elementClass);
-			dataStructure.add(dummies[i]);
+			tempDS.add(dummies[i]);
 		}
 		
 		IElement random;
 		for ( int i = 0; i < 2 * dummies.length; i++) {
-			random = dataStructure.getRandom();
-			assertTrue(dataStructure.contains(random));
+			random = tempDS.getRandom();
+			assertTrue(tempDS.contains(random));
 		}
 	}
 	
