@@ -43,7 +43,16 @@ public abstract class DataStructure implements IDataStructure {
 	}
 	
 	public boolean dataEquals(IDataStructure that) {
-		return this.getElements().containsAll(that.getElements()) && that.getElements().containsAll(this.getElements());
+		if ( this.size() != that.size() ) return false;
+		int checkedAndFound = 0;
+			
+		for ( IElement thisElement: this.getElements() ) {
+			for ( IElement thatElement: that.getElements() ) {
+				if ( thisElement.equals(thatElement) && thisElement.deepEquals(thatElement)) checkedAndFound++;
+			}
+		}
+		
+		return checkedAndFound == this.size();
 	}
 	
 	@Override

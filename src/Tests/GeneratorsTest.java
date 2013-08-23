@@ -1,6 +1,7 @@
 package Tests;
 
 import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
 
 import java.io.IOException;
 import java.lang.reflect.Constructor;
@@ -111,17 +112,49 @@ public class GeneratorsTest {
 		GraphGenerator gg = this.generatorConstructor.newInstance("ABC", new Parameter[]{}, gds, 0, nodeSize, edgeSize);
 		Graph g = gg.generate();
 		
+		String graphName = gds.getDataStructures();
+		
 		String tempFolder = folder.getRoot().getAbsolutePath();
 		
 		GraphWriter gw = new GraphWriter();
-		gw.write(g, tempFolder, "g1");
+		gw.write(g, tempFolder, graphName);
 
 		GraphReader gr = new GraphReader();
-		Graph g2 = gr.read(tempFolder, "g1", null);
-		
+		Graph g2 = gr.read(tempFolder, graphName, null);
+				
 		assertEquals(gds, g2.getGraphDatastructures());
 		assertEquals(g, g2);
-		assertTrue(g.deepEquals(g2));
 	}
+	
+	@Test
+	public void testWriteReadWithErrorInNode() throws InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, ClassNotFoundException, IOException {
+		int nodeSize = 10;
+		int edgeSize = 15;
+		
+		GraphGenerator gg = this.generatorConstructor.newInstance("ABC", new Parameter[]{}, gds, 0, nodeSize, edgeSize);
+		Graph g = gg.generate();
+		
+		String graphName = gds.getDataStructures();
+		
+		String tempFolder = folder.getRoot().getAbsolutePath();
+		
+		GraphWriter gw = new GraphWriter();
+		gw.write(g, tempFolder, graphName);
+
+		GraphReader gr = new GraphReader();
+		Graph g2 = gr.read(tempFolder, graphName, null);
+				
+		assertEquals(gds, g2.getGraphDatastructures());		
+		assertEquals(g, g2);
+		
+		// Change getStringRepresentation now to see that it is used for equality checks
+		Node nodeReal = g.getNode(g.getNodeCount() - 1);
+		assertNotNull(nodeReal);
+		g.removeNode(nodeReal);
+		Node nodeMocked = mock(this.nodeType);
+		when(nodeMocked.getStringRepresentation()).thenReturn("");
+		g.addNode(nodeMocked);	
+		assertNotEquals(g, g2);
+	}	
 	
 }

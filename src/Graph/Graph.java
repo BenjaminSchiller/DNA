@@ -173,18 +173,5 @@ public class Graph {
 			return false;
 		}
 		return true;
-	}
-	
-	public boolean deepEquals(Graph other) {
-		if (nodes == null || edges == null) return false;
-		
-		if (other.nodes.size() != this.nodes.size()) return false;
-		if (other.edges.size() != this.edges.size()) return false;
-		
-		if (!this.nodes.dataEquals(other.nodes)) return false;
-		if (!this.edges.dataEquals(other.edges)) return false;
-		
-		return true;
-	}
-	
+	}	
 }
