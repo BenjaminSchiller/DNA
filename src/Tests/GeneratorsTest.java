@@ -21,6 +21,7 @@ import Factories.GraphGenerator;
 import Factories.RandomDirectedGraphGenerator;
 import Factories.RandomUndirectedDoubleWeightedGraphGenerator;
 import Graph.Graph;
+import Graph.Edges.Edge;
 import Graph.Nodes.Node;
 import IO.GraphReader;
 import IO.GraphWriter;
@@ -125,11 +126,11 @@ public class GeneratorsTest {
 		assertEquals(gds, g2.getGraphDatastructures());
 		assertEquals(g, g2);
 	}
-	
+
 	@Test
-	public void testWriteReadWithErrorInNode() throws InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, ClassNotFoundException, IOException {
-		int nodeSize = 10;
-		int edgeSize = 15;
+	public void testWriteReadWithErrorInEdge() throws InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, ClassNotFoundException, IOException {
+		int nodeSize = 200;
+		int edgeSize = 250;
 		
 		GraphGenerator gg = this.generatorConstructor.newInstance("ABC", new Parameter[]{}, gds, 0, nodeSize, edgeSize);
 		Graph g = gg.generate();
@@ -144,16 +145,49 @@ public class GeneratorsTest {
 		GraphReader gr = new GraphReader();
 		Graph g2 = gr.read(tempFolder, graphName, null);
 				
-		assertEquals(gds, g2.getGraphDatastructures());		
 		assertEquals(g, g2);
 		
-		// Change getStringRepresentation now to see that it is used for equality checks
+		// Change getStringRepresentation now to see that it is used for
+		// equality checks
+		for (int i = 0; i < Math.floor(edgeSize / 5); i++) {
+			Edge edgeReal = g.getRandomEdge();
+			assertNotNull(edgeReal);
+			g.removeEdge(edgeReal);
+			Edge edgeMocked = mock(this.gds.getEdgeType());
+			when(edgeMocked.getStringRepresentation()).thenReturn("");
+			g.addEdge(edgeMocked);
+			assertNotEquals(g, g2);
+		}
+	}
+	
+	@Test
+	public void testWriteReadWithErrorInNode() throws InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, ClassNotFoundException, IOException {
+		int nodeSize = 200;
+		int edgeSize = 250;
+		
+		GraphGenerator gg = this.generatorConstructor.newInstance("ABC", new Parameter[]{}, gds, 0, nodeSize, edgeSize);
+		Graph g = gg.generate();
+		
+		String graphName = gds.getDataStructures();
+		
+		String tempFolder = folder.getRoot().getAbsolutePath();
+		
+		GraphWriter gw = new GraphWriter();
+		gw.write(g, tempFolder, graphName);
+
+		GraphReader gr = new GraphReader();
+		Graph g2 = gr.read(tempFolder, graphName, null);
+				
+		assertEquals(g, g2);
+		
+		// Change getStringRepresentation now to see that it is used for
+		// equality checks
 		Node nodeReal = g.getNode(g.getNodeCount() - 1);
 		assertNotNull(nodeReal);
 		g.removeNode(nodeReal);
 		Node nodeMocked = mock(this.nodeType);
 		when(nodeMocked.getStringRepresentation()).thenReturn("");
-		g.addNode(nodeMocked);	
+		g.addNode(nodeMocked);
 		assertNotEquals(g, g2);
 	}	
 	
