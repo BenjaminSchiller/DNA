@@ -2,13 +2,13 @@ package IO;
 
 import java.io.IOException;
 
-import Graph.Graph;
 import Graph.IElement;
+import Graph.ReadableGraph;
 import Utils.Keywords;
 
 public class GraphWriter {
 
-	public boolean write(Graph g, String dir, String filename) {
+	public boolean write(ReadableGraph g, String dir, String filename) {
 		Writer writer = null;
 		try {
 			writer = new Writer(dir, filename);
@@ -30,11 +30,13 @@ public class GraphWriter {
 
 			writer.writeKeyword(Keywords.graphListOfNodes);
 			for (IElement n : g.getNodes()) {
+				if ( n == null ) continue;
 				writer.writeln(n.getStringRepresentation());
 			}
 
 			writer.writeKeyword(Keywords.graphListOfEdges);
 			for (IElement e : g.getEdges()) {
+				if ( e == null ) continue;
 				writer.writeln(e.getStringRepresentation());
 			}
 

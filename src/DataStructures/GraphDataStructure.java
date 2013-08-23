@@ -142,7 +142,7 @@ public class GraphDataStructure {
 	public Graph newGraphInstance(String name, long timestamp, int nodes, int edges) {
 		Graph res = null;
 		try {
-			Constructor<Graph> gC = (Constructor<Graph>) graphType.getConstructor(String.class, Long.class,
+			Constructor<Graph> gC = (Constructor<Graph>) graphType.getConstructor(String.class, long.class,
 					GraphDataStructure.class, int.class, int.class);
 			res = gC.newInstance(name, timestamp, this, nodes, edges);
 		} catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException

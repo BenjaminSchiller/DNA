@@ -11,7 +11,7 @@ public class Graph {
 	public IEdgeListDatastructure edges;
 	private String name;
 	private long timestamp;
-	private GraphDataStructure gds;
+	protected GraphDataStructure gds;
 
 	public Graph(String name, long timestamp, GraphDataStructure gds) {
 		this.name = name;
