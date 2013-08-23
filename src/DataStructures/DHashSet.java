@@ -34,6 +34,12 @@ public class DHashSet extends DataStructure implements IEdgeListDatastructure {
 
 	@Override
 	public boolean contains(IElement element) {
+		if (element instanceof Edge) return this.contains((Edge) element);
+		throw new RuntimeException("Can't handle element of type " + element.getClass() + " here");
+	}
+	
+	@Override
+	public boolean contains(Edge element) {
 		return list.contains(element);
 	}
 

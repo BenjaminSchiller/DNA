@@ -43,6 +43,12 @@ public class DHashMap extends DataStructure implements INodeListDatastructure {
 
 	@Override
 	public boolean contains(IElement element) {
+		if (element instanceof Node) return this.contains((Node) element);
+		throw new RuntimeException("Can't handle element of type " + element.getClass() + " here");
+	}	
+	
+	@Override
+	public boolean contains(Node element) {
 		return list.containsValue(element);
 	}
 

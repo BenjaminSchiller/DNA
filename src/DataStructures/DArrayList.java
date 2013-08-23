@@ -45,31 +45,43 @@ public class DArrayList extends DataStructure implements INodeListDatastructure,
 
 	@Override
 	public boolean contains(IElement element) {
+		if (element instanceof Node) return this.contains((Node) element);
+		if (element instanceof Edge) return this.contains((Edge) element);
+		throw new RuntimeException("Can't handle element of type " + element.getClass() + " here");
+	}	
+	
+	@Override
+	public boolean contains(Node element) {
 		return list.contains(element);
 	}
 
+	@Override
+	public boolean contains(Edge element) {
+		return list.contains(element);
+	}
+	
 	@Override
 	public int size() {
 		return list.size();
 	}
 	
 	public Node get(int index) {
-		IElement n = null;
+		Node n = null;
 
 		// check node at $index
 		if (this.list.size() > index) {
-			n = this.list.get(index);
+			n = (Node) this.list.get(index);
 			if (n != null && n.getIndex() == index) {
-				return (Node) n;
+				return n;
 			}
 		}
 
 		// check nodes before $index
 		if (n == null || n.getIndex() > index) {
 			for (int i = Math.min(index - 1, this.list.size() - 1); i >= 0; i--) {
-				IElement n2 = this.list.get(i);
+				Node n2 = (Node) this.list.get(i);
 				if (n2 != null && n2.getIndex() == index) {
-					return (Node) n2;
+					return n2;
 				}
 			}
 		}
@@ -77,9 +89,9 @@ public class DArrayList extends DataStructure implements INodeListDatastructure,
 		// check nodes after $index
 		if (n == null || n.getIndex() < index) {
 			for (int i = index + 1; i < this.list.size(); i++) {
-				IElement n2 = this.list.get(i);
+				Node n2 = (Node) this.list.get(i);
 				if (n2 != null && n2.getIndex() == index) {
-					return (Node) n2;
+					return n2;
 				}
 			}
 		}
@@ -116,7 +128,7 @@ public class DArrayList extends DataStructure implements INodeListDatastructure,
 		if (this.maxNodeIndex == element.getIndex()) {
 			int max = -1;
 			for (IElement n : this.getElements()) {
-				max = Math.max(n.getIndex(), max);
+				max = Math.max(((Node)n).getIndex(), max);
 			}
 			this.maxNodeIndex = max;
 		}

@@ -53,8 +53,13 @@ public class DArray extends DataStructure implements INodeListDatastructure {
 	
 	@Override
 	public boolean contains(IElement element) {
+		if (element instanceof Node) return this.contains((Node) element);
+		throw new RuntimeException("Can't handle element of type " + element.getClass() + " here");
+	}
+	
+	public boolean contains(Node element) {
 		return this.list.length > element.getIndex()
-				&& this.list[element.getIndex()] != null;
+				&& this.list[element.getIndex()] != null;		
 	}
 
 	@Override
@@ -106,7 +111,7 @@ public class DArray extends DataStructure implements INodeListDatastructure {
 		if (element.getIndex() == this.maxNodeIndex) {
 			for (int i = this.maxNodeIndex; i >= 0; i--) {
 				if (this.list[i] != null) {
-					this.maxNodeIndex = this.list[i].getIndex();
+					this.maxNodeIndex = ((Node) this.list[i]).getIndex();
 					break;
 				}
 				if( i == 0 && this.maxNodeIndex == element.getIndex()) {

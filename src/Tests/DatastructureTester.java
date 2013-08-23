@@ -101,8 +101,6 @@ public class DatastructureTester {
 	@Test(timeout=1500)
 	public void checkAddAndRemove() {
 		IElement dummy = mock(elementClass);
-		when(dummy.getIndex()).thenReturn(42);
-		
 		assertFalse(dataStructure.contains(dummy));
 		assertEquals(0, dataStructure.size());
 		dataStructure.add(dummy);
@@ -119,9 +117,9 @@ public class DatastructureTester {
 		assumeTrue(Node.class.isAssignableFrom(elementClass));
 		INodeListDatastructure tempDS = (INodeListDatastructure) dataStructure;
 		
-		IElement[] dummies = new IElement[10];
+		Node[] dummies = new Node[10];
 		for (int i = 0; i < dummies.length; i++) {
-			dummies[i] = mock(this.elementClass);
+			dummies[i] = (Node) mock(this.elementClass);
 			when(dummies[i].getIndex()).thenReturn(i);
 			tempDS.add(dummies[i]);
 			assertEquals(i, tempDS.getMaxNodeIndex());
@@ -134,12 +132,12 @@ public class DatastructureTester {
 		 * sophisticated tests now
 		 */
 		
-		IElement[] secondDummies = new IElement[10];
+		Node[] secondDummies = new Node[10];
 		int[] prevIndex = new int[10];
 		int lastIndex = tempDS.getMaxNodeIndex();
 		
 		for (int i = 0; i < secondDummies.length; i++) {
-			secondDummies[i] = mock(this.elementClass);
+			secondDummies[i] = (Node) mock(this.elementClass);
 			prevIndex[i] = lastIndex;
 			lastIndex = lastIndex + Rand.rand.nextInt(5000) + 3;
 			when(secondDummies[i].getIndex()).thenReturn(lastIndex);
@@ -160,7 +158,8 @@ public class DatastructureTester {
 		IElement[] dummies = new IElement[10];
 		for (int i = 0; i < dummies.length; i++) {
 			dummies[i] = mock(this.elementClass);
-			when(dummies[i].getIndex()).thenReturn(i);
+			if (Node.class.isAssignableFrom(this.elementClass))
+				when(((Node) dummies[i]).getIndex()).thenReturn(i);
 			dataStructure.add(dummies[i]);
 		}
 		assertEquals(dummies.length, dataStructure.size());		
@@ -172,7 +171,7 @@ public class DatastructureTester {
 		assumeTrue(Node.class.isAssignableFrom(this.elementClass));
 		INodeListDatastructure tempDS = (INodeListDatastructure) dataStructure;
 		
-		IElement dummy = mock(this.elementClass);
+		Node dummy = (Node) mock(this.elementClass);
 		when(dummy.getIndex()).thenReturn(42);
 		tempDS.add(dummy);
 		
@@ -194,7 +193,7 @@ public class DatastructureTester {
 			 * Nodes are stored with an index, so set it please!
 			 */
 			if ( singleDummy instanceof Node ) {
-				when(singleDummy.getIndex()).thenReturn(i);
+				when(((Node) singleDummy).getIndex()).thenReturn(i);
 			}
 			
 			dataStructure.add(singleDummy);
@@ -227,7 +226,7 @@ public class DatastructureTester {
 			 * Nodes are stored with an index, so set it please!
 			 */
 			if ( singleDummy instanceof Node ) {
-				when(singleDummy.getIndex()).thenReturn(i);
+				when(((Node) singleDummy).getIndex()).thenReturn(i);
 			}
 			
 			dataStructure.add(singleDummy);
@@ -248,7 +247,7 @@ public class DatastructureTester {
 			 * Nodes are stored with an index, so set it please!
 			 */
 			if ( singleDummy instanceof Node ) {
-				when(singleDummy.getIndex()).thenReturn(i);
+				when(((Node) singleDummy).getIndex()).thenReturn(i);
 			}
 			
 			dataStructure.add(singleDummy);
@@ -275,7 +274,7 @@ public class DatastructureTester {
 		
 		INodeListDatastructure tempDS = (INodeListDatastructure) dataStructure;
 		
-		IElement dummy1 = mock(this.elementClass);
+		Node dummy1 = (Node) mock(this.elementClass);
 		when(dummy1.getIndex()).thenReturn(0);
 		assertTrue(tempDS.add(dummy1));
 			
@@ -283,7 +282,7 @@ public class DatastructureTester {
 		assertEquals(0, dummy1.getIndex());
 		assertEquals(dummy1, tempDS.get(0));
 		
-		IElement dummy2 = mock(this.elementClass);
+		Node dummy2 = (Node) mock(this.elementClass);
 		when(dummy2.getIndex()).thenReturn(1);
 		assertTrue(tempDS.add(dummy2));
 		
