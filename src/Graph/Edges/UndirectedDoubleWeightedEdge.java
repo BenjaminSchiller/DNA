@@ -1,5 +1,6 @@
 package Graph.Edges;
 
+import Graph.Graph;
 import Graph.IWeighted;
 import Graph.ReadableGraph;
 import Graph.Nodes.Node;
@@ -13,7 +14,7 @@ public class UndirectedDoubleWeightedEdge extends UndirectedEdge implements IWei
 		this.setWeight(weight);
 	}
 
-	public UndirectedDoubleWeightedEdge(String str, ReadableGraph g) {
+	public UndirectedDoubleWeightedEdge(String str, Graph g) {
 		super(str.split(Keywords.edgeWeightDelimiter)[0], g);
 		if (str.contains(Keywords.edgeWeightDelimiter)) {
 			this.weight = Double.parseDouble(str

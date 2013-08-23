@@ -1,8 +1,8 @@
 package Graph.Edges;
 
 import Utils.Keywords;
+import Graph.Graph;
 import Graph.IWeighted;
-import Graph.ReadableGraph;
 import Graph.Nodes.Node;
 
 public class DirectedDoubleWeightedEdge extends DirectedEdge implements IWeighted<Double> {
@@ -13,7 +13,7 @@ public class DirectedDoubleWeightedEdge extends DirectedEdge implements IWeighte
 		this.setWeight(weight);
 	}
 	
-	public DirectedDoubleWeightedEdge(String str, ReadableGraph g) {
+	public DirectedDoubleWeightedEdge(String str, Graph g) {
 		super(str.split(Keywords.edgeWeightDelimiter)[0], g);
 		if (str.contains(Keywords.edgeWeightDelimiter)) {
 			this.weight = Double.parseDouble(str

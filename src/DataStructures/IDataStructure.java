@@ -5,6 +5,7 @@ import Graph.IElement;
 @SuppressWarnings("rawtypes")
 public interface IDataStructure extends Iterable {
 	public boolean add(IElement element);
+	public boolean contains(IElement element);
 	public boolean remove(IElement element);
 
 	public int size();
