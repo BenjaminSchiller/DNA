@@ -2,8 +2,8 @@ package Factories;
 
 import DataStructures.GraphDataStructure;
 import Graph.Graph;
+import Graph.ReadableGraph;
 import Graph.Edges.UndirectedDoubleWeightedEdge;
-import Graph.Nodes.Node;
 import Graph.Nodes.UndirectedDoubleWeightedNode;
 import Utils.Rand;
 import Utils.parameters.Parameter;
@@ -12,11 +12,14 @@ public class RandomUndirectedDoubleWeightedGraphGenerator extends UndirectedDoub
 	public RandomUndirectedDoubleWeightedGraphGenerator(String name, Parameter[] params, GraphDataStructure gds,
 			long timestampInit, int nodesInit, int edgesInit) {
 		super(name, params, gds, timestampInit, nodesInit, edgesInit);
-		// TODO Auto-generated constructor stub
+		if ( !ReadableGraph.class.isAssignableFrom(gds.getGraphType())) {
+			throw new RuntimeException("Can only generate graph with readable property");
+		}
 	}
 	
 	public Graph generate() {
-		Graph graph = this.newGraphInstance();
+		Graph graphUnc = this.newGraphInstance();
+		ReadableGraph graph = (ReadableGraph)graphUnc;
 		
 		for (int i = 0; i < this.nodesInit; i++) {
 			UndirectedDoubleWeightedNode node = (UndirectedDoubleWeightedNode) this.gds.newNodeInstance(i);

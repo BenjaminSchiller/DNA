@@ -1,7 +1,7 @@
 package Graph.Edges;
 
 import Graph.Element;
-import Graph.Graph;
+import Graph.ReadableGraph;
 import Graph.Nodes.Node;
 import Graph.Nodes.UndirectedNode;
 import Utils.Keywords;
@@ -30,7 +30,7 @@ public class UndirectedEdge extends Edge {
 	 *            graph this undirected edge is belonging to (required to obtain
 	 *            node object pointers)
 	 */
-	public UndirectedEdge(String s, Graph g) {
+	public UndirectedEdge(String s, ReadableGraph g) {
 		String[] temp = s.split(Keywords.undirectedEdgeDelimiter);
 		UndirectedNode node1 = (UndirectedNode) g.getNode(Integer.parseInt(temp[0]));
 		UndirectedNode node2 = (UndirectedNode) g.getNode(Integer.parseInt(temp[1]));

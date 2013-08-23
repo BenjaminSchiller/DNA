@@ -1,9 +1,9 @@
 package Graph.Edges;
 
-import Utils.Keywords;
-import Graph.Graph;
 import Graph.IWeighted;
+import Graph.ReadableGraph;
 import Graph.Nodes.Node;
+import Utils.Keywords;
 
 public class UndirectedDoubleWeightedEdge extends UndirectedEdge implements IWeighted<Double> {
 	private double weight;
@@ -13,7 +13,7 @@ public class UndirectedDoubleWeightedEdge extends UndirectedEdge implements IWei
 		this.setWeight(weight);
 	}
 
-	public UndirectedDoubleWeightedEdge(String str, Graph g) {
+	public UndirectedDoubleWeightedEdge(String str, ReadableGraph g) {
 		super(str.split(Keywords.edgeWeightDelimiter)[0], g);
 		if (str.contains(Keywords.edgeWeightDelimiter)) {
 			this.weight = Double.parseDouble(str

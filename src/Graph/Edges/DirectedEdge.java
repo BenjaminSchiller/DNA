@@ -1,7 +1,7 @@
 package Graph.Edges;
 
 import Graph.Element;
-import Graph.Graph;
+import Graph.ReadableGraph;
 import Graph.Nodes.DirectedNode;
 import Graph.Nodes.Node;
 import Utils.Keywords;
@@ -15,7 +15,7 @@ public class DirectedEdge extends Edge {
 		this.dst = dst;		
 	}
 	
-	public DirectedEdge(String s, Graph g) {
+	public DirectedEdge(String s, ReadableGraph g) {
 		String[] temp = s.split(Keywords.directedEdgeDelimiter);
 		DirectedNode src = (DirectedNode) g.getNode(Integer.parseInt(temp[0]));
 		DirectedNode dst = (DirectedNode) g.getNode(Integer.parseInt(temp[1]));
