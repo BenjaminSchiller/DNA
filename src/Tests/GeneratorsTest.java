@@ -1,6 +1,7 @@
 package Tests;
 
 import static org.junit.Assert.*;
+import static org.junit.Assume.assumeTrue;
 import static org.mockito.Mockito.*;
 
 import java.io.IOException;
@@ -18,7 +19,9 @@ import org.junit.runners.Parameterized;
 import Utils.parameters.Parameter;
 import DataStructures.*;
 import Factories.GraphGenerator;
+import Factories.IGraphGenerator;
 import Factories.RandomDirectedGraphGenerator;
+import Factories.IRandomGenerator;
 import Factories.RandomUndirectedDoubleWeightedGraphGenerator;
 import Graph.Graph;
 import Graph.Edges.Edge;
@@ -32,7 +35,7 @@ public class GeneratorsTest {
 	private Class<? extends INodeListDatastructure> nodeListType;
 	private Class<? extends IEdgeListDatastructure> graphEdgeListType;
 	private Class<? extends IEdgeListDatastructure> nodeEdgeListType;
-	private Class<? extends GraphGenerator> generator;
+	private Class<? extends IGraphGenerator> generator;
 	private Constructor<? extends GraphGenerator> generatorConstructor;
 	private GraphDataStructure gds;
 	
@@ -125,6 +128,22 @@ public class GeneratorsTest {
 				
 		assertEquals(gds, g2.getGraphDatastructures());
 		assertEquals(g, g2);
+	}
+	
+	@Test
+	public void testRandomGraphsAreRandom() throws InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, ClassNotFoundException, IOException {
+		assumeTrue(IRandomGenerator.class.isAssignableFrom(generator));
+		
+		int nodeSize = 200;
+		int edgeSize = 250;
+		
+		GraphGenerator gg = this.generatorConstructor.newInstance("ABC", new Parameter[]{}, gds, 0, nodeSize, edgeSize);
+		Graph g = gg.generate();
+		
+		for (int i = 0; i < 20; i++) {
+			Graph g2 = gg.generate();
+			assertNotEquals(g, g2);
+		}
 	}
 
 	@Test

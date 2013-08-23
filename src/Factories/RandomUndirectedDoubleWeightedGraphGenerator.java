@@ -8,7 +8,7 @@ import Graph.Nodes.UndirectedDoubleWeightedNode;
 import Utils.Rand;
 import Utils.parameters.Parameter;
 
-public class RandomUndirectedDoubleWeightedGraphGenerator extends UndirectedDoubleWeightedGraphGenerator {
+public class RandomUndirectedDoubleWeightedGraphGenerator extends UndirectedDoubleWeightedGraphGenerator implements IRandomGenerator {
 	public RandomUndirectedDoubleWeightedGraphGenerator(String name, Parameter[] params, GraphDataStructure gds,
 			long timestampInit, int nodesInit, int edgesInit) {
 		super(name, params, gds, timestampInit, nodesInit, edgesInit);

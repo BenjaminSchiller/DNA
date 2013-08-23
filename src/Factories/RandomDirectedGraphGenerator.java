@@ -7,7 +7,7 @@ import Graph.Nodes.Node;
 import Utils.Rand;
 import Utils.parameters.Parameter;
 
-public class RandomDirectedGraphGenerator extends DirectedGraphGenerator {
+public class RandomDirectedGraphGenerator extends DirectedGraphGenerator implements IRandomGenerator {
 	public RandomDirectedGraphGenerator(String name, Parameter[] params,
 			GraphDataStructure gds, long timestampInit,
 			int nodesInit, int edgesInit) {

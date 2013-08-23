@@ -6,7 +6,7 @@ import Graph.Nodes.DirectedNode;
 import Utils.parameters.Parameter;
 import Utils.parameters.ParameterList;
 
-public abstract class GraphGenerator extends ParameterList {
+public abstract class GraphGenerator extends ParameterList implements IGraphGenerator {
 	protected long timestampInit;
 	protected int nodesInit;
 	protected int edgesInit;
