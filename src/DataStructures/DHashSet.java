@@ -8,7 +8,7 @@ import Graph.IElement;
 import Graph.Edges.Edge;
 import Utils.Rand;
 
-public class DHashSet extends DataStructureReadable implements IEdgeListDatastructure {
+public class DHashSet extends DataStructureReadable implements IEdgeListDatastructureReadable {
 	private HashSet<IElement> list;
 
 	public DHashSet(Class<? extends IElement> dT) {

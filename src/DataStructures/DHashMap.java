@@ -8,7 +8,7 @@ import Utils.Rand;
 import Graph.IElement;
 import Graph.Nodes.Node;
 
-public class DHashMap extends DataStructureReadable implements INodeListDatastructure {
+public class DHashMap extends DataStructureReadable implements INodeListDatastructureReadable {
 	private HashMap<Integer, IElement> list;
 	private int maxNodeIndex;
 	
