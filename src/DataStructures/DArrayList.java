@@ -9,7 +9,7 @@ import Graph.Edges.Edge;
 import Graph.Nodes.Node;
 import Utils.Rand;
 
-public class DArrayList extends DataStructure implements INodeListDatastructure, IEdgeListDatastructure {
+public class DArrayList extends DataStructureReadable implements INodeListDatastructure, IEdgeListDatastructure {
 	private ArrayList<IElement> list;
 	private int maxNodeIndex;
 

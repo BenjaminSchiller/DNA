@@ -6,10 +6,9 @@ import java.util.Iterator;
 
 import Utils.Rand;
 import Graph.IElement;
-import Graph.Edges.Edge;
 import Graph.Nodes.Node;
 
-public class DHashMap extends DataStructure implements INodeListDatastructure {
+public class DHashMap extends DataStructureReadable implements INodeListDatastructure {
 	private HashMap<Integer, IElement> list;
 	private int maxNodeIndex;
 	

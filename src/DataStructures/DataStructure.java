@@ -42,23 +42,7 @@ public abstract class DataStructure implements IDataStructure {
 	public Class<? extends IElement> getDataType() {
 		return this.dataType;
 	}
-	
-	public boolean dataEquals(IDataStructure that) {
-		if ( this.size() != that.size() ) return false;
-		int checkedAndFound = 0;
 		
-		if ( this.size() == 0 ) return true;
-			
-		for ( IElement thisElement: this.getElements() ) {
-			for ( IElement thatElement: that.getElements() ) {
-				if ( thisElement == null || thatElement == null ) continue;
-				if ( thisElement.equals(thatElement) && thisElement.deepEquals(thatElement)) checkedAndFound++;
-			}
-		}
-		
-		return checkedAndFound == this.size();
-	}
-	
 	@Override
 	public boolean canStore(Class<? extends IElement> o) {
 		return dataType.isAssignableFrom(o);

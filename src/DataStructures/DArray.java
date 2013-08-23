@@ -8,7 +8,7 @@ import Graph.IElement;
 import Graph.Nodes.Node;
 import Utils.Rand;
 
-public class DArray extends DataStructure implements INodeListDatastructure {
+public class DArray extends DataStructureReadable implements INodeListDatastructure {
 	private IElement[] list;
 	private int count;
 	private int maxNodeIndex;

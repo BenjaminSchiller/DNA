@@ -6,10 +6,9 @@ import java.util.Iterator;
 
 import Graph.IElement;
 import Graph.Edges.Edge;
-import Graph.Nodes.Node;
 import Utils.Rand;
 
-public class DHashSet extends DataStructure implements IEdgeListDatastructure {
+public class DHashSet extends DataStructureReadable implements IEdgeListDatastructure {
 	private HashSet<IElement> list;
 
 	public DHashSet(Class<? extends IElement> dT) {
