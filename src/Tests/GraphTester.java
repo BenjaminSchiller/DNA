@@ -13,6 +13,7 @@ import DataStructures.DArray;
 import DataStructures.DArrayList;
 import DataStructures.DHashMap;
 import DataStructures.DHashSet;
+import DataStructures.DLinkedList;
 import DataStructures.GraphDataStructure;
 import DataStructures.IEdgeListDatastructure;
 import DataStructures.INodeListDatastructure;
@@ -42,7 +43,7 @@ public class GraphTester {
 	@SuppressWarnings("rawtypes")
 	@Parameterized.Parameters(name = "{0} {1} {2} {3}")
 	public static Collection<Object> testPairs() {
-		Class[] dataStructures = { DArray.class, DArrayList.class, DHashMap.class, DHashSet.class };
+		Class[] dataStructures = { DArray.class, DArrayList.class, DHashMap.class, DHashSet.class, DLinkedList.class };
 
 		ArrayList<Object> result = new ArrayList<>();
 		for (Class nodeListType : dataStructures) {
@@ -111,6 +112,8 @@ public class GraphTester {
 	
 	@Test
 	public void addEdgeByString() {
+		assumeTrue(gds.isReadable());
+		
 		Node n1 = gds.newNodeInstance(1);
 		Node n2 = gds.newNodeInstance(2);
 		graph.addNode(n1);
