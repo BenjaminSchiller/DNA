@@ -108,7 +108,6 @@ public class GeneratorsTest {
 
 		GraphGenerator gg = this.generatorConstructor
 				.newInstance("ABC", new Parameter[] {}, gds, 0, nodeSize, edgeSize);
-		assumeTrue(gg.canGenerateNodeType(nodeType));
 		Graph g = gg.generate();
 
 		assertEquals(nodeSize, g.getNodeCount());
@@ -123,7 +122,6 @@ public class GeneratorsTest {
 
 		GraphGenerator gg = this.generatorConstructor
 				.newInstance("ABC", new Parameter[] {}, gds, 0, nodeSize, edgeSize);
-		assumeTrue(gg.canGenerateNodeType(nodeType));
 		Graph g = gg.generate();
 
 		String graphName = gds.getDataStructures();
@@ -167,7 +165,6 @@ public class GeneratorsTest {
 
 		GraphGenerator gg = this.generatorConstructor
 				.newInstance("ABC", new Parameter[] {}, gds, 0, nodeSize, edgeSize);
-		assumeTrue(gg.canGenerateNodeType(nodeType));
 		
 		Graph g = gg.generate();
 
@@ -204,7 +201,6 @@ public class GeneratorsTest {
 
 		GraphGenerator gg = this.generatorConstructor
 				.newInstance("ABC", new Parameter[] {}, gds, 0, nodeSize, edgeSize);
-		assumeTrue(gg.canGenerateNodeType(nodeType));
 		Graph g = gg.generate();
 
 		String graphName = gds.getDataStructures();
