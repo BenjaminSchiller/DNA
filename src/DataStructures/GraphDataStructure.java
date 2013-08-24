@@ -9,6 +9,14 @@ import Graph.Edges.DirectedEdge;
 import Graph.Edges.Edge;
 import Graph.Nodes.Node;
 
+/**
+ * Container for different types of storages for everything: this holds the
+ * graph type (eg. Graph, ReadableGraph), the storages within a graph for edges
+ * and nodes, and the node type and the resulting edge type
+ * 
+ * @author Nico
+ * 
+ */
 public class GraphDataStructure {
 	private Class<? extends Graph> graphType;
 	private Class<? extends INodeListDatastructure> nodeListType;
@@ -18,12 +26,9 @@ public class GraphDataStructure {
 	private Class<? extends Edge> edgeType;
 
 	@SuppressWarnings("unchecked")
-	public GraphDataStructure(
-			Class<? extends Graph> graphType,
-			Class<? extends INodeListDatastructure> nodeListType,
+	public GraphDataStructure(Class<? extends Graph> graphType, Class<? extends INodeListDatastructure> nodeListType,
 			Class<? extends IEdgeListDatastructure> graphEdgeListType,
-			Class<? extends IEdgeListDatastructure> nodeEdgeListType,
-			Class<? extends Node> nodeType) {
+			Class<? extends IEdgeListDatastructure> nodeEdgeListType, Class<? extends Node> nodeType) {
 		this.graphType = graphType;
 		this.nodeListType = nodeListType;
 		this.graphEdgeListType = graphEdgeListType;
@@ -43,24 +48,12 @@ public class GraphDataStructure {
 		} catch (ClassNotFoundException | ClassCastException e) {
 			e.printStackTrace();
 		}
-		
+
 		try {
 			this.edgeType = (Class<? extends Edge>) nodeType.getField("edgeType").get(null);
 		} catch (IllegalArgumentException | IllegalAccessException | NoSuchFieldException | SecurityException e) {
 			e.printStackTrace();
 		}
-	}
-
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((edgeType == null) ? 0 : edgeType.hashCode());
-		result = prime * result + ((graphEdgeListType == null) ? 0 : graphEdgeListType.hashCode());
-		result = prime * result + ((nodeEdgeListType == null) ? 0 : nodeEdgeListType.hashCode());
-		result = prime * result + ((nodeListType == null) ? 0 : nodeListType.hashCode());
-		result = prime * result + ((nodeType == null) ? 0 : nodeType.hashCode());
-		return result;
 	}
 
 	@Override
@@ -102,7 +95,7 @@ public class GraphDataStructure {
 
 	public Class<?> getGraphType() {
 		return this.graphType;
-	}	
+	}
 
 	public Class<? extends INodeListDatastructure> getNodeListType() {
 		return nodeListType;
@@ -119,20 +112,20 @@ public class GraphDataStructure {
 	public Class<? extends Node> getNodeType() {
 		return nodeType;
 	}
-	
+
+	public Class<? extends Edge> getEdgeType() {
+		return edgeType;
+	}
+
 	public void setNodeType(Class<? extends Node> newNodeType) {
 		this.nodeType = newNodeType;
-		
+
 		try {
 			Class<? extends Edge> eT = (Class<? extends Edge>) nodeType.getField("edgeType").get(null);
 			this.setEdgeType(eT);
 		} catch (IllegalArgumentException | IllegalAccessException | NoSuchFieldException | SecurityException e) {
 			e.printStackTrace();
 		}
-	}
-	
-	public Class<? extends Edge> getEdgeType() {
-		return edgeType;
 	}
 
 	public void setEdgeType(Class<? extends Edge> edgeType) {
@@ -151,43 +144,40 @@ public class GraphDataStructure {
 		}
 		return res;
 	}
-	
+
 	public INodeListDatastructure newNodeList() {
 		INodeListDatastructure res = null;
 		try {
-			res = (INodeListDatastructure) nodeListType.getConstructor(nodeType.getClass())
-			.newInstance(nodeType);
+			res = (INodeListDatastructure) nodeListType.getConstructor(nodeType.getClass()).newInstance(nodeType);
 		} catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException
 				| NoSuchMethodException | SecurityException e) {
 			e.printStackTrace();
 		}
 		return res;
 	}
-	
+
 	public IEdgeListDatastructure newGraphEdgeList() {
 		IEdgeListDatastructure res = null;
 		try {
-			res = graphEdgeListType.getConstructor(edgeType.getClass()).newInstance(
-					edgeType);
+			res = graphEdgeListType.getConstructor(edgeType.getClass()).newInstance(edgeType);
 		} catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException
 				| NoSuchMethodException | SecurityException e) {
 			e.printStackTrace();
 		}
 		return res;
 	}
-	
+
 	public IEdgeListDatastructure newNodeEdgeList() {
 		IEdgeListDatastructure res = null;
 		try {
-			res = nodeEdgeListType.getConstructor(edgeType.getClass()).newInstance(
-					edgeType);
+			res = nodeEdgeListType.getConstructor(edgeType.getClass()).newInstance(edgeType);
 		} catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException
 				| NoSuchMethodException | SecurityException e) {
 			e.printStackTrace();
 		}
 		return res;
 	}
-	
+
 	public Node newNodeInstance(int index) {
 		Constructor<? extends Node> c;
 		try {
@@ -199,7 +189,7 @@ public class GraphDataStructure {
 		}
 		throw new RuntimeException("Could not generate new node instance");
 	}
-	
+
 	public Node newNodeInstance(String str) {
 		Constructor<? extends Node> c;
 		try {
@@ -211,7 +201,7 @@ public class GraphDataStructure {
 		}
 		throw new RuntimeException("Could not generate new node instance");
 	}
-	
+
 	public Edge newEdgeInstance(Node src, Node dst) {
 		Constructor<? extends Edge> c;
 		try {
@@ -223,7 +213,7 @@ public class GraphDataStructure {
 		}
 		throw new RuntimeException("Could not generate new edge instance");
 	}
-	
+
 	public Edge newEdgeInstance(String str, Graph graph) {
 		Constructor<? extends Edge> c;
 		try {
@@ -233,7 +223,7 @@ public class GraphDataStructure {
 				| IllegalArgumentException | InvocationTargetException e) {
 			e.printStackTrace();
 		}
-		throw new RuntimeException("Could not generate new edge instance");		
+		throw new RuntimeException("Could not generate new edge instance");
 	}
 
 	public boolean createsDirected() {

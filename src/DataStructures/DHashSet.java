@@ -8,6 +8,12 @@ import Graph.IElement;
 import Graph.Edges.Edge;
 import Utils.Rand;
 
+/**
+ * Data structure to store IElements in a hashset
+ * 
+ * @author Nico
+ * 
+ */
 public class DHashSet extends DataStructureReadable implements IEdgeListDatastructureReadable {
 	private HashSet<IElement> list;
 
@@ -22,10 +28,11 @@ public class DHashSet extends DataStructureReadable implements IEdgeListDatastru
 	}
 
 	public boolean add(IElement element) {
-		if (element instanceof Edge) return this.add((Edge) element);
+		if (element instanceof Edge)
+			return this.add((Edge) element);
 		throw new RuntimeException("Can't handle element of type " + element.getClass() + " here");
 	}
-	
+
 	public boolean add(Edge element) {
 		super.canAdd(element);
 		return element != null && this.list.add(element);
@@ -33,13 +40,27 @@ public class DHashSet extends DataStructureReadable implements IEdgeListDatastru
 
 	@Override
 	public boolean contains(IElement element) {
-		if (element instanceof Edge) return this.contains((Edge) element);
+		if (element instanceof Edge)
+			return this.contains((Edge) element);
 		throw new RuntimeException("Can't handle element of type " + element.getClass() + " here");
 	}
-	
+
 	@Override
 	public boolean contains(Edge element) {
 		return list.contains(element);
+	}
+
+	@Override
+	public boolean remove(IElement element) {
+		if (element instanceof Edge)
+			return this.remove((Edge) element);
+		else
+			throw new RuntimeException("Cannot remove a non-edge from an edge list");
+	}
+
+	@Override
+	public boolean remove(Edge element) {
+		return this.list.remove(element);
 	}
 
 	@Override
@@ -70,25 +91,13 @@ public class DHashSet extends DataStructureReadable implements IEdgeListDatastru
 		return null;
 	}
 
-
 	@Override
 	public Collection<IElement> getElements() {
 		return this.list;
 	}
 
 	@Override
-	public boolean remove(Edge element) {
-		return this.list.remove(element);
-	}
-
-	@Override
 	public Iterator<IElement> iterator() {
 		return this.list.iterator();
 	}
-
-	@Override
-	public boolean remove(IElement element) {
-		if ( element instanceof Edge ) return this.remove((Edge) element);
-		else throw new RuntimeException("Cannot remove a non-edge from an edge list");
-	}	
 }
