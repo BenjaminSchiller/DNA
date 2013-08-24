@@ -11,8 +11,8 @@ public interface IReadable extends IDataStructure {
 	 * @param that
 	 * @return true, if stored data is equal
 	 */
-	public boolean dataEquals(IReadable that);	
-	
+	public boolean dataEquals(IReadable that);
+
 	/**
 	 * Retrieve a random element from this data structure
 	 * 

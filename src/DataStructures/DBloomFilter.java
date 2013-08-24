@@ -13,11 +13,11 @@ import Graph.Nodes.Node;
 public class DBloomFilter extends DataStructure implements INodeListDatastructure, IEdgeListDatastructure {
 	private BloomFilter<IElement> list;
 	private int maxNodeIndex;
-	
+
 	public DBloomFilter(Class<? extends IElement> dT) {
 		this.init(dT, defaultSize);
 	}
-	
+
 	public void init(Class<? extends IElement> dT, int initialSize) {
 		this.dataType = dT;
 		this.list = BloomFilter.create(new IElementFunnel(), initialSize);
@@ -39,12 +39,6 @@ public class DBloomFilter extends DataStructure implements INodeListDatastructur
 	public int size() {
 		// TODO Auto-generated method stub
 		return 0;
-	}
-
-	@Override
-	public boolean dataEquals(IDataStructure that) {
-		// TODO Auto-generated method stub
-		return false;
 	}
 
 	@Override
@@ -107,6 +101,6 @@ public class DBloomFilter extends DataStructure implements INodeListDatastructur
 		public void funnel(IElement element, PrimitiveSink into) {
 			into.putString(element.getStringRepresentation());
 		}
-		
+
 	}
 }
