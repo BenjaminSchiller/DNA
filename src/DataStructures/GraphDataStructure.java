@@ -215,9 +215,12 @@ public class GraphDataStructure {
 	}
 
 	public String getDataStructures() {
-		return nodeListType.getName() + Keywords.classDelimiter
-				+ graphEdgeListType.getName() + Keywords.classDelimiter + nodeEdgeListType.getName()
-				+ Keywords.classDelimiter + nodeType.getName();
+		return nodeListType.getName() + Keywords.classDelimiter + graphEdgeListType.getName() + Keywords.classDelimiter
+				+ nodeEdgeListType.getName() + Keywords.classDelimiter + nodeType.getName();
+	}
+
+	public boolean isReadable() {
+		return IReadable.class.isAssignableFrom(graphEdgeListType) && IReadable.class.isAssignableFrom(nodeListType);
 	}
 
 	public boolean isReadable(IDataStructure list) {

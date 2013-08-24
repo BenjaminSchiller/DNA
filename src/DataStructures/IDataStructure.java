@@ -59,14 +59,6 @@ public interface IDataStructure extends Iterable {
 	public int size();
 
 	/**
-	 * Check for deep data equality with another data structure
-	 * 
-	 * @param that
-	 * @return true, if stored data is equal
-	 */
-	public boolean dataEquals(IDataStructure that);
-
-	/**
 	 * Check whether an object with class elementClass can be stored within this
 	 * data structure
 	 * 

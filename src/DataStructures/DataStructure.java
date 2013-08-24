@@ -37,7 +37,11 @@ public abstract class DataStructure implements IDataStructure {
 		if (this.size() == 0)
 			return true;
 
-		return this.dataEquals(thatCasted);
+		if (this instanceof IReadable) {
+			return ((IReadable) this).dataEquals((IReadable) thatCasted);
+		} else {
+			return true;
+		}
 	}
 
 	public int getDefaultSize() {
