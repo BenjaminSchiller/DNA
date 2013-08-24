@@ -13,20 +13,9 @@ public abstract class DataStructure implements IDataStructure {
 	protected int size;
 	protected final int defaultSize = 10;
 
-	/**
-	 * Initialize a data structure with a default size
-	 * 
-	 * @param dataType
-	 *            Data type to be stored here
-	 * @param initialSize
-	 */
-	public abstract void init(Class<? extends IElement> dataType, int initialSize);
-
 	public void reinitializeWithSize(int size) {
 		this.init(this.dataType, size);
 	}
-
-	public abstract boolean add(IElement element);
 
 	public boolean canAdd(IElement element) {
 		if (!dataType.isInstance(element))
