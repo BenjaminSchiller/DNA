@@ -18,7 +18,6 @@ import Graph.Nodes.Node;
  * 
  */
 public class GraphDataStructure {
-	private Class<? extends Graph> graphType;
 	private Class<? extends INodeListDatastructure> nodeListType;
 	private Class<? extends IEdgeListDatastructure> graphEdgeListType;
 	private Class<? extends IEdgeListDatastructure> nodeEdgeListType;
@@ -26,10 +25,9 @@ public class GraphDataStructure {
 	private Class<? extends Edge> edgeType;
 
 	@SuppressWarnings("unchecked")
-	public GraphDataStructure(Class<? extends Graph> graphType, Class<? extends INodeListDatastructure> nodeListType,
+	public GraphDataStructure(Class<? extends INodeListDatastructure> nodeListType,
 			Class<? extends IEdgeListDatastructure> graphEdgeListType,
 			Class<? extends IEdgeListDatastructure> nodeEdgeListType, Class<? extends Node> nodeType) {
-		this.graphType = graphType;
 		this.nodeListType = nodeListType;
 		this.graphEdgeListType = graphEdgeListType;
 		this.nodeEdgeListType = nodeEdgeListType;
@@ -40,11 +38,10 @@ public class GraphDataStructure {
 	public GraphDataStructure(String gdsString) {
 		String splitted[] = gdsString.split(Keywords.classDelimiter);
 		try {
-			this.graphType = (Class<? extends Graph>) Class.forName(splitted[0]);
-			this.nodeListType = (Class<? extends INodeListDatastructure>) Class.forName(splitted[1]);
-			this.graphEdgeListType = (Class<? extends IEdgeListDatastructure>) Class.forName(splitted[2]);
-			this.nodeEdgeListType = (Class<? extends IEdgeListDatastructure>) Class.forName(splitted[3]);
-			this.nodeType = (Class<? extends Node>) Class.forName(splitted[4]);
+			this.nodeListType = (Class<? extends INodeListDatastructure>) Class.forName(splitted[0]);
+			this.graphEdgeListType = (Class<? extends IEdgeListDatastructure>) Class.forName(splitted[1]);
+			this.nodeEdgeListType = (Class<? extends IEdgeListDatastructure>) Class.forName(splitted[2]);
+			this.nodeType = (Class<? extends Node>) Class.forName(splitted[3]);
 		} catch (ClassNotFoundException | ClassCastException e) {
 			e.printStackTrace();
 		}
@@ -93,10 +90,6 @@ public class GraphDataStructure {
 		return true;
 	}
 
-	public Class<?> getGraphType() {
-		return this.graphType;
-	}
-
 	public Class<? extends INodeListDatastructure> getNodeListType() {
 		return nodeListType;
 	}
@@ -133,16 +126,7 @@ public class GraphDataStructure {
 	}
 
 	public Graph newGraphInstance(String name, long timestamp, int nodes, int edges) {
-		Graph res = null;
-		try {
-			Constructor<Graph> gC = (Constructor<Graph>) graphType.getConstructor(String.class, long.class,
-					GraphDataStructure.class, int.class, int.class);
-			res = gC.newInstance(name, timestamp, this, nodes, edges);
-		} catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException
-				| NoSuchMethodException | SecurityException e) {
-			e.printStackTrace();
-		}
-		return res;
+		return new Graph(name, timestamp, this, nodes, edges);
 	}
 
 	public INodeListDatastructure newNodeList() {
@@ -231,8 +215,12 @@ public class GraphDataStructure {
 	}
 
 	public String getDataStructures() {
-		return graphType.getName() + Keywords.classDelimiter + nodeListType.getName() + Keywords.classDelimiter
+		return nodeListType.getName() + Keywords.classDelimiter
 				+ graphEdgeListType.getName() + Keywords.classDelimiter + nodeEdgeListType.getName()
 				+ Keywords.classDelimiter + nodeType.getName();
+	}
+
+	public boolean isReadable(IDataStructure list) {
+		return IReadable.class.isAssignableFrom(list.getClass());
 	}
 }

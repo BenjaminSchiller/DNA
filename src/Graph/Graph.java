@@ -1,8 +1,12 @@
 package Graph;
 
+import java.util.Collection;
+
 import DataStructures.GraphDataStructure;
 import DataStructures.IEdgeListDatastructure;
+import DataStructures.IEdgeListDatastructureReadable;
 import DataStructures.INodeListDatastructure;
+import DataStructures.INodeListDatastructureReadable;
 import Graph.Edges.Edge;
 import Graph.Nodes.Node;
 
@@ -47,12 +51,6 @@ public class Graph {
 	public String toString() {
 		return this.getName() + " @ " + this.getTimestamp() + " ("
 				+ this.getNodeCount() + "/" + this.getEdgeCount() + ")";
-	}
-
-	public void print() {
-		System.out.println(this.toString());
-		System.out.println("  |V| = " + this.getNodeCount());
-		System.out.println("  |E| = " + this.getEdgeCount());
 	}
 
 	public int getMaxNodeIndex() {
@@ -143,4 +141,42 @@ public class Graph {
 		}
 		return true;
 	}	
+	
+	public Collection<IElement> getNodes() {
+		if ( !gds.isReadable(nodes) ) throw new RuntimeException("This is not a readable graph");
+		return ((INodeListDatastructureReadable) nodes).getElements();
+	}
+	
+
+	public Node getRandomNode() {
+		if ( !gds.isReadable(nodes) ) throw new RuntimeException("This is not a readable graph");
+		return (Node) ((INodeListDatastructureReadable) nodes).getRandom();
+	}
+	
+	public Collection<IElement> getEdges() {
+		if ( !gds.isReadable(edges) ) throw new RuntimeException("This is not a readable graph");
+		return ((IEdgeListDatastructureReadable) edges).getElements();
+	}
+	
+	public Edge getRandomEdge() {
+		if ( !gds.isReadable(edges) ) throw new RuntimeException("This is not a readable graph");
+		return (Edge) ((IEdgeListDatastructureReadable) edges).getRandom();
+	}
+	
+	public void print() {
+		System.out.println(this.toString());
+		System.out.println("  V = " + this.getNodes());
+		System.out.println("  E = " + this.getEdges());
+	}
+	
+	public Node getNode(int index) {
+		if ( !gds.isReadable(nodes) ) throw new RuntimeException("This is not a readable graph");
+		return ((INodeListDatastructureReadable) this.nodes).get(index);
+	}
+	
+	public Edge getEdge(Edge e) {
+		if ( !gds.isReadable(edges) ) throw new RuntimeException("This is not a readable graph");
+		return ((IEdgeListDatastructureReadable) edges).get(e);
+	}	
+	
 }

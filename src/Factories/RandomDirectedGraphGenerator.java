@@ -2,7 +2,6 @@ package Factories;
 
 import DataStructures.GraphDataStructure;
 import Graph.Graph;
-import Graph.ReadableGraph;
 import Graph.Edges.DirectedEdge;
 import Graph.Nodes.Node;
 import Utils.Rand;
@@ -13,15 +12,11 @@ public class RandomDirectedGraphGenerator extends DirectedGraphGenerator impleme
 			GraphDataStructure gds, long timestampInit,
 			int nodesInit, int edgesInit) {
 		super(name, params, gds, timestampInit, nodesInit, edgesInit);
-		if ( !ReadableGraph.class.isAssignableFrom(gds.getGraphType())) {
-			throw new RuntimeException("Can only generate graph with readable property");
-		}
 	}
 
 	@Override
 	public Graph generate() {
-		Graph graphUnc = this.newGraphInstance();
-		ReadableGraph graph = (ReadableGraph) graphUnc;
+		Graph graph = this.newGraphInstance();
 
 		for (int i = 0; i < this.nodesInit; i++) {
 			Node node = this.gds.newNodeInstance(i);

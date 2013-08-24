@@ -17,7 +17,6 @@ import DataStructures.GraphDataStructure;
 import DataStructures.IEdgeListDatastructure;
 import DataStructures.INodeListDatastructure;
 import Graph.Graph;
-import Graph.ReadableGraph;
 import Graph.Edges.Edge;
 import Graph.Nodes.*;
 import static org.junit.Assert.*;
@@ -31,35 +30,32 @@ public class GraphTester {
 	public static Class[] nodeTypes = { UndirectedNode.class, UndirectedDoubleWeightedNode.class,
 			DirectedNode.class, DirectedDoubleWeightedNode.class };	
 
-	public GraphTester(Class <?extends Graph> graphType, Class<? extends INodeListDatastructure> nodeListType,
+	public GraphTester(Class<? extends INodeListDatastructure> nodeListType,
 			Class<? extends IEdgeListDatastructure> graphEdgeListType,
 			Class<? extends IEdgeListDatastructure> nodeEdgeListType, Class<? extends Node> nodeType)
 			throws InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException,
 			NoSuchMethodException, SecurityException {
-		this.gds = new GraphDataStructure(graphType, nodeListType, graphEdgeListType, nodeEdgeListType, nodeType);
+		this.gds = new GraphDataStructure(nodeListType, graphEdgeListType, nodeEdgeListType, nodeType);
 		this.graph = gds.newGraphInstance("ABC", 1L, 10, 10);
 	}
 
 	@SuppressWarnings("rawtypes")
-	@Parameterized.Parameters(name = "{0} {1} {2} {3} {4}")
+	@Parameterized.Parameters(name = "{0} {1} {2} {3}")
 	public static Collection<Object> testPairs() {
 		Class[] dataStructures = { DArray.class, DArrayList.class, DHashMap.class, DHashSet.class };
-		Class[] graphs = { Graph.class, ReadableGraph.class };
 
 		ArrayList<Object> result = new ArrayList<>();
 		for (Class nodeListType : dataStructures) {
 			for (Class edgeListType : dataStructures) {
 				for (Class nodeEdgeListType : dataStructures) {
 					for (Class nodeType : nodeTypes) {
-						for (Class graph : graphs) {
 							if (!(INodeListDatastructure.class.isAssignableFrom(nodeListType)))
 								continue;
 							if (!(IEdgeListDatastructure.class.isAssignableFrom(edgeListType)))
 								continue;
 							if (!(IEdgeListDatastructure.class.isAssignableFrom(nodeEdgeListType)))
 								continue;
-							result.add(new Object[] { graph, nodeListType, edgeListType, nodeEdgeListType, nodeType });
-						}
+							result.add(new Object[] { nodeListType, edgeListType, nodeEdgeListType, nodeType });
 					}
 				}
 			}
@@ -115,8 +111,6 @@ public class GraphTester {
 	
 	@Test
 	public void addEdgeByString() {
-		assumeTrue(this.graph instanceof ReadableGraph);
-		
 		Node n1 = gds.newNodeInstance(1);
 		Node n2 = gds.newNodeInstance(2);
 		graph.addNode(n1);

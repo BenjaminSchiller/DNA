@@ -2,7 +2,6 @@ package Graph.Edges;
 
 import Graph.Graph;
 import Graph.IWeighted;
-import Graph.ReadableGraph;
 import Graph.Nodes.Node;
 import Utils.Keywords;
 
