@@ -25,7 +25,11 @@ import Factories.IRandomGenerator;
 import Factories.RandomUndirectedDoubleWeightedGraphGenerator;
 import Graph.Graph;
 import Graph.Edges.Edge;
+import Graph.Nodes.DirectedDoubleWeightedNode;
+import Graph.Nodes.DirectedNode;
 import Graph.Nodes.Node;
+import Graph.Nodes.UndirectedDoubleWeightedNode;
+import Graph.Nodes.UndirectedNode;
 import IO.GraphReader;
 import IO.GraphWriter;
 
@@ -55,39 +59,39 @@ public class GeneratorsTest {
 		this.generatorConstructor = generator.getConstructor(String.class, Parameter[].class, GraphDataStructure.class,
 				long.class, int.class, int.class);
 
-		this.gds = new GraphDataStructure(nodeListType, graphEdgeListType, nodeEdgeListType, nodeType);
+		this.gds = new GraphDataStructure(nodeListType, graphEdgeListType, nodeEdgeListType, nodeType);	
 	}
 
-	@SuppressWarnings("rawtypes")
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Parameterized.Parameters(name = "{0} {1} {2} {3} {4}")
-	public static Collection testPairs() {
+	public static Collection testPairs() throws NoSuchMethodException, SecurityException, InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
 		Class[] dataStructures = { DArrayList.class, DArray.class, DHashMap.class, DHashSet.class, DLinkedList.class };
 		Class[] graphGenerators = { RandomDirectedGraphGenerator.class,
 				RandomUndirectedDoubleWeightedGraphGenerator.class };
+		Class[] nodeTypes = { UndirectedNode.class, UndirectedDoubleWeightedNode.class, DirectedNode.class,
+				DirectedDoubleWeightedNode.class };
 
 		ArrayList<Object> result = new ArrayList<>();
 		for (Class nodeListType : dataStructures) {
 			for (Class edgeListType : dataStructures) {
 				for (Class nodeEdgeListType : dataStructures) {
 					for (Class generator : graphGenerators) {
-						Class<? extends Node> nodeType = null;
+						for (Class nodeType : nodeTypes) {
+							if (!(INodeListDatastructureReadable.class.isAssignableFrom(nodeListType)))
+								continue;
+							if (!(IEdgeListDatastructureReadable.class.isAssignableFrom(edgeListType)))
+								continue;
+							if (!(IEdgeListDatastructureReadable.class.isAssignableFrom(nodeEdgeListType)))
+								continue;
 
-						if (!(INodeListDatastructureReadable.class.isAssignableFrom(nodeListType)))
-							continue;
-						if (!(IEdgeListDatastructureReadable.class.isAssignableFrom(edgeListType)))
-							continue;
-						if (!(IEdgeListDatastructureReadable.class.isAssignableFrom(nodeEdgeListType)))
-							continue;
-
-						try {
-							nodeType = (Class<? extends Node>) generator.getField("nodeType").get(null);
-						} catch (IllegalArgumentException | IllegalAccessException | NoSuchFieldException
-								| SecurityException e) {
-							e.printStackTrace();
-							throw new RuntimeException("Field nodeType is missing in generator");
+							Constructor generatorConstructor = generator.getConstructor(String.class, Parameter[].class, GraphDataStructure.class,
+									long.class, int.class, int.class);							
+							GraphGenerator gg = (GraphGenerator) generatorConstructor
+									.newInstance("ABC", new Parameter[] {}, new GraphDataStructure(nodeListType, edgeListType, nodeEdgeListType, nodeType), 0, 100, 100);
+							if ( !gg.canGenerateNodeType(nodeType)) continue;						
+							
+							result.add(new Object[] { nodeListType, edgeListType, nodeEdgeListType, nodeType, generator });
 						}
-
-						result.add(new Object[] { nodeListType, edgeListType, nodeEdgeListType, nodeType, generator });
 					}
 				}
 			}
@@ -104,6 +108,7 @@ public class GeneratorsTest {
 
 		GraphGenerator gg = this.generatorConstructor
 				.newInstance("ABC", new Parameter[] {}, gds, 0, nodeSize, edgeSize);
+		assumeTrue(gg.canGenerateNodeType(nodeType));
 		Graph g = gg.generate();
 
 		assertEquals(nodeSize, g.getNodeCount());
@@ -118,6 +123,7 @@ public class GeneratorsTest {
 
 		GraphGenerator gg = this.generatorConstructor
 				.newInstance("ABC", new Parameter[] {}, gds, 0, nodeSize, edgeSize);
+		assumeTrue(gg.canGenerateNodeType(nodeType));
 		Graph g = gg.generate();
 
 		String graphName = gds.getDataStructures();
@@ -144,6 +150,7 @@ public class GeneratorsTest {
 
 		GraphGenerator gg = this.generatorConstructor
 				.newInstance("ABC", new Parameter[] {}, gds, 0, nodeSize, edgeSize);
+		assumeTrue(gg.canGenerateNodeType(nodeType));
 		Graph g = gg.generate();
 
 		for (int i = 0; i < 20; i++) {
@@ -160,6 +167,8 @@ public class GeneratorsTest {
 
 		GraphGenerator gg = this.generatorConstructor
 				.newInstance("ABC", new Parameter[] {}, gds, 0, nodeSize, edgeSize);
+		assumeTrue(gg.canGenerateNodeType(nodeType));
+		
 		Graph g = gg.generate();
 
 		String graphName = gds.getDataStructures();
@@ -195,6 +204,7 @@ public class GeneratorsTest {
 
 		GraphGenerator gg = this.generatorConstructor
 				.newInstance("ABC", new Parameter[] {}, gds, 0, nodeSize, edgeSize);
+		assumeTrue(gg.canGenerateNodeType(nodeType));
 		Graph g = gg.generate();
 
 		String graphName = gds.getDataStructures();

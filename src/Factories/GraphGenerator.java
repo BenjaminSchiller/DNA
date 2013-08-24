@@ -1,9 +1,8 @@
 package Factories;
 
-import static org.junit.Assume.assumeTrue;
 import DataStructures.GraphDataStructure;
 import Graph.Graph;
-import Graph.Nodes.DirectedNode;
+import Graph.Nodes.Node;
 import Utils.parameters.Parameter;
 import Utils.parameters.ParameterList;
 
@@ -13,8 +12,6 @@ public abstract class GraphGenerator extends ParameterList implements IGraphGene
 	protected int edgesInit;
 
 	protected GraphDataStructure gds;
-	
-	public final static Class<DirectedNode> nodeType = null;
 	
 	public GraphGenerator(String name, Parameter[] params, GraphDataStructure gds, long timestampInit, int nodesInit,
 			int edgesInit) {
@@ -30,8 +27,6 @@ public abstract class GraphGenerator extends ParameterList implements IGraphGene
 			throw new RuntimeException("Cannot generate a graph if any datastructure is not readable");
 		}
 	}
-	
-	public abstract Graph generate();
 	
 	public Graph newGraphInstance() {
 		return this.gds.newGraphInstance(this.getName(), this.timestampInit, this.nodesInit, this.edgesInit);
