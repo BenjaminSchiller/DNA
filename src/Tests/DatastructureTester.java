@@ -39,7 +39,7 @@ public class DatastructureTester {
 
     @Parameterized.Parameters(name="{0} {1}")
 	public static Collection testPairs() throws InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, NoSuchMethodException, SecurityException {
-    	Class[] dataStructures = {DArrayList.class, DArray.class, DHashSet.class, DHashMap.class};
+    	Class[] dataStructures = {DArrayList.class, DArray.class, DHashSet.class, DHashMap.class, DLinkedList.class};
 
     	ArrayList<Object> result = new ArrayList<>();
     	for ( Class sD: dataStructures ) {
