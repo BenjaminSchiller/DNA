@@ -9,47 +9,58 @@ import Graph.Edges.Edge;
 import Graph.Nodes.Node;
 import Utils.Rand;
 
-public class DArrayList extends DataStructureReadable implements INodeListDatastructureReadable, IEdgeListDatastructureReadable {
+/**
+ * Data structure to store IElements in an arraylist
+ * 
+ * @author Nico
+ * 
+ */
+public class DArrayList extends DataStructureReadable implements INodeListDatastructureReadable,
+		IEdgeListDatastructureReadable {
 	private ArrayList<IElement> list;
 	private int maxNodeIndex;
 
 	public DArrayList(Class<? extends IElement> dT) {
 		this.init(dT, defaultSize);
 	}
-	
+
 	public void init(Class<? extends IElement> dT, int initialSize) {
 		this.dataType = dT;
 		this.list = new ArrayList<>(initialSize);
 		this.maxNodeIndex = -1;
 	}
-	
+
 	public boolean add(IElement element) {
-		if (element instanceof Node) return this.add((Node) element);
-		if (element instanceof Edge) return this.add((Edge) element);
+		if (element instanceof Node)
+			return this.add((Node) element);
+		if (element instanceof Edge)
+			return this.add((Edge) element);
 		throw new RuntimeException("Can't handle element of type " + element.getClass() + " here");
-	}	
-	
+	}
+
 	public boolean add(Node element) {
 		super.canAdd(element);
 		if (this.list.contains(element) || !this.list.add(element)) {
 			return false;
 		}
-		this.maxNodeIndex = Math.max(this.maxNodeIndex,element.getIndex());
+		this.maxNodeIndex = Math.max(this.maxNodeIndex, element.getIndex());
 		return true;
 	}
-	
+
 	public boolean add(Edge element) {
 		super.canAdd(element);
 		return !this.list.contains(element) && this.list.add(element);
-	}	
+	}
 
 	@Override
 	public boolean contains(IElement element) {
-		if (element instanceof Node) return this.contains((Node) element);
-		if (element instanceof Edge) return this.contains((Edge) element);
+		if (element instanceof Node)
+			return this.contains((Node) element);
+		if (element instanceof Edge)
+			return this.contains((Edge) element);
 		throw new RuntimeException("Can't handle element of type " + element.getClass() + " here");
-	}	
-	
+	}
+
 	@Override
 	public boolean contains(Node element) {
 		return list.contains(element);
@@ -59,12 +70,45 @@ public class DArrayList extends DataStructureReadable implements INodeListDatast
 	public boolean contains(Edge element) {
 		return list.contains(element);
 	}
-	
+
+	@Override
+	public boolean remove(IElement element) {
+		if (element instanceof Node)
+			return this.remove((Node) element);
+		if (element instanceof Edge)
+			return this.remove((Edge) element);
+		else
+			throw new RuntimeException("Cannot remove a non-node from a node list");
+	}
+
+	@Override
+	public boolean remove(Node element) {
+		if (!this.list.remove(element)) {
+			return false;
+		}
+		if (this.maxNodeIndex == element.getIndex()) {
+			int max = -1;
+			for (IElement n : this.getElements()) {
+				max = Math.max(((Node) n).getIndex(), max);
+			}
+			this.maxNodeIndex = max;
+		}
+		return true;
+	}
+
+	public boolean remove(Edge e) {
+		return this.list.remove(e);
+	}
+
 	@Override
 	public int size() {
 		return list.size();
 	}
-	
+
+	/**
+	 * An array list automatically shrinks if elements are removed, so a node
+	 * with index i must not be stored at position i
+	 */
 	public Node get(int index) {
 		Node n = null;
 
@@ -98,7 +142,7 @@ public class DArrayList extends DataStructureReadable implements INodeListDatast
 
 		return null;
 	}
-	
+
 	public Edge get(Edge e) {
 		for (IElement edge : this.list) {
 			if (edge.equals(e)) {
@@ -106,37 +150,11 @@ public class DArrayList extends DataStructureReadable implements INodeListDatast
 			}
 		}
 		return null;
-	}	
+	}
 
 	@Override
 	public int getMaxNodeIndex() {
 		return this.maxNodeIndex;
-	}
-
-	@Override
-	public boolean remove(IElement element) {
-		if ( element instanceof Node ) return this.remove((Node) element);
-		if ( element instanceof Edge ) return this.remove((Edge) element);
-		else throw new RuntimeException("Cannot remove a non-node from a node list");
-	}
-
-	@Override
-	public boolean remove(Node element) {
-		if (!this.list.remove(element)) {
-			return false;
-		}
-		if (this.maxNodeIndex == element.getIndex()) {
-			int max = -1;
-			for (IElement n : this.getElements()) {
-				max = Math.max(((Node)n).getIndex(), max);
-			}
-			this.maxNodeIndex = max;
-		}
-		return true;
-	}
-	
-	public boolean remove(Edge e) {
-		return this.list.remove(e);
 	}
 
 	@Override
