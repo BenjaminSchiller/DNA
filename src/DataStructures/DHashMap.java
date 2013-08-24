@@ -114,8 +114,8 @@ public class DHashMap extends DataStructureReadable implements INodeListDatastru
 	}
 
 	@Override
-	public Node get(int element) {
-		return (Node) this.list.get(element);
+	public Node get(int index) {
+		return (Node) this.list.get(index);
 	}
 
 	@Override

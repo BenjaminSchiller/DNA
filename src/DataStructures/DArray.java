@@ -147,8 +147,8 @@ public class DArray extends DataStructureReadable implements INodeListDatastruct
 	}
 
 	@Override
-	public Node get(int element) {
-		return (Node) this.list[element];
+	public Node get(int index) {
+		return (Node) this.list[index];
 	}
 
 	@Override
