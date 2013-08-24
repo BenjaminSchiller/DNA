@@ -1,4 +1,4 @@
-package Factories;
+package examples;
 
 import DataStructures.DArrayList;
 import DataStructures.DHashSet;

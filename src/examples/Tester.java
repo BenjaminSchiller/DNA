@@ -1,8 +1,9 @@
-package Graph;
+package examples;
 
 import DataStructures.DArrayList;
 import DataStructures.DHashSet;
 import DataStructures.GraphDataStructure;
+import Graph.Graph;
 import Graph.Nodes.DirectedNode;
 
 public class Tester {
