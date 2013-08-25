@@ -1,7 +1,7 @@
 package Tests;
 
 import static org.junit.Assert.*;
-import static org.junit.Assume.assumeTrue;
+import static org.junit.Assume.*;
 import static org.mockito.Mockito.*;
 
 import java.io.IOException;
@@ -42,6 +42,10 @@ public class GeneratorsTest {
 	private Class<? extends IGraphGenerator> generator;
 	private Constructor<? extends GraphGenerator> generatorConstructor;
 	private GraphDataStructure gds;
+	private GraphGenerator gg;
+
+	private final int nodeSize = 200;
+	private final int edgeSize = 250;
 
 	@Rule
 	public TemporaryFolder folder = new TemporaryFolder();
@@ -59,12 +63,13 @@ public class GeneratorsTest {
 		this.generatorConstructor = generator.getConstructor(String.class, Parameter[].class, GraphDataStructure.class,
 				long.class, int.class, int.class);
 
-		this.gds = new GraphDataStructure(nodeListType, graphEdgeListType, nodeEdgeListType, nodeType);	
+		this.gds = new GraphDataStructure(nodeListType, graphEdgeListType, nodeEdgeListType, nodeType);
+		this.gg = this.generatorConstructor.newInstance("ABC", new Parameter[] {}, gds, 0, nodeSize, edgeSize);
 	}
 
-	@SuppressWarnings({ "rawtypes", "unchecked" })
+	@SuppressWarnings("rawtypes")
 	@Parameterized.Parameters(name = "{0} {1} {2} {3} {4}")
-	public static Collection testPairs() throws NoSuchMethodException, SecurityException, InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+	public static Collection testPairs() {
 		Class[] dataStructures = { DArrayList.class, DArray.class, DHashMap.class, DHashSet.class, DLinkedList.class };
 		Class[] graphGenerators = { RandomDirectedGraphGenerator.class,
 				RandomUndirectedDoubleWeightedGraphGenerator.class };
@@ -84,12 +89,6 @@ public class GeneratorsTest {
 							if (!(IEdgeListDatastructureReadable.class.isAssignableFrom(nodeEdgeListType)))
 								continue;
 
-							Constructor generatorConstructor = generator.getConstructor(String.class, Parameter[].class, GraphDataStructure.class,
-									long.class, int.class, int.class);							
-							GraphGenerator gg = (GraphGenerator) generatorConstructor
-									.newInstance("ABC", new Parameter[] {}, new GraphDataStructure(nodeListType, edgeListType, nodeEdgeListType, nodeType), 0, 100, 100);
-							if ( !gg.canGenerateNodeType(nodeType)) continue;						
-							
 							result.add(new Object[] { nodeListType, edgeListType, nodeEdgeListType, nodeType, generator });
 						}
 					}
@@ -100,14 +99,15 @@ public class GeneratorsTest {
 		return result;
 	}
 
-	@Test
-	public void testGraphGeneration() throws NoSuchMethodException, SecurityException, InstantiationException,
-			IllegalAccessException, IllegalArgumentException, InvocationTargetException {
-		int nodeSize = 100;
-		int edgeSize = 150;
+	@Test(expected = RuntimeException.class)
+	public void testWrongNodeType() {
+		assumeFalse(gg.canGenerateNodeType(nodeType));
+		Graph g = gg.generate();
+	}
 
-		GraphGenerator gg = this.generatorConstructor
-				.newInstance("ABC", new Parameter[] {}, gds, 0, nodeSize, edgeSize);
+	@Test
+	public void testGraphGeneration() {
+		assumeTrue(gg.canGenerateNodeType(nodeType));
 		Graph g = gg.generate();
 
 		assertEquals(nodeSize, g.getNodeCount());
@@ -115,13 +115,8 @@ public class GeneratorsTest {
 	}
 
 	@Test
-	public void testWriteRead() throws InstantiationException, IllegalAccessException, IllegalArgumentException,
-			InvocationTargetException, ClassNotFoundException, IOException {
-		int nodeSize = 200;
-		int edgeSize = 300;
-
-		GraphGenerator gg = this.generatorConstructor
-				.newInstance("ABC", new Parameter[] {}, gds, 0, nodeSize, edgeSize);
+	public void testWriteRead() throws ClassNotFoundException, IOException {
+		assumeTrue(gg.canGenerateNodeType(nodeType));
 		Graph g = gg.generate();
 
 		String graphName = gds.getDataStructures();
@@ -139,15 +134,8 @@ public class GeneratorsTest {
 	}
 
 	@Test
-	public void testRandomGraphsAreRandom() throws InstantiationException, IllegalAccessException,
-			IllegalArgumentException, InvocationTargetException, ClassNotFoundException, IOException {
+	public void testRandomGraphsAreRandom() {
 		assumeTrue(IRandomGenerator.class.isAssignableFrom(generator));
-
-		int nodeSize = 200;
-		int edgeSize = 250;
-
-		GraphGenerator gg = this.generatorConstructor
-				.newInstance("ABC", new Parameter[] {}, gds, 0, nodeSize, edgeSize);
 		assumeTrue(gg.canGenerateNodeType(nodeType));
 		Graph g = gg.generate();
 
@@ -158,14 +146,8 @@ public class GeneratorsTest {
 	}
 
 	@Test
-	public void testWriteReadWithErrorInEdge() throws InstantiationException, IllegalAccessException,
-			IllegalArgumentException, InvocationTargetException, ClassNotFoundException, IOException {
-		int nodeSize = 200;
-		int edgeSize = 250;
-
-		GraphGenerator gg = this.generatorConstructor
-				.newInstance("ABC", new Parameter[] {}, gds, 0, nodeSize, edgeSize);
-		
+	public void testWriteReadWithErrorInEdge() throws ClassNotFoundException, IOException {
+		assumeTrue(gg.canGenerateNodeType(nodeType));
 		Graph g = gg.generate();
 
 		String graphName = gds.getDataStructures();
@@ -194,13 +176,8 @@ public class GeneratorsTest {
 	}
 
 	@Test
-	public void testWriteReadWithErrorInNode() throws InstantiationException, IllegalAccessException,
-			IllegalArgumentException, InvocationTargetException, ClassNotFoundException, IOException {
-		int nodeSize = 200;
-		int edgeSize = 250;
-
-		GraphGenerator gg = this.generatorConstructor
-				.newInstance("ABC", new Parameter[] {}, gds, 0, nodeSize, edgeSize);
+	public void testWriteReadWithErrorInNode() throws ClassNotFoundException, IOException {
+		assumeTrue(gg.canGenerateNodeType(nodeType));
 		Graph g = gg.generate();
 
 		String graphName = gds.getDataStructures();
