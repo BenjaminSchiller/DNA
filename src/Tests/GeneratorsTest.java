@@ -12,6 +12,7 @@ import java.util.Collection;
 
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -49,6 +50,9 @@ public class GeneratorsTest {
 
 	@Rule
 	public TemporaryFolder folder = new TemporaryFolder();
+	
+	@Rule
+	public ExpectedException exception = ExpectedException.none();
 
 	public GeneratorsTest(Class<? extends INodeListDatastructure> nodeListType,
 			Class<? extends IEdgeListDatastructure> graphEdgeListType,
@@ -99,9 +103,10 @@ public class GeneratorsTest {
 		return result;
 	}
 
-	@Test(expected = RuntimeException.class)
+	@Test
 	public void testWrongNodeType() {
 		assumeFalse(gg.canGenerateNodeType(nodeType));
+		exception.expect(RuntimeException.class);
 		Graph g = gg.generate();
 	}
 
