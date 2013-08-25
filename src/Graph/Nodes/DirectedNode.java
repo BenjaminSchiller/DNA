@@ -12,18 +12,19 @@ public class DirectedNode extends Node {
 	private IEdgeListDatastructure in;
 	private IEdgeListDatastructure out;
 	private Iterable<Edge> all;
-	public final static Class<? extends Edge> edgeType = DirectedEdge.class;
-	
+
 	private INodeListDatastructure neighbors;
+
+	public final static Class<? extends Edge> edgeType = DirectedEdge.class;
 
 	public DirectedNode(int i, GraphDataStructure gds) {
 		super(i, gds);
 	}
-	
+
 	public DirectedNode(String str, GraphDataStructure gds) {
 		super(str, gds);
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	protected void init() {
 		this.in = this.gds.newNodeEdgeList();
@@ -34,16 +35,18 @@ public class DirectedNode extends Node {
 
 	@Override
 	public boolean hasEdge(Edge eIn) {
-		if ( !(eIn instanceof DirectedEdge)) return false;
-		DirectedEdge e = (DirectedEdge)eIn;
-		return e.getSrc().getIndex() == this.index && this.out.contains(e)
-				|| e.getDst().getIndex() == this.index && this.in.contains(e);
+		if (!(eIn instanceof DirectedEdge))
+			return false;
+		DirectedEdge e = (DirectedEdge) eIn;
+		return e.getSrc().getIndex() == this.index && this.out.contains(e) || e.getDst().getIndex() == this.index
+				&& this.in.contains(e);
 	}
 
 	@Override
 	public boolean addEdge(Edge eIn) {
-		if ( !(eIn instanceof DirectedEdge)) return false;
-		DirectedEdge e = (DirectedEdge)eIn;
+		if (!(eIn instanceof DirectedEdge))
+			return false;
+		DirectedEdge e = (DirectedEdge) eIn;
 		if (e.getSrc().getIndex() == this.index) {
 			boolean success = !this.out.contains(e) && this.out.add(e);
 			if (success && this.in.contains(e.invert())) {
@@ -63,8 +66,9 @@ public class DirectedNode extends Node {
 
 	@Override
 	public boolean removeEdge(Edge eIn) {
-		if ( !(eIn instanceof DirectedEdge)) return false;
-		DirectedEdge e = (DirectedEdge)eIn;
+		if (!(eIn instanceof DirectedEdge))
+			return false;
+		DirectedEdge e = (DirectedEdge) eIn;
 		if (e.getSrc().getIndex() == this.index) {
 			this.neighbors.remove(e.getDst());
 			return this.out.remove(e);
@@ -80,7 +84,7 @@ public class DirectedNode extends Node {
 	public Iterable<Edge> getEdges() {
 		return this.all;
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	public Iterable<DirectedEdge> getIncomingEdges() {
 		return this.in;

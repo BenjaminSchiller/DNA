@@ -7,6 +7,7 @@ import Graph.Edges.UndirectedEdge;
 
 public class UndirectedNode extends Node {
 	private IEdgeListDatastructure edges;
+	
 	public final static Class<? extends Edge> edgeType = UndirectedEdge.class;
 
 	public UndirectedNode(int index, GraphDataStructure gds) {
@@ -16,7 +17,7 @@ public class UndirectedNode extends Node {
 	public UndirectedNode(String str, GraphDataStructure gds) {
 		super(str, gds);
 	}
-	
+
 	@Override
 	protected void init() {
 		this.edges = this.gds.newNodeEdgeList();

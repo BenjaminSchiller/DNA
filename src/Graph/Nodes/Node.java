@@ -8,19 +8,19 @@ import Graph.Edges.Edge;
 public abstract class Node extends Element implements IElement {
 	protected int index;
 	protected GraphDataStructure gds;
-	
+
 	public Node(int index, GraphDataStructure gds) {
 		this.index = index;
 		this.gds = gds;
 		this.init();
 	}
-	
+
 	public Node(String str, GraphDataStructure gds) {
 		this(Integer.parseInt(str), gds);
 	}
-	
+
 	protected abstract void init();
-	
+
 	public int getIndex() {
 		return this.index;
 	}
@@ -49,13 +49,13 @@ public abstract class Node extends Element implements IElement {
 
 	@Override
 	public boolean equals(Object obj) {
-		return obj != null && obj instanceof Node
-				&& ((Node) obj).getIndex() == this.index;
+		return obj != null && obj instanceof Node && ((Node) obj).getIndex() == this.index;
 	}
 
 	@Override
 	public int compareTo(Element o) {
-		if ( !(o instanceof Node)) throw new ClassCastException();
-		return this.index - ((Node)o).getIndex();
+		if (!(o instanceof Node))
+			throw new ClassCastException();
+		return this.index - ((Node) o).getIndex();
 	}
 }

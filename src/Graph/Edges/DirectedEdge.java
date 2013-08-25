@@ -9,12 +9,12 @@ import Utils.Keywords;
 public class DirectedEdge extends Edge {
 	protected Node src;
 	protected Node dst;
-	
+
 	public DirectedEdge(Node src, Node dst) {
 		this.src = src;
-		this.dst = dst;		
+		this.dst = dst;
 	}
-	
+
 	public DirectedEdge(String s, Graph g) {
 		String[] temp = s.split(Keywords.directedEdgeDelimiter);
 		DirectedNode src = (DirectedNode) g.getNode(Integer.parseInt(temp[0]));
@@ -35,18 +35,13 @@ public class DirectedEdge extends Edge {
 		return this.src.getIndex() + " -> " + this.dst.getIndex();
 	}
 
-	/**
-	 * 
-	 * @return String representation of this edge
-	 */
+	@Override
 	public String getStringRepresentation() {
-		return this.src.getIndex() + Keywords.directedEdgeDelimiter
-				+ this.dst.getIndex();
+		return this.src.getIndex() + Keywords.directedEdgeDelimiter + this.dst.getIndex();
 	}
 
 	public boolean equals(Object o) {
-		return o != null && o instanceof DirectedEdge
-				&& this.src.getIndex() == ((DirectedEdge) o).src.getIndex()
+		return o != null && o instanceof DirectedEdge && this.src.getIndex() == ((DirectedEdge) o).src.getIndex()
 				&& this.dst.getIndex() == ((DirectedEdge) o).dst.getIndex();
 	}
 
@@ -56,10 +51,11 @@ public class DirectedEdge extends Edge {
 
 	@Override
 	public int compareTo(Element eIn) {
-		if ( !(eIn instanceof DirectedEdge)) throw new ClassCastException();
-		
-		DirectedEdge e = (DirectedEdge)eIn;
-		
+		if (!(eIn instanceof DirectedEdge))
+			throw new ClassCastException();
+
+		DirectedEdge e = (DirectedEdge) eIn;
+
 		if (this.src != e.src) {
 			return this.src.getIndex() - e.src.getIndex();
 		}

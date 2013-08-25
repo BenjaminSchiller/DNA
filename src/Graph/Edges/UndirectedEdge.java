@@ -42,8 +42,7 @@ public class UndirectedEdge extends Edge {
 	 * @return String representation of this edge
 	 */
 	public String getStringRepresentation() {
-		return this.node1.getIndex() + Keywords.undirectedEdgeDelimiter
-				+ this.node2.getIndex();
+		return this.node1.getIndex() + Keywords.undirectedEdgeDelimiter + this.node2.getIndex();
 	}
 
 	protected Node node1;
@@ -82,12 +81,9 @@ public class UndirectedEdge extends Edge {
 	}
 
 	public boolean equals(Object o) {
-		return o != null
-				&& o instanceof UndirectedEdge
-				&& this.node1.getIndex() == ((UndirectedEdge) o).node1
-						.getIndex()
-				&& this.node2.getIndex() == ((UndirectedEdge) o).node2
-						.getIndex();
+		return o != null && o instanceof UndirectedEdge
+				&& this.node1.getIndex() == ((UndirectedEdge) o).node1.getIndex()
+				&& this.node2.getIndex() == ((UndirectedEdge) o).node2.getIndex();
 	}
 
 	public int hashCode() {
@@ -110,13 +106,14 @@ public class UndirectedEdge extends Edge {
 		} else {
 			return null;
 		}
-	}	
-	
+	}
+
 	@Override
 	public int compareTo(Element eIn) {
-		if ( !(eIn instanceof UndirectedEdge)) throw new ClassCastException();
-		
-		UndirectedEdge e = (UndirectedEdge)eIn;
+		if (!(eIn instanceof UndirectedEdge))
+			throw new ClassCastException();
+
+		UndirectedEdge e = (UndirectedEdge) eIn;
 		if (this.node1 != e.node1) {
 			return this.node1.getIndex() - e.node1.getIndex();
 		}
