@@ -10,6 +10,15 @@ import DataStructures.INodeListDatastructureReadable;
 import Graph.Edges.Edge;
 import Graph.Nodes.Node;
 
+/**
+ * Class for graphs. Methods that need special data structures are also defined
+ * here, but they might throw exceptions if the wrong data structures are used
+ * (eg. a data structure might not allow distinguishable access to the stored
+ * elements, but the graph will perform such calls)
+ * 
+ * @author Nico
+ * 
+ */
 public class Graph {
 	public INodeListDatastructure nodes;
 	public IEdgeListDatastructure edges;
@@ -24,14 +33,138 @@ public class Graph {
 		this.edges = gds.newGraphEdgeList();
 		this.gds = gds;
 	}
-	
-	public Graph(String name, long timestamp, GraphDataStructure gds, int nodeSize,
-			int edgeSize) {
+
+	public Graph(String name, long timestamp, GraphDataStructure gds, int nodeSize, int edgeSize) {
 		this(name, timestamp, gds);
 		this.nodes.reinitializeWithSize(nodeSize);
 		this.edges.reinitializeWithSize(edgeSize);
 	}
-	
+
+	public boolean addNode(Node n) {
+		return nodes.add(n);
+	}
+
+	public boolean containsNode(Node n) {
+		return nodes.contains(n);
+	}
+
+	/**
+	 * Retrieve a node by its index
+	 * 
+	 * @param index
+	 * @return
+	 */
+	public Node getNode(int index) {
+		if (!gds.isReadable(nodes))
+			throw new RuntimeException("This is not a readable graph");
+		return ((INodeListDatastructureReadable) this.nodes).get(index);
+	}
+
+	/**
+	 * Retrieve a random node
+	 * 
+	 * @return
+	 */
+	public Node getRandomNode() {
+		if (!gds.isReadable(nodes))
+			throw new RuntimeException("This is not a readable graph");
+		return (Node) ((INodeListDatastructureReadable) nodes).getRandom();
+	}
+
+	/**
+	 * Retrieve a collection of all nodes within this graph
+	 * 
+	 * @return
+	 */
+	public Collection<IElement> getNodes() {
+		if (!gds.isReadable(nodes))
+			throw new RuntimeException("This is not a readable graph");
+		return ((INodeListDatastructureReadable) nodes).getElements();
+	}
+
+	public boolean removeNode(Node n) {
+		return nodes.remove(n);
+	}
+
+	/**
+	 * Retrieve the highest node index within this graph
+	 * 
+	 * @return
+	 */
+	public int getMaxNodeIndex() {
+		return nodes.getMaxNodeIndex();
+	}
+
+	/**
+	 * Retrieve the number of nodes within this graph
+	 * 
+	 * @return
+	 */
+	public int getNodeCount() {
+		return nodes.size();
+	}
+
+	public boolean addEdge(Edge e) {
+		return edges.add(e);
+	}
+
+	public boolean containsEdge(Edge e) {
+		return edges.contains(e);
+	}
+
+	/**
+	 * Get an edge by a generated dummy edge (see
+	 * {@link IEdgeListDatastructureReadable#get(IElement)} for details)
+	 * 
+	 * @param e
+	 * @return
+	 */
+	public Edge getEdge(Edge e) {
+		if (!gds.isReadable(edges))
+			throw new RuntimeException("This is not a readable graph");
+		return ((IEdgeListDatastructureReadable) edges).get(e);
+	}
+
+	/**
+	 * Retrieve a random edge
+	 * 
+	 * @return
+	 */
+	public Edge getRandomEdge() {
+		if (!gds.isReadable(edges))
+			throw new RuntimeException("This is not a readable graph");
+		return (Edge) ((IEdgeListDatastructureReadable) edges).getRandom();
+	}
+
+	/**
+	 * Retrieve a collection of all edges within this graph
+	 * 
+	 * @return
+	 */
+	public Collection<IElement> getEdges() {
+		if (!gds.isReadable(edges))
+			throw new RuntimeException("This is not a readable graph");
+		return ((IEdgeListDatastructureReadable) edges).getElements();
+	}
+
+	public boolean removeEdge(Edge e) {
+		return edges.remove(e);
+	}
+
+	/**
+	 * Retrieve the number of edges within this graph
+	 * 
+	 * @return
+	 */
+	public int getEdgeCount() {
+		return edges.size();
+	}
+
+	/**
+	 * Check whether this is a directed graph or not
+	 * 
+	 * @return
+	 */
 	public boolean isDirected() {
 		return gds.createsDirected();
 	}
@@ -40,53 +173,12 @@ public class Graph {
 		return this.name;
 	}
 
-	public long getTimestamp() {
-		return this.timestamp;
-	}
-
 	public void setTimestamp(long timestamp) {
 		this.timestamp = timestamp;
 	}
-	
-	public String toString() {
-		return this.getName() + " @ " + this.getTimestamp() + " ("
-				+ this.getNodeCount() + "/" + this.getEdgeCount() + ")";
-	}
 
-	public int getMaxNodeIndex() {
-		return nodes.getMaxNodeIndex();
-	}
-
-	public int getNodeCount() {
-		return nodes.size();
-	}
-
-	public boolean addNode(Node n) {
-		return nodes.add(n);
-	}
-
-	public boolean removeNode(Node n) {
-		return nodes.remove(n);
-	}
-
-	public boolean containsNode(Node n) {
-		return nodes.contains(n);
-	}
-
-	public int getEdgeCount() {
-		return edges.size();
-	}
-
-	public boolean addEdge(Edge e) {
-		return edges.add(e);
-	}
-
-	public boolean removeEdge(Edge e) {
-		return edges.remove(e);
-	}
-
-	public boolean containsEdge(Edge e) {
-		return edges.contains(e);
+	public long getTimestamp() {
+		return this.timestamp;
 	}
 
 	public GraphDataStructure getGraphDatastructures() {
@@ -104,7 +196,7 @@ public class Graph {
 		if (getClass() != obj.getClass()) {
 			return false;
 		}
-		
+
 		Graph other = (Graph) obj;
 
 		if (gds == null) {
@@ -124,7 +216,7 @@ public class Graph {
 		} else if (!name.equals(other.name)) {
 			return false;
 		}
-		
+
 		if (edges == null) {
 			if (other.edges != null) {
 				return false;
@@ -140,43 +232,17 @@ public class Graph {
 			return false;
 		}
 		return true;
-	}	
-	
-	public Collection<IElement> getNodes() {
-		if ( !gds.isReadable(nodes) ) throw new RuntimeException("This is not a readable graph");
-		return ((INodeListDatastructureReadable) nodes).getElements();
 	}
-	
 
-	public Node getRandomNode() {
-		if ( !gds.isReadable(nodes) ) throw new RuntimeException("This is not a readable graph");
-		return (Node) ((INodeListDatastructureReadable) nodes).getRandom();
+	public String toString() {
+		return this.getName() + " @ " + this.getTimestamp() + " (" + this.getNodeCount() + "/" + this.getEdgeCount()
+				+ ")";
 	}
-	
-	public Collection<IElement> getEdges() {
-		if ( !gds.isReadable(edges) ) throw new RuntimeException("This is not a readable graph");
-		return ((IEdgeListDatastructureReadable) edges).getElements();
-	}
-	
-	public Edge getRandomEdge() {
-		if ( !gds.isReadable(edges) ) throw new RuntimeException("This is not a readable graph");
-		return (Edge) ((IEdgeListDatastructureReadable) edges).getRandom();
-	}
-	
+
 	public void print() {
 		System.out.println(this.toString());
 		System.out.println("  V = " + this.getNodes());
 		System.out.println("  E = " + this.getEdges());
 	}
-	
-	public Node getNode(int index) {
-		if ( !gds.isReadable(nodes) ) throw new RuntimeException("This is not a readable graph");
-		return ((INodeListDatastructureReadable) this.nodes).get(index);
-	}
-	
-	public Edge getEdge(Edge e) {
-		if ( !gds.isReadable(edges) ) throw new RuntimeException("This is not a readable graph");
-		return ((IEdgeListDatastructureReadable) edges).get(e);
-	}	
-	
+
 }
