@@ -4,6 +4,7 @@ import dna.graph.Node;
 import dna.graph.directed.DirectedEdge;
 import dna.graph.directed.DirectedGraph;
 import dna.graph.directed.DirectedNode;
+import dna.series.data.NodeValueList;
 import dna.updates.Batch;
 import dna.updates.EdgeAddition;
 import dna.updates.EdgeRemoval;
@@ -229,6 +230,12 @@ public class OpenTriangleClusteringCoefficientUpdate extends
 		this.averageCC = ArrayUtils.avg(this.localCC);
 
 		return true;
+	}
+
+	@Override
+	protected NodeValueList[] getNodeValueLists() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

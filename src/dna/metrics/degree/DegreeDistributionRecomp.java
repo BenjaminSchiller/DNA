@@ -5,6 +5,7 @@ import java.util.Collection;
 import dna.graph.Graph;
 import dna.graph.directed.DirectedNode;
 import dna.graph.undirected.UndirectedNode;
+import dna.series.data.NodeValueList;
 import dna.updates.Batch;
 import dna.updates.Update;
 import dna.util.ArrayUtils;
@@ -97,6 +98,12 @@ public class DegreeDistributionRecomp extends DegreeDistribution {
 				.getNodeType())
 				|| UndirectedNode.class.isAssignableFrom(b
 						.getGraphDatastructures().getNodeType());
+	}
+
+	@Override
+	protected NodeValueList[] getNodeValueLists() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

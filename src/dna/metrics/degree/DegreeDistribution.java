@@ -21,7 +21,7 @@ public abstract class DegreeDistribution extends Metric {
 	protected double edges;
 
 	public DegreeDistribution(String name, ApplicationType type) {
-		super(name, type);
+		super(name, type, MetricType.exact);
 	}
 
 	@Override

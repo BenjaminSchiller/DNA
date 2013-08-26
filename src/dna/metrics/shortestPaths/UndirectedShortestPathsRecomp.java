@@ -6,6 +6,7 @@ import java.util.Queue;
 import dna.graph.undirected.UndirectedEdge;
 import dna.graph.undirected.UndirectedGraph;
 import dna.graph.undirected.UndirectedNode;
+import dna.series.data.NodeValueList;
 import dna.updates.Batch;
 import dna.updates.Update;
 import dna.util.ArrayUtils;
@@ -70,5 +71,11 @@ public class UndirectedShortestPathsRecomp extends UndirectedShortestPaths {
 		this.diam = this.spl.length - 1;
 
 		return true;
+	}
+
+	@Override
+	protected NodeValueList[] getNodeValueLists() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

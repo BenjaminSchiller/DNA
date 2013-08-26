@@ -7,6 +7,7 @@ import java.util.Queue;
 import dna.graph.undirected.UndirectedEdge;
 import dna.graph.undirected.UndirectedGraph;
 import dna.graph.undirected.UndirectedNode;
+import dna.series.data.NodeValueList;
 import dna.updates.Batch;
 import dna.updates.EdgeAddition;
 import dna.updates.EdgeRemoval;
@@ -165,6 +166,12 @@ public class UndirectedShortestPathsUpdate extends UndirectedShortestPaths {
 		super.reset_();
 		this.parents = null;
 		this.heights = null;
+	}
+
+	@Override
+	protected NodeValueList[] getNodeValueLists() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }
