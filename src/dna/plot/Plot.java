@@ -62,6 +62,10 @@ public class Plot {
 
 	private DistributionPlotType distPlotType;
 
+	private String dateTime = "%Y-%m-%d";
+
+	private boolean plotDateTime = false;
+
 	public Plot(PlotData[] data, String dir, String filename,
 			String scriptFilename) {
 		this(data, dir, filename, scriptFilename,
@@ -332,6 +336,10 @@ public class Plot {
 		} else if (this.yLogscale) {
 			script.add("set logscale y");
 		}
+		if (this.plotDateTime) {
+			script.add("set xdata time");
+			script.add("set timeft " + this.dateTime);
+		}
 
 		script.add("set style fill empty");
 		script.add("set boxwidth 0.2");
@@ -412,5 +420,13 @@ public class Plot {
 
 	public void setTitle(String title) {
 		this.title = title;
+	}
+
+	public void setDateTime(String dateTime) {
+		this.dateTime = dateTime;
+	}
+
+	public void setPlotDateTime(boolean plotDateTime) {
+		this.plotDateTime = plotDateTime;
 	}
 }
