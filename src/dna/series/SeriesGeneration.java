@@ -12,6 +12,7 @@ import dna.series.data.RunData;
 import dna.series.data.RunTime;
 import dna.series.data.SeriesData;
 import dna.series.data.Value;
+import dna.series.lists.RunDataList;
 import dna.updates.Batch;
 import dna.updates.BatchSanitizationStats;
 import dna.updates.Update;
@@ -26,6 +27,26 @@ public class SeriesGeneration {
 		return SeriesGeneration.generate(series, runs, batches, true, true);
 	}
 
+	/**
+	 * Generates a SeriesData object for a given series.
+	 * 
+	 * @param series
+	 *            Series for which the SeriesData object will be generated
+	 * @param runs
+	 *            Amount of runs to be generated
+	 * @param batches
+	 *            Amount of badges to be generated
+	 * @param compare
+	 *            Flag that decides whether metrics will be automatically
+	 *            compared or not
+	 * @param write
+	 *            Flag that decides whether data will be written on the
+	 *            filesystem or not
+	 * @return SeriesData object representing the given series
+	 * @throws AggregationException
+	 * @throws IOException
+	 * @throws MetricNotApplicableException
+	 */
 	public static SeriesData generate(Series series, int runs, int batches,
 			boolean compare, boolean write) throws AggregationException,
 			IOException, MetricNotApplicableException {
@@ -56,7 +77,6 @@ public class SeriesGeneration {
 
 		// generate all runs
 		for (int r = 0; r < runs; r++) {
-
 			// reset rand per batch / run
 			if (series.getRandomSeedReset() == RandomSeedReset.eachRun) {
 				series.resetRand();
@@ -65,17 +85,16 @@ public class SeriesGeneration {
 			// generate run
 			sd.addRun(SeriesGeneration.generateRun(series, r, batches, compare,
 					write));
-
 		}
 
 		// aggregate all runs
 		Log.infoSep();
 		Log.info("aggregating data for " + sd.getRuns().size() + " runs");
-		sd.setAggregation(Aggregation.aggregateData(sd));
+		sd.setAggregation(Aggregation.aggregate(sd));
 		if (write) {
 			Log.info("writing aggregated data in " + series.getDir());
-			sd.getAggregation().write(
-					Dir.getAggregationDataDir(series.getDir()));
+			// sd.getAggregation().write(
+			// Dir.getAggregationDataDir(series.getDir()));
 		}
 		Log.infoSep();
 		timer.end();
@@ -85,6 +104,63 @@ public class SeriesGeneration {
 		return sd;
 	}
 
+	/**
+	 * Generates seperated runs for a series. Parameters 'from' and 'to' mark
+	 * the range. Example: generateRuns(5, 8) -> generates run.5, run.6,
+	 * run.7,run.8
+	 * 
+	 * @param series
+	 *            Series for which the runs will be generated
+	 * @param from
+	 *            Index of the first run
+	 * @param to
+	 *            Index of the last run
+	 * @param batches
+	 *            Amount of batches that will be generated
+	 * @param compare
+	 *            Flag that decides whether metrics will be automatically
+	 *            compared or not
+	 * @param write
+	 *            Flag that decides whether data will be written on the
+	 *            filesystem or not
+	 * @return RunDataList object containing the generated runs
+	 * @throws IOException
+	 * @throws MetricNotApplicableException
+	 */
+	public static RunDataList generateRuns(Series series, int from, int to,
+			int batches, boolean compare, boolean write) throws IOException,
+			MetricNotApplicableException {
+		int runs = to - from;
+
+		RunDataList runList = new RunDataList();
+
+		for (int i = 0; i < runs; i++) {
+			runList.add(SeriesGeneration.generateRun(series, from + i, batches,
+					compare, write));
+		}
+
+		return runList;
+	}
+
+	/**
+	 * Generates one run of a given series
+	 * 
+	 * @param series
+	 *            Series for which the runs will be generated
+	 * @param run
+	 *            Index of the generated run
+	 * @param batches
+	 *            Amount of batches that will be generated
+	 * @param compare
+	 *            Flag that decides whether metrics will be automatically
+	 *            compared or not
+	 * @param write
+	 *            Flag that decides whether data will be written on the
+	 *            filesystem or not
+	 * @return RunData object representing the generated run
+	 * @throws IOException
+	 * @throws MetricNotApplicableException
+	 */
 	public static RunData generateRun(Series series, int run, int batches,
 			boolean compare, boolean write) throws IOException,
 			MetricNotApplicableException {
