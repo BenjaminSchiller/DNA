@@ -116,7 +116,6 @@ public class Plotting {
 		Plotting.plotRuntimes(seriesData, dstDir, type, style);
 		Plotting.plotNodeValueLists(seriesData, dstDir, type, style, sortBy,
 				sortOrder);
-		Log.infoSep();
 	}
 
 	/**
