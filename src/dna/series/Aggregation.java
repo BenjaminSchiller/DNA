@@ -367,6 +367,57 @@ public class Aggregation {
 	}
 
 	/**
+	 * Aggregates the values for a SeriesData object.
+	 * 
+	 * @param seriesData
+	 *            SeriesData object that is about to be aggregated
+	 * @return AggregatedSeries object containing the aggregated values
+	 * @throws AggregationException
+	 * @throws IOException
+	 */
+	public static AggregatedSeries aggregate(SeriesData seriesData)
+			throws AggregationException, IOException {
+		return Aggregation.aggregateRuns(seriesData, seriesData.getRuns());
+	}
+
+	/**
+	 * Method is used to aggregate runs of a given range.
+	 * 
+	 * @param seriesData
+	 *            SeriesData object that is about to be aggregated
+	 * @param from
+	 *            Index of the first run
+	 * @param to
+	 *            Index of the last run
+	 * @return AggregatedSeries object containing the aggregated runs
+	 * @throws AggregationException
+	 * @throws IOException
+	 */
+	public static AggregatedSeries aggregate(SeriesData seriesData, int from,
+			int to) throws AggregationException, IOException {
+		ArrayList<RunData> rdList = new ArrayList<RunData>();
+
+		Aggregation.test(seriesData);
+		// check all RunData-Objects for compatibility
+		for (int i = 0; i < rdList.size() - 1; i++) {
+			if (!RunData.isSameType(seriesData.getRun(i),
+					seriesData.getRun(i + 1)))
+				throw new AggregationException("RunDatas not of the same type!");
+		}
+
+		for (int i = from; i < to + 1; i++) {
+			try {
+				rdList.set(i, seriesData.getRun(i));
+			} catch (NullPointerException e) {
+				throw new AggregationException("Trying to aggregate over run "
+						+ i + " from series " + seriesData.getName()
+						+ " which is not available.");
+			}
+		}
+		return Aggregation.aggregateRuns(seriesData, rdList);
+	}
+
+	/**
 	 * Aggregates the values of a list of Data objects and returns a
 	 * AggregatedData object.
 	 * 
@@ -486,33 +537,25 @@ public class Aggregation {
 	}
 
 	/**
-	 * Aggregates the values for a SeriesData object.
+	 * Aggregates the runs of a given SeriesData object.
 	 * 
 	 * @param seriesData
 	 *            SeriesData object that is about to be aggregated
-	 * 
+	 * @param rdList
+	 *            RunDataList containing the runs that are about to be
+	 *            aggregated
 	 * @return AggregatedSeries object containing the aggregated values
 	 * @throws AggregationException
 	 * @throws IOException
 	 */
-	public static AggregatedSeries aggregateData(SeriesData seriesData)
-			throws AggregationException, IOException {
-		ArrayList<RunData> rdList = seriesData.getRuns();
+	private static AggregatedSeries aggregateRuns(SeriesData seriesData,
+			ArrayList<RunData> rdList) throws AggregationException, IOException {
 		int runs = rdList.size();
 		int batches = rdList.get(0).getBatches().size();
-		Aggregation.test(seriesData);
-		// if (runs < 2)
-		// throw new AggregationException("Need 2 or more runs to aggregate!");
-		// check all RunData-Objects for compatibility
-		for (int i = 0; i < rdList.size() - 1; i++) {
-			if (!RunData.isComparable(rdList.get(i), rdList.get(i + 1)))
-				throw new AggregationException("RunDatas not of the same type!");
-		}
 
 		// for every run collect data of same batch of same metric of same type
 		// and aggregated them
 		// note: compatibility between batches and metrics already checked above
-
 		String seriesDir = seriesData.getDir();
 
 		String aggDir = Dir.getAggregationDataDir(seriesDir);
