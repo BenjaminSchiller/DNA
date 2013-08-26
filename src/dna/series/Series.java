@@ -6,7 +6,6 @@ import java.io.IOException;
 import dna.graph.Graph;
 import dna.graph.GraphGenerator;
 import dna.io.filesystem.Dir;
-import dna.io.filesystem.Prefix;
 import dna.io.filter.PrefixFilenameFilter;
 import dna.metrics.Metric;
 import dna.metrics.MetricNotApplicableException;
@@ -14,6 +13,7 @@ import dna.series.aggdata.AggregatedSeries;
 import dna.series.data.RunData;
 import dna.series.data.SeriesData;
 import dna.updates.BatchGenerator;
+import dna.util.Config;
 import dna.util.Rand;
 
 @SuppressWarnings("rawtypes")
@@ -41,8 +41,8 @@ public class Series {
 	public static SeriesData get(String dir, String name)
 			throws NumberFormatException, IOException {
 		SeriesData seriesData = new SeriesData(dir, name);
-		int runs = (new File(dir)).listFiles(new PrefixFilenameFilter(
-				Prefix.runDataDir)).length;
+		int runs = (new File(dir)).listFiles(new PrefixFilenameFilter(Config
+				.get("PREFIX_RUNDATA_DIR"))).length;
 		for (int run = 0; run < runs; run++) {
 			String runDir = Dir.getRunDataDir(dir, run);
 			System.out.println(run + ": " + runDir);

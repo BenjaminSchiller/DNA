@@ -7,7 +7,6 @@ import dna.graph.Edge;
 import dna.graph.Graph;
 import dna.graph.GraphDatastructures;
 import dna.graph.Node;
-import dna.io.etc.Keywords;
 import dna.updates.Batch;
 import dna.updates.EdgeAddition;
 import dna.updates.EdgeRemoval;
@@ -16,6 +15,7 @@ import dna.updates.NodeAddition;
 import dna.updates.NodeRemoval;
 import dna.updates.NodeWeightUpdate;
 import dna.updates.Update.UpdateType;
+import dna.util.Config;
 import dna.util.Log;
 
 public class BatchReader<G extends Graph<N, E>, N extends Node<E>, E extends Edge> {
@@ -36,7 +36,7 @@ public class BatchReader<G extends Graph<N, E>, N extends Node<E>, E extends Edg
 
 			String line = null;
 			while ((line = reader.readString()) != null) {
-				String[] temp = line.split(Keywords.updateDelimiter1);
+				String[] temp = line.split(Config.get("UPDATE_DELIMITER1"));
 				System.out.println(line + " => " + temp[0] + " / " + temp[1]);
 				switch (UpdateType.valueOf(temp[0])) {
 				case EdgeAddition:
@@ -47,7 +47,8 @@ public class BatchReader<G extends Graph<N, E>, N extends Node<E>, E extends Edg
 							temp[1], g))));
 					break;
 				case EdgeWeightUpdate:
-					String[] temp1 = temp[1].split(Keywords.updateDelimiter2);
+					String[] temp1 = temp[1].split(Config
+							.get("UPDATE_DELIMITER2"));
 					b.add(new EdgeWeightUpdate<E>(g.getEdge(ds.newEdgeInstance(
 							temp1[0], g)), Double.parseDouble(temp1[1])));
 					break;
@@ -60,7 +61,8 @@ public class BatchReader<G extends Graph<N, E>, N extends Node<E>, E extends Edg
 							.parseInt(temp[1]))));
 					break;
 				case NodeWeithUpdate:
-					String[] temp2 = temp[1].split(Keywords.updateDelimiter2);
+					String[] temp2 = temp[1].split(Config
+							.get("UPDATE_DELIMITER2"));
 					b.add(new NodeWeightUpdate<E>(g.getNode(Integer
 							.parseInt(temp2[0])), Double.parseDouble(temp2[1])));
 					break;

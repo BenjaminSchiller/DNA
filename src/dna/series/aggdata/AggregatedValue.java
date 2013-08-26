@@ -4,8 +4,8 @@ import java.io.IOException;
 
 import dna.io.Reader;
 import dna.io.Writer;
-import dna.io.etc.Keywords;
 import dna.io.filesystem.Files;
+import dna.util.Config;
 
 /**
  * An AggregatedValue object contains aggregated values.
@@ -83,7 +83,8 @@ public class AggregatedValue extends AggregatedData {
 		Writer w = new Writer(dir, filename);
 		String temp = "name";
 		for (int i = 0; i < this.values.length; i++) {
-			temp = temp + Keywords.aggregatedDataDelimiter + this.values[i];
+			temp = temp + Config.get("AGGREGATED_DATA_DELIMITER")
+					+ this.values[i];
 		}
 
 		w.writeln(temp);
@@ -113,7 +114,7 @@ public class AggregatedValue extends AggregatedData {
 		String line = null;
 
 		line = r.readString();
-		String[] temp = line.split(Keywords.aggregatedDataDelimiter);
+		String[] temp = line.split(Config.get("AGGREGATED_DATA_DELIMITER"));
 
 		double[] tempDouble = new double[temp.length];
 		for (int i = 0; i < tempDouble.length; i++) {
@@ -130,7 +131,7 @@ public class AggregatedValue extends AggregatedData {
 		for (int i = 0; i < x.length; i++) {
 			StringBuffer buff = new StringBuffer(x[i] + "");
 			for (int j = 0; j < values[i].getValues().length; j++) {
-				buff.append(Keywords.dataDelimiter);
+				buff.append(Config.get("AGGREGATEDDATA_DELIMITER"));
 				buff.append(values[i].getValues()[j]);
 			}
 			w.writeln(buff.toString());

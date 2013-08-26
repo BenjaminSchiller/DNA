@@ -3,10 +3,10 @@ package dna.series.data;
 import java.io.IOException;
 
 import dna.io.filesystem.Files;
-import dna.io.filesystem.Names;
 import dna.series.lists.MetricDataList;
 import dna.series.lists.RunTimeList;
 import dna.series.lists.ValueList;
+import dna.util.Config;
 import dna.util.Log;
 
 public class BatchData {
@@ -70,22 +70,25 @@ public class BatchData {
 
 	public void write(String dir) throws IOException {
 		Log.debug("writing BatchData for " + this.timestamp + " to " + dir);
-		this.stats.write(dir, Files.getValuesFilename(Names.batchStats));
-		this.generalRuntimes.write(dir,
-				Files.getRuntimesFilename(Names.batchGeneralRuntimes));
+		this.stats.write(dir,
+				Files.getValuesFilename(Config.get("BATCH_STATS")));
+		this.generalRuntimes
+				.write(dir, Files.getRuntimesFilename(Config
+						.get("BATCH_GENERAL_RUNTIMES")));
 		this.metricRuntimes.write(dir,
-				Files.getRuntimesFilename(Names.batchMetricRuntimes));
+				Files.getRuntimesFilename(Config.get("BATCH_METRIC_RUNTIMES")));
 		this.metrics.write(dir);
 	}
 
 	public static BatchData read(String dir, long timestamp, boolean readValues)
 			throws IOException {
 		ValueList values = ValueList.read(dir,
-				Files.getValuesFilename(Names.batchStats));
-		RunTimeList generalRuntimes = RunTimeList.read(dir,
-				Files.getRuntimesFilename(Names.batchGeneralRuntimes));
+				Files.getValuesFilename(Config.get("BATCH_STATS")));
+		RunTimeList generalRuntimes = RunTimeList
+				.read(dir, Files.getRuntimesFilename(Config
+						.get("BATCH_GENERAL_RUNTIMES")));
 		RunTimeList metricRuntimes = RunTimeList.read(dir,
-				Files.getRuntimesFilename(Names.batchMetricRuntimes));
+				Files.getRuntimesFilename(Config.get("BATCH_METRIC_RUNTIMES")));
 		MetricDataList metrics = MetricDataList.read(dir, readValues);
 		return new BatchData(timestamp, values, generalRuntimes,
 				metricRuntimes, metrics);

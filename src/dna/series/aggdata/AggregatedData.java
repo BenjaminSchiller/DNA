@@ -5,8 +5,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import dna.io.Writer;
-import dna.io.etc.Keywords;
 import dna.series.lists.ListItem;
+import dna.util.Config;
 
 /**
  * AggregatedData is the super-class for all provided aggregation
@@ -52,13 +52,13 @@ public class AggregatedData implements ListItem {
 
 		for (AggregatedValue aggData : inputData) {
 			String temp = "" + aggData.getName()
-					+ Keywords.aggregatedDataDelimiter;
+					+ Config.get("AGGREGATED_DATA_DELIMITER");
 			for (int i = 0; i < aggData.getValues().length; i++) {
 				if (i == aggData.getValues().length - 1)
 					temp += aggData.getValues()[i];
 				else
 					temp += aggData.getValues()[i]
-							+ Keywords.aggregatedDataDelimiter;
+							+ Config.get("AGGREGATED_DATA_DELIMITER");
 			}
 			w.writeln(temp);
 		}
@@ -71,13 +71,13 @@ public class AggregatedData implements ListItem {
 
 		for (AggregatedValue aggData : inputData) {
 			String temp = "" + aggData.getName()
-					+ Keywords.aggregatedDataDelimiter;
+					+ Config.get("AGGREGATED_DATA_DELIMITER");
 			for (int i = 0; i < aggData.getValues().length; i++) {
 				if (i == aggData.getValues().length - 1)
 					temp += aggData.getValues()[i];
 				else
 					temp += aggData.getValues()[i]
-							+ Keywords.aggregatedDataDelimiter;
+							+ Config.get("AGGREGATED_DATA_DELIMITER");
 			}
 			w.writeln(temp);
 		}
@@ -89,14 +89,14 @@ public class AggregatedData implements ListItem {
 		Writer w = new Writer(dir, filename);
 
 		String temp = "" + inputData.getName()
-				+ Keywords.aggregatedDataDelimiter;
-		// String temp = "" + Keywords.aggregatedDataDelimiter;
+				+ Config.get("AGGREGATED_DATA_DELIMITER");
+		// String temp = "" + Config.get("AGGREGATED_DATA_DELIMITER");
 		for (int i = 0; i < inputData.getValues().length; i++) {
 			if (i == inputData.getValues().length - 1)
 				temp += inputData.getValues()[i];
 			else
 				temp += inputData.getValues()[i]
-						+ Keywords.aggregatedDataDelimiter;
+						+ Config.get("AGGREGATED_DATA_DELIMITER");
 		}
 		w.writeln(temp);
 
@@ -110,13 +110,13 @@ public class AggregatedData implements ListItem {
 
 		for (AggregatedValue aggData : tempData) {
 			String temp = "" + (int) aggData.getValues()[0]
-					+ Keywords.aggregatedDataDelimiter;
+					+ Config.get("AGGREGATED_DATA_DELIMITER");
 			for (int i = 1; i < aggData.getValues().length; i++) {
 				if (i == aggData.getValues().length - 1)
 					temp += aggData.getValues()[i];
 				else
 					temp += aggData.getValues()[i]
-							+ Keywords.aggregatedDataDelimiter;
+							+ Config.get("AGGREGATED_DATA_DELIMITER");
 			}
 			w.writeln(temp);
 		}
@@ -130,13 +130,13 @@ public class AggregatedData implements ListItem {
 
 		for (AggregatedValue aggData : tempData) {
 			String temp = "" + (int) aggData.getValues()[0]
-					+ Keywords.aggregatedDataDelimiter;
+					+ Config.get("AGGREGATED_DATA_DELIMITER");
 			for (int i = 1; i < aggData.getValues().length; i++) {
 				if (i == aggData.getValues().length - 1)
 					temp += aggData.getValues()[i];
 				else
 					temp += aggData.getValues()[i]
-							+ Keywords.aggregatedDataDelimiter;
+							+ Config.get("AGGREGATED_DATA_DELIMITER");
 			}
 			w.writeln(temp);
 		}
@@ -150,13 +150,15 @@ public class AggregatedData implements ListItem {
 		for (String value : inputData.keySet()) {
 			double[] tempValues = inputData.get(value);
 
-			String temp = value + Keywords.aggregatedDataDelimiter
-					+ (int) tempValues[0] + Keywords.aggregatedDataDelimiter;
+			String temp = value + Config.get("AGGREGATED_DATA_DELIMITER")
+					+ (int) tempValues[0]
+					+ Config.get("AGGREGATED_DATA_DELIMITER");
 			for (int i = 1; i < tempValues.length; i++) {
 				if (i == tempValues.length - 1)
 					temp += tempValues[i];
 				else
-					temp += tempValues[i] + Keywords.aggregatedDataDelimiter;
+					temp += tempValues[i]
+							+ Config.get("AGGREGATED_DATA_DELIMITER");
 			}
 			w.writeln(temp);
 		}

@@ -1,7 +1,9 @@
 package dna.util;
 
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.Set;
+import java.util.Vector;
 
 public class ArrayUtils {
 	public static int[] incr(int[] values, int index) {
@@ -1025,5 +1027,15 @@ public class ArrayUtils {
 				return true;
 		}
 		return false;
+	}
+
+	public static String[] toStringArray(Vector<String> v) {
+		String[] array = new String[v.size()];
+		Iterator<String> iter = v.listIterator();
+		int index = 0;
+		while (iter.hasNext()) {
+			array[index++] = iter.next();
+		}
+		return array;
 	}
 }

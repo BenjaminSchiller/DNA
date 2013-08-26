@@ -7,8 +7,8 @@ import com.sun.media.sound.InvalidFormatException;
 
 import dna.io.Reader;
 import dna.io.Writer;
-import dna.io.etc.Keywords;
 import dna.util.ArrayUtils;
+import dna.util.Config;
 
 /**
  * DistributionLong is an object which represents an distribution by whole
@@ -176,7 +176,7 @@ public class DistributionLong extends Distribution {
 		w.writeln(this.denominator); // write denominator in first line
 
 		for (int i = 0; i < this.values.length; i++) {
-			w.writeln(i + Keywords.distributionDelimiter + this.values[i]);
+			w.writeln(i + Config.get("DISTRIBUTION_DELIMITER") + this.values[i]);
 		}
 		w.close();
 	}
@@ -208,7 +208,7 @@ public class DistributionLong extends Distribution {
 		long denominator = Long.parseLong(line);
 
 		while ((line = r.readString()) != null) {
-			String[] temp = line.split(Keywords.distributionDelimiter);
+			String[] temp = line.split(Config.get("DISTRIBUTION_DELIMITER"));
 			if (Integer.parseInt(temp[0]) != index) {
 				throw new InvalidFormatException("expected index " + index
 						+ " but found " + temp[0] + " @ \"" + line + "\"");

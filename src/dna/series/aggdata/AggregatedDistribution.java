@@ -7,7 +7,7 @@ import com.sun.media.sound.InvalidFormatException;
 
 import dna.io.Reader;
 import dna.io.Writer;
-import dna.io.etc.Keywords;
+import dna.util.Config;
 
 /**
  * AggregatedDistribution is a class containing the values of an aggregated
@@ -62,7 +62,7 @@ public class AggregatedDistribution extends AggregatedData {
 		String line = null;
 		int index = 0;
 		while ((line = r.readString()) != null) {
-			String[] temp = line.split(Keywords.aggregatedDataDelimiter);
+			String[] temp = line.split(Config.get("AGGREGATED_DATA_DELIMITER"));
 			if (Integer.parseInt(temp[0]) != index) {
 				throw new InvalidFormatException("expected index " + index
 						+ " but found " + temp[0] + " @ \"" + line + "\"");
@@ -91,13 +91,13 @@ public class AggregatedDistribution extends AggregatedData {
 
 		for (AggregatedValue aggData : tempData) {
 			String temp = "" + (int) aggData.getValues()[0]
-					+ Keywords.aggregatedDataDelimiter;
+					+ Config.get("AGGREGATED_DATA_DELIMITER");
 			for (int i = 1; i < aggData.getValues().length; i++) {
 				if (i == aggData.getValues().length - 1)
 					temp += aggData.getValues()[i];
 				else
 					temp += aggData.getValues()[i]
-							+ Keywords.aggregatedDataDelimiter;
+							+ Config.get("AGGREGATED_DATA_DELIMITER");
 			}
 			w.writeln(temp);
 		}
@@ -113,12 +113,13 @@ public class AggregatedDistribution extends AggregatedData {
 			for (int j = 0; j < values[i].length; j++) {
 				if (j == 0)
 					temp += (int) values[i][j]
-							+ Keywords.aggregatedDataDelimiter;
+							+ Config.get("AGGREGATED_DATA_DELIMITER");
 				else {
 					if (j == values[i].length - 1)
 						temp += values[i][j];
 					else
-						temp += values[i][j] + Keywords.aggregatedDataDelimiter;
+						temp += values[i][j]
+								+ Config.get("AGGREGATED_DATA_DELIMITER");
 				}
 			}
 			w.writeln(temp);

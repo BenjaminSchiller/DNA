@@ -7,8 +7,8 @@ import com.sun.media.sound.InvalidFormatException;
 
 import dna.io.Reader;
 import dna.io.Writer;
-import dna.io.etc.Keywords;
 import dna.util.ArrayUtils;
+import dna.util.Config;
 
 /**
  * Distribution is a class for representing a distribution. Values are stored in
@@ -149,7 +149,7 @@ public class DistributionDouble extends Distribution {
 		}
 		Writer w = new Writer(dir, filename);
 		for (int i = 0; i < this.values.length; i++) {
-			w.writeln(i + Keywords.distributionDelimiter + this.values[i]);
+			w.writeln(i + Config.get("DISTRIBUTION_DELIMITER") + this.values[i]);
 		}
 		w.close();
 	}
@@ -177,7 +177,7 @@ public class DistributionDouble extends Distribution {
 		String line = null;
 		int index = 0;
 		while ((line = r.readString()) != null) {
-			String[] temp = line.split(Keywords.distributionDelimiter);
+			String[] temp = line.split(Config.get("DISTRIBUTION_DELIMITER"));
 			if (Integer.parseInt(temp[0]) != index) {
 				throw new InvalidFormatException("expected index " + index
 						+ " but found " + temp[0] + " @ \"" + line + "\"");

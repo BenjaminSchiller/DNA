@@ -3,67 +3,70 @@ package dna.io.filesystem;
 import java.io.File;
 
 import dna.io.filter.SuffixFilenameFilter;
+import dna.util.Config;
 
 public class Files {
 	/*
 	 * DISTRIBUTION
 	 */
 	public static String getDistributionFilename(String name) {
-		return name + Suffix.distribution;
+		return name + Config.get("SUFFIX_DIST");
 	}
 
 	public static String[] getDistributions(String dir) {
-		return (new File(dir)).list(new SuffixFilenameFilter(
-				Suffix.distribution));
+		return (new File(dir)).list(new SuffixFilenameFilter(Config
+				.get("SUFFIX_DIST")));
 	}
 
 	public static String getDistributionName(String filename) {
-		return filename.replace(Suffix.distribution, "");
+		return filename.replace(Config.get("SUFFIX_DIST"), "");
 	}
 
 	/*
 	 * RUNTIMES
 	 */
 	public static String getRuntimesFilename(String name) {
-		return name + Suffix.runtimes;
+		return name + Config.get("SUFFIX_RUNTIME");
 	}
 
 	public static String[] getRuntimes(String dir) {
-		return (new File(dir)).list(new SuffixFilenameFilter(Suffix.runtimes));
+		return (new File(dir)).list(new SuffixFilenameFilter(Config
+				.get("SUFFIX_RUNTIME")));
 	}
 
 	public static String getRuntimesName(String filename) {
-		return filename.replace(Suffix.runtimes, "");
+		return filename.replace(Config.get("SUFFIX_RUNTIME"), "");
 	}
 
 	/*
 	 * VALUES
 	 */
 	public static String getValuesFilename(String name) {
-		return name + Suffix.values;
+		return name + Config.get("SUFFIX_VALUE");
 	}
 
 	public static String[] getValues(String dir) {
-		return (new File(dir)).list(new SuffixFilenameFilter(Suffix.values));
+		return (new File(dir)).list(new SuffixFilenameFilter(Config
+				.get("SUFFIX_VALUE")));
 	}
 
 	public static String getValuesName(String filename) {
-		return filename.replace(Suffix.values, "");
+		return filename.replace(Config.get("SUFFIX_VALUE"), "");
 	}
 
 	/*
 	 * NODEVALUELISTS
 	 */
 	public static String getNodeValueListFilename(String name) {
-		return name + Suffix.nodeValueList;
+		return name + Config.get("SUFFIX_NVL");
 	}
 
 	public static String[] getNodeValueLists(String dir) {
-		return (new File(dir)).list(new SuffixFilenameFilter(
-				Suffix.nodeValueList));
+		return (new File(dir)).list(new SuffixFilenameFilter(Config
+				.get("SUFFIX_NVL")));
 	}
 
 	public static String getNodeValueListName(String filename) {
-		return filename.replace(Suffix.nodeValueList, "");
+		return filename.replace(Config.get("SUFFIX_NVL"), "");
 	}
 }

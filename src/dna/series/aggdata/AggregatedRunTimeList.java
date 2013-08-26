@@ -4,8 +4,8 @@ import java.io.IOException;
 
 import dna.io.Reader;
 import dna.io.Writer;
-import dna.io.etc.Keywords;
 import dna.series.lists.List;
+import dna.util.Config;
 
 /**
  * An AggregatedRunTimeList object contains aggregated values of a RunTimeList.
@@ -48,13 +48,13 @@ public class AggregatedRunTimeList extends List<AggregatedValue> {
 
 		for (AggregatedValue aggData : this.getList()) {
 			String temp = "" + aggData.getName()
-					+ Keywords.aggregatedDataDelimiter;
+					+ Config.get("AGGREGATED_DATA_DELIMITER");
 			for (int i = 0; i < aggData.getValues().length; i++) {
 				if (i == aggData.getValues().length - 1)
 					temp += aggData.getValues()[i];
 				else
 					temp += aggData.getValues()[i]
-							+ Keywords.aggregatedDataDelimiter;
+							+ Config.get("AGGREGATED_DATA_DELIMITER");
 			}
 			w.writeln(temp);
 		}
@@ -70,7 +70,7 @@ public class AggregatedRunTimeList extends List<AggregatedValue> {
 		Reader r = new Reader(dir, filename);
 		String line = null;
 		while ((line = r.readString()) != null) {
-			String[] temp = line.split(Keywords.aggregatedDataDelimiter);
+			String[] temp = line.split(Config.get("AGGREGATED_DATA_DELIMITER"));
 			double[] values = new double[temp.length - 1];
 
 			for (int i = 1; i < temp.length; i++) {
