@@ -84,7 +84,7 @@ public class SeriesData {
 	 * @author Rwilmes
 	 * @date 15.07.2013
 	 */
-	public static boolean isComparable(SeriesData s1, SeriesData s2) {
+	public static boolean isSameType(SeriesData s1, SeriesData s2) {
 		Log.debug("Comparing SeriesData " + s1.getName() + " and SeriesData "
 				+ s2.getName());
 
@@ -95,7 +95,7 @@ public class SeriesData {
 		}
 
 		for (int i = 0; i < s1.getRuns().size(); i++) {
-			RunData.isComparable(s1.getRun(i), s2.getRun(i));
+			RunData.isSameType(s1.getRun(i), s2.getRun(i));
 		}
 
 		return true;
@@ -135,24 +135,26 @@ public class SeriesData {
 	 */
 	public void compareMetrics(boolean writeValues) throws IOException,
 			InterruptedException {
+		Log.info("comparing metrics");
 		MetricDataList exacts = new MetricDataList();
 		MetricDataList heuristics = new MetricDataList();
 
 		for (MetricData metric : this.getRuns().get(0).getBatches().get(0)
 				.getMetrics().getList()) {
 			if (metric.getType() != null) {
-				if (metric.getType().equals("exact"))
+				if (metric.getType().equals(MetricType.exact))
 					exacts.add(metric);
-				if (metric.getType().equals("heuristic"))
+				if (metric.getType().equals(MetricType.heuristic))
 					heuristics.add(metric);
 			}
 		}
-
 		for (MetricData heuristic : heuristics.getList()) {
 			boolean compared = false;
 			for (MetricData exact : exacts.getList()) {
 				if (!compared) {
-					if (MetricData.isComparable2(heuristic, exact)) {
+					Log.info("  => heuristic \"" + heuristic.getName()
+							+ "\" with exact \"" + exact.getName() + "\"");
+					if (MetricData.isComparable(heuristic, exact)) {
 						for (int run = 0; run < this.getRuns().size(); run++) {
 							for (int batch = 0; batch < this.getRun(run)
 									.getBatches().size(); batch++) {

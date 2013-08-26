@@ -9,6 +9,7 @@ import dna.series.lists.DistributionList;
 import dna.series.lists.ListItem;
 import dna.series.lists.NodeValueListList;
 import dna.series.lists.ValueList;
+import dna.util.ArrayUtils;
 import dna.util.Log;
 
 public class MetricData implements ListItem {
@@ -214,7 +215,7 @@ public class MetricData implements ListItem {
 	 * @author Rwilmes
 	 * @date 24.06.2013
 	 */
-	public static boolean isComparable(MetricData m1, MetricData m2) {
+	public static boolean isSameType(MetricData m1, MetricData m2) {
 		// if(m1.getName().equals(m2.getName()))
 		// return false;
 
@@ -265,7 +266,7 @@ public class MetricData implements ListItem {
 	 * @author Rwilmes
 	 * @date 03.08.2013
 	 */
-	public static boolean isComparable2(MetricData m1, MetricData m2) {
+	public static boolean isComparable(MetricData m1, MetricData m2) {
 		if (m1.getType().equals("exact") && !m2.getType().equals("heuristic")) {
 			Log.warn("Metrics " + m1.getName() + " & " + m2.getName()
 					+ " can't be compared. Type failure");
@@ -323,7 +324,7 @@ public class MetricData implements ListItem {
 	 */
 	public static MetricData compare(MetricData m1, MetricData m2) {
 		// check if comparable
-		if (!isComparable2(m1, m2)) {
+		if (!isComparable(m1, m2)) {
 			Log.warn("Failed attempt to compare metrics " + m1.getName()
 					+ " & " + m2.getName()
 					+ "! Returning empty MetricData object");
@@ -386,18 +387,16 @@ public class MetricData implements ListItem {
 						distribution)).getIntValues();
 				int[] values2 = ((DistributionInt) m2.getDistributions().get(
 						distribution)).getIntValues();
-				int[] diff = new int[Math.max(values1.length, values2.length)];
+				int[] diffAbs = new int[Math
+						.max(values1.length, values2.length)];
+				double[] diffRel = new double[diffAbs.length];
 
 				int denom1 = ((DistributionInt) m1.getDistributions().get(
 						distribution)).getDenominator();
 				int denom2 = ((DistributionInt) m2.getDistributions().get(
 						distribution)).getDenominator();
 
-				int sum = 0;
-				int min = 0;
-				int max = 0;
-
-				for (int i = 0; i < diff.length; i++) {
+				for (int i = 0; i < diffAbs.length; i++) {
 					int v1 = 0;
 					int v2 = 0;
 
@@ -410,70 +409,119 @@ public class MetricData implements ListItem {
 					} catch (ArrayIndexOutOfBoundsException e) {
 					}
 
-					diff[i] = v1 - v2;
+					diffAbs[i] = v1 - v2;
 
-					if (i == 0) {
-						min = diff[i];
-						max = diff[i];
+					if (v2 == 0) {
+						diffRel[i] = Double.MAX_VALUE;
+					} else {
+						diffRel[i] = v1 / v2;
 					}
-					if (diff[i] < min)
-						min = diff[i];
-					if (diff[i] > max)
-						max = diff[i];
 				}
-				comparedDistributions
-						.add(new DistributionInt(distribution + Suffix.quality,
-								diff, denom1 * denom2, sum, min, max));
-			} else {
-				if (m1.getDistributions().get(distribution) instanceof DistributionLong
-						&& m2.getDistributions().get(distribution) instanceof DistributionLong) {
-					// compare DistributionLong objects
-					long[] values1 = ((DistributionLong) m1.getDistributions()
-							.get(distribution)).getLongValues();
-					long[] values2 = ((DistributionLong) m2.getDistributions()
-							.get(distribution)).getLongValues();
-					long[] diff = new long[Math.max(values1.length,
-							values2.length)];
+				// add absolute comparison
+				comparedDistributions.add(new DistributionInt(distribution
+						+ "_abs" + Suffix.quality, diffAbs, denom1 * denom2,
+						ArrayUtils.sum(diffAbs), ArrayUtils.min(diffAbs),
+						ArrayUtils.max(diffAbs), ArrayUtils.med(diffAbs),
+						ArrayUtils.avg(diffAbs)));
+				// add relative comparison
+				comparedDistributions.add(new DistributionDouble(distribution
+						+ "_rel" + Suffix.quality, diffRel, ArrayUtils
+						.sum(diffRel), ArrayUtils.min(diffRel), ArrayUtils
+						.max(diffRel), ArrayUtils.med(diffRel), ArrayUtils
+						.avg(diffRel)));
+			}
+			if (m1.getDistributions().get(distribution) instanceof DistributionLong
+					&& m2.getDistributions().get(distribution) instanceof DistributionLong) {
+				// compare DistributionLong objects
+				long[] values1 = ((DistributionLong) m1.getDistributions().get(
+						distribution)).getLongValues();
+				long[] values2 = ((DistributionLong) m2.getDistributions().get(
+						distribution)).getLongValues();
+				long[] diffAbs = new long[Math.max(values1.length,
+						values2.length)];
+				double[] diffRel = new double[diffAbs.length];
 
-					long denom1 = ((DistributionLong) m1.getDistributions()
-							.get(distribution)).getDenominator();
-					long denom2 = ((DistributionLong) m2.getDistributions()
-							.get(distribution)).getDenominator();
+				long denom1 = ((DistributionLong) m1.getDistributions().get(
+						distribution)).getDenominator();
+				long denom2 = ((DistributionLong) m2.getDistributions().get(
+						distribution)).getDenominator();
 
-					long sum = 0;
-					long min = 0;
-					long max = 0;
+				for (int i = 0; i < diffAbs.length; i++) {
+					long v1 = 0;
+					long v2 = 0;
 
-					for (int i = 0; i < diff.length; i++) {
-						long v1 = 0;
-						long v2 = 0;
-
-						try {
-							v1 = values1[i] * denom2;
-						} catch (ArrayIndexOutOfBoundsException e) {
-						}
-						try {
-							v2 = values2[i] * denom1;
-						} catch (ArrayIndexOutOfBoundsException e) {
-						}
-
-						diff[i] = v1 - v2;
-
-						if (i == 0) {
-							min = diff[i];
-							max = diff[i];
-						}
-						if (diff[i] < min)
-							min = diff[i];
-						if (diff[i] > max)
-							max = diff[i];
+					try {
+						v1 = values1[i] * denom2;
+					} catch (ArrayIndexOutOfBoundsException e) {
 					}
-					comparedDistributions.add(new DistributionLong(distribution
-							+ Suffix.quality, diff, denom1 * denom2, sum, min,
-							max));
-				} else {
-					Log.warn("Trying to compare distributions of different or unknown type. Try to use DistributionInt or DistributionLong for comparison!");
+					try {
+						v2 = values2[i] * denom1;
+					} catch (ArrayIndexOutOfBoundsException e) {
+					}
+
+					diffAbs[i] = v1 - v2;
+
+					if (v2 == 0) {
+						diffRel[i] = Double.MAX_VALUE;
+					} else {
+						diffRel[i] = v1 / v2;
+					}
 				}
+				// add absolute comparison
+				comparedDistributions.add(new DistributionLong(distribution
+						+ "_abs" + Suffix.quality, diffAbs, denom1 * denom2,
+						ArrayUtils.sum(diffAbs), ArrayUtils.min(diffAbs),
+						ArrayUtils.max(diffAbs), ArrayUtils.med(diffAbs),
+						ArrayUtils.avg(diffAbs)));
+				// add relative comparison
+				comparedDistributions.add(new DistributionDouble(distribution
+						+ "_rel" + Suffix.quality, diffRel, ArrayUtils
+						.sum(diffRel), ArrayUtils.min(diffRel), ArrayUtils
+						.max(diffRel), ArrayUtils.med(diffRel), ArrayUtils
+						.avg(diffRel)));
+			}
+			if (m1.getDistributions().get(distribution) instanceof DistributionDouble
+					&& m2.getDistributions().get(distribution) instanceof DistributionDouble) {
+				// compare DistributionDouble objects
+				double[] values1 = ((DistributionDouble) m1.getDistributions()
+						.get(distribution)).getDoubleValues();
+				double[] values2 = ((DistributionDouble) m2.getDistributions()
+						.get(distribution)).getDoubleValues();
+
+				double[] diffAbs = new double[Math.max(values1.length,
+						values2.length)];
+				double[] diffRel = new double[diffAbs.length];
+
+				for (int i = 0; i < diffAbs.length; i++) {
+					double v1 = 0;
+					double v2 = 0;
+					try {
+						v1 = values1[i];
+					} catch (ArrayIndexOutOfBoundsException e) {
+					}
+					try {
+						v2 = values2[i];
+					} catch (ArrayIndexOutOfBoundsException e) {
+					}
+					diffAbs[i] = v1 - v2;
+
+					if (v2 == 0)
+						diffRel[i] = Double.MAX_VALUE;
+					else
+						diffRel[i] = v1 / v2;
+				}
+				// add absolute comparison
+				comparedDistributions.add(new DistributionDouble(distribution
+						+ "_abs" + Suffix.quality, diffAbs, ArrayUtils
+						.sum(diffAbs), ArrayUtils.min(diffAbs), ArrayUtils
+						.max(diffAbs), ArrayUtils.med(diffAbs), ArrayUtils
+						.avg(diffAbs)));
+				// add relative comparison
+				comparedDistributions.add(new DistributionDouble(distribution
+						+ "_rel" + Suffix.quality, diffRel, ArrayUtils
+						.sum(diffRel), ArrayUtils.min(diffRel), ArrayUtils
+						.max(diffRel), ArrayUtils.med(diffRel), ArrayUtils
+						.avg(diffRel)));
 			}
 		}
 

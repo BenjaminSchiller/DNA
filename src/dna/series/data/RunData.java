@@ -66,7 +66,7 @@ public class RunData {
 	 * @author Rwilmes
 	 * @date 25.06.2013
 	 */
-	public static boolean isComparable(RunData r1, RunData r2) {
+	public static boolean isSameType(RunData r1, RunData r2) {
 		BatchDataList list1 = r1.getBatches();
 		BatchDataList list2 = r2.getBatches();
 
@@ -77,7 +77,7 @@ public class RunData {
 		}
 
 		for (int i = 0; i < list1.size(); i++) {
-			if (!BatchData.isComparable(list1.get(i), list2.get(i))) {
+			if (!BatchData.isSameType(list1.get(i), list2.get(i))) {
 				Log.warn("different batches on run " + r1.getRun()
 						+ " and run " + r2.getRun());
 				return false;
