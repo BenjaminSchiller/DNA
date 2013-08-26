@@ -407,8 +407,8 @@ public class Aggregation {
 
 		for (int i = from; i < to + 1; i++) {
 			try {
-				rdList.set(i, seriesData.getRun(i));
-			} catch (NullPointerException e) {
+				rdList.add(seriesData.getRun(i));
+			} catch (IndexOutOfBoundsException e) {
 				throw new AggregationException("Trying to aggregate over run "
 						+ i + " from series " + seriesData.getName()
 						+ " which is not available.");
@@ -559,7 +559,6 @@ public class Aggregation {
 		String seriesDir = seriesData.getDir();
 
 		String aggDir = Dir.getAggregationDataDir(seriesDir);
-		;
 
 		/*
 		 * BATCHES
@@ -581,8 +580,9 @@ public class Aggregation {
 				double[] values = new double[runs];
 
 				for (int i = 0; i < runs; i++) {
-					String dir = Dir.getBatchDataDir(
-							Dir.getRunDataDir(seriesData.getDir(), i), batchX);
+					String dir = Dir.getBatchDataDir(Dir.getRunDataDir(
+							seriesData.getDir(), rdList.get(i).getRun()),
+							batchX);
 					RunTimeList tempGeneralRunTime = RunTimeList.read(dir,
 							Names.batchGeneralRuntimes + Suffix.runtimes);
 					values[i] = tempGeneralRunTime.get(genRuntimeX)
@@ -605,8 +605,9 @@ public class Aggregation {
 				double[] values = new double[runs];
 
 				for (int i = 0; i < runs; i++) {
-					String dir = Dir.getBatchDataDir(
-							Dir.getRunDataDir(seriesData.getDir(), i), batchX);
+					String dir = Dir.getBatchDataDir(Dir.getRunDataDir(
+							seriesData.getDir(), rdList.get(i).getRun()),
+							batchX);
 					RunTimeList tempMetricRunTime = RunTimeList.read(dir,
 							Names.batchMetricRuntimes + Suffix.runtimes);
 					values[i] = tempMetricRunTime.get(metRuntimeX).getRuntime();
@@ -627,8 +628,9 @@ public class Aggregation {
 				double[] values = new double[runs];
 
 				for (int i = 0; i < runs; i++) {
-					String dir = Dir.getBatchDataDir(
-							Dir.getRunDataDir(seriesData.getDir(), i), batchX);
+					String dir = Dir.getBatchDataDir(Dir.getRunDataDir(
+							seriesData.getDir(), rdList.get(i).getRun()),
+							batchX);
 					ValueList vList = ValueList.read(dir, Names.batchStats
 							+ Suffix.values);
 					values[i] = vList.get(statX).getValue();
@@ -659,8 +661,9 @@ public class Aggregation {
 				MetricData[] Metrics = new MetricData[runs];
 
 				for (int i = 0; i < runs; i++) {
-					String dir = Dir.getBatchDataDir(
-							Dir.getRunDataDir(seriesData.getDir(), i), batchX);
+					String dir = Dir.getBatchDataDir(Dir.getRunDataDir(
+							seriesData.getDir(), rdList.get(i).getRun()),
+							batchX);
 					Metrics[i] = MetricData.read(
 							Dir.getMetricDataDir(dir, metricX), metricX, true);
 				}
@@ -677,7 +680,7 @@ public class Aggregation {
 							double[] values = new double[runs];
 							for (int k = 0; k < runs; k++) {
 								try {
-									values[k] = Metrics[i].getDistributions()
+									values[k] = Metrics[k].getDistributions()
 											.get(distributionX).getValues()[j];
 								} catch (ArrayIndexOutOfBoundsException e) {
 									values[k] = 0;
