@@ -3,7 +3,7 @@ package dna.series.aggdata;
 import java.io.IOException;
 
 import dna.io.filesystem.Files;
-import dna.io.filesystem.Names;
+import dna.util.Config;
 import dna.util.Log;
 
 /**
@@ -73,23 +73,25 @@ public class AggregatedBatch {
 	// IO methods
 	public void write(String dir) throws IOException {
 		Log.debug("writing AggregatedBatchfor " + this.timestamp + " to " + dir);
-		this.stats.write(dir, Files.getValuesFilename(Names.batchStats));
-		this.generalRuntimes.write(dir,
-				Files.getRuntimesFilename(Names.batchGeneralRuntimes));
+		this.stats.write(dir,
+				Files.getValuesFilename(Config.get("BATCH_STATS")));
+		this.generalRuntimes
+				.write(dir, Files.getRuntimesFilename(Config
+						.get("BATCH_GENERAL_RUNTIMES")));
 		this.metricRuntimes.write(dir,
-				Files.getRuntimesFilename(Names.batchMetricRuntimes));
+				Files.getRuntimesFilename(Config.get("BATCH_METRIC_RUNTIMES")));
 		this.metrics.write(dir);
 	}
 
 	public static AggregatedBatch read(String dir, long timestamp,
 			boolean readValues) throws IOException {
 		AggregatedValueList values = AggregatedValueList.read(dir,
-				Files.getValuesFilename(Names.batchStats), readValues);
-		AggregatedRunTimeList generalRuntimes = AggregatedRunTimeList.read(dir,
-				Files.getRuntimesFilename(Names.batchGeneralRuntimes),
-				readValues);
+				Files.getValuesFilename(Config.get("BATCH_STATS")), readValues);
+		AggregatedRunTimeList generalRuntimes = AggregatedRunTimeList
+				.read(dir, Files.getRuntimesFilename(Config
+						.get("BATCH_GENERAL_RUNTIMES")), readValues);
 		AggregatedRunTimeList metricRuntimes = AggregatedRunTimeList.read(dir,
-				Files.getRuntimesFilename(Names.batchMetricRuntimes),
+				Files.getRuntimesFilename(Config.get("BATCH_METRIC_RUNTIMES")),
 				readValues);
 		AggregatedMetricList metrics = AggregatedMetricList.read(dir,
 				readValues);

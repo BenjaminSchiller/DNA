@@ -3,15 +3,13 @@ package dna.series.data;
 import java.io.IOException;
 
 import dna.io.filesystem.Files;
-import dna.io.filesystem.Names;
-import dna.io.filesystem.PlotFilenames;
-import dna.io.filesystem.Suffix;
 import dna.metrics.Metric.MetricType;
 import dna.series.lists.DistributionList;
 import dna.series.lists.ListItem;
 import dna.series.lists.NodeValueListList;
 import dna.series.lists.ValueList;
 import dna.util.ArrayUtils;
+import dna.util.Config;
 import dna.util.Log;
 
 public class MetricData implements ListItem {
@@ -128,14 +126,15 @@ public class MetricData implements ListItem {
 	}
 
 	public void write(String dir) throws IOException {
-		this.values.write(dir, Files.getValuesFilename(Names.metricDataValues));
+		this.values.write(dir,
+				Files.getValuesFilename(Config.get("METRIC_DATA_VALUES")));
 		this.distributions.write(dir);
 		this.nodevalues.write(dir);
 	}
 
 	public static MetricData read(String dir, String name, boolean readValues)
 			throws IOException {
-		String[] temp = dir.split(PlotFilenames.delimiter);
+		String[] temp = dir.split(Config.get("PLOT_DELIMITER"));
 		MetricType tempType = MetricType.unknown;
 		try {
 			if (temp[temp.length - 1] == MetricType.exact.name())
@@ -149,7 +148,7 @@ public class MetricData implements ListItem {
 			// dir);
 		}
 		ValueList values = ValueList.read(dir,
-				Files.getValuesFilename(Names.metricDataValues));
+				Files.getValuesFilename(Config.get("METRIC_DATA_VALUES")));
 		DistributionList distributions = DistributionList.read(dir, readValues);
 		NodeValueListList nodevalues = NodeValueListList.read(dir, readValues);
 		return new MetricData(name, tempType, values, distributions, nodevalues);
@@ -323,7 +322,8 @@ public class MetricData implements ListItem {
 				else
 					quality = v1 / v2;
 			}
-			comparedValues.add(new Value(value + Suffix.quality, quality));
+			comparedValues.add(new Value(value
+					+ Config.get("SUFFIX_METRIC_QUALITY"), quality));
 		}
 
 		// compare distributions
@@ -542,8 +542,8 @@ public class MetricData implements ListItem {
 				}
 				qualities[i] = quality;
 			}
-			comparedNodeValues.add(new NodeValueList(
-					nodevalue + Suffix.quality, qualities));
+			comparedNodeValues.add(new NodeValueList(nodevalue
+					+ Config.get("SUFFIX_METRIC_QUALITY"), qualities));
 		}
 		return new MetricData(m2.getName(), MetricType.quality, comparedValues,
 				comparedDistributions, comparedNodeValues);

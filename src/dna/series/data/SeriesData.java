@@ -4,10 +4,10 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 import dna.io.filesystem.Dir;
-import dna.io.filesystem.Suffix;
 import dna.metrics.Metric.MetricType;
 import dna.series.aggdata.AggregatedSeries;
 import dna.series.lists.MetricDataList;
+import dna.util.Config;
 import dna.util.Log;
 
 public class SeriesData {
@@ -199,8 +199,9 @@ public class SeriesData {
 									quality.write(Dir.getMetricDataDir(
 											Dir.getBatchDataDir(
 													Dir.getRunDataDir(dir, run),
-													batch), heuristic.getName()
-													+ Suffix.quality));
+													batch),
+											heuristic.getName()
+													+ Config.get("SUFFIX_METRIC_QUALITY")));
 							}
 						}
 					}

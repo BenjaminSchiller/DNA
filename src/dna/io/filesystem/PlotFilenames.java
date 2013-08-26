@@ -4,21 +4,14 @@ import dna.series.Values;
 import dna.series.data.Distribution;
 import dna.series.data.MetricData;
 import dna.series.data.NodeValueList;
+import dna.util.Config;
 
 public class PlotFilenames {
-	public static final String delimiter = ".";
-
-	public static final String generalRuntimes = "general";
-
-	public static final String metricRuntimes = "metrics";
-
-	public static final String metricRuntimesFraction = "metrics.fraction";
-
-	public static final String distributionCdf = "CDF";
 
 	public static String getDistributionDataFile(MetricData m, Distribution d) {
-		return Prefix.distributionsDataFile + m.getName() + delimiter
-				+ d.getName() + Suffix.data;
+		return Config.get("PREFIX_DIST_DATA_FILE") + m.getName()
+				+ Config.get("PLOT_DELIMITER") + d.getName()
+				+ Config.get("SUFFIX_DATA");
 	}
 
 	public static String getDistributionGnuplotScript(MetricData m,
@@ -29,14 +22,18 @@ public class PlotFilenames {
 
 	public static String getDistributionGnuplotScript(String metric,
 			String distribution) {
-		return Prefix.distributionsGnuplotScript + metric + delimiter
-				+ distribution + Suffix.gnuplot;
+		return Config.get("PREFIX_DIST_GNUPLOT_SCRIPT") + metric
+				+ Config.get("PLOT_DELIMITER") + distribution
+				+ Config.get("SUFFIX_GNUPLOT");
 	}
 
 	public static String getDistributionCdfGnuplotScript(String metric,
 			String distribution) {
-		return Prefix.distributionsGnuplotScript + metric + delimiter
-				+ distribution + delimiter + distributionCdf + Suffix.gnuplot;
+		return Config.get("PREFIX_DIST_GNUPLOT_SCRIPT") + metric
+				+ Config.get("PLOT_DELIMITER") + distribution
+				+ Config.get("PLOT_DELIMITER")
+				+ Config.get("PLOT_DISTRIBUTION_CDF")
+				+ Config.get("SUFFIX_GNUPLOT");
 	}
 
 	public static String getDistributionPlot(MetricData m, Distribution d) {
@@ -44,12 +41,14 @@ public class PlotFilenames {
 	}
 
 	public static String getDistributionPlot(String metric, String distribution) {
-		return metric + delimiter + distribution;
+		return metric + Config.get("PLOT_DELIMITER") + distribution;
 	}
 
 	public static String getDistributionCdfPlot(String metric,
 			String distribution) {
-		return metric + delimiter + distribution + delimiter + distributionCdf;
+		return metric + Config.get("PLOT_DELIMITER") + distribution
+				+ Config.get("PLOT_DELIMITER")
+				+ Config.get("PLOT_DISTRIBUTION_CDF");
 	}
 
 	public static String getValuesDataFile(MetricData m, Values v, int index) {
@@ -58,12 +57,15 @@ public class PlotFilenames {
 
 	public static String getValuesDataFile(String metric, String values,
 			int index) {
-		return Prefix.valuesDataFile + metric + delimiter + values + delimiter
-				+ index + Suffix.data;
+		return Config.get("PREFIX_VALUE_DATA_FILE") + metric
+				+ Config.get("PLOT_DELIMITER") + values
+				+ Config.get("PLOT_DELIMITER") + index
+				+ Config.get("SUFFIX_DATA");
 	}
 
 	public static String getValuesDataFile(Values v) {
-		return Prefix.valuesDataFile + v.getName() + Suffix.data;
+		return Config.get("PREFIX_VALUE_DATA_FILE") + v.getName()
+				+ Config.get("SUFFIX_DATA");
 	}
 
 	public static String getValuesGnuplotScript(MetricData m, Values v) {
@@ -71,12 +73,14 @@ public class PlotFilenames {
 	}
 
 	public static String getValuesGnuplotScript(String metric, String value) {
-		return Prefix.valuesGnuplotScript + metric + delimiter + value
-				+ Suffix.gnuplot;
+		return Config.get("PREFIX_VALUE_GNUPLOT_SCRIPT") + metric
+				+ Config.get("PLOT_DELIMITER") + value
+				+ Config.get("SUFFIX_GNUPLOT");
 	}
 
 	public static String getValuesGnuplotScript(Values v) {
-		return Prefix.valuesGnuplotScript + v.getName() + Suffix.gnuplot;
+		return Config.get("PREFIX_VALUE_GNUPLOT_SCRIPT") + v.getName()
+				+ Config.get("SUFFIX_GNUPLOT");
 	}
 
 	public static String getValuesPlot(MetricData m, Values v) {
@@ -84,7 +88,7 @@ public class PlotFilenames {
 	}
 
 	public static String getValuesPlot(String metric, String value) {
-		return metric + delimiter + value;
+		return metric + Config.get("PLOT_DELIMITER") + value;
 	}
 
 	public static String getValuesPlot(Values v) {
@@ -92,34 +96,40 @@ public class PlotFilenames {
 	}
 
 	public static String getRuntimesDataFile(String name) {
-		return Prefix.runtimesDataFile + name + Suffix.data;
+		return Config.get("PREFIX_RUNTIMES_DATA_FILE") + name
+				+ Config.get("SUFFIX_DATA");
 	}
 
 	public static String getRuntimesGnuplotScript(Values v) {
-		return Prefix.runtimesGnuplotScript + v.getName() + Suffix.gnuplot;
+		return Config.get("PREFIX_RUNTIMES_GNUPLOT_SCRIPT") + v.getName()
+				+ Config.get("SUFFIX_GNUPLOT");
 	}
 
 	public static String getRuntimesGnuplotScript(String name) {
-		return Prefix.runtimesGnuplotScript + name + Suffix.gnuplot;
+		return Config.get("PREFIX_RUNTIMES_GNUPLOT_SCRIPT") + name
+				+ Config.get("SUFFIX_GNUPLOT");
 	}
 
 	public static String getRuntimesMetricPlot(String name) {
-		return Prefix.runtimesMetricPlot + name;
+		return Config.get("PREFIX_RUNTIMES_METRIC_PLOT") + name;
 	}
 
 	public static String getRuntimesStatisticPlot(String name) {
-		return Prefix.runtimesStatisticPlot + name;
+		return Config.get("PREFIX_RUNTIMES_STATISTIC_PLOT") + name;
 	}
 
 	public static String getNodeValueListDataFile(MetricData m, NodeValueList n) {
-		return Prefix.nodeValueListsDataFile + m.getName() + delimiter
-				+ n.getName() + Suffix.data;
+		return Config.get("PREFIX_NVL_DATA_FILE") + m.getName()
+				+ Config.get("PLOT_DELIMITER") + n.getName()
+				+ Config.get("SUFFIX_DATA");
 	}
 
 	public static String getNodeValueListDataFile(String metric,
 			String nodevaluelist, int index) {
-		return Prefix.nodeValueListsDataFile + metric + delimiter
-				+ nodevaluelist + delimiter + index + Suffix.data;
+		return Config.get("PREFIX_NVL_DATA_FILE") + metric
+				+ Config.get("PLOT_DELIMITER") + nodevaluelist
+				+ Config.get("PLOT_DELIMITER") + index
+				+ Config.get("SUFFIX_DATA");
 	}
 
 	public static String getNodeValueListGnuplotScript(MetricData m,
@@ -130,8 +140,9 @@ public class PlotFilenames {
 
 	public static String getNodeValueListGnuplotScript(String metric,
 			String nodevaluelist) {
-		return Prefix.nodeValueListsGnuplotScript + metric + delimiter
-				+ nodevaluelist + Suffix.gnuplot;
+		return Config.get("PREFIX_NVL_GNUPLOT_SCRIPT") + metric
+				+ Config.get("PLOT_DELIMITER") + nodevaluelist
+				+ Config.get("SUFFIX_GNUPLOT");
 	}
 
 	public static String getNodeValueListPlot(MetricData m, NodeValueList n) {
@@ -140,6 +151,6 @@ public class PlotFilenames {
 
 	public static String getNodeValueListPlot(String metric,
 			String nodevaluelist) {
-		return metric + delimiter + nodevaluelist;
+		return metric + Config.get("PLOT_DELIMITER") + nodevaluelist;
 	}
 }

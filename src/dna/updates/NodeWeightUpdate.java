@@ -4,7 +4,7 @@ import dna.graph.Edge;
 import dna.graph.Graph;
 import dna.graph.Node;
 import dna.graph.WeightedNode;
-import dna.io.etc.Keywords;
+import dna.util.Config;
 import dna.util.Log;
 
 public class NodeWeightUpdate<E extends Edge> extends NodeUpdate<E> {
@@ -33,8 +33,8 @@ public class NodeWeightUpdate<E extends Edge> extends NodeUpdate<E> {
 
 	@Override
 	protected String getStringRepresentation_() {
-		return this.node.getStringRepresentation() + Keywords.updateDelimiter2
-				+ this.weight;
+		return this.node.getStringRepresentation()
+				+ Config.get("UPDATE_DELIMITER2") + this.weight;
 	}
 
 }

@@ -3,8 +3,8 @@ package dna.series.aggdata;
 import java.io.IOException;
 
 import dna.io.filesystem.Files;
-import dna.io.filesystem.Names;
 import dna.series.lists.ListItem;
+import dna.util.Config;
 
 /**
  * An AggregatedMetric contains aggregated values of a metric.
@@ -64,7 +64,8 @@ public class AggregatedMetric implements ListItem {
 
 	// IO methods
 	public void write(String dir) throws IOException {
-		this.values.write(dir, Files.getValuesFilename(Names.metricDataValues));
+		this.values.write(dir,
+				Files.getValuesFilename(Config.get("METRIC_DATA_VALUES")));
 		this.distributions.write(dir);
 		this.nodevalues.write(dir);
 	}
@@ -72,7 +73,8 @@ public class AggregatedMetric implements ListItem {
 	public static AggregatedMetric read(String dir, String name,
 			boolean readValues) throws IOException {
 		AggregatedValueList values = AggregatedValueList.read(dir,
-				Files.getValuesFilename(Names.metricDataValues), readValues);
+				Files.getValuesFilename(Config.get("METRIC_DATA_VALUES")),
+				readValues);
 		AggregatedDistributionList distributions = AggregatedDistributionList
 				.read(dir, readValues);
 		AggregatedNodeValueListList nodevalues = AggregatedNodeValueListList

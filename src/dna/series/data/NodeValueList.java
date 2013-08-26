@@ -7,7 +7,7 @@ import com.sun.media.sound.InvalidFormatException;
 
 import dna.io.Reader;
 import dna.io.Writer;
-import dna.io.etc.Keywords;
+import dna.util.Config;
 import dna.util.Log;
 
 /**
@@ -72,7 +72,7 @@ public class NodeValueList extends Data {
 		}
 		Writer w = new Writer(dir, filename);
 		for (int i = 0; i < this.values.length; i++) {
-			w.writeln(i + Keywords.dataDelimiter + this.values[i]);
+			w.writeln(i + Config.get("DATA_DELIMITER") + this.values[i]);
 		}
 		w.close();
 	}
@@ -102,7 +102,7 @@ public class NodeValueList extends Data {
 		String line = null;
 		int index = 0;
 		while ((line = r.readString()) != null) {
-			String[] temp = line.split(Keywords.dataDelimiter);
+			String[] temp = line.split(Config.get("DATA_DELIMITER"));
 			if (Integer.parseInt(temp[0]) != index) {
 				throw new InvalidFormatException("expected index " + index
 						+ " but found " + temp[0] + " @ \"" + line + "\"");

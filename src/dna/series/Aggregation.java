@@ -6,8 +6,6 @@ import java.util.HashMap;
 
 import dna.io.filesystem.Dir;
 import dna.io.filesystem.Files;
-import dna.io.filesystem.Names;
-import dna.io.filesystem.Suffix;
 import dna.series.aggdata.AggregatedBatch;
 import dna.series.aggdata.AggregatedData;
 import dna.series.aggdata.AggregatedDistribution;
@@ -33,6 +31,7 @@ import dna.series.lists.NodeValueListList;
 import dna.series.lists.RunTimeList;
 import dna.series.lists.ValueList;
 import dna.util.ArrayUtils;
+import dna.util.Config;
 
 /**
  * 
@@ -43,90 +42,6 @@ import dna.util.ArrayUtils;
  * 
  */
 public class Aggregation {
-
-	// /**
-	// * aggregates all data in the given series, i.e., agregate each batch of
-	// all
-	// * runs.
-	// *
-	// * @param seriesData
-	// * data of the series to be aggregated
-	// * @return RunData object containing aggregated versions of all
-	// * @throws AggregationException
-	// * in case the various values are not consistent in all runs
-	// */
-	// public static RunData aggredwdwdwddgate(SeriesData seriesData)
-	// throws AggregationException {
-	// Aggregation.test(seriesData);
-	//
-	// RunData aggregatedRun = new RunData(-1, seriesData.getRun(0)
-	// .getBatches().size());
-	// for (int i = 0; i < seriesData.getRun(0).getBatches().size(); i++) {
-	// BatchData[] batch = new BatchData[seriesData.getRuns().size()];
-	// for (int j = 0; j < seriesData.getRuns().size(); j++) {
-	// batch[j] = seriesData.getRun(j).getBatches().get(i);
-	// }
-	// Aggregation.test(batch);
-	//
-	// BatchData d = batch[0];
-	// BatchData aggregatedBatch = new BatchData(d.getTimestamp(), d
-	// .getValues().size(), d.getGeneralRuntimes().size(), d
-	// .getMetricRuntimes().size(), d.getMetrics().size());
-	//
-	// for (Value v : d.getValues().getList()) {
-	// double[] values = new double[batch.length];
-	// for (int j = 0; j < batch.length; j++) {
-	// try {
-	// values[j] = batch[j].getValues().get(v.getName())
-	// .getValue();
-	// } catch (NullPointerException e) {
-	// throw new AggregationException("value " + v.getName()
-	// + " not found @ " + j);
-	// }
-	// }
-	// aggregatedBatch.getValues().add(
-	// new Value(v.getName(), ArrayUtils.med(values)));
-	// }
-	//
-	// for (RunTime rt : d.getGeneralRuntimes().getList()) {
-	// double[] values = new double[batch.length];
-	// for (int j = 0; j < batch.length; j++) {
-	// try {
-	// values[j] = batch[j].getGeneralRuntimes()
-	// .get(rt.getName()).getRuntime();
-	// } catch (NullPointerException e) {
-	// throw new AggregationException("general-runtime "
-	// + rt.getRuntime() + " not found @ " + j);
-	// }
-	// }
-	//
-	// aggregatedBatch.getGeneralRuntimes()
-	// .add(new RunTime(rt.getName(), (long) ArrayUtils
-	// .med(values)));
-	// }
-	//
-	// for (RunTime rt : d.getMetricRuntimes().getList()) {
-	// double[] values = new double[batch.length];
-	// for (int j = 0; j < batch.length; j++) {
-	// try {
-	// values[j] = batch[j].getMetricRuntimes()
-	// .get(rt.getName()).getRuntime();
-	// } catch (NullPointerException e) {
-	// throw new AggregationException("metric-runtime "
-	// + rt.getRuntime() + " not found @ " + j);
-	// }
-	// }
-	//
-	// aggregatedBatch.getMetricRuntimes()
-	// .add(new RunTime(rt.getName(), (long) ArrayUtils
-	// .med(values)));
-	// }
-	//
-	// aggregatedRun.getBatches().add(aggregatedBatch);
-	// }
-	//
-	// return aggregatedRun;
-	// }
 
 	/**
 	 * Computes the average value of a list of values.
@@ -412,7 +327,7 @@ public class Aggregation {
 			 * GENERAL RUNTIMES
 			 */
 			AggregatedRunTimeList aggGeneralRuntime = new AggregatedRunTimeList(
-					Names.batchGeneralRuntimes);
+					Config.get("BATCH_GENERAL_RUNTIMES"));
 			HashMap<String, double[]> aggGeneralRunTime = new HashMap<String, double[]>();
 			for (String genRuntimeX : rdList.get(0).getBatches().get(batchX)
 					.getGeneralRuntimes().getNames()) {
@@ -422,22 +337,24 @@ public class Aggregation {
 					String dir = Dir.getBatchDataDir(Dir.getRunDataDir(
 							seriesData.getDir(), rdList.get(i).getRun()),
 							batchX);
-					RunTimeList tempGeneralRunTime = RunTimeList.read(dir,
-							Names.batchGeneralRuntimes + Suffix.runtimes);
+					RunTimeList tempGeneralRunTime = RunTimeList.read(
+							dir,
+							Config.get("BATCH_GENERAL_RUNTIMES")
+									+ Config.get("SUFFIX_RUNTIME"));
 					values[i] = tempGeneralRunTime.get(genRuntimeX)
 							.getRuntime();
 				}
 				aggGeneralRunTime.put(genRuntimeX,
 						Aggregation.aggregate(values));
 			}
-			AggregatedData.write(aggGeneralRunTime, batchDir,
-					Files.getRuntimesFilename(Names.batchGeneralRuntimes));
+			AggregatedData.write(aggGeneralRunTime, batchDir, Files
+					.getRuntimesFilename(Config.get("BATCH_GENERAL_RUNTIMES")));
 
 			/*
 			 * METRIC RUNTIMES
 			 */
 			AggregatedRunTimeList aggMetricRuntime = new AggregatedRunTimeList(
-					Names.batchMetricRuntimes);
+					Config.get("BATCH_METRIC_RUNTIMES"));
 			HashMap<String, double[]> aggMetricRunTime = new HashMap<String, double[]>();
 			for (String metRuntimeX : rdList.get(0).getBatches().get(batchX)
 					.getMetricRuntimes().getNames()) {
@@ -447,15 +364,17 @@ public class Aggregation {
 					String dir = Dir.getBatchDataDir(Dir.getRunDataDir(
 							seriesData.getDir(), rdList.get(i).getRun()),
 							batchX);
-					RunTimeList tempMetricRunTime = RunTimeList.read(dir,
-							Names.batchMetricRuntimes + Suffix.runtimes);
+					RunTimeList tempMetricRunTime = RunTimeList.read(
+							dir,
+							Config.get("BATCH_METRIC_RUNTIMES")
+									+ Config.get("SUFFIX_RUNTIME"));
 					values[i] = tempMetricRunTime.get(metRuntimeX).getRuntime();
 				}
 				aggMetricRunTime
 						.put(metRuntimeX, Aggregation.aggregate(values));
 			}
-			AggregatedData.write(aggMetricRunTime, batchDir,
-					Files.getRuntimesFilename(Names.batchMetricRuntimes));
+			AggregatedData.write(aggMetricRunTime, batchDir, Files
+					.getRuntimesFilename(Config.get("BATCH_METRIC_RUNTIMES")));
 
 			/*
 			 * BATCH STATISTICS
@@ -470,14 +389,16 @@ public class Aggregation {
 					String dir = Dir.getBatchDataDir(Dir.getRunDataDir(
 							seriesData.getDir(), rdList.get(i).getRun()),
 							batchX);
-					ValueList vList = ValueList.read(dir, Names.batchStats
-							+ Suffix.values);
+					ValueList vList = ValueList.read(
+							dir,
+							Config.get("BATCH_STATS")
+									+ Config.get("SUFFIX_VALUE"));
 					values[i] = vList.get(statX).getValue();
 				}
 				aggBatchStats.put(statX, Aggregation.aggregate(values));
 			}
 			AggregatedData.write(aggBatchStats, batchDir,
-					Files.getValuesFilename(Names.batchStats));
+					Files.getValuesFilename(Config.get("BATCH_STATS")));
 
 			/*
 			 * METRICS
@@ -712,8 +633,11 @@ public class Aggregation {
 					aggregatedValues.put(valueX, values);
 					aggValues.add(new AggregatedValue(valueX));
 				}
-				AggregatedValue.write(aggregatedValues, destDir,
-						Names.metricDataValues + Suffix.values);
+				AggregatedValue.write(
+						aggregatedValues,
+						destDir,
+						Config.get("METRIC_DATA_VALUES")
+								+ Config.get("SUFFIX_VALUE"));
 				aggMetrics.add(new AggregatedMetric(metricX, aggValues,
 						aggDistributions, aggNodeValues));
 			}

@@ -5,7 +5,6 @@ import java.util.LinkedList;
 import java.util.List;
 
 import dna.io.Writer;
-import dna.io.etc.Keywords;
 import dna.plot.data.PlotData;
 import dna.plot.data.PlotData.DistributionPlotType;
 import dna.plot.data.PlotData.NodeValueListOrder;
@@ -14,71 +13,42 @@ import dna.series.aggdata.AggregatedData;
 import dna.series.aggdata.AggregatedDistribution;
 import dna.series.aggdata.AggregatedNodeValueList;
 import dna.series.aggdata.AggregatedValue;
+import dna.util.Config;
 import dna.util.Execute;
 import dna.util.Log;
-import dna.util.Settings;
 
 public class Plot {
 
-	private String terminal = "png large";
+	// default values
+	private String dir = Config.get("GNUPLOT_DIR");
 
-	private String extension = "png";
+	private String filename = Config.get("GNUPLOT_FILENAME");
 
-	private String dir = null;
+	private String scriptFilename = Config.get("GNUPLOT_SCRIPTFILENAME");
 
-	private String filename = null;
-
-	private String scriptFilename = null;
-
-	private String key = null;
-
-	private String title = null;
-
-	private String xLabel = null;
-
-	private boolean xLogscale = false;
-
-	private String xRange = null;
-
-	private double xOffset = 0.0;
-
-	private String yLabel = null;
-
-	private boolean yLogscale = false;
-
-	private String yRange = null;
-
-	private double yOffset = 0.0;
-
-	private boolean grid = true;
-
-	private int lw = 1;
-
+	// private variables
 	private PlotData[] data;
+
+	private DistributionPlotType distPlotType;
 
 	private NodeValueListOrderBy orderBy;
 
 	private NodeValueListOrder sortOrder;
 
-	private DistributionPlotType distPlotType;
-
-	private String dateTime = "%Y-%m-%d";
-
-	private boolean plotDateTime = false;
-
+	// constructors
 	public Plot(PlotData[] data, String dir, String filename,
 			String scriptFilename) {
-		this(data, dir, filename, scriptFilename,
-				Plotting.defaultDistributionPlotType,
-				Plotting.defaultNodeValueListOrderBy,
-				Plotting.defaultNodeValueListOrder);
+		this(data, dir, filename, scriptFilename, Config
+				.getDistributionPlotType("GNUPLOT_DEFAULT_DIST_PLOTTYPE"),
+				Config.getNodeValueListOrderBy("GNUPLOT_DEFAULT_NVL_ORDERBY"),
+				Config.getNodeValueListOrder("GNUPLOT_DEFAULT_NVL_ORDER"));
 	}
 
 	public Plot(PlotData[] data, String dir, String filename,
 			String scriptFilename, DistributionPlotType distPlotType) {
-		this(data, dir, filename, scriptFilename, distPlotType,
-				Plotting.defaultNodeValueListOrderBy,
-				Plotting.defaultNodeValueListOrder);
+		this(data, dir, filename, scriptFilename, distPlotType, Config
+				.getNodeValueListOrderBy("GNUPLOT_DEFAULT_NVL_ORDERBY"), Config
+				.getNodeValueListOrder("GNUPLOT_DEFAULT_NVL_ORDER"));
 	}
 
 	public Plot(PlotData[] data, String dir, String filename,
@@ -91,16 +61,6 @@ public class Plot {
 		this.distPlotType = distPlotType;
 		this.orderBy = orderBy;
 		this.sortOrder = sortOrder;
-	}
-
-	// old
-	public void write(String dir, String filename) throws IOException {
-		Writer writer = new Writer(dir, filename);
-		List<String> script = this.getScript();
-		for (String line : script) {
-			writer.writeln(line);
-		}
-		writer.close();
 	}
 
 	/**
@@ -139,7 +99,7 @@ public class Plot {
 					String temp = "" + j;
 					double[] values = tempValues[j].getValues();
 					for (int k = 0; k < values.length; k++) {
-						temp += Keywords.plotDataDelimiter + values[k];
+						temp += Config.get("PLOTDATA_DELIMITER") + values[k];
 					}
 					w.writeln(temp);
 				}
@@ -155,7 +115,7 @@ public class Plot {
 					double[] values = tempValues[data[i].getSortIndex()[j]]
 							.getValues();
 					for (int k = 0; k < values.length; k++) {
-						temp += Keywords.plotDataDelimiter + values[k];
+						temp += Config.get("PLOTDATA_DELIMITER") + values[k];
 					}
 					w.writeln(temp);
 				}
@@ -197,6 +157,8 @@ public class Plot {
 				w.writeln(line);
 			}
 			break;
+		default:
+			Log.warn("distPlotType variable not set");
 		}
 
 		// write script data
@@ -207,7 +169,7 @@ public class Plot {
 				double[] values = tempValues[j].getValues();
 				String temp = "" + values[0];
 				for (int k = 1; k < values.length; k++) {
-					temp += Keywords.plotDataDelimiter + values[k];
+					temp += Config.get("PLOTDATA_DELIMITER") + values[k];
 				}
 				w.writeln(temp);
 			}
@@ -245,7 +207,8 @@ public class Plot {
 			String temp = "" + i;
 
 			for (int j = 0; j < data[i].getValues().length; j++) {
-				temp += Keywords.plotDataDelimiter + data[i].getValues()[j];
+				temp += Config.get("PLOTDATA_DELIMITER")
+						+ data[i].getValues()[j];
 			}
 			w.writeln(temp);
 		}
@@ -282,7 +245,7 @@ public class Plot {
 			for (int j = 0; j < data[i].length; j++) {
 				String temp = "" + j;
 				for (int k = 0; k < data[i][j].getValues().length; k++) {
-					temp += Keywords.plotDataDelimiter
+					temp += Config.get("PLOTDATA_DELIMITER")
 							+ data[i][j].getValues()[k];
 				}
 				w.writeln(temp);
@@ -305,55 +268,58 @@ public class Plot {
 	protected List<String> getScript(DistributionPlotType distPlotType) {
 		List<String> script = new LinkedList<String>();
 
-		script.add("set terminal " + this.terminal);
+		script.add("set terminal " + Config.get("GNUPLOT_TERMINAL"));
 		script.add("set output \"" + this.dir + this.filename + "."
-				+ this.extension + "\"");
-		if (this.key != null) {
-			script.add("set key " + this.key);
+				+ Config.get("GNUPLOT_EXTENSION") + "\"");
+		if (!Config.get("GNUPLOT_KEY").equals("null")) {
+			script.add("set key " + Config.get("GNUPOT_KEY"));
 		}
-		if (this.grid) {
+		if (Config.getBoolean("GNUPLOT_GRID")) {
 			script.add("set grid");
 		}
-		if (this.title != null) {
-			script.add("set title \"" + this.title + "\"");
+		if (!Config.get("GNUPLOT_TITLE").equals("null")) {
+			script.add("set title \"" + Config.get("GNUPLOT_TITLE") + "\"");
 		}
-		if (this.xLabel != null) {
-			script.add("set xlabel \"" + this.xLabel + "\"");
+		if (!Config.get("GNUPLOT_XLABEL").equals("null")) {
+			script.add("set xlabel \"" + Config.get("GNUPLOT_XLABEL") + "\"");
 		}
-		if (this.xRange != null) {
-			script.add("set xrange " + this.xRange);
+		if (!Config.get("GNUPLOT_XRANGE").equals("null")) {
+			script.add("set xrange " + Config.get("GNUPLOT_XRANGE"));
 		}
-		if (this.yLabel != null) {
-			script.add("set ylabel \"" + this.yLabel + "\"");
+		if (!Config.get("GNUPLOT_YLABEL").equals("null")) {
+			script.add("set ylabel \"" + Config.get("GNUPLOT_YLABEL") + "\"");
 		}
-		if (this.yRange != null) {
-			script.add("set yrange " + this.yRange);
+		if (!Config.get("GNUPLOT_YRANGE").equals("null")) {
+			script.add("set yrange " + Config.get("GNUPLOT_YRANGE"));
 		}
-		if (this.xLogscale && this.yLogscale) {
+		if (Config.getBoolean("GNUPLOT_XLOGSCALE")
+				&& Config.getBoolean("GNUPLOT_YLOGSCALE")) {
 			script.add("set logscale xy");
-		} else if (this.xLogscale) {
+		} else if (Config.getBoolean("GNUPLOT_XLOGSCALE")) {
 			script.add("set logscale x");
-		} else if (this.yLogscale) {
+		} else if (Config.getBoolean("GNUPLOT_YLOGSCALE")) {
 			script.add("set logscale y");
 		}
-		if (this.plotDateTime) {
+		if (Config.getBoolean("GNUPLOT_PLOTDATETIME")) {
 			script.add("set xdata time");
-			script.add("set timeft " + this.dateTime);
+			script.add("set timeft " + Config.get("GNUPLOT_DATETIME"));
 		}
 
 		script.add("set style fill empty");
 		script.add("set boxwidth 0.2");
 
-		// plot "data" u 1:(1./100.) smooth cumulative
-
 		for (int i = 0; i < this.data.length; i++) {
 			String line = "";
 			if (distPlotType == null)
-				line = this.data[i].getEntry(i + 1, this.lw, this.xOffset * i,
-						this.yOffset * i);
+				line = this.data[i].getEntry(i + 1,
+						Config.getInt("GNUPLOT_LW"),
+						Config.getDouble("GNUPLOT_XOFFSET") * i,
+						Config.getDouble("GNUPLOT_YOFFSET") * i);
 			else
-				line = this.data[i].getEntry(i + 1, this.lw, this.xOffset * i,
-						this.yOffset * i, distPlotType);
+				line = this.data[i].getEntry(i + 1,
+						Config.getInt("GNUPLOT_LW"),
+						Config.getDouble("GNUPLOT_XOFFSET") * i,
+						Config.getDouble("GNUPLOT_YOFFSET") * i, distPlotType);
 			if (i == 0) {
 				line = "plot " + line;
 			}
@@ -363,14 +329,6 @@ public class Plot {
 			script.add(line);
 		}
 		return script;
-	}
-
-	// old
-	public void generate() throws IOException, InterruptedException {
-		Log.info("  => \"" + this.filename + "\" in " + this.dir);
-		this.write(this.dir, this.scriptFilename);
-		Execute.exec(Settings.gnuplotPath + " " + this.dir
-				+ this.scriptFilename, true);
 	}
 
 	/**
@@ -395,7 +353,7 @@ public class Plot {
 		if (inputData[0] instanceof AggregatedNodeValueList)
 			this.writeScript(this.dir, this.scriptFilename,
 					(AggregatedNodeValueList[]) inputData);
-		Execute.exec(Settings.gnuplotPath + " " + this.dir
+		Execute.exec(Config.get("GNUPLOT_PATH") + " " + this.dir
 				+ this.scriptFilename, true);
 	}
 
@@ -414,19 +372,19 @@ public class Plot {
 			InterruptedException {
 		Log.info("  => \"" + this.filename + "\" in " + this.dir);
 		this.writeScript(this.dir, this.scriptFilename, inputData);
-		Execute.exec(Settings.gnuplotPath + " " + this.dir
+		Execute.exec(Config.get("GNUPLOT_PATH") + " " + this.dir
 				+ this.scriptFilename, true);
 	}
 
 	public void setTitle(String title) {
-		this.title = title;
+		Config.overwrite("GNUPLOT_TITLE", title);
 	}
 
 	public void setDateTime(String dateTime) {
-		this.dateTime = dateTime;
+		Config.overwrite("GNUPLOT_DATETIME", dateTime);
 	}
 
 	public void setPlotDateTime(boolean plotDateTime) {
-		this.plotDateTime = plotDateTime;
+		Config.overwrite("GNUPLOT_PLOTDATETIME", Boolean.toString(plotDateTime));
 	}
 }

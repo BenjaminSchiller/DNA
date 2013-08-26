@@ -16,6 +16,7 @@ import dna.series.lists.RunDataList;
 import dna.updates.Batch;
 import dna.updates.BatchSanitizationStats;
 import dna.updates.Update;
+import dna.util.Config;
 import dna.util.Log;
 import dna.util.Memory;
 import dna.util.Timer;
@@ -50,7 +51,9 @@ public class SeriesGeneration {
 	public static SeriesData generate(Series series, int runs, int batches,
 			boolean compare, boolean write) throws AggregationException,
 			IOException, MetricNotApplicableException {
-
+		Log.infoSep();
+		Log.info("loading configurations");
+		Config.init();
 		Log.infoSep();
 		Timer timer = new Timer("seriesGeneration");
 		Log.info("generating series");
