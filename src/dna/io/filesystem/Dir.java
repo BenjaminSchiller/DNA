@@ -3,6 +3,7 @@ package dna.io.filesystem;
 import java.io.File;
 
 import dna.io.filter.PrefixFilenameFilter;
+import dna.metrics.Metric.MetricType;
 
 /**
  * 
@@ -29,8 +30,8 @@ public class Dir {
 
 	public static String getAggregatedMetricDataDir(String dir, long timestamp,
 			String name) {
-		return Dir.getAggregationBatchDir(dir, timestamp) + Prefix.metricDataDir + name
-				+ Dir.delimiter;
+		return Dir.getAggregationBatchDir(dir, timestamp)
+				+ Prefix.metricDataDir + name + Dir.delimiter;
 	}
 
 	/*
@@ -82,10 +83,48 @@ public class Dir {
 		return dir + Prefix.metricDataDir + name + Dir.delimiter;
 	}
 
+	public static String getMetricDataDir(String dir, String name,
+			MetricType type) {
+		switch (type) {
+		case exact:
+			return dir + Prefix.metricDataDir + name + Suffix.exact
+					+ Dir.delimiter;
+		case heuristic:
+			return dir + Prefix.metricDataDir + name + Suffix.heuristic
+					+ Dir.delimiter;
+		case quality:
+			return dir + Prefix.metricDataDir + name + Suffix.quality
+					+ Dir.delimiter;
+		default:
+			return dir + Prefix.metricDataDir + name + Dir.delimiter;
+		}
+	}
+
 	public static String getMetricDataDir(String dir, int run, long timestamp,
 			String name) {
 		return Dir.getBatchDataDir(dir, run, timestamp) + Prefix.metricDataDir
 				+ name + Dir.delimiter;
+	}
+
+	public static String getMetricDataDir(String dir, int run, long timestamp,
+			String name, MetricType type) {
+		switch (type) {
+		case exact:
+			return Dir.getBatchDataDir(dir, run, timestamp)
+					+ Prefix.metricDataDir + name + Suffix.exact
+					+ Dir.delimiter;
+		case heuristic:
+			return Dir.getBatchDataDir(dir, run, timestamp)
+					+ Prefix.metricDataDir + name + Suffix.heuristic
+					+ Dir.delimiter;
+		case quality:
+			return Dir.getBatchDataDir(dir, run, timestamp)
+					+ Prefix.metricDataDir + name + Suffix.quality
+					+ Dir.delimiter;
+		default:
+			return Dir.getBatchDataDir(dir, run, timestamp)
+					+ Prefix.metricDataDir + name + Dir.delimiter;
+		}
 	}
 
 	public static String[] getMetrics(String dir) {
