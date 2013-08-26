@@ -87,15 +87,19 @@ public class SeriesGeneration {
 					write));
 		}
 
+		// compare metrics
+		if (compare) {
+			try {
+				sd.compareMetrics(true);
+			} catch (InterruptedException e) {
+				Log.warn("Error on comparing metrics");
+			}
+		}
 		// aggregate all runs
 		Log.infoSep();
 		Log.info("aggregating data for " + sd.getRuns().size() + " runs");
 		sd.setAggregation(Aggregation.aggregate(sd));
-		if (write) {
-			Log.info("writing aggregated data in " + series.getDir());
-			// sd.getAggregation().write(
-			// Dir.getAggregationDataDir(series.getDir()));
-		}
+		// end of aggregation
 		Log.infoSep();
 		timer.end();
 		Log.info("total time: " + timer.toString());

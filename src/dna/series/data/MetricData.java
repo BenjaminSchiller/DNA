@@ -4,7 +4,9 @@ import java.io.IOException;
 
 import dna.io.filesystem.Files;
 import dna.io.filesystem.Names;
+import dna.io.filesystem.PlotFilenames;
 import dna.io.filesystem.Suffix;
+import dna.metrics.Metric.MetricType;
 import dna.series.lists.DistributionList;
 import dna.series.lists.ListItem;
 import dna.series.lists.NodeValueListList;
@@ -13,10 +15,6 @@ import dna.util.ArrayUtils;
 import dna.util.Log;
 
 public class MetricData implements ListItem {
-
-	public static enum MetricType {
-		exact, heuristic, quality
-	}
 
 	public MetricData(String name) {
 		this.name = name;
@@ -33,14 +31,6 @@ public class MetricData implements ListItem {
 		this.nodevalues = new NodeValueListList();
 	}
 
-	// OLD
-	public MetricData(String name, int sizeValues, int sizeDistributions) {
-		this.name = name;
-		this.values = new ValueList(sizeValues);
-		this.distributions = new DistributionList(sizeDistributions);
-		this.nodevalues = new NodeValueListList();
-	}
-
 	public MetricData(String name, MetricType type, int sizeValues,
 			int sizeDistributions) {
 		this.name = name;
@@ -50,15 +40,6 @@ public class MetricData implements ListItem {
 		this.nodevalues = new NodeValueListList();
 	}
 
-	// OLD
-	public MetricData(String name, int sizeValues, int sizeDistributions,
-			int sizeNodeValueList) {
-		this.name = name;
-		this.values = new ValueList(sizeValues);
-		this.distributions = new DistributionList(sizeDistributions);
-		this.nodevalues = new NodeValueListList(sizeNodeValueList);
-	}
-
 	public MetricData(String name, MetricType type, int sizeValues,
 			int sizeDistributions, int sizeNodeValueList) {
 		this.name = name;
@@ -66,18 +47,6 @@ public class MetricData implements ListItem {
 		this.values = new ValueList(sizeValues);
 		this.distributions = new DistributionList(sizeDistributions);
 		this.nodevalues = new NodeValueListList(sizeNodeValueList);
-	}
-
-	// OLD
-	public MetricData(String name, Value[] values, Distribution[] distributions) {
-		this(name, values.length, distributions.length);
-		for (Value v : values) {
-			this.values.add(v);
-		}
-		for (Distribution d : distributions) {
-			this.distributions.add(d);
-		}
-		this.nodevalues = new NodeValueListList();
 	}
 
 	public MetricData(String name, MetricType type, Value[] values,
@@ -90,21 +59,6 @@ public class MetricData implements ListItem {
 			this.distributions.add(d);
 		}
 		this.nodevalues = new NodeValueListList();
-	}
-
-	// OLD
-	public MetricData(String name, Value[] values,
-			Distribution[] distributions, NodeValueList[] nodevalues) {
-		this(name, values.length, distributions.length, nodevalues.length);
-		for (Value v : values) {
-			this.values.add(v);
-		}
-		for (Distribution d : distributions) {
-			this.distributions.add(d);
-		}
-		for (NodeValueList n : nodevalues) {
-			this.nodevalues.add(n);
-		}
 	}
 
 	public MetricData(String name, MetricType type, Value[] values,
@@ -121,15 +75,6 @@ public class MetricData implements ListItem {
 		}
 	}
 
-	// OLD
-	public MetricData(String name, ValueList values,
-			DistributionList distributions) {
-		this.name = name;
-		this.values = values;
-		this.distributions = distributions;
-		this.nodevalues = new NodeValueListList();
-	}
-
 	public MetricData(String name, MetricType type, ValueList values,
 			DistributionList distributions) {
 		this.name = name;
@@ -137,15 +82,6 @@ public class MetricData implements ListItem {
 		this.values = values;
 		this.distributions = distributions;
 		this.nodevalues = new NodeValueListList();
-	}
-
-	// OLD
-	public MetricData(String name, ValueList values,
-			DistributionList distributions, NodeValueListList nodevalues) {
-		this.name = name;
-		this.values = values;
-		this.distributions = distributions;
-		this.nodevalues = nodevalues;
 	}
 
 	public MetricData(String name, MetricType type, ValueList values,
@@ -199,11 +135,24 @@ public class MetricData implements ListItem {
 
 	public static MetricData read(String dir, String name, boolean readValues)
 			throws IOException {
+		String[] temp = dir.split(PlotFilenames.delimiter);
+		MetricType tempType = MetricType.unknown;
+		try {
+			if (temp[temp.length - 1] == MetricType.exact.name())
+				tempType = MetricType.exact;
+			if (temp[temp.length - 1] == MetricType.heuristic.name())
+				tempType = MetricType.heuristic;
+			if (temp[temp.length - 1] == MetricType.quality.name())
+				tempType = MetricType.quality;
+		} catch (IndexOutOfBoundsException e) {
+			// Log.warn("No metrictype detected for metric " + name + " at " +
+			// dir);
+		}
 		ValueList values = ValueList.read(dir,
 				Files.getValuesFilename(Names.metricDataValues));
 		DistributionList distributions = DistributionList.read(dir, readValues);
 		NodeValueListList nodevalues = NodeValueListList.read(dir, readValues);
-		return new MetricData(name, values, distributions, nodevalues);
+		return new MetricData(name, tempType, values, distributions, nodevalues);
 	}
 
 	/**
@@ -331,7 +280,7 @@ public class MetricData implements ListItem {
 			return new MetricData(null);
 		}
 		// let m1 be the 'exact' metric
-		if (!m1.getType().equals("exact")) {
+		if (m1.getType() != MetricType.exact) {
 			MetricData temp = m1;
 			m1 = m2;
 			m2 = temp;
@@ -380,7 +329,9 @@ public class MetricData implements ListItem {
 		// compare distributions
 		DistributionList comparedDistributions = new DistributionList();
 		for (String distribution : similarDistributions.getNames()) {
-			if (m1.getDistributions().get(distribution) instanceof DistributionInt
+			boolean compared = false;
+			if (!compared
+					&& m1.getDistributions().get(distribution) instanceof DistributionInt
 					&& m2.getDistributions().get(distribution) instanceof DistributionInt) {
 				// compare DistributionInt objects
 				int[] values1 = ((DistributionInt) m1.getDistributions().get(
@@ -419,18 +370,19 @@ public class MetricData implements ListItem {
 				}
 				// add absolute comparison
 				comparedDistributions.add(new DistributionInt(distribution
-						+ "_abs" + Suffix.quality, diffAbs, denom1 * denom2,
-						ArrayUtils.sum(diffAbs), ArrayUtils.min(diffAbs),
-						ArrayUtils.max(diffAbs), ArrayUtils.med(diffAbs),
-						ArrayUtils.avg(diffAbs)));
+						+ "_abs", diffAbs, denom1 * denom2, ArrayUtils
+						.sum(diffAbs), ArrayUtils.min(diffAbs), ArrayUtils
+						.max(diffAbs), ArrayUtils.med(diffAbs), ArrayUtils
+						.avg(diffAbs)));
 				// add relative comparison
 				comparedDistributions.add(new DistributionDouble(distribution
-						+ "_rel" + Suffix.quality, diffRel, ArrayUtils
-						.sum(diffRel), ArrayUtils.min(diffRel), ArrayUtils
-						.max(diffRel), ArrayUtils.med(diffRel), ArrayUtils
-						.avg(diffRel)));
+						+ "_rel", diffRel, ArrayUtils.sum(diffRel), ArrayUtils
+						.min(diffRel), ArrayUtils.max(diffRel), ArrayUtils
+						.med(diffRel), ArrayUtils.avg(diffRel)));
+				compared = true;
 			}
-			if (m1.getDistributions().get(distribution) instanceof DistributionLong
+			if (!compared
+					&& m1.getDistributions().get(distribution) instanceof DistributionLong
 					&& m2.getDistributions().get(distribution) instanceof DistributionLong) {
 				// compare DistributionLong objects
 				long[] values1 = ((DistributionLong) m1.getDistributions().get(
@@ -469,18 +421,19 @@ public class MetricData implements ListItem {
 				}
 				// add absolute comparison
 				comparedDistributions.add(new DistributionLong(distribution
-						+ "_abs" + Suffix.quality, diffAbs, denom1 * denom2,
-						ArrayUtils.sum(diffAbs), ArrayUtils.min(diffAbs),
-						ArrayUtils.max(diffAbs), ArrayUtils.med(diffAbs),
-						ArrayUtils.avg(diffAbs)));
+						+ "_abs", diffAbs, denom1 * denom2, ArrayUtils
+						.sum(diffAbs), ArrayUtils.min(diffAbs), ArrayUtils
+						.max(diffAbs), ArrayUtils.med(diffAbs), ArrayUtils
+						.avg(diffAbs)));
 				// add relative comparison
 				comparedDistributions.add(new DistributionDouble(distribution
-						+ "_rel" + Suffix.quality, diffRel, ArrayUtils
-						.sum(diffRel), ArrayUtils.min(diffRel), ArrayUtils
-						.max(diffRel), ArrayUtils.med(diffRel), ArrayUtils
-						.avg(diffRel)));
+						+ "_rel", diffRel, ArrayUtils.sum(diffRel), ArrayUtils
+						.min(diffRel), ArrayUtils.max(diffRel), ArrayUtils
+						.med(diffRel), ArrayUtils.avg(diffRel)));
+				compared = true;
 			}
-			if (m1.getDistributions().get(distribution) instanceof DistributionDouble
+			if (!compared
+					&& m1.getDistributions().get(distribution) instanceof DistributionDouble
 					&& m2.getDistributions().get(distribution) instanceof DistributionDouble) {
 				// compare DistributionDouble objects
 				double[] values1 = ((DistributionDouble) m1.getDistributions()
@@ -512,16 +465,57 @@ public class MetricData implements ListItem {
 				}
 				// add absolute comparison
 				comparedDistributions.add(new DistributionDouble(distribution
-						+ "_abs" + Suffix.quality, diffAbs, ArrayUtils
-						.sum(diffAbs), ArrayUtils.min(diffAbs), ArrayUtils
-						.max(diffAbs), ArrayUtils.med(diffAbs), ArrayUtils
-						.avg(diffAbs)));
+						+ "_abs", diffAbs, ArrayUtils.sum(diffAbs), ArrayUtils
+						.min(diffAbs), ArrayUtils.max(diffAbs), ArrayUtils
+						.med(diffAbs), ArrayUtils.avg(diffAbs)));
 				// add relative comparison
 				comparedDistributions.add(new DistributionDouble(distribution
-						+ "_rel" + Suffix.quality, diffRel, ArrayUtils
-						.sum(diffRel), ArrayUtils.min(diffRel), ArrayUtils
-						.max(diffRel), ArrayUtils.med(diffRel), ArrayUtils
-						.avg(diffRel)));
+						+ "_rel", diffRel, ArrayUtils.sum(diffRel), ArrayUtils
+						.min(diffRel), ArrayUtils.max(diffRel), ArrayUtils
+						.med(diffRel), ArrayUtils.avg(diffRel)));
+				compared = true;
+			}
+			if (!compared) {
+				// compare Distribution objects that are neither
+				// DistributionInt/Long nor DistributionDouble
+				double[] values1 = (m1.getDistributions().get(distribution))
+						.getValues();
+				double[] values2 = (m2.getDistributions().get(distribution))
+						.getValues();
+
+				double[] diffAbs = new double[Math.max(values1.length,
+						values2.length)];
+				double[] diffRel = new double[diffAbs.length];
+
+				for (int i = 0; i < diffAbs.length; i++) {
+					double v1 = 0;
+					double v2 = 0;
+					try {
+						v1 = values1[i];
+					} catch (ArrayIndexOutOfBoundsException e) {
+					}
+					try {
+						v2 = values2[i];
+					} catch (ArrayIndexOutOfBoundsException e) {
+					}
+					diffAbs[i] = v1 - v2;
+
+					if (v2 == 0)
+						diffRel[i] = Double.MAX_VALUE;
+					else
+						diffRel[i] = v1 / v2;
+				}
+				// add absolute comparison
+				comparedDistributions.add(new DistributionDouble(distribution
+						+ "_abs", diffAbs, ArrayUtils.sum(diffAbs), ArrayUtils
+						.min(diffAbs), ArrayUtils.max(diffAbs), ArrayUtils
+						.med(diffAbs), ArrayUtils.avg(diffAbs)));
+				// add relative comparison
+				comparedDistributions.add(new DistributionDouble(distribution
+						+ "_rel", diffRel, ArrayUtils.sum(diffRel), ArrayUtils
+						.min(diffRel), ArrayUtils.max(diffRel), ArrayUtils
+						.med(diffRel), ArrayUtils.avg(diffRel)));
+				compared = true;
 			}
 		}
 
@@ -551,8 +545,42 @@ public class MetricData implements ListItem {
 			comparedNodeValues.add(new NodeValueList(
 					nodevalue + Suffix.quality, qualities));
 		}
-		return new MetricData(m2.getName() + Suffix.quality,
-				MetricType.quality, comparedValues, comparedDistributions,
-				comparedNodeValues);
+		return new MetricData(m2.getName(), MetricType.quality, comparedValues,
+				comparedDistributions, comparedNodeValues);
+	}
+
+	/**
+	 * Counts the similarities between two MetricData objects. Every Value,
+	 * Distribution or NodeValueList of the same name counts as one similarity.
+	 * 
+	 * @param m1
+	 *            First MetricData object
+	 * @param m2
+	 *            Second MetricData object
+	 * @return Amount of Similarities.
+	 */
+	public static int countSimilarities(MetricData m1, MetricData m2) {
+		int similarities = 0;
+		// check if comparable
+		if (!isComparable(m1, m2)) {
+			return similarities;
+		}
+		// count similarities
+		for (String value : m1.getValues().getNames()) {
+			if (m2.getValues().get(value) != null) {
+				similarities++;
+			}
+		}
+		for (String distribution : m1.getDistributions().getNames()) {
+			if (m2.getDistributions().get(distribution) != null) {
+				similarities++;
+			}
+		}
+		for (String nodevalue : m1.getNodeValues().getNames()) {
+			if (m2.getNodeValues().get(nodevalue) != null) {
+				similarities++;
+			}
+		}
+		return similarities;
 	}
 }
