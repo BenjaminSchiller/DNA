@@ -52,6 +52,18 @@ public class ArrayUtils {
 		}
 	}
 
+	public static double[] decr(double[] values, int index) {
+		try {
+			values[index]--;
+			return values;
+		} catch (ArrayIndexOutOfBoundsException e) {
+			double[] valuesNew = new double[index + 1];
+			System.arraycopy(values, 0, valuesNew, 0, values.length);
+			valuesNew[index] = -1;
+			return valuesNew;
+		}
+	}
+
 	public static long[] decr(long[] values, int index) {
 		try {
 			values[index]--;
@@ -332,6 +344,38 @@ public class ArrayUtils {
 	}
 
 	/**
+	 * Calculates the average over an given array of integers.
+	 * 
+	 * @param values
+	 *            integer array the average is calculated from
+	 * @return average value of the given integer array
+	 */
+	public static double avg(int[] values) {
+		double avg = 0;
+		for (int v : values) {
+			avg += v;
+
+		}
+		return avg / values.length;
+	}
+
+	/**
+	 * Calculates the average over an given array of longs.
+	 * 
+	 * @param values
+	 *            long array the average is calculated from
+	 * @return average value of the given long array
+	 */
+	public static double avg(long[] values) {
+		double avg = 0;
+		for (long v : values) {
+			avg += v;
+
+		}
+		return avg / values.length;
+	}
+
+	/**
 	 * Calculates the maximum over an given array of doubles.
 	 * 
 	 * @param values
@@ -377,6 +421,46 @@ public class ArrayUtils {
 	}
 
 	/**
+	 * Calculates the maximum over an given array of integers.
+	 * 
+	 * @param values
+	 *            integer array the maximum is calculated from
+	 * @return maximum value of the given integer array
+	 */
+	public static int max(int[] values) {
+		try {
+			int max = values[0];
+			for (int v : values) {
+				if (v > max)
+					max = v;
+			}
+			return max;
+		} catch (ArrayIndexOutOfBoundsException e) {
+			return 0;
+		}
+	}
+
+	/**
+	 * Calculates the maximum over an given array of longs.
+	 * 
+	 * @param values
+	 *            long array the maximum is calculated from
+	 * @return maximum value of the given long array
+	 */
+	public static long max(long[] values) {
+		try {
+			long max = values[0];
+			for (long v : values) {
+				if (v > max)
+					max = v;
+			}
+			return max;
+		} catch (ArrayIndexOutOfBoundsException e) {
+			return 0;
+		}
+	}
+
+	/**
 	 * Calculates the minimum over an given array of doubles.
 	 * 
 	 * @param values
@@ -386,6 +470,38 @@ public class ArrayUtils {
 	public static double min(double[] values) {
 		double min = values[0];
 		for (double v : values) {
+			if (v < min)
+				min = v;
+		}
+		return min;
+	}
+
+	/**
+	 * Calculates the minimum over an given array of integers.
+	 * 
+	 * @param values
+	 *            integer array the minimum is calculated from
+	 * @return minimum value of the given integer array
+	 */
+	public static int min(int[] values) {
+		int min = values[0];
+		for (int v : values) {
+			if (v < min)
+				min = v;
+		}
+		return min;
+	}
+
+	/**
+	 * Calculates the minimum over an given array of longs.
+	 * 
+	 * @param values
+	 *            long array the minimum is calculated from
+	 * @return minimum value of the given long array
+	 */
+	public static long min(long[] values) {
+		long min = values[0];
+		for (long v : values) {
 			if (v < min)
 				min = v;
 		}
@@ -455,6 +571,38 @@ public class ArrayUtils {
 		}
 		Arrays.sort(temp);
 		return temp[(temp.length - counter) / 2];
+	}
+
+	/**
+	 * Calculates the median over an given array of integers. Caution: Due to
+	 * the Arrays.sort call, the input array will be sorted.
+	 * 
+	 * @param values
+	 *            integer array the median is calculated from
+	 * @return median of the given integer array
+	 */
+	public static int med(int[] values) {
+		int[] temp = new int[values.length];
+		System.arraycopy(values, 0, temp, 0, values.length);
+
+		Arrays.sort(temp);
+		return temp[temp.length / 2];
+	}
+
+	/**
+	 * Calculates the median over an given array of longs. Caution: Due to the
+	 * Arrays.sort call, the input array will be sorted.
+	 * 
+	 * @param values
+	 *            long array the median is calculated from
+	 * @return median of the given long array
+	 */
+	public static long med(long[] values) {
+		long[] temp = new long[values.length];
+		System.arraycopy(values, 0, temp, 0, values.length);
+
+		Arrays.sort(temp);
+		return temp[temp.length / 2];
 	}
 
 	/**
