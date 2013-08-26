@@ -380,6 +380,14 @@ public class Plot {
 		Config.overwrite("GNUPLOT_TITLE", title);
 	}
 
+	// datetime examples:
+	// data . datetimeformat . comment
+	// 2004/4/6 . %Y/%m/%d . 2004/04/06 works well
+	// December/96 . %B/%y . warning if misspelled
+	// 2004/Jan . %Y/%b . 3-letters abbreviation
+	// 1970/240 . %Y/%j "%j" . is a day of the year (1-365)
+	// 02:45:03 . %H:%M:%S "%H" . 24-hour
+	// 1076909172 . %s . seconds since 1/1/1970 00:00
 	public void setDateTime(String dateTime) {
 		Config.overwrite("GNUPLOT_DATETIME", dateTime);
 	}
