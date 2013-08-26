@@ -7,6 +7,7 @@ import dna.graph.directed.DirectedEdge;
 import dna.graph.directed.DirectedNode;
 import dna.graph.undirected.UndirectedEdge;
 import dna.graph.undirected.UndirectedNode;
+import dna.series.data.NodeValueList;
 import dna.updates.Batch;
 import dna.updates.EdgeAddition;
 import dna.updates.EdgeRemoval;
@@ -423,6 +424,12 @@ public class DegreeDistributionUpdate extends DegreeDistribution {
 		this.degreeDistribution = ArrayUtils.truncate(this.degreeDistribution,
 				0);
 		this.degreeCount = ArrayUtils.truncate(this.degreeCount, 0);
+	}
+
+	@Override
+	protected NodeValueList[] getNodeValueLists() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

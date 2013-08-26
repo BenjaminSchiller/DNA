@@ -5,6 +5,7 @@ import dna.graph.directed.DirectedEdge;
 import dna.graph.directed.DirectedNode;
 import dna.graph.undirected.UndirectedEdge;
 import dna.graph.undirected.UndirectedNode;
+import dna.series.data.NodeValueList;
 import dna.updates.Batch;
 import dna.updates.EdgeAddition;
 import dna.updates.EdgeRemoval;
@@ -228,6 +229,12 @@ public class ClosedTriangleClusteringCoefficientUpdate extends
 			this.removePotentials(b, b.getDegree());
 		}
 		return true;
+	}
+
+	@Override
+	protected NodeValueList[] getNodeValueLists() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

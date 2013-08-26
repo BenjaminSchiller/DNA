@@ -1,5 +1,6 @@
 package dna.metrics.clusterCoefficient;
 
+import dna.series.data.NodeValueList;
 import dna.updates.Batch;
 import dna.updates.Update;
 
@@ -45,6 +46,12 @@ public class ClosedTriangleClusteringCoefficientRecomp extends
 	@Override
 	public boolean applyAfterUpdate(Update u) {
 		return false;
+	}
+
+	@Override
+	protected NodeValueList[] getNodeValueLists() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

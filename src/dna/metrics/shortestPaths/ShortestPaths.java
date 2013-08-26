@@ -9,7 +9,7 @@ import dna.util.DataUtils;
 public abstract class ShortestPaths extends Metric {
 
 	public ShortestPaths(String name, ApplicationType type) {
-		super(name, type);
+		super(name, type, MetricType.exact);
 	}
 
 	protected double cpl;

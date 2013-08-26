@@ -3,6 +3,7 @@ package dna.metrics.clusterCoefficient;
 import dna.graph.directed.DirectedEdge;
 import dna.graph.directed.DirectedGraph;
 import dna.graph.directed.DirectedNode;
+import dna.series.data.NodeValueList;
 import dna.updates.Batch;
 import dna.updates.Update;
 import dna.util.ArrayUtils;
@@ -75,6 +76,12 @@ public class OpenTriangleClusteringCoefficientRecomp extends
 		this.averageCC = ArrayUtils.avgIgnoreNaN(this.localCC);
 
 		return true;
+	}
+
+	@Override
+	protected NodeValueList[] getNodeValueLists() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }
