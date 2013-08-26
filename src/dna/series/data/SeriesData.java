@@ -5,8 +5,8 @@ import java.util.ArrayList;
 
 import dna.io.filesystem.Dir;
 import dna.io.filesystem.Suffix;
+import dna.metrics.Metric.MetricType;
 import dna.series.aggdata.AggregatedSeries;
-import dna.series.data.MetricData.MetricType;
 import dna.series.lists.MetricDataList;
 import dna.util.Log;
 
@@ -150,24 +150,35 @@ public class SeriesData {
 		}
 		for (MetricData heuristic : heuristics.getList()) {
 			boolean compared = false;
-			for (MetricData exact : exacts.getList()) {
-				if (!compared) {
+
+			int similarities = 0;
+			String bestMatch = "";
+			for (MetricData exactMetric : exacts.getList()) {
+				if (MetricData.countSimilarities(heuristic, exactMetric) > similarities) {
+					similarities = MetricData.countSimilarities(heuristic,
+							exactMetric);
+					bestMatch = exactMetric.getName();
+				}
+			}
+
+			for (String exact : exacts.getNames()) {
+				if (!compared && exact.equals(bestMatch)) {
 					Log.info("  => heuristic \"" + heuristic.getName()
-							+ "\" with exact \"" + exact.getName() + "\"");
-					if (MetricData.isComparable(heuristic, exact)) {
+							+ "\" with exact \"" + exacts.get(exact).getName()
+							+ "\"");
+					if (MetricData.isComparable(heuristic, exacts.get(exact))) {
 						for (int run = 0; run < this.getRuns().size(); run++) {
 							for (int batch = 0; batch < this.getRun(run)
 									.getBatches().size(); batch++) {
-								MetricData exactTemp = MetricData
-										.read(Dir
-												.getMetricDataDir(
-														Dir.getBatchDataDir(
-																Dir.getRunDataDir(
-																		this.dir,
-																		run),
-																batch), exact
-																.getName()),
-												exact.getName(), true);
+								MetricData exactTemp = MetricData.read(Dir
+										.getMetricDataDir(
+												Dir.getBatchDataDir(Dir
+														.getRunDataDir(
+																this.dir, run),
+														batch),
+												exacts.get(exact).getName(),
+												MetricType.exact),
+										exacts.get(exact).getName(), true);
 								exactTemp.setType(MetricType.exact);
 
 								MetricData heuristicTemp = MetricData.read(Dir
@@ -176,12 +187,14 @@ public class SeriesData {
 														.getRunDataDir(
 																this.dir, run),
 														batch), heuristic
-														.getName()), exact
-										.getName(), true);
+														.getName(),
+												MetricType.heuristic),
+										heuristic.getName(), true);
 								heuristicTemp.setType(MetricType.heuristic);
-
 								MetricData quality = MetricData.compare(
 										exactTemp, heuristicTemp);
+								this.getRuns().get(run).getBatches().get(batch)
+										.getMetrics().add(quality);
 								if (writeValues)
 									quality.write(Dir.getMetricDataDir(
 											Dir.getBatchDataDir(
@@ -190,8 +203,8 @@ public class SeriesData {
 													+ Suffix.quality));
 							}
 						}
-						compared = true;
 					}
+					compared = true;
 				}
 			}
 		}

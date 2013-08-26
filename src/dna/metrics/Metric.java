@@ -3,6 +3,7 @@ package dna.metrics;
 import dna.graph.Graph;
 import dna.series.data.Distribution;
 import dna.series.data.MetricData;
+import dna.series.data.NodeValueList;
 import dna.series.data.Value;
 import dna.updates.Batch;
 import dna.updates.Update;
@@ -14,7 +15,11 @@ public abstract class Metric extends ParameterList {
 
 	public static enum ApplicationType {
 		BeforeBatch, AfterBatch, BeforeAndAfterBatch, BeforeUpdate, AfterUpdate, BeforeAndAfterUpdate, Recomputation
-	};
+	}
+
+	public static enum MetricType {
+		exact, heuristic, quality, unknown
+	}
 
 	public boolean isAppliedBeforeBatch() {
 		return this.type == ApplicationType.BeforeBatch
@@ -40,36 +45,40 @@ public abstract class Metric extends ParameterList {
 		return this.type == ApplicationType.Recomputation;
 	}
 
-	public Metric(String name, ApplicationType type) {
-		this(name, type, new Parameter[] {});
+	public Metric(String name, ApplicationType type, MetricType metricType) {
+		this(name, type, metricType, new Parameter[] {});
 	}
 
-	public Metric(String name, ApplicationType type, Parameter p1) {
-		this(name, type, new Parameter[] { p1 });
+	public Metric(String name, ApplicationType type, MetricType metricType,
+			Parameter p1) {
+		this(name, type, metricType, new Parameter[] { p1 });
 	}
 
-	public Metric(String name, ApplicationType type, Parameter p1, Parameter p2) {
-		this(name, type, new Parameter[] { p1, p2 });
+	public Metric(String name, ApplicationType type, MetricType metricType,
+			Parameter p1, Parameter p2) {
+		this(name, type, metricType, new Parameter[] { p1, p2 });
 	}
 
-	public Metric(String name, ApplicationType type, Parameter p1,
-			Parameter p2, Parameter p3) {
-		this(name, type, new Parameter[] { p1, p2, p3 });
+	public Metric(String name, ApplicationType type, MetricType metricType,
+			Parameter p1, Parameter p2, Parameter p3) {
+		this(name, type, metricType, new Parameter[] { p1, p2, p3 });
 	}
 
-	public Metric(String name, ApplicationType type, Parameter p1,
-			Parameter p2, Parameter p3, Parameter p4) {
-		this(name, type, new Parameter[] { p1, p2, p3, p4 });
+	public Metric(String name, ApplicationType type, MetricType metricType,
+			Parameter p1, Parameter p2, Parameter p3, Parameter p4) {
+		this(name, type, metricType, new Parameter[] { p1, p2, p3, p4 });
 	}
 
-	public Metric(String name, ApplicationType type, Parameter p1,
-			Parameter p2, Parameter p3, Parameter p4, Parameter p5) {
-		this(name, type, new Parameter[] { p1, p2, p3, p4, p5 });
+	public Metric(String name, ApplicationType type, MetricType metricType,
+			Parameter p1, Parameter p2, Parameter p3, Parameter p4, Parameter p5) {
+		this(name, type, metricType, new Parameter[] { p1, p2, p3, p4, p5 });
 	}
 
-	public Metric(String name, ApplicationType type, Parameter[] params) {
+	public Metric(String name, ApplicationType type, MetricType metricType,
+			Parameter[] params) {
 		super(name, params);
 		this.type = type;
+		this.metricType = metricType;
 		this.timestamp = Long.MIN_VALUE;
 	}
 
@@ -93,6 +102,12 @@ public abstract class Metric extends ParameterList {
 
 	public void setGraph(Graph g) {
 		this.g = g;
+	}
+
+	protected MetricType metricType;
+
+	public MetricType getMetricType() {
+		return this.metricType;
 	}
 
 	/*
@@ -185,8 +200,9 @@ public abstract class Metric extends ParameterList {
 	 * @return all data computed by this metric
 	 */
 	public MetricData getData() {
-		return new MetricData(this.getName(), this.getValues(),
-				this.getDistributions());
+		NodeValueList[] asd = new NodeValueList[0];
+		return new MetricData(this.getName(), this.getMetricType(),
+				this.getValues(), this.getDistributions(), asd);
 	}
 
 	/**
@@ -200,6 +216,12 @@ public abstract class Metric extends ParameterList {
 	 * @return all the distributions computed by this metric
 	 */
 	protected abstract Distribution[] getDistributions();
+
+	/**
+	 * 
+	 * @return all the nodevaluelists computed by this metric
+	 */
+	protected abstract NodeValueList[] getNodeValueLists();
 
 	/*
 	 * EQUALS
