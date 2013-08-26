@@ -99,7 +99,7 @@ public class BatchData {
 	 * @author Rwilmes
 	 * @date 24.06.2013
 	 */
-	public static boolean isComparable(BatchData b1, BatchData b2) {
+	public static boolean isSameType(BatchData b1, BatchData b2) {
 		if (b1.getTimestamp() != b2.getTimestamp()) {
 			Log.warn("different timestamps on batch " + b1.getTimestamp()
 					+ " and batch " + b2.getTimestamp());
@@ -115,7 +115,7 @@ public class BatchData {
 			return false;
 		}
 		for (String k : list1.getNames()) {
-			if (!MetricData.isComparable(list1.get(k), list2.get(k))) {
+			if (!MetricData.isSameType(list1.get(k), list2.get(k))) {
 				Log.warn("different metrics on batch " + b1.getTimestamp()
 						+ " and batch " + b2.getTimestamp());
 				return false;

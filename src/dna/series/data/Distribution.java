@@ -10,10 +10,8 @@ import dna.io.Writer;
 import dna.io.etc.Keywords;
 
 /**
- * NodeValueList is a class containing an array with 1 value for each node. The
- * node index is used as the index for the array. If a node is removed from the
- * graph, his former value is replaced by a Double.NaN. When inserting new
- * nodevalues with out-of-bound indeces, the array is expanded accordingly.
+ * Distribution is a class for representing a distribution. Values are stored in
+ * a private double array.
  * 
  * @date 24.06.2013
  */

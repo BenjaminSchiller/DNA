@@ -29,6 +29,8 @@ public class DistributionInt extends Distribution {
 	private int comparedSum;
 	private int comparedMin;
 	private int comparedMax;
+	private int comparedMed;
+	private double comparedAvg;
 
 	// constructors
 	public DistributionInt(String name, int[] values, int denominator) {
@@ -38,13 +40,20 @@ public class DistributionInt extends Distribution {
 	}
 
 	public DistributionInt(String name, int[] values, int denominator, int sum,
-			int min, int max) {
+			int min, int max, int med, double avg) {
 		super(name);
 		this.values = values;
 		this.denominator = denominator;
 		this.comparedSum = sum;
 		this.comparedMin = min;
 		this.comparedMax = max;
+		this.comparedMed = med;
+		this.comparedAvg = avg;
+	}
+
+	// class methods
+	public String toString() {
+		return "distributionInt(" + super.getName() + ")";
 	}
 
 	// get methods
@@ -85,6 +94,14 @@ public class DistributionInt extends Distribution {
 		return this.comparedMax;
 	}
 
+	public int getComparedMed() {
+		return this.comparedMed;
+	}
+
+	public double getComparedAvg() {
+		return this.comparedAvg;
+	}
+
 	/**
 	 * Recalculates the denominator value.
 	 */
@@ -118,7 +135,7 @@ public class DistributionInt extends Distribution {
 
 	/**
 	 * Truncates the distribution array by erasing all 0 at the end of it's
-	 * value array.
+	 * value array. Note: Not affecting denominator.
 	 * 
 	 * @param index
 	 *            Index of the value that will be decremented.
