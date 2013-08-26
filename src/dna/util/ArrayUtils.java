@@ -622,7 +622,40 @@ public class ArrayUtils {
 	}
 
 	/**
-	 * Calculates the variance, variance-low and variance-up of the given array.
+	 * Calculates the variance of the given array.
+	 * 
+	 * @param values
+	 *            long array the variance is calculated from
+	 * @return variance of the given double array
+	 */
+	public static double var(long[] values) {
+		double mean = ArrayUtils.avg(values);
+		double x = 0;
+		for (double v : values) {
+			x += (v - mean) * (v - mean);
+		}
+		return x / (values.length - 1);
+	}
+
+	/**
+	 * Calculates the variance of the given array.
+	 * 
+	 * @param values
+	 *            int array the variance is calculated from
+	 * @return variance of the given double array
+	 */
+	public static double var(int[] values) {
+		double mean = ArrayUtils.avg(values);
+		double x = 0;
+		for (double v : values) {
+			x += (v - mean) * (v - mean);
+		}
+		return x / (values.length - 1);
+	}
+
+	/**
+	 * Calculates the variance, variance-low and variance-up of the given double
+	 * array.
 	 * 
 	 * @param values
 	 *            double array the variances are calculated from
@@ -637,6 +670,86 @@ public class ArrayUtils {
 		int countLow = 0;
 		int countUp = 0;
 		for (double v : values) {
+			var += Math.pow(v - avg, 2);
+			if (v < avg) {
+				varLow += Math.pow(v - avg, 2);
+				countLow++;
+			} else if (v > avg) {
+				varUp += Math.pow(v - avg, 2);
+				countUp++;
+			}
+		}
+		var /= values.length;
+		if (countLow == 0) {
+			varLow = 0;
+		} else {
+			varLow /= countLow;
+		}
+		if (countUp == 0) {
+			varUp = 0;
+		} else {
+			varUp /= countUp;
+		}
+		return new double[] { var, varLow, varUp };
+	}
+
+	/**
+	 * Calculates the variance, variance-low and variance-up of the given long
+	 * array.
+	 * 
+	 * @param values
+	 *            long array the variances are calculated from
+	 * @param avg
+	 *            the average of the given values
+	 * @return variances of the given double array
+	 */
+	public static double[] varLowUp(long[] values, double avg) {
+		double var = 0;
+		double varLow = 0;
+		double varUp = 0;
+		int countLow = 0;
+		int countUp = 0;
+		for (long v : values) {
+			var += Math.pow(v - avg, 2);
+			if (v < avg) {
+				varLow += Math.pow(v - avg, 2);
+				countLow++;
+			} else if (v > avg) {
+				varUp += Math.pow(v - avg, 2);
+				countUp++;
+			}
+		}
+		var /= values.length;
+		if (countLow == 0) {
+			varLow = 0;
+		} else {
+			varLow /= countLow;
+		}
+		if (countUp == 0) {
+			varUp = 0;
+		} else {
+			varUp /= countUp;
+		}
+		return new double[] { var, varLow, varUp };
+	}
+
+	/**
+	 * Calculates the variance, variance-low and variance-up of the given int
+	 * array.
+	 * 
+	 * @param values
+	 *            int array the variances are calculated from
+	 * @param avg
+	 *            the average of the given values
+	 * @return variances of the given double array
+	 */
+	public static double[] varLowUp(int[] values, double avg) {
+		double var = 0;
+		double varLow = 0;
+		double varUp = 0;
+		int countLow = 0;
+		int countUp = 0;
+		for (int v : values) {
 			var += Math.pow(v - avg, 2);
 			if (v < avg) {
 				varLow += Math.pow(v - avg, 2);
@@ -692,6 +805,62 @@ public class ArrayUtils {
 	 * @return confidence of the given double array
 	 */
 	public static double[] conf(double[] values) {
+
+		if (values.length == 1) {
+			return new double[] { values[0], values[0] };
+		}
+
+		double var = ArrayUtils.var(values);
+		double mean = ArrayUtils.avg(values);
+
+		double t = Settings.getStudentT(0.95, values.length - 1);
+		double x = t * (Math.sqrt(var) / Math.sqrt(values.length));
+
+		double low = mean - x;
+		double up = mean + x;
+
+		double[] conf = { low, up };
+
+		return conf;
+	}
+
+	/**
+	 * Calculates the confidence interval of the given array. Student-t
+	 * distribution with 0,95 confidence niveau.
+	 * 
+	 * @param values
+	 *            long array the confidence is calculated from
+	 * @return confidence of the given double array
+	 */
+	public static double[] conf(long[] values) {
+
+		if (values.length == 1) {
+			return new double[] { values[0], values[0] };
+		}
+
+		double var = ArrayUtils.var(values);
+		double mean = ArrayUtils.avg(values);
+
+		double t = Settings.getStudentT(0.95, values.length - 1);
+		double x = t * (Math.sqrt(var) / Math.sqrt(values.length));
+
+		double low = mean - x;
+		double up = mean + x;
+
+		double[] conf = { low, up };
+
+		return conf;
+	}
+
+	/**
+	 * Calculates the confidence interval of the given array. Student-t
+	 * distribution with 0,95 confidence niveau.
+	 * 
+	 * @param values
+	 *            int array the confidence is calculated from
+	 * @return confidence of the given double array
+	 */
+	public static double[] conf(int[] values) {
 
 		if (values.length == 1) {
 			return new double[] { values[0], values[0] };
