@@ -22,7 +22,8 @@ import dna.util.Log;
 public class DegreeDistributionUpdate extends DegreeDistribution {
 
 	public DegreeDistributionUpdate() {
-		super("degreeDistributionUpdate", ApplicationType.BeforeUpdate);
+		super("degreeDistributionUpdate", ApplicationType.BeforeUpdate,
+				MetricType.exact);
 	}
 
 	private int[] degreeCount;
