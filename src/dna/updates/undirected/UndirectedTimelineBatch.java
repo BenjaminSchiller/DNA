@@ -1,11 +1,8 @@
 package dna.updates.undirected;
 
+import dna.datastructures.GraphDataStructure;
 import dna.graph.Graph;
-import dna.graph.GraphDatastructures;
-import dna.graph.Node;
-import dna.graph.undirected.UndirectedEdge;
-import dna.graph.undirected.UndirectedGraph;
-import dna.graph.undirected.UndirectedNode;
+import dna.graph.edges.UndirectedEdge;
 import dna.updates.Batch;
 
 public class UndirectedTimelineBatch extends UndirectedBatchGenerator {
@@ -16,18 +13,15 @@ public class UndirectedTimelineBatch extends UndirectedBatchGenerator {
 
 	public UndirectedTimelineBatch(
 
-	GraphDatastructures<UndirectedGraph, UndirectedNode, UndirectedEdge> ds,
-			UndirectedBatchGenerator... generators) {
+	GraphDataStructure ds, UndirectedBatchGenerator... generators) {
 		super("undirectedTimelineBatch", ds);
 		this.generators = generators;
 		this.timestamp = 0;
 	}
 
 	@Override
-	public Batch<UndirectedEdge> generate(
-			Graph<? extends Node<UndirectedEdge>, UndirectedEdge> graph) {
-		return this.generators[this.timestamp++ % this.generators.length]
-				.generate(graph);
+	public Batch<UndirectedEdge> generate(Graph graph) {
+		return this.generators[this.timestamp++ % this.generators.length].generate(graph);
 	}
 
 	@Override

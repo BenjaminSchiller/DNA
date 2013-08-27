@@ -3,12 +3,12 @@ package dna.updates.undirected;
 import java.util.HashMap;
 import java.util.HashSet;
 
+import dna.datastructures.GraphDataStructure;
 import dna.graph.Graph;
-import dna.graph.GraphDatastructures;
-import dna.graph.Node;
-import dna.graph.undirected.UndirectedEdge;
-import dna.graph.undirected.UndirectedGraph;
-import dna.graph.undirected.UndirectedNode;
+import dna.graph.edges.Edge;
+import dna.graph.edges.UndirectedEdge;
+import dna.graph.nodes.Node;
+import dna.graph.nodes.UndirectedNode;
 import dna.updates.Batch;
 import dna.updates.EdgeAddition;
 import dna.updates.NodeAddition;
@@ -16,9 +16,7 @@ import dna.util.Rand;
 
 public class UndirectedGrowingNetwork extends UndirectedBatchGenerator {
 
-	public UndirectedGrowingNetwork(
-			int nodes,
-			GraphDatastructures<UndirectedGraph, UndirectedNode, UndirectedEdge> ds) {
+	public UndirectedGrowingNetwork(int nodes, GraphDataStructure ds) {
 		super("growingNwetwork", ds);
 		this.nodes = nodes;
 		this.links = new HashMap<UndirectedNode, HashSet<UndirectedNode>>();
@@ -28,25 +26,21 @@ public class UndirectedGrowingNetwork extends UndirectedBatchGenerator {
 
 	private HashMap<UndirectedNode, HashSet<UndirectedNode>> links;
 
-	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Override
-	public Batch<UndirectedEdge> generate(
-			Graph<? extends Node<UndirectedEdge>, UndirectedEdge> graph) {
+	public Batch<UndirectedEdge> generate(Graph graph) {
 
 		this.links = new HashMap<UndirectedNode, HashSet<UndirectedNode>>();
 
-		UndirectedGraph g = (UndirectedGraph) graph;
-		Batch<UndirectedEdge> batch = new Batch<UndirectedEdge>(
-				(GraphDatastructures) this.ds, graph.getTimestamp(),
+		Batch<UndirectedEdge> batch = new Batch<UndirectedEdge>(this.ds, graph.getTimestamp(),
 				graph.getTimestamp() + 1, this.nodes, 0, 0, 0, 0, 0);
 
 		int index = graph.getMaxNodeIndex() + 1;
 		HashSet<UndirectedNode> nodeNodes = new HashSet<UndirectedNode>();
 		while (nodeNodes.size() < this.nodes) {
 			UndirectedNode n = (UndirectedNode) this.ds.newNodeInstance(index);
-			if (!g.containsNode(n)) {
+			if (!graph.containsNode(n)) {
 				batch.add(new NodeAddition<UndirectedEdge>(n));
-				this.addEdges(n, batch, g, nodeNodes);
+				this.addEdges(n, batch, graph, nodeNodes);
 				nodeNodes.add(n);
 			}
 			index++;
@@ -58,8 +52,8 @@ public class UndirectedGrowingNetwork extends UndirectedBatchGenerator {
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	private void addEdges(UndirectedNode n, Batch<UndirectedEdge> batch,
-			UndirectedGraph g, HashSet<UndirectedNode> newNodes) {
+	private void addEdges(UndirectedNode n, Batch<UndirectedEdge> batch, Graph g,
+			HashSet<UndirectedNode> newNodes) {
 		UndirectedNode bootstrap = this.getRandomNode(g, newNodes);
 		HashSet<UndirectedNode> links = new HashSet<UndirectedNode>();
 		links.add(bootstrap);
@@ -68,9 +62,9 @@ public class UndirectedGrowingNetwork extends UndirectedBatchGenerator {
 				links.add(dest);
 			}
 		}
-		for (UndirectedEdge e : bootstrap.getEdges()) {
-			UndirectedNode dest = e.getDifferingNode(bootstrap);
-			links.add(dest);
+		for (Edge e : bootstrap.getEdges()) {
+			Node dest = ((UndirectedEdge) e).getDifferingNode(bootstrap);
+			links.add((UndirectedNode) dest);
 		}
 		for (UndirectedNode link : links) {
 			batch.add(new EdgeAddition(this.ds.newEdgeInstance(n, link)));
@@ -89,8 +83,7 @@ public class UndirectedGrowingNetwork extends UndirectedBatchGenerator {
 		}
 	}
 
-	private UndirectedNode getRandomNode(UndirectedGraph g,
-			HashSet<UndirectedNode> newNodes) {
+	private UndirectedNode getRandomNode(Graph g, HashSet<UndirectedNode> newNodes) {
 		int r = Rand.rand.nextInt(g.getNodeCount() + newNodes.size());
 		if (r < g.getNodeCount()) {
 			UndirectedNode node = (UndirectedNode) g.getRandomNode();

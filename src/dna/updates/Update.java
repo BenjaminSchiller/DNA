@@ -1,8 +1,7 @@
 package dna.updates;
 
-import dna.graph.Edge;
 import dna.graph.Graph;
-import dna.graph.Node;
+import dna.graph.edges.Edge;
 import dna.util.Config;
 
 public abstract class Update<E extends Edge> {
@@ -21,7 +20,7 @@ public abstract class Update<E extends Edge> {
 		return this.type;
 	}
 
-	public abstract boolean apply(Graph<? extends Node<E>, ? extends E> graph);
+	public abstract boolean apply(Graph graph);
 
 	public String getStringRepresentation() {
 		return this.type + Config.get("UPDATE_DELIMITER1")

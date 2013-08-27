@@ -2,13 +2,12 @@ package dna.io;
 
 import java.io.IOException;
 
-import dna.graph.Edge;
-import dna.graph.Graph;
-import dna.graph.Node;
+import dna.graph.edges.Edge;
+import dna.graph.nodes.Node;
 import dna.updates.Batch;
 import dna.updates.Update;
 
-public class BatchWriter<G extends Graph<N, E>, N extends Node<E>, E extends Edge> {
+public class BatchWriter<N extends Node, E extends Edge> {
 
 	public boolean write(Batch<E> b, String dir, String filename) {
 		Writer writer = null;

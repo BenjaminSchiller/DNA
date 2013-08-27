@@ -1,6 +1,6 @@
 package dna.updates;
 
-import dna.graph.Edge;
+import dna.graph.edges.Edge;
 
 public abstract class EdgeUpdate<E extends Edge> extends Update<E> {
 

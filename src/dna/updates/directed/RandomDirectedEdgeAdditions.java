@@ -2,13 +2,10 @@ package dna.updates.directed;
 
 import java.util.HashSet;
 
+import dna.datastructures.GraphDataStructure;
 import dna.graph.Graph;
-import dna.graph.GraphDatastructures;
-import dna.graph.Node;
-import dna.graph.directed.DirectedEdge;
-import dna.graph.directed.DirectedGraph;
-import dna.graph.directed.DirectedGraphDatastructures;
-import dna.graph.directed.DirectedNode;
+import dna.graph.edges.DirectedEdge;
+import dna.graph.nodes.DirectedNode;
 import dna.updates.Batch;
 import dna.updates.EdgeAddition;
 import dna.util.parameters.IntParameter;
@@ -33,30 +30,24 @@ public class RandomDirectedEdgeAdditions extends DirectedBatchGenerator {
 	 * @param datastructures
 	 *            datastructures
 	 */
-	public RandomDirectedEdgeAdditions(int additions,
-			DirectedGraphDatastructures datastructures) {
-		super("randomDirectedEdgeAdditions", new IntParameter("additions",
-				additions), datastructures);
+	public RandomDirectedEdgeAdditions(int additions, GraphDataStructure datastructures) {
+		super("randomDirectedEdgeAdditions", new IntParameter("additions", additions), datastructures);
 		this.additions = additions;
 	}
 
-	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
-	public Batch<DirectedEdge> generate(
-			Graph<? extends Node<DirectedEdge>, DirectedEdge> graph) {
-		DirectedGraph g = (DirectedGraph) graph;
-		Batch<DirectedEdge> batch = new Batch<DirectedEdge>(
-				(GraphDatastructures) this.ds, graph.getTimestamp(),
-				graph.getTimestamp() + 1, 0, 0, 0, this.additions, 0, 0);
+	public Batch<DirectedEdge> generate(Graph graph) {
+		Batch<DirectedEdge> batch = new Batch<DirectedEdge>(this.ds, graph.getTimestamp(), graph.getTimestamp() + 1, 0,
+				0, 0, this.additions, 0, 0);
 		HashSet<DirectedEdge> added = new HashSet<DirectedEdge>(this.additions);
 		while (batch.getSize() < this.additions) {
-			DirectedNode n1 = (DirectedNode) g.getRandomNode();
-			DirectedNode n2 = (DirectedNode) g.getRandomNode();
+			DirectedNode n1 = (DirectedNode) graph.getRandomNode();
+			DirectedNode n2 = (DirectedNode) graph.getRandomNode();
 			if (n1.equals(n2)) {
 				continue;
 			}
-			DirectedEdge e = this.ds.newEdgeInstance(n1, n2);
-			if (g.containsEdge(e) || added.contains(e)) {
+			DirectedEdge e = (DirectedEdge) this.ds.newEdgeInstance(n1, n2);
+			if (graph.containsEdge(e) || added.contains(e)) {
 				continue;
 			}
 			added.add(e);

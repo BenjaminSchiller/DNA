@@ -1,18 +1,18 @@
 package dna.updates;
 
-import dna.graph.Edge;
-import dna.graph.Node;
+import dna.graph.edges.Edge;
+import dna.graph.nodes.Node;
 
 public abstract class NodeUpdate<E extends Edge> extends Update<E> {
 
-	protected Node<E> node;
+	protected Node node;
 
-	public NodeUpdate(Node<E> node, UpdateType type) {
+	public NodeUpdate(Node node, UpdateType type) {
 		super(type);
 		this.node = node;
 	}
 
-	public Node<E> getNode() {
+	public Node getNode() {
 		return this.node;
 	}
 
