@@ -2,6 +2,7 @@ package dna.graph.nodes;
 
 import dna.datastructures.GraphDataStructure;
 import dna.datastructures.IEdgeListDatastructure;
+import dna.graph.IElement;
 import dna.graph.edges.Edge;
 import dna.graph.edges.UndirectedEdge;
 
@@ -48,7 +49,7 @@ public class UndirectedNode extends Node {
 	}
 
 	@Override
-	public Iterable<Edge> getEdges() {
+	public Iterable<IElement> getEdges() {
 		return this.edges;
 	}
 

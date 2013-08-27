@@ -3,7 +3,6 @@ package dna.graph.edges;
 import dna.graph.Graph;
 import dna.graph.IWeighted;
 import dna.graph.nodes.DirectedDoubleWeightedNode;
-import dna.graph.nodes.DirectedNode;
 import dna.io.etc.Keywords;
 
 public class DirectedDoubleWeightedEdge extends DirectedEdge implements IWeighted<Double> {

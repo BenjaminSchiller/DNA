@@ -1,8 +1,6 @@
 package dna.updates.directed;
 
 import dna.datastructures.GraphDataStructure;
-import dna.graph.edges.DirectedEdge;
-import dna.graph.nodes.DirectedNode;
 
 public class RandomDirectedBatch extends DirectedBatchCombinator {
 

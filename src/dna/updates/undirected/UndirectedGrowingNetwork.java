@@ -5,6 +5,7 @@ import java.util.HashSet;
 
 import dna.datastructures.GraphDataStructure;
 import dna.graph.Graph;
+import dna.graph.IElement;
 import dna.graph.edges.Edge;
 import dna.graph.edges.UndirectedEdge;
 import dna.graph.nodes.Node;
@@ -62,7 +63,7 @@ public class UndirectedGrowingNetwork extends UndirectedBatchGenerator {
 				links.add(dest);
 			}
 		}
-		for (Edge e : bootstrap.getEdges()) {
+		for (IElement e : bootstrap.getEdges()) {
 			Node dest = ((UndirectedEdge) e).getDifferingNode(bootstrap);
 			links.add((UndirectedNode) dest);
 		}

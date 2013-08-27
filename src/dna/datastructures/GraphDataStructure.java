@@ -6,10 +6,7 @@ import java.lang.reflect.InvocationTargetException;
 import dna.graph.Graph;
 import dna.graph.edges.DirectedEdge;
 import dna.graph.edges.Edge;
-import dna.graph.edges.UndirectedEdge;
-import dna.graph.nodes.DirectedNode;
 import dna.graph.nodes.Node;
-import dna.graph.nodes.UndirectedNode;
 import dna.io.etc.Keywords;
 
 /**
@@ -27,7 +24,6 @@ public class GraphDataStructure {
 	private Class<? extends Node> nodeType;
 	private Class<? extends Edge> edgeType;
 
-	@SuppressWarnings("unchecked")
 	public GraphDataStructure(Class<? extends INodeListDatastructure> nodeListType,
 			Class<? extends IEdgeListDatastructure> graphEdgeListType,
 			Class<? extends IEdgeListDatastructure> nodeEdgeListType, Class<? extends Node> nodeType) {
@@ -113,6 +109,7 @@ public class GraphDataStructure {
 		return edgeType;
 	}
 
+	@SuppressWarnings("unchecked")
 	public void setNodeType(Class<? extends Node> newNodeType) {
 		this.nodeType = newNodeType;
 

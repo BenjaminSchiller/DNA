@@ -31,7 +31,7 @@ public abstract class Node extends Element implements IElement {
 
 	public abstract boolean removeEdge(Edge e);
 
-	public abstract Iterable<Edge> getEdges();
+	public abstract Iterable<IElement> getEdges();
 
 	public abstract void print();
 

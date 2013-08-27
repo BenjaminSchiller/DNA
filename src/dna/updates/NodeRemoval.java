@@ -1,6 +1,7 @@
 package dna.updates;
 
 import dna.graph.Graph;
+import dna.graph.IElement;
 import dna.graph.edges.DirectedEdge;
 import dna.graph.edges.Edge;
 import dna.graph.edges.UndirectedEdge;
@@ -25,17 +26,17 @@ public class NodeRemoval<E extends Edge> extends NodeUpdate<E> {
 		boolean success = true;
 		if (this.node instanceof DirectedNode) {
 			DirectedNode node = (DirectedNode) this.node;
-			for (DirectedEdge e : node.getOutgoingEdges()) {
-				success &= e.getDst().removeEdge(e);
-				success &= graph.removeEdge(e);
+			for (IElement e : node.getOutgoingEdges()) {
+				success &= ((DirectedEdge) e).getDst().removeEdge((Edge) e);
+				success &= graph.removeEdge((Edge) e);
 			}
-			for (DirectedEdge e : node.getIncomingEdges()) {
-				success &= e.getSrc().removeEdge(e);
-				success &= graph.removeEdge(e);
+			for (IElement e : node.getIncomingEdges()) {
+				success &= ((DirectedEdge) e).getSrc().removeEdge((Edge) e);
+				success &= graph.removeEdge((Edge) e);
 			}
 		} else if (this.node instanceof UndirectedNode) {
 			UndirectedNode node = (UndirectedNode) this.node;
-			for (Edge eTemp : node.getEdges()) {
+			for (IElement eTemp : node.getEdges()) {
 				UndirectedEdge e = (UndirectedEdge) eTemp;
 				if (node.equals(e.getNode1())) {
 					success &= e.getNode2().removeEdge(e);
