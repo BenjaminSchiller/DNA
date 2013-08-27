@@ -151,7 +151,7 @@ public class AggregatedData implements ListItem {
 			double[] tempValues = inputData.get(value);
 
 			String temp = value + Config.get("AGGREGATED_DATA_DELIMITER")
-					+ (int) tempValues[0]
+					+ tempValues[0]
 					+ Config.get("AGGREGATED_DATA_DELIMITER");
 			for (int i = 1; i < tempValues.length; i++) {
 				if (i == tempValues.length - 1)
