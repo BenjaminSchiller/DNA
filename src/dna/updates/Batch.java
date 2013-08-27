@@ -190,7 +190,6 @@ public class Batch<E extends Edge> {
 		}
 	}
 
-	@SuppressWarnings("unchecked")
 	public boolean apply(Graph g) {
 		boolean success = true;
 		success &= this.apply(g, this.nodeRemovals);

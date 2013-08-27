@@ -37,9 +37,6 @@ import dna.util.parameters.Parameter;
 @RunWith(Parameterized.class)
 public class GeneratorsTest {
 	private Class<? extends Node> nodeType;
-	private Class<? extends INodeListDatastructure> nodeListType;
-	private Class<? extends IEdgeListDatastructure> graphEdgeListType;
-	private Class<? extends IEdgeListDatastructure> nodeEdgeListType;
 	private Class<? extends IGraphGenerator> generator;
 	private Constructor<? extends GraphGenerator> generatorConstructor;
 	private GraphDataStructure gds;
@@ -59,9 +56,6 @@ public class GeneratorsTest {
 			Class<? extends IEdgeListDatastructure> nodeEdgeListType, Class<? extends Node> nodeType,
 			Class<? extends GraphGenerator> generator) throws InstantiationException, IllegalAccessException,
 			IllegalArgumentException, InvocationTargetException, NoSuchMethodException, SecurityException {
-		this.nodeListType = nodeListType;
-		this.graphEdgeListType = graphEdgeListType;
-		this.nodeEdgeListType = nodeEdgeListType;
 		this.nodeType = nodeType;
 		this.generator = generator;
 		this.generatorConstructor = generator.getConstructor(String.class, Parameter[].class, GraphDataStructure.class,

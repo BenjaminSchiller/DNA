@@ -55,7 +55,8 @@ public class DatastructureTester {
 		return result;
 	}
     
-    @Test
+    @SuppressWarnings("unchecked")
+	@Test
     public void checkOnlyOneDatatype() {
     	IElement dummy;
     	int exceptionCounter = 0;
