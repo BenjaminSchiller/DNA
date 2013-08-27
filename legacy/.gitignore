@@ -5,12 +5,4 @@
 .project
 .classpath
 /src/dna/Test*.java
-bin
 /src/dna/test/
-
-*.class
-
-# Package Files #
-*.war
-*.ear
-.gitignore

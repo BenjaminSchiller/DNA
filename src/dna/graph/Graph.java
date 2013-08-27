@@ -2,40 +2,241 @@ package dna.graph;
 
 import java.util.Collection;
 
-public abstract class Graph<N extends Node<E>, E extends Edge> {
+import dna.datastructures.GraphDataStructure;
+import dna.datastructures.IEdgeListDatastructure;
+import dna.datastructures.IEdgeListDatastructureReadable;
+import dna.datastructures.INodeListDatastructure;
+import dna.datastructures.INodeListDatastructureReadable;
+import dna.graph.edges.Edge;
+import dna.graph.nodes.Node;
 
-	public Graph(String name, long timestamp,
-			GraphDatastructures<Graph<N, E>, N, E> ds) {
+/**
+ * Class for graphs. Methods that need special data structures are also defined
+ * here, but they might throw exceptions if the wrong data structures are used
+ * (eg. a data structure might not allow distinguishable access to the stored
+ * elements, but the graph will perform such calls)
+ * 
+ * @author Nico
+ * 
+ */
+public class Graph {
+	public INodeListDatastructure nodes;
+	public IEdgeListDatastructure edges;
+	private String name;
+	private long timestamp;
+	protected GraphDataStructure gds;
+
+	public Graph(String name, long timestamp, GraphDataStructure gds) {
 		this.name = name;
 		this.timestamp = timestamp;
-		this.ds = ds;
+		this.nodes = gds.newNodeList();
+		this.edges = gds.newGraphEdgeList();
+		this.gds = gds;
 	}
 
-	protected String name;
+	public Graph(String name, long timestamp, GraphDataStructure gds, int nodeSize, int edgeSize) {
+		this(name, timestamp, gds);
+		this.nodes.reinitializeWithSize(nodeSize);
+		this.edges.reinitializeWithSize(edgeSize);
+	}
+
+	public boolean addNode(Node n) {
+		return nodes.add(n);
+	}
+
+	public boolean containsNode(Node n) {
+		return nodes.contains(n);
+	}
+
+	/**
+	 * Retrieve a node by its index
+	 * 
+	 * @param index
+	 * @return
+	 */
+	public Node getNode(int index) {
+		if (!gds.isReadable(nodes))
+			throw new RuntimeException("This is not a readable graph");
+		return ((INodeListDatastructureReadable) this.nodes).get(index);
+	}
+
+	/**
+	 * Retrieve a random node
+	 * 
+	 * @return
+	 */
+	public Node getRandomNode() {
+		if (!gds.isReadable(nodes))
+			throw new RuntimeException("This is not a readable graph");
+		return (Node) ((INodeListDatastructureReadable) nodes).getRandom();
+	}
+
+	/**
+	 * Retrieve a collection of all nodes within this graph
+	 * 
+	 * @return
+	 */
+	public Collection<IElement> getNodes() {
+		if (!gds.isReadable(nodes))
+			throw new RuntimeException("This is not a readable graph");
+		return ((INodeListDatastructureReadable) nodes).getElements();
+	}
+
+	public boolean removeNode(Node n) {
+		return nodes.remove(n);
+	}
+
+	/**
+	 * Retrieve the highest node index within this graph
+	 * 
+	 * @return
+	 */
+	public int getMaxNodeIndex() {
+		return nodes.getMaxNodeIndex();
+	}
+
+	/**
+	 * Retrieve the number of nodes within this graph
+	 * 
+	 * @return
+	 */
+	public int getNodeCount() {
+		return nodes.size();
+	}
+
+	public boolean addEdge(Edge e) {
+		return edges.add(e);
+	}
+
+	public boolean containsEdge(Edge e) {
+		return edges.contains(e);
+	}
+
+	/**
+	 * Get an edge by a generated dummy edge (see
+	 * {@link IEdgeListDatastructureReadable#get(IElement)} for details)
+	 * 
+	 * @param e
+	 * @return
+	 */
+	public Edge getEdge(Edge e) {
+		if (!gds.isReadable(edges))
+			throw new RuntimeException("This is not a readable graph");
+		return ((IEdgeListDatastructureReadable) edges).get(e);
+	}
+
+	/**
+	 * Retrieve a random edge
+	 * 
+	 * @return
+	 */
+	public Edge getRandomEdge() {
+		if (!gds.isReadable(edges))
+			throw new RuntimeException("This is not a readable graph");
+		return (Edge) ((IEdgeListDatastructureReadable) edges).getRandom();
+	}
+
+	/**
+	 * Retrieve a collection of all edges within this graph
+	 * 
+	 * @return
+	 */
+	public Collection<IElement> getEdges() {
+		if (!gds.isReadable(edges))
+			throw new RuntimeException("This is not a readable graph");
+		return ((IEdgeListDatastructureReadable) edges).getElements();
+	}
+
+	public boolean removeEdge(Edge e) {
+		return edges.remove(e);
+	}
+
+	/**
+	 * Retrieve the number of edges within this graph
+	 * 
+	 * @return
+	 */
+	public int getEdgeCount() {
+		return edges.size();
+	}
+
+	/**
+	 * Check whether this is a directed graph or not
+	 * 
+	 * @return
+	 */
+	public boolean isDirected() {
+		return gds.createsDirected();
+	}
 
 	public String getName() {
 		return this.name;
-	}
-
-	protected long timestamp;
-
-	public long getTimestamp() {
-		return this.timestamp;
 	}
 
 	public void setTimestamp(long timestamp) {
 		this.timestamp = timestamp;
 	}
 
-	protected GraphDatastructures<Graph<N, E>, N, E> ds;
+	public long getTimestamp() {
+		return this.timestamp;
+	}
 
-	public GraphDatastructures<Graph<N, E>, N, E> getGraphDatastructures() {
-		return this.ds;
+	public GraphDataStructure getGraphDatastructures() {
+		return this.gds;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (obj == null) {
+			return false;
+		}
+		if (getClass() != obj.getClass()) {
+			return false;
+		}
+
+		Graph other = (Graph) obj;
+
+		if (gds == null) {
+			if (other.gds != null) {
+				return false;
+			}
+		} else if (!gds.equals(other.gds)) {
+			return false;
+		}
+		if (timestamp != other.timestamp) {
+			return false;
+		}
+		if (name == null) {
+			if (other.name != null) {
+				return false;
+			}
+		} else if (!name.equals(other.name)) {
+			return false;
+		}
+
+		if (edges == null) {
+			if (other.edges != null) {
+				return false;
+			}
+		} else if (!this.edges.equals(other.edges)) {
+			return false;
+		}
+		if (nodes == null) {
+			if (other.nodes != null) {
+				return false;
+			}
+		} else if (!this.nodes.equals(other.nodes)) {
+			return false;
+		}
+		return true;
 	}
 
 	public String toString() {
-		return this.getName() + " @ " + this.getTimestamp() + " ("
-				+ this.getNodeCount() + "/" + this.getEdgeCount() + ")";
+		return this.getName() + " @ " + this.getTimestamp() + " (" + this.getNodeCount() + "/" + this.getEdgeCount()
+				+ ")";
 	}
 
 	public void print() {
@@ -44,33 +245,4 @@ public abstract class Graph<N extends Node<E>, E extends Edge> {
 		System.out.println("  E = " + this.getEdges());
 	}
 
-	public abstract N getNode(int index);
-
-	public abstract int getMaxNodeIndex();
-
-	public abstract int getNodeCount();
-
-	public abstract Collection<N> getNodes();
-
-	public abstract boolean addNode(N n);
-
-	public abstract boolean removeNode(N n);
-
-	public abstract boolean containsNode(N n);
-
-	public abstract Node<E> getRandomNode();
-
-	public abstract E getEdge(E e);
-
-	public abstract int getEdgeCount();
-
-	public abstract Collection<E> getEdges();
-
-	public abstract boolean addEdge(E e);
-
-	public abstract boolean removeEdge(E e);
-
-	public abstract boolean containsEdge(E e);
-
-	public abstract E getRandomEdge();
 }

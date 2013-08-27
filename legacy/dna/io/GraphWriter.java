@@ -2,41 +2,40 @@ package dna.io;
 
 import java.io.IOException;
 
+import dna.graph.Edge;
 import dna.graph.Graph;
-import dna.graph.IElement;
+import dna.graph.Node;
 import dna.io.etc.Keywords;
 
-public class GraphWriter {
+public class GraphWriter<G extends Graph<N, E>, N extends Node<E>, E extends Edge> {
 
-	public boolean write(Graph g, String dir, String filename) {
+	public boolean write(Graph<N, E> g, String dir, String filename) {
 		Writer writer = null;
 		try {
 			writer = new Writer(dir, filename);
 
 			writer.writeKeyword(Keywords.graphGraph);
 			writer.writeln(g.getName());
-			
-			writer.writeKeyword(Keywords.graphDataStructures);
-			writer.writeln(g.getGraphDatastructures().getDataStructures());
+			writer.writeln(g.getGraphDatastructures().getGraphType());
 
 			writer.writeKeyword(Keywords.graphNodes);
 			writer.writeln(g.getNodeCount());
+			writer.writeln(g.getGraphDatastructures().getNodeType());
 
 			writer.writeKeyword(Keywords.graphEdges);
 			writer.writeln(g.getEdgeCount());
+			writer.writeln(g.getGraphDatastructures().getEdgeType());
 
 			writer.writeKeyword(Keywords.graphTimestamp);
 			writer.writeln(g.getTimestamp());
 
 			writer.writeKeyword(Keywords.graphListOfNodes);
-			for (IElement n : g.getNodes()) {
-				if ( n == null ) continue;
+			for (N n : g.getNodes()) {
 				writer.writeln(n.getStringRepresentation());
 			}
 
 			writer.writeKeyword(Keywords.graphListOfEdges);
-			for (IElement e : g.getEdges()) {
-				if ( e == null ) continue;
+			for (E e : g.getEdges()) {
 				writer.writeln(e.getStringRepresentation());
 			}
 
