@@ -19,7 +19,7 @@ public class OpenTriangleClusteringCoefficientUpdate extends
 
 	public OpenTriangleClusteringCoefficientUpdate() {
 		super("openTriangleClusteringCoefficientUpdate",
-				ApplicationType.BeforeAndAfterUpdate);
+				ApplicationType.BeforeAndAfterUpdate, MetricType.exact);
 	}
 
 	@Override

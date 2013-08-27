@@ -20,7 +20,7 @@ public class ClosedTriangleClusteringCoefficientUpdate extends
 
 	public ClosedTriangleClusteringCoefficientUpdate() {
 		super("closedTriangleClusteringCoefficientUpdate",
-				ApplicationType.BeforeAndAfterUpdate);
+				ApplicationType.BeforeAndAfterUpdate, MetricType.exact);
 	}
 
 	@Override

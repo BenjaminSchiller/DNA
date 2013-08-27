@@ -25,7 +25,7 @@ public class ClosedTriangleClusteringCoefficientRecomp extends
 
 	public ClosedTriangleClusteringCoefficientRecomp() {
 		super("closedTriangleClusteringCoefficientRecomp",
-				ApplicationType.Recomputation);
+				ApplicationType.Recomputation, MetricType.exact);
 	}
 
 	@Override

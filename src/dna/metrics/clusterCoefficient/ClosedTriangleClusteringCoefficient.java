@@ -14,8 +14,9 @@ import dna.util.ArrayUtils;
 public abstract class ClosedTriangleClusteringCoefficient extends
 		ClusteringCoefficient {
 
-	public ClosedTriangleClusteringCoefficient(String name, ApplicationType type) {
-		super(name, type);
+	public ClosedTriangleClusteringCoefficient(String name,
+			ApplicationType type, MetricType mType) {
+		super(name, type, mType);
 	}
 
 	@Override

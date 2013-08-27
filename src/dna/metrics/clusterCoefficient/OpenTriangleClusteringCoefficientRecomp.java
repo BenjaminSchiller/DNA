@@ -14,7 +14,7 @@ public class OpenTriangleClusteringCoefficientRecomp extends
 
 	public OpenTriangleClusteringCoefficientRecomp() {
 		super("openTriangleClusteringCoefficientRecomp",
-				ApplicationType.Recomputation);
+				ApplicationType.Recomputation, MetricType.exact);
 	}
 
 	@Override

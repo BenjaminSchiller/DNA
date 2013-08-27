@@ -10,8 +10,9 @@ import dna.util.DataUtils;
 @SuppressWarnings("rawtypes")
 public abstract class ClusteringCoefficient extends Metric {
 
-	public ClusteringCoefficient(String name, ApplicationType type) {
-		super(name, type, MetricType.exact);
+	public ClusteringCoefficient(String name, ApplicationType type,
+			MetricType mType) {
+		super(name, type, mType);
 	}
 
 	protected double globalCC;
