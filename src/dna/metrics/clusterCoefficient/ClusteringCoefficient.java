@@ -1,13 +1,12 @@
 package dna.metrics.clusterCoefficient;
 
-import dna.graph.Node;
+import dna.graph.nodes.Node;
 import dna.metrics.Metric;
 import dna.series.data.Distribution;
 import dna.series.data.Value;
 import dna.util.ArrayUtils;
 import dna.util.DataUtils;
 
-@SuppressWarnings("rawtypes")
 public abstract class ClusteringCoefficient extends Metric {
 
 	public ClusteringCoefficient(String name, ApplicationType type,

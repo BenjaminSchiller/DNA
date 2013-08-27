@@ -1,8 +1,8 @@
 package dna.metrics.clusterCoefficient;
 
-import dna.graph.directed.DirectedEdge;
-import dna.graph.directed.DirectedGraph;
-import dna.graph.directed.DirectedNode;
+import dna.graph.IElement;
+import dna.graph.edges.DirectedEdge;
+import dna.graph.nodes.DirectedNode;
 import dna.series.data.NodeValueList;
 import dna.updates.Batch;
 import dna.updates.Update;
@@ -41,12 +41,14 @@ public class OpenTriangleClusteringCoefficientRecomp extends
 	public boolean compute() {
 		this.triangleCount = 0;
 		this.potentialCount = 0;
-		DirectedGraph g = (DirectedGraph) this.g;
-		for (DirectedNode n : g.getNodes()) {
+		for (IElement nUncasted : g.getNodes()) {
+			DirectedNode n = (DirectedNode) nUncasted;
 			this.nodeTriangleCount[n.getIndex()] = 0;
 			this.nodePotentialCount[n.getIndex()] = 0;
-			for (DirectedNode u : n.getNeighbors()) {
-				for (DirectedNode v : n.getNeighbors()) {
+			for (IElement uUncasted : n.getNeighbors()) {
+				DirectedNode u = (DirectedNode) uUncasted;
+				for (IElement vUncasted : n.getNeighbors()) {
+					DirectedNode v = (DirectedNode) vUncasted;
 					if (u.equals(v)) {
 						continue;
 					}

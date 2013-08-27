@@ -1,11 +1,10 @@
 package dna.metrics.clusterCoefficient;
 
 import dna.graph.Graph;
-import dna.graph.directed.DirectedGraph;
-import dna.graph.directed.DirectedNode;
-import dna.graph.undirected.UndirectedEdge;
-import dna.graph.undirected.UndirectedGraph;
-import dna.graph.undirected.UndirectedNode;
+import dna.graph.IElement;
+import dna.graph.edges.UndirectedEdge;
+import dna.graph.nodes.DirectedNode;
+import dna.graph.nodes.UndirectedNode;
 import dna.metrics.Metric;
 import dna.updates.Batch;
 import dna.util.ArrayUtils;
@@ -35,15 +34,16 @@ public abstract class ClosedTriangleClusteringCoefficient extends
 
 	public boolean computeUndirected() {
 
-		UndirectedGraph g = (UndirectedGraph) this.g;
-
-		for (UndirectedNode a : g.getNodes()) {
+		for (IElement aUncasted : g.getNodes()) {
+			UndirectedNode a = (UndirectedNode) aUncasted;
 			this.nodeTriangleCount[a.getIndex()] = 0;
 			this.nodePotentialCount[a.getIndex()] = 0;
 
-			for (UndirectedEdge e1 : a.getEdges()) {
+			for (IElement e1Uncasted : a.getEdges()) {
+				UndirectedEdge e1 = (UndirectedEdge) e1Uncasted;
 				UndirectedNode b = e1.getDifferingNode(a);
-				for (UndirectedEdge e2 : a.getEdges()) {
+				for (IElement e2Uncasted : a.getEdges()) {
+					UndirectedEdge e2 = (UndirectedEdge) e2Uncasted;
 					UndirectedNode c = e2.getDifferingNode(a);
 					if (b.equals(c)) {
 						continue;
@@ -68,14 +68,15 @@ public abstract class ClosedTriangleClusteringCoefficient extends
 
 	public boolean computeDirected() {
 
-		DirectedGraph g = (DirectedGraph) this.g;
-
-		for (DirectedNode a : g.getNodes()) {
+		for (IElement aUncasted : g.getNodes()) {
+			DirectedNode a = (DirectedNode) aUncasted;
 			this.nodeTriangleCount[a.getIndex()] = 0;
 			this.nodePotentialCount[a.getIndex()] = 0;
 
-			for (DirectedNode b : a.getNeighbors()) {
-				for (DirectedNode c : a.getNeighbors()) {
+			for (IElement bUncasted : a.getNeighbors()) {
+				DirectedNode b = (DirectedNode) bUncasted;
+				for (IElement cUncasted : a.getNeighbors()) {
+					DirectedNode c = (DirectedNode) cUncasted;
 					if (b.equals(c)) {
 						continue;
 					}

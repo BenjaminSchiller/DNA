@@ -1,7 +1,7 @@
 package dna.metrics.clusterCoefficient;
 
 import dna.graph.Graph;
-import dna.graph.directed.DirectedNode;
+import dna.graph.nodes.DirectedNode;
 import dna.metrics.Metric;
 import dna.updates.Batch;
 
