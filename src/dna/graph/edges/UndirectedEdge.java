@@ -2,7 +2,6 @@ package dna.graph.edges;
 
 import dna.graph.Element;
 import dna.graph.Graph;
-import dna.graph.nodes.Node;
 import dna.graph.nodes.UndirectedNode;
 import dna.io.etc.Keywords;
 
@@ -51,7 +50,7 @@ public class UndirectedEdge extends Edge {
 	 * 
 	 * @return first node connected by this edge (the node with the lower index)
 	 */
-	public Node getNode1() {
+	public UndirectedNode getNode1() {
 		return this.node1;
 	}
 
@@ -62,7 +61,7 @@ public class UndirectedEdge extends Edge {
 	 * @return second node connected by this edge (the node with the higher
 	 *         index)
 	 */
-	public Node getNode2() {
+	public UndirectedNode getNode2() {
 		return this.node2;
 	}
 

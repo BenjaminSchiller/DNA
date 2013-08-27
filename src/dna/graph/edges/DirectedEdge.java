@@ -3,7 +3,6 @@ package dna.graph.edges;
 import dna.graph.Element;
 import dna.graph.Graph;
 import dna.graph.nodes.DirectedNode;
-import dna.graph.nodes.Node;
 import dna.io.etc.Keywords;
 
 public class DirectedEdge extends Edge {
@@ -23,11 +22,11 @@ public class DirectedEdge extends Edge {
 		this.dst = dst;
 	}
 
-	public Node getSrc() {
+	public DirectedNode getSrc() {
 		return this.src;
 	}
 
-	public Node getDst() {
+	public DirectedNode getDst() {
 		return this.dst;
 	}
 
