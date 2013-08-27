@@ -1,5 +1,7 @@
 #!/bin/bash
  
+set -e
+ 
 function mkdirectory {
 	mkdir $1
 	git add $1
@@ -9,33 +11,8 @@ function legacy {
 	git mv src/$1 legacy/$1
 }
 
-function newversion {
-    git mv experimental/src/$1 src/$1
-}
- 
-echo "Importing stuff from experimental repo into DNA repo"
-git remote rm experimental
-git remote add -f experimental git@github.com:NicoHaase/DNAExperiment.git
-git merge -s ours --no-commit experimental/master
-git read-tree --prefix=experimental/ -u experimental/master
-git commit -m "Merge experimental branch into ours"
+echo "First step: move Bennis code out of the way"
 
-echo ""
-echo "Second step: replace former classes with experimental ones"
-
-git rm experimental/src/dna/util/parameters/*
-git rm experimental/src/dna/util/Log.java
-git rm experimental/src/dna/util/Rand.java
-
-git mv experimental/src/dna/datastructures/ src/dna/
-git mv experimental/src/dna/tests/ src/dna/
-git mv experimental/src/dna/examples/ src/dna/
-git mv experimental/src/dna/factories/ src/dna/
- 
-git mv experimental/src/dna/graph/Element.java src/dna/graph/
-git mv experimental/src/dna/graph/IElement.java src/dna/graph/
-git mv experimental/src/dna/graph/IWeighted.java src/dna/graph/
- 
 mkdirectory legacy
 mkdirectory legacy/dna
 mkdirectory legacy/dna/graph
@@ -62,28 +39,37 @@ legacy dna/io/Writer.java
 legacy dna/io/GraphReader.java
 legacy dna/io/GraphWriter.java
 legacy dna/io/etc/Keywords.java
+git mv .gitignore legacy/
 
 git commit -m "Moved Bennis stuff to legacy section"
 
+test -f .classpath && mv .classpath{,.hold}
+test -f .project && mv .project{,.hold}
+
+test -f lib/mockito-all-1.9.5.jar && rm lib/mockito-all-1.9.5.jar
+
 echo " "
-echo "Finished moving old stuff, moving new stuff new"
+echo "Second step: add experimental repo"
+git remote rm experimental
+git remote add -f experimental git@github.com:NicoHaase/DNAExperiment.git
 
-newversion dna/graph/Graph.java
-newversion dna/graph/edges/
-newversion dna/graph/nodes/
-newversion dna/io/Reader.java
-newversion dna/io/Writer.java
-newversion dna/io/GraphReader.java
-newversion dna/io/GraphWriter.java
-newversion dna/io/etc/Keywords.java
- 
-rmdir experimental/src/dna/graph
-rmdir experimental/src/dna/io/etc
-rmdir experimental/src/dna/io/
+echo " "
+echo "Third step: cherry picking"
 
-git mv experimental/lib/mockit* lib/
- 
-git commit -m "Integretated experimental stuff into core"
+for singleCommit in $(git rev-list --remotes=experimental --reverse --abbrev-commit)
+do
+#	if [ "$singleCommit" == "1265051" ]
+#	then
+		# Ignore initial commit
+		# continue
+#	fi
+	
+	echo "Running     git cherry-pick $singleCommit"
+	git cherry-pick $singleCommit
+done
+
+mv .classpath{.hold,}
+mv .project{.hold,}
 
 echo "Manual steps:"
 echo " - add JUnit and Mockito to the build path"
