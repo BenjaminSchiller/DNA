@@ -1,9 +1,7 @@
 package dna.updates;
 
-import dna.graph.Edge;
 import dna.graph.Graph;
-import dna.graph.Node;
-import dna.graph.WeightedEdge;
+import dna.graph.edges.Edge;
 import dna.util.Config;
 import dna.util.Log;
 
@@ -25,7 +23,7 @@ public class EdgeWeightUpdate<E extends Edge> extends EdgeUpdate<E> {
 	}
 
 	@Override
-	public boolean apply(Graph<? extends Node<E>, ? extends E> graph) {
+	public boolean apply(Graph graph) {
 		Log.debug("=> " + this.toString());
 		((WeightedEdge) this.edge).setWeight(this.weight);
 		return true;

@@ -214,30 +214,4 @@ public class GraphTester {
 		g2.removeNode(g2n1);
 		assertEquals(g1, g2);
 	}
-	
-	@SuppressWarnings("unchecked")
-	@Test
-	public void elementEqualities() throws IllegalArgumentException, IllegalAccessException, NoSuchFieldException, SecurityException {
-		Class<? extends Node> originalNodeType = gds.getNodeType(); 
-				
-		Node n = this.gds.newNodeInstance(0);
-		assertTrue(n.deepEquals(n));
-		
-		for(Class<? extends Node> otherElementClass: nodeTypes) {
-			this.gds.setNodeType(otherElementClass);
-			
-			// Check for edges
-			Edge e = this.gds.newEdgeInstance(n, n);
-			assertTrue(e.deepEquals(e));
-			assertFalse(n.deepEquals(e));
-			assertFalse(e.deepEquals(n));
-			
-			// Check for *other* nodes
-			if ( otherElementClass == originalNodeType ) continue;
-			Node n2 = this.gds.newNodeInstance(1);
-			assertTrue(n2.deepEquals(n2));
-			assertFalse(n.deepEquals(n2));
-			assertFalse(n2.deepEquals(n));			
-		}
-	}
 }

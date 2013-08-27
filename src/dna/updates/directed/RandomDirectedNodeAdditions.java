@@ -1,12 +1,9 @@
 package dna.updates.directed;
 
+import dna.datastructures.GraphDataStructure;
 import dna.graph.Graph;
-import dna.graph.GraphDatastructures;
-import dna.graph.Node;
-import dna.graph.directed.DirectedEdge;
-import dna.graph.directed.DirectedGraph;
-import dna.graph.directed.DirectedGraphDatastructures;
-import dna.graph.directed.DirectedNode;
+import dna.graph.edges.DirectedEdge;
+import dna.graph.nodes.DirectedNode;
 import dna.updates.Batch;
 import dna.updates.NodeAddition;
 import dna.util.parameters.IntParameter;
@@ -30,25 +27,19 @@ public class RandomDirectedNodeAdditions extends DirectedBatchGenerator {
 	 * @param datastructures
 	 *            datastructures
 	 */
-	public RandomDirectedNodeAdditions(int additions,
-			DirectedGraphDatastructures datastructures) {
-		super("randomDirectedNodeAdditions", new IntParameter("additions",
-				additions), datastructures);
+	public RandomDirectedNodeAdditions(int additions, GraphDataStructure datastructures) {
+		super("randomDirectedNodeAdditions", new IntParameter("additions", additions), datastructures);
 		this.additions = additions;
 	}
 
-	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Override
-	public Batch<DirectedEdge> generate(
-			Graph<? extends Node<DirectedEdge>, DirectedEdge> graph) {
-		DirectedGraph g = (DirectedGraph) graph;
-		Batch<DirectedEdge> batch = new Batch<DirectedEdge>(
-				(GraphDatastructures) this.ds, graph.getTimestamp(),
-				graph.getTimestamp() + 1, this.additions, 0, 0, 0, 0, 0);
+	public Batch<DirectedEdge> generate(Graph graph) {
+		Batch<DirectedEdge> batch = new Batch<DirectedEdge>(this.ds, graph.getTimestamp(), graph.getTimestamp() + 1,
+				this.additions, 0, 0, 0, 0, 0);
 		int index = graph.getMaxNodeIndex() + 1;
 		while (batch.getSize() < this.additions) {
 			DirectedNode n = (DirectedNode) this.ds.newNodeInstance(index);
-			if (!g.containsNode(n)) {
+			if (!graph.containsNode(n)) {
 				batch.add(new NodeAddition<DirectedEdge>(n));
 			}
 			index++;

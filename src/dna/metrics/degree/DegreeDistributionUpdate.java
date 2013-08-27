@@ -1,12 +1,11 @@
 package dna.metrics.degree;
 
-import java.util.Collection;
-
 import dna.graph.Graph;
-import dna.graph.directed.DirectedEdge;
-import dna.graph.directed.DirectedNode;
-import dna.graph.undirected.UndirectedEdge;
-import dna.graph.undirected.UndirectedNode;
+import dna.graph.IElement;
+import dna.graph.edges.DirectedEdge;
+import dna.graph.edges.UndirectedEdge;
+import dna.graph.nodes.DirectedNode;
+import dna.graph.nodes.UndirectedNode;
 import dna.series.data.NodeValueList;
 import dna.updates.Batch;
 import dna.updates.EdgeAddition;
@@ -22,8 +21,7 @@ import dna.util.Log;
 public class DegreeDistributionUpdate extends DegreeDistribution {
 
 	public DegreeDistributionUpdate() {
-		super("degreeDistributionUpdate", ApplicationType.BeforeUpdate,
-				MetricType.exact);
+		super("degreeDistributionUpdate", ApplicationType.BeforeUpdate, MetricType.exact);
 	}
 
 	private int[] degreeCount;
@@ -44,15 +42,12 @@ public class DegreeDistributionUpdate extends DegreeDistribution {
 
 	@Override
 	public boolean applyBeforeUpdate(Update u) {
-		if (DirectedNode.class.isAssignableFrom(this.g.getGraphDatastructures()
-				.getNodeType())) {
+		if (DirectedNode.class.isAssignableFrom(this.g.getGraphDatastructures().getNodeType())) {
 			return this.applyBeforeUpdateDirected(u);
-		} else if (UndirectedNode.class.isAssignableFrom(this.g
-				.getGraphDatastructures().getNodeType())) {
+		} else if (UndirectedNode.class.isAssignableFrom(this.g.getGraphDatastructures().getNodeType())) {
 			return this.applyBeforeUpdateUndirected(u);
 		}
-		Log.error("DD - unsupported node type "
-				+ this.g.getGraphDatastructures().getNodeType());
+		Log.error("DD - unsupported node type " + this.g.getGraphDatastructures().getNodeType());
 		return false;
 	}
 
@@ -74,7 +69,8 @@ public class DegreeDistributionUpdate extends DegreeDistribution {
 			this.decrCounts(n, 0);
 
 			// change counts for outgoing edges
-			for (DirectedEdge out : n.getOutgoingEdges()) {
+			for (IElement outUncasted : n.getOutgoingEdges()) {
+				DirectedEdge out = (DirectedEdge) outUncasted;
 				if (n.hasNeighbor(out.getDst())) {
 					continue;
 				}
@@ -85,7 +81,8 @@ public class DegreeDistributionUpdate extends DegreeDistribution {
 			}
 
 			// / change count for incoming edges
-			for (DirectedEdge in : n.getIncomingEdges()) {
+			for (IElement inUncasted : n.getIncomingEdges()) {
+				DirectedEdge in = (DirectedEdge) inUncasted;
 				if (n.hasNeighbor(in.getSrc())) {
 					continue;
 				}
@@ -96,7 +93,8 @@ public class DegreeDistributionUpdate extends DegreeDistribution {
 			}
 
 			// change count for neighbors
-			for (DirectedNode neighbor : n.getNeighbors()) {
+			for (IElement neighborUncasted : n.getNeighbors()) {
+				DirectedNode neighbor = (DirectedNode) neighborUncasted;
 				this.decrCounts(neighbor, 0);
 				this.incrDegreeCount(neighbor, -2);
 				this.incrInDegreeCount(neighbor, -1);
@@ -153,8 +151,7 @@ public class DegreeDistributionUpdate extends DegreeDistribution {
 			this.incrDegreeCount(n, 0);
 
 			// UPDATE distributions
-			this.updateDistribution(this.degreeDistribution, this.degreeCount,
-					this.nodes);
+			this.updateDistribution(this.degreeDistribution, this.degreeCount, this.nodes);
 
 		} else if (u instanceof NodeRemoval) {
 
@@ -164,7 +161,8 @@ public class DegreeDistributionUpdate extends DegreeDistribution {
 			this.edges -= n.getDegree();
 			this.decrDegreeCount(n, 0);
 
-			for (UndirectedEdge e : n.getEdges()) {
+			for (IElement eUncasted : n.getEdges()) {
+				UndirectedEdge e = (UndirectedEdge) eUncasted;
 				UndirectedNode node = e.getNode1();
 				if (n.equals(node)) {
 					node = e.getNode2();
@@ -211,35 +209,28 @@ public class DegreeDistributionUpdate extends DegreeDistribution {
 		return false;
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public boolean compute() {
 		this.nodes = this.g.getNodeCount();
 		this.edges = this.g.getEdgeCount();
-		if (DirectedNode.class.isAssignableFrom(this.g.getGraphDatastructures()
-				.getNodeType())) {
-			for (DirectedNode n : (Collection<DirectedNode>) this.g.getNodes()) {
-				this.degreeCount = ArrayUtils.incr(this.degreeCount,
-						n.getDegree());
-				this.inDegreeCount = ArrayUtils.incr(this.inDegreeCount,
-						n.getInDegree());
-				this.outDegreeCount = ArrayUtils.incr(this.outDegreeCount,
-						n.getOutDegree());
+		if (DirectedNode.class.isAssignableFrom(this.g.getGraphDatastructures().getNodeType())) {
+			for (IElement nUncasted : this.g.getNodes()) {
+				DirectedNode n = (DirectedNode) nUncasted;
+				this.degreeCount = ArrayUtils.incr(this.degreeCount, n.getDegree());
+				this.inDegreeCount = ArrayUtils.incr(this.inDegreeCount, n.getInDegree());
+				this.outDegreeCount = ArrayUtils.incr(this.outDegreeCount, n.getOutDegree());
 			}
 			this.finalizeComputation();
 			return true;
-		} else if (UndirectedNode.class.isAssignableFrom(this.g
-				.getGraphDatastructures().getNodeType())) {
-			for (UndirectedNode n : (Collection<UndirectedNode>) this.g
-					.getNodes()) {
-				this.degreeCount = ArrayUtils.incr(this.degreeCount,
-						n.getDegree());
+		} else if (UndirectedNode.class.isAssignableFrom(this.g.getGraphDatastructures().getNodeType())) {
+			for (IElement nUncasted : this.g.getNodes()) {
+				UndirectedNode n = (UndirectedNode) nUncasted;
+				this.degreeCount = ArrayUtils.incr(this.degreeCount, n.getDegree());
 			}
 			this.finalizeComputation();
 			return true;
 		}
-		Log.error("DD - unsupported node type "
-				+ this.g.getGraphDatastructures().getNodeType());
+		Log.error("DD - unsupported node type " + this.g.getGraphDatastructures().getNodeType());
 		return false;
 	}
 
@@ -270,18 +261,14 @@ public class DegreeDistributionUpdate extends DegreeDistribution {
 
 	@Override
 	public boolean isApplicable(Graph g) {
-		return DirectedNode.class.isAssignableFrom(g.getGraphDatastructures()
-				.getNodeType())
-				|| UndirectedNode.class.isAssignableFrom(g
-						.getGraphDatastructures().getNodeType());
+		return DirectedNode.class.isAssignableFrom(g.getGraphDatastructures().getNodeType())
+				|| UndirectedNode.class.isAssignableFrom(g.getGraphDatastructures().getNodeType());
 	}
 
 	@Override
 	public boolean isApplicable(Batch b) {
-		return DirectedNode.class.isAssignableFrom(b.getGraphDatastructures()
-				.getNodeType())
-				|| UndirectedNode.class.isAssignableFrom(b
-						.getGraphDatastructures().getNodeType());
+		return DirectedNode.class.isAssignableFrom(b.getGraphDatastructures().getNodeType())
+				|| UndirectedNode.class.isAssignableFrom(b.getGraphDatastructures().getNodeType());
 	}
 
 	private void updateDistributions() {
@@ -289,22 +276,19 @@ public class DegreeDistributionUpdate extends DegreeDistribution {
 		if (this.degreeCount.length != this.degreeDistribution.length) {
 			this.degreeDistribution = new double[this.degreeCount.length];
 		}
-		this.updateDistribution(this.degreeDistribution, this.degreeCount,
-				this.nodes);
+		this.updateDistribution(this.degreeDistribution, this.degreeCount, this.nodes);
 
 		this.inDegreeCount = ArrayUtils.truncate(this.inDegreeCount, 0);
 		if (this.inDegreeCount.length != this.inDegreeDistribution.length) {
 			this.inDegreeDistribution = new double[this.inDegreeCount.length];
 		}
-		this.updateDistribution(this.inDegreeDistribution, this.inDegreeCount,
-				this.nodes);
+		this.updateDistribution(this.inDegreeDistribution, this.inDegreeCount, this.nodes);
 
 		this.outDegreeCount = ArrayUtils.truncate(this.outDegreeCount, 0);
 		if (this.outDegreeCount.length != this.outDegreeDistribution.length) {
 			this.outDegreeDistribution = new double[this.outDegreeCount.length];
 		}
-		this.updateDistribution(this.outDegreeDistribution,
-				this.outDegreeCount, this.nodes);
+		this.updateDistribution(this.outDegreeDistribution, this.outDegreeCount, this.nodes);
 	}
 
 	private void updateDegreeDistribution() {
@@ -312,12 +296,10 @@ public class DegreeDistributionUpdate extends DegreeDistribution {
 		if (this.degreeCount.length != this.degreeDistribution.length) {
 			this.degreeDistribution = new double[this.degreeCount.length];
 		}
-		this.updateDistribution(this.degreeDistribution, this.degreeCount,
-				this.nodes);
+		this.updateDistribution(this.degreeDistribution, this.degreeCount, this.nodes);
 	}
 
-	private void updateDistribution(double[] distribution, int[] counts,
-			double nodes) {
+	private void updateDistribution(double[] distribution, int[] counts, double nodes) {
 		for (int i = 0; i < counts.length; i++) {
 			distribution[i] = (double) counts[i] / nodes;
 		}
@@ -330,18 +312,15 @@ public class DegreeDistributionUpdate extends DegreeDistribution {
 	}
 
 	private void decrDegreeCount(DirectedNode n, int offset) {
-		this.degreeCount = ArrayUtils.decr(this.degreeCount, n.getDegree()
-				+ offset);
+		this.degreeCount = ArrayUtils.decr(this.degreeCount, n.getDegree() + offset);
 	}
 
 	private void decrInDegreeCount(DirectedNode n, int offset) {
-		this.inDegreeCount = ArrayUtils.decr(this.inDegreeCount,
-				n.getInDegree() + offset);
+		this.inDegreeCount = ArrayUtils.decr(this.inDegreeCount, n.getInDegree() + offset);
 	}
 
 	private void decrOutDegreeCount(DirectedNode n, int offset) {
-		this.outDegreeCount = ArrayUtils.decr(this.outDegreeCount,
-				n.getOutDegree() + offset);
+		this.outDegreeCount = ArrayUtils.decr(this.outDegreeCount, n.getOutDegree() + offset);
 	}
 
 	private void incrCounts(DirectedNode n, int offset) {
@@ -351,79 +330,63 @@ public class DegreeDistributionUpdate extends DegreeDistribution {
 	}
 
 	private void incrDegreeCount(DirectedNode n, int offset) {
-		this.degreeCount = ArrayUtils.incr(this.degreeCount, n.getDegree()
-				+ offset);
+		this.degreeCount = ArrayUtils.incr(this.degreeCount, n.getDegree() + offset);
 	}
 
 	private void incrInDegreeCount(DirectedNode n, int offset) {
-		this.inDegreeCount = ArrayUtils.incr(this.inDegreeCount,
-				n.getInDegree() + offset);
+		this.inDegreeCount = ArrayUtils.incr(this.inDegreeCount, n.getInDegree() + offset);
 	}
 
 	private void incrOutDegreeCount(DirectedNode n, int offset) {
-		this.outDegreeCount = ArrayUtils.incr(this.outDegreeCount,
-				n.getOutDegree() + offset);
+		this.outDegreeCount = ArrayUtils.incr(this.outDegreeCount, n.getOutDegree() + offset);
 	}
 
 	private void updateDegreeDistribution(DirectedNode n, int offset) {
-		this.degreeDistribution = ArrayUtils.set(this.degreeDistribution,
-				n.getDegree(), this.degreeCount[n.getDegree()] / this.nodes, 0);
-		this.degreeDistribution = ArrayUtils.set(this.degreeDistribution,
-				n.getDegree() + offset,
+		this.degreeDistribution = ArrayUtils.set(this.degreeDistribution, n.getDegree(),
+				this.degreeCount[n.getDegree()] / this.nodes, 0);
+		this.degreeDistribution = ArrayUtils.set(this.degreeDistribution, n.getDegree() + offset,
 				this.degreeCount[n.getDegree() + offset] / this.nodes, 0);
 	}
 
 	private void updateInDegreeDistribution(DirectedNode n, int offset) {
-		this.inDegreeDistribution = ArrayUtils.set(this.inDegreeDistribution,
-				n.getInDegree() + offset, this.inDegreeCount[n.getInDegree()
-						+ offset]
-						/ this.nodes, 0);
-		this.inDegreeDistribution = ArrayUtils.set(this.inDegreeDistribution,
-				n.getInDegree(), this.inDegreeCount[n.getInDegree()]
-						/ this.nodes, 0);
+		this.inDegreeDistribution = ArrayUtils.set(this.inDegreeDistribution, n.getInDegree() + offset,
+				this.inDegreeCount[n.getInDegree() + offset] / this.nodes, 0);
+		this.inDegreeDistribution = ArrayUtils.set(this.inDegreeDistribution, n.getInDegree(),
+				this.inDegreeCount[n.getInDegree()] / this.nodes, 0);
 	}
 
 	private void updateOutDegreeDistribution(DirectedNode n, int offset) {
-		this.outDegreeDistribution = ArrayUtils.set(this.outDegreeDistribution,
-				n.getOutDegree() + offset, this.outDegreeCount[n.getOutDegree()
-						+ offset]
-						/ this.nodes, 0);
-		this.outDegreeDistribution = ArrayUtils.set(this.outDegreeDistribution,
-				n.getOutDegree(), this.outDegreeCount[n.getOutDegree()]
-						/ this.nodes, 0);
+		this.outDegreeDistribution = ArrayUtils.set(this.outDegreeDistribution, n.getOutDegree() + offset,
+				this.outDegreeCount[n.getOutDegree() + offset] / this.nodes, 0);
+		this.outDegreeDistribution = ArrayUtils.set(this.outDegreeDistribution, n.getOutDegree(),
+				this.outDegreeCount[n.getOutDegree()] / this.nodes, 0);
 	}
 
 	private void decrDegreeCount(UndirectedNode n, int offset) {
-		this.degreeCount = ArrayUtils.decr(this.degreeCount, n.getDegree()
-				+ offset);
+		this.degreeCount = ArrayUtils.decr(this.degreeCount, n.getDegree() + offset);
 	}
 
 	private void incrDegreeCount(UndirectedNode n, int offset) {
-		this.degreeCount = ArrayUtils.incr(this.degreeCount, n.getDegree()
-				+ offset);
+		this.degreeCount = ArrayUtils.incr(this.degreeCount, n.getDegree() + offset);
 	}
 
 	private void updateDegreeDistribution(UndirectedNode n, int offset) {
-		this.degreeDistribution = ArrayUtils.set(this.degreeDistribution,
-				n.getDegree(), this.degreeCount[n.getDegree()] / this.nodes, 0);
-		this.degreeDistribution = ArrayUtils.set(this.degreeDistribution,
-				n.getDegree() + offset,
+		this.degreeDistribution = ArrayUtils.set(this.degreeDistribution, n.getDegree(),
+				this.degreeCount[n.getDegree()] / this.nodes, 0);
+		this.degreeDistribution = ArrayUtils.set(this.degreeDistribution, n.getDegree() + offset,
 				this.degreeCount[n.getDegree() + offset] / this.nodes, 0);
 	}
 
 	private void truncateAll() {
 		this.truncateDegree();
-		this.inDegreeDistribution = ArrayUtils.truncate(
-				this.inDegreeDistribution, 0);
+		this.inDegreeDistribution = ArrayUtils.truncate(this.inDegreeDistribution, 0);
 		this.inDegreeCount = ArrayUtils.truncate(this.inDegreeCount, 0);
-		this.outDegreeDistribution = ArrayUtils.truncate(
-				this.outDegreeDistribution, 0);
+		this.outDegreeDistribution = ArrayUtils.truncate(this.outDegreeDistribution, 0);
 		this.outDegreeCount = ArrayUtils.truncate(this.outDegreeCount, 0);
 	}
 
 	private void truncateDegree() {
-		this.degreeDistribution = ArrayUtils.truncate(this.degreeDistribution,
-				0);
+		this.degreeDistribution = ArrayUtils.truncate(this.degreeDistribution, 0);
 		this.degreeCount = ArrayUtils.truncate(this.degreeCount, 0);
 	}
 

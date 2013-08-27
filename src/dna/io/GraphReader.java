@@ -16,7 +16,7 @@ public class GraphReader {
 		return this.read(dir, filename, null);
 	}
 
-	@SuppressWarnings({ "unchecked", "rawtypes" })
+	@SuppressWarnings({ "rawtypes" })
 	public Graph read(String dir, String filename,
 			GraphDataStructure ds) throws IOException,
 			ClassNotFoundException {

@@ -1,7 +1,7 @@
 package dna.metrics.degree;
 
-import dna.graph.directed.DirectedNode;
-import dna.graph.undirected.UndirectedNode;
+import dna.graph.nodes.DirectedNode;
+import dna.graph.nodes.UndirectedNode;
 import dna.metrics.Metric;
 import dna.series.data.Distribution;
 import dna.series.data.Value;

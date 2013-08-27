@@ -1,10 +1,9 @@
 package dna.updates;
 
-import dna.graph.Edge;
 import dna.graph.Graph;
-import dna.graph.Node;
-import dna.graph.directed.DirectedEdge;
-import dna.graph.undirected.UndirectedEdge;
+import dna.graph.edges.DirectedEdge;
+import dna.graph.edges.Edge;
+import dna.graph.edges.UndirectedEdge;
 import dna.util.Log;
 
 public class EdgeAddition<E extends Edge> extends EdgeUpdate<E> {
@@ -17,20 +16,17 @@ public class EdgeAddition<E extends Edge> extends EdgeUpdate<E> {
 		return "add " + this.edge;
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
-	public boolean apply(Graph<? extends Node<E>, ? extends E> graph) {
+	public boolean apply(Graph graph) {
 		Log.debug("=> " + this.toString());
 		if (this.edge instanceof DirectedEdge) {
-			boolean success = ((Graph<Node<E>, E>) graph)
-					.addEdge((E) this.edge);
+			boolean success = graph.addEdge((E) this.edge);
 			DirectedEdge e = (DirectedEdge) this.edge;
 			success &= e.getSrc().addEdge(e);
 			success &= e.getDst().addEdge(e);
 			return success;
 		} else if (this.edge instanceof UndirectedEdge) {
-			boolean success = ((Graph<Node<E>, E>) graph)
-					.addEdge((E) this.edge);
+			boolean success = graph.addEdge((E) this.edge);
 			UndirectedEdge e = (UndirectedEdge) this.edge;
 			success &= e.getNode1().addEdge(e);
 			success &= e.getNode2().addEdge(e);

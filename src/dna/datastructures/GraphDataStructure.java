@@ -24,7 +24,6 @@ public class GraphDataStructure {
 	private Class<? extends Node> nodeType;
 	private Class<? extends Edge> edgeType;
 
-	@SuppressWarnings("unchecked")
 	public GraphDataStructure(Class<? extends INodeListDatastructure> nodeListType,
 			Class<? extends IEdgeListDatastructure> graphEdgeListType,
 			Class<? extends IEdgeListDatastructure> nodeEdgeListType, Class<? extends Node> nodeType) {
@@ -110,6 +109,7 @@ public class GraphDataStructure {
 		return edgeType;
 	}
 
+	@SuppressWarnings("unchecked")
 	public void setNodeType(Class<? extends Node> newNodeType) {
 		this.nodeType = newNodeType;
 
@@ -185,11 +185,11 @@ public class GraphDataStructure {
 		}
 		throw new RuntimeException("Could not generate new node instance");
 	}
-
+	
 	public Edge newEdgeInstance(Node src, Node dst) {
 		Constructor<? extends Edge> c;
 		try {
-			c = edgeType.getConstructor(Node.class, Node.class);
+			c = edgeType.getConstructor(src.getClass(), dst.getClass());
 			return c.newInstance(src, dst);
 		} catch (NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException
 				| IllegalArgumentException | InvocationTargetException e) {

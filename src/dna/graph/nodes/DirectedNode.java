@@ -5,13 +5,14 @@ import com.google.common.collect.Iterables;
 import dna.datastructures.GraphDataStructure;
 import dna.datastructures.IEdgeListDatastructure;
 import dna.datastructures.INodeListDatastructure;
+import dna.graph.IElement;
 import dna.graph.edges.DirectedEdge;
 import dna.graph.edges.Edge;
 
 public class DirectedNode extends Node {
 	private IEdgeListDatastructure in;
 	private IEdgeListDatastructure out;
-	private Iterable<Edge> all;
+	private Iterable<IElement> all;
 
 	private INodeListDatastructure neighbors;
 
@@ -25,7 +26,6 @@ public class DirectedNode extends Node {
 		super(str, gds);
 	}
 
-	@SuppressWarnings("unchecked")
 	protected void init() {
 		this.in = this.gds.newNodeEdgeList();
 		this.out = this.gds.newNodeEdgeList();
@@ -81,22 +81,19 @@ public class DirectedNode extends Node {
 	}
 
 	@Override
-	public Iterable<Edge> getEdges() {
+	public Iterable<IElement> getEdges() {
 		return this.all;
 	}
 
-	@SuppressWarnings("unchecked")
-	public Iterable<DirectedEdge> getIncomingEdges() {
+	public Iterable<IElement> getIncomingEdges() {
 		return this.in;
 	}
 
-	@SuppressWarnings("unchecked")
-	public Iterable<DirectedEdge> getOutgoingEdges() {
+	public Iterable<IElement> getOutgoingEdges() {
 		return this.out;
 	}
 
-	@SuppressWarnings("unchecked")
-	public Iterable<DirectedNode> getNeighbors() {
+	public Iterable<IElement> getNeighbors() {
 		return this.neighbors;
 	}
 

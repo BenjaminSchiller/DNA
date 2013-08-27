@@ -3,8 +3,9 @@ package dna.metrics.degree;
 import java.util.Collection;
 
 import dna.graph.Graph;
-import dna.graph.directed.DirectedNode;
-import dna.graph.undirected.UndirectedNode;
+import dna.graph.IElement;
+import dna.graph.nodes.DirectedNode;
+import dna.graph.nodes.UndirectedNode;
 import dna.series.data.NodeValueList;
 import dna.updates.Batch;
 import dna.updates.Update;
@@ -49,7 +50,8 @@ public class DegreeDistributionRecomp extends DegreeDistribution {
 		this.edges = this.g.getEdgeCount();
 		if (DirectedNode.class.isAssignableFrom(this.g.getGraphDatastructures()
 				.getNodeType())) {
-			for (DirectedNode n : (Collection<DirectedNode>) this.g.getNodes()) {
+			for (IElement nUncasted : this.g.getNodes()) {
+				DirectedNode n = (DirectedNode) nUncasted;
 				this.degreeDistribution = ArrayUtils.incr(
 						this.degreeDistribution, n.getDegree());
 				this.inDegreeDistribution = ArrayUtils.incr(
@@ -63,8 +65,8 @@ public class DegreeDistributionRecomp extends DegreeDistribution {
 			return true;
 		} else if (UndirectedNode.class.isAssignableFrom(this.g
 				.getGraphDatastructures().getNodeType())) {
-			for (UndirectedNode n : (Collection<UndirectedNode>) this.g
-					.getNodes()) {
+			for (IElement nUncasted : this.g.getNodes()) {
+				UndirectedNode n = (UndirectedNode) nUncasted;
 				this.degreeDistribution = ArrayUtils.incr(
 						this.degreeDistribution, n.getDegree());
 			}

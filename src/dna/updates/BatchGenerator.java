@@ -1,24 +1,22 @@
 package dna.updates;
 
-import dna.graph.Edge;
+import dna.datastructures.GraphDataStructure;
 import dna.graph.Graph;
-import dna.graph.GraphDatastructures;
-import dna.graph.Node;
+import dna.graph.edges.Edge;
+import dna.graph.nodes.Node;
 import dna.util.parameters.Parameter;
 import dna.util.parameters.ParameterList;
 
-public abstract class BatchGenerator<G extends Graph<N, E>, N extends Node<E>, E extends Edge>
-		extends ParameterList {
+public abstract class BatchGenerator<N extends Node, E extends Edge> extends ParameterList {
 
-	protected GraphDatastructures<G, N, E> ds;
+	protected GraphDataStructure ds;
 
-	public BatchGenerator(String name, Parameter[] params,
-			GraphDatastructures<G, N, E> ds) {
+	public BatchGenerator(String name, Parameter[] params, GraphDataStructure ds) {
 		super(name, params);
 		this.ds = ds;
 	}
 
-	public abstract Batch<E> generate(Graph<? extends Node<E>, E> graph);
+	public abstract Batch<E> generate(Graph graph);
 
 	public abstract void reset();
 

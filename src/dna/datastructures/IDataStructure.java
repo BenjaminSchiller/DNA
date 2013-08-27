@@ -9,8 +9,7 @@ import dna.graph.IElement;
  * 
  */
 
-@SuppressWarnings("rawtypes")
-public interface IDataStructure extends Iterable {
+public interface IDataStructure extends Iterable<IElement> {
 	/**
 	 * Initialize a data structure with a default size
 	 * 

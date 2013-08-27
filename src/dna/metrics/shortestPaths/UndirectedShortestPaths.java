@@ -1,7 +1,7 @@
 package dna.metrics.shortestPaths;
 
 import dna.graph.Graph;
-import dna.graph.undirected.UndirectedNode;
+import dna.graph.nodes.UndirectedNode;
 import dna.metrics.Metric;
 import dna.updates.Batch;
 

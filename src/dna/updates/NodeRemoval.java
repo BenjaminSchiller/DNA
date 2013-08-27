@@ -1,17 +1,18 @@
 package dna.updates;
 
-import dna.graph.Edge;
 import dna.graph.Graph;
-import dna.graph.Node;
-import dna.graph.directed.DirectedEdge;
-import dna.graph.directed.DirectedNode;
-import dna.graph.undirected.UndirectedEdge;
-import dna.graph.undirected.UndirectedNode;
+import dna.graph.IElement;
+import dna.graph.edges.DirectedEdge;
+import dna.graph.edges.Edge;
+import dna.graph.edges.UndirectedEdge;
+import dna.graph.nodes.DirectedNode;
+import dna.graph.nodes.Node;
+import dna.graph.nodes.UndirectedNode;
 import dna.util.Log;
 
 public class NodeRemoval<E extends Edge> extends NodeUpdate<E> {
 
-	public NodeRemoval(Node<E> node) {
+	public NodeRemoval(Node node) {
 		super(node, UpdateType.NodeRemoval);
 	}
 
@@ -19,35 +20,35 @@ public class NodeRemoval<E extends Edge> extends NodeUpdate<E> {
 		return "remove " + this.node;
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
-	public boolean apply(Graph<? extends Node<E>, ? extends E> graph) {
+	public boolean apply(Graph graph) {
 		Log.debug("=> " + this.toString());
 		boolean success = true;
 		if (this.node instanceof DirectedNode) {
 			DirectedNode node = (DirectedNode) this.node;
-			for (DirectedEdge e : node.getOutgoingEdges()) {
-				success &= e.getDst().removeEdge(e);
-				success &= ((Graph<Node<E>, E>) graph).removeEdge((E) e);
+			for (IElement e : node.getOutgoingEdges()) {
+				success &= ((DirectedEdge) e).getDst().removeEdge((Edge) e);
+				success &= graph.removeEdge((Edge) e);
 			}
-			for (DirectedEdge e : node.getIncomingEdges()) {
-				success &= e.getSrc().removeEdge(e);
-				success &= ((Graph<Node<E>, E>) graph).removeEdge((E) e);
+			for (IElement e : node.getIncomingEdges()) {
+				success &= ((DirectedEdge) e).getSrc().removeEdge((Edge) e);
+				success &= graph.removeEdge((Edge) e);
 			}
 		} else if (this.node instanceof UndirectedNode) {
 			UndirectedNode node = (UndirectedNode) this.node;
-			for (UndirectedEdge e : node.getEdges()) {
+			for (IElement eTemp : node.getEdges()) {
+				UndirectedEdge e = (UndirectedEdge) eTemp;
 				if (node.equals(e.getNode1())) {
 					success &= e.getNode2().removeEdge(e);
 				} else {
 					success &= e.getNode1().removeEdge(e);
 				}
-				success &= ((Graph<Node<E>, E>) graph).removeEdge((E) e);
+				success &= graph.removeEdge(e);
 			}
 		} else {
 			return false;
 		}
-		success &= ((Graph<Node<E>, E>) graph).removeNode((Node<E>) this.node);
+		success &= graph.removeNode(this.node);
 		return success;
 	}
 

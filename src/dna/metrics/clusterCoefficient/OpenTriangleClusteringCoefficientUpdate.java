@@ -1,9 +1,9 @@
 package dna.metrics.clusterCoefficient;
 
-import dna.graph.Node;
-import dna.graph.directed.DirectedEdge;
-import dna.graph.directed.DirectedGraph;
-import dna.graph.directed.DirectedNode;
+import dna.graph.IElement;
+import dna.graph.edges.DirectedEdge;
+import dna.graph.nodes.DirectedNode;
+import dna.graph.nodes.Node;
 import dna.series.data.NodeValueList;
 import dna.updates.Batch;
 import dna.updates.EdgeAddition;
@@ -40,7 +40,8 @@ public class OpenTriangleClusteringCoefficientUpdate extends
 			DirectedNode b = e.getDst();
 
 			// t1
-			for (DirectedNode c : a.getNeighbors()) {
+			for (IElement cUncasted : a.getNeighbors()) {
+				DirectedNode c = (DirectedNode) cUncasted;
 				if (b.hasNeighbor(c)) {
 					this.removeTriangle(c);
 				}
@@ -49,7 +50,8 @@ public class OpenTriangleClusteringCoefficientUpdate extends
 			// t2 / t3
 			if (a.hasNeighbor(b)) {
 				// t2
-				for (DirectedNode c : a.getNeighbors()) {
+				for (IElement cUncasted : a.getNeighbors()) {
+					DirectedNode c = (DirectedNode) cUncasted;
 					if (!a.hasNeighbor(b)) {
 						continue;
 					}
@@ -62,7 +64,8 @@ public class OpenTriangleClusteringCoefficientUpdate extends
 				}
 
 				// t3
-				for (DirectedNode c : b.getNeighbors()) {
+				for (IElement cUncasted : b.getNeighbors()) {
+					DirectedNode c = (DirectedNode) cUncasted;
 					if (c.hasEdge(new DirectedEdge(c, a))) {
 						this.removeTriangle(b);
 					}
@@ -98,8 +101,10 @@ public class OpenTriangleClusteringCoefficientUpdate extends
 			DirectedNode a = (DirectedNode) ((NodeRemoval) u).getNode();
 
 			// t1
-			for (DirectedNode b : a.getNeighbors()) {
-				for (DirectedNode c : a.getNeighbors()) {
+			for (IElement bUncasted : a.getNeighbors()) {
+				DirectedNode b = (DirectedNode) bUncasted;
+				for (IElement cUncasted : a.getNeighbors()) {
+					DirectedNode c = (DirectedNode) cUncasted;
 					if (b.equals(c)) {
 						continue;
 					}
@@ -110,8 +115,10 @@ public class OpenTriangleClusteringCoefficientUpdate extends
 			}
 
 			// t2
-			for (DirectedNode b : a.getNeighbors()) {
-				for (DirectedNode c : b.getNeighbors()) {
+			for (IElement bUncasted : a.getNeighbors()) {
+				DirectedNode b = (DirectedNode) bUncasted;
+				for (IElement cUncasted : b.getNeighbors()) {
+					DirectedNode c = (DirectedNode) cUncasted;
 					if (a.hasEdge(new DirectedEdge(a, c))) {
 						this.removeTriangle(b);
 					}
@@ -126,7 +133,8 @@ public class OpenTriangleClusteringCoefficientUpdate extends
 					a.getNeighborCount() * (a.getNeighborCount() - 1));
 
 			// p2
-			for (DirectedNode b : a.getNeighbors()) {
+			for (IElement bUncasted : a.getNeighbors()) {
+				DirectedNode b = (DirectedNode) bUncasted;
 				this.removePotentials(b, b.getNeighborCount() * 2);
 			}
 
@@ -147,7 +155,8 @@ public class OpenTriangleClusteringCoefficientUpdate extends
 			DirectedNode b = e.getDst();
 
 			// t1
-			for (DirectedNode c : a.getNeighbors()) {
+			for (IElement cUncasted : a.getNeighbors()) {
+				DirectedNode c = (DirectedNode) cUncasted;
 				if (b.hasNeighbor(c)) {
 					this.addTriangle(c);
 				}
@@ -157,7 +166,8 @@ public class OpenTriangleClusteringCoefficientUpdate extends
 			if (a.hasNeighbor(b)) {
 
 				// t2
-				for (DirectedNode c : a.getNeighbors()) {
+				for (IElement cUncasted : a.getNeighbors()) {
+					DirectedNode c = (DirectedNode) cUncasted;
 					if (!a.hasNeighbor(b)) {
 						continue;
 					}
@@ -170,7 +180,8 @@ public class OpenTriangleClusteringCoefficientUpdate extends
 				}
 
 				// t3
-				for (DirectedNode c : b.getNeighbors()) {
+				for (IElement cUncasted : b.getNeighbors()) {
+					DirectedNode c = (DirectedNode) cUncasted;
 					if (c.hasEdge(new DirectedEdge(c, a))) {
 						this.addTriangle(b);
 					}
@@ -195,12 +206,14 @@ public class OpenTriangleClusteringCoefficientUpdate extends
 	public boolean compute() {
 		this.triangleCount = 0;
 		this.potentialCount = 0;
-		DirectedGraph g = (DirectedGraph) this.g;
-		for (DirectedNode n : g.getNodes()) {
+		for (IElement nUncasted : g.getNodes()) {
+			DirectedNode n = (DirectedNode) nUncasted;
 			this.nodeTriangleCount[n.getIndex()] = 0;
 			this.nodePotentialCount[n.getIndex()] = 0;
-			for (DirectedNode u : n.getNeighbors()) {
-				for (DirectedNode v : n.getNeighbors()) {
+			for (IElement uUncasted : n.getNeighbors()) {
+				DirectedNode u = (DirectedNode) uUncasted;
+				for (IElement vUncasted : n.getNeighbors()) {
+					DirectedNode v = (DirectedNode) vUncasted;
 					if (u.equals(v)) {
 						continue;
 					}

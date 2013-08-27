@@ -1,10 +1,9 @@
 package dna.updates;
 
-import dna.graph.Edge;
 import dna.graph.Graph;
-import dna.graph.Node;
-import dna.graph.directed.DirectedEdge;
-import dna.graph.undirected.UndirectedEdge;
+import dna.graph.edges.DirectedEdge;
+import dna.graph.edges.Edge;
+import dna.graph.edges.UndirectedEdge;
 import dna.util.Log;
 
 public class EdgeRemoval<E extends Edge> extends EdgeUpdate<E> {
@@ -17,20 +16,17 @@ public class EdgeRemoval<E extends Edge> extends EdgeUpdate<E> {
 		return "remove " + this.edge;
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
-	public boolean apply(Graph<? extends Node<E>, ? extends E> graph) {
+	public boolean apply(Graph graph) {
 		Log.debug("=> " + this.toString());
 		if (this.edge instanceof DirectedEdge) {
-			boolean success = ((Graph<Node<E>, E>) graph)
-					.removeEdge((E) this.edge);
+			boolean success = graph.removeEdge(this.edge);
 			DirectedEdge e = (DirectedEdge) this.edge;
 			success &= e.getSrc().removeEdge(e);
 			success &= e.getDst().removeEdge(e);
 			return success;
 		} else if (this.edge instanceof UndirectedEdge) {
-			boolean success = ((Graph<Node<E>, E>) graph)
-					.removeEdge((E) this.edge);
+			boolean success = graph.removeEdge(this.edge);
 			UndirectedEdge e = (UndirectedEdge) this.edge;
 			success &= e.getNode1().removeEdge(e);
 			success &= e.getNode2().removeEdge(e);

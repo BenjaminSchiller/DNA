@@ -109,7 +109,7 @@ public class DHashMap extends DataStructureReadable implements INodeListDatastru
 	}
 
 	@Override
-	public Iterator iterator() {
+	public Iterator<IElement> iterator() {
 		return this.list.values().iterator();
 	}
 
