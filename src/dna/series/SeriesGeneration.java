@@ -58,7 +58,7 @@ public class SeriesGeneration {
 		Timer timer = new Timer("seriesGeneration");
 		Log.info("generating series");
 		Log.infoSep();
-		Log.info("ds = " + series.getGraphGenerator().getDatastructures());
+		Log.info("ds = " + series.getGraphGenerator().getGraphDataStructure());
 		Log.info("gg = " + series.getGraphGenerator().getDescription());
 		Log.info("bg = " + series.getBatchGenerator().getDescription());
 		Log.info("p  = " + series.getDir());
@@ -489,7 +489,7 @@ public class SeriesGeneration {
 
 	}
 
-	@SuppressWarnings({ "unchecked", "rawtypes" })
+	@SuppressWarnings("rawtypes")
 	private static int applyUpdates(Series series, Iterable<Update> updates,
 			Timer graphUpdateTimer, Timer metricsTotal,
 			HashMap<Metric, Timer> timer) {

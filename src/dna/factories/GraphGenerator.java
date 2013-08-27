@@ -37,6 +37,10 @@ public abstract class GraphGenerator extends ParameterList implements IGraphGene
 
 		return this.gds.newGraphInstance(this.getName(), this.timestampInit, this.nodesInit, this.edgesInit);
 	}
+	
+	public GraphDataStructure getGraphDataStructure() {
+		return this.gds;
+	}
 
 	/*
 	 * public BatchReader<G, N, E> getBatchReader() { return new BatchReader<G,
