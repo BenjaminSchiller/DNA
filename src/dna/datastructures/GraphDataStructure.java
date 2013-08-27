@@ -6,7 +6,10 @@ import java.lang.reflect.InvocationTargetException;
 import dna.graph.Graph;
 import dna.graph.edges.DirectedEdge;
 import dna.graph.edges.Edge;
+import dna.graph.edges.UndirectedEdge;
+import dna.graph.nodes.DirectedNode;
 import dna.graph.nodes.Node;
+import dna.graph.nodes.UndirectedNode;
 import dna.io.etc.Keywords;
 
 /**
@@ -185,11 +188,11 @@ public class GraphDataStructure {
 		}
 		throw new RuntimeException("Could not generate new node instance");
 	}
-
+	
 	public Edge newEdgeInstance(Node src, Node dst) {
 		Constructor<? extends Edge> c;
 		try {
-			c = edgeType.getConstructor(Node.class, Node.class);
+			c = edgeType.getConstructor(src.getClass(), dst.getClass());
 			return c.newInstance(src, dst);
 		} catch (NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException
 				| IllegalArgumentException | InvocationTargetException e) {

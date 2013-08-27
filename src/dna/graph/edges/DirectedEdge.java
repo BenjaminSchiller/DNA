@@ -7,10 +7,10 @@ import dna.graph.nodes.Node;
 import dna.io.etc.Keywords;
 
 public class DirectedEdge extends Edge {
-	protected Node src;
-	protected Node dst;
+	protected DirectedNode src;
+	protected DirectedNode dst;
 
-	public DirectedEdge(Node src, Node dst) {
+	public DirectedEdge(DirectedNode src, DirectedNode dst) {
 		this.src = src;
 		this.dst = dst;
 	}
