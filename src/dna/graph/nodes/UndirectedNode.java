@@ -1,8 +1,8 @@
 package dna.graph.nodes;
 
-import dna.datastructures.GraphDataStructure;
-import dna.datastructures.IEdgeListDatastructure;
 import dna.graph.IElement;
+import dna.graph.datastructures.GraphDataStructure;
+import dna.graph.datastructures.IEdgeListDatastructure;
 import dna.graph.edges.Edge;
 import dna.graph.edges.UndirectedEdge;
 

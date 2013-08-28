@@ -1,8 +1,8 @@
 package dna.graph.nodes;
 
-import dna.datastructures.GraphDataStructure;
 import dna.graph.Element;
 import dna.graph.IElement;
+import dna.graph.datastructures.GraphDataStructure;
 import dna.graph.edges.Edge;
 
 public abstract class Node extends Element implements IElement {

@@ -1,6 +1,6 @@
 package dna.graph.generators.directed;
 
-import dna.datastructures.GraphDataStructure;
+import dna.graph.datastructures.GraphDataStructure;
 import dna.graph.generators.GraphGenerator;
 import dna.graph.nodes.DirectedNode;
 import dna.graph.nodes.Node;

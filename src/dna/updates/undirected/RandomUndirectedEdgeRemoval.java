@@ -2,8 +2,8 @@ package dna.updates.undirected;
 
 import java.util.HashSet;
 
-import dna.datastructures.GraphDataStructure;
 import dna.graph.Graph;
+import dna.graph.datastructures.GraphDataStructure;
 import dna.graph.edges.UndirectedEdge;
 import dna.updates.Batch;
 import dna.updates.EdgeRemoval;

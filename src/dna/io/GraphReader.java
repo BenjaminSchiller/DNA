@@ -2,8 +2,8 @@ package dna.io;
 
 import java.io.IOException;
 
-import dna.datastructures.GraphDataStructure;
 import dna.graph.Graph;
+import dna.graph.datastructures.GraphDataStructure;
 import dna.graph.edges.DirectedEdge;
 import dna.graph.edges.Edge;
 import dna.graph.edges.UndirectedEdge;

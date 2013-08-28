@@ -1,6 +1,6 @@
 package dna.updates.directed;
 
-import dna.datastructures.GraphDataStructure;
+import dna.graph.datastructures.GraphDataStructure;
 import dna.graph.edges.DirectedEdge;
 import dna.graph.nodes.DirectedNode;
 import dna.updates.BatchGenerator;

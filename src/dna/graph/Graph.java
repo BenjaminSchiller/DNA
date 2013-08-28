@@ -2,11 +2,11 @@ package dna.graph;
 
 import java.util.Collection;
 
-import dna.datastructures.GraphDataStructure;
-import dna.datastructures.IEdgeListDatastructure;
-import dna.datastructures.IEdgeListDatastructureReadable;
-import dna.datastructures.INodeListDatastructure;
-import dna.datastructures.INodeListDatastructureReadable;
+import dna.graph.datastructures.GraphDataStructure;
+import dna.graph.datastructures.IEdgeListDatastructure;
+import dna.graph.datastructures.IEdgeListDatastructureReadable;
+import dna.graph.datastructures.INodeListDatastructure;
+import dna.graph.datastructures.INodeListDatastructureReadable;
 import dna.graph.edges.Edge;
 import dna.graph.nodes.Node;
 

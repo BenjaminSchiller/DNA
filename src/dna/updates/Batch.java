@@ -5,8 +5,8 @@ import java.util.HashSet;
 
 import com.google.common.collect.Iterables;
 
-import dna.datastructures.GraphDataStructure;
 import dna.graph.Graph;
+import dna.graph.datastructures.GraphDataStructure;
 import dna.graph.edges.DirectedEdge;
 import dna.graph.edges.Edge;
 import dna.graph.edges.UndirectedEdge;

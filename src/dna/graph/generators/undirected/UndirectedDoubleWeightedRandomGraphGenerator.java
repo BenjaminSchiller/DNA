@@ -1,7 +1,7 @@
 package dna.graph.generators.undirected;
 
-import dna.datastructures.GraphDataStructure;
 import dna.graph.Graph;
+import dna.graph.datastructures.GraphDataStructure;
 import dna.graph.edges.UndirectedDoubleWeightedEdge;
 import dna.graph.generators.IRandomGenerator;
 import dna.graph.nodes.UndirectedDoubleWeightedNode;

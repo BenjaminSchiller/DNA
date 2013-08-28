@@ -1,4 +1,4 @@
-package dna.datastructures;
+package dna.graph.datastructures;
 
 import dna.graph.edges.Edge;
 

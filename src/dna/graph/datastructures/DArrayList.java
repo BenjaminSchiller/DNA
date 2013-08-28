@@ -1,4 +1,4 @@
-package dna.datastructures;
+package dna.graph.datastructures;
 
 import java.util.ArrayList;
 import java.util.Collection;

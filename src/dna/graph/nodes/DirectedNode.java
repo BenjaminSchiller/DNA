@@ -2,10 +2,10 @@ package dna.graph.nodes;
 
 import com.google.common.collect.Iterables;
 
-import dna.datastructures.GraphDataStructure;
-import dna.datastructures.IEdgeListDatastructure;
-import dna.datastructures.INodeListDatastructure;
 import dna.graph.IElement;
+import dna.graph.datastructures.GraphDataStructure;
+import dna.graph.datastructures.IEdgeListDatastructure;
+import dna.graph.datastructures.INodeListDatastructure;
 import dna.graph.edges.DirectedEdge;
 import dna.graph.edges.Edge;
 

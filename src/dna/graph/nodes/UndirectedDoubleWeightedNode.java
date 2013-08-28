@@ -1,7 +1,7 @@
 package dna.graph.nodes;
 
-import dna.datastructures.GraphDataStructure;
 import dna.graph.IWeighted;
+import dna.graph.datastructures.GraphDataStructure;
 import dna.graph.edges.Edge;
 import dna.graph.edges.UndirectedDoubleWeightedEdge;
 import dna.io.etc.Keywords;

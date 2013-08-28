@@ -1,7 +1,7 @@
 package dna.updates.undirected;
 
-import dna.datastructures.GraphDataStructure;
 import dna.graph.Graph;
+import dna.graph.datastructures.GraphDataStructure;
 import dna.graph.edges.UndirectedEdge;
 import dna.graph.nodes.UndirectedNode;
 import dna.updates.Batch;

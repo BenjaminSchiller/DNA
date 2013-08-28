@@ -3,9 +3,9 @@ package dna.updates.undirected;
 import java.util.HashMap;
 import java.util.HashSet;
 
-import dna.datastructures.GraphDataStructure;
 import dna.graph.Graph;
 import dna.graph.IElement;
+import dna.graph.datastructures.GraphDataStructure;
 import dna.graph.edges.UndirectedEdge;
 import dna.graph.nodes.Node;
 import dna.graph.nodes.UndirectedNode;

@@ -1,4 +1,4 @@
-package dna.datastructures;
+package dna.graph.datastructures;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;

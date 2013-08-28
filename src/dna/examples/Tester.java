@@ -1,9 +1,9 @@
 package dna.examples;
 
-import dna.datastructures.DArrayList;
-import dna.datastructures.DHashSet;
-import dna.datastructures.GraphDataStructure;
 import dna.graph.Graph;
+import dna.graph.datastructures.DArrayList;
+import dna.graph.datastructures.DHashSet;
+import dna.graph.datastructures.GraphDataStructure;
 import dna.graph.nodes.DirectedNode;
 
 public class Tester {

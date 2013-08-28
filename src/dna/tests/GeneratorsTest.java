@@ -19,6 +19,16 @@ import org.junit.runners.Parameterized;
 
 import dna.datastructures.*;
 import dna.graph.Graph;
+import dna.graph.datastructures.DArray;
+import dna.graph.datastructures.DArrayList;
+import dna.graph.datastructures.DHashMap;
+import dna.graph.datastructures.DHashSet;
+import dna.graph.datastructures.DLinkedList;
+import dna.graph.datastructures.GraphDataStructure;
+import dna.graph.datastructures.IEdgeListDatastructure;
+import dna.graph.datastructures.IEdgeListDatastructureReadable;
+import dna.graph.datastructures.INodeListDatastructure;
+import dna.graph.datastructures.INodeListDatastructureReadable;
 import dna.graph.edges.Edge;
 import dna.graph.generators.GraphGenerator;
 import dna.graph.generators.IGraphGenerator;

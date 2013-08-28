@@ -1,7 +1,7 @@
 package dna.updates;
 
-import dna.datastructures.GraphDataStructure;
 import dna.graph.Graph;
+import dna.graph.datastructures.GraphDataStructure;
 import dna.graph.edges.Edge;
 import dna.graph.nodes.Node;
 import dna.util.parameters.Parameter;

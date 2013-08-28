@@ -1,7 +1,7 @@
 package dna.graph.generators;
 
-import dna.datastructures.GraphDataStructure;
 import dna.graph.Graph;
+import dna.graph.datastructures.GraphDataStructure;
 import dna.util.parameters.Parameter;
 import dna.util.parameters.ParameterList;
 

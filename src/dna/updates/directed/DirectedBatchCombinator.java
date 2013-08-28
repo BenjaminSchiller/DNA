@@ -1,7 +1,7 @@
 package dna.updates.directed;
 
-import dna.datastructures.GraphDataStructure;
 import dna.graph.Graph;
+import dna.graph.datastructures.GraphDataStructure;
 import dna.graph.edges.DirectedEdge;
 import dna.updates.Batch;
 import dna.util.parameters.ParameterList;
