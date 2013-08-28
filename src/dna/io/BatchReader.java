@@ -1,7 +1,9 @@
 package dna.io;
 
+import java.io.ByteArrayInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.ObjectInputStream;
 
 import dna.datastructures.GraphDataStructure;
 import dna.graph.Graph;
@@ -18,7 +20,15 @@ import dna.updates.Update.UpdateType;
 import dna.util.Config;
 import dna.util.Log;
 
-public class BatchReader<N extends Node, E extends Edge> {
+/**
+ * A batch reader to read in a written batch
+ * @author Nico
+ *
+ * @param <N> Node type to be read in
+ * @param <E> Edge type to be read in
+ * @param <T> Weight type to be read in (can be of type double, int,...) -- use ? to ignore
+ */
+public class BatchReader<N extends Node, E extends Edge, T> {
 
 	private GraphDataStructure ds;
 
@@ -30,6 +40,11 @@ public class BatchReader<N extends Node, E extends Edge> {
 	public Batch read(String dir, String filename, Graph g) {
 		Reader reader = null;
 		// TODO add from/to for batch to IO
+		
+		ByteArrayInputStream byteInputStream;
+		ObjectInputStream objectInputStream;
+		T deserializedWeight;
+		
 		Batch b = new Batch(this.ds, 0, 0);
 		try {
 			reader = new Reader(dir, filename);
@@ -49,8 +64,14 @@ public class BatchReader<N extends Node, E extends Edge> {
 				case EdgeWeightUpdate:
 					String[] temp1 = temp[1].split(Config
 							.get("UPDATE_DELIMITER2"));
-					b.add(new EdgeWeightUpdate<E>((E) g.getEdge(ds.newEdgeInstance(
-							temp1[0], g)), Double.parseDouble(temp1[1])));
+					
+					// Parse second element correctly
+					byteInputStream = new ByteArrayInputStream(temp1[1].getBytes());
+					objectInputStream = new ObjectInputStream(byteInputStream);
+					deserializedWeight = (T) objectInputStream.readObject();
+					
+					b.add(new EdgeWeightUpdate<E,T>((E) g.getEdge(ds.newEdgeInstance(
+							temp1[0], g)), deserializedWeight));
 					break;
 				case NodeAddition:
 					b.add(new NodeAddition<E>(ds.newNodeInstance(Integer
@@ -63,8 +84,14 @@ public class BatchReader<N extends Node, E extends Edge> {
 				case NodeWeithUpdate:
 					String[] temp2 = temp[1].split(Config
 							.get("UPDATE_DELIMITER2"));
-					b.add(new NodeWeightUpdate<E>(g.getNode(Integer
-							.parseInt(temp2[0])), Double.parseDouble(temp2[1])));
+					
+					// Parse second element correctly
+					byteInputStream = new ByteArrayInputStream(temp2[1].getBytes());
+					objectInputStream = new ObjectInputStream(byteInputStream);
+					deserializedWeight = (T) objectInputStream.readObject();					
+					
+					b.add(new NodeWeightUpdate<E, T>(g.getNode(Integer
+							.parseInt(temp2[0])), deserializedWeight));
 					break;
 				default:
 					Log.error("unknown update type: " + temp[0]);
@@ -77,6 +104,9 @@ public class BatchReader<N extends Node, E extends Edge> {
 			e.printStackTrace();
 			return null;
 		} catch (IOException e) {
+			e.printStackTrace();
+			return null;
+		} catch (ClassNotFoundException e) {
 			e.printStackTrace();
 			return null;
 		} finally {
