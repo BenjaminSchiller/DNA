@@ -76,6 +76,7 @@ public class Batch<E extends Edge> {
 		return success;
 	}
 
+	@SuppressWarnings("unchecked")
 	public boolean add(Update<E> update) {
 		if (update instanceof NodeAddition<?>) {
 			this.nodeAdditions.add((NodeAddition<E>) update);
@@ -85,8 +86,8 @@ public class Batch<E extends Edge> {
 			this.nodeRemovals.add((NodeRemoval<E>) update);
 			return true;
 		}
-		if (update instanceof NodeWeightUpdate<?>) {
-			this.nodeWeightUpdates.add((NodeWeightUpdate<E>) update);
+		if (update instanceof NodeWeightUpdate<?, ?>) {
+			this.nodeWeightUpdates.add((NodeWeightUpdate<E, ?>) update);
 			return true;
 		}
 		if (update instanceof EdgeAddition<?>) {
@@ -97,8 +98,8 @@ public class Batch<E extends Edge> {
 			this.edgeRemovals.add((EdgeRemoval<E>) update);
 			return true;
 		}
-		if (update instanceof EdgeWeightUpdate<?>) {
-			this.edgeWeightUpdates.add((EdgeWeightUpdate<E>) update);
+		if (update instanceof EdgeWeightUpdate<?, ?>) {
+			this.edgeWeightUpdates.add((EdgeWeightUpdate<E, ?>) update);
 			return true;
 		}
 		return false;
