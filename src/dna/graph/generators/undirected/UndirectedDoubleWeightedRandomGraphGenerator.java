@@ -1,16 +1,18 @@
-package dna.factories;
+package dna.graph.generators.undirected;
 
 import dna.datastructures.GraphDataStructure;
 import dna.graph.Graph;
 import dna.graph.edges.UndirectedDoubleWeightedEdge;
+import dna.graph.generators.IRandomGenerator;
 import dna.graph.nodes.UndirectedDoubleWeightedNode;
 import dna.util.Rand;
 import dna.util.parameters.Parameter;
 
-public class RandomUndirectedDoubleWeightedGraphGenerator extends UndirectedDoubleWeightedGraphGenerator implements
-		IRandomGenerator {
-	public RandomUndirectedDoubleWeightedGraphGenerator(String name, Parameter[] params, GraphDataStructure gds,
-			long timestampInit, int nodesInit, int edgesInit) {
+public class UndirectedDoubleWeightedRandomGraphGenerator extends
+		UndirectedDoubleWeightedGraphGenerator implements IRandomGenerator {
+	public UndirectedDoubleWeightedRandomGraphGenerator(String name,
+			Parameter[] params, GraphDataStructure gds, long timestampInit,
+			int nodesInit, int edgesInit) {
 		super(name, params, gds, timestampInit, nodesInit, edgesInit);
 	}
 
@@ -18,7 +20,8 @@ public class RandomUndirectedDoubleWeightedGraphGenerator extends UndirectedDoub
 		Graph graph = this.newGraphInstance();
 
 		for (int i = 0; i < this.nodesInit; i++) {
-			UndirectedDoubleWeightedNode node = (UndirectedDoubleWeightedNode) this.gds.newNodeInstance(i);
+			UndirectedDoubleWeightedNode node = (UndirectedDoubleWeightedNode) this.gds
+					.newNodeInstance(i);
 			node.setWeight(Rand.rand.nextDouble());
 			graph.addNode(node);
 		}
@@ -27,8 +30,8 @@ public class RandomUndirectedDoubleWeightedGraphGenerator extends UndirectedDoub
 			int src = Rand.rand.nextInt(graph.getNodeCount());
 			int dst = Rand.rand.nextInt(graph.getNodeCount());
 			if (src != dst) {
-				UndirectedDoubleWeightedEdge edge = (UndirectedDoubleWeightedEdge) this.gds.newEdgeInstance(
-						graph.getNode(src), graph.getNode(dst));
+				UndirectedDoubleWeightedEdge edge = (UndirectedDoubleWeightedEdge) this.gds
+						.newEdgeInstance(graph.getNode(src), graph.getNode(dst));
 				edge.setWeight(Rand.rand.nextDouble());
 
 				graph.addEdge(edge);

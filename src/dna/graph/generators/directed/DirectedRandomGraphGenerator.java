@@ -1,15 +1,18 @@
-package dna.factories;
+package dna.graph.generators.directed;
 
 import dna.datastructures.GraphDataStructure;
 import dna.graph.Graph;
 import dna.graph.edges.DirectedEdge;
+import dna.graph.generators.IRandomGenerator;
 import dna.graph.nodes.Node;
 import dna.util.Rand;
 import dna.util.parameters.Parameter;
 
-public class RandomDirectedGraphGenerator extends DirectedGraphGenerator implements IRandomGenerator {
-	public RandomDirectedGraphGenerator(String name, Parameter[] params, GraphDataStructure gds, long timestampInit,
-			int nodesInit, int edgesInit) {
+public class DirectedRandomGraphGenerator extends DirectedGraphGenerator
+		implements IRandomGenerator {
+	public DirectedRandomGraphGenerator(String name, Parameter[] params,
+			GraphDataStructure gds, long timestampInit, int nodesInit,
+			int edgesInit) {
 		super(name, params, gds, timestampInit, nodesInit, edgesInit);
 	}
 
@@ -26,7 +29,8 @@ public class RandomDirectedGraphGenerator extends DirectedGraphGenerator impleme
 			int src = Rand.rand.nextInt(graph.getNodeCount());
 			int dst = Rand.rand.nextInt(graph.getNodeCount());
 			if (src != dst) {
-				DirectedEdge edge = (DirectedEdge) this.gds.newEdgeInstance(graph.getNode(src), graph.getNode(dst));
+				DirectedEdge edge = (DirectedEdge) this.gds.newEdgeInstance(
+						graph.getNode(src), graph.getNode(dst));
 				graph.addEdge(edge);
 				edge.getSrc().addEdge(edge);
 				edge.getDst().addEdge(edge);

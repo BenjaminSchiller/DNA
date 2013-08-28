@@ -3,8 +3,8 @@ package dna.series;
 import java.io.File;
 import java.io.IOException;
 
-import dna.factories.GraphGenerator;
 import dna.graph.Graph;
+import dna.graph.generators.GraphGenerator;
 import dna.io.filesystem.Dir;
 import dna.io.filter.PrefixFilenameFilter;
 import dna.metrics.Metric;

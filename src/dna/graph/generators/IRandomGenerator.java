@@ -1,4 +1,5 @@
-package dna.factories;
+package dna.graph.generators;
+
 
 /**
  * A single interface to ensure that generators of random graphs get special

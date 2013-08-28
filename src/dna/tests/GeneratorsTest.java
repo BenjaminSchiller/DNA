@@ -18,13 +18,13 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
 import dna.datastructures.*;
-import dna.factories.GraphGenerator;
-import dna.factories.IGraphGenerator;
-import dna.factories.IRandomGenerator;
-import dna.factories.RandomDirectedGraphGenerator;
-import dna.factories.RandomUndirectedDoubleWeightedGraphGenerator;
 import dna.graph.Graph;
 import dna.graph.edges.Edge;
+import dna.graph.generators.GraphGenerator;
+import dna.graph.generators.IGraphGenerator;
+import dna.graph.generators.IRandomGenerator;
+import dna.graph.generators.directed.DirectedRandomGraphGenerator;
+import dna.graph.generators.undirected.UndirectedDoubleWeightedRandomGraphGenerator;
 import dna.graph.nodes.DirectedDoubleWeightedNode;
 import dna.graph.nodes.DirectedNode;
 import dna.graph.nodes.Node;
@@ -69,8 +69,8 @@ public class GeneratorsTest {
 	@Parameterized.Parameters(name = "{0} {1} {2} {3} {4}")
 	public static Collection testPairs() {
 		Class[] dataStructures = { DArrayList.class, DArray.class, DHashMap.class, DHashSet.class, DLinkedList.class };
-		Class[] graphGenerators = { RandomDirectedGraphGenerator.class,
-				RandomUndirectedDoubleWeightedGraphGenerator.class };
+		Class[] graphGenerators = { DirectedRandomGraphGenerator.class,
+				UndirectedDoubleWeightedRandomGraphGenerator.class };
 		Class[] nodeTypes = { UndirectedNode.class, UndirectedDoubleWeightedNode.class, DirectedNode.class,
 				DirectedDoubleWeightedNode.class };
 

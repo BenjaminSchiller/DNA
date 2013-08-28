@@ -1,4 +1,4 @@
-package dna.factories;
+package dna.graph.generators;
 
 import dna.datastructures.GraphDataStructure;
 import dna.graph.Graph;
