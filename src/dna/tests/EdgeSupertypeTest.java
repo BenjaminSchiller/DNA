@@ -1,7 +1,7 @@
 package dna.tests;
 
-import static org.junit.Assume.assumeTrue;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assume.assumeTrue;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -9,8 +9,6 @@ import java.util.Collection;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
-
-import com.sun.net.httpserver.Authenticator.Success;
 
 import dna.graph.datastructures.DArray;
 import dna.graph.datastructures.GraphDataStructure;
@@ -36,8 +34,8 @@ public class EdgeSupertypeTest {
 	@Parameterized.Parameters(name = "{0} {1}")
 	public static Collection<Object> testPairs() {
 		ArrayList<Object> result = new ArrayList<>();
-		for (Class nodeType : GlobalTestParameters.nodeTypes) {
-			for (Class edgeType : GlobalTestParameters.edgeTypes) {
+		for (Class<?> nodeType : GlobalTestParameters.nodeTypes) {
+			for (Class<?> edgeType : GlobalTestParameters.edgeTypes) {
 				result.add(new Object[] { nodeType, edgeType });
 			}
 		}
