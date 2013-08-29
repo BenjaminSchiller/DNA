@@ -200,7 +200,9 @@ public class DArray extends DataStructureReadable implements INodeListDatastruct
 
 	@Override
 	public Edge get(Edge element) {
-		// TODO Auto-generated method stub
+		for (IElement eU: list) {
+			if (element.equals(eU)) return (Edge) eU;
+		}
 		return null;
 	}
 
