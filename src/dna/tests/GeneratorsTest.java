@@ -190,12 +190,18 @@ public class GeneratorsTest {
 		
 		for(IElement eU: g2.getEdges()) {
 			Edge e = (Edge) eU;
-			assertNotNull("Graph g misses edge " + e + " (edge list type: " + gds.getGraphEdgeListType() + ")", g.getEdge(e));
+			Edge eOther = g.getEdge(e);
+			assertNotNull("Graph g misses edge " + e + " (edge list type: " + gds.getGraphEdgeListType() + ")", eOther);
+			assertEquals(e, eOther);
+			assertNotEquals(e.getStringRepresentation(), eOther.getStringRepresentation());
 		}
 
 		for(IElement eU: g.getEdges()) {
 			Edge e = (Edge) eU;
-			assertNotNull(g2.getEdge(e));
+			Edge eOther = g2.getEdge(e);
+			assertNotNull(eOther);
+			assertEquals(e, eOther);
+			assertNotEquals(e.getStringRepresentation(), eOther.getStringRepresentation());			
 		}		
 		
 	}
