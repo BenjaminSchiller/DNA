@@ -4,6 +4,7 @@ import dna.graph.Element;
 import dna.graph.IElement;
 import dna.graph.datastructures.GraphDataStructure;
 import dna.graph.edges.Edge;
+import dna.util.MathHelper;
 
 public abstract class Node extends Element implements IElement {
 	protected int index;
@@ -16,7 +17,7 @@ public abstract class Node extends Element implements IElement {
 	}
 
 	public Node(String str, GraphDataStructure gds) {
-		this(Integer.parseInt(str), gds);
+		this(MathHelper.parseInt(str), gds);
 	}
 
 	protected abstract void init();
@@ -44,7 +45,7 @@ public abstract class Node extends Element implements IElement {
 	}
 
 	public int hashCode() {
-		return this.getStringRepresentation().hashCode();
+		return Integer.toString(this.index).hashCode();
 	}
 
 	@Override

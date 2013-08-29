@@ -2,8 +2,10 @@ package dna.graph.edges;
 
 import dna.graph.Element;
 import dna.graph.Graph;
+import dna.graph.nodes.Node;
 import dna.graph.nodes.UndirectedNode;
 import dna.io.etc.Keywords;
+import dna.util.MathHelper;
 
 public class UndirectedEdge extends Edge {
 
@@ -31,8 +33,8 @@ public class UndirectedEdge extends Edge {
 	 */
 	public UndirectedEdge(String s, Graph g) {
 		String[] temp = s.split(Keywords.undirectedEdgeDelimiter);
-		UndirectedNode node1 = (UndirectedNode) g.getNode(Integer.parseInt(temp[0]));
-		UndirectedNode node2 = (UndirectedNode) g.getNode(Integer.parseInt(temp[1]));
+		UndirectedNode node1 = (UndirectedNode) g.getNode(MathHelper.parseInt(temp[0]));
+		UndirectedNode node2 = (UndirectedNode) g.getNode(MathHelper.parseInt(temp[1]));
 		this.init(node1, node2);
 	}
 
@@ -94,6 +96,11 @@ public class UndirectedEdge extends Edge {
 		return this.getStringRepresentation().hashCode();
 	}
 
+	public Node getDifferingNode(Node n) {
+		if ( n instanceof UndirectedNode ) return this.getDifferingNode((UndirectedNode)n);
+		return null;
+	}
+	
 	/**
 	 * 
 	 * @param n
