@@ -177,7 +177,7 @@ public class DatastructureTester {
 		for (int i = 0; i < secondDummies.length; i++) {
 			secondDummies[i] = (Node) mock(this.elementClass);
 			prevIndex[i] = lastIndex;
-			lastIndex = lastIndex + Rand.rand.nextInt(5000) + 3;
+			lastIndex = lastIndex + Rand.rand.nextInt(i+1) + 1;
 			when(secondDummies[i].getIndex()).thenReturn(lastIndex);
 			tempDS.add(secondDummies[i]);
 			assertEquals(lastIndex, tempDS.getMaxNodeIndex());
