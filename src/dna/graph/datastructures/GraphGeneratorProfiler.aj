@@ -1,6 +1,6 @@
-package dna.datastructures;
+package dna.graph.datastructures;
 
-import dna.factories.GraphGenerator;
+import dna.graph.generators.GraphGenerator;
 import dna.graph.Graph;
 
 public aspect GraphGeneratorProfiler {
