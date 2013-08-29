@@ -18,26 +18,13 @@ import org.junit.runners.Parameterized;
 
 import dna.graph.Element;
 import dna.graph.IElement;
-import dna.graph.datastructures.DArray;
-import dna.graph.datastructures.DArrayList;
-import dna.graph.datastructures.DHashMap;
-import dna.graph.datastructures.DHashSet;
-import dna.graph.datastructures.DLinkedList;
 import dna.graph.datastructures.DataStructure;
 import dna.graph.datastructures.IEdgeListDatastructure;
 import dna.graph.datastructures.INodeListDatastructure;
 import dna.graph.datastructures.INodeListDatastructureReadable;
 import dna.graph.datastructures.IReadable;
-import dna.graph.edges.DirectedDoubleWeightedEdge;
-import dna.graph.edges.DirectedEdge;
 import dna.graph.edges.Edge;
-import dna.graph.edges.UndirectedDoubleWeightedEdge;
-import dna.graph.edges.UndirectedEdge;
-import dna.graph.nodes.DirectedDoubleWeightedNode;
-import dna.graph.nodes.DirectedNode;
 import dna.graph.nodes.Node;
-import dna.graph.nodes.UndirectedDoubleWeightedNode;
-import dna.graph.nodes.UndirectedNode;
 import dna.util.Rand;
 
 @RunWith(Parameterized.class)
@@ -46,11 +33,6 @@ public class DatastructureTester {
 
 	private DataStructure dataStructure;
 	private Class<? extends Element> elementClass;
-	private static final Class[] elementClasses = { DirectedNode.class,
-			DirectedDoubleWeightedNode.class, UndirectedNode.class,
-			UndirectedDoubleWeightedNode.class, UndirectedEdge.class,
-			UndirectedDoubleWeightedEdge.class, DirectedEdge.class,
-			DirectedDoubleWeightedEdge.class };
 
 	public DatastructureTester(Class<?> d, Class<? extends Element> e)
 			throws InstantiationException, IllegalAccessException,
@@ -65,12 +47,10 @@ public class DatastructureTester {
 	public static Collection testPairs() throws InstantiationException,
 			IllegalAccessException, IllegalArgumentException,
 			InvocationTargetException, NoSuchMethodException, SecurityException {
-		Class[] dataStructures = { DArrayList.class, DArray.class,
-				DHashSet.class, DHashMap.class, DLinkedList.class };
 
 		ArrayList<Object> result = new ArrayList<>();
-		for (Class sD : dataStructures) {
-			for (Class sE : elementClasses) {
+		for (Class sD : GlobalTestParameters.dataStructures) {
+			for (Class sE : GlobalTestParameters.elementClasses) {
 				// Check whether we can store an object of sE in sD
 				if ((Node.class.isAssignableFrom(sE) && !INodeListDatastructure.class
 						.isAssignableFrom(sD))
@@ -100,7 +80,7 @@ public class DatastructureTester {
 		 * each *rejected* class. There should be no gap in between...
 		 */
 
-		for (Class otherElementClass : elementClasses) {
+		for (Class otherElementClass : GlobalTestParameters.elementClasses) {
 			if (elementClass.isAssignableFrom(otherElementClass)) {
 				assertTrue("Datastructure " + dataStructure.getClass() + "["
 						+ this.elementClass + "] can't store "
@@ -134,7 +114,7 @@ public class DatastructureTester {
 			 */
 		}
 
-		assertEquals(elementClasses.length, exceptionCounter);
+		assertEquals(GlobalTestParameters.elementClasses.length, exceptionCounter);
 	}
 
 	@Test(timeout = 1500)
