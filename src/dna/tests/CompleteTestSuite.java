@@ -7,7 +7,8 @@ import org.junit.runners.Suite;
 @Suite.SuiteClasses({
    DatastructureTester.class,
    GraphTester.class,
-   GeneratorsTest.class
+   GeneratorsTest.class,
+   EdgeSupertypeTest.class
 })
 public class CompleteTestSuite {
 
