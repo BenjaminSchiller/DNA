@@ -9,11 +9,6 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
 import dna.graph.Graph;
-import dna.graph.datastructures.DArray;
-import dna.graph.datastructures.DArrayList;
-import dna.graph.datastructures.DHashMap;
-import dna.graph.datastructures.DHashSet;
-import dna.graph.datastructures.DLinkedList;
 import dna.graph.datastructures.GraphDataStructure;
 import dna.graph.datastructures.IEdgeListDatastructure;
 import dna.graph.datastructures.INodeListDatastructure;
@@ -28,9 +23,6 @@ public class GraphTester {
 	private Graph graph;
 	private GraphDataStructure gds;
 	
-	public static Class[] nodeTypes = { UndirectedNode.class, UndirectedDoubleWeightedNode.class,
-			DirectedNode.class, DirectedDoubleWeightedNode.class };	
-
 	public GraphTester(Class<? extends INodeListDatastructure> nodeListType,
 			Class<? extends IEdgeListDatastructure> graphEdgeListType,
 			Class<? extends IEdgeListDatastructure> nodeEdgeListType, Class<? extends Node> nodeType)
@@ -43,13 +35,11 @@ public class GraphTester {
 	@SuppressWarnings("rawtypes")
 	@Parameterized.Parameters(name = "{0} {1} {2} {3}")
 	public static Collection<Object> testPairs() {
-		Class[] dataStructures = { DArray.class, DArrayList.class, DHashMap.class, DHashSet.class, DLinkedList.class };
-
 		ArrayList<Object> result = new ArrayList<>();
-		for (Class nodeListType : dataStructures) {
-			for (Class edgeListType : dataStructures) {
-				for (Class nodeEdgeListType : dataStructures) {
-					for (Class nodeType : nodeTypes) {
+		for (Class nodeListType : GlobalTestParameters.dataStructures) {
+			for (Class edgeListType : GlobalTestParameters.dataStructures) {
+				for (Class nodeEdgeListType : GlobalTestParameters.dataStructures) {
+					for (Class nodeType : GlobalTestParameters.nodeTypes) {
 							if (!(INodeListDatastructure.class.isAssignableFrom(nodeListType)))
 								continue;
 							if (!(IEdgeListDatastructure.class.isAssignableFrom(edgeListType)))

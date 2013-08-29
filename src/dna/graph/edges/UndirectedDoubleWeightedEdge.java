@@ -2,13 +2,13 @@ package dna.graph.edges;
 
 import dna.graph.Graph;
 import dna.graph.IWeighted;
-import dna.graph.nodes.UndirectedDoubleWeightedNode;
+import dna.graph.nodes.UndirectedNode;
 import dna.io.etc.Keywords;
 
 public class UndirectedDoubleWeightedEdge extends UndirectedEdge implements IWeighted<Double> {
 	private double weight;
 
-	public UndirectedDoubleWeightedEdge(UndirectedDoubleWeightedNode src, UndirectedDoubleWeightedNode dst, Double weight) {
+	public UndirectedDoubleWeightedEdge(UndirectedNode src, UndirectedNode dst, Double weight) {
 		super(src, dst);
 		this.setWeight(weight);
 	}
@@ -22,7 +22,7 @@ public class UndirectedDoubleWeightedEdge extends UndirectedEdge implements IWei
 		}
 	}
 
-	public UndirectedDoubleWeightedEdge(UndirectedDoubleWeightedNode src, UndirectedDoubleWeightedNode dst) {
+	public UndirectedDoubleWeightedEdge(UndirectedNode src, UndirectedNode dst) {
 		this(src, dst, 1d);
 	}
 

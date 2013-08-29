@@ -2,8 +2,10 @@ package dna.graph.edges;
 
 import dna.graph.Element;
 import dna.graph.Graph;
+import dna.graph.nodes.Node;
 import dna.graph.nodes.UndirectedNode;
 import dna.io.etc.Keywords;
+import dna.util.MathHelper;
 
 public class UndirectedEdge extends Edge {
 
@@ -31,8 +33,8 @@ public class UndirectedEdge extends Edge {
 	 */
 	public UndirectedEdge(String s, Graph g) {
 		String[] temp = s.split(Keywords.undirectedEdgeDelimiter);
-		UndirectedNode node1 = (UndirectedNode) g.getNode(Integer.parseInt(temp[0]));
-		UndirectedNode node2 = (UndirectedNode) g.getNode(Integer.parseInt(temp[1]));
+		UndirectedNode node1 = (UndirectedNode) g.getNode(MathHelper.parseInt(temp[0]));
+		UndirectedNode node2 = (UndirectedNode) g.getNode(MathHelper.parseInt(temp[1]));
 		this.init(node1, node2);
 	}
 
@@ -80,15 +82,25 @@ public class UndirectedEdge extends Edge {
 	}
 
 	public boolean equals(Object o) {
-		return o != null && o instanceof UndirectedEdge
-				&& this.node1.getIndex() == ((UndirectedEdge) o).node1.getIndex()
-				&& this.node2.getIndex() == ((UndirectedEdge) o).node2.getIndex();
+		if ( o == null ) return false;
+		if ( !(o instanceof UndirectedEdge)) return false;
+
+		UndirectedEdge oCasted = (UndirectedEdge)o;
+		if ( oCasted.getNode1() == null || oCasted.getNode2() == null) return false;
+		
+		return this.getNode1().getIndex() == oCasted.getNode1().getIndex()
+				&& this.getNode2().getIndex() == oCasted.getNode2().getIndex();
 	}
 
 	public int hashCode() {
 		return this.getStringRepresentation().hashCode();
 	}
 
+	public Node getDifferingNode(Node n) {
+		if ( n instanceof UndirectedNode ) return this.getDifferingNode((UndirectedNode)n);
+		return null;
+	}
+	
 	/**
 	 * 
 	 * @param n

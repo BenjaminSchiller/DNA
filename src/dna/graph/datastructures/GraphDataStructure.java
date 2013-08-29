@@ -2,6 +2,7 @@ package dna.graph.datastructures;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.util.Arrays;
 
 import dna.graph.Graph;
 import dna.graph.edges.DirectedEdge;
@@ -11,8 +12,8 @@ import dna.io.etc.Keywords;
 
 /**
  * Container for different types of storages for everything: this holds the
- * graph type (eg. dna.graph, ReadableGraph), the storages within a graph for edges
- * and nodes, and the node type and the resulting edge type
+ * graph type (eg. dna.graph, ReadableGraph), the storages within a graph for
+ * edges and nodes, and the node type and the resulting edge type
  * 
  * @author Nico
  * 
@@ -185,14 +186,46 @@ public class GraphDataStructure {
 		}
 		throw new RuntimeException("Could not generate new node instance");
 	}
-	
+
 	public Edge newEdgeInstance(Node src, Node dst) {
-		Constructor<? extends Edge> c;
+		if (src.getClass() != dst.getClass()) {
+			throw new RuntimeException("Could not generate new edge instance for non-equal node classes "
+					+ src.getClass() + " and " + dst.getClass());
+		}
+
+		Constructor<?>[] cList = edgeType.getConstructors();
+		Constructor<?> cNeeded = null;
+
+		// First: search matching constructor for src.getClass and dst.getClass
+		Class<?>[] cRequired = new Class[] { src.getClass(), dst.getClass() };
+
+		for (Constructor<?> c : cList) {
+			if (Arrays.equals(c.getParameterTypes(), cRequired)) {
+				cNeeded = c;
+			}
+		}
+
+		// Okay, check for super types
+		Class<?> superType;
+		superType = src.getClass().getSuperclass();
+		while (Node.class.isAssignableFrom(superType) && cNeeded == null) {
+			cRequired = new Class[] { superType, superType };
+			for (Constructor<?> c : cList) {
+				if (Arrays.equals(c.getParameterTypes(), cRequired)) {
+					cNeeded = c;
+				}
+			}
+			superType = superType.getSuperclass();
+		}
+
+		if (cNeeded == null) {
+			throw new RuntimeException("No edge constructor for " + src.getClass() + " found");
+		}
+
 		try {
-			c = edgeType.getConstructor(src.getClass(), dst.getClass());
-			return c.newInstance(src, dst);
-		} catch (NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException
-				| IllegalArgumentException | InvocationTargetException e) {
+			return edgeType.cast(cNeeded.newInstance(src, dst));
+		} catch (SecurityException | InstantiationException | IllegalAccessException | IllegalArgumentException
+				| InvocationTargetException e) {
 			e.printStackTrace();
 		}
 		throw new RuntimeException("Could not generate new edge instance");

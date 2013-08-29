@@ -6,6 +6,7 @@ import java.util.Iterator;
 
 import dna.graph.IElement;
 import dna.graph.edges.Edge;
+import dna.graph.nodes.Node;
 import dna.util.Rand;
 
 /**
@@ -14,7 +15,11 @@ import dna.util.Rand;
  * @author Nico
  * 
  */
-public class DHashSet extends DataStructureReadable implements IEdgeListDatastructureReadable {
+public class DHashSet extends DataStructureReadable implements INodeListDatastructureReadable,
+		IEdgeListDatastructureReadable {
+
+	private int maxNodeIndex;
+
 	private HashSet<IElement> list;
 
 	public DHashSet(Class<? extends IElement> dT) {
@@ -23,14 +28,34 @@ public class DHashSet extends DataStructureReadable implements IEdgeListDatastru
 
 	@Override
 	public void init(Class<? extends IElement> dT, int initialSize) {
+		if (Node.class.isAssignableFrom(dT)) {
+			System.out.println("Warning: DHashSet is *incredibly* slow on "
+					+ "removing nodes and recalculating the new maxNodeIndex!");
+		}
+
 		this.dataType = dT;
 		this.list = new HashSet<>(initialSize);
+		this.maxNodeIndex = -1;
 	}
 
 	public boolean add(IElement element) {
+		if (element instanceof Node)
+			return this.add((Node) element);
 		if (element instanceof Edge)
 			return this.add((Edge) element);
 		throw new RuntimeException("Can't handle element of type " + element.getClass() + " here");
+	}
+
+	@Override
+	public boolean add(Node element) {
+		super.canAdd(element);
+		if (element != null && this.list.add(element)) {
+			if (element.getIndex() > this.maxNodeIndex) {
+				this.maxNodeIndex = element.getIndex();
+			}
+			return true;
+		}
+		return false;
 	}
 
 	public boolean add(Edge element) {
@@ -40,9 +65,16 @@ public class DHashSet extends DataStructureReadable implements IEdgeListDatastru
 
 	@Override
 	public boolean contains(IElement element) {
+		if (element instanceof Node)
+			return this.contains((Node) element);
 		if (element instanceof Edge)
 			return this.contains((Edge) element);
 		throw new RuntimeException("Can't handle element of type " + element.getClass() + " here");
+	}
+
+	@Override
+	public boolean contains(Node element) {
+		return list.contains(element);
 	}
 
 	@Override
@@ -52,10 +84,27 @@ public class DHashSet extends DataStructureReadable implements IEdgeListDatastru
 
 	@Override
 	public boolean remove(IElement element) {
+		if (element instanceof Node)
+			return this.remove((Node) element);
 		if (element instanceof Edge)
 			return this.remove((Edge) element);
 		else
 			throw new RuntimeException("Cannot remove a non-edge from an edge list");
+	}
+
+	@Override
+	public boolean remove(Node element) {
+		if (this.list.remove(element)) {
+			if (element.getIndex() == this.maxNodeIndex) {
+				int max = this.maxNodeIndex - 1;
+				while (this.get(max) == null && max >= 0) {
+					max--;
+				}
+				this.maxNodeIndex = max;
+			}
+			return true;
+		}
+		return false;
 	}
 
 	@Override
@@ -66,6 +115,16 @@ public class DHashSet extends DataStructureReadable implements IEdgeListDatastru
 	@Override
 	public int size() {
 		return list.size();
+	}
+
+	@Override
+	public Node get(int index) {
+		for (Object o : list) {
+			Node oCasted = (Node) o;
+			if (oCasted.getIndex() == index)
+				return oCasted;
+		}
+		return null;
 	}
 
 	public Edge get(Edge e) {
@@ -99,5 +158,10 @@ public class DHashSet extends DataStructureReadable implements IEdgeListDatastru
 	@Override
 	public Iterator<IElement> iterator() {
 		return this.list.iterator();
+	}
+
+	@Override
+	public int getMaxNodeIndex() {
+		return this.maxNodeIndex;
 	}
 }
