@@ -11,8 +11,10 @@ import dna.graph.edges.DirectedDoubleWeightedEdge;
 import dna.graph.edges.DirectedEdge;
 import dna.graph.edges.UndirectedDoubleWeightedEdge;
 import dna.graph.edges.UndirectedEdge;
+import dna.graph.generators.directed.DirectedDoubleWeightedRandomGraphGenerator;
 import dna.graph.generators.directed.DirectedRandomGraphGenerator;
 import dna.graph.generators.undirected.UndirectedDoubleWeightedRandomGraphGenerator;
+import dna.graph.generators.undirected.UndirectedRandomGraphGenerator;
 import dna.graph.nodes.DirectedDoubleWeightedNode;
 import dna.graph.nodes.DirectedNode;
 import dna.graph.nodes.UndirectedDoubleWeightedNode;
@@ -31,5 +33,6 @@ public class GlobalTestParameters {
 			DLinkedList.class };
 
 	public static final Class[] graphGenerators = { DirectedRandomGraphGenerator.class,
+			DirectedDoubleWeightedRandomGraphGenerator.class, UndirectedRandomGraphGenerator.class,
 			UndirectedDoubleWeightedRandomGraphGenerator.class };
 }
