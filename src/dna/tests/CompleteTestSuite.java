@@ -8,7 +8,8 @@ import org.junit.runners.Suite;
    DatastructureTester.class,
    GraphTester.class,
    GeneratorsTest.class,
-   EdgeSupertypeTest.class
+   EdgeSupertypeTest.class,
+   SingleTests.class
 })
 public class CompleteTestSuite {
 

@@ -3,6 +3,8 @@ package dna.tests;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import static org.junit.Assume.assumeFalse;
 import static org.junit.Assume.assumeTrue;
 import static org.mockito.Mockito.mock;
@@ -22,6 +24,8 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
 import dna.graph.Graph;
+import dna.graph.IElement;
+import dna.graph.IWeighted;
 import dna.graph.datastructures.GraphDataStructure;
 import dna.graph.datastructures.IEdgeListDatastructure;
 import dna.graph.datastructures.IEdgeListDatastructureReadable;
@@ -31,7 +35,9 @@ import dna.graph.edges.Edge;
 import dna.graph.generators.GraphGenerator;
 import dna.graph.generators.IGraphGenerator;
 import dna.graph.generators.IRandomGenerator;
+import dna.graph.nodes.DirectedNode;
 import dna.graph.nodes.Node;
+import dna.graph.nodes.UndirectedNode;
 import dna.io.GraphReader;
 import dna.io.GraphWriter;
 import dna.util.parameters.Parameter;
@@ -98,6 +104,7 @@ public class GeneratorsTest {
 		assumeFalse(gg.canGenerateNodeType(nodeType));
 		exception.expect(RuntimeException.class);
 		Graph g = gg.generate();
+		assertNotNull(g);
 	}
 
 	@Test
@@ -139,6 +146,58 @@ public class GeneratorsTest {
 			Graph g2 = gg.generate();
 			assertNotEquals(g, g2);
 		}
+	}
+	
+	@Test
+	public void writeWeightedReadUnweighted() throws ClassNotFoundException, IOException {
+		assumeTrue(IWeighted.class.isAssignableFrom(nodeType));
+		assumeTrue(gg.canGenerateNodeType(nodeType));
+		
+		Graph g = gg.generate();
+		
+		String graphName = gds.getDataStructures();
+		String tempFolder = folder.getRoot().getAbsolutePath();
+
+		GraphWriter gw = new GraphWriter();
+		gw.write(g, tempFolder, graphName);	
+		
+		if ( UndirectedNode.class.isAssignableFrom(nodeType)) {
+			gds.setNodeType(UndirectedNode.class);
+		} else if ( DirectedNode.class.isAssignableFrom(nodeType)) {
+			gds.setNodeType(DirectedNode.class);
+		} else {
+			fail("Unknown node type");
+		}
+		
+		GraphReader gr = new GraphReader();
+		Graph g2 = gr.read(tempFolder, graphName, gds);
+		gw.write(g2, tempFolder, graphName + "new");	
+		
+		/**
+		 * Don't go the easy way and check for edge list sizes here - some
+		 * may contain duplicates, some not, this might easily yield errors!
+		 */
+		
+		for (IElement nU: g2.getNodes()) {
+			Node n = (Node) nU;
+			assertTrue("Graph g misses node " + n + " (node list type: " + gds.getNodeListType() + ")", g.containsNode(n));
+		}
+		
+		for (IElement nU: g.getNodes()) {
+			Node n = (Node) nU;
+			assertTrue(g2.containsNode(n));
+		}
+		
+		for(IElement eU: g2.getEdges()) {
+			Edge e = (Edge) eU;
+			assertNotNull("Graph g misses edge " + e + " (edge list type: " + gds.getGraphEdgeListType() + ")", g.getEdge(e));
+		}
+
+		for(IElement eU: g.getEdges()) {
+			Edge e = (Edge) eU;
+			assertNotNull(g2.getEdge(e));
+		}		
+		
 	}
 
 	@Test
