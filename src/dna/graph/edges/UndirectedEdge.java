@@ -80,9 +80,14 @@ public class UndirectedEdge extends Edge {
 	}
 
 	public boolean equals(Object o) {
-		return o != null && o instanceof UndirectedEdge
-				&& this.node1.getIndex() == ((UndirectedEdge) o).node1.getIndex()
-				&& this.node2.getIndex() == ((UndirectedEdge) o).node2.getIndex();
+		if ( o == null ) return false;
+		if ( !(o instanceof UndirectedEdge)) return false;
+
+		UndirectedEdge oCasted = (UndirectedEdge)o;
+		if ( oCasted.getNode1() == null || oCasted.getNode2() == null) return false;
+		
+		return this.getNode1().getIndex() == oCasted.getNode1().getIndex()
+				&& this.getNode2().getIndex() == oCasted.getNode2().getIndex();
 	}
 
 	public int hashCode() {

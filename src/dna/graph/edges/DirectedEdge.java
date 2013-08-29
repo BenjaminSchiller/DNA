@@ -40,8 +40,14 @@ public class DirectedEdge extends Edge {
 	}
 
 	public boolean equals(Object o) {
-		return o != null && o instanceof DirectedEdge && this.src.getIndex() == ((DirectedEdge) o).src.getIndex()
-				&& this.dst.getIndex() == ((DirectedEdge) o).dst.getIndex();
+		if ( o == null ) return false;
+		if ( !(o instanceof DirectedEdge)) return false;
+		
+		DirectedEdge oCasted = (DirectedEdge)o;
+		if ( oCasted.getSrc() == null || oCasted.getDst() == null) return false;
+		
+		return this.getSrc().getIndex() == oCasted.getSrc().getIndex()
+					&& this.getDst().getIndex() == oCasted.getDst().getIndex();
 	}
 
 	public int hashCode() {

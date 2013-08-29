@@ -1,5 +1,7 @@
 package dna.graph.datastructures;
 
+import java.util.Iterator;
+
 import dna.graph.IElement;
 
 /**
@@ -26,12 +28,25 @@ public abstract class DataStructureReadable extends DataStructure implements IRe
 		if (this.size() == 0)
 			return true;
 
-		for (IElement thisElement : this.getElements()) {
-			for (IElement thatElement : that.getElements()) {
+		Iterator<IElement> thisIterator = this.iterator();
+		Iterator<IElement> thatIterator = that.iterator();
+
+		while (thisIterator.hasNext()) {
+			IElement thisElement = thisIterator.next();
+			thatIterator = that.iterator();
+			while (thatIterator.hasNext()) {
+				IElement thatElement = thatIterator.next();
 				if (thisElement == null || thatElement == null)
 					continue;
-				if (thisElement.equals(thatElement) && thisElement.deepEquals(thatElement))
+				if (thisElement.equals(thatElement) && thisElement.deepEquals(thatElement)) {
 					checkedAndFound++;
+					if (thisIterator.hasNext()) {
+						thisElement = thisIterator.next();
+						thatIterator = that.iterator();
+					} else
+						break;
+
+				}
 			}
 		}
 
