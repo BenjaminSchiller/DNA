@@ -184,7 +184,7 @@ public class DatastructureTester {
 		}
 
 		for (int i = secondDummies.length - 1; i >= 0; i--) {
-			tempDS.remove(secondDummies[i]);
+			assertTrue(tempDS.remove(secondDummies[i]));
 			assertEquals(prevIndex[i], tempDS.getMaxNodeIndex());
 		}
 
