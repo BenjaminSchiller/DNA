@@ -174,9 +174,11 @@ public class GraphDataStructure {
 		} catch (NoSuchMethodException | SecurityException
 				| InstantiationException | IllegalAccessException
 				| IllegalArgumentException | InvocationTargetException e) {
-			e.printStackTrace();
+			RuntimeException rt = new RuntimeException(
+					"Could not generate new node instance");
+			rt.setStackTrace(e.getStackTrace());
+			throw rt;
 		}
-		throw new RuntimeException("Could not generate new node instance");
 	}
 
 	public Node newNodeInstance(String str) {
@@ -187,9 +189,11 @@ public class GraphDataStructure {
 		} catch (NoSuchMethodException | SecurityException
 				| InstantiationException | IllegalAccessException
 				| IllegalArgumentException | InvocationTargetException e) {
-			e.printStackTrace();
+			RuntimeException rt = new RuntimeException(
+					"Could not generate new node instance");
+			rt.setStackTrace(e.getStackTrace());
+			throw rt;
 		}
-		throw new RuntimeException("Could not generate new node instance");
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
@@ -202,9 +206,11 @@ public class GraphDataStructure {
 		} catch (NoSuchMethodException | SecurityException
 				| InstantiationException | IllegalAccessException
 				| IllegalArgumentException | InvocationTargetException e) {
-			e.printStackTrace();
+			RuntimeException rt = new RuntimeException(
+					"Could not generate new weighted node instance");
+			rt.setStackTrace(e.getStackTrace());
+			throw rt;
 		}
-		throw new RuntimeException("Could not generate new weighted node instance");
 	}
 
 	public Edge newEdgeInstance(Node src, Node dst) {
@@ -249,9 +255,11 @@ public class GraphDataStructure {
 		} catch (SecurityException | InstantiationException
 				| IllegalAccessException | IllegalArgumentException
 				| InvocationTargetException e) {
-			e.printStackTrace();
+			RuntimeException rt = new RuntimeException(
+					"Could not generate new edge instance");
+			rt.setStackTrace(e.getStackTrace());
+			throw rt;
 		}
-		throw new RuntimeException("Could not generate new edge instance");
 	}
 
 	public Edge newEdgeInstance(String str, Graph graph) {
@@ -262,24 +270,27 @@ public class GraphDataStructure {
 		} catch (NoSuchMethodException | SecurityException
 				| InstantiationException | IllegalAccessException
 				| IllegalArgumentException | InvocationTargetException e) {
-			e.printStackTrace();
+			RuntimeException rt = new RuntimeException(
+					"Could not generate new edge instance");
+			rt.setStackTrace(e.getStackTrace());
+			throw rt;
 		}
-		throw new RuntimeException("Could not generate new edge instance");
 	}
-	
+
 	@SuppressWarnings({ "rawtypes" })
 	public IWeightedEdge newWeightedEdge(Node src, Node dst, Object weight) {
 		if (src.getClass() != dst.getClass()) {
 			throw new RuntimeException(
 					"Could not generate new edge instance for non-equal node classes "
 							+ src.getClass() + " and " + dst.getClass());
-		}		
-		
+		}
+
 		Constructor<?>[] cList = edgeType.getConstructors();
 		Constructor<?> cNeeded = null;
 
 		// First: search matching constructor for src.getClass and dst.getClass
-		Class<?>[] cRequired = new Class[] { src.getClass(), dst.getClass(), weight.getClass() };
+		Class<?>[] cRequired = new Class[] { src.getClass(), dst.getClass(),
+				weight.getClass() };
 
 		for (Constructor<?> c : cList) {
 			if (Arrays.equals(c.getParameterTypes(), cRequired)) {
@@ -306,14 +317,17 @@ public class GraphDataStructure {
 		}
 
 		try {
-			return (IWeightedEdge) edgeType.cast(cNeeded.newInstance(src, dst, weight));
+			return (IWeightedEdge) edgeType.cast(cNeeded.newInstance(src, dst,
+					weight));
 		} catch (SecurityException | InstantiationException
 				| IllegalAccessException | IllegalArgumentException
 				| InvocationTargetException e) {
-			e.printStackTrace();
+			RuntimeException rt = new RuntimeException(
+					"Could not generate new edge instance");
+			rt.setStackTrace(e.getStackTrace());
+			throw rt;
 		}
-		throw new RuntimeException("Could not generate new edge instance");
-	}	
+	}
 
 	public boolean createsDirected() {
 		return DirectedEdge.class.isAssignableFrom(edgeType);
