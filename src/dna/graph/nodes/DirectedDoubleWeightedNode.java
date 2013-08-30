@@ -1,12 +1,11 @@
 package dna.graph.nodes;
 
-import dna.graph.IWeighted;
 import dna.graph.datastructures.GraphDataStructure;
 import dna.graph.edges.DirectedDoubleWeightedEdge;
 import dna.graph.edges.Edge;
 import dna.io.etc.Keywords;
 
-public class DirectedDoubleWeightedNode extends DirectedNode implements IWeighted<Double> {
+public class DirectedDoubleWeightedNode extends DirectedNode implements IWeightedNode<Double> {
 	private double weight;
 	public final static Class<? extends Edge> edgeType = DirectedDoubleWeightedEdge.class;
 

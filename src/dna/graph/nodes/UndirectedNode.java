@@ -20,7 +20,7 @@ public class UndirectedNode extends Node {
 	}
 
 	@Override
-	protected void init() {
+	public void init() {
 		this.edges = this.gds.newNodeEdgeList();
 	}
 

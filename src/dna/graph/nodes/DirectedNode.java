@@ -26,7 +26,7 @@ public class DirectedNode extends Node {
 		super(str, gds);
 	}
 
-	protected void init() {
+	public void init() {
 		this.in = this.gds.newNodeEdgeList();
 		this.out = this.gds.newNodeEdgeList();
 		this.neighbors = this.gds.newNodeList();
