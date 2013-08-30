@@ -79,7 +79,7 @@ public class DArray extends DataStructureReadable implements
 		this.list[this.count] = element;
 		this.count++;
 
-		return false;
+		return true;
 	}
 
 	@Override
