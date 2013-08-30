@@ -1,4 +1,4 @@
-package dna.tests;
+package dna.graph.tests;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;

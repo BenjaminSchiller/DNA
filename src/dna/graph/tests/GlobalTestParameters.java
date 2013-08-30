@@ -1,4 +1,4 @@
-package dna.tests;
+package dna.graph.tests;
 
 import com.google.common.collect.ObjectArrays;
 

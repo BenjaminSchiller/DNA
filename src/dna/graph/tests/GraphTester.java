@@ -1,4 +1,4 @@
-package dna.tests;
+package dna.graph.tests;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
