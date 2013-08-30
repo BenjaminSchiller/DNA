@@ -35,10 +35,13 @@ public class GraphTester {
 
 	public GraphTester(Class<? extends INodeListDatastructure> nodeListType,
 			Class<? extends IEdgeListDatastructure> graphEdgeListType,
-			Class<? extends IEdgeListDatastructure> nodeEdgeListType, Class<? extends Node> nodeType,
-			Class<? extends Edge> edgeType) throws InstantiationException, IllegalAccessException,
-			IllegalArgumentException, InvocationTargetException, NoSuchMethodException, SecurityException {
-		this.gds = new GraphDataStructure(nodeListType, graphEdgeListType, nodeEdgeListType, nodeType);
+			Class<? extends IEdgeListDatastructure> nodeEdgeListType,
+			Class<? extends Node> nodeType, Class<? extends Edge> edgeType)
+			throws InstantiationException, IllegalAccessException,
+			IllegalArgumentException, InvocationTargetException,
+			NoSuchMethodException, SecurityException {
+		this.gds = new GraphDataStructure(nodeListType, graphEdgeListType,
+				nodeEdgeListType, nodeType);
 		this.gds.setEdgeType(edgeType);
 		this.graph = gds.newGraphInstance("ABC", 1L, 10, 10);
 		this.nodeType = nodeType;
@@ -53,19 +56,26 @@ public class GraphTester {
 				for (Class nodeEdgeListType : GlobalTestParameters.dataStructures) {
 					for (Class nodeType : GlobalTestParameters.nodeTypes) {
 						for (Class edgeType : GlobalTestParameters.edgeTypes) {
-							if ((UndirectedEdge.class.isAssignableFrom(edgeType) && DirectedNode.class
+							if ((UndirectedEdge.class
+									.isAssignableFrom(edgeType) && DirectedNode.class
 									.isAssignableFrom(nodeType))
-									|| (DirectedEdge.class.isAssignableFrom(edgeType) && UndirectedNode.class
+									|| (DirectedEdge.class
+											.isAssignableFrom(edgeType) && UndirectedNode.class
 											.isAssignableFrom(nodeType)))
 								continue;
 
-							if (!(INodeListDatastructure.class.isAssignableFrom(nodeListType)))
+							if (!(INodeListDatastructure.class
+									.isAssignableFrom(nodeListType)))
 								continue;
-							if (!(IEdgeListDatastructure.class.isAssignableFrom(edgeListType)))
+							if (!(IEdgeListDatastructure.class
+									.isAssignableFrom(edgeListType)))
 								continue;
-							if (!(IEdgeListDatastructure.class.isAssignableFrom(nodeEdgeListType)))
+							if (!(IEdgeListDatastructure.class
+									.isAssignableFrom(nodeEdgeListType)))
 								continue;
-							result.add(new Object[] { nodeListType, edgeListType, nodeEdgeListType, nodeType, edgeType });
+							result.add(new Object[] { nodeListType,
+									edgeListType, nodeEdgeListType, nodeType,
+									edgeType });
 						}
 					}
 				}
@@ -206,22 +216,22 @@ public class GraphTester {
 		Node g2n1 = this.gds.newNodeInstance(42);
 		Node g2n2 = this.gds.newNodeInstance(23);
 
-		g1.addNode(g1n1);
+		assertTrue(g1.addNode(g1n1));
 		assertNotEquals(g1, g2);
 
-		g2.addNode(g2n1);
+		assertTrue(g2.addNode(g2n1));
 		assertEquals(g1, g2);
 
-		g1.removeNode(g1n2);
+		assertFalse(g1.removeNode(g1n2));
 		assertEquals(g1, g2);
 
-		g2.removeNode(g2n2);
+		assertFalse(g2.removeNode(g2n2));
 		assertEquals(g1, g2);
 
-		g1.removeNode(g1n1);
+		assertTrue(g1.removeNode(g1n1));
 		assertNotEquals(g1, g2);
 
-		g2.removeNode(g2n1);
+		assertTrue(g2.removeNode(g2n1));
 		assertEquals(g1, g2);
 	}
 
@@ -232,12 +242,15 @@ public class GraphTester {
 		Node n2 = this.gds.newNodeInstance(2);
 
 		for (Class<? extends Edge> edge : GlobalTestParameters.edgeTypes) {
-			if ((UndirectedEdge.class.isAssignableFrom(edge) && DirectedNode.class.isAssignableFrom(nodeType))
-					|| (DirectedEdge.class.isAssignableFrom(edge) && UndirectedNode.class.isAssignableFrom(nodeType))) {
+			if ((UndirectedEdge.class.isAssignableFrom(edge) && DirectedNode.class
+					.isAssignableFrom(nodeType))
+					|| (DirectedEdge.class.isAssignableFrom(edge) && UndirectedNode.class
+							.isAssignableFrom(nodeType))) {
 				try {
 					this.gds.setEdgeType(edge);
 					Edge e = this.gds.newEdgeInstance(n1, n2);
-					fail("Generated edge of type " + e.getClass() + " on node type " + nodeType);
+					fail("Generated edge of type " + e.getClass()
+							+ " on node type " + nodeType);
 				} catch (RuntimeException e) {
 					// Everything's fine, this should not be possible. Mixing
 					// directed and undirected

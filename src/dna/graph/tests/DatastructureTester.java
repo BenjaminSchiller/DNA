@@ -2,6 +2,7 @@ package dna.graph.tests;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assume.assumeTrue;
 import static org.mockito.Mockito.mock;
@@ -114,7 +115,8 @@ public class DatastructureTester {
 			 */
 		}
 
-		assertEquals(GlobalTestParameters.elementClasses.length, exceptionCounter);
+		assertEquals(GlobalTestParameters.elementClasses.length,
+				exceptionCounter);
 	}
 
 	@Test(timeout = 1500)
@@ -157,7 +159,7 @@ public class DatastructureTester {
 		for (int i = 0; i < secondDummies.length; i++) {
 			secondDummies[i] = (Node) mock(this.elementClass);
 			prevIndex[i] = lastIndex;
-			lastIndex = lastIndex + Rand.rand.nextInt(i+1) + 1;
+			lastIndex = lastIndex + Rand.rand.nextInt(i + 1) + 1;
 			when(secondDummies[i].getIndex()).thenReturn(lastIndex);
 			tempDS.add(secondDummies[i]);
 			assertEquals(lastIndex, tempDS.getMaxNodeIndex());
@@ -283,6 +285,29 @@ public class DatastructureTester {
 			dummies.remove(singleDummy);
 		}
 		assertTrue(dummies.isEmpty());
+	}
+
+	@Test
+	public void checkNullsInGetElements() {
+		assumeTrue(dataStructure instanceof INodeListDatastructureReadable);
+		INodeListDatastructureReadable tempDS = (INodeListDatastructureReadable) dataStructure;
+
+		dataStructure.reinitializeWithSize(10);
+		for (IElement singleDummy : tempDS.getElements()) {
+			assertNotNull(singleDummy);
+		}
+	}
+
+	@Test
+	public void checkNullsInIterator() {
+		IElement singleDummy;
+
+		dataStructure.reinitializeWithSize(10);
+		Iterator<IElement> elemIterator = dataStructure.iterator();
+		while (elemIterator.hasNext()) {
+			singleDummy = elemIterator.next();
+			assertNotNull(singleDummy);
+		}
 	}
 
 	@Test
