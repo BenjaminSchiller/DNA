@@ -42,13 +42,8 @@ public class GraphDataStructure {
 			this.graphEdgeListType = (Class<? extends IEdgeListDatastructure>) Class.forName(splitted[1]);
 			this.nodeEdgeListType = (Class<? extends IEdgeListDatastructure>) Class.forName(splitted[2]);
 			this.nodeType = (Class<? extends Node>) Class.forName(splitted[3]);
+			this.edgeType = (Class<? extends Edge>) Class.forName(splitted[4]);
 		} catch (ClassNotFoundException | ClassCastException e) {
-			e.printStackTrace();
-		}
-
-		try {
-			this.edgeType = (Class<? extends Edge>) nodeType.getField("edgeType").get(null);
-		} catch (IllegalArgumentException | IllegalAccessException | NoSuchFieldException | SecurityException e) {
 			e.printStackTrace();
 		}
 	}
@@ -219,7 +214,7 @@ public class GraphDataStructure {
 		}
 
 		if (cNeeded == null) {
-			throw new RuntimeException("No edge constructor for " + src.getClass() + " found");
+			throw new RuntimeException("No edge constructor for nodetype " + src.getClass() + " in edge type " + edgeType + " found");
 		}
 
 		try {
@@ -249,7 +244,8 @@ public class GraphDataStructure {
 
 	public String getDataStructures() {
 		return nodeListType.getName() + Keywords.classDelimiter + graphEdgeListType.getName() + Keywords.classDelimiter
-				+ nodeEdgeListType.getName() + Keywords.classDelimiter + nodeType.getName();
+				+ nodeEdgeListType.getName() + Keywords.classDelimiter + nodeType.getName() + Keywords.classDelimiter
+				+ edgeType.getName();
 	}
 
 	public boolean isReadable() {
