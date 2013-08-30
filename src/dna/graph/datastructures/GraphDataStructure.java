@@ -27,6 +27,8 @@ public class GraphDataStructure {
 	private Class<? extends IEdgeListDatastructure> nodeEdgeListType;
 	private Class<? extends Node> nodeType;
 	private Class<? extends Edge> edgeType;
+	private Constructor<?> lastWeightedEdgeConstructor = null;
+	private Constructor<?> lastEdgeConstructor = null;
 
 	public GraphDataStructure(
 			Class<? extends INodeListDatastructure> nodeListType,
@@ -220,29 +222,39 @@ public class GraphDataStructure {
 							+ src.getClass() + " and " + dst.getClass());
 		}
 
+		if (this.lastEdgeConstructor != null) {
+			// Try to use cached constructor, but throw it away if it is not the
+			// correct one
+			try {
+				return edgeType.cast(this.lastEdgeConstructor.newInstance(src,
+						dst));
+			} catch (InstantiationException | IllegalAccessException
+					| IllegalArgumentException | InvocationTargetException
+					| ClassCastException e) {
+				this.lastEdgeConstructor = null;
+			}
+		}
+
 		Constructor<?>[] cList = edgeType.getConstructors();
 		Constructor<?> cNeeded = null;
 
 		// First: search matching constructor for src.getClass and dst.getClass
 		Class<?>[] cRequired = new Class[] { src.getClass(), dst.getClass() };
+		cNeeded = getConstructor(cList, cRequired);
 
-		for (Constructor<?> c : cList) {
-			if (Arrays.equals(c.getParameterTypes(), cRequired)) {
-				cNeeded = c;
-			}
-		}
-
-		// Okay, check for super types
-		Class<?> superType;
-		superType = src.getClass().getSuperclass();
-		while (Node.class.isAssignableFrom(superType) && cNeeded == null) {
-			cRequired = new Class[] { superType, superType };
-			for (Constructor<?> c : cList) {
-				if (Arrays.equals(c.getParameterTypes(), cRequired)) {
-					cNeeded = c;
+		// Okay, check for super types if needed
+		if (cNeeded == null) {
+			Class<?> superType;
+			superType = src.getClass().getSuperclass();
+			while (cNeeded == null && Node.class.isAssignableFrom(superType)) {
+				cRequired = new Class[] { superType, superType };
+				for (Constructor<?> c : cList) {
+					if (Arrays.equals(c.getParameterTypes(), cRequired)) {
+						cNeeded = c;
+					}
 				}
+				superType = superType.getSuperclass();
 			}
-			superType = superType.getSuperclass();
 		}
 
 		if (cNeeded == null) {
@@ -251,6 +263,7 @@ public class GraphDataStructure {
 		}
 
 		try {
+			this.lastEdgeConstructor = cNeeded;
 			return edgeType.cast(cNeeded.newInstance(src, dst));
 		} catch (SecurityException | InstantiationException
 				| IllegalAccessException | IllegalArgumentException
@@ -277,6 +290,25 @@ public class GraphDataStructure {
 		}
 	}
 
+	public Constructor<?> getConstructor(Constructor<?>[] list,
+			Class<?>[] required) {
+		Constructor<?> cNeeded = null;
+
+		for (Constructor<?> c : list) {
+			Class<?>[] pt = c.getParameterTypes();
+			if (pt.length != required.length)
+				continue;
+
+			for (int i = 0; i < required.length; i++) {
+				if (pt[i] != required[i])
+					break;
+				if (i == (required.length - 1))
+					return c;
+			}
+		}
+		return cNeeded;
+	}
+
 	@SuppressWarnings({ "rawtypes" })
 	public IWeightedEdge newWeightedEdge(Node src, Node dst, Object weight) {
 		if (src.getClass() != dst.getClass()) {
@@ -285,30 +317,38 @@ public class GraphDataStructure {
 							+ src.getClass() + " and " + dst.getClass());
 		}
 
+		if (this.lastWeightedEdgeConstructor != null) {
+			// Try to use cached constructor, but throw it away if it is not the
+			// correct one
+			try {
+				return (IWeightedEdge) edgeType
+						.cast(this.lastWeightedEdgeConstructor.newInstance(src,
+								dst, weight));
+			} catch (InstantiationException | IllegalAccessException
+					| IllegalArgumentException | InvocationTargetException
+					| ClassCastException e) {
+				this.lastWeightedEdgeConstructor = null;
+			}
+		}
+
 		Constructor<?>[] cList = edgeType.getConstructors();
 		Constructor<?> cNeeded = null;
 
 		// First: search matching constructor for src.getClass and dst.getClass
 		Class<?>[] cRequired = new Class[] { src.getClass(), dst.getClass(),
 				weight.getClass() };
+		cNeeded = getConstructor(cList, cRequired);
 
-		for (Constructor<?> c : cList) {
-			if (Arrays.equals(c.getParameterTypes(), cRequired)) {
-				cNeeded = c;
+		// Okay, check for super types if needed
+		if (cNeeded == null) {
+			Class<?> superType;
+			superType = src.getClass().getSuperclass();
+			while (cNeeded == null && Node.class.isAssignableFrom(superType)) {
+				cRequired = new Class[] { superType, superType,
+						weight.getClass() };
+				cNeeded = getConstructor(cList, cRequired);
+				superType = superType.getSuperclass();
 			}
-		}
-
-		// Okay, check for super types
-		Class<?> superType;
-		superType = src.getClass().getSuperclass();
-		while (Node.class.isAssignableFrom(superType) && cNeeded == null) {
-			cRequired = new Class[] { superType, superType, weight.getClass() };
-			for (Constructor<?> c : cList) {
-				if (Arrays.equals(c.getParameterTypes(), cRequired)) {
-					cNeeded = c;
-				}
-			}
-			superType = superType.getSuperclass();
 		}
 
 		if (cNeeded == null) {
@@ -317,6 +357,7 @@ public class GraphDataStructure {
 		}
 
 		try {
+			this.lastWeightedEdgeConstructor = cNeeded;
 			return (IWeightedEdge) edgeType.cast(cNeeded.newInstance(src, dst,
 					weight));
 		} catch (SecurityException | InstantiationException
