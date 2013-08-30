@@ -1,6 +1,6 @@
 package dna.graph.datastructures;
 
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 
@@ -15,8 +15,8 @@ import dna.util.Rand;
  * @author Nico
  * 
  */
-public class DArray extends DataStructureReadable implements INodeListDatastructureReadable,
-		IEdgeListDatastructureReadable {
+public class DArray extends DataStructureReadable implements
+		INodeListDatastructureReadable, IEdgeListDatastructureReadable {
 	private IElement[] list;
 	private int count;
 	private int maxNodeIndex;
@@ -36,7 +36,8 @@ public class DArray extends DataStructureReadable implements INodeListDatastruct
 			return this.add((Node) element);
 		if (element instanceof Edge)
 			return this.add((Edge) element);
-		throw new RuntimeException("Can't handle element of type " + element.getClass() + " here");
+		throw new RuntimeException("Can't handle element of type "
+				+ element.getClass() + " here");
 	}
 
 	/**
@@ -87,11 +88,13 @@ public class DArray extends DataStructureReadable implements INodeListDatastruct
 			return this.contains((Node) element);
 		if (element instanceof Edge)
 			return this.contains((Edge) element);
-		throw new RuntimeException("Can't handle element of type " + element.getClass() + " here");
+		throw new RuntimeException("Can't handle element of type "
+				+ element.getClass() + " here");
 	}
 
 	public boolean contains(Node element) {
-		return this.list.length > element.getIndex() && this.list[element.getIndex()] != null;
+		return this.list.length > element.getIndex()
+				&& this.list[element.getIndex()] != null;
 	}
 
 	@Override
@@ -185,12 +188,16 @@ public class DArray extends DataStructureReadable implements INodeListDatastruct
 
 	@Override
 	public Collection<IElement> getElements() {
-		return Arrays.asList(this.list);
+		Collection<IElement> res = new ArrayList<IElement>();
+		Iterator<IElement> it = this.iterator();
+		while (it.hasNext())
+			res.add(it.next());
+		return res;
 	}
 
 	@Override
 	public Iterator<IElement> iterator() {
-		return Arrays.asList(this.list).iterator();
+		return new DArrayIterator<IElement>(this.list);
 	}
 
 	@Override
@@ -200,8 +207,9 @@ public class DArray extends DataStructureReadable implements INodeListDatastruct
 
 	@Override
 	public Edge get(Edge element) {
-		for (IElement eU: list) {
-			if (element.equals(eU)) return (Edge) eU;
+		for (IElement eU : list) {
+			if (element.equals(eU))
+				return (Edge) eU;
 		}
 		return null;
 	}
@@ -209,5 +217,36 @@ public class DArray extends DataStructureReadable implements INodeListDatastruct
 	@Override
 	public int getMaxNodeIndex() {
 		return this.maxNodeIndex;
+	}
+
+	private class DArrayIterator<T> implements Iterator<T> {
+		private T[] list;
+		private int pos = 0;
+
+		public DArrayIterator(T[] list) {
+			this.list = list;
+			while (pos < list.length && list[pos] == null)
+				pos++;
+		}
+
+		@Override
+		public boolean hasNext() {
+			return pos < list.length;
+		}
+
+		@Override
+		public T next() {
+			T res = list[pos];
+			pos++;
+			while (pos < list.length && list[pos] == null)
+				pos++;
+			return res;
+		}
+
+		@Override
+		public void remove() {
+			throw new RuntimeException("Not allowed");
+		}
+
 	}
 }
