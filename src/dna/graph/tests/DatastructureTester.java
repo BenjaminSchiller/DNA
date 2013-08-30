@@ -359,5 +359,18 @@ public class DatastructureTester {
 			assertTrue(tempDS.contains(random));
 		}
 	}
+	
+	@Test
+	public void checkDuplicateCalls() {
+		IElement dummy = mock(elementClass);
+		if (dummy instanceof Node) {
+			when(((Node) dummy).getIndex()).thenReturn(1);
+		}		
+		assertTrue(dataStructure.add(dummy));
+		assertFalse(dataStructure.add(dummy));
+		
+		assertTrue(dataStructure.remove(dummy));
+		assertFalse(dataStructure.remove(dummy));
+	}
 
 }

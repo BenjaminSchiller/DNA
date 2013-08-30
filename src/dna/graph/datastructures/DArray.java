@@ -46,6 +46,8 @@ public class DArray extends DataStructureReadable implements
 	 */
 	public boolean add(Node element) {
 		super.canAdd(element);
+		
+		if (this.contains(element)) return false;
 
 		if (this.list.length == 0) {
 			this.list = new IElement[element.getIndex() + 1];
@@ -70,6 +72,8 @@ public class DArray extends DataStructureReadable implements
 	@Override
 	public boolean add(Edge element) {
 		super.canAdd(element);
+		
+		if (this.contains(element)) return false;
 
 		if (this.count == this.list.length) {
 			IElement[] newList = new IElement[this.list.length * 2];
