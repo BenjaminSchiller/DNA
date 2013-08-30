@@ -35,29 +35,38 @@ public class GraphTester {
 
 	public GraphTester(Class<? extends INodeListDatastructure> nodeListType,
 			Class<? extends IEdgeListDatastructure> graphEdgeListType,
-			Class<? extends IEdgeListDatastructure> nodeEdgeListType, Class<? extends Node> nodeType)
-			throws InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException,
-			NoSuchMethodException, SecurityException {
+			Class<? extends IEdgeListDatastructure> nodeEdgeListType, Class<? extends Node> nodeType,
+			Class<? extends Edge> edgeType) throws InstantiationException, IllegalAccessException,
+			IllegalArgumentException, InvocationTargetException, NoSuchMethodException, SecurityException {
 		this.gds = new GraphDataStructure(nodeListType, graphEdgeListType, nodeEdgeListType, nodeType);
+		this.gds.setEdgeType(edgeType);
 		this.graph = gds.newGraphInstance("ABC", 1L, 10, 10);
 		this.nodeType = nodeType;
 	}
 
 	@SuppressWarnings("rawtypes")
-	@Parameterized.Parameters(name = "{0} {1} {2} {3}")
+	@Parameterized.Parameters(name = "{0} {1} {2} {3} {4}")
 	public static Collection<Object> testPairs() {
 		ArrayList<Object> result = new ArrayList<>();
 		for (Class nodeListType : GlobalTestParameters.dataStructures) {
 			for (Class edgeListType : GlobalTestParameters.dataStructures) {
 				for (Class nodeEdgeListType : GlobalTestParameters.dataStructures) {
 					for (Class nodeType : GlobalTestParameters.nodeTypes) {
-						if (!(INodeListDatastructure.class.isAssignableFrom(nodeListType)))
-							continue;
-						if (!(IEdgeListDatastructure.class.isAssignableFrom(edgeListType)))
-							continue;
-						if (!(IEdgeListDatastructure.class.isAssignableFrom(nodeEdgeListType)))
-							continue;
-						result.add(new Object[] { nodeListType, edgeListType, nodeEdgeListType, nodeType });
+						for (Class edgeType : GlobalTestParameters.edgeTypes) {
+							if ((UndirectedEdge.class.isAssignableFrom(edgeType) && DirectedNode.class
+									.isAssignableFrom(nodeType))
+									|| (DirectedEdge.class.isAssignableFrom(edgeType) && UndirectedNode.class
+											.isAssignableFrom(nodeType)))
+								continue;
+
+							if (!(INodeListDatastructure.class.isAssignableFrom(nodeListType)))
+								continue;
+							if (!(IEdgeListDatastructure.class.isAssignableFrom(edgeListType)))
+								continue;
+							if (!(IEdgeListDatastructure.class.isAssignableFrom(nodeEdgeListType)))
+								continue;
+							result.add(new Object[] { nodeListType, edgeListType, nodeEdgeListType, nodeType, edgeType });
+						}
 					}
 				}
 			}
@@ -230,13 +239,10 @@ public class GraphTester {
 					Edge e = this.gds.newEdgeInstance(n1, n2);
 					fail("Generated edge of type " + e.getClass() + " on node type " + nodeType);
 				} catch (RuntimeException e) {
-					// Everything's fine, this should not be possible. Mixing directed and undirected
+					// Everything's fine, this should not be possible. Mixing
+					// directed and undirected
 					// IElements is no good idea
 				}
-			} else {
-				this.gds.setEdgeType(edge);
-				Edge e = this.gds.newEdgeInstance(n1, n2);
-				assertEquals(edge, e.getClass());
 			}
 		}
 	}
