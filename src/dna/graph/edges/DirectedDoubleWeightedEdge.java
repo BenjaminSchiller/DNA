@@ -24,7 +24,7 @@ public class DirectedDoubleWeightedEdge extends DirectedEdge implements IWeighte
 	}
 
 	public DirectedDoubleWeightedEdge(DirectedNode src, DirectedNode dst) {
-		this(src, dst, 1d);
+		this(src, dst, 0d);
 	}
 
 	public String getStringRepresentation() {

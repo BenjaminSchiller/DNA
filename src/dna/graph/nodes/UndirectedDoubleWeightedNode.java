@@ -25,7 +25,7 @@ public class UndirectedDoubleWeightedNode extends UndirectedNode implements IWei
 	}
 
 	public UndirectedDoubleWeightedNode(int i, GraphDataStructure gds) {
-		this(i, 1d, gds);
+		this(i, 0d, gds);
 	}
 
 	@Override

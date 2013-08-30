@@ -23,7 +23,7 @@ public class UndirectedDoubleWeightedEdge extends UndirectedEdge implements IWei
 	}
 
 	public UndirectedDoubleWeightedEdge(UndirectedNode src, UndirectedNode dst) {
-		this(src, dst, 1d);
+		this(src, dst, 0d);
 	}
 
 	@Override

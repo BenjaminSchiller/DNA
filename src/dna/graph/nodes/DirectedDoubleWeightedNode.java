@@ -25,7 +25,7 @@ public class DirectedDoubleWeightedNode extends DirectedNode implements IWeighte
 	}
 
 	public DirectedDoubleWeightedNode(int i, GraphDataStructure gds) {
-		this(i, 1d, gds);
+		this(i, 0d, gds);
 	}
 
 	@Override
