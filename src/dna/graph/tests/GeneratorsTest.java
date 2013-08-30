@@ -5,7 +5,6 @@ import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
-import static org.junit.Assume.assumeFalse;
 import static org.junit.Assume.assumeTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -31,7 +30,9 @@ import dna.graph.datastructures.IEdgeListDatastructure;
 import dna.graph.datastructures.IEdgeListDatastructureReadable;
 import dna.graph.datastructures.INodeListDatastructure;
 import dna.graph.datastructures.INodeListDatastructureReadable;
+import dna.graph.edges.DirectedEdge;
 import dna.graph.edges.Edge;
+import dna.graph.edges.UndirectedEdge;
 import dna.graph.generators.GraphGenerator;
 import dna.graph.generators.IGraphGenerator;
 import dna.graph.generators.IRandomGenerator;
@@ -45,6 +46,7 @@ import dna.util.parameters.Parameter;
 @RunWith(Parameterized.class)
 public class GeneratorsTest {
 	private Class<? extends Node> nodeType;
+	private Class<? extends Edge> edgeType;
 	private Class<? extends IGraphGenerator> generator;
 	private Constructor<? extends GraphGenerator> generatorConstructor;
 	private GraphDataStructure gds;
@@ -61,35 +63,71 @@ public class GeneratorsTest {
 
 	public GeneratorsTest(Class<? extends INodeListDatastructure> nodeListType,
 			Class<? extends IEdgeListDatastructure> graphEdgeListType,
-			Class<? extends IEdgeListDatastructure> nodeEdgeListType, Class<? extends Node> nodeType,
-			Class<? extends GraphGenerator> generator) throws InstantiationException, IllegalAccessException,
-			IllegalArgumentException, InvocationTargetException, NoSuchMethodException, SecurityException {
+			Class<? extends IEdgeListDatastructure> nodeEdgeListType,
+			Class<? extends Node> nodeType, Class<? extends Edge> edgeType,
+			Class<? extends GraphGenerator> generator)
+			throws InstantiationException, IllegalAccessException,
+			IllegalArgumentException, InvocationTargetException,
+			NoSuchMethodException, SecurityException {
 		this.nodeType = nodeType;
+		this.edgeType = edgeType;
 		this.generator = generator;
-		this.generatorConstructor = generator.getConstructor(String.class, Parameter[].class, GraphDataStructure.class,
-				long.class, int.class, int.class);
+		this.generatorConstructor = generator.getConstructor(String.class,
+				Parameter[].class, GraphDataStructure.class, long.class,
+				int.class, int.class);
 
-		this.gds = new GraphDataStructure(nodeListType, graphEdgeListType, nodeEdgeListType, nodeType);
-		this.gg = this.generatorConstructor.newInstance("ABC", new Parameter[] {}, gds, 0, nodeSize, edgeSize);
+		this.gds = new GraphDataStructure(nodeListType, graphEdgeListType,
+				nodeEdgeListType, nodeType, edgeType);
+		this.gg = this.generatorConstructor.newInstance("ABC",
+				new Parameter[] {}, gds, 0, nodeSize, edgeSize);
 	}
 
-	@SuppressWarnings("rawtypes")
-	@Parameterized.Parameters(name = "{0} {1} {2} {3} {4}")
-	public static Collection testPairs() {
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	@Parameterized.Parameters(name = "{0} {1} {2} {3} {4} {5}")
+	public static Collection testPairs() throws NoSuchMethodException, SecurityException, InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+		Constructor<? extends GraphGenerator> generatorConstructor;
+		GraphDataStructure gds;
+		
 		ArrayList<Object> result = new ArrayList<>();
 		for (Class nodeListType : GlobalTestParameters.dataStructures) {
 			for (Class edgeListType : GlobalTestParameters.dataStructures) {
 				for (Class nodeEdgeListType : GlobalTestParameters.dataStructures) {
 					for (Class generator : GlobalTestParameters.graphGenerators) {
-						for (Class nodeType : GlobalTestParameters.nodeTypes) {
-							if (!(INodeListDatastructureReadable.class.isAssignableFrom(nodeListType)))
-								continue;
-							if (!(IEdgeListDatastructureReadable.class.isAssignableFrom(edgeListType)))
-								continue;
-							if (!(IEdgeListDatastructureReadable.class.isAssignableFrom(nodeEdgeListType)))
-								continue;
+						for (Class edgeType : GlobalTestParameters.edgeTypes) {
+							for (Class nodeType : GlobalTestParameters.nodeTypes) {
+								if (!(INodeListDatastructureReadable.class
+										.isAssignableFrom(nodeListType)))
+									continue;
+								if (!(IEdgeListDatastructureReadable.class
+										.isAssignableFrom(edgeListType)))
+									continue;
+								if (!(IEdgeListDatastructureReadable.class
+										.isAssignableFrom(nodeEdgeListType)))
+									continue;
 
-							result.add(new Object[] { nodeListType, edgeListType, nodeEdgeListType, nodeType, generator });
+								if ((UndirectedEdge.class
+										.isAssignableFrom(edgeType) && DirectedNode.class
+										.isAssignableFrom(nodeType))
+										|| (DirectedEdge.class
+												.isAssignableFrom(edgeType) && UndirectedNode.class
+												.isAssignableFrom(nodeType)))
+									continue;
+								
+								generatorConstructor = generator.getConstructor(String.class,
+										Parameter[].class, GraphDataStructure.class, long.class,
+										int.class, int.class);								
+								gds = new GraphDataStructure(nodeListType, edgeListType,
+										nodeEdgeListType, nodeType, edgeType);
+								GraphGenerator gg = generatorConstructor.newInstance("ABC",
+										new Parameter[] {}, gds, 0, 5, 5);
+								
+								if ( !gg.canGenerateNodeType(nodeType)) continue;
+								if ( !gg.canGenerateEdgeType(edgeType)) continue;
+
+								result.add(new Object[] { nodeListType,
+										edgeListType, nodeEdgeListType,
+										nodeType, edgeType, generator });
+							}
 						}
 					}
 				}
@@ -100,16 +138,7 @@ public class GeneratorsTest {
 	}
 
 	@Test
-	public void testWrongNodeType() {
-		assumeFalse(gg.canGenerateNodeType(nodeType));
-		exception.expect(RuntimeException.class);
-		Graph g = gg.generate();
-		assertNotNull(g);
-	}
-
-	@Test
 	public void testGraphGeneration() {
-		assumeTrue(gg.canGenerateNodeType(nodeType));
 		Graph g = gg.generate();
 
 		assertEquals(nodeSize, g.getNodeCount());
@@ -118,7 +147,6 @@ public class GeneratorsTest {
 
 	@Test
 	public void testWriteRead() throws ClassNotFoundException, IOException {
-		assumeTrue(gg.canGenerateNodeType(nodeType));
 		Graph g = gg.generate();
 
 		String graphName = gds.getDataStructures();
@@ -139,7 +167,6 @@ public class GeneratorsTest {
 	@Test
 	public void testRandomGraphsAreRandom() {
 		assumeTrue(IRandomGenerator.class.isAssignableFrom(generator));
-		assumeTrue(gg.canGenerateNodeType(nodeType));
 		Graph g = gg.generate();
 
 		for (int i = 0; i < 20; i++) {
@@ -147,68 +174,76 @@ public class GeneratorsTest {
 			assertNotEquals(g, g2);
 		}
 	}
-	
+
 	@Test
-	public void writeWeightedReadUnweighted() throws ClassNotFoundException, IOException {
+	public void writeWeightedReadUnweighted() throws ClassNotFoundException,
+			IOException {
 		assumeTrue(IWeighted.class.isAssignableFrom(nodeType));
-		assumeTrue(gg.canGenerateNodeType(nodeType));
-		
+		assumeTrue(IWeighted.class.isAssignableFrom(edgeType));
+
 		Graph g = gg.generate();
-		
+
 		String graphName = gds.getDataStructures();
 		String tempFolder = folder.getRoot().getAbsolutePath();
 
 		GraphWriter gw = new GraphWriter();
-		gw.write(g, tempFolder, graphName);	
+		gw.write(g, tempFolder, graphName);
 		
-		if ( UndirectedNode.class.isAssignableFrom(nodeType)) {
+		if (UndirectedNode.class.isAssignableFrom(nodeType)) {
 			gds.setNodeType(UndirectedNode.class);
-		} else if ( DirectedNode.class.isAssignableFrom(nodeType)) {
+			gds.setEdgeType(UndirectedEdge.class);
+		} else if (DirectedNode.class.isAssignableFrom(nodeType)) {
 			gds.setNodeType(DirectedNode.class);
+			gds.setEdgeType(DirectedEdge.class);
 		} else {
 			fail("Unknown node type");
 		}
-		
+
 		GraphReader gr = new GraphReader();
 		Graph g2 = gr.read(tempFolder, graphName, gds);
-		gw.write(g2, tempFolder, graphName + "new");	
+		gw.write(g2, tempFolder, graphName + "new");
 		
 		/**
-		 * Don't go the easy way and check for edge list sizes here - some
-		 * may contain duplicates, some not, this might easily yield errors!
+		 * Don't go the easy way and check for edge list sizes here - some may
+		 * contain duplicates, some not, this might easily yield errors!
 		 */
-		
-		for (IElement nU: g2.getNodes()) {
+
+		for (IElement nU : g2.getNodes()) {
 			Node n = (Node) nU;
-			assertTrue("Graph g misses node " + n + " (node list type: " + gds.getNodeListType() + ")", g.containsNode(n));
+			assertTrue(
+					"Graph g misses node " + n + " (node list type: "
+							+ gds.getNodeListType() + ")", g.containsNode(n));
 		}
-		
-		for (IElement nU: g.getNodes()) {
+
+		for (IElement nU : g.getNodes()) {
 			Node n = (Node) nU;
 			assertTrue(g2.containsNode(n));
 		}
-		
-		for(IElement eU: g2.getEdges()) {
+
+		for (IElement eU : g2.getEdges()) {
 			Edge e = (Edge) eU;
 			Edge eOther = g.getEdge(e);
-			assertNotNull("Graph g misses edge " + e + " (edge list type: " + gds.getGraphEdgeListType() + ")", eOther);
+			assertNotNull("Graph g misses edge " + e + " (edge list type: "
+					+ gds.getGraphEdgeListType() + ")", eOther);
 			assertEquals(e, eOther);
-			assertNotEquals(e.getStringRepresentation(), eOther.getStringRepresentation());
+			assertNotEquals(e.getStringRepresentation(),
+					eOther.getStringRepresentation());
 		}
 
-		for(IElement eU: g.getEdges()) {
+		for (IElement eU : g.getEdges()) {
 			Edge e = (Edge) eU;
 			Edge eOther = g2.getEdge(e);
 			assertNotNull(eOther);
 			assertEquals(e, eOther);
-			assertNotEquals(e.getStringRepresentation(), eOther.getStringRepresentation());			
-		}		
-		
+			assertNotEquals(e.getStringRepresentation(),
+					eOther.getStringRepresentation());
+		}
+
 	}
 
 	@Test
-	public void testWriteReadWithErrorInEdge() throws ClassNotFoundException, IOException {
-		assumeTrue(gg.canGenerateNodeType(nodeType));
+	public void testWriteReadWithErrorInEdge() throws ClassNotFoundException,
+			IOException {
 		Graph g = gg.generate();
 
 		String graphName = gds.getDataStructures();
@@ -237,8 +272,8 @@ public class GeneratorsTest {
 	}
 
 	@Test
-	public void testWriteReadWithErrorInNode() throws ClassNotFoundException, IOException {
-		assumeTrue(gg.canGenerateNodeType(nodeType));
+	public void testWriteReadWithErrorInNode() throws ClassNotFoundException,
+			IOException {
 		Graph g = gg.generate();
 
 		String graphName = gds.getDataStructures();

@@ -8,6 +8,8 @@ import static org.junit.Assert.fail;
 import static org.junit.Assume.assumeTrue;
 
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -21,8 +23,10 @@ import dna.graph.datastructures.IEdgeListDatastructure;
 import dna.graph.datastructures.INodeListDatastructure;
 import dna.graph.edges.DirectedEdge;
 import dna.graph.edges.Edge;
+import dna.graph.edges.IWeightedEdge;
 import dna.graph.edges.UndirectedEdge;
 import dna.graph.nodes.DirectedNode;
+import dna.graph.nodes.IWeightedNode;
 import dna.graph.nodes.Node;
 import dna.graph.nodes.UndirectedNode;
 import dna.io.etc.Keywords;
@@ -32,6 +36,7 @@ public class GraphTester {
 	private Graph graph;
 	private GraphDataStructure gds;
 	private Class<? extends Node> nodeType;
+	private Class<? extends Edge> edgeType;
 
 	public GraphTester(Class<? extends INodeListDatastructure> nodeListType,
 			Class<? extends IEdgeListDatastructure> graphEdgeListType,
@@ -41,10 +46,11 @@ public class GraphTester {
 			IllegalArgumentException, InvocationTargetException,
 			NoSuchMethodException, SecurityException {
 		this.gds = new GraphDataStructure(nodeListType, graphEdgeListType,
-				nodeEdgeListType, nodeType);
+				nodeEdgeListType, nodeType, edgeType);
 		this.gds.setEdgeType(edgeType);
 		this.graph = gds.newGraphInstance("ABC", 1L, 10, 10);
 		this.nodeType = nodeType;
+		this.edgeType = edgeType;
 	}
 
 	@SuppressWarnings("rawtypes")
@@ -114,6 +120,65 @@ public class GraphTester {
 		assertEquals(42, graph.getMaxNodeIndex());
 	}
 
+	@SuppressWarnings("rawtypes")
+	@Test
+	public void addWeightedNode() {
+		assumeTrue(IWeightedNode.class.isAssignableFrom(nodeType));
+		Class weightType = null;
+		Object mock = null;
+
+		// Get the type of weight
+		for (Type ptU : nodeType.getGenericInterfaces()) {
+			ParameterizedType pt = (ParameterizedType) ptU;
+			if (pt.getRawType() != IWeightedNode.class)
+				continue;
+			Type[] args = pt.getActualTypeArguments();
+			weightType = (Class) args[0];
+		}
+		
+		switch (weightType.getSimpleName()) {
+		case "Double":
+			mock = (Double)1d;
+			break;
+		default:
+			fail("Cannot mock type " + weightType.getName());
+		}
+
+		IWeightedNode n = gds.newWeightedNode(1, mock);
+		assertEquals(mock, n.getWeight());
+	}
+	
+	@SuppressWarnings("rawtypes")
+	@Test
+	public void addWeightedEdge() {
+		assumeTrue(IWeightedEdge.class.isAssignableFrom(edgeType));
+		Class weightType = null;
+		Object mock = null;
+
+		// Get the type of weight
+		for (Type ptU : edgeType.getGenericInterfaces()) {
+			ParameterizedType pt = (ParameterizedType) ptU;
+			if (pt.getRawType() != IWeightedEdge.class)
+				continue;
+			Type[] args = pt.getActualTypeArguments();
+			weightType = (Class) args[0];
+		}
+		
+		switch (weightType.getSimpleName()) {
+		case "Double":
+			mock = (Double)1d;
+			break;
+		default:
+			fail("Cannot mock type " + weightType.getName());
+		}
+		
+		Node n1 = gds.newNodeInstance(1);
+		Node n2 = gds.newNodeInstance(2);		
+
+		IWeightedEdge n = gds.newWeightedEdge(n1, n2, mock);
+		assertEquals(mock, n.getWeight());
+	}	
+	
 	@Test
 	public void addEdgeByID() {
 		Node n1 = gds.newNodeInstance(1);

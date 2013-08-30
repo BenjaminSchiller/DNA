@@ -7,7 +7,6 @@ import dna.io.etc.Keywords;
 
 public class UndirectedDoubleWeightedNode extends UndirectedNode implements IWeightedNode<Double> {
 	private double weight;
-	public final static Class<? extends Edge> edgeType = UndirectedDoubleWeightedEdge.class;
 
 	public UndirectedDoubleWeightedNode(int i, Double weight, GraphDataStructure gds) {
 		super(i, gds);

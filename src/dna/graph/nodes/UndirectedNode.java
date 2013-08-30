@@ -9,8 +9,6 @@ import dna.graph.edges.UndirectedEdge;
 public class UndirectedNode extends Node {
 	private IEdgeListDatastructure edges;
 	
-	public final static Class<? extends Edge> edgeType = UndirectedEdge.class;
-
 	public UndirectedNode(int index, GraphDataStructure gds) {
 		super(index, gds);
 	}

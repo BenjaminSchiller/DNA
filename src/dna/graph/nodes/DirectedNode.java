@@ -16,8 +16,6 @@ public class DirectedNode extends Node {
 
 	private INodeListDatastructure neighbors;
 
-	public final static Class<? extends Edge> edgeType = DirectedEdge.class;
-
 	public DirectedNode(int i, GraphDataStructure gds) {
 		super(i, gds);
 	}

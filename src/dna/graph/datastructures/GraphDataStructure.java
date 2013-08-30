@@ -5,8 +5,11 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 
 import dna.graph.Graph;
+import dna.graph.IWeighted;
 import dna.graph.edges.DirectedEdge;
 import dna.graph.edges.Edge;
+import dna.graph.edges.IWeightedEdge;
+import dna.graph.nodes.IWeightedNode;
 import dna.graph.nodes.Node;
 import dna.io.etc.Keywords;
 
@@ -25,22 +28,28 @@ public class GraphDataStructure {
 	private Class<? extends Node> nodeType;
 	private Class<? extends Edge> edgeType;
 
-	public GraphDataStructure(Class<? extends INodeListDatastructure> nodeListType,
+	public GraphDataStructure(
+			Class<? extends INodeListDatastructure> nodeListType,
 			Class<? extends IEdgeListDatastructure> graphEdgeListType,
-			Class<? extends IEdgeListDatastructure> nodeEdgeListType, Class<? extends Node> nodeType) {
+			Class<? extends IEdgeListDatastructure> nodeEdgeListType,
+			Class<? extends Node> nodeType, Class<? extends Edge> edgeType) {
 		this.nodeListType = nodeListType;
 		this.graphEdgeListType = graphEdgeListType;
 		this.nodeEdgeListType = nodeEdgeListType;
-		this.setNodeType(nodeType);
+		this.nodeType = nodeType;
+		this.edgeType = edgeType;
 	}
 
 	@SuppressWarnings("unchecked")
 	public GraphDataStructure(String gdsString) {
 		String splitted[] = gdsString.split(Keywords.classDelimiter);
 		try {
-			this.nodeListType = (Class<? extends INodeListDatastructure>) Class.forName(splitted[0]);
-			this.graphEdgeListType = (Class<? extends IEdgeListDatastructure>) Class.forName(splitted[1]);
-			this.nodeEdgeListType = (Class<? extends IEdgeListDatastructure>) Class.forName(splitted[2]);
+			this.nodeListType = (Class<? extends INodeListDatastructure>) Class
+					.forName(splitted[0]);
+			this.graphEdgeListType = (Class<? extends IEdgeListDatastructure>) Class
+					.forName(splitted[1]);
+			this.nodeEdgeListType = (Class<? extends IEdgeListDatastructure>) Class
+					.forName(splitted[2]);
 			this.nodeType = (Class<? extends Node>) Class.forName(splitted[3]);
 			this.edgeType = (Class<? extends Edge>) Class.forName(splitted[4]);
 		} catch (ClassNotFoundException | ClassCastException e) {
@@ -105,31 +114,26 @@ public class GraphDataStructure {
 		return edgeType;
 	}
 
-	@SuppressWarnings("unchecked")
 	public void setNodeType(Class<? extends Node> newNodeType) {
 		this.nodeType = newNodeType;
-
-		try {
-			Class<? extends Edge> eT = (Class<? extends Edge>) nodeType.getField("edgeType").get(null);
-			this.setEdgeType(eT);
-		} catch (IllegalArgumentException | IllegalAccessException | NoSuchFieldException | SecurityException e) {
-			e.printStackTrace();
-		}
 	}
 
 	public void setEdgeType(Class<? extends Edge> edgeType) {
 		this.edgeType = edgeType;
 	}
 
-	public Graph newGraphInstance(String name, long timestamp, int nodes, int edges) {
+	public Graph newGraphInstance(String name, long timestamp, int nodes,
+			int edges) {
 		return new Graph(name, timestamp, this, nodes, edges);
 	}
 
 	public INodeListDatastructure newNodeList() {
 		INodeListDatastructure res = null;
 		try {
-			res = (INodeListDatastructure) nodeListType.getConstructor(nodeType.getClass()).newInstance(nodeType);
-		} catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException
+			res = (INodeListDatastructure) nodeListType.getConstructor(
+					nodeType.getClass()).newInstance(nodeType);
+		} catch (InstantiationException | IllegalAccessException
+				| IllegalArgumentException | InvocationTargetException
 				| NoSuchMethodException | SecurityException e) {
 			e.printStackTrace();
 		}
@@ -139,8 +143,10 @@ public class GraphDataStructure {
 	public IEdgeListDatastructure newGraphEdgeList() {
 		IEdgeListDatastructure res = null;
 		try {
-			res = graphEdgeListType.getConstructor(edgeType.getClass()).newInstance(edgeType);
-		} catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException
+			res = graphEdgeListType.getConstructor(edgeType.getClass())
+					.newInstance(edgeType);
+		} catch (InstantiationException | IllegalAccessException
+				| IllegalArgumentException | InvocationTargetException
 				| NoSuchMethodException | SecurityException e) {
 			e.printStackTrace();
 		}
@@ -150,8 +156,10 @@ public class GraphDataStructure {
 	public IEdgeListDatastructure newNodeEdgeList() {
 		IEdgeListDatastructure res = null;
 		try {
-			res = nodeEdgeListType.getConstructor(edgeType.getClass()).newInstance(edgeType);
-		} catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException
+			res = nodeEdgeListType.getConstructor(edgeType.getClass())
+					.newInstance(edgeType);
+		} catch (InstantiationException | IllegalAccessException
+				| IllegalArgumentException | InvocationTargetException
 				| NoSuchMethodException | SecurityException e) {
 			e.printStackTrace();
 		}
@@ -163,7 +171,8 @@ public class GraphDataStructure {
 		try {
 			c = nodeType.getConstructor(int.class, GraphDataStructure.class);
 			return c.newInstance(index, this);
-		} catch (NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException
+		} catch (NoSuchMethodException | SecurityException
+				| InstantiationException | IllegalAccessException
 				| IllegalArgumentException | InvocationTargetException e) {
 			e.printStackTrace();
 		}
@@ -175,17 +184,34 @@ public class GraphDataStructure {
 		try {
 			c = nodeType.getConstructor(String.class, GraphDataStructure.class);
 			return c.newInstance(str, this);
-		} catch (NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException
+		} catch (NoSuchMethodException | SecurityException
+				| InstantiationException | IllegalAccessException
 				| IllegalArgumentException | InvocationTargetException e) {
 			e.printStackTrace();
 		}
 		throw new RuntimeException("Could not generate new node instance");
 	}
 
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	public IWeightedNode newWeightedNode(int index, Object weight) {
+		Constructor<? extends IWeighted> c;
+		try {
+			c = (Constructor<? extends IWeightedNode>) nodeType.getConstructor(
+					int.class, weight.getClass(), GraphDataStructure.class);
+			return (IWeightedNode) c.newInstance(index, weight, this);
+		} catch (NoSuchMethodException | SecurityException
+				| InstantiationException | IllegalAccessException
+				| IllegalArgumentException | InvocationTargetException e) {
+			e.printStackTrace();
+		}
+		throw new RuntimeException("Could not generate new weighted node instance");
+	}
+
 	public Edge newEdgeInstance(Node src, Node dst) {
 		if (src.getClass() != dst.getClass()) {
-			throw new RuntimeException("Could not generate new edge instance for non-equal node classes "
-					+ src.getClass() + " and " + dst.getClass());
+			throw new RuntimeException(
+					"Could not generate new edge instance for non-equal node classes "
+							+ src.getClass() + " and " + dst.getClass());
 		}
 
 		Constructor<?>[] cList = edgeType.getConstructors();
@@ -214,12 +240,14 @@ public class GraphDataStructure {
 		}
 
 		if (cNeeded == null) {
-			throw new RuntimeException("No edge constructor for nodetype " + src.getClass() + " in edge type " + edgeType + " found");
+			throw new RuntimeException("No edge constructor for nodetype "
+					+ src.getClass() + " in edge type " + edgeType + " found");
 		}
 
 		try {
 			return edgeType.cast(cNeeded.newInstance(src, dst));
-		} catch (SecurityException | InstantiationException | IllegalAccessException | IllegalArgumentException
+		} catch (SecurityException | InstantiationException
+				| IllegalAccessException | IllegalArgumentException
 				| InvocationTargetException e) {
 			e.printStackTrace();
 		}
@@ -231,25 +259,77 @@ public class GraphDataStructure {
 		try {
 			c = edgeType.getConstructor(String.class, Graph.class);
 			return c.newInstance(str, graph);
-		} catch (NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException
+		} catch (NoSuchMethodException | SecurityException
+				| InstantiationException | IllegalAccessException
 				| IllegalArgumentException | InvocationTargetException e) {
 			e.printStackTrace();
 		}
 		throw new RuntimeException("Could not generate new edge instance");
 	}
+	
+	@SuppressWarnings({ "rawtypes" })
+	public IWeightedEdge newWeightedEdge(Node src, Node dst, Object weight) {
+		if (src.getClass() != dst.getClass()) {
+			throw new RuntimeException(
+					"Could not generate new edge instance for non-equal node classes "
+							+ src.getClass() + " and " + dst.getClass());
+		}		
+		
+		Constructor<?>[] cList = edgeType.getConstructors();
+		Constructor<?> cNeeded = null;
+
+		// First: search matching constructor for src.getClass and dst.getClass
+		Class<?>[] cRequired = new Class[] { src.getClass(), dst.getClass(), weight.getClass() };
+
+		for (Constructor<?> c : cList) {
+			if (Arrays.equals(c.getParameterTypes(), cRequired)) {
+				cNeeded = c;
+			}
+		}
+
+		// Okay, check for super types
+		Class<?> superType;
+		superType = src.getClass().getSuperclass();
+		while (Node.class.isAssignableFrom(superType) && cNeeded == null) {
+			cRequired = new Class[] { superType, superType, weight.getClass() };
+			for (Constructor<?> c : cList) {
+				if (Arrays.equals(c.getParameterTypes(), cRequired)) {
+					cNeeded = c;
+				}
+			}
+			superType = superType.getSuperclass();
+		}
+
+		if (cNeeded == null) {
+			throw new RuntimeException("No edge constructor for nodetype "
+					+ src.getClass() + " in edge type " + edgeType + " found");
+		}
+
+		try {
+			return (IWeightedEdge) edgeType.cast(cNeeded.newInstance(src, dst, weight));
+		} catch (SecurityException | InstantiationException
+				| IllegalAccessException | IllegalArgumentException
+				| InvocationTargetException e) {
+			e.printStackTrace();
+		}
+		throw new RuntimeException("Could not generate new edge instance");
+	}	
 
 	public boolean createsDirected() {
 		return DirectedEdge.class.isAssignableFrom(edgeType);
 	}
 
 	public String getDataStructures() {
-		return nodeListType.getName() + Keywords.classDelimiter + graphEdgeListType.getName() + Keywords.classDelimiter
-				+ nodeEdgeListType.getName() + Keywords.classDelimiter + nodeType.getName() + Keywords.classDelimiter
+		return nodeListType.getName() + Keywords.classDelimiter
+				+ graphEdgeListType.getName() + Keywords.classDelimiter
+				+ nodeEdgeListType.getName() + Keywords.classDelimiter
+				+ nodeType.getName() + Keywords.classDelimiter
 				+ edgeType.getName();
 	}
 
 	public boolean isReadable() {
-		return IReadable.class.isAssignableFrom(graphEdgeListType) && IReadable.class.isAssignableFrom(nodeListType);
+		return IReadable.class.isAssignableFrom(graphEdgeListType)
+				&& IReadable.class.isAssignableFrom(nodeListType);
 	}
 
 	public boolean isReadable(IDataStructure list) {
