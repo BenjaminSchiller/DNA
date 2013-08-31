@@ -9,6 +9,7 @@ import org.junit.runners.Suite;
    GraphTester.class,
    GeneratorsTest.class,
    EdgeSupertypeTest.class,
+   BatchTest.class,
    SingleTests.class
 })
 public class CompleteTestSuite {
