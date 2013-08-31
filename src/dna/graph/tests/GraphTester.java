@@ -124,59 +124,37 @@ public class GraphTester {
 	@Test
 	public void addWeightedNode() {
 		assumeTrue(IWeightedNode.class.isAssignableFrom(nodeType));
-		Class weightType = null;
-		Object mock = null;
-
-		// Get the type of weight
-		for (Type ptU : nodeType.getGenericInterfaces()) {
-			ParameterizedType pt = (ParameterizedType) ptU;
-			if (pt.getRawType() != IWeightedNode.class)
-				continue;
-			Type[] args = pt.getActualTypeArguments();
-			weightType = (Class) args[0];
-		}
 		
-		switch (weightType.getSimpleName()) {
-		case "Double":
-			mock = (Double)1d;
-			break;
-		default:
-			fail("Cannot mock type " + weightType.getName());
-		}
-
+		Object mock = mockedWeight(nodeType, true);
 		IWeightedNode n = gds.newWeightedNode(1, mock);
 		assertEquals(mock, n.getWeight());
+		assertTrue(graph.addNode((Node) n));
+		
+		Object mock2 = mockedWeight(nodeType, false);
+		assertNotEquals("mockedWeight not returning two different mocks", mock, mock2);
+		IWeightedNode n2 = gds.newWeightedNode(1, mock2);
+		assertEquals(mock2, n2.getWeight());
+		assertFalse(graph.addNode((Node) n2));
 	}
 	
 	@SuppressWarnings("rawtypes")
 	@Test
 	public void addWeightedEdge() {
 		assumeTrue(IWeightedEdge.class.isAssignableFrom(edgeType));
-		Class weightType = null;
-		Object mock = null;
-
-		// Get the type of weight
-		for (Type ptU : edgeType.getGenericInterfaces()) {
-			ParameterizedType pt = (ParameterizedType) ptU;
-			if (pt.getRawType() != IWeightedEdge.class)
-				continue;
-			Type[] args = pt.getActualTypeArguments();
-			weightType = (Class) args[0];
-		}
-		
-		switch (weightType.getSimpleName()) {
-		case "Double":
-			mock = (Double)1d;
-			break;
-		default:
-			fail("Cannot mock type " + weightType.getName());
-		}
-		
+	
 		Node n1 = gds.newNodeInstance(1);
 		Node n2 = gds.newNodeInstance(2);		
 
-		IWeightedEdge n = gds.newWeightedEdge(n1, n2, mock);
-		assertEquals(mock, n.getWeight());
+		Object mock = mockedWeight(edgeType, true);
+		IWeightedEdge e = gds.newWeightedEdge(n1, n2, mock);
+		assertEquals(mock, e.getWeight());
+		assertTrue(graph.addEdge((Edge) e));
+		
+		Object mock2 = mockedWeight(edgeType, false);
+		assertNotEquals("mockedWeight not returning two different mocks", mock, mock2);
+		IWeightedEdge e2 = gds.newWeightedEdge(n1, n2, mock2);
+		assertEquals(mock2, e2.getWeight());
+		assertFalse("Adding the same edge with different weight a second time succeeded (graph edge list: " + this.gds.getGraphEdgeListType() + ")", graph.addEdge((Edge) e2));		
 	}	
 	
 	@Test
@@ -324,4 +302,43 @@ public class GraphTester {
 			}
 		}
 	}
+
+	
+	/**
+	 * Get a mocked weight for the type t
+	 * 
+	 * @param type
+	 * @param kindSelector
+	 *            We want to get two distinguishable dummies from this function,
+	 *            so select which you like please
+	 * @return
+	 */
+	public Object mockedWeight(Class type, boolean kindSelector) {
+		Class weightType = null;
+
+		// Get the type of weight
+		for (Type ptU : type.getGenericInterfaces()) {
+			ParameterizedType pt = (ParameterizedType) ptU;
+			if (pt.getRawType() != IWeightedNode.class
+					&& pt.getRawType() != IWeightedEdge.class)
+				continue;
+			Type[] args = pt.getActualTypeArguments();
+			weightType = (Class) args[0];
+		}
+
+		if (weightType == null)
+			fail("Cannot get weight for " + type.getSimpleName());
+
+		switch (weightType.getSimpleName()) {
+		case "Double":
+			if (kindSelector)
+				return (Double) 1d;
+			else
+				return 2d;
+		default:
+			fail("Cannot mock type " + weightType.getName());
+		}
+		return null;
+	}
+	
 }
