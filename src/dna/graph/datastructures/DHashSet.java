@@ -49,6 +49,7 @@ public class DHashSet extends DataStructureReadable implements INodeListDatastru
 	@Override
 	public boolean add(Node element) {
 		super.canAdd(element);
+		if ( this.list.contains(element)) return false;
 		if (element != null && this.list.add(element)) {
 			if (element.getIndex() > this.maxNodeIndex) {
 				this.maxNodeIndex = element.getIndex();
@@ -60,6 +61,7 @@ public class DHashSet extends DataStructureReadable implements INodeListDatastru
 
 	public boolean add(Edge element) {
 		super.canAdd(element);
+		if ( this.list.contains(element)) return false;
 		return element != null && this.list.add(element);
 	}
 

@@ -56,7 +56,8 @@ public class DirectedEdge extends Edge {
 	}
 
 	public int hashCode() {
-		return this.getStringRepresentation().hashCode();
+		String s = "" + this.getSrc().getIndex() + this.getDst().getIndex(); 
+		return s.hashCode();
 	}
 
 	@Override
