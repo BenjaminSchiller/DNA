@@ -8,8 +8,6 @@ import static org.junit.Assert.fail;
 import static org.junit.Assume.assumeTrue;
 
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -313,17 +311,14 @@ public class GraphTester {
 	 *            so select which you like please
 	 * @return
 	 */
-	public Object mockedWeight(Class type, boolean kindSelector) {
-		Class weightType = null;
-
-		// Get the type of weight
-		for (Type ptU : type.getGenericInterfaces()) {
-			ParameterizedType pt = (ParameterizedType) ptU;
-			if (pt.getRawType() != IWeightedNode.class
-					&& pt.getRawType() != IWeightedEdge.class)
-				continue;
-			Type[] args = pt.getActualTypeArguments();
-			weightType = (Class) args[0];
+	public Object mockedWeight(Class<?> type, boolean kindSelector) {
+		Class<?> weightType = null;
+		if (Node.class.isAssignableFrom(type)) {
+			weightType = gds.getNodeWeightType();
+		} else if (Edge.class.isAssignableFrom(type)) {
+			weightType = gds.getEdgeWeightType();
+		} else {
+			fail("Can't get weight type for " + type);
 		}
 
 		if (weightType == null)

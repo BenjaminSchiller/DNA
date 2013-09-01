@@ -2,6 +2,8 @@ package dna.graph.datastructures;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.util.Arrays;
 
 import dna.graph.Graph;
@@ -368,6 +370,28 @@ public class GraphDataStructure {
 			rt.setStackTrace(e.getStackTrace());
 			throw rt;
 		}
+	}
+	
+	private Class getWeightType(Class in, Class superInterface) {
+		Class weightType = null;
+
+		// Get the type of weight
+		for (Type ptU : in.getGenericInterfaces()) {
+			ParameterizedType pt = (ParameterizedType) ptU;
+			if (pt.getRawType() != superInterface)
+				continue;
+			Type[] args = pt.getActualTypeArguments();
+			weightType = (Class) args[0];
+		}
+		return weightType;
+	}
+	
+	public Class getNodeWeightType() {
+		return this.getWeightType(nodeType, IWeightedNode.class);
+	}
+	
+	public Class getEdgeWeightType() {
+		return this.getWeightType(edgeType, IWeightedEdge.class);
 	}
 
 	public boolean createsDirected() {
