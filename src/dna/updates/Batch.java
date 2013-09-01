@@ -323,21 +323,24 @@ public class Batch<E extends Edge> {
 			return null;
 		}
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	public boolean equals(Object otherO) {
-		if ( !(otherO instanceof Batch) ) return false;
-		Batch<E> other = (Batch<E>)otherO;
-		
-		if ( this.getSize() != other.getSize() ) return false;
-		
+		if (!(otherO instanceof Batch))
+			return false;
+		Batch<E> other = (Batch<E>) otherO;
+
+		if (this.getSize() != other.getSize())
+			return false;
+
 		Iterable<Update<E>> uOther = other.getAllUpdates();
 		for (Update<E> u : uOther) {
 			if (!nodeAdditions.contains(u) && !nodeRemovals.contains(u)
 					&& !nodeWeightUpdates.contains(u)
 					&& !edgeAdditions.contains(u) && !edgeRemovals.contains(u)
-					&& !edgeWeightUpdates.contains(u))
+					&& !edgeWeightUpdates.contains(u)) {
 				return false;
+			}
 		}
 
 		return true;

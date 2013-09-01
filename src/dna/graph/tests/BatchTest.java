@@ -3,23 +3,20 @@ package dna.graph.tests;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assume.assumeTrue;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
 import dna.graph.Graph;
-import dna.graph.IElement;
+import dna.graph.IWeighted;
 import dna.graph.datastructures.GraphDataStructure;
 import dna.graph.datastructures.IEdgeListDatastructure;
 import dna.graph.datastructures.IEdgeListDatastructureReadable;
@@ -33,6 +30,8 @@ import dna.graph.generators.IGraphGenerator;
 import dna.graph.nodes.DirectedNode;
 import dna.graph.nodes.Node;
 import dna.graph.nodes.UndirectedNode;
+import dna.io.BatchReader;
+import dna.io.BatchWriter;
 import dna.updates.Batch;
 import dna.updates.BatchGenerator;
 import dna.updates.EdgeRemoval;
@@ -40,8 +39,6 @@ import dna.updates.NodeRemoval;
 import dna.updates.Update;
 import dna.updates.directed.DirectedBatchGenerator;
 import dna.updates.undirected.UndirectedBatchGenerator;
-import dna.util.Log;
-import dna.util.Log.LogLevel;
 import dna.util.parameters.Parameter;
 
 @RunWith(Parameterized.class)
@@ -53,21 +50,18 @@ public class BatchTest {
 	private Constructor<? extends BatchGenerator<?, ?>> bGenC;	
 	private GraphDataStructure gds;
 	private GraphGenerator gg;
-	private BatchGenerator<?,?> bGen;	
+	private BatchGenerator<Node, Edge> bGen;	
 
-	private final int nodeSize = 10;
-	private final int edgeSize = 15;
+	private final int nodeSize = 100;
+	private final int edgeSize = 150;
 	
-	private final int nodeAdd = 10;
-	private final int nodeRem = 10;
-	private final int edgeAdd = 10;
-	private final int edgeRem = 5;
+	private final int nodeAdd = nodeSize;
+	private final int nodeRem = (int) Math.floor(nodeSize/2);
+	private final int edgeAdd = edgeSize;
+	private final int edgeRem = (int) Math.floor(edgeSize/2);
 
 	@Rule
 	public TemporaryFolder folder = new TemporaryFolder();
-
-	@Rule
-	public ExpectedException exception = ExpectedException.none();
 
 	public BatchTest(Class<? extends INodeListDatastructure> nodeListType,
 			Class<? extends IEdgeListDatastructure> graphEdgeListType,
@@ -90,7 +84,7 @@ public class BatchTest {
 				new Parameter[] {}, gds, 0, nodeSize, edgeSize);
 		
 		this.bGenC = bGen.getConstructor(int.class, int.class, int.class, int.class, GraphDataStructure.class);
-		this.bGen = bGenC.newInstance(nodeAdd, nodeRem, edgeAdd, edgeRem, this.gds);
+		this.bGen = (BatchGenerator<Node, Edge>) bGenC.newInstance(nodeAdd, nodeRem, edgeAdd, edgeRem, this.gds);
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
@@ -172,6 +166,7 @@ public class BatchTest {
 	public void testRandomBatchGenerator() {
 		Graph g = gg.generate();
 		Batch<?> b = bGen.generate(g);
+		b.sanitize();
 		assertTrue(b.apply(g));
 	}
 	
@@ -195,6 +190,21 @@ public class BatchTest {
 		b2.add(nR);
 		
 		assertEquals(b1, b2);
+	}
+	
+	@Test
+	public void batchWriteAndRead() {
+		Graph g = gg.generate();
+		Batch<Edge> b = bGen.generate(g);
+		BatchWriter<Node, Edge> bw = new BatchWriter<>();
+		
+		String tempFolder = folder.getRoot().getAbsolutePath();
+		assertTrue(bw.write(b, tempFolder, "gGen"));
+		
+		BatchReader<Node, Edge, IWeighted> br = new BatchReader<>(this.gds);
+		Batch<Edge> b2 = br.read(tempFolder, "gGen", g);
+		bw.write(b2, tempFolder, "gRead");
+		assertEquals(b, b2);
 	}
 
 }

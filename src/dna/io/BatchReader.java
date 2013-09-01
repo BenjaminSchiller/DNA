@@ -19,14 +19,20 @@ import dna.updates.NodeWeightUpdate;
 import dna.updates.Update.UpdateType;
 import dna.util.Config;
 import dna.util.Log;
+import dna.util.MathHelper;
 
 /**
  * A batch reader to read in a written batch
+ * 
  * @author Nico
- *
- * @param <N> Node type to be read in
- * @param <E> Edge type to be read in
- * @param <T> Weight type to be read in (can be of type double, int,...) -- use ? to ignore
+ * 
+ * @param <N>
+ *            Node type to be read in
+ * @param <E>
+ *            Edge type to be read in
+ * @param <T>
+ *            Weight type to be read in (can be of type double, int,...) -- use
+ *            ? to ignore
  */
 public class BatchReader<N extends Node, E extends Edge, T> {
 
@@ -40,11 +46,11 @@ public class BatchReader<N extends Node, E extends Edge, T> {
 	public Batch read(String dir, String filename, Graph g) {
 		Reader reader = null;
 		// TODO add from/to for batch to IO
-		
+
 		ByteArrayInputStream byteInputStream;
 		ObjectInputStream objectInputStream;
 		T deserializedWeight;
-		
+
 		Batch b = new Batch(this.ds, 0, 0);
 		try {
 			reader = new Reader(dir, filename);
@@ -55,7 +61,8 @@ public class BatchReader<N extends Node, E extends Edge, T> {
 				System.out.println(line + " => " + temp[0] + " / " + temp[1]);
 				switch (UpdateType.valueOf(temp[0])) {
 				case EdgeAddition:
-					b.add(new EdgeAddition<E>((E) ds.newEdgeInstance(temp[1], g)));
+					b.add(new EdgeAddition<E>((E) ds
+							.newEdgeInstance(temp[1], g)));
 					break;
 				case EdgeRemoval:
 					b.add(new EdgeRemoval<E>((E) g.getEdge(ds.newEdgeInstance(
@@ -64,33 +71,35 @@ public class BatchReader<N extends Node, E extends Edge, T> {
 				case EdgeWeightUpdate:
 					String[] temp1 = temp[1].split(Config
 							.get("UPDATE_DELIMITER2"));
-					
+
 					// Parse second element correctly
-					byteInputStream = new ByteArrayInputStream(temp1[1].getBytes());
+					byteInputStream = new ByteArrayInputStream(
+							temp1[1].getBytes());
 					objectInputStream = new ObjectInputStream(byteInputStream);
 					deserializedWeight = (T) objectInputStream.readObject();
-					
-					b.add(new EdgeWeightUpdate<E,T>((E) g.getEdge(ds.newEdgeInstance(
-							temp1[0], g)), deserializedWeight));
+
+					b.add(new EdgeWeightUpdate<E, T>((E) g.getEdge(ds
+							.newEdgeInstance(temp1[0], g)), deserializedWeight));
 					break;
 				case NodeAddition:
-					b.add(new NodeAddition<E>(ds.newNodeInstance(Integer
+					b.add(new NodeAddition<E>(ds.newNodeInstance(MathHelper
 							.parseInt(temp[1]))));
 					break;
 				case NodeRemoval:
-					b.add(new NodeRemoval<E>(g.getNode(Integer
+					b.add(new NodeRemoval<E>(g.getNode(MathHelper
 							.parseInt(temp[1]))));
 					break;
 				case NodeWeithUpdate:
 					String[] temp2 = temp[1].split(Config
 							.get("UPDATE_DELIMITER2"));
-					
+
 					// Parse second element correctly
-					byteInputStream = new ByteArrayInputStream(temp2[1].getBytes());
+					byteInputStream = new ByteArrayInputStream(
+							temp2[1].getBytes());
 					objectInputStream = new ObjectInputStream(byteInputStream);
-					deserializedWeight = (T) objectInputStream.readObject();					
-					
-					b.add(new NodeWeightUpdate<E, T>(g.getNode(Integer
+					deserializedWeight = (T) objectInputStream.readObject();
+
+					b.add(new NodeWeightUpdate<E, T>(g.getNode(MathHelper
 							.parseInt(temp2[0])), deserializedWeight));
 					break;
 				default:
