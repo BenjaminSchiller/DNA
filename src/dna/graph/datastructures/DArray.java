@@ -74,18 +74,27 @@ public class DArray extends DataStructureReadable implements
 	@Override
 	public boolean add(Edge element) {
 		super.canAdd(element);
-
+		
+		int addPos = 0;
+		
 		if (this.contains(element))
 			return false;
 
+		// TODO these lists need shrinking!
+		
 		if (this.count == this.list.length) {
+			addPos = this.list.length;
 			IElement[] newList = new IElement[this.list.length * 2];
 			System.arraycopy(this.list, 0, newList, 0, this.list.length);
 			this.list = newList;
+		} else {
+			// Find first free position
+			while ( addPos < this.list.length && this.list[addPos] != null)
+				addPos++;
 		}
-		this.list[this.count] = element;
+		if ( this.list[addPos] != null) throw new RuntimeException("Won't overwrite");
+		this.list[addPos] = element;
 		this.count++;
-
 		return true;
 	}
 
