@@ -57,7 +57,18 @@ public abstract class DataStructureReadable extends DataStructure implements
 
 		Log.debug("Found in both lists: " + checkedAndFound + ", list size: "
 				+ this.size());
-		return checkedAndFound == this.size();
+		boolean res = (checkedAndFound == this.size());
+		if (!res)
+			this.printList();
+		return res;
+	}
+
+	public void printList() {
+		Log.debug(this.size() + " elements stored in this list");
+		int count = 1;
+		for (IElement e : this.getElements()) {
+			Log.debug((count++) + ": " + e.getStringRepresentation());
+		}
 	}
 
 }
