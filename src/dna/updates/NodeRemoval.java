@@ -38,11 +38,7 @@ public class NodeRemoval<E extends Edge> extends NodeUpdate<E> {
 			UndirectedNode node = (UndirectedNode) this.node;
 			for (IElement eTemp : node.getEdges()) {
 				UndirectedEdge e = (UndirectedEdge) eTemp;
-				if (node.equals(e.getNode1())) {
-					success &= e.getNode2().removeEdge(e);
-				} else {
-					success &= e.getNode1().removeEdge(e);
-				}
+				success &= e.getDifferingNode(node).removeEdge(e);
 				success &= graph.removeEdge(e);
 			}
 		} else {

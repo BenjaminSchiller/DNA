@@ -201,12 +201,12 @@ public class GraphDataStructure {
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public IWeightedNode newWeightedNode(int index, Object weight) {
+	public IWeightedNode<?> newWeightedNode(int index, Object weight) {
 		Constructor<? extends IWeighted> c;
 		try {
 			c = (Constructor<? extends IWeightedNode>) nodeType.getConstructor(
 					int.class, weight.getClass(), GraphDataStructure.class);
-			return (IWeightedNode) c.newInstance(index, weight, this);
+			return (IWeightedNode<?>) c.newInstance(index, weight, this);
 		} catch (NoSuchMethodException | SecurityException
 				| InstantiationException | IllegalAccessException
 				| IllegalArgumentException | InvocationTargetException e) {
@@ -311,8 +311,7 @@ public class GraphDataStructure {
 		return cNeeded;
 	}
 
-	@SuppressWarnings({ "rawtypes" })
-	public IWeightedEdge newWeightedEdge(Node src, Node dst, Object weight) {
+	public IWeightedEdge<?> newWeightedEdge(Node src, Node dst, Object weight) {
 		if (src.getClass() != dst.getClass()) {
 			throw new RuntimeException(
 					"Could not generate new edge instance for non-equal node classes "
@@ -323,7 +322,7 @@ public class GraphDataStructure {
 			// Try to use cached constructor, but throw it away if it is not the
 			// correct one
 			try {
-				return (IWeightedEdge) edgeType
+				return (IWeightedEdge<?>) edgeType
 						.cast(this.lastWeightedEdgeConstructor.newInstance(src,
 								dst, weight));
 			} catch (InstantiationException | IllegalAccessException
@@ -360,7 +359,7 @@ public class GraphDataStructure {
 
 		try {
 			this.lastWeightedEdgeConstructor = cNeeded;
-			return (IWeightedEdge) edgeType.cast(cNeeded.newInstance(src, dst,
+			return (IWeightedEdge<?>) edgeType.cast(cNeeded.newInstance(src, dst,
 					weight));
 		} catch (SecurityException | InstantiationException
 				| IllegalAccessException | IllegalArgumentException
@@ -372,8 +371,8 @@ public class GraphDataStructure {
 		}
 	}
 	
-	private Class getWeightType(Class in, Class superInterface) {
-		Class weightType = null;
+	private Class<?> getWeightType(Class<?> in, Class<?> superInterface) {
+		Class<?> weightType = null;
 
 		// Get the type of weight
 		for (Type ptU : in.getGenericInterfaces()) {
@@ -381,16 +380,16 @@ public class GraphDataStructure {
 			if (pt.getRawType() != superInterface)
 				continue;
 			Type[] args = pt.getActualTypeArguments();
-			weightType = (Class) args[0];
+			weightType = (Class<?>) args[0];
 		}
 		return weightType;
 	}
 	
-	public Class getNodeWeightType() {
+	public Class<?> getNodeWeightType() {
 		return this.getWeightType(nodeType, IWeightedNode.class);
 	}
 	
-	public Class getEdgeWeightType() {
+	public Class<?> getEdgeWeightType() {
 		return this.getWeightType(edgeType, IWeightedEdge.class);
 	}
 

@@ -10,11 +10,10 @@ import dna.graph.IElement;
  */
 public abstract class DataStructure implements IDataStructure {
 	protected Class<? extends IElement> dataType;
-	protected int size;
 	protected final int defaultSize = 10;
 
-	public void reinitializeWithSize(int size) {
-		this.init(this.dataType, size);
+	public void reinitializeWithSize(int reinitSize) {
+		this.init(this.dataType, reinitSize);
 	}
 
 	public boolean canAdd(IElement element) {

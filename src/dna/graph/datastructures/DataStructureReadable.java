@@ -3,6 +3,7 @@ package dna.graph.datastructures;
 import java.util.Iterator;
 
 import dna.graph.IElement;
+import dna.util.Log;
 
 /**
  * Base class for storing IElements in a format that supports reading (eg.
@@ -11,7 +12,8 @@ import dna.graph.IElement;
  * @author Nico
  * 
  */
-public abstract class DataStructureReadable extends DataStructure implements IReadable {
+public abstract class DataStructureReadable extends DataStructure implements
+		IReadable {
 
 	public boolean dataEquals(IDataStructure that) {
 		if (that instanceof DataStructureReadable) {
@@ -21,6 +23,8 @@ public abstract class DataStructureReadable extends DataStructure implements IRe
 	}
 
 	public boolean dataEquals(IReadable that) {
+		Log.debug("Data equality check for a list of type " + dataType);
+
 		if (this.size() != that.size())
 			return false;
 		int checkedAndFound = 0;
@@ -38,7 +42,8 @@ public abstract class DataStructureReadable extends DataStructure implements IRe
 				IElement thatElement = thatIterator.next();
 				if (thisElement == null || thatElement == null)
 					continue;
-				if (thisElement.equals(thatElement) && thisElement.deepEquals(thatElement)) {
+				if (thisElement.equals(thatElement)
+						&& thisElement.deepEquals(thatElement)) {
 					checkedAndFound++;
 					if (thisIterator.hasNext()) {
 						thisElement = thisIterator.next();
@@ -50,6 +55,8 @@ public abstract class DataStructureReadable extends DataStructure implements IRe
 			}
 		}
 
+		Log.debug("Found in both lists: " + checkedAndFound + ", list size: "
+				+ this.size());
 		return checkedAndFound == this.size();
 	}
 

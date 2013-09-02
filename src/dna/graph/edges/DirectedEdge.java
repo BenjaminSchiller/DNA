@@ -18,8 +18,10 @@ public class DirectedEdge extends Edge {
 
 	public DirectedEdge(String s, Graph g) {
 		String[] temp = s.split(Keywords.directedEdgeDelimiter);
-		DirectedNode src = (DirectedNode) g.getNode(MathHelper.parseInt(temp[0]));
-		DirectedNode dst = (DirectedNode) g.getNode(MathHelper.parseInt(temp[1]));
+		DirectedNode src = (DirectedNode) g.getNode(MathHelper
+				.parseInt(temp[0]));
+		DirectedNode dst = (DirectedNode) g.getNode(MathHelper
+				.parseInt(temp[1]));
 		this.src = src;
 		this.dst = dst;
 	}
@@ -38,7 +40,8 @@ public class DirectedEdge extends Edge {
 
 	@Override
 	public String getStringRepresentation() {
-		return this.src.getIndex() + Keywords.directedEdgeDelimiter + this.dst.getIndex();
+		return this.src.getIndex() + Keywords.directedEdgeDelimiter
+				+ this.dst.getIndex();
 	}
 
 	public boolean equals(Object o) {
@@ -56,7 +59,7 @@ public class DirectedEdge extends Edge {
 	}
 
 	public int hashCode() {
-		String s = "" + this.getSrc().getIndex() + this.getDst().getIndex(); 
+		String s = "" + this.getSrc().getIndex() + this.getDst().getIndex();
 		return s.hashCode();
 	}
 

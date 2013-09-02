@@ -7,6 +7,7 @@ import java.util.Iterator;
 import dna.graph.IElement;
 import dna.graph.edges.Edge;
 import dna.graph.nodes.Node;
+import dna.util.Log;
 import dna.util.Rand;
 
 /**
@@ -46,8 +47,9 @@ public class DArray extends DataStructureReadable implements
 	 */
 	public boolean add(Node element) {
 		super.canAdd(element);
-		
-		if (this.contains(element)) return false;
+
+		if (this.contains(element))
+			return false;
 
 		if (this.list.length == 0) {
 			this.list = new IElement[element.getIndex() + 1];
@@ -72,8 +74,9 @@ public class DArray extends DataStructureReadable implements
 	@Override
 	public boolean add(Edge element) {
 		super.canAdd(element);
-		
-		if (this.contains(element)) return false;
+
+		if (this.contains(element))
+			return false;
 
 		if (this.count == this.list.length) {
 			IElement[] newList = new IElement[this.list.length * 2];
@@ -117,7 +120,8 @@ public class DArray extends DataStructureReadable implements
 			return this.remove((Node) element);
 		if (element instanceof Edge)
 			return this.remove((Edge) element);
-		throw new RuntimeException("Cannot remove a non-node from a node list");
+		throw new RuntimeException("Can't handle element of type "
+				+ element.getClass() + " here");
 	}
 
 	/**
@@ -173,6 +177,9 @@ public class DArray extends DataStructureReadable implements
 				return true;
 			}
 		}
+		Log.debug("Cannot remove element " + element.getStringRepresentation()
+				+ " that is not in list of size " + this.size() + " / length "
+				+ this.list.length);
 		return false;
 	}
 
@@ -231,6 +238,7 @@ public class DArray extends DataStructureReadable implements
 			this.list = list;
 			while (pos < list.length && list[pos] == null)
 				pos++;
+
 		}
 
 		@Override
