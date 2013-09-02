@@ -32,7 +32,8 @@ public class AggregatedSeries {
 	// IO Methods
 	public void write(String dir) throws IOException {
 		for (int i = 0; i < this.getBatches().length; i++) {
-			this.getBatches()[i].write(Dir.getBatchDataDir(dir, i));
+			long tempTimestamp = this.getBatches()[i].getTimestamp();
+			this.getBatches()[i].write(Dir.getBatchDataDir(dir, tempTimestamp));
 		}
 	}
 
@@ -44,9 +45,9 @@ public class AggregatedSeries {
 		AggregatedBatch[] aggBatches = new AggregatedBatch[Dir
 				.getBatches(tempDir).length];
 
-		for (String batch : batches) {
-			long timestamp = Dir.getTimestamp(batch);
-			aggBatches[(int) timestamp] = AggregatedBatch.read(
+		for (int i = 0; i < batches.length; i++) {
+			long timestamp = Dir.getTimestamp(batches[i]);
+			aggBatches[i] = AggregatedBatch.read(
 					Dir.getAggregationBatchDir(dir, timestamp), timestamp,
 					readValues);
 		}

@@ -132,16 +132,32 @@ public class MetricData implements ListItem {
 		this.nodevalues.write(dir);
 	}
 
+	/**
+	 * Reads a MetricData object from filesystem. Convention: MetricData objects
+	 * carry their MetricType as .MetricType behind their name.
+	 * 
+	 * @param dir
+	 *            Directory the object will be read from
+	 * @param name
+	 *            Name of the returned MetricData object
+	 * @param readValues
+	 *            When true actual values will be read from the Filesystem.
+	 * @return Resulting MetricData object
+	 * @throws IOException
+	 *             Thrown by dna/io/reader which is created in order to read the
+	 *             data.
+	 */
 	public static MetricData read(String dir, String name, boolean readValues)
 			throws IOException {
-		String[] temp = dir.split(Config.get("PLOT_DELIMITER"));
+		String[] temp = dir.split("\\" + Config.get("PLOT_DELIMITER"));
 		MetricType tempType = MetricType.unknown;
+
 		try {
-			if (temp[temp.length - 1] == MetricType.exact.name())
+			if (temp[temp.length - 1].equals(MetricType.exact.name() + "/"))
 				tempType = MetricType.exact;
-			if (temp[temp.length - 1] == MetricType.heuristic.name())
+			if (temp[temp.length - 1].equals(MetricType.heuristic.name() + "/"))
 				tempType = MetricType.heuristic;
-			if (temp[temp.length - 1] == MetricType.quality.name())
+			if (temp[temp.length - 1].equals(MetricType.quality.name() + "/"))
 				tempType = MetricType.quality;
 		} catch (IndexOutOfBoundsException e) {
 			// Log.warn("No metrictype detected for metric " + name + " at " +

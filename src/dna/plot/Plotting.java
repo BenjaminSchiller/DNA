@@ -629,14 +629,44 @@ public class Plotting {
 		plot.generate(values);
 	}
 
+	/**
+	 * This method returns the general runtimes of all aggregated batches. Note:
+	 * The initialization batch will not be included. It's assumed that batch
+	 * with lowest timestamp is initiliazation batch.
+	 * 
+	 * @param aggregation
+	 * @param runtime
+	 * @return
+	 */
 	private static AggregatedValue[] getGeneralRuntimes(
 			AggregatedSeries aggregation, String runtime) {
 		AggregatedValue[] values = new AggregatedValue[aggregation.getBatches().length - 1];
-		for (int i = 1; i < aggregation.getBatches().length; i++) {
-			values[i - 1] = aggregation.getBatches()[i].getGeneralRuntimes()
-					.get(runtime).clone(1.0 / 1000.0 / 1000.0 / 1000.0);
-			if (values[i - 1] == null) {
-				values[i - 1] = AggregatedValue.getNaN();
+
+		// min is used to figure which batch is the initialization batch
+		long min = 0;
+		boolean init = false;
+		for (AggregatedBatch aggBatch : aggregation.getBatches()) {
+			if (!init) {
+				min = aggBatch.getTimestamp();
+				init = true;
+			}
+			if (aggBatch.getTimestamp() < min) {
+				min = aggBatch.getTimestamp();
+			}
+		}
+
+		// gather aggregated values
+		int offset = 0;
+		for (int i = 0; i < aggregation.getBatches().length; i++) {
+			if (aggregation.getBatches()[i].getTimestamp() != min) {
+				values[i - offset] = aggregation.getBatches()[i]
+						.getGeneralRuntimes().get(runtime)
+						.clone(1.0 / 1000.0 / 1000.0 / 1000.0);
+				if (values[i - offset] == null) {
+					values[i - offset] = AggregatedValue.getNaN();
+				}
+			} else {
+				offset++;
 			}
 		}
 		return values;
