@@ -193,4 +193,16 @@ public class DistributionDouble extends Distribution {
 		return new DistributionDouble(name, values);
 	}
 
+	/**
+	 * @param d1
+	 *            distribution with double datastructures
+	 * @param d2
+	 *            distribution with double datastructures to compare equality
+	 * @return true if both distributions have the same length and all values
+	 *         are equal
+	 */
+	public static boolean equals(DistributionDouble d1, DistributionDouble d2) {
+		return ArrayUtils.equals(d1.getDoubleValues(), d2.getDoubleValues());
+	}
+
 }

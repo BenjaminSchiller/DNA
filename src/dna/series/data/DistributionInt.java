@@ -224,4 +224,18 @@ public class DistributionInt extends Distribution {
 		return new DistributionInt(name, values, denominator);
 	}
 
+	/**
+	 * @param d1
+	 *            distribution with integer datastructures
+	 * @param d2
+	 *            distribution with integer datastructures to compare equality
+	 * @return true if both distributions have the same denominator, amount of
+	 *         values and all values are equal
+	 */
+	public static boolean equals(DistributionInt d1, DistributionInt d2) {
+		if (d1.getDenominator() != d2.getDenominator())
+			return false;
+		return ArrayUtils.equals(d1.getIntValues(), d2.getIntValues());
+	}
+
 }
