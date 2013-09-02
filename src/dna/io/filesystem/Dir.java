@@ -97,7 +97,7 @@ public class Dir {
 					+ Config.get("SUFFIX_METRIC_HEURISTIC") + Dir.delimiter;
 		case quality:
 			return dir + Config.get("PREFIX_METRICDATA_DIR") + name
-					+ Config.get("SUFFIX_METRIC_QUALITY") + Dir.delimiter;
+					+ Dir.delimiter;
 		default:
 			return dir + Config.get("PREFIX_METRICDATA_DIR") + name
 					+ Dir.delimiter;

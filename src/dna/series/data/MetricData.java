@@ -545,8 +545,9 @@ public class MetricData implements ListItem {
 			comparedNodeValues.add(new NodeValueList(nodevalue
 					+ Config.get("SUFFIX_METRIC_QUALITY"), qualities));
 		}
-		return new MetricData(m2.getName(), MetricType.quality, comparedValues,
-				comparedDistributions, comparedNodeValues);
+		return new MetricData(m2.getName()
+				+ Config.get("SUFFIX_METRIC_QUALITY"), MetricType.quality,
+				comparedValues, comparedDistributions, comparedNodeValues);
 	}
 
 	/**

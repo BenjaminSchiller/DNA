@@ -200,8 +200,7 @@ public class SeriesData {
 											Dir.getBatchDataDir(
 													Dir.getRunDataDir(dir, run),
 													batch),
-											heuristic.getName()
-													+ Config.get("SUFFIX_METRIC_QUALITY")));
+											quality.getName()));
 							}
 						}
 					}
