@@ -196,16 +196,17 @@ public class SeriesGeneration {
 			initialData.write(Dir.getBatchDataDir(series.getDir(), run,
 					initialData.getTimestamp()));
 		}
-		// generate batch data
-		for (int i = 0; i < batches; i++) {
 
+		// generate batch data
+		long currentTimestamp = initialData.getTimestamp();
+		for (int i = 0; i < batches; i++) {
 			// reset rand per batch
 			if (series.getRandomSeedReset() == RandomSeedReset.eachBatch) {
 				series.resetRand();
 			}
 
 			BatchData batchData = SeriesGeneration.generateNextBatch(series,
-					i + 1);
+					currentTimestamp + 1);
 			if (compare) {
 				SeriesGeneration.compareMetrics(series);
 			}
@@ -214,6 +215,7 @@ public class SeriesGeneration {
 				batchData.write(Dir.getBatchDataDir(series.getDir(), run,
 						batchData.getTimestamp()));
 			}
+			currentTimestamp++;
 		}
 
 		timer.end();

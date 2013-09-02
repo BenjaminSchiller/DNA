@@ -7,7 +7,6 @@ import dna.io.filesystem.Dir;
 import dna.metrics.Metric.MetricType;
 import dna.series.aggdata.AggregatedSeries;
 import dna.series.lists.MetricDataList;
-import dna.util.Config;
 import dna.util.Log;
 
 public class SeriesData {
@@ -167,40 +166,40 @@ public class SeriesData {
 							+ "\" with exact \"" + exacts.get(exact).getName()
 							+ "\"");
 					if (MetricData.isComparable(heuristic, exacts.get(exact))) {
-						for (int run = 0; run < this.getRuns().size(); run++) {
-							for (int batch = 0; batch < this.getRun(run)
-									.getBatches().size(); batch++) {
+						for (RunData runZ : this.getRuns()) {
+							int batchCounter = 0;
+							for (BatchData batchZ : this.getRun(runZ.getRun())
+									.getBatches().getList()) {
 								MetricData exactTemp = MetricData.read(Dir
-										.getMetricDataDir(
-												Dir.getBatchDataDir(Dir
-														.getRunDataDir(
-																this.dir, run),
-														batch),
-												exacts.get(exact).getName(),
-												MetricType.exact),
-										exacts.get(exact).getName(), true);
-								exactTemp.setType(MetricType.exact);
+										.getMetricDataDir(Dir.getBatchDataDir(
+												Dir.getRunDataDir(this.dir,
+														runZ.getRun()), batchZ
+														.getTimestamp()),
+												exact, MetricType.exact),
+										exact, true);
 
 								MetricData heuristicTemp = MetricData.read(Dir
-										.getMetricDataDir(
-												Dir.getBatchDataDir(Dir
-														.getRunDataDir(
-																this.dir, run),
-														batch), heuristic
-														.getName(),
+										.getMetricDataDir(Dir.getBatchDataDir(
+												Dir.getRunDataDir(this.dir,
+														runZ.getRun()), batchZ
+														.getTimestamp()),
+												heuristic.getName(),
 												MetricType.heuristic),
 										heuristic.getName(), true);
-								heuristicTemp.setType(MetricType.heuristic);
+
 								MetricData quality = MetricData.compare(
 										exactTemp, heuristicTemp);
-								this.getRuns().get(run).getBatches().get(batch)
-										.getMetrics().add(quality);
+								this.getRuns().get(runZ.getRun()).getBatches()
+										.get(batchCounter).getMetrics()
+										.add(quality);
 								if (writeValues)
-									quality.write(Dir.getMetricDataDir(
-											Dir.getBatchDataDir(
-													Dir.getRunDataDir(dir, run),
-													batch),
+									quality.write(Dir.getMetricDataDir(Dir
+											.getBatchDataDir(
+													Dir.getRunDataDir(dir,
+															runZ.getRun()),
+													batchZ.getTimestamp()),
 											quality.getName()));
+								batchCounter++;
 							}
 						}
 					}

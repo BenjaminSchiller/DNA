@@ -320,8 +320,9 @@ public class Aggregation {
 		AggregatedBatch[] aggBatches = new AggregatedBatch[batches];
 
 		for (int batchX = 0; batchX < batches; batchX++) {
-
-			String batchDir = Dir.getBatchDataDir(aggDir, batchX);
+			int batchXTimestamp = (int) rdList.get(0).getBatches().get(batchX)
+					.getTimestamp();
+			String batchDir = Dir.getBatchDataDir(aggDir, batchXTimestamp);
 
 			/*
 			 * GENERAL RUNTIMES
@@ -331,12 +332,15 @@ public class Aggregation {
 			HashMap<String, double[]> aggGeneralRunTime = new HashMap<String, double[]>();
 			for (String genRuntimeX : rdList.get(0).getBatches().get(batchX)
 					.getGeneralRuntimes().getNames()) {
+
 				double[] values = new double[runs];
 
 				for (int i = 0; i < runs; i++) {
+					long tempTimestamp = rdList.get(i).getBatches().get(batchX)
+							.getTimestamp();
 					String dir = Dir.getBatchDataDir(Dir.getRunDataDir(
 							seriesData.getDir(), rdList.get(i).getRun()),
-							batchX);
+							tempTimestamp);
 					RunTimeList tempGeneralRunTime = RunTimeList.read(
 							dir,
 							Config.get("BATCH_GENERAL_RUNTIMES")
@@ -356,14 +360,17 @@ public class Aggregation {
 			AggregatedRunTimeList aggMetricRuntime = new AggregatedRunTimeList(
 					Config.get("BATCH_METRIC_RUNTIMES"));
 			HashMap<String, double[]> aggMetricRunTime = new HashMap<String, double[]>();
+
 			for (String metRuntimeX : rdList.get(0).getBatches().get(batchX)
 					.getMetricRuntimes().getNames()) {
 				double[] values = new double[runs];
 
 				for (int i = 0; i < runs; i++) {
+					long tempTimestamp = rdList.get(i).getBatches().get(batchX)
+							.getTimestamp();
 					String dir = Dir.getBatchDataDir(Dir.getRunDataDir(
 							seriesData.getDir(), rdList.get(i).getRun()),
-							batchX);
+							tempTimestamp);
 					RunTimeList tempMetricRunTime = RunTimeList.read(
 							dir,
 							Config.get("BATCH_METRIC_RUNTIMES")
@@ -386,9 +393,11 @@ public class Aggregation {
 				double[] values = new double[runs];
 
 				for (int i = 0; i < runs; i++) {
+					long tempTimestamp = rdList.get(i).getBatches().get(batchX)
+							.getTimestamp();
 					String dir = Dir.getBatchDataDir(Dir.getRunDataDir(
 							seriesData.getDir(), rdList.get(i).getRun()),
-							batchX);
+							tempTimestamp);
 					ValueList vList = ValueList.read(
 							dir,
 							Config.get("BATCH_STATS")
@@ -415,15 +424,17 @@ public class Aggregation {
 						.getMetrics().get(metricX).getValues();
 
 				String destDir = Dir.getMetricDataDir(
-						Dir.getBatchDataDir(aggDir, batchX), metricX);
+						Dir.getBatchDataDir(aggDir, batchXTimestamp), metricX);
 
 				// reading metric X for batch X for each run from filesystem
 				MetricData[] Metrics = new MetricData[runs];
 
 				for (int i = 0; i < runs; i++) {
+					long tempTimestamp = rdList.get(i).getBatches().get(batchX)
+							.getTimestamp();
 					String dir = Dir.getBatchDataDir(Dir.getRunDataDir(
 							seriesData.getDir(), rdList.get(i).getRun()),
-							batchX);
+							tempTimestamp);
 					Metrics[i] = MetricData.read(
 							Dir.getMetricDataDir(dir, metricX,
 									rdList.get(i).getBatches().get(batchX)
@@ -641,7 +652,7 @@ public class Aggregation {
 				aggMetrics.add(new AggregatedMetric(metricX, aggValues,
 						aggDistributions, aggNodeValues));
 			}
-			aggBatches[batchX] = new AggregatedBatch(batchX, aggStats,
+			aggBatches[batchX] = new AggregatedBatch(batchXTimestamp, aggStats,
 					aggGeneralRuntime, aggMetricRuntime, aggMetrics);
 		}
 		return new AggregatedSeries(aggBatches);
