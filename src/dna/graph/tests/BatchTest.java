@@ -211,17 +211,19 @@ public class BatchTest {
 		
 		BatchWriter<Node, Edge> bw = new BatchWriter<>();
 		assertTrue(bw.write(b, tempFolder, "bGen"));
-
-		BatchReader<Node, Edge, IWeighted> br = new BatchReader<>(this.gds);
-		Batch<Edge> b2 = br.read(tempFolder, "bGen", g);
-		bw.write(b2, tempFolder, "bRead");
-		assertEquals(b, b2);
-				
+	
 		b.apply(g);
 		gw.write(g, tempFolder, "gGenUpdated");
+
+		// All stuff is written now, read it in again and check for equality
 		
 		GraphReader gr = new GraphReader();
 		Graph gRead = gr.read(tempFolder, "gGen");
+		BatchReader<Node, Edge, IWeighted> br = new BatchReader<>(this.gds);
+		Batch<Edge> b2 = br.read(tempFolder, "bGen", gRead);
+		bw.write(b2, tempFolder, "bRead");
+		assertEquals(b, b2);		
+		
 		assertTrue(b2.apply(gRead));
 		gw.write(gRead, tempFolder, "gReadUpdated");
 		
