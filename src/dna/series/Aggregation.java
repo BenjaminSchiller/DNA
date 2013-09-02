@@ -424,7 +424,9 @@ public class Aggregation {
 						.getMetrics().get(metricX).getValues();
 
 				String destDir = Dir.getMetricDataDir(
-						Dir.getBatchDataDir(aggDir, batchXTimestamp), metricX);
+						Dir.getBatchDataDir(aggDir, batchXTimestamp), metricX,
+						rdList.get(0).getBatches().get(batchX).getMetrics()
+								.get(metricX).getType());
 
 				// reading metric X for batch X for each run from filesystem
 				MetricData[] Metrics = new MetricData[runs];
@@ -446,7 +448,6 @@ public class Aggregation {
 				AggregatedDistributionList aggDistributions = new AggregatedDistributionList();
 				for (String distributionX : dbList1.getNames()) {
 					boolean aggregated = false;
-
 					// DistributionInt
 					if (!aggregated
 							&& seriesData.getRun(0).getBatches().get(batchX)
@@ -531,8 +532,9 @@ public class Aggregation {
 							&& seriesData.getRun(0).getBatches().get(batchX)
 									.getMetrics().get(metricX)
 									.getDistributions().get(distributionX) instanceof DistributionDouble) {
-						int amountValues = Metrics[0].getDistributions()
-								.get(distributionX).getValues().length;
+						int amountValues = ((DistributionDouble) Metrics[0]
+								.getDistributions().get(distributionX))
+								.getDoubleValues().length;
 						double[][] aggregatedValues = new double[amountValues][runs];
 
 						for (int i = 0; i < runs; i++) {
@@ -540,9 +542,10 @@ public class Aggregation {
 								double[] values = new double[runs];
 								for (int k = 0; k < runs; k++) {
 									try {
-										values[k] = Metrics[k]
-												.getDistributions()
-												.get(distributionX).getValues()[j];
+										values[k] = ((DistributionDouble) Metrics[k]
+												.getDistributions().get(
+														distributionX))
+												.getDoubleValues()[j];
 									} catch (ArrayIndexOutOfBoundsException e) {
 										values[k] = 0;
 									}
