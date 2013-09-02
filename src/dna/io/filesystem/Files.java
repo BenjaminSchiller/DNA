@@ -13,9 +13,20 @@ public class Files {
 		return name + Config.get("SUFFIX_DIST");
 	}
 
+	public static String getDistributionIntFilename(String name) {
+		return name + Config.get("SUFFIX_DIST_INT");
+	}
+
+	public static String getDistributionLongFilename(String name) {
+		return name + Config.get("SUFFIX_DIST_LONG");
+	}
+
+	public static String getDistributionDoubleFilename(String name) {
+		return name + Config.get("SUFFIX_DIST_DOUBLE");
+	}
+
 	public static String[] getDistributions(String dir) {
-		return (new File(dir)).list(new SuffixFilenameFilter(Config
-				.get("SUFFIX_DIST")));
+		return (new File(dir)).list(new SuffixFilenameFilter("distribution"));
 	}
 
 	public static String getDistributionName(String filename) {

@@ -149,7 +149,7 @@ public class MetricData implements ListItem {
 	 */
 	public static MetricData read(String dir, String name, boolean readValues)
 			throws IOException {
-		String[] temp = dir.split("\\" + Config.get("PLOT_DELIMITER"));
+		String[] temp = dir.split("\\" + Config.get("FILE_NAME_DELIMITER"));
 		MetricType tempType = MetricType.unknown;
 
 		try {
@@ -160,8 +160,8 @@ public class MetricData implements ListItem {
 			if (temp[temp.length - 1].equals(MetricType.quality.name() + "/"))
 				tempType = MetricType.quality;
 		} catch (IndexOutOfBoundsException e) {
-			// Log.warn("No metrictype detected for metric " + name + " at " +
-			// dir);
+			Log.warn("Attempting to read metric " + name + " at " + dir
+					+ " ! No MetricType detected!");
 		}
 		ValueList values = ValueList.read(dir,
 				Files.getValuesFilename(Config.get("METRIC_DATA_VALUES")));
@@ -385,16 +385,17 @@ public class MetricData implements ListItem {
 					}
 				}
 				// add absolute comparison
-				comparedDistributions.add(new DistributionInt(distribution
-						+ "_abs", diffAbs, denom1 * denom2, ArrayUtils
-						.sum(diffAbs), ArrayUtils.min(diffAbs), ArrayUtils
-						.max(diffAbs), ArrayUtils.med(diffAbs), ArrayUtils
-						.avg(diffAbs)));
+				comparedDistributions.add(new DistributionInt(Files
+						.getDistributionName(distribution) + "_abs", diffAbs,
+						denom1 * denom2, ArrayUtils.sum(diffAbs), ArrayUtils
+								.min(diffAbs), ArrayUtils.max(diffAbs),
+						ArrayUtils.med(diffAbs), ArrayUtils.avg(diffAbs)));
 				// add relative comparison
-				comparedDistributions.add(new DistributionDouble(distribution
-						+ "_rel", diffRel, ArrayUtils.sum(diffRel), ArrayUtils
-						.min(diffRel), ArrayUtils.max(diffRel), ArrayUtils
-						.med(diffRel), ArrayUtils.avg(diffRel)));
+				comparedDistributions.add(new DistributionDouble(Files
+						.getDistributionName(distribution) + "_rel", diffRel,
+						ArrayUtils.sum(diffRel), ArrayUtils.min(diffRel),
+						ArrayUtils.max(diffRel), ArrayUtils.med(diffRel),
+						ArrayUtils.avg(diffRel)));
 				compared = true;
 			}
 			if (!compared
@@ -436,16 +437,17 @@ public class MetricData implements ListItem {
 					}
 				}
 				// add absolute comparison
-				comparedDistributions.add(new DistributionLong(distribution
-						+ "_abs", diffAbs, denom1 * denom2, ArrayUtils
-						.sum(diffAbs), ArrayUtils.min(diffAbs), ArrayUtils
-						.max(diffAbs), ArrayUtils.med(diffAbs), ArrayUtils
-						.avg(diffAbs)));
+				comparedDistributions.add(new DistributionLong(Files
+						.getDistributionName(distribution) + "_abs", diffAbs,
+						denom1 * denom2, ArrayUtils.sum(diffAbs), ArrayUtils
+								.min(diffAbs), ArrayUtils.max(diffAbs),
+						ArrayUtils.med(diffAbs), ArrayUtils.avg(diffAbs)));
 				// add relative comparison
-				comparedDistributions.add(new DistributionDouble(distribution
-						+ "_rel", diffRel, ArrayUtils.sum(diffRel), ArrayUtils
-						.min(diffRel), ArrayUtils.max(diffRel), ArrayUtils
-						.med(diffRel), ArrayUtils.avg(diffRel)));
+				comparedDistributions.add(new DistributionDouble(Files
+						.getDistributionName(distribution) + "_rel", diffRel,
+						ArrayUtils.sum(diffRel), ArrayUtils.min(diffRel),
+						ArrayUtils.max(diffRel), ArrayUtils.med(diffRel),
+						ArrayUtils.avg(diffRel)));
 				compared = true;
 			}
 			if (!compared
@@ -480,15 +482,17 @@ public class MetricData implements ListItem {
 						diffRel[i] = v1 / v2;
 				}
 				// add absolute comparison
-				comparedDistributions.add(new DistributionDouble(distribution
-						+ "_abs", diffAbs, ArrayUtils.sum(diffAbs), ArrayUtils
-						.min(diffAbs), ArrayUtils.max(diffAbs), ArrayUtils
-						.med(diffAbs), ArrayUtils.avg(diffAbs)));
+				comparedDistributions.add(new DistributionDouble(Files
+						.getDistributionName(distribution) + "_abs", diffAbs,
+						ArrayUtils.sum(diffAbs), ArrayUtils.min(diffAbs),
+						ArrayUtils.max(diffAbs), ArrayUtils.med(diffAbs),
+						ArrayUtils.avg(diffAbs)));
 				// add relative comparison
-				comparedDistributions.add(new DistributionDouble(distribution
-						+ "_rel", diffRel, ArrayUtils.sum(diffRel), ArrayUtils
-						.min(diffRel), ArrayUtils.max(diffRel), ArrayUtils
-						.med(diffRel), ArrayUtils.avg(diffRel)));
+				comparedDistributions.add(new DistributionDouble(Files
+						.getDistributionName(distribution) + "_rel", diffRel,
+						ArrayUtils.sum(diffRel), ArrayUtils.min(diffRel),
+						ArrayUtils.max(diffRel), ArrayUtils.med(diffRel),
+						ArrayUtils.avg(diffRel)));
 				compared = true;
 			}
 			if (!compared) {
@@ -522,15 +526,17 @@ public class MetricData implements ListItem {
 						diffRel[i] = v1 / v2;
 				}
 				// add absolute comparison
-				comparedDistributions.add(new DistributionDouble(distribution
-						+ "_abs", diffAbs, ArrayUtils.sum(diffAbs), ArrayUtils
-						.min(diffAbs), ArrayUtils.max(diffAbs), ArrayUtils
-						.med(diffAbs), ArrayUtils.avg(diffAbs)));
+				comparedDistributions.add(new DistributionDouble(Files
+						.getDistributionName(distribution) + "_abs", diffAbs,
+						ArrayUtils.sum(diffAbs), ArrayUtils.min(diffAbs),
+						ArrayUtils.max(diffAbs), ArrayUtils.med(diffAbs),
+						ArrayUtils.avg(diffAbs)));
 				// add relative comparison
-				comparedDistributions.add(new DistributionDouble(distribution
-						+ "_rel", diffRel, ArrayUtils.sum(diffRel), ArrayUtils
-						.min(diffRel), ArrayUtils.max(diffRel), ArrayUtils
-						.med(diffRel), ArrayUtils.avg(diffRel)));
+				comparedDistributions.add(new DistributionDouble(Files
+						.getDistributionName(distribution) + "_rel", diffRel,
+						ArrayUtils.sum(diffRel), ArrayUtils.min(diffRel),
+						ArrayUtils.max(diffRel), ArrayUtils.med(diffRel),
+						ArrayUtils.avg(diffRel)));
 				compared = true;
 			}
 		}
