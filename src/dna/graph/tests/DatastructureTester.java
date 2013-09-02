@@ -119,7 +119,7 @@ public class DatastructureTester {
 				exceptionCounter);
 	}
 
-	@Test(timeout = 1500)
+	@Test
 	public void checkAddAndRemove() {
 		IElement dummy = mock(elementClass);
 		assertFalse(dataStructure.contains(dummy));
@@ -130,6 +130,46 @@ public class DatastructureTester {
 		assertTrue(dataStructure.remove(dummy));
 		assertFalse(dataStructure.contains(dummy));
 		assertEquals(0, dataStructure.size());
+	}
+
+	@Test
+	public void checkNoOverwriting() {
+		assumeTrue(dataStructure instanceof INodeListDatastructureReadable);
+		IReadable tempDS = (IReadable) dataStructure;
+
+		IElement dummy1 = mock(elementClass);
+		IElement dummy2 = mock(elementClass);
+
+		if (Node.class.isAssignableFrom(elementClass)) {
+			when(((Node) dummy1).getIndex()).thenReturn(1);
+			when(((Node) dummy2).getIndex()).thenReturn(2);
+		}
+
+		assertFalse(tempDS.contains(dummy1));
+		assertFalse(tempDS.contains(dummy2));
+		assertEquals(0, tempDS.size());
+
+		assertTrue(tempDS.add(dummy1));
+		assertTrue(tempDS.contains(dummy1));
+		assertEquals(1, tempDS.size());
+
+		assertTrue(tempDS.add(dummy2));
+		assertTrue(tempDS.contains(dummy2));
+		assertEquals(2, tempDS.size());
+
+		assertTrue(tempDS.remove(dummy1));
+		assertFalse(tempDS.contains(dummy1));
+		assertEquals(1, tempDS.size());
+
+		assertTrue(tempDS.add(dummy1));
+		assertTrue(tempDS.contains(dummy1));
+		assertEquals(2, tempDS.size());
+
+		int count = 0;
+		for (@SuppressWarnings("unused") IElement e : tempDS.getElements()) {
+			count++;
+		}
+		assertEquals(tempDS.size(), count);
 	}
 
 	@Test
@@ -359,16 +399,16 @@ public class DatastructureTester {
 			assertTrue(tempDS.contains(random));
 		}
 	}
-	
+
 	@Test
 	public void checkDuplicateCalls() {
 		IElement dummy = mock(elementClass);
 		if (dummy instanceof Node) {
 			when(((Node) dummy).getIndex()).thenReturn(1);
-		}		
+		}
 		assertTrue(dataStructure.add(dummy));
 		assertFalse(dataStructure.add(dummy));
-		
+
 		assertTrue(dataStructure.remove(dummy));
 		assertFalse(dataStructure.remove(dummy));
 	}
