@@ -224,4 +224,18 @@ public class DistributionLong extends Distribution {
 		return new DistributionLong(name, values, denominator);
 	}
 
+	/**
+	 * @param d1
+	 *            distribution with long datastructures
+	 * @param d2
+	 *            distribution with long datastructures to compare equality
+	 * @return true if both distributions have the same denominator, amount of
+	 *         values and all values are equal
+	 */
+	public static boolean equals(DistributionLong d1, DistributionLong d2) {
+		if (d1.getDenominator() != d2.getDenominator())
+			return false;
+		return ArrayUtils.equals(d1.getLongValues(), d2.getLongValues());
+	}
+
 }
