@@ -12,29 +12,40 @@ public aspect GraphProfilerAspects {
 	pointcut init(Graph g, GraphDataStructure gds) : this(g) && execution(Graph+.new(String,long, GraphDataStructure,..)) && args(*,*,gds,..);
 	pointcut generated() : execution(* GraphGenerator+.generate());
 	
-	pointcut addNode() : execution(* IDataStructure+.add(Node+));
-	pointcut addEdge() : execution(* IDataStructure+.add(Edge+));
-	pointcut removeNode() : execution(* IDataStructure+.remove(Node+));
-	pointcut removeEdge() : execution(* IDataStructure+.remove(Edge+));
+	pointcut addNode() : call(* IDataStructure+.add(Node+));
+	pointcut addEdge() : call(* IDataStructure+.add(Edge+));
+	pointcut removeNode() : call(* IDataStructure+.remove(Node+));
+	pointcut removeEdge() : call(* IDataStructure+.remove(Edge+));
+	
+	pointcut graphAction() : this(Graph);
+	pointcut nodeAction() : this(Node);
 	    
 	after(Graph g, GraphDataStructure gds) : init(g, gds) {
 		GraphProfiler.init(gds);
 	}
 	
-	after() : addNode() {
-		GraphProfiler.count(ProfilerType.AddNode);
+	after() : addNode() && graphAction() {
+		GraphProfiler.count(ProfilerType.AddNodeGlobal);
 	}
 	
-	after() : addEdge() {
-		GraphProfiler.count(ProfilerType.AddEdge);
+	after() : addEdge() && graphAction()  {
+		GraphProfiler.count(ProfilerType.AddEdgeGlobal);
+	}
+
+	after() : addEdge() && nodeAction()  {
+		GraphProfiler.count(ProfilerType.AddEdgeLocal);
+	}	
+	
+	after() : removeNode() && graphAction()  {
+		GraphProfiler.count(ProfilerType.RemoveNodeGlobal);
 	}
 	
-	after() : removeNode() {
-		GraphProfiler.count(ProfilerType.RemoveNode);
+	after() : removeEdge() && graphAction()  {
+		GraphProfiler.count(ProfilerType.RemoveEdgeGlobal);
 	}
-	
-	after() : removeEdge() {
-		GraphProfiler.count(ProfilerType.RemoveEdge);
+
+	after() : removeEdge() && nodeAction()  {
+		GraphProfiler.count(ProfilerType.RemoveEdgeLocal);
 	}
 	
 	after() : generated() {

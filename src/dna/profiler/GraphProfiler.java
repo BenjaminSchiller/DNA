@@ -11,8 +11,8 @@ public class GraphProfiler {
 	public static Map<ProfilerType, Integer> calls;
 	
 	public static enum ProfilerType {
-		AddNode, AddEdge,
-		RemoveNode, RemoveEdge
+		AddNodeGlobal, AddEdgeGlobal, AddEdgeLocal,
+		RemoveNodeGlobal, RemoveEdgeGlobal, RemoveEdgeLocal
 	}
 
 	public static void init(GraphDataStructure gds) {
