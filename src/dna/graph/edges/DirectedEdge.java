@@ -94,5 +94,17 @@ public class DirectedEdge extends Edge {
 		else
 			return null;
 	}
+	
+	public boolean connectToNodes() {
+		boolean addSrc = this.getSrc().addEdge(this);
+		boolean addDst = this.getDst().addEdge(this);
+		return addSrc && addDst; 
+	}
+	
+	public boolean disconnectFromNodes() {
+		boolean remSrc = this.getSrc().removeEdge(this);
+		boolean remDst = this.getDst().removeEdge(this);
+		return remSrc && remDst; 		
+	}
 
 }

@@ -132,4 +132,16 @@ public class UndirectedEdge extends Edge {
 		return this.node2.getIndex() - e.node2.getIndex();
 	}
 
+	public boolean connectToNodes() {
+		boolean add1 = this.getNode1().addEdge(this);
+		boolean add2 = this.getNode2().addEdge(this);
+		return add1 && add2; 
+	}
+	
+	public boolean disconnectFromNodes() {
+		boolean rem1 = this.getNode1().removeEdge(this);
+		boolean rem2 = this.getNode2().removeEdge(this);
+		return rem1 && rem2; 		
+	}
+	
 }

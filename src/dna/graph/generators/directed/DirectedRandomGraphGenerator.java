@@ -32,8 +32,7 @@ public class DirectedRandomGraphGenerator extends DirectedGraphGenerator
 				DirectedEdge edge = (DirectedEdge) this.gds.newEdgeInstance(
 						graph.getNode(src), graph.getNode(dst));
 				graph.addEdge(edge);
-				edge.getSrc().addEdge(edge);
-				edge.getDst().addEdge(edge);
+				edge.connectToNodes();
 			}
 		}
 
