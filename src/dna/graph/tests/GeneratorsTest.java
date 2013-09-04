@@ -5,6 +5,7 @@ import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+import static org.junit.Assume.assumeFalse;
 import static org.junit.Assume.assumeTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -33,6 +34,7 @@ import dna.graph.datastructures.INodeListDatastructureReadable;
 import dna.graph.edges.DirectedEdge;
 import dna.graph.edges.Edge;
 import dna.graph.edges.UndirectedEdge;
+import dna.graph.generators.CliqueGenerator;
 import dna.graph.generators.GraphGenerator;
 import dna.graph.generators.IGraphGenerator;
 import dna.graph.generators.IRandomGenerator;
@@ -52,8 +54,8 @@ public class GeneratorsTest {
 	private GraphDataStructure gds;
 	private GraphGenerator gg;
 
-	private final int nodeSize = 200;
-	private final int edgeSize = 250;
+	private int nodeSize = 200;
+	private int edgeSize = 250;
 
 	@Rule
 	public TemporaryFolder folder = new TemporaryFolder();
@@ -78,8 +80,20 @@ public class GeneratorsTest {
 
 		this.gds = new GraphDataStructure(nodeListType, graphEdgeListType,
 				nodeEdgeListType, nodeType, edgeType);
+		
+		if (generator == CliqueGenerator.class) {
+			/**
+			 * As clique graphs are large, generate a smaller one please!
+			 */
+			nodeSize = (int) Math.min(Math.floor(nodeSize / 2), 30);
+			edgeSize = nodeSize * (nodeSize - 1);
+			
+			if ( UndirectedNode.class.isAssignableFrom(nodeType))
+				edgeSize = (int) edgeSize / 2;
+		}
+
 		this.gg = this.generatorConstructor.newInstance("ABC",
-				new Parameter[] {}, gds, 0, nodeSize, edgeSize);
+				new Parameter[] {}, gds, 0, nodeSize, edgeSize);		
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
@@ -244,6 +258,13 @@ public class GeneratorsTest {
 	@Test
 	public void testWriteReadWithErrorInEdge() throws ClassNotFoundException,
 			IOException {
+		/**
+		 * Don't run this check on clique graphs, as they are too large to get
+		 * compared multiple times. If anything is wrong that would be tested
+		 * here, we would see it with other generators too
+		 */
+		assumeFalse(CliqueGenerator.class.isAssignableFrom(generator));
+		
 		Graph g = gg.generate();
 
 		String graphName = gds.getDataStructures();
@@ -260,7 +281,7 @@ public class GeneratorsTest {
 
 		// Change getStringRepresentation now to see that it is used for
 		// equality checks
-		for (int i = 0; i < Math.floor(edgeSize / 5); i++) {
+		for (int i = 0; i < (int) Math.floor(edgeSize / 5); i++) {
 			Edge edgeReal = g.getRandomEdge();
 			assertNotNull(edgeReal);
 			g.removeEdge(edgeReal);

@@ -11,6 +11,7 @@ import dna.graph.edges.DirectedDoubleWeightedEdge;
 import dna.graph.edges.DirectedEdge;
 import dna.graph.edges.UndirectedDoubleWeightedEdge;
 import dna.graph.edges.UndirectedEdge;
+import dna.graph.generators.CliqueGenerator;
 import dna.graph.generators.directed.DirectedDoubleWeightedRandomGraphGenerator;
 import dna.graph.generators.directed.DirectedRandomGraphGenerator;
 import dna.graph.generators.undirected.UndirectedDoubleWeightedRandomGraphGenerator;
@@ -41,7 +42,8 @@ public class GlobalTestParameters {
 			DirectedRandomGraphGenerator.class,
 			DirectedDoubleWeightedRandomGraphGenerator.class,
 			UndirectedRandomGraphGenerator.class,
-			UndirectedDoubleWeightedRandomGraphGenerator.class };
+			UndirectedDoubleWeightedRandomGraphGenerator.class,
+			CliqueGenerator.class };
 
 	public static final Class[] batchGenerators = { RandomDirectedBatch.class,
 			RandomUndirectedBatch.class };
