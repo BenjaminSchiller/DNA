@@ -54,15 +54,7 @@ public class GraphReader {
 		while ((line = reader.readString()) != null) {
 			Edge e = ds.newEdgeInstance(line, g);
 			g.addEdge(e);
-			if (DirectedEdge.class.isAssignableFrom(eClass)) {
-				DirectedEdge d = (DirectedEdge) e;
-				d.getSrc().addEdge(d);
-				d.getDst().addEdge(d);
-			} else if (UndirectedEdge.class.isAssignableFrom(eClass)) {
-				UndirectedEdge u = (UndirectedEdge) e;
-				u.getNode1().addEdge(u);
-				u.getNode2().addEdge(u);
-			}
+			e.connectToNodes();
 		}
 
 		reader.close();

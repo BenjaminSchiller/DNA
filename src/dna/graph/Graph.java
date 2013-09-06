@@ -9,6 +9,7 @@ import dna.graph.datastructures.INodeListDatastructure;
 import dna.graph.datastructures.INodeListDatastructureReadable;
 import dna.graph.edges.Edge;
 import dna.graph.nodes.Node;
+import dna.util.Log;
 
 /**
  * Class for graphs. Methods that need special data structures are also defined
@@ -187,6 +188,8 @@ public class Graph {
 
 	@Override
 	public boolean equals(Object obj) {
+		Log.debug("Running equality check for graphs");
+		
 		if (this == obj) {
 			return true;
 		}
@@ -217,11 +220,14 @@ public class Graph {
 			return false;
 		}
 
+		Log.debug("Basics equal, going for edges and nodes");
+		
 		if (edges == null) {
 			if (other.edges != null) {
 				return false;
 			}
 		} else if (!this.edges.equals(other.edges)) {
+			Log.debug("Edges not equal (type: " + edges.getClass() + ")");
 			return false;
 		}
 		if (nodes == null) {
@@ -229,6 +235,7 @@ public class Graph {
 				return false;
 			}
 		} else if (!this.nodes.equals(other.nodes)) {
+			Log.debug("Nodes not equal (type: " + nodes.getClass() + ")");
 			return false;
 		}
 		return true;

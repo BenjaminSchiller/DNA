@@ -33,8 +33,7 @@ public class DirectedDoubleWeightedRandomGraphGenerator extends DirectedDoubleWe
 				edge.setWeight(Rand.rand.nextDouble());
 
 				graph.addEdge(edge);
-				edge.getSrc().addEdge(edge);
-				edge.getDst().addEdge(edge);
+				edge.connectToNodes();
 			}
 		}
 

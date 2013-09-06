@@ -32,8 +32,7 @@ implements IRandomGenerator {
 				UndirectedEdge edge = (UndirectedEdge) this.gds.newEdgeInstance(
 						graph.getNode(src), graph.getNode(dst));
 				graph.addEdge(edge);
-				edge.getNode1().addEdge(edge);
-				edge.getNode2().addEdge(edge);
+				edge.connectToNodes();
 			}
 		}
 

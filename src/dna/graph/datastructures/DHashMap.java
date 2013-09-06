@@ -43,7 +43,7 @@ public class DHashMap extends DataStructureReadable implements INodeListDatastru
 	public boolean add(Node element) {
 		super.canAdd(element);
 
-		if (!this.list.containsKey(element.getIndex())) {
+		if (!this.list.containsKey(Integer.toString(element.getIndex()))) {
 			this.list.put(Integer.toString(element.getIndex()), element);
 			if (element.getIndex() > this.maxNodeIndex) {
 				this.maxNodeIndex = element.getIndex();

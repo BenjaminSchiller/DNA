@@ -28,4 +28,19 @@ public abstract class Update<E extends Edge> {
 	}
 
 	protected abstract String getStringRepresentation_();
+		
+	@Override
+	public int hashCode() {
+		return this.getStringRepresentation().hashCode();
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (!(o instanceof Update)) {
+			return false;
+		}
+		Update u = (Update)o;
+		return u.getStringRepresentation().equals(this.getStringRepresentation());
+	}
+	
 }

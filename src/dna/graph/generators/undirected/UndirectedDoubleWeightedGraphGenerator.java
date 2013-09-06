@@ -1,6 +1,8 @@
 package dna.graph.generators.undirected;
 
 import dna.graph.datastructures.GraphDataStructure;
+import dna.graph.edges.Edge;
+import dna.graph.edges.UndirectedDoubleWeightedEdge;
 import dna.graph.nodes.Node;
 import dna.graph.nodes.UndirectedDoubleWeightedNode;
 import dna.util.parameters.Parameter;
@@ -20,4 +22,8 @@ public abstract class UndirectedDoubleWeightedGraphGenerator extends UndirectedG
 	public boolean canGenerateNodeType(Class<? extends Node> nodeType) {
 		return UndirectedDoubleWeightedNode.class.isAssignableFrom(nodeType);
 	}
+	
+	public boolean canGenerateEdgeType(Class<? extends Edge> edgeType) {
+		return UndirectedDoubleWeightedEdge.class.isAssignableFrom(edgeType);
+	}	
 }

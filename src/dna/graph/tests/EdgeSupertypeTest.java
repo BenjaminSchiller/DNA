@@ -26,7 +26,7 @@ public class EdgeSupertypeTest {
 	private Class<? extends Edge> edgeType;
 
 	public EdgeSupertypeTest(Class<? extends Node> nodeType, Class<? extends Edge> edgeType) {
-		this.gds = new GraphDataStructure(DArray.class, DArray.class, DArray.class, nodeType);
+		this.gds = new GraphDataStructure(DArray.class, DArray.class, DArray.class, nodeType, edgeType);
 		this.nodeType = nodeType;
 		this.edgeType = edgeType;
 	}
@@ -47,8 +47,6 @@ public class EdgeSupertypeTest {
 	public void testOtherEdgeType() {
 		assumeTrue((DirectedNode.class.isAssignableFrom(nodeType) && DirectedEdge.class.isAssignableFrom(edgeType))
 				|| (UndirectedNode.class.isAssignableFrom(nodeType) && UndirectedEdge.class.isAssignableFrom(edgeType)));
-
-		this.gds.setEdgeType(edgeType);
 
 		Node n0 = this.gds.newNodeInstance(0);
 		Node n1 = this.gds.newNodeInstance(1);

@@ -2,6 +2,7 @@ package dna.graph.tests;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assume.assumeTrue;
 import static org.mockito.Mockito.mock;
@@ -114,20 +115,61 @@ public class DatastructureTester {
 			 */
 		}
 
-		assertEquals(GlobalTestParameters.elementClasses.length, exceptionCounter);
+		assertEquals(GlobalTestParameters.elementClasses.length,
+				exceptionCounter);
 	}
 
-	@Test(timeout = 1500)
+	@Test
 	public void checkAddAndRemove() {
 		IElement dummy = mock(elementClass);
 		assertFalse(dataStructure.contains(dummy));
 		assertEquals(0, dataStructure.size());
-		dataStructure.add(dummy);
+		assertTrue(dataStructure.add(dummy));
 		assertTrue(dataStructure.contains(dummy));
 		assertEquals(1, dataStructure.size());
-		dataStructure.remove(dummy);
+		assertTrue(dataStructure.remove(dummy));
 		assertFalse(dataStructure.contains(dummy));
 		assertEquals(0, dataStructure.size());
+	}
+
+	@Test
+	public void checkNoOverwriting() {
+		assumeTrue(dataStructure instanceof INodeListDatastructureReadable);
+		IReadable tempDS = (IReadable) dataStructure;
+
+		IElement dummy1 = mock(elementClass);
+		IElement dummy2 = mock(elementClass);
+
+		if (Node.class.isAssignableFrom(elementClass)) {
+			when(((Node) dummy1).getIndex()).thenReturn(1);
+			when(((Node) dummy2).getIndex()).thenReturn(2);
+		}
+
+		assertFalse(tempDS.contains(dummy1));
+		assertFalse(tempDS.contains(dummy2));
+		assertEquals(0, tempDS.size());
+
+		assertTrue(tempDS.add(dummy1));
+		assertTrue(tempDS.contains(dummy1));
+		assertEquals(1, tempDS.size());
+
+		assertTrue(tempDS.add(dummy2));
+		assertTrue(tempDS.contains(dummy2));
+		assertEquals(2, tempDS.size());
+
+		assertTrue(tempDS.remove(dummy1));
+		assertFalse(tempDS.contains(dummy1));
+		assertEquals(1, tempDS.size());
+
+		assertTrue(tempDS.add(dummy1));
+		assertTrue(tempDS.contains(dummy1));
+		assertEquals(2, tempDS.size());
+
+		int count = 0;
+		for (@SuppressWarnings("unused") IElement e : tempDS.getElements()) {
+			count++;
+		}
+		assertEquals(tempDS.size(), count);
 	}
 
 	@Test
@@ -140,7 +182,7 @@ public class DatastructureTester {
 		for (int i = 0; i < dummies.length; i++) {
 			dummies[i] = (Node) mock(this.elementClass);
 			when(dummies[i].getIndex()).thenReturn(i);
-			tempDS.add(dummies[i]);
+			assertTrue(tempDS.add(dummies[i]));
 			assertEquals(i, tempDS.getMaxNodeIndex());
 		}
 
@@ -157,9 +199,9 @@ public class DatastructureTester {
 		for (int i = 0; i < secondDummies.length; i++) {
 			secondDummies[i] = (Node) mock(this.elementClass);
 			prevIndex[i] = lastIndex;
-			lastIndex = lastIndex + Rand.rand.nextInt(i+1) + 1;
+			lastIndex = lastIndex + Rand.rand.nextInt(i + 1) + 1;
 			when(secondDummies[i].getIndex()).thenReturn(lastIndex);
-			tempDS.add(secondDummies[i]);
+			assertTrue(tempDS.add(secondDummies[i]));
 			assertEquals(lastIndex, tempDS.getMaxNodeIndex());
 		}
 
@@ -179,7 +221,7 @@ public class DatastructureTester {
 			dummies[i] = mock(this.elementClass);
 			if (Node.class.isAssignableFrom(this.elementClass))
 				when(((Node) dummies[i]).getIndex()).thenReturn(i);
-			dataStructure.add(dummies[i]);
+			assertTrue(dataStructure.add(dummies[i]));
 		}
 		assertEquals(dummies.length, dataStructure.size());
 	}
@@ -192,7 +234,7 @@ public class DatastructureTester {
 
 		Node dummy = (Node) mock(this.elementClass);
 		when(dummy.getIndex()).thenReturn(42);
-		tempDS.add(dummy);
+		assertTrue(tempDS.add(dummy));
 
 		assertEquals(null, tempDS.get(43));
 		assertEquals(42, dummy.getIndex());
@@ -218,7 +260,7 @@ public class DatastructureTester {
 				when(((Node) singleDummy).getIndex()).thenReturn(i);
 			}
 
-			tempDS.add(singleDummy);
+			assertTrue(tempDS.add(singleDummy));
 			dummies.add(singleDummy);
 		}
 
@@ -286,6 +328,29 @@ public class DatastructureTester {
 	}
 
 	@Test
+	public void checkNullsInGetElements() {
+		assumeTrue(dataStructure instanceof INodeListDatastructureReadable);
+		INodeListDatastructureReadable tempDS = (INodeListDatastructureReadable) dataStructure;
+
+		dataStructure.reinitializeWithSize(10);
+		for (IElement singleDummy : tempDS.getElements()) {
+			assertNotNull(singleDummy);
+		}
+	}
+
+	@Test
+	public void checkNullsInIterator() {
+		IElement singleDummy;
+
+		dataStructure.reinitializeWithSize(10);
+		Iterator<IElement> elemIterator = dataStructure.iterator();
+		while (elemIterator.hasNext()) {
+			singleDummy = elemIterator.next();
+			assertNotNull(singleDummy);
+		}
+	}
+
+	@Test
 	public void checkGetNodeWithGaps() {
 		/*
 		 * Don't run this test for non-node datastructures and non-nodes
@@ -330,8 +395,22 @@ public class DatastructureTester {
 		IElement random;
 		for (int i = 0; i < 2 * dummies.length; i++) {
 			random = tempDS.getRandom();
+			assertNotNull(random);
 			assertTrue(tempDS.contains(random));
 		}
+	}
+
+	@Test
+	public void checkDuplicateCalls() {
+		IElement dummy = mock(elementClass);
+		if (dummy instanceof Node) {
+			when(((Node) dummy).getIndex()).thenReturn(1);
+		}
+		assertTrue(dataStructure.add(dummy));
+		assertFalse(dataStructure.add(dummy));
+
+		assertTrue(dataStructure.remove(dummy));
+		assertFalse(dataStructure.remove(dummy));
 	}
 
 }
