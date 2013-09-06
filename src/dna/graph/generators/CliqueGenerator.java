@@ -33,8 +33,20 @@ public class CliqueGenerator extends GraphGenerator {
 			g.addNode(node);
 		}
 
+		int startJ;
+		
 		for (int i = 0; i < this.nodesInit; i++) {
-			for (int j = 0; j < this.nodesInit; j++) {
+			/**
+			 * In the case of undirected edges, we can skip some edges that have
+			 * already been added to the graph. This makes the generation a bit
+			 * faster
+			 */
+			if (g.isDirected())
+				startJ = 0;
+			else
+				startJ = i;
+
+			for (int j = startJ; j < this.nodesInit; j++) {
 				if (i == j) {
 					continue;
 				}
