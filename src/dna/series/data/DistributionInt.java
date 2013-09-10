@@ -39,6 +39,12 @@ public class DistributionInt extends Distribution {
 		this.denominator = denominator;
 	}
 
+	public DistributionInt(String name) {
+		super(name);
+		this.values = new int[0];
+		this.denominator = 0;
+	}
+
 	public DistributionInt(String name, int[] values, int denominator, int sum,
 			int min, int max, int med, double avg) {
 		super(name);
@@ -67,6 +73,22 @@ public class DistributionInt extends Distribution {
 
 	public void setDenominator(int denominator) {
 		this.denominator = denominator;
+	}
+
+	public void incrDenominator() {
+		this.incrDenominator(1);
+	}
+
+	public void incrDenominator(int count) {
+		this.denominator += count;
+	}
+
+	public void decrDenominator() {
+		this.decrDenominator(1);
+	}
+
+	public void decrDenominator(int count) {
+		this.denominator -= count;
 	}
 
 	public int getMin() {
