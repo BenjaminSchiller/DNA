@@ -4,31 +4,44 @@ import dna.graph.nodes.DirectedNode;
 import dna.graph.nodes.UndirectedNode;
 import dna.metrics.Metric;
 import dna.series.data.Distribution;
+import dna.series.data.DistributionInt;
+import dna.series.data.NodeValueList;
 import dna.series.data.Value;
 import dna.util.ArrayUtils;
 import dna.util.DataUtils;
 
 public abstract class DegreeDistribution extends Metric {
 
-	protected double[] degreeDistribution;
+	protected DistributionInt degree;
 
-	protected double[] inDegreeDistribution;
+	protected DistributionInt inDegree;
 
-	protected double[] outDegreeDistribution;
+	protected DistributionInt outDegree;
 
-	protected double nodes;
+	public static final String degreeName = "degreeDistribution";
 
-	protected double edges;
+	public static final String inDegreeName = "inDegreeDistribution";
 
-	public DegreeDistribution(String name, ApplicationType type, MetricType mType) {
+	public static final String outDegreeName = "outDegreeDistribution";
+
+	protected int nodes;
+
+	protected int edges;
+
+	public static final String nodesName = "nodes";
+
+	public static final String edgesName = "edges";
+
+	public DegreeDistribution(String name, ApplicationType type,
+			MetricType mType) {
 		super(name, type, mType);
 	}
 
 	@Override
 	public void reset_() {
-		this.degreeDistribution = null;
-		this.inDegreeDistribution = null;
-		this.outDegreeDistribution = null;
+		this.degree = null;
+		this.inDegree = null;
+		this.outDegree = null;
 		this.nodes = 0;
 		this.edges = 0;
 	}
@@ -40,18 +53,13 @@ public abstract class DegreeDistribution extends Metric {
 
 	@Override
 	protected Distribution[] getDistributions() {
-		Distribution degree = new Distribution("degreeDistribution",
-				this.degreeDistribution);
 		if (DirectedNode.class.isAssignableFrom(this.g.getGraphDatastructures()
 				.getNodeType())) {
-			Distribution inDegree = new Distribution("inDegreeDistribution",
-					this.inDegreeDistribution);
-			Distribution outDegree = new Distribution("outDegreeDistribution",
-					this.outDegreeDistribution);
-			return new Distribution[] { degree, inDegree, outDegree };
+			return new Distribution[] { this.degree, this.inDegree,
+					this.outDegree };
 		} else if (UndirectedNode.class.isAssignableFrom(this.g
 				.getGraphDatastructures().getNodeType())) {
-			return new Distribution[] { degree };
+			return new Distribution[] { this.degree };
 		}
 		return null;
 	}
@@ -63,20 +71,37 @@ public abstract class DegreeDistribution extends Metric {
 		}
 		DegreeDistribution dd = (DegreeDistribution) m;
 		boolean success = true;
-		success &= DataUtils.equals(this.nodes, dd.nodes, "DD/nodes");
-		success &= DataUtils.equals(this.edges, dd.edges, "DD/edges");
-		success &= ArrayUtils.equals(this.degreeDistribution,
-				dd.degreeDistribution, "DD/degreeDistribution");
-		success &= ArrayUtils.equals(this.inDegreeDistribution,
-				dd.inDegreeDistribution, "DD/inDegreeDistribution");
-		success &= ArrayUtils.equals(this.outDegreeDistribution,
-				dd.outDegreeDistribution, "DD/outDegreeDistribution");
+		success &= DataUtils.equals(this.nodes, dd.nodes, "DD/" + nodesName);
+		success &= DataUtils.equals(this.edges, dd.edges, "DD/" + edgesName);
+		success &= ArrayUtils.equals(this.degree.getIntValues(),
+				dd.degree.getIntValues(), "DD/" + degreeName);
+		success &= ArrayUtils.equals(this.inDegree.getIntValues(),
+				dd.inDegree.getIntValues(), "DD/" + inDegreeName);
+		success &= ArrayUtils.equals(this.outDegree.getIntValues(),
+				dd.outDegree.getIntValues(), "DD/" + outDegreeName);
 		return success;
+	}
+
+	@Override
+	protected void init_() {
+		this.degree = new DistributionInt(degreeName, new int[0],
+				this.g.getNodeCount());
+		this.inDegree = new DistributionInt(inDegreeName, new int[0],
+				this.g.getNodeCount());
+		this.outDegree = new DistributionInt(outDegreeName, new int[0],
+				this.g.getNodeCount());
+		this.nodes = 0;
+		this.edges = 0;
 	}
 
 	@Override
 	public boolean isComparableTo(Metric m) {
 		return m != null && m instanceof DegreeDistribution;
+	}
+
+	@Override
+	protected NodeValueList[] getNodeValueLists() {
+		return new NodeValueList[0];
 	}
 
 }
