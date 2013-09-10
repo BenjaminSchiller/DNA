@@ -277,11 +277,34 @@ public class ArrayUtils {
 	}
 
 	public static boolean equals(int[] v1, int[] v2) {
+		return ArrayUtils.equals(v1, v2, null);
+	}
+
+	/**
+	 * 
+	 * @param v1
+	 *            arrays of long values
+	 * @param v2
+	 *            array of long values to compare
+	 * @param name
+	 *            if a name is given, debug log output is printed in case the
+	 *            arrays are not equal
+	 * @return true if both arrays have the same length and all values are equal
+	 */
+	public static boolean equals(int[] v1, int[] v2, String name) {
 		if (v1.length != v2.length) {
+			if (name != null) {
+				Log.warn(name + " - length differs: " + v1.length + " != "
+						+ v2.length);
+			}
 			return false;
 		}
 		for (int i = 0; i < v1.length; i++) {
 			if (v1[i] != v2[i]) {
+				if (name != null) {
+					Log.warn(name + " - values @ index " + i + " differs: "
+							+ v1[i] + " != " + v2[i]);
+				}
 				return false;
 			}
 		}
