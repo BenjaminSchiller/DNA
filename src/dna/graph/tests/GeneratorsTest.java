@@ -44,7 +44,7 @@ import dna.io.GraphReader;
 import dna.io.GraphWriter;
 import dna.util.parameters.Parameter;
 
-@RunWith(Parameterized.class)
+@RunWith(Parallelized.class)
 public class GeneratorsTest {
 	private Class<? extends Node> nodeType;
 	private Class<? extends Edge> edgeType;
