@@ -26,6 +26,7 @@ import dna.graph.datastructures.INodeListDatastructureReadable;
 import dna.graph.edges.DirectedEdge;
 import dna.graph.edges.Edge;
 import dna.graph.edges.UndirectedEdge;
+import dna.graph.generators.CliqueGenerator;
 import dna.graph.generators.GraphGenerator;
 import dna.graph.generators.IGraphGenerator;
 import dna.graph.nodes.DirectedNode;
@@ -44,7 +45,7 @@ import dna.updates.directed.DirectedBatchGenerator;
 import dna.updates.undirected.UndirectedBatchGenerator;
 import dna.util.parameters.Parameter;
 
-@RunWith(Parameterized.class)
+@RunWith(Parallelized.class)
 public class BatchTest {
 	private Class<? extends Node> nodeType;
 	private Class<? extends Edge> edgeType;
@@ -55,16 +56,9 @@ public class BatchTest {
 	private GraphGenerator gg;
 	private BatchGenerator<Node, Edge> bGen;
 
-	private final int nodeSize = 100;
-	private final int edgeSize = 150;
-
-	private final int nodeAdd = nodeSize;
-	private final int nodeRem = (int) Math.floor(nodeSize / 2);
-	private final int edgeAdd = edgeSize;
-	private final int edgeRem = (int) Math.floor(edgeSize / 2);
-
 	@Rule
 	public TemporaryFolder folder = new TemporaryFolder();
+	private int nodeSize, edgeSize, nodeAdd, nodeRem, edgeAdd, edgeRem;
 
 	public BatchTest(Class<? extends INodeListDatastructure> nodeListType,
 			Class<? extends IEdgeListDatastructure> graphEdgeListType,
@@ -82,6 +76,8 @@ public class BatchTest {
 				Parameter[].class, GraphDataStructure.class, long.class,
 				int.class, int.class);
 
+		initSizes();
+
 		this.gds = new GraphDataStructure(nodeListType, graphEdgeListType,
 				nodeEdgeListType, nodeType, edgeType);
 		this.gg = this.generatorConstructor.newInstance("ABC",
@@ -91,6 +87,32 @@ public class BatchTest {
 				int.class, GraphDataStructure.class);
 		this.bGen = (BatchGenerator<Node, Edge>) bGenC.newInstance(nodeAdd,
 				nodeRem, edgeAdd, edgeRem, this.gds);
+	}
+
+	public void initSizes() {
+		nodeSize = 100;
+		edgeSize = 150;
+
+		if (this.generator == CliqueGenerator.class) {
+			/**
+			 * As clique graphs are large, generate a smaller one please!
+			 */
+			nodeSize = (int) Math.min(Math.floor(nodeSize / 2), 30);
+			edgeSize = nodeSize * (nodeSize - 1);
+
+			if (UndirectedNode.class.isAssignableFrom(nodeType))
+				edgeSize = (int) edgeSize / 2;
+		}
+
+		nodeAdd = nodeSize;
+		nodeRem = nodeSize / 2;
+		edgeAdd = edgeSize;
+		edgeRem = edgeSize / 2;
+
+		// Adding edges in a clique graph is nonsense
+		if (this.generator == CliqueGenerator.class) {
+			edgeAdd = 0;
+		}
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
@@ -208,27 +230,27 @@ public class BatchTest {
 
 		Batch<Edge> b = bGen.generate(g);
 		b.sanitize();
-		
+
 		BatchWriter<Node, Edge> bw = new BatchWriter<>();
 		assertTrue(bw.write(b, tempFolder, "bGen"));
-	
+
 		b.apply(g);
 		gw.write(g, tempFolder, "gGenUpdated");
 
 		// All stuff is written now, read it in again and check for equality
-		
+
 		GraphReader gr = new GraphReader();
 		Graph gRead = gr.read(tempFolder, "gGen");
 		BatchReader<Node, Edge, IWeighted> br = new BatchReader<>(this.gds);
 		Batch<Edge> b2 = br.read(tempFolder, "bGen", gRead);
 		bw.write(b2, tempFolder, "bRead");
-		assertEquals(b, b2);		
-		
+		assertEquals(b, b2);
+
 		assertTrue(b2.apply(gRead));
 		gw.write(gRead, tempFolder, "gReadUpdated");
-		
+
 		assertEquals(g, gRead);
-		
+
 	}
 
 }
