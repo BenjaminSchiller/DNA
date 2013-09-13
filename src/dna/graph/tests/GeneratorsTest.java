@@ -37,6 +37,7 @@ import dna.graph.edges.UndirectedEdge;
 import dna.graph.generators.GraphGenerator;
 import dna.graph.generators.IGraphGenerator;
 import dna.graph.generators.IRandomGenerator;
+import dna.graph.generators.RingGenerator;
 import dna.graph.nodes.DirectedNode;
 import dna.graph.nodes.Node;
 import dna.graph.nodes.UndirectedNode;
@@ -89,6 +90,8 @@ public class GeneratorsTest {
 			
 			if ( UndirectedNode.class.isAssignableFrom(nodeType))
 				edgeSize = (int) edgeSize / 2;
+		} else if (generator == RingGenerator.class) {
+			edgeSize = nodeSize;
 		}
 
 		this.gg = this.generatorConstructor.newInstance("ABC",
