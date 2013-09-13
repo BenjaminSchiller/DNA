@@ -60,15 +60,4 @@ public class CliqueGenerator extends GraphGenerator {
 		return g;
 
 	}
-
-	@Override
-	public boolean canGenerateNodeType(Class<? extends Node> nodeType) {
-		return true;
-	}
-
-	@Override
-	public boolean canGenerateEdgeType(Class<? extends Edge> edgeType) {
-		return true;
-	}
-
 }
