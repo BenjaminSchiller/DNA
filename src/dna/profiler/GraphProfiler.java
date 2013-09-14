@@ -1,7 +1,5 @@
 package dna.profiler;
 
-import java.util.Collections;
-import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -10,12 +8,15 @@ import dna.graph.datastructures.GraphDataStructure;
 import dna.util.Log;
 
 public class GraphProfiler {
-	private static Map<String, Map<ProfilerType, Integer>> calls = new HashMap<>();
+	private static Map<String, ProfileEntry> calls = new HashMap<>();
 	private static boolean active = false;
 	
 	public static enum ProfilerType {
 		AddNodeGlobal, AddNodeLocal, AddEdgeGlobal, AddEdgeLocal,
-		RemoveNodeGlobal, RemoveNodeLocal, RemoveEdgeGlobal, RemoveEdgeLocal, ContainsNodeGlobal, ContainsNodeLocal, ContainsEdgeGlobal, ContainsEdgeLocal, SizeNodeGlobal, SizeNodeLocal, SizeEdgeGlobal, SizeEdgeLocal
+		RemoveNodeGlobal, RemoveNodeLocal, RemoveEdgeGlobal, RemoveEdgeLocal,
+		ContainsNodeGlobal, ContainsNodeLocal, ContainsEdgeGlobal, ContainsEdgeLocal,
+		SizeNodeGlobal, SizeNodeLocal, SizeEdgeGlobal, SizeEdgeLocal,
+		RandomNodeGlobal, RandomEdgeGlobal
 	}
 	
 	public static void activate() {
@@ -25,15 +26,7 @@ public class GraphProfiler {
 	public static boolean isActive() {
 		return active;
 	}
-	
-	public static Map<ProfilerType, Integer> initInnerMap() {
-		Map res = Collections.synchronizedMap(new EnumMap<ProfilerType, Integer>(ProfilerType.class));
-		for ( ProfilerType p: ProfilerType.values()) {
-			res.put(p, 0);
-		}
-		return res;
-	}
-	
+		
 	public static void init(GraphDataStructure gds) {
 		// This is initialization of profiles
 		
@@ -49,24 +42,28 @@ public class GraphProfiler {
 		if (!active)
 			return;
 
-		for (Entry<String, Map<ProfilerType, Integer>> entry : calls.entrySet()) {
+		for (Entry<String, ProfileEntry> entry : calls.entrySet()) {
 			System.out.println("Count type: " + entry.getKey());
-			Map<ProfilerType, Integer> innerMap = entry.getValue();
-			for (ProfilerType p : ProfilerType.values()) {
-				System.out.println("  Calls of type " + p.toString() + ": "
-						+ innerMap.get(p));
-			}
+			System.out.println(entry.getValue().toString());
+
 		}
 	}
 
 	public static void count(String mapKey, ProfilerType p) {
 		if ( !active ) return;
 		
-		Map<ProfilerType, Integer> innerMap = calls.get(mapKey);
+		ProfileEntry innerMap = calls.get(mapKey);
 		if ( innerMap == null ) {
-			innerMap = initInnerMap();
+			innerMap = new ProfileEntry();
 			calls.put(mapKey, innerMap);
 		}
-		innerMap.put(p, innerMap.get(p) + 1);
+		innerMap.increase(p);
+	}
+	
+	public static int getCount(String mapKey, ProfilerType p) {
+		ProfileEntry innerMap = calls.get(mapKey);
+		if (innerMap == null)
+			return 0;
+		return innerMap.get(p);
 	}
 }

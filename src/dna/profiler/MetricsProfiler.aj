@@ -1,14 +1,15 @@
 package dna.profiler;
 
 import dna.graph.Graph;
+import dna.graph.IElement;
 import dna.graph.datastructures.GraphDataStructure;
 import dna.graph.datastructures.IEdgeListDatastructure;
+import dna.graph.datastructures.IEdgeListDatastructureReadable;
 import dna.graph.datastructures.INodeListDatastructure;
 import dna.graph.edges.Edge;
 import dna.graph.nodes.Node;
 import dna.metrics.Metric;
 import dna.profiler.GraphProfiler.ProfilerType;
-import dna.series.Series;
 import dna.series.SeriesGeneration;
 import dna.updates.Update;
 
@@ -28,12 +29,14 @@ public aspect MetricsProfiler {
 	pointcut nodeRemove() : call(* INodeListDatastructure+.remove(Node+)) && (cflow(metricApplied(*,*)) || cflow(initialMetric(*))) && if(isActive);
 	pointcut nodeContains() : call(* INodeListDatastructure+.contains(Node+)) && (cflow(metricApplied(*,*)) || cflow(initialMetric(*))) && if(isActive);
 	pointcut nodeSize() : call(* INodeListDatastructure+.size()) && (cflow(metricApplied(*,*)) || cflow(initialMetric(*))) && if(isActive);
+	pointcut nodeRandom() : call(* INodeListDatastructure+.getRandom()) && (cflow(metricApplied(*,*)) || cflow(initialMetric(*))) && if(isActive);
 
 	pointcut edgeAdd() : call(* IEdgeListDatastructure+.add(Edge+)) && (cflow(metricApplied(*,*)) || cflow(initialMetric(*))) && if(isActive);
 	pointcut edgeRemove() : call(* IEdgeListDatastructure+.remove(Edge+)) && (cflow(metricApplied(*,*)) || cflow(initialMetric(*))) && if(isActive);
 	pointcut edgeContains() : call(* IEdgeListDatastructure+.contains(Edge+)) && (cflow(metricApplied(*,*)) || cflow(initialMetric(*))) && if(isActive);
 	pointcut edgeSize() : call(* IEdgeListDatastructure+.size()) && (cflow(metricApplied(*,*)) || cflow(initialMetric(*))) && if(isActive);
-
+	pointcut edgeRandom() : call(* IEdgeListDatastructureReadable.getRandom()) && (cflow(metricApplied(*,*)) || cflow(initialMetric(*))) && if(isActive);
+	
 	pointcut graphAction() : this(Graph);
 	pointcut nodeAction() : this(Node);
 
@@ -125,6 +128,14 @@ public aspect MetricsProfiler {
 
 	after() : edgeSize() && nodeAction() {
 		GraphProfiler.count(currentMetric, ProfilerType.SizeEdgeLocal);
+	}
+	
+	after() : nodeRandom() && graphAction() {
+		GraphProfiler.count(currentMetric, ProfilerType.RandomNodeGlobal);
+	}
+
+	after() : edgeRandom() && graphAction() {
+		GraphProfiler.count(currentMetric, ProfilerType.RandomEdgeGlobal);
 	}
 
 }
