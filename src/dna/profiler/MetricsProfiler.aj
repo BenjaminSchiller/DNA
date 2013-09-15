@@ -1,7 +1,6 @@
 package dna.profiler;
 
 import dna.graph.Graph;
-import dna.graph.IElement;
 import dna.graph.datastructures.GraphDataStructure;
 import dna.graph.datastructures.IEdgeListDatastructure;
 import dna.graph.datastructures.IEdgeListDatastructureReadable;
@@ -11,6 +10,7 @@ import dna.graph.nodes.Node;
 import dna.metrics.Metric;
 import dna.profiler.GraphProfiler.ProfilerType;
 import dna.series.SeriesGeneration;
+import dna.updates.Batch;
 import dna.updates.Update;
 
 public aspect MetricsProfiler {
@@ -20,22 +20,27 @@ public aspect MetricsProfiler {
 	pointcut activate() : execution(* GraphProfiler.activate());
 
 	pointcut initialMetric(Metric metricObject) : execution(* Metric+.compute()) && target(metricObject);
-	pointcut metricApplied(Metric metricObject, Update<?> updateObject) : execution(* Metric+.applyBeforeUpdate(Update+)) && args(updateObject) && target(metricObject);
+	pointcut metricAppliedOnUpdate(Metric metricObject, Update<?> updateObject) : (execution(* Metric+.applyBeforeUpdate(Update+))
+			 || execution(* Metric+.applyAfterUpdate(Update+))) && args(updateObject) && target(metricObject);
+	pointcut metricAppliedOnBatch(Metric metricObject, Update<?> batchObject) : (execution(* Metric+.applyBeforeBatch(Batch+))
+			 || execution(* Metric+.applyAfterBatch(Batch+))) && args(batchObject) && target(metricObject);
+	pointcut metricApplied() : cflow(initialMetric(*)) || cflow(metricAppliedOnUpdate(*, *)) || cflow(metricAppliedOnBatch(*, *));
+	
 	pointcut seriesFinished() : execution(* SeriesGeneration.generate(..)) && if(isActive);
 
 	pointcut init(Graph g, GraphDataStructure gds) : this(g) && execution(Graph+.new(String,long, GraphDataStructure,..)) && args(*,*,gds,..);
 
-	pointcut nodeAdd() : call(* INodeListDatastructure+.add(Node+)) && (cflow(metricApplied(*,*)) || cflow(initialMetric(*))) && if(isActive);
-	pointcut nodeRemove() : call(* INodeListDatastructure+.remove(Node+)) && (cflow(metricApplied(*,*)) || cflow(initialMetric(*))) && if(isActive);
-	pointcut nodeContains() : call(* INodeListDatastructure+.contains(Node+)) && (cflow(metricApplied(*,*)) || cflow(initialMetric(*))) && if(isActive);
-	pointcut nodeSize() : call(* INodeListDatastructure+.size()) && (cflow(metricApplied(*,*)) || cflow(initialMetric(*))) && if(isActive);
-	pointcut nodeRandom() : call(* INodeListDatastructure+.getRandom()) && (cflow(metricApplied(*,*)) || cflow(initialMetric(*))) && if(isActive);
+	pointcut nodeAdd() : call(* INodeListDatastructure+.add(Node+)) && cflow(metricApplied()) && if(isActive);
+	pointcut nodeRemove() : call(* INodeListDatastructure+.remove(Node+)) && cflow(metricApplied()) && if(isActive);
+	pointcut nodeContains() : call(* INodeListDatastructure+.contains(Node+)) && cflow(metricApplied()) && if(isActive);
+	pointcut nodeSize() : call(* INodeListDatastructure+.size()) && cflow(metricApplied()) && if(isActive);
+	pointcut nodeRandom() : call(* INodeListDatastructure+.getRandom()) && cflow(metricApplied()) && if(isActive);
 
-	pointcut edgeAdd() : call(* IEdgeListDatastructure+.add(Edge+)) && (cflow(metricApplied(*,*)) || cflow(initialMetric(*))) && if(isActive);
-	pointcut edgeRemove() : call(* IEdgeListDatastructure+.remove(Edge+)) && (cflow(metricApplied(*,*)) || cflow(initialMetric(*))) && if(isActive);
-	pointcut edgeContains() : call(* IEdgeListDatastructure+.contains(Edge+)) && (cflow(metricApplied(*,*)) || cflow(initialMetric(*))) && if(isActive);
-	pointcut edgeSize() : call(* IEdgeListDatastructure+.size()) && (cflow(metricApplied(*,*)) || cflow(initialMetric(*))) && if(isActive);
-	pointcut edgeRandom() : call(* IEdgeListDatastructureReadable.getRandom()) && (cflow(metricApplied(*,*)) || cflow(initialMetric(*))) && if(isActive);
+	pointcut edgeAdd() : call(* IEdgeListDatastructure+.add(Edge+)) && cflow(metricApplied()) && if(isActive);
+	pointcut edgeRemove() : call(* IEdgeListDatastructure+.remove(Edge+)) && cflow(metricApplied()) && if(isActive);
+	pointcut edgeContains() : call(* IEdgeListDatastructure+.contains(Edge+)) && cflow(metricApplied()) && if(isActive);
+	pointcut edgeSize() : call(* IEdgeListDatastructure+.size()) && cflow(metricApplied()) && if(isActive);
+	pointcut edgeRandom() : call(* IEdgeListDatastructureReadable.getRandom()) && cflow(metricApplied()) && if(isActive);
 	
 	pointcut graphAction() : this(Graph);
 	pointcut nodeAction() : this(Node);
@@ -46,15 +51,15 @@ public aspect MetricsProfiler {
 
 	boolean around(Metric metricObject) : initialMetric(metricObject) {
 		currentMetric = metricObject.getName();
-		System.out.println("Running metric " + currentMetric);
 		boolean res = proceed(metricObject);
+		currentMetric = null;
 		return res;
 	}
 
-	boolean around(Metric metricObject, Update<?> updateObject) : metricApplied(metricObject, updateObject) {
+	boolean around(Metric metricObject, Update<?> updateObject) : metricAppliedOnUpdate(metricObject, updateObject) {
 		currentMetric = metricObject.getName();
-		System.out.println("Running metric " + currentMetric);
 		boolean res = proceed(metricObject, updateObject);
+		currentMetric = null;
 		return res;
 	}
 
