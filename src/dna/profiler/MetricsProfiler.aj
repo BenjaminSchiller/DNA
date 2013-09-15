@@ -3,7 +3,6 @@ package dna.profiler;
 import dna.graph.Graph;
 import dna.graph.datastructures.GraphDataStructure;
 import dna.graph.datastructures.IEdgeListDatastructure;
-import dna.graph.datastructures.IEdgeListDatastructureReadable;
 import dna.graph.datastructures.INodeListDatastructure;
 import dna.graph.edges.Edge;
 import dna.graph.nodes.Node;
@@ -40,11 +39,11 @@ public aspect MetricsProfiler {
 	pointcut edgeRemove() : call(* IEdgeListDatastructure+.remove(Edge+)) && cflow(metricApplied()) && if(isActive);
 	pointcut edgeContains() : call(* IEdgeListDatastructure+.contains(Edge+)) && cflow(metricApplied()) && if(isActive);
 	pointcut edgeSize() : call(* IEdgeListDatastructure+.size()) && cflow(metricApplied()) && if(isActive);
-	pointcut edgeRandom() : call(* IEdgeListDatastructureReadable.getRandom()) && cflow(metricApplied()) && if(isActive);
+	pointcut edgeRandom() : call(* IEdgeListDatastructure+.getRandom()) && cflow(metricApplied()) && if(isActive);
 	
 	pointcut graphAction() : this(Graph);
 	pointcut nodeAction() : this(Node);
-
+	
 	after() : activate() {
 		isActive = true;
 	}

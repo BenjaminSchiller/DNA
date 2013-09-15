@@ -66,4 +66,8 @@ public class GraphProfiler {
 			return 0;
 		return innerMap.get(p);
 	}
+
+	public static void reset() {
+		calls = new HashMap<>();
+	}
 }
