@@ -10,6 +10,7 @@ import org.junit.runners.Suite;
    GeneratorsTest.class,
    EdgeSupertypeTest.class,
    BatchTest.class,
+   ProfilerTest.class,
    SingleTests.class
 })
 public class CompleteTestSuite {
