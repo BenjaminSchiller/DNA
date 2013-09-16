@@ -23,6 +23,8 @@ public aspect MetricsProfiler {
 
 	pointcut activate() : execution(* GraphProfiler.activate());
 
+	pointcut newBatch() : execution(BatchData.new(..));
+	
 	pointcut initialMetric(Metric metricObject) : execution(* Metric+.compute()) && target(metricObject);
 	pointcut metricAppliedOnUpdate(Metric metricObject, Update<?> updateObject) : (execution(* Metric+.applyBeforeUpdate(Update+))
 			 || execution(* Metric+.applyAfterUpdate(Update+))) && args(updateObject) && target(metricObject);
@@ -51,12 +53,16 @@ public aspect MetricsProfiler {
 	
 	pointcut writeData(String dir) : call(* BatchData.write(String)) && args(dir) && if(isActive);
 
+	before() : newBatch() {
+		GraphProfiler.reset();
+	}
+	
 	after() : activate() {
 		isActive = true;
 	}
 
 	boolean around(Metric metricObject) : initialMetric(metricObject) {
-		currentMetric = metricObject.getName();
+		currentMetric = metricObject.getName() + " - initial batch";
 		boolean res = proceed(metricObject);
 		currentMetric = null;
 		return res;
