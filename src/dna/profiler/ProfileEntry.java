@@ -20,8 +20,12 @@ public class ProfileEntry {
 		return list.get(p);
 	}
 	
+	public void increase(ProfilerType p, int i) {
+		list.put(p, list.get(p) + i);
+	}
+	
 	public void increase(ProfilerType p) {
-		list.put(p, list.get(p) + 1);
+		increase(p, 1);
 	}
 	
 	@Override
@@ -31,5 +35,11 @@ public class ProfileEntry {
 			s.append("  Calls of type " + p.toString() + ": " + get(p) + "\n");
 		}
 		return s.toString();
+	}
+
+	public void mergeWith(ProfileEntry value) {
+		for (ProfilerType p: ProfilerType.values()) {
+			increase(p, value.get(p));
+		}
 	}
 }

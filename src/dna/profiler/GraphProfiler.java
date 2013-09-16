@@ -11,6 +11,7 @@ import dna.util.Log;
 
 public class GraphProfiler {
 	private static Map<String, ProfileEntry> calls = new HashMap<>();
+	private static Map<String, ProfileEntry> globalCalls = new HashMap<>();
 	private static boolean active = false;
 	
 	public static enum ProfilerType {
@@ -44,13 +45,13 @@ public class GraphProfiler {
 		if (!active)
 			return;
 
-		System.out.println(getOutput());
+		System.out.println(getOutput(calls));
 	}
 	
-	public static String getOutput() {
+	public static String getOutput(Map<String, ProfileEntry> listOfEntries) {
 		final String separator = System.getProperty("line.separator");
 		StringBuilder res = new StringBuilder();
-		for (Entry<String, ProfileEntry> entry : calls.entrySet()) {
+		for (Entry<String, ProfileEntry> entry : listOfEntries.entrySet()) {
 			if ( res.length() > 0 ) res.append(separator);
 			res.append("Count type: " + entry.getKey() + separator);
 			res.append(entry.getValue().toString());
@@ -62,7 +63,7 @@ public class GraphProfiler {
 		if ( !active ) return;
 		
 		ProfileEntry innerMap = calls.get(mapKey);
-		if ( innerMap == null ) {
+		if (innerMap == null) {
 			innerMap = new ProfileEntry();
 			calls.put(mapKey, innerMap);
 		}
@@ -77,13 +78,30 @@ public class GraphProfiler {
 	}
 
 	public static void reset() {
+		integrateCallsToGlobal();
 		calls = new HashMap<>();
+	}
+
+	private static void integrateCallsToGlobal() {
+		for (Entry<String, ProfileEntry> entry : calls.entrySet()) {
+			if ( !globalCalls.containsKey(entry.getKey())) {
+				globalCalls.put(entry.getKey(), new ProfileEntry());
+			}
+			
+			globalCalls.get(entry.getKey()).mergeWith(entry.getValue());
+		}
 	}
 
 	public static void write(String dir, String filename) throws IOException {
 		Writer w = new Writer(dir, filename);
-		w.writeln(getOutput());
+		w.writeln(getOutput(calls));
 		w.close();
 
+	}
+
+	public static void writeGlobal(String aggDir, String filename) throws IOException {
+		Writer w = new Writer(aggDir, filename);
+		w.writeln(getOutput(globalCalls));
+		w.close();
 	}
 }
