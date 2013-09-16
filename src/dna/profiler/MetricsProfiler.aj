@@ -8,11 +8,14 @@ import dna.graph.datastructures.IEdgeListDatastructure;
 import dna.graph.datastructures.INodeListDatastructure;
 import dna.graph.edges.Edge;
 import dna.graph.nodes.Node;
+import dna.io.filesystem.Dir;
 import dna.io.filesystem.Files;
 import dna.metrics.Metric;
 import dna.profiler.GraphProfiler.ProfilerType;
+import dna.series.Series;
 import dna.series.SeriesGeneration;
 import dna.series.data.BatchData;
+import dna.series.data.RunData;
 import dna.updates.Batch;
 import dna.updates.Update;
 import dna.util.Config;
@@ -25,6 +28,9 @@ public aspect MetricsProfiler {
 	pointcut activate() : execution(* GraphProfiler.activate());
 
 	pointcut newBatch() : execution(BatchData.new(..));
+	pointcut aggregateDataPerRun(Series s, int run) : execution(* SeriesGeneration.generateRun(Series, int, ..)) && args(s, run, ..);
+	pointcut aggregateDataOverAllRuns(Series s) : execution(* SeriesGeneration.generate(Series, int, int, boolean, boolean)) && args(s, ..);
+	
 	
 	pointcut initialMetric(Metric metricObject) : execution(* Metric+.compute()) && target(metricObject);
 	pointcut metricAppliedOnUpdate(Metric metricObject, Update<?> updateObject) : (execution(* Metric+.applyBeforeUpdate(Update+))
@@ -81,7 +87,7 @@ public aspect MetricsProfiler {
 	}
 	
 	after() : seriesFinished() {
-		GraphProfiler.finish();
+//		GraphProfiler.finish();
 	}
 
 	after() : nodeAdd() && graphAction() {
@@ -147,7 +153,7 @@ public aspect MetricsProfiler {
 	after() : edgeSize() && nodeAction() {
 		GraphProfiler.count(currentMetric, ProfilerType.SizeEdgeLocal);
 	}
-	
+
 	after() : nodeRandom() && graphAction() {
 		GraphProfiler.count(currentMetric, ProfilerType.RandomNodeGlobal);
 	}
@@ -155,10 +161,23 @@ public aspect MetricsProfiler {
 	after() : edgeRandom() && graphAction() {
 		GraphProfiler.count(currentMetric, ProfilerType.RandomEdgeGlobal);
 	}
-	
+
 	after(String dir) throws IOException : writeData(dir) {
-		GraphProfiler.write(dir, Files.getProfilerFilename(Config
-				.get("METRIC_PROFILER")));
+		GraphProfiler.write(dir,
+				Files.getProfilerFilename(Config.get("METRIC_PROFILER")));
 	}
 
+	after(Series s, int run) throws IOException : aggregateDataPerRun(s, run) {
+		String seriesDir = Dir.getRunDataDir(s.getDir(), run);
+		System.out.println("Writing to " + seriesDir);
+		GraphProfiler.writeGlobal(seriesDir,
+				Files.getProfilerFilename(Config.get("METRIC_PROFILER")));
+	}
+
+	after(Series s) throws IOException : aggregateDataOverAllRuns(s) {
+		String seriesDir = s.getDir();
+		System.out.println("Writing to " + seriesDir);
+		GraphProfiler.writeGlobal(seriesDir,
+				Files.getProfilerFilename(Config.get("METRIC_PROFILER")));
+	}
 }
