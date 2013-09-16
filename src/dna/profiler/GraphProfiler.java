@@ -1,10 +1,12 @@
 package dna.profiler;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
 import dna.graph.datastructures.GraphDataStructure;
+import dna.io.Writer;
 import dna.util.Log;
 
 public class GraphProfiler {
@@ -42,11 +44,18 @@ public class GraphProfiler {
 		if (!active)
 			return;
 
+		System.out.println(getOutput());
+	}
+	
+	public static String getOutput() {
+		final String separator = System.getProperty("line.separator");
+		StringBuilder res = new StringBuilder();
 		for (Entry<String, ProfileEntry> entry : calls.entrySet()) {
-			System.out.println("Count type: " + entry.getKey());
-			System.out.println(entry.getValue().toString());
-
+			if ( res.length() > 0 ) res.append(separator);
+			res.append("Count type: " + entry.getKey() + separator);
+			res.append(entry.getValue().toString());
 		}
+		return res.toString();
 	}
 
 	public static void count(String mapKey, ProfilerType p) {
@@ -69,5 +78,12 @@ public class GraphProfiler {
 
 	public static void reset() {
 		calls = new HashMap<>();
+	}
+
+	public static void write(String dir, String filename) throws IOException {
+		Writer w = new Writer(dir, filename);
+		w.writeln(getOutput());
+		w.close();
+
 	}
 }

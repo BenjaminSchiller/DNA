@@ -1,16 +1,21 @@
 package dna.profiler;
 
+import java.io.IOException;
+
 import dna.graph.Graph;
 import dna.graph.datastructures.GraphDataStructure;
 import dna.graph.datastructures.IEdgeListDatastructure;
 import dna.graph.datastructures.INodeListDatastructure;
 import dna.graph.edges.Edge;
 import dna.graph.nodes.Node;
+import dna.io.filesystem.Files;
 import dna.metrics.Metric;
 import dna.profiler.GraphProfiler.ProfilerType;
 import dna.series.SeriesGeneration;
+import dna.series.data.BatchData;
 import dna.updates.Batch;
 import dna.updates.Update;
+import dna.util.Config;
 
 public aspect MetricsProfiler {
 	private static boolean isActive = true;
@@ -44,6 +49,8 @@ public aspect MetricsProfiler {
 	pointcut graphAction() : this(Graph);
 	pointcut nodeAction() : this(Node);
 	
+	pointcut writeData(String dir) : call(* BatchData.write(String)) && args(dir) && if(isActive);
+
 	after() : activate() {
 		isActive = true;
 	}
@@ -140,6 +147,11 @@ public aspect MetricsProfiler {
 
 	after() : edgeRandom() && graphAction() {
 		GraphProfiler.count(currentMetric, ProfilerType.RandomEdgeGlobal);
+	}
+	
+	after(String dir) throws IOException : writeData(dir) {
+		GraphProfiler.write(dir, Files.getProfilerFilename(Config
+				.get("METRIC_PROFILER")));
 	}
 
 }
