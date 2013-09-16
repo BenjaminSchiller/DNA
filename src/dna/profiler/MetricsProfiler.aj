@@ -20,6 +20,7 @@ import dna.util.Config;
 public aspect MetricsProfiler {
 	private static boolean isActive = true;
 	private String currentMetric;
+	public static final String initialAddition = " - initial batch";
 
 	pointcut activate() : execution(* GraphProfiler.activate());
 
@@ -62,7 +63,7 @@ public aspect MetricsProfiler {
 	}
 
 	boolean around(Metric metricObject) : initialMetric(metricObject) {
-		currentMetric = metricObject.getName() + " - initial batch";
+		currentMetric = metricObject.getName() + initialAddition;
 		boolean res = proceed(metricObject);
 		currentMetric = null;
 		return res;
