@@ -9,6 +9,10 @@ import dna.graph.IElement;
  * 
  */
 public abstract class DataStructure implements IDataStructure {
+	public enum AccessType {
+		Add, Contains, Random, Remove, Size
+	}
+	
 	protected Class<? extends IElement> dataType;
 	protected final int defaultSize = 10;
 

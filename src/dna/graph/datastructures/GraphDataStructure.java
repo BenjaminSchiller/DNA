@@ -8,12 +8,15 @@ import java.util.Arrays;
 
 import dna.graph.Graph;
 import dna.graph.IWeighted;
+import dna.graph.datastructures.DataStructure.AccessType;
 import dna.graph.edges.DirectedEdge;
 import dna.graph.edges.Edge;
 import dna.graph.edges.IWeightedEdge;
 import dna.graph.nodes.IWeightedNode;
 import dna.graph.nodes.Node;
 import dna.io.etc.Keywords;
+import dna.profiler.GraphProfiler.ProfilerType;
+import dna.profiler.complexity.ComplexityClass;
 
 /**
  * Container for different types of storages for everything: this holds the
@@ -31,6 +34,10 @@ public class GraphDataStructure {
 	private Class<? extends Edge> edgeType;
 	private Constructor<?> lastWeightedEdgeConstructor = null;
 	private Constructor<?> lastEdgeConstructor = null;
+	
+	private INodeListDatastructure dummyNodeList;
+	private IEdgeListDatastructure dummyGraphEdgeList;
+	private IEdgeListDatastructure dummyNodeEdgeList;
 
 	public GraphDataStructure(
 			Class<? extends INodeListDatastructure> nodeListType,
@@ -141,6 +148,7 @@ public class GraphDataStructure {
 				| NoSuchMethodException | SecurityException e) {
 			e.printStackTrace();
 		}
+		dummyNodeList = res;
 		return res;
 	}
 
@@ -154,6 +162,7 @@ public class GraphDataStructure {
 				| NoSuchMethodException | SecurityException e) {
 			e.printStackTrace();
 		}
+		dummyGraphEdgeList = res;
 		return res;
 	}
 
@@ -167,6 +176,7 @@ public class GraphDataStructure {
 				| NoSuchMethodException | SecurityException e) {
 			e.printStackTrace();
 		}
+		dummyNodeEdgeList = res;
 		return res;
 	}
 
@@ -412,5 +422,53 @@ public class GraphDataStructure {
 
 	public boolean isReadable(IDataStructure list) {
 		return IReadable.class.isAssignableFrom(list.getClass());
+	}
+
+	public ComplexityClass getComplexityClass(ProfilerType p) {
+		if (dummyGraphEdgeList == null) {
+			newGraphEdgeList();
+		}
+		if (dummyNodeEdgeList == null) {
+			newNodeEdgeList();
+		}
+		if (dummyNodeList == null) {
+			newNodeList();
+		}
+
+		switch (p) {
+		case AddEdgeGlobal:
+			return dummyGraphEdgeList.getComplexity(AccessType.Add);
+		case AddEdgeLocal:
+			return dummyNodeEdgeList.getComplexity(AccessType.Add);
+		case AddNodeGlobal:
+		case AddNodeLocal:
+			return dummyNodeList.getComplexity(AccessType.Add);
+		case ContainsEdgeGlobal:
+			return dummyGraphEdgeList.getComplexity(AccessType.Contains);
+		case ContainsEdgeLocal:
+			return dummyNodeEdgeList.getComplexity(AccessType.Contains);
+		case ContainsNodeGlobal:
+		case ContainsNodeLocal:
+			return dummyNodeList.getComplexity(AccessType.Contains);
+		case RandomEdgeGlobal:
+			return dummyGraphEdgeList.getComplexity(AccessType.Random);
+		case RandomNodeGlobal:
+			return dummyNodeList.getComplexity(AccessType.Random);
+		case RemoveEdgeGlobal:
+			return dummyGraphEdgeList.getComplexity(AccessType.Remove);
+		case RemoveEdgeLocal:
+			return dummyNodeEdgeList.getComplexity(AccessType.Remove);
+		case RemoveNodeGlobal:
+		case RemoveNodeLocal:
+			return dummyNodeList.getComplexity(AccessType.Remove);
+		case SizeEdgeGlobal:
+			return dummyGraphEdgeList.getComplexity(AccessType.Size);
+		case SizeEdgeLocal:
+			return dummyNodeEdgeList.getComplexity(AccessType.Size);
+		case SizeNodeGlobal:
+		case SizeNodeLocal:
+			return dummyNodeList.getComplexity(AccessType.Size);
+		}
+		throw new RuntimeException("Access " + p + " missing here");
 	}
 }
