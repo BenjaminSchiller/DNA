@@ -7,6 +7,11 @@ import java.util.Iterator;
 import dna.graph.IElement;
 import dna.graph.edges.Edge;
 import dna.graph.nodes.Node;
+import dna.profiler.complexity.AddedComplexity;
+import dna.profiler.complexity.ComplexityClass;
+import dna.profiler.complexity.LinearComplexity;
+import dna.profiler.complexity.StaticComplexity;
+import dna.profiler.complexity.UnknownComplexity;
 import dna.util.Rand;
 
 /**
@@ -171,4 +176,42 @@ public class DArrayList extends DataStructureReadable implements INodeListDatast
 	public Iterator<IElement> iterator() {
 		return this.list.iterator();
 	}
+	
+
+	@Override
+	public ComplexityClass getComplexity(AccessType access) {
+		switch(access) {
+		case Add:
+			if (Node.class.isAssignableFrom(this.dataType)) {
+				return new AddedComplexity(this.getComplexity(AccessType.Contains), new StaticComplexity());
+			} else if ( Edge.class.isAssignableFrom(this.dataType)) {
+				return new AddedComplexity(this.getComplexity(AccessType.Contains), new StaticComplexity());
+			}
+		case Contains:
+			if ( Node.class.isAssignableFrom(this.dataType) ) {
+				return new LinearComplexity();
+			} else if (Edge.class.isAssignableFrom(this.dataType)) {
+				return new LinearComplexity();
+			}
+		case Random:
+			if ( Node.class.isAssignableFrom(this.dataType) ) {
+				return new StaticComplexity();
+			} else if (Edge.class.isAssignableFrom(this.dataType)) {
+				return new StaticComplexity();
+			}
+		case Remove:
+			if ( Node.class.isAssignableFrom(this.dataType) ) {
+				return new StaticComplexity();
+			} else if (Edge.class.isAssignableFrom(this.dataType)) {
+				return new StaticComplexity();
+			}
+		case Size:
+			if ( Node.class.isAssignableFrom(this.dataType) ) {
+				return new StaticComplexity();
+			} else if (Edge.class.isAssignableFrom(this.dataType)) {
+				return new StaticComplexity();
+			}
+		}
+		return new UnknownComplexity();
+	}	
 }
