@@ -13,6 +13,7 @@ public class GraphProfiler {
 	private static Map<String, ProfileEntry> calls = new HashMap<>();
 	private static Map<String, ProfileEntry> globalCalls = new HashMap<>();
 	private static boolean active = false;
+	private static GraphDataStructure gds;
 	
 	public static enum ProfilerType {
 		AddNodeGlobal, AddNodeLocal, AddEdgeGlobal, AddEdgeLocal,
@@ -30,12 +31,13 @@ public class GraphProfiler {
 		return active;
 	}
 		
-	public static void init(GraphDataStructure gds) {
+	public static void init(GraphDataStructure newGds) {
 		// This is initialization of profiles
 		
 		if ( !active ) return;
 		
-		Log.debug("Created new graph with gds" + gds.getDataStructures());
+		Log.debug("Created new graph with gds" + newGds.getDataStructures());
+		gds = newGds;
 	}
 
 	public static void finish() {
@@ -64,7 +66,7 @@ public class GraphProfiler {
 		
 		ProfileEntry innerMap = calls.get(mapKey);
 		if (innerMap == null) {
-			innerMap = new ProfileEntry();
+			innerMap = new ProfileEntry(gds);
 			calls.put(mapKey, innerMap);
 		}
 		innerMap.increase(p);
@@ -74,7 +76,14 @@ public class GraphProfiler {
 		ProfileEntry innerMap = calls.get(mapKey);
 		if (innerMap == null)
 			return 0;
-		return innerMap.get(p);
+		return innerMap.get(p).getComplexityCounter();
+	}
+	
+	public static int getSummedComplexity(String mapKey) {
+		ProfileEntry innerMap = calls.get(mapKey);
+		if (innerMap == null)
+			return 0;
+		return innerMap.summedComplexity();
 	}
 
 	public static void reset() {
@@ -85,7 +94,7 @@ public class GraphProfiler {
 	private static void integrateCallsToGlobal() {
 		for (Entry<String, ProfileEntry> entry : calls.entrySet()) {
 			if ( !globalCalls.containsKey(entry.getKey())) {
-				globalCalls.put(entry.getKey(), new ProfileEntry());
+				globalCalls.put(entry.getKey(), new ProfileEntry(gds));
 			}
 			
 			globalCalls.get(entry.getKey()).mergeWith(entry.getValue());

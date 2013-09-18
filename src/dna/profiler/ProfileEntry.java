@@ -4,24 +4,28 @@ import java.util.Collections;
 import java.util.EnumMap;
 import java.util.Map;
 
+import dna.graph.datastructures.GraphDataStructure;
 import dna.profiler.GraphProfiler.ProfilerType;
+import dna.profiler.complexity.Complexity;
 
 public class ProfileEntry {
-	private Map<ProfilerType, Integer> list;
+	private Map<ProfilerType, Complexity> list;
+	private GraphDataStructure gds;
 
-	public ProfileEntry() {
-		list = Collections.synchronizedMap(new EnumMap<ProfilerType, Integer>(ProfilerType.class));
+	public ProfileEntry( GraphDataStructure gds) {
+		list = Collections.synchronizedMap(new EnumMap<ProfilerType, Complexity>(ProfilerType.class));
+		this.gds = gds;
 		for ( ProfilerType p: ProfilerType.values()) {
-			list.put(p, 0);
+			list.put(p, new Complexity(0, gds.getComplexityClass(p)));
 		}
 	}	
 	
-	public int get(ProfilerType p) {
+	public Complexity get(ProfilerType p) {
 		return list.get(p);
 	}
 	
 	public void increase(ProfilerType p, int i) {
-		list.put(p, list.get(p) + i);
+		list.get(p).increaseBy(i);
 	}
 	
 	public void increase(ProfilerType p) {
@@ -39,7 +43,15 @@ public class ProfileEntry {
 
 	public void mergeWith(ProfileEntry value) {
 		for (ProfilerType p: ProfilerType.values()) {
-			increase(p, value.get(p));
+			increase(p, value.get(p).getComplexityCounter());
 		}
+	}
+
+	public int summedComplexity() {
+		int res = 0;
+		for ( ProfilerType p: ProfilerType.values()) {
+			res += list.get(p).getComplexityCounter();
+		}
+		return res;
 	}
 }

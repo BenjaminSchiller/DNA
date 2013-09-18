@@ -1,6 +1,8 @@
 package dna.graph.datastructures;
 
 import dna.graph.IElement;
+import dna.graph.datastructures.DataStructure.AccessType;
+import dna.profiler.complexity.ComplexityClass;
 
 /**
  * Interface to define common methods on data structures
@@ -70,4 +72,12 @@ public interface IDataStructure extends Iterable<IElement> {
 	 * Print a string representation of this list
 	 */
 	public void printList();
+	
+	/**
+	 * Get the complexity class for a specific access type
+	 * @param access
+	 * @return
+	 */
+	public ComplexityClass getComplexity(AccessType access);
+
 }
