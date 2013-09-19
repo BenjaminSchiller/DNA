@@ -11,6 +11,7 @@ import org.junit.runners.Suite;
    EdgeSupertypeTest.class,
    BatchTest.class,
    ProfilerTest.class,
+   ComplexityTests.class,
    SingleTests.class
 })
 public class CompleteTestSuite {

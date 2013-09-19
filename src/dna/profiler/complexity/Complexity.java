@@ -1,5 +1,7 @@
 package dna.profiler.complexity;
 
+import java.util.EnumMap;
+
 public class Complexity {
 
 	public enum ComplexityType {
@@ -24,6 +26,20 @@ public class Complexity {
 
 	public int getComplexityCounter() {
 		return counter;
+	}
+	
+	public EnumMap<ComplexityType, Integer> getComplexityMap() {
+		EnumMap<ComplexityType, Integer> res = new EnumMap<>(
+				ComplexityType.class);
+		res.put(this.complexityType, this.counter);
+		return res;
+	}
+	
+	public EnumMap<ComplexityType, Integer> getWeightedComplexityMap() {
+		EnumMap<ComplexityType, Integer> res = new EnumMap<>(
+				ComplexityType.class);
+		res.put(this.complexityType, this.counter * this.factor);
+		return res;
 	}
 	
 	public String getComplexity() {
