@@ -16,7 +16,7 @@ import dna.graph.nodes.IWeightedNode;
 import dna.graph.nodes.Node;
 import dna.io.etc.Keywords;
 import dna.profiler.GraphProfiler.ProfilerType;
-import dna.profiler.complexity.ComplexityClass;
+import dna.profiler.complexity.Complexity;
 
 /**
  * Container for different types of storages for everything: this holds the
@@ -424,7 +424,7 @@ public class GraphDataStructure {
 		return IReadable.class.isAssignableFrom(list.getClass());
 	}
 
-	public ComplexityClass getComplexityClass(ProfilerType p) {
+	public Complexity getComplexityClass(ProfilerType p) {
 		if (dummyGraphEdgeList == null) {
 			newGraphEdgeList();
 		}
