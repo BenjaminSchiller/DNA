@@ -2,14 +2,18 @@ package dna.profiler.complexity;
 
 public class Complexity {
 
+	public enum ComplexityType {
+		Linear, Static, Unknown
+	}
+		
 	private int counter;
 	private int factor;
-	private ComplexityClass complexityType;
+	private ComplexityType complexityType;
 	
 	public Complexity() {
 	}
 
-	public Complexity(int factor, ComplexityClass complexityType) {
+	public Complexity(int factor, ComplexityType complexityType) {
 		this.factor = factor;
 		this.complexityType = complexityType;
 	}
