@@ -9,9 +9,7 @@ import dna.graph.edges.Edge;
 import dna.graph.nodes.Node;
 import dna.profiler.complexity.AddedComplexity;
 import dna.profiler.complexity.Complexity;
-import dna.profiler.complexity.LinearComplexity;
-import dna.profiler.complexity.StaticComplexity;
-import dna.profiler.complexity.UnknownComplexity;
+import dna.profiler.complexity.Complexity.ComplexityType;
 import dna.util.Log;
 import dna.util.Rand;
 
@@ -281,27 +279,27 @@ public class DArray extends DataStructureReadable implements
 		switch(access) {
 		case Add:
 			if (Node.class.isAssignableFrom(this.dataType)) {
-				return new AddedComplexity(new Complexity(1, new StaticComplexity()), this.getComplexity(AccessType.Contains));
+				return new AddedComplexity(new Complexity(1, ComplexityType.Static), this.getComplexity(AccessType.Contains));
 			} else if ( Edge.class.isAssignableFrom(this.dataType)) {
-				return new AddedComplexity(new Complexity(1, new LinearComplexity()), this.getComplexity(AccessType.Contains));
+				return new AddedComplexity(new Complexity(1, ComplexityType.Linear), this.getComplexity(AccessType.Contains));
 			}
 		case Contains:
 			if ( Node.class.isAssignableFrom(this.dataType) ) {
-				return new Complexity(1, new StaticComplexity());
+				return new Complexity(1, ComplexityType.Static);
 			} else if (Edge.class.isAssignableFrom(this.dataType)) {
-				return new Complexity(1, new LinearComplexity());
+				return new Complexity(1, ComplexityType.Linear);
 			}
 		case Random:
-			return new Complexity(1, new StaticComplexity());
+			return new Complexity(1, ComplexityType.Static);
 		case Remove:
 			if ( Node.class.isAssignableFrom(this.dataType) ) {
-				return new Complexity(1, new StaticComplexity());
+				return new Complexity(1, ComplexityType.Static);
 			} else if (Edge.class.isAssignableFrom(this.dataType)) {
-				return new Complexity(1, new LinearComplexity());
+				return new Complexity(1, ComplexityType.Linear);
 			}
 		case Size:
-			return new Complexity(1, new StaticComplexity());
+			return new Complexity(1, ComplexityType.Static);
 		}
-		return new UnknownComplexity();
+		return new Complexity(1, ComplexityType.Unknown);
 	}
 }

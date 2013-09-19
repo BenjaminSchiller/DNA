@@ -1,19 +1,18 @@
 package dna.profiler.complexity;
 
-import dna.profiler.complexity.ComplexityClass;
 
 /**
  * Complexity that is combined of two other complexities
  * @author Nico
  *
  */
-public class AddedComplexity extends ComplexityClass {
+public class AddedComplexity extends Complexity {
 
-	private ComplexityClass first;
-	private ComplexityClass second;
+	private Complexity first;
+	private Complexity second;
 
-	public AddedComplexity(ComplexityClass first,
-			ComplexityClass second) {
+	public AddedComplexity(Complexity first,
+			Complexity second) {
 		this.first = first;
 		this.second = second;
 	}
