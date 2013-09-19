@@ -3,10 +3,14 @@ package dna.profiler.complexity;
 public class Complexity {
 
 	private int counter;
+	private int factor;
 	private ComplexityClass complexityType;
+	
+	public Complexity() {
+	}
 
-	public Complexity(int count, ComplexityClass complexityType) {
-		this.counter = count;
+	public Complexity(int factor, ComplexityClass complexityType) {
+		this.factor = factor;
 		this.complexityType = complexityType;
 	}
 
@@ -19,7 +23,7 @@ public class Complexity {
 	}
 	
 	public String getComplexity() {
-		return counter + " of type " + complexityType.getClass().getSimpleName();
+		return counter + " of type " + factor + "*" + complexityType.getClass().getSimpleName();
 	}
 
 	public String toString() {

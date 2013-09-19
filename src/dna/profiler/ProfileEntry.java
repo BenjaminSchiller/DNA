@@ -16,7 +16,7 @@ public class ProfileEntry {
 		list = Collections.synchronizedMap(new EnumMap<ProfilerType, Complexity>(ProfilerType.class));
 		this.gds = gds;
 		for ( ProfilerType p: ProfilerType.values()) {
-			list.put(p, new Complexity(0, gds.getComplexityClass(p)));
+			list.put(p, gds.getComplexityClass(p));
 		}
 	}	
 	

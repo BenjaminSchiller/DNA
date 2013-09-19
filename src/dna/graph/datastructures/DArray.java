@@ -8,7 +8,7 @@ import dna.graph.IElement;
 import dna.graph.edges.Edge;
 import dna.graph.nodes.Node;
 import dna.profiler.complexity.AddedComplexity;
-import dna.profiler.complexity.ComplexityClass;
+import dna.profiler.complexity.Complexity;
 import dna.profiler.complexity.LinearComplexity;
 import dna.profiler.complexity.StaticComplexity;
 import dna.profiler.complexity.UnknownComplexity;
@@ -277,30 +277,30 @@ public class DArray extends DataStructureReadable implements
 	}
 
 	@Override
-	public ComplexityClass getComplexity(AccessType access) {
+	public Complexity getComplexity(AccessType access) {
 		switch(access) {
 		case Add:
 			if (Node.class.isAssignableFrom(this.dataType)) {
-				return new AddedComplexity(new StaticComplexity(), this.getComplexity(AccessType.Contains));
+				return new AddedComplexity(new Complexity(1, new StaticComplexity()), this.getComplexity(AccessType.Contains));
 			} else if ( Edge.class.isAssignableFrom(this.dataType)) {
-				return new AddedComplexity(new LinearComplexity(), this.getComplexity(AccessType.Contains));
+				return new AddedComplexity(new Complexity(1, new LinearComplexity()), this.getComplexity(AccessType.Contains));
 			}
 		case Contains:
 			if ( Node.class.isAssignableFrom(this.dataType) ) {
-				return new StaticComplexity();
+				return new Complexity(1, new StaticComplexity());
 			} else if (Edge.class.isAssignableFrom(this.dataType)) {
-				return new LinearComplexity();
+				return new Complexity(1, new LinearComplexity());
 			}
 		case Random:
-			return new StaticComplexity();
+			return new Complexity(1, new StaticComplexity());
 		case Remove:
 			if ( Node.class.isAssignableFrom(this.dataType) ) {
-				return new StaticComplexity();
+				return new Complexity(1, new StaticComplexity());
 			} else if (Edge.class.isAssignableFrom(this.dataType)) {
-				return new LinearComplexity();
+				return new Complexity(1, new LinearComplexity());
 			}
 		case Size:
-			return new StaticComplexity();
+			return new Complexity(1, new StaticComplexity());
 		}
 		return new UnknownComplexity();
 	}

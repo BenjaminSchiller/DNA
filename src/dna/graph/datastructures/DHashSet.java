@@ -7,7 +7,7 @@ import java.util.Iterator;
 import dna.graph.IElement;
 import dna.graph.edges.Edge;
 import dna.graph.nodes.Node;
-import dna.profiler.complexity.ComplexityClass;
+import dna.profiler.complexity.Complexity;
 import dna.profiler.complexity.LinearComplexity;
 import dna.profiler.complexity.StaticComplexity;
 import dna.profiler.complexity.UnknownComplexity;
@@ -171,37 +171,37 @@ public class DHashSet extends DataStructureReadable implements INodeListDatastru
 		return this.maxNodeIndex;
 	}
 	@Override
-	public ComplexityClass getComplexity(AccessType access) {
+	public Complexity getComplexity(AccessType access) {
 		switch(access) {
 		case Add:
 			if (Node.class.isAssignableFrom(this.dataType)) {
-				return new StaticComplexity();
+				return new Complexity(1, new StaticComplexity());
 			} else if ( Edge.class.isAssignableFrom(this.dataType)) {
-				return new StaticComplexity();
+				return new Complexity(1, new StaticComplexity());
 			}
 		case Contains:
 			if ( Node.class.isAssignableFrom(this.dataType) ) {
-				return new StaticComplexity();
+				return new Complexity(1, new StaticComplexity());
 			} else if (Edge.class.isAssignableFrom(this.dataType)) {
-				return new StaticComplexity();
+				return new Complexity(1, new StaticComplexity());
 			}
 		case Random:
 			if ( Node.class.isAssignableFrom(this.dataType) ) {
-				return new LinearComplexity();
+				return new Complexity(1, new LinearComplexity());
 			} else if (Edge.class.isAssignableFrom(this.dataType)) {
-				return new LinearComplexity();
+				return new Complexity(1, new LinearComplexity());
 			}
 		case Remove:
 			if ( Node.class.isAssignableFrom(this.dataType) ) {
-				return new StaticComplexity();
+				return new Complexity(1, new StaticComplexity());
 			} else if (Edge.class.isAssignableFrom(this.dataType)) {
-				return new StaticComplexity();
+				return new Complexity(1, new StaticComplexity());
 			}
 		case Size:
 			if ( Node.class.isAssignableFrom(this.dataType) ) {
-				return new StaticComplexity();
+				return new Complexity(1, new StaticComplexity());
 			} else if (Edge.class.isAssignableFrom(this.dataType)) {
-				return new StaticComplexity();
+				return new Complexity(1, new StaticComplexity());
 			}
 		}
 		return new UnknownComplexity();
