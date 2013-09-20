@@ -26,6 +26,11 @@ public class AddedComplexity extends Complexity {
 	}
 	
 	@Override
+	public String getComplexity() {
+		return this.first.getComplexity() + " + " + this.second.getComplexity();
+	}
+	
+	@Override
 	public EnumMap<ComplexityType, Integer> getComplexityMap() {
 		EnumMap<ComplexityType, Integer> res = first.getComplexityMap();
 		EnumMap<ComplexityType, Integer> resSecond = second.getComplexityMap();

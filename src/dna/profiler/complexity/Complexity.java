@@ -43,7 +43,7 @@ public class Complexity {
 	}
 	
 	public String getComplexity() {
-		return counter + " of type " + factor + "*" + complexityType.getClass().getSimpleName();
+		return counter + " calls of type " + factor + "*" + complexityType;
 	}
 
 	public String toString() {
