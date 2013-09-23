@@ -61,13 +61,12 @@ public class ClosedTriangleClusteringCoefficientUpdate extends
 	private boolean applyBeforeUpdateDirected(Update u) {
 		if (u instanceof NodeAddition) {
 			Node n = ((NodeAddition) u).getNode();
-			this.localCC = ArrayUtils.set(this.localCC, n.getIndex(), 0,
-					Double.NaN);
+			this.localCC.setValue(n.getIndex(), 0);
 			this.nodePotentialCount = ArrayUtils.set(this.nodePotentialCount,
 					n.getIndex(), 0, Long.MIN_VALUE);
 			this.nodeTriangleCount = ArrayUtils.set(this.nodeTriangleCount,
 					n.getIndex(), 0, Long.MIN_VALUE);
-			this.averageCC = ArrayUtils.avgIgnoreNaN(this.localCC);
+			this.averageCC = ArrayUtils.avgIgnoreNaN(this.localCC.getValues());
 		} else if (u instanceof NodeRemoval) {
 
 			DirectedNode n = (DirectedNode) ((NodeRemoval) u).getNode();
@@ -96,16 +95,16 @@ public class ClosedTriangleClusteringCoefficientUpdate extends
 			this.removePotentials(n,
 					n.getNeighborCount() * (n.getNeighborCount() - 1) / 2);
 
-			this.localCC[n.getIndex()] = Double.NaN;
+			this.localCC.setValue(n.getIndex(), NodeValueList.emptyValue);
 			this.nodePotentialCount[n.getIndex()] = Long.MIN_VALUE;
 			this.nodeTriangleCount[n.getIndex()] = Long.MIN_VALUE;
-			this.localCC = ArrayUtils.truncateNaN(this.localCC);
+			this.localCC.truncate();
 			this.nodePotentialCount = ArrayUtils.truncate(
 					this.nodePotentialCount, Long.MIN_VALUE);
 			this.nodeTriangleCount = ArrayUtils.truncate(
 					this.nodeTriangleCount, Long.MIN_VALUE);
 
-			this.averageCC = ArrayUtils.avgIgnoreNaN(this.localCC);
+			this.averageCC = ArrayUtils.avgIgnoreNaN(this.localCC.getValues());
 
 		} else if (u instanceof EdgeAddition) {
 			DirectedEdge e = (DirectedEdge) ((EdgeAddition) u).getEdge();
@@ -155,8 +154,7 @@ public class ClosedTriangleClusteringCoefficientUpdate extends
 	private boolean applyBeforeUpdateUndirected(Update u) {
 		if (u instanceof NodeAddition) {
 			Node n = ((NodeAddition) u).getNode();
-			this.localCC = ArrayUtils.set(this.localCC, n.getIndex(), 0,
-					Double.NaN);
+			this.localCC.setValue(n.getIndex(), 0);
 			this.nodePotentialCount = ArrayUtils.set(this.nodePotentialCount,
 					n.getIndex(), 0, Long.MIN_VALUE);
 			this.nodeTriangleCount = ArrayUtils.set(this.nodeTriangleCount,
@@ -186,10 +184,10 @@ public class ClosedTriangleClusteringCoefficientUpdate extends
 
 			this.removePotentials(n, n.getDegree() * (n.getDegree() - 1) / 2);
 
-			this.localCC[n.getIndex()] = Double.NaN;
+			this.localCC.setValue(n.getIndex(), NodeValueList.emptyValue);
 			this.nodePotentialCount[n.getIndex()] = Long.MIN_VALUE;
 			this.nodeTriangleCount[n.getIndex()] = Long.MIN_VALUE;
-			this.localCC = ArrayUtils.truncateNaN(this.localCC);
+			this.localCC.truncate();
 			this.nodePotentialCount = ArrayUtils.truncate(
 					this.nodePotentialCount, Long.MIN_VALUE);
 			this.nodeTriangleCount = ArrayUtils.truncate(
@@ -235,12 +233,6 @@ public class ClosedTriangleClusteringCoefficientUpdate extends
 			this.removePotentials(b, b.getDegree());
 		}
 		return true;
-	}
-
-	@Override
-	protected NodeValueList[] getNodeValueLists() {
-		// TODO Auto-generated method stub
-		return null;
 	}
 
 }

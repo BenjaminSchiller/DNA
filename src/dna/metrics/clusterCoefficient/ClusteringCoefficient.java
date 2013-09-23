@@ -3,6 +3,7 @@ package dna.metrics.clusterCoefficient;
 import dna.graph.nodes.Node;
 import dna.metrics.Metric;
 import dna.series.data.Distribution;
+import dna.series.data.NodeValueList;
 import dna.series.data.Value;
 import dna.util.ArrayUtils;
 import dna.util.DataUtils;
@@ -18,8 +19,7 @@ public abstract class ClusteringCoefficient extends Metric {
 
 	protected double averageCC;
 
-	// TODO need a datastructure to store localCC (!= Distribution)
-	protected double[] localCC;
+	protected NodeValueList localCC;
 
 	protected long triangleCount;
 
@@ -33,7 +33,8 @@ public abstract class ClusteringCoefficient extends Metric {
 	protected void init_() {
 		this.globalCC = 0;
 		this.averageCC = 0;
-		this.localCC = ArrayUtils.init(g.getMaxNodeIndex() + 1, Double.NaN);
+		this.localCC = new NodeValueList("localCC",
+				this.g.getMaxNodeIndex() + 1);
 		this.triangleCount = 0;
 		this.potentialCount = 0;
 		this.nodeTriangleCount = ArrayUtils.init(g.getMaxNodeIndex() + 1,
@@ -66,6 +67,11 @@ public abstract class ClusteringCoefficient extends Metric {
 	}
 
 	@Override
+	protected NodeValueList[] getNodeValueLists() {
+		return new NodeValueList[] { this.localCC };
+	}
+
+	@Override
 	public boolean equals(Metric m) {
 		if (m == null || !(m instanceof ClusteringCoefficient)) {
 			return false;
@@ -74,7 +80,8 @@ public abstract class ClusteringCoefficient extends Metric {
 		boolean success = true;
 		success &= DataUtils.equals(this.globalCC, cc.globalCC, "globalCC");
 		success &= DataUtils.equals(this.averageCC, cc.averageCC, "averageCC");
-		success &= ArrayUtils.equals(this.localCC, cc.localCC, "localCC");
+		success &= ArrayUtils.equals(this.localCC.getValues(),
+				cc.localCC.getValues(), "localCC");
 		success &= DataUtils.equals(this.triangleCount, cc.triangleCount,
 				"triangleCount");
 		success &= DataUtils.equals(this.potentialCount, cc.potentialCount,
@@ -112,10 +119,10 @@ public abstract class ClusteringCoefficient extends Metric {
 
 	protected void updateNode(int index) {
 		if (this.nodePotentialCount[index] == 0) {
-			this.localCC[index] = 0;
+			this.localCC.setValue(index, 0);
 		} else {
-			this.localCC[index] = (double) this.nodeTriangleCount[index]
-					/ this.nodePotentialCount[index];
+			this.localCC.setValue(index, (double) this.nodeTriangleCount[index]
+					/ this.nodePotentialCount[index]);
 		}
 		if (this.potentialCount == 0) {
 			this.globalCC = 0;
@@ -123,7 +130,7 @@ public abstract class ClusteringCoefficient extends Metric {
 		} else {
 			this.globalCC = (double) this.triangleCount
 					/ (double) this.potentialCount;
-			this.averageCC = ArrayUtils.avgIgnoreNaN(this.localCC);
+			this.averageCC = ArrayUtils.avgIgnoreNaN(this.localCC.getValues());
 		}
 	}
 

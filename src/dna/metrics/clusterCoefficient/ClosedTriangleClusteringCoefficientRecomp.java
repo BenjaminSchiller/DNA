@@ -48,10 +48,4 @@ public class ClosedTriangleClusteringCoefficientRecomp extends
 		return false;
 	}
 
-	@Override
-	protected NodeValueList[] getNodeValueLists() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
 }

@@ -7,6 +7,7 @@ import com.sun.media.sound.InvalidFormatException;
 
 import dna.io.Reader;
 import dna.io.Writer;
+import dna.util.ArrayUtils;
 import dna.util.Config;
 import dna.util.Log;
 
@@ -24,6 +25,8 @@ public class NodeValueList extends Data {
 	// member variables
 	private double[] values;
 
+	public static final double emptyValue = Double.NaN;
+
 	// constructors
 	public NodeValueList(String name, int size) {
 		super(name);
@@ -38,6 +41,15 @@ public class NodeValueList extends Data {
 	// get methods
 	public double[] getValues() {
 		return this.values;
+	}
+
+	public void setValue(int index, double value) {
+		this.values = ArrayUtils.set(this.values, index, value,
+				NodeValueList.emptyValue);
+	}
+
+	public void truncate() {
+		this.values = ArrayUtils.truncateNaN(this.values);
 	}
 
 	public double getValue(int index) {
@@ -66,6 +78,7 @@ public class NodeValueList extends Data {
 	 *            NodeValueList.
 	 */
 	public void write(String dir, String filename) throws IOException {
+		Log.debug("WRITING NodeValueList '" + filename + "' to " + dir);
 		if (this.values == null) {
 			throw new NullPointerException("no values for nodevaluelist \""
 					+ super.getName() + "\" set to be written to " + dir);

@@ -200,9 +200,9 @@ public abstract class Metric extends ParameterList {
 	 * @return all data computed by this metric
 	 */
 	public MetricData getData() {
-		NodeValueList[] asd = new NodeValueList[0];
 		return new MetricData(this.getName(), this.getMetricType(),
-				this.getValues(), this.getDistributions(), asd);
+				this.getValues(), this.getDistributions(),
+				this.getNodeValueLists());
 	}
 
 	/**

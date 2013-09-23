@@ -61,11 +61,14 @@ public class OpenTriangleClusteringCoefficientRecomp extends
 			this.triangleCount += this.nodeTriangleCount[n.getIndex()];
 			this.potentialCount += this.nodePotentialCount[n.getIndex()];
 			if (this.nodePotentialCount[n.getIndex()] == 0) {
-				this.localCC[n.getIndex()] = 0;
+				this.localCC.setValue(n.getIndex(), 0);
 			} else {
-				this.localCC[n.getIndex()] = (double) this.nodeTriangleCount[n
-						.getIndex()]
-						/ (double) this.nodePotentialCount[n.getIndex()];
+				this.localCC
+						.setValue(
+								n.getIndex(),
+								(double) this.nodeTriangleCount[n.getIndex()]
+										/ (double) this.nodePotentialCount[n
+												.getIndex()]);
 			}
 		}
 
@@ -75,15 +78,9 @@ public class OpenTriangleClusteringCoefficientRecomp extends
 			this.globalCC = (double) this.triangleCount
 					/ (double) this.potentialCount;
 		}
-		this.averageCC = ArrayUtils.avgIgnoreNaN(this.localCC);
+		this.averageCC = ArrayUtils.avgIgnoreNaN(this.localCC.getValues());
 
 		return true;
-	}
-
-	@Override
-	protected NodeValueList[] getNodeValueLists() {
-		// TODO Auto-generated method stub
-		return null;
 	}
 
 }

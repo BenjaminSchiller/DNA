@@ -61,7 +61,7 @@ public abstract class ClosedTriangleClusteringCoefficient extends
 		}
 
 		this.update();
-		this.averageCC = ArrayUtils.avgIgnoreNaN(this.localCC);
+		this.averageCC = ArrayUtils.avgIgnoreNaN(this.localCC.getValues());
 
 		return true;
 	}
@@ -101,10 +101,10 @@ public abstract class ClosedTriangleClusteringCoefficient extends
 		this.triangleCount += this.nodeTriangleCount[index];
 		this.potentialCount += this.nodePotentialCount[index];
 		if (this.nodePotentialCount[index] == 0) {
-			this.localCC[index] = 0;
+			this.localCC.setValue(index, 0);
 		} else {
-			this.localCC[index] = (double) this.nodeTriangleCount[index]
-					/ (double) this.nodePotentialCount[index];
+			this.localCC.setValue(index, (double) this.nodeTriangleCount[index]
+					/ (double) this.nodePotentialCount[index]);
 		}
 	}
 
@@ -115,7 +115,7 @@ public abstract class ClosedTriangleClusteringCoefficient extends
 			this.globalCC = (double) this.triangleCount
 					/ (double) this.potentialCount;
 		}
-		this.averageCC = ArrayUtils.avgIgnoreNaN(this.localCC);
+		this.averageCC = ArrayUtils.avgIgnoreNaN(this.localCC.getValues());
 	}
 
 	@Override

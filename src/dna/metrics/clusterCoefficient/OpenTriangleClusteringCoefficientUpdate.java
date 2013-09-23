@@ -89,13 +89,12 @@ public class OpenTriangleClusteringCoefficientUpdate extends
 	public boolean applyAfterUpdate(Update u) {
 		if (u instanceof NodeAddition) {
 			Node n = ((NodeAddition) u).getNode();
-			this.localCC = ArrayUtils.set(this.localCC, n.getIndex(), 0,
-					Double.NaN);
+			this.localCC.setValue(n.getIndex(), 0);
 			this.nodePotentialCount = ArrayUtils.set(this.nodePotentialCount,
 					n.getIndex(), 0, Long.MIN_VALUE);
 			this.nodeTriangleCount = ArrayUtils.set(this.nodeTriangleCount,
 					n.getIndex(), 0, Long.MIN_VALUE);
-			this.averageCC = ArrayUtils.avgIgnoreNaN(this.localCC);
+			this.averageCC = ArrayUtils.avgIgnoreNaN(this.localCC.getValues());
 		} else if (u instanceof NodeRemoval) {
 
 			DirectedNode a = (DirectedNode) ((NodeRemoval) u).getNode();
@@ -138,16 +137,16 @@ public class OpenTriangleClusteringCoefficientUpdate extends
 				this.removePotentials(b, b.getNeighborCount() * 2);
 			}
 
-			this.localCC[a.getIndex()] = Double.NaN;
+			this.localCC.setValue(a.getIndex(), NodeValueList.emptyValue);
 			this.nodePotentialCount[a.getIndex()] = Long.MIN_VALUE;
 			this.nodeTriangleCount[a.getIndex()] = Long.MIN_VALUE;
-			this.localCC = ArrayUtils.truncateNaN(this.localCC);
+			this.localCC.truncate();
 			this.nodePotentialCount = ArrayUtils.truncate(
 					this.nodePotentialCount, Long.MIN_VALUE);
 			this.nodeTriangleCount = ArrayUtils.truncate(
 					this.nodeTriangleCount, Long.MIN_VALUE);
 
-			this.averageCC = ArrayUtils.avgIgnoreNaN(this.localCC);
+			this.averageCC = ArrayUtils.avgIgnoreNaN(this.localCC.getValues());
 
 		} else if (u instanceof EdgeAddition) {
 			DirectedEdge e = (DirectedEdge) ((EdgeAddition) u).getEdge();
@@ -226,11 +225,14 @@ public class OpenTriangleClusteringCoefficientUpdate extends
 			this.triangleCount += this.nodeTriangleCount[n.getIndex()];
 			this.potentialCount += this.nodePotentialCount[n.getIndex()];
 			if (this.nodePotentialCount[n.getIndex()] == 0) {
-				this.localCC[n.getIndex()] = 0;
+				this.localCC.setValue(n.getIndex(), 0);
 			} else {
-				this.localCC[n.getIndex()] = (double) this.nodeTriangleCount[n
-						.getIndex()]
-						/ (double) this.nodePotentialCount[n.getIndex()];
+				this.localCC
+						.setValue(
+								n.getIndex(),
+								(double) this.nodeTriangleCount[n.getIndex()]
+										/ (double) this.nodePotentialCount[n
+												.getIndex()]);
 			}
 		}
 
@@ -240,15 +242,9 @@ public class OpenTriangleClusteringCoefficientUpdate extends
 			this.globalCC = (double) this.triangleCount
 					/ (double) this.potentialCount;
 		}
-		this.averageCC = ArrayUtils.avg(this.localCC);
+		this.averageCC = ArrayUtils.avg(this.localCC.getValues());
 
 		return true;
-	}
-
-	@Override
-	protected NodeValueList[] getNodeValueLists() {
-		// TODO Auto-generated method stub
-		return null;
 	}
 
 }
