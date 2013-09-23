@@ -8,6 +8,7 @@ import dna.graph.IElement;
 import dna.graph.edges.Edge;
 import dna.graph.nodes.Node;
 import dna.profiler.complexity.Complexity;
+import dna.profiler.complexity.Complexity.ComplexityBase;
 import dna.profiler.complexity.Complexity.ComplexityType;
 import dna.util.Rand;
 
@@ -168,39 +169,39 @@ public class DHashSet extends DataStructureReadable implements INodeListDatastru
 		return this.maxNodeIndex;
 	}
 	@Override
-	public Complexity getComplexity(AccessType access) {
+	public Complexity getComplexity(AccessType access, ComplexityBase base) {
 		switch(access) {
 		case Add:
 			if (Node.class.isAssignableFrom(this.dataType)) {
-				return new Complexity(1, ComplexityType.Static);
+				return new Complexity(1, ComplexityType.Static, base);
 			} else if ( Edge.class.isAssignableFrom(this.dataType)) {
-				return new Complexity(1, ComplexityType.Static);
+				return new Complexity(1, ComplexityType.Static, base);
 			}
 		case Contains:
 			if ( Node.class.isAssignableFrom(this.dataType) ) {
-				return new Complexity(1, ComplexityType.Static);
+				return new Complexity(1, ComplexityType.Static, base);
 			} else if (Edge.class.isAssignableFrom(this.dataType)) {
-				return new Complexity(1, ComplexityType.Static);
+				return new Complexity(1, ComplexityType.Static, base);
 			}
 		case Random:
 			if ( Node.class.isAssignableFrom(this.dataType) ) {
-				return new Complexity(1, ComplexityType.Linear);
+				return new Complexity(1, ComplexityType.Linear, base);
 			} else if (Edge.class.isAssignableFrom(this.dataType)) {
-				return new Complexity(1, ComplexityType.Linear);
+				return new Complexity(1, ComplexityType.Linear, base);
 			}
 		case Remove:
 			if ( Node.class.isAssignableFrom(this.dataType) ) {
-				return new Complexity(1, ComplexityType.Static);
+				return new Complexity(1, ComplexityType.Static, base);
 			} else if (Edge.class.isAssignableFrom(this.dataType)) {
-				return new Complexity(1, ComplexityType.Static);
+				return new Complexity(1, ComplexityType.Static, base);
 			}
 		case Size:
 			if ( Node.class.isAssignableFrom(this.dataType) ) {
-				return new Complexity(1, ComplexityType.Static);
+				return new Complexity(1, ComplexityType.Static, base);
 			} else if (Edge.class.isAssignableFrom(this.dataType)) {
-				return new Complexity(1, ComplexityType.Static);
+				return new Complexity(1, ComplexityType.Static, base);
 			}
 		}
-		return new Complexity(1, ComplexityType.Unknown);
+		return new Complexity(1, ComplexityType.Unknown, base);
 	}
 }

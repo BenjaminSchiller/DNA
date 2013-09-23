@@ -13,8 +13,8 @@ import dna.profiler.complexity.Complexity.ComplexityType;
 public class ComplexityTests {
 	@Test
 	public void simpleAdditionOfSameKind() {
-		Complexity c1 = new Complexity(1, ComplexityType.Static);
-		Complexity c2 = new Complexity(1, ComplexityType.Static);
+		Complexity c1 = new Complexity(1, ComplexityType.Static, null);
+		Complexity c2 = new Complexity(1, ComplexityType.Static, null);
 		
 		c1.increaseBy(1);
 		c2.increaseBy(1);
@@ -31,8 +31,8 @@ public class ComplexityTests {
 	
 	@Test
 	public void simpleAdditionOfSameKindWithDifferentFactor() {
-		Complexity c1 = new Complexity(1, ComplexityType.Static);
-		Complexity c2 = new Complexity(3, ComplexityType.Static);
+		Complexity c1 = new Complexity(1, ComplexityType.Static, null);
+		Complexity c2 = new Complexity(3, ComplexityType.Static, null);
 		
 		c1.increaseBy(2);
 		c2.increaseBy(4);
@@ -54,8 +54,8 @@ public class ComplexityTests {
 	
 	@Test
 	public void nestedAdditionWithDifferentFactor() {
-		Complexity c1 = new Complexity(1, ComplexityType.Static);
-		Complexity c2 = new Complexity(3, ComplexityType.Static);
+		Complexity c1 = new Complexity(1, ComplexityType.Static, null);
+		Complexity c2 = new Complexity(3, ComplexityType.Static, null);
 		
 		c1.increaseBy(2);
 		c2.increaseBy(4);

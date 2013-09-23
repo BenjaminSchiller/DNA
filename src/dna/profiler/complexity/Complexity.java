@@ -7,17 +7,23 @@ public class Complexity {
 	public enum ComplexityType {
 		Linear, Static, Unknown
 	}
+	
+	public enum ComplexityBase {
+		NodeSize, EdgeSize, Degree
+	}
 		
 	private int counter;
 	private int factor;
 	private ComplexityType complexityType;
+	private ComplexityBase complexityBase;
 	
 	public Complexity() {
 	}
 
-	public Complexity(int factor, ComplexityType complexityType) {
+	public Complexity(int factor, ComplexityType complexityType, ComplexityBase base) {
 		this.factor = factor;
 		this.complexityType = complexityType;
+		this.complexityBase = base;
 	}
 
 	public void increaseBy(int increase) {
@@ -43,7 +49,21 @@ public class Complexity {
 	}
 	
 	public String getComplexity() {
-		return counter + " calls of type " + factor + "*" + complexityType;
+		return counter + " calls of type " + factor + "*" + getFormattedComplexity(complexityType, complexityBase);
+	}
+
+	private String getFormattedComplexity(ComplexityType complexityType,
+			ComplexityBase complexityBase) {
+		switch(complexityType) {
+		case Linear:
+			return complexityBase.toString();
+		case Static:
+			return "1";
+		case Unknown:
+			return "unknown";
+		default:
+			throw new RuntimeException("Unknown type " + complexityType);
+		}
 	}
 
 	public String toString() {
