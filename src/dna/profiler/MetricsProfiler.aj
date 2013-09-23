@@ -23,7 +23,7 @@ import dna.util.Config;
 public aspect MetricsProfiler {
 	private static boolean isActive = true;
 	private String currentMetric;
-	public static final String initialAddition = " - initial batch";
+	public static final String initialAddition = ".initialBatch";
 
 	pointcut activate() : execution(* GraphProfiler.activate());
 
@@ -167,17 +167,10 @@ public aspect MetricsProfiler {
 				Files.getProfilerFilename(Config.get("METRIC_PROFILER")));
 	}
 
-	after(Series s, int run) throws IOException : aggregateDataPerRun(s, run) {
-		String seriesDir = Dir.getRunDataDir(s.getDir(), run);
-		System.out.println("Writing to " + seriesDir);
-		GraphProfiler.writeGlobal(seriesDir,
-				Files.getProfilerFilename(Config.get("METRIC_PROFILER")));
-	}
-
 	after(Series s) throws IOException : aggregateDataOverAllRuns(s) {
 		String seriesDir = s.getDir();
 		System.out.println("Writing to " + seriesDir);
-		GraphProfiler.writeGlobal(seriesDir,
+		GraphProfiler.aggregate(seriesDir,
 				Files.getProfilerFilename(Config.get("METRIC_PROFILER")));
 	}
 }

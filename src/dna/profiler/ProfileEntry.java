@@ -31,6 +31,14 @@ public class ProfileEntry {
 	public void increase(ProfilerType p) {
 		increase(p, 1);
 	}
+
+	public String callsAsString(String prefix) {
+		StringBuilder s = new StringBuilder();
+		for (ProfilerType p : ProfilerType.values()) {
+			s.append(prefix + "." + p.toString() + "=" + get(p).getComplexityCounter() + "\n");
+		}
+		return s.toString();
+	}
 	
 	@Override
 	public String toString() {

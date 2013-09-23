@@ -11,7 +11,6 @@ import dna.util.Log;
 
 public class GraphProfiler {
 	private static Map<String, ProfileEntry> calls = new HashMap<>();
-	private static Map<String, ProfileEntry> globalCalls = new HashMap<>();
 	private static boolean active = false;
 	private static GraphDataStructure gds;
 	
@@ -48,6 +47,16 @@ public class GraphProfiler {
 			return;
 
 		System.out.println(getOutput(calls));
+	}
+	
+	public static String getCallList(Map<String, ProfileEntry> listOfEntries) {
+		final String separator = System.getProperty("line.separator");
+		StringBuilder res = new StringBuilder();
+		for (Entry<String, ProfileEntry> entry : listOfEntries.entrySet()) {
+			if ( res.length() > 0 ) res.append(separator);
+			res.append(entry.getValue().callsAsString(entry.getKey()));
+		}
+		return res.toString();		
 	}
 	
 	public static String getOutput(Map<String, ProfileEntry> listOfEntries) {
@@ -87,30 +96,18 @@ public class GraphProfiler {
 	}
 
 	public static void reset() {
-		integrateCallsToGlobal();
 		calls = new HashMap<>();
-	}
-
-	private static void integrateCallsToGlobal() {
-		for (Entry<String, ProfileEntry> entry : calls.entrySet()) {
-			if ( !globalCalls.containsKey(entry.getKey())) {
-				globalCalls.put(entry.getKey(), new ProfileEntry(gds));
-			}
-			
-			globalCalls.get(entry.getKey()).mergeWith(entry.getValue());
-		}
 	}
 
 	public static void write(String dir, String filename) throws IOException {
 		Writer w = new Writer(dir, filename);
-		w.writeln(getOutput(calls));
+		w.writeln(getCallList(calls));
 		w.close();
 
 	}
 
-	public static void writeGlobal(String aggDir, String filename) throws IOException {
-		Writer w = new Writer(aggDir, filename);
-		w.writeln(getOutput(globalCalls));
-		w.close();
+	public static void aggregate(String seriesDir, String profilerFilename) {
+		// TODO write an aggregator
 	}
+
 }
