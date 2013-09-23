@@ -100,11 +100,10 @@ public class DHashSet extends DataStructureReadable implements INodeListDatastru
 	public boolean remove(Node element) {
 		if (this.list.remove(element)) {
 			if (element.getIndex() == this.maxNodeIndex) {
-				int max = this.maxNodeIndex - 1;
-				while (this.get(max) == null && max >= 0) {
-					max--;
+				maxNodeIndex = -1;
+				for ( IElement n : getElements()) {
+					maxNodeIndex = Math.max(maxNodeIndex, ((Node) n).getIndex());
 				}
-				this.maxNodeIndex = max;
 			}
 			return true;
 		}
