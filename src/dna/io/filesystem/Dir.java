@@ -1,6 +1,7 @@
 package dna.io.filesystem;
 
 import java.io.File;
+import java.util.Arrays;
 
 import dna.io.filter.PrefixFilenameFilter;
 import dna.metrics.Metric.MetricType;
@@ -69,8 +70,18 @@ public class Dir {
 	}
 
 	public static String[] getBatches(String dir) {
-		return (new File(dir)).list(new PrefixFilenameFilter(Config
+		String[] names = (new File(dir)).list(new PrefixFilenameFilter(Config
 				.get("PREFIX_BATCHDATA_DIR")));
+		int[] timestamps = new int[names.length];
+		for (int i = 0; i < names.length; i++) {
+			timestamps[i] = Integer.parseInt(names[i].replace(
+					Config.get("PREFIX_BATCHDATA_DIR"), ""));
+		}
+		Arrays.sort(timestamps);
+		for (int i = 0; i < timestamps.length; i++) {
+			names[i] = Config.get("PREFIX_BATCHDATA_DIR") + timestamps[i];
+		}
+		return names;
 	}
 
 	public static long getTimestamp(String batchFolderName) {
