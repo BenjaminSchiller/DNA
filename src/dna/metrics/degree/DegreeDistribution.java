@@ -47,13 +47,13 @@ public abstract class DegreeDistribution extends Metric {
 	}
 
 	@Override
-	protected Value[] getValues() {
+	public Value[] getValues() {
 		return new Value[] { new Value("NODES", this.nodes),
 				new Value("EDGES", this.edges) };
 	}
 
 	@Override
-	protected Distribution[] getDistributions() {
+	public Distribution[] getDistributions() {
 		if (DirectedNode.class.isAssignableFrom(this.g.getGraphDatastructures()
 				.getNodeType())) {
 			return new Distribution[] { this.degree, this.inDegree,
@@ -84,7 +84,7 @@ public abstract class DegreeDistribution extends Metric {
 	}
 
 	@Override
-	protected void init_() {
+	public void init_() {
 		this.degree = new DistributionInt(degreeName, new int[0],
 				this.g.getNodeCount());
 		this.inDegree = new DistributionInt(inDegreeName, new int[0],
@@ -101,7 +101,7 @@ public abstract class DegreeDistribution extends Metric {
 	}
 
 	@Override
-	protected NodeValueList[] getNodeValueLists() {
+	public NodeValueList[] getNodeValueLists() {
 		return new NodeValueList[0];
 	}
 

@@ -2,6 +2,7 @@ package dna.metrics.shortestPaths;
 
 import dna.metrics.Metric;
 import dna.series.data.Distribution;
+import dna.series.data.NodeValueList;
 import dna.series.data.Value;
 import dna.util.ArrayUtils;
 import dna.util.DataUtils;
@@ -21,7 +22,7 @@ public abstract class ShortestPaths extends Metric {
 	protected long[] spl;
 
 	@Override
-	protected void init_() {
+	public void init_() {
 		this.cpl = 0;
 		this.diam = 0;
 		this.existingPaths = 0;
@@ -37,7 +38,7 @@ public abstract class ShortestPaths extends Metric {
 	}
 
 	@Override
-	protected Value[] getValues() {
+	public Value[] getValues() {
 		double possible = this.g.getNodeCount() * (this.g.getNodeCount() - 1);
 		Value cpl = new Value("cpl", this.cpl);
 		Value diam = new Value("diam", this.diam);
@@ -48,7 +49,7 @@ public abstract class ShortestPaths extends Metric {
 	}
 
 	@Override
-	protected Distribution[] getDistributions() {
+	public Distribution[] getDistributions() {
 		double possible = this.g.getNodeCount() * (this.g.getNodeCount() - 1);
 		double[] v = new double[this.spl.length];
 		for (int i = 0; i < this.spl.length; i++) {
@@ -56,6 +57,11 @@ public abstract class ShortestPaths extends Metric {
 		}
 		Distribution spl = new Distribution("spl", v);
 		return new Distribution[] { spl };
+	}
+
+	@Override
+	public NodeValueList[] getNodeValueLists() {
+		return new NodeValueList[0];
 	}
 
 	@Override

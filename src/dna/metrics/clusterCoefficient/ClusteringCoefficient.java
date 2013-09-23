@@ -30,7 +30,7 @@ public abstract class ClusteringCoefficient extends Metric {
 	protected long[] nodePotentialCount;
 
 	@Override
-	protected void init_() {
+	public void init_() {
 		this.globalCC = 0;
 		this.averageCC = 0;
 		this.localCC = new NodeValueList("localCC",
@@ -55,19 +55,19 @@ public abstract class ClusteringCoefficient extends Metric {
 	}
 
 	@Override
-	protected Value[] getValues() {
+	public Value[] getValues() {
 		Value globalCC = new Value("globalCC", this.globalCC);
 		Value averageCC = new Value("averageCC", this.averageCC);
 		return new Value[] { globalCC, averageCC };
 	}
 
 	@Override
-	protected Distribution[] getDistributions() {
+	public Distribution[] getDistributions() {
 		return new Distribution[0];
 	}
 
 	@Override
-	protected NodeValueList[] getNodeValueLists() {
+	public NodeValueList[] getNodeValueLists() {
 		return new NodeValueList[] { this.localCC };
 	}
 

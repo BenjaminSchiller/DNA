@@ -73,9 +73,4 @@ public class UndirectedShortestPathsRecomp extends UndirectedShortestPaths {
 		return true;
 	}
 
-	@Override
-	protected NodeValueList[] getNodeValueLists() {
-		// TODO Auto-generated method stub
-		return null;
-	}
 }

@@ -157,7 +157,7 @@ public class UndirectedShortestPathsUpdate extends UndirectedShortestPaths {
 		return true;
 	}
 
-	protected void init_() {
+	public void init_() {
 		super.init_();
 		this.parents = new HashMap<UndirectedNode, HashMap<UndirectedNode, UndirectedNode>>();
 		this.heights = new HashMap<UndirectedNode, HashMap<UndirectedNode, Integer>>();
@@ -167,12 +167,6 @@ public class UndirectedShortestPathsUpdate extends UndirectedShortestPaths {
 		super.reset_();
 		this.parents = null;
 		this.heights = null;
-	}
-
-	@Override
-	protected NodeValueList[] getNodeValueLists() {
-		// TODO Auto-generated method stub
-		return null;
 	}
 
 }
