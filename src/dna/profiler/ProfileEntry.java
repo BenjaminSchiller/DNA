@@ -10,11 +10,9 @@ import dna.profiler.complexity.Complexity;
 
 public class ProfileEntry {
 	private Map<ProfilerType, Complexity> list;
-	private GraphDataStructure gds;
 
 	public ProfileEntry( GraphDataStructure gds) {
 		list = Collections.synchronizedMap(new EnumMap<ProfilerType, Complexity>(ProfilerType.class));
-		this.gds = gds;
 		for ( ProfilerType p: ProfilerType.values()) {
 			list.put(p, gds.getComplexityClass(p));
 		}
@@ -47,19 +45,5 @@ public class ProfileEntry {
 			s.append("  Calls of type " + p.toString() + ": " + get(p) + "\n");
 		}
 		return s.toString();
-	}
-
-	public void mergeWith(ProfileEntry value) {
-		for (ProfilerType p: ProfilerType.values()) {
-			increase(p, value.get(p).getComplexityCounter());
-		}
-	}
-
-	public int summedComplexity() {
-		int res = 0;
-		for ( ProfilerType p: ProfilerType.values()) {
-			res += list.get(p).getComplexityCounter();
-		}
-		return res;
 	}
 }
