@@ -85,6 +85,6 @@ public class Files {
 	 * PROFILER
 	 */
 	public static String getProfilerFilename(String name) {
-		return name + Config.get("SUFFIX_DATA");
+		return name + Config.get("SUFFIX_VALUE");
 	}	
 }
