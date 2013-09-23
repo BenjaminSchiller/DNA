@@ -333,10 +333,10 @@ public class MetricData implements ListItem {
 			if (v1 == 0 || v2 == 0) {
 				quality = delta;
 			} else {
-				if (v1 > v2)
-					quality = v2 / v1;
-				else
-					quality = v1 / v2;
+				// if (v1 > v2)
+				quality = v2 / v1;
+				// else
+				// quality = v1 / v2;
 			}
 			comparedValues.add(new Value(value
 					+ Config.get("SUFFIX_METRIC_QUALITY"), quality));
