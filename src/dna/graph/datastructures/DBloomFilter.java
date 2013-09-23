@@ -10,6 +10,7 @@ import dna.graph.IElement;
 import dna.graph.edges.Edge;
 import dna.graph.nodes.Node;
 import dna.profiler.complexity.Complexity;
+import dna.profiler.complexity.Complexity.ComplexityBase;
 
 public class DBloomFilter extends DataStructure implements INodeListDatastructure, IEdgeListDatastructure {
 	private BloomFilter<IElement> list;
@@ -111,7 +112,7 @@ public class DBloomFilter extends DataStructure implements INodeListDatastructur
 	}
 
 	@Override
-	public Complexity getComplexity(AccessType access) {
+	public Complexity getComplexity(AccessType access, ComplexityBase base) {
 		// TODO Auto-generated method stub
 		return null;
 	}

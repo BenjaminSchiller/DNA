@@ -17,6 +17,7 @@ import dna.graph.nodes.Node;
 import dna.io.etc.Keywords;
 import dna.profiler.GraphProfiler.ProfilerType;
 import dna.profiler.complexity.Complexity;
+import dna.profiler.complexity.Complexity.ComplexityBase;
 
 /**
  * Container for different types of storages for everything: this holds the
@@ -437,37 +438,41 @@ public class GraphDataStructure {
 
 		switch (p) {
 		case AddEdgeGlobal:
-			return dummyGraphEdgeList.getComplexity(AccessType.Add);
+			return dummyGraphEdgeList.getComplexity(AccessType.Add, ComplexityBase.EdgeSize);
 		case AddEdgeLocal:
-			return dummyNodeEdgeList.getComplexity(AccessType.Add);
+			return dummyNodeEdgeList.getComplexity(AccessType.Add, ComplexityBase.Degree);
 		case AddNodeGlobal:
+			return dummyNodeList.getComplexity(AccessType.Add, ComplexityBase.NodeSize);
 		case AddNodeLocal:
-			return dummyNodeList.getComplexity(AccessType.Add);
+			return dummyNodeList.getComplexity(AccessType.Add, ComplexityBase.Degree);
 		case ContainsEdgeGlobal:
-			return dummyGraphEdgeList.getComplexity(AccessType.Contains);
+			return dummyGraphEdgeList.getComplexity(AccessType.Contains, ComplexityBase.EdgeSize);
 		case ContainsEdgeLocal:
-			return dummyNodeEdgeList.getComplexity(AccessType.Contains);
+			return dummyNodeEdgeList.getComplexity(AccessType.Contains, ComplexityBase.Degree);
 		case ContainsNodeGlobal:
+			return dummyNodeList.getComplexity(AccessType.Contains, ComplexityBase.NodeSize);
 		case ContainsNodeLocal:
-			return dummyNodeList.getComplexity(AccessType.Contains);
+			return dummyNodeList.getComplexity(AccessType.Contains, ComplexityBase.Degree);
 		case RandomEdgeGlobal:
-			return dummyGraphEdgeList.getComplexity(AccessType.Random);
+			return dummyGraphEdgeList.getComplexity(AccessType.Random, ComplexityBase.EdgeSize);
 		case RandomNodeGlobal:
-			return dummyNodeList.getComplexity(AccessType.Random);
+			return dummyNodeList.getComplexity(AccessType.Random, ComplexityBase.NodeSize);
 		case RemoveEdgeGlobal:
-			return dummyGraphEdgeList.getComplexity(AccessType.Remove);
+			return dummyGraphEdgeList.getComplexity(AccessType.Remove, ComplexityBase.EdgeSize);
 		case RemoveEdgeLocal:
-			return dummyNodeEdgeList.getComplexity(AccessType.Remove);
+			return dummyNodeEdgeList.getComplexity(AccessType.Remove, ComplexityBase.Degree);
 		case RemoveNodeGlobal:
+			return dummyNodeList.getComplexity(AccessType.Remove, ComplexityBase.NodeSize);
 		case RemoveNodeLocal:
-			return dummyNodeList.getComplexity(AccessType.Remove);
+			return dummyNodeList.getComplexity(AccessType.Remove, ComplexityBase.Degree);
 		case SizeEdgeGlobal:
-			return dummyGraphEdgeList.getComplexity(AccessType.Size);
+			return dummyGraphEdgeList.getComplexity(AccessType.Size, ComplexityBase.EdgeSize);
 		case SizeEdgeLocal:
-			return dummyNodeEdgeList.getComplexity(AccessType.Size);
+			return dummyNodeEdgeList.getComplexity(AccessType.Size, ComplexityBase.Degree);
 		case SizeNodeGlobal:
+			return dummyNodeList.getComplexity(AccessType.Size, ComplexityBase.NodeSize);
 		case SizeNodeLocal:
-			return dummyNodeList.getComplexity(AccessType.Size);
+			return dummyNodeList.getComplexity(AccessType.Size, ComplexityBase.Degree);
 		}
 		throw new RuntimeException("Access " + p + " missing here");
 	}
