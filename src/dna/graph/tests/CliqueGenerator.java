@@ -1,26 +1,26 @@
-package dna.graph.generators;
+package dna.graph.tests;
 
 import dna.graph.Graph;
 import dna.graph.datastructures.GraphDataStructure;
 import dna.graph.edges.Edge;
+import dna.graph.generators.GraphGenerator;
 import dna.graph.nodes.Node;
-import dna.util.parameters.Parameter;
 
 /**
  * 
- * graph generator for a directed clique, i.e., a directed graph that contains
- * all possible (n * (n-1)) edges
+ * graph generator for a directed / undirected clique, i.e., a directed /
+ * undirected graph that contains all possible (n * (n-1)) edges
  * 
  * @author benni, Nico
  * 
  */
-
+@Deprecated
 public class CliqueGenerator extends GraphGenerator {
 
-	public CliqueGenerator(String name, Parameter[] params,
-			GraphDataStructure gds, long timestampInit, int nodesInit,
-			int edgesInit) {
-		super(name, params, gds, timestampInit, nodesInit, edgesInit);
+	public CliqueGenerator(GraphDataStructure gds, int nodesInit) {
+		super("Clique", null, gds, 0, nodesInit,
+				gds.createsDirected() ? nodesInit * (nodesInit - 1) : nodesInit
+						* (nodesInit - 1) / 2);
 	}
 
 	@Override
@@ -34,7 +34,7 @@ public class CliqueGenerator extends GraphGenerator {
 		}
 
 		int startJ;
-		
+
 		for (int i = 0; i < this.nodesInit; i++) {
 			/**
 			 * In the case of undirected edges, we can skip some edges that have
