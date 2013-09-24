@@ -2,12 +2,15 @@ package dna.profiler.complexity;
 
 import java.util.HashMap;
 
+import dna.profiler.complexity.ComplexityType.Type;
+
 public class Complexity {
-	
-	private int counter;
-	private int factor;
-	private ComplexityType complexityType;
-	
+
+	private int counter = 0;
+	private int factor = 0;
+	private ComplexityType complexityType = new ComplexityType(Type.Unknown,
+			null);
+
 	public Complexity() {
 	}
 
@@ -23,21 +26,22 @@ public class Complexity {
 	public int getComplexityCounter() {
 		return counter;
 	}
-	
+
 	public HashMap<ComplexityType, Integer> getComplexityMap() {
 		HashMap<ComplexityType, Integer> res = new HashMap<>();
 		res.put(this.complexityType, this.counter);
 		return res;
 	}
-	
+
 	public HashMap<ComplexityType, Integer> getWeightedComplexityMap() {
 		HashMap<ComplexityType, Integer> res = new HashMap<>();
 		res.put(this.complexityType, this.counter * this.factor);
 		return res;
 	}
-	
+
 	public String getComplexity() {
-		return counter + " calls of type " + factor + "*" + complexityType.toString();
+		return counter + " calls of type " + factor + "*"
+				+ complexityType.toString();
 	}
 
 	public String toString() {
