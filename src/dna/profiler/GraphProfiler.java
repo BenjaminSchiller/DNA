@@ -13,28 +13,25 @@ public class GraphProfiler {
 	private static Map<String, ProfileEntry> calls = new HashMap<>();
 	private static boolean active = false;
 	private static GraphDataStructure gds;
-	
+
 	public static enum ProfilerType {
-		AddNodeGlobal, AddNodeLocal, AddEdgeGlobal, AddEdgeLocal,
-		RemoveNodeGlobal, RemoveNodeLocal, RemoveEdgeGlobal, RemoveEdgeLocal,
-		ContainsNodeGlobal, ContainsNodeLocal, ContainsEdgeGlobal, ContainsEdgeLocal,
-		SizeNodeGlobal, SizeNodeLocal, SizeEdgeGlobal, SizeEdgeLocal,
-		RandomNodeGlobal, RandomEdgeGlobal
+		AddNodeGlobal, AddNodeLocal, AddEdgeGlobal, AddEdgeLocal, RemoveNodeGlobal, RemoveNodeLocal, RemoveEdgeGlobal, RemoveEdgeLocal, ContainsNodeGlobal, ContainsNodeLocal, ContainsEdgeGlobal, ContainsEdgeLocal, SizeNodeGlobal, SizeNodeLocal, SizeEdgeGlobal, SizeEdgeLocal, RandomNodeGlobal, RandomEdgeGlobal
 	}
-	
+
 	public static void activate() {
 		active = true;
 	}
-	
+
 	public static boolean isActive() {
 		return active;
 	}
-		
+
 	public static void init(GraphDataStructure newGds) {
 		// This is initialization of profiles
-		
-		if ( !active ) return;
-		
+
+		if (!active)
+			return;
+
 		Log.debug("Created new graph with gds" + newGds.getDataStructures());
 		gds = newGds;
 	}
@@ -48,31 +45,36 @@ public class GraphProfiler {
 
 		System.out.println(getOutput(calls));
 	}
-	
+
 	public static String getCallList(Map<String, ProfileEntry> listOfEntries) {
 		final String separator = System.getProperty("line.separator");
 		StringBuilder res = new StringBuilder();
 		for (Entry<String, ProfileEntry> entry : listOfEntries.entrySet()) {
-			if ( res.length() > 0 ) res.append(separator);
+			if (res.length() > 0)
+				res.append(separator);
 			res.append(entry.getValue().callsAsString(entry.getKey()));
+			res.append("# Aggr: " + entry.getValue().combinedComplexity());
 		}
-		return res.toString();		
+		return res.toString();
 	}
-	
+
 	public static String getOutput(Map<String, ProfileEntry> listOfEntries) {
 		final String separator = System.getProperty("line.separator");
 		StringBuilder res = new StringBuilder();
 		for (Entry<String, ProfileEntry> entry : listOfEntries.entrySet()) {
-			if ( res.length() > 0 ) res.append(separator);
+			if (res.length() > 0)
+				res.append(separator);
 			res.append("Count type: " + entry.getKey() + separator);
 			res.append(entry.getValue().toString());
+			res.append(" Aggr: " + entry.getValue().combinedComplexity());
 		}
 		return res.toString();
 	}
 
 	public static void count(String mapKey, ProfilerType p) {
-		if ( !active ) return;
-		
+		if (!active)
+			return;
+
 		ProfileEntry innerMap = calls.get(mapKey);
 		if (innerMap == null) {
 			innerMap = new ProfileEntry(gds);
@@ -80,7 +82,7 @@ public class GraphProfiler {
 		}
 		innerMap.increase(p);
 	}
-	
+
 	public static int getCount(String mapKey, ProfilerType p) {
 		ProfileEntry innerMap = calls.get(mapKey);
 		if (innerMap == null)
