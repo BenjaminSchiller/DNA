@@ -2,11 +2,13 @@ package dna.graph.datastructures;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.Arrays;
 
 import dna.graph.Graph;
+import dna.graph.IElement;
 import dna.graph.IWeighted;
 import dna.graph.datastructures.DataStructure.AccessType;
 import dna.graph.edges.DirectedEdge;
@@ -17,7 +19,7 @@ import dna.graph.nodes.Node;
 import dna.io.etc.Keywords;
 import dna.profiler.GraphProfiler.ProfilerType;
 import dna.profiler.complexity.Complexity;
-import dna.profiler.complexity.Complexity.ComplexityBase;
+import dna.profiler.complexity.ComplexityType.Base;
 
 /**
  * Container for different types of storages for everything: this holds the
@@ -35,10 +37,6 @@ public class GraphDataStructure {
 	private Class<? extends Edge> edgeType;
 	private Constructor<?> lastWeightedEdgeConstructor = null;
 	private Constructor<?> lastEdgeConstructor = null;
-	
-	private INodeListDatastructure dummyNodeList;
-	private IEdgeListDatastructure dummyGraphEdgeList;
-	private IEdgeListDatastructure dummyNodeEdgeList;
 
 	public GraphDataStructure(
 			Class<? extends INodeListDatastructure> nodeListType,
@@ -149,7 +147,6 @@ public class GraphDataStructure {
 				| NoSuchMethodException | SecurityException e) {
 			e.printStackTrace();
 		}
-		dummyNodeList = res;
 		return res;
 	}
 
@@ -163,7 +160,6 @@ public class GraphDataStructure {
 				| NoSuchMethodException | SecurityException e) {
 			e.printStackTrace();
 		}
-		dummyGraphEdgeList = res;
 		return res;
 	}
 
@@ -177,7 +173,6 @@ public class GraphDataStructure {
 				| NoSuchMethodException | SecurityException e) {
 			e.printStackTrace();
 		}
-		dummyNodeEdgeList = res;
 		return res;
 	}
 
@@ -370,8 +365,8 @@ public class GraphDataStructure {
 
 		try {
 			this.lastWeightedEdgeConstructor = cNeeded;
-			return (IWeightedEdge<?>) edgeType.cast(cNeeded.newInstance(src, dst,
-					weight));
+			return (IWeightedEdge<?>) edgeType.cast(cNeeded.newInstance(src,
+					dst, weight));
 		} catch (SecurityException | InstantiationException
 				| IllegalAccessException | IllegalArgumentException
 				| InvocationTargetException e) {
@@ -381,7 +376,7 @@ public class GraphDataStructure {
 			throw rt;
 		}
 	}
-	
+
 	private Class<?> getWeightType(Class<?> in, Class<?> superInterface) {
 		Class<?> weightType = null;
 
@@ -395,11 +390,11 @@ public class GraphDataStructure {
 		}
 		return weightType;
 	}
-	
+
 	public Class<?> getNodeWeightType() {
 		return this.getWeightType(nodeType, IWeightedNode.class);
 	}
-	
+
 	public Class<?> getEdgeWeightType() {
 		return this.getWeightType(edgeType, IWeightedEdge.class);
 	}
@@ -425,54 +420,80 @@ public class GraphDataStructure {
 		return IReadable.class.isAssignableFrom(list.getClass());
 	}
 
-	public Complexity getComplexityClass(ProfilerType p) {
-		if (dummyGraphEdgeList == null) {
-			newGraphEdgeList();
+	private Complexity getComplexityClass(Class<? extends IDataStructure> ds,
+			Class<? extends IElement> dt, AccessType at, Base b) {
+		try {
+			Method m = ds.getDeclaredMethod("getComplexity", IElement.class,
+					AccessType.class, Base.class);
+			m.setAccessible(true);
+			Complexity c = (Complexity) m.invoke(null, dt, at, b);
+			return c;
+		} catch (NoSuchMethodException | SecurityException
+				| IllegalAccessException | IllegalArgumentException
+				| InvocationTargetException e) {
+			RuntimeException rt = new RuntimeException(
+					"Could not get complexity data for data structure " + ds);
+			rt.setStackTrace(e.getStackTrace());
+			throw rt;
 		}
-		if (dummyNodeEdgeList == null) {
-			newNodeEdgeList();
-		}
-		if (dummyNodeList == null) {
-			newNodeList();
-		}
+	}
 
+	public Complexity getComplexityClass(ProfilerType p) {
 		switch (p) {
 		case AddEdgeGlobal:
-			return dummyGraphEdgeList.getComplexity(AccessType.Add, ComplexityBase.EdgeSize);
+			return getComplexityClass(graphEdgeListType, Edge.class,
+					AccessType.Add, Base.EdgeSize);
 		case AddEdgeLocal:
-			return dummyNodeEdgeList.getComplexity(AccessType.Add, ComplexityBase.Degree);
+			return getComplexityClass(nodeEdgeListType, Edge.class,
+					AccessType.Add, Base.Degree);
 		case AddNodeGlobal:
-			return dummyNodeList.getComplexity(AccessType.Add, ComplexityBase.NodeSize);
+			return getComplexityClass(nodeListType, Node.class, AccessType.Add,
+					Base.NodeSize);
 		case AddNodeLocal:
-			return dummyNodeList.getComplexity(AccessType.Add, ComplexityBase.Degree);
+			return getComplexityClass(nodeListType, Node.class, AccessType.Add,
+					Base.Degree);
 		case ContainsEdgeGlobal:
-			return dummyGraphEdgeList.getComplexity(AccessType.Contains, ComplexityBase.EdgeSize);
+			return getComplexityClass(graphEdgeListType, Edge.class,
+					AccessType.Contains, Base.EdgeSize);
 		case ContainsEdgeLocal:
-			return dummyNodeEdgeList.getComplexity(AccessType.Contains, ComplexityBase.Degree);
+			return getComplexityClass(nodeEdgeListType, Edge.class,
+					AccessType.Contains, Base.Degree);
 		case ContainsNodeGlobal:
-			return dummyNodeList.getComplexity(AccessType.Contains, ComplexityBase.NodeSize);
+			return getComplexityClass(nodeListType, Node.class,
+					AccessType.Contains, Base.NodeSize);
 		case ContainsNodeLocal:
-			return dummyNodeList.getComplexity(AccessType.Contains, ComplexityBase.Degree);
+			return getComplexityClass(nodeListType, Node.class,
+					AccessType.Contains, Base.Degree);
 		case RandomEdgeGlobal:
-			return dummyGraphEdgeList.getComplexity(AccessType.Random, ComplexityBase.EdgeSize);
+			return getComplexityClass(graphEdgeListType, Edge.class,
+					AccessType.Random, Base.EdgeSize);
 		case RandomNodeGlobal:
-			return dummyNodeList.getComplexity(AccessType.Random, ComplexityBase.NodeSize);
+			return getComplexityClass(nodeListType, Node.class,
+					AccessType.Random, Base.NodeSize);
 		case RemoveEdgeGlobal:
-			return dummyGraphEdgeList.getComplexity(AccessType.Remove, ComplexityBase.EdgeSize);
+			return getComplexityClass(graphEdgeListType, Edge.class,
+					AccessType.Remove, Base.EdgeSize);
 		case RemoveEdgeLocal:
-			return dummyNodeEdgeList.getComplexity(AccessType.Remove, ComplexityBase.Degree);
+			return getComplexityClass(nodeEdgeListType, Edge.class,
+					AccessType.Remove, Base.Degree);
 		case RemoveNodeGlobal:
-			return dummyNodeList.getComplexity(AccessType.Remove, ComplexityBase.NodeSize);
+			return getComplexityClass(nodeListType, Node.class,
+					AccessType.Remove, Base.NodeSize);
 		case RemoveNodeLocal:
-			return dummyNodeList.getComplexity(AccessType.Remove, ComplexityBase.Degree);
+			return getComplexityClass(nodeListType, Node.class,
+					AccessType.Remove, Base.Degree);
 		case SizeEdgeGlobal:
-			return dummyGraphEdgeList.getComplexity(AccessType.Size, ComplexityBase.EdgeSize);
+			return getComplexityClass(graphEdgeListType, Edge.class,
+					AccessType.Size, Base.EdgeSize);
 		case SizeEdgeLocal:
-			return dummyNodeEdgeList.getComplexity(AccessType.Size, ComplexityBase.Degree);
+			return getComplexityClass(nodeEdgeListType, Edge.class,
+					AccessType.Size, Base.Degree);
 		case SizeNodeGlobal:
-			return dummyNodeList.getComplexity(AccessType.Size, ComplexityBase.NodeSize);
+			return getComplexityClass(nodeListType, Node.class,
+					AccessType.Size, Base.NodeSize);
 		case SizeNodeLocal:
-			return dummyNodeList.getComplexity(AccessType.Size, ComplexityBase.Degree);
+			return getComplexityClass(nodeListType, Node.class,
+					AccessType.Size, Base.Degree);
 		}
 		throw new RuntimeException("Access " + p + " missing here");
 	}

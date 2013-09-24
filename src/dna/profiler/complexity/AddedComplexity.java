@@ -1,6 +1,6 @@
 package dna.profiler.complexity;
 
-import java.util.EnumMap;
+import java.util.HashMap;
 import java.util.Map.Entry;
 
 
@@ -31,9 +31,9 @@ public class AddedComplexity extends Complexity {
 	}
 	
 	@Override
-	public EnumMap<ComplexityType, Integer> getComplexityMap() {
-		EnumMap<ComplexityType, Integer> res = first.getComplexityMap();
-		EnumMap<ComplexityType, Integer> resSecond = second.getComplexityMap();
+	public HashMap<ComplexityType, Integer> getComplexityMap() {
+		HashMap<ComplexityType, Integer> res = first.getComplexityMap();
+		HashMap<ComplexityType, Integer> resSecond = second.getComplexityMap();
 		for ( Entry<ComplexityType, Integer> e : resSecond.entrySet() ) {
 			Integer tempCounter = res.get(e.getKey());
 			tempCounter += e.getValue();
@@ -43,9 +43,9 @@ public class AddedComplexity extends Complexity {
 	}
 
 	@Override
-	public EnumMap<ComplexityType, Integer> getWeightedComplexityMap() {
-		EnumMap<ComplexityType, Integer> res = first.getWeightedComplexityMap();
-		EnumMap<ComplexityType, Integer> resSecond = second.getWeightedComplexityMap();
+	public HashMap<ComplexityType, Integer> getWeightedComplexityMap() {
+		HashMap<ComplexityType, Integer> res = first.getWeightedComplexityMap();
+		HashMap<ComplexityType, Integer> resSecond = second.getWeightedComplexityMap();
 		for ( Entry<ComplexityType, Integer> e : resSecond.entrySet() ) {
 			Integer tempCounter = res.get(e.getKey());
 			tempCounter += e.getValue();
