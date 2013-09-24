@@ -1,6 +1,7 @@
 package dna.graph;
 
 import java.util.Collection;
+import java.util.Iterator;
 
 import dna.graph.datastructures.GraphDataStructure;
 import dna.graph.datastructures.IEdgeListDatastructure;
@@ -35,7 +36,8 @@ public class Graph {
 		this.gds = gds;
 	}
 
-	public Graph(String name, long timestamp, GraphDataStructure gds, int nodeSize, int edgeSize) {
+	public Graph(String name, long timestamp, GraphDataStructure gds,
+			int nodeSize, int edgeSize) {
 		this(name, timestamp, gds);
 		this.nodes.reinitializeWithSize(nodeSize);
 		this.edges.reinitializeWithSize(edgeSize);
@@ -189,7 +191,7 @@ public class Graph {
 	@Override
 	public boolean equals(Object obj) {
 		Log.debug("Running equality check for graphs");
-		
+
 		if (this == obj) {
 			return true;
 		}
@@ -221,7 +223,7 @@ public class Graph {
 		}
 
 		Log.debug("Basics equal, going for edges and nodes");
-		
+
 		if (edges == null) {
 			if (other.edges != null) {
 				return false;
@@ -242,14 +244,42 @@ public class Graph {
 	}
 
 	public String toString() {
-		return this.getName() + " @ " + this.getTimestamp() + " (" + this.getNodeCount() + "/" + this.getEdgeCount()
-				+ ")";
+		return this.getName() + " @ " + this.getTimestamp() + " ("
+				+ this.getNodeCount() + "/" + this.getEdgeCount() + ")";
 	}
 
 	public void print() {
 		System.out.println(this.toString());
 		System.out.println("  V = " + this.getNodes());
 		System.out.println("  E = " + this.getEdges());
+	}
+
+	public void printAll() {
+		System.out.println(this.toString());
+		Iterator<IElement> iter1 = this.nodes.iterator();
+		while (iter1.hasNext()) {
+			System.out.println("  " + iter1.next());
+		}
+		Iterator<IElement> iter2 = this.edges.iterator();
+		while (iter2.hasNext()) {
+			System.out.println("  " + iter2.next());
+		}
+	}
+
+	public void printV() {
+		System.out.println(this.toString());
+		Iterator<IElement> iterator = this.nodes.iterator();
+		while (iterator.hasNext()) {
+			System.out.println("  " + iterator.next());
+		}
+	}
+
+	public void printE() {
+		System.out.println(this.toString());
+		Iterator<IElement> iterator = this.edges.iterator();
+		while (iterator.hasNext()) {
+			System.out.println("  " + iterator.next());
+		}
 	}
 
 }
