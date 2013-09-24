@@ -5,14 +5,16 @@ import dna.graph.datastructures.GraphDataStructure;
 import dna.util.parameters.Parameter;
 import dna.util.parameters.ParameterList;
 
-public abstract class GraphGenerator extends ParameterList implements IGraphGenerator {
+public abstract class GraphGenerator extends ParameterList implements
+		IGraphGenerator {
 	protected long timestampInit;
 	protected int nodesInit;
 	protected int edgesInit;
 
 	protected GraphDataStructure gds;
 
-	public GraphGenerator(String name, Parameter[] params, GraphDataStructure gds, long timestampInit, int nodesInit,
+	public GraphGenerator(String name, Parameter[] params,
+			GraphDataStructure gds, long timestampInit, int nodesInit,
 			int edgesInit) {
 		super(name, params);
 
@@ -23,7 +25,8 @@ public abstract class GraphGenerator extends ParameterList implements IGraphGene
 		this.gds = gds;
 
 		if (!gds.isReadable()) {
-			throw new RuntimeException("Cannot generate a graph if any datastructure is not readable");
+			throw new RuntimeException(
+					"Cannot generate a graph if any datastructure is not readable");
 		}
 
 	}
@@ -35,18 +38,12 @@ public abstract class GraphGenerator extends ParameterList implements IGraphGene
 							+ this.gds.getNodeType());
 		}
 
-		return this.gds.newGraphInstance(this.getName(), this.timestampInit, this.nodesInit, this.edgesInit);
+		return this.gds.newGraphInstance(this.getName(), this.timestampInit,
+				this.nodesInit, this.edgesInit);
 	}
-	
+
 	public GraphDataStructure getGraphDataStructure() {
 		return this.gds;
 	}
 
-	/*
-	 * public BatchReader<G, N, E> getBatchReader() { return new BatchReader<G,
-	 * N, E>(this); }
-	 * 
-	 * public BatchWriter<G, N, E> getBatchWriter() { return new BatchWriter<G,
-	 * N, E>(); }
-	 */
 }
