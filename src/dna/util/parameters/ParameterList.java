@@ -7,7 +7,11 @@ public class ParameterList {
 
 	public ParameterList(String name, Parameter[] parameters) {
 		this.name = name;
-		this.parameters = parameters;
+		if (parameters != null) {
+			this.parameters = parameters;
+		} else {
+			this.parameters = new Parameter[0];
+		}
 	}
 
 	public String getName() {
