@@ -423,7 +423,7 @@ public class GraphDataStructure {
 	private Complexity getComplexityClass(Class<? extends IDataStructure> ds,
 			Class<? extends IElement> dt, AccessType at, Base b) {
 		try {
-			Method m = ds.getDeclaredMethod("getComplexity", IElement.class,
+			Method m = ds.getDeclaredMethod("getComplexity", Class.class,
 					AccessType.class, Base.class);
 			m.setAccessible(true);
 			Complexity c = (Complexity) m.invoke(null, dt, at, b);
