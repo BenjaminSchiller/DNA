@@ -22,6 +22,10 @@ public class Complexity {
 	public void increaseBy(int increase) {
 		this.counter += increase;
 	}
+	
+	public void setCounter(int c) {
+		this.counter = c;
+	}
 
 	public int getComplexityCounter() {
 		return counter;
