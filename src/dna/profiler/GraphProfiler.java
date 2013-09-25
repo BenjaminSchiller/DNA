@@ -87,7 +87,7 @@ public class GraphProfiler {
 		ProfileEntry innerMap = calls.get(mapKey);
 		if (innerMap == null)
 			return 0;
-		return innerMap.get(p).getComplexityCounter();
+		return innerMap.get(p);
 	}
 
 	public static void reset() {

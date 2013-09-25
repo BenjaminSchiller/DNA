@@ -13,23 +13,27 @@ import dna.profiler.complexity.Complexity;
 import dna.profiler.complexity.ComplexityType;
 
 public class ProfileEntry {
-	private Map<ProfilerType, Complexity> list;
+	private Map<ProfilerType, Integer> list;
+	private GraphDataStructure gds;
 
 	public ProfileEntry(GraphDataStructure gds) {
-		list = Collections
-				.synchronizedMap(new EnumMap<ProfilerType, Complexity>(
+		this.list = Collections
+				.synchronizedMap(new EnumMap<ProfilerType, Integer>(
 						ProfilerType.class));
+		this.gds = gds;
 		for (ProfilerType p : ProfilerType.values()) {
-			list.put(p, gds.getComplexityClass(p));
+			list.put(p, 0);
 		}
 	}
 
-	public Complexity get(ProfilerType p) {
+	public int get(ProfilerType p) {
 		return list.get(p);
 	}
 
 	public void increase(ProfilerType p, int i) {
-		list.get(p).increaseBy(i);
+		int old = list.get(p);
+		int newValue = old + i;
+		list.put(p, newValue);
 	}
 
 	public void increase(ProfilerType p) {
@@ -40,7 +44,7 @@ public class ProfileEntry {
 		StringBuilder s = new StringBuilder();
 		for (ProfilerType p : ProfilerType.values()) {
 			s.append(prefix + "." + p.toString() + "="
-					+ get(p).getComplexityCounter() + "\n");
+					+ get(p) + "\n");
 		}
 		return s.toString();
 	}
@@ -57,7 +61,9 @@ public class ProfileEntry {
 	public String combinedComplexity() {
 		Complexity aggregated = new Complexity();
 		for (ProfilerType p : ProfilerType.values()) {
-			aggregated = new AddedComplexity(aggregated, get(p));
+			Complexity c = gds.getComplexityClass(p);
+			c.setCounter(get(p));
+			aggregated = new AddedComplexity(aggregated, c);
 		}
 		HashMap<ComplexityType, Integer> weightedComplexityMap = aggregated
 				.getWeightedComplexityMap();
