@@ -1,7 +1,5 @@
 package dna.profiler.complexity;
 
-import java.util.HashMap;
-import java.util.Map.Entry;
 
 /**
  * Complexity that is combined of two other complexities
@@ -31,29 +29,19 @@ public class AddedComplexity extends Complexity {
 	}
 
 	@Override
-	public HashMap<ComplexityType, Integer> getComplexityMap() {
-		HashMap<ComplexityType, Integer> res = first.getComplexityMap();
-		HashMap<ComplexityType, Integer> resSecond = second.getComplexityMap();
-		for (Entry<ComplexityType, Integer> e : resSecond.entrySet()) {
-			Integer tempCounter = res.get(e.getKey());
-			tempCounter += e.getValue();
-			res.put(e.getKey(), tempCounter);
-		}
+	public ComplexityMap getComplexityMap() {
+		ComplexityMap res = first.getComplexityMap();
+		ComplexityMap resSecond = second.getComplexityMap();
+		res.add(resSecond);
 		return res;
 	}
 
 	@Override
-	public HashMap<ComplexityType, Integer> getWeightedComplexityMap() {
-		HashMap<ComplexityType, Integer> res = first.getWeightedComplexityMap();
-		HashMap<ComplexityType, Integer> resSecond = second
+	public ComplexityMap getWeightedComplexityMap() {
+		ComplexityMap res = first.getWeightedComplexityMap();
+		ComplexityMap resSecond = second
 				.getWeightedComplexityMap();
-		for (Entry<ComplexityType, Integer> e : resSecond.entrySet()) {
-			Integer tempCounter = res.get(e.getKey());
-			if (tempCounter == null)
-				tempCounter = 0;
-			tempCounter += e.getValue();
-			res.put(e.getKey(), tempCounter);
-		}
+		res.add(resSecond);
 		return res;
 	}
 }

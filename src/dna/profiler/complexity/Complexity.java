@@ -1,7 +1,5 @@
 package dna.profiler.complexity;
 
-import java.util.HashMap;
-
 import dna.profiler.complexity.ComplexityType.Type;
 
 public class Complexity {
@@ -31,14 +29,14 @@ public class Complexity {
 		return counter;
 	}
 
-	public HashMap<ComplexityType, Integer> getComplexityMap() {
-		HashMap<ComplexityType, Integer> res = new HashMap<>();
+	public ComplexityMap getComplexityMap() {
+		ComplexityMap res = new ComplexityMap();
 		res.put(this.complexityType, this.counter);
 		return res;
 	}
 
-	public HashMap<ComplexityType, Integer> getWeightedComplexityMap() {
-		HashMap<ComplexityType, Integer> res = new HashMap<>();
+	public ComplexityMap getWeightedComplexityMap() {
+		ComplexityMap res = new ComplexityMap();
 		res.put(this.complexityType, this.counter * this.factor);
 		return res;
 	}

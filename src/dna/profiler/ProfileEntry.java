@@ -2,15 +2,13 @@ package dna.profiler;
 
 import java.util.Collections;
 import java.util.EnumMap;
-import java.util.HashMap;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import dna.graph.datastructures.GraphDataStructure;
 import dna.profiler.GraphProfiler.ProfilerType;
 import dna.profiler.complexity.AddedComplexity;
 import dna.profiler.complexity.Complexity;
-import dna.profiler.complexity.ComplexityType;
+import dna.profiler.complexity.ComplexityMap;
 
 public class ProfileEntry {
 	private Map<ProfilerType, Integer> list;
@@ -63,15 +61,8 @@ public class ProfileEntry {
 			c.setCounter(get(p));
 			aggregated = new AddedComplexity(aggregated, c);
 		}
-		HashMap<ComplexityType, Integer> weightedComplexityMap = aggregated
+		ComplexityMap weightedComplexityMap = aggregated
 				.getWeightedComplexityMap();
-
-		StringBuilder s = new StringBuilder();
-		for (Entry<ComplexityType, Integer> elem : weightedComplexityMap
-				.entrySet()) {
-			s.append(elem + " -- ");
-		}
-
-		return s.toString();
+		return weightedComplexityMap.toString();
 	}
 }
