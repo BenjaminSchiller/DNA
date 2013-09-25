@@ -6,6 +6,9 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import dna.graph.datastructures.GraphDataStructure;
+import dna.graph.datastructures.IEdgeListDatastructure;
+import dna.graph.datastructures.INodeListDatastructure;
+import dna.graph.tests.GlobalTestParameters;
 import dna.io.Writer;
 import dna.util.Log;
 
@@ -13,6 +16,7 @@ public class GraphProfiler {
 	private static Map<String, ProfileEntry> calls = new HashMap<>();
 	private static boolean active = false;
 	private static GraphDataStructure gds;
+	final static String separator = System.getProperty("line.separator");	
 
 	public static enum ProfilerType {
 		AddNodeGlobal, AddNodeLocal, AddEdgeGlobal, AddEdgeLocal, RemoveNodeGlobal, RemoveNodeLocal, RemoveEdgeGlobal, RemoveEdgeLocal, ContainsNodeGlobal, ContainsNodeLocal, ContainsEdgeGlobal, ContainsEdgeLocal, SizeNodeGlobal, SizeNodeLocal, SizeEdgeGlobal, SizeEdgeLocal, RandomNodeGlobal, RandomEdgeGlobal
@@ -47,7 +51,6 @@ public class GraphProfiler {
 	}
 
 	public static String getCallList(Map<String, ProfileEntry> listOfEntries) {
-		final String separator = System.getProperty("line.separator");
 		StringBuilder res = new StringBuilder();
 		for (Entry<String, ProfileEntry> entry : listOfEntries.entrySet()) {
 			if (res.length() > 0)
@@ -57,16 +60,41 @@ public class GraphProfiler {
 		}
 		return res.toString();
 	}
+	
+	public static String getOtherComplexitiesForEntry(ProfileEntry entry) {
+		GraphDataStructure tempGDS;
+		StringBuilder res = new StringBuilder();
+		for (Class nodeListType : GlobalTestParameters.dataStructures) {
+			for (Class edgeListType : GlobalTestParameters.dataStructures) {
+				for (Class nodeEdgeListType : GlobalTestParameters.dataStructures) {
+					if (!(INodeListDatastructure.class
+							.isAssignableFrom(nodeListType)))
+						continue;
+					if (!(IEdgeListDatastructure.class
+							.isAssignableFrom(edgeListType)))
+						continue;
+					if (!(IEdgeListDatastructure.class
+							.isAssignableFrom(nodeEdgeListType)))
+						continue;
+					tempGDS = new GraphDataStructure(nodeListType, edgeListType, nodeEdgeListType, gds.getNodeType(), gds.getEdgeType());
+					if (res.length() > 0)
+						res.append(separator);
+					res.append( "  Complexity for other gds: " + entry.combinedComplexity(tempGDS));
+				}
+			}
+		}
+		return res.toString();
+	}
 
 	public static String getOutput(Map<String, ProfileEntry> listOfEntries) {
-		final String separator = System.getProperty("line.separator");
 		StringBuilder res = new StringBuilder();
 		for (Entry<String, ProfileEntry> entry : listOfEntries.entrySet()) {
 			if (res.length() > 0)
 				res.append(separator);
 			res.append("Count type: " + entry.getKey() + separator);
 			res.append(entry.getValue().toString());
-			res.append(" Aggr: " + entry.getValue().combinedComplexity(gds));
+			res.append(" Aggr: " + entry.getValue().combinedComplexity(gds) + separator);
+			res.append(getOtherComplexitiesForEntry(entry.getValue()));
 		}
 		return res.toString();
 	}

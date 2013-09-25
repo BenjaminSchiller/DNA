@@ -2,12 +2,11 @@ package dna.graph.tests;
 
 import static org.junit.Assert.assertEquals;
 
-import java.util.HashMap;
-
 import org.junit.Test;
 
 import dna.profiler.complexity.AddedComplexity;
 import dna.profiler.complexity.Complexity;
+import dna.profiler.complexity.ComplexityMap;
 import dna.profiler.complexity.ComplexityType;
 import dna.profiler.complexity.ComplexityType.Type;
 
@@ -25,10 +24,10 @@ public class ComplexityTests {
 		Complexity c3 = new AddedComplexity(c1, c2);
 		assertEquals(2,c3.getComplexityCounter());
 		
-		HashMap<ComplexityType, Integer> complexityMap = c3.getComplexityMap();
+		ComplexityMap complexityMap = c3.getComplexityMap();
 		assertEquals(2, (int)complexityMap.get(c));
 
-		HashMap<ComplexityType, Integer> weightedComplexityMap = c3.getWeightedComplexityMap();
+		ComplexityMap weightedComplexityMap = c3.getWeightedComplexityMap();
 		assertEquals(2, (int)weightedComplexityMap.get(c));
 	}
 	
@@ -40,7 +39,7 @@ public class ComplexityTests {
 		c1.increaseBy(2);
 		c2.increaseBy(4);
 
-		HashMap<ComplexityType, Integer> weightedComplexityMap = c1.getWeightedComplexityMap();
+		ComplexityMap weightedComplexityMap = c1.getWeightedComplexityMap();
 		assertEquals(2, (int)weightedComplexityMap.get(c));
 		weightedComplexityMap = c2.getWeightedComplexityMap();
 		assertEquals(12, (int)weightedComplexityMap.get(c));
@@ -48,7 +47,7 @@ public class ComplexityTests {
 		Complexity c3 = new AddedComplexity(c1, c2);
 		assertEquals(6, c3.getComplexityCounter());
 		
-		HashMap<ComplexityType, Integer> complexityMap = c3.getComplexityMap();
+		ComplexityMap complexityMap = c3.getComplexityMap();
 		assertEquals(6, (int)complexityMap.get(c));	
 		
 		weightedComplexityMap = c3.getWeightedComplexityMap();
@@ -66,7 +65,7 @@ public class ComplexityTests {
 		Complexity c4 = new AddedComplexity(c3, c2);
 		assertEquals(10, c4.getComplexityCounter());
 		
-		HashMap<ComplexityType, Integer> weightedComplexityMap = c1.getWeightedComplexityMap();
+		ComplexityMap weightedComplexityMap = c1.getWeightedComplexityMap();
 		assertEquals(2, (int)weightedComplexityMap.get(c));
 		
 		weightedComplexityMap = c2.getWeightedComplexityMap();
