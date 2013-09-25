@@ -1,8 +1,15 @@
 package dna.profiler.complexity;
 
-public class ComplexityType {
+public class ComplexityType implements Comparable<ComplexityType> {
+	/**
+	 * List of complexity types. Keep it sorted to enable comparisons in
+	 * {@link ComplexityType#compareTo(ComplexityType)}
+	 * 
+	 * @author Nico
+	 * 
+	 */
 	public enum Type {
-		Linear, Static, Unknown
+		Static, Linear, Unknown
 	}
 
 	public enum Base {
@@ -11,7 +18,7 @@ public class ComplexityType {
 
 	private Type complexityType;
 	private Base complexityBase;
-	
+
 	public ComplexityType(Type t, Base b) {
 		this.complexityType = t;
 		this.complexityBase = b;
@@ -83,5 +90,10 @@ public class ComplexityType {
 		default:
 			throw new RuntimeException("Unknown type " + complexityType);
 		}
+	}
+
+	@Override
+	public int compareTo(ComplexityType o) {
+		return this.complexityType.compareTo(o.complexityType);
 	}
 }
