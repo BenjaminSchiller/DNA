@@ -14,13 +14,11 @@ import dna.profiler.complexity.ComplexityType;
 
 public class ProfileEntry {
 	private Map<ProfilerType, Integer> list;
-	private GraphDataStructure gds;
 
-	public ProfileEntry(GraphDataStructure gds) {
+	public ProfileEntry() {
 		this.list = Collections
 				.synchronizedMap(new EnumMap<ProfilerType, Integer>(
 						ProfilerType.class));
-		this.gds = gds;
 		for (ProfilerType p : ProfilerType.values()) {
 			list.put(p, 0);
 		}
@@ -58,7 +56,7 @@ public class ProfileEntry {
 		return s.toString();
 	}
 
-	public String combinedComplexity() {
+	public String combinedComplexity(GraphDataStructure gds) {
 		Complexity aggregated = new Complexity();
 		for (ProfilerType p : ProfilerType.values()) {
 			Complexity c = gds.getComplexityClass(p);

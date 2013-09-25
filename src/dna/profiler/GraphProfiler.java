@@ -53,7 +53,7 @@ public class GraphProfiler {
 			if (res.length() > 0)
 				res.append(separator);
 			res.append(entry.getValue().callsAsString(entry.getKey()));
-			res.append("# Aggr: " + entry.getValue().combinedComplexity());
+			res.append("# Aggr: " + entry.getValue().combinedComplexity(gds));
 		}
 		return res.toString();
 	}
@@ -66,7 +66,7 @@ public class GraphProfiler {
 				res.append(separator);
 			res.append("Count type: " + entry.getKey() + separator);
 			res.append(entry.getValue().toString());
-			res.append(" Aggr: " + entry.getValue().combinedComplexity());
+			res.append(" Aggr: " + entry.getValue().combinedComplexity(gds));
 		}
 		return res.toString();
 	}
@@ -77,7 +77,7 @@ public class GraphProfiler {
 
 		ProfileEntry innerMap = calls.get(mapKey);
 		if (innerMap == null) {
-			innerMap = new ProfileEntry(gds);
+			innerMap = new ProfileEntry();
 			calls.put(mapKey, innerMap);
 		}
 		innerMap.increase(p);
