@@ -1,6 +1,13 @@
 package dna.profiler.complexity;
 
-public class ComplexityType {
+public class ComplexityType implements Comparable<ComplexityType> {
+	/**
+	 * List of complexity types. Keep it sorted to enable comparisons in
+	 * {@link ComplexityType#compareTo(ComplexityType)}
+	 * 
+	 * @author Nico
+	 * 
+	 */
 	public enum Type {
 		Linear, Static, Unknown
 	}
@@ -11,7 +18,7 @@ public class ComplexityType {
 
 	private Type complexityType;
 	private Base complexityBase;
-	
+
 	public ComplexityType(Type t, Base b) {
 		this.complexityType = t;
 		this.complexityBase = b;
@@ -24,18 +31,8 @@ public class ComplexityType {
 		result = prime * result
 				+ ((complexityType == null) ? 0 : complexityType.hashCode());
 
-		/**
-		 * The following looks strange, but is important: only if the Type is
-		 * different from Static or Unknown, it is important for the
-		 * calculation. All calls from these two types do not need further
-		 * differentiation
-		 */
-
-		if (complexityType != Type.Static) {
-			result = prime
-					* result
-					+ ((complexityBase == null) ? 0 : complexityBase.hashCode());
-		}
+		result = prime * result
+				+ ((complexityBase == null) ? 0 : complexityBase.hashCode());
 		return result;
 	}
 
@@ -52,17 +49,6 @@ public class ComplexityType {
 		}
 		ComplexityType other = (ComplexityType) obj;
 
-		/**
-		 * The following looks strange, but is important: only if the Type is
-		 * different from Static or Unknown, it is important for the
-		 * calculation. All calls from these two types do not need further
-		 * differentiation
-		 */
-
-		if ((complexityType == Type.Static && other.complexityType == Type.Static)
-				|| (complexityType == Type.Unknown && other.complexityType == Type.Unknown)) {
-			return true;
-		}
 		if (complexityType != other.complexityType) {
 			return false;
 		}
@@ -83,5 +69,10 @@ public class ComplexityType {
 		default:
 			throw new RuntimeException("Unknown type " + complexityType);
 		}
+	}
+
+	@Override
+	public int compareTo(ComplexityType o) {
+		return this.complexityType.compareTo(o.complexityType);
 	}
 }

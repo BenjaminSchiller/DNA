@@ -1,11 +1,11 @@
 package dna.profiler.complexity;
 
-import java.util.HashMap;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.TreeMap;
 
 public class ComplexityMap implements Comparable<ComplexityMap> {
-	private HashMap<ComplexityType, Integer> map = new HashMap<>();
+	private TreeMap<ComplexityType, Integer> map = new TreeMap<>();
 
 	public String toString() {
 		StringBuilder s = new StringBuilder();
@@ -47,8 +47,9 @@ public class ComplexityMap implements Comparable<ComplexityMap> {
 		for (Entry<ComplexityType, Integer> entry : o.entrySet()) {
 			if (this.get(entry.getKey()) > entry.getValue())
 				return 1;
+			if (this.get(entry.getKey()) < entry.getValue())
+				return -1;
 		}
-
 		return -1;
 	}
 }
