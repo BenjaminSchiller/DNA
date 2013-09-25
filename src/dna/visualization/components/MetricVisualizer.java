@@ -242,5 +242,4 @@ public class MetricVisualizer extends JPanel {
 		return tempValues;
 		// TODO: ADD SUPPORT FOR DISTRIBUTIONS
 	}
-
 }

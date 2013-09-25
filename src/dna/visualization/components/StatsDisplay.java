@@ -1,345 +1,315 @@
 package dna.visualization.components;
 
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.util.Hashtable;
-
-import javax.swing.BorderFactory;
-import javax.swing.BoxLayout;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JProgressBar;
-import javax.swing.JSlider;
-import javax.swing.border.EtchedBorder;
-import javax.swing.border.TitledBorder;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Group;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Listener;
+import org.eclipse.swt.widgets.ProgressBar;
+import org.eclipse.swt.widgets.Scale;
 
 import dna.series.data.BatchData;
-import dna.series.data.RunTime;
-import dna.visualization.BatchHandler;
-import dna.visualization.components.statsdisplay.StatsGroup;
+import dna.series.lists.ValueList;
 
-/**
- * A statsdisplay is used to monitor several statistics of a dynamic graph.
- * 
- * @author Rwilmes
- * 
- */
-public class StatsDisplay extends JPanel implements ChangeListener {
+public class StatsDisplay extends Composite {
 
-	private JPanel SettingsPanel;
-	private JPanel SettingsNotSpeedPanel;
+	public final static String dir = "data/test15/run.0/";
 
-	private JLabel DirectoryLabel;
-	private JLabel DirectoryValue;
+	// groups
+	public final Group general;
+	public final Group genRuntimes;
+	public final Group metRuntimes;
 
-	private JLabel TimestampLabel;
-	private JLabel TimestampValue;
+	// labels
+	public final Label directoryLabel;
+	public final Label directoryValue;
+	public final Label timestampLabel;
+	public final Label timestampValue;
+	public final Label nodesLabel;
+	public final Label nodesValue;
+	public final Label edgesLabel;
+	public final Label edgesValue;
 
-	private JLabel NodesLabel;
-	private JLabel NodesValue;
+	// general runtimes
+	public final Label batchGeneration;
+	public final Label batchGenerationValue;
+	public final Label total;
+	public final Label totalValue;
+	public final Label sum;
+	public final Label sumValue;
+	public final Label overhead;
+	public final Label overheadValue;
+	public final Label metrics;
+	public final Label metricsValue;
+	public final Label graphUpdate;
+	public final Label graphUpdateValue;
 
-	private JLabel EdgesLabel;
-	private JLabel EdgesValue;
+	// metric runtimes
+	public final Label closedTriCCUpdate;
+	public final Label closedTriCCUpdateValue;
+	public final Label closedTriCCRecomp;
+	public final Label closedTriCCRecompValue;
+	public final Label degreeDistRecomp;
+	public final Label degreeDistRecompValue;
+	public final Label degreeDistUpdate;
+	public final Label degreeDistUpdateValue;
+	public final Label openTriCCUpdate;
+	public final Label openTriCCUpdateValue;
+	public final Label openTriCCRecomp;
+	public final Label openTriCCRecompValue;
 
-	private JProgressBar ProgressBar;
+	// progressbar
+	public final ProgressBar progressBar;
+	public final Label progressLabel;
 
-	private JSlider SpeedSlider;
-	private final int SPEED_MIN = 0;
-	private final int SPEED_MAX = 2000;
-	private final int SPEED_INIT = 1000;
+	// speedbar
+	public final Scale speed;
+	public final Label speedLabel;
 
-	private StatsGroup genRuntimes;
-	private StatsGroup metRuntimes;
+	/**
+	 * Initializes the standard statistics module with it's default labels.
+	 * 
+	 * @param arg0
+	 *            Parent composite
+	 * @param arg1
+	 *            SWT style
+	 */
+	public StatsDisplay(Composite arg0, int arg1) {
+		super(arg0, arg1);
 
-	private long minTimestamp;
-	private long maxTimestamp;
+		this.general = new Group(this, SWT.NONE);
+		// dir
+		this.directoryLabel = new Label(general, SWT.LEFT);
+		this.directoryLabel.setText("Dir:\t" + this.dir);
+		this.directoryValue = new Label(general, SWT.RIGHT);
 
-	private BatchHandler bh;
+		// TIMESTAMP
+		this.timestampLabel = new Label(general, SWT.RIGHT);
+		this.timestampLabel.setText("Timestamp:");
+		this.timestampValue = new Label(general, SWT.NONE);
+		this.timestampValue.setAlignment(SWT.LEFT);
+		this.timestampValue.setText("0\t");
 
-	// constructor
-	public StatsDisplay() {
-		super();
+		// Amount of Nodes
+		this.nodesLabel = new Label(general, SWT.RIGHT);
+		this.nodesLabel.setText("Nodes:");
+		this.nodesValue = new Label(general, SWT.NONE);
+		this.nodesValue.setAlignment(SWT.LEFT);
+		this.nodesValue.setText("0\t");
 
-		// set title and border of statistics
-		TitledBorder title = BorderFactory.createTitledBorder("Statistics");
-		title.setBorder(BorderFactory
-				.createEtchedBorder((EtchedBorder.LOWERED)));
-		this.setBorder(title);
+		// Amount of Edges
+		this.edgesLabel = new Label(general, SWT.RIGHT);
+		this.edgesLabel.setText("Edges:");
+		this.edgesValue = new Label(general, SWT.NONE);
+		this.edgesValue.setAlignment(SWT.LEFT);
+		this.edgesValue.setText("0\t");
 
-		GridBagConstraints mainConstraints = new GridBagConstraints();
-		mainConstraints.fill = GridBagConstraints.HORIZONTAL;
-		this.setLayout(new GridBagLayout());
+		// General Runtimes Group
+		this.genRuntimes = new Group(this, SWT.NONE);
+		this.genRuntimes.setText("General Runtimes");
 
-		// set general settings panel
-		this.SettingsPanel = new JPanel();
-		this.SettingsPanel.setName("SettingsPanel");
-		this.SettingsPanel.setLayout(new GridBagLayout());
-		GridBagConstraints settingsPanelConstraints = new GridBagConstraints();
-		settingsPanelConstraints.fill = GridBagConstraints.HORIZONTAL;
+		// Metric Runtimes Group
+		this.metRuntimes = new Group(this, SWT.NONE);
+		this.metRuntimes.setText("Metric Runtimes");
 
-		this.SettingsPanel.setBorder(BorderFactory
-				.createEtchedBorder((EtchedBorder.LOWERED)));
-		this.SettingsPanel.setBorder(BorderFactory.createTitledBorder(""));
+		// progressbar
+		this.progressBar = new ProgressBar(general, SWT.NONE);
+		this.progressBar.setToolTipText("Playback progress");
+		this.progressLabel = new Label(general, SWT.NONE);
+		this.progressLabel.setAlignment(SWT.LEFT);
+		this.progressLabel.setText("00.00 %  ");
 
-		// adding SettingsPanel to mainPanel
-		mainConstraints.gridy = 0;
-		mainConstraints.gridx = 0;
-		this.add(SettingsPanel, mainConstraints);
+		// speedscale
+		this.speed = new Scale(general, SWT.NONE);
+		this.speed.setMinimum(0);
+		this.speed.setMaximum(190);
+		this.speed.setPageIncrement(10);
+		this.speed.setSelection(100);
+		this.speed.setToolTipText("Playback speed");
 
-		this.SettingsNotSpeedPanel = new JPanel();
-		this.SettingsNotSpeedPanel.setLayout(new BoxLayout(
-				this.SettingsNotSpeedPanel, BoxLayout.X_AXIS));
-		settingsPanelConstraints.gridy = 0;
-		settingsPanelConstraints.gridx = 0;
-		this.SettingsPanel.add(this.SettingsNotSpeedPanel,
-				settingsPanelConstraints);
+		this.speedLabel = new Label(general, SWT.NONE);
+		this.speedLabel.setAlignment(SWT.LEFT);
+		this.speedLabel.setText("100");
 
-		JPanel settingLabels = new JPanel();
-		settingLabels.setName("SettingLabels-Panel");
-		settingLabels.setLayout(new BoxLayout(settingLabels, BoxLayout.Y_AXIS));
-		this.SettingsNotSpeedPanel.add(settingLabels);
+		this.speed.addListener(SWT.Selection, new Listener() {
+			public void handleEvent(Event event) {
+				int value = speed.getSelection();
+				speedLabel.setText("" + (value));
+			}
+		});
 
-		JPanel settingValues = new JPanel();
-		settingValues.setName("SettingValues-Panel");
-		settingValues.setLayout(new BoxLayout(settingValues, BoxLayout.Y_AXIS));
-		this.SettingsNotSpeedPanel.add(settingValues);
+		// GENERAL RUNTIMES
+		this.batchGeneration = new Label(genRuntimes, SWT.NONE);
+		batchGeneration.setText("BatchGeneration:");
+		this.batchGenerationValue = new Label(genRuntimes, SWT.NONE);
+		batchGenerationValue.setText("0.0\t");
+		batchGenerationValue.setAlignment(SWT.LEFT);
 
-		// directory
-		this.DirectoryLabel = new JLabel("Directory: ");
-		this.DirectoryValue = new JLabel("./..");
-		settingLabels.add(this.DirectoryLabel);
-		settingValues.add(this.DirectoryValue);
+		this.total = new Label(genRuntimes, SWT.NONE);
+		total.setText("Total:");
+		this.totalValue = new Label(genRuntimes, SWT.NONE);
+		totalValue.setText("0.0\t");
+		totalValue.setAlignment(SWT.LEFT);
 
-		// timestamp
-		this.TimestampLabel = new JLabel("Timestamp: ");
-		this.TimestampValue = new JLabel("0");
-		settingLabels.add(this.TimestampLabel);
-		settingValues.add(this.TimestampValue);
+		this.sum = new Label(genRuntimes, SWT.NONE);
+		sum.setText("Sumne:");
+		this.sumValue = new Label(genRuntimes, SWT.NONE);
+		sumValue.setText("0.0\t");
+		sumValue.setAlignment(SWT.LEFT);
 
-		// amount of nodes
-		this.NodesLabel = new JLabel("Nodes: ");
-		this.NodesValue = new JLabel("0");
-		settingLabels.add(this.NodesLabel);
-		settingValues.add(this.NodesValue);
+		this.overhead = new Label(genRuntimes, SWT.NONE);
+		overhead.setText("Overhead:");
+		this.overheadValue = new Label(genRuntimes, SWT.NONE);
+		overheadValue.setText("0.0\t");
+		overheadValue.setAlignment(SWT.LEFT);
 
-		// amount of edges
-		this.EdgesLabel = new JLabel("Edges: ");
-		this.EdgesValue = new JLabel("0");
-		settingLabels.add(this.EdgesLabel);
-		settingValues.add(this.EdgesValue);
+		this.metrics = new Label(genRuntimes, SWT.NONE);
+		metrics.setText("Metrics:");
+		this.metricsValue = new Label(genRuntimes, SWT.NONE);
+		metricsValue.setText("0.0\t");
+		metricsValue.setAlignment(SWT.LEFT);
 
-		// progress bar
-		this.ProgressBar = new JProgressBar();
-		this.ProgressBar.setName("ProgressBar");
-		settingsPanelConstraints.gridy = 1;
-		settingsPanelConstraints.gridx = 0;
-		this.SettingsPanel.add(this.ProgressBar, settingsPanelConstraints);
-		this.ProgressBar.setStringPainted(true);
+		this.graphUpdate = new Label(genRuntimes, SWT.NONE);
+		graphUpdate.setText("GraphUpdate:");
+		this.graphUpdateValue = new Label(genRuntimes, SWT.NONE);
+		graphUpdateValue.setText("0.0\t");
+		graphUpdateValue.setAlignment(SWT.LEFT);
 
-		// speed slider
-		this.SpeedSlider = new JSlider(JSlider.HORIZONTAL, this.SPEED_MIN,
-				this.SPEED_MAX, this.SPEED_INIT);
-		this.SpeedSlider.setName("SpeedSlider");
-		this.SpeedSlider
-				.setToolTipText("Set the playback speed for simulation in seconds");
-		this.SpeedSlider.setMajorTickSpacing(500);
-		this.SpeedSlider.setMinorTickSpacing(100);
-		this.SpeedSlider.setPaintTicks(true);
-		this.SpeedSlider.setPaintLabels(true);
+		// METRIC RUNTIMES
+		this.degreeDistUpdate = new Label(metRuntimes, SWT.NONE);
+		degreeDistUpdate.setText("degreeDistUpdate:");
+		this.degreeDistUpdateValue = new Label(metRuntimes, SWT.NONE);
+		degreeDistUpdateValue.setText("0.0\t");
+		degreeDistUpdateValue.setAlignment(SWT.LEFT);
 
-		// change speed slider labels
-		Hashtable<Integer, JLabel> labelTable = new Hashtable<Integer, JLabel>();
-		labelTable.put(new Integer(0), new JLabel("0.0"));
-		labelTable.put(new Integer(500), new JLabel("0.5"));
-		labelTable.put(new Integer(1000), new JLabel("1.0"));
-		labelTable.put(new Integer(1500), new JLabel("1.5"));
-		labelTable.put(new Integer(2000), new JLabel("2.0"));
-		this.SpeedSlider.setLabelTable(labelTable);
+		this.degreeDistRecomp = new Label(metRuntimes, SWT.NONE);
+		degreeDistRecomp.setText("degreeDistRecomp:");
+		this.degreeDistRecompValue = new Label(metRuntimes, SWT.NONE);
+		degreeDistRecompValue.setText("0.0\t");
+		degreeDistRecompValue.setAlignment(SWT.LEFT);
 
-		// add event listener
-		this.SpeedSlider.addChangeListener(this);
+		this.closedTriCCUpdate = new Label(metRuntimes, SWT.NONE);
+		closedTriCCUpdate.setText("closedTriCCUpdate:");
+		this.closedTriCCUpdateValue = new Label(metRuntimes, SWT.NONE);
+		closedTriCCUpdateValue.setText("0.0\t");
+		closedTriCCUpdateValue.setAlignment(SWT.LEFT);
 
-		settingsPanelConstraints.fill = GridBagConstraints.VERTICAL;
-		settingsPanelConstraints.gridy = 2;
-		settingsPanelConstraints.gridx = 0;
-		this.SettingsPanel.add(SpeedSlider, settingsPanelConstraints);
+		this.closedTriCCRecomp = new Label(metRuntimes, SWT.NONE);
+		closedTriCCRecomp.setText("closedTriCCRecomp:");
+		this.closedTriCCRecompValue = new Label(metRuntimes, SWT.NONE);
+		closedTriCCRecompValue.setText("0.0\t");
+		closedTriCCRecompValue.setAlignment(SWT.LEFT);
 
-		// general and metric runtime panels
-		this.genRuntimes = new StatsGroup("GeneralRuntimes");
-		this.genRuntimes.setLayout(new BoxLayout(this.genRuntimes,
-				BoxLayout.X_AXIS));
-		this.metRuntimes = new StatsGroup("MetricRuntimes");
-		this.metRuntimes.setLayout(new BoxLayout(this.metRuntimes,
-				BoxLayout.X_AXIS));
+		this.openTriCCUpdate = new Label(metRuntimes, SWT.NONE);
+		openTriCCUpdate.setText("openTriCCUpdate:");
+		this.openTriCCUpdateValue = new Label(metRuntimes, SWT.NONE);
+		openTriCCUpdateValue.setText("0.0\t");
+		openTriCCUpdateValue.setAlignment(SWT.LEFT);
 
-		// add metric runtimes panel to main panel
-		mainConstraints.gridy = 1;
-		mainConstraints.gridx = 0;
-		this.add(this.metRuntimes, mainConstraints);
+		this.openTriCCRecomp = new Label(metRuntimes, SWT.NONE);
+		openTriCCRecomp.setText("openTriCCRecomp:");
+		this.openTriCCRecompValue = new Label(metRuntimes, SWT.NONE);
+		openTriCCRecompValue.setText("0.0\t");
+		openTriCCRecompValue.setAlignment(SWT.LEFT);
 
-		// add general runtimes panel to main panel
-		mainConstraints.gridy = 2;
-		mainConstraints.gridx = 0;
-		this.add(this.genRuntimes, mainConstraints);
-
+		this.setLayout(new GridLayout(1, true));
+		this.pack();
+		general.setLayout(new GridLayout(2, false));
+		general.pack();
+		genRuntimes.setLayout(new GridLayout(2, false));
+		genRuntimes.pack();
+		metRuntimes.setLayout(new GridLayout(2, false));
+		metRuntimes.pack();
 	}
 
 	/**
-	 * Initializes the stats display.
+	 * Updates the shown data with a new BatchData object.
 	 * 
 	 * @param b
-	 *            initial batch
-	 * @param directory
-	 *            directory
-	 * @param minTimestamp
-	 *            timestamp of first batch
-	 * @param maxTimestamp
-	 *            timestamp of last batch
-	 * 
-	 * @author Rwilmes
 	 */
-	public void initData(BatchData b, String directory, long minTimestamp,
-			long maxTimestamp) {
-		this.setDirectory(directory);
-		this.minTimestamp = minTimestamp;
-		this.maxTimestamp = maxTimestamp;
-		this.setTimestamp(minTimestamp);
-		this.setNodes(b.getValues().get("nodes").getValue());
-		this.setEdges(b.getValues().get("edges").getValue());
+	public void update(BatchData b) {
+		ValueList values = b.getValues();
+		this.timestampValue.setText("" + b.getTimestamp());
+		this.nodesValue.setText("" + (int) values.get("nodes").getValue());
+		this.edgesValue.setText("" + (int) values.get("edges").getValue());
 
-		genRuntimes.clear();
-		metRuntimes.clear();
-
-		for (RunTime rt : b.getGeneralRuntimes().getList()) {
-			this.genRuntimes.addValue(rt.getName(), rt.getRuntime());
+		for (String s : b.getGeneralRuntimes().getNames()) {
+			double value = b.getGeneralRuntimes().get(s).getRuntime();
+			switch (s) {
+			case "batchGeneration":
+				this.batchGenerationValue.setText("" + value);
+				break;
+			case "total":
+				this.totalValue.setText("" + value);
+				break;
+			case "sum":
+				this.sumValue.setText("" + value);
+				break;
+			case "overhead":
+				this.overheadValue.setText("" + value);
+				break;
+			case "metrics":
+				this.metricsValue.setText("" + value);
+				break;
+			case "graphUpdate":
+				this.graphUpdateValue.setText("" + value);
+				break;
+			}
 		}
-		for (RunTime rt : b.getMetricRuntimes().getList()) {
-			this.metRuntimes.addValue(rt.getName(), rt.getRuntime());
+		for (String s : b.getMetricRuntimes().getNames()) {
+			double value = b.getMetricRuntimes().get(s).getRuntime();
+			switch (s) {
+			case "closedTriangleClusteringCoefficientUpdate":
+				this.closedTriCCUpdateValue.setText("" + value);
+				break;
+			case "closedTriangleClusteringCoefficientRecomp":
+				this.closedTriCCRecompValue.setText("" + value);
+				break;
+			case "openTriangleClusteringCoefficientUpdate":
+				this.openTriCCUpdateValue.setText("" + value);
+				break;
+			case "openTriangleClusteringCoefficientRecomp":
+				this.openTriCCRecompValue.setText("" + value);
+				break;
+			case "degreeDistributionUpdate":
+				this.degreeDistUpdateValue.setText("" + value);
+				break;
+			case "degreeDistributionRecomp":
+				this.degreeDistRecompValue.setText("" + value);
+				break;
+			}
 		}
-
-		this.validate();
 	}
 
-	/**
-	 * Updates the shown data by providing a new batch.
-	 * 
-	 * @param b
-	 *            batch used to update
-	 * 
-	 * @author Rwilmes
-	 */
-	public void updateData(BatchData b) {
-		this.setTimestamp(b.getTimestamp());
-		this.setNodes(b.getValues().get("nodes").getValue());
-		this.setEdges(b.getValues().get("edges").getValue());
-
-		for (RunTime rt : b.getGeneralRuntimes().getList()) {
-			this.genRuntimes.updateValue(rt.getName(), rt.getRuntime());
-		}
-		for (RunTime rt : b.getMetricRuntimes().getList()) {
-			this.metRuntimes.updateValue(rt.getName(), rt.getRuntime());
-		}
-		if (b.getTimestamp() == this.maxTimestamp) {
-			this.setProgess(100.0);
-		} else {
-			long amount = this.maxTimestamp - this.minTimestamp;
-			long pr = b.getTimestamp() - this.minTimestamp;
-			double percent = (Math.floor(((1.0 * pr) / (1.0 * amount)) * 10000) / 100);
-			this.setProgess(percent);
-		}
-
-		this.validate();
+	public int getSpeed() {
+		return 200 - speed.getSelection();
 	}
 
-	/** Add a new value to the general runtime panel **/
-	public void addGeneralRuntimeValue(String name, double value) {
-		this.genRuntimes.addValue(name, value);
-		this.validate();
-	}
-
-	/** Add a new value to the metric runtime panel **/
-	public void addMetricRuntimeValue(String name, double value) {
-		this.metRuntimes.addValue(name, value);
-		this.validate();
-	}
-
-	/** Update a value from general runtime panel **/
-	public void updateGeneralRuntimeValue(String name, double value) {
-		this.genRuntimes.updateValue(name, value);
-		this.validate();
-	}
-
-	/** Update a value from metric runtime panel **/
-	public void updateMetricRuntimeValue(String name, double value) {
-		this.metRuntimes.updateValue(name, value);
-		this.validate();
-	}
-
-	public void setTimestamp(long timestamp) {
-		this.TimestampValue.setText("" + timestamp);
-		this.validate();
-	}
-
-	public void setDirectory(String directory) {
-		this.DirectoryValue.setText(directory);
-		this.validate();
-	}
-
-	public void setNodes(int nodes) {
-		this.NodesValue.setText("" + nodes);
-		this.validate();
-	}
-
-	public void setNodes(double nodes) {
-		this.setNodes((int) nodes);
-	}
-
-	public void setEdges(int edges) {
-		this.EdgesValue.setText("" + edges);
-		this.validate();
-	}
-
-	public void setEdges(double edges) {
-		this.setEdges((int) edges);
-	}
-
-	public void setProgess(double progress) {
-		this.ProgressBar.setValue((int) Math.floor(progress));
-		this.validate();
-	}
-
-	/** Resets the statistic display **/
 	public void reset() {
-		this.TimestampValue.setText("" + 0);
-		this.NodesValue.setText("" + 0);
-		this.EdgesValue.setText("" + 0);
-		this.ProgressBar.setValue(0);
+		// reset values
+		this.timestampValue.setText("" + 0);
+		this.nodesValue.setText("" + 0);
+		this.edgesValue.setText("" + 0);
 
-		this.metRuntimes.reset();
-		this.genRuntimes.reset();
-		this.validate();
-	}
+		// reset progressbar
+		this.progressLabel.setText("00.00 %");
 
-	public void setBatchHandler(BatchHandler bh) {
-		this.bh = bh;
-	}
-
-	/** initializes the window with the first batch from the batchhandler **/
-	public void init() {
-
-	}
-
-	/** Listen to the speed slider. */
-	public void stateChanged(ChangeEvent e) {
-		JSlider source = (JSlider) e.getSource();
-		if (!source.getValueIsAdjusting()) {
-			if (this.bh == null)
-				System.out
-						.println("Warning: Attempting speed change on unknown BatchHandler");
-			else
-				this.bh.setSpeed((int) source.getValue());
-		}
+		// reset general runtimes
+		this.progressBar.setSelection(0);
+		this.batchGenerationValue.setText("" + 0.0);
+		this.totalValue.setText("" + 0.0);
+		this.sumValue.setText("" + 0.0);
+		this.overheadValue.setText("" + 0.0);
+		this.metricsValue.setText("" + 0.0);
+		this.graphUpdateValue.setText("" + 0.0);
+		// reset metric runtimes
+		this.closedTriCCUpdateValue.setText("" + 0.0);
+		this.closedTriCCRecompValue.setText("" + 0.0);
+		this.openTriCCUpdateValue.setText("" + 0.0);
+		this.openTriCCRecompValue.setText("" + 0.0);
+		this.degreeDistUpdateValue.setText("" + 0.0);
+		this.degreeDistRecompValue.setText("" + 0.0);
 	}
 }
