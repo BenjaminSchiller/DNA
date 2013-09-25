@@ -266,7 +266,7 @@ public class ProfilerTest {
 		}
 
 		@Override
-		protected void init_() {
+		public void init_() {
 		}
 
 		@Override
@@ -274,17 +274,17 @@ public class ProfilerTest {
 		}
 
 		@Override
-		protected Value[] getValues() {
+		public Value[] getValues() {
 			return null;
 		}
 
 		@Override
-		protected Distribution[] getDistributions() {
+		public Distribution[] getDistributions() {
 			return null;
 		}
 
 		@Override
-		protected NodeValueList[] getNodeValueLists() {
+		public NodeValueList[] getNodeValueLists() {
 			return null;
 		}
 
