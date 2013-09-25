@@ -39,8 +39,7 @@ public class ProfileEntry {
 	public String callsAsString(String prefix) {
 		StringBuilder s = new StringBuilder();
 		for (ProfilerType p : ProfilerType.values()) {
-			s.append(prefix + "." + p.toString() + "="
-					+ get(p) + "\n");
+			s.append(prefix + "." + p.toString() + "=" + get(p) + "\n");
 		}
 		return s.toString();
 	}
@@ -54,15 +53,13 @@ public class ProfileEntry {
 		return s.toString();
 	}
 
-	public String combinedComplexity(GraphDataStructure gds) {
+	public ComplexityMap combinedComplexity(GraphDataStructure gds) {
 		Complexity aggregated = new Complexity();
 		for (ProfilerType p : ProfilerType.values()) {
 			Complexity c = gds.getComplexityClass(p);
 			c.setCounter(get(p));
 			aggregated = new AddedComplexity(aggregated, c);
 		}
-		ComplexityMap weightedComplexityMap = aggregated
-				.getWeightedComplexityMap();
-		return weightedComplexityMap.toString();
+		return aggregated.getWeightedComplexityMap();
 	}
 }

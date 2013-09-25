@@ -11,6 +11,11 @@ public class ComplexityType {
 
 	private Type complexityType;
 	private Base complexityBase;
+	
+	public ComplexityType(Type t, Base b) {
+		this.complexityType = t;
+		this.complexityBase = b;
+	}
 
 	@Override
 	public int hashCode() {
@@ -65,11 +70,6 @@ public class ComplexityType {
 			return false;
 		}
 		return true;
-	}
-
-	public ComplexityType(Type t, Base b) {
-		this.complexityType = t;
-		this.complexityBase = b;
 	}
 
 	public String toString() {

@@ -403,10 +403,21 @@ public class GraphDataStructure {
 		return DirectedEdge.class.isAssignableFrom(edgeType);
 	}
 
+	public String getStorageDataStructures(boolean getSimpleNames) {
+		if (getSimpleNames) {
+			return nodeListType.getSimpleName() + Keywords.classDelimiter
+					+ graphEdgeListType.getSimpleName()
+					+ Keywords.classDelimiter
+					+ nodeEdgeListType.getSimpleName();
+		} else {
+			return nodeListType.getName() + Keywords.classDelimiter
+					+ graphEdgeListType.getName() + Keywords.classDelimiter
+					+ nodeEdgeListType.getName();
+		}
+	}
+
 	public String getDataStructures() {
-		return nodeListType.getName() + Keywords.classDelimiter
-				+ graphEdgeListType.getName() + Keywords.classDelimiter
-				+ nodeEdgeListType.getName() + Keywords.classDelimiter
+		return getStorageDataStructures(false) + Keywords.classDelimiter
 				+ nodeType.getName() + Keywords.classDelimiter
 				+ edgeType.getName();
 	}

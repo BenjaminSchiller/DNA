@@ -4,19 +4,22 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.TreeMap;
 
 import dna.graph.datastructures.GraphDataStructure;
 import dna.graph.datastructures.IEdgeListDatastructure;
 import dna.graph.datastructures.INodeListDatastructure;
 import dna.graph.tests.GlobalTestParameters;
 import dna.io.Writer;
+import dna.profiler.complexity.ComplexityMap;
 import dna.util.Log;
 
 public class GraphProfiler {
 	private static Map<String, ProfileEntry> calls = new HashMap<>();
 	private static boolean active = false;
 	private static GraphDataStructure gds;
-	final static String separator = System.getProperty("line.separator");	
+	final static String separator = System.getProperty("line.separator");
+	private static final int NumberOfRecommendations = 5;
 
 	public static enum ProfilerType {
 		AddNodeGlobal, AddNodeLocal, AddEdgeGlobal, AddEdgeLocal, RemoveNodeGlobal, RemoveNodeLocal, RemoveEdgeGlobal, RemoveEdgeLocal, ContainsNodeGlobal, ContainsNodeLocal, ContainsEdgeGlobal, ContainsEdgeLocal, SizeNodeGlobal, SizeNodeLocal, SizeEdgeGlobal, SizeEdgeLocal, RandomNodeGlobal, RandomEdgeGlobal
@@ -60,9 +63,10 @@ public class GraphProfiler {
 		}
 		return res.toString();
 	}
-	
+
 	public static String getOtherComplexitiesForEntry(ProfileEntry entry) {
 		GraphDataStructure tempGDS;
+		TreeMap<ComplexityMap, GraphDataStructure> listOfOtherComplexities = new TreeMap<>();
 		StringBuilder res = new StringBuilder();
 		for (Class nodeListType : GlobalTestParameters.dataStructures) {
 			for (Class edgeListType : GlobalTestParameters.dataStructures) {
@@ -76,13 +80,28 @@ public class GraphProfiler {
 					if (!(IEdgeListDatastructure.class
 							.isAssignableFrom(nodeEdgeListType)))
 						continue;
-					tempGDS = new GraphDataStructure(nodeListType, edgeListType, nodeEdgeListType, gds.getNodeType(), gds.getEdgeType());
-					if (res.length() > 0)
-						res.append(separator);
-					res.append( "  Complexity for other gds: " + entry.combinedComplexity(tempGDS));
+					tempGDS = new GraphDataStructure(nodeListType,
+							edgeListType, nodeEdgeListType, gds.getNodeType(),
+							gds.getEdgeType());
+					listOfOtherComplexities.put(
+							entry.combinedComplexity(tempGDS), tempGDS);
 				}
 			}
 		}
+
+		res.append("  Recommendations: ");
+		for (int i = 0; (i < NumberOfRecommendations && listOfOtherComplexities
+				.size() > 0); i++) {
+			Entry<ComplexityMap, GraphDataStructure> pollFirstEntry = listOfOtherComplexities
+					.pollFirstEntry();
+			String polledEntry = pollFirstEntry.getValue()
+					.getStorageDataStructures(true)
+					+ ": "
+					+ pollFirstEntry.getKey();
+			res.append(separator);
+			res.append("   " + polledEntry);
+		}
+
 		return res.toString();
 	}
 
@@ -93,7 +112,8 @@ public class GraphProfiler {
 				res.append(separator);
 			res.append("Count type: " + entry.getKey() + separator);
 			res.append(entry.getValue().toString());
-			res.append(" Aggr: " + entry.getValue().combinedComplexity(gds) + separator);
+			res.append(" Aggr: " + entry.getValue().combinedComplexity(gds)
+					+ separator);
 			res.append(getOtherComplexitiesForEntry(entry.getValue()));
 		}
 		return res.toString();

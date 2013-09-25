@@ -4,13 +4,15 @@ import java.util.HashMap;
 import java.util.Map.Entry;
 import java.util.Set;
 
-public class ComplexityMap {
+public class ComplexityMap implements Comparable<ComplexityMap> {
 	private HashMap<ComplexityType, Integer> map = new HashMap<>();
 
 	public String toString() {
 		StringBuilder s = new StringBuilder();
 		for (Entry<ComplexityType, Integer> elem : entrySet()) {
-			s.append(elem + " -- ");
+			if (s.length() > 0)
+				s.append(" -- ");
+			s.append(elem);
 		}
 		return s.toString();
 	}
@@ -30,10 +32,23 @@ public class ComplexityMap {
 	}
 
 	public Integer get(ComplexityType key) {
-		return map.get(key);
+		Integer res = map.get(key);
+		if (res == null)
+			res = 0;
+		return res;
 	}
 
-	private Set<Entry<ComplexityType, Integer>> entrySet() {
+	public Set<Entry<ComplexityType, Integer>> entrySet() {
 		return map.entrySet();
+	}
+
+	@Override
+	public int compareTo(ComplexityMap o) {
+		for (Entry<ComplexityType, Integer> entry : o.entrySet()) {
+			if (this.get(entry.getKey()) > entry.getValue())
+				return 1;
+		}
+
+		return -1;
 	}
 }
