@@ -23,7 +23,7 @@ public class NodeValueListList extends List<NodeValueList> {
 
 	public void write(String dir) throws IOException {
 		for (NodeValueList n : this.getList()) {
-			n.write(dir, Files.getDistributionFilename(n.getName()));
+			n.write(dir, Files.getNodeValueListFilename(n.getName()));
 		}
 	}
 
