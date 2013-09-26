@@ -11,6 +11,7 @@ import dna.graph.nodes.Node;
 import dna.io.filesystem.Dir;
 import dna.io.filesystem.Files;
 import dna.metrics.Metric;
+import dna.metrics.Metric.ApplicationType;
 import dna.profiler.GraphProfiler.ProfilerType;
 import dna.series.Series;
 import dna.series.SeriesGeneration;
@@ -69,7 +70,9 @@ public aspect MetricsProfiler {
 	}
 
 	boolean around(Metric metricObject) : initialMetric(metricObject) {
-		currentMetric = metricObject.getName() + initialAddition;
+		currentMetric = metricObject.getName();
+		if (metricObject.getApplicationType() != ApplicationType.Recomputation)
+			currentMetric += initialAddition;
 		boolean res = proceed(metricObject);
 		currentMetric = null;
 		return res;
