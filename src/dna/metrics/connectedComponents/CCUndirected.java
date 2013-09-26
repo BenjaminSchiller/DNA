@@ -62,19 +62,20 @@ public abstract class CCUndirected extends Metric {
 
 	protected void calculateWeights(SpanningTreeNode n) {
 
-		if (nodesTreeElement.get(n.getNode().getIndex()).getChildren() == null) {
-			nodesTreeElement.get(n.getNode().getIndex()).setWeight(1);
-		} else {
-			int sumChildren = 0;
-			for (SpanningTreeNode child : n.getChildren()) {
-				if (child.getWeight() == 0) {
-					calculateWeights(child);
-				}
-				sumChildren += child.getWeight();
-			}
-			nodesTreeElement.get(n.getNode().getIndex()).setWeight(
-					sumChildren + 1);
-		}
+		// if (nodesTreeElement.get(n.getNode().getIndex()).getChildren() ==
+		// null) {
+		// nodesTreeElement.get(n.getNode().getIndex()).setWeight(1);
+		// } else {
+		// int sumChildren = 0;
+		// for (SpanningTreeNode child : n.getChildren()) {
+		// if (child.getWeight() == 0) {
+		// calculateWeights(child);
+		// }
+		// sumChildren += child.getWeight();
+		// }
+		// nodesTreeElement.get(n.getNode().getIndex()).setWeight(
+		// sumChildren + 1);
+		// }
 
 	}
 
@@ -92,17 +93,12 @@ public abstract class CCUndirected extends Metric {
 			this.nodeComponentMembership.put(temp.getNode().getIndex(), comp);
 			this.nodesTreeElement.put(temp.getNode().getIndex(), temp);
 			for (UndirectedEdge n : temp.getNode().getEdges()) {
-				UndirectedNode des = n.getNode1();
-				if (des != temp.getNode()) {
-					des = n.getNode2();
-				}
+				UndirectedNode des = n.getDifferingNode(temp.getNode());
 				if (!visited[des.getIndex()]) {
 					visited[des.getIndex()] = true;
 					SpanningTreeNode newChild = new SpanningTreeNode(des);
 					newChild.setParent(temp);
-					temp.addChild(newChild);
 					q.add(newChild);
-
 				}
 			}
 		}
@@ -117,10 +113,36 @@ public abstract class CCUndirected extends Metric {
 		CCUndirected cc = (CCUndirected) m;
 
 		boolean success = true;
-		success &= this.nodeComponentMembership
-				.equals(cc.nodeComponentMembership);
-		success &= this.componentList.equals(cc.componentList);
+
+		success &= (this.componentList.size() == cc.componentList.size());
+		success &= check(this.nodeComponentMembership,
+				cc.nodeComponentMembership);
 		return success;
+	}
+
+	private boolean check(HashMap<Integer, Integer> map1,
+			HashMap<Integer, Integer> map2) {
+		if (map1.size() != map2.size()) {
+			System.out.println("diff @Number of Compents " + map1.size()
+					+ " != " + map2.size());
+			return false;
+		}
+
+		HashMap<Integer, Integer> checkComp = new HashMap<Integer, Integer>();
+		for (int i : map1.keySet()) {
+			if (!map2.containsKey(i)) {
+				return false;
+			}
+			if (checkComp.containsKey(map1.get(i))) {
+				if (checkComp.get(map1.get(i)) != map2.get(i)) {
+					return false;
+				}
+			} else {
+				checkComp.put(map1.get(i), map2.get(i));
+			}
+		}
+
+		return true;
 	}
 
 	// /compcounter

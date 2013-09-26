@@ -22,6 +22,7 @@ public abstract class RCCFirstKNodesDirected extends Metric {
 	protected LinkedList<DirectedNode> richClub;
 	protected Map<Integer, LinkedList<DirectedNode>> nodesSortedByDegree;
 	protected int richClubSize;
+	protected Map<DirectedNode, Integer> positonInRcc;
 
 	protected int edgesBetweenRichClub;
 	protected double rCC;
@@ -35,7 +36,7 @@ public abstract class RCCFirstKNodesDirected extends Metric {
 		DirectedGraph g = (DirectedGraph) this.g;
 
 		for (DirectedNode n : g.getNodes()) {
-
+			positonInRcc.put(n, Integer.MAX_VALUE);
 			int degree = n.getOutDegree();
 			this.degrees.add(degree);
 			if (nodesSortedByDegree.containsKey(degree)) {
@@ -71,7 +72,10 @@ public abstract class RCCFirstKNodesDirected extends Metric {
 					rest);
 		}
 
+		int counter = 0;
 		for (DirectedNode n : richClub) {
+			positonInRcc.put(n, counter);
+			counter++;
 			for (DirectedEdge e : n.getOutgoingEdges()) {
 				if (richClub.contains(e.getDst())) {
 					edgesBetweenRichClub++;
@@ -106,7 +110,8 @@ public abstract class RCCFirstKNodesDirected extends Metric {
 			if (this.richClub.get(i).getOutDegree() != rcc.richClub.get(i)
 					.getOutDegree()) {
 				success = false;
-				System.out.println(this.richClub.get(i).getOutDegree() + " "
+				System.out.println("Position i " + i + " : "
+						+ this.richClub.get(i).getOutDegree() + " "
 						+ rcc.richClub.get(i).getOutDegree());
 			}
 		}
@@ -122,6 +127,7 @@ public abstract class RCCFirstKNodesDirected extends Metric {
 		this.richClub = new LinkedList<DirectedNode>();
 		this.nodesSortedByDegree = new HashMap<Integer, LinkedList<DirectedNode>>();
 		this.degrees = new TreeSet<Integer>();
+		this.positonInRcc = new HashMap<>();
 
 	}
 
@@ -146,6 +152,7 @@ public abstract class RCCFirstKNodesDirected extends Metric {
 		this.richClub = new LinkedList<DirectedNode>();
 		this.nodesSortedByDegree = new HashMap<Integer, LinkedList<DirectedNode>>();
 		this.degrees = new TreeSet<Integer>();
+		this.positonInRcc = new HashMap<>();
 	}
 
 	@Override

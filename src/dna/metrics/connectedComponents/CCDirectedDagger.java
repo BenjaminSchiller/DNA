@@ -21,9 +21,17 @@ import dna.updates.Update;
 public class CCDirectedDagger extends CCDirected {
 
 	protected Map<Integer, Integer> containmentEdgesForComponents = new HashMap<>();
+	private Map<Integer, LinkedList<Integer>> path = new HashMap<>();
 
 	public CCDirectedDagger() {
 		super("CCDirectedDagger", ApplicationType.AfterUpdate);
+	}
+
+	@Override
+	public void init_() {
+		super.init_();
+		this.containmentEdgesForComponents = new HashMap<>();
+		this.path = new HashMap<>();
 	}
 
 	@Override
@@ -157,15 +165,12 @@ public class CCDirectedDagger extends CCDirected {
 
 			ComponentVertex dstDagNode = this.dag.get(dstIndex);
 
-			if (srcDAGNode.ed.containsKey(this.containmentEdges.get(dst
-					.getIndex()))) {
-				srcDAGNode.ed.get(this.containmentEdges.get(dst.getIndex()))
-						.add(e);
+			if (srcDAGNode.ed.containsKey(dstIndex)) {
+				srcDAGNode.ed.get(dstIndex).add(e);
 			} else {
 				HashSet<DirectedEdge> temp = new HashSet<>();
 				temp.add(e);
-				srcDAGNode.ed.put(this.containmentEdges.get(dst.getIndex()),
-						temp);
+				srcDAGNode.ed.put(dstIndex, temp);
 			}
 
 			if (dstDagNode.ed.containsKey(srcDAGNode.getIndex())) {
@@ -176,8 +181,7 @@ public class CCDirectedDagger extends CCDirected {
 				// update the component and the dag edges to other nodes
 				for (ComponentVertex v : mergedComponets) {
 
-					if (v.getIndex() != this.containmentEdges.get(src
-							.getIndex())) {
+					if (v.getIndex() != srcIndex) {
 						this.containmentEdgesForComponents.put(v.getIndex(),
 								this.containmentEdges.get(src.getIndex()));
 						this.dagExpired.put(v.getIndex(), v);
@@ -195,6 +199,8 @@ public class CCDirectedDagger extends CCDirected {
 
 				// update all dag Edges to new merged component
 				for (ComponentVertex v : this.dag.values()) {
+					System.out.println("bla");
+
 					for (int i : v.ed.keySet()) {
 						if (mergedComponets.contains(dag.get(i))) {
 							if (v.ed.containsKey(srcDAGNode.getIndex())) {
@@ -217,18 +223,43 @@ public class CCDirectedDagger extends CCDirected {
 	private HashSet<ComponentVertex> mergeComponent(ComponentVertex v,
 			ComponentVertex srcComp) {
 		HashSet<ComponentVertex> comp = new HashSet<ComponentVertex>();
-		for (int cV : v.ed.keySet()) {
-			if (cV == srcComp.getIndex()) {
-				comp.add(dag.get(cV));
-			} else {
-				HashSet<ComponentVertex> temp = mergeComponent(dag.get(cV),
-						srcComp);
-				if (temp.contains(srcComp.getIndex())) {
-					comp.addAll(temp);
+		HashSet<ComponentVertex> seen = new HashSet<ComponentVertex>();
+
+		Queue<ComponentVertex> q = new LinkedList<>();
+		q.add(v);
+		seen.add(v);
+		while (!q.isEmpty()) {
+			ComponentVertex n = q.poll();
+			for (int cV : n.ed.keySet()) {
+				if (!seen.contains(this.dag.get(cV))) {
+					q.add(this.dag.get(cV));
+					seen.add(this.dag.get(cV));
+				}
+				if (this.path.containsKey(cV)) {
+					this.path.get(cV).add(n.getIndex());
+				} else {
+					LinkedList<Integer> temp = new LinkedList<>();
+					temp.add(n.getIndex());
+					this.path.put(cV, temp);
+				}
+
+			}
+		}
+		q.add(srcComp);
+		seen.clear();
+		seen.add(srcComp);
+		while (!q.isEmpty()) {
+			ComponentVertex n = q.poll();
+			comp.add(n);
+			for (int i : this.path.get(n.getIndex())) {
+
+				if (!seen.contains(this.dag.get(i))) {
+					q.add(this.dag.get(i));
+					seen.add(this.dag.get(i));
 				}
 			}
-
 		}
+
 		return comp;
 	}
 

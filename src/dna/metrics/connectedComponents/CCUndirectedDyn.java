@@ -3,7 +3,6 @@ package dna.metrics.connectedComponents;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Queue;
-import java.util.Set;
 
 import dna.graph.undirected.UndirectedEdge;
 import dna.graph.undirected.UndirectedNode;
@@ -32,112 +31,6 @@ public class CCUndirectedDyn extends CCUndirected {
 		this.searchSmallerComponent = searchSmallerComponent;
 	}
 
-	private void updateComponentIndex(int component, SpanningTreeNode dst) {
-		Queue<SpanningTreeNode> q = new LinkedList<SpanningTreeNode>();
-		q.add(dst);
-
-		while (!q.isEmpty()) {
-			SpanningTreeNode temp = (SpanningTreeNode) q.poll();
-			for (SpanningTreeNode n : temp.getChildren()) {
-				q.add(n);
-
-			}
-			this.nodeComponentMembership.put(temp.getNode().getIndex(),
-					component);
-		}
-
-	}
-
-	private boolean saveRemove(SpanningTreeNode srcTreeElement,
-			SpanningTreeNode dstTreeElement) {
-		Queue<SpanningTreeNode> q = new LinkedList<SpanningTreeNode>();
-		dstTreeElement.setParent(null);
-		q.add(dstTreeElement);
-
-		Set<UndirectedNode> nodes = bfsDYN(dstTreeElement);
-
-		for (UndirectedEdge ed : dstTreeElement.getNode().getEdges()) {
-			UndirectedNode n = ed.getNode1();
-			if (n == dstTreeElement.getNode())
-				n = ed.getNode2();
-
-			if (!nodes.contains(n)
-					&& this.nodeComponentMembership.get(n.getIndex()) == this.nodeComponentMembership
-							.get(dstTreeElement.getNode().getIndex())) {
-				dstTreeElement
-						.setParent(this.nodesTreeElement.get(n.getIndex()));
-				return true;
-			}
-		}
-
-		while (!q.isEmpty()) {
-			SpanningTreeNode temp = (SpanningTreeNode) q.poll();
-
-			for (UndirectedEdge ed : temp.getNode().getEdges()) {
-				UndirectedNode n = ed.getNode1();
-				if (n == temp.getNode())
-					n = ed.getNode2();
-
-				if (!temp.getChildren().contains(n) || !nodes.contains(n)) {
-					SpanningTreeNode child = temp;
-					SpanningTreeNode parent = this.nodesTreeElement.get(n
-							.getIndex());
-					parent.addChild(child);
-					child.setParent(parent);
-
-					while (parent.getParent() != null) {
-						child.setParent(parent);
-						parent.addChild(child);
-						child = parent;
-						parent = parent.getParent();
-					}
-					return true;
-				}
-
-			}
-
-			for (SpanningTreeNode spanningTreeNode : temp.getChildren()) {
-				q.add(spanningTreeNode);
-			}
-
-		}
-
-		return false;
-	}
-
-	private Set<UndirectedNode> bfsDYN(SpanningTreeNode treeElement) {
-		Set<UndirectedNode> nodes = new HashSet<UndirectedNode>();
-
-		Queue<SpanningTreeNode> q = new LinkedList<SpanningTreeNode>();
-		q.add(treeElement);
-		while (!q.isEmpty()) {
-			SpanningTreeNode temp = (SpanningTreeNode) q.poll();
-			for (SpanningTreeNode n : temp.getChildren()) {
-				q.add(n);
-				nodes.add(n.getNode());
-			}
-
-		}
-
-		return nodes;
-
-	}
-
-	@Override
-	public boolean applyBeforeBatch(Batch b) {
-		return false;
-	}
-
-	@Override
-	public boolean applyAfterBatch(Batch b) {
-		return false;
-	}
-
-	@Override
-	public boolean applyBeforeUpdate(Update u) {
-		return false;
-	}
-
 	@Override
 	public boolean applyAfterUpdate(Update u) {
 		if (u instanceof NodeAddition) {
@@ -152,8 +45,26 @@ public class CCUndirectedDyn extends CCUndirected {
 		return false;
 	}
 
+	private void updateComponentIndex(int component, SpanningTreeNode dst) {
+		Queue<SpanningTreeNode> q = new LinkedList<SpanningTreeNode>();
+		q.add(dst);
+
+		while (!q.isEmpty()) {
+			SpanningTreeNode temp = (SpanningTreeNode) q.poll();
+			for (UndirectedEdge ed : temp.getNode().getEdges()) {
+				UndirectedNode node = ed.getDifferingNode(temp.getNode());
+				if (this.nodesTreeElement.get(node.getIndex()).getParent() == temp) {
+					q.add(this.nodesTreeElement.get(node.getIndex()));
+				}
+			}
+			this.nodeComponentMembership.put(temp.getNode().getIndex(),
+					component);
+		}
+
+	}
+
 	private boolean applyAfterEdgeRemoval(Update u) {
-		UndirectedEdge e = (UndirectedEdge) ((EdgeAddition) u).getEdge();
+		UndirectedEdge e = (UndirectedEdge) ((EdgeRemoval) u).getEdge();
 		UndirectedNode n1 = e.getNode1();
 		UndirectedNode n2 = e.getNode2();
 
@@ -165,51 +76,119 @@ public class CCUndirectedDyn extends CCUndirected {
 			SpanningTreeNode n2TreeElement = this.nodesTreeElement.get(n2
 					.getIndex());
 
-			if (n1TreeElement.getChildren().contains(n2TreeElement)
-					|| n2TreeElement.getChildren().contains(n1TreeElement)) {
+			if (n1TreeElement.getParent() == n2TreeElement) {
+				checkEdgeRemoval(n2TreeElement, n1TreeElement);
+			} else if (n2TreeElement.getParent() == n1TreeElement) {
+				checkEdgeRemoval(n1TreeElement, n2TreeElement);
 
-				boolean neighbourFound = false;
-
-				for (UndirectedEdge ude : n2.getEdges()) {
-					UndirectedNode n = ude.getNode1();
-					if (n == n2)
-						n = ude.getNode2();
-					if (n1TreeElement.getParent().getNode() == n) {
-						SpanningTreeNode newparent = nodesTreeElement.get(n
-								.getIndex());
-						newparent.addChild(n2TreeElement);
-						n2TreeElement.setParent(newparent);
-						neighbourFound = true;
-					}
-
-					for (SpanningTreeNode stn : n1TreeElement.getChildren()) {
-						if (stn.getNode() == n) {
-							SpanningTreeNode newparent = nodesTreeElement.get(n
-									.getIndex());
-							newparent.addChild(n2TreeElement);
-							n2TreeElement.setParent(newparent);
-							neighbourFound = true;
-						}
-					}
-				}
-
-				if (!neighbourFound) {
-
-					neighbourFound = saveRemove(n1TreeElement, n2TreeElement);
-				}
-
-				if (!neighbourFound) {
-
-					n2TreeElement.setParent(null);
-					n2TreeElement.setRoot(true);
-					n1TreeElement.removeChild(n2TreeElement);
-					updateComponentIndex(n2.getIndex(), n2TreeElement);
-					this.componentList.add(n2TreeElement);
-				}
 			}
 		}
 
 		return true;
+	}
+
+	private void checkEdgeRemoval(SpanningTreeNode n1, SpanningTreeNode n2) {
+		boolean neighbourFound = false;
+
+		// check for direct neighbour
+		HashSet<UndirectedNode> reachableNodes = new HashSet<>();
+		for (UndirectedEdge ed : n1.getNode().getEdges()) {
+			UndirectedNode node = ed.getDifferingNode(n1.getNode());
+			reachableNodes.add(node);
+		}
+		for (UndirectedEdge ed : n2.getNode().getEdges()) {
+			UndirectedNode node = ed.getDifferingNode(n2.getNode());
+			if (reachableNodes.contains(node)) {
+				n2.setParent(this.nodesTreeElement.get(node.getIndex()));
+				neighbourFound = true;
+				break;
+			}
+		}
+
+		if (!neighbourFound) {
+
+			neighbourFound = saveRemove(n1, n2);
+		}
+
+		if (!neighbourFound) {
+
+			n2.setParent(null);
+			n2.setRoot(true);
+			updateComponentIndex(n2.getNode().getIndex(), n2);
+			this.componentList.add(n2);
+		}
+	}
+
+	private boolean saveRemove(SpanningTreeNode n1, SpanningTreeNode n2) {
+
+		Queue<SpanningTreeNode> q = new LinkedList<SpanningTreeNode>();
+		n2.setParent(null);
+		q.add(n2);
+
+		HashSet<SpanningTreeNode> seenNodes = new HashSet<>();
+
+		HashSet<SpanningTreeNode> reachableNodes = new HashSet<>();
+		while (!q.isEmpty()) {
+			SpanningTreeNode temp = (SpanningTreeNode) q.poll();
+			seenNodes.add(temp);
+			for (UndirectedEdge ed : temp.getNode().getEdges()) {
+				UndirectedNode n = ed.getDifferingNode(temp.getNode());
+				if (this.nodesTreeElement.get(n.getIndex()).getParent() == temp) {
+					q.add(this.nodesTreeElement.get(n.getIndex()));
+					if (reachableNodes.contains(this.nodesTreeElement.get(n
+							.getIndex()))) {
+						reachableNodes.remove(this.nodesTreeElement.get(n
+								.getIndex()));
+					}
+					continue;
+				}
+
+				if (!seenNodes
+						.contains(this.nodesTreeElement.get(n.getIndex()))) {
+					reachableNodes.add(this.nodesTreeElement.get(n.getIndex()));
+				}
+			}
+		}
+
+		if (reachableNodes.isEmpty()) {
+			return false;
+		} else {
+			SpanningTreeNode connection = reachableNodes.iterator().next();
+			for (UndirectedEdge ed : connection.getNode().getEdges()) {
+				UndirectedNode node = ed.getDifferingNode(connection.getNode());
+				if (seenNodes.contains(this.nodesTreeElement.get(node
+						.getIndex()))) {
+					restructureTree(connection, node, seenNodes);
+					break;
+				}
+			}
+			return true;
+		}
+
+	}
+
+	private void restructureTree(SpanningTreeNode connection,
+			UndirectedNode node, HashSet<SpanningTreeNode> seenNodes) {
+		SpanningTreeNode spn = this.nodesTreeElement.get(node.getIndex());
+		spn.setParent(connection);
+
+		Queue<SpanningTreeNode> q = new LinkedList<SpanningTreeNode>();
+		q.add(spn);
+
+		while (!seenNodes.isEmpty() && q.isEmpty()) {
+			SpanningTreeNode n = q.poll();
+			for (UndirectedEdge edge : n.getNode().getEdges()) {
+				UndirectedNode node1 = edge.getDifferingNode(spn.getNode());
+				SpanningTreeNode n1 = this.nodesTreeElement.get(node1
+						.getIndex());
+				if (seenNodes.contains(n1)) {
+					seenNodes.remove(n1);
+					n1.setParent(n);
+					q.add(n1);
+				}
+			}
+		}
+
 	}
 
 	private boolean applyAfterEdgeAddition(Update u) {
@@ -226,14 +205,14 @@ public class CCUndirectedDyn extends CCUndirected {
 
 			while (!temp.isRoot()) {
 				SpanningTreeNode newChild = temp.getParent();
-				temp.addChild(newChild);
-				temp.removeChild(newParent);
+				// temp.addChild(newChild);
+				// temp.removeChild(newParent);
 
 				temp.setParent(newParent);
 				newParent = temp;
 				temp = newChild;
 			}
-			temp.removeChild(newParent);
+			// temp.removeChild(newParent);
 			temp.setParent(newParent);
 			temp.setRoot(false);
 			updateComponentIndex(
@@ -265,4 +244,18 @@ public class CCUndirectedDyn extends CCUndirected {
 		return true;
 	}
 
+	@Override
+	public boolean applyBeforeBatch(Batch b) {
+		return false;
+	}
+
+	@Override
+	public boolean applyAfterBatch(Batch b) {
+		return false;
+	}
+
+	@Override
+	public boolean applyBeforeUpdate(Update u) {
+		return false;
+	}
 }

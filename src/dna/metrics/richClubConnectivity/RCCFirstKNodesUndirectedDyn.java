@@ -53,63 +53,63 @@ public class RCCFirstKNodesUndirectedDyn extends RCCFirstKNodesUndirected {
 		UndirectedNode n1 = e.getNode1();
 		UndirectedNode n2 = e.getNode2();
 
-		if (this.richClub.contains(n1) && this.richClub.contains(n2)) {
+		if (this.richClub.contains(n1)) {
 			inRCCAddition(n1, n2);
-			inRCCAddition(n2, n1);
+
+		} else if (n1.getDegree() > this.richClub.getLast().getDegree()) {
+			rccChangeAddition(n1, n2);
 		} else {
-			if (n1.getDegree() > this.richClub.getLast().getDegree()) {
-				rccChangeAddition(n1);
-			} else {
-				notInRCCAddition(n1);
-			}
-			if (n2.getDegree() > this.richClub.getLast().getDegree()) {
-				rccChangeAddition(n2);
-			} else {
-				notInRCCAddition(n2);
-			}
+			notInRCCAddition(n1);
+		}
+
+		if (this.richClub.contains(n2)) {
+			inRCCAddition(n2, n1);
+
+		} else if (n2.getDegree() > this.richClub.getLast().getDegree()) {
+			rccChangeAddition(n2, n1);
+		} else {
+			notInRCCAddition(n2);
 		}
 		this.caculateRCC();
 		return true;
 
 	}
 
-	private void notInRCCAddition(UndirectedNode n1) {
+	private void notInRCCAddition(UndirectedNode n) {
+		this.nodesSortedByDegree.get(n.getDegree() - 1).remove(n);
+		if (this.nodesSortedByDegree.get(n.getDegree() - 1).isEmpty()) {
+			this.nodesSortedByDegree.remove(n.getDegree() - 1);
+		}
+		if (this.nodesSortedByDegree.containsKey(n.getDegree())) {
+			this.nodesSortedByDegree.get(n.getDegree()).addLast(n);
+		} else {
+			LinkedList<UndirectedNode> temp = new LinkedList<UndirectedNode>();
+			temp.add(n);
+			this.nodesSortedByDegree.put(n.getDegree(), temp);
+		}
+	}
+
+	private void rccChangeAddition(UndirectedNode n1, UndirectedNode n2) {
 		this.nodesSortedByDegree.get(n1.getDegree() - 1).remove(n1);
 		if (this.nodesSortedByDegree.get(n1.getDegree() - 1).isEmpty()) {
 			this.nodesSortedByDegree.remove(n1.getDegree() - 1);
 		}
-		if (this.nodesSortedByDegree.containsKey(n1.getDegree())) {
-			this.nodesSortedByDegree.get(n1.getDegree()).addLast(n1);
-		} else {
-			LinkedList<UndirectedNode> temp = new LinkedList<UndirectedNode>();
-			temp.add(n1);
-			this.nodesSortedByDegree.put(n1.getDegree(), temp);
-		}
-	}
 
-	private void rccChangeAddition(UndirectedNode n1) {
 		UndirectedNode lastNode = this.richClub.removeLast();
 
 		for (UndirectedEdge edge : n1.getEdges()) {
-			UndirectedNode node = edge.getNode1();
-			if (node == n1) {
-				node = edge.getNode2();
-			}
-			if (this.richClub.contains(node)) {
-				this.edgesBetweenRichClub += 2;
+			UndirectedNode n = edge.getDifferingNode(n1);
+			if (this.richClub.contains(n)) {
+				this.edgesBetweenRichClub++;
 			}
 		}
 
 		for (UndirectedEdge edge : lastNode.getEdges()) {
-			UndirectedNode node = edge.getNode1();
-			if (node == n1) {
-				node = edge.getNode2();
-			}
-			if (this.richClub.contains(node)) {
-				this.edgesBetweenRichClub -= 2;
+			UndirectedNode n = edge.getDifferingNode(n1);
+			if (this.richClub.contains(n)) {
+				this.edgesBetweenRichClub--;
 			}
 		}
-
 		int i = this.richClubSize - 1;
 		while (i > 0 && this.richClub.get(i - 1).getDegree() < n1.getDegree()) {
 			i--;
@@ -136,7 +136,7 @@ public class RCCFirstKNodesUndirectedDyn extends RCCFirstKNodesUndirected {
 		}
 		this.richClub.add(i, n1);
 
-		if (this.richClub.contains(n2)) {
+		if (this.richClub.contains(n1)) {
 			this.edgesBetweenRichClub++;
 		}
 	}
@@ -244,21 +244,13 @@ public class RCCFirstKNodesUndirectedDyn extends RCCFirstKNodesUndirected {
 			}
 
 			for (UndirectedEdge edge : n1.getEdges()) {
-				UndirectedNode node = edge.getNode1();
-				if (node == n1) {
-					node = edge.getNode2();
-				}
-
+				UndirectedNode node = edge.getDifferingNode(n1);
 				if (this.richClub.contains(node)) {
 					this.edgesBetweenRichClub -= 2;
 				}
 			}
 			for (UndirectedEdge edge : newNode.getEdges()) {
-				UndirectedNode node = edge.getNode1();
-				if (node == n1) {
-					node = edge.getNode2();
-				}
-
+				UndirectedNode node = edge.getDifferingNode(newNode);
 				if (this.richClub.contains(node)) {
 					this.edgesBetweenRichClub += 2;
 				}
