@@ -88,13 +88,6 @@ public class RCCKNodeIntervalUndirectedDyn extends RCCKNodeIntervalUndirected {
 			}
 		} else {
 
-			// int i = this.nodesRichClub.get(src.getIndex()) - 1;
-			// while (i > 0
-			// && richClubs.get(i).getFirst().getOutDegree() <= src
-			// .getOutDegree()) {
-			// i--;
-			// }
-
 			LinkedList<UndirectedNode> newRC = this.richClubs
 					.get(this.nodesRichClub.get(n1.getIndex()) + 1);
 
@@ -105,10 +98,7 @@ public class RCCKNodeIntervalUndirectedDyn extends RCCKNodeIntervalUndirected {
 			int srcEdges = 0;
 			int lastNodeEdges = 0;
 			for (UndirectedEdge edge : n1.getEdges()) {
-				UndirectedNode node = edge.getNode1();
-				if (node == n1) {
-					node = edge.getNode2();
-				}
+				UndirectedNode node = edge.getDifferingNode(n1);
 				if (this.nodesRichClub.get(node.getIndex()) >= this.nodesRichClub
 						.get(n1.getIndex())) {
 					srcEdges += 2;
@@ -116,10 +106,7 @@ public class RCCKNodeIntervalUndirectedDyn extends RCCKNodeIntervalUndirected {
 			}
 
 			for (UndirectedEdge edge : firstNode.getEdges()) {
-				UndirectedNode node = edge.getNode1();
-				if (node == firstNode) {
-					node = edge.getNode2();
-				}
+				UndirectedNode node = edge.getDifferingNode(firstNode);
 				if (this.nodesRichClub.get(node.getIndex()) > this.nodesRichClub
 						.get(firstNode.getIndex())) {
 					lastNodeEdges += 2;
@@ -161,6 +148,7 @@ public class RCCKNodeIntervalUndirectedDyn extends RCCKNodeIntervalUndirected {
 		UndirectedNode n2 = e.getNode2();
 
 		checkEdgeAddForNodeN(n1, n2);
+		checkEdgeAddForNodeN(n2, n1);
 
 		int edgesbetweenRCC = 0;
 		for (int i = 0; i < richClubs.size(); i++) {
@@ -193,13 +181,6 @@ public class RCCKNodeIntervalUndirectedDyn extends RCCKNodeIntervalUndirected {
 			}
 		} else {
 
-			// int i = this.nodesRichClub.get(src.getIndex()) - 1;
-			// while (i > 0
-			// && richClubs.get(i).getFirst().getOutDegree() <= src
-			// .getOutDegree()) {
-			// i--;
-			// }
-
 			LinkedList<UndirectedNode> newRC = this.richClubs
 					.get(this.nodesRichClub.get(n1.getIndex()) - 1);
 
@@ -210,11 +191,7 @@ public class RCCKNodeIntervalUndirectedDyn extends RCCKNodeIntervalUndirected {
 			int srcEdges = 0;
 			int lastNodeEdges = 0;
 			for (UndirectedEdge edge : n1.getEdges()) {
-				UndirectedNode node = edge.getNode1();
-				if (node == n1) {
-					node = edge.getNode2();
-				}
-
+				UndirectedNode node = edge.getDifferingNode(n1);
 				if (this.nodesRichClub.get(node.getIndex()) > this.nodesRichClub
 						.get(n1.getIndex())) {
 					srcEdges += 2;
@@ -222,11 +199,7 @@ public class RCCKNodeIntervalUndirectedDyn extends RCCKNodeIntervalUndirected {
 			}
 
 			for (UndirectedEdge edge : lastNode.getEdges()) {
-				UndirectedNode node = edge.getNode1();
-				if (node == n1) {
-					node = edge.getNode2();
-				}
-
+				UndirectedNode node = edge.getDifferingNode(lastNode);
 				if (this.nodesRichClub.get(node.getIndex()) >= this.nodesRichClub
 						.get(lastNode.getIndex())) {
 					lastNodeEdges += 2;

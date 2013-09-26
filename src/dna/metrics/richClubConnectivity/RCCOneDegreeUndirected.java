@@ -47,10 +47,7 @@ public abstract class RCCOneDegreeUndirected extends Metric {
 		}
 		for (UndirectedNode n : this.richClub) {
 			for (UndirectedEdge ed : n.getEdges()) {
-				UndirectedNode d = ed.getNode1();
-				if (d == n) {
-					d = ed.getNode2();
-				}
+				UndirectedNode d = ed.getDifferingNode(n);
 				if (richClub.contains(d)) {
 					this.richClubEdges++;
 				}

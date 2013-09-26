@@ -51,12 +51,12 @@ public abstract class RCCPerDegreeUndirected extends Metric {
 
 			int edges = 0;
 			for (UndirectedEdge ed : n.getEdges()) {
-				UndirectedNode node = ed.getNode1();
-				if (n == node) {
-					node = ed.getNode2();
-				}
-				if (node.getDegree() >= degree) {
+				UndirectedNode node = ed.getDifferingNode(n);
+				if (node.getDegree() > degree) {
 					edges += 2;
+				}
+				if (node.getDegree() == degree) {
+					edges += 1;
 				}
 			}
 
@@ -126,12 +126,28 @@ public abstract class RCCPerDegreeUndirected extends Metric {
 
 	@Override
 	protected Distribution[] getDistributions() {
-		Distribution d1 = new Distribution("rCC#Members",
-				this.makeDistribution(this.richClubCoefficienten));
-		return new Distribution[] { d1 };
+		Distribution d1 = new Distribution("rCC#Coefficient",
+				this.makeDistribution2(this.richClubCoefficienten));
+		Distribution d2 = new Distribution("rCC#Size",
+				this.makeDistribution1(this.richClubs));
+		return new Distribution[] { d1, d2 };
 	}
 
-	private double[] makeDistribution(
+	private double[] makeDistribution1(Map<Integer, Integer> richClubs2) {
+		double[] result = new double[richClubs2.keySet().size()];
+		int temp = 0;
+		for (int i = this.highestDegree; i > 0; i--) {
+			if (richClubs2.keySet().contains(i)) {
+				result[temp] = richClubs2.get(i);
+				temp++;
+			}
+		}
+
+		return result;
+
+	}
+
+	private double[] makeDistribution2(
 			Map<Integer, Double> richClubCoefficienten2) {
 
 		double[] result = new double[richClubCoefficienten2.keySet().size()];

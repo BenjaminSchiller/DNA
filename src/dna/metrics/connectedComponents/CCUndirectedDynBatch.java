@@ -1,6 +1,9 @@
 package dna.metrics.connectedComponents;
 
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.Queue;
 
 import dna.graph.undirected.UndirectedEdge;
 import dna.graph.undirected.UndirectedNode;
@@ -23,70 +26,91 @@ public class CCUndirectedDynBatch extends CCUndirected {
 	@Override
 	public boolean applyAfterBatch(Batch b) {
 		int r = 0;
-		boolean[][] a = new boolean[this.g.getNodes().size()][this.g.getNodes()
-				.size()];
+
 		Collection<UndirectedEdge> edgeRemovals = (Collection<UndirectedEdge>) b
 				.getEdgeRemovals();
 		for (UndirectedEdge e : edgeRemovals) {
-			UndirectedNode src = e.getNode1();
-			UndirectedNode dst = e.getNode2();
-			SpanningTreeNode dstTreeElement = this.nodesTreeElement.get(dst
+			SpanningTreeNode n1 = this.nodesTreeElement.get(e.getNode1()
 					.getIndex());
-			SpanningTreeNode srcTreeElement = this.nodesTreeElement.get(src
+			SpanningTreeNode n2 = this.nodesTreeElement.get(e.getNode2()
 					.getIndex());
-			if (srcTreeElement.getChildren().contains(dstTreeElement)) {
+			boolean neighbourFound = false;
 
-				boolean foundNeighbour = false;
-				for (UndirectedEdge edge : src.getEdges()) {
-					UndirectedNode n = edge.getNode1();
-					if (src == n)
-						n = edge.getNode2();
-					a[src.getIndex()][n.getIndex()] = true;
-				}
-				for (UndirectedEdge edge : dst.getEdges()) {
-					UndirectedNode n = edge.getNode1();
-					if (src == n)
-						n = edge.getNode2();
-					if (a[src.getIndex()][n.getIndex()]) {
-						foundNeighbour = true;
-						break;
-					}
-				}
-
-				if (!foundNeighbour) {
-					r += 1;
+			HashSet<UndirectedNode> reachableNodes = new HashSet<>();
+			for (UndirectedEdge ed : n1.getNode().getEdges()) {
+				UndirectedNode node = ed.getDifferingNode(n1.getNode());
+				reachableNodes.add(node);
+			}
+			for (UndirectedEdge ed : n2.getNode().getEdges()) {
+				UndirectedNode node = ed.getDifferingNode(n2.getNode());
+				if (reachableNodes.contains(node)) {
+					n2.setParent(this.nodesTreeElement.get(node.getIndex()));
+					neighbourFound = true;
+					break;
 				}
 			}
+
+			if (!neighbourFound) {
+				r += 1;
+			}
 		}
+
 		// TODO: r thres zeigt an ab wann neuberechnet wird
 		if (r > 0) {
 			r = 0;
 			this.reset_();
 			this.compute();
 		} else {
-			int f = 0;
 			for (UndirectedEdge e : (Collection<UndirectedEdge>) b
 					.getEdgeAdditions()) {
-				UndirectedNode src = e.getNode1();
-				UndirectedNode dst = e.getNode2();
-				SpanningTreeNode dstTreeElement = this.nodesTreeElement.get(dst
-						.getIndex());
-				SpanningTreeNode srcTreeElement = this.nodesTreeElement.get(src
-						.getIndex());
+				UndirectedNode n1 = e.getNode1();
+				UndirectedNode n2 = e.getNode2();
 
-				if (this.nodeComponentMembership.get(src.getIndex()) != this.nodeComponentMembership
-						.get(dst.getIndex())) {
-					f += 1;
+				if (this.nodeComponentMembership.get(n1.getIndex()) != this.nodeComponentMembership
+						.get(n2.getIndex())) {
+
+					SpanningTreeNode temp = this.nodesTreeElement.get(n2
+							.getIndex());
+					SpanningTreeNode newParent = this.nodesTreeElement.get(n1
+							.getIndex());
+
+					while (!temp.isRoot()) {
+						SpanningTreeNode newChild = temp.getParent();
+
+						temp.setParent(newParent);
+						newParent = temp;
+						temp = newChild;
+					}
+					temp.setParent(newParent);
+					temp.setRoot(false);
+					updateComponentIndex(
+							this.nodeComponentMembership.get(n1.getIndex()),
+							this.nodesTreeElement.get(n2.getIndex()));
+
 				}
 			}
 
-			if (f > 100) {
-				this.reset_();
-				this.compute();
-			}
 		}
 
 		return true;
+	}
+
+	private void updateComponentIndex(int component, SpanningTreeNode dst) {
+		Queue<SpanningTreeNode> q = new LinkedList<SpanningTreeNode>();
+		q.add(dst);
+
+		while (!q.isEmpty()) {
+			SpanningTreeNode temp = (SpanningTreeNode) q.poll();
+			for (UndirectedEdge ed : temp.getNode().getEdges()) {
+				UndirectedNode node = ed.getDifferingNode(temp.getNode());
+				if (this.nodesTreeElement.get(node.getIndex()).getParent() == temp) {
+					q.add(this.nodesTreeElement.get(node.getIndex()));
+				}
+			}
+			this.nodeComponentMembership.put(temp.getNode().getIndex(),
+					component);
+		}
+
 	}
 
 	@Override

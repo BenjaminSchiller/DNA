@@ -40,9 +40,9 @@ public abstract class CCDirected extends Metric {
 		this.lowLink = new int[this.g.getNodeCount()];
 		this.index = new int[this.g.getNodeCount()];
 		this.visited = new boolean[this.g.getNodeCount()];
-		this.dagExpired = new HashMap<>();
-		this.containmentEdges = new HashMap<>();
-		this.dag = new HashMap<>();
+		this.dagExpired = new HashMap<Integer, ComponentVertex>();
+		this.containmentEdges = new HashMap<Integer, Integer>();
+		this.dag = new HashMap<Integer, ComponentVertex>();
 	}
 
 	@Override
@@ -50,10 +50,10 @@ public abstract class CCDirected extends Metric {
 		this.s = new Stack<DirectedNode>();
 		this.lowLink = new int[this.g.getNodeCount()];
 		this.index = new int[this.g.getNodeCount()];
-		this.dagExpired = new HashMap<>();
-		this.containmentEdges = new HashMap<>();
-		this.dag = new HashMap<>();
 		this.visited = new boolean[this.g.getNodeCount()];
+		this.dagExpired = new HashMap<Integer, ComponentVertex>();
+		this.containmentEdges = new HashMap<Integer, Integer>();
+		this.dag = new HashMap<Integer, ComponentVertex>();
 	}
 
 	@Override
@@ -132,7 +132,7 @@ public abstract class CCDirected extends Metric {
 					}
 				}
 
-			} while (n == node);
+			} while (n != node);
 			this.dag.put(this.componentCounter, newComponent);
 			componentCounter++;
 		}

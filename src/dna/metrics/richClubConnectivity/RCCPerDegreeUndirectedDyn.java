@@ -57,151 +57,99 @@ public class RCCPerDegreeUndirectedDyn extends RCCPerDegreeUndirected {
 		UndirectedEdge e = (UndirectedEdge) ((EdgeRemoval) u).getEdge();
 		UndirectedNode node1 = e.getNode1();
 		UndirectedNode node2 = e.getNode2();
-		int n1Degree = node1.getDegree();
-		int n2Degree = node2.getDegree();
 
-		// Current removal the deleted edge is still in the set from the source
-		// Node
-		int n1edges = 0;
-		int n2edges = 0;
-
-		for (UndirectedEdge ed : node1.getEdges()) {
-			UndirectedNode n = ed.getNode1();
-			if (n == node1) {
-				n = ed.getNode2();
-			}
-
-			if (n.getDegree() > n1Degree) {
-				n1edges += 2;
-			}
-
-		}
-		for (UndirectedEdge ed : node2.getEdges()) {
-			UndirectedNode n = ed.getNode1();
-			if (n == node2) {
-				n = ed.getNode2();
-			}
-
-			if (n.getDegree() > n2Degree) {
-				n2edges += 2;
-			}
-
-		}
-
-		this.richClubs.put(n1Degree + 1, this.richClubs.get(n1Degree + 1) - 1);
-		this.richClubs.put(n2Degree + 1, this.richClubs.get(n2Degree + 1) - 1);
-		this.richClubEdges.put(n1Degree + 1,
-				this.richClubEdges.get(n1Degree + 1) - n1edges);
-		this.richClubEdges.put(n2Degree + 1,
-				this.richClubEdges.get(n2Degree + 1) - n2edges);
-
-		if (this.richClubs.get(n1Degree + 1) == 0) {
-			this.richClubs.remove(n1Degree + 1);
-			this.richClubEdges.remove(n1Degree + 1);
-			this.richClubCoefficienten.remove(n1Degree + 1);
-		}
-		if (this.richClubs.get(n2Degree + 1) == 0) {
-			this.richClubs.remove(n2Degree + 1);
-			this.richClubEdges.remove(n2Degree + 1);
-			this.richClubCoefficienten.remove(n2Degree + 1);
-		}
-
-		if (this.richClubs.containsKey(n2Degree)) {
-			this.richClubs.put(n2Degree, this.richClubs.get(n2Degree) + 1);
-			this.richClubEdges.put(n2Degree, this.richClubEdges.get(n2Degree)
-					+ n2edges);
-
+		if (node1.getDegree() > node2.getDegree()) {
+			this.richClubEdges.put(node2.getDegree() + 1,
+					this.richClubEdges.get(node2.getDegree() + 1) - 2);
 		} else {
-			this.richClubs.put(n2Degree, 1);
-			this.richClubEdges.put(n2Degree, n2edges);
+			this.richClubEdges.put(node1.getDegree() + 1,
+					this.richClubEdges.get(node1.getDegree() + 1) - 2);
 		}
 
-		if (this.richClubs.containsKey(n1Degree)) {
-			this.richClubs.put(n1Degree, this.richClubs.get(n1Degree) + 1);
-			this.richClubEdges.put(n1Degree, this.richClubEdges.get(n1Degree)
-					+ n1edges);
-
-		} else {
-			this.richClubs.put(n1Degree, 1);
-			this.richClubEdges.put(n1Degree, n1edges);
-		}
+		checkChangesDel(node1);
+		checkChangesDel(node2);
 
 		calculateRCC();
 		return true;
 	}
 
+	private void checkChangesDel(UndirectedNode node) {
+		int degree = node.getDegree();
+		int edges = 0;
+		for (UndirectedEdge ed : node.getEdges()) {
+			UndirectedNode n = ed.getDifferingNode(node);
+
+			if (n.getDegree() > degree) {
+				edges += 2;
+			}
+
+		}
+		this.richClubs.put(degree + 1, this.richClubs.get(degree + 1) - 1);
+		this.richClubEdges.put(degree + 1, this.richClubEdges.get(degree + 1)
+				- edges);
+		if (this.richClubs.get(degree + 1) == 0) {
+			removeRCC(degree + 1);
+		}
+
+		if (this.richClubs.containsKey(degree)) {
+			this.richClubs.put(degree, this.richClubs.get(degree) + 1);
+			this.richClubEdges.put(degree, this.richClubEdges.get(degree)
+					+ edges);
+
+		} else {
+			this.richClubs.put(degree, 1);
+			this.richClubEdges.put(degree, edges);
+		}
+
+	}
+
+	private void removeRCC(int degree) {
+		this.richClubs.remove(degree);
+		this.richClubEdges.remove(degree);
+		this.richClubCoefficienten.remove(degree);
+	}
+
 	private boolean applyAfterEdgeAddition(Update u) {
-		UndirectedEdge e = (UndirectedEdge) ((EdgeRemoval) u).getEdge();
+		UndirectedEdge e = (UndirectedEdge) ((EdgeAddition) u).getEdge();
 		UndirectedNode node1 = e.getNode1();
 		UndirectedNode node2 = e.getNode2();
-		int n1Degree = node1.getDegree();
-		int n2Degree = node2.getDegree();
-		int n1edges = 0;
-		int n2edges = 0;
 
-		for (UndirectedEdge ed : node1.getEdges()) {
-			UndirectedNode n = ed.getNode1();
-			if (n == node1) {
-				n = ed.getNode2();
-			}
-
-			if (n.getDegree() >= n1Degree) {
-				n1edges += 2;
-			}
-
-		}
-		for (UndirectedEdge ed : node2.getEdges()) {
-			UndirectedNode n = ed.getNode1();
-			if (n == node2) {
-				n = ed.getNode2();
-			}
-
-			if (n.getDegree() >= n2Degree) {
-				n2edges += 2;
-			}
-
-		}
-
-		this.richClubs.put(n1Degree - 1, this.richClubs.get(n1Degree - 1) - 1);
-		this.richClubs.put(n2Degree - 1, this.richClubs.get(n2Degree - 1) - 1);
-		this.richClubEdges.put(n1Degree - 1,
-				this.richClubEdges.get(n1Degree - 1) - n1edges);
-		this.richClubEdges.put(n2Degree - 1,
-				this.richClubEdges.get(n2Degree - 1) - n2edges);
-
-		if (this.richClubs.get(n1Degree - 1) == 0) {
-			this.richClubs.remove(n1Degree - 1);
-			this.richClubEdges.remove(n1Degree - 1);
-			this.richClubCoefficienten.remove(n1Degree - 1);
-		}
-		if (this.richClubs.get(n2Degree - 1) == 0) {
-			this.richClubs.remove(n2Degree - 1);
-			this.richClubEdges.remove(n2Degree - 1);
-			this.richClubCoefficienten.remove(n2Degree - 1);
-		}
-
-		if (this.richClubs.containsKey(n2Degree)) {
-			this.richClubs.put(n2Degree, this.richClubs.get(n2Degree) + 1);
-			this.richClubEdges.put(n2Degree, this.richClubEdges.get(n2Degree)
-					+ n2edges);
-
-		} else {
-			this.richClubs.put(n2Degree, 1);
-			this.richClubEdges.put(n2Degree, n2edges);
-		}
-
-		if (this.richClubs.containsKey(n1Degree)) {
-			this.richClubs.put(n1Degree, this.richClubs.get(n1Degree) + 1);
-			this.richClubEdges.put(n1Degree, this.richClubEdges.get(n1Degree)
-					+ n1edges);
-
-		} else {
-			this.richClubs.put(n1Degree, 1);
-			this.richClubEdges.put(n1Degree, n1edges);
-		}
+		checkChangesAdd(node1);
+		checkChangesAdd(node2);
 
 		calculateRCC();
 		return true;
+	}
+
+	private void checkChangesAdd(UndirectedNode node) {
+		int degree = node.getDegree();
+		int edges = 0;
+		for (UndirectedEdge ed : node.getEdges()) {
+			UndirectedNode n = ed.getDifferingNode(node);
+
+			if (n.getDegree() >= degree) {
+				edges += 2;
+			}
+
+		}
+		this.richClubs.put(degree - 1, this.richClubs.get(degree - 1) - 1);
+		this.richClubEdges.put(degree - 1, this.richClubEdges.get(degree - 1)
+				- edges);
+		if (this.richClubs.get(degree - 1) == 0) {
+			removeRCC(degree - 1);
+		}
+
+		if (this.richClubs.containsKey(degree)) {
+			this.richClubs.put(degree, this.richClubs.get(degree) + 1);
+			this.richClubEdges.put(degree, this.richClubEdges.get(degree)
+					+ edges);
+
+		} else {
+			this.richClubs.put(degree, 1);
+			this.richClubEdges.put(degree, edges);
+			this.highestDegree = Math.max(degree, this.highestDegree);
+		}
+
 	}
 
 	private boolean applyAfterNodeRemoval(Update u) {
@@ -211,10 +159,7 @@ public class RCCPerDegreeUndirectedDyn extends RCCPerDegreeUndirected {
 		int updateEdges = 0;
 
 		for (UndirectedEdge ed : node.getEdges()) {
-			UndirectedNode n = ed.getNode1();
-			if (n == node) {
-				n = ed.getNode2();
-			}
+			UndirectedNode n = ed.getDifferingNode(node);
 
 			if (n.getDegree() >= node.getDegree()) {
 				updateEdges += 2;

@@ -73,10 +73,8 @@ public abstract class RCCFirstKNodesUndirected extends Metric {
 
 		for (UndirectedNode n : richClub) {
 			for (UndirectedEdge e : n.getEdges()) {
-				UndirectedNode node = e.getNode1();
-				if (node == n) {
-					node = e.getNode2();
-				}
+				UndirectedNode node = e.getDifferingNode(n);
+
 				if (richClub.contains(node)) {
 					edgesBetweenRichClub++;
 				}
