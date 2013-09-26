@@ -9,8 +9,11 @@ import com.google.common.hash.PrimitiveSink;
 import dna.graph.IElement;
 import dna.graph.edges.Edge;
 import dna.graph.nodes.Node;
+import dna.profiler.complexity.Complexity;
+import dna.profiler.complexity.ComplexityType.Base;
 
-public class DBloomFilter extends DataStructure implements INodeListDatastructure, IEdgeListDatastructure {
+public class DBloomFilter extends DataStructure implements
+		INodeListDatastructure, IEdgeListDatastructure {
 	private BloomFilter<IElement> list;
 	private int maxNodeIndex;
 
@@ -107,6 +110,20 @@ public class DBloomFilter extends DataStructure implements INodeListDatastructur
 	@Override
 	public void printList() {
 		// TODO Auto-generated method stub
-		
+	}
+
+	/**
+	 * Get the complexity class for a specific access type
+	 * 
+	 * @param access
+	 *            Access type
+	 * @param base
+	 *            Complexity base (NodeSize, EdgeSize,...)
+	 * @return
+	 */
+	public static Complexity getComplexity(Class<? extends IElement> dt,
+			AccessType access, Base base) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

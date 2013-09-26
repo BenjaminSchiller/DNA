@@ -1,4 +1,4 @@
-package dna.graph.tests;
+package dna.graph.generators;
 
 import dna.graph.Graph;
 import dna.graph.datastructures.GraphDataStructure;
@@ -60,15 +60,4 @@ public class CliqueGenerator extends GraphGenerator {
 		return g;
 
 	}
-
-	@Override
-	public boolean canGenerateNodeType(Class<? extends Node> nodeType) {
-		return true;
-	}
-
-	@Override
-	public boolean canGenerateEdgeType(Class<? extends Edge> edgeType) {
-		return true;
-	}
-
 }

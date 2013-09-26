@@ -3,6 +3,7 @@ package dna.graph.tests;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.junit.Assume.assumeTrue;
@@ -28,6 +29,7 @@ import dna.graph.nodes.IWeightedNode;
 import dna.graph.nodes.Node;
 import dna.graph.nodes.UndirectedNode;
 import dna.io.etc.Keywords;
+import dna.profiler.GraphProfiler.ProfilerType;
 
 @RunWith(Parameterized.class)
 public class GraphTester {
@@ -89,6 +91,13 @@ public class GraphTester {
 		return result;
 	}
 
+	@Test
+	public void datastructureKnowsAboutItsComplexity() {
+		for(ProfilerType p: ProfilerType.values()) {
+			assertNotNull(gds.getComplexityClass(p));
+		}
+	}
+	
 	@Test
 	public void testGraphDataStructureEqualsReadWrite() {
 		String gdsString = gds.getDataStructures();

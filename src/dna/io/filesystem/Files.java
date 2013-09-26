@@ -80,4 +80,11 @@ public class Files {
 	public static String getNodeValueListName(String filename) {
 		return filename.replace(Config.get("SUFFIX_NVL"), "");
 	}
+	
+	/*
+	 * PROFILER
+	 */
+	public static String getProfilerFilename(String name) {
+		return name + Config.get("SUFFIX_VALUE");
+	}	
 }

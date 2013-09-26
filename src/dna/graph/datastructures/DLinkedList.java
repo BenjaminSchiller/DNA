@@ -1,12 +1,17 @@
 package dna.graph.datastructures;
 
-import java.util.LinkedList;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.LinkedList;
 
 import dna.graph.IElement;
 import dna.graph.edges.Edge;
 import dna.graph.nodes.Node;
+import dna.profiler.complexity.AddedComplexity;
+import dna.profiler.complexity.Complexity;
+import dna.profiler.complexity.ComplexityType;
+import dna.profiler.complexity.ComplexityType.Base;
+import dna.profiler.complexity.ComplexityType.Type;
 import dna.util.Rand;
 
 /**
@@ -15,8 +20,8 @@ import dna.util.Rand;
  * @author Nico
  * 
  */
-public class DLinkedList extends DataStructureReadable implements INodeListDatastructureReadable,
-		IEdgeListDatastructureReadable {
+public class DLinkedList extends DataStructureReadable implements
+		INodeListDatastructureReadable, IEdgeListDatastructureReadable {
 	private LinkedList<IElement> list;
 	private int maxNodeIndex;
 
@@ -35,7 +40,8 @@ public class DLinkedList extends DataStructureReadable implements INodeListDatas
 			return this.add((Node) element);
 		if (element instanceof Edge)
 			return this.add((Edge) element);
-		throw new RuntimeException("Can't handle element of type " + element.getClass() + " here");
+		throw new RuntimeException("Can't handle element of type "
+				+ element.getClass() + " here");
 	}
 
 	public boolean add(Node element) {
@@ -58,7 +64,8 @@ public class DLinkedList extends DataStructureReadable implements INodeListDatas
 			return this.contains((Node) element);
 		if (element instanceof Edge)
 			return this.contains((Edge) element);
-		throw new RuntimeException("Can't handle element of type " + element.getClass() + " here");
+		throw new RuntimeException("Can't handle element of type "
+				+ element.getClass() + " here");
 	}
 
 	@Override
@@ -78,7 +85,8 @@ public class DLinkedList extends DataStructureReadable implements INodeListDatas
 		if (element instanceof Edge)
 			return this.remove((Edge) element);
 		else
-			throw new RuntimeException("Cannot remove a non-node from a node list");
+			throw new RuntimeException(
+					"Cannot remove a non-node from a node list");
 	}
 
 	@Override
@@ -170,5 +178,59 @@ public class DLinkedList extends DataStructureReadable implements INodeListDatas
 	@Override
 	public Iterator<IElement> iterator() {
 		return this.list.iterator();
+	}
+
+	/**
+	 * Get the complexity class for a specific access type
+	 * 
+	 * @param access
+	 *            Access type
+	 * @param base
+	 *            Complexity base (NodeSize, EdgeSize,...)
+	 * @return
+	 */
+	public static Complexity getComplexity(Class<? extends IElement> dt,
+			AccessType access, Base base) {
+		switch (access) {
+		case Add:
+			if (Node.class.isAssignableFrom(dt)) {
+				return new AddedComplexity(getComplexity(dt,
+						AccessType.Contains, base), new Complexity(1,
+						new ComplexityType(Type.Static, base)));
+			} else if (Edge.class.isAssignableFrom(dt)) {
+				return new AddedComplexity(getComplexity(dt,
+						AccessType.Contains, base), new Complexity(1,
+						new ComplexityType(Type.Static, base)));
+			}
+		case Contains:
+			if (Node.class.isAssignableFrom(dt)) {
+				return new Complexity(1, new ComplexityType(Type.Linear, base));
+			} else if (Edge.class.isAssignableFrom(dt)) {
+				return new Complexity(1, new ComplexityType(Type.Linear, base));
+			}
+		case Random:
+			if (Node.class.isAssignableFrom(dt)) {
+				return new AddedComplexity(getComplexity(dt, AccessType.Size,
+						base), new Complexity(1, new ComplexityType(
+						Type.Linear, base)));
+			} else if (Edge.class.isAssignableFrom(dt)) {
+				return new AddedComplexity(getComplexity(dt, AccessType.Size,
+						base), new Complexity(1, new ComplexityType(
+						Type.Linear, base)));
+			}
+		case Remove:
+			if (Node.class.isAssignableFrom(dt)) {
+				return new Complexity(1, new ComplexityType(Type.Static, base));
+			} else if (Edge.class.isAssignableFrom(dt)) {
+				return new Complexity(1, new ComplexityType(Type.Static, base));
+			}
+		case Size:
+			if (Node.class.isAssignableFrom(dt)) {
+				return new Complexity(1, new ComplexityType(Type.Static, base));
+			} else if (Edge.class.isAssignableFrom(dt)) {
+				return new Complexity(1, new ComplexityType(Type.Static, base));
+			}
+		}
+		return new Complexity(1, new ComplexityType(Type.Unknown, base));
 	}
 }

@@ -34,9 +34,11 @@ import dna.graph.datastructures.INodeListDatastructureReadable;
 import dna.graph.edges.DirectedEdge;
 import dna.graph.edges.Edge;
 import dna.graph.edges.UndirectedEdge;
+import dna.graph.generators.CliqueGenerator;
 import dna.graph.generators.GraphGenerator;
 import dna.graph.generators.IGraphGenerator;
 import dna.graph.generators.IRandomGenerator;
+import dna.graph.generators.RingGenerator;
 import dna.graph.nodes.DirectedNode;
 import dna.graph.nodes.Node;
 import dna.graph.nodes.UndirectedNode;
@@ -44,7 +46,7 @@ import dna.io.GraphReader;
 import dna.io.GraphWriter;
 import dna.util.parameters.Parameter;
 
-@RunWith(Parameterized.class)
+@RunWith(Parallelized.class)
 public class GeneratorsTest {
 	private Class<? extends Node> nodeType;
 	private Class<? extends Edge> edgeType;
@@ -89,6 +91,8 @@ public class GeneratorsTest {
 			
 			if ( UndirectedNode.class.isAssignableFrom(nodeType))
 				edgeSize = (int) edgeSize / 2;
+		} else if (generator == RingGenerator.class) {
+			edgeSize = nodeSize;
 		}
 
 		this.gg = this.generatorConstructor.newInstance("ABC",
