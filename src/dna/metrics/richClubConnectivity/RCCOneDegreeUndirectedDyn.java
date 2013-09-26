@@ -58,10 +58,7 @@ public class RCCOneDegreeUndirectedDyn extends RCCOneDegreeUndirected {
 			if (node1.getDegree() < this.k && richClub.contains(node1)) {
 				this.richClub.remove(node1);
 				for (UndirectedEdge ed : node1.getEdges()) {
-					UndirectedNode n = ed.getNode1();
-					if (node1 == n) {
-						n = ed.getNode2();
-					}
+					UndirectedNode n = ed.getDifferingNode(node1);
 					if (this.richClub.contains(n)) {
 						this.richClubEdges -= 2;
 					}
@@ -71,10 +68,7 @@ public class RCCOneDegreeUndirectedDyn extends RCCOneDegreeUndirected {
 			if (node2.getDegree() < this.k && richClub.contains(node2)) {
 				this.richClub.remove(node2);
 				for (UndirectedEdge ed : node2.getEdges()) {
-					UndirectedNode n = ed.getNode1();
-					if (node2 == n) {
-						n = ed.getNode2();
-					}
+					UndirectedNode n = ed.getDifferingNode(node2);
 					if (this.richClub.contains(n) && n != node1) {
 						this.richClubEdges -= 2;
 					}
@@ -100,10 +94,7 @@ public class RCCOneDegreeUndirectedDyn extends RCCOneDegreeUndirected {
 
 				this.richClub.add(node1);
 				for (UndirectedEdge ed : node1.getEdges()) {
-					UndirectedNode n = ed.getNode1();
-					if (node1 == n) {
-						n = ed.getNode2();
-					}
+					UndirectedNode n = ed.getDifferingNode(node1);
 					if (this.richClub.contains(n)) {
 						this.richClubEdges += 2;
 					} else if (n == node2 && node2.getDegree() >= this.k) {
@@ -117,10 +108,7 @@ public class RCCOneDegreeUndirectedDyn extends RCCOneDegreeUndirected {
 
 				this.richClub.add(node2);
 				for (UndirectedEdge ed : node2.getEdges()) {
-					UndirectedNode n = ed.getNode1();
-					if (node2 == n) {
-						n = ed.getNode2();
-					}
+					UndirectedNode n = ed.getDifferingNode(node2);
 					if (this.richClub.contains(n)) {
 						if (node1 == n) {
 							this.richClubEdges++;
@@ -146,10 +134,7 @@ public class RCCOneDegreeUndirectedDyn extends RCCOneDegreeUndirected {
 		if (this.richClub.contains(n)) {
 			richClub.remove(n);
 			for (UndirectedEdge ed : n.getEdges()) {
-				UndirectedNode d = ed.getNode1();
-				if (d == n) {
-					d = ed.getNode2();
-				}
+				UndirectedNode d = ed.getDifferingNode(n);
 				if (richClub.contains(d)) {
 					this.richClubEdges -= 2;
 				}
@@ -168,10 +153,7 @@ public class RCCOneDegreeUndirectedDyn extends RCCOneDegreeUndirected {
 		if (n.getDegree() >= this.k) {
 			richClub.add(n);
 			for (UndirectedEdge ed : n.getEdges()) {
-				UndirectedNode d = ed.getNode1();
-				if (d == n) {
-					d = ed.getNode2();
-				}
+				UndirectedNode d = ed.getDifferingNode(n);
 				if (richClub.contains(d)) {
 					this.richClubEdges += 2;
 				}

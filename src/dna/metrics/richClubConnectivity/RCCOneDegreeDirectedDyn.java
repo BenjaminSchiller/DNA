@@ -55,37 +55,41 @@ public class RCCOneDegreeDirectedDyn extends RCCOneDegreeDirected {
 		DirectedNode src = e.getSrc();
 		DirectedNode dst = e.getDst();
 
-		if (richClub.contains(src)) {
-			if (src.getOutDegree() < k) {
-				for (DirectedEdge n : src.getOutgoingEdges()) {
-					if (richClub.contains(n.getDst())) {
-						this.richClubEdges--;
-					}
-				}
-				for (DirectedEdge n : src.getIncomingEdges()) {
-					if (richClub.contains(n.getSrc())) {
-						this.richClubEdges--;
-					}
-				}
-				richClub.remove(src);
-
-			}
-			if (richClub.contains(dst)) {
+		if (src.getOutDegree() + 1 > this.k) {
+			if (dst.getOutDegree() >= this.k) {
 				this.richClubEdges--;
 			}
-			int richClubMembers = richClub.size();
-			this.richClubCoeffizient = (double) this.richClubEdges
-					/ (double) (richClubMembers * (richClubMembers - 1));
+		} else if (src.getOutDegree() + 1 == this.k) {
+			for (DirectedEdge n : src.getOutgoingEdges()) {
+				if (n.getDst().getOutDegree() >= this.k) {
+					this.richClubEdges--;
+				}
+			}
+			for (DirectedEdge n : src.getIncomingEdges()) {
+				if (n.getSrc().getOutDegree() >= this.k) {
+					this.richClubEdges--;
+				}
+			}
+			if (dst.getOutDegree() >= this.k) {
+				this.richClubEdges--;
+			}
+			richClub.remove(src);
 
 		}
 
+<<<<<<< HEAD
 <<<<<<< HEAD:src/dna/metrics/richClubConnectivity/RCCOneDegreeDyn.java
+=======
+>>>>>>> some stuff
 		int richClubMembers = richClub.size();
 		this.richClubCoeffizient = (double) this.richClubEdges
 				/ (double) (richClubMembers * (richClubMembers - 1));
 
+<<<<<<< HEAD
 =======
 >>>>>>> some stuff:src/dna/metrics/richClubConnectivity/RCCOneDegreeDirectedDyn.java
+=======
+>>>>>>> some stuff
 		return true;
 	}
 
@@ -95,23 +99,22 @@ public class RCCOneDegreeDirectedDyn extends RCCOneDegreeDirected {
 		DirectedNode src = e.getSrc();
 		DirectedNode dst = e.getDst();
 
-		if (richClub.contains(src)) {
-			if (richClub.contains(dst)) {
+		if (src.getOutDegree() > this.k) {
+			if (dst.getOutDegree() >= this.k) {
 				this.richClubEdges++;
 			}
-		} else if (src.getOutDegree() >= this.k && !richClub.contains(src)) {
+		} else if (src.getOutDegree() == this.k) {
 			this.richClub.add(src);
 			for (DirectedEdge n : src.getOutgoingEdges()) {
-				if (this.richClub.contains(n.getDst())) {
+				if (n.getDst().getOutDegree() >= this.k) {
 					this.richClubEdges++;
 				}
 			}
 			for (DirectedEdge n : src.getIncomingEdges()) {
-				if (this.richClub.contains(n.getSrc())) {
+				if (n.getSrc().getOutDegree() >= this.k) {
 					this.richClubEdges++;
 				}
 			}
-
 		}
 
 		int richClubMembers = richClub.size();
@@ -144,24 +147,6 @@ public class RCCOneDegreeDirectedDyn extends RCCOneDegreeDirected {
 	}
 
 	private boolean applyAfterNodeAddition(Update u) {
-		DirectedNode n = (DirectedNode) ((NodeAddition) u).getNode();
-		if (n.getOutDegree() > this.k) {
-			this.richClub.add(n);
-			for (DirectedEdge ed : n.getOutgoingEdges()) {
-				if (this.richClub.contains(ed.getDst())) {
-					this.richClubEdges++;
-				}
-			}
-			for (DirectedEdge ed : n.getIncomingEdges()) {
-				if (this.richClub.contains(ed.getSrc())) {
-					this.richClubEdges++;
-				}
-			}
-		}
-
-		int richClubMembers = richClub.size();
-		this.richClubCoeffizient = (double) this.richClubEdges
-				/ (double) (richClubMembers * (richClubMembers - 1));
 		return true;
 	}
 

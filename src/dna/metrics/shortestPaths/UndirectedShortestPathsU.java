@@ -73,11 +73,82 @@ public class UndirectedShortestPathsU extends UndirectedShortestPaths {
 			this.diam = spl.length - 1;
 
 		} else if (u instanceof EdgeRemoval) {
-			// TODO implement SP update edge removal
-			return false;
+			UndirectedGraph g = (UndirectedGraph) this.g;
+
+			UndirectedEdge e = (UndirectedEdge) ((EdgeRemoval) u).getEdge();
+			UndirectedNode n1 = e.getNode1();
+			UndirectedNode n2 = e.getNode2();
+
+			for (UndirectedNode s : g.getNodes()) {
+				HashMap<UndirectedNode, UndirectedNode> parent = this.parents
+						.get(s);
+				HashMap<UndirectedNode, Integer> height = this.heights.get(s);
+
+				if (n1.equals(s)) {
+					this.checkRemoval(n1, n2, parent, height);
+					continue;
+				}
+				if (n2.equals(s)) {
+					this.checkRemoval(n2, n1, parent, height);
+					continue;
+				}
+				if (!parent.containsKey(n1) && !parent.containsKey(n2)) {
+					continue;
+				}
+
+				this.checkRemoval(n1, n2, parent, height);
+				this.checkRemoval(n2, n1, parent, height);
+
+			}
 		}
 
 		return true;
+	}
+
+	private boolean checkRemoval(UndirectedNode a, UndirectedNode b,
+			HashMap<UndirectedNode, UndirectedNode> parent,
+			HashMap<UndirectedNode, Integer> height) {
+		int h_a = height.get(a);
+		int h_b = height.get(b);
+		if (h_a == Integer.MAX_VALUE || h_a + 1 >= h_b) {
+			return false;
+		}
+
+		if (parent.containsKey(b)) {
+			this.existingPaths--;
+
+		}
+		this.spl = ArrayUtils.decr(this.spl, h_b);
+
+		parent.remove(b);
+		UndirectedNode over = b;
+		UndirectedNode under = b;
+		UndirectedNode same = b;
+		for (UndirectedEdge e : b.getEdges()) {
+			UndirectedNode c = e.getDifferingNode(b);
+			if (height.get(c) == h_b + 1) {
+				under = c;
+				checkRemoval(b, c, parent, height);
+				continue;
+			}
+			if (height.get(c) == h_b) {
+				same = c;
+				continue;
+			}
+			if (height.get(c) == h_b - 1) {
+				over = c;
+				continue;
+			}
+		}
+		if (over != b) {
+			check(over, b, parent, height);
+		} else if (same != b) {
+			check(same, b, parent, height);
+		} else if (under != b) {
+			check(under, b, parent, height);
+		}
+		return true;
+
 	}
 
 	protected void check(UndirectedNode a, UndirectedNode b,

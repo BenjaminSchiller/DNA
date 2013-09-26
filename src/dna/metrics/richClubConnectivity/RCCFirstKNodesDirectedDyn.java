@@ -1,6 +1,7 @@
 package dna.metrics.richClubConnectivity;
 
 import java.util.LinkedList;
+import java.util.ListIterator;
 
 import dna.graph.directed.DirectedEdge;
 import dna.graph.directed.DirectedNode;
@@ -53,49 +54,70 @@ public class RCCFirstKNodesDirectedDyn extends RCCFirstKNodesDirected {
 		DirectedNode src = e.getSrc();
 		DirectedNode dst = e.getDst();
 
-		if (this.richClub.contains(src)) {
-			int i = this.richClub.indexOf(src);
-			this.richClub.remove(src);
-
-			while (i > 0
-					&& this.richClub.get(i - 1).getOutDegree() < src
-							.getOutDegree()) {
-				i--;
+		if (this.positonInRcc.get(src) != Integer.MAX_VALUE) {
+			int i = this.positonInRcc.get(src);
+			int newPosition = 0;
+			for (ListIterator it = this.richClub.listIterator(i); it
+					.hasPrevious();) {
+				newPosition = it.previousIndex() + 1;
+				DirectedNode n = (DirectedNode) it.previous();
+				if (n.getOutDegree() >= src.getOutDegree()) {
+					break;
+				}
+				this.positonInRcc.put(n, newPosition);
+				if (!it.hasPrevious()) {
+					newPosition = 0;
+				}
 			}
-			this.richClub.add(i, src);
 
-			if (this.richClub.contains(dst)) {
+			this.richClub.remove(i);
+			this.richClub.add(newPosition, src);
+			this.positonInRcc.put(src, newPosition);
+			if (this.positonInRcc.get(dst) != Integer.MAX_VALUE) {
 				this.edgesBetweenRichClub++;
 			}
 		} else if (src.getOutDegree() > this.richClub.getLast().getOutDegree()) {
+			this.nodesSortedByDegree.get(src.getOutDegree() - 1).remove(src);
+			if (this.nodesSortedByDegree.get(src.getOutDegree() - 1).isEmpty()) {
+				this.nodesSortedByDegree.remove(src.getOutDegree() - 1);
+			}
 
 			DirectedNode lastNode = this.richClub.removeLast();
+			this.positonInRcc.put(lastNode, Integer.MAX_VALUE);
 
 			for (DirectedEdge edge : src.getOutgoingEdges()) {
-				if (this.richClub.contains(edge.getDst())) {
+				if (this.positonInRcc.get(edge.getDst()) != Integer.MAX_VALUE) {
 					this.edgesBetweenRichClub++;
 				}
 			}
 			for (DirectedEdge edge : src.getIncomingEdges()) {
-				if (this.richClub.contains(edge.getSrc())) {
+				if (this.positonInRcc.get(edge.getSrc()) != Integer.MAX_VALUE) {
 					this.edgesBetweenRichClub++;
 				}
 			}
 			for (DirectedEdge edge : lastNode.getIncomingEdges()) {
-				if (this.richClub.contains(edge.getSrc())) {
+				if (this.positonInRcc.get(edge.getSrc()) != Integer.MAX_VALUE) {
 					this.edgesBetweenRichClub--;
 				}
 			}
 			for (DirectedEdge edge : lastNode.getOutgoingEdges()) {
-				if (this.richClub.contains(edge.getDst())) {
+				if (this.positonInRcc.get(edge.getDst()) != Integer.MAX_VALUE) {
 					this.edgesBetweenRichClub--;
 				}
 			}
 			int i = this.richClubSize - 1;
-			while (i > 0
-					&& this.richClub.get(i - 1).getOutDegree() < src
-							.getOutDegree()) {
-				i--;
+			int newPosition = 0;
+			for (ListIterator it = this.richClub.listIterator(i); it
+					.hasPrevious();) {
+				newPosition = it.previousIndex() + 1;
+				DirectedNode n = (DirectedNode) it.previous();
+				if (n.getOutDegree() >= src.getOutDegree()) {
+					break;
+				}
+				this.positonInRcc.put(n, newPosition);
+				if (!it.hasPrevious()) {
+					newPosition = 0;
+				}
 			}
 
 			if (this.nodesSortedByDegree.containsKey(lastNode.getOutDegree())) {
@@ -107,7 +129,8 @@ public class RCCFirstKNodesDirectedDyn extends RCCFirstKNodesDirected {
 				this.nodesSortedByDegree.put(lastNode.getOutDegree(), temp);
 			}
 
-			this.richClub.add(i, src);
+			this.richClub.add(newPosition, src);
+			this.positonInRcc.put(src, newPosition);
 		} else {
 			this.nodesSortedByDegree.get(src.getOutDegree() - 1).remove(src);
 			if (this.nodesSortedByDegree.get(src.getOutDegree() - 1).isEmpty()) {
@@ -159,14 +182,6 @@ public class RCCFirstKNodesDirectedDyn extends RCCFirstKNodesDirected {
 	}
 
 	private boolean applyAfterNodeAddition(Update u) {
-		DirectedNode node = (DirectedNode) ((NodeAddition) u).getNode();
-		if (this.nodesSortedByDegree.containsKey(node.getOutDegree())) {
-			this.nodesSortedByDegree.get(node.getOutDegree()).addLast(node);
-		} else {
-			LinkedList<DirectedNode> temp = new LinkedList<DirectedNode>();
-			temp.add(node);
-			this.nodesSortedByDegree.put(node.getOutDegree(), temp);
-		}
 		return true;
 	}
 
@@ -179,24 +194,35 @@ public class RCCFirstKNodesDirectedDyn extends RCCFirstKNodesDirected {
 
 		int srcDegree = src.getOutDegree();
 
-		if (this.richClub.contains(src)) {
+		if (this.positonInRcc.get(src) != Integer.MAX_VALUE) {
 
 			if (!this.nodesSortedByDegree.containsKey(srcDegree + 1)) {
 				int i = this.richClub.indexOf(src);
+				int newPosition = this.richClubSize - 1;
 				this.richClub.remove(i);
 
-				while (i < this.richClubSize - 1
-						&& this.richClub.get(i).getOutDegree() > srcDegree) {
-					i++;
+				for (ListIterator it = this.richClub.listIterator(i); it
+						.hasNext();) {
+					newPosition = it.nextIndex();
+					DirectedNode n = (DirectedNode) it.next();
+
+					if (n.getOutDegree() <= src.getOutDegree()) {
+						break;
+					}
+					this.positonInRcc.put(n, newPosition);
+					if (!it.hasNext()) {
+						newPosition = this.richClubSize - 1;
+					}
 				}
 
-				this.richClub.add(i, src);
+				this.richClub.add(newPosition, src);
 				if (this.richClub.contains(dst)) {
 					this.edgesBetweenRichClub--;
 				}
 
 			} else {
 				this.richClub.remove(src);
+				this.positonInRcc.put(src, Integer.MAX_VALUE);
 				DirectedNode newNode = this.nodesSortedByDegree.get(
 						srcDegree + 1).removeFirst();
 				if (this.nodesSortedByDegree.get(srcDegree + 1).isEmpty()) {
@@ -204,31 +230,39 @@ public class RCCFirstKNodesDirectedDyn extends RCCFirstKNodesDirected {
 				}
 
 				for (DirectedEdge edge : src.getOutgoingEdges()) {
-					if (this.richClub.contains(edge.getDst())) {
+					if (this.positonInRcc.get(edge.getDst()) != Integer.MAX_VALUE) {
 						this.edgesBetweenRichClub--;
 					}
 				}
 				for (DirectedEdge edge : src.getIncomingEdges()) {
-					if (this.richClub.contains(edge.getSrc())) {
+					if (this.positonInRcc.get(edge.getSrc()) != Integer.MAX_VALUE) {
 						this.edgesBetweenRichClub--;
 					}
 				}
 				for (DirectedEdge edge : newNode.getIncomingEdges()) {
-					if (this.richClub.contains(edge.getSrc())) {
+					if (this.positonInRcc.get(edge.getSrc()) != Integer.MAX_VALUE) {
 						this.edgesBetweenRichClub++;
 					}
 				}
 				for (DirectedEdge edge : newNode.getOutgoingEdges()) {
-					if (this.richClub.contains(edge.getDst())) {
-						this.edgesBetweenRichClub++;
+					if (this.positonInRcc.get(edge.getDst()) != Integer.MAX_VALUE) {
+						this.edgesBetweenRichClub--;
 					}
 				}
 
 				int i = this.richClubSize - 1;
-				while (i > 0
-						&& this.richClub.get(i - 1).getOutDegree() < newNode
-								.getOutDegree()) {
-					i--;
+				int newPosition = 0;
+				for (ListIterator it = this.richClub.listIterator(i); it
+						.hasPrevious();) {
+					newPosition = it.previousIndex() + 1;
+					DirectedNode n = (DirectedNode) it.previous();
+					if (n.getOutDegree() >= src.getOutDegree()) {
+						break;
+					}
+					this.positonInRcc.put(n, newPosition);
+					if (!it.hasPrevious()) {
+						newPosition = 0;
+					}
 				}
 
 				if (this.nodesSortedByDegree.containsKey(srcDegree)) {
@@ -239,8 +273,8 @@ public class RCCFirstKNodesDirectedDyn extends RCCFirstKNodesDirected {
 					this.nodesSortedByDegree.put(srcDegree, temp);
 				}
 
-				this.richClub.add(i, newNode);
-
+				this.richClub.add(newPosition, newNode);
+				this.positonInRcc.put(newNode, newPosition);
 			}
 
 		} else {
@@ -257,7 +291,7 @@ public class RCCFirstKNodesDirectedDyn extends RCCFirstKNodesDirected {
 			}
 		}
 
+		this.caculateRCC();
 		return true;
 	}
-
 }

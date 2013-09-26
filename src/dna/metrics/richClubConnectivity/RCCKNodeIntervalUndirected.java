@@ -95,10 +95,7 @@ public abstract class RCCKNodeIntervalUndirected extends Metric {
 			int edges = 0;
 			for (UndirectedNode n : richClubs.get(i)) {
 				for (UndirectedEdge ed : n.getEdges()) {
-					UndirectedNode node = ed.getNode1();
-					if (node == n) {
-						node = ed.getNode2();
-					}
+					UndirectedNode node = ed.getDifferingNode(n);
 					if (this.nodesRichClub.get(node.getIndex()) >= this.nodesRichClub
 							.get(n.getIndex())) {
 						edges++;
