@@ -22,16 +22,15 @@ import dna.updates.Update;
 import dna.util.Config;
 
 public aspect MetricsProfiler {
-	private static boolean isActive = true;
+	private static boolean isActive = false;
 	private String currentMetric;
 	public static final String initialAddition = ".initialBatch";
 
 	pointcut activate() : execution(* GraphProfiler.activate());
 
 	pointcut newBatch() : execution(BatchData.new(..));
-	pointcut aggregateDataPerRun(Series s, int run) : execution(* SeriesGeneration.generateRun(Series, int, ..)) && args(s, run, ..);
-	pointcut aggregateDataOverAllRuns(Series s) : execution(* SeriesGeneration.generate(Series, int, int, boolean, boolean)) && args(s, ..);
-	
+	pointcut aggregateDataPerRun(Series s, int run) : execution(* SeriesGeneration.generateRun(Series, int, ..)) && args(s, run, ..) && if(isActive);
+	pointcut aggregateDataOverAllRuns(Series s) : execution(* SeriesGeneration.generate(Series, int, int, boolean, boolean)) && args(s, ..) && if(isActive);
 	
 	pointcut initialMetric(Metric metricObject) : execution(* Metric+.compute()) && target(metricObject);
 	pointcut metricAppliedOnUpdate(Metric metricObject, Update<?> updateObject) : (execution(* Metric+.applyBeforeUpdate(Update+))
