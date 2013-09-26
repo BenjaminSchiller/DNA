@@ -5,7 +5,7 @@ public class Keywords {
 
 	public static final String batchData = "BatchData";
 
-	public static final String graphGraph = "Graph";
+	public static final String graphGraph = "dna.graph";
 
 	public static final String graphNodes = "Nodes";
 
@@ -16,6 +16,8 @@ public class Keywords {
 	public static final String graphListOfEdges = "List of Edges";
 
 	public static final String graphTimestamp = "Timestamp";
+	
+	public static final String graphDataStructures = "Datastructures";
 
 	public static final String nodeWeightDelimiter = "@";
 
@@ -34,6 +36,8 @@ public class Keywords {
 	public static final String updateDelimiter1 = "#";
 
 	public static final String updateDelimiter2 = ";";
+
+	public static final String classDelimiter = ";";
 
 	public static String asLine(String keyword) {
 		return Keywords.pre + keyword;

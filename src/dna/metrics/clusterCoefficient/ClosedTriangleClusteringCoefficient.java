@@ -1,11 +1,10 @@
 package dna.metrics.clusterCoefficient;
 
 import dna.graph.Graph;
-import dna.graph.directed.DirectedGraph;
-import dna.graph.directed.DirectedNode;
-import dna.graph.undirected.UndirectedEdge;
-import dna.graph.undirected.UndirectedGraph;
-import dna.graph.undirected.UndirectedNode;
+import dna.graph.IElement;
+import dna.graph.edges.UndirectedEdge;
+import dna.graph.nodes.DirectedNode;
+import dna.graph.nodes.UndirectedNode;
 import dna.metrics.Metric;
 import dna.updates.Batch;
 import dna.util.ArrayUtils;
@@ -14,8 +13,9 @@ import dna.util.ArrayUtils;
 public abstract class ClosedTriangleClusteringCoefficient extends
 		ClusteringCoefficient {
 
-	public ClosedTriangleClusteringCoefficient(String name, ApplicationType type) {
-		super(name, type);
+	public ClosedTriangleClusteringCoefficient(String name,
+			ApplicationType type, MetricType mType) {
+		super(name, type, mType);
 	}
 
 	@Override
@@ -34,15 +34,16 @@ public abstract class ClosedTriangleClusteringCoefficient extends
 
 	public boolean computeUndirected() {
 
-		UndirectedGraph g = (UndirectedGraph) this.g;
-
-		for (UndirectedNode a : g.getNodes()) {
+		for (IElement aUncasted : g.getNodes()) {
+			UndirectedNode a = (UndirectedNode) aUncasted;
 			this.nodeTriangleCount[a.getIndex()] = 0;
 			this.nodePotentialCount[a.getIndex()] = 0;
 
-			for (UndirectedEdge e1 : a.getEdges()) {
+			for (IElement e1Uncasted : a.getEdges()) {
+				UndirectedEdge e1 = (UndirectedEdge) e1Uncasted;
 				UndirectedNode b = e1.getDifferingNode(a);
-				for (UndirectedEdge e2 : a.getEdges()) {
+				for (IElement e2Uncasted : a.getEdges()) {
+					UndirectedEdge e2 = (UndirectedEdge) e2Uncasted;
 					UndirectedNode c = e2.getDifferingNode(a);
 					if (b.equals(c)) {
 						continue;
@@ -60,21 +61,22 @@ public abstract class ClosedTriangleClusteringCoefficient extends
 		}
 
 		this.update();
-		this.averageCC = ArrayUtils.avgIgnoreNaN(this.localCC);
+		this.averageCC = ArrayUtils.avgIgnoreNaN(this.localCC.getValues());
 
 		return true;
 	}
 
 	public boolean computeDirected() {
 
-		DirectedGraph g = (DirectedGraph) this.g;
-
-		for (DirectedNode a : g.getNodes()) {
+		for (IElement aUncasted : g.getNodes()) {
+			DirectedNode a = (DirectedNode) aUncasted;
 			this.nodeTriangleCount[a.getIndex()] = 0;
 			this.nodePotentialCount[a.getIndex()] = 0;
 
-			for (DirectedNode b : a.getNeighbors()) {
-				for (DirectedNode c : a.getNeighbors()) {
+			for (IElement bUncasted : a.getNeighbors()) {
+				DirectedNode b = (DirectedNode) bUncasted;
+				for (IElement cUncasted : a.getNeighbors()) {
+					DirectedNode c = (DirectedNode) cUncasted;
 					if (b.equals(c)) {
 						continue;
 					}
@@ -99,10 +101,10 @@ public abstract class ClosedTriangleClusteringCoefficient extends
 		this.triangleCount += this.nodeTriangleCount[index];
 		this.potentialCount += this.nodePotentialCount[index];
 		if (this.nodePotentialCount[index] == 0) {
-			this.localCC[index] = 0;
+			this.localCC.setValue(index, 0);
 		} else {
-			this.localCC[index] = (double) this.nodeTriangleCount[index]
-					/ (double) this.nodePotentialCount[index];
+			this.localCC.setValue(index, (double) this.nodeTriangleCount[index]
+					/ (double) this.nodePotentialCount[index]);
 		}
 	}
 
@@ -113,7 +115,7 @@ public abstract class ClosedTriangleClusteringCoefficient extends
 			this.globalCC = (double) this.triangleCount
 					/ (double) this.potentialCount;
 		}
-		this.averageCC = ArrayUtils.avgIgnoreNaN(this.localCC);
+		this.averageCC = ArrayUtils.avgIgnoreNaN(this.localCC.getValues());
 	}
 
 	@Override

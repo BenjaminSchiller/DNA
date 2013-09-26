@@ -1,19 +1,12 @@
 package dna.series.aggdata;
 
 import java.io.IOException;
-<<<<<<< HEAD
-import dna.io.filesystem.Dir;
-
-/**
- * AggregatedSeries is a class for objects that contain the aggregation for a whole series.
-=======
 
 import dna.io.filesystem.Dir;
 
 /**
  * AggregatedSeries is a class for objects that contain the aggregation for a
  * whole series.
->>>>>>> remotes/beniMaster/master
  * 
  * @author Rwilmes
  * @date 04.07.2013
@@ -22,16 +15,6 @@ public class AggregatedSeries {
 
 	// member variables
 	private AggregatedBatch[] batches;
-<<<<<<< HEAD
-	
-	// constructors
-	public AggregatedSeries() {}
-		
-	public AggregatedSeries(AggregatedBatch[] batches) {
-		this.batches = batches;
-	}
-	
-=======
 
 	// constructors
 	public AggregatedSeries() {
@@ -41,36 +24,34 @@ public class AggregatedSeries {
 		this.batches = batches;
 	}
 
->>>>>>> remotes/beniMaster/master
 	// methods
 	public AggregatedBatch[] getBatches() {
 		return this.batches;
 	}
-<<<<<<< HEAD
-	
-	// IO Methods 
-	// TODO: READ ??
-	public void write(String dir) throws IOException {
-		for(int i = 0; i < this.getBatches().length; i++) {
-			this.getBatches()[i].write(Dir.getBatchDataDir(dir, i));
-		}
-	}
-		
-		
-}
-	
-	
-	
-
-=======
 
 	// IO Methods
-	// TODO: READ ??
 	public void write(String dir) throws IOException {
 		for (int i = 0; i < this.getBatches().length; i++) {
-			this.getBatches()[i].write(Dir.getBatchDataDir(dir, i));
+			long tempTimestamp = this.getBatches()[i].getTimestamp();
+			this.getBatches()[i].write(Dir.getBatchDataDir(dir, tempTimestamp));
 		}
 	}
 
+	public static AggregatedSeries read(String dir, String name,
+			boolean readValues) throws IOException {
+		String tempDir = Dir.getAggregationDataDir(dir);
+
+		String[] batches = Dir.getBatches(tempDir);
+		AggregatedBatch[] aggBatches = new AggregatedBatch[Dir
+				.getBatches(tempDir).length];
+
+		for (int i = 0; i < batches.length; i++) {
+			long timestamp = Dir.getTimestamp(batches[i]);
+			aggBatches[i] = AggregatedBatch.read(
+					Dir.getAggregationBatchDir(dir, timestamp), timestamp,
+					readValues);
+		}
+
+		return new AggregatedSeries(aggBatches);
+	}
 }
->>>>>>> remotes/beniMaster/master

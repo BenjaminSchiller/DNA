@@ -4,12 +4,11 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Queue;
 
-import dna.graph.undirected.UndirectedEdge;
-import dna.graph.undirected.UndirectedGraph;
-import dna.graph.undirected.UndirectedNode;
+import dna.graph.IElement;
+import dna.graph.edges.UndirectedEdge;
+import dna.graph.nodes.UndirectedNode;
 import dna.updates.Batch;
 import dna.updates.EdgeAddition;
-import dna.updates.EdgeRemoval;
 import dna.updates.NodeAddition;
 import dna.updates.NodeRemoval;
 import dna.updates.Update;
@@ -45,13 +44,12 @@ public class UndirectedShortestPathsUpdate extends UndirectedShortestPaths {
 			// TODO implement SP update node removal
 			return false;
 		} else if (u instanceof EdgeAddition) {
-			UndirectedGraph g = (UndirectedGraph) this.g;
-
 			UndirectedEdge e = (UndirectedEdge) ((EdgeAddition) u).getEdge();
-			UndirectedNode n1 = e.getNode1();
-			UndirectedNode n2 = e.getNode2();
+			UndirectedNode n1 = (UndirectedNode) e.getNode1();
+			UndirectedNode n2 = (UndirectedNode) e.getNode2();
 
-			for (UndirectedNode s : g.getNodes()) {
+			for (IElement sUncasted : g.getNodes()) {
+				UndirectedNode s = (UndirectedNode) sUncasted;
 				HashMap<UndirectedNode, UndirectedNode> parent = this.parents
 						.get(s);
 				HashMap<UndirectedNode, Integer> height = this.heights.get(s);
@@ -74,34 +72,6 @@ public class UndirectedShortestPathsUpdate extends UndirectedShortestPaths {
 			this.spl = ArrayUtils.truncate(this.spl, 0);
 			this.diam = spl.length - 1;
 
-		} else if (u instanceof EdgeRemoval) {
-			UndirectedGraph g = (UndirectedGraph) this.g;
-
-			UndirectedEdge e = (UndirectedEdge) ((EdgeRemoval) u).getEdge();
-			UndirectedNode n1 = e.getNode1();
-			UndirectedNode n2 = e.getNode2();
-
-			for (UndirectedNode s : g.getNodes()) {
-				HashMap<UndirectedNode, UndirectedNode> parent = this.parents
-						.get(s);
-				HashMap<UndirectedNode, Integer> height = this.heights.get(s);
-
-				if (n1.equals(s)) {
-					this.checkRemoval(n1, n2, parent, height);
-					continue;
-				}
-				if (n2.equals(s)) {
-					this.checkRemoval(n2, n1, parent, height);
-					continue;
-				}
-				if (!parent.containsKey(n1) && !parent.containsKey(n2)) {
-					continue;
-				}
-
-				this.checkRemoval(n1, n2, parent, height);
-				this.checkRemoval(n2, n1, parent, height);
-
-			}
 		}
 
 		return true;
@@ -171,7 +141,8 @@ public class UndirectedShortestPathsUpdate extends UndirectedShortestPaths {
 		h_b = h_a + 1;
 		height.put(b, h_b);
 		this.spl = ArrayUtils.incr(this.spl, h_b);
-		for (UndirectedEdge e : b.getEdges()) {
+		for (IElement eUncasted : b.getEdges()) {
+			UndirectedEdge e = (UndirectedEdge) eUncasted;
 			UndirectedNode c = e.getDifferingNode(b);
 			this.check(b, c, parent, height);
 		}
@@ -184,13 +155,13 @@ public class UndirectedShortestPathsUpdate extends UndirectedShortestPaths {
 
 	@Override
 	public boolean compute() {
-		UndirectedGraph g = (UndirectedGraph) this.g;
-
-		for (UndirectedNode s : g.getNodes()) {
+		for (IElement sUncasted : g.getNodes()) {
+			UndirectedNode s = (UndirectedNode) sUncasted;
 			HashMap<UndirectedNode, UndirectedNode> parent = new HashMap<UndirectedNode, UndirectedNode>();
 			HashMap<UndirectedNode, Integer> height = new HashMap<UndirectedNode, Integer>();
 
-			for (UndirectedNode t : g.getNodes()) {
+			for (IElement tUncasted : g.getNodes()) {
+				UndirectedNode t = (UndirectedNode) tUncasted;
 				if (t.equals(s)) {
 					height.put(s, 0);
 				} else {
@@ -203,7 +174,8 @@ public class UndirectedShortestPathsUpdate extends UndirectedShortestPaths {
 
 			while (!q.isEmpty()) {
 				UndirectedNode current = q.poll();
-				for (UndirectedEdge e : current.getEdges()) {
+				for (IElement eUncasted : current.getEdges()) {
+					UndirectedEdge e = (UndirectedEdge) eUncasted;
 					UndirectedNode neighbor = e.getDifferingNode(current);
 					if (height.get(neighbor) != Integer.MAX_VALUE) {
 						continue;
@@ -226,7 +198,7 @@ public class UndirectedShortestPathsUpdate extends UndirectedShortestPaths {
 		return true;
 	}
 
-	protected void init_() {
+	public void init_() {
 		super.init_();
 		this.parents = new HashMap<UndirectedNode, HashMap<UndirectedNode, UndirectedNode>>();
 		this.heights = new HashMap<UndirectedNode, HashMap<UndirectedNode, Integer>>();

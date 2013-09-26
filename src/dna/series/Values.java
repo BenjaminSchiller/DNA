@@ -3,8 +3,7 @@ package dna.series;
 import java.io.IOException;
 
 import dna.io.Writer;
-import dna.io.etc.Keywords;
-import dna.io.filesystem.Suffix;
+import dna.util.Config;
 
 public class Values {
 	public Values(double[][] values, String name) {
@@ -25,7 +24,7 @@ public class Values {
 	}
 
 	public String getFilename() {
-		return this.name + Suffix.values;
+		return this.name + Config.get("SUFFIX_VALUE");
 	}
 
 	public void write(String dir) throws IOException {
@@ -38,7 +37,7 @@ public class Values {
 			StringBuffer buff = new StringBuffer();
 			for (int j = 0; j < this.values[i].length; j++) {
 				if (j > 0) {
-					buff.append(Keywords.dataDelimiter);
+					buff.append(Config.get("DATA_DELIMITER"));
 				}
 				buff.append(this.values[i][j]);
 				if (this.values[i][j] == Double.NaN) {

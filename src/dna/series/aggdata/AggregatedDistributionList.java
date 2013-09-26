@@ -21,16 +21,6 @@ public class AggregatedDistributionList extends List<AggregatedDistribution> {
 	public AggregatedDistributionList(int size) {
 		super(size);
 	}
-<<<<<<< HEAD
-	
-	// IO methods
-	public void write(String dir) throws IOException {
-		for (AggregatedDistribution n : this.getList()) {
-			AggregatedData.write(n, dir, Files.getDistributionFilename(n.getName()));
-		}
-	}
-	
-=======
 
 	// IO methods
 	public void write(String dir) throws IOException {
@@ -40,5 +30,15 @@ public class AggregatedDistributionList extends List<AggregatedDistribution> {
 		}
 	}
 
->>>>>>> remotes/beniMaster/master
+	public static AggregatedDistributionList read(String dir, boolean readValues)
+			throws IOException {
+		String[] distributions = Files.getDistributions(dir);
+		AggregatedDistributionList list = new AggregatedDistributionList(
+				distributions.length);
+		for (String distribution : distributions) {
+			list.add(AggregatedDistribution.read(dir, distribution,
+					Files.getDistributionName(distribution), readValues));
+		}
+		return list;
+	}
 }

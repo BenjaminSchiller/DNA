@@ -1,9 +1,8 @@
 package dna.updates.undirected;
 
-import dna.graph.GraphDatastructures;
-import dna.graph.undirected.UndirectedEdge;
-import dna.graph.undirected.UndirectedGraph;
-import dna.graph.undirected.UndirectedNode;
+import dna.graph.datastructures.GraphDataStructure;
+import dna.graph.edges.UndirectedEdge;
+import dna.graph.nodes.UndirectedNode;
 import dna.updates.BatchGenerator;
 import dna.util.parameters.Parameter;
 
@@ -14,76 +13,40 @@ import dna.util.parameters.Parameter;
  * @author benni
  * 
  */
-public abstract class UndirectedBatchGenerator extends
-		BatchGenerator<UndirectedGraph, UndirectedNode, UndirectedEdge> {
+public abstract class UndirectedBatchGenerator extends BatchGenerator<UndirectedNode, UndirectedEdge> {
 
-	public UndirectedBatchGenerator(
-			String name,
-			GraphDatastructures<UndirectedGraph, UndirectedNode, UndirectedEdge> ds) {
+	public UndirectedBatchGenerator(String name, GraphDataStructure ds) {
 		super(name, new Parameter[] {}, ds);
 	}
 
-	public UndirectedBatchGenerator(
-			String name,
-			Parameter p1,
-			GraphDatastructures<UndirectedGraph, UndirectedNode, UndirectedEdge> ds) {
+	public UndirectedBatchGenerator(String name, Parameter p1, GraphDataStructure ds) {
 		super(name, new Parameter[] { p1 }, ds);
 	}
 
-	public UndirectedBatchGenerator(
-			String name,
-			Parameter p1,
-			Parameter p2,
-			GraphDatastructures<UndirectedGraph, UndirectedNode, UndirectedEdge> ds) {
+	public UndirectedBatchGenerator(String name, Parameter p1, Parameter p2, GraphDataStructure ds) {
 		super(name, new Parameter[] { p1, p2 }, ds);
 	}
 
-	public UndirectedBatchGenerator(
-			String name,
-			Parameter p1,
-			Parameter p2,
-			Parameter p3,
-			GraphDatastructures<UndirectedGraph, UndirectedNode, UndirectedEdge> ds) {
+	public UndirectedBatchGenerator(String name, Parameter p1, Parameter p2, Parameter p3, GraphDataStructure ds) {
 		super(name, new Parameter[] { p1, p2, p3 }, ds);
 	}
 
-	public UndirectedBatchGenerator(
-			String name,
-			Parameter p1,
-			Parameter p2,
-			Parameter p3,
-			Parameter p4,
-			GraphDatastructures<UndirectedGraph, UndirectedNode, UndirectedEdge> ds) {
+	public UndirectedBatchGenerator(String name, Parameter p1, Parameter p2, Parameter p3, Parameter p4,
+			GraphDataStructure ds) {
 		super(name, new Parameter[] { p1, p2, p3, p4 }, ds);
 	}
 
-	public UndirectedBatchGenerator(
-			String name,
-			Parameter p1,
-			Parameter p2,
-			Parameter p3,
-			Parameter p4,
-			Parameter p5,
-			GraphDatastructures<UndirectedGraph, UndirectedNode, UndirectedEdge> ds) {
+	public UndirectedBatchGenerator(String name, Parameter p1, Parameter p2, Parameter p3, Parameter p4, Parameter p5,
+			GraphDataStructure ds) {
 		super(name, new Parameter[] { p1, p2, p3, p4, p5 }, ds);
 	}
 
-	public UndirectedBatchGenerator(
-			String name,
-			Parameter p1,
-			Parameter p2,
-			Parameter p3,
-			Parameter p4,
-			Parameter p5,
-			Parameter p6,
-			GraphDatastructures<UndirectedGraph, UndirectedNode, UndirectedEdge> ds) {
+	public UndirectedBatchGenerator(String name, Parameter p1, Parameter p2, Parameter p3, Parameter p4, Parameter p5,
+			Parameter p6, GraphDataStructure ds) {
 		super(name, new Parameter[] { p1, p2, p3, p4, p5, p6 }, ds);
 	}
 
-	public UndirectedBatchGenerator(
-			String name,
-			Parameter[] params,
-			GraphDatastructures<UndirectedGraph, UndirectedNode, UndirectedEdge> ds) {
+	public UndirectedBatchGenerator(String name, Parameter[] params, GraphDataStructure ds) {
 		super(name, params, ds);
 	}
 

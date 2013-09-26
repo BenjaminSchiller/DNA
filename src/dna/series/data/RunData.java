@@ -45,15 +45,15 @@ public class RunData {
 		}
 	}
 
-	public static RunData read(String dir, int run,
-			boolean readDistributionValues) throws NumberFormatException,
-			IOException {
+	public static RunData read(String dir, int run, boolean readValues)
+			throws NumberFormatException, IOException {
 		String[] batches = Dir.getBatches(dir);
 		RunData runData = new RunData(run, batches.length);
 		for (String batch : batches) {
 			runData.getBatches().add(
-					BatchData.read(dir, Dir.getTimestamp(batch),
-							readDistributionValues));
+					BatchData.read(
+							Dir.getBatchDataDir(dir, Dir.getTimestamp(batch)),
+							Dir.getTimestamp(batch), readValues));
 		}
 		return runData;
 	}
@@ -93,7 +93,7 @@ public class RunData {
 	 * @author Rwilmes
 	 * @date 25.06.2013
 	 */
-	public static boolean sameType(RunData r1, RunData r2) {
+	public static boolean isSameType(RunData r1, RunData r2) {
 		BatchDataList list1 = r1.getBatches();
 		BatchDataList list2 = r2.getBatches();
 
@@ -104,7 +104,7 @@ public class RunData {
 		}
 
 		for (int i = 0; i < list1.size(); i++) {
-			if (!BatchData.sameType(list1.get(i), list2.get(i))) {
+			if (!BatchData.isSameType(list1.get(i), list2.get(i))) {
 				Log.warn("different batches on run " + r1.getRun()
 						+ " and run " + r2.getRun());
 				return false;

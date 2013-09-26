@@ -1,12 +1,9 @@
 package dna.updates.undirected;
 
 import dna.graph.Graph;
-import dna.graph.GraphDatastructures;
-import dna.graph.Node;
-import dna.graph.undirected.UndirectedEdge;
-import dna.graph.undirected.UndirectedGraph;
-import dna.graph.undirected.UndirectedGraphDatastructures;
-import dna.graph.undirected.UndirectedNode;
+import dna.graph.datastructures.GraphDataStructure;
+import dna.graph.edges.UndirectedEdge;
+import dna.graph.nodes.UndirectedNode;
 import dna.updates.Batch;
 import dna.updates.NodeAddition;
 import dna.util.parameters.IntParameter;
@@ -30,25 +27,19 @@ public class RandomUndirectedNodeAdditions extends UndirectedBatchGenerator {
 	 * @param datastructures
 	 *            datastructures
 	 */
-	public RandomUndirectedNodeAdditions(int additions,
-			UndirectedGraphDatastructures datastructures) {
-		super("randomUndirectedNodeAdditions", new IntParameter("additions",
-				additions), datastructures);
+	public RandomUndirectedNodeAdditions(int additions, GraphDataStructure datastructures) {
+		super("randomUndirectedNodeAdditions", new IntParameter("additions", additions), datastructures);
 		this.additions = additions;
 	}
 
-	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Override
-	public Batch<UndirectedEdge> generate(
-			Graph<? extends Node<UndirectedEdge>, UndirectedEdge> graph) {
-		UndirectedGraph g = (UndirectedGraph) graph;
-		Batch<UndirectedEdge> batch = new Batch<UndirectedEdge>(
-				(GraphDatastructures) this.ds, graph.getTimestamp(),
+	public Batch<UndirectedEdge> generate(Graph graph) {
+		Batch<UndirectedEdge> batch = new Batch<UndirectedEdge>(this.ds, graph.getTimestamp(),
 				graph.getTimestamp() + 1, this.additions, 0, 0, 0, 0, 0);
 		int index = graph.getMaxNodeIndex() + 1;
 		while (batch.getSize() < this.additions) {
 			UndirectedNode n = (UndirectedNode) this.ds.newNodeInstance(index);
-			if (!g.containsNode(n)) {
+			if (!graph.containsNode(n)) {
 				batch.add(new NodeAddition<UndirectedEdge>(n));
 			}
 			index++;

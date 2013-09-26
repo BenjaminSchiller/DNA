@@ -1,7 +1,7 @@
 package dna.metrics.clusterCoefficient;
 
 import dna.graph.Graph;
-import dna.graph.directed.DirectedNode;
+import dna.graph.nodes.DirectedNode;
 import dna.metrics.Metric;
 import dna.updates.Batch;
 
@@ -9,8 +9,9 @@ import dna.updates.Batch;
 public abstract class OpenTriangleClusteringCoefficient extends
 		ClusteringCoefficient {
 
-	public OpenTriangleClusteringCoefficient(String name, ApplicationType type) {
-		super(name, type);
+	public OpenTriangleClusteringCoefficient(String name, ApplicationType type,
+			MetricType mType) {
+		super(name, type, mType);
 	}
 
 	@Override

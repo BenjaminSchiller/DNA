@@ -1,12 +1,8 @@
 package dna.util;
 
 public class Settings {
-<<<<<<< HEAD
 	public static final String gnuplotPath = "C:\\Program Files (x86)\\gnuplot\\bin\\gnuplot.exe";
 	// unix
-=======
-	public static final String gnuplotPath = "/usr/bin/gnuplot"; // unix
->>>>>>> remotes/beniMaster/master
 	// public static final String gnuplotPath =
 	// "f:\\!proxx\\gnuplot\\bin\\gnuplot.exe"; // rwilmes windows
 

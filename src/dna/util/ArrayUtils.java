@@ -1,8 +1,9 @@
 package dna.util;
 
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.Set;
-import java.util.List;
+import java.util.Vector;
 
 public class ArrayUtils {
 	public static int[] incr(int[] values, int index) {
@@ -53,6 +54,18 @@ public class ArrayUtils {
 		}
 	}
 
+	public static double[] decr(double[] values, int index) {
+		try {
+			values[index]--;
+			return values;
+		} catch (ArrayIndexOutOfBoundsException e) {
+			double[] valuesNew = new double[index + 1];
+			System.arraycopy(values, 0, valuesNew, 0, values.length);
+			valuesNew[index] = -1;
+			return valuesNew;
+		}
+	}
+
 	public static long[] decr(long[] values, int index) {
 		try {
 			values[index]--;
@@ -88,6 +101,21 @@ public class ArrayUtils {
 			return values;
 		} catch (ArrayIndexOutOfBoundsException e) {
 			long[] valuesNew = new long[index + 1];
+			System.arraycopy(values, 0, valuesNew, 0, values.length);
+			valuesNew[index] = value;
+			for (int i = index - 1; i >= values.length; i--) {
+				valuesNew[i] = defaultValue;
+			}
+			return valuesNew;
+		}
+	}
+
+	public static int[] set(int[] values, int index, int value, int defaultValue) {
+		try {
+			values[index] = value;
+			return values;
+		} catch (ArrayIndexOutOfBoundsException e) {
+			int[] valuesNew = new int[index + 1];
 			System.arraycopy(values, 0, valuesNew, 0, values.length);
 			valuesNew[index] = value;
 			for (int i = index - 1; i >= values.length; i--) {
@@ -249,11 +277,34 @@ public class ArrayUtils {
 	}
 
 	public static boolean equals(int[] v1, int[] v2) {
+		return ArrayUtils.equals(v1, v2, null);
+	}
+
+	/**
+	 * 
+	 * @param v1
+	 *            arrays of long values
+	 * @param v2
+	 *            array of long values to compare
+	 * @param name
+	 *            if a name is given, debug log output is printed in case the
+	 *            arrays are not equal
+	 * @return true if both arrays have the same length and all values are equal
+	 */
+	public static boolean equals(int[] v1, int[] v2, String name) {
 		if (v1.length != v2.length) {
+			if (name != null) {
+				Log.warn(name + " - length differs: " + v1.length + " != "
+						+ v2.length);
+			}
 			return false;
 		}
 		for (int i = 0; i < v1.length; i++) {
 			if (v1[i] != v2[i]) {
+				if (name != null) {
+					Log.warn(name + " - values @ index " + i + " differs: "
+							+ v1[i] + " != " + v2[i]);
+				}
 				return false;
 			}
 		}
@@ -318,6 +369,38 @@ public class ArrayUtils {
 	}
 
 	/**
+	 * Calculates the average over an given array of integers.
+	 * 
+	 * @param values
+	 *            integer array the average is calculated from
+	 * @return average value of the given integer array
+	 */
+	public static double avg(int[] values) {
+		double avg = 0;
+		for (int v : values) {
+			avg += v;
+
+		}
+		return avg / values.length;
+	}
+
+	/**
+	 * Calculates the average over an given array of longs.
+	 * 
+	 * @param values
+	 *            long array the average is calculated from
+	 * @return average value of the given long array
+	 */
+	public static double avg(long[] values) {
+		double avg = 0;
+		for (long v : values) {
+			avg += v;
+
+		}
+		return avg / values.length;
+	}
+
+	/**
 	 * Calculates the maximum over an given array of doubles.
 	 * 
 	 * @param values
@@ -363,6 +446,46 @@ public class ArrayUtils {
 	}
 
 	/**
+	 * Calculates the maximum over an given array of integers.
+	 * 
+	 * @param values
+	 *            integer array the maximum is calculated from
+	 * @return maximum value of the given integer array
+	 */
+	public static int max(int[] values) {
+		try {
+			int max = values[0];
+			for (int v : values) {
+				if (v > max)
+					max = v;
+			}
+			return max;
+		} catch (ArrayIndexOutOfBoundsException e) {
+			return 0;
+		}
+	}
+
+	/**
+	 * Calculates the maximum over an given array of longs.
+	 * 
+	 * @param values
+	 *            long array the maximum is calculated from
+	 * @return maximum value of the given long array
+	 */
+	public static long max(long[] values) {
+		try {
+			long max = values[0];
+			for (long v : values) {
+				if (v > max)
+					max = v;
+			}
+			return max;
+		} catch (ArrayIndexOutOfBoundsException e) {
+			return 0;
+		}
+	}
+
+	/**
 	 * Calculates the minimum over an given array of doubles.
 	 * 
 	 * @param values
@@ -372,6 +495,38 @@ public class ArrayUtils {
 	public static double min(double[] values) {
 		double min = values[0];
 		for (double v : values) {
+			if (v < min)
+				min = v;
+		}
+		return min;
+	}
+
+	/**
+	 * Calculates the minimum over an given array of integers.
+	 * 
+	 * @param values
+	 *            integer array the minimum is calculated from
+	 * @return minimum value of the given integer array
+	 */
+	public static int min(int[] values) {
+		int min = values[0];
+		for (int v : values) {
+			if (v < min)
+				min = v;
+		}
+		return min;
+	}
+
+	/**
+	 * Calculates the minimum over an given array of longs.
+	 * 
+	 * @param values
+	 *            long array the minimum is calculated from
+	 * @return minimum value of the given long array
+	 */
+	public static long min(long[] values) {
+		long min = values[0];
+		for (long v : values) {
 			if (v < min)
 				min = v;
 		}
@@ -444,6 +599,38 @@ public class ArrayUtils {
 	}
 
 	/**
+	 * Calculates the median over an given array of integers. Caution: Due to
+	 * the Arrays.sort call, the input array will be sorted.
+	 * 
+	 * @param values
+	 *            integer array the median is calculated from
+	 * @return median of the given integer array
+	 */
+	public static int med(int[] values) {
+		int[] temp = new int[values.length];
+		System.arraycopy(values, 0, temp, 0, values.length);
+
+		Arrays.sort(temp);
+		return temp[temp.length / 2];
+	}
+
+	/**
+	 * Calculates the median over an given array of longs. Caution: Due to the
+	 * Arrays.sort call, the input array will be sorted.
+	 * 
+	 * @param values
+	 *            long array the median is calculated from
+	 * @return median of the given long array
+	 */
+	public static long med(long[] values) {
+		long[] temp = new long[values.length];
+		System.arraycopy(values, 0, temp, 0, values.length);
+
+		Arrays.sort(temp);
+		return temp[temp.length / 2];
+	}
+
+	/**
 	 * Calculates the variance of the given array.
 	 * 
 	 * @param values
@@ -460,7 +647,40 @@ public class ArrayUtils {
 	}
 
 	/**
-	 * Calculates the variance, variance-low and variance-up of the given array.
+	 * Calculates the variance of the given array.
+	 * 
+	 * @param values
+	 *            long array the variance is calculated from
+	 * @return variance of the given double array
+	 */
+	public static double var(long[] values) {
+		double mean = ArrayUtils.avg(values);
+		double x = 0;
+		for (double v : values) {
+			x += (v - mean) * (v - mean);
+		}
+		return x / (values.length - 1);
+	}
+
+	/**
+	 * Calculates the variance of the given array.
+	 * 
+	 * @param values
+	 *            int array the variance is calculated from
+	 * @return variance of the given double array
+	 */
+	public static double var(int[] values) {
+		double mean = ArrayUtils.avg(values);
+		double x = 0;
+		for (double v : values) {
+			x += (v - mean) * (v - mean);
+		}
+		return x / (values.length - 1);
+	}
+
+	/**
+	 * Calculates the variance, variance-low and variance-up of the given double
+	 * array.
 	 * 
 	 * @param values
 	 *            double array the variances are calculated from
@@ -475,6 +695,86 @@ public class ArrayUtils {
 		int countLow = 0;
 		int countUp = 0;
 		for (double v : values) {
+			var += Math.pow(v - avg, 2);
+			if (v < avg) {
+				varLow += Math.pow(v - avg, 2);
+				countLow++;
+			} else if (v > avg) {
+				varUp += Math.pow(v - avg, 2);
+				countUp++;
+			}
+		}
+		var /= values.length;
+		if (countLow == 0) {
+			varLow = 0;
+		} else {
+			varLow /= countLow;
+		}
+		if (countUp == 0) {
+			varUp = 0;
+		} else {
+			varUp /= countUp;
+		}
+		return new double[] { var, varLow, varUp };
+	}
+
+	/**
+	 * Calculates the variance, variance-low and variance-up of the given long
+	 * array.
+	 * 
+	 * @param values
+	 *            long array the variances are calculated from
+	 * @param avg
+	 *            the average of the given values
+	 * @return variances of the given double array
+	 */
+	public static double[] varLowUp(long[] values, double avg) {
+		double var = 0;
+		double varLow = 0;
+		double varUp = 0;
+		int countLow = 0;
+		int countUp = 0;
+		for (long v : values) {
+			var += Math.pow(v - avg, 2);
+			if (v < avg) {
+				varLow += Math.pow(v - avg, 2);
+				countLow++;
+			} else if (v > avg) {
+				varUp += Math.pow(v - avg, 2);
+				countUp++;
+			}
+		}
+		var /= values.length;
+		if (countLow == 0) {
+			varLow = 0;
+		} else {
+			varLow /= countLow;
+		}
+		if (countUp == 0) {
+			varUp = 0;
+		} else {
+			varUp /= countUp;
+		}
+		return new double[] { var, varLow, varUp };
+	}
+
+	/**
+	 * Calculates the variance, variance-low and variance-up of the given int
+	 * array.
+	 * 
+	 * @param values
+	 *            int array the variances are calculated from
+	 * @param avg
+	 *            the average of the given values
+	 * @return variances of the given double array
+	 */
+	public static double[] varLowUp(int[] values, double avg) {
+		double var = 0;
+		double varLow = 0;
+		double varUp = 0;
+		int countLow = 0;
+		int countUp = 0;
+		for (int v : values) {
 			var += Math.pow(v - avg, 2);
 			if (v < avg) {
 				varLow += Math.pow(v - avg, 2);
@@ -550,6 +850,62 @@ public class ArrayUtils {
 	}
 
 	/**
+	 * Calculates the confidence interval of the given array. Student-t
+	 * distribution with 0,95 confidence niveau.
+	 * 
+	 * @param values
+	 *            long array the confidence is calculated from
+	 * @return confidence of the given double array
+	 */
+	public static double[] conf(long[] values) {
+
+		if (values.length == 1) {
+			return new double[] { values[0], values[0] };
+		}
+
+		double var = ArrayUtils.var(values);
+		double mean = ArrayUtils.avg(values);
+
+		double t = Settings.getStudentT(0.95, values.length - 1);
+		double x = t * (Math.sqrt(var) / Math.sqrt(values.length));
+
+		double low = mean - x;
+		double up = mean + x;
+
+		double[] conf = { low, up };
+
+		return conf;
+	}
+
+	/**
+	 * Calculates the confidence interval of the given array. Student-t
+	 * distribution with 0,95 confidence niveau.
+	 * 
+	 * @param values
+	 *            int array the confidence is calculated from
+	 * @return confidence of the given double array
+	 */
+	public static double[] conf(int[] values) {
+
+		if (values.length == 1) {
+			return new double[] { values[0], values[0] };
+		}
+
+		double var = ArrayUtils.var(values);
+		double mean = ArrayUtils.avg(values);
+
+		double t = Settings.getStudentT(0.95, values.length - 1);
+		double x = t * (Math.sqrt(var) / Math.sqrt(values.length));
+
+		double low = mean - x;
+		double up = mean + x;
+
+		double[] conf = { low, up };
+
+		return conf;
+	}
+
+	/**
 	 * Calculates the confidence interval of the given array, while considering
 	 * Double.NaN's. Student-t distribution with 0,95 confidence niveau.
 	 * 
@@ -577,58 +933,6 @@ public class ArrayUtils {
 		return conf;
 	}
 
-	/**
-	 * 
-	/**
-	 * Calculates the confidence interval of the given array.
-	 * Student-t distribution with 0,95 confidence niveau.
-	 * 
-	 * @param values double array the confidence is calculated from
-	 * @return confidence of the given double array
-	 */
-	public static double[] conf(double[] values) {
-		double var = ArrayUtils.var(values);
-		double mean = ArrayUtils.avg(values);
-		
-		double t = Settings.getStudentT(0.95, values.length-1); 
-		double x = t * (Math.sqrt(var) / Math.sqrt(values.length));
-
-		double low = mean - x;
-		double up = mean + x;
-		
-		double[] conf = {low, up};
-
-		return conf;
-	}
-	
-	/**
-	 * Calculates the confidence interval of the given array, while considering Double.NaN's.
-	 * Student-t distribution with 0,95 confidence niveau.
-	 * 
-	 * @param values double array the confidence is calculated from
-	 * @return confidence of the given double array
-	 */
-	public static double[] confIncludingNaN(double[] values) {
-		double var = ArrayUtils.varIncludingNaN(values);
-		double mean = ArrayUtils.avgIncludingNaN(values);
-		
-		int counter = 0;
-		for(double v : values){
-			if(Double.isNaN(v))
-				counter++;
-		}
-		double t = Settings.getStudentT(0.95, values.length-1-counter); 
-		double x = t * (Math.sqrt(var) / Math.sqrt(values.length-counter));
-
-		double low = mean - x;
-		double high = mean + x;
-		
-		double[] conf = {low, high};
-
-		return conf;
-	}
-	
-	
 	/**
 	 * 
 	 * @param v1
@@ -736,6 +1040,24 @@ public class ArrayUtils {
 		long[] array = new long[length];
 		for (int i = 0; i < array.length; i++) {
 			array[i] = value;
+		}
+		return array;
+	}
+
+	public static boolean isIncluded(int[] values, int value) {
+		for (int i = 0; i < values.length; i++) {
+			if (values[i] == value)
+				return true;
+		}
+		return false;
+	}
+
+	public static String[] toStringArray(Vector<String> v) {
+		String[] array = new String[v.size()];
+		Iterator<String> iter = v.listIterator();
+		int index = 0;
+		while (iter.hasNext()) {
+			array[index++] = iter.next();
 		}
 		return array;
 	}

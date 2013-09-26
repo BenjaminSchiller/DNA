@@ -1,13 +1,13 @@
 package dna.updates;
 
-import dna.graph.Edge;
 import dna.graph.Graph;
-import dna.graph.Node;
+import dna.graph.edges.Edge;
+import dna.graph.nodes.Node;
 import dna.util.Log;
 
 public class NodeAddition<E extends Edge> extends NodeUpdate<E> {
 
-	public NodeAddition(Node<E> node) {
+	public NodeAddition(Node node) {
 		super(node, UpdateType.NodeAddition);
 	}
 
@@ -15,11 +15,10 @@ public class NodeAddition<E extends Edge> extends NodeUpdate<E> {
 		return "add " + this.node;
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
-	public boolean apply(Graph<? extends Node<E>, ? extends E> graph) {
+	public boolean apply(Graph graph) {
 		Log.debug("=> " + this.toString());
-		return ((Graph<Node<E>, E>) graph).addNode((Node<E>) this.node);
+		return graph.addNode(this.node);
 	}
 
 	@Override

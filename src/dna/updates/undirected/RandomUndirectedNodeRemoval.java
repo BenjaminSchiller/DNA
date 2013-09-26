@@ -3,12 +3,9 @@ package dna.updates.undirected;
 import java.util.HashSet;
 
 import dna.graph.Graph;
-import dna.graph.GraphDatastructures;
-import dna.graph.Node;
-import dna.graph.undirected.UndirectedEdge;
-import dna.graph.undirected.UndirectedGraph;
-import dna.graph.undirected.UndirectedGraphDatastructures;
-import dna.graph.undirected.UndirectedNode;
+import dna.graph.datastructures.GraphDataStructure;
+import dna.graph.edges.UndirectedEdge;
+import dna.graph.nodes.UndirectedNode;
 import dna.updates.Batch;
 import dna.updates.NodeRemoval;
 import dna.util.parameters.IntParameter;
@@ -33,25 +30,18 @@ public class RandomUndirectedNodeRemoval extends UndirectedBatchGenerator {
 	 * @param datastructures
 	 *            datastructures
 	 */
-	public RandomUndirectedNodeRemoval(int removals,
-			UndirectedGraphDatastructures datastructures) {
-		super("randomUndirectedNodeRemoval", new IntParameter("removals",
-				removals), datastructures);
+	public RandomUndirectedNodeRemoval(int removals, GraphDataStructure datastructures) {
+		super("randomUndirectedNodeRemoval", new IntParameter("removals", removals), datastructures);
 		this.removals = removals;
 	}
 
-	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Override
-	public Batch<UndirectedEdge> generate(
-			Graph<? extends Node<UndirectedEdge>, UndirectedEdge> graph) {
-		UndirectedGraph g = (UndirectedGraph) graph;
-		Batch<UndirectedEdge> batch = new Batch<UndirectedEdge>(
-				(GraphDatastructures) this.ds, graph.getTimestamp(),
+	public Batch<UndirectedEdge> generate(Graph graph) {
+		Batch<UndirectedEdge> batch = new Batch<UndirectedEdge>(this.ds, graph.getTimestamp(),
 				graph.getTimestamp() + 1, 0, this.removals, 0, 0, 0, 0);
-		HashSet<UndirectedNode> removed = new HashSet<UndirectedNode>(
-				this.removals);
+		HashSet<UndirectedNode> removed = new HashSet<UndirectedNode>(this.removals);
 		while (batch.getSize() < this.removals) {
-			UndirectedNode n = (UndirectedNode) g.getRandomNode();
+			UndirectedNode n = (UndirectedNode) graph.getRandomNode();
 			if (removed.contains(n)) {
 				continue;
 			}

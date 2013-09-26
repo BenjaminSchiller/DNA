@@ -1,11 +1,8 @@
 package dna.updates.directed;
 
 import dna.graph.Graph;
-import dna.graph.GraphDatastructures;
-import dna.graph.Node;
-import dna.graph.directed.DirectedEdge;
-import dna.graph.directed.DirectedGraph;
-import dna.graph.directed.DirectedNode;
+import dna.graph.datastructures.GraphDataStructure;
+import dna.graph.edges.DirectedEdge;
 import dna.updates.Batch;
 import dna.util.parameters.ParameterList;
 
@@ -22,54 +19,40 @@ public class DirectedBatchCombinator extends DirectedBatchGenerator {
 
 	private DirectedBatchGenerator[] generators;
 
-	public DirectedBatchCombinator(String name, DirectedBatchGenerator g1,
-			DirectedBatchGenerator g2,
-			GraphDatastructures<DirectedGraph, DirectedNode, DirectedEdge> ds) {
+	public DirectedBatchCombinator(String name, DirectedBatchGenerator g1, DirectedBatchGenerator g2,
+			GraphDataStructure ds) {
 		this(name, new DirectedBatchGenerator[] { g1, g2 }, ds);
 	}
 
-	public DirectedBatchCombinator(String name, DirectedBatchGenerator g1,
-			DirectedBatchGenerator g2, DirectedBatchGenerator g3,
-			GraphDatastructures<DirectedGraph, DirectedNode, DirectedEdge> ds) {
+	public DirectedBatchCombinator(String name, DirectedBatchGenerator g1, DirectedBatchGenerator g2,
+			DirectedBatchGenerator g3, GraphDataStructure ds) {
 		this(name, new DirectedBatchGenerator[] { g1, g2, g3 }, ds);
 	}
 
-	public DirectedBatchCombinator(String name, DirectedBatchGenerator g1,
-			DirectedBatchGenerator g2, DirectedBatchGenerator g3,
-			DirectedBatchGenerator g4,
-			GraphDatastructures<DirectedGraph, DirectedNode, DirectedEdge> ds) {
+	public DirectedBatchCombinator(String name, DirectedBatchGenerator g1, DirectedBatchGenerator g2,
+			DirectedBatchGenerator g3, DirectedBatchGenerator g4, GraphDataStructure ds) {
 		this(name, new DirectedBatchGenerator[] { g1, g2, g3, g4 }, ds);
 	}
 
-	public DirectedBatchCombinator(String name, DirectedBatchGenerator g1,
-			DirectedBatchGenerator g2, DirectedBatchGenerator g3,
-			DirectedBatchGenerator g4, DirectedBatchGenerator g5,
-			GraphDatastructures<DirectedGraph, DirectedNode, DirectedEdge> ds) {
+	public DirectedBatchCombinator(String name, DirectedBatchGenerator g1, DirectedBatchGenerator g2,
+			DirectedBatchGenerator g3, DirectedBatchGenerator g4, DirectedBatchGenerator g5, GraphDataStructure ds) {
 		this(name, new DirectedBatchGenerator[] { g1, g2, g3, g4, g5 }, ds);
 	}
 
-	public DirectedBatchCombinator(String name, DirectedBatchGenerator g1,
-			DirectedBatchGenerator g2, DirectedBatchGenerator g3,
-			DirectedBatchGenerator g4, DirectedBatchGenerator g5,
-			DirectedBatchGenerator g6,
-			GraphDatastructures<DirectedGraph, DirectedNode, DirectedEdge> ds) {
+	public DirectedBatchCombinator(String name, DirectedBatchGenerator g1, DirectedBatchGenerator g2,
+			DirectedBatchGenerator g3, DirectedBatchGenerator g4, DirectedBatchGenerator g5, DirectedBatchGenerator g6,
+			GraphDataStructure ds) {
 		this(name, new DirectedBatchGenerator[] { g1, g2, g3, g4, g5, g6 }, ds);
 	}
 
-	public DirectedBatchCombinator(String name,
-			DirectedBatchGenerator[] generators,
-			GraphDatastructures<DirectedGraph, DirectedNode, DirectedEdge> ds) {
+	public DirectedBatchCombinator(String name, DirectedBatchGenerator[] generators, GraphDataStructure ds) {
 		super(name, ParameterList.getParameters(generators), ds);
 		this.generators = generators;
 	}
 
-	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Override
-	public Batch<DirectedEdge> generate(
-			Graph<? extends Node<DirectedEdge>, DirectedEdge> graph) {
-		Batch<DirectedEdge> b = new Batch<DirectedEdge>(
-				(GraphDatastructures) this.ds, graph.getTimestamp(),
-				graph.getTimestamp() + 1);
+	public Batch<DirectedEdge> generate(Graph graph) {
+		Batch<DirectedEdge> b = new Batch<DirectedEdge>(this.ds, graph.getTimestamp(), graph.getTimestamp() + 1);
 		for (DirectedBatchGenerator bg : this.generators) {
 			b.addAll(bg.generate(graph).getAllUpdates());
 		}

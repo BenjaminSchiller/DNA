@@ -4,21 +4,16 @@ import java.io.File;
 import java.io.IOException;
 
 import dna.graph.Graph;
-import dna.graph.GraphGenerator;
+import dna.graph.generators.GraphGenerator;
 import dna.io.filesystem.Dir;
-import dna.io.filesystem.Prefix;
 import dna.io.filter.PrefixFilenameFilter;
 import dna.metrics.Metric;
-<<<<<<< HEAD
-import dna.series.aggdata.AggregatedSeries;
-import dna.series.data.BatchData;
-=======
 import dna.metrics.MetricNotApplicableException;
 import dna.series.aggdata.AggregatedSeries;
->>>>>>> remotes/beniMaster/master
 import dna.series.data.RunData;
 import dna.series.data.SeriesData;
 import dna.updates.BatchGenerator;
+import dna.util.Config;
 import dna.util.Rand;
 
 @SuppressWarnings("rawtypes")
@@ -46,8 +41,8 @@ public class Series {
 	public static SeriesData get(String dir, String name)
 			throws NumberFormatException, IOException {
 		SeriesData seriesData = new SeriesData(dir, name);
-		int runs = (new File(dir)).listFiles(new PrefixFilenameFilter(
-				Prefix.runDataDir)).length;
+		int runs = (new File(dir)).listFiles(new PrefixFilenameFilter(Config
+				.get("PREFIX_RUNDATA_DIR"))).length;
 		for (int run = 0; run < runs; run++) {
 			String runDir = Dir.getRunDataDir(dir, run);
 			System.out.println(run + ": " + runDir);
@@ -67,55 +62,10 @@ public class Series {
 	}
 
 	public SeriesData generate(int runs, int batches, boolean compare,
-<<<<<<< HEAD
-			boolean write) throws AggregationException, IOException {
 
-		Log.infoSep();
-		Timer timer = new Timer("seriesGeneration");
-		Log.info("generating series");
-		Log.infoSep();
-		Log.info("ds = " + this.gg.getDatastructures());
-		Log.info("gg = " + this.gg.getDescription());
-		Log.info("bg = " + this.bg.getDescription());
-		Log.info("p  = " + this.dir);
-		StringBuffer buff = new StringBuffer("");
-		for (Metric m : this.metrics) {
-			if (buff.length() > 0) {
-				buff.append("\n     ");
-			}
-			buff.append(m.getDescription());
-		}
-		Log.info("m  = " + buff.toString());
-
-		SeriesData sd = new SeriesData(this.dir, this.name, runs);
-
-		// generate all runs
-
-		for (int r = 0; r < runs; r++) {
-			sd.addRun(this.generateRun(r, batches, compare, write));
-		}
-		
-		// aggregate all runs
-		Log.infoSep();
-		Log.info("Aggregating SeriesData");
-		sd.setAggregation(Aggregation.aggregate(sd));
-		if (write) {
-			Log.info("Writing aggregated series in " + dir);
-			sd.getAggregation().write(Dir.getAggregationDataDir(dir));
-			Log.info("Finished writing aggregated series in " + dir);
-			Log.info("Finished writing aggregated series in " + dir);	
-		}
-		Log.infoSep();
-		timer.end();
-		Log.info("total time: " + timer.toString());
-		Log.infoSep();
-
-		return sd;
-=======
-			boolean write) throws AggregationException, IOException,
+	boolean write) throws AggregationException, IOException,
 			MetricNotApplicableException {
 		return SeriesGeneration.generate(this, runs, batches, compare, write);
->>>>>>> remotes/beniMaster/master
 	}
 
 	private GraphGenerator graphGenerator;
@@ -126,37 +76,9 @@ public class Series {
 
 	private String dir;
 
-<<<<<<< HEAD
-		// generate initial data
-		BatchData initialData = this.generateInitialData();
-		if (compare) {
-			this.compareMetrics();
-		}
-		rd.getBatches().add(initialData);
-		if (write) {
-			initialData.write(Dir.getBatchDataDir(this.dir, run,
-					initialData.getTimestamp()));
-		}
-		// generate batch data
-		for (int i = 0; i < batches; i++) {
-			BatchData batchData = this.generateNextBatch(i + 1);
-			if (compare) {
-				this.compareMetrics();
-			}
-			rd.getBatches().add(batchData);
-			if (write) {
-				batchData.write(Dir.getBatchDataDir(this.dir, run,
-						batchData.getTimestamp()));
-			}
-		}
-		
-		timer.end();
-		Log.info(timer.toString());
-=======
 	private Graph graph;
 
 	private String name;
->>>>>>> remotes/beniMaster/master
 
 	public GraphGenerator getGraphGenerator() {
 		return this.graphGenerator;

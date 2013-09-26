@@ -3,6 +3,7 @@ package dna.metrics;
 import dna.graph.Graph;
 import dna.series.data.Distribution;
 import dna.series.data.MetricData;
+import dna.series.data.NodeValueList;
 import dna.series.data.Value;
 import dna.updates.Batch;
 import dna.updates.Update;
@@ -13,76 +14,71 @@ import dna.util.parameters.ParameterList;
 public abstract class Metric extends ParameterList {
 
 	public static enum ApplicationType {
-		BeforeBatch, AfterBatch, BeforeAndAfterBatch, BeforeUpdate, AfterUpdate, BeforeAndAfterUpdate, Recomputation
-	};
+		BeforeBatch, AfterBatch, BeforeAndAfterBatch, BeforeUpdate, AfterUpdate, BeforeAndAfterUpdate, BatchAndUpdates, Recomputation
+	}
+
+	public static enum MetricType {
+		exact, heuristic, quality, unknown
+	}
 
 	public boolean isAppliedBeforeBatch() {
 		return this.type == ApplicationType.BeforeBatch
-				|| this.type == ApplicationType.BeforeAndAfterBatch;
+				|| this.type == ApplicationType.BeforeAndAfterBatch
+				|| this.type == ApplicationType.BatchAndUpdates;
 	}
 
 	public boolean isAppliedAfterBatch() {
 		return this.type == ApplicationType.AfterBatch
-				|| this.type == ApplicationType.BeforeAndAfterBatch;
+				|| this.type == ApplicationType.BeforeAndAfterBatch
+				|| this.type == ApplicationType.BatchAndUpdates;
 	}
 
 	public boolean isAppliedBeforeUpdate() {
 		return this.type == ApplicationType.BeforeUpdate
-				|| this.type == ApplicationType.BeforeAndAfterUpdate;
+				|| this.type == ApplicationType.BeforeAndAfterUpdate
+				|| this.type == ApplicationType.BatchAndUpdates;
 	}
 
 	public boolean isAppliedAfterUpdate() {
 		return this.type == ApplicationType.AfterUpdate
-				|| this.type == ApplicationType.BeforeAndAfterUpdate;
+				|| this.type == ApplicationType.BeforeAndAfterUpdate
+				|| this.type == ApplicationType.BatchAndUpdates;
 	}
 
 	public boolean isRecomputed() {
 		return this.type == ApplicationType.Recomputation;
 	}
 
-	public Metric(String name, ApplicationType type) {
-		this(name, type, new Parameter[] {});
-	}
-
-	public Metric(String name, ApplicationType type, Parameter p1) {
-		this(name, type, new Parameter[] { p1 });
-	}
-
-	public Metric(String name, ApplicationType type, Parameter p1, Parameter p2) {
-		this(name, type, new Parameter[] { p1, p2 });
-	}
-
-	// <<<<<<< HEAD
-	// // //Was geändert
-	// public boolean applyBeforeDiff(Diff d) throws DiffNotApplicableException
-	// {
-	// if (d.getNodes() != this.getNodes()
-	// || d.getFrom() != this.getTimestamp()) {
-	// throw new DiffNotApplicableException(this, d);
-	// }
-	// this.timestamp = d.getTo();
-	// return this.applyBeforeDiff_(d);
-	// =======
-	// public Metric(String name, ApplicationType type, Parameter p1,
-	// Parameter p2, Parameter p3) {
-	// this(name, type, new Parameter[] { p1, p2, p3 });
-	// >>>>>>> 6daced0948ebf67b3bfe01bd78e15e88e0c41fcc
-	// }
-
-	public Metric(String name, ApplicationType type, Parameter p1,
-			Parameter p2, Parameter p3, Parameter p4) {
-		this(name, type, new Parameter[] { p1, p2, p3, p4 });
-	}
-
-	public Metric(String name, ApplicationType type, Parameter p1,
-			Parameter p2, Parameter p3, Parameter p4, Parameter p5) {
-		this(name, type, new Parameter[] { p1, p2, p3, p4, p5 });
-	}
-
-	public Metric(String name, ApplicationType type, Parameter[] params) {
-		super(name, params);
+	public Metric(String name, ApplicationType type, MetricType metricType,
+			Parameter... p) {
+		super(name, p);
 		this.type = type;
+		this.metricType = metricType;
 		this.timestamp = Long.MIN_VALUE;
+	}
+
+	public Metric(String name, ApplicationType type, MetricType metricType,
+			Parameter[] params, Parameter... p) {
+		super(name, combine(params, p));
+		this.type = type;
+		this.metricType = metricType;
+		this.timestamp = Long.MIN_VALUE;
+	}
+
+	protected static Parameter[] combine(Parameter[] p1, Parameter[] p2) {
+		if (p2.length == 0) {
+			return p1;
+		} else if (p1.length == 0) {
+			return p2;
+		}
+		Parameter[] p = new Parameter[p1.length + p2.length];
+		for (int i = 0; i < p1.length; i++) {
+			p[i] = p1[i];
+		}
+		for (int i = 0; i < p2.length; i++) {
+			p[p1.length + i] = p2[i];
+		}
+		return p;
 	}
 
 	protected ApplicationType type;
@@ -105,6 +101,12 @@ public abstract class Metric extends ParameterList {
 
 	public void setGraph(Graph g) {
 		this.g = g;
+	}
+
+	protected MetricType metricType;
+
+	public MetricType getMetricType() {
+		return this.metricType;
 	}
 
 	/*
@@ -168,7 +170,7 @@ public abstract class Metric extends ParameterList {
 	/**
 	 * initialization of data structures
 	 */
-	protected abstract void init_();
+	public abstract void init_();
 
 	/*
 	 * RESET
@@ -197,21 +199,28 @@ public abstract class Metric extends ParameterList {
 	 * @return all data computed by this metric
 	 */
 	public MetricData getData() {
-		return new MetricData(this.getName(), this.getValues(),
-				this.getDistributions());
+		return new MetricData(this.getName(), this.getMetricType(),
+				this.getValues(), this.getDistributions(),
+				this.getNodeValueLists());
 	}
 
 	/**
 	 * 
 	 * @return all the values computed by this metric
 	 */
-	protected abstract Value[] getValues();
+	public abstract Value[] getValues();
 
 	/**
 	 * 
 	 * @return all the distributions computed by this metric
 	 */
-	protected abstract Distribution[] getDistributions();
+	public abstract Distribution[] getDistributions();
+
+	/**
+	 * 
+	 * @return all the nodevaluelists computed by this metric
+	 */
+	public abstract NodeValueList[] getNodeValueLists();
 
 	/*
 	 * EQUALS

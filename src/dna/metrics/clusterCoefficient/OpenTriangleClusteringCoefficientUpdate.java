@@ -1,9 +1,10 @@
 package dna.metrics.clusterCoefficient;
 
-import dna.graph.Node;
-import dna.graph.directed.DirectedEdge;
-import dna.graph.directed.DirectedGraph;
-import dna.graph.directed.DirectedNode;
+import dna.graph.IElement;
+import dna.graph.edges.DirectedEdge;
+import dna.graph.nodes.DirectedNode;
+import dna.graph.nodes.Node;
+import dna.series.data.NodeValueList;
 import dna.updates.Batch;
 import dna.updates.EdgeAddition;
 import dna.updates.EdgeRemoval;
@@ -18,7 +19,7 @@ public class OpenTriangleClusteringCoefficientUpdate extends
 
 	public OpenTriangleClusteringCoefficientUpdate() {
 		super("openTriangleClusteringCoefficientUpdate",
-				ApplicationType.BeforeAndAfterUpdate);
+				ApplicationType.BeforeAndAfterUpdate, MetricType.exact);
 	}
 
 	@Override
@@ -39,7 +40,8 @@ public class OpenTriangleClusteringCoefficientUpdate extends
 			DirectedNode b = e.getDst();
 
 			// t1
-			for (DirectedNode c : a.getNeighbors()) {
+			for (IElement cUncasted : a.getNeighbors()) {
+				DirectedNode c = (DirectedNode) cUncasted;
 				if (b.hasNeighbor(c)) {
 					this.removeTriangle(c);
 				}
@@ -48,7 +50,8 @@ public class OpenTriangleClusteringCoefficientUpdate extends
 			// t2 / t3
 			if (a.hasNeighbor(b)) {
 				// t2
-				for (DirectedNode c : a.getNeighbors()) {
+				for (IElement cUncasted : a.getNeighbors()) {
+					DirectedNode c = (DirectedNode) cUncasted;
 					if (!a.hasNeighbor(b)) {
 						continue;
 					}
@@ -61,7 +64,8 @@ public class OpenTriangleClusteringCoefficientUpdate extends
 				}
 
 				// t3
-				for (DirectedNode c : b.getNeighbors()) {
+				for (IElement cUncasted : b.getNeighbors()) {
+					DirectedNode c = (DirectedNode) cUncasted;
 					if (c.hasEdge(new DirectedEdge(c, a))) {
 						this.removeTriangle(b);
 					}
@@ -85,20 +89,21 @@ public class OpenTriangleClusteringCoefficientUpdate extends
 	public boolean applyAfterUpdate(Update u) {
 		if (u instanceof NodeAddition) {
 			Node n = ((NodeAddition) u).getNode();
-			this.localCC = ArrayUtils.set(this.localCC, n.getIndex(), 0,
-					Double.NaN);
+			this.localCC.setValue(n.getIndex(), 0);
 			this.nodePotentialCount = ArrayUtils.set(this.nodePotentialCount,
 					n.getIndex(), 0, Long.MIN_VALUE);
 			this.nodeTriangleCount = ArrayUtils.set(this.nodeTriangleCount,
 					n.getIndex(), 0, Long.MIN_VALUE);
-			this.averageCC = ArrayUtils.avgIgnoreNaN(this.localCC);
+			this.averageCC = ArrayUtils.avgIgnoreNaN(this.localCC.getValues());
 		} else if (u instanceof NodeRemoval) {
 
 			DirectedNode a = (DirectedNode) ((NodeRemoval) u).getNode();
 
 			// t1
-			for (DirectedNode b : a.getNeighbors()) {
-				for (DirectedNode c : a.getNeighbors()) {
+			for (IElement bUncasted : a.getNeighbors()) {
+				DirectedNode b = (DirectedNode) bUncasted;
+				for (IElement cUncasted : a.getNeighbors()) {
+					DirectedNode c = (DirectedNode) cUncasted;
 					if (b.equals(c)) {
 						continue;
 					}
@@ -109,8 +114,10 @@ public class OpenTriangleClusteringCoefficientUpdate extends
 			}
 
 			// t2
-			for (DirectedNode b : a.getNeighbors()) {
-				for (DirectedNode c : b.getNeighbors()) {
+			for (IElement bUncasted : a.getNeighbors()) {
+				DirectedNode b = (DirectedNode) bUncasted;
+				for (IElement cUncasted : b.getNeighbors()) {
+					DirectedNode c = (DirectedNode) cUncasted;
 					if (a.hasEdge(new DirectedEdge(a, c))) {
 						this.removeTriangle(b);
 					}
@@ -125,20 +132,21 @@ public class OpenTriangleClusteringCoefficientUpdate extends
 					a.getNeighborCount() * (a.getNeighborCount() - 1));
 
 			// p2
-			for (DirectedNode b : a.getNeighbors()) {
+			for (IElement bUncasted : a.getNeighbors()) {
+				DirectedNode b = (DirectedNode) bUncasted;
 				this.removePotentials(b, b.getNeighborCount() * 2);
 			}
 
-			this.localCC[a.getIndex()] = Double.NaN;
+			this.localCC.setValue(a.getIndex(), NodeValueList.emptyValue);
 			this.nodePotentialCount[a.getIndex()] = Long.MIN_VALUE;
 			this.nodeTriangleCount[a.getIndex()] = Long.MIN_VALUE;
-			this.localCC = ArrayUtils.truncateNaN(this.localCC);
+			this.localCC.truncate();
 			this.nodePotentialCount = ArrayUtils.truncate(
 					this.nodePotentialCount, Long.MIN_VALUE);
 			this.nodeTriangleCount = ArrayUtils.truncate(
 					this.nodeTriangleCount, Long.MIN_VALUE);
 
-			this.averageCC = ArrayUtils.avgIgnoreNaN(this.localCC);
+			this.averageCC = ArrayUtils.avgIgnoreNaN(this.localCC.getValues());
 
 		} else if (u instanceof EdgeAddition) {
 			DirectedEdge e = (DirectedEdge) ((EdgeAddition) u).getEdge();
@@ -146,7 +154,8 @@ public class OpenTriangleClusteringCoefficientUpdate extends
 			DirectedNode b = e.getDst();
 
 			// t1
-			for (DirectedNode c : a.getNeighbors()) {
+			for (IElement cUncasted : a.getNeighbors()) {
+				DirectedNode c = (DirectedNode) cUncasted;
 				if (b.hasNeighbor(c)) {
 					this.addTriangle(c);
 				}
@@ -156,7 +165,8 @@ public class OpenTriangleClusteringCoefficientUpdate extends
 			if (a.hasNeighbor(b)) {
 
 				// t2
-				for (DirectedNode c : a.getNeighbors()) {
+				for (IElement cUncasted : a.getNeighbors()) {
+					DirectedNode c = (DirectedNode) cUncasted;
 					if (!a.hasNeighbor(b)) {
 						continue;
 					}
@@ -169,7 +179,8 @@ public class OpenTriangleClusteringCoefficientUpdate extends
 				}
 
 				// t3
-				for (DirectedNode c : b.getNeighbors()) {
+				for (IElement cUncasted : b.getNeighbors()) {
+					DirectedNode c = (DirectedNode) cUncasted;
 					if (c.hasEdge(new DirectedEdge(c, a))) {
 						this.addTriangle(b);
 					}
@@ -194,12 +205,14 @@ public class OpenTriangleClusteringCoefficientUpdate extends
 	public boolean compute() {
 		this.triangleCount = 0;
 		this.potentialCount = 0;
-		DirectedGraph g = (DirectedGraph) this.g;
-		for (DirectedNode n : g.getNodes()) {
+		for (IElement nUncasted : g.getNodes()) {
+			DirectedNode n = (DirectedNode) nUncasted;
 			this.nodeTriangleCount[n.getIndex()] = 0;
 			this.nodePotentialCount[n.getIndex()] = 0;
-			for (DirectedNode u : n.getNeighbors()) {
-				for (DirectedNode v : n.getNeighbors()) {
+			for (IElement uUncasted : n.getNeighbors()) {
+				DirectedNode u = (DirectedNode) uUncasted;
+				for (IElement vUncasted : n.getNeighbors()) {
+					DirectedNode v = (DirectedNode) vUncasted;
 					if (u.equals(v)) {
 						continue;
 					}
@@ -212,11 +225,14 @@ public class OpenTriangleClusteringCoefficientUpdate extends
 			this.triangleCount += this.nodeTriangleCount[n.getIndex()];
 			this.potentialCount += this.nodePotentialCount[n.getIndex()];
 			if (this.nodePotentialCount[n.getIndex()] == 0) {
-				this.localCC[n.getIndex()] = 0;
+				this.localCC.setValue(n.getIndex(), 0);
 			} else {
-				this.localCC[n.getIndex()] = (double) this.nodeTriangleCount[n
-						.getIndex()]
-						/ (double) this.nodePotentialCount[n.getIndex()];
+				this.localCC
+						.setValue(
+								n.getIndex(),
+								(double) this.nodeTriangleCount[n.getIndex()]
+										/ (double) this.nodePotentialCount[n
+												.getIndex()]);
 			}
 		}
 
@@ -226,7 +242,7 @@ public class OpenTriangleClusteringCoefficientUpdate extends
 			this.globalCC = (double) this.triangleCount
 					/ (double) this.potentialCount;
 		}
-		this.averageCC = ArrayUtils.avg(this.localCC);
+		this.averageCC = ArrayUtils.avg(this.localCC.getValues());
 
 		return true;
 	}

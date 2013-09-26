@@ -1,22 +1,26 @@
 package dna.updates;
 
-import dna.graph.Edge;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
+
 import dna.graph.Graph;
-import dna.graph.Node;
-import dna.graph.WeightedNode;
-import dna.io.etc.Keywords;
+import dna.graph.IWeighted;
+import dna.graph.edges.Edge;
+import dna.graph.nodes.Node;
+import dna.util.Config;
 import dna.util.Log;
 
-public class NodeWeightUpdate<E extends Edge> extends NodeUpdate<E> {
+public class NodeWeightUpdate<E extends Edge, T> extends NodeUpdate<E> {
 
-	private double weight;
+	private T weight;
 
-	public NodeWeightUpdate(Node<E> node, double weight) {
+	public NodeWeightUpdate(Node node, T weight) {
 		super(node, UpdateType.NodeWeithUpdate);
 		this.weight = weight;
 	}
 
-	public double getWeight() {
+	public T getWeight() {
 		return this.weight;
 	}
 
@@ -24,17 +28,28 @@ public class NodeWeightUpdate<E extends Edge> extends NodeUpdate<E> {
 		return "w(" + this.node + ") = " + this.weight;
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
-	public boolean apply(Graph<? extends Node<E>, ? extends E> graph) {
+	public boolean apply(Graph graph) {
 		Log.debug("=> " + this.toString());
-		((WeightedNode) this.node).setWeight(this.weight);
+		((IWeighted<T>) this.node).setWeight(this.weight);
 		return true;
 	}
 
 	@Override
 	protected String getStringRepresentation_() {
-		return this.node.getStringRepresentation() + Keywords.updateDelimiter2
-				+ this.weight;
+		ByteArrayOutputStream bos = new ByteArrayOutputStream();
+		ObjectOutputStream oos;
+		try {
+			oos = new ObjectOutputStream(bos);
+			oos.writeObject(this.weight);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}		
+		
+		return this.node.getStringRepresentation()
+				+ Config.get("UPDATE_DELIMITER2") + bos.toString();
 	}
 
 }

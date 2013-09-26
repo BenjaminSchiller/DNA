@@ -11,6 +11,18 @@ public abstract class PlotData {
 		average, median, minimum, maximum, variance, confidence1, confidence2, function
 	}
 
+	public static enum NodeValueListOrder {
+		ascending, descending
+	}
+
+	public static enum NodeValueListOrderBy {
+		index, average, median, minimum, maximum, variance, varianceLow, varianceUp, confidenceLow, confidenceUp
+	}
+
+	public static enum DistributionPlotType {
+		distOnly, cdfOnly, distANDcdf
+	}
+
 	protected String data;
 
 	protected PlotStyle style;
@@ -27,6 +39,9 @@ public abstract class PlotData {
 
 	public abstract String getEntry(int lt, int lw, double offsetX,
 			double offsetY);
+
+	public abstract String getEntry(int lt, int lw, double offsetX,
+			double offsetY, DistributionPlotType distPotType);
 
 	public static PlotData get(String data, PlotStyle style, String title,
 			PlotType type) {

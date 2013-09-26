@@ -3,9 +3,10 @@ package dna.metrics.shortestPaths;
 import java.util.LinkedList;
 import java.util.Queue;
 
-import dna.graph.undirected.UndirectedEdge;
-import dna.graph.undirected.UndirectedGraph;
-import dna.graph.undirected.UndirectedNode;
+import dna.graph.IElement;
+import dna.graph.edges.UndirectedEdge;
+import dna.graph.nodes.UndirectedNode;
+import dna.series.data.NodeValueList;
 import dna.updates.Batch;
 import dna.updates.Update;
 import dna.util.ArrayUtils;
@@ -39,11 +40,10 @@ public class UndirectedShortestPathsRecomp extends UndirectedShortestPaths {
 
 	@Override
 	public boolean compute() {
-		UndirectedGraph g = (UndirectedGraph) this.g;
-
 		this.existingPaths = 0;
 
-		for (UndirectedNode s : g.getNodes()) {
+		for (IElement sUncasted : g.getNodes()) {
+			UndirectedNode s = (UndirectedNode) sUncasted;
 			int[] dist = ArrayUtils.init(this.g.getMaxNodeIndex() + 1, -1);
 			Queue<UndirectedNode> q = new LinkedList<UndirectedNode>();
 
@@ -52,7 +52,8 @@ public class UndirectedShortestPathsRecomp extends UndirectedShortestPaths {
 
 			while (!q.isEmpty()) {
 				UndirectedNode current = q.poll();
-				for (UndirectedEdge e : current.getEdges()) {
+				for (IElement eUncasted : current.getEdges()) {
+					UndirectedEdge e = (UndirectedEdge) eUncasted;
 					UndirectedNode neighbor = e.getDifferingNode(current);
 					if (dist[neighbor.getIndex()] != -1) {
 						continue;
@@ -71,4 +72,5 @@ public class UndirectedShortestPathsRecomp extends UndirectedShortestPaths {
 
 		return true;
 	}
+
 }

@@ -4,6 +4,7 @@ import java.io.IOException;
 
 import dna.io.filesystem.Dir;
 import dna.series.data.MetricData;
+import dna.util.Config;
 
 public class MetricDataList extends List<MetricData> {
 
@@ -17,41 +18,35 @@ public class MetricDataList extends List<MetricData> {
 
 	public void write(String dir) throws IOException {
 		for (MetricData metricData : this.getList()) {
-			metricData.write(Dir.getMetricDataDir(dir, metricData.getName()));
+			String suffix;
+			switch (metricData.getType()) {
+			case exact:
+				suffix = Config.get("SUFFIX_METRIC_EXACT");
+				break;
+			case heuristic:
+				suffix = Config.get("SUFFIX_METRIC_HEURISTIC");
+				break;
+			case quality:
+				suffix = Config.get("SUFFIX_METRIC_QUALITY");
+				break;
+			default:
+				suffix = "";
+				break;
+			}
+
+			metricData.write(Dir.getMetricDataDir(dir, metricData.getName()
+					+ suffix));
 		}
 	}
 
-	public static MetricDataList read(String dir, boolean readDistributionValues)
+	public static MetricDataList read(String dir, boolean readValues)
 			throws IOException {
 		String[] metrics = Dir.getMetrics(dir);
 		MetricDataList list = new MetricDataList(metrics.length);
 		for (String metric : metrics) {
-			list.add(MetricData.read(Dir.getMetricDataDir(dir, metric),
-					Dir.getMetricName(metric), readDistributionValues));
+			list.add(MetricData.read(dir + metric + Dir.delimiter,
+					Dir.getMetricName(metric), readValues));
 		}
-		return list;
-	}
-<<<<<<< HEAD
-	
-	public static MetricDataList read(String dir, boolean readDistributionValues, boolean readNodeValues)
-=======
-
-	public static MetricDataList read(String dir,
-			boolean readDistributionValues, boolean readNodeValues)
->>>>>>> remotes/beniMaster/master
-			throws IOException {
-		String[] metrics = Dir.getMetrics(dir);
-		MetricDataList list = new MetricDataList(metrics.length);
-		for (String metric : metrics) {
-			list.add(MetricData.read(dir + metric + "/",
-<<<<<<< HEAD
-					Dir.getMetricName(metric), readDistributionValues, readNodeValues));
-=======
-					Dir.getMetricName(metric), readDistributionValues,
-					readNodeValues));
->>>>>>> remotes/beniMaster/master
-		}
-		System.out.println("LIST: " + list.size());
 		return list;
 	}
 }

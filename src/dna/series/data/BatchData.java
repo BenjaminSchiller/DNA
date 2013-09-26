@@ -3,10 +3,10 @@ package dna.series.data;
 import java.io.IOException;
 
 import dna.io.filesystem.Files;
-import dna.io.filesystem.Names;
 import dna.series.lists.MetricDataList;
 import dna.series.lists.RunTimeList;
 import dna.series.lists.ValueList;
+import dna.util.Config;
 import dna.util.Log;
 
 public class BatchData {
@@ -70,24 +70,26 @@ public class BatchData {
 
 	public void write(String dir) throws IOException {
 		Log.debug("writing BatchData for " + this.timestamp + " to " + dir);
-		this.stats.write(dir, Files.getValuesFilename(Names.batchStats));
-		this.generalRuntimes.write(dir,
-				Files.getRuntimesFilename(Names.batchGeneralRuntimes));
+		this.stats.write(dir,
+				Files.getValuesFilename(Config.get("BATCH_STATS")));
+		this.generalRuntimes
+				.write(dir, Files.getRuntimesFilename(Config
+						.get("BATCH_GENERAL_RUNTIMES")));
 		this.metricRuntimes.write(dir,
-				Files.getRuntimesFilename(Names.batchMetricRuntimes));
+				Files.getRuntimesFilename(Config.get("BATCH_METRIC_RUNTIMES")));
 		this.metrics.write(dir);
 	}
 
-	public static BatchData read(String dir, long timestamp,
-			boolean readDistributionValues) throws IOException {
+	public static BatchData read(String dir, long timestamp, boolean readValues)
+			throws IOException {
 		ValueList values = ValueList.read(dir,
-				Files.getValuesFilename(Names.batchStats));
-		RunTimeList generalRuntimes = RunTimeList.read(dir,
-				Files.getRuntimesFilename(Names.batchGeneralRuntimes));
+				Files.getValuesFilename(Config.get("BATCH_STATS")));
+		RunTimeList generalRuntimes = RunTimeList
+				.read(dir, Files.getRuntimesFilename(Config
+						.get("BATCH_GENERAL_RUNTIMES")));
 		RunTimeList metricRuntimes = RunTimeList.read(dir,
-				Files.getRuntimesFilename(Names.batchMetricRuntimes));
-		MetricDataList metrics = MetricDataList.read(dir,
-				readDistributionValues);
+				Files.getRuntimesFilename(Config.get("BATCH_METRIC_RUNTIMES")));
+		MetricDataList metrics = MetricDataList.read(dir, readValues);
 		return new BatchData(timestamp, values, generalRuntimes,
 				metricRuntimes, metrics);
 	}
@@ -128,12 +130,12 @@ public class BatchData {
 	/**
 	 * This method tests if two different BatchData objects can be aggregated.
 	 * Checks: - same timestamp - same amount of metrics - same metrics (uses
-	 * MetricData.symeType())
+	 * MetricData.sameType())
 	 * 
 	 * @author Rwilmes
 	 * @date 24.06.2013
 	 */
-	public static boolean sameType(BatchData b1, BatchData b2) {
+	public static boolean isSameType(BatchData b1, BatchData b2) {
 		if (b1.getTimestamp() != b2.getTimestamp()) {
 			Log.warn("different timestamps on batch " + b1.getTimestamp()
 					+ " and batch " + b2.getTimestamp());
@@ -149,7 +151,7 @@ public class BatchData {
 			return false;
 		}
 		for (String k : list1.getNames()) {
-			if (!MetricData.sameType(list1.get(k), list2.get(k))) {
+			if (!MetricData.isSameType(list1.get(k), list2.get(k))) {
 				Log.warn("different metrics on batch " + b1.getTimestamp()
 						+ " and batch " + b2.getTimestamp());
 				return false;

@@ -1,8 +1,11 @@
 package dna.io.filesystem;
 
 import java.io.File;
+import java.util.Arrays;
 
 import dna.io.filter.PrefixFilenameFilter;
+import dna.metrics.Metric.MetricType;
+import dna.util.Config;
 
 /**
  * 
@@ -19,18 +22,19 @@ public class Dir {
 	 */
 
 	public static String getAggregationDataDir(String dir) {
-		return dir + Names.runAggregation + Dir.delimiter;
+		return dir + Config.get("RUN_AGGREGATION") + Dir.delimiter;
 	}
 
-	public static String getAggregationBatchDir(String dir, long run) {
-		return Dir.getAggregationDataDir(dir) + Prefix.batchDataDir + run
+	public static String getAggregationBatchDir(String dir, long timestamp) {
+		return Dir.getAggregationDataDir(dir)
+				+ Config.get("PREFIX_BATCHDATA_DIR") + timestamp
 				+ Dir.delimiter;
 	}
 
 	public static String getAggregatedMetricDataDir(String dir, long timestamp,
 			String name) {
 		return Dir.getAggregationBatchDir(dir, timestamp)
-				+ Prefix.metricDataDir + name + Dir.delimiter;
+				+ Config.get("PREFIX_METRICDATA_DIR") + name + Dir.delimiter;
 	}
 
 	/*
@@ -38,17 +42,17 @@ public class Dir {
 	 */
 
 	public static String getRunDataDir(String dir, int run) {
-		return dir + Prefix.runDataDir + run + Dir.delimiter;
+		return dir + Config.get("PREFIX_RUNDATA_DIR") + run + Dir.delimiter;
 	}
 
 	public static String[] getRuns(String dir) {
-		return (new File(dir))
-				.list(new PrefixFilenameFilter(Prefix.runDataDir));
+		return (new File(dir)).list(new PrefixFilenameFilter(Config
+				.get("PREFIX_RUNDATA_DIR")));
 	}
 
 	public static int getRun(String runFolderName) {
-		return Integer.parseInt(runFolderName.replaceFirst(Prefix.runDataDir,
-				""));
+		return Integer.parseInt(runFolderName.replaceFirst(
+				Config.get("PREFIX_RUNDATA_DIR"), ""));
 	}
 
 	/*
@@ -56,22 +60,33 @@ public class Dir {
 	 */
 
 	public static String getBatchDataDir(String dir, long timestamp) {
-		return dir + Prefix.batchDataDir + timestamp + Dir.delimiter;
-	}
-
-	public static String getBatchDataDir(String dir, int run, long timestamp) {
-		return Dir.getRunDataDir(dir, run) + Prefix.batchDataDir + timestamp
+		return dir + Config.get("PREFIX_BATCHDATA_DIR") + timestamp
 				+ Dir.delimiter;
 	}
 
+	public static String getBatchDataDir(String dir, int run, long timestamp) {
+		return Dir.getRunDataDir(dir, run) + Config.get("PREFIX_BATCHDATA_DIR")
+				+ timestamp + Dir.delimiter;
+	}
+
 	public static String[] getBatches(String dir) {
-		return (new File(dir)).list(new PrefixFilenameFilter(
-				Prefix.batchDataDir));
+		String[] names = (new File(dir)).list(new PrefixFilenameFilter(Config
+				.get("PREFIX_BATCHDATA_DIR")));
+		int[] timestamps = new int[names.length];
+		for (int i = 0; i < names.length; i++) {
+			timestamps[i] = Integer.parseInt(names[i].replace(
+					Config.get("PREFIX_BATCHDATA_DIR"), ""));
+		}
+		Arrays.sort(timestamps);
+		for (int i = 0; i < timestamps.length; i++) {
+			names[i] = Config.get("PREFIX_BATCHDATA_DIR") + timestamps[i];
+		}
+		return names;
 	}
 
 	public static long getTimestamp(String batchFolderName) {
-		return Long.parseLong(batchFolderName.replaceFirst(Prefix.batchDataDir,
-				""));
+		return Long.parseLong(batchFolderName.replaceFirst(
+				Config.get("PREFIX_BATCHDATA_DIR"), ""));
 	}
 
 	/*
@@ -79,21 +94,63 @@ public class Dir {
 	 */
 
 	public static String getMetricDataDir(String dir, String name) {
-		return dir + Prefix.metricDataDir + name + Dir.delimiter;
+		return dir + Config.get("PREFIX_METRICDATA_DIR") + name + Dir.delimiter;
+	}
+
+	public static String getMetricDataDir(String dir, String name,
+			MetricType type) {
+		switch (type) {
+		case exact:
+			return dir + Config.get("PREFIX_METRICDATA_DIR") + name
+					+ Config.get("SUFFIX_METRIC_EXACT") + Dir.delimiter;
+		case heuristic:
+			return dir + Config.get("PREFIX_METRICDATA_DIR") + name
+					+ Config.get("SUFFIX_METRIC_HEURISTIC") + Dir.delimiter;
+		case quality:
+			return dir + Config.get("PREFIX_METRICDATA_DIR") + name
+					+ Dir.delimiter;
+		default:
+			return dir + Config.get("PREFIX_METRICDATA_DIR") + name
+					+ Dir.delimiter;
+		}
 	}
 
 	public static String getMetricDataDir(String dir, int run, long timestamp,
 			String name) {
-		return Dir.getBatchDataDir(dir, run, timestamp) + Prefix.metricDataDir
-				+ name + Dir.delimiter;
+		return Dir.getBatchDataDir(dir, run, timestamp)
+				+ Config.get("PREFIX_METRICDATA_DIR") + name + Dir.delimiter;
+	}
+
+	public static String getMetricDataDir(String dir, int run, long timestamp,
+			String name, MetricType type) {
+		switch (type) {
+		case exact:
+			return Dir.getBatchDataDir(dir, run, timestamp)
+					+ Config.get("PREFIX_METRICDATA_DIR") + name
+					+ Config.get("SUFFIX_METRIC_EXACT") + Dir.delimiter;
+		case heuristic:
+			return Dir.getBatchDataDir(dir, run, timestamp)
+					+ Config.get("PREFIX_METRICDATA_DIR") + name
+					+ Config.get("SUFFIX_METRIC_HEURISTIC") + Dir.delimiter;
+		case quality:
+			return Dir.getBatchDataDir(dir, run, timestamp)
+					+ Config.get("PREFIX_METRICDATA_DIR") + name
+					+ Config.get("SUFFIX_METRIC_QUALITY") + Dir.delimiter;
+		default:
+			return Dir.getBatchDataDir(dir, run, timestamp)
+					+ Config.get("PREFIX_METRICDATA_DIR") + name
+					+ Dir.delimiter;
+		}
 	}
 
 	public static String[] getMetrics(String dir) {
-		return (new File(dir)).list(new PrefixFilenameFilter(
-				Prefix.metricDataDir));
+		return (new File(dir)).list(new PrefixFilenameFilter(Config
+				.get("PREFIX_METRICDATA_DIR")));
 	}
 
 	public static String getMetricName(String metricFolderName) {
-		return metricFolderName.replaceFirst(Prefix.metricDataDir, "");
+		return metricFolderName.replaceFirst(
+				Config.get("PREFIX_METRICDATA_DIR"), "");
 	}
+
 }

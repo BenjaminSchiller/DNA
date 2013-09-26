@@ -5,14 +5,12 @@ import java.util.HashSet;
 
 import com.google.common.collect.Iterables;
 
-import dna.graph.Edge;
 import dna.graph.Graph;
-import dna.graph.GraphDatastructures;
-import dna.graph.Node;
-import dna.graph.directed.DirectedEdge;
-import dna.graph.directed.DirectedGraphDatastructures;
-import dna.graph.undirected.UndirectedEdge;
-import dna.graph.undirected.UndirectedGraphDatastructures;
+import dna.graph.datastructures.GraphDataStructure;
+import dna.graph.edges.DirectedEdge;
+import dna.graph.edges.Edge;
+import dna.graph.edges.UndirectedEdge;
+import dna.graph.nodes.Node;
 import dna.util.Log;
 
 public class Batch<E extends Edge> {
@@ -31,29 +29,18 @@ public class Batch<E extends Edge> {
 
 	private Iterable<Update<E>> all;
 
-	private GraphDatastructures<Graph<Node<E>, E>, Node<E>, E> ds;
+	private GraphDataStructure ds;
 
 	private long from;
 
 	private long to;
 
-	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public Batch(DirectedGraphDatastructures ds, long from, long to) {
-		this((GraphDatastructures) ds, from, to);
-	}
-
-	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public Batch(UndirectedGraphDatastructures ds, long from, long to) {
-		this((GraphDatastructures) ds, from, to);
-	}
-
-	public Batch(GraphDatastructures<Graph<Node<E>, E>, Node<E>, E> ds,
-			long from, long to) {
+	public Batch(GraphDataStructure ds, long from, long to) {
 		this(ds, from, to, 0, 0, 0, 0, 0, 0);
 	}
 
 	@SuppressWarnings("unchecked")
-	public Batch(GraphDatastructures<Graph<Node<E>, E>, Node<E>, E> ds,
+	public Batch(GraphDataStructure ds,
 			long from, long to, int nodeAdditions, int nodeRemovals,
 			int nodeWeightUpdates, int edgeAdditions, int edgeRemovals,
 			int edgeWeightUpdates) {
@@ -89,6 +76,7 @@ public class Batch<E extends Edge> {
 		return success;
 	}
 
+	@SuppressWarnings("unchecked")
 	public boolean add(Update<E> update) {
 		if (update instanceof NodeAddition<?>) {
 			this.nodeAdditions.add((NodeAddition<E>) update);
@@ -98,8 +86,8 @@ public class Batch<E extends Edge> {
 			this.nodeRemovals.add((NodeRemoval<E>) update);
 			return true;
 		}
-		if (update instanceof NodeWeightUpdate<?>) {
-			this.nodeWeightUpdates.add((NodeWeightUpdate<E>) update);
+		if (update instanceof NodeWeightUpdate<?, ?>) {
+			this.nodeWeightUpdates.add((NodeWeightUpdate<E, ?>) update);
 			return true;
 		}
 		if (update instanceof EdgeAddition<?>) {
@@ -110,8 +98,8 @@ public class Batch<E extends Edge> {
 			this.edgeRemovals.add((EdgeRemoval<E>) update);
 			return true;
 		}
-		if (update instanceof EdgeWeightUpdate<?>) {
-			this.edgeWeightUpdates.add((EdgeWeightUpdate<E>) update);
+		if (update instanceof EdgeWeightUpdate<?, ?>) {
+			this.edgeWeightUpdates.add((EdgeWeightUpdate<E, ?>) update);
 			return true;
 		}
 		return false;
@@ -175,7 +163,7 @@ public class Batch<E extends Edge> {
 				+ this.edgeRemovals.size() + this.edgeWeightUpdates.size();
 	}
 
-	public GraphDatastructures<Graph<Node<E>, E>, Node<E>, E> getGraphDatastructures() {
+	public GraphDataStructure getGraphDatastructures() {
 		return this.ds;
 	}
 
@@ -203,10 +191,8 @@ public class Batch<E extends Edge> {
 		}
 	}
 
-	@SuppressWarnings("unchecked")
-	public boolean apply(Graph<? extends Node<E>, ? extends E> graph) {
+	public boolean apply(Graph g) {
 		boolean success = true;
-		Graph<Node<E>, E> g = (Graph<Node<E>, E>) graph;
 		success &= this.apply(g, this.nodeRemovals);
 		success &= this.apply(g, this.edgeRemovals);
 
@@ -218,7 +204,7 @@ public class Batch<E extends Edge> {
 		return success;
 	}
 
-	private boolean apply(Graph<Node<E>, E> g, ArrayList<Update<E>> updates) {
+	private boolean apply(Graph g, ArrayList<Update<E>> updates) {
 		boolean success = true;
 		for (Update<E> u : updates) {
 			success &= u.apply(g);
@@ -324,7 +310,6 @@ public class Batch<E extends Edge> {
 		return stats;
 	}
 
-	@SuppressWarnings("rawtypes")
 	private Node[] getNodesFromEdge(Edge e) {
 		if (e instanceof DirectedEdge) {
 			return new Node[] { ((DirectedEdge) e).getSrc(),
@@ -337,5 +322,27 @@ public class Batch<E extends Edge> {
 					+ "' not supported in batch sanitization");
 			return null;
 		}
+	}
+
+	@SuppressWarnings("unchecked")
+	public boolean equals(Object otherO) {
+		if (!(otherO instanceof Batch))
+			return false;
+		Batch<E> other = (Batch<E>) otherO;
+
+		if (this.getSize() != other.getSize())
+			return false;
+
+		Iterable<Update<E>> uOther = other.getAllUpdates();
+		for (Update<E> u : uOther) {
+			if (!nodeAdditions.contains(u) && !nodeRemovals.contains(u)
+					&& !nodeWeightUpdates.contains(u)
+					&& !edgeAdditions.contains(u) && !edgeRemovals.contains(u)
+					&& !edgeWeightUpdates.contains(u)) {
+				return false;
+			}
+		}
+
+		return true;
 	}
 }

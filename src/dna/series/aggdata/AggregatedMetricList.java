@@ -21,19 +21,22 @@ public class AggregatedMetricList extends List<AggregatedMetric> {
 	public AggregatedMetricList(int size) {
 		super(size);
 	}
-<<<<<<< HEAD
-	
-=======
 
->>>>>>> remotes/beniMaster/master
+	// IO Methods
 	public void write(String dir) throws IOException {
 		for (AggregatedMetric metricData : this.getList()) {
 			metricData.write(Dir.getMetricDataDir(dir, metricData.getName()));
 		}
 	}
-<<<<<<< HEAD
-	
-=======
 
->>>>>>> remotes/beniMaster/master
+	public static AggregatedMetricList read(String dir, boolean readValues)
+			throws IOException {
+		String[] metrics = Dir.getMetrics(dir);
+		AggregatedMetricList list = new AggregatedMetricList(metrics.length);
+		for (String metric : metrics) {
+			list.add(AggregatedMetric.read(dir + metric + Dir.delimiter,
+					Dir.getMetricName(metric), readValues));
+		}
+		return list;
+	}
 }

@@ -4,8 +4,8 @@ import java.io.IOException;
 
 import dna.io.Reader;
 import dna.io.Writer;
-import dna.io.etc.Keywords;
 import dna.series.lists.List;
+import dna.util.Config;
 
 /**
  * An AggregatedValueList object contains a list of AggregatedValue objects.
@@ -14,11 +14,7 @@ import dna.series.lists.List;
  * @date 24.06.2013
  */
 public class AggregatedValueList extends List<AggregatedValue> {
-<<<<<<< HEAD
-	
-=======
 
->>>>>>> remotes/beniMaster/master
 	// constructors
 	public AggregatedValueList() {
 		super();
@@ -33,36 +29,30 @@ public class AggregatedValueList extends List<AggregatedValue> {
 		Writer w = new Writer(dir, filename);
 		for (String name : this.map.keySet()) {
 			String temp = "";
-<<<<<<< HEAD
-			for(int i = 0; i < this.map.get(name).getValues().length; i++) {
-				temp += Keywords.aggregatedDataDelimiter + this.map.get(name).getValues()[i];
-=======
 			for (int i = 0; i < this.map.get(name).getValues().length; i++) {
-				temp += Keywords.aggregatedDataDelimiter
+				temp += Config.get("AGGREGATED_DATA_DELIMITER")
 						+ this.map.get(name).getValues()[i];
->>>>>>> remotes/beniMaster/master
 			}
 			w.writeln(name + temp);
 		}
 		w.close();
 	}
 
-	public static AggregatedValueList read(String dir, String filename)
-			throws IOException {
+	public static AggregatedValueList read(String dir, String filename,
+			boolean readValues) throws IOException {
+		if (!readValues) {
+			return new AggregatedValueList();
+		}
 		AggregatedValueList list = new AggregatedValueList();
 		Reader r = new Reader(dir, filename);
 		String line = null;
 		while ((line = r.readString()) != null) {
-			String[] temp = line.split(Keywords.aggregatedDataDelimiter);
-			double[] tempDouble = new double[temp.length];
-<<<<<<< HEAD
-			for(int i = 0; i < temp.length; i++) {
-=======
-			for (int i = 0; i < temp.length; i++) {
->>>>>>> remotes/beniMaster/master
-				tempDouble[i] = Double.parseDouble(temp[i]);
+			String[] temp = line.split(Config.get("AGGREGATED_DATA_DELIMITER"));
+			double[] values = new double[temp.length - 1];
+			for (int i = 1; i < temp.length; i++) {
+				values[i - 1] = Double.parseDouble(temp[i]);
 			}
-			list.add(new AggregatedValue(filename + temp[0], tempDouble));
+			list.add(new AggregatedValue(temp[0], values));
 		}
 		r.close();
 		return list;

@@ -1,10 +1,10 @@
 package dna.metrics.degree;
 
-import java.util.Collection;
-
 import dna.graph.Graph;
-import dna.graph.directed.DirectedNode;
-import dna.graph.undirected.UndirectedNode;
+import dna.graph.IElement;
+import dna.graph.nodes.DirectedNode;
+import dna.graph.nodes.UndirectedNode;
+import dna.series.data.DistributionInt;
 import dna.updates.Batch;
 import dna.updates.Update;
 import dna.util.ArrayUtils;
@@ -14,7 +14,8 @@ import dna.util.Log;
 public class DegreeDistributionRecomp extends DegreeDistribution {
 
 	public DegreeDistributionRecomp() {
-		super("degreeDistributionRecomp", ApplicationType.Recomputation);
+		super("degreeDistributionRecomp", ApplicationType.Recomputation,
+				MetricType.exact);
 	}
 
 	@Override
@@ -37,50 +38,36 @@ public class DegreeDistributionRecomp extends DegreeDistribution {
 		return false;
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public boolean compute() {
-		this.degreeDistribution = new double[0];
-		this.inDegreeDistribution = new double[0];
-		this.outDegreeDistribution = new double[0];
+		this.degree = new DistributionInt(degreeName, new int[0],
+				this.g.getNodeCount());
+		this.inDegree = new DistributionInt(inDegreeName, new int[0],
+				this.g.getNodeCount());
+		this.outDegree = new DistributionInt(outDegreeName, new int[0],
+				this.g.getNodeCount());
 		this.nodes = this.g.getNodeCount();
 		this.edges = this.g.getEdgeCount();
 		if (DirectedNode.class.isAssignableFrom(this.g.getGraphDatastructures()
 				.getNodeType())) {
-			for (DirectedNode n : (Collection<DirectedNode>) this.g.getNodes()) {
-				this.degreeDistribution = ArrayUtils.incr(
-						this.degreeDistribution, n.getDegree());
-				this.inDegreeDistribution = ArrayUtils.incr(
-						this.inDegreeDistribution, n.getInDegree());
-				this.outDegreeDistribution = ArrayUtils.incr(
-						this.outDegreeDistribution, n.getOutDegree());
+			for (IElement nUncasted : this.g.getNodes()) {
+				DirectedNode n = (DirectedNode) nUncasted;
+				this.degree.incr(n.getDegree());
+				this.inDegree.incr(n.getInDegree());
+				this.outDegree.incr(n.getOutDegree());
 			}
-			ArrayUtils.divide(this.degreeDistribution, this.nodes);
-			ArrayUtils.divide(this.inDegreeDistribution, this.nodes);
-			ArrayUtils.divide(this.outDegreeDistribution, this.nodes);
 			return true;
 		} else if (UndirectedNode.class.isAssignableFrom(this.g
 				.getGraphDatastructures().getNodeType())) {
-			for (UndirectedNode n : (Collection<UndirectedNode>) this.g
-					.getNodes()) {
-				this.degreeDistribution = ArrayUtils.incr(
-						this.degreeDistribution, n.getDegree());
+			for (IElement nUncasted : this.g.getNodes()) {
+				UndirectedNode n = (UndirectedNode) nUncasted;
+				this.degree.incr(n.getDegree());
 			}
-			ArrayUtils.divide(this.degreeDistribution, this.nodes);
 			return true;
 		}
 		Log.error("DD - unsupported node type "
 				+ this.g.getGraphDatastructures().getNodeType());
 		return false;
-	}
-
-	@Override
-	protected void init_() {
-		this.degreeDistribution = new double[0];
-		this.inDegreeDistribution = new double[0];
-		this.outDegreeDistribution = new double[0];
-		this.nodes = 0;
-		this.edges = 0;
 	}
 
 	@Override

@@ -1,5 +1,6 @@
 package dna.metrics.clusterCoefficient;
 
+import dna.series.data.NodeValueList;
 import dna.updates.Batch;
 import dna.updates.Update;
 
@@ -24,7 +25,7 @@ public class ClosedTriangleClusteringCoefficientRecomp extends
 
 	public ClosedTriangleClusteringCoefficientRecomp() {
 		super("closedTriangleClusteringCoefficientRecomp",
-				ApplicationType.Recomputation);
+				ApplicationType.Recomputation, MetricType.exact);
 	}
 
 	@Override
