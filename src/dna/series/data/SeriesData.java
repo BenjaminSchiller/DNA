@@ -27,8 +27,14 @@ public class SeriesData {
 		}
 		this.aggregation = null;
 	}
+<<<<<<< HEAD
 	
 	public SeriesData(String dir, RunData[] runs, String name, AggregatedSeries aggregation) {
+=======
+
+	public SeriesData(String dir, String name, RunData[] runs,
+			AggregatedSeries aggregation) {
+>>>>>>> remotes/beniMaster/master
 		this(dir, name, runs);
 		//this.aggregation = aggregation;
 	}
@@ -59,13 +65,13 @@ public class SeriesData {
 		this.runs.add(run);
 	}
 
-	private RunData aggregation;
+	private AggregatedSeries aggregation;
 
-	public RunData getAggregation() {
+	public AggregatedSeries getAggregation() {
 		return this.aggregation;
 	}
 
-	public void setAggregation(RunData aggregation) {
+	public void setAggregation(AggregatedSeries aggregation) {
 		this.aggregation = aggregation;
 	}
 }

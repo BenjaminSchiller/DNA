@@ -85,4 +85,33 @@ public class RunData {
 		return true;
 	}
 
+	/**
+	 * This method tests if two different RunData objects can be aggregated.
+	 * Checks: - same amount of batches - same batches (uses
+	 * BatchData.sameType())
+	 * 
+	 * @author Rwilmes
+	 * @date 25.06.2013
+	 */
+	public static boolean sameType(RunData r1, RunData r2) {
+		BatchDataList list1 = r1.getBatches();
+		BatchDataList list2 = r2.getBatches();
+
+		if (list1.size() != list2.size()) {
+			Log.warn("different amount of batches on run " + r1.getRun()
+					+ " and run " + r2.getRun());
+			return false;
+		}
+
+		for (int i = 0; i < list1.size(); i++) {
+			if (!BatchData.sameType(list1.get(i), list2.get(i))) {
+				Log.warn("different batches on run " + r1.getRun()
+						+ " and run " + r2.getRun());
+				return false;
+			}
+		}
+
+		return true;
+	}
+
 }

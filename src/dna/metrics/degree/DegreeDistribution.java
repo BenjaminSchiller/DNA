@@ -35,9 +35,7 @@ public abstract class DegreeDistribution extends Metric {
 
 	@Override
 	protected Value[] getValues() {
-		Value nodes = new Value("nodes", this.nodes);
-		Value edges = new Value("edges", this.edges);
-		return new Value[] { nodes, edges };
+		return new Value[0];
 	}
 
 	@Override

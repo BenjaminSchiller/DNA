@@ -6,13 +6,13 @@ import dna.series.data.MetricData;
 
 public class PlotFilenames {
 	public static final String delimiter = ".";
-	
+
 	public static final String generalRuntimes = "general";
-	
+
 	public static final String metricRuntimes = "metrics";
-	
+
 	public static final String metricRuntimesFraction = "metrics.fraction";
-	
+
 	public static String getDistributionDataFile(MetricData m, Distribution d) {
 		return Prefix.distributionsDataFile + m.getName() + delimiter
 				+ d.getName() + Suffix.data;
@@ -77,8 +77,8 @@ public class PlotFilenames {
 		return v.getName();
 	}
 
-	public static String getRuntimesDataFile(Values v) {
-		return Prefix.runtimesDataFile + v.getName() + Suffix.data;
+	public static String getRuntimesDataFile(String name) {
+		return Prefix.runtimesDataFile + name + Suffix.data;
 	}
 
 	public static String getRuntimesGnuplotScript(Values v) {
@@ -89,11 +89,11 @@ public class PlotFilenames {
 		return Prefix.runtimesGnuplotScript + name;
 	}
 
-	public static String getRuntimesPlot(Values v) {
-		return Prefix.runtimesPlot + v.getName();
+	public static String getRuntimesMetricPlot(String name) {
+		return Prefix.runtimesMetricPlot + name;
 	}
 
-	public static String getRuntimesPlot(String name) {
-		return Prefix.runtimesPlot + name;
+	public static String getRuntimesStatisticPlot(String name) {
+		return Prefix.runtimesStatisticPlot + name;
 	}
 }

@@ -2,8 +2,7 @@ package dna.updates;
 
 import dna.graph.Edge;
 
-public abstract class EdgeUpdate<E extends Edge> extends
-		Update<E> {
+public abstract class EdgeUpdate<E extends Edge> extends Update<E> {
 
 	protected E edge;
 

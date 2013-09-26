@@ -11,8 +11,8 @@ public class RandomDirectedBatch extends DirectedBatchCombinator {
 	public RandomDirectedBatch(int nodeAdditions, int nodeRemovals,
 			int edgeAdditions, int edgeRemovals,
 			GraphDatastructures<DirectedGraph, DirectedNode, DirectedEdge> ds) {
-		super("randmDirectedBatch", new RandomDirectedNodeAdditions(nodeAdditions,
-				(DirectedGraphDatastructures) ds),
+		super("randmDirectedBatch", new RandomDirectedNodeAdditions(
+				nodeAdditions, (DirectedGraphDatastructures) ds),
 				new RandomDirectedNodeRemoval(nodeRemovals,
 						(DirectedGraphDatastructures) ds),
 				new RandomDirectedEdgeAdditions(edgeAdditions,

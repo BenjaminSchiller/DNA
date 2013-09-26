@@ -9,8 +9,9 @@ import dna.util.parameters.IntParameter;
 
 /**
  * 
- * graph generator for a random directed graph. given a number of nodes and edges, the
- * edges are chosen uniformly at random from the number of all possible edges.
+ * graph generator for a random directed graph. given a number of nodes and
+ * edges, the edges are chosen uniformly at random from the number of all
+ * possible edges.
  * 
  * @author benni
  * 

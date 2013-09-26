@@ -19,7 +19,7 @@ public abstract class BatchGenerator<G extends Graph<N, E>, N extends Node<E>, E
 	}
 
 	public abstract Batch<E> generate(Graph<? extends Node<E>, E> graph);
-	
+
 	public abstract void reset();
 
 }

@@ -2,7 +2,7 @@ package dna.io.etc;
 
 public class Keywords {
 	public static final String pre = "# ";
-	
+
 	public static final String batchData = "BatchData";
 
 	public static final String graphGraph = "Graph";
@@ -28,7 +28,7 @@ public class Keywords {
 	public static final String distributionDelimiter = "	";
 
 	public static final String dataDelimiter = "	";
-	
+
 	public static final String aggregatedDataDelimiter = "	";
 
 	public static final String updateDelimiter1 = "#";

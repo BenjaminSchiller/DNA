@@ -31,14 +31,25 @@ public class MetricDataList extends List<MetricData> {
 		}
 		return list;
 	}
+<<<<<<< HEAD
 	
 	public static MetricDataList read(String dir, boolean readDistributionValues, boolean readNodeValues)
+=======
+
+	public static MetricDataList read(String dir,
+			boolean readDistributionValues, boolean readNodeValues)
+>>>>>>> remotes/beniMaster/master
 			throws IOException {
 		String[] metrics = Dir.getMetrics(dir);
 		MetricDataList list = new MetricDataList(metrics.length);
 		for (String metric : metrics) {
 			list.add(MetricData.read(dir + metric + "/",
+<<<<<<< HEAD
 					Dir.getMetricName(metric), readDistributionValues, readNodeValues));
+=======
+					Dir.getMetricName(metric), readDistributionValues,
+					readNodeValues));
+>>>>>>> remotes/beniMaster/master
 		}
 		System.out.println("LIST: " + list.size());
 		return list;

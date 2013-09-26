@@ -9,6 +9,7 @@ import dna.io.Reader;
 import dna.io.Writer;
 import dna.io.etc.Keywords;
 
+<<<<<<< HEAD
 
 /**
  * NodeValueList is a class containing an array with 1 value for each node. The node index is used as 
@@ -22,15 +23,38 @@ public class Distribution extends Data {
 	// member variables
 	private double[] values;
 	
+=======
+/**
+ * NodeValueList is a class containing an array with 1 value for each node. The
+ * node index is used as the index for the array. If a node is removed from the
+ * graph, his former value is replaced by a Double.NaN. When inserting new
+ * nodevalues with out-of-bound indeces, the array is expanded accordingly.
+ * 
+ * @date 24.06.2013
+ */
+public class Distribution extends Data {
+
+	// member variables
+	private double[] values;
+
+>>>>>>> remotes/beniMaster/master
 	// constructors
 	public Distribution(String name, double[] values) {
 		super(name);
 		this.values = values;
 	}
+<<<<<<< HEAD
 	public Distribution(String name) {
 		super(name);
 	}
 		
+=======
+
+	public Distribution(String name) {
+		super(name);
+	}
+
+>>>>>>> remotes/beniMaster/master
 	// class methods
 	public String toString() {
 		return "distribution(" + super.getName() + ")";
@@ -40,12 +64,23 @@ public class Distribution extends Data {
 		return this.values;
 	}
 
+<<<<<<< HEAD
 	
 	// IO Methods
 	/**
 	 * @param dir String which contains the path / directory the Distribution will be written to.
 	 * 
 	 * @param filename String representing the desired filename for the Distribution.
+=======
+	// IO Methods
+	/**
+	 * @param dir
+	 *            String which contains the path / directory the Distribution
+	 *            will be written to.
+	 * 
+	 * @param filename
+	 *            String representing the desired filename for the Distribution.
+>>>>>>> remotes/beniMaster/master
 	 */
 	public void write(String dir, String filename) throws IOException {
 		if (this.values == null) {
@@ -60,12 +95,26 @@ public class Distribution extends Data {
 	}
 
 	/**
+<<<<<<< HEAD
 	 * @param dir String which contains the path to the directory the Distribution will be read from.
 	 * 
 	 * @param filename String representing the filename the Distribution will be read from.
 	 * 
 	 * @param readValues Boolean. True:  values from the file will be read.
 	 * 							  False: empty Distribution will be created.	
+=======
+	 * @param dir
+	 *            String which contains the path to the directory the
+	 *            Distribution will be read from.
+	 * 
+	 * @param filename
+	 *            String representing the filename the Distribution will be read
+	 *            from.
+	 * 
+	 * @param readValues
+	 *            Boolean. True: values from the file will be read. False: empty
+	 *            Distribution will be created.
+>>>>>>> remotes/beniMaster/master
 	 */
 	public static Distribution read(String dir, String filename, String name,
 			boolean readValues) throws IOException {
