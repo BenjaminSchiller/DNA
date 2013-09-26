@@ -8,7 +8,6 @@ import dna.graph.datastructures.IEdgeListDatastructure;
 import dna.graph.datastructures.INodeListDatastructure;
 import dna.graph.edges.Edge;
 import dna.graph.nodes.Node;
-import dna.io.filesystem.Dir;
 import dna.io.filesystem.Files;
 import dna.metrics.Metric;
 import dna.metrics.Metric.ApplicationType;
@@ -16,7 +15,6 @@ import dna.profiler.GraphProfiler.ProfilerType;
 import dna.series.Series;
 import dna.series.SeriesGeneration;
 import dna.series.data.BatchData;
-import dna.series.data.RunData;
 import dna.updates.Batch;
 import dna.updates.Update;
 import dna.util.Config;
@@ -43,17 +41,17 @@ public aspect MetricsProfiler {
 
 	pointcut init(Graph g, GraphDataStructure gds) : this(g) && execution(Graph+.new(String,long, GraphDataStructure,..)) && args(*,*,gds,..);
 
-	pointcut nodeAdd() : call(* INodeListDatastructure+.add(Node+)) && cflow(metricApplied()) && if(isActive);
-	pointcut nodeRemove() : call(* INodeListDatastructure+.remove(Node+)) && cflow(metricApplied()) && if(isActive);
-	pointcut nodeContains() : call(* INodeListDatastructure+.contains(Node+)) && cflow(metricApplied()) && if(isActive);
-	pointcut nodeSize() : call(* INodeListDatastructure+.size()) && cflow(metricApplied()) && if(isActive);
-	pointcut nodeRandom() : call(* INodeListDatastructure+.getRandom()) && cflow(metricApplied()) && if(isActive);
+	pointcut nodeAdd() : call(* INodeListDatastructure+.add(Node+)) && metricApplied() && if(isActive);
+	pointcut nodeRemove() : call(* INodeListDatastructure+.remove(Node+)) && metricApplied() && if(isActive);
+	pointcut nodeContains() : call(* INodeListDatastructure+.contains(Node+)) && metricApplied() && if(isActive);
+	pointcut nodeSize() : call(* INodeListDatastructure+.size()) && metricApplied() && if(isActive);
+	pointcut nodeRandom() : call(* INodeListDatastructure+.getRandom()) && metricApplied() && if(isActive);
 
-	pointcut edgeAdd() : call(* IEdgeListDatastructure+.add(Edge+)) && cflow(metricApplied()) && if(isActive);
-	pointcut edgeRemove() : call(* IEdgeListDatastructure+.remove(Edge+)) && cflow(metricApplied()) && if(isActive);
-	pointcut edgeContains() : call(* IEdgeListDatastructure+.contains(Edge+)) && cflow(metricApplied()) && if(isActive);
-	pointcut edgeSize() : call(* IEdgeListDatastructure+.size()) && cflow(metricApplied()) && if(isActive);
-	pointcut edgeRandom() : call(* IEdgeListDatastructure+.getRandom()) && cflow(metricApplied()) && if(isActive);
+	pointcut edgeAdd() : call(* IEdgeListDatastructure+.add(Edge+)) && metricApplied() && if(isActive);
+	pointcut edgeRemove() : call(* IEdgeListDatastructure+.remove(Edge+)) && metricApplied() && if(isActive);
+	pointcut edgeContains() : call(* IEdgeListDatastructure+.contains(Edge+)) && metricApplied() && if(isActive);
+	pointcut edgeSize() : call(* IEdgeListDatastructure+.size()) && metricApplied() && if(isActive);
+	pointcut edgeRandom() : call(* IEdgeListDatastructure+.getRandom()) && metricApplied() && if(isActive);
 	
 	pointcut graphAction() : this(Graph);
 	pointcut nodeAction() : this(Node);
