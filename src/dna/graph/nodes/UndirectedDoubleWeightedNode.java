@@ -1,14 +1,14 @@
 package dna.graph.nodes;
 
 import dna.graph.datastructures.GraphDataStructure;
-import dna.graph.edges.Edge;
-import dna.graph.edges.UndirectedDoubleWeightedEdge;
 import dna.io.etc.Keywords;
 
-public class UndirectedDoubleWeightedNode extends UndirectedNode implements IWeightedNode<Double> {
+public class UndirectedDoubleWeightedNode extends UndirectedNode implements
+		IWeightedNode<Double> {
 	private double weight;
 
-	public UndirectedDoubleWeightedNode(int i, Double weight, GraphDataStructure gds) {
+	public UndirectedDoubleWeightedNode(int i, Double weight,
+			GraphDataStructure gds) {
 		super(i, gds);
 		this.setWeight(weight);
 	}
@@ -16,7 +16,8 @@ public class UndirectedDoubleWeightedNode extends UndirectedNode implements IWei
 	public UndirectedDoubleWeightedNode(String str, GraphDataStructure gds) {
 		super(str.split(Keywords.nodeWeightDelimiter)[0], gds);
 		if (str.contains(Keywords.nodeWeightDelimiter)) {
-			this.weight = Double.parseDouble(str.split(Keywords.nodeWeightDelimiter)[1]);
+			this.weight = Double.parseDouble(str
+					.split(Keywords.nodeWeightDelimiter)[1]);
 		} else {
 			this.weight = 0;
 		}
@@ -38,7 +39,12 @@ public class UndirectedDoubleWeightedNode extends UndirectedNode implements IWei
 
 	@Override
 	public String getStringRepresentation() {
-		return super.getStringRepresentation() + Keywords.nodeWeightDelimiter + this.weight;
+		return super.getStringRepresentation() + Keywords.nodeWeightDelimiter
+				+ this.weight;
+	}
+
+	public String toString() {
+		return super.toString() + " [" + this.getWeight() + "]";
 	}
 
 }

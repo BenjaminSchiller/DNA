@@ -43,4 +43,8 @@ public class UndirectedDoubleWeightedEdge extends UndirectedEdge implements
 				+ this.weight;
 	}
 
+	public String toString() {
+		return super.toString() + " [" + this.getWeight() + "]";
+	}
+
 }

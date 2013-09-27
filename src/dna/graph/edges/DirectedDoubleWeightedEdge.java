@@ -44,4 +44,8 @@ public class DirectedDoubleWeightedEdge extends DirectedEdge implements
 		return this.weight;
 	}
 
+	public String toString() {
+		return super.toString() + " [" + this.getWeight() + "]";
+	}
+
 }
