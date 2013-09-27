@@ -27,8 +27,6 @@ public class Weights {
 
 	public static double getDoubleWeight(DoubleWeightSelection selection) {
 		switch (selection) {
-		case None:
-			return Double.NaN;
 		case NaN:
 			return Double.NaN;
 		case One:
@@ -45,6 +43,47 @@ public class Weights {
 			return (double) Math.round(Rand.rand.nextDouble() * 1000.0) / 1000.0;
 		default:
 			return Double.NaN;
+		}
+	}
+
+	public static enum IntWeightSelection {
+		None, Min, Max, One, Zero, Rand, RandPos, RandNeg
+	}
+
+	public static enum IntEdgeWeightSelection {
+		None, Min, Max, One, Zero, Rand, RandPos, RandNeg
+	}
+
+	public static enum IntNodeWeightSelection {
+		None, Min, Max, One, Zero, Rand, RandPos, RandNeg
+	}
+
+	public static int getIntWeight(IntEdgeWeightSelection selection) {
+		return getIntWeight(IntWeightSelection.valueOf(selection.toString()));
+	}
+
+	public static int getIntWeight(IntNodeWeightSelection selection) {
+		return getIntWeight(IntWeightSelection.valueOf(selection.toString()));
+	}
+
+	public static int getIntWeight(IntWeightSelection selection) {
+		switch (selection) {
+		case Max:
+			return Integer.MAX_VALUE;
+		case Min:
+			return Integer.MIN_VALUE;
+		case One:
+			return 1;
+		case Rand:
+			return Rand.rand.nextInt();
+		case RandPos:
+			return Math.abs(Rand.rand.nextInt());
+		case RandNeg:
+			return Math.abs(Rand.rand.nextInt()) * -1;
+		case Zero:
+			return 0;
+		default:
+			return Integer.MIN_VALUE;
 		}
 	}
 }
