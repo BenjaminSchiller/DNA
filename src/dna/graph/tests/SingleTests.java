@@ -8,7 +8,6 @@ import java.io.IOException;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import dna.graph.IWeighted;
 import dna.graph.datastructures.DArray;
 import dna.graph.datastructures.DArrayList;
 import dna.graph.datastructures.GraphDataStructure;
@@ -22,6 +21,7 @@ import dna.graph.nodes.DirectedNode;
 import dna.graph.nodes.IWeightedNode;
 import dna.graph.nodes.UndirectedDoubleWeightedNode;
 import dna.graph.nodes.UndirectedNode;
+import dna.graph.weights.IWeighted;
 import dna.metrics.Metric;
 import dna.metrics.MetricNotApplicableException;
 import dna.metrics.clusterCoefficient.OpenTriangleClusteringCoefficientUpdate;

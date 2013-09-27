@@ -25,7 +25,6 @@ import org.junit.runners.Parameterized;
 
 import dna.graph.Graph;
 import dna.graph.IElement;
-import dna.graph.IWeighted;
 import dna.graph.datastructures.GraphDataStructure;
 import dna.graph.datastructures.IEdgeListDatastructure;
 import dna.graph.datastructures.IEdgeListDatastructureReadable;
@@ -42,6 +41,7 @@ import dna.graph.generators.RingGenerator;
 import dna.graph.nodes.DirectedNode;
 import dna.graph.nodes.Node;
 import dna.graph.nodes.UndirectedNode;
+import dna.graph.weights.IWeighted;
 import dna.io.GraphReader;
 import dna.io.GraphWriter;
 import dna.util.parameters.Parameter;

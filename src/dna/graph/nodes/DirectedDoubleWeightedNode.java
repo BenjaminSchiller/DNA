@@ -1,10 +1,11 @@
 package dna.graph.nodes;
 
 import dna.graph.datastructures.GraphDataStructure;
+import dna.graph.weights.IDoubleWeighted;
 import dna.io.etc.Keywords;
 
 public class DirectedDoubleWeightedNode extends DirectedNode implements
-		IWeightedNode<Double> {
+		IWeightedNode<Double>, IDoubleWeighted {
 	private double weight;
 
 	public DirectedDoubleWeightedNode(int i, Double weight,

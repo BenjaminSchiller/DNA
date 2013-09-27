@@ -5,8 +5,8 @@ import java.io.IOException;
 import java.io.ObjectOutputStream;
 
 import dna.graph.Graph;
-import dna.graph.IWeighted;
 import dna.graph.edges.Edge;
+import dna.graph.weights.IWeighted;
 import dna.util.Config;
 import dna.util.Log;
 

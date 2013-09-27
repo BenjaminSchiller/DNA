@@ -9,7 +9,6 @@ import java.util.Arrays;
 
 import dna.graph.Graph;
 import dna.graph.IElement;
-import dna.graph.IWeighted;
 import dna.graph.datastructures.DataStructure.AccessType;
 import dna.graph.edges.DirectedEdge;
 import dna.graph.edges.Edge;
@@ -17,6 +16,7 @@ import dna.graph.edges.IWeightedEdge;
 import dna.graph.edges.UndirectedEdge;
 import dna.graph.nodes.IWeightedNode;
 import dna.graph.nodes.Node;
+import dna.graph.weights.IWeighted;
 import dna.io.etc.Keywords;
 import dna.profiler.GraphProfiler.ProfilerType;
 import dna.profiler.complexity.Complexity;

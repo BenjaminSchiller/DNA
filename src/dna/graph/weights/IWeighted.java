@@ -1,4 +1,4 @@
-package dna.graph;
+package dna.graph.weights;
 
 /**
  * Interface for weighted nodes and edges

@@ -2,10 +2,11 @@ package dna.graph.edges;
 
 import dna.graph.Graph;
 import dna.graph.nodes.UndirectedNode;
+import dna.graph.weights.IDoubleWeighted;
 import dna.io.etc.Keywords;
 
 public class UndirectedDoubleWeightedEdge extends UndirectedEdge implements
-		IWeightedEdge<Double> {
+		IWeightedEdge<Double>, IDoubleWeighted {
 	private double weight;
 
 	public UndirectedDoubleWeightedEdge(UndirectedNode src, UndirectedNode dst,

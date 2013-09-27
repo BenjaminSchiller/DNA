@@ -2,10 +2,10 @@ package dna.graph.generators;
 
 import dna.graph.Graph;
 import dna.graph.IElement;
-import dna.graph.IWeighted;
 import dna.graph.datastructures.GraphDataStructure;
 import dna.graph.edges.Edge;
 import dna.graph.nodes.Node;
+import dna.graph.weights.IWeighted;
 import dna.graph.weights.Weights;
 import dna.graph.weights.Weights.DoubleEdgeWeightSelection;
 import dna.graph.weights.Weights.DoubleNodeWeightSelection;
