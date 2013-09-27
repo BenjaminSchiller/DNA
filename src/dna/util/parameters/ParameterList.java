@@ -30,6 +30,10 @@ public class ParameterList {
 		return buff.toString();
 	}
 
+	public String getNamePlain() {
+		return this.name;
+	}
+
 	public Parameter[] getParameters() {
 		return this.parameters;
 	}
