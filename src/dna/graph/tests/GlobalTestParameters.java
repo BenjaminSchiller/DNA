@@ -12,7 +12,6 @@ import dna.graph.edges.DirectedEdge;
 import dna.graph.edges.UndirectedDoubleWeightedEdge;
 import dna.graph.edges.UndirectedEdge;
 import dna.graph.generators.CliqueGenerator;
-import dna.graph.generators.RandomDoubleWeightedGraphGenerator;
 import dna.graph.generators.RandomGraphGenerator;
 import dna.graph.generators.RingGenerator;
 import dna.graph.nodes.DirectedDoubleWeightedNode;
