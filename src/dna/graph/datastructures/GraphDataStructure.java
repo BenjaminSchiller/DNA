@@ -14,6 +14,7 @@ import dna.graph.datastructures.DataStructure.AccessType;
 import dna.graph.edges.DirectedEdge;
 import dna.graph.edges.Edge;
 import dna.graph.edges.IWeightedEdge;
+import dna.graph.edges.UndirectedEdge;
 import dna.graph.nodes.IWeightedNode;
 import dna.graph.nodes.Node;
 import dna.io.etc.Keywords;
@@ -401,6 +402,10 @@ public class GraphDataStructure {
 
 	public boolean createsDirected() {
 		return DirectedEdge.class.isAssignableFrom(edgeType);
+	}
+
+	public boolean createsUndirected() {
+		return UndirectedEdge.class.isAssignableFrom(edgeType);
 	}
 
 	public String getStorageDataStructures(boolean getSimpleNames) {
