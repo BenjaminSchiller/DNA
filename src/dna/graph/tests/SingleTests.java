@@ -36,23 +36,22 @@ import dna.util.Timer;
 import dna.util.parameters.Parameter;
 
 public class SingleTests {
-	
+
 	@Test
 	public void metricTest() throws AggregationException, IOException,
 			MetricNotApplicableException {
 		GraphProfiler.activate();
-	
-	GraphDataStructure gds = new GraphDataStructure(DArrayList.class,
-			DArrayList.class, DArrayList.class, DirectedNode.class,
-			DirectedEdge.class);
-	GraphGenerator gg = new RandomGraphGenerator("test",
-			new Parameter[] {}, gds, 0, 40, 40);
-	BatchGenerator<DirectedNode, DirectedEdge> batchGen = new RandomDirectedBatch(
-			5, 5, 5, 5, gds);
-	Metric[] metrics = new Metric[] { new DegreeDistributionUpdate(),
-			new OpenTriangleClusteringCoefficientUpdate() };
-	Series s = new Series(gg, batchGen, metrics, "./graphs/", "test");
-	s.generate(2, 1);
+
+		GraphDataStructure gds = new GraphDataStructure(DArrayList.class,
+				DArrayList.class, DArrayList.class, DirectedNode.class,
+				DirectedEdge.class);
+		GraphGenerator gg = new RandomGraphGenerator(gds, 40, 40);
+		BatchGenerator<DirectedNode, DirectedEdge> batchGen = new RandomDirectedBatch(
+				5, 5, 5, 5, gds);
+		Metric[] metrics = new Metric[] { new DegreeDistributionUpdate(),
+				new OpenTriangleClusteringCoefficientUpdate() };
+		Series s = new Series(gg, batchGen, metrics, "./graphs/", "test");
+		s.generate(2, 1);
 	}
 
 	@Test
@@ -72,7 +71,8 @@ public class SingleTests {
 	@Test
 	public void checkWeightedNode() {
 		GraphDataStructure gds = new GraphDataStructure(DArray.class,
-				DArray.class, DArray.class, DirectedDoubleWeightedNode.class, DirectedDoubleWeightedEdge.class);
+				DArray.class, DArray.class, DirectedDoubleWeightedNode.class,
+				DirectedDoubleWeightedEdge.class);
 		IWeighted n = gds.newWeightedNode(1, 1d);
 		assertTrue(n instanceof DirectedDoubleWeightedNode);
 		assertEquals(1d, n.getWeight());
@@ -83,55 +83,64 @@ public class SingleTests {
 		} catch (RuntimeException e) {
 			caughtException = true;
 		}
-		assertTrue("Node n2 instantiated with incompatible signature", caughtException);
+		assertTrue("Node n2 instantiated with incompatible signature",
+				caughtException);
 	}
-	
+
 	@Ignore
 	@Test
 	public void performanceTester() {
 		GraphDataStructure gds = new GraphDataStructure(DArray.class,
-				DArray.class, DArray.class, DirectedDoubleWeightedNode.class, DirectedDoubleWeightedEdge.class);
-		
+				DArray.class, DArray.class, DirectedDoubleWeightedNode.class,
+				DirectedDoubleWeightedEdge.class);
+
 		int limit = 1000000;
 		IWeightedNode n;
-		
+
 		Timer t = new Timer("Test");
 		for (int i = 0; i < limit; i++) {
 			n = gds.newWeightedNode(i, 1d);
 		}
-		System.out.println("Generating " + limit + " node instances via gds: " + t.end());
-		
+		System.out.println("Generating " + limit + " node instances via gds: "
+				+ t.end());
+
 		t = new Timer("Test");
 		for (int i = 0; i < limit; i++) {
 			n = new DirectedDoubleWeightedNode(i, 1d, gds);
 		}
-		System.out.println("Generating " + limit + " node instances via direct constructor: " + t.end());
-		
+		System.out.println("Generating " + limit
+				+ " node instances via direct constructor: " + t.end());
+
 		DirectedDoubleWeightedEdge e;
 		DirectedNode n1 = new DirectedDoubleWeightedNode(1, gds);
 		DirectedDoubleWeightedNode n2 = new DirectedDoubleWeightedNode(2, gds);
-		
+
 		t = new Timer("Test");
 		for (int i = 0; i < limit; i++) {
 			e = (DirectedDoubleWeightedEdge) gds.newWeightedEdge(n1, n2, 1d);
 		}
-		System.out.println("Generating " + limit + " directed edge instances via gds: " + t.end());
-		
+		System.out.println("Generating " + limit
+				+ " directed edge instances via gds: " + t.end());
+
 		t = new Timer("Test");
 		for (int i = 0; i < limit; i++) {
 			e = new DirectedDoubleWeightedEdge(n1, n2, 1d);
 		}
-		System.out.println("Generating " + limit + " edge instances via direct constructor: " + t.end());	
-		
+		System.out.println("Generating " + limit
+				+ " edge instances via direct constructor: " + t.end());
+
 		gds.setEdgeType(UndirectedDoubleWeightedEdge.class);
 		UndirectedDoubleWeightedEdge ue;
 		UndirectedNode un1 = new UndirectedDoubleWeightedNode(1, gds);
-		UndirectedDoubleWeightedNode un2 = new UndirectedDoubleWeightedNode(2, gds);	
-		
+		UndirectedDoubleWeightedNode un2 = new UndirectedDoubleWeightedNode(2,
+				gds);
+
 		t = new Timer("Test");
 		for (int i = 0; i < limit; i++) {
-			ue = (UndirectedDoubleWeightedEdge) gds.newWeightedEdge(un1, un2, 1d);
+			ue = (UndirectedDoubleWeightedEdge) gds.newWeightedEdge(un1, un2,
+					1d);
 		}
-		System.out.println("Generating " + limit + " undirected edge instances via gds: " + t.end());		
+		System.out.println("Generating " + limit
+				+ " undirected edge instances via gds: " + t.end());
 	}
 }

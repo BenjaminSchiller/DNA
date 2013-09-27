@@ -3,8 +3,9 @@ package dna.graph.generators;
 import dna.graph.Graph;
 import dna.graph.datastructures.GraphDataStructure;
 import dna.graph.edges.Edge;
-import dna.graph.generators.GraphGenerator;
 import dna.graph.nodes.Node;
+import dna.util.parameters.IntParameter;
+import dna.util.parameters.Parameter;
 
 /**
  * 
@@ -14,13 +15,12 @@ import dna.graph.nodes.Node;
  * @author benni, Nico
  * 
  */
-@Deprecated
 public class CliqueGenerator extends GraphGenerator {
 
-	public CliqueGenerator(GraphDataStructure gds, int nodesInit) {
-		super("Clique", null, gds, 0, nodesInit,
-				gds.createsDirected() ? nodesInit * (nodesInit - 1) : nodesInit
-						* (nodesInit - 1) / 2);
+	public CliqueGenerator(GraphDataStructure gds, int nodes) {
+		super(buildName("Clique", gds), new Parameter[] { new IntParameter(
+				"N", nodes) }, gds, 0, nodes, gds.createsDirected() ? nodes
+				* (nodes - 1) : nodes * (nodes - 1) / 2);
 	}
 
 	@Override

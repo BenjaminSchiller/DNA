@@ -4,6 +4,7 @@ import dna.graph.Graph;
 import dna.graph.datastructures.GraphDataStructure;
 import dna.graph.edges.Edge;
 import dna.graph.nodes.Node;
+import dna.util.parameters.IntParameter;
 import dna.util.parameters.Parameter;
 
 /**
@@ -14,10 +15,8 @@ import dna.util.parameters.Parameter;
  */
 public class RingGenerator extends GraphGenerator {
 
-	public RingGenerator(String name, Parameter[] params,
-			GraphDataStructure gds, long timestampInit, int nodesInit,
-			int edgesInit) {
-		super(name, params, gds, timestampInit, nodesInit, edgesInit);
+	public RingGenerator(GraphDataStructure gds, int nodes) {
+		super(buildName("Ring", gds), new Parameter[]{new IntParameter("N", nodes)}, gds, 0, nodes, nodes);
 	}
 
 	@Override

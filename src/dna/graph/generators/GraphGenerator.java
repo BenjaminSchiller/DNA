@@ -47,15 +47,25 @@ public abstract class GraphGenerator extends ParameterList implements
 	public GraphDataStructure getGraphDataStructure() {
 		return this.gds;
 	}
-	
+
 	@Override
 	public boolean canGenerateNodeType(Class<? extends Node> nodeType) {
 		return true;
 	}
-	
+
 	@Override
 	public boolean canGenerateEdgeType(Class<? extends Edge> edgeType) {
 		return true;
+	}
+
+	public static String buildName(String name, GraphDataStructure gds) {
+		if (gds.createsDirected()) {
+			return "Directed" + name;
+		}
+		if (gds.createsUndirected()) {
+			return "Undirected" + name;
+		}
+		return name;
 	}
 
 }
