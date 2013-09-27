@@ -5,7 +5,44 @@ import java.util.Iterator;
 import java.util.Set;
 import java.util.Vector;
 
+import dna.util.parameters.Parameter;
+
 public class ArrayUtils {
+
+	public static Object[] append(Object[] array1, Object... array2) {
+		if (array1 == null || array1.length == 0) {
+			if (array2 == null) {
+				return new Object[] {};
+			} else {
+				return array2;
+			}
+		}
+		if (array2 == null || array2.length == 0) {
+			return array1;
+		}
+		Object[] appended = new Object[array1.length + array2.length];
+		System.arraycopy(array1, 0, appended, 0, array1.length);
+		System.arraycopy(array2, 0, appended, array1.length, array2.length);
+		return appended;
+	}
+
+	public static Parameter[] append(Parameter[] array1, Parameter... array2) {
+		if (array1 == null || array1.length == 0) {
+			if (array2 == null) {
+				return new Parameter[] {};
+			} else {
+				return array2;
+			}
+		}
+		if (array2 == null || array2.length == 0) {
+			return array1;
+		}
+		Parameter[] appended = new Parameter[array1.length + array2.length];
+		System.arraycopy(array1, 0, appended, 0, array1.length);
+		System.arraycopy(array2, 0, appended, array1.length, array2.length);
+		return appended;
+	}
+
 	public static int[] incr(int[] values, int index) {
 		try {
 			values[index]++;
