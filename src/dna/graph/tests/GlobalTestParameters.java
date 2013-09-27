@@ -38,8 +38,7 @@ public class GlobalTestParameters {
 			DArrayList.class, DHashMap.class, DHashSet.class, DLinkedList.class };
 
 	public static final Class[] graphGenerators = { RandomGraphGenerator.class,
-			RandomDoubleWeightedGraphGenerator.class, CliqueGenerator.class,
-			RingGenerator.class };
+			CliqueGenerator.class, RingGenerator.class };
 
 	public static final Class[] batchGenerators = { RandomDirectedBatch.class,
 			RandomUndirectedBatch.class };
