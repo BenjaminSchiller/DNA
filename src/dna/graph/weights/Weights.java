@@ -3,11 +3,44 @@ package dna.graph.weights;
 import dna.util.Rand;
 
 public class Weights {
-	public static enum DoubleWeightSelection {
-		None, NaN, One, Zero, Rand, RandTrim1, RandTrim2, RandTrim3
+
+	public static final String DoubleWeightPrefix = "D_";
+
+	public static final String IntWeightPrefix = "I_";
+
+	public static enum WeightSelection {
+		None, D_None, D_NaN, D_One, D_Zero, D_Rand, D_RandTrim1, D_RandTrim2, D_RandTrim3, I_None, I_Min, I_Max, I_One, I_Zero, I_Rand, I_RandPos, I_RandNeg
 	}
 
-	public static enum DoubleEdgeWeightSelection {
+	public static enum NodeWeightSelection {
+		None, D_None, D_NaN, D_One, D_Zero, D_Rand, D_RandTrim1, D_RandTrim2, D_RandTrim3, I_None, I_Min, I_Max, I_One, I_Zero, I_Rand, I_RandPos, I_RandNeg
+	}
+
+	public static enum EdgeWeightSelection {
+		None, D_None, D_NaN, D_One, D_Zero, D_Rand, D_RandTrim1, D_RandTrim2, D_RandTrim3, I_None, I_Min, I_Max, I_One, I_Zero, I_Rand, I_RandPos, I_RandNeg
+	}
+
+	public static Object getWeight(NodeWeightSelection selection) {
+		return getWeight(WeightSelection.valueOf(selection.toString()));
+	}
+
+	public static Object getWeight(EdgeWeightSelection selection) {
+		return getWeight(WeightSelection.valueOf(selection.toString()));
+	}
+
+	public static Object getWeight(WeightSelection selection) {
+		if (selection.toString().startsWith(DoubleWeightPrefix)) {
+			return getDoubleWeight(DoubleWeightSelection.valueOf(selection
+					.toString().replaceFirst(DoubleWeightPrefix, "")));
+		} else if (selection.toString().startsWith(IntWeightPrefix)) {
+			return getIntWeight(IntWeightSelection.valueOf(selection.toString()
+					.replaceFirst(IntWeightPrefix, "")));
+		} else {
+			return null;
+		}
+	}
+
+	public static enum DoubleWeightSelection {
 		None, NaN, One, Zero, Rand, RandTrim1, RandTrim2, RandTrim3
 	}
 
@@ -15,12 +48,16 @@ public class Weights {
 		None, NaN, One, Zero, Rand, RandTrim1, RandTrim2, RandTrim3
 	}
 
-	public static double getDoubleWeight(DoubleEdgeWeightSelection selection) {
+	public static enum DoubleEdgeWeightSelection {
+		None, NaN, One, Zero, Rand, RandTrim1, RandTrim2, RandTrim3
+	}
+
+	public static double getDoubleWeight(DoubleNodeWeightSelection selection) {
 		return getDoubleWeight(DoubleWeightSelection.valueOf(selection
 				.toString()));
 	}
 
-	public static double getDoubleWeight(DoubleNodeWeightSelection selection) {
+	public static double getDoubleWeight(DoubleEdgeWeightSelection selection) {
 		return getDoubleWeight(DoubleWeightSelection.valueOf(selection
 				.toString()));
 	}
@@ -50,19 +87,19 @@ public class Weights {
 		None, Min, Max, One, Zero, Rand, RandPos, RandNeg
 	}
 
-	public static enum IntEdgeWeightSelection {
-		None, Min, Max, One, Zero, Rand, RandPos, RandNeg
-	}
-
 	public static enum IntNodeWeightSelection {
 		None, Min, Max, One, Zero, Rand, RandPos, RandNeg
 	}
 
-	public static int getIntWeight(IntEdgeWeightSelection selection) {
-		return getIntWeight(IntWeightSelection.valueOf(selection.toString()));
+	public static enum IntEdgeWeightSelection {
+		None, Min, Max, One, Zero, Rand, RandPos, RandNeg
 	}
 
 	public static int getIntWeight(IntNodeWeightSelection selection) {
+		return getIntWeight(IntWeightSelection.valueOf(selection.toString()));
+	}
+
+	public static int getIntWeight(IntEdgeWeightSelection selection) {
 		return getIntWeight(IntWeightSelection.valueOf(selection.toString()));
 	}
 
