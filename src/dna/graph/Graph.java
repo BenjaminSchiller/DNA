@@ -8,7 +8,9 @@ import dna.graph.datastructures.IEdgeListDatastructure;
 import dna.graph.datastructures.IEdgeListDatastructureReadable;
 import dna.graph.datastructures.INodeListDatastructure;
 import dna.graph.datastructures.INodeListDatastructureReadable;
+import dna.graph.edges.DirectedEdge;
 import dna.graph.edges.Edge;
+import dna.graph.edges.UndirectedEdge;
 import dna.graph.nodes.Node;
 import dna.util.Log;
 
@@ -108,11 +110,25 @@ public class Graph {
 	}
 
 	public boolean addEdge(Edge e) {
-		return edges.add(e);
+		return this.containsNodes(e) && edges.add(e);
 	}
 
 	public boolean containsEdge(Edge e) {
 		return edges.contains(e);
+	}
+
+	public boolean containsNodes(Edge e) {
+		if (e instanceof DirectedEdge) {
+			return this.containsNode(((DirectedEdge) e).getSrc())
+					&& this.containsNode(((DirectedEdge) e).getDst());
+		} else if (e instanceof UndirectedEdge) {
+			return this.containsNode(((UndirectedEdge) e).getNode1())
+					&& this.containsNode(((UndirectedEdge) e).getNode2());
+		} else {
+			Log.error("containsNode() for unsupported edge type: "
+					+ e.getClass());
+			return false;
+		}
 	}
 
 	/**
