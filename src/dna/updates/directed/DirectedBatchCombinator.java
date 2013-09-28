@@ -46,7 +46,7 @@ public class DirectedBatchCombinator extends DirectedBatchGenerator {
 	}
 
 	public DirectedBatchCombinator(String name, DirectedBatchGenerator[] generators, GraphDataStructure ds) {
-		super(name, ParameterList.getParameters(generators), ds);
+		super(name, ParameterList.combineParameters(generators), ds);
 		this.generators = generators;
 	}
 

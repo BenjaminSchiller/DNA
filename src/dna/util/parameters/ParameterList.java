@@ -1,5 +1,7 @@
 package dna.util.parameters;
 
+import dna.util.ArrayUtils;
+
 public class ParameterList {
 	private String name;
 
@@ -38,18 +40,19 @@ public class ParameterList {
 		return this.parameters;
 	}
 
-	public static Parameter[] getParameters(ParameterList[] lists) {
-		int length = 0;
-		for (ParameterList pl : lists) {
-			length += pl.getParameters().length;
+	protected static String combineNames(ParameterList... pls) {
+		StringBuffer buff = new StringBuffer("COMB");
+		for (ParameterList pl : pls) {
+			buff.append("_" + pl.getNamePlain());
 		}
-		Parameter[] params = new Parameter[length];
-		int index = 0;
-		for (ParameterList pl : lists) {
-			for (Parameter p : pl.getParameters()) {
-				params[index++] = p;
-			}
+		return buff.toString();
+	}
+
+	protected static Parameter[] combineParameters(ParameterList... pls) {
+		Parameter[] p = new Parameter[0];
+		for (ParameterList pl : pls) {
+			p = ArrayUtils.append(p, pl.getParameters());
 		}
-		return params;
+		return p;
 	}
 }

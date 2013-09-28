@@ -46,7 +46,7 @@ public class UndirectedBatchCombinator extends UndirectedBatchGenerator {
 	}
 
 	public UndirectedBatchCombinator(String name, UndirectedBatchGenerator[] generators, GraphDataStructure ds) {
-		super(name, ParameterList.getParameters(generators), ds);
+		super(name, ParameterList.combineParameters(generators), ds);
 		this.generators = generators;
 	}
 
