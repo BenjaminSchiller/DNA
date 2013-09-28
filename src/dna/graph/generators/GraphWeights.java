@@ -23,7 +23,7 @@ public class GraphWeights extends GraphGenerator {
 
 	public GraphWeights(GraphGenerator gg, NodeWeightSelection nw,
 			EdgeWeightSelection ew) {
-		super(gg.getNamePlain() + "Weights", ArrayUtils.append(
+		super("Weighted" + gg.getNamePlain(), ArrayUtils.append(
 				gg.getParameters(), new ObjectParameter("NW", nw),
 				new ObjectParameter("EW", ew)), gg.getGraphDataStructure(),
 				gg.timestampInit, gg.nodesInit, gg.edgesInit);
@@ -33,7 +33,7 @@ public class GraphWeights extends GraphGenerator {
 	}
 
 	public GraphWeights(GraphGenerator gg, NodeWeightSelection nw) {
-		super(gg.getNamePlain() + "Weights", ArrayUtils.append(
+		super("Weighted" + gg.getNamePlain(), ArrayUtils.append(
 				gg.getParameters(), new ObjectParameter("NW", nw)), gg
 				.getGraphDataStructure(), gg.timestampInit, gg.nodesInit,
 				gg.edgesInit);
@@ -43,7 +43,7 @@ public class GraphWeights extends GraphGenerator {
 	}
 
 	public GraphWeights(GraphGenerator gg, EdgeWeightSelection ew) {
-		super(gg.getNamePlain() + "Weights", ArrayUtils.append(
+		super("Weighted" + gg.getNamePlain(), ArrayUtils.append(
 				gg.getParameters(), new ObjectParameter("EW", ew)), gg
 				.getGraphDataStructure(), gg.timestampInit, gg.nodesInit,
 				gg.edgesInit);

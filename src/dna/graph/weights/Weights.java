@@ -9,15 +9,15 @@ public class Weights {
 	public static final String IntWeightPrefix = "I_";
 
 	public static enum WeightSelection {
-		None, D_None, D_NaN, D_One, D_Zero, D_Rand, D_RandTrim1, D_RandTrim2, D_RandTrim3, I_None, I_Min, I_Max, I_One, I_Zero, I_Rand, I_RandPos, I_RandNeg
+		None, D_NaN, D_One, D_Zero, D_Rand, D_RandTrim1, D_RandTrim2, D_RandTrim3, I_Min, I_Max, I_One, I_Zero, I_Rand, I_RandPos, I_RandNeg
 	}
 
 	public static enum NodeWeightSelection {
-		None, D_None, D_NaN, D_One, D_Zero, D_Rand, D_RandTrim1, D_RandTrim2, D_RandTrim3, I_None, I_Min, I_Max, I_One, I_Zero, I_Rand, I_RandPos, I_RandNeg
+		None, D_NaN, D_One, D_Zero, D_Rand, D_RandTrim1, D_RandTrim2, D_RandTrim3, I_Min, I_Max, I_One, I_Zero, I_Rand, I_RandPos, I_RandNeg
 	}
 
 	public static enum EdgeWeightSelection {
-		None, D_None, D_NaN, D_One, D_Zero, D_Rand, D_RandTrim1, D_RandTrim2, D_RandTrim3, I_None, I_Min, I_Max, I_One, I_Zero, I_Rand, I_RandPos, I_RandNeg
+		None, D_NaN, D_One, D_Zero, D_Rand, D_RandTrim1, D_RandTrim2, D_RandTrim3, I_Min, I_Max, I_One, I_Zero, I_Rand, I_RandPos, I_RandNeg
 	}
 
 	public static Object getWeight(NodeWeightSelection selection) {
