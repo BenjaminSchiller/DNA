@@ -8,7 +8,7 @@ import dna.graph.edges.UndirectedEdge;
 
 public class UndirectedNode extends Node {
 	private IEdgeListDatastructure edges;
-	
+
 	public UndirectedNode(int index, GraphDataStructure gds) {
 		super(index, gds);
 	}
@@ -49,6 +49,10 @@ public class UndirectedNode extends Node {
 	@Override
 	public Iterable<IElement> getEdges() {
 		return this.edges;
+	}
+
+	public String toString() {
+		return super.toString() + " (" + this.edges.size() + ")";
 	}
 
 }
