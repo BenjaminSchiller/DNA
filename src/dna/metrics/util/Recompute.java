@@ -5,8 +5,8 @@ import dna.metrics.Metric;
 import dna.series.data.Distribution;
 import dna.series.data.NodeValueList;
 import dna.series.data.Value;
-import dna.updates.Batch;
-import dna.updates.Update;
+import dna.updates.batch.Batch;
+import dna.updates.update.Update;
 import dna.util.parameters.IntParameter;
 
 public class Recompute extends Metric {

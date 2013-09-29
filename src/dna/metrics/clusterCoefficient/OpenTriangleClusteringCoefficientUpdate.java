@@ -5,12 +5,12 @@ import dna.graph.edges.DirectedEdge;
 import dna.graph.nodes.DirectedNode;
 import dna.graph.nodes.Node;
 import dna.series.data.NodeValueList;
-import dna.updates.Batch;
-import dna.updates.EdgeAddition;
-import dna.updates.EdgeRemoval;
-import dna.updates.NodeAddition;
-import dna.updates.NodeRemoval;
-import dna.updates.Update;
+import dna.updates.batch.Batch;
+import dna.updates.update.EdgeAddition;
+import dna.updates.update.EdgeRemoval;
+import dna.updates.update.NodeAddition;
+import dna.updates.update.NodeRemoval;
+import dna.updates.update.Update;
 import dna.util.ArrayUtils;
 
 @SuppressWarnings("rawtypes")
@@ -88,7 +88,7 @@ public class OpenTriangleClusteringCoefficientUpdate extends
 	@Override
 	public boolean applyAfterUpdate(Update u) {
 		if (u instanceof NodeAddition) {
-			Node n = ((NodeAddition) u).getNode();
+			Node n = (Node) ((NodeAddition) u).getNode();
 			this.localCC.setValue(n.getIndex(), 0);
 			this.nodePotentialCount = ArrayUtils.set(this.nodePotentialCount,
 					n.getIndex(), 0, Long.MIN_VALUE);

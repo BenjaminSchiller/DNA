@@ -3,7 +3,7 @@ package dna.graph.edges;
 import dna.graph.Graph;
 import dna.graph.nodes.DirectedNode;
 import dna.graph.weights.IIntWeighted;
-import dna.io.etc.Keywords;
+import dna.util.Config;
 
 public class DirectedIntWeightedEdge extends DirectedEdge implements
 		IWeightedEdge<Integer>, IIntWeighted {
@@ -16,10 +16,10 @@ public class DirectedIntWeightedEdge extends DirectedEdge implements
 	}
 
 	public DirectedIntWeightedEdge(String str, Graph g) {
-		super(str.split(Keywords.edgeWeightDelimiter)[0], g);
-		if (str.contains(Keywords.edgeWeightDelimiter)) {
-			this.weight = Integer.parseInt(str
-					.split(Keywords.edgeWeightDelimiter)[1]);
+		super(str.split(Config.get("EDGE_WEIGHT_DELIMITER"))[0], g);
+		if (str.contains(Config.get("EDGE_WEIGHT_DELIMITER"))) {
+			this.weight = Integer.parseInt(str.split(Config
+					.get("EDGE_WEIGHT_DELIMITER"))[1]);
 		} else {
 			this.weight = 0;
 		}
@@ -31,8 +31,8 @@ public class DirectedIntWeightedEdge extends DirectedEdge implements
 	}
 
 	public String getStringRepresentation() {
-		return super.getStringRepresentation() + Keywords.edgeWeightDelimiter
-				+ this.weight;
+		return super.getStringRepresentation()
+				+ Config.get("EDGE_WEIGHT_DELIMITER") + this.weight;
 	}
 
 	@Override

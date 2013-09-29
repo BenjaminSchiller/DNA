@@ -6,7 +6,7 @@ import dna.graph.edges.UndirectedEdge;
 import dna.graph.nodes.DirectedNode;
 import dna.graph.nodes.UndirectedNode;
 import dna.metrics.Metric;
-import dna.updates.Batch;
+import dna.updates.batch.Batch;
 import dna.util.ArrayUtils;
 
 @SuppressWarnings("rawtypes")

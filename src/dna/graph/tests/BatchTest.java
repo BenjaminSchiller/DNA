@@ -31,18 +31,16 @@ import dna.graph.generators.IGraphGenerator;
 import dna.graph.nodes.DirectedNode;
 import dna.graph.nodes.Node;
 import dna.graph.nodes.UndirectedNode;
-import dna.graph.weights.IWeighted;
 import dna.io.BatchReader;
 import dna.io.BatchWriter;
 import dna.io.GraphReader;
 import dna.io.GraphWriter;
-import dna.updates.Batch;
-import dna.updates.BatchGenerator;
-import dna.updates.EdgeRemoval;
-import dna.updates.NodeRemoval;
-import dna.updates.Update;
-import dna.updates.directed.DirectedBatchGenerator;
-import dna.updates.undirected.UndirectedBatchGenerator;
+import dna.updates.batch.Batch;
+import dna.updates.batch.BatchSanitization;
+import dna.updates.generators.BatchGenerator;
+import dna.updates.update.EdgeRemoval;
+import dna.updates.update.NodeRemoval;
+import dna.updates.update.Update;
 import dna.util.parameters.Parameter;
 
 @RunWith(Parallelized.class)
@@ -51,10 +49,10 @@ public class BatchTest {
 	private Class<? extends Edge> edgeType;
 	private Class<? extends IGraphGenerator> generator;
 	private Constructor<? extends GraphGenerator> generatorConstructor;
-	private Constructor<? extends BatchGenerator<?, ?>> bGenC;
+	private Constructor<? extends BatchGenerator> bGenC;
 	private GraphDataStructure gds;
 	private GraphGenerator gg;
-	private BatchGenerator<Node, Edge> bGen;
+	private BatchGenerator bGen;
 
 	@Rule
 	public TemporaryFolder folder = new TemporaryFolder();
@@ -65,7 +63,7 @@ public class BatchTest {
 			Class<? extends IEdgeListDatastructure> nodeEdgeListType,
 			Class<? extends Node> nodeType, Class<? extends Edge> edgeType,
 			Class<? extends GraphGenerator> generator,
-			Class<? extends BatchGenerator<?, ?>> bGen)
+			Class<? extends BatchGenerator> bGen)
 			throws InstantiationException, IllegalAccessException,
 			IllegalArgumentException, InvocationTargetException,
 			NoSuchMethodException, SecurityException {
@@ -85,8 +83,8 @@ public class BatchTest {
 
 		this.bGenC = bGen.getConstructor(int.class, int.class, int.class,
 				int.class, GraphDataStructure.class);
-		this.bGen = (BatchGenerator<Node, Edge>) bGenC.newInstance(nodeAdd,
-				nodeRem, edgeAdd, edgeRem, this.gds);
+		this.bGen = (BatchGenerator) bGenC.newInstance(nodeAdd, nodeRem,
+				edgeAdd, edgeRem, this.gds);
 	}
 
 	public void initSizes() {
@@ -149,13 +147,15 @@ public class BatchTest {
 													.isAssignableFrom(nodeType)))
 										continue;
 
-									if ((UndirectedEdge.class
-											.isAssignableFrom(edgeType) && DirectedBatchGenerator.class
-											.isAssignableFrom(bGen))
-											|| (DirectedEdge.class
-													.isAssignableFrom(edgeType) && UndirectedBatchGenerator.class
-													.isAssignableFrom(bGen)))
-										continue;
+									// if ((UndirectedEdge.class
+									// .isAssignableFrom(edgeType) &&
+									// DirectedBatchGenerator.class
+									// .isAssignableFrom(bGen))
+									// || (DirectedEdge.class
+									// .isAssignableFrom(edgeType) &&
+									// UndirectedBatchGenerator.class
+									// .isAssignableFrom(bGen)))
+									// continue;
 
 									generatorConstructor = generator
 											.getConstructor(String.class,
@@ -193,8 +193,8 @@ public class BatchTest {
 	@Test
 	public void testRandomBatchGenerator() {
 		Graph g = gg.generate();
-		Batch<?> b = bGen.generate(g);
-		b.sanitize();
+		Batch b = bGen.generate(g);
+		BatchSanitization.sanitize(b);
 		assertTrue(b.apply(g));
 	}
 
@@ -202,11 +202,11 @@ public class BatchTest {
 	public void batchEqualityTest() {
 		Graph g = gg.generate();
 
-		Batch<Edge> b1 = new Batch<Edge>(gds, 0, 0);
-		Batch<Edge> b2 = new Batch<Edge>(gds, 0, 0);
+		Batch b1 = new Batch(gds, 0, 0);
+		Batch b2 = new Batch(gds, 0, 0);
 
-		Update<Edge> eR = new EdgeRemoval<Edge>(g.getRandomEdge());
-		NodeRemoval<Edge> nR = new NodeRemoval<>(g.getRandomNode());
+		Update eR = new EdgeRemoval(g.getRandomEdge());
+		NodeRemoval nR = new NodeRemoval(g.getRandomNode());
 
 		b1.add(eR);
 		b1.add(nR);
@@ -228,11 +228,10 @@ public class BatchTest {
 		GraphWriter gw = new GraphWriter();
 		gw.write(g, tempFolder, "gGen");
 
-		Batch<Edge> b = bGen.generate(g);
-		b.sanitize();
+		Batch b = bGen.generate(g);
+		BatchSanitization.sanitize(b);
 
-		BatchWriter<Node, Edge> bw = new BatchWriter<>();
-		assertTrue(bw.write(b, tempFolder, "bGen"));
+		assertTrue(BatchWriter.write(b, tempFolder, "bGen"));
 
 		b.apply(g);
 		gw.write(g, tempFolder, "gGenUpdated");
@@ -241,9 +240,8 @@ public class BatchTest {
 
 		GraphReader gr = new GraphReader();
 		Graph gRead = gr.read(tempFolder, "gGen");
-		BatchReader<Node, Edge, IWeighted> br = new BatchReader<>(this.gds);
-		Batch<Edge> b2 = br.read(tempFolder, "bGen", gRead);
-		bw.write(b2, tempFolder, "bRead");
+		Batch b2 = BatchReader.read(tempFolder, "bGen", gRead);
+		BatchWriter.write(b2, tempFolder, "bRead");
 		assertEquals(b, b2);
 
 		assertTrue(b2.apply(gRead));

@@ -28,8 +28,8 @@ import dna.graph.nodes.DirectedNode;
 import dna.graph.nodes.IWeightedNode;
 import dna.graph.nodes.Node;
 import dna.graph.nodes.UndirectedNode;
-import dna.io.etc.Keywords;
 import dna.profiler.GraphProfiler.ProfilerType;
+import dna.util.Config;
 
 @RunWith(Parameterized.class)
 public class GraphTester {
@@ -93,11 +93,11 @@ public class GraphTester {
 
 	@Test
 	public void datastructureKnowsAboutItsComplexity() {
-		for(ProfilerType p: ProfilerType.values()) {
+		for (ProfilerType p : ProfilerType.values()) {
 			assertNotNull(gds.getComplexityClass(p));
 		}
 	}
-	
+
 	@Test
 	public void testGraphDataStructureEqualsReadWrite() {
 		String gdsString = gds.getDataStructures();
@@ -131,39 +131,44 @@ public class GraphTester {
 	@Test
 	public void addWeightedNode() {
 		assumeTrue(IWeightedNode.class.isAssignableFrom(nodeType));
-		
+
 		Object mock = mockedWeight(nodeType, true);
 		IWeightedNode n = gds.newWeightedNode(1, mock);
 		assertEquals(mock, n.getWeight());
 		assertTrue(graph.addNode((Node) n));
-		
+
 		Object mock2 = mockedWeight(nodeType, false);
-		assertNotEquals("mockedWeight not returning two different mocks", mock, mock2);
+		assertNotEquals("mockedWeight not returning two different mocks", mock,
+				mock2);
 		IWeightedNode n2 = gds.newWeightedNode(1, mock2);
 		assertEquals(mock2, n2.getWeight());
 		assertFalse(graph.addNode((Node) n2));
 	}
-	
+
 	@SuppressWarnings("rawtypes")
 	@Test
 	public void addWeightedEdge() {
 		assumeTrue(IWeightedEdge.class.isAssignableFrom(edgeType));
-	
+
 		Node n1 = gds.newNodeInstance(1);
-		Node n2 = gds.newNodeInstance(2);		
+		Node n2 = gds.newNodeInstance(2);
 
 		Object mock = mockedWeight(edgeType, true);
 		IWeightedEdge e = gds.newWeightedEdge(n1, n2, mock);
 		assertEquals(mock, e.getWeight());
 		assertTrue(graph.addEdge((Edge) e));
-		
+
 		Object mock2 = mockedWeight(edgeType, false);
-		assertNotEquals("mockedWeight not returning two different mocks", mock, mock2);
+		assertNotEquals("mockedWeight not returning two different mocks", mock,
+				mock2);
 		IWeightedEdge e2 = gds.newWeightedEdge(n1, n2, mock2);
 		assertEquals(mock2, e2.getWeight());
-		assertFalse("Adding the same edge with different weight a second time succeeded (graph edge list: " + this.gds.getGraphEdgeListType() + ")", graph.addEdge((Edge) e2));		
-	}	
-	
+		assertFalse(
+				"Adding the same edge with different weight a second time succeeded (graph edge list: "
+						+ this.gds.getGraphEdgeListType() + ")",
+				graph.addEdge((Edge) e2));
+	}
+
 	@Test
 	public void addEdgeByID() {
 		Node n1 = gds.newNodeInstance(1);
@@ -191,9 +196,9 @@ public class GraphTester {
 
 		String edgeString;
 		if (graph.isDirected()) {
-			edgeString = "1" + Keywords.directedEdgeDelimiter + "2";
+			edgeString = "1" + Config.get("EDGE_DIRECTED_DELIMITER") + "2";
 		} else {
-			edgeString = "1" + Keywords.undirectedEdgeDelimiter + "2";
+			edgeString = "1" + Config.get("EDGE_UNDIRECTED_DELIMITER") + "2";
 		}
 
 		Edge e = gds.newEdgeInstance(edgeString, graph);
@@ -310,7 +315,6 @@ public class GraphTester {
 		}
 	}
 
-	
 	/**
 	 * Get a mocked weight for the type t
 	 * 
@@ -344,5 +348,5 @@ public class GraphTester {
 		}
 		return null;
 	}
-	
+
 }

@@ -27,13 +27,13 @@ import dna.metrics.Metric;
 import dna.metrics.Metric.ApplicationType;
 import dna.metrics.Metric.MetricType;
 import dna.profiler.GraphProfiler;
-import dna.profiler.MetricsProfiler;
 import dna.profiler.GraphProfiler.ProfilerType;
+import dna.profiler.MetricsProfiler;
 import dna.series.data.Distribution;
 import dna.series.data.NodeValueList;
 import dna.series.data.Value;
-import dna.updates.Batch;
-import dna.updates.Update;
+import dna.updates.batch.Batch;
+import dna.updates.update.Update;
 
 @RunWith(Parameterized.class)
 public class ProfilerTest {
@@ -50,36 +50,36 @@ public class ProfilerTest {
 			Class<? extends Node> nodeType, Class<? extends Edge> edgeType,
 			ApplicationType applicationType) throws InstantiationException,
 			IllegalAccessException, IllegalArgumentException,
-			InvocationTargetException,
-			NoSuchMethodException, SecurityException {
+			InvocationTargetException, NoSuchMethodException, SecurityException {
 		this.gds = new GraphDataStructure(nodeListType, graphEdgeListType,
 				nodeEdgeListType, nodeType, edgeType);
 		this.gds.setEdgeType(edgeType);
 		this.graph = gds.newGraphInstance("ABC", 1L, 10, 10);
 		this.applicationType = applicationType;
 		GraphProfiler.activate();
-		
+
 		this.graph = generateGraph();
-		metric = new TestMetric("test", this.applicationType, MetricType.unknown);
+		metric = new TestMetric("test", this.applicationType,
+				MetricType.unknown);
 		metric.setGraph(graph);
 		this.metricKey = metric.getName() + MetricsProfiler.initialAddition;
 	}
 
 	private Graph generateGraph() {
 		Graph g = new Graph("test", 1, this.gds);
-		
+
 		Node n1 = gds.newNodeInstance(1);
 		Node n2 = gds.newNodeInstance(2);
 		g.addNode(n1);
 		g.addNode(n2);
-		
+
 		Edge e = gds.newEdgeInstance(n1, n2);
 		e.connectToNodes();
 		g.addEdge(e);
-		
+
 		return g;
 	}
-	
+
 	@Before
 	public void resetProfiler() {
 		GraphProfiler.reset();
@@ -171,40 +171,40 @@ public class ProfilerTest {
 
 	@Test
 	public void testSizeNodeGlobalIsCountedInMetric() {
-		assertEquals(0, GraphProfiler.getCount(metricKey,
-				ProfilerType.SizeNodeGlobal));
+		assertEquals(0,
+				GraphProfiler.getCount(metricKey, ProfilerType.SizeNodeGlobal));
 		metric.compute();
-		assertEquals(1, GraphProfiler.getCount(metricKey,
-				ProfilerType.SizeNodeGlobal));
+		assertEquals(1,
+				GraphProfiler.getCount(metricKey, ProfilerType.SizeNodeGlobal));
 	}
 
 	@Test
 	public void testSizeNodeLocalIsCountedInMetric() {
 		assumeTrue(graph.isDirected());
 
-		assertEquals(0, GraphProfiler.getCount(metricKey,
-				ProfilerType.SizeNodeLocal));
+		assertEquals(0,
+				GraphProfiler.getCount(metricKey, ProfilerType.SizeNodeLocal));
 		metric.compute();
-		assertEquals(1, GraphProfiler.getCount(metricKey,
-				ProfilerType.SizeNodeLocal));
+		assertEquals(1,
+				GraphProfiler.getCount(metricKey, ProfilerType.SizeNodeLocal));
 	}
 
 	@Test
 	public void testSizeEdgeGlobalIsCountedInMetric() {
-		assertEquals(0, GraphProfiler.getCount(metricKey,
-				ProfilerType.SizeEdgeGlobal));
+		assertEquals(0,
+				GraphProfiler.getCount(metricKey, ProfilerType.SizeEdgeGlobal));
 		metric.compute();
-		assertEquals(1, GraphProfiler.getCount(metricKey,
-				ProfilerType.SizeEdgeGlobal));
+		assertEquals(1,
+				GraphProfiler.getCount(metricKey, ProfilerType.SizeEdgeGlobal));
 	}
 
 	@Test
 	public void testSizeEdgeLocalIsCountedInMetric() {
-		assertEquals(0, GraphProfiler.getCount(metricKey,
-				ProfilerType.SizeEdgeLocal));
+		assertEquals(0,
+				GraphProfiler.getCount(metricKey, ProfilerType.SizeEdgeLocal));
 		metric.compute();
-		assertEquals(1, GraphProfiler.getCount(metricKey,
-				ProfilerType.SizeEdgeLocal));
+		assertEquals(1,
+				GraphProfiler.getCount(metricKey, ProfilerType.SizeEdgeLocal));
 	}
 
 	@SuppressWarnings(value = { "rawtypes" })
@@ -237,31 +237,31 @@ public class ProfilerTest {
 		@Override
 		public boolean compute() {
 			g.containsNode(mock(Node.class));
-			
+
 			Node n1 = g.getNode(1);
 			Edge e = g.getRandomEdge();
-			
-			if ( n1 instanceof DirectedNode ) {
+
+			if (n1 instanceof DirectedNode) {
 				DirectedNode dn1 = (DirectedNode) n1;
 				dn1.hasNeighbor(dn1);
 			}
-			
+
 			g.containsEdge(e);
 			n1.hasEdge(e);
-			
+
 			g.getNodeCount();
 			g.getEdgeCount();
 
-			if ( n1 instanceof DirectedNode ) {
+			if (n1 instanceof DirectedNode) {
 				DirectedNode dn1 = (DirectedNode) n1;
 				dn1.getInDegree();
 				dn1.getNeighborCount();
 			}
-			if ( n1 instanceof UndirectedNode ) {
+			if (n1 instanceof UndirectedNode) {
 				UndirectedNode un1 = (UndirectedNode) n1;
 				un1.getDegree();
 			}
-			
+
 			return false;
 		}
 
@@ -307,7 +307,7 @@ public class ProfilerTest {
 		public boolean isComparableTo(Metric m) {
 			return false;
 		}
-		
+
 	}
 
 }

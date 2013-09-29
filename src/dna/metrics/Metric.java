@@ -5,12 +5,11 @@ import dna.series.data.Distribution;
 import dna.series.data.MetricData;
 import dna.series.data.NodeValueList;
 import dna.series.data.Value;
-import dna.updates.Batch;
-import dna.updates.Update;
+import dna.updates.batch.Batch;
+import dna.updates.update.Update;
 import dna.util.parameters.Parameter;
 import dna.util.parameters.ParameterList;
 
-@SuppressWarnings("rawtypes")
 public abstract class Metric extends ParameterList {
 
 	public static enum ApplicationType {

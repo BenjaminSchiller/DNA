@@ -29,11 +29,10 @@ import dna.metrics.degree.DegreeDistributionUpdate;
 import dna.profiler.GraphProfiler;
 import dna.series.AggregationException;
 import dna.series.Series;
-import dna.updates.BatchGenerator;
-import dna.updates.directed.RandomDirectedBatch;
+import dna.updates.generators.BatchGenerator;
+import dna.updates.generators.RandomBatch;
 import dna.util.MathHelper;
 import dna.util.Timer;
-import dna.util.parameters.Parameter;
 
 public class SingleTests {
 
@@ -46,8 +45,7 @@ public class SingleTests {
 				DArrayList.class, DArrayList.class, DirectedNode.class,
 				DirectedEdge.class);
 		GraphGenerator gg = new RandomGraphGenerator(gds, 40, 40);
-		BatchGenerator<DirectedNode, DirectedEdge> batchGen = new RandomDirectedBatch(
-				5, 5, 5, 5, gds);
+		BatchGenerator batchGen = new RandomBatch(5, 5, 5, 5);
 		Metric[] metrics = new Metric[] { new DegreeDistributionUpdate(),
 				new OpenTriangleClusteringCoefficientUpdate() };
 		Series s = new Series(gg, batchGen, metrics, "./graphs/", "test");

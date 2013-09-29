@@ -7,8 +7,7 @@ import java.io.IOException;
 
 import com.sun.media.sound.InvalidFormatException;
 
-import dna.io.etc.Keywords;
-
+import dna.util.Config;
 
 /**
  * Simple file reader that reads data from a file one line at a time.
@@ -19,12 +18,21 @@ import dna.io.etc.Keywords;
 public class Reader {
 	private BufferedReader reader;
 
+	public static final boolean skipComments = true;
+
 	public Reader(String dir, String filename) throws FileNotFoundException {
 		this.reader = new BufferedReader(new FileReader(dir + filename));
 	}
 
 	public String readString() throws IOException {
-		return this.reader.readLine();
+		String line = this.reader.readLine();
+		if (line == null) {
+			return null;
+		}
+		if (skipComments && line.startsWith(Config.get("COMMENT_PREFIX"))) {
+			return this.readString();
+		}
+		return line;
 	}
 
 	public int readInt() throws NumberFormatException, IOException {
@@ -42,7 +50,7 @@ public class Reader {
 
 	public void readKeyword(String keyword) throws IOException {
 		String line = this.readString();
-		if (!line.equals(Keywords.asLine(keyword))) {
+		if (!line.equals(Writer.getKeywordAsLine(keyword))) {
 			throw new InvalidFormatException("Expected keyword '" + keyword
 					+ "'");
 		}

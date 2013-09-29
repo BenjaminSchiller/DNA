@@ -17,10 +17,10 @@ import dna.graph.edges.UndirectedEdge;
 import dna.graph.nodes.IWeightedNode;
 import dna.graph.nodes.Node;
 import dna.graph.weights.IWeighted;
-import dna.io.etc.Keywords;
 import dna.profiler.GraphProfiler.ProfilerType;
 import dna.profiler.complexity.Complexity;
 import dna.profiler.complexity.ComplexityType.Base;
+import dna.util.Config;
 
 /**
  * Container for different types of storages for everything: this holds the
@@ -53,7 +53,8 @@ public class GraphDataStructure {
 
 	@SuppressWarnings("unchecked")
 	public GraphDataStructure(String gdsString) {
-		String splitted[] = gdsString.split(Keywords.classDelimiter);
+		String splitted[] = gdsString.split(Config
+				.get("DATASTRUCTURES_CLASS_DELIMITER"));
 		try {
 			this.nodeListType = (Class<? extends INodeListDatastructure>) Class
 					.forName(splitted[0]);
@@ -410,20 +411,25 @@ public class GraphDataStructure {
 
 	public String getStorageDataStructures(boolean getSimpleNames) {
 		if (getSimpleNames) {
-			return nodeListType.getSimpleName() + Keywords.classDelimiter
+			return nodeListType.getSimpleName()
+					+ Config.get("DATASTRUCTURES_CLASS_DELIMITER")
 					+ graphEdgeListType.getSimpleName()
-					+ Keywords.classDelimiter
+					+ Config.get("DATASTRUCTURES_CLASS_DELIMITER")
 					+ nodeEdgeListType.getSimpleName();
 		} else {
-			return nodeListType.getName() + Keywords.classDelimiter
-					+ graphEdgeListType.getName() + Keywords.classDelimiter
+			return nodeListType.getName()
+					+ Config.get("DATASTRUCTURES_CLASS_DELIMITER")
+					+ graphEdgeListType.getName()
+					+ Config.get("DATASTRUCTURES_CLASS_DELIMITER")
 					+ nodeEdgeListType.getName();
 		}
 	}
 
 	public String getDataStructures() {
-		return getStorageDataStructures(false) + Keywords.classDelimiter
-				+ nodeType.getName() + Keywords.classDelimiter
+		return getStorageDataStructures(false)
+				+ Config.get("DATASTRUCTURES_CLASS_DELIMITER")
+				+ nodeType.getName()
+				+ Config.get("DATASTRUCTURES_CLASS_DELIMITER")
 				+ edgeType.getName();
 	}
 

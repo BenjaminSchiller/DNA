@@ -15,8 +15,8 @@ import dna.profiler.GraphProfiler.ProfilerType;
 import dna.series.Series;
 import dna.series.SeriesGeneration;
 import dna.series.data.BatchData;
-import dna.updates.Batch;
-import dna.updates.Update;
+import dna.updates.batch.Batch;
+import dna.updates.update.Update;
 import dna.util.Config;
 
 public aspect MetricsProfiler {
@@ -31,9 +31,9 @@ public aspect MetricsProfiler {
 	pointcut aggregateDataOverAllRuns(Series s) : execution(* SeriesGeneration.generate(Series, int, int, boolean, boolean)) && args(s, ..) && if(isActive);
 	
 	pointcut initialMetric(Metric metricObject) : execution(* Metric+.compute()) && target(metricObject);
-	pointcut metricAppliedOnUpdate(Metric metricObject, Update<?> updateObject) : (execution(* Metric+.applyBeforeUpdate(Update+))
+	pointcut metricAppliedOnUpdate(Metric metricObject, Update updateObject) : (execution(* Metric+.applyBeforeUpdate(Update+))
 			 || execution(* Metric+.applyAfterUpdate(Update+))) && args(updateObject) && target(metricObject);
-	pointcut metricAppliedOnBatch(Metric metricObject, Update<?> batchObject) : (execution(* Metric+.applyBeforeBatch(Batch+))
+	pointcut metricAppliedOnBatch(Metric metricObject, Update batchObject) : (execution(* Metric+.applyBeforeBatch(Batch+))
 			 || execution(* Metric+.applyAfterBatch(Batch+))) && args(batchObject) && target(metricObject);
 	pointcut metricApplied() : cflow(initialMetric(*)) || cflow(metricAppliedOnUpdate(*, *)) || cflow(metricAppliedOnBatch(*, *));
 	
@@ -75,7 +75,7 @@ public aspect MetricsProfiler {
 		return res;
 	}
 
-	boolean around(Metric metricObject, Update<?> updateObject) : metricAppliedOnUpdate(metricObject, updateObject) {
+	boolean around(Metric metricObject, Update updateObject) : metricAppliedOnUpdate(metricObject, updateObject) {
 		currentMetric = metricObject.getName();
 		boolean res = proceed(metricObject, updateObject);
 		currentMetric = null;

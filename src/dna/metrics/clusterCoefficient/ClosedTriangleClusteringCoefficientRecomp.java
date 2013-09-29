@@ -1,8 +1,7 @@
 package dna.metrics.clusterCoefficient;
 
-import dna.series.data.NodeValueList;
-import dna.updates.Batch;
-import dna.updates.Update;
+import dna.updates.batch.Batch;
+import dna.updates.update.Update;
 
 /**
  * 

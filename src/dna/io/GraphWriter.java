@@ -4,7 +4,7 @@ import java.io.IOException;
 
 import dna.graph.Graph;
 import dna.graph.IElement;
-import dna.io.etc.Keywords;
+import dna.util.Config;
 
 public class GraphWriter {
 
@@ -13,30 +13,32 @@ public class GraphWriter {
 		try {
 			writer = new Writer(dir, filename);
 
-			writer.writeKeyword(Keywords.graphGraph);
+			writer.writeKeyword(Config.get("GRAPH_KEYWORD_NAME"));
 			writer.writeln(g.getName());
-			
-			writer.writeKeyword(Keywords.graphDataStructures);
+
+			writer.writeKeyword(Config.get("GRAPH_KEYWORD_DATASTRUCTURES"));
 			writer.writeln(g.getGraphDatastructures().getDataStructures());
 
-			writer.writeKeyword(Keywords.graphNodes);
+			writer.writeKeyword(Config.get("GRAPH_KEYWORD_NODE_COUNT"));
 			writer.writeln(g.getNodeCount());
 
-			writer.writeKeyword(Keywords.graphEdges);
+			writer.writeKeyword(Config.get("GRAPH_KEYWORD_EDGE_COUNT"));
 			writer.writeln(g.getEdgeCount());
 
-			writer.writeKeyword(Keywords.graphTimestamp);
+			writer.writeKeyword(Config.get("GRAPH_KEYWORD_TIMESTAMP"));
 			writer.writeln(g.getTimestamp());
 
-			writer.writeKeyword(Keywords.graphListOfNodes);
+			writer.writeKeyword(Config.get("GRAPH_KEYWORD_NODES_LIST"));
 			for (IElement n : g.getNodes()) {
-				if ( n == null ) continue;
+				if (n == null)
+					continue;
 				writer.writeln(n.getStringRepresentation());
 			}
 
-			writer.writeKeyword(Keywords.graphListOfEdges);
+			writer.writeKeyword(Config.get("GRAPH_KEYWORD_EDGES_LIST"));
 			for (IElement e : g.getEdges()) {
-				if ( e == null ) continue;
+				if (e == null)
+					continue;
 				writer.writeln(e.getStringRepresentation());
 			}
 

@@ -12,7 +12,7 @@ import dna.metrics.MetricNotApplicableException;
 import dna.series.aggdata.AggregatedSeries;
 import dna.series.data.RunData;
 import dna.series.data.SeriesData;
-import dna.updates.BatchGenerator;
+import dna.updates.generators.BatchGenerator;
 import dna.util.Config;
 import dna.util.Rand;
 

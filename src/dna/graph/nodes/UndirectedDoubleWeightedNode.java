@@ -2,7 +2,7 @@ package dna.graph.nodes;
 
 import dna.graph.datastructures.GraphDataStructure;
 import dna.graph.weights.IDoubleWeighted;
-import dna.io.etc.Keywords;
+import dna.util.Config;
 
 public class UndirectedDoubleWeightedNode extends UndirectedNode implements
 		IWeightedNode<Double>, IDoubleWeighted {
@@ -15,10 +15,10 @@ public class UndirectedDoubleWeightedNode extends UndirectedNode implements
 	}
 
 	public UndirectedDoubleWeightedNode(String str, GraphDataStructure gds) {
-		super(str.split(Keywords.nodeWeightDelimiter)[0], gds);
-		if (str.contains(Keywords.nodeWeightDelimiter)) {
-			this.weight = Double.parseDouble(str
-					.split(Keywords.nodeWeightDelimiter)[1]);
+		super(str.split(Config.get("NODE_WEIGHT_DELIMITER"))[0], gds);
+		if (str.contains(Config.get("NODE_WEIGHT_DELIMITER"))) {
+			this.weight = Double.parseDouble(str.split(Config
+					.get("NODE_WEIGHT_DELIMITER"))[1]);
 		} else {
 			this.weight = 0;
 		}
@@ -40,8 +40,8 @@ public class UndirectedDoubleWeightedNode extends UndirectedNode implements
 
 	@Override
 	public String getStringRepresentation() {
-		return super.getStringRepresentation() + Keywords.nodeWeightDelimiter
-				+ this.weight;
+		return super.getStringRepresentation()
+				+ Config.get("NODE_WEIGHT_DELIMITER") + this.weight;
 	}
 
 	public String toString() {
