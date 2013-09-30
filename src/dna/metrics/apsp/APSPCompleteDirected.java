@@ -5,44 +5,44 @@ import java.util.LinkedList;
 import java.util.Queue;
 
 import dna.graph.Graph;
-import dna.graph.directed.DirectedEdge;
-import dna.graph.directed.DirectedGraph;
-import dna.graph.directed.DirectedNode;
-import dna.graph.undirected.UndirectedNode;
+import dna.graph.IElement;
+import dna.graph.edges.DirectedEdge;
+import dna.graph.nodes.DirectedNode;
+import dna.graph.nodes.UndirectedNode;
 import dna.metrics.Metric;
 import dna.series.data.Distribution;
+import dna.series.data.NodeValueList;
 import dna.series.data.Value;
 import dna.updates.Batch;
 
 @SuppressWarnings("rawtypes")
 public abstract class APSPCompleteDirected extends Metric {
 
-	protected int zähl;
 	protected HashMap<DirectedNode, HashMap<DirectedNode, DirectedNode>> parentsOut;
 	protected HashMap<DirectedNode, HashMap<DirectedNode, Integer>> heightsOut;
 
 	public APSPCompleteDirected(String name, ApplicationType type) {
-		super(name, type);
+		super(name, type, MetricType.exact);
 
 	}
 
 	@Override
 	public boolean compute() {
 
-		DirectedGraph g = (DirectedGraph) this.g;
-
-		for (DirectedNode n : g.getNodes()) {
-			buildTrees(g, n);
+		for (IElement ie : g.getNodes()) {
+			DirectedNode n = (DirectedNode) ie;
+			buildTrees(n);
 		}
 		return true;
 
 	}
 
-	protected void buildTrees(DirectedGraph g, DirectedNode n) {
+	protected void buildTrees(DirectedNode n) {
 		HashMap<DirectedNode, DirectedNode> parent = new HashMap<DirectedNode, DirectedNode>();
 		HashMap<DirectedNode, Integer> height = new HashMap<DirectedNode, Integer>();
 
-		for (DirectedNode t : g.getNodes()) {
+		for (IElement ie : g.getNodes()) {
+			DirectedNode t = (DirectedNode) ie;
 			if (t.equals(n)) {
 				height.put(n, 0);
 			} else {
@@ -54,8 +54,8 @@ public abstract class APSPCompleteDirected extends Metric {
 		q.add(n);
 		while (!q.isEmpty()) {
 			DirectedNode current = q.poll();
-			this.zähl++;
-			for (DirectedEdge e : current.getOutgoingEdges()) {
+			for (IElement ie : current.getOutgoingEdges()) {
+				DirectedEdge e = (DirectedEdge) ie;
 				if (height.get(e.getDst()) != Integer.MAX_VALUE) {
 					continue;
 				}
@@ -70,26 +70,30 @@ public abstract class APSPCompleteDirected extends Metric {
 	}
 
 	@Override
-	protected void init_() {
+	public void init_() {
 		this.parentsOut = new HashMap<DirectedNode, HashMap<DirectedNode, DirectedNode>>();
 		this.heightsOut = new HashMap<DirectedNode, HashMap<DirectedNode, Integer>>();
-		this.zähl = 0;
 	}
 
 	@Override
 	public void reset_() {
 		this.parentsOut = new HashMap<DirectedNode, HashMap<DirectedNode, DirectedNode>>();
 		this.heightsOut = new HashMap<DirectedNode, HashMap<DirectedNode, Integer>>();
-		this.zähl = 0;
 	}
 
 	@Override
-	protected Value[] getValues() {
+	public Value[] getValues() {
 		return new Value[] {};
 	}
 
 	@Override
-	protected Distribution[] getDistributions() {
+	public NodeValueList[] getNodeValueLists() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Distribution[] getDistributions() {
 		Distribution d1 = new Distribution("APSP heights",
 				getDistribution(this.heightsOut));
 		return new Distribution[] { d1 };
@@ -109,8 +113,6 @@ public abstract class APSPCompleteDirected extends Metric {
 		boolean success = true;
 		APSPCompleteDirected apsp = (APSPCompleteDirected) m;
 
-		System.out.println(this + " " + this.zähl + " " + apsp + " "
-				+ apsp.zähl);
 		for (DirectedNode n1 : heightsOut.keySet()) {
 			for (DirectedNode n2 : heightsOut.get(n1).keySet()) {
 				if (this.heightsOut.get(n1).get(n2).intValue() < apsp.heightsOut

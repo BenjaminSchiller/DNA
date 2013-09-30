@@ -6,12 +6,13 @@ import java.util.Map;
 import java.util.Set;
 
 import dna.graph.Graph;
-import dna.graph.directed.DirectedEdge;
-import dna.graph.directed.DirectedGraph;
-import dna.graph.directed.DirectedNode;
-import dna.graph.undirected.UndirectedNode;
+import dna.graph.IElement;
+import dna.graph.edges.DirectedEdge;
+import dna.graph.nodes.DirectedNode;
+import dna.graph.nodes.UndirectedNode;
 import dna.metrics.Metric;
 import dna.series.data.Distribution;
+import dna.series.data.NodeValueList;
 import dna.series.data.Value;
 import dna.updates.Batch;
 
@@ -24,7 +25,7 @@ public abstract class RCCPerDegreeDirected extends Metric {
 	protected int highestDegree;
 
 	public RCCPerDegreeDirected(String name, ApplicationType type) {
-		super(name, type);
+		super(name, type, MetricType.exact);
 	}
 
 	@Override
@@ -45,19 +46,21 @@ public abstract class RCCPerDegreeDirected extends Metric {
 
 	@Override
 	public boolean compute() {
-		DirectedGraph g = (DirectedGraph) this.g;
 
-		for (DirectedNode n : g.getNodes()) {
+		for (IElement ie : g.getNodes()) {
+			DirectedNode n = (DirectedNode) ie;
 			int degree = n.getOutDegree();
 			this.highestDegree = Math.max(highestDegree, degree);
 
 			int edges = 0;
-			for (DirectedEdge ed : n.getOutgoingEdges()) {
+			for (IElement ieEdges : n.getOutgoingEdges()) {
+				DirectedEdge ed = (DirectedEdge) ieEdges;
 				if (ed.getDst().getOutDegree() >= degree) {
 					edges++;
 				}
 			}
-			for (DirectedEdge ed : n.getIncomingEdges()) {
+			for (IElement ieEdges : n.getIncomingEdges()) {
+				DirectedEdge ed = (DirectedEdge) ieEdges;
 				if (ed.getSrc().getOutDegree() > degree) {
 					edges++;
 				}
@@ -124,15 +127,21 @@ public abstract class RCCPerDegreeDirected extends Metric {
 	}
 
 	@Override
-	protected Value[] getValues() {
+	public Value[] getValues() {
 		return new Value[] {};
 	}
 
 	@Override
-	protected Distribution[] getDistributions() {
+	public Distribution[] getDistributions() {
 		Distribution d1 = new Distribution("rCC#Members",
 				this.makeDistribution(this.richClubCoefficienten));
 		return new Distribution[] { d1 };
+	}
+
+	@Override
+	public NodeValueList[] getNodeValueLists() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 	private double[] makeDistribution(

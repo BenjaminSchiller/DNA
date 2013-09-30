@@ -1,6 +1,6 @@
 package dna.metrics.connectedComponents;
 
-import dna.graph.undirected.UndirectedNode;
+import dna.graph.nodes.UndirectedNode;
 
 public class SpanningTreeNode {
 

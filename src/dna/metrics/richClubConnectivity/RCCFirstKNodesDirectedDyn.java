@@ -3,8 +3,9 @@ package dna.metrics.richClubConnectivity;
 import java.util.LinkedList;
 import java.util.ListIterator;
 
-import dna.graph.directed.DirectedEdge;
-import dna.graph.directed.DirectedNode;
+import dna.graph.IElement;
+import dna.graph.edges.DirectedEdge;
+import dna.graph.nodes.DirectedNode;
 import dna.updates.Batch;
 import dna.updates.EdgeAddition;
 import dna.updates.EdgeRemoval;
@@ -85,22 +86,26 @@ public class RCCFirstKNodesDirectedDyn extends RCCFirstKNodesDirected {
 			DirectedNode lastNode = this.richClub.removeLast();
 			this.positonInRcc.put(lastNode, Integer.MAX_VALUE);
 
-			for (DirectedEdge edge : src.getOutgoingEdges()) {
+			for (IElement iE : src.getOutgoingEdges()) {
+				DirectedEdge edge = (DirectedEdge) iE;
 				if (this.positonInRcc.get(edge.getDst()) != Integer.MAX_VALUE) {
 					this.edgesBetweenRichClub++;
 				}
 			}
-			for (DirectedEdge edge : src.getIncomingEdges()) {
+			for (IElement iE : src.getIncomingEdges()) {
+				DirectedEdge edge = (DirectedEdge) iE;
 				if (this.positonInRcc.get(edge.getSrc()) != Integer.MAX_VALUE) {
 					this.edgesBetweenRichClub++;
 				}
 			}
-			for (DirectedEdge edge : lastNode.getIncomingEdges()) {
+			for (IElement iE : lastNode.getIncomingEdges()) {
+				DirectedEdge edge = (DirectedEdge) iE;
 				if (this.positonInRcc.get(edge.getSrc()) != Integer.MAX_VALUE) {
 					this.edgesBetweenRichClub--;
 				}
 			}
-			for (DirectedEdge edge : lastNode.getOutgoingEdges()) {
+			for (IElement iE : lastNode.getOutgoingEdges()) {
+				DirectedEdge edge = (DirectedEdge) iE;
 				if (this.positonInRcc.get(edge.getDst()) != Integer.MAX_VALUE) {
 					this.edgesBetweenRichClub--;
 				}
@@ -229,22 +234,26 @@ public class RCCFirstKNodesDirectedDyn extends RCCFirstKNodesDirected {
 					this.nodesSortedByDegree.remove(srcDegree + 1);
 				}
 
-				for (DirectedEdge edge : src.getOutgoingEdges()) {
+				for (IElement iE : src.getOutgoingEdges()) {
+					DirectedEdge edge = (DirectedEdge) iE;
 					if (this.positonInRcc.get(edge.getDst()) != Integer.MAX_VALUE) {
 						this.edgesBetweenRichClub--;
 					}
 				}
-				for (DirectedEdge edge : src.getIncomingEdges()) {
+				for (IElement iE : src.getIncomingEdges()) {
+					DirectedEdge edge = (DirectedEdge) iE;
 					if (this.positonInRcc.get(edge.getSrc()) != Integer.MAX_VALUE) {
 						this.edgesBetweenRichClub--;
 					}
 				}
-				for (DirectedEdge edge : newNode.getIncomingEdges()) {
+				for (IElement iE : newNode.getIncomingEdges()) {
+					DirectedEdge edge = (DirectedEdge) iE;
 					if (this.positonInRcc.get(edge.getSrc()) != Integer.MAX_VALUE) {
 						this.edgesBetweenRichClub++;
 					}
 				}
-				for (DirectedEdge edge : newNode.getOutgoingEdges()) {
+				for (IElement iE : newNode.getOutgoingEdges()) {
+					DirectedEdge edge = (DirectedEdge) iE;
 					if (this.positonInRcc.get(edge.getDst()) != Integer.MAX_VALUE) {
 						this.edgesBetweenRichClub--;
 					}

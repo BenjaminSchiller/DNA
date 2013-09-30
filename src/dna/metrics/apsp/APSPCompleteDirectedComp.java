@@ -30,4 +30,5 @@ public class APSPCompleteDirectedComp extends APSPCompleteDirected {
 	public boolean applyAfterUpdate(Update u) {
 		return false;
 	}
+
 }

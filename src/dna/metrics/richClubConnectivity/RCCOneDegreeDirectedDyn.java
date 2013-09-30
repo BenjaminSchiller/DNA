@@ -1,7 +1,8 @@
 package dna.metrics.richClubConnectivity;
 
-import dna.graph.directed.DirectedEdge;
-import dna.graph.directed.DirectedNode;
+import dna.graph.IElement;
+import dna.graph.edges.DirectedEdge;
+import dna.graph.nodes.DirectedNode;
 import dna.updates.Batch;
 import dna.updates.EdgeAddition;
 import dna.updates.EdgeRemoval;
@@ -56,13 +57,15 @@ public class RCCOneDegreeDirectedDyn extends RCCOneDegreeDirected {
 				this.richClubEdges--;
 			}
 		} else if (src.getOutDegree() + 1 == this.k) {
-			for (DirectedEdge n : src.getOutgoingEdges()) {
-				if (n.getDst().getOutDegree() >= this.k) {
+			for (IElement iE : src.getOutgoingEdges()) {
+				DirectedEdge edge = (DirectedEdge) iE;
+				if (edge.getDst().getOutDegree() >= this.k) {
 					this.richClubEdges--;
 				}
 			}
-			for (DirectedEdge n : src.getIncomingEdges()) {
-				if (n.getSrc().getOutDegree() >= this.k) {
+			for (IElement iE : src.getIncomingEdges()) {
+				DirectedEdge edge = (DirectedEdge) iE;
+				if (edge.getSrc().getOutDegree() >= this.k) {
 					this.richClubEdges--;
 				}
 			}
@@ -92,13 +95,15 @@ public class RCCOneDegreeDirectedDyn extends RCCOneDegreeDirected {
 			}
 		} else if (src.getOutDegree() == this.k) {
 			this.richClub.add(src);
-			for (DirectedEdge n : src.getOutgoingEdges()) {
-				if (n.getDst().getOutDegree() >= this.k) {
+			for (IElement iE : src.getOutgoingEdges()) {
+				DirectedEdge edge = (DirectedEdge) iE;
+				if (edge.getDst().getOutDegree() >= this.k) {
 					this.richClubEdges++;
 				}
 			}
-			for (DirectedEdge n : src.getIncomingEdges()) {
-				if (n.getSrc().getOutDegree() >= this.k) {
+			for (IElement iE : src.getOutgoingEdges()) {
+				DirectedEdge edge = (DirectedEdge) iE;
+				if (edge.getSrc().getOutDegree() >= this.k) {
 					this.richClubEdges++;
 				}
 			}
@@ -115,12 +120,14 @@ public class RCCOneDegreeDirectedDyn extends RCCOneDegreeDirected {
 		DirectedNode n = (DirectedNode) ((NodeRemoval) u).getNode();
 		if (this.richClub.contains(n)) {
 			richClub.remove(n);
-			for (DirectedEdge ed : n.getOutgoingEdges()) {
+			for (IElement iE : n.getOutgoingEdges()) {
+				DirectedEdge ed = (DirectedEdge) iE;
 				if (richClub.contains(ed.getDst())) {
 					this.richClubEdges--;
 				}
 			}
-			for (DirectedEdge ed : n.getIncomingEdges()) {
+			for (IElement iE : n.getIncomingEdges()) {
+				DirectedEdge ed = (DirectedEdge) iE;
 				if (richClub.contains(ed.getSrc())) {
 					this.richClubEdges--;
 				}

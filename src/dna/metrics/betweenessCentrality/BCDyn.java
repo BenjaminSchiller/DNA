@@ -7,9 +7,10 @@ import java.util.LinkedList;
 import java.util.Queue;
 import java.util.Stack;
 
-import dna.graph.undirected.UndirectedEdge;
-import dna.graph.undirected.UndirectedGraph;
-import dna.graph.undirected.UndirectedNode;
+import dna.graph.Graph;
+import dna.graph.IElement;
+import dna.graph.edges.UndirectedEdge;
+import dna.graph.nodes.UndirectedNode;
 import dna.updates.Batch;
 import dna.updates.EdgeAddition;
 import dna.updates.EdgeRemoval;
@@ -62,8 +63,8 @@ public class BCDyn extends BetweenessCentrality {
 		UndirectedNode n1 = e.getNode1();
 		UndirectedNode n2 = e.getNode2();
 
-		UndirectedGraph g = (UndirectedGraph) this.g;
-		for (UndirectedNode root : g.getNodes()) {
+		for (IElement iE : g.getNodes()) {
+			UndirectedNode root = (UndirectedNode) iE;
 
 			HashMap<UndirectedNode, ShortestPathTreeElement> shortestPathTree = shortestPathTrees
 					.get(root);
@@ -105,8 +106,6 @@ public class BCDyn extends BetweenessCentrality {
 			UndirectedNode src, UndirectedNode dst,
 			HashMap<UndirectedNode, ShortestPathTreeElement> shortestPathTree) {
 
-		UndirectedGraph g = (UndirectedGraph) this.g;
-
 		// Queues and data structure for tree change
 		HashSet<UndirectedNode> uncertain = new HashSet<UndirectedNode>();
 		Queue<UndirectedNode>[] qLevel = new LinkedList[g.getNodeCount()];
@@ -124,7 +123,8 @@ public class BCDyn extends BetweenessCentrality {
 		HashMap<UndirectedNode, Double> newASums = new HashMap<UndirectedNode, Double>();
 		HashMap<UndirectedNode, HashSet<UndirectedNode>> newParents = new HashMap<UndirectedNode, HashSet<UndirectedNode>>();
 
-		for (UndirectedNode t : g.getNodes()) {
+		for (IElement iE : g.getNodes()) {
+			UndirectedNode t = (UndirectedNode) iE;
 			dP.put(t, 0);
 			touched.put(t, TouchedType.NOT);
 			spcUpdate.put(t, shortestPathTree.get(t).getShortestPathCount());
@@ -147,7 +147,8 @@ public class BCDyn extends BetweenessCentrality {
 
 				int dist = Integer.MAX_VALUE;
 				ArrayList<UndirectedNode> min = new ArrayList<UndirectedNode>();
-				for (UndirectedEdge ed : w.getEdges()) {
+				for (IElement iEdges : w.getEdges()) {
+					UndirectedEdge ed = (UndirectedEdge) iEdges;
 					UndirectedNode z = ed.getDifferingNode(w);
 					ShortestPathTreeElement zTE = shortestPathTree.get(z);
 
@@ -269,7 +270,8 @@ public class BCDyn extends BetweenessCentrality {
 			}
 		}
 
-		for (UndirectedNode i : g.getNodes()) {
+		for (IElement iE : g.getNodes()) {
+			UndirectedNode i = (UndirectedNode) iE;
 			ShortestPathTreeElement shortestPathTreeElement = shortestPathTree
 					.get(i);
 			if (touched.get(i) != TouchedType.NOT) {
@@ -288,7 +290,7 @@ public class BCDyn extends BetweenessCentrality {
 	private boolean removeEdgeManyToMany(UndirectedNode root,
 			UndirectedNode src, UndirectedNode dst,
 			HashMap<UndirectedNode, ShortestPathTreeElement> shortestPathTree) {
-		UndirectedGraph g = (UndirectedGraph) this.g;
+
 		// Queue for BFS Search
 		Queue<UndirectedNode> qBFS = new LinkedList<UndirectedNode>();
 
@@ -304,7 +306,8 @@ public class BCDyn extends BetweenessCentrality {
 		HashMap<UndirectedNode, Integer> spcUpdate = new HashMap<UndirectedNode, Integer>();
 		HashMap<UndirectedNode, Double> newASums = new HashMap<UndirectedNode, Double>();
 
-		for (UndirectedNode t : g.getNodes()) {
+		for (IElement iE : g.getNodes()) {
+			UndirectedNode t = (UndirectedNode) iE;
 			dP.put(t, 0);
 			touched.put(t, TouchedType.NOT);
 			spcUpdate.put(t, shortestPathTree.get(t).getShortestPathCount());
@@ -326,7 +329,8 @@ public class BCDyn extends BetweenessCentrality {
 			ShortestPathTreeElement vTE = shortestPathTree.get(v);
 
 			// all neighbours of v
-			for (UndirectedEdge edge : v.getEdges()) {
+			for (IElement iEdge : v.getEdges()) {
+				UndirectedEdge edge = (UndirectedEdge) iEdge;
 				UndirectedNode w = edge.getDifferingNode(v);
 				ShortestPathTreeElement wTE = shortestPathTree.get(w);
 
@@ -384,7 +388,8 @@ public class BCDyn extends BetweenessCentrality {
 		}
 
 		dstTE.removeParent(src);
-		for (UndirectedNode i : g.getNodes()) {
+		for (IElement iE : g.getNodes()) {
+			UndirectedNode i = (UndirectedNode) iE;
 			ShortestPathTreeElement shortestPathTreeElement = shortestPathTree
 					.get(i);
 			shortestPathTreeElement.setShortestPathCount(spcUpdate.get(i));
@@ -399,9 +404,9 @@ public class BCDyn extends BetweenessCentrality {
 		UndirectedEdge e = (UndirectedEdge) ((EdgeAddition) u).getEdge();
 		UndirectedNode n1 = e.getNode1();
 		UndirectedNode n2 = e.getNode2();
-		UndirectedGraph g = (UndirectedGraph) this.g;
 
-		for (UndirectedNode root : g.getNodes()) {
+		for (IElement iE : g.getNodes()) {
+			UndirectedNode root = (UndirectedNode) iE;
 			HashMap<UndirectedNode, ShortestPathTreeElement> shortestPath = this.shortestPathTrees
 					.get(root);
 
@@ -456,7 +461,6 @@ public class BCDyn extends BetweenessCentrality {
 	private void mergeOfComponentsInsertion(UndirectedNode root,
 			UndirectedNode src, UndirectedNode dst,
 			HashMap<UndirectedNode, ShortestPathTreeElement> shortestPathTree) {
-		UndirectedGraph g = (UndirectedGraph) this.g;
 
 		// Queues for the dependency Acc
 		Queue<UndirectedNode>[] qLevel = new Queue[this.g.getNodes().size()];
@@ -472,7 +476,8 @@ public class BCDyn extends BetweenessCentrality {
 		HashMap<UndirectedNode, Integer> spcUpdate = new HashMap<UndirectedNode, Integer>();
 		HashMap<UndirectedNode, Double> newASums = new HashMap<UndirectedNode, Double>();
 
-		for (UndirectedNode t : g.getNodes()) {
+		for (IElement iE : g.getNodes()) {
+			UndirectedNode t = (UndirectedNode) iE;
 			dP.put(t, 0);
 			touched.put(t, TouchedType.NOT);
 			spcUpdate.put(t, shortestPathTree.get(t).getShortestPathCount());
@@ -494,7 +499,8 @@ public class BCDyn extends BetweenessCentrality {
 			UndirectedNode v = qBFS.poll();
 			ShortestPathTreeElement vTE = shortestPathTree.get(v);
 			qLevel[vTE.getDistanceToRoot()].add(v);
-			for (UndirectedEdge ed : v.getEdges()) {
+			for (IElement iEdge : v.getEdges()) {
+				UndirectedEdge ed = (UndirectedEdge) iEdge;
 				UndirectedNode n = ed.getDifferingNode(v);
 				ShortestPathTreeElement nTE = shortestPathTree.get(n);
 				if (touched.get(n) == TouchedType.NOT && n != src
@@ -549,7 +555,8 @@ public class BCDyn extends BetweenessCentrality {
 			}
 		}
 
-		for (UndirectedNode i : g.getNodes()) {
+		for (IElement iE : g.getNodes()) {
+			UndirectedNode i = (UndirectedNode) iE;
 			ShortestPathTreeElement shortestPathTreeElement = shortestPathTree
 					.get(i);
 			shortestPathTreeElement.setShortestPathCount(spcUpdate.get(i));
@@ -563,7 +570,6 @@ public class BCDyn extends BetweenessCentrality {
 	private void nonAdjacentLevelInsertion(UndirectedNode root,
 			UndirectedNode src, UndirectedNode dst,
 			HashMap<UndirectedNode, ShortestPathTreeElement> shortestPathTree) {
-		UndirectedGraph g = (UndirectedGraph) this.g;
 
 		// Data Structure for BFS Search
 		Queue<UndirectedNode> qBFS = new LinkedList<UndirectedNode>();
@@ -581,7 +587,8 @@ public class BCDyn extends BetweenessCentrality {
 		HashMap<UndirectedNode, Double> newASums = new HashMap<UndirectedNode, Double>();
 		HashMap<UndirectedNode, HashSet<UndirectedNode>> newParents = new HashMap<UndirectedNode, HashSet<UndirectedNode>>();
 
-		for (UndirectedNode t : g.getNodes()) {
+		for (IElement iE : g.getNodes()) {
+			UndirectedNode t = (UndirectedNode) iE;
 			dP.put(t, 0);
 			touched.put(t, TouchedType.NOT);
 			spcUpdate.put(t, shortestPathTree.get(t).getShortestPathCount());
@@ -606,7 +613,8 @@ public class BCDyn extends BetweenessCentrality {
 
 			ShortestPathTreeElement vTE = shortestPathTree.get(v);
 			// all neighbours of v
-			for (UndirectedEdge ed : v.getEdges()) {
+			for (IElement iEdge : v.getEdges()) {
+				UndirectedEdge ed = (UndirectedEdge) iEdge;
 				UndirectedNode n = ed.getDifferingNode(v);
 				ShortestPathTreeElement nTE = shortestPathTree.get(n);
 
@@ -697,7 +705,8 @@ public class BCDyn extends BetweenessCentrality {
 			}
 		}
 
-		for (UndirectedNode i : g.getNodes()) {
+		for (IElement iE : g.getNodes()) {
+			UndirectedNode i = (UndirectedNode) iE;
 			ShortestPathTreeElement shortestPathTreeElement = shortestPathTree
 					.get(i);
 
@@ -715,13 +724,14 @@ public class BCDyn extends BetweenessCentrality {
 		}
 	}
 
-	private boolean recomp(UndirectedGraph g, UndirectedNode n) {
+	private boolean recomp(Graph g, UndirectedNode n) {
 		// stage ONE
 		Stack<UndirectedNode> s = new Stack<UndirectedNode>();
 		Queue<UndirectedNode> q = new LinkedList<UndirectedNode>();
 		HashMap<UndirectedNode, ShortestPathTreeElement> shortestPath = new HashMap<UndirectedNode, ShortestPathTreeElement>();
 
-		for (UndirectedNode t : g.getNodes()) {
+		for (IElement iE : g.getNodes()) {
+			UndirectedNode t = (UndirectedNode) iE;
 			if (t == n) {
 				ShortestPathTreeElement temp = new ShortestPathTreeElement(
 						t.getIndex());
@@ -743,7 +753,8 @@ public class BCDyn extends BetweenessCentrality {
 			s.push(v);
 			ShortestPathTreeElement vTE = shortestPath.get(v);
 
-			for (UndirectedEdge ed : v.getEdges()) {
+			for (IElement iEdges : v.getEdges()) {
+				UndirectedEdge ed = (UndirectedEdge) iEdges;
 				UndirectedNode neighbour = ed.getDifferingNode(v);
 				ShortestPathTreeElement nTE = shortestPath.get(neighbour);
 
@@ -790,7 +801,6 @@ public class BCDyn extends BetweenessCentrality {
 	private boolean adjacentLevelInsertion(UndirectedNode root,
 			UndirectedNode src, UndirectedNode dst,
 			HashMap<UndirectedNode, ShortestPathTreeElement> shortestPathTree) {
-		UndirectedGraph g = (UndirectedGraph) this.g;
 		// Queue for BFS Search
 		Queue<UndirectedNode> qBFS = new LinkedList<UndirectedNode>();
 
@@ -806,7 +816,8 @@ public class BCDyn extends BetweenessCentrality {
 		HashMap<UndirectedNode, Integer> spcUpdate = new HashMap<UndirectedNode, Integer>();
 		HashMap<UndirectedNode, Double> newASums = new HashMap<UndirectedNode, Double>();
 
-		for (UndirectedNode t : g.getNodes()) {
+		for (IElement iE : g.getNodes()) {
+			UndirectedNode t = (UndirectedNode) iE;
 			dP.put(t, 0);
 			touched.put(t, TouchedType.NOT);
 			spcUpdate.put(t, shortestPathTree.get(t).getShortestPathCount());
@@ -829,7 +840,8 @@ public class BCDyn extends BetweenessCentrality {
 			ShortestPathTreeElement vTE = shortestPathTree.get(v);
 
 			// all neighbours of v
-			for (UndirectedEdge edge : v.getEdges()) {
+			for (IElement iEdges : v.getEdges()) {
+				UndirectedEdge edge = (UndirectedEdge) iEdges;
 				UndirectedNode w = edge.getDifferingNode(v);
 				ShortestPathTreeElement wTE = shortestPathTree.get(w);
 
@@ -884,7 +896,8 @@ public class BCDyn extends BetweenessCentrality {
 			}
 		}
 
-		for (UndirectedNode i : g.getNodes()) {
+		for (IElement iE : g.getNodes()) {
+			UndirectedNode i = (UndirectedNode) iE;
 			ShortestPathTreeElement shortestPathTreeElement = shortestPathTree
 					.get(i);
 			shortestPathTreeElement.setShortestPathCount(spcUpdate.get(i));

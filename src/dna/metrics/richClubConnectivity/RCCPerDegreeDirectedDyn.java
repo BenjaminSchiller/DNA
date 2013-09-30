@@ -1,7 +1,8 @@
 package dna.metrics.richClubConnectivity;
 
-import dna.graph.directed.DirectedEdge;
-import dna.graph.directed.DirectedNode;
+import dna.graph.IElement;
+import dna.graph.edges.DirectedEdge;
+import dna.graph.nodes.DirectedNode;
 import dna.updates.Batch;
 import dna.updates.EdgeAddition;
 import dna.updates.EdgeRemoval;
@@ -64,14 +65,16 @@ public class RCCPerDegreeDirectedDyn extends RCCPerDegreeDirected {
 		// Node
 		int edges = 0;
 
-		for (DirectedEdge n : src.getOutgoingEdges()) {
-			if (n.getDst().getOutDegree() > srcDegree) {
+		for (IElement iE : src.getOutgoingEdges()) {
+			DirectedEdge edge = (DirectedEdge) iE;
+			if (edge.getDst().getOutDegree() > srcDegree) {
 				edges++;
 			}
 
 		}
-		for (DirectedEdge n : src.getIncomingEdges()) {
-			if (n.getSrc().getOutDegree() > srcDegree) {
+		for (IElement iE : src.getIncomingEdges()) {
+			DirectedEdge edge = (DirectedEdge) iE;
+			if (edge.getSrc().getOutDegree() > srcDegree) {
 				edges++;
 			}
 
@@ -119,14 +122,16 @@ public class RCCPerDegreeDirectedDyn extends RCCPerDegreeDirected {
 		int dstDegree = dst.getOutDegree();
 		int edges = 0;
 
-		for (DirectedEdge n : src.getOutgoingEdges()) {
-			if (n.getDst().getOutDegree() >= srcDegree) {
+		for (IElement iE : src.getOutgoingEdges()) {
+			DirectedEdge edge = (DirectedEdge) iE;
+			if (edge.getDst().getOutDegree() >= srcDegree) {
 				edges++;
 			}
 
 		}
-		for (DirectedEdge n : src.getIncomingEdges()) {
-			if (n.getSrc().getOutDegree() >= srcDegree) {
+		for (IElement iE : src.getIncomingEdges()) {
+			DirectedEdge edge = (DirectedEdge) iE;
+			if (edge.getSrc().getOutDegree() >= srcDegree) {
 				edges++;
 			}
 
@@ -173,7 +178,8 @@ public class RCCPerDegreeDirectedDyn extends RCCPerDegreeDirected {
 				this.richClubs.get(node.getOutDegree()) - 1);
 		int updateEdges = 0;
 
-		for (DirectedEdge ed : node.getIncomingEdges()) {
+		for (IElement iE : node.getIncomingEdges()) {
+			DirectedEdge ed = (DirectedEdge) iE;
 			if (ed.getSrc().getOutDegree() >= node.getOutDegree()) {
 				updateEdges++;
 			} else {
@@ -181,7 +187,8 @@ public class RCCPerDegreeDirectedDyn extends RCCPerDegreeDirected {
 				richClubEdges.put(ed.getSrc().getOutDegree(), temp - 1);
 			}
 		}
-		for (DirectedEdge ed : node.getOutgoingEdges()) {
+		for (IElement iE : node.getOutgoingEdges()) {
+			DirectedEdge ed = (DirectedEdge) iE;
 			if (ed.getDst().getOutDegree() >= node.getOutDegree()) {
 				updateEdges++;
 			} else {

@@ -7,12 +7,13 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 
 import dna.graph.Graph;
-import dna.graph.directed.DirectedNode;
-import dna.graph.undirected.UndirectedEdge;
-import dna.graph.undirected.UndirectedGraph;
-import dna.graph.undirected.UndirectedNode;
+import dna.graph.IElement;
+import dna.graph.edges.UndirectedEdge;
+import dna.graph.nodes.DirectedNode;
+import dna.graph.nodes.UndirectedNode;
 import dna.metrics.Metric;
 import dna.series.data.Distribution;
+import dna.series.data.NodeValueList;
 import dna.series.data.Value;
 import dna.updates.Batch;
 
@@ -27,15 +28,14 @@ public abstract class RCCFirstKNodesUndirected extends Metric {
 	protected double rCC;
 
 	public RCCFirstKNodesUndirected(String name, ApplicationType type) {
-		super(name, type);
+		super(name, type, MetricType.exact);
 	}
 
 	@Override
 	public boolean compute() {
-		UndirectedGraph g = (UndirectedGraph) this.g;
 
-		for (UndirectedNode n : g.getNodes()) {
-
+		for (IElement iE : g.getNodes()) {
+			UndirectedNode n = (UndirectedNode) iE;
 			int degree = n.getDegree();
 			this.degrees.add(degree);
 			if (nodesSortedByDegree.containsKey(degree)) {
@@ -72,7 +72,8 @@ public abstract class RCCFirstKNodesUndirected extends Metric {
 		}
 
 		for (UndirectedNode n : richClub) {
-			for (UndirectedEdge e : n.getEdges()) {
+			for (IElement iE : n.getEdges()) {
+				UndirectedEdge e = (UndirectedEdge) iE;
 				UndirectedNode node = e.getDifferingNode(n);
 
 				if (richClub.contains(node)) {
@@ -128,7 +129,7 @@ public abstract class RCCFirstKNodesUndirected extends Metric {
 	}
 
 	@Override
-	protected Value[] getValues() {
+	public Value[] getValues() {
 		Value v1 = new Value("RichClubCoeffizient", this.rCC);
 		Value v2 = new Value("RichClubSize", this.richClub.size());
 		Value v3 = new Value("EdgesBetweenRichClub", this.edgesBetweenRichClub);
@@ -136,12 +137,18 @@ public abstract class RCCFirstKNodesUndirected extends Metric {
 	}
 
 	@Override
-	protected Distribution[] getDistributions() {
+	public Distribution[] getDistributions() {
 		return new Distribution[] {};
 	}
 
 	@Override
-	protected void init_() {
+	public NodeValueList[] getNodeValueLists() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void init_() {
 		this.edgesBetweenRichClub = 0;
 		this.richClubSize = 200;
 		this.rCC = 0d;

@@ -2,8 +2,9 @@ package dna.metrics.richClubConnectivity;
 
 import java.util.LinkedList;
 
-import dna.graph.undirected.UndirectedEdge;
-import dna.graph.undirected.UndirectedNode;
+import dna.graph.IElement;
+import dna.graph.edges.UndirectedEdge;
+import dna.graph.nodes.UndirectedNode;
 import dna.updates.Batch;
 import dna.updates.EdgeAddition;
 import dna.updates.EdgeRemoval;
@@ -97,16 +98,18 @@ public class RCCKNodeIntervalUndirectedDyn extends RCCKNodeIntervalUndirected {
 
 			int srcEdges = 0;
 			int lastNodeEdges = 0;
-			for (UndirectedEdge edge : n1.getEdges()) {
-				UndirectedNode node = edge.getDifferingNode(n1);
+			for (IElement iEdge : n1.getEdges()) {
+				UndirectedEdge ed = (UndirectedEdge) iEdge;
+				UndirectedNode node = ed.getDifferingNode(n1);
 				if (this.nodesRichClub.get(node.getIndex()) >= this.nodesRichClub
 						.get(n1.getIndex())) {
 					srcEdges += 2;
 				}
 			}
 
-			for (UndirectedEdge edge : firstNode.getEdges()) {
-				UndirectedNode node = edge.getDifferingNode(firstNode);
+			for (IElement iEdge : firstNode.getEdges()) {
+				UndirectedEdge ed = (UndirectedEdge) iEdge;
+				UndirectedNode node = ed.getDifferingNode(firstNode);
 				if (this.nodesRichClub.get(node.getIndex()) > this.nodesRichClub
 						.get(firstNode.getIndex())) {
 					lastNodeEdges += 2;
@@ -190,7 +193,8 @@ public class RCCKNodeIntervalUndirectedDyn extends RCCKNodeIntervalUndirected {
 
 			int srcEdges = 0;
 			int lastNodeEdges = 0;
-			for (UndirectedEdge edge : n1.getEdges()) {
+			for (IElement iEdge : n1.getEdges()) {
+				UndirectedEdge edge = (UndirectedEdge) iEdge;
 				UndirectedNode node = edge.getDifferingNode(n1);
 				if (this.nodesRichClub.get(node.getIndex()) > this.nodesRichClub
 						.get(n1.getIndex())) {
@@ -198,7 +202,8 @@ public class RCCKNodeIntervalUndirectedDyn extends RCCKNodeIntervalUndirected {
 				}
 			}
 
-			for (UndirectedEdge edge : lastNode.getEdges()) {
+			for (IElement iEdge : lastNode.getEdges()) {
+				UndirectedEdge edge = (UndirectedEdge) iEdge;
 				UndirectedNode node = edge.getDifferingNode(lastNode);
 				if (this.nodesRichClub.get(node.getIndex()) >= this.nodesRichClub
 						.get(lastNode.getIndex())) {

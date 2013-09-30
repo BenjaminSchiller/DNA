@@ -2,8 +2,9 @@ package dna.metrics.richClubConnectivity;
 
 import java.util.LinkedList;
 
-import dna.graph.directed.DirectedEdge;
-import dna.graph.directed.DirectedNode;
+import dna.graph.IElement;
+import dna.graph.edges.DirectedEdge;
+import dna.graph.nodes.DirectedNode;
 import dna.updates.Batch;
 import dna.updates.EdgeAddition;
 import dna.updates.EdgeRemoval;
@@ -88,25 +89,29 @@ public class RCCKNodeIntervalDirectedDyn extends RCCKNodeIntervalDirected {
 
 			int srcEdges = 0;
 			int lastNodeEdges = 0;
-			for (DirectedEdge edge : src.getOutgoingEdges()) {
+			for (IElement iE : src.getOutgoingEdges()) {
+				DirectedEdge edge = (DirectedEdge) iE;
 				if (this.nodesRichClub.get(edge.getDst().getIndex()) >= this.nodesRichClub
 						.get(src.getIndex())) {
 					srcEdges++;
 				}
 			}
-			for (DirectedEdge edge : src.getIncomingEdges()) {
+			for (IElement iE : src.getIncomingEdges()) {
+				DirectedEdge edge = (DirectedEdge) iE;
 				if (this.nodesRichClub.get(edge.getDst().getIndex()) >= this.nodesRichClub
 						.get(src.getIndex())) {
 					srcEdges++;
 				}
 			}
-			for (DirectedEdge edge : firstNode.getIncomingEdges()) {
+			for (IElement iE : firstNode.getIncomingEdges()) {
+				DirectedEdge edge = (DirectedEdge) iE;
 				if (this.nodesRichClub.get(edge.getDst().getIndex()) > this.nodesRichClub
 						.get(firstNode.getIndex())) {
 					lastNodeEdges++;
 				}
 			}
-			for (DirectedEdge edge : firstNode.getOutgoingEdges()) {
+			for (IElement iE : firstNode.getOutgoingEdges()) {
+				DirectedEdge edge = (DirectedEdge) iE;
 				if (this.nodesRichClub.get(edge.getDst().getIndex()) > this.nodesRichClub
 						.get(firstNode.getIndex())) {
 					lastNodeEdges--;
@@ -189,25 +194,29 @@ public class RCCKNodeIntervalDirectedDyn extends RCCKNodeIntervalDirected {
 
 			int srcEdges = 0;
 			int lastNodeEdges = 0;
-			for (DirectedEdge edge : src.getOutgoingEdges()) {
+			for (IElement iE : src.getOutgoingEdges()) {
+				DirectedEdge edge = (DirectedEdge) iE;
 				if (this.nodesRichClub.get(edge.getDst().getIndex()) > this.nodesRichClub
 						.get(src.getIndex())) {
 					srcEdges++;
 				}
 			}
-			for (DirectedEdge edge : src.getIncomingEdges()) {
+			for (IElement iE : src.getIncomingEdges()) {
+				DirectedEdge edge = (DirectedEdge) iE;
 				if (this.nodesRichClub.get(edge.getDst().getIndex()) > this.nodesRichClub
 						.get(src.getIndex())) {
 					srcEdges++;
 				}
 			}
-			for (DirectedEdge edge : lastNode.getIncomingEdges()) {
+			for (IElement iE : lastNode.getIncomingEdges()) {
+				DirectedEdge edge = (DirectedEdge) iE;
 				if (this.nodesRichClub.get(edge.getDst().getIndex()) >= this.nodesRichClub
 						.get(lastNode.getIndex())) {
 					lastNodeEdges++;
 				}
 			}
-			for (DirectedEdge edge : lastNode.getOutgoingEdges()) {
+			for (IElement iE : lastNode.getOutgoingEdges()) {
+				DirectedEdge edge = (DirectedEdge) iE;
 				if (this.nodesRichClub.get(edge.getDst().getIndex()) >= this.nodesRichClub
 						.get(lastNode.getIndex())) {
 					lastNodeEdges--;
