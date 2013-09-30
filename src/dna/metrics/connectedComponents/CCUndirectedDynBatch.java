@@ -5,8 +5,9 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Queue;
 
-import dna.graph.undirected.UndirectedEdge;
-import dna.graph.undirected.UndirectedNode;
+import dna.graph.IElement;
+import dna.graph.edges.UndirectedEdge;
+import dna.graph.nodes.UndirectedNode;
 import dna.updates.Batch;
 import dna.updates.Update;
 
@@ -37,11 +38,13 @@ public class CCUndirectedDynBatch extends CCUndirected {
 			boolean neighbourFound = false;
 
 			HashSet<UndirectedNode> reachableNodes = new HashSet<>();
-			for (UndirectedEdge ed : n1.getNode().getEdges()) {
+			for (IElement ie : n1.getNode().getEdges()) {
+				UndirectedEdge ed = (UndirectedEdge) ie;
 				UndirectedNode node = ed.getDifferingNode(n1.getNode());
 				reachableNodes.add(node);
 			}
-			for (UndirectedEdge ed : n2.getNode().getEdges()) {
+			for (IElement ie : n2.getNode().getEdges()) {
+				UndirectedEdge ed = (UndirectedEdge) ie;
 				UndirectedNode node = ed.getDifferingNode(n2.getNode());
 				if (reachableNodes.contains(node)) {
 					n2.setParent(this.nodesTreeElement.get(node.getIndex()));
@@ -101,7 +104,8 @@ public class CCUndirectedDynBatch extends CCUndirected {
 
 		while (!q.isEmpty()) {
 			SpanningTreeNode temp = (SpanningTreeNode) q.poll();
-			for (UndirectedEdge ed : temp.getNode().getEdges()) {
+			for (IElement ie : temp.getNode().getEdges()) {
+				UndirectedEdge ed = (UndirectedEdge) ie;
 				UndirectedNode node = ed.getDifferingNode(temp.getNode());
 				if (this.nodesTreeElement.get(node.getIndex()).getParent() == temp) {
 					q.add(this.nodesTreeElement.get(node.getIndex()));

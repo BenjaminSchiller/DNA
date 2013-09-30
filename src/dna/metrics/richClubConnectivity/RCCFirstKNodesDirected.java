@@ -7,12 +7,13 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 
 import dna.graph.Graph;
-import dna.graph.directed.DirectedEdge;
-import dna.graph.directed.DirectedGraph;
-import dna.graph.directed.DirectedNode;
-import dna.graph.undirected.UndirectedNode;
+import dna.graph.IElement;
+import dna.graph.edges.DirectedEdge;
+import dna.graph.nodes.DirectedNode;
+import dna.graph.nodes.UndirectedNode;
 import dna.metrics.Metric;
 import dna.series.data.Distribution;
+import dna.series.data.NodeValueList;
 import dna.series.data.Value;
 import dna.updates.Batch;
 
@@ -28,14 +29,13 @@ public abstract class RCCFirstKNodesDirected extends Metric {
 	protected double rCC;
 
 	public RCCFirstKNodesDirected(String name, ApplicationType type) {
-		super(name, type);
+		super(name, type, MetricType.exact);
 	}
 
 	@Override
 	public boolean compute() {
-		DirectedGraph g = (DirectedGraph) this.g;
-
-		for (DirectedNode n : g.getNodes()) {
+		for (IElement iE : g.getNodes()) {
+			DirectedNode n = (DirectedNode) iE;
 			positonInRcc.put(n, Integer.MAX_VALUE);
 			int degree = n.getOutDegree();
 			this.degrees.add(degree);
@@ -76,7 +76,8 @@ public abstract class RCCFirstKNodesDirected extends Metric {
 		for (DirectedNode n : richClub) {
 			positonInRcc.put(n, counter);
 			counter++;
-			for (DirectedEdge e : n.getOutgoingEdges()) {
+			for (IElement iE : n.getOutgoingEdges()) {
+				DirectedEdge e = (DirectedEdge) iE;
 				if (richClub.contains(e.getDst())) {
 					edgesBetweenRichClub++;
 				}
@@ -132,7 +133,7 @@ public abstract class RCCFirstKNodesDirected extends Metric {
 	}
 
 	@Override
-	protected Value[] getValues() {
+	public Value[] getValues() {
 		Value v1 = new Value("RichClubCoeffizient", this.rCC);
 		Value v2 = new Value("RichClubSize", this.richClub.size());
 		Value v3 = new Value("EdgesBetweenRichClub", this.edgesBetweenRichClub);
@@ -140,12 +141,12 @@ public abstract class RCCFirstKNodesDirected extends Metric {
 	}
 
 	@Override
-	protected Distribution[] getDistributions() {
+	public Distribution[] getDistributions() {
 		return new Distribution[] {};
 	}
 
 	@Override
-	protected void init_() {
+	public void init_() {
 		this.edgesBetweenRichClub = 0;
 		this.richClubSize = 200;
 		this.rCC = 0d;
@@ -153,6 +154,12 @@ public abstract class RCCFirstKNodesDirected extends Metric {
 		this.nodesSortedByDegree = new HashMap<Integer, LinkedList<DirectedNode>>();
 		this.degrees = new TreeSet<Integer>();
 		this.positonInRcc = new HashMap<>();
+	}
+
+	@Override
+	public NodeValueList[] getNodeValueLists() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 	@Override

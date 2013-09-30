@@ -1,7 +1,8 @@
 package dna.metrics.richClubConnectivity;
 
-import dna.graph.undirected.UndirectedEdge;
-import dna.graph.undirected.UndirectedNode;
+import dna.graph.IElement;
+import dna.graph.edges.UndirectedEdge;
+import dna.graph.nodes.UndirectedNode;
 import dna.updates.Batch;
 import dna.updates.EdgeAddition;
 import dna.updates.EdgeRemoval;
@@ -57,7 +58,8 @@ public class RCCOneDegreeUndirectedDyn extends RCCOneDegreeUndirected {
 		} else {
 			if (node1.getDegree() < this.k && richClub.contains(node1)) {
 				this.richClub.remove(node1);
-				for (UndirectedEdge ed : node1.getEdges()) {
+				for (IElement iEdge : node1.getEdges()) {
+					UndirectedEdge ed = (UndirectedEdge) iEdge;
 					UndirectedNode n = ed.getDifferingNode(node1);
 					if (this.richClub.contains(n)) {
 						this.richClubEdges -= 2;
@@ -67,7 +69,8 @@ public class RCCOneDegreeUndirectedDyn extends RCCOneDegreeUndirected {
 
 			if (node2.getDegree() < this.k && richClub.contains(node2)) {
 				this.richClub.remove(node2);
-				for (UndirectedEdge ed : node2.getEdges()) {
+				for (IElement iEdge : node2.getEdges()) {
+					UndirectedEdge ed = (UndirectedEdge) iEdge;
 					UndirectedNode n = ed.getDifferingNode(node2);
 					if (this.richClub.contains(n) && n != node1) {
 						this.richClubEdges -= 2;
@@ -93,7 +96,8 @@ public class RCCOneDegreeUndirectedDyn extends RCCOneDegreeUndirected {
 			if (node1.getDegree() >= this.k && !richClub.contains(node1)) {
 
 				this.richClub.add(node1);
-				for (UndirectedEdge ed : node1.getEdges()) {
+				for (IElement iEdge : node1.getEdges()) {
+					UndirectedEdge ed = (UndirectedEdge) iEdge;
 					UndirectedNode n = ed.getDifferingNode(node1);
 					if (this.richClub.contains(n)) {
 						this.richClubEdges += 2;
@@ -107,7 +111,8 @@ public class RCCOneDegreeUndirectedDyn extends RCCOneDegreeUndirected {
 			if (node2.getDegree() >= this.k && !richClub.contains(node2)) {
 
 				this.richClub.add(node2);
-				for (UndirectedEdge ed : node2.getEdges()) {
+				for (IElement iEdge : node2.getEdges()) {
+					UndirectedEdge ed = (UndirectedEdge) iEdge;
 					UndirectedNode n = ed.getDifferingNode(node2);
 					if (this.richClub.contains(n)) {
 						if (node1 == n) {
@@ -133,7 +138,8 @@ public class RCCOneDegreeUndirectedDyn extends RCCOneDegreeUndirected {
 		UndirectedNode n = (UndirectedNode) ((NodeRemoval) u).getNode();
 		if (this.richClub.contains(n)) {
 			richClub.remove(n);
-			for (UndirectedEdge ed : n.getEdges()) {
+			for (IElement iEdge : n.getEdges()) {
+				UndirectedEdge ed = (UndirectedEdge) iEdge;
 				UndirectedNode d = ed.getDifferingNode(n);
 				if (richClub.contains(d)) {
 					this.richClubEdges -= 2;
@@ -149,21 +155,6 @@ public class RCCOneDegreeUndirectedDyn extends RCCOneDegreeUndirected {
 	}
 
 	private boolean applyAfterNodeAddition(Update u) {
-		UndirectedNode n = (UndirectedNode) ((NodeAddition) u).getNode();
-		if (n.getDegree() >= this.k) {
-			richClub.add(n);
-			for (UndirectedEdge ed : n.getEdges()) {
-				UndirectedNode d = ed.getDifferingNode(n);
-				if (richClub.contains(d)) {
-					this.richClubEdges += 2;
-				}
-			}
-
-		}
-
-		int richClubMembers = richClub.size();
-		this.richClubCoeffizient = (double) this.richClubEdges
-				/ (double) (richClubMembers * (richClubMembers - 1));
 		return true;
 	}
 

@@ -5,12 +5,13 @@ import java.util.LinkedList;
 import java.util.Queue;
 
 import dna.graph.Graph;
-import dna.graph.directed.DirectedNode;
-import dna.graph.undirected.UndirectedEdge;
-import dna.graph.undirected.UndirectedGraph;
-import dna.graph.undirected.UndirectedNode;
+import dna.graph.IElement;
+import dna.graph.edges.UndirectedEdge;
+import dna.graph.nodes.DirectedNode;
+import dna.graph.nodes.UndirectedNode;
 import dna.metrics.Metric;
 import dna.series.data.Distribution;
+import dna.series.data.NodeValueList;
 import dna.series.data.Value;
 import dna.updates.Batch;
 
@@ -21,28 +22,28 @@ public abstract class APSPCompleteUndirected extends Metric {
 	protected HashMap<UndirectedNode, HashMap<UndirectedNode, Integer>> heightsOut;
 
 	public APSPCompleteUndirected(String name, ApplicationType type) {
-		super(name, type);
+		super(name, type, MetricType.exact);
 
 	}
 
 	@Override
 	public boolean compute() {
 
-		UndirectedGraph g = (UndirectedGraph) this.g;
-
-		for (UndirectedNode n : g.getNodes()) {
-			buildTrees(g, n);
+		for (IElement ie : g.getNodes()) {
+			UndirectedNode n = (UndirectedNode) ie;
+			buildTrees(n);
 		}
 
 		return true;
 
 	}
 
-	protected void buildTrees(UndirectedGraph g, UndirectedNode n) {
+	protected void buildTrees(UndirectedNode n) {
 		HashMap<UndirectedNode, UndirectedNode> parentOut = new HashMap<>();
 		HashMap<UndirectedNode, Integer> heightOut = new HashMap<>();
 
-		for (UndirectedNode t : g.getNodes()) {
+		for (IElement ie : g.getNodes()) {
+			UndirectedNode t = (UndirectedNode) ie;
 			if (t.equals(n)) {
 				heightOut.put(n, 0);
 			} else {
@@ -54,7 +55,8 @@ public abstract class APSPCompleteUndirected extends Metric {
 		q.add(n);
 		while (!q.isEmpty()) {
 			UndirectedNode current = q.poll();
-			for (UndirectedEdge e : current.getEdges()) {
+			for (IElement iEdge : current.getEdges()) {
+				UndirectedEdge e = (UndirectedEdge) iEdge;
 				UndirectedNode t = e.getDifferingNode(current);
 
 				if (heightOut.get(t) != Integer.MAX_VALUE) {
@@ -73,7 +75,7 @@ public abstract class APSPCompleteUndirected extends Metric {
 	}
 
 	@Override
-	protected void init_() {
+	public void init_() {
 		this.parentsOut = new HashMap<UndirectedNode, HashMap<UndirectedNode, UndirectedNode>>();
 		this.heightsOut = new HashMap<UndirectedNode, HashMap<UndirectedNode, Integer>>();
 	}
@@ -85,12 +87,18 @@ public abstract class APSPCompleteUndirected extends Metric {
 	}
 
 	@Override
-	protected Value[] getValues() {
+	public Value[] getValues() {
 		return new Value[] {};
 	}
 
 	@Override
-	protected Distribution[] getDistributions() {
+	public NodeValueList[] getNodeValueLists() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Distribution[] getDistributions() {
 		Distribution d1 = new Distribution("APSP heights",
 				getDistribution(this.heightsOut));
 		return new Distribution[] { d1 };

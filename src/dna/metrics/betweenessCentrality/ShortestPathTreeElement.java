@@ -3,7 +3,7 @@ package dna.metrics.betweenessCentrality;
 import java.util.ArrayList;
 import java.util.List;
 
-import dna.graph.undirected.UndirectedNode;
+import dna.graph.nodes.UndirectedNode;
 
 public class ShortestPathTreeElement {
 	private List<UndirectedNode> parents;

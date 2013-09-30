@@ -6,12 +6,13 @@ import java.util.Map;
 import java.util.Stack;
 
 import dna.graph.Graph;
-import dna.graph.directed.DirectedEdge;
-import dna.graph.directed.DirectedGraph;
-import dna.graph.directed.DirectedNode;
-import dna.graph.undirected.UndirectedNode;
+import dna.graph.IElement;
+import dna.graph.edges.DirectedEdge;
+import dna.graph.nodes.DirectedNode;
+import dna.graph.nodes.UndirectedNode;
 import dna.metrics.Metric;
 import dna.series.data.Distribution;
+import dna.series.data.NodeValueList;
 import dna.series.data.Value;
 import dna.updates.Batch;
 
@@ -31,7 +32,7 @@ public abstract class CCDirected extends Metric {
 	protected Map<Integer, ComponentVertex> dagExpired;
 
 	public CCDirected(String name, ApplicationType type) {
-		super(name, type);
+		super(name, type, MetricType.exact);
 	}
 
 	@Override
@@ -58,10 +59,10 @@ public abstract class CCDirected extends Metric {
 
 	@Override
 	public boolean compute() {
-		DirectedGraph g = (DirectedGraph) this.g;
 		s.clear();
 		ind = 0;
-		for (DirectedNode n : g.getNodes()) {
+		for (IElement ie : g.getNodes()) {
+			DirectedNode n = (DirectedNode) ie;
 			if (!visited[n.getIndex()]) {
 				tarjan(n);
 			}
@@ -76,7 +77,8 @@ public abstract class CCDirected extends Metric {
 		ind += 1;
 		s.push(node);
 
-		for (DirectedEdge e : node.getOutgoingEdges()) {
+		for (IElement ie : node.getOutgoingEdges()) {
+			DirectedEdge e = (DirectedEdge) ie;
 			if (!visited[e.getDst().getIndex()]) {
 				tarjan(e.getDst());
 				lowLink[node.getIndex()] = Math.min(lowLink[node.getIndex()],
@@ -94,7 +96,8 @@ public abstract class CCDirected extends Metric {
 			do {
 				n = s.pop();
 				containmentEdges.put(n.getIndex(), componentCounter);
-				for (DirectedEdge ed : n.getOutgoingEdges()) {
+				for (IElement ie : n.getOutgoingEdges()) {
+					DirectedEdge ed = (DirectedEdge) ie;
 					if (containmentEdges.containsKey(ed.getDst().getIndex())) {
 						if (containmentEdges.get(ed.getDst().getIndex()) != componentCounter) {
 							if (newComponent.ed.containsKey(containmentEdges
@@ -111,7 +114,8 @@ public abstract class CCDirected extends Metric {
 						}
 					}
 				}
-				for (DirectedEdge ed : n.getIncomingEdges()) {
+				for (IElement ie : n.getIncomingEdges()) {
+					DirectedEdge ed = (DirectedEdge) ie;
 					if (containmentEdges.containsKey(ed.getSrc().getIndex())) {
 						if (containmentEdges.get(ed.getSrc().getIndex()) != componentCounter) {
 							ComponentVertex srcVertex = dag
@@ -153,7 +157,7 @@ public abstract class CCDirected extends Metric {
 	}
 
 	@Override
-	protected Value[] getValues() {
+	public Value[] getValues() {
 		Value v1 = new Value("NumberofComponents", countComponents());
 
 		return new Value[] { v1 };
@@ -165,7 +169,13 @@ public abstract class CCDirected extends Metric {
 	}
 
 	@Override
-	protected Distribution[] getDistributions() {
+	public NodeValueList[] getNodeValueLists() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Distribution[] getDistributions() {
 		Distribution d1 = new Distribution("Components", calculateComponents());
 		return new Distribution[] {};
 	}

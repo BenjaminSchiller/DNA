@@ -1,7 +1,8 @@
 package dna.metrics.richClubConnectivity;
 
-import dna.graph.undirected.UndirectedEdge;
-import dna.graph.undirected.UndirectedNode;
+import dna.graph.IElement;
+import dna.graph.edges.UndirectedEdge;
+import dna.graph.nodes.UndirectedNode;
 import dna.updates.Batch;
 import dna.updates.EdgeAddition;
 import dna.updates.EdgeRemoval;
@@ -76,7 +77,8 @@ public class RCCPerDegreeUndirectedDyn extends RCCPerDegreeUndirected {
 	private void checkChangesDel(UndirectedNode node) {
 		int degree = node.getDegree();
 		int edges = 0;
-		for (UndirectedEdge ed : node.getEdges()) {
+		for (IElement iEdge : node.getEdges()) {
+			UndirectedEdge ed = (UndirectedEdge) iEdge;
 			UndirectedNode n = ed.getDifferingNode(node);
 
 			if (n.getDegree() > degree) {
@@ -124,7 +126,8 @@ public class RCCPerDegreeUndirectedDyn extends RCCPerDegreeUndirected {
 	private void checkChangesAdd(UndirectedNode node) {
 		int degree = node.getDegree();
 		int edges = 0;
-		for (UndirectedEdge ed : node.getEdges()) {
+		for (IElement iEdge : node.getEdges()) {
+			UndirectedEdge ed = (UndirectedEdge) iEdge;
 			UndirectedNode n = ed.getDifferingNode(node);
 
 			if (n.getDegree() >= degree) {
@@ -158,7 +161,8 @@ public class RCCPerDegreeUndirectedDyn extends RCCPerDegreeUndirected {
 				this.richClubs.get(node.getDegree()) - 1);
 		int updateEdges = 0;
 
-		for (UndirectedEdge ed : node.getEdges()) {
+		for (IElement iEdge : node.getEdges()) {
+			UndirectedEdge ed = (UndirectedEdge) iEdge;
 			UndirectedNode n = ed.getDifferingNode(node);
 
 			if (n.getDegree() >= node.getDegree()) {

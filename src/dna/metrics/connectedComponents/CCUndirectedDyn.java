@@ -4,8 +4,9 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Queue;
 
-import dna.graph.undirected.UndirectedEdge;
-import dna.graph.undirected.UndirectedNode;
+import dna.graph.IElement;
+import dna.graph.edges.UndirectedEdge;
+import dna.graph.nodes.UndirectedNode;
 import dna.updates.Batch;
 import dna.updates.EdgeAddition;
 import dna.updates.EdgeRemoval;
@@ -51,7 +52,8 @@ public class CCUndirectedDyn extends CCUndirected {
 
 		while (!q.isEmpty()) {
 			SpanningTreeNode temp = (SpanningTreeNode) q.poll();
-			for (UndirectedEdge ed : temp.getNode().getEdges()) {
+			for (IElement ie : temp.getNode().getEdges()) {
+				UndirectedEdge ed = (UndirectedEdge) ie;
 				UndirectedNode node = ed.getDifferingNode(temp.getNode());
 				if (this.nodesTreeElement.get(node.getIndex()).getParent() == temp) {
 					q.add(this.nodesTreeElement.get(node.getIndex()));
@@ -92,11 +94,13 @@ public class CCUndirectedDyn extends CCUndirected {
 
 		// check for direct neighbour
 		HashSet<UndirectedNode> reachableNodes = new HashSet<>();
-		for (UndirectedEdge ed : n1.getNode().getEdges()) {
+		for (IElement ie : n1.getNode().getEdges()) {
+			UndirectedEdge ed = (UndirectedEdge) ie;
 			UndirectedNode node = ed.getDifferingNode(n1.getNode());
 			reachableNodes.add(node);
 		}
-		for (UndirectedEdge ed : n2.getNode().getEdges()) {
+		for (IElement ie : n2.getNode().getEdges()) {
+			UndirectedEdge ed = (UndirectedEdge) ie;
 			UndirectedNode node = ed.getDifferingNode(n2.getNode());
 			if (reachableNodes.contains(node)) {
 				n2.setParent(this.nodesTreeElement.get(node.getIndex()));
@@ -131,7 +135,8 @@ public class CCUndirectedDyn extends CCUndirected {
 		while (!q.isEmpty()) {
 			SpanningTreeNode temp = (SpanningTreeNode) q.poll();
 			seenNodes.add(temp);
-			for (UndirectedEdge ed : temp.getNode().getEdges()) {
+			for (IElement ie : temp.getNode().getEdges()) {
+				UndirectedEdge ed = (UndirectedEdge) ie;
 				UndirectedNode n = ed.getDifferingNode(temp.getNode());
 				if (this.nodesTreeElement.get(n.getIndex()).getParent() == temp) {
 					q.add(this.nodesTreeElement.get(n.getIndex()));
@@ -154,7 +159,8 @@ public class CCUndirectedDyn extends CCUndirected {
 			return false;
 		} else {
 			SpanningTreeNode connection = reachableNodes.iterator().next();
-			for (UndirectedEdge ed : connection.getNode().getEdges()) {
+			for (IElement ie : connection.getNode().getEdges()) {
+				UndirectedEdge ed = (UndirectedEdge) ie;
 				UndirectedNode node = ed.getDifferingNode(connection.getNode());
 				if (seenNodes.contains(this.nodesTreeElement.get(node
 						.getIndex()))) {
@@ -177,7 +183,8 @@ public class CCUndirectedDyn extends CCUndirected {
 
 		while (!seenNodes.isEmpty() && q.isEmpty()) {
 			SpanningTreeNode n = q.poll();
-			for (UndirectedEdge edge : n.getNode().getEdges()) {
+			for (IElement ie : n.getNode().getEdges()) {
+				UndirectedEdge edge = (UndirectedEdge) ie;
 				UndirectedNode node1 = edge.getDifferingNode(spn.getNode());
 				SpanningTreeNode n1 = this.nodesTreeElement.get(node1
 						.getIndex());
@@ -227,7 +234,8 @@ public class CCUndirectedDyn extends CCUndirected {
 	private boolean applyAfterNodeRemoval(Update u) {
 		UndirectedNode n = (UndirectedNode) ((NodeRemoval) u).getNode();
 
-		for (UndirectedEdge e : n.getEdges()) {
+		for (IElement ie : n.getEdges()) {
+			UndirectedEdge e = (UndirectedEdge) ie;
 			@SuppressWarnings("unchecked")
 			Update up = (Update) new EdgeRemoval(e);
 			applyAfterEdgeRemoval(up);

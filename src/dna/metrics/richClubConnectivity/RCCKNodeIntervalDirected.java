@@ -7,13 +7,14 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 
 import dna.graph.Graph;
-import dna.graph.directed.DirectedEdge;
-import dna.graph.directed.DirectedGraph;
-import dna.graph.directed.DirectedNode;
-import dna.graph.undirected.UndirectedNode;
+import dna.graph.IElement;
+import dna.graph.edges.DirectedEdge;
+import dna.graph.nodes.DirectedNode;
+import dna.graph.nodes.UndirectedNode;
 import dna.metrics.Metric;
 import dna.metrics.clusterCoefficient.ClosedTriangleClusteringCoefficient;
 import dna.series.data.Distribution;
+import dna.series.data.NodeValueList;
 import dna.series.data.Value;
 import dna.updates.Batch;
 
@@ -30,7 +31,7 @@ public abstract class RCCKNodeIntervalDirected extends Metric {
 	protected Map<Integer, Integer> richClubEdges;
 
 	public RCCKNodeIntervalDirected(String name, ApplicationType type) {
-		super(name, type);
+		super(name, type, MetricType.exact);
 	}
 
 	@Override
@@ -47,9 +48,9 @@ public abstract class RCCKNodeIntervalDirected extends Metric {
 
 	@Override
 	public boolean compute() {
-		DirectedGraph g = (DirectedGraph) this.g;
 
-		for (DirectedNode n : g.getNodes()) {
+		for (IElement iE : g.getNodes()) {
+			DirectedNode n = (DirectedNode) iE;
 			int degree = n.getOutDegree();
 			this.degrees.add(degree);
 
@@ -94,13 +95,15 @@ public abstract class RCCKNodeIntervalDirected extends Metric {
 		for (int i = 0; i < richClubs.size(); i++) {
 			int edges = 0;
 			for (DirectedNode n : richClubs.get(i)) {
-				for (DirectedEdge ed : n.getOutgoingEdges()) {
+				for (IElement iE : n.getOutgoingEdges()) {
+					DirectedEdge ed = (DirectedEdge) iE;
 					if (this.nodesRichClub.get(ed.getDst().getIndex()) >= this.nodesRichClub
 							.get(n.getIndex())) {
 						edges++;
 					}
 				}
-				for (DirectedEdge ed : n.getIncomingEdges()) {
+				for (IElement iE : n.getIncomingEdges()) {
+					DirectedEdge ed = (DirectedEdge) iE;
 					if (this.nodesRichClub.get(ed.getDst().getIndex()) > this.nodesRichClub
 							.get(n.getIndex())) {
 						edges++;
@@ -158,15 +161,21 @@ public abstract class RCCKNodeIntervalDirected extends Metric {
 	}
 
 	@Override
-	protected Value[] getValues() {
+	public Value[] getValues() {
 		return new Value[] {};
 	}
 
 	@Override
-	protected Distribution[] getDistributions() {
+	public Distribution[] getDistributions() {
 		Distribution d1 = new Distribution("rCC#Members",
 				makeDistribution(this.richClubCoefficienten));
 		return new Distribution[] { d1 };
+	}
+
+	@Override
+	public NodeValueList[] getNodeValueLists() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 	private double[] makeDistribution(

@@ -2,7 +2,7 @@ package dna.metrics.apsp;
 
 import java.util.ArrayList;
 
-import dna.graph.directed.DirectedNode;
+import dna.graph.nodes.DirectedNode;
 import dna.util.ArrayUtils;
 
 public class APSPData {

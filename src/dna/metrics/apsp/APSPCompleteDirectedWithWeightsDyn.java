@@ -7,12 +7,10 @@ import java.util.LinkedList;
 import java.util.PriorityQueue;
 import java.util.Queue;
 
-import dna.graph.directed.DirectedEdge;
-import dna.graph.directed.DirectedEdgeWeighted;
-import dna.graph.directed.DirectedGraph;
-import dna.graph.directed.DirectedGraphAlAl;
-import dna.graph.directed.DirectedNode;
-import dna.graph.directed.DirectedNodeAlWeighted;
+import dna.graph.IElement;
+import dna.graph.edges.DirectedDoubleWeightedEdge;
+import dna.graph.edges.DirectedEdge;
+import dna.graph.nodes.DirectedNode;
 import dna.updates.Batch;
 import dna.updates.EdgeAddition;
 import dna.updates.EdgeRemoval;
@@ -58,13 +56,13 @@ public class APSPCompleteDirectedWithWeightsDyn extends
 	}
 
 	private boolean applyAfterEdgeRemoval(Update u) {
-		DirectedGraph g = (DirectedGraph) this.g;
 		DirectedEdge e = (DirectedEdge) ((EdgeRemoval) u).getEdge();
 		DirectedNode src = e.getSrc();
 		DirectedNode dst = e.getDst();
 
 		// check all trees if the deleted edge is in the tree
-		for (DirectedNode r : g.getNodes()) {
+		for (IElement ie : g.getNodes()) {
+			DirectedNode r = (DirectedNode) ie;
 			HashMap<DirectedNode, DirectedNode> parent = this.parents.get(r);
 			HashMap<DirectedNode, Double> height = this.heights.get(r);
 
@@ -106,9 +104,9 @@ public class APSPCompleteDirectedWithWeightsDyn extends
 
 				ArrayList<DirectedNode> minSettled = new ArrayList<DirectedNode>();
 				ArrayList<DirectedNode> min = new ArrayList<DirectedNode>();
-				for (DirectedEdge edge : w.getIncomingEdges()) {
-					DirectedNode z = edge.getSrc();
-					DirectedEdgeWeighted ed = (DirectedEdgeWeighted) edge;
+				for (IElement iEdge : w.getIncomingEdges()) {
+					DirectedDoubleWeightedEdge ed = (DirectedDoubleWeightedEdge) iEdge;
+					DirectedNode z = ed.getSrc();
 					if (parent.get(w) == z || changed.contains(z)
 							|| height.get(z) == Integer.MAX_VALUE) {
 						continue;
@@ -150,8 +148,9 @@ public class APSPCompleteDirectedWithWeightsDyn extends
 						changed.add(w);
 						q.add(new QueueElement<DirectedNode>(w, dist));
 						uncertain.remove(w);
-						for (DirectedEdge ed : w.getOutgoingEdges()) {
-							DirectedNode z = ed.getDst();
+						for (IElement iEdge : w.getOutgoingEdges()) {
+							DirectedDoubleWeightedEdge ed = (DirectedDoubleWeightedEdge) iEdge;
+							DirectedNode z = ed.getSrc();
 							if (parent.get(z) == w) {
 								parent.remove(z);
 								uncertain.add(z);
@@ -175,9 +174,9 @@ public class APSPCompleteDirectedWithWeightsDyn extends
 				}
 				changed.remove(w);
 				height.put(w, dist);
-				for (DirectedEdge ed : w.getOutgoingEdges()) {
-					DirectedNode z = ed.getDst();
-					DirectedEdgeWeighted edge = (DirectedEdgeWeighted) ed;
+				for (IElement iEdge : w.getOutgoingEdges()) {
+					DirectedDoubleWeightedEdge edge = (DirectedDoubleWeightedEdge) iEdge;
+					DirectedNode z = edge.getSrc();
 					if (height.get(z) > dist + 1) {
 						q.remove(new QueueElement<DirectedNode>(z, dist
 								+ edge.getWeight()));
@@ -190,98 +189,98 @@ public class APSPCompleteDirectedWithWeightsDyn extends
 		return true;
 	}
 
-	private boolean applyAfterEdgeRemoval1(Update u) {
-		DirectedEdgeWeighted e = (DirectedEdgeWeighted) ((EdgeRemoval) u)
-				.getEdge();
-
-		DirectedGraph g = (DirectedGraph) this.g;
-
-		for (DirectedNode s : g.getNodes()) {
-			HashMap<DirectedNode, DirectedNode> parent = parents.get(s);
-			HashMap<DirectedNode, Double> height = heights.get(s);
-
-			DirectedNode src = e.getSrc();
-			DirectedNode dst = e.getDst();
-			if (parent.get(dst) != src) {
-				continue;
-			}
-			PriorityQueue<QueueElement<DirectedNode>> q = new PriorityQueue<>();
-			HashSet<DirectedNode> uncertain = new HashSet<>();
-			HashSet<DirectedNode> touched = new HashSet<>();
-
-			q.add(new QueueElement(dst, height.get(dst)));
-			uncertain.add(dst);
-			touched.add(dst);
-			while (!q.isEmpty()) {
-
-				QueueElement<DirectedNode> c = q.poll();
-				DirectedNode w = c.e;
-
-				// all childs of node w need to be checked
-				for (DirectedEdge ed : w.getOutgoingEdges()) {
-					DirectedNode z = ed.getDst();
-					if (parent.get(z) == w && !touched.contains(z)) {
-						q.add(new QueueElement((DirectedNode) z, height.get(z)));
-						uncertain.add(z);
-						touched.add(z);
-					}
-				}
-
-				// find the new shortest path
-				double dist = Double.MAX_VALUE;
-				ArrayList<DirectedNode> min = new ArrayList<DirectedNode>();
-				for (DirectedEdge edge : w.getIncomingEdges()) {
-					DirectedNode z = edge.getSrc();
-					if (height.get(z) < dist) {
-						min.clear();
-						min.add(z);
-						dist = height.get(z);
-						continue;
-					}
-					if (height.get(z) == dist) {
-						min.add(z);
-						continue;
-					}
-				}
-
-				// if their is no connection to the three, remove node form
-				// data set
-				if (dist == Double.MAX_VALUE
-						|| dist >= (Double) (g.getNodeCount() - 1d)) {
-					height.put(w, Double.MAX_VALUE);
-					parent.remove(w);
-					uncertain.remove(w);
-					continue;
-				}
-
-				// connect to the highest uncertain node
-				boolean found = false;
-				for (DirectedNode mNode : min) {
-					if ((!uncertain.contains(mNode))
-							&& (height.get(mNode) + 1 == height.get(w) || height
-									.get(mNode) == height.get(w))) {
-						uncertain.remove(w);
-						height.put(w, height.get(mNode) + 1d);
-						parent.put(w, mNode);
-						found = true;
-						break;
-					}
-				}
-
-				// else connect to another node
-				if (!found) {
-					q.add(new QueueElement<DirectedNode>(w, (height.get(min
-							.get(0)) + 1d)));
-					height.put(w, height.get(min.get(0)) + 1d);
-					parent.put(w, min.get(0));
-				}
-
-			}
-
-		}
-
-		return true;
-	}
+	// private boolean applyAfterEdgeRemoval1(Update u) {
+	// DirectedEdgeWeighted e = (DirectedEdgeWeighted) ((EdgeRemoval) u)
+	// .getEdge();
+	//
+	// DirectedGraph g = (DirectedGraph) this.g;
+	//
+	// for (DirectedNode s : g.getNodes()) {
+	// HashMap<DirectedNode, DirectedNode> parent = parents.get(s);
+	// HashMap<DirectedNode, Double> height = heights.get(s);
+	//
+	// DirectedNode src = e.getSrc();
+	// DirectedNode dst = e.getDst();
+	// if (parent.get(dst) != src) {
+	// continue;
+	// }
+	// PriorityQueue<QueueElement<DirectedNode>> q = new PriorityQueue<>();
+	// HashSet<DirectedNode> uncertain = new HashSet<>();
+	// HashSet<DirectedNode> touched = new HashSet<>();
+	//
+	// q.add(new QueueElement(dst, height.get(dst)));
+	// uncertain.add(dst);
+	// touched.add(dst);
+	// while (!q.isEmpty()) {
+	//
+	// QueueElement<DirectedNode> c = q.poll();
+	// DirectedNode w = c.e;
+	//
+	// // all childs of node w need to be checked
+	// for (DirectedEdge ed : w.getOutgoingEdges()) {
+	// DirectedNode z = ed.getDst();
+	// if (parent.get(z) == w && !touched.contains(z)) {
+	// q.add(new QueueElement((DirectedNode) z, height.get(z)));
+	// uncertain.add(z);
+	// touched.add(z);
+	// }
+	// }
+	//
+	// // find the new shortest path
+	// double dist = Double.MAX_VALUE;
+	// ArrayList<DirectedNode> min = new ArrayList<DirectedNode>();
+	// for (DirectedEdge edge : w.getIncomingEdges()) {
+	// DirectedNode z = edge.getSrc();
+	// if (height.get(z) < dist) {
+	// min.clear();
+	// min.add(z);
+	// dist = height.get(z);
+	// continue;
+	// }
+	// if (height.get(z) == dist) {
+	// min.add(z);
+	// continue;
+	// }
+	// }
+	//
+	// // if their is no connection to the three, remove node form
+	// // data set
+	// if (dist == Double.MAX_VALUE
+	// || dist >= (Double) (g.getNodeCount() - 1d)) {
+	// height.put(w, Double.MAX_VALUE);
+	// parent.remove(w);
+	// uncertain.remove(w);
+	// continue;
+	// }
+	//
+	// // connect to the highest uncertain node
+	// boolean found = false;
+	// for (DirectedNode mNode : min) {
+	// if ((!uncertain.contains(mNode))
+	// && (height.get(mNode) + 1 == height.get(w) || height
+	// .get(mNode) == height.get(w))) {
+	// uncertain.remove(w);
+	// height.put(w, height.get(mNode) + 1d);
+	// parent.put(w, mNode);
+	// found = true;
+	// break;
+	// }
+	// }
+	//
+	// // else connect to another node
+	// if (!found) {
+	// q.add(new QueueElement<DirectedNode>(w, (height.get(min
+	// .get(0)) + 1d)));
+	// height.put(w, height.get(min.get(0)) + 1d);
+	// parent.put(w, min.get(0));
+	// }
+	//
+	// }
+	//
+	// }
+	//
+	// return true;
+	// }
 
 	private boolean applyAfterNodeAddition(Update u) {
 		return false;
@@ -292,12 +291,11 @@ public class APSPCompleteDirectedWithWeightsDyn extends
 	}
 
 	private boolean applyAfterEdgeAddition(Update u) {
-		DirectedEdgeWeighted e = (DirectedEdgeWeighted) ((EdgeAddition) u)
+		DirectedDoubleWeightedEdge e = (DirectedDoubleWeightedEdge) ((EdgeAddition) u)
 				.getEdge();
 
-		DirectedGraphAlAl g = (DirectedGraphAlAl) this.g;
-
-		for (DirectedNode s : g.getNodes()) {
+		for (IElement ie : g.getNodes()) {
+			DirectedNode s = (DirectedNode) ie;
 			HashMap<DirectedNode, DirectedNode> parent = parents.get(s);
 			HashMap<DirectedNode, Double> height = heights.get(s);
 
@@ -309,20 +307,18 @@ public class APSPCompleteDirectedWithWeightsDyn extends
 
 			height.put(dst, height.get(src) + e.getWeight());
 			parent.put(dst, src);
-			PriorityQueue<QueueElement<DirectedNodeAlWeighted>> q = new PriorityQueue<>();
-			q.add(new QueueElement((DirectedNodeAlWeighted) dst, height
-					.get(dst)));
+			PriorityQueue<QueueElement<DirectedNode>> q = new PriorityQueue<>();
+			q.add(new QueueElement(dst, height.get(dst)));
 			while (!q.isEmpty()) {
-				QueueElement<DirectedNodeAlWeighted> c = q.poll();
-				DirectedNodeAlWeighted current = c.e;
+				QueueElement<DirectedNode> c = q.poll();
+				DirectedNode current = c.e;
 
 				if (height.get(current) == Double.MAX_VALUE) {
 					break;
 				}
 
-				for (DirectedEdge edge : current.getOutgoingEdges()) {
-					DirectedEdgeWeighted d = (DirectedEdgeWeighted) edge;
-
+				for (IElement iEdge : current.getOutgoingEdges()) {
+					DirectedDoubleWeightedEdge d = (DirectedDoubleWeightedEdge) iEdge;
 					DirectedNode neighbor = d.getDst();
 
 					double alt = height.get(current) + d.getWeight();
@@ -330,9 +326,8 @@ public class APSPCompleteDirectedWithWeightsDyn extends
 					if (alt < height.get(neighbor)) {
 						height.put(neighbor, alt);
 						parent.put(neighbor, current);
-						QueueElement<DirectedNodeAlWeighted> temp = new QueueElement<DirectedNodeAlWeighted>(
-								(DirectedNodeAlWeighted) neighbor,
-								height.get(neighbor));
+						QueueElement<DirectedNode> temp = new QueueElement<DirectedNode>(
+								neighbor, height.get(neighbor));
 						if (q.contains(temp)) {
 							q.remove(temp);
 						}
