@@ -1,13 +1,12 @@
 package dna.graph.generators;
 
-import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
-import java.util.Arrays;
 
 import dna.graph.Graph;
 import dna.graph.datastructures.GraphDataStructure;
 import dna.io.GraphReader;
+import dna.util.IOUtils;
 
 /**
  * 
@@ -78,26 +77,11 @@ public class ReadableDirGraphGenerator extends GraphGenerator {
 	 */
 	public ReadableDirGraphGenerator(String dir, FilenameFilter filter,
 			GraphDataStructure gds) throws IOException {
-		super(GraphReader.readName(dir, getFilenames(dir, filter)[0]), null,
-				gds, -1, -1, -1);
+		super(GraphReader.readName(dir, IOUtils.getFilenames(dir, filter)[0]),
+				null, gds, -1, -1, -1);
 		this.dir = dir;
-		this.filenames = getFilenames(dir, filter);
+		this.filenames = IOUtils.getFilenames(dir, filter);
 		index = -1;
-	}
-
-	private static String[] getFilenames(String dir, FilenameFilter filter) {
-		File[] files;
-		if (filter == null) {
-			files = (new File(dir)).listFiles();
-		} else {
-			files = (new File(dir)).listFiles(filter);
-		}
-		String[] filenames = new String[files.length];
-		for (int i = 0; i < files.length; i++) {
-			filenames[i] = files[i].getName();
-		}
-		Arrays.sort(filenames);
-		return filenames;
 	}
 
 	@Override

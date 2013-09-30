@@ -62,6 +62,12 @@ public class Batch {
 	 */
 
 	public boolean apply(Graph g) {
+
+		if (this.from != g.getTimestamp()) {
+			throw new IllegalStateException("cannot apply batch "
+					+ this.toString() + " to graph " + g.toString());
+		}
+
 		boolean success = true;
 
 		success &= this.apply(g, this.nodeRemovals);
@@ -72,6 +78,8 @@ public class Batch {
 
 		success &= this.apply(g, this.nodeWeights);
 		success &= this.apply(g, this.edgeWeights);
+
+		g.setTimestamp(this.to);
 
 		return success;
 	}

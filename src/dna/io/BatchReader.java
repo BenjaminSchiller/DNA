@@ -48,6 +48,19 @@ public class BatchReader {
 				return null;
 			}
 		}
+	}
 
+	public static long[] readTimestamps(String dir, String filename)
+			throws IOException {
+		Reader reader = new Reader(dir, filename);
+
+		reader.readKeyword(Config.get("BATCH_KEYWORD_FROM"));
+		long from = reader.readLong();
+
+		reader.readKeyword(Config.get("BATCH_KEYWORD_TO"));
+		long to = reader.readLong();
+
+		reader.close();
+		return new long[] { from, to };
 	}
 }
