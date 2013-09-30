@@ -10,10 +10,10 @@ import dna.updates.batch.Batch;
 import dna.updates.update.Update;
 import dna.util.ArrayUtils;
 
-public class UndirectedShortestPathsRecomp extends UndirectedShortestPaths {
+public class UndirectedShortestPathsR extends UndirectedShortestPaths {
 
-	public UndirectedShortestPathsRecomp() {
-		super("undirectedShortestPathsRecomp", ApplicationType.Recomputation);
+	public UndirectedShortestPathsR() {
+		super("UndirectedShortestPathsR", ApplicationType.Recomputation);
 	}
 
 	@Override

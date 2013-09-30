@@ -15,12 +15,11 @@ import dna.updates.update.NodeRemoval;
 import dna.updates.update.Update;
 import dna.util.ArrayUtils;
 
-@SuppressWarnings("rawtypes")
-public class ClosedTriangleClusteringCoefficientUpdate extends
-		ClosedTriangleClusteringCoefficient {
+public class UndirectedClusteringCoefficientU extends
+		UndirectedClusteringCoefficient {
 
-	public ClosedTriangleClusteringCoefficientUpdate() {
-		super("closedTriangleClusteringCoefficientUpdate",
+	public UndirectedClusteringCoefficientU() {
+		super("UndirectedClusteringCoefficientU",
 				ApplicationType.BeforeAndAfterUpdate, MetricType.exact);
 	}
 

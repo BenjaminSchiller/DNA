@@ -18,12 +18,11 @@ import dna.updates.update.Update;
  * @author benni
  * 
  */
-@SuppressWarnings("rawtypes")
-public class ClosedTriangleClusteringCoefficientRecomp extends
-		ClosedTriangleClusteringCoefficient {
+public class UndirectedClusteringCoefficientR extends
+		UndirectedClusteringCoefficient {
 
-	public ClosedTriangleClusteringCoefficientRecomp() {
-		super("closedTriangleClusteringCoefficientRecomp",
+	public UndirectedClusteringCoefficientR() {
+		super("UndirectedClusteringCoefficientR",
 				ApplicationType.Recomputation, MetricType.exact);
 	}
 

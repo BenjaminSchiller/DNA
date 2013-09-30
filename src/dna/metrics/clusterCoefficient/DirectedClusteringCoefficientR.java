@@ -7,13 +7,12 @@ import dna.updates.batch.Batch;
 import dna.updates.update.Update;
 import dna.util.ArrayUtils;
 
-@SuppressWarnings("rawtypes")
-public class OpenTriangleClusteringCoefficientRecomp extends
-		OpenTriangleClusteringCoefficient {
+public class DirectedClusteringCoefficientR extends
+		DirectedClusteringCoefficient {
 
-	public OpenTriangleClusteringCoefficientRecomp() {
-		super("openTriangleClusteringCoefficientRecomp",
-				ApplicationType.Recomputation, MetricType.exact);
+	public DirectedClusteringCoefficientR() {
+		super("DirectedClusteringCoefficientR", ApplicationType.Recomputation,
+				MetricType.exact);
 	}
 
 	@Override

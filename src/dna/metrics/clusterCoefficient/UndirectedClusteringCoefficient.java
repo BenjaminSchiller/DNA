@@ -9,12 +9,11 @@ import dna.metrics.Metric;
 import dna.updates.batch.Batch;
 import dna.util.ArrayUtils;
 
-@SuppressWarnings("rawtypes")
-public abstract class ClosedTriangleClusteringCoefficient extends
+public abstract class UndirectedClusteringCoefficient extends
 		ClusteringCoefficient {
 
-	public ClosedTriangleClusteringCoefficient(String name,
-			ApplicationType type, MetricType mType) {
+	public UndirectedClusteringCoefficient(String name, ApplicationType type,
+			MetricType mType) {
 		super(name, type, mType);
 	}
 
@@ -120,7 +119,7 @@ public abstract class ClosedTriangleClusteringCoefficient extends
 
 	@Override
 	public boolean isComparableTo(Metric m) {
-		return m != null && m instanceof ClosedTriangleClusteringCoefficient;
+		return m != null && m instanceof UndirectedClusteringCoefficient;
 	}
 
 	@Override

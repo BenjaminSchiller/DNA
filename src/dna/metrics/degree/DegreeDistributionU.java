@@ -15,10 +15,10 @@ import dna.updates.update.NodeRemoval;
 import dna.updates.update.Update;
 import dna.util.Log;
 
-public class DegreeDistributionUpdate extends DegreeDistribution {
+public class DegreeDistributionU extends DegreeDistribution {
 
-	public DegreeDistributionUpdate() {
-		super("degreeDistributionUpdate", ApplicationType.BeforeUpdate,
+	public DegreeDistributionU() {
+		super("DegreeDistributionU", ApplicationType.BeforeUpdate,
 				MetricType.exact);
 	}
 
@@ -48,8 +48,6 @@ public class DegreeDistributionUpdate extends DegreeDistribution {
 
 	private boolean applyBeforeUpdateDirected(Update u) {
 		if (u instanceof NodeAddition) {
-
-			DirectedNode n = (DirectedNode) ((NodeAddition) u).getNode();
 
 			this.nodes++;
 			this.degree.incr(0);
@@ -142,8 +140,6 @@ public class DegreeDistributionUpdate extends DegreeDistribution {
 
 	private boolean applyBeforeUpdateUndirected(Update u) {
 		if (u instanceof NodeAddition) {
-
-			UndirectedNode n = (UndirectedNode) ((NodeAddition) u).getNode();
 
 			this.nodes++;
 			this.degree.incr(0);

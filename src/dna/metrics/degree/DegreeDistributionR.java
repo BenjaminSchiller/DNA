@@ -9,10 +9,10 @@ import dna.updates.batch.Batch;
 import dna.updates.update.Update;
 import dna.util.Log;
 
-public class DegreeDistributionRecomp extends DegreeDistribution {
+public class DegreeDistributionR extends DegreeDistribution {
 
-	public DegreeDistributionRecomp() {
-		super("degreeDistributionRecomp", ApplicationType.Recomputation,
+	public DegreeDistributionR() {
+		super("DegreeDistributionR", ApplicationType.Recomputation,
 				MetricType.exact);
 	}
 

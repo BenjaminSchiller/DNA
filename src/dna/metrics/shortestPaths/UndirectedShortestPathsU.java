@@ -15,10 +15,10 @@ import dna.updates.update.NodeRemoval;
 import dna.updates.update.Update;
 import dna.util.ArrayUtils;
 
-public class UndirectedShortestPathsUpdate extends UndirectedShortestPaths {
+public class UndirectedShortestPathsU extends UndirectedShortestPaths {
 
-	public UndirectedShortestPathsUpdate() {
-		super("undirectedShortestPathsUpdate", ApplicationType.BeforeUpdate);
+	public UndirectedShortestPathsU() {
+		super("UndirectedShortestPathsU", ApplicationType.BeforeUpdate);
 	}
 
 	protected HashMap<UndirectedNode, HashMap<UndirectedNode, UndirectedNode>> parents;

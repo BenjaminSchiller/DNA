@@ -13,12 +13,11 @@ import dna.updates.update.NodeRemoval;
 import dna.updates.update.Update;
 import dna.util.ArrayUtils;
 
-@SuppressWarnings("rawtypes")
-public class OpenTriangleClusteringCoefficientUpdate extends
-		OpenTriangleClusteringCoefficient {
+public class DirectedClusteringCoefficientU extends
+		DirectedClusteringCoefficient {
 
-	public OpenTriangleClusteringCoefficientUpdate() {
-		super("openTriangleClusteringCoefficientUpdate",
+	public DirectedClusteringCoefficientU() {
+		super("DirectedClusteringCoefficientU",
 				ApplicationType.BeforeAndAfterUpdate, MetricType.exact);
 	}
 

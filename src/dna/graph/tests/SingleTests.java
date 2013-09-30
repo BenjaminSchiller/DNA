@@ -24,8 +24,8 @@ import dna.graph.nodes.UndirectedNode;
 import dna.graph.weights.IWeighted;
 import dna.metrics.Metric;
 import dna.metrics.MetricNotApplicableException;
-import dna.metrics.clusterCoefficient.OpenTriangleClusteringCoefficientUpdate;
-import dna.metrics.degree.DegreeDistributionUpdate;
+import dna.metrics.clusterCoefficient.DirectedClusteringCoefficientU;
+import dna.metrics.degree.DegreeDistributionU;
 import dna.profiler.GraphProfiler;
 import dna.series.AggregationException;
 import dna.series.Series;
@@ -46,8 +46,8 @@ public class SingleTests {
 				DirectedEdge.class);
 		GraphGenerator gg = new RandomGraphGenerator(gds, 40, 40);
 		BatchGenerator batchGen = new RandomBatch(5, 5, 5, 5);
-		Metric[] metrics = new Metric[] { new DegreeDistributionUpdate(),
-				new OpenTriangleClusteringCoefficientUpdate() };
+		Metric[] metrics = new Metric[] { new DegreeDistributionU(),
+				new DirectedClusteringCoefficientU() };
 		Series s = new Series(gg, batchGen, metrics, "./graphs/", "test");
 		s.generate(2, 1);
 	}
