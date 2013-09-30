@@ -36,8 +36,8 @@ public class DirectedNode extends Node {
 		if (!(eIn instanceof DirectedEdge))
 			return false;
 		DirectedEdge e = (DirectedEdge) eIn;
-		return e.getSrc().getIndex() == this.index && this.out.contains(e) || e.getDst().getIndex() == this.index
-				&& this.in.contains(e);
+		return e.getSrc().getIndex() == this.index && this.out.contains(e)
+				|| e.getDst().getIndex() == this.index && this.in.contains(e);
 	}
 
 	@Override
@@ -120,5 +120,10 @@ public class DirectedNode extends Node {
 		System.out.println("In: " + this.getIncomingEdges());
 		System.out.println("Out: " + this.getOutgoingEdges());
 		System.out.println("Neighbors: " + this.getNeighbors());
+	}
+
+	public String toString() {
+		return super.toString() + " (" + this.in.size() + "/" + this.out.size()
+				+ ")";
 	}
 }

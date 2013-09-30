@@ -7,12 +7,12 @@ import java.util.Queue;
 import dna.graph.IElement;
 import dna.graph.edges.UndirectedEdge;
 import dna.graph.nodes.UndirectedNode;
-import dna.updates.Batch;
-import dna.updates.EdgeAddition;
-import dna.updates.EdgeRemoval;
-import dna.updates.NodeAddition;
-import dna.updates.NodeRemoval;
-import dna.updates.Update;
+import dna.updates.batch.Batch;
+import dna.updates.update.EdgeAddition;
+import dna.updates.update.EdgeRemoval;
+import dna.updates.update.NodeAddition;
+import dna.updates.update.NodeRemoval;
+import dna.updates.update.Update;
 import dna.util.ArrayUtils;
 
 public class UndirectedShortestPathsUpdate extends UndirectedShortestPaths {

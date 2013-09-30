@@ -2,10 +2,11 @@ package dna.graph.edges;
 
 import dna.graph.Graph;
 import dna.graph.nodes.UndirectedNode;
-import dna.io.etc.Keywords;
+import dna.graph.weights.IDoubleWeighted;
+import dna.util.Config;
 
 public class UndirectedDoubleWeightedEdge extends UndirectedEdge implements
-		IWeightedEdge<Double> {
+		IWeightedEdge<Double>, IDoubleWeighted {
 	private double weight;
 
 	public UndirectedDoubleWeightedEdge(UndirectedNode src, UndirectedNode dst,
@@ -15,10 +16,10 @@ public class UndirectedDoubleWeightedEdge extends UndirectedEdge implements
 	}
 
 	public UndirectedDoubleWeightedEdge(String str, Graph g) {
-		super(str.split(Keywords.edgeWeightDelimiter)[0], g);
-		if (str.contains(Keywords.edgeWeightDelimiter)) {
-			this.weight = Double.parseDouble(str
-					.split(Keywords.edgeWeightDelimiter)[1]);
+		super(str.split(Config.get("EDGE_WEIGHT_DELIMITER"))[0], g);
+		if (str.contains(Config.get("EDGE_WEIGHT_DELIMITER"))) {
+			this.weight = Double.parseDouble(str.split(Config
+					.get("EDGE_WEIGHT_DELIMITER"))[1]);
 		} else {
 			this.weight = 0;
 		}
@@ -39,8 +40,12 @@ public class UndirectedDoubleWeightedEdge extends UndirectedEdge implements
 	}
 
 	public String getStringRepresentation() {
-		return super.getStringRepresentation() + Keywords.edgeWeightDelimiter
-				+ this.weight;
+		return super.getStringRepresentation()
+				+ Config.get("EDGE_WEIGHT_DELIMITER") + this.weight;
+	}
+
+	public String toString() {
+		return super.toString() + " [" + this.getWeight() + "]";
 	}
 
 }

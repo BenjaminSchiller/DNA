@@ -2,19 +2,26 @@ package dna.io;
 
 import java.io.IOException;
 
-import dna.graph.edges.Edge;
-import dna.graph.nodes.Node;
-import dna.updates.Batch;
-import dna.updates.Update;
+import dna.updates.batch.Batch;
+import dna.updates.update.Update;
+import dna.util.Config;
 
-public class BatchWriter<N extends Node, E extends Edge> {
+public class BatchWriter {
 
-	public boolean write(Batch<E> b, String dir, String filename) {
+	public static boolean write(Batch b, String dir, String filename) {
 		Writer writer = null;
 		try {
 			writer = new Writer(dir, filename);
 
-			for (Update<E> u : (Iterable<Update<E>>) b.getAllUpdates()) {
+			writer.writeKeyword(Config.get("BATCH_KEYWORD_FROM"));
+			writer.writeln(b.getFrom());
+
+			writer.writeKeyword(Config.get("BATCH_KEYWORD_TO"));
+			writer.writeln(b.getTo());
+
+			writer.writeKeyword(Config.get("BATCH_KEYWORD_UPDATES"));
+
+			for (Update u : b.getAllUpdates()) {
 				writer.writeln(u.getStringRepresentation());
 			}
 

@@ -7,6 +7,10 @@ import java.util.Iterator;
 import dna.graph.IElement;
 import dna.graph.edges.Edge;
 import dna.graph.nodes.Node;
+import dna.profiler.complexity.Complexity;
+import dna.profiler.complexity.ComplexityType;
+import dna.profiler.complexity.ComplexityType.Base;
+import dna.profiler.complexity.ComplexityType.Type;
 import dna.util.Rand;
 
 /**
@@ -15,8 +19,8 @@ import dna.util.Rand;
  * @author Nico
  * 
  */
-public class DHashMap extends DataStructureReadable implements INodeListDatastructureReadable,
-		IEdgeListDatastructureReadable {
+public class DHashMap extends DataStructureReadable implements
+		INodeListDatastructureReadable, IEdgeListDatastructureReadable {
 
 	private HashMap<String, IElement> list;
 
@@ -37,7 +41,8 @@ public class DHashMap extends DataStructureReadable implements INodeListDatastru
 			return this.add((Node) element);
 		if (element instanceof Edge)
 			return this.add((Edge) element);
-		throw new RuntimeException("Can't handle element of type " + element.getClass() + " here");
+		throw new RuntimeException("Can't handle element of type "
+				+ element.getClass() + " here");
 	}
 
 	public boolean add(Node element) {
@@ -70,7 +75,8 @@ public class DHashMap extends DataStructureReadable implements INodeListDatastru
 			return this.contains((Node) element);
 		if (element instanceof Edge)
 			return this.contains((Edge) element);
-		throw new RuntimeException("Can't handle element of type " + element.getClass() + " here");
+		throw new RuntimeException("Can't handle element of type "
+				+ element.getClass() + " here");
 	}
 
 	@Override
@@ -89,7 +95,8 @@ public class DHashMap extends DataStructureReadable implements INodeListDatastru
 			return this.remove((Node) element);
 		if (element instanceof Edge)
 			return this.remove((Edge) element);
-		throw new RuntimeException("Can't handle element of type " + element.getClass() + " here");
+		throw new RuntimeException("Can't handle element of type "
+				+ element.getClass() + " here");
 	}
 
 	@Override
@@ -156,5 +163,51 @@ public class DHashMap extends DataStructureReadable implements INodeListDatastru
 	@Override
 	public int getMaxNodeIndex() {
 		return this.maxNodeIndex;
+	}
+
+	/**
+	 * Get the complexity class for a specific access type
+	 * 
+	 * @param access
+	 *            Access type
+	 * @param base
+	 *            Complexity base (NodeSize, EdgeSize,...)
+	 * @return
+	 */
+	public static Complexity getComplexity(Class<? extends IElement> dt,
+			AccessType access, Base base) {
+		switch (access) {
+		case Add:
+			if (Node.class.isAssignableFrom(dt)) {
+				return new Complexity(1, new ComplexityType(Type.Static, base));
+			} else if (Edge.class.isAssignableFrom(dt)) {
+				return new Complexity(1, new ComplexityType(Type.Static, base));
+			}
+		case Contains:
+			if (Node.class.isAssignableFrom(dt)) {
+				return new Complexity(1, new ComplexityType(Type.Linear, base));
+			} else if (Edge.class.isAssignableFrom(dt)) {
+				return new Complexity(1, new ComplexityType(Type.Linear, base));
+			}
+		case Random:
+			if (Node.class.isAssignableFrom(dt)) {
+				return new Complexity(1, new ComplexityType(Type.Linear, base));
+			} else if (Edge.class.isAssignableFrom(dt)) {
+				return new Complexity(1, new ComplexityType(Type.Linear, base));
+			}
+		case Remove:
+			if (Node.class.isAssignableFrom(dt)) {
+				return new Complexity(1, new ComplexityType(Type.Static, base));
+			} else if (Edge.class.isAssignableFrom(dt)) {
+				return new Complexity(1, new ComplexityType(Type.Static, base));
+			}
+		case Size:
+			if (Node.class.isAssignableFrom(dt)) {
+				return new Complexity(1, new ComplexityType(Type.Static, base));
+			} else if (Edge.class.isAssignableFrom(dt)) {
+				return new Complexity(1, new ComplexityType(Type.Static, base));
+			}
+		}
+		return new Complexity(1, new ComplexityType(Type.Unknown, base));
 	}
 }

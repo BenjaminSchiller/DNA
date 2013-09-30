@@ -3,7 +3,7 @@ package dna.metrics.clusterCoefficient;
 import dna.graph.Graph;
 import dna.graph.nodes.DirectedNode;
 import dna.metrics.Metric;
-import dna.updates.Batch;
+import dna.updates.batch.Batch;
 
 @SuppressWarnings("rawtypes")
 public abstract class OpenTriangleClusteringCoefficient extends

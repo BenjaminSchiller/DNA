@@ -9,6 +9,10 @@ import dna.graph.IElement;
  * 
  */
 public abstract class DataStructure implements IDataStructure {
+	public enum AccessType {
+		Add, Contains, Random, Remove, Size
+	}
+
 	protected Class<? extends IElement> dataType;
 	protected final int defaultSize = 10;
 
@@ -18,8 +22,9 @@ public abstract class DataStructure implements IDataStructure {
 
 	public boolean canAdd(IElement element) {
 		if (!dataType.isInstance(element))
-			throw new RuntimeException("Datatype to be stored here: " + dataType.getName()
-					+ ", datatype tried to be stored: " + element.getClass().getName());
+			throw new RuntimeException("Datatype to be stored here: "
+					+ dataType.getName() + ", datatype tried to be stored: "
+					+ element.getClass().getName());
 		return true;
 	}
 

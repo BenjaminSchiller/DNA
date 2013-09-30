@@ -4,7 +4,7 @@ import dna.graph.Element;
 import dna.graph.Graph;
 import dna.graph.nodes.Node;
 import dna.graph.nodes.UndirectedNode;
-import dna.io.etc.Keywords;
+import dna.util.Config;
 import dna.util.MathHelper;
 
 public class UndirectedEdge extends Edge {
@@ -32,9 +32,11 @@ public class UndirectedEdge extends Edge {
 	 *            node object pointers)
 	 */
 	public UndirectedEdge(String s, Graph g) {
-		String[] temp = s.split(Keywords.undirectedEdgeDelimiter);
-		UndirectedNode node1 = (UndirectedNode) g.getNode(MathHelper.parseInt(temp[0]));
-		UndirectedNode node2 = (UndirectedNode) g.getNode(MathHelper.parseInt(temp[1]));
+		String[] temp = s.split(Config.get("EDGE_UNDIRECTED_DELIMITER"));
+		UndirectedNode node1 = (UndirectedNode) g.getNode(MathHelper
+				.parseInt(temp[0]));
+		UndirectedNode node2 = (UndirectedNode) g.getNode(MathHelper
+				.parseInt(temp[1]));
 		this.init(node1, node2);
 	}
 
@@ -43,7 +45,8 @@ public class UndirectedEdge extends Edge {
 	 * @return String representation of this edge
 	 */
 	public String getStringRepresentation() {
-		return this.node1.getIndex() + Keywords.undirectedEdgeDelimiter + this.node2.getIndex();
+		return this.node1.getIndex() + Config.get("EDGE_UNDIRECTED_DELIMITER")
+				+ this.node2.getIndex();
 	}
 
 	protected UndirectedNode node1;
@@ -82,26 +85,30 @@ public class UndirectedEdge extends Edge {
 	}
 
 	public boolean equals(Object o) {
-		if ( o == null ) return false;
-		if ( !(o instanceof UndirectedEdge)) return false;
+		if (o == null)
+			return false;
+		if (!(o instanceof UndirectedEdge))
+			return false;
 
-		UndirectedEdge oCasted = (UndirectedEdge)o;
-		if ( oCasted.getNode1() == null || oCasted.getNode2() == null) return false;
-		
+		UndirectedEdge oCasted = (UndirectedEdge) o;
+		if (oCasted.getNode1() == null || oCasted.getNode2() == null)
+			return false;
+
 		return this.getNode1().getIndex() == oCasted.getNode1().getIndex()
 				&& this.getNode2().getIndex() == oCasted.getNode2().getIndex();
 	}
 
 	public int hashCode() {
-		String s = "" + this.getNode1().getIndex() + this.getNode2().getIndex(); 
+		String s = "" + this.getNode1().getIndex() + this.getNode2().getIndex();
 		return s.hashCode();
 	}
 
 	public Node getDifferingNode(Node n) {
-		if ( n instanceof UndirectedNode ) return this.getDifferingNode((UndirectedNode)n);
+		if (n instanceof UndirectedNode)
+			return this.getDifferingNode((UndirectedNode) n);
 		return null;
 	}
-	
+
 	/**
 	 * 
 	 * @param n
@@ -135,13 +142,13 @@ public class UndirectedEdge extends Edge {
 	public boolean connectToNodes() {
 		boolean add1 = this.getNode1().addEdge(this);
 		boolean add2 = this.getNode2().addEdge(this);
-		return add1 && add2; 
+		return add1 && add2;
 	}
-	
+
 	public boolean disconnectFromNodes() {
 		boolean rem1 = this.getNode1().removeEdge(this);
 		boolean rem2 = this.getNode2().removeEdge(this);
-		return rem1 && rem2; 		
+		return rem1 && rem2;
 	}
-	
+
 }

@@ -13,4 +13,8 @@ public abstract class Parameter {
 	}
 
 	public abstract String getValue();
+
+	public String toString() {
+		return this.getName() + " = " + this.getValue();
+	}
 }

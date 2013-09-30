@@ -5,7 +5,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 
-import dna.io.etc.Keywords;
+import dna.util.Config;
 
 /**
  * Simple file writer that writes data to a file one line at a time.
@@ -43,10 +43,23 @@ public class Writer {
 	}
 
 	public void writeKeyword(String keyword) throws IOException {
-		this.writer.write(Keywords.asLine(keyword) + "\n");
+		this.writer.write(getKeywordAsLine(keyword) + "\n");
+	}
+
+	public void writeComment(String comment) throws IOException {
+		this.writer.write(getCommentAsLine(comment) + "\n");
 	}
 
 	public void close() throws IOException {
 		this.writer.close();
 	}
+
+	public static String getKeywordAsLine(String keyword) {
+		return Config.get("KEYWORD_PREFIX") + keyword;
+	}
+
+	public static String getCommentAsLine(String comment) {
+		return Config.get("COMMENT_PREFIX") + comment;
+	}
+
 }

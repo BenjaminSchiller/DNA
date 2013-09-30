@@ -1,6 +1,6 @@
 package dna.graph.nodes;
 
-import dna.graph.IWeighted;
+import dna.graph.weights.IWeighted;
 
 public interface IWeightedNode<T> extends INode, IWeighted<T> {
 

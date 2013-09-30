@@ -2,10 +2,11 @@ package dna.graph.edges;
 
 import dna.graph.Graph;
 import dna.graph.nodes.DirectedNode;
-import dna.io.etc.Keywords;
+import dna.graph.weights.IDoubleWeighted;
+import dna.util.Config;
 
 public class DirectedDoubleWeightedEdge extends DirectedEdge implements
-		IWeightedEdge<Double> {
+		IWeightedEdge<Double>, IDoubleWeighted {
 	private double weight;
 
 	public DirectedDoubleWeightedEdge(DirectedNode src, DirectedNode dst,
@@ -15,10 +16,10 @@ public class DirectedDoubleWeightedEdge extends DirectedEdge implements
 	}
 
 	public DirectedDoubleWeightedEdge(String str, Graph g) {
-		super(str.split(Keywords.edgeWeightDelimiter)[0], g);
-		if (str.contains(Keywords.edgeWeightDelimiter)) {
-			this.weight = Double.parseDouble(str
-					.split(Keywords.edgeWeightDelimiter)[1]);
+		super(str.split(Config.get("EDGE_WEIGHT_DELIMITER"))[0], g);
+		if (str.contains(Config.get("EDGE_WEIGHT_DELIMITER"))) {
+			this.weight = Double.parseDouble(str.split(Config
+					.get("EDGE_WEIGHT_DELIMITER"))[1]);
 		} else {
 			this.weight = 0;
 		}
@@ -30,8 +31,8 @@ public class DirectedDoubleWeightedEdge extends DirectedEdge implements
 	}
 
 	public String getStringRepresentation() {
-		return super.getStringRepresentation() + Keywords.edgeWeightDelimiter
-				+ this.weight;
+		return super.getStringRepresentation()
+				+ Config.get("EDGE_WEIGHT_DELIMITER") + this.weight;
 	}
 
 	@Override
@@ -42,6 +43,10 @@ public class DirectedDoubleWeightedEdge extends DirectedEdge implements
 	@Override
 	public Double getWeight() {
 		return this.weight;
+	}
+
+	public String toString() {
+		return super.toString() + " [" + this.getWeight() + "]";
 	}
 
 }

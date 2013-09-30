@@ -11,16 +11,21 @@ import dna.graph.edges.DirectedDoubleWeightedEdge;
 import dna.graph.edges.DirectedEdge;
 import dna.graph.edges.UndirectedDoubleWeightedEdge;
 import dna.graph.edges.UndirectedEdge;
-import dna.graph.generators.directed.DirectedDoubleWeightedRandomGraphGenerator;
-import dna.graph.generators.directed.DirectedRandomGraphGenerator;
-import dna.graph.generators.undirected.UndirectedDoubleWeightedRandomGraphGenerator;
-import dna.graph.generators.undirected.UndirectedRandomGraphGenerator;
+import dna.graph.generators.CliqueGenerator;
+import dna.graph.generators.EmptyGraphGenerator;
+import dna.graph.generators.RandomGraphGenerator;
+import dna.graph.generators.RingGenerator;
 import dna.graph.nodes.DirectedDoubleWeightedNode;
 import dna.graph.nodes.DirectedNode;
 import dna.graph.nodes.UndirectedDoubleWeightedNode;
 import dna.graph.nodes.UndirectedNode;
-import dna.updates.directed.RandomDirectedBatch;
-import dna.updates.undirected.RandomUndirectedBatch;
+import dna.updates.generators.RandomBatch;
+import dna.updates.generators.RandomEdgeAdditions;
+import dna.updates.generators.RandomEdgeRemovals;
+import dna.updates.generators.RandomEdgeWeights;
+import dna.updates.generators.RandomNodeAdditions;
+import dna.updates.generators.RandomNodeRemovals;
+import dna.updates.generators.RandomNodeWeights;
 
 public class GlobalTestParameters {
 	public static final Class[] nodeTypes = { UndirectedNode.class,
@@ -37,13 +42,12 @@ public class GlobalTestParameters {
 	public static final Class[] dataStructures = { DArray.class,
 			DArrayList.class, DHashMap.class, DHashSet.class, DLinkedList.class };
 
-	public static final Class[] graphGenerators = {
-			DirectedRandomGraphGenerator.class,
-			DirectedDoubleWeightedRandomGraphGenerator.class,
-			UndirectedRandomGraphGenerator.class,
-			UndirectedDoubleWeightedRandomGraphGenerator.class,
-			CliqueGenerator.class };
+	public static final Class[] graphGenerators = { RandomGraphGenerator.class,
+			CliqueGenerator.class, RingGenerator.class,
+			EmptyGraphGenerator.class };
 
-	public static final Class[] batchGenerators = { RandomDirectedBatch.class,
-			RandomUndirectedBatch.class };
+	public static final Class[] batchGenerators = { RandomBatch.class,
+			RandomNodeAdditions.class, RandomNodeRemovals.class,
+			RandomNodeWeights.class, RandomEdgeAdditions.class,
+			RandomEdgeRemovals.class, RandomEdgeWeights.class };
 }

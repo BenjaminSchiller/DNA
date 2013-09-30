@@ -7,6 +7,11 @@ import java.util.Iterator;
 import dna.graph.IElement;
 import dna.graph.edges.Edge;
 import dna.graph.nodes.Node;
+import dna.profiler.complexity.AddedComplexity;
+import dna.profiler.complexity.Complexity;
+import dna.profiler.complexity.ComplexityType;
+import dna.profiler.complexity.ComplexityType.Base;
+import dna.profiler.complexity.ComplexityType.Type;
 import dna.util.Log;
 import dna.util.Rand;
 
@@ -74,14 +79,14 @@ public class DArray extends DataStructureReadable implements
 	@Override
 	public boolean add(Edge element) {
 		super.canAdd(element);
-		
+
 		int addPos = 0;
-		
+
 		if (this.contains(element))
 			return false;
 
 		// TODO these lists need shrinking!
-		
+
 		if (this.count == this.list.length) {
 			addPos = this.list.length;
 			IElement[] newList = new IElement[this.list.length * 2];
@@ -89,10 +94,11 @@ public class DArray extends DataStructureReadable implements
 			this.list = newList;
 		} else {
 			// Find first free position
-			while ( addPos < this.list.length && this.list[addPos] != null)
+			while (addPos < this.list.length && this.list[addPos] != null)
 				addPos++;
 		}
-		if ( this.list[addPos] != null) throw new RuntimeException("Won't overwrite");
+		if (this.list[addPos] != null)
+			throw new RuntimeException("Won't overwrite");
 		this.list[addPos] = element;
 		this.count++;
 		return true;
@@ -269,5 +275,47 @@ public class DArray extends DataStructureReadable implements
 			throw new RuntimeException("Not allowed");
 		}
 
+	}
+
+	/**
+	 * Get the complexity class for a specific access type
+	 * 
+	 * @param access
+	 *            Access type
+	 * @param base
+	 *            Complexity base (NodeSize, EdgeSize,...)
+	 * @return
+	 */
+	public static Complexity getComplexity(Class<? extends IElement> dt,
+			AccessType access, Base base) {
+		switch (access) {
+		case Add:
+			if (Node.class.isAssignableFrom(dt)) {
+				return new AddedComplexity(new Complexity(1,
+						new ComplexityType(Type.Static, base)), getComplexity(
+						dt, AccessType.Contains, base));
+			} else if (Edge.class.isAssignableFrom(dt)) {
+				return new AddedComplexity(new Complexity(1,
+						new ComplexityType(Type.Linear, base)), getComplexity(
+						dt, AccessType.Contains, base));
+			}
+		case Contains:
+			if (Node.class.isAssignableFrom(dt)) {
+				return new Complexity(1, new ComplexityType(Type.Static, base));
+			} else if (Edge.class.isAssignableFrom(dt)) {
+				return new Complexity(1, new ComplexityType(Type.Linear, base));
+			}
+		case Random:
+			return new Complexity(1, new ComplexityType(Type.Static, base));
+		case Remove:
+			if (Node.class.isAssignableFrom(dt)) {
+				return new Complexity(1, new ComplexityType(Type.Static, base));
+			} else if (Edge.class.isAssignableFrom(dt)) {
+				return new Complexity(1, new ComplexityType(Type.Linear, base));
+			}
+		case Size:
+			return new Complexity(1, new ComplexityType(Type.Static, base));
+		}
+		return new Complexity(1, new ComplexityType(Type.Unknown, base));
 	}
 }

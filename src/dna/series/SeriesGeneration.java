@@ -13,9 +13,10 @@ import dna.series.data.RunTime;
 import dna.series.data.SeriesData;
 import dna.series.data.Value;
 import dna.series.lists.RunDataList;
-import dna.updates.Batch;
-import dna.updates.BatchSanitizationStats;
-import dna.updates.Update;
+import dna.updates.batch.Batch;
+import dna.updates.batch.BatchSanitization;
+import dna.updates.batch.BatchSanitizationStats;
+import dna.updates.update.Update;
 import dna.util.Config;
 import dna.util.Log;
 import dna.util.Memory;
@@ -306,7 +307,6 @@ public class SeriesGeneration {
 
 	}
 
-	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public static BatchData generateNextBatch(Series series, long timestamp)
 			throws MetricNotApplicableException {
 
@@ -355,7 +355,8 @@ public class SeriesGeneration {
 		}
 		metricsTotal.end();
 
-		BatchSanitizationStats sanitizationStats = b.sanitize();
+		BatchSanitizationStats sanitizationStats = BatchSanitization
+				.sanitize(b);
 		if (sanitizationStats.getTotal() > 0) {
 			Log.info("      " + sanitizationStats);
 			Log.info("      => " + b.toString());
@@ -371,9 +372,9 @@ public class SeriesGeneration {
 		SeriesGeneration.applyUpdates(series, b.getEdgeAdditions(),
 				graphUpdateTimer, metricsTotal, timer);
 
-		SeriesGeneration.applyUpdates(series, b.getNodeWeightUpdates(),
+		SeriesGeneration.applyUpdates(series, b.getNodeWeights(),
 				graphUpdateTimer, metricsTotal, timer);
-		SeriesGeneration.applyUpdates(series, b.getEdgeWeightUpdates(),
+		SeriesGeneration.applyUpdates(series, b.getEdgeWeights(),
 				graphUpdateTimer, metricsTotal, timer);
 
 		series.getGraph().setTimestamp(timestamp);
@@ -405,30 +406,30 @@ public class SeriesGeneration {
 
 		// add values
 		batchData.getValues().add(
-				new Value(SeriesStats.nodesToAdd, b.getNodeAdditionCount()));
+				new Value(SeriesStats.nodesToAdd, b.getNodeAdditionsCount()));
 		batchData.getValues()
 				.add(new Value(SeriesStats.addedNodes, addedNodes));
 		batchData.getValues().add(
-				new Value(SeriesStats.nodesToRemove, b.getNodeRemovalCount()));
+				new Value(SeriesStats.nodesToRemove, b.getNodeRemovalsCount()));
 		batchData.getValues().add(
 				new Value(SeriesStats.removedNodes, removedNodes));
 		batchData.getValues().add(
 				new Value(SeriesStats.nodeWeightsToUpdate, b
-						.getNodeWeightUpdateCount()));
+						.getNodeWeightsCount()));
 		batchData.getValues().add(
 				new Value(SeriesStats.updatedNodeWeights, updatedNodeWeights));
 
 		batchData.getValues().add(
-				new Value(SeriesStats.edgesToAdd, b.getEdgeAdditionCount()));
+				new Value(SeriesStats.edgesToAdd, b.getEdgeAdditionsCount()));
 		batchData.getValues()
 				.add(new Value(SeriesStats.addedEdges, addedEdges));
 		batchData.getValues().add(
-				new Value(SeriesStats.edgesToRemove, b.getEdgeRemovalCount()));
+				new Value(SeriesStats.edgesToRemove, b.getEdgeRemovalsCount()));
 		batchData.getValues().add(
 				new Value(SeriesStats.removedEdges, removedEdges));
 		batchData.getValues().add(
 				new Value(SeriesStats.edgeWeightsToUpdate, b
-						.getEdgeWeightUpdateCount()));
+						.getEdgeWeightsCount()));
 		batchData.getValues().add(
 				new Value(SeriesStats.updatedEdgeWeights, updatedEdgeWeights));
 
@@ -446,10 +447,10 @@ public class SeriesGeneration {
 						.getDeletedEdgeRemovals()));
 		batchData.getValues().add(
 				new Value(SeriesStats.deletedNodeWeightUpdates,
-						sanitizationStats.getDeletedNodeWeightUpdates()));
+						sanitizationStats.getDeletedNodeWeights()));
 		batchData.getValues().add(
 				new Value(SeriesStats.deletedEdgeWeightUpdates,
-						sanitizationStats.getDeletedEdgeWeightUpdates()));
+						sanitizationStats.getDeletedEdgeWeights()));
 
 		batchData.getValues().add(
 				new Value(SeriesStats.randomSeed, series.getSeed()));
@@ -491,10 +492,9 @@ public class SeriesGeneration {
 
 	}
 
-	@SuppressWarnings("rawtypes")
-	private static int applyUpdates(Series series, Iterable<Update> updates,
-			Timer graphUpdateTimer, Timer metricsTotal,
-			HashMap<Metric, Timer> timer) {
+	private static int applyUpdates(Series series,
+			Iterable<? extends Update> updates, Timer graphUpdateTimer,
+			Timer metricsTotal, HashMap<Metric, Timer> timer) {
 
 		int counter = 0;
 		for (Update u : updates) {

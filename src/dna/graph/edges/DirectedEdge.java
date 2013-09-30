@@ -4,7 +4,7 @@ import dna.graph.Element;
 import dna.graph.Graph;
 import dna.graph.nodes.DirectedNode;
 import dna.graph.nodes.Node;
-import dna.io.etc.Keywords;
+import dna.util.Config;
 import dna.util.MathHelper;
 
 public class DirectedEdge extends Edge {
@@ -17,7 +17,7 @@ public class DirectedEdge extends Edge {
 	}
 
 	public DirectedEdge(String s, Graph g) {
-		String[] temp = s.split(Keywords.directedEdgeDelimiter);
+		String[] temp = s.split(Config.get("EDGE_DIRECTED_DELIMITER"));
 		DirectedNode src = (DirectedNode) g.getNode(MathHelper
 				.parseInt(temp[0]));
 		DirectedNode dst = (DirectedNode) g.getNode(MathHelper
@@ -40,7 +40,7 @@ public class DirectedEdge extends Edge {
 
 	@Override
 	public String getStringRepresentation() {
-		return this.src.getIndex() + Keywords.directedEdgeDelimiter
+		return this.src.getIndex() + Config.get("EDGE_DIRECTED_DELIMITER")
 				+ this.dst.getIndex();
 	}
 
@@ -94,17 +94,17 @@ public class DirectedEdge extends Edge {
 		else
 			return null;
 	}
-	
+
 	public boolean connectToNodes() {
 		boolean addSrc = this.getSrc().addEdge(this);
 		boolean addDst = this.getDst().addEdge(this);
-		return addSrc && addDst; 
+		return addSrc && addDst;
 	}
-	
+
 	public boolean disconnectFromNodes() {
 		boolean remSrc = this.getSrc().removeEdge(this);
 		boolean remDst = this.getDst().removeEdge(this);
-		return remSrc && remDst; 		
+		return remSrc && remDst;
 	}
 
 }
