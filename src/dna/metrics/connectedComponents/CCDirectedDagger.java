@@ -13,8 +13,9 @@ import java.util.Queue;
 import java.util.Set;
 >>>>>>> some stuff
 
-import dna.graph.directed.DirectedEdge;
-import dna.graph.directed.DirectedNode;
+import dna.graph.IElement;
+import dna.graph.edges.DirectedEdge;
+import dna.graph.nodes.DirectedNode;
 import dna.updates.Batch;
 import dna.updates.EdgeAddition;
 import dna.updates.EdgeRemoval;
@@ -88,7 +89,8 @@ public class CCDirectedDagger extends CCDirected {
 					break;
 				} else {
 					for (DirectedNode n : comp) {
-						for (DirectedEdge edge : n.getIncomingEdges()) {
+						for (IElement ie : n.getIncomingEdges()) {
+							DirectedEdge edge = (DirectedEdge) ie;
 							if (!comp.contains(edge.getSrc())) {
 								q.add(edge.getSrc());
 							}
@@ -132,7 +134,8 @@ public class CCDirectedDagger extends CCDirected {
 		possibleNewComponent.add(src);
 		while (!q.isEmpty()) {
 			DirectedNode v = q.poll();
-			for (DirectedEdge edge : v.getOutgoingEdges()) {
+			for (IElement ie : v.getOutgoingEdges()) {
+				DirectedEdge edge = (DirectedEdge) ie;
 				if (edge.getDst() != dst
 						&& this.containmentEdges.get(edge.getDst().getIndex()) == this.containmentEdges
 								.get(src.getIndex())
@@ -361,7 +364,8 @@ public class CCDirectedDagger extends CCDirected {
 
 	private boolean applyAfterNodeRemoval(Update u) {
 		DirectedNode node = (DirectedNode) ((NodeRemoval) u).getNode();
-		for (DirectedEdge e : node.getEdges()) {
+		for (IElement ie : node.getEdges()) {
+			DirectedEdge e = (DirectedEdge) ie;
 			applyAfterEdgeRemoval(new EdgeRemoval(e));
 		}
 		this.containmentEdges.remove(node.getIndex());

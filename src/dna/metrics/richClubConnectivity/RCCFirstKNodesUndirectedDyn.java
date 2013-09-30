@@ -2,8 +2,9 @@ package dna.metrics.richClubConnectivity;
 
 import java.util.LinkedList;
 
-import dna.graph.undirected.UndirectedEdge;
-import dna.graph.undirected.UndirectedNode;
+import dna.graph.IElement;
+import dna.graph.edges.UndirectedEdge;
+import dna.graph.nodes.UndirectedNode;
 import dna.updates.Batch;
 import dna.updates.EdgeAddition;
 import dna.updates.EdgeRemoval;
@@ -97,14 +98,16 @@ public class RCCFirstKNodesUndirectedDyn extends RCCFirstKNodesUndirected {
 
 		UndirectedNode lastNode = this.richClub.removeLast();
 
-		for (UndirectedEdge edge : n1.getEdges()) {
+		for (IElement iEdge : n1.getEdges()) {
+			UndirectedEdge edge = (UndirectedEdge) iEdge;
 			UndirectedNode n = edge.getDifferingNode(n1);
 			if (this.richClub.contains(n)) {
 				this.edgesBetweenRichClub++;
 			}
 		}
 
-		for (UndirectedEdge edge : lastNode.getEdges()) {
+		for (IElement iEdge : lastNode.getEdges()) {
+			UndirectedEdge edge = (UndirectedEdge) iEdge;
 			UndirectedNode n = edge.getDifferingNode(n1);
 			if (this.richClub.contains(n)) {
 				this.edgesBetweenRichClub--;
@@ -243,13 +246,15 @@ public class RCCFirstKNodesUndirectedDyn extends RCCFirstKNodesUndirected {
 				this.nodesSortedByDegree.remove(n1Degree + 1);
 			}
 
-			for (UndirectedEdge edge : n1.getEdges()) {
+			for (IElement iEdge : n1.getEdges()) {
+				UndirectedEdge edge = (UndirectedEdge) iEdge;
 				UndirectedNode node = edge.getDifferingNode(n1);
 				if (this.richClub.contains(node)) {
 					this.edgesBetweenRichClub -= 2;
 				}
 			}
-			for (UndirectedEdge edge : newNode.getEdges()) {
+			for (IElement iEdge : newNode.getEdges()) {
+				UndirectedEdge edge = (UndirectedEdge) iEdge;
 				UndirectedNode node = edge.getDifferingNode(newNode);
 				if (this.richClub.contains(node)) {
 					this.edgesBetweenRichClub += 2;

@@ -7,6 +7,7 @@ import java.util.Queue;
 import dna.graph.IElement;
 import dna.graph.edges.UndirectedEdge;
 import dna.graph.nodes.UndirectedNode;
+<<<<<<< HEAD:src/dna/metrics/shortestPaths/UndirectedShortestPathsU.java
 import dna.updates.batch.Batch;
 import dna.updates.update.EdgeAddition;
 import dna.updates.update.EdgeRemoval;
@@ -16,6 +17,17 @@ import dna.updates.update.Update;
 import dna.util.ArrayUtils;
 
 public class UndirectedShortestPathsU extends UndirectedShortestPaths {
+=======
+import dna.updates.Batch;
+import dna.updates.EdgeAddition;
+import dna.updates.EdgeRemoval;
+import dna.updates.NodeAddition;
+import dna.updates.NodeRemoval;
+import dna.updates.Update;
+import dna.util.ArrayUtils;
+
+public class UndirectedShortestPathsUpdate extends UndirectedShortestPaths {
+>>>>>>> generator for google:src/dna/metrics/shortestPaths/UndirectedShortestPathsUpdate.java
 
 	public UndirectedShortestPathsU() {
 		super("UndirectedShortestPathsU", ApplicationType.BeforeUpdate);
@@ -73,6 +85,7 @@ public class UndirectedShortestPathsU extends UndirectedShortestPaths {
 			this.diam = spl.length - 1;
 
 		} else if (u instanceof EdgeRemoval) {
+<<<<<<< HEAD:src/dna/metrics/shortestPaths/UndirectedShortestPathsU.java
 			UndirectedGraph g = (UndirectedGraph) this.g;
 
 			UndirectedEdge e = (UndirectedEdge) ((EdgeRemoval) u).getEdge();
@@ -111,44 +124,13 @@ public class UndirectedShortestPathsU extends UndirectedShortestPaths {
 		int h_a = height.get(a);
 		int h_b = height.get(b);
 		if (h_a == Integer.MAX_VALUE || h_a + 1 >= h_b) {
+=======
+			// TODO implement SP update edge removal
+>>>>>>> generator for google:src/dna/metrics/shortestPaths/UndirectedShortestPathsUpdate.java
 			return false;
 		}
 
-		if (parent.containsKey(b)) {
-			this.existingPaths--;
-
-		}
-		this.spl = ArrayUtils.decr(this.spl, h_b);
-
-		parent.remove(b);
-		UndirectedNode over = b;
-		UndirectedNode under = b;
-		UndirectedNode same = b;
-		for (UndirectedEdge e : b.getEdges()) {
-			UndirectedNode c = e.getDifferingNode(b);
-			if (height.get(c) == h_b + 1) {
-				under = c;
-				checkRemoval(b, c, parent, height);
-				continue;
-			}
-			if (height.get(c) == h_b) {
-				same = c;
-				continue;
-			}
-			if (height.get(c) == h_b - 1) {
-				over = c;
-				continue;
-			}
-		}
-		if (over != b) {
-			check(over, b, parent, height);
-		} else if (same != b) {
-			check(same, b, parent, height);
-		} else if (under != b) {
-			check(under, b, parent, height);
-		}
 		return true;
-
 	}
 
 	protected void check(UndirectedNode a, UndirectedNode b,

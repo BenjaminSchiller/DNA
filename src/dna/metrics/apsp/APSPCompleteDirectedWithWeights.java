@@ -4,13 +4,13 @@ import java.util.HashMap;
 import java.util.PriorityQueue;
 
 import dna.graph.Graph;
-import dna.graph.directed.DirectedEdge;
-import dna.graph.directed.DirectedEdgeWeighted;
-import dna.graph.directed.DirectedGraph;
-import dna.graph.directed.DirectedNode;
-import dna.graph.undirected.UndirectedNode;
+import dna.graph.IElement;
+import dna.graph.edges.DirectedDoubleWeightedEdge;
+import dna.graph.nodes.DirectedNode;
+import dna.graph.nodes.UndirectedNode;
 import dna.metrics.Metric;
 import dna.series.data.Distribution;
+import dna.series.data.NodeValueList;
 import dna.series.data.Value;
 import dna.updates.Batch;
 
@@ -22,20 +22,21 @@ public abstract class APSPCompleteDirectedWithWeights extends Metric {
 	protected HashMap<DirectedNode, HashMap<DirectedNode, Double>> heights;
 
 	public APSPCompleteDirectedWithWeights(String name, ApplicationType type) {
-		super(name, type);
+		super(name, type, MetricType.exact);
 
 	}
 
 	@Override
 	public boolean compute() {
-		DirectedGraph g = (DirectedGraph) this.g;
-		System.out.println(g.getEdges());
-		for (DirectedNode s : g.getNodes()) {
+
+		for (IElement ie : g.getNodes()) {
+			DirectedNode s = (DirectedNode) ie;
 
 			HashMap<DirectedNode, DirectedNode> parent = new HashMap<DirectedNode, DirectedNode>();
 			HashMap<DirectedNode, Double> height = new HashMap<DirectedNode, Double>();
 
-			for (DirectedNode t : g.getNodes()) {
+			for (IElement iNode : g.getNodes()) {
+				DirectedNode t = (DirectedNode) iNode;
 				if (t.equals(s)) {
 					height.put(s, 0d);
 				} else {
@@ -52,12 +53,12 @@ public abstract class APSPCompleteDirectedWithWeights extends Metric {
 					break;
 				}
 
-				for (DirectedEdge e : current.getOutgoingEdges()) {
-					DirectedEdgeWeighted d = (DirectedEdgeWeighted) e;
+				for (IElement iEdge : current.getOutgoingEdges()) {
+					DirectedDoubleWeightedEdge d = (DirectedDoubleWeightedEdge) iEdge;
 
 					DirectedNode neighbor = d.getDst();
 
-					double alt = height.get(current) + 1d;
+					double alt = height.get(current) + d.getWeight();
 					// d.getWeight();
 
 					if (alt < height.get(neighbor)) {
@@ -83,7 +84,7 @@ public abstract class APSPCompleteDirectedWithWeights extends Metric {
 	}
 
 	@Override
-	protected void init_() {
+	public void init_() {
 		this.parents = new HashMap<DirectedNode, HashMap<DirectedNode, DirectedNode>>();
 		this.heights = new HashMap<DirectedNode, HashMap<DirectedNode, Double>>();
 	}
@@ -95,12 +96,18 @@ public abstract class APSPCompleteDirectedWithWeights extends Metric {
 	}
 
 	@Override
-	protected Value[] getValues() {
+	public Value[] getValues() {
 		return new Value[] {};
 	}
 
 	@Override
-	protected Distribution[] getDistributions() {
+	public NodeValueList[] getNodeValueLists() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Distribution[] getDistributions() {
 		return new Distribution[] {};
 	}
 

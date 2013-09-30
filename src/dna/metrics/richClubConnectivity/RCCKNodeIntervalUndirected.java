@@ -7,13 +7,14 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 
 import dna.graph.Graph;
-import dna.graph.directed.DirectedNode;
-import dna.graph.undirected.UndirectedEdge;
-import dna.graph.undirected.UndirectedGraph;
-import dna.graph.undirected.UndirectedNode;
+import dna.graph.IElement;
+import dna.graph.edges.UndirectedEdge;
+import dna.graph.nodes.DirectedNode;
+import dna.graph.nodes.UndirectedNode;
 import dna.metrics.Metric;
 import dna.metrics.clusterCoefficient.ClosedTriangleClusteringCoefficient;
 import dna.series.data.Distribution;
+import dna.series.data.NodeValueList;
 import dna.series.data.Value;
 import dna.updates.Batch;
 
@@ -30,7 +31,7 @@ public abstract class RCCKNodeIntervalUndirected extends Metric {
 	protected Map<Integer, Integer> richClubEdges;
 
 	public RCCKNodeIntervalUndirected(String name, ApplicationType type) {
-		super(name, type);
+		super(name, type, MetricType.exact);
 	}
 
 	@Override
@@ -47,9 +48,9 @@ public abstract class RCCKNodeIntervalUndirected extends Metric {
 
 	@Override
 	public boolean compute() {
-		UndirectedGraph g = (UndirectedGraph) this.g;
 
-		for (UndirectedNode n : g.getNodes()) {
+		for (IElement iE : g.getNodes()) {
+			UndirectedNode n = (UndirectedNode) iE;
 			int degree = n.getDegree();
 			this.degrees.add(degree);
 
@@ -94,7 +95,8 @@ public abstract class RCCKNodeIntervalUndirected extends Metric {
 		for (int i = 0; i < richClubs.size(); i++) {
 			int edges = 0;
 			for (UndirectedNode n : richClubs.get(i)) {
-				for (UndirectedEdge ed : n.getEdges()) {
+				for (IElement iE : n.getEdges()) {
+					UndirectedEdge ed = (UndirectedEdge) iE;
 					UndirectedNode node = ed.getDifferingNode(n);
 					if (this.nodesRichClub.get(node.getIndex()) >= this.nodesRichClub
 							.get(n.getIndex())) {
@@ -151,15 +153,21 @@ public abstract class RCCKNodeIntervalUndirected extends Metric {
 	}
 
 	@Override
-	protected Value[] getValues() {
+	public Value[] getValues() {
 		return new Value[] {};
 	}
 
 	@Override
-	protected Distribution[] getDistributions() {
+	public Distribution[] getDistributions() {
 		Distribution d1 = new Distribution("rCC#Members",
 				makeDistribution(this.richClubCoefficienten));
 		return new Distribution[] { d1 };
+	}
+
+	@Override
+	public NodeValueList[] getNodeValueLists() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 	private double[] makeDistribution(

@@ -4,9 +4,9 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.PriorityQueue;
 
-import dna.graph.directed.DirectedEdge;
-import dna.graph.directed.DirectedGraph;
-import dna.graph.directed.DirectedNode;
+import dna.graph.IElement;
+import dna.graph.edges.DirectedEdge;
+import dna.graph.nodes.DirectedNode;
 import dna.updates.Batch;
 import dna.updates.EdgeAddition;
 import dna.updates.EdgeRemoval;
@@ -52,8 +52,8 @@ public class APSPWidthDdirectedDyn extends APSPWitdhDdirected {
 
 	private boolean applyAfterEdgeRemoval(Update u) {
 		DirectedEdge e = (DirectedEdge) ((EdgeRemoval) u).getEdge();
-		DirectedGraph g = (DirectedGraph) this.g;
-		for (DirectedNode n : g.getNodes()) {
+		for (IElement ie : g.getNodes()) {
+			DirectedNode n = (DirectedNode) ie;
 			HashMap<DirectedNode, Integer> heightIN = this.heightsIn.get(n);
 			HashMap<DirectedNode, DirectedNode> parentIN = this.parentsIn
 					.get(n);
@@ -79,7 +79,8 @@ public class APSPWidthDdirectedDyn extends APSPWitdhDdirected {
 						settle(node);
 					} else {
 						make_changed(node);
-						for (DirectedEdge edge : node.getOutgoingEdges()) {
+						for (IElement iEdge : node.getOutgoingEdges()) {
+							DirectedEdge edge = (DirectedEdge) iEdge;
 							if (parentOut.get(edge.getDst()) == node) {
 								uncertain.add(e.getDst());
 							}
@@ -106,12 +107,11 @@ public class APSPWidthDdirectedDyn extends APSPWitdhDdirected {
 
 	private boolean applyAfterEdgeAddition(Update u) {
 		DirectedEdge e = (DirectedEdge) ((EdgeAddition) u).getEdge();
-		DirectedGraph g = (DirectedGraph) this.g;
 
 		this.heightsIn.remove(e.getSrc());
 		this.heightsOut.remove(e.getSrc());
 
-		buildTrees(g, e.getSrc());
+		buildTrees(e.getSrc());
 		return true;
 	}
 

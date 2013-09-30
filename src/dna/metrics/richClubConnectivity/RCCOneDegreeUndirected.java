@@ -4,12 +4,13 @@ import java.util.HashSet;
 import java.util.Set;
 
 import dna.graph.Graph;
-import dna.graph.directed.DirectedNode;
-import dna.graph.undirected.UndirectedEdge;
-import dna.graph.undirected.UndirectedGraph;
-import dna.graph.undirected.UndirectedNode;
+import dna.graph.IElement;
+import dna.graph.edges.UndirectedEdge;
+import dna.graph.nodes.DirectedNode;
+import dna.graph.nodes.UndirectedNode;
 import dna.metrics.Metric;
 import dna.series.data.Distribution;
+import dna.series.data.NodeValueList;
 import dna.series.data.Value;
 import dna.updates.Batch;
 
@@ -22,7 +23,7 @@ public abstract class RCCOneDegreeUndirected extends Metric {
 	protected Set<UndirectedNode> richClub;
 
 	public RCCOneDegreeUndirected(String name, ApplicationType type) {
-		super(name, type);
+		super(name, type, MetricType.exact);
 	}
 
 	@Override
@@ -35,9 +36,10 @@ public abstract class RCCOneDegreeUndirected extends Metric {
 
 	@Override
 	public boolean compute() {
-		UndirectedGraph g = (UndirectedGraph) this.g;
 
-		for (UndirectedNode n : g.getNodes()) {
+		for (IElement ie : g.getNodes()) {
+
+			UndirectedNode n = (UndirectedNode) ie;
 
 			int degree = n.getDegree();
 			if (degree >= k) {
@@ -46,7 +48,8 @@ public abstract class RCCOneDegreeUndirected extends Metric {
 			}
 		}
 		for (UndirectedNode n : this.richClub) {
-			for (UndirectedEdge ed : n.getEdges()) {
+			for (IElement iE : n.getEdges()) {
+				UndirectedEdge ed = (UndirectedEdge) iE;
 				UndirectedNode d = ed.getDifferingNode(n);
 				if (richClub.contains(d)) {
 					this.richClubEdges++;
@@ -96,7 +99,7 @@ public abstract class RCCOneDegreeUndirected extends Metric {
 	}
 
 	@Override
-	protected Value[] getValues() {
+	public Value[] getValues() {
 		Value v1 = new Value("RichClubCoeffizient", this.richClubCoeffizient);
 		Value v2 = new Value("RichClubSize", this.richClub.size());
 		Value v3 = new Value("EdgesBetweenRichClub", this.richClubEdges);
@@ -104,8 +107,14 @@ public abstract class RCCOneDegreeUndirected extends Metric {
 	}
 
 	@Override
-	protected Distribution[] getDistributions() {
+	public Distribution[] getDistributions() {
 		return new Distribution[] {};
+	}
+
+	@Override
+	public NodeValueList[] getNodeValueLists() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 	@Override

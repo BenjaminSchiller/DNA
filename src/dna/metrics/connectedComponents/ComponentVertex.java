@@ -5,7 +5,7 @@ import java.util.LinkedList;
 import java.util.Map;
 import java.util.Set;
 
-import dna.graph.directed.DirectedEdge;
+import dna.graph.edges.DirectedEdge;
 
 public class ComponentVertex {
 

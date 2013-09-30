@@ -3,7 +3,7 @@ package dna.metrics.connectedComponents;
 import java.util.HashSet;
 import java.util.Set;
 
-import dna.graph.directed.DirectedEdge;
+import dna.graph.edges.DirectedEdge;
 
 public class DAGEdge {
 	ComponentVertex src;

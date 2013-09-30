@@ -6,12 +6,13 @@ import java.util.Queue;
 import java.util.Stack;
 
 import dna.graph.Graph;
-import dna.graph.directed.DirectedNode;
-import dna.graph.undirected.UndirectedEdge;
-import dna.graph.undirected.UndirectedGraph;
-import dna.graph.undirected.UndirectedNode;
+import dna.graph.IElement;
+import dna.graph.edges.UndirectedEdge;
+import dna.graph.nodes.DirectedNode;
+import dna.graph.nodes.UndirectedNode;
 import dna.metrics.Metric;
 import dna.series.data.Distribution;
+import dna.series.data.NodeValueList;
 import dna.series.data.Value;
 import dna.updates.Batch;
 
@@ -22,7 +23,7 @@ public abstract class BetweenessCentrality extends Metric {
 	protected HashMap<UndirectedNode, HashMap<UndirectedNode, ShortestPathTreeElement>> shortestPathTrees;
 
 	public BetweenessCentrality(String name, ApplicationType type) {
-		super(name, type);
+		super(name, type, MetricType.exact);
 	}
 
 	@Override
@@ -41,19 +42,21 @@ public abstract class BetweenessCentrality extends Metric {
 	public boolean compute() {
 		Queue<UndirectedNode> q = new LinkedList<UndirectedNode>();
 		Stack<UndirectedNode> s = new Stack<UndirectedNode>();
-		UndirectedGraph g = (UndirectedGraph) this.g;
 
-		for (UndirectedNode t : g.getNodes()) {
+		for (IElement ie : g.getNodes()) {
+			UndirectedNode t = (UndirectedNode) ie;
 			betweeneesCentralityScore.put(t, 0d);
 		}
 
-		for (UndirectedNode n : g.getNodes()) {
+		for (IElement ie : g.getNodes()) {
+			UndirectedNode n = (UndirectedNode) ie;
 			// stage ONE
 			s.clear();
 			q.clear();
 			HashMap<UndirectedNode, ShortestPathTreeElement> shortestPath = new HashMap<UndirectedNode, ShortestPathTreeElement>();
 
-			for (UndirectedNode t : g.getNodes()) {
+			for (IElement ieE : g.getNodes()) {
+				UndirectedNode t = (UndirectedNode) ieE;
 				if (t == n) {
 					ShortestPathTreeElement temp = new ShortestPathTreeElement(
 							t.getIndex());
@@ -75,7 +78,8 @@ public abstract class BetweenessCentrality extends Metric {
 				s.push(v);
 				ShortestPathTreeElement vTE = shortestPath.get(v);
 
-				for (UndirectedEdge edge : v.getEdges()) {
+				for (IElement iEdges : v.getEdges()) {
+					UndirectedEdge edge = (UndirectedEdge) iEdges;
 					UndirectedNode w = edge.getDifferingNode(v);
 					ShortestPathTreeElement wTE = shortestPath.get(w);
 
@@ -120,13 +124,13 @@ public abstract class BetweenessCentrality extends Metric {
 
 	@Override
 	public boolean equals(Metric m) {
-		UndirectedGraph g = (UndirectedGraph) this.g;
 		if (!(m instanceof BetweenessCentrality)) {
 			return false;
 		}
 		boolean success = true;
 		BetweenessCentrality bc = (BetweenessCentrality) m;
-		for (UndirectedNode n : g.getNodes()) {
+		for (IElement ie : g.getNodes()) {
+			UndirectedNode n = (UndirectedNode) ie;
 			if (Math.abs(this.betweeneesCentralityScore.get(n).doubleValue()
 					- bc.betweeneesCentralityScore.get(n).doubleValue()) > 0.0001) {
 				// System.out.println("diff at Node n " + n + " expected Score "
@@ -137,8 +141,10 @@ public abstract class BetweenessCentrality extends Metric {
 
 		}
 
-		for (UndirectedNode n1 : g.getNodes()) {
-			for (UndirectedNode n2 : g.getNodes()) {
+		for (IElement ie1 : g.getNodes()) {
+			UndirectedNode n1 = (UndirectedNode) ie1;
+			for (IElement ie2 : g.getNodes()) {
+				UndirectedNode n2 = (UndirectedNode) ie2;
 				if (this.shortestPathTrees.get(n1).get(n2)
 						.getShortestPathCount() != bc.shortestPathTrees.get(n1)
 						.get(n2).getShortestPathCount()) {
@@ -196,16 +202,22 @@ public abstract class BetweenessCentrality extends Metric {
 	}
 
 	@Override
-	protected Value[] getValues() {
+	public Value[] getValues() {
 		return new Value[] {};
 	}
 
 	@Override
-	protected Distribution[] getDistributions() {
+	public Distribution[] getDistributions() {
 		Distribution d1 = new Distribution("BetweenessCentrality",
 				getDistribution(this.betweeneesCentralityScore));
 		return new Distribution[] { d1 };
 
+	}
+
+	@Override
+	public NodeValueList[] getNodeValueLists() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 	private double[] getDistribution(

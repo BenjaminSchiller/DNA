@@ -93,6 +93,7 @@ public class BatchData {
 		return new BatchData(timestamp, values, generalRuntimes,
 				metricRuntimes, metrics);
 	}
+<<<<<<< HEAD
 	
 	
 	/**
@@ -127,6 +128,8 @@ public class BatchData {
 		return true;
 	}
 <<<<<<< HEAD
+=======
+>>>>>>> generator for google
 
 	/**
 	 * This method tests if two different BatchData objects can be aggregated.

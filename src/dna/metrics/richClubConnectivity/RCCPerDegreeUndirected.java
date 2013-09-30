@@ -4,12 +4,13 @@ import java.util.HashMap;
 import java.util.Map;
 
 import dna.graph.Graph;
-import dna.graph.directed.DirectedNode;
-import dna.graph.undirected.UndirectedEdge;
-import dna.graph.undirected.UndirectedGraph;
-import dna.graph.undirected.UndirectedNode;
+import dna.graph.IElement;
+import dna.graph.edges.UndirectedEdge;
+import dna.graph.nodes.DirectedNode;
+import dna.graph.nodes.UndirectedNode;
 import dna.metrics.Metric;
 import dna.series.data.Distribution;
+import dna.series.data.NodeValueList;
 import dna.series.data.Value;
 import dna.updates.Batch;
 
@@ -22,7 +23,7 @@ public abstract class RCCPerDegreeUndirected extends Metric {
 	protected int highestDegree;
 
 	public RCCPerDegreeUndirected(String name, ApplicationType type) {
-		super(name, type);
+		super(name, type, MetricType.exact);
 	}
 
 	@Override
@@ -43,14 +44,15 @@ public abstract class RCCPerDegreeUndirected extends Metric {
 
 	@Override
 	public boolean compute() {
-		UndirectedGraph g = (UndirectedGraph) this.g;
 
-		for (UndirectedNode n : g.getNodes()) {
+		for (IElement ie : g.getNodes()) {
+			UndirectedNode n = (UndirectedNode) ie;
 			int degree = n.getDegree();
 			this.highestDegree = Math.max(highestDegree, degree);
 
 			int edges = 0;
-			for (UndirectedEdge ed : n.getEdges()) {
+			for (IElement ieEdges : n.getEdges()) {
+				UndirectedEdge ed = (UndirectedEdge) ieEdges;
 				UndirectedNode node = ed.getDifferingNode(n);
 				if (node.getDegree() > degree) {
 					edges += 2;
@@ -120,17 +122,23 @@ public abstract class RCCPerDegreeUndirected extends Metric {
 	}
 
 	@Override
-	protected Value[] getValues() {
+	public Value[] getValues() {
 		return new Value[] {};
 	}
 
 	@Override
-	protected Distribution[] getDistributions() {
+	public Distribution[] getDistributions() {
 		Distribution d1 = new Distribution("rCC#Coefficient",
 				this.makeDistribution2(this.richClubCoefficienten));
 		Distribution d2 = new Distribution("rCC#Size",
 				this.makeDistribution1(this.richClubs));
 		return new Distribution[] { d1, d2 };
+	}
+
+	@Override
+	public NodeValueList[] getNodeValueLists() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 	private double[] makeDistribution1(Map<Integer, Integer> richClubs2) {

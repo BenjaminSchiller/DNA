@@ -4,11 +4,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 public class ShortestPathTreeElement {
 	private List<ShortestPathTreeElement> parents;
 	private List<ShortestPathTreeElement> children;
 =======
 import dna.graph.undirected.UndirectedNode;
+=======
+import dna.graph.nodes.UndirectedNode;
+>>>>>>> generator for google
 
 public class ShortestPathTreeElement {
 	private List<UndirectedNode> parents;

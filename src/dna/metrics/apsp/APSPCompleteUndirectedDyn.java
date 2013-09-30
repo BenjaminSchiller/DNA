@@ -7,9 +7,9 @@ import java.util.LinkedList;
 import java.util.PriorityQueue;
 import java.util.Queue;
 
-import dna.graph.undirected.UndirectedEdge;
-import dna.graph.undirected.UndirectedGraph;
-import dna.graph.undirected.UndirectedNode;
+import dna.graph.IElement;
+import dna.graph.edges.UndirectedEdge;
+import dna.graph.nodes.UndirectedNode;
 import dna.updates.Batch;
 import dna.updates.EdgeAddition;
 import dna.updates.EdgeRemoval;
@@ -55,13 +55,13 @@ public class APSPCompleteUndirectedDyn extends APSPCompleteUndirected {
 	}
 
 	private boolean applyAfterEdgeRemoval(Update u) {
-		UndirectedGraph g = (UndirectedGraph) this.g;
 		UndirectedEdge e = (UndirectedEdge) ((EdgeRemoval) u).getEdge();
 		UndirectedNode n1 = e.getNode1();
 		UndirectedNode n2 = e.getNode2();
 
 		// check all trees if the deleted edge is in the tree
-		for (UndirectedNode r : g.getNodes()) {
+		for (IElement ie : g.getNodes()) {
+			UndirectedNode r = (UndirectedNode) ie;
 			HashMap<UndirectedNode, UndirectedNode> parent = this.parentsOut
 					.get(r);
 			HashMap<UndirectedNode, Integer> height = this.heightsOut.get(r);
@@ -116,7 +116,8 @@ public class APSPCompleteUndirectedDyn extends APSPCompleteUndirected {
 
 				ArrayList<UndirectedNode> minSettled = new ArrayList<UndirectedNode>();
 				ArrayList<UndirectedNode> min = new ArrayList<UndirectedNode>();
-				for (UndirectedEdge edge : w.getEdges()) {
+				for (IElement iEdge : w.getEdges()) {
+					UndirectedEdge edge = (UndirectedEdge) iEdge;
 					UndirectedNode z = edge.getDifferingNode(w);
 					if (parent.get(w) == z || changed.contains(z)
 							|| height.get(z) == Integer.MAX_VALUE) {
@@ -160,7 +161,8 @@ public class APSPCompleteUndirectedDyn extends APSPCompleteUndirected {
 						q.add(new QueueElement<UndirectedNode>(w,
 								((Integer) dist).doubleValue()));
 						uncertain.remove(w);
-						for (UndirectedEdge ed : w.getEdges()) {
+						for (IElement iEdge : w.getEdges()) {
+							UndirectedEdge ed = (UndirectedEdge) iEdge;
 							UndirectedNode z = ed.getDifferingNode(w);
 							if (parent.get(z) == w) {
 								parent.remove(z);
@@ -186,7 +188,8 @@ public class APSPCompleteUndirectedDyn extends APSPCompleteUndirected {
 				}
 				changed.remove(w);
 				height.put(w, dist);
-				for (UndirectedEdge ed : w.getEdges()) {
+				for (IElement iEdge : w.getEdges()) {
+					UndirectedEdge ed = (UndirectedEdge) iEdge;
 					UndirectedNode z = ed.getDifferingNode(w);
 					if (height.get(z) > dist + 1) {
 						q.remove(new QueueElement<UndirectedNode>(z,
@@ -200,120 +203,119 @@ public class APSPCompleteUndirectedDyn extends APSPCompleteUndirected {
 		return true;
 	}
 
-	private boolean applyAfterEdgeRemoval1(Update u) {
-
-		UndirectedGraph g = (UndirectedGraph) this.g;
-
-		UndirectedEdge e = (UndirectedEdge) ((EdgeRemoval) u).getEdge();
-		UndirectedNode n1 = e.getNode1();
-		UndirectedNode n2 = e.getNode2();
-
-		// check all trees if the deleted edge is in the tree
-		for (UndirectedNode r : g.getNodes()) {
-
-			HashMap<UndirectedNode, UndirectedNode> parent = this.parentsOut
-					.get(r);
-			HashMap<UndirectedNode, Integer> height = this.heightsOut.get(r);
-
-			// if the source or dst or edge is not in tree do nothing
-			if (height.get(n1) == Integer.MAX_VALUE
-					|| height.get(n2) == Integer.MAX_VALUE) {
-				continue;
-			}
-
-			if (height.get(n1) > height.get(n2)) {
-				n1 = e.getNode2();
-				n2 = e.getNode1();
-			}
-
-			// Queues and data structure for tree change
-			HashSet<UndirectedNode> uncertain = new HashSet<UndirectedNode>();
-			HashSet<UndirectedNode> touched = new HashSet<UndirectedNode>();
-			Queue<UndirectedNode>[] qLevel = new LinkedList[g.getNodeCount()];
-			for (int i = 0; i < qLevel.length; i++) {
-				qLevel[i] = new LinkedList<UndirectedNode>();
-			}
-
-			// set data structure for dst Node
-			qLevel[height.get(n2)].add(n2);
-			uncertain.add(n2);
-			touched.add(n2);
-
-			for (int i = 0; i < qLevel.length; i++) {
-				while (!qLevel[i].isEmpty()) {
-					UndirectedNode w = qLevel[i].poll();
-
-					// all child's of node w need to be checked
-					// find the new shortest path
-					int dist = Integer.MAX_VALUE;
-					ArrayList<UndirectedNode> min = new ArrayList<UndirectedNode>();
-					for (UndirectedEdge ed : w.getEdges()) {
-						UndirectedNode z = ed.getDifferingNode(w);
-						if (parent.get(z) == w && !touched.contains(z)) {
-							qLevel[i + 1].add(z);
-							uncertain.add(z);
-							touched.add(z);
-						}
-						if (height.get(z) < dist) {
-							min.clear();
-							min.add(z);
-							dist = height.get(z);
-							continue;
-						}
-						if (height.get(z) == dist) {
-							min.add(z);
-							continue;
-						}
-					}
-
-					// if their is no connection to the three, remove node form
-					// data set
-					if (dist == Integer.MAX_VALUE
-							|| dist >= g.getNodeCount() - 1) {
-						height.put(w, Integer.MAX_VALUE);
-						parent.remove(w);
-						uncertain.remove(w);
-						continue;
-					}
-
-					// connect to the highest uncertain node
-					boolean found = false;
-					for (UndirectedNode mNode : min) {
-						if ((!uncertain.contains(mNode))
-								&& (height.get(mNode) + 1 == i || height
-										.get(mNode) == i)) {
-							uncertain.remove(w);
-							height.put(w, height.get(mNode) + 1);
-							parent.put(w, mNode);
-							found = true;
-							break;
-						}
-					}
-
-					// else connect to another node
-					if (!found) {
-						qLevel[height.get(min.get(0)) + 1].add(w);
-						height.put(w, height.get(min.get(0)) + 1);
-						parent.put(w, min.get(0));
-					}
-
-				}
-			}
-
-		}
-
-		return true;
-	}
+	// private boolean applyAfterEdgeRemoval1(Update u) {
+	//
+	// UndirectedGraph g = (UndirectedGraph) this.g;
+	//
+	// UndirectedEdge e = (UndirectedEdge) ((EdgeRemoval) u).getEdge();
+	// UndirectedNode n1 = e.getNode1();
+	// UndirectedNode n2 = e.getNode2();
+	//
+	// // check all trees if the deleted edge is in the tree
+	// for (UndirectedNode r : g.getNodes()) {
+	//
+	// HashMap<UndirectedNode, UndirectedNode> parent = this.parentsOut
+	// .get(r);
+	// HashMap<UndirectedNode, Integer> height = this.heightsOut.get(r);
+	//
+	// // if the source or dst or edge is not in tree do nothing
+	// if (height.get(n1) == Integer.MAX_VALUE
+	// || height.get(n2) == Integer.MAX_VALUE) {
+	// continue;
+	// }
+	//
+	// if (height.get(n1) > height.get(n2)) {
+	// n1 = e.getNode2();
+	// n2 = e.getNode1();
+	// }
+	//
+	// // Queues and data structure for tree change
+	// HashSet<UndirectedNode> uncertain = new HashSet<UndirectedNode>();
+	// HashSet<UndirectedNode> touched = new HashSet<UndirectedNode>();
+	// Queue<UndirectedNode>[] qLevel = new LinkedList[g.getNodeCount()];
+	// for (int i = 0; i < qLevel.length; i++) {
+	// qLevel[i] = new LinkedList<UndirectedNode>();
+	// }
+	//
+	// // set data structure for dst Node
+	// qLevel[height.get(n2)].add(n2);
+	// uncertain.add(n2);
+	// touched.add(n2);
+	//
+	// for (int i = 0; i < qLevel.length; i++) {
+	// while (!qLevel[i].isEmpty()) {
+	// UndirectedNode w = qLevel[i].poll();
+	//
+	// // all child's of node w need to be checked
+	// // find the new shortest path
+	// int dist = Integer.MAX_VALUE;
+	// ArrayList<UndirectedNode> min = new ArrayList<UndirectedNode>();
+	// for (UndirectedEdge ed : w.getEdges()) {
+	// UndirectedNode z = ed.getDifferingNode(w);
+	// if (parent.get(z) == w && !touched.contains(z)) {
+	// qLevel[i + 1].add(z);
+	// uncertain.add(z);
+	// touched.add(z);
+	// }
+	// if (height.get(z) < dist) {
+	// min.clear();
+	// min.add(z);
+	// dist = height.get(z);
+	// continue;
+	// }
+	// if (height.get(z) == dist) {
+	// min.add(z);
+	// continue;
+	// }
+	// }
+	//
+	// // if their is no connection to the three, remove node form
+	// // data set
+	// if (dist == Integer.MAX_VALUE
+	// || dist >= g.getNodeCount() - 1) {
+	// height.put(w, Integer.MAX_VALUE);
+	// parent.remove(w);
+	// uncertain.remove(w);
+	// continue;
+	// }
+	//
+	// // connect to the highest uncertain node
+	// boolean found = false;
+	// for (UndirectedNode mNode : min) {
+	// if ((!uncertain.contains(mNode))
+	// && (height.get(mNode) + 1 == i || height
+	// .get(mNode) == i)) {
+	// uncertain.remove(w);
+	// height.put(w, height.get(mNode) + 1);
+	// parent.put(w, mNode);
+	// found = true;
+	// break;
+	// }
+	// }
+	//
+	// // else connect to another node
+	// if (!found) {
+	// qLevel[height.get(min.get(0)) + 1].add(w);
+	// height.put(w, height.get(min.get(0)) + 1);
+	// parent.put(w, min.get(0));
+	// }
+	//
+	// }
+	// }
+	//
+	// }
+	//
+	// return true;
+	// }
 
 	private boolean applyAfterEdgeAddition(Update u) {
-
-		UndirectedGraph g = (UndirectedGraph) this.g;
 
 		UndirectedEdge e = (UndirectedEdge) ((EdgeAddition) u).getEdge();
 		UndirectedNode n1 = e.getNode1();
 		UndirectedNode n2 = e.getNode2();
 
-		for (UndirectedNode s : g.getNodes()) {
+		for (IElement ie : g.getNodes()) {
+			UndirectedNode s = (UndirectedNode) ie;
 			HashMap<UndirectedNode, UndirectedNode> parent = this.parentsOut
 					.get(s);
 			HashMap<UndirectedNode, Integer> height = this.heightsOut.get(s);
@@ -347,7 +349,8 @@ public class APSPCompleteUndirectedDyn extends APSPCompleteUndirected {
 		parent.put(b, a);
 		h_b = h_a + 1;
 		height.put(b, h_b);
-		for (UndirectedEdge e : b.getEdges()) {
+		for (IElement iEdge : b.getEdges()) {
+			UndirectedEdge e = (UndirectedEdge) iEdge;
 			UndirectedNode c = e.getDifferingNode(b);
 			this.check(b, c, parent, height);
 		}

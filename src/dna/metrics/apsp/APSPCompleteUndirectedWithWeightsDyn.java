@@ -7,12 +7,10 @@ import java.util.LinkedList;
 import java.util.PriorityQueue;
 import java.util.Queue;
 
-import dna.graph.undirected.UndirectedEdge;
-import dna.graph.undirected.UndirectedEdgeWeighted;
-import dna.graph.undirected.UndirectedGraph;
-import dna.graph.undirected.UndirectedGraphAlAl;
-import dna.graph.undirected.UndirectedNode;
-import dna.graph.undirected.UndirectedNodeAlWeighted;
+import dna.graph.IElement;
+import dna.graph.edges.UndirectedDoubleWeightedEdge;
+import dna.graph.edges.UndirectedEdge;
+import dna.graph.nodes.UndirectedNode;
 import dna.updates.Batch;
 import dna.updates.EdgeAddition;
 import dna.updates.EdgeRemoval;
@@ -59,13 +57,13 @@ public class APSPCompleteUndirectedWithWeightsDyn extends
 	}
 
 	private boolean applyAfterEdgeRemoval(Update u) {
-		UndirectedGraph g = (UndirectedGraph) this.g;
 		UndirectedEdge e = (UndirectedEdge) ((EdgeRemoval) u).getEdge();
 		UndirectedNode n1 = e.getNode1();
 		UndirectedNode n2 = e.getNode2();
 
 		// check all trees if the deleted edge is in the tree
-		for (UndirectedNode r : g.getNodes()) {
+		for (IElement ie : g.getNodes()) {
+			UndirectedNode r = (UndirectedNode) ie;
 			HashMap<UndirectedNode, UndirectedNode> parent = this.parents
 					.get(r);
 			HashMap<UndirectedNode, Double> height = this.heights.get(r);
@@ -119,9 +117,10 @@ public class APSPCompleteUndirectedWithWeightsDyn extends
 
 				ArrayList<UndirectedNode> minSettled = new ArrayList<UndirectedNode>();
 				ArrayList<UndirectedNode> min = new ArrayList<UndirectedNode>();
-				for (UndirectedEdge edge : w.getEdges()) {
+				for (IElement iEdge : w.getEdges()) {
+					UndirectedEdge edge = (UndirectedEdge) iEdge;
 					UndirectedNode z = edge.getDifferingNode(w);
-					UndirectedEdgeWeighted ed = (UndirectedEdgeWeighted) edge;
+					UndirectedDoubleWeightedEdge ed = (UndirectedDoubleWeightedEdge) edge;
 					if (parent.get(w) == z || changed.contains(z)
 							|| height.get(z) == Integer.MAX_VALUE) {
 						continue;
@@ -163,8 +162,9 @@ public class APSPCompleteUndirectedWithWeightsDyn extends
 						changed.add(w);
 						q.add(new QueueElement<UndirectedNode>(w, dist));
 						uncertain.remove(w);
-						for (UndirectedEdge ed : w.getEdges()) {
-							UndirectedNode z = ed.getDifferingNode(w);
+						for (IElement iEdge : w.getEdges()) {
+							UndirectedEdge edge = (UndirectedEdge) iEdge;
+							UndirectedNode z = edge.getDifferingNode(w);
 							if (parent.get(z) == w) {
 								parent.remove(z);
 								uncertain.add(z);
@@ -188,9 +188,9 @@ public class APSPCompleteUndirectedWithWeightsDyn extends
 				}
 				changed.remove(w);
 				height.put(w, dist);
-				for (UndirectedEdge ed : w.getEdges()) {
-					UndirectedNode z = ed.getDifferingNode(w);
-					UndirectedEdgeWeighted edge = (UndirectedEdgeWeighted) ed;
+				for (IElement iEdge : w.getEdges()) {
+					UndirectedDoubleWeightedEdge edge = (UndirectedDoubleWeightedEdge) iEdge;
+					UndirectedNode z = edge.getDifferingNode(w);
 					if (height.get(z) > dist + 1) {
 						q.remove(new QueueElement<UndirectedNode>(z, dist
 								+ edge.getWeight()));
@@ -214,12 +214,11 @@ public class APSPCompleteUndirectedWithWeightsDyn extends
 	}
 
 	private boolean applyAfterEdgeAddition(Update u) {
-		UndirectedEdgeWeighted e = (UndirectedEdgeWeighted) ((EdgeAddition) u)
+		UndirectedDoubleWeightedEdge e = (UndirectedDoubleWeightedEdge) ((EdgeAddition) u)
 				.getEdge();
 
-		UndirectedGraphAlAl g = (UndirectedGraphAlAl) this.g;
-
-		for (UndirectedNode s : g.getNodes()) {
+		for (IElement ie : g.getNodes()) {
+			UndirectedNode s = (UndirectedNode) ie;
 			HashMap<UndirectedNode, UndirectedNode> parent = parents.get(s);
 			HashMap<UndirectedNode, Double> height = heights.get(s);
 
@@ -237,17 +236,17 @@ public class APSPCompleteUndirectedWithWeightsDyn extends
 
 			height.put(n2, height.get(n1) + e.getWeight());
 			parent.put(n2, n1);
-			PriorityQueue<UndirectedNodeAlWeighted> q = new PriorityQueue<>();
-			q.add((UndirectedNodeAlWeighted) n2);
+			PriorityQueue<UndirectedNode> q = new PriorityQueue<>();
+			q.add((UndirectedNode) n2);
 			while (!q.isEmpty()) {
-				UndirectedNodeAlWeighted current = q.poll();
+				UndirectedNode current = q.poll();
 
 				if (height.get(current) == Double.MAX_VALUE) {
 					break;
 				}
 
-				for (UndirectedEdge edge : current.getEdges()) {
-					UndirectedEdgeWeighted d = (UndirectedEdgeWeighted) edge;
+				for (IElement edge : current.getEdges()) {
+					UndirectedDoubleWeightedEdge d = (UndirectedDoubleWeightedEdge) edge;
 
 					UndirectedNode neighbor = d.getDifferingNode(current);
 
@@ -259,7 +258,7 @@ public class APSPCompleteUndirectedWithWeightsDyn extends
 						if (q.contains(neighbor)) {
 							q.remove(neighbor);
 						}
-						q.add((UndirectedNodeAlWeighted) neighbor);
+						q.add(neighbor);
 					}
 				}
 			}

@@ -6,12 +6,13 @@ import java.util.LinkedList;
 import java.util.Queue;
 
 import dna.graph.Graph;
-import dna.graph.directed.DirectedEdge;
-import dna.graph.directed.DirectedGraph;
-import dna.graph.directed.DirectedNode;
-import dna.graph.undirected.UndirectedNode;
+import dna.graph.IElement;
+import dna.graph.edges.DirectedEdge;
+import dna.graph.nodes.DirectedNode;
+import dna.graph.nodes.UndirectedNode;
 import dna.metrics.Metric;
 import dna.series.data.Distribution;
+import dna.series.data.NodeValueList;
 import dna.series.data.Value;
 import dna.updates.Batch;
 
@@ -28,27 +29,28 @@ public abstract class APSPWitdhDdirected extends Metric {
 	protected int d;
 
 	public APSPWitdhDdirected(String name, ApplicationType type) {
-		super(name, type);
+		super(name, type, MetricType.heuristic);
 	}
 
 	@Override
 	public boolean compute() {
-		DirectedGraph g = (DirectedGraph) this.g;
 
-		for (DirectedNode n : g.getNodes()) {
-			buildTrees(g, n);
+		for (IElement ie : g.getNodes()) {
+			DirectedNode n = (DirectedNode) ie;
+			buildTrees(n);
 		}
 
 		return true;
 	}
 
-	protected void buildTrees(DirectedGraph g, DirectedNode n) {
+	protected void buildTrees(DirectedNode n) {
 		HashMap<DirectedNode, DirectedNode> parentOut = new HashMap<>();
 		HashMap<DirectedNode, DirectedNode> parentIn = new HashMap<>();
 		HashMap<DirectedNode, Integer> heightIn = new HashMap<>();
 		HashMap<DirectedNode, Integer> heightOut = new HashMap<>();
 
-		for (DirectedNode t : g.getNodes()) {
+		for (IElement ie : g.getNodes()) {
+			DirectedNode t = (DirectedNode) ie;
 			if (t.equals(n)) {
 				heightIn.put(n, 0);
 				heightOut.put(n, 0);
@@ -62,7 +64,8 @@ public abstract class APSPWitdhDdirected extends Metric {
 		q.add(n);
 		while (!q.isEmpty()) {
 			DirectedNode current = q.poll();
-			for (DirectedEdge e : current.getOutgoingEdges()) {
+			for (IElement ie : current.getOutgoingEdges()) {
+				DirectedEdge e = (DirectedEdge) ie;
 				if (heightOut.get(e.getDst()) != Integer.MAX_VALUE) {
 					continue;
 				}
@@ -77,7 +80,8 @@ public abstract class APSPWitdhDdirected extends Metric {
 		q.add(n);
 		while (!q.isEmpty()) {
 			DirectedNode current = q.poll();
-			for (DirectedEdge e : current.getIncomingEdges()) {
+			for (IElement ie : current.getIncomingEdges()) {
+				DirectedEdge e = (DirectedEdge) ie;
 				if (heightOut.get(e.getSrc()) != Integer.MAX_VALUE) {
 					continue;
 				}
@@ -129,7 +133,7 @@ public abstract class APSPWitdhDdirected extends Metric {
 	}
 
 	@Override
-	protected void init_() {
+	public void init_() {
 		this.parentsIn = new HashMap<DirectedNode, HashMap<DirectedNode, DirectedNode>>();
 		this.parentsOut = new HashMap<DirectedNode, HashMap<DirectedNode, DirectedNode>>();
 		this.heightsIn = new HashMap<DirectedNode, HashMap<DirectedNode, Integer>>();
@@ -149,13 +153,19 @@ public abstract class APSPWitdhDdirected extends Metric {
 	}
 
 	@Override
-	protected Value[] getValues() {
+	public Value[] getValues() {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	protected Distribution[] getDistributions() {
+	public Distribution[] getDistributions() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public NodeValueList[] getNodeValueLists() {
 		// TODO Auto-generated method stub
 		return null;
 	}

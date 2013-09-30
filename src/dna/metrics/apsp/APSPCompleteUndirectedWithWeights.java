@@ -4,14 +4,13 @@ import java.util.HashMap;
 import java.util.PriorityQueue;
 
 import dna.graph.Graph;
-import dna.graph.directed.DirectedNode;
-import dna.graph.undirected.UndirectedEdge;
-import dna.graph.undirected.UndirectedEdgeWeighted;
-import dna.graph.undirected.UndirectedGraphAlAl;
-import dna.graph.undirected.UndirectedNode;
-import dna.graph.undirected.UndirectedNodeAlWeighted;
+import dna.graph.IElement;
+import dna.graph.edges.UndirectedDoubleWeightedEdge;
+import dna.graph.nodes.DirectedNode;
+import dna.graph.nodes.UndirectedNode;
 import dna.metrics.Metric;
 import dna.series.data.Distribution;
+import dna.series.data.NodeValueList;
 import dna.series.data.Value;
 import dna.updates.Batch;
 
@@ -23,20 +22,21 @@ public abstract class APSPCompleteUndirectedWithWeights extends Metric {
 	protected HashMap<UndirectedNode, HashMap<UndirectedNode, Double>> heights;
 
 	public APSPCompleteUndirectedWithWeights(String name, ApplicationType type) {
-		super(name, type);
+		super(name, type, MetricType.exact);
 
 	}
 
 	@Override
 	public boolean compute() {
-		UndirectedGraphAlAl g = (UndirectedGraphAlAl) this.g;
 
-		for (UndirectedNode s : g.getNodes()) {
+		for (IElement ie : g.getNodes()) {
+			UndirectedNode s = (UndirectedNode) ie;
 
 			HashMap<UndirectedNode, UndirectedNode> parent = new HashMap<UndirectedNode, UndirectedNode>();
 			HashMap<UndirectedNode, Double> height = new HashMap<UndirectedNode, Double>();
 
-			for (UndirectedNode t : g.getNodes()) {
+			for (IElement iNode : g.getNodes()) {
+				UndirectedNode t = (UndirectedNode) iNode;
 				if (t.equals(s)) {
 					height.put(s, 0d);
 				} else {
@@ -44,17 +44,17 @@ public abstract class APSPCompleteUndirectedWithWeights extends Metric {
 				}
 			}
 
-			PriorityQueue<UndirectedNodeAlWeighted> q = new PriorityQueue<>();
-			q.add((UndirectedNodeAlWeighted) s);
+			PriorityQueue<UndirectedNode> q = new PriorityQueue<>();
+			q.add(s);
 			while (!q.isEmpty()) {
-				UndirectedNodeAlWeighted current = q.poll();
+				UndirectedNode current = q.poll();
 
 				if (height.get(current) == Double.MAX_VALUE) {
 					break;
 				}
 
-				for (UndirectedEdge e : current.getEdges()) {
-					UndirectedEdgeWeighted d = (UndirectedEdgeWeighted) e;
+				for (IElement iEdge : current.getEdges()) {
+					UndirectedDoubleWeightedEdge d = (UndirectedDoubleWeightedEdge) iEdge;
 
 					UndirectedNode neighbor = d.getDifferingNode(current);
 
@@ -66,7 +66,7 @@ public abstract class APSPCompleteUndirectedWithWeights extends Metric {
 						if (q.contains(neighbor)) {
 							q.remove(neighbor);
 						}
-						q.add((UndirectedNodeAlWeighted) neighbor);
+						q.add(neighbor);
 					}
 				}
 			}
@@ -78,7 +78,7 @@ public abstract class APSPCompleteUndirectedWithWeights extends Metric {
 	}
 
 	@Override
-	protected void init_() {
+	public void init_() {
 		this.parents = new HashMap<UndirectedNode, HashMap<UndirectedNode, UndirectedNode>>();
 		this.heights = new HashMap<UndirectedNode, HashMap<UndirectedNode, Double>>();
 	}
@@ -90,12 +90,18 @@ public abstract class APSPCompleteUndirectedWithWeights extends Metric {
 	}
 
 	@Override
-	protected Value[] getValues() {
+	public Value[] getValues() {
 		return new Value[] {};
 	}
 
 	@Override
-	protected Distribution[] getDistributions() {
+	public NodeValueList[] getNodeValueLists() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Distribution[] getDistributions() {
 		return new Distribution[] {};
 	}
 
