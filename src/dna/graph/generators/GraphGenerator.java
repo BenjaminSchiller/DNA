@@ -26,7 +26,7 @@ public abstract class GraphGenerator extends ParameterList implements
 
 		this.gds = gds;
 
-		if (!gds.isReadable()) {
+		if (gds != null && !gds.isReadable()) {
 			throw new RuntimeException(
 					"Cannot generate a graph if any datastructure is not readable");
 		}

@@ -9,14 +9,13 @@ import dna.util.Config;
 
 public class GraphReader {
 
-	public Graph read(String dir, String filename)
+	public static Graph read(String dir, String filename)
 			throws ClassNotFoundException, IOException {
-		return this.read(dir, filename, null);
+		return read(dir, filename, null);
 	}
 
-	@SuppressWarnings({ "rawtypes" })
-	public Graph read(String dir, String filename, GraphDataStructure ds)
-			throws IOException, ClassNotFoundException {
+	public static Graph read(String dir, String filename, GraphDataStructure ds)
+			throws IOException {
 		Reader reader = new Reader(dir, filename);
 
 		reader.readKeyword(Config.get("GRAPH_KEYWORD_NAME"));
@@ -39,7 +38,6 @@ public class GraphReader {
 		long timestamp = reader.readLong();
 
 		Graph g = ds.newGraphInstance(name, timestamp, nodes, edges);
-		Class eClass = ds.getEdgeType();
 
 		reader.readKeyword(Config.get("GRAPH_KEYWORD_NODES_LIST"));
 		String line = null;
@@ -57,4 +55,16 @@ public class GraphReader {
 		reader.close();
 		return g;
 	}
+
+	public static String readName(String dir, String filename)
+			throws IOException {
+		Reader reader = new Reader(dir, filename);
+
+		reader.readKeyword(Config.get("GRAPH_KEYWORD_NAME"));
+		String name = reader.readString();
+
+		reader.close();
+		return name;
+	}
+
 }

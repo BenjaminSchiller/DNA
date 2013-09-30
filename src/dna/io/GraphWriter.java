@@ -8,7 +8,7 @@ import dna.util.Config;
 
 public class GraphWriter {
 
-	public boolean write(Graph g, String dir, String filename) {
+	public static boolean write(Graph g, String dir, String filename) {
 		Writer writer = null;
 		try {
 			writer = new Writer(dir, filename);
