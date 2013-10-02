@@ -85,7 +85,6 @@ public class BatchHandler implements Runnable {
 		this.index = index;
 	}
 
-<<<<<<< HEAD
 	public void setSpeed(int speed) {
 		if (speed < 0)
 			this.speed = 0;
