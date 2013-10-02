@@ -27,7 +27,7 @@ public class BatchDataList extends SortedList<BatchData> {
 		String[] batches = Dir.getBatches(dir);
 		BatchDataList list = new BatchDataList(batches.length);
 		for (String batch : batches) {
-			list.add(BatchData.read(dir, Dir.getTimestamp(batch), readValues));
+			list.add(BatchData.read(dir + batch + "/", Dir.getTimestamp(batch), readValues));
 		}
 		return list;
 	}
