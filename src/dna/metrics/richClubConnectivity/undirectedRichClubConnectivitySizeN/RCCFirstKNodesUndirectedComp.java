@@ -1,9 +1,8 @@
-package dna.metrics.richClubConnectivity;
+package dna.metrics.richClubConnectivity.undirectedRichClubConnectivitySizeN;
 
-import dna.updates.Batch;
-import dna.updates.Update;
+import dna.updates.batch.Batch;
+import dna.updates.update.Update;
 
-@SuppressWarnings("rawtypes")
 public class RCCFirstKNodesUndirectedComp extends RCCFirstKNodesUndirected {
 	public RCCFirstKNodesUndirectedComp() {
 		super("RCCFirstKNodesComp", ApplicationType.Recomputation);

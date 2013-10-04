@@ -1,19 +1,19 @@
-package dna.metrics.richClubConnectivity;
+package dna.metrics.richClubConnectivity.undirectedRichClubConnectivityPerDegree;
 
 import dna.graph.IElement;
 import dna.graph.edges.UndirectedEdge;
 import dna.graph.nodes.UndirectedNode;
-import dna.updates.Batch;
-import dna.updates.EdgeAddition;
-import dna.updates.EdgeRemoval;
-import dna.updates.NodeAddition;
-import dna.updates.NodeRemoval;
-import dna.updates.Update;
+import dna.updates.batch.Batch;
+import dna.updates.update.EdgeAddition;
+import dna.updates.update.EdgeRemoval;
+import dna.updates.update.NodeAddition;
+import dna.updates.update.NodeRemoval;
+import dna.updates.update.Update;
 
-@SuppressWarnings("rawtypes")
-public class RCCPerDegreeUndirectedDyn extends RCCPerDegreeUndirected {
+public class UndirectedRichClubConnectivityPerDegreeU extends
+		UndirectedRichClubConnectivityPerDegree {
 
-	public RCCPerDegreeUndirectedDyn() {
+	public UndirectedRichClubConnectivityPerDegreeU() {
 		super("RCCPerDegreeDyn", ApplicationType.AfterUpdate);
 	}
 
@@ -50,7 +50,6 @@ public class RCCPerDegreeUndirectedDyn extends RCCPerDegreeUndirected {
 		UndirectedNode node = (UndirectedNode) ((NodeAddition) u).getNode();
 		this.richClubs.put(node.getDegree(),
 				this.richClubs.get(node.getDegree()) + 1);
-		calculateRCC();
 		return true;
 	}
 
@@ -59,18 +58,17 @@ public class RCCPerDegreeUndirectedDyn extends RCCPerDegreeUndirected {
 		UndirectedNode node1 = e.getNode1();
 		UndirectedNode node2 = e.getNode2();
 
-		if (node1.getDegree() > node2.getDegree()) {
-			this.richClubEdges.put(node2.getDegree() + 1,
-					this.richClubEdges.get(node2.getDegree() + 1) - 2);
-		} else {
-			this.richClubEdges.put(node1.getDegree() + 1,
-					this.richClubEdges.get(node1.getDegree() + 1) - 2);
-		}
+		// if (node1.getDegree() > node2.getDegree()) {
+		// this.richClubEdges.put(node2.getDegree() + 1,
+		// this.richClubEdges.get(node2.getDegree() + 1) - 2);
+		// } else {
+		// this.richClubEdges.put(node1.getDegree() + 1,
+		// this.richClubEdges.get(node1.getDegree() + 1) - 2);
+		// }
 
 		checkChangesDel(node1);
 		checkChangesDel(node2);
 
-		calculateRCC();
 		return true;
 	}
 
@@ -108,7 +106,6 @@ public class RCCPerDegreeUndirectedDyn extends RCCPerDegreeUndirected {
 	private void removeRCC(int degree) {
 		this.richClubs.remove(degree);
 		this.richClubEdges.remove(degree);
-		this.richClubCoefficienten.remove(degree);
 	}
 
 	private boolean applyAfterEdgeAddition(Update u) {
@@ -119,7 +116,6 @@ public class RCCPerDegreeUndirectedDyn extends RCCPerDegreeUndirected {
 		checkChangesAdd(node1);
 		checkChangesAdd(node2);
 
-		calculateRCC();
 		return true;
 	}
 
@@ -146,13 +142,11 @@ public class RCCPerDegreeUndirectedDyn extends RCCPerDegreeUndirected {
 			this.richClubs.put(degree, this.richClubs.get(degree) + 1);
 			this.richClubEdges.put(degree, this.richClubEdges.get(degree)
 					+ edges);
-
 		} else {
 			this.richClubs.put(degree, 1);
 			this.richClubEdges.put(degree, edges);
 			this.highestDegree = Math.max(degree, this.highestDegree);
 		}
-
 	}
 
 	private boolean applyAfterNodeRemoval(Update u) {
@@ -175,7 +169,6 @@ public class RCCPerDegreeUndirectedDyn extends RCCPerDegreeUndirected {
 
 		int temp = richClubEdges.get(node.getDegree());
 		richClubEdges.put(node.getDegree(), temp - updateEdges);
-		calculateRCC();
 		return true;
 	}
 

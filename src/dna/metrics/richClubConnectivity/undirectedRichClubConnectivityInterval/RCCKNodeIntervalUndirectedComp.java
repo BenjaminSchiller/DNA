@@ -1,9 +1,8 @@
-package dna.metrics.richClubConnectivity;
+package dna.metrics.richClubConnectivity.undirectedRichClubConnectivityInterval;
 
-import dna.updates.Batch;
-import dna.updates.Update;
+import dna.updates.batch.Batch;
+import dna.updates.update.Update;
 
-@SuppressWarnings("rawtypes")
 public class RCCKNodeIntervalUndirectedComp extends RCCKNodeIntervalUndirected {
 	public RCCKNodeIntervalUndirectedComp() {
 		super("RCCKNodeIntervalComp", ApplicationType.Recomputation);
