@@ -48,13 +48,8 @@ public class UndirectedRichClubConnectivityPerDegreeU extends
 
 	private boolean applyAfterNodeAddition(Update u) {
 		UndirectedNode node = (UndirectedNode) ((NodeAddition) u).getNode();
-		if (this.richClubs.containsKey(node.getDegree())) {
-			this.richClubs.put(node.getDegree(),
-					this.richClubs.get(node.getDegree()) + 1);
-		} else {
-			this.richClubs.put(node.getDegree(), 1);
-			this.richClubEdges.put(node.getDegree(), 0);
-		}
+		this.richClubs.put(node.getDegree(),
+				this.richClubs.get(node.getDegree()) + 1);
 		return true;
 	}
 
@@ -63,13 +58,13 @@ public class UndirectedRichClubConnectivityPerDegreeU extends
 		UndirectedNode node1 = e.getNode1();
 		UndirectedNode node2 = e.getNode2();
 
-		if (node1.getDegree() > node2.getDegree()) {
-			this.richClubEdges.put(node2.getDegree() + 1,
-					this.richClubEdges.get(node2.getDegree() + 1) - 2);
-		} else {
-			this.richClubEdges.put(node1.getDegree() + 1,
-					this.richClubEdges.get(node1.getDegree() + 1) - 2);
-		}
+		// if (node1.getDegree() > node2.getDegree()) {
+		// this.richClubEdges.put(node2.getDegree() + 1,
+		// this.richClubEdges.get(node2.getDegree() + 1) - 2);
+		// } else {
+		// this.richClubEdges.put(node1.getDegree() + 1,
+		// this.richClubEdges.get(node1.getDegree() + 1) - 2);
+		// }
 
 		checkChangesDel(node1);
 		checkChangesDel(node2);
@@ -83,9 +78,11 @@ public class UndirectedRichClubConnectivityPerDegreeU extends
 		for (IElement iEdge : node.getEdges()) {
 			UndirectedEdge ed = (UndirectedEdge) iEdge;
 			UndirectedNode n = ed.getDifferingNode(node);
+
 			if (n.getDegree() > degree) {
 				edges += 2;
 			}
+
 		}
 		this.richClubs.put(degree + 1, this.richClubs.get(degree + 1) - 1);
 		this.richClubEdges.put(degree + 1, this.richClubEdges.get(degree + 1)
@@ -115,78 +112,63 @@ public class UndirectedRichClubConnectivityPerDegreeU extends
 		UndirectedEdge e = (UndirectedEdge) ((EdgeAddition) u).getEdge();
 		UndirectedNode node1 = e.getNode1();
 		UndirectedNode node2 = e.getNode2();
-		checkChangesAdd(node1, node2);
-		checkChangesAdd(node2, node1);
+
+		checkChangesAdd(node1);
+		checkChangesAdd(node2);
 
 		return true;
 	}
 
-	private void checkChangesAdd(UndirectedNode node, UndirectedNode node2) {
+	private void checkChangesAdd(UndirectedNode node) {
 		int degree = node.getDegree();
 		int edges = 0;
-		int node2Degree = node2.getDegree();
 		for (IElement iEdge : node.getEdges()) {
 			UndirectedEdge ed = (UndirectedEdge) iEdge;
 			UndirectedNode n = ed.getDifferingNode(node);
-			if (n == node2 && n.getDegree() == degree) {
-				edges++;
-				continue;
-			}
 
 			if (n.getDegree() >= degree) {
 				edges += 2;
 			}
-		}
-		if (node2Degree < degree) {
-			this.richClubEdges.put(degree - 1,
-					this.richClubEdges.get(degree - 1) - edges);
-		} else {
-			if (node2Degree == degree) {
-				this.richClubEdges.put(degree - 1,
-						this.richClubEdges.get(degree - 1) - (edges - 1));
-			} else {
-				this.richClubEdges.put(degree - 1,
-						this.richClubEdges.get(degree - 1) - (edges - 2));
-			}
-		}
 
+		}
 		this.richClubs.put(degree - 1, this.richClubs.get(degree - 1) - 1);
+		this.richClubEdges.put(degree - 1, this.richClubEdges.get(degree - 1)
+				- edges);
 		if (this.richClubs.get(degree - 1) == 0) {
-			this.richClubs.remove(degree - 1);
-			this.richClubEdges.remove(degree - 1);
+			removeRCC(degree - 1);
 		}
 
 		if (this.richClubs.containsKey(degree)) {
 			this.richClubs.put(degree, this.richClubs.get(degree) + 1);
 			this.richClubEdges.put(degree, this.richClubEdges.get(degree)
 					+ edges);
-
 		} else {
 			this.richClubs.put(degree, 1);
 			this.richClubEdges.put(degree, edges);
-			this.highestDegree = Math.max(highestDegree, degree);
+			this.highestDegree = Math.max(degree, this.highestDegree);
 		}
 	}
 
 	private boolean applyAfterNodeRemoval(Update u) {
 		UndirectedNode node = (UndirectedNode) ((NodeRemoval) u).getNode();
+		this.richClubs.put(node.getDegree(),
+				this.richClubs.get(node.getDegree()) - 1);
+		int updateEdges = 0;
 
-		for (IElement ie : node.getEdges()) {
-			UndirectedEdge e = (UndirectedEdge) ie;
-			UndirectedNode n = e.getDifferingNode(node);
-			checkChangesDel(n);
-			if (node.getDegree() > n.getDegree() + 1) {
-				this.richClubEdges.put(n.getDegree() + 1,
-						this.richClubEdges.get(n.getDegree() + 1) - 2);
+		for (IElement iEdge : node.getEdges()) {
+			UndirectedEdge ed = (UndirectedEdge) iEdge;
+			UndirectedNode n = ed.getDifferingNode(node);
+
+			if (n.getDegree() >= node.getDegree()) {
+				updateEdges += 2;
 			} else {
-				this.richClubEdges.put(node.getDegree(),
-						this.richClubEdges.get(node.getDegree()) - 2);
+				int temp = richClubEdges.get(n.getDegree());
+				richClubEdges.put(n.getDegree(), temp - 2);
 			}
 		}
-		richClubs.put(node.getDegree(), richClubs.get(node.getDegree()) - 1);
-		if (richClubs.get(node.getDegree()) == 0) {
-			removeRCC(node.getDegree());
-		}
+
+		int temp = richClubEdges.get(node.getDegree());
+		richClubEdges.put(node.getDegree(), temp - updateEdges);
 		return true;
 	}
 

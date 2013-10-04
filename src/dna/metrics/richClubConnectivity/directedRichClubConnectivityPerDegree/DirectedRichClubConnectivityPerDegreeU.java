@@ -69,12 +69,14 @@ public class DirectedRichClubConnectivityPerDegreeU extends
 			if (edge.getDst().getOutDegree() > srcDegree) {
 				edges++;
 			}
+
 		}
 		for (IElement iE : src.getIncomingEdges()) {
 			DirectedEdge edge = (DirectedEdge) iE;
 			if (edge.getSrc().getOutDegree() > srcDegree) {
 				edges++;
 			}
+
 		}
 
 		if (dstDegree < srcDegree + 1) {
@@ -137,9 +139,11 @@ public class DirectedRichClubConnectivityPerDegreeU extends
 					this.richClubEdges.get(dstDegree) + 1);
 			this.richClubEdges.put(srcDegree - 1,
 					this.richClubEdges.get(srcDegree - 1) - edges);
+
 		} else {
 			this.richClubEdges.put(srcDegree - 1,
 					this.richClubEdges.get(srcDegree - 1) - (edges - 1));
+
 		}
 
 		this.richClubs
@@ -168,13 +172,14 @@ public class DirectedRichClubConnectivityPerDegreeU extends
 		this.richClubs.put(node.getOutDegree(),
 				this.richClubs.get(node.getOutDegree()) - 1);
 		int updateEdges = 0;
+
 		for (IElement iE : node.getIncomingEdges()) {
 			DirectedEdge ed = (DirectedEdge) iE;
 			applyAfterEdgeRemoval(new EdgeRemoval(ed));
 		}
 		for (IElement iE : node.getOutgoingEdges()) {
 			DirectedEdge ed = (DirectedEdge) iE;
-			if (ed.getDst().getOutDegree() > node.getOutDegree()) {
+			if (ed.getDst().getOutDegree() >= node.getOutDegree()) {
 				updateEdges++;
 			} else {
 				int temp = richClubEdges.get(ed.getDst().getOutDegree());
@@ -185,4 +190,5 @@ public class DirectedRichClubConnectivityPerDegreeU extends
 		richClubEdges.put(node.getOutDegree(), temp - updateEdges);
 		return true;
 	}
+
 }

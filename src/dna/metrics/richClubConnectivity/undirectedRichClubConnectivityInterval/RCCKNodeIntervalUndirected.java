@@ -1,4 +1,4 @@
-package dna.metrics.richClubConnectivity;
+package dna.metrics.richClubConnectivity.undirectedRichClubConnectivityInterval;
 
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -16,9 +16,8 @@ import dna.metrics.clusterCoefficient.ClosedTriangleClusteringCoefficient;
 import dna.series.data.Distribution;
 import dna.series.data.NodeValueList;
 import dna.series.data.Value;
-import dna.updates.Batch;
+import dna.updates.batch.Batch;
 
-@SuppressWarnings("rawtypes")
 public abstract class RCCKNodeIntervalUndirected extends Metric {
 
 	protected Map<Integer, Double> richClubCoefficienten;
