@@ -1,11 +1,10 @@
-package dna.metrics.richClubConnectivity;
+package dna.metrics.richClubConnectivity.directedRichClubConnectivityPerDegree;
 
-import dna.updates.Batch;
-import dna.updates.Update;
+import dna.updates.batch.Batch;
+import dna.updates.update.Update;
 
-@SuppressWarnings("rawtypes")
-public class RCCPerDegreeDirectedComp extends RCCPerDegreeDirected {
-	public RCCPerDegreeDirectedComp() {
+public class DirectedRichClubConnectivityPerDegreeR extends DirectedRichClubConnectivityPerDegree {
+	public DirectedRichClubConnectivityPerDegreeR() {
 		super("RCCPerDegreeComp", ApplicationType.Recomputation);
 	}
 

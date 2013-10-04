@@ -1,35 +1,33 @@
-package dna.metrics.richClubConnectivity;
+package dna.metrics.richClubConnectivity.directedRichClubConnectivityPerDegree;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import dna.graph.Graph;
 import dna.graph.IElement;
-import dna.graph.edges.UndirectedEdge;
+import dna.graph.edges.DirectedEdge;
 import dna.graph.nodes.DirectedNode;
-import dna.graph.nodes.UndirectedNode;
 import dna.metrics.Metric;
 import dna.series.data.Distribution;
 import dna.series.data.NodeValueList;
 import dna.series.data.Value;
-import dna.updates.Batch;
+import dna.updates.batch.Batch;
 
-@SuppressWarnings("rawtypes")
-public abstract class RCCPerDegreeUndirected extends Metric {
+public abstract class DirectedRichClubConnectivityPerDegree extends Metric {
 	protected Map<Integer, Integer> richClubs;
-	protected Map<Integer, Double> richClubCoefficienten;
 	protected Map<Integer, Integer> richClubEdges;
-
 	protected int highestDegree;
 
-	public RCCPerDegreeUndirected(String name, ApplicationType type) {
+	public DirectedRichClubConnectivityPerDegree(String name,
+			ApplicationType type) {
 		super(name, type, MetricType.exact);
 	}
 
 	@Override
 	public void init_() {
 		this.richClubs = new HashMap<Integer, Integer>();
-		this.richClubCoefficienten = new HashMap<Integer, Double>();
 		this.richClubEdges = new HashMap<Integer, Integer>();
 		this.highestDegree = 0;
 	}
@@ -37,7 +35,6 @@ public abstract class RCCPerDegreeUndirected extends Metric {
 	@Override
 	public void reset_() {
 		this.richClubs = new HashMap<Integer, Integer>();
-		this.richClubCoefficienten = new HashMap<Integer, Double>();
 		this.richClubEdges = new HashMap<Integer, Integer>();
 		this.highestDegree = 0;
 	}
@@ -46,19 +43,21 @@ public abstract class RCCPerDegreeUndirected extends Metric {
 	public boolean compute() {
 
 		for (IElement ie : g.getNodes()) {
-			UndirectedNode n = (UndirectedNode) ie;
-			int degree = n.getDegree();
+			DirectedNode n = (DirectedNode) ie;
+			int degree = n.getOutDegree();
 			this.highestDegree = Math.max(highestDegree, degree);
 
 			int edges = 0;
-			for (IElement ieEdges : n.getEdges()) {
-				UndirectedEdge ed = (UndirectedEdge) ieEdges;
-				UndirectedNode node = ed.getDifferingNode(n);
-				if (node.getDegree() > degree) {
-					edges += 2;
+			for (IElement ieEdges : n.getOutgoingEdges()) {
+				DirectedEdge ed = (DirectedEdge) ieEdges;
+				if (ed.getDst().getOutDegree() >= degree) {
+					edges++;
 				}
-				if (node.getDegree() == degree) {
-					edges += 1;
+			}
+			for (IElement ieEdges : n.getIncomingEdges()) {
+				DirectedEdge ed = (DirectedEdge) ieEdges;
+				if (ed.getSrc().getOutDegree() > degree) {
+					edges++;
 				}
 			}
 
@@ -67,21 +66,22 @@ public abstract class RCCPerDegreeUndirected extends Metric {
 				this.richClubEdges.put(degree, this.richClubEdges.get(degree)
 						+ edges);
 			} else {
-
+				Set<DirectedNode> temp = new HashSet<DirectedNode>();
+				temp.add(n);
 				this.richClubs.put(degree, 1);
 				this.richClubEdges.put(degree, edges);
 			}
 		}
 
-		calculateRCC();
-
 		return true;
 
 	}
 
-	protected void calculateRCC() {
+	private double[] calculateRCC() {
 		int richClubCount = 0;
 		int edges = 0;
+		int counter = 0;
+		double[] result = new double[this.richClubs.size()];
 		for (int i = this.highestDegree; i > 0; i--) {
 			if (richClubs.keySet().contains(i) && richClubEdges.containsKey(i)) {
 				edges += this.richClubEdges.get(i);
@@ -89,27 +89,27 @@ public abstract class RCCPerDegreeUndirected extends Metric {
 				double divisor = richClubCount * (richClubCount - 1);
 
 				double rCC = edges / divisor;
-				this.richClubCoefficienten.put(i, rCC);
+				result[counter++] = rCC;
+
 			}
 		}
+		return result;
 	}
 
 	@Override
 	public boolean equals(Metric m) {
-		if (m == null || !(m instanceof RCCPerDegreeUndirected)) {
+		if (m == null || !(m instanceof DirectedRichClubConnectivityPerDegree)) {
 			return false;
 		}
-		RCCPerDegreeUndirected rcc = (RCCPerDegreeUndirected) m;
+		DirectedRichClubConnectivityPerDegree rcc = (DirectedRichClubConnectivityPerDegree) m;
 
 		boolean success = true;
-		if (!this.richClubCoefficienten.equals(rcc.richClubCoefficienten)) {
-
-			System.out.println("diff @ richClubCoeffizient");
-			success = false;
-		}
 
 		if (!this.richClubEdges.equals(rcc.richClubEdges)) {
 			System.out.println("diff @ richClubEdges");
+			System.out.println(this.getName() + " " + this.richClubEdges);
+			System.out.println(rcc.getName() + " " + rcc.richClubEdges);
+
 			success = false;
 		}
 
@@ -128,66 +128,29 @@ public abstract class RCCPerDegreeUndirected extends Metric {
 
 	@Override
 	public Distribution[] getDistributions() {
-		Distribution d1 = new Distribution("rCC#Coefficient",
-				this.makeDistribution2(this.richClubCoefficienten));
-		Distribution d2 = new Distribution("rCC#Size",
-				this.makeDistribution1(this.richClubs));
-		return new Distribution[] { d1, d2 };
+		Distribution d1 = new Distribution("rCC#Members", this.calculateRCC());
+		return new Distribution[] { d1 };
 	}
 
 	@Override
 	public NodeValueList[] getNodeValueLists() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	private double[] makeDistribution1(Map<Integer, Integer> richClubs2) {
-		double[] result = new double[richClubs2.keySet().size()];
-		int temp = 0;
-		for (int i = this.highestDegree; i > 0; i--) {
-			if (richClubs2.keySet().contains(i)) {
-				result[temp] = richClubs2.get(i);
-				temp++;
-			}
-		}
-
-		return result;
-
-	}
-
-	private double[] makeDistribution2(
-			Map<Integer, Double> richClubCoefficienten2) {
-
-		double[] result = new double[richClubCoefficienten2.keySet().size()];
-		int temp = 0;
-		for (int i = this.highestDegree; i > 0; i--) {
-			if (richClubCoefficienten2.keySet().contains(i)) {
-				result[temp] = richClubCoefficienten2.get(i);
-				temp++;
-			}
-		}
-
-		return result;
+		return new NodeValueList[] {};
 	}
 
 	@Override
 	public boolean isComparableTo(Metric m) {
-		return m != null && m instanceof RCCPerDegreeUndirected;
+		return m != null && m instanceof DirectedRichClubConnectivityPerDegree;
 	}
 
 	@Override
 	public boolean isApplicable(Graph g) {
 		return DirectedNode.class.isAssignableFrom(g.getGraphDatastructures()
-				.getNodeType())
-				|| UndirectedNode.class.isAssignableFrom(g
-						.getGraphDatastructures().getNodeType());
+				.getNodeType());
 	}
 
 	@Override
 	public boolean isApplicable(Batch b) {
 		return DirectedNode.class.isAssignableFrom(b.getGraphDatastructures()
-				.getNodeType())
-				|| UndirectedNode.class.isAssignableFrom(b
-						.getGraphDatastructures().getNodeType());
+				.getNodeType());
 	}
 }

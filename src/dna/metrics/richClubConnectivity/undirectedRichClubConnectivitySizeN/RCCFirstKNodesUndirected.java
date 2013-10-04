@@ -1,4 +1,4 @@
-package dna.metrics.richClubConnectivity;
+package dna.metrics.richClubConnectivity.undirectedRichClubConnectivitySizeN;
 
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -15,9 +15,8 @@ import dna.metrics.Metric;
 import dna.series.data.Distribution;
 import dna.series.data.NodeValueList;
 import dna.series.data.Value;
-import dna.updates.Batch;
+import dna.updates.batch.Batch;
 
-@SuppressWarnings("rawtypes")
 public abstract class RCCFirstKNodesUndirected extends Metric {
 	protected SortedSet<Integer> degrees;
 	protected LinkedList<UndirectedNode> richClub;

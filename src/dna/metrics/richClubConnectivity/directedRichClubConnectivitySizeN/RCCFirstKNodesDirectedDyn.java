@@ -1,4 +1,4 @@
-package dna.metrics.richClubConnectivity;
+package dna.metrics.richClubConnectivity.directedRichClubConnectivitySizeN;
 
 import java.util.LinkedList;
 import java.util.ListIterator;
@@ -6,15 +6,14 @@ import java.util.ListIterator;
 import dna.graph.IElement;
 import dna.graph.edges.DirectedEdge;
 import dna.graph.nodes.DirectedNode;
-import dna.updates.Batch;
-import dna.updates.EdgeAddition;
-import dna.updates.EdgeRemoval;
-import dna.updates.EdgeUpdate;
-import dna.updates.NodeAddition;
-import dna.updates.NodeRemoval;
-import dna.updates.Update;
+import dna.updates.batch.Batch;
+import dna.updates.update.EdgeAddition;
+import dna.updates.update.EdgeRemoval;
+import dna.updates.update.EdgeUpdate;
+import dna.updates.update.NodeAddition;
+import dna.updates.update.NodeRemoval;
+import dna.updates.update.Update;
 
-@SuppressWarnings("rawtypes")
 public class RCCFirstKNodesDirectedDyn extends RCCFirstKNodesDirected {
 
 	public RCCFirstKNodesDirectedDyn() {
