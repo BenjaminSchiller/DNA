@@ -28,7 +28,6 @@ import dna.metrics.Metric.ApplicationType;
 import dna.metrics.Metric.MetricType;
 import dna.profiler.GraphProfiler;
 import dna.profiler.GraphProfiler.ProfilerType;
-import dna.profiler.MetricsProfiler;
 import dna.series.data.Distribution;
 import dna.series.data.NodeValueList;
 import dna.series.data.Value;

@@ -17,9 +17,8 @@ import dna.metrics.Metric;
 import dna.series.data.Distribution;
 import dna.series.data.NodeValueList;
 import dna.series.data.Value;
-import dna.updates.Batch;
+import dna.updates.batch.Batch;
 
-@SuppressWarnings("rawtypes")
 public abstract class CCDirected extends Metric {
 
 	private boolean[] visited;

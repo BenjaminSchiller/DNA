@@ -1,224 +1,128 @@
 package dna.graph.generators.google;
 
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.HashSet;
 
 import dna.graph.Graph;
 import dna.graph.datastructures.GraphDataStructure;
 import dna.graph.edges.DirectedEdge;
-import dna.graph.generators.directed.DirectedGraphGenerator;
 import dna.graph.nodes.DirectedNode;
+import dna.io.GraphWriter;
 import dna.util.parameters.Parameter;
 
-public class GooglePlusGraphGeneratorDuringParse extends DirectedGraphGenerator
-		implements IDtoForDatabase {
+public class GooglePlusGraphGeneratorDuringParse {
 
+	private static String IN = "# In list:";
+	private static String OUT = "# Out list:";
+
+	private Graph g;
 	private BufferedReader in;
 	private String foldername;
 	private int nodeLabelCounter;
 	private HashMap<String, Integer> mapping;
-	private HashMap<DirectedNode, Long> lastSeen;
-	private HashMap<DirectedNode, Integer> count;
-	private HashMap<String, DirectedNode> nodes;
-	private HashSet<DirectedEdge> edges;
+	private HashMap<Integer, Long> lastSeen;
+	private HashMap<Integer, Integer> count;
 	private GraphNodeAdditionType type;
+	private GraphDataStructure ds;
 
 	public GooglePlusGraphGeneratorDuringParse(String name,
-			GraphDataStructure d, String foldername,
+			GraphDataStructure ds, String foldername,
 			GraphNodeAdditionType type, Parameter[] parameters) {
-		super(name, parameters, d, 0L, 0, 0);
+		this.ds = ds;
 		this.foldername = foldername;
 		this.mapping = new HashMap<>();
 		this.lastSeen = new HashMap<>();
 		this.count = new HashMap<>();
-		this.edges = new HashSet<>();
-		this.nodes = new HashMap<>();
 		this.nodeLabelCounter = 0;
 		this.type = type;
+		this.g = ds.newGraphInstance(name, 0, 1000000, 1000000);
 	}
 
-	public int getNodeLabelCounter() {
-		return nodeLabelCounter;
+	public boolean writeMappingToFile(String dir, String filename) {
+		return MappingWriter.write(this.getDto(), dir, filename);
 	}
 
-	public HashMap<String, Integer> getMapping() {
-		return mapping;
-	}
-
-	public HashMap<DirectedNode, Integer> getCount() {
-		return count;
-	}
-
-	public HashMap<DirectedNode, Long> getNodesLastTimeSeen() {
-		return lastSeen;
-	}
-
-	public void writeMappingToFile() {
-		try {
-
-			String content = "UserId;;;\t\t InternalMapping;;;\t\t counter;;; \n";
-			for (String s : mapping.keySet()) {
-				content += s + ";;;\t\t" + mapping.get(s) + ";;;\t\t "
-						+ lastSeen.get(s) + "\n";
-			}
-
-			File file = new File(foldername + "\\Mapping");
-
-			// if file doesnt exists, then create it
-			if (!file.exists()) {
-				file.createNewFile();
-			}
-
-			FileWriter fw = new FileWriter(file.getAbsoluteFile());
-			BufferedWriter bw = new BufferedWriter(fw);
-			bw.write(content);
-			bw.close();
-
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
-
-	@Override
-	public Graph generate() {
-		Graph g = this.newGraphInstance();
+	public Graph parseGraph() throws IOException {
 		final File folder = new File(foldername);
-		g = parseFolder(g, folder);
+		parseFolder(folder);
 		return g;
 	}
 
-	public Graph parseFolder(Graph g, final File folder) {
+	private void parseFolder(final File folder) throws IOException {
+		int count = 0;
 		for (final File fileEntry : folder.listFiles()) {
 			if (fileEntry.isDirectory()) {
-				g = parseFolder(g, fileEntry);
+				count = 0;
+				System.out.println(fileEntry.getName());
+				parseFolder(fileEntry);
 			} else {
-				g = parseFile(g, fileEntry);
+				System.out.println(count++);
+				parseFile(fileEntry);
 			}
 		}
-		return g;
+
 	}
 
-	private Graph parseFile(Graph g, File file) {
-		try {
-			FileReader reader = new FileReader(file);
-			in = new BufferedReader(reader);
-			String string;
-			String[] inputs;
-			DirectedNode user;
-			boolean parseInNodes = false;
-			boolean parseOutNodes = false;
+	private void parseFile(File file) throws IOException {
 
-			// /parse User
-			in.readLine();
-			string = in.readLine();
-			inputs = string.split(";;;");
-			if (mapping.containsKey(inputs[0])) {
-				// if (type == GraphNodeAdditionType.AfterNTimes) {
-				// return g;
-				// }
-				user = (DirectedNode) g.getNode(mapping.get(inputs[0]));
-			} else {
-				user = (DirectedNode) this.gds
-						.newNodeInstance(nodeLabelCounter);
-				// if (!count.keySet().contains(inputs[0])) {
-				// count.put(user, 1);
-				// }
-				// if (type == GraphNodeAdditionType.AfterNTimes) {
-				// return g;
-				// }
-				mapping.put(inputs[0], nodeLabelCounter);
-				nodes.put(inputs[0], user);
-				lastSeen.put(user, g.getTimestamp());
-				nodeLabelCounter++;
-				g.addNode(user);
-			}
+		FileReader reader = new FileReader(file);
+		in = new BufferedReader(reader);
+		String string;
 
-			while ((string = in.readLine()) != null) {
-				if (!parseOutNodes && string.contains("Out list:")) {
-					parseOutNodes = true;
-					continue;
-				}
-				if (!parseInNodes && parseOutNodes
-						&& string.contains("In list:")) {
-					parseInNodes = true;
-					parseOutNodes = false;
-					continue;
-				}
+		// /parse User
+		in.readLine();
+		string = in.readLine();
+		DirectedNode user = getNodeFromString(string);
 
-				if (parseOutNodes && !parseInNodes) {
-					inputs = string.split(";;;");
-					DirectedNode dst;
-					if (mapping.containsKey(inputs[0])) {
-						dst = (DirectedNode) g.getNode(mapping.get(inputs[0]));
-					} else {
-						dst = (DirectedNode) this.gds
-								.newNodeInstance(nodeLabelCounter);
-						mapping.put(inputs[0], nodeLabelCounter);
-						lastSeen.put(dst, g.getTimestamp());
-						nodes.put(inputs[0], dst);
+		while (!(string = in.readLine()).equals(OUT)) {
+		}
 
-						nodeLabelCounter++;
-						g.addNode(dst);
-					}
-					DirectedEdge edge = (DirectedEdge) this.gds
-							.newEdgeInstance(user, dst);
-					if (g.containsEdge(edge)) {
-						g.addEdge(edge);
-						edges.add(edge);
-						edge.getSrc().addEdge(edge);
-						edge.getDst().addEdge(edge);
-					}
-					continue;
-				}
-
-				if (!parseOutNodes && parseInNodes) {
-					inputs = string.split(";;;");
-					DirectedNode src;
-					if (mapping.containsKey(inputs[0])) {
-						src = (DirectedNode) g.getNode(mapping.get(inputs[0]));
-					} else {
-						src = (DirectedNode) this.gds
-								.newNodeInstance(nodeLabelCounter);
-						mapping.put(inputs[0], nodeLabelCounter);
-						lastSeen.put(src, g.getTimestamp());
-						nodes.put(inputs[0], src);
-						nodeLabelCounter++;
-						g.addNode(src);
-					}
-					DirectedEdge edge = (DirectedEdge) this.gds
-							.newEdgeInstance(src, user);
-					if (!g.containsEdge(edge)) {
-						g.addEdge(edge);
-						edges.add(edge);
-						edge.getSrc().addEdge(edge);
-						edge.getDst().addEdge(edge);
-					}
-					continue;
-				}
-			}
-		} catch (IOException e) {
-			e.printStackTrace();
-		} finally {
-			try {
-				if (in != null) {
-					in.close();
-				}
-			} catch (IOException e) {
-				e.printStackTrace();
+		while (!(string = in.readLine()).equals(IN)) {
+			DirectedNode dst = getNodeFromString(string);
+			DirectedEdge edge = (DirectedEdge) this.ds.newEdgeInstance(user,
+					dst);
+			if (g.containsEdge(edge)) {
+				g.addEdge(edge);
+				edge.connectToNodes();
 			}
 		}
-		return g;
+
+		while ((string = in.readLine()) != null) {
+			DirectedNode src = getNodeFromString(string);
+			DirectedEdge edge = (DirectedEdge) this.ds.newEdgeInstance(src,
+					user);
+			if (!g.containsEdge(edge)) {
+				g.addEdge(edge);
+				edge.connectToNodes();
+			}
+		}
 	}
 
-	@Override
-	public Dto getDto() {
-		return new Dto(nodes, edges, mapping, count, lastSeen,
-				nodeLabelCounter, this.getName());
+	private DirectedNode getNodeFromString(String string) {
+		DirectedNode node;
+		String nodeID = string.split(";;;")[0];
+		if (mapping.containsKey(nodeID)) {
+			node = (DirectedNode) g.getNode(mapping.get(nodeID));
+		} else {
+			node = (DirectedNode) this.ds.newNodeInstance(nodeLabelCounter);
+			mapping.put(nodeID, node.getIndex());
+			lastSeen.put(node.getIndex(), g.getTimestamp());
+			count.put(node.getIndex(), 1);
+			nodeLabelCounter++;
+			g.addNode(node);
+		}
+		return node;
+	}
+
+	public MappingDto getDto() {
+		return new MappingDto(mapping, count, lastSeen, nodeLabelCounter,
+				g.getName());
+	}
+
+	public boolean writeGraphToFile(String dir, String filename) {
+		return GraphWriter.write(g, dir, filename);
 	}
 }

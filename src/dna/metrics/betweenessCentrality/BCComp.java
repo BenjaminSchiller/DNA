@@ -1,9 +1,8 @@
 package dna.metrics.betweenessCentrality;
 
-import dna.updates.Batch;
-import dna.updates.Update;
+import dna.updates.batch.Batch;
+import dna.updates.update.Update;
 
-@SuppressWarnings("rawtypes")
 public class BCComp extends BetweenessCentrality {
 
 	public BCComp() {

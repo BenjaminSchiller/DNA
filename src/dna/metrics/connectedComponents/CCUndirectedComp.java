@@ -1,9 +1,8 @@
 package dna.metrics.connectedComponents;
 
-import dna.updates.Batch;
-import dna.updates.Update;
+import dna.updates.batch.Batch;
+import dna.updates.update.Update;
 
-@SuppressWarnings("rawtypes")
 public class CCUndirectedComp extends CCUndirected {
 
 	public CCUndirectedComp() {

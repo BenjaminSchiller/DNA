@@ -1,6 +1,5 @@
 package dna.metrics.connectedComponents;
 
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Queue;
@@ -8,10 +7,11 @@ import java.util.Queue;
 import dna.graph.IElement;
 import dna.graph.edges.UndirectedEdge;
 import dna.graph.nodes.UndirectedNode;
-import dna.updates.Batch;
-import dna.updates.Update;
+import dna.updates.batch.Batch;
+import dna.updates.update.EdgeAddition;
+import dna.updates.update.EdgeRemoval;
+import dna.updates.update.Update;
 
-@SuppressWarnings("rawtypes")
 public class CCUndirectedDynBatch extends CCUndirected {
 
 	public CCUndirectedDynBatch() {
@@ -28,9 +28,8 @@ public class CCUndirectedDynBatch extends CCUndirected {
 	public boolean applyAfterBatch(Batch b) {
 		int r = 0;
 
-		Collection<UndirectedEdge> edgeRemovals = (Collection<UndirectedEdge>) b
-				.getEdgeRemovals();
-		for (UndirectedEdge e : edgeRemovals) {
+		for (EdgeRemoval re : b.getEdgeRemovals()) {
+			UndirectedEdge e = (UndirectedEdge) re.getEdge();
 			SpanningTreeNode n1 = this.nodesTreeElement.get(e.getNode1()
 					.getIndex());
 			SpanningTreeNode n2 = this.nodesTreeElement.get(e.getNode2()
@@ -64,8 +63,8 @@ public class CCUndirectedDynBatch extends CCUndirected {
 			this.reset_();
 			this.compute();
 		} else {
-			for (UndirectedEdge e : (Collection<UndirectedEdge>) b
-					.getEdgeAdditions()) {
+			for (EdgeAddition ea : b.getEdgeAdditions()) {
+				UndirectedEdge e = (UndirectedEdge) ea.getEdge();
 				UndirectedNode n1 = e.getNode1();
 				UndirectedNode n2 = e.getNode2();
 

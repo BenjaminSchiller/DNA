@@ -13,14 +13,15 @@ import dna.graph.datastructures.GraphDataStructure;
 import dna.graph.edges.DirectedEdge;
 import dna.graph.nodes.DirectedNode;
 
-public class Parser implements IDtoForDatabase {
+public class Parser {
+	private static String IN = "# In list:";
+	private static String OUT = "# Out list:";
+
 	BufferedReader in;
 	GraphDataStructure ds;
 	HashMap<String, DirectedNode> nodes = new HashMap<>();
 	HashSet<DirectedEdge> edges = new HashSet<DirectedEdge>();
 	HashMap<String, Integer> mapping = new HashMap<>();
-	HashMap<DirectedNode, Integer> count = new HashMap<>();
-	HashMap<DirectedNode, Long> lastSeen = new HashMap<>();
 	int nodeLabelCounter = 0;
 
 	public Parser() {
@@ -44,78 +45,39 @@ public class Parser implements IDtoForDatabase {
 			FileReader reader = new FileReader(fileEntry);
 			in = new BufferedReader(reader);
 			String string;
-			String[] inputs;
-			DirectedNode user;
-			boolean inNodes = false;
-			boolean outNodes = false;
+
 			in.readLine();
 			string = in.readLine();
-			inputs = string.split(";;;");
-			if (mapping.containsKey(inputs[0])) {
-				user = nodes.get(inputs[0]);
-			} else {
-				user = (DirectedNode) ds.newNodeInstance(nodeLabelCounter);
-				mapping.put(inputs[0], nodeLabelCounter);
-				nodeLabelCounter++;
-				nodes.put(inputs[0], user);
+			DirectedNode user = getNodeFromString(string);
+
+			while ((string = in.readLine()).equals(OUT)) {
+
+			}
+
+			while ((string = in.readLine()).equals(IN)) {
+
+				DirectedNode dst = getNodeFromString(string);
+
+				DirectedEdge edge = (DirectedEdge) ds
+						.newEdgeInstance(user, dst);
+				if (!edges.contains(edge)) {
+					edges.add(edge);
+					edge.connectToNodes();
+				}
 			}
 
 			while ((string = in.readLine()) != null) {
 
-				if (!outNodes && string.contains("Out list:")) {
-					outNodes = true;
-					continue;
-				}
-				if (!inNodes && outNodes && string.contains("In list:")) {
-					inNodes = true;
-					outNodes = false;
-					continue;
-				}
-
-				if (outNodes && !inNodes) {
-					inputs = string.split(";;;");
-					DirectedNode dst;
-					if (mapping.containsKey(inputs[0])) {
-						dst = nodes.get(inputs[0]);
-					} else {
-						dst = (DirectedNode) ds
-								.newNodeInstance(nodeLabelCounter);
-						mapping.put(inputs[0], nodeLabelCounter);
-
-						nodeLabelCounter++;
-						nodes.put(inputs[0], dst);
-					}
-					DirectedEdge edge = (DirectedEdge) ds.newEdgeInstance(user,
-							dst);
-					if (!edges.contains(edge)) {
-						edges.add(edge);
-						edge.getSrc().addEdge(edge);
-						edge.getDst().addEdge(edge);
-					}
-					continue;
-				}
-
-				if (!outNodes && inNodes) {
-					DirectedNode src;
-					if (mapping.containsKey(inputs[0])) {
-						src = nodes.get(inputs[0]);
-					} else {
-						src = (DirectedNode) ds
-								.newNodeInstance(nodeLabelCounter);
-						mapping.put(inputs[0], nodeLabelCounter);
-
-						nodeLabelCounter++;
-						nodes.put(inputs[0], src);
-					}
-					DirectedEdge edge = (DirectedEdge) ds.newEdgeInstance(src,
-							user);
-					if (!edges.contains(edge)) {
-						edges.add(edge);
-						edge.getSrc().addEdge(edge);
-						edge.getDst().addEdge(edge);
-					}
+				DirectedNode src = getNodeFromString(string);
+				DirectedEdge edge = (DirectedEdge) ds
+						.newEdgeInstance(src, user);
+				if (!edges.contains(edge)) {
+					edges.add(edge);
+					edge.getSrc().addEdge(edge);
+					edge.getDst().addEdge(edge);
 				}
 			}
+
 		} catch (IOException e) {
 			e.printStackTrace();
 		} finally {
@@ -130,16 +92,24 @@ public class Parser implements IDtoForDatabase {
 
 	}
 
-	public Dto parse(final String filename) {
-		File folder = new File(filename);
-		parseFolder(folder);
-		return new Dto(nodes, edges, mapping, count, lastSeen,
-				nodeLabelCounter, "");
+	private DirectedNode getNodeFromString(String string) {
+		DirectedNode node;
+		String nodeID = string.split(";;;")[0];
+		if (mapping.containsKey(nodeID)) {
+			node = nodes.get(mapping.get(nodeID));
+		} else {
+			node = (DirectedNode) this.ds.newNodeInstance(nodeLabelCounter);
+			mapping.put(nodeID, node.getIndex());
+			nodes.put(nodeID, node);
+			nodeLabelCounter++;
+		}
+		return node;
 	}
 
-	@Override
-	public Dto getDto() {
-		return new Dto(nodes, edges, mapping, count, lastSeen,
-				nodeLabelCounter, "");
+	public ParseDto parse(final String filename) {
+		File folder = new File(filename);
+		parseFolder(folder);
+		return new ParseDto(mapping, nodes, edges, nodeLabelCounter, "");
 	}
+
 }
