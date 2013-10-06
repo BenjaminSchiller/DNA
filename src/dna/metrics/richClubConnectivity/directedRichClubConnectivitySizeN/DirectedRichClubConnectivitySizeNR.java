@@ -3,9 +3,10 @@ package dna.metrics.richClubConnectivity.directedRichClubConnectivitySizeN;
 import dna.updates.batch.Batch;
 import dna.updates.update.Update;
 
-public class RCCFirstKNodesDirectedComp extends RCCFirstKNodesDirected {
-	public RCCFirstKNodesDirectedComp() {
-		super("RCCFirstKNodesComp", ApplicationType.Recomputation);
+public class DirectedRichClubConnectivitySizeNR extends
+		DirectedRichClubConnectivitySizeN {
+	public DirectedRichClubConnectivitySizeNR(int richClubSize) {
+		super("RCCSizeNRecomp", ApplicationType.Recomputation, richClubSize);
 	}
 
 	@Override

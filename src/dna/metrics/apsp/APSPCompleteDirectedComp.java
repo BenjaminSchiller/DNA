@@ -1,7 +1,7 @@
 package dna.metrics.apsp;
 
-import dna.updates.Batch;
-import dna.updates.Update;
+import dna.updates.batch.Batch;
+import dna.updates.update.Update;
 
 @SuppressWarnings("rawtypes")
 public class APSPCompleteDirectedComp extends APSPCompleteDirected {

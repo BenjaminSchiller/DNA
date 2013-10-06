@@ -12,330 +12,172 @@ import dna.graph.IElement;
 import dna.graph.datastructures.GraphDataStructure;
 import dna.graph.edges.DirectedEdge;
 import dna.graph.nodes.DirectedNode;
-import dna.updates.Batch;
-import dna.updates.EdgeAddition;
-import dna.updates.EdgeRemoval;
-import dna.updates.NodeAddition;
-import dna.updates.NodeRemoval;
-import dna.updates.directed.DirectedBatchGenerator;
+import dna.io.BatchWriter;
+import dna.io.GraphWriter;
+import dna.updates.batch.Batch;
+import dna.updates.update.EdgeAddition;
+import dna.updates.update.EdgeRemoval;
+import dna.updates.update.NodeAddition;
+import dna.updates.update.NodeRemoval;
 
-public class GooglePlusBatchGeneratorDuringParse extends DirectedBatchGenerator
-		implements IDtoForDatabase {
+public class GooglePlusBatchGeneratorDuringParse implements IDtoForDatabase {
+
+	private static String IN = "# In list:";
+	private static String OUT = "# Out list:";
 
 	private BufferedReader in;
-	Graph g;
+	private Graph g;
+	private Batch b;
 	private HashMap<String, Integer> mapping;
 	private int nodeLabelCounter;
-	private HashMap<String, DirectedNode> newNodes;
-	private HashMap<DirectedNode, Long> lastSeen;
-	private HashSet<DirectedEdge> newEdges;
+	private HashMap<Integer, Long> lastSeen;
 	private String foldername;
 	private GraphNodeDeletionType deletionType;
 	private GraphNodeAdditionType additionType;
-	private HashMap<DirectedNode, Integer> count;
+	private HashMap<Integer, Integer> count;
+	private GraphDataStructure ds;
 
-	public GooglePlusBatchGeneratorDuringParse(String name,
-			GraphDataStructure datastructures, String foldername,
+	public GooglePlusBatchGeneratorDuringParse(String name, String foldername,
 			GraphNodeAdditionType additionType,
-			GraphNodeDeletionType deletionType, Dto dto) {
-		super(name, datastructures);
-		this.newNodes = new HashMap<String, DirectedNode>();
+			GraphNodeDeletionType deletionType, MappingDto dto) {
 		this.mapping = dto.mapping;
 		this.lastSeen = dto.lastSeen;
-		this.newEdges = new HashSet<DirectedEdge>();
+		this.nodeLabelCounter = dto.nodeLabelCounter;
+		this.count = dto.count;
 		this.foldername = foldername;
 		this.deletionType = deletionType;
 		this.additionType = additionType;
-		this.nodeLabelCounter = dto.nodeLabelCounter;
-		this.count = dto.count;
 	}
 
-	@Override
-	public Batch<DirectedEdge> generate(Graph graph) {
+	public Batch parseBatchFormFile(Graph graph) throws IOException {
 		g = graph;
-		Batch<DirectedEdge> batch = new Batch<DirectedEdge>(this.ds,
-				graph.getTimestamp(), graph.getTimestamp() + 1);
-
+		this.ds = g.getGraphDatastructures();
+		b = new Batch(this.ds, graph.getTimestamp(), graph.getTimestamp() + 1);
 		final File folder = new File(this.foldername);
-		batch = parseFolder(batch, folder);
-
-		batch = deletion(batch);
-
-		return batch;
+		parseFolder(folder);
+		deletion();
+		return b;
 	}
 
-	private Batch<DirectedEdge> deletion(Batch<DirectedEdge> batch) {
+	private void deletion() {
 		if (deletionType == GraphNodeDeletionType.AfterNTimes) {
-			for (DirectedNode n : lastSeen.keySet()) {
-				if (batch.getTo() - lastSeen.get(n) > 0) {
-					batch.add(new NodeRemoval<DirectedEdge>(n));
-					mapping.remove(n);
+			for (String s : mapping.keySet()) {
+				if (b.getTo() - lastSeen.get(mapping.get(s)) > 0) {
+					b.add(new NodeRemoval(g.getNode(mapping.get(s))));
 				}
 			}
 		} else if (deletionType == GraphNodeDeletionType.EmptyNodes) {
-			for (DirectedNode n : lastSeen.keySet()) {
+			for (IElement iE : g.getNodes()) {
+				DirectedNode n = (DirectedNode) iE;
 				if (n.getDegree() == 0) {
-					batch.add(new NodeRemoval<DirectedEdge>(n));
-					mapping.remove(n);
+					b.add(new NodeRemoval(n));
 				}
 			}
 		} else if (deletionType == GraphNodeDeletionType.NoDeletions) {
 			// nothing to do
 		} else if (deletionType == GraphNodeDeletionType.NotSeenInBatch) {
-			for (DirectedNode n : lastSeen.keySet()) {
-				if (batch.getTo() > lastSeen.get(n)) {
-					batch.add(new NodeRemoval<DirectedEdge>(n));
-					mapping.remove(n);
+			for (String s : mapping.keySet()) {
+				if (b.getTo() > lastSeen.get(mapping.get(s))) {
+					b.add(new NodeRemoval(g.getNode(mapping.get(s))));
 				}
 			}
 		} else {
 			System.err.println("wrong deletion type");
-			return null;
 		}
-
-		return batch;
 	}
 
-	public Batch<DirectedEdge> parseFolder(Batch<DirectedEdge> b,
-			final File folder) {
+	private void parseFolder(final File folder) throws IOException {
 		for (final File fileEntry : folder.listFiles()) {
 			if (fileEntry.isDirectory()) {
-				b = parseFolder(b, fileEntry);
+				parseFolder(fileEntry);
 			} else {
-				b = parseFile(b, fileEntry);
+				parseFile(fileEntry);
 			}
 		}
-		return b;
 	}
 
-	private Batch<DirectedEdge> parseFile(Batch<DirectedEdge> b, File file) {
-		try {
-
-			FileReader reader = new FileReader(file);
-			in = new BufferedReader(reader);
-			String string;
-			String[] inputs;
-			DirectedNode user;
-
-			// /parse User
-			in.readLine();
-			string = in.readLine();
-			inputs = string.split(";;;");
-			// if (count.keySet().contains(inputs[0])) {
-			// count.put(inputs[0], count.get(inputs[0] + 1));
-			// } else {
-			// count.put(inputs[0], 1);
-			// }
-			if (additionType == GraphNodeAdditionType.AfterNTimes
-					&& count.get(inputs[0]) < 1) {
-				return b;
-			}
-
-			if (mapping.containsKey(inputs[0])) {
-				if (newNodes.containsKey(inputs[0])) {
-					user = newNodes.get(inputs[0]);
-				} else {
-					user = (DirectedNode) g.getNode(mapping.get(inputs[0]));
-				}
-				lastSeen.put(user, b.getTo());
-				b = nodeUpdate(b, user);
-			} else {
-				user = (DirectedNode) this.ds.newNodeInstance(nodeLabelCounter);
-				mapping.put(inputs[0], nodeLabelCounter);
-				nodeLabelCounter++;
-				newNodes.put(inputs[0], user);
-				lastSeen.put(user, b.getTo());
-				b.add(new NodeAddition<DirectedEdge>(user));
-				b = nodeAddition(b, user);
-			}
-		} catch (IOException e) {
-			e.printStackTrace();
-		} finally {
-			try {
-				if (in != null) {
-					in.close();
-				}
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
-		return b;
-	}
-
-	private Batch<DirectedEdge> nodeUpdate(Batch<DirectedEdge> b,
-			DirectedNode user) throws IOException {
+	private void parseFile(File file) throws IOException {
+		HashSet<DirectedEdge> seenEdges = new HashSet<DirectedEdge>();
+		FileReader reader = new FileReader(file);
+		in = new BufferedReader(reader);
 		String string;
-		String[] inputs;
-		boolean parseInNodes = false;
-		boolean parseOutNodes = false;
-		while ((string = in.readLine()) != null) {
-			if (!parseOutNodes && string.contains("Out list:")) {
-				parseOutNodes = true;
-				continue;
-			}
-			if (!parseInNodes && parseOutNodes && string.contains("In list:")) {
-				parseInNodes = true;
-				parseOutNodes = false;
-				continue;
-			}
 
-			if (parseOutNodes && !parseInNodes) {
-				inputs = string.split(";;;");
-				DirectedNode dst;
-				if (mapping.containsKey(inputs[0])) {
-					if (newNodes.containsKey(inputs[0])) {
-						dst = newNodes.get(inputs[0]);
-					} else {
-						dst = (DirectedNode) g.getNode(mapping.get(inputs[0]));
-					}
-				} else {
-					dst = (DirectedNode) this.ds
-							.newNodeInstance(nodeLabelCounter);
-					mapping.put(inputs[0], nodeLabelCounter);
-					nodeLabelCounter++;
-					newNodes.put(inputs[0], dst);
-					b.add(new NodeAddition<DirectedEdge>(dst));
-				}
-				lastSeen.put(dst, b.getTo());
-				DirectedEdge e = (DirectedEdge) this.ds.newEdgeInstance(user,
-						dst);
-				if (!newEdges.contains(e)) {
-					if (!g.containsEdge(e)) {
-						b.add(new EdgeAddition<DirectedEdge>(e));
-					}
-					newEdges.add(e);
-				}
-				continue;
-			}
+		// /parse User
+		in.readLine();
+		string = in.readLine();
+		DirectedNode user = this.getNodeFromString(string);
 
-			if (!parseOutNodes && parseInNodes) {
-				inputs = string.split(";;;");
-				DirectedNode src;
-				if (mapping.containsKey(inputs[0])) {
-					if (newNodes.containsKey(inputs[0])) {
-						src = newNodes.get(inputs[0]);
-					} else {
-						src = (DirectedNode) g.getNode(mapping.get(inputs[0]));
-					}
-				} else {
-					src = (DirectedNode) this.ds
-							.newNodeInstance(nodeLabelCounter);
-					mapping.put(inputs[0], nodeLabelCounter);
-					nodeLabelCounter++;
-					newNodes.put(inputs[0], src);
-					b.add(new NodeAddition<DirectedEdge>(src));
-				}
-				lastSeen.put(src, b.getTo());
-				DirectedEdge e = (DirectedEdge) this.ds.newEdgeInstance(src,
-						user);
-				if (!newEdges.contains(e)) {
-					if (!g.containsEdge(e)) {
-						b.add(new EdgeAddition<DirectedEdge>(e));
-					}
-					newEdges.add(e);
-				}
-				continue;
+		while (!(string = in.readLine()).equals(OUT)) {
+		}
+
+		while (!(string = in.readLine()).equals(IN)) {
+			DirectedNode dst = getNodeFromString(string);
+			DirectedEdge edge = (DirectedEdge) this.ds.newEdgeInstance(user,
+					dst);
+			seenEdges.add(edge);
+			if (g.containsEdge(edge)) {
+				g.addEdge(edge);
+				edge.connectToNodes();
+				b.add(new EdgeAddition(edge));
 			}
 		}
+
+		while ((string = in.readLine()) != null) {
+			DirectedNode src = getNodeFromString(string);
+			DirectedEdge edge = (DirectedEdge) this.ds.newEdgeInstance(src,
+					user);
+			seenEdges.add(edge);
+			if (!g.containsEdge(edge)) {
+				g.addEdge(edge);
+				edge.connectToNodes();
+				b.add(new EdgeAddition(edge));
+			}
+		}
+
 		for (IElement ie : user.getEdges()) {
 			DirectedEdge edge = (DirectedEdge) ie;
-			if (!newEdges.contains(edge)) {
-				b.add(new EdgeRemoval<DirectedEdge>(edge));
+			if (!seenEdges.contains(edge)) {
+				b.add(new EdgeRemoval(edge));
 			}
 		}
-		return b;
 	}
 
-	private Batch<DirectedEdge> nodeAddition(Batch<DirectedEdge> b,
-			DirectedNode user) throws IOException {
-
-		String string;
-		String[] inputs;
-		boolean parseInNodes = false;
-		boolean parseOutNodes = false;
-		while ((string = in.readLine()) != null) {
-			if (!parseOutNodes && string.contains("Out list:")) {
-				parseOutNodes = true;
-				continue;
-			}
-			if (!parseInNodes && parseOutNodes && string.contains("In list:")) {
-				parseInNodes = true;
-				parseOutNodes = false;
-				continue;
-			}
-
-			if (parseOutNodes && !parseInNodes) {
-				inputs = string.split(";;;");
-				DirectedNode dst;
-				if (mapping.containsKey(inputs[0])) {
-					if (newNodes.containsKey(inputs[0])) {
-						dst = newNodes.get(inputs[0]);
-					} else {
-						dst = (DirectedNode) g.getNode(mapping.get(inputs[0]));
-					}
-				} else {
-					dst = (DirectedNode) this.ds
-							.newNodeInstance(nodeLabelCounter);
-					mapping.put(inputs[0], nodeLabelCounter);
-					nodeLabelCounter++;
-					newNodes.put(inputs[0], dst);
-					b.add(new NodeAddition<DirectedEdge>(dst));
-				}
-				lastSeen.put(dst, b.getTo());
-				DirectedEdge e = (DirectedEdge) this.ds.newEdgeInstance(user,
-						dst);
-				if (!newEdges.contains(e)) {
-					if (!g.containsEdge(e)) {
-						b.add(new EdgeAddition<DirectedEdge>(e));
-					}
-					newEdges.add(e);
-				}
-				continue;
-			}
-
-			if (!parseOutNodes && parseInNodes) {
-				inputs = string.split(";;;");
-				DirectedNode src;
-				if (mapping.containsKey(inputs[0])) {
-					if (newNodes.containsKey(inputs[0])) {
-						src = newNodes.get(inputs[0]);
-					} else {
-						src = (DirectedNode) g.getNode(mapping.get(inputs[0]));
-					}
-				} else {
-					src = (DirectedNode) this.ds
-							.newNodeInstance(nodeLabelCounter);
-					mapping.put(inputs[0], nodeLabelCounter);
-					nodeLabelCounter++;
-					newNodes.put(inputs[0], src);
-					b.add(new NodeAddition<DirectedEdge>(src));
-				}
-				lastSeen.put(src, b.getTo());
-				DirectedEdge e = (DirectedEdge) this.ds.newEdgeInstance(src,
-						user);
-				if (!newEdges.contains(e)) {
-					if (!g.containsEdge(e)) {
-						b.add(new EdgeAddition<DirectedEdge>(e));
-					}
-					newEdges.add(e);
-				}
-				continue;
-			}
+	private DirectedNode getNodeFromString(String string) {
+		DirectedNode node;
+		String nodeID = string.split(";;;")[0];
+		if (this.mapping.containsKey(nodeID)) {
+			node = (DirectedNode) this.g.getNode(this.mapping.get(nodeID));
+		} else {
+			node = (DirectedNode) this.ds
+					.newNodeInstance(this.nodeLabelCounter);
+			this.mapping.put(nodeID, node.getIndex());
+			this.lastSeen.put(node.getIndex(), this.b.getTo());
+			this.nodeLabelCounter++;
+			count.put(node.getIndex(), 1);
+			this.g.addNode(node);
+			b.add(new NodeAddition(node));
 		}
-		return b;
+		return node;
 	}
 
-	@Override
-	public void reset() {
-		// TODO Auto-generated method stub
-
+	public MappingDto getDto() {
+		return new MappingDto(this.mapping, this.count, this.lastSeen,
+				this.nodeLabelCounter, this.g.getName());
 	}
 
-	@Override
-	public Dto getDto() {
-
-		return new Dto(newNodes, newEdges, mapping, count, lastSeen,
-				nodeLabelCounter, this.getName());
+	public boolean writeGraphToFile(String dir, String filename) {
+		return GraphWriter.write(this.g, dir, filename);
 	}
 
+	public boolean writeBatchToFile(String dir, String filename) {
+		return BatchWriter.write(this.b, dir, filename);
+	}
+
+	public Graph getGraph() {
+		return this.g;
+	}
+
+	public void writeMappingToFile(String dir, String filename) {
+		MappingWriter.write(this.getDto(), dir, filename);
+	}
 }
