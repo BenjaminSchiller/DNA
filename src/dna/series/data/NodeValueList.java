@@ -29,8 +29,10 @@ public class NodeValueList extends Data {
 
 	// constructors
 	public NodeValueList(String name, int size) {
-		super(name);
-		values = new double[size];
+		this(name, new double[size]);
+		for (int i = 0; i < this.values.length; i++) {
+			this.values[i] = NodeValueList.emptyValue;
+		}
 	}
 
 	public NodeValueList(String name, double[] values) {

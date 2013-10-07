@@ -158,6 +158,7 @@ public class UndirectedClusteringCoefficientU extends
 					n.getIndex(), 0, Long.MIN_VALUE);
 			this.nodeTriangleCount = ArrayUtils.set(this.nodeTriangleCount,
 					n.getIndex(), 0, Long.MIN_VALUE);
+			this.averageCC = ArrayUtils.avgIgnoreNaN(this.localCC.getValues());
 		} else if (u instanceof NodeRemoval) {
 			UndirectedNode n = (UndirectedNode) ((NodeRemoval) u).getNode();
 

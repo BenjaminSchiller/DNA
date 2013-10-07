@@ -105,6 +105,11 @@ public class DegreeDistributionU extends DegreeDistribution {
 				this.outDegree.incr(neighbor.getOutDegree() - 1);
 			}
 
+			// TRUNCATE
+			this.degree.truncate();
+			this.inDegree.truncate();
+			this.outDegree.truncate();
+
 		} else if (u instanceof EdgeAddition || u instanceof EdgeRemoval) {
 
 			DirectedEdge e = (DirectedEdge) ((EdgeUpdate) u).getEdge();
@@ -129,9 +134,11 @@ public class DegreeDistributionU extends DegreeDistribution {
 			this.inDegree.incr(e.getDst().getInDegree() + change);
 
 			// TRUNCATE
-			this.degree.truncate();
-			this.inDegree.truncate();
-			this.outDegree.truncate();
+			if (u instanceof EdgeRemoval) {
+				this.degree.truncate();
+				this.inDegree.truncate();
+				this.outDegree.truncate();
+			}
 
 		}
 
@@ -146,6 +153,9 @@ public class DegreeDistributionU extends DegreeDistribution {
 
 			// UPDATE distributions
 			this.degree.incrDenominator();
+
+			// TRUNCATE
+			this.degree.truncate();
 
 		} else if (u instanceof NodeRemoval) {
 
@@ -185,7 +195,9 @@ public class DegreeDistributionU extends DegreeDistribution {
 			this.degree.incr(e.getNode2().getDegree() + change);
 
 			// TRUNCATE
-			this.degree.truncate();
+			if (u instanceof EdgeRemoval) {
+				this.degree.truncate();
+			}
 
 		}
 
