@@ -407,8 +407,9 @@ public class GraphDataStructure {
 				continue;
 			Type[] args = pt.getActualTypeArguments();
 			weightType = (Class<?>) args[0];
+			return weightType;
 		}
-		return weightType;
+		return null;
 	}
 
 	public Class<?> getNodeWeightType() {
