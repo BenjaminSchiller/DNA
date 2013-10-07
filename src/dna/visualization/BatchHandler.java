@@ -19,8 +19,9 @@ public class BatchHandler implements Runnable {
 	private BatchDataList batches;
 	private int index;
 	private StatsDisplay statsFrame;
+	private MainDisplay mainFrame;
 
-	private boolean started;
+	private boolean isInit;
 	private boolean threadSuspended;
 
 	private Thread t;
@@ -33,15 +34,17 @@ public class BatchHandler implements Runnable {
 		this.dir = dir;
 		this.batches = new BatchDataList();
 		this.index = 0;
-		this.started = false;
+		this.isInit = false;
 	}
 
-	public BatchHandler(String dir, StatsDisplay statsFrame) {
+	public BatchHandler(String dir, StatsDisplay statsFrame,
+			MainDisplay mainFrame) {
 		this.dir = dir;
 		this.statsFrame = statsFrame;
+		this.mainFrame = mainFrame;
 		this.batches = new BatchDataList();
 		this.index = 0;
-		this.started = false;
+		this.isInit = false;
 	}
 
 	// get methods
@@ -66,7 +69,7 @@ public class BatchHandler implements Runnable {
 	}
 
 	public long getMaxTimestamp() {
-		return this.getMinTimestamp() + this.getAmountOfBatches();
+		return this.getMinTimestamp() + this.getAmountOfBatches() - 1;
 	}
 
 	// set methods
@@ -160,52 +163,51 @@ public class BatchHandler implements Runnable {
 	 */
 	public void run() {
 		Thread thisThread = Thread.currentThread();
-		while (t == thisThread) {
-			try {
-				BatchData initBatch = this.getNextBatch();
+		if (!isInit)
+			this.init();
 
-				this.statsFrame.initData(initBatch, dir,
-						this.getMinTimestamp(), this.getMaxTimestamp());
-				this.t.sleep(this.INITIAL_WAIT_TIME);
-				while (this.isNewBatchAvailable()) {
-					synchronized (this) {
-						while (this.threadSuspended)
-							wait();
-					}
-					long startProcessing = System.currentTimeMillis();
-					this.statsFrame.updateData(this.getNextBatch());
-					long waitTime = this.getSpeed()
-							- (System.currentTimeMillis() - startProcessing);
-					if (waitTime > 0)
-						this.t.sleep(waitTime);
+		while (t == thisThread && this.isNewBatchAvailable()) {
+			try {
+				synchronized (this) {
+					while (this.threadSuspended)
+						wait();
 				}
+
+				long startProcessing = System.currentTimeMillis();
+				BatchData tempBatch = this.getNextBatch();
+				this.mainFrame.updateData(tempBatch);
+				long waitTime = this.getSpeed()
+						- (System.currentTimeMillis() - startProcessing);
+				if (waitTime > 0)
+					this.t.sleep(waitTime);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
 		}
 	}
 
+	/** resets the batchhandler **/
 	public void reset() throws InterruptedException {
-		this.statsFrame.reset();
+		this.stop();
+		this.mainFrame.reset();
 		this.setIndex(0);
 	}
 
+	/** starts the batchhandler **/
 	public void start() {
-		if (!started) {
-			if (this.t == null) {
-				this.t = new Thread(this, "BatchHandler-Thread");
-				System.out.println("New Thread: " + t);
-			}
+		if (this.t == null) {
+			this.t = new Thread(this, "BatchHandler-Thread");
+			System.out.println("New Thread: " + t);
 			this.t.start();
-			this.started = true;
 		}
 	}
 
+	/** stops the btachhandler **/
 	public void stop() {
-		t.stop();
 		t = null;
 	}
 
+	/** pause / unpause the batchhandler **/
 	public synchronized void togglePause() {
 		this.threadSuspended = !threadSuspended;
 
@@ -213,4 +215,19 @@ public class BatchHandler implements Runnable {
 			notify();
 	}
 
+	/** register new mainFrame to the batchhandler **/
+	public void registerMainFrame(MainDisplay mainFrame) {
+		this.mainFrame = mainFrame;
+	}
+
+	/** returns the mainframe the batch handler belongs to **/
+	public MainDisplay getMainFrame() {
+		return this.mainFrame;
+	}
+
+	/** initializes by sending the first batch to the mainwindow **/
+	public void init() {
+		this.mainFrame.initData(this.getNextBatch());
+		this.isInit = true;
+	}
 }

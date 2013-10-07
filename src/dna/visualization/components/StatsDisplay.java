@@ -1,6 +1,5 @@
 package dna.visualization.components;
 
-import java.awt.Component;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.util.Hashtable;
@@ -9,6 +8,7 @@ import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JProgressBar;
 import javax.swing.JSlider;
 import javax.swing.border.EtchedBorder;
 import javax.swing.border.TitledBorder;
@@ -42,8 +42,7 @@ public class StatsDisplay extends JPanel implements ChangeListener {
 	private JLabel EdgesLabel;
 	private JLabel EdgesValue;
 
-	private JLabel ProgressLabel;
-	private JLabel ProgressValue;
+	private JProgressBar ProgressBar;
 
 	private JSlider SpeedSlider;
 	private final int SPEED_MIN = 0;
@@ -71,7 +70,6 @@ public class StatsDisplay extends JPanel implements ChangeListener {
 		GridBagConstraints mainConstraints = new GridBagConstraints();
 		mainConstraints.fill = GridBagConstraints.HORIZONTAL;
 		this.setLayout(new GridBagLayout());
-		// this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 
 		// set general settings panel
 		this.SettingsPanel = new JPanel();
@@ -92,6 +90,8 @@ public class StatsDisplay extends JPanel implements ChangeListener {
 		this.SettingsNotSpeedPanel = new JPanel();
 		this.SettingsNotSpeedPanel.setLayout(new BoxLayout(
 				this.SettingsNotSpeedPanel, BoxLayout.X_AXIS));
+		settingsPanelConstraints.gridy = 0;
+		settingsPanelConstraints.gridx = 0;
 		this.SettingsPanel.add(this.SettingsNotSpeedPanel,
 				settingsPanelConstraints);
 
@@ -129,11 +129,13 @@ public class StatsDisplay extends JPanel implements ChangeListener {
 		settingLabels.add(this.EdgesLabel);
 		settingValues.add(this.EdgesValue);
 
-		// progress
-		this.ProgressLabel = new JLabel("Progress: ");
-		this.ProgressValue = new JLabel("00.00 %");
-		settingLabels.add(this.ProgressLabel);
-		settingValues.add(this.ProgressValue);
+		// progress bar
+		this.ProgressBar = new JProgressBar();
+		this.ProgressBar.setName("ProgressBar");
+		settingsPanelConstraints.gridy = 1;
+		settingsPanelConstraints.gridx = 0;
+		this.SettingsPanel.add(this.ProgressBar, settingsPanelConstraints);
+		this.ProgressBar.setStringPainted(true);
 
 		// speed slider
 		this.SpeedSlider = new JSlider(JSlider.HORIZONTAL, this.SPEED_MIN,
@@ -158,8 +160,9 @@ public class StatsDisplay extends JPanel implements ChangeListener {
 		// add event listener
 		this.SpeedSlider.addChangeListener(this);
 
-		settingsPanelConstraints.fill = GridBagConstraints.HORIZONTAL;
-		settingsPanelConstraints.gridy = 1;
+		settingsPanelConstraints.fill = GridBagConstraints.VERTICAL;
+		settingsPanelConstraints.gridy = 2;
+		settingsPanelConstraints.gridx = 0;
 		this.SettingsPanel.add(SpeedSlider, settingsPanelConstraints);
 
 		// general and metric runtime panels
@@ -237,11 +240,15 @@ public class StatsDisplay extends JPanel implements ChangeListener {
 		for (RunTime rt : b.getMetricRuntimes().getList()) {
 			this.metRuntimes.updateValue(rt.getName(), rt.getRuntime());
 		}
+		if (b.getTimestamp() == this.maxTimestamp) {
+			this.setProgess(100.0);
+		} else {
+			long amount = this.maxTimestamp - this.minTimestamp;
+			long pr = b.getTimestamp() - this.minTimestamp;
+			double percent = (Math.floor(((1.0 * pr) / (1.0 * amount)) * 10000) / 100);
+			this.setProgess(percent);
+		}
 
-		long amount = this.maxTimestamp - this.minTimestamp;
-		long pr = b.getTimestamp() - this.minTimestamp;
-		double percent = (Math.floor(((1.0 * pr) / (1.0 * amount)) * 10000) / 100);
-		this.setProgess(percent);
 		this.validate();
 	}
 
@@ -298,22 +305,16 @@ public class StatsDisplay extends JPanel implements ChangeListener {
 	}
 
 	public void setProgess(double progress) {
-		String text = "" + progress;
-		if (text.charAt(1) == '.')
-			text = "0" + text;
-		if (text.length() == 4)
-			text += "0";
-		text += " %";
-		this.ProgressValue.setText(text);
+		this.ProgressBar.setValue((int) Math.floor(progress));
+		this.validate();
 	}
 
 	/** Resets the statistic display **/
 	public void reset() {
-		System.out.println("reset");
 		this.TimestampValue.setText("" + 0);
 		this.NodesValue.setText("" + 0);
 		this.EdgesValue.setText("" + 0);
-		this.ProgressValue.setText("00.00 %");
+		this.ProgressBar.setValue(0);
 
 		this.metRuntimes.reset();
 		this.genRuntimes.reset();
@@ -322,6 +323,11 @@ public class StatsDisplay extends JPanel implements ChangeListener {
 
 	public void setBatchHandler(BatchHandler bh) {
 		this.bh = bh;
+	}
+
+	/** initializes the window with the first batch from the batchhandler **/
+	public void init() {
+
 	}
 
 	/** Listen to the speed slider. */
@@ -335,5 +341,4 @@ public class StatsDisplay extends JPanel implements ChangeListener {
 				this.bh.setSpeed((int) source.getValue());
 		}
 	}
-
 }
