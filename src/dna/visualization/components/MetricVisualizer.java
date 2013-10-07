@@ -27,7 +27,7 @@ import javax.swing.border.TitledBorder;
 import dna.series.data.BatchData;
 
 public class MetricVisualizer extends JPanel {
-	private int DEFAULT_TRACE_LENGTH = 10;
+	private int DEFAULT_TRACE_LENGTH = 20;
 
 	private Chart2D chart;
 
