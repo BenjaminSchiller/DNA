@@ -1,12 +1,14 @@
-package dna.metrics.apsp;
+package dna.metrics.apsp.allPairShortestPathComplete;
 
 import dna.updates.batch.Batch;
 import dna.updates.update.Update;
 
-public class APSPWidthDdirectedComp extends APSPWitdhDdirected {
+public class UndirectedAllPairShortestPathCompleteR extends
+		UndirectedAllPairShortestPathComplete {
 
-	public APSPWidthDdirectedComp() {
-		super("APSP directed Comp", ApplicationType.Recomputation);
+	public UndirectedAllPairShortestPathCompleteR() {
+		super("APSP Complete Comp", ApplicationType.Recomputation);
+
 	}
 
 	@Override
@@ -28,5 +30,4 @@ public class APSPWidthDdirectedComp extends APSPWitdhDdirected {
 	public boolean applyAfterUpdate(Update u) {
 		return false;
 	}
-
 }

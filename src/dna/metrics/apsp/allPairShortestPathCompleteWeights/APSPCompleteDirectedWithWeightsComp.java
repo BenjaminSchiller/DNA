@@ -1,4 +1,4 @@
-package dna.metrics.apsp;
+package dna.metrics.apsp.allPairShortestPathCompleteWeights;
 
 import dna.updates.batch.Batch;
 import dna.updates.update.Update;

@@ -1,13 +1,12 @@
-package dna.metrics.apsp;
+package dna.metrics.betweenessCentrality;
 
 import dna.updates.batch.Batch;
 import dna.updates.update.Update;
 
-public class APSPCompleteUndirectedComp extends APSPCompleteUndirected {
+public class UndirectedBetweenessCentralityR extends UndirectedBetweenessCentrality {
 
-	public APSPCompleteUndirectedComp() {
-		super("APSP Complete Comp", ApplicationType.Recomputation);
-
+	public UndirectedBetweenessCentralityR() {
+		super("BCComp", ApplicationType.Recomputation);
 	}
 
 	@Override
@@ -29,4 +28,5 @@ public class APSPCompleteUndirectedComp extends APSPCompleteUndirected {
 	public boolean applyAfterUpdate(Update u) {
 		return false;
 	}
+
 }

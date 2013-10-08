@@ -170,21 +170,22 @@ public class UndirectedRichClubConnectivityPerDegreeU extends
 
 	private boolean applyAfterNodeRemoval(Update u) {
 		UndirectedNode node = (UndirectedNode) ((NodeRemoval) u).getNode();
-		richClubs.put(node.getDegree(), richClubs.get(node.getDegree()) - 1);
-		if (richClubs.get(node.getDegree()) == 0) {
-			removeRCC(node.getDegree());
-		}
+
 		for (IElement ie : node.getEdges()) {
 			UndirectedEdge e = (UndirectedEdge) ie;
 			UndirectedNode n = e.getDifferingNode(node);
-			if (node.getDegree() > n.getDegree()) {
+			checkChangesDel(n);
+			if (node.getDegree() > n.getDegree() + 1) {
 				this.richClubEdges.put(n.getDegree() + 1,
 						this.richClubEdges.get(n.getDegree() + 1) - 2);
 			} else {
 				this.richClubEdges.put(node.getDegree(),
 						this.richClubEdges.get(node.getDegree()) - 2);
 			}
-			checkChangesDel(n);
+		}
+		richClubs.put(node.getDegree(), richClubs.get(node.getDegree()) - 1);
+		if (richClubs.get(node.getDegree()) == 0) {
+			removeRCC(node.getDegree());
 		}
 		return true;
 	}

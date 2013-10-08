@@ -16,12 +16,12 @@ import dna.series.data.NodeValueList;
 import dna.series.data.Value;
 import dna.updates.batch.Batch;
 
-public abstract class BetweenessCentrality extends Metric {
+public abstract class UndirectedBetweenessCentrality extends Metric {
 
 	protected HashMap<UndirectedNode, Double> betweeneesCentralityScore;
 	protected HashMap<UndirectedNode, HashMap<UndirectedNode, ShortestPathTreeElement>> shortestPathTrees;
 
-	public BetweenessCentrality(String name, ApplicationType type) {
+	public UndirectedBetweenessCentrality(String name, ApplicationType type) {
 		super(name, type, MetricType.exact);
 	}
 
@@ -123,11 +123,11 @@ public abstract class BetweenessCentrality extends Metric {
 
 	@Override
 	public boolean equals(Metric m) {
-		if (!(m instanceof BetweenessCentrality)) {
+		if (!(m instanceof UndirectedBetweenessCentrality)) {
 			return false;
 		}
 		boolean success = true;
-		BetweenessCentrality bc = (BetweenessCentrality) m;
+		UndirectedBetweenessCentrality bc = (UndirectedBetweenessCentrality) m;
 		for (IElement ie : g.getNodes()) {
 			UndirectedNode n = (UndirectedNode) ie;
 			if (Math.abs(this.betweeneesCentralityScore.get(n).doubleValue()
@@ -232,7 +232,7 @@ public abstract class BetweenessCentrality extends Metric {
 
 	@Override
 	public boolean isComparableTo(Metric m) {
-		return m != null && m instanceof BetweenessCentrality;
+		return m != null && m instanceof UndirectedBetweenessCentrality;
 	}
 
 	@Override

@@ -1,4 +1,4 @@
-package dna.metrics.apsp;
+package dna.metrics.apsp.allPairShortestPathCompleteWeights;
 
 import java.util.HashMap;
 import java.util.PriorityQueue;
@@ -6,7 +6,6 @@ import java.util.PriorityQueue;
 import dna.graph.Graph;
 import dna.graph.IElement;
 import dna.graph.edges.UndirectedDoubleWeightedEdge;
-import dna.graph.nodes.DirectedNode;
 import dna.graph.nodes.UndirectedNode;
 import dna.metrics.Metric;
 import dna.series.data.Distribution;
@@ -95,8 +94,7 @@ public abstract class APSPCompleteUndirectedWithWeights extends Metric {
 
 	@Override
 	public NodeValueList[] getNodeValueLists() {
-		// TODO Auto-generated method stub
-		return null;
+		return new NodeValueList[] {};
 	}
 
 	@Override
@@ -106,7 +104,7 @@ public abstract class APSPCompleteUndirectedWithWeights extends Metric {
 
 	@Override
 	public boolean equals(Metric m) {
-		if (!(m instanceof APSPCompleteDirected)) {
+		if (!(m instanceof APSPCompleteUndirectedWithWeights)) {
 			return false;
 		}
 		boolean success = true;
@@ -114,8 +112,8 @@ public abstract class APSPCompleteUndirectedWithWeights extends Metric {
 
 		for (UndirectedNode n1 : heights.keySet()) {
 			for (UndirectedNode n2 : heights.get(n1).keySet()) {
-				if (this.heights.get(n1).get(n2).intValue() != apsp.heights
-						.get(n1).get(n2).intValue()) {
+				if (this.heights.get(n1).get(n2).doubleValue() != apsp.heights
+						.get(n1).get(n2).doubleValue()) {
 					success = false;
 					System.out.println("Diff @ Height for Node " + n2
 							+ " in Tree " + n1 + " expected "
@@ -136,18 +134,14 @@ public abstract class APSPCompleteUndirectedWithWeights extends Metric {
 
 	@Override
 	public boolean isApplicable(Graph g) {
-		return DirectedNode.class.isAssignableFrom(g.getGraphDatastructures()
-				.getNodeType())
-				|| UndirectedNode.class.isAssignableFrom(g
-						.getGraphDatastructures().getNodeType());
+		return UndirectedNode.class.isAssignableFrom(g.getGraphDatastructures()
+				.getNodeType());
 	}
 
 	@Override
 	public boolean isApplicable(Batch b) {
-		return DirectedNode.class.isAssignableFrom(b.getGraphDatastructures()
-				.getNodeType())
-				|| UndirectedNode.class.isAssignableFrom(b
-						.getGraphDatastructures().getNodeType());
+		return UndirectedNode.class.isAssignableFrom(b.getGraphDatastructures()
+				.getNodeType());
 	}
 
 }

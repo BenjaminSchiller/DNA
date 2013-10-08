@@ -18,13 +18,13 @@ import dna.updates.update.NodeAddition;
 import dna.updates.update.NodeRemoval;
 import dna.updates.update.Update;
 
-public class BCDyn extends BetweenessCentrality {
+public class UndirectedBetweenessCentralityU extends UndirectedBetweenessCentrality {
 
 	public static enum TouchedType {
 		UP, DOWN, NOT
 	};
 
-	public BCDyn() {
+	public UndirectedBetweenessCentralityU() {
 		super("BCDyn", ApplicationType.AfterUpdate);
 	}
 

@@ -174,7 +174,7 @@ public class DirectedRichClubConnectivityPerDegreeU extends
 		}
 		for (IElement iE : node.getOutgoingEdges()) {
 			DirectedEdge ed = (DirectedEdge) iE;
-			if (ed.getDst().getOutDegree() >= node.getOutDegree()) {
+			if (ed.getDst().getOutDegree() > node.getOutDegree()) {
 				updateEdges++;
 			} else {
 				int temp = richClubEdges.get(ed.getDst().getOutDegree());
