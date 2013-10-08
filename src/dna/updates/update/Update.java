@@ -15,6 +15,7 @@ import dna.util.Config;
 import dna.util.Log;
 
 public abstract class Update {
+	private Integer hashCode = null;
 
 	public static enum UpdateType {
 		NODE_ADDITION, NODE_REMOVAL, NODE_WEIGHT, EDGE_ADDITION, EDGE_REMOVAL, EDGE_WEIGHT
@@ -52,7 +53,10 @@ public abstract class Update {
 
 	@Override
 	public int hashCode() {
-		return this.getStringRepresentation().hashCode();
+		if ( this.hashCode == null ) {
+			this.hashCode = this.getStringRepresentation().hashCode();
+		}
+		return this.hashCode;
 	}
 
 	@Override
