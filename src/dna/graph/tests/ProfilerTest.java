@@ -62,7 +62,9 @@ public class ProfilerTest {
 		metric = new TestMetric("test", this.applicationType,
 				MetricType.unknown);
 		metric.setGraph(graph);
-		this.metricKey = metric.getName() + MetricsProfiler.initialAddition;
+		this.metricKey = metric.getName();
+		if (applicationType != ApplicationType.Recomputation)
+			metricKey += MetricsProfiler.initialAddition;
 	}
 
 	private Graph generateGraph() {
@@ -207,7 +209,6 @@ public class ProfilerTest {
 				GraphProfiler.getCount(metricKey, ProfilerType.SizeEdgeLocal));
 	}
 
-	@SuppressWarnings(value = { "rawtypes" })
 	private class TestMetric extends Metric {
 		public TestMetric(String name, ApplicationType type,
 				MetricType metricType) {
