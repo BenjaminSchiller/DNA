@@ -28,6 +28,7 @@ import dna.graph.nodes.DirectedNode;
 import dna.graph.nodes.IWeightedNode;
 import dna.graph.nodes.Node;
 import dna.graph.nodes.UndirectedNode;
+import dna.graph.weights.IWeighted;
 import dna.profiler.GraphProfiler.ProfilerType;
 import dna.util.Config;
 
@@ -152,6 +153,8 @@ public class GraphTester {
 
 		Node n1 = gds.newNodeInstance(1);
 		Node n2 = gds.newNodeInstance(2);
+		graph.addNode(n1);
+		graph.addNode(n2);
 
 		Object mock = mockedWeight(edgeType, true);
 		IWeightedEdge e = gds.newWeightedEdge(n1, n2, mock);
@@ -208,6 +211,32 @@ public class GraphTester {
 
 		assertTrue(n1.hasEdge(e));
 		assertTrue(n2.hasEdge(e));
+	}
+
+	@Test
+	public void checkGetEdgeByDummy() {
+		assumeTrue(gds.isReadable());
+		assumeTrue(IWeighted.class.isAssignableFrom(edgeType));
+
+		Object mock = mockedWeight(edgeType, true);
+
+		// Create a "real" edge first
+		Node n1 = gds.newNodeInstance(1);
+		Node n2 = gds.newNodeInstance(2);
+		graph.addNode(n1);
+		graph.addNode(n2);
+		IWeightedEdge<?> e = gds.newWeightedEdge(n1, n2, mock);
+		graph.addEdge((Edge) e);
+
+		// Then create a dummy using the nodes, with obvious inequal weights
+		mock = mockedWeight(edgeType, false);
+		IWeightedEdge<?> eDummy = gds.newWeightedEdge(n1, n2, mock);
+		assertEquals(e, eDummy);
+		assertNotEquals(e.getWeight(), eDummy.getWeight());
+
+		eDummy = (IWeightedEdge<?>) graph.getEdge((Edge) eDummy);
+		assertEquals(e, eDummy);
+		assertEquals(e.getWeight(), eDummy.getWeight());
 	}
 
 	@Test
@@ -338,6 +367,11 @@ public class GraphTester {
 			fail("Cannot get weight for " + type.getSimpleName());
 
 		switch (weightType.getSimpleName()) {
+		case "Integer":
+			if (kindSelector)
+				return (Integer) 1;
+			else
+				return (Integer) 2;
 		case "Double":
 			if (kindSelector)
 				return (Double) 1d;
