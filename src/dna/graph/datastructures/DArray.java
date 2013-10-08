@@ -205,6 +205,9 @@ public class DArray extends DataStructureReadable implements
 
 	@Override
 	public IElement getRandom() {
+		if (this.size() == 0)
+			return null;
+
 		int index = Rand.rand.nextInt(this.list.length);
 		while (this.list[index] == null) {
 			index = Rand.rand.nextInt(this.list.length);
