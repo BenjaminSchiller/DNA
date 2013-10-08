@@ -22,7 +22,7 @@ import dna.util.Config;
 public aspect MetricsProfiler {
 	private static boolean isActive = false;
 	private String currentMetric;
-	public static final String initialAddition = ".initialBatch";
+	public static final String initialAddition = Config.get("PROFILER_INITIALBATCH_KEYADDITION");
 
 	pointcut activate() : execution(* GraphProfiler.activate());
 

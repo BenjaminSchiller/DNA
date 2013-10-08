@@ -28,12 +28,12 @@ import dna.metrics.Metric.ApplicationType;
 import dna.metrics.Metric.MetricType;
 import dna.profiler.GraphProfiler;
 import dna.profiler.GraphProfiler.ProfilerType;
-import dna.profiler.MetricsProfiler;
 import dna.series.data.Distribution;
 import dna.series.data.NodeValueList;
 import dna.series.data.Value;
 import dna.updates.batch.Batch;
 import dna.updates.update.Update;
+import dna.util.Config;
 
 @RunWith(Parameterized.class)
 public class ProfilerTest {
@@ -64,7 +64,7 @@ public class ProfilerTest {
 		metric.setGraph(graph);
 		this.metricKey = metric.getName();
 		if (applicationType != ApplicationType.Recomputation)
-			metricKey += MetricsProfiler.initialAddition;
+			metricKey += Config.get("PROFILER_INITIALBATCH_KEYADDITION");
 	}
 
 	private Graph generateGraph() {
