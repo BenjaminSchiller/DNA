@@ -45,7 +45,6 @@ public class ComplexityMap implements Comparable<ComplexityMap> {
 	@Override
 	public int compareTo(ComplexityMap o) {
 		for (Entry<ComplexityType, Integer> entry : o.entrySet()) {
-			System.out.println("Checking for type " + entry.getKey());
 			if (this.get(entry.getKey()) > entry.getValue())
 				return 1;
 			if (this.get(entry.getKey()) < entry.getValue())
