@@ -1,4 +1,4 @@
-package dna.metrics.apsp;
+package dna.metrics.apsp.allPairShortestPathCompleteWeights;
 
 import dna.updates.batch.Batch;
 import dna.updates.update.Update;
@@ -6,8 +6,7 @@ import dna.updates.update.Update;
 public class APSPCompleteUndirectedWithWeightsComp extends
 		APSPCompleteUndirectedWithWeights {
 
-	public APSPCompleteUndirectedWithWeightsComp(String name,
-			ApplicationType type) {
+	public APSPCompleteUndirectedWithWeightsComp() {
 		super("APSP Undirected wiht Weights Comp",
 				ApplicationType.Recomputation);
 	}

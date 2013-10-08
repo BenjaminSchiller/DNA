@@ -1,4 +1,4 @@
-package dna.metrics.apsp;
+package dna.metrics.apsp.allPairShortestPathCompleteWeights;
 
 import java.util.HashMap;
 import java.util.PriorityQueue;
@@ -7,8 +7,8 @@ import dna.graph.Graph;
 import dna.graph.IElement;
 import dna.graph.edges.DirectedDoubleWeightedEdge;
 import dna.graph.nodes.DirectedNode;
-import dna.graph.nodes.UndirectedNode;
 import dna.metrics.Metric;
+import dna.metrics.apsp.QueueElement;
 import dna.series.data.Distribution;
 import dna.series.data.NodeValueList;
 import dna.series.data.Value;
@@ -59,7 +59,6 @@ public abstract class APSPCompleteDirectedWithWeights extends Metric {
 					DirectedNode neighbor = d.getDst();
 
 					double alt = height.get(current) + d.getWeight();
-					// d.getWeight();
 
 					if (alt < height.get(neighbor)) {
 						height.put(neighbor, alt);
@@ -102,8 +101,7 @@ public abstract class APSPCompleteDirectedWithWeights extends Metric {
 
 	@Override
 	public NodeValueList[] getNodeValueLists() {
-		// TODO Auto-generated method stub
-		return null;
+		return new NodeValueList[] {};
 	}
 
 	@Override
@@ -143,18 +141,14 @@ public abstract class APSPCompleteDirectedWithWeights extends Metric {
 
 	@Override
 	public boolean isApplicable(Graph g) {
-		return UndirectedNode.class.isAssignableFrom(g.getGraphDatastructures()
-				.getNodeType())
-				|| DirectedNode.class.isAssignableFrom(g
-						.getGraphDatastructures().getNodeType());
+		return DirectedNode.class.isAssignableFrom(g.getGraphDatastructures()
+				.getNodeType());
 	}
 
 	@Override
 	public boolean isApplicable(Batch b) {
-		return UndirectedNode.class.isAssignableFrom(b.getGraphDatastructures()
-				.getNodeType())
-				|| DirectedNode.class.isAssignableFrom(b
-						.getGraphDatastructures().getNodeType());
+		return DirectedNode.class.isAssignableFrom(b.getGraphDatastructures()
+				.getNodeType());
 	}
 
 }

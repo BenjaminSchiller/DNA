@@ -1,4 +1,4 @@
-package dna.metrics.apsp;
+package dna.metrics.apsp.allPairShortestPathH;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -11,12 +11,13 @@ import dna.graph.edges.DirectedEdge;
 import dna.graph.nodes.DirectedNode;
 import dna.graph.nodes.UndirectedNode;
 import dna.metrics.Metric;
+import dna.metrics.apsp.Triplet;
 import dna.series.data.Distribution;
 import dna.series.data.NodeValueList;
 import dna.series.data.Value;
 import dna.updates.batch.Batch;
 
-public abstract class APSPWitdhDdirected extends Metric {
+public abstract class DirectedAllPairShortestPath extends Metric {
 
 	protected HashMap<DirectedNode, HashMap<DirectedNode, DirectedNode>> parentsOut;
 	protected HashMap<DirectedNode, HashMap<DirectedNode, Integer>> heightsOut;
@@ -27,7 +28,7 @@ public abstract class APSPWitdhDdirected extends Metric {
 
 	protected int d;
 
-	public APSPWitdhDdirected(String name, ApplicationType type) {
+	public DirectedAllPairShortestPath(String name, ApplicationType type) {
 		super(name, type, MetricType.heuristic);
 	}
 
@@ -177,7 +178,7 @@ public abstract class APSPWitdhDdirected extends Metric {
 
 	@Override
 	public boolean isComparableTo(Metric m) {
-		return m != null && m instanceof APSPWitdhDdirected;
+		return m != null && m instanceof DirectedAllPairShortestPath;
 	}
 
 	@Override

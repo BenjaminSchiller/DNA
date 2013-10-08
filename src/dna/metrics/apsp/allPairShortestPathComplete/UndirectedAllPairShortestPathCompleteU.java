@@ -1,15 +1,14 @@
-package dna.metrics.apsp;
+package dna.metrics.apsp.allPairShortestPathComplete;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.PriorityQueue;
-import java.util.Queue;
 
 import dna.graph.IElement;
 import dna.graph.edges.UndirectedEdge;
 import dna.graph.nodes.UndirectedNode;
+import dna.metrics.apsp.QueueElement;
 import dna.updates.batch.Batch;
 import dna.updates.update.EdgeAddition;
 import dna.updates.update.EdgeRemoval;
@@ -17,9 +16,10 @@ import dna.updates.update.NodeAddition;
 import dna.updates.update.NodeRemoval;
 import dna.updates.update.Update;
 
-public class APSPCompleteUndirectedDyn extends APSPCompleteUndirected {
+public class UndirectedAllPairShortestPathCompleteU extends
+		UndirectedAllPairShortestPathComplete {
 
-	public APSPCompleteUndirectedDyn() {
+	public UndirectedAllPairShortestPathCompleteU() {
 		super("APSP Complete DYN", ApplicationType.AfterUpdate);
 
 	}
@@ -87,12 +87,6 @@ public class APSPCompleteUndirectedDyn extends APSPCompleteUndirected {
 			HashSet<UndirectedNode> uncertain = new HashSet<UndirectedNode>();
 			HashSet<UndirectedNode> changed = new HashSet<UndirectedNode>();
 
-			Queue<UndirectedNode>[] qLevel = new LinkedList[g.getNodeCount()];
-			// g.getNodes().size()- lowestHeight
-			for (int i = 0; i < qLevel.length; i++) {
-				qLevel[i] = new LinkedList<UndirectedNode>();
-			}
-
 			PriorityQueue<QueueElement<UndirectedNode>> q = new PriorityQueue<QueueElement<UndirectedNode>>();
 
 			q.add(new QueueElement<UndirectedNode>(dst, height.get(dst)
@@ -104,9 +98,6 @@ public class APSPCompleteUndirectedDyn extends APSPCompleteUndirected {
 			while (!q.isEmpty()) {
 				QueueElement<UndirectedNode> qE = q.poll();
 				UndirectedNode w = qE.e;
-				// if (r.getIndex() == 842)
-				// System.out.println("hey");
-				// ;
 
 				int key = ((Double) qE.distance).intValue();
 
@@ -166,8 +157,7 @@ public class APSPCompleteUndirectedDyn extends APSPCompleteUndirected {
 							if (parent.get(z) == w) {
 								parent.remove(z);
 								uncertain.add(z);
-								if (key > height.get(z))
-									System.out.println("fuck");
+
 								q.add(new QueueElement<UndirectedNode>(z,
 										height.get(z).doubleValue()));
 							}
@@ -356,11 +346,40 @@ public class APSPCompleteUndirectedDyn extends APSPCompleteUndirected {
 	}
 
 	private boolean applyAfterNodeRemoval(Update u) {
-		return false;
+		UndirectedNode n = (UndirectedNode) ((NodeRemoval) u).getNode();
+		this.heightsOut.remove(n);
+		this.parentsOut.remove(n);
+
+		for (IElement ie : n.getEdges()) {
+			applyAfterEdgeRemoval(new EdgeRemoval((UndirectedEdge) ie));
+		}
+
+		for (IElement ie : this.g.getNodes()) {
+			UndirectedNode r = (UndirectedNode) ie;
+			this.heightsOut.get(r).remove(n);
+			this.parentsOut.get(r).remove(n);
+		}
+		return true;
 	}
 
 	private boolean applyAfterNodeAddition(Update u) {
-		return false;
-	}
+		UndirectedNode n = (UndirectedNode) ((NodeAddition) u).getNode();
 
+		this.parentsOut.put(n, new HashMap<UndirectedNode, UndirectedNode>());
+		this.heightsOut.put(n, new HashMap<UndirectedNode, Integer>());
+
+		for (IElement ie : this.g.getNodes()) {
+			UndirectedNode r = (UndirectedNode) ie;
+
+			if (r != n) {
+				this.heightsOut.get(r).put(n, Integer.MAX_VALUE);
+				this.heightsOut.get(n).put(r, Integer.MAX_VALUE);
+			} else {
+				this.heightsOut.get(r).put(n, 0);
+			}
+
+		}
+
+		return true;
+	}
 }

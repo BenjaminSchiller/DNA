@@ -1,12 +1,12 @@
-package dna.metrics.betweenessCentrality;
+package dna.metrics.apsp.allPairShortestPathH;
 
 import dna.updates.batch.Batch;
 import dna.updates.update.Update;
 
-public class BCComp extends BetweenessCentrality {
+public class DirectedAllPairShortestPathRH extends DirectedAllPairShortestPath {
 
-	public BCComp() {
-		super("BCComp", ApplicationType.Recomputation);
+	public DirectedAllPairShortestPathRH() {
+		super("APSP directed Comp", ApplicationType.Recomputation);
 	}
 
 	@Override

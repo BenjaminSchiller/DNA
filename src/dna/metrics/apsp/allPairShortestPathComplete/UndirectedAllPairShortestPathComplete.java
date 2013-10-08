@@ -1,4 +1,4 @@
-package dna.metrics.apsp;
+package dna.metrics.apsp.allPairShortestPathComplete;
 
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -7,7 +7,6 @@ import java.util.Queue;
 import dna.graph.Graph;
 import dna.graph.IElement;
 import dna.graph.edges.UndirectedEdge;
-import dna.graph.nodes.DirectedNode;
 import dna.graph.nodes.UndirectedNode;
 import dna.metrics.Metric;
 import dna.series.data.Distribution;
@@ -15,12 +14,13 @@ import dna.series.data.NodeValueList;
 import dna.series.data.Value;
 import dna.updates.batch.Batch;
 
-public abstract class APSPCompleteUndirected extends Metric {
+public abstract class UndirectedAllPairShortestPathComplete extends Metric {
 
 	protected HashMap<UndirectedNode, HashMap<UndirectedNode, UndirectedNode>> parentsOut;
 	protected HashMap<UndirectedNode, HashMap<UndirectedNode, Integer>> heightsOut;
 
-	public APSPCompleteUndirected(String name, ApplicationType type) {
+	public UndirectedAllPairShortestPathComplete(String name,
+			ApplicationType type) {
 		super(name, type, MetricType.exact);
 
 	}
@@ -92,8 +92,7 @@ public abstract class APSPCompleteUndirected extends Metric {
 
 	@Override
 	public NodeValueList[] getNodeValueLists() {
-		// TODO Auto-generated method stub
-		return null;
+		return new NodeValueList[] {};
 	}
 
 	@Override
@@ -111,11 +110,11 @@ public abstract class APSPCompleteUndirected extends Metric {
 
 	@Override
 	public boolean equals(Metric m) {
-		if (!(m instanceof APSPCompleteUndirected)) {
+		if (!(m instanceof UndirectedAllPairShortestPathComplete)) {
 			return false;
 		}
 		boolean success = true;
-		APSPCompleteUndirected apsp = (APSPCompleteUndirected) m;
+		UndirectedAllPairShortestPathComplete apsp = (UndirectedAllPairShortestPathComplete) m;
 
 		for (UndirectedNode n1 : heightsOut.keySet()) {
 			for (UndirectedNode n2 : heightsOut.get(n1).keySet()) {
@@ -136,23 +135,19 @@ public abstract class APSPCompleteUndirected extends Metric {
 
 	@Override
 	public boolean isComparableTo(Metric m) {
-		return m != null && m instanceof APSPCompleteUndirected;
+		return m != null && m instanceof UndirectedAllPairShortestPathComplete;
 	}
 
 	@Override
 	public boolean isApplicable(Graph g) {
-		return DirectedNode.class.isAssignableFrom(g.getGraphDatastructures()
-				.getNodeType())
-				|| UndirectedNode.class.isAssignableFrom(g
-						.getGraphDatastructures().getNodeType());
+		return UndirectedNode.class.isAssignableFrom(g.getGraphDatastructures()
+				.getNodeType());
 	}
 
 	@Override
 	public boolean isApplicable(Batch b) {
-		return DirectedNode.class.isAssignableFrom(b.getGraphDatastructures()
-				.getNodeType())
-				|| UndirectedNode.class.isAssignableFrom(b
-						.getGraphDatastructures().getNodeType());
+		return UndirectedNode.class.isAssignableFrom(b.getGraphDatastructures()
+				.getNodeType());
 	}
 
 }

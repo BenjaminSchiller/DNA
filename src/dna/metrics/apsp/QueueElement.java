@@ -2,8 +2,8 @@ package dna.metrics.apsp;
 
 public class QueueElement<E> implements Comparable<E> {
 
-	final double distance;
-	final E e;
+	public final double distance;
+	public final E e;
 
 	public QueueElement(E e, Double d) {
 		this.e = e;

@@ -1,4 +1,4 @@
-package dna.metrics.apsp;
+package dna.metrics.apsp.allPairShortestPathH;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -14,9 +14,9 @@ import dna.updates.update.NodeAddition;
 import dna.updates.update.NodeRemoval;
 import dna.updates.update.Update;
 
-public class APSPWidthDdirectedDyn extends APSPWitdhDdirected {
+public class DirectedAllPairShortestPathUH extends DirectedAllPairShortestPath {
 
-	public APSPWidthDdirectedDyn() {
+	public DirectedAllPairShortestPathUH() {
 		super("APSP Directed Dyn", ApplicationType.AfterUpdate);
 	}
 

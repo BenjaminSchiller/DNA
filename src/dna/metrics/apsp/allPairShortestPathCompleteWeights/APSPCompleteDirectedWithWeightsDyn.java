@@ -1,16 +1,15 @@
-package dna.metrics.apsp;
+package dna.metrics.apsp.allPairShortestPathCompleteWeights;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.PriorityQueue;
-import java.util.Queue;
 
 import dna.graph.IElement;
 import dna.graph.edges.DirectedDoubleWeightedEdge;
 import dna.graph.edges.DirectedEdge;
 import dna.graph.nodes.DirectedNode;
+import dna.metrics.apsp.QueueElement;
 import dna.updates.batch.Batch;
 import dna.updates.update.EdgeAddition;
 import dna.updates.update.EdgeRemoval;
@@ -75,12 +74,6 @@ public class APSPCompleteDirectedWithWeightsDyn extends
 			// Queues and data structure for tree change
 			HashSet<DirectedNode> uncertain = new HashSet<DirectedNode>();
 			HashSet<DirectedNode> changed = new HashSet<DirectedNode>();
-
-			Queue<DirectedNode>[] qLevel = new LinkedList[g.getNodeCount()];
-			// g.getNodes().size()- lowestHeight
-			for (int i = 0; i < qLevel.length; i++) {
-				qLevel[i] = new LinkedList<DirectedNode>();
-			}
 
 			PriorityQueue<QueueElement<DirectedNode>> q = new PriorityQueue<QueueElement<DirectedNode>>();
 
@@ -282,11 +275,41 @@ public class APSPCompleteDirectedWithWeightsDyn extends
 	// }
 
 	private boolean applyAfterNodeAddition(Update u) {
-		return false;
+		DirectedNode n = (DirectedNode) ((NodeAddition) u).getNode();
+
+		this.parents.put(n, new HashMap<DirectedNode, DirectedNode>());
+		this.heights.put(n, new HashMap<DirectedNode, Double>());
+
+		for (IElement ie : this.g.getNodes()) {
+			DirectedNode r = (DirectedNode) ie;
+
+			if (r != n) {
+				this.heights.get(r).put(n, Double.MAX_VALUE);
+				this.heights.get(n).put(r, Double.MAX_VALUE);
+			} else {
+				this.heights.get(r).put(n, 0d);
+			}
+
+		}
+		return true;
 	}
 
 	private boolean applyAfterNodeRemoval(Update u) {
-		return false;
+		DirectedNode n = (DirectedNode) ((NodeRemoval) u).getNode();
+		this.heights.remove(n);
+		this.parents.remove(n);
+
+		for (IElement ie : n.getEdges()) {
+			applyAfterEdgeRemoval(new EdgeRemoval(
+					(DirectedDoubleWeightedEdge) ie));
+		}
+
+		for (IElement ie : this.g.getNodes()) {
+			DirectedNode r = (DirectedNode) ie;
+			this.heights.get(r).remove(n);
+			this.parents.get(r).remove(n);
+		}
+		return true;
 	}
 
 	private boolean applyAfterEdgeAddition(Update u) {
@@ -306,7 +329,7 @@ public class APSPCompleteDirectedWithWeightsDyn extends
 
 			height.put(dst, height.get(src) + e.getWeight());
 			parent.put(dst, src);
-			PriorityQueue<QueueElement<DirectedNode>> q = new PriorityQueue<>();
+			PriorityQueue<QueueElement<DirectedNode>> q = new PriorityQueue<QueueElement<DirectedNode>>();
 			q.add(new QueueElement(dst, height.get(dst)));
 			while (!q.isEmpty()) {
 				QueueElement<DirectedNode> c = q.poll();
