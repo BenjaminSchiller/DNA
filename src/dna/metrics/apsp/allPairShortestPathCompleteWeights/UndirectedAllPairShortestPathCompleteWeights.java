@@ -13,13 +13,13 @@ import dna.series.data.NodeValueList;
 import dna.series.data.Value;
 import dna.updates.batch.Batch;
 
-public abstract class APSPCompleteUndirectedWithWeights extends Metric {
+public abstract class UndirectedAllPairShortestPathCompleteWeights extends Metric {
 
 	protected HashMap<UndirectedNode, HashMap<UndirectedNode, UndirectedNode>> parents;
 
 	protected HashMap<UndirectedNode, HashMap<UndirectedNode, Double>> heights;
 
-	public APSPCompleteUndirectedWithWeights(String name, ApplicationType type) {
+	public UndirectedAllPairShortestPathCompleteWeights(String name, ApplicationType type) {
 		super(name, type, MetricType.exact);
 
 	}
@@ -104,11 +104,11 @@ public abstract class APSPCompleteUndirectedWithWeights extends Metric {
 
 	@Override
 	public boolean equals(Metric m) {
-		if (!(m instanceof APSPCompleteUndirectedWithWeights)) {
+		if (!(m instanceof UndirectedAllPairShortestPathCompleteWeights)) {
 			return false;
 		}
 		boolean success = true;
-		APSPCompleteUndirectedWithWeights apsp = (APSPCompleteUndirectedWithWeights) m;
+		UndirectedAllPairShortestPathCompleteWeights apsp = (UndirectedAllPairShortestPathCompleteWeights) m;
 
 		for (UndirectedNode n1 : heights.keySet()) {
 			for (UndirectedNode n2 : heights.get(n1).keySet()) {
@@ -129,7 +129,7 @@ public abstract class APSPCompleteUndirectedWithWeights extends Metric {
 
 	@Override
 	public boolean isComparableTo(Metric m) {
-		return m != null && m instanceof APSPCompleteUndirectedWithWeights;
+		return m != null && m instanceof UndirectedAllPairShortestPathCompleteWeights;
 	}
 
 	@Override

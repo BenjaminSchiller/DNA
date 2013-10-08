@@ -17,10 +17,10 @@ import dna.updates.update.NodeAddition;
 import dna.updates.update.NodeRemoval;
 import dna.updates.update.Update;
 
-public class APSPCompleteDirectedWithWeightsDyn extends
-		APSPCompleteDirectedWithWeights {
+public class DirectedAllPairShortestPathCompleteWeightsU extends
+		DirectedAllPairShortestPathCompleteWeights {
 
-	public APSPCompleteDirectedWithWeightsDyn() {
+	public DirectedAllPairShortestPathCompleteWeightsU() {
 		super("APSP Directed wiht Weights Dyn", ApplicationType.AfterUpdate);
 	}
 

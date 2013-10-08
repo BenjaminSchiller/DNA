@@ -4,10 +4,10 @@ import dna.updates.batch.Batch;
 import dna.updates.update.Update;
 
 @SuppressWarnings("rawtypes")
-public class APSPCompleteDirectedWithWeightsComp extends
-		APSPCompleteDirectedWithWeights {
+public class DirectedAllPairShortestPathCompleteWeightsR extends
+		DirectedAllPairShortestPathCompleteWeights {
 
-	public APSPCompleteDirectedWithWeightsComp() {
+	public DirectedAllPairShortestPathCompleteWeightsR() {
 		super("APSP Directed wiht Weights Comp", ApplicationType.Recomputation);
 	}
 
