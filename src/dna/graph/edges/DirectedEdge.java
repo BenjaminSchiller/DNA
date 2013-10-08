@@ -59,7 +59,7 @@ public class DirectedEdge extends Edge {
 	}
 
 	public int hashCode() {
-		String s = "" + this.getSrc().getIndex() + this.getDst().getIndex();
+		String s = "" + this.src.getIndex() + " -> " + this.dst.getIndex();
 		return s.hashCode();
 	}
 
