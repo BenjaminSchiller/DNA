@@ -51,9 +51,4 @@ public class GlobalTestParameters {
 	public static final Class[] graphGenerators = { RandomGraphGenerator.class,
 			CliqueGenerator.class, RingGenerator.class,
 			EmptyGraphGenerator.class };
-
-	public static final Class[] batchGenerators = { RandomBatch.class,
-			RandomNodeAdditions.class, RandomNodeRemovals.class,
-			RandomNodeWeights.class, RandomEdgeAdditions.class,
-			RandomEdgeRemovals.class, RandomEdgeWeights.class };
 }
