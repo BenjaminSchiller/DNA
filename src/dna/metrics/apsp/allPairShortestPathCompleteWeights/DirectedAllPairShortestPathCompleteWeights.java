@@ -15,13 +15,13 @@ import dna.series.data.Value;
 import dna.updates.batch.Batch;
 
 @SuppressWarnings("rawtypes")
-public abstract class APSPCompleteDirectedWithWeights extends Metric {
+public abstract class DirectedAllPairShortestPathCompleteWeights extends Metric {
 
 	protected HashMap<DirectedNode, HashMap<DirectedNode, DirectedNode>> parents;
 
 	protected HashMap<DirectedNode, HashMap<DirectedNode, Double>> heights;
 
-	public APSPCompleteDirectedWithWeights(String name, ApplicationType type) {
+	public DirectedAllPairShortestPathCompleteWeights(String name, ApplicationType type) {
 		super(name, type, MetricType.exact);
 
 	}
@@ -111,11 +111,11 @@ public abstract class APSPCompleteDirectedWithWeights extends Metric {
 
 	@Override
 	public boolean equals(Metric m) {
-		if (!(m instanceof APSPCompleteDirectedWithWeights)) {
+		if (!(m instanceof DirectedAllPairShortestPathCompleteWeights)) {
 			return false;
 		}
 		boolean success = true;
-		APSPCompleteDirectedWithWeights apsp = (APSPCompleteDirectedWithWeights) m;
+		DirectedAllPairShortestPathCompleteWeights apsp = (DirectedAllPairShortestPathCompleteWeights) m;
 
 		for (DirectedNode n1 : heights.keySet()) {
 			for (DirectedNode n2 : heights.get(n1).keySet()) {
@@ -136,7 +136,7 @@ public abstract class APSPCompleteDirectedWithWeights extends Metric {
 
 	@Override
 	public boolean isComparableTo(Metric m) {
-		return m != null && m instanceof APSPCompleteDirectedWithWeights;
+		return m != null && m instanceof DirectedAllPairShortestPathCompleteWeights;
 	}
 
 	@Override
