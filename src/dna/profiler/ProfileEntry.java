@@ -38,8 +38,12 @@ public class ProfileEntry {
 
 	public String callsAsString(String prefix) {
 		StringBuilder s = new StringBuilder();
+
+		if (prefix.length() > 0)
+			prefix += ".";
+
 		for (ProfilerType p : ProfilerType.values()) {
-			s.append(prefix + "." + p.toString() + "=" + get(p) + "\n");
+			s.append(prefix + p.toString() + "=" + get(p) + "\n");
 		}
 		return s.toString();
 	}
