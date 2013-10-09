@@ -4,6 +4,9 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assume.assumeTrue;
 import static org.mockito.Mockito.mock;
 
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.PrintStream;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -176,7 +179,9 @@ public class ProfilerTest {
 		assertEquals(0,
 				GraphProfiler.getCount(metricKey, ProfilerType.SizeNodeGlobal));
 		metric.compute();
-		assertEquals(1,
+		// Node size is called *twice* in the metric: once directly, once
+		// through printAll()
+		assertEquals(2,
 				GraphProfiler.getCount(metricKey, ProfilerType.SizeNodeGlobal));
 	}
 
@@ -196,7 +201,9 @@ public class ProfilerTest {
 		assertEquals(0,
 				GraphProfiler.getCount(metricKey, ProfilerType.SizeEdgeGlobal));
 		metric.compute();
-		assertEquals(1,
+		// Edge size is called *twice* in the metric: once directly, once
+		// through printAll()
+		assertEquals(2,
 				GraphProfiler.getCount(metricKey, ProfilerType.SizeEdgeGlobal));
 	}
 
@@ -205,9 +212,36 @@ public class ProfilerTest {
 		assertEquals(0,
 				GraphProfiler.getCount(metricKey, ProfilerType.SizeEdgeLocal));
 		metric.compute();
-		assertEquals(1,
+		// Local edge size is called *multiple* times in the metric: once
+		// directly, additional times for all nodes through printAll()
+
+		int additionalCounter = graph.getNodeCount();
+		// If the graph is directed, both in- and out-degrees are printed, so
+		// double that number
+		if (graph.isDirected())
+			additionalCounter *= 2;
+
+		assertEquals(1 + additionalCounter,
 				GraphProfiler.getCount(metricKey, ProfilerType.SizeEdgeLocal));
 	}
+
+	@Test
+	public void testIteratorNodeGlobalIsCountedInMetric() {
+		assertEquals(0, GraphProfiler.getCount(metricKey,
+				ProfilerType.IteratorNodeGlobal));
+		metric.compute();
+		assertEquals(1, GraphProfiler.getCount(metricKey,
+				ProfilerType.IteratorNodeGlobal));
+	}
+	
+	@Test
+	public void testIteratorEdgeGlobalIsCountedInMetric() {
+		assertEquals(0, GraphProfiler.getCount(metricKey,
+				ProfilerType.IteratorEdgeGlobal));
+		metric.compute();
+		assertEquals(1, GraphProfiler.getCount(metricKey,
+				ProfilerType.IteratorEdgeGlobal));
+	}	
 
 	private class TestMetric extends Metric {
 		public TestMetric(String name, ApplicationType type,
@@ -252,6 +286,18 @@ public class ProfilerTest {
 
 			g.getNodeCount();
 			g.getEdgeCount();
+
+			// Mute System.out here!
+			PrintStream former = System.out;
+			System.setOut(new PrintStream(new OutputStream() {
+				public void write(int b) throws IOException {
+				}
+			}));
+
+			// Run the interesting stuff
+			g.printAll();
+
+			System.setOut(former);
 
 			if (n1 instanceof DirectedNode) {
 				DirectedNode dn1 = (DirectedNode) n1;

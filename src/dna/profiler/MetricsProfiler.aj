@@ -3,6 +3,7 @@ package dna.profiler;
 import java.io.IOException;
 import java.util.Stack;
 
+import dna.graph.Element;
 import dna.graph.Graph;
 import dna.graph.datastructures.GraphDataStructure;
 import dna.graph.datastructures.IEdgeListDatastructure;
@@ -50,17 +51,21 @@ public aspect MetricsProfiler {
 	pointcut nodeContains() : call(* INodeListDatastructure+.contains(Node+)) && metricApplied() && if(isActive);
 	pointcut nodeSize() : call(* INodeListDatastructure+.size()) && metricApplied() && if(isActive);
 	pointcut nodeRandom() : call(* INodeListDatastructure+.getRandom()) && metricApplied() && if(isActive);
-	pointcut nodeIterator() : call(* iterator()) && target(INodeListDatastructure+) && metricApplied() && if(isActive);
+	
+	// Ignore the warning for the following line - everything works fine and as expected
+	pointcut nodeIterator() : call(* INodeListDatastructure+.iterator()) && metricApplied() && if(isActive);
 
 	pointcut edgeAdd() : call(* IEdgeListDatastructure+.add(Edge+)) && metricApplied() && if(isActive);
 	pointcut edgeRemove() : call(* IEdgeListDatastructure+.remove(Edge+)) && metricApplied() && if(isActive);
 	pointcut edgeContains() : call(* IEdgeListDatastructure+.contains(Edge+)) && metricApplied() && if(isActive);
 	pointcut edgeSize() : call(* IEdgeListDatastructure+.size()) && metricApplied() && if(isActive);
 	pointcut edgeRandom() : call(* IEdgeListDatastructure+.getRandom()) && metricApplied() && if(isActive);
-	pointcut edgeIterator() : call(* iterator()) && target(IEdgeListDatastructure+) && metricApplied() && if(isActive);
+
+	// Ignore the warning for the following line - everything works fine and as expected	
+	pointcut edgeIterator() : call(* IEdgeListDatastructure+.iterator()) && metricApplied() && if(isActive);
 	
-	pointcut graphAction() : !within(Node+);
-	pointcut nodeAction() : within(Node+);
+	pointcut graphAction() : !within(Element+);
+	pointcut nodeAction() : within(Element+);
 	
 	pointcut writeData(String dir) : call(* BatchData.write(String)) && args(dir) && if(isActive);
 
