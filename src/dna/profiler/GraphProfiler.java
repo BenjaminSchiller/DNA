@@ -12,11 +12,13 @@ import dna.graph.datastructures.INodeListDatastructure;
 import dna.graph.tests.GlobalTestParameters;
 import dna.io.Writer;
 import dna.profiler.complexity.ComplexityMap;
+import dna.util.Config;
 import dna.util.Log;
 
 public class GraphProfiler {
 	private static Map<String, ProfileEntry> calls = new HashMap<>();
 	private static boolean active = false;
+	private static boolean inInitialBatch = false;
 	private static GraphDataStructure gds;
 	final static String separator = System.getProperty("line.separator");
 	private static final int NumberOfRecommendations = 5;
@@ -27,6 +29,10 @@ public class GraphProfiler {
 
 	public static void activate() {
 		active = true;
+	}
+	
+	public static void setInInitialBatch(boolean newInInitialBatch) {
+		inInitialBatch = newInInitialBatch;
 	}
 
 	public static boolean isActive() {
@@ -54,12 +60,29 @@ public class GraphProfiler {
 	}
 
 	public static String getCallList(Map<String, ProfileEntry> listOfEntries) {
+		return getCallList(listOfEntries, null);
+	}
+
+	public static String getCallList(Map<String, ProfileEntry> listOfEntries,
+			String prefixFilter) {
 		StringBuilder res = new StringBuilder();
 		for (Entry<String, ProfileEntry> entry : listOfEntries.entrySet()) {
 			if (res.length() > 0)
 				res.append(separator);
-			res.append(entry.getValue().callsAsString(entry.getKey()));
-			res.append("# Aggr: " + entry.getValue().combinedComplexity(gds));
+
+			if (prefixFilter != null) {
+				if (!entry.getKey().equals(prefixFilter)) {
+					continue;
+				} else {
+					res.append(entry.getValue().callsAsString(""));
+					res.append("# Aggr: "
+							+ entry.getValue().combinedComplexity(gds));
+				}
+			} else {
+				res.append(entry.getValue().callsAsString(entry.getKey()));
+				res.append("# Aggr: "
+						+ entry.getValue().combinedComplexity(gds));
+			}
 		}
 		return res.toString();
 	}
@@ -101,6 +124,19 @@ public class GraphProfiler {
 			res.append(separator);
 			res.append("   " + polledEntry);
 		}
+
+//		res.append(separator + "  Bottom list: ");
+//		for (int i = 0; (i < NumberOfRecommendations && listOfOtherComplexities
+//				.size() > 0); i++) {
+//			Entry<ComplexityMap, GraphDataStructure> pollFirstEntry = listOfOtherComplexities
+//					.pollLastEntry();
+//			String polledEntry = pollFirstEntry.getValue()
+//					.getStorageDataStructures(true)
+//					+ ": "
+//					+ pollFirstEntry.getKey();
+//			res.append(separator);
+//			res.append("   " + polledEntry);
+//		}
 
 		return res.toString();
 	}
@@ -146,7 +182,16 @@ public class GraphProfiler {
 		Writer w = new Writer(dir, filename);
 		w.writeln(getCallList(calls));
 		w.close();
+	}
 
+	public static void writeSingle(String metricName, String dir,
+			String filename) throws IOException {
+		// Are we still in the initial batch? Then add the specific key to the end of the metric name
+		if ( inInitialBatch) metricName += Config.get("PROFILER_INITIALBATCH_KEYADDITION");
+		
+		Writer w = new Writer(dir, filename);
+		w.writeln(getCallList(calls, metricName));
+		w.close();
 	}
 
 	public static void aggregate(String seriesDir, String profilerFilename) {

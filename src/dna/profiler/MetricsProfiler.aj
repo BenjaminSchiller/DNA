@@ -15,6 +15,7 @@ import dna.profiler.GraphProfiler.ProfilerType;
 import dna.series.Series;
 import dna.series.SeriesGeneration;
 import dna.series.data.BatchData;
+import dna.series.data.MetricData;
 import dna.updates.batch.Batch;
 import dna.updates.update.Update;
 import dna.util.Config;
@@ -36,6 +37,7 @@ public aspect MetricsProfiler {
 	pointcut metricAppliedOnBatch(Metric metricObject, Update batchObject) : (execution(* Metric+.applyBeforeBatch(Batch+))
 			 || execution(* Metric+.applyAfterBatch(Batch+))) && args(batchObject) && target(metricObject);
 	pointcut metricApplied() : cflow(initialMetric(*)) || cflow(metricAppliedOnUpdate(*, *)) || cflow(metricAppliedOnBatch(*, *));
+	pointcut writeMetric(MetricData md, String dir) : call(* MetricData.write(String)) && args(dir) && target(md) && if(isActive);
 	
 	pointcut seriesFinished() : execution(* SeriesGeneration.generate(..)) && if(isActive);
 
@@ -68,8 +70,11 @@ public aspect MetricsProfiler {
 
 	boolean around(Metric metricObject) : initialMetric(metricObject) {
 		currentMetric = metricObject.getName();
-		if (metricObject.getApplicationType() != ApplicationType.Recomputation)
+		GraphProfiler.setInInitialBatch(false);
+		if (metricObject.getApplicationType() != ApplicationType.Recomputation) {
 			currentMetric += initialAddition;
+			GraphProfiler.setInInitialBatch(true);
+		}
 		boolean res = proceed(metricObject);
 		currentMetric = null;
 		return res;
@@ -77,6 +82,7 @@ public aspect MetricsProfiler {
 
 	boolean around(Metric metricObject, Update updateObject) : metricAppliedOnUpdate(metricObject, updateObject) {
 		currentMetric = metricObject.getName();
+		GraphProfiler.setInInitialBatch(false);
 		boolean res = proceed(metricObject, updateObject);
 		currentMetric = null;
 		return res;
@@ -162,6 +168,10 @@ public aspect MetricsProfiler {
 		GraphProfiler.count(currentMetric, ProfilerType.RandomEdgeGlobal);
 	}
 
+	after(MetricData md, String dir) throws IOException : writeMetric(md, dir) {
+		GraphProfiler.writeSingle(md.getName(), dir, Files.getProfilerFilename(Config.get("METRIC_PROFILER")));
+	}
+	
 	after(String dir) throws IOException : writeData(dir) {
 		GraphProfiler.write(dir,
 				Files.getProfilerFilename(Config.get("METRIC_PROFILER")));
@@ -169,7 +179,6 @@ public aspect MetricsProfiler {
 
 	after(Series s) throws IOException : aggregateDataOverAllRuns(s) {
 		String seriesDir = s.getDir();
-		System.out.println("Writing to " + seriesDir);
 		GraphProfiler.aggregate(seriesDir,
 				Files.getProfilerFilename(Config.get("METRIC_PROFILER")));
 	}
