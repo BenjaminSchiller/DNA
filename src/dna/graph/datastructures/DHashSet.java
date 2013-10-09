@@ -218,6 +218,8 @@ public class DHashSet extends DataStructureReadable implements
 			} else if (Edge.class.isAssignableFrom(dt)) {
 				return new Complexity(1, new ComplexityType(Type.Static, base));
 			}
+		case Iterator:
+			return new Complexity(1, new ComplexityType(Type.Static, base));
 		}
 		return new Complexity(1, new ComplexityType(Type.Unknown, base));
 	}
