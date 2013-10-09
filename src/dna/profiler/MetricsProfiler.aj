@@ -1,6 +1,7 @@
 package dna.profiler;
 
 import java.io.IOException;
+import java.util.Stack;
 
 import dna.graph.Graph;
 import dna.graph.datastructures.GraphDataStructure;
@@ -22,6 +23,7 @@ import dna.util.Config;
 
 public aspect MetricsProfiler {
 	private static boolean isActive = false;
+	private static Stack<String> formerMetric = new Stack<>(); 
 	private String currentMetric;
 	public static final String initialAddition = Config.get("PROFILER_INITIALBATCH_KEYADDITION");
 
@@ -71,6 +73,7 @@ public aspect MetricsProfiler {
 	}
 
 	boolean around(Metric metricObject) : initialMetric(metricObject) {
+		formerMetric.push(currentMetric);
 		currentMetric = metricObject.getName();
 		GraphProfiler.setInInitialBatch(false);
 		if (metricObject.getApplicationType() != ApplicationType.Recomputation) {
@@ -78,15 +81,16 @@ public aspect MetricsProfiler {
 			GraphProfiler.setInInitialBatch(true);
 		}
 		boolean res = proceed(metricObject);
-		currentMetric = null;
+		currentMetric = formerMetric.pop();
 		return res;
 	}
 
 	boolean around(Metric metricObject, Update updateObject) : metricAppliedOnUpdate(metricObject, updateObject) {
+		formerMetric.push(currentMetric);
 		currentMetric = metricObject.getName();
 		GraphProfiler.setInInitialBatch(false);
 		boolean res = proceed(metricObject, updateObject);
-		currentMetric = null;
+		currentMetric = formerMetric.pop();
 		return res;
 	}
 
