@@ -517,6 +517,18 @@ public class GraphDataStructure {
 		case SizeNodeLocal:
 			return getComplexityClass(nodeListType, Node.class,
 					AccessType.Size, Base.Degree);
+		case IteratorNodeGlobal:
+			return getComplexityClass(nodeListType, Node.class,
+					AccessType.Iterator, Base.NodeSize);
+		case IteratorNodeLocal:
+			return getComplexityClass(nodeListType, Node.class,
+					AccessType.Iterator, Base.Degree);			
+		case IteratorEdgeGlobal:
+			return getComplexityClass(graphEdgeListType, Edge.class,
+					AccessType.Iterator, Base.EdgeSize);			
+		case IteratorEdgeLocal:
+			return getComplexityClass(nodeEdgeListType, Edge.class,
+					AccessType.Iterator, Base.Degree);
 		}
 		throw new RuntimeException("Access " + p + " missing here");
 	}
