@@ -2,6 +2,8 @@ package dna.graph.tests;
 
 import static org.junit.Assert.assertEquals;
 
+import java.util.Map.Entry;
+
 import org.junit.Test;
 
 import dna.profiler.complexity.AddedComplexity;
@@ -132,6 +134,29 @@ public class ComplexityTests {
 		c2.put(new ComplexityType(Type.Static, Base.NodeSize), 15);
 		c1.put(new ComplexityType(Type.Linear, Base.NodeSize), 10);
 		assertSmallerThan(c2, c1);
+	}
+	
+	@Test
+	public void checkProperOrderOfComplexityMap() {
+		ComplexityType staticCompl = new ComplexityType(Type.Static, null);
+		ComplexityType linearDegreeCompl = new ComplexityType(Type.Linear, Base.Degree);
+		ComplexityType linearNodeSizeCompl = new ComplexityType(Type.Linear, Base.NodeSize);
+		ComplexityType linearEdgeSizeCompl = new ComplexityType(Type.Linear, Base.EdgeSize);
+		ComplexityType unknownCompl = new ComplexityType(Type.Unknown, null);
+		
+		ComplexityMap c = new ComplexityMap();
+		c.put(staticCompl, 1);
+		c.put(linearDegreeCompl, 1);
+		c.put(linearNodeSizeCompl, 1);
+		c.put(linearEdgeSizeCompl, 1);
+		c.put(unknownCompl, 1);
+		
+		Entry<ComplexityType, Integer>[] entrySet = c.entrySet().toArray(new Entry[0]);
+		assertEquals(staticCompl, entrySet[0].getKey());
+		assertEquals(linearDegreeCompl, entrySet[1].getKey());
+		assertEquals(linearNodeSizeCompl, entrySet[2].getKey());
+		assertEquals(linearEdgeSizeCompl, entrySet[3].getKey());
+		assertEquals(unknownCompl, entrySet[4].getKey());
 	}
 
 	private <T extends java.lang.Comparable<T>> void assertSmallerThan(T one,

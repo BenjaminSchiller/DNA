@@ -13,7 +13,7 @@ public class ComplexityType implements Comparable<ComplexityType> {
 	}
 
 	public enum Base {
-		NodeSize, EdgeSize, Degree
+		Degree, NodeSize, EdgeSize
 	}
 
 	private Type complexityType;
@@ -94,6 +94,10 @@ public class ComplexityType implements Comparable<ComplexityType> {
 
 	@Override
 	public int compareTo(ComplexityType o) {
-		return this.complexityType.compareTo(o.complexityType);
+		int res = this.complexityType.compareTo(o.complexityType);
+		if (res == 0 && this.complexityType == Type.Linear) {
+			res = this.complexityBase.compareTo(o.complexityBase);
+		}
+		return res;
 	}
 }

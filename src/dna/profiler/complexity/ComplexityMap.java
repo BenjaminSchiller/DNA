@@ -45,11 +45,9 @@ public class ComplexityMap implements Comparable<ComplexityMap> {
 	@Override
 	public int compareTo(ComplexityMap o) {
 		for (Entry<ComplexityType, Integer> entry : o.entrySet()) {
-			if (this.get(entry.getKey()) > entry.getValue())
-				return 1;
 			if (this.get(entry.getKey()) < entry.getValue())
 				return -1;
 		}
-		return -1;
+		return 1;
 	}
 }
