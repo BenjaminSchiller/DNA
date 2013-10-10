@@ -50,7 +50,7 @@ public aspect MetricsProfiler {
 	pointcut nodeRemove() : call(* INodeListDatastructure+.remove(Node+)) && metricApplied() && if(isActive);
 	pointcut nodeContains() : call(* INodeListDatastructure+.contains(Node+)) && metricApplied() && if(isActive);
 	pointcut nodeSize() : call(* INodeListDatastructure+.size()) && metricApplied() && if(isActive);
-	pointcut nodeRandom() : call(* INodeListDatastructure+.getRandom()) && metricApplied() && if(isActive);
+	pointcut nodeRandom() : call(* INodeListDatastructure+.get(int)) && metricApplied() && if(isActive);
 	
 	// Ignore the warning for the following line - everything works fine and as expected
 	pointcut nodeIterator() : call(* INodeListDatastructure+.iterator()) && metricApplied() && if(isActive);
@@ -59,7 +59,7 @@ public aspect MetricsProfiler {
 	pointcut edgeRemove() : call(* IEdgeListDatastructure+.remove(Edge+)) && metricApplied() && if(isActive);
 	pointcut edgeContains() : call(* IEdgeListDatastructure+.contains(Edge+)) && metricApplied() && if(isActive);
 	pointcut edgeSize() : call(* IEdgeListDatastructure+.size()) && metricApplied() && if(isActive);
-	pointcut edgeRandom() : call(* IEdgeListDatastructure+.getRandom()) && metricApplied() && if(isActive);
+	pointcut edgeRandom() : call(* IEdgeListDatastructure+.get(Edge)) && metricApplied() && if(isActive);
 
 	// Ignore the warning for the following line - everything works fine and as expected	
 	pointcut edgeIterator() : call(* IEdgeListDatastructure+.iterator()) && metricApplied() && if(isActive);
