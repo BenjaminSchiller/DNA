@@ -487,6 +487,18 @@ public class GraphDataStructure {
 		case ContainsNodeLocal:
 			return getComplexityClass(nodeListType, Node.class,
 					AccessType.Contains, Base.Degree);
+		case GetNodeGlobal:
+			return getComplexityClass(nodeListType, Node.class, AccessType.Get,
+					Base.NodeSize);
+		case GetNodeLocal:
+			return getComplexityClass(nodeListType, Node.class, AccessType.Get,
+					Base.Degree);
+		case GetEdgeGlobal:
+			return getComplexityClass(graphEdgeListType, Edge.class,
+					AccessType.Get, Base.EdgeSize);
+		case GetEdgeLocal:
+			return getComplexityClass(nodeEdgeListType, Edge.class,
+					AccessType.Get, Base.Degree);
 		case RandomEdgeGlobal:
 			return getComplexityClass(graphEdgeListType, Edge.class,
 					AccessType.Random, Base.EdgeSize);
@@ -522,10 +534,10 @@ public class GraphDataStructure {
 					AccessType.Iterator, Base.NodeSize);
 		case IteratorNodeLocal:
 			return getComplexityClass(nodeListType, Node.class,
-					AccessType.Iterator, Base.Degree);			
+					AccessType.Iterator, Base.Degree);
 		case IteratorEdgeGlobal:
 			return getComplexityClass(graphEdgeListType, Edge.class,
-					AccessType.Iterator, Base.EdgeSize);			
+					AccessType.Iterator, Base.EdgeSize);
 		case IteratorEdgeLocal:
 			return getComplexityClass(nodeEdgeListType, Edge.class,
 					AccessType.Iterator, Base.Degree);
