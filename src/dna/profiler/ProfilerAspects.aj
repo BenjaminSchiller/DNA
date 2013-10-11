@@ -24,8 +24,8 @@ import dna.util.Config;
 
 public aspect ProfilerAspects {
 	private static boolean isActive = false;
-	private static Stack<String> formerMetric = new Stack<>(); 
-	private String currentMetric;
+	private static Stack<String> formerCountKey = new Stack<>(); 
+	private String currentCountKey;
 	public static final String initialAddition = Config.get("PROFILER_INITIALBATCH_KEYADDITION");
 
 	pointcut activate() : execution(* Profiler.activate());
@@ -84,33 +84,33 @@ public aspect ProfilerAspects {
 	}
 
 	boolean around(Metric metricObject) : initialMetric(metricObject) {
-		formerMetric.push(currentMetric);
-		currentMetric = metricObject.getName();
+		formerCountKey.push(currentCountKey);
+		currentCountKey = metricObject.getName();
 		Profiler.setInInitialBatch(false);
 		if (metricObject.getApplicationType() != ApplicationType.Recomputation) {
-			currentMetric += initialAddition;
+			currentCountKey += initialAddition;
 			Profiler.setInInitialBatch(true);
 		}
 		boolean res = proceed(metricObject);
-		currentMetric = formerMetric.pop();
+		currentCountKey = formerCountKey.pop();
 		return res;
 	}
 
 	boolean around(Metric metricObject, Update updateObject) : metricAppliedOnUpdate(metricObject, updateObject) {
-		formerMetric.push(currentMetric);
-		currentMetric = metricObject.getName();
+		formerCountKey.push(currentCountKey);
+		currentCountKey = metricObject.getName();
 		Profiler.setInInitialBatch(false);
 		boolean res = proceed(metricObject, updateObject);
-		currentMetric = formerMetric.pop();
+		currentCountKey = formerCountKey.pop();
 		return res;
 	}
 	
 	boolean around(Update updateObject) : updateApplication(updateObject) {
-		formerMetric.push(currentMetric);
-		currentMetric = updateObject.getType().toString();
+		formerCountKey.push(currentCountKey);
+		currentCountKey = updateObject.getType().toString();
 		Profiler.setInInitialBatch(false);
 		boolean res = proceed(updateObject);
-		currentMetric = formerMetric.pop();
+		currentCountKey = formerCountKey.pop();
 		return res;
 	}
 
@@ -123,107 +123,107 @@ public aspect ProfilerAspects {
 	}
 
 	after() : nodeAdd() && graphAction() {
-		Profiler.count(this.currentMetric, ProfilerType.AddNodeGlobal);
+		Profiler.count(this.currentCountKey, ProfilerType.AddNodeGlobal);
 	}
 
 	after() : nodeAdd() && nodeAction() {
-		Profiler.count(this.currentMetric, ProfilerType.AddNodeLocal);
+		Profiler.count(this.currentCountKey, ProfilerType.AddNodeLocal);
 	}
 
 	after() : edgeAdd() && graphAction()  {
-		Profiler.count(currentMetric, ProfilerType.AddEdgeGlobal);
+		Profiler.count(currentCountKey, ProfilerType.AddEdgeGlobal);
 	}
 
 	after() : edgeAdd() && nodeAction()  {
-		Profiler.count(currentMetric, ProfilerType.AddEdgeLocal);
+		Profiler.count(currentCountKey, ProfilerType.AddEdgeLocal);
 	}
 
 	after() : nodeRemove() && graphAction()  {
-		Profiler.count(currentMetric, ProfilerType.RemoveNodeGlobal);
+		Profiler.count(currentCountKey, ProfilerType.RemoveNodeGlobal);
 	}
 
 	after() : nodeRemove() && nodeAction()  {
-		Profiler.count(currentMetric, ProfilerType.RemoveNodeLocal);
+		Profiler.count(currentCountKey, ProfilerType.RemoveNodeLocal);
 	}
 
 	after() : edgeRemove() && graphAction()  {
-		Profiler.count(currentMetric, ProfilerType.RemoveEdgeGlobal);
+		Profiler.count(currentCountKey, ProfilerType.RemoveEdgeGlobal);
 	}
 
 	after() : edgeRemove() && nodeAction()  {
-		Profiler.count(currentMetric, ProfilerType.RemoveEdgeLocal);
+		Profiler.count(currentCountKey, ProfilerType.RemoveEdgeLocal);
 	}
 
 	after() : nodeContains() && graphAction() {
-		Profiler.count(currentMetric, ProfilerType.ContainsNodeGlobal);
+		Profiler.count(currentCountKey, ProfilerType.ContainsNodeGlobal);
 	}
 
 	after() : nodeContains() && nodeAction() {
-		Profiler.count(currentMetric, ProfilerType.ContainsNodeLocal);
+		Profiler.count(currentCountKey, ProfilerType.ContainsNodeLocal);
 	}
 
 	after() : edgeContains() && graphAction() {
-		Profiler.count(currentMetric, ProfilerType.ContainsEdgeGlobal);
+		Profiler.count(currentCountKey, ProfilerType.ContainsEdgeGlobal);
 	}
 
 	after() : edgeContains() && nodeAction() {
-		Profiler.count(currentMetric, ProfilerType.ContainsEdgeLocal);
+		Profiler.count(currentCountKey, ProfilerType.ContainsEdgeLocal);
 	}
 
 	after() : nodeGet() && graphAction() {
-		Profiler.count(currentMetric, ProfilerType.GetNodeGlobal);
+		Profiler.count(currentCountKey, ProfilerType.GetNodeGlobal);
 	}
 
 	after() : nodeGet() && nodeAction() {
-		Profiler.count(currentMetric, ProfilerType.GetNodeLocal);
+		Profiler.count(currentCountKey, ProfilerType.GetNodeLocal);
 	}
 
 	after() : edgeGet() && graphAction() {
-		Profiler.count(currentMetric, ProfilerType.GetEdgeGlobal);
+		Profiler.count(currentCountKey, ProfilerType.GetEdgeGlobal);
 	}
 
 	after() : edgeGet() && nodeAction() {
-		Profiler.count(currentMetric, ProfilerType.GetEdgeLocal);
+		Profiler.count(currentCountKey, ProfilerType.GetEdgeLocal);
 	}	
 	
 	after() : nodeSize() && graphAction() {
-		Profiler.count(currentMetric, ProfilerType.SizeNodeGlobal);
+		Profiler.count(currentCountKey, ProfilerType.SizeNodeGlobal);
 	}
 
 	after() : nodeSize() && nodeAction() {
-		Profiler.count(currentMetric, ProfilerType.SizeNodeLocal);
+		Profiler.count(currentCountKey, ProfilerType.SizeNodeLocal);
 	}
 
 	after() : edgeSize() && graphAction() {
-		Profiler.count(currentMetric, ProfilerType.SizeEdgeGlobal);
+		Profiler.count(currentCountKey, ProfilerType.SizeEdgeGlobal);
 	}
 
 	after() : edgeSize() && nodeAction() {
-		Profiler.count(currentMetric, ProfilerType.SizeEdgeLocal);
+		Profiler.count(currentCountKey, ProfilerType.SizeEdgeLocal);
 	}
 
 	after() : nodeRandom() && graphAction() {
-		Profiler.count(currentMetric, ProfilerType.RandomNodeGlobal);
+		Profiler.count(currentCountKey, ProfilerType.RandomNodeGlobal);
 	}
 
 	after() : edgeRandom() && graphAction() {
-		Profiler.count(currentMetric, ProfilerType.RandomEdgeGlobal);
+		Profiler.count(currentCountKey, ProfilerType.RandomEdgeGlobal);
 	}
 	
 	after() : nodeIterator() && graphAction() {
-		Profiler.count(currentMetric, ProfilerType.IteratorNodeGlobal);
+		Profiler.count(currentCountKey, ProfilerType.IteratorNodeGlobal);
 	}
 
 	after() : nodeIterator() && nodeAction() {
-		Profiler.count(currentMetric, ProfilerType.IteratorNodeLocal);
+		Profiler.count(currentCountKey, ProfilerType.IteratorNodeLocal);
 	}
 	
 	after() : edgeIterator() && graphAction() {
-		Profiler.count(currentMetric, ProfilerType.IteratorEdgeGlobal);
+		Profiler.count(currentCountKey, ProfilerType.IteratorEdgeGlobal);
 	}
 
 	after() : edgeIterator() && nodeAction() {
-		Profiler.count(currentMetric, ProfilerType.IteratorEdgeLocal);
+		Profiler.count(currentCountKey, ProfilerType.IteratorEdgeLocal);
 	}	
 	
 	after(MetricData md, String dir) throws IOException : writeMetric(md, dir) {
