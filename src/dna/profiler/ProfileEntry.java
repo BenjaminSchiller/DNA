@@ -5,7 +5,7 @@ import java.util.EnumMap;
 import java.util.Map;
 
 import dna.graph.datastructures.GraphDataStructure;
-import dna.profiler.GraphProfiler.ProfilerType;
+import dna.profiler.Profiler.ProfilerType;
 import dna.profiler.complexity.AddedComplexity;
 import dna.profiler.complexity.Complexity;
 import dna.profiler.complexity.ComplexityMap;

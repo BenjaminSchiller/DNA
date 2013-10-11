@@ -26,7 +26,7 @@ import dna.metrics.Metric;
 import dna.metrics.MetricNotApplicableException;
 import dna.metrics.clusterCoefficient.DirectedClusteringCoefficientU;
 import dna.metrics.degree.DegreeDistributionU;
-import dna.profiler.GraphProfiler;
+import dna.profiler.Profiler;
 import dna.series.AggregationException;
 import dna.series.Series;
 import dna.updates.generators.BatchGenerator;
@@ -39,7 +39,7 @@ public class SingleTests {
 	@Test
 	public void metricTest() throws AggregationException, IOException,
 			MetricNotApplicableException {
-		GraphProfiler.activate();
+		Profiler.activate();
 
 		GraphDataStructure gds = new GraphDataStructure(DArrayList.class,
 				DArrayList.class, DArrayList.class, DirectedNode.class,

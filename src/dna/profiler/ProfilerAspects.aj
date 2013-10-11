@@ -13,7 +13,7 @@ import dna.graph.nodes.Node;
 import dna.io.filesystem.Files;
 import dna.metrics.Metric;
 import dna.metrics.Metric.ApplicationType;
-import dna.profiler.GraphProfiler.ProfilerType;
+import dna.profiler.Profiler.ProfilerType;
 import dna.series.Series;
 import dna.series.SeriesGeneration;
 import dna.series.data.BatchData;
@@ -22,13 +22,13 @@ import dna.updates.batch.Batch;
 import dna.updates.update.Update;
 import dna.util.Config;
 
-public aspect MetricsProfiler {
+public aspect ProfilerAspects {
 	private static boolean isActive = false;
 	private static Stack<String> formerMetric = new Stack<>(); 
 	private String currentMetric;
 	public static final String initialAddition = Config.get("PROFILER_INITIALBATCH_KEYADDITION");
 
-	pointcut activate() : execution(* GraphProfiler.activate());
+	pointcut activate() : execution(* Profiler.activate());
 
 	pointcut newBatch() : execution(BatchData.new(..));
 	pointcut aggregateDataPerRun(Series s, int run) : execution(* SeriesGeneration.generateRun(Series, int, ..)) && args(s, run, ..) && if(isActive);
@@ -76,7 +76,7 @@ public aspect MetricsProfiler {
 	pointcut writeData(String dir) : call(* BatchData.write(String)) && args(dir) && if(isActive);
 
 	before() : newBatch() {
-		GraphProfiler.reset();
+		Profiler.reset();
 	}
 	
 	after() : activate() {
@@ -86,10 +86,10 @@ public aspect MetricsProfiler {
 	boolean around(Metric metricObject) : initialMetric(metricObject) {
 		formerMetric.push(currentMetric);
 		currentMetric = metricObject.getName();
-		GraphProfiler.setInInitialBatch(false);
+		Profiler.setInInitialBatch(false);
 		if (metricObject.getApplicationType() != ApplicationType.Recomputation) {
 			currentMetric += initialAddition;
-			GraphProfiler.setInInitialBatch(true);
+			Profiler.setInInitialBatch(true);
 		}
 		boolean res = proceed(metricObject);
 		currentMetric = formerMetric.pop();
@@ -99,7 +99,7 @@ public aspect MetricsProfiler {
 	boolean around(Metric metricObject, Update updateObject) : metricAppliedOnUpdate(metricObject, updateObject) {
 		formerMetric.push(currentMetric);
 		currentMetric = metricObject.getName();
-		GraphProfiler.setInInitialBatch(false);
+		Profiler.setInInitialBatch(false);
 		boolean res = proceed(metricObject, updateObject);
 		currentMetric = formerMetric.pop();
 		return res;
@@ -108,136 +108,136 @@ public aspect MetricsProfiler {
 	boolean around(Update updateObject) : updateApplication(updateObject) {
 		formerMetric.push(currentMetric);
 		currentMetric = updateObject.getType().toString();
-		GraphProfiler.setInInitialBatch(false);
+		Profiler.setInInitialBatch(false);
 		boolean res = proceed(updateObject);
 		currentMetric = formerMetric.pop();
 		return res;
 	}
 
 	after(Graph g, GraphDataStructure gds) : init(g, gds) {
-		GraphProfiler.init(gds);
+		Profiler.init(gds);
 	}
 	
 	after() : seriesFinished() {
-//		GraphProfiler.finish();
+//		Profiler.finish();
 	}
 
 	after() : nodeAdd() && graphAction() {
-		GraphProfiler.count(this.currentMetric, ProfilerType.AddNodeGlobal);
+		Profiler.count(this.currentMetric, ProfilerType.AddNodeGlobal);
 	}
 
 	after() : nodeAdd() && nodeAction() {
-		GraphProfiler.count(this.currentMetric, ProfilerType.AddNodeLocal);
+		Profiler.count(this.currentMetric, ProfilerType.AddNodeLocal);
 	}
 
 	after() : edgeAdd() && graphAction()  {
-		GraphProfiler.count(currentMetric, ProfilerType.AddEdgeGlobal);
+		Profiler.count(currentMetric, ProfilerType.AddEdgeGlobal);
 	}
 
 	after() : edgeAdd() && nodeAction()  {
-		GraphProfiler.count(currentMetric, ProfilerType.AddEdgeLocal);
+		Profiler.count(currentMetric, ProfilerType.AddEdgeLocal);
 	}
 
 	after() : nodeRemove() && graphAction()  {
-		GraphProfiler.count(currentMetric, ProfilerType.RemoveNodeGlobal);
+		Profiler.count(currentMetric, ProfilerType.RemoveNodeGlobal);
 	}
 
 	after() : nodeRemove() && nodeAction()  {
-		GraphProfiler.count(currentMetric, ProfilerType.RemoveNodeLocal);
+		Profiler.count(currentMetric, ProfilerType.RemoveNodeLocal);
 	}
 
 	after() : edgeRemove() && graphAction()  {
-		GraphProfiler.count(currentMetric, ProfilerType.RemoveEdgeGlobal);
+		Profiler.count(currentMetric, ProfilerType.RemoveEdgeGlobal);
 	}
 
 	after() : edgeRemove() && nodeAction()  {
-		GraphProfiler.count(currentMetric, ProfilerType.RemoveEdgeLocal);
+		Profiler.count(currentMetric, ProfilerType.RemoveEdgeLocal);
 	}
 
 	after() : nodeContains() && graphAction() {
-		GraphProfiler.count(currentMetric, ProfilerType.ContainsNodeGlobal);
+		Profiler.count(currentMetric, ProfilerType.ContainsNodeGlobal);
 	}
 
 	after() : nodeContains() && nodeAction() {
-		GraphProfiler.count(currentMetric, ProfilerType.ContainsNodeLocal);
+		Profiler.count(currentMetric, ProfilerType.ContainsNodeLocal);
 	}
 
 	after() : edgeContains() && graphAction() {
-		GraphProfiler.count(currentMetric, ProfilerType.ContainsEdgeGlobal);
+		Profiler.count(currentMetric, ProfilerType.ContainsEdgeGlobal);
 	}
 
 	after() : edgeContains() && nodeAction() {
-		GraphProfiler.count(currentMetric, ProfilerType.ContainsEdgeLocal);
+		Profiler.count(currentMetric, ProfilerType.ContainsEdgeLocal);
 	}
 
 	after() : nodeGet() && graphAction() {
-		GraphProfiler.count(currentMetric, ProfilerType.GetNodeGlobal);
+		Profiler.count(currentMetric, ProfilerType.GetNodeGlobal);
 	}
 
 	after() : nodeGet() && nodeAction() {
-		GraphProfiler.count(currentMetric, ProfilerType.GetNodeLocal);
+		Profiler.count(currentMetric, ProfilerType.GetNodeLocal);
 	}
 
 	after() : edgeGet() && graphAction() {
-		GraphProfiler.count(currentMetric, ProfilerType.GetEdgeGlobal);
+		Profiler.count(currentMetric, ProfilerType.GetEdgeGlobal);
 	}
 
 	after() : edgeGet() && nodeAction() {
-		GraphProfiler.count(currentMetric, ProfilerType.GetEdgeLocal);
+		Profiler.count(currentMetric, ProfilerType.GetEdgeLocal);
 	}	
 	
 	after() : nodeSize() && graphAction() {
-		GraphProfiler.count(currentMetric, ProfilerType.SizeNodeGlobal);
+		Profiler.count(currentMetric, ProfilerType.SizeNodeGlobal);
 	}
 
 	after() : nodeSize() && nodeAction() {
-		GraphProfiler.count(currentMetric, ProfilerType.SizeNodeLocal);
+		Profiler.count(currentMetric, ProfilerType.SizeNodeLocal);
 	}
 
 	after() : edgeSize() && graphAction() {
-		GraphProfiler.count(currentMetric, ProfilerType.SizeEdgeGlobal);
+		Profiler.count(currentMetric, ProfilerType.SizeEdgeGlobal);
 	}
 
 	after() : edgeSize() && nodeAction() {
-		GraphProfiler.count(currentMetric, ProfilerType.SizeEdgeLocal);
+		Profiler.count(currentMetric, ProfilerType.SizeEdgeLocal);
 	}
 
 	after() : nodeRandom() && graphAction() {
-		GraphProfiler.count(currentMetric, ProfilerType.RandomNodeGlobal);
+		Profiler.count(currentMetric, ProfilerType.RandomNodeGlobal);
 	}
 
 	after() : edgeRandom() && graphAction() {
-		GraphProfiler.count(currentMetric, ProfilerType.RandomEdgeGlobal);
+		Profiler.count(currentMetric, ProfilerType.RandomEdgeGlobal);
 	}
 	
 	after() : nodeIterator() && graphAction() {
-		GraphProfiler.count(currentMetric, ProfilerType.IteratorNodeGlobal);
+		Profiler.count(currentMetric, ProfilerType.IteratorNodeGlobal);
 	}
 
 	after() : nodeIterator() && nodeAction() {
-		GraphProfiler.count(currentMetric, ProfilerType.IteratorNodeLocal);
+		Profiler.count(currentMetric, ProfilerType.IteratorNodeLocal);
 	}
 	
 	after() : edgeIterator() && graphAction() {
-		GraphProfiler.count(currentMetric, ProfilerType.IteratorEdgeGlobal);
+		Profiler.count(currentMetric, ProfilerType.IteratorEdgeGlobal);
 	}
 
 	after() : edgeIterator() && nodeAction() {
-		GraphProfiler.count(currentMetric, ProfilerType.IteratorEdgeLocal);
+		Profiler.count(currentMetric, ProfilerType.IteratorEdgeLocal);
 	}	
 	
 	after(MetricData md, String dir) throws IOException : writeMetric(md, dir) {
-		GraphProfiler.writeSingle(md.getName(), dir, Files.getProfilerFilename(Config.get("METRIC_PROFILER")));
+		Profiler.writeSingle(md.getName(), dir, Files.getProfilerFilename(Config.get("METRIC_PROFILER")));
 	}
 	
 	after(String dir) throws IOException : writeData(dir) {
-		GraphProfiler.write(dir,
+		Profiler.write(dir,
 				Files.getProfilerFilename(Config.get("METRIC_PROFILER")));
 	}
 
 	after(Series s) throws IOException : aggregateDataOverAllRuns(s) {
 		String seriesDir = s.getDir();
-		GraphProfiler.aggregate(seriesDir,
+		Profiler.aggregate(seriesDir,
 				Files.getProfilerFilename(Config.get("METRIC_PROFILER")));
 	}
 }

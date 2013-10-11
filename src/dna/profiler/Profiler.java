@@ -15,7 +15,7 @@ import dna.profiler.complexity.ComplexityMap;
 import dna.util.Config;
 import dna.util.Log;
 
-public class GraphProfiler {
+public class Profiler {
 	private static Map<String, ProfileEntry> calls = new HashMap<>();
 	private static boolean active = false;
 	private static boolean inInitialBatch = false;
