@@ -42,28 +42,33 @@ public aspect MetricsProfiler {
 	pointcut metricApplied() : cflow(initialMetric(*)) || cflow(metricAppliedOnUpdate(*, *)) || cflow(metricAppliedOnBatch(*, *));
 	pointcut writeMetric(MetricData md, String dir) : call(* MetricData.write(String)) && args(dir) && target(md) && if(isActive);
 	
+	pointcut updateApplication(Update updateObject) : execution(* Update+.apply(*)) && target(updateObject);
+	pointcut updateApplied(): cflow(updateApplication(*));
+	
+	pointcut watchedCall() : metricApplied() || updateApplied();
+	
 	pointcut seriesFinished() : execution(* SeriesGeneration.generate(..)) && if(isActive);
 
 	pointcut init(Graph g, GraphDataStructure gds) : this(g) && execution(Graph+.new(String,long, GraphDataStructure,..)) && args(*,*,gds,..);
 
-	pointcut nodeAdd() : call(* INodeListDatastructure+.add(Node+)) && metricApplied() && if(isActive);
-	pointcut nodeRemove() : call(* INodeListDatastructure+.remove(Node+)) && metricApplied() && if(isActive);
-	pointcut nodeContains() : call(* INodeListDatastructure+.contains(Node+)) && metricApplied() && if(isActive);
-	pointcut nodeGet() : call(* INodeListDatastructure+.get(int)) && metricApplied() && if(isActive);	
-	pointcut nodeSize() : call(* INodeListDatastructure+.size()) && metricApplied() && if(isActive);
-	pointcut nodeRandom() : call(* INodeListDatastructure+.getRandom()) && metricApplied() && if(isActive);
+	pointcut nodeAdd() : call(* INodeListDatastructure+.add(Node+)) && watchedCall() && if(isActive);
+	pointcut nodeRemove() : call(* INodeListDatastructure+.remove(Node+)) && watchedCall() && if(isActive);
+	pointcut nodeContains() : call(* INodeListDatastructure+.contains(Node+)) && watchedCall() && if(isActive);
+	pointcut nodeGet() : call(* INodeListDatastructure+.get(int)) && watchedCall() && if(isActive);	
+	pointcut nodeSize() : call(* INodeListDatastructure+.size()) && watchedCall() && if(isActive);
+	pointcut nodeRandom() : call(* INodeListDatastructure+.getRandom()) && watchedCall() && if(isActive);
 	// Ignore the warning for the following line - everything works fine and as expected
-	pointcut nodeIterator() : call(* INodeListDatastructure+.iterator()) && metricApplied() && if(isActive);
+	pointcut nodeIterator() : call(* INodeListDatastructure+.iterator()) && watchedCall() && if(isActive);
 
-	pointcut edgeAdd() : call(* IEdgeListDatastructure+.add(Edge+)) && metricApplied() && if(isActive);
-	pointcut edgeRemove() : call(* IEdgeListDatastructure+.remove(Edge+)) && metricApplied() && if(isActive);
-	pointcut edgeContains() : call(* IEdgeListDatastructure+.contains(Edge+)) && metricApplied() && if(isActive);
-	pointcut edgeGet() : call(* IEdgeListDatastructure+.get(Edge)) && metricApplied() && if(isActive);
-	pointcut edgeSize() : call(* IEdgeListDatastructure+.size()) && metricApplied() && if(isActive);
-	pointcut edgeRandom() : call(* IEdgeListDatastructure+.getRandom()) && metricApplied() && if(isActive);
+	pointcut edgeAdd() : call(* IEdgeListDatastructure+.add(Edge+)) && watchedCall() && if(isActive);
+	pointcut edgeRemove() : call(* IEdgeListDatastructure+.remove(Edge+)) && watchedCall() && if(isActive);
+	pointcut edgeContains() : call(* IEdgeListDatastructure+.contains(Edge+)) && watchedCall() && if(isActive);
+	pointcut edgeGet() : call(* IEdgeListDatastructure+.get(Edge)) && watchedCall() && if(isActive);
+	pointcut edgeSize() : call(* IEdgeListDatastructure+.size()) && watchedCall() && if(isActive);
+	pointcut edgeRandom() : call(* IEdgeListDatastructure+.getRandom()) && watchedCall() && if(isActive);
 
 	// Ignore the warning for the following line - everything works fine and as expected	
-	pointcut edgeIterator() : call(* IEdgeListDatastructure+.iterator()) && metricApplied() && if(isActive);
+	pointcut edgeIterator() : call(* IEdgeListDatastructure+.iterator()) && watchedCall() && if(isActive);
 	
 	pointcut graphAction() : !within(Element+);
 	pointcut nodeAction() : within(Element+);
@@ -96,6 +101,15 @@ public aspect MetricsProfiler {
 		currentMetric = metricObject.getName();
 		GraphProfiler.setInInitialBatch(false);
 		boolean res = proceed(metricObject, updateObject);
+		currentMetric = formerMetric.pop();
+		return res;
+	}
+	
+	boolean around(Update updateObject) : updateApplication(updateObject) {
+		formerMetric.push(currentMetric);
+		currentMetric = updateObject.getType().toString();
+		GraphProfiler.setInInitialBatch(false);
+		boolean res = proceed(updateObject);
 		currentMetric = formerMetric.pop();
 		return res;
 	}
