@@ -29,8 +29,8 @@ import dna.graph.nodes.UndirectedNode;
 import dna.metrics.Metric;
 import dna.metrics.Metric.ApplicationType;
 import dna.metrics.Metric.MetricType;
-import dna.profiler.GraphProfiler;
-import dna.profiler.GraphProfiler.ProfilerType;
+import dna.profiler.Profiler;
+import dna.profiler.Profiler.ProfilerType;
 import dna.series.data.Distribution;
 import dna.series.data.NodeValueList;
 import dna.series.data.Value;
@@ -59,7 +59,7 @@ public class ProfilerTest {
 		this.gds.setEdgeType(edgeType);
 		this.graph = gds.newGraphInstance("ABC", 1L, 10, 10);
 		this.applicationType = applicationType;
-		GraphProfiler.activate();
+		Profiler.activate();
 
 		this.graph = generateGraph();
 		metric = new TestMetric("test", this.applicationType,
@@ -87,7 +87,7 @@ public class ProfilerTest {
 
 	@Before
 	public void resetProfiler() {
-		GraphProfiler.reset();
+		Profiler.reset();
 	}
 
 	@SuppressWarnings("rawtypes")
@@ -138,10 +138,10 @@ public class ProfilerTest {
 
 	@Test
 	public void testContainsNodeGlobalIsCountedInMetric() {
-		assertEquals(0, GraphProfiler.getCount(metricKey,
+		assertEquals(0, Profiler.getCount(metricKey,
 				ProfilerType.ContainsNodeGlobal));
 		metric.compute();
-		assertEquals(1, GraphProfiler.getCount(metricKey,
+		assertEquals(1, Profiler.getCount(metricKey,
 				ProfilerType.ContainsNodeGlobal));
 	}
 
@@ -149,58 +149,58 @@ public class ProfilerTest {
 	public void testContainsNodeLocalIsCountedInMetric() {
 		assumeTrue(graph.isDirected());
 
-		assertEquals(0, GraphProfiler.getCount(metricKey,
+		assertEquals(0, Profiler.getCount(metricKey,
 				ProfilerType.ContainsNodeLocal));
 		metric.compute();
-		assertEquals(1, GraphProfiler.getCount(metricKey,
+		assertEquals(1, Profiler.getCount(metricKey,
 				ProfilerType.ContainsNodeLocal));
 	}
 
 	@Test
 	public void testContainsEdgeGlobalIsCountedInMetric() {
-		assertEquals(0, GraphProfiler.getCount(metricKey,
+		assertEquals(0, Profiler.getCount(metricKey,
 				ProfilerType.ContainsEdgeGlobal));
 		metric.compute();
-		assertEquals(1, GraphProfiler.getCount(metricKey,
+		assertEquals(1, Profiler.getCount(metricKey,
 				ProfilerType.ContainsEdgeGlobal));
 	}
 
 	@Test
 	public void testContainsEdgeLocalIsCountedInMetric() {
-		assertEquals(0, GraphProfiler.getCount(metricKey,
+		assertEquals(0, Profiler.getCount(metricKey,
 				ProfilerType.ContainsEdgeLocal));
 		metric.compute();
-		assertEquals(1, GraphProfiler.getCount(metricKey,
+		assertEquals(1, Profiler.getCount(metricKey,
 				ProfilerType.ContainsEdgeLocal));
 	}
 
 	@Test
 	public void testSizeNodeGlobalIsCountedInMetric() {
 		assertEquals(0,
-				GraphProfiler.getCount(metricKey, ProfilerType.SizeNodeGlobal));
+				Profiler.getCount(metricKey, ProfilerType.SizeNodeGlobal));
 		metric.compute();
 		// Node size is called *twice* in the metric: once directly, once
 		// through printAll()
 		assertEquals(2,
-				GraphProfiler.getCount(metricKey, ProfilerType.SizeNodeGlobal));
+				Profiler.getCount(metricKey, ProfilerType.SizeNodeGlobal));
 	}
 
 	@Test
 	public void testGlobalGetRandomEdgeIsCountedInMetric() {
-		assertEquals(0, GraphProfiler.getCount(metricKey,
+		assertEquals(0, Profiler.getCount(metricKey,
 				ProfilerType.RandomEdgeGlobal));
 		metric.compute();
-		assertEquals(1, GraphProfiler.getCount(metricKey,
+		assertEquals(1, Profiler.getCount(metricKey,
 				ProfilerType.RandomEdgeGlobal));
 	}
 
 	@Test
 	public void testGlobalGetSpecifiedNodeIsCountedInMetric() {
 		assertEquals(0,
-				GraphProfiler.getCount(metricKey, ProfilerType.GetNodeGlobal));
+				Profiler.getCount(metricKey, ProfilerType.GetNodeGlobal));
 		metric.compute();
 		assertEquals(1,
-				GraphProfiler.getCount(metricKey, ProfilerType.GetNodeGlobal));
+				Profiler.getCount(metricKey, ProfilerType.GetNodeGlobal));
 	}
 
 	@Test
@@ -208,27 +208,27 @@ public class ProfilerTest {
 		assumeTrue(graph.isDirected());
 
 		assertEquals(0,
-				GraphProfiler.getCount(metricKey, ProfilerType.SizeNodeLocal));
+				Profiler.getCount(metricKey, ProfilerType.SizeNodeLocal));
 		metric.compute();
 		assertEquals(1,
-				GraphProfiler.getCount(metricKey, ProfilerType.SizeNodeLocal));
+				Profiler.getCount(metricKey, ProfilerType.SizeNodeLocal));
 	}
 
 	@Test
 	public void testSizeEdgeGlobalIsCountedInMetric() {
 		assertEquals(0,
-				GraphProfiler.getCount(metricKey, ProfilerType.SizeEdgeGlobal));
+				Profiler.getCount(metricKey, ProfilerType.SizeEdgeGlobal));
 		metric.compute();
 		// Edge size is called *twice* in the metric: once directly, once
 		// through printAll()
 		assertEquals(2,
-				GraphProfiler.getCount(metricKey, ProfilerType.SizeEdgeGlobal));
+				Profiler.getCount(metricKey, ProfilerType.SizeEdgeGlobal));
 	}
 
 	@Test
 	public void testSizeEdgeLocalIsCountedInMetric() {
 		assertEquals(0,
-				GraphProfiler.getCount(metricKey, ProfilerType.SizeEdgeLocal));
+				Profiler.getCount(metricKey, ProfilerType.SizeEdgeLocal));
 		metric.compute();
 		// Local edge size is called *multiple* times in the metric: once
 		// directly, additional times for all nodes through printAll()
@@ -240,24 +240,24 @@ public class ProfilerTest {
 			additionalCounter *= 2;
 
 		assertEquals(1 + additionalCounter,
-				GraphProfiler.getCount(metricKey, ProfilerType.SizeEdgeLocal));
+				Profiler.getCount(metricKey, ProfilerType.SizeEdgeLocal));
 	}
 
 	@Test
 	public void testIteratorNodeGlobalIsCountedInMetric() {
-		assertEquals(0, GraphProfiler.getCount(metricKey,
+		assertEquals(0, Profiler.getCount(metricKey,
 				ProfilerType.IteratorNodeGlobal));
 		metric.compute();
-		assertEquals(1, GraphProfiler.getCount(metricKey,
+		assertEquals(1, Profiler.getCount(metricKey,
 				ProfilerType.IteratorNodeGlobal));
 	}
 
 	@Test
 	public void testIteratorEdgeGlobalIsCountedInMetric() {
-		assertEquals(0, GraphProfiler.getCount(metricKey,
+		assertEquals(0, Profiler.getCount(metricKey,
 				ProfilerType.IteratorEdgeGlobal));
 		metric.compute();
-		assertEquals(1, GraphProfiler.getCount(metricKey,
+		assertEquals(1, Profiler.getCount(metricKey,
 				ProfilerType.IteratorEdgeGlobal));
 	}
 

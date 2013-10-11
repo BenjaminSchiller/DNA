@@ -29,7 +29,7 @@ import dna.graph.nodes.IWeightedNode;
 import dna.graph.nodes.Node;
 import dna.graph.nodes.UndirectedNode;
 import dna.graph.weights.IWeighted;
-import dna.profiler.GraphProfiler.ProfilerType;
+import dna.profiler.Profiler.ProfilerType;
 import dna.util.Config;
 
 @RunWith(Parameterized.class)

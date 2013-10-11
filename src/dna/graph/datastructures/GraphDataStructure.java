@@ -17,7 +17,7 @@ import dna.graph.edges.UndirectedEdge;
 import dna.graph.nodes.IWeightedNode;
 import dna.graph.nodes.Node;
 import dna.graph.weights.IWeighted;
-import dna.profiler.GraphProfiler.ProfilerType;
+import dna.profiler.Profiler.ProfilerType;
 import dna.profiler.complexity.Complexity;
 import dna.profiler.complexity.ComplexityType.Base;
 import dna.util.Config;
