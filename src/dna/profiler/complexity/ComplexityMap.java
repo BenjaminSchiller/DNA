@@ -10,9 +10,11 @@ public class ComplexityMap implements Comparable<ComplexityMap> {
 	public String toString() {
 		StringBuilder s = new StringBuilder();
 		for (Entry<ComplexityType, Integer> elem : entrySet()) {
+			if (elem.getValue() == 0)
+				continue;
 			if (s.length() > 0)
-				s.append(" -- ");
-			s.append(elem);
+				s.append(" + ");
+			s.append(elem.getValue() + "*" + elem.getKey());
 		}
 		return s.toString();
 	}
