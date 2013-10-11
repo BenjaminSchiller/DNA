@@ -49,17 +49,18 @@ public aspect MetricsProfiler {
 	pointcut nodeAdd() : call(* INodeListDatastructure+.add(Node+)) && metricApplied() && if(isActive);
 	pointcut nodeRemove() : call(* INodeListDatastructure+.remove(Node+)) && metricApplied() && if(isActive);
 	pointcut nodeContains() : call(* INodeListDatastructure+.contains(Node+)) && metricApplied() && if(isActive);
+	pointcut nodeGet() : call(* INodeListDatastructure+.get(int)) && metricApplied() && if(isActive);	
 	pointcut nodeSize() : call(* INodeListDatastructure+.size()) && metricApplied() && if(isActive);
-	pointcut nodeRandom() : call(* INodeListDatastructure+.get(int)) && metricApplied() && if(isActive);
-	
+	pointcut nodeRandom() : call(* INodeListDatastructure+.getRandom()) && metricApplied() && if(isActive);
 	// Ignore the warning for the following line - everything works fine and as expected
 	pointcut nodeIterator() : call(* INodeListDatastructure+.iterator()) && metricApplied() && if(isActive);
 
 	pointcut edgeAdd() : call(* IEdgeListDatastructure+.add(Edge+)) && metricApplied() && if(isActive);
 	pointcut edgeRemove() : call(* IEdgeListDatastructure+.remove(Edge+)) && metricApplied() && if(isActive);
 	pointcut edgeContains() : call(* IEdgeListDatastructure+.contains(Edge+)) && metricApplied() && if(isActive);
+	pointcut edgeGet() : call(* IEdgeListDatastructure+.get(Edge)) && metricApplied() && if(isActive);
 	pointcut edgeSize() : call(* IEdgeListDatastructure+.size()) && metricApplied() && if(isActive);
-	pointcut edgeRandom() : call(* IEdgeListDatastructure+.get(Edge)) && metricApplied() && if(isActive);
+	pointcut edgeRandom() : call(* IEdgeListDatastructure+.getRandom()) && metricApplied() && if(isActive);
 
 	// Ignore the warning for the following line - everything works fine and as expected	
 	pointcut edgeIterator() : call(* IEdgeListDatastructure+.iterator()) && metricApplied() && if(isActive);
@@ -155,6 +156,22 @@ public aspect MetricsProfiler {
 		GraphProfiler.count(currentMetric, ProfilerType.ContainsEdgeLocal);
 	}
 
+	after() : nodeGet() && graphAction() {
+		GraphProfiler.count(currentMetric, ProfilerType.GetNodeGlobal);
+	}
+
+	after() : nodeGet() && nodeAction() {
+		GraphProfiler.count(currentMetric, ProfilerType.GetNodeLocal);
+	}
+
+	after() : edgeGet() && graphAction() {
+		GraphProfiler.count(currentMetric, ProfilerType.GetEdgeGlobal);
+	}
+
+	after() : edgeGet() && nodeAction() {
+		GraphProfiler.count(currentMetric, ProfilerType.GetEdgeLocal);
+	}	
+	
 	after() : nodeSize() && graphAction() {
 		GraphProfiler.count(currentMetric, ProfilerType.SizeNodeGlobal);
 	}
