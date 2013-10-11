@@ -186,6 +186,24 @@ public class ProfilerTest {
 	}
 
 	@Test
+	public void testGlobalGetRandomEdgeIsCountedInMetric() {
+		assertEquals(0, GraphProfiler.getCount(metricKey,
+				ProfilerType.RandomEdgeGlobal));
+		metric.compute();
+		assertEquals(1, GraphProfiler.getCount(metricKey,
+				ProfilerType.RandomEdgeGlobal));
+	}
+
+	@Test
+	public void testGlobalGetSpecifiedNodeIsCountedInMetric() {
+		assertEquals(0,
+				GraphProfiler.getCount(metricKey, ProfilerType.GetNodeGlobal));
+		metric.compute();
+		assertEquals(1,
+				GraphProfiler.getCount(metricKey, ProfilerType.GetNodeGlobal));
+	}
+
+	@Test
 	public void testSizeNodeLocalIsCountedInMetric() {
 		assumeTrue(graph.isDirected());
 
@@ -233,7 +251,7 @@ public class ProfilerTest {
 		assertEquals(1, GraphProfiler.getCount(metricKey,
 				ProfilerType.IteratorNodeGlobal));
 	}
-	
+
 	@Test
 	public void testIteratorEdgeGlobalIsCountedInMetric() {
 		assertEquals(0, GraphProfiler.getCount(metricKey,
@@ -241,7 +259,7 @@ public class ProfilerTest {
 		metric.compute();
 		assertEquals(1, GraphProfiler.getCount(metricKey,
 				ProfilerType.IteratorEdgeGlobal));
-	}	
+	}
 
 	private class TestMetric extends Metric {
 		public TestMetric(String name, ApplicationType type,

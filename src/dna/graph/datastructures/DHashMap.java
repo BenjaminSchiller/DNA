@@ -189,6 +189,12 @@ public class DHashMap extends DataStructureReadable implements
 			} else if (Edge.class.isAssignableFrom(dt)) {
 				return new Complexity(1, new ComplexityType(Type.Linear, base));
 			}
+		case Get:
+			if (Node.class.isAssignableFrom(dt)) {
+				return new Complexity(1, new ComplexityType(Type.Static, base));
+			} else if (Edge.class.isAssignableFrom(dt)) {
+				return new Complexity(1, new ComplexityType(Type.Static, base));
+			}
 		case Random:
 			if (Node.class.isAssignableFrom(dt)) {
 				return new Complexity(1, new ComplexityType(Type.Linear, base));
