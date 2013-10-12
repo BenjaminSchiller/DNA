@@ -148,6 +148,9 @@ public class MetricVisualizer extends JPanel {
 			if (this.DEFAULT_PAINT_FILL)
 				newTrace.addTracePainter(new TracePainterFill(this.chart));
 		}
+
+		if (counter == 0)
+			trace.addTracePainter(new TracePainterDisc());
 	}
 
 	/** sets linespoint plot for a trace **/

@@ -44,6 +44,7 @@ public class MainDisplay extends JFrame {
 	public static void main(String[] args) {
 		/****** Input dir ******/
 		dir = "data/test15/run.0/";
+		dir = "data/scenario1/run.0/";
 		/****** ********* ******/
 
 		GridBagConstraints c = new GridBagConstraints();
