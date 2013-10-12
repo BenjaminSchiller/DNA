@@ -24,5 +24,10 @@ public abstract class NodeUpdate extends Update {
 	protected String toString_() {
 		return this.node.toString();
 	}
+	
+	@Override
+	protected int hashCode_() {
+		return this.node.hashCode();
+	}
 
 }
