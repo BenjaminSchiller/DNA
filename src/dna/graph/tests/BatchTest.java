@@ -3,6 +3,7 @@ package dna.graph.tests;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assume.assumeTrue;
 
 import java.io.IOException;
 import java.lang.reflect.Constructor;
@@ -35,6 +36,7 @@ import dna.graph.nodes.DirectedNode;
 import dna.graph.nodes.IWeightedNode;
 import dna.graph.nodes.Node;
 import dna.graph.nodes.UndirectedNode;
+import dna.graph.weights.IWeighted;
 import dna.graph.weights.Weights;
 import dna.graph.weights.Weights.EdgeWeightSelection;
 import dna.graph.weights.Weights.NodeWeightSelection;
@@ -47,7 +49,9 @@ import dna.updates.batch.BatchSanitization;
 import dna.updates.generators.BatchGenerator;
 import dna.updates.generators.RandomBatch;
 import dna.updates.update.EdgeRemoval;
+import dna.updates.update.EdgeWeight;
 import dna.updates.update.NodeRemoval;
+import dna.updates.update.NodeWeight;
 import dna.updates.update.Update;
 
 @RunWith(Parameterized.class)
@@ -283,6 +287,29 @@ public class BatchTest {
 		b2.add(nR);
 
 		assertEquals(b1, b2);
+	}
+
+	@Test
+	public void checkHashCodesDontChangeWithChangedWeights() {
+		assumeTrue(IWeighted.class.isAssignableFrom(nodeType)
+				&& IWeighted.class.isAssignableFrom(edgeType));
+
+		Graph g = gg.generate();
+		Batch b = bGen.generate(g);
+		BatchSanitization.sanitize(b);
+
+		// Get the first elements from weight-based updates
+		NodeWeight nwUpdate = b.getNodeWeights().iterator().next();
+		int nwUpdateHashCode = nwUpdate.hashCode();
+		EdgeWeight ewUpdate = b.getEdgeWeights().iterator().next();
+		int ewUpdateHashCode = ewUpdate.hashCode();
+
+		b.apply(g);
+
+		assertEquals("Hashcode has changed after applying the update",
+				nwUpdateHashCode, nwUpdate.hashCode());
+		assertEquals("Hashcode has changed after applying the update",
+				ewUpdateHashCode, ewUpdate.hashCode());
 	}
 
 	@Test
