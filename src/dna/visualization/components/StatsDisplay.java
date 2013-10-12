@@ -18,6 +18,7 @@ import javax.swing.event.ChangeListener;
 import dna.series.data.BatchData;
 import dna.series.data.RunTime;
 import dna.visualization.BatchHandler;
+import dna.visualization.components.statsdisplay.StatsGroup;
 
 /**
  * A statsdisplay is used to monitor several statistics of a dynamic graph.
@@ -49,8 +50,8 @@ public class StatsDisplay extends JPanel implements ChangeListener {
 	private final int SPEED_MAX = 2000;
 	private final int SPEED_INIT = 1000;
 
-	private StatisticGroup genRuntimes;
-	private StatisticGroup metRuntimes;
+	private StatsGroup genRuntimes;
+	private StatsGroup metRuntimes;
 
 	private long minTimestamp;
 	private long maxTimestamp;
@@ -166,10 +167,10 @@ public class StatsDisplay extends JPanel implements ChangeListener {
 		this.SettingsPanel.add(SpeedSlider, settingsPanelConstraints);
 
 		// general and metric runtime panels
-		this.genRuntimes = new StatisticGroup("GeneralRuntimes");
+		this.genRuntimes = new StatsGroup("GeneralRuntimes");
 		this.genRuntimes.setLayout(new BoxLayout(this.genRuntimes,
 				BoxLayout.X_AXIS));
-		this.metRuntimes = new StatisticGroup("MetricRuntimes");
+		this.metRuntimes = new StatsGroup("MetricRuntimes");
 		this.metRuntimes.setLayout(new BoxLayout(this.metRuntimes,
 				BoxLayout.X_AXIS));
 

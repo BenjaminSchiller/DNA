@@ -1,4 +1,4 @@
-package dna.visualization.components;
+package dna.visualization.components.statsdisplay;
 
 import java.awt.Component;
 
@@ -15,13 +15,13 @@ import javax.swing.border.TitledBorder;
  * @author Rwilmes
  * 
  */
-public class StatisticGroup extends JPanel {
+public class StatsGroup extends JPanel {
 
 	public JPanel NamePanel;
 	public JPanel ValuePanel;
 
 	// constructor
-	public StatisticGroup(String title) {
+	public StatsGroup(String title) {
 		super();
 		// set name
 		this.setName(title);
