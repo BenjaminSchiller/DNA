@@ -231,6 +231,16 @@ public class Profiler {
 		w.writeln(getCallList(calls, metricName, true));
 		w.close();
 	}
+	
+	public static void writeMultiple(String[] keys, String dir, String filename) throws IOException {
+		Writer w = new Writer(dir, filename);
+		for ( String singleKey: keys) {
+			if (inInitialBatch)
+				singleKey += Config.get("PROFILER_INITIALBATCH_KEYADDITION");
+			w.writeln(getCallList(calls, singleKey, false));
+		}
+		w.close();
+	}
 
 	public static void aggregate(String seriesDir, String profilerFilename) {
 		// TODO write an aggregator
