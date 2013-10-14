@@ -1,6 +1,7 @@
 package dna.profiler;
 
 import java.io.IOException;
+import java.util.HashSet;
 import java.util.Stack;
 
 import dna.graph.Element;
@@ -22,6 +23,7 @@ import dna.series.SeriesGeneration;
 import dna.series.data.BatchData;
 import dna.series.data.MetricData;
 import dna.updates.batch.Batch;
+import dna.updates.generators.BatchGenerator;
 import dna.updates.update.Update;
 import dna.util.Config;
 
@@ -29,17 +31,28 @@ public aspect ProfilerAspects {
 	private static boolean isActive = false;
 	private static Stack<String> formerCountKey = new Stack<>(); 
 	private String currentCountKey;
-	private String runDir;
+	private String seriesDir;
+	
+	private int run;
+	private long currentBatchTimestamp;
+	
+	private HashSet<String> batchGeneratorNames = new HashSet<>();
+	
+	private String batchGeneratorName;
 	public static final String initialAddition = Config.get("PROFILER_INITIALBATCH_KEYADDITION");
 
 	pointcut activate() : execution(* Profiler.activate());
 
 	pointcut newBatch() : execution(BatchData.new(..));
 	pointcut seriesSingleRunGeneration(Series s, int run) : execution(* SeriesGeneration.generateRun(Series, int, ..)) && args(s, run, ..) && if(isActive);
+	pointcut startNewBatchGeneration(Series s, long timestamp) : execution(* SeriesGeneration.generateNextBatch(Series, long)) && args(s, timestamp) && if(isActive);
 	pointcut aggregateDataOverAllRuns(Series s) : execution(* SeriesGeneration.generate(Series, int, int, boolean, boolean)) && args(s, ..) && if(isActive);
 	
 	pointcut graphGeneration(IGraphGenerator graphGenerator) : execution(* IGraphGenerator+.generate()) && target(graphGenerator);
 	pointcut graphGenerated(): cflow(graphGeneration(*));
+	
+	pointcut batchGeneration(BatchGenerator batchGenerator) : execution(* BatchGenerator+.generate(*)) && target(batchGenerator);
+	pointcut batchGenerated() : cflow(batchGeneration(*));
 	
 	pointcut initialMetric(Metric metricObject) : execution(* Metric+.compute()) && target(metricObject);
 	pointcut metricAppliedOnUpdate(Metric metricObject, Update updateObject) : (execution(* Metric+.applyBeforeUpdate(Update+))
@@ -52,7 +65,7 @@ public aspect ProfilerAspects {
 	pointcut updateApplication(Update updateObject) : execution(* Update+.apply(*)) && target(updateObject);
 	pointcut updateApplied(): cflow(updateApplication(*));
 	
-	pointcut watchedCall() : graphGenerated() || metricApplied() || updateApplied();
+	pointcut watchedCall() : graphGenerated() || batchGenerated() || metricApplied() || updateApplied();
 	
 	pointcut seriesFinished() : execution(* SeriesGeneration.generate(..)) && if(isActive);
 
@@ -91,7 +104,12 @@ public aspect ProfilerAspects {
 	}
 	
 	before(Series s, int run) : seriesSingleRunGeneration(s, run) {
-		this.runDir = Dir.getRunDataDir(s.getDir(), run);
+		this.seriesDir = s.getDir();
+		this.run = run;
+	}
+	
+	before(Series s, long timestamp) : startNewBatchGeneration(s, timestamp) {
+		this.currentBatchTimestamp = timestamp;
 	}
 	
 	Graph around(IGraphGenerator graphGenerator) : graphGeneration(graphGenerator) {
@@ -100,13 +118,30 @@ public aspect ProfilerAspects {
 		Profiler.setInInitialBatch(false);
 		Graph res = proceed(graphGenerator);
 		
-		System.out.println("Writing for generator " + currentCountKey + " to " + runDir);
 		try {
-			Profiler.writeSingle(currentCountKey, runDir, Files.getProfilerFilename(Config.get("METRIC_PROFILER")));
+			Profiler.writeSingle(currentCountKey, seriesDir, "GRAPHGENERATION");
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 		
+		currentCountKey = formerCountKey.pop();
+		return res;
+	}
+	
+	Batch around(BatchGenerator batchGenerator) : batchGeneration(batchGenerator) {
+		formerCountKey.push(currentCountKey);
+		batchGeneratorName = batchGenerator.getName();
+		batchGeneratorNames.add(batchGeneratorName);
+		currentCountKey = batchGeneratorName;
+		Profiler.setInInitialBatch(false);
+		Batch res = proceed(batchGenerator);
+		
+		try {
+			Profiler.writeMultiple(batchGeneratorNames.toArray(new String[0]), Dir.getBatchDataDir(seriesDir, run,
+					currentBatchTimestamp), "BATCHPROFILE");
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 		currentCountKey = formerCountKey.pop();
 		return res;
 	}
