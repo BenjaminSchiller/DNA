@@ -9,7 +9,10 @@ import dna.graph.datastructures.GraphDataStructure;
 import dna.graph.datastructures.IEdgeListDatastructure;
 import dna.graph.datastructures.INodeListDatastructure;
 import dna.graph.edges.Edge;
+import dna.graph.generators.GraphGenerator;
+import dna.graph.generators.IGraphGenerator;
 import dna.graph.nodes.Node;
+import dna.io.filesystem.Dir;
 import dna.io.filesystem.Files;
 import dna.metrics.Metric;
 import dna.metrics.Metric.ApplicationType;
@@ -26,13 +29,17 @@ public aspect ProfilerAspects {
 	private static boolean isActive = false;
 	private static Stack<String> formerCountKey = new Stack<>(); 
 	private String currentCountKey;
+	private String runDir;
 	public static final String initialAddition = Config.get("PROFILER_INITIALBATCH_KEYADDITION");
 
 	pointcut activate() : execution(* Profiler.activate());
 
 	pointcut newBatch() : execution(BatchData.new(..));
-	pointcut aggregateDataPerRun(Series s, int run) : execution(* SeriesGeneration.generateRun(Series, int, ..)) && args(s, run, ..) && if(isActive);
+	pointcut seriesSingleRunGeneration(Series s, int run) : execution(* SeriesGeneration.generateRun(Series, int, ..)) && args(s, run, ..) && if(isActive);
 	pointcut aggregateDataOverAllRuns(Series s) : execution(* SeriesGeneration.generate(Series, int, int, boolean, boolean)) && args(s, ..) && if(isActive);
+	
+	pointcut graphGeneration(IGraphGenerator graphGenerator) : execution(* IGraphGenerator+.generate()) && target(graphGenerator);
+	pointcut graphGenerated(): cflow(graphGeneration(*));
 	
 	pointcut initialMetric(Metric metricObject) : execution(* Metric+.compute()) && target(metricObject);
 	pointcut metricAppliedOnUpdate(Metric metricObject, Update updateObject) : (execution(* Metric+.applyBeforeUpdate(Update+))
@@ -45,7 +52,7 @@ public aspect ProfilerAspects {
 	pointcut updateApplication(Update updateObject) : execution(* Update+.apply(*)) && target(updateObject);
 	pointcut updateApplied(): cflow(updateApplication(*));
 	
-	pointcut watchedCall() : metricApplied() || updateApplied();
+	pointcut watchedCall() : graphGenerated() || metricApplied() || updateApplied();
 	
 	pointcut seriesFinished() : execution(* SeriesGeneration.generate(..)) && if(isActive);
 
@@ -81,6 +88,27 @@ public aspect ProfilerAspects {
 	
 	after() : activate() {
 		isActive = true;
+	}
+	
+	before(Series s, int run) : seriesSingleRunGeneration(s, run) {
+		this.runDir = Dir.getRunDataDir(s.getDir(), run);
+	}
+	
+	Graph around(IGraphGenerator graphGenerator) : graphGeneration(graphGenerator) {
+		formerCountKey.push(currentCountKey);
+		currentCountKey = ((GraphGenerator) graphGenerator).getName();
+		Profiler.setInInitialBatch(false);
+		Graph res = proceed(graphGenerator);
+		
+		System.out.println("Writing for generator " + currentCountKey + " to " + runDir);
+		try {
+			Profiler.writeSingle(currentCountKey, runDir, Files.getProfilerFilename(Config.get("METRIC_PROFILER")));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+		currentCountKey = formerCountKey.pop();
+		return res;
 	}
 
 	boolean around(Metric metricObject) : initialMetric(metricObject) {
