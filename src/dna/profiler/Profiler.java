@@ -97,15 +97,13 @@ public class Profiler {
 					else
 						res.append(entry.getValue().callsAsString(
 								entry.getKey()));
-					res.append("# Aggr: "
-							+ entry.getValue().combinedComplexity(gds)
-							+ separator);
+
 				}
 			} else {
 				res.append(entry.getValue().callsAsString(entry.getKey()));
-				res.append("# Aggr: "
-						+ entry.getValue().combinedComplexity(gds) + separator);
 			}
+			res.append("# Aggr: " + entry.getValue().combinedComplexity(gds)
+					+ separator);
 		}
 		return res.toString();
 	}
