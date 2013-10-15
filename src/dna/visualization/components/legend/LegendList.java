@@ -2,10 +2,10 @@ package dna.visualization.components.legend;
 
 import java.awt.Color;
 import java.awt.Component;
-import java.awt.Dimension;
 
-import javax.swing.BoxLayout;
 import javax.swing.JPanel;
+
+import dna.visualization.VerticalLayout;
 
 /**
  * The list showing elements added to the legend.
@@ -15,11 +15,12 @@ import javax.swing.JPanel;
  */
 public class LegendList extends JPanel {
 
-	public LegendList() {
-		super();
-		this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-		System.out.println("LegendList created");
+	private Legend parent;
 
+	public LegendList(Legend parent) {
+		super();
+		this.parent = parent;
+		this.setLayout(new VerticalLayout(0));
 	}
 
 	/** add a new item **/
@@ -33,8 +34,12 @@ public class LegendList extends JPanel {
 			}
 		}
 
-		if (!alreadyAdded)
-			this.add(new LegendItem(name, color));
+		if (!alreadyAdded) {
+			LegendItem i = new LegendItem(this, name, color);
+			i.setToolTipText(name);
+			this.add(i);
+		}
+		this.validate();
 	}
 
 	/** set value of an item **/
@@ -46,6 +51,7 @@ public class LegendList extends JPanel {
 				}
 			}
 		}
+		this.validate();
 	}
 
 	/** remove an item from the list **/
@@ -54,6 +60,29 @@ public class LegendList extends JPanel {
 			if (c instanceof LegendItem) {
 				if (c.getName().equals(name)) {
 					this.remove(c);
+				}
+			}
+		}
+		this.validate();
+		this.repaint();
+	}
+
+	/** remove an item from the list **/
+	public void removeItem(Component c) {
+		if (c instanceof LegendItem) {
+			remove(c);
+			this.parent.removeItem(c.getName());
+		}
+		this.validate();
+		this.repaint();
+	}
+
+	/** updates the value of an legend item contained in the list **/
+	public void updateItem(String name, double value) {
+		for (Component c : this.getComponents()) {
+			if (c instanceof LegendItem) {
+				if (c.getName().equals(name)) {
+					((LegendItem) c).setValue(value);
 				}
 			}
 		}

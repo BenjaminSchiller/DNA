@@ -12,23 +12,19 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Set;
 
 import javax.swing.BorderFactory;
-import javax.swing.BoxLayout;
-import javax.swing.JButton;
-import javax.swing.JList;
 import javax.swing.JPanel;
-import javax.swing.JScrollPane;
 import javax.swing.border.EtchedBorder;
 import javax.swing.border.TitledBorder;
 
 import dna.series.data.BatchData;
+import dna.series.data.MetricData;
+import dna.series.data.RunTime;
+import dna.series.data.Value;
 import dna.visualization.components.legend.Legend;
 
 public class MetricVisualizer extends JPanel {
@@ -40,18 +36,12 @@ public class MetricVisualizer extends JPanel {
 
 	private HashMap<String, ITrace2D> traces;
 
-	private JList<String> selectionListItems;
-	private JPanel selectionList;
-	private JScrollPane scroll;
-	private JButton selectionListUpdate;
-
 	private MetricVisualizer thisM;
 
 	private Boolean DEFAULT_PAINT_LINESPOINT = true;
 	private int linespointSize = 5;
 	private Boolean DEFAULT_PAINT_FILL = false;
-	
-	
+
 	private Legend legend;
 
 	@SuppressWarnings("deprecation")
@@ -61,7 +51,7 @@ public class MetricVisualizer extends JPanel {
 		this.traces = new HashMap<String, ITrace2D>();
 		this.availableValues = new ArrayList<String>();
 
-		this.setPreferredSize(new Dimension(600, 350));
+		this.setPreferredSize(new Dimension(670, 350));
 		// set title and border of statistics
 		TitledBorder title = BorderFactory
 				.createTitledBorder("Metric Visualizer");
@@ -88,30 +78,8 @@ public class MetricVisualizer extends JPanel {
 		mainConstraints.gridx = 0;
 		mainConstraints.gridy = 0;
 
-		this.selectionList = new JPanel();
-		this.selectionList.setPreferredSize(new Dimension(130, 320));
-		this.selectionList.setLayout(new BoxLayout(selectionList,
-				BoxLayout.Y_AXIS));
-
-		this.selectionListItems = new JList<String>();
-		this.selectionList.add(this.selectionListItems);
-
-		this.add(this.selectionList);
-		this.scroll = new JScrollPane(this.selectionListItems);
-		this.selectionList.add(scroll);
-
-		this.selectionListUpdate = new JButton("Update");
-		this.selectionList.add(this.selectionListUpdate);
-		this.selectionListUpdate.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent event) {
-				thisM.updateTraces();
-			}
-		});
-
-		this.legend = new Legend();
-		//this.add(this.legend);
-		this.addItemToList();
+		this.legend = new Legend(this);
+		this.add(this.legend);
 	}
 
 	/**
@@ -125,34 +93,52 @@ public class MetricVisualizer extends JPanel {
 		for (String metric : b.getMetrics().getNames()) {
 			for (String value : b.getMetrics().get(metric).getValues()
 					.getNames()) {
-				try {
-					this.traces.get(metric + "." + value).addPoint(
-							timestampDouble,
-							b.getMetrics().get(metric).getValues().get(value)
-									.getValue());
-				} catch (NullPointerException e) {
-
+				if (this.traces.containsKey(metric + "." + value)) {
+					String tempName = metric + "." + value;
+					double tempValue = b.getMetrics().get(metric).getValues()
+							.get(value).getValue();
+					this.traces.get(tempName).addPoint(timestampDouble,
+							tempValue);
+					this.legend.updateItem(tempName, tempValue);
 				}
 			}
-
 		}
+		for (String runtime : b.getGeneralRuntimes().getNames()) {
+			if (this.traces.containsKey("general runtimes." + runtime)) {
+				String tempName = "general runtimes." + runtime;
+				double tempValue = b.getGeneralRuntimes().get(runtime)
+						.getRuntime();
 
-		this.validate();
-	}
+				this.traces.get(tempName).addPoint(timestampDouble, tempValue);
+				this.legend.updateItem(tempName, tempValue);
+			}
+		}
+		for (String runtime : b.getMetricRuntimes().getNames()) {
+			if (this.traces.containsKey("metric runtimes." + runtime)) {
+				String tempName = "metric runtimes." + runtime;
+				double tempValue = b.getMetricRuntimes().get(runtime)
+						.getRuntime();
 
-	/** adds trace to the visualizer with choosen trace length **/
-	public void addTrace(String name, int traceLength) {
-		Trace2DLtd newTrace = new Trace2DLtd(traceLength);
-		newTrace.setTracePainter(new TracePainterDisc());
-		this.traces.put(name, newTrace);
-		this.chart.addTrace(newTrace);
+				this.traces.get(tempName).addPoint(timestampDouble, tempValue);
+				this.legend.updateItem(tempName, tempValue);
+			}
+		}
+		for (String value : b.getValues().getNames()) {
+			if (this.traces.containsKey("statistics." + value)) {
+				String tempName = "statistics." + value;
+				double tempValue = b.getValues().get(value).getValue();
+
+				this.traces.get(tempName).addPoint(timestampDouble, tempValue);
+				this.legend.updateItem(tempName, tempValue);
+			}
+		}
 	}
 
 	/** adds trace to the visualizer with default trace length **/
-	public void addTrace(String name) {
+	public void addTrace(String name, Color color) {
 		if (!this.traces.containsKey(name)) {
 			Trace2DLtd newTrace = new Trace2DLtd(DEFAULT_TRACE_LENGTH);
-			newTrace.setColor(this.getNextColor());
+			newTrace.setColor(color);
 			this.traces.put(name, newTrace);
 			this.chart.addTrace(newTrace);
 
@@ -179,18 +165,6 @@ public class MetricVisualizer extends JPanel {
 			trace.addTracePainter(new TracePainterDisc());
 	}
 
-	private int colorCounter = 0;
-	private Color[] colors = new Color[] { new Color(255, 0, 0),
-			new Color(0, 255, 0), new Color(0, 0, 255), new Color(100, 100, 0),
-			new Color(100, 0, 100), new Color(0, 100, 100), new Color(0, 0, 0) };
-
-	/** returns the next unused color **/
-	public Color getNextColor() {
-		if (this.colorCounter == 6)
-			this.colorCounter = 0;
-		return colors[(this.colorCounter++)];
-	}
-
 	/** initializes the data with the first batch **/
 	public void initData(BatchData b) {
 		for (String metric : b.getMetrics().getNames()) {
@@ -199,18 +173,22 @@ public class MetricVisualizer extends JPanel {
 				this.availableValues.add(metric + "." + value);
 			}
 		}
-
-		// init metric value selection list
-		String[] listItems = new String[this.availableValues.size()];
-		for (int i = 0; i < this.availableValues.size(); i++) {
-			listItems[i] = this.availableValues.get(i);
+		for (String runtime : b.getGeneralRuntimes().getNames()) {
+			this.availableValues.add("general runtime." + runtime);
 		}
-		this.selectionListItems = new JList(listItems);
-		this.selectionList.removeAll();
-		this.selectionList.add(this.selectionListItems);
-		this.scroll = new JScrollPane(this.selectionListItems);
-		this.selectionList.add(scroll);
-		this.selectionList.add(this.selectionListUpdate);
+		for (String runtime : b.getMetricRuntimes().getNames()) {
+			this.availableValues.add("metric runtime." + runtime);
+		}
+		for (String value : b.getValues().getNames()) {
+			this.availableValues.add("statistics." + value);
+		}
+
+		// init addbox
+		String[] tempValues = this.availableValues
+				.toArray(new String[this.availableValues.size()]);
+		// this.betweenUpdate(tempValues);
+		tempValues = this.gatherValues(b);
+		this.legend.updateAddBox(tempValues);
 		this.validate();
 	}
 
@@ -221,28 +199,48 @@ public class MetricVisualizer extends JPanel {
 		}
 	}
 
-	/**
-	 * Called by the update button. Updates all visible traces according to the
-	 * selected values in the list.
-	 */
-	private void updateTraces() {
-		List<String> selectionList = this.selectionListItems
-				.getSelectedValuesList();
-		for (String s : this.availableValues) {
-			if (selectionList.contains(s)) {
-				this.addTrace(s);
-			} else {
-				if (this.traces.containsKey(s)) {
-					this.chart.removeTrace(this.traces.get(s));
-					this.traces.remove(s);
+	public void removeTrace(String name) {
+		if (this.traces.containsKey(name)) {
+			this.chart.removeTrace(this.traces.get(name));
+			this.traces.remove(name);
+		}
+	}
+
+	/** gathers all plottable values from the batch **/
+	public String[] gatherValues(BatchData b) {
+		ArrayList<String> tempList = new ArrayList<String>();
+		tempList.add("metrics");
+
+		for (MetricData m : b.getMetrics().getList()) {
+			if (m.getValues().size() > 0) {
+				tempList.add("--- " + m.getName());
+				for (Value v : m.getValues().getList()) {
+					tempList.add("----- " + m.getName() + "." + v.getName());
 				}
 			}
 		}
-	}
-	
-	public void addItemToList() {
-		this.legend.addItemToList("Testitem");
-		this.validate();
+
+		tempList.add("general runtimes");
+
+		for (RunTime r : b.getGeneralRuntimes().getList()) {
+			tempList.add("---" + r.getName());
+		}
+
+		tempList.add("metric runtimes");
+
+		for (RunTime r : b.getMetricRuntimes().getList()) {
+			tempList.add("---" + r.getName());
+		}
+
+		tempList.add("statistics");
+
+		for (Value v : b.getValues().getList()) {
+			tempList.add("---" + v.getName());
+		}
+
+		String[] tempValues = tempList.toArray(new String[tempList.size()]);
+		return tempValues;
+		// TODO: ADD SUPPORT FOR DISTRIBUTIONS
 	}
 
 }
