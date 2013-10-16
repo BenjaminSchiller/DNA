@@ -323,10 +323,48 @@ public class SeriesGeneration {
 		initialData.getGeneralRuntimes().add(totalTimer.getRuntime());
 		initialData.getGeneralRuntimes().add(graphGenerationTimer.getRuntime());
 		initialData.getGeneralRuntimes().add(allMetricsTimer.getRuntime());
+		// batchGeneration runtime is not present in the initialdata and added
+		// for gui purposes only
+		initialData.getGeneralRuntimes().add(
+				new RunTime("batchGeneration", 0.0));
+
 		addSummaryRuntimes(initialData);
 
 		// add values
 		initialData.getValues().add(new Value("randomSeed", series.getSeed()));
+
+		// these values are not present in the initialdata and added for gui
+		// purposes only
+		initialData.getValues().add(new Value(SeriesStats.nodesToAdd, 0.0));
+		initialData.getValues().add(new Value(SeriesStats.addedNodes, 0.0));
+		initialData.getValues().add(new Value(SeriesStats.nodesToRemove, 0.0));
+		initialData.getValues().add(new Value(SeriesStats.removedNodes, 0.0));
+		initialData.getValues().add(
+				new Value(SeriesStats.nodeWeightsToUpdate, 0.0));
+		initialData.getValues().add(
+				new Value(SeriesStats.updatedNodeWeights, 0.0));
+
+		initialData.getValues().add(new Value(SeriesStats.edgesToAdd, 0.0));
+		initialData.getValues().add(new Value(SeriesStats.addedEdges, 0.0));
+		initialData.getValues().add(new Value(SeriesStats.edgesToRemove, 0.0));
+		initialData.getValues().add(new Value(SeriesStats.removedEdges, 0.0));
+		initialData.getValues().add(
+				new Value(SeriesStats.edgeWeightsToUpdate, 0.0));
+		initialData.getValues().add(
+				new Value(SeriesStats.updatedEdgeWeights, 0.0));
+
+		initialData.getValues().add(
+				new Value(SeriesStats.deletedNodeAdditions, 0.0));
+		initialData.getValues().add(
+				new Value(SeriesStats.deletedEdgeAdditions, 0.0));
+		initialData.getValues().add(
+				new Value(SeriesStats.deletedNodeRemovals, 0.0));
+		initialData.getValues().add(
+				new Value(SeriesStats.deletedEdgeRemovals, 0.0));
+		initialData.getValues().add(
+				new Value(SeriesStats.deletedNodeWeightUpdates, 0.0));
+		initialData.getValues().add(
+				new Value(SeriesStats.deletedEdgeWeightUpdates, 0.0));
 
 		// call garbage collection
 		if (series.isCallGC()) {
