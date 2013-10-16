@@ -83,8 +83,10 @@ public class MetricVisualizer extends JPanel {
 	}
 
 	/**
+	 * Updates the chart and the legend with a new batchdata.
 	 * 
 	 * @param b
+	 *            New batch
 	 */
 	public void updateData(BatchData b) {
 		long timestamp = b.getTimestamp();
@@ -177,7 +179,10 @@ public class MetricVisualizer extends JPanel {
 			}
 		}
 		for (String runtime : b.getGeneralRuntimes().getNames()) {
-			this.availableValues.add("general runtime." + runtime);
+			// graphGeneration runtime will be ignored cause it is only present
+			// in the initial batch
+			if (!runtime.equals("graphGeneration"))
+				this.availableValues.add("general runtime." + runtime);
 		}
 		for (String runtime : b.getMetricRuntimes().getNames()) {
 			this.availableValues.add("metric runtime." + runtime);
@@ -189,7 +194,6 @@ public class MetricVisualizer extends JPanel {
 		// init addbox
 		String[] tempValues = this.availableValues
 				.toArray(new String[this.availableValues.size()]);
-		// this.betweenUpdate(tempValues);
 		tempValues = this.gatherValues(b);
 		this.legend.updateAddBox(tempValues);
 		this.validate();
@@ -224,19 +228,19 @@ public class MetricVisualizer extends JPanel {
 		}
 
 		tempList.add("general runtimes");
-
 		for (RunTime r : b.getGeneralRuntimes().getList()) {
-			tempList.add("---" + r.getName());
+			// graphGeneration runtime will be ignored cause it is only present
+			// in the initial batch
+			if (!r.getName().equals("graphGeneration"))
+				tempList.add("---" + r.getName());
 		}
 
 		tempList.add("metric runtimes");
-
 		for (RunTime r : b.getMetricRuntimes().getList()) {
 			tempList.add("---" + r.getName());
 		}
 
 		tempList.add("statistics");
-
 		for (Value v : b.getValues().getList()) {
 			tempList.add("---" + v.getName());
 		}
