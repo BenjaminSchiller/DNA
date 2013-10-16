@@ -1,6 +1,7 @@
 package dna.visualization.components.legend;
 
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -16,6 +17,7 @@ import javax.swing.JScrollPane;
 import javax.swing.border.EtchedBorder;
 
 import dna.visualization.components.BoundsPopupMenuListener;
+import dna.visualization.components.ColorHandler;
 import dna.visualization.components.MetricVisualizer;
 
 /**
@@ -38,10 +40,13 @@ public class Legend extends JPanel {
 	private JComboBox<String> addBox;
 	private String[] addBoxMenu;
 
+	private ColorHandler colorHandler;
+
 	public Legend(MetricVisualizer parent) {
 		super();
 		this.parent = parent;
 		thisLegend = this;
+		this.colorHandler = new ColorHandler();
 		this.setPreferredSize(new Dimension(190, 326));
 		this.setLayout(new GridBagLayout());
 		GridBagConstraints c = new GridBagConstraints();
@@ -87,25 +92,24 @@ public class Legend extends JPanel {
 		this.initAddBox(null);
 	}
 
-	private Color[] colors = new Color[] { new Color(255, 0, 0),
-			new Color(0, 255, 0), new Color(0, 0, 255), new Color(100, 100, 0),
-			new Color(100, 0, 100), new Color(0, 100, 100), new Color(0, 0, 0),
-			new Color(200, 200, 0), new Color(200, 0, 200),
-			new Color(0, 200, 200), new Color(150, 150, 0),
-			new Color(150, 0, 150), new Color(0, 150, 150) };
-	private int colorCounter = 0;
-
-	/** returns the next unused color **/
-	public Color getNextColor() {
-		if (this.colorCounter == colors.length)
-			this.colorCounter = 0;
-		return colors[(this.colorCounter++)];
-	}
-
 	public void addItemToList(String name) {
-		Color color = this.getNextColor();
-		this.list.addItem(name, color);
-		this.parent.addTrace(name, color);
+		boolean alreadyAdded = false;
+		for (Component c : this.list.getComponents()) {
+			if (c instanceof LegendItem) {
+				if (c.getName().equals(name)) {
+					alreadyAdded = true;
+				}
+			}
+		}
+
+		if (!alreadyAdded) {
+			Color color = this.colorHandler.getNextColor();
+
+			LegendItem i = new LegendItem(this.list, name, color);
+			i.setToolTipText(name);
+			this.list.add(i);
+			this.parent.addTrace(name, color);
+		}
 		this.validate();
 	}
 
@@ -118,8 +122,9 @@ public class Legend extends JPanel {
 		this.validate();
 	}
 
-	public void removeItem(String name) {
+	public void removeItem(String name, Color color) {
 		this.parent.removeTrace(name);
+		this.colorHandler.removeColor(color);
 	}
 
 	/** updated addbox with new selectable values **/

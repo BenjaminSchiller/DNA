@@ -125,4 +125,8 @@ public class LegendItem extends JPanel {
 	public void setColor(Color color) {
 		this.nameLabel.setForeground(color);
 	}
+
+	public Color getColor() {
+		return this.color;
+	}
 }

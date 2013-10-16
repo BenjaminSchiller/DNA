@@ -71,7 +71,7 @@ public class LegendList extends JPanel {
 	public void removeItem(Component c) {
 		if (c instanceof LegendItem) {
 			remove(c);
-			this.parent.removeItem(c.getName());
+			this.parent.removeItem(c.getName(), ((LegendItem) c).getColor());
 		}
 		this.validate();
 		this.repaint();
