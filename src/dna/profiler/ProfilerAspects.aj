@@ -119,7 +119,7 @@ public aspect ProfilerAspects {
 		Graph res = proceed(graphGenerator);
 		
 		try {
-			Profiler.writeSingle(currentCountKey, seriesDir, "GRAPHGENERATION");
+			Profiler.writeSingle(currentCountKey, Dir.getRunDataDir(seriesDir, run), Files.getProfilerFilename(Config.get("GRAPHGENERATOR_PROFILER")));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -138,7 +138,7 @@ public aspect ProfilerAspects {
 		
 		try {
 			Profiler.writeMultiple(batchGeneratorNames.toArray(new String[0]), Dir.getBatchDataDir(seriesDir, run,
-					currentBatchTimestamp), "BATCHPROFILE");
+					currentBatchTimestamp), Files.getProfilerFilename(Config.get("BATCH_PROFILER")));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -295,12 +295,11 @@ public aspect ProfilerAspects {
 	
 	after(String dir) throws IOException : writeData(dir) {
 		Profiler.write(dir,
-				Files.getProfilerFilename(Config.get("METRIC_PROFILER")));
+				Files.getProfilerFilename(Config.get("DATASTRUCTURE_PROFILER")));
 	}
 
 	after(Series s) throws IOException : aggregateDataOverAllRuns(s) {
-		String seriesDir = s.getDir();
-		Profiler.aggregate(seriesDir,
-				Files.getProfilerFilename(Config.get("METRIC_PROFILER")));
+//		String seriesDir = s.getDir();
+//		Profiler.aggregate(seriesDir, "OLDNAME");
 	}
 }
