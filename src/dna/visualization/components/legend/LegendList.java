@@ -17,6 +17,7 @@ public class LegendList extends JPanel {
 
 	private Legend parent;
 
+	// constructor
 	public LegendList(Legend parent) {
 		super();
 		this.parent = parent;
@@ -84,6 +85,15 @@ public class LegendList extends JPanel {
 				if (c.getName().equals(name)) {
 					((LegendItem) c).setValue(value);
 				}
+			}
+		}
+	}
+
+	/** resets the legend list by removing all items **/
+	public void reset() {
+		for (Component c : this.getComponents()) {
+			if (c instanceof LegendItem) {
+				this.removeItem(c);
 			}
 		}
 	}

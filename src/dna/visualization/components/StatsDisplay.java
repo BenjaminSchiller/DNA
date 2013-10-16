@@ -2,6 +2,8 @@ package dna.visualization.components;
 
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.Hashtable;
 
 import javax.swing.BorderFactory;
@@ -10,6 +12,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.JSlider;
+import javax.swing.JTextField;
 import javax.swing.border.EtchedBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.ChangeEvent;
@@ -18,6 +21,7 @@ import javax.swing.event.ChangeListener;
 import dna.series.data.BatchData;
 import dna.series.data.RunTime;
 import dna.visualization.BatchHandler;
+import dna.visualization.MainDisplay;
 import dna.visualization.components.statsdisplay.StatsGroup;
 
 /**
@@ -32,7 +36,7 @@ public class StatsDisplay extends JPanel implements ChangeListener {
 	private JPanel SettingsNotSpeedPanel;
 
 	private JLabel DirectoryLabel;
-	private JLabel DirectoryValue;
+	private JTextField DirectoryValue;
 
 	private JLabel TimestampLabel;
 	private JLabel TimestampValue;
@@ -57,11 +61,14 @@ public class StatsDisplay extends JPanel implements ChangeListener {
 	private long maxTimestamp;
 
 	private BatchHandler bh;
+	private StatsDisplay statsdis;
+	private MainDisplay mainDisplay;
+	private boolean running;
 
 	// constructor
 	public StatsDisplay() {
 		super();
-
+		this.statsdis = this;
 		// set title and border of statistics
 		TitledBorder title = BorderFactory.createTitledBorder("Statistics");
 		title.setBorder(BorderFactory
@@ -108,7 +115,18 @@ public class StatsDisplay extends JPanel implements ChangeListener {
 
 		// directory
 		this.DirectoryLabel = new JLabel("Directory: ");
-		this.DirectoryValue = new JLabel("./..");
+		this.DirectoryValue = new JTextField("./..");
+		this.DirectoryValue.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent evt) {
+				mainDisplay.reset();
+				mainDisplay.clearLists();
+				mainDisplay.setBatchHandlerDir(DirectoryValue.getText());
+				mainDisplay.resetBatchHandler();
+				statsdis.grabFocus();
+			}
+		});
+		this.DirectoryValue.setEditable(true);
+
 		settingLabels.add(this.DirectoryLabel);
 		settingValues.add(this.DirectoryValue);
 
@@ -184,6 +202,7 @@ public class StatsDisplay extends JPanel implements ChangeListener {
 		mainConstraints.gridx = 0;
 		this.add(this.genRuntimes, mainConstraints);
 
+		this.running = false;
 	}
 
 	/**
@@ -243,6 +262,7 @@ public class StatsDisplay extends JPanel implements ChangeListener {
 		}
 		if (b.getTimestamp() == this.maxTimestamp) {
 			this.setProgess(100.0);
+			this.setStopped();
 		} else {
 			long amount = this.maxTimestamp - this.minTimestamp;
 			long pr = b.getTimestamp() - this.minTimestamp;
@@ -287,6 +307,10 @@ public class StatsDisplay extends JPanel implements ChangeListener {
 		this.validate();
 	}
 
+	public String getDirectory() {
+		return this.DirectoryValue.getText();
+	}
+
 	public void setNodes(int nodes) {
 		this.NodesValue.setText("" + nodes);
 		this.validate();
@@ -308,6 +332,24 @@ public class StatsDisplay extends JPanel implements ChangeListener {
 	public void setProgess(double progress) {
 		this.ProgressBar.setValue((int) Math.floor(progress));
 		this.validate();
+	}
+
+	public void setParent(MainDisplay mainDisplay) {
+		this.mainDisplay = mainDisplay;
+	}
+
+	public void setStarted() {
+		this.running = true;
+		this.DirectoryValue.setEditable(false);
+		this.validate();
+		this.repaint();
+	}
+
+	public void setStopped() {
+		this.DirectoryValue.setEditable(true);
+		this.running = false;
+		this.validate();
+		this.repaint();
 	}
 
 	/** Resets the statistic display **/
@@ -335,11 +377,8 @@ public class StatsDisplay extends JPanel implements ChangeListener {
 	public void stateChanged(ChangeEvent e) {
 		JSlider source = (JSlider) e.getSource();
 		if (!source.getValueIsAdjusting()) {
-			if (this.bh == null)
-				System.out
-						.println("Warning: Attempting speed change on unknown BatchHandler");
-			else
-				this.bh.setSpeed((int) source.getValue());
+			this.mainDisplay.setBatchHandlerSpeed((int) source.getValue());
 		}
 	}
+
 }

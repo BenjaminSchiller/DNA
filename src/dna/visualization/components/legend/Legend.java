@@ -246,4 +246,9 @@ public class Legend extends JPanel {
 		this.list.updateItem(name, value);
 	}
 
+	/** resets the legend list **/
+	public void reset() {
+		this.list.reset();
+	}
+
 }

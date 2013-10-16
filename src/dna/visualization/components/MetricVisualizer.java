@@ -206,6 +206,11 @@ public class MetricVisualizer extends JPanel {
 		}
 	}
 
+	/** clears all list items in the legend **/
+	public void clearList() {
+		this.legend.reset();
+	}
+
 	public void removeTrace(String name) {
 		if (this.traces.containsKey(name)) {
 			this.chart.removeTrace(this.traces.get(name));

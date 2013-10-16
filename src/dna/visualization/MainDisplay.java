@@ -26,70 +26,85 @@ import dna.visualization.components.MetricVisualizer;
 import dna.visualization.components.StatsDisplay;
 
 public class MainDisplay extends JFrame {
+	/** DEFAULT DIR **/
+	static String defaultDir = "data/Metrics/cc/run.0/";
 
-	static BatchHandler bh;
-	static String dir;
+	/** MAIN **/
+	public static void main(String[] args) {
+		// init main window
+		MainDisplay display = new MainDisplay();
+		display.setVisible(true);
+
+		// init batch handler
+		display.setBatchHandler();
+		display.initBatchHandler();
+
+		// get initial batch
+
+	}
+
+	// class variables
+	private StatsDisplay statsDisplay1;
+	private BatchHandler batchHandler;
+
 	private ArrayList<Component> dataComponents;
 
+	private JPanel buttons;
+	private JButton pauseButton;
+	private JButton startButton;
+	private JButton stopButton;
+	private JButton quitButton;
+
+	private JPanel logoPanel;
+
+	private MetricVisualizer metric1;
+
+	// constructor
 	public MainDisplay() {
 		setTitle("DNA - Dynamic Network Analyzer");
 		setSize(1024, 800);
 		setLocationRelativeTo(null);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-		setLayout(new GridBagLayout());
+		this.setLayout(new GridBagLayout());
 		this.dataComponents = new ArrayList<Component>();
-	}
 
-	public static void main(String[] args) {
-		/****** Input dir ******/
-		dir = "data/test15/run.1/";
-		// dir = "data/scenario1/run.0/";
-		/****** ********* ******/
-
-		GridBagConstraints c = new GridBagConstraints();
-
-		// init main window
-		final MainDisplay display = new MainDisplay();
+		// create constraints for mainDisplay Layout
+		GridBagConstraints mainDisplayConstraints = new GridBagConstraints();
 
 		// init stats component, set position in grid and add to mainframe
-		final StatsDisplay statsdis = new StatsDisplay();
-		c.gridy = 0;
-		c.gridx = 0;
-		display.getContentPane().add(statsdis, c);
+		this.statsDisplay1 = new StatsDisplay();
+		this.statsDisplay1.setParent(this);
+		this.statsDisplay1.setDirectory(defaultDir);
+
+		mainDisplayConstraints.gridy = 0;
+		mainDisplayConstraints.gridx = 0;
+		this.getContentPane().add(this.statsDisplay1, mainDisplayConstraints);
 
 		// register statsDisplay to get batchdata objects
-		display.registerDataComponent(statsdis);
-
-		// init batch handler
-		bh = new BatchHandler(dir, statsdis, display);
-		try {
-			bh.updateBatches();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		this.registerDataComponent(this.statsDisplay1);
 
 		// register batchhandler at statsdisplay
-		statsdis.setBatchHandler(bh);
+		this.statsDisplay1.setBatchHandler(this.batchHandler);
 
 		// add buttons
-		JButton quitButton = new JButton("Quit");
-		quitButton.setBounds(50, 60, 80, 30);
-		quitButton.setForeground(Color.BLACK);
-		quitButton.addActionListener(new ActionListener() {
+		this.quitButton = new JButton("Quit");
+		this.quitButton.setBounds(50, 60, 80, 30);
+		this.quitButton.setForeground(Color.BLACK);
+		this.quitButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent event) {
 				System.exit(0);
 			}
 		});
 
-		final JButton pauseButton = new JButton("Pause");
-		pauseButton.setBounds(50, 60, 80, 30);
-		pauseButton.setForeground(Color.BLACK);
-		pauseButton.addActionListener(new ActionListener() {
+		this.pauseButton = new JButton("Pause");
+		this.pauseButton.setBounds(50, 60, 80, 30);
+		this.pauseButton.setForeground(Color.BLACK);
+		this.pauseButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent event) {
-				bh.togglePause();
+				batchHandler.togglePause();
 				if (pauseButton.getForeground().equals(Color.BLACK)) {
 					pauseButton.setForeground(Color.RED);
 					pauseButton.setText("Resume");
@@ -100,50 +115,56 @@ public class MainDisplay extends JFrame {
 			}
 		});
 
-		JButton stopButton = new JButton("Stop");
-		stopButton.setBounds(50, 60, 80, 30);
-		stopButton.setForeground(Color.BLACK);
-		stopButton.addActionListener(new ActionListener() {
+		this.stopButton = new JButton("Stop");
+		this.stopButton.setBounds(50, 60, 80, 30);
+		this.stopButton.setForeground(Color.BLACK);
+		this.stopButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent event) {
+				pauseButton.setForeground(Color.BLACK);
+				pauseButton.setText("Pause");
 				try {
-					bh.reset();
+					statsDisplay1.setStopped();
+					batchHandler.reset();
+					initBatchHandler();
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
 			}
 		});
 
-		JButton startButton = new JButton("Start");
-		startButton.setBounds(50, 60, 80, 30);
-		startButton.setForeground(Color.BLACK);
-		startButton.addActionListener(new ActionListener() {
+		this.startButton = new JButton("Start");
+		this.startButton.setBounds(50, 60, 80, 30);
+		this.startButton.setForeground(Color.BLACK);
+		this.startButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent event) {
-				bh.start();
+				statsDisplay1.setStarted();
+				batchHandler.start();
 			}
 		});
 
-		JPanel buttons = new JPanel();
-		buttons.setLayout(new BoxLayout(buttons, BoxLayout.X_AXIS));
+		this.buttons = new JPanel();
+		this.buttons.setLayout(new BoxLayout(this.buttons, BoxLayout.X_AXIS));
 
 		// set buttons-panel position in gridlayout and add to mainframe
-		c.gridx = 0;
-		c.gridy = 1;
-		display.getContentPane().add(buttons, c);
+		mainDisplayConstraints.gridx = 0;
+		mainDisplayConstraints.gridy = 1;
+		this.getContentPane().add(this.buttons, mainDisplayConstraints);
 
-		buttons.add(startButton);
-		buttons.add(pauseButton);
-		buttons.add(stopButton);
-		buttons.add(quitButton);
+		this.buttons.add(this.startButton);
+		this.buttons.add(this.pauseButton);
+		this.buttons.add(this.stopButton);
+		this.buttons.add(this.quitButton);
 
 		// init logo panel, set position in gridlayout and add to mainframe
-		c.gridx = 0;
-		c.gridy = 2;
-		JPanel logoPanel = new JPanel();
-		logoPanel.setLayout(new BoxLayout(logoPanel, BoxLayout.X_AXIS));
-		display.getContentPane().add(logoPanel, c);
-		logoPanel.setBorder(BorderFactory
+		mainDisplayConstraints.gridx = 0;
+		mainDisplayConstraints.gridy = 2;
+		this.logoPanel = new JPanel();
+		this.logoPanel
+				.setLayout(new BoxLayout(this.logoPanel, BoxLayout.X_AXIS));
+		this.getContentPane().add(this.logoPanel, mainDisplayConstraints);
+		this.logoPanel.setBorder(BorderFactory
 				.createEtchedBorder((EtchedBorder.LOWERED)));
 		BufferedImage image = null;
 		try {
@@ -152,26 +173,15 @@ public class MainDisplay extends JFrame {
 			e.printStackTrace();
 		}
 		JLabel logoLabel = new JLabel(new ImageIcon(image));
-		logoPanel.add(logoLabel);
+		this.logoPanel.add(logoLabel);
 
-		// general display settings
-		// display.getContentPane().setLayout(
-		// new BoxLayout(display.getContentPane(), BoxLayout.Y_AXIS));
-		// display.pack();
+		this.metric1 = new MetricVisualizer();
+		mainDisplayConstraints.gridx = 1;
+		mainDisplayConstraints.gridy = 0;
+		this.getContentPane().add(this.metric1, mainDisplayConstraints);
 
-		// init metric visualizer, set position in gridlayout and add to
-		// mainframe
-		MetricVisualizer metric1 = new MetricVisualizer();
-		c.gridx = 1;
-		c.gridy = 0;
-		display.getContentPane().add(metric1, c);
-
-		display.registerDataComponent(metric1);
-		display.setLocationRelativeTo(null);
-		bh.init();
-
-		display.setVisible(true);
-
+		this.registerDataComponent(metric1);
+		this.setLocationRelativeTo(null);
 	}
 
 	/**
@@ -203,8 +213,9 @@ public class MainDisplay extends JFrame {
 	public void initData(BatchData b) {
 		for (Component c : this.dataComponents) {
 			if (c instanceof StatsDisplay) {
-				((StatsDisplay) c).initData(b, dir, bh.getMinTimestamp(),
-						bh.getMaxTimestamp());
+				((StatsDisplay) c).initData(b, batchHandler.getDir(),
+						batchHandler.getMinTimestamp(),
+						batchHandler.getMaxTimestamp());
 			}
 			if (c instanceof MetricVisualizer) {
 				((MetricVisualizer) c).initData(b);
@@ -228,4 +239,54 @@ public class MainDisplay extends JFrame {
 			}
 		}
 	}
+
+	/** clears all list items from metric visualizers **/
+	public void clearLists() {
+		for (Component c : this.dataComponents) {
+			if (c instanceof MetricVisualizer) {
+				((MetricVisualizer) c).clearList();
+			}
+		}
+	}
+
+	/**
+	 * Resets the batch handler. All previous holded batches get lost. The
+	 * former thread that handed over batches gets free. The batchhandler will
+	 * call the maindisplay.reset() method, which resets all data components.
+	 */
+	public void resetBatchHandler() {
+		try {
+			this.batchHandler.reset();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+
+		this.initBatchHandler();
+	}
+
+	/**
+	 * Initializes the batchhandler. Will update batch handlers batch
+	 * information and then hand over the initialization batch.
+	 */
+	public void initBatchHandler() {
+		this.batchHandler.updateBatches();
+		this.batchHandler.init();
+	}
+
+	/** sets the batch handlers directory **/
+	public void setBatchHandlerDir(String dir) {
+		this.batchHandler.setDir(dir);
+	}
+
+	/** sets the batch handlers speed **/
+	public void setBatchHandlerSpeed(int speed) {
+		this.batchHandler.setSpeed(speed);
+	}
+
+	/** sets the batch handler **/
+	public void setBatchHandler() {
+		this.batchHandler = new BatchHandler(defaultDir, this.statsDisplay1,
+				this);
+	}
+
 }

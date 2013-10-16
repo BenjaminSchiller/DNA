@@ -1,6 +1,7 @@
 package dna.visualization;
 
 import java.io.IOException;
+import java.util.Random;
 
 import dna.series.data.BatchData;
 import dna.series.lists.BatchDataList;
@@ -35,6 +36,7 @@ public class BatchHandler implements Runnable {
 		this.batches = new BatchDataList();
 		this.index = 0;
 		this.isInit = false;
+		this.threadSuspended = false;
 	}
 
 	public BatchHandler(String dir, StatsDisplay statsFrame,
@@ -45,6 +47,7 @@ public class BatchHandler implements Runnable {
 		this.batches = new BatchDataList();
 		this.index = 0;
 		this.isInit = false;
+		this.threadSuspended = false;
 	}
 
 	// get methods
@@ -102,15 +105,23 @@ public class BatchHandler implements Runnable {
 	}
 
 	/** adds new batches from the filesystem to the batches **/
-	public void updateBatches() throws IOException {
-		BatchDataList tempBatches = BatchDataList.read(this.getDir(), true);
-		if (this.getBatches().size() <= tempBatches.size()) {
-			int offset = tempBatches.size() - this.getBatches().size();
-			for (BatchData b : tempBatches.list) {
-				this.getBatches().add(b);
+	public void updateBatches() {
+		try {
+			BatchDataList tempBatches = BatchDataList.read(this.getDir(), true);
+			if (this.getBatches().size() <= tempBatches.size()) {
+				int offset = tempBatches.size() - this.getBatches().size();
+				for (BatchData b : tempBatches.list) {
+					this.getBatches().add(b);
+				}
 			}
+			this.sortBatches();
+
+		} catch (IOException e) {
+			System.out
+					.println("Error in BatchHandler while attempting to read batches.");
+			e.printStackTrace();
 		}
-		this.sortBatches();
+
 	}
 
 	/** checks if a new batch is available **/
@@ -168,11 +179,6 @@ public class BatchHandler implements Runnable {
 
 		while (t == thisThread && this.isNewBatchAvailable()) {
 			try {
-				synchronized (this) {
-					while (this.threadSuspended)
-						wait();
-				}
-
 				long startProcessing = System.currentTimeMillis();
 				BatchData tempBatch = this.getNextBatch();
 				this.mainFrame.updateData(tempBatch);
@@ -180,6 +186,11 @@ public class BatchHandler implements Runnable {
 						- (System.currentTimeMillis() - startProcessing);
 				if (waitTime > 0)
 					this.t.sleep(waitTime);
+
+				synchronized (this) {
+					while (this.threadSuspended)
+						wait();
+				}
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
@@ -188,6 +199,9 @@ public class BatchHandler implements Runnable {
 
 	/** resets the batchhandler **/
 	public void reset() throws InterruptedException {
+		if (this.threadSuspended)
+			this.togglePause();
+		this.batches = new BatchDataList();
 		this.stop();
 		this.mainFrame.reset();
 		this.setIndex(0);
@@ -196,22 +210,25 @@ public class BatchHandler implements Runnable {
 	/** starts the batchhandler **/
 	public void start() {
 		if (this.t == null) {
-			this.t = new Thread(this, "BatchHandler-Thread");
+			Random random = new Random();
+			this.t = new Thread(this, "BatchHandler-Thread"
+					+ random.nextFloat());
+			this.threadSuspended = false;
 			System.out.println("New Thread: " + t);
 			this.t.start();
 		}
 	}
 
-	/** stops the btachhandler **/
+	/** stops the batchhandler **/
 	public void stop() {
+		this.isInit = false;
 		t = null;
 	}
 
 	/** pause / unpause the batchhandler **/
 	public synchronized void togglePause() {
-		this.threadSuspended = !threadSuspended;
-
-		if (!threadSuspended)
+		this.threadSuspended = !this.threadSuspended;
+		if (!this.threadSuspended)
 			notify();
 	}
 
@@ -229,5 +246,11 @@ public class BatchHandler implements Runnable {
 	public void init() {
 		this.mainFrame.initData(this.getNextBatch());
 		this.isInit = true;
+	}
+
+	/** clears the batches list **/
+	public void resetBatches() {
+		this.batches = new BatchDataList();
+		this.index = 0;
 	}
 }
