@@ -24,6 +24,7 @@ import dna.series.data.BatchData;
 import dna.series.data.MetricData;
 import dna.updates.batch.Batch;
 import dna.updates.generators.BatchGenerator;
+import dna.updates.generators.RandomNodeAdditions;
 import dna.updates.update.Update;
 import dna.util.Config;
 
@@ -32,6 +33,7 @@ public aspect ProfilerAspects {
 	private static Stack<String> formerCountKey = new Stack<>(); 
 	private String currentCountKey;
 	private String seriesDir;
+	private String batchDir;
 	
 	private int run;
 	private long currentBatchTimestamp;
@@ -43,8 +45,8 @@ public aspect ProfilerAspects {
 
 	pointcut activate() : execution(* Profiler.activate());
 
-	pointcut newBatch() : execution(BatchData.new(..));
 	pointcut seriesSingleRunGeneration(Series s, int run) : execution(* SeriesGeneration.generateRun(Series, int, ..)) && args(s, run, ..) && if(isActive);
+	pointcut startInitialBatchGeneration(Series s) : execution(* SeriesGeneration.generateInitialData(Series)) && args(s) && if(isActive);
 	pointcut startNewBatchGeneration(Series s, long timestamp) : execution(* SeriesGeneration.generateNextBatch(Series, long)) && args(s, timestamp) && if(isActive);
 	pointcut aggregateDataOverAllRuns(Series s) : execution(* SeriesGeneration.generate(Series, int, int, boolean, boolean)) && args(s, ..) && if(isActive);
 	
@@ -93,12 +95,6 @@ public aspect ProfilerAspects {
 	pointcut graphAction() : !within(Element+);
 	pointcut nodeAction() : within(Element+);
 	
-	pointcut writeData(String dir) : call(* BatchData.write(String)) && args(dir) && if(isActive);
-
-	before() : newBatch() {
-		Profiler.reset();
-	}
-	
 	after() : activate() {
 		isActive = true;
 	}
@@ -106,10 +102,54 @@ public aspect ProfilerAspects {
 	before(Series s, int run) : seriesSingleRunGeneration(s, run) {
 		this.seriesDir = s.getDir();
 		this.run = run;
+		this.batchDir = Dir.getBatchDataDir(seriesDir, run, 0);
+	}
+	
+	after(Series s) : startInitialBatchGeneration(s) {
+		try {
+			Profiler.write(batchDir, Files.getProfilerFilename(Config
+					.get("DATASTRUCTURE_PROFILER")));
+			
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 	
 	before(Series s, long timestamp) : startNewBatchGeneration(s, timestamp) {
+		Profiler.reset();
 		this.currentBatchTimestamp = timestamp;
+		this.batchDir = Dir.getBatchDataDir(seriesDir, run,
+				currentBatchTimestamp);
+	}
+	
+	after(Series s, long timestamp) : startNewBatchGeneration(s, timestamp) {
+		try {
+			Profiler.write(batchDir, Files.getProfilerFilename(Config
+					.get("DATASTRUCTURE_PROFILER")));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+		if (currentBatchTimestamp == 1) {
+			/**
+			 * First batch is finished, so ensure that we write a dummy file for
+			 * the batch profiler into batch.0 for this run. This helps with the
+			 * visualization of this data
+			 */
+			for (String bGenName : batchGeneratorNames) {
+				Profiler.entryForKey(bGenName, true);
+			}
+			try {
+				Profiler.writeMultiple(
+						batchGeneratorNames.toArray(new String[0]),
+						Dir.getBatchDataDir(seriesDir, run, 0),
+						Files.getProfilerFilename(Config.get("BATCH_PROFILER")));
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			Profiler.reset();
+		}	
+		
 	}
 	
 	Graph around(IGraphGenerator graphGenerator) : graphGeneration(graphGenerator) {
@@ -291,11 +331,6 @@ public aspect ProfilerAspects {
 	
 	after(MetricData md, String dir) throws IOException : writeMetric(md, dir) {
 		Profiler.writeSingle(md.getName(), dir, Files.getProfilerFilename(Config.get("METRIC_PROFILER")));
-	}
-	
-	after(String dir) throws IOException : writeData(dir) {
-		Profiler.write(dir,
-				Files.getProfilerFilename(Config.get("DATASTRUCTURE_PROFILER")));
 	}
 
 	after(Series s) throws IOException : aggregateDataOverAllRuns(s) {
