@@ -55,8 +55,8 @@ public class GeneratorsTest {
 	private GraphDataStructure gds;
 	private GraphGenerator gg;
 
-	private int nodeSize = 200;
-	private int edgeSize = 250;
+	private int nodeSize = 100;
+	private int edgeSize = 120;
 
 	@Rule
 	public TemporaryFolder folder = new TemporaryFolder();
