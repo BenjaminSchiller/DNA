@@ -62,8 +62,8 @@ public class DHashMap extends DataStructureReadable implements
 	public boolean add(Edge element) {
 		super.canAdd(element);
 
-		if (!this.list.containsKey(element.toString())) {
-			this.list.put(element.toString(), element);
+		if (!this.list.containsKey(Integer.toString(element.hashCode()))) {
+			this.list.put(Integer.toString(element.hashCode()), element);
 			return true;
 		}
 		return false;
@@ -86,7 +86,7 @@ public class DHashMap extends DataStructureReadable implements
 
 	@Override
 	public boolean contains(Edge element) {
-		return list.containsValue(element);
+		return list.containsKey(Integer.toString(element.hashCode()));
 	}
 
 	@Override
@@ -116,7 +116,7 @@ public class DHashMap extends DataStructureReadable implements
 
 	@Override
 	public boolean remove(Edge element) {
-		if (this.list.remove(element.toString()) == null) {
+		if (this.list.remove(Integer.toString(element.hashCode())) == null) {
 			return false;
 		}
 		return true;
@@ -157,7 +157,7 @@ public class DHashMap extends DataStructureReadable implements
 
 	@Override
 	public Edge get(Edge element) {
-		return (Edge) this.list.get(element.toString());
+		return (Edge) this.list.get(Integer.toString(element.hashCode()));
 	}
 
 	@Override
@@ -189,6 +189,12 @@ public class DHashMap extends DataStructureReadable implements
 			} else if (Edge.class.isAssignableFrom(dt)) {
 				return new Complexity(1, new ComplexityType(Type.Linear, base));
 			}
+		case Get:
+			if (Node.class.isAssignableFrom(dt)) {
+				return new Complexity(1, new ComplexityType(Type.Static, base));
+			} else if (Edge.class.isAssignableFrom(dt)) {
+				return new Complexity(1, new ComplexityType(Type.Static, base));
+			}
 		case Random:
 			if (Node.class.isAssignableFrom(dt)) {
 				return new Complexity(1, new ComplexityType(Type.Linear, base));
@@ -207,6 +213,8 @@ public class DHashMap extends DataStructureReadable implements
 			} else if (Edge.class.isAssignableFrom(dt)) {
 				return new Complexity(1, new ComplexityType(Type.Static, base));
 			}
+		case Iterator:
+			return new Complexity(1, new ComplexityType(Type.Static, base));
 		}
 		return new Complexity(1, new ComplexityType(Type.Unknown, base));
 	}

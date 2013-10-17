@@ -5,7 +5,7 @@ import java.util.EnumMap;
 import java.util.Map;
 
 import dna.graph.datastructures.GraphDataStructure;
-import dna.profiler.GraphProfiler.ProfilerType;
+import dna.profiler.Profiler.ProfilerType;
 import dna.profiler.complexity.AddedComplexity;
 import dna.profiler.complexity.Complexity;
 import dna.profiler.complexity.ComplexityMap;
@@ -37,18 +37,22 @@ public class ProfileEntry {
 	}
 
 	public String callsAsString(String prefix) {
-		StringBuilder s = new StringBuilder();
+		StringBuilder res = new StringBuilder();
+
+		if (prefix.length() > 0)
+			prefix += ".";
+
 		for (ProfilerType p : ProfilerType.values()) {
-			s.append(prefix + "." + p.toString() + "=" + get(p) + "\n");
+			res.append(prefix + p.toString() + "=" + get(p) + Profiler.separator);
 		}
-		return s.toString();
+		return res.toString();
 	}
 
 	@Override
 	public String toString() {
 		StringBuilder s = new StringBuilder();
 		for (ProfilerType p : ProfilerType.values()) {
-			s.append("  Calls of type " + p.toString() + ": " + get(p) + "\n");
+			s.append("  Calls of type " + p.toString() + ": " + get(p) + Profiler.separator);
 		}
 		return s.toString();
 	}

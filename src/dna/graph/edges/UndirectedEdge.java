@@ -99,7 +99,7 @@ public class UndirectedEdge extends Edge {
 	}
 
 	public int hashCode() {
-		String s = "" + this.getNode1().getIndex() + this.getNode2().getIndex();
+		String s = "" + this.getNode1().getIndex() + " <-> " + this.getNode2().getIndex();
 		return s.hashCode();
 	}
 
