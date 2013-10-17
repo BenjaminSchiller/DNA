@@ -177,16 +177,21 @@ public class Profiler {
 		}
 		return res.toString();
 	}
+	
+	public static ProfileEntry entryForKey(String mapKey, boolean forceReset) {
+		ProfileEntry innerMap = calls.get(mapKey);
+		if (innerMap == null || forceReset) {
+			innerMap = new ProfileEntry();
+			calls.put(mapKey, innerMap);
+		}
+		return innerMap;
+	}
 
 	public static void count(String mapKey, ProfilerType p) {
 		if (!active)
 			return;
 
-		ProfileEntry innerMap = calls.get(mapKey);
-		if (innerMap == null) {
-			innerMap = new ProfileEntry();
-			calls.put(mapKey, innerMap);
-		}
+		ProfileEntry innerMap = entryForKey(mapKey, false);
 		innerMap.increase(p);
 	}
 
@@ -211,9 +216,11 @@ public class Profiler {
 
 	private static void writeUpdates(String dir) throws IOException {
 		Writer w = new Writer(dir, Files.getProfilerFilename(Config
-				.get("DATASTRUCTURE_PROFILER")));
+				.get("UPDATES_PROFILER")));
 
 		for (UpdateType u : UpdateType.values()) {
+			// Ensure that the update type is in the needed list
+			entryForKey(u.toString(), false);
 			w.writeln(getCallList(calls, u.toString(), false));
 		}
 
