@@ -43,7 +43,8 @@ public class ProfileEntry {
 			prefix += ".";
 
 		for (ProfilerType p : ProfilerType.values()) {
-			res.append(prefix + p.toString() + "=" + get(p) + Profiler.separator);
+			res.append(prefix + p.toString() + "=" + get(p)
+					+ Profiler.separator);
 		}
 		return res.toString();
 	}
@@ -52,7 +53,8 @@ public class ProfileEntry {
 	public String toString() {
 		StringBuilder s = new StringBuilder();
 		for (ProfilerType p : ProfilerType.values()) {
-			s.append("  Calls of type " + p.toString() + ": " + get(p) + Profiler.separator);
+			s.append("  Calls of type " + p.toString() + ": " + get(p)
+					+ Profiler.separator);
 		}
 		return s.toString();
 	}
@@ -65,5 +67,16 @@ public class ProfileEntry {
 			aggregated = new AddedComplexity(aggregated, c);
 		}
 		return aggregated.getWeightedComplexityMap();
+	}
+
+	public ProfileEntry add(ProfileEntry other) {
+		ProfileEntry res = new ProfileEntry();
+
+		for (ProfilerType p : ProfilerType.values()) {
+			res.increase(p, this.get(p));
+			res.increase(p, other.get(p));
+		}
+
+		return res;
 	}
 }

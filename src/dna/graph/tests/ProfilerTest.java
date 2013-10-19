@@ -87,7 +87,7 @@ public class ProfilerTest {
 
 	@Before
 	public void resetProfiler() {
-		Profiler.reset();
+		Profiler.startBatch(0);
 	}
 
 	@SuppressWarnings("rawtypes")

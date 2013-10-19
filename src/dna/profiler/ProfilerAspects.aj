@@ -1,7 +1,6 @@
 package dna.profiler;
 
 import java.io.IOException;
-import java.util.HashSet;
 import java.util.Stack;
 
 import dna.graph.Element;
@@ -13,18 +12,14 @@ import dna.graph.edges.Edge;
 import dna.graph.generators.GraphGenerator;
 import dna.graph.generators.IGraphGenerator;
 import dna.graph.nodes.Node;
-import dna.io.filesystem.Dir;
-import dna.io.filesystem.Files;
 import dna.metrics.Metric;
 import dna.metrics.Metric.ApplicationType;
 import dna.profiler.Profiler.ProfilerType;
 import dna.series.Series;
 import dna.series.SeriesGeneration;
-import dna.series.data.BatchData;
 import dna.series.data.MetricData;
 import dna.updates.batch.Batch;
 import dna.updates.generators.BatchGenerator;
-import dna.updates.generators.RandomNodeAdditions;
 import dna.updates.update.Update;
 import dna.util.Config;
 
@@ -32,13 +27,8 @@ public aspect ProfilerAspects {
 	private static boolean isActive = false;
 	private static Stack<String> formerCountKey = new Stack<>(); 
 	private String currentCountKey;
-	private String seriesDir;
-	private String batchDir;
-	
-	private int run;
+
 	private long currentBatchTimestamp;
-	
-	private HashSet<String> batchGeneratorNames = new HashSet<>();
 	
 	private String batchGeneratorName;
 	public static final String initialAddition = Config.get("PROFILER_INITIALBATCH_KEYADDITION");
@@ -48,7 +38,7 @@ public aspect ProfilerAspects {
 	pointcut seriesSingleRunGeneration(Series s, int run) : execution(* SeriesGeneration.generateRun(Series, int, ..)) && args(s, run, ..) && if(isActive);
 	pointcut startInitialBatchGeneration(Series s) : execution(* SeriesGeneration.generateInitialData(Series)) && args(s) && if(isActive);
 	pointcut startNewBatchGeneration(Series s, long timestamp) : execution(* SeriesGeneration.generateNextBatch(Series, long)) && args(s, timestamp) && if(isActive);
-	pointcut aggregateDataOverAllRuns(Series s) : execution(* SeriesGeneration.generate(Series, int, int, boolean, boolean)) && args(s, ..) && if(isActive);
+	pointcut seriesGeneration() : execution(* SeriesGeneration.generate(..)) && if(isActive);
 	
 	pointcut graphGeneration(IGraphGenerator graphGenerator) : execution(* IGraphGenerator+.generate()) && target(graphGenerator);
 	pointcut graphGenerated(): cflow(graphGeneration(*));
@@ -69,7 +59,6 @@ public aspect ProfilerAspects {
 	
 	pointcut watchedCall() : graphGenerated() || batchGenerated() || metricApplied() || updateApplied();
 	
-	pointcut seriesFinished() : execution(* SeriesGeneration.generate(..)) && if(isActive);
 
 	pointcut init(Graph g, GraphDataStructure gds) : this(g) && execution(Graph+.new(String,long, GraphDataStructure,..)) && args(*,*,gds,..);
 
@@ -100,70 +89,39 @@ public aspect ProfilerAspects {
 	}
 	
 	before(Series s, int run) : seriesSingleRunGeneration(s, run) {
-		this.seriesDir = s.getDir();
-		this.run = run;
-		this.batchDir = Dir.getBatchDataDir(seriesDir, run, 0);
+		Profiler.setSeriesDir(s.getDir());
+		Profiler.startRun(run);
+		Profiler.startBatch(0);
+	}
+	
+	after(Series s, int run) : seriesSingleRunGeneration(s, run) {
+		Profiler.finishRun();
 	}
 	
 	after(Series s) : startInitialBatchGeneration(s) {
-		try {
-			Profiler.write(batchDir, Files.getProfilerFilename(Config
-					.get("DATASTRUCTURE_PROFILER")));
-			
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		Profiler.finishBatch(0);
 	}
 	
 	before(Series s, long timestamp) : startNewBatchGeneration(s, timestamp) {
-		Profiler.reset();
 		this.currentBatchTimestamp = timestamp;
-		this.batchDir = Dir.getBatchDataDir(seriesDir, run,
-				currentBatchTimestamp);
+		Profiler.startBatch(currentBatchTimestamp);
 	}
 	
 	after(Series s, long timestamp) : startNewBatchGeneration(s, timestamp) {
-		try {
-			Profiler.write(batchDir, Files.getProfilerFilename(Config
-					.get("DATASTRUCTURE_PROFILER")));
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		
-		if (currentBatchTimestamp == 1) {
-			/**
-			 * First batch is finished, so ensure that we write a dummy file for
-			 * the batch profiler into batch.0 for this run. This helps with the
-			 * visualization of this data
-			 */
-			for (String bGenName : batchGeneratorNames) {
-				Profiler.entryForKey(bGenName, true);
-			}
-			try {
-				Profiler.writeMultiple(
-						batchGeneratorNames.toArray(new String[0]),
-						Dir.getBatchDataDir(seriesDir, run, 0),
-						Files.getProfilerFilename(Config.get("BATCH_PROFILER")));
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-			Profiler.reset();
-		}	
-		
+		Profiler.finishBatch(currentBatchTimestamp);
 	}
 	
+	
+	after() : seriesGeneration() {
+		Profiler.finishSeries();
+	}
+
 	Graph around(IGraphGenerator graphGenerator) : graphGeneration(graphGenerator) {
 		formerCountKey.push(currentCountKey);
 		currentCountKey = ((GraphGenerator) graphGenerator).getName();
 		Profiler.setInInitialBatch(false);
+		Profiler.setGraphGeneratorName(currentCountKey);
 		Graph res = proceed(graphGenerator);
-		
-		try {
-			Profiler.writeSingle(currentCountKey, Dir.getRunDataDir(seriesDir, run), Files.getProfilerFilename(Config.get("GRAPHGENERATOR_PROFILER")));
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		
 		currentCountKey = formerCountKey.pop();
 		return res;
 	}
@@ -171,17 +129,10 @@ public aspect ProfilerAspects {
 	Batch around(BatchGenerator batchGenerator) : batchGeneration(batchGenerator) {
 		formerCountKey.push(currentCountKey);
 		batchGeneratorName = batchGenerator.getName();
-		batchGeneratorNames.add(batchGeneratorName);
+		Profiler.addBatchGeneratorName(batchGeneratorName);
 		currentCountKey = batchGeneratorName;
 		Profiler.setInInitialBatch(false);
 		Batch res = proceed(batchGenerator);
-		
-		try {
-			Profiler.writeMultiple(batchGeneratorNames.toArray(new String[0]), Dir.getBatchDataDir(seriesDir, run,
-					currentBatchTimestamp), Files.getProfilerFilename(Config.get("BATCH_PROFILER")));
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
 		currentCountKey = formerCountKey.pop();
 		return res;
 	}
@@ -219,10 +170,6 @@ public aspect ProfilerAspects {
 
 	after(Graph g, GraphDataStructure gds) : init(g, gds) {
 		Profiler.init(gds);
-	}
-	
-	after() : seriesFinished() {
-//		Profiler.finish();
 	}
 
 	after() : nodeAdd() && graphAction() {
@@ -330,11 +277,7 @@ public aspect ProfilerAspects {
 	}	
 	
 	after(MetricData md, String dir) throws IOException : writeMetric(md, dir) {
-		Profiler.writeSingle(md.getName(), dir, Files.getProfilerFilename(Config.get("METRIC_PROFILER")));
+		Profiler.writeMetric(md.getName(), dir);		
 	}
 
-	after(Series s) throws IOException : aggregateDataOverAllRuns(s) {
-//		String seriesDir = s.getDir();
-//		Profiler.aggregate(seriesDir, "OLDNAME");
-	}
 }

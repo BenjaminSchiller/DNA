@@ -2,6 +2,7 @@ package dna.profiler;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TreeMap;
@@ -11,6 +12,7 @@ import dna.graph.datastructures.IEdgeListDatastructure;
 import dna.graph.datastructures.INodeListDatastructure;
 import dna.graph.tests.GlobalTestParameters;
 import dna.io.Writer;
+import dna.io.filesystem.Dir;
 import dna.io.filesystem.Files;
 import dna.profiler.complexity.ComplexityMap;
 import dna.updates.update.Update.UpdateType;
@@ -18,12 +20,21 @@ import dna.util.Config;
 import dna.util.Log;
 
 public class Profiler {
-	private static Map<String, ProfileEntry> calls = new HashMap<>();
+	private static Map<String, ProfileEntry> singleBatchCalls = new HashMap<>();
+	private static Map<String, ProfileEntry> singleRunCalls = new HashMap<>();
+	private static Map<String, ProfileEntry> singleSeriesCalls = new HashMap<>();
+	private static Map<String, ProfileEntry> globalCalls = new HashMap<>();
+	
 	private static boolean active = false;
 	private static boolean inInitialBatch = false;
 	private static GraphDataStructure gds;
 	final static String separator = System.getProperty("line.separator");
 	private static final int NumberOfRecommendations = 5;
+
+	private static String seriesDir, batchDir;
+	private static String graphGeneratorName;
+	private static int run;
+	private static HashSet<String> batchGeneratorNames = new HashSet<>();
 
 	public static enum ProfilerType {
 		AddNodeGlobal, AddNodeLocal, AddEdgeGlobal, AddEdgeLocal, RemoveNodeGlobal, RemoveNodeLocal, RemoveEdgeGlobal, RemoveEdgeLocal, ContainsNodeGlobal, ContainsNodeLocal, ContainsEdgeGlobal, ContainsEdgeLocal, GetNodeGlobal, GetNodeLocal, GetEdgeGlobal, GetEdgeLocal, SizeNodeGlobal, SizeNodeLocal, SizeEdgeGlobal, SizeEdgeLocal, RandomNodeGlobal, RandomEdgeGlobal, IteratorNodeGlobal, IteratorNodeLocal, IteratorEdgeGlobal, IteratorEdgeLocal
@@ -51,6 +62,28 @@ public class Profiler {
 		gds = newGds;
 	}
 
+	public static void setSeriesDir(String dir) {
+		seriesDir = dir;
+	}
+
+	public static void startRun(int newRun) {
+		run = newRun;
+		singleRunCalls = new HashMap<>();
+	}
+
+	public static void startBatch(long batchCounter) {
+		batchDir = Dir.getBatchDataDir(seriesDir, run, batchCounter);
+		singleBatchCalls = new HashMap<>();
+	}
+
+	public static void setGraphGeneratorName(String name) {
+		graphGeneratorName = name;
+	}
+
+	public static void addBatchGeneratorName(String name) {
+		batchGeneratorNames.add(name);
+	}
+
 	public static void finish() {
 		// Actions to be done after generation of stats, eg. writing them to
 		// disk, printing them,...
@@ -58,7 +91,8 @@ public class Profiler {
 		if (!active)
 			return;
 
-		System.out.println(getOutput(calls));
+		System.out.println(getOutput(globalCalls));
+		System.out.println(getGlobalComplexity(globalCalls));
 	}
 
 	public static String getCallList(Map<String, ProfileEntry> listOfEntries) {
@@ -108,6 +142,7 @@ public class Profiler {
 		return res.toString();
 	}
 
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public static String getOtherComplexitiesForEntry(ProfileEntry entry) {
 		GraphDataStructure tempGDS;
 		TreeMap<ComplexityMap, GraphDataStructure> listOfOtherComplexities = new TreeMap<>();
@@ -163,6 +198,20 @@ public class Profiler {
 
 		return res.toString();
 	}
+	
+	public static String getGlobalComplexity(Map<String, ProfileEntry> listOfEntries) {
+		StringBuilder res = new StringBuilder();
+		ProfileEntry resEntry = new ProfileEntry();
+		res.append(separator + "Complexity analysis over all access types:" + separator);
+		for (Entry<String, ProfileEntry> entry : listOfEntries.entrySet()) {
+			resEntry = resEntry.add(entry.getValue());
+		}
+		res.append(resEntry.toString());
+		res.append(" Aggr: " + resEntry.combinedComplexity(gds)
+				+ separator);
+		res.append(getOtherComplexitiesForEntry(resEntry));
+		return res.toString();
+	}
 
 	public static String getOutput(Map<String, ProfileEntry> listOfEntries) {
 		StringBuilder res = new StringBuilder();
@@ -177,8 +226,8 @@ public class Profiler {
 		}
 		return res.toString();
 	}
-	
-	public static ProfileEntry entryForKey(String mapKey, boolean forceReset) {
+
+	public static ProfileEntry entryForKey(Map<String, ProfileEntry> calls, String mapKey, boolean forceReset) {
 		ProfileEntry innerMap = calls.get(mapKey);
 		if (innerMap == null || forceReset) {
 			innerMap = new ProfileEntry();
@@ -191,66 +240,149 @@ public class Profiler {
 		if (!active)
 			return;
 
-		ProfileEntry innerMap = entryForKey(mapKey, false);
+		ProfileEntry innerMap = entryForKey(singleBatchCalls, mapKey, false);
 		innerMap.increase(p);
 	}
 
 	public static int getCount(String mapKey, ProfilerType p) {
+		return getCount(singleBatchCalls, mapKey, p);
+	}
+	
+	public static int getCount(Map<String, ProfileEntry> calls, String mapKey, ProfilerType p) {
 		ProfileEntry innerMap = calls.get(mapKey);
 		if (innerMap == null)
 			return 0;
 		return innerMap.get(p);
 	}
+	
+	private static HashMap<String, ProfileEntry> merge(
+			Map<String, ProfileEntry> one, Map<String, ProfileEntry> two) {
+		HashMap<String, ProfileEntry> res = new HashMap<>();
+		for (Map.Entry<String, ProfileEntry> entry : one.entrySet()) {
+			res.put(entry.getKey(), entry.getValue());
+		}
 
-	public static void reset() {
-		calls = new HashMap<>();
+		for (Map.Entry<String, ProfileEntry> entry : two.entrySet()) {
+			ProfileEntry p = res.get(entry.getKey());
+			if (p == null) {
+				res.put(entry.getKey(), entry.getValue());
+			} else {
+				p = p.add(entry.getValue());
+				res.put(entry.getKey(), p);
+			}
+		}
+		return res;
 	}
 
-	public static void write(String dir, String filename) throws IOException {
+	public static void write(Map<String, ProfileEntry> calls, String dir, String filename) throws IOException {
 		Writer w = new Writer(dir, filename);
 		w.writeln(getCallList(calls));
 		w.close();
-
-		writeUpdates(dir);
+	}
+	
+	public static void writeMetric(String metricKey, String dir) throws IOException {
+		Profiler.writeSingle(singleBatchCalls, metricKey, dir, Files.getProfilerFilename(Config.get("METRIC_PROFILER")));
 	}
 
-	private static void writeUpdates(String dir) throws IOException {
+	private static void writeUpdates(Map<String, ProfileEntry> calls, String dir) throws IOException {
 		Writer w = new Writer(dir, Files.getProfilerFilename(Config
 				.get("UPDATES_PROFILER")));
 
 		for (UpdateType u : UpdateType.values()) {
 			// Ensure that the update type is in the needed list
-			entryForKey(u.toString(), false);
+			entryForKey(calls, u.toString(), false);
 			w.writeln(getCallList(calls, u.toString(), false));
 		}
 
 		w.close();
 	}
 
-	public static void writeSingle(String metricName, String dir,
-			String filename) throws IOException {
-		// Are we still in the initial batch? Then add the specific key to the
-		// end of the metric name
-		if (inInitialBatch)
-			metricName += Config.get("PROFILER_INITIALBATCH_KEYADDITION");
-
-		Writer w = new Writer(dir, filename);
-		w.writeln(getCallList(calls, metricName, true));
-		w.close();
+	public static void writeSingle(Map<String, ProfileEntry> callList,
+			String metricName, String dir, String filename) throws IOException {
+		writeMultiple(callList, new String[] { metricName }, dir, filename);
 	}
-	
-	public static void writeMultiple(String[] keys, String dir, String filename) throws IOException {
+
+	public static void writeMultiple(Map<String, ProfileEntry> calls,
+			String[] keys, String dir, String filename) throws IOException {
 		Writer w = new Writer(dir, filename);
-		for ( String singleKey: keys) {
+		for (String singleKey : keys) {
+			// Are we still in the initial batch? Then add the specific key to
+			// the
+			// end of the metric name
 			if (inInitialBatch)
 				singleKey += Config.get("PROFILER_INITIALBATCH_KEYADDITION");
 			w.writeln(getCallList(calls, singleKey, false));
 		}
 		w.close();
 	}
-
-	public static void aggregate(String seriesDir, String profilerFilename) {
-		// TODO write an aggregator
+	
+	public static void finishSeries() {
+		globalCalls = merge(globalCalls, singleSeriesCalls);
+		
+		try {
+			Profiler.write(singleSeriesCalls, seriesDir, Files.getProfilerFilename(Config
+					.get("AGGREGATED_PROFILER")));
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		singleSeriesCalls = new HashMap<>();
 	}
 
+	public static void finishRun() {
+		singleSeriesCalls = merge(singleSeriesCalls, singleRunCalls);
+		
+		try {
+			String runDataDir = Dir.getRunDataDir(seriesDir, run);
+			Profiler.writeSingle(singleRunCalls, graphGeneratorName, runDataDir, Files.getProfilerFilename(Config
+					.get("GRAPHGENERATOR_PROFILER")));
+			
+			Profiler.write(singleRunCalls, runDataDir, Files.getProfilerFilename(Config
+					.get("AGGREGATED_PROFILER")));			
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	public static void finishBatch(long batchTimestamp) {
+		singleRunCalls = merge(singleRunCalls, singleBatchCalls);
+		
+		try {
+			Profiler.write(singleBatchCalls, batchDir, Files.getProfilerFilename(Config
+					.get("DATASTRUCTURE_PROFILER")));
+			writeUpdates(singleBatchCalls, batchDir);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+		if (batchTimestamp == 1) {
+			/**
+			 * First batch is finished, so ensure that we write a dummy file for
+			 * the batch profiler into batch.0 for this run. This helps with the
+			 * visualization of this data
+			 */
+			for (String bGenName : batchGeneratorNames) {
+				Profiler.entryForKey(singleBatchCalls, bGenName, true);
+			}
+			try {
+				Profiler.writeMultiple(singleBatchCalls,
+						batchGeneratorNames.toArray(new String[0]),
+						Dir.getBatchDataDir(seriesDir, run, 0),
+						Files.getProfilerFilename(Config.get("BATCH_PROFILER")));
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+
+		if (batchTimestamp > 0) {
+			try {
+				Profiler.writeMultiple(singleBatchCalls,
+						batchGeneratorNames.toArray(new String[0]),
+						Dir.getBatchDataDir(seriesDir, run, batchTimestamp),
+						Files.getProfilerFilename(Config.get("BATCH_PROFILER")));
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+	}
 }
