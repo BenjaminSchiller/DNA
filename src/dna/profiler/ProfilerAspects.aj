@@ -58,7 +58,6 @@ public aspect ProfilerAspects {
 	pointcut updateApplied(): cflow(updateApplication(*));
 	
 	pointcut watchedCall() : graphGenerated() || batchGenerated() || metricApplied() || updateApplied();
-	
 
 	pointcut init(Graph g, GraphDataStructure gds) : this(g) && execution(Graph+.new(String,long, GraphDataStructure,..)) && args(*,*,gds,..);
 
@@ -68,8 +67,7 @@ public aspect ProfilerAspects {
 	pointcut nodeGet() : call(* INodeListDatastructure+.get(int)) && watchedCall() && if(isActive);	
 	pointcut nodeSize() : call(* INodeListDatastructure+.size()) && watchedCall() && if(isActive);
 	pointcut nodeRandom() : call(* INodeListDatastructure+.getRandom()) && watchedCall() && if(isActive);
-	// Ignore the warning for the following line - everything works fine and as expected
-	pointcut nodeIterator() : call(* INodeListDatastructure+.iterator()) && watchedCall() && if(isActive);
+	pointcut nodeIterator() : execution(* INodeListDatastructure+.iterator_()) && watchedCall() && if(isActive);
 
 	pointcut edgeAdd() : call(* IEdgeListDatastructure+.add(Edge+)) && watchedCall() && if(isActive);
 	pointcut edgeRemove() : call(* IEdgeListDatastructure+.remove(Edge+)) && watchedCall() && if(isActive);
@@ -77,9 +75,7 @@ public aspect ProfilerAspects {
 	pointcut edgeGet() : call(* IEdgeListDatastructure+.get(Edge)) && watchedCall() && if(isActive);
 	pointcut edgeSize() : call(* IEdgeListDatastructure+.size()) && watchedCall() && if(isActive);
 	pointcut edgeRandom() : call(* IEdgeListDatastructure+.getRandom()) && watchedCall() && if(isActive);
-
-	// Ignore the warning for the following line - everything works fine and as expected	
-	pointcut edgeIterator() : call(* IEdgeListDatastructure+.iterator()) && watchedCall() && if(isActive);
+	pointcut edgeIterator() : execution(* IEdgeListDatastructure+.iterator_()) && watchedCall() && if(isActive);
 	
 	pointcut graphAction() : !within(Element+);
 	pointcut nodeAction() : within(Element+);
@@ -267,15 +263,15 @@ public aspect ProfilerAspects {
 	after() : nodeIterator() && nodeAction() {
 		Profiler.count(currentCountKey, ProfilerType.IteratorNodeLocal);
 	}
-	
+
 	after() : edgeIterator() && graphAction() {
 		Profiler.count(currentCountKey, ProfilerType.IteratorEdgeGlobal);
 	}
 
 	after() : edgeIterator() && nodeAction() {
 		Profiler.count(currentCountKey, ProfilerType.IteratorEdgeLocal);
-	}	
-	
+	}
+
 	after(MetricData md, String dir) throws IOException : writeMetric(md, dir) {
 		Profiler.writeMetric(md.getName(), dir);		
 	}

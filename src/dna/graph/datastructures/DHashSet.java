@@ -167,7 +167,7 @@ public class DHashSet extends DataStructureReadable implements
 	}
 
 	@Override
-	public Iterator<IElement> iterator() {
+	protected Iterator<IElement> iterator_() {
 		return this.list.iterator();
 	}
 

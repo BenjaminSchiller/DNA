@@ -35,7 +35,7 @@ public class Profiler {
 	private static String graphGeneratorName;
 	private static int run;
 	private static HashSet<String> batchGeneratorNames = new HashSet<>();
-
+	
 	public static enum ProfilerType {
 		AddNodeGlobal, AddNodeLocal, AddEdgeGlobal, AddEdgeLocal, RemoveNodeGlobal, RemoveNodeLocal, RemoveEdgeGlobal, RemoveEdgeLocal, ContainsNodeGlobal, ContainsNodeLocal, ContainsEdgeGlobal, ContainsEdgeLocal, GetNodeGlobal, GetNodeLocal, GetEdgeGlobal, GetEdgeLocal, SizeNodeGlobal, SizeNodeLocal, SizeEdgeGlobal, SizeEdgeLocal, RandomNodeGlobal, RandomEdgeGlobal, IteratorNodeGlobal, IteratorNodeLocal, IteratorEdgeGlobal, IteratorEdgeLocal
 	}
@@ -241,7 +241,7 @@ public class Profiler {
 			return;
 
 		ProfileEntry innerMap = entryForKey(singleBatchCalls, mapKey, false);
-		innerMap.increase(p);
+		innerMap.increase(p, 1);
 	}
 
 	public static int getCount(String mapKey, ProfilerType p) {
