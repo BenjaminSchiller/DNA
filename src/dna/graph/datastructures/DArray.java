@@ -225,7 +225,7 @@ public class DArray extends DataStructureReadable implements
 	}
 
 	@Override
-	public Iterator<IElement> iterator() {
+	protected Iterator<IElement> iterator_() {
 		return new DArrayIterator<IElement>(this.list);
 	}
 

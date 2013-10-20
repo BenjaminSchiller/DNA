@@ -45,7 +45,7 @@ public class DBloomFilter extends DataStructure implements
 	}
 
 	@Override
-	public Iterator iterator() {
+	protected Iterator<IElement> iterator_() {
 		// TODO Auto-generated method stub
 		return null;
 	}
