@@ -6,6 +6,7 @@ import info.monitorenter.gui.chart.ITrace2D;
 import info.monitorenter.gui.chart.ITracePainter;
 import info.monitorenter.gui.chart.axis.AAxis;
 import info.monitorenter.gui.chart.axis.AxisLinear;
+import info.monitorenter.gui.chart.axis.scalepolicy.AxisScalePolicyManualTicks;
 import info.monitorenter.gui.chart.traces.Trace2DLtd;
 import info.monitorenter.gui.chart.traces.Trace2DSimple;
 import info.monitorenter.gui.chart.traces.painters.TracePainterDisc;
@@ -15,6 +16,7 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
@@ -22,6 +24,7 @@ import java.util.HashMap;
 import java.util.Set;
 
 import javax.swing.BorderFactory;
+import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JPanel;
 import javax.swing.border.EtchedBorder;
@@ -141,8 +144,77 @@ public class MetricVisualizer extends JPanel {
 		menuBarConstraints.gridy = 0;
 		this.menuBar.add(this.intervalBox, menuBarConstraints);
 
-		// add dummy panel
+		// add log buttons
+		JButton toggleLogYRight = new JButton("+log yR");
+		toggleLogYRight.setForeground(Color.GRAY);
+		toggleLogYRight.setPreferredSize(new Dimension(60, 20));
+		toggleLogYRight.setMargin(new Insets(0, 0, 0, 0));
 		menuBarConstraints.gridx = 1;
+		this.menuBar.add(toggleLogYRight);
+
+		JButton toggleLogYLeft = new JButton("+log yL");
+		toggleLogYLeft.setForeground(Color.GRAY);
+		toggleLogYLeft.setPreferredSize(new Dimension(60, 20));
+		toggleLogYLeft.setMargin(new Insets(0, 0, 0, 0));
+		menuBarConstraints.gridx = 2;
+		this.menuBar.add(toggleLogYLeft);
+
+		this.xAxis.setMajorTickSpacing(1.0);
+		this.xAxis.setStartMajorTick(true);
+
+		AxisScalePolicyManualTicks manualTickScalePolicy = new AxisScalePolicyManualTicks();
+		this.xAxis.setAxisScalePolicy(manualTickScalePolicy);
+
+		final JButton toggleGridXButton = new JButton("+Grid x");
+		toggleGridXButton.setPreferredSize(new Dimension(60, 20));
+		toggleGridXButton.setMargin(new Insets(0, 0, 0, 0));
+		toggleGridXButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent event) {
+				if (toggleGridXButton.getText().equals("+Grid x"))
+					toggleGridXButton.setText("-Grid x");
+				else
+					toggleGridXButton.setText("+Grid x");
+				thisM.toggleXGrid();
+			}
+		});
+
+		menuBarConstraints.gridx = 3;
+		this.menuBar.add(toggleGridXButton);
+
+		final JButton toggleGridYLeftButton = new JButton("+Grid yL");
+		toggleGridYLeftButton.setPreferredSize(new Dimension(60, 20));
+		toggleGridYLeftButton.setMargin(new Insets(0, 0, 0, 0));
+		toggleGridYLeftButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent event) {
+				if (toggleGridYLeftButton.getText().equals("+Grid yL"))
+					toggleGridYLeftButton.setText("-Grid yL");
+				else
+					toggleGridYLeftButton.setText("+Grid yL");
+				thisM.toggleYLeftGrid();
+			}
+		});
+		menuBarConstraints.gridx = 4;
+		this.menuBar.add(toggleGridYLeftButton);
+
+		final JButton toggleGridYRightButton = new JButton("+Grid yR");
+		toggleGridYRightButton.setPreferredSize(new Dimension(60, 20));
+		toggleGridYRightButton.setMargin(new Insets(0, 0, 0, 0));
+		toggleGridYRightButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent event) {
+				if (toggleGridYRightButton.getText().equals("+Grid yR"))
+					toggleGridYRightButton.setText("-Grid yR");
+				else
+					toggleGridYRightButton.setText("+Grid yR");
+				thisM.toggleYRightGrid();
+			}
+		});
+		menuBarConstraints.gridx = 5;
+		this.menuBar.add(toggleGridYRightButton);
+		// add dummy panel
+		menuBarConstraints.gridx = 6;
 		menuBarConstraints.weightx = 0.1;
 		this.menuBar.add(new JPanel(), menuBarConstraints);
 	}
@@ -228,6 +300,7 @@ public class MetricVisualizer extends JPanel {
 				this.legend.updateItem(tempName, tempValue);
 			}
 		}
+
 	}
 
 	/** adds trace to the visualizer with default trace length **/
@@ -422,4 +495,39 @@ public class MetricVisualizer extends JPanel {
 				rightAxe.setVisible(true);
 		}
 	}
+
+	/** toggle right y axis logarithmic / linear mode **/
+	public void toggleYRightMode() {
+
+	}
+
+	/** toggle left y axis logarithmic / linear mode **/
+	public void toggleYLeftMode() {
+
+	}
+
+	/** toggles grid on left y axis **/
+	private void toggleYLeftGrid() {
+		if (this.yLeft.isPaintGrid())
+			this.yLeft.setPaintGrid(false);
+		else
+			this.yLeft.setPaintGrid(true);
+	}
+
+	/** toggles grid on right y axis **/
+	private void toggleYRightGrid() {
+		if (this.yRight.isPaintGrid())
+			this.yRight.setPaintGrid(false);
+		else
+			this.yRight.setPaintGrid(true);
+	}
+
+	/** toggles grid on x axis **/
+	private void toggleXGrid() {
+		if (this.xAxis.isPaintGrid())
+			this.xAxis.setPaintGrid(false);
+		else
+			this.xAxis.setPaintGrid(true);
+	}
+
 }
