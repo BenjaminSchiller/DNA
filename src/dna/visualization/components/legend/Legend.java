@@ -47,7 +47,7 @@ public class Legend extends JPanel {
 		this.parent = parent;
 		thisLegend = this;
 		this.colorHandler = new ColorHandler();
-		this.setPreferredSize(new Dimension(190, 326));
+		this.setPreferredSize(new Dimension(190, 320));
 		this.setLayout(new GridBagLayout());
 		GridBagConstraints c = new GridBagConstraints();
 
@@ -58,7 +58,7 @@ public class Legend extends JPanel {
 		c.gridy = 0;
 		this.add(list, c);
 		this.scrollBar = new JScrollPane(this.list);
-		this.scrollBar.setPreferredSize(new Dimension(187, 297));
+		this.scrollBar.setPreferredSize(new Dimension(187, 295));
 		this.scrollBar
 				.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
 		this.add(scrollBar);
@@ -70,20 +70,6 @@ public class Legend extends JPanel {
 				.createEtchedBorder((EtchedBorder.LOWERED)));
 		this.addButtonPanel.setLayout(new BoxLayout(this.addButtonPanel,
 				BoxLayout.X_AXIS));
-
-		// add button init
-		this.addButton = new JButton("+");
-		this.addButton.setForeground(Color.BLACK);
-		this.addButton.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent event) {
-				thisLegend
-						.addItemToList("closedTriangleClusteringCoefficientRecomp.exact.globalCC");
-				String[] asd = { "cool", "teller" };
-				thisLegend.updateAddBox(asd);
-			}
-		});
-		// this.addButtonPanel.add(addButton);
 
 		c.gridx = 0;
 		c.gridy = 1;

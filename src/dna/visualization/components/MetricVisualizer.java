@@ -5,6 +5,7 @@ import info.monitorenter.gui.chart.IAxis;
 import info.monitorenter.gui.chart.ITrace2D;
 import info.monitorenter.gui.chart.ITracePainter;
 import info.monitorenter.gui.chart.traces.Trace2DLtd;
+import info.monitorenter.gui.chart.traces.Trace2DSimple;
 import info.monitorenter.gui.chart.traces.painters.TracePainterDisc;
 import info.monitorenter.gui.chart.traces.painters.TracePainterFill;
 
@@ -12,11 +13,14 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Set;
 
 import javax.swing.BorderFactory;
+import javax.swing.JComboBox;
 import javax.swing.JPanel;
 import javax.swing.border.EtchedBorder;
 import javax.swing.border.TitledBorder;
@@ -29,6 +33,12 @@ import dna.visualization.components.legend.Legend;
 
 public class MetricVisualizer extends JPanel {
 	private int DEFAULT_TRACE_LENGTH = 20;
+	private int TRACE_LENGTH;
+	private Boolean TRACE_MODE_LTD;
+
+	private Boolean DEFAULT_TRACE_MODE_LTD = true;
+	private Boolean DEFAULT_PAINT_LINESPOINT = true;
+	private Boolean DEFAULT_PAINT_FILL = false;
 
 	private Chart2D chart;
 
@@ -38,21 +48,29 @@ public class MetricVisualizer extends JPanel {
 
 	private MetricVisualizer thisM;
 
-	private Boolean DEFAULT_PAINT_LINESPOINT = true;
 	private int linespointSize = 5;
-	private Boolean DEFAULT_PAINT_FILL = false;
 
 	private Legend legend;
+
+	private JPanel menuBar;
+
+	private JComboBox<String> intervalBox;
+	private String[] intervalOptions = { "Trace length", "- show all",
+			"-fixed length: 10", "-fixed length: 20", "-fixed length: 30",
+			"-fixed length: 40", "-fixed length: 50" };
 
 	@SuppressWarnings("deprecation")
 	public MetricVisualizer() {
 		super();
 		this.thisM = this;
+		this.TRACE_MODE_LTD = DEFAULT_TRACE_MODE_LTD;
+		this.TRACE_LENGTH = DEFAULT_TRACE_LENGTH;
+
 		this.traces = new HashMap<String, ITrace2D>();
 		this.availableValues = new ArrayList<String>();
 
-		this.setPreferredSize(new Dimension(670, 350));
-		// set title and border of statistics
+		this.setPreferredSize(new Dimension(670, 385));
+		// set title and border of the metric visualizer
 		TitledBorder title = BorderFactory
 				.createTitledBorder("Metric Visualizer");
 		title.setBorder(BorderFactory
@@ -62,7 +80,6 @@ public class MetricVisualizer extends JPanel {
 		GridBagConstraints mainConstraints = new GridBagConstraints();
 		mainConstraints.fill = GridBagConstraints.HORIZONTAL;
 		this.setLayout(new GridBagLayout());
-		// this.setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
 
 		this.chart = new Chart2D();
 
@@ -72,14 +89,79 @@ public class MetricVisualizer extends JPanel {
 		xAxis.setTitle("Timestamp");
 		yAxis.setTitle("");
 
-		this.chart.setPaintLabels(false);
-		this.add(this.chart);
-
 		mainConstraints.gridx = 0;
 		mainConstraints.gridy = 0;
+		this.chart.setPaintLabels(false);
+		this.add(this.chart, mainConstraints);
 
+		mainConstraints.gridx = 1;
+		mainConstraints.gridy = 0;
 		this.legend = new Legend(this);
-		this.add(this.legend);
+		this.legend.setPreferredSize(new Dimension(190, 330));
+		this.add(this.legend, mainConstraints);
+
+		/** menu bar creation **/
+		mainConstraints.gridx = 0;
+		mainConstraints.gridy = 1;
+		mainConstraints.gridwidth = 2;
+		this.menuBar = new JPanel();
+		this.menuBar.setLayout(new GridBagLayout());
+		this.menuBar.setPreferredSize(new Dimension(450, 25));
+		this.menuBar.setBorder(BorderFactory
+				.createEtchedBorder((EtchedBorder.LOWERED)));
+		this.add(this.menuBar, mainConstraints);
+
+		GridBagConstraints menuBarConstraints = new GridBagConstraints();
+
+		// intervalBox dropdown menu
+		this.intervalBox = new JComboBox<String>(intervalOptions);
+		this.intervalBox.setPreferredSize(new Dimension(125, 20));
+		this.intervalBox.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent event) {
+				thisM.selectInterval(thisM.intervalBox.getSelectedIndex());
+			}
+		});
+		BoundsPopupMenuListener listener = new BoundsPopupMenuListener(true,
+				false);
+		this.intervalBox.addPopupMenuListener(listener);
+		menuBarConstraints.weightx = 0;
+		menuBarConstraints.gridx = 0;
+		menuBarConstraints.gridy = 0;
+		this.menuBar.add(this.intervalBox, menuBarConstraints);
+		
+		// add dummy panel
+		menuBarConstraints.gridx = 1;
+		menuBarConstraints.weightx = 0.1;
+		this.menuBar.add(new JPanel(), menuBarConstraints);
+	}
+
+	/** called by the interval combobox to update the interval **/
+	private void selectInterval(int selectionIndex) {
+		String m = "";
+		try {
+			m = thisM.intervalOptions[selectionIndex];
+		} catch (IndexOutOfBoundsException e) {
+			e.printStackTrace();
+		}
+		if (!m.equals("")) {
+			if (m.equals("- show all")) {
+				this.TRACE_MODE_LTD = false;
+			}
+			if (m.substring(0, 2).equals("-f")) {
+				this.TRACE_MODE_LTD = true;
+				this.updateTraceLength(Integer.parseInt(m.substring(15)));
+			}
+		}
+	}
+
+	/** called by the selectInterval(..) method **/
+	private void updateTraceLength(int traceLength) {
+		this.TRACE_LENGTH = traceLength;
+		for (ITrace2D trace : this.traces.values()) {
+			if (trace instanceof Trace2DLtd)
+				((Trace2DLtd) trace).setMaxSize(traceLength);
+		}
 	}
 
 	/**
@@ -139,16 +221,29 @@ public class MetricVisualizer extends JPanel {
 	/** adds trace to the visualizer with default trace length **/
 	public void addTrace(String name, Color color) {
 		if (!this.traces.containsKey(name)) {
-			Trace2DLtd newTrace = new Trace2DLtd(DEFAULT_TRACE_LENGTH);
-			newTrace.setColor(color);
-			this.traces.put(name, newTrace);
-			this.chart.addTrace(newTrace);
+			if (this.TRACE_MODE_LTD) {
+				Trace2DLtd newTrace = new Trace2DLtd(this.TRACE_LENGTH);
+				newTrace.setColor(color);
+				this.traces.put(name, newTrace);
+				this.chart.addTrace(newTrace);
 
-			if (this.DEFAULT_PAINT_LINESPOINT)
-				newTrace.addTracePainter(new TracePainterDisc(
-						this.linespointSize));
-			if (this.DEFAULT_PAINT_FILL)
-				newTrace.addTracePainter(new TracePainterFill(this.chart));
+				if (this.DEFAULT_PAINT_LINESPOINT)
+					newTrace.addTracePainter(new TracePainterDisc(
+							this.linespointSize));
+				if (this.DEFAULT_PAINT_FILL)
+					newTrace.addTracePainter(new TracePainterFill(this.chart));
+			} else {
+				Trace2DSimple newTrace = new Trace2DSimple();
+				newTrace.setColor(color);
+				this.traces.put(name, newTrace);
+				this.chart.addTrace(newTrace);
+
+				if (this.DEFAULT_PAINT_LINESPOINT)
+					newTrace.addTracePainter(new TracePainterDisc(
+							this.linespointSize));
+				if (this.DEFAULT_PAINT_FILL)
+					newTrace.addTracePainter(new TracePainterFill(this.chart));
+			}
 		}
 
 		if (counter == 0)
