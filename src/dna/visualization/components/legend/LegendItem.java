@@ -77,6 +77,7 @@ public class LegendItem extends JPanel {
 		// remove button
 		this.removeButton = new JButton("-");
 		this.removeButton.setPreferredSize(new Dimension(20, 20));
+		this.removeButton.setToolTipText("Remove value from list and plot.");
 		this.removeButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent event) {
@@ -88,13 +89,21 @@ public class LegendItem extends JPanel {
 				.getName(), this.removeButton.getFont().getStyle(), 17));
 
 		// toggle y axis button
-		this.toggleYAxisButton = new JButton("Yr");
+		this.toggleYAxisButton = new JButton("yR");
 		this.toggleYAxisButton.setPreferredSize(new Dimension(20, 20));
 		this.toggleYAxisButton.setMargin(new Insets(0, 0, 0, 0));
+		this.toggleYAxisButton.setToolTipText("Currently plotted on left y-axis. Click to change to right y-axis");
 		this.toggleYAxisButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent event) {
-				System.out.println("TOGGLE Y AXIS");
+				if (thisItem.toggleYAxisButton.getText().equals("yR")) {
+					thisItem.toggleYAxisButton.setText("yL");
+					thisItem.toggleYAxisButton.setToolTipText("Currently plotted on right y-axis. Click to change to left y-axis");
+				} else {
+					thisItem.toggleYAxisButton.setText("yR");
+					thisItem.toggleYAxisButton.setToolTipText("Currently plotted on left y-axis. Click to change to right y-axis");
+				}
+				thisItem.parent.toggleYAxis(thisItem);
 			}
 		});
 

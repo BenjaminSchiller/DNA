@@ -237,4 +237,9 @@ public class Legend extends JPanel {
 		this.list.reset();
 	}
 
+	/** toggles y axis of an trace **/
+	public void toggleYAxis(LegendItem item) {
+		this.parent.toggleYAxis(item.getName());
+	}
+
 }

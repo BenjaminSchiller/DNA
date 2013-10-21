@@ -4,6 +4,8 @@ import info.monitorenter.gui.chart.Chart2D;
 import info.monitorenter.gui.chart.IAxis;
 import info.monitorenter.gui.chart.ITrace2D;
 import info.monitorenter.gui.chart.ITracePainter;
+import info.monitorenter.gui.chart.axis.AAxis;
+import info.monitorenter.gui.chart.axis.AxisLinear;
 import info.monitorenter.gui.chart.traces.Trace2DLtd;
 import info.monitorenter.gui.chart.traces.Trace2DSimple;
 import info.monitorenter.gui.chart.traces.painters.TracePainterDisc;
@@ -41,10 +43,14 @@ public class MetricVisualizer extends JPanel {
 	private Boolean DEFAULT_PAINT_FILL = false;
 
 	private Chart2D chart;
+	private IAxis yRight;
+	private IAxis yLeft;
+	private IAxis xAxis;
 
 	private ArrayList<String> availableValues;
 
 	private HashMap<String, ITrace2D> traces;
+	private HashMap<String, String> tracesYAxis;
 
 	private MetricVisualizer thisM;
 
@@ -84,10 +90,15 @@ public class MetricVisualizer extends JPanel {
 		this.chart = new Chart2D();
 
 		this.chart.setPreferredSize(new Dimension(450, 320));
-		IAxis xAxis = this.chart.getAxisX();
-		IAxis yAxis = this.chart.getAxisY();
-		xAxis.setTitle("Timestamp");
-		yAxis.setTitle("");
+
+		this.xAxis = this.chart.getAxisX();
+		this.yLeft = this.chart.getAxisY();
+		this.xAxis.setTitle("Timestamp");
+		this.yLeft.setTitle("");
+
+		this.yRight = new AxisLinear();
+		this.chart.addAxisYRight((AAxis) yRight);
+		this.yRight.setVisible(false);
 
 		mainConstraints.gridx = 0;
 		mainConstraints.gridy = 0;
@@ -129,7 +140,7 @@ public class MetricVisualizer extends JPanel {
 		menuBarConstraints.gridx = 0;
 		menuBarConstraints.gridy = 0;
 		this.menuBar.add(this.intervalBox, menuBarConstraints);
-		
+
 		// add dummy panel
 		menuBarConstraints.gridx = 1;
 		menuBarConstraints.weightx = 0.1;
@@ -159,8 +170,9 @@ public class MetricVisualizer extends JPanel {
 	private void updateTraceLength(int traceLength) {
 		this.TRACE_LENGTH = traceLength;
 		for (ITrace2D trace : this.traces.values()) {
-			if (trace instanceof Trace2DLtd)
+			if (trace instanceof Trace2DLtd) {
 				((Trace2DLtd) trace).setMaxSize(traceLength);
+			}
 		}
 	}
 
@@ -290,6 +302,7 @@ public class MetricVisualizer extends JPanel {
 		String[] tempValues = this.availableValues
 				.toArray(new String[this.availableValues.size()]);
 		tempValues = this.gatherValues(b);
+		this.toggleYAxisVisibility();
 		this.legend.updateAddBox(tempValues);
 		this.validate();
 	}
@@ -348,5 +361,65 @@ public class MetricVisualizer extends JPanel {
 		String[] tempValues = tempList.toArray(new String[tempList.size()]);
 		return tempValues;
 		// TODO: ADD SUPPORT FOR DISTRIBUTIONS
+	}
+
+	/** toggles the y axis for a trace identified by its name **/
+	public void toggleYAxis(String name) {
+		if (this.traces.containsKey(name)) {
+			Boolean left = false;
+			Boolean right = false;
+
+			ITrace2D tempTrace = new Trace2DSimple(null);
+
+			for (IAxis leftAxe : this.chart.getAxesYLeft()) {
+				for (Object trace : leftAxe.getTraces()) {
+					if (trace instanceof ITrace2D) {
+						if (((ITrace2D) trace) == this.traces.get(name)) {
+							tempTrace = (ITrace2D) trace;
+							leftAxe.removeTrace((ITrace2D) trace);
+							left = true;
+						}
+					}
+				}
+			}
+
+			for (IAxis rightAxe : this.chart.getAxesYRight()) {
+				for (Object trace : rightAxe.getTraces()) {
+					if (trace instanceof ITrace2D) {
+						if (((ITrace2D) trace) == this.traces.get(name)) {
+							tempTrace = (ITrace2D) trace;
+							rightAxe.removeTrace((ITrace2D) trace);
+							right = true;
+						}
+					}
+				}
+			}
+
+			if (left) {
+				for (IAxis rightAxe : this.chart.getAxesYRight()) {
+					rightAxe.addTrace(tempTrace);
+				}
+			} else {
+				if (right) {
+					for (IAxis leftAxe : this.chart.getAxesYLeft()) {
+						leftAxe.addTrace(tempTrace);
+					}
+				}
+
+			}
+
+			// toggle right y axis visibility
+			this.toggleYAxisVisibility();
+		}
+	}
+
+	/** toggle right y axis visibility **/
+	public void toggleYAxisVisibility() {
+		for (IAxis rightAxe : this.chart.getAxesYRight()) {
+			if (rightAxe.getTraces().size() < 1)
+				rightAxe.setVisible(false);
+			else
+				rightAxe.setVisible(true);
+		}
 	}
 }

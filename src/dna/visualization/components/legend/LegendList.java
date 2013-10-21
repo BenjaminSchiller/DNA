@@ -97,4 +97,9 @@ public class LegendList extends JPanel {
 			}
 		}
 	}
+
+	/** toggles y axis for an item **/
+	public void toggleYAxis(LegendItem item) {
+		this.parent.toggleYAxis(item);
+	}
 }
