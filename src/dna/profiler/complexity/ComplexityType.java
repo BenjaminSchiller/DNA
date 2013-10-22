@@ -1,5 +1,7 @@
 package dna.profiler.complexity;
 
+import java.util.TreeSet;
+
 public class ComplexityType implements Comparable<ComplexityType> {
 	/**
 	 * List of complexity types. Keep it sorted to enable comparisons in
@@ -36,6 +38,16 @@ public class ComplexityType implements Comparable<ComplexityType> {
 	public ComplexityType(Type t, Base b) {
 		this.complexityType = t;
 		this.complexityBase = b;
+	}
+	
+	public static TreeSet<ComplexityType> getAllComplexityTypes() {
+		TreeSet<ComplexityType> complexityTypes = new TreeSet<>();
+		for (Type t : ComplexityType.Type.values()) {
+			for (Base b : ComplexityType.Base.values()) {
+				complexityTypes.add(new ComplexityType(t, b));
+			}
+		}
+		return complexityTypes;
 	}
 
 	@Override
@@ -106,6 +118,12 @@ public class ComplexityType implements Comparable<ComplexityType> {
 		}
 	}
 
+	/**
+	 * As a remark: a.compareTo(b) returns the following results:
+	 * 		-1 iff a < b
+	 * 		0  iff a == b
+	 * 		1  iff a > b
+	 */
 	@Override
 	public int compareTo(ComplexityType o) {
 		int res = this.complexityType.compareTo(o.complexityType);

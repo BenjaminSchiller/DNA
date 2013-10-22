@@ -3,9 +3,11 @@ package dna.graph.tests;
 import static org.junit.Assert.assertEquals;
 
 import java.util.Map.Entry;
+import java.util.TreeMap;
 
 import org.junit.Test;
 
+import dna.graph.datastructures.GraphDataStructure;
 import dna.profiler.complexity.AddedComplexity;
 import dna.profiler.complexity.Complexity;
 import dna.profiler.complexity.ComplexityMap;
@@ -91,14 +93,14 @@ public class ComplexityTests {
 
 		c1.put(new ComplexityType(Type.Linear, Base.NodeSize), 5);
 		c2.put(new ComplexityType(Type.Linear, Base.NodeSize), 6);
-		assertSmallerThan(c1, c2);
+		assertFirstIsSmallerThanSecond(c1, c2);
 
 		c1 = new ComplexityMap();
 		c2 = new ComplexityMap();
 
 		c1.put(new ComplexityType(Type.Linear, Base.Degree), 5);
 		c2.put(new ComplexityType(Type.Linear, Base.Degree), 6);
-		assertSmallerThan(c1, c2);
+		assertFirstIsSmallerThanSecond(c1, c2);
 	}
 
 	@Test
@@ -112,7 +114,7 @@ public class ComplexityTests {
 
 			c1.put(new ComplexityType(Type.Static, n), 1);
 			c2.put(new ComplexityType(Type.Linear, n), 1);
-			assertSmallerThan(c1, c2);
+			assertFirstIsSmallerThanSecond(c1, c2);
 		}
 	}
 
@@ -126,15 +128,149 @@ public class ComplexityTests {
 
 		c1.put(new ComplexityType(Type.Static, Base.NodeSize), 5);
 		c2.put(new ComplexityType(Type.Linear, Base.NodeSize), 1);
-		assertSmallerThan(c1, c2);
-
+		assertFirstIsSmallerThanSecond(c1, c2);
+		
 		c1 = new ComplexityMap();
 		c2 = new ComplexityMap();
 
-		c2.put(new ComplexityType(Type.Static, Base.NodeSize), 15);
 		c1.put(new ComplexityType(Type.Linear, Base.NodeSize), 10);
-		assertSmallerThan(c2, c1);
+		c2.put(new ComplexityType(Type.Static, Base.NodeSize), 15);
+		assertFirstIsSmallerThanSecond(c2, c1);
 	}
+	
+	@Test
+	public void checkSomeSortingCases() {
+		ComplexityMap c1, c2;
+		
+		c1 = new ComplexityMap();
+		c1.put(new ComplexityType(Type.Static, Base.Degree), 2067);
+		
+		c2 = new ComplexityMap();
+		c2.put(new ComplexityType(Type.Static, Base.Degree), 2067);
+		c2.put(new ComplexityType(Type.Linear, Base.EdgeSize), 2067);
+		
+		assertFirstIsSmallerThanSecond(c1, c2);
+	}
+	
+	@Test
+	public void checkSortingCasesInTheTree_A() {
+		ComplexityMap c1, c2;
+		
+		c1 = new ComplexityMap();
+		c1.put(new ComplexityType(Type.Static, Base.Degree), 2067);
+		
+		c2 = new ComplexityMap();
+		c2.put(new ComplexityType(Type.Static, Base.Degree), 2067);
+		c2.put(new ComplexityType(Type.Linear, Base.EdgeSize), 2067);
+		
+		TreeMap<ComplexityMap, GraphDataStructure> tree = new TreeMap<>();
+		tree.put(c2, null);
+		tree.put(c1, null);
+		
+		assertEquals(2, tree.size());
+		assertEquals(c1, tree.pollFirstEntry().getKey());
+		assertEquals(c2, tree.pollFirstEntry().getKey());
+	}
+	
+	@Test
+	public void checkSortingCasesInTheTree_B() {
+		ComplexityMap c1, c2;
+			
+		c1 = new ComplexityMap();
+		c1.put(new ComplexityType(Type.Static, Base.Degree), 8158);
+		c1.put(new ComplexityType(Type.Linear, Base.EdgeSize), 4071);
+		
+		c2 = new ComplexityMap();
+		c2.put(new ComplexityType(Type.Linear, Base.NodeSize), 8158);
+		c2.put(new ComplexityType(Type.Linear, Base.EdgeSize), 4071);
+		
+		TreeMap<ComplexityMap, GraphDataStructure> tree = new TreeMap<>();
+		tree.put(new ComplexityMap(), null);
+		tree.put(c1, null);
+		tree.put(c2, null);
+		
+		assertEquals(3, tree.size());
+		tree.pollFirstEntry();
+		assertEquals(c1, tree.pollFirstEntry().getKey());
+		assertEquals(c2, tree.pollFirstEntry().getKey());
+	}
+	
+	@Test
+	public void checkSortingCasesInTheTree_C() {
+		ComplexityMap c1, c2, c3;
+			
+		c1 = new ComplexityMap();
+		c1.put(new ComplexityType(Type.Static, Base.Degree), 246016);
+		
+		c2 = new ComplexityMap();
+		c2.put(new ComplexityType(Type.Static, Base.Degree), 246016);		
+		c2.put(new ComplexityType(Type.Linear, Base.EdgeSize), 20196);
+		
+		c3 = new ComplexityMap();
+		c3.put(new ComplexityType(Type.Static, Base.Degree), 225820);
+		c3.put(new ComplexityType(Type.Linear, Base.EdgeSize), 40392);
+		
+		TreeMap<ComplexityMap, GraphDataStructure> tree = new TreeMap<>();
+		tree.put(c3, null);
+		tree.put(c1, null);
+		tree.put(c2, null);
+		
+		assertEquals(3, tree.size());
+		assertEquals(c1, tree.pollFirstEntry().getKey());
+		assertEquals(c2, tree.pollFirstEntry().getKey());
+	}	
+	
+	@Test
+	public void checkSortingCasesInTheTree_D() {
+		ComplexityMap c1, c2, c3, c4;
+			
+		c1 = new ComplexityMap();
+		c1.put(new ComplexityType(Type.Static, Base.Degree), 1);
+		
+		c2 = new ComplexityMap();
+		c2.put(new ComplexityType(Type.Static, Base.Degree), 1);		
+		c2.put(new ComplexityType(Type.Linear, Base.EdgeSize), 1);
+
+		c3 = new ComplexityMap();
+		c3.put(new ComplexityType(Type.Static, Base.Degree), 1);		
+		c3.put(new ComplexityType(Type.Linear, Base.EdgeSize), 2);		
+		
+		c4 = new ComplexityMap();
+		c4.put(new ComplexityType(Type.Static, Base.Degree), 1);		
+		c4.put(new ComplexityType(Type.Linear, Base.EdgeSize), 1);	
+				
+		TreeMap<ComplexityMap, GraphDataStructure> tree = new TreeMap<>();
+		tree.put(c1, null);
+		tree.put(c2, null);
+		tree.put(c3, null);
+		tree.put(c4, null);
+		
+		assertEquals(3, tree.size());
+		assertEquals(c1, tree.pollFirstEntry().getKey());
+		assertEquals(c2, tree.pollFirstEntry().getKey());
+	}
+	
+	@Test
+	public void checkSortingCasesInTheTree_E() {
+		ComplexityMap c1, c2;
+			
+		c1 = new ComplexityMap();
+		c1.put(new ComplexityType(Type.Static, Base.Degree), 1);
+		c1.put(new ComplexityType(Type.Linear, Base.Degree), 5);
+		
+		c2 = new ComplexityMap();
+		c2.put(new ComplexityType(Type.Static, Base.Degree), 20);		
+		c2.put(new ComplexityType(Type.Linear, Base.Degree), 5);
+			
+		TreeMap<ComplexityMap, GraphDataStructure> tree = new TreeMap<>();
+		tree.put(c1, null);
+		tree.put(c2, null);
+		System.out.println(tree.keySet());
+		
+		assertEquals(2, tree.size());
+		assertEquals(c1, tree.pollFirstEntry().getKey());
+		assertEquals(c2, tree.pollFirstEntry().getKey());
+	}	
 	
 	@Test
 	public void checkProperOrderOfComplexityMap() {
@@ -159,9 +295,21 @@ public class ComplexityTests {
 		assertEquals(unknownCompl, entrySet[4].getKey());
 	}
 
-	private <T extends java.lang.Comparable<T>> void assertSmallerThan(T one,
+	private <T extends java.lang.Comparable<T>> void assertFirstIsSmallerThanSecond(T one,
 			T two) {
-		assertEquals(-1, one.compareTo(two));
+		/**
+		 * As a remark: a.compareTo(b) returns the following results:
+		 * 		-1 iff a < b
+		 * 		0  iff a == b
+		 * 		1  iff a > b
+		 * 
+		 * This assertion should check whether `one` is smaller than `two`,
+		 * so the assertion should check for the result -1.
+		 */
+		assertEquals(one + " != " + one, 0, one.compareTo(one));
+		assertEquals(two + " != " + two, 0, two.compareTo(two));
+		assertEquals(one + " !< " + two, -1, one.compareTo(two));
+		assertEquals(one + " !> " + two, +1, two.compareTo(one));
 	}
 
 }
