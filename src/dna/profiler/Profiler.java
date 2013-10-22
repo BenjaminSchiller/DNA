@@ -162,13 +162,22 @@ public class Profiler {
 					tempGDS = new GraphDataStructure(nodeListType,
 							edgeListType, nodeEdgeListType, gds.getNodeType(),
 							gds.getEdgeType());
-					listOfOtherComplexities.put(
-							entry.combinedComplexity(tempGDS), tempGDS);
+					final ComplexityMap combinedComplexityMap = entry
+							.combinedComplexity(tempGDS);
+					if (!listOfOtherComplexities
+							.containsKey(combinedComplexityMap)) {
+						listOfOtherComplexities.put(combinedComplexityMap,
+								tempGDS);
+					}
 				}
 			}
 		}
 
 		res.append("  Recommendations: ");
+		/**
+		 * Recoomendations are picked from the front of the list, as they have the
+		 * largest counter for the most important complexity class
+		 */
 		for (int i = 0; (i < NumberOfRecommendations && listOfOtherComplexities
 				.size() > 0); i++) {
 			Entry<ComplexityMap, GraphDataStructure> pollFirstEntry = listOfOtherComplexities
@@ -180,22 +189,20 @@ public class Profiler {
 			res.append(separator);
 			res.append("   " + polledEntry);
 		}
-
-		// res.append(separator + "  Bottom list: ");
-		// for (int i = 0; (i < NumberOfRecommendations &&
-		// listOfOtherComplexities
-		// .size() > 0); i++) {
-		// Entry<ComplexityMap, GraphDataStructure> pollFirstEntry =
-		// listOfOtherComplexities
-		// .pollLastEntry();
-		// String polledEntry = pollFirstEntry.getValue()
-		// .getStorageDataStructures(true)
-		// + ": "
-		// + pollFirstEntry.getKey();
-		// res.append(separator);
-		// res.append("   " + polledEntry);
-		// }
-
+				
+//		res.append(separator + "  Bottom list: ");
+//		for (int i = 0; (i < NumberOfRecommendations && listOfOtherComplexities
+//				.size() > 0); i++) {
+//			Entry<ComplexityMap, GraphDataStructure> pollLastEntry = listOfOtherComplexities
+//					.pollLastEntry();
+//			String polledEntry = pollLastEntry.getValue()
+//					.getStorageDataStructures(true)
+//					+ ": "
+//					+ pollLastEntry.getKey();			
+//			res.append(separator);
+//			res.append("   " + polledEntry);
+//		 }
+		
 		return res.toString();
 	}
 	
