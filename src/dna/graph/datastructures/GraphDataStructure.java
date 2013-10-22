@@ -17,7 +17,7 @@ import dna.graph.edges.UndirectedEdge;
 import dna.graph.nodes.IWeightedNode;
 import dna.graph.nodes.Node;
 import dna.graph.weights.IWeighted;
-import dna.profiler.GraphProfiler.ProfilerType;
+import dna.profiler.Profiler.ProfilerType;
 import dna.profiler.complexity.Complexity;
 import dna.profiler.complexity.ComplexityType.Base;
 import dna.util.Config;
@@ -389,8 +389,9 @@ public class GraphDataStructure {
 				continue;
 			Type[] args = pt.getActualTypeArguments();
 			weightType = (Class<?>) args[0];
+			return weightType;
 		}
-		return weightType;
+		return null;
 	}
 
 	public Class<?> getNodeWeightType() {
@@ -486,6 +487,18 @@ public class GraphDataStructure {
 		case ContainsNodeLocal:
 			return getComplexityClass(nodeListType, Node.class,
 					AccessType.Contains, Base.Degree);
+		case GetNodeGlobal:
+			return getComplexityClass(nodeListType, Node.class, AccessType.Get,
+					Base.NodeSize);
+		case GetNodeLocal:
+			return getComplexityClass(nodeListType, Node.class, AccessType.Get,
+					Base.Degree);
+		case GetEdgeGlobal:
+			return getComplexityClass(graphEdgeListType, Edge.class,
+					AccessType.Get, Base.EdgeSize);
+		case GetEdgeLocal:
+			return getComplexityClass(nodeEdgeListType, Edge.class,
+					AccessType.Get, Base.Degree);
 		case RandomEdgeGlobal:
 			return getComplexityClass(graphEdgeListType, Edge.class,
 					AccessType.Random, Base.EdgeSize);
@@ -516,6 +529,18 @@ public class GraphDataStructure {
 		case SizeNodeLocal:
 			return getComplexityClass(nodeListType, Node.class,
 					AccessType.Size, Base.Degree);
+		case IteratorNodeGlobal:
+			return getComplexityClass(nodeListType, Node.class,
+					AccessType.Iterator, Base.NodeSize);
+		case IteratorNodeLocal:
+			return getComplexityClass(nodeListType, Node.class,
+					AccessType.Iterator, Base.Degree);
+		case IteratorEdgeGlobal:
+			return getComplexityClass(graphEdgeListType, Edge.class,
+					AccessType.Iterator, Base.EdgeSize);
+		case IteratorEdgeLocal:
+			return getComplexityClass(nodeEdgeListType, Edge.class,
+					AccessType.Iterator, Base.Degree);
 		}
 		throw new RuntimeException("Access " + p + " missing here");
 	}

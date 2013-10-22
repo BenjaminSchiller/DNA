@@ -205,6 +205,9 @@ public class DArray extends DataStructureReadable implements
 
 	@Override
 	public IElement getRandom() {
+		if (this.size() == 0)
+			return null;
+
 		int index = Rand.rand.nextInt(this.list.length);
 		while (this.list[index] == null) {
 			index = Rand.rand.nextInt(this.list.length);
@@ -222,7 +225,7 @@ public class DArray extends DataStructureReadable implements
 	}
 
 	@Override
-	public Iterator<IElement> iterator() {
+	protected Iterator<IElement> iterator_() {
 		return new DArrayIterator<IElement>(this.list);
 	}
 
@@ -305,6 +308,12 @@ public class DArray extends DataStructureReadable implements
 			} else if (Edge.class.isAssignableFrom(dt)) {
 				return new Complexity(1, new ComplexityType(Type.Linear, base));
 			}
+		case Get:
+			if (Node.class.isAssignableFrom(dt)) {
+				return new Complexity(1, new ComplexityType(Type.Static, base));
+			} else if (Edge.class.isAssignableFrom(dt)) {
+				return new Complexity(1, new ComplexityType(Type.Linear, base));
+			}
 		case Random:
 			return new Complexity(1, new ComplexityType(Type.Static, base));
 		case Remove:
@@ -314,6 +323,8 @@ public class DArray extends DataStructureReadable implements
 				return new Complexity(1, new ComplexityType(Type.Linear, base));
 			}
 		case Size:
+			return new Complexity(1, new ComplexityType(Type.Static, base));
+		case Iterator:
 			return new Complexity(1, new ComplexityType(Type.Static, base));
 		}
 		return new Complexity(1, new ComplexityType(Type.Unknown, base));

@@ -34,6 +34,7 @@ import dna.graph.edges.DirectedEdge;
 import dna.graph.edges.Edge;
 import dna.graph.edges.UndirectedEdge;
 import dna.graph.generators.CliqueGenerator;
+import dna.graph.generators.EmptyGraphGenerator;
 import dna.graph.generators.GraphGenerator;
 import dna.graph.generators.IGraphGenerator;
 import dna.graph.generators.IRandomGenerator;
@@ -44,7 +45,6 @@ import dna.graph.nodes.UndirectedNode;
 import dna.graph.weights.IWeighted;
 import dna.io.GraphReader;
 import dna.io.GraphWriter;
-import dna.util.parameters.Parameter;
 
 @RunWith(Parallelized.class)
 public class GeneratorsTest {
@@ -55,8 +55,8 @@ public class GeneratorsTest {
 	private GraphDataStructure gds;
 	private GraphGenerator gg;
 
-	private int nodeSize = 200;
-	private int edgeSize = 250;
+	private int nodeSize = 100;
+	private int edgeSize = 120;
 
 	@Rule
 	public TemporaryFolder folder = new TemporaryFolder();
@@ -75,36 +75,46 @@ public class GeneratorsTest {
 		this.nodeType = nodeType;
 		this.edgeType = edgeType;
 		this.generator = generator;
-		this.generatorConstructor = generator.getConstructor(String.class,
-				Parameter[].class, GraphDataStructure.class, long.class,
-				int.class, int.class);
 
 		this.gds = new GraphDataStructure(nodeListType, graphEdgeListType,
 				nodeEdgeListType, nodeType, edgeType);
-		
+
 		if (generator == CliqueGenerator.class) {
 			/**
 			 * As clique graphs are large, generate a smaller one please!
 			 */
 			nodeSize = (int) Math.min(Math.floor(nodeSize / 2), 30);
 			edgeSize = nodeSize * (nodeSize - 1);
-			
-			if ( UndirectedNode.class.isAssignableFrom(nodeType))
+
+			if (UndirectedNode.class.isAssignableFrom(nodeType))
 				edgeSize = (int) edgeSize / 2;
 		} else if (generator == RingGenerator.class) {
 			edgeSize = nodeSize;
+		} else if (generator == EmptyGraphGenerator.class) {
+			nodeSize = 0;
+			edgeSize = 0;
 		}
 
-		this.gg = this.generatorConstructor.newInstance("ABC",
-				new Parameter[] {}, gds, 0, nodeSize, edgeSize);		
+		try {
+			this.generatorConstructor = generator.getConstructor(
+					GraphDataStructure.class, int.class, int.class);
+			this.gg = this.generatorConstructor.newInstance(gds, nodeSize,
+					edgeSize);
+		} catch (NoSuchMethodException e) {
+			this.generatorConstructor = generator.getConstructor(
+					GraphDataStructure.class, int.class);
+			this.gg = this.generatorConstructor.newInstance(gds, nodeSize);
+		}
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Parameterized.Parameters(name = "{0} {1} {2} {3} {4} {5}")
-	public static Collection testPairs() throws NoSuchMethodException, SecurityException, InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+	public static Collection testPairs() throws NoSuchMethodException,
+			SecurityException, InstantiationException, IllegalAccessException,
+			IllegalArgumentException, InvocationTargetException {
 		Constructor<? extends GraphGenerator> generatorConstructor;
 		GraphDataStructure gds;
-		
+
 		ArrayList<Object> result = new ArrayList<>();
 		for (Class nodeListType : GlobalTestParameters.dataStructures) {
 			for (Class edgeListType : GlobalTestParameters.dataStructures) {
@@ -129,17 +139,32 @@ public class GeneratorsTest {
 												.isAssignableFrom(edgeType) && UndirectedNode.class
 												.isAssignableFrom(nodeType)))
 									continue;
-								
-								generatorConstructor = generator.getConstructor(String.class,
-										Parameter[].class, GraphDataStructure.class, long.class,
-										int.class, int.class);								
-								gds = new GraphDataStructure(nodeListType, edgeListType,
-										nodeEdgeListType, nodeType, edgeType);
-								GraphGenerator gg = generatorConstructor.newInstance("ABC",
-										new Parameter[] {}, gds, 0, 5, 5);
-								
-								if ( !gg.canGenerateNodeType(nodeType)) continue;
-								if ( !gg.canGenerateEdgeType(edgeType)) continue;
+
+								gds = new GraphDataStructure(nodeListType,
+										edgeListType, nodeEdgeListType,
+										nodeType, edgeType);
+
+								GraphGenerator gg;
+								try {
+									generatorConstructor = generator
+											.getConstructor(
+													GraphDataStructure.class,
+													int.class, int.class);
+									gg = generatorConstructor.newInstance(gds,
+											5, 5);
+								} catch (NoSuchMethodException e) {
+									generatorConstructor = generator
+											.getConstructor(
+													GraphDataStructure.class,
+													int.class);
+									gg = generatorConstructor.newInstance(gds,
+											5);
+								}
+
+								if (!gg.canGenerateNodeType(nodeType))
+									continue;
+								if (!gg.canGenerateEdgeType(edgeType))
+									continue;
 
 								result.add(new Object[] { nodeListType,
 										edgeListType, nodeEdgeListType,
@@ -170,11 +195,8 @@ public class GeneratorsTest {
 
 		String tempFolder = folder.getRoot().getAbsolutePath();
 
-		GraphWriter gw = new GraphWriter();
-		gw.write(g, tempFolder, graphName);
-
-		GraphReader gr = new GraphReader();
-		Graph g2 = gr.read(tempFolder, graphName, null);
+		GraphWriter.write(g, tempFolder, graphName);
+		Graph g2 = GraphReader.read(tempFolder, graphName, null);
 
 		assertEquals(gds, g2.getGraphDatastructures());
 
@@ -203,9 +225,8 @@ public class GeneratorsTest {
 		String graphName = gds.getDataStructures();
 		String tempFolder = folder.getRoot().getAbsolutePath();
 
-		GraphWriter gw = new GraphWriter();
-		gw.write(g, tempFolder, graphName);
-		
+		GraphWriter.write(g, tempFolder, graphName);
+
 		if (UndirectedNode.class.isAssignableFrom(nodeType)) {
 			gds.setNodeType(UndirectedNode.class);
 			gds.setEdgeType(UndirectedEdge.class);
@@ -216,10 +237,9 @@ public class GeneratorsTest {
 			fail("Unknown node type");
 		}
 
-		GraphReader gr = new GraphReader();
-		Graph g2 = gr.read(tempFolder, graphName, gds);
-		gw.write(g2, tempFolder, graphName + "new");
-		
+		Graph g2 = GraphReader.read(tempFolder, graphName, gds);
+		GraphWriter.write(g2, tempFolder, graphName + "new");
+
 		/**
 		 * Don't go the easy way and check for edge list sizes here - some may
 		 * contain duplicates, some not, this might easily yield errors!
@@ -267,29 +287,42 @@ public class GeneratorsTest {
 		 * here, we would see it with other generators too
 		 */
 		assumeFalse(CliqueGenerator.class.isAssignableFrom(generator));
-		
+		assumeFalse(EmptyGraphGenerator.class.isAssignableFrom(generator));
+
 		Graph g = gg.generate();
 
 		String graphName = gds.getDataStructures();
 
 		String tempFolder = folder.getRoot().getAbsolutePath();
 
-		GraphWriter gw = new GraphWriter();
-		gw.write(g, tempFolder, graphName);
+		GraphWriter.write(g, tempFolder, graphName);
 
-		GraphReader gr = new GraphReader();
-		Graph g2 = gr.read(tempFolder, graphName, null);
+		Graph g2 = GraphReader.read(tempFolder, graphName, null);
 
 		assertEquals(g, g2);
 
 		// Change getStringRepresentation now to see that it is used for
 		// equality checks
+		Node random = g.getRandomNode();
 		for (int i = 0; i < (int) Math.floor(edgeSize / 5); i++) {
 			Edge edgeReal = g.getRandomEdge();
 			assertNotNull(edgeReal);
 			g.removeEdge(edgeReal);
+
 			Edge edgeMocked = mock(this.gds.getEdgeType());
 			when(edgeMocked.getStringRepresentation()).thenReturn("");
+			if (gds.createsDirected()) {
+				when(((DirectedEdge) edgeMocked).getDst()).thenReturn(
+						(DirectedNode) random);
+				when(((DirectedEdge) edgeMocked).getSrc()).thenReturn(
+						(DirectedNode) random);
+			} else if (gds.createsUndirected()) {
+				when(((UndirectedEdge) edgeMocked).getNode1()).thenReturn(
+						(UndirectedNode) random);
+				when(((UndirectedEdge) edgeMocked).getNode2()).thenReturn(
+						(UndirectedNode) random);
+			}
+
 			g.addEdge(edgeMocked);
 			assertNotEquals(g, g2);
 		}
@@ -298,17 +331,17 @@ public class GeneratorsTest {
 	@Test
 	public void testWriteReadWithErrorInNode() throws ClassNotFoundException,
 			IOException {
+		assumeFalse(EmptyGraphGenerator.class.isAssignableFrom(generator));
+
 		Graph g = gg.generate();
 
 		String graphName = gds.getDataStructures();
 
 		String tempFolder = folder.getRoot().getAbsolutePath();
 
-		GraphWriter gw = new GraphWriter();
-		gw.write(g, tempFolder, graphName);
+		GraphWriter.write(g, tempFolder, graphName);
 
-		GraphReader gr = new GraphReader();
-		Graph g2 = gr.read(tempFolder, graphName, null);
+		Graph g2 = GraphReader.read(tempFolder, graphName, null);
 
 		assertEquals(g, g2);
 

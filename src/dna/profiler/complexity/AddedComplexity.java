@@ -16,6 +16,12 @@ public class AddedComplexity extends Complexity {
 		this.first = first;
 		this.second = second;
 	}
+	
+	@Override
+	public void setCounter(int c) {
+		this.first.setCounter(c);
+		this.second.setCounter(c);
+	}
 
 	@Override
 	public int getComplexityCounter() {

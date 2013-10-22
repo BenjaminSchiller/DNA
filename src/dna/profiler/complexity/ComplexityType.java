@@ -1,5 +1,7 @@
 package dna.profiler.complexity;
 
+import java.util.TreeSet;
+
 public class ComplexityType implements Comparable<ComplexityType> {
 	/**
 	 * List of complexity types. Keep it sorted to enable comparisons in
@@ -13,7 +15,21 @@ public class ComplexityType implements Comparable<ComplexityType> {
 	}
 
 	public enum Base {
-		NodeSize, EdgeSize, Degree
+		Degree, NodeSize, EdgeSize;
+		
+		@Override
+		public String toString() {
+			switch(this) {
+			case Degree:
+				return "d";
+			case EdgeSize:
+				return "E";
+			case NodeSize:
+				return "N";
+			default:
+				return "";
+			}
+		}
 	}
 
 	private Type complexityType;
@@ -22,6 +38,16 @@ public class ComplexityType implements Comparable<ComplexityType> {
 	public ComplexityType(Type t, Base b) {
 		this.complexityType = t;
 		this.complexityBase = b;
+	}
+	
+	public static TreeSet<ComplexityType> getAllComplexityTypes() {
+		TreeSet<ComplexityType> complexityTypes = new TreeSet<>();
+		for (Type t : ComplexityType.Type.values()) {
+			for (Base b : ComplexityType.Base.values()) {
+				complexityTypes.add(new ComplexityType(t, b));
+			}
+		}
+		return complexityTypes;
 	}
 
 	@Override
@@ -82,9 +108,9 @@ public class ComplexityType implements Comparable<ComplexityType> {
 	public String toString() {
 		switch (complexityType) {
 		case Linear:
-			return complexityBase.toString();
+			return "O(" + complexityBase.toString() + ")";
 		case Static:
-			return "1";
+			return "O(1)";
 		case Unknown:
 			return "unknown";
 		default:
@@ -92,8 +118,18 @@ public class ComplexityType implements Comparable<ComplexityType> {
 		}
 	}
 
+	/**
+	 * As a remark: a.compareTo(b) returns the following results:
+	 * 		-1 iff a < b
+	 * 		0  iff a == b
+	 * 		1  iff a > b
+	 */
 	@Override
 	public int compareTo(ComplexityType o) {
-		return this.complexityType.compareTo(o.complexityType);
+		int res = this.complexityType.compareTo(o.complexityType);
+		if (res == 0 && this.complexityType == Type.Linear) {
+			res = this.complexityBase.compareTo(o.complexityBase);
+		}
+		return res;
 	}
 }

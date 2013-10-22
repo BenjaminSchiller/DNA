@@ -1,5 +1,7 @@
 package dna.graph.datastructures;
 
+import java.util.Iterator;
+
 import dna.graph.IElement;
 
 /**
@@ -10,7 +12,7 @@ import dna.graph.IElement;
  */
 public abstract class DataStructure implements IDataStructure {
 	public enum AccessType {
-		Add, Contains, Random, Remove, Size
+		Add, Contains, Get, Random, Remove, Size, Iterator
 	}
 
 	protected Class<? extends IElement> dataType;
@@ -59,5 +61,11 @@ public abstract class DataStructure implements IDataStructure {
 	@Override
 	public boolean canStore(Class<? extends IElement> o) {
 		return dataType.isAssignableFrom(o);
+	}
+	
+	protected abstract Iterator<IElement> iterator_();
+	
+	public Iterator<IElement> iterator() {
+		return this.iterator_();
 	}
 }

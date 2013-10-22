@@ -24,5 +24,10 @@ public abstract class EdgeUpdate extends Update {
 	protected String toString_() {
 		return this.edge.toString();
 	}
+	
+	@Override
+	protected int hashCode_() {
+		return this.edge.hashCode();
+	}
 
 }
