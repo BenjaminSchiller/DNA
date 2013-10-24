@@ -24,18 +24,18 @@ public class Profiler {
 	private static Map<String, ProfileEntry> singleRunCalls = new HashMap<>();
 	private static Map<String, ProfileEntry> singleSeriesCalls = new HashMap<>();
 	private static Map<String, ProfileEntry> globalCalls = new HashMap<>();
-	
+
 	private static boolean active = false;
 	private static boolean inInitialBatch = false;
 	private static GraphDataStructure gds;
 	final static String separator = System.getProperty("line.separator");
-	private static final int NumberOfRecommendations = 5;
+	private static final int NumberOfRecommendations = 3;
 
 	private static String seriesDir, batchDir;
 	private static String graphGeneratorName;
 	private static int run;
 	private static HashSet<String> batchGeneratorNames = new HashSet<>();
-	
+
 	public static enum ProfilerType {
 		AddNodeGlobal, AddNodeLocal, AddEdgeGlobal, AddEdgeLocal, RemoveNodeGlobal, RemoveNodeLocal, RemoveEdgeGlobal, RemoveEdgeLocal, ContainsNodeGlobal, ContainsNodeLocal, ContainsEdgeGlobal, ContainsEdgeLocal, GetNodeGlobal, GetNodeLocal, GetEdgeGlobal, GetEdgeLocal, SizeNodeGlobal, SizeNodeLocal, SizeEdgeGlobal, SizeEdgeLocal, RandomNodeGlobal, RandomEdgeGlobal, IteratorNodeGlobal, IteratorNodeLocal, IteratorEdgeGlobal, IteratorEdgeLocal
 	}
@@ -96,7 +96,7 @@ public class Profiler {
 	}
 
 	public static String getCallList(Map<String, ProfileEntry> listOfEntries) {
-		return getCallList(listOfEntries, null, true);
+		return getCallList(listOfEntries, null);
 	}
 
 	/**
@@ -113,40 +113,48 @@ public class Profiler {
 	 *            but output only calls for specific subparts and not printing
 	 *            out the common prefix)
 	 * 
-	 *            If set tp false, the prefix is kept (making it possible to
+	 *            If set to false, the prefix is kept (making it possible to
 	 *            filter the list by a prefix, but keep it in front of each
 	 *            entry)
 	 * @return
 	 */
 	public static String getCallList(Map<String, ProfileEntry> listOfEntries,
-			String prefixFilter, boolean dismissPrefix) {
+			String prefixFilter) {
+
 		StringBuilder res = new StringBuilder();
+		String prefix;
+		ProfileEntry aggregated = new ProfileEntry();
+
 		for (Entry<String, ProfileEntry> entry : listOfEntries.entrySet()) {
+			prefix = entry.getKey();
+
 			if (prefixFilter != null) {
 				if (!entry.getKey().equals(prefixFilter)) {
 					continue;
-				} else {
-					if (dismissPrefix)
-						res.append(entry.getValue().callsAsString(""));
-					else
-						res.append(entry.getValue().callsAsString(
-								entry.getKey()));
-
 				}
 			} else {
-				res.append(entry.getValue().callsAsString(entry.getKey()));
+				aggregated = aggregated.add(entry.getValue());
 			}
-			res.append("# Aggr: " + entry.getValue().combinedComplexity(gds)
-					+ separator);
+
+			res.append(getRecommendations(entry.getValue(), prefix, true));
 		}
+
+		if (prefixFilter == null) {
+			res.append(getRecommendations(aggregated, "aggregated", true));
+		}
+
 		return res.toString();
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public static String getOtherComplexitiesForEntry(ProfileEntry entry) {
+	public static String getOtherComplexitiesForEntry(ProfileEntry entry,
+			boolean outputAsCommentWithPrefix) {
 		GraphDataStructure tempGDS;
 		TreeMap<ComplexityMap, GraphDataStructure> listOfOtherComplexities = new TreeMap<>();
 		StringBuilder res = new StringBuilder();
+
+		String outputPrefix = outputAsCommentWithPrefix ? "# " : "";
+
 		for (Class nodeListType : GlobalTestParameters.dataStructures) {
 			for (Class edgeListType : GlobalTestParameters.dataStructures) {
 				for (Class nodeEdgeListType : GlobalTestParameters.dataStructures) {
@@ -173,10 +181,10 @@ public class Profiler {
 			}
 		}
 
-		res.append("  Recommendations: ");
+		res.append(outputPrefix + "  Recommendations: ");
 		/**
-		 * Recoomendations are picked from the front of the list, as they have the
-		 * largest counter for the most important complexity class
+		 * Recoomendations are picked from the front of the list, as they have
+		 * the largest counter for the most important complexity class
 		 */
 		for (int i = 0; (i < NumberOfRecommendations && listOfOtherComplexities
 				.size() > 0); i++) {
@@ -187,36 +195,40 @@ public class Profiler {
 					+ ": "
 					+ pollFirstEntry.getKey();
 			res.append(separator);
-			res.append("   " + polledEntry);
+			res.append(outputPrefix + "   " + polledEntry);
 		}
-				
-//		res.append(separator + "  Bottom list: ");
-//		for (int i = 0; (i < NumberOfRecommendations && listOfOtherComplexities
-//				.size() > 0); i++) {
-//			Entry<ComplexityMap, GraphDataStructure> pollLastEntry = listOfOtherComplexities
-//					.pollLastEntry();
-//			String polledEntry = pollLastEntry.getValue()
-//					.getStorageDataStructures(true)
-//					+ ": "
-//					+ pollLastEntry.getKey();			
-//			res.append(separator);
-//			res.append("   " + polledEntry);
-//		 }
-		
+
+		// res.append(separator + "  Bottom list: ");
+		// for (int i = 0; (i < NumberOfRecommendations &&
+		// listOfOtherComplexities
+		// .size() > 0); i++) {
+		// Entry<ComplexityMap, GraphDataStructure> pollLastEntry =
+		// listOfOtherComplexities
+		// .pollLastEntry();
+		// String polledEntry = pollLastEntry.getValue()
+		// .getStorageDataStructures(true)
+		// + ": "
+		// + pollLastEntry.getKey();
+		// res.append(separator);
+		// res.append(outputPrefix + "   " + polledEntry);
+		// }
+
+		res.append(separator);
 		return res.toString();
 	}
-	
-	public static String getGlobalComplexity(Map<String, ProfileEntry> listOfEntries) {
+
+	public static String getGlobalComplexity(
+			Map<String, ProfileEntry> listOfEntries) {
 		StringBuilder res = new StringBuilder();
 		ProfileEntry resEntry = new ProfileEntry();
-		res.append(separator + "Complexity analysis over all access types:" + separator);
+		res.append(separator + "Complexity analysis over all access types:"
+				+ separator);
 		for (Entry<String, ProfileEntry> entry : listOfEntries.entrySet()) {
 			resEntry = resEntry.add(entry.getValue());
 		}
 		res.append(resEntry.toString());
-		res.append(" Aggr: " + resEntry.combinedComplexity(gds)
-				+ separator);
-		res.append(getOtherComplexitiesForEntry(resEntry));
+		res.append(" Aggr: " + resEntry.combinedComplexity(gds) + separator);
+		res.append(getOtherComplexitiesForEntry(resEntry, false));
 		return res.toString();
 	}
 
@@ -229,12 +241,13 @@ public class Profiler {
 			res.append(entry.getValue().toString());
 			res.append(" Aggr: " + entry.getValue().combinedComplexity(gds)
 					+ separator);
-			res.append(getOtherComplexitiesForEntry(entry.getValue()));
+			res.append(getOtherComplexitiesForEntry(entry.getValue(), false));
 		}
 		return res.toString();
 	}
 
-	public static ProfileEntry entryForKey(Map<String, ProfileEntry> calls, String mapKey, boolean forceReset) {
+	public static ProfileEntry entryForKey(Map<String, ProfileEntry> calls,
+			String mapKey, boolean forceReset) {
 		ProfileEntry innerMap = calls.get(mapKey);
 		if (innerMap == null || forceReset) {
 			innerMap = new ProfileEntry();
@@ -254,14 +267,15 @@ public class Profiler {
 	public static int getCount(String mapKey, ProfilerType p) {
 		return getCount(singleBatchCalls, mapKey, p);
 	}
-	
-	public static int getCount(Map<String, ProfileEntry> calls, String mapKey, ProfilerType p) {
+
+	public static int getCount(Map<String, ProfileEntry> calls, String mapKey,
+			ProfilerType p) {
 		ProfileEntry innerMap = calls.get(mapKey);
 		if (innerMap == null)
 			return 0;
 		return innerMap.get(p);
 	}
-	
+
 	private static HashMap<String, ProfileEntry> merge(
 			Map<String, ProfileEntry> one, Map<String, ProfileEntry> two) {
 		HashMap<String, ProfileEntry> res = new HashMap<>();
@@ -281,26 +295,47 @@ public class Profiler {
 		return res;
 	}
 
-	public static void write(Map<String, ProfileEntry> calls, String dir, String filename) throws IOException {
+	private static String getRecommendations(ProfileEntry aggregated,
+			String prefix, boolean outputAsCommentWithPrefix) {
+		String outputPrefix = outputAsCommentWithPrefix ? "# " : "";
+
+		StringBuilder res = new StringBuilder();
+		res.append(aggregated.callsAsString(prefix));
+		res.append(outputPrefix + " Aggr: "
+				+ aggregated.combinedComplexity(gds) + separator);
+		res.append(getOtherComplexitiesForEntry(aggregated,
+				outputAsCommentWithPrefix));
+		return res.toString();
+	}
+
+	public static void write(Map<String, ProfileEntry> calls, String dir,
+			String filename) throws IOException {
 		Writer w = new Writer(dir, filename);
 		w.writeln(getCallList(calls));
 		w.close();
 	}
-	
-	public static void writeMetric(String metricKey, String dir) throws IOException {
-		Profiler.writeSingle(singleBatchCalls, metricKey, dir, Files.getProfilerFilename(Config.get("METRIC_PROFILER")));
+
+	public static void writeMetric(String metricKey, String dir)
+			throws IOException {
+		Profiler.writeSingle(singleBatchCalls, metricKey, dir,
+				Files.getProfilerFilename(Config.get("METRIC_PROFILER")));
 	}
 
-	private static void writeUpdates(Map<String, ProfileEntry> calls, String dir) throws IOException {
+	private static void writeUpdates(Map<String, ProfileEntry> calls, String dir)
+			throws IOException {
 		Writer w = new Writer(dir, Files.getProfilerFilename(Config
 				.get("UPDATES_PROFILER")));
+
+		ProfileEntry aggregated = new ProfileEntry();
 
 		for (UpdateType u : UpdateType.values()) {
 			// Ensure that the update type is in the needed list
 			entryForKey(calls, u.toString(), false);
-			w.writeln(getCallList(calls, u.toString(), false));
+			w.writeln(getCallList(calls, u.toString()));
+			aggregated = aggregated.add(calls.get(u.toString()));
 		}
 
+		w.writeln(getRecommendations(aggregated, "aggregated", true));
 		w.close();
 	}
 
@@ -312,23 +347,31 @@ public class Profiler {
 	public static void writeMultiple(Map<String, ProfileEntry> calls,
 			String[] keys, String dir, String filename) throws IOException {
 		Writer w = new Writer(dir, filename);
+
+		ProfileEntry aggregated = new ProfileEntry();
+
 		for (String singleKey : keys) {
 			// Are we still in the initial batch? Then add the specific key to
 			// the
 			// end of the metric name
 			if (inInitialBatch)
 				singleKey += Config.get("PROFILER_INITIALBATCH_KEYADDITION");
-			w.writeln(getCallList(calls, singleKey, false));
+			w.writeln(getCallList(calls, singleKey));
+			aggregated = aggregated.add(calls.get(singleKey));
+		}
+
+		if (keys.length > 1) {
+			w.writeln(getRecommendations(aggregated, "aggregated", true));
 		}
 		w.close();
 	}
-	
+
 	public static void finishSeries() {
 		globalCalls = merge(globalCalls, singleSeriesCalls);
-		
+
 		try {
-			Profiler.write(singleSeriesCalls, seriesDir, Files.getProfilerFilename(Config
-					.get("AGGREGATED_PROFILER")));
+			Profiler.write(singleSeriesCalls, seriesDir, Files
+					.getProfilerFilename(Config.get("AGGREGATED_PROFILER")));
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -338,14 +381,15 @@ public class Profiler {
 
 	public static void finishRun() {
 		singleSeriesCalls = merge(singleSeriesCalls, singleRunCalls);
-		
+
 		try {
 			String runDataDir = Dir.getRunDataDir(seriesDir, run);
-			Profiler.writeSingle(singleRunCalls, graphGeneratorName, runDataDir, Files.getProfilerFilename(Config
-					.get("GRAPHGENERATOR_PROFILER")));
-			
-			Profiler.write(singleRunCalls, runDataDir, Files.getProfilerFilename(Config
-					.get("AGGREGATED_PROFILER")));			
+			Profiler.writeSingle(singleRunCalls, graphGeneratorName,
+					runDataDir, Files.getProfilerFilename(Config
+							.get("GRAPHGENERATOR_PROFILER")));
+
+			Profiler.write(singleRunCalls, runDataDir, Files
+					.getProfilerFilename(Config.get("AGGREGATED_PROFILER")));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -353,10 +397,10 @@ public class Profiler {
 
 	public static void finishBatch(long batchTimestamp) {
 		singleRunCalls = merge(singleRunCalls, singleBatchCalls);
-		
+
 		try {
-			Profiler.write(singleBatchCalls, batchDir, Files.getProfilerFilename(Config
-					.get("DATASTRUCTURE_PROFILER")));
+			Profiler.write(singleBatchCalls, batchDir, Files
+					.getProfilerFilename(Config.get("AGGREGATED_PROFILER")));
 			writeUpdates(singleBatchCalls, batchDir);
 		} catch (IOException e) {
 			e.printStackTrace();

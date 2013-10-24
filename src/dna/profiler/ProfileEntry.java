@@ -62,7 +62,8 @@ public class ProfileEntry {
 
 		for (ProfilerType p : ProfilerType.values()) {
 			res.increase(p, this.get(p));
-			res.increase(p, other.get(p));
+			if (other != null)
+				res.increase(p, other.get(p));
 		}
 
 		return res;
