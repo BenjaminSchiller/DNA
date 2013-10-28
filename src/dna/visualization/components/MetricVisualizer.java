@@ -2,23 +2,31 @@ package dna.visualization.components;
 
 import info.monitorenter.gui.chart.Chart2D;
 import info.monitorenter.gui.chart.IAxis;
+import info.monitorenter.gui.chart.IAxis.AxisTitle;
 import info.monitorenter.gui.chart.ITrace2D;
 import info.monitorenter.gui.chart.ITracePainter;
+import info.monitorenter.gui.chart.ITracePoint2D;
 import info.monitorenter.gui.chart.axis.AAxis;
 import info.monitorenter.gui.chart.axis.AxisLinear;
 import info.monitorenter.gui.chart.axis.scalepolicy.AxisScalePolicyManualTicks;
+import info.monitorenter.gui.chart.rangepolicies.RangePolicyFixedViewport;
+import info.monitorenter.gui.chart.rangepolicies.RangePolicyUnbounded;
 import info.monitorenter.gui.chart.traces.Trace2DLtd;
 import info.monitorenter.gui.chart.traces.Trace2DSimple;
 import info.monitorenter.gui.chart.traces.painters.TracePainterDisc;
 import info.monitorenter.gui.chart.traces.painters.TracePainterFill;
+import info.monitorenter.util.Range;
 
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseMotionListener;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Set;
@@ -26,7 +34,9 @@ import java.util.Set;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JTextField;
 import javax.swing.border.EtchedBorder;
 import javax.swing.border.TitledBorder;
 
@@ -37,11 +47,11 @@ import dna.series.data.Value;
 import dna.visualization.components.legend.Legend;
 
 public class MetricVisualizer extends JPanel {
-	private int DEFAULT_TRACE_LENGTH = 20;
+	private int DEFAULT_TRACE_LENGTH = 100;
 	private int TRACE_LENGTH;
 	private Boolean TRACE_MODE_LTD;
 
-	private Boolean DEFAULT_TRACE_MODE_LTD = true;
+	private Boolean DEFAULT_TRACE_MODE_LTD = false;
 	private Boolean DEFAULT_PAINT_LINESPOINT = true;
 	private Boolean DEFAULT_PAINT_FILL = false;
 
@@ -49,6 +59,12 @@ public class MetricVisualizer extends JPanel {
 	private IAxis yRight;
 	private IAxis yLeft;
 	private IAxis xAxis;
+
+	// timestamps
+	private long minTimestamp;
+	private long maxTimestamp;
+	private long minShownTimestamp;
+	private long maxShownTimestamp;
 
 	private ArrayList<String> availableValues;
 
@@ -58,15 +74,42 @@ public class MetricVisualizer extends JPanel {
 	private MetricVisualizer thisM;
 
 	private int linespointSize = 5;
+	private Font coordsFont = new Font("Dialog", Font.PLAIN, 11);
 
 	private Legend legend;
 
 	private JPanel menuBar;
 
+	// interval and x-range panel
+	private JPanel intervalPanel;
 	private JComboBox<String> intervalBox;
 	private String[] intervalOptions = { "Trace length", "- show all",
-			"-fixed length: 10", "-fixed length: 20", "-fixed length: 30",
-			"-fixed length: 40", "-fixed length: 50" };
+			"- fixed interval", "-fixed length: 10", "-fixed length: 20",
+			"-fixed length: 30", "-fixed length: 40", "-fixed length: 50" };
+
+	private JTextField lowerBound;
+	private JTextField upperBound;
+
+	// coords view
+	private JPanel coordsPanel;
+	private JLabel xCoordsLabel;
+	private JLabel xCoordsValue;
+	private JLabel yCoordsLabel;
+	private JLabel yCoordsValue;
+
+	// yLeft options
+	private JPanel yLeftOptionsPanel;
+	private JButton toggleLogYLeftButton;
+	private JButton toggleGridYLeftButton;
+
+	// yRight options
+	private JPanel yRightOptionsPanel;
+	private JButton toggleLogYRightButton;
+	private JButton toggleGridYRightButton;
+
+	// x axis options
+	private JPanel xOptionsPanel;
+	private JButton toggleGridXButton;
 
 	@SuppressWarnings("deprecation")
 	public MetricVisualizer() {
@@ -75,10 +118,15 @@ public class MetricVisualizer extends JPanel {
 		this.TRACE_MODE_LTD = DEFAULT_TRACE_MODE_LTD;
 		this.TRACE_LENGTH = DEFAULT_TRACE_LENGTH;
 
+		this.minTimestamp = 0;
+		this.maxTimestamp = 0;
+		this.minShownTimestamp = 0;
+		this.maxShownTimestamp = 10;
+
 		this.traces = new HashMap<String, ITrace2D>();
 		this.availableValues = new ArrayList<String>();
 
-		this.setPreferredSize(new Dimension(670, 385));
+		this.setPreferredSize(new Dimension(670, 410));
 		// set title and border of the metric visualizer
 		TitledBorder title = BorderFactory
 				.createTitledBorder("Metric Visualizer");
@@ -96,8 +144,8 @@ public class MetricVisualizer extends JPanel {
 
 		this.xAxis = this.chart.getAxisX();
 		this.yLeft = this.chart.getAxisY();
-		this.xAxis.setTitle("Timestamp");
-		this.yLeft.setTitle("");
+		this.xAxis.setAxisTitle(new AxisTitle("Timestamp"));
+		this.yLeft.setAxisTitle(new AxisTitle(""));
 
 		this.yRight = new AxisLinear();
 		this.chart.addAxisYRight((AAxis) yRight);
@@ -120,12 +168,75 @@ public class MetricVisualizer extends JPanel {
 		mainConstraints.gridwidth = 2;
 		this.menuBar = new JPanel();
 		this.menuBar.setLayout(new GridBagLayout());
-		this.menuBar.setPreferredSize(new Dimension(450, 25));
+		this.menuBar.setPreferredSize(new Dimension(450, 50));
 		this.menuBar.setBorder(BorderFactory
 				.createEtchedBorder((EtchedBorder.LOWERED)));
 		this.add(this.menuBar, mainConstraints);
 
 		GridBagConstraints menuBarConstraints = new GridBagConstraints();
+		menuBarConstraints.gridy = 0;
+		menuBarConstraints.gridx = 0;
+
+		// border for menu bar items
+		TitledBorder menuBarItemBorder = BorderFactory.createTitledBorder("");
+
+		/*
+		 * coords panel
+		 */
+		this.coordsPanel = new JPanel();
+		this.coordsPanel.setLayout(new GridBagLayout());
+		this.coordsPanel.setPreferredSize(new Dimension(145, 45));
+		this.coordsPanel.setBorder(menuBarItemBorder);
+		menuBarConstraints.gridy = 0;
+		menuBarConstraints.gridx = 0;
+		this.menuBar.add(coordsPanel, menuBarConstraints);
+
+		GridBagConstraints coordsPanelConstraints = new GridBagConstraints();
+		coordsPanelConstraints.gridx = 0;
+		coordsPanelConstraints.gridy = 0;
+
+		// x coords label
+		this.xCoordsLabel = new JLabel("x:");
+		this.xCoordsLabel.setFont(coordsFont);
+		this.xCoordsLabel.setPreferredSize(new Dimension(10, 20));
+		this.coordsPanel.add(this.xCoordsLabel, coordsPanelConstraints);
+		// x coords value
+		this.xCoordsValue = new JLabel("0");
+		this.xCoordsValue.setFont(coordsFont);
+		this.xCoordsValue.setPreferredSize(new Dimension(120, 20));
+		coordsPanelConstraints.gridx = 1;
+		coordsPanelConstraints.gridy = 0;
+		this.coordsPanel.add(this.xCoordsValue, coordsPanelConstraints);
+
+		// y coords label
+		this.yCoordsLabel = new JLabel("y:");
+		this.yCoordsLabel.setFont(coordsFont);
+		this.yCoordsLabel.setPreferredSize(new Dimension(10, 20));
+		coordsPanelConstraints.gridx = 0;
+		coordsPanelConstraints.gridy = 1;
+		this.coordsPanel.add(this.yCoordsLabel, coordsPanelConstraints);
+
+		// y coords value
+		this.yCoordsValue = new JLabel("0");
+		this.yCoordsValue.setFont(coordsFont);
+		this.yCoordsValue.setPreferredSize(new Dimension(120, 20));
+		coordsPanelConstraints.gridx = 1;
+		coordsPanelConstraints.gridy = 1;
+		this.coordsPanel.add(this.yCoordsValue, coordsPanelConstraints);
+
+		/*
+		 * interval panel
+		 */
+		this.intervalPanel = new JPanel();
+		this.intervalPanel.setLayout(new GridBagLayout());
+		this.intervalPanel.setPreferredSize(new Dimension(130, 45));
+		this.intervalPanel.setBorder(menuBarItemBorder);
+		menuBarConstraints.gridy = 0;
+		menuBarConstraints.gridx = 1;
+		this.menuBar.add(this.intervalPanel);
+
+		GridBagConstraints intervalPanelConstraints = new GridBagConstraints();
+		intervalPanelConstraints.insets = new Insets(0, 0, 1, 0);
 
 		// intervalBox dropdown menu
 		this.intervalBox = new JComboBox<String>(intervalOptions);
@@ -139,36 +250,99 @@ public class MetricVisualizer extends JPanel {
 		BoundsPopupMenuListener listener = new BoundsPopupMenuListener(true,
 				false);
 		this.intervalBox.addPopupMenuListener(listener);
-		menuBarConstraints.weightx = 0;
-		menuBarConstraints.gridx = 0;
+		intervalPanelConstraints.gridx = 0;
+		intervalPanelConstraints.gridy = 0;
+		intervalPanelConstraints.gridwidth = 5;
+		this.intervalPanel.add(intervalBox, intervalPanelConstraints);
+
+		// interval panel
+		intervalPanelConstraints.gridwidth = 1;
+		intervalPanelConstraints.insets = new Insets(0, 0, 0, 0);
+
+		JLabel openInterval = new JLabel("[");
+		openInterval.setPreferredSize(new Dimension(8, 22));
+		intervalPanelConstraints.gridx = 0;
+		intervalPanelConstraints.gridy = 1;
+		this.intervalPanel.add(openInterval, intervalPanelConstraints);
+
+		this.lowerBound = new JTextField("0");
+		this.lowerBound.setPreferredSize(new Dimension(50, 22));
+		this.lowerBound.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent evt) {
+				if (lowerBound.isEditable()) {
+					double lowerbound = Double.parseDouble(lowerBound.getText());
+					double upperbound = Double.parseDouble(upperBound.getText());
+
+					xAxis.setRangePolicy(new RangePolicyFixedViewport());
+					xAxis.setRange(new Range(lowerbound, upperbound));
+					minShownTimestamp = (long) Math.floor(lowerbound);
+					maxShownTimestamp = (long) Math.floor(upperbound);
+					updateXTicks();
+					thisM.grabFocus();
+				}
+
+			}
+		});
+		intervalPanelConstraints.gridx = 1;
+		intervalPanelConstraints.gridy = 1;
+		this.intervalPanel.add(this.lowerBound, intervalPanelConstraints);
+
+		JLabel points = new JLabel(" : ");
+		points.setPreferredSize(new Dimension(10, 22));
+		intervalPanelConstraints.gridx = 2;
+		intervalPanelConstraints.gridy = 1;
+		this.intervalPanel.add(points, intervalPanelConstraints);
+
+		this.upperBound = new JTextField("10");
+		this.upperBound.setPreferredSize(new Dimension(50, 22));
+
+		this.upperBound.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent evt) {
+				if (upperBound.isEditable()) {
+					double lowerbound = Double.parseDouble(lowerBound.getText());
+					double upperbound = Double.parseDouble(upperBound.getText());
+
+					xAxis.setRangePolicy(new RangePolicyFixedViewport());
+					xAxis.setRange(new Range(lowerbound, upperbound));
+					minShownTimestamp = (long) Math.floor(lowerbound);
+					maxShownTimestamp = (long) Math.floor(upperbound);
+					updateXTicks();
+					thisM.grabFocus();
+				}
+			}
+		});
+
+		intervalPanelConstraints.gridx = 3;
+		intervalPanelConstraints.gridy = 1;
+		this.intervalPanel.add(this.upperBound, intervalPanelConstraints);
+
+		JLabel closeInterval = new JLabel("]");
+		closeInterval.setPreferredSize(new Dimension(8, 22));
+		intervalPanelConstraints.gridx = 4;
+		intervalPanelConstraints.gridy = 1;
+		this.intervalPanel.add(closeInterval, intervalPanelConstraints);
+
+		this.lowerBound.setEditable(false);
+		this.upperBound.setEditable(false);
+
+		/*
+		 * x axis options panel
+		 */
+		this.xOptionsPanel = new JPanel();
+		this.xOptionsPanel.setLayout(new GridBagLayout());
+		this.xOptionsPanel.setPreferredSize(new Dimension(65, 45));
+		this.xOptionsPanel.setBorder(menuBarItemBorder);
 		menuBarConstraints.gridy = 0;
-		this.menuBar.add(this.intervalBox, menuBarConstraints);
-
-		// add log buttons
-		JButton toggleLogYRight = new JButton("+log yR");
-		toggleLogYRight.setForeground(Color.GRAY);
-		toggleLogYRight.setPreferredSize(new Dimension(60, 20));
-		toggleLogYRight.setMargin(new Insets(0, 0, 0, 0));
-		menuBarConstraints.gridx = 1;
-		this.menuBar.add(toggleLogYRight);
-
-		JButton toggleLogYLeft = new JButton("+log yL");
-		toggleLogYLeft.setForeground(Color.GRAY);
-		toggleLogYLeft.setPreferredSize(new Dimension(60, 20));
-		toggleLogYLeft.setMargin(new Insets(0, 0, 0, 0));
 		menuBarConstraints.gridx = 2;
-		this.menuBar.add(toggleLogYLeft);
+		this.menuBar.add(this.xOptionsPanel, menuBarConstraints);
 
-		this.xAxis.setMajorTickSpacing(1.0);
-		this.xAxis.setStartMajorTick(true);
+		GridBagConstraints xAxisOptionsPanelConstraints = new GridBagConstraints();
 
-		AxisScalePolicyManualTicks manualTickScalePolicy = new AxisScalePolicyManualTicks();
-		this.xAxis.setAxisScalePolicy(manualTickScalePolicy);
-
-		final JButton toggleGridXButton = new JButton("+Grid x");
-		toggleGridXButton.setPreferredSize(new Dimension(60, 20));
-		toggleGridXButton.setMargin(new Insets(0, 0, 0, 0));
-		toggleGridXButton.addActionListener(new ActionListener() {
+		// toggle x axis grid button
+		this.toggleGridXButton = new JButton("+Grid x");
+		this.toggleGridXButton.setPreferredSize(new Dimension(60, 20));
+		this.toggleGridXButton.setMargin(new Insets(0, 0, 0, 0));
+		this.toggleGridXButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent event) {
 				if (toggleGridXButton.getText().equals("+Grid x"))
@@ -178,14 +352,34 @@ public class MetricVisualizer extends JPanel {
 				thisM.toggleXGrid();
 			}
 		});
+		xAxisOptionsPanelConstraints.gridx = 0;
+		xAxisOptionsPanelConstraints.gridy = 0;
+		this.xOptionsPanel.add(toggleGridXButton, xAxisOptionsPanelConstraints);
 
+		JPanel dummyP = new JPanel();
+		dummyP.setPreferredSize(new Dimension(60, 20));
+		xAxisOptionsPanelConstraints.gridx = 0;
+		xAxisOptionsPanelConstraints.gridy = 1;
+		this.xOptionsPanel.add(dummyP, xAxisOptionsPanelConstraints);
+
+		/*
+		 * y left axis options panel
+		 */
+		this.yLeftOptionsPanel = new JPanel();
+		this.yLeftOptionsPanel.setLayout(new GridBagLayout());
+		this.yLeftOptionsPanel.setPreferredSize(new Dimension(65, 45));
+		this.yLeftOptionsPanel.setBorder(menuBarItemBorder);
+		menuBarConstraints.gridy = 0;
 		menuBarConstraints.gridx = 3;
-		this.menuBar.add(toggleGridXButton);
+		this.menuBar.add(this.yLeftOptionsPanel, menuBarConstraints);
 
-		final JButton toggleGridYLeftButton = new JButton("+Grid yL");
-		toggleGridYLeftButton.setPreferredSize(new Dimension(60, 20));
-		toggleGridYLeftButton.setMargin(new Insets(0, 0, 0, 0));
-		toggleGridYLeftButton.addActionListener(new ActionListener() {
+		GridBagConstraints yLeftOptionsPanelConstraints = new GridBagConstraints();
+
+		// toggle left y axis grid button
+		this.toggleGridYLeftButton = new JButton("+Grid yL");
+		this.toggleGridYLeftButton.setPreferredSize(new Dimension(60, 20));
+		this.toggleGridYLeftButton.setMargin(new Insets(0, 0, 0, 0));
+		this.toggleGridYLeftButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent event) {
 				if (toggleGridYLeftButton.getText().equals("+Grid yL"))
@@ -195,13 +389,39 @@ public class MetricVisualizer extends JPanel {
 				thisM.toggleYLeftGrid();
 			}
 		});
-		menuBarConstraints.gridx = 4;
-		this.menuBar.add(toggleGridYLeftButton);
+		yLeftOptionsPanelConstraints.gridx = 0;
+		yLeftOptionsPanelConstraints.gridy = 0;
+		this.yLeftOptionsPanel.add(this.toggleGridYLeftButton,
+				yLeftOptionsPanelConstraints);
 
-		final JButton toggleGridYRightButton = new JButton("+Grid yR");
-		toggleGridYRightButton.setPreferredSize(new Dimension(60, 20));
-		toggleGridYRightButton.setMargin(new Insets(0, 0, 0, 0));
-		toggleGridYRightButton.addActionListener(new ActionListener() {
+		// toggle left y axis log button
+		this.toggleLogYLeftButton = new JButton("+log yL");
+		this.toggleLogYLeftButton.setForeground(Color.GRAY);
+		this.toggleLogYLeftButton.setPreferredSize(new Dimension(60, 20));
+		this.toggleLogYLeftButton.setMargin(new Insets(0, 0, 0, 0));
+		yLeftOptionsPanelConstraints.gridx = 0;
+		yLeftOptionsPanelConstraints.gridy = 1;
+		this.yLeftOptionsPanel.add(this.toggleLogYLeftButton,
+				yLeftOptionsPanelConstraints);
+
+		/*
+		 * y right axis options panel
+		 */
+		this.yRightOptionsPanel = new JPanel();
+		this.yRightOptionsPanel.setLayout(new GridBagLayout());
+		this.yRightOptionsPanel.setPreferredSize(new Dimension(65, 45));
+		this.yRightOptionsPanel.setBorder(menuBarItemBorder);
+		menuBarConstraints.gridy = 0;
+		menuBarConstraints.gridx = 4;
+		this.menuBar.add(this.yRightOptionsPanel, menuBarConstraints);
+
+		GridBagConstraints yRightOptionsPanelConstraints = new GridBagConstraints();
+
+		// toggle right y axis grid button
+		this.toggleGridYRightButton = new JButton("+Grid yR");
+		this.toggleGridYRightButton.setPreferredSize(new Dimension(60, 20));
+		this.toggleGridYRightButton.setMargin(new Insets(0, 0, 0, 0));
+		this.toggleGridYRightButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent event) {
 				if (toggleGridYRightButton.getText().equals("+Grid yR"))
@@ -211,12 +431,54 @@ public class MetricVisualizer extends JPanel {
 				thisM.toggleYRightGrid();
 			}
 		});
+		yRightOptionsPanelConstraints.gridx = 0;
+		yRightOptionsPanelConstraints.gridy = 0;
+		this.yRightOptionsPanel.add(this.toggleGridYRightButton,
+				yRightOptionsPanelConstraints);
+
+		// toggle right y log grid button
+		this.toggleLogYRightButton = new JButton("+log yR");
+		this.toggleLogYRightButton.setForeground(Color.GRAY);
+		this.toggleLogYRightButton.setPreferredSize(new Dimension(60, 20));
+		this.toggleLogYRightButton.setMargin(new Insets(0, 0, 0, 0));
+		yRightOptionsPanelConstraints.gridx = 0;
+		yRightOptionsPanelConstraints.gridy = 1;
+		this.yRightOptionsPanel.add(this.toggleLogYRightButton,
+				yRightOptionsPanelConstraints);
+
+		/*
+		 * dummy panel for menu bar
+		 */
+		JPanel dummyP2 = new JPanel();
+		dummyP2.setPreferredSize(new Dimension(165, 45));
+		menuBarConstraints.gridy = 0;
 		menuBarConstraints.gridx = 5;
-		this.menuBar.add(toggleGridYRightButton);
-		// add dummy panel
-		menuBarConstraints.gridx = 6;
-		menuBarConstraints.weightx = 0.1;
-		this.menuBar.add(new JPanel(), menuBarConstraints);
+		this.menuBar.add(dummyP2, menuBarConstraints);
+
+		// general settings
+		this.xAxis.setMajorTickSpacing(1.0);
+		this.xAxis.setStartMajorTick(true);
+
+		AxisScalePolicyManualTicks manualTickScalePolicy = new AxisScalePolicyManualTicks();
+		this.xAxis.setAxisScalePolicy(manualTickScalePolicy);
+
+		this.chart.addMouseMotionListener(new MouseMotionListener() {
+			@Override
+			public void mouseMoved(MouseEvent e) {
+				if (chart.getPointFinder().getNearestPoint(e, chart) != null) {
+					ITracePoint2D tempPointFinder = chart.getPointFinder()
+							.getNearestPoint(e, chart);
+					xCoordsValue.setText(""
+							+ (int) Math.floor(tempPointFinder.getX()));
+					yCoordsValue.setText("" + tempPointFinder.getY());
+				}
+			}
+
+			public void mouseDragged(MouseEvent e) {
+			}
+
+		});
+
 	}
 
 	/** called by the interval combobox to update the interval **/
@@ -230,10 +492,35 @@ public class MetricVisualizer extends JPanel {
 		if (!m.equals("")) {
 			if (m.equals("- show all")) {
 				this.TRACE_MODE_LTD = false;
+				this.lowerBound.setEditable(false);
+				this.upperBound.setEditable(false);
+				this.xAxis.setRangePolicy(new RangePolicyUnbounded());
+				this.maxShownTimestamp = this.maxTimestamp;
+				updateXTicks();
+			}
+			if (m.equals("- fixed interval")) {
+				this.TRACE_MODE_LTD = false;
+				this.lowerBound.setEditable(true);
+				this.upperBound.setEditable(true);
 			}
 			if (m.substring(0, 2).equals("-f")) {
 				this.TRACE_MODE_LTD = true;
-				this.updateTraceLength(Integer.parseInt(m.substring(15)));
+				this.lowerBound.setEditable(false);
+				this.upperBound.setEditable(false);
+				this.TRACE_LENGTH = Integer.parseInt(m.substring(15));
+				// update trace length
+				// this.updateTraceLength(Integer.parseInt(m.substring(15)));
+				this.xAxis.setRangePolicy(new RangePolicyFixedViewport());
+				this.maxShownTimestamp = this.maxTimestamp;
+				if (this.maxShownTimestamp - this.TRACE_LENGTH > 0) {
+					this.minShownTimestamp = this.maxShownTimestamp
+							- this.TRACE_LENGTH;
+				} else {
+					this.minShownTimestamp = 0;
+				}
+				this.xAxis.setRange(new Range(this.minShownTimestamp,
+						this.maxShownTimestamp));
+				this.updateXTicks();
 			}
 		}
 	}
@@ -257,6 +544,11 @@ public class MetricVisualizer extends JPanel {
 	public void updateData(BatchData b) {
 		long timestamp = b.getTimestamp();
 		double timestampDouble = timestamp;
+
+		if (timestamp < this.minTimestamp)
+			this.minTimestamp = timestamp;
+		if (timestamp > this.maxTimestamp)
+			this.maxTimestamp = timestamp;
 
 		for (String metric : b.getMetrics().getNames()) {
 			for (String value : b.getMetrics().get(metric).getValues()
@@ -301,13 +593,25 @@ public class MetricVisualizer extends JPanel {
 			}
 		}
 
+		if (this.TRACE_MODE_LTD) {
+			this.maxShownTimestamp = this.maxTimestamp;
+			if (this.maxShownTimestamp - this.TRACE_LENGTH > 0)
+				this.minShownTimestamp = this.maxShownTimestamp
+						- this.TRACE_LENGTH;
+			else
+				this.minShownTimestamp = 0;
+			this.xAxis.setRange(new Range(this.minShownTimestamp,
+					this.maxShownTimestamp));
+		}
+		this.updateXTicks();
 	}
 
 	/** adds trace to the visualizer with default trace length **/
 	public void addTrace(String name, Color color) {
 		if (!this.traces.containsKey(name)) {
 			if (this.TRACE_MODE_LTD) {
-				Trace2DLtd newTrace = new Trace2DLtd(this.TRACE_LENGTH);
+				Trace2DSimple newTrace = new Trace2DSimple();
+				// Trace2DLtd newTrace = new Trace2DLtd(this.TRACE_LENGTH);
 				newTrace.setColor(color);
 				this.traces.put(name, newTrace);
 				this.chart.addTrace(newTrace);
@@ -352,6 +656,11 @@ public class MetricVisualizer extends JPanel {
 
 	/** initializes the data with the first batch **/
 	public void initData(BatchData b) {
+		this.minTimestamp = b.getTimestamp();
+		this.maxTimestamp = b.getTimestamp();
+		this.minShownTimestamp = b.getTimestamp();
+		this.maxShownTimestamp = thisM.minShownTimestamp + 10;
+
 		for (String metric : b.getMetrics().getNames()) {
 			for (String value : b.getMetrics().get(metric).getValues()
 					.getNames()) {
@@ -361,8 +670,9 @@ public class MetricVisualizer extends JPanel {
 		for (String runtime : b.getGeneralRuntimes().getNames()) {
 			// graphGeneration runtime will be ignored cause it is only present
 			// in the initial batch
-			if (!runtime.equals("graphGeneration"))
+			if (!runtime.equals("graphGeneration")) {
 				this.availableValues.add("general runtime." + runtime);
+			}
 		}
 		for (String runtime : b.getMetricRuntimes().getNames()) {
 			this.availableValues.add("metric runtime." + runtime);
@@ -382,6 +692,8 @@ public class MetricVisualizer extends JPanel {
 
 	/** resets the metric visualizer **/
 	public void reset() {
+		this.minShownTimestamp = 0;
+		this.maxShownTimestamp = 10;
 		for (String trace : this.traces.keySet()) {
 			this.traces.get(trace).removeAllPoints();
 		}
@@ -530,4 +842,29 @@ public class MetricVisualizer extends JPanel {
 			this.xAxis.setPaintGrid(true);
 	}
 
+	/** handles the ticks that are shown on the x axis **/
+	private void updateXTicks() {
+		double minTemp = 0;
+		double maxTemp = 10;
+
+		if (this.xAxis.getRangePolicy() instanceof RangePolicyUnbounded) {
+			minTemp = this.minTimestamp * 1.0;
+			maxTemp = this.maxTimestamp * 1.0;
+		} else {
+			if (this.xAxis.getRangePolicy() instanceof RangePolicyFixedViewport) {
+				minTemp = this.minShownTimestamp;
+				maxTemp = this.maxShownTimestamp;
+			}
+		}
+		if (maxTemp > minTemp) {
+			double range = maxTemp - minTemp;
+			if (range > 0) {
+				double tickSpacingNew = Math.floor(range / 10);
+				if (tickSpacingNew < 1)
+					tickSpacingNew = 1.0;
+				this.xAxis.setMajorTickSpacing(tickSpacingNew);
+				this.xAxis.setMinorTickSpacing(tickSpacingNew);
+			}
+		}
+	}
 }
