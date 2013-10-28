@@ -709,6 +709,8 @@ public class MetricVisualizer extends JPanel {
 			this.chart.removeTrace(this.traces.get(name));
 			this.traces.remove(name);
 		}
+		if (this.yRight.getTraces().size() < 1)
+			this.yRight.setVisible(false);
 	}
 
 	/** gathers all plottable values from the batch **/
