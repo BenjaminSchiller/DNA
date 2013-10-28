@@ -245,6 +245,7 @@ public class BatchHandler implements Runnable {
 	/** initializes by sending the first batch to the mainwindow **/
 	public void init() {
 		this.mainFrame.initData(this.getNextBatch());
+		this.index = 0;
 		this.isInit = true;
 	}
 
