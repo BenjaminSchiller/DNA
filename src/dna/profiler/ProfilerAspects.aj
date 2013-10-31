@@ -24,7 +24,6 @@ import dna.updates.update.Update;
 import dna.util.Config;
 
 public aspect ProfilerAspects {
-	private static boolean isActive = false;
 	private static Stack<String> formerCountKey = new Stack<>(); 
 	private String currentCountKey;
 
@@ -33,12 +32,10 @@ public aspect ProfilerAspects {
 	private String batchGeneratorName;
 	public static final String initialAddition = Config.get("PROFILER_INITIALBATCH_KEYADDITION");
 
-	pointcut activate() : execution(* Profiler.activate());
-
-	pointcut seriesSingleRunGeneration(Series s, int run) : execution(* SeriesGeneration.generateRun(Series, int, ..)) && args(s, run, ..) && if(isActive);
-	pointcut startInitialBatchGeneration(Series s) : execution(* SeriesGeneration.generateInitialData(Series)) && args(s) && if(isActive);
-	pointcut startNewBatchGeneration(Series s, long timestamp) : execution(* SeriesGeneration.generateNextBatch(Series, long)) && args(s, timestamp) && if(isActive);
-	pointcut seriesGeneration() : execution(* SeriesGeneration.generate(..)) && if(isActive);
+	pointcut seriesSingleRunGeneration(Series s, int run) : execution(* SeriesGeneration.generateRun(Series, int, ..)) && args(s, run, ..);
+	pointcut startInitialBatchGeneration(Series s) : execution(* SeriesGeneration.generateInitialData(Series)) && args(s);
+	pointcut startNewBatchGeneration(Series s, long timestamp) : execution(* SeriesGeneration.generateNextBatch(Series, long)) && args(s, timestamp);
+	pointcut seriesGeneration() : execution(* SeriesGeneration.generate(..));
 	
 	pointcut graphGeneration(IGraphGenerator graphGenerator) : execution(* IGraphGenerator+.generate()) && target(graphGenerator);
 	pointcut graphGenerated(): cflow(graphGeneration(*));
@@ -52,7 +49,7 @@ public aspect ProfilerAspects {
 	pointcut metricAppliedOnBatch(Metric metricObject, Update batchObject) : (execution(* Metric+.applyBeforeBatch(Batch+))
 			 || execution(* Metric+.applyAfterBatch(Batch+))) && args(batchObject) && target(metricObject);
 	pointcut metricApplied() : cflow(initialMetric(*)) || cflow(metricAppliedOnUpdate(*, *)) || cflow(metricAppliedOnBatch(*, *));
-	pointcut writeMetric(MetricData md, String dir) : call(* MetricData.write(String)) && args(dir) && target(md) && if(isActive);
+	pointcut writeMetric(MetricData md, String dir) : call(* MetricData.write(String)) && args(dir) && target(md);
 	
 	pointcut updateApplication(Update updateObject) : execution(* Update+.apply(*)) && target(updateObject);
 	pointcut updateApplied(): cflow(updateApplication(*));
@@ -61,28 +58,24 @@ public aspect ProfilerAspects {
 
 	pointcut init(Graph g, GraphDataStructure gds) : this(g) && execution(Graph+.new(String,long, GraphDataStructure,..)) && args(*,*,gds,..);
 
-	pointcut nodeAdd() : call(* INodeListDatastructure+.add(Node+)) && watchedCall() && if(isActive);
-	pointcut nodeRemove() : call(* INodeListDatastructure+.remove(Node+)) && watchedCall() && if(isActive);
-	pointcut nodeContains() : call(* INodeListDatastructure+.contains(Node+)) && watchedCall() && if(isActive);
-	pointcut nodeGet() : call(* INodeListDatastructure+.get(int)) && watchedCall() && if(isActive);	
-	pointcut nodeSize() : call(* INodeListDatastructure+.size()) && watchedCall() && if(isActive);
-	pointcut nodeRandom() : call(* INodeListDatastructure+.getRandom()) && watchedCall() && if(isActive);
-	pointcut nodeIterator() : execution(* INodeListDatastructure+.iterator_()) && watchedCall() && if(isActive);
+	pointcut nodeAdd() : call(* INodeListDatastructure+.add(Node+)) && watchedCall();
+	pointcut nodeRemove() : call(* INodeListDatastructure+.remove(Node+)) && watchedCall();
+	pointcut nodeContains() : call(* INodeListDatastructure+.contains(Node+)) && watchedCall();
+	pointcut nodeGet() : call(* INodeListDatastructure+.get(int)) && watchedCall();	
+	pointcut nodeSize() : call(* INodeListDatastructure+.size()) && watchedCall();
+	pointcut nodeRandom() : call(* INodeListDatastructure+.getRandom()) && watchedCall();
+	pointcut nodeIterator() : execution(* INodeListDatastructure+.iterator_()) && watchedCall();
 
-	pointcut edgeAdd() : call(* IEdgeListDatastructure+.add(Edge+)) && watchedCall() && if(isActive);
-	pointcut edgeRemove() : call(* IEdgeListDatastructure+.remove(Edge+)) && watchedCall() && if(isActive);
-	pointcut edgeContains() : call(* IEdgeListDatastructure+.contains(Edge+)) && watchedCall() && if(isActive);
-	pointcut edgeGet() : call(* IEdgeListDatastructure+.get(Edge)) && watchedCall() && if(isActive);
-	pointcut edgeSize() : call(* IEdgeListDatastructure+.size()) && watchedCall() && if(isActive);
-	pointcut edgeRandom() : call(* IEdgeListDatastructure+.getRandom()) && watchedCall() && if(isActive);
-	pointcut edgeIterator() : execution(* IEdgeListDatastructure+.iterator_()) && watchedCall() && if(isActive);
+	pointcut edgeAdd() : call(* IEdgeListDatastructure+.add(Edge+)) && watchedCall();
+	pointcut edgeRemove() : call(* IEdgeListDatastructure+.remove(Edge+)) && watchedCall();
+	pointcut edgeContains() : call(* IEdgeListDatastructure+.contains(Edge+)) && watchedCall();
+	pointcut edgeGet() : call(* IEdgeListDatastructure+.get(Edge)) && watchedCall();
+	pointcut edgeSize() : call(* IEdgeListDatastructure+.size()) && watchedCall();
+	pointcut edgeRandom() : call(* IEdgeListDatastructure+.getRandom()) && watchedCall();
+	pointcut edgeIterator() : execution(* IEdgeListDatastructure+.iterator_()) && watchedCall();
 	
 	pointcut graphAction() : !within(Element+);
 	pointcut nodeAction() : within(Element+);
-	
-	after() : activate() {
-		isActive = true;
-	}
 	
 	before(Series s, int run) : seriesSingleRunGeneration(s, run) {
 		Profiler.setSeriesDir(s.getDir());
@@ -136,6 +129,7 @@ public aspect ProfilerAspects {
 	boolean around(Metric metricObject) : initialMetric(metricObject) {
 		formerCountKey.push(currentCountKey);
 		currentCountKey = metricObject.getName();
+		Profiler.addMetricName(currentCountKey);
 		Profiler.setInInitialBatch(false);
 		if (metricObject.getApplicationType() != ApplicationType.Recomputation) {
 			currentCountKey += initialAddition;
@@ -149,6 +143,7 @@ public aspect ProfilerAspects {
 	boolean around(Metric metricObject, Update updateObject) : metricAppliedOnUpdate(metricObject, updateObject) {
 		formerCountKey.push(currentCountKey);
 		currentCountKey = metricObject.getName();
+		Profiler.addMetricName(currentCountKey);
 		Profiler.setInInitialBatch(false);
 		boolean res = proceed(metricObject, updateObject);
 		currentCountKey = formerCountKey.pop();
@@ -255,7 +250,7 @@ public aspect ProfilerAspects {
 	after() : edgeRandom() && graphAction() {
 		Profiler.count(currentCountKey, ProfilerType.RandomEdgeGlobal);
 	}
-	
+
 	after() : nodeIterator() && graphAction() {
 		Profiler.count(currentCountKey, ProfilerType.IteratorNodeGlobal);
 	}

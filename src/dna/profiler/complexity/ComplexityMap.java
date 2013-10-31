@@ -23,6 +23,9 @@ public class ComplexityMap implements Comparable<ComplexityMap> {
 				s.append(" + ");
 			s.append(elem.getValue() + "*" + elem.getKey());
 		}
+		if (s.length() == 0)
+			s.append("0");
+
 		return s.toString();
 	}
 
