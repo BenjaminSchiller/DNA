@@ -18,14 +18,30 @@ import dna.updates.update.NodeAddition;
 import dna.updates.update.NodeRemoval;
 import dna.updates.update.Update;
 
-public class UndirectedBetweenessCentralityU extends UndirectedBetweenessCentrality {
+public class UndirectedBetweenessCentralityU extends
+		UndirectedBetweenessCentrality {
 
-	public static enum TouchedType {
-		UP, DOWN, NOT
-	};
+	Queue<UndirectedNode>[] qLevel;
+	Queue<UndirectedNode>[] qALevel;
+	HashMap<UndirectedNode, Long> visited;
+	long counter;
 
 	public UndirectedBetweenessCentralityU() {
 		super("BCDyn", ApplicationType.AfterUpdate);
+	}
+
+	@Override
+	public void init_() {
+		super.init_();
+		qALevel = new LinkedList[g.getNodeCount()];
+		qLevel = new LinkedList[g.getNodeCount()];
+		visited = new HashMap<UndirectedNode, Long>();
+		counter = 0;
+		for (int i = 0; i < qALevel.length; i++) {
+			visited.put((UndirectedNode) g.getNode(i), counter);
+			qALevel[i] = new LinkedList<UndirectedNode>();
+			qLevel[i] = new LinkedList<UndirectedNode>();
+		}
 	}
 
 	@Override
@@ -65,36 +81,30 @@ public class UndirectedBetweenessCentralityU extends UndirectedBetweenessCentral
 		for (IElement iE : g.getNodes()) {
 			UndirectedNode root = (UndirectedNode) iE;
 
-			HashMap<UndirectedNode, ShortestPathTreeElement> shortestPathTree = shortestPathTrees
+			HashMap<UndirectedNode, Integer> d = distances.get(root);
+			HashMap<UndirectedNode, HashSet<UndirectedNode>> p = parents
 					.get(root);
 
-			ShortestPathTreeElement n1TE = shortestPathTree.get(n1);
-			ShortestPathTreeElement n2TE = shortestPathTree.get(n2);
-
 			// Find the above Tree Element
-			if (n1TE.getDistanceToRoot() > n2TE.getDistanceToRoot()) {
-				n1TE = n2TE;
-				n2TE = shortestPathTree.get(n1);
+			if (d.get(n1) > d.get(n2)) {
 				n1 = n2;
 				n2 = e.getDifferingNode(n1);
 			}
 
-			if (!n2TE.getParents().contains(n1)
-					|| n1TE.getDistanceToRoot() == Integer.MAX_VALUE
-					|| n2TE.getDistanceToRoot() == Integer.MAX_VALUE) {
+			if (!p.get(n2).contains(n1) || d.get(n1).equals(Integer.MAX_VALUE)
+					|| d.get(n2).equals(Integer.MAX_VALUE)) {
 				continue;
 			}
 
 			// case 1: more than one parent => no shortest path tree
 			// change
-			if (n2TE.getParents().size() > 1) {
+			if (p.get(n2).size() > 1) {
 
-				// removeEdgeManyToMany(root, n1, n2, shortestPathTree);
-				recomp(g, root);
+				removeEdgeManyToMany(root, n1, n2);
 				// case 2: the lower node has only one parent
-			} else if (n2TE.getParents().size() == 1) {
-				removeEdgeOneToMany(root, n1, n2, shortestPathTree);
-
+			} else if (p.get(n2).size() == 1) {
+				// recomp(g, root);
+				removeEdgeOneToMany(root, n1, n2);
 			}
 		}
 
@@ -102,68 +112,57 @@ public class UndirectedBetweenessCentralityU extends UndirectedBetweenessCentral
 	}
 
 	private boolean removeEdgeOneToMany(UndirectedNode root,
-			UndirectedNode src, UndirectedNode dst,
-			HashMap<UndirectedNode, ShortestPathTreeElement> shortestPathTree) {
+			UndirectedNode src, UndirectedNode dst) {
+
+		counter++;
+
+		HashMap<UndirectedNode, Integer> d = distances.get(root);
+		HashMap<UndirectedNode, HashSet<UndirectedNode>> p = parents.get(root);
+		HashMap<UndirectedNode, Double> oldSums = accSums.get(root);
+		HashMap<UndirectedNode, Integer> oldSpc = spcs.get(root);
 
 		// Queues and data structure for tree change
 		HashSet<UndirectedNode> uncertain = new HashSet<UndirectedNode>();
-		Queue<UndirectedNode>[] qLevel = new LinkedList[g.getNodeCount()];
-		Queue<UndirectedNode>[] qLeveldA = new LinkedList[g.getNodeCount()];
-
-		for (int i = 0; i < qLevel.length; i++) {
-			qLevel[i] = new LinkedList<UndirectedNode>();
-			qLeveldA[i] = new LinkedList<UndirectedNode>();
-		}
 
 		// data structure for Updates
-		HashMap<UndirectedNode, Integer> dP = new HashMap<UndirectedNode, Integer>();
-		HashMap<UndirectedNode, TouchedType> touched = new HashMap<UndirectedNode, TouchedType>();
-		HashMap<UndirectedNode, Integer> spcUpdate = new HashMap<UndirectedNode, Integer>();
+		HashMap<UndirectedNode, Integer> newSpc = new HashMap<UndirectedNode, Integer>(
+				oldSpc);
 		HashMap<UndirectedNode, Double> newASums = new HashMap<UndirectedNode, Double>();
 		HashMap<UndirectedNode, HashSet<UndirectedNode>> newParents = new HashMap<UndirectedNode, HashSet<UndirectedNode>>();
 
-		for (IElement iE : g.getNodes()) {
-			UndirectedNode t = (UndirectedNode) iE;
-			dP.put(t, 0);
-			touched.put(t, TouchedType.NOT);
-			spcUpdate.put(t, shortestPathTree.get(t).getShortestPathCount());
-			newASums.put(t, 0d);
-			newParents.put(t, new HashSet<UndirectedNode>());
-		}
-
-		ShortestPathTreeElement dstTE = shortestPathTree.get(dst);
-
 		// set data structure for dst Node
-		qLevel[dstTE.getDistanceToRoot()].add(dst);
+		qLevel[d.get(dst)].add(dst);
 		uncertain.add(dst);
-		touched.put(dst, TouchedType.DOWN);
-
-		for (int i = 0; i < qLevel.length; i++) {
+		newASums.put(dst, 0d);
+		newParents.put(dst, new HashSet<UndirectedNode>());
+		visited.put(dst, counter);
+		int max = d.get(dst);
+		for (int i = max; i < qLevel.length && i < max + 1; i++) {
 			while (!qLevel[i].isEmpty()) {
 
 				UndirectedNode w = qLevel[i].poll();
-				ShortestPathTreeElement wTE = shortestPathTree.get(w);
-
 				int dist = Integer.MAX_VALUE;
 				ArrayList<UndirectedNode> min = new ArrayList<UndirectedNode>();
 				for (IElement iEdges : w.getEdges()) {
 					UndirectedEdge ed = (UndirectedEdge) iEdges;
 					UndirectedNode z = ed.getDifferingNode(w);
-					ShortestPathTreeElement zTE = shortestPathTree.get(z);
 
-					if (zTE.getDistanceToRoot() == wTE.getDistanceToRoot() + 1
-							&& touched.get(z) == TouchedType.NOT) {
+					if (d.get(z).equals(d.get(w) + 1)
+							&& Math.abs(visited.get(z)) < counter) {
 						qLevel[i + 1].add(z);
+						newASums.put(z, 0d);
+						newParents.put(z, new HashSet<UndirectedNode>());
 						uncertain.add(z);
-						touched.put(z, TouchedType.DOWN);
+						visited.put(z, counter);
+						max = Math.max(max, i + 1);
 					}
-					if (zTE.getDistanceToRoot() < dist) {
+					if (d.get(z) < dist) {
 						min.clear();
 						min.add(z);
-						dist = zTE.getDistanceToRoot();
+						dist = d.get(z);
 						continue;
 					}
-					if (zTE.getDistanceToRoot() == dist) {
+					if (d.get(z).equals(dist)) {
 						min.add(z);
 						continue;
 					}
@@ -171,232 +170,188 @@ public class UndirectedBetweenessCentralityU extends UndirectedBetweenessCentral
 
 				// if their is no connection to the three, remove node form
 				// data set
-				if (dist == Integer.MAX_VALUE || dist >= g.getNodeCount() - 1) {
-					wTE.setDistanceToRoot(Integer.MAX_VALUE);
+				if (dist == Integer.MAX_VALUE || dist >= qALevel.length - 1) {
+					d.put(w, Integer.MAX_VALUE);
+					newSpc.put(w, 0);
 					newParents.get(w).clear();
-					qLeveldA[g.getNodeCount() - 1].add(w);
+					qALevel[qALevel.length - 1].add(w);
 					uncertain.remove(w);
 					continue;
 				}
 
 				// connect to the highest uncertain node
 				boolean found = false;
-				spcUpdate.put(w, 0);
+				newSpc.put(w, 0);
 				newParents.get(w).clear();
 				for (UndirectedNode mNode : min) {
-					ShortestPathTreeElement mNodeTE = shortestPathTree
-							.get(mNode);
 					if ((!uncertain.contains(mNode))
-							&& mNodeTE.getDistanceToRoot() + 1 == i) {
+							&& d.get(mNode).intValue() + 1 == i) {
 						uncertain.remove(w);
-						spcUpdate.put(w,
-								spcUpdate.get(w) + spcUpdate.get(mNode));
+						newSpc.put(w, newSpc.get(w) + newSpc.get(mNode));
 						found = true;
+						newParents.get(w).add(mNode);
 					}
-					wTE.setDistanceToRoot(mNodeTE.getDistanceToRoot() + 1);
-					newParents.get(w).add(mNode);
+					d.put(w, d.get(mNode).intValue() + 1);
 
 				}
 				// else connect to another node
 				if (!found) {
-					qLevel[wTE.getDistanceToRoot()].add(w);
+					qLevel[d.get(w)].add(w);
+					max = Math.max(max, d.get(w));
 				} else {
-					qLeveldA[wTE.getDistanceToRoot()].add(w);
+					qALevel[d.get(w)].add(w);
 				}
 			}
 		}
 
 		// Stage 3
-		for (int i = qLeveldA.length - 1; i >= 0; i--) {
-			while (!qLeveldA[i].isEmpty()) {
+		for (int i = qALevel.length - 1; i >= 0; i--) {
+			while (!qALevel[i].isEmpty()) {
+				UndirectedNode w = qALevel[i].poll();
 
-				UndirectedNode w = qLeveldA[i].poll();
-				ShortestPathTreeElement wTE = shortestPathTree.get(w);
-
-				for (UndirectedNode v : wTE.getParents()) {
-
-					ShortestPathTreeElement vTE = shortestPathTree.get(v);
+				for (UndirectedNode v : p.get(w)) {
 					if (!newParents.get(w).contains(v)) {
 
-						if (touched.get(v) == TouchedType.NOT) {
-							qLevel[vTE.getDistanceToRoot()].add(v);
-							touched.put(v, TouchedType.UP);
-							newASums.put(v, vTE.getAccumulativSum());
-							newParents.get(v).addAll(vTE.getParents());
+						if (Math.abs(visited.get(v)) < counter) {
+							qALevel[d.get(v)].add(v);
+							visited.put(v, -counter);
+							newASums.put(v, oldSums.get(v));
+							newParents.put(v, p.get(v));
 						}
-						if (touched.get(v) == TouchedType.UP) {
-							double temp = newASums.get(v)
-									- vTE.getShortestPathCount()
-									* (1 + wTE.getAccumulativSum())
-									/ wTE.getShortestPathCount();
+						if (visited.get(v).equals(-counter)) {
+							double temp = newASums.get(v) - oldSpc.get(v)
+									* (1 + oldSums.get(w)) / oldSpc.get(w);
 							newASums.put(v, temp);
 						}
 					}
 				}
 
 				for (UndirectedNode v : newParents.get(w)) {
-					ShortestPathTreeElement vTE = shortestPathTree.get(v);
-
-					if (vTE.getDistanceToRoot() == wTE.getDistanceToRoot() - 1) {
-						if (touched.get(v) == TouchedType.NOT) {
-							qLevel[i - 1].add(v);
-							touched.put(v, TouchedType.UP);
-							newASums.put(v, vTE.getAccumulativSum());
-							newParents.get(v).addAll(vTE.getParents());
+					if (d.get(v).equals(d.get(w) - 1)) {
+						if (Math.abs(visited.get(v)) < counter) {
+							qALevel[i - 1].add(v);
+							visited.put(v, -counter);
+							newASums.put(v, oldSums.get(v));
+							newParents.put(v, p.get(v));
 						}
 
-						double d = newASums.get(v) + spcUpdate.get(v)
-								* (1 + newASums.get(w)) / spcUpdate.get(w);
+						double t = newASums.get(v) + newSpc.get(v)
+								* (1 + newASums.get(w)) / newSpc.get(w);
 
-						newASums.put(v, d);
+						newASums.put(v, t);
 
-						if (touched.get(v) == TouchedType.UP
-								&& wTE.containsParent(v)) {
-							double temp = newASums.get(v)
-									- vTE.getShortestPathCount()
-									* (1 + wTE.getAccumulativSum())
-									/ wTE.getShortestPathCount();
+						if (visited.get(v).equals(-counter)
+								&& p.get(w).contains(v)) {
+							double temp = newASums.get(v) - oldSpc.get(v)
+									* (1 + oldSums.get(w)) / oldSpc.get(w);
 							newASums.put(v, temp);
 						}
 					}
 				}
 
-				if (w != root) {
-					double currentScore = this.betweeneesCentralityScore.get(w);
-					this.betweeneesCentralityScore.put(w, currentScore
-							+ newASums.get(w) - wTE.getAccumulativSum());
+				if (!w.equals(root)) {
+					double currentScore = this.bC.get(w);
+					this.bC.put(w,
+							currentScore + newASums.get(w) - oldSums.get(w));
 				}
 			}
 		}
 
-		for (IElement iE : g.getNodes()) {
-			UndirectedNode i = (UndirectedNode) iE;
-			ShortestPathTreeElement shortestPathTreeElement = shortestPathTree
-					.get(i);
-			if (touched.get(i) != TouchedType.NOT) {
-				shortestPathTreeElement.setAccumulativSum(newASums.get(i));
-				shortestPathTreeElement.getParents().clear();
-				shortestPathTreeElement.getParents().addAll(newParents.get(i));
-			}
-
-			shortestPathTreeElement.setShortestPathCount(spcUpdate.get(i));
-
-		}
+		spcs.put(root, newSpc);
+		oldSums.putAll(newASums);
+		p.putAll(newParents);
 
 		return true;
 	}
 
 	private boolean removeEdgeManyToMany(UndirectedNode root,
-			UndirectedNode src, UndirectedNode dst,
-			HashMap<UndirectedNode, ShortestPathTreeElement> shortestPathTree) {
+			UndirectedNode src, UndirectedNode dst) {
+		counter++;
+
+		HashMap<UndirectedNode, Integer> d = distances.get(root);
+		HashMap<UndirectedNode, HashSet<UndirectedNode>> p = parents.get(root);
+		HashMap<UndirectedNode, Double> oldSums = accSums.get(root);
+		HashMap<UndirectedNode, Integer> oldSpc = spcs.get(root);
 
 		// Queue for BFS Search
 		Queue<UndirectedNode> qBFS = new LinkedList<UndirectedNode>();
 
-		// Queues for dependency acc
-		Queue<UndirectedNode>[] qLevel = new Queue[g.getNodeCount()];
-		for (int i = 0; i < qLevel.length; i++) {
-			qLevel[i] = new LinkedList<UndirectedNode>();
-		}
-
 		// data structure for Updates
 		HashMap<UndirectedNode, Integer> dP = new HashMap<UndirectedNode, Integer>();
-		HashMap<UndirectedNode, TouchedType> touched = new HashMap<UndirectedNode, TouchedType>();
-		HashMap<UndirectedNode, Integer> spcUpdate = new HashMap<UndirectedNode, Integer>();
+		HashMap<UndirectedNode, Integer> newSpc = new HashMap<UndirectedNode, Integer>(
+				oldSpc);
 		HashMap<UndirectedNode, Double> newASums = new HashMap<UndirectedNode, Double>();
-
-		for (IElement iE : g.getNodes()) {
-			UndirectedNode t = (UndirectedNode) iE;
-			dP.put(t, 0);
-			touched.put(t, TouchedType.NOT);
-			spcUpdate.put(t, shortestPathTree.get(t).getShortestPathCount());
-			newASums.put(t, 0d);
-		}
 
 		// setup changes for dst node
 		qBFS.add(dst);
-		ShortestPathTreeElement dstTE = shortestPathTree.get(dst);
-		qLevel[dstTE.getDistanceToRoot()].add(dst);
-		touched.put(dst, TouchedType.DOWN);
-		dP.put(dst, shortestPathTree.get(src).getShortestPathCount());
-		spcUpdate.put(dst, spcUpdate.get(dst) - dP.get(dst));
-		int maxHeight = dstTE.getDistanceToRoot();
+		qALevel[d.get(dst)].add(dst);
+		visited.put(dst, counter);
+		dP.put(dst, oldSpc.get(src));
+		newASums.put(dst, 0d);
+		newSpc.put(dst, newSpc.get(dst) - dP.get(dst));
+		int maxHeight = d.get(dst);
 
 		// Stage 2
 		while (!qBFS.isEmpty()) {
 			UndirectedNode v = qBFS.poll();
-			ShortestPathTreeElement vTE = shortestPathTree.get(v);
-
 			// all neighbours of v
 			for (IElement iEdge : v.getEdges()) {
 				UndirectedEdge edge = (UndirectedEdge) iEdge;
 				UndirectedNode w = edge.getDifferingNode(v);
-				ShortestPathTreeElement wTE = shortestPathTree.get(w);
 
-				if (wTE.getDistanceToRoot() == vTE.getDistanceToRoot() + 1) {
-					if (touched.get(w) == TouchedType.NOT) {
+				if (d.get(w).equals(d.get(v) + 1)) {
+					if (Math.abs(visited.get(w)) < counter) {
 						qBFS.add(w);
-						qLevel[wTE.getDistanceToRoot()].add(w);
-						maxHeight = Math
-								.max(maxHeight, wTE.getDistanceToRoot());
-						touched.put(w, TouchedType.DOWN);
+						newASums.put(w, 0d);
+						qALevel[d.get(w)].add(w);
+						maxHeight = Math.max(maxHeight, d.get(w));
+						visited.put(w, counter);
 						dP.put(w, dP.get(v));
 					} else {
 						dP.put(w, dP.get(w) + dP.get(v));
 					}
-					spcUpdate.put(w, spcUpdate.get(w) - dP.get(v));
+					newSpc.put(w, newSpc.get(w) - dP.get(v));
 				}
 			}
 		}
 
 		// Stage 3
 		// traverse the shortest path tree from leaves to root
-		for (int i = maxHeight; i > 0; i--) {
-			while (!qLevel[i].isEmpty()) {
-				UndirectedNode w = qLevel[i].poll();
-				ShortestPathTreeElement wTE = shortestPathTree.get(w);
-
-				for (UndirectedNode v : wTE.getParents()) {
-					ShortestPathTreeElement vTE = shortestPathTree.get(v);
-					if (touched.get(v) == TouchedType.NOT) {
-						qLevel[i - 1].add(v);
-						touched.put(v, TouchedType.UP);
-						newASums.put(v, vTE.getAccumulativSum());
+		for (int i = maxHeight; i >= 0; i--) {
+			while (!qALevel[i].isEmpty()) {
+				UndirectedNode w = qALevel[i].poll();
+				for (UndirectedNode v : p.get(w)) {
+					if (Math.abs(visited.get(v)) < counter) {
+						qALevel[i - 1].add(v);
+						visited.put(v, -counter);
+						newASums.put(v, oldSums.get(v));
 					}
 
 					if (!(v == src && w == dst)) {
-						double d = newASums.get(v) + spcUpdate.get(v)
-								* (1 + newASums.get(w)) / spcUpdate.get(w);
-						newASums.put(v, d);
+						double t = newASums.get(v) + newSpc.get(v)
+								* (1 + newASums.get(w)) / newSpc.get(w);
+						newASums.put(v, t);
 					}
-					if (touched.get(v) == TouchedType.UP) {
-						double temp = newASums.get(v)
-								- vTE.getShortestPathCount()
-								* (1 + wTE.getAccumulativSum())
-								/ wTE.getShortestPathCount();
+					if (visited.get(v).equals(-counter)) {
+						double temp = newASums.get(v) - oldSpc.get(v)
+								* (1 + oldSums.get(w)) / oldSpc.get(w);
 						newASums.put(v, temp);
 					}
-					if (w != root) {
-						double currentScore = this.betweeneesCentralityScore
-								.get(w);
-						this.betweeneesCentralityScore.put(w, currentScore
-								+ newASums.get(w) - wTE.getAccumulativSum());
-					}
 				}
+				if (!w.equals(root)) {
+					double currentScore = this.bC.get(w);
+					this.bC.put(w,
+							currentScore + newASums.get(w) - oldSums.get(w));
+				}
+
 			}
 		}
 
-		dstTE.removeParent(src);
-		for (IElement iE : g.getNodes()) {
-			UndirectedNode i = (UndirectedNode) iE;
-			ShortestPathTreeElement shortestPathTreeElement = shortestPathTree
-					.get(i);
-			shortestPathTreeElement.setShortestPathCount(spcUpdate.get(i));
-			if (touched.get(i) != TouchedType.NOT) {
-				shortestPathTreeElement.setAccumulativSum(newASums.get(i));
-			}
-		}
+		p.get(dst).remove(src);
+		spcs.put(root, newSpc);
+		oldSums.putAll(newASums);
 		return true;
+
 	}
 
 	private boolean applyAfterEdgeAddition(Update u) {
@@ -406,51 +361,42 @@ public class UndirectedBetweenessCentralityU extends UndirectedBetweenessCentral
 
 		for (IElement iE : g.getNodes()) {
 			UndirectedNode root = (UndirectedNode) iE;
-			HashMap<UndirectedNode, ShortestPathTreeElement> shortestPath = this.shortestPathTrees
-					.get(root);
 
-			ShortestPathTreeElement n1TE = shortestPath.get(n1);
+			HashMap<UndirectedNode, Integer> d = distances.get(root);
 
-			ShortestPathTreeElement n2TE = shortestPath.get(n2);
-
-			if (n1TE.getDistanceToRoot() > n2TE.getDistanceToRoot()) {
-				ShortestPathTreeElement temp = n2TE;
-				n2TE = n1TE;
-				n1TE = temp;
+			if (d.get(n1) > d.get(n2)) {
 				n2 = n1;
 				n1 = e.getDifferingNode(n2);
 			}
 
-			if (n1TE.getDistanceToRoot() == Integer.MAX_VALUE
-					&& n2TE.getDistanceToRoot() == Integer.MAX_VALUE
-					|| n1TE.getDistanceToRoot() == n2TE.getDistanceToRoot()) {
+			if ((d.get(n1).equals(Integer.MAX_VALUE) && d.get(n2).equals(
+					Integer.MAX_VALUE))
+					|| d.get(n1).equals(d.get(n2))) {
 				// no change to shortes path tree
 				continue;
 			}
-			if (n2TE.getDistanceToRoot() == Integer.MAX_VALUE) {
+			if (d.get(n2).equals(Integer.MAX_VALUE)) {
 				// to components merge therefore new Nodes add to shortest path
 				// tree
-
-				mergeOfComponentsInsertion(root, n1, n2, shortestPath);
+				mergeOfComponentsInsertion(root, n1, n2);
 				continue;
 			}
-			if (n1TE.getDistanceToRoot() + 1 == n2TE.getDistanceToRoot()) {
+			if (d.get(n1).intValue() + 1 == d.get(n2).intValue()) {
 				// the added edge connects nodes in adjacent Levels therefore
 				// only the new tree edge is added
-				adjacentLevelInsertion(root, n1, n2, shortestPath);
+				adjacentLevelInsertion(root, n1, n2);
 				continue;
 			}
-			if (n1TE.getDistanceToRoot() + 1 < n2TE.getDistanceToRoot()) {
+			if (d.get(n1).intValue() + 1 < d.get(n2).intValue()) {
 				// the added edge connects nodes in non adjacent Levels
 				// therefore all nodes in the subtree need to be checked if they
 				// move up in the shortest path tree
-				nonAdjacentLevelInsertion(root, n1, n2, shortestPath);
+				nonAdjacentLevelInsertion(root, n1, n2);
 				continue;
 
 			}
 
-			System.err.println(" shit" + n1TE.getDistanceToRoot() + " "
-					+ n2TE.getDistanceToRoot());
+			System.err.println(" shit" + d.get(n1) + " " + d.get(n2));
 			return false;
 
 		}
@@ -458,186 +404,159 @@ public class UndirectedBetweenessCentralityU extends UndirectedBetweenessCentral
 	}
 
 	private void mergeOfComponentsInsertion(UndirectedNode root,
-			UndirectedNode src, UndirectedNode dst,
-			HashMap<UndirectedNode, ShortestPathTreeElement> shortestPathTree) {
+			UndirectedNode src, UndirectedNode dst) {
 
-		// Queues for the dependency Acc
-		Queue<UndirectedNode>[] qLevel = new Queue[this.g.getNodes().size()];
-		for (int i = 0; i < qLevel.length; i++) {
-			qLevel[i] = new LinkedList<UndirectedNode>();
-		}
+		counter++;
+
+		HashMap<UndirectedNode, Integer> d = distances.get(root);
+		HashMap<UndirectedNode, HashSet<UndirectedNode>> p = parents.get(root);
+		HashMap<UndirectedNode, Double> oldSums = accSums.get(root);
+		HashMap<UndirectedNode, Integer> oldSpc = spcs.get(root);
+
 		// Queue for the BFS search down the shortes Path tree
 		Queue<UndirectedNode> qBFS = new LinkedList<UndirectedNode>();
 
 		// data structure for Updates
-		HashMap<UndirectedNode, Integer> dP = new HashMap<UndirectedNode, Integer>();
-		HashMap<UndirectedNode, TouchedType> touched = new HashMap<UndirectedNode, TouchedType>();
-		HashMap<UndirectedNode, Integer> spcUpdate = new HashMap<UndirectedNode, Integer>();
+		HashMap<UndirectedNode, Integer> newSpc = new HashMap<UndirectedNode, Integer>(
+				oldSpc);
 		HashMap<UndirectedNode, Double> newASums = new HashMap<UndirectedNode, Double>();
 
-		for (IElement iE : g.getNodes()) {
-			UndirectedNode t = (UndirectedNode) iE;
-			dP.put(t, 0);
-			touched.put(t, TouchedType.NOT);
-			spcUpdate.put(t, shortestPathTree.get(t).getShortestPathCount());
-			newASums.put(t, 0d);
-		}
-
 		// new TreeElement and the current Values for the Tree Position
-		ShortestPathTreeElement dstTE = shortestPathTree.get(dst);
-		ShortestPathTreeElement srcTE = shortestPathTree.get(src);
-		dstTE.setDistanceToRoot(srcTE.getDistanceToRoot() + 1);
-		dP.put(dst, srcTE.getShortestPathCount());
-		spcUpdate.put(dst, spcUpdate.get(src));
-		dstTE.addParent(src);
-		touched.put(dst, TouchedType.DOWN);
+		d.put(dst, d.get(src) + 1);
+		newSpc.put(dst, newSpc.get(src));
+		newASums.put(dst, 0d);
+		p.get(dst).add(src);
+		visited.put(dst, counter);
+		int maxHeight = 0;
 
 		qBFS.add(dst);
 		// stage 2
 		while (!qBFS.isEmpty()) {
 			UndirectedNode v = qBFS.poll();
-			ShortestPathTreeElement vTE = shortestPathTree.get(v);
-			qLevel[vTE.getDistanceToRoot()].add(v);
+			qALevel[d.get(v)].add(v);
+			maxHeight = Math.max(maxHeight, d.get(v));
 			for (IElement iEdge : v.getEdges()) {
 				UndirectedEdge ed = (UndirectedEdge) iEdge;
 				UndirectedNode n = ed.getDifferingNode(v);
-				ShortestPathTreeElement nTE = shortestPathTree.get(n);
-				if (touched.get(n) == TouchedType.NOT && n != src
-						&& nTE.getDistanceToRoot() == Integer.MAX_VALUE) {
+				if (Math.abs(visited.get(n)) < counter && n != src
+						&& d.get(n).equals(Integer.MAX_VALUE)) {
 					qBFS.add(n);
-					touched.put(n, TouchedType.DOWN);
-					nTE.setDistanceToRoot(vTE.getDistanceToRoot() + 1);
+					visited.put(n, counter);
+					newASums.put(n, 0d);
+					d.put(n, d.get(v) + 1);
 				}
-				if (nTE.getDistanceToRoot() == vTE.getDistanceToRoot() + 1) {
-					spcUpdate.put(n, spcUpdate.get(n) + spcUpdate.get(v));
-					nTE.addParent(v);
+				if (d.get(n).intValue() == d.get(v).intValue() + 1) {
+					newSpc.put(n, newSpc.get(n) + newSpc.get(v));
+					p.get(n).add(v);
 				}
 			}
 		}
 
 		// Stage 3
 		// search the shortest path tree from leaves to root
-		for (int i = qLevel.length - 1; i > 0; i--) {
-			while (!qLevel[i].isEmpty()) {
-				UndirectedNode w = qLevel[i].poll();
-				ShortestPathTreeElement wTE = shortestPathTree.get(w);
+		for (int i = maxHeight; i >= 0; i--) {
+			while (!qALevel[i].isEmpty()) {
+				UndirectedNode w = qALevel[i].poll();
 
-				for (UndirectedNode v : wTE.getParents()) {
-					ShortestPathTreeElement vTE = shortestPathTree.get(v);
-					if (touched.get(v) == TouchedType.NOT) {
-						qLevel[i - 1].add(v);
-						touched.put(v, TouchedType.UP);
-						newASums.put(v, vTE.getAccumulativSum());
+				for (UndirectedNode v : p.get(w)) {
+					if (Math.abs(visited.get(v)) < counter) {
+						qALevel[i - 1].add(v);
+						visited.put(v, -counter);
+						newASums.put(v, oldSums.get(v));
 					}
-					double d = spcUpdate.get(v) * (1 + newASums.get(w))
-							/ spcUpdate.get(w);
-					newASums.put(v, newASums.get(v) + d);
+					double t = newSpc.get(v) * (1 + newASums.get(w))
+							/ newSpc.get(w);
+					newASums.put(v, newASums.get(v) + t);
 
-					if (touched.get(v) == TouchedType.UP
+					if (visited.get(v).equals(-counter)
 							&& (v != src || w != dst)) {
-						double temp = newASums.get(v)
-								- vTE.getShortestPathCount()
-								* (1 + wTE.getAccumulativSum())
-								/ wTE.getShortestPathCount();
+						double temp = newASums.get(v) - oldSpc.get(v)
+								* (1 + oldSums.get(w)) / oldSpc.get(w);
 						newASums.put(v, temp);
 					}
-
-					if (w != root) {
-						double currentScore = this.betweeneesCentralityScore
-								.get(w);
-						this.betweeneesCentralityScore.put(w, currentScore
-								+ newASums.get(w) - wTE.getAccumulativSum());
-					}
-
+				}
+				if (!w.equals(root)) {
+					double currentScore = this.bC.get(w);
+					this.bC.put(w,
+							currentScore + newASums.get(w) - oldSums.get(w));
 				}
 
 			}
 		}
 
-		for (IElement iE : g.getNodes()) {
-			UndirectedNode i = (UndirectedNode) iE;
-			ShortestPathTreeElement shortestPathTreeElement = shortestPathTree
-					.get(i);
-			shortestPathTreeElement.setShortestPathCount(spcUpdate.get(i));
-			if (touched.get(i) != TouchedType.NOT) {
-				shortestPathTreeElement.setAccumulativSum(newASums.get(i));
-			}
-		}
+		spcs.put(root, newSpc);
+		oldSums.putAll(newASums);
 
 	}
 
 	private void nonAdjacentLevelInsertion(UndirectedNode root,
-			UndirectedNode src, UndirectedNode dst,
-			HashMap<UndirectedNode, ShortestPathTreeElement> shortestPathTree) {
+			UndirectedNode src, UndirectedNode dst) {
+
+		counter++;
+		// old values
+		HashMap<UndirectedNode, Integer> d = distances.get(root);
+		HashMap<UndirectedNode, HashSet<UndirectedNode>> p = parents.get(root);
+		HashMap<UndirectedNode, Double> oldSums = accSums.get(root);
+		HashMap<UndirectedNode, Integer> oldSpc = spcs.get(root);
 
 		// Data Structure for BFS Search
 		Queue<UndirectedNode> qBFS = new LinkedList<UndirectedNode>();
 
-		// Queue for dependency Accumulation
-		Queue<UndirectedNode>[] qLevel = new Queue[this.g.getNodes().size()];
-		for (int i = 0; i < qLevel.length; i++) {
-			qLevel[i] = new LinkedList<UndirectedNode>();
-		}
-
 		// data structure for Updates
-		HashMap<UndirectedNode, Integer> dP = new HashMap<UndirectedNode, Integer>();
-		HashMap<UndirectedNode, TouchedType> touched = new HashMap<UndirectedNode, TouchedType>();
-		HashMap<UndirectedNode, Integer> spcUpdate = new HashMap<UndirectedNode, Integer>();
+		HashMap<UndirectedNode, Integer> newSpc = new HashMap<UndirectedNode, Integer>(
+				oldSpc);
 		HashMap<UndirectedNode, Double> newASums = new HashMap<UndirectedNode, Double>();
 		HashMap<UndirectedNode, HashSet<UndirectedNode>> newParents = new HashMap<UndirectedNode, HashSet<UndirectedNode>>();
-
-		for (IElement iE : g.getNodes()) {
-			UndirectedNode t = (UndirectedNode) iE;
-			dP.put(t, 0);
-			touched.put(t, TouchedType.NOT);
-			spcUpdate.put(t, shortestPathTree.get(t).getShortestPathCount());
-			newASums.put(t, 0d);
-			newParents.put(t, new HashSet<UndirectedNode>());
-		}
 
 		// set Up data Structure for the lower node
 
 		qBFS.add(dst);
-		touched.put(dst, TouchedType.DOWN);
-		shortestPathTree.get(dst).setDistanceToRoot(
-				shortestPathTree.get(src).getDistanceToRoot() + 1);
-		qLevel[shortestPathTree.get(dst).getDistanceToRoot()].add(dst);
+		visited.put(dst, counter);
+		newSpc.put(dst, newSpc.get(src));
+		d.put(dst, d.get(src) + 1);
+		qALevel[d.get(dst)].add(dst);
+		newASums.put(dst, 0d);
+		newParents.put(dst, new HashSet<UndirectedNode>());
+
+		int maxHeight = d.get(dst);
 
 		// Stage 2
 		while (!qBFS.isEmpty()) {
-
 			UndirectedNode v = qBFS.poll();
+			newSpc.put(v, 0);
 
-			spcUpdate.put(v, 0);
-
-			ShortestPathTreeElement vTE = shortestPathTree.get(v);
 			// all neighbours of v
 			for (IElement iEdge : v.getEdges()) {
 				UndirectedEdge ed = (UndirectedEdge) iEdge;
 				UndirectedNode n = ed.getDifferingNode(v);
-				ShortestPathTreeElement nTE = shortestPathTree.get(n);
 
 				// Lower Node moves up
-				if (nTE.getDistanceToRoot() > vTE.getDistanceToRoot() + 1) {
-					nTE.setDistanceToRoot(vTE.getDistanceToRoot() + 1);
+				if (d.get(n).intValue() > d.get(v).intValue() + 1) {
+					d.put(n, d.get(v).intValue() + 1);
 					qBFS.add(n);
-					qLevel[nTE.getDistanceToRoot()].add(n);
-					touched.put(n, TouchedType.DOWN);
+					qALevel[d.get(n)].add(n);
+					newASums.put(n, 0d);
+					newParents.put(n, new HashSet<UndirectedNode>());
+					visited.put(n, counter);
+					maxHeight = Math.max(maxHeight, d.get(n));
 					continue;
 				}
 
 				// lower Node get a new Parent
-				if (nTE.getDistanceToRoot() == vTE.getDistanceToRoot() + 1) {
-					if (touched.get(n) == TouchedType.NOT) {
-						touched.put(n, TouchedType.DOWN);
-						qLevel[nTE.getDistanceToRoot()].add(n);
+				if (d.get(n).intValue() == d.get(v).intValue() + 1) {
+					if (Math.abs(visited.get(n)) < counter) {
+						visited.put(n, counter);
+						qALevel[d.get(n)].add(n);
+						newParents.put(n, new HashSet<UndirectedNode>());
 						qBFS.add(n);
+						newASums.put(n, 0d);
+						maxHeight = Math.max(maxHeight, d.get(n));
 					}
 					continue;
 				}
 
-				if (nTE.getDistanceToRoot() < vTE.getDistanceToRoot()) {
-					spcUpdate.put(v, spcUpdate.get(v) + spcUpdate.get(n));
+				if (d.get(n).intValue() < d.get(v).intValue()) {
+					newSpc.put(v, newSpc.get(v) + newSpc.get(n));
 					if (!newParents.get(v).contains(n)) {
 						newParents.get(v).add(n);
 					}
@@ -646,27 +565,20 @@ public class UndirectedBetweenessCentralityU extends UndirectedBetweenessCentral
 		}
 
 		// Stage 3
-		for (int i = qLevel.length - 1; i >= 0; i--) {
-			while (!qLevel[i].isEmpty()) {
-
-				UndirectedNode w = qLevel[i].poll();
-				ShortestPathTreeElement wTE = shortestPathTree.get(w);
-
-				for (UndirectedNode v : wTE.getParents()) {
-
-					ShortestPathTreeElement vTE = shortestPathTree.get(v);
+		for (int i = maxHeight; i >= 0; i--) {
+			while (!qALevel[i].isEmpty()) {
+				UndirectedNode w = qALevel[i].poll();
+				for (UndirectedNode v : p.get(w)) {
 					if (!newParents.get(w).contains(v)) {
-						if (touched.get(v) == TouchedType.NOT) {
-							qLevel[vTE.getDistanceToRoot()].add(v);
-							touched.put(v, TouchedType.UP);
-							newASums.put(v, vTE.getAccumulativSum());
-							newParents.get(v).addAll(vTE.getParents());
+						if (Math.abs(visited.get(v)) < counter) {
+							qALevel[d.get(v)].add(v);
+							visited.put(v, -counter);
+							newASums.put(v, oldSums.get(v));
+							newParents.put(v, p.get(v));
 						}
-						if (touched.get(v) == TouchedType.UP) {
-							double temp = newASums.get(v)
-									- vTE.getShortestPathCount()
-									* (1 + wTE.getAccumulativSum())
-									/ wTE.getShortestPathCount();
+						if (visited.get(v).equals(-counter)) {
+							double temp = newASums.get(v) - oldSpc.get(v)
+									* (1 + oldSums.get(w)) / oldSpc.get(w);
 							newASums.put(v, temp);
 						}
 					}
@@ -674,248 +586,246 @@ public class UndirectedBetweenessCentralityU extends UndirectedBetweenessCentral
 
 				for (UndirectedNode v : newParents.get(w)) {
 
-					ShortestPathTreeElement vTE = shortestPathTree.get(v);
-					if (vTE.getDistanceToRoot() == wTE.getDistanceToRoot() - 1) {
-						if (touched.get(v) == TouchedType.NOT) {
-							qLevel[i - 1].add(v);
-							touched.put(v, TouchedType.UP);
-							newASums.put(v, vTE.getAccumulativSum());
-							newParents.get(v).addAll(vTE.getParents());
-						}
-						double d = newASums.get(v) + spcUpdate.get(v)
-								* (1 + newASums.get(w)) / spcUpdate.get(w);
-						newASums.put(v, d);
-
-						if (touched.get(v) == TouchedType.UP
-								&& (dst != w || src != v)) {
-							double temp = newASums.get(v)
-									- vTE.getShortestPathCount()
-									* (1 + wTE.getAccumulativSum())
-									/ wTE.getShortestPathCount();
-							newASums.put(v, temp);
-						}
+					if (Math.abs(visited.get(v)) < counter) {
+						qALevel[i - 1].add(v);
+						visited.put(v, -counter);
+						newASums.put(v, oldSums.get(v));
+						newParents.put(v, p.get(v));
 					}
+					double t = newASums.get(v) + newSpc.get(v)
+							* (1 + newASums.get(w)) / newSpc.get(w);
+					newASums.put(v, t);
+
+					if (visited.get(v).equals(-counter)
+							&& (dst != w || src != v)) {
+						double temp = newASums.get(v) - oldSpc.get(v)
+								* (1 + oldSums.get(w)) / oldSpc.get(w);
+						newASums.put(v, temp);
+					}
+
 				}
-				if (w != root) {
-					double currentScore = this.betweeneesCentralityScore.get(w);
-					this.betweeneesCentralityScore.put(w, currentScore
-							+ newASums.get(w) - wTE.getAccumulativSum());
-				}
-			}
-		}
-
-		for (IElement iE : g.getNodes()) {
-			UndirectedNode i = (UndirectedNode) iE;
-			ShortestPathTreeElement shortestPathTreeElement = shortestPathTree
-					.get(i);
-
-			if (touched.get(i) != TouchedType.NOT) {
-
-				if (newASums.get(i) < 0)
-					newASums.put(i, 0d);
-				shortestPathTreeElement.setAccumulativSum(newASums.get(i));
-				shortestPathTreeElement.getParents().clear();
-				shortestPathTreeElement.getParents().addAll(newParents.get(i));
-			}
-
-			shortestPathTreeElement.setShortestPathCount(spcUpdate.get(i));
-
-		}
-	}
-
-	private boolean recomp(Graph g, UndirectedNode n) {
-		// stage ONE
-		Stack<UndirectedNode> s = new Stack<UndirectedNode>();
-		Queue<UndirectedNode> q = new LinkedList<UndirectedNode>();
-		HashMap<UndirectedNode, ShortestPathTreeElement> shortestPath = new HashMap<UndirectedNode, ShortestPathTreeElement>();
-
-		for (IElement iE : g.getNodes()) {
-			UndirectedNode t = (UndirectedNode) iE;
-			if (t == n) {
-				ShortestPathTreeElement temp = new ShortestPathTreeElement(
-						t.getIndex());
-				temp.setDistanceToRoot(0);
-				temp.setShortestPathCount(1);
-				shortestPath.put(t, temp);
-			} else {
-				ShortestPathTreeElement temp = new ShortestPathTreeElement(
-						t.getIndex());
-				shortestPath.put(t, temp);
-			}
-		}
-
-		q.add(n);
-
-		// stage 2
-		while (!q.isEmpty()) {
-			UndirectedNode v = q.poll();
-			s.push(v);
-			ShortestPathTreeElement vTE = shortestPath.get(v);
-
-			for (IElement iEdges : v.getEdges()) {
-				UndirectedEdge ed = (UndirectedEdge) iEdges;
-				UndirectedNode neighbour = ed.getDifferingNode(v);
-				ShortestPathTreeElement nTE = shortestPath.get(neighbour);
-
-				if (nTE.getDistanceToRoot() == Integer.MAX_VALUE) {
-					q.add(neighbour);
-					nTE.setDistanceToRoot(vTE.getDistanceToRoot() + 1);
-				}
-				if (nTE.getDistanceToRoot() == vTE.getDistanceToRoot() + 1) {
-					nTE.setShortestPathCount(nTE.getShortestPathCount()
-							+ vTE.getShortestPathCount());
-					nTE.addParent(v);
+				if (!w.equals(root)) {
+					double currentScore = this.bC.get(w);
+					this.bC.put(w,
+							currentScore + newASums.get(w) - oldSums.get(w));
 				}
 			}
 		}
 
-		// stage 3
-
-		HashMap<UndirectedNode, ShortestPathTreeElement> oldshortestPathTree = this.shortestPathTrees
-				.get(n);
-
-		while (!s.isEmpty()) {
-			UndirectedNode w = s.pop();
-			ShortestPathTreeElement wTE = shortestPath.get(w);
-			for (UndirectedNode parent : wTE.getParents()) {
-				ShortestPathTreeElement pTE = shortestPath.get(parent);
-				double sumForCurretConnection = pTE.getShortestPathCount()
-						* (1 + wTE.getAccumulativSum())
-						/ wTE.getShortestPathCount();
-				pTE.setAccumulativSum(pTE.getAccumulativSum()
-						+ sumForCurretConnection);
-			}
-			if (w != n) {
-				double currentScore = this.betweeneesCentralityScore.get(w)
-						- oldshortestPathTree.get(w).getAccumulativSum();
-				this.betweeneesCentralityScore.put(w,
-						currentScore + wTE.getAccumulativSum());
-			}
-		}
-		this.shortestPathTrees.put(n, shortestPath);
-
-		return true;
+		spcs.put(root, newSpc);
+		oldSums.putAll(newASums);
+		p.putAll(newParents);
 	}
 
 	private boolean adjacentLevelInsertion(UndirectedNode root,
-			UndirectedNode src, UndirectedNode dst,
-			HashMap<UndirectedNode, ShortestPathTreeElement> shortestPathTree) {
+			UndirectedNode src, UndirectedNode dst) {
 		// Queue for BFS Search
 		Queue<UndirectedNode> qBFS = new LinkedList<UndirectedNode>();
+		counter++;
 
-		// Queues for dependency acc
-		Queue<UndirectedNode>[] qLevel = new Queue[g.getNodeCount()];
-		for (int i = 0; i < qLevel.length; i++) {
-			qLevel[i] = new LinkedList<UndirectedNode>();
-		}
+		// old values
+		HashMap<UndirectedNode, Integer> d = distances.get(root);
+		HashMap<UndirectedNode, HashSet<UndirectedNode>> p = parents.get(root);
+		HashMap<UndirectedNode, Double> oldSums = accSums.get(root);
+		HashMap<UndirectedNode, Integer> oldSpc = spcs.get(root);
 
 		// data structure for Updates
 		HashMap<UndirectedNode, Integer> dP = new HashMap<UndirectedNode, Integer>();
-		HashMap<UndirectedNode, TouchedType> touched = new HashMap<UndirectedNode, TouchedType>();
-		HashMap<UndirectedNode, Integer> spcUpdate = new HashMap<UndirectedNode, Integer>();
-		HashMap<UndirectedNode, Double> newASums = new HashMap<UndirectedNode, Double>();
-
-		for (IElement iE : g.getNodes()) {
-			UndirectedNode t = (UndirectedNode) iE;
-			dP.put(t, 0);
-			touched.put(t, TouchedType.NOT);
-			spcUpdate.put(t, shortestPathTree.get(t).getShortestPathCount());
-			newASums.put(t, 0d);
-		}
+		HashMap<UndirectedNode, Integer> newSpc = new HashMap<UndirectedNode, Integer>(
+				oldSpc);
+		HashMap<UndirectedNode, Double> newSums = new HashMap<UndirectedNode, Double>();
 
 		// setup changes for dst node
 		qBFS.add(dst);
-		ShortestPathTreeElement dstTE = shortestPathTree.get(dst);
-		qLevel[dstTE.getDistanceToRoot()].add(dst);
-		touched.put(dst, TouchedType.DOWN);
-		dP.put(dst, shortestPathTree.get(src).getShortestPathCount());
-		spcUpdate.put(dst, spcUpdate.get(dst) + dP.get(dst));
-		dstTE.addParent(src);
-		int maxHeight = dstTE.getDistanceToRoot();
+		qALevel[d.get(dst)].add(dst);
+		visited.put(dst, counter);
+		newSums.put(dst, 0d);
+		dP.put(dst, oldSpc.get(src));
+		newSpc.put(dst, newSpc.get(dst) + dP.get(dst));
+		p.get(dst).add(src);
+		int maxHeight = d.get(dst);
 
 		// Stage 2
 		while (!qBFS.isEmpty()) {
 			UndirectedNode v = qBFS.poll();
-			ShortestPathTreeElement vTE = shortestPathTree.get(v);
 
 			// all neighbours of v
 			for (IElement iEdges : v.getEdges()) {
 				UndirectedEdge edge = (UndirectedEdge) iEdges;
 				UndirectedNode w = edge.getDifferingNode(v);
-				ShortestPathTreeElement wTE = shortestPathTree.get(w);
 
-				if (wTE.getDistanceToRoot() == vTE.getDistanceToRoot() + 1) {
-					if (touched.get(w) == TouchedType.NOT) {
+				if (d.get(w).equals(d.get(v).intValue() + 1)) {
+					if (Math.abs(visited.get(w)) < counter) {
 						qBFS.add(w);
-						qLevel[wTE.getDistanceToRoot()].add(w);
-						maxHeight = Math
-								.max(maxHeight, wTE.getDistanceToRoot());
-						touched.put(w, TouchedType.DOWN);
+						qALevel[d.get(w)].add(w);
+						maxHeight = Math.max(maxHeight, d.get(w));
+						newSums.put(w, 0d);
+						visited.put(w, counter);
 						dP.put(w, dP.get(v));
 					} else {
 						dP.put(w, dP.get(w) + dP.get(v));
 					}
-					spcUpdate.put(w, spcUpdate.get(w) + dP.get(v));
+					newSpc.put(w, newSpc.get(w) + dP.get(v));
 				}
 			}
 		}
 
 		// Stage 3
 		// traverse the shortest path tree from leaves to root
-		for (int i = maxHeight; i > 0; i--) {
-			while (!qLevel[i].isEmpty()) {
-				UndirectedNode w = qLevel[i].poll();
-				ShortestPathTreeElement wTE = shortestPathTree.get(w);
+		for (int i = maxHeight; i >= 0; i--) {
+			while (!qALevel[i].isEmpty()) {
+				UndirectedNode w = qALevel[i].poll();
 
-				for (UndirectedNode v : wTE.getParents()) {
-					ShortestPathTreeElement vTE = shortestPathTree.get(v);
-					if (touched.get(v) == TouchedType.NOT) {
-						qLevel[i - 1].add(v);
-						touched.put(v, TouchedType.UP);
-						newASums.put(v, vTE.getAccumulativSum());
+				for (UndirectedNode v : p.get(w)) {
+					if (Math.abs(visited.get(v)) < counter) {
+						qALevel[i - 1].add(v);
+						visited.put(v, -counter);
+						newSums.put(v, oldSums.get(v));
 					}
-					double d = newASums.get(v) + spcUpdate.get(v)
-							* (1 + newASums.get(w)) / spcUpdate.get(w);
-					newASums.put(v, d);
-					if (touched.get(v) == TouchedType.UP
+					double t = newSums.get(v) + newSpc.get(v)
+							* (1 + newSums.get(w)) / newSpc.get(w);
+					newSums.put(v, t);
+					if (visited.get(v).equals(-counter)
 							&& (v != src || w != dst)) {
-						double temp = newASums.get(v)
-								- vTE.getShortestPathCount()
-								* (1 + wTE.getAccumulativSum())
-								/ wTE.getShortestPathCount();
-						newASums.put(v, temp);
-					}
-					if (w != root) {
-						double currentScore = this.betweeneesCentralityScore
-								.get(w);
-						this.betweeneesCentralityScore.put(w, currentScore
-								+ newASums.get(w) - wTE.getAccumulativSum());
+						double temp = newSums.get(v) - oldSpc.get(v)
+								* (1 + oldSums.get(w)) / oldSpc.get(w);
+						newSums.put(v, temp);
 					}
 				}
+				if (!w.equals(root)) {
+					double currentScore = this.bC.get(w);
+					this.bC.put(w,
+							currentScore + newSums.get(w) - oldSums.get(w));
+				}
+
 			}
 		}
 
-		for (IElement iE : g.getNodes()) {
-			UndirectedNode i = (UndirectedNode) iE;
-			ShortestPathTreeElement shortestPathTreeElement = shortestPathTree
-					.get(i);
-			shortestPathTreeElement.setShortestPathCount(spcUpdate.get(i));
-			if (touched.get(i) != TouchedType.NOT) {
-				shortestPathTreeElement.setAccumulativSum(newASums.get(i));
-			}
-		}
+		spcs.put(root, newSpc);
+		oldSums.putAll(newSums);
 		return true;
 	}
 
 	private boolean applyAfterNodeRemoval(Update u) {
-		return false;
+		UndirectedNode node = (UndirectedNode) ((NodeRemoval) u).getNode();
+
+		g.addNode(node);
+		HashSet<UndirectedEdge> bla = new HashSet<>();
+		for (IElement ie : node.getEdges()) {
+			UndirectedEdge e = (UndirectedEdge) ie;
+			e.connectToNodes();
+			bla.add(e);
+		}
+		for (UndirectedEdge e : bla) {
+			e.disconnectFromNodes();
+			applyAfterEdgeRemoval(new EdgeRemoval(e));
+		}
+
+		for (UndirectedNode n : this.accSums.get(node).keySet()) {
+			this.bC.put(n, this.bC.get(n) - this.accSums.get(node).get(n));
+		}
+
+		this.spcs.remove(node);
+		this.distances.remove(node);
+		this.accSums.remove(node);
+		this.parents.remove(node);
+		g.removeNode(node);
+		return true;
 	}
 
 	private boolean applyAfterNodeAddition(Update u) {
 		UndirectedNode node = (UndirectedNode) ((NodeAddition) u).getNode();
-		HashMap<UndirectedNode, ShortestPathTreeElement> temp = new HashMap<UndirectedNode, ShortestPathTreeElement>();
-		temp.put(node, new ShortestPathTreeElement(node.getIndex()));
-		this.shortestPathTrees.put(node, temp);
+		HashMap<UndirectedNode, HashSet<UndirectedNode>> p = new HashMap<UndirectedNode, HashSet<UndirectedNode>>();
+		HashMap<UndirectedNode, Integer> spc = new HashMap<UndirectedNode, Integer>();
+		HashMap<UndirectedNode, Integer> d = new HashMap<UndirectedNode, Integer>();
+		HashMap<UndirectedNode, Double> sums = new HashMap<UndirectedNode, Double>();
+
+		for (IElement ieE : g.getNodes()) {
+			UndirectedNode t = (UndirectedNode) ieE;
+			if (t == node) {
+				d.put(t, 0);
+				spc.put(t, 1);
+			} else {
+				spc.put(t, 0);
+				d.put(t, Integer.MAX_VALUE);
+				this.spcs.get(t).put(node, 0);
+				this.distances.get(t).put(node, Integer.MAX_VALUE);
+				this.accSums.get(t).put(node, 0d);
+				this.parents.get(t).put(node, new HashSet<UndirectedNode>());
+			}
+			sums.put(t, 0d);
+			p.put(t, new HashSet<UndirectedNode>());
+		}
+		this.spcs.put(node, spc);
+		this.distances.put(node, d);
+		this.accSums.put(node, sums);
+		this.parents.put(node, p);
+		bC.put(node, 0d);
+		visited.put(node, 0L);
+		return true;
+	}
+
+	private boolean recomp(Graph g, UndirectedNode root) {
+		// stage ONE
+		Stack<UndirectedNode> s = new Stack<UndirectedNode>();
+		Queue<UndirectedNode> q = new LinkedList<UndirectedNode>();
+		HashMap<UndirectedNode, HashSet<UndirectedNode>> p = new HashMap<UndirectedNode, HashSet<UndirectedNode>>();
+		HashMap<UndirectedNode, Integer> d = new HashMap<UndirectedNode, Integer>();
+		HashMap<UndirectedNode, Integer> spc = new HashMap<UndirectedNode, Integer>();
+		HashMap<UndirectedNode, Double> sums = new HashMap<UndirectedNode, Double>();
+		for (IElement ieE : g.getNodes()) {
+			UndirectedNode t = (UndirectedNode) ieE;
+			if (t == root) {
+				d.put(t, 0);
+				spc.put(t, 1);
+				sums.put(t, 0d);
+			} else {
+				spc.put(t, 0);
+				sums.put(t, 0d);
+				d.put(t, Integer.MAX_VALUE);
+			}
+			p.put(t, new HashSet<UndirectedNode>());
+		}
+
+		q.add(root);
+
+		// stage 2
+		while (!q.isEmpty()) {
+			UndirectedNode v = q.poll();
+			s.push(v);
+			for (IElement iEdges : v.getEdges()) {
+				UndirectedEdge edge = (UndirectedEdge) iEdges;
+				UndirectedNode w = edge.getDifferingNode(v);
+
+				if (d.get(w).equals(Integer.MAX_VALUE)) {
+					q.add(w);
+					d.put(w, d.get(v) + 1);
+				}
+				if (d.get(w).equals(d.get(v) + 1)) {
+					spc.put(w, spc.get(w) + spc.get(v));
+					p.get(w).add(v);
+				}
+			}
+		}
+
+		// stage 3
+		while (!s.isEmpty()) {
+			UndirectedNode w = s.pop();
+			for (UndirectedNode parent : p.get(w)) {
+				double sumForCurretConnection = spc.get(parent)
+						* (1 + sums.get(w)) / spc.get(w);
+				sums.put(parent, sums.get(parent) + sumForCurretConnection);
+			}
+			if (w != root) {
+				double currentScore = this.bC.get(w) - accSums.get(root).get(w);
+				this.bC.put(w, currentScore + sums.get(w));
+			}
+		}
+		parents.put(root, p);
+		distances.put(root, d);
+		spcs.put(root, spc);
+		accSums.put(root, sums);
+
 		return true;
 	}
 }
