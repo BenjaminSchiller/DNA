@@ -3,10 +3,10 @@ package dna.metrics.connectedComponents;
 import dna.updates.batch.Batch;
 import dna.updates.update.Update;
 
-public class CCUndirectedComp extends CCUndirected {
+public class UndirectedConnectedComponentR extends UndirectedConnectedComponent {
 
-	public CCUndirectedComp() {
-		super("CCUndirectedDyn", ApplicationType.Recomputation);
+	public UndirectedConnectedComponentR() {
+		super("CCUndirectedR", ApplicationType.Recomputation);
 	}
 
 	@Override

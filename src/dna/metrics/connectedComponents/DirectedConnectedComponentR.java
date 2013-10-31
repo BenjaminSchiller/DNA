@@ -3,9 +3,9 @@ package dna.metrics.connectedComponents;
 import dna.updates.batch.Batch;
 import dna.updates.update.Update;
 
-public class CCDirectedComp extends CCDirected {
+public class DirectedConnectedComponentR extends DirectedConnectedComponent {
 
-	public CCDirectedComp() {
+	public DirectedConnectedComponentR() {
 		super("CCDirectedComp", ApplicationType.Recomputation);
 	}
 

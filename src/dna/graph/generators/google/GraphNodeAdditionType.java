@@ -1,5 +1,5 @@
 package dna.graph.generators.google;
 
 public enum GraphNodeAdditionType {
-	AfterNTimes, EverySeenNode
+	AfterNTimes, EverySeenNode, AfterNTimesOnlyCrawled, EverySeenNodeOnlyCrawled
 }
