@@ -8,7 +8,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 
 import dna.graph.Graph;
-import dna.graph.datastructures.DArrayList;
+import dna.graph.datastructures.DHashMap;
 import dna.graph.datastructures.DHashSet;
 import dna.graph.datastructures.GraphDataStructure;
 import dna.graph.edges.DirectedEdge;
@@ -42,8 +42,8 @@ public class GooglePlusGraphGeneratorDuringParse {
 			int insertAfter, int deleteAfter, String outputDir, String dirName)
 			throws IOException {
 
-		this.ds = new GraphDataStructure(DArrayList.class, DHashSet.class,
-				DArrayList.class, DirectedNode.class, DirectedEdge.class);
+		this.ds = new GraphDataStructure(DHashMap.class, DHashSet.class,
+				DHashSet.class, DirectedNode.class, DirectedEdge.class);
 		this.foldername = indir + dirName;
 		this.mapping = new HashMap<String, Integer>();
 		this.lastSeen = new HashMap<Integer, Long>();
