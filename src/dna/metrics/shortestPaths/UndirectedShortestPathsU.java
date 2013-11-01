@@ -7,7 +7,6 @@ import java.util.Queue;
 import dna.graph.IElement;
 import dna.graph.edges.UndirectedEdge;
 import dna.graph.nodes.UndirectedNode;
-<<<<<<< HEAD:src/dna/metrics/shortestPaths/UndirectedShortestPathsU.java
 import dna.updates.batch.Batch;
 import dna.updates.update.EdgeAddition;
 import dna.updates.update.EdgeRemoval;
@@ -17,17 +16,6 @@ import dna.updates.update.Update;
 import dna.util.ArrayUtils;
 
 public class UndirectedShortestPathsU extends UndirectedShortestPaths {
-=======
-import dna.updates.Batch;
-import dna.updates.EdgeAddition;
-import dna.updates.EdgeRemoval;
-import dna.updates.NodeAddition;
-import dna.updates.NodeRemoval;
-import dna.updates.Update;
-import dna.util.ArrayUtils;
-
-public class UndirectedShortestPathsUpdate extends UndirectedShortestPaths {
->>>>>>> generator for google:src/dna/metrics/shortestPaths/UndirectedShortestPathsUpdate.java
 
 	public UndirectedShortestPathsU() {
 		super("UndirectedShortestPathsU", ApplicationType.BeforeUpdate);
@@ -85,48 +73,7 @@ public class UndirectedShortestPathsUpdate extends UndirectedShortestPaths {
 			this.diam = spl.length - 1;
 
 		} else if (u instanceof EdgeRemoval) {
-<<<<<<< HEAD:src/dna/metrics/shortestPaths/UndirectedShortestPathsU.java
-			UndirectedGraph g = (UndirectedGraph) this.g;
-
-			UndirectedEdge e = (UndirectedEdge) ((EdgeRemoval) u).getEdge();
-			UndirectedNode n1 = e.getNode1();
-			UndirectedNode n2 = e.getNode2();
-
-			for (UndirectedNode s : g.getNodes()) {
-				HashMap<UndirectedNode, UndirectedNode> parent = this.parents
-						.get(s);
-				HashMap<UndirectedNode, Integer> height = this.heights.get(s);
-
-				if (n1.equals(s)) {
-					this.checkRemoval(n1, n2, parent, height);
-					continue;
-				}
-				if (n2.equals(s)) {
-					this.checkRemoval(n2, n1, parent, height);
-					continue;
-				}
-				if (!parent.containsKey(n1) && !parent.containsKey(n2)) {
-					continue;
-				}
-
-				this.checkRemoval(n1, n2, parent, height);
-				this.checkRemoval(n2, n1, parent, height);
-
-			}
-		}
-
-		return true;
-	}
-
-	private boolean checkRemoval(UndirectedNode a, UndirectedNode b,
-			HashMap<UndirectedNode, UndirectedNode> parent,
-			HashMap<UndirectedNode, Integer> height) {
-		int h_a = height.get(a);
-		int h_b = height.get(b);
-		if (h_a == Integer.MAX_VALUE || h_a + 1 >= h_b) {
-=======
 			// TODO implement SP update edge removal
->>>>>>> generator for google:src/dna/metrics/shortestPaths/UndirectedShortestPathsUpdate.java
 			return false;
 		}
 

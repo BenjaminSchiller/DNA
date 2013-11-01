@@ -12,11 +12,7 @@ import dna.series.lists.List;
  * @date 04.07.2013
  */
 public class AggregatedNodeValueListList extends List<AggregatedNodeValueList> {
-<<<<<<< HEAD
 
-=======
-	
->>>>>>> reworked aggregation
 	// constructors
 	public AggregatedNodeValueListList() {
 		super();
@@ -25,7 +21,6 @@ public class AggregatedNodeValueListList extends List<AggregatedNodeValueList> {
 	public AggregatedNodeValueListList(int size) {
 		super(size);
 	}
-<<<<<<< HEAD
 
 	// IO methods
 	public void write(String dir) throws IOException {
@@ -45,13 +40,5 @@ public class AggregatedNodeValueListList extends List<AggregatedNodeValueList> {
 					Files.getDistributionName(nvl), readValues));
 		}
 		return list;
-=======
-	
-	// IO methods
-	public void write(String dir) throws IOException {
-		for (AggregatedNodeValueList n : this.getList()) {
-			AggregatedData.write(n, dir, Files.getNodeValueListFilename(n.getName()));
-		}
->>>>>>> reworked aggregation
 	}
 }

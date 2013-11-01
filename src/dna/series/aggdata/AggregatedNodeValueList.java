@@ -1,29 +1,12 @@
 package dna.series.aggdata;
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-=======
-import java.io.IOException;
-import java.util.ArrayList;
->>>>>>> Codeupdate 13-06-24
-=======
-import java.io.IOException;
-import java.util.ArrayList;
->>>>>>> Codeupdate 13-06-24
 
 import com.sun.media.sound.InvalidFormatException;
 
 import dna.io.Reader;
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
 import dna.io.Writer;
 import dna.io.filesystem.Files;
 import dna.plot.data.PlotData.NodeValueListOrder;
@@ -37,60 +20,12 @@ import dna.util.Config;
  * AggregatedValue object array structure: { x (diff number), avg, min, max,
  * median, variance, variance-low, variance-up, confidence-low, confidence-up,
  * sort-order } Note: Sort-order fields are for plotting purposes only.
-=======
-=======
->>>>>>> Codeupdate 13-06-10.
-import dna.util.Log;
-
-/**
- * AggregatedNodeValueList is a class containing the values of an aggregated NodeValueList.
-<<<<<<< HEAD
->>>>>>> Codeupdate 13-06-10.
-=======
-
-/**
- * AggregatedNodeValueList is a class containing the values of an aggregated NodeValueList.
- * Array structure as follows: values = { x (diff number), avg, min, max, median, variance, variance-low, variance-up, confidence-low, confidence-up }
->>>>>>> Codeupdate 13-06-18
-=======
-=======
-import dna.io.Writer;
->>>>>>> reworked aggregation
-import dna.io.etc.Keywords;
-
-/**
- * AggregatedNodeValueList is a class containing the values of an aggregated NodeValueList.
- * It contains an array of AggregatedValue objects.
- * AggregatedValue object array structure: { x (diff number), avg, min, max, median, variance, variance-low, variance-up, confidence-low, confidence-up }
->>>>>>> Codeupdate 13-06-24
-=======
->>>>>>> Codeupdate 13-06-10.
-=======
-
-/**
- * AggregatedNodeValueList is a class containing the values of an aggregated NodeValueList.
- * Array structure as follows: values = { x (diff number), avg, min, max, median, variance, variance-low, variance-up, confidence-low, confidence-up }
->>>>>>> Codeupdate 13-06-18
-=======
-import dna.io.etc.Keywords;
-
-/**
- * AggregatedNodeValueList is a class containing the values of an aggregated NodeValueList.
- * It contains an array of AggregatedValue objects.
- * AggregatedValue object array structure: { x (diff number), avg, min, max, median, variance, variance-low, variance-up, confidence-low, confidence-up }
->>>>>>> Codeupdate 13-06-24
  * 
  * @author Rwilmes
  * @date 10.06.2013
  */
 public class AggregatedNodeValueList extends AggregatedData {
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
 	// member variables
 	private AggregatedValue[] values;
 	private int[] sortIndex;
@@ -413,193 +348,4 @@ public class AggregatedNodeValueList extends AggregatedData {
 		w.close();
 	}
 
-=======
-=======
->>>>>>> Codeupdate 13-06-10.
-	// class variables
-	private String name;
-	private String type = "AggregatedNodeValueList";
-	private double[] values; // array containing the aggregated values for this object. Structure as follows: values = { 0, 0, avg, min, max, median, variance, variance-low, variance-up, confidence-low, confidence-up }
-	
-<<<<<<< HEAD
-=======
->>>>>>> Codeupdate 13-06-18
-=======
-	// member variables
-	private AggregatedValue[] values;
-	
->>>>>>> Codeupdate 13-06-24
-	// constructors
-	public AggregatedNodeValueList(String name) {
-		super(name);
-	}
-	
-	public AggregatedNodeValueList(String name, AggregatedValue[] values) {
-		super(name);
-		this.values = values;
-	}
-<<<<<<< HEAD
-=======
-=======
->>>>>>> Codeupdate 13-06-18
-=======
-	// member variables
-	private AggregatedValue[] values;
-	
->>>>>>> Codeupdate 13-06-24
-	// constructors
-	public AggregatedNodeValueList(String name) {
-		super(name);
-	}
-	
-	public AggregatedNodeValueList(String name, AggregatedValue[] values) {
-		super(name);
-		this.values = values;
-	}
-<<<<<<< HEAD
->>>>>>> Codeupdate 13-06-10.
-	
-	public double[] getValues() {
-		return this.values;
-	}
-	
-	public String getName() {
-		return this.name;
-	}
-	
-	public String getType() {
-		return this.type;
-	}
-	
-<<<<<<< HEAD
->>>>>>> Codeupdate 13-06-10.
-=======
-
-<<<<<<< HEAD
->>>>>>> Codeupdate 13-06-18
-=======
-	// get methods
-	public AggregatedValue[] getValues() {
-		return this.values;
-	}
-	
-	// IO methods
-	/**
-	 * @param dir String which contains the path to the directory the AggregatedNodeValueList will be read from.
-	 * 
-	 * @param filename String representing the filename the Distribution will be read from.
-	 * 
-	 * @param readValues Boolean. True:  values from the file will be read.
-	 * 							  False: empty AggregatedNodeValueList will be created.	
-	 */
-	public static AggregatedNodeValueList read(String dir, String filename, String name,
-			boolean readValues) throws IOException {
-		if (!readValues) {
-			return new AggregatedNodeValueList(name, null);
-		}
-		Reader r = new Reader(dir, filename);
-		ArrayList<AggregatedValue> list = new ArrayList<AggregatedValue>();
-		String line = null;
-		int index = 0;
-		while ((line = r.readString()) != null) {
-			String[] temp = line.split(Keywords.aggregatedDataDelimiter);
-			if (Integer.parseInt(temp[0]) != index) {
-				throw new InvalidFormatException("expected index " + index
-						+ " but found " + temp[0] + " @ \"" + line + "\"");
-			}
-			double[] tempDouble = new double[temp.length];
-			for(int i = 0; i < tempDouble.length; i++) {
-				tempDouble[i] = Double.parseDouble(temp[i]);
-			}
-
-			AggregatedValue tempV = new AggregatedValue(name + temp[0], tempDouble);
-			list.add(tempV);
-			index++;
-		}
-		AggregatedValue[] values = new AggregatedValue[list.size()];
-		for (int i = 0; i < list.size(); i++) {
-			values[i] = list.get(i);
-		}
-		r.close();
-		return new AggregatedNodeValueList(name, values);
-	}
->>>>>>> Codeupdate 13-06-24
-=======
->>>>>>> Codeupdate 13-06-10.
-=======
-
-<<<<<<< HEAD
->>>>>>> Codeupdate 13-06-18
-=======
-	// get methods
-	public AggregatedValue[] getValues() {
-		return this.values;
-	}
-	
-	public String getName() {
-		return super.getName();
-	}
-	// IO methods
-	/**
-	 * @param dir String which contains the path to the directory the AggregatedNodeValueList will be read from.
-	 * 
-	 * @param filename String representing the filename the Distribution will be read from.
-	 * 
-	 * @param readValues Boolean. True:  values from the file will be read.
-	 * 							  False: empty AggregatedNodeValueList will be created.	
-	 */
-	public static AggregatedNodeValueList read(String dir, String filename, String name,
-			boolean readValues) throws IOException {
-		if (!readValues) {
-			return new AggregatedNodeValueList(name, null);
-		}
-		Reader r = new Reader(dir, filename);
-		ArrayList<AggregatedValue> list = new ArrayList<AggregatedValue>();
-		String line = null;
-		int index = 0;
-		while ((line = r.readString()) != null) {
-			String[] temp = line.split(Keywords.aggregatedDataDelimiter);
-			if (Integer.parseInt(temp[0]) != index) {
-				throw new InvalidFormatException("expected index " + index
-						+ " but found " + temp[0] + " @ \"" + line + "\"");
-			}
-			double[] tempDouble = new double[temp.length];
-			for(int i = 0; i < tempDouble.length; i++) {
-				tempDouble[i] = Double.parseDouble(temp[i]);
-			}
-
-			AggregatedValue tempV = new AggregatedValue(name + temp[0], tempDouble);
-			list.add(tempV);
-			index++;
-		}
-		AggregatedValue[] values = new AggregatedValue[list.size()];
-		for (int i = 0; i < list.size(); i++) {
-			values[i] = list.get(i);
-		}
-		r.close();
-		return new AggregatedNodeValueList(name, values);
-	}
-<<<<<<< HEAD
->>>>>>> Codeupdate 13-06-24
-=======
-	
-	public void write(String dir, String filename) throws IOException {
-		Writer w = new Writer(dir, filename);
-		AggregatedValue[] tempData = this.getValues();
-		
-		for(AggregatedValue aggData : tempData) {			
-			String temp = "" + (int) aggData.getValues()[0] + Keywords.aggregatedDataDelimiter;
-			for (int i = 1; i < aggData.getValues().length; i++) {
-				if(i == aggData.getValues().length-1)
-					temp += aggData.getValues()[i];
-				else
-					temp += aggData.getValues()[i] + Keywords.aggregatedDataDelimiter;
-			}
-			w.writeln(temp);
-		}
-		w.close();
-	}
-	
-	
->>>>>>> reworked aggregation
 }

@@ -93,43 +93,6 @@ public class BatchData {
 		return new BatchData(timestamp, values, generalRuntimes,
 				metricRuntimes, metrics);
 	}
-<<<<<<< HEAD
-	
-	
-	/**
-	 * This method tests if two different BatchData objects can be aggregated.
-	 * Checks:		- same timestamp
-	 * 				- same amount of metrics
-	 * 				- same metrics (uses MetricData.symeType())
-	 * 
-	 * @author Rwilmes
-	 * @date 24.06.2013
-	 */
-	public static boolean sameType(BatchData b1, BatchData b2) {
-		if(b1.getTimestamp() != b2.getTimestamp()) {
-			Log.warn("different timestamps on batch " + b1.getTimestamp() + " and batch " + b2.getTimestamp());
-			return false;
-		}
-		
-		MetricDataList list1 = b1.getMetrics();
-		MetricDataList list2 = b2.getMetrics();
-		
-		if(list1.size() != list2.size()) {
-			Log.warn("different amount of metrics on batch " + b1.getTimestamp() + " and batch " + b2.getTimestamp());
-			return false;
-		}
-		for(String k : list1.getNames()) {
-			if(!MetricData.sameType(list1.get(k), list2.get(k))) {
-				Log.warn("different metrics on batch " + b1.getTimestamp() + " and batch " + b2.getTimestamp());
-				return false;
-			}
-		}
-
-		return true;
-	}
-<<<<<<< HEAD
-=======
->>>>>>> generator for google
 
 	/**
 	 * This method tests if two different BatchData objects can be aggregated.
@@ -164,7 +127,5 @@ public class BatchData {
 
 		return true;
 	}
-=======
->>>>>>> Nachbesserung Merge 28.06.2013
 
 }

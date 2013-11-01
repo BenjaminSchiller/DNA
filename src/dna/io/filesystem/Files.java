@@ -32,6 +32,7 @@ public class Files {
 	public static String getDistributionName(String filename) {
 		return filename.replace(Config.get("SUFFIX_DIST"), "");
 	}
+
 	/*
 	 * RUNTIMES
 	 */
@@ -63,15 +64,11 @@ public class Files {
 	public static String getValuesName(String filename) {
 		return filename.replace(Config.get("SUFFIX_VALUE"), "");
 	}
-<<<<<<< HEAD
 
-=======
->>>>>>> fixed bug on reading NodeValueLists
 	/*
 	 * NODEVALUELISTS
 	 */
 	public static String getNodeValueListFilename(String name) {
-<<<<<<< HEAD
 		return name + Config.get("SUFFIX_NVL");
 	}
 
@@ -89,17 +86,5 @@ public class Files {
 	 */
 	public static String getProfilerFilename(String name) {
 		return name + Config.get("SUFFIX_VALUE");
-=======
-		return name + Suffix.nodeValueList;
-	}
-
-	public static String[] getNodeValueLists(String dir) {
-		return (new File(dir)).list(new SuffixFilenameFilter(
-				Suffix.nodeValueList));
-	}
-
-	public static String getNodeValueListName(String filename) {
-		return filename.replace(Suffix.nodeValueList, "");
->>>>>>> fixed bug on reading NodeValueLists
 	}	
 }

@@ -85,177 +85,6 @@ public class UndirectedBetweenessCentralityU extends
 			HashMap<UndirectedNode, HashSet<UndirectedNode>> p = parents
 					.get(root);
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-						removeEdgeManyToMany(node2TreeElement);
-
-						// case 2: the lower node has only one parent
-					} else if (node2TreeElement.getParents().size() == 1) {
-						Queue<ShortestPathTreeElement> q1 = new LinkedList<ShortestPathTreeElement>();
-						Queue<ShortestPathTreeElement> q2 = new LinkedList<ShortestPathTreeElement>();
-						q1.add(node2TreeElement);
-						Set<ShortestPathTreeElement> seenNodes = new HashSet<ShortestPathTreeElement>();
-
-						while (!q1.isEmpty()) {
-							ShortestPathTreeElement temp = q1.poll();
-							if (temp.getChildren().isEmpty()) {
-								q2.add(temp);
-							}
-							if (temp.getParents().size() > 1) {
-
-								removeEdgeManyToMany(temp);
-
-							} else if (temp.getParents().size() == 1) {
-								// case2.1 connection to the same level
-								if (g.getNode(temp.getNodeIndex()).getDegree() >= temp
-										.getParents().size()
-										+ temp.getChildren().size()) {
-									UndirectedNode node = g.getNode(temp
-											.getNodeIndex());
-									List<Integer> sameLevelNodes = new ArrayList<Integer>();
-									for (UndirectedEdge edge : node.getEdges()) {
-										if (edge.getNode1().getIndex() != temp
-												.getNodeIndex()) {
-											if (!seenNodes
-													.contains(shortestPathNodeN
-															.get(edge
-																	.getNode1()
-																	.getIndex()))) {
-												sameLevelNodes.add(edge
-														.getNode1().getIndex());
-											}
-										} else if (!seenNodes
-												.contains(shortestPathNodeN
-														.get(edge.getNode2()
-																.getIndex()))) {
-											sameLevelNodes.add(edge.getNode2()
-													.getIndex());
-										}
-									}
-
-									for (int i : sameLevelNodes) {
-										ShortestPathTreeElement iTE = shortestPathNodeN
-												.get(i);
-										for (ShortestPathTreeElement ste : temp
-												.getChildren()) {
-											q2.add(ste);
-										}
-										iTE.addChild(temp);
-										temp.addParent(iTE);
-									}
-
-									int shortestPathCount = 0;
-									for (ShortestPathTreeElement ste : temp
-											.getParents()) {
-										shortestPathCount += ste
-												.getShortestPathCount();
-									}
-									temp.setShortestPathCount(shortestPathCount);
-									temp.setDistanceToRoot(temp.getParents()
-											.get(0).getDistanceToRoot());
-
-									// childs to queue
-									for (ShortestPathTreeElement ste : temp
-											.getChildren()) {
-										q1.add(ste);
-										seenNodes.add(ste);
-									}
-								} else {
-									// case 2.2: no connection to same level
-									List<ShortestPathTreeElement> manyToMany = new ArrayList<ShortestPathTreeElement>();
-									List<ShortestPathTreeElement> oneToMany = new ArrayList<ShortestPathTreeElement>();
-
-									// Check the connection status of the
-									// children
-									for (ShortestPathTreeElement ste : temp
-											.getChildren()) {
-										if (ste.getParents().size() > 1) {
-											manyToMany.add(ste);
-										} else {
-											oneToMany.add(ste);
-										}
-										q1.add(ste);
-									}
-									if (!manyToMany.isEmpty()) {
-										for (ShortestPathTreeElement ste : manyToMany) {
-											ste.addChild(temp);
-											ste.removeParent(temp);
-											ste.setShortestPathCount(ste
-													.getShortestPathCount() - 1);
-											temp.addParent(ste);
-										}
-									} else {
-										for (ShortestPathTreeElement ste : oneToMany) {
-											ste.addChild(temp);
-											ste.removeParent(temp);
-											ste.setShortestPathCount(ste
-													.getShortestPathCount() - 1);
-											temp.addParent(ste);
-										}
-									}
-
-								}
-
-							}
-						}
-
-						while (!q2.isEmpty()) {
-							ShortestPathTreeElement temp = q1.poll();
-							for (ShortestPathTreeElement node : temp
-									.getParents()) {
-								q2.add(node);
-
-							}
-						}
-
-					}
-				}
-
-			}
-		}
-		return true;
-	}
-
-	private void removeEdgeManyToMany(ShortestPathTreeElement node2TreeElement) {
-		// Queue for update the tree entries down the shortest
-		// path tree
-		Queue<ShortestPathTreeElement> q1 = new LinkedList<ShortestPathTreeElement>();
-
-		// Queue for update the betweenesscentrality score up
-		// the shortest path tree
-		Queue<ShortestPathTreeElement> q2 = new LinkedList<ShortestPathTreeElement>();
-		q1.add(node2TreeElement);
-
-		// change the shortestpath count down the tree
-		while (!q1.isEmpty()) {
-			ShortestPathTreeElement temp = q1.poll();
-			for (ShortestPathTreeElement node : temp.getChildren()) {
-				q1.add(node);
-				node.setShortestPathCount(node.getShortestPathCount() - 1);
-				if (node.getChildren().isEmpty()) {
-					q2.add(node);
-				}
-			}
-		}
-
-		while (!q2.isEmpty()) {
-			ShortestPathTreeElement temp = q1.poll();
-			for (ShortestPathTreeElement node : temp.getParents()) {
-				q2.add(node);
-
-			}
-		}
-=======
-						removeEdgeManyToMany(node2TreeElement,
-								node1TreeElement, shortestPathNodeN);
-=======
-			ShortestPathTreeElement n1TE = shortestPathTree.get(n1);
-			ShortestPathTreeElement n2TE = shortestPathTree.get(n2);
->>>>>>> some stuff
-
-=======
->>>>>>> some changes
 			// Find the above Tree Element
 			if (d.get(n1) > d.get(n2)) {
 				n1 = n2;
@@ -515,23 +344,6 @@ public class UndirectedBetweenessCentralityU extends
 							currentScore + newASums.get(w) - oldSums.get(w));
 				}
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-		dependencyAccumulation(src, dst, shortestPathTree, qLevel,
-				shortestPathsCount, touched);
-
->>>>>>> some stuff
-=======
-		dstTE.removeParent(src);
-		for (IElement iE : g.getNodes()) {
-			UndirectedNode i = (UndirectedNode) iE;
-			ShortestPathTreeElement shortestPathTreeElement = shortestPathTree
-					.get(i);
-			shortestPathTreeElement.setShortestPathCount(spcUpdate.get(i));
-			if (touched.get(i) != TouchedType.NOT) {
-				shortestPathTreeElement.setAccumulativSum(newASums.get(i));
-=======
->>>>>>> some changes
 			}
 		}
 
@@ -539,11 +351,7 @@ public class UndirectedBetweenessCentralityU extends
 		spcs.put(root, newSpc);
 		oldSums.putAll(newASums);
 		return true;
-<<<<<<< HEAD
->>>>>>> some stuff
-=======
 
->>>>>>> some changes
 	}
 
 	private boolean applyAfterEdgeAddition(Update u) {
@@ -595,29 +403,7 @@ public class UndirectedBetweenessCentralityU extends
 		return true;
 	}
 
-<<<<<<< HEAD
-	private void mergeOfComponentsInsertion(UndirectedNode src,
-			UndirectedNode dst,
-			HashMap<Integer, ShortestPathTreeElement> shortestPathTree) {
-<<<<<<< HEAD
-=======
-		Queue<UndirectedNode> qBFS = new LinkedList<UndirectedNode>();
-		// TODO:Levels einrichten
-		Queue<UndirectedNode>[] qLevel = new Queue[this.g.getNodes().size()];
-		Map<Integer, Integer> distanceP = new HashMap<>();
-		Map<Integer, Integer> shortestPathsCount = new HashMap<>();
-		Set<Integer> touched = new HashSet<>();
-=======
 	private void mergeOfComponentsInsertion(UndirectedNode root,
-<<<<<<< HEAD
-			UndirectedNode src, UndirectedNode dst,
-			HashMap<UndirectedNode, ShortestPathTreeElement> shortestPathTree) {
-<<<<<<< HEAD
-		UndirectedGraph g = (UndirectedGraph) this.g;
->>>>>>> some stuff
-=======
->>>>>>> generator for google
-=======
 			UndirectedNode src, UndirectedNode dst) {
 
 		counter++;
@@ -626,7 +412,6 @@ public class UndirectedBetweenessCentralityU extends
 		HashMap<UndirectedNode, HashSet<UndirectedNode>> p = parents.get(root);
 		HashMap<UndirectedNode, Double> oldSums = accSums.get(root);
 		HashMap<UndirectedNode, Integer> oldSpc = spcs.get(root);
->>>>>>> some changes
 
 		// Queue for the BFS search down the shortes Path tree
 		Queue<UndirectedNode> qBFS = new LinkedList<UndirectedNode>();
@@ -832,161 +617,9 @@ public class UndirectedBetweenessCentralityU extends
 		p.putAll(newParents);
 	}
 
-<<<<<<< HEAD
-	private boolean adjacentLevelInsertion(UndirectedNode src,
-			UndirectedNode dst,
-			HashMap<Integer, ShortestPathTreeElement> shortestPathTree) {
->>>>>>> some stuff
-		Queue<UndirectedNode> qBFS = new LinkedList<UndirectedNode>();
-		// TODO:Levels einrichten
-		Queue<UndirectedNode>[] qLevel = new Queue[this.g.getNodes().size()];
-		Map<Integer, Integer> distanceP = new HashMap<>();
-		Map<Integer, Integer> shortestPathsCount = new HashMap<>();
-		Set<Integer> touched = new HashSet<>();
-
-		for (int i = 0; i < qLevel.length; i++) {
-			qLevel[i] = new LinkedList<UndirectedNode>();
-		}
-
-<<<<<<< HEAD
-		ShortestPathTreeElement dstTE = new ShortestPathTreeElement(
-				dst.getIndex());
-		dstTE.setDistanceToRoot(shortestPathTree.get(src.getIndex())
-				.getDistanceToRoot() + 1);
-		dstTE.setShortestPathCount(shortestPathTree.get(src.getIndex())
-				.getShortestPathCount());
-		shortestPathTree.put(dst.getIndex(), dstTE);
-
-		qBFS.add(dst);
-
-=======
->>>>>>> some stuff
-		// Stage 2
-		while (!qBFS.isEmpty()) {
-			UndirectedNode v = qBFS.poll();
-
-			// all neighbours of v
-			for (UndirectedEdge ed : v.getEdges()) {
-
-				UndirectedNode n = ed.getNode1();
-				if (n == v) {
-					n = ed.getNode2();
-				}
-				if (!touched.contains(n.getIndex())) {
-					qBFS.add(n);
-
-					ShortestPathTreeElement temp = new ShortestPathTreeElement(
-							n.getIndex());
-					temp.setDistanceToRoot(shortestPathTree.get(v.getIndex())
-							.getDistanceToRoot() + 1);
-					qLevel[temp.getDistanceToRoot()].add(n);
-				}
-				if (shortestPathTree.get(n.getIndex()).getDistanceToRoot() == shortestPathTree
-						.get(v.getIndex()).getDistanceToRoot() + 1) {
-					shortestPathTree.get(n.getIndex()).setShortestPathCount(
-							shortestPathTree.get(n.getIndex())
-									.getShortestPathCount()
-									+ shortestPathTree.get(v.getIndex())
-											.getShortestPathCount());
-					shortestPathTree.get(n).addParent(
-							shortestPathTree.get(v.getIndex()));
-
-				}
-
-			}
-		}
-
-		dependencyAccumulation(src, dst, shortestPathTree, qLevel,
-				shortestPathsCount, touched);
-
-	}
-
-	private void nonAdjacentLevelInsertion(UndirectedNode src,
-			UndirectedNode dst,
-			HashMap<Integer, ShortestPathTreeElement> shortestPathTree) {
-		Queue<UndirectedNode> qBFS = new LinkedList<UndirectedNode>();
-		// TODO:Levels einrichten
-		Queue<UndirectedNode>[] qLevel = new Queue[this.g.getNodes().size()];
-		Map<Integer, Integer> distanceP = new HashMap<>();
-		Map<Integer, Integer> shortestPathsCount = new HashMap<>();
-		Set<Integer> touched = new HashSet<>();
-
-		for (int i = 0; i < qLevel.length; i++) {
-			qLevel[i] = new LinkedList<UndirectedNode>();
-		}
-
-		distanceP.put(dst.getIndex(), shortestPathTree.get(src.getIndex())
-				.getDistanceToRoot() + 1);
-		// Stage 2
-		while (!qBFS.isEmpty()) {
-			UndirectedNode v = qBFS.poll();
-			// all neighbours of v
-			for (UndirectedEdge ed : v.getEdges()) {
-
-				UndirectedNode n = ed.getNode1();
-				if (n == v) {
-					n = ed.getNode2();
-				}
-
-				ShortestPathTreeElement spTEofN = shortestPathTree.get(n
-						.getIndex());
-				ShortestPathTreeElement spTEofV = shortestPathTree.get(v
-						.getIndex());
-				if (spTEofN.getDistanceToRoot() > distanceP.get(v.getIndex()) + 1) {
-					if (!touched.contains(n.getIndex())) {
-						qBFS.add(n);
-						touched.add(n.getIndex());
-						spTEofN.setDistanceToRoot(spTEofV.getDistanceToRoot() + 1);
-						distanceP
-								.put(n.getIndex(), distanceP.get(v.getIndex()));
-						qLevel[spTEofN.getDistanceToRoot()].add(n);
-						spTEofN.deleteAllParents();
-						spTEofN.addParent(spTEofV);
-						spTEofV.addChild(spTEofN);
-					}
-
-				} else if (spTEofN.getDistanceToRoot() == distanceP.get(v
-						.getIndex()) + 1) {
-					if (!touched.contains(n.getIndex())) {
-						qBFS.add(n);
-						touched.add(n.getIndex());
-						qLevel[spTEofN.getDistanceToRoot()].add(n);
-						if (!spTEofV.getChildren().contains(spTEofN)) {
-							spTEofV.addChild(spTEofN);
-						}
-						if (!spTEofN.getParents().contains(spTEofV)) {
-							spTEofN.addParent(spTEofV);
-						}
-					}
-
-				}
-				if (shortestPathsCount.containsKey(n.getIndex())) {
-					shortestPathsCount.put(
-							n.getIndex(),
-							shortestPathsCount.get(n.getIndex())
-									+ distanceP.get(v.getIndex()));
-				} else {
-					shortestPathsCount.put(
-							n.getIndex(),
-							spTEofN.getShortestPathCount()
-									+ distanceP.get(v.getIndex()));
-				}
-			}
-
-		}
-
-		dependencyAccumulation(src, dst, shortestPathTree, qLevel,
-				shortestPathsCount, touched);
-	}
-
-	private boolean adjacentLevelInsertion(UndirectedNode src,
-			UndirectedNode dst,
-			HashMap<Integer, ShortestPathTreeElement> shortestPathTree) {
-=======
 	private boolean adjacentLevelInsertion(UndirectedNode root,
 			UndirectedNode src, UndirectedNode dst) {
 		// Queue for BFS Search
->>>>>>> some stuff
 		Queue<UndirectedNode> qBFS = new LinkedList<UndirectedNode>();
 		counter++;
 
@@ -1017,49 +650,8 @@ public class UndirectedBetweenessCentralityU extends
 			UndirectedNode v = qBFS.poll();
 
 			// all neighbours of v
-<<<<<<< HEAD
-<<<<<<< HEAD
-			for (UndirectedEdge ed : v.getEdges()) {
-				UndirectedNode n = ed.getNode1();
-				if (n == v)
-					n = ed.getNode2();
-<<<<<<< HEAD
-
-=======
->>>>>>> some stuff
-				ShortestPathTreeElement spTEofN = shortestPathTree.get(n
-						.getIndex());
-				ShortestPathTreeElement spTEofV = shortestPathTree.get(v
-						.getIndex());
-<<<<<<< HEAD
-=======
-
->>>>>>> some stuff
-				if (spTEofN.getDistanceToRoot() == spTEofV.getDistanceToRoot() + 1) {
-					if (!touched.contains(n.getIndex())) {
-						qBFS.add(n);
-						qLevel[spTEofN.getDistanceToRoot()].add(n);
-						touched.add(n.getIndex());
-						spTEofN.setDistanceToRoot(spTEofV.getDistanceToRoot() + 1);
-						distanceP
-								.put(n.getIndex(), distanceP.get(v.getIndex()));
-<<<<<<< HEAD
-					} else {
-						distanceP.put(n.getIndex(), distanceP.get(n.getIndex())
-								+ distanceP.get(v.getIndex()));
-					}
-					if (shortestPathsCount.containsKey(n.getIndex())) {
-						shortestPathsCount.put(n.getIndex(),
-								shortestPathsCount.get(n.getIndex())
-										+ distanceP.get(v.getIndex()));
-					} else {
-=======
-=======
-			for (UndirectedEdge edge : v.getEdges()) {
-=======
 			for (IElement iEdges : v.getEdges()) {
 				UndirectedEdge edge = (UndirectedEdge) iEdges;
->>>>>>> generator for google
 				UndirectedNode w = edge.getDifferingNode(v);
 
 				if (d.get(w).equals(d.get(v).intValue() + 1)) {
@@ -1070,33 +662,10 @@ public class UndirectedBetweenessCentralityU extends
 						newSums.put(w, 0d);
 						visited.put(w, counter);
 						dP.put(w, dP.get(v));
->>>>>>> some stuff
 					} else {
 						dP.put(w, dP.get(w) + dP.get(v));
 					}
-<<<<<<< HEAD
-<<<<<<< HEAD
-					if (shortestPathsCount.containsKey(n.getIndex())) {
-						shortestPathsCount.put(n.getIndex(),
-								shortestPathsCount.get(n.getIndex())
-										+ distanceP.get(v.getIndex()));
-					} else {
->>>>>>> some stuff
-						shortestPathsCount.put(
-								n.getIndex(),
-								spTEofN.getShortestPathCount()
-										+ distanceP.get(v.getIndex()));
-					}
-<<<<<<< HEAD
-=======
-
->>>>>>> some stuff
-=======
-					spcUpdate.put(w, spcUpdate.get(w) + dP.get(v));
->>>>>>> some stuff
-=======
 					newSpc.put(w, newSpc.get(w) + dP.get(v));
->>>>>>> some changes
 				}
 			}
 		}
