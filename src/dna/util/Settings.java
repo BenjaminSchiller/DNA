@@ -1,10 +1,9 @@
 package dna.util;
 
 public class Settings {
-	public static final String gnuplotPath = "C:\\Program Files (x86)\\gnuplot\\bin\\gnuplot.exe";
-	// unix
 	// public static final String gnuplotPath =
-	// "f:\\!proxx\\gnuplot\\bin\\gnuplot.exe"; // rwilmes windows
+	// "C:\\Program Files (x86)\\gnuplot\\bin\\gnuplot.exe";
+	public static final String gnuplotPath = "/usr/bin/gnuplot";
 
 	// sorted by degree of freedom:
 	// 1,2,3,...,29,30,40,50,60,70,80,90,100,200,300,400,500,infinity
