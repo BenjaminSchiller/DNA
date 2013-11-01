@@ -15,6 +15,14 @@ public class ProfileEntry {
 			list[i] = 0;
 		}
 	}
+	
+	public int getCombined() {
+		int res = 0;
+		for (int i = 0; i < list.length; i++) {
+			res += list[i];
+		}
+		return res;
+	}
 
 	public int get(ProfilerType p) {
 		return list[p.ordinal()];
@@ -62,7 +70,8 @@ public class ProfileEntry {
 
 		for (ProfilerType p : ProfilerType.values()) {
 			res.increase(p, this.get(p));
-			res.increase(p, other.get(p));
+			if (other != null)
+				res.increase(p, other.get(p));
 		}
 
 		return res;
