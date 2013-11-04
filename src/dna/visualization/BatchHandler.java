@@ -3,9 +3,9 @@ package dna.visualization;
 import java.io.IOException;
 import java.util.Random;
 
+import dna.io.filesystem.Dir;
 import dna.series.data.BatchData;
 import dna.series.lists.BatchDataList;
-import dna.visualization.components.StatsDisplay;
 
 /**
  * A batchhandler is used to read a run from the filesystem and simulate it by
@@ -17,9 +17,10 @@ public class BatchHandler implements Runnable {
 
 	// class variables
 	private String dir;
+	private BatchData currentBatch;
+	private BatchData nextBatch;
 	private BatchDataList batches;
 	private int index;
-	private StatsDisplay statsFrame;
 	private MainDisplay mainFrame;
 
 	private boolean isInit;
@@ -27,7 +28,6 @@ public class BatchHandler implements Runnable {
 
 	private Thread t;
 
-	final private int INITIAL_WAIT_TIME = 1000;
 	private int speed = 500;
 
 	// constructors
@@ -39,10 +39,8 @@ public class BatchHandler implements Runnable {
 		this.threadSuspended = false;
 	}
 
-	public BatchHandler(String dir, StatsDisplay statsFrame,
-			MainDisplay mainFrame) {
+	public BatchHandler(String dir, MainDisplay mainFrame) {
 		this.dir = dir;
-		this.statsFrame = statsFrame;
 		this.mainFrame = mainFrame;
 		this.batches = new BatchDataList();
 		this.index = 0;
@@ -59,7 +57,7 @@ public class BatchHandler implements Runnable {
 		return this.batches;
 	}
 
-	public int getIndex() {
+	public long getIndex() {
 		return this.index;
 	}
 
@@ -97,19 +95,43 @@ public class BatchHandler implements Runnable {
 
 	/** returns the next batch **/
 	public BatchData getNextBatch() {
-		if (this.getIndex() < this.getBatches().size()) {
-			return this.batches.get(this.index++);
-		} else {
-			return null;
+		try {
+			return this.readBatch(this.index + 1);
+		} catch (IndexOutOfBoundsException e) {
+			e.printStackTrace();
 		}
+		return null;
+	}
+
+	/** return the initialization batch **/
+	public BatchData getInitBatch() {
+		try {
+			return BatchData.read(Dir.getBatchDataDir(this.dir, this.batches
+					.get(0).getTimestamp()),
+					this.batches.get(0).getTimestamp(), true);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return new BatchData(0);
 	}
 
 	/** adds new batches from the filesystem to the batches **/
 	public void updateBatches() {
+		BatchDataList tempBatches = BatchDataList.readTimestamps(this.getDir());
+		if (this.getBatches().size() <= tempBatches.size()) {
+			for (BatchData b : tempBatches.list) {
+				this.getBatches().add(b);
+			}
+		}
+		this.sortBatches();
+	}
+
+	/** checks available batches and updates timestamps, does not read values **/
+	public void getTimestamps() {
 		try {
-			BatchDataList tempBatches = BatchDataList.read(this.getDir(), true);
+			BatchDataList tempBatches = BatchDataList
+					.read(this.getDir(), false);
 			if (this.getBatches().size() <= tempBatches.size()) {
-				int offset = tempBatches.size() - this.getBatches().size();
 				for (BatchData b : tempBatches.list) {
 					this.getBatches().add(b);
 				}
@@ -118,15 +140,22 @@ public class BatchHandler implements Runnable {
 
 		} catch (IOException e) {
 			System.out
-					.println("Error in BatchHandler while attempting to read batches.");
+					.println("Error in BatchHandler while attempting to read timestamps.");
 			e.printStackTrace();
 		}
-
 	}
 
 	/** checks if a new batch is available **/
 	public boolean isNewBatchAvailable() {
 		if (this.getIndex() < this.getBatches().size())
+			return true;
+		else
+			return false;
+	}
+
+	/** checks if all available batches have been send **/
+	public boolean isLastBatchSend() {
+		if (this.getIndex() == this.getBatches().size())
 			return true;
 		else
 			return false;
@@ -177,11 +206,28 @@ public class BatchHandler implements Runnable {
 		if (!isInit)
 			this.init();
 
-		while (t == thisThread && this.isNewBatchAvailable()) {
+		while (t == thisThread && !this.isLastBatchSend()) {
 			try {
 				long startProcessing = System.currentTimeMillis();
-				BatchData tempBatch = this.getNextBatch();
-				this.mainFrame.updateData(tempBatch);
+
+				if (this.index == 0)
+					this.currentBatch = this.getInitBatch();
+				else {
+					if (this.nextBatch == null) {
+						this.currentBatch = this.getNextBatch();
+					} else {
+						this.currentBatch = this.nextBatch;
+					}
+				}
+
+				// handover new batch
+				this.mainFrame.updateData(this.currentBatch);
+				// read next batch
+				if (this.index < this.getBatches().size() - 1)
+					this.nextBatch = this.getNextBatch();
+
+				this.index++;
+
 				long waitTime = this.getSpeed()
 						- (System.currentTimeMillis() - startProcessing);
 				if (waitTime > 0)
@@ -202,6 +248,8 @@ public class BatchHandler implements Runnable {
 		if (this.threadSuspended)
 			this.togglePause();
 		this.batches = new BatchDataList();
+		this.currentBatch = null;
+		this.nextBatch = null;
 		this.stop();
 		this.mainFrame.reset();
 		this.setIndex(0);
@@ -244,7 +292,7 @@ public class BatchHandler implements Runnable {
 
 	/** initializes by sending the first batch to the mainwindow **/
 	public void init() {
-		this.mainFrame.initData(this.getNextBatch());
+		this.mainFrame.initData(this.getInitBatch());
 		this.index = 0;
 		this.isInit = true;
 	}
@@ -254,4 +302,29 @@ public class BatchHandler implements Runnable {
 		this.batches = new BatchDataList();
 		this.index = 0;
 	}
+
+	/** reads and returns the next batch **/
+	public BatchData readNextBatch() {
+		try {
+			return BatchData.read(
+					Dir.getBatchDataDir(this.dir, this.index + 1),
+					this.index + 1, true);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+	/** reads and returns a batch from the filesystem **/
+	public BatchData readBatch(long timestamp) {
+		try {
+			BatchData tempBatch = BatchData.read(
+					Dir.getBatchDataDir(this.dir, timestamp), timestamp, true);
+			return tempBatch;
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+
 }

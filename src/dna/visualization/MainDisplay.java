@@ -27,7 +27,7 @@ import dna.visualization.components.StatsDisplay;
 
 public class MainDisplay extends JFrame {
 	/** DEFAULT DIR **/
-	static String defaultDir = "data/Metrics/cc/run.0/";
+	static String defaultDir = "data/scenario1/run.0/";
 
 	/** MAIN **/
 	public static void main(String[] args) {
@@ -35,13 +35,15 @@ public class MainDisplay extends JFrame {
 		MainDisplay display = new MainDisplay();
 		display.setVisible(true);
 
-		// init batch handler
-		display.setBatchHandler();
+		// init batch handler, hand over directory and maindisplay
+		display.setBatchHandler(new BatchHandler(defaultDir, display));
 		display.initBatchHandler();
 
 		// get initial batch
 
 	}
+
+	/** MAIN-END **/
 
 	// class variables
 	private StatsDisplay statsDisplay1;
@@ -284,9 +286,8 @@ public class MainDisplay extends JFrame {
 	}
 
 	/** sets the batch handler **/
-	public void setBatchHandler() {
-		this.batchHandler = new BatchHandler(defaultDir, this.statsDisplay1,
-				this);
+	public void setBatchHandler(BatchHandler bh) {
+		this.batchHandler = bh;
 	}
 
 }
