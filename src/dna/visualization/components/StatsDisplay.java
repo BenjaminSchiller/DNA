@@ -1,5 +1,6 @@
 package dna.visualization.components;
 
+import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
@@ -31,6 +32,7 @@ import dna.visualization.components.statsdisplay.StatsGroup;
  * 
  */
 public class StatsDisplay extends JPanel implements ChangeListener {
+	private Font defaultFont = MainDisplay.defaultFont;
 
 	private JPanel SettingsPanel;
 	private JPanel SettingsNotSpeedPanel;
@@ -71,6 +73,8 @@ public class StatsDisplay extends JPanel implements ChangeListener {
 		this.statsdis = this;
 		// set title and border of statistics
 		TitledBorder title = BorderFactory.createTitledBorder("Statistics");
+		title.setTitleFont(new Font(this.defaultFont.getName(), Font.BOLD,
+				this.defaultFont.getSize()));
 		title.setBorder(BorderFactory
 				.createEtchedBorder((EtchedBorder.LOWERED)));
 		this.setBorder(title);
@@ -115,7 +119,9 @@ public class StatsDisplay extends JPanel implements ChangeListener {
 
 		// directory
 		this.DirectoryLabel = new JLabel("Directory: ");
+		this.DirectoryLabel.setFont(this.defaultFont);
 		this.DirectoryValue = new JTextField("./..");
+		this.DirectoryValue.setFont(this.defaultFont);
 		this.DirectoryValue.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent evt) {
 				mainDisplay.reset();
@@ -132,19 +138,25 @@ public class StatsDisplay extends JPanel implements ChangeListener {
 
 		// timestamp
 		this.TimestampLabel = new JLabel("Timestamp: ");
+		this.TimestampLabel.setFont(this.defaultFont);
 		this.TimestampValue = new JLabel("0");
+		this.TimestampValue.setFont(this.defaultFont);
 		settingLabels.add(this.TimestampLabel);
 		settingValues.add(this.TimestampValue);
 
 		// amount of nodes
 		this.NodesLabel = new JLabel("Nodes: ");
+		this.NodesLabel.setFont(this.defaultFont);
 		this.NodesValue = new JLabel("0");
+		this.NodesValue.setFont(this.defaultFont);
 		settingLabels.add(this.NodesLabel);
 		settingValues.add(this.NodesValue);
 
 		// amount of edges
 		this.EdgesLabel = new JLabel("Edges: ");
+		this.EdgesLabel.setFont(this.defaultFont);
 		this.EdgesValue = new JLabel("0");
+		this.EdgesValue.setFont(this.defaultFont);
 		settingLabels.add(this.EdgesLabel);
 		settingValues.add(this.EdgesValue);
 
@@ -380,5 +392,4 @@ public class StatsDisplay extends JPanel implements ChangeListener {
 			this.mainDisplay.setBatchHandlerSpeed((int) source.getValue());
 		}
 	}
-
 }

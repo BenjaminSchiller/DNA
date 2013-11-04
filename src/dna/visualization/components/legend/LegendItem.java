@@ -16,6 +16,8 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.border.EtchedBorder;
 
+import dna.visualization.MainDisplay;
+
 /**
  * An item in the legendlist.
  * 
@@ -23,6 +25,8 @@ import javax.swing.border.EtchedBorder;
  * 
  */
 public class LegendItem extends JPanel {
+	private Font defaultFont = MainDisplay.defaultFont;
+	private Font valueFont = new Font("Dialog", Font.PLAIN, 9);
 
 	private LegendItem thisItem;
 	private LegendList parent;
@@ -38,7 +42,6 @@ public class LegendItem extends JPanel {
 
 	// constructor
 	public LegendItem(LegendList parent, String name, Color color) {
-		super();
 		this.parent = parent;
 		this.thisItem = this;
 		this.setName(name);
@@ -66,16 +69,16 @@ public class LegendItem extends JPanel {
 		String nameSuffix = name.substring(i + 1);
 
 		this.nameLabel = new JLabel(nameSuffix);
+		this.nameLabel.setFont(this.defaultFont);
 		this.nameLabel.setForeground(color);
 		this.textPanel.add(this.nameLabel);
 		this.valueLabel = new JLabel("V=" + 0.0);
-		Font valueFont = new Font(this.valueLabel.getFont().getName(),
-				Font.PLAIN, this.valueLabel.getFont().getSize() - 3);
 		this.valueLabel.setFont(valueFont);
 		this.textPanel.add(this.valueLabel);
 
 		// remove button
 		this.removeButton = new JButton("-");
+		this.removeButton.setFont(this.defaultFont);
 		this.removeButton.setPreferredSize(new Dimension(20, 20));
 		this.removeButton.setToolTipText("Remove value from list and plot.");
 		this.removeButton.addActionListener(new ActionListener() {
@@ -90,18 +93,22 @@ public class LegendItem extends JPanel {
 
 		// toggle y axis button
 		this.toggleYAxisButton = new JButton("yR");
+		this.toggleYAxisButton.setFont(this.defaultFont);
 		this.toggleYAxisButton.setPreferredSize(new Dimension(20, 20));
 		this.toggleYAxisButton.setMargin(new Insets(0, 0, 0, 0));
-		this.toggleYAxisButton.setToolTipText("Currently plotted on left y-axis. Click to change to right y-axis");
+		this.toggleYAxisButton
+				.setToolTipText("Currently plotted on left y-axis. Click to change to right y-axis");
 		this.toggleYAxisButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent event) {
 				if (thisItem.toggleYAxisButton.getText().equals("yR")) {
 					thisItem.toggleYAxisButton.setText("yL");
-					thisItem.toggleYAxisButton.setToolTipText("Currently plotted on right y-axis. Click to change to left y-axis");
+					thisItem.toggleYAxisButton
+							.setToolTipText("Currently plotted on right y-axis. Click to change to left y-axis");
 				} else {
 					thisItem.toggleYAxisButton.setText("yR");
-					thisItem.toggleYAxisButton.setToolTipText("Currently plotted on left y-axis. Click to change to right y-axis");
+					thisItem.toggleYAxisButton
+							.setToolTipText("Currently plotted on left y-axis. Click to change to right y-axis");
 				}
 				thisItem.parent.toggleYAxis(thisItem);
 			}

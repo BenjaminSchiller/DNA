@@ -2,6 +2,7 @@ package dna.visualization;
 
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
@@ -22,25 +23,25 @@ import javax.swing.JPanel;
 import javax.swing.border.EtchedBorder;
 
 import dna.series.data.BatchData;
+import dna.util.Config;
 import dna.visualization.components.MetricVisualizer;
 import dna.visualization.components.StatsDisplay;
 
 public class MainDisplay extends JFrame {
-	/** DEFAULT DIR **/
+	/** DEFAULTS **/
 	static String defaultDir = "data/scenario1/run.0/";
+	public static Font defaultFont = MainDisplay.getDefaultFontFromConfig();
 
 	/** MAIN **/
 	public static void main(String[] args) {
 		// init main window
 		MainDisplay display = new MainDisplay();
-		display.setVisible(true);
 
 		// init batch handler, hand over directory and maindisplay
 		display.setBatchHandler(new BatchHandler(defaultDir, display));
 		display.initBatchHandler();
 
-		// get initial batch
-
+		display.setVisible(true);
 	}
 
 	/** MAIN-END **/
@@ -78,6 +79,7 @@ public class MainDisplay extends JFrame {
 		this.statsDisplay1 = new StatsDisplay();
 		this.statsDisplay1.setParent(this);
 		this.statsDisplay1.setDirectory(defaultDir);
+		this.statsDisplay1.setFont(this.getDefaultFontFromConfig());
 
 		mainDisplayConstraints.gridy = 0;
 		mainDisplayConstraints.gridx = 0;
@@ -91,6 +93,7 @@ public class MainDisplay extends JFrame {
 
 		// add buttons
 		this.quitButton = new JButton("Quit");
+		this.quitButton.setFont(MainDisplay.defaultFont);
 		this.quitButton.setBounds(50, 60, 80, 30);
 		this.quitButton.setForeground(Color.BLACK);
 		this.quitButton.addActionListener(new ActionListener() {
@@ -101,6 +104,7 @@ public class MainDisplay extends JFrame {
 		});
 
 		this.pauseButton = new JButton("Pause");
+		this.pauseButton.setFont(MainDisplay.defaultFont);
 		this.pauseButton.setBounds(50, 60, 80, 30);
 		this.pauseButton.setForeground(Color.BLACK);
 		this.pauseButton.addActionListener(new ActionListener() {
@@ -118,6 +122,7 @@ public class MainDisplay extends JFrame {
 		});
 
 		this.stopButton = new JButton("Stop");
+		this.stopButton.setFont(MainDisplay.defaultFont);
 		this.stopButton.setBounds(50, 60, 80, 30);
 		this.stopButton.setForeground(Color.BLACK);
 		this.stopButton.addActionListener(new ActionListener() {
@@ -136,6 +141,7 @@ public class MainDisplay extends JFrame {
 		});
 
 		this.startButton = new JButton("Start");
+		this.startButton.setFont(MainDisplay.defaultFont);
 		this.startButton.setBounds(50, 60, 80, 30);
 		this.startButton.setForeground(Color.BLACK);
 		this.startButton.addActionListener(new ActionListener() {
@@ -288,6 +294,31 @@ public class MainDisplay extends JFrame {
 	/** sets the batch handler **/
 	public void setBatchHandler(BatchHandler bh) {
 		this.batchHandler = bh;
+	}
+
+	/** returns the default font configured in the gui config file **/
+	static public Font getDefaultFontFromConfig() {
+		String name = Config.get("GUI_DEFAULT_FONT_NAME");
+		int style;
+		int size = Integer.parseInt(Config.get("GUI_DEFAULT_FONT_SIZE"));
+
+		String temp = Config.get("GUI_DEFAULT_FONT_STYLE");
+		switch (temp) {
+		case "PLAIN":
+			style = Font.PLAIN;
+			break;
+		case "BOLD":
+			style = Font.BOLD;
+			break;
+		case "ITALIC":
+			style = Font.ITALIC;
+			break;
+		default:
+			style = Font.PLAIN;
+			break;
+		}
+
+		return new Font(name, style, size);
 	}
 
 }

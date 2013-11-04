@@ -1,12 +1,15 @@
 package dna.visualization.components.statsdisplay;
 
 import java.awt.Component;
+import java.awt.Font;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.border.TitledBorder;
+
+import dna.visualization.MainDisplay;
 
 /**
  * A statstic group is a list that shows items and their corresponding values.
@@ -16,20 +19,20 @@ import javax.swing.border.TitledBorder;
  * 
  */
 public class StatsGroup extends JPanel {
+	private Font defaultFont = MainDisplay.defaultFont;
 
 	public JPanel NamePanel;
 	public JPanel ValuePanel;
 
 	// constructor
 	public StatsGroup(String title) {
-		super();
 		// set name
 		this.setName(title);
 
 		// set border
 		TitledBorder border = BorderFactory.createTitledBorder(title);
-		// border.setBorder(BorderFactory
-		// .createEtchedBorder((EtchedBorder.LOWERED)));
+		border.setTitleFont(new Font(this.defaultFont.getName(), Font.BOLD,
+				this.defaultFont.getSize()));
 		this.setBorder(border);
 
 		// add name and value panels
@@ -54,11 +57,13 @@ public class StatsGroup extends JPanel {
 	public void addValue(String name, double value) {
 		JLabel tempName = new JLabel(name + ": ");
 		tempName.setName(name);
+		tempName.setFont(this.defaultFont);
 		this.NamePanel.add(tempName);
 		this.NamePanel.validate();
 
 		JLabel tempValue = new JLabel("" + value);
 		tempValue.setName(name + "value");
+		tempValue.setFont(this.defaultFont);
 		this.ValuePanel.add(tempValue);
 		this.ValuePanel.validate();
 
@@ -127,4 +132,5 @@ public class StatsGroup extends JPanel {
 			this.ValuePanel.remove(c);
 		}
 	}
+
 }

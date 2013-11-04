@@ -44,10 +44,15 @@ import dna.series.data.BatchData;
 import dna.series.data.MetricData;
 import dna.series.data.RunTime;
 import dna.series.data.Value;
+import dna.visualization.MainDisplay;
 import dna.visualization.components.legend.Legend;
 
 public class MetricVisualizer extends JPanel {
-	private int DEFAULT_TRACE_LENGTH = 100;
+	// fonts
+	private Font defaultFont = MainDisplay.defaultFont;
+	private Font coordsFont = new Font("Dialog", Font.PLAIN, 11);
+
+	private int DEFAULT_TRACE_LENGTH = 1000;
 	private int TRACE_LENGTH;
 	private Boolean TRACE_MODE_LTD;
 
@@ -74,7 +79,6 @@ public class MetricVisualizer extends JPanel {
 	private MetricVisualizer thisM;
 
 	private int linespointSize = 5;
-	private Font coordsFont = new Font("Dialog", Font.PLAIN, 11);
 
 	private Legend legend;
 
@@ -83,9 +87,11 @@ public class MetricVisualizer extends JPanel {
 	// interval and x-range panel
 	private JPanel intervalPanel;
 	private JComboBox<String> intervalBox;
-	private String[] intervalOptions = { "Trace length", "- show all",
-			"- fixed interval", "-fixed length: 10", "-fixed length: 20",
-			"-fixed length: 30", "-fixed length: 40", "-fixed length: 50" };
+	private String[] intervalOptions = { "- show all", "- fixed interval",
+			"-fixed length: 10", "-fixed length: 20", "-fixed length: 30",
+			"-fixed length: 40", "-fixed length: 50", "-fixed length: 100",
+			"-fixed length: 150", "-fixed length: 200", "-fixed length: 300",
+			"-fixed length: 500" };
 
 	private JTextField lowerBound;
 	private JTextField upperBound;
@@ -132,6 +138,8 @@ public class MetricVisualizer extends JPanel {
 				.createTitledBorder("Metric Visualizer");
 		title.setBorder(BorderFactory
 				.createEtchedBorder((EtchedBorder.LOWERED)));
+		title.setTitleFont(new Font(this.defaultFont.getName(), Font.BOLD,
+				this.defaultFont.getSize()));
 		this.setBorder(title);
 
 		GridBagConstraints mainConstraints = new GridBagConstraints();
@@ -240,6 +248,7 @@ public class MetricVisualizer extends JPanel {
 
 		// intervalBox dropdown menu
 		this.intervalBox = new JComboBox<String>(intervalOptions);
+		this.intervalBox.setFont(this.defaultFont);
 		this.intervalBox.setPreferredSize(new Dimension(125, 20));
 		this.intervalBox.addActionListener(new ActionListener() {
 			@Override
@@ -260,12 +269,14 @@ public class MetricVisualizer extends JPanel {
 		intervalPanelConstraints.insets = new Insets(0, 0, 0, 0);
 
 		JLabel openInterval = new JLabel("[");
+		openInterval.setFont(this.defaultFont);
 		openInterval.setPreferredSize(new Dimension(8, 22));
 		intervalPanelConstraints.gridx = 0;
 		intervalPanelConstraints.gridy = 1;
 		this.intervalPanel.add(openInterval, intervalPanelConstraints);
 
 		this.lowerBound = new JTextField("0");
+		this.lowerBound.setFont(this.defaultFont);
 		this.lowerBound.setPreferredSize(new Dimension(50, 22));
 		this.lowerBound.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent evt) {
@@ -288,12 +299,14 @@ public class MetricVisualizer extends JPanel {
 		this.intervalPanel.add(this.lowerBound, intervalPanelConstraints);
 
 		JLabel points = new JLabel(" : ");
+		points.setFont(this.defaultFont);
 		points.setPreferredSize(new Dimension(10, 22));
 		intervalPanelConstraints.gridx = 2;
 		intervalPanelConstraints.gridy = 1;
 		this.intervalPanel.add(points, intervalPanelConstraints);
 
 		this.upperBound = new JTextField("10");
+		this.upperBound.setFont(this.defaultFont);
 		this.upperBound.setPreferredSize(new Dimension(50, 22));
 
 		this.upperBound.addActionListener(new ActionListener() {
@@ -317,6 +330,7 @@ public class MetricVisualizer extends JPanel {
 		this.intervalPanel.add(this.upperBound, intervalPanelConstraints);
 
 		JLabel closeInterval = new JLabel("]");
+		closeInterval.setFont(this.defaultFont);
 		closeInterval.setPreferredSize(new Dimension(8, 22));
 		intervalPanelConstraints.gridx = 4;
 		intervalPanelConstraints.gridy = 1;
@@ -340,6 +354,7 @@ public class MetricVisualizer extends JPanel {
 
 		// toggle x axis grid button
 		this.toggleGridXButton = new JButton("+Grid x");
+		this.toggleGridXButton.setFont(this.defaultFont);
 		this.toggleGridXButton.setPreferredSize(new Dimension(60, 20));
 		this.toggleGridXButton.setMargin(new Insets(0, 0, 0, 0));
 		this.toggleGridXButton.addActionListener(new ActionListener() {
@@ -377,6 +392,7 @@ public class MetricVisualizer extends JPanel {
 
 		// toggle left y axis grid button
 		this.toggleGridYLeftButton = new JButton("+Grid yL");
+		this.toggleGridYLeftButton.setFont(this.defaultFont);
 		this.toggleGridYLeftButton.setPreferredSize(new Dimension(60, 20));
 		this.toggleGridYLeftButton.setMargin(new Insets(0, 0, 0, 0));
 		this.toggleGridYLeftButton.addActionListener(new ActionListener() {
@@ -396,6 +412,7 @@ public class MetricVisualizer extends JPanel {
 
 		// toggle left y axis log button
 		this.toggleLogYLeftButton = new JButton("+log yL");
+		this.toggleLogYLeftButton.setFont(this.defaultFont);
 		this.toggleLogYLeftButton.setForeground(Color.GRAY);
 		this.toggleLogYLeftButton.setPreferredSize(new Dimension(60, 20));
 		this.toggleLogYLeftButton.setMargin(new Insets(0, 0, 0, 0));
@@ -419,6 +436,7 @@ public class MetricVisualizer extends JPanel {
 
 		// toggle right y axis grid button
 		this.toggleGridYRightButton = new JButton("+Grid yR");
+		this.toggleGridYRightButton.setFont(this.defaultFont);
 		this.toggleGridYRightButton.setPreferredSize(new Dimension(60, 20));
 		this.toggleGridYRightButton.setMargin(new Insets(0, 0, 0, 0));
 		this.toggleGridYRightButton.addActionListener(new ActionListener() {
@@ -438,6 +456,7 @@ public class MetricVisualizer extends JPanel {
 
 		// toggle right y log grid button
 		this.toggleLogYRightButton = new JButton("+log yR");
+		this.toggleLogYRightButton.setFont(this.defaultFont);
 		this.toggleLogYRightButton.setForeground(Color.GRAY);
 		this.toggleLogYRightButton.setPreferredSize(new Dimension(60, 20));
 		this.toggleLogYRightButton.setMargin(new Insets(0, 0, 0, 0));

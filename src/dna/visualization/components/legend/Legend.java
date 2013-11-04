@@ -3,6 +3,7 @@ package dna.visualization.components.legend;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
@@ -16,6 +17,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.border.EtchedBorder;
 
+import dna.visualization.MainDisplay;
 import dna.visualization.components.BoundsPopupMenuListener;
 import dna.visualization.components.ColorHandler;
 import dna.visualization.components.MetricVisualizer;
@@ -28,6 +30,7 @@ import dna.visualization.components.MetricVisualizer;
  * 
  */
 public class Legend extends JPanel {
+	private Font defaultFont = MainDisplay.defaultFont;
 
 	private MetricVisualizer parent;
 	private Legend thisLegend;
@@ -128,6 +131,7 @@ public class Legend extends JPanel {
 			}
 		});
 		this.addBox.setToolTipText("Add selected value to the list");
+		this.addBox.setFont(this.defaultFont);
 		BoundsPopupMenuListener listener = new BoundsPopupMenuListener(true,
 				false);
 		this.addBox.addPopupMenuListener(listener);
@@ -152,6 +156,7 @@ public class Legend extends JPanel {
 			}
 		});
 		this.addBox.setToolTipText("Add selected value to the list");
+		this.addBox.setFont(this.defaultFont);
 		BoundsPopupMenuListener listener = new BoundsPopupMenuListener(true,
 				false);
 		this.addBox.addPopupMenuListener(listener);
@@ -228,6 +233,7 @@ public class Legend extends JPanel {
 		}
 	}
 
+	/** updates the value of an item **/
 	public void updateItem(String name, double value) {
 		this.list.updateItem(name, value);
 	}
