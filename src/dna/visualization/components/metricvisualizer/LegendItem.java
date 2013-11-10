@@ -1,4 +1,4 @@
-package dna.visualization.components.legend;
+package dna.visualization.components.metricvisualizer;
 
 import java.awt.Color;
 import java.awt.Dimension;
@@ -26,6 +26,7 @@ import dna.visualization.MainDisplay;
  */
 public class LegendItem extends JPanel {
 	private Font defaultFont = MainDisplay.defaultFont;
+	private Font defaultFontBorders = MainDisplay.defaultFontBorders;
 	private Font valueFont = new Font("Dialog", Font.PLAIN, 9);
 
 	private LegendItem thisItem;

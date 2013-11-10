@@ -1,4 +1,4 @@
-package dna.visualization.components.legend;
+package dna.visualization.components.metricvisualizer;
 
 import java.awt.Color;
 import java.awt.Component;

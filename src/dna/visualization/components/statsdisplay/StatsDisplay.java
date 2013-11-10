@@ -1,4 +1,4 @@
-package dna.visualization.components;
+package dna.visualization.components.statsdisplay;
 
 import java.awt.Font;
 import java.awt.GridBagConstraints;
@@ -23,7 +23,6 @@ import dna.series.data.BatchData;
 import dna.series.data.RunTime;
 import dna.visualization.BatchHandler;
 import dna.visualization.MainDisplay;
-import dna.visualization.components.statsdisplay.StatsGroup;
 
 /**
  * A statsdisplay is used to monitor several statistics of a dynamic graph.
@@ -33,6 +32,7 @@ import dna.visualization.components.statsdisplay.StatsGroup;
  */
 public class StatsDisplay extends JPanel implements ChangeListener {
 	private Font defaultFont = MainDisplay.defaultFont;
+	private Font defaultFontBorders = MainDisplay.defaultFontBorders;
 
 	private JPanel SettingsPanel;
 	private JPanel SettingsNotSpeedPanel;
@@ -392,4 +392,5 @@ public class StatsDisplay extends JPanel implements ChangeListener {
 			this.mainDisplay.setBatchHandlerSpeed((int) source.getValue());
 		}
 	}
+
 }

@@ -1,4 +1,4 @@
-package dna.visualization.components.legend;
+package dna.visualization.components.metricvisualizer;
 
 import java.awt.Color;
 import java.awt.Component;
@@ -20,7 +20,6 @@ import javax.swing.border.EtchedBorder;
 import dna.visualization.MainDisplay;
 import dna.visualization.components.BoundsPopupMenuListener;
 import dna.visualization.components.ColorHandler;
-import dna.visualization.components.MetricVisualizer;
 
 /**
  * Used within a metric visualizer component to give the user control over which
@@ -31,8 +30,9 @@ import dna.visualization.components.MetricVisualizer;
  */
 public class Legend extends JPanel {
 	private Font defaultFont = MainDisplay.defaultFont;
+	private Font defaultFontBorders = MainDisplay.defaultFontBorders;
 
-	private MetricVisualizer parent;
+	private Visualizer parent;
 	private Legend thisLegend;
 	private LegendList list;
 	private JScrollPane scrollBar;
@@ -45,7 +45,7 @@ public class Legend extends JPanel {
 
 	private ColorHandler colorHandler;
 
-	public Legend(MetricVisualizer parent) {
+	public Legend(Visualizer parent) {
 		super();
 		this.parent = parent;
 		thisLegend = this;
@@ -97,7 +97,11 @@ public class Legend extends JPanel {
 			LegendItem i = new LegendItem(this.list, name, color);
 			i.setToolTipText(name);
 			this.list.add(i);
-			this.parent.addTrace(name, color);
+			if (this.parent instanceof MetricVisualizer)
+				((MetricVisualizer) this.parent).addTrace(name, color);
+			if (this.parent instanceof MultiScalarMetricVisualizer)
+				((MultiScalarMetricVisualizer) this.parent).addTrace(name,
+						color);
 		}
 		this.validate();
 	}
@@ -112,7 +116,10 @@ public class Legend extends JPanel {
 	}
 
 	public void removeItem(String name, Color color) {
-		this.parent.removeTrace(name);
+		if (this.parent instanceof MetricVisualizer)
+			((MetricVisualizer) this.parent).removeTrace(name);
+		if (this.parent instanceof MultiScalarMetricVisualizer)
+			((MultiScalarMetricVisualizer) this.parent).removeTrace(name);
 		this.colorHandler.removeColor(color);
 	}
 
@@ -245,7 +252,9 @@ public class Legend extends JPanel {
 
 	/** toggles y axis of an trace **/
 	public void toggleYAxis(LegendItem item) {
-		this.parent.toggleYAxis(item.getName());
+		if (this.parent instanceof MetricVisualizer)
+			((MetricVisualizer) this.parent).toggleYAxis(item.getName());
+		// this.parent.toggleYAxis(item.getName());
 	}
 
 }

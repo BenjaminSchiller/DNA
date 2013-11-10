@@ -24,13 +24,17 @@ import javax.swing.border.EtchedBorder;
 
 import dna.series.data.BatchData;
 import dna.util.Config;
-import dna.visualization.components.MetricVisualizer;
-import dna.visualization.components.StatsDisplay;
+import dna.visualization.components.metricvisualizer.MetricVisualizer;
+import dna.visualization.components.metricvisualizer.MultiScalarMetricVisualizer;
+import dna.visualization.components.metricvisualizer.Visualizer;
+import dna.visualization.components.statsdisplay.StatsDisplay;
 
 public class MainDisplay extends JFrame {
 	/** DEFAULTS **/
 	static String defaultDir = "data/scenario1/run.0/";
 	public static Font defaultFont = MainDisplay.getDefaultFontFromConfig();
+	public static Font defaultFontBorders = new Font(defaultFont.getName(),
+			Font.BOLD, defaultFont.getSize());
 
 	/** MAIN **/
 	public static void main(String[] args) {
@@ -60,12 +64,15 @@ public class MainDisplay extends JFrame {
 
 	private JPanel logoPanel;
 
-	private MetricVisualizer metric1;
+	private Visualizer metric1;
+	private Visualizer metric2;
+
+	// private MultiScalarMetricVisualizer metric1;
 
 	// constructor
 	public MainDisplay() {
 		setTitle("DNA - Dynamic Network Analyzer");
-		setSize(1024, 800);
+		setSize(1680, 800);
 		setLocationRelativeTo(null);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
@@ -79,7 +86,6 @@ public class MainDisplay extends JFrame {
 		this.statsDisplay1 = new StatsDisplay();
 		this.statsDisplay1.setParent(this);
 		this.statsDisplay1.setDirectory(defaultDir);
-		this.statsDisplay1.setFont(this.getDefaultFontFromConfig());
 
 		mainDisplayConstraints.gridy = 0;
 		mainDisplayConstraints.gridx = 0;
@@ -187,8 +193,14 @@ public class MainDisplay extends JFrame {
 		mainDisplayConstraints.gridx = 1;
 		mainDisplayConstraints.gridy = 0;
 		this.getContentPane().add(this.metric1, mainDisplayConstraints);
+		
+		this.metric2 = new MultiScalarMetricVisualizer();
+		mainDisplayConstraints.gridx = 2;
+		mainDisplayConstraints.gridy = 0;
+		this.getContentPane().add(this.metric2, mainDisplayConstraints);
 
 		this.registerDataComponent(metric1);
+		this.registerDataComponent(metric2);
 		this.setLocationRelativeTo(null);
 	}
 
@@ -207,6 +219,9 @@ public class MainDisplay extends JFrame {
 			}
 			if (c instanceof MetricVisualizer) {
 				((MetricVisualizer) c).updateData(b);
+			}
+			if (c instanceof MultiScalarMetricVisualizer) {
+				((MultiScalarMetricVisualizer) c).updateData(b);
 			}
 		}
 	}
@@ -227,6 +242,9 @@ public class MainDisplay extends JFrame {
 			}
 			if (c instanceof MetricVisualizer) {
 				((MetricVisualizer) c).initData(b);
+			}
+			if (c instanceof MultiScalarMetricVisualizer) {
+				((MultiScalarMetricVisualizer) c).initData(b);
 			}
 		}
 	}
