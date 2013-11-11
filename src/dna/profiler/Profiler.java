@@ -391,6 +391,9 @@ public class Profiler {
 	}
 
 	public static void finishSeries() {
+		if (!active)
+			return;
+
 		globalCalls = merge(globalCalls, singleSeriesCalls);
 
 		try {
@@ -417,6 +420,9 @@ public class Profiler {
 	}
 
 	public static void finishRun() {
+		if (!active)
+			return;
+
 		singleSeriesCalls = merge(singleSeriesCalls, singleRunCalls);
 
 		try {
@@ -447,11 +453,18 @@ public class Profiler {
 	}
 
 	public static void finishBatch(long batchTimestamp) {
+		if (!active)
+			return;
+
 		singleRunCalls = merge(singleRunCalls, singleBatchCalls);
 
 		try {
 			Profiler.write(singleBatchCalls, batchDir, Files
 					.getProfilerFilename(Config.get("AGGREGATED_PROFILER")),
+					false);
+			Profiler.writeMultiple(singleBatchCalls,
+					metricNames.toArray(new String[0]), batchDir,
+					Files.getProfilerFilename(Config.get("METRIC_PROFILER")),
 					false);
 			writeUpdates(singleBatchCalls, batchDir, false);
 		} catch (IOException e) {
