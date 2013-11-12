@@ -6,7 +6,6 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
@@ -41,7 +40,8 @@ public class MainDisplay extends JFrame {
 	/** SIZES **/
 	private Dimension mainDisplaySize = new Dimension(1680, 800);
 	private Dimension statsDisplaySize = new Dimension(250, 400);
-	private Dimension buttonSize = new Dimension(70, 30);
+	private Dimension buttonSize = new Dimension(90, 30);
+	private Dimension logoSize = new Dimension(270, 160);
 
 	/** MAIN **/
 	public static void main(String[] args) {
@@ -89,8 +89,9 @@ public class MainDisplay extends JFrame {
 
 		// init stats component, set position in grid and add to mainframe
 		this.statsDisplay1 = new StatsDisplay();
+		this.statsDisplay1.setLocation(0, 0);
 		// size not used yet, first rework layouting in statsdisplay frame
-		//this.statsDisplay1.setPreferredSize(statsDisplaySize);
+		// this.statsDisplay1.setPreferredSize(statsDisplaySize);
 		this.statsDisplay1.setParent(this);
 		this.statsDisplay1.setDirectory(defaultDir);
 
@@ -163,18 +164,65 @@ public class MainDisplay extends JFrame {
 			}
 		});
 
+		final JButton toggleM1 = new JButton("-M1");
+		toggleM1.setPreferredSize(buttonSize);
+		toggleM1.setFont(MainDisplay.defaultFont);
+		toggleM1.setForeground(Color.BLACK);
+		toggleM1.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent event) {
+				if (metric1.isVisible()) {
+					toggleM1.setText("+M1");
+					metric1.setVisible(false);
+				} else {
+					toggleM1.setText("-M1");
+					metric1.setVisible(true);
+				}
+			}
+		});
+
+		final JButton toggleM2 = new JButton("+M1");
+		toggleM2.setPreferredSize(buttonSize);
+		toggleM2.setFont(MainDisplay.defaultFont);
+		toggleM2.setForeground(Color.BLACK);
+		toggleM2.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent event) {
+				if (metric2.isVisible()) {
+					toggleM2.setText("+M2");
+					metric2.setVisible(false);
+				} else {
+					toggleM2.setText("-M2");
+					metric2.setVisible(true);
+				}
+			}
+		});
+
 		this.buttons = new JPanel();
-		this.buttons.setLayout(new BoxLayout(this.buttons, BoxLayout.X_AXIS));
+		this.buttons.setLayout(new GridBagLayout());
+		GridBagConstraints buttonPanelConstraints = new GridBagConstraints();
+		// this.buttons.setLayout(new BoxLayout(this.buttons,
+		// BoxLayout.X_AXIS));
 
 		// set buttons-panel position in gridlayout and add them to mainframe
 		mainDisplayConstraints.gridx = 0;
 		mainDisplayConstraints.gridy = 1;
 		this.getContentPane().add(this.buttons, mainDisplayConstraints);
 
-		this.buttons.add(this.startButton);
-		this.buttons.add(this.pauseButton);
-		this.buttons.add(this.stopButton);
-		this.buttons.add(this.quitButton);
+		buttonPanelConstraints.gridx = 0;
+		buttonPanelConstraints.gridy = 0;
+		this.buttons.add(this.startButton, buttonPanelConstraints);
+		buttonPanelConstraints.gridx++;
+		this.buttons.add(this.pauseButton, buttonPanelConstraints);
+		buttonPanelConstraints.gridx++;
+		this.buttons.add(this.stopButton, buttonPanelConstraints);
+		buttonPanelConstraints.gridx = 0;
+		buttonPanelConstraints.gridy = 1;
+		this.buttons.add(toggleM1, buttonPanelConstraints);
+		buttonPanelConstraints.gridx++;
+		this.buttons.add(toggleM2, buttonPanelConstraints);
+		buttonPanelConstraints.gridx++;
+		this.buttons.add(this.quitButton, buttonPanelConstraints);
 
 		// init logo panel, set position in gridlayout and add to mainframe
 		mainDisplayConstraints.gridx = 0;
@@ -192,6 +240,8 @@ public class MainDisplay extends JFrame {
 			e.printStackTrace();
 		}
 		JLabel logoLabel = new JLabel(new ImageIcon(image));
+		this.logoPanel.setLayout(new GridBagLayout());
+		this.logoPanel.setPreferredSize(this.logoSize);
 		this.logoPanel.add(logoLabel);
 
 		// add metric visualizer

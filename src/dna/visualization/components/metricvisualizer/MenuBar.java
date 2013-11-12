@@ -198,7 +198,7 @@ public class MenuBar extends JPanel {
 		GridBagConstraints yRightOptionsPanelConstraints = new GridBagConstraints();
 
 		// toggle right y axis grid button
-		final JButton toggleGridYRightButton = new JButton("+Grid yL");
+		final JButton toggleGridYRightButton = new JButton("+Grid yR");
 		toggleGridYRightButton.setFont(this.defaultFont);
 		toggleGridYRightButton.setPreferredSize(new Dimension(new Dimension(
 				size.width - 5, (int) Math.floor((size.getHeight() - 5) / 2))));
@@ -206,10 +206,10 @@ public class MenuBar extends JPanel {
 		toggleGridYRightButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent event) {
-				if (toggleGridYRightButton.getText().equals("+Grid yL"))
-					toggleGridYRightButton.setText("-Grid yL");
+				if (toggleGridYRightButton.getText().equals("+Grid yR"))
+					toggleGridYRightButton.setText("-Grid yR");
 				else
-					toggleGridYRightButton.setText("+Grid yL");
+					toggleGridYRightButton.setText("+Grid yR");
 				parent.toggleYRightGrid();
 			}
 		});
@@ -219,7 +219,7 @@ public class MenuBar extends JPanel {
 				yRightOptionsPanelConstraints);
 
 		// toggle right y axis log button
-		final JButton toggleLogYRightButton = new JButton("+log yL");
+		final JButton toggleLogYRightButton = new JButton("+log yR");
 		toggleLogYRightButton.setFont(this.defaultFont);
 		toggleLogYRightButton.setForeground(Color.GRAY);
 		toggleLogYRightButton.setPreferredSize(new Dimension(new Dimension(
