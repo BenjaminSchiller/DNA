@@ -12,6 +12,7 @@ import java.awt.Font;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 
 import javax.swing.BorderFactory;
@@ -28,7 +29,7 @@ import dna.series.data.NodeValueList;
 import dna.util.Config;
 import dna.visualization.MainDisplay;
 
-public class MultiScalarMetricVisualizer extends Visualizer {
+public class MultiScalarVisualizer extends Visualizer {
 	// fonts
 	private Font defaultFontBorders = MainDisplay.defaultFontBorders;
 
@@ -36,12 +37,21 @@ public class MultiScalarMetricVisualizer extends Visualizer {
 	private ArrayList<String> availableValues;
 	private HashMap<String, ITrace2D> traces;
 
+	public enum SortMode {
+		index, ascending, descending
+	};
+
+	private SortMode sortMode;
+
 	// constructor
-	public MultiScalarMetricVisualizer() {
+	public MultiScalarVisualizer() {
 		// initialization
 		this.traces = new HashMap<String, ITrace2D>();
 		this.availableValues = new ArrayList<String>();
-		
+
+		// set default sort mode
+		this.sortMode = sortMode.index;
+
 		// set title and border of the metric visualizer
 		TitledBorder title = BorderFactory
 				.createTitledBorder("Multi-Scalar Visualizer");
@@ -52,7 +62,7 @@ public class MultiScalarMetricVisualizer extends Visualizer {
 
 		// add menu bar
 		super.addMenuBar(new Dimension(this.defaultMenuBarSize), true, false,
-				true, true, true);
+				true, true, true, true);
 
 		// add coordinate parsing to mouseover on chart
 		this.chart.addMouseMotionListener(new MouseMotionListener() {
@@ -87,7 +97,6 @@ public class MultiScalarMetricVisualizer extends Visualizer {
 		for (String metric : b.getMetrics().getNames()) {
 			for (String dist : b.getMetrics().get(metric).getDistributions()
 					.getNames()) {
-				System.out.println(metric + " " + dist);
 				this.availableValues.add(metric + "." + dist);
 			}
 		}
@@ -95,7 +104,6 @@ public class MultiScalarMetricVisualizer extends Visualizer {
 		for (String metric : b.getMetrics().getNames()) {
 			for (String nvl : b.getMetrics().get(metric).getNodeValues()
 					.getNames()) {
-				System.out.println(metric + " " + nvl);
 				this.availableValues.add(metric + "." + nvl);
 			}
 		}
@@ -112,20 +120,6 @@ public class MultiScalarMetricVisualizer extends Visualizer {
 	public void updateData(BatchData b) {
 		long timestamp = b.getTimestamp();
 		this.clearPoints();
-		System.out.println("updating: " + timestamp);
-		System.out.println("metrics: " + b.getMetrics().size());
-		/*
-		 * for (String metric : b.getMetrics().getNames()) { for (String value :
-		 * b.getMetrics().get(metric).getValues() .getNames()) { if
-		 * (this.traces.containsKey(metric + "." + value)) { String tempName =
-		 * metric + "." + value; double tempValue =
-		 * b.getMetrics().get(metric).getValues() .get(value).getValue();
-		 * this.traces.get(tempName).addPoint(timestampDouble, tempValue);
-		 * this.legend.updateItem(tempName, tempValue); } } }
-		 */
-		for (String s : this.traces.keySet()) {
-			System.out.println(s);
-		}
 
 		for (String metric : b.getMetrics().getNames()) {
 			for (String dist : b.getMetrics().get(metric).getDistributions()
@@ -139,19 +133,27 @@ public class MultiScalarMetricVisualizer extends Visualizer {
 						double[] tempValues = ((DistributionDouble) b
 								.getMetrics().get(metric).getDistributions()
 								.get(dist)).getDoubleValues();
-						this.addPoints(tempName, tempValues);
+						this.addPoints(tempName, tempValues, this.sortMode);
 					}
 					if (tempDist instanceof DistributionInt) {
 						int[] tempValues = ((DistributionInt) b.getMetrics()
 								.get(metric).getDistributions().get(dist))
 								.getIntValues();
-						this.addPoints(tempName, tempValues);
+						int tempDenominator = ((DistributionInt) b.getMetrics()
+								.get(metric).getDistributions().get(dist))
+								.getDenominator();
+						this.addPoints(tempName, tempValues, tempDenominator,
+								this.sortMode);
 					}
 					if (tempDist instanceof DistributionLong) {
 						long[] tempValues = ((DistributionLong) b.getMetrics()
 								.get(metric).getDistributions().get(dist))
 								.getLongValues();
-						this.addPoints(tempName, tempValues);
+						long tempDenominator = ((DistributionLong) b
+								.getMetrics().get(metric).getDistributions()
+								.get(dist)).getDenominator();
+						this.addPoints(tempName, tempValues, tempDenominator,
+								this.sortMode);
 					}
 
 					this.legend.updateItem(tempName, 0.0);
@@ -162,7 +164,7 @@ public class MultiScalarMetricVisualizer extends Visualizer {
 				if (this.traces.containsKey(metric + "." + nvl))
 					this.addPoints(metric + "." + nvl,
 							b.getMetrics().get(metric).getNodeValues().get(nvl)
-									.getValues());
+									.getValues(), this.sortMode);
 			}
 		}
 		updateXTicks();
@@ -171,7 +173,6 @@ public class MultiScalarMetricVisualizer extends Visualizer {
 	/** adds points for a given trace to the chart **/
 	private void addPoints(String name, double[] values) {
 		ITrace2D tempTrace = this.traces.get(name);
-		System.out.println("addPoints: " + values.length);
 		for (int i = 0; i < values.length; i++) {
 			if (values[i] != Double.NaN)
 				tempTrace.addPoint(i, values[i]);
@@ -183,11 +184,10 @@ public class MultiScalarMetricVisualizer extends Visualizer {
 	}
 
 	/** adds points for a given trace to the chart **/
-	private void addPoints(String name, int[] values) {
+	private void addPoints(String name, int[] values, int denominator) {
 		ITrace2D tempTrace = this.traces.get(name);
-		System.out.println("addPoints: " + values.length);
 		for (int i = 0; i < values.length; i++) {
-			tempTrace.addPoint(i, values[i]);
+			tempTrace.addPoint(i, (1.0 * values[i]) / denominator);
 		}
 		if (values.length - 1 > this.maxShownTimestamp)
 			this.maxShownTimestamp = values.length - 1;
@@ -196,12 +196,103 @@ public class MultiScalarMetricVisualizer extends Visualizer {
 	}
 
 	/** adds points for a given trace to the chart **/
-	private void addPoints(String name, long[] values) {
+	private void addPoints(String name, long[] values, long denominator) {
 		ITrace2D tempTrace = this.traces.get(name);
-		System.out.println("addPoints: " + values.length);
 		for (int i = 0; i < values.length; i++) {
-			tempTrace.addPoint(i, values[i]);
+			tempTrace.addPoint(i, (1.0 * values[i]) / denominator);
 		}
+		if (values.length - 1 > this.maxShownTimestamp)
+			this.maxShownTimestamp = values.length - 1;
+		if (values.length - 1 > this.maxTimestamp)
+			this.maxTimestamp = values.length - 1;
+	}
+
+	/** adds points sorted and normalized by dividing through denominator **/
+	private void addPoints(String name, long[] values, long denominator,
+			SortMode sort) {
+		ITrace2D tempTrace = this.traces.get(name);
+
+		switch (sort) {
+		case ascending:
+			Arrays.sort(values);
+			for (int i = 0; i < values.length; i++) {
+				tempTrace.addPoint(i, (1.0 * values[i]) / denominator);
+			}
+			break;
+		case descending:
+			Arrays.sort(values);
+			for (int i = 0, j = values.length - 1; i < values.length; i++) {
+				tempTrace.addPoint(j - i, (1.0 * values[i]) / denominator);
+			}
+			break;
+		case index:
+			for (int i = 0; i < values.length; i++) {
+				tempTrace.addPoint(i, (1.0 * values[i]) / denominator);
+			}
+			break;
+		}
+
+		if (values.length - 1 > this.maxShownTimestamp)
+			this.maxShownTimestamp = values.length - 1;
+		if (values.length - 1 > this.maxTimestamp)
+			this.maxTimestamp = values.length - 1;
+	}
+
+	/** adds points sorted and normalized by dividing through denominator **/
+	private void addPoints(String name, int[] values, int denominator,
+			SortMode sort) {
+		ITrace2D tempTrace = this.traces.get(name);
+
+		switch (sort) {
+		case ascending:
+			Arrays.sort(values);
+			for (int i = 0; i < values.length; i++) {
+				tempTrace.addPoint(i, (1.0 * values[i]) / denominator);
+			}
+			break;
+		case descending:
+			Arrays.sort(values);
+			for (int i = 0, j = values.length - 1; i < values.length; i++) {
+				tempTrace.addPoint(j - i, (1.0 * values[i]) / denominator);
+			}
+			break;
+		case index:
+			for (int i = 0; i < values.length; i++) {
+				tempTrace.addPoint(i, (1.0 * values[i]) / denominator);
+			}
+			break;
+		}
+
+		if (values.length - 1 > this.maxShownTimestamp)
+			this.maxShownTimestamp = values.length - 1;
+		if (values.length - 1 > this.maxTimestamp)
+			this.maxTimestamp = values.length - 1;
+	}
+
+	/** adds points sorted and normalized by dividing through denominator **/
+	private void addPoints(String name, double[] values, SortMode sort) {
+		ITrace2D tempTrace = this.traces.get(name);
+
+		switch (sort) {
+		case ascending:
+			Arrays.sort(values);
+			for (int i = 0; i < values.length; i++) {
+				tempTrace.addPoint(i, values[i]);
+			}
+			break;
+		case descending:
+			Arrays.sort(values);
+			for (int i = 0, j = values.length - 1; i < values.length; i++) {
+				tempTrace.addPoint(j - i, values[i]);
+			}
+			break;
+		case index:
+			for (int i = 0; i < values.length; i++) {
+				tempTrace.addPoint(i, values[i]);
+			}
+			break;
+		}
+
 		if (values.length - 1 > this.maxShownTimestamp)
 			this.maxShownTimestamp = values.length - 1;
 		if (values.length - 1 > this.maxTimestamp)
@@ -271,6 +362,16 @@ public class MultiScalarMetricVisualizer extends Visualizer {
 
 		String[] tempValues = tempList.toArray(new String[tempList.size()]);
 		return tempValues;
+	}
+
+	/** sets the sort mode **/
+	public void setSortOrder(SortMode sortMode) {
+		this.sortMode = sortMode;
+	}
+
+	/** gets the sort mode **/
+	public SortMode getSortMode() {
+		return this.sortMode;
 	}
 
 }

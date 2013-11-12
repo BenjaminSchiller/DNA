@@ -19,8 +19,10 @@ import dna.visualization.MainDisplay;
  * 
  */
 public class StatsGroup extends JPanel {
+	// font
 	private Font defaultFont = MainDisplay.defaultFont;
 
+	// panels
 	public JPanel NamePanel;
 	public JPanel ValuePanel;
 

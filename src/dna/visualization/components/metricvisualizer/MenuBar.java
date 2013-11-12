@@ -24,6 +24,7 @@ import javax.swing.border.TitledBorder;
 
 import dna.visualization.MainDisplay;
 import dna.visualization.components.BoundsPopupMenuListener;
+import dna.visualization.components.metricvisualizer.MultiScalarVisualizer.SortMode;
 
 /**
  * The menubar is a bar containing several options for a visualizer, for example
@@ -51,16 +52,18 @@ public class MenuBar extends JPanel {
 	private Dimension xOptionsPanelSize = new Dimension(65, 45);
 	private Dimension yLeftOptionsPanelSize = new Dimension(65, 45);
 	private Dimension yRightOptionsPanelSize = new Dimension(65, 45);
+	private Dimension sortOptionsPanelSize = new Dimension(130, 45);
 
 	// creates the default menu with all panels
 	public MenuBar(Visualizer parent, Dimension d) {
-		this(parent, d, true, true, true, true, true);
+		this(parent, d, true, true, true, true, true, false);
 	}
 
 	// constructor
 	public MenuBar(Visualizer parent, Dimension size, boolean addCoordsPanel,
 			boolean addIntervalPanel, boolean addXOptionsPanel,
-			boolean addYLeftOptionsPanel, boolean addYRightOptionsPanel) {
+			boolean addYLeftOptionsPanel, boolean addYRightOptionsPanel,
+			boolean addSortOptionsPanel) {
 		this.parent = parent;
 		this.setLayout(new GridBagLayout());
 		this.setPreferredSize(size);
@@ -99,6 +102,13 @@ public class MenuBar extends JPanel {
 			this.addYRightOptionsPanel(this.yRightOptionsPanelSize);
 			spaceUsed += this.yRightOptionsPanelSize.width;
 		}
+
+		// add sort-options panel for multi-scalar visualizer
+		if (addSortOptionsPanel) {
+			this.addSortOptionsPanel(this.sortOptionsPanelSize);
+			spaceUsed += this.sortOptionsPanelSize.width;
+		}
+
 		this.addDummyPanel(new Dimension((size.width - spaceUsed) - 5,
 				size.height - 5));
 	}
@@ -120,6 +130,10 @@ public class MenuBar extends JPanel {
 			"-fixed length: 150", "-fixed length: 200", "-fixed length: 300",
 			"-fixed length: 500" };
 
+	private JPanel sortOptionsPanel;
+	private String[] sortOptions = { "-sort by index", "-sort ascending",
+			"-sort descending" };
+
 	/**
 	 * Adds a left y-axis options panel to the menu bar.
 	 * 
@@ -128,7 +142,7 @@ public class MenuBar extends JPanel {
 	private void addYLeftOptionsPanel(Dimension size) {
 		this.yLeftOptionsPanel = new JPanel();
 		this.yLeftOptionsPanel.setLayout(new GridBagLayout());
-		this.yLeftOptionsPanel.setPreferredSize(new Dimension(65, 45));
+		this.yLeftOptionsPanel.setPreferredSize(size);
 		this.yLeftOptionsPanel.setBorder(menuBarItemBorder);
 
 		GridBagConstraints yLeftOptionsPanelConstraints = new GridBagConstraints();
@@ -178,7 +192,7 @@ public class MenuBar extends JPanel {
 	private void addYRightOptionsPanel(Dimension size) {
 		this.yRightOptionsPanel = new JPanel();
 		this.yRightOptionsPanel.setLayout(new GridBagLayout());
-		this.yRightOptionsPanel.setPreferredSize(new Dimension(65, 45));
+		this.yRightOptionsPanel.setPreferredSize(size);
 		this.yRightOptionsPanel.setBorder(menuBarItemBorder);
 
 		GridBagConstraints yRightOptionsPanelConstraints = new GridBagConstraints();
@@ -253,6 +267,7 @@ public class MenuBar extends JPanel {
 		xAxisOptionsPanelConstraints.gridy = 0;
 		this.xOptionsPanel.add(toggleGridXButton, xAxisOptionsPanelConstraints);
 
+		// add dummy panel
 		JPanel dummyP = new JPanel();
 		dummyP.setPreferredSize(new Dimension(new Dimension(size.width - 5,
 				(int) Math.floor((size.getHeight() - 5) / 2))));
@@ -342,9 +357,11 @@ public class MenuBar extends JPanel {
 
 		// intervalBox dropdown menu
 		final JComboBox<String> intervalBox = new JComboBox<String>(
-				intervalOptions);
+				this.intervalOptions);
 		intervalBox.setFont(this.defaultFont);
-		intervalBox.setPreferredSize(new Dimension(125, 20));
+
+		intervalBox.setPreferredSize(new Dimension(size.width - 5, (int) Math
+				.floor((size.getHeight() - 5) / 2)));
 		intervalBox.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent event) {
@@ -365,29 +382,35 @@ public class MenuBar extends JPanel {
 
 		JLabel openInterval = new JLabel("[");
 		openInterval.setFont(this.defaultFont);
-		openInterval.setPreferredSize(new Dimension(8, 22));
+
+		openInterval.setPreferredSize(new Dimension(8, ((int) Math
+				.floor((size.height - 5) / 2) + 2)));
 		intervalPanelConstraints.gridx = 0;
 		intervalPanelConstraints.gridy = 1;
 		this.intervalPanel.add(openInterval, intervalPanelConstraints);
 
 		this.lowerBound = new JTextField("0");
 		this.lowerBound.setFont(this.defaultFont);
-		this.lowerBound.setPreferredSize(new Dimension(50, 22));
-
+		this.lowerBound.setPreferredSize(new Dimension((int) Math
+				.floor((size.width - 30) / 2), ((int) Math
+				.floor((size.height - 5) / 2) + 2)));
 		intervalPanelConstraints.gridx = 1;
 		intervalPanelConstraints.gridy = 1;
 		this.intervalPanel.add(this.lowerBound, intervalPanelConstraints);
 
 		JLabel points = new JLabel(" : ");
 		points.setFont(this.defaultFont);
-		points.setPreferredSize(new Dimension(10, 22));
+		points.setPreferredSize(new Dimension(10, ((int) Math
+				.floor((size.height - 5) / 2) + 2)));
 		intervalPanelConstraints.gridx = 2;
 		intervalPanelConstraints.gridy = 1;
 		this.intervalPanel.add(points, intervalPanelConstraints);
 
 		this.upperBound = new JTextField("10");
 		this.upperBound.setFont(this.defaultFont);
-		this.upperBound.setPreferredSize(new Dimension(50, 22));
+		this.upperBound.setPreferredSize(new Dimension((int) Math
+				.floor((size.width - 30) / 2), ((int) Math
+				.floor((size.height - 5) / 2) + 2)));
 
 		this.upperBound.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent evt) {
@@ -446,7 +469,8 @@ public class MenuBar extends JPanel {
 
 		JLabel closeInterval = new JLabel("]");
 		closeInterval.setFont(this.defaultFont);
-		closeInterval.setPreferredSize(new Dimension(8, 22));
+		closeInterval.setPreferredSize(new Dimension(8, ((int) Math
+				.floor((size.height - 5) / 2) + 2)));
 		intervalPanelConstraints.gridx = 4;
 		intervalPanelConstraints.gridy = 1;
 		this.intervalPanel.add(closeInterval, intervalPanelConstraints);
@@ -455,7 +479,51 @@ public class MenuBar extends JPanel {
 		this.upperBound.setEditable(false);
 
 		// add to menu bar
-		this.add(intervalPanel);
+		this.add(this.intervalPanel, this.menuBarConstraints);
+		this.menuBarConstraints.gridx++;
+	}
+
+	/**
+	 * Adds a panel for sorting options to the menu bar.
+	 * 
+	 * @param size
+	 */
+	private void addSortOptionsPanel(Dimension size) {
+		this.sortOptionsPanel = new JPanel();
+		this.sortOptionsPanel.setLayout(new GridBagLayout());
+		this.sortOptionsPanel.setPreferredSize(size);
+		this.sortOptionsPanel.setBorder(menuBarItemBorder);
+
+		GridBagConstraints c = new GridBagConstraints();
+		// sort options dropdown menu
+		final JComboBox<String> sortOptionsBox = new JComboBox<String>(
+				this.sortOptions);
+		sortOptionsBox.setFont(this.defaultFont);
+		sortOptionsBox.setPreferredSize((new Dimension(size.width - 5,
+				(int) Math.floor((size.getHeight() - 5) / 2))));
+		sortOptionsBox.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent event) {
+				selectSortOptions(sortOptionsBox.getSelectedIndex());
+			}
+		});
+		BoundsPopupMenuListener listener = new BoundsPopupMenuListener(true,
+				false);
+		sortOptionsBox.addPopupMenuListener(listener);
+		c.gridx = 0;
+		c.gridy = 0;
+		this.sortOptionsPanel.add(sortOptionsBox, c);
+
+		// add dummy panel
+		JPanel dummyP = new JPanel();
+		dummyP.setPreferredSize(new Dimension(new Dimension(size.width - 5,
+				(int) Math.floor((size.getHeight() - 5) / 2))));
+		c.gridx = 0;
+		c.gridy = 1;
+		this.sortOptionsPanel.add(dummyP, c);
+
+		// add to menu bar
+		this.add(this.sortOptionsPanel, this.menuBarConstraints);
 		this.menuBarConstraints.gridx++;
 	}
 
@@ -490,7 +558,8 @@ public class MenuBar extends JPanel {
 				parent.getXAxis()
 						.setRangePolicy(new RangePolicyFixedViewport());
 				parent.setMaxShownTimestamp(parent.getMaxTimestamp());
-				System.out.println(parent.getMaxShownTimestamp() + " " +parent.getTraceLength());
+				System.out.println(parent.getMaxShownTimestamp() + " "
+						+ parent.getTraceLength());
 				if (parent.getMaxShownTimestamp() - parent.getTraceLength() > 0) {
 					parent.setMinShownTimestamp(parent.getMaxShownTimestamp()
 							- parent.getTraceLength());
@@ -502,6 +571,33 @@ public class MenuBar extends JPanel {
 								.getMaxShownTimestamp()));
 				parent.updateXTicks();
 				parent.updateYTicks();
+			}
+		}
+	}
+
+	/** called by the interval combobox to update the interval **/
+	public void selectSortOptions(int selectionIndex) {
+		String m = "";
+		try {
+			m = this.sortOptions[selectionIndex];
+		} catch (IndexOutOfBoundsException e) {
+			e.printStackTrace();
+		}
+		if (!m.equals("")) {
+			if (m.equals("-sort by index")) {
+				if (this.parent instanceof MultiScalarVisualizer)
+					((MultiScalarVisualizer) this.parent)
+							.setSortOrder(SortMode.index);
+			}
+			if (m.equals("-sort ascending")) {
+				if (this.parent instanceof MultiScalarVisualizer)
+					((MultiScalarVisualizer) this.parent)
+							.setSortOrder(SortMode.ascending);
+			}
+			if (m.equals("-sort descending")) {
+				if (this.parent instanceof MultiScalarVisualizer)
+					((MultiScalarVisualizer) this.parent)
+							.setSortOrder(SortMode.descending);
 			}
 		}
 	}

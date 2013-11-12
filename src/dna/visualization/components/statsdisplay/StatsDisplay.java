@@ -21,7 +21,6 @@ import javax.swing.event.ChangeListener;
 
 import dna.series.data.BatchData;
 import dna.series.data.RunTime;
-import dna.visualization.BatchHandler;
 import dna.visualization.MainDisplay;
 
 /**
@@ -31,46 +30,58 @@ import dna.visualization.MainDisplay;
  * 
  */
 public class StatsDisplay extends JPanel implements ChangeListener {
+	// fonts
 	private Font defaultFont = MainDisplay.defaultFont;
 	private Font defaultFontBorders = MainDisplay.defaultFontBorders;
 
+	// settingspanel
 	private JPanel SettingsPanel;
 	private JPanel SettingsNotSpeedPanel;
 
+	// direcotry
 	private JLabel DirectoryLabel;
 	private JTextField DirectoryValue;
 
+	// timestamp
 	private JLabel TimestampLabel;
 	private JLabel TimestampValue;
 
+	// nodes
 	private JLabel NodesLabel;
 	private JLabel NodesValue;
 
+	// edges
 	private JLabel EdgesLabel;
 	private JLabel EdgesValue;
 
+	// progressbar
 	private JProgressBar ProgressBar;
 
+	// slider
 	private JSlider SpeedSlider;
 	private final int SPEED_MIN = 0;
 	private final int SPEED_MAX = 2000;
 	private final int SPEED_INIT = 1000;
 
+	// statsgroups
 	private StatsGroup genRuntimes;
 	private StatsGroup metRuntimes;
 
+	// timestamps
 	private long minTimestamp;
 	private long maxTimestamp;
 
-	private BatchHandler bh;
+	// registered components
 	private StatsDisplay statsdis;
 	private MainDisplay mainDisplay;
 	private boolean running;
 
 	// constructor
 	public StatsDisplay() {
-		super();
+		// initialization
 		this.statsdis = this;
+		this.running = false;
+
 		// set title and border of statistics
 		TitledBorder title = BorderFactory.createTitledBorder("Statistics");
 		title.setTitleFont(new Font(this.defaultFont.getName(), Font.BOLD,
@@ -79,6 +90,7 @@ public class StatsDisplay extends JPanel implements ChangeListener {
 				.createEtchedBorder((EtchedBorder.LOWERED)));
 		this.setBorder(title);
 
+		// set layout
 		GridBagConstraints mainConstraints = new GridBagConstraints();
 		mainConstraints.fill = GridBagConstraints.HORIZONTAL;
 		this.setLayout(new GridBagLayout());
@@ -213,8 +225,6 @@ public class StatsDisplay extends JPanel implements ChangeListener {
 		mainConstraints.gridy = 2;
 		mainConstraints.gridx = 0;
 		this.add(this.genRuntimes, mainConstraints);
-
-		this.running = false;
 	}
 
 	/**
@@ -309,47 +319,60 @@ public class StatsDisplay extends JPanel implements ChangeListener {
 		this.validate();
 	}
 
+	/** Sets the shown timestamp **/
 	public void setTimestamp(long timestamp) {
 		this.TimestampValue.setText("" + timestamp);
 		this.validate();
 	}
 
+	/** Sets the shown directory **/
 	public void setDirectory(String directory) {
 		this.DirectoryValue.setText(directory);
 		this.validate();
 	}
 
+	/** Returns the shown directory **/
 	public String getDirectory() {
 		return this.DirectoryValue.getText();
 	}
 
+	/** Sets the shown amount of nodes **/
 	public void setNodes(int nodes) {
 		this.NodesValue.setText("" + nodes);
 		this.validate();
 	}
 
+	/** Sets the shown amount of nodes **/
 	public void setNodes(double nodes) {
 		this.setNodes((int) nodes);
 	}
 
+	/** Sets the shown amount of edges **/
 	public void setEdges(int edges) {
 		this.EdgesValue.setText("" + edges);
 		this.validate();
 	}
 
+	/** Sets the shown amount of edges **/
 	public void setEdges(double edges) {
 		this.setEdges((int) edges);
 	}
 
+	/** Sets the shown amount of progress **/
 	public void setProgess(double progress) {
 		this.ProgressBar.setValue((int) Math.floor(progress));
 		this.validate();
 	}
 
+	/** Registers the parent maindisplay **/
 	public void setParent(MainDisplay mainDisplay) {
 		this.mainDisplay = mainDisplay;
 	}
 
+	/**
+	 * Called when the program starts to prevent changes on sensitive data while
+	 * running
+	 **/
 	public void setStarted() {
 		this.running = true;
 		this.DirectoryValue.setEditable(false);
@@ -357,6 +380,9 @@ public class StatsDisplay extends JPanel implements ChangeListener {
 		this.repaint();
 	}
 
+	/**
+	 * Called when the program stops to make changes on sensitive data available
+	 **/
 	public void setStopped() {
 		this.DirectoryValue.setEditable(true);
 		this.running = false;
@@ -376,16 +402,7 @@ public class StatsDisplay extends JPanel implements ChangeListener {
 		this.validate();
 	}
 
-	public void setBatchHandler(BatchHandler bh) {
-		this.bh = bh;
-	}
-
-	/** initializes the window with the first batch from the batchhandler **/
-	public void init() {
-
-	}
-
-	/** Listen to the speed slider. */
+	/** Gets called on mouse release after the speed-slider has been moved **/
 	public void stateChanged(ChangeEvent e) {
 		JSlider source = (JSlider) e.getSource();
 		if (!source.getValueIsAdjusting()) {

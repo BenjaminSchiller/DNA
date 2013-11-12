@@ -99,8 +99,8 @@ public class Legend extends JPanel {
 			this.list.add(i);
 			if (this.parent instanceof MetricVisualizer)
 				((MetricVisualizer) this.parent).addTrace(name, color);
-			if (this.parent instanceof MultiScalarMetricVisualizer)
-				((MultiScalarMetricVisualizer) this.parent).addTrace(name,
+			if (this.parent instanceof MultiScalarVisualizer)
+				((MultiScalarVisualizer) this.parent).addTrace(name,
 						color);
 		}
 		this.validate();
@@ -118,8 +118,8 @@ public class Legend extends JPanel {
 	public void removeItem(String name, Color color) {
 		if (this.parent instanceof MetricVisualizer)
 			((MetricVisualizer) this.parent).removeTrace(name);
-		if (this.parent instanceof MultiScalarMetricVisualizer)
-			((MultiScalarMetricVisualizer) this.parent).removeTrace(name);
+		if (this.parent instanceof MultiScalarVisualizer)
+			((MultiScalarVisualizer) this.parent).removeTrace(name);
 		this.colorHandler.removeColor(color);
 	}
 

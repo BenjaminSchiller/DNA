@@ -14,10 +14,7 @@ import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 
-import javax.swing.BorderFactory;
 import javax.swing.JPanel;
-import javax.swing.border.EtchedBorder;
-import javax.swing.border.TitledBorder;
 
 import dna.util.Config;
 import dna.visualization.MainDisplay;
@@ -26,13 +23,6 @@ public class Visualizer extends JPanel {
 	// components
 	protected Dimension defaultVisualizerSize = new Dimension(670, 410);
 
-	// chart and axis
-	protected Chart2D chart;
-	protected Dimension defaultChartSize = new Dimension(450, 320);
-	protected IAxis xAxis;
-	protected IAxis yRight;
-	protected IAxis yLeft;
-
 	// menu bar
 	protected MenuBar menuBar;
 	protected Dimension defaultMenuBarSize = new Dimension(655, 50);
@@ -40,6 +30,13 @@ public class Visualizer extends JPanel {
 	// legend
 	protected Legend legend;
 	protected Dimension defaultLegendSize = new Dimension(190, 330);
+
+	// chart and axis
+	protected Chart2D chart;
+	protected Dimension defaultChartSize = new Dimension(450, 320);
+	protected IAxis xAxis;
+	protected IAxis yRight;
+	protected IAxis yLeft;
 
 	// fonts
 	protected Font defaultFont = MainDisplay.defaultFont;
@@ -109,13 +106,14 @@ public class Visualizer extends JPanel {
 
 	protected void addMenuBar(Dimension size, boolean addCoordsPanel,
 			boolean addIntervalPanel, boolean addXOptionsPanel,
-			boolean addYLeftOptionsPanel, boolean addYRightOptionsPanel) {
+			boolean addYLeftOptionsPanel, boolean addYRightOptionsPanel,
+			boolean addSortOptionsPanel) {
 		this.mainConstraints.gridx = 0;
 		this.mainConstraints.gridy = 1;
 		this.mainConstraints.gridwidth = 2;
 		this.menuBar = new MenuBar(this, size, addCoordsPanel,
 				addIntervalPanel, addXOptionsPanel, addYLeftOptionsPanel,
-				addYRightOptionsPanel);
+				addYRightOptionsPanel, addSortOptionsPanel);
 		this.add(this.menuBar, this.mainConstraints);
 	}
 

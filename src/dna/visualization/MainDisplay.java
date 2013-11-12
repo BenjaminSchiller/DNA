@@ -2,9 +2,11 @@ package dna.visualization;
 
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
@@ -25,7 +27,7 @@ import javax.swing.border.EtchedBorder;
 import dna.series.data.BatchData;
 import dna.util.Config;
 import dna.visualization.components.metricvisualizer.MetricVisualizer;
-import dna.visualization.components.metricvisualizer.MultiScalarMetricVisualizer;
+import dna.visualization.components.metricvisualizer.MultiScalarVisualizer;
 import dna.visualization.components.metricvisualizer.Visualizer;
 import dna.visualization.components.statsdisplay.StatsDisplay;
 
@@ -35,6 +37,11 @@ public class MainDisplay extends JFrame {
 	public static Font defaultFont = MainDisplay.getDefaultFontFromConfig();
 	public static Font defaultFontBorders = new Font(defaultFont.getName(),
 			Font.BOLD, defaultFont.getSize());
+
+	/** SIZES **/
+	private Dimension mainDisplaySize = new Dimension(1680, 800);
+	private Dimension statsDisplaySize = new Dimension(250, 400);
+	private Dimension buttonSize = new Dimension(70, 30);
 
 	/** MAIN **/
 	public static void main(String[] args) {
@@ -67,12 +74,10 @@ public class MainDisplay extends JFrame {
 	private Visualizer metric1;
 	private Visualizer metric2;
 
-	// private MultiScalarMetricVisualizer metric1;
-
 	// constructor
 	public MainDisplay() {
 		setTitle("DNA - Dynamic Network Analyzer");
-		setSize(1680, 800);
+		setSize(mainDisplaySize);
 		setLocationRelativeTo(null);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
@@ -84,6 +89,8 @@ public class MainDisplay extends JFrame {
 
 		// init stats component, set position in grid and add to mainframe
 		this.statsDisplay1 = new StatsDisplay();
+		// size not used yet, first rework layouting in statsdisplay frame
+		//this.statsDisplay1.setPreferredSize(statsDisplaySize);
 		this.statsDisplay1.setParent(this);
 		this.statsDisplay1.setDirectory(defaultDir);
 
@@ -94,13 +101,10 @@ public class MainDisplay extends JFrame {
 		// register statsDisplay to get batchdata objects
 		this.registerDataComponent(this.statsDisplay1);
 
-		// register batchhandler at statsdisplay
-		this.statsDisplay1.setBatchHandler(this.batchHandler);
-
-		// add buttons
+		// create buttons
 		this.quitButton = new JButton("Quit");
+		this.quitButton.setPreferredSize(buttonSize);
 		this.quitButton.setFont(MainDisplay.defaultFont);
-		this.quitButton.setBounds(50, 60, 80, 30);
 		this.quitButton.setForeground(Color.BLACK);
 		this.quitButton.addActionListener(new ActionListener() {
 			@Override
@@ -108,10 +112,11 @@ public class MainDisplay extends JFrame {
 				System.exit(0);
 			}
 		});
+		System.out.println(this.quitButton.getPreferredSize().toString());
 
 		this.pauseButton = new JButton("Pause");
+		this.pauseButton.setPreferredSize(buttonSize);
 		this.pauseButton.setFont(MainDisplay.defaultFont);
-		this.pauseButton.setBounds(50, 60, 80, 30);
 		this.pauseButton.setForeground(Color.BLACK);
 		this.pauseButton.addActionListener(new ActionListener() {
 			@Override
@@ -128,8 +133,8 @@ public class MainDisplay extends JFrame {
 		});
 
 		this.stopButton = new JButton("Stop");
+		this.stopButton.setPreferredSize(buttonSize);
 		this.stopButton.setFont(MainDisplay.defaultFont);
-		this.stopButton.setBounds(50, 60, 80, 30);
 		this.stopButton.setForeground(Color.BLACK);
 		this.stopButton.addActionListener(new ActionListener() {
 			@Override
@@ -147,8 +152,8 @@ public class MainDisplay extends JFrame {
 		});
 
 		this.startButton = new JButton("Start");
+		this.startButton.setPreferredSize(buttonSize);
 		this.startButton.setFont(MainDisplay.defaultFont);
-		this.startButton.setBounds(50, 60, 80, 30);
 		this.startButton.setForeground(Color.BLACK);
 		this.startButton.addActionListener(new ActionListener() {
 			@Override
@@ -161,7 +166,7 @@ public class MainDisplay extends JFrame {
 		this.buttons = new JPanel();
 		this.buttons.setLayout(new BoxLayout(this.buttons, BoxLayout.X_AXIS));
 
-		// set buttons-panel position in gridlayout and add to mainframe
+		// set buttons-panel position in gridlayout and add them to mainframe
 		mainDisplayConstraints.gridx = 0;
 		mainDisplayConstraints.gridy = 1;
 		this.getContentPane().add(this.buttons, mainDisplayConstraints);
@@ -189,12 +194,14 @@ public class MainDisplay extends JFrame {
 		JLabel logoLabel = new JLabel(new ImageIcon(image));
 		this.logoPanel.add(logoLabel);
 
+		// add metric visualizer
 		this.metric1 = new MetricVisualizer();
 		mainDisplayConstraints.gridx = 1;
 		mainDisplayConstraints.gridy = 0;
 		this.getContentPane().add(this.metric1, mainDisplayConstraints);
-		
-		this.metric2 = new MultiScalarMetricVisualizer();
+
+		// add multi scalar visualizer
+		this.metric2 = new MultiScalarVisualizer();
 		mainDisplayConstraints.gridx = 2;
 		mainDisplayConstraints.gridy = 0;
 		this.getContentPane().add(this.metric2, mainDisplayConstraints);
@@ -220,8 +227,8 @@ public class MainDisplay extends JFrame {
 			if (c instanceof MetricVisualizer) {
 				((MetricVisualizer) c).updateData(b);
 			}
-			if (c instanceof MultiScalarMetricVisualizer) {
-				((MultiScalarMetricVisualizer) c).updateData(b);
+			if (c instanceof MultiScalarVisualizer) {
+				((MultiScalarVisualizer) c).updateData(b);
 			}
 		}
 	}
@@ -243,8 +250,8 @@ public class MainDisplay extends JFrame {
 			if (c instanceof MetricVisualizer) {
 				((MetricVisualizer) c).initData(b);
 			}
-			if (c instanceof MultiScalarMetricVisualizer) {
-				((MultiScalarMetricVisualizer) c).initData(b);
+			if (c instanceof MultiScalarVisualizer) {
+				((MultiScalarVisualizer) c).initData(b);
 			}
 		}
 	}

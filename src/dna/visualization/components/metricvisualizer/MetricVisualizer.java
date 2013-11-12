@@ -31,7 +31,7 @@ import dna.visualization.MainDisplay;
 public class MetricVisualizer extends Visualizer {
 	// fonts
 	private Font defaultFontBorders = MainDisplay.defaultFontBorders;
-	
+
 	// available values and traces
 	private ArrayList<String> availableValues;
 	private HashMap<String, ITrace2D> traces;
@@ -41,7 +41,7 @@ public class MetricVisualizer extends Visualizer {
 		// initialization
 		this.traces = new HashMap<String, ITrace2D>();
 		this.availableValues = new ArrayList<String>();
-		
+
 		// set title and border of the metric visualizer
 		TitledBorder title = BorderFactory
 				.createTitledBorder("Metric Visualizer");
@@ -52,7 +52,7 @@ public class MetricVisualizer extends Visualizer {
 
 		// add menu bar
 		super.addMenuBar(new Dimension(this.defaultMenuBarSize), true, true,
-				true, true, true);
+				true, true, true, false);
 
 		// add coordinate parsing to mouseover on chart
 		this.chart.addMouseMotionListener(new MouseMotionListener() {
@@ -131,7 +131,6 @@ public class MetricVisualizer extends Visualizer {
 				this.legend.updateItem(tempName, tempValue);
 			}
 		}
-		System.out.println(super.isViewPortFixed());
 		if (Config.getBoolean("DEFAULT_TRACE_MODE_LTD") && !this.FIXED_VIEWPORT) {
 			this.maxShownTimestamp = this.maxTimestamp;
 			if (this.maxShownTimestamp - this.TRACE_LENGTH > 0)
@@ -224,7 +223,7 @@ public class MetricVisualizer extends Visualizer {
 			this.traces.get(trace).removeAllPoints();
 		}
 	}
-	
+
 	/** removes a trace from the chart and the traces-list **/
 	public void removeTrace(String name) {
 		if (this.traces.containsKey(name)) {
