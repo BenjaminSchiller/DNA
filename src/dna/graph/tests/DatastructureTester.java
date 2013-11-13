@@ -90,7 +90,7 @@ public class DatastructureTester {
 				exceptionCounter++;
 				continue;
 			}
-			dummy = mock(otherElementClass);
+			dummy = (IElement)mock(otherElementClass);
 
 			boolean exceptionThrown = false;
 			assertFalse("Datastructure " + dataStructure.getClass() + "["
