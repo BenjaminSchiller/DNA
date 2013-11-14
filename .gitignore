@@ -2,10 +2,8 @@
 /plots/
 /deploy/
 /build/
-.project
-.classpath
+/bin/
 /src/dna/Test*.java
-bin
 /src/dna/test/
 
 *.class
