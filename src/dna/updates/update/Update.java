@@ -1,5 +1,8 @@
 package dna.updates.update;
 
+import java.util.HashMap;
+import java.util.HashSet;
+
 import dna.graph.Graph;
 import dna.graph.datastructures.GraphDataStructure;
 import dna.graph.edges.Edge;
@@ -62,7 +65,9 @@ public abstract class Update {
 				this.getStringRepresentation());
 	}
 
-	public static Update fromString(GraphDataStructure gds, Graph g, String str) {
+	public static Update fromString(GraphDataStructure gds, Graph g,
+			String str, HashMap<Integer, Node> addedNodes,
+			HashSet<Edge> addedEdges) {
 		String[] temp = str.split(Config.get("UPDATE_DELIMITER1"));
 		UpdateType t = UpdateType.valueOf(temp[0]);
 		String[] temp1;
@@ -76,12 +81,20 @@ public abstract class Update {
 			return new NodeAddition(n);
 		case NODE_REMOVAL:
 			n_ = gds.newNodeInstance(temp[1]);
-			n = g.getNode(n_.getIndex());
+			if (addedNodes.containsKey(n_.getIndex())) {
+				n = addedNodes.get(n_.getIndex());
+			} else {
+				n = g.getNode(n_.getIndex());
+			}
 			return new NodeRemoval(n);
 		case NODE_WEIGHT:
 			temp1 = temp[1].split(Config.get("UPDATE_DELIMITER2"));
 			n_ = gds.newNodeInstance(temp1[0]);
-			n = g.getNode(n_.getIndex());
+			if (addedNodes.containsKey(n_.getIndex())) {
+				n = addedNodes.get(n_.getIndex());
+			} else {
+				n = g.getNode(n_.getIndex());
+			}
 			if (n instanceof IDoubleWeighted) {
 				w = Double.parseDouble(temp1[1]);
 			} else if (n instanceof IIntWeighted) {
@@ -92,15 +105,15 @@ public abstract class Update {
 			}
 			return new NodeWeight((IWeightedNode) n, w);
 		case EDGE_ADDITION:
-			e = gds.newEdgeInstance(temp[1], g);
+			e = gds.newEdgeInstance(temp[1], g, addedNodes);
 			return new EdgeAddition(e);
 		case EDGE_REMOVAL:
-			e_ = gds.newEdgeInstance(temp[1], g);
+			e_ = gds.newEdgeInstance(temp[1], g, addedNodes);
 			e = g.getEdge(e_);
 			return new EdgeRemoval(e);
 		case EDGE_WEIGHT:
 			temp1 = temp[1].split(Config.get("UPDATE_DELIMITER2"));
-			e_ = gds.newEdgeInstance(temp1[0], g);
+			e_ = gds.newEdgeInstance(temp1[0], g, addedNodes);
 			e = g.getEdge(e_);
 			if (e instanceof IDoubleWeighted) {
 				w = Double.parseDouble(temp1[1]);
