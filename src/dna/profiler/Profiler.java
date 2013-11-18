@@ -37,14 +37,18 @@ public class Profiler {
 	private static HashSet<String> metricNames = new HashSet<>();
 
 	final static String separator = System.getProperty("line.separator");
-	final static boolean writeAllRecommendations = Config
-			.getBoolean("PROFILER_WRITE_ALL_RECOMMENDATIONS");
+	private static boolean writeAllRecommendations;
+	private static boolean disableAllRecommendations;
 
 	public static enum ProfilerType {
 		AddNodeGlobal, AddNodeLocal, AddEdgeGlobal, AddEdgeLocal, RemoveNodeGlobal, RemoveNodeLocal, RemoveEdgeGlobal, RemoveEdgeLocal, ContainsNodeGlobal, ContainsNodeLocal, ContainsEdgeGlobal, ContainsEdgeLocal, GetNodeGlobal, GetNodeLocal, GetEdgeGlobal, GetEdgeLocal, SizeNodeGlobal, SizeNodeLocal, SizeEdgeGlobal, SizeEdgeLocal, RandomNodeGlobal, RandomEdgeGlobal, IteratorNodeGlobal, IteratorNodeLocal, IteratorEdgeGlobal, IteratorEdgeLocal
 	}
 
 	public static void activate() {
+		writeAllRecommendations = Config
+				.getBoolean("PROFILER_WRITE_ALL_RECOMMENDATIONS");
+		disableAllRecommendations = Config
+				.getBoolean("PROFILER_DISABLE_ALL_RECOMMENDATIONS");
 		active = true;
 	}
 
@@ -162,6 +166,12 @@ public class Profiler {
 
 		String outputPrefix = outputAsCommentWithPrefix ? "# " : "";
 		res.append(outputPrefix + "  Recommendations:");
+
+		if (disableAllRecommendations) {
+			res.append(" disabled using PROFILER_DISABLE_ALL_RECOMMENDATIONS"
+					+ separator);
+			return res.toString();
+		}
 
 		if (entry.getCombined() == 0) {
 			res.append(" not available" + separator);
