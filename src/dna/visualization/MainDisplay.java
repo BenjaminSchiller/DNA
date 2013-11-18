@@ -326,8 +326,8 @@ public class MainDisplay extends JFrame {
 	/** clears all list items from metric visualizers **/
 	public void clearLists() {
 		for (Component c : this.dataComponents) {
-			if (c instanceof MetricVisualizer) {
-				((MetricVisualizer) c).clearList();
+			if (c instanceof Visualizer) {
+				((Visualizer) c).clearList();
 			}
 		}
 	}
