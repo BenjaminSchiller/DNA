@@ -35,6 +35,7 @@ public class Visualizer extends JPanel {
 	protected Chart2D chart;
 	protected Dimension defaultChartSize = new Dimension(450, 320);
 	protected IAxis xAxis;
+	protected IAxis xAxis2;
 	protected IAxis yRight;
 	protected IAxis yLeft;
 
@@ -83,6 +84,10 @@ public class Visualizer extends JPanel {
 		this.yRight = new AxisLinear();
 		this.chart.addAxisYRight((AAxis) yRight);
 		this.yRight.setVisible(false);
+		this.xAxis2 = new AxisLinear();
+		this.xAxis2.setVisible(false);
+
+		this.chart.addAxisXBottom((AAxis) this.xAxis2);
 
 		// add chart to visualizer
 		this.mainConstraints.gridx = 0;
@@ -256,6 +261,18 @@ public class Visualizer extends JPanel {
 			else
 				rightAxe.setVisible(true);
 		}
+	}
+
+	/** toggles visibility of both x axis **/
+	public void toggleXAxisVisibility() {
+		for (IAxis axis : this.chart.getAxesXBottom()) {
+			if (axis.getTraces().size() < 1)
+				axis.setVisible(false);
+			else
+				axis.setVisible(true);
+		}
+		if (!this.xAxis2.isVisible() && !this.xAxis.isVisible())
+			this.xAxis.setVisible(true);
 	}
 
 	/** clears all list items in the legend **/

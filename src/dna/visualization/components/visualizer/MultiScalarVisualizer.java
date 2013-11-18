@@ -38,9 +38,15 @@ public class MultiScalarVisualizer extends Visualizer {
 	private ArrayList<String> availableValues;
 	private HashMap<String, ITrace2D> traces;
 
+	/** sort mode used to plot nodevaluelists **/
 	public enum SortMode {
 		index, ascending, descending
 	};
+
+	/** sort mode used to plot distributions **/
+	public enum SortModeDist {
+		distribution, cdf
+	}
 
 	private SortMode sortMode;
 
@@ -49,6 +55,10 @@ public class MultiScalarVisualizer extends Visualizer {
 		// initialization
 		this.traces = new HashMap<String, ITrace2D>();
 		this.availableValues = new ArrayList<String>();
+
+		// remove timestamp-label on x-axis
+		this.xAxis.setTitle("x1");
+		this.xAxis2.setTitle("x2");
 
 		// set default sort mode
 		this.sortMode = sortMode.index;
@@ -134,7 +144,11 @@ public class MultiScalarVisualizer extends Visualizer {
 						double[] tempValues = ((DistributionDouble) b
 								.getMetrics().get(metric).getDistributions()
 								.get(dist)).getDoubleValues();
-						this.addPoints(tempName, tempValues, this.sortMode);
+						SortModeDist tempSortMode = ((LegendItemDistribution) this.legend
+								.getLegendList().getLegendItem(tempName))
+								.getSortMode();
+						this.addDistributionPoints(tempName, tempValues,
+								tempSortMode);
 					}
 					if (tempDist instanceof DistributionInt) {
 						int[] tempValues = ((DistributionInt) b.getMetrics()
@@ -143,9 +157,12 @@ public class MultiScalarVisualizer extends Visualizer {
 						int tempDenominator = ((DistributionInt) b.getMetrics()
 								.get(metric).getDistributions().get(dist))
 								.getDenominator();
-						this.addPoints(tempName, tempValues, tempDenominator,
-								this.sortMode);
-						System.out.println(tempDenominator);
+						SortModeDist tempSortMode = ((LegendItemDistribution) this.legend
+								.getLegendList().getLegendItem(tempName))
+								.getSortMode();
+						this.addDistributionPoints(tempName, tempValues,
+								tempDenominator, tempSortMode);
+						this.legend.updateItem(tempName, tempDenominator);
 					}
 					if (tempDist instanceof DistributionLong) {
 						long[] tempValues = ((DistributionLong) b.getMetrics()
@@ -154,20 +171,28 @@ public class MultiScalarVisualizer extends Visualizer {
 						long tempDenominator = ((DistributionLong) b
 								.getMetrics().get(metric).getDistributions()
 								.get(dist)).getDenominator();
-						this.addPoints(tempName, tempValues, tempDenominator,
-								this.sortMode);
-						System.out.println(tempDenominator);
+						SortModeDist tempSortMode = ((LegendItemDistribution) this.legend
+								.getLegendList().getLegendItem(tempName))
+								.getSortMode();
+						this.addDistributionPoints(tempName, tempValues,
+								tempDenominator, tempSortMode);
+						this.legend.updateItem(tempName, tempDenominator);
 					}
 
-					this.legend.updateItem(tempName, 0.0);
 				}
 			}
 			for (String nvl : b.getMetrics().get(metric).getNodeValues()
 					.getNames()) {
-				if (this.traces.containsKey(metric + "." + nvl))
+				String tempName = metric + "." + nvl;
+				if (this.traces.containsKey(tempName)) {
+					SortMode tempSortMode = ((LegendItemNodeValueList) this.legend
+							.getLegendList().getLegendItem(tempName))
+							.getSortMode();
+
 					this.addPoints(metric + "." + nvl,
 							b.getMetrics().get(metric).getNodeValues().get(nvl)
-									.getValues(), this.sortMode);
+									.getValues(), tempSortMode);
+				}
 			}
 		}
 		updateXTicks();
@@ -211,24 +236,20 @@ public class MultiScalarVisualizer extends Visualizer {
 	}
 
 	/** adds points sorted and normalized by dividing through denominator **/
-	private void addPoints(String name, long[] values, long denominator,
-			SortMode sort) {
+	private void addDistributionPoints(String name, long[] values,
+			long denominator, SortModeDist sort) {
 		ITrace2D tempTrace = this.traces.get(name);
 
 		switch (sort) {
-		case ascending:
+		case cdf:
+			double sum = 0;
 			Arrays.sort(values);
 			for (int i = 0; i < values.length; i++) {
-				tempTrace.addPoint(i, (1.0 * values[i]) / denominator);
+				sum += (1.0 * values[i]) / denominator;
+				tempTrace.addPoint(i, sum);
 			}
 			break;
-		case descending:
-			Arrays.sort(values);
-			for (int i = 0, j = values.length - 1; i < values.length; i++) {
-				tempTrace.addPoint(j - i, (1.0 * values[i]) / denominator);
-			}
-			break;
-		case index:
+		case distribution:
 			for (int i = 0; i < values.length; i++) {
 				tempTrace.addPoint(i, (1.0 * values[i]) / denominator);
 			}
@@ -242,26 +263,49 @@ public class MultiScalarVisualizer extends Visualizer {
 	}
 
 	/** adds points sorted and normalized by dividing through denominator **/
-	private void addPoints(String name, int[] values, int denominator,
-			SortMode sort) {
+	private void addDistributionPoints(String name, int[] values,
+			int denominator, SortModeDist sort) {
 		ITrace2D tempTrace = this.traces.get(name);
 
 		switch (sort) {
-		case ascending:
+		case cdf:
+			double sum = 0;
 			Arrays.sort(values);
+			for (int i = 0; i < values.length; i++) {
+				sum += (1.0 * values[i]) / denominator;
+				tempTrace.addPoint(i, sum);
+			}
+			break;
+		case distribution:
 			for (int i = 0; i < values.length; i++) {
 				tempTrace.addPoint(i, (1.0 * values[i]) / denominator);
 			}
 			break;
-		case descending:
+		}
+
+		if (values.length - 1 > this.maxShownTimestamp)
+			this.maxShownTimestamp = values.length - 1;
+		if (values.length - 1 > this.maxTimestamp)
+			this.maxTimestamp = values.length - 1;
+	}
+
+	/** adds points sorted and normalized by dividing through denominator **/
+	private void addDistributionPoints(String name, double[] values,
+			SortModeDist sort) {
+		ITrace2D tempTrace = this.traces.get(name);
+
+		switch (sort) {
+		case cdf:
+			double sum = 0;
 			Arrays.sort(values);
-			for (int i = 0, j = values.length - 1; i < values.length; i++) {
-				tempTrace.addPoint(j - i, (1.0 * values[i]) / denominator);
+			for (int i = 0; i < values.length; i++) {
+				sum += values[i];
+				tempTrace.addPoint(i, sum);
 			}
 			break;
-		case index:
+		case distribution:
 			for (int i = 0; i < values.length; i++) {
-				tempTrace.addPoint(i, (1.0 * values[i]) / denominator);
+				tempTrace.addPoint(i, values[i]);
 			}
 			break;
 		}
@@ -332,8 +376,8 @@ public class MultiScalarVisualizer extends Visualizer {
 			this.chart.removeTrace(this.traces.get(name));
 			this.traces.remove(name);
 		}
-		if (this.yRight.getTraces().size() < 1)
-			this.yRight.setVisible(false);
+		this.toggleXAxisVisibility();
+		this.toggleYAxisVisibility();
 	}
 
 	/** gathers all plottable values from the batch **/
@@ -425,6 +469,36 @@ public class MultiScalarVisualizer extends Visualizer {
 			// toggle right y axis visibility
 			this.toggleYAxisVisibility();
 		}
+	}
+
+	/** toggles the x axis for a trace identified by its name **/
+	public void toggleXAxis(String name) {
+		if (this.traces.containsKey(name)) {
+			if (this.chart.getAxesXBottom().get(0).getTraces()
+					.contains(this.traces.get(name))) {
+				this.chart.getAxesXBottom().get(0)
+						.removeTrace(this.traces.get(name));
+				this.chart.getAxesXBottom().get(1)
+						.addTrace(this.traces.get(name));
+			} else {
+				this.chart.getAxesXBottom().get(1)
+						.removeTrace(this.traces.get(name));
+				this.chart.getAxesXBottom().get(0)
+						.addTrace(this.traces.get(name));
+			}
+			this.toggleXAxisVisibility();
+		}
+	}
+
+	/** shows/hides a trace from the chart without deleting it **/
+	public void toggleTraceVisiblity(String name) {
+		if (this.traces.containsKey(name)) {
+			if (this.traces.get(name).isVisible())
+				this.traces.get(name).setVisible(false);
+			else
+				this.traces.get(name).setVisible(true);
+		}
+
 	}
 
 }

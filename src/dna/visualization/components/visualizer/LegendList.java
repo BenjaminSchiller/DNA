@@ -43,18 +43,6 @@ public class LegendList extends JPanel {
 		this.validate();
 	}
 
-	/** set value of an item **/
-	public void setItemValue(String name, double value) {
-		for (Component c : this.getComponents()) {
-			if (c instanceof LegendItem) {
-				if (c.getName().equals(name)) {
-					((LegendItem) c).setValue(value);
-				}
-			}
-		}
-		this.validate();
-	}
-
 	/** remove an item from the list **/
 	public void removeItem(String name) {
 		for (Component c : this.getComponents()) {
@@ -81,12 +69,25 @@ public class LegendList extends JPanel {
 	/** updates the value of an legend item contained in the list **/
 	public void updateItem(String name, double value) {
 		for (Component c : this.getComponents()) {
-			if (c instanceof LegendItem) {
+			if (c instanceof LegendItemValue) {
 				if (c.getName().equals(name)) {
-					((LegendItem) c).setValue(value);
+					((LegendItemValue) c).setValue(value);
 				}
 			}
 		}
+		this.validate();
+	}
+
+	/** updates the denominator of an legend item contained in the list **/
+	public void updateItem(String name, long denominator) {
+		for (Component c : this.getComponents()) {
+			if (c instanceof LegendItemDistribution) {
+				if (c.getName().equals(name)) {
+					((LegendItemDistribution) c).setDenominator(denominator);
+				}
+			}
+		}
+		this.validate();
 	}
 
 	/** resets the legend list by removing all items **/
@@ -98,8 +99,29 @@ public class LegendList extends JPanel {
 		}
 	}
 
-	/** toggles y axis for an item **/
+	/** toggles y axis of an item **/
 	public void toggleYAxis(LegendItem item) {
 		this.parent.toggleYAxis(item);
+	}
+	
+	/** toggles x axis of an item **/
+	public void toggleXAxis(LegendItem item) {
+		this.parent.toggleXAxis(item);
+	}
+	
+	/** toggles visiblity of a trace **/
+	public void toggleVisiblity(LegendItem item) {
+		this.parent.toggleVisiblity(item);
+	}
+
+	/** returns the legenditem identified by its name **/
+	public LegendItem getLegendItem(String name) {
+		for (Component c : this.getComponents()) {
+			if (c instanceof LegendItem) {
+				if (c.getName().equals(name))
+					return (LegendItem) c;
+			}
+		}
+		return null;
 	}
 }

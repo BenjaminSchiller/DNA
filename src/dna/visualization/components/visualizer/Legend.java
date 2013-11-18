@@ -81,6 +81,7 @@ public class Legend extends JPanel {
 		this.initAddBox(null);
 	}
 
+	/** adds an item to the list, if its already added nothing will happen **/
 	public void addItemToList(String name) {
 		boolean alreadyAdded = false;
 		for (Component c : this.list.getComponents()) {
@@ -94,7 +95,7 @@ public class Legend extends JPanel {
 		if (!alreadyAdded) {
 			Color color = this.colorHandler.getNextColor();
 
-			LegendItem i = new LegendItem(this.list, name, color);
+			LegendItem i = new LegendItemValue(this.list, name, color);
 			i.setToolTipText(name);
 			this.list.add(i);
 			if (this.parent instanceof MetricVisualizer)
@@ -105,15 +106,87 @@ public class Legend extends JPanel {
 		this.validate();
 	}
 
+	/** adds a value item to the list, if its already added nothing will happen **/
+	public void addValueItemToList(String name) {
+		boolean alreadyAdded = false;
+		for (Component c : this.list.getComponents()) {
+			if (c instanceof LegendItem) {
+				if (c.getName().equals(name)) {
+					alreadyAdded = true;
+				}
+			}
+		}
+
+		if (!alreadyAdded) {
+			Color color = this.colorHandler.getNextColor();
+
+			LegendItem i = new LegendItemValue(this.list, name, color);
+			i.setToolTipText(name);
+			this.list.add(i);
+			if (this.parent instanceof MetricVisualizer)
+				((MetricVisualizer) this.parent).addTrace(name, color);
+		}
+		this.validate();
+	}
+
+	/**
+	 * adds a distribution item to the list, if its already added nothing will
+	 * happen
+	 **/
+	public void addDistributionItemToList(String name) {
+		boolean alreadyAdded = false;
+		for (Component c : this.list.getComponents()) {
+			if (c instanceof LegendItem) {
+				if (c.getName().equals(name)) {
+					alreadyAdded = true;
+				}
+			}
+		}
+
+		if (!alreadyAdded) {
+			Color color = this.colorHandler.getNextColor();
+
+			LegendItem i = new LegendItemDistribution(this.list, name, color);
+			i.setToolTipText(name);
+			this.list.add(i);
+			if (this.parent instanceof MultiScalarVisualizer)
+				((MultiScalarVisualizer) this.parent).addTrace(name, color);
+		}
+		this.validate();
+	}
+
+	/**
+	 * adds a nodevaluelist item to the list, if its already added nothing will
+	 * happen
+	 **/
+	public void addNodeValueListItemToList(String name) {
+		boolean alreadyAdded = false;
+		for (Component c : this.list.getComponents()) {
+			if (c instanceof LegendItem) {
+				if (c.getName().equals(name)) {
+					alreadyAdded = true;
+				}
+			}
+		}
+
+		if (!alreadyAdded) {
+			Color color = this.colorHandler.getNextColor();
+
+			LegendItem i = new LegendItemNodeValueList(this.list, name, color);
+			i.setToolTipText(name);
+			this.list.add(i);
+			if (this.parent instanceof MultiScalarVisualizer)
+				((MultiScalarVisualizer) this.parent).addTrace(name, color);
+		}
+		this.validate();
+	}
+
+	/** returns the legendlist **/
 	public LegendList getLegendList() {
 		return this.list;
 	}
 
-	public void addItem2(LegendItem i) {
-		this.add(i);
-		this.validate();
-	}
-
+	/** removes an item from the legend **/
 	public void removeItem(String name, Color color) {
 		if (this.parent instanceof MetricVisualizer)
 			((MetricVisualizer) this.parent).removeTrace(name);
@@ -179,61 +252,130 @@ public class Legend extends JPanel {
 	 *            index of the selected element
 	 */
 	public void addSelection(int selectionIndex) {
-		// if selected element is a category
-		if (this.addBoxMenu[selectionIndex].charAt(0) != '-') {
-			// if selected element is "metrics" category
-			// means it probably has different metrics with different values
-			// each
-			if (this.addBoxMenu[selectionIndex].equals("metrics")) {
-				int x = selectionIndex + 1;
-				while (x != this.addBoxMenu.length
-						&& this.addBoxMenu[x].charAt(0) == '-') {
-					if (this.addBoxMenu[x].substring(0, 6).equals("----- ")) {
-						this.addItemToList(this.addBoxMenu[x].substring(6));
+		// if its a metric visualizer -> add value-legenditems
+		if (this.parent instanceof MetricVisualizer) {
+			// if selected element is a category
+			if (this.addBoxMenu[selectionIndex].charAt(0) != '-') {
+				// if selected element is "metrics" category
+				// means it probably has different metrics with different values
+				// each
+				if (this.addBoxMenu[selectionIndex].equals("metrics")) {
+					int x = selectionIndex + 1;
+					while (x != this.addBoxMenu.length
+							&& this.addBoxMenu[x].charAt(0) == '-') {
+						if (this.addBoxMenu[x].substring(0, 6).equals("----- ")) {
+							this.addValueItemToList(this.addBoxMenu[x]
+									.substring(6));
+						}
+						x++;
 					}
-					x++;
+				} else {
+					// if selected element is a category other than "metrics"
+					int x = selectionIndex + 1;
+					while (x != this.addBoxMenu.length
+							&& this.addBoxMenu[x].charAt(0) == '-') {
+						this.addValueItemToList(this.addBoxMenu[selectionIndex]
+								+ "." + this.addBoxMenu[x].substring(3));
+						x++;
+					}
 				}
-			} else {
-				// if selected element is a category other than "metrics"
-				int x = selectionIndex + 1;
-				while (x != this.addBoxMenu.length
-						&& this.addBoxMenu[x].charAt(0) == '-') {
-					this.addItemToList(this.addBoxMenu[selectionIndex] + "."
-							+ this.addBoxMenu[x].substring(3));
-					x++;
+			}
+			// if selected element starts with "---"
+			if (this.addBoxMenu[selectionIndex].substring(0, 3).equals("---")) {
+				// if selected element starts with "--- "
+				// means element is metric with different values
+				if (this.addBoxMenu[selectionIndex].substring(0, 4).equals(
+						"--- ")) {
+					int x = selectionIndex + 1;
+					while (x != this.addBoxMenu.length
+							&& this.addBoxMenu[x].substring(0, 6).equals(
+									"----- ")) {
+						this.addValueItemToList(this.addBoxMenu[x].substring(6));
+						x++;
+					}
+				} else {
+					// if selected element is single element starting with
+					// "----- "
+					// means it is a metric value without sub-elements
+					if (this.addBoxMenu[selectionIndex].substring(0, 6).equals(
+							"----- ")) {
+						this.addValueItemToList(this.addBoxMenu[selectionIndex]
+								.substring(6));
+					} else {
+						// if selected element starts with "---"
+						// means it is a value of runtimes or batch statistics
+						int x = selectionIndex - 1;
+						while (x > 0
+								&& (this.addBoxMenu[x].substring(0, 3)
+										.equals("---"))) {
+							x--;
+						}
+						this.addValueItemToList(this.addBoxMenu[x] + "."
+								+ this.addBoxMenu[selectionIndex].substring(3));
+					}
 				}
 			}
 		}
+		// if its a multiscalarvisualizer -> add either distribution or
+		// nodevaluelist legenditem
+		if (this.parent instanceof MultiScalarVisualizer) {
+			// if selected element starts with "---"
+			if (this.addBoxMenu[selectionIndex].substring(0, 3).equals("---")) {
+				// if selected element starts with "--- "
+				// means element is metric with different values
+				if (this.addBoxMenu[selectionIndex].substring(0, 4).equals(
+						"--- ")) {
 
-		// if selected element starts with "---"
-		if (this.addBoxMenu[selectionIndex].substring(0, 3).equals("---")) {
-			// if selected element starts with "--- "
-			// means element is metric with different values
-			if (this.addBoxMenu[selectionIndex].substring(0, 4).equals("--- ")) {
-				int x = selectionIndex + 1;
-				while (x != this.addBoxMenu.length
-						&& this.addBoxMenu[x].substring(0, 6).equals("----- ")) {
-					this.addItemToList(this.addBoxMenu[x].substring(6));
-					x++;
-				}
-			} else {
-				// if selected element is single element starting with "----- "
-				// means it is a metric value without sub-elements
-				if (this.addBoxMenu[selectionIndex].substring(0, 6).equals(
-						"----- ")) {
-					this.addItemToList(this.addBoxMenu[selectionIndex]
-							.substring(6));
-				} else {
-					// if selected element starts with "---"
-					// means it is a value of runtimes or batch statistics
-					int x = selectionIndex - 1;
-					while (x > 0
-							&& (this.addBoxMenu[x].substring(0, 3)
-									.equals("---"))) {
-						x--;
+					// check if distributions or nodevaluelists should be added
+					boolean addDistribution;
+					if (this.addBoxMenu[selectionIndex].substring(0, 5).equals(
+							"--- D"))
+						addDistribution = true;
+					else
+						addDistribution = false;
+
+					int x = selectionIndex + 1;
+					while (x != this.addBoxMenu.length
+							&& this.addBoxMenu[x].substring(0, 6).equals(
+									"----- ")) {
+						if (addDistribution)
+							this.addDistributionItemToList(this.addBoxMenu[x]
+									.substring(6));
+						else
+							this.addNodeValueListItemToList(this.addBoxMenu[x]
+									.substring(6));
+						x++;
 					}
-					this.addItemToList(this.addBoxMenu[x] + "."
-							+ this.addBoxMenu[selectionIndex].substring(3));
+				} else {
+					// if selected element is single element starting with
+					// "----- "
+					// means it is a metric value without sub-elements
+					if (this.addBoxMenu[selectionIndex].substring(0, 6).equals(
+							"----- ")) {
+
+						// check if a distribution or a nodevaluelist should be
+						// added
+						boolean addDistribution = true;
+						for (int i = 1; selectionIndex - i >= 0; i++) {
+							if (this.addBoxMenu[selectionIndex - i].substring(
+									0, 5).equals("--- N")) {
+								addDistribution = false;
+								break;
+							}
+							if (this.addBoxMenu[selectionIndex - i].substring(
+									0, 5).equals("--- D")) {
+								addDistribution = true;
+								break;
+							}
+						}
+
+						if (addDistribution)
+							this.addDistributionItemToList(this.addBoxMenu[selectionIndex]
+									.substring(6));
+						else
+							this.addNodeValueListItemToList(this.addBoxMenu[selectionIndex]
+									.substring(6));
+					}
 				}
 			}
 		}
@@ -244,18 +386,38 @@ public class Legend extends JPanel {
 		this.list.updateItem(name, value);
 	}
 
+	/** updates the denominator of an item **/
+	public void updateItem(String name, long denominator) {
+		this.list.updateItem(name, denominator);
+	}
+
 	/** resets the legend list **/
 	public void reset() {
 		this.list.reset();
 	}
 
-	/** toggles y axis of an trace **/
+	/** toggles y axis of a trace **/
 	public void toggleYAxis(LegendItem item) {
 		if (this.parent instanceof MetricVisualizer)
 			((MetricVisualizer) this.parent).toggleYAxis(item.getName());
 		if (this.parent instanceof MultiScalarVisualizer)
 			((MultiScalarVisualizer) this.parent).toggleYAxis(item.getName());
-		// this.parent.toggleYAxis(item.getName());
+	}
+	
+	/** toggles x axis of a trace **/
+	public void toggleXAxis(LegendItem item) {
+		if (this.parent instanceof MultiScalarVisualizer)
+			((MultiScalarVisualizer) this.parent).toggleXAxis(item.getName());
 	}
 
+	/** toggles visiblity of a trace **/
+	public void toggleVisiblity(LegendItem item) {
+		if (this.parent instanceof MetricVisualizer)
+			((MetricVisualizer) this.parent).toggleTraceVisiblity(item
+					.getName());
+		if (this.parent instanceof MultiScalarVisualizer)
+			((MultiScalarVisualizer) this.parent).toggleTraceVisiblity(item
+					.getName());
+
+	}
 }

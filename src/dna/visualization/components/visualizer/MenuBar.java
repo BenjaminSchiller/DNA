@@ -46,7 +46,7 @@ public class MenuBar extends JPanel {
 	private Visualizer parent;
 	private GridBagConstraints menuBarConstraints = new GridBagConstraints();
 
-	// size
+	// sizes
 	private Dimension coordsPanelSize = new Dimension(145, 45);
 	private Dimension intervalPanelSize = new Dimension(130, 45);
 	private Dimension xOptionsPanelSize = new Dimension(65, 45);

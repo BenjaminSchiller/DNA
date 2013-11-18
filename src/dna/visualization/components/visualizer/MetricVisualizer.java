@@ -224,14 +224,24 @@ public class MetricVisualizer extends Visualizer {
 		}
 	}
 
+	/** shows/hides a trace from the chart without deleting it **/
+	public void toggleTraceVisiblity(String name) {
+		if (this.traces.containsKey(name)) {
+			if (this.traces.get(name).isVisible())
+				this.traces.get(name).setVisible(false);
+			else
+				this.traces.get(name).setVisible(true);
+		}
+
+	}
+
 	/** removes a trace from the chart and the traces-list **/
 	public void removeTrace(String name) {
 		if (this.traces.containsKey(name)) {
 			this.chart.removeTrace(this.traces.get(name));
 			this.traces.remove(name);
 		}
-		if (this.yRight.getTraces().size() < 1)
-			this.yRight.setVisible(false);
+		this.toggleYAxisVisibility();
 	}
 
 	/** gathers all plottable values from the batch **/
