@@ -1,4 +1,4 @@
-package dna.visualization.components.metricvisualizer;
+package dna.visualization.components.visualizer;
 
 import java.awt.Color;
 import java.awt.Component;
@@ -100,8 +100,7 @@ public class Legend extends JPanel {
 			if (this.parent instanceof MetricVisualizer)
 				((MetricVisualizer) this.parent).addTrace(name, color);
 			if (this.parent instanceof MultiScalarVisualizer)
-				((MultiScalarVisualizer) this.parent).addTrace(name,
-						color);
+				((MultiScalarVisualizer) this.parent).addTrace(name, color);
 		}
 		this.validate();
 	}
@@ -254,6 +253,8 @@ public class Legend extends JPanel {
 	public void toggleYAxis(LegendItem item) {
 		if (this.parent instanceof MetricVisualizer)
 			((MetricVisualizer) this.parent).toggleYAxis(item.getName());
+		if (this.parent instanceof MultiScalarVisualizer)
+			((MultiScalarVisualizer) this.parent).toggleYAxis(item.getName());
 		// this.parent.toggleYAxis(item.getName());
 	}
 

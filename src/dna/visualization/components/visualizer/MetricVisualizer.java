@@ -1,4 +1,4 @@
-package dna.visualization.components.metricvisualizer;
+package dna.visualization.components.visualizer;
 
 import info.monitorenter.gui.chart.IAxis;
 import info.monitorenter.gui.chart.ITrace2D;

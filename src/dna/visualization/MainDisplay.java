@@ -25,10 +25,10 @@ import javax.swing.border.EtchedBorder;
 
 import dna.series.data.BatchData;
 import dna.util.Config;
-import dna.visualization.components.metricvisualizer.MetricVisualizer;
-import dna.visualization.components.metricvisualizer.MultiScalarVisualizer;
-import dna.visualization.components.metricvisualizer.Visualizer;
 import dna.visualization.components.statsdisplay.StatsDisplay;
+import dna.visualization.components.visualizer.MetricVisualizer;
+import dna.visualization.components.visualizer.MultiScalarVisualizer;
+import dna.visualization.components.visualizer.Visualizer;
 
 public class MainDisplay extends JFrame {
 	/** DEFAULTS **/

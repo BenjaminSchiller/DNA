@@ -1,5 +1,6 @@
-package dna.visualization.components.metricvisualizer;
+package dna.visualization.components.visualizer;
 
+import info.monitorenter.gui.chart.IAxis;
 import info.monitorenter.gui.chart.ITrace2D;
 import info.monitorenter.gui.chart.ITracePoint2D;
 import info.monitorenter.gui.chart.traces.Trace2DSimple;
@@ -144,6 +145,7 @@ public class MultiScalarVisualizer extends Visualizer {
 								.getDenominator();
 						this.addPoints(tempName, tempValues, tempDenominator,
 								this.sortMode);
+						System.out.println(tempDenominator);
 					}
 					if (tempDist instanceof DistributionLong) {
 						long[] tempValues = ((DistributionLong) b.getMetrics()
@@ -154,6 +156,7 @@ public class MultiScalarVisualizer extends Visualizer {
 								.get(dist)).getDenominator();
 						this.addPoints(tempName, tempValues, tempDenominator,
 								this.sortMode);
+						System.out.println(tempDenominator);
 					}
 
 					this.legend.updateItem(tempName, 0.0);
@@ -372,6 +375,56 @@ public class MultiScalarVisualizer extends Visualizer {
 	/** gets the sort mode **/
 	public SortMode getSortMode() {
 		return this.sortMode;
+	}
+
+	/** toggles the y axis for a trace identified by its name **/
+	public void toggleYAxis(String name) {
+		if (this.traces.containsKey(name)) {
+			Boolean left = false;
+			Boolean right = false;
+
+			ITrace2D tempTrace = new Trace2DSimple(null);
+
+			for (IAxis leftAxe : this.chart.getAxesYLeft()) {
+				for (Object trace : leftAxe.getTraces()) {
+					if (trace instanceof ITrace2D) {
+						if (((ITrace2D) trace) == this.traces.get(name)) {
+							tempTrace = (ITrace2D) trace;
+							leftAxe.removeTrace((ITrace2D) trace);
+							left = true;
+						}
+					}
+				}
+			}
+
+			for (IAxis rightAxe : this.chart.getAxesYRight()) {
+				for (Object trace : rightAxe.getTraces()) {
+					if (trace instanceof ITrace2D) {
+						if (((ITrace2D) trace) == this.traces.get(name)) {
+							tempTrace = (ITrace2D) trace;
+							rightAxe.removeTrace((ITrace2D) trace);
+							right = true;
+						}
+					}
+				}
+			}
+
+			if (left) {
+				for (IAxis rightAxe : this.chart.getAxesYRight()) {
+					rightAxe.addTrace(tempTrace);
+				}
+			} else {
+				if (right) {
+					for (IAxis leftAxe : this.chart.getAxesYLeft()) {
+						leftAxe.addTrace(tempTrace);
+					}
+				}
+
+			}
+
+			// toggle right y axis visibility
+			this.toggleYAxisVisibility();
+		}
 	}
 
 }

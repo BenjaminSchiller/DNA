@@ -1,4 +1,4 @@
-package dna.visualization.components.metricvisualizer;
+package dna.visualization.components.visualizer;
 
 import info.monitorenter.gui.chart.rangepolicies.RangePolicyFixedViewport;
 import info.monitorenter.gui.chart.rangepolicies.RangePolicyUnbounded;
@@ -24,7 +24,7 @@ import javax.swing.border.TitledBorder;
 
 import dna.visualization.MainDisplay;
 import dna.visualization.components.BoundsPopupMenuListener;
-import dna.visualization.components.metricvisualizer.MultiScalarVisualizer.SortMode;
+import dna.visualization.components.visualizer.MultiScalarVisualizer.SortMode;
 
 /**
  * The menubar is a bar containing several options for a visualizer, for example
