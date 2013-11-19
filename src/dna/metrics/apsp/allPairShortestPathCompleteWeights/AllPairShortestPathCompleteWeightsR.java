@@ -3,10 +3,10 @@ package dna.metrics.apsp.allPairShortestPathCompleteWeights;
 import dna.updates.batch.Batch;
 import dna.updates.update.Update;
 
-public class UndirectedAllPairShortestPathCompleteWeightsR extends
-		UndirectedAllPairShortestPathCompleteWeights {
+public class AllPairShortestPathCompleteWeightsR extends
+		AllPairShortestPathCompleteWeights {
 
-	public UndirectedAllPairShortestPathCompleteWeightsR() {
+	public AllPairShortestPathCompleteWeightsR() {
 		super("APSP Undirected wiht Weights Comp",
 				ApplicationType.Recomputation);
 	}
