@@ -3,8 +3,6 @@ package dna.visualization.components.visualizer;
 import info.monitorenter.gui.chart.IAxis;
 import info.monitorenter.gui.chart.ITrace2D;
 import info.monitorenter.gui.chart.ITracePoint2D;
-import info.monitorenter.gui.chart.rangepolicies.RangePolicyFixedViewport;
-import info.monitorenter.gui.chart.rangepolicies.RangePolicyUnbounded;
 import info.monitorenter.gui.chart.traces.Trace2DSimple;
 import info.monitorenter.gui.chart.traces.painters.TracePainterDisc;
 import info.monitorenter.gui.chart.traces.painters.TracePainterFill;
@@ -423,20 +421,54 @@ public class MultiScalarVisualizer extends Visualizer {
 	public SortMode getSortMode() {
 		return this.sortMode;
 	}
-	
+
+	/** handles the ticks that are shown on the second x axis **/
+	@Override
+	public void updateXTicks() {
+		double minTemp = 0;
+		double maxTemp = 10;
+
+		// get range of plotted data
+		for (Object t : this.xAxis.getTraces()) {
+			if (t instanceof Trace2DSimple) {
+				double minX = ((Trace2DSimple) t).getMinX();
+				double maxX = ((Trace2DSimple) t).getMaxX();
+				if (minTemp > minX)
+					minTemp = minX;
+				if (maxTemp < maxX)
+					maxTemp = maxX;
+			}
+		}
+
+		if (maxTemp > minTemp) {
+			double range = maxTemp - minTemp;
+			if (range > 0) {
+				double tickSpacingNew = Math.floor(range / 10);
+				if (tickSpacingNew < 1)
+					tickSpacingNew = 1.0;
+				this.xAxis.setMajorTickSpacing(tickSpacingNew);
+				this.xAxis.setMinorTickSpacing(tickSpacingNew);
+			}
+		}
+	}
+
 	/** handles the ticks that are shown on the second x axis **/
 	public void updateX2Ticks() {
 		double minTemp = 0;
 		double maxTemp = 10;
-		if (this.xAxis2.getRangePolicy() instanceof RangePolicyUnbounded) {
-			minTemp = this.minTimestamp * 1.0;
-			maxTemp = this.maxTimestamp * 1.0;
-		} else {
-			if (this.xAxis2.getRangePolicy() instanceof RangePolicyFixedViewport) {
-				minTemp = this.minShownTimestamp;
-				maxTemp = this.maxShownTimestamp;
+
+		// get range of plotted data
+		for (Object t : this.xAxis2.getTraces()) {
+			if (t instanceof Trace2DSimple) {
+				double minX = ((Trace2DSimple) t).getMinX();
+				double maxX = ((Trace2DSimple) t).getMaxX();
+				if (minTemp > minX)
+					minTemp = minX;
+				if (maxTemp < maxX)
+					maxTemp = maxX;
 			}
 		}
+
 		if (maxTemp > minTemp) {
 			double range = maxTemp - minTemp;
 			if (range > 0) {

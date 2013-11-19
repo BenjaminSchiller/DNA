@@ -102,11 +102,16 @@ public class Visualizer extends JPanel {
 		this.mainConstraints.gridy = 0;
 		this.add(this.legend, this.mainConstraints);
 
-		// general settings
+		// general settings for x1
 		this.xAxis.setMajorTickSpacing(1.0);
 		this.xAxis.setStartMajorTick(true);
 		AxisScalePolicyManualTicks manualTickScalePolicy = new AxisScalePolicyManualTicks();
 		this.xAxis.setAxisScalePolicy(manualTickScalePolicy);
+
+		// general settings for x2
+		this.xAxis2.setMajorTickSpacing(1.0);
+		this.xAxis2.setStartMajorTick(true);
+		this.xAxis2.setAxisScalePolicy(manualTickScalePolicy);
 	}
 
 	protected void addMenuBar(Dimension size, boolean addCoordsPanel,
@@ -136,7 +141,6 @@ public class Visualizer extends JPanel {
 			}
 		}
 		if (maxTemp > minTemp) {
-
 			double range = maxTemp - minTemp;
 			if (range > 0) {
 				double tickSpacingNew = Math.floor(range / 10);

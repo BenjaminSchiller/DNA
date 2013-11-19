@@ -558,8 +558,6 @@ public class MenuBar extends JPanel {
 				parent.getXAxis()
 						.setRangePolicy(new RangePolicyFixedViewport());
 				parent.setMaxShownTimestamp(parent.getMaxTimestamp());
-				System.out.println(parent.getMaxShownTimestamp() + " "
-						+ parent.getTraceLength());
 				if (parent.getMaxShownTimestamp() - parent.getTraceLength() > 0) {
 					parent.setMinShownTimestamp(parent.getMaxShownTimestamp()
 							- parent.getTraceLength());
