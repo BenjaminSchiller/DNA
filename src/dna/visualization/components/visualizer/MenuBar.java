@@ -6,21 +6,28 @@ import info.monitorenter.util.Range;
 
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.AdjustmentEvent;
+import java.awt.event.AdjustmentListener;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollBar;
+import javax.swing.JSlider;
 import javax.swing.JTextField;
 import javax.swing.border.EtchedBorder;
 import javax.swing.border.TitledBorder;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 import dna.visualization.MainDisplay;
 import dna.visualization.components.BoundsPopupMenuListener;
@@ -33,7 +40,7 @@ import dna.visualization.components.visualizer.MultiScalarVisualizer.SortMode;
  * @author Rwilmes
  * 
  */
-public class MenuBar extends JPanel {
+public class MenuBar extends JPanel implements ChangeListener {
 	/** defaults **/
 	private Font defaultFont = MainDisplay.defaultFont;
 	private Font defaultFontBorders = MainDisplay.defaultFontBorders;
@@ -44,11 +51,10 @@ public class MenuBar extends JPanel {
 
 	/** general options **/
 	private Visualizer parent;
-	private GridBagConstraints menuBarConstraints = new GridBagConstraints();
 
 	// sizes
 	private Dimension coordsPanelSize = new Dimension(145, 45);
-	private Dimension intervalPanelSize = new Dimension(130, 45);
+	private Dimension intervalPanelSize = new Dimension(240, 45);
 	private Dimension xOptionsPanelSize = new Dimension(65, 45);
 	private Dimension yLeftOptionsPanelSize = new Dimension(65, 45);
 	private Dimension yRightOptionsPanelSize = new Dimension(65, 45);
@@ -66,11 +72,11 @@ public class MenuBar extends JPanel {
 			boolean addSortOptionsPanel) {
 		this.parent = parent;
 		this.setLayout(new GridBagLayout());
+		this.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
+
 		this.setPreferredSize(size);
 		this.setBorder(BorderFactory.createEtchedBorder((EtchedBorder.LOWERED)));
 		this.menuBarItemBorder.setTitleFont(this.defaultFontBorders);
-		this.menuBarConstraints.gridy = 0;
-		this.menuBarConstraints.gridx = 0;
 		int spaceUsed = 0;
 
 		// add coords panel
@@ -129,6 +135,9 @@ public class MenuBar extends JPanel {
 			"-fixed length: 40", "-fixed length: 50", "-fixed length: 100",
 			"-fixed length: 150", "-fixed length: 200", "-fixed length: 300",
 			"-fixed length: 500" };
+	private JScrollBar intervalScrollBar;
+	private JSlider intervalSizeSlider;
+	private JLabel intervalSizeLabel;
 
 	private JPanel sortOptionsPanel;
 	private String[] sortOptions = { "-sort by index", "-sort ascending",
@@ -180,8 +189,8 @@ public class MenuBar extends JPanel {
 		this.yLeftOptionsPanel.add(toggleLogYLeftButton,
 				yLeftOptionsPanelConstraints);
 
-		this.add(this.yLeftOptionsPanel, menuBarConstraints);
-		this.menuBarConstraints.gridx++;
+		// add to menu bar
+		this.add(this.yLeftOptionsPanel);
 	}
 
 	/**
@@ -230,8 +239,8 @@ public class MenuBar extends JPanel {
 		this.yRightOptionsPanel.add(toggleLogYRightButton,
 				yRightOptionsPanelConstraints);
 
-		this.add(this.yRightOptionsPanel, menuBarConstraints);
-		this.menuBarConstraints.gridx++;
+		// add to menu bar
+		this.add(this.yRightOptionsPanel);
 	}
 
 	/**
@@ -275,8 +284,9 @@ public class MenuBar extends JPanel {
 		xAxisOptionsPanelConstraints.gridy = 1;
 		this.xOptionsPanel.add(dummyP, xAxisOptionsPanelConstraints);
 
-		this.add(this.xOptionsPanel, this.menuBarConstraints);
-		this.menuBarConstraints.gridx++;
+		// add to menu bar
+		this.add(this.xOptionsPanel);
+		;
 	}
 
 	/**
@@ -325,8 +335,7 @@ public class MenuBar extends JPanel {
 		this.coordsPanel.add(this.yCoordsValue, coordsPanelConstraints);
 
 		// add to menu bar
-		this.add(this.coordsPanel, this.menuBarConstraints);
-		this.menuBarConstraints.gridx++;
+		this.add(this.coordsPanel);
 	}
 
 	/**
@@ -337,8 +346,7 @@ public class MenuBar extends JPanel {
 	private void addDummyPanel(Dimension size) {
 		JPanel dummyP = new JPanel();
 		dummyP.setPreferredSize(size);
-		this.add(dummyP, menuBarConstraints);
-		menuBarConstraints.gridx++;
+		this.add(dummyP);
 	}
 
 	/**
@@ -353,15 +361,16 @@ public class MenuBar extends JPanel {
 		this.intervalPanel.setBorder(menuBarItemBorder);
 
 		GridBagConstraints intervalPanelConstraints = new GridBagConstraints();
-		intervalPanelConstraints.insets = new Insets(0, 0, 1, 0);
+		intervalPanelConstraints.insets = new Insets(0, 0, 0, 0);
 
 		// intervalBox dropdown menu
 		final JComboBox<String> intervalBox = new JComboBox<String>(
 				this.intervalOptions);
 		intervalBox.setFont(this.defaultFont);
 
-		intervalBox.setPreferredSize(new Dimension(size.width - 5, (int) Math
-				.floor((size.getHeight() - 5) / 2)));
+		intervalBox.setPreferredSize(new Dimension(100, (int) Math.floor((size
+				.getHeight() - 5) / 2)));
+		intervalBox.setPreferredSize(new Dimension(100, 20));
 		intervalBox.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent event) {
@@ -373,8 +382,30 @@ public class MenuBar extends JPanel {
 		intervalBox.addPopupMenuListener(listener);
 		intervalPanelConstraints.gridx = 0;
 		intervalPanelConstraints.gridy = 0;
-		intervalPanelConstraints.gridwidth = 5;
+		intervalPanelConstraints.gridwidth = 1;
 		this.intervalPanel.add(intervalBox, intervalPanelConstraints);
+
+		// size label
+		this.intervalSizeLabel = new JLabel(" Size:");
+		this.intervalSizeLabel.setPreferredSize(new Dimension(30, 20));
+		this.intervalSizeLabel.setFont(defaultFont);
+		this.intervalSizeLabel.setForeground(Color.GRAY);
+
+		intervalPanelConstraints.gridx = 1;
+		this.intervalPanel
+				.add(this.intervalSizeLabel, intervalPanelConstraints);
+
+		// size slider
+		this.intervalSizeSlider = new JSlider(JSlider.HORIZONTAL, 0, 100, 30);
+		this.intervalSizeSlider.setPreferredSize(new Dimension(100, 20));
+		this.intervalSizeSlider.setFont(defaultFont);
+		this.intervalSizeSlider.addChangeListener(this);
+		this.intervalSizeSlider.setEnabled(false);
+
+		intervalPanelConstraints.gridheight = 1;
+		intervalPanelConstraints.gridx = 2;
+		this.intervalPanel.add(this.intervalSizeSlider,
+				intervalPanelConstraints);
 
 		// interval panel
 		intervalPanelConstraints.gridwidth = 1;
@@ -387,7 +418,7 @@ public class MenuBar extends JPanel {
 				.floor((size.height - 5) / 2) + 2)));
 		intervalPanelConstraints.gridx = 0;
 		intervalPanelConstraints.gridy = 1;
-		this.intervalPanel.add(openInterval, intervalPanelConstraints);
+		// this.intervalPanel.add(openInterval, intervalPanelConstraints);
 
 		this.lowerBound = new JTextField("0");
 		this.lowerBound.setFont(this.defaultFont);
@@ -396,7 +427,7 @@ public class MenuBar extends JPanel {
 				.floor((size.height - 5) / 2) + 2)));
 		intervalPanelConstraints.gridx = 1;
 		intervalPanelConstraints.gridy = 1;
-		this.intervalPanel.add(this.lowerBound, intervalPanelConstraints);
+		// this.intervalPanel.add(this.lowerBound, intervalPanelConstraints);
 
 		JLabel points = new JLabel(" : ");
 		points.setFont(this.defaultFont);
@@ -404,7 +435,7 @@ public class MenuBar extends JPanel {
 				.floor((size.height - 5) / 2) + 2)));
 		intervalPanelConstraints.gridx = 2;
 		intervalPanelConstraints.gridy = 1;
-		this.intervalPanel.add(points, intervalPanelConstraints);
+		// this.intervalPanel.add(points, intervalPanelConstraints);
 
 		this.upperBound = new JTextField("10");
 		this.upperBound.setFont(this.defaultFont);
@@ -465,7 +496,7 @@ public class MenuBar extends JPanel {
 
 		intervalPanelConstraints.gridx = 3;
 		intervalPanelConstraints.gridy = 1;
-		this.intervalPanel.add(upperBound, intervalPanelConstraints);
+		// this.intervalPanel.add(upperBound, intervalPanelConstraints);
 
 		JLabel closeInterval = new JLabel("]");
 		closeInterval.setFont(this.defaultFont);
@@ -473,14 +504,54 @@ public class MenuBar extends JPanel {
 				.floor((size.height - 5) / 2) + 2)));
 		intervalPanelConstraints.gridx = 4;
 		intervalPanelConstraints.gridy = 1;
-		this.intervalPanel.add(closeInterval, intervalPanelConstraints);
+		// this.intervalPanel.add(closeInterval, intervalPanelConstraints);
+
+		intervalPanelConstraints.gridx = 0;
+		intervalPanelConstraints.gridy = 1;
+		intervalPanelConstraints.gridheight = 1;
+		intervalPanelConstraints.gridwidth = 3;
+		intervalPanelConstraints.weightx = 1;
+		intervalPanelConstraints.weighty = 1;
+
+		this.intervalScrollBar = new JScrollBar(JScrollBar.HORIZONTAL, 0, 30,
+				0, 100);
+		this.intervalScrollBar.setPreferredSize(new Dimension(235, 20));
+		this.intervalScrollBar.setEnabled(false);
+
+		this.intervalPanel.add(intervalScrollBar, intervalPanelConstraints);
+		this.intervalScrollBar.addAdjustmentListener(new AdjustmentListener() {
+			@Override
+			public void adjustmentValueChanged(AdjustmentEvent e) {
+				if (parent.chart.getAxisX().getRangePolicy() instanceof RangePolicyFixedViewport) {
+					double lowP = 1.0 * intervalScrollBar.getValue() / 100;
+					double highP = 1.0 * (intervalScrollBar.getValue() + intervalScrollBar
+							.getModel().getExtent()) / 100;
+
+					long min = parent.getMinTimestamp();
+					long max = parent.getMaxTimestamp();
+
+					int minTimestampNew = (int) Math.floor(lowP * (max - min));
+					int maxTimestampNew = (int) Math.floor(highP * (max - min));
+
+					parent.getXAxis().setRange(
+							new Range(minTimestampNew, maxTimestampNew));
+					parent.setMinShownTimestamp((long) minTimestampNew);
+					parent.setMaxShownTimestamp((long) maxTimestampNew);
+
+					parent.updateXTicks();
+					parent.updateYTicks();
+				}
+			}
+		});
+
+		JPanel dummyPanel = new JPanel();
+		// this.intervalPanel.add(dummyPanel, intervalPanelConstraints);
 
 		this.lowerBound.setEditable(false);
 		this.upperBound.setEditable(false);
 
 		// add to menu bar
-		this.add(this.intervalPanel, this.menuBarConstraints);
-		this.menuBarConstraints.gridx++;
+		this.add(this.intervalPanel);
 	}
 
 	/**
@@ -522,9 +593,13 @@ public class MenuBar extends JPanel {
 		c.gridy = 1;
 		this.sortOptionsPanel.add(dummyP, c);
 
+		JScrollBar sliderBar = new JScrollBar(JScrollBar.HORIZONTAL, 10, 50, 0,
+				100);
+		sliderBar.setPreferredSize(new Dimension(125, 20));
+
+		// this.sortOptionsPanel.add(sliderBar, c);
 		// add to menu bar
-		this.add(this.sortOptionsPanel, this.menuBarConstraints);
-		this.menuBarConstraints.gridx++;
+		this.add(this.sortOptionsPanel);
 	}
 
 	/** called by the interval combobox to update the interval **/
@@ -538,6 +613,9 @@ public class MenuBar extends JPanel {
 		if (!m.equals("")) {
 			if (m.equals("- show all")) {
 				parent.setFixedViewport(false);
+				this.intervalScrollBar.setEnabled(false);
+				this.intervalSizeSlider.setEnabled(false);
+				this.intervalSizeLabel.setForeground(Color.GRAY);
 				this.lowerBound.setEditable(false);
 				this.upperBound.setEditable(false);
 				parent.getXAxis().setRangePolicy(new RangePolicyUnbounded());
@@ -546,8 +624,32 @@ public class MenuBar extends JPanel {
 				parent.updateYTicks();
 			}
 			if (m.equals("- fixed interval")) {
-				this.lowerBound.setEditable(true);
-				this.upperBound.setEditable(true);
+				parent.setFixedViewport(true);
+				parent.getXAxis()
+						.setRangePolicy(new RangePolicyFixedViewport());
+				parent.getXAxis().setRange(
+						new Range(parent.getMinTimestamp(), parent
+								.getMaxTimestamp()));
+				this.intervalScrollBar.setEnabled(true);
+				this.intervalSizeSlider.setEnabled(true);
+				this.intervalSizeLabel.setForeground(Color.BLACK);
+				double lowP = 1.0 * intervalScrollBar.getValue() / 100;
+				double highP = 1.0 * (intervalScrollBar.getValue() + intervalScrollBar
+						.getModel().getExtent()) / 100;
+
+				long min = parent.getMinTimestamp();
+				long max = parent.getMaxTimestamp();
+
+				int minTimestampNew = (int) Math.floor(lowP * (max - min));
+				int maxTimestampNew = (int) Math.floor(highP * (max - min));
+
+				parent.getXAxis().setRange(
+						new Range(minTimestampNew, maxTimestampNew));
+				parent.setMinShownTimestamp((long) minTimestampNew);
+				parent.setMaxShownTimestamp((long) maxTimestampNew);
+
+				parent.updateXTicks();
+				parent.updateYTicks();
 			}
 			if (m.substring(0, 2).equals("-f")) {
 				parent.setFixedViewport(false);
@@ -625,4 +727,39 @@ public class MenuBar extends JPanel {
 
 		}
 	}
+
+	/** Gets called on mouse release after the size-slider has been moved **/
+	public void stateChanged(ChangeEvent e) {
+		JSlider source = (JSlider) e.getSource();
+		// check if slider is set on the right end
+		if (this.intervalScrollBar.getValue()
+				+ this.intervalScrollBar.getModel().getExtent() == this.intervalScrollBar
+					.getMaximum()) {
+			int oldValue = this.intervalScrollBar.getValue();
+			int oldExtent = this.intervalScrollBar.getModel().getExtent();
+
+			int offset = source.getValue() - oldExtent;
+
+			this.intervalScrollBar.setValue(oldValue - offset);
+			this.intervalScrollBar.getModel().setExtent(source.getValue());
+
+			// if slider is not set on right end anymore, adjust value
+			if (this.intervalScrollBar.getValue()
+					+ this.intervalScrollBar.getModel().getExtent() != this.intervalScrollBar
+						.getMaximum()) {
+				this.intervalScrollBar.setValue(this.intervalScrollBar
+						.getMaximum()
+						- this.intervalScrollBar.getModel().getExtent());
+			}
+			// if slider is in between, just resize it
+		} else {
+			this.intervalScrollBar.getModel().setExtent(source.getValue());
+		}
+	}
+
+	/** returns the intervalslider **/
+	public JScrollBar getIntervalSlider() {
+		return this.intervalScrollBar;
+	}
+
 }

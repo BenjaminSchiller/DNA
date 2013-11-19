@@ -9,9 +9,11 @@ import java.util.Hashtable;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
+import javax.swing.DefaultBoundedRangeModel;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
+import javax.swing.JScrollBar;
 import javax.swing.JSlider;
 import javax.swing.JTextField;
 import javax.swing.border.EtchedBorder;
@@ -190,7 +192,8 @@ public class StatsDisplay extends JPanel implements ChangeListener {
 		this.SpeedSlider.setMinorTickSpacing(100);
 		this.SpeedSlider.setPaintTicks(true);
 		this.SpeedSlider.setPaintLabels(true);
-
+		
+		
 		// change speed slider labels
 		Hashtable<Integer, JLabel> labelTable = new Hashtable<Integer, JLabel>();
 		labelTable.put(new Integer(0), new JLabel("0.0"));

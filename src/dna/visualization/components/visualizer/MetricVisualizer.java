@@ -131,6 +131,7 @@ public class MetricVisualizer extends Visualizer {
 				this.legend.updateItem(tempName, tempValue);
 			}
 		}
+
 		if (Config.getBoolean("DEFAULT_TRACE_MODE_LTD") && !this.FIXED_VIEWPORT) {
 			this.maxShownTimestamp = this.maxTimestamp;
 			if (this.maxShownTimestamp - this.TRACE_LENGTH > 0)
@@ -140,7 +141,26 @@ public class MetricVisualizer extends Visualizer {
 				this.minShownTimestamp = 0;
 			this.xAxis.setRange(new Range(this.minShownTimestamp,
 					this.maxShownTimestamp));
+		} else {
+			if (this.FIXED_VIEWPORT) {
+				double lowP = 1.0 * this.menuBar.getIntervalSlider().getValue() / 100;
+				double highP = 1.0 * (this.menuBar.getIntervalSlider()
+						.getValue() + this.menuBar.getIntervalSlider()
+						.getModel().getExtent()) / 100;
+
+				long min = this.minTimestamp;
+				long max = this.maxTimestamp;
+
+				int minTimestampNew = (int) Math.floor(lowP * (max - min));
+				int maxTimestampNew = (int) Math.floor(highP * (max - min));
+
+				this.xAxis
+						.setRange(new Range(minTimestampNew, maxTimestampNew));
+				this.setMinShownTimestamp((long) minTimestampNew);
+				this.setMaxShownTimestamp((long) maxTimestampNew);
+			}
 		}
+
 		this.updateXTicks();
 		this.updateYTicks();
 	}
