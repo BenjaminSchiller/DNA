@@ -3,6 +3,8 @@ package dna.visualization.components.visualizer;
 import info.monitorenter.gui.chart.IAxis;
 import info.monitorenter.gui.chart.ITrace2D;
 import info.monitorenter.gui.chart.ITracePoint2D;
+import info.monitorenter.gui.chart.rangepolicies.RangePolicyFixedViewport;
+import info.monitorenter.gui.chart.rangepolicies.RangePolicyUnbounded;
 import info.monitorenter.gui.chart.traces.Trace2DSimple;
 import info.monitorenter.gui.chart.traces.painters.TracePainterDisc;
 import info.monitorenter.gui.chart.traces.painters.TracePainterFill;
@@ -196,6 +198,7 @@ public class MultiScalarVisualizer extends Visualizer {
 			}
 		}
 		updateXTicks();
+		updateX2Ticks();
 	}
 
 	/** adds points for a given trace to the chart **/
@@ -419,6 +422,31 @@ public class MultiScalarVisualizer extends Visualizer {
 	/** gets the sort mode **/
 	public SortMode getSortMode() {
 		return this.sortMode;
+	}
+	
+	/** handles the ticks that are shown on the second x axis **/
+	public void updateX2Ticks() {
+		double minTemp = 0;
+		double maxTemp = 10;
+		if (this.xAxis2.getRangePolicy() instanceof RangePolicyUnbounded) {
+			minTemp = this.minTimestamp * 1.0;
+			maxTemp = this.maxTimestamp * 1.0;
+		} else {
+			if (this.xAxis2.getRangePolicy() instanceof RangePolicyFixedViewport) {
+				minTemp = this.minShownTimestamp;
+				maxTemp = this.maxShownTimestamp;
+			}
+		}
+		if (maxTemp > minTemp) {
+			double range = maxTemp - minTemp;
+			if (range > 0) {
+				double tickSpacingNew = Math.floor(range / 10);
+				if (tickSpacingNew < 1)
+					tickSpacingNew = 1.0;
+				this.xAxis2.setMajorTickSpacing(tickSpacingNew);
+				this.xAxis2.setMinorTickSpacing(tickSpacingNew);
+			}
+		}
 	}
 
 	/** toggles the y axis for a trace identified by its name **/

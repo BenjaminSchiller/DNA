@@ -23,7 +23,7 @@ public class LegendItemNodeValueList extends LegendItem {
 	private String[] sortOptions = { "-sort by index", "-sort ascending",
 			"-sort descending" };
 	private SortMode sortMode;
-	
+
 	private JButton toggleXAxisButton;
 
 	// constructor
@@ -33,7 +33,7 @@ public class LegendItemNodeValueList extends LegendItem {
 
 		this.valueLabel.setPreferredSize(new Dimension(60, 20));
 		this.buttonPanel.setPreferredSize(new Dimension(100, 20));
-		
+
 		final JComboBox<String> sortOptionsBox = new JComboBox<String>(
 				this.sortOptions);
 		sortOptionsBox.setFont(this.defaultFont);
@@ -48,7 +48,6 @@ public class LegendItemNodeValueList extends LegendItem {
 				false);
 		sortOptionsBox.addPopupMenuListener(listener);
 
-		
 		// toggle y axis button
 		this.toggleXAxisButton = new JButton("x1");
 		this.toggleXAxisButton.setFont(this.defaultFont);
@@ -73,9 +72,7 @@ public class LegendItemNodeValueList extends LegendItem {
 			}
 		});
 		this.buttonPanel.add(this.toggleXAxisButton);
-		
-		
-		
+
 		this.buttonPanel.add(sortOptionsBox);
 	}
 

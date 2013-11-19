@@ -148,9 +148,11 @@ public class Legend extends JPanel {
 
 			LegendItem i = new LegendItemDistribution(this.list, name, color);
 			i.setToolTipText(name);
+
 			this.list.add(i);
-			if (this.parent instanceof MultiScalarVisualizer)
+			if (this.parent instanceof MultiScalarVisualizer) {
 				((MultiScalarVisualizer) this.parent).addTrace(name, color);
+			}
 		}
 		this.validate();
 	}
@@ -379,6 +381,7 @@ public class Legend extends JPanel {
 				}
 			}
 		}
+		this.parent.toggleXAxisVisibility();
 	}
 
 	/** updates the value of an item **/
@@ -403,7 +406,7 @@ public class Legend extends JPanel {
 		if (this.parent instanceof MultiScalarVisualizer)
 			((MultiScalarVisualizer) this.parent).toggleYAxis(item.getName());
 	}
-	
+
 	/** toggles x axis of a trace **/
 	public void toggleXAxis(LegendItem item) {
 		if (this.parent instanceof MultiScalarVisualizer)
