@@ -3,17 +3,19 @@ package dna.metrics.connectedComponents;
 import java.util.HashSet;
 
 import dna.graph.IElement;
+import dna.graph.edges.DirectedEdge;
+import dna.graph.edges.Edge;
 import dna.graph.edges.UndirectedEdge;
-import dna.graph.nodes.UndirectedNode;
+import dna.graph.nodes.DirectedNode;
+import dna.graph.nodes.Node;
 import dna.updates.batch.Batch;
 import dna.updates.update.EdgeAddition;
 import dna.updates.update.EdgeRemoval;
 import dna.updates.update.Update;
 
-public class UndirectedConnectedComponentUBatch extends
-		UndirectedConnectedComponent {
+public class ConnectedComponentUBatch extends ConnectedComponent {
 
-	public UndirectedConnectedComponentUBatch() {
+	public ConnectedComponentUBatch() {
 		super("CCUndirectedComp", ApplicationType.AfterBatch);
 	}
 
@@ -27,20 +29,28 @@ public class UndirectedConnectedComponentUBatch extends
 		int r = 0;
 
 		for (EdgeRemoval re : b.getEdgeRemovals()) {
-			UndirectedEdge e = (UndirectedEdge) re.getEdge();
-			UndirectedNode n1 = e.getNode1();
-			UndirectedNode n2 = e.getNode2();
+			Edge e = (Edge) re.getEdge();
+			Node n1;
+			Node n2;
+			if (DirectedNode.class.isAssignableFrom(this.g
+					.getGraphDatastructures().getNodeType())) {
+				n1 = ((DirectedEdge) e).getSrc();
+				n2 = ((DirectedEdge) e).getDst();
+			} else {
+				n1 = ((UndirectedEdge) e).getNode1();
+				n2 = ((UndirectedEdge) e).getNode2();
+			}
 			boolean neighbourFound = false;
 
-			HashSet<UndirectedNode> reachableNodes = new HashSet<>();
+			HashSet<Node> reachableNodes = new HashSet<>();
 			for (IElement ie : n1.getEdges()) {
-				UndirectedEdge ed = (UndirectedEdge) ie;
-				UndirectedNode node = ed.getDifferingNode(n1);
+				Edge ed = (Edge) ie;
+				Node node = ed.getDifferingNode(n1);
 				reachableNodes.add(node);
 			}
 			for (IElement ie : n2.getEdges()) {
-				UndirectedEdge ed = (UndirectedEdge) ie;
-				UndirectedNode node = ed.getDifferingNode(n2);
+				Edge ed = (Edge) ie;
+				Node node = ed.getDifferingNode(n2);
 				if (reachableNodes.contains(node)) {
 					parents.put(n2, node);
 					neighbourFound = true;
@@ -59,18 +69,32 @@ public class UndirectedConnectedComponentUBatch extends
 			this.compute();
 		} else {
 			for (EdgeAddition ea : b.getEdgeAdditions()) {
-				UndirectedEdge e = (UndirectedEdge) ea.getEdge();
-				UndirectedNode n1 = e.getNode1();
-				UndirectedNode n2 = e.getNode2();
-
+				Edge e = (Edge) ea.getEdge();
+				Node n1;
+				Node n2;
+				if (DirectedNode.class.isAssignableFrom(this.g
+						.getGraphDatastructures().getNodeType())) {
+					n1 = ((DirectedEdge) e).getSrc();
+					n2 = ((DirectedEdge) e).getDst();
+				} else {
+					n1 = ((UndirectedEdge) e).getNode1();
+					n2 = ((UndirectedEdge) e).getNode2();
+				}
 				int c1 = lookUp(n1);
 				int c2 = lookUp(n2);
 				if (c1 != c2) {
 
 					if (this.componentList.get(c1).getSize() < this.componentList
 							.get(c2).getSize()) {
-						n2 = e.getNode1();
-						n1 = e.getNode2();
+
+						if (DirectedNode.class.isAssignableFrom(this.g
+								.getGraphDatastructures().getNodeType())) {
+							n2 = ((DirectedEdge) e).getSrc();
+							n1 = ((DirectedEdge) e).getDst();
+						} else {
+							n2 = ((UndirectedEdge) e).getNode1();
+							n1 = ((UndirectedEdge) e).getNode2();
+						}
 						int temp = c1;
 						c1 = c2;
 						c2 = temp;
@@ -78,12 +102,12 @@ public class UndirectedConnectedComponentUBatch extends
 					this.componentList.get(c1).increaseSize(
 							this.componentList.get(c2).getSize());
 
-					UndirectedNode temp = n2;
-					UndirectedNode newParent = n1;
-					UndirectedNode newChild = parents.get(temp);
+					Node temp = n2;
+					Node newParent = n1;
+					Node newChild = (Node) parents.get(temp);
 
 					while (!this.parents.containsKey(temp)) {
-						newChild = parents.get(temp);
+						newChild = (Node) parents.get(temp);
 						parents.put(temp, newParent);
 						newParent = temp;
 						temp = newChild;

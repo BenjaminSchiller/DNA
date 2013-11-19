@@ -33,6 +33,7 @@ public class BatchReader {
 
 			String line = null;
 			while ((line = reader.readString()) != null) {
+				System.out.println(line);
 				b.add(Update.fromString(g.getGraphDatastructures(), g, line));
 			}
 

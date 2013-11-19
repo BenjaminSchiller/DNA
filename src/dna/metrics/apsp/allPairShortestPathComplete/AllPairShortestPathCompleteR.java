@@ -1,13 +1,14 @@
-package dna.metrics.richClubConnectivity.undirectedRichClubConnectivityForOneDegree;
+package dna.metrics.apsp.allPairShortestPathComplete;
 
 import dna.updates.batch.Batch;
 import dna.updates.update.Update;
 
-public class UndirectedRichClubConnectivityForOneDegreeR extends
-		UndirectedRichClubConnectivityForOneDegree {
+public class AllPairShortestPathCompleteR extends
+		AllPairShortestPathComplete {
 
-	public UndirectedRichClubConnectivityForOneDegreeR(int minDegree) {
-		super("RCCForOneDegreeRecomp", ApplicationType.Recomputation, minDegree);
+	public AllPairShortestPathCompleteR() {
+		super("APSP Complete Comp", ApplicationType.Recomputation);
+
 	}
 
 	@Override
@@ -29,5 +30,4 @@ public class UndirectedRichClubConnectivityForOneDegreeR extends
 	public boolean applyAfterUpdate(Update u) {
 		return false;
 	}
-
 }

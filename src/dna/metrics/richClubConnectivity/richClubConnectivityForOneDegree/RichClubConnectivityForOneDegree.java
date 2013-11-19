@@ -1,11 +1,14 @@
-package dna.metrics.richClubConnectivity.undirectedRichClubConnectivityForOneDegree;
+package dna.metrics.richClubConnectivity.richClubConnectivityForOneDegree;
 
 import java.util.HashSet;
 import java.util.Set;
 
 import dna.graph.Graph;
 import dna.graph.IElement;
+import dna.graph.edges.DirectedEdge;
 import dna.graph.edges.UndirectedEdge;
+import dna.graph.nodes.DirectedNode;
+import dna.graph.nodes.Node;
 import dna.graph.nodes.UndirectedNode;
 import dna.metrics.Metric;
 import dna.series.data.Distribution;
@@ -13,13 +16,13 @@ import dna.series.data.NodeValueList;
 import dna.series.data.Value;
 import dna.updates.batch.Batch;
 
-public abstract class UndirectedRichClubConnectivityForOneDegree extends Metric {
+public abstract class RichClubConnectivityForOneDegree extends Metric {
 
 	protected int minDegree;
 	protected int richClubEdges;
-	protected Set<UndirectedNode> richClub;
+	protected Set<Node> richClub;
 
-	public UndirectedRichClubConnectivityForOneDegree(String name,
+	public RichClubConnectivityForOneDegree(String name,
 			ApplicationType type, int minDegree) {
 		super(name, type, MetricType.exact);
 		this.minDegree = minDegree;
@@ -27,7 +30,39 @@ public abstract class UndirectedRichClubConnectivityForOneDegree extends Metric 
 
 	@Override
 	public boolean compute() {
+		if (DirectedNode.class.isAssignableFrom(this.g.getGraphDatastructures()
+				.getNodeType())) {
+			directedCompute();
+		} else if (UndirectedNode.class.isAssignableFrom(this.g
+				.getGraphDatastructures().getNodeType())) {
+			undirectedCompute();
+		}
 
+		return true;
+	}
+
+	private void directedCompute() {
+		for (IElement ie : g.getNodes()) {
+			DirectedNode n = (DirectedNode) ie;
+			int degree = n.getOutDegree();
+			if (degree >= this.minDegree) {
+				this.richClub.add(n);
+
+			}
+		}
+		for (Node n : this.richClub) {
+			DirectedNode dN = (DirectedNode) n;
+			for (IElement ie : dN.getOutgoingEdges()) {
+				DirectedEdge w = (DirectedEdge) ie;
+				if (this.richClub.contains(w.getDst())) {
+					this.richClubEdges++;
+				}
+			}
+		}
+
+	}
+
+	private void undirectedCompute() {
 		for (IElement ie : g.getNodes()) {
 			UndirectedNode n = (UndirectedNode) ie;
 			int degree = n.getDegree();
@@ -35,16 +70,16 @@ public abstract class UndirectedRichClubConnectivityForOneDegree extends Metric 
 				this.richClub.add(n);
 			}
 		}
-		for (UndirectedNode n : this.richClub) {
+		for (Node n : this.richClub) {
+			UndirectedNode uN = (UndirectedNode) n;
 			for (IElement iE : n.getEdges()) {
 				UndirectedEdge ed = (UndirectedEdge) iE;
-				UndirectedNode d = ed.getDifferingNode(n);
+				UndirectedNode d = ed.getDifferingNode(uN);
 				if (richClub.contains(d)) {
 					this.richClubEdges++;
 				}
 			}
 		}
-		return true;
 	}
 
 	/**
@@ -60,11 +95,11 @@ public abstract class UndirectedRichClubConnectivityForOneDegree extends Metric 
 
 	@Override
 	public boolean equals(Metric m) {
-		if (!(m instanceof UndirectedRichClubConnectivityForOneDegree)) {
+		if (!(m instanceof RichClubConnectivityForOneDegree)) {
 			return false;
 		}
 
-		UndirectedRichClubConnectivityForOneDegree rCC = (UndirectedRichClubConnectivityForOneDegree) m;
+		RichClubConnectivityForOneDegree rCC = (RichClubConnectivityForOneDegree) m;
 		boolean success = true;
 
 		if (this.richClubEdges != rCC.richClubEdges) {
@@ -87,14 +122,14 @@ public abstract class UndirectedRichClubConnectivityForOneDegree extends Metric 
 	@Override
 	public void init_() {
 		this.richClubEdges = 0;
-		this.richClub = new HashSet<UndirectedNode>();
+		this.richClub = new HashSet<Node>();
 
 	}
 
 	@Override
 	public void reset_() {
 		this.richClubEdges = 0;
-		this.richClub = new HashSet<UndirectedNode>();
+		this.richClub = new HashSet<Node>();
 	}
 
 	@Override
@@ -118,19 +153,23 @@ public abstract class UndirectedRichClubConnectivityForOneDegree extends Metric 
 	@Override
 	public boolean isApplicable(Graph g) {
 		return UndirectedNode.class.isAssignableFrom(g.getGraphDatastructures()
-				.getNodeType());
+				.getNodeType())
+				|| DirectedNode.class.isAssignableFrom(g
+						.getGraphDatastructures().getNodeType());
 	}
 
 	@Override
 	public boolean isApplicable(Batch b) {
 		return UndirectedNode.class.isAssignableFrom(b.getGraphDatastructures()
-				.getNodeType());
+				.getNodeType())
+				|| DirectedNode.class.isAssignableFrom(b
+						.getGraphDatastructures().getNodeType());
 	}
 
 	@Override
 	public boolean isComparableTo(Metric m) {
 		return m != null
-				&& m instanceof UndirectedRichClubConnectivityForOneDegree;
+				&& m instanceof RichClubConnectivityForOneDegree;
 
 	}
 

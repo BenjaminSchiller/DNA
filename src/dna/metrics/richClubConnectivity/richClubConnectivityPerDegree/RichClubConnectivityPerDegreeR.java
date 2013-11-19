@@ -1,10 +1,10 @@
-package dna.metrics.richClubConnectivity.undirectedRichClubConnectivityPerDegree;
+package dna.metrics.richClubConnectivity.richClubConnectivityPerDegree;
 
 import dna.updates.batch.Batch;
 import dna.updates.update.Update;
 
-public class UndirectedRichClubConnectivityPerDegreeR extends UndirectedRichClubConnectivityPerDegree {
-	public UndirectedRichClubConnectivityPerDegreeR() {
+public class RichClubConnectivityPerDegreeR extends RichClubConnectivityPerDegree {
+	public RichClubConnectivityPerDegreeR() {
 		super("RCCPerDegreeComp", ApplicationType.Recomputation);
 	}
 

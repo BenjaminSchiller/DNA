@@ -1,11 +1,11 @@
-package dna.metrics.richClubConnectivity.undirectedRichClubConnectivityInterval;
+package dna.metrics.richClubConnectivity.richClubConnectivityInterval;
 
 import dna.updates.batch.Batch;
 import dna.updates.update.Update;
 
-public class UndirectedRichClubConnectivityIntervalR extends
-		UndirectedRichClubConnectivityInterval {
-	public UndirectedRichClubConnectivityIntervalR(int interval) {
+public class RichClubConnectivityIntervalR extends
+		RichClubConnectivityInterval {
+	public RichClubConnectivityIntervalR(int interval) {
 		super("RCCKNodeIntervalComp", ApplicationType.Recomputation, interval);
 	}
 

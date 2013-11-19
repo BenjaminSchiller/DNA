@@ -1,4 +1,4 @@
-package dna.metrics.richClubConnectivity.undirectedRichClubConnectivityInterval;
+package dna.metrics.richClubConnectivity.richClubConnectivityInterval;
 
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -6,7 +6,10 @@ import java.util.TreeSet;
 
 import dna.graph.Graph;
 import dna.graph.IElement;
+import dna.graph.edges.DirectedEdge;
 import dna.graph.edges.UndirectedEdge;
+import dna.graph.nodes.DirectedNode;
+import dna.graph.nodes.Node;
 import dna.graph.nodes.UndirectedNode;
 import dna.metrics.Metric;
 import dna.series.data.Distribution;
@@ -14,29 +17,102 @@ import dna.series.data.NodeValueList;
 import dna.series.data.Value;
 import dna.updates.batch.Batch;
 
-public abstract class UndirectedRichClubConnectivityInterval extends Metric {
+public abstract class RichClubConnectivityInterval extends Metric {
 
-	protected HashMap<UndirectedNode, Integer> nodesRichClub;
+	protected HashMap<Node, Integer> nodesRichClub;
 	protected int richClubIntervall;
-	protected HashMap<Integer, HashMap<Integer, LinkedList<UndirectedNode>>> richClubs;
+	protected HashMap<Integer, HashMap<Integer, LinkedList<Node>>> richClubs;
 	protected HashMap<Integer, Integer> richClubEdges;
 
-	public UndirectedRichClubConnectivityInterval(String name,
-			ApplicationType type, int interval) {
+	public RichClubConnectivityInterval(String name, ApplicationType type,
+			int interval) {
 		super(name, type, MetricType.exact);
 		this.richClubIntervall = interval;
 	}
 
 	@Override
 	public void init_() {
-		this.nodesRichClub = new HashMap<UndirectedNode, Integer>();
-		this.richClubs = new HashMap<Integer, HashMap<Integer, LinkedList<UndirectedNode>>>();
+		this.nodesRichClub = new HashMap<Node, Integer>();
+		this.richClubs = new HashMap<Integer, HashMap<Integer, LinkedList<Node>>>();
 		this.richClubEdges = new HashMap<Integer, Integer>();
 	}
 
 	@Override
 	public boolean compute() {
+		if (DirectedNode.class.isAssignableFrom(this.g.getGraphDatastructures()
+				.getNodeType())) {
+			directedCompute();
+		} else if (UndirectedNode.class.isAssignableFrom(this.g
+				.getGraphDatastructures().getNodeType())) {
+			undirectedCompute();
+		}
 
+		return true;
+	}
+
+	private boolean directedCompute() {
+		TreeSet<Integer> degrees = new TreeSet<>();
+		HashMap<Integer, LinkedList<DirectedNode>> nodesPerDegree = new HashMap<>();
+		for (IElement iE : g.getNodes()) {
+			DirectedNode n = (DirectedNode) iE;
+			int degree = n.getOutDegree();
+			degrees.add(degree);
+
+			if (nodesPerDegree.containsKey(degree)) {
+				nodesPerDegree.get(degree).add(n);
+			} else {
+				LinkedList<DirectedNode> newDegreeSet = new LinkedList<DirectedNode>();
+				newDegreeSet.add(n);
+				nodesPerDegree.put(degree, newDegreeSet);
+			}
+
+		}
+
+		// List of Nodes sorted By Degree
+		LinkedList<DirectedNode> temp = new LinkedList<DirectedNode>();
+		int size = degrees.size();
+		for (int j = 0; j < size; j++) {
+			int currentDegree = degrees.last();
+			degrees.remove(currentDegree);
+			temp.addAll(nodesPerDegree.get(currentDegree));
+		}
+
+		for (int i = 0; i < Math.ceil((double) this.g.getNodeCount()
+				/ (double) this.richClubIntervall); i++) {
+			this.richClubs.put(i, new HashMap<Integer, LinkedList<Node>>());
+		}
+
+		int rcCounter = -1;
+		int edges = 0;
+		for (int i = 0; i < temp.size(); i++) {
+			if (i % this.richClubIntervall == 0) {
+				rcCounter++;
+			}
+			this.nodesRichClub.put(temp.get(i), rcCounter);
+			if (this.richClubs.get(rcCounter).containsKey(
+					temp.get(i).getOutDegree())) {
+				this.richClubs.get(rcCounter).get(temp.get(i).getOutDegree())
+						.add(temp.get(i));
+			} else {
+				LinkedList<Node> l = new LinkedList<Node>();
+				l.add(temp.get(i));
+				this.richClubs.get(rcCounter)
+						.put(temp.get(i).getOutDegree(), l);
+
+			}
+			this.richClubEdges.put(rcCounter, edges);
+			for (IElement ie : temp.get(i).getEdges()) {
+				DirectedNode n = ((DirectedEdge) ie).getDifferingNode(temp
+						.get(i));
+				if (this.nodesRichClub.containsKey(n)) {
+					edges++;
+				}
+			}
+		}
+		return true;
+	}
+
+	private boolean undirectedCompute() {
 		TreeSet<Integer> degrees = new TreeSet<>();
 		HashMap<Integer, LinkedList<UndirectedNode>> nodesPerDegree = new HashMap<>();
 		for (IElement iE : g.getNodes()) {
@@ -63,13 +139,13 @@ public abstract class UndirectedRichClubConnectivityInterval extends Metric {
 			temp.addAll(nodesPerDegree.get(currentDegree));
 		}
 
-		for (int i = 0; i < Math.round(this.g.getNodeCount()
-				/ this.richClubIntervall); i++) {
-			this.richClubs.put(i,
-					new HashMap<Integer, LinkedList<UndirectedNode>>());
+		for (int i = 0; i < Math.ceil((double) this.g.getNodeCount()
+				/ (double) this.richClubIntervall); i++) {
+			this.richClubs.put(i, new HashMap<Integer, LinkedList<Node>>());
 		}
 		int rcCounter = -1;
 		int edges = 0;
+
 		for (int i = 0; i < temp.size(); i++) {
 			if (i % this.richClubIntervall == 0) {
 				rcCounter++;
@@ -80,7 +156,7 @@ public abstract class UndirectedRichClubConnectivityInterval extends Metric {
 				this.richClubs.get(rcCounter).get(temp.get(i).getDegree())
 						.add(temp.get(i));
 			} else {
-				LinkedList<UndirectedNode> l = new LinkedList<UndirectedNode>();
+				LinkedList<Node> l = new LinkedList<Node>();
 				l.add(temp.get(i));
 				this.richClubs.get(rcCounter).put(temp.get(i).getDegree(), l);
 
@@ -95,6 +171,7 @@ public abstract class UndirectedRichClubConnectivityInterval extends Metric {
 			}
 		}
 		return true;
+
 	}
 
 	private double[] calculateRCC() {
@@ -114,10 +191,10 @@ public abstract class UndirectedRichClubConnectivityInterval extends Metric {
 	@Override
 	public boolean equals(Metric m) {
 
-		if (m == null || !(m instanceof UndirectedRichClubConnectivityInterval)) {
+		if (m == null || !(m instanceof RichClubConnectivityInterval)) {
 			return false;
 		}
-		UndirectedRichClubConnectivityInterval rcc = (UndirectedRichClubConnectivityInterval) m;
+		RichClubConnectivityInterval rcc = (RichClubConnectivityInterval) m;
 
 		if (this.richClubs.size() != rcc.richClubs.size()) {
 			System.out.println("diff richclub size expected "
@@ -169,8 +246,8 @@ public abstract class UndirectedRichClubConnectivityInterval extends Metric {
 
 	@Override
 	public void reset_() {
-		this.nodesRichClub = new HashMap<UndirectedNode, Integer>();
-		this.richClubs = new HashMap<Integer, HashMap<Integer, LinkedList<UndirectedNode>>>();
+		this.nodesRichClub = new HashMap<Node, Integer>();
+		this.richClubs = new HashMap<Integer, HashMap<Integer, LinkedList<Node>>>();
 		this.richClubEdges = new HashMap<Integer, Integer>();
 	}
 
@@ -192,19 +269,23 @@ public abstract class UndirectedRichClubConnectivityInterval extends Metric {
 
 	@Override
 	public boolean isComparableTo(Metric m) {
-		return m != null && m instanceof UndirectedRichClubConnectivityInterval;
+		return m != null && m instanceof RichClubConnectivityInterval;
 	}
 
 	@Override
 	public boolean isApplicable(Graph g) {
 		return UndirectedNode.class.isAssignableFrom(g.getGraphDatastructures()
-				.getNodeType());
+				.getNodeType())
+				|| DirectedNode.class.isAssignableFrom(g
+						.getGraphDatastructures().getNodeType());
 	}
 
 	@Override
 	public boolean isApplicable(Batch b) {
 		return UndirectedNode.class.isAssignableFrom(b.getGraphDatastructures()
-				.getNodeType());
+				.getNodeType())
+				|| DirectedNode.class.isAssignableFrom(b
+						.getGraphDatastructures().getNodeType());
 	}
 
 }

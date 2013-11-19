@@ -64,11 +64,12 @@ public abstract class DirectedRichClubConnectivityInterval extends Metric {
 			temp.addAll(nodesPerDegree.get(currentDegree));
 		}
 
-		for (int i = 0; i < Math.round(this.g.getNodeCount()
-				/ this.richClubIntervall); i++) {
+		for (int i = 0; i < Math.ceil((double) this.g.getNodeCount()
+				/ (double) this.richClubIntervall); i++) {
 			this.richClubs.put(i,
 					new HashMap<Integer, LinkedList<DirectedNode>>());
 		}
+
 		int rcCounter = -1;
 		int edges = 0;
 		for (int i = 0; i < temp.size(); i++) {

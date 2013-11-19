@@ -1,12 +1,13 @@
-package dna.metrics.connectedComponents;
+package dna.metrics.richClubConnectivity.richClubConnectivityForOneDegree;
 
 import dna.updates.batch.Batch;
 import dna.updates.update.Update;
 
-public class UndirectedConnectedComponentR extends UndirectedConnectedComponent {
+public class RichClubConnectivityForOneDegreeR extends
+		RichClubConnectivityForOneDegree {
 
-	public UndirectedConnectedComponentR() {
-		super("CCUndirectedR", ApplicationType.Recomputation);
+	public RichClubConnectivityForOneDegreeR(int minDegree) {
+		super("RCCForOneDegreeRecomp", ApplicationType.Recomputation, minDegree);
 	}
 
 	@Override

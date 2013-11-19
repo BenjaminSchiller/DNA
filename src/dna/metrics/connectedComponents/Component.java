@@ -1,12 +1,12 @@
 package dna.metrics.connectedComponents;
 
 
-public class UndirectedComponent {
+public class Component {
 
 	private int index;
 	private int size;
 
-	public UndirectedComponent(int index) {
+	public Component(int index) {
 		this.index = index;
 		this.size = 0;
 	}
