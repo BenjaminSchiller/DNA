@@ -6,8 +6,13 @@ import java.util.HashSet;
 import java.util.PriorityQueue;
 
 import dna.graph.IElement;
+import dna.graph.edges.DirectedDoubleWeightedEdge;
+import dna.graph.edges.DirectedEdge;
+import dna.graph.edges.Edge;
 import dna.graph.edges.UndirectedDoubleWeightedEdge;
 import dna.graph.edges.UndirectedEdge;
+import dna.graph.nodes.DirectedNode;
+import dna.graph.nodes.Node;
 import dna.graph.nodes.UndirectedNode;
 import dna.metrics.apsp.QueueElement;
 import dna.updates.batch.Batch;
@@ -17,10 +22,10 @@ import dna.updates.update.NodeAddition;
 import dna.updates.update.NodeRemoval;
 import dna.updates.update.Update;
 
-public class UndirectedAllPairShortestPathCompleteWeightsU extends
-		UndirectedAllPairShortestPathCompleteWeights {
+public class AllPairShortestPathCompleteWeightsU extends
+		AllPairShortestPathCompleteWeights {
 
-	public UndirectedAllPairShortestPathCompleteWeightsU() {
+	public AllPairShortestPathCompleteWeightsU() {
 		super("APSP Undirected wiht Weights Dyn", ApplicationType.AfterUpdate);
 	}
 
@@ -46,14 +51,24 @@ public class UndirectedAllPairShortestPathCompleteWeightsU extends
 		} else if (u instanceof NodeRemoval) {
 			return applyAfterNodeRemoval(u);
 		} else if (u instanceof EdgeAddition) {
-			return applyAfterEdgeAddition(u);
+			if (DirectedNode.class.isAssignableFrom(this.g
+					.getGraphDatastructures().getNodeType())) {
+				return applyAfterDirectedEdgeAddition(u);
+			} else {
+				return applyAfterUndirectedEdgeAddition(u);
+			}
 		} else if (u instanceof EdgeRemoval) {
-			return applyAfterEdgeRemoval(u);
+			if (DirectedNode.class.isAssignableFrom(this.g
+					.getGraphDatastructures().getNodeType())) {
+				return applyAfterDirectedEdgeRemoval(u);
+			} else {
+				return applyAfterUndirectedEdgeRemoval(u);
+			}
 		}
 		return false;
 	}
 
-	private boolean applyAfterEdgeRemoval(Update u) {
+	private boolean applyAfterUndirectedEdgeRemoval(Update u) {
 		UndirectedEdge e = (UndirectedEdge) ((EdgeRemoval) u).getEdge();
 		UndirectedNode n1 = e.getNode1();
 		UndirectedNode n2 = e.getNode2();
@@ -61,9 +76,8 @@ public class UndirectedAllPairShortestPathCompleteWeightsU extends
 		// check all trees if the deleted edge is in the tree
 		for (IElement ie : g.getNodes()) {
 			UndirectedNode r = (UndirectedNode) ie;
-			HashMap<UndirectedNode, UndirectedNode> parent = this.parents
-					.get(r);
-			HashMap<UndirectedNode, Double> height = this.heights.get(r);
+			HashMap<Node, Node> parent = this.parents.get(r);
+			HashMap<Node, Double> height = this.heights.get(r);
 
 			UndirectedNode src;
 			UndirectedNode dst;
@@ -195,10 +209,10 @@ public class UndirectedAllPairShortestPathCompleteWeightsU extends
 	}
 
 	private boolean applyAfterNodeAddition(Update u) {
-		UndirectedNode n = (UndirectedNode) ((NodeAddition) u).getNode();
+		Node n = (Node) ((NodeAddition) u).getNode();
 
-		this.parents.put(n, new HashMap<UndirectedNode, UndirectedNode>());
-		this.heights.put(n, new HashMap<UndirectedNode, Double>());
+		this.parents.put(n, new HashMap<Node, Node>());
+		this.heights.put(n, new HashMap<Node, Double>());
 
 		for (IElement ie : this.g.getNodes()) {
 			UndirectedNode r = (UndirectedNode) ie;
@@ -216,31 +230,40 @@ public class UndirectedAllPairShortestPathCompleteWeightsU extends
 	}
 
 	private boolean applyAfterNodeRemoval(Update u) {
-		UndirectedNode n = (UndirectedNode) ((NodeRemoval) u).getNode();
-		this.heights.remove(n);
-		this.parents.remove(n);
+		Node n = (Node) ((NodeRemoval) u).getNode();
 
+		HashSet<Edge> edges = new HashSet<Edge>();
+
+		g.addNode(n);
 		for (IElement ie : n.getEdges()) {
-			applyAfterEdgeRemoval(new EdgeRemoval(
-					(UndirectedDoubleWeightedEdge) ie));
+			Edge e = (Edge) ie;
+			edges.add(e);
+			e.connectToNodes();
 		}
 
+		for (Edge de : edges) {
+			de.disconnectFromNodes();
+			applyAfterUpdate(new EdgeRemoval(de));
+		}
+		g.removeNode(n);
+		this.heights.remove(n);
+		this.parents.remove(n);
 		for (IElement ie : this.g.getNodes()) {
-			UndirectedNode r = (UndirectedNode) ie;
+			Node r = (Node) ie;
 			this.heights.get(r).remove(n);
 			this.parents.get(r).remove(n);
 		}
 		return true;
 	}
 
-	private boolean applyAfterEdgeAddition(Update u) {
+	private boolean applyAfterUndirectedEdgeAddition(Update u) {
 		UndirectedDoubleWeightedEdge e = (UndirectedDoubleWeightedEdge) ((EdgeAddition) u)
 				.getEdge();
 
 		for (IElement ie : g.getNodes()) {
 			UndirectedNode s = (UndirectedNode) ie;
-			HashMap<UndirectedNode, UndirectedNode> parent = parents.get(s);
-			HashMap<UndirectedNode, Double> height = heights.get(s);
+			HashMap<Node, Node> parent = parents.get(s);
+			HashMap<Node, Double> height = heights.get(s);
 
 			UndirectedNode n1 = e.getNode1();
 			UndirectedNode n2 = e.getNode2();
@@ -279,6 +302,184 @@ public class UndirectedAllPairShortestPathCompleteWeightsU extends
 							q.remove(neighbor);
 						}
 						q.add(neighbor);
+					}
+				}
+			}
+
+		}
+		return true;
+	}
+
+	private boolean applyAfterDirectedEdgeRemoval(Update u) {
+		DirectedEdge e = (DirectedEdge) ((EdgeRemoval) u).getEdge();
+		DirectedNode src = e.getSrc();
+		DirectedNode dst = e.getDst();
+
+		// check all trees if the deleted edge is in the tree
+		for (IElement ie : g.getNodes()) {
+			DirectedNode r = (DirectedNode) ie;
+			HashMap<Node, Node> parent = this.parents.get(r);
+			HashMap<Node, Double> height = this.heights.get(r);
+
+			// if the source or dst or edge is not in tree do nothing
+			if (height.get(src) == Integer.MAX_VALUE
+					|| height.get(dst) == Integer.MAX_VALUE
+					|| height.get(dst) == 0 || parent.get(dst) != src) {
+				continue;
+			}
+
+			// Queues and data structure for tree change
+			HashSet<DirectedNode> uncertain = new HashSet<DirectedNode>();
+			HashSet<DirectedNode> changed = new HashSet<DirectedNode>();
+
+			PriorityQueue<QueueElement<DirectedNode>> q = new PriorityQueue<QueueElement<DirectedNode>>();
+
+			q.add(new QueueElement<DirectedNode>(dst, height.get(dst)));
+
+			uncertain.add(dst);
+			parent.remove(dst);
+
+			while (!q.isEmpty()) {
+				QueueElement<DirectedNode> qE = q.poll();
+				DirectedNode w = qE.e;
+				// if (r.getIndex() == 842)
+				// System.out.println("hey");
+				// ;
+
+				double key = qE.distance;
+
+				// find the new shortest path
+				double dist = Double.MAX_VALUE;
+
+				ArrayList<DirectedNode> minSettled = new ArrayList<DirectedNode>();
+				ArrayList<DirectedNode> min = new ArrayList<DirectedNode>();
+				for (IElement iEdge : w.getIncomingEdges()) {
+					DirectedDoubleWeightedEdge ed = (DirectedDoubleWeightedEdge) iEdge;
+					DirectedNode z = ed.getSrc();
+					if (changed.contains(z)
+							|| height.get(z) == Integer.MAX_VALUE) {
+						continue;
+					}
+					if (height.get(z) + ed.getWeight() < dist) {
+						min.clear();
+						minSettled.clear();
+						min.add(z);
+						if (!uncertain.contains(z))
+							minSettled.add(z);
+						dist = height.get(z) + ed.getWeight();
+						continue;
+					}
+					if (height.get(z) + ed.getWeight() == dist) {
+						min.add(z);
+						if (!uncertain.contains(z))
+							minSettled.add(z);
+						continue;
+					}
+				}
+				boolean noPossibleNeighbour = (key >= g.getNodeCount() && dist > g
+						.getNodeCount())
+						|| (min.isEmpty() && (!uncertain.contains(w) || (key == dist)));
+
+				// no neighbour found
+				if (noPossibleNeighbour) {
+					height.put(w, Double.MAX_VALUE);
+					parent.remove(w);
+					continue;
+				}
+				if (uncertain.contains(w)) {
+					if (key == dist) {
+						if (minSettled.isEmpty()) {
+							parent.put(w, min.get(0));
+						} else {
+							parent.put(w, minSettled.get(0));
+						}
+					} else {
+						changed.add(w);
+						q.add(new QueueElement<DirectedNode>(w, dist));
+						uncertain.remove(w);
+						for (IElement iEdge : w.getOutgoingEdges()) {
+							DirectedDoubleWeightedEdge ed = (DirectedDoubleWeightedEdge) iEdge;
+							DirectedNode z = ed.getSrc();
+							if (parent.get(z) == w) {
+								parent.remove(z);
+								uncertain.add(z);
+								if (key > height.get(z))
+									System.out.println("fuck");
+								q.add(new QueueElement<DirectedNode>(z, height
+										.get(z)));
+							}
+						}
+					}
+					continue;
+				}
+				if (dist > key) {
+					q.add(new QueueElement<DirectedNode>(w, dist));
+					continue;
+				}
+				if (minSettled.isEmpty()) {
+					parent.put(w, min.get(0));
+				} else {
+					parent.put(w, minSettled.get(0));
+				}
+				changed.remove(w);
+				height.put(w, dist);
+				for (IElement iEdge : w.getOutgoingEdges()) {
+					DirectedDoubleWeightedEdge edge = (DirectedDoubleWeightedEdge) iEdge;
+					DirectedNode z = edge.getSrc();
+					if (height.get(z) > dist + 1) {
+						q.remove(new QueueElement<DirectedNode>(z, dist
+								+ edge.getWeight()));
+						q.add(new QueueElement<DirectedNode>(z, dist
+								+ edge.getWeight()));
+					}
+				}
+			}
+		}
+		return true;
+	}
+
+	private boolean applyAfterDirectedEdgeAddition(Update u) {
+		DirectedDoubleWeightedEdge e = (DirectedDoubleWeightedEdge) ((EdgeAddition) u)
+				.getEdge();
+
+		for (IElement ie : g.getNodes()) {
+			DirectedNode s = (DirectedNode) ie;
+			HashMap<Node, Node> parent = parents.get(s);
+			HashMap<Node, Double> height = heights.get(s);
+
+			DirectedNode src = e.getSrc();
+			DirectedNode dst = e.getDst();
+			if (height.get(src) + e.getWeight() >= height.get(dst)) {
+				continue;
+			}
+
+			height.put(dst, height.get(src) + e.getWeight());
+			parent.put(dst, src);
+			PriorityQueue<QueueElement<DirectedNode>> q = new PriorityQueue<QueueElement<DirectedNode>>();
+			q.add(new QueueElement(dst, height.get(dst)));
+			while (!q.isEmpty()) {
+				QueueElement<DirectedNode> c = q.poll();
+				DirectedNode current = c.e;
+
+				if (height.get(current) == Double.MAX_VALUE) {
+					break;
+				}
+
+				for (IElement iEdge : current.getOutgoingEdges()) {
+					DirectedDoubleWeightedEdge d = (DirectedDoubleWeightedEdge) iEdge;
+					DirectedNode neighbor = d.getDst();
+
+					double alt = height.get(current) + d.getWeight();
+
+					if (alt < height.get(neighbor)) {
+						height.put(neighbor, alt);
+						parent.put(neighbor, current);
+						QueueElement<DirectedNode> temp = new QueueElement<DirectedNode>(
+								neighbor, height.get(neighbor));
+						if (q.contains(temp)) {
+							q.remove(temp);
+						}
+						q.add(temp);
 					}
 				}
 			}
