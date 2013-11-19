@@ -6,43 +6,43 @@ import java.util.Queue;
 
 import dna.graph.Graph;
 import dna.graph.IElement;
-import dna.graph.edges.UndirectedEdge;
-import dna.graph.nodes.UndirectedNode;
+import dna.graph.edges.Edge;
+import dna.graph.nodes.Node;
 import dna.metrics.Metric;
 import dna.series.data.Distribution;
 import dna.series.data.NodeValueList;
 import dna.series.data.Value;
 import dna.updates.batch.Batch;
 
-public abstract class UndirectedConnectedComponent extends Metric {
+public abstract class ConnectedComponent extends Metric {
 
-	protected HashMap<UndirectedNode, Integer> nodeComponentMembership;
+	protected HashMap<Node, Integer> nodeComponentMembership;
 	protected boolean[] visited;
-	protected HashMap<UndirectedNode, UndirectedNode> parents;
-	protected HashMap<Integer, UndirectedComponent> componentList;
+	protected HashMap<Node, Node> parents;
+	protected HashMap<Integer, Component> componentList;
 	protected HashMap<Integer, Integer> componentConnection;
 	protected int counter;
 
-	public UndirectedConnectedComponent(String name, ApplicationType type) {
+	public ConnectedComponent(String name, ApplicationType type) {
 		super(name, type, MetricType.exact);
 	}
 
 	@Override
 	public void init_() {
-		this.nodeComponentMembership = new HashMap<UndirectedNode, Integer>();
-		this.parents = new HashMap<UndirectedNode, UndirectedNode>();
+		this.nodeComponentMembership = new HashMap<Node, Integer>();
+		this.parents = new HashMap<Node, Node>();
 		this.visited = new boolean[this.g.getMaxNodeIndex() + 1];
-		this.componentList = new HashMap<Integer, UndirectedComponent>();
+		this.componentList = new HashMap<Integer, Component>();
 		this.componentConnection = new HashMap<>();
 		this.counter = 0;
 	}
 
 	@Override
 	public void reset_() {
-		this.nodeComponentMembership = new HashMap<UndirectedNode, Integer>();
+		this.nodeComponentMembership = new HashMap<Node, Integer>();
 		this.visited = new boolean[this.g.getMaxNodeIndex() + 1];
-		this.parents = new HashMap<UndirectedNode, UndirectedNode>();
-		this.componentList = new HashMap<Integer, UndirectedComponent>();
+		this.parents = new HashMap<Node, Node>();
+		this.componentList = new HashMap<Integer, Component>();
 		this.componentConnection = new HashMap<>();
 		this.counter = 0;
 	}
@@ -50,7 +50,7 @@ public abstract class UndirectedConnectedComponent extends Metric {
 	@Override
 	public boolean compute() {
 		for (IElement ie : g.getNodes()) {
-			UndirectedNode n = (UndirectedNode) ie;
+			Node n = (Node) ie;
 			if (!this.visited[n.getIndex()]) {
 				bfs(n);
 			}
@@ -59,21 +59,21 @@ public abstract class UndirectedConnectedComponent extends Metric {
 		return true;
 	}
 
-	protected void bfs(UndirectedNode node) {
+	protected void bfs(Node node) {
 		int comp = counter++;
-		Queue<UndirectedNode> q = new LinkedList<UndirectedNode>();
-		UndirectedComponent root = new UndirectedComponent(comp);
+		Queue<Node> q = new LinkedList<Node>();
+		Component root = new Component(comp);
 		int size = 0;
 		this.componentList.put(comp, root);
 		q.add(node);
 		visited[node.getIndex()] = true;
 		while (!q.isEmpty()) {
 			size++;
-			UndirectedNode temp = q.poll();
+			Node temp = q.poll();
 			this.nodeComponentMembership.put(temp, comp);
 			for (IElement ie : temp.getEdges()) {
-				UndirectedEdge n = (UndirectedEdge) ie;
-				UndirectedNode dst = n.getDifferingNode(temp);
+				Edge n = (Edge) ie;
+				Node dst = n.getDifferingNode(temp);
 				if (!visited[dst.getIndex()]) {
 					visited[dst.getIndex()] = true;
 					parents.put(dst, temp);
@@ -86,35 +86,36 @@ public abstract class UndirectedConnectedComponent extends Metric {
 
 	@Override
 	public boolean equals(Metric m) {
-		if (!(m instanceof UndirectedConnectedComponent)) {
+		if (!(m instanceof ConnectedComponent)) {
 			return false;
 		}
-		UndirectedConnectedComponent cc = (UndirectedConnectedComponent) m;
+		ConnectedComponent cc = (ConnectedComponent) m;
 
 		boolean success = true;
 		if (this.componentList.size() != cc.componentList.size()) {
 			System.out.println("diff @ number of components expected "
 					+ this.componentList.size() + " is "
 					+ cc.componentList.size());
+
 			success = false;
 		}
 
 		HashMap<Integer, Integer> sizes = new HashMap<Integer, Integer>();
-		for (UndirectedComponent cV : this.componentList.values()) {
+		for (Component cV : this.componentList.values()) {
 			if (sizes.containsKey(cV.getSize())) {
 				sizes.put(cV.getSize(), sizes.get(cV.getSize()) + 1);
 			} else {
 				sizes.put(cV.getSize(), +1);
 			}
 		}
-		for (UndirectedComponent cV : cc.componentList.values()) {
+		for (Component cV : cc.componentList.values()) {
 			if (!sizes.containsKey(cV.getSize())) {
 				System.out.println("no existing size " + cV.getSize()
-						+ " Index " + cV.getSize());
+						+ " Index " + cV.getIndex());
 				success = false;
 			} else if (sizes.get(cV.getSize()) == 0) {
 				System.out.println("to much of this size " + cV.getSize()
-						+ " Index " + cV.getSize());
+						+ " Index " + cV.getIndex());
 				success = false;
 			} else {
 				sizes.put(cV.getSize(), sizes.get(cV.getSize()) - 1);
@@ -122,47 +123,34 @@ public abstract class UndirectedConnectedComponent extends Metric {
 
 		}
 
-		boolean success1 = check(this, cc);
-		return success && success1;
-	}
+		HashMap<Integer, Integer> check = new HashMap<>();
+		for (IElement node : g.getNodes()) {
+			Node n = (Node) node;
+			int id1 = this.nodeComponentMembership.get(n);
+			int id2 = cc.lookUp(n);
+			int size1 = this.componentList.get(id1).getSize();
+			int size2 = cc.componentList.get(id2).getSize();
 
-	private boolean check(UndirectedConnectedComponent c1,
-			UndirectedConnectedComponent c2) {
-		if (c1.nodeComponentMembership.size() != c2.nodeComponentMembership
-				.size()) {
-			System.out.println("diff @Number of  pointers to components "
-					+ c1.nodeComponentMembership.size() + " != "
-					+ c1.nodeComponentMembership.size());
-			return false;
-		}
-
-		HashMap<Integer, Integer> checkComp = new HashMap<Integer, Integer>();
-		boolean success = true;
-
-		for (UndirectedNode i : c1.nodeComponentMembership.keySet()) {
-			if (!c2.nodeComponentMembership.containsKey(i)) {
-				System.out.println("missing pointer for " + i);
-				return false;
+			if (size1 != size2) {
+				System.out.println("component with wrong size for node " + n
+						+ " expected " + size1 + " is " + size2);
+				success = false;
 			}
-
-			if (checkComp.containsKey(c1.nodeComponentMembership.get(i))) {
-				if (!checkComp.get(c1.nodeComponentMembership.get(i)).equals(
-						c2.lookUp(i))) {
-					System.out.println("diff @ node " + i
-							+ " wrong component: expected "
-							+ checkComp.get(c1.nodeComponentMembership.get(i))
-							+ " is " + c2.lookUp(i));
+			if (check.containsKey(id1)) {
+				if (!check.get(id1).equals(id2)) {
+					System.out.println("component with wrong index for node "
+							+ n + " expected " + check.get(id1) + " is " + id2);
 					success = false;
 				}
 			} else {
-				checkComp.put(c1.nodeComponentMembership.get(i), c2.lookUp(i));
+				check.put(id1, id2);
 			}
 		}
 
 		return success;
 	}
 
-	public int lookUp(UndirectedNode n) {
+	public int lookUp(Node n) {
 		int result = this.nodeComponentMembership.get(n);
 		while (componentConnection.containsKey(result)) {
 			result = componentConnection.get(result);
@@ -202,7 +190,7 @@ public abstract class UndirectedConnectedComponent extends Metric {
 	private double[] calculateComponents() {
 		double[] sumComp = new double[componentList.size()];
 		int counter = 0;
-		for (UndirectedComponent n : componentList.values()) {
+		for (Component n : componentList.values()) {
 			sumComp[counter] = n.getSize();
 			counter++;
 		}
@@ -211,18 +199,18 @@ public abstract class UndirectedConnectedComponent extends Metric {
 
 	@Override
 	public boolean isComparableTo(Metric m) {
-		return m != null && m instanceof UndirectedConnectedComponent;
+		return m != null && m instanceof ConnectedComponent;
 	}
 
 	@Override
 	public boolean isApplicable(Graph g) {
-		return UndirectedNode.class.isAssignableFrom(g.getGraphDatastructures()
+		return Node.class.isAssignableFrom(g.getGraphDatastructures()
 				.getNodeType());
 	}
 
 	@Override
 	public boolean isApplicable(Batch b) {
-		return UndirectedNode.class.isAssignableFrom(b.getGraphDatastructures()
+		return Node.class.isAssignableFrom(b.getGraphDatastructures()
 				.getNodeType());
 	}
 

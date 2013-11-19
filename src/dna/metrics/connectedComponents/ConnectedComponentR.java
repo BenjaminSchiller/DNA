@@ -1,14 +1,12 @@
-package dna.metrics.apsp.allPairShortestPathComplete;
+package dna.metrics.connectedComponents;
 
 import dna.updates.batch.Batch;
 import dna.updates.update.Update;
 
-public class UndirectedAllPairShortestPathCompleteR extends
-		UndirectedAllPairShortestPathComplete {
+public class ConnectedComponentR extends ConnectedComponent {
 
-	public UndirectedAllPairShortestPathCompleteR() {
-		super("APSP Complete Comp", ApplicationType.Recomputation);
-
+	public ConnectedComponentR() {
+		super("CCUndirectedR", ApplicationType.Recomputation);
 	}
 
 	@Override
@@ -30,4 +28,5 @@ public class UndirectedAllPairShortestPathCompleteR extends
 	public boolean applyAfterUpdate(Update u) {
 		return false;
 	}
+
 }

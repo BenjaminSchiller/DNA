@@ -1,5 +1,7 @@
 package dna.metrics.richClubConnectivity.directedRichClubConnectivityPerDegree;
 
+import java.util.HashSet;
+
 import dna.graph.IElement;
 import dna.graph.edges.DirectedEdge;
 import dna.graph.nodes.DirectedNode;
@@ -34,6 +36,7 @@ public class DirectedRichClubConnectivityPerDegreeU extends
 
 	@Override
 	public boolean applyAfterUpdate(Update u) {
+		// System.out.println(u.toString());
 		if (u instanceof NodeAddition) {
 			return applyAfterNodeAddition(u);
 		} else if (u instanceof NodeRemoval) {
@@ -48,8 +51,13 @@ public class DirectedRichClubConnectivityPerDegreeU extends
 
 	private boolean applyAfterNodeAddition(Update u) {
 		DirectedNode node = (DirectedNode) ((NodeAddition) u).getNode();
-		this.richClubs.put(node.getOutDegree(),
-				this.richClubs.get(node.getOutDegree()) + 1);
+		if (this.richClubs.containsKey(node.getOutDegree())) {
+			this.richClubs.put(node.getOutDegree(),
+					this.richClubs.get(node.getOutDegree()) + 1);
+		} else {
+			this.richClubs.put(node.getOutDegree(), 1);
+			this.richClubEdges.put(node.getDegree(), 0);
+		}
 		return true;
 	}
 
@@ -77,18 +85,19 @@ public class DirectedRichClubConnectivityPerDegreeU extends
 			}
 		}
 
-		if (dstDegree < srcDegree + 1) {
+		// update edges for delete edge
+		if (dstDegree > srcDegree + 1) {
+			this.richClubEdges.put(srcDegree + 1,
+					this.richClubEdges.get(srcDegree + 1) - 1);
+		} else {
 			this.richClubEdges.put(dstDegree,
 					this.richClubEdges.get(dstDegree) - 1);
-			this.richClubEdges.put(srcDegree + 1,
-					this.richClubEdges.get(srcDegree + 1) - edges);
-
-		} else {
-			this.richClubEdges.put(srcDegree + 1,
-					this.richClubEdges.get(srcDegree + 1) - (edges + 1));
-
 		}
 
+		this.richClubEdges.put(srcDegree + 1,
+				this.richClubEdges.get(srcDegree + 1) - edges);
+
+		// update Old richclub size
 		this.richClubs
 				.put(srcDegree + 1, this.richClubs.get(srcDegree + 1) - 1);
 		if (this.richClubs.get(srcDegree + 1) == 0) {
@@ -96,6 +105,7 @@ public class DirectedRichClubConnectivityPerDegreeU extends
 			this.richClubEdges.remove(srcDegree + 1);
 		}
 
+		// update new RichClub size and edges
 		if (this.richClubs.containsKey(srcDegree)) {
 			this.richClubs.put(srcDegree, this.richClubs.get(srcDegree) + 1);
 			this.richClubEdges.put(srcDegree, this.richClubEdges.get(srcDegree)
@@ -105,7 +115,6 @@ public class DirectedRichClubConnectivityPerDegreeU extends
 			this.richClubs.put(srcDegree, 1);
 			this.richClubEdges.put(srcDegree, edges);
 		}
-
 		return true;
 	}
 
@@ -165,24 +174,21 @@ public class DirectedRichClubConnectivityPerDegreeU extends
 
 	private boolean applyAfterNodeRemoval(Update u) {
 		DirectedNode node = (DirectedNode) ((NodeRemoval) u).getNode();
+		HashSet<DirectedEdge> edges = new HashSet<DirectedEdge>();
+		g.addNode(node);
+		for (IElement ie : node.getEdges()) {
+			DirectedEdge e = (DirectedEdge) ie;
+			edges.add(e);
+			e.connectToNodes();
+		}
+		for (DirectedEdge e : edges) {
+			e.disconnectFromNodes();
+			g.removeEdge(e);
+			applyAfterEdgeRemoval(new EdgeRemoval(e));
+		}
+		g.removeNode(node);
 		this.richClubs.put(node.getOutDegree(),
 				this.richClubs.get(node.getOutDegree()) - 1);
-		int updateEdges = 0;
-		for (IElement iE : node.getIncomingEdges()) {
-			DirectedEdge ed = (DirectedEdge) iE;
-			applyAfterEdgeRemoval(new EdgeRemoval(ed));
-		}
-		for (IElement iE : node.getOutgoingEdges()) {
-			DirectedEdge ed = (DirectedEdge) iE;
-			if (ed.getDst().getOutDegree() > node.getOutDegree()) {
-				updateEdges++;
-			} else {
-				int temp = richClubEdges.get(ed.getDst().getOutDegree());
-				richClubEdges.put(ed.getDst().getOutDegree(), temp - 1);
-			}
-		}
-		int temp = richClubEdges.get(node.getOutDegree());
-		richClubEdges.put(node.getOutDegree(), temp - updateEdges);
 		return true;
 	}
 }

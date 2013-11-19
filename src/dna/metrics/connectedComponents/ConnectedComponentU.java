@@ -5,7 +5,11 @@ import java.util.LinkedList;
 import java.util.Queue;
 
 import dna.graph.IElement;
+import dna.graph.edges.DirectedEdge;
+import dna.graph.edges.Edge;
 import dna.graph.edges.UndirectedEdge;
+import dna.graph.nodes.DirectedNode;
+import dna.graph.nodes.Node;
 import dna.graph.nodes.UndirectedNode;
 import dna.updates.batch.Batch;
 import dna.updates.update.EdgeAddition;
@@ -14,9 +18,9 @@ import dna.updates.update.NodeAddition;
 import dna.updates.update.NodeRemoval;
 import dna.updates.update.Update;
 
-public class UndirectedConnectedComponentU extends UndirectedConnectedComponent {
+public class ConnectedComponentU extends ConnectedComponent {
 
-	public UndirectedConnectedComponentU() {
+	public ConnectedComponentU() {
 		super("CCUndirectedU", ApplicationType.AfterUpdate);
 	}
 
@@ -39,9 +43,17 @@ public class UndirectedConnectedComponentU extends UndirectedConnectedComponent 
 	}
 
 	private boolean applyAfterEdgeRemoval(Update u) {
-		UndirectedEdge e = (UndirectedEdge) ((EdgeRemoval) u).getEdge();
-		UndirectedNode n1 = e.getNode1();
-		UndirectedNode n2 = e.getNode2();
+		Edge e = (Edge) ((EdgeRemoval) u).getEdge();
+		Node n1;
+		Node n2;
+		if (DirectedNode.class.isAssignableFrom(this.g.getGraphDatastructures()
+				.getNodeType())) {
+			n1 = ((DirectedEdge) e).getSrc();
+			n2 = ((DirectedEdge) e).getDst();
+		} else {
+			n1 = ((UndirectedEdge) e).getNode1();
+			n2 = ((UndirectedEdge) e).getNode2();
+		}
 
 		if (lookUp(n1) == lookUp(n2)) {
 			if (this.parents.containsKey(n1) && parents.get(n1).equals(n2)) {
@@ -52,19 +64,27 @@ public class UndirectedConnectedComponentU extends UndirectedConnectedComponent 
 				checkEdgeRemoval(n1, n2);
 				return true;
 			}
-
 		}
-
 		return true;
 	}
 
-	private void checkEdgeRemoval(UndirectedNode n1, UndirectedNode n2) {
+	private void checkEdgeRemoval(Node n1, Node n2) {
 		boolean neighbourFound = false;
+		int degreeN1;
+		int degreeN2;
+		if (DirectedNode.class.isAssignableFrom(this.g.getGraphDatastructures()
+				.getNodeType())) {
+			degreeN1 = ((DirectedNode) n1).getDegree();
+			degreeN2 = ((DirectedNode) n2).getDegree();
+		} else {
+			degreeN1 = ((UndirectedNode) n1).getDegree();
+			degreeN2 = ((UndirectedNode) n2).getDegree();
+		}
 
-		if (n1.getDegree() == 0) {
+		if (degreeN1 == 0) {
 			this.componentList.get(lookUp(n1)).decreaseSize(1);
 			counter++;
-			UndirectedComponent c = new UndirectedComponent(counter);
+			Component c = new Component(counter);
 			c.setSize(1);
 			parents.remove(n2);
 			this.nodeComponentMembership.put(n1, counter);
@@ -72,11 +92,11 @@ public class UndirectedConnectedComponentU extends UndirectedConnectedComponent 
 			return;
 		}
 
-		if (n2.getDegree() == 0) {
+		if (degreeN2 == 0) {
 			parents.remove(n2);
 			counter++;
 			this.componentList.get(lookUp(n2)).decreaseSize(1);
-			UndirectedComponent c = new UndirectedComponent(counter);
+			Component c = new Component(counter);
 			c.setSize(1);
 			this.nodeComponentMembership.put(n2, counter);
 			this.componentList.put(counter, c);
@@ -84,21 +104,28 @@ public class UndirectedConnectedComponentU extends UndirectedConnectedComponent 
 		}
 
 		// check for direct neighbour
-		HashSet<UndirectedNode> reachableNodes = new HashSet<UndirectedNode>();
+		HashSet<Node> reachableNodes = new HashSet<Node>();
 		for (IElement ie : n1.getEdges()) {
-			UndirectedEdge ed = (UndirectedEdge) ie;
-			UndirectedNode node = ed.getDifferingNode(n1);
+			Edge ed = (Edge) ie;
+			Node node = (Node) ed.getDifferingNode(n1);
 			reachableNodes.add(node);
 		}
 		for (IElement ie : n2.getEdges()) {
-			UndirectedEdge ed = (UndirectedEdge) ie;
-			UndirectedNode node = ed.getDifferingNode(n2);
+			Edge ed = (Edge) ie;
+			Node node = (Node) ed.getDifferingNode(n2);
 			if (reachableNodes.contains(node)) {
-				parents.put(n2, node);
-				neighbourFound = true;
-				if (parents.containsKey(node) && parents.get(node).equals(n2))
+				if (parents.containsKey(n1) && parents.get(n1).equals(node)) {
+					parents.put(n2, node);
+					neighbourFound = true;
+					break;
+				}
+				if (parents.containsKey(node) && parents.get(node).equals(n2)) {
 					parents.put(node, n1);
-				break;
+					parents.put(n2, node);
+					neighbourFound = true;
+					break;
+				}
+
 			}
 		}
 
@@ -108,22 +135,21 @@ public class UndirectedConnectedComponentU extends UndirectedConnectedComponent 
 
 	}
 
-	private boolean saveRemove(UndirectedNode n,
-			HashSet<UndirectedNode> reachables, UndirectedNode target) {
+	private boolean saveRemove(Node n, HashSet<Node> reachables, Node target) {
 
-		Queue<UndirectedNode> q = new LinkedList<UndirectedNode>();
+		Queue<Node> q = new LinkedList<Node>();
 		q.add(n);
 
-		HashSet<UndirectedNode> seenNodes = new HashSet<UndirectedNode>();
-		HashSet<UndirectedNode> reachableNodes = new HashSet<UndirectedNode>();
+		HashSet<Node> seenNodes = new HashSet<Node>();
+		HashSet<Node> reachableNodes = new HashSet<Node>();
 		seenNodes.add(n);
 		boolean found = false;
-		UndirectedNode temp = n;
+		Node temp = n;
 		while (!q.isEmpty() && !found) {
 			temp = q.poll();
 			for (IElement ie : temp.getEdges()) {
-				UndirectedEdge ed = (UndirectedEdge) ie;
-				UndirectedNode x = ed.getDifferingNode(temp);
+				Edge ed = (Edge) ie;
+				Node x = (Node) ed.getDifferingNode(temp);
 
 				if (parents.containsKey(x) && parents.get(x).equals(temp)) {
 					q.add(x);
@@ -139,21 +165,21 @@ public class UndirectedConnectedComponentU extends UndirectedConnectedComponent 
 
 		if (reachableNodes.isEmpty()) {
 			counter++;
-			UndirectedComponent c = new UndirectedComponent(counter);
+			Component c = new Component(counter);
 			this.componentList.put(counter, c);
 			c.setSize(seenNodes.size());
 			this.parents.remove(n);
 			this.componentList.get(lookUp(n)).decreaseSize(seenNodes.size());
-			for (UndirectedNode uN : seenNodes) {
+			for (Node uN : seenNodes) {
 				this.nodeComponentMembership.put(uN, counter);
 			}
 			return false;
 		}
 
-		UndirectedNode connection = reachableNodes.iterator().next();
+		Node connection = reachableNodes.iterator().next();
 		for (IElement ie : connection.getEdges()) {
-			UndirectedEdge ed = (UndirectedEdge) ie;
-			UndirectedNode node = ed.getDifferingNode(connection);
+			Edge ed = (Edge) ie;
+			Node node = (Node) ed.getDifferingNode(connection);
 			if (seenNodes.contains(node)) {
 				restructureTree(connection, node, n);
 				break;
@@ -164,14 +190,13 @@ public class UndirectedConnectedComponentU extends UndirectedConnectedComponent 
 
 	}
 
-	private void restructureTree(UndirectedNode connection,
-			UndirectedNode node, UndirectedNode start) {
-		UndirectedNode temp = node;
-		UndirectedNode newParent = connection;
-		UndirectedNode newChild = parents.get(temp);
+	private void restructureTree(Node connection, Node node, Node start) {
+		Node temp = node;
+		Node newParent = connection;
+		Node newChild = (Node) parents.get(temp);
 
 		while (!temp.equals(start)) {
-			newChild = parents.get(temp);
+			newChild = (Node) parents.get(temp);
 			parents.put(temp, newParent);
 
 			newParent = temp;
@@ -181,17 +206,31 @@ public class UndirectedConnectedComponentU extends UndirectedConnectedComponent 
 	}
 
 	private boolean applyAfterEdgeAddition(Update u) {
-		UndirectedEdge e = (UndirectedEdge) ((EdgeAddition) u).getEdge();
-		UndirectedNode n1 = e.getNode1();
-		UndirectedNode n2 = e.getNode2();
+		Edge e = (Edge) ((EdgeAddition) u).getEdge();
+		Node n1;
+		Node n2;
+		if (DirectedNode.class.isAssignableFrom(this.g.getGraphDatastructures()
+				.getNodeType())) {
+			n1 = ((DirectedEdge) e).getSrc();
+			n2 = ((DirectedEdge) e).getDst();
+		} else {
+			n1 = ((UndirectedEdge) e).getNode1();
+			n2 = ((UndirectedEdge) e).getNode2();
+		}
 
 		int c1 = lookUp(n1);
-		Integer c2 = lookUp(n2);
+		int c2 = lookUp(n2);
 		if (c1 != c2) {
 			if (this.componentList.get(c1).getSize() < this.componentList.get(
 					c2).getSize()) {
-				n2 = e.getNode1();
-				n1 = e.getNode2();
+				if (DirectedNode.class.isAssignableFrom(this.g
+						.getGraphDatastructures().getNodeType())) {
+					n1 = ((DirectedEdge) e).getDst();
+					n2 = ((DirectedEdge) e).getSrc();
+				} else {
+					n1 = ((UndirectedEdge) e).getNode2();
+					n2 = ((UndirectedEdge) e).getNode1();
+				}
 				int temp = c1;
 				c1 = c2;
 				c2 = temp;
@@ -199,11 +238,11 @@ public class UndirectedConnectedComponentU extends UndirectedConnectedComponent 
 			this.componentList.get(c1).increaseSize(
 					this.componentList.get(c2).getSize());
 
-			UndirectedNode temp = n2;
-			UndirectedNode newParent = n1;
-			UndirectedNode newChild = parents.get(temp);
+			Node temp = n2;
+			Node newParent = n1;
+			Node newChild = parents.get(temp);
 
-			while (!this.parents.containsKey(temp)) {
+			while (this.parents.containsKey(temp)) {
 				newChild = parents.get(temp);
 				parents.put(temp, newParent);
 				newParent = temp;
@@ -217,20 +256,18 @@ public class UndirectedConnectedComponentU extends UndirectedConnectedComponent 
 	}
 
 	private boolean applyAfterNodeRemoval(Update u) {
-		UndirectedNode n = (UndirectedNode) ((NodeRemoval) u).getNode();
-
+		Node n = (Node) ((NodeRemoval) u).getNode();
 		g.addNode(n);
-		HashSet<UndirectedEdge> bla = new HashSet<>();
+		HashSet<Edge> bla = new HashSet<>();
 		for (IElement ie : n.getEdges()) {
-			UndirectedEdge e = (UndirectedEdge) ie;
+			Edge e = (Edge) ie;
 			e.connectToNodes();
 			bla.add(e);
 		}
-		for (UndirectedEdge e : bla) {
+		for (Edge e : bla) {
 			e.disconnectFromNodes();
 			applyAfterEdgeRemoval(new EdgeRemoval(e));
 		}
-
 		this.componentList.remove(this.lookUp(n));
 		this.nodeComponentMembership.remove(n);
 		g.removeNode(n);
@@ -238,9 +275,9 @@ public class UndirectedConnectedComponentU extends UndirectedConnectedComponent 
 	}
 
 	private boolean applyAfterNodeAddition(Update u) {
-		UndirectedNode n = (UndirectedNode) ((NodeAddition) u).getNode();
+		Node n = (Node) ((NodeAddition) u).getNode();
 		counter++;
-		UndirectedComponent stn = new UndirectedComponent(counter);
+		Component stn = new Component(counter);
 		stn.setSize(1);
 		this.componentList.put(counter, stn);
 		this.nodeComponentMembership.put(n, counter);
@@ -261,4 +298,5 @@ public class UndirectedConnectedComponentU extends UndirectedConnectedComponent 
 	public boolean applyBeforeUpdate(Update u) {
 		return false;
 	}
+
 }

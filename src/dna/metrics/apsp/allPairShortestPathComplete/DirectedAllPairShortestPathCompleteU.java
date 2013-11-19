@@ -97,7 +97,7 @@ public class DirectedAllPairShortestPathCompleteU extends
 				for (IElement iEgde : w.getIncomingEdges()) {
 					DirectedEdge edge = (DirectedEdge) iEgde;
 					DirectedNode z = edge.getSrc();
-					if (parent.get(w) == z || changed.contains(z)
+					if (changed.contains(z)
 							|| height.get(z) == Integer.MAX_VALUE) {
 						continue;
 					}
@@ -225,13 +225,23 @@ public class DirectedAllPairShortestPathCompleteU extends
 
 	private boolean applyAfterNodeRemoval(Update u) {
 		DirectedNode n = (DirectedNode) ((NodeRemoval) u).getNode();
-		this.heightsOut.remove(n);
-		this.parentsOut.remove(n);
 
+		HashSet<DirectedEdge> edges = new HashSet<DirectedEdge>();
+
+		g.addNode(n);
 		for (IElement ie : n.getEdges()) {
-			applyAfterEdgeRemoval(new EdgeRemoval((DirectedEdge) ie));
+			DirectedEdge e = (DirectedEdge) ie;
+			edges.add(e);
+			e.connectToNodes();
 		}
 
+		for (DirectedEdge de : edges) {
+			de.disconnectFromNodes();
+			applyAfterEdgeRemoval(new EdgeRemoval(de));
+		}
+		g.removeNode(n);
+		this.heightsOut.remove(n);
+		this.parentsOut.remove(n);
 		for (IElement ie : this.g.getNodes()) {
 			DirectedNode r = (DirectedNode) ie;
 			this.heightsOut.get(r).remove(n);

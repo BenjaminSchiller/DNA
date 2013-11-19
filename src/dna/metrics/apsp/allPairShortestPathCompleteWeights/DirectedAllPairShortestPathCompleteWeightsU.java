@@ -99,7 +99,7 @@ public class DirectedAllPairShortestPathCompleteWeightsU extends
 				for (IElement iEdge : w.getIncomingEdges()) {
 					DirectedDoubleWeightedEdge ed = (DirectedDoubleWeightedEdge) iEdge;
 					DirectedNode z = ed.getSrc();
-					if (parent.get(w) == z || changed.contains(z)
+					if (changed.contains(z)
 							|| height.get(z) == Integer.MAX_VALUE) {
 						continue;
 					}

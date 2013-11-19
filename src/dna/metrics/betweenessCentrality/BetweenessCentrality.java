@@ -8,7 +8,10 @@ import java.util.Stack;
 
 import dna.graph.Graph;
 import dna.graph.IElement;
+import dna.graph.edges.DirectedEdge;
 import dna.graph.edges.UndirectedEdge;
+import dna.graph.nodes.DirectedNode;
+import dna.graph.nodes.Node;
 import dna.graph.nodes.UndirectedNode;
 import dna.metrics.Metric;
 import dna.series.data.Distribution;
@@ -16,22 +19,22 @@ import dna.series.data.NodeValueList;
 import dna.series.data.Value;
 import dna.updates.batch.Batch;
 
-public abstract class UndirectedBetweenessCentrality extends Metric {
+public abstract class BetweenessCentrality extends Metric {
 
-	protected HashMap<UndirectedNode, Double> bC;
+	protected HashMap<Node, Double> bC;
 
-	protected HashMap<UndirectedNode, HashMap<UndirectedNode, HashSet<UndirectedNode>>> parents;
-	protected HashMap<UndirectedNode, HashMap<UndirectedNode, Integer>> distances;
-	protected HashMap<UndirectedNode, HashMap<UndirectedNode, Integer>> spcs;
-	protected HashMap<UndirectedNode, HashMap<UndirectedNode, Double>> accSums;
+	protected HashMap<Node, HashMap<Node, HashSet<Node>>> parents;
+	protected HashMap<Node, HashMap<Node, Integer>> distances;
+	protected HashMap<Node, HashMap<Node, Integer>> spcs;
+	protected HashMap<Node, HashMap<Node, Double>> accSums;
 
-	public UndirectedBetweenessCentrality(String name, ApplicationType type) {
+	public BetweenessCentrality(String name, ApplicationType type) {
 		super(name, type, MetricType.exact);
 	}
 
 	@Override
 	public void init_() {
-		this.bC = new HashMap<UndirectedNode, Double>();
+		this.bC = new HashMap<Node, Double>();
 		this.parents = new HashMap<>();
 		this.distances = new HashMap<>();
 		this.spcs = new HashMap<>();
@@ -44,31 +47,31 @@ public abstract class UndirectedBetweenessCentrality extends Metric {
 		this.distances = new HashMap<>();
 		this.spcs = new HashMap<>();
 		this.accSums = new HashMap<>();
-		this.bC = new HashMap<UndirectedNode, Double>();
+		this.bC = new HashMap<Node, Double>();
 	}
 
 	@Override
 	public boolean compute() {
-		Queue<UndirectedNode> q = new LinkedList<UndirectedNode>();
-		Stack<UndirectedNode> s = new Stack<UndirectedNode>();
+		Queue<Node> q = new LinkedList<Node>();
+		Stack<Node> s = new Stack<Node>();
 
 		for (IElement ie : g.getNodes()) {
-			UndirectedNode t = (UndirectedNode) ie;
+			Node t = (Node) ie;
 			bC.put(t, 0d);
 		}
 
 		for (IElement ie : g.getNodes()) {
-			UndirectedNode n = (UndirectedNode) ie;
+			Node n = (Node) ie;
 			// stage ONE
 			s.clear();
 			q.clear();
-			HashMap<UndirectedNode, HashSet<UndirectedNode>> p = new HashMap<UndirectedNode, HashSet<UndirectedNode>>();
-			HashMap<UndirectedNode, Integer> d = new HashMap<UndirectedNode, Integer>();
-			HashMap<UndirectedNode, Integer> spc = new HashMap<UndirectedNode, Integer>();
-			HashMap<UndirectedNode, Double> sums = new HashMap<UndirectedNode, Double>();
+			HashMap<Node, HashSet<Node>> p = new HashMap<Node, HashSet<Node>>();
+			HashMap<Node, Integer> d = new HashMap<Node, Integer>();
+			HashMap<Node, Integer> spc = new HashMap<Node, Integer>();
+			HashMap<Node, Double> sums = new HashMap<Node, Double>();
 
 			for (IElement ieE : g.getNodes()) {
-				UndirectedNode t = (UndirectedNode) ieE;
+				Node t = (Node) ieE;
 				if (t == n) {
 					d.put(t, 0);
 					spc.put(t, 1);
@@ -77,27 +80,50 @@ public abstract class UndirectedBetweenessCentrality extends Metric {
 					d.put(t, Integer.MAX_VALUE);
 				}
 				sums.put(t, 0d);
-				p.put(t, new HashSet<UndirectedNode>());
+				p.put(t, new HashSet<Node>());
 			}
 
 			q.add(n);
 
-			// stage 2
-			while (!q.isEmpty()) {
-				UndirectedNode v = q.poll();
-				s.push(v);
+			if (DirectedNode.class.isAssignableFrom(this.g
+					.getGraphDatastructures().getNodeType())) {
+				// stage 2
+				while (!q.isEmpty()) {
+					DirectedNode v = (DirectedNode) q.poll();
+					s.push(v);
+					for (IElement iEdges : v.getOutgoingEdges()) {
+						DirectedEdge edge = (DirectedEdge) iEdges;
+						DirectedNode w = edge.getDifferingNode(v);
 
-				for (IElement iEdges : v.getEdges()) {
-					UndirectedEdge edge = (UndirectedEdge) iEdges;
-					UndirectedNode w = edge.getDifferingNode(v);
-
-					if (d.get(w).equals(Integer.MAX_VALUE)) {
-						q.add(w);
-						d.put(w, d.get(v) + 1);
+						if (d.get(w).equals(Integer.MAX_VALUE)) {
+							q.add(w);
+							d.put(w, d.get(v) + 1);
+						}
+						if (d.get(w).equals(d.get(v) + 1)) {
+							spc.put(w, spc.get(w) + spc.get(v));
+							p.get(w).add(v);
+						}
 					}
-					if (d.get(w).equals(d.get(v) + 1)) {
-						spc.put(w, spc.get(w) + spc.get(v));
-						p.get(w).add(v);
+				}
+			} else if (UndirectedNode.class.isAssignableFrom(this.g
+					.getGraphDatastructures().getNodeType())) {
+				// stage 2
+				while (!q.isEmpty()) {
+					UndirectedNode v = (UndirectedNode) q.poll();
+					s.push(v);
+
+					for (IElement iEdges : v.getEdges()) {
+						UndirectedEdge edge = (UndirectedEdge) iEdges;
+						UndirectedNode w = edge.getDifferingNode(v);
+
+						if (d.get(w).equals(Integer.MAX_VALUE)) {
+							q.add(w);
+							d.put(w, d.get(v) + 1);
+						}
+						if (d.get(w).equals(d.get(v) + 1)) {
+							spc.put(w, spc.get(w) + spc.get(v));
+							p.get(w).add(v);
+						}
 					}
 				}
 			}
@@ -106,8 +132,8 @@ public abstract class UndirectedBetweenessCentrality extends Metric {
 
 			// stage 3
 			while (!s.isEmpty()) {
-				UndirectedNode w = s.pop();
-				for (UndirectedNode parent : p.get(w)) {
+				Node w = s.pop();
+				for (Node parent : p.get(w)) {
 					double sumForCurretConnection = spc.get(parent)
 							* (1 + sums.get(w)) / spc.get(w);
 					sums.put(parent, sums.get(parent) + sumForCurretConnection);
@@ -128,16 +154,16 @@ public abstract class UndirectedBetweenessCentrality extends Metric {
 
 	@Override
 	public boolean equals(Metric m) {
-		if (!(m instanceof UndirectedBetweenessCentrality)) {
+		if (!(m instanceof BetweenessCentrality)) {
 			return false;
 		}
 		boolean success = true;
-		UndirectedBetweenessCentrality bc = (UndirectedBetweenessCentrality) m;
+		BetweenessCentrality bc = (BetweenessCentrality) m;
 
 		for (IElement ie1 : g.getNodes()) {
-			UndirectedNode n1 = (UndirectedNode) ie1;
+			Node n1 = (Node) ie1;
 			for (IElement ie2 : g.getNodes()) {
-				UndirectedNode n2 = (UndirectedNode) ie2;
+				Node n2 = (Node) ie2;
 
 				if (!this.spcs.get(n1).get(n2).equals(bc.spcs.get(n1).get(n2))) {
 					System.out.println("diff at Tree " + n1 + "in Node n " + n2
@@ -180,7 +206,7 @@ public abstract class UndirectedBetweenessCentrality extends Metric {
 		}
 
 		for (IElement ie : g.getNodes()) {
-			UndirectedNode n = (UndirectedNode) ie;
+			Node n = (Node) ie;
 			if (Math.abs(this.bC.get(n).doubleValue()
 					- bc.bC.get(n).doubleValue()) > 0.0001) {
 				System.out.println("diff at Node n " + n + " expected Score "
@@ -212,10 +238,10 @@ public abstract class UndirectedBetweenessCentrality extends Metric {
 	}
 
 	private double[] getDistribution(
-			HashMap<UndirectedNode, Double> betweeneesCentralityScore2) {
+			HashMap<Node, Double> betweeneesCentralityScore2) {
 		double[] temp = new double[betweeneesCentralityScore2.size()];
 		int counter = 0;
-		for (UndirectedNode i : betweeneesCentralityScore2.keySet()) {
+		for (Node i : betweeneesCentralityScore2.keySet()) {
 			temp[counter] = betweeneesCentralityScore2.get(i);
 			counter++;
 		}
@@ -224,19 +250,23 @@ public abstract class UndirectedBetweenessCentrality extends Metric {
 
 	@Override
 	public boolean isComparableTo(Metric m) {
-		return m != null && m instanceof UndirectedBetweenessCentrality;
+		return m != null && m instanceof BetweenessCentrality;
 	}
 
 	@Override
 	public boolean isApplicable(Graph g) {
 		return UndirectedNode.class.isAssignableFrom(g.getGraphDatastructures()
-				.getNodeType());
+				.getNodeType())
+				|| DirectedNode.class.isAssignableFrom(g
+						.getGraphDatastructures().getNodeType());
 	}
 
 	@Override
 	public boolean isApplicable(Batch b) {
 		return UndirectedNode.class.isAssignableFrom(b.getGraphDatastructures()
-				.getNodeType());
+				.getNodeType())
+				|| DirectedNode.class.isAssignableFrom(b
+						.getGraphDatastructures().getNodeType());
 	}
 
 }

@@ -7,7 +7,7 @@ import java.util.PriorityQueue;
 
 import dna.graph.IElement;
 import dna.graph.edges.UndirectedEdge;
-import dna.graph.nodes.UndirectedNode;
+import dna.graph.nodes.Node;
 import dna.metrics.apsp.QueueElement;
 import dna.updates.batch.Batch;
 import dna.updates.update.EdgeAddition;
@@ -17,7 +17,7 @@ import dna.updates.update.NodeRemoval;
 import dna.updates.update.Update;
 
 public class UndirectedAllPairShortestPathCompleteU extends
-		UndirectedAllPairShortestPathComplete {
+		AllPairShortestPathComplete {
 
 	public UndirectedAllPairShortestPathCompleteU() {
 		super("APSP Complete DYN", ApplicationType.AfterUpdate);
@@ -55,18 +55,17 @@ public class UndirectedAllPairShortestPathCompleteU extends
 
 	private boolean applyAfterEdgeRemoval(Update u) {
 		UndirectedEdge e = (UndirectedEdge) ((EdgeRemoval) u).getEdge();
-		UndirectedNode n1 = e.getNode1();
-		UndirectedNode n2 = e.getNode2();
+		Node n1 = e.getNode1();
+		Node n2 = e.getNode2();
 
 		// check all trees if the deleted edge is in the tree
 		for (IElement ie : g.getNodes()) {
-			UndirectedNode r = (UndirectedNode) ie;
-			HashMap<UndirectedNode, UndirectedNode> parent = this.parentsOut
-					.get(r);
-			HashMap<UndirectedNode, Integer> height = this.heightsOut.get(r);
+			Node r = (Node) ie;
+			HashMap<Node, Node> parent = this.parentsOut.get(r);
+			HashMap<Node, Integer> height = this.heightsOut.get(r);
 
-			UndirectedNode src;
-			UndirectedNode dst;
+			Node src;
+			Node dst;
 
 			if (height.get(n1) > height.get(n2)) {
 				src = n2;
@@ -84,31 +83,30 @@ public class UndirectedAllPairShortestPathCompleteU extends
 			}
 
 			// Queues and data structure for tree change
-			HashSet<UndirectedNode> uncertain = new HashSet<UndirectedNode>();
-			HashSet<UndirectedNode> changed = new HashSet<UndirectedNode>();
+			HashSet<Node> uncertain = new HashSet<Node>();
+			HashSet<Node> changed = new HashSet<Node>();
 
-			PriorityQueue<QueueElement<UndirectedNode>> q = new PriorityQueue<QueueElement<UndirectedNode>>();
+			PriorityQueue<QueueElement<Node>> q = new PriorityQueue<QueueElement<Node>>();
 
-			q.add(new QueueElement<UndirectedNode>(dst, height.get(dst)
-					.doubleValue()));
+			q.add(new QueueElement<Node>(dst, height.get(dst).doubleValue()));
 
 			uncertain.add(dst);
 			parent.remove(dst);
 
 			while (!q.isEmpty()) {
-				QueueElement<UndirectedNode> qE = q.poll();
-				UndirectedNode w = qE.e;
+				QueueElement<Node> qE = q.poll();
+				Node w = qE.e;
 
 				int key = ((Double) qE.distance).intValue();
 
 				// find the new shortest path
 				int dist = Integer.MAX_VALUE;
 
-				ArrayList<UndirectedNode> minSettled = new ArrayList<UndirectedNode>();
-				ArrayList<UndirectedNode> min = new ArrayList<UndirectedNode>();
+				ArrayList<Node> minSettled = new ArrayList<Node>();
+				ArrayList<Node> min = new ArrayList<Node>();
 				for (IElement iEdge : w.getEdges()) {
 					UndirectedEdge edge = (UndirectedEdge) iEdge;
-					UndirectedNode z = edge.getDifferingNode(w);
+					Node z = edge.getDifferingNode(w);
 					if (parent.get(w) == z || changed.contains(z)
 							|| height.get(z) == Integer.MAX_VALUE) {
 						continue;
@@ -148,25 +146,25 @@ public class UndirectedAllPairShortestPathCompleteU extends
 						}
 					} else {
 						changed.add(w);
-						q.add(new QueueElement<UndirectedNode>(w,
-								((Integer) dist).doubleValue()));
+						q.add(new QueueElement<Node>(w, ((Integer) dist)
+								.doubleValue()));
 						uncertain.remove(w);
 						for (IElement iEdge : w.getEdges()) {
 							UndirectedEdge ed = (UndirectedEdge) iEdge;
-							UndirectedNode z = ed.getDifferingNode(w);
+							Node z = ed.getDifferingNode(w);
 							if (parent.get(z) == w) {
 								parent.remove(z);
 								uncertain.add(z);
 
-								q.add(new QueueElement<UndirectedNode>(z,
-										height.get(z).doubleValue()));
+								q.add(new QueueElement<Node>(z, height.get(z)
+										.doubleValue()));
 							}
 						}
 					}
 					continue;
 				}
 				if (dist > key) {
-					q.add(new QueueElement<UndirectedNode>(w, ((Integer) dist)
+					q.add(new QueueElement<Node>(w, ((Integer) dist)
 							.doubleValue()));
 					continue;
 				}
@@ -179,12 +177,12 @@ public class UndirectedAllPairShortestPathCompleteU extends
 				height.put(w, dist);
 				for (IElement iEdge : w.getEdges()) {
 					UndirectedEdge ed = (UndirectedEdge) iEdge;
-					UndirectedNode z = ed.getDifferingNode(w);
+					Node z = ed.getDifferingNode(w);
 					if (height.get(z) > dist + 1) {
-						q.remove(new QueueElement<UndirectedNode>(z,
+						q.remove(new QueueElement<Node>(z,
 								((Integer) (dist + 1)).doubleValue()));
-						q.add(new QueueElement<UndirectedNode>(z,
-								((Integer) (dist + 1)).doubleValue()));
+						q.add(new QueueElement<Node>(z, ((Integer) (dist + 1))
+								.doubleValue()));
 					}
 				}
 			}
@@ -197,15 +195,15 @@ public class UndirectedAllPairShortestPathCompleteU extends
 	// UndirectedGraph g = (UndirectedGraph) this.g;
 	//
 	// UndirectedEdge e = (UndirectedEdge) ((EdgeRemoval) u).getEdge();
-	// UndirectedNode n1 = e.getNode1();
-	// UndirectedNode n2 = e.getNode2();
+	// Node n1 = e.getNode1();
+	// Node n2 = e.getNode2();
 	//
 	// // check all trees if the deleted edge is in the tree
-	// for (UndirectedNode r : g.getNodes()) {
+	// for (Node r : g.getNodes()) {
 	//
-	// HashMap<UndirectedNode, UndirectedNode> parent = this.parentsOut
+	// HashMap<Node, Node> parent = this.parentsOut
 	// .get(r);
-	// HashMap<UndirectedNode, Integer> height = this.heightsOut.get(r);
+	// HashMap<Node, Integer> height = this.heightsOut.get(r);
 	//
 	// // if the source or dst or edge is not in tree do nothing
 	// if (height.get(n1) == Integer.MAX_VALUE
@@ -219,11 +217,11 @@ public class UndirectedAllPairShortestPathCompleteU extends
 	// }
 	//
 	// // Queues and data structure for tree change
-	// HashSet<UndirectedNode> uncertain = new HashSet<UndirectedNode>();
-	// HashSet<UndirectedNode> touched = new HashSet<UndirectedNode>();
-	// Queue<UndirectedNode>[] qLevel = new LinkedList[g.getNodeCount()];
+	// HashSet<Node> uncertain = new HashSet<Node>();
+	// HashSet<Node> touched = new HashSet<Node>();
+	// Queue<Node>[] qLevel = new LinkedList[g.getNodeCount()];
 	// for (int i = 0; i < qLevel.length; i++) {
-	// qLevel[i] = new LinkedList<UndirectedNode>();
+	// qLevel[i] = new LinkedList<Node>();
 	// }
 	//
 	// // set data structure for dst Node
@@ -233,14 +231,14 @@ public class UndirectedAllPairShortestPathCompleteU extends
 	//
 	// for (int i = 0; i < qLevel.length; i++) {
 	// while (!qLevel[i].isEmpty()) {
-	// UndirectedNode w = qLevel[i].poll();
+	// Node w = qLevel[i].poll();
 	//
 	// // all child's of node w need to be checked
 	// // find the new shortest path
 	// int dist = Integer.MAX_VALUE;
-	// ArrayList<UndirectedNode> min = new ArrayList<UndirectedNode>();
+	// ArrayList<Node> min = new ArrayList<Node>();
 	// for (UndirectedEdge ed : w.getEdges()) {
-	// UndirectedNode z = ed.getDifferingNode(w);
+	// Node z = ed.getDifferingNode(w);
 	// if (parent.get(z) == w && !touched.contains(z)) {
 	// qLevel[i + 1].add(z);
 	// uncertain.add(z);
@@ -270,7 +268,7 @@ public class UndirectedAllPairShortestPathCompleteU extends
 	//
 	// // connect to the highest uncertain node
 	// boolean found = false;
-	// for (UndirectedNode mNode : min) {
+	// for (Node mNode : min) {
 	// if ((!uncertain.contains(mNode))
 	// && (height.get(mNode) + 1 == i || height
 	// .get(mNode) == i)) {
@@ -300,14 +298,13 @@ public class UndirectedAllPairShortestPathCompleteU extends
 	private boolean applyAfterEdgeAddition(Update u) {
 
 		UndirectedEdge e = (UndirectedEdge) ((EdgeAddition) u).getEdge();
-		UndirectedNode n1 = e.getNode1();
-		UndirectedNode n2 = e.getNode2();
+		Node n1 = e.getNode1();
+		Node n2 = e.getNode2();
 
 		for (IElement ie : g.getNodes()) {
-			UndirectedNode s = (UndirectedNode) ie;
-			HashMap<UndirectedNode, UndirectedNode> parent = this.parentsOut
-					.get(s);
-			HashMap<UndirectedNode, Integer> height = this.heightsOut.get(s);
+			Node s = (Node) ie;
+			HashMap<Node, Node> parent = this.parentsOut.get(s);
+			HashMap<Node, Integer> height = this.heightsOut.get(s);
 
 			if (n1.equals(s)) {
 				this.check(n1, n2, parent, height);
@@ -327,9 +324,8 @@ public class UndirectedAllPairShortestPathCompleteU extends
 		return true;
 	}
 
-	protected void check(UndirectedNode a, UndirectedNode b,
-			HashMap<UndirectedNode, UndirectedNode> parent,
-			HashMap<UndirectedNode, Integer> height) {
+	protected void check(Node a, Node b, HashMap<Node, Node> parent,
+			HashMap<Node, Integer> height) {
 		int h_a = height.get(a);
 		int h_b = height.get(b);
 		if (h_a == Integer.MAX_VALUE || h_a + 1 >= h_b) {
@@ -340,13 +336,13 @@ public class UndirectedAllPairShortestPathCompleteU extends
 		height.put(b, h_b);
 		for (IElement iEdge : b.getEdges()) {
 			UndirectedEdge e = (UndirectedEdge) iEdge;
-			UndirectedNode c = e.getDifferingNode(b);
+			Node c = e.getDifferingNode(b);
 			this.check(b, c, parent, height);
 		}
 	}
 
 	private boolean applyAfterNodeRemoval(Update u) {
-		UndirectedNode n = (UndirectedNode) ((NodeRemoval) u).getNode();
+		Node n = (Node) ((NodeRemoval) u).getNode();
 		this.heightsOut.remove(n);
 		this.parentsOut.remove(n);
 
@@ -355,7 +351,7 @@ public class UndirectedAllPairShortestPathCompleteU extends
 		}
 
 		for (IElement ie : this.g.getNodes()) {
-			UndirectedNode r = (UndirectedNode) ie;
+			Node r = (Node) ie;
 			this.heightsOut.get(r).remove(n);
 			this.parentsOut.get(r).remove(n);
 		}
@@ -363,13 +359,13 @@ public class UndirectedAllPairShortestPathCompleteU extends
 	}
 
 	private boolean applyAfterNodeAddition(Update u) {
-		UndirectedNode n = (UndirectedNode) ((NodeAddition) u).getNode();
+		Node n = (Node) ((NodeAddition) u).getNode();
 
-		this.parentsOut.put(n, new HashMap<UndirectedNode, UndirectedNode>());
-		this.heightsOut.put(n, new HashMap<UndirectedNode, Integer>());
+		this.parentsOut.put(n, new HashMap<Node, Node>());
+		this.heightsOut.put(n, new HashMap<Node, Integer>());
 
 		for (IElement ie : this.g.getNodes()) {
-			UndirectedNode r = (UndirectedNode) ie;
+			Node r = (Node) ie;
 
 			if (r != n) {
 				this.heightsOut.get(r).put(n, Integer.MAX_VALUE);

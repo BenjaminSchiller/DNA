@@ -1,5 +1,6 @@
 package dna.metrics.richClubConnectivity.directedRichClubConnectivitySizeN;
 
+import java.util.HashSet;
 import java.util.LinkedList;
 
 import dna.graph.IElement;
@@ -38,18 +39,18 @@ public class DirectedRichClubConnectivitySizeNU extends
 	@Override
 	public boolean applyAfterUpdate(Update u) {
 		if (u instanceof NodeAddition) {
-			return applyAfterNodeAddition(u);
+			return applyAfterDirectedNodeAddition(u);
 		} else if (u instanceof NodeRemoval) {
-			return applyAfterNodeRemoval(u);
+			return applyAfterDirectedNodeRemoval(u);
 		} else if (u instanceof EdgeAddition) {
-			return applyAfterEdgeAddition(u);
+			return applyAfterDirectedEdgeAddition(u);
 		} else if (u instanceof EdgeRemoval) {
-			return applyAfterEdgeRemoval(u);
+			return applyAfterDirectedEdgeRemoval(u);
 		}
 		return false;
 	}
 
-	private boolean applyAfterEdgeAddition(Update u) {
+	private boolean applyAfterDirectedEdgeAddition(Update u) {
 		DirectedEdge e = (DirectedEdge) ((EdgeUpdate) u).getEdge();
 		DirectedNode src = e.getSrc();
 		DirectedNode dst = e.getDst();
@@ -144,63 +145,37 @@ public class DirectedRichClubConnectivitySizeNU extends
 		}
 	}
 
-	private boolean applyAfterNodeRemoval(Update u) {
+	private boolean applyAfterDirectedNodeRemoval(Update u) {
+
 		DirectedNode node = (DirectedNode) ((NodeRemoval) u).getNode();
-
-		for (IElement ie : node.getIncomingEdges()) {
-			applyAfterEdgeRemoval(new EdgeRemoval((DirectedEdge) ie));
+		HashSet<DirectedEdge> edges = new HashSet<DirectedEdge>();
+		g.addNode(node);
+		for (IElement ie : node.getEdges()) {
+			DirectedEdge e = (DirectedEdge) ie;
+			edges.add(e);
+			e.connectToNodes();
 		}
-		if (richClub.containsKey(node.getOutDegree())
-				&& richClub.get(node.getOutDegree()).contains(node)) {
-			for (IElement ie : node.getOutgoingEdges()) {
-				DirectedEdge e = (DirectedEdge) ie;
-				if (richClub.containsKey(e.getDst().getOutDegree())
-						&& richClub.get(e.getDst().getOutDegree()).contains(
-								e.getDst())) {
-					this.edgesBetweenRichClub--;
-				}
-			}
-			this.richClub.get(node.getOutDegree()).remove(node);
-			if (this.richClub.get(node.getOutDegree()).isEmpty()) {
-				this.richClub.remove(node.getOutDegree());
-			}
-			int max = 0;
-			for (int i : this.nodesSortedByDegree.keySet()) {
-				max = Math.max(max, i);
-			}
-			// changes for firstNode of Rest
-			DirectedNode firstNode = this.nodesSortedByDegree.get(max)
-					.removeFirst();
-			if (this.nodesSortedByDegree.get(firstNode.getOutDegree())
-					.isEmpty()) {
-				this.nodesSortedByDegree.remove(firstNode.getOutDegree());
-			}
-			addToRichClub(firstNode);
-			for (IElement ie : firstNode.getEdges()) {
-				DirectedEdge edge = (DirectedEdge) ie;
-				DirectedNode n = edge.getDifferingNode(firstNode);
-				if (this.richClub.containsKey(n.getOutDegree())
-						&& this.richClub.get(n.getOutDegree()).contains(n)) {
-					this.edgesBetweenRichClub++;
-				}
-			}
-		} else {
-			this.nodesSortedByDegree.get(node.getOutDegree()).remove(node);
-			if (this.nodesSortedByDegree.get(node.getOutDegree()).isEmpty()) {
-				this.nodesSortedByDegree.remove(node.getOutDegree());
-			}
+		for (DirectedEdge e : edges) {
+			e.disconnectFromNodes();
+			g.removeEdge(e);
+			applyAfterDirectedEdgeRemoval(new EdgeRemoval(e));
 		}
-
+		g.removeNode(node);
+		this.nodesSortedByDegree.get(node.getOutDegree()).remove(node);
+		if (this.nodesSortedByDegree.get(node.getOutDegree()).isEmpty()) {
+			this.nodesSortedByDegree.remove(node.getOutDegree());
+		}
 		return true;
+
 	}
 
-	private boolean applyAfterNodeAddition(Update u) {
+	private boolean applyAfterDirectedNodeAddition(Update u) {
 		DirectedNode node = (DirectedNode) ((NodeAddition) u).getNode();
 		addNodeToRest(node);
 		return true;
 	}
 
-	private boolean applyAfterEdgeRemoval(Update u) {
+	private boolean applyAfterDirectedEdgeRemoval(Update u) {
 
 		DirectedEdge e = (DirectedEdge) ((EdgeUpdate) u).getEdge();
 

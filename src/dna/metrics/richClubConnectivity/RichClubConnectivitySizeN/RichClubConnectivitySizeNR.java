@@ -1,12 +1,12 @@
-package dna.metrics.betweenessCentrality;
+package dna.metrics.richClubConnectivity.RichClubConnectivitySizeN;
 
 import dna.updates.batch.Batch;
 import dna.updates.update.Update;
 
-public class UndirectedBetweenessCentralityR extends UndirectedBetweenessCentrality {
-
-	public UndirectedBetweenessCentralityR() {
-		super("BCComp", ApplicationType.Recomputation);
+public class RichClubConnectivitySizeNR extends
+		RichClubConnectivitySizeN {
+	public RichClubConnectivitySizeNR(int richClubSize) {
+		super("RCCFirstKNodesComp", ApplicationType.Recomputation, richClubSize);
 	}
 
 	@Override
