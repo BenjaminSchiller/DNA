@@ -61,6 +61,8 @@ public class Distribution extends Data {
 	}
 
 	/**
+	 * <<<<<<< HEAD
+	 * 
 	 * @param dir
 	 *            String which contains the path to the directory the
 	 *            Distribution will be read from.
@@ -71,7 +73,19 @@ public class Distribution extends Data {
 	 * 
 	 * @param readValues
 	 *            Boolean. True: values from the file will be read. False: empty
-	 *            Distribution will be created.
+	 *            Distribution will be created. =======
+	 * @param dir
+	 *            String which contains the path to the directory the
+	 *            Distribution will be read from.
+	 * 
+	 * @param filename
+	 *            String representing the filename the Distribution will be read
+	 *            from.
+	 * 
+	 * @param readValues
+	 *            Boolean. True: values from the file will be read. False: empty
+	 *            Distribution will be created. >>>>>>>
+	 *            remotes/beniMaster/master
 	 */
 	public static Distribution read(String dir, String filename, String name,
 			boolean readValues) throws IOException {

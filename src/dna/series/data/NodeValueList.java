@@ -12,6 +12,7 @@ import dna.util.Config;
 import dna.util.Log;
 
 /**
+ * 
  * A NodeValueList is an object containing an array with 1 value for each node.
  * The node index is used as the index for the array. If a node is removed from
  * the graph, his former value is replaced by a Double.NaN. When inserting new
