@@ -1,4 +1,4 @@
-package dna.metrics.richClubConnectivity.directedRichClubConnectivityForOneDegree;
+package dna.metrics.old;
 
 import dna.graph.IElement;
 import dna.graph.edges.DirectedEdge;

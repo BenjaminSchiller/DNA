@@ -1,14 +1,14 @@
-package dna.metrics.apsp.allPairShortestPathComplete;
+package dna.metrics.old;
 
 import dna.updates.batch.Batch;
 import dna.updates.update.Update;
 
-public class DirectedAllPairShortestPathCompleteR extends
-		DirectedAllPairShortestPathComplete {
+@SuppressWarnings("rawtypes")
+public class DirectedAllPairShortestPathCompleteWeightsR extends
+		DirectedAllPairShortestPathCompleteWeights {
 
-	public DirectedAllPairShortestPathCompleteR() {
-		super("APSP Complete Comp", ApplicationType.Recomputation);
-
+	public DirectedAllPairShortestPathCompleteWeightsR() {
+		super("APSP Directed wiht Weights Comp", ApplicationType.Recomputation);
 	}
 
 	@Override

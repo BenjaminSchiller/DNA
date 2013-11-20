@@ -1,4 +1,4 @@
-package dna.metrics.richClubConnectivity.directedRichClubConnectivityInterval;
+package dna.metrics.old;
 
 import java.util.HashMap;
 import java.util.LinkedList;

@@ -1,4 +1,4 @@
-package dna.metrics.apsp.allPairShortestPathComplete;
+package dna.metrics.old;
 
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -91,15 +91,22 @@ public abstract class DirectedAllPairShortestPathComplete extends Metric {
 
 	@Override
 	public Distribution[] getDistributions() {
-		Distribution d1 = new Distribution("APSP heights",
-				getDistribution(this.heightsOut));
-		return new Distribution[] { d1 };
+		Distribution[] result = new Distribution[this.heightsOut.size()];
+		int i = 0;
+		for (DirectedNode n : heightsOut.keySet()) {
+			result[i] = new Distribution("distsForNode_" + n.getIndex(),
+					getDistribution(this.heightsOut.get(n)));
+			i++;
+		}
+		return result;
 	}
 
-	private double[] getDistribution(
-			HashMap<DirectedNode, HashMap<DirectedNode, Integer>> heightsOut2) {
-
-		return new double[] {};
+	private double[] getDistribution(HashMap<DirectedNode, Integer> hashMap) {
+		double[] result = new double[this.g.getMaxNodeIndex() + 1];
+		for (DirectedNode d : hashMap.keySet()) {
+			result[d.getIndex()] = hashMap.get(d);
+		}
+		return result;
 	}
 
 	@Override

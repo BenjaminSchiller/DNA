@@ -34,14 +34,17 @@ public class BetweenessCentralityU extends BetweenessCentrality {
 	@Override
 	public void init_() {
 		super.init_();
-		qALevel = new LinkedList[g.getNodeCount()];
-		qLevel = new LinkedList[g.getNodeCount()];
+		int length = 1000000;
+		qALevel = new LinkedList[length];
+		qLevel = new LinkedList[length];
 		visited = new HashMap<Node, Long>();
 		counter = 0;
 		for (int i = 0; i < qALevel.length; i++) {
-			visited.put((Node) g.getNode(i), counter);
 			qALevel[i] = new LinkedList<Node>();
 			qLevel[i] = new LinkedList<Node>();
+		}
+		for (IElement ie : g.getNodes()) {
+			visited.put((Node) ie, counter);
 		}
 	}
 

@@ -1,4 +1,4 @@
-package dna.metrics.betweenessCentrality;
+package dna.metrics.old;
 
 import dna.updates.batch.Batch;
 import dna.updates.update.Update;

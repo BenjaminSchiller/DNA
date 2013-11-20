@@ -1,4 +1,4 @@
-package dna.metrics.richClubConnectivity.directedRichClubConnectivityInterval;
+package dna.metrics.old;
 
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -381,6 +381,16 @@ public class DirectedRichClubConnectivityIntervalU extends
 	private boolean applyAfterNodeAdditionDirected(Update u) {
 		DirectedNode n = (DirectedNode) ((NodeAddition) u).getNode();
 		int size = 0;
+		if (this.richClubs.isEmpty()) {
+			LinkedList<DirectedNode> list = new LinkedList<DirectedNode>();
+			list.add(n);
+			HashMap<Integer, LinkedList<DirectedNode>> temp = new HashMap<Integer, LinkedList<DirectedNode>>();
+			temp.put(n.getOutDegree(), list);
+			this.richClubs.put(0, temp);
+			this.richClubEdges.put(0, 0);
+			this.nodesRichClub.put(n, 0);
+			return true;
+		}
 		for (int i : this.richClubs.get(this.richClubs.size() - 1).keySet()) {
 			size += this.richClubs.get(this.richClubs.size() - 1).get(i).size();
 		}

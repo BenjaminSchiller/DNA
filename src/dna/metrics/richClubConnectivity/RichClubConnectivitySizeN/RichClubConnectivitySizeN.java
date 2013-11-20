@@ -32,6 +32,44 @@ public abstract class RichClubConnectivitySizeN extends Metric {
 		this.richClubSize = richClubSize;
 	}
 
+	private void check() {
+		HashSet<Node> seen = new HashSet<>();
+		for (int i : nodesSortedByDegree.keySet()) {
+			if (nodesSortedByDegree.get(i).isEmpty()) {
+				System.out.println(i);
+			}
+			for (Node n : nodesSortedByDegree.get(i)) {
+				if (((UndirectedNode) n).getDegree() != i) {
+					System.out.println(n);
+				}
+				if (seen.contains(n)) {
+					System.out.println(n);
+				} else {
+					seen.add(n);
+				}
+			}
+
+		}
+		for (int i : richClub.keySet()) {
+			if (richClub.get(i).isEmpty()) {
+				System.out.println(i);
+			}
+			for (Node n : richClub.get(i)) {
+				if (((UndirectedNode) n).getDegree() != i) {
+					System.out.println(n);
+				}
+				if (seen.contains(n)) {
+					System.out.println(n);
+				} else {
+					seen.add(n);
+				}
+			}
+		}
+		if (seen.size() != g.getNodeCount()) {
+			System.out.println("fuck");
+		}
+	}
+
 	@Override
 	public boolean compute() {
 		if (DirectedNode.class.isAssignableFrom(this.g.getGraphDatastructures()
@@ -141,7 +179,7 @@ public abstract class RichClubConnectivitySizeN extends Metric {
 				currentRichClub.addAll(temp);
 				LinkedList<Node> temp2 = new LinkedList<>();
 				temp2.addAll(current.subList(seperateAT, current.size()));
-				if (!temp.isEmpty())
+				if (!temp2.isEmpty())
 					this.nodesSortedByDegree.put(currentDegree,
 							(LinkedList<Node>) temp2);
 				break;
@@ -158,6 +196,7 @@ public abstract class RichClubConnectivitySizeN extends Metric {
 				}
 			}
 		}
+		check();
 		return true;
 	}
 

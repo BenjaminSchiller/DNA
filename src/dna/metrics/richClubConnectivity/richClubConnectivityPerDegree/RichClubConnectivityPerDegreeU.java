@@ -327,22 +327,22 @@ public class RichClubConnectivityPerDegreeU extends
 	}
 
 	private boolean applyAfterUndirectedNodeRemoval(Update u) {
-		DirectedNode node = (DirectedNode) ((NodeRemoval) u).getNode();
-		HashSet<DirectedEdge> edges = new HashSet<DirectedEdge>();
+		UndirectedNode node = (UndirectedNode) ((NodeRemoval) u).getNode();
+		HashSet<UndirectedEdge> edges = new HashSet<UndirectedEdge>();
 		g.addNode(node);
 		for (IElement ie : node.getEdges()) {
-			DirectedEdge e = (DirectedEdge) ie;
+			UndirectedEdge e = (UndirectedEdge) ie;
 			edges.add(e);
 			e.connectToNodes();
 		}
-		for (DirectedEdge e : edges) {
+		for (UndirectedEdge e : edges) {
 			e.disconnectFromNodes();
 			g.removeEdge(e);
 			applyAfterUndirectedEdgeRemoval(new EdgeRemoval(e));
 		}
 		g.removeNode(node);
-		this.richClubs.put(node.getOutDegree(),
-				this.richClubs.get(node.getOutDegree()) - 1);
+		this.richClubs.put(node.getDegree(),
+				this.richClubs.get(node.getDegree()) - 1);
 		return true;
 	}
 
