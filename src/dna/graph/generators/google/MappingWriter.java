@@ -12,14 +12,11 @@ public class MappingWriter {
 		try {
 			writer = new Writer(dir, filename);
 
-			HashMap<String, Integer> mapping = dto.mapping;
 			HashMap<Integer, Long> lastSeen = dto.lastSeen;
 			HashMap<Integer, Integer> count = dto.count;
 
 			writer.writeln("GraphName");
 			writer.writeln(dto.name);
-			writer.writeln("LABELCOUNTER");
-			writer.writeln(dto.nodeLabelCounter);
 			writer.writeln("ADDTYPE");
 			writer.writeln(getAddType(dto.add));
 			writer.writeln("DELTYPES");
@@ -30,12 +27,10 @@ public class MappingWriter {
 			writer.writeln(dto.insertAfter);
 			writer.writeln("DELETEAFTER");
 			writer.writeln(dto.deleteAfter);
-			writer.writeln("UserId;;;InternalMapping;;;lastseen;;;count;;;");
-			for (String s : mapping.keySet()) {
-				int nodeIndex = mapping.get(s);
-				writer.writeln(s + ";;;" + mapping.get(s) + ";;;"
-						+ lastSeen.get(nodeIndex) + ";;;"
-						+ count.get(nodeIndex));
+			writer.writeln("InternalMapping;;;lastseen;;;count;;;");
+			for (int i : lastSeen.keySet()) {
+				writer.writeln(i + ";;;" + lastSeen.get(i) + ";;;"
+						+ count.get(i));
 			}
 
 			return true;
@@ -71,10 +66,6 @@ public class MappingWriter {
 			return "AfterNTimes";
 		} else if (add == GraphNodeAdditionType.EverySeenNode) {
 			return "EverySeenNode";
-		} else if (add == GraphNodeAdditionType.AfterNTimesOnlyCrawled) {
-			return "AfterNTimesOnlyCrawled";
-		} else if (add == GraphNodeAdditionType.EverySeenNodeOnlyCrawled) {
-			return "EverySeenNodeOnlyCrawled";
 		}
 		return "";
 	}

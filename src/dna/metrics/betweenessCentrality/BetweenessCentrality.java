@@ -1,14 +1,17 @@
 package dna.metrics.betweenessCentrality;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.Stack;
 
 import dna.graph.Graph;
 import dna.graph.IElement;
+import dna.graph.edges.DirectedEdge;
 import dna.graph.edges.UndirectedEdge;
 import dna.graph.nodes.DirectedNode;
+import dna.graph.nodes.Node;
 import dna.graph.nodes.UndirectedNode;
 import dna.metrics.Metric;
 import dna.series.data.Distribution;
@@ -18,8 +21,12 @@ import dna.updates.batch.Batch;
 
 public abstract class BetweenessCentrality extends Metric {
 
-	protected HashMap<UndirectedNode, Double> betweeneesCentralityScore;
-	protected HashMap<UndirectedNode, HashMap<UndirectedNode, ShortestPathTreeElement>> shortestPathTrees;
+	protected HashMap<Node, Double> bC;
+
+	protected HashMap<Node, HashMap<Node, HashSet<Node>>> parents;
+	protected HashMap<Node, HashMap<Node, Integer>> distances;
+	protected HashMap<Node, HashMap<Node, Integer>> spcs;
+	protected HashMap<Node, HashMap<Node, Double>> accSums;
 
 	public BetweenessCentrality(String name, ApplicationType type) {
 		super(name, type, MetricType.exact);
@@ -27,95 +34,119 @@ public abstract class BetweenessCentrality extends Metric {
 
 	@Override
 	public void init_() {
-		this.shortestPathTrees = new HashMap<>();
-		this.betweeneesCentralityScore = new HashMap<>();
+		this.bC = new HashMap<Node, Double>();
+		this.parents = new HashMap<>();
+		this.distances = new HashMap<>();
+		this.spcs = new HashMap<>();
+		this.accSums = new HashMap<>();
 	}
 
 	@Override
 	public void reset_() {
-		this.shortestPathTrees = new HashMap<>();
-		this.betweeneesCentralityScore = new HashMap<>();
+		this.parents = new HashMap<>();
+		this.distances = new HashMap<>();
+		this.spcs = new HashMap<>();
+		this.accSums = new HashMap<>();
+		this.bC = new HashMap<Node, Double>();
 	}
 
 	@Override
 	public boolean compute() {
-		Queue<UndirectedNode> q = new LinkedList<UndirectedNode>();
-		Stack<UndirectedNode> s = new Stack<UndirectedNode>();
+		Queue<Node> q = new LinkedList<Node>();
+		Stack<Node> s = new Stack<Node>();
 
 		for (IElement ie : g.getNodes()) {
-			UndirectedNode t = (UndirectedNode) ie;
-			betweeneesCentralityScore.put(t, 0d);
+			Node t = (Node) ie;
+			bC.put(t, 0d);
 		}
 
 		for (IElement ie : g.getNodes()) {
-			UndirectedNode n = (UndirectedNode) ie;
+			Node n = (Node) ie;
 			// stage ONE
 			s.clear();
 			q.clear();
-			HashMap<UndirectedNode, ShortestPathTreeElement> shortestPath = new HashMap<UndirectedNode, ShortestPathTreeElement>();
+			HashMap<Node, HashSet<Node>> p = new HashMap<Node, HashSet<Node>>();
+			HashMap<Node, Integer> d = new HashMap<Node, Integer>();
+			HashMap<Node, Integer> spc = new HashMap<Node, Integer>();
+			HashMap<Node, Double> sums = new HashMap<Node, Double>();
 
 			for (IElement ieE : g.getNodes()) {
-				UndirectedNode t = (UndirectedNode) ieE;
+				Node t = (Node) ieE;
 				if (t == n) {
-					ShortestPathTreeElement temp = new ShortestPathTreeElement(
-							t.getIndex());
-					temp.setDistanceToRoot(0);
-					temp.setShortestPathCount(1);
-					shortestPath.put(t, temp);
+					d.put(t, 0);
+					spc.put(t, 1);
 				} else {
-					ShortestPathTreeElement temp = new ShortestPathTreeElement(
-							t.getIndex());
-					shortestPath.put(t, temp);
+					spc.put(t, 0);
+					d.put(t, Integer.MAX_VALUE);
 				}
+				sums.put(t, 0d);
+				p.put(t, new HashSet<Node>());
 			}
 
 			q.add(n);
 
-			// stage 2
-			while (!q.isEmpty()) {
-				UndirectedNode v = q.poll();
-				s.push(v);
-				ShortestPathTreeElement vTE = shortestPath.get(v);
+			if (DirectedNode.class.isAssignableFrom(this.g
+					.getGraphDatastructures().getNodeType())) {
+				// stage 2
+				while (!q.isEmpty()) {
+					DirectedNode v = (DirectedNode) q.poll();
+					s.push(v);
+					for (IElement iEdges : v.getOutgoingEdges()) {
+						DirectedEdge edge = (DirectedEdge) iEdges;
+						DirectedNode w = edge.getDifferingNode(v);
 
-				for (IElement iEdges : v.getEdges()) {
-					UndirectedEdge edge = (UndirectedEdge) iEdges;
-					UndirectedNode w = edge.getDifferingNode(v);
-					ShortestPathTreeElement wTE = shortestPath.get(w);
-
-					if (wTE.getDistanceToRoot() == Integer.MAX_VALUE) {
-						q.add(w);
-						wTE.setDistanceToRoot(vTE.getDistanceToRoot() + 1);
+						if (d.get(w).equals(Integer.MAX_VALUE)) {
+							q.add(w);
+							d.put(w, d.get(v) + 1);
+						}
+						if (d.get(w).equals(d.get(v) + 1)) {
+							spc.put(w, spc.get(w) + spc.get(v));
+							p.get(w).add(v);
+						}
 					}
-					if (wTE.getDistanceToRoot() == vTE.getDistanceToRoot() + 1) {
-						wTE.setShortestPathCount(wTE.getShortestPathCount()
-								+ vTE.getShortestPathCount());
-						wTE.addParent(v);
+				}
+			} else if (UndirectedNode.class.isAssignableFrom(this.g
+					.getGraphDatastructures().getNodeType())) {
+				// stage 2
+				while (!q.isEmpty()) {
+					UndirectedNode v = (UndirectedNode) q.poll();
+					s.push(v);
+
+					for (IElement iEdges : v.getEdges()) {
+						UndirectedEdge edge = (UndirectedEdge) iEdges;
+						UndirectedNode w = edge.getDifferingNode(v);
+
+						if (d.get(w).equals(Integer.MAX_VALUE)) {
+							q.add(w);
+							d.put(w, d.get(v) + 1);
+						}
+						if (d.get(w).equals(d.get(v) + 1)) {
+							spc.put(w, spc.get(w) + spc.get(v));
+							p.get(w).add(v);
+						}
 					}
 				}
 			}
 
 			// stage 3
 
+			// stage 3
 			while (!s.isEmpty()) {
-				UndirectedNode w = s.pop();
-				ShortestPathTreeElement wTE = shortestPath.get(w);
-				for (UndirectedNode parent : wTE.getParents()) {
-					ShortestPathTreeElement pTE = shortestPath.get(parent);
-
-					double sumForCurretConnection = pTE.getShortestPathCount()
-							* (1 + wTE.getAccumulativSum())
-							/ wTE.getShortestPathCount();
-					pTE.setAccumulativSum(pTE.getAccumulativSum()
-							+ sumForCurretConnection);
+				Node w = s.pop();
+				for (Node parent : p.get(w)) {
+					double sumForCurretConnection = spc.get(parent)
+							* (1 + sums.get(w)) / spc.get(w);
+					sums.put(parent, sums.get(parent) + sumForCurretConnection);
 				}
 				if (w != n) {
-					double currentScore = this.betweeneesCentralityScore.get(w);
-					this.betweeneesCentralityScore.put(w,
-							currentScore + wTE.getAccumulativSum());
+					double currentScore = this.bC.get(w);
+					this.bC.put(w, currentScore + sums.get(w));
 				}
 			}
-
-			this.shortestPathTrees.put(n, shortestPath);
+			parents.put(n, p);
+			distances.put(n, d);
+			spcs.put(n, spc);
+			accSums.put(n, sums);
 		}
 
 		return true;
@@ -128,73 +159,61 @@ public abstract class BetweenessCentrality extends Metric {
 		}
 		boolean success = true;
 		BetweenessCentrality bc = (BetweenessCentrality) m;
+
+		for (IElement ie1 : g.getNodes()) {
+			Node n1 = (Node) ie1;
+			for (IElement ie2 : g.getNodes()) {
+				Node n2 = (Node) ie2;
+
+				if (!this.spcs.get(n1).get(n2).equals(bc.spcs.get(n1).get(n2))) {
+					System.out.println("diff at Tree " + n1 + "in Node n " + n2
+							+ " expected SPC "
+							+ this.spcs.get(n1).get(n2).intValue() + " is "
+							+ bc.spcs.get(n1).get(n2).intValue());
+					success = false;
+				}
+
+				if (!this.parents.get(n1).get(n2)
+						.containsAll(bc.parents.get(n1).get(n2))
+						|| this.parents.get(n1).get(n2).size() != bc.parents
+								.get(n1).get(n2).size()) {
+					System.out.println("diff at Tree " + n1 + "in Node n " + n2
+							+ " expected parents "
+							+ this.parents.get(n1).get(n2) + " is "
+							+ bc.parents.get(n1).get(n2));
+					success = false;
+				}
+
+				if (Math.abs(this.accSums.get(n1).get(n2).doubleValue()
+						- bc.accSums.get(n1).get(n2).doubleValue()) > 0.000001) {
+					System.out.println("diff at Tree " + n1 + "in Node n " + n2
+							+ " expected Sum " + this.accSums.get(n1).get(n2)
+							+ " is " + bc.accSums.get(n1).get(n2)
+							+ " height == " + bc.distances.get(n1).get(n2));
+					success = false;
+				}
+
+				if (!this.distances.get(n1).get(n2)
+						.equals(bc.distances.get(n1).get(n2))) {
+					System.out.println("diff at Tree " + n1 + "in Node n " + n2
+							+ " expected dist "
+							+ this.distances.get(n1).get(n2) + " is "
+							+ bc.distances.get(n1).get(n2));
+					success = false;
+				}
+
+			}
+		}
+
 		for (IElement ie : g.getNodes()) {
-			UndirectedNode n = (UndirectedNode) ie;
-			if (Math.abs(this.betweeneesCentralityScore.get(n).doubleValue()
-					- bc.betweeneesCentralityScore.get(n).doubleValue()) > 0.0001) {
-				// System.out.println("diff at Node n " + n + " expected Score "
-				// + this.betweeneesCentralityScore.get(n) + " is "
-				// + bc.betweeneesCentralityScore.get(n));
+			Node n = (Node) ie;
+			if (Math.abs(this.bC.get(n).doubleValue()
+					- bc.bC.get(n).doubleValue()) > 0.0001) {
+				System.out.println("diff at Node n " + n + " expected Score "
+						+ this.bC.get(n) + " is " + bc.bC.get(n));
 				success = false;
 			}
 
-		}
-
-		for (IElement ie1 : g.getNodes()) {
-			UndirectedNode n1 = (UndirectedNode) ie1;
-			for (IElement ie2 : g.getNodes()) {
-				UndirectedNode n2 = (UndirectedNode) ie2;
-				if (this.shortestPathTrees.get(n1).get(n2)
-						.getShortestPathCount() != bc.shortestPathTrees.get(n1)
-						.get(n2).getShortestPathCount()) {
-					System.out.println("diff at Tree "
-							+ n1
-							+ "in Node n "
-							+ n2
-							+ " expected SPC "
-							+ this.shortestPathTrees.get(n1).get(n2)
-									.getShortestPathCount()
-							+ " is "
-							+ bc.shortestPathTrees.get(n1).get(n2)
-									.getShortestPathCount());
-					success = false;
-				}
-				if (Math.abs(this.shortestPathTrees.get(n1).get(n2)
-						.getAccumulativSum()
-						- bc.shortestPathTrees.get(n1).get(n2)
-								.getAccumulativSum()) > 0.000001) {
-					System.out.println("diff at Tree "
-							+ n1
-							+ "in Node n "
-							+ n2
-							+ " expected Sum "
-							+ this.shortestPathTrees.get(n1).get(n2)
-									.getAccumulativSum()
-							+ " is "
-							+ bc.shortestPathTrees.get(n1).get(n2)
-									.getAccumulativSum()
-							+ " height == "
-							+ bc.shortestPathTrees.get(n1).get(n2)
-									.getDistanceToRoot());
-					success = false;
-				}
-
-				if (this.shortestPathTrees.get(n1).get(n2).getDistanceToRoot() != bc.shortestPathTrees
-						.get(n1).get(n2).getDistanceToRoot()) {
-					System.out.println("diff at Tree "
-							+ n1
-							+ "in Node n "
-							+ n2
-							+ " expected dist "
-							+ this.shortestPathTrees.get(n1).get(n2)
-									.getDistanceToRoot()
-							+ " is "
-							+ bc.shortestPathTrees.get(n1).get(n2)
-									.getDistanceToRoot());
-					success = false;
-				}
-
-			}
 		}
 
 		return success;
@@ -208,22 +227,21 @@ public abstract class BetweenessCentrality extends Metric {
 	@Override
 	public Distribution[] getDistributions() {
 		Distribution d1 = new Distribution("BetweenessCentrality",
-				getDistribution(this.betweeneesCentralityScore));
+				getDistribution(this.bC));
 		return new Distribution[] { d1 };
 
 	}
 
 	@Override
 	public NodeValueList[] getNodeValueLists() {
-		// TODO Auto-generated method stub
-		return null;
+		return new NodeValueList[] {};
 	}
 
 	private double[] getDistribution(
-			HashMap<UndirectedNode, Double> betweeneesCentralityScore2) {
+			HashMap<Node, Double> betweeneesCentralityScore2) {
 		double[] temp = new double[betweeneesCentralityScore2.size()];
 		int counter = 0;
-		for (UndirectedNode i : betweeneesCentralityScore2.keySet()) {
+		for (Node i : betweeneesCentralityScore2.keySet()) {
 			temp[counter] = betweeneesCentralityScore2.get(i);
 			counter++;
 		}
@@ -237,17 +255,17 @@ public abstract class BetweenessCentrality extends Metric {
 
 	@Override
 	public boolean isApplicable(Graph g) {
-		return DirectedNode.class.isAssignableFrom(g.getGraphDatastructures()
+		return UndirectedNode.class.isAssignableFrom(g.getGraphDatastructures()
 				.getNodeType())
-				|| UndirectedNode.class.isAssignableFrom(g
+				|| DirectedNode.class.isAssignableFrom(g
 						.getGraphDatastructures().getNodeType());
 	}
 
 	@Override
 	public boolean isApplicable(Batch b) {
-		return DirectedNode.class.isAssignableFrom(b.getGraphDatastructures()
+		return UndirectedNode.class.isAssignableFrom(b.getGraphDatastructures()
 				.getNodeType())
-				|| UndirectedNode.class.isAssignableFrom(b
+				|| DirectedNode.class.isAssignableFrom(b
 						.getGraphDatastructures().getNodeType());
 	}
 
