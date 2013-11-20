@@ -35,7 +35,7 @@ public class RandomBatch extends BatchGenerator {
 				nr), new IntParameter("NW", nw),
 				new ObjectParameter("NWS", nws), new IntParameter("EA", ea),
 				new IntParameter("ER", er), new IntParameter("EW", ew),
-				new ObjectParameter("NWS", nws));
+				new ObjectParameter("EWS", ews));
 
 		this.bgs = new ArrayList<BatchGenerator>(6);
 
@@ -43,6 +43,43 @@ public class RandomBatch extends BatchGenerator {
 		this.nr = nr;
 		this.nw = nw;
 		this.nws = nws;
+		this.ea = ea;
+		this.er = er;
+		this.ew = ew;
+		this.ews = ews;
+
+		this.init();
+	}
+
+	public RandomBatch(int na, int nr, int nw, NodeWeightSelection nws, int ea,
+			int er) {
+		super("RandomBatch", new IntParameter("NA", na), new IntParameter("NR",
+				nr), new IntParameter("NW", nw),
+				new ObjectParameter("NWS", nws), new IntParameter("EA", ea),
+				new IntParameter("ER", er));
+
+		this.bgs = new ArrayList<BatchGenerator>(6);
+
+		this.na = na;
+		this.nr = nr;
+		this.nw = nw;
+		this.nws = nws;
+		this.ea = ea;
+		this.er = er;
+
+		this.init();
+	}
+
+	public RandomBatch(int na, int nr, int ea, int er, int ew,
+			EdgeWeightSelection ews) {
+		super("RandomBatch", new IntParameter("NA", na), new IntParameter("NR",
+				nr), new IntParameter("EA", ea), new IntParameter("ER", er),
+				new IntParameter("EW", ew), new ObjectParameter("EWS", ews));
+
+		this.bgs = new ArrayList<BatchGenerator>(6);
+
+		this.na = na;
+		this.nr = nr;
 		this.ea = ea;
 		this.er = er;
 		this.ew = ew;
