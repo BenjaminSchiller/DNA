@@ -213,7 +213,11 @@ public abstract class DirectedConnectedComponent extends Metric {
 	}
 
 	private double getaverageSize() {
-		return this.g.getNodeCount() / this.dag.size();
+		if (this.dag.isEmpty()) {
+			return 0d;
+		} else {
+			return this.g.getNodeCount() / this.dag.size();
+		}
 	}
 
 	private double countComponents() {
