@@ -1,4 +1,4 @@
-package dna.metrics.richClubConnectivity.directedRichClubConnectivityPerDegree;
+package dna.metrics.old;
 
 import java.util.HashSet;
 
@@ -56,7 +56,7 @@ public class DirectedRichClubConnectivityPerDegreeU extends
 					this.richClubs.get(node.getOutDegree()) + 1);
 		} else {
 			this.richClubs.put(node.getOutDegree(), 1);
-			this.richClubEdges.put(node.getDegree(), 0);
+			this.richClubEdges.put(node.getOutDegree(), 0);
 		}
 		return true;
 	}
@@ -100,7 +100,7 @@ public class DirectedRichClubConnectivityPerDegreeU extends
 		// update Old richclub size
 		this.richClubs
 				.put(srcDegree + 1, this.richClubs.get(srcDegree + 1) - 1);
-		if (this.richClubs.get(srcDegree + 1) == 0) {
+		if (this.richClubs.get(srcDegree + 1).equals(0)) {
 			this.richClubs.remove(srcDegree + 1);
 			this.richClubEdges.remove(srcDegree + 1);
 		}
@@ -142,18 +142,21 @@ public class DirectedRichClubConnectivityPerDegreeU extends
 		}
 
 		if (dstDegree < srcDegree) {
+			System.out.println(srcDegree);
 			this.richClubEdges.put(dstDegree,
 					this.richClubEdges.get(dstDegree) + 1);
 			this.richClubEdges.put(srcDegree - 1,
 					this.richClubEdges.get(srcDegree - 1) - edges);
 		} else {
+			System.out.println(srcDegree);
 			this.richClubEdges.put(srcDegree - 1,
 					this.richClubEdges.get(srcDegree - 1) - (edges - 1));
 		}
 
 		this.richClubs
 				.put(srcDegree - 1, this.richClubs.get(srcDegree - 1) - 1);
-		if (this.richClubs.get(srcDegree - 1) == 0) {
+		if (this.richClubs.get(srcDegree - 1).equals(0)) {
+			System.out.println("remove " + (srcDegree - 1));
 			this.richClubs.remove(srcDegree - 1);
 			this.richClubEdges.remove(srcDegree - 1);
 		}
@@ -164,6 +167,7 @@ public class DirectedRichClubConnectivityPerDegreeU extends
 					+ edges);
 
 		} else {
+			System.out.println("add " + (srcDegree));
 			this.richClubs.put(srcDegree, 1);
 			this.richClubEdges.put(srcDegree, edges);
 			this.highestDegree = Math.max(highestDegree, srcDegree);

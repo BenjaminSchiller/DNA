@@ -1,9 +1,15 @@
 package dna.io;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.HashSet;
 
 import dna.graph.Graph;
+import dna.graph.edges.Edge;
+import dna.graph.nodes.Node;
 import dna.updates.batch.Batch;
+import dna.updates.update.EdgeAddition;
+import dna.updates.update.NodeAddition;
 import dna.updates.update.Update;
 import dna.util.Config;
 
@@ -31,9 +37,21 @@ public class BatchReader {
 
 			reader.readKeyword(Config.get("BATCH_KEYWORD_UPDATES"));
 
+			HashMap<Integer, Node> addedNodes = new HashMap<Integer, Node>();
+			HashSet<Edge> addedEdges = new HashSet<Edge>();
+
 			String line = null;
 			while ((line = reader.readString()) != null) {
-				b.add(Update.fromString(g.getGraphDatastructures(), g, line));
+				Update u = Update.fromString(g.getGraphDatastructures(), g,
+						line, addedNodes, addedEdges);
+				b.add(u);
+				if (u instanceof NodeAddition) {
+					Node n = (Node) ((NodeAddition) u).getNode();
+					addedNodes.put(n.getIndex(), n);
+				} else if (u instanceof EdgeAddition) {
+					Edge e = (Edge) ((EdgeAddition) u).getEdge();
+					addedEdges.add(e);
+				}
 			}
 
 			return b;

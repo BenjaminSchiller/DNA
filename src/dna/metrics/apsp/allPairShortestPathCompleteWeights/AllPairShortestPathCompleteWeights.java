@@ -143,7 +143,22 @@ public abstract class AllPairShortestPathCompleteWeights extends Metric {
 
 	@Override
 	public Distribution[] getDistributions() {
-		return new Distribution[] {};
+		Distribution[] result = new Distribution[this.heights.size()];
+		int i = 0;
+		for (Node n : heights.keySet()) {
+			result[i] = new Distribution("distsForNode_" + n.getIndex(),
+					getDistribution(this.heights.get(n)));
+			i++;
+		}
+		return result;
+	}
+
+	private double[] getDistribution(HashMap<Node, Double> hashMap) {
+		double[] result = new double[this.g.getMaxNodeIndex() + 1];
+		for (Node d : hashMap.keySet()) {
+			result[d.getIndex()] = hashMap.get(d);
+		}
+		return result;
 	}
 
 	@Override

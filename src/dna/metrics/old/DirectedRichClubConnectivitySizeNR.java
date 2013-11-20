@@ -1,12 +1,12 @@
-package dna.metrics.richClubConnectivity.directedRichClubConnectivityInterval;
+package dna.metrics.old;
 
 import dna.updates.batch.Batch;
 import dna.updates.update.Update;
 
-public class DirectedRichClubConnectivityIntervalR extends
-		DirectedRichClubConnectivityInterval {
-	public DirectedRichClubConnectivityIntervalR(int interval) {
-		super("RCCKNodeIntervalComp", ApplicationType.Recomputation, interval);
+public class DirectedRichClubConnectivitySizeNR extends
+		DirectedRichClubConnectivitySizeN {
+	public DirectedRichClubConnectivitySizeNR(int richClubSize) {
+		super("RCCSizeNRecomp", ApplicationType.Recomputation, richClubSize);
 	}
 
 	@Override

@@ -1,4 +1,4 @@
-package dna.metrics.apsp.allPairShortestPathComplete;
+package dna.metrics.old;
 
 import java.util.ArrayList;
 import java.util.HashMap;

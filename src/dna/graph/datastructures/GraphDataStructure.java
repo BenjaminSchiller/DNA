@@ -6,6 +6,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.Arrays;
+import java.util.HashMap;
 
 import dna.graph.Graph;
 import dna.graph.IElement;
@@ -278,6 +279,23 @@ public class GraphDataStructure {
 		} catch (SecurityException | InstantiationException
 				| IllegalAccessException | IllegalArgumentException
 				| InvocationTargetException e) {
+			RuntimeException rt = new RuntimeException(
+					"Could not generate new edge instance");
+			rt.setStackTrace(e.getStackTrace());
+			throw rt;
+		}
+	}
+
+	public Edge newEdgeInstance(String str, Graph graph,
+			HashMap<Integer, Node> addedNodes) {
+		Constructor<? extends Edge> c;
+		try {
+			c = edgeType.getConstructor(String.class, Graph.class,
+					HashMap.class);
+			return c.newInstance(str, graph, addedNodes);
+		} catch (NoSuchMethodException | SecurityException
+				| InstantiationException | IllegalAccessException
+				| IllegalArgumentException | InvocationTargetException e) {
 			RuntimeException rt = new RuntimeException(
 					"Could not generate new edge instance");
 			rt.setStackTrace(e.getStackTrace());

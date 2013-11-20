@@ -1,4 +1,4 @@
-package dna.metrics.apsp.allPairShortestPathCompleteWeights;
+package dna.metrics.old;
 
 import java.util.HashMap;
 import java.util.PriorityQueue;

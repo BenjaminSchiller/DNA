@@ -1,5 +1,7 @@
 package dna.graph.edges;
 
+import java.util.HashMap;
+
 import dna.graph.Element;
 import dna.graph.Graph;
 import dna.graph.nodes.Node;
@@ -37,6 +39,25 @@ public class UndirectedEdge extends Edge {
 				.parseInt(temp[0]));
 		UndirectedNode node2 = (UndirectedNode) g.getNode(MathHelper
 				.parseInt(temp[1]));
+		this.init(node1, node2);
+	}
+
+	public UndirectedEdge(String s, Graph g, HashMap<Integer, Node> addedNodes) {
+		String[] temp = s.split(Config.get("EDGE_UNDIRECTED_DELIMITER"));
+		int index1 = MathHelper.parseInt(temp[0]);
+		int index2 = MathHelper.parseInt(temp[1]);
+		UndirectedNode node1 = null;
+		UndirectedNode node2 = null;
+		if (addedNodes.containsKey(index1)) {
+			node1 = (UndirectedNode) addedNodes.get(index1);
+		} else {
+			node1 = (UndirectedNode) g.getNode(index1);
+		}
+		if (addedNodes.containsKey(index2)) {
+			node2 = (UndirectedNode) addedNodes.get(index2);
+		} else {
+			node2 = (UndirectedNode) g.getNode(index2);
+		}
 		this.init(node1, node2);
 	}
 

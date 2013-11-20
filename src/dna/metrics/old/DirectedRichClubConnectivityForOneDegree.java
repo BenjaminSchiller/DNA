@@ -1,4 +1,4 @@
-package dna.metrics.richClubConnectivity.directedRichClubConnectivityForOneDegree;
+package dna.metrics.old;
 
 import java.util.HashSet;
 import java.util.Set;

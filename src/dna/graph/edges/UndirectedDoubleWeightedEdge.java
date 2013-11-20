@@ -1,6 +1,9 @@
 package dna.graph.edges;
 
+import java.util.HashMap;
+
 import dna.graph.Graph;
+import dna.graph.nodes.Node;
 import dna.graph.nodes.UndirectedNode;
 import dna.graph.weights.IDoubleWeighted;
 import dna.util.Config;
@@ -17,6 +20,17 @@ public class UndirectedDoubleWeightedEdge extends UndirectedEdge implements
 
 	public UndirectedDoubleWeightedEdge(String str, Graph g) {
 		super(str.split(Config.get("EDGE_WEIGHT_DELIMITER"))[0], g);
+		if (str.contains(Config.get("EDGE_WEIGHT_DELIMITER"))) {
+			this.weight = Double.parseDouble(str.split(Config
+					.get("EDGE_WEIGHT_DELIMITER"))[1]);
+		} else {
+			this.weight = 0;
+		}
+	}
+
+	public UndirectedDoubleWeightedEdge(String str, Graph g,
+			HashMap<Integer, Node> addedNodes) {
+		super(str.split(Config.get("EDGE_WEIGHT_DELIMITER"))[0], g, addedNodes);
 		if (str.contains(Config.get("EDGE_WEIGHT_DELIMITER"))) {
 			this.weight = Double.parseDouble(str.split(Config
 					.get("EDGE_WEIGHT_DELIMITER"))[1]);

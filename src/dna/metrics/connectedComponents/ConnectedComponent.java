@@ -173,7 +173,11 @@ public abstract class ConnectedComponent extends Metric {
 	}
 
 	private double calculateAverageComponentSize() {
-		return this.g.getNodes().size() / componentList.size();
+		if (this.componentList.isEmpty()) {
+			return 0;
+		} else {
+			return this.g.getNodes().size() / componentList.size();
+		}
 	}
 
 	@Override

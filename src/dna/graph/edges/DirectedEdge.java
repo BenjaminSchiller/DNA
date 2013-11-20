@@ -1,5 +1,7 @@
 package dna.graph.edges;
 
+import java.util.HashMap;
+
 import dna.graph.Element;
 import dna.graph.Graph;
 import dna.graph.nodes.DirectedNode;
@@ -24,6 +26,23 @@ public class DirectedEdge extends Edge {
 				.parseInt(temp[1]));
 		this.src = src;
 		this.dst = dst;
+		System.out.println(src + " / " + dst);
+	}
+
+	public DirectedEdge(String s, Graph g, HashMap<Integer, Node> addedNodes) {
+		String[] temp = s.split(Config.get("EDGE_DIRECTED_DELIMITER"));
+		int index1 = MathHelper.parseInt(temp[0]);
+		int index2 = MathHelper.parseInt(temp[1]);
+		if (addedNodes.containsKey(index1)) {
+			this.src = (DirectedNode) addedNodes.get(index1);
+		} else {
+			this.src = (DirectedNode) g.getNode(index1);
+		}
+		if (addedNodes.containsKey(index2)) {
+			this.dst = (DirectedNode) addedNodes.get(index2);
+		} else {
+			this.dst = (DirectedNode) g.getNode(index2);
+		}
 	}
 
 	public DirectedNode getSrc() {
