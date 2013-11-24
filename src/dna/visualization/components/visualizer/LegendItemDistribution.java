@@ -7,9 +7,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 import javax.swing.JButton;
-import javax.swing.JComboBox;
 
-import dna.visualization.components.BoundsPopupMenuListener;
 import dna.visualization.components.visualizer.MultiScalarVisualizer.SortModeDist;
 
 /**
@@ -19,29 +17,22 @@ import dna.visualization.components.visualizer.MultiScalarVisualizer.SortModeDis
  * 
  */
 public class LegendItemDistribution extends LegendItem {
+	// defaults
+	private SortModeDist DEFAULT_SORT_MODE_DIST = SortModeDist.distribution;
 
+	// components
 	private JButton toggleXAxisButton;
-
-	private String[] sortOptions = { "-plot distribution", "-plot cdf" };
+	private JButton sortModeButton;
 	private SortModeDist sortMode;
-
-	private LegendItemDistribution thisItem;
 
 	// constructor
 	public LegendItemDistribution(LegendList parent, String name, Color color) {
 		super(parent, name, color);
-		this.sortMode = SortModeDist.distribution;
-		thisItem = this;
+		this.sortMode = DEFAULT_SORT_MODE_DIST;
 
 		this.valueLabel.setText("D=0");
 		this.valueLabel.setPreferredSize(new Dimension(60, 20));
 		this.buttonPanel.setPreferredSize(new Dimension(100, 20));
-
-		JButton xAxisButton = new JButton();
-		xAxisButton.setText("x1");
-		xAxisButton.setMargin(new Insets(0, 0, 0, 0));
-		xAxisButton.setFont(defaultFont);
-		xAxisButton.setPreferredSize(new Dimension(20, 20));
 
 		// toggle y axis button
 		this.toggleXAxisButton = new JButton("x1");
@@ -67,46 +58,48 @@ public class LegendItemDistribution extends LegendItem {
 			}
 		});
 		this.buttonPanel.add(this.toggleXAxisButton);
-		final JComboBox<String> sortOptionsBox = new JComboBox<String>(
-				this.sortOptions);
-		sortOptionsBox.setFont(this.defaultFont);
-		sortOptionsBox.setPreferredSize((new Dimension(20, 20)));
-		sortOptionsBox.addActionListener(new ActionListener() {
+
+		// sort options button
+		this.sortModeButton = new JButton();
+		switch (this.sortMode) {
+		case distribution:
+			this.sortModeButton.setText("D");
+			break;
+		case cdf:
+			this.sortModeButton.setText("C");
+			break;
+		}
+		this.sortModeButton.setFont(this.defaultFont);
+		this.sortModeButton.setForeground(Color.BLACK);
+		this.sortModeButton.setPreferredSize(this.buttonSize);
+		this.sortModeButton
+				.setToolTipText("Distribution is shown as distribution. Click to change to cdf plot.");
+		this.sortModeButton.setMargin(new Insets(0, 0, 0, 0));
+		this.sortModeButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent event) {
-				selectSortOptions(sortOptionsBox.getSelectedIndex());
+				if (sortMode.equals(SortModeDist.distribution)) {
+					sortModeButton.setText("C");
+					sortMode = SortModeDist.cdf;
+					sortModeButton
+							.setToolTipText("Distribution is shown as cdf plot. Click to change to show it as distribution.");
+				} else if (sortMode.equals(SortModeDist.cdf)) {
+					sortModeButton.setText("D");
+					sortMode = SortModeDist.distribution;
+					sortModeButton
+							.setToolTipText("Distribution is shown as distribution. Click to change to cdf plot.");
+				}
 			}
 		});
-		BoundsPopupMenuListener listener = new BoundsPopupMenuListener(true,
-				false);
-		sortOptionsBox.addPopupMenuListener(listener);
 
-		this.buttonPanel.add(sortOptionsBox);
-
+		// add sort options button
+		this.buttonPanel.add(this.sortModeButton);
 	}
 
 	/** sets the denominator of an item **/
 	public void setDenominator(long denominator) {
 		this.valueLabel.setText("D=" + denominator);
 		this.valueLabel.setToolTipText("D=" + denominator);
-	}
-
-	/** called by the sortoption dropdown menu to update the sort options **/
-	public void selectSortOptions(int selectionIndex) {
-		String m = "";
-		try {
-			m = this.sortOptions[selectionIndex];
-		} catch (IndexOutOfBoundsException e) {
-			e.printStackTrace();
-		}
-		if (!m.equals("")) {
-			if (m.equals("-plot distribution")) {
-				this.sortMode = SortModeDist.distribution;
-			}
-			if (m.equals("-plot cdf")) {
-				this.sortMode = SortModeDist.cdf;
-			}
-		}
 	}
 
 	/** returns the sortmode **/

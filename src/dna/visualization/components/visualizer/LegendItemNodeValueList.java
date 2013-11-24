@@ -7,9 +7,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 import javax.swing.JButton;
-import javax.swing.JComboBox;
 
-import dna.visualization.components.BoundsPopupMenuListener;
 import dna.visualization.components.visualizer.MultiScalarVisualizer.SortMode;
 
 /**
@@ -19,34 +17,22 @@ import dna.visualization.components.visualizer.MultiScalarVisualizer.SortMode;
  * 
  */
 public class LegendItemNodeValueList extends LegendItem {
+	// default
+	private SortMode DEFAULT_SORT_MODE = SortMode.ascending;
 
-	private String[] sortOptions = { "-sort by index", "-sort ascending",
-			"-sort descending" };
+	// components
 	private SortMode sortMode;
-
 	private JButton toggleXAxisButton;
+	private JButton sortModeButton;
 
 	// constructor
 	public LegendItemNodeValueList(LegendList parent, String name, Color color) {
 		super(parent, name, color);
-		this.sortMode = SortMode.index;
+		// default sort-mode settings:
+		this.sortMode = DEFAULT_SORT_MODE;
 
 		this.valueLabel.setPreferredSize(new Dimension(60, 20));
 		this.buttonPanel.setPreferredSize(new Dimension(100, 20));
-
-		final JComboBox<String> sortOptionsBox = new JComboBox<String>(
-				this.sortOptions);
-		sortOptionsBox.setFont(this.defaultFont);
-		sortOptionsBox.setPreferredSize((new Dimension(20, 20)));
-		sortOptionsBox.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent event) {
-				selectSortOptions(sortOptionsBox.getSelectedIndex());
-			}
-		});
-		BoundsPopupMenuListener listener = new BoundsPopupMenuListener(true,
-				false);
-		sortOptionsBox.addPopupMenuListener(listener);
 
 		// toggle y axis button
 		this.toggleXAxisButton = new JButton("x1");
@@ -71,30 +57,51 @@ public class LegendItemNodeValueList extends LegendItem {
 				thisItem.parent.toggleXAxis(thisItem);
 			}
 		});
+		// add toggle x axis button
 		this.buttonPanel.add(this.toggleXAxisButton);
 
-		this.buttonPanel.add(sortOptionsBox);
-	}
-
-	/** called by the sortoption dropdown menu to update the sort options **/
-	public void selectSortOptions(int selectionIndex) {
-		String m = "";
-		try {
-			m = this.sortOptions[selectionIndex];
-		} catch (IndexOutOfBoundsException e) {
-			e.printStackTrace();
+		// sort options button
+		this.sortModeButton = new JButton();
+		switch (this.sortMode) {
+		case ascending:
+			this.sortModeButton.setText("A");
+			break;
+		case descending:
+			this.sortModeButton.setText("D");
+			break;
+		case index:
+			this.sortModeButton.setText("I");
+			break;
 		}
-		if (!m.equals("")) {
-			if (m.equals("-sort by index")) {
-				this.sortMode = SortMode.index;
+		this.sortModeButton.setFont(this.defaultFont);
+		this.sortModeButton.setForeground(Color.BLACK);
+		this.sortModeButton.setPreferredSize(this.buttonSize);
+		this.sortModeButton
+				.setToolTipText("NodeValueList is sorted in ascending order. Click to change to descending order.");
+		this.sortModeButton.setMargin(new Insets(0, 0, 0, 0));
+		this.sortModeButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent event) {
+				if (sortMode.equals(SortMode.ascending)) {
+					sortModeButton.setText("D");
+					sortMode = SortMode.descending;
+					sortModeButton
+							.setToolTipText("NodeValueList is sorted in descending order. Click to change to sort by index.");
+				} else if (sortMode.equals(SortMode.descending)) {
+					sortModeButton.setText("I");
+					sortMode = SortMode.index;
+					sortModeButton
+							.setToolTipText("NodeValueList is sorted by index. Click to change to ascending order.");
+				} else if (sortMode.equals(SortMode.index)) {
+					sortModeButton.setText("A");
+					sortMode = sortMode.ascending;
+					sortModeButton
+							.setToolTipText("NodeValueList is sorted in ascending order. Click to change to descending order.");
+				}
 			}
-			if (m.equals("-sort ascending")) {
-				this.sortMode = SortMode.ascending;
-			}
-			if (m.equals("-sort descending")) {
-				this.sortMode = SortMode.descending;
-			}
-		}
+		});
+		// add sort options button
+		this.buttonPanel.add(this.sortModeButton);
 	}
 
 	/** returns the sortmode **/
