@@ -268,11 +268,26 @@ public class Visualizer extends JPanel {
 
 	/** toggle right y axis visibility **/
 	public void toggleYAxisVisibility() {
+		boolean rightAxisVisible = true;
+
 		for (IAxis rightAxe : this.chart.getAxesYRight()) {
-			if (rightAxe.getTraces().size() < 1)
+			if (rightAxe.getTraces().size() < 1) {
 				rightAxe.setVisible(false);
-			else
+				rightAxisVisible = false;
+			} else {
 				rightAxe.setVisible(true);
+				rightAxisVisible = true;
+			}
+		}
+		for (IAxis leftAxe : this.chart.getAxesYLeft()) {
+			if (leftAxe.getTraces().size() > 0) {
+				leftAxe.setVisible(true);
+			} else {
+				if (rightAxisVisible)
+					leftAxe.setVisible(false);
+				else
+					leftAxe.setVisible(true);
+			}
 		}
 	}
 
