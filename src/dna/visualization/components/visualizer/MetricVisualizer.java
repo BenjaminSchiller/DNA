@@ -162,7 +162,6 @@ public class MetricVisualizer extends Visualizer {
 		}
 
 		this.updateXTicks();
-		this.updateYTicks();
 	}
 
 	/** adds trace to the visualizer with default trace length **/

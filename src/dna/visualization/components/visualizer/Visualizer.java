@@ -161,27 +161,6 @@ public class Visualizer extends JPanel {
 		}
 	}
 
-	/** handles the ticks that are shown on the y axis **/
-	// TODO: FINISH
-	protected void updateYTicks() {
-		double minTemp = 0;
-		double maxTemp = 10;
-
-		if (this.xAxis1.getRangePolicy() instanceof RangePolicyUnbounded) {
-			this.yRight.setRangePolicy(new RangePolicyUnbounded());
-			this.yLeft.setRangePolicy(new RangePolicyUnbounded());
-		} else {
-			if (this.xAxis1.getRangePolicy() instanceof RangePolicyFixedViewport) {
-				// System.out.println("MAX: " + this.yLeft.getMax() + " "
-				// + this.yLeft.getMaxValue());
-				// System.out.println("MIN: " + this.yLeft.getMin() + " "
-				// + this.yLeft.getMinValue());
-			}
-
-			this.yRight.getTraces();
-		}
-	}
-
 	/** toggles grid on left y axis **/
 	public void toggleYLeftGrid() {
 		if (this.yLeft.isPaintGrid())
@@ -266,7 +245,11 @@ public class Visualizer extends JPanel {
 		return this.FIXED_VIEWPORT;
 	}
 
-	/** toggle right y axis visibility **/
+	/**
+	 * Toggles the visibility of y1 and y2-axis. When both axis are used, both
+	 * are shown. When only one is used, only that one is shown. When none is
+	 * used, only y1 is shown.
+	 */
 	public void toggleYAxisVisibility() {
 		boolean rightAxisVisible = true;
 
@@ -291,7 +274,11 @@ public class Visualizer extends JPanel {
 		}
 	}
 
-	/** toggles visibility of both x axis **/
+	/**
+	 * Toggles the visibility of x1 and x2-axis. When both axis are used, both
+	 * are shown. When only one is used, only that one is shown. When none is
+	 * used, only x1 is shown.
+	 */
 	public void toggleXAxisVisibility() {
 		for (IAxis axis : this.chart.getAxesXBottom()) {
 			if (axis.getTraces().size() < 1)
