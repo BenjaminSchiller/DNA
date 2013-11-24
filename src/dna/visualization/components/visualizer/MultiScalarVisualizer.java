@@ -57,7 +57,7 @@ public class MultiScalarVisualizer extends Visualizer {
 		this.availableValues = new ArrayList<String>();
 
 		// remove timestamp-label on x-axis
-		this.xAxis.setTitle("x1");
+		this.xAxis1.setTitle("x1");
 		this.xAxis2.setTitle("x2");
 
 		// set default sort mode
@@ -73,7 +73,7 @@ public class MultiScalarVisualizer extends Visualizer {
 
 		// add menu bar
 		super.addMenuBar(new Dimension(this.defaultMenuBarSize), true, true,
-				true, true, true, false);
+				true, true, true);
 
 		// add coordinate parsing to mouseover on chart
 		this.chart.addMouseMotionListener(new MouseMotionListener() {
@@ -429,7 +429,7 @@ public class MultiScalarVisualizer extends Visualizer {
 		double maxTemp = 10;
 
 		// get range of plotted data
-		for (Object t : this.xAxis.getTraces()) {
+		for (Object t : this.xAxis1.getTraces()) {
 			if (t instanceof Trace2DSimple) {
 				double minX = ((Trace2DSimple) t).getMinX();
 				double maxX = ((Trace2DSimple) t).getMaxX();
@@ -446,8 +446,8 @@ public class MultiScalarVisualizer extends Visualizer {
 				double tickSpacingNew = Math.floor(range / 10);
 				if (tickSpacingNew < 1)
 					tickSpacingNew = 1.0;
-				this.xAxis.setMajorTickSpacing(tickSpacingNew);
-				this.xAxis.setMinorTickSpacing(tickSpacingNew);
+				this.xAxis1.setMajorTickSpacing(tickSpacingNew);
+				this.xAxis1.setMinorTickSpacing(tickSpacingNew);
 			}
 		}
 	}
@@ -562,4 +562,11 @@ public class MultiScalarVisualizer extends Visualizer {
 
 	}
 
+	/** toggles grid on second x axis **/
+	public void toggleX2Grid() {
+		if (this.xAxis2.isPaintGrid())
+			this.xAxis2.setPaintGrid(false);
+		else
+			this.xAxis2.setPaintGrid(true);
+	}
 }

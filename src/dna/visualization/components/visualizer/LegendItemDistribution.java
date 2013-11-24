@@ -36,8 +36,8 @@ public class LegendItemDistribution extends LegendItem {
 
 		// load defaults
 		this.sortMode = Config.getSortModeDist("DEFAULT_SORT_MODE_DIST");
-		this.xAxis = Config.getXAxisSelection("DEFAULT_NVL_X_AXIS");
-		this.yAxis = Config.getYAxisSelection("DEFAULT_NVL_Y_AXIS");
+		this.xAxis = Config.getXAxisSelection("DEFAULT_DIST_X_AXIS");
+		this.yAxis = Config.getYAxisSelection("DEFAULT_DIST_Y_AXIS");
 
 		// adjust toggle y axis button
 		switch (this.yAxis) {
@@ -64,7 +64,6 @@ public class LegendItemDistribution extends LegendItem {
 					.setToolTipText("Currently plotted on x-axis 1. Click to change to x-axis 2");
 			break;
 		case x2:
-			System.out.println("yo");
 			this.toggleXAxisButton.setText("x2");
 			toggleXAxisButton
 					.setToolTipText("Currently plotted on x-axis 2. Click to change to x-axis 1");

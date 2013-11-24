@@ -34,7 +34,7 @@ public class Visualizer extends JPanel {
 	// chart and axis
 	protected Chart2D chart;
 	protected Dimension defaultChartSize = new Dimension(450, 320);
-	protected IAxis xAxis;
+	protected IAxis xAxis1;
 	protected IAxis xAxis2;
 	protected IAxis yRight;
 	protected IAxis yLeft;
@@ -63,8 +63,7 @@ public class Visualizer extends JPanel {
 	public enum yAxisSelection {
 		y1, y2
 	};
-	
-	
+
 	// constructor
 	public Visualizer() {
 		// initialization
@@ -88,9 +87,9 @@ public class Visualizer extends JPanel {
 		this.chart.setPreferredSize(this.defaultChartSize);
 
 		// axis configuration
-		this.xAxis = this.chart.getAxisX();
+		this.xAxis1 = this.chart.getAxisX();
 		this.yLeft = this.chart.getAxisY();
-		this.xAxis.setAxisTitle(new AxisTitle("Timestamp"));
+		this.xAxis1.setAxisTitle(new AxisTitle("Timestamp"));
 		this.yLeft.setAxisTitle(new AxisTitle(""));
 		this.yRight = new AxisLinear();
 		this.chart.addAxisYRight((AAxis) yRight);
@@ -114,10 +113,10 @@ public class Visualizer extends JPanel {
 		this.add(this.legend, this.mainConstraints);
 
 		// general settings for x1
-		this.xAxis.setMajorTickSpacing(1.0);
-		this.xAxis.setStartMajorTick(true);
+		this.xAxis1.setMajorTickSpacing(1.0);
+		this.xAxis1.setStartMajorTick(true);
 		AxisScalePolicyManualTicks manualTickScalePolicy = new AxisScalePolicyManualTicks();
-		this.xAxis.setAxisScalePolicy(manualTickScalePolicy);
+		this.xAxis1.setAxisScalePolicy(manualTickScalePolicy);
 
 		// general settings for x2
 		this.xAxis2.setMajorTickSpacing(1.0);
@@ -127,14 +126,13 @@ public class Visualizer extends JPanel {
 
 	protected void addMenuBar(Dimension size, boolean addCoordsPanel,
 			boolean addIntervalPanel, boolean addXOptionsPanel,
-			boolean addYLeftOptionsPanel, boolean addYRightOptionsPanel,
-			boolean addSortOptionsPanel) {
+			boolean addYLeftOptionsPanel, boolean addYRightOptionsPanel) {
 		this.mainConstraints.gridx = 0;
 		this.mainConstraints.gridy = 1;
 		this.mainConstraints.gridwidth = 2;
 		this.menuBar = new MenuBar(this, size, addCoordsPanel,
 				addIntervalPanel, addXOptionsPanel, addYLeftOptionsPanel,
-				addYRightOptionsPanel, addSortOptionsPanel);
+				addYRightOptionsPanel);
 		this.add(this.menuBar, this.mainConstraints);
 	}
 
@@ -142,11 +140,11 @@ public class Visualizer extends JPanel {
 	protected void updateXTicks() {
 		double minTemp = 0;
 		double maxTemp = 10;
-		if (this.xAxis.getRangePolicy() instanceof RangePolicyUnbounded) {
+		if (this.xAxis1.getRangePolicy() instanceof RangePolicyUnbounded) {
 			minTemp = this.minTimestamp * 1.0;
 			maxTemp = this.maxTimestamp * 1.0;
 		} else {
-			if (this.xAxis.getRangePolicy() instanceof RangePolicyFixedViewport) {
+			if (this.xAxis1.getRangePolicy() instanceof RangePolicyFixedViewport) {
 				minTemp = this.minShownTimestamp;
 				maxTemp = this.maxShownTimestamp;
 			}
@@ -157,8 +155,8 @@ public class Visualizer extends JPanel {
 				double tickSpacingNew = Math.floor(range / 10);
 				if (tickSpacingNew < 1)
 					tickSpacingNew = 1.0;
-				this.xAxis.setMajorTickSpacing(tickSpacingNew);
-				this.xAxis.setMinorTickSpacing(tickSpacingNew);
+				this.xAxis1.setMajorTickSpacing(tickSpacingNew);
+				this.xAxis1.setMinorTickSpacing(tickSpacingNew);
 			}
 		}
 	}
@@ -169,11 +167,11 @@ public class Visualizer extends JPanel {
 		double minTemp = 0;
 		double maxTemp = 10;
 
-		if (this.xAxis.getRangePolicy() instanceof RangePolicyUnbounded) {
+		if (this.xAxis1.getRangePolicy() instanceof RangePolicyUnbounded) {
 			this.yRight.setRangePolicy(new RangePolicyUnbounded());
 			this.yLeft.setRangePolicy(new RangePolicyUnbounded());
 		} else {
-			if (this.xAxis.getRangePolicy() instanceof RangePolicyFixedViewport) {
+			if (this.xAxis1.getRangePolicy() instanceof RangePolicyFixedViewport) {
 				// System.out.println("MAX: " + this.yLeft.getMax() + " "
 				// + this.yLeft.getMaxValue());
 				// System.out.println("MIN: " + this.yLeft.getMin() + " "
@@ -201,11 +199,11 @@ public class Visualizer extends JPanel {
 	}
 
 	/** toggles grid on x axis **/
-	public void toggleXGrid() {
-		if (this.xAxis.isPaintGrid())
-			this.xAxis.setPaintGrid(false);
+	public void toggleX1Grid() {
+		if (this.xAxis1.isPaintGrid())
+			this.xAxis1.setPaintGrid(false);
 		else
-			this.xAxis.setPaintGrid(true);
+			this.xAxis1.setPaintGrid(true);
 	}
 
 	public long getMinTimestamp() {
@@ -241,7 +239,7 @@ public class Visualizer extends JPanel {
 	}
 
 	public IAxis getXAxis() {
-		return this.xAxis;
+		return this.xAxis1;
 	}
 
 	public IAxis getYRightAxis() {
@@ -286,8 +284,8 @@ public class Visualizer extends JPanel {
 			else
 				axis.setVisible(true);
 		}
-		if (!this.xAxis2.isVisible() && !this.xAxis.isVisible())
-			this.xAxis.setVisible(true);
+		if (!this.xAxis2.isVisible() && !this.xAxis1.isVisible())
+			this.xAxis1.setVisible(true);
 	}
 
 	/** clears all list items in the legend **/

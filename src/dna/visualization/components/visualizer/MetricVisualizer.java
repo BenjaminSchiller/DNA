@@ -52,7 +52,7 @@ public class MetricVisualizer extends Visualizer {
 
 		// add menu bar
 		super.addMenuBar(new Dimension(this.defaultMenuBarSize), true, true,
-				true, true, true, false);
+				true, true, true);
 
 		// add coordinate parsing to mouseover on chart
 		this.chart.addMouseMotionListener(new MouseMotionListener() {
@@ -139,7 +139,7 @@ public class MetricVisualizer extends Visualizer {
 						- this.TRACE_LENGTH;
 			else
 				this.minShownTimestamp = 0;
-			this.xAxis.setRange(new Range(this.minShownTimestamp,
+			this.xAxis1.setRange(new Range(this.minShownTimestamp,
 					this.maxShownTimestamp));
 		} else {
 			if (this.FIXED_VIEWPORT) {
@@ -154,7 +154,7 @@ public class MetricVisualizer extends Visualizer {
 				int minTimestampNew = (int) Math.floor(lowP * (max - min));
 				int maxTimestampNew = (int) Math.floor(highP * (max - min));
 
-				this.xAxis
+				this.xAxis1
 						.setRange(new Range(minTimestampNew, maxTimestampNew));
 				this.setMinShownTimestamp((long) minTimestampNew);
 				this.setMaxShownTimestamp((long) maxTimestampNew);
@@ -349,5 +349,4 @@ public class MetricVisualizer extends Visualizer {
 			this.toggleYAxisVisibility();
 		}
 	}
-
 }

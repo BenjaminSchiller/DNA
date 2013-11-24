@@ -113,7 +113,6 @@ public class MainDisplay extends JFrame {
 				System.exit(0);
 			}
 		});
-		System.out.println(this.quitButton.getPreferredSize().toString());
 
 		this.pauseButton = new JButton("Pause");
 		this.pauseButton.setPreferredSize(buttonSize);

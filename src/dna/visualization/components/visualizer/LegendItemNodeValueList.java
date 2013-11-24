@@ -62,7 +62,6 @@ public class LegendItemNodeValueList extends LegendItem {
 					.setToolTipText("Currently plotted on x-axis 1. Click to change to x-axis 2");
 			break;
 		case x2:
-			System.out.println("yo");
 			this.toggleXAxisButton.setText("x2");
 			toggleXAxisButton
 					.setToolTipText("Currently plotted on x-axis 2. Click to change to x-axis 1");
