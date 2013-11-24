@@ -52,8 +52,19 @@ public class Visualizer extends JPanel {
 	protected int TRACE_LENGTH;
 	protected Boolean FIXED_VIEWPORT;
 
+	// constraints
 	private GridBagConstraints mainConstraints;
 
+	// enumerations for axis selection
+	public enum xAxisSelection {
+		x1, x2
+	};
+
+	public enum yAxisSelection {
+		y1, y2
+	};
+	
+	
 	// constructor
 	public Visualizer() {
 		// initialization

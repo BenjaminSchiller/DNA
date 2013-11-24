@@ -8,7 +8,9 @@ import java.awt.event.ActionListener;
 
 import javax.swing.JButton;
 
+import dna.util.Config;
 import dna.visualization.components.visualizer.MultiScalarVisualizer.SortModeDist;
+import dna.visualization.components.visualizer.Visualizer.xAxisSelection;
 
 /**
  * A legenditem in the legendlist representing a distribution.
@@ -17,25 +19,57 @@ import dna.visualization.components.visualizer.MultiScalarVisualizer.SortModeDis
  * 
  */
 public class LegendItemDistribution extends LegendItem {
-	// defaults
-	private SortModeDist DEFAULT_SORT_MODE_DIST = SortModeDist.distribution;
-
 	// components
+	private SortModeDist sortMode;
+	private xAxisSelection xAxis;
+
 	private JButton toggleXAxisButton;
 	private JButton sortModeButton;
-	private SortModeDist sortMode;
 
 	// constructor
 	public LegendItemDistribution(LegendList parent, String name, Color color) {
+		// init
 		super(parent, name, color);
-		this.sortMode = DEFAULT_SORT_MODE_DIST;
-
 		this.valueLabel.setText("D=0");
 		this.valueLabel.setPreferredSize(new Dimension(60, 20));
 		this.buttonPanel.setPreferredSize(new Dimension(100, 20));
 
+		// load defaults
+		this.sortMode = Config.getSortModeDist("DEFAULT_SORT_MODE_DIST");
+		this.xAxis = Config.getXAxisSelection("DEFAULT_NVL_X_AXIS");
+		this.yAxis = Config.getYAxisSelection("DEFAULT_NVL_Y_AXIS");
+
+		// adjust toggle y axis button
+		switch (this.yAxis) {
+		case y1:
+			this.toggleYAxisButton.setText("y1");
+			this.toggleYAxisButton
+					.setToolTipText("Currently plotted on left y-axis (y1). Click to change to right y-axis");
+			break;
+		case y2:
+			this.toggleYAxisButton.setText("y2");
+			thisItem.toggleYAxisButton
+					.setToolTipText("Currently plotted on right y-axis (y2). Click to change to left y-axis");
+			break;
+		}
+
 		// toggle y axis button
 		this.toggleXAxisButton = new JButton("x1");
+		// toggle x axis button
+		this.toggleXAxisButton = new JButton();
+		switch (this.xAxis) {
+		case x1:
+			this.toggleXAxisButton.setText("x1");
+			this.toggleXAxisButton
+					.setToolTipText("Currently plotted on x-axis 1. Click to change to x-axis 2");
+			break;
+		case x2:
+			System.out.println("yo");
+			this.toggleXAxisButton.setText("x2");
+			toggleXAxisButton
+					.setToolTipText("Currently plotted on x-axis 2. Click to change to x-axis 1");
+			break;
+		}
 		this.toggleXAxisButton.setFont(this.defaultFont);
 		this.toggleXAxisButton.setForeground(Color.BLACK);
 		this.toggleXAxisButton.setPreferredSize(this.buttonSize);
@@ -64,16 +98,18 @@ public class LegendItemDistribution extends LegendItem {
 		switch (this.sortMode) {
 		case distribution:
 			this.sortModeButton.setText("D");
+			this.sortModeButton
+					.setToolTipText("Distribution is shown as distribution. Click to change to cdf plot.");
 			break;
 		case cdf:
 			this.sortModeButton.setText("C");
+			sortModeButton
+					.setToolTipText("Distribution is shown as cdf plot. Click to change to distribution.");
 			break;
 		}
 		this.sortModeButton.setFont(this.defaultFont);
 		this.sortModeButton.setForeground(Color.BLACK);
 		this.sortModeButton.setPreferredSize(this.buttonSize);
-		this.sortModeButton
-				.setToolTipText("Distribution is shown as distribution. Click to change to cdf plot.");
 		this.sortModeButton.setMargin(new Insets(0, 0, 0, 0));
 		this.sortModeButton.addActionListener(new ActionListener() {
 			@Override
@@ -82,7 +118,7 @@ public class LegendItemDistribution extends LegendItem {
 					sortModeButton.setText("C");
 					sortMode = SortModeDist.cdf;
 					sortModeButton
-							.setToolTipText("Distribution is shown as cdf plot. Click to change to show it as distribution.");
+							.setToolTipText("Distribution is shown as cdf plot. Click to change to distribution.");
 				} else if (sortMode.equals(SortModeDist.cdf)) {
 					sortModeButton.setText("D");
 					sortMode = SortModeDist.distribution;

@@ -39,7 +39,7 @@ public class MultiScalarVisualizer extends Visualizer {
 	private HashMap<String, ITrace2D> traces;
 
 	/** sort mode used to plot nodevaluelists **/
-	public enum SortMode {
+	public enum SortModeNVL {
 		index, ascending, descending
 	};
 
@@ -48,7 +48,7 @@ public class MultiScalarVisualizer extends Visualizer {
 		distribution, cdf
 	}
 
-	private SortMode sortMode;
+	private SortModeNVL sortMode;
 
 	// constructor
 	public MultiScalarVisualizer() {
@@ -72,7 +72,7 @@ public class MultiScalarVisualizer extends Visualizer {
 		this.setBorder(title);
 
 		// add menu bar
-		super.addMenuBar(new Dimension(this.defaultMenuBarSize), true, false,
+		super.addMenuBar(new Dimension(this.defaultMenuBarSize), true, true,
 				true, true, true, false);
 
 		// add coordinate parsing to mouseover on chart
@@ -185,7 +185,7 @@ public class MultiScalarVisualizer extends Visualizer {
 					.getNames()) {
 				String tempName = metric + "." + nvl;
 				if (this.traces.containsKey(tempName)) {
-					SortMode tempSortMode = ((LegendItemNodeValueList) this.legend
+					SortModeNVL tempSortMode = ((LegendItemNodeValueList) this.legend
 							.getLegendList().getLegendItem(tempName))
 							.getSortMode();
 
@@ -318,7 +318,7 @@ public class MultiScalarVisualizer extends Visualizer {
 	}
 
 	/** adds points sorted and normalized by dividing through denominator **/
-	private void addPoints(String name, double[] values, SortMode sort) {
+	private void addPoints(String name, double[] values, SortModeNVL sort) {
 		ITrace2D tempTrace = this.traces.get(name);
 
 		switch (sort) {
@@ -413,12 +413,12 @@ public class MultiScalarVisualizer extends Visualizer {
 	}
 
 	/** sets the sort mode **/
-	public void setSortOrder(SortMode sortMode) {
+	public void setSortOrder(SortModeNVL sortMode) {
 		this.sortMode = sortMode;
 	}
 
 	/** gets the sort mode **/
-	public SortMode getSortMode() {
+	public SortModeNVL getSortMode() {
 		return this.sortMode;
 	}
 
@@ -489,6 +489,7 @@ public class MultiScalarVisualizer extends Visualizer {
 
 			ITrace2D tempTrace = new Trace2DSimple(null);
 
+			// check if trace shown on left y axis
 			for (IAxis leftAxe : this.chart.getAxesYLeft()) {
 				for (Object trace : leftAxe.getTraces()) {
 					if (trace instanceof ITrace2D) {
@@ -500,7 +501,7 @@ public class MultiScalarVisualizer extends Visualizer {
 					}
 				}
 			}
-
+			// check if trace shown on right y axis
 			for (IAxis rightAxe : this.chart.getAxesYRight()) {
 				for (Object trace : rightAxe.getTraces()) {
 					if (trace instanceof ITrace2D) {
@@ -512,12 +513,13 @@ public class MultiScalarVisualizer extends Visualizer {
 					}
 				}
 			}
-
+			// if on left -> swap to right
 			if (left) {
 				for (IAxis rightAxe : this.chart.getAxesYRight()) {
 					rightAxe.addTrace(tempTrace);
 				}
 			} else {
+				// else if on right -> swap to left
 				if (right) {
 					for (IAxis leftAxe : this.chart.getAxesYLeft()) {
 						leftAxe.addTrace(tempTrace);
@@ -525,7 +527,6 @@ public class MultiScalarVisualizer extends Visualizer {
 				}
 
 			}
-
 			// toggle right y axis visibility
 			this.toggleYAxisVisibility();
 		}

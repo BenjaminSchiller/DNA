@@ -14,6 +14,10 @@ import dna.plot.data.PlotData.DistributionPlotType;
 import dna.plot.data.PlotData.NodeValueListOrder;
 import dna.plot.data.PlotData.NodeValueListOrderBy;
 import dna.plot.data.PlotData.PlotType;
+import dna.visualization.components.visualizer.MultiScalarVisualizer.SortModeNVL;
+import dna.visualization.components.visualizer.MultiScalarVisualizer.SortModeDist;
+import dna.visualization.components.visualizer.Visualizer.xAxisSelection;
+import dna.visualization.components.visualizer.Visualizer.yAxisSelection;
 
 public class Config extends PropertiesHolder {
 	private static Properties properties;
@@ -113,6 +117,52 @@ public class Config extends PropertiesHolder {
 			return DistributionPlotType.distANDcdf;
 		default:
 			return DistributionPlotType.distOnly;
+		}
+	}
+
+	public static SortModeNVL getSortModeNVL(String key) {
+		switch (Config.get(key)) {
+		case "index":
+			return SortModeNVL.index;
+		case "ascending":
+			return SortModeNVL.ascending;
+		case "descending":
+			return SortModeNVL.descending;
+		default:
+			return SortModeNVL.ascending;
+		}
+	}
+
+	public static SortModeDist getSortModeDist(String key) {
+		switch (Config.get(key)) {
+		case "distribution":
+			return SortModeDist.distribution;
+		case "cdf":
+			return SortModeDist.cdf;
+		default:
+			return SortModeDist.distribution;
+		}
+	}
+
+	public static xAxisSelection getXAxisSelection(String key) {
+		switch (Config.get(key)) {
+		case "x1":
+			return xAxisSelection.x1;
+		case "x2":
+			return xAxisSelection.x2;
+		default:
+			return xAxisSelection.x1;
+		}
+	}
+
+	public static yAxisSelection getYAxisSelection(String key) {
+		switch (Config.get(key)) {
+		case "y1":
+			return yAxisSelection.y1;
+		case "y2":
+			return yAxisSelection.y2;
+		default:
+			return yAxisSelection.y1;
 		}
 	}
 

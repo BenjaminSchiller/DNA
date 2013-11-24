@@ -31,7 +31,7 @@ import javax.swing.event.ChangeListener;
 
 import dna.visualization.MainDisplay;
 import dna.visualization.components.BoundsPopupMenuListener;
-import dna.visualization.components.visualizer.MultiScalarVisualizer.SortMode;
+import dna.visualization.components.visualizer.MultiScalarVisualizer.SortModeNVL;
 
 /**
  * The menubar is a bar containing several options for a visualizer, for example
@@ -687,17 +687,17 @@ public class MenuBar extends JPanel implements ChangeListener {
 			if (m.equals("-sort by index")) {
 				if (this.parent instanceof MultiScalarVisualizer)
 					((MultiScalarVisualizer) this.parent)
-							.setSortOrder(SortMode.index);
+							.setSortOrder(SortModeNVL.index);
 			}
 			if (m.equals("-sort ascending")) {
 				if (this.parent instanceof MultiScalarVisualizer)
 					((MultiScalarVisualizer) this.parent)
-							.setSortOrder(SortMode.ascending);
+							.setSortOrder(SortModeNVL.ascending);
 			}
 			if (m.equals("-sort descending")) {
 				if (this.parent instanceof MultiScalarVisualizer)
 					((MultiScalarVisualizer) this.parent)
-							.setSortOrder(SortMode.descending);
+							.setSortOrder(SortModeNVL.descending);
 			}
 		}
 	}

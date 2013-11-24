@@ -17,6 +17,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.border.EtchedBorder;
 
+import dna.util.Config;
 import dna.visualization.MainDisplay;
 import dna.visualization.components.BoundsPopupMenuListener;
 import dna.visualization.components.ColorHandler;
@@ -29,9 +30,11 @@ import dna.visualization.components.ColorHandler;
  * 
  */
 public class Legend extends JPanel {
+	// defaults
 	private Font defaultFont = MainDisplay.defaultFont;
 	private Font defaultFontBorders = MainDisplay.defaultFontBorders;
 
+	// components
 	private Visualizer parent;
 	private Legend thisLegend;
 	private LegendList list;
@@ -150,8 +153,23 @@ public class Legend extends JPanel {
 			i.setToolTipText(name);
 
 			this.list.add(i);
-			if (this.parent instanceof MultiScalarVisualizer) {
+			if (this.parent instanceof MultiScalarVisualizer)
 				((MultiScalarVisualizer) this.parent).addTrace(name, color);
+			
+			// usually added to x1/y1, check if config says otherways and toggle accordingly
+			switch (Config.getXAxisSelection("DEFAULT_DIST_X_AXIS")) {
+			case x1:
+				break;
+			case x2:
+				this.list.toggleXAxis(i);
+				break;
+			}
+			switch (Config.getYAxisSelection("DEFAULT_DIST_Y_AXIS")) {
+			case y1:
+				break;
+			case y2:
+				this.list.toggleYAxis(i);
+				break;
 			}
 		}
 		this.validate();
@@ -179,6 +197,22 @@ public class Legend extends JPanel {
 			this.list.add(i);
 			if (this.parent instanceof MultiScalarVisualizer)
 				((MultiScalarVisualizer) this.parent).addTrace(name, color);
+
+			// usually added to x1/y1, check if config says otherways and toggle accordingly
+			switch (Config.getXAxisSelection("DEFAULT_NVL_X_AXIS")) {
+			case x1:
+				break;
+			case x2:
+				this.list.toggleXAxis(i);
+				break;
+			}
+			switch (Config.getYAxisSelection("DEFAULT_NVL_Y_AXIS")) {
+			case y1:
+				break;
+			case y2:
+				this.list.toggleYAxis(i);
+				break;
+			}
 		}
 		this.validate();
 	}

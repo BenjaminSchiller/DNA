@@ -19,6 +19,7 @@ import javax.swing.JPanel;
 import javax.swing.border.EtchedBorder;
 
 import dna.visualization.MainDisplay;
+import dna.visualization.components.visualizer.Visualizer.yAxisSelection;
 
 /**
  * An item in the legendlist.
@@ -36,9 +37,11 @@ public class LegendItem extends JPanel {
 	protected Font defaultFontBorders = MainDisplay.defaultFontBorders;
 	protected Font valueFont = new Font("Dialog", Font.PLAIN, 9);
 
+	// general options
 	protected LegendItem thisItem;
 	protected LegendList parent;
 	protected Color color;
+	protected yAxisSelection yAxis;
 
 	// text panel containing the name and value
 	protected JPanel textPanel;
@@ -46,7 +49,7 @@ public class LegendItem extends JPanel {
 	protected JLabel valueLabel;
 
 	// buttons
-	private JButton toggleYAxisButton;
+	protected JButton toggleYAxisButton;
 	private JButton removeButton;
 	private JButton showHideButton;
 
@@ -55,6 +58,7 @@ public class LegendItem extends JPanel {
 
 	// constructor
 	public LegendItem(LegendList parent, String name, Color color) {
+		// init default parameters and variables
 		this.parent = parent;
 		this.thisItem = this;
 		this.setName(name);
@@ -63,6 +67,7 @@ public class LegendItem extends JPanel {
 		this.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED));
 		this.setLayout(new GridBagLayout());
 		GridBagConstraints c = new GridBagConstraints();
+		this.yAxis = yAxisSelection.y1;
 
 		// init set-, text- and button panels
 		this.textPanel = new JPanel();
@@ -98,7 +103,8 @@ public class LegendItem extends JPanel {
 		this.removeButton.setFont(this.defaultFont);
 		this.removeButton.setForeground(Color.BLACK);
 		this.removeButton.setPreferredSize(this.buttonSize);
-		this.removeButton.setToolTipText("Removes this value from list and plot.");
+		this.removeButton
+				.setToolTipText("Removes this value from list and plot.");
 		this.removeButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent event) {
@@ -110,24 +116,24 @@ public class LegendItem extends JPanel {
 				.getName(), this.removeButton.getFont().getStyle(), 17));
 
 		// toggle y axis button
-		this.toggleYAxisButton = new JButton("yR");
+		this.toggleYAxisButton = new JButton("y1");
 		this.toggleYAxisButton.setFont(this.defaultFont);
 		this.toggleYAxisButton.setForeground(Color.BLACK);
 		this.toggleYAxisButton.setPreferredSize(this.buttonSize);
 		this.toggleYAxisButton.setMargin(new Insets(0, 0, 0, 0));
 		this.toggleYAxisButton
-				.setToolTipText("Currently plotted on left y-axis. Click to change to right y-axis");
+				.setToolTipText("Currently plotted on left y-axis (y1). Click to change to right y-axis");
 		this.toggleYAxisButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent event) {
-				if (thisItem.toggleYAxisButton.getText().equals("yR")) {
-					thisItem.toggleYAxisButton.setText("yL");
+				if (thisItem.toggleYAxisButton.getText().equals("y2")) {
+					thisItem.toggleYAxisButton.setText("y1");
 					thisItem.toggleYAxisButton
-							.setToolTipText("Currently plotted on right y-axis. Click to change to left y-axis");
+							.setToolTipText("Currently plotted on left y-axis (y1). Click to change to right y-axis");
 				} else {
-					thisItem.toggleYAxisButton.setText("yR");
+					thisItem.toggleYAxisButton.setText("y2");
 					thisItem.toggleYAxisButton
-							.setToolTipText("Currently plotted on left y-axis. Click to change to right y-axis");
+							.setToolTipText("Currently plotted on right y-axis (y2). Click to change to left y-axis");
 				}
 				thisItem.parent.toggleYAxis(thisItem);
 			}
@@ -167,7 +173,6 @@ public class LegendItem extends JPanel {
 		this.buttonPanel.add(this.removeButton);
 		this.buttonPanel.add(this.showHideButton);
 		this.buttonPanel.add(this.toggleYAxisButton);
-
 
 		// add components
 		c.fill = GridBagConstraints.HORIZONTAL;
