@@ -1,6 +1,7 @@
 package dna.util;
 
 import java.awt.Color;
+import java.awt.Font;
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -172,12 +173,44 @@ public class Config extends PropertiesHolder {
 		Color color;
 		try {
 			Field field = Color.class.getField(Config.get(key));
-			color = (Color)field.get(null);
+			color = (Color) field.get(null);
 		} catch (Exception e) {
 			color = null;
 			e.printStackTrace();
 		}
 		return color;
+	}
+
+	/**
+	 * Reads a font from config file. Note: Needs a name, style and size!
+	 * Example: getFont("GUI_DEFAULT_FONT") reads "GUI_DEFAULT_FONT_NAME",
+	 * "GUI_DEFAULT_SONT_STYLE" and "GUI_DEFAULT_FONT_SIZE"
+	 * 
+	 * @param key
+	 * @return
+	 */
+	public static Font getFont(String key) {
+		String name = Config.get(key + "_NAME");
+		String tempStyle = Config.get(key + "_STYLE");
+		int size = Config.getInt(key + "_SIZE");
+		int style;
+
+		switch (tempStyle) {
+		case "PLAIN":
+			style = Font.PLAIN;
+			break;
+		case "BOLD":
+			style = Font.BOLD;
+			break;
+		case "ITALIC":
+			style = Font.ITALIC;
+			break;
+		default:
+			style = Font.PLAIN;
+			break;
+		}
+
+		return new Font(name, style, size);
 	}
 
 	public static PlotType getPlotType(String key) {
