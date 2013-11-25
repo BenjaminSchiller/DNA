@@ -16,7 +16,7 @@ import dna.updates.update.Update;
 public class ConnectedComponentUBatch extends ConnectedComponent {
 
 	public ConnectedComponentUBatch() {
-		super("CCUndirectedComp", ApplicationType.AfterBatch);
+		super("ConnectedComponentUBatch", ApplicationType.AfterBatch);
 	}
 
 	@Override

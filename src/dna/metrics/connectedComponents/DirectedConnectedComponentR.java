@@ -6,7 +6,7 @@ import dna.updates.update.Update;
 public class DirectedConnectedComponentR extends DirectedConnectedComponent {
 
 	public DirectedConnectedComponentR() {
-		super("CCDirectedComp", ApplicationType.Recomputation);
+		super("DirectedConnectedComponentR", ApplicationType.Recomputation);
 	}
 
 	@Override

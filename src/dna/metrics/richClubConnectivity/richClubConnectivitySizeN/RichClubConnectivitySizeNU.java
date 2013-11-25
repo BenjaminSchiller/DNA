@@ -1,4 +1,4 @@
-package dna.metrics.richClubConnectivity.RichClubConnectivitySizeN;
+package dna.metrics.richClubConnectivity.richClubConnectivitySizeN;
 
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -18,10 +18,17 @@ import dna.updates.update.NodeAddition;
 import dna.updates.update.NodeRemoval;
 import dna.updates.update.Update;
 
+/**
+ * 
+ * @author Jan Calculate the rich club connectivity value for a richClub with
+ *         size @param RichClubSize
+ * 
+ */
 public class RichClubConnectivitySizeNU extends RichClubConnectivitySizeN {
 
 	public RichClubConnectivitySizeNU(int richClubSize) {
-		super("RCCSizeN", ApplicationType.AfterUpdate, richClubSize);
+		super("RichClubConnectivitySizeNU", ApplicationType.AfterUpdate,
+				richClubSize);
 	}
 
 	@Override
@@ -132,7 +139,6 @@ public class RichClubConnectivitySizeNU extends RichClubConnectivitySizeN {
 	}
 
 	private boolean applyAfterNodeRemoval(Update u) {
-		System.out.println(u.toString());
 		Node node = (Node) ((NodeRemoval) u).getNode();
 		HashSet<Edge> edges = new HashSet<Edge>();
 		g.addNode(node);
@@ -142,7 +148,6 @@ public class RichClubConnectivitySizeNU extends RichClubConnectivitySizeN {
 			e.connectToNodes();
 		}
 		for (Edge e : edges) {
-			System.out.println(e);
 			e.disconnectFromNodes();
 			g.removeEdge(e);
 			applyAfterUpdate(new EdgeRemoval(e));
@@ -246,7 +251,6 @@ public class RichClubConnectivitySizeNU extends RichClubConnectivitySizeN {
 			}
 			addNodeToRest(src);
 		}
-
 		return true;
 	}
 
@@ -254,7 +258,6 @@ public class RichClubConnectivitySizeNU extends RichClubConnectivitySizeN {
 		UndirectedEdge e = (UndirectedEdge) ((EdgeUpdate) u).getEdge();
 		UndirectedNode n1 = e.getNode1();
 		UndirectedNode n2 = e.getNode2();
-		System.out.println(u.toString());
 
 		if (richClub.containsKey(n1.getDegree() - 1)
 				&& richClub.get(n1.getDegree() - 1).contains(n1)
@@ -265,8 +268,6 @@ public class RichClubConnectivitySizeNU extends RichClubConnectivitySizeN {
 
 		checkAdd(n1, n2);
 		checkAdd(n2, n1);
-		check();
-
 		return true;
 	}
 
@@ -278,14 +279,12 @@ public class RichClubConnectivitySizeNU extends RichClubConnectivitySizeN {
 			if (this.richClub.get(n1.getDegree() - 1).isEmpty()) {
 				this.richClub.remove(n1.getDegree() - 1);
 			}
-			System.out.println(n1 + " im rcc add");
 
 			addToRichClub(n1);
 		} else if (this.richClub.containsKey(n1.getDegree() - 1)
 				&& this.nodesSortedByDegree.containsKey(n1.getDegree() - 1)
 				&& this.nodesSortedByDegree.get(n1.getDegree() - 1)
 						.contains(n1)) {
-			System.out.println(n1 + " change add");
 
 			// changes for lastNode of Richclub
 			UndirectedNode lastNode;
@@ -340,7 +339,6 @@ public class RichClubConnectivitySizeNU extends RichClubConnectivitySizeN {
 			}
 
 		} else {
-			System.out.println(n1 + " im rest add");
 
 			this.nodesSortedByDegree.get(n1.getDegree() - 1).remove(n1);
 			if (this.nodesSortedByDegree.get(n1.getDegree() - 1).isEmpty()) {
@@ -351,7 +349,6 @@ public class RichClubConnectivitySizeNU extends RichClubConnectivitySizeN {
 	}
 
 	private boolean applyAfterUndirectedEdgeRemoval(Update u) {
-		System.out.println(u.toString());
 		UndirectedEdge e = (UndirectedEdge) ((EdgeUpdate) u).getEdge();
 		UndirectedNode n1 = e.getNode1();
 		UndirectedNode n2 = e.getNode2();
@@ -365,8 +362,6 @@ public class RichClubConnectivitySizeNU extends RichClubConnectivitySizeN {
 
 		checkRemoval(n1, n2);
 		checkRemoval(n2, n1);
-		check();
-
 		return true;
 	}
 
@@ -381,12 +376,10 @@ public class RichClubConnectivitySizeNU extends RichClubConnectivitySizeN {
 				this.richClub.remove(degree + 1);
 			}
 			addToRichClub(n);
-			System.out.println(n + " im rcc");
 
 		} else if (richClub.containsKey(degree + 1)
 				&& nodesSortedByDegree.containsKey(degree + 1)
 				&& richClub.get(degree + 1).contains(n)) {
-			System.out.println(n + " change");
 
 			// changes for firstNode of Rest
 			UndirectedNode firstNode;
@@ -394,11 +387,12 @@ public class RichClubConnectivitySizeNU extends RichClubConnectivitySizeN {
 			if (this.nodesSortedByDegree.get(degree + 1).size() == 1
 					&& this.nodesSortedByDegree.get(degree + 1).getFirst()
 							.equals(partner)) {
-				System.out.println(this.richClub.get(degree + 1).remove(n));
+
+				this.richClub.get(degree + 1).remove(n);
 				if (this.richClub.get(degree + 1).isEmpty()) {
 					this.richClub.remove(degree + 1);
 				}
-				addUndirectedNodeToRest(n);
+				addToRichClub(n);
 				return;
 			}
 			if (this.nodesSortedByDegree.get(degree + 1).getFirst()
@@ -415,7 +409,7 @@ public class RichClubConnectivitySizeNU extends RichClubConnectivitySizeN {
 			addToRichClub(firstNode);
 
 			// Changes for n1 node for richclub
-			System.out.println(this.richClub.get(degree + 1).remove(n));
+			this.richClub.get(degree + 1).remove(n);
 			if (this.richClub.get(degree + 1).isEmpty()) {
 				this.richClub.remove(degree + 1);
 			}
@@ -440,9 +434,7 @@ public class RichClubConnectivitySizeNU extends RichClubConnectivitySizeN {
 				}
 			}
 		} else {
-			System.out.println(n + " im rest");
-			System.out.println(this.nodesSortedByDegree.get(degree + 1).remove(
-					n));
+			this.nodesSortedByDegree.get(degree + 1).remove(n);
 			if (this.nodesSortedByDegree.get(degree + 1).isEmpty()) {
 				this.nodesSortedByDegree.remove(degree + 1);
 			}
@@ -468,11 +460,13 @@ public class RichClubConnectivitySizeNU extends RichClubConnectivitySizeN {
 			}
 
 		}
+		int size = 0;
 		for (int i : richClub.keySet()) {
 			if (richClub.get(i).isEmpty()) {
 				System.out.println(i);
 			}
 			for (Node n : richClub.get(i)) {
+				size++;
 				if (((UndirectedNode) n).getDegree() != i) {
 					System.out.println(n);
 				}
@@ -483,7 +477,7 @@ public class RichClubConnectivitySizeNU extends RichClubConnectivitySizeN {
 				}
 			}
 		}
-		if (seen.size() != g.getNodeCount()) {
+		if (seen.size() != g.getNodeCount() || size != richClubSize) {
 			System.out.println("fuck");
 		}
 

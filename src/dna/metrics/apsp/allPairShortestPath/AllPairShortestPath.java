@@ -1,4 +1,4 @@
-package dna.metrics.apsp.allPairShortestPathComplete;
+package dna.metrics.apsp.allPairShortestPath;
 
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -12,16 +12,19 @@ import dna.graph.nodes.DirectedNode;
 import dna.graph.nodes.Node;
 import dna.metrics.Metric;
 import dna.series.data.Distribution;
+import dna.series.data.DistributionInt;
 import dna.series.data.NodeValueList;
 import dna.series.data.Value;
 import dna.updates.batch.Batch;
 
-public abstract class AllPairShortestPathComplete extends Metric {
+public abstract class AllPairShortestPath extends Metric {
 
-	protected HashMap<Node, HashMap<Node, Node>> parentsOut;
-	protected HashMap<Node, HashMap<Node, Integer>> heightsOut;
+	protected HashMap<Node, HashMap<Node, Node>> parents;
+	protected HashMap<Node, HashMap<Node, Integer>> heights;
+	protected DistributionInt dists;
+	protected int sum;
 
-	public AllPairShortestPathComplete(String name, ApplicationType type) {
+	public AllPairShortestPath(String name, ApplicationType type) {
 		super(name, type, MetricType.exact);
 
 	}
@@ -39,15 +42,15 @@ public abstract class AllPairShortestPathComplete extends Metric {
 	}
 
 	protected void buildTrees(Node n) {
-		HashMap<Node, Node> parentOut = new HashMap<>();
-		HashMap<Node, Integer> heightOut = new HashMap<>();
+		HashMap<Node, Node> parent = new HashMap<>();
+		HashMap<Node, Integer> height = new HashMap<>();
 
 		for (IElement ie : g.getNodes()) {
 			Node t = (Node) ie;
 			if (t.equals(n)) {
-				heightOut.put(n, 0);
+				height.put(n, 0);
 			} else {
-				heightOut.put(t, Integer.MAX_VALUE);
+				height.put(t, Integer.MAX_VALUE);
 			}
 		}
 
@@ -60,11 +63,13 @@ public abstract class AllPairShortestPathComplete extends Metric {
 				DirectedNode current = (DirectedNode) q.poll();
 				for (IElement ie : current.getOutgoingEdges()) {
 					DirectedEdge e = (DirectedEdge) ie;
-					if (heightOut.get(e.getDst()) != Integer.MAX_VALUE) {
+					if (height.get(e.getDst()) != Integer.MAX_VALUE) {
 						continue;
 					}
-					heightOut.put(e.getDst(), heightOut.get(current) + 1);
-					parentOut.put(e.getDst(), current);
+					height.put(e.getDst(), height.get(current) + 1);
+					parent.put(e.getDst(), current);
+					dists.incr(height.get(e.getDst()));
+					sum += height.get(e.getDst());
 					q.add(e.getDst());
 				}
 			}
@@ -76,36 +81,46 @@ public abstract class AllPairShortestPathComplete extends Metric {
 					UndirectedEdge e = (UndirectedEdge) iEdge;
 					Node t = e.getDifferingNode(current);
 
-					if (heightOut.get(t) != Integer.MAX_VALUE) {
+					if (height.get(t) != Integer.MAX_VALUE) {
 						continue;
 					}
-					heightOut.put(t, heightOut.get(current) + 1);
-					parentOut.put(t, current);
-
+					height.put(t, height.get(current) + 1);
+					parent.put(t, current);
+					dists.incr(height.get(t));
 					q.add(t);
-
+					sum += height.get(t);
 				}
 			}
 		}
-		this.heightsOut.put(n, heightOut);
-		this.parentsOut.put(n, parentOut);
+		this.heights.put(n, height);
+		this.parents.put(n, parent);
 	}
 
 	@Override
 	public void init_() {
-		this.parentsOut = new HashMap<Node, HashMap<Node, Node>>();
-		this.heightsOut = new HashMap<Node, HashMap<Node, Integer>>();
+		this.parents = new HashMap<Node, HashMap<Node, Node>>();
+		this.heights = new HashMap<Node, HashMap<Node, Integer>>();
+		this.dists = new DistributionInt("ShortestPathDist");
+		this.sum = 0;
 	}
 
 	@Override
 	public void reset_() {
-		this.parentsOut = new HashMap<Node, HashMap<Node, Node>>();
-		this.heightsOut = new HashMap<Node, HashMap<Node, Integer>>();
+		this.parents = new HashMap<Node, HashMap<Node, Node>>();
+		this.heights = new HashMap<Node, HashMap<Node, Integer>>();
+		this.dists = new DistributionInt("ShortestPathDist");
+		this.sum = 0;
 	}
 
 	@Override
 	public Value[] getValues() {
-		return new Value[] {};
+		dists.truncate();
+		Value v1 = new Value("avg_shortest_path_Number_Existing_Paths", sum
+				/ dists.getDenominator());
+		Value v2 = new Value("diameter", this.dists.getMax());
+		Value v3 = new Value("avg_shortest_path_Number_Possible_Paths", sum
+				/ (g.getNodeCount() * (g.getNodeCount() - 1)));
+		return new Value[] { v1, v2, v3 };
 	}
 
 	@Override
@@ -115,13 +130,14 @@ public abstract class AllPairShortestPathComplete extends Metric {
 
 	@Override
 	public Distribution[] getDistributions() {
-		Distribution[] result = new Distribution[this.heightsOut.size()];
-		int i = 0;
-		for (Node n : heightsOut.keySet()) {
-			result[i] = new Distribution("distsForNode_" + n.getIndex(),
-					getDistribution(this.heightsOut.get(n)));
-			i++;
-		}
+		dists.truncate();
+		Distribution[] result = new Distribution[] { dists };
+		// int i = 0;
+		// for (Node n : heightsOut.keySet()) {
+		// result[i] = new Distribution("distsForNode_" + n.getIndex(),
+		// getDistribution(this.heightsOut.get(n)));
+		// i++;
+		// }
 		return result;
 	}
 
@@ -135,21 +151,21 @@ public abstract class AllPairShortestPathComplete extends Metric {
 
 	@Override
 	public boolean equals(Metric m) {
-		if (!(m instanceof AllPairShortestPathComplete)) {
+		if (!(m instanceof AllPairShortestPath)) {
 			return false;
 		}
 		boolean success = true;
-		AllPairShortestPathComplete apsp = (AllPairShortestPathComplete) m;
+		AllPairShortestPath apsp = (AllPairShortestPath) m;
 
-		for (Node n1 : heightsOut.keySet()) {
-			for (Node n2 : heightsOut.get(n1).keySet()) {
-				if (this.heightsOut.get(n1).get(n2).intValue() != apsp.heightsOut
+		for (Node n1 : heights.keySet()) {
+			for (Node n2 : heights.get(n1).keySet()) {
+				if (this.heights.get(n1).get(n2).intValue() != apsp.heights
 						.get(n1).get(n2).intValue()) {
 					success = false;
 					System.out.println("Diff @ Height for Node " + n2
 							+ " in Tree " + n1 + " expected "
-							+ this.heightsOut.get(n1).get(n2) + " is "
-							+ apsp.heightsOut.get(n1).get(n2));
+							+ this.heights.get(n1).get(n2) + " is "
+							+ apsp.heights.get(n1).get(n2));
 				}
 			}
 
@@ -160,7 +176,7 @@ public abstract class AllPairShortestPathComplete extends Metric {
 
 	@Override
 	public boolean isComparableTo(Metric m) {
-		return m != null && m instanceof AllPairShortestPathComplete;
+		return m != null && m instanceof AllPairShortestPath;
 	}
 
 	@Override

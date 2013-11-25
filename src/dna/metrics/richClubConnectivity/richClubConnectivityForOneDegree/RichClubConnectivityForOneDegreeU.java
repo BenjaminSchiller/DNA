@@ -13,11 +13,19 @@ import dna.updates.update.NodeAddition;
 import dna.updates.update.NodeRemoval;
 import dna.updates.update.Update;
 
+/**
+ * 
+ * Calculates the rich club connectivity value for richClub consiting of nodes
+ * with degree >= minDegree
+ * 
+ * 
+ */
 public class RichClubConnectivityForOneDegreeU extends
 		RichClubConnectivityForOneDegree {
 
 	public RichClubConnectivityForOneDegreeU(int minDegree) {
-		super("RCCForOneDegreeDyn", ApplicationType.AfterUpdate, minDegree);
+		super("RichClubConnectivityForOneDegreeU", ApplicationType.AfterUpdate,
+				minDegree);
 	}
 
 	@Override

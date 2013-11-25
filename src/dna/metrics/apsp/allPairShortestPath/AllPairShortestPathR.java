@@ -1,11 +1,14 @@
-package dna.metrics.old;
+package dna.metrics.apsp.allPairShortestPath;
 
 import dna.updates.batch.Batch;
 import dna.updates.update.Update;
 
-public class DirectedRichClubConnectivityPerDegreeR extends DirectedRichClubConnectivityPerDegree {
-	public DirectedRichClubConnectivityPerDegreeR() {
-		super("RCCPerDegreeComp", ApplicationType.Recomputation);
+public class AllPairShortestPathR extends
+		AllPairShortestPath {
+
+	public AllPairShortestPathR() {
+		super("AllPairShortestPathR", ApplicationType.Recomputation);
+
 	}
 
 	@Override
@@ -27,5 +30,4 @@ public class DirectedRichClubConnectivityPerDegreeR extends DirectedRichClubConn
 	public boolean applyAfterUpdate(Update u) {
 		return false;
 	}
-
 }

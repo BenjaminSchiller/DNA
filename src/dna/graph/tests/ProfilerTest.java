@@ -91,7 +91,7 @@ public class ProfilerTest {
 	}
 
 	@SuppressWarnings("rawtypes")
-	@Parameterized.Parameters(name = "{0} {1} {2} {3} {4} {5}")
+	//@Parameterized.Parameters(name = "{0} {1} {2} {3} {4} {5}")
 	public static Collection<Object> testPairs() {
 		ArrayList<Object> result = new ArrayList<>();
 		Class nodeListType = null;

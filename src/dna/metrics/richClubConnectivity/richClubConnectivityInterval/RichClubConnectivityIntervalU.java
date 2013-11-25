@@ -17,10 +17,17 @@ import dna.updates.update.NodeAddition;
 import dna.updates.update.NodeRemoval;
 import dna.updates.update.Update;
 
+/**
+ * 
+ * Calculates the rich club connectivity values for all richClubs with size n*
+ * interval
+ * 
+ */
 public class RichClubConnectivityIntervalU extends RichClubConnectivityInterval {
 
 	public RichClubConnectivityIntervalU(int interval) {
-		super("RCCKNodeIntervalDyn", ApplicationType.AfterUpdate, interval);
+		super("RichClubConnectivityIntervalU", ApplicationType.AfterUpdate,
+				interval);
 	}
 
 	@Override

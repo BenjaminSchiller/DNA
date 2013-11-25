@@ -21,7 +21,7 @@ import dna.updates.update.Update;
 public class ConnectedComponentU extends ConnectedComponent {
 
 	public ConnectedComponentU() {
-		super("CCUndirectedU", ApplicationType.AfterUpdate);
+		super("ConnectedComponentU", ApplicationType.AfterUpdate);
 	}
 
 	public void init() {

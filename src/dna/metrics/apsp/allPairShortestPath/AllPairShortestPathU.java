@@ -1,4 +1,4 @@
-package dna.metrics.apsp.allPairShortestPathComplete;
+package dna.metrics.apsp.allPairShortestPath;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -20,11 +20,10 @@ import dna.updates.update.NodeAddition;
 import dna.updates.update.NodeRemoval;
 import dna.updates.update.Update;
 
-public class AllPairShortestPathCompleteU extends
-		AllPairShortestPathComplete {
+public class AllPairShortestPathU extends AllPairShortestPath {
 
-	public AllPairShortestPathCompleteU() {
-		super("APSP Complete DYN", ApplicationType.AfterUpdate);
+	public AllPairShortestPathU() {
+		super("AllPairShortestPathU", ApplicationType.AfterUpdate);
 
 	}
 
@@ -75,8 +74,8 @@ public class AllPairShortestPathCompleteU extends
 		// check all trees if the deleted edge is in the tree
 		for (IElement ie : g.getNodes()) {
 			DirectedNode r = (DirectedNode) ie;
-			HashMap<Node, Node> parent = this.parentsOut.get(r);
-			HashMap<Node, Integer> height = this.heightsOut.get(r);
+			HashMap<Node, Node> parent = this.parents.get(r);
+			HashMap<Node, Integer> height = this.heights.get(r);
 
 			// if the source or dst or edge is not in tree do nothing
 			if (height.get(src) == Integer.MAX_VALUE
@@ -137,6 +136,8 @@ public class AllPairShortestPathCompleteU extends
 
 				// no neighbour found
 				if (noPossibleNeighbour) {
+					dists.decr(height.get(w));
+					sum -= height.get(w);
 					height.put(w, Integer.MAX_VALUE);
 					parent.remove(w);
 					continue;
@@ -178,6 +179,10 @@ public class AllPairShortestPathCompleteU extends
 					parent.put(w, minSettled.get(0));
 				}
 				changed.remove(w);
+				if (height.get(w) != Integer.MAX_VALUE)
+					dists.decr(height.get(w));
+				dists.incr(dist);
+				sum = sum + dist - height.get(w);
 				height.put(w, dist);
 				for (IElement iEgde : w.getOutgoingEdges()) {
 					DirectedEdge edge = (DirectedEdge) iEgde;
@@ -202,8 +207,8 @@ public class AllPairShortestPathCompleteU extends
 		// check all trees if the deleted edge is in the tree
 		for (IElement ie : g.getNodes()) {
 			Node r = (Node) ie;
-			HashMap<Node, Node> parent = this.parentsOut.get(r);
-			HashMap<Node, Integer> height = this.heightsOut.get(r);
+			HashMap<Node, Node> parent = this.parents.get(r);
+			HashMap<Node, Integer> height = this.heights.get(r);
 
 			Node src;
 			Node dst;
@@ -274,7 +279,9 @@ public class AllPairShortestPathCompleteU extends
 
 				// no neighbour found
 				if (noPossibleNeighbour) {
+					dists.decr(height.get(w));
 					height.put(w, Integer.MAX_VALUE);
+					sum -= height.get(w);
 					parent.remove(w);
 					continue;
 				}
@@ -315,6 +322,10 @@ public class AllPairShortestPathCompleteU extends
 					parent.put(w, minSettled.get(0));
 				}
 				changed.remove(w);
+				if (height.get(w) != Integer.MAX_VALUE)
+					dists.decr(height.get(w));
+				dists.incr(dist);
+				sum = sum + dist - height.get(w);
 				height.put(w, dist);
 				for (IElement iEdge : w.getEdges()) {
 					UndirectedEdge ed = (UndirectedEdge) iEdge;
@@ -339,8 +350,8 @@ public class AllPairShortestPathCompleteU extends
 
 		for (IElement ie : g.getNodes()) {
 			DirectedNode s = (DirectedNode) ie;
-			HashMap<Node, Node> parent = this.parentsOut.get(s);
-			HashMap<Node, Integer> height = this.heightsOut.get(s);
+			HashMap<Node, Node> parent = this.parents.get(s);
+			HashMap<Node, Integer> height = this.heights.get(s);
 
 			if (src.equals(s)) {
 				this.check(src, dst, parent, height);
@@ -364,8 +375,8 @@ public class AllPairShortestPathCompleteU extends
 
 		for (IElement ie : g.getNodes()) {
 			Node s = (Node) ie;
-			HashMap<Node, Node> parent = this.parentsOut.get(s);
-			HashMap<Node, Integer> height = this.heightsOut.get(s);
+			HashMap<Node, Node> parent = this.parents.get(s);
+			HashMap<Node, Integer> height = this.heights.get(s);
 
 			if (n1.equals(s)) {
 				this.check(n1, n2, parent, height);
@@ -394,6 +405,10 @@ public class AllPairShortestPathCompleteU extends
 		}
 		parent.put(b, a);
 		h_b = h_a + 1;
+		if (height.get(b) != Integer.MAX_VALUE)
+			dists.decr(height.get(b));
+		dists.incr(h_b);
+		sum = sum + h_b - height.get(b);
 		height.put(b, h_b);
 		for (IElement iEdge : b.getEdges()) {
 			UndirectedEdge e = (UndirectedEdge) iEdge;
@@ -411,6 +426,10 @@ public class AllPairShortestPathCompleteU extends
 		}
 		parent.put(b, a);
 		h_b = h_a + 1;
+		if (height.get(b) != Integer.MAX_VALUE)
+			dists.decr(height.get(b));
+		dists.incr(h_b);
+		sum = sum + h_b - height.get(b);
 		height.put(b, h_b);
 		for (IElement iEdge : b.getOutgoingEdges()) {
 			DirectedEdge edge = (DirectedEdge) iEdge;
@@ -436,12 +455,12 @@ public class AllPairShortestPathCompleteU extends
 			applyAfterUpdate(new EdgeRemoval(de));
 		}
 		g.removeNode(n);
-		this.heightsOut.remove(n);
-		this.parentsOut.remove(n);
+		this.heights.remove(n);
+		this.parents.remove(n);
 		for (IElement ie : this.g.getNodes()) {
 			Node r = (Node) ie;
-			this.heightsOut.get(r).remove(n);
-			this.parentsOut.get(r).remove(n);
+			this.heights.get(r).remove(n);
+			this.parents.get(r).remove(n);
 		}
 		return true;
 	}
@@ -449,17 +468,17 @@ public class AllPairShortestPathCompleteU extends
 	private boolean applyAfterNodeAddition(Update u) {
 		Node n = (Node) ((NodeAddition) u).getNode();
 
-		this.parentsOut.put(n, new HashMap<Node, Node>());
-		this.heightsOut.put(n, new HashMap<Node, Integer>());
+		this.parents.put(n, new HashMap<Node, Node>());
+		this.heights.put(n, new HashMap<Node, Integer>());
 
 		for (IElement ie : this.g.getNodes()) {
 			Node r = (Node) ie;
 
 			if (r != n) {
-				this.heightsOut.get(r).put(n, Integer.MAX_VALUE);
-				this.heightsOut.get(n).put(r, Integer.MAX_VALUE);
+				this.heights.get(r).put(n, Integer.MAX_VALUE);
+				this.heights.get(n).put(r, Integer.MAX_VALUE);
 			} else {
-				this.heightsOut.get(r).put(n, 0);
+				this.heights.get(r).put(n, 0);
 			}
 
 		}

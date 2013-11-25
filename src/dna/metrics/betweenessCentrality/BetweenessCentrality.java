@@ -21,8 +21,10 @@ import dna.updates.batch.Batch;
 
 public abstract class BetweenessCentrality extends Metric {
 
-	protected HashMap<Node, Double> bC;
+	//protected HashMap<Node, Double> bC;
 
+	protected NodeValueList bCC;
+	
 	protected HashMap<Node, HashMap<Node, HashSet<Node>>> parents;
 	protected HashMap<Node, HashMap<Node, Integer>> distances;
 	protected HashMap<Node, HashMap<Node, Integer>> spcs;
@@ -34,11 +36,12 @@ public abstract class BetweenessCentrality extends Metric {
 
 	@Override
 	public void init_() {
-		this.bC = new HashMap<Node, Double>();
+		//this.bC = new HashMap<Node, Double>();
 		this.parents = new HashMap<>();
 		this.distances = new HashMap<>();
 		this.spcs = new HashMap<>();
 		this.accSums = new HashMap<>();
+		this.bCC= new NodeValueList("BC_Score", this.g.getNodeCount());
 	}
 
 	@Override
@@ -47,7 +50,8 @@ public abstract class BetweenessCentrality extends Metric {
 		this.distances = new HashMap<>();
 		this.spcs = new HashMap<>();
 		this.accSums = new HashMap<>();
-		this.bC = new HashMap<Node, Double>();
+		//this.bC = new HashMap<Node, Double>();
+		this.bCC= new NodeValueList("BC_Score", this.g.getNodeCount());
 	}
 
 	@Override
@@ -57,7 +61,8 @@ public abstract class BetweenessCentrality extends Metric {
 
 		for (IElement ie : g.getNodes()) {
 			Node t = (Node) ie;
-			bC.put(t, 0d);
+			//bC.put(t, 0d);
+			bCC.setValue(t.getIndex(), 0d);
 		}
 
 		for (IElement ie : g.getNodes()) {
@@ -139,8 +144,10 @@ public abstract class BetweenessCentrality extends Metric {
 					sums.put(parent, sums.get(parent) + sumForCurretConnection);
 				}
 				if (w != n) {
-					double currentScore = this.bC.get(w);
-					this.bC.put(w, currentScore + sums.get(w));
+					double currentScore = this.bCC.getValue(w.getIndex()); 
+					//this.bC.get(w);
+					//this.bC.put(w, currentScore + sums.get(w));
+					this.bCC.setValue(w.getIndex(), currentScore+sums.get(w));
 				}
 			}
 			parents.put(n, p);
@@ -207,10 +214,10 @@ public abstract class BetweenessCentrality extends Metric {
 
 		for (IElement ie : g.getNodes()) {
 			Node n = (Node) ie;
-			if (Math.abs(this.bC.get(n).doubleValue()
-					- bc.bC.get(n).doubleValue()) > 0.0001) {
+			if (Math.abs(this.bCC.getValue(n.getIndex())
+					- bc.bCC.getValue(n.getIndex())) > 0.0001) {
 				System.out.println("diff at Node n " + n + " expected Score "
-						+ this.bC.get(n) + " is " + bc.bC.get(n));
+						+ this.bCC.getValue(n.getIndex()) + " is " + bc.bCC.getValue(n.getIndex()));
 				success = false;
 			}
 
@@ -226,15 +233,16 @@ public abstract class BetweenessCentrality extends Metric {
 
 	@Override
 	public Distribution[] getDistributions() {
-		Distribution d1 = new Distribution("BetweenessCentrality",
-				getDistribution(this.bC));
-		return new Distribution[] { d1 };
+//		Distribution d1 = new Distribution("BetweenessCentrality",
+//				getDistribution(this.bC));
+		return new Distribution[] { };
 
 	}
 
 	@Override
 	public NodeValueList[] getNodeValueLists() {
-		return new NodeValueList[] {};
+		this.bCC.toString();
+		return new NodeValueList[] {this.bCC};
 	}
 
 	private double[] getDistribution(

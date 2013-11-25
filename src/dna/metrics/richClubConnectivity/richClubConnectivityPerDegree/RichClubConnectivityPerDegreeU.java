@@ -14,11 +14,17 @@ import dna.updates.update.NodeAddition;
 import dna.updates.update.NodeRemoval;
 import dna.updates.update.Update;
 
+/**
+ * 
+ * Calculates the rich club connectivity values for all existing degrees n, with
+ * Node n ∈ richclub if degree > n
+ * 
+ */
 public class RichClubConnectivityPerDegreeU extends
 		RichClubConnectivityPerDegree {
 
 	public RichClubConnectivityPerDegreeU() {
-		super("RCCPerDegreeDyn", ApplicationType.AfterUpdate);
+		super("RichClubConnectivityPerDegreeU", ApplicationType.AfterUpdate);
 	}
 
 	@Override

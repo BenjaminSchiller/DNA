@@ -1,12 +1,18 @@
-package dna.metrics.richClubConnectivity.RichClubConnectivitySizeN;
+package dna.metrics.richClubConnectivity.richClubConnectivitySizeN;
 
 import dna.updates.batch.Batch;
 import dna.updates.update.Update;
 
-public class RichClubConnectivitySizeNR extends
-		RichClubConnectivitySizeN {
+/**
+ * 
+ * @author Jan Calculate the rich club connectivity value for a richClub with
+ *         size @param RichClubSize
+ * 
+ */
+public class RichClubConnectivitySizeNR extends RichClubConnectivitySizeN {
 	public RichClubConnectivitySizeNR(int richClubSize) {
-		super("RCCFirstKNodesComp", ApplicationType.Recomputation, richClubSize);
+		super("RichClubConnectivitySizeNR", ApplicationType.Recomputation,
+				richClubSize);
 	}
 
 	@Override

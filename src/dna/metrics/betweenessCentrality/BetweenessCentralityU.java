@@ -28,13 +28,13 @@ public class BetweenessCentralityU extends BetweenessCentrality {
 	long counter;
 
 	public BetweenessCentralityU() {
-		super("BCDyn", ApplicationType.AfterUpdate);
+		super("BetweenessCentralityU", ApplicationType.AfterUpdate);
 	}
 
 	@Override
 	public void init_() {
 		super.init_();
-		int length = 1000000;
+		int length = 10000;
 		qALevel = new LinkedList[length];
 		qLevel = new LinkedList[length];
 		visited = new HashMap<Node, Long>();
@@ -364,8 +364,11 @@ public class BetweenessCentralityU extends BetweenessCentrality {
 				}
 
 				if (!w.equals(root)) {
-					double currentScore = this.bC.get(w);
-					this.bC.put(w,
+					double currentScore = this.bCC.getValue(w.getIndex());
+					// this.bC.get(w);
+					// this.bC.put(w,
+					// currentScore + newASums.get(w) - oldSums.get(w));
+					this.bCC.setValue(w.getIndex(),
 							currentScore + newASums.get(w) - oldSums.get(w));
 				}
 			}
@@ -480,8 +483,11 @@ public class BetweenessCentralityU extends BetweenessCentrality {
 					}
 				}
 				if (!w.equals(root)) {
-					double currentScore = this.bC.get(w);
-					this.bC.put(w,
+					double currentScore = this.bCC.getValue(w.getIndex());
+					// this.bC.get(w);
+					// this.bC.put(w,
+					// currentScore + newASums.get(w) - oldSums.get(w));
+					this.bCC.setValue(w.getIndex(),
 							currentScore + newASums.get(w) - oldSums.get(w));
 				}
 
@@ -725,8 +731,11 @@ public class BetweenessCentralityU extends BetweenessCentrality {
 					}
 				}
 				if (!w.equals(root)) {
-					double currentScore = this.bC.get(w);
-					this.bC.put(w,
+					double currentScore = this.bCC.getValue(w.getIndex());
+					// this.bC.get(w);
+					// this.bC.put(w,
+					// currentScore + newASums.get(w) - oldSums.get(w));
+					this.bCC.setValue(w.getIndex(),
 							currentScore + newASums.get(w) - oldSums.get(w));
 				}
 
@@ -811,8 +820,11 @@ public class BetweenessCentralityU extends BetweenessCentrality {
 					}
 				}
 				if (!w.equals(root)) {
-					double currentScore = this.bC.get(w);
-					this.bC.put(w,
+					double currentScore = this.bCC.getValue(w.getIndex());
+					// this.bC.get(w);
+					// this.bC.put(w,
+					// currentScore + newASums.get(w) - oldSums.get(w));
+					this.bCC.setValue(w.getIndex(),
 							currentScore + newASums.get(w) - oldSums.get(w));
 				}
 
@@ -939,8 +951,11 @@ public class BetweenessCentralityU extends BetweenessCentrality {
 
 				}
 				if (!w.equals(root)) {
-					double currentScore = this.bC.get(w);
-					this.bC.put(w,
+					double currentScore = this.bCC.getValue(w.getIndex());
+					// this.bC.get(w);
+					// this.bC.put(w,
+					// currentScore + newASums.get(w) - oldSums.get(w));
+					this.bCC.setValue(w.getIndex(),
 							currentScore + newASums.get(w) - oldSums.get(w));
 				}
 			}
@@ -1053,8 +1068,11 @@ public class BetweenessCentralityU extends BetweenessCentrality {
 					}
 				}
 				if (!w.equals(root)) {
-					double currentScore = this.bC.get(w);
-					this.bC.put(w,
+					double currentScore = this.bCC.getValue(w.getIndex());
+					// this.bC.get(w);
+					// this.bC.put(w,
+					// currentScore + newSums.get(w) - oldSums.get(w));
+					this.bCC.setValue(w.getIndex(),
 							currentScore + newSums.get(w) - oldSums.get(w));
 				}
 
@@ -1082,7 +1100,9 @@ public class BetweenessCentralityU extends BetweenessCentrality {
 		}
 
 		for (Node n : this.accSums.get(node).keySet()) {
-			this.bC.put(n, this.bC.get(n) - this.accSums.get(node).get(n));
+			// this.bC.put(n, this.bC.get(n) - this.accSums.get(node).get(n));
+			this.bCC.setValue(n.getIndex(), this.bCC.getValue(n.getIndex())
+					- this.accSums.get(node).get(n));
 		}
 
 		this.spcs.remove(node);
@@ -1120,7 +1140,7 @@ public class BetweenessCentralityU extends BetweenessCentrality {
 		this.distances.put(node, d);
 		this.accSums.put(node, sums);
 		this.parents.put(node, p);
-		bC.put(node, 0d);
+		bCC.setValue(node.getIndex(), 0d);
 		visited.put(node, 0L);
 		return true;
 	}

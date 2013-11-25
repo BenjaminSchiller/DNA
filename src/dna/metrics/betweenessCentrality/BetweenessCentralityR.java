@@ -6,7 +6,7 @@ import dna.updates.update.Update;
 public class BetweenessCentralityR extends BetweenessCentrality {
 
 	public BetweenessCentralityR() {
-		super("BCComp", ApplicationType.Recomputation);
+		super("BetweenessCentralityR", ApplicationType.Recomputation);
 	}
 
 	@Override

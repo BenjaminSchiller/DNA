@@ -3,9 +3,16 @@ package dna.metrics.richClubConnectivity.richClubConnectivityPerDegree;
 import dna.updates.batch.Batch;
 import dna.updates.update.Update;
 
-public class RichClubConnectivityPerDegreeR extends RichClubConnectivityPerDegree {
+/**
+ * 
+ * Calculates the rich club connectivity values for all existing degrees n, with
+ * Node n ∈ richclub if degree > n
+ * 
+ */
+public class RichClubConnectivityPerDegreeR extends
+		RichClubConnectivityPerDegree {
 	public RichClubConnectivityPerDegreeR() {
-		super("RCCPerDegreeComp", ApplicationType.Recomputation);
+		super("RichClubConnectivityPerDegreeR", ApplicationType.Recomputation);
 	}
 
 	@Override

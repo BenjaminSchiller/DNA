@@ -1,4 +1,4 @@
-package dna.metrics.apsp.allPairShortestPathCompleteWeights;
+package dna.metrics.apsp.allPairShortestPathWeights;
 
 import java.util.HashMap;
 import java.util.PriorityQueue;
@@ -17,13 +17,12 @@ import dna.series.data.NodeValueList;
 import dna.series.data.Value;
 import dna.updates.batch.Batch;
 
-public abstract class AllPairShortestPathCompleteWeights extends Metric {
+public abstract class AllPairShortestPathWeights extends Metric {
 
 	protected HashMap<Node, HashMap<Node, Node>> parents;
-
 	protected HashMap<Node, HashMap<Node, Double>> heights;
 
-	public AllPairShortestPathCompleteWeights(String name, ApplicationType type) {
+	public AllPairShortestPathWeights(String name, ApplicationType type) {
 		super(name, type, MetricType.exact);
 
 	}
@@ -123,17 +122,25 @@ public abstract class AllPairShortestPathCompleteWeights extends Metric {
 	public void init_() {
 		this.parents = new HashMap<Node, HashMap<Node, Node>>();
 		this.heights = new HashMap<Node, HashMap<Node, Double>>();
+		newResults = true;
+
 	}
 
 	@Override
 	public void reset_() {
 		this.parents = new HashMap<Node, HashMap<Node, Node>>();
 		this.heights = new HashMap<Node, HashMap<Node, Double>>();
+		newResults = true;
+
 	}
 
 	@Override
 	public Value[] getValues() {
-		return new Value[] {};
+		getValueAndDist();
+		Value v1 = new Value("diameter", diameter);
+		Value v2 = new Value("avg_path_length", avg_path_length
+				/ (g.getNodeCount() * (g.getNodeCount() - 1)));
+		return new Value[] { v1, v2 };
 	}
 
 	@Override
@@ -141,33 +148,50 @@ public abstract class AllPairShortestPathCompleteWeights extends Metric {
 		return new NodeValueList[] {};
 	}
 
+	double diameter;
+	double avg_path_length;
+	Distribution[] result;
+	boolean newResults;
+
 	@Override
 	public Distribution[] getDistributions() {
-		Distribution[] result = new Distribution[this.heights.size()];
+		getValueAndDist();
+		return result;
+	}
+
+	private void getValueAndDist() {
+		if (!newResults) {
+			newResults = true;
+			return;
+		}
 		int i = 0;
+		result = new Distribution[this.heights.size()];
 		for (Node n : heights.keySet()) {
 			result[i] = new Distribution("distsForNode_" + n.getIndex(),
 					getDistribution(this.heights.get(n)));
 			i++;
 		}
-		return result;
+		newResults = false;
 	}
 
 	private double[] getDistribution(HashMap<Node, Double> hashMap) {
 		double[] result = new double[this.g.getMaxNodeIndex() + 1];
 		for (Node d : hashMap.keySet()) {
 			result[d.getIndex()] = hashMap.get(d);
+			diameter = Math.max(diameter, hashMap.get(d));
+			avg_path_length += hashMap.get(d);
 		}
+
 		return result;
 	}
 
 	@Override
 	public boolean equals(Metric m) {
-		if (!(m instanceof AllPairShortestPathCompleteWeights)) {
+		if (!(m instanceof AllPairShortestPathWeights)) {
 			return false;
 		}
 		boolean success = true;
-		AllPairShortestPathCompleteWeights apsp = (AllPairShortestPathCompleteWeights) m;
+		AllPairShortestPathWeights apsp = (AllPairShortestPathWeights) m;
 
 		for (Node n1 : heights.keySet()) {
 			for (Node n2 : heights.get(n1).keySet()) {
@@ -188,7 +212,7 @@ public abstract class AllPairShortestPathCompleteWeights extends Metric {
 
 	@Override
 	public boolean isComparableTo(Metric m) {
-		return m != null && m instanceof AllPairShortestPathCompleteWeights;
+		return m != null && m instanceof AllPairShortestPathWeights;
 	}
 
 	@Override

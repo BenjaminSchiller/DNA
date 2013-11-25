@@ -21,7 +21,7 @@ import dna.updates.update.Update;
 public class DirectedConnectedComponentU extends DirectedConnectedComponent {
 
 	public DirectedConnectedComponentU() {
-		super("CCDirectedDagger", ApplicationType.AfterUpdate);
+		super("DirectedConnectedComponentU", ApplicationType.AfterUpdate);
 	}
 
 	@Override

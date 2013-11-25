@@ -1,4 +1,4 @@
-package dna.metrics.apsp.allPairShortestPathCompleteWeights;
+package dna.metrics.apsp.allPairShortestPathWeights;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -22,11 +22,11 @@ import dna.updates.update.NodeAddition;
 import dna.updates.update.NodeRemoval;
 import dna.updates.update.Update;
 
-public class AllPairShortestPathCompleteWeightsU extends
-		AllPairShortestPathCompleteWeights {
+public class AllPairShortestPathWeightsU extends
+		AllPairShortestPathWeights {
 
-	public AllPairShortestPathCompleteWeightsU() {
-		super("APSP Undirected wiht Weights Dyn", ApplicationType.AfterUpdate);
+	public AllPairShortestPathWeightsU() {
+		super("AllPairShortestPathWeightsU", ApplicationType.AfterUpdate);
 	}
 
 	@Override

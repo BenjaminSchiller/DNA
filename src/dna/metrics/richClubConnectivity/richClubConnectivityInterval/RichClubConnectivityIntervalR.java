@@ -3,10 +3,16 @@ package dna.metrics.richClubConnectivity.richClubConnectivityInterval;
 import dna.updates.batch.Batch;
 import dna.updates.update.Update;
 
-public class RichClubConnectivityIntervalR extends
-		RichClubConnectivityInterval {
+/**
+ * 
+ * Calculates the rich club connectivity values for all richClubs with size n*
+ * interval
+ * 
+ */
+public class RichClubConnectivityIntervalR extends RichClubConnectivityInterval {
 	public RichClubConnectivityIntervalR(int interval) {
-		super("RCCKNodeIntervalComp", ApplicationType.Recomputation, interval);
+		super("RichClubConnectivityIntervalR", ApplicationType.Recomputation,
+				interval);
 	}
 
 	@Override
