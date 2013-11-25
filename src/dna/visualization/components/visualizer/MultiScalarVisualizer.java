@@ -9,7 +9,6 @@ import info.monitorenter.gui.chart.traces.painters.TracePainterFill;
 
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.Font;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
 import java.util.ArrayList;
@@ -28,12 +27,10 @@ import dna.series.data.DistributionLong;
 import dna.series.data.MetricData;
 import dna.series.data.NodeValueList;
 import dna.util.Config;
-import dna.visualization.MainDisplay;
+import dna.visualization.GuiOptions;
 
+@SuppressWarnings("serial")
 public class MultiScalarVisualizer extends Visualizer {
-	// fonts
-	private Font defaultFontBorders = MainDisplay.defaultFontBorders;
-
 	// available values and traces
 	private ArrayList<String> availableValues;
 	private HashMap<String, ITrace2D> traces;
@@ -48,8 +45,6 @@ public class MultiScalarVisualizer extends Visualizer {
 		distribution, cdf
 	}
 
-	private SortModeNVL sortMode;
-
 	// constructor
 	public MultiScalarVisualizer() {
 		// initialization
@@ -57,23 +52,22 @@ public class MultiScalarVisualizer extends Visualizer {
 		this.availableValues = new ArrayList<String>();
 
 		// remove timestamp-label on x-axis
-		this.xAxis1.setTitle("x1");
-		this.xAxis2.setTitle("x2");
+		this.xAxis1.getAxisTitle().setTitle("x1");
+		this.xAxis2.getAxisTitle().setTitle("x2");
 
-		// set default sort mode
-		this.sortMode = sortMode.index;
-
-		// set title and border of the metric visualizer
+		// set title and border of the visualizer
 		TitledBorder title = BorderFactory
 				.createTitledBorder("Multi-Scalar Visualizer");
 		title.setBorder(BorderFactory
 				.createEtchedBorder((EtchedBorder.LOWERED)));
-		title.setTitleFont(this.defaultFontBorders);
+		title.setTitleFont(GuiOptions.defaultFontBorders);
+		title.setTitleColor(GuiOptions.defaultFontBordersColor);
 		this.setBorder(title);
 
 		// add menu bar
-		super.addMenuBar(new Dimension(this.defaultMenuBarSize), true, true,
-				true, true, true);
+		super.addMenuBar(
+				new Dimension(GuiOptions.visualizerDefaultMenuBarSize), true,
+				true, true, true, true);
 
 		// add coordinate parsing to mouseover on chart
 		this.chart.addMouseMotionListener(new MouseMotionListener() {
@@ -129,7 +123,6 @@ public class MultiScalarVisualizer extends Visualizer {
 	}
 
 	public void updateData(BatchData b) {
-		long timestamp = b.getTimestamp();
 		this.clearPoints();
 
 		for (String metric : b.getMetrics().getNames()) {
@@ -199,43 +192,6 @@ public class MultiScalarVisualizer extends Visualizer {
 		updateX2Ticks();
 		updateY1Ticks();
 		updateY2Ticks();
-	}
-
-	/** adds points for a given trace to the chart **/
-	private void addPoints(String name, double[] values) {
-		ITrace2D tempTrace = this.traces.get(name);
-		for (int i = 0; i < values.length; i++) {
-			if (values[i] != Double.NaN)
-				tempTrace.addPoint(i, values[i]);
-		}
-		if (values.length - 1 > this.maxShownTimestamp)
-			this.maxShownTimestamp = values.length - 1;
-		if (values.length - 1 > this.maxTimestamp)
-			this.maxTimestamp = values.length - 1;
-	}
-
-	/** adds points for a given trace to the chart **/
-	private void addPoints(String name, int[] values, int denominator) {
-		ITrace2D tempTrace = this.traces.get(name);
-		for (int i = 0; i < values.length; i++) {
-			tempTrace.addPoint(i, (1.0 * values[i]) / denominator);
-		}
-		if (values.length - 1 > this.maxShownTimestamp)
-			this.maxShownTimestamp = values.length - 1;
-		if (values.length - 1 > this.maxTimestamp)
-			this.maxTimestamp = values.length - 1;
-	}
-
-	/** adds points for a given trace to the chart **/
-	private void addPoints(String name, long[] values, long denominator) {
-		ITrace2D tempTrace = this.traces.get(name);
-		for (int i = 0; i < values.length; i++) {
-			tempTrace.addPoint(i, (1.0 * values[i]) / denominator);
-		}
-		if (values.length - 1 > this.maxShownTimestamp)
-			this.maxShownTimestamp = values.length - 1;
-		if (values.length - 1 > this.maxTimestamp)
-			this.maxTimestamp = values.length - 1;
 	}
 
 	/** adds points sorted and normalized by dividing through denominator **/
@@ -414,16 +370,6 @@ public class MultiScalarVisualizer extends Visualizer {
 		return tempValues;
 	}
 
-	/** sets the sort mode **/
-	public void setSortOrder(SortModeNVL sortMode) {
-		this.sortMode = sortMode;
-	}
-
-	/** gets the sort mode **/
-	public SortModeNVL getSortMode() {
-		return this.sortMode;
-	}
-
 	/** handles the ticks that are shown on the second x axis **/
 	@Override
 	public void updateX1Ticks() {
@@ -484,6 +430,7 @@ public class MultiScalarVisualizer extends Visualizer {
 	}
 
 	/** toggles the y axis for a trace identified by its name **/
+	@SuppressWarnings("rawtypes")
 	public void toggleYAxis(String name) {
 		if (this.traces.containsKey(name)) {
 			Boolean left = false;

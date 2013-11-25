@@ -2,8 +2,6 @@ package dna.visualization;
 
 import java.awt.Color;
 import java.awt.Component;
-import java.awt.Dimension;
-import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
@@ -24,32 +22,20 @@ import javax.swing.JPanel;
 import javax.swing.border.EtchedBorder;
 
 import dna.series.data.BatchData;
-import dna.util.Config;
 import dna.visualization.components.statsdisplay.StatsDisplay;
 import dna.visualization.components.visualizer.MetricVisualizer;
 import dna.visualization.components.visualizer.MultiScalarVisualizer;
 import dna.visualization.components.visualizer.Visualizer;
 
+@SuppressWarnings("serial")
 public class MainDisplay extends JFrame {
-	/** DEFAULTS **/
-	static String defaultDir = "data/scenario1/run.0/";
-	public static Font defaultFont = MainDisplay.getDefaultFontFromConfig();
-	public static Font defaultFontBorders = new Font(defaultFont.getName(),
-			Font.BOLD, defaultFont.getSize());
-
-	/** SIZES **/
-	private Dimension mainDisplaySize = new Dimension(1680, 800);
-	private Dimension statsDisplaySize = new Dimension(250, 400);
-	private Dimension buttonSize = new Dimension(90, 30);
-	private Dimension logoSize = new Dimension(270, 160);
-
 	/** MAIN **/
 	public static void main(String[] args) {
 		// init main window
 		MainDisplay display = new MainDisplay();
 
 		// init batch handler, hand over directory and maindisplay
-		display.setBatchHandler(new BatchHandler(defaultDir, display));
+		display.setBatchHandler(new BatchHandler(GuiOptions.defaultDir, display));
 		display.initBatchHandler();
 
 		display.setVisible(true);
@@ -77,7 +63,7 @@ public class MainDisplay extends JFrame {
 	// constructor
 	public MainDisplay() {
 		setTitle("DNA - Dynamic Network Analyzer");
-		setSize(mainDisplaySize);
+		setSize(GuiOptions.mainDisplaySize);
 		setLocationRelativeTo(null);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
@@ -93,7 +79,7 @@ public class MainDisplay extends JFrame {
 		// size not used yet, first rework layouting in statsdisplay frame
 		// this.statsDisplay1.setPreferredSize(statsDisplaySize);
 		this.statsDisplay1.setParent(this);
-		this.statsDisplay1.setDirectory(defaultDir);
+		this.statsDisplay1.setDirectory(GuiOptions.defaultDir);
 
 		mainDisplayConstraints.gridy = 0;
 		mainDisplayConstraints.gridx = 0;
@@ -104,9 +90,9 @@ public class MainDisplay extends JFrame {
 
 		// create buttons
 		this.quitButton = new JButton("Quit");
-		this.quitButton.setPreferredSize(buttonSize);
-		this.quitButton.setFont(MainDisplay.defaultFont);
-		this.quitButton.setForeground(Color.BLACK);
+		this.quitButton.setPreferredSize(GuiOptions.mainDisplayButtonSize);
+		this.quitButton.setFont(GuiOptions.defaultFont);
+		this.quitButton.setForeground(GuiOptions.defaultFontColor);
 		this.quitButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent event) {
@@ -115,31 +101,32 @@ public class MainDisplay extends JFrame {
 		});
 
 		this.pauseButton = new JButton("Pause");
-		this.pauseButton.setPreferredSize(buttonSize);
-		this.pauseButton.setFont(MainDisplay.defaultFont);
-		this.pauseButton.setForeground(Color.BLACK);
+		this.pauseButton.setPreferredSize(GuiOptions.mainDisplayButtonSize);
+		this.pauseButton.setFont(GuiOptions.defaultFont);
+		this.pauseButton.setForeground(GuiOptions.defaultFontColor);
 		this.pauseButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent event) {
 				batchHandler.togglePause();
-				if (pauseButton.getForeground().equals(Color.BLACK)) {
+				if (pauseButton.getForeground().equals(
+						GuiOptions.defaultFontColor)) {
 					pauseButton.setForeground(Color.RED);
 					pauseButton.setText("Resume");
 				} else {
 					pauseButton.setText("Pause");
-					pauseButton.setForeground(Color.BLACK);
+					pauseButton.setForeground(GuiOptions.defaultFontColor);
 				}
 			}
 		});
 
 		this.stopButton = new JButton("Stop");
-		this.stopButton.setPreferredSize(buttonSize);
-		this.stopButton.setFont(MainDisplay.defaultFont);
-		this.stopButton.setForeground(Color.BLACK);
+		this.stopButton.setPreferredSize(GuiOptions.mainDisplayButtonSize);
+		this.stopButton.setFont(GuiOptions.defaultFont);
+		this.stopButton.setForeground(GuiOptions.defaultFontColor);
 		this.stopButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent event) {
-				pauseButton.setForeground(Color.BLACK);
+				pauseButton.setForeground(GuiOptions.defaultFontColor);
 				pauseButton.setText("Pause");
 				try {
 					statsDisplay1.setStopped();
@@ -152,9 +139,9 @@ public class MainDisplay extends JFrame {
 		});
 
 		this.startButton = new JButton("Start");
-		this.startButton.setPreferredSize(buttonSize);
-		this.startButton.setFont(MainDisplay.defaultFont);
-		this.startButton.setForeground(Color.BLACK);
+		this.startButton.setPreferredSize(GuiOptions.mainDisplayButtonSize);
+		this.startButton.setFont(GuiOptions.defaultFont);
+		this.startButton.setForeground(GuiOptions.defaultFontColor);
 		this.startButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent event) {
@@ -164,9 +151,9 @@ public class MainDisplay extends JFrame {
 		});
 
 		final JButton toggleM1 = new JButton("-M1");
-		toggleM1.setPreferredSize(buttonSize);
-		toggleM1.setFont(MainDisplay.defaultFont);
-		toggleM1.setForeground(Color.BLACK);
+		toggleM1.setPreferredSize(GuiOptions.mainDisplayButtonSize);
+		toggleM1.setFont(GuiOptions.defaultFont);
+		toggleM1.setForeground(GuiOptions.defaultFontColor);
 		toggleM1.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent event) {
@@ -181,9 +168,9 @@ public class MainDisplay extends JFrame {
 		});
 
 		final JButton toggleM2 = new JButton("+M1");
-		toggleM2.setPreferredSize(buttonSize);
-		toggleM2.setFont(MainDisplay.defaultFont);
-		toggleM2.setForeground(Color.BLACK);
+		toggleM2.setPreferredSize(GuiOptions.mainDisplayButtonSize);
+		toggleM2.setFont(GuiOptions.defaultFont);
+		toggleM2.setForeground(GuiOptions.defaultFontColor);
 		toggleM2.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent event) {
@@ -240,7 +227,7 @@ public class MainDisplay extends JFrame {
 		}
 		JLabel logoLabel = new JLabel(new ImageIcon(image));
 		this.logoPanel.setLayout(new GridBagLayout());
-		this.logoPanel.setPreferredSize(this.logoSize);
+		this.logoPanel.setPreferredSize(GuiOptions.logoSize);
 		this.logoPanel.add(logoLabel);
 
 		// add metric visualizer
@@ -369,30 +356,4 @@ public class MainDisplay extends JFrame {
 	public void setBatchHandler(BatchHandler bh) {
 		this.batchHandler = bh;
 	}
-
-	/** returns the default font configured in the gui config file **/
-	static public Font getDefaultFontFromConfig() {
-		String name = Config.get("GUI_DEFAULT_FONT_NAME");
-		int style;
-		int size = Integer.parseInt(Config.get("GUI_DEFAULT_FONT_SIZE"));
-
-		String temp = Config.get("GUI_DEFAULT_FONT_STYLE");
-		switch (temp) {
-		case "PLAIN":
-			style = Font.PLAIN;
-			break;
-		case "BOLD":
-			style = Font.BOLD;
-			break;
-		case "ITALIC":
-			style = Font.ITALIC;
-			break;
-		default:
-			style = Font.PLAIN;
-			break;
-		}
-
-		return new Font(name, style, size);
-	}
-
 }

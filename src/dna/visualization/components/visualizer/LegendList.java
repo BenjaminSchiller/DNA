@@ -13,6 +13,7 @@ import dna.visualization.VerticalLayout;
  * @author Rwilmes
  * 
  */
+@SuppressWarnings("serial")
 public class LegendList extends JPanel {
 
 	private Legend parent;

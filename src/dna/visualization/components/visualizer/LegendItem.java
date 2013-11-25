@@ -18,7 +18,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.border.EtchedBorder;
 
-import dna.visualization.MainDisplay;
+import dna.visualization.GuiOptions;
 import dna.visualization.components.visualizer.Visualizer.yAxisSelection;
 
 /**
@@ -27,16 +27,8 @@ import dna.visualization.components.visualizer.Visualizer.yAxisSelection;
  * @author Rwilmes
  * 
  */
+@SuppressWarnings("serial")
 public class LegendItem extends JPanel {
-	// sizes
-	protected Dimension itemSize = new Dimension(165, 40);
-	protected Dimension buttonSize = new Dimension(20, 20);
-
-	// fonts
-	protected Font defaultFont = MainDisplay.defaultFont;
-	protected Font defaultFontBorders = MainDisplay.defaultFontBorders;
-	protected Font valueFont = new Font("Dialog", Font.PLAIN, 9);
-
 	// general options
 	protected LegendItem thisItem;
 	protected LegendList parent;
@@ -63,7 +55,7 @@ public class LegendItem extends JPanel {
 		this.thisItem = this;
 		this.setName(name);
 		this.color = color;
-		this.setPreferredSize(this.itemSize);
+		this.setPreferredSize(GuiOptions.legendItemItemSize);
 		this.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED));
 		this.setLayout(new GridBagLayout());
 		GridBagConstraints c = new GridBagConstraints();
@@ -88,21 +80,22 @@ public class LegendItem extends JPanel {
 
 		// name label
 		this.nameLabel = new JLabel(nameSuffix);
-		this.nameLabel.setFont(this.defaultFont);
+		this.nameLabel.setFont(GuiOptions.defaultFont);
 		this.nameLabel.setForeground(color);
 		this.textPanel.add(this.nameLabel);
 		// value label
 		this.valueLabel = new JLabel("V=" + 0.0);
-		this.valueLabel.setFont(valueFont);
+		this.valueLabel.setFont(GuiOptions.legendItemValueFont);
+		this.valueLabel.setForeground(GuiOptions.legendItemValueFontColor);
 		this.valueLabel.setPreferredSize(new Dimension(80, 20));
 		this.valueLabel.setToolTipText("V=0.0");
 		this.textPanel.add(this.valueLabel);
 
 		// remove button
 		this.removeButton = new JButton("-");
-		this.removeButton.setFont(this.defaultFont);
-		this.removeButton.setForeground(Color.BLACK);
-		this.removeButton.setPreferredSize(this.buttonSize);
+		this.removeButton.setFont(GuiOptions.defaultFont);
+		this.removeButton.setForeground(GuiOptions.defaultFontColor);
+		this.removeButton.setPreferredSize(GuiOptions.legendItemButtonSize);
 		this.removeButton
 				.setToolTipText("Removes this value from list and plot.");
 		this.removeButton.addActionListener(new ActionListener() {
@@ -117,9 +110,9 @@ public class LegendItem extends JPanel {
 
 		// toggle y axis button
 		this.toggleYAxisButton = new JButton("y1");
-		this.toggleYAxisButton.setFont(this.defaultFont);
-		this.toggleYAxisButton.setForeground(Color.BLACK);
-		this.toggleYAxisButton.setPreferredSize(this.buttonSize);
+		this.toggleYAxisButton.setFont(GuiOptions.defaultFont);
+		this.toggleYAxisButton.setForeground(GuiOptions.defaultFontColor);
+		this.toggleYAxisButton.setPreferredSize(GuiOptions.legendItemButtonSize);
 		this.toggleYAxisButton.setMargin(new Insets(0, 0, 0, 0));
 		this.toggleYAxisButton
 				.setToolTipText("Currently plotted on left y-axis (y1). Click to change to right y-axis");
@@ -141,9 +134,9 @@ public class LegendItem extends JPanel {
 
 		// show/hide button
 		this.showHideButton = new JButton("H");
-		this.showHideButton.setFont(this.defaultFont);
-		this.showHideButton.setForeground(Color.BLACK);
-		this.showHideButton.setPreferredSize(this.buttonSize);
+		this.showHideButton.setFont(GuiOptions.defaultFont);
+		this.showHideButton.setForeground(GuiOptions.defaultFontColor);
+		this.showHideButton.setPreferredSize(GuiOptions.legendItemButtonSize);
 		this.showHideButton.setMargin(new Insets(0, 0, 0, 0));
 		this.showHideButton.setToolTipText("Hides this value in the chart");
 		this.showHideButton.addActionListener(new ActionListener() {
@@ -156,7 +149,7 @@ public class LegendItem extends JPanel {
 							.setToolTipText("Shows this value in the chart");
 				} else {
 					thisItem.showHideButton.setText("H");
-					thisItem.showHideButton.setForeground(Color.BLACK);
+					thisItem.showHideButton.setForeground(GuiOptions.defaultFontColor);
 					thisItem.showHideButton
 							.setToolTipText("Hides this value in the chart");
 				}

@@ -1,7 +1,6 @@
 package dna.visualization.components.visualizer;
 
 import java.awt.Color;
-import java.awt.Dimension;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -9,9 +8,9 @@ import java.awt.event.ActionListener;
 import javax.swing.JButton;
 
 import dna.util.Config;
+import dna.visualization.GuiOptions;
 import dna.visualization.components.visualizer.MultiScalarVisualizer.SortModeNVL;
 import dna.visualization.components.visualizer.Visualizer.xAxisSelection;
-import dna.visualization.components.visualizer.Visualizer.yAxisSelection;
 
 /**
  * A legenditem in the legendlist representing a nodevaluelist.
@@ -19,6 +18,7 @@ import dna.visualization.components.visualizer.Visualizer.yAxisSelection;
  * @author Rwilmes
  * 
  */
+@SuppressWarnings("serial")
 public class LegendItemNodeValueList extends LegendItem {
 	// components
 	private SortModeNVL sortMode;
@@ -31,8 +31,10 @@ public class LegendItemNodeValueList extends LegendItem {
 	public LegendItemNodeValueList(LegendList parent, String name, Color color) {
 		// init
 		super(parent, name, color);
-		this.valueLabel.setPreferredSize(new Dimension(60, 20));
-		this.buttonPanel.setPreferredSize(new Dimension(100, 20));
+		this.valueLabel
+				.setPreferredSize(GuiOptions.legendItemNvlValueLabelSize);
+		this.buttonPanel
+				.setPreferredSize(GuiOptions.legendItemNvlButtonPanelSize);
 
 		// load defaults
 		this.sortMode = Config.getSortModeNVL("GUI_SORT_MODE_NVL");
@@ -67,9 +69,10 @@ public class LegendItemNodeValueList extends LegendItem {
 					.setToolTipText("Currently plotted on x-axis 2. Click to change to x-axis 1");
 			break;
 		}
-		this.toggleXAxisButton.setFont(this.defaultFont);
-		this.toggleXAxisButton.setForeground(Color.BLACK);
-		this.toggleXAxisButton.setPreferredSize(this.buttonSize);
+		this.toggleXAxisButton.setFont(GuiOptions.defaultFont);
+		this.toggleXAxisButton.setForeground(GuiOptions.defaultFontColor);
+		this.toggleXAxisButton
+				.setPreferredSize(GuiOptions.legendItemButtonSize);
 		this.toggleXAxisButton.setMargin(new Insets(0, 0, 0, 0));
 		this.toggleXAxisButton.addActionListener(new ActionListener() {
 			@Override
@@ -108,9 +111,9 @@ public class LegendItemNodeValueList extends LegendItem {
 					.setToolTipText("NodeValueList is sorted by index. Click to change to ascending order.");
 			break;
 		}
-		this.sortModeButton.setFont(this.defaultFont);
-		this.sortModeButton.setForeground(Color.BLACK);
-		this.sortModeButton.setPreferredSize(this.buttonSize);
+		this.sortModeButton.setFont(GuiOptions.defaultFont);
+		this.sortModeButton.setForeground(GuiOptions.defaultFontColor);
+		this.sortModeButton.setPreferredSize(GuiOptions.legendItemButtonSize);
 		this.sortModeButton.setMargin(new Insets(0, 0, 0, 0));
 		this.sortModeButton.addActionListener(new ActionListener() {
 			@Override
@@ -127,7 +130,7 @@ public class LegendItemNodeValueList extends LegendItem {
 							.setToolTipText("NodeValueList is sorted by index. Click to change to ascending order.");
 				} else if (sortMode.equals(SortModeNVL.index)) {
 					sortModeButton.setText("A");
-					sortMode = sortMode.ascending;
+					sortMode = SortModeNVL.ascending;
 					sortModeButton
 							.setToolTipText("NodeValueList is sorted in ascending order. Click to change to descending order.");
 				}

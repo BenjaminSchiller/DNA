@@ -11,7 +11,6 @@ import info.monitorenter.util.Range;
 
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.Font;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
 import java.util.ArrayList;
@@ -26,12 +25,10 @@ import dna.series.data.MetricData;
 import dna.series.data.RunTime;
 import dna.series.data.Value;
 import dna.util.Config;
-import dna.visualization.MainDisplay;
+import dna.visualization.GuiOptions;
 
+@SuppressWarnings("serial")
 public class MetricVisualizer extends Visualizer {
-	// fonts
-	private Font defaultFontBorders = MainDisplay.defaultFontBorders;
-
 	// available values and traces
 	private ArrayList<String> availableValues;
 	private HashMap<String, ITrace2D> traces;
@@ -47,12 +44,14 @@ public class MetricVisualizer extends Visualizer {
 				.createTitledBorder("Metric Visualizer");
 		title.setBorder(BorderFactory
 				.createEtchedBorder((EtchedBorder.LOWERED)));
-		title.setTitleFont(this.defaultFontBorders);
+		title.setTitleFont(GuiOptions.defaultFontBorders);
+		title.setTitleColor(GuiOptions.defaultFontBordersColor);
 		this.setBorder(title);
 
 		// add menu bar
-		super.addMenuBar(new Dimension(this.defaultMenuBarSize), true, true,
-				true, true, true);
+		super.addMenuBar(
+				new Dimension(GuiOptions.visualizerDefaultMenuBarSize), true,
+				true, true, true, true);
 
 		// add coordinate parsing to mouseover on chart
 		this.chart.addMouseMotionListener(new MouseMotionListener() {
@@ -96,6 +95,7 @@ public class MetricVisualizer extends Visualizer {
 					String tempName = metric + "." + value;
 					double tempValue = b.getMetrics().get(metric).getValues()
 							.get(value).getValue();
+
 					this.traces.get(tempName).addPoint(timestampDouble,
 							tempValue);
 					this.legend.updateItem(tempName, tempValue);
@@ -301,6 +301,7 @@ public class MetricVisualizer extends Visualizer {
 	}
 
 	/** toggles the y axis for a trace identified by its name **/
+	@SuppressWarnings("rawtypes")
 	public void toggleYAxis(String name) {
 		if (this.traces.containsKey(name)) {
 			Boolean left = false;

@@ -231,7 +231,7 @@ public class BatchHandler implements Runnable {
 				long waitTime = this.getSpeed()
 						- (System.currentTimeMillis() - startProcessing);
 				if (waitTime > 0)
-					this.t.sleep(waitTime);
+					Thread.sleep(waitTime);
 
 				synchronized (this) {
 					while (this.threadSuspended)

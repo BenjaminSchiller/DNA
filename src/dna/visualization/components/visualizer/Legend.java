@@ -3,7 +3,6 @@ package dna.visualization.components.visualizer;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
-import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
@@ -11,14 +10,13 @@ import java.awt.event.ActionListener;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
-import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.border.EtchedBorder;
 
 import dna.util.Config;
-import dna.visualization.MainDisplay;
+import dna.visualization.GuiOptions;
 import dna.visualization.components.BoundsPopupMenuListener;
 import dna.visualization.components.ColorHandler;
 
@@ -29,11 +27,8 @@ import dna.visualization.components.ColorHandler;
  * @author RWilmes
  * 
  */
+@SuppressWarnings("serial")
 public class Legend extends JPanel {
-	// defaults
-	private Font defaultFont = MainDisplay.defaultFont;
-	private Font defaultFontBorders = MainDisplay.defaultFontBorders;
-
 	// components
 	private Visualizer parent;
 	private Legend thisLegend;
@@ -41,7 +36,6 @@ public class Legend extends JPanel {
 	private JScrollPane scrollBar;
 
 	private JPanel addButtonPanel;
-	private JButton addButton;
 
 	private JComboBox<String> addBox;
 	private String[] addBoxMenu;
@@ -258,7 +252,7 @@ public class Legend extends JPanel {
 			}
 		});
 		this.addBox.setToolTipText("Add selected value to the list");
-		this.addBox.setFont(this.defaultFont);
+		this.addBox.setFont(GuiOptions.defaultFont);
 		BoundsPopupMenuListener listener = new BoundsPopupMenuListener(true,
 				false);
 		this.addBox.addPopupMenuListener(listener);
@@ -283,7 +277,7 @@ public class Legend extends JPanel {
 			}
 		});
 		this.addBox.setToolTipText("Add selected value to the list");
-		this.addBox.setFont(this.defaultFont);
+		this.addBox.setFont(GuiOptions.defaultFont);
 		BoundsPopupMenuListener listener = new BoundsPopupMenuListener(true,
 				false);
 		this.addBox.addPopupMenuListener(listener);

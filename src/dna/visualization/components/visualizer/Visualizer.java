@@ -11,39 +11,33 @@ import info.monitorenter.gui.chart.rangepolicies.RangePolicyFixedViewport;
 import info.monitorenter.gui.chart.rangepolicies.RangePolicyUnbounded;
 
 import java.awt.Dimension;
-import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import java.text.DecimalFormat;
 
+import javax.swing.BorderFactory;
 import javax.swing.JPanel;
+import javax.swing.border.EtchedBorder;
+import javax.swing.border.TitledBorder;
 
 import dna.util.Config;
-import dna.visualization.MainDisplay;
+import dna.visualization.GuiOptions;
 
+@SuppressWarnings("serial")
 public class Visualizer extends JPanel {
 	// components
-	protected Dimension defaultVisualizerSize = new Dimension(670, 410);
-
-	// menu bar
 	protected MenuBar menuBar;
-	protected Dimension defaultMenuBarSize = new Dimension(655, 50);
-
-	// legend
 	protected Legend legend;
-	protected Dimension defaultLegendSize = new Dimension(190, 330);
 
 	// chart and axis
 	protected Chart2D chart;
-	protected Dimension defaultChartSize = new Dimension(450, 320);
+	@SuppressWarnings("rawtypes")
 	protected IAxis xAxis1;
+	@SuppressWarnings("rawtypes")
 	protected IAxis xAxis2;
+	@SuppressWarnings("rawtypes")
 	protected IAxis yAxis2;
+	@SuppressWarnings("rawtypes")
 	protected IAxis yAxis1;
-
-	// fonts
-	protected Font defaultFont = MainDisplay.defaultFont;
-	protected Font defaultFontBorders = MainDisplay.defaultFontBorders;
 
 	// timestamps
 	protected long minTimestamp;
@@ -67,9 +61,10 @@ public class Visualizer extends JPanel {
 	};
 
 	// constructor
+	@SuppressWarnings("rawtypes")
 	public Visualizer() {
 		// initialization
-		this.setPreferredSize(this.defaultVisualizerSize);
+		this.setPreferredSize(GuiOptions.visualizerDefaultSize);
 
 		this.TRACE_LENGTH = Config.getInt("GUI_TRACE_LENGTH");
 		this.FIXED_VIEWPORT = false;
@@ -80,31 +75,36 @@ public class Visualizer extends JPanel {
 
 		this.mainConstraints = new GridBagConstraints();
 		this.mainConstraints.fill = GridBagConstraints.HORIZONTAL;
-
+		
 		// set layout
 		this.setLayout(new GridBagLayout());
 
 		// init chart
 		this.chart = new Chart2D();
-		this.chart.setPreferredSize(this.defaultChartSize);
+		this.chart.setPreferredSize(GuiOptions.visualizerDefaultChartSize);
 
-		// axis configuration
+		/*
+		 * axis configuration
+		 */
+		// x1
+
 		this.xAxis1 = this.chart.getAxisX();
-		this.yAxis1 = this.chart.getAxisY();
 		this.xAxis1.setAxisTitle(new AxisTitle("Timestamp"));
-		this.yAxis1.setAxisTitle(new AxisTitle(""));
-		this.yAxis2 = new AxisLinear();
-		this.chart.addAxisYRight((AAxis) yAxis2);
-		this.yAxis2.setVisible(false);
+		// y1
+		this.yAxis1 = this.chart.getAxisY();
+		this.yAxis1.setAxisTitle(new AxisTitle("y1"));
+		this.yAxis1.setFormatter(new LabelFormatterNumber(
+				GuiOptions.visualizerYAxisDecimalFormat));
+		// x2
 		this.xAxis2 = new AxisLinear();
 		this.xAxis2.setVisible(false);
 		this.chart.addAxisXBottom((AAxis) this.xAxis2);
-
-		// set decimal format for y axis
-		DecimalFormat yAxisDecimalFormat = new DecimalFormat(
-				Config.get("GUI_Y_AXIS_FORMAT"));
-		this.yAxis2.setFormatter(new LabelFormatterNumber(yAxisDecimalFormat));
-		this.yAxis1.setFormatter(new LabelFormatterNumber(yAxisDecimalFormat));
+		// y2
+		this.yAxis2 = new AxisLinear(new LabelFormatterNumber(
+				GuiOptions.visualizerYAxisDecimalFormat));
+		this.chart.addAxisYRight((AAxis) yAxis2);
+		this.yAxis2.setVisible(false);
+		this.yAxis2.setAxisTitle(new AxisTitle("y2"));
 
 		// add chart to visualizer
 		this.mainConstraints.gridx = 0;
@@ -114,7 +114,7 @@ public class Visualizer extends JPanel {
 
 		// init and add legend
 		this.legend = new Legend(this);
-		this.legend.setPreferredSize(this.defaultLegendSize);
+		this.legend.setPreferredSize(GuiOptions.visualizerDefaultLegendSize);
 		this.mainConstraints.gridx = 1;
 		this.mainConstraints.gridy = 0;
 		this.add(this.legend, this.mainConstraints);
@@ -258,18 +258,22 @@ public class Visualizer extends JPanel {
 		this.maxShownTimestamp = timestamp;
 	}
 
+	@SuppressWarnings("rawtypes")
 	public IAxis getX2Axis() {
 		return this.xAxis2;
 	}
 
+	@SuppressWarnings("rawtypes")
 	public IAxis getX1Axis() {
 		return this.xAxis1;
 	}
 
+	@SuppressWarnings("rawtypes")
 	public IAxis getY2Axis() {
 		return this.yAxis2;
 	}
 
+	@SuppressWarnings("rawtypes")
 	public IAxis getY1Axis() {
 		return this.yAxis1;
 	}
@@ -295,6 +299,7 @@ public class Visualizer extends JPanel {
 	 * are shown. When only one is used, only that one is shown. When none is
 	 * used, only y1 is shown.
 	 */
+	@SuppressWarnings("rawtypes")
 	public void toggleYAxisVisibility() {
 		boolean rightAxisVisible = true;
 
@@ -324,6 +329,7 @@ public class Visualizer extends JPanel {
 	 * are shown. When only one is used, only that one is shown. When none is
 	 * used, only x1 is shown.
 	 */
+	@SuppressWarnings("rawtypes")
 	public void toggleXAxisVisibility() {
 		for (IAxis axis : this.chart.getAxesXBottom()) {
 			if (axis.getTraces().size() < 1)

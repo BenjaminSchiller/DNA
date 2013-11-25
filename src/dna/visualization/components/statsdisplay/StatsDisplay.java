@@ -1,6 +1,5 @@
 package dna.visualization.components.statsdisplay;
 
-import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
@@ -9,11 +8,9 @@ import java.util.Hashtable;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
-import javax.swing.DefaultBoundedRangeModel;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
-import javax.swing.JScrollBar;
 import javax.swing.JSlider;
 import javax.swing.JTextField;
 import javax.swing.border.EtchedBorder;
@@ -23,6 +20,7 @@ import javax.swing.event.ChangeListener;
 
 import dna.series.data.BatchData;
 import dna.series.data.RunTime;
+import dna.visualization.GuiOptions;
 import dna.visualization.MainDisplay;
 
 /**
@@ -31,11 +29,8 @@ import dna.visualization.MainDisplay;
  * @author Rwilmes
  * 
  */
+@SuppressWarnings("serial")
 public class StatsDisplay extends JPanel implements ChangeListener {
-	// fonts
-	private Font defaultFont = MainDisplay.defaultFont;
-	private Font defaultFontBorders = MainDisplay.defaultFontBorders;
-
 	// settingspanel
 	private JPanel SettingsPanel;
 	private JPanel SettingsNotSpeedPanel;
@@ -76,20 +71,18 @@ public class StatsDisplay extends JPanel implements ChangeListener {
 	// registered components
 	private StatsDisplay statsdis;
 	private MainDisplay mainDisplay;
-	private boolean running;
 
 	// constructor
 	public StatsDisplay() {
 		// initialization
 		this.statsdis = this;
-		this.running = false;
 
 		// set title and border of statistics
 		TitledBorder title = BorderFactory.createTitledBorder("Statistics");
-		title.setTitleFont(new Font(this.defaultFont.getName(), Font.BOLD,
-				this.defaultFont.getSize()));
 		title.setBorder(BorderFactory
 				.createEtchedBorder((EtchedBorder.LOWERED)));
+		title.setTitleFont(GuiOptions.defaultFontBorders);
+		title.setTitleColor(GuiOptions.defaultFontBordersColor);
 		this.setBorder(title);
 
 		// set layout
@@ -133,9 +126,9 @@ public class StatsDisplay extends JPanel implements ChangeListener {
 
 		// directory
 		this.DirectoryLabel = new JLabel("Directory: ");
-		this.DirectoryLabel.setFont(this.defaultFont);
+		this.DirectoryLabel.setFont(GuiOptions.defaultFont);
 		this.DirectoryValue = new JTextField("./..");
-		this.DirectoryValue.setFont(this.defaultFont);
+		this.DirectoryValue.setFont(GuiOptions.defaultFont);
 		this.DirectoryValue.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent evt) {
 				mainDisplay.reset();
@@ -152,25 +145,25 @@ public class StatsDisplay extends JPanel implements ChangeListener {
 
 		// timestamp
 		this.TimestampLabel = new JLabel("Timestamp: ");
-		this.TimestampLabel.setFont(this.defaultFont);
+		this.TimestampLabel.setFont(GuiOptions.defaultFont);
 		this.TimestampValue = new JLabel("0");
-		this.TimestampValue.setFont(this.defaultFont);
+		this.TimestampValue.setFont(GuiOptions.defaultFont);
 		settingLabels.add(this.TimestampLabel);
 		settingValues.add(this.TimestampValue);
 
 		// amount of nodes
 		this.NodesLabel = new JLabel("Nodes: ");
-		this.NodesLabel.setFont(this.defaultFont);
+		this.NodesLabel.setFont(GuiOptions.defaultFont);
 		this.NodesValue = new JLabel("0");
-		this.NodesValue.setFont(this.defaultFont);
+		this.NodesValue.setFont(GuiOptions.defaultFont);
 		settingLabels.add(this.NodesLabel);
 		settingValues.add(this.NodesValue);
 
 		// amount of edges
 		this.EdgesLabel = new JLabel("Edges: ");
-		this.EdgesLabel.setFont(this.defaultFont);
+		this.EdgesLabel.setFont(GuiOptions.defaultFont);
 		this.EdgesValue = new JLabel("0");
-		this.EdgesValue.setFont(this.defaultFont);
+		this.EdgesValue.setFont(GuiOptions.defaultFont);
 		settingLabels.add(this.EdgesLabel);
 		settingValues.add(this.EdgesValue);
 
@@ -192,8 +185,7 @@ public class StatsDisplay extends JPanel implements ChangeListener {
 		this.SpeedSlider.setMinorTickSpacing(100);
 		this.SpeedSlider.setPaintTicks(true);
 		this.SpeedSlider.setPaintLabels(true);
-		
-		
+
 		// change speed slider labels
 		Hashtable<Integer, JLabel> labelTable = new Hashtable<Integer, JLabel>();
 		labelTable.put(new Integer(0), new JLabel("0.0"));
@@ -377,7 +369,6 @@ public class StatsDisplay extends JPanel implements ChangeListener {
 	 * running
 	 **/
 	public void setStarted() {
-		this.running = true;
 		this.DirectoryValue.setEditable(false);
 		this.validate();
 		this.repaint();
@@ -388,7 +379,6 @@ public class StatsDisplay extends JPanel implements ChangeListener {
 	 **/
 	public void setStopped() {
 		this.DirectoryValue.setEditable(true);
-		this.running = false;
 		this.validate();
 		this.repaint();
 	}

@@ -1,7 +1,6 @@
 package dna.visualization.components.visualizer;
 
 import java.awt.Color;
-import java.awt.Dimension;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -9,6 +8,7 @@ import java.awt.event.ActionListener;
 import javax.swing.JButton;
 
 import dna.util.Config;
+import dna.visualization.GuiOptions;
 import dna.visualization.components.visualizer.MultiScalarVisualizer.SortModeDist;
 import dna.visualization.components.visualizer.Visualizer.xAxisSelection;
 
@@ -18,6 +18,7 @@ import dna.visualization.components.visualizer.Visualizer.xAxisSelection;
  * @author Rwilmes
  * 
  */
+@SuppressWarnings("serial")
 public class LegendItemDistribution extends LegendItem {
 	// components
 	private SortModeDist sortMode;
@@ -31,8 +32,10 @@ public class LegendItemDistribution extends LegendItem {
 		// init
 		super(parent, name, color);
 		this.valueLabel.setText("D=0");
-		this.valueLabel.setPreferredSize(new Dimension(60, 20));
-		this.buttonPanel.setPreferredSize(new Dimension(100, 20));
+		this.valueLabel
+				.setPreferredSize(GuiOptions.legendItemDistValueLabelSize);
+		this.buttonPanel
+				.setPreferredSize(GuiOptions.legendItemDistButtonPanelSize);
 
 		// load defaults
 		this.sortMode = Config.getSortModeDist("GUI_SORT_MODE_DIST");
@@ -69,9 +72,10 @@ public class LegendItemDistribution extends LegendItem {
 					.setToolTipText("Currently plotted on x-axis 2. Click to change to x-axis 1");
 			break;
 		}
-		this.toggleXAxisButton.setFont(this.defaultFont);
-		this.toggleXAxisButton.setForeground(Color.BLACK);
-		this.toggleXAxisButton.setPreferredSize(this.buttonSize);
+		this.toggleXAxisButton.setFont(GuiOptions.defaultFont);
+		this.toggleXAxisButton.setForeground(GuiOptions.defaultFontColor);
+		this.toggleXAxisButton
+				.setPreferredSize(GuiOptions.legendItemButtonSize);
 		this.toggleXAxisButton.setMargin(new Insets(0, 0, 0, 0));
 		this.toggleXAxisButton
 				.setToolTipText("Currently plotted on x-axis 1. Click to change to x-axis 2");
@@ -106,9 +110,9 @@ public class LegendItemDistribution extends LegendItem {
 					.setToolTipText("Distribution is shown as cdf plot. Click to change to distribution.");
 			break;
 		}
-		this.sortModeButton.setFont(this.defaultFont);
-		this.sortModeButton.setForeground(Color.BLACK);
-		this.sortModeButton.setPreferredSize(this.buttonSize);
+		this.sortModeButton.setFont(GuiOptions.defaultFont);
+		this.sortModeButton.setForeground(GuiOptions.defaultFontColor);
+		this.sortModeButton.setPreferredSize(GuiOptions.legendItemButtonSize);
 		this.sortModeButton.setMargin(new Insets(0, 0, 0, 0));
 		this.sortModeButton.addActionListener(new ActionListener() {
 			@Override
