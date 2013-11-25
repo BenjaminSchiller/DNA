@@ -1,10 +1,12 @@
 package dna.util;
 
+import java.awt.Color;
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Properties;
 import java.util.Vector;
@@ -14,8 +16,8 @@ import dna.plot.data.PlotData.DistributionPlotType;
 import dna.plot.data.PlotData.NodeValueListOrder;
 import dna.plot.data.PlotData.NodeValueListOrderBy;
 import dna.plot.data.PlotData.PlotType;
-import dna.visualization.components.visualizer.MultiScalarVisualizer.SortModeNVL;
 import dna.visualization.components.visualizer.MultiScalarVisualizer.SortModeDist;
+import dna.visualization.components.visualizer.MultiScalarVisualizer.SortModeNVL;
 import dna.visualization.components.visualizer.Visualizer.xAxisSelection;
 import dna.visualization.components.visualizer.Visualizer.yAxisSelection;
 
@@ -164,6 +166,18 @@ public class Config extends PropertiesHolder {
 		default:
 			return yAxisSelection.y1;
 		}
+	}
+
+	public static Color getColor(String key) {
+		Color color;
+		try {
+			Field field = Color.class.getField(Config.get(key));
+			color = (Color)field.get(null);
+		} catch (Exception e) {
+			color = null;
+			e.printStackTrace();
+		}
+		return color;
 	}
 
 	public static PlotType getPlotType(String key) {
