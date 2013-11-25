@@ -1,12 +1,12 @@
-package dna.metrics.connectedComponents;
+package dna.metrics.betweenessCentrality;
 
 import dna.updates.batch.Batch;
 import dna.updates.update.Update;
 
-public class DirectedConnectedComponentR extends DirectedConnectedComponent {
+public class BetweenessCentralityR extends BetweenessCentrality {
 
-	public DirectedConnectedComponentR() {
-		super("DirectedConnectedComponentR", ApplicationType.Recomputation);
+	public BetweenessCentralityR() {
+		super("BetweenessCentralityR", ApplicationType.Recomputation);
 	}
 
 	@Override

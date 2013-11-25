@@ -21,7 +21,7 @@ import dna.updates.update.Update;
 public class DirectedConnectedComponentU extends DirectedConnectedComponent {
 
 	public DirectedConnectedComponentU() {
-		super("CCDirectedDagger", ApplicationType.AfterUpdate);
+		super("DirectedConnectedComponentU", ApplicationType.AfterUpdate);
 	}
 
 	@Override
@@ -67,7 +67,9 @@ public class DirectedConnectedComponentU extends DirectedConnectedComponent {
 		// check if a split into two components may occur
 		if (srcIndex != dstIndex) {
 			// see if deleted edge connects to components
-			srcDAGNode.ed.put(dstIndex, srcDAGNode.ed.get(dstIndex) - 1);
+			if (srcDAGNode.ed.containsKey(dstIndex)) {
+				srcDAGNode.ed.put(dstIndex, srcDAGNode.ed.get(dstIndex) - 1);
+			}
 			if (srcDAGNode.ed.get(dstIndex).equals(0)) {
 				srcDAGNode.ed.remove(dstIndex);
 			}

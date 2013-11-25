@@ -3,10 +3,10 @@ package dna.metrics.connectedComponents;
 import dna.updates.batch.Batch;
 import dna.updates.update.Update;
 
-public class DirectedConnectedComponentR extends DirectedConnectedComponent {
+public class ConnectedComponentR extends ConnectedComponent {
 
-	public DirectedConnectedComponentR() {
-		super("DirectedConnectedComponentR", ApplicationType.Recomputation);
+	public ConnectedComponentR() {
+		super("ConnectedComponentR", ApplicationType.Recomputation);
 	}
 
 	@Override

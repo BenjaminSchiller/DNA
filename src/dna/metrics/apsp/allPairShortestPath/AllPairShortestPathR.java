@@ -1,12 +1,14 @@
-package dna.metrics.connectedComponents;
+package dna.metrics.apsp.allPairShortestPath;
 
 import dna.updates.batch.Batch;
 import dna.updates.update.Update;
 
-public class DirectedConnectedComponentR extends DirectedConnectedComponent {
+public class AllPairShortestPathR extends
+		AllPairShortestPath {
 
-	public DirectedConnectedComponentR() {
-		super("DirectedConnectedComponentR", ApplicationType.Recomputation);
+	public AllPairShortestPathR() {
+		super("AllPairShortestPathR", ApplicationType.Recomputation);
+
 	}
 
 	@Override
@@ -28,5 +30,4 @@ public class DirectedConnectedComponentR extends DirectedConnectedComponent {
 	public boolean applyAfterUpdate(Update u) {
 		return false;
 	}
-
 }
