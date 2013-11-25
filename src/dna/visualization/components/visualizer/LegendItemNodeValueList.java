@@ -35,9 +35,9 @@ public class LegendItemNodeValueList extends LegendItem {
 		this.buttonPanel.setPreferredSize(new Dimension(100, 20));
 
 		// load defaults
-		this.sortMode = Config.getSortModeNVL("DEFAULT_SORT_MODE_NVL");
-		this.xAxis = Config.getXAxisSelection("DEFAULT_NVL_X_AXIS");
-		this.yAxis = Config.getYAxisSelection("DEFAULT_NVL_Y_AXIS");
+		this.sortMode = Config.getSortModeNVL("GUI_SORT_MODE_NVL");
+		this.xAxis = Config.getXAxisSelection("GUI_NVL_X_AXIS");
+		this.yAxis = Config.getYAxisSelection("GUI_NVL_Y_AXIS");
 
 		// adjust toggle y axis button
 		switch (this.yAxis) {

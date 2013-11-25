@@ -6,6 +6,7 @@ import info.monitorenter.gui.chart.IAxis.AxisTitle;
 import info.monitorenter.gui.chart.axis.AAxis;
 import info.monitorenter.gui.chart.axis.AxisLinear;
 import info.monitorenter.gui.chart.axis.scalepolicy.AxisScalePolicyManualTicks;
+import info.monitorenter.gui.chart.labelformatters.LabelFormatterNumber;
 import info.monitorenter.gui.chart.rangepolicies.RangePolicyFixedViewport;
 import info.monitorenter.gui.chart.rangepolicies.RangePolicyUnbounded;
 
@@ -13,6 +14,7 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.text.DecimalFormat;
 
 import javax.swing.JPanel;
 
@@ -36,8 +38,8 @@ public class Visualizer extends JPanel {
 	protected Dimension defaultChartSize = new Dimension(450, 320);
 	protected IAxis xAxis1;
 	protected IAxis xAxis2;
-	protected IAxis yRight;
-	protected IAxis yLeft;
+	protected IAxis yAxis2;
+	protected IAxis yAxis1;
 
 	// fonts
 	protected Font defaultFont = MainDisplay.defaultFont;
@@ -69,7 +71,7 @@ public class Visualizer extends JPanel {
 		// initialization
 		this.setPreferredSize(this.defaultVisualizerSize);
 
-		this.TRACE_LENGTH = Config.getInt("DEFAULT_TRACE_LENGTH");
+		this.TRACE_LENGTH = Config.getInt("GUI_TRACE_LENGTH");
 		this.FIXED_VIEWPORT = false;
 		this.minTimestamp = 0;
 		this.maxTimestamp = 0;
@@ -88,16 +90,21 @@ public class Visualizer extends JPanel {
 
 		// axis configuration
 		this.xAxis1 = this.chart.getAxisX();
-		this.yLeft = this.chart.getAxisY();
+		this.yAxis1 = this.chart.getAxisY();
 		this.xAxis1.setAxisTitle(new AxisTitle("Timestamp"));
-		this.yLeft.setAxisTitle(new AxisTitle(""));
-		this.yRight = new AxisLinear();
-		this.chart.addAxisYRight((AAxis) yRight);
-		this.yRight.setVisible(false);
+		this.yAxis1.setAxisTitle(new AxisTitle(""));
+		this.yAxis2 = new AxisLinear();
+		this.chart.addAxisYRight((AAxis) yAxis2);
+		this.yAxis2.setVisible(false);
 		this.xAxis2 = new AxisLinear();
 		this.xAxis2.setVisible(false);
-
 		this.chart.addAxisXBottom((AAxis) this.xAxis2);
+
+		// set decimal format for y axis
+		DecimalFormat yAxisDecimalFormat = new DecimalFormat(
+				Config.get("GUI_Y_AXIS_FORMAT"));
+		this.yAxis2.setFormatter(new LabelFormatterNumber(yAxisDecimalFormat));
+		this.yAxis1.setFormatter(new LabelFormatterNumber(yAxisDecimalFormat));
 
 		// add chart to visualizer
 		this.mainConstraints.gridx = 0;
@@ -137,7 +144,7 @@ public class Visualizer extends JPanel {
 	}
 
 	/** handles the ticks that are shown on the x axis **/
-	protected void updateXTicks() {
+	protected void updateX1Ticks() {
 		double minTemp = 0;
 		double maxTemp = 10;
 		if (this.xAxis1.getRangePolicy() instanceof RangePolicyUnbounded) {
@@ -161,20 +168,54 @@ public class Visualizer extends JPanel {
 		}
 	}
 
+	/** handles the ticks that are shown on the y axis **/
+	protected void updateY1Ticks() {
+		/*
+		 * double min = this.yAxis1.getMin(); double max = this.yAxis1.getMax();
+		 * System.out.println("y1 min:" + min + " max:" + max);
+		 * 
+		 * double range = max - min; if (range > 1) { double tickSpacingNew =
+		 * range / 10; this.yAxis1.setMajorTickSpacing(tickSpacingNew);
+		 * this.yAxis1.setMinorTickSpacing(tickSpacingNew);
+		 * 
+		 * System.out.println(range + " > " + tickSpacingNew); } else {
+		 * this.yAxis1.setMajorTickSpacing(1.0);
+		 * this.yAxis1.setMinorTickSpacing(1.0); }
+		 */
+
+	}
+
+	/** handles the ticks that are shown on the y axis **/
+	protected void updateY2Ticks() {
+		/*
+		 * double min = this.yAxis2.getMin(); double max = this.yAxis2.getMax();
+		 * System.out.println("y2 min:" + min + " max:" + max);
+		 * 
+		 * double range = max - min; if (range > 0) { double tickSpacingNew =
+		 * range / 10; this.yAxis2.setMajorTickSpacing(tickSpacingNew);
+		 * this.yAxis2.setMinorTickSpacing(tickSpacingNew);
+		 * 
+		 * System.out.println(range + " > " + tickSpacingNew); } else {
+		 * this.yAxis2.setMajorTickSpacing(1.0);
+		 * this.yAxis2.setMinorTickSpacing(1.0); }
+		 */
+
+	}
+
 	/** toggles grid on left y axis **/
-	public void toggleYLeftGrid() {
-		if (this.yLeft.isPaintGrid())
-			this.yLeft.setPaintGrid(false);
+	public void toggleY1Grid() {
+		if (this.yAxis1.isPaintGrid())
+			this.yAxis1.setPaintGrid(false);
 		else
-			this.yLeft.setPaintGrid(true);
+			this.yAxis1.setPaintGrid(true);
 	}
 
 	/** toggles grid on right y axis **/
-	public void toggleYRightGrid() {
-		if (this.yRight.isPaintGrid())
-			this.yRight.setPaintGrid(false);
+	public void toggleY2Grid() {
+		if (this.yAxis2.isPaintGrid())
+			this.yAxis2.setPaintGrid(false);
 		else
-			this.yRight.setPaintGrid(true);
+			this.yAxis2.setPaintGrid(true);
 	}
 
 	/** toggles grid on x axis **/
@@ -217,16 +258,20 @@ public class Visualizer extends JPanel {
 		this.maxShownTimestamp = timestamp;
 	}
 
-	public IAxis getXAxis() {
+	public IAxis getX2Axis() {
+		return this.xAxis2;
+	}
+
+	public IAxis getX1Axis() {
 		return this.xAxis1;
 	}
 
-	public IAxis getYRightAxis() {
-		return this.yRight;
+	public IAxis getY2Axis() {
+		return this.yAxis2;
 	}
 
-	public IAxis getYLeftAxis() {
-		return this.yLeft;
+	public IAxis getY1Axis() {
+		return this.yAxis1;
 	}
 
 	public int getTraceLength() {
@@ -293,5 +338,14 @@ public class Visualizer extends JPanel {
 	/** clears all list items in the legend **/
 	public void clearList() {
 		this.legend.reset();
+	}
+
+	/** updates the ticks on all axis **/
+	public void updateTicks() {
+		this.updateX1Ticks();
+		if (this instanceof MultiScalarVisualizer)
+			((MultiScalarVisualizer) this).updateX2Ticks();
+		this.updateY1Ticks();
+		this.updateY2Ticks();
 	}
 }

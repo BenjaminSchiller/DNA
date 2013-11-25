@@ -132,7 +132,7 @@ public class MetricVisualizer extends Visualizer {
 			}
 		}
 
-		if (Config.getBoolean("DEFAULT_TRACE_MODE_LTD") && !this.FIXED_VIEWPORT) {
+		if (Config.getBoolean("GUI_TRACE_MODE_LTD") && !this.FIXED_VIEWPORT) {
 			this.maxShownTimestamp = this.maxTimestamp;
 			if (this.maxShownTimestamp - this.TRACE_LENGTH > 0)
 				this.minShownTimestamp = this.maxShownTimestamp
@@ -161,23 +161,23 @@ public class MetricVisualizer extends Visualizer {
 			}
 		}
 
-		this.updateXTicks();
+		this.updateX1Ticks();
 	}
 
 	/** adds trace to the visualizer with default trace length **/
 	public void addTrace(String name, Color color) {
 		if (!this.traces.containsKey(name)) {
-			if (Config.getBoolean("DEFAULT_TRACE_MODE_LTD")) {
+			if (Config.getBoolean("GUI_TRACE_MODE_LTD")) {
 				Trace2DLtd newTrace = new Trace2DLtd(
-						Config.getInt("DEFAULT_TRACE_LENGTH"));
+						Config.getInt("GUI_TRACE_LENGTH"));
 				newTrace.setColor(color);
 				this.traces.put(name, newTrace);
 				this.chart.addTrace(newTrace);
 
-				if (Config.getBoolean("DEFAULT_PAINT_LINESPOINT"))
+				if (Config.getBoolean("GUI_PAINT_LINESPOINT"))
 					newTrace.addTracePainter(new TracePainterDisc(Config
-							.getInt("DEFAULT_LINESPOINT_SIZE")));
-				if (Config.getBoolean("DEFAULT_PAINT_FILL"))
+							.getInt("GUI_LINESPOINT_SIZE")));
+				if (Config.getBoolean("GUI_PAINT_FILL"))
 					newTrace.addTracePainter(new TracePainterFill(this.chart));
 			} else {
 				Trace2DSimple newTrace = new Trace2DSimple();
@@ -185,10 +185,10 @@ public class MetricVisualizer extends Visualizer {
 				this.traces.put(name, newTrace);
 				this.chart.addTrace(newTrace);
 
-				if (Config.getBoolean("DEFAULT_PAINT_LINESPOINT"))
+				if (Config.getBoolean("GUI_PAINT_LINESPOINT"))
 					newTrace.addTracePainter(new TracePainterDisc(Config
-							.getInt("DEFAULT_LINESPOINT_SIZE")));
-				if (Config.getBoolean("DEFAULT_PAINT_FILL"))
+							.getInt("GUI_LINESPOINT_SIZE")));
+				if (Config.getBoolean("GUI_PAINT_FILL"))
 					newTrace.addTracePainter(new TracePainterFill(this.chart));
 			}
 		}
@@ -260,6 +260,7 @@ public class MetricVisualizer extends Visualizer {
 			this.chart.removeTrace(this.traces.get(name));
 			this.traces.remove(name);
 		}
+		this.toggleXAxisVisibility();
 		this.toggleYAxisVisibility();
 	}
 

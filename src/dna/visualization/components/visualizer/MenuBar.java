@@ -252,7 +252,7 @@ public class MenuBar extends JPanel implements ChangeListener {
 							parent.xAxis1.setRange(new Range(minTimestampNew,
 									maxTimestampNew));
 							// update x ticks
-							parent.updateXTicks();
+							parent.updateX1Ticks();
 						}
 					}
 
@@ -430,23 +430,23 @@ public class MenuBar extends JPanel implements ChangeListener {
 		GridBagConstraints yLeftOptionsPanelConstraints = new GridBagConstraints();
 
 		// toggle left y axis grid button
-		final JButton toggleGridYLeftButton = new JButton("+Grid yL");
+		final JButton toggleGridYLeftButton = new JButton("+Grid y1");
 		toggleGridYLeftButton.setFont(this.defaultFont);
 		toggleGridYLeftButton.setPreferredSize(new Dimension(size.width - 5,
 				(int) Math.floor((size.getHeight() - 5) / 2)));
 		toggleGridYLeftButton.setMargin(new Insets(0, 0, 0, 0));
-		toggleGridYLeftButton.setToolTipText("Show grid of yL.");
+		toggleGridYLeftButton.setToolTipText("Show grid of left y-axis (y1).");
 		toggleGridYLeftButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent event) {
-				if (toggleGridYLeftButton.getText().equals("+Grid yL")) {
-					toggleGridYLeftButton.setText("-Grid yL");
-					toggleGridYLeftButton.setToolTipText("Hide grid of yL.");
+				if (toggleGridYLeftButton.getText().equals("+Grid y1")) {
+					toggleGridYLeftButton.setText("-Grid y1");
+					toggleGridYLeftButton.setToolTipText("Hide grid of left y-axis (y1).");
 				} else {
-					toggleGridYLeftButton.setText("+Grid yL");
-					toggleGridYLeftButton.setToolTipText("Show grid of yL.");
+					toggleGridYLeftButton.setText("+Grid y1");
+					toggleGridYLeftButton.setToolTipText("Show grid of left y-axis (y1).");
 				}
-				parent.toggleYLeftGrid();
+				parent.toggleY1Grid();
 			}
 		});
 		yLeftOptionsPanelConstraints.gridx = 0;
@@ -455,7 +455,7 @@ public class MenuBar extends JPanel implements ChangeListener {
 				yLeftOptionsPanelConstraints);
 
 		// toggle left y axis log button
-		final JButton toggleLogYLeftButton = new JButton("+log yL");
+		final JButton toggleLogYLeftButton = new JButton("+log y2");
 		toggleLogYLeftButton.setFont(this.defaultFont);
 		toggleLogYLeftButton.setForeground(Color.GRAY);
 		toggleLogYLeftButton.setPreferredSize(new Dimension(new Dimension(
@@ -484,25 +484,25 @@ public class MenuBar extends JPanel implements ChangeListener {
 		GridBagConstraints yRightOptionsPanelConstraints = new GridBagConstraints();
 
 		// toggle right y axis grid button
-		final JButton toggleGridYRightButton = new JButton("+Grid yR");
+		final JButton toggleGridYRightButton = new JButton("+Grid y2");
 		toggleGridYRightButton.setFont(this.defaultFont);
 		toggleGridYRightButton.setPreferredSize(new Dimension(new Dimension(
 				size.width - 5, (int) Math.floor((size.getHeight() - 5) / 2))));
 		toggleGridYRightButton.setMargin(new Insets(0, 0, 0, 0));
-		toggleGridYRightButton.setToolTipText("Show grid of yR.");
+		toggleGridYRightButton.setToolTipText("Show grid of right y-axis (y2).");
 		toggleGridYRightButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent event) {
-				if (toggleGridYRightButton.getText().equals("+Grid yR")) {
-					toggleGridYRightButton.setText("-Grid yR");
-					toggleGridYRightButton.setToolTipText("Hide grid of yR.");
+				if (toggleGridYRightButton.getText().equals("+Grid y2")) {
+					toggleGridYRightButton.setText("-Grid y2");
+					toggleGridYRightButton.setToolTipText("Hide grid of right y-axis (y2).");
 				}
 
 				else {
-					toggleGridYRightButton.setText("+Grid yR");
-					toggleGridYRightButton.setToolTipText("Show grid of yR.");
+					toggleGridYRightButton.setText("+Grid y2");
+					toggleGridYRightButton.setToolTipText("Show grid of right y-axis (y2).");
 				}
-				parent.toggleYRightGrid();
+				parent.toggleY2Grid();
 			}
 		});
 		yRightOptionsPanelConstraints.gridx = 0;
@@ -511,7 +511,7 @@ public class MenuBar extends JPanel implements ChangeListener {
 				yRightOptionsPanelConstraints);
 
 		// toggle right y axis log button
-		final JButton toggleLogYRightButton = new JButton("+log yR");
+		final JButton toggleLogYRightButton = new JButton("+log y1");
 		toggleLogYRightButton.setFont(this.defaultFont);
 		toggleLogYRightButton.setForeground(Color.GRAY);
 		toggleLogYRightButton.setPreferredSize(new Dimension(new Dimension(
@@ -726,7 +726,7 @@ public class MenuBar extends JPanel implements ChangeListener {
 				intervalScrollBar.getModel().setExtent(source.getValue());
 			}
 		}
-		parent.updateXTicks();
+		parent.updateX1Ticks();
 		if (parent instanceof MultiScalarVisualizer)
 			((MultiScalarVisualizer) parent).updateX2Ticks();
 	}

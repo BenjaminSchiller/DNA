@@ -195,8 +195,10 @@ public class MultiScalarVisualizer extends Visualizer {
 				}
 			}
 		}
-		updateXTicks();
+		updateX1Ticks();
 		updateX2Ticks();
+		updateY1Ticks();
+		updateY2Ticks();
 	}
 
 	/** adds points for a given trace to the chart **/
@@ -363,10 +365,10 @@ public class MultiScalarVisualizer extends Visualizer {
 		this.traces.put(name, newTrace);
 		this.chart.addTrace(newTrace);
 
-		if (Config.getBoolean("DEFAULT_PAINT_LINESPOINT"))
+		if (Config.getBoolean("GUI_PAINT_LINESPOINT"))
 			newTrace.addTracePainter(new TracePainterDisc(Config
-					.getInt("DEFAULT_LINESPOINT_SIZE")));
-		if (Config.getBoolean("DEFAULT_PAINT_FILL"))
+					.getInt("GUI_LINESPOINT_SIZE")));
+		if (Config.getBoolean("GUI_PAINT_FILL"))
 			newTrace.addTracePainter(new TracePainterFill(this.chart));
 
 	}
@@ -424,7 +426,7 @@ public class MultiScalarVisualizer extends Visualizer {
 
 	/** handles the ticks that are shown on the second x axis **/
 	@Override
-	public void updateXTicks() {
+	public void updateX1Ticks() {
 		double minTemp = 0;
 		double maxTemp = 10;
 

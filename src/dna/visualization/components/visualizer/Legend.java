@@ -94,10 +94,8 @@ public class Legend extends JPanel {
 				}
 			}
 		}
-
 		if (!alreadyAdded) {
 			Color color = this.colorHandler.getNextColor();
-
 			LegendItem i = new LegendItemValue(this.list, name, color);
 			i.setToolTipText(name);
 			this.list.add(i);
@@ -105,7 +103,10 @@ public class Legend extends JPanel {
 				((MetricVisualizer) this.parent).addTrace(name, color);
 			if (this.parent instanceof MultiScalarVisualizer)
 				((MultiScalarVisualizer) this.parent).addTrace(name, color);
+			this.parent.updateTicks();
 		}
+		this.parent.toggleXAxisVisibility();
+		this.parent.toggleYAxisVisibility();
 		this.validate();
 	}
 
@@ -128,7 +129,10 @@ public class Legend extends JPanel {
 			this.list.add(i);
 			if (this.parent instanceof MetricVisualizer)
 				((MetricVisualizer) this.parent).addTrace(name, color);
+			this.parent.updateTicks();
 		}
+		this.parent.toggleXAxisVisibility();
+		this.parent.toggleYAxisVisibility();
 		this.validate();
 	}
 
@@ -155,23 +159,27 @@ public class Legend extends JPanel {
 			this.list.add(i);
 			if (this.parent instanceof MultiScalarVisualizer)
 				((MultiScalarVisualizer) this.parent).addTrace(name, color);
-			
-			// usually added to x1/y1, check if config says otherways and toggle accordingly
-			switch (Config.getXAxisSelection("DEFAULT_DIST_X_AXIS")) {
+
+			// usually added to x1/y1, check if config says otherways and toggle
+			// accordingly
+			switch (Config.getXAxisSelection("GUI_DIST_X_AXIS")) {
 			case x1:
 				break;
 			case x2:
 				this.list.toggleXAxis(i);
 				break;
 			}
-			switch (Config.getYAxisSelection("DEFAULT_DIST_Y_AXIS")) {
+			switch (Config.getYAxisSelection("GUI_DIST_Y_AXIS")) {
 			case y1:
 				break;
 			case y2:
 				this.list.toggleYAxis(i);
 				break;
 			}
+			this.parent.updateTicks();
 		}
+		this.parent.toggleXAxisVisibility();
+		this.parent.toggleYAxisVisibility();
 		this.validate();
 	}
 
@@ -198,22 +206,26 @@ public class Legend extends JPanel {
 			if (this.parent instanceof MultiScalarVisualizer)
 				((MultiScalarVisualizer) this.parent).addTrace(name, color);
 
-			// usually added to x1/y1, check if config says otherways and toggle accordingly
-			switch (Config.getXAxisSelection("DEFAULT_NVL_X_AXIS")) {
+			// usually added to x1/y1, check if config says otherways and toggle
+			// accordingly
+			switch (Config.getXAxisSelection("GUI_NVL_X_AXIS")) {
 			case x1:
 				break;
 			case x2:
 				this.list.toggleXAxis(i);
 				break;
 			}
-			switch (Config.getYAxisSelection("DEFAULT_NVL_Y_AXIS")) {
+			switch (Config.getYAxisSelection("GUI_NVL_Y_AXIS")) {
 			case y1:
 				break;
 			case y2:
 				this.list.toggleYAxis(i);
 				break;
 			}
+			this.parent.updateTicks();
 		}
+		this.parent.toggleXAxisVisibility();
+		this.parent.toggleYAxisVisibility();
 		this.validate();
 	}
 

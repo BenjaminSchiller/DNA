@@ -35,9 +35,9 @@ public class LegendItemDistribution extends LegendItem {
 		this.buttonPanel.setPreferredSize(new Dimension(100, 20));
 
 		// load defaults
-		this.sortMode = Config.getSortModeDist("DEFAULT_SORT_MODE_DIST");
-		this.xAxis = Config.getXAxisSelection("DEFAULT_DIST_X_AXIS");
-		this.yAxis = Config.getYAxisSelection("DEFAULT_DIST_Y_AXIS");
+		this.sortMode = Config.getSortModeDist("GUI_SORT_MODE_DIST");
+		this.xAxis = Config.getXAxisSelection("GUI_DIST_X_AXIS");
+		this.yAxis = Config.getYAxisSelection("GUI_DIST_Y_AXIS");
 
 		// adjust toggle y axis button
 		switch (this.yAxis) {
