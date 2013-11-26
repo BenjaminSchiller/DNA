@@ -115,11 +115,11 @@ public abstract class AllPairShortestPath extends Metric {
 	@Override
 	public Value[] getValues() {
 		dists.truncate();
-		Value v1 = new Value("avg_shortest_path_Number_Existing_Paths", sum
-				/ dists.getDenominator());
+		Value v1 = new Value("avg_shortest_path_Number_Existing_Paths",
+				(double) sum / dists.getDenominator());
 		Value v2 = new Value("diameter", this.dists.getMax());
-		Value v3 = new Value("avg_shortest_path_Number_Possible_Paths", sum
-				/ (g.getNodeCount() * (g.getNodeCount() - 1)));
+		Value v3 = new Value("avg_shortest_path_Number_Possible_Paths",
+				(double) sum / (g.getNodeCount() * (g.getNodeCount() - 1)));
 		return new Value[] { v1, v2, v3 };
 	}
 
