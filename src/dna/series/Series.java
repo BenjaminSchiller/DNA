@@ -14,6 +14,7 @@ import dna.series.data.RunData;
 import dna.series.data.SeriesData;
 import dna.updates.generators.BatchGenerator;
 import dna.util.Config;
+import dna.util.Log;
 import dna.util.Rand;
 
 @SuppressWarnings("rawtypes")
@@ -145,10 +146,13 @@ public class Series {
 	}
 
 	public void resetRand() {
+		long seed = this.seed;
 		if (this.randomSeedType == RandomSeedType.timestamp) {
-			this.seed = System.currentTimeMillis();
+			seed = System.currentTimeMillis();
 		}
-		Rand.init(this.seed);
+		Rand.init(seed);
+		Log.debug("resetting random seed to " + seed + " ("
+				+ this.randomSeedReset + "/" + this.randomSeedType + ")");
 	}
 
 	public static boolean defaultCallGC = false;
