@@ -1,6 +1,7 @@
 package dna.graph.tests;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assume.assumeTrue;
 
@@ -186,7 +187,7 @@ public class BatchTest {
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-//	@Parameterized.Parameters(name = "{0} {1} {2} {3} {4} {5}")
+	@Parameterized.Parameters(name = "{0} {1} {2} {3} {4} {5}")
 	public static Collection testPairs() throws NoSuchMethodException,
 			SecurityException, InstantiationException, IllegalAccessException,
 			IllegalArgumentException, InvocationTargetException {
@@ -281,7 +282,7 @@ public class BatchTest {
 
 		b2.add(eR);
 
-		assertEquals(b1, b2);
+		assertNotEquals(b1, b2);
 
 		b2.add(nR);
 

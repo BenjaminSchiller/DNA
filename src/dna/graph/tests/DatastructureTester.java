@@ -44,7 +44,7 @@ public class DatastructureTester {
 		this.elementClass = e;
 	}
 
-//	@Parameterized.Parameters(name = "{0} {1}")
+	@Parameterized.Parameters(name = "{0} {1}")
 	public static Collection testPairs() throws InstantiationException,
 			IllegalAccessException, IllegalArgumentException,
 			InvocationTargetException, NoSuchMethodException, SecurityException {

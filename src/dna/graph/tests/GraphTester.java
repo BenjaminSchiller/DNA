@@ -2,6 +2,7 @@ package dna.graph.tests;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -54,7 +55,7 @@ public class GraphTester {
 	}
 
 	@SuppressWarnings("rawtypes")
-//	@Parameterized.Parameters(name = "{0} {1} {2} {3} {4}")
+	@Parameterized.Parameters(name = "{0} {1} {2} {3} {4}")
 	public static Collection<Object> testPairs() {
 		ArrayList<Object> result = new ArrayList<>();
 		for (Class nodeListType : GlobalTestParameters.dataStructures) {
@@ -138,8 +139,8 @@ public class GraphTester {
 		assertTrue(graph.addNode((Node) n));
 
 		Object mock2 = mockedWeight(nodeType, false);
-//		assertNotEquals("mockedWeight not returning two different mocks", mock,
-//				mock2);
+		assertNotEquals("mockedWeight not returning two different mocks", mock,
+				mock2);
 		IWeightedNode n2 = gds.newWeightedNode(1, mock2);
 		assertEquals(mock2, n2.getWeight());
 		assertFalse(graph.addNode((Node) n2));
@@ -161,8 +162,8 @@ public class GraphTester {
 		assertTrue(graph.addEdge((Edge) e));
 
 		Object mock2 = mockedWeight(edgeType, false);
-//		assertNotEquals("mockedWeight not returning two different mocks", mock,
-//				mock2);
+		assertNotEquals("mockedWeight not returning two different mocks", mock,
+				mock2);
 		IWeightedEdge e2 = gds.newWeightedEdge(n1, n2, mock2);
 		assertEquals(mock2, e2.getWeight());
 		assertFalse(
@@ -231,7 +232,7 @@ public class GraphTester {
 		mock = mockedWeight(edgeType, false);
 		IWeightedEdge<?> eDummy = gds.newWeightedEdge(n1, n2, mock);
 		assertEquals(e, eDummy);
-		//assertNotEquals(e.getWeight(), eDummy.getWeight());
+		assertNotEquals(e.getWeight(), eDummy.getWeight());
 
 		eDummy = (IWeightedEdge<?>) graph.getEdge((Edge) eDummy);
 		assertEquals(e, eDummy);
@@ -280,11 +281,11 @@ public class GraphTester {
 		Graph g3 = new Graph("N", timestamp + 1, this.gds);
 		Graph g4 = new Graph("O", timestamp, this.gds);
 		assertEquals(g1, g2);
-//		assertNotEquals(g1, g3);
-//		assertNotEquals(g2, g3);
-//		assertNotEquals(g1, g4);
-//		assertNotEquals(g2, g4);
-//		assertNotEquals(g3, g4);
+		assertNotEquals(g1, g3);
+		assertNotEquals(g2, g3);
+		assertNotEquals(g1, g4);
+		assertNotEquals(g2, g4);
+		assertNotEquals(g3, g4);
 	}
 
 	@Test
@@ -300,7 +301,7 @@ public class GraphTester {
 		Node g2n2 = this.gds.newNodeInstance(23);
 
 		assertTrue(g1.addNode(g1n1));
-		//assertNotEquals(g1, g2);
+		assertNotEquals(g1, g2);
 
 		assertTrue(g2.addNode(g2n1));
 		assertEquals(g1, g2);
@@ -312,7 +313,7 @@ public class GraphTester {
 		assertEquals(g1, g2);
 
 		assertTrue(g1.removeNode(g1n1));
-		//assertNotEquals(g1, g2);
+		assertNotEquals(g1, g2);
 
 		assertTrue(g2.removeNode(g2n1));
 		assertEquals(g1, g2);
