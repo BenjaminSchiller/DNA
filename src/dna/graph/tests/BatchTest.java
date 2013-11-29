@@ -295,8 +295,11 @@ public class BatchTest {
 				&& IWeighted.class.isAssignableFrom(edgeType));
 
 		Graph g = gg.generate();
-		Batch b = bGen.generate(g);
-		BatchSanitization.sanitize(b);
+		Batch b;
+		do {
+			b = bGen.generate(g);
+			BatchSanitization.sanitize(b);
+		} while (b.getEdgeWeightsCount() == 0 || b.getNodeWeightsCount() == 0);
 
 		// Get the first elements from weight-based updates
 		NodeWeight nwUpdate = b.getNodeWeights().iterator().next();
