@@ -26,11 +26,11 @@ public class DLinkedList extends DataStructureReadable implements
 	private int maxNodeIndex;
 
 	public DLinkedList(Class<? extends IElement> dT) {
+		super(dT);
 		this.init(dT, defaultSize);
 	}
 
 	public void init(Class<? extends IElement> dT, int initialSize) {
-		this.dataType = dT;
 		this.list = new LinkedList<IElement>();
 		this.maxNodeIndex = -1;
 	}

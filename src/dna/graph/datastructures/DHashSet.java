@@ -27,6 +27,7 @@ public class DHashSet extends DataStructureReadable implements
 	private HashSet<IElement> list;
 
 	public DHashSet(Class<? extends IElement> dT) {
+		super(dT);
 		this.init(dT, defaultSize);
 	}
 
@@ -37,7 +38,6 @@ public class DHashSet extends DataStructureReadable implements
 			// + "removing nodes and recalculating the new maxNodeIndex!");
 		}
 
-		this.dataType = dT;
 		this.list = new HashSet<>(initialSize);
 		this.maxNodeIndex = -1;
 	}

@@ -5,6 +5,7 @@ import java.util.Stack;
 
 import dna.graph.Element;
 import dna.graph.Graph;
+import dna.graph.datastructures.DataStructure;
 import dna.graph.datastructures.GraphDataStructure;
 import dna.graph.datastructures.IEdgeListDatastructure;
 import dna.graph.datastructures.INodeListDatastructure;
@@ -64,7 +65,6 @@ public aspect ProfilerAspects {
 	pointcut nodeGet() : call(* INodeListDatastructure+.get(int)) && watchedCall();	
 	pointcut nodeSize() : call(* INodeListDatastructure+.size()) && watchedCall();
 	pointcut nodeRandom() : call(* INodeListDatastructure+.getRandom()) && watchedCall();
-	pointcut nodeIterator() : execution(* INodeListDatastructure+.iterator_()) && watchedCall();
 
 	pointcut edgeAdd() : call(* IEdgeListDatastructure+.add(Edge+)) && watchedCall();
 	pointcut edgeRemove() : call(* IEdgeListDatastructure+.remove(Edge+)) && watchedCall();
@@ -72,7 +72,8 @@ public aspect ProfilerAspects {
 	pointcut edgeGet() : call(* IEdgeListDatastructure+.get(Edge)) && watchedCall();
 	pointcut edgeSize() : call(* IEdgeListDatastructure+.size()) && watchedCall();
 	pointcut edgeRandom() : call(* IEdgeListDatastructure+.getRandom()) && watchedCall();
-	pointcut edgeIterator() : execution(* IEdgeListDatastructure+.iterator_()) && watchedCall();
+	
+	pointcut iterator(DataStructure list) : execution(* DataStructure+.iterator()) && target(list) && watchedCall();
 	
 	pointcut graphAction() : !within(Element+);
 	pointcut nodeAction() : within(Element+);
@@ -251,20 +252,18 @@ public aspect ProfilerAspects {
 		Profiler.count(currentCountKey, ProfilerType.RandomEdgeGlobal);
 	}
 
-	after() : nodeIterator() && graphAction() {
-		Profiler.count(currentCountKey, ProfilerType.IteratorNodeGlobal);
+	after(DataStructure list) : iterator(list) && graphAction() {
+		if ( list.baseDataType == Node.class)
+			Profiler.count(currentCountKey, ProfilerType.IteratorNodeGlobal);
+		else if ( list.baseDataType == Edge.class)
+			Profiler.count(currentCountKey, ProfilerType.IteratorEdgeGlobal);
 	}
 
-	after() : nodeIterator() && nodeAction() {
-		Profiler.count(currentCountKey, ProfilerType.IteratorNodeLocal);
-	}
-
-	after() : edgeIterator() && graphAction() {
-		Profiler.count(currentCountKey, ProfilerType.IteratorEdgeGlobal);
-	}
-
-	after() : edgeIterator() && nodeAction() {
-		Profiler.count(currentCountKey, ProfilerType.IteratorEdgeLocal);
+	after(DataStructure list) : iterator(list) && nodeAction() {
+		if ( list.baseDataType == Node.class)
+			Profiler.count(currentCountKey, ProfilerType.IteratorNodeLocal);
+		else if ( list.baseDataType == Edge.class)
+			Profiler.count(currentCountKey, ProfilerType.IteratorEdgeLocal);
 	}
 
 	after(MetricData md, String dir) throws IOException : writeMetric(md, dir) {

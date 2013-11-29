@@ -3,6 +3,8 @@ package dna.graph.datastructures;
 import java.util.Iterator;
 
 import dna.graph.IElement;
+import dna.graph.edges.Edge;
+import dna.graph.nodes.Node;
 
 /**
  * Base class for storing IElements
@@ -15,8 +17,21 @@ public abstract class DataStructure implements IDataStructure {
 		Add, Contains, Get, Random, Remove, Size, Iterator
 	}
 
-	protected Class<? extends IElement> dataType;
+	public final Class<? extends IElement> baseDataType;
+	protected final Class<? extends IElement> dataType;
 	protected final int defaultSize = 10;
+	
+	public DataStructure(Class<? extends IElement> inputDataType) {
+		dataType = inputDataType;
+		if ( Node.class.isAssignableFrom(dataType)) {
+			baseDataType = Node.class;
+		} else if ( Edge.class.isAssignableFrom(dataType)) {
+			baseDataType = Edge.class;
+		} else {
+			throw new RuntimeException("Can't handle element of type "
+					+ dataType + " here");
+		}
+	}
 
 	public void reinitializeWithSize(int reinitSize) {
 		this.init(this.dataType, reinitSize);

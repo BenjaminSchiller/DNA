@@ -27,11 +27,11 @@ public class DHashMap extends DataStructureReadable implements
 	private int maxNodeIndex;
 
 	public DHashMap(Class<? extends IElement> dT) {
+		super(dT);
 		this.init(dT, defaultSize);
 	}
 
 	public void init(Class<? extends IElement> dT, int initialSize) {
-		this.dataType = dT;
 		this.list = new HashMap<String, IElement>(initialSize);
 		this.maxNodeIndex = -1;
 	}

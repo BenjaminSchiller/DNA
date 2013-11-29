@@ -15,6 +15,10 @@ import dna.util.Log;
 public abstract class DataStructureReadable extends DataStructure implements
 		IReadable {
 
+	public DataStructureReadable(Class<? extends IElement> dataType) {
+		super(dataType);
+	}
+
 	public boolean dataEquals(IDataStructure that) {
 		if (that instanceof DataStructureReadable) {
 			return dataEquals((DataStructureReadable) that);
