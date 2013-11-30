@@ -90,8 +90,7 @@ public class AllPairShortestPathU extends AllPairShortestPath {
 
 			PriorityQueue<QueueElement<DirectedNode>> q = new PriorityQueue<QueueElement<DirectedNode>>();
 
-			q.add(new QueueElement<DirectedNode>(dst, height.get(dst)
-					.doubleValue()));
+			q.add(new QueueElement<DirectedNode>(dst, height.get(dst)));
 
 			uncertain.add(dst);
 			parent.remove(dst);
@@ -100,7 +99,7 @@ public class AllPairShortestPathU extends AllPairShortestPath {
 				QueueElement<DirectedNode> qE = q.poll();
 				DirectedNode w = qE.e;
 
-				int key = ((Double) qE.distance).intValue();
+				int key = qE.distance;
 
 				// find the new shortest path
 				int dist = Integer.MAX_VALUE;
@@ -151,8 +150,7 @@ public class AllPairShortestPathU extends AllPairShortestPath {
 						}
 					} else {
 						changed.add(w);
-						q.add(new QueueElement<DirectedNode>(w,
-								((Integer) dist).doubleValue()));
+						q.add(new QueueElement<DirectedNode>(w, dist));
 						uncertain.remove(w);
 						for (IElement iEgde : w.getOutgoingEdges()) {
 							DirectedEdge edge = (DirectedEdge) iEgde;
@@ -162,15 +160,14 @@ public class AllPairShortestPathU extends AllPairShortestPath {
 								uncertain.add(z);
 
 								q.add(new QueueElement<DirectedNode>(z, height
-										.get(z).doubleValue()));
+										.get(z)));
 							}
 						}
 					}
 					continue;
 				}
 				if (dist > key) {
-					q.add(new QueueElement<DirectedNode>(w, ((Integer) dist)
-							.doubleValue()));
+					q.add(new QueueElement<DirectedNode>(w, dist));
 					continue;
 				}
 				if (minSettled.isEmpty()) {
@@ -188,10 +185,8 @@ public class AllPairShortestPathU extends AllPairShortestPath {
 					DirectedEdge edge = (DirectedEdge) iEgde;
 					DirectedNode z = edge.getDst();
 					if (height.get(z) > dist + 1) {
-						q.remove(new QueueElement<DirectedNode>(z,
-								((Integer) (dist + 1)).doubleValue()));
-						q.add(new QueueElement<DirectedNode>(z,
-								((Integer) (dist + 1)).doubleValue()));
+						q.remove(new QueueElement<DirectedNode>(z, dist + 1));
+						q.add(new QueueElement<DirectedNode>(z, dist + 1));
 					}
 				}
 			}
@@ -234,7 +229,7 @@ public class AllPairShortestPathU extends AllPairShortestPath {
 
 			PriorityQueue<QueueElement<Node>> q = new PriorityQueue<QueueElement<Node>>();
 
-			q.add(new QueueElement<Node>(dst, height.get(dst).doubleValue()));
+			q.add(new QueueElement<Node>(dst, height.get(dst)));
 
 			uncertain.add(dst);
 			parent.remove(dst);
@@ -243,7 +238,7 @@ public class AllPairShortestPathU extends AllPairShortestPath {
 				QueueElement<Node> qE = q.poll();
 				Node w = qE.e;
 
-				int key = ((Double) qE.distance).intValue();
+				int key = qE.distance;
 
 				// find the new shortest path
 				int dist = Integer.MAX_VALUE;
@@ -294,8 +289,7 @@ public class AllPairShortestPathU extends AllPairShortestPath {
 						}
 					} else {
 						changed.add(w);
-						q.add(new QueueElement<Node>(w, ((Integer) dist)
-								.doubleValue()));
+						q.add(new QueueElement<Node>(w, dist));
 						uncertain.remove(w);
 						for (IElement iEdge : w.getEdges()) {
 							UndirectedEdge ed = (UndirectedEdge) iEdge;
@@ -304,16 +298,14 @@ public class AllPairShortestPathU extends AllPairShortestPath {
 								parent.remove(z);
 								uncertain.add(z);
 
-								q.add(new QueueElement<Node>(z, height.get(z)
-										.doubleValue()));
+								q.add(new QueueElement<Node>(z, height.get(z)));
 							}
 						}
 					}
 					continue;
 				}
 				if (dist > key) {
-					q.add(new QueueElement<Node>(w, ((Integer) dist)
-							.doubleValue()));
+					q.add(new QueueElement<Node>(w, dist));
 					continue;
 				}
 				if (minSettled.isEmpty()) {
@@ -331,10 +323,8 @@ public class AllPairShortestPathU extends AllPairShortestPath {
 					UndirectedEdge ed = (UndirectedEdge) iEdge;
 					Node z = ed.getDifferingNode(w);
 					if (height.get(z) > dist + 1) {
-						q.remove(new QueueElement<Node>(z,
-								((Integer) (dist + 1)).doubleValue()));
-						q.add(new QueueElement<Node>(z, ((Integer) (dist + 1))
-								.doubleValue()));
+						q.remove(new QueueElement<Node>(z, dist + 1));
+						q.add(new QueueElement<Node>(z, dist + 1));
 					}
 				}
 			}

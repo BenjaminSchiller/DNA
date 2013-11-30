@@ -187,6 +187,13 @@ public class RichClubConnectivityIntervalU extends RichClubConnectivityInterval 
 	private boolean applyAfterNodeAdditionDirected(Update u) {
 		DirectedNode n = (DirectedNode) ((NodeAddition) u).getNode();
 		int size = 0;
+		if (this.richClubs.isEmpty()) {
+			this.richClubs.put(0, new HashMap<Integer, LinkedList<Node>>());
+			this.richClubEdges.put(0, 0);
+			this.nodesRichClub.put(n, 0);
+			addToRichClub(this.richClubs.get(0), n);
+			return true;
+		}
 		for (int i : this.richClubs.get(this.richClubs.size() - 1).keySet()) {
 			size += this.richClubs.get(this.richClubs.size() - 1).get(i).size();
 		}
