@@ -2,10 +2,10 @@ package dna.metrics.apsp;
 
 public class QueueElement<E> implements Comparable<E> {
 
-	public final double distance;
+	public final int distance;
 	public final E e;
 
-	public QueueElement(E e, Double d) {
+	public QueueElement(E e, Integer d) {
 		this.e = e;
 		this.distance = d;
 	}
@@ -13,7 +13,7 @@ public class QueueElement<E> implements Comparable<E> {
 	@Override
 	public int compareTo(E o) {
 		QueueElement<E> other_ = (QueueElement<E>) o;
-		Double diff = this.distance - other_.distance;
+		Integer diff = this.distance - other_.distance;
 		return diff.intValue();
 	}
 

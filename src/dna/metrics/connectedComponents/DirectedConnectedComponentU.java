@@ -5,7 +5,6 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Queue;
-import java.util.Stack;
 
 import dna.graph.IElement;
 import dna.graph.edges.DirectedEdge;
@@ -22,6 +21,16 @@ public class DirectedConnectedComponentU extends DirectedConnectedComponent {
 
 	public DirectedConnectedComponentU() {
 		super("DirectedConnectedComponentU", ApplicationType.AfterUpdate);
+	}
+
+	@Override
+	public void init_() {
+		super.init_();
+		visited = new HashMap<DirectedNode, Long>();
+		extractedCounter = 0;
+		for (IElement ie : g.getNodes()) {
+			visited.put((DirectedNode) ie, extractedCounter);
+		}
 	}
 
 	@Override
@@ -81,9 +90,11 @@ public class DirectedConnectedComponentU extends DirectedConnectedComponent {
 		q.add(src);
 		HashMap<DirectedComponent, LinkedList<DirectedNode>> list = new HashMap<DirectedComponent, LinkedList<DirectedNode>>();
 		initForDeletion();
+		s.clear();
+		extractedCounter++;
 		while (!q.isEmpty()) {
 			DirectedNode n = q.poll();
-			if (!visited.contains(n) && !n.equals(dst)) {
+			if (Math.abs(visited.get(n)) < extractedCounter && !n.equals(dst)) {
 				extractComponent(n, dst, srcIndex, q, list);
 			}
 		}
@@ -202,31 +213,27 @@ public class DirectedConnectedComponentU extends DirectedConnectedComponent {
 		}
 	}
 
-	HashSet<DirectedNode> reachingTarget;
 	private HashMap<DirectedNode, Integer> lowLink;
 	private HashMap<DirectedNode, Integer> dfs;
-	private HashSet<DirectedNode> visited;
-	private Stack<DirectedNode> s;
+	private HashMap<DirectedNode, Long> visited;
 	private int counter;
+	private long extractedCounter;
 
 	private void initForDeletion() {
 		lowLink = new HashMap<DirectedNode, Integer>();
 		dfs = new HashMap<DirectedNode, Integer>();
-		visited = new HashSet<DirectedNode>();
-		s = new Stack<DirectedNode>();
-		reachingTarget = new HashSet<DirectedNode>();
 		counter = 0;
 	}
 
 	private boolean extractComponent(DirectedNode n1, DirectedNode n2,
 			int srcIndex, Queue<DirectedNode> q,
 			HashMap<DirectedComponent, LinkedList<DirectedNode>> list) {
-		visited.add(n1);
+		visited.put(n1, extractedCounter);
 		lowLink.put(n1, counter);
 		dfs.put(n1, counter);
 		counter++;
 		if (n1.equals(n2)) {
-			reachingTarget.add(n1);
+			visited.put(n1, -extractedCounter);
 			return false;
 		}
 		s.push(n1);
@@ -237,17 +244,17 @@ public class DirectedConnectedComponentU extends DirectedConnectedComponent {
 				continue;
 			}
 
-			if (!visited.contains(e.getDst())) {
+			if (Math.abs(visited.get(e.getDst())) < extractedCounter) {
 				boolean split = extractComponent(e.getDst(), n2, srcIndex, q,
 						list);
 				if (!split) {
-					reachingTarget.add(n1);
+					visited.put(n1, -extractedCounter);
 					return false;
 				}
 				lowLink.put(n1,
 						Math.min(lowLink.get(n1), lowLink.get(e.getDst())));
-			} else if (reachingTarget.contains(e.getDst())) {
-				reachingTarget.add(n1);
+			} else if (visited.get(e.getDst()).equals(-extractedCounter)) {
+				visited.put(n1, -extractedCounter);
 				return false;
 			} else if (s.contains(e.getDst())) {
 				lowLink.put(n1, Math.min(lowLink.get(n1), dfs.get(e.getDst())));
@@ -399,15 +406,17 @@ public class DirectedConnectedComponentU extends DirectedConnectedComponent {
 	private boolean applyAfterNodeRemoval(Update u) {
 		DirectedNode node = (DirectedNode) ((NodeRemoval) u).getNode();
 		HashSet<DirectedEdge> out = new HashSet<>();
-		HashSet<Integer> before = new HashSet<>();
-		before.addAll(this.dag.keySet());
-
+		g.addNode(node);
 		for (IElement ie : node.getOutgoingEdges()) {
 			DirectedEdge e = (DirectedEdge) ie;
-			out.add(e);
+			e.connectToNodes();
+			if (e.getSrc().equals(node)) {
+				out.add(e);
+			}
 		}
 		for (DirectedEdge e : out) {
-			node.removeEdge(e);
+			e.disconnectFromNodes();
+			g.removeEdge(e);
 			applyAfterEdgeRemoval(new EdgeRemoval(e));
 		}
 		int iNow = lookup(node);
@@ -420,15 +429,16 @@ public class DirectedConnectedComponentU extends DirectedConnectedComponent {
 				cSRC.ed.remove(iNow);
 			}
 		}
-
+		this.g.removeNode(node);
 		this.containmentEdges.remove(node);
 		this.dag.remove(iNow);
-
+		this.visited.remove(node);
 		return true;
 	}
 
 	private boolean applyAfterNodeAddition(Update u) {
 		DirectedNode node = (DirectedNode) ((NodeAddition) u).getNode();
+		visited.put(node, 0L);
 		DirectedComponent cV = new DirectedComponent(this.componentCounter);
 		cV.setSize(1);
 		this.dag.put(componentCounter, cV);

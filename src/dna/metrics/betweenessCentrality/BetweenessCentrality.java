@@ -1,5 +1,6 @@
 package dna.metrics.betweenessCentrality;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -21,10 +22,11 @@ import dna.updates.batch.Batch;
 
 public abstract class BetweenessCentrality extends Metric {
 
-	//protected HashMap<Node, Double> bC;
+	// protected HashMap<Node, Double> bC;
 
 	protected NodeValueList bCC;
-	
+	protected double bCSum;
+
 	protected HashMap<Node, HashMap<Node, HashSet<Node>>> parents;
 	protected HashMap<Node, HashMap<Node, Integer>> distances;
 	protected HashMap<Node, HashMap<Node, Integer>> spcs;
@@ -36,12 +38,14 @@ public abstract class BetweenessCentrality extends Metric {
 
 	@Override
 	public void init_() {
-		//this.bC = new HashMap<Node, Double>();
+		// this.bC = new HashMap<Node, Double>();
 		this.parents = new HashMap<>();
 		this.distances = new HashMap<>();
 		this.spcs = new HashMap<>();
 		this.accSums = new HashMap<>();
-		this.bCC= new NodeValueList("BC_Score", this.g.getNodeCount());
+		this.bCC = new NodeValueList("BC_Score",
+				new double[this.g.getMaxNodeIndex() + 1]);
+		this.bCSum = 0d;
 	}
 
 	@Override
@@ -50,20 +54,16 @@ public abstract class BetweenessCentrality extends Metric {
 		this.distances = new HashMap<>();
 		this.spcs = new HashMap<>();
 		this.accSums = new HashMap<>();
-		//this.bC = new HashMap<Node, Double>();
-		this.bCC= new NodeValueList("BC_Score", this.g.getNodeCount());
+		// this.bC = new HashMap<Node, Double>();
+		this.bCC = new NodeValueList("BC_Score",
+				new double[this.g.getMaxNodeIndex() + 1]);
+		this.bCSum = 0d;
 	}
 
 	@Override
 	public boolean compute() {
 		Queue<Node> q = new LinkedList<Node>();
 		Stack<Node> s = new Stack<Node>();
-
-		for (IElement ie : g.getNodes()) {
-			Node t = (Node) ie;
-			//bC.put(t, 0d);
-			bCC.setValue(t.getIndex(), 0d);
-		}
 
 		for (IElement ie : g.getNodes()) {
 			Node n = (Node) ie;
@@ -144,16 +144,17 @@ public abstract class BetweenessCentrality extends Metric {
 					sums.put(parent, sums.get(parent) + sumForCurretConnection);
 				}
 				if (w != n) {
-					double currentScore = this.bCC.getValue(w.getIndex()); 
-					//this.bC.get(w);
-					//this.bC.put(w, currentScore + sums.get(w));
-					this.bCC.setValue(w.getIndex(), currentScore+sums.get(w));
+					double currentScore = this.bCC.getValue(w.getIndex());
+					// this.bC.get(w);
+					// this.bC.put(w, currentScore + sums.get(w));
+					this.bCC.setValue(w.getIndex(), currentScore + sums.get(w));
+					this.bCSum += sums.get(w);
 				}
 			}
-			parents.put(n, p);
-			distances.put(n, d);
-			spcs.put(n, spc);
-			accSums.put(n, sums);
+			// parents.put(n, p);
+			// distances.put(n, d);
+			// spcs.put(n, spc);
+			// accSums.put(n, sums);
 		}
 
 		return true;
@@ -217,7 +218,8 @@ public abstract class BetweenessCentrality extends Metric {
 			if (Math.abs(this.bCC.getValue(n.getIndex())
 					- bc.bCC.getValue(n.getIndex())) > 0.0001) {
 				System.out.println("diff at Node n " + n + " expected Score "
-						+ this.bCC.getValue(n.getIndex()) + " is " + bc.bCC.getValue(n.getIndex()));
+						+ this.bCC.getValue(n.getIndex()) + " is "
+						+ bc.bCC.getValue(n.getIndex()));
 				success = false;
 			}
 
@@ -228,21 +230,36 @@ public abstract class BetweenessCentrality extends Metric {
 
 	@Override
 	public Value[] getValues() {
-		return new Value[] {};
+		// Value v1 = new Value("median", getMedian());
+		Value v2 = new Value("avg_bc", bCSum / (double) g.getNodeCount());
+		return new Value[] { v2 };
+	}
+
+	private double getMedian() {
+		double[] sortedArray = bCC.getValues();
+		Arrays.sort(sortedArray);
+		double median;
+		if (sortedArray.length % 2 == 0) {
+			median = ((double) sortedArray[sortedArray.length / 2] + (double) sortedArray[sortedArray.length / 2 + 1]) / 2;
+		} else {
+			median = (double) sortedArray[sortedArray.length / 2];
+		}
+		return median;
+
 	}
 
 	@Override
 	public Distribution[] getDistributions() {
-//		Distribution d1 = new Distribution("BetweenessCentrality",
-//				getDistribution(this.bC));
-		return new Distribution[] { };
+		// Distribution d1 = new Distribution("BetweenessCentrality",
+		// getDistribution(this.bC));
+		return new Distribution[] {};
 
 	}
 
 	@Override
 	public NodeValueList[] getNodeValueLists() {
 		this.bCC.toString();
-		return new NodeValueList[] {this.bCC};
+		return new NodeValueList[] { this.bCC };
 	}
 
 	private double[] getDistribution(
