@@ -114,13 +114,34 @@ public abstract class AllPairShortestPath extends Metric {
 
 	@Override
 	public Value[] getValues() {
-		dists.truncate();
-		Value v1 = new Value("avg_shortest_path_Number_Existing_Paths",
-				(double) sum / dists.getDenominator());
-		Value v2 = new Value("diameter", this.dists.getMax());
-		Value v3 = new Value("avg_shortest_path_Number_Possible_Paths",
-				(double) sum / (g.getNodeCount() * (g.getNodeCount() - 1)));
+		double avg1;
+		double avg2;
+		double dia;
+		if (g.getNodeCount() != 0) {
+			dists.truncate();
+			double sum1 = getSum();
+			avg1 = sum1 / (double) dists.getDenominator();
+			avg2 = sum1 / (double) (g.getNodeCount() * (g.getNodeCount() - 1));
+			dia = this.dists.getMax();
+		} else {
+			avg1 = 0d;
+			avg2 = 0d;
+			dia = 0d;
+		}
+
+		Value v1 = new Value("avg_shortest_path_Number_Existing_Paths", avg1);
+		Value v2 = new Value("diameter", dia);
+		Value v3 = new Value("avg_shortest_path_Number_Possible_Paths", avg2);
 		return new Value[] { v1, v2, v3 };
+	}
+
+	private double getSum() {
+		double s = 0d;
+		int[] v = dists.getIntValues();
+		for (int i = 0; i < v.length; i++) {
+			s += v[i];
+		}
+		return s;
 	}
 
 	@Override
@@ -130,8 +151,14 @@ public abstract class AllPairShortestPath extends Metric {
 
 	@Override
 	public Distribution[] getDistributions() {
-		dists.truncate();
-		Distribution[] result = new Distribution[] { dists };
+		Distribution[] result;
+		if (g.getNodeCount() != 0) {
+			this.dists.truncate();
+			result = new Distribution[] { dists };
+		} else {
+			result = new Distribution[0];
+		}
+
 		// int i = 0;
 		// for (Node n : heightsOut.keySet()) {
 		// result[i] = new Distribution("distsForNode_" + n.getIndex(),

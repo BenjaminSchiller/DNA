@@ -1,6 +1,8 @@
 package dna.metrics.richClubConnectivity.richClubConnectivityPerDegree;
 
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 
 import dna.graph.IElement;
 import dna.graph.edges.DirectedEdge;
@@ -135,7 +137,6 @@ public class RichClubConnectivityPerDegreeU extends
 		int srcDegree = src.getOutDegree();
 		int dstDegree = dst.getOutDegree();
 		int edges = 0;
-
 		for (IElement iE : src.getOutgoingEdges()) {
 			DirectedEdge edge = (DirectedEdge) iE;
 			if (edge.getDst().getOutDegree() >= srcDegree) {
@@ -165,6 +166,7 @@ public class RichClubConnectivityPerDegreeU extends
 				.put(srcDegree - 1, this.richClubs.get(srcDegree - 1) - 1);
 		if (this.richClubs.get(srcDegree - 1) == 0) {
 			this.richClubs.remove(srcDegree - 1);
+
 			this.richClubEdges.remove(srcDegree - 1);
 		}
 
@@ -183,13 +185,12 @@ public class RichClubConnectivityPerDegreeU extends
 	}
 
 	private boolean applyAfterNodeAddition(Update u) {
-		int degree = -1;
+		int degree;
 		if (DirectedNode.class.isAssignableFrom(this.g.getGraphDatastructures()
 				.getNodeType())) {
 			DirectedNode node = (DirectedNode) ((NodeAddition) u).getNode();
 			degree = node.getOutDegree();
-		} else if (UndirectedNode.class.isAssignableFrom(this.g
-				.getGraphDatastructures().getNodeType())) {
+		} else {
 			UndirectedNode node = (UndirectedNode) ((NodeAddition) u).getNode();
 			degree = node.getDegree();
 		}
@@ -314,42 +315,209 @@ public class RichClubConnectivityPerDegreeU extends
 
 	private boolean applyAfterDirectedNodeRemoval(Update u) {
 		DirectedNode node = (DirectedNode) ((NodeRemoval) u).getNode();
-		HashSet<DirectedEdge> edges = new HashSet<DirectedEdge>();
-		g.addNode(node);
-		for (IElement ie : node.getEdges()) {
+		HashSet<DirectedNode> inNodes = new HashSet<DirectedNode>();
+		for (IElement ie : node.getIncomingEdges()) {
 			DirectedEdge e = (DirectedEdge) ie;
-			edges.add(e);
-			e.connectToNodes();
+			DirectedNode n = e.getSrc();
+			inNodes.add(n);
 		}
-		for (DirectedEdge e : edges) {
-			e.disconnectFromNodes();
-			g.removeEdge(e);
-			applyAfterDirectedEdgeRemoval(new EdgeRemoval(e));
+
+		for (IElement ie : node.getIncomingEdges()) {
+			DirectedEdge e = (DirectedEdge) ie;
+			DirectedNode n = e.getSrc();
+			int edges = 0;
+
+			for (IElement iedge : n.getOutgoingEdges()) {
+				DirectedEdge e1 = (DirectedEdge) iedge;
+
+				DirectedNode dN = e1.getDifferingNode(n);
+				if (dN.getOutDegree() > n.getOutDegree()) {
+					edges++;
+				} else {
+					if (inNodes.contains(dN)
+							&& dN.getOutDegree() == n.getOutDegree()) {
+						edges++;
+					}
+				}
+			}
+			for (IElement iedge : n.getIncomingEdges()) {
+				DirectedEdge e1 = (DirectedEdge) iedge;
+
+				DirectedNode dN = e1.getDifferingNode(n);
+				if (inNodes.contains(dN)
+						&& dN.getOutDegree() > n.getOutDegree()) {
+					edges++;
+				} else if (dN.getOutDegree() > n.getOutDegree()) {
+					edges++;
+				}
+
+			}
+			if (n.getOutDegree() + 1 > node.getOutDegree()) {
+				richClubEdges.put(node.getOutDegree(),
+						richClubEdges.get(node.getOutDegree()) - 1);
+			} else {
+				richClubEdges.put(n.getOutDegree() + 1,
+						richClubEdges.get(n.getOutDegree() + 1) - 1);
+			}
+
+			richClubEdges.put(n.getOutDegree() + 1,
+					richClubEdges.get(n.getOutDegree() + 1) - edges);
+
+			richClubs.put(n.getOutDegree() + 1,
+					richClubs.get(n.getOutDegree() + 1) - 1);
+			if (richClubs.get(n.getOutDegree() + 1) == 0) {
+				richClubs.remove(n.getOutDegree() + 1);
+				richClubEdges.remove(n.getOutDegree() + 1);
+			}
+			if (richClubs.containsKey(n.getOutDegree())) {
+				richClubs.put(n.getOutDegree(),
+						richClubs.get(n.getOutDegree()) + 1);
+			} else {
+				richClubs.put(n.getOutDegree(), 1);
+				richClubEdges.put(n.getOutDegree(), 0);
+			}
+			richClubEdges.put(n.getOutDegree(),
+					richClubEdges.get(n.getOutDegree()) + edges);
 		}
-		g.removeNode(node);
+
+		for (IElement ie : node.getOutgoingEdges()) {
+			DirectedEdge e = (DirectedEdge) ie;
+			if (inNodes.contains(e.getDst())) {
+				if (e.getDst().getOutDegree() + 1 > node.getOutDegree()) {
+					richClubEdges.put(node.getOutDegree(),
+							richClubEdges.get(node.getOutDegree()) - 1);
+				} else {
+					richClubEdges
+							.put(e.getDst().getOutDegree() + 1, richClubEdges
+									.get(e.getDst().getOutDegree() + 1) - 1);
+				}
+				continue;
+			}
+			if (e.getDst().getOutDegree() > node.getOutDegree()) {
+				richClubEdges.put(node.getOutDegree(),
+						richClubEdges.get(node.getOutDegree()) - 1);
+
+			} else {
+
+				richClubEdges.put(e.getDst().getOutDegree(),
+						richClubEdges.get(e.getDst().getOutDegree()) - 1);
+			}
+		}
+
 		this.richClubs.put(node.getOutDegree(),
 				this.richClubs.get(node.getOutDegree()) - 1);
+		if (richClubs.get(node.getOutDegree()) == 0) {
+			richClubs.remove(node.getOutDegree());
+			richClubEdges.remove(node.getOutDegree());
+		}
 		return true;
+	}
+
+	private void check() {
+		Map<Integer, Integer> testrichClubs = new HashMap<Integer, Integer>();
+		Map<Integer, Integer> testrichClubEdges = new HashMap<>();
+		for (IElement ie : g.getNodes()) {
+			UndirectedNode n = (UndirectedNode) ie;
+			int degree = n.getDegree();
+
+			int edges = 0;
+			for (IElement ieEdges : n.getEdges()) {
+				UndirectedEdge ed = (UndirectedEdge) ieEdges;
+				UndirectedNode node = ed.getDifferingNode(n);
+				if (node.getDegree() > degree) {
+					edges += 2;
+				}
+				if (node.getDegree() == degree) {
+					edges += 1;
+				}
+			}
+
+			if (testrichClubs.containsKey(degree)) {
+				testrichClubs.put(degree, testrichClubs.get(degree) + 1);
+				testrichClubEdges.put(degree, testrichClubEdges.get(degree)
+						+ edges);
+			} else {
+				testrichClubs.put(degree, 1);
+				testrichClubEdges.put(degree, edges);
+			}
+		}
+		if (!richClubs.keySet().equals(testrichClubs.keySet())
+				|| !richClubEdges.keySet().equals(testrichClubEdges.keySet())) {
+			System.out.println(richClubs.keySet() + " "
+					+ testrichClubs.keySet());
+			System.out.println(richClubEdges.keySet() + " "
+					+ testrichClubEdges.keySet());
+		}
+		if (!richClubs.values().equals(testrichClubs.values())
+				|| !richClubEdges.values().equals(testrichClubEdges.values())) {
+			System.out.println(richClubs);
+			System.out.println(testrichClubs);
+			System.out.println(richClubEdges);
+			System.out.println(testrichClubEdges);
+		}
+
 	}
 
 	private boolean applyAfterUndirectedNodeRemoval(Update u) {
 		UndirectedNode node = (UndirectedNode) ((NodeRemoval) u).getNode();
-		HashSet<UndirectedEdge> edges = new HashSet<UndirectedEdge>();
-		g.addNode(node);
+		HashSet<UndirectedNode> inNodes = new HashSet<UndirectedNode>();
 		for (IElement ie : node.getEdges()) {
 			UndirectedEdge e = (UndirectedEdge) ie;
-			edges.add(e);
-			e.connectToNodes();
+			UndirectedNode n = e.getDifferingNode(node);
+			inNodes.add(n);
 		}
-		for (UndirectedEdge e : edges) {
-			e.disconnectFromNodes();
-			g.removeEdge(e);
-			applyAfterUndirectedEdgeRemoval(new EdgeRemoval(e));
+
+		for (IElement ie : node.getEdges()) {
+			UndirectedEdge e = (UndirectedEdge) ie;
+			UndirectedNode n = e.getDifferingNode(node);
+			int edges = 0;
+
+			for (IElement iedge : n.getEdges()) {
+				UndirectedEdge e1 = (UndirectedEdge) iedge;
+
+				UndirectedNode dN = e1.getDifferingNode(n);
+				if (dN.getDegree() > n.getDegree()) {
+					edges += 2;
+				} else {
+					if (inNodes.contains(dN) && dN.getDegree() == n.getDegree()) {
+						inNodes.remove(n);
+						edges += 2;
+					}
+				}
+			}
+
+			if (n.getDegree() + 1 > node.getDegree()) {
+				richClubEdges.put(node.getDegree(),
+						richClubEdges.get(node.getDegree()) - 2);
+			} else {
+				richClubEdges.put(n.getDegree() + 1,
+						richClubEdges.get(n.getDegree() + 1) - 2);
+			}
+
+			richClubEdges.put(n.getDegree() + 1,
+					richClubEdges.get(n.getDegree() + 1) - edges);
+
+			richClubs.put(n.getDegree() + 1,
+					richClubs.get(n.getDegree() + 1) - 1);
+			if (richClubs.get(n.getDegree() + 1) == 0) {
+				richClubs.remove(n.getDegree() + 1);
+				richClubEdges.remove(n.getDegree() + 1);
+			}
+			if (richClubs.containsKey(n.getDegree())) {
+				richClubs.put(n.getDegree(), richClubs.get(n.getDegree()) + 1);
+			} else {
+				richClubs.put(n.getDegree(), 1);
+				richClubEdges.put(n.getDegree(), 0);
+			}
+			richClubEdges.put(n.getDegree(), richClubEdges.get(n.getDegree())
+					+ edges);
 		}
-		g.removeNode(node);
 		this.richClubs.put(node.getDegree(),
 				this.richClubs.get(node.getDegree()) - 1);
+		if (richClubs.get(node.getDegree()) == 0) {
+			richClubs.remove(node.getDegree());
+			richClubEdges.remove(node.getDegree());
+		}
 		return true;
 	}
-
 }

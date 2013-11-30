@@ -19,7 +19,7 @@ public abstract class DirectedConnectedComponent extends Metric {
 	private boolean[] visited;
 
 	// DAGGER
-	private Stack<DirectedNode> s;
+	protected Stack<DirectedNode> s;
 	private int[] lowLink;
 	private int[] index;
 	private int ind = 0;
@@ -129,6 +129,7 @@ public abstract class DirectedConnectedComponent extends Metric {
 		while (this.containmentEdgesForComponents.containsKey(nIndex)) {
 			nIndex = this.containmentEdgesForComponents.get(nIndex);
 		}
+		this.containmentEdges.put(n, nIndex);
 		return nIndex;
 	}
 
