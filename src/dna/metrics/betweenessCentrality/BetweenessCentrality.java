@@ -151,10 +151,10 @@ public abstract class BetweenessCentrality extends Metric {
 					this.bCSum += sums.get(w);
 				}
 			}
-			// parents.put(n, p);
-			// distances.put(n, d);
-			// spcs.put(n, spc);
-			// accSums.put(n, sums);
+			parents.put(n, p);
+			distances.put(n, d);
+			spcs.put(n, spc);
+			accSums.put(n, sums);
 		}
 
 		return true;

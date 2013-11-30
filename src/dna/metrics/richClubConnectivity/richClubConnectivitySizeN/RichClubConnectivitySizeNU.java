@@ -6,7 +6,6 @@ import java.util.LinkedList;
 
 import dna.graph.IElement;
 import dna.graph.edges.DirectedEdge;
-import dna.graph.edges.Edge;
 import dna.graph.edges.UndirectedEdge;
 import dna.graph.nodes.DirectedNode;
 import dna.graph.nodes.Node;
@@ -442,36 +441,6 @@ public class RichClubConnectivitySizeNU extends RichClubConnectivitySizeN {
 			biggest = Math.max(biggest, i);
 		}
 		return biggest;
-	}
-
-	private boolean applyAfterNodeRemoval(Update u) {
-		Node node = (Node) ((NodeRemoval) u).getNode();
-		HashSet<Edge> edges = new HashSet<Edge>();
-		g.addNode(node);
-		for (IElement ie : node.getEdges()) {
-			Edge e = (Edge) ie;
-			edges.add(e);
-			e.connectToNodes();
-		}
-		for (Edge e : edges) {
-			e.disconnectFromNodes();
-			g.removeEdge(e);
-			applyAfterUpdate(new EdgeRemoval(e));
-		}
-		g.removeNode(node);
-		int degree;
-		if (DirectedNode.class.isAssignableFrom(this.g.getGraphDatastructures()
-				.getNodeType())) {
-			degree = ((DirectedNode) node).getOutDegree();
-		} else {
-			degree = ((UndirectedNode) node).getDegree();
-		}
-		this.nodesSortedByDegree.get(degree).remove(node);
-		if (this.nodesSortedByDegree.get(degree).isEmpty()) {
-			this.nodesSortedByDegree.remove(degree);
-		}
-		return true;
-
 	}
 
 	private boolean applyAfterNodeAddition(Update u) {
