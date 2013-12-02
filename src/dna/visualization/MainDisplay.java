@@ -167,7 +167,7 @@ public class MainDisplay extends JFrame {
 			}
 		});
 
-		final JButton toggleM2 = new JButton("+M1");
+		final JButton toggleM2 = new JButton("-M2");
 		toggleM2.setPreferredSize(GuiOptions.mainDisplayButtonSize);
 		toggleM2.setFont(GuiOptions.defaultFont);
 		toggleM2.setForeground(GuiOptions.defaultFontColor);
