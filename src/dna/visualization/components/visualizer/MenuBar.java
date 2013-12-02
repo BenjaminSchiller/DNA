@@ -41,6 +41,7 @@ import dna.visualization.GuiOptions;
 public class MenuBar extends JPanel implements ChangeListener {
 	/** general options **/
 	private Visualizer parent;
+	public MenuBar thisMenuBar;
 
 	// creates the default menu with all panels
 	public MenuBar(Visualizer parent, Dimension d) {
@@ -52,6 +53,7 @@ public class MenuBar extends JPanel implements ChangeListener {
 			boolean addIntervalPanel, boolean addXOptionsPanel,
 			boolean addYLeftOptionsPanel, boolean addYRightOptionsPanel) {
 		this.parent = parent;
+		this.thisMenuBar = this;
 		this.setLayout(new GridBagLayout());
 		this.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
 
@@ -59,7 +61,7 @@ public class MenuBar extends JPanel implements ChangeListener {
 		this.setBorder(BorderFactory.createEtchedBorder((EtchedBorder.LOWERED)));
 		GuiOptions.menuBarItemBorder
 				.setTitleFont(GuiOptions.defaultFontBorders);
-		
+
 		int spaceUsed = 0;
 
 		// add coords panel
@@ -91,9 +93,6 @@ public class MenuBar extends JPanel implements ChangeListener {
 			this.addYRightOptionsPanel(GuiOptions.menuBarYRightOptionsPanelSize);
 			spaceUsed += GuiOptions.menuBarYRightOptionsPanelSize.width;
 		}
-
-		this.addDummyPanel(new Dimension((size.width - spaceUsed) - 5,
-				size.height - 5));
 	}
 
 	// menu bar elements
@@ -136,7 +135,7 @@ public class MenuBar extends JPanel implements ChangeListener {
 
 		// x1 label
 		JLabel x1Label = new JLabel("x1:");
-		x1Label.setPreferredSize(new Dimension(16, 20));
+		x1Label.setPreferredSize(new Dimension(18, 20));
 		x1Label.setFont(GuiOptions.defaultFont);
 		x1Label.setForeground(GuiOptions.defaultFontColor);
 
@@ -157,21 +156,32 @@ public class MenuBar extends JPanel implements ChangeListener {
 				} else {
 					// if not selected: enable bar and slider and set x1 to
 					// fixedviewport policy
+					double minTemp = 0;
+					double maxTemp = 1;
 					parent.setFixedViewport(true);
 					parent.xAxis1
 							.setRangePolicy(new RangePolicyFixedViewport());
-
-					double minTemp = 0;
-					double maxTemp = 1;
-
-					for (Object t : parent.xAxis1.getTraces()) {
-						if (t instanceof Trace2DSimple) {
-							double minX = ((Trace2DSimple) t).getMinX();
-							double maxX = ((Trace2DSimple) t).getMaxX();
-							if (minTemp > minX)
-								minTemp = minX;
-							if (maxTemp < maxX)
-								maxTemp = maxX;
+					if (parent instanceof MultiScalarVisualizer) {
+						for (Object t : parent.xAxis1.getTraces()) {
+							if (t instanceof Trace2DSimple) {
+								double minX = ((Trace2DSimple) t).getMinX();
+								double maxX = ((Trace2DSimple) t).getMaxX();
+								if (minTemp > minX)
+									minTemp = minX;
+								if (maxTemp < maxX)
+									maxTemp = maxX;
+							}
+						}
+					} else if (parent instanceof MetricVisualizer) {
+						for (Object t : parent.xAxis1.getTraces()) {
+							if (t instanceof Trace2DLtd) {
+								minTemp = ((Trace2DLtd) t).getMinX();
+								maxTemp = ((Trace2DLtd) t).getMaxX();
+								if (((Trace2DLtd) t).getMinX() < minTemp)
+									minTemp = ((Trace2DLtd) t).getMinX();
+								if (((Trace2DLtd) t).getMaxX() < maxTemp)
+									maxTemp = ((Trace2DLtd) t).getMaxX();
+							}
 						}
 					}
 					parent.xAxis1.setRange(new Range(minTemp, maxTemp));
@@ -218,23 +228,18 @@ public class MenuBar extends JPanel implements ChangeListener {
 									if (maxTemp < maxX)
 										maxTemp = maxX;
 								} else if (t instanceof Trace2DLtd) {
-									double minX = ((Trace2DLtd) t).getMinX();
-									double maxX = ((Trace2DLtd) t).getMaxX();
-									if (minTemp > minX)
-										minTemp = minX;
-									if (maxTemp < maxX)
-										maxTemp = maxX;
+									minTemp = ((Trace2DLtd) t).getMinX();
+									maxTemp = ((Trace2DLtd) t).getMaxX();
 								}
 							}
-
-							int minTimestampNew = (int) Math.floor(lowP
-									* (maxTemp - minTemp));
-							int maxTimestampNew = (int) Math.floor(highP
-									* (maxTemp - minTemp));
-
+							int minTimestampNew = (int) Math.floor(minTemp)
+									+ (int) Math.floor(lowP
+											* (maxTemp - minTemp));
+							int maxTimestampNew = (int) Math.floor(minTemp)
+									+ (int) Math.floor(highP
+											* (maxTemp - minTemp));
 							parent.setMinShownTimestamp((long) minTimestampNew);
 							parent.setMaxShownTimestamp((long) maxTimestampNew);
-
 							parent.xAxis1.setRange(new Range(minTimestampNew,
 									maxTimestampNew));
 							// update x ticks
@@ -267,7 +272,7 @@ public class MenuBar extends JPanel implements ChangeListener {
 
 			// x1 label
 			JLabel x2Label = new JLabel("x2:");
-			x2Label.setPreferredSize(new Dimension(16, 20));
+			x2Label.setPreferredSize(new Dimension(18, 20));
 			x2Label.setFont(GuiOptions.defaultFont);
 			x2Label.setForeground(GuiOptions.defaultFontColor);
 

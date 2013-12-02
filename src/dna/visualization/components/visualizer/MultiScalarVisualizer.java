@@ -1,7 +1,9 @@
 package dna.visualization.components.visualizer;
 
 import info.monitorenter.gui.chart.IAxis;
+import info.monitorenter.gui.chart.IPointPainter;
 import info.monitorenter.gui.chart.ITrace2D;
+import info.monitorenter.gui.chart.ITracePainter;
 import info.monitorenter.gui.chart.ITracePoint2D;
 import info.monitorenter.gui.chart.traces.Trace2DSimple;
 import info.monitorenter.gui.chart.traces.painters.TracePainterDisc;
@@ -35,6 +37,13 @@ public class MultiScalarVisualizer extends Visualizer {
 	private ArrayList<String> availableValues;
 	private HashMap<String, ITrace2D> traces;
 
+	// saved values
+	private HashMap<String, Long> longDenominators;
+	private HashMap<String, long[]> longValues;
+	private HashMap<String, Integer> intDenominators;
+	private HashMap<String, int[]> intValues;
+	private HashMap<String, double[]> doubleValues;
+
 	/** sort mode used to plot nodevaluelists **/
 	public enum SortModeNVL {
 		index, ascending, descending
@@ -50,6 +59,14 @@ public class MultiScalarVisualizer extends Visualizer {
 		// initialization
 		this.traces = new HashMap<String, ITrace2D>();
 		this.availableValues = new ArrayList<String>();
+
+		this.longDenominators = new HashMap<String, Long>();
+		this.longValues = new HashMap<String, long[]>();
+
+		this.intDenominators = new HashMap<String, Integer>();
+		this.intValues = new HashMap<String, int[]>();
+
+		this.doubleValues = new HashMap<String, double[]>();
 
 		// remove timestamp-label on x-axis
 		this.xAxis1.getAxisTitle().setTitle("x1");
@@ -140,6 +157,7 @@ public class MultiScalarVisualizer extends Visualizer {
 						SortModeDist tempSortMode = ((LegendItemDistribution) this.legend
 								.getLegendList().getLegendItem(tempName))
 								.getSortMode();
+						this.doubleValues.put(tempName, tempValues);
 						this.addDistributionPoints(tempName, tempValues,
 								tempSortMode);
 					}
@@ -155,6 +173,8 @@ public class MultiScalarVisualizer extends Visualizer {
 								.getSortMode();
 						this.addDistributionPoints(tempName, tempValues,
 								tempDenominator, tempSortMode);
+						this.intValues.put(tempName, tempValues);
+						this.intDenominators.put(tempName, tempDenominator);
 						this.legend.updateItem(tempName, tempDenominator);
 					}
 					if (tempDist instanceof DistributionLong) {
@@ -169,6 +189,8 @@ public class MultiScalarVisualizer extends Visualizer {
 								.getSortMode();
 						this.addDistributionPoints(tempName, tempValues,
 								tempDenominator, tempSortMode);
+						this.longValues.put(tempName, tempValues);
+						this.longDenominators.put(tempName, tempDenominator);
 						this.legend.updateItem(tempName, tempDenominator);
 					}
 
@@ -181,10 +203,10 @@ public class MultiScalarVisualizer extends Visualizer {
 					SortModeNVL tempSortMode = ((LegendItemNodeValueList) this.legend
 							.getLegendList().getLegendItem(tempName))
 							.getSortMode();
-
-					this.addPoints(metric + "." + nvl,
-							b.getMetrics().get(metric).getNodeValues().get(nvl)
-									.getValues(), tempSortMode);
+					double[] tempValues = b.getMetrics().get(metric)
+							.getNodeValues().get(nvl).getValues();
+					this.doubleValues.put(tempName, tempValues);
+					this.addPoints(metric + "." + nvl, tempValues, tempSortMode);
 				}
 			}
 		}
@@ -275,24 +297,46 @@ public class MultiScalarVisualizer extends Visualizer {
 			this.maxTimestamp = values.length - 1;
 	}
 
-	/** adds points sorted and normalized by dividing through denominator **/
+	/** adds points sorted **/
 	private void addPoints(String name, double[] values, SortModeNVL sort) {
 		ITrace2D tempTrace = this.traces.get(name);
-
+		double[] tempValues = new double[values.length];
+		int tempIndex = 0;
 		switch (sort) {
 		case ascending:
-			Arrays.sort(values);
-			for (int i = 0; i < values.length; i++) {
-				tempTrace.addPoint(i, values[i]);
+			System.arraycopy(values, 0, tempValues, 0, values.length);
+			Arrays.sort(tempValues);
+
+			// check how many double.nan's are in the array
+			for (int j = tempValues.length - 1; j >= 0; j--) {
+				if (Double.isNaN(tempValues[j]))
+					tempIndex++;
+				else
+					break;
+			}
+			// add points
+			for (int i = 0; i < tempValues.length - tempIndex; i++) {
+				tempTrace.addPoint(i, tempValues[i]);
 			}
 			break;
 		case descending:
-			Arrays.sort(values);
-			for (int i = 0, j = values.length - 1; i < values.length; i++) {
-				tempTrace.addPoint(j - i, values[i]);
+			System.arraycopy(values, 0, tempValues, 0, values.length);
+			Arrays.sort(tempValues);
+
+			// check how many double.nan's are in the array
+			for (int j = tempValues.length - 1; j >= 0; j--) {
+				if (Double.isNaN(tempValues[j]))
+					tempIndex++;
+				else
+					break;
+			}
+			for (int i = 0, j = tempValues.length - 1; i < tempValues.length
+					- tempIndex; i++) {
+				tempTrace.addPoint(j - (i + tempIndex), tempValues[i]);
 			}
 			break;
 		case index:
+
 			for (int i = 0; i < values.length; i++) {
 				tempTrace.addPoint(i, values[i]);
 			}
@@ -335,6 +379,17 @@ public class MultiScalarVisualizer extends Visualizer {
 			this.chart.removeTrace(this.traces.get(name));
 			this.traces.remove(name);
 		}
+		if (this.longValues.containsKey(name))
+			this.longValues.remove(name);
+		if (this.longDenominators.containsKey(name))
+			this.longDenominators.remove(name);
+		if (this.intValues.containsKey(name))
+			this.intValues.remove(name);
+		if (this.intDenominators.containsKey(name))
+			this.intDenominators.remove(name);
+		if (this.doubleValues.containsKey(name))
+			this.doubleValues.remove(name);
+
 		this.toggleXAxisVisibility();
 		this.toggleYAxisVisibility();
 	}
@@ -497,6 +552,7 @@ public class MultiScalarVisualizer extends Visualizer {
 						.addTrace(this.traces.get(name));
 			}
 			this.toggleXAxisVisibility();
+			this.updateTicks();
 		}
 	}
 
@@ -508,7 +564,6 @@ public class MultiScalarVisualizer extends Visualizer {
 			else
 				this.traces.get(name).setVisible(true);
 		}
-
 	}
 
 	/** toggles grid on second x axis **/
@@ -517,5 +572,29 @@ public class MultiScalarVisualizer extends Visualizer {
 			this.xAxis2.setPaintGrid(false);
 		else
 			this.xAxis2.setPaintGrid(true);
+	}
+
+	/** called when the gui is resetted **/
+	public void reset() {
+		for (String trace : this.traces.keySet()) {
+			this.traces.get(trace).removeAllPoints();
+		}
+	}
+
+	/** called from an item to get resorted while paused **/
+	public void sortItem(String name, SortModeNVL s) {
+		// TODO: when paused?
+		if (this.traces.containsKey(name)) {
+			this.traces.get(name).removeAllPoints();
+			// this.chart.removeTrace(this.traces.get(name));
+			if (this.doubleValues.containsKey(name)) {
+				this.addPoints(name, this.doubleValues.get(name), s);
+			}
+		}
+	}
+
+	/** called from an item to get resorted while paused **/
+	public void sortItem(String name, SortModeDist s) {
+		System.out.println("sort dist " + name + " with " + s);
 	}
 }

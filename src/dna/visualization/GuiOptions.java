@@ -32,6 +32,10 @@ public class GuiOptions {
 			190, 330);
 	public static final Dimension visualizerDefaultChartSize = new Dimension(
 			450, 320);
+	public static final String metricVisualizerXAxisType = Config
+			.get("GUI_X_AXIS_TYPE");
+	public static final String metricVisualizerXAxisFormat = Config
+			.get("GUI_X_AXIS_FORMAT");
 
 	// legend item
 	public static final Dimension legendItemItemSize = new Dimension(165, 40);

@@ -19,6 +19,8 @@ import dna.util.Config;
 import dna.visualization.GuiOptions;
 import dna.visualization.components.BoundsPopupMenuListener;
 import dna.visualization.components.ColorHandler;
+import dna.visualization.components.visualizer.MultiScalarVisualizer.SortModeDist;
+import dna.visualization.components.visualizer.MultiScalarVisualizer.SortModeNVL;
 
 /**
  * Used within a metric visualizer component to give the user control over which
@@ -461,6 +463,17 @@ public class Legend extends JPanel {
 		if (this.parent instanceof MultiScalarVisualizer)
 			((MultiScalarVisualizer) this.parent).toggleTraceVisiblity(item
 					.getName());
+	}
 
+	/** called from an item to get resorted while paused **/
+	public void sortItem(LegendItem i, SortModeNVL s) {
+		if (this.parent instanceof MultiScalarVisualizer)
+			((MultiScalarVisualizer) this.parent).sortItem(i.getName(), s);
+	}
+
+	/** called from an item to get resorted while paused **/
+	public void sortItem(LegendItem i, SortModeDist s) {
+		if (this.parent instanceof MultiScalarVisualizer)
+			((MultiScalarVisualizer) this.parent).sortItem(i.getName(), s);
 	}
 }

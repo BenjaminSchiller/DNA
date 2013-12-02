@@ -128,6 +128,7 @@ public class LegendItemDistribution extends LegendItem {
 					sortModeButton
 							.setToolTipText("Distribution is shown as distribution. Click to change to cdf plot.");
 				}
+				thisItem.parent.sortItem(thisItem, sortMode);
 			}
 		});
 

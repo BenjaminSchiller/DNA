@@ -6,6 +6,8 @@ import java.awt.Component;
 import javax.swing.JPanel;
 
 import dna.visualization.VerticalLayout;
+import dna.visualization.components.visualizer.MultiScalarVisualizer.SortModeDist;
+import dna.visualization.components.visualizer.MultiScalarVisualizer.SortModeNVL;
 
 /**
  * The list showing elements added to the legend.
@@ -104,12 +106,12 @@ public class LegendList extends JPanel {
 	public void toggleYAxis(LegendItem item) {
 		this.parent.toggleYAxis(item);
 	}
-	
+
 	/** toggles x axis of an item **/
 	public void toggleXAxis(LegendItem item) {
 		this.parent.toggleXAxis(item);
 	}
-	
+
 	/** toggles visiblity of a trace **/
 	public void toggleVisiblity(LegendItem item) {
 		this.parent.toggleVisiblity(item);
@@ -124,5 +126,15 @@ public class LegendList extends JPanel {
 			}
 		}
 		return null;
+	}
+
+	/** called from an item to get resorted while paused **/
+	public void sortItem(LegendItem i, SortModeNVL s) {
+		this.parent.sortItem(i, s);
+	}
+
+	/** called from an item to get resorted while paused **/
+	public void sortItem(LegendItem i, SortModeDist s) {
+		this.parent.sortItem(i, s);
 	}
 }

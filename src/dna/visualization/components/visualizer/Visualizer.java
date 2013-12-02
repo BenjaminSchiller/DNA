@@ -14,10 +14,7 @@ import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 
-import javax.swing.BorderFactory;
 import javax.swing.JPanel;
-import javax.swing.border.EtchedBorder;
-import javax.swing.border.TitledBorder;
 
 import dna.util.Config;
 import dna.visualization.GuiOptions;
@@ -60,11 +57,15 @@ public class Visualizer extends JPanel {
 		y1, y2
 	};
 
+	// shows if the UI is paused or not
+	protected boolean paused;
+
 	// constructor
 	@SuppressWarnings("rawtypes")
 	public Visualizer() {
 		// initialization
 		this.setPreferredSize(GuiOptions.visualizerDefaultSize);
+		this.paused = true;
 
 		this.TRACE_LENGTH = Config.getInt("GUI_TRACE_LENGTH");
 		this.FIXED_VIEWPORT = false;
@@ -75,7 +76,7 @@ public class Visualizer extends JPanel {
 
 		this.mainConstraints = new GridBagConstraints();
 		this.mainConstraints.fill = GridBagConstraints.HORIZONTAL;
-		
+
 		// set layout
 		this.setLayout(new GridBagLayout());
 
@@ -102,10 +103,9 @@ public class Visualizer extends JPanel {
 		// y2
 		this.yAxis2 = new AxisLinear(new LabelFormatterNumber(
 				GuiOptions.visualizerYAxisDecimalFormat));
-		this.chart.addAxisYRight((AAxis) yAxis2);
 		this.yAxis2.setVisible(false);
 		this.yAxis2.setAxisTitle(new AxisTitle("y2"));
-
+		this.chart.addAxisYRight((AAxis) yAxis2);
 		// add chart to visualizer
 		this.mainConstraints.gridx = 0;
 		this.mainConstraints.gridy = 0;
@@ -354,4 +354,10 @@ public class Visualizer extends JPanel {
 		this.updateY1Ticks();
 		this.updateY2Ticks();
 	}
+
+	/** Called when the UI gets pause/unpaused **/
+	public void togglePause() {
+		this.paused = !this.paused;
+	}
+
 }

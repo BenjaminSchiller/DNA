@@ -3,6 +3,10 @@ package dna.visualization.components.visualizer;
 import info.monitorenter.gui.chart.IAxis;
 import info.monitorenter.gui.chart.ITrace2D;
 import info.monitorenter.gui.chart.ITracePoint2D;
+import info.monitorenter.gui.chart.axis.scalepolicy.AxisScalePolicyAutomaticBestFit;
+import info.monitorenter.gui.chart.labelformatters.LabelFormatterDate;
+import info.monitorenter.gui.chart.rangepolicies.RangePolicyFixedViewport;
+import info.monitorenter.gui.chart.rangepolicies.RangePolicyUnbounded;
 import info.monitorenter.gui.chart.traces.Trace2DLtd;
 import info.monitorenter.gui.chart.traces.Trace2DSimple;
 import info.monitorenter.gui.chart.traces.painters.TracePainterDisc;
@@ -13,6 +17,7 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -33,6 +38,8 @@ public class MetricVisualizer extends Visualizer {
 	private ArrayList<String> availableValues;
 	private HashMap<String, ITrace2D> traces;
 
+	private boolean xAxisTypeTimestamp;
+
 	// constructor
 	public MetricVisualizer() {
 		// initialization
@@ -48,6 +55,18 @@ public class MetricVisualizer extends Visualizer {
 		title.setTitleColor(GuiOptions.defaultFontBordersColor);
 		this.setBorder(title);
 
+		// if x axis type is date
+		this.xAxisTypeTimestamp = true;
+		if (GuiOptions.metricVisualizerXAxisType.equals("date")) {
+			this.xAxisTypeTimestamp = false;
+			this.xAxis1
+					.setFormatter(new LabelFormatterDate(new SimpleDateFormat(
+							GuiOptions.metricVisualizerXAxisFormat)));
+			this.xAxis1.setMajorTickSpacing(5);
+			this.xAxis1.setMinorTickSpacing(1);
+			this.xAxis1
+					.setAxisScalePolicy(new AxisScalePolicyAutomaticBestFit());
+		}
 		// add menu bar
 		super.addMenuBar(
 				new Dimension(GuiOptions.visualizerDefaultMenuBarSize), true,
@@ -68,9 +87,38 @@ public class MetricVisualizer extends Visualizer {
 
 			public void mouseDragged(MouseEvent e) {
 			}
-
 		});
+	}
 
+	/** handles the ticks that are shown on the x axis **/
+	@Override
+	protected void updateX1Ticks() {
+		if (this.xAxisTypeTimestamp) {
+			double minTemp = 0;
+			double maxTemp = 10;
+			if (this.xAxis1.getRangePolicy() instanceof RangePolicyUnbounded) {
+				minTemp = this.minTimestamp * 1.0;
+				maxTemp = this.maxTimestamp * 1.0;
+			} else {
+				if (this.xAxis1.getRangePolicy() instanceof RangePolicyFixedViewport) {
+					minTemp = this.minShownTimestamp;
+					maxTemp = this.maxShownTimestamp;
+				}
+			}
+			if (maxTemp > minTemp) {
+				double range = maxTemp - minTemp;
+				if (range > 0) {
+					double tickSpacingNew = Math.floor(range / 10);
+					if (tickSpacingNew < 1)
+						tickSpacingNew = 1.0;
+					this.xAxis1.setMajorTickSpacing(tickSpacingNew);
+					this.xAxis1.setMinorTickSpacing(tickSpacingNew);
+				}
+			}
+		} else {
+			// System.out.println(this.xAxis1.getRange().toString());
+			// TODO: ADD DATE FORMAT HANDLING HERE
+		}
 	}
 
 	/**
@@ -107,7 +155,6 @@ public class MetricVisualizer extends Visualizer {
 				String tempName = "general runtimes." + runtime;
 				double tempValue = b.getGeneralRuntimes().get(runtime)
 						.getRuntime();
-
 				this.traces.get(tempName).addPoint(timestampDouble, tempValue);
 				this.legend.updateItem(tempName, tempValue);
 			}
@@ -147,20 +194,25 @@ public class MetricVisualizer extends Visualizer {
 				double highP = 1.0 * (this.menuBar.getIntervalSlider()
 						.getValue() + this.menuBar.getIntervalSlider()
 						.getModel().getExtent()) / 100;
+				double minD = 0;
+				double maxD = 0;
 
-				long min = this.minTimestamp;
-				long max = this.maxTimestamp;
+				for (String s : this.traces.keySet()) {
+					minD = this.traces.get(s).getMinX();
+					maxD = this.traces.get(s).getMaxX();
+					if (this.traces.get(s).getMinX() < this.minTimestamp)
+						minD = this.traces.get(s).getMinX();
+					if (this.traces.get(s).getMaxX() > this.maxTimestamp)
+						maxD = this.traces.get(s).getMaxX();
+				}
+				double tMinNew = minD + (lowP * (maxD - minD));
+				double tMaxNew = minD + (highP * (maxD - minD));
 
-				int minTimestampNew = (int) Math.floor(lowP * (max - min));
-				int maxTimestampNew = (int) Math.floor(highP * (max - min));
-
-				this.xAxis1
-						.setRange(new Range(minTimestampNew, maxTimestampNew));
-				this.setMinShownTimestamp((long) minTimestampNew);
-				this.setMaxShownTimestamp((long) maxTimestampNew);
+				this.xAxis1.setRange(new Range(tMinNew, tMaxNew));
+				this.setMinShownTimestamp((long) tMinNew);
+				this.setMaxShownTimestamp((long) tMaxNew);
 			}
 		}
-
 		this.updateX1Ticks();
 	}
 
@@ -199,7 +251,7 @@ public class MetricVisualizer extends Visualizer {
 		this.minTimestamp = b.getTimestamp();
 		this.maxTimestamp = b.getTimestamp();
 		this.minShownTimestamp = b.getTimestamp();
-		this.maxShownTimestamp = this.minShownTimestamp + 10;
+		this.maxShownTimestamp = this.minShownTimestamp;
 
 		for (ITrace2D t : this.chart.getTraces()) {
 			t.removeAllPoints();
@@ -241,6 +293,7 @@ public class MetricVisualizer extends Visualizer {
 		for (String trace : this.traces.keySet()) {
 			this.traces.get(trace).removeAllPoints();
 		}
+		this.chart.updateUI();
 	}
 
 	/** shows/hides a trace from the chart without deleting it **/

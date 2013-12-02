@@ -107,11 +107,12 @@ public class MainDisplay extends JFrame {
 		this.pauseButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent event) {
-				batchHandler.togglePause();
+				togglePause();
 				if (pauseButton.getForeground().equals(
 						GuiOptions.defaultFontColor)) {
 					pauseButton.setForeground(Color.RED);
 					pauseButton.setText("Resume");
+
 				} else {
 					pauseButton.setText("Pause");
 					pauseButton.setForeground(GuiOptions.defaultFontColor);
@@ -306,6 +307,9 @@ public class MainDisplay extends JFrame {
 			if (c instanceof MetricVisualizer) {
 				((MetricVisualizer) c).reset();
 			}
+			if (c instanceof MultiScalarVisualizer) {
+				((MultiScalarVisualizer) c).reset();
+			}
 		}
 	}
 
@@ -355,5 +359,21 @@ public class MainDisplay extends JFrame {
 	/** sets the batch handler **/
 	public void setBatchHandler(BatchHandler bh) {
 		this.batchHandler = bh;
+	}
+
+	/** called from the pause-button to pause the gui **/
+	public void togglePause() {
+		batchHandler.togglePause();
+		for (Component c : this.dataComponents) {
+			if (c instanceof StatsDisplay) {
+				((StatsDisplay) c).togglePause();
+			}
+			if (c instanceof MetricVisualizer) {
+				((MetricVisualizer) c).togglePause();
+			}
+			if (c instanceof MultiScalarVisualizer) {
+				((MultiScalarVisualizer) c).togglePause();
+			}
+		}
 	}
 }

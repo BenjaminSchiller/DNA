@@ -402,5 +402,10 @@ public class StatsDisplay extends JPanel implements ChangeListener {
 			this.mainDisplay.setBatchHandlerSpeed((int) source.getValue());
 		}
 	}
+	
+	/** Called when the UI gets pause/unpaused **/
+	public void togglePause() {
+		
+	}
 
 }

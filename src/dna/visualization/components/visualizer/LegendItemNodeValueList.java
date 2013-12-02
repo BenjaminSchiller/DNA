@@ -134,6 +134,7 @@ public class LegendItemNodeValueList extends LegendItem {
 					sortModeButton
 							.setToolTipText("NodeValueList is sorted in ascending order. Click to change to descending order.");
 				}
+				thisItem.parent.sortItem(thisItem, sortMode);
 			}
 		});
 		// add sort options button
