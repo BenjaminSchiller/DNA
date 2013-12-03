@@ -116,7 +116,6 @@ public class MetricVisualizer extends Visualizer {
 				}
 			}
 		} else {
-			// System.out.println(this.xAxis1.getRange().toString());
 			// TODO: ADD DATE FORMAT HANDLING HERE
 		}
 	}
@@ -213,7 +212,7 @@ public class MetricVisualizer extends Visualizer {
 				this.setMaxShownTimestamp((long) tMaxNew);
 			}
 		}
-		this.updateX1Ticks();
+		this.updateTicks();
 	}
 
 	/** adds trace to the visualizer with default trace length **/

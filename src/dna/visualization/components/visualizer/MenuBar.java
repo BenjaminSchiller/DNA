@@ -184,7 +184,15 @@ public class MenuBar extends JPanel implements ChangeListener {
 							}
 						}
 					}
-					parent.xAxis1.setRange(new Range(minTemp, maxTemp));
+					double lowP = 1.0 * x1IntervalScrollBar.getValue() / 100;
+					double highP = 1.0 * (x1IntervalScrollBar.getValue() + x1IntervalScrollBar
+							.getModel().getExtent()) / 100;
+
+					int minTimestampNew = (int) Math.floor(minTemp)
+							+ (int) Math.floor(lowP * (maxTemp - minTemp));
+					int maxTimestampNew = (int) Math.floor(minTemp)
+							+ (int) Math.floor(highP * (maxTemp - minTemp));
+					parent.xAxis1.setRange(new Range(minTimestampNew, maxTimestampNew));
 					x1IntervalScrollBar.setEnabled(true);
 					x1SizeSlider.setEnabled(true);
 				}
@@ -297,10 +305,15 @@ public class MenuBar extends JPanel implements ChangeListener {
 						if (parent instanceof MultiScalarVisualizer) {
 							((MultiScalarVisualizer) parent).xAxis2
 									.setRangePolicy(new RangePolicyFixedViewport());
+							double lowP = 1.0 * x2IntervalScrollBar.getValue() / 100;
+							double highP = 1.0 * (x2IntervalScrollBar
+									.getValue() + x2IntervalScrollBar
+									.getModel().getExtent()) / 100;
 
 							double minTemp = 0;
-							double maxTemp = 1;
+							double maxTemp = 10;
 
+							// get range of plotted data
 							for (Object t : ((MultiScalarVisualizer) parent).xAxis2
 									.getTraces()) {
 								if (t instanceof Trace2DSimple) {
@@ -312,8 +325,19 @@ public class MenuBar extends JPanel implements ChangeListener {
 										maxTemp = maxX;
 								}
 							}
+
+							int minTimestampNew = (int) Math.floor(minTemp)
+									+ (int) Math.floor(lowP
+											* (maxTemp - minTemp));
+							int maxTimestampNew = (int) Math.floor(minTemp)
+									+ (int) Math.floor(highP
+											* (maxTemp - minTemp));
+
 							((MultiScalarVisualizer) parent).xAxis2
-									.setRange(new Range(minTemp, maxTemp));
+									.setRange(new Range(minTimestampNew,
+											maxTimestampNew));
+							// update x2 ticks
+							((MultiScalarVisualizer) parent).updateX2Ticks();
 						}
 						x2IntervalScrollBar.setEnabled(true);
 						x2SizeSlider.setEnabled(true);

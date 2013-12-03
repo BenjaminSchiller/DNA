@@ -9,10 +9,13 @@ import info.monitorenter.gui.chart.axis.scalepolicy.AxisScalePolicyManualTicks;
 import info.monitorenter.gui.chart.labelformatters.LabelFormatterNumber;
 import info.monitorenter.gui.chart.rangepolicies.RangePolicyFixedViewport;
 import info.monitorenter.gui.chart.rangepolicies.RangePolicyUnbounded;
+import info.monitorenter.gui.chart.traces.Trace2DLtd;
+import info.monitorenter.gui.chart.traces.Trace2DSimple;
 
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.text.DecimalFormat;
 
 import javax.swing.JPanel;
 
@@ -35,6 +38,8 @@ public class Visualizer extends JPanel {
 	protected IAxis yAxis2;
 	@SuppressWarnings("rawtypes")
 	protected IAxis yAxis1;
+	protected LabelFormatterNumber lfnY1;
+	protected DecimalFormat dfY1;
 
 	// timestamps
 	protected long minTimestamp;
@@ -88,14 +93,17 @@ public class Visualizer extends JPanel {
 		 * axis configuration
 		 */
 		// x1
-
 		this.xAxis1 = this.chart.getAxisX();
 		this.xAxis1.setAxisTitle(new AxisTitle("Timestamp"));
 		// y1
 		this.yAxis1 = this.chart.getAxisY();
 		this.yAxis1.setAxisTitle(new AxisTitle("y1"));
-		this.yAxis1.setFormatter(new LabelFormatterNumber(
-				GuiOptions.visualizerYAxisDecimalFormat));
+		this.dfY1 = new DecimalFormat("##.##");
+		this.dfY1.setGroupingSize(3);
+		this.dfY1.setGroupingUsed(true);
+		this.lfnY1 = new LabelFormatterNumber(dfY1);
+
+		this.yAxis1.setFormatter(lfnY1);
 		// x2
 		this.xAxis2 = new AxisLinear();
 		this.xAxis2.setVisible(false);
@@ -103,6 +111,7 @@ public class Visualizer extends JPanel {
 		// y2
 		this.yAxis2 = new AxisLinear(new LabelFormatterNumber(
 				GuiOptions.visualizerYAxisDecimalFormat));
+
 		this.yAxis2.setVisible(false);
 		this.yAxis2.setAxisTitle(new AxisTitle("y2"));
 		this.chart.addAxisYRight((AAxis) yAxis2);
@@ -170,36 +179,138 @@ public class Visualizer extends JPanel {
 
 	/** handles the ticks that are shown on the y axis **/
 	protected void updateY1Ticks() {
-		/*
-		 * double min = this.yAxis1.getMin(); double max = this.yAxis1.getMax();
-		 * System.out.println("y1 min:" + min + " max:" + max);
-		 * 
-		 * double range = max - min; if (range > 1) { double tickSpacingNew =
-		 * range / 10; this.yAxis1.setMajorTickSpacing(tickSpacingNew);
-		 * this.yAxis1.setMinorTickSpacing(tickSpacingNew);
-		 * 
-		 * System.out.println(range + " > " + tickSpacingNew); } else {
-		 * this.yAxis1.setMajorTickSpacing(1.0);
-		 * this.yAxis1.setMinorTickSpacing(1.0); }
-		 */
+		double min = 0;
+		double max = 0;
+		boolean init = false;
+		// calculate the visible min and max values
+		for (Object t : this.yAxis1.getTraces()) {
+			if (t instanceof Trace2DLtd) {
+				if (!init) {
+					min = ((Trace2DLtd) t).getMinY();
+					max = ((Trace2DLtd) t).getMaxY();
+					init = true;
+				}
+				if (((Trace2DLtd) t).getMinY() < min)
+					min = ((Trace2DLtd) t).getMinY();
+				if (((Trace2DLtd) t).getMaxY() > max)
+					max = ((Trace2DLtd) t).getMaxY();
+			}
+			if (t instanceof Trace2DSimple) {
+				if (!init) {
+					min = ((Trace2DSimple) t).getMinY();
+					max = ((Trace2DSimple) t).getMaxY();
+					init = true;
+				}
+				if (((Trace2DSimple) t).getMinY() < min)
+					min = ((Trace2DSimple) t).getMinY();
+				if (((Trace2DSimple) t).getMaxY() > max)
+					max = ((Trace2DSimple) t).getMaxY();
+			}
+		}
+		// select format
+		String format = selectFormat(min, max);
 
+		DecimalFormat decimalFormatNew = new DecimalFormat(format);
+		decimalFormatNew.setGroupingSize(3);
+		decimalFormatNew.setGroupingUsed(true);
+		// set format
+		this.yAxis1.setFormatter(new LabelFormatterNumber(decimalFormatNew));
 	}
 
 	/** handles the ticks that are shown on the y axis **/
 	protected void updateY2Ticks() {
-		/*
-		 * double min = this.yAxis2.getMin(); double max = this.yAxis2.getMax();
-		 * System.out.println("y2 min:" + min + " max:" + max);
-		 * 
-		 * double range = max - min; if (range > 0) { double tickSpacingNew =
-		 * range / 10; this.yAxis2.setMajorTickSpacing(tickSpacingNew);
-		 * this.yAxis2.setMinorTickSpacing(tickSpacingNew);
-		 * 
-		 * System.out.println(range + " > " + tickSpacingNew); } else {
-		 * this.yAxis2.setMajorTickSpacing(1.0);
-		 * this.yAxis2.setMinorTickSpacing(1.0); }
-		 */
+		double min = 0;
+		double max = 0;
+		boolean init = false;
+		// calculate the visible min and max values
+		for (Object t : this.yAxis2.getTraces()) {
+			if (t instanceof Trace2DLtd) {
+				if (!init) {
+					min = ((Trace2DLtd) t).getMinY();
+					max = ((Trace2DLtd) t).getMaxY();
+					init = true;
+				}
+				if (((Trace2DLtd) t).getMinY() < min)
+					min = ((Trace2DLtd) t).getMinY();
+				if (((Trace2DLtd) t).getMaxY() > max)
+					max = ((Trace2DLtd) t).getMaxY();
+			}
+			if (t instanceof Trace2DSimple) {
+				if (!init) {
+					min = ((Trace2DSimple) t).getMinY();
+					max = ((Trace2DSimple) t).getMaxY();
+					init = true;
+				}
+				if (((Trace2DSimple) t).getMinY() < min)
+					min = ((Trace2DSimple) t).getMinY();
+				if (((Trace2DSimple) t).getMaxY() > max)
+					max = ((Trace2DSimple) t).getMaxY();
+			}
+		}
+		// select format
+		String format = selectFormat(min, max);
 
+		DecimalFormat decimalFormatNew = new DecimalFormat(format);
+		decimalFormatNew.setGroupingSize(3);
+		decimalFormatNew.setGroupingUsed(true);
+		// set format
+		this.yAxis2.setFormatter(new LabelFormatterNumber(decimalFormatNew));
+	}
+
+	/** selects the decimalformat for y-axis based on min and max values **/
+	private String selectFormat(double min, double max) {
+		String format = "";
+
+		if (min > 10 && max > 100) {
+			format = "#0";
+		}
+		if (min < 1 && max < 10) {
+			format = "0.0";
+		}
+		if (min < 0.1 && max <= 1) {
+			format = "0.00";
+		}
+		if (min < 0.01 && max <= 0.1) {
+			format = "0.000";
+		}
+		if (min < 0.001 && max <= 0.01) {
+			format = "0.0000";
+		}
+		if (min < 0.0001 && max <= 0.001) {
+			format = "0.00000";
+		}
+		if (min < 0.00001 && max <= 0.0001) {
+			format = "0.###E0";
+		}
+		if (min < 0.000001 && max < 0.00001) {
+			format = "0.###E0";
+		}
+		if (min < 0.0000001 && max < 0.000001) {
+			format = "0.###E0";
+		}
+		if (min < 0.00000001 && max < 0.0000001) {
+			format = "0.###E0";
+		}
+		if (min < 0.000000001 && max < 0.00000001) {
+			format = "0.###E0";
+		}
+		if (min < 0.0000000001 && max < 0.000000001) {
+			format = "0.###E0";
+		}
+		if (min < 0.00000000001 && max < 0.0000000001) {
+			format = "0.###E0";
+		}
+		if (min < 0.000000000001 && max < 0.00000000001) {
+			format = "0.###E0";
+		}
+		if (min < 0.0000000000001 && max < 0.000000000001) {
+			format = "0.###E0";
+		}
+		if (min == 0 && max == 0) {
+			format = "0.0";
+		}
+
+		return format;
 	}
 
 	/** toggles grid on left y axis **/
