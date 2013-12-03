@@ -66,6 +66,7 @@ public class BatchTest {
 
 	@Rule
 	public TemporaryFolder folder = new TemporaryFolder();
+
 	private int nodeSize, edgeSize, nodeAdd, nodeRem, edgeAdd, edgeRem,
 			nodeWeightChanges, edgeWeightChanges;
 
@@ -317,7 +318,7 @@ public class BatchTest {
 
 	@Test
 	public void batchWriteAndRead() throws ClassNotFoundException, IOException {
-		String tempFolder = folder.getRoot().getAbsolutePath();
+		String tempFolder = folder.newFolder().getAbsolutePath();
 
 		Graph g = gg.generate();
 		GraphWriter.write(g, tempFolder, "gGen");

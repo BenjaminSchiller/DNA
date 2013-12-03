@@ -193,7 +193,7 @@ public class GeneratorsTest {
 
 		String graphName = gds.getDataStructures();
 
-		String tempFolder = folder.getRoot().getAbsolutePath();
+		String tempFolder = folder.newFolder().getAbsolutePath();
 
 		GraphWriter.write(g, tempFolder, graphName);
 		Graph g2 = GraphReader.read(tempFolder, graphName, null);
@@ -223,7 +223,7 @@ public class GeneratorsTest {
 		Graph g = gg.generate();
 
 		String graphName = gds.getDataStructures();
-		String tempFolder = folder.getRoot().getAbsolutePath();
+		String tempFolder = folder.newFolder().getAbsolutePath();
 
 		GraphWriter.write(g, tempFolder, graphName);
 
@@ -293,7 +293,7 @@ public class GeneratorsTest {
 
 		String graphName = gds.getDataStructures();
 
-		String tempFolder = folder.getRoot().getAbsolutePath();
+		String tempFolder = folder.newFolder().getAbsolutePath();
 
 		GraphWriter.write(g, tempFolder, graphName);
 
@@ -337,7 +337,7 @@ public class GeneratorsTest {
 
 		String graphName = gds.getDataStructures();
 
-		String tempFolder = folder.getRoot().getAbsolutePath();
+		String tempFolder = folder.newFolder().getAbsolutePath();
 
 		GraphWriter.write(g, tempFolder, graphName);
 
