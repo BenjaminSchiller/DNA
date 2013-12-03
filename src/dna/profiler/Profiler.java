@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TreeMap;
 
+import dna.graph.datastructures.DEmpty;
 import dna.graph.datastructures.GraphDataStructure;
 import dna.graph.datastructures.IEdgeListDatastructure;
 import dna.graph.datastructures.INodeListDatastructure;
@@ -189,6 +190,9 @@ public class Profiler {
 						continue;
 					if (!(IEdgeListDatastructure.class
 							.isAssignableFrom(nodeEdgeListType)))
+						continue;
+					if (edgeListType == DEmpty.class
+							|| nodeEdgeListType == DEmpty.class)
 						continue;
 					tempGDS = new GraphDataStructure(nodeListType,
 							edgeListType, nodeEdgeListType, gds.getNodeType(),

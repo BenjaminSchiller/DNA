@@ -39,6 +39,7 @@ public class GraphDataStructure {
 	private Class<? extends Edge> edgeType;
 	private Constructor<?> lastWeightedEdgeConstructor = null;
 	private Constructor<?> lastEdgeConstructor = null;
+	private IEdgeListDatastructure emptyList = new DEmpty(null);
 
 	public GraphDataStructure(
 			Class<? extends INodeListDatastructure> nodeListType,
@@ -50,6 +51,10 @@ public class GraphDataStructure {
 		this.nodeEdgeListType = nodeEdgeListType;
 		this.nodeType = nodeType;
 		this.edgeType = edgeType;
+		
+		if (this.graphEdgeListType == null && this.nodeEdgeListType == null) {
+			throw new RuntimeException("Either the global or local edge list must not be NULL");
+		}
 	}
 
 	@SuppressWarnings("unchecked")
@@ -154,6 +159,9 @@ public class GraphDataStructure {
 	}
 
 	public IEdgeListDatastructure newGraphEdgeList() {
+		if (graphEdgeListType == null) {
+			return emptyList;
+		}
 		IEdgeListDatastructure res = null;
 		try {
 			res = graphEdgeListType.getConstructor(edgeType.getClass())
@@ -167,16 +175,21 @@ public class GraphDataStructure {
 	}
 
 	public IEdgeListDatastructure newNodeEdgeList() {
-		IEdgeListDatastructure res = null;
+		if (nodeEdgeListType == null) {
+			return emptyList;
+		}
+		Constructor<? extends IEdgeListDatastructure> c;
 		try {
-			res = nodeEdgeListType.getConstructor(edgeType.getClass())
-					.newInstance(edgeType);
+			c = nodeEdgeListType.getConstructor(edgeType.getClass());
+			return c.newInstance(edgeType);
 		} catch (InstantiationException | IllegalAccessException
 				| IllegalArgumentException | InvocationTargetException
 				| NoSuchMethodException | SecurityException e) {
-			e.printStackTrace();
+			RuntimeException rt = new RuntimeException(
+					"Could not generate new edge list instance: " + e.getMessage());
+			rt.setStackTrace(e.getStackTrace());
+			throw rt;
 		}
-		return res;
 	}
 
 	public Node newNodeInstance(int index) {
@@ -188,7 +201,7 @@ public class GraphDataStructure {
 				| InstantiationException | IllegalAccessException
 				| IllegalArgumentException | InvocationTargetException e) {
 			RuntimeException rt = new RuntimeException(
-					"Could not generate new node instance");
+					"Could not generate new node instance: " + e.getMessage());
 			rt.setStackTrace(e.getStackTrace());
 			throw rt;
 		}
@@ -432,15 +445,19 @@ public class GraphDataStructure {
 		if (getSimpleNames) {
 			return nodeListType.getSimpleName()
 					+ Config.get("DATASTRUCTURES_CLASS_DELIMITER")
-					+ graphEdgeListType.getSimpleName()
+					+ (graphEdgeListType == null ? "null" : graphEdgeListType
+							.getSimpleName())
 					+ Config.get("DATASTRUCTURES_CLASS_DELIMITER")
-					+ nodeEdgeListType.getSimpleName();
+					+ (nodeEdgeListType == null ? "null" : nodeEdgeListType
+							.getSimpleName());
 		} else {
 			return nodeListType.getName()
 					+ Config.get("DATASTRUCTURES_CLASS_DELIMITER")
-					+ graphEdgeListType.getName()
+					+ (graphEdgeListType == null ? "null" : graphEdgeListType
+							.getName())
 					+ Config.get("DATASTRUCTURES_CLASS_DELIMITER")
-					+ nodeEdgeListType.getName();
+					+ (nodeEdgeListType == null ? "null" : nodeEdgeListType
+							.getName());
 		}
 	}
 
@@ -464,6 +481,10 @@ public class GraphDataStructure {
 	private Complexity getComplexityClass(Class<? extends IDataStructure> ds,
 			Class<? extends IElement> dt, AccessType at, Base b) {
 		try {
+			if (ds == null) {
+				// This is the case for an empty data structure
+				return new Complexity();
+			}
 			Method m = ds.getDeclaredMethod("getComplexity", Class.class,
 					AccessType.class, Base.class);
 			m.setAccessible(true);
