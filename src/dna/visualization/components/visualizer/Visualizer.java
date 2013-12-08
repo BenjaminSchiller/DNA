@@ -16,6 +16,7 @@ import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.text.DecimalFormat;
+import java.text.NumberFormat;
 
 import javax.swing.JPanel;
 
@@ -38,8 +39,6 @@ public class Visualizer extends JPanel {
 	protected IAxis yAxis2;
 	@SuppressWarnings("rawtypes")
 	protected IAxis yAxis1;
-	protected LabelFormatterNumber lfnY1;
-	protected DecimalFormat dfY1;
 
 	// timestamps
 	protected long minTimestamp;
@@ -95,26 +94,26 @@ public class Visualizer extends JPanel {
 		// x1
 		this.xAxis1 = this.chart.getAxisX();
 		this.xAxis1.setAxisTitle(new AxisTitle("Timestamp"));
+
 		// y1
 		this.yAxis1 = this.chart.getAxisY();
 		this.yAxis1.setAxisTitle(new AxisTitle("y1"));
-		this.dfY1 = new DecimalFormat("##.##");
-		this.dfY1.setGroupingSize(3);
-		this.dfY1.setGroupingUsed(true);
-		this.lfnY1 = new LabelFormatterNumber(dfY1);
+		this.yAxis1.setFormatter(new LabelFormatterNumber(new DecimalFormat(
+				"0.0")));
 
-		this.yAxis1.setFormatter(lfnY1);
 		// x2
 		this.xAxis2 = new AxisLinear();
 		this.xAxis2.setVisible(false);
 		this.chart.addAxisXBottom((AAxis) this.xAxis2);
+
 		// y2
 		this.yAxis2 = new AxisLinear(new LabelFormatterNumber(
-				GuiOptions.visualizerYAxisDecimalFormat));
-
+				new DecimalFormat("0.0")));
+		this.yAxis2 = new AxisLinear();
 		this.yAxis2.setVisible(false);
 		this.yAxis2.setAxisTitle(new AxisTitle("y2"));
 		this.chart.addAxisYRight((AAxis) yAxis2);
+
 		// add chart to visualizer
 		this.mainConstraints.gridx = 0;
 		this.mainConstraints.gridy = 0;
@@ -208,12 +207,11 @@ public class Visualizer extends JPanel {
 			}
 		}
 		// select format
-		String format = selectFormat(min, max);
+		DecimalFormat decimalFormatNew = selectFormat(min, max);
 
-		DecimalFormat decimalFormatNew = new DecimalFormat(format);
 		decimalFormatNew.setGroupingSize(3);
 		decimalFormatNew.setGroupingUsed(true);
-		// set format
+
 		this.yAxis1.setFormatter(new LabelFormatterNumber(decimalFormatNew));
 	}
 
@@ -248,69 +246,56 @@ public class Visualizer extends JPanel {
 			}
 		}
 		// select format
-		String format = selectFormat(min, max);
+		DecimalFormat format = selectFormat(min, max);
 
-		DecimalFormat decimalFormatNew = new DecimalFormat(format);
-		decimalFormatNew.setGroupingSize(3);
-		decimalFormatNew.setGroupingUsed(true);
 		// set format
-		this.yAxis2.setFormatter(new LabelFormatterNumber(decimalFormatNew));
+		this.yAxis2.setFormatter(new LabelFormatterNumber(format));
 	}
 
 	/** selects the decimalformat for y-axis based on min and max values **/
-	private String selectFormat(double min, double max) {
-		String format = "";
+	private DecimalFormat selectFormat(double min, double max) {
+		NumberFormat f = NumberFormat.getInstance();
+		if (f instanceof DecimalFormat) {
+			if (min == 0 && max == 0) {
+				((DecimalFormat) f).applyPattern("0.0");
+				((DecimalFormat) f).setMaximumFractionDigits(1);
+				((DecimalFormat) f).setMaximumIntegerDigits(1);
+				return (DecimalFormat) f;
+			} else {
+				String patternTemp = "";
+				double delta = max - min;
+				if (delta != 0) {
+					if (delta < 10000) {
+						patternTemp = "0";
+					}
+					if (delta < 10) {
+						patternTemp = "0.0";
+					}
+					if (delta < 1) {
+						patternTemp = "0.00";
+					}
+					if (delta < 0.1) {
+						patternTemp = "0.000";
+					}
+					if (delta < 0.01) {
+						patternTemp = "0.0000";
+					}
+					if (delta < 0.001) {
+						patternTemp = "0.0000";
+					}
+					if (delta < 0.0001) {
+						patternTemp = "0.###E0";
+					}
+					((DecimalFormat) f).applyPattern(patternTemp);
 
-		if (min > 10 && max > 100) {
-			format = "#0";
+					if (delta > 10000) {
+						((DecimalFormat) f).applyPattern("0.0E0");
+					}
+				}
+				return (DecimalFormat) f;
+			}
 		}
-		if (min < 1 && max < 10) {
-			format = "0.0";
-		}
-		if (min < 0.1 && max <= 1) {
-			format = "0.00";
-		}
-		if (min < 0.01 && max <= 0.1) {
-			format = "0.000";
-		}
-		if (min < 0.001 && max <= 0.01) {
-			format = "0.0000";
-		}
-		if (min < 0.0001 && max <= 0.001) {
-			format = "0.00000";
-		}
-		if (min < 0.00001 && max <= 0.0001) {
-			format = "0.###E0";
-		}
-		if (min < 0.000001 && max < 0.00001) {
-			format = "0.###E0";
-		}
-		if (min < 0.0000001 && max < 0.000001) {
-			format = "0.###E0";
-		}
-		if (min < 0.00000001 && max < 0.0000001) {
-			format = "0.###E0";
-		}
-		if (min < 0.000000001 && max < 0.00000001) {
-			format = "0.###E0";
-		}
-		if (min < 0.0000000001 && max < 0.000000001) {
-			format = "0.###E0";
-		}
-		if (min < 0.00000000001 && max < 0.0000000001) {
-			format = "0.###E0";
-		}
-		if (min < 0.000000000001 && max < 0.00000000001) {
-			format = "0.###E0";
-		}
-		if (min < 0.0000000000001 && max < 0.000000000001) {
-			format = "0.###E0";
-		}
-		if (min == 0 && max == 0) {
-			format = "0.0";
-		}
-
-		return format;
+		return new DecimalFormat("0.0");
 	}
 
 	/** toggles grid on left y axis **/

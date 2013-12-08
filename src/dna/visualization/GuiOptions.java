@@ -3,7 +3,6 @@ package dna.visualization;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
-import java.text.DecimalFormat;
 
 import javax.swing.BorderFactory;
 import javax.swing.border.TitledBorder;
@@ -83,7 +82,4 @@ public class GuiOptions {
 			.getFont("GUI_VALUE_FONT");
 	public static final Color legendItemValueFontColor = Config
 			.getColor("GUI_VALUE_FONT_COLOR");
-
-	public static final DecimalFormat visualizerYAxisDecimalFormat = new DecimalFormat(
-			Config.get("GUI_Y_AXIS_FORMAT"));
 }
