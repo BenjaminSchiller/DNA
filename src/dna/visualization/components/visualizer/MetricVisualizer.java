@@ -39,6 +39,7 @@ public class MetricVisualizer extends Visualizer {
 	private HashMap<String, ITrace2D> traces;
 
 	private boolean xAxisTypeTimestamp;
+	private long currentTimestamp;
 
 	// constructor
 	public MetricVisualizer() {
@@ -129,6 +130,15 @@ public class MetricVisualizer extends Visualizer {
 	public void updateData(BatchData b) {
 		long timestamp = b.getTimestamp();
 		double timestampDouble = timestamp;
+		
+		// check if new batch is before last one which means time slided
+		if(timestamp < this.currentTimestamp) {
+			for (ITrace2D t : this.chart.getTraces()) {
+				t.removeAllPoints();
+			}
+		}
+		
+		this.currentTimestamp = timestamp;
 
 		if (timestamp < this.minTimestamp)
 			this.minTimestamp = timestamp;
@@ -252,6 +262,8 @@ public class MetricVisualizer extends Visualizer {
 		this.minShownTimestamp = b.getTimestamp();
 		this.maxShownTimestamp = this.minShownTimestamp;
 
+		this.currentTimestamp = b.getTimestamp();
+		
 		for (ITrace2D t : this.chart.getTraces()) {
 			t.removeAllPoints();
 		}

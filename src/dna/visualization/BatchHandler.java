@@ -25,6 +25,7 @@ public class BatchHandler implements Runnable {
 
 	private boolean isInit;
 	private boolean threadSuspended;
+	private boolean timeSlided;
 
 	private Thread t;
 
@@ -35,6 +36,7 @@ public class BatchHandler implements Runnable {
 		this.dir = dir;
 		this.batches = new BatchDataList();
 		this.index = 0;
+		this.timeSlided = false;
 		this.isInit = false;
 		this.threadSuspended = false;
 	}
@@ -44,6 +46,7 @@ public class BatchHandler implements Runnable {
 		this.mainFrame = mainFrame;
 		this.batches = new BatchDataList();
 		this.index = 0;
+		this.timeSlided = false;
 		this.isInit = false;
 		this.threadSuspended = false;
 	}
@@ -69,28 +72,25 @@ public class BatchHandler implements Runnable {
 		return this.batches.size();
 	}
 
+	/** returns the maximum timestamp **/
 	public long getMaxTimestamp() {
-		return this.getMinTimestamp() + this.getAmountOfBatches() - 1;
+		return this.getBatches().get(this.getBatches().size() - 1)
+				.getTimestamp();
 	}
 
-	// set methods
-	public void setDir(String dir) {
-		this.dir = dir;
-	}
-
-	public void setBatches(BatchDataList batches) {
-		this.batches = batches;
-	}
-
-	public void setIndex(int index) {
-		this.index = index;
-	}
-
-	public void setSpeed(int speed) {
-		if (speed < 0)
-			this.speed = 0;
-		else
-			this.speed = speed;
+	/** returns minimum timestamp **/
+	public long getMinTimestamp() {
+		long min = 0;
+		if (this.getBatches().size() != 0) {
+			min = this.getBatches().get(0).getTimestamp();
+			for (BatchData b : this.getBatches().list) {
+				if (b.getTimestamp() < min)
+					min = b.getTimestamp();
+			}
+		} else {
+			return 0;
+		}
+		return min;
 	}
 
 	/** returns the next batch **/
@@ -113,6 +113,26 @@ public class BatchHandler implements Runnable {
 			e.printStackTrace();
 		}
 		return new BatchData(0);
+	}
+
+	// set methods
+	public void setDir(String dir) {
+		this.dir = dir;
+	}
+
+	public void setBatches(BatchDataList batches) {
+		this.batches = batches;
+	}
+
+	public void setIndex(int index) {
+		this.index = index;
+	}
+
+	public void setSpeed(int speed) {
+		if (speed < 0)
+			this.speed = 0;
+		else
+			this.speed = speed;
 	}
 
 	/** adds new batches from the filesystem to the batches **/
@@ -182,22 +202,6 @@ public class BatchHandler implements Runnable {
 		this.batches = tempBatches;
 	}
 
-	/** returns lowest timestamp **/
-	public long getMinTimestamp() {
-		long min = 0;
-		if (this.getBatches().size() != 0) {
-			min = this.getBatches().get(0).getTimestamp();
-			for (BatchData b : this.getBatches().list) {
-				if (b.getTimestamp() < min)
-					min = b.getTimestamp();
-			}
-		} else {
-			return 0;
-		}
-
-		return min;
-	}
-
 	/**
 	 * Run() of the batch handler thread
 	 */
@@ -218,6 +222,11 @@ public class BatchHandler implements Runnable {
 					} else {
 						this.currentBatch = this.nextBatch;
 					}
+				}
+				// when time was slided adjust index here
+				if (this.timeSlided) {
+					timeSlided = false;
+					index++;
 				}
 
 				// handover new batch
@@ -280,6 +289,13 @@ public class BatchHandler implements Runnable {
 			notify();
 	}
 
+	/** pause the batchahndler **/
+	public synchronized void setPaused(boolean paused) {
+		this.threadSuspended = paused;
+		if (!this.threadSuspended)
+			notify();
+	}
+
 	/** register new mainFrame to the batchhandler **/
 	public void registerMainFrame(MainDisplay mainFrame) {
 		this.mainFrame = mainFrame;
@@ -316,8 +332,9 @@ public class BatchHandler implements Runnable {
 	}
 
 	/** reads and returns a batch from the filesystem **/
-	public BatchData readBatch(long timestamp) {
+	public BatchData readBatch(int index) {
 		try {
+			long timestamp = this.getBatches().get(index).getTimestamp();
 			BatchData tempBatch = BatchData.read(
 					Dir.getBatchDataDir(this.dir, timestamp), timestamp, true);
 			return tempBatch;
@@ -325,6 +342,46 @@ public class BatchHandler implements Runnable {
 			e.printStackTrace();
 		}
 		return null;
+	}
+
+	/** sets the time to a specific timestamp and pauses **/
+	public long setTime(int timeValue) {
+		long bestMatchingTimestamp = 0;
+		// find the best matching batch
+		for (int i = 0; i < this.getBatches().size(); i++) {
+			BatchData b = this.getBatches().get(i);
+			if (b.getTimestamp() >= timeValue) {
+				bestMatchingTimestamp = b.getTimestamp();
+				this.nextBatch = null;
+				this.index = i;
+				break;
+			}
+			if (b.getTimestamp() > timeValue) {
+				try {
+					bestMatchingTimestamp = this.getBatches().get(i - 1)
+							.getTimestamp();
+					this.nextBatch = null;
+					this.index = i - 1;
+					break;
+				} catch (IndexOutOfBoundsException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+		// send best matching batch to mainFrame
+		try {
+			mainFrame.updateData(BatchData.read(
+					Dir.getBatchDataDir(this.getDir(), bestMatchingTimestamp),
+					bestMatchingTimestamp, true));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+		// set time slided flag
+		this.timeSlided = true;
+
+		// return the timestamp
+		return bestMatchingTimestamp;
 	}
 
 }

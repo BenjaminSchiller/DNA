@@ -1,5 +1,6 @@
 package dna.visualization.components.statsdisplay;
 
+import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
@@ -20,6 +21,7 @@ import javax.swing.event.ChangeListener;
 
 import dna.series.data.BatchData;
 import dna.series.data.RunTime;
+import dna.util.Log;
 import dna.visualization.GuiOptions;
 import dna.visualization.MainDisplay;
 
@@ -53,6 +55,7 @@ public class StatsDisplay extends JPanel implements ChangeListener {
 
 	// progressbar
 	private JProgressBar ProgressBar;
+	private JSlider TimeSlider;
 
 	// slider
 	private JSlider SpeedSlider;
@@ -72,10 +75,21 @@ public class StatsDisplay extends JPanel implements ChangeListener {
 	private StatsDisplay statsdis;
 	private MainDisplay mainDisplay;
 
+	// init flag
+	private boolean init = false;
+
+	// paused flag
+	private boolean paused;
+
 	// constructor
-	public StatsDisplay() {
+	public StatsDisplay(Dimension size) {
 		// initialization
 		this.statsdis = this;
+		this.paused = true;
+		System.out.println("StatsDisplay Size: " + size.toString());
+		// size
+		size = new Dimension(280, 350);
+		this.setPreferredSize(size);
 
 		// set title and border of statistics
 		TitledBorder title = BorderFactory.createTitledBorder("Statistics");
@@ -93,6 +107,7 @@ public class StatsDisplay extends JPanel implements ChangeListener {
 		// set general settings panel
 		this.SettingsPanel = new JPanel();
 		this.SettingsPanel.setName("SettingsPanel");
+		// this.SettingsPanel.setPreferredSize(new Dimension(245, 500));
 		this.SettingsPanel.setLayout(new GridBagLayout());
 		GridBagConstraints settingsPanelConstraints = new GridBagConstraints();
 		settingsPanelConstraints.fill = GridBagConstraints.HORIZONTAL;
@@ -175,6 +190,15 @@ public class StatsDisplay extends JPanel implements ChangeListener {
 		this.SettingsPanel.add(this.ProgressBar, settingsPanelConstraints);
 		this.ProgressBar.setStringPainted(true);
 
+		// time slider
+		this.TimeSlider = new JSlider(JSlider.HORIZONTAL, 0, 1, 0);
+		this.TimeSlider.setName("TimeSlider");
+		this.TimeSlider.addChangeListener(this);
+		// this.TimeSlider.setToolTipText("Adjust to ");
+		settingsPanelConstraints.gridy = 2;
+		settingsPanelConstraints.gridx = 0;
+		this.SettingsPanel.add(this.TimeSlider, settingsPanelConstraints);
+
 		// speed slider
 		this.SpeedSlider = new JSlider(JSlider.HORIZONTAL, this.SPEED_MIN,
 				this.SPEED_MAX, this.SPEED_INIT);
@@ -199,17 +223,22 @@ public class StatsDisplay extends JPanel implements ChangeListener {
 		this.SpeedSlider.addChangeListener(this);
 
 		settingsPanelConstraints.fill = GridBagConstraints.VERTICAL;
-		settingsPanelConstraints.gridy = 2;
+		settingsPanelConstraints.gridy = 3;
 		settingsPanelConstraints.gridx = 0;
 		this.SettingsPanel.add(SpeedSlider, settingsPanelConstraints);
 
 		// general and metric runtime panels
-		this.genRuntimes = new StatsGroup("GeneralRuntimes");
-		this.genRuntimes.setLayout(new BoxLayout(this.genRuntimes,
-				BoxLayout.X_AXIS));
-		this.metRuntimes = new StatsGroup("MetricRuntimes");
-		this.metRuntimes.setLayout(new BoxLayout(this.metRuntimes,
-				BoxLayout.X_AXIS));
+		this.genRuntimes = new StatsGroup("GeneralRuntimes", new Dimension(150,
+				300));
+		// this.genRuntimes.setLayout(new BoxLayout(this.genRuntimes,
+		// BoxLayout.X_AXIS));
+		this.genRuntimes.setPreferredSize(new Dimension(260, 105));
+		this.metRuntimes = new StatsGroup("MetricRuntimes", new Dimension(150,
+				300));
+		this.metRuntimes.setPreferredSize(new Dimension(260, 55));
+		this.metRuntimes.setMinimumSize(new Dimension(280, 55));
+		// this.metRuntimes.setLayout(new BoxLayout(this.metRuntimes,
+		// BoxLayout.X_AXIS));
 
 		// add metric runtimes panel to main panel
 		mainConstraints.gridy = 1;
@@ -238,12 +267,23 @@ public class StatsDisplay extends JPanel implements ChangeListener {
 	 */
 	public void initData(BatchData b, String directory, long minTimestamp,
 			long maxTimestamp) {
+		this.init = false;
 		this.setDirectory(directory);
 		this.minTimestamp = minTimestamp;
 		this.maxTimestamp = maxTimestamp;
 		this.setTimestamp(minTimestamp);
 		this.setNodes(b.getValues().get("nodes").getValue());
 		this.setEdges(b.getValues().get("edges").getValue());
+
+		if (minTimestamp < Integer.MIN_VALUE
+				|| minTimestamp > Integer.MAX_VALUE
+				|| maxTimestamp < Integer.MIN_VALUE
+				|| maxTimestamp > Integer.MAX_VALUE) {
+			Log.warn("Long timestamp couldn't be cast to int in StatsDisplay");
+		} else {
+			this.TimeSlider.setMinimum((int) minTimestamp);
+			this.TimeSlider.setMaximum((int) maxTimestamp);
+		}
 
 		genRuntimes.clear();
 		metRuntimes.clear();
@@ -256,6 +296,7 @@ public class StatsDisplay extends JPanel implements ChangeListener {
 		}
 
 		this.validate();
+		this.init = true;
 	}
 
 	/**
@@ -286,7 +327,6 @@ public class StatsDisplay extends JPanel implements ChangeListener {
 			double percent = (Math.floor(((1.0 * pr) / (1.0 * amount)) * 10000) / 100);
 			this.setProgess(percent);
 		}
-
 		this.validate();
 	}
 
@@ -385,6 +425,7 @@ public class StatsDisplay extends JPanel implements ChangeListener {
 
 	/** Resets the statistic display **/
 	public void reset() {
+		init = false;
 		this.TimestampValue.setText("" + 0);
 		this.NodesValue.setText("" + 0);
 		this.EdgesValue.setText("" + 0);
@@ -392,20 +433,50 @@ public class StatsDisplay extends JPanel implements ChangeListener {
 
 		this.metRuntimes.reset();
 		this.genRuntimes.reset();
+		this.TimeSlider.setMaximum(1);
+		this.TimeSlider.setMinimum(0);
+		this.TimeSlider.setValue(0);
 		this.validate();
+		init = true;
 	}
 
-	/** Gets called on mouse release after the speed-slider has been moved **/
+	/** Gets called on mouse release after a slider has been moved **/
 	public void stateChanged(ChangeEvent e) {
-		JSlider source = (JSlider) e.getSource();
-		if (!source.getValueIsAdjusting()) {
-			this.mainDisplay.setBatchHandlerSpeed((int) source.getValue());
+		if (e.getSource() instanceof JSlider) {
+			JSlider source = (JSlider) e.getSource();
+			// check if it was the speed slider
+			if (source.getName().equals("SpeedSlider")) {
+				if (!source.getValueIsAdjusting()) {
+					this.mainDisplay.setBatchHandlerSpeed((int) source
+							.getValue());
+				}
+			}
+			// check if it was the time slider
+			if (source.getName().equals("TimeSlider")) {
+				if (!source.getValueIsAdjusting()) {
+					if (init) {
+						this.mainDisplay.setPaused(true);
+						this.mainDisplay.setTime((int) source.getValue());
+					}
+				}
+			}
 		}
 	}
-	
+
 	/** Called when the UI gets pause/unpaused **/
 	public void togglePause() {
-		
+		this.paused = !this.paused;
+	}
+
+	/** sets the timeslider to the desired value **/
+	public void setTimeSlider(long timestamp) {
+		if (timestamp < Integer.MIN_VALUE || timestamp > Integer.MAX_VALUE) {
+			Log.warn("Long timestamp couldn't be cast to int in StatsDisplay");
+		} else {
+			if (this.TimeSlider.getMinimum() <= timestamp
+					&& timestamp <= this.TimeSlider.getMaximum())
+				this.TimeSlider.setValue((int) timestamp);
+		}
 	}
 
 }

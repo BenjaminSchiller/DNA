@@ -1,7 +1,10 @@
 package dna.visualization.components.statsdisplay;
 
 import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
@@ -25,9 +28,12 @@ public class StatsGroup extends JPanel {
 	public JPanel ValuePanel;
 
 	// constructor
-	public StatsGroup(String title) {
+	public StatsGroup(String title, Dimension size) {
 		// set name
 		this.setName(title);
+		
+		// size
+		//this.setPreferredSize(size);
 
 		// set border
 		TitledBorder border = BorderFactory.createTitledBorder(title);
@@ -38,19 +44,31 @@ public class StatsGroup extends JPanel {
 		// add name and value panels
 		this.NamePanel = new JPanel();
 		this.NamePanel.setName("Labels");
+		//this.NamePanel.setPreferredSize(new Dimension((int) Math.floor((size
+				//.getWidth() - 5) / 2), size.height - 1));
 		this.ValuePanel = new JPanel();
 		this.ValuePanel.setName("Values");
+		//this.ValuePanel.setPreferredSize(new Dimension((int) Math.floor((size
+			//	.getWidth() - 5) / 2), size.height - 1));
 
 		this.NamePanel
 				.setLayout(new BoxLayout(this.NamePanel, BoxLayout.Y_AXIS));
 		this.ValuePanel.setLayout(new BoxLayout(this.ValuePanel,
 				BoxLayout.Y_AXIS));
 
-		this.add(this.NamePanel);
-		this.add(this.ValuePanel);
-
 		// set layout
-		this.setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
+		// this.setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
+
+		this.setLayout(new GridBagLayout());
+
+		GridBagConstraints c = new GridBagConstraints();
+		c.fill = GridBagConstraints.BOTH;
+		c.anchor = GridBagConstraints.WEST;
+		c.gridx = 0;
+		c.gridy = 0;
+		this.add(this.NamePanel, c);
+		c.gridx = 1;
+		this.add(this.ValuePanel, c);
 	}
 
 	/** add values to the panel **/
@@ -81,6 +99,7 @@ public class StatsGroup extends JPanel {
 				}
 			}
 		}
+		this.validate();
 	}
 
 	/** increment values **/
@@ -97,6 +116,7 @@ public class StatsGroup extends JPanel {
 				}
 			}
 		}
+		this.validate();
 	}
 
 	/** decrement values **/
@@ -113,6 +133,7 @@ public class StatsGroup extends JPanel {
 				}
 			}
 		}
+		this.validate();
 	}
 
 	/** resets all set values to zero **/
@@ -121,6 +142,7 @@ public class StatsGroup extends JPanel {
 			if (c instanceof JLabel)
 				((JLabel) c).setText("" + 0);
 		}
+		this.validate();
 	}
 
 	/** clears the whole list **/
@@ -131,6 +153,7 @@ public class StatsGroup extends JPanel {
 		for (Component c : this.ValuePanel.getComponents()) {
 			this.ValuePanel.remove(c);
 		}
+		this.validate();
 	}
 
 }

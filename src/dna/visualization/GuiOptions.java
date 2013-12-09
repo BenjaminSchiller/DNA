@@ -20,7 +20,7 @@ public class GuiOptions {
 	public static final Dimension logoSize = new Dimension(270, 160);
 
 	// stats display
-	public static final Dimension statsDisplaySize = new Dimension(250, 400);
+	public static final Dimension statsDisplaySize = new Dimension(300, 600);
 
 	// visualizer
 	public static final Dimension visualizerDefaultSize = new Dimension(670,

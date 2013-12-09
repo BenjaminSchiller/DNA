@@ -74,10 +74,8 @@ public class MainDisplay extends JFrame {
 		GridBagConstraints mainDisplayConstraints = new GridBagConstraints();
 
 		// init stats component, set position in grid and add to mainframe
-		this.statsDisplay1 = new StatsDisplay();
+		this.statsDisplay1 = new StatsDisplay(GuiOptions.statsDisplaySize);
 		this.statsDisplay1.setLocation(0, 0);
-		// size not used yet, first rework layouting in statsdisplay frame
-		// this.statsDisplay1.setPreferredSize(statsDisplaySize);
 		this.statsDisplay1.setParent(this);
 		this.statsDisplay1.setDirectory(GuiOptions.defaultDir);
 
@@ -112,7 +110,6 @@ public class MainDisplay extends JFrame {
 						GuiOptions.defaultFontColor)) {
 					pauseButton.setForeground(Color.RED);
 					pauseButton.setText("Resume");
-
 				} else {
 					pauseButton.setText("Pause");
 					pauseButton.setForeground(GuiOptions.defaultFontColor);
@@ -375,5 +372,23 @@ public class MainDisplay extends JFrame {
 				((MultiScalarVisualizer) c).togglePause();
 			}
 		}
+	}
+	
+	public void setPaused(boolean paused) {
+		if(paused) {
+			this.pauseButton.setForeground(Color.RED);
+			this.pauseButton.setText("Resume");
+		} else {
+			this.pauseButton.setForeground(GuiOptions.defaultFontColor);
+			this.pauseButton.setText("Pause");
+		}
+		this.batchHandler.setPaused(paused);	
+	}
+	
+
+
+	/** called from the statsdisplay timeslider to move in time **/
+	public long setTime(int timeValue) {
+		return this.batchHandler.setTime(timeValue);
 	}
 }
