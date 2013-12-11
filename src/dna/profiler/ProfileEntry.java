@@ -23,6 +23,14 @@ public class ProfileEntry {
 		}
 		return res;
 	}
+	
+	public boolean hasAccessesOfType(ProfilerType[] list) {
+		for (ProfilerType p : list) {
+			if (get(p) != 0)
+				return true;
+		}
+		return false;		
+	}
 
 	public int get(ProfilerType p) {
 		return list[p.ordinal()];

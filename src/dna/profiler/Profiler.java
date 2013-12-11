@@ -192,17 +192,30 @@ public class Profiler {
 							.isAssignableFrom(nodeEdgeListType)))
 						continue;
 					if (edgeListType == DEmpty.class
-							|| nodeEdgeListType == DEmpty.class)
+							&& nodeEdgeListType == DEmpty.class)
 						continue;
+					if ((edgeListType == DEmpty.class && hasGlobalEdgeListAccess(entry))
+							|| (nodeEdgeListType == DEmpty.class && hasLocalEdgeListAccess(entry))) {
+						continue;
+					}
 					tempGDS = new GraphDataStructure(nodeListType,
 							edgeListType, nodeEdgeListType, gds.getNodeType(),
 							gds.getEdgeType());
 					final ComplexityMap combinedComplexityMap = entry
 							.combinedComplexity(tempGDS);
-					if (!listOfOtherComplexities
-							.containsKey(combinedComplexityMap)) {
+					
+					GraphDataStructure graphDataStructure = listOfOtherComplexities.get(combinedComplexityMap);
+					if (graphDataStructure == null) {
+						// Key not yet in list
 						listOfOtherComplexities.put(combinedComplexityMap,
 								tempGDS);
+					} else if ((edgeListType == DEmpty.class && graphDataStructure
+							.getGraphEdgeListType() != DEmpty.class)
+							|| (nodeEdgeListType == DEmpty.class && graphDataStructure
+									.getNodeEdgeListType() != DEmpty.class)) {
+						// Key already in list, but with concrete types where we could also use DEmpty to save memory
+						listOfOtherComplexities.put(combinedComplexityMap,
+								tempGDS);						
 					}
 				}
 			}
@@ -241,6 +254,22 @@ public class Profiler {
 
 		res.append(separator);
 		return res.toString();
+	}
+
+	private static boolean hasLocalEdgeListAccess(ProfileEntry entry) {
+		ProfilerType[] localAccesses = { ProfilerType.AddEdgeLocal,
+				ProfilerType.RemoveEdgeLocal, ProfilerType.ContainsEdgeLocal,
+				ProfilerType.GetEdgeLocal, ProfilerType.SizeEdgeLocal,
+				ProfilerType.IteratorEdgeLocal };
+		return entry.hasAccessesOfType(localAccesses);
+	}
+
+	private static boolean hasGlobalEdgeListAccess(ProfileEntry entry) {
+		ProfilerType[] globalAccesses = { ProfilerType.AddEdgeGlobal,
+				ProfilerType.RemoveEdgeGlobal, ProfilerType.ContainsEdgeGlobal,
+				ProfilerType.GetEdgeGlobal, ProfilerType.SizeEdgeGlobal,
+				ProfilerType.RandomEdgeGlobal, ProfilerType.IteratorEdgeGlobal };
+		return entry.hasAccessesOfType(globalAccesses);
 	}
 
 	public static String getGlobalComplexity(
