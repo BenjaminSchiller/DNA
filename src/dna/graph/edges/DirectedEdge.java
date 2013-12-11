@@ -126,4 +126,15 @@ public class DirectedEdge extends Edge {
 		return remSrc && remDst;
 	}
 
+	@Override
+	public boolean isConnectedTo(Node n1, Node n2) {
+		return (this.src.equals(n1) && this.dst.equals(n2))
+				|| (this.src.equals(n2) && this.dst.equals(n1));
+	}
+
+	@Override
+	public boolean isConnectedTo(Node n1) {
+		return this.src.equals(n1) || this.dst.equals(n1);
+	}
+
 }
