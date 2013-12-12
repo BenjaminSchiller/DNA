@@ -19,6 +19,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
 import dna.graph.Graph;
+import dna.graph.datastructures.DEmpty;
 import dna.graph.datastructures.GraphDataStructure;
 import dna.graph.datastructures.IEdgeListDatastructure;
 import dna.graph.datastructures.IEdgeListDatastructureReadable;
@@ -222,6 +223,11 @@ public class BatchTest {
 
 								if (generator == EmptyGraphGenerator.class)
 									continue;
+								
+								if (nodeEdgeListType == DEmpty.class
+										|| edgeListType == DEmpty.class)
+									continue;
+								
 								gds = new GraphDataStructure(nodeListType,
 										edgeListType, nodeEdgeListType,
 										nodeType, edgeType);

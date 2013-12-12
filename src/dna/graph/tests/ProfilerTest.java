@@ -17,6 +17,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
 import dna.graph.Graph;
+import dna.graph.datastructures.DEmpty;
 import dna.graph.datastructures.GraphDataStructure;
 import dna.graph.datastructures.IEdgeListDatastructure;
 import dna.graph.datastructures.INodeListDatastructure;
@@ -107,6 +108,8 @@ public class ProfilerTest {
 			if (!(IEdgeListDatastructure.class
 					.isAssignableFrom(loopEdgeListType)))
 				continue;
+			if (loopEdgeListType == DEmpty.class)
+				continue;			
 			edgeListType = loopEdgeListType;
 		}
 
@@ -115,6 +118,8 @@ public class ProfilerTest {
 			if (!(IEdgeListDatastructure.class
 					.isAssignableFrom(loopNodeEdgeListType)))
 				continue;
+			if (loopNodeEdgeListType == DEmpty.class)
+				continue;	
 			nodeEdgeListType = loopNodeEdgeListType;
 		}
 

@@ -17,6 +17,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
 import dna.graph.Graph;
+import dna.graph.datastructures.DEmpty;
 import dna.graph.datastructures.GraphDataStructure;
 import dna.graph.datastructures.IEdgeListDatastructure;
 import dna.graph.datastructures.INodeListDatastructure;
@@ -80,6 +81,11 @@ public class GraphTester {
 							if (!(IEdgeListDatastructure.class
 									.isAssignableFrom(nodeEdgeListType)))
 								continue;
+							
+							if (edgeListType == DEmpty.class
+									|| nodeEdgeListType == DEmpty.class)
+								continue;
+							
 							result.add(new Object[] { nodeListType,
 									edgeListType, nodeEdgeListType, nodeType,
 									edgeType });

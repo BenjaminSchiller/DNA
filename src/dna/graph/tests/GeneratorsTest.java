@@ -25,6 +25,7 @@ import org.junit.runners.Parameterized;
 
 import dna.graph.Graph;
 import dna.graph.IElement;
+import dna.graph.datastructures.DEmpty;
 import dna.graph.datastructures.GraphDataStructure;
 import dna.graph.datastructures.IEdgeListDatastructure;
 import dna.graph.datastructures.IEdgeListDatastructureReadable;
@@ -138,6 +139,10 @@ public class GeneratorsTest {
 										|| (DirectedEdge.class
 												.isAssignableFrom(edgeType) && UndirectedNode.class
 												.isAssignableFrom(nodeType)))
+									continue;
+
+								if (edgeListType == DEmpty.class
+										|| nodeEdgeListType == DEmpty.class)
 									continue;
 
 								gds = new GraphDataStructure(nodeListType,

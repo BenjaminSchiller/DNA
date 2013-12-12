@@ -19,6 +19,7 @@ import org.junit.runners.Parameterized;
 
 import dna.graph.Element;
 import dna.graph.IElement;
+import dna.graph.datastructures.DEmpty;
 import dna.graph.datastructures.DataStructure;
 import dna.graph.datastructures.IEdgeListDatastructure;
 import dna.graph.datastructures.INodeListDatastructure;
@@ -58,6 +59,8 @@ public class DatastructureTester {
 						|| (Edge.class.isAssignableFrom(sE) && !IEdgeListDatastructure.class
 								.isAssignableFrom(sD)))
 					continue;
+				if (sD == DEmpty.class)
+					continue;
 				result.add(new Object[] { sD, sE });
 			}
 		}
@@ -90,7 +93,7 @@ public class DatastructureTester {
 				exceptionCounter++;
 				continue;
 			}
-			dummy = (IElement)mock(otherElementClass);
+			dummy = (IElement) mock(otherElementClass);
 
 			boolean exceptionThrown = false;
 			assertFalse("Datastructure " + dataStructure.getClass() + "["
@@ -166,7 +169,8 @@ public class DatastructureTester {
 		assertEquals(2, tempDS.size());
 
 		int count = 0;
-		for (@SuppressWarnings("unused") IElement e : tempDS.getElements()) {
+		for (@SuppressWarnings("unused")
+		IElement e : tempDS.getElements()) {
 			count++;
 		}
 		assertEquals(tempDS.size(), count);
