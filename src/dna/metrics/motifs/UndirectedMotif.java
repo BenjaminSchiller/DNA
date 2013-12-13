@@ -4,7 +4,7 @@ import java.util.Arrays;
 
 import dna.graph.edges.UndirectedEdge;
 import dna.graph.nodes.UndirectedNode;
-import dna.metrics.motifs.exceptions.UndirectedMotifDeletingException;
+import dna.metrics.motifs.exceptions.UndirectedMotifDeletingOnlyEdgeException;
 import dna.metrics.motifs.exceptions.UndirectedMotifInvalidEdgeAdditionException;
 import dna.metrics.motifs.exceptions.UndirectedMotifInvalidEdgeRemovalException;
 import dna.metrics.motifs.exceptions.UndirectedMotifSplittingException;
@@ -77,6 +77,31 @@ public class UndirectedMotif {
 		case UM6:
 			return 6;
 		default:
+			return 0;
+		}
+	}
+
+	public int getEdgeCount() {
+		switch (this.type) {
+		case PRE1:
+			return 1;
+		case PRE2:
+			return 2;
+		case PRE3:
+			return 3;
+		case UM1:
+			return 3;
+		case UM2:
+			return 3;
+		case UM3:
+			return 4;
+		case UM4:
+			return 4;
+		case UM5:
+			return 5;
+		case UM6:
+			return 6;
+		default:
 			return -1;
 		}
 	}
@@ -107,120 +132,152 @@ public class UndirectedMotif {
 		this.type = type;
 	}
 
-	public boolean addEdge(UndirectedEdge e)
+	public UndirectedMotif addEdge(UndirectedEdge e)
 			throws UndirectedMotifInvalidEdgeAdditionException {
 		switch (this.type) {
 		case PRE1:
-			if (e.isConnectedTo(this.a) && !e.isConnectedTo(this.b)) {
-				this.type = UndirectedMotifType.PRE2;
-				this.c = e.getDifferingNode(this.a);
-				return true;
+			if (e.isConnectedTo(a) && !e.isConnectedTo(b)) {
+				// this.type = UndirectedMotifType.PRE2;
+				// this.c = e.getDifferingNode(this.a);
+				return new UndirectedMotif(a, b, e.getDifferingNode(a), null,
+						UndirectedMotifType.PRE2);
 			} else if (e.isConnectedTo(this.b) && !e.isConnectedTo(this.a)) {
-				this.type = UndirectedMotifType.PRE2;
-				this.c = e.getDifferingNode(this.b);
-				this.changeAB();
-				return true;
+				// this.type = UndirectedMotifType.PRE2;
+				// this.c = e.getDifferingNode(this.b);
+				// this.changeAB();
+				return new UndirectedMotif(b, a, e.getDifferingNode(b), null,
+						UndirectedMotifType.PRE2);
 			}
 		case PRE2:
-			if (e.isConnectedTo(this.b, this.c)) {
-				this.type = UndirectedMotifType.PRE3;
-				return true;
-			} else if (e.isConnectedTo(this.a) && !e.isConnectedTo(this.b)
-					&& !e.isConnectedTo(this.c)) {
-				this.d = e.getDifferingNode(this.a);
-				this.type = UndirectedMotifType.UM2;
-				return true;
+			if (e.isConnectedTo(b, c)) {
+				// this.type = UndirectedMotifType.PRE3;
+				// return true;
+				return new UndirectedMotif(a, b, c, null,
+						UndirectedMotifType.PRE3);
+			} else if (e.isConnectedTo(a) && !e.isConnectedTo(b)
+					&& !e.isConnectedTo(c)) {
+				// this.d = e.getDifferingNode(this.a);
+				// this.type = UndirectedMotifType.UM2;
+				return new UndirectedMotif(a, b, c, e.getDifferingNode(this.a),
+						UndirectedMotifType.UM2);
 			} else if (e.isConnectedTo(this.b) && !e.isConnectedTo(this.a)
 					&& !e.isConnectedTo(this.c)) {
-				this.d = e.getDifferingNode(this.b);
-				this.type = UndirectedMotifType.UM1;
-				return true;
+				// this.d = e.getDifferingNode(this.b);
+				// this.type = UndirectedMotifType.UM1;
+				return new UndirectedMotif(a, b, c, e.getDifferingNode(this.b),
+						UndirectedMotifType.UM1);
 			} else if (e.isConnectedTo(this.c) && !e.isConnectedTo(this.a)
 					&& !e.isConnectedTo(this.b)) {
-				this.d = e.getDifferingNode(this.c);
-				UndirectedNode a, b, c, d;
-				a = this.a;
-				b = this.b;
-				c = this.c;
-				d = this.d;
-				this.a = c;
-				this.b = a;
-				this.c = d;
-				this.d = b;
-				this.type = UndirectedMotifType.UM1;
-				return true;
+				// this.d = e.getDifferingNode(this.c);
+				// UndirectedNode a, b, c, d;
+				// a = this.a;
+				// b = this.b;
+				// c = this.c;
+				// d = this.d;
+				// this.a = c;
+				// this.b = a;
+				// this.c = d;
+				// this.d = b;
+				// this.type = UndirectedMotifType.UM1;
+				return new UndirectedMotif(c, a, e.getDifferingNode(c), b,
+						UndirectedMotifType.UM1);
 			}
 		case PRE3:
 			if (e.isConnectedTo(this.a) && !e.isConnectedTo(b)
 					&& !e.isConnectedTo(c)) {
-				this.type = UndirectedMotifType.UM4;
-				this.d = e.getDifferingNode(this.a);
-				this.changeCD();
-				return true;
+				// this.type = UndirectedMotifType.UM4;
+				// this.d = e.getDifferingNode(this.a);
+				// this.changeCD();
+				return new UndirectedMotif(a, b, e.getDifferingNode(a), c,
+						UndirectedMotifType.UM4);
 			} else if (e.isConnectedTo(this.b) && !e.isConnectedTo(a)
 					&& !e.isConnectedTo(c)) {
-				this.type = UndirectedMotifType.UM4;
-				this.d = e.getDifferingNode(this.b);
-				this.changeAB();
-				this.changeCD();
-				return true;
+				// this.type = UndirectedMotifType.UM4;
+				// this.d = e.getDifferingNode(this.b);
+				// this.changeAB();
+				// this.changeCD();
+				return new UndirectedMotif(b, a, e.getDifferingNode(b), c,
+						UndirectedMotifType.UM4);
 			} else if (e.isConnectedTo(this.c) && !e.isConnectedTo(a)
 					&& !e.isConnectedTo(b)) {
-				this.type = UndirectedMotifType.UM4;
-				this.d = e.getDifferingNode(this.c);
-				this.changeCD();
-				this.changeAD();
-				return true;
+				// this.type = UndirectedMotifType.UM4;
+				// this.d = e.getDifferingNode(this.c);
+				// this.changeCD();
+				// this.changeAD();
+				return new UndirectedMotif(c, b, e.getDifferingNode(this.c), a,
+						UndirectedMotifType.UM4);
 			}
 		case UM1:
 			if (e.isConnectedTo(this.c, this.d)) {
 				this.type = UndirectedMotifType.UM3;
-				return true;
+				return this;
+				// return new UndirectedMotif(a, b, c, d,
+				// UndirectedMotifType.UM3);
 			} else if (e.isConnectedTo(this.a, this.d)) {
 				this.type = UndirectedMotifType.UM4;
-				return true;
+				return this;
+				// return new UndirectedMotif(a, b, c, d,
+				// UndirectedMotifType.UM4);
 			} else if (e.isConnectedTo(this.b, this.c)) {
 				this.type = UndirectedMotifType.UM4;
 				this.changeAB();
 				this.changeCD();
-				return true;
+				return this;
+				// return new UndirectedMotif(b, a, d, c,
+				// UndirectedMotifType.UM4);
 			}
 		case UM2:
 			if (e.isConnectedTo(this.b, this.d)) {
 				this.type = UndirectedMotifType.UM4;
-				return true;
+				return this;
+				// return new UndirectedMotif(a, b, c, d,
+				// UndirectedMotifType.UM4);
 			} else if (e.isConnectedTo(this.b, this.c)) {
 				this.type = UndirectedMotifType.UM4;
 				this.changeCD();
-				return true;
+				return this;
+				// return new UndirectedMotif(a, b, d, c,
+				// UndirectedMotifType.UM4);
 			} else if (e.isConnectedTo(this.c, this.d)) {
 				this.type = UndirectedMotifType.UM4;
 				this.changeBC();
-				return true;
+				return this;
+				// return new UndirectedMotif(a, c, b, d,
+				// UndirectedMotifType.UM4);
 			}
 		case UM3:
 			if (e.isConnectedTo(this.b, this.c)) {
 				this.type = UndirectedMotifType.UM5;
 				this.changeAB();
 				this.changeCD();
-				return true;
+				return this;
+				// return new UndirectedMotif(b, a, d, c,
+				// UndirectedMotifType.UM5);
 			} else if (e.isConnectedTo(this.a, this.d)) {
 				this.type = UndirectedMotifType.UM5;
-				return true;
+				return this;
+				// return new UndirectedMotif(a, b, c, d,
+				// UndirectedMotifType.UM5);
 			}
 		case UM4:
 			if (e.isConnectedTo(this.c, this.d)) {
 				this.type = UndirectedMotifType.UM5;
-				return true;
+				return this;
+				// return new UndirectedMotif(a, b, c, d,
+				// UndirectedMotifType.UM5);
 			} else if (e.isConnectedTo(this.b, this.c)) {
 				this.type = UndirectedMotifType.UM5;
 				this.changeBD();
-				return true;
+				return this;
+				// return new UndirectedMotif(a, d, c, b,
+				// UndirectedMotifType.UM5);
 			}
 		case UM5:
 			if (e.isConnectedTo(b, c)) {
 				this.type = UndirectedMotifType.UM6;
-				return true;
+				return this;
+				// return new UndirectedMotif(a, b, c, d,
+				// UndirectedMotifType.UM6);
 			}
 		case UM6:
 		default:
@@ -230,11 +287,12 @@ public class UndirectedMotif {
 
 	public boolean removeEdge(UndirectedEdge e)
 			throws UndirectedMotifInvalidEdgeRemovalException,
-			UndirectedMotifDeletingException, UndirectedMotifSplittingException {
+			UndirectedMotifDeletingOnlyEdgeException,
+			UndirectedMotifSplittingException {
 		switch (this.type) {
 		case PRE1:
 			if (e.isConnectedTo(this.a, this.b)) {
-				throw new UndirectedMotifDeletingException(this, e);
+				throw new UndirectedMotifDeletingOnlyEdgeException(this, e);
 			}
 		case PRE2:
 			if (e.isConnectedTo(this.a, this.b)) {
@@ -430,9 +488,13 @@ public class UndirectedMotif {
 		return this.type + "." + this.getNodes();
 	}
 
+	public int hashCode() {
+		return this.toString().hashCode();
+	}
+
 	public String getNodes() {
-		StringBuffer buff = new StringBuffer(this.type + "."
-				+ this.a.getIndex() + "." + this.b.getIndex());
+		StringBuffer buff = new StringBuffer(this.a.getIndex() + "."
+				+ this.b.getIndex());
 		if (this.c != null) {
 			buff.append("." + this.c.getIndex());
 		}
@@ -443,11 +505,17 @@ public class UndirectedMotif {
 	}
 
 	public int getNodesHashCode() {
-		int[] values = new int[4];
-		values[0] = this.a.getIndex();
-		values[1] = this.b.getIndex();
-		values[2] = c != null ? this.c.getIndex() : -1;
-		values[3] = d != null ? this.d.getIndex() : -2;
+		return getHashCode(a, b, c, d);
+	}
+
+	public static int getHashCode(UndirectedNode a, UndirectedNode b,
+			UndirectedNode c, UndirectedNode d) {
+		return getHashCode(a.getIndex(), b.getIndex(), c != null ? c.getIndex()
+				: -1, d != null ? d.getIndex() : -2);
+	}
+
+	public static int getHashCode(int a, int b, int c, int d) {
+		int[] values = new int[] { a, b, c, d };
 		Arrays.sort(values);
 		return (values[0] + "." + values[1] + "." + values[2] + "." + values[3])
 				.hashCode();
@@ -518,11 +586,7 @@ public class UndirectedMotif {
 			return false;
 		}
 		return a.equals(um.a) && b.equals(um.b)
-				&& (c != null && c.equals(um.c))
-				&& (d != null && d.equals(um.d));
-	}
-
-	public int hashCode() {
-		return this.toString().hashCode();
+				&& (c == null || c.equals(um.c))
+				&& (d == null || d.equals(um.d));
 	}
 }

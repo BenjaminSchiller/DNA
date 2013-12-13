@@ -34,13 +34,16 @@ public abstract class UndirectedMotifs extends Metric {
 
 	@Override
 	public Value[] getValues() {
-		Value m1 = new Value("m1", this.motifs.getIntValues()[1]);
-		Value m2 = new Value("m2", this.motifs.getIntValues()[2]);
-		Value m3 = new Value("m3", this.motifs.getIntValues()[3]);
-		Value m4 = new Value("m4", this.motifs.getIntValues()[4]);
-		Value m5 = new Value("m5", this.motifs.getIntValues()[5]);
-		Value m6 = new Value("m6", this.motifs.getIntValues()[6]);
-		return new Value[] { m1, m2, m3, m4, m5, m6 };
+		Value m1 = new Value("um1", this.motifs.getIntValues()[1]);
+		Value m2 = new Value("um2", this.motifs.getIntValues()[2]);
+		Value m3 = new Value("um3", this.motifs.getIntValues()[3]);
+		Value m4 = new Value("um4", this.motifs.getIntValues()[4]);
+		Value m5 = new Value("um5", this.motifs.getIntValues()[5]);
+		Value m6 = new Value("um6", this.motifs.getIntValues()[6]);
+		Value m7 = new Value("pre1", this.motifs.getIntValues()[8]);
+		Value m8 = new Value("pre2", this.motifs.getIntValues()[9]);
+		Value m9 = new Value("pre3", this.motifs.getIntValues()[10]);
+		return new Value[] { m1, m2, m3, m4, m5, m6, m7, m8, m9 };
 	}
 
 	@Override

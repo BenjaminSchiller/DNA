@@ -2,6 +2,7 @@ package dna.metrics.motifs;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
 
 import dna.graph.edges.UndirectedEdge;
 import dna.graph.nodes.UndirectedNode;
@@ -12,12 +13,13 @@ import dna.updates.update.EdgeAddition;
 import dna.updates.update.EdgeRemoval;
 import dna.updates.update.NodeRemoval;
 import dna.updates.update.Update;
+import dna.util.Log;
 
 public class UndirectedMotifsU extends UndirectedMotifs {
 
-	private HashSet<UndirectedMotif> allMotifs;
+	private HashSet<UndirectedMotif> preMotifs;
 
-	private HashMap<Integer, UndirectedMotif> allMotifs2;
+	private HashMap<Integer, UndirectedMotif> fullMotifs;
 
 	public UndirectedMotifsU() {
 		super("UndirectedMotifsU", ApplicationType.AfterUpdate,
@@ -45,89 +47,160 @@ public class UndirectedMotifsU extends UndirectedMotifs {
 			this.motifs.incrDenominator();
 			UndirectedEdge e = (((UndirectedEdge) ((EdgeAddition) u).getEdge()));
 
-			System.out.println("add edge " + e);
-			this.g.printAll();
+			Log.debug(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
+			Log.debug(">>> add edge " + e);
+			Log.debug(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
 
-			HashSet<UndirectedMotif> addMotifs = new HashSet<UndirectedMotif>();
+			LinkedList<UndirectedMotif> newMotifs = new LinkedList<UndirectedMotif>();
 
-			for (UndirectedMotif m_ : this.allMotifs) {
+			// add edge to pre motifs (creating a new motif)
+			for (UndirectedMotif preMotif : this.preMotifs) {
 				try {
-					int before = m_.getIndex();
-
-					if (m_.getType() == UndirectedMotifType.PRE1
-							&& (e.isConnectedTo(m_.getA()) || e
-									.isConnectedTo(m_.getB()))) {
-						UndirectedNode a = m_.getA();
-						UndirectedNode c = m_.getB();
-						if (!e.isConnectedTo(a)) {
-							a = m_.getB();
-							c = m_.getA();
-						}
-
-						UndirectedNode b = e.getDifferingNode(a);
-
-						for (UndirectedMotif m__ : this.allMotifs) {
-							if (m__.getType() == UndirectedMotifType.PRE1
-									&& !m__.equals(m_)) {
-								if (b.equals(m__.getA())
-										|| b.equals(m__.getB())) {
-									UndirectedNode d = m__.getA();
-									if (b.equals(m__.getA())) {
-										d = m__.getB();
-									}
-									addMotifs.add(new UndirectedMotif(a, b, c,
-											d, UndirectedMotifType.UM1));
-									System.out.println("MERGING two motifs: "
-											+ m_ + "\n&&&\n" + m__);
-								}
-							}
-						}
+					if (preMotif.getNodesHashCode() == UndirectedMotif
+							.getHashCode(6, 4, 0, -2)) {
+						Log.debug("checking: " + e + " @ " + preMotif);
 					}
-
-					// String s1 = m_.asString();
-					m_.addEdge(e);
-					// String s2 = m_.asString();
-					if (m_.getIndex() != before) {
-						this.motifs.decr(before);
-						this.motifs.incr(m_.getIndex());
-						// System.out.println(UndirectedMotif
-						// .getTransformationString(s1, s2, true));
-					} else {
-						// System.out.println(s1);
-					}
+					UndirectedMotif newMotif = preMotif.addEdge(e);
+					newMotifs.add(newMotif);
+					this.motifs.incr(newMotif.getIndex());
+					this.motifs.incrDenominator();
 				} catch (UndirectedMotifInvalidEdgeAdditionException e1) {
 					// e1.printStackTrace();
 				}
 			}
 
-			for (UndirectedMotif m : addMotifs) {
-				this.allMotifs.add(m);
-				this.motifs.incr(m.getIndex());
-				this.motifs.incrDenominator();
+			// add edge to full motifs (changing the motif)
+			for (UndirectedMotif fullMotif : this.fullMotifs.values()) {
+				this.motifs.decr(fullMotif.getIndex());
+				try {
+					fullMotif.addEdge(e);
+				} catch (UndirectedMotifInvalidEdgeAdditionException e1) {
+					// e1.printStackTrace();
+				}
+				this.motifs.incr(fullMotif.getIndex());
 			}
 
-			UndirectedMotif m_new = new UndirectedMotif(e.getNode1(),
+			// check for merge of two PRE1 motifs (== edges)
+			if (true) {
+				for (UndirectedMotif pre1 : this.preMotifs) {
+					if (!pre1.has2Nodes()) {
+						continue;
+					}
+					if (!e.isConnectedTo(pre1.getA())
+							&& !e.isConnectedTo(pre1.getB())) {
+						continue;
+					}
+					UndirectedNode a, c, b, d;
+					a = pre1.getA();
+					c = pre1.getB();
+					if (!e.isConnectedTo(pre1.getA())) {
+						a = pre1.getB();
+						c = pre1.getA();
+					}
+					b = e.getDifferingNode(a);
+					for (UndirectedMotif pre2 : this.preMotifs) {
+						if (pre1.equals(pre2)) {
+							continue;
+						}
+						if (!pre2.has2Nodes()) {
+							continue;
+						}
+						if (!e.isConnectedTo(pre2.getA())
+								&& !e.isConnectedTo(pre2.getB())) {
+							continue;
+						}
+						if (pre1.getA().equals(pre2.getA())
+								|| pre1.getA().equals(pre2.getB())
+								|| pre1.getB().equals(pre2.getA())
+								|| pre1.getB().equals(pre2.getB())) {
+							continue;
+						}
+						d = pre2.getB();
+						if (!e.isConnectedTo(pre2.getA())) {
+							d = pre2.getA();
+						}
+						UndirectedMotif merge = new UndirectedMotif(a, b, c, d,
+								UndirectedMotifType.UM1);
+						if (!this.fullMotifs.containsKey(merge
+								.getNodesHashCode())) {
+							newMotifs.add(merge);
+							this.motifs.incr(merge.getIndex());
+							this.motifs.incrDenominator();
+							Log.debug("adding merge: " + merge
+									+ " (of " + pre1 + " AND " + pre2 + ") @ "
+									+ pre1.equals(pre2));
+						} else {
+							// Log.debug("not adding merge "
+							// + merge
+							// + " because "
+							// + this.fullMotifs.get(merge
+							// .getNodesHashCode()));
+						}
+					}
+				}
+			}
+
+			// add new motifs
+			Log.debug("********************** adding...");
+			for (UndirectedMotif newMotif : newMotifs) {
+				if (newMotif.has4Nodes()) {
+					if (this.fullMotifs
+							.containsKey(newMotif.getNodesHashCode())) {
+						UndirectedMotif similar = this.fullMotifs.get(newMotif
+								.getNodesHashCode());
+						if (newMotif.getEdgeCount() > similar.getEdgeCount()) {
+							this.fullMotifs.put(newMotif.getNodesHashCode(),
+									newMotif);
+							Log.debug("full-replace: " + newMotif
+									+ "(" + similar + ")");
+							this.motifs.decr(similar.getIndex());
+						} else {
+							Log.debug("full-exists: " + newMotif + "("
+									+ similar + ")");
+							this.motifs.decr(newMotif.getIndex());
+						}
+					} else {
+						this.fullMotifs.put(newMotif.getNodesHashCode(),
+								newMotif);
+						Log.debug("full: " + newMotif);
+					}
+				} else {
+					this.preMotifs.add(newMotif);
+					Log.debug("pre: " + newMotif);
+				}
+			}
+			Log.debug("**********************");
+
+			UndirectedMotif pre1Motif = new UndirectedMotif(e.getNode1(),
 					e.getNode2());
-			this.allMotifs.add(m_new);
-			System.out.println("new: " + m_new);
-			this.motifs.incr(m_new.getIndex());
+			this.preMotifs.add(pre1Motif);
+			this.motifs.incr(pre1Motif.getIndex());
 			this.motifs.incrDenominator();
+			Log.debug("edge: " + pre1Motif);
+			Log.debug("**********************");
 
-			System.out.println("***********************");
-			for (UndirectedMotif mm : this.allMotifs) {
-				System.out.println(mm);
+			Log.debug("====> " + this.preMotifs.size());
+			for (UndirectedMotif m : this.preMotifs) {
+				Log.debug("P: " + m);
 			}
-			System.out.println("***********************");
+			Log.debug("====> " + this.fullMotifs.size());
+			for (UndirectedMotif m : this.fullMotifs.values()) {
+				Log.debug("F: " + m);
+			}
+			Log.debug("**********************");
 
 			return true;
 		} else if (u instanceof EdgeRemoval) {
+			// TODO implement edge removal
 			this.motifs.decrDenominator();
 			return true;
 		} else if (u instanceof NodeRemoval) {
+			// TODO implement node removal
 			UndirectedNode n = (((UndirectedNode) ((NodeRemoval) u).getNode()));
 			this.motifs.decrDenominator(n.getDegree());
 			return true;
 		}
+
 		return true;
 	}
 
@@ -139,8 +212,7 @@ public class UndirectedMotifsU extends UndirectedMotifs {
 
 	public void init_() {
 		super.init_();
-		this.allMotifs = new HashSet<UndirectedMotif>();
-		this.allMotifs2 = new HashMap<Integer, UndirectedMotif>();
+		this.preMotifs = new HashSet<UndirectedMotif>();
+		this.fullMotifs = new HashMap<Integer, UndirectedMotif>();
 	}
-
 }
