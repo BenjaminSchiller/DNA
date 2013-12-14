@@ -218,11 +218,13 @@ public class MultiScalarVisualizer extends Visualizer {
 	private void addDistributionPoints(String name, long[] values,
 			long denominator, SortModeDist sort) {
 		ITrace2D tempTrace = this.traces.get(name);
+		long[] tempValues = new long[values.length];
 
 		switch (sort) {
 		case cdf:
 			double sum = 0;
-			Arrays.sort(values);
+			System.arraycopy(values, 0, tempValues, 0, values.length);
+			Arrays.sort(tempValues);
 			for (int i = 0; i < values.length; i++) {
 				sum += (1.0 * values[i]) / denominator;
 				tempTrace.addPoint(i, sum);
@@ -245,13 +247,15 @@ public class MultiScalarVisualizer extends Visualizer {
 	private void addDistributionPoints(String name, int[] values,
 			int denominator, SortModeDist sort) {
 		ITrace2D tempTrace = this.traces.get(name);
+		int[] tempValues = new int[values.length];
 
 		switch (sort) {
 		case cdf:
 			double sum = 0;
-			Arrays.sort(values);
+			System.arraycopy(values, 0, tempValues, 0, values.length);
+			Arrays.sort(tempValues);
 			for (int i = 0; i < values.length; i++) {
-				sum += (1.0 * values[i]) / denominator;
+				sum += (1.0 * tempValues[i]) / denominator;
 				tempTrace.addPoint(i, sum);
 			}
 			break;
@@ -272,11 +276,13 @@ public class MultiScalarVisualizer extends Visualizer {
 	private void addDistributionPoints(String name, double[] values,
 			SortModeDist sort) {
 		ITrace2D tempTrace = this.traces.get(name);
+		double[] tempValues = new double[values.length];
 
 		switch (sort) {
 		case cdf:
 			double sum = 0;
-			Arrays.sort(values);
+			System.arraycopy(values, 0, tempValues, 0, values.length);
+			Arrays.sort(tempValues);
 			for (int i = 0; i < values.length; i++) {
 				sum += values[i];
 				tempTrace.addPoint(i, sum);
@@ -580,20 +586,29 @@ public class MultiScalarVisualizer extends Visualizer {
 		}
 	}
 
-	/** called from an item to get resorted while paused **/
+	/** called from an item to get resorted during pause **/
 	public void sortItem(String name, SortModeNVL s) {
-		// TODO: when paused?
 		if (this.traces.containsKey(name)) {
 			this.traces.get(name).removeAllPoints();
-			// this.chart.removeTrace(this.traces.get(name));
 			if (this.doubleValues.containsKey(name)) {
 				this.addPoints(name, this.doubleValues.get(name), s);
 			}
 		}
 	}
 
-	/** called from an item to get resorted while paused **/
+	/** called from an item to get resorted during pause **/
 	public void sortItem(String name, SortModeDist s) {
-		System.out.println("sort dist " + name + " with " + s);
+		if (this.traces.containsKey(name)) {
+			this.traces.get(name).removeAllPoints();
+			if (this.doubleValues.containsKey(name)) {
+				this.addDistributionPoints(name, this.doubleValues.get(name), s);
+			} else if (this.intValues.containsKey(name)) {
+				this.addDistributionPoints(name, this.intValues.get(name),
+						this.intDenominators.get(name), s);
+			} else if (this.longValues.containsKey(name)) {
+				this.addDistributionPoints(name, this.longValues.get(name),
+						this.longDenominators.get(name), s);
+			}
+		}
 	}
 }

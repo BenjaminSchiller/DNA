@@ -289,7 +289,7 @@ public class Legend extends JPanel {
 	}
 
 	/**
-	 * Called when an item from the checkbox is selected. Calculates which
+	 * Called when an item from the checkbox is selected. Determines which
 	 * elements will be added to the legend list.
 	 * 
 	 * @param selectionIndex
@@ -447,6 +447,7 @@ public class Legend extends JPanel {
 			((MetricVisualizer) this.parent).toggleYAxis(item.getName());
 		if (this.parent instanceof MultiScalarVisualizer)
 			((MultiScalarVisualizer) this.parent).toggleYAxis(item.getName());
+		this.parent.updateTicks();
 	}
 
 	/** toggles x axis of a trace **/

@@ -112,7 +112,8 @@ public class LegendItem extends JPanel {
 		this.toggleYAxisButton = new JButton("y1");
 		this.toggleYAxisButton.setFont(GuiOptions.defaultFont);
 		this.toggleYAxisButton.setForeground(GuiOptions.defaultFontColor);
-		this.toggleYAxisButton.setPreferredSize(GuiOptions.legendItemButtonSize);
+		this.toggleYAxisButton
+				.setPreferredSize(GuiOptions.legendItemButtonSize);
 		this.toggleYAxisButton.setMargin(new Insets(0, 0, 0, 0));
 		this.toggleYAxisButton
 				.setToolTipText("Currently plotted on left y-axis (y1). Click to change to right y-axis");
@@ -149,7 +150,8 @@ public class LegendItem extends JPanel {
 							.setToolTipText("Shows this value in the chart");
 				} else {
 					thisItem.showHideButton.setText("H");
-					thisItem.showHideButton.setForeground(GuiOptions.defaultFontColor);
+					thisItem.showHideButton
+							.setForeground(GuiOptions.defaultFontColor);
 					thisItem.showHideButton
 							.setToolTipText("Hides this value in the chart");
 				}
