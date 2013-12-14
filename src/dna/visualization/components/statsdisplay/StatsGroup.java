@@ -1,13 +1,12 @@
 package dna.visualization.components.statsdisplay;
 
 import java.awt.Component;
-import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.util.HashMap;
 
 import javax.swing.BorderFactory;
-import javax.swing.BoxLayout;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.border.TitledBorder;
@@ -23,17 +22,17 @@ import dna.visualization.GuiOptions;
  */
 @SuppressWarnings("serial")
 public class StatsGroup extends JPanel {
-	// panels
-	public JPanel NamePanel;
-	public JPanel ValuePanel;
+	// main constraints and valuelabels hashmap
+	private GridBagConstraints statsGroupConstraints;
+	private HashMap<String, JLabel> valueLabels;
 
 	// constructor
-	public StatsGroup(String title, Dimension size) {
+	public StatsGroup(String title) {
 		// set name
 		this.setName(title);
-		
-		// size
-		//this.setPreferredSize(size);
+
+		// init hashmap
+		this.valueLabels = new HashMap<String, JLabel>();
 
 		// set border
 		TitledBorder border = BorderFactory.createTitledBorder(title);
@@ -41,117 +40,84 @@ public class StatsGroup extends JPanel {
 				Font.BOLD, GuiOptions.defaultFont.getSize()));
 		this.setBorder(border);
 
-		// add name and value panels
-		this.NamePanel = new JPanel();
-		this.NamePanel.setName("Labels");
-		//this.NamePanel.setPreferredSize(new Dimension((int) Math.floor((size
-				//.getWidth() - 5) / 2), size.height - 1));
-		this.ValuePanel = new JPanel();
-		this.ValuePanel.setName("Values");
-		//this.ValuePanel.setPreferredSize(new Dimension((int) Math.floor((size
-			//	.getWidth() - 5) / 2), size.height - 1));
-
-		this.NamePanel
-				.setLayout(new BoxLayout(this.NamePanel, BoxLayout.Y_AXIS));
-		this.ValuePanel.setLayout(new BoxLayout(this.ValuePanel,
-				BoxLayout.Y_AXIS));
-
 		// set layout
-		// this.setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
-
 		this.setLayout(new GridBagLayout());
-
-		GridBagConstraints c = new GridBagConstraints();
-		c.fill = GridBagConstraints.BOTH;
-		c.anchor = GridBagConstraints.WEST;
-		c.gridx = 0;
-		c.gridy = 0;
-		this.add(this.NamePanel, c);
-		c.gridx = 1;
-		this.add(this.ValuePanel, c);
+		this.statsGroupConstraints = new GridBagConstraints();
+		this.statsGroupConstraints.fill = GridBagConstraints.HORIZONTAL;
+		this.statsGroupConstraints.anchor = GridBagConstraints.WEST;
+		this.statsGroupConstraints.weightx = 0.5;
+		this.statsGroupConstraints.gridx = 0;
+		this.statsGroupConstraints.gridy = 0;
 	}
 
 	/** add values to the panel **/
 	public void addValue(String name, double value) {
 		JLabel tempName = new JLabel(name + ": ");
-		tempName.setName(name);
 		tempName.setFont(GuiOptions.defaultFont);
-		this.NamePanel.add(tempName);
-		this.NamePanel.validate();
 
 		JLabel tempValue = new JLabel("" + value);
-		tempValue.setName(name + "value");
+		tempValue.setHorizontalAlignment(JLabel.RIGHT);
+		tempValue.setName(name);
 		tempValue.setFont(GuiOptions.defaultFont);
-		this.ValuePanel.add(tempValue);
-		this.ValuePanel.validate();
 
-		this.revalidate();
+		// add labels
+		this.statsGroupConstraints.gridx = 0;
+		this.statsGroupConstraints.anchor = GridBagConstraints.WEST;
+		this.add(tempName, this.statsGroupConstraints);
+
+		this.statsGroupConstraints.gridx = 1;
+		this.statsGroupConstraints.anchor = GridBagConstraints.EAST;
+		this.add(tempValue, this.statsGroupConstraints);
+		this.valueLabels.put(tempValue.getName(), tempValue);
+
+		// increment y position
+		this.statsGroupConstraints.gridy++;
+
+		this.validate();
 	}
 
 	/** update value already on the panel **/
 	public void updateValue(String name, double value) {
-		Component[] values = this.NamePanel.getComponents();
-		for (int i = 0; i < values.length; i++) {
-			if (values[i].getName().equals(name)) {
-				Component c = this.ValuePanel.getComponents()[i];
-				if (c instanceof JLabel) {
-					((JLabel) c).setText("" + value);
-				}
-			}
-		}
+		if (this.valueLabels.containsKey(name))
+			this.valueLabels.get(name).setText("" + value);
 		this.validate();
 	}
 
 	/** increment values **/
 	public void incrementValue(String name) {
-		Component[] values = this.NamePanel.getComponents();
-		for (int i = 0; i < values.length; i++) {
-			if (values[i].getName().equals(name)) {
-				Component c = this.ValuePanel.getComponents()[i];
-				if (c instanceof JLabel) {
-					double tempValue = Double.parseDouble(((JLabel) c)
-							.getText());
-					tempValue++;
-					((JLabel) c).setText("" + tempValue);
-				}
-			}
+		if (this.valueLabels.containsKey(name)) {
+			JLabel valueLabel = this.valueLabels.get(name);
+			double tempValue = Double.parseDouble(valueLabel.getText());
+			tempValue++;
+			valueLabel.setText("" + tempValue);
 		}
 		this.validate();
 	}
 
 	/** decrement values **/
 	public void decrementValue(String name) {
-		Component[] values = this.NamePanel.getComponents();
-		for (int i = 0; i < values.length; i++) {
-			if (values[i].getName().equals(name)) {
-				Component c = this.ValuePanel.getComponents()[i];
-				if (c instanceof JLabel) {
-					double tempValue = Double.parseDouble(((JLabel) c)
-							.getText());
-					tempValue--;
-					((JLabel) c).setText("" + tempValue);
-				}
-			}
+		if (this.valueLabels.containsKey(name)) {
+			JLabel valueLabel = this.valueLabels.get(name);
+			double tempValue = Double.parseDouble(valueLabel.getText());
+			tempValue--;
+			valueLabel.setText("" + tempValue);
 		}
 		this.validate();
 	}
 
 	/** resets all set values to zero **/
 	public void reset() {
-		for (Component c : this.ValuePanel.getComponents()) {
-			if (c instanceof JLabel)
-				((JLabel) c).setText("" + 0);
+		for (String s : this.valueLabels.keySet()) {
+			this.valueLabels.get(s).setText("" + 0.0);
 		}
 		this.validate();
 	}
 
 	/** clears the whole list **/
 	public void clear() {
-		for (Component c : this.NamePanel.getComponents()) {
-			this.NamePanel.remove(c);
-		}
-		for (Component c : this.ValuePanel.getComponents()) {
-			this.ValuePanel.remove(c);
+		this.statsGroupConstraints.gridy = 0;
+		for (Component c : this.getComponents()) {
+			this.remove(c);
 		}
 		this.validate();
 	}

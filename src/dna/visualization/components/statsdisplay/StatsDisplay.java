@@ -3,6 +3,7 @@ package dna.visualization.components.statsdisplay;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Hashtable;
@@ -64,8 +65,8 @@ public class StatsDisplay extends JPanel implements ChangeListener {
 	private final int SPEED_INIT = 1000;
 
 	// statsgroups
-	private StatsGroup genRuntimes;
 	private StatsGroup metRuntimes;
+	private StatsGroup genRuntimes;
 
 	// timestamps
 	private long minTimestamp;
@@ -88,7 +89,6 @@ public class StatsDisplay extends JPanel implements ChangeListener {
 		this.paused = true;
 
 		// size
-		size = new Dimension(280, 350);
 		this.setPreferredSize(size);
 
 		// set title and border of statistics
@@ -102,12 +102,16 @@ public class StatsDisplay extends JPanel implements ChangeListener {
 		// set layout
 		GridBagConstraints mainConstraints = new GridBagConstraints();
 		mainConstraints.fill = GridBagConstraints.HORIZONTAL;
+		mainConstraints.anchor = GridBagConstraints.NORTHWEST;
+		mainConstraints.insets = new Insets(0, 0, 0, 0);
 		this.setLayout(new GridBagLayout());
 
 		// set general settings panel
 		this.SettingsPanel = new JPanel();
 		this.SettingsPanel.setName("SettingsPanel");
-		// this.SettingsPanel.setPreferredSize(new Dimension(245, 500));
+		this.SettingsPanel
+				.setPreferredSize(GuiOptions.statsDisplaySettingsPanelSize);
+
 		this.SettingsPanel.setLayout(new GridBagLayout());
 		GridBagConstraints settingsPanelConstraints = new GridBagConstraints();
 		settingsPanelConstraints.fill = GridBagConstraints.HORIZONTAL;
@@ -115,11 +119,6 @@ public class StatsDisplay extends JPanel implements ChangeListener {
 		this.SettingsPanel.setBorder(BorderFactory
 				.createEtchedBorder((EtchedBorder.LOWERED)));
 		this.SettingsPanel.setBorder(BorderFactory.createTitledBorder(""));
-
-		// adding SettingsPanel to mainPanel
-		mainConstraints.gridy = 0;
-		mainConstraints.gridx = 0;
-		this.add(SettingsPanel, mainConstraints);
 
 		this.SettingsNotSpeedPanel = new JPanel();
 		this.SettingsNotSpeedPanel.setLayout(new BoxLayout(
@@ -228,17 +227,13 @@ public class StatsDisplay extends JPanel implements ChangeListener {
 		this.SettingsPanel.add(SpeedSlider, settingsPanelConstraints);
 
 		// general and metric runtime panels
-		this.genRuntimes = new StatsGroup("GeneralRuntimes", new Dimension(150,
-				300));
-		// this.genRuntimes.setLayout(new BoxLayout(this.genRuntimes,
-		// BoxLayout.X_AXIS));
-		this.genRuntimes.setPreferredSize(new Dimension(260, 105));
-		this.metRuntimes = new StatsGroup("MetricRuntimes", new Dimension(150,
-				300));
-		this.metRuntimes.setPreferredSize(new Dimension(260, 55));
-		this.metRuntimes.setMinimumSize(new Dimension(280, 55));
-		// this.metRuntimes.setLayout(new BoxLayout(this.metRuntimes,
-		// BoxLayout.X_AXIS));
+		this.metRuntimes = new StatsGroup("MetricRuntimes");
+		this.genRuntimes = new StatsGroup("GeneralRuntimes");
+
+		// adding SettingsPanel to mainPanel
+		mainConstraints.gridy = 0;
+		mainConstraints.gridx = 0;
+		this.add(SettingsPanel, mainConstraints);
 
 		// add metric runtimes panel to main panel
 		mainConstraints.gridy = 1;
@@ -295,8 +290,12 @@ public class StatsDisplay extends JPanel implements ChangeListener {
 			this.metRuntimes.addValue(rt.getName(), rt.getRuntime());
 		}
 
+		this.metRuntimes.setPreferredSize(this.metRuntimes.getPreferredSize());
+		this.genRuntimes.setPreferredSize(this.genRuntimes.getPreferredSize());
+
 		this.validate();
 		this.init = true;
+
 	}
 
 	/**
@@ -431,8 +430,11 @@ public class StatsDisplay extends JPanel implements ChangeListener {
 		this.EdgesValue.setText("" + 0);
 		this.ProgressBar.setValue(0);
 
+		this.metRuntimes.setPreferredSize(null);
 		this.metRuntimes.reset();
+		this.genRuntimes.setPreferredSize(null);
 		this.genRuntimes.reset();
+
 		this.TimeSlider.setMaximum(1);
 		this.TimeSlider.setMinimum(0);
 		this.TimeSlider.setValue(0);

@@ -20,7 +20,9 @@ public class GuiOptions {
 	public static final Dimension logoSize = new Dimension(270, 160);
 
 	// stats display
-	public static final Dimension statsDisplaySize = new Dimension(300, 600);
+	public static final Dimension statsDisplaySize = new Dimension(300, 350);
+	public static final Dimension statsDisplaySettingsPanelSize = new Dimension(
+			285, 150);
 
 	// visualizer
 	public static final Dimension visualizerDefaultSize = new Dimension(670,
@@ -39,7 +41,8 @@ public class GuiOptions {
 	// legend item
 	public static final Dimension legendItemItemSize = new Dimension(165, 40);
 	public static final Dimension legendItemButtonSize = new Dimension(20, 20);
-	public static final Dimension legendItemNameLabelSize = new Dimension(160, 16);
+	public static final Dimension legendItemNameLabelSize = new Dimension(160,
+			16);
 
 	// legend item distribution
 	public static final Dimension legendItemDistValueLabelSize = new Dimension(
