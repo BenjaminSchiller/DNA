@@ -86,7 +86,7 @@ public class StatsDisplay extends JPanel implements ChangeListener {
 		// initialization
 		this.statsdis = this;
 		this.paused = true;
-		System.out.println("StatsDisplay Size: " + size.toString());
+
 		// size
 		size = new Dimension(280, 350);
 		this.setPreferredSize(size);
@@ -455,7 +455,6 @@ public class StatsDisplay extends JPanel implements ChangeListener {
 			if (source.getName().equals("TimeSlider")) {
 				if (!source.getValueIsAdjusting()) {
 					if (init) {
-						this.mainDisplay.setPaused(true);
 						this.mainDisplay.setTime((int) source.getValue());
 					}
 				}
