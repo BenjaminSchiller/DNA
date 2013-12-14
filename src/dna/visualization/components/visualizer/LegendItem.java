@@ -12,7 +12,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 import javax.swing.BorderFactory;
-import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -36,7 +35,6 @@ public class LegendItem extends JPanel {
 	protected yAxisSelection yAxis;
 
 	// text panel containing the name and value
-	protected JPanel textPanel;
 	protected JLabel nameLabel;
 	protected JLabel valueLabel;
 
@@ -58,18 +56,8 @@ public class LegendItem extends JPanel {
 		this.setPreferredSize(GuiOptions.legendItemItemSize);
 		this.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED));
 		this.setLayout(new GridBagLayout());
-		GridBagConstraints c = new GridBagConstraints();
+		GridBagConstraints legendItemConstraints = new GridBagConstraints();
 		this.yAxis = yAxisSelection.y1;
-
-		// init set-, text- and button panels
-		this.textPanel = new JPanel();
-		this.textPanel.setPreferredSize(new Dimension(120, 30));
-		this.textPanel
-				.setLayout(new BoxLayout(this.textPanel, BoxLayout.Y_AXIS));
-
-		// config set-, text- and button panels
-		this.textPanel
-				.setLayout(new BoxLayout(this.textPanel, BoxLayout.Y_AXIS));
 
 		// only show suffix b from the name, with name = a.b
 		int i = name.length() - 1;
@@ -82,14 +70,14 @@ public class LegendItem extends JPanel {
 		this.nameLabel = new JLabel(nameSuffix);
 		this.nameLabel.setFont(GuiOptions.defaultFont);
 		this.nameLabel.setForeground(color);
-		this.textPanel.add(this.nameLabel);
+		this.nameLabel.setPreferredSize(GuiOptions.legendItemNameLabelSize);
+
 		// value label
 		this.valueLabel = new JLabel("V=" + 0.0);
 		this.valueLabel.setFont(GuiOptions.legendItemValueFont);
 		this.valueLabel.setForeground(GuiOptions.legendItemValueFontColor);
 		this.valueLabel.setPreferredSize(new Dimension(80, 20));
 		this.valueLabel.setToolTipText("V=0.0");
-		this.textPanel.add(this.valueLabel);
 
 		// remove button
 		this.removeButton = new JButton("-");
@@ -170,25 +158,25 @@ public class LegendItem extends JPanel {
 		this.buttonPanel.add(this.toggleYAxisButton);
 
 		// add components
-		c.fill = GridBagConstraints.HORIZONTAL;
-		c.insets = new Insets(0, 0, 0, 0);
+		legendItemConstraints.fill = GridBagConstraints.HORIZONTAL;
+		legendItemConstraints.insets = new Insets(0, 0, 0, 0);
 
 		// add namelabel
-		c.gridx = 0;
-		c.gridy = 0;
-		c.gridwidth = 2;
-		this.add(this.nameLabel, c);
+		legendItemConstraints.gridx = 0;
+		legendItemConstraints.gridy = 0;
+		legendItemConstraints.gridwidth = 2;
+		this.add(this.nameLabel, legendItemConstraints);
 
 		// add valuelabel
 		this.valueLabel.setText("");
-		c.gridwidth = 1;
-		c.gridy = 1;
-		c.weightx = 0.5;
-		this.add(this.valueLabel, c);
+		legendItemConstraints.gridwidth = 1;
+		legendItemConstraints.gridy = 1;
+		legendItemConstraints.weightx = 0.5;
+		this.add(this.valueLabel, legendItemConstraints);
 
 		// add buttonpanel
-		c.gridx = 1;
-		this.add(this.buttonPanel, c);
+		legendItemConstraints.gridx = 1;
+		this.add(this.buttonPanel, legendItemConstraints);
 	}
 
 	/** sets the name **/

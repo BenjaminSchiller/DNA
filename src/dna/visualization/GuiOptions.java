@@ -39,6 +39,7 @@ public class GuiOptions {
 	// legend item
 	public static final Dimension legendItemItemSize = new Dimension(165, 40);
 	public static final Dimension legendItemButtonSize = new Dimension(20, 20);
+	public static final Dimension legendItemNameLabelSize = new Dimension(160, 16);
 
 	// legend item distribution
 	public static final Dimension legendItemDistValueLabelSize = new Dimension(
