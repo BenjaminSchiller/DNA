@@ -45,7 +45,6 @@ public class Legend extends JPanel {
 	private ColorHandler colorHandler;
 
 	public Legend(Visualizer parent) {
-		super();
 		this.parent = parent;
 		thisLegend = this;
 		this.colorHandler = new ColorHandler();
@@ -78,32 +77,6 @@ public class Legend extends JPanel {
 		this.add(addButtonPanel, c);
 
 		this.initAddBox(null);
-	}
-
-	/** adds an item to the list, if its already added nothing will happen **/
-	public void addItemToList(String name) {
-		boolean alreadyAdded = false;
-		for (Component c : this.list.getComponents()) {
-			if (c instanceof LegendItem) {
-				if (c.getName().equals(name)) {
-					alreadyAdded = true;
-				}
-			}
-		}
-		if (!alreadyAdded) {
-			Color color = this.colorHandler.getNextColor();
-			LegendItem i = new LegendItemValue(this.list, name, color);
-			i.setToolTipText(name);
-			this.list.add(i);
-			if (this.parent instanceof MetricVisualizer)
-				((MetricVisualizer) this.parent).addTrace(name, color);
-			if (this.parent instanceof MultiScalarVisualizer)
-				((MultiScalarVisualizer) this.parent).addTrace(name, color);
-			this.parent.updateTicks();
-		}
-		this.parent.toggleXAxisVisibility();
-		this.parent.toggleYAxisVisibility();
-		this.validate();
 	}
 
 	/** adds a value item to the list, if its already added nothing will happen **/
@@ -154,7 +127,8 @@ public class Legend extends JPanel {
 
 			this.list.add(i);
 			if (this.parent instanceof MultiScalarVisualizer)
-				((MultiScalarVisualizer) this.parent).addTrace(name, color);
+				((MultiScalarVisualizer) this.parent).addDistributionTrace(
+						name, color);
 
 			// usually added to x1/y1, check if config says otherways and toggle
 			// accordingly
@@ -200,7 +174,8 @@ public class Legend extends JPanel {
 			i.setToolTipText(name);
 			this.list.add(i);
 			if (this.parent instanceof MultiScalarVisualizer)
-				((MultiScalarVisualizer) this.parent).addTrace(name, color);
+				((MultiScalarVisualizer) this.parent).addNodeValueListTrace(
+						name, color);
 
 			// usually added to x1/y1, check if config says otherways and toggle
 			// accordingly

@@ -52,6 +52,9 @@ public class MultiScalarVisualizer extends Visualizer {
 		distribution, cdf
 	}
 
+	// current batch
+	private BatchData currentBatch;
+
 	// constructor
 	public MultiScalarVisualizer() {
 		// initialization
@@ -65,6 +68,8 @@ public class MultiScalarVisualizer extends Visualizer {
 		this.intValues = new HashMap<String, int[]>();
 
 		this.doubleValues = new HashMap<String, double[]>();
+
+		this.currentBatch = null;
 
 		// remove timestamp-label on x-axis
 		this.xAxis1.getAxisTitle().setTitle("x1");
@@ -105,41 +110,41 @@ public class MultiScalarVisualizer extends Visualizer {
 
 	/** initializes the data with the first batch **/
 	public void initData(BatchData b) {
+		// set current batch
+		this.currentBatch = b;
+
+		// set timestamps;
 		this.minTimestamp = b.getTimestamp();
 		this.maxTimestamp = b.getTimestamp();
 		this.minShownTimestamp = b.getTimestamp();
 		this.maxShownTimestamp = this.minShownTimestamp + 10;
 
+		// clear chart
 		for (ITrace2D t : this.chart.getTraces()) {
 			t.removeAllPoints();
 		}
 
-		for (String metric : b.getMetrics().getNames()) {
-			for (String dist : b.getMetrics().get(metric).getDistributions()
-					.getNames()) {
-				this.availableValues.add(metric + "." + dist);
-			}
-		}
-
-		for (String metric : b.getMetrics().getNames()) {
-			for (String nvl : b.getMetrics().get(metric).getNodeValues()
-					.getNames()) {
-				this.availableValues.add(metric + "." + nvl);
-			}
-		}
-
 		// init addbox
-		String[] tempValues = this.availableValues
-				.toArray(new String[this.availableValues.size()]);
-		tempValues = this.gatherValues(b);
+		String[] tempValues = this.gatherValues(b);
 		this.toggleYAxisVisibility();
 		this.legend.updateAddBox(tempValues);
 		this.validate();
 	}
 
+	/**
+	 * Updates the chart and the legend with a new batchdata.
+	 * 
+	 * @param b
+	 *            New batch
+	 */
 	public void updateData(BatchData b) {
+		// update batch
+		this.currentBatch = b;
+
+		// clear chart
 		this.clearPoints();
 
+		// add points
 		for (String metric : b.getMetrics().getNames()) {
 			for (String dist : b.getMetrics().get(metric).getDistributions()
 					.getNames()) {
@@ -208,10 +213,8 @@ public class MultiScalarVisualizer extends Visualizer {
 				}
 			}
 		}
-		updateX1Ticks();
-		updateX2Ticks();
-		updateY1Ticks();
-		updateY2Ticks();
+		// update ticks
+		this.updateTicks();
 	}
 
 	/** adds points sorted and normalized by dividing through denominator **/
@@ -362,7 +365,7 @@ public class MultiScalarVisualizer extends Visualizer {
 		}
 	}
 
-	/** adds trace to the visualizer with default trace length **/
+	/** adds trace to the visualizer **/
 	public void addTrace(String name, Color color) {
 		Trace2DSimple newTrace = new Trace2DSimple();
 		newTrace.setColor(color);
@@ -374,7 +377,96 @@ public class MultiScalarVisualizer extends Visualizer {
 					.getInt("GUI_LINESPOINT_SIZE")));
 		if (Config.getBoolean("GUI_PAINT_FILL"))
 			newTrace.addTracePainter(new TracePainterFill(this.chart));
+	}
 
+	/** adds trace of a distribution and its points to the visualizer **/
+	public void addDistributionTrace(String name, Color color) {
+		// add trace
+		this.addTrace(name, color);
+
+		// add points to chart
+		for (String metric : this.currentBatch.getMetrics().getNames()) {
+			for (String dist : this.currentBatch.getMetrics().get(metric)
+					.getDistributions().getNames()) {
+				if ((metric + "." + dist).equals(name)) {
+					Distribution tempDist = this.currentBatch.getMetrics()
+							.get(metric).getDistributions().get(dist);
+					String tempName = metric + "." + dist;
+
+					if (tempDist instanceof DistributionDouble) {
+						double[] tempValues = ((DistributionDouble) this.currentBatch
+								.getMetrics().get(metric).getDistributions()
+								.get(dist)).getDoubleValues();
+						SortModeDist tempSortMode = Config
+								.getSortModeDist("GUI_SORT_MODE_DIST");
+
+						this.doubleValues.put(tempName, tempValues);
+						this.addDistributionPoints(tempName, tempValues,
+								tempSortMode);
+					}
+					if (tempDist instanceof DistributionInt) {
+						int[] tempValues = ((DistributionInt) this.currentBatch
+								.getMetrics().get(metric).getDistributions()
+								.get(dist)).getIntValues();
+						int tempDenominator = ((DistributionInt) this.currentBatch
+								.getMetrics().get(metric).getDistributions()
+								.get(dist)).getDenominator();
+						SortModeDist tempSortMode = Config
+								.getSortModeDist("GUI_SORT_MODE_DIST");
+
+						this.addDistributionPoints(tempName, tempValues,
+								tempDenominator, tempSortMode);
+						this.intValues.put(tempName, tempValues);
+						this.intDenominators.put(tempName, tempDenominator);
+						this.legend.updateItem(tempName, tempDenominator);
+					}
+					if (tempDist instanceof DistributionLong) {
+						long[] tempValues = ((DistributionLong) this.currentBatch
+								.getMetrics().get(metric).getDistributions()
+								.get(dist)).getLongValues();
+						long tempDenominator = ((DistributionLong) this.currentBatch
+								.getMetrics().get(metric).getDistributions()
+								.get(dist)).getDenominator();
+						SortModeDist tempSortMode = Config
+								.getSortModeDist("GUI_SORT_MODE_DIST");
+
+						this.addDistributionPoints(tempName, tempValues,
+								tempDenominator, tempSortMode);
+						this.longValues.put(tempName, tempValues);
+						this.longDenominators.put(tempName, tempDenominator);
+						this.legend.updateItem(tempName, tempDenominator);
+					}
+				}
+			}
+		}
+		// update ticks
+		this.updateTicks();
+	}
+
+	/** adds trace of a nodevaluelist and its points to the visualizer **/
+	public void addNodeValueListTrace(String name, Color color) {
+		// add trace
+		this.addTrace(name, color);
+
+		// add points to chart
+		for (String metric : this.currentBatch.getMetrics().getNames()) {
+			for (String nvl : this.currentBatch.getMetrics().get(metric)
+					.getNodeValues().getNames()) {
+				String tempName = metric + "." + nvl;
+				if (this.traces.containsKey(tempName)) {
+					SortModeNVL tempSortMode = ((LegendItemNodeValueList) this.legend
+							.getLegendList().getLegendItem(tempName))
+							.getSortMode();
+					double[] tempValues = this.currentBatch.getMetrics()
+							.get(metric).getNodeValues().get(nvl).getValues();
+
+					this.doubleValues.put(tempName, tempValues);
+					this.addPoints(metric + "." + nvl, tempValues, tempSortMode);
+				}
+			}
+		}
+		// update ticks
+		this.updateTicks();
 	}
 
 	/** removes a trace from the chart and the traces-list **/
