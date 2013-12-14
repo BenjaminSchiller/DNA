@@ -562,6 +562,7 @@ public class MultiScalarVisualizer extends Visualizer {
 			else
 				this.traces.get(name).setVisible(true);
 		}
+		this.chart.setRequestedRepaint(true);
 	}
 
 	/** toggles grid on second x axis **/

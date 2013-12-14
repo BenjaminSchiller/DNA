@@ -315,7 +315,7 @@ public class MetricVisualizer extends Visualizer {
 			else
 				this.traces.get(name).setVisible(true);
 		}
-
+		this.chart.setRequestedRepaint(true);
 	}
 
 	/** removes a trace from the chart and the traces-list **/
