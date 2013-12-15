@@ -21,9 +21,10 @@ public class GuiOptions {
 	public static final Dimension logoSize = new Dimension(270, 160);
 
 	// stats display
-	public static final Dimension statsDisplaySize = new Dimension(300, 400);
+	public static final Dimension statsDisplaySize = new Dimension(300, 420);
 	public static final Dimension statsDisplaySettingsPanelSize = new Dimension(
 			285, 150);
+	public static final Dimension statsDisplayButtonSize = new Dimension(20, 20);
 
 	// visualizer
 	public static final Dimension visualizerDefaultSize = new Dimension(670,
@@ -66,7 +67,7 @@ public class GuiOptions {
 			65, 45);
 	public static final Dimension menuBarYRightOptionsPanelSize = new Dimension(
 			65, 45);
-	public static final Dimension menuBarIntervalPanelSize = new Dimension(210,
+	public static final Dimension menuBarIntervalPanelSize = new Dimension(220,
 			45);
 
 	/** FONTS AND BORDERS **/

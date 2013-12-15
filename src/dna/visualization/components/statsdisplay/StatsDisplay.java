@@ -11,6 +11,7 @@ import java.util.Date;
 import java.util.Hashtable;
 
 import javax.swing.BorderFactory;
+import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
@@ -79,14 +80,14 @@ public class StatsDisplay extends JPanel implements ChangeListener {
 	private StatsDisplay statsdis;
 	private MainDisplay mainDisplay;
 
-	// init flag
+	// flags
 	private boolean init = false;
-
-	// paused flag
 	private boolean paused;
 
 	// date format
 	private SimpleDateFormat dateFormat;
+
+	static Thread thr;
 
 	/*
 	 * constructors
@@ -153,6 +154,8 @@ public class StatsDisplay extends JPanel implements ChangeListener {
 		this.settingsPanel.setName("SettingsPanel");
 		this.settingsPanel
 				.setPreferredSize(GuiOptions.statsDisplaySettingsPanelSize);
+		this.settingsPanel
+				.setMinimumSize(GuiOptions.statsDisplaySettingsPanelSize);
 
 		// set border
 		this.settingsPanel.setBorder(BorderFactory
@@ -337,10 +340,32 @@ public class StatsDisplay extends JPanel implements ChangeListener {
 		this.ProgressBar.setName("ProgressBar");
 
 		timePanelConstraints.weightx = 1;
+		timePanelConstraints.gridwidth = 3;
 		timePanelConstraints.gridy = 0;
 		timePanelConstraints.gridx = 0;
 		this.timePanel.add(this.ProgressBar, timePanelConstraints);
 		this.ProgressBar.setStringPainted(true);
+
+		// time slider decrement button
+		final JButton timeSliderDecrButton = new JButton("<");
+		timeSliderDecrButton.setMargin(new Insets(0, 0, 0, 0));
+		timeSliderDecrButton
+				.setPreferredSize(GuiOptions.statsDisplayButtonSize);
+		timeSliderDecrButton.setFont(GuiOptions.defaultFont);
+		timeSliderDecrButton.setForeground(GuiOptions.defaultFontColor);
+		timeSliderDecrButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent event) {
+				decrementTimeSlider();
+			}
+		});
+
+		// add decr button
+		timePanelConstraints.gridwidth = 1;
+		timePanelConstraints.gridy = 1;
+		timePanelConstraints.gridx = 0;
+		timePanelConstraints.weightx = 0.1;
+		this.timePanel.add(timeSliderDecrButton, timePanelConstraints);
 
 		// time slider
 		this.TimeSlider = new JSlider(JSlider.HORIZONTAL, 0, 1, 0);
@@ -348,10 +373,32 @@ public class StatsDisplay extends JPanel implements ChangeListener {
 		this.TimeSlider.addChangeListener(this);
 		this.TimeSlider
 				.setToolTipText("Move the timeslider to move to a certain point of time.");
-
+		// add slider
+		timePanelConstraints.weightx = 0.8;
 		timePanelConstraints.gridy = 1;
-		timePanelConstraints.gridx = 0;
+		timePanelConstraints.gridx = 1;
 		this.timePanel.add(this.TimeSlider, timePanelConstraints);
+
+		// time slider increment button
+		final JButton timeSliderIncrButton = new JButton(">");
+		timeSliderIncrButton.setMargin(new Insets(0, 0, 0, 0));
+		timeSliderIncrButton
+				.setPreferredSize(GuiOptions.statsDisplayButtonSize);
+		timeSliderIncrButton.setFont(GuiOptions.defaultFont);
+		timeSliderIncrButton.setForeground(GuiOptions.defaultFontColor);
+		timeSliderIncrButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent event) {
+				incrementTimeSlider();
+			}
+		});
+
+		// add incr button
+		timePanelConstraints.gridwidth = 1;
+		timePanelConstraints.gridy = 1;
+		timePanelConstraints.gridx = 2;
+		timePanelConstraints.weightx = 0.1;
+		this.timePanel.add(timeSliderIncrButton, timePanelConstraints);
 
 		this.mainConstraints.gridx = 0;
 		this.add(this.timePanel, this.mainConstraints);
@@ -418,8 +465,8 @@ public class StatsDisplay extends JPanel implements ChangeListener {
 			this.metRuntimes.addValue(rt.getName(), rt.getRuntime());
 		}
 
-		this.metRuntimes.setPreferredSize(this.metRuntimes.getPreferredSize());
-		this.genRuntimes.setPreferredSize(this.genRuntimes.getPreferredSize());
+		// this.metRuntimes.setPreferredSize(this.metRuntimes.getPreferredSize());
+		// this.genRuntimes.setPreferredSize(this.genRuntimes.getPreferredSize());
 
 		this.validate();
 		this.init = true;
@@ -567,9 +614,9 @@ public class StatsDisplay extends JPanel implements ChangeListener {
 		this.edgesValue.setText("" + 0);
 		this.ProgressBar.setValue(0);
 
-		this.metRuntimes.setPreferredSize(null);
+		// this.metRuntimes.setPreferredSize(null);
 		this.metRuntimes.reset();
-		this.genRuntimes.setPreferredSize(null);
+		// this.genRuntimes.setPreferredSize(null);
 		this.genRuntimes.reset();
 
 		this.TimeSlider.setMaximum(1);
@@ -615,6 +662,18 @@ public class StatsDisplay extends JPanel implements ChangeListener {
 					&& timestamp <= this.TimeSlider.getMaximum())
 				this.TimeSlider.setValue((int) timestamp);
 		}
+	}
+
+	/** increments the timeslider **/
+	public void incrementTimeSlider() {
+		if (this.TimeSlider.getValue() < this.TimeSlider.getMaximum())
+			this.TimeSlider.setValue(this.TimeSlider.getValue() + 1);
+	}
+
+	/** decrements the time slider **/
+	public void decrementTimeSlider() {
+		if (this.TimeSlider.getValue() > this.TimeSlider.getMinimum())
+			this.TimeSlider.setValue(this.TimeSlider.getValue() - 1);
 	}
 
 }
