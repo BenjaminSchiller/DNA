@@ -49,10 +49,10 @@ public class StatsDisplay extends JPanel implements ChangeListener {
 
 	private JLabel batchesLabel;
 	private JLabel batchesValue;
-	
+
 	private JLabel nodesLabel;
 	private JLabel nodesValue;
-	
+
 	private JLabel edgesLabel;
 	private JLabel edgesValue;
 
@@ -313,10 +313,6 @@ public class StatsDisplay extends JPanel implements ChangeListener {
 
 		// adding SettingsPanel to mainPanel
 		this.mainConstraints.gridx = 0;
-		System.out
-				.println("adding settingspanel to "
-						+ this.mainConstraints.gridx + ":"
-						+ this.mainConstraints.gridy);
 		this.add(this.settingsPanel, this.mainConstraints);
 		this.mainConstraints.gridy++;
 	}
@@ -358,8 +354,6 @@ public class StatsDisplay extends JPanel implements ChangeListener {
 		this.timePanel.add(this.TimeSlider, timePanelConstraints);
 
 		this.mainConstraints.gridx = 0;
-		System.out.println("adding timepanel to " + this.mainConstraints.gridx
-				+ ":" + this.mainConstraints.gridy);
 		this.add(this.timePanel, this.mainConstraints);
 		this.mainConstraints.gridy++;
 	}
@@ -368,9 +362,6 @@ public class StatsDisplay extends JPanel implements ChangeListener {
 	public void addMetricRuntimes() {
 		this.metRuntimes = new StatsGroup("MetricRuntimes");
 		this.mainConstraints.gridx = 0;
-		System.out
-				.println("adding metruntimes to " + this.mainConstraints.gridx
-						+ ":" + this.mainConstraints.gridy);
 		this.add(this.metRuntimes, this.mainConstraints);
 		this.mainConstraints.gridy++;
 	}
@@ -379,9 +370,6 @@ public class StatsDisplay extends JPanel implements ChangeListener {
 	public void addGeneralRuntimes() {
 		this.genRuntimes = new StatsGroup("GeneralRuntimes");
 		this.mainConstraints.gridx = 0;
-		System.out
-				.println("adding genruntimes to " + this.mainConstraints.gridx
-						+ ":" + this.mainConstraints.gridy);
 		this.add(this.genRuntimes, this.mainConstraints);
 		this.mainConstraints.gridy++;
 	}
