@@ -74,7 +74,7 @@ public class MainDisplay extends JFrame {
 		GridBagConstraints mainDisplayConstraints = new GridBagConstraints();
 
 		// init stats component, set position in grid and add to mainframe
-		this.statsDisplay1 = new StatsDisplay(GuiOptions.statsDisplaySize);
+		this.statsDisplay1 = new StatsDisplay();
 		this.statsDisplay1.setLocation(0, 0);
 		this.statsDisplay1.setParent(this);
 		this.statsDisplay1.setDirectory(GuiOptions.defaultDir);

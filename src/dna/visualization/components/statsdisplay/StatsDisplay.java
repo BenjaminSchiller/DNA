@@ -6,10 +6,11 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Hashtable;
 
 import javax.swing.BorderFactory;
-import javax.swing.BoxLayout;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
@@ -34,43 +35,45 @@ import dna.visualization.MainDisplay;
  */
 @SuppressWarnings("serial")
 public class StatsDisplay extends JPanel implements ChangeListener {
-	// settingspanel
-	private JPanel SettingsPanel;
-	private JPanel SettingsNotSpeedPanel;
+	// components
+	private JPanel settingsPanel;
+	private JPanel timePanel;
 
-	// direcotry
-	private JLabel DirectoryLabel;
-	private JTextField DirectoryValue;
+	private JLabel directoryLabel;
+	private JTextField directoryValue;
 
-	// timestamp
-	private JLabel TimestampLabel;
-	private JLabel TimestampValue;
+	private JLabel timestampLongLabel;
+	private JLabel timestampLongValue;
+	private JLabel timestampDateLabel;
+	private JLabel timestampDateValue;
 
-	// nodes
-	private JLabel NodesLabel;
-	private JLabel NodesValue;
+	private JLabel batchesLabel;
+	private JLabel batchesValue;
+	
+	private JLabel nodesLabel;
+	private JLabel nodesValue;
+	
+	private JLabel edgesLabel;
+	private JLabel edgesValue;
 
-	// edges
-	private JLabel EdgesLabel;
-	private JLabel EdgesValue;
-
-	// progressbar
 	private JProgressBar ProgressBar;
 	private JSlider TimeSlider;
 
-	// slider
 	private JSlider SpeedSlider;
 	private final int SPEED_MIN = 0;
 	private final int SPEED_MAX = 2000;
 	private final int SPEED_INIT = 1000;
 
-	// statsgroups
 	private StatsGroup metRuntimes;
 	private StatsGroup genRuntimes;
 
 	// timestamps
 	private long minTimestamp;
 	private long maxTimestamp;
+
+	// layout constraints
+	GridBagConstraints mainConstraints;
+	GridBagConstraints settingsPanelConstraints;
 
 	// registered components
 	private StatsDisplay statsdis;
@@ -82,11 +85,27 @@ public class StatsDisplay extends JPanel implements ChangeListener {
 	// paused flag
 	private boolean paused;
 
-	// constructor
+	// date format
+	private SimpleDateFormat dateFormat;
+
+	/*
+	 * constructors
+	 */
+	public StatsDisplay() {
+		this(GuiOptions.statsDisplaySize, true, true, true, true);
+	}
+
 	public StatsDisplay(Dimension size) {
+		this(size, true, true, true, true);
+	}
+
+	public StatsDisplay(Dimension size, boolean addTimePanel,
+			boolean addSettingsPanel, boolean addMetRuntimes,
+			boolean addGenRuntimes) {
 		// initialization
 		this.statsdis = this;
 		this.paused = true;
+		this.dateFormat = new SimpleDateFormat(GuiOptions.dateFormat);
 
 		// size
 		this.setPreferredSize(size);
@@ -100,105 +119,169 @@ public class StatsDisplay extends JPanel implements ChangeListener {
 		this.setBorder(title);
 
 		// set layout
-		GridBagConstraints mainConstraints = new GridBagConstraints();
-		mainConstraints.fill = GridBagConstraints.HORIZONTAL;
-		mainConstraints.anchor = GridBagConstraints.NORTHWEST;
-		mainConstraints.insets = new Insets(0, 0, 0, 0);
+		this.mainConstraints = new GridBagConstraints();
+		this.mainConstraints.fill = GridBagConstraints.HORIZONTAL;
+		this.mainConstraints.anchor = GridBagConstraints.NORTHWEST;
+		this.mainConstraints.insets = new Insets(0, 0, 5, 0);
 		this.setLayout(new GridBagLayout());
 
-		// set general settings panel
-		this.SettingsPanel = new JPanel();
-		this.SettingsPanel.setName("SettingsPanel");
-		this.SettingsPanel
+		this.mainConstraints.gridx = 0;
+		this.mainConstraints.gridy = 0;
+
+		/*
+		 * ADD COMPONENTS
+		 */
+		if (addTimePanel)
+			this.addTimePanel();
+
+		if (addSettingsPanel)
+			this.addSettingsPanel();
+
+		if (addMetRuntimes)
+			this.addMetricRuntimes();
+
+		if (addGenRuntimes)
+			this.addGeneralRuntimes();
+
+		// validate ui
+		this.validate();
+	}
+
+	/** adds a settingspanel containing general information and speedslider **/
+	public void addSettingsPanel() {
+		this.settingsPanel = new JPanel();
+		this.settingsPanel.setName("SettingsPanel");
+		this.settingsPanel
 				.setPreferredSize(GuiOptions.statsDisplaySettingsPanelSize);
 
-		this.SettingsPanel.setLayout(new GridBagLayout());
-		GridBagConstraints settingsPanelConstraints = new GridBagConstraints();
-		settingsPanelConstraints.fill = GridBagConstraints.HORIZONTAL;
-
-		this.SettingsPanel.setBorder(BorderFactory
+		// set border
+		this.settingsPanel.setBorder(BorderFactory
 				.createEtchedBorder((EtchedBorder.LOWERED)));
-		this.SettingsPanel.setBorder(BorderFactory.createTitledBorder(""));
+		this.settingsPanel.setBorder(BorderFactory.createTitledBorder(""));
 
-		this.SettingsNotSpeedPanel = new JPanel();
-		this.SettingsNotSpeedPanel.setLayout(new BoxLayout(
-				this.SettingsNotSpeedPanel, BoxLayout.X_AXIS));
-		settingsPanelConstraints.gridy = 0;
-		settingsPanelConstraints.gridx = 0;
-		this.SettingsPanel.add(this.SettingsNotSpeedPanel,
-				settingsPanelConstraints);
+		// set layout
+		this.settingsPanel.setLayout(new GridBagLayout());
+		this.settingsPanelConstraints = new GridBagConstraints();
+		this.settingsPanelConstraints.insets = new Insets(0, 0, 0, 0);
+		this.settingsPanelConstraints.anchor = GridBagConstraints.NORTH;
+		this.settingsPanelConstraints.fill = GridBagConstraints.HORIZONTAL;
+		this.settingsPanelConstraints.gridx = 0;
+		this.settingsPanelConstraints.gridy = 0;
 
-		JPanel settingLabels = new JPanel();
-		settingLabels.setName("SettingLabels-Panel");
-		settingLabels.setLayout(new BoxLayout(settingLabels, BoxLayout.Y_AXIS));
-		this.SettingsNotSpeedPanel.add(settingLabels);
+		/*
+		 * DIRECTORY
+		 */
+		this.directoryLabel = new JLabel("Directory: ");
+		this.directoryLabel.setFont(GuiOptions.defaultFont);
 
-		JPanel settingValues = new JPanel();
-		settingValues.setName("SettingValues-Panel");
-		settingValues.setLayout(new BoxLayout(settingValues, BoxLayout.Y_AXIS));
-		this.SettingsNotSpeedPanel.add(settingValues);
-
-		// directory
-		this.DirectoryLabel = new JLabel("Directory: ");
-		this.DirectoryLabel.setFont(GuiOptions.defaultFont);
-		this.DirectoryValue = new JTextField("./..");
-		this.DirectoryValue.setFont(GuiOptions.defaultFont);
-		this.DirectoryValue.addActionListener(new ActionListener() {
+		this.directoryValue = new JTextField("./..");
+		this.directoryValue.setFont(GuiOptions.defaultFont);
+		this.directoryValue.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent evt) {
 				mainDisplay.reset();
 				mainDisplay.clearLists();
-				mainDisplay.setBatchHandlerDir(DirectoryValue.getText());
+				mainDisplay.setBatchHandlerDir(directoryValue.getText());
 				mainDisplay.resetBatchHandler();
 				statsdis.grabFocus();
 			}
 		});
-		this.DirectoryValue.setEditable(true);
+		this.directoryValue.setEditable(true);
 
-		settingLabels.add(this.DirectoryLabel);
-		settingValues.add(this.DirectoryValue);
+		// adding
+		this.settingsPanelConstraints.weightx = 0.5;
+		this.settingsPanelConstraints.gridx = 0;
+		this.settingsPanelConstraints.gridy = 0;
+		this.settingsPanel.add(directoryLabel, this.settingsPanelConstraints);
+		this.settingsPanelConstraints.gridx = 1;
+		this.settingsPanel.add(directoryValue, this.settingsPanelConstraints);
+		this.settingsPanelConstraints.gridy++;
 
-		// timestamp
-		this.TimestampLabel = new JLabel("Timestamp: ");
-		this.TimestampLabel.setFont(GuiOptions.defaultFont);
-		this.TimestampValue = new JLabel("0");
-		this.TimestampValue.setFont(GuiOptions.defaultFont);
-		settingLabels.add(this.TimestampLabel);
-		settingValues.add(this.TimestampValue);
+		/*
+		 * BATCHES TOTAL
+		 */
+		this.batchesLabel = new JLabel("Batches total: ");
+		this.batchesLabel.setFont(GuiOptions.defaultFont);
 
-		// amount of nodes
-		this.NodesLabel = new JLabel("Nodes: ");
-		this.NodesLabel.setFont(GuiOptions.defaultFont);
-		this.NodesValue = new JLabel("0");
-		this.NodesValue.setFont(GuiOptions.defaultFont);
-		settingLabels.add(this.NodesLabel);
-		settingValues.add(this.NodesValue);
+		this.batchesValue = new JLabel("" + 0);
+		this.batchesValue.setFont(GuiOptions.defaultFont);
 
-		// amount of edges
-		this.EdgesLabel = new JLabel("Edges: ");
-		this.EdgesLabel.setFont(GuiOptions.defaultFont);
-		this.EdgesValue = new JLabel("0");
-		this.EdgesValue.setFont(GuiOptions.defaultFont);
-		settingLabels.add(this.EdgesLabel);
-		settingValues.add(this.EdgesValue);
+		// adding
+		this.settingsPanelConstraints.gridx = 0;
+		this.settingsPanel
+				.add(this.batchesLabel, this.settingsPanelConstraints);
+		this.settingsPanelConstraints.gridx = 1;
+		this.settingsPanel
+				.add(this.batchesValue, this.settingsPanelConstraints);
+		this.settingsPanelConstraints.gridy++;
 
-		// progress bar
-		this.ProgressBar = new JProgressBar();
-		this.ProgressBar.setName("ProgressBar");
-		settingsPanelConstraints.gridy = 1;
-		settingsPanelConstraints.gridx = 0;
-		this.SettingsPanel.add(this.ProgressBar, settingsPanelConstraints);
-		this.ProgressBar.setStringPainted(true);
+		/*
+		 * TIMESTAMP LONG
+		 */
+		this.timestampLongLabel = new JLabel("Timestamp (long): ");
+		this.timestampLongLabel.setFont(GuiOptions.defaultFont);
 
-		// time slider
-		this.TimeSlider = new JSlider(JSlider.HORIZONTAL, 0, 1, 0);
-		this.TimeSlider.setName("TimeSlider");
-		this.TimeSlider.addChangeListener(this);
-		// this.TimeSlider.setToolTipText("Adjust to ");
-		settingsPanelConstraints.gridy = 2;
-		settingsPanelConstraints.gridx = 0;
-		this.SettingsPanel.add(this.TimeSlider, settingsPanelConstraints);
+		this.timestampLongValue = new JLabel("" + 0);
+		this.timestampLongValue.setFont(GuiOptions.defaultFont);
 
-		// speed slider
+		// adding
+		this.settingsPanelConstraints.gridx = 0;
+		this.settingsPanel.add(this.timestampLongLabel,
+				this.settingsPanelConstraints);
+		this.settingsPanelConstraints.gridx = 1;
+		this.settingsPanel.add(this.timestampLongValue,
+				this.settingsPanelConstraints);
+		this.settingsPanelConstraints.gridy++;
+
+		/*
+		 * TIMESTAMP DATEFORMAT
+		 */
+		this.timestampDateLabel = new JLabel("Timestamp: ");
+		this.timestampDateLabel.setFont(GuiOptions.defaultFont);
+
+		this.timestampDateValue = new JLabel("00:00:00:000");
+		this.timestampDateValue.setToolTipText("Dateformat: "
+				+ GuiOptions.dateFormat);
+		this.timestampDateValue.setFont(GuiOptions.defaultFont);
+
+		// adding
+		this.settingsPanelConstraints.gridx = 0;
+		this.settingsPanel.add(this.timestampDateLabel,
+				this.settingsPanelConstraints);
+		this.settingsPanelConstraints.gridx = 1;
+		this.settingsPanel.add(this.timestampDateValue,
+				this.settingsPanelConstraints);
+		this.settingsPanelConstraints.gridy++;
+
+		/*
+		 * NODES AND EDGES
+		 */
+		this.nodesLabel = new JLabel("Nodes: ");
+		this.nodesLabel.setFont(GuiOptions.defaultFont);
+
+		this.nodesValue = new JLabel("" + 0);
+		this.nodesValue.setFont(GuiOptions.defaultFont);
+
+		this.edgesLabel = new JLabel("Edges: ");
+		this.edgesLabel.setFont(GuiOptions.defaultFont);
+
+		this.edgesValue = new JLabel("" + 0);
+		this.edgesValue.setFont(GuiOptions.defaultFont);
+
+		// adding
+		this.settingsPanelConstraints.gridx = 0;
+		this.settingsPanel.add(this.nodesLabel, this.settingsPanelConstraints);
+		this.settingsPanelConstraints.gridx = 1;
+		this.settingsPanel.add(this.nodesValue, this.settingsPanelConstraints);
+		this.settingsPanelConstraints.gridy++;
+		this.settingsPanelConstraints.gridx = 0;
+		this.settingsPanel.add(this.edgesLabel, this.settingsPanelConstraints);
+		this.settingsPanelConstraints.gridx = 1;
+		this.settingsPanel.add(this.edgesValue, this.settingsPanelConstraints);
+		this.settingsPanelConstraints.gridy++;
+
+		/*
+		 * SPEED SLIDER
+		 */
 		this.SpeedSlider = new JSlider(JSlider.HORIZONTAL, this.SPEED_MIN,
 				this.SPEED_MAX, this.SPEED_INIT);
 		this.SpeedSlider.setName("SpeedSlider");
@@ -221,29 +304,86 @@ public class StatsDisplay extends JPanel implements ChangeListener {
 		// add event listener
 		this.SpeedSlider.addChangeListener(this);
 
-		settingsPanelConstraints.fill = GridBagConstraints.VERTICAL;
-		settingsPanelConstraints.gridy = 3;
-		settingsPanelConstraints.gridx = 0;
-		this.SettingsPanel.add(SpeedSlider, settingsPanelConstraints);
-
-		// general and metric runtime panels
-		this.metRuntimes = new StatsGroup("MetricRuntimes");
-		this.genRuntimes = new StatsGroup("GeneralRuntimes");
+		// adding
+		this.settingsPanelConstraints.gridwidth = 2;
+		this.settingsPanelConstraints.gridx = 0;
+		this.settingsPanel.add(this.SpeedSlider, this.settingsPanelConstraints);
+		this.settingsPanelConstraints.gridy++;
+		this.settingsPanelConstraints.gridwidth = 1;
 
 		// adding SettingsPanel to mainPanel
-		mainConstraints.gridy = 0;
-		mainConstraints.gridx = 0;
-		this.add(SettingsPanel, mainConstraints);
+		this.mainConstraints.gridx = 0;
+		System.out
+				.println("adding settingspanel to "
+						+ this.mainConstraints.gridx + ":"
+						+ this.mainConstraints.gridy);
+		this.add(this.settingsPanel, this.mainConstraints);
+		this.mainConstraints.gridy++;
+	}
 
-		// add metric runtimes panel to main panel
-		mainConstraints.gridy = 1;
-		mainConstraints.gridx = 0;
-		this.add(this.metRuntimes, mainConstraints);
+	/** adds timepanel containing a progressbar and timeslider. */
+	public void addTimePanel() {
+		this.timePanel = new JPanel();
+		this.timePanel.setName("timePanel");
 
-		// add general runtimes panel to main panel
-		mainConstraints.gridy = 2;
-		mainConstraints.gridx = 0;
-		this.add(this.genRuntimes, mainConstraints);
+		// set layout
+		this.timePanel.setLayout(new GridBagLayout());
+		GridBagConstraints timePanelConstraints = new GridBagConstraints();
+		timePanelConstraints.fill = GridBagConstraints.HORIZONTAL;
+
+		// set settingspanel border
+		this.timePanel.setBorder(BorderFactory
+				.createEtchedBorder((EtchedBorder.LOWERED)));
+		this.timePanel.setBorder(BorderFactory.createTitledBorder(""));
+
+		// progress bar
+		this.ProgressBar = new JProgressBar();
+		this.ProgressBar.setName("ProgressBar");
+
+		timePanelConstraints.weightx = 1;
+		timePanelConstraints.gridy = 0;
+		timePanelConstraints.gridx = 0;
+		this.timePanel.add(this.ProgressBar, timePanelConstraints);
+		this.ProgressBar.setStringPainted(true);
+
+		// time slider
+		this.TimeSlider = new JSlider(JSlider.HORIZONTAL, 0, 1, 0);
+		this.TimeSlider.setName("TimeSlider");
+		this.TimeSlider.addChangeListener(this);
+		this.TimeSlider
+				.setToolTipText("Move the timeslider to move to a certain point of time.");
+
+		timePanelConstraints.gridy = 1;
+		timePanelConstraints.gridx = 0;
+		this.timePanel.add(this.TimeSlider, timePanelConstraints);
+
+		this.mainConstraints.gridx = 0;
+		System.out.println("adding timepanel to " + this.mainConstraints.gridx
+				+ ":" + this.mainConstraints.gridy);
+		this.add(this.timePanel, this.mainConstraints);
+		this.mainConstraints.gridy++;
+	}
+
+	/** adds a metric runtimes statsgroup **/
+	public void addMetricRuntimes() {
+		this.metRuntimes = new StatsGroup("MetricRuntimes");
+		this.mainConstraints.gridx = 0;
+		System.out
+				.println("adding metruntimes to " + this.mainConstraints.gridx
+						+ ":" + this.mainConstraints.gridy);
+		this.add(this.metRuntimes, this.mainConstraints);
+		this.mainConstraints.gridy++;
+	}
+
+	/** adds a general runtimes statsgroup **/
+	public void addGeneralRuntimes() {
+		this.genRuntimes = new StatsGroup("GeneralRuntimes");
+		this.mainConstraints.gridx = 0;
+		System.out
+				.println("adding genruntimes to " + this.mainConstraints.gridx
+						+ ":" + this.mainConstraints.gridy);
+		this.add(this.genRuntimes, this.mainConstraints);
+		this.mainConstraints.gridy++;
 	}
 
 	/**
@@ -310,6 +450,7 @@ public class StatsDisplay extends JPanel implements ChangeListener {
 		this.setTimestamp(b.getTimestamp());
 		this.setNodes(b.getValues().get("nodes").getValue());
 		this.setEdges(b.getValues().get("edges").getValue());
+		this.incrementBatchesCount();
 
 		for (RunTime rt : b.getGeneralRuntimes().getList()) {
 			this.genRuntimes.updateValue(rt.getName(), rt.getRuntime());
@@ -355,24 +496,26 @@ public class StatsDisplay extends JPanel implements ChangeListener {
 
 	/** Sets the shown timestamp **/
 	public void setTimestamp(long timestamp) {
-		this.TimestampValue.setText("" + timestamp);
+		this.timestampLongValue.setText("" + timestamp);
+		this.timestampDateValue.setText(this.dateFormat.format(new Date(
+				timestamp)));
 		this.validate();
 	}
 
 	/** Sets the shown directory **/
 	public void setDirectory(String directory) {
-		this.DirectoryValue.setText(directory);
+		this.directoryValue.setText(directory);
 		this.validate();
 	}
 
 	/** Returns the shown directory **/
 	public String getDirectory() {
-		return this.DirectoryValue.getText();
+		return this.directoryValue.getText();
 	}
 
 	/** Sets the shown amount of nodes **/
 	public void setNodes(int nodes) {
-		this.NodesValue.setText("" + nodes);
+		this.nodesValue.setText("" + nodes);
 		this.validate();
 	}
 
@@ -383,7 +526,7 @@ public class StatsDisplay extends JPanel implements ChangeListener {
 
 	/** Sets the shown amount of edges **/
 	public void setEdges(int edges) {
-		this.EdgesValue.setText("" + edges);
+		this.edgesValue.setText("" + edges);
 		this.validate();
 	}
 
@@ -403,12 +546,18 @@ public class StatsDisplay extends JPanel implements ChangeListener {
 		this.mainDisplay = mainDisplay;
 	}
 
+	/** increments the batches count **/
+	public void incrementBatchesCount() {
+		int temp = Integer.parseInt(this.batchesValue.getText()) + 1;
+		this.batchesValue.setText("" + temp);
+	}
+
 	/**
 	 * Called when the program starts to prevent changes on sensitive data while
 	 * running
 	 **/
 	public void setStarted() {
-		this.DirectoryValue.setEditable(false);
+		this.directoryValue.setEditable(false);
 		this.validate();
 		this.repaint();
 	}
@@ -417,7 +566,7 @@ public class StatsDisplay extends JPanel implements ChangeListener {
 	 * Called when the program stops to make changes on sensitive data available
 	 **/
 	public void setStopped() {
-		this.DirectoryValue.setEditable(true);
+		this.directoryValue.setEditable(true);
 		this.validate();
 		this.repaint();
 	}
@@ -425,9 +574,9 @@ public class StatsDisplay extends JPanel implements ChangeListener {
 	/** Resets the statistic display **/
 	public void reset() {
 		init = false;
-		this.TimestampValue.setText("" + 0);
-		this.NodesValue.setText("" + 0);
-		this.EdgesValue.setText("" + 0);
+		this.timestampLongValue.setText("" + 0);
+		this.nodesValue.setText("" + 0);
+		this.edgesValue.setText("" + 0);
 		this.ProgressBar.setValue(0);
 
 		this.metRuntimes.setPreferredSize(null);

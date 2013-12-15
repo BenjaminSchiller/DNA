@@ -12,6 +12,7 @@ import dna.util.Config;
 public class GuiOptions {
 	/** GENERAL SETTINGS **/
 	public static final String defaultDir = Config.get("GUI_DEFAULT_DIR");
+	public static final String dateFormat = Config.get("GUI_DATE_FORMAT");
 
 	/** SIZES **/
 	// main display
@@ -20,7 +21,7 @@ public class GuiOptions {
 	public static final Dimension logoSize = new Dimension(270, 160);
 
 	// stats display
-	public static final Dimension statsDisplaySize = new Dimension(300, 350);
+	public static final Dimension statsDisplaySize = new Dimension(300, 400);
 	public static final Dimension statsDisplaySettingsPanelSize = new Dimension(
 			285, 150);
 
