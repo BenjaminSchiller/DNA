@@ -214,7 +214,7 @@ public class BatchHandler implements Runnable {
 			try {
 				long startProcessing = System.currentTimeMillis();
 
-				if (this.index == 0)
+				if (this.index == 0 && !this.timeSlided)
 					this.currentBatch = this.getInitBatch();
 				else {
 					if (this.nextBatch == null) {
