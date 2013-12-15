@@ -16,6 +16,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.AdjustmentEvent;
 import java.awt.event.AdjustmentListener;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -192,7 +194,8 @@ public class MenuBar extends JPanel implements ChangeListener {
 							+ (int) Math.floor(lowP * (maxTemp - minTemp));
 					int maxTimestampNew = (int) Math.floor(minTemp)
 							+ (int) Math.floor(highP * (maxTemp - minTemp));
-					parent.xAxis1.setRange(new Range(minTimestampNew, maxTimestampNew));
+					parent.xAxis1.setRange(new Range(minTimestampNew,
+							maxTimestampNew));
 					x1IntervalScrollBar.setEnabled(true);
 					x1SizeSlider.setEnabled(true);
 				}
@@ -651,7 +654,15 @@ public class MenuBar extends JPanel implements ChangeListener {
 		xCoordsLabel.setPreferredSize(new Dimension(10, 20));
 		this.coordsPanel.add(xCoordsLabel, coordsPanelConstraints);
 		// x coords value
-		this.xCoordsValue = new JLabel("0");
+		this.xCoordsValue = new JLabel();
+		if (GuiOptions.metricVisualizerXAxisType.equals("date")
+				&& (this.parent instanceof MetricVisualizer)) {
+			SimpleDateFormat tempDateFormat = new SimpleDateFormat(
+					GuiOptions.metricVisualizerXAxisFormat);
+			this.xCoordsValue.setText(tempDateFormat.format(new Date(0)));
+		} else {
+			this.xCoordsValue.setText("0");
+		}
 		this.xCoordsValue.setFont(GuiOptions.menuBarCoordsFont);
 		this.xCoordsValue.setForeground(GuiOptions.menuBarCoordsFontColor);
 		this.xCoordsValue.setPreferredSize(new Dimension(120, 20));
@@ -702,7 +713,12 @@ public class MenuBar extends JPanel implements ChangeListener {
 	 */
 	public void updateCoordsPanel(int x, double y) {
 		if (this.coordsPanel != null) {
-			this.xCoordsValue.setText("" + x);
+			if (GuiOptions.metricVisualizerXAxisType.equals("date")
+					&& (this.parent instanceof MetricVisualizer)) {
+				SimpleDateFormat tempDateFormat = new SimpleDateFormat(
+						GuiOptions.metricVisualizerXAxisFormat);
+				this.xCoordsValue.setText(tempDateFormat.format(new Date(x)));
+			}
 			this.yCoordsValue.setText("" + y);
 		}
 	}
