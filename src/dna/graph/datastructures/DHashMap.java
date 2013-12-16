@@ -26,9 +26,8 @@ public class DHashMap extends DataStructureReadable implements
 
 	private int maxNodeIndex;
 
-	public DHashMap(Class<? extends IElement> dT) {
-		super(dT);
-		this.init(dT, defaultSize);
+	public DHashMap(ListType lt, Class<? extends IElement> dT) {
+		super(lt, dT);
 	}
 
 	public void init(Class<? extends IElement> dT, int initialSize) {

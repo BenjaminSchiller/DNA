@@ -3,16 +3,13 @@ package dna.profiler;
 import java.io.IOException;
 import java.util.Stack;
 
-import dna.graph.Element;
 import dna.graph.Graph;
 import dna.graph.datastructures.DataStructure;
+import dna.graph.datastructures.DataStructure.ListType;
 import dna.graph.datastructures.GraphDataStructure;
-import dna.graph.datastructures.IEdgeListDatastructure;
-import dna.graph.datastructures.INodeListDatastructure;
-import dna.graph.edges.Edge;
+import dna.graph.datastructures.IDataStructure;
 import dna.graph.generators.GraphGenerator;
 import dna.graph.generators.IGraphGenerator;
-import dna.graph.nodes.Node;
 import dna.metrics.Metric;
 import dna.metrics.Metric.ApplicationType;
 import dna.profiler.Profiler.ProfilerType;
@@ -57,26 +54,15 @@ public aspect ProfilerAspects {
 	
 	pointcut watchedCall() : graphGenerated() || batchGenerated() || metricApplied() || updateApplied();
 
-	pointcut init(Graph g, GraphDataStructure gds) : this(g) && execution(Graph+.new(String,long, GraphDataStructure,..)) && args(*,*,gds,..);
+	pointcut initGDS(Graph g, GraphDataStructure gds) : this(g) && execution(Graph+.new(String,long, GraphDataStructure,..)) && args(*,*,gds,..);
 
-	pointcut nodeAdd() : call(* INodeListDatastructure+.add(Node+)) && watchedCall();
-	pointcut nodeRemove() : call(* INodeListDatastructure+.remove(Node+)) && watchedCall();
-	pointcut nodeContains() : call(* INodeListDatastructure+.contains(Node+)) && watchedCall();
-	pointcut nodeGet() : call(* INodeListDatastructure+.get(int)) && watchedCall();	
-	pointcut nodeSize() : call(* INodeListDatastructure+.size()) && watchedCall();
-	pointcut nodeRandom() : call(* INodeListDatastructure+.getRandom()) && watchedCall();
-
-	pointcut edgeAdd() : call(* IEdgeListDatastructure+.add(Edge+)) && watchedCall();
-	pointcut edgeRemove() : call(* IEdgeListDatastructure+.remove(Edge+)) && watchedCall();
-	pointcut edgeContains() : call(* IEdgeListDatastructure+.contains(Edge+)) && watchedCall();
-	pointcut edgeGet() : call(* IEdgeListDatastructure+.get(Edge)) && watchedCall();
-	pointcut edgeSize() : call(* IEdgeListDatastructure+.size()) && watchedCall();
-	pointcut edgeRandom() : call(* IEdgeListDatastructure+.getRandom()) && watchedCall();
-	
+	pointcut add(DataStructure list) : call(* IDataStructure+.add(..)) && target(list) && watchedCall();
+	pointcut remove(DataStructure list) : call(* IDataStructure+.remove(..)) && target(list) && watchedCall();
+	pointcut contains(DataStructure list) : call(* IDataStructure+.contains(..)) && target(list) && watchedCall();
+	pointcut getElement(DataStructure list) : call(* IDataStructure+.get(..)) && target(list) && watchedCall();
+	pointcut size(DataStructure list) : call(* IDataStructure+.size()) && target(list) && watchedCall();
+	pointcut random(DataStructure list) : call(* IDataStructure+.getRandom()) && target(list) && watchedCall();
 	pointcut iterator(DataStructure list) : execution(* DataStructure+.iterator()) && target(list) && watchedCall();
-	
-	pointcut graphAction() : !within(Element+);
-	pointcut nodeAction() : within(Element+);
 	
 	before(Series s, int run) : seriesSingleRunGeneration(s, run) {
 		Profiler.setSeriesDir(s.getDir());
@@ -160,109 +146,80 @@ public aspect ProfilerAspects {
 		return res;
 	}
 
-	after(Graph g, GraphDataStructure gds) : init(g, gds) {
+	after(Graph g, GraphDataStructure gds) : initGDS(g, gds) {
 		Profiler.init(gds);
 	}
-
-	after() : nodeAdd() && graphAction() {
-		Profiler.count(this.currentCountKey, ProfilerType.AddNodeGlobal);
-	}
-
-	after() : nodeAdd() && nodeAction() {
-		Profiler.count(this.currentCountKey, ProfilerType.AddNodeLocal);
-	}
-
-	after() : edgeAdd() && graphAction()  {
-		Profiler.count(currentCountKey, ProfilerType.AddEdgeGlobal);
-	}
-
-	after() : edgeAdd() && nodeAction()  {
-		Profiler.count(currentCountKey, ProfilerType.AddEdgeLocal);
-	}
-
-	after() : nodeRemove() && graphAction()  {
-		Profiler.count(currentCountKey, ProfilerType.RemoveNodeGlobal);
-	}
-
-	after() : nodeRemove() && nodeAction()  {
-		Profiler.count(currentCountKey, ProfilerType.RemoveNodeLocal);
-	}
-
-	after() : edgeRemove() && graphAction()  {
-		Profiler.count(currentCountKey, ProfilerType.RemoveEdgeGlobal);
-	}
-
-	after() : edgeRemove() && nodeAction()  {
-		Profiler.count(currentCountKey, ProfilerType.RemoveEdgeLocal);
-	}
-
-	after() : nodeContains() && graphAction() {
-		Profiler.count(currentCountKey, ProfilerType.ContainsNodeGlobal);
-	}
-
-	after() : nodeContains() && nodeAction() {
-		Profiler.count(currentCountKey, ProfilerType.ContainsNodeLocal);
-	}
-
-	after() : edgeContains() && graphAction() {
-		Profiler.count(currentCountKey, ProfilerType.ContainsEdgeGlobal);
-	}
-
-	after() : edgeContains() && nodeAction() {
-		Profiler.count(currentCountKey, ProfilerType.ContainsEdgeLocal);
-	}
-
-	after() : nodeGet() && graphAction() {
-		Profiler.count(currentCountKey, ProfilerType.GetNodeGlobal);
-	}
-
-	after() : nodeGet() && nodeAction() {
-		Profiler.count(currentCountKey, ProfilerType.GetNodeLocal);
-	}
-
-	after() : edgeGet() && graphAction() {
-		Profiler.count(currentCountKey, ProfilerType.GetEdgeGlobal);
-	}
-
-	after() : edgeGet() && nodeAction() {
-		Profiler.count(currentCountKey, ProfilerType.GetEdgeLocal);
+	
+	after(DataStructure list): add(list) {
+		if (list.listType == ListType.GlobalNodeList)
+			Profiler.count(this.currentCountKey, ProfilerType.AddNodeGlobal);
+		else if (list.listType == ListType.GlobalEdgeList)
+			Profiler.count(currentCountKey, ProfilerType.AddEdgeGlobal);
+		else if (list.listType == ListType.LocalNodeList)
+			Profiler.count(this.currentCountKey, ProfilerType.AddNodeLocal);
+		else if (list.listType == ListType.LocalEdgeList)
+			Profiler.count(currentCountKey, ProfilerType.AddEdgeLocal);
 	}	
 	
-	after() : nodeSize() && graphAction() {
-		Profiler.count(currentCountKey, ProfilerType.SizeNodeGlobal);
+	after(DataStructure list) : remove(list) {
+		if (list.listType == ListType.GlobalNodeList)
+			Profiler.count(currentCountKey, ProfilerType.RemoveNodeGlobal);
+		else if (list.listType == ListType.GlobalEdgeList)
+			Profiler.count(currentCountKey, ProfilerType.RemoveEdgeGlobal);
+		else if (list.listType == ListType.LocalNodeList)
+			Profiler.count(currentCountKey, ProfilerType.RemoveNodeLocal);
+		else if (list.listType == ListType.LocalEdgeList)
+			Profiler.count(currentCountKey, ProfilerType.RemoveEdgeLocal);
 	}
-
-	after() : nodeSize() && nodeAction() {
-		Profiler.count(currentCountKey, ProfilerType.SizeNodeLocal);
+	
+	after(DataStructure list) : contains(list) {
+		if (list.listType == ListType.GlobalNodeList)
+			Profiler.count(currentCountKey, ProfilerType.ContainsNodeGlobal);
+		else if (list.listType == ListType.GlobalEdgeList)
+			Profiler.count(currentCountKey, ProfilerType.ContainsEdgeGlobal);
+		else if (list.listType == ListType.LocalNodeList)
+			Profiler.count(currentCountKey, ProfilerType.ContainsNodeLocal);
+		else if (list.listType == ListType.LocalEdgeList)
+			Profiler.count(currentCountKey, ProfilerType.ContainsEdgeLocal);
 	}
-
-	after() : edgeSize() && graphAction() {
-		Profiler.count(currentCountKey, ProfilerType.SizeEdgeGlobal);
+	
+	after(DataStructure list) : getElement(list) {
+		if (list.listType == ListType.GlobalNodeList)
+			Profiler.count(currentCountKey, ProfilerType.GetNodeGlobal);
+		else if (list.listType == ListType.GlobalEdgeList)
+			Profiler.count(currentCountKey, ProfilerType.GetEdgeGlobal);
+		else if (list.listType == ListType.LocalNodeList)
+			Profiler.count(currentCountKey, ProfilerType.GetNodeLocal);
+		else if (list.listType == ListType.LocalEdgeList)
+			Profiler.count(currentCountKey, ProfilerType.GetEdgeLocal);
+	}	
+	
+	after(DataStructure list) : size(list) {
+		if (list.listType == ListType.GlobalNodeList)
+			Profiler.count(currentCountKey, ProfilerType.SizeNodeGlobal);
+		else if (list.listType == ListType.GlobalEdgeList)
+			Profiler.count(currentCountKey, ProfilerType.SizeEdgeGlobal);
+		else if (list.listType == ListType.LocalNodeList)
+			Profiler.count(currentCountKey, ProfilerType.SizeNodeLocal);
+		else if (list.listType == ListType.LocalEdgeList)
+			Profiler.count(currentCountKey, ProfilerType.SizeEdgeLocal);
 	}
-
-	after() : edgeSize() && nodeAction() {
-		Profiler.count(currentCountKey, ProfilerType.SizeEdgeLocal);
+	
+	after(DataStructure list) : random(list) {
+		if (list.listType == ListType.GlobalNodeList)
+			Profiler.count(currentCountKey, ProfilerType.RandomNodeGlobal);
+		else if (list.listType == ListType.GlobalEdgeList)
+			Profiler.count(currentCountKey, ProfilerType.RandomEdgeGlobal);
 	}
-
-	after() : nodeRandom() && graphAction() {
-		Profiler.count(currentCountKey, ProfilerType.RandomNodeGlobal);
-	}
-
-	after() : edgeRandom() && graphAction() {
-		Profiler.count(currentCountKey, ProfilerType.RandomEdgeGlobal);
-	}
-
-	after(DataStructure list) : iterator(list) && graphAction() {
-		if ( list.baseDataType == Node.class)
+	
+	after(DataStructure list) : iterator(list) {
+		if (list.listType == ListType.GlobalNodeList)
 			Profiler.count(currentCountKey, ProfilerType.IteratorNodeGlobal);
-		else if ( list.baseDataType == Edge.class)
+		else if (list.listType == ListType.GlobalEdgeList)
 			Profiler.count(currentCountKey, ProfilerType.IteratorEdgeGlobal);
-	}
-
-	after(DataStructure list) : iterator(list) && nodeAction() {
-		if ( list.baseDataType == Node.class)
+		else if (list.listType == ListType.LocalNodeList)
 			Profiler.count(currentCountKey, ProfilerType.IteratorNodeLocal);
-		else if ( list.baseDataType == Edge.class)
+		else if (list.listType == ListType.LocalEdgeList)
 			Profiler.count(currentCountKey, ProfilerType.IteratorEdgeLocal);
 	}
 

@@ -25,9 +25,8 @@ public class DLinkedList extends DataStructureReadable implements
 	private LinkedList<IElement> list;
 	private int maxNodeIndex;
 
-	public DLinkedList(Class<? extends IElement> dT) {
-		super(dT);
-		this.init(dT, defaultSize);
+	public DLinkedList(ListType lt, Class<? extends IElement> dT) {
+		super(lt, dT);
 	}
 
 	public void init(Class<? extends IElement> dT, int initialSize) {

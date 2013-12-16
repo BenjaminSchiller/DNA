@@ -17,10 +17,9 @@ public class DBloomFilter extends DataStructure implements
 	private BloomFilter<IElement> list;
 	private int maxNodeIndex;
 
-	public DBloomFilter(Class<? extends IElement> dT) {
-		super(dT);
-		this.init(dT, defaultSize);
-	}
+	public DBloomFilter(ListType lt, Class<? extends IElement> dT) {
+		super(lt, dT);
+	}	
 
 	public void init(Class<? extends IElement> dT, int initialSize) {
 		this.list = BloomFilter.create(new IElementFunnel(), initialSize);

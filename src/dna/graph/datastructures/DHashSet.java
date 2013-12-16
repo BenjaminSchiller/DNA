@@ -26,9 +26,8 @@ public class DHashSet extends DataStructureReadable implements
 
 	private HashSet<IElement> list;
 
-	public DHashSet(Class<? extends IElement> dT) {
-		super(dT);
-		this.init(dT, defaultSize);
+	public DHashSet(ListType lt, Class<? extends IElement> dT) {
+		super(lt, dT);
 	}
 
 	@Override

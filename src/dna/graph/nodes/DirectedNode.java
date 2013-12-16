@@ -27,7 +27,7 @@ public class DirectedNode extends Node {
 	public void init() {
 		this.in = this.gds.newNodeEdgeList();
 		this.out = this.gds.newNodeEdgeList();
-		this.neighbors = this.gds.newNodeList();
+		this.neighbors = this.gds.newLocalNodeList();
 		this.all = Iterables.unmodifiableIterable(Iterables.concat(in, out));
 	}
 

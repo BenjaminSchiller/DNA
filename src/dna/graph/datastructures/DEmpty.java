@@ -13,7 +13,7 @@ public class DEmpty extends DataStructureReadable implements
 		IEdgeListDatastructureReadable {
 
 	public DEmpty(Class<? extends IElement> dataType) {
-		super(Edge.class);
+		super(ListType.GlobalEdgeList, Edge.class);
 	}
 
 	@Override

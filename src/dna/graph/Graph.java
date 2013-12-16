@@ -33,7 +33,7 @@ public class Graph {
 	public Graph(String name, long timestamp, GraphDataStructure gds) {
 		this.name = name;
 		this.timestamp = timestamp;
-		this.nodes = gds.newNodeList();
+		this.nodes = gds.newGlobalNodeList();
 		this.edges = gds.newGraphEdgeList();
 		this.gds = gds;
 	}

@@ -11,6 +11,7 @@ import java.util.HashMap;
 import dna.graph.Graph;
 import dna.graph.IElement;
 import dna.graph.datastructures.DataStructure.AccessType;
+import dna.graph.datastructures.DataStructure.ListType;
 import dna.graph.edges.DirectedEdge;
 import dna.graph.edges.Edge;
 import dna.graph.edges.IWeightedEdge;
@@ -51,9 +52,10 @@ public class GraphDataStructure {
 		this.nodeEdgeListType = nodeEdgeListType;
 		this.nodeType = nodeType;
 		this.edgeType = edgeType;
-		
+
 		if (this.graphEdgeListType == null && this.nodeEdgeListType == null) {
-			throw new RuntimeException("Either the global or local edge list must not be NULL");
+			throw new RuntimeException(
+					"Either the global or local edge list must not be NULL");
 		}
 	}
 
@@ -145,11 +147,19 @@ public class GraphDataStructure {
 		return new Graph(name, timestamp, this, nodes, edges);
 	}
 
-	public INodeListDatastructure newNodeList() {
+	public INodeListDatastructure newLocalNodeList() {
+		return newNodeList(ListType.LocalNodeList);
+	}
+	
+	public INodeListDatastructure newGlobalNodeList() {
+		return newNodeList(ListType.GlobalNodeList);
+	}
+	
+	private INodeListDatastructure newNodeList(ListType listType) {
 		INodeListDatastructure res = null;
 		try {
-			res = (INodeListDatastructure) nodeListType.getConstructor(
-					nodeType.getClass()).newInstance(nodeType);
+			res = (INodeListDatastructure) nodeListType.getConstructor(ListType.class, 
+					nodeType.getClass()).newInstance(listType, nodeType);
 		} catch (InstantiationException | IllegalAccessException
 				| IllegalArgumentException | InvocationTargetException
 				| NoSuchMethodException | SecurityException e) {
@@ -164,8 +174,8 @@ public class GraphDataStructure {
 		}
 		IEdgeListDatastructure res = null;
 		try {
-			res = graphEdgeListType.getConstructor(edgeType.getClass())
-					.newInstance(edgeType);
+			res = graphEdgeListType.getConstructor(ListType.class, edgeType.getClass())
+					.newInstance(ListType.GlobalEdgeList, edgeType);
 		} catch (InstantiationException | IllegalAccessException
 				| IllegalArgumentException | InvocationTargetException
 				| NoSuchMethodException | SecurityException e) {
@@ -180,13 +190,15 @@ public class GraphDataStructure {
 		}
 		Constructor<? extends IEdgeListDatastructure> c;
 		try {
-			c = nodeEdgeListType.getConstructor(edgeType.getClass());
-			return c.newInstance(edgeType);
+			c = nodeEdgeListType.getConstructor(ListType.class,
+					edgeType.getClass());
+			return c.newInstance(ListType.LocalEdgeList, edgeType);
 		} catch (InstantiationException | IllegalAccessException
 				| IllegalArgumentException | InvocationTargetException
 				| NoSuchMethodException | SecurityException e) {
 			RuntimeException rt = new RuntimeException(
-					"Could not generate new edge list instance: " + e.getMessage());
+					"Could not generate new edge list instance: "
+							+ e.getMessage());
 			rt.setStackTrace(e.getStackTrace());
 			throw rt;
 		}

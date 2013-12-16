@@ -26,11 +26,10 @@ public class DArray extends DataStructureReadable implements
 	private IElement[] list;
 	private int count;
 	private int maxNodeIndex;
-
-	public DArray(Class<? extends IElement> dT) {
-		super(dT);
-		this.init(dT, defaultSize);
-	}
+	
+	public DArray(ListType lt, Class<? extends IElement> dT) {
+		super(lt, dT);
+	}	
 
 	public void init(Class<? extends IElement> dT, int initialSize) {
 		this.list = new IElement[initialSize];

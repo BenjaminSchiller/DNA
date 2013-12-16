@@ -25,11 +25,10 @@ public class DArrayList extends DataStructureReadable implements
 	private ArrayList<IElement> list;
 	private int maxNodeIndex;
 
-	public DArrayList(Class<? extends IElement> dT) {
-		super(dT);
-		this.init(dT, defaultSize);
-	}
-
+	public DArrayList(ListType lt, Class<? extends IElement> dT) {
+		super(lt, dT);
+	}	
+	
 	public void init(Class<? extends IElement> dT, int initialSize) {
 		this.list = new ArrayList<>(initialSize);
 		this.maxNodeIndex = -1;
