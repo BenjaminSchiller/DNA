@@ -106,6 +106,11 @@ public class UndirectedMotif {
 		}
 	}
 
+	public boolean contains(UndirectedNode node) {
+		return node.equals(a) || node.equals(b) || node.equals(c)
+				|| node.equals(d);
+	}
+
 	public UndirectedMotif(UndirectedNode a, UndirectedNode b) {
 		this.a = a;
 		this.b = b;
