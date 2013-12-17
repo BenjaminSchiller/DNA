@@ -11,6 +11,7 @@ import java.awt.Color;
 @SuppressWarnings("serial")
 public class LegendItemValue extends LegendItem {
 
+	// constructor
 	public LegendItemValue(LegendList parent, String name, Color color) {
 		super(parent, name, color);
 

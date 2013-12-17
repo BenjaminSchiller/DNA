@@ -39,7 +39,8 @@ public class GuiOptions {
 			.get("GUI_X_AXIS_TYPE");
 	public static final String metricVisualizerXAxisFormat = Config
 			.get("GUI_X_AXIS_FORMAT");
-
+	public static final int metricVisualizerBatchBufferSize = Config.getInt("GUI_BATCH_BUFFER_SIZE");
+	
 	// legend item
 	public static final Dimension legendItemItemSize = new Dimension(165, 40);
 	public static final Dimension legendItemButtonSize = new Dimension(20, 20);

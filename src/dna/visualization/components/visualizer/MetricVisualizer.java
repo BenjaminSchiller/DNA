@@ -20,6 +20,8 @@ import java.awt.event.MouseMotionListener;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedList;
 
 import javax.swing.BorderFactory;
 import javax.swing.border.EtchedBorder;
@@ -38,6 +40,10 @@ public class MetricVisualizer extends Visualizer {
 	private ArrayList<String> availableValues;
 	private HashMap<String, ITrace2D> traces;
 
+	private LinkedList<BatchData> batchBuffer;
+	private int bufferSize = GuiOptions.metricVisualizerBatchBufferSize;
+	private boolean reload;
+
 	private boolean xAxisTypeTimestamp;
 	private long currentTimestamp;
 
@@ -46,6 +52,10 @@ public class MetricVisualizer extends Visualizer {
 		// initialization
 		this.traces = new HashMap<String, ITrace2D>();
 		this.availableValues = new ArrayList<String>();
+
+		// batch buffer
+		this.batchBuffer = new LinkedList<BatchData>();
+		this.reload = false;
 
 		// set title and border of the metric visualizer
 		TitledBorder title = BorderFactory
@@ -116,13 +126,11 @@ public class MetricVisualizer extends Visualizer {
 					this.xAxis1.setMinorTickSpacing(tickSpacingNew);
 				}
 			}
-		} else {
-			// TODO: ADD DATE FORMAT HANDLING HERE
 		}
 	}
 
 	/**
-	 * Updates the chart and the legend with a new batchdata.
+	 * Updates the chart and the legend with a new batch.
 	 * 
 	 * @param b
 	 *            New batch
@@ -130,99 +138,150 @@ public class MetricVisualizer extends Visualizer {
 	public void updateData(BatchData b) {
 		long timestamp = b.getTimestamp();
 		double timestampDouble = timestamp;
-		
+
 		// check if new batch is before last one which means time slided
-		if(timestamp < this.currentTimestamp) {
-			for (ITrace2D t : this.chart.getTraces()) {
-				t.removeAllPoints();
+		// backwards
+		if (timestamp < this.currentTimestamp) {
+			while (this.batchBuffer.size() > 0) {
+				if (this.batchBuffer.getLast().getTimestamp() <= b
+						.getTimestamp()) {
+					break;
+				} else {
+					this.batchBuffer.removeLast();
+				}
 			}
-		}
-		
-		this.currentTimestamp = timestamp;
+			// reload data
+			this.reloadData();
+		} else {
+			// if reload flag is set, dont add batch to buffer
+			if (!this.reload) {
+				// if buffer sizer is reached, remove batches until its
+				if (this.batchBuffer.size() >= this.bufferSize)
+					while (!(this.batchBuffer.size() < this.bufferSize))
+						this.batchBuffer.removeFirst();
+				// add new batch as last batch to list
+				this.batchBuffer.addLast(b);
+			}
 
-		if (timestamp < this.minTimestamp)
-			this.minTimestamp = timestamp;
-		if (timestamp > this.maxTimestamp)
-			this.maxTimestamp = timestamp;
+			this.currentTimestamp = timestamp;
 
-		for (String metric : b.getMetrics().getNames()) {
-			for (String value : b.getMetrics().get(metric).getValues()
-					.getNames()) {
-				if (this.traces.containsKey(metric + "." + value)) {
-					String tempName = metric + "." + value;
-					double tempValue = b.getMetrics().get(metric).getValues()
-							.get(value).getValue();
+			if (timestamp < this.minTimestamp)
+				this.minTimestamp = timestamp;
+			if (timestamp > this.maxTimestamp)
+				this.maxTimestamp = timestamp;
+
+			// update values
+			for (String metric : b.getMetrics().getNames()) {
+				for (String value : b.getMetrics().get(metric).getValues()
+						.getNames()) {
+					if (this.traces.containsKey(metric + "." + value)) {
+						String tempName = metric + "." + value;
+						double tempValue = b.getMetrics().get(metric)
+								.getValues().get(value).getValue();
+
+						this.traces.get(tempName).addPoint(timestampDouble,
+								tempValue);
+						this.legend.updateItem(tempName, tempValue);
+					}
+				}
+			}
+			// update general runtimes
+			for (String runtime : b.getGeneralRuntimes().getNames()) {
+				if (this.traces.containsKey("general runtimes." + runtime)) {
+					String tempName = "general runtimes." + runtime;
+					double tempValue = b.getGeneralRuntimes().get(runtime)
+							.getRuntime();
+					this.traces.get(tempName).addPoint(timestampDouble,
+							tempValue);
+					this.legend.updateItem(tempName, tempValue);
+				}
+			}
+			// update metric runtimes
+			for (String runtime : b.getMetricRuntimes().getNames()) {
+				if (this.traces.containsKey("metric runtimes." + runtime)) {
+					String tempName = "metric runtimes." + runtime;
+					double tempValue = b.getMetricRuntimes().get(runtime)
+							.getRuntime();
 
 					this.traces.get(tempName).addPoint(timestampDouble,
 							tempValue);
 					this.legend.updateItem(tempName, tempValue);
 				}
 			}
-		}
-		for (String runtime : b.getGeneralRuntimes().getNames()) {
-			if (this.traces.containsKey("general runtimes." + runtime)) {
-				String tempName = "general runtimes." + runtime;
-				double tempValue = b.getGeneralRuntimes().get(runtime)
-						.getRuntime();
-				this.traces.get(tempName).addPoint(timestampDouble, tempValue);
-				this.legend.updateItem(tempName, tempValue);
-			}
-		}
-		for (String runtime : b.getMetricRuntimes().getNames()) {
-			if (this.traces.containsKey("metric runtimes." + runtime)) {
-				String tempName = "metric runtimes." + runtime;
-				double tempValue = b.getMetricRuntimes().get(runtime)
-						.getRuntime();
+			// update statistics
+			for (String value : b.getValues().getNames()) {
+				if (this.traces.containsKey("statistics." + value)) {
+					String tempName = "statistics." + value;
+					double tempValue = b.getValues().get(value).getValue();
 
-				this.traces.get(tempName).addPoint(timestampDouble, tempValue);
-				this.legend.updateItem(tempName, tempValue);
-			}
-		}
-		for (String value : b.getValues().getNames()) {
-			if (this.traces.containsKey("statistics." + value)) {
-				String tempName = "statistics." + value;
-				double tempValue = b.getValues().get(value).getValue();
-
-				this.traces.get(tempName).addPoint(timestampDouble, tempValue);
-				this.legend.updateItem(tempName, tempValue);
-			}
-		}
-
-		if (Config.getBoolean("GUI_TRACE_MODE_LTD") && !this.FIXED_VIEWPORT) {
-			this.maxShownTimestamp = this.maxTimestamp;
-			if (this.maxShownTimestamp - this.TRACE_LENGTH > 0)
-				this.minShownTimestamp = this.maxShownTimestamp
-						- this.TRACE_LENGTH;
-			else
-				this.minShownTimestamp = 0;
-			this.xAxis1.setRange(new Range(this.minShownTimestamp,
-					this.maxShownTimestamp));
-		} else {
-			if (this.FIXED_VIEWPORT) {
-				double lowP = 1.0 * this.menuBar.getIntervalSlider().getValue() / 100;
-				double highP = 1.0 * (this.menuBar.getIntervalSlider()
-						.getValue() + this.menuBar.getIntervalSlider()
-						.getModel().getExtent()) / 100;
-				double minD = 0;
-				double maxD = 0;
-
-				for (String s : this.traces.keySet()) {
-					minD = this.traces.get(s).getMinX();
-					maxD = this.traces.get(s).getMaxX();
-					if (this.traces.get(s).getMinX() < this.minTimestamp)
-						minD = this.traces.get(s).getMinX();
-					if (this.traces.get(s).getMaxX() > this.maxTimestamp)
-						maxD = this.traces.get(s).getMaxX();
+					this.traces.get(tempName).addPoint(timestampDouble,
+							tempValue);
+					this.legend.updateItem(tempName, tempValue);
 				}
-				double tMinNew = minD + (lowP * (maxD - minD));
-				double tMaxNew = minD + (highP * (maxD - minD));
-
-				this.xAxis1.setRange(new Range(tMinNew, tMaxNew));
-				this.setMinShownTimestamp((long) tMinNew);
-				this.setMaxShownTimestamp((long) tMaxNew);
 			}
+			// timestamp adjustmens for x-axis tick calculation
+			if (Config.getBoolean("GUI_TRACE_MODE_LTD") && !this.FIXED_VIEWPORT) {
+				this.maxShownTimestamp = this.maxTimestamp;
+				if (this.maxShownTimestamp - this.TRACE_LENGTH > 0)
+					this.minShownTimestamp = this.maxShownTimestamp
+							- this.TRACE_LENGTH;
+				else
+					this.minShownTimestamp = 0;
+				this.xAxis1.setRange(new Range(this.minShownTimestamp,
+						this.maxShownTimestamp));
+			} else {
+				if (this.FIXED_VIEWPORT) {
+					double lowP = 1.0 * this.menuBar.getIntervalSlider()
+							.getValue() / 100;
+					double highP = 1.0 * (this.menuBar.getIntervalSlider()
+							.getValue() + this.menuBar.getIntervalSlider()
+							.getModel().getExtent()) / 100;
+					double minD = 0;
+					double maxD = 0;
+
+					for (String s : this.traces.keySet()) {
+						minD = this.traces.get(s).getMinX();
+						maxD = this.traces.get(s).getMaxX();
+						if (this.traces.get(s).getMinX() < this.minTimestamp)
+							minD = this.traces.get(s).getMinX();
+						if (this.traces.get(s).getMaxX() > this.maxTimestamp)
+							maxD = this.traces.get(s).getMaxX();
+					}
+					double tMinNew = minD + (lowP * (maxD - minD));
+					double tMaxNew = minD + (highP * (maxD - minD));
+
+					this.xAxis1.setRange(new Range(tMinNew, tMaxNew));
+					this.setMinShownTimestamp((long) tMinNew);
+					this.setMaxShownTimestamp((long) tMaxNew);
+				}
+			}
+			// update chart axis ticks
+			this.updateTicks();
 		}
-		this.updateTicks();
+		this.validate();
+	}
+
+	/** reloads all data included in the batchBuffer **/
+	private void reloadData() {
+		// set reload flag
+		this.reload = true;
+
+		// reset current timestamp
+		this.currentTimestamp = 0;
+
+		// clear chart
+		for (ITrace2D t : this.chart.getTraces()) {
+			t.removeAllPoints();
+		}
+
+		// update with old batches
+		Iterator<BatchData> iterator = this.batchBuffer.iterator();
+		while (iterator.hasNext()) {
+			this.updateData(iterator.next());
+		}
+
+		// unset reload flag
+		this.reload = false;
 	}
 
 	/** adds trace to the visualizer with default trace length **/
@@ -263,11 +322,13 @@ public class MetricVisualizer extends Visualizer {
 		this.maxShownTimestamp = this.minShownTimestamp;
 
 		this.currentTimestamp = b.getTimestamp();
-		
+
+		// clear chart
 		for (ITrace2D t : this.chart.getTraces()) {
 			t.removeAllPoints();
 		}
 
+		// gather all available values
 		for (String metric : b.getMetrics().getNames()) {
 			for (String value : b.getMetrics().get(metric).getValues()
 					.getNames()) {

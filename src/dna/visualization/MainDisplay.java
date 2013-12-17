@@ -373,19 +373,17 @@ public class MainDisplay extends JFrame {
 			}
 		}
 	}
-	
+
 	public void setPaused(boolean paused) {
-		if(paused) {
+		if (paused) {
 			this.pauseButton.setForeground(Color.RED);
 			this.pauseButton.setText("Resume");
 		} else {
 			this.pauseButton.setForeground(GuiOptions.defaultFontColor);
 			this.pauseButton.setText("Pause");
 		}
-		this.batchHandler.setPaused(paused);	
+		this.batchHandler.setPaused(paused);
 	}
-	
-
 
 	/** called from the statsdisplay timeslider to move in time **/
 	public long setTime(int timeValue) {
