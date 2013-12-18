@@ -305,8 +305,8 @@ public class Plot {
 			script.add("set timeft " + Config.get("GNUPLOT_DATETIME"));
 		}
 
-		script.add("set style fill solid border -1");
-		script.add("set boxwidth 0.2");
+		script.add("set style " + Config.get("GNUPLOT_STYLE"));
+		script.add("set boxwidth " + Config.get("GNUPLOT_BOXWIDTH"));
 
 		for (int i = 0; i < this.data.length; i++) {
 			String line = "";
