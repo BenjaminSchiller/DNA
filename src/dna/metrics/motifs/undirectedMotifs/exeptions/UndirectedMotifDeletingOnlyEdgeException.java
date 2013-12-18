@@ -1,7 +1,7 @@
-package dna.metrics.motifs.exceptions;
+package dna.metrics.motifs.undirectedMotifs.exeptions;
 
 import dna.graph.edges.UndirectedEdge;
-import dna.metrics.motifs.UndirectedMotif;
+import dna.metrics.motifs.undirectedMotifs.UndirectedMotif;
 
 public class UndirectedMotifDeletingOnlyEdgeException extends UndirectedMotifException {
 

@@ -1,7 +1,6 @@
-package dna.metrics.motifs;
+package dna.metrics.motifs.undirectedMotifs;
 
 import dna.graph.Graph;
-import dna.graph.nodes.DirectedNode;
 import dna.graph.nodes.UndirectedNode;
 import dna.metrics.Metric;
 import dna.series.data.Distribution;
@@ -70,18 +69,14 @@ public abstract class UndirectedMotifs extends Metric {
 
 	@Override
 	public boolean isApplicable(Graph g) {
-		return DirectedNode.class.isAssignableFrom(g.getGraphDatastructures()
-				.getNodeType())
-				|| UndirectedNode.class.isAssignableFrom(g
-						.getGraphDatastructures().getNodeType());
+		return UndirectedNode.class.isAssignableFrom(g.getGraphDatastructures()
+				.getNodeType());
 	}
 
 	@Override
 	public boolean isApplicable(Batch b) {
-		return DirectedNode.class.isAssignableFrom(b.getGraphDatastructures()
-				.getNodeType())
-				|| UndirectedNode.class.isAssignableFrom(b
-						.getGraphDatastructures().getNodeType());
+		return UndirectedNode.class.isAssignableFrom(b.getGraphDatastructures()
+				.getNodeType());
 	}
 
 	@Override

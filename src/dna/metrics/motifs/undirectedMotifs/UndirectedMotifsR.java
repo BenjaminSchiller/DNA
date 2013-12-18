@@ -1,4 +1,4 @@
-package dna.metrics.motifs;
+package dna.metrics.motifs.undirectedMotifs;
 
 import dna.updates.batch.Batch;
 import dna.updates.update.Update;

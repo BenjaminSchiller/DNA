@@ -1,13 +1,13 @@
-package dna.metrics.motifs;
+package dna.metrics.motifs.undirectedMotifs;
 
 import java.util.Arrays;
 
 import dna.graph.edges.UndirectedEdge;
 import dna.graph.nodes.UndirectedNode;
-import dna.metrics.motifs.exceptions.UndirectedMotifDeletingOnlyEdgeException;
-import dna.metrics.motifs.exceptions.UndirectedMotifInvalidEdgeAdditionException;
-import dna.metrics.motifs.exceptions.UndirectedMotifInvalidEdgeRemovalException;
-import dna.metrics.motifs.exceptions.UndirectedMotifSplittingException;
+import dna.metrics.motifs.undirectedMotifs.exeptions.UndirectedMotifDeletingOnlyEdgeException;
+import dna.metrics.motifs.undirectedMotifs.exeptions.UndirectedMotifInvalidEdgeAdditionException;
+import dna.metrics.motifs.undirectedMotifs.exeptions.UndirectedMotifInvalidEdgeRemovalException;
+import dna.metrics.motifs.undirectedMotifs.exeptions.UndirectedMotifSplittingException;
 
 public class UndirectedMotif {
 	public static enum UndirectedMotifType {

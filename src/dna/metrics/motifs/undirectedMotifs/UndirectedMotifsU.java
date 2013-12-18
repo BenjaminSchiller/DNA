@@ -1,4 +1,4 @@
-package dna.metrics.motifs;
+package dna.metrics.motifs.undirectedMotifs;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -7,8 +7,8 @@ import java.util.LinkedList;
 import dna.graph.IElement;
 import dna.graph.edges.UndirectedEdge;
 import dna.graph.nodes.UndirectedNode;
-import dna.metrics.motifs.UndirectedMotif.UndirectedMotifType;
-import dna.metrics.motifs.exceptions.UndirectedMotifInvalidEdgeAdditionException;
+import dna.metrics.motifs.undirectedMotifs.UndirectedMotif.UndirectedMotifType;
+import dna.metrics.motifs.undirectedMotifs.exeptions.UndirectedMotifInvalidEdgeAdditionException;
 import dna.updates.batch.Batch;
 import dna.updates.update.EdgeAddition;
 import dna.updates.update.EdgeRemoval;
