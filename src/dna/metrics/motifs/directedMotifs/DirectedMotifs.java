@@ -33,6 +33,7 @@ public abstract class DirectedMotifs extends Metric {
 
 	@Override
 	public Value[] getValues() {
+		Value m0 = new Value("TOTAL", this.motifs.getDenominator());
 		Value m1 = new Value("DM01", this.motifs.getIntValues()[1]);
 		Value m2 = new Value("DM02", this.motifs.getIntValues()[2]);
 		Value m3 = new Value("DM03", this.motifs.getIntValues()[3]);
@@ -46,7 +47,7 @@ public abstract class DirectedMotifs extends Metric {
 		Value m11 = new Value("DM11", this.motifs.getIntValues()[11]);
 		Value m12 = new Value("DM12", this.motifs.getIntValues()[12]);
 		Value m13 = new Value("DM13", this.motifs.getIntValues()[13]);
-		return new Value[] { m1, m2, m3, m4, m5, m6, m7, m8, m9, m10, m11, m12,
+		return new Value[] { m0, m1, m2, m3, m4, m5, m6, m7, m8, m9, m10, m11, m12,
 				m13 };
 	}
 

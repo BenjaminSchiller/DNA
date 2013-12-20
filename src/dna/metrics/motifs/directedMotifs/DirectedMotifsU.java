@@ -2,12 +2,16 @@ package dna.metrics.motifs.directedMotifs;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
 
 import dna.graph.IElement;
 import dna.graph.edges.DirectedEdge;
 import dna.graph.nodes.DirectedNode;
 import dna.metrics.motifs.directedMotifs.DirectedMotif.DirectedMotifType;
 import dna.metrics.motifs.directedMotifs.exceptions.DirectedMotifInvalidEdgeAdditionException;
+import dna.metrics.motifs.directedMotifs.exceptions.DirectedMotifInvalidEdgeRemovalException;
+import dna.metrics.motifs.directedMotifs.exceptions.DirectedMotifSplittingException;
 import dna.updates.batch.Batch;
 import dna.updates.update.EdgeAddition;
 import dna.updates.update.EdgeRemoval;
@@ -19,15 +23,30 @@ public class DirectedMotifsU extends DirectedMotifs {
 
 	private HashSet<Integer> allMotifs;
 
+	private HashSet<DirectedMotif> allRealMotifs;
+
 	private HashMap<Integer, HashSet<DirectedMotif>> nodeMotifs;
 
 	private void addMotif(DirectedMotif m) {
 		Log.debug("adding " + m + " (" + m.hashCode() + ")\n" + m.asString());
 		this.allMotifs.add(m.hashCode());
+		this.allRealMotifs.add(m);
 		this.nodeMotifs.get(m.getA().getIndex()).add(m);
 		this.nodeMotifs.get(m.getB().getIndex()).add(m);
 		this.nodeMotifs.get(m.getC().getIndex()).add(m);
 		this.motifs.incr(m.getIndex());
+		this.motifs.incrDenominator();
+	}
+
+	private void removeMotif(DirectedMotif m) {
+		Log.debug("removing " + m + " (" + m.hashCode() + ")\n" + m.asString());
+		this.allMotifs.remove(m.hashCode());
+		this.allRealMotifs.remove(m);
+		this.nodeMotifs.get(m.getA().getIndex()).remove(m);
+		this.nodeMotifs.get(m.getB().getIndex()).remove(m);
+		this.nodeMotifs.get(m.getC().getIndex()).remove(m);
+		this.motifs.decr(m.getIndex());
+		this.motifs.decrDenominator();
 	}
 
 	private HashSet<DirectedMotif> getNodeMotifs(int index) {
@@ -73,6 +92,34 @@ public class DirectedMotifsU extends DirectedMotifs {
 				// e1.printStackTrace();
 			}
 			this.motifs.incr(m.getIndex());
+		}
+	}
+
+	private void removeFromMotifs(Iterable<DirectedMotif> motifs,
+			DirectedEdge e, DirectedNode exclude) {
+		List<DirectedMotif> removedMotifs = new LinkedList<DirectedMotif>();
+		for (DirectedMotif m : motifs) {
+			if (exclude != null && m.contains(exclude)) {
+				continue;
+			}
+			if (!m.contains(e.getSrc()) || !m.contains(e.getDst())) {
+				continue;
+			}
+			String s = m.asString();
+			this.motifs.decr(m.getIndex());
+			try {
+				m.removeEdge(e);
+				Log.debug("changing motif: " + m + "\n" + m.asStringFrom(s));
+			} catch (DirectedMotifInvalidEdgeRemovalException e1) {
+				// e1.printStackTrace();
+			} catch (DirectedMotifSplittingException e1) {
+				// e1.printStackTrace();
+				removedMotifs.add(m);
+			}
+			this.motifs.incr(m.getIndex());
+		}
+		for (DirectedMotif m : removedMotifs) {
+			this.removeMotif(m);
 		}
 	}
 
@@ -204,9 +251,23 @@ public class DirectedMotifsU extends DirectedMotifs {
 			this.addToMotifs(this.getNodeMotifs(e.getDst().getIndex()), e,
 					e.getSrc());
 			this.addNewMotifs(e);
+
+			Log.debug(this.allRealMotifs.toString());
+
 		} else if (u instanceof EdgeRemoval) {
-			// TODO implement edge removal
-			return true;
+			DirectedEdge e = (DirectedEdge) ((EdgeRemoval) u).getEdge();
+
+			Log.debug(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
+			Log.debug(">>> remove edge " + e);
+			Log.debug(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
+
+			this.removeFromMotifs(this.getNodeMotifs(e.getSrc().getIndex()), e,
+					null);
+			this.removeFromMotifs(this.getNodeMotifs(e.getDst().getIndex()), e,
+					e.getSrc());
+
+			Log.debug(this.allRealMotifs.toString());
+
 		} else if (u instanceof NodeRemoval) {
 			// TODO implement node removal
 			return true;
@@ -224,6 +285,7 @@ public class DirectedMotifsU extends DirectedMotifs {
 	public void init_() {
 		super.init_();
 		this.allMotifs = new HashSet<Integer>();
+		this.allRealMotifs = new HashSet<DirectedMotif>();
 		this.nodeMotifs = new HashMap<Integer, HashSet<DirectedMotif>>();
 	}
 

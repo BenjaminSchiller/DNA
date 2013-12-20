@@ -3,12 +3,12 @@ package dna.metrics.motifs.directedMotifs.exceptions;
 import dna.graph.edges.DirectedEdge;
 import dna.metrics.motifs.directedMotifs.DirectedMotif;
 
-public class UndirectedMotifInvalidEdgeRemovalException extends
+public class DirectedMotifInvalidEdgeRemovalException extends
 		DirectedMotifException {
 
-	private static final long serialVersionUID = -2831057036853373435L;
+	private static final long serialVersionUID = -9012895138024499008L;
 
-	public UndirectedMotifInvalidEdgeRemovalException(DirectedMotif m,
+	public DirectedMotifInvalidEdgeRemovalException(DirectedMotif m,
 			DirectedEdge e) {
 		super(m, e);
 	}

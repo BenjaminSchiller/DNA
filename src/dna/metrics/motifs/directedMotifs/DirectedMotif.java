@@ -5,6 +5,8 @@ import java.util.Arrays;
 import dna.graph.edges.DirectedEdge;
 import dna.graph.nodes.DirectedNode;
 import dna.metrics.motifs.directedMotifs.exceptions.DirectedMotifInvalidEdgeAdditionException;
+import dna.metrics.motifs.directedMotifs.exceptions.DirectedMotifInvalidEdgeRemovalException;
+import dna.metrics.motifs.directedMotifs.exceptions.DirectedMotifSplittingException;
 
 public class DirectedMotif {
 	public static enum DirectedMotifType {
@@ -138,6 +140,7 @@ public class DirectedMotif {
 				this.changeBC();
 				return true;
 			}
+			throw new DirectedMotifInvalidEdgeAdditionException(this, e);
 		case DM02:
 			if (this.connects(e, a, b)) {
 				this.type = DirectedMotifType.DM06;
@@ -156,6 +159,7 @@ public class DirectedMotif {
 				this.changeAC();
 				return true;
 			}
+			throw new DirectedMotifInvalidEdgeAdditionException(this, e);
 		case DM03:
 			if (this.connects(e, a, b)) {
 				this.type = DirectedMotifType.DM05;
@@ -173,6 +177,7 @@ public class DirectedMotif {
 				this.changeBC();
 				return true;
 			}
+			throw new DirectedMotifInvalidEdgeAdditionException(this, e);
 		case DM04:
 			if (this.connects(e, b, a)) {
 				this.type = DirectedMotifType.DM09;
@@ -186,6 +191,7 @@ public class DirectedMotif {
 				this.type = DirectedMotifType.DM08;
 				return true;
 			}
+			throw new DirectedMotifInvalidEdgeAdditionException(this, e);
 		case DM05:
 			if (this.connects(e, b, c)) {
 				this.type = DirectedMotifType.DM09;
@@ -200,6 +206,7 @@ public class DirectedMotif {
 				this.changeAB();
 				return true;
 			}
+			throw new DirectedMotifInvalidEdgeAdditionException(this, e);
 		case DM06:
 			if (this.connects(e, a, c)) {
 				this.type = DirectedMotifType.DM11;
@@ -213,6 +220,7 @@ public class DirectedMotif {
 				this.changeAC();
 				return true;
 			}
+			throw new DirectedMotifInvalidEdgeAdditionException(this, e);
 		case DM07:
 			if (this.connects(e, a, c)) {
 				this.type = DirectedMotifType.DM10;
@@ -227,6 +235,7 @@ public class DirectedMotif {
 				this.changeBC();
 				return true;
 			}
+			throw new DirectedMotifInvalidEdgeAdditionException(this, e);
 		case DM08:
 			if (this.connects(e, b, a)) {
 				this.type = DirectedMotifType.DM12;
@@ -238,6 +247,7 @@ public class DirectedMotif {
 				this.changeAC();
 				return true;
 			}
+			throw new DirectedMotifInvalidEdgeAdditionException(this, e);
 		case DM09:
 			if (this.connects(e, a, b)) {
 				this.type = DirectedMotifType.DM12;
@@ -249,6 +259,7 @@ public class DirectedMotif {
 				this.changeAC();
 				return true;
 			}
+			throw new DirectedMotifInvalidEdgeAdditionException(this, e);
 		case DM10:
 			if (this.connects(e, a, b)) {
 				this.type = DirectedMotifType.DM12;
@@ -259,6 +270,7 @@ public class DirectedMotif {
 				this.changeAC();
 				return true;
 			}
+			throw new DirectedMotifInvalidEdgeAdditionException(this, e);
 		case DM11:
 			if (this.connects(e, b, c)) {
 				this.type = DirectedMotifType.DM12;
@@ -268,61 +280,202 @@ public class DirectedMotif {
 				this.changeBC();
 				return true;
 			}
+			throw new DirectedMotifInvalidEdgeAdditionException(this, e);
 		case DM12:
 			if (this.connects(e, c, b)) {
 				this.type = DirectedMotifType.DM13;
 				return true;
 			}
+			throw new DirectedMotifInvalidEdgeAdditionException(this, e);
 		case DM13:
+			throw new DirectedMotifInvalidEdgeAdditionException(this, e);
 		default:
+			throw new DirectedMotifInvalidEdgeAdditionException(this, e);
 		}
-		throw new DirectedMotifInvalidEdgeAdditionException(this, e);
 	}
 
-	public boolean removeEdge(DirectedEdge e) {
+	public boolean removeEdge(DirectedEdge e)
+			throws DirectedMotifSplittingException,
+			DirectedMotifInvalidEdgeRemovalException {
 		switch (this.type) {
 		case DM01:
-			// TODO implement
-			return false;
+			throw new DirectedMotifSplittingException(this, e);
 		case DM02:
-			// TODO implement
-			return false;
+			throw new DirectedMotifSplittingException(this, e);
 		case DM03:
-			// TODO implement
-			return false;
+			throw new DirectedMotifSplittingException(this, e);
 		case DM04:
-			// TODO implement
-			return false;
+			if (this.connects(e, a, b)) {
+				this.type = DirectedMotifType.DM02;
+				this.changeAC();
+				return true;
+			} else if (this.connects(e, a, c)) {
+				this.type = DirectedMotifType.DM03;
+				this.changeAB();
+				return true;
+			} else if (this.connects(e, b, c)) {
+				this.type = DirectedMotifType.DM01;
+				return true;
+			}
 		case DM05:
-			// TODO implement
-			return false;
+			if (this.connects(e, a, b)) {
+				this.type = DirectedMotifType.DM03;
+				return true;
+			} else if (this.connects(e, a, c)) {
+				throw new DirectedMotifSplittingException(this, e);
+			} else if (this.connects(e, b, a)) {
+				this.type = DirectedMotifType.DM01;
+				return true;
+			}
 		case DM06:
-			// TODO implement
-			return false;
+			if (this.connects(e, a, b)) {
+				this.type = DirectedMotifType.DM02;
+				return true;
+			} else if (this.connects(e, b, a)) {
+				this.type = DirectedMotifType.DM03;
+				this.changeBC();
+				return true;
+			} else if (this.connects(e, c, a)) {
+				throw new DirectedMotifSplittingException(this, e);
+			}
 		case DM07:
-			// TODO implement
-			return false;
+			if (this.connects(e, a, b)) {
+				this.type = DirectedMotifType.DM03;
+				this.changeAC();
+				return true;
+			} else if (this.connects(e, b, c)) {
+				this.type = DirectedMotifType.DM03;
+				this.changeBC();
+				return true;
+			} else if (this.connects(e, c, a)) {
+				this.type = DirectedMotifType.DM03;
+				this.changeAB();
+				return true;
+			}
 		case DM08:
-			// TODO implement
-			return false;
+			if (this.connects(e, a, b)) {
+				this.type = DirectedMotifType.DM06;
+				this.changeAC();
+				return true;
+			} else if (this.connects(e, a, c)) {
+				this.type = DirectedMotifType.DM06;
+				this.changeBC();
+				this.changeAC();
+				return true;
+			} else if (this.connects(e, b, c)) {
+				this.type = DirectedMotifType.DM04;
+				this.changeBC();
+				return true;
+			} else if (this.connects(e, c, b)) {
+				this.type = DirectedMotifType.DM04;
+				return true;
+			}
 		case DM09:
-			// TODO implement
-			return false;
+			if (this.connects(e, b, a)) {
+				this.type = DirectedMotifType.DM05;
+				this.changeAC();
+				return true;
+			} else if (this.connects(e, b, c)) {
+				this.type = DirectedMotifType.DM04;
+				this.changeAC();
+				return true;
+			} else if (this.connects(e, c, a)) {
+				this.type = DirectedMotifType.DM05;
+				this.changeBC();
+				this.changeAC();
+				return true;
+			} else if (this.connects(e, c, b)) {
+				this.type = DirectedMotifType.DM04;
+				this.changeAC();
+				this.changeAB();
+				return true;
+			}
 		case DM10:
-			// TODO implement
-			return false;
+			if (this.connects(e, a, c)) {
+				this.type = DirectedMotifType.DM05;
+				this.changeBC();
+				this.changeAC();
+				return true;
+			} else if (this.connects(e, b, a)) {
+				this.type = DirectedMotifType.DM06;
+				this.changeAC();
+				return true;
+			} else if (this.connects(e, b, c)) {
+				this.type = DirectedMotifType.DM07;
+				this.changeBC();
+				return true;
+			} else if (this.connects(e, c, b)) {
+				this.type = DirectedMotifType.DM04;
+				this.changeAB();
+				return true;
+			}
 		case DM11:
-			// TODO implement
-			return false;
+			if (this.connects(e, a, b)) {
+				this.type = DirectedMotifType.DM06;
+				this.changeBC();
+				return true;
+			} else if (this.connects(e, a, c)) {
+				this.type = DirectedMotifType.DM06;
+				return true;
+			} else if (this.connects(e, b, a)) {
+				this.type = DirectedMotifType.DM05;
+				this.changeBC();
+				return true;
+			} else if (this.connects(e, c, a)) {
+				this.type = DirectedMotifType.DM05;
+				return true;
+			}
 		case DM12:
-			// TODO implement
-			return false;
+			if (this.connects(e, a, b)) {
+				this.type = DirectedMotifType.DM08;
+				this.changeAB();
+				return true;
+			} else if (this.connects(e, a, c)) {
+				this.type = DirectedMotifType.DM10;
+				this.changeAC();
+				return true;
+			} else if (this.connects(e, b, a)) {
+				this.type = DirectedMotifType.DM10;
+				this.changeAB();
+				return true;
+			} else if (this.connects(e, b, c)) {
+				this.type = DirectedMotifType.DM11;
+				return true;
+			} else if (this.connects(e, c, a)) {
+				this.type = DirectedMotifType.DM09;
+				this.changeAC();
+				return true;
+			}
 		case DM13:
-			// TODO implement
-			return false;
+			if (this.connects(e, a, b)) {
+				this.type = DirectedMotifType.DM12;
+				this.changeAC();
+				return true;
+			} else if (this.connects(e, a, c)) {
+				this.type = DirectedMotifType.DM12;
+				this.changeBC();
+				this.changeAC();
+				return true;
+			} else if (this.connects(e, b, a)) {
+				this.type = DirectedMotifType.DM12;
+				this.changeBC();
+				this.changeAB();
+				return true;
+			} else if (this.connects(e, b, c)) {
+				this.type = DirectedMotifType.DM12;
+				this.changeBC();
+				return true;
+			} else if (this.connects(e, c, a)) {
+				this.type = DirectedMotifType.DM12;
+				this.changeAB();
+				return true;
+			} else if (this.connects(e, c, b)) {
+				this.type = DirectedMotifType.DM12;
+				return true;
+			}
 		default:
-			return false;
 		}
+		throw new DirectedMotifInvalidEdgeRemovalException(this, e);
 	}
 
 	private void changeAB() {
