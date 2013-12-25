@@ -157,7 +157,6 @@ public class Profiler {
 	public static String getOtherComplexitiesForEntry(ProfileEntry entry,
 			boolean outputAsCommentWithPrefix) {
 		GraphDataStructure tempGDS;
-		TreeMap<ComplexityMap, GraphDataStructure> listOfOtherComplexities = new TreeMap<>();
 		StringBuilder res = new StringBuilder();
 
 		String outputPrefix = outputAsCommentWithPrefix ? "# " : "";
@@ -174,55 +173,93 @@ public class Profiler {
 			return res.toString();
 		}
 
+		TreeMap<ComplexityMap, Class> nodeListComplexities = new TreeMap<>();
 		for (Class nodeListType : GlobalTestParameters.dataStructures) {
-			for (Class edgeListType : GlobalTestParameters.dataStructures) {
-				for (Class nodeEdgeListType : GlobalTestParameters.dataStructures) {
-					if (!(INodeListDatastructure.class
-							.isAssignableFrom(nodeListType)))
-						continue;
-					if (!(IEdgeListDatastructure.class
-							.isAssignableFrom(edgeListType)))
-						continue;
-					if (!(IEdgeListDatastructure.class
-							.isAssignableFrom(nodeEdgeListType)))
-						continue;
+			if (!(INodeListDatastructure.class.isAssignableFrom(nodeListType)))
+				continue;
+			tempGDS = new GraphDataStructure(nodeListType, DEmpty.class,
+					DEmpty.class, gds.getNodeType(), gds.getEdgeType());
+			nodeListComplexities.put(entry.combinedComplexity(tempGDS,
+					ProfilerConstants.globalNodeListAccesses), nodeListType);
+		}
+
+		TreeMap<ComplexityMap, Class> edgeListComplexities = new TreeMap<>();
+		for (Class edgeListType : GlobalTestParameters.dataStructures) {
+			if (!(IEdgeListDatastructure.class.isAssignableFrom(edgeListType)))
+				continue;
+			tempGDS = new GraphDataStructure(null, edgeListType, null,
+					gds.getNodeType(), gds.getEdgeType());
+			edgeListComplexities.put(entry.combinedComplexity(tempGDS,
+					ProfilerConstants.globalEdgeListAccesses), edgeListType);
+		}
+
+		TreeMap<ComplexityMap, Class> nodeEdgeListComplexities = new TreeMap<>();
+		for (Class nodeEdgeListType : GlobalTestParameters.dataStructures) {
+			if (!(IEdgeListDatastructure.class
+					.isAssignableFrom(nodeEdgeListType)))
+				continue;
+			tempGDS = new GraphDataStructure(null, DEmpty.class,
+					nodeEdgeListType, gds.getNodeType(), gds.getEdgeType());
+			nodeEdgeListComplexities.put(entry.combinedComplexity(tempGDS,
+					ProfilerConstants.localEdgeListAccesses), nodeEdgeListType);
+		}
+
+		TreeMap<ComplexityMap, GraphDataStructure> recommendationList = new TreeMap<>();
+		int numberOfRecommendations = Config
+				.getInt("NUMBER_OF_RECOMMENDATIONS");
+		for (Entry<ComplexityMap, Class> nodeListRecommendation : nodeListComplexities
+				.entrySet()) {
+			for (Entry<ComplexityMap, Class> edgeListRecommendation : edgeListComplexities
+					.entrySet()) {
+				for (Entry<ComplexityMap, Class> nodeEdgeListRecommendation : nodeEdgeListComplexities
+						.entrySet()) {
+
+					final Class edgeListType = edgeListRecommendation
+							.getValue();
+					final Class nodeEdgeListType = nodeEdgeListRecommendation
+							.getValue();
 					if (edgeListType == DEmpty.class
-							&& nodeEdgeListType == DEmpty.class)
+							&& nodeEdgeListType == DEmpty.class) {
 						continue;
+					}
 					if ((edgeListType == DEmpty.class && hasGlobalEdgeListAccess(entry))
 							|| (nodeEdgeListType == DEmpty.class && hasLocalEdgeListAccess(entry))) {
 						continue;
 					}
-					tempGDS = new GraphDataStructure(nodeListType,
-							edgeListType, nodeEdgeListType, gds.getNodeType(),
+
+					tempGDS = new GraphDataStructure(
+							nodeListRecommendation.getValue(), edgeListType,
+							nodeEdgeListType, gds.getNodeType(),
 							gds.getEdgeType());
-					final ComplexityMap combinedComplexityMap = entry
-							.combinedComplexity(tempGDS);
-					
-					GraphDataStructure graphDataStructure = listOfOtherComplexities.get(combinedComplexityMap);
+					ComplexityMap aggregated = new ComplexityMap();
+					aggregated.add(nodeListRecommendation.getKey());
+					aggregated.add(edgeListRecommendation.getKey());
+					aggregated.add(nodeEdgeListRecommendation.getKey());
+
+					GraphDataStructure graphDataStructure = recommendationList
+							.get(aggregated);
 					if (graphDataStructure == null) {
 						// Key not yet in list
-						listOfOtherComplexities.put(combinedComplexityMap,
-								tempGDS);
+						recommendationList.put(aggregated, tempGDS);
 					} else if ((edgeListType == DEmpty.class && graphDataStructure
 							.getGraphEdgeListType() != DEmpty.class)
 							|| (nodeEdgeListType == DEmpty.class && graphDataStructure
 									.getNodeEdgeListType() != DEmpty.class)) {
-						// Key already in list, but with concrete types where we could also use DEmpty to save memory
-						listOfOtherComplexities.put(combinedComplexityMap,
-								tempGDS);						
+						// Key already in list, but with concrete types where we
+						// could also use DEmpty to save memory
+						recommendationList.put(aggregated, tempGDS);
 					}
 				}
 			}
 		}
 
 		/**
-		 * Recoomendations are picked from the front of the list, as they have
+		 * Recommendations are picked from the front of the list, as they have
 		 * the largest counter for the most important complexity class
 		 */
-		for (int i = 0; (i < Config.getInt("NUMBER_OF_RECOMMENDATIONS") && listOfOtherComplexities
+		for (int i = 0; (i < numberOfRecommendations && recommendationList
 				.size() > 0); i++) {
-			Entry<ComplexityMap, GraphDataStructure> pollFirstEntry = listOfOtherComplexities
+			Entry<ComplexityMap, GraphDataStructure> pollFirstEntry = recommendationList
 					.pollFirstEntry();
 			String polledEntry = pollFirstEntry.getValue()
 					.getStorageDataStructures(true)
@@ -233,11 +270,10 @@ public class Profiler {
 		}
 
 		// res.append(separator + "  Bottom list: ");
-		// for (int i = 0; (i < NumberOfRecommendations &&
-		// listOfOtherComplexities
+		// for (int i = 0; (i < numberOfRecommendations && recommendationList
 		// .size() > 0); i++) {
 		// Entry<ComplexityMap, GraphDataStructure> pollLastEntry =
-		// listOfOtherComplexities
+		// recommendationList
 		// .pollLastEntry();
 		// String polledEntry = pollLastEntry.getValue()
 		// .getStorageDataStructures(true)
@@ -256,7 +292,8 @@ public class Profiler {
 	}
 
 	private static boolean hasGlobalEdgeListAccess(ProfileEntry entry) {
-		return entry.hasAccessesOfType(ProfilerConstants.globalEdgeListAccesses);
+		return entry
+				.hasAccessesOfType(ProfilerConstants.globalEdgeListAccesses);
 	}
 
 	public static String getGlobalComplexity(
@@ -269,7 +306,9 @@ public class Profiler {
 			resEntry = resEntry.add(entry.getValue());
 		}
 		res.append(resEntry.toString());
-		res.append(" Aggr: " + resEntry.combinedComplexity(gds) + separator);
+		res.append(" Aggr: "
+				+ resEntry.combinedComplexity(gds,
+						ProfilerConstants.ProfilerType.values()) + separator);
 		res.append(getOtherComplexitiesForEntry(resEntry, false));
 		return res.toString();
 	}
@@ -282,7 +321,9 @@ public class Profiler {
 				res.append(separator);
 			res.append("Count type: " + entry.getKey() + separator);
 			res.append(entry.getValue().toString());
-			res.append(" Aggr: " + entry.getValue().combinedComplexity(gds)
+			res.append(" Aggr: "
+					+ entry.getValue().combinedComplexity(gds,
+							ProfilerConstants.ProfilerType.values())
 					+ separator);
 			if (showRecommendations)
 				res.append(getOtherComplexitiesForEntry(entry.getValue(), false));
@@ -346,8 +387,10 @@ public class Profiler {
 
 		StringBuilder res = new StringBuilder();
 		res.append(aggregated.callsAsString(prefix));
-		res.append(outputPrefix + " Aggr: "
-				+ aggregated.combinedComplexity(gds) + separator);
+		res.append(outputPrefix
+				+ " Aggr: "
+				+ aggregated.combinedComplexity(gds,
+						ProfilerConstants.ProfilerType.values()) + separator);
 		if (showRecommendations)
 			res.append(getOtherComplexitiesForEntry(aggregated,
 					outputAsCommentWithPrefix));
