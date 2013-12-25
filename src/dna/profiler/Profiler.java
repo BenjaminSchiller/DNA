@@ -29,7 +29,6 @@ public class Profiler {
 	private static boolean active = false;
 	private static boolean inInitialBatch = false;
 	private static GraphDataStructure gds;
-	private static final int NumberOfRecommendations = 3;
 
 	private static String seriesDir, batchDir;
 	private static String graphGeneratorName;
@@ -225,7 +224,7 @@ public class Profiler {
 		 * Recoomendations are picked from the front of the list, as they have
 		 * the largest counter for the most important complexity class
 		 */
-		for (int i = 0; (i < NumberOfRecommendations && listOfOtherComplexities
+		for (int i = 0; (i < Config.getInt("NUMBER_OF_RECOMMENDATIONS") && listOfOtherComplexities
 				.size() > 0); i++) {
 			Entry<ComplexityMap, GraphDataStructure> pollFirstEntry = listOfOtherComplexities
 					.pollFirstEntry();
