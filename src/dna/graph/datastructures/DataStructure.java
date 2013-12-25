@@ -12,7 +12,7 @@ import dna.graph.IElement;
  */
 public abstract class DataStructure implements IDataStructure {
 	public enum AccessType {
-		Add, Contains, Get, Random, Remove, Size, Iterator
+		Add, Resize, Contains, Get, Random, Remove, Size, Iterator
 	}
 
 	public enum ListType {

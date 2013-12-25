@@ -40,10 +40,6 @@ public class Profiler {
 	private static boolean writeAllRecommendations;
 	private static boolean disableAllRecommendations;
 
-	public static enum ProfilerType {
-		AddNodeGlobal, AddNodeLocal, AddEdgeGlobal, AddEdgeLocal, RemoveNodeGlobal, RemoveNodeLocal, RemoveEdgeGlobal, RemoveEdgeLocal, ContainsNodeGlobal, ContainsNodeLocal, ContainsEdgeGlobal, ContainsEdgeLocal, GetNodeGlobal, GetNodeLocal, GetEdgeGlobal, GetEdgeLocal, SizeNodeGlobal, SizeNodeLocal, SizeEdgeGlobal, SizeEdgeLocal, RandomNodeGlobal, RandomEdgeGlobal, IteratorNodeGlobal, IteratorNodeLocal, IteratorEdgeGlobal, IteratorEdgeLocal
-	}
-
 	public static void activate() {
 		writeAllRecommendations = Config
 				.getBoolean("PROFILER_WRITE_ALL_RECOMMENDATIONS");
@@ -256,19 +252,11 @@ public class Profiler {
 	}
 
 	private static boolean hasLocalEdgeListAccess(ProfileEntry entry) {
-		ProfilerType[] localAccesses = { ProfilerType.AddEdgeLocal,
-				ProfilerType.RemoveEdgeLocal, ProfilerType.ContainsEdgeLocal,
-				ProfilerType.GetEdgeLocal, ProfilerType.SizeEdgeLocal,
-				ProfilerType.IteratorEdgeLocal };
-		return entry.hasAccessesOfType(localAccesses);
+		return entry.hasAccessesOfType(ProfilerConstants.localEdgeListAccesses);
 	}
 
 	private static boolean hasGlobalEdgeListAccess(ProfileEntry entry) {
-		ProfilerType[] globalAccesses = { ProfilerType.AddEdgeGlobal,
-				ProfilerType.RemoveEdgeGlobal, ProfilerType.ContainsEdgeGlobal,
-				ProfilerType.GetEdgeGlobal, ProfilerType.SizeEdgeGlobal,
-				ProfilerType.RandomEdgeGlobal, ProfilerType.IteratorEdgeGlobal };
-		return entry.hasAccessesOfType(globalAccesses);
+		return entry.hasAccessesOfType(ProfilerConstants.globalEdgeListAccesses);
 	}
 
 	public static String getGlobalComplexity(
@@ -312,7 +300,7 @@ public class Profiler {
 		return innerMap;
 	}
 
-	public static void count(String mapKey, ProfilerType p) {
+	public static void count(String mapKey, ProfilerConstants.ProfilerType p) {
 		if (!active)
 			return;
 
@@ -320,12 +308,12 @@ public class Profiler {
 		innerMap.increase(p, 1);
 	}
 
-	public static int getCount(String mapKey, ProfilerType p) {
+	public static int getCount(String mapKey, ProfilerConstants.ProfilerType p) {
 		return getCount(singleBatchCalls, mapKey, p);
 	}
 
 	public static int getCount(Map<String, ProfileEntry> calls, String mapKey,
-			ProfilerType p) {
+			ProfilerConstants.ProfilerType p) {
 		ProfileEntry innerMap = calls.get(mapKey);
 		if (innerMap == null)
 			return 0;

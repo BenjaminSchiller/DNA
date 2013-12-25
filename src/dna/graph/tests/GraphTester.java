@@ -30,7 +30,8 @@ import dna.graph.nodes.IWeightedNode;
 import dna.graph.nodes.Node;
 import dna.graph.nodes.UndirectedNode;
 import dna.graph.weights.IWeighted;
-import dna.profiler.Profiler.ProfilerType;
+import dna.profiler.ProfilerConstants;
+import dna.profiler.ProfilerConstants.ProfilerType;
 import dna.util.Config;
 
 @RunWith(Parameterized.class)
@@ -100,7 +101,7 @@ public class GraphTester {
 
 	@Test
 	public void datastructureKnowsAboutItsComplexity() {
-		for (ProfilerType p : ProfilerType.values()) {
+		for (ProfilerConstants.ProfilerType p : ProfilerConstants.ProfilerType.values()) {
 			assertNotNull(gds.getComplexityClass(p));
 		}
 	}

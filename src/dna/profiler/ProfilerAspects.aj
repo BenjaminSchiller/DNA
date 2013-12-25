@@ -12,7 +12,7 @@ import dna.graph.generators.GraphGenerator;
 import dna.graph.generators.IGraphGenerator;
 import dna.metrics.Metric;
 import dna.metrics.Metric.ApplicationType;
-import dna.profiler.Profiler.ProfilerType;
+import dna.profiler.ProfilerConstants.ProfilerType;
 import dna.series.Series;
 import dna.series.SeriesGeneration;
 import dna.series.data.MetricData;

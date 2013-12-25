@@ -19,7 +19,7 @@ import dna.graph.edges.UndirectedEdge;
 import dna.graph.nodes.IWeightedNode;
 import dna.graph.nodes.Node;
 import dna.graph.weights.IWeighted;
-import dna.profiler.Profiler.ProfilerType;
+import dna.profiler.ProfilerConstants;
 import dna.profiler.complexity.Complexity;
 import dna.profiler.complexity.ComplexityType.Base;
 import dna.util.Config;
@@ -512,7 +512,7 @@ public class GraphDataStructure {
 		}
 	}
 
-	public Complexity getComplexityClass(ProfilerType p) {
+	public Complexity getComplexityClass(ProfilerConstants.ProfilerType p) {
 		switch (p) {
 		case AddEdgeGlobal:
 			return getComplexityClass(graphEdgeListType, Edge.class,
@@ -526,6 +526,18 @@ public class GraphDataStructure {
 		case AddNodeLocal:
 			return getComplexityClass(nodeListType, Node.class, AccessType.Add,
 					Base.Degree);
+		case ResizeEdgeGlobal:
+			return getComplexityClass(graphEdgeListType, Edge.class,
+					AccessType.Resize, Base.EdgeSize);
+		case ResizeEdgeLocal:
+			return getComplexityClass(nodeEdgeListType, Edge.class,
+					AccessType.Resize, Base.Degree);
+		case ResizeNodeGlobal:
+			return getComplexityClass(nodeListType, Node.class,
+					AccessType.Resize, Base.NodeSize);
+		case ResizeNodeLocal:
+			return getComplexityClass(nodeListType, Node.class,
+					AccessType.Resize, Base.Degree);
 		case ContainsEdgeGlobal:
 			return getComplexityClass(graphEdgeListType, Edge.class,
 					AccessType.Contains, Base.EdgeSize);
