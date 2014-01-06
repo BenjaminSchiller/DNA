@@ -77,4 +77,16 @@
 			<fileset dir="${bin}" />
 		</jar>
 	</target>
+
+	<target name="test" depends="compileAspectJ">
+		<junit>
+			<classpath>
+				<pathelement location="${bin}" />  
+				<path refid="class.path" />
+			</classpath>
+			<test name="dna.graph.tests.CompleteTestSuite" />
+			<formatter type="brief" usefile="false" />
+		</junit>
+	</target>
+
 </project>
