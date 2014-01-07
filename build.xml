@@ -3,7 +3,7 @@
 
 	<!-- The following two properties need to be changed -->
 	<property name="jUnitJar" location="C:\Program Files (x86)\eclipse\plugins\org.junit_4.11.0.v201303080030\junit.jar" />
-	<property name="aspectJDir" location="../aspectj-1.7.4" />
+	<property name="aspectJDir" location="../aspectj-1.7.4/lib" />
 
 	<property name="src" location="src" />
 	<property name="bin" location="bin" />
@@ -19,7 +19,7 @@
 
 	<taskdef resource="org/aspectj/tools/ant/taskdefs/aspectjTaskdefs.properties">
 		<classpath>
-			<pathelement location="${aspectJDir}/lib/aspectjtools.jar" />
+			<pathelement location="${aspectJDir}/aspectjtools.jar" />
 		</classpath>
 	</taskdef>
 
@@ -27,7 +27,7 @@
 		<mkdir dir="${bin}" />
 	</target>
 
-	<target name="clean">
+	<target name="clean" unless="executeDeleteBin">
 		<input message="Delete everything from ${bin} (neccessary if you switch from AspectJ to Java or the other way around)" addproperty="confirmDeleteBin" validargs="y,n" defaultvalue="n" />
 
 		<condition property="executeDeleteBin">
@@ -81,12 +81,25 @@
 	<target name="test" depends="compileAspectJ">
 		<junit>
 			<classpath>
-				<pathelement location="${bin}" />  
+				<pathelement location="${bin}" />
 				<path refid="class.path" />
 			</classpath>
-			<test name="dna.graph.tests.CompleteTestSuite" />
 			<formatter type="brief" usefile="false" />
+			<batchtest>
+				<fileset dir="${bin}">
+					<include name="dna/graph/tests/*.class" />
+					<exclude name="dna/graph/tests/CompleteTestSuite.class" />
+					<exclude name="dna/graph/tests/Parallelized.class" />
+					<exclude name="dna/graph/tests/GlobalTestParameters.class" />
+				</fileset>
+			</batchtest>
 		</junit>
+	</target>
+
+	<target name="travisTest">
+		<property name="executeDeleteBin" value="true" />
+		<antcall target="deleteBin" />
+		<antcall target="test" />
 	</target>
 
 </project>
