@@ -526,18 +526,6 @@ public class GraphDataStructure {
 		case AddNodeLocal:
 			return getComplexityClass(nodeListType, Node.class, AccessType.Add,
 					Base.Degree);
-		case ResizeEdgeGlobal:
-			return getComplexityClass(graphEdgeListType, Edge.class,
-					AccessType.Resize, Base.EdgeSize);
-		case ResizeEdgeLocal:
-			return getComplexityClass(nodeEdgeListType, Edge.class,
-					AccessType.Resize, Base.Degree);
-		case ResizeNodeGlobal:
-			return getComplexityClass(nodeListType, Node.class,
-					AccessType.Resize, Base.NodeSize);
-		case ResizeNodeLocal:
-			return getComplexityClass(nodeListType, Node.class,
-					AccessType.Resize, Base.Degree);
 		case ContainsEdgeGlobal:
 			return getComplexityClass(graphEdgeListType, Edge.class,
 					AccessType.Contains, Base.EdgeSize);

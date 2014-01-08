@@ -60,9 +60,7 @@ public class DArray extends DataStructureReadable implements
 		}
 
 		while (element.getIndex() >= this.list.length) {
-			IElement[] newList = new IElement[this.list.length * 2];
-			System.arraycopy(this.list, 0, newList, 0, this.list.length);
-			this.list = newList;
+			this.resize();
 		}
 		if (this.list[element.getIndex()] != null) {
 			return false;
@@ -88,9 +86,7 @@ public class DArray extends DataStructureReadable implements
 
 		if (this.count == this.list.length) {
 			addPos = this.list.length;
-			IElement[] newList = new IElement[this.list.length * 2];
-			System.arraycopy(this.list, 0, newList, 0, this.list.length);
-			this.list = newList;
+			this.resize();
 		} else {
 			// Find first free position
 			while (addPos < this.list.length && this.list[addPos] != null)
@@ -101,6 +97,12 @@ public class DArray extends DataStructureReadable implements
 		this.list[addPos] = element;
 		this.count++;
 		return true;
+	}
+	
+	public void resize() {
+		IElement[] newList = new IElement[this.list.length * 2];
+		System.arraycopy(this.list, 0, newList, 0, this.list.length);
+		this.list = newList;	
 	}
 
 	@Override
