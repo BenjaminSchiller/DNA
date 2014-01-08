@@ -91,6 +91,7 @@
 					<exclude name="dna/graph/tests/CompleteTestSuite.class" />
 					<exclude name="dna/graph/tests/Parallelized.class" />
 					<exclude name="dna/graph/tests/GlobalTestParameters.class" />
+					<exclude name="dna/graph/tests/*$*" />					
 				</fileset>
 			</batchtest>
 		</junit>
