@@ -25,6 +25,7 @@ import dna.graph.datastructures.IEdgeListDatastructure;
 import dna.graph.datastructures.INodeListDatastructure;
 import dna.graph.datastructures.INodeListDatastructureReadable;
 import dna.graph.datastructures.IReadable;
+import dna.graph.datastructures.DataStructure.ListType;
 import dna.graph.edges.Edge;
 import dna.graph.nodes.Node;
 import dna.util.Rand;
@@ -40,8 +41,8 @@ public class DatastructureTester {
 			throws InstantiationException, IllegalAccessException,
 			IllegalArgumentException, InvocationTargetException,
 			NoSuchMethodException, SecurityException {
-		this.dataStructure = (DataStructure) d.getConstructor(Class.class)
-				.newInstance(e);
+		this.dataStructure = (DataStructure) d.getConstructor(ListType.class, Class.class)
+				.newInstance(null, e);
 		this.elementClass = e;
 	}
 
