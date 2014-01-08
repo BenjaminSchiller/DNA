@@ -35,7 +35,6 @@ public class DirectedMotifsU extends DirectedMotifs {
 		this.nodeMotifs.get(m.getB().getIndex()).add(m);
 		this.nodeMotifs.get(m.getC().getIndex()).add(m);
 		this.motifs.incr(m.getIndex());
-		this.motifs.incrDenominator();
 	}
 
 	private void removeMotif(DirectedMotif m) {
@@ -46,7 +45,6 @@ public class DirectedMotifsU extends DirectedMotifs {
 		this.nodeMotifs.get(m.getB().getIndex()).remove(m);
 		this.nodeMotifs.get(m.getC().getIndex()).remove(m);
 		this.motifs.decr(m.getIndex());
-		this.motifs.decrDenominator();
 	}
 
 	private HashSet<DirectedMotif> getNodeMotifs(int index) {
@@ -59,7 +57,8 @@ public class DirectedMotifsU extends DirectedMotifs {
 	}
 
 	public DirectedMotifsU() {
-		super("DirectedMotifsU", ApplicationType.BeforeUpdate, MetricType.exact);
+		super("DirectedMotifsU", ApplicationType.BeforeUpdate,
+				MetricType.exact);
 	}
 
 	@Override
