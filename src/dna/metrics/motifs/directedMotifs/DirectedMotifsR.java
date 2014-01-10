@@ -3,10 +3,9 @@ package dna.metrics.motifs.directedMotifs;
 import dna.updates.batch.Batch;
 import dna.updates.update.Update;
 
-public class DirectedMotifsR extends DirectedMotifs {
+public class DirectedMotifsR extends DirectedMotifsComputation {
 
-	public DirectedMotifsR(String name, ApplicationType type,
-			MetricType metricType) {
+	public DirectedMotifsR() {
 		super("DirectedMotifsR", ApplicationType.Recomputation,
 				MetricType.exact);
 	}
@@ -29,12 +28,6 @@ public class DirectedMotifsR extends DirectedMotifs {
 	@Override
 	public boolean applyAfterUpdate(Update u) {
 		return false;
-	}
-
-	@Override
-	public boolean compute() {
-		// TODO implement
-		return true;
 	}
 
 }

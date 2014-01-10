@@ -7,6 +7,7 @@ import dna.graph.nodes.DirectedNode;
 import dna.metrics.motifs.directedMotifs.exceptions.DirectedMotifInvalidEdgeAdditionException;
 import dna.metrics.motifs.directedMotifs.exceptions.DirectedMotifInvalidEdgeRemovalException;
 import dna.metrics.motifs.directedMotifs.exceptions.DirectedMotifSplittingException;
+import dna.metrics.motifs.directedMotifs.exceptions.InvalidDirectedMotifException;
 
 public class DirectedMotif {
 	public static enum DirectedMotifType {
@@ -35,74 +36,6 @@ public class DirectedMotif {
 
 	public DirectedMotifType getType() {
 		return type;
-	}
-
-	public int getIndex() {
-		switch (this.type) {
-		case DM01:
-			return 1;
-		case DM02:
-			return 2;
-		case DM03:
-			return 3;
-		case DM04:
-			return 4;
-		case DM05:
-			return 5;
-		case DM06:
-			return 6;
-		case DM07:
-			return 7;
-		case DM08:
-			return 8;
-		case DM09:
-			return 9;
-		case DM10:
-			return 10;
-		case DM11:
-			return 11;
-		case DM12:
-			return 12;
-		case DM13:
-			return 13;
-		default:
-			return 0;
-
-		}
-	}
-
-	public int getEdgeCount() {
-		switch (this.type) {
-		case DM01:
-			return 2;
-		case DM02:
-			return 2;
-		case DM03:
-			return 2;
-		case DM04:
-			return 3;
-		case DM05:
-			return 3;
-		case DM06:
-			return 3;
-		case DM07:
-			return 3;
-		case DM08:
-			return 4;
-		case DM09:
-			return 4;
-		case DM10:
-			return 4;
-		case DM11:
-			return 4;
-		case DM12:
-			return 5;
-		case DM13:
-			return 6;
-		default:
-			return 0;
-
-		}
 	}
 
 	public boolean contains(DirectedNode n) {
@@ -597,6 +530,382 @@ public class DirectedMotif {
 				+ temp2[1] + "\n" + temp1[2] + " ==> " + temp2[2] + "\n"
 				+ temp1[3] + "     " + temp2[3] + "\n" + temp1[4] + "     "
 				+ temp2[4];
+	}
+
+	public static DirectedMotif getMotif(DirectedNode a, DirectedNode b,
+			DirectedNode c) throws InvalidDirectedMotifException {
+		if (a.getIndex() == b.getIndex() || a.getIndex() == c.getIndex()
+				|| b.getIndex() == c.getIndex()) {
+			throw new InvalidDirectedMotifException(a, b, c);
+		}
+
+		boolean ab = a.hasEdge(new DirectedEdge(a, b));
+		boolean ac = a.hasEdge(new DirectedEdge(a, c));
+		boolean ba = b.hasEdge(new DirectedEdge(b, a));
+		boolean bc = b.hasEdge(new DirectedEdge(b, c));
+		boolean ca = c.hasEdge(new DirectedEdge(c, a));
+		boolean cb = c.hasEdge(new DirectedEdge(c, b));
+
+		// 1
+		if (ab && ac && !ba && !bc && !ca && !cb) {
+			return new DirectedMotif(a, b, c, DirectedMotifType.DM01);
+		}
+		if (!ab && !ac && ba && bc && !ca && !cb) {
+			return new DirectedMotif(b, a, c, DirectedMotifType.DM01);
+		}
+		if (!ab && !ac && !ba && !bc && ca && cb) {
+			return new DirectedMotif(c, a, b, DirectedMotifType.DM01);
+		}
+		// 2
+		if (!ab && !ac && ba && !bc && ca && !cb) {
+			return new DirectedMotif(a, b, c, DirectedMotifType.DM02);
+		}
+		if (ab && !ac && !ba && !bc && !ca && cb) {
+			return new DirectedMotif(b, a, c, DirectedMotifType.DM02);
+		}
+		if (!ab && ac && !ba && bc && !ca && !cb) {
+			return new DirectedMotif(c, a, b, DirectedMotifType.DM02);
+		}
+		// 3
+		if (ab && !ac && !ba && bc && !ca && !cb) {
+			return new DirectedMotif(b, a, c, DirectedMotifType.DM03);
+		}
+		if (!ab && ac && !ba && !bc && !ca && cb) {
+			return new DirectedMotif(c, a, b, DirectedMotifType.DM03);
+		}
+		if (!ab && ac && ba && !bc && !ca && !cb) {
+			return new DirectedMotif(a, b, c, DirectedMotifType.DM03);
+		}
+		if (!ab && !ac && !ba && bc && ca && !cb) {
+			return new DirectedMotif(c, b, a, DirectedMotifType.DM03);
+		}
+		if (ab && !ac && !ba && !bc && ca && !cb) {
+			return new DirectedMotif(a, c, b, DirectedMotifType.DM03);
+		}
+		if (!ab && !ac && ba && !bc && !ca && cb) {
+			return new DirectedMotif(b, c, a, DirectedMotifType.DM03);
+		}
+		// 4
+		if (ab && ac && !ba && bc && !ca && !cb) {
+			return new DirectedMotif(a, b, c, DirectedMotifType.DM04);
+		}
+		if (ab && ac && !ba && !bc && !ca && cb) {
+			return new DirectedMotif(a, c, b, DirectedMotifType.DM04);
+		}
+		if (!ab && ac && ba && bc && !ca && !cb) {
+			return new DirectedMotif(b, a, c, DirectedMotifType.DM04);
+		}
+		if (!ab && !ac && ba && bc && ca && !cb) {
+			return new DirectedMotif(b, c, a, DirectedMotifType.DM04);
+		}
+		if (ab && !ac && !ba && !bc && ca && cb) {
+			return new DirectedMotif(c, a, b, DirectedMotifType.DM04);
+		}
+		if (!ab && !ac && ba && !bc && ca && cb) {
+			return new DirectedMotif(c, b, a, DirectedMotifType.DM04);
+		}
+		// 5
+		if (ab && ac && ba && !bc && !ca && !cb) {
+			return new DirectedMotif(a, b, c, DirectedMotifType.DM05);
+		}
+		if (ab && ac && !ba && !bc && ca && !cb) {
+			return new DirectedMotif(a, c, b, DirectedMotifType.DM05);
+		}
+		if (ab && !ac && ba && bc && !ca && !cb) {
+			return new DirectedMotif(b, a, c, DirectedMotifType.DM05);
+		}
+		if (!ab && !ac && ba && bc && !ca && cb) {
+			return new DirectedMotif(b, c, a, DirectedMotifType.DM05);
+		}
+		if (!ab && ac && !ba && !bc && ca && cb) {
+			return new DirectedMotif(c, a, b, DirectedMotifType.DM05);
+		}
+		if (!ab && !ac && !ba && bc && ca && cb) {
+			return new DirectedMotif(c, b, a, DirectedMotifType.DM05);
+		}
+		// 6
+		if (ab && !ac && ba && !bc && ca && !cb) {
+			return new DirectedMotif(a, b, c, DirectedMotifType.DM06);
+		}
+		if (ab && !ac && ba && !bc && !ca && cb) {
+			return new DirectedMotif(b, a, c, DirectedMotifType.DM06);
+		}
+		if (!ab && ac && ba && !bc && ca && !cb) {
+			return new DirectedMotif(a, c, b, DirectedMotifType.DM06);
+		}
+		if (!ab && ac && !ba && bc && ca && !cb) {
+			return new DirectedMotif(c, a, b, DirectedMotifType.DM06);
+		}
+		if (ab && !ac && !ba && bc && !ca && cb) {
+			return new DirectedMotif(b, c, a, DirectedMotifType.DM06);
+		}
+		if (!ab && ac && !ba && bc && !ca && cb) {
+			return new DirectedMotif(c, b, a, DirectedMotifType.DM06);
+		}
+		// 7
+		if (ab && !ac && !ba && bc && ca && !cb) {
+			return new DirectedMotif(a, b, c, DirectedMotifType.DM07);
+		}
+		if (!ab && ac && ba && !bc && !ca && cb) {
+			return new DirectedMotif(a, c, b, DirectedMotifType.DM07);
+		}
+		// 8
+		if (ab && ac && !ba && bc && !ca && cb) {
+			return new DirectedMotif(a, b, c, DirectedMotifType.DM08);
+		}
+		if (!ab && ac && ba && bc && ca && !cb) {
+			return new DirectedMotif(b, a, c, DirectedMotifType.DM08);
+		}
+		if (ab && !ac && ba && !bc && ca && cb) {
+			return new DirectedMotif(c, a, b, DirectedMotifType.DM08);
+		}
+		// 9
+		if (!ab && !ac && ba && bc && ca && cb) {
+			return new DirectedMotif(a, b, c, DirectedMotifType.DM09);
+		}
+		if (ab && ac && !ba && !bc && ca && cb) {
+			return new DirectedMotif(b, a, c, DirectedMotifType.DM09);
+		}
+		if (ab && ac && ba && bc && !ca && !cb) {
+			return new DirectedMotif(c, a, b, DirectedMotifType.DM09);
+		}
+		// 10
+		if (ab && !ac && !ba && bc && ca && cb) {
+			return new DirectedMotif(a, c, b, DirectedMotifType.DM10);
+		}
+		if (!ab && ac && ba && bc && !ca && cb) {
+			return new DirectedMotif(a, b, c, DirectedMotifType.DM10);
+		}
+		if (!ab && ac && ba && !bc && ca && cb) {
+			return new DirectedMotif(b, c, a, DirectedMotifType.DM10);
+		}
+		if (ab && ac && !ba && bc && ca && !cb) {
+			return new DirectedMotif(b, a, c, DirectedMotifType.DM10);
+		}
+		if (ab && !ac && ba && bc && ca && !cb) {
+			return new DirectedMotif(c, b, a, DirectedMotifType.DM10);
+		}
+		if (ab && ac && ba && !bc && !ca && cb) {
+			return new DirectedMotif(c, a, b, DirectedMotifType.DM10);
+		}
+		// 11
+		if (ab && ac && ba && !bc && ca && !cb) {
+			return new DirectedMotif(a, b, c, DirectedMotifType.DM11);
+		}
+		if (ab && !ac && ba && bc && !ca && cb) {
+			return new DirectedMotif(b, a, c, DirectedMotifType.DM11);
+		}
+		if (!ab && ac && !ba && bc && ca && cb) {
+			return new DirectedMotif(c, a, b, DirectedMotifType.DM11);
+		}
+
+		int sum = (ab ? 1 : 0) + (ac ? 1 : 0) + (ba ? 1 : 0) + (bc ? 1 : 0)
+				+ (ca ? 1 : 0) + (cb ? 1 : 0);
+
+		// 12
+		if (sum == 5) {
+			if (!ab) {
+				return new DirectedMotif(c, b, a, DirectedMotifType.DM12);
+			} else if (!ac) {
+				return new DirectedMotif(b, c, a, DirectedMotifType.DM12);
+			} else if (!ba) {
+				return new DirectedMotif(c, a, b, DirectedMotifType.DM12);
+			} else if (!bc) {
+				return new DirectedMotif(a, c, b, DirectedMotifType.DM12);
+			} else if (!ca) {
+				return new DirectedMotif(b, a, c, DirectedMotifType.DM12);
+			} else if (!cb) {
+				return new DirectedMotif(a, b, c, DirectedMotifType.DM12);
+			}
+		}
+		// 13
+		if (sum == 6) {
+			return new DirectedMotif(a, b, c, DirectedMotifType.DM13);
+		}
+
+		throw new InvalidDirectedMotifException(a, b, c);
+	}
+
+	public static DirectedMotifType getType(DirectedNode a, DirectedNode b,
+			DirectedNode c) throws InvalidDirectedMotifException {
+		if (a.getIndex() == b.getIndex() || a.getIndex() == c.getIndex()
+				|| b.getIndex() == c.getIndex()) {
+			throw new InvalidDirectedMotifException(a, b, c);
+		}
+
+		boolean ab = a.hasEdge(new DirectedEdge(a, b));
+		boolean ac = a.hasEdge(new DirectedEdge(a, c));
+		boolean ba = b.hasEdge(new DirectedEdge(b, a));
+		boolean bc = b.hasEdge(new DirectedEdge(b, c));
+		boolean ca = c.hasEdge(new DirectedEdge(c, a));
+		boolean cb = c.hasEdge(new DirectedEdge(c, b));
+
+		// 1
+		if (ab && ac && !ba && !bc && !ca && !cb) {
+			return DirectedMotifType.DM01;
+		}
+		if (!ab && !ac && ba && bc && !ca && !cb) {
+			return DirectedMotifType.DM01;
+		}
+		if (!ab && !ac && !ba && !bc && ca && cb) {
+			return DirectedMotifType.DM01;
+		}
+		// 2
+		if (!ab && !ac && ba && !bc && ca && !cb) {
+			return DirectedMotifType.DM02;
+		}
+		if (ab && !ac && !ba && !bc && !ca && cb) {
+			return DirectedMotifType.DM02;
+		}
+		if (!ab && ac && !ba && bc && !ca && !cb) {
+			return DirectedMotifType.DM02;
+		}
+		// 3
+		if (ab && !ac && !ba && bc && !ca && !cb) {
+			return DirectedMotifType.DM03;
+		}
+		if (!ab && ac && !ba && !bc && !ca && cb) {
+			return DirectedMotifType.DM03;
+		}
+		if (!ab && ac && ba && !bc && !ca && !cb) {
+			return DirectedMotifType.DM03;
+		}
+		if (!ab && !ac && !ba && bc && ca && !cb) {
+			return DirectedMotifType.DM03;
+		}
+		if (ab && !ac && !ba && !bc && ca && !cb) {
+			return DirectedMotifType.DM03;
+		}
+		if (!ab && !ac && ba && !bc && !ca && cb) {
+			return DirectedMotifType.DM03;
+		}
+		// 4
+		if (ab && ac && !ba && bc && !ca && !cb) {
+			return DirectedMotifType.DM04;
+		}
+		if (ab && ac && !ba && !bc && !ca && cb) {
+			return DirectedMotifType.DM04;
+		}
+		if (!ab && ac && ba && bc && !ca && !cb) {
+			return DirectedMotifType.DM04;
+		}
+		if (!ab && !ac && ba && bc && ca && !cb) {
+			return DirectedMotifType.DM04;
+		}
+		if (ab && !ac && !ba && !bc && ca && cb) {
+			return DirectedMotifType.DM04;
+		}
+		if (!ab && !ac && ba && !bc && ca && cb) {
+			return DirectedMotifType.DM04;
+		}
+		// 5
+		if (ab && ac && ba && !bc && !ca && !cb) {
+			return DirectedMotifType.DM05;
+		}
+		if (ab && ac && !ba && !bc && ca && !cb) {
+			return DirectedMotifType.DM05;
+		}
+		if (ab && !ac && ba && bc && !ca && !cb) {
+			return DirectedMotifType.DM05;
+		}
+		if (!ab && !ac && ba && bc && !ca && cb) {
+			return DirectedMotifType.DM05;
+		}
+		if (!ab && ac && !ba && !bc && ca && cb) {
+			return DirectedMotifType.DM05;
+		}
+		if (!ab && !ac && !ba && bc && ca && cb) {
+			return DirectedMotifType.DM05;
+		}
+		// 6
+		if (ab && !ac && ba && !bc && ca && !cb) {
+			return DirectedMotifType.DM06;
+		}
+		if (ab && !ac && ba && !bc && !ca && cb) {
+			return DirectedMotifType.DM06;
+		}
+		if (!ab && ac && ba && !bc && ca && !cb) {
+			return DirectedMotifType.DM06;
+		}
+		if (!ab && ac && !ba && bc && ca && !cb) {
+			return DirectedMotifType.DM06;
+		}
+		if (ab && !ac && !ba && bc && !ca && cb) {
+			return DirectedMotifType.DM06;
+		}
+		if (!ab && ac && !ba && bc && !ca && cb) {
+			return DirectedMotifType.DM06;
+		}
+		// 7
+		if (ab && !ac && !ba && bc && ca && !cb) {
+			return DirectedMotifType.DM07;
+		}
+		if (!ab && ac && ba && !bc && !ca && cb) {
+			return DirectedMotifType.DM07;
+		}
+		// 8
+		if (ab && ac && !ba && bc && !ca && cb) {
+			return DirectedMotifType.DM08;
+		}
+		if (!ab && ac && ba && bc && ca && !cb) {
+			return DirectedMotifType.DM08;
+		}
+		if (ab && !ac && ba && !bc && ca && cb) {
+			return DirectedMotifType.DM08;
+		}
+		// 9
+		if (!ab && !ac && ba && bc && ca && cb) {
+			return DirectedMotifType.DM09;
+		}
+		if (ab && ac && !ba && !bc && ca && cb) {
+			return DirectedMotifType.DM09;
+		}
+		if (ab && ac && ba && bc && !ca && !cb) {
+			return DirectedMotifType.DM09;
+		}
+		// 10
+		if (ab && !ac && !ba && bc && ca && cb) {
+			return DirectedMotifType.DM10;
+		}
+		if (!ab && ac && ba && bc && !ca && cb) {
+			return DirectedMotifType.DM10;
+		}
+		if (!ab && ac && ba && !bc && ca && cb) {
+			return DirectedMotifType.DM10;
+		}
+		if (ab && ac && !ba && bc && ca && !cb) {
+			return DirectedMotifType.DM10;
+		}
+		if (ab && !ac && ba && bc && ca && !cb) {
+			return DirectedMotifType.DM10;
+		}
+		if (ab && ac && ba && !bc && !ca && cb) {
+			return DirectedMotifType.DM10;
+		}
+		// 11
+		if (!ab && ac && !ba && bc && ca && cb) {
+			return DirectedMotifType.DM11;
+		}
+		if (ab && !ac && ba && bc && !ca && cb) {
+			return DirectedMotifType.DM11;
+		}
+		if (ab && ac && ba && !bc && ca && !cb) {
+			return DirectedMotifType.DM11;
+		}
+
+		int sum = (ab ? 1 : 0) + (ac ? 1 : 0) + (ba ? 1 : 0) + (bc ? 1 : 0)
+				+ (ca ? 1 : 0) + (cb ? 1 : 0);
+
+		// 12
+		if (sum == 5) {
+			return DirectedMotifType.DM12;
+		}
+		// 13
+		if (sum == 6) {
+			return DirectedMotifType.DM13;
+		}
+
+		throw new InvalidDirectedMotifException(a, b, c);
 	}
 
 }

@@ -3,6 +3,7 @@ package dna.metrics.motifs.directedMotifs;
 import dna.graph.Graph;
 import dna.graph.nodes.DirectedNode;
 import dna.metrics.Metric;
+import dna.metrics.motifs.directedMotifs.DirectedMotif.DirectedMotifType;
 import dna.series.data.Distribution;
 import dna.series.data.DistributionInt;
 import dna.series.data.NodeValueList;
@@ -88,6 +89,74 @@ public abstract class DirectedMotifs extends Metric {
 	@Override
 	public boolean isComparableTo(Metric m) {
 		return m instanceof DirectedMotifs;
+	}
+
+	public static int getIndex(DirectedMotifType type) {
+		switch (type) {
+		case DM01:
+			return 1;
+		case DM02:
+			return 2;
+		case DM03:
+			return 3;
+		case DM04:
+			return 4;
+		case DM05:
+			return 5;
+		case DM06:
+			return 6;
+		case DM07:
+			return 7;
+		case DM08:
+			return 8;
+		case DM09:
+			return 9;
+		case DM10:
+			return 10;
+		case DM11:
+			return 11;
+		case DM12:
+			return 12;
+		case DM13:
+			return 13;
+		default:
+			return 0;
+
+		}
+	}
+
+	public static int getEdgeCount(DirectedMotifType type) {
+		switch (type) {
+		case DM01:
+			return 2;
+		case DM02:
+			return 2;
+		case DM03:
+			return 2;
+		case DM04:
+			return 3;
+		case DM05:
+			return 3;
+		case DM06:
+			return 3;
+		case DM07:
+			return 3;
+		case DM08:
+			return 4;
+		case DM09:
+			return 4;
+		case DM10:
+			return 4;
+		case DM11:
+			return 4;
+		case DM12:
+			return 5;
+		case DM13:
+			return 6;
+		default:
+			return 0;
+
+		}
 	}
 
 }

@@ -12,6 +12,7 @@ import dna.metrics.motifs.directedMotifs.DirectedMotif.DirectedMotifType;
 import dna.metrics.motifs.directedMotifs.exceptions.DirectedMotifInvalidEdgeAdditionException;
 import dna.metrics.motifs.directedMotifs.exceptions.DirectedMotifInvalidEdgeRemovalException;
 import dna.metrics.motifs.directedMotifs.exceptions.DirectedMotifSplittingException;
+import dna.metrics.motifs.directedMotifs.exceptions.InvalidDirectedMotifException;
 import dna.updates.batch.Batch;
 import dna.updates.update.EdgeAddition;
 import dna.updates.update.EdgeRemoval;
@@ -19,7 +20,12 @@ import dna.updates.update.NodeRemoval;
 import dna.updates.update.Update;
 import dna.util.Log;
 
-public class DirectedMotifsU extends DirectedMotifs {
+public class DirectedMotifsInMemoryU extends DirectedMotifs {
+
+	public DirectedMotifsInMemoryU() {
+		super("DirectedMotifsInMemoryU", ApplicationType.BeforeUpdate,
+				MetricType.exact);
+	}
 
 	private HashSet<Integer> allMotifs;
 
@@ -31,10 +37,13 @@ public class DirectedMotifsU extends DirectedMotifs {
 		Log.debug("adding " + m + " (" + m.hashCode() + ")\n" + m.asString());
 		this.allMotifs.add(m.hashCode());
 		this.allRealMotifs.add(m);
-		this.nodeMotifs.get(m.getA().getIndex()).add(m);
-		this.nodeMotifs.get(m.getB().getIndex()).add(m);
-		this.nodeMotifs.get(m.getC().getIndex()).add(m);
-		this.motifs.incr(m.getIndex());
+		this.getNodeMotifs(m.getA().getIndex()).add(m);
+		this.getNodeMotifs(m.getB().getIndex()).add(m);
+		this.getNodeMotifs(m.getC().getIndex()).add(m);
+		// this.nodeMotifs.get(m.getA().getIndex()).add(m);
+		// this.nodeMotifs.get(m.getB().getIndex()).add(m);
+		// this.nodeMotifs.get(m.getC().getIndex()).add(m);
+		this.motifs.incr(DirectedMotifs.getIndex(m.getType()));
 	}
 
 	private void removeMotif(DirectedMotif m) {
@@ -44,7 +53,7 @@ public class DirectedMotifsU extends DirectedMotifs {
 		this.nodeMotifs.get(m.getA().getIndex()).remove(m);
 		this.nodeMotifs.get(m.getB().getIndex()).remove(m);
 		this.nodeMotifs.get(m.getC().getIndex()).remove(m);
-		this.motifs.decr(m.getIndex());
+		this.motifs.decr(DirectedMotifs.getIndex(m.getType()));
 	}
 
 	private HashSet<DirectedMotif> getNodeMotifs(int index) {
@@ -54,11 +63,6 @@ public class DirectedMotifsU extends DirectedMotifs {
 		HashSet<DirectedMotif> s = new HashSet<DirectedMotif>();
 		this.nodeMotifs.put(index, s);
 		return s;
-	}
-
-	public DirectedMotifsU() {
-		super("DirectedMotifsU", ApplicationType.BeforeUpdate,
-				MetricType.exact);
 	}
 
 	@Override
@@ -83,14 +87,14 @@ public class DirectedMotifsU extends DirectedMotifs {
 				continue;
 			}
 			String s = m.asString();
-			this.motifs.decr(m.getIndex());
+			this.motifs.decr(DirectedMotifs.getIndex(m.getType()));
 			try {
 				m.addEdge(e);
 				Log.debug("changing motif: " + m + "\n" + m.asStringFrom(s));
 			} catch (DirectedMotifInvalidEdgeAdditionException e1) {
 				// e1.printStackTrace();
 			}
-			this.motifs.incr(m.getIndex());
+			this.motifs.incr(DirectedMotifs.getIndex(m.getType()));
 		}
 	}
 
@@ -105,7 +109,7 @@ public class DirectedMotifsU extends DirectedMotifs {
 				continue;
 			}
 			String s = m.asString();
-			this.motifs.decr(m.getIndex());
+			this.motifs.decr(DirectedMotifs.getIndex(m.getType()));
 			try {
 				m.removeEdge(e);
 				Log.debug("changing motif: " + m + "\n" + m.asStringFrom(s));
@@ -115,7 +119,7 @@ public class DirectedMotifsU extends DirectedMotifs {
 				// e1.printStackTrace();
 				removedMotifs.add(m);
 			}
-			this.motifs.incr(m.getIndex());
+			this.motifs.incr(DirectedMotifs.getIndex(m.getType()));
 		}
 		for (DirectedMotif m : removedMotifs) {
 			this.removeMotif(m);
@@ -277,8 +281,54 @@ public class DirectedMotifsU extends DirectedMotifs {
 
 	@Override
 	public boolean compute() {
-		this.motifs.setDenominator(0);
+
+		for (IElement element : this.g.getNodes()) {
+			DirectedNode a = (DirectedNode) element;
+			HashSet<DirectedNode> a_ = this.getConnectedNodes(a);
+			for (DirectedNode b : a_) {
+				HashSet<DirectedNode> b_ = this.getConnectedNodes(b);
+				for (DirectedNode c : b_) {
+					if (c.getIndex() > a.getIndex() && !a_.contains(c)) {
+						try {
+							this.addInitialMotif(a, b, c);
+						} catch (InvalidDirectedMotifException e) {
+							e.printStackTrace();
+						}
+					}
+				}
+				if (b.getIndex() > a.getIndex()) {
+					for (DirectedNode c : b_) {
+						if (c.getIndex() > b.getIndex() && a_.contains(c)) {
+							try {
+								this.addInitialMotif(a, b, c);
+							} catch (InvalidDirectedMotifException e) {
+								e.printStackTrace();
+							}
+						}
+					}
+				}
+			}
+		}
+
 		return true;
+	}
+
+	private void addInitialMotif(DirectedNode a, DirectedNode b, DirectedNode c)
+			throws InvalidDirectedMotifException {
+		DirectedMotif m = DirectedMotif.getMotif(a, b, c);
+		this.addMotif(m);
+	}
+
+	private HashSet<DirectedNode> getConnectedNodes(DirectedNode node) {
+		HashSet<DirectedNode> nodes = new HashSet<DirectedNode>(
+				node.getInDegree() + node.getOutDegree());
+		for (IElement in : node.getIncomingEdges()) {
+			nodes.add(((DirectedEdge) in).getSrc());
+		}
+		for (IElement out : node.getOutgoingEdges()) {
+			nodes.add(((DirectedEdge) out).getDst());
+		}
+		return nodes;
 	}
 
 	public void init_() {
