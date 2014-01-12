@@ -2,6 +2,8 @@ package dna.profiler.complexity;
 
 import java.util.TreeSet;
 
+import dna.profiler.complexity.ComplexityType.Base;
+
 public class ComplexityType implements Comparable<ComplexityType> {
 	/**
 	 * List of complexity types. Keep it sorted to enable comparisons in
@@ -11,15 +13,35 @@ public class ComplexityType implements Comparable<ComplexityType> {
 	 * 
 	 */
 	public enum Type {
-		Static, Linear, Unknown
+		Static, Linear, Unknown;
+
+		public static ComplexityType staticType = new ComplexityType(Static,
+				null);
+		public static ComplexityType linearType = new ComplexityType(Linear,
+				null);
+		public static ComplexityType unknownType = new ComplexityType(Unknown,
+				null);
+
+		public static ComplexityType getBasicComplexity(Type selector) {
+			switch (selector) {
+			case Static:
+				return staticType;
+			case Linear:
+				return linearType;
+			case Unknown:
+				return unknownType;
+			default:
+				throw new RuntimeException("Unknwon ComplexityType " + selector);
+			}
+		}
 	}
 
 	public enum Base {
 		Degree, NodeSize, EdgeSize;
-		
+
 		@Override
 		public String toString() {
-			switch(this) {
+			switch (this) {
 			case Degree:
 				return "d";
 			case EdgeSize:
@@ -39,7 +61,11 @@ public class ComplexityType implements Comparable<ComplexityType> {
 		this.complexityType = t;
 		this.complexityBase = b;
 	}
-	
+
+	public void setBase(Base base) {
+		this.complexityBase = base;
+	}
+
 	public static TreeSet<ComplexityType> getAllComplexityTypes() {
 		TreeSet<ComplexityType> complexityTypes = new TreeSet<>();
 		for (Type t : ComplexityType.Type.values()) {
