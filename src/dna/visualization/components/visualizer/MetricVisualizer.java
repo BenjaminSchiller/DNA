@@ -499,6 +499,7 @@ public class MetricVisualizer extends Visualizer {
 		for (String trace : this.traces.keySet()) {
 			this.traces.get(trace).removeAllPoints();
 		}
+		this.batchBuffer.clear();
 		this.availableValues.clear();
 		this.chart.updateUI();
 	}

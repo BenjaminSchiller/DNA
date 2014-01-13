@@ -34,7 +34,7 @@ public class MainDisplay extends JFrame {
 	/** MAIN **/
 	public static void main(String[] args) {
 		// generate config for visualizers
-		//visualizerConfig = new Config1();
+		// visualizerConfig = new Config1();
 		visualizerConfig = new Config2();
 
 		// init main window
