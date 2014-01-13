@@ -6,6 +6,15 @@ import dna.visualization.config.VisualizerListConfig.DisplayMode;
 import dna.visualization.config.VisualizerListConfig.GraphVisibility;
 import dna.visualization.config.VisualizerListConfig.yAxisSelection;
 
+/**
+ * General configuration item object which allows to configure the yAxis
+ * orientation (y1 or y2), default visibility option (shown or hidden), display
+ * mode (linespoint or bars) and color for an item, usually identified by the
+ * name. For more specific configuration objects see MetricVisualizerItem or the
+ * MultiScalarDistributionItem / MultiScalarNodeValueListItem.
+ * 
+ * @author Rwilmes
+ */
 public class ConfigItem {
 	protected String name;
 	protected yAxisSelection yAxis;

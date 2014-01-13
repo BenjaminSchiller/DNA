@@ -26,7 +26,7 @@ import dna.visualization.components.statsdisplay.StatsDisplay;
 import dna.visualization.components.visualizer.MetricVisualizer;
 import dna.visualization.components.visualizer.MultiScalarVisualizer;
 import dna.visualization.components.visualizer.Visualizer;
-import dna.visualization.config.Config1;
+import dna.visualization.config.Config2;
 import dna.visualization.config.VisualizerListConfig;
 
 @SuppressWarnings("serial")
@@ -34,7 +34,8 @@ public class MainDisplay extends JFrame {
 	/** MAIN **/
 	public static void main(String[] args) {
 		// generate config for visualizers
-		visualizerConfig = new Config1();
+		//visualizerConfig = new Config1();
+		visualizerConfig = new Config2();
 
 		// init main window
 		MainDisplay display = new MainDisplay();

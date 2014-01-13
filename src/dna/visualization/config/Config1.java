@@ -1,7 +1,9 @@
 package dna.visualization.config;
 
-import java.awt.Color;
-
+/**
+ * example config for specific settings that affect only chosen
+ * metrics/distributions etc.
+ **/
 public class Config1 extends VisualizerListConfig {
 
 	public Config1() {

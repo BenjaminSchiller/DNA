@@ -37,7 +37,6 @@ import dna.series.data.RunTime;
 import dna.series.data.Value;
 import dna.util.Config;
 import dna.visualization.GuiOptions;
-import dna.visualization.config.Config1;
 import dna.visualization.config.ConfigItem;
 import dna.visualization.config.MetricVisualizerItem;
 import dna.visualization.config.VisualizerListConfig;
@@ -49,12 +48,13 @@ public class MetricVisualizer extends Visualizer {
 	private HashMap<String, ITrace2D> traces;
 
 	private LinkedList<BatchData> batchBuffer;
+	private BatchData initBatch;
 	private int bufferSize = GuiOptions.metricVisualizerBatchBufferSize;
 	private boolean reload;
 
 	private boolean xAxisTypeTimestamp;
 	private long currentTimestamp;
-	
+
 	// config
 	VisualizerListConfig config;
 
@@ -445,6 +445,7 @@ public class MetricVisualizer extends Visualizer {
 
 	/** initializes the data with the first batch **/
 	public void initData(BatchData b) {
+		this.initBatch = b;
 		this.minTimestamp = b.getTimestamp();
 		this.maxTimestamp = b.getTimestamp();
 		this.minShownTimestamp = b.getTimestamp();
@@ -483,7 +484,7 @@ public class MetricVisualizer extends Visualizer {
 		this.legend.updateAddBox(tempValues);
 
 		// load config
-		if(this.config != null)
+		if (this.config != null)
 			this.loadConfig(this.config);
 
 		// toggle visibility and validate
@@ -636,6 +637,64 @@ public class MetricVisualizer extends Visualizer {
 			if (c instanceof MetricVisualizerItem) {
 				if (this.availableValues.contains(c.getName()))
 					this.legend.addValueItemToList((MetricVisualizerItem) c);
+			}
+		}
+		// check if any general configuration is set
+		if (config.isAnyGeneralConfigSet()) {
+			BatchData b = this.initBatch;
+
+			// insert all available metrics
+			if (config.getAllMetricsConfig() != null) {
+				for (String metric : b.getMetrics().getNames()) {
+					for (String value : b.getMetrics().get(metric).getValues()
+							.getNames()) {
+						MetricVisualizerItem c = config.getAllMetricsConfig();
+						this.legend
+								.addValueItemToList(new MetricVisualizerItem(
+										metric + "." + value, c
+												.getDisplayMode(),
+										c.getYAxis(), c.getVisibility()));
+					}
+				}
+			}
+
+			// insert all available general runtimes
+			if (config.getAllGeneralRuntimesConfig() != null) {
+				for (String runtime : b.getGeneralRuntimes().getNames()) {
+					// graphGeneration runtime will be ignored cause it is only
+					// present
+					// in the initial batch
+					if (!runtime.equals("graphGeneration")) {
+						MetricVisualizerItem c = config
+								.getAllGeneralRuntimesConfig();
+						this.legend
+								.addValueItemToList(new MetricVisualizerItem(
+										"general runtime." + runtime, c
+												.getDisplayMode(),
+										c.getYAxis(), c.getVisibility()));
+					}
+				}
+			}
+
+			// insert all available metric runtimes
+			if (config.getAllMetricRuntimesConfig() != null) {
+				for (String runtime : b.getMetricRuntimes().getNames()) {
+					MetricVisualizerItem c = config
+							.getAllMetricRuntimesConfig();
+					this.legend.addValueItemToList(new MetricVisualizerItem(
+							"metric runtime." + runtime, c.getDisplayMode(), c
+									.getYAxis(), c.getVisibility()));
+				}
+			}
+
+			// insert all available statistics
+			if (config.getAllStatisticsConfig() != null) {
+				for (String value : b.getValues().getNames()) {
+					MetricVisualizerItem c = config.getAllStatisticsConfig();
+					this.legend.addValueItemToList(new MetricVisualizerItem(
+							"statistics." + value, c.getDisplayMode(), c
+									.getYAxis(), c.getVisibility()));
+				}
 			}
 		}
 	}

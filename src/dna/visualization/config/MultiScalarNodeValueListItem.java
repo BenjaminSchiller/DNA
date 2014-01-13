@@ -8,6 +8,12 @@ import dna.visualization.config.VisualizerListConfig.SortModeNVL;
 import dna.visualization.config.VisualizerListConfig.xAxisSelection;
 import dna.visualization.config.VisualizerListConfig.yAxisSelection;
 
+/**
+ * Specialized ConfigItem object for all nodevaluelists that can be used in the
+ * MultiScalar-Visualizer.
+ * 
+ * @author Rwilmes
+ */
 public class MultiScalarNodeValueListItem extends ConfigItem {
 
 	private SortModeNVL sortMode;

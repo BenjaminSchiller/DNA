@@ -31,7 +31,6 @@ import dna.series.data.MetricData;
 import dna.series.data.NodeValueList;
 import dna.util.Config;
 import dna.visualization.GuiOptions;
-import dna.visualization.config.Config1;
 import dna.visualization.config.ConfigItem;
 import dna.visualization.config.MultiScalarDistributionItem;
 import dna.visualization.config.MultiScalarNodeValueListItem;
@@ -50,7 +49,7 @@ public class MultiScalarVisualizer extends Visualizer {
 	private HashMap<String, Integer> intDenominators;
 	private HashMap<String, int[]> intValues;
 	private HashMap<String, double[]> doubleValues;
-	
+
 	// config
 	VisualizerListConfig config;
 
@@ -155,7 +154,7 @@ public class MultiScalarVisualizer extends Visualizer {
 		this.legend.updateAddBox(tempValues);
 
 		// load config
-		if(this.config != null)
+		if (this.config != null)
 			this.loadConfig(this.config);
 
 		// put in first batch to update data
@@ -774,6 +773,33 @@ public class MultiScalarVisualizer extends Visualizer {
 				if (this.availableNodeValueLists.contains(c.getName()))
 					this.legend
 							.addNodeValueListItemToList((MultiScalarNodeValueListItem) c);
+			}
+		}
+		// check if any general configuration is set
+		if (config.isAnyGeneralConfigSet()) {
+			// insert all available metrics
+			if (config.getAllDistributionsConfig() != null) {
+				MultiScalarDistributionItem c = config
+						.getAllDistributionsConfig();
+				for (String dist : this.availableDistributions) {
+					this.legend
+							.addDistributionItemToList(new MultiScalarDistributionItem(
+									dist, c.getSortMode(), c.getXAxis(), c
+											.getYAxis(), c.getDisplayMode(), c
+											.getVisibility()));
+				}
+			}
+			// insert all available general runtimes
+			if (config.getAllNodeValueListsConfig() != null) {
+				MultiScalarNodeValueListItem c = config
+						.getAllNodeValueListsConfig();
+				for (String nvl : this.availableNodeValueLists) {
+					this.legend
+							.addNodeValueListItemToList(new MultiScalarNodeValueListItem(
+									nvl, c.getSortMode(), c.getXAxis(), c
+											.getYAxis(), c.getDisplayMode(), c
+											.getVisibility()));
+				}
 			}
 		}
 	}

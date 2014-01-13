@@ -8,6 +8,12 @@ import dna.visualization.config.VisualizerListConfig.SortModeDist;
 import dna.visualization.config.VisualizerListConfig.xAxisSelection;
 import dna.visualization.config.VisualizerListConfig.yAxisSelection;
 
+/**
+ * Specialized ConfigItem object for all distributions that can be used in the
+ * MultiScalar-Visualizer.
+ * 
+ * @author Rwilmes
+ */
 public class MultiScalarDistributionItem extends ConfigItem {
 
 	private SortModeDist sortMode;
