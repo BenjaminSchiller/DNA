@@ -87,8 +87,6 @@ public class StatsDisplay extends JPanel implements ChangeListener {
 	// date format
 	private SimpleDateFormat dateFormat;
 
-	static Thread thr;
-
 	/*
 	 * constructors
 	 */
@@ -482,6 +480,7 @@ public class StatsDisplay extends JPanel implements ChangeListener {
 	 * @author Rwilmes
 	 */
 	public void updateData(BatchData b) {
+		this.init = false;
 		this.setTimestamp(b.getTimestamp());
 		this.setNodes(b.getValues().get("nodes").getValue());
 		this.setEdges(b.getValues().get("edges").getValue());
@@ -502,6 +501,8 @@ public class StatsDisplay extends JPanel implements ChangeListener {
 			double percent = (Math.floor(((1.0 * pr) / (1.0 * amount)) * 10000) / 100);
 			this.setProgess(percent);
 		}
+		this.setTimeSlider(b.getTimestamp());
+		this.init = true;
 		this.validate();
 	}
 
