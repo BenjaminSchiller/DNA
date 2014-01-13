@@ -1,5 +1,7 @@
 package dna.visualization.config;
 
+import java.awt.Color;
+
 /**
  * example config for general settings that affect all
  * metrics/runtimes/statistics etc.
@@ -7,6 +9,9 @@ package dna.visualization.config;
 public class Config2 extends VisualizerListConfig {
 	public Config2() {
 
+		/*
+		 * CONFIGURE GENERAL SETTINGS
+		 */
 		// add all metrics with this values
 		MetricVisualizerItem generalMetricConfig = new MetricVisualizerItem(
 				null, DisplayMode.linespoint, yAxisSelection.y1,
@@ -31,5 +36,16 @@ public class Config2 extends VisualizerListConfig {
 				yAxisSelection.y2, DisplayMode.linespoint,
 				GraphVisibility.shown);
 		this.setAllNodeValueLists(generalNodeValueListConfig);
+
+		/*
+		 * CONFIGURE SPECIFIC SETTINGS
+		 */
+		// configure statistics.memory to be shown and to be green
+		MetricVisualizerItem edgesConfig = new MetricVisualizerItem(
+				"statistics.memory", DisplayMode.linespoint, yAxisSelection.y2,
+				GraphVisibility.shown, Color.GREEN);
+		ConfigItem[] singleConfigs = { edgesConfig };
+		this.addConfigItems(singleConfigs);
+
 	}
 }

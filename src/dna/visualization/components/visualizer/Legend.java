@@ -133,6 +133,7 @@ public class Legend extends JPanel {
 			if ((item.getColor() != null)
 					&& this.colorHandler.containsColor(item.getColor())) {
 				color = item.getColor();
+				this.colorHandler.addColor(color);
 			} else {
 				color = this.colorHandler.getNextColor();
 			}
@@ -238,6 +239,7 @@ public class Legend extends JPanel {
 			if ((item.getColor() != null)
 					&& this.colorHandler.containsColor(item.getColor())) {
 				color = item.getColor();
+				this.colorHandler.addColor(color);
 			} else {
 				color = this.colorHandler.getNextColor();
 			}
@@ -348,6 +350,7 @@ public class Legend extends JPanel {
 			if ((item.getColor() != null)
 					&& this.colorHandler.containsColor(item.getColor())) {
 				color = item.getColor();
+				this.colorHandler.addColor(color);
 			} else {
 				color = this.colorHandler.getNextColor();
 			}
