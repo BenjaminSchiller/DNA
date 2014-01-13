@@ -2,10 +2,13 @@ package dna.visualization.components.visualizer;
 
 import info.monitorenter.gui.chart.IAxis;
 import info.monitorenter.gui.chart.ITrace2D;
+import info.monitorenter.gui.chart.ITracePainter;
 import info.monitorenter.gui.chart.ITracePoint2D;
 import info.monitorenter.gui.chart.traces.Trace2DSimple;
 import info.monitorenter.gui.chart.traces.painters.TracePainterDisc;
 import info.monitorenter.gui.chart.traces.painters.TracePainterFill;
+import info.monitorenter.gui.chart.traces.painters.TracePainterLine;
+import info.monitorenter.gui.chart.traces.painters.TracePainterVerticalBar;
 
 import java.awt.Color;
 import java.awt.Dimension;
@@ -661,6 +664,26 @@ public class MultiScalarVisualizer extends Visualizer {
 				this.traces.get(name).setVisible(true);
 		}
 		this.chart.setRequestedRepaint(true);
+	}
+
+	/** toggles the display mode of a trace **/
+	public void toggleDisplayMode(String name) {
+		if (this.traces.containsKey(name)) {
+			ITrace2D trace = this.traces.get(name);
+			boolean verticalBar = false;
+			for (ITracePainter painter : trace.getTracePainters()) {
+				if (painter instanceof TracePainterVerticalBar)
+					verticalBar = true;
+			}
+			if (verticalBar) {
+				trace.setTracePainter(new TracePainterDisc(Config
+						.getInt("GUI_LINESPOINT_SIZE")));
+				trace.addTracePainter(new TracePainterLine());
+			} else {
+				trace.setTracePainter(new TracePainterVerticalBar(Config
+						.getInt("GUI_VERTICALBAR_SIZE"), this.chart));
+			}
+		}
 	}
 
 	/** toggles grid on second x axis **/

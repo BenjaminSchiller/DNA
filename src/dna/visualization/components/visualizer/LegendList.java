@@ -116,6 +116,11 @@ public class LegendList extends JPanel {
 	public void toggleVisiblity(LegendItem item) {
 		this.parent.toggleVisiblity(item);
 	}
+	
+	/** toggles the display mode of a trace **/
+	public void toggleDisplayMode(LegendItem item) {
+		this.parent.toggleDisplayMode(item);
+	}
 
 	/** returns the legenditem identified by its name **/
 	public LegendItem getLegendItem(String name) {

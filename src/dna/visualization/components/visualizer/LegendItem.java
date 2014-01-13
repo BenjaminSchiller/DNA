@@ -42,6 +42,7 @@ public class LegendItem extends JPanel {
 	protected JButton toggleYAxisButton;
 	private JButton removeButton;
 	private JButton showHideButton;
+	private JButton displayModeButton;
 
 	// optionspanel containing several buttons and options
 	protected JPanel buttonPanel;
@@ -147,6 +148,29 @@ public class LegendItem extends JPanel {
 			}
 		});
 
+		// bar/linespoint button
+		this.displayModeButton = new JButton("B");
+		this.displayModeButton.setFont(GuiOptions.defaultFont);
+		this.displayModeButton.setForeground(GuiOptions.defaultFontColor);
+		this.displayModeButton.setPreferredSize(GuiOptions.legendItemButtonSize);
+		this.displayModeButton.setMargin(new Insets(0, 0, 0, 0));
+		this.displayModeButton.setToolTipText("Set display mode to linespoint.");
+		this.displayModeButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent event) {
+				if (thisItem.displayModeButton.getText().equals("B")) {
+					thisItem.displayModeButton.setText("L");
+					thisItem.displayModeButton
+							.setToolTipText("Set display mode to bar.");
+				} else {
+					thisItem.displayModeButton.setText("B");
+					thisItem.displayModeButton
+							.setToolTipText("Set display mode to linespoint.");
+				}
+				thisItem.parent.toggleDisplayMode(thisItem);
+			}
+		});
+
 		// button panel
 		this.buttonPanel = new JPanel();
 		this.buttonPanel.setLayout(new FlowLayout(FlowLayout.RIGHT, 0, 0));
@@ -155,6 +179,7 @@ public class LegendItem extends JPanel {
 		this.buttonPanel.setPreferredSize(new Dimension(80, 20));
 		this.buttonPanel.add(this.removeButton);
 		this.buttonPanel.add(this.showHideButton);
+		this.buttonPanel.add(this.displayModeButton);
 		this.buttonPanel.add(this.toggleYAxisButton);
 
 		// add components

@@ -440,6 +440,16 @@ public class Legend extends JPanel {
 			((MultiScalarVisualizer) this.parent).toggleTraceVisiblity(item
 					.getName());
 	}
+	
+	/** toggles the display mode of a trace **/
+	public void toggleDisplayMode(LegendItem item) {
+		if (this.parent instanceof MetricVisualizer)
+			((MetricVisualizer) this.parent).toggleDisplayMode(item
+					.getName());
+		if (this.parent instanceof MultiScalarVisualizer)
+			((MultiScalarVisualizer) this.parent).toggleDisplayMode(item
+					.getName());
+	}
 
 	/** called from an item to get resorted while paused **/
 	public void sortItem(LegendItem i, SortModeNVL s) {

@@ -2,6 +2,7 @@ package dna.visualization.components.visualizer;
 
 import info.monitorenter.gui.chart.IAxis;
 import info.monitorenter.gui.chart.ITrace2D;
+import info.monitorenter.gui.chart.ITracePainter;
 import info.monitorenter.gui.chart.ITracePoint2D;
 import info.monitorenter.gui.chart.axis.scalepolicy.AxisScalePolicyAutomaticBestFit;
 import info.monitorenter.gui.chart.labelformatters.LabelFormatterDate;
@@ -11,6 +12,9 @@ import info.monitorenter.gui.chart.traces.Trace2DLtd;
 import info.monitorenter.gui.chart.traces.Trace2DSimple;
 import info.monitorenter.gui.chart.traces.painters.TracePainterDisc;
 import info.monitorenter.gui.chart.traces.painters.TracePainterFill;
+import info.monitorenter.gui.chart.traces.painters.TracePainterLine;
+import info.monitorenter.gui.chart.traces.painters.TracePainterPolyline;
+import info.monitorenter.gui.chart.traces.painters.TracePainterVerticalBar;
 import info.monitorenter.util.Range;
 
 import java.awt.Color;
@@ -284,6 +288,81 @@ public class MetricVisualizer extends Visualizer {
 		this.reload = false;
 	}
 
+	/**
+	 * Reloads a trace from buffered data. Note: Only use during pause because
+	 * of race conditions!
+	 * 
+	 * @param name
+	 *            Name of the trace
+	 */
+	private void reloadTrace(String name) {
+		Iterator<BatchData> iterator = this.batchBuffer.iterator();
+		while (iterator.hasNext()) {
+			this.updateTrace(iterator.next(), name);
+		}
+	}
+
+	/** updates only one specific trace **/
+	private void updateTrace(BatchData b, String name) {
+
+		long timestamp = b.getTimestamp();
+		double timestampDouble = timestamp;
+		// update values
+		for (String metric : b.getMetrics().getNames()) {
+			for (String value : b.getMetrics().get(metric).getValues()
+					.getNames()) {
+				if (this.traces.containsKey(metric + "." + value)) {
+					String tempName = metric + "." + value;
+					if (tempName.equals(name)) {
+						double tempValue = b.getMetrics().get(metric)
+								.getValues().get(value).getValue();
+						this.traces.get(tempName).addPoint(timestampDouble,
+								tempValue);
+						this.legend.updateItem(tempName, tempValue);
+					}
+				}
+			}
+		}
+		// update general runtimes
+		for (String runtime : b.getGeneralRuntimes().getNames()) {
+			if (this.traces.containsKey("general runtimes." + runtime)) {
+				String tempName = "general runtimes." + runtime;
+				if (tempName.equals(name)) {
+					double tempValue = b.getGeneralRuntimes().get(runtime)
+							.getRuntime();
+					this.traces.get(tempName).addPoint(timestampDouble,
+							tempValue);
+					this.legend.updateItem(tempName, tempValue);
+				}
+			}
+		}
+		// update metric runtimes
+		for (String runtime : b.getMetricRuntimes().getNames()) {
+			if (this.traces.containsKey("metric runtimes." + runtime)) {
+				String tempName = "metric runtimes." + runtime;
+				double tempValue = b.getMetricRuntimes().get(runtime)
+						.getRuntime();
+				if (tempName.equals(name)) {
+					this.traces.get(tempName).addPoint(timestampDouble,
+							tempValue);
+					this.legend.updateItem(tempName, tempValue);
+				}
+			}
+		}
+		// update statistics
+		for (String value : b.getValues().getNames()) {
+			if (this.traces.containsKey("statistics." + value)) {
+				String tempName = "statistics." + value;
+				if (tempName.equals(name)) {
+					double tempValue = b.getValues().get(value).getValue();
+					this.traces.get(tempName).addPoint(timestampDouble,
+							tempValue);
+					this.legend.updateItem(tempName, tempValue);
+				}
+			}
+		}
+	}
+
 	/** adds trace to the visualizer with default trace length **/
 	public void addTrace(String name, Color color) {
 		if (!this.traces.containsKey(name)) {
@@ -299,6 +378,47 @@ public class MetricVisualizer extends Visualizer {
 							.getInt("GUI_LINESPOINT_SIZE")));
 				if (Config.getBoolean("GUI_PAINT_FILL"))
 					newTrace.addTracePainter(new TracePainterFill(this.chart));
+			} else {
+				Trace2DSimple newTrace = new Trace2DSimple();
+				newTrace.setColor(color);
+				this.traces.put(name, newTrace);
+				this.chart.addTrace(newTrace);
+
+				if (Config.getBoolean("GUI_PAINT_LINESPOINT"))
+					newTrace.addTracePainter(new TracePainterDisc(Config
+							.getInt("GUI_LINESPOINT_SIZE")));
+				if (Config.getBoolean("GUI_PAINT_FILL"))
+					newTrace.addTracePainter(new TracePainterFill(this.chart));
+			}
+		}
+	}
+
+	/** adds trace to the visualizer with default trace length **/
+	public void addTrace(String name, Color color, boolean verticalBar) {
+		if (!this.traces.containsKey(name)) {
+			if (Config.getBoolean("GUI_TRACE_MODE_LTD")) {
+				Trace2DLtd newTrace = new Trace2DLtd(
+						Config.getInt("GUI_TRACE_LENGTH"));
+				newTrace.setColor(color);
+				this.traces.put(name, newTrace);
+				this.chart.addTrace(newTrace);
+
+				if (verticalBar) {
+					for (ITracePainter painter : newTrace.getTracePainters()) {
+						if (painter instanceof TracePainterPolyline)
+							newTrace.removeTracePainter(painter);
+					}
+					newTrace.addTracePainter(new TracePainterVerticalBar(Config
+							.getInt("GUI_VERTICALBAR_SIZE"), this.chart));
+				} else {
+					if (Config.getBoolean("GUI_PAINT_LINESPOINT"))
+						newTrace.addTracePainter(new TracePainterDisc(Config
+								.getInt("GUI_LINESPOINT_SIZE")));
+
+					if (Config.getBoolean("GUI_PAINT_FILL"))
+						newTrace.addTracePainter(new TracePainterFill(
+								this.chart));
+				}
 			} else {
 				Trace2DSimple newTrace = new Trace2DSimple();
 				newTrace.setColor(color);
@@ -377,6 +497,26 @@ public class MetricVisualizer extends Visualizer {
 				this.traces.get(name).setVisible(true);
 		}
 		this.chart.setRequestedRepaint(true);
+	}
+
+	/** toggles the display mode of a trace **/
+	public void toggleDisplayMode(String name) {
+		if (this.traces.containsKey(name)) {
+			ITrace2D trace = this.traces.get(name);
+			boolean verticalBar = false;
+			for (ITracePainter painter : trace.getTracePainters()) {
+				if (painter instanceof TracePainterVerticalBar)
+					verticalBar = true;
+			}
+			if (verticalBar) {
+				trace.setTracePainter(new TracePainterDisc(Config
+						.getInt("GUI_LINESPOINT_SIZE")));
+				trace.addTracePainter(new TracePainterLine());
+			} else {
+				trace.setTracePainter(new TracePainterVerticalBar(Config
+						.getInt("GUI_VERTICALBAR_SIZE"), this.chart));
+			}
+		}
 	}
 
 	/** removes a trace from the chart and the traces-list **/
