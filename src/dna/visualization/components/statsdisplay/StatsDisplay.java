@@ -354,6 +354,7 @@ public class StatsDisplay extends JPanel implements ChangeListener {
 		timeSliderDecrButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent event) {
+				mainDisplay.setPaused(true);
 				decrementTimeSlider();
 			}
 		});
@@ -387,6 +388,7 @@ public class StatsDisplay extends JPanel implements ChangeListener {
 		timeSliderIncrButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent event) {
+				mainDisplay.setPaused(true);
 				incrementTimeSlider();
 			}
 		});
