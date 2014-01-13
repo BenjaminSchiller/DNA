@@ -83,6 +83,7 @@ public class StatsDisplay extends JPanel implements ChangeListener {
 	// flags
 	private boolean init = false;
 	private boolean paused;
+	private boolean timesliderAdjustingPause = false;
 
 	// date format
 	private SimpleDateFormat dateFormat;
@@ -642,9 +643,19 @@ public class StatsDisplay extends JPanel implements ChangeListener {
 			}
 			// check if it was the time slider
 			if (source.getName().equals("TimeSlider")) {
-				if (!source.getValueIsAdjusting()) {
-					if (init) {
-						this.mainDisplay.setTime((int) source.getValue());
+				if (init) {
+					if (source.getValueIsAdjusting())
+						if (!this.mainDisplay.isPaused())
+							this.timesliderAdjustingPause = true;
+					this.mainDisplay.setPaused(true);
+					if (!source.getValueIsAdjusting()) {
+						if (init) {
+							this.mainDisplay.setTime((int) source.getValue());
+							if (timesliderAdjustingPause) {
+								this.timesliderAdjustingPause = false;
+								this.mainDisplay.setPaused(false);
+							}
+						}
 					}
 				}
 			}

@@ -289,11 +289,16 @@ public class BatchHandler implements Runnable {
 			notify();
 	}
 
-	/** pause the batchahndler **/
+	/** pause the batchhandler **/
 	public synchronized void setPaused(boolean paused) {
 		this.threadSuspended = paused;
 		if (!this.threadSuspended)
 			notify();
+	}
+
+	/** returns if the batchhandler is paused **/
+	public boolean isPaused() {
+		return this.threadSuspended;
 	}
 
 	/** register new mainFrame to the batchhandler **/
@@ -368,6 +373,7 @@ public class BatchHandler implements Runnable {
 				}
 			}
 		}
+
 		// send best matching batch to mainFrame
 		try {
 			mainFrame.updateData(BatchData.read(

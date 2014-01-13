@@ -138,7 +138,7 @@ public class MenuBar extends JPanel implements ChangeListener {
 		// x1 label
 		JLabel x1Label = new JLabel("x1:");
 		x1Label.setPreferredSize(new Dimension(18, 20));
-		x1Label.setFont(GuiOptions.defaultFont);
+		x1Label.setFont(GuiOptions.menuBarCoordsFont);
 		x1Label.setForeground(GuiOptions.defaultFontColor);
 
 		// checkbox
@@ -284,7 +284,7 @@ public class MenuBar extends JPanel implements ChangeListener {
 			// x1 label
 			JLabel x2Label = new JLabel("x2:");
 			x2Label.setPreferredSize(new Dimension(18, 20));
-			x2Label.setFont(GuiOptions.defaultFont);
+			x2Label.setFont(GuiOptions.menuBarCoordsFont);
 			x2Label.setForeground(GuiOptions.defaultFontColor);
 
 			// checkbox

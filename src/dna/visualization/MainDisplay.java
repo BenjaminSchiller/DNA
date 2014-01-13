@@ -374,6 +374,7 @@ public class MainDisplay extends JFrame {
 		}
 	}
 
+	/** sets the batchhandler paused or unpaused **/
 	public void setPaused(boolean paused) {
 		if (paused) {
 			this.pauseButton.setForeground(Color.RED);
@@ -383,6 +384,11 @@ public class MainDisplay extends JFrame {
 			this.pauseButton.setText("Pause");
 		}
 		this.batchHandler.setPaused(paused);
+	}
+
+	/** returns if the batchhandler is paused or not **/
+	public boolean isPaused() {
+		return this.batchHandler.isPaused();
 	}
 
 	/** called from the statsdisplay timeslider to move in time **/

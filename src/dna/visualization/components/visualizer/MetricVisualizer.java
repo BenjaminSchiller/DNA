@@ -156,6 +156,7 @@ public class MetricVisualizer extends Visualizer {
 			}
 			// reload data
 			this.reloadData();
+			this.updateData(b);
 		} else {
 			// if reload flag is set, dont add batch to buffer
 			if (!this.reload) {

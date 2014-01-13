@@ -49,15 +49,15 @@ public class GuiOptions {
 
 	// legend item distribution
 	public static final Dimension legendItemDistValueLabelSize = new Dimension(
-			60, 20);
+			40, 20);
 	public static final Dimension legendItemDistButtonPanelSize = new Dimension(
-			100, 20);
+			120, 20);
 
 	// legend item nodevaluelist
 	public static final Dimension legendItemNvlValueLabelSize = new Dimension(
-			60, 20);
+			40, 20);
 	public static final Dimension legendItemNvlButtonPanelSize = new Dimension(
-			100, 20);
+			120, 20);
 
 	// menu bar
 	public static final Dimension menuBarCoordsPanelSize = new Dimension(145,
