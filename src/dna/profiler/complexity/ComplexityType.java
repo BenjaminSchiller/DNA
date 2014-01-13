@@ -2,8 +2,6 @@ package dna.profiler.complexity;
 
 import java.util.TreeSet;
 
-import dna.profiler.complexity.ComplexityType.Base;
-
 public class ComplexityType implements Comparable<ComplexityType> {
 	/**
 	 * List of complexity types. Keep it sorted to enable comparisons in
@@ -33,6 +31,15 @@ public class ComplexityType implements Comparable<ComplexityType> {
 			default:
 				throw new RuntimeException("Unknwon ComplexityType " + selector);
 			}
+		}
+
+		public static boolean contains(String type) {
+			Type[] rawValues = values();
+			for (int i = 0; i < rawValues.length; i++) {
+				if (rawValues[i].toString().equals(type))
+					return true;
+			}
+			return false;
 		}
 	}
 
@@ -134,7 +141,9 @@ public class ComplexityType implements Comparable<ComplexityType> {
 	public String toString() {
 		switch (complexityType) {
 		case Linear:
-			return "O(" + complexityBase.toString() + ")";
+			return "O("
+					+ (complexityBase != null ? complexityBase.toString()
+							: "unknown") + ")";
 		case Static:
 			return "O(1)";
 		case Unknown:

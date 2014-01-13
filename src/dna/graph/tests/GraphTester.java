@@ -31,7 +31,7 @@ import dna.graph.nodes.Node;
 import dna.graph.nodes.UndirectedNode;
 import dna.graph.weights.IWeighted;
 import dna.profiler.ProfilerConstants;
-import dna.profiler.ProfilerConstants.ProfilerType;
+import dna.profiler.ProfilerMeasurementData;
 import dna.util.Config;
 
 @RunWith(Parameterized.class)
@@ -82,11 +82,11 @@ public class GraphTester {
 							if (!(IEdgeListDatastructure.class
 									.isAssignableFrom(nodeEdgeListType)))
 								continue;
-							
+
 							if (edgeListType == DEmpty.class
 									|| nodeEdgeListType == DEmpty.class)
 								continue;
-							
+
 							result.add(new Object[] { nodeListType,
 									edgeListType, nodeEdgeListType, nodeType,
 									edgeType });
@@ -101,8 +101,12 @@ public class GraphTester {
 
 	@Test
 	public void datastructureKnowsAboutItsComplexity() {
-		for (ProfilerConstants.ProfilerType p : ProfilerConstants.ProfilerType.values()) {
-			assertNotNull(gds.getComplexityClass(p));
+		for (ProfilerConstants.ProfilerType p : ProfilerConstants.ProfilerType
+				.values()) {
+			for (ProfilerMeasurementData.ProfilerDataType pType : ProfilerMeasurementData.ProfilerDataType
+					.values()) {
+				assertNotNull(gds.getComplexityClass(p, pType));
+			}
 		}
 	}
 
