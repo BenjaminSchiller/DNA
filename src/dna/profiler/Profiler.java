@@ -96,7 +96,7 @@ public class Profiler {
 		// Actions to be done after generation of stats, eg. writing them to
 		// disk, printing them,...
 
-		if (!active)
+		if (!active || globalCalls.isEmpty())
 			return;
 
 		System.out.println(getOutput(globalCalls, true));
