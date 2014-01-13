@@ -37,6 +37,10 @@ import dna.series.data.RunTime;
 import dna.series.data.Value;
 import dna.util.Config;
 import dna.visualization.GuiOptions;
+import dna.visualization.config.Config1;
+import dna.visualization.config.ConfigItem;
+import dna.visualization.config.MetricVisualizerItem;
+import dna.visualization.config.VisualizerListConfig;
 
 @SuppressWarnings("serial")
 public class MetricVisualizer extends Visualizer {
@@ -50,12 +54,16 @@ public class MetricVisualizer extends Visualizer {
 
 	private boolean xAxisTypeTimestamp;
 	private long currentTimestamp;
+	
+	// config
+	VisualizerListConfig config;
 
 	// constructor
-	public MetricVisualizer() {
+	public MetricVisualizer(VisualizerListConfig config) {
 		// initialization
 		this.traces = new HashMap<String, ITrace2D>();
 		this.availableValues = new ArrayList<String>();
+		this.config = config;
 
 		// batch buffer
 		this.batchBuffer = new LinkedList<BatchData>();
@@ -471,11 +479,15 @@ public class MetricVisualizer extends Visualizer {
 		}
 
 		// init addbox
-		String[] tempValues = this.availableValues
-				.toArray(new String[this.availableValues.size()]);
-		tempValues = this.gatherValues(b);
-		this.toggleYAxisVisibility();
+		String[] tempValues = this.gatherValues(b);
 		this.legend.updateAddBox(tempValues);
+
+		// load config
+		if(this.config != null)
+			this.loadConfig(this.config);
+
+		// toggle visibility and validate
+		this.toggleYAxisVisibility();
 		this.validate();
 	}
 
@@ -486,6 +498,7 @@ public class MetricVisualizer extends Visualizer {
 		for (String trace : this.traces.keySet()) {
 			this.traces.get(trace).removeAllPoints();
 		}
+		this.availableValues.clear();
 		this.chart.updateUI();
 	}
 
@@ -614,6 +627,16 @@ public class MetricVisualizer extends Visualizer {
 
 			// toggle right y axis visibility
 			this.toggleYAxisVisibility();
+		}
+	}
+
+	/** loads a config for displayed values etc. **/
+	public void loadConfig(VisualizerListConfig config) {
+		for (ConfigItem c : config.getEntries()) {
+			if (c instanceof MetricVisualizerItem) {
+				if (this.availableValues.contains(c.getName()))
+					this.legend.addValueItemToList((MetricVisualizerItem) c);
+			}
 		}
 	}
 }

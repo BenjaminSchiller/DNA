@@ -21,6 +21,13 @@ import dna.visualization.components.BoundsPopupMenuListener;
 import dna.visualization.components.ColorHandler;
 import dna.visualization.components.visualizer.MultiScalarVisualizer.SortModeDist;
 import dna.visualization.components.visualizer.MultiScalarVisualizer.SortModeNVL;
+import dna.visualization.config.MetricVisualizerItem;
+import dna.visualization.config.MultiScalarDistributionItem;
+import dna.visualization.config.MultiScalarNodeValueListItem;
+import dna.visualization.config.VisualizerListConfig.DisplayMode;
+import dna.visualization.config.VisualizerListConfig.GraphVisibility;
+import dna.visualization.config.VisualizerListConfig.xAxisSelection;
+import dna.visualization.config.VisualizerListConfig.yAxisSelection;
 
 /**
  * Used within a metric visualizer component to give the user control over which
@@ -106,6 +113,63 @@ public class Legend extends JPanel {
 	}
 
 	/**
+	 * adds a value item to the list, if its already added nothing will happen.
+	 * Item will be set up using the given config
+	 **/
+	public void addValueItemToList(MetricVisualizerItem item) {
+		boolean alreadyAdded = false;
+		for (Component c : this.list.getComponents()) {
+			if (c instanceof LegendItem) {
+				if (c.getName().equals(item.getName())) {
+					alreadyAdded = true;
+				}
+			}
+		}
+
+		if (!alreadyAdded) {
+			String name = item.getName();
+			Color color;
+
+			if ((item.getColor() != null)
+					&& this.colorHandler.containsColor(item.getColor())) {
+				color = item.getColor();
+			} else {
+				color = this.colorHandler.getNextColor();
+			}
+
+			LegendItem i = new LegendItemValue(this.list, name, color);
+			i.setToolTipText(name);
+			this.list.add(i);
+			if (this.parent instanceof MetricVisualizer)
+				((MetricVisualizer) this.parent).addTrace(name, color);
+
+			// usually added to y1, check if config says otherways and toggle
+			// accordingly
+			if (item.getYAxis().equals(yAxisSelection.y2)) {
+				i.setYAxisButton(false);
+				this.list.toggleYAxis(i);
+			}
+
+			// check if it should be added visible
+			if (item.getVisibility().equals(GraphVisibility.hidden)) {
+				i.setShowHideButton(false);
+				this.list.toggleVisiblity(i);
+			}
+
+			// check display mode
+			if (item.getDisplayMode().equals(DisplayMode.bars)) {
+				i.setDisplayModeButton(false);
+				this.list.toggleDisplayMode(i);
+			}
+
+			this.parent.updateTicks();
+		}
+		this.parent.toggleXAxisVisibility();
+		this.parent.toggleYAxisVisibility();
+		this.validate();
+	}
+
+	/**
 	 * adds a distribution item to the list, if its already added nothing will
 	 * happen
 	 **/
@@ -146,6 +210,69 @@ public class Legend extends JPanel {
 				this.list.toggleYAxis(i);
 				break;
 			}
+			this.parent.updateTicks();
+		}
+		this.parent.toggleXAxisVisibility();
+		this.parent.toggleYAxisVisibility();
+		this.validate();
+	}
+
+	/**
+	 * adds a distribution item to the list, if its already added nothing will
+	 * happen. Item will be set up using the given config
+	 **/
+	public void addDistributionItemToList(MultiScalarDistributionItem item) {
+		boolean alreadyAdded = false;
+		for (Component c : this.list.getComponents()) {
+			if (c instanceof LegendItem) {
+				if (c.getName().equals(item.getName())) {
+					alreadyAdded = true;
+				}
+			}
+		}
+
+		if (!alreadyAdded) {
+			String name = item.getName();
+			Color color;
+
+			if ((item.getColor() != null)
+					&& this.colorHandler.containsColor(item.getColor())) {
+				color = item.getColor();
+			} else {
+				color = this.colorHandler.getNextColor();
+			}
+
+			LegendItem i = new LegendItemDistribution(this.list, name, color);
+			i.setToolTipText(name);
+
+			this.list.add(i);
+			if (this.parent instanceof MultiScalarVisualizer)
+				((MultiScalarVisualizer) this.parent).addDistributionTrace(
+						name, color);
+
+			// usually added to x1/y1, check if config says otherways and toggle
+			// accordingly
+			if (item.getXAxis().equals(xAxisSelection.x2)) {
+				((LegendItemDistribution) i).setXAxisButton(false);
+				this.list.toggleXAxis(i);
+			}
+			if (item.getYAxis().equals(yAxisSelection.y2)) {
+				i.setYAxisButton(false);
+				this.list.toggleYAxis(i);
+			}
+
+			// check if it should be added visible
+			if (item.getVisibility().equals(GraphVisibility.hidden)) {
+				i.setShowHideButton(false);
+				this.list.toggleVisiblity(i);
+			}
+
+			// check display mode
+			if (item.getDisplayMode().equals(DisplayMode.bars)) {
+				i.setDisplayModeButton(false);
+				this.list.toggleDisplayMode(i);
+			}
+
 			this.parent.updateTicks();
 		}
 		this.parent.toggleXAxisVisibility();
@@ -195,6 +322,69 @@ public class Legend extends JPanel {
 			}
 			this.parent.updateTicks();
 		}
+		this.parent.toggleXAxisVisibility();
+		this.parent.toggleYAxisVisibility();
+		this.validate();
+	}
+
+	/**
+	 * adds a nodevaluelist item to the list, if its already added nothing will
+	 * happen. Item will be set up using the given config
+	 **/
+	public void addNodeValueListItemToList(MultiScalarNodeValueListItem item) {
+		boolean alreadyAdded = false;
+		for (Component c : this.list.getComponents()) {
+			if (c instanceof LegendItem) {
+				if (c.getName().equals(item.getName())) {
+					alreadyAdded = true;
+				}
+			}
+		}
+
+		if (!alreadyAdded) {
+			String name = item.getName();
+			Color color;
+
+			if ((item.getColor() != null)
+					&& this.colorHandler.containsColor(item.getColor())) {
+				color = item.getColor();
+			} else {
+				color = this.colorHandler.getNextColor();
+			}
+
+			LegendItem i = new LegendItemNodeValueList(this.list, name, color);
+			i.setToolTipText(name);
+			this.list.add(i);
+			if (this.parent instanceof MultiScalarVisualizer)
+				((MultiScalarVisualizer) this.parent).addNodeValueListTrace(
+						name, color);
+
+			// usually added to x1/y1, check if config says otherways and toggle
+			// accordingly
+			if (item.getXAxis().equals(xAxisSelection.x2)) {
+				((LegendItemNodeValueList) i).setXAxisButton(false);
+				this.list.toggleXAxis(i);
+			}
+			if (item.getYAxis().equals(yAxisSelection.y2)) {
+				i.setYAxisButton(false);
+				this.list.toggleYAxis(i);
+			}
+
+			// check if it should be added visible
+			if (item.getVisibility().equals(GraphVisibility.hidden)) {
+				i.setShowHideButton(false);
+				this.list.toggleVisiblity(i);
+			}
+
+			// check display mode
+			if (item.getDisplayMode().equals(DisplayMode.bars)) {
+				i.setDisplayModeButton(false);
+				this.list.toggleDisplayMode(i);
+			}
+
+			this.parent.updateTicks();
+		}
+
 		this.parent.toggleXAxisVisibility();
 		this.parent.toggleYAxisVisibility();
 		this.validate();
@@ -368,7 +558,7 @@ public class Legend extends JPanel {
 				} else {
 					// if selected element is single element starting with
 					// "----- "
-					// means it is a metric value without sub-elements
+					// means it is a single value without sub-elements
 					if (this.addBoxMenu[selectionIndex].substring(0, 6).equals(
 							"----- ")) {
 
@@ -440,12 +630,11 @@ public class Legend extends JPanel {
 			((MultiScalarVisualizer) this.parent).toggleTraceVisiblity(item
 					.getName());
 	}
-	
+
 	/** toggles the display mode of a trace **/
 	public void toggleDisplayMode(LegendItem item) {
 		if (this.parent instanceof MetricVisualizer)
-			((MetricVisualizer) this.parent).toggleDisplayMode(item
-					.getName());
+			((MetricVisualizer) this.parent).toggleDisplayMode(item.getName());
 		if (this.parent instanceof MultiScalarVisualizer)
 			((MultiScalarVisualizer) this.parent).toggleDisplayMode(item
 					.getName());

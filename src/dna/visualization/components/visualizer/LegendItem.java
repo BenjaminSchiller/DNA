@@ -40,9 +40,9 @@ public class LegendItem extends JPanel {
 
 	// buttons
 	protected JButton toggleYAxisButton;
-	private JButton removeButton;
-	private JButton showHideButton;
-	private JButton displayModeButton;
+	protected JButton removeButton;
+	protected JButton showHideButton;
+	protected JButton displayModeButton;
 
 	// optionspanel containing several buttons and options
 	protected JPanel buttonPanel;
@@ -123,7 +123,7 @@ public class LegendItem extends JPanel {
 		});
 
 		// show/hide button
-		this.showHideButton = new JButton("H");
+		this.showHideButton = new JButton("S");
 		this.showHideButton.setFont(GuiOptions.defaultFont);
 		this.showHideButton.setForeground(GuiOptions.defaultFontColor);
 		this.showHideButton.setPreferredSize(GuiOptions.legendItemButtonSize);
@@ -134,38 +134,40 @@ public class LegendItem extends JPanel {
 			public void actionPerformed(ActionEvent event) {
 				if (thisItem.showHideButton.getText().equals("H")) {
 					thisItem.showHideButton.setText("S");
-					thisItem.showHideButton.setForeground(Color.RED);
-					thisItem.showHideButton
-							.setToolTipText("Shows this value in the chart");
-				} else {
-					thisItem.showHideButton.setText("H");
 					thisItem.showHideButton
 							.setForeground(GuiOptions.defaultFontColor);
 					thisItem.showHideButton
 							.setToolTipText("Hides this value in the chart");
+				} else {
+					thisItem.showHideButton.setText("H");
+					thisItem.showHideButton.setForeground(Color.RED);
+					thisItem.showHideButton
+							.setToolTipText("Shows this value in the chart");
 				}
 				thisItem.parent.toggleVisiblity(thisItem);
 			}
 		});
 
 		// bar/linespoint button
-		this.displayModeButton = new JButton("B");
+		this.displayModeButton = new JButton("L");
 		this.displayModeButton.setFont(GuiOptions.defaultFont);
 		this.displayModeButton.setForeground(GuiOptions.defaultFontColor);
-		this.displayModeButton.setPreferredSize(GuiOptions.legendItemButtonSize);
+		this.displayModeButton
+				.setPreferredSize(GuiOptions.legendItemButtonSize);
 		this.displayModeButton.setMargin(new Insets(0, 0, 0, 0));
-		this.displayModeButton.setToolTipText("Set display mode to linespoint.");
+		this.displayModeButton
+				.setToolTipText("Currently shown as linespoint. Click to change to bars.");
 		this.displayModeButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent event) {
 				if (thisItem.displayModeButton.getText().equals("B")) {
 					thisItem.displayModeButton.setText("L");
 					thisItem.displayModeButton
-							.setToolTipText("Set display mode to bar.");
+							.setToolTipText("Currently shown as linespoint. Click to change to bars.");
 				} else {
 					thisItem.displayModeButton.setText("B");
 					thisItem.displayModeButton
-							.setToolTipText("Set display mode to linespoint.");
+							.setToolTipText("Currently shown as bars. Click to change to linespoint.");
 				}
 				thisItem.parent.toggleDisplayMode(thisItem);
 			}
@@ -217,5 +219,44 @@ public class LegendItem extends JPanel {
 	/** returns the color **/
 	public Color getColor() {
 		return this.color;
+	}
+
+	/** sets the ShowHide button **/
+	public void setShowHideButton(boolean visible) {
+		if (visible) {
+			this.showHideButton.setText("S");
+			this.showHideButton.setForeground(GuiOptions.defaultFontColor);
+			this.showHideButton.setToolTipText("Hides this value in the chart");
+		} else {
+			this.showHideButton.setText("H");
+			this.showHideButton.setForeground(Color.RED);
+			this.showHideButton.setToolTipText("Shows this value in the chart");
+		}
+	}
+
+	/** sets the DisplayModeButton **/
+	public void setDisplayModeButton(boolean displayAsLinespoint) {
+		if (displayAsLinespoint) {
+			this.displayModeButton.setText("L");
+			this.displayModeButton
+					.setToolTipText("Currently shown as linespoint. Click to change to bars.");
+		} else {
+			this.displayModeButton.setText("B");
+			this.displayModeButton
+					.setToolTipText("Currently shown as bars. Click to change to linespoint.");
+		}
+	}
+
+	/** sets the y axis button **/
+	public void setYAxisButton(boolean showOnY1) {
+		if (showOnY1) {
+			this.toggleYAxisButton.setText("y1");
+			this.toggleYAxisButton
+					.setToolTipText("Currently plotted on left y-axis (y1). Click to change to right y-axis");
+		} else {
+			this.toggleYAxisButton.setText("y2");
+			this.toggleYAxisButton
+					.setToolTipText("Currently plotted on right y-axis (y2). Click to change to left y-axis");
+		}
 	}
 }

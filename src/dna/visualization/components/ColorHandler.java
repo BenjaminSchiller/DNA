@@ -48,4 +48,21 @@ public class ColorHandler {
 				this.usedIndexes[i]--;
 		}
 	}
+
+	/** adds a color by incrementing the usedIndex **/
+	public void addColor(Color c) {
+		for (int i = 0; i < this.colors.length; i++) {
+			if (this.colors[i].equals(c))
+				this.usedIndexes[i]++;
+		}
+	}
+
+	/** returns true if the color c is contained in the color handler **/
+	public boolean containsColor(Color c) {
+		for (int i = 0; i < this.colors.length; i++) {
+			if (this.colors[i].equals(c))
+				return true;
+		}
+		return false;
+	}
 }

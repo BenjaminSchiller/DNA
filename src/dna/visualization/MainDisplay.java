@@ -26,11 +26,16 @@ import dna.visualization.components.statsdisplay.StatsDisplay;
 import dna.visualization.components.visualizer.MetricVisualizer;
 import dna.visualization.components.visualizer.MultiScalarVisualizer;
 import dna.visualization.components.visualizer.Visualizer;
+import dna.visualization.config.Config1;
+import dna.visualization.config.VisualizerListConfig;
 
 @SuppressWarnings("serial")
 public class MainDisplay extends JFrame {
 	/** MAIN **/
 	public static void main(String[] args) {
+		// generate config for visualizers
+		visualizerConfig = new Config1();
+
 		// init main window
 		MainDisplay display = new MainDisplay();
 
@@ -59,6 +64,9 @@ public class MainDisplay extends JFrame {
 
 	private Visualizer metric1;
 	private Visualizer metric2;
+
+	// config
+	public static VisualizerListConfig visualizerConfig;
 
 	// constructor
 	public MainDisplay() {
@@ -229,13 +237,13 @@ public class MainDisplay extends JFrame {
 		this.logoPanel.add(logoLabel);
 
 		// add metric visualizer
-		this.metric1 = new MetricVisualizer();
+		this.metric1 = new MetricVisualizer(visualizerConfig);
 		mainDisplayConstraints.gridx = 1;
 		mainDisplayConstraints.gridy = 0;
 		this.getContentPane().add(this.metric1, mainDisplayConstraints);
 
 		// add multi scalar visualizer
-		this.metric2 = new MultiScalarVisualizer();
+		this.metric2 = new MultiScalarVisualizer(visualizerConfig);
 		mainDisplayConstraints.gridx = 2;
 		mainDisplayConstraints.gridy = 0;
 		this.getContentPane().add(this.metric2, mainDisplayConstraints);

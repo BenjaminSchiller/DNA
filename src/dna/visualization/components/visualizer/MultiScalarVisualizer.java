@@ -31,11 +31,17 @@ import dna.series.data.MetricData;
 import dna.series.data.NodeValueList;
 import dna.util.Config;
 import dna.visualization.GuiOptions;
+import dna.visualization.config.Config1;
+import dna.visualization.config.ConfigItem;
+import dna.visualization.config.MultiScalarDistributionItem;
+import dna.visualization.config.MultiScalarNodeValueListItem;
+import dna.visualization.config.VisualizerListConfig;
 
 @SuppressWarnings("serial")
 public class MultiScalarVisualizer extends Visualizer {
 	// available values and traces
-	private ArrayList<String> availableValues;
+	private ArrayList<String> availableDistributions;
+	private ArrayList<String> availableNodeValueLists;
 	private HashMap<String, ITrace2D> traces;
 
 	// saved values
@@ -44,6 +50,9 @@ public class MultiScalarVisualizer extends Visualizer {
 	private HashMap<String, Integer> intDenominators;
 	private HashMap<String, int[]> intValues;
 	private HashMap<String, double[]> doubleValues;
+	
+	// config
+	VisualizerListConfig config;
 
 	/** sort mode used to plot nodevaluelists **/
 	public enum SortModeNVL {
@@ -59,10 +68,11 @@ public class MultiScalarVisualizer extends Visualizer {
 	private BatchData currentBatch;
 
 	// constructor
-	public MultiScalarVisualizer() {
+	public MultiScalarVisualizer(VisualizerListConfig config) {
 		// initialization
 		this.traces = new HashMap<String, ITrace2D>();
-		this.availableValues = new ArrayList<String>();
+		this.availableDistributions = new ArrayList<String>();
+		this.availableNodeValueLists = new ArrayList<String>();
 
 		this.longDenominators = new HashMap<String, Long>();
 		this.longValues = new HashMap<String, long[]>();
@@ -73,6 +83,7 @@ public class MultiScalarVisualizer extends Visualizer {
 		this.doubleValues = new HashMap<String, double[]>();
 
 		this.currentBatch = null;
+		this.config = config;
 
 		// remove timestamp-label on x-axis
 		this.xAxis1.getAxisTitle().setTitle("x1");
@@ -127,10 +138,31 @@ public class MultiScalarVisualizer extends Visualizer {
 			t.removeAllPoints();
 		}
 
+		// gather all available values
+		for (String metric : b.getMetrics().getNames()) {
+			for (String dist : b.getMetrics().get(metric).getDistributions()
+					.getNames()) {
+				this.availableDistributions.add(metric + "." + dist);
+			}
+			for (String nvl : b.getMetrics().get(metric).getNodeValues()
+					.getNames()) {
+				this.availableNodeValueLists.add(metric + "." + nvl);
+			}
+		}
+
 		// init addbox
 		String[] tempValues = this.gatherValues(b);
-		this.toggleYAxisVisibility();
 		this.legend.updateAddBox(tempValues);
+
+		// load config
+		if(this.config != null)
+			this.loadConfig(this.config);
+
+		// put in first batch to update data
+		this.updateData(b);
+
+		// toggle visibility and validate
+		this.toggleYAxisVisibility();
 		this.validate();
 	}
 
@@ -699,6 +731,8 @@ public class MultiScalarVisualizer extends Visualizer {
 		for (String trace : this.traces.keySet()) {
 			this.traces.get(trace).removeAllPoints();
 		}
+		this.availableDistributions.clear();
+		this.availableNodeValueLists.clear();
 	}
 
 	/** called from an item to get resorted during pause **/
@@ -723,6 +757,23 @@ public class MultiScalarVisualizer extends Visualizer {
 			} else if (this.longValues.containsKey(name)) {
 				this.addDistributionPoints(name, this.longValues.get(name),
 						this.longDenominators.get(name), s);
+			}
+		}
+	}
+
+	/** loads a config for displayed values etc. **/
+	public void loadConfig(VisualizerListConfig config) {
+		// add possible items
+		for (ConfigItem c : config.getEntries()) {
+			if (c instanceof MultiScalarDistributionItem) {
+				if (this.availableDistributions.contains(c.getName()))
+					this.legend
+							.addDistributionItemToList(((MultiScalarDistributionItem) c));
+			}
+			if (c instanceof MultiScalarNodeValueListItem) {
+				if (this.availableNodeValueLists.contains(c.getName()))
+					this.legend
+							.addNodeValueListItemToList((MultiScalarNodeValueListItem) c);
 			}
 		}
 	}

@@ -145,4 +145,17 @@ public class LegendItemNodeValueList extends LegendItem {
 	public SortModeNVL getSortMode() {
 		return this.sortMode;
 	}
+
+	/** sets the x axis button **/
+	public void setXAxisButton(boolean showOnX1) {
+		if (showOnX1) {
+			this.toggleXAxisButton.setText("x1");
+			this.toggleXAxisButton
+					.setToolTipText("Currently plotted on x-axis 1. Click to change to x-axis 2");
+		} else {
+			this.toggleXAxisButton.setText("x2");
+			toggleXAxisButton
+					.setToolTipText("Currently plotted on x-axis 2. Click to change to x-axis 1");
+		}
+	}
 }
