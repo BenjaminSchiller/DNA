@@ -6,8 +6,6 @@ import java.util.Iterator;
 
 import dna.graph.IElement;
 import dna.graph.edges.Edge;
-import dna.profiler.complexity.Complexity;
-import dna.profiler.complexity.ComplexityType.Base;
 
 public class DEmpty extends DataStructureReadable implements
 		IEdgeListDatastructureReadable {
@@ -64,7 +62,7 @@ public class DEmpty extends DataStructureReadable implements
 
 	@Override
 	public Collection<IElement> getElements() {
-		return Collections.<IElement>emptyList();
+		return Collections.<IElement> emptyList();
 	}
 
 	@Override
@@ -74,21 +72,6 @@ public class DEmpty extends DataStructureReadable implements
 
 	@Override
 	protected Iterator<IElement> iterator_() {
-		return Collections.<IElement>emptyList().iterator();
+		return Collections.<IElement> emptyList().iterator();
 	}
-	
-	/**
-	 * Get the complexity class for a specific access type
-	 * 
-	 * @param access
-	 *            Access type
-	 * @param base
-	 *            Complexity base (NodeSize, EdgeSize,...)
-	 * @return
-	 */
-	public static Complexity getComplexity(Class<? extends IElement> dt,
-			AccessType access, Base base) {
-		return new Complexity();
-	}
-
 }
