@@ -680,14 +680,32 @@ public class StatsDisplay extends JPanel implements ChangeListener {
 
 	/** increments the timeslider **/
 	public void incrementTimeSlider() {
-		if (this.TimeSlider.getValue() < this.TimeSlider.getMaximum())
-			this.TimeSlider.setValue(this.TimeSlider.getValue() + 1);
+		if (this.TimeSlider.getValue() < this.TimeSlider.getMaximum()) {
+			long timestamp = this.mainDisplay
+					.getNextTimestamp((long) this.TimeSlider.getValue());
+			if (timestamp < Integer.MIN_VALUE || timestamp > Integer.MAX_VALUE) {
+				Log.warn("Long timestamp couldn't be cast to int in StatsDisplay");
+			} else {
+				if (this.TimeSlider.getMinimum() <= timestamp
+						&& timestamp <= this.TimeSlider.getMaximum())
+					this.TimeSlider.setValue((int) timestamp);
+			}
+		}
 	}
 
 	/** decrements the time slider **/
 	public void decrementTimeSlider() {
-		if (this.TimeSlider.getValue() > this.TimeSlider.getMinimum())
-			this.TimeSlider.setValue(this.TimeSlider.getValue() - 1);
+		if (this.TimeSlider.getValue() > this.TimeSlider.getMinimum()) {
+			long timestamp = this.mainDisplay
+					.getPreviousTimestamp((long) this.TimeSlider.getValue());
+			if (timestamp < Integer.MIN_VALUE || timestamp > Integer.MAX_VALUE) {
+				Log.warn("Long timestamp couldn't be cast to int in StatsDisplay");
+			} else {
+				if (this.TimeSlider.getMinimum() <= timestamp
+						&& timestamp <= this.TimeSlider.getMaximum())
+					this.TimeSlider.setValue((int) timestamp);
+			}
+		}
 	}
 
 }

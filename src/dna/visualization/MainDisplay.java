@@ -404,4 +404,14 @@ public class MainDisplay extends JFrame {
 	public long setTime(int timeValue) {
 		return this.batchHandler.setTime(timeValue);
 	}
+
+	/** called from the statsdisplay to get next bigger timestamp **/
+	public long getNextTimestamp(long timestamp) {
+		return this.batchHandler.getNextTimestamp(timestamp);
+	}
+
+	/** called from the statsdisplay to get next smaller timestamp **/
+	public long getPreviousTimestamp(long timestamp) {
+		return this.batchHandler.getPreviousTimestamp(timestamp);
+	}
 }

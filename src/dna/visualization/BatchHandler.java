@@ -390,4 +390,28 @@ public class BatchHandler implements Runnable {
 		return bestMatchingTimestamp;
 	}
 
+	/** returns timestamp of the next smaller batch **/
+	public long getNextTimestamp(long timestamp) {
+		if (timestamp >= this.getMaxTimestamp())
+			return this.getMaxTimestamp();
+		for (int i = 0; i < this.getBatches().size(); i++) {
+			BatchData b = this.getBatches().get(i);
+			if (b.getTimestamp() > timestamp)
+				return b.getTimestamp();
+		}
+		System.out.println("Error calculating next timestamp, returning 0");
+		return 0;
+	}
+
+	/** returns timestamp of the next bigger batch **/
+	public long getPreviousTimestamp(long timestamp) {
+		if (this.getMinTimestamp() >= timestamp)
+			return this.getMinTimestamp();
+		for (int i = 0; i < this.getBatches().size() - 1; i++) {
+			if (this.getBatches().get(i + 1).getTimestamp() >= timestamp)
+				return this.getBatches().get(i).getTimestamp();
+		}
+		System.out.println("Error calculating next timestamp, returning 0");
+		return 0;
+	}
 }
