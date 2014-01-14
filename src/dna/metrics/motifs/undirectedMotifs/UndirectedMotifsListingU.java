@@ -3,10 +3,10 @@ package dna.metrics.motifs.undirectedMotifs;
 import dna.updates.batch.Batch;
 import dna.updates.update.Update;
 
-public class UndirectedMotifsR extends UndirectedMotifsComputation {
+public class UndirectedMotifsListingU extends UndirectedMotifsComputation {
 
-	public UndirectedMotifsR() {
-		super("UndirectedMotifsR", ApplicationType.Recomputation,
+	public UndirectedMotifsListingU() {
+		super("UndirectedMotifsListingU", ApplicationType.BeforeAndAfterUpdate,
 				MetricType.exact);
 	}
 
@@ -22,11 +22,13 @@ public class UndirectedMotifsR extends UndirectedMotifsComputation {
 
 	@Override
 	public boolean applyBeforeUpdate(Update u) {
+		// TODO Auto-generated method stub
 		return false;
 	}
 
 	@Override
 	public boolean applyAfterUpdate(Update u) {
+		// TODO Auto-generated method stub
 		return false;
 	}
 

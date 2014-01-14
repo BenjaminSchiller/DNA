@@ -16,7 +16,7 @@ import dna.updates.update.NodeRemoval;
 import dna.updates.update.Update;
 import dna.util.Log;
 
-public class UndirectedMotifsU extends UndirectedMotifs {
+public class UndirectedMotifsInMemoryU extends UndirectedMotifs {
 
 	// private HashSet<UndirectedMotif> preMotifs;
 
@@ -65,7 +65,7 @@ public class UndirectedMotifsU extends UndirectedMotifs {
 		}
 	}
 
-	public UndirectedMotifsU() {
+	public UndirectedMotifsInMemoryU() {
 		super("UndirectedMotifsU", ApplicationType.AfterUpdate,
 				MetricType.exact);
 	}
