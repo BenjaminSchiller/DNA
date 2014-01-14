@@ -33,10 +33,12 @@ public class ProfilerMeasurementData extends PropertiesHolder {
 			ComplexityType.Base base) {
 
 		String keyName = complexityType.toString().toUpperCase() + "_"
-				+ classname.toUpperCase() + "_"
-				+ accessType.toString().toUpperCase();
+				+ classname.toUpperCase();
 
-		Complexity c = get(keyName + "_" + storedDataClass.toUpperCase());
+		Complexity c = get(keyName + "_" + accessType.toString().toUpperCase()
+				+ "_" + storedDataClass.toUpperCase());
+		if (c == null)
+			c = get(keyName + "_" + accessType.toString().toUpperCase());
 		if (c == null)
 			c = get(keyName);
 		if (c == null)
@@ -140,7 +142,6 @@ public class ProfilerMeasurementData extends PropertiesHolder {
 				}
 			} else {
 				complexityData.put(key, c);
-
 			}
 		}
 	}
