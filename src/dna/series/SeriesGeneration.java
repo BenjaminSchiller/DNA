@@ -199,15 +199,13 @@ public class SeriesGeneration {
 		}
 
 		// generate batch data
-		long currentTimestamp = initialData.getTimestamp();
 		for (int i = 0; i < batches; i++) {
 			// reset rand per batch
 			if (series.getRandomSeedReset() == RandomSeedReset.eachBatch) {
 				series.resetRand();
 			}
 
-			BatchData batchData = SeriesGeneration.generateNextBatch(series,
-					currentTimestamp + 1);
+			BatchData batchData = SeriesGeneration.generateNextBatch(series);
 			if (compare) {
 				SeriesGeneration.compareMetrics(series);
 			}
@@ -216,7 +214,6 @@ public class SeriesGeneration {
 				batchData.write(Dir.getBatchDataDir(series.getDir(), run,
 						batchData.getTimestamp()));
 			}
-			currentTimestamp++;
 		}
 
 		timer.end();
@@ -307,7 +304,7 @@ public class SeriesGeneration {
 
 	}
 
-	public static BatchData generateNextBatch(Series series, long timestamp)
+	public static BatchData generateNextBatch(Series series)
 			throws MetricNotApplicableException {
 
 		int addedNodes = 0;
@@ -377,7 +374,7 @@ public class SeriesGeneration {
 		SeriesGeneration.applyUpdates(series, b.getEdgeWeights(),
 				graphUpdateTimer, metricsTotal, timer);
 
-		series.getGraph().setTimestamp(timestamp);
+		series.getGraph().setTimestamp(b.getTo());
 
 		// apply after batch
 		metricsTotal.restart();
