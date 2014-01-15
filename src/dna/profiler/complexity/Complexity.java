@@ -3,7 +3,7 @@ package dna.profiler.complexity;
 import dna.profiler.complexity.ComplexityType.Base;
 import dna.profiler.complexity.ComplexityType.Type;
 
-public class Complexity {
+public class Complexity implements Cloneable {
 
 	private int counter = 0;
 	private int factor = 0;
@@ -92,6 +92,13 @@ public class Complexity {
 			return false;
 		}
 		return true;
+	}
+	
+	public Complexity clone() {
+		ComplexityType clonedComplexityType = this.complexityType.clone();
+		Complexity res = new Complexity(this.factor, clonedComplexityType);
+		res.setCounter(this.getComplexityCounter());
+		return res;
 	}
 
 }

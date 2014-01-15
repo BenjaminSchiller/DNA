@@ -62,4 +62,9 @@ public class AddedComplexity extends Complexity {
 		res.add(resSecond);
 		return res;
 	}
+	
+	@Override
+	public Complexity clone() {
+		return new AddedComplexity(first.clone(), second.clone());
+	}
 }

@@ -2,7 +2,7 @@ package dna.profiler.complexity;
 
 import java.util.TreeSet;
 
-public class ComplexityType implements Comparable<ComplexityType> {
+public class ComplexityType implements Comparable<ComplexityType>, Cloneable {
 	/**
 	 * List of complexity types. Keep it sorted to enable comparisons in
 	 * {@link ComplexityType#compareTo(ComplexityType)}
@@ -166,5 +166,9 @@ public class ComplexityType implements Comparable<ComplexityType> {
 			res = this.complexityBase.compareTo(o.complexityBase);
 		}
 		return res;
+	}
+	
+	public ComplexityType clone() {
+		return new ComplexityType(this.complexityType, this.complexityBase);
 	}
 }

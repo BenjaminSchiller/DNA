@@ -55,7 +55,11 @@ public class ProfilerMeasurementData extends PropertiesHolder {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-		return complexityData.get(key);
+		Complexity res = complexityData.get(key);
+		if ( res != null ) {
+			res = res.clone();
+		}
+		return res;
 	}
 
 	public static Complexity parseComplexityString(String in) {
