@@ -16,23 +16,23 @@
 		</fileset>
 		<pathelement location="${jUnitJar}" />
 	</path>
-	
+
 	<!-- Put all *common* test classes here -->
-	<fileset id = "commonTestClasses" dir="${bin}">
+	<fileset id="commonTestClasses" dir="${bin}">
 		<include name="dna/graph/tests/*.class" />
-		
+
 		<!-- exclude AspectJ only stuff -->
 		<exclude name="dna/graph/tests/ProfilerTest.class" />
-		
+
 		<!-- exclude internals -->
 		<exclude name="dna/graph/tests/CompleteTestSuite.class" />
 		<exclude name="dna/graph/tests/Parallelized.class" />
 		<exclude name="dna/graph/tests/GlobalTestParameters.class" />
 		<exclude name="dna/graph/tests/*$*" />
-	</fileset>	
-	
+	</fileset>
+
 	<!-- Put all AspectJ specific test classes here -->
-	<fileset id = "AspectJTestClasses" dir="${bin}">
+	<fileset id="AspectJTestClasses" dir="${bin}">
 		<include name="dna/graph/tests/ProfilerTest.class" />
 	</fileset>
 
@@ -96,9 +96,9 @@
 			<fileset dir="${bin}" />
 		</jar>
 	</target>
-		
+
 	<target name="test">
-		<junit>
+		<junit showoutput="true" enableTestListenerEvents="on">
 			<classpath>
 				<pathelement location="${bin}" />
 				<path refid="class.path" />
@@ -109,22 +109,22 @@
 			</batchtest>
 		</junit>
 	</target>
-	
+
 	<target name="testAspectJ">
-		<union id = "testClasses">
+		<union id="testClasses">
 			<fileset refid="AspectJTestClasses" />
-			<fileset refid="commonTestClasses" />			
+			<fileset refid="commonTestClasses" />
 		</union>
 		<antcall target="test" inheritrefs="true" />
 	</target>
 
 	<target name="testJava">
-		<union id = "testClasses">
+		<union id="testClasses">
 			<fileset refid="commonTestClasses" />
 		</union>
 		<antcall target="test" inheritrefs="true" />
 	</target>
-	
+
 	<target name="travisCompileAndTest">
 		<condition property="useAspectJ">
 			<and>
@@ -136,12 +136,12 @@
 		<antcall target="travisCompileWithAspectJ" />
 		<antcall target="travisCompileWithoutAspectJ" />
 	</target>
-	
+
 	<target name="travisCompileWithAspectJ" if="useAspectJ">
 		<antcall target="compileAspectJ" />
 		<antcall target="testAspectJ" />
 	</target>
-	
+
 	<target name="travisCompileWithoutAspectJ" unless="useAspectJ">
 		<antcall target="compileJava" />
 		<antcall target="testJava" />

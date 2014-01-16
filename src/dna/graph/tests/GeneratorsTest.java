@@ -102,6 +102,14 @@ public class GeneratorsTest {
 					GraphDataStructure.class, int.class);
 			this.gg = this.generatorConstructor.newInstance(gds, nodeSize);
 		}
+		
+		/**
+		 * A short output to overcome the timeout of Travis: If there is no
+		 * console output in 10 minutes, a test run is stopped
+		 */
+		if (Math.random() < 0.001)
+			System.out.print(".");
+		
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
