@@ -503,6 +503,18 @@ public class GraphDataStructure {
 	public Complexity getComplexityClass(ProfilerConstants.ProfilerType p,
 			ProfilerDataType complexityType) {
 		switch (p) {
+		case InitEdgeGlobal:
+			return getComplexityClass(graphEdgeListType, Edge.class,
+					complexityType, AccessType.Init, Base.EdgeSize);
+		case InitEdgeLocal:
+			return getComplexityClass(nodeEdgeListType, Edge.class,
+					complexityType, AccessType.Init, Base.Degree);
+		case InitNodeGlobal:
+			return getComplexityClass(nodeListType, Node.class, complexityType,
+					AccessType.Init, Base.NodeSize);
+		case InitNodeLocal:
+			return getComplexityClass(nodeListType, Node.class, complexityType,
+					AccessType.Init, Base.Degree);		
 		case AddEdgeGlobal:
 			return getComplexityClass(graphEdgeListType, Edge.class,
 					complexityType, AccessType.Add, Base.EdgeSize);
