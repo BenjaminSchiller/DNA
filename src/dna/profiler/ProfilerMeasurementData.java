@@ -16,7 +16,7 @@ import dna.util.PropertiesHolder;
 
 public class ProfilerMeasurementData extends PropertiesHolder {
 	public enum ProfilerDataType {
-		RuntimeComplexity
+		RuntimeComplexity, MemoryComplexity
 	}
 
 	private static String folderName = "profilerData/";

@@ -65,12 +65,12 @@ public class ProfileEntry {
 		return s.toString();
 	}
 
-	public ComplexityMap combinedComplexity(GraphDataStructure gds,
-			ProfilerType[] allowedAccesses) {
+	public ComplexityMap combinedComplexity(
+			ProfilerMeasurementData.ProfilerDataType entryType,
+			GraphDataStructure gds, ProfilerType[] allowedAccesses) {
 		Complexity aggregated = new Complexity();
 		for (ProfilerConstants.ProfilerType p : allowedAccesses) {
-			Complexity c = gds.getComplexityClass(p,
-					ProfilerMeasurementData.ProfilerDataType.RuntimeComplexity);
+			Complexity c = gds.getComplexityClass(p, entryType);
 			c.setCounter(get(p));
 			aggregated = new AddedComplexity(aggregated, c);
 		}

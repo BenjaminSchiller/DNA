@@ -154,8 +154,9 @@ public class Profiler {
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public static String getOtherComplexitiesForEntry(ProfileEntry entry,
-			boolean outputAsCommentWithPrefix) {
+	public static String getOtherRuntimeComplexitiesForEntry(
+			ProfilerMeasurementData.ProfilerDataType entryType,
+			ProfileEntry entry, boolean outputAsCommentWithPrefix) {
 		GraphDataStructure tempGDS;
 		StringBuilder res = new StringBuilder();
 
@@ -179,8 +180,9 @@ public class Profiler {
 				continue;
 			tempGDS = new GraphDataStructure(nodeListType, DEmpty.class,
 					DEmpty.class, gds.getNodeType(), gds.getEdgeType());
-			nodeListComplexities.put(entry.combinedComplexity(tempGDS,
-					ProfilerConstants.globalNodeListAccesses), nodeListType);
+			nodeListComplexities.put(entry.combinedComplexity(entryType,
+					tempGDS, ProfilerConstants.globalNodeListAccesses),
+					nodeListType);
 		}
 
 		TreeMap<ComplexityMap, Class> edgeListComplexities = new TreeMap<>();
@@ -189,8 +191,9 @@ public class Profiler {
 				continue;
 			tempGDS = new GraphDataStructure(null, edgeListType, null,
 					gds.getNodeType(), gds.getEdgeType());
-			edgeListComplexities.put(entry.combinedComplexity(tempGDS,
-					ProfilerConstants.globalEdgeListAccesses), edgeListType);
+			edgeListComplexities.put(entry.combinedComplexity(entryType,
+					tempGDS, ProfilerConstants.globalEdgeListAccesses),
+					edgeListType);
 		}
 
 		TreeMap<ComplexityMap, Class> nodeEdgeListComplexities = new TreeMap<>();
@@ -200,8 +203,9 @@ public class Profiler {
 				continue;
 			tempGDS = new GraphDataStructure(null, DEmpty.class,
 					nodeEdgeListType, gds.getNodeType(), gds.getEdgeType());
-			nodeEdgeListComplexities.put(entry.combinedComplexity(tempGDS,
-					ProfilerConstants.localEdgeListAccesses), nodeEdgeListType);
+			nodeEdgeListComplexities.put(entry.combinedComplexity(entryType,
+					tempGDS, ProfilerConstants.localEdgeListAccesses),
+					nodeEdgeListType);
 		}
 
 		TreeMap<ComplexityMap, GraphDataStructure> recommendationList = new TreeMap<>();
@@ -306,10 +310,17 @@ public class Profiler {
 			resEntry = resEntry.add(entry.getValue());
 		}
 		res.append(resEntry.toString());
-		res.append(" Aggr: "
-				+ resEntry.combinedComplexity(gds,
-						ProfilerConstants.ProfilerType.values()) + separator);
-		res.append(getOtherComplexitiesForEntry(resEntry, false));
+		for (ProfilerMeasurementData.ProfilerDataType entryType : ProfilerMeasurementData.ProfilerDataType
+				.values()) {
+			res.append(" Aggr for "
+					+ entryType
+					+ ": "
+					+ resEntry.combinedComplexity(entryType, gds,
+							ProfilerConstants.ProfilerType.values())
+					+ separator);
+			res.append(getOtherRuntimeComplexitiesForEntry(entryType, resEntry,
+					false));
+		}
 		return res.toString();
 	}
 
@@ -321,12 +332,18 @@ public class Profiler {
 				res.append(separator);
 			res.append("Count type: " + entry.getKey() + separator);
 			res.append(entry.getValue().toString());
-			res.append(" Aggr: "
-					+ entry.getValue().combinedComplexity(gds,
-							ProfilerConstants.ProfilerType.values())
-					+ separator);
-			if (showRecommendations)
-				res.append(getOtherComplexitiesForEntry(entry.getValue(), false));
+			for (ProfilerMeasurementData.ProfilerDataType entryType : ProfilerMeasurementData.ProfilerDataType
+					.values()) {
+				res.append(" Aggr for "
+						+ entryType
+						+ ": "
+						+ entry.getValue().combinedComplexity(entryType, gds,
+								ProfilerConstants.ProfilerType.values())
+						+ separator);
+				if (showRecommendations)
+					res.append(getOtherRuntimeComplexitiesForEntry(entryType,
+							entry.getValue(), false));
+			}
 		}
 		return res.toString();
 	}
@@ -387,13 +404,19 @@ public class Profiler {
 
 		StringBuilder res = new StringBuilder();
 		res.append(aggregated.callsAsString(prefix));
-		res.append(outputPrefix
-				+ " Aggr: "
-				+ aggregated.combinedComplexity(gds,
-						ProfilerConstants.ProfilerType.values()) + separator);
-		if (showRecommendations)
-			res.append(getOtherComplexitiesForEntry(aggregated,
-					outputAsCommentWithPrefix));
+		for (ProfilerMeasurementData.ProfilerDataType entryType : ProfilerMeasurementData.ProfilerDataType
+				.values()) {
+			res.append(outputPrefix
+					+ " Aggr for "
+					+ entryType
+					+ ": "
+					+ aggregated.combinedComplexity(entryType, gds,
+							ProfilerConstants.ProfilerType.values())
+					+ separator);
+			if (showRecommendations)
+				res.append(getOtherRuntimeComplexitiesForEntry(entryType,
+						aggregated, outputAsCommentWithPrefix));
+		}
 		return res.toString();
 	}
 
@@ -486,7 +509,6 @@ public class Profiler {
 
 			Profiler.writeUpdates(singleSeriesCalls, seriesDir, true);
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		singleSeriesCalls = new HashMap<>();
