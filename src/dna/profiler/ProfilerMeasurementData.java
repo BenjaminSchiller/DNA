@@ -79,6 +79,10 @@ public class ProfilerMeasurementData extends PropertiesHolder {
 			try {
 				subparts.find();
 				int counter = Integer.parseInt(subparts.group());
+
+				if (counter == 0)
+					continue;
+
 				subparts.find();
 				String type = subparts.group();
 
