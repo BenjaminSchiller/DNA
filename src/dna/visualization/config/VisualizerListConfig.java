@@ -2,6 +2,8 @@ package dna.visualization.config;
 
 import java.util.ArrayList;
 
+import dna.visualization.config.JSON.JSONObject;
+
 /**
  * Configuration-Object that contains several configuration items, which hold
  * parameters for configuration of single values or for a specific sort of
@@ -140,5 +142,87 @@ public class VisualizerListConfig {
 
 	public MultiScalarNodeValueListItem getAllNodeValueListsConfig() {
 		return this.insertAllNodeValueLists;
+	}
+
+	/** creates a visualizerlistconfig from a json object **/
+	public static VisualizerListConfig createConfigFromJSONObject(JSONObject o) {
+		VisualizerListConfig config = new VisualizerListConfig();
+
+		JSONObject visConfig = o.getJSONObject("VisualizerConfig");
+
+		for (String config1 : JSONObject.getNames(visConfig)) {
+			switch (config1) {
+			case "GeneralConfigs":
+				config.addGeneralConfigsFromJSONObject(visConfig
+						.getJSONObject(config1));
+				break;
+			case "SingleConfigs":
+				config.addSingleConfigsFromJSONObject(visConfig
+						.getJSONObject(config1));
+				break;
+			}
+		}
+
+		return config;
+	}
+
+	/** adds general configs to a visualizerlistconfig from a json object **/
+	public void addGeneralConfigsFromJSONObject(JSONObject o) {
+		for (String config : JSONObject.getNames(o)) {
+			switch (config) {
+			case "generalMetricConfig":
+				this.setAllMetrics(MetricVisualizerItem
+						.createMetricVisualizerItemFromJSONObject(o
+								.getJSONObject(config)));
+				break;
+			case "generalStatisticsConfig":
+				this.setAllStatistics(MetricVisualizerItem
+						.createMetricVisualizerItemFromJSONObject(o
+								.getJSONObject(config)));
+				break;
+			case "generalGeneralRuntimesConfig":
+				this.setAllGeneralRuntimes(MetricVisualizerItem
+						.createMetricVisualizerItemFromJSONObject(o
+								.getJSONObject(config)));
+				break;
+			case "generalMetricRuntimesConfig":
+				this.setAllMetricRuntimes(MetricVisualizerItem
+						.createMetricVisualizerItemFromJSONObject(o
+								.getJSONObject(config)));
+				break;
+			case "generalDistributionConfig":
+				this.setAllDistributions(MultiScalarDistributionItem
+						.createMultiScalarDistributionItemFromJSONObject(o
+								.getJSONObject(config)));
+				break;
+			case "generalNodeValueListConfig":
+				this.setAllNodeValueLists(MultiScalarNodeValueListItem
+						.createMultiScalarNodeValueListItemFromJSONObject(o
+								.getJSONObject(config)));
+				break;
+			}
+		}
+	}
+
+	/** adds single configs to a visualizerlistconfig from a json object **/
+	public void addSingleConfigsFromJSONObject(JSONObject o) {
+		for (String config : JSONObject.getNames(o)) {
+			JSONObject tempObject = o.getJSONObject(config);
+
+			switch (tempObject.getString("Type")) {
+			case "MetricVisualizerItem":
+				this.addConfigItem(MetricVisualizerItem
+						.createMetricVisualizerItemFromJSONObject(tempObject));
+				break;
+			case "MultiScalarDistributionItem":
+				this.addConfigItem(MultiScalarDistributionItem
+						.createMultiScalarDistributionItemFromJSONObject(tempObject));
+				break;
+			case "MultiScalarNodeValueListItem":
+				this.addConfigItem(MultiScalarNodeValueListItem
+						.createMultiScalarNodeValueListItemFromJSONObject(tempObject));
+				break;
+			}
+		}
 	}
 }

@@ -8,6 +8,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 
@@ -22,22 +24,38 @@ import javax.swing.JPanel;
 import javax.swing.border.EtchedBorder;
 
 import dna.series.data.BatchData;
+import dna.util.Log;
 import dna.visualization.components.statsdisplay.StatsDisplay;
 import dna.visualization.components.visualizer.MetricVisualizer;
 import dna.visualization.components.visualizer.MultiScalarVisualizer;
 import dna.visualization.components.visualizer.Visualizer;
-import dna.visualization.config.Config2;
 import dna.visualization.config.VisualizerListConfig;
+import dna.visualization.config.JSON.JSONObject;
+import dna.visualization.config.JSON.JSONTokener;
 
 @SuppressWarnings("serial")
 public class MainDisplay extends JFrame {
 	/** MAIN **/
 	public static void main(String[] args) {
 		// generate config for visualizers
-		// visualizerConfig = new Config1();
-		visualizerConfig = new Config2();
+		JSONObject jsonConfig = new JSONObject();
+
+		String jsonConfigPath = "config/gui_config1.cfg";
+		Log.info("Reading JSON config from " + '"' + jsonConfigPath
+				+ '"');
+		try {
+			FileInputStream file = new FileInputStream(jsonConfigPath);
+			JSONTokener tk = new JSONTokener(file);
+			jsonConfig = new JSONObject(tk);
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		}
+
+		visualizerConfig = VisualizerListConfig
+				.createConfigFromJSONObject(jsonConfig);
 
 		// init main window
+		Log.info("Initializing MainDisplay");
 		MainDisplay display = new MainDisplay();
 
 		// init batch handler, hand over directory and maindisplay
@@ -414,7 +432,7 @@ public class MainDisplay extends JFrame {
 	public long getPreviousTimestamp(long timestamp) {
 		return this.batchHandler.getPreviousTimestamp(timestamp);
 	}
-	
+
 	/** called from the statsdisplay to get the amount of previous timestamps **/
 	public int getAmountOfPreviousTimestamps(long timestamp) {
 		return this.batchHandler.getAmountOfPreviousTimestamps(timestamp);

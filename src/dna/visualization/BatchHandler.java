@@ -6,6 +6,7 @@ import java.util.Random;
 import dna.io.filesystem.Dir;
 import dna.series.data.BatchData;
 import dna.series.lists.BatchDataList;
+import dna.util.Log;
 
 /**
  * A batchhandler is used to read a run from the filesystem and simulate it by
@@ -249,6 +250,7 @@ public class BatchHandler implements Runnable {
 
 	/** resets the batchhandler **/
 	public void reset() throws InterruptedException {
+		Log.info("Resetting BatchHandler");
 		if (this.threadSuspended)
 			this.togglePause();
 		this.batches = new BatchDataList();
@@ -266,7 +268,7 @@ public class BatchHandler implements Runnable {
 			this.t = new Thread(this, "BatchHandler-Thread"
 					+ random.nextFloat());
 			this.threadSuspended = false;
-			System.out.println("New Thread: " + t);
+			Log.info("Starting BatchHandler in new thread: " + t);
 			this.t.start();
 		}
 	}

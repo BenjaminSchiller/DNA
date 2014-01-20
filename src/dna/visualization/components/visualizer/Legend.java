@@ -19,13 +19,13 @@ import dna.util.Config;
 import dna.visualization.GuiOptions;
 import dna.visualization.components.BoundsPopupMenuListener;
 import dna.visualization.components.ColorHandler;
-import dna.visualization.components.visualizer.MultiScalarVisualizer.SortModeDist;
-import dna.visualization.components.visualizer.MultiScalarVisualizer.SortModeNVL;
 import dna.visualization.config.MetricVisualizerItem;
 import dna.visualization.config.MultiScalarDistributionItem;
 import dna.visualization.config.MultiScalarNodeValueListItem;
 import dna.visualization.config.VisualizerListConfig.DisplayMode;
 import dna.visualization.config.VisualizerListConfig.GraphVisibility;
+import dna.visualization.config.VisualizerListConfig.SortModeDist;
+import dna.visualization.config.VisualizerListConfig.SortModeNVL;
 import dna.visualization.config.VisualizerListConfig.xAxisSelection;
 import dna.visualization.config.VisualizerListConfig.yAxisSelection;
 

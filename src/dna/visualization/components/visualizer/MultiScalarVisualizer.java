@@ -38,6 +38,8 @@ import dna.visualization.config.ConfigItem;
 import dna.visualization.config.MultiScalarDistributionItem;
 import dna.visualization.config.MultiScalarNodeValueListItem;
 import dna.visualization.config.VisualizerListConfig;
+import dna.visualization.config.VisualizerListConfig.SortModeDist;
+import dna.visualization.config.VisualizerListConfig.SortModeNVL;
 import dna.visualization.config.VisualizerListConfig.xAxisSelection;
 import dna.visualization.config.VisualizerListConfig.yAxisSelection;
 
@@ -59,16 +61,6 @@ public class MultiScalarVisualizer extends Visualizer {
 
 	// config
 	VisualizerListConfig config;
-
-	/** sort mode used to plot nodevaluelists **/
-	public enum SortModeNVL {
-		index, ascending, descending
-	};
-
-	/** sort mode used to plot distributions **/
-	public enum SortModeDist {
-		distribution, cdf
-	}
 
 	// current batch
 	private BatchData currentBatch;

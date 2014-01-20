@@ -6,8 +6,8 @@ import java.awt.Component;
 import javax.swing.JPanel;
 
 import dna.visualization.VerticalLayout;
-import dna.visualization.components.visualizer.MultiScalarVisualizer.SortModeDist;
-import dna.visualization.components.visualizer.MultiScalarVisualizer.SortModeNVL;
+import dna.visualization.config.VisualizerListConfig.SortModeDist;
+import dna.visualization.config.VisualizerListConfig.SortModeNVL;
 
 /**
  * The list showing elements added to the legend.

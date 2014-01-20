@@ -8,6 +8,12 @@ import javax.swing.BorderFactory;
 import javax.swing.border.TitledBorder;
 
 import dna.util.Config;
+import dna.visualization.config.VisualizerListConfig.DisplayMode;
+import dna.visualization.config.VisualizerListConfig.GraphVisibility;
+import dna.visualization.config.VisualizerListConfig.SortModeDist;
+import dna.visualization.config.VisualizerListConfig.SortModeNVL;
+import dna.visualization.config.VisualizerListConfig.xAxisSelection;
+import dna.visualization.config.VisualizerListConfig.yAxisSelection;
 
 public class GuiOptions {
 	/** GENERAL SETTINGS **/
@@ -45,6 +51,30 @@ public class GuiOptions {
 			.getDouble("GUI_METRIC_VISUALIZER_X_OFFSET");
 	public static final double multiScalarVisualizerXAxisOffset = Config
 			.getDouble("GUI_MULTISCALAR_VISUALIZER_X_OFFSET");
+
+	// metric visualizer defaults
+	public static final DisplayMode metricVisualizerDefaultDisplayMode = DisplayMode.linespoint;
+	public static final yAxisSelection metricVisualizerDefaultYAxisSelection = yAxisSelection.y1;
+	public static final GraphVisibility metricVisualizerDefaultGraphVisibility = GraphVisibility.shown;
+
+	// multi scalar visualizer defaults
+	public static final DisplayMode multiScalarVisualizerDefaultDistributionDisplayMode = DisplayMode.bars;
+	public static final SortModeDist multiScalarVisualizerDefaultDistributionSortMode = Config
+			.getSortModeDist("GUI_SORT_MODE_DIST");
+	public static final xAxisSelection multiScalarVisualizerDefaultDistXAxisSelection = Config
+			.getXAxisSelection("GUI_DIST_X_AXIS");
+	public static final yAxisSelection multiScalarVisualizerDefaultDistYAxisSelection = Config
+			.getYAxisSelection("GUI_DIST_Y_AXIS");
+
+	public static final DisplayMode multiScalarVisualizerDefaultNodeValueListDisplayMode = DisplayMode.linespoint;
+	public static final SortModeNVL multiScalarVisualizerDefaultNodeValueListSortMode = Config
+			.getSortModeNVL("GUI_SORT_MODE_NVL");
+	public static final xAxisSelection multiScalarVisualizerDefaultNVLXAxisSelection = Config
+			.getXAxisSelection("GUI_NVL_X_AXIS");
+	public static final yAxisSelection multiScalarVisualizerDefaultNVLYAxisSelection = Config
+			.getYAxisSelection("GUI_NVL_Y_AXIS");
+
+	public static final GraphVisibility multiScalarVisualizerDefaultGraphVisibility = GraphVisibility.shown;
 
 	// legend item
 	public static final Dimension legendItemItemSize = new Dimension(165, 40);

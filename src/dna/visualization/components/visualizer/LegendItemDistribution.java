@@ -9,7 +9,7 @@ import javax.swing.JButton;
 
 import dna.util.Config;
 import dna.visualization.GuiOptions;
-import dna.visualization.components.visualizer.MultiScalarVisualizer.SortModeDist;
+import dna.visualization.config.VisualizerListConfig.SortModeDist;
 import dna.visualization.config.VisualizerListConfig.xAxisSelection;
 
 /**
