@@ -718,6 +718,8 @@ public class MenuBar extends JPanel implements ChangeListener {
 				SimpleDateFormat tempDateFormat = new SimpleDateFormat(
 						GuiOptions.metricVisualizerXAxisFormat);
 				this.xCoordsValue.setText(tempDateFormat.format(new Date(x)));
+			} else {
+				this.xCoordsValue.setText("" + x);
 			}
 			this.yCoordsValue.setText("" + y);
 		}
