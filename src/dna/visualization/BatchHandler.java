@@ -191,7 +191,7 @@ public class BatchHandler implements Runnable {
 	/** sorts the holded BatchDataList by timestamp **/
 	public void sortBatches() {
 		BatchDataList tempBatches = new BatchDataList();
-		for(BatchData b : this.getBatches().list) {
+		for (BatchData b : this.getBatches().list) {
 			tempBatches.add(b);
 		}
 		this.batches = tempBatches;
@@ -408,5 +408,17 @@ public class BatchHandler implements Runnable {
 		}
 		System.out.println("Error calculating next timestamp, returning 0");
 		return 0;
+	}
+
+	/** returns the amount of timestamps before the timestamp batch **/
+	public int getAmountOfPreviousTimestamps(long timestamp) {
+		int counter = 0;
+		for (BatchData b : this.getBatches().list) {
+			if (b.getTimestamp() < timestamp)
+				counter++;
+			else
+				return counter;
+		}
+		return counter;
 	}
 }

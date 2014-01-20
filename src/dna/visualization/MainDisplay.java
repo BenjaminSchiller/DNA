@@ -414,4 +414,9 @@ public class MainDisplay extends JFrame {
 	public long getPreviousTimestamp(long timestamp) {
 		return this.batchHandler.getPreviousTimestamp(timestamp);
 	}
+	
+	/** called from the statsdisplay to get the amount of previous timestamps **/
+	public int getAmountOfPreviousTimestamps(long timestamp) {
+		return this.batchHandler.getAmountOfPreviousTimestamps(timestamp);
+	}
 }

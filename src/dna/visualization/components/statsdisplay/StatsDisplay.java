@@ -487,7 +487,7 @@ public class StatsDisplay extends JPanel implements ChangeListener {
 		this.setTimestamp(b.getTimestamp());
 		this.setNodes(b.getValues().get("nodes").getValue());
 		this.setEdges(b.getValues().get("edges").getValue());
-		this.incrementBatchesCount();
+		this.setBatchesCount(this.mainDisplay.getAmountOfPreviousTimestamps(b.getTimestamp()) + 1);
 
 		for (RunTime rt : b.getGeneralRuntimes().getList()) {
 			this.genRuntimes.updateValue(rt.getName(), rt.getRuntime());
@@ -590,6 +590,11 @@ public class StatsDisplay extends JPanel implements ChangeListener {
 		int temp = Integer.parseInt(this.batchesValue.getText()) + 1;
 		this.batchesValue.setText("" + temp);
 	}
+	
+	/** sets the batches count **/
+	public void setBatchesCount(int value) {
+		this.batchesValue.setText("" + value);
+	}
 
 	/**
 	 * Called when the program starts to prevent changes on sensitive data while
@@ -617,6 +622,7 @@ public class StatsDisplay extends JPanel implements ChangeListener {
 		this.nodesValue.setText("" + 0);
 		this.edgesValue.setText("" + 0);
 		this.ProgressBar.setValue(0);
+		this.batchesValue.setText("" + 0);
 
 		// this.metRuntimes.setPreferredSize(null);
 		this.metRuntimes.reset();
