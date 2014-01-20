@@ -18,7 +18,7 @@ import javax.swing.JPanel;
 import javax.swing.border.EtchedBorder;
 
 import dna.visualization.GuiOptions;
-import dna.visualization.components.visualizer.Visualizer.yAxisSelection;
+import dna.visualization.config.VisualizerListConfig.yAxisSelection;
 
 /**
  * An item in the legendlist.

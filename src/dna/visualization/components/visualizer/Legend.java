@@ -105,6 +105,7 @@ public class Legend extends JPanel {
 			this.list.add(i);
 			if (this.parent instanceof MetricVisualizer)
 				((MetricVisualizer) this.parent).addTrace(name, color);
+
 			this.parent.updateTicks();
 		}
 		this.parent.toggleXAxisVisibility();
@@ -191,26 +192,15 @@ public class Legend extends JPanel {
 			i.setToolTipText(name);
 
 			this.list.add(i);
+
+			// get default axis orientation
+			xAxisSelection xAxis = Config.getXAxisSelection("GUI_DIST_X_AXIS");
+			yAxisSelection yAxis = Config.getYAxisSelection("GUI_DIST_Y_AXIS");
+
 			if (this.parent instanceof MultiScalarVisualizer)
 				((MultiScalarVisualizer) this.parent).addDistributionTrace(
-						name, color);
+						name, color, xAxis, yAxis);
 
-			// usually added to x1/y1, check if config says otherways and toggle
-			// accordingly
-			switch (Config.getXAxisSelection("GUI_DIST_X_AXIS")) {
-			case x1:
-				break;
-			case x2:
-				this.list.toggleXAxis(i);
-				break;
-			}
-			switch (Config.getYAxisSelection("GUI_DIST_Y_AXIS")) {
-			case y1:
-				break;
-			case y2:
-				this.list.toggleYAxis(i);
-				break;
-			}
 			this.parent.updateTicks();
 		}
 		this.parent.toggleXAxisVisibility();
@@ -250,18 +240,14 @@ public class Legend extends JPanel {
 			this.list.add(i);
 			if (this.parent instanceof MultiScalarVisualizer)
 				((MultiScalarVisualizer) this.parent).addDistributionTrace(
-						name, color);
+						name, color, item.getXAxis(), item.getYAxis());
 
 			// usually added to x1/y1, check if config says otherways and toggle
-			// accordingly
-			if (item.getXAxis().equals(xAxisSelection.x2)) {
+			// buttons accordingly
+			if (item.getXAxis().equals(xAxisSelection.x2))
 				((LegendItemDistribution) i).setXAxisButton(false);
-				this.list.toggleXAxis(i);
-			}
-			if (item.getYAxis().equals(yAxisSelection.y2)) {
+			if (item.getYAxis().equals(yAxisSelection.y2))
 				i.setYAxisButton(false);
-				this.list.toggleYAxis(i);
-			}
 
 			// check if it should be added visible
 			if (item.getVisibility().equals(GraphVisibility.hidden)) {
@@ -302,26 +288,15 @@ public class Legend extends JPanel {
 			LegendItem i = new LegendItemNodeValueList(this.list, name, color);
 			i.setToolTipText(name);
 			this.list.add(i);
+
+			// get default axis orientation
+			xAxisSelection xAxis = Config.getXAxisSelection("GUI_NVL_X_AXIS");
+			yAxisSelection yAxis = Config.getYAxisSelection("GUI_NVL_Y_AXIS");
+
 			if (this.parent instanceof MultiScalarVisualizer)
 				((MultiScalarVisualizer) this.parent).addNodeValueListTrace(
-						name, color);
+						name, color, xAxis, yAxis);
 
-			// usually added to x1/y1, check if config says otherways and toggle
-			// accordingly
-			switch (Config.getXAxisSelection("GUI_NVL_X_AXIS")) {
-			case x1:
-				break;
-			case x2:
-				this.list.toggleXAxis(i);
-				break;
-			}
-			switch (Config.getYAxisSelection("GUI_NVL_Y_AXIS")) {
-			case y1:
-				break;
-			case y2:
-				this.list.toggleYAxis(i);
-				break;
-			}
 			this.parent.updateTicks();
 		}
 		this.parent.toggleXAxisVisibility();
@@ -360,18 +335,14 @@ public class Legend extends JPanel {
 			this.list.add(i);
 			if (this.parent instanceof MultiScalarVisualizer)
 				((MultiScalarVisualizer) this.parent).addNodeValueListTrace(
-						name, color);
+						name, color, item.getXAxis(), item.getYAxis());
 
 			// usually added to x1/y1, check if config says otherways and toggle
-			// accordingly
-			if (item.getXAxis().equals(xAxisSelection.x2)) {
+			// buttons accordingly
+			if (item.getXAxis().equals(xAxisSelection.x2))
 				((LegendItemNodeValueList) i).setXAxisButton(false);
-				this.list.toggleXAxis(i);
-			}
-			if (item.getYAxis().equals(yAxisSelection.y2)) {
+			if (item.getYAxis().equals(yAxisSelection.y2))
 				i.setYAxisButton(false);
-				this.list.toggleYAxis(i);
-			}
 
 			// check if it should be added visible
 			if (item.getVisibility().equals(GraphVisibility.hidden)) {

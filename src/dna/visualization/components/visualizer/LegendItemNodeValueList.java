@@ -10,7 +10,7 @@ import javax.swing.JButton;
 import dna.util.Config;
 import dna.visualization.GuiOptions;
 import dna.visualization.components.visualizer.MultiScalarVisualizer.SortModeNVL;
-import dna.visualization.components.visualizer.Visualizer.xAxisSelection;
+import dna.visualization.config.VisualizerListConfig.xAxisSelection;
 
 /**
  * A legenditem in the legendlist representing a nodevaluelist.

@@ -183,6 +183,8 @@ public class MetricVisualizer extends Visualizer {
 			if (timestamp > this.maxTimestamp)
 				this.maxTimestamp = timestamp;
 
+			double offsetX = 0;
+
 			// update values
 			for (String metric : b.getMetrics().getNames()) {
 				for (String value : b.getMetrics().get(metric).getValues()
@@ -191,9 +193,9 @@ public class MetricVisualizer extends Visualizer {
 						String tempName = metric + "." + value;
 						double tempValue = b.getMetrics().get(metric)
 								.getValues().get(value).getValue();
-
-						this.traces.get(tempName).addPoint(timestampDouble,
-								tempValue);
+						this.traces.get(tempName).addPoint(
+								timestampDouble + offsetX, tempValue);
+						offsetX += GuiOptions.metricVisualizerXAxisOffset;
 						this.legend.updateItem(tempName, tempValue);
 					}
 				}
@@ -204,8 +206,9 @@ public class MetricVisualizer extends Visualizer {
 					String tempName = "general runtimes." + runtime;
 					double tempValue = b.getGeneralRuntimes().get(runtime)
 							.getRuntime();
-					this.traces.get(tempName).addPoint(timestampDouble,
-							tempValue);
+					this.traces.get(tempName).addPoint(
+							timestampDouble + offsetX, tempValue);
+					offsetX += GuiOptions.metricVisualizerXAxisOffset;
 					this.legend.updateItem(tempName, tempValue);
 				}
 			}
@@ -216,8 +219,9 @@ public class MetricVisualizer extends Visualizer {
 					double tempValue = b.getMetricRuntimes().get(runtime)
 							.getRuntime();
 
-					this.traces.get(tempName).addPoint(timestampDouble,
-							tempValue);
+					this.traces.get(tempName).addPoint(
+							timestampDouble + offsetX, tempValue);
+					offsetX += GuiOptions.metricVisualizerXAxisOffset;
 					this.legend.updateItem(tempName, tempValue);
 				}
 			}
@@ -227,8 +231,9 @@ public class MetricVisualizer extends Visualizer {
 					String tempName = "statistics." + value;
 					double tempValue = b.getValues().get(value).getValue();
 
-					this.traces.get(tempName).addPoint(timestampDouble,
-							tempValue);
+					this.traces.get(tempName).addPoint(
+							timestampDouble + offsetX, tempValue);
+					offsetX += GuiOptions.metricVisualizerXAxisOffset;
 					this.legend.updateItem(tempName, tempValue);
 				}
 			}

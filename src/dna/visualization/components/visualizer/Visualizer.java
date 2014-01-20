@@ -52,15 +52,6 @@ public class Visualizer extends JPanel {
 	// constraints
 	private GridBagConstraints mainConstraints;
 
-	// enumerations for axis selection
-	public enum xAxisSelection {
-		x1, x2
-	};
-
-	public enum yAxisSelection {
-		y1, y2
-	};
-
 	// shows if the UI is paused or not
 	protected boolean paused;
 
