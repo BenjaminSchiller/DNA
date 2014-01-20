@@ -191,13 +191,8 @@ public class BatchHandler implements Runnable {
 	/** sorts the holded BatchDataList by timestamp **/
 	public void sortBatches() {
 		BatchDataList tempBatches = new BatchDataList();
-		long min = this.getMinTimestamp();
-		for (int i = 0; i < this.getBatches().size(); i++) {
-			for (BatchData b : this.getBatches().list) {
-				if (b.getTimestamp() == min)
-					tempBatches.add(b);
-			}
-			min++;
+		for(BatchData b : this.getBatches().list) {
+			tempBatches.add(b);
 		}
 		this.batches = tempBatches;
 	}
