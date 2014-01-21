@@ -1,8 +1,9 @@
-package dna.metrics.motifs.undirectedMotifs.exeptions;
+package dna.depr.metrics.motifs.undirectedMotifs.exceptions;
 
+import dna.depr.metrics.motifs.undirectedMotifs.UndirectedMotif;
 import dna.graph.edges.UndirectedEdge;
-import dna.metrics.motifs.undirectedMotifs.UndirectedMotif;
 
+@Deprecated
 public class UndirectedMotifSplittingException extends UndirectedMotifException {
 
 	private static final long serialVersionUID = 4054514685260218064L;
@@ -13,8 +14,9 @@ public class UndirectedMotifSplittingException extends UndirectedMotifException 
 
 	public String toString() {
 		return "removing the edge " + this.e
-				+ " splits the UM1 motif into two motifs:\n" + this.m.toString()
-				+ "\n===>\n" + this.getM1() + "\n&\n" + this.getM2();
+				+ " splits the UM1 motif into two motifs:\n"
+				+ this.m.toString() + "\n===>\n" + this.getM1() + "\n&\n"
+				+ this.getM2();
 	}
 
 	public UndirectedMotif getM1() {

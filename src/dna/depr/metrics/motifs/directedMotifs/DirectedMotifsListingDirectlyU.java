@@ -1,74 +1,93 @@
-package dna.metrics.motifs.directedMotifs;
+package dna.depr.metrics.motifs.directedMotifs;
 
 import java.util.HashSet;
 
+import dna.depr.metrics.motifs.directedMotifs.exceptions.DirectedMotifInvalidEdgeAdditionException;
+import dna.depr.metrics.motifs.directedMotifs.exceptions.DirectedMotifInvalidEdgeRemovalException;
+import dna.depr.metrics.motifs.directedMotifs.exceptions.DirectedMotifSplittingException;
+import dna.depr.metrics.motifs.directedMotifs.exceptions.InvalidDirectedMotifException;
 import dna.graph.IElement;
 import dna.graph.edges.DirectedEdge;
 import dna.graph.nodes.DirectedNode;
-import dna.metrics.motifs.directedMotifs.exceptions.DirectedMotifInvalidEdgeAdditionException;
-import dna.metrics.motifs.directedMotifs.exceptions.DirectedMotifInvalidEdgeRemovalException;
-import dna.metrics.motifs.directedMotifs.exceptions.DirectedMotifSplittingException;
-import dna.metrics.motifs.directedMotifs.exceptions.InvalidDirectedMotifException;
+import dna.metrics.motifs.DirectedMotifs;
+import dna.updates.batch.Batch;
 import dna.updates.update.EdgeAddition;
 import dna.updates.update.EdgeRemoval;
+import dna.updates.update.NodeRemoval;
 import dna.updates.update.Update;
 
-public abstract class DirectedMotifsComputation extends DirectedMotifs {
+@Deprecated
+public class DirectedMotifsListingDirectlyU extends DirectedMotifs {
 
-	public DirectedMotifsComputation(String name, ApplicationType type,
-			MetricType metricType) {
-		super(name, type, metricType);
+	public DirectedMotifsListingDirectlyU() {
+		super("DirectedMotifsListingDirectlyU",
+				ApplicationType.BeforeAndAfterUpdate, MetricType.exact);
 	}
 
 	@Override
-	public boolean compute() {
-		for (IElement element : this.g.getNodes()) {
-			DirectedNode a = (DirectedNode) element;
-			HashSet<DirectedNode> a_ = this.getConnectedNodes(a);
-			for (DirectedNode b : a_) {
-				HashSet<DirectedNode> b_ = this.getConnectedNodes(b);
-				for (DirectedNode c : b_) {
-					if (c.getIndex() > a.getIndex() && !a_.contains(c)) {
-						try {
-							// System.out.println("COMP: add "
-							// + DirectedMotif.getMotif(a, b, c));
-							this.motifs.incr(DirectedMotifs
-									.getIndex(DirectedMotif.getType(a, b, c)));
-						} catch (InvalidDirectedMotifException e) {
-							e.printStackTrace();
-						}
-					}
-				}
-				if (b.getIndex() > a.getIndex()) {
-					for (DirectedNode c : b_) {
-						if (c.getIndex() > b.getIndex() && a_.contains(c)) {
-							try {
-								// System.out.println("COMP: add "
-								// + DirectedMotif.getMotif(a, b, c));
-								this.motifs.incr(DirectedMotifs
-										.getIndex(DirectedMotif
-												.getType(a, b, c)));
-							} catch (InvalidDirectedMotifException e) {
-								e.printStackTrace();
-							}
-						}
-					}
-				}
+	public boolean applyBeforeBatch(Batch b) {
+		return false;
+	}
+
+	@Override
+	public boolean applyAfterBatch(Batch b) {
+		return false;
+	}
+
+	@Override
+	public boolean applyBeforeUpdate(Update u) {
+		if (u instanceof EdgeAddition) {
+			DirectedEdge e = (DirectedEdge) ((EdgeAddition) u).getEdge();
+			DirectedNode a = e.getSrc();
+			DirectedNode b = e.getDst();
+			if (!e.getSrc().hasEdge(e.invert())) {
+				this.transformCombinations(a, b,
+						this.getConnectedNodesIntersection(a, b), u);
+			} else {
+				this.transformCombinations(a, b,
+						this.getConnectedNodesUnion(a, b), u);
 			}
+		} else if (u instanceof EdgeRemoval) {
+			DirectedEdge e = (DirectedEdge) ((EdgeRemoval) u).getEdge();
+			DirectedNode a = e.getSrc();
+			DirectedNode b = e.getDst();
+			if (!e.getSrc().hasEdge(e.invert())) {
+				HashSet<DirectedNode> a_ = this.getConnectedNodes(a);
+				HashSet<DirectedNode> b_ = this.getConnectedNodes(b);
+				this.removeCombinations(a, b,
+						this.getConnectedNodesExcluding(a, b_, b));
+				this.removeCombinations(a, b,
+						this.getConnectedNodesExcluding(b, a_, a));
+				this.transformCombinations(a, b,
+						this.getConnectedNodesIntersection(a, b), u);
+			} else {
+				this.transformCombinations(a, b,
+						this.getConnectedNodesUnion(a, b), u);
+			}
+		} else if (u instanceof NodeRemoval) {
+			// TODO implement node removal
 		}
 		return true;
 	}
 
-	protected HashSet<DirectedNode> getConnectedNodes(DirectedNode node) {
-		HashSet<DirectedNode> nodes = new HashSet<DirectedNode>(
-				node.getInDegree() + node.getOutDegree());
-		for (IElement in : node.getIncomingEdges()) {
-			nodes.add(((DirectedEdge) in).getSrc());
+	@Override
+	public boolean applyAfterUpdate(Update u) {
+		if (u instanceof EdgeAddition) {
+			DirectedEdge e = (DirectedEdge) ((EdgeAddition) u).getEdge();
+			DirectedNode a = e.getSrc();
+			DirectedNode b = e.getDst();
+			if (!e.getSrc().hasEdge(e.invert())) {
+				HashSet<DirectedNode> a_ = this.getConnectedNodes(a);
+				HashSet<DirectedNode> b_ = this.getConnectedNodes(b);
+				this.addCombinations(a, b,
+						this.getConnectedNodesExcluding(a, b_, b));
+				this.addCombinations(a, b,
+						this.getConnectedNodesExcluding(b, a_, a));
+			}
+		} else if (u instanceof NodeRemoval) {
+			// TODO implement node removal
 		}
-		for (IElement out : node.getOutgoingEdges()) {
-			nodes.add(((DirectedEdge) out).getDst());
-		}
-		return nodes;
+		return true;
 	}
 
 	protected HashSet<DirectedNode> getConnectedNodesUnion(DirectedNode a,
@@ -96,20 +115,6 @@ public abstract class DirectedMotifsComputation extends DirectedMotifs {
 		for (IElement out : b.getOutgoingEdges()) {
 			DirectedNode n = ((DirectedEdge) out).getDst();
 			if (n.getIndex() != a.getIndex()) {
-				nodes.add(n);
-			}
-		}
-		return nodes;
-	}
-
-	protected HashSet<DirectedNode> getConnectedNodesIntersection(
-			DirectedNode a, DirectedNode b) {
-		HashSet<DirectedNode> nodesA = this.getConnectedNodes(a);
-		HashSet<DirectedNode> nodesB = this.getConnectedNodes(b);
-		HashSet<DirectedNode> nodes = new HashSet<DirectedNode>(nodesA.size()
-				+ nodesB.size());
-		for (DirectedNode n : nodesA) {
-			if (nodesB.contains(n)) {
 				nodes.add(n);
 			}
 		}
@@ -190,6 +195,20 @@ public abstract class DirectedMotifsComputation extends DirectedMotifs {
 				e.printStackTrace();
 			}
 		}
+	}
+
+	protected HashSet<DirectedNode> getConnectedNodesIntersection(
+			DirectedNode a, DirectedNode b) {
+		HashSet<DirectedNode> nodesA = this.getConnectedNodes(a);
+		HashSet<DirectedNode> nodesB = this.getConnectedNodes(b);
+		HashSet<DirectedNode> nodes = new HashSet<DirectedNode>(nodesA.size()
+				+ nodesB.size());
+		for (DirectedNode n : nodesA) {
+			if (nodesB.contains(n)) {
+				nodes.add(n);
+			}
+		}
+		return nodes;
 	}
 
 }

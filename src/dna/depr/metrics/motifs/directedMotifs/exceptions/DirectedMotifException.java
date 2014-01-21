@@ -1,8 +1,9 @@
-package dna.metrics.motifs.directedMotifs.exceptions;
+package dna.depr.metrics.motifs.directedMotifs.exceptions;
 
+import dna.depr.metrics.motifs.directedMotifs.DirectedMotif;
 import dna.graph.edges.DirectedEdge;
-import dna.metrics.motifs.directedMotifs.DirectedMotif;
 
+@Deprecated
 public abstract class DirectedMotifException extends Exception {
 
 	private static final long serialVersionUID = -1197189476607065524L;

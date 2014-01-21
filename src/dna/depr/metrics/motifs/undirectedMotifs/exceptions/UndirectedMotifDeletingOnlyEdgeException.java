@@ -1,8 +1,9 @@
-package dna.metrics.motifs.undirectedMotifs.exeptions;
+package dna.depr.metrics.motifs.undirectedMotifs.exceptions;
 
+import dna.depr.metrics.motifs.undirectedMotifs.UndirectedMotif;
 import dna.graph.edges.UndirectedEdge;
-import dna.metrics.motifs.undirectedMotifs.UndirectedMotif;
 
+@Deprecated
 public class UndirectedMotifDeletingOnlyEdgeException extends UndirectedMotifException {
 
 	private static final long serialVersionUID = 609272481545179844L;

@@ -1,4 +1,4 @@
-package dna.metrics.motifs.directedMotifs;
+package dna.metrics.motifs;
 
 import java.util.HashSet;
 
@@ -13,7 +13,17 @@ import dna.series.data.Value;
 import dna.updates.batch.Batch;
 import dna.updates.update.Update;
 
-public class DirectedMotifCountR extends Metric {
+/**
+ * 
+ * this metric gives a computation of the total number of directed 3-node motifs
+ * in a network. also, it computed an upper bound for the number of motifs based
+ * on the degree distribution and an approximation of the number of motifs based
+ * on the assumption that all nodes have roughly the same degree.
+ * 
+ * @author benni
+ * 
+ */
+public class CountingDirectedMotifsR extends Metric {
 
 	protected int computation;
 
@@ -21,8 +31,8 @@ public class DirectedMotifCountR extends Metric {
 
 	protected int approximation;
 
-	public DirectedMotifCountR() {
-		super("DirectedMotifCountR", ApplicationType.Recomputation,
+	public CountingDirectedMotifsR() {
+		super("CountingDirectedMotifsR", ApplicationType.Recomputation,
 				MetricType.exact);
 	}
 
@@ -149,10 +159,10 @@ public class DirectedMotifCountR extends Metric {
 
 	@Override
 	public boolean equals(Metric m) {
-		if (m == null || !(m instanceof DirectedMotifCountR)) {
+		if (m == null || !(m instanceof CountingDirectedMotifsR)) {
 			return false;
 		}
-		DirectedMotifCountR c = (DirectedMotifCountR) m;
+		CountingDirectedMotifsR c = (CountingDirectedMotifsR) m;
 		return this.approximation == c.approximation
 				&& this.computation == c.computation
 				&& this.upperBound == c.upperBound;
@@ -172,7 +182,7 @@ public class DirectedMotifCountR extends Metric {
 
 	@Override
 	public boolean isComparableTo(Metric m) {
-		return m instanceof DirectedMotifCountR;
+		return m instanceof CountingDirectedMotifsR;
 	}
 
 }

@@ -1,19 +1,26 @@
-package dna.metrics.motifs.directedMotifs;
+package dna.depr.metrics.motifs.directedMotifs;
 
 import java.util.Arrays;
 
+import dna.depr.metrics.motifs.directedMotifs.exceptions.DirectedMotifInvalidEdgeAdditionException;
+import dna.depr.metrics.motifs.directedMotifs.exceptions.DirectedMotifInvalidEdgeRemovalException;
+import dna.depr.metrics.motifs.directedMotifs.exceptions.DirectedMotifSplittingException;
+import dna.depr.metrics.motifs.directedMotifs.exceptions.InvalidDirectedMotifException;
 import dna.graph.edges.DirectedEdge;
 import dna.graph.nodes.DirectedNode;
-import dna.metrics.motifs.directedMotifs.exceptions.DirectedMotifInvalidEdgeAdditionException;
-import dna.metrics.motifs.directedMotifs.exceptions.DirectedMotifInvalidEdgeRemovalException;
-import dna.metrics.motifs.directedMotifs.exceptions.DirectedMotifSplittingException;
-import dna.metrics.motifs.directedMotifs.exceptions.InvalidDirectedMotifException;
+import dna.metrics.motifs.DirectedMotifs.DirectedMotifType;
 
+/**
+ * 
+ * representation of a directed 3-node motif used in some metrics. baseides
+ * determining the motif of three given nodes, an existing motif can be altered
+ * by adding or removing an edge to it.
+ * 
+ * @author benni
+ * 
+ */
+@Deprecated
 public class DirectedMotif {
-	public static enum DirectedMotifType {
-		DM01, DM02, DM03, DM04, DM05, DM06, DM07, DM08, DM09, DM10, DM11, DM12, DM13
-	}
-
 	private DirectedNode a;
 
 	private DirectedNode b;

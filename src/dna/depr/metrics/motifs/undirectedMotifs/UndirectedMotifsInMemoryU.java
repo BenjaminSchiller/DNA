@@ -1,14 +1,14 @@
-package dna.metrics.motifs.undirectedMotifs;
+package dna.depr.metrics.motifs.undirectedMotifs;
 
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 
+import dna.depr.metrics.motifs.undirectedMotifs.exceptions.UndirectedMotifInvalidEdgeAdditionException;
 import dna.graph.IElement;
 import dna.graph.edges.UndirectedEdge;
 import dna.graph.nodes.UndirectedNode;
-import dna.metrics.motifs.undirectedMotifs.UndirectedMotif.UndirectedMotifType;
-import dna.metrics.motifs.undirectedMotifs.exeptions.UndirectedMotifInvalidEdgeAdditionException;
+import dna.metrics.motifs.UndirectedMotifs;
 import dna.updates.batch.Batch;
 import dna.updates.update.EdgeAddition;
 import dna.updates.update.EdgeRemoval;
@@ -16,6 +16,7 @@ import dna.updates.update.NodeRemoval;
 import dna.updates.update.Update;
 import dna.util.Log;
 
+@Deprecated
 public class UndirectedMotifsInMemoryU extends UndirectedMotifs {
 
 	// private HashSet<UndirectedMotif> preMotifs;
@@ -66,7 +67,7 @@ public class UndirectedMotifsInMemoryU extends UndirectedMotifs {
 	}
 
 	public UndirectedMotifsInMemoryU() {
-		super("UndirectedMotifsU", ApplicationType.AfterUpdate,
+		super("UndirectedMotifsInMemoryU", ApplicationType.AfterUpdate,
 				MetricType.exact);
 	}
 
@@ -123,7 +124,6 @@ public class UndirectedMotifsInMemoryU extends UndirectedMotifs {
 				UndirectedMotif newMotif = m.addEdge(e);
 				newMotifs.add(newMotif);
 				this.motifs.incr(newMotif.getIndex());
-				this.motifs.incrDenominator();
 			} catch (UndirectedMotifInvalidEdgeAdditionException e1) {
 				// e1.printStackTrace();
 			}
@@ -154,7 +154,6 @@ public class UndirectedMotifsInMemoryU extends UndirectedMotifs {
 				Log.debug("adding merge: " + m);
 				newMotifs.add(m);
 				this.motifs.incr(m.getIndex());
-				this.motifs.incrDenominator();
 			}
 		}
 	}
@@ -215,7 +214,6 @@ public class UndirectedMotifsInMemoryU extends UndirectedMotifs {
 		this.addMotif(edgeMotif);
 
 		this.motifs.incr(edgeMotif.getIndex());
-		this.motifs.incrDenominator();
 
 		Log.debug("edge: " + edgeMotif);
 		Log.debug("**********************");
@@ -285,7 +283,6 @@ public class UndirectedMotifsInMemoryU extends UndirectedMotifs {
 	@Override
 	public boolean applyAfterUpdate(Update u) {
 		if (u instanceof EdgeAddition) {
-			this.motifs.incrDenominator();
 			UndirectedEdge e = (((UndirectedEdge) ((EdgeAddition) u).getEdge()));
 
 			Log.debug(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
@@ -329,24 +326,22 @@ public class UndirectedMotifsInMemoryU extends UndirectedMotifs {
 			// DEBUG
 			// this.debug();
 
-			return true;
 		} else if (u instanceof EdgeRemoval) {
 			// TODO implement edge removal
-			this.motifs.decrDenominator();
-			return true;
 		} else if (u instanceof NodeRemoval) {
 			// TODO implement node removal
 			UndirectedNode n = (((UndirectedNode) ((NodeRemoval) u).getNode()));
-			this.motifs.decrDenominator(n.getDegree());
-			return true;
 		}
+
+		this.motifs.set(UndirectedMotifs.getIndex(UndirectedMotifType.PRE1), 0);
+		this.motifs.set(UndirectedMotifs.getIndex(UndirectedMotifType.PRE2), 0);
+		this.motifs.set(UndirectedMotifs.getIndex(UndirectedMotifType.PRE3), 0);
 
 		return true;
 	}
 
 	@Override
 	public boolean compute() {
-		this.motifs.setDenominator(0);
 		return true;
 	}
 

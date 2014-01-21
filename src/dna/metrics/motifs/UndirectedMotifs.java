@@ -1,4 +1,4 @@
-package dna.metrics.motifs.undirectedMotifs;
+package dna.metrics.motifs;
 
 import dna.graph.Graph;
 import dna.graph.nodes.UndirectedNode;
@@ -11,6 +11,10 @@ import dna.updates.batch.Batch;
 import dna.util.ArrayUtils;
 
 public abstract class UndirectedMotifs extends Metric {
+	
+	public static enum UndirectedMotifType {
+		PRE1, PRE2, PRE3, UM1, UM2, UM3, UM4, UM5, UM6
+	};
 
 	protected DistributionInt motifs;
 
@@ -19,6 +23,12 @@ public abstract class UndirectedMotifs extends Metric {
 	public UndirectedMotifs(String name, ApplicationType type,
 			MetricType metricType) {
 		super(name, type, metricType);
+	}
+
+	@Override
+	public boolean compute() {
+		// TODO Auto-generated method stub
+		return false;
 	}
 
 	@Override
@@ -82,6 +92,31 @@ public abstract class UndirectedMotifs extends Metric {
 	@Override
 	public boolean isComparableTo(Metric m) {
 		return m instanceof UndirectedMotifs;
+	}
+
+	public static int getIndex(UndirectedMotifType type) {
+		switch (type) {
+		case PRE1:
+			return 8;
+		case PRE2:
+			return 9;
+		case PRE3:
+			return 10;
+		case UM1:
+			return 1;
+		case UM2:
+			return 2;
+		case UM3:
+			return 3;
+		case UM4:
+			return 4;
+		case UM5:
+			return 5;
+		case UM6:
+			return 6;
+		default:
+			return 0;
+		}
 	}
 
 }

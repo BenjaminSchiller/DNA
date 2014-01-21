@@ -1,9 +1,14 @@
-package dna.metrics.motifs.directedMotifs;
+package dna.metrics.motifs;
 
+import java.util.HashSet;
+
+import dna.depr.metrics.motifs.directedMotifs.DirectedMotif;
+import dna.depr.metrics.motifs.directedMotifs.exceptions.InvalidDirectedMotifException;
 import dna.graph.Graph;
+import dna.graph.IElement;
+import dna.graph.edges.DirectedEdge;
 import dna.graph.nodes.DirectedNode;
 import dna.metrics.Metric;
-import dna.metrics.motifs.directedMotifs.DirectedMotif.DirectedMotifType;
 import dna.series.data.Distribution;
 import dna.series.data.DistributionInt;
 import dna.series.data.NodeValueList;
@@ -11,7 +16,20 @@ import dna.series.data.Value;
 import dna.updates.batch.Batch;
 import dna.util.ArrayUtils;
 
+/**
+ * 
+ * base class of metrics for counting the occurrence of directed 3-node motifs.
+ * the metric returns a distribution containing the occurrences of each motif as
+ * well as values for the occurrence of each motif (including a total motif
+ * count).
+ * 
+ * @author benni
+ * 
+ */
 public abstract class DirectedMotifs extends Metric {
+	public static enum DirectedMotifType {
+		DM01, DM02, DM03, DM04, DM05, DM06, DM07, DM08, DM09, DM10, DM11, DM12, DM13
+	}
 
 	protected DistributionInt motifs;
 
@@ -20,6 +38,57 @@ public abstract class DirectedMotifs extends Metric {
 	public DirectedMotifs(String name, ApplicationType type,
 			MetricType metricType) {
 		super(name, type, metricType);
+	}
+
+	@Override
+	public boolean compute() {
+		for (IElement element : this.g.getNodes()) {
+			DirectedNode a = (DirectedNode) element;
+			HashSet<DirectedNode> a_ = this.getConnectedNodes(a);
+			for (DirectedNode b : a_) {
+				HashSet<DirectedNode> b_ = this.getConnectedNodes(b);
+				for (DirectedNode c : b_) {
+					if (c.getIndex() > a.getIndex() && !a_.contains(c)) {
+						try {
+							// System.out.println("COMP: add "
+							// + DirectedMotif.getMotif(a, b, c));
+							this.motifs.incr(DirectedMotifs
+									.getIndex(DirectedMotif.getType(a, b, c)));
+						} catch (InvalidDirectedMotifException e) {
+							e.printStackTrace();
+						}
+					}
+				}
+				if (b.getIndex() > a.getIndex()) {
+					for (DirectedNode c : b_) {
+						if (c.getIndex() > b.getIndex() && a_.contains(c)) {
+							try {
+								// System.out.println("COMP: add "
+								// + DirectedMotif.getMotif(a, b, c));
+								this.motifs.incr(DirectedMotifs
+										.getIndex(DirectedMotif
+												.getType(a, b, c)));
+							} catch (InvalidDirectedMotifException e) {
+								e.printStackTrace();
+							}
+						}
+					}
+				}
+			}
+		}
+		return true;
+	}
+
+	protected HashSet<DirectedNode> getConnectedNodes(DirectedNode node) {
+		HashSet<DirectedNode> nodes = new HashSet<DirectedNode>(
+				node.getInDegree() + node.getOutDegree());
+		for (IElement in : node.getIncomingEdges()) {
+			nodes.add(((DirectedEdge) in).getSrc());
+		}
+		for (IElement out : node.getOutgoingEdges()) {
+			nodes.add(((DirectedEdge) out).getDst());
+		}
+		return nodes;
 	}
 
 	@Override

@@ -1,12 +1,12 @@
-package dna.metrics.motifs.undirectedMotifs;
+package dna.metrics.motifs;
 
 import dna.updates.batch.Batch;
 import dna.updates.update.Update;
 
-public class UndirectedMotifsR extends UndirectedMotifsComputation {
+public class DirectedMotifsR extends DirectedMotifs {
 
-	public UndirectedMotifsR() {
-		super("UndirectedMotifsR", ApplicationType.Recomputation,
+	public DirectedMotifsR() {
+		super("DirectedMotifsR", ApplicationType.Recomputation,
 				MetricType.exact);
 	}
 

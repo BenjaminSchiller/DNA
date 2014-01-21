@@ -1,19 +1,17 @@
-package dna.metrics.motifs.undirectedMotifs;
+package dna.depr.metrics.motifs.undirectedMotifs;
 
 import java.util.Arrays;
 
+import dna.depr.metrics.motifs.undirectedMotifs.exceptions.UndirectedMotifDeletingOnlyEdgeException;
+import dna.depr.metrics.motifs.undirectedMotifs.exceptions.UndirectedMotifInvalidEdgeAdditionException;
+import dna.depr.metrics.motifs.undirectedMotifs.exceptions.UndirectedMotifInvalidEdgeRemovalException;
+import dna.depr.metrics.motifs.undirectedMotifs.exceptions.UndirectedMotifSplittingException;
 import dna.graph.edges.UndirectedEdge;
 import dna.graph.nodes.UndirectedNode;
-import dna.metrics.motifs.undirectedMotifs.exeptions.UndirectedMotifDeletingOnlyEdgeException;
-import dna.metrics.motifs.undirectedMotifs.exeptions.UndirectedMotifInvalidEdgeAdditionException;
-import dna.metrics.motifs.undirectedMotifs.exeptions.UndirectedMotifInvalidEdgeRemovalException;
-import dna.metrics.motifs.undirectedMotifs.exeptions.UndirectedMotifSplittingException;
+import dna.metrics.motifs.UndirectedMotifs.UndirectedMotifType;
 
+@Deprecated
 public class UndirectedMotif {
-	public static enum UndirectedMotifType {
-		PRE1, PRE2, PRE3, UM1, UM2, UM3, UM4, UM5, UM6
-	};
-
 	private UndirectedNode a;
 
 	private UndirectedNode b;

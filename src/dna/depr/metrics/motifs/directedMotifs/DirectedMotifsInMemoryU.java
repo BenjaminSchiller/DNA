@@ -1,18 +1,18 @@
-package dna.metrics.motifs.directedMotifs;
+package dna.depr.metrics.motifs.directedMotifs;
 
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 
+import dna.depr.metrics.motifs.directedMotifs.exceptions.DirectedMotifInvalidEdgeAdditionException;
+import dna.depr.metrics.motifs.directedMotifs.exceptions.DirectedMotifInvalidEdgeRemovalException;
+import dna.depr.metrics.motifs.directedMotifs.exceptions.DirectedMotifSplittingException;
+import dna.depr.metrics.motifs.directedMotifs.exceptions.InvalidDirectedMotifException;
 import dna.graph.IElement;
 import dna.graph.edges.DirectedEdge;
 import dna.graph.nodes.DirectedNode;
-import dna.metrics.motifs.directedMotifs.DirectedMotif.DirectedMotifType;
-import dna.metrics.motifs.directedMotifs.exceptions.DirectedMotifInvalidEdgeAdditionException;
-import dna.metrics.motifs.directedMotifs.exceptions.DirectedMotifInvalidEdgeRemovalException;
-import dna.metrics.motifs.directedMotifs.exceptions.DirectedMotifSplittingException;
-import dna.metrics.motifs.directedMotifs.exceptions.InvalidDirectedMotifException;
+import dna.metrics.motifs.DirectedMotifs;
 import dna.updates.batch.Batch;
 import dna.updates.update.EdgeAddition;
 import dna.updates.update.EdgeRemoval;
@@ -20,6 +20,7 @@ import dna.updates.update.NodeRemoval;
 import dna.updates.update.Update;
 import dna.util.Log;
 
+@Deprecated
 public class DirectedMotifsInMemoryU extends DirectedMotifs {
 
 	public DirectedMotifsInMemoryU() {
@@ -317,18 +318,6 @@ public class DirectedMotifsInMemoryU extends DirectedMotifs {
 			throws InvalidDirectedMotifException {
 		DirectedMotif m = DirectedMotif.getMotif(a, b, c);
 		this.addMotif(m);
-	}
-
-	private HashSet<DirectedNode> getConnectedNodes(DirectedNode node) {
-		HashSet<DirectedNode> nodes = new HashSet<DirectedNode>(
-				node.getInDegree() + node.getOutDegree());
-		for (IElement in : node.getIncomingEdges()) {
-			nodes.add(((DirectedEdge) in).getSrc());
-		}
-		for (IElement out : node.getOutgoingEdges()) {
-			nodes.add(((DirectedEdge) out).getDst());
-		}
-		return nodes;
 	}
 
 	public void init_() {
