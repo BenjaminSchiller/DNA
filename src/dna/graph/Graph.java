@@ -41,8 +41,6 @@ public class Graph {
 	public Graph(String name, long timestamp, GraphDataStructure gds,
 			int nodeSize, int edgeSize) {
 		this(name, timestamp, gds);
-		this.nodes.reinitializeWithSize(nodeSize);
-		this.edges.reinitializeWithSize(edgeSize);
 	}
 
 	public boolean addNode(Node n) {

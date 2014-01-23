@@ -42,6 +42,8 @@ public class GraphDataStructure {
 	private Constructor<?> lastWeightedEdgeConstructor = null;
 	private Constructor<?> lastEdgeConstructor = null;
 	private IEdgeListDatastructure emptyList = new DEmpty(null);
+	private int defaultNodelistSize = 10;
+	private int defaultGlobalEdgelistSize = 10;
 
 	public GraphDataStructure(
 			Class<? extends INodeListDatastructure> nodeListType,
@@ -145,6 +147,8 @@ public class GraphDataStructure {
 
 	public Graph newGraphInstance(String name, long timestamp, int nodes,
 			int edges) {
+		this.defaultNodelistSize = nodes;
+		this.defaultGlobalEdgelistSize = edges;
 		return new Graph(name, timestamp, this, nodes, edges);
 	}
 
@@ -153,7 +157,9 @@ public class GraphDataStructure {
 	}
 
 	public INodeListDatastructure newGlobalNodeList() {
-		return newNodeList(ListType.GlobalNodeList);
+		INodeListDatastructure res = newNodeList(ListType.GlobalNodeList);
+		res.reinitializeWithSize(defaultNodelistSize);
+		return res;
 	}
 
 	private INodeListDatastructure newNodeList(ListType listType) {
@@ -184,6 +190,7 @@ public class GraphDataStructure {
 				| NoSuchMethodException | SecurityException e) {
 			e.printStackTrace();
 		}
+		res.reinitializeWithSize(defaultGlobalEdgelistSize);
 		return res;
 	}
 
