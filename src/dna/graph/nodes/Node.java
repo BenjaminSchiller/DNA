@@ -6,12 +6,10 @@ import dna.util.MathHelper;
 
 public abstract class Node extends Element implements INode {
 	protected int index;
-	protected GraphDataStructure gds;
 
 	public Node(int index, GraphDataStructure gds) {
 		this.index = index;
-		this.gds = gds;
-		this.init();
+		this.init(gds);
 	}
 
 	public Node(String str, GraphDataStructure gds) {

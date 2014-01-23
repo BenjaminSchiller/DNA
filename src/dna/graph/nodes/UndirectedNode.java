@@ -18,8 +18,8 @@ public class UndirectedNode extends Node {
 	}
 
 	@Override
-	public void init() {
-		this.edges = this.gds.newNodeEdgeList();
+	public void init(GraphDataStructure gds) {
+		this.edges = gds.newNodeEdgeList();
 	}
 
 	public int getDegree() {

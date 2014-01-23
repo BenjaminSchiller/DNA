@@ -2,6 +2,7 @@ package dna.graph.nodes;
 
 import dna.graph.Element;
 import dna.graph.IElement;
+import dna.graph.datastructures.GraphDataStructure;
 import dna.graph.edges.Edge;
 
 public interface INode extends IElement {
@@ -17,7 +18,7 @@ public interface INode extends IElement {
 
 	public int compareTo(Element o);
 	
-	public void init();
+	public void init(GraphDataStructure gds);
 	
 	public abstract boolean hasEdge(Edge e);
 
