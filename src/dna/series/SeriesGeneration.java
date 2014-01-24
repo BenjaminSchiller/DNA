@@ -200,6 +200,14 @@ public class SeriesGeneration {
 
 		// generate batch data
 		for (int i = 0; i < batches; i++) {
+
+			if (!series.getBatchGenerator().isFurtherBatchPossible(
+					series.getGraph())) {
+				Log.info("    no further batch possible (generated " + i
+						+ " of " + batches + ")");
+				break;
+			}
+
 			// reset rand per batch
 			if (series.getRandomSeedReset() == RandomSeedReset.eachBatch) {
 				series.resetRand();
