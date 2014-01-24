@@ -146,12 +146,11 @@ public class Series {
 	}
 
 	public void resetRand() {
-		long seed = this.seed;
 		if (this.randomSeedType == RandomSeedType.timestamp) {
-			seed = System.currentTimeMillis();
+			this.seed = System.currentTimeMillis();
 		}
-		Rand.init(seed);
-		Log.debug("resetting random seed to " + seed + " ("
+		Rand.init(this.seed);
+		Log.debug("resetting random seed to " + this.seed + " ("
 				+ this.randomSeedReset + "/" + this.randomSeedType + ")");
 	}
 
