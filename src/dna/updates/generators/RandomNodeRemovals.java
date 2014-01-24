@@ -3,7 +3,6 @@ package dna.updates.generators;
 import java.util.HashSet;
 
 import dna.graph.Graph;
-import dna.graph.datastructures.GraphDataStructure;
 import dna.graph.nodes.Node;
 import dna.updates.batch.Batch;
 import dna.updates.update.NodeRemoval;
@@ -24,7 +23,7 @@ public class RandomNodeRemovals extends BatchGenerator {
 				g.getTimestamp() + 1, 0, this.count, 0, 0, 0, 0);
 
 		HashSet<Node> removed = new HashSet<Node>();
-		while (removed.size() < this.count) {
+		while (removed.size() < this.count && removed.size() < g.getNodeCount()) {
 			Node n = g.getRandomNode();
 			if (removed.contains(n)) {
 				continue;
@@ -38,6 +37,11 @@ public class RandomNodeRemovals extends BatchGenerator {
 
 	@Override
 	public void reset() {
+	}
+
+	@Override
+	public boolean isFurtherBatchPossible(Graph g) {
+		return g.getNodeCount() > 0;
 	}
 
 }

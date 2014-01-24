@@ -45,6 +45,7 @@ public class BatchWeights extends BatchGenerator {
 		this.ew = ew;
 	}
 
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Override
 	public Batch generate(Graph g) {
 		Batch b = this.bg.generate(g);
@@ -66,6 +67,11 @@ public class BatchWeights extends BatchGenerator {
 
 	@Override
 	public void reset() {
+	}
+
+	@Override
+	public boolean isFurtherBatchPossible(Graph g) {
+		return this.bg.isFurtherBatchPossible(g);
 	}
 
 }

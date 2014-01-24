@@ -15,4 +15,6 @@ public abstract class BatchGenerator extends ParameterList {
 
 	public abstract void reset();
 
+	public abstract boolean isFurtherBatchPossible(Graph g);
+
 }

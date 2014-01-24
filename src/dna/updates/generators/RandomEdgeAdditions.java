@@ -24,7 +24,8 @@ public class RandomEdgeAdditions extends BatchGenerator {
 				g.getTimestamp() + 1, 0, 0, 0, this.count, 0, 0);
 
 		HashSet<Edge> added = new HashSet<Edge>();
-		while (added.size() < this.count) {
+		while (added.size() < this.count
+				&& g.getEdgeCount() + added.size() < g.getMaxEdgeCount()) {
 			Node n1 = g.getRandomNode();
 			Node n2 = g.getRandomNode();
 			if (n1.equals(n2)) {
@@ -45,4 +46,8 @@ public class RandomEdgeAdditions extends BatchGenerator {
 	public void reset() {
 	}
 
+	@Override
+	public boolean isFurtherBatchPossible(Graph g) {
+		return g.getEdgeCount() < g.getMaxEdgeCount();
+	}
 }

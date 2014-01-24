@@ -3,7 +3,6 @@ package dna.updates.generators;
 import java.util.HashSet;
 
 import dna.graph.Graph;
-import dna.graph.datastructures.GraphDataStructure;
 import dna.graph.nodes.IWeightedNode;
 import dna.graph.nodes.Node;
 import dna.graph.weights.Weights;
@@ -25,13 +24,14 @@ public class RandomNodeWeights extends BatchGenerator {
 		this.count = count;
 	}
 
+	@SuppressWarnings("rawtypes")
 	@Override
 	public Batch generate(Graph g) {
 		Batch b = new Batch(g.getGraphDatastructures(), g.getTimestamp(),
 				g.getTimestamp() + 1, 0, 0, this.count, 0, 0, 0);
 
 		HashSet<Node> nodes = new HashSet<Node>();
-		while (nodes.size() < this.count) {
+		while (nodes.size() < this.count && nodes.size() < g.getNodeCount()) {
 			Node n = g.getRandomNode();
 			if (nodes.contains(n)) {
 				continue;
@@ -45,6 +45,11 @@ public class RandomNodeWeights extends BatchGenerator {
 
 	@Override
 	public void reset() {
+	}
+
+	@Override
+	public boolean isFurtherBatchPossible(Graph g) {
+		return g.getNodeCount() > 0;
 	}
 
 }

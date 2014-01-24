@@ -51,7 +51,7 @@ public class ReadableDirBatchGenerator extends BatchGenerator {
 		}
 		TimestampOrderComparator comp = new TimestampOrderComparator(timestamps);
 		Arrays.sort(this.filenames, comp);
-		this.index = -1;
+		this.index = 0;
 
 		for (String filename : filenames) {
 			long[] t = timestamps.get(filename);
@@ -61,13 +61,17 @@ public class ReadableDirBatchGenerator extends BatchGenerator {
 
 	@Override
 	public Batch generate(Graph g) {
-		this.index = (this.index + 1) % this.filenames.length;
-		return BatchReader.read(dir, this.filenames[this.index], g);
+		return BatchReader.read(dir, this.filenames[this.index++], g);
 	}
 
 	@Override
 	public void reset() {
-		this.index = -1;
+		this.index = 0;
+	}
+
+	@Override
+	public boolean isFurtherBatchPossible(Graph g) {
+		return index < this.filenames.length;
 	}
 
 	public class TimestampOrderComparator implements Comparator<String> {
