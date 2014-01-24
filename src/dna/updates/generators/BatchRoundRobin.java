@@ -2,7 +2,6 @@ package dna.updates.generators;
 
 import dna.graph.Graph;
 import dna.updates.batch.Batch;
-import dna.util.parameters.Parameter;
 
 public class BatchRoundRobin extends BatchGenerator {
 
@@ -25,6 +24,11 @@ public class BatchRoundRobin extends BatchGenerator {
 	@Override
 	public void reset() {
 		this.index = 0;
+	}
+
+	@Override
+	public boolean isFurtherBatchPossible(Graph g) {
+		return this.bgs[this.index].isFurtherBatchPossible(g);
 	}
 
 }

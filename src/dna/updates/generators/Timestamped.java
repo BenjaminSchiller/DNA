@@ -3,7 +3,6 @@ package dna.updates.generators;
 import dna.graph.Graph;
 import dna.updates.batch.Batch;
 import dna.util.ArrayUtils;
-import dna.util.Rand;
 import dna.util.parameters.IntParameter;
 
 public class Timestamped extends BatchGenerator {
@@ -28,6 +27,11 @@ public class Timestamped extends BatchGenerator {
 
 	@Override
 	public void reset() {
+	}
+
+	@Override
+	public boolean isFurtherBatchPossible(Graph g) {
+		return this.bg.isFurtherBatchPossible(g);
 	}
 
 }
