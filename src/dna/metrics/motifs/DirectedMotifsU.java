@@ -14,8 +14,8 @@ import dna.updates.update.Update;
 /**
  * 
  * per update computation / update of the directed 3-node motif counts. for
- * every update, all triple of nodes involved in new/changed motifs are listed.
- * 
+ * every update, all triples of nodes involved in new/changed motifs are listed.
+ * they, the obsolete motifs are removed and the new ones added.
  * 
  * @author benni
  * 
@@ -38,7 +38,6 @@ public class DirectedMotifsU extends DirectedMotifs {
 
 	@Override
 	public boolean applyBeforeUpdate(Update u) {
-		// System.out.println("\n====================> " + u + "\n");
 		if (u instanceof EdgeAddition || u instanceof EdgeRemoval) {
 			DirectedEdge e = null;
 			boolean add = true;
@@ -60,7 +59,7 @@ public class DirectedMotifsU extends DirectedMotifs {
 			}
 
 		} else if (u instanceof NodeRemoval) {
-			// TODO implement node removal
+			// TODO implement node removal for DirectedMotifsU
 		}
 		return true;
 	}
@@ -207,11 +206,9 @@ public class DirectedMotifsU extends DirectedMotifs {
 	private void changeMotif(DirectedMotifType t1, DirectedMotifType t2,
 			boolean add) {
 		if (add) {
-			// System.out.println(t1 + " => " + t2);
 			this.motifs.decr(DirectedMotifs.getIndex(t1));
 			this.motifs.incr(DirectedMotifs.getIndex(t2));
 		} else {
-			// System.out.println(t2 + " => " + t1);
 			this.motifs.decr(DirectedMotifs.getIndex(t2));
 			this.motifs.incr(DirectedMotifs.getIndex(t1));
 		}
@@ -219,10 +216,8 @@ public class DirectedMotifsU extends DirectedMotifs {
 
 	private void changeMotif(DirectedMotifType type, boolean add) {
 		if (add) {
-			// System.out.println(type + " add");
 			this.motifs.incr(DirectedMotifs.getIndex(type));
 		} else {
-			// System.out.println(type + " rm");
 			this.motifs.decr(DirectedMotifs.getIndex(type));
 		}
 	}

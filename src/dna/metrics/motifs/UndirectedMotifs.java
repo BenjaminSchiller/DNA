@@ -11,7 +11,7 @@ import dna.updates.batch.Batch;
 import dna.util.ArrayUtils;
 
 public abstract class UndirectedMotifs extends Metric {
-	
+
 	public static enum UndirectedMotifType {
 		PRE1, PRE2, PRE3, UM1, UM2, UM3, UM4, UM5, UM6
 	};
@@ -29,6 +29,12 @@ public abstract class UndirectedMotifs extends Metric {
 	public boolean compute() {
 		// TODO Auto-generated method stub
 		return false;
+	}
+
+	protected UndirectedMotifType getType(boolean ab, boolean ac, boolean ad,
+			boolean bc, boolean bd, boolean cd) {
+
+		return null;
 	}
 
 	@Override

@@ -26,7 +26,6 @@ public class DirectedEdge extends Edge {
 				.parseInt(temp[1]));
 		this.src = src;
 		this.dst = dst;
-		System.out.println(src + " / " + dst);
 	}
 
 	public DirectedEdge(String s, Graph g, HashMap<Integer, Node> addedNodes) {

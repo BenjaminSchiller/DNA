@@ -228,13 +228,13 @@ public class UndirectedMotifsInMemoryU extends UndirectedMotifs {
 		// for (UndirectedMotif m : this.fullMotifs.values()) {
 		// Log.debug("F: " + m);
 		// }
-		int count = 0;
+		// int count = 0;
 		System.out.println("*********************");
 		for (int index : this.nodeFullMotifs.keySet()) {
 			HashMap<Integer, UndirectedMotif> motifs = this.nodeFullMotifs
 					.get(index);
 			System.out.println(index + ":");
-			count += motifs.size();
+			// count += motifs.size();
 			for (UndirectedMotif m : motifs.values()) {
 				System.out.println("  " + m + " ("
 						+ m.contains((UndirectedNode) this.g.getNode(index))
@@ -244,16 +244,16 @@ public class UndirectedMotifsInMemoryU extends UndirectedMotifs {
 		for (int index : this.nodePreMotifs.keySet()) {
 			HashSet<UndirectedMotif> motifs = this.nodePreMotifs.get(index);
 			System.out.println(index + ":");
-			count += motifs.size();
+			// count += motifs.size();
 			for (UndirectedMotif m : motifs) {
 				System.out.println("  " + m + " ("
 						+ m.contains((UndirectedNode) this.g.getNode(index))
 						+ ")");
 			}
 		}
-		int countPre1 = 0;
-		int countPre2 = 0;
-		int countPre3 = 0;
+		// int countPre1 = 0;
+		// int countPre2 = 0;
+		// int countPre3 = 0;
 		// for (UndirectedMotif pre : this.preMotifs) {
 		// if (pre.getType().equals(UndirectedMotifType.PRE1)) {
 		// countPre1++;
@@ -330,7 +330,8 @@ public class UndirectedMotifsInMemoryU extends UndirectedMotifs {
 			// TODO implement edge removal
 		} else if (u instanceof NodeRemoval) {
 			// TODO implement node removal
-			UndirectedNode n = (((UndirectedNode) ((NodeRemoval) u).getNode()));
+			// UndirectedNode n = (((UndirectedNode) ((NodeRemoval)
+			// u).getNode()));
 		}
 
 		this.motifs.set(UndirectedMotifs.getIndex(UndirectedMotifType.PRE1), 0);

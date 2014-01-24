@@ -2,8 +2,6 @@ package dna.metrics.motifs;
 
 import java.util.HashSet;
 
-import dna.depr.metrics.motifs.directedMotifs.DirectedMotif;
-import dna.depr.metrics.motifs.directedMotifs.exceptions.InvalidDirectedMotifException;
 import dna.graph.Graph;
 import dna.graph.IElement;
 import dna.graph.edges.DirectedEdge;
@@ -46,37 +44,245 @@ public abstract class DirectedMotifs extends Metric {
 			DirectedNode a = (DirectedNode) element;
 			HashSet<DirectedNode> a_ = this.getConnectedNodes(a);
 			for (DirectedNode b : a_) {
-				HashSet<DirectedNode> b_ = this.getConnectedNodes(b);
-				for (DirectedNode c : b_) {
-					if (c.getIndex() > a.getIndex() && !a_.contains(c)) {
-						try {
-							// System.out.println("COMP: add "
-							// + DirectedMotif.getMotif(a, b, c));
-							this.motifs.incr(DirectedMotifs
-									.getIndex(DirectedMotif.getType(a, b, c)));
-						} catch (InvalidDirectedMotifException e) {
-							e.printStackTrace();
+				boolean ab = a.hasEdge(new DirectedEdge(a, b));
+				boolean ba = a.hasEdge(new DirectedEdge(b, a));
+
+				for (DirectedNode c : a_) {
+					boolean ac = a.hasEdge(new DirectedEdge(a, c));
+					boolean ca = a.hasEdge(new DirectedEdge(c, a));
+					boolean bc = b.hasEdge(new DirectedEdge(b, c));
+					boolean cb = b.hasEdge(new DirectedEdge(c, b));
+
+					if (!bc && !cb) {
+						if (b.getIndex() < c.getIndex()) {
+							this.incr(this.getType(ab, ba, ac, ca));
 						}
-					}
-				}
-				if (b.getIndex() > a.getIndex()) {
-					for (DirectedNode c : b_) {
-						if (c.getIndex() > b.getIndex() && a_.contains(c)) {
-							try {
-								// System.out.println("COMP: add "
-								// + DirectedMotif.getMotif(a, b, c));
-								this.motifs.incr(DirectedMotifs
-										.getIndex(DirectedMotif
-												.getType(a, b, c)));
-							} catch (InvalidDirectedMotifException e) {
-								e.printStackTrace();
-							}
+					} else {
+						if (a.getIndex() < b.getIndex()
+								&& b.getIndex() < c.getIndex()) {
+							this.incr(this.getType(ab, ba, ac, ca, bc, cb));
 						}
 					}
 				}
 			}
 		}
 		return true;
+	}
+
+	protected DirectedMotifType getType(boolean ab, boolean ba, boolean ac,
+			boolean ca) {
+		if (ab && ba && ac && ca) {
+			return DirectedMotifType.DM11;
+		} else if (!ab && ba && ac && ca) {
+			return DirectedMotifType.DM06;
+		} else if (ab && !ba && ac && ca) {
+			return DirectedMotifType.DM05;
+		} else if (ab && ba && !ac && ca) {
+			return DirectedMotifType.DM06;
+		} else if (ab && ba && ac && !ca) {
+			return DirectedMotifType.DM05;
+		} else if (!ab && ba && !ac && ca) {
+			return DirectedMotifType.DM02;
+		} else if (!ab && ba && ac && !ca) {
+			return DirectedMotifType.DM03;
+		} else if (ab && !ba && !ac && ca) {
+			return DirectedMotifType.DM03;
+		} else if (ab && !ba && ac && !ca) {
+			return DirectedMotifType.DM01;
+		}
+		return null;
+	}
+
+	protected DirectedMotifType getType(boolean ab, boolean ba, boolean ac,
+			boolean ca, boolean bc, boolean cb) {
+		// 1
+		if (!ab && !ac && ba && bc && !ca && !cb) {
+			return DirectedMotifType.DM01;
+		}
+		if (!ab && !ac && !ba && !bc && ca && cb) {
+			return DirectedMotifType.DM01;
+		}
+
+		// 2
+		if (ab && !ac && !ba && !bc && !ca && cb) {
+			return DirectedMotifType.DM02;
+		}
+		if (!ab && ac && !ba && bc && !ca && !cb) {
+			return DirectedMotifType.DM02;
+		}
+
+		// 3
+		if (ab && !ac && !ba && bc && !ca && !cb) {
+			return DirectedMotifType.DM03;
+		}
+		if (!ab && ac && !ba && !bc && !ca && cb) {
+			return DirectedMotifType.DM03;
+		}
+		if (!ab && !ac && !ba && bc && ca && !cb) {
+			return DirectedMotifType.DM03;
+		}
+		if (!ab && !ac && ba && !bc && !ca && cb) {
+			return DirectedMotifType.DM03;
+		}
+
+		// 4
+		if (ab && ac && !ba && bc && !ca && !cb) {
+			return DirectedMotifType.DM04;
+		}
+		if (ab && ac && !ba && !bc && !ca && cb) {
+			return DirectedMotifType.DM04;
+		}
+		if (!ab && ac && ba && bc && !ca && !cb) {
+			return DirectedMotifType.DM04;
+		}
+		if (!ab && !ac && ba && bc && ca && !cb) {
+			return DirectedMotifType.DM04;
+		}
+		if (ab && !ac && !ba && !bc && ca && cb) {
+			return DirectedMotifType.DM04;
+		}
+		if (!ab && !ac && ba && !bc && ca && cb) {
+			return DirectedMotifType.DM04;
+		}
+
+		// 5
+		if (ab && !ac && ba && bc && !ca && !cb) {
+			return DirectedMotifType.DM05;
+		}
+		if (!ab && !ac && ba && bc && !ca && cb) {
+			return DirectedMotifType.DM05;
+		}
+		if (!ab && ac && !ba && !bc && ca && cb) {
+			return DirectedMotifType.DM05;
+		}
+		if (!ab && !ac && !ba && bc && ca && cb) {
+			return DirectedMotifType.DM05;
+		}
+
+		// 6
+		if (ab && !ac && ba && !bc && !ca && cb) {
+			return DirectedMotifType.DM06;
+		}
+		if (!ab && ac && !ba && bc && ca && !cb) {
+			return DirectedMotifType.DM06;
+		}
+		if (ab && !ac && !ba && bc && !ca && cb) {
+			return DirectedMotifType.DM06;
+		}
+		if (!ab && ac && !ba && bc && !ca && cb) {
+			return DirectedMotifType.DM06;
+		}
+
+		// 7
+		if (ab && !ac && !ba && bc && ca && !cb) {
+			return DirectedMotifType.DM07;
+		}
+		if (!ab && ac && ba && !bc && !ca && cb) {
+			return DirectedMotifType.DM07;
+		}
+
+		// 8
+		if (ab && ac && !ba && bc && !ca && cb) {
+			return DirectedMotifType.DM08;
+		}
+		if (!ab && ac && ba && bc && ca && !cb) {
+			return DirectedMotifType.DM08;
+		}
+		if (ab && !ac && ba && !bc && ca && cb) {
+			return DirectedMotifType.DM08;
+		}
+
+		// 9
+		if (!ab && !ac && ba && bc && ca && cb) {
+			return DirectedMotifType.DM09;
+		}
+		if (ab && ac && !ba && !bc && ca && cb) {
+			return DirectedMotifType.DM09;
+		}
+		if (ab && ac && ba && bc && !ca && !cb) {
+			return DirectedMotifType.DM09;
+		}
+
+		// 10
+		if (ab && !ac && !ba && bc && ca && cb) {
+			return DirectedMotifType.DM10;
+		}
+		if (!ab && ac && ba && bc && !ca && cb) {
+			return DirectedMotifType.DM10;
+		}
+		if (!ab && ac && ba && !bc && ca && cb) {
+			return DirectedMotifType.DM10;
+		}
+		if (ab && ac && !ba && bc && ca && !cb) {
+			return DirectedMotifType.DM10;
+		}
+		if (ab && !ac && ba && bc && ca && !cb) {
+			return DirectedMotifType.DM10;
+		}
+		if (ab && ac && ba && !bc && !ca && cb) {
+			return DirectedMotifType.DM10;
+		}
+
+		// 11
+		if (!ab && ac && !ba && bc && ca && cb) {
+			return DirectedMotifType.DM11;
+		}
+		if (ab && !ac && ba && bc && !ca && cb) {
+			return DirectedMotifType.DM11;
+		}
+
+		int sum = (ab ? 1 : 0) + (ac ? 1 : 0) + (ba ? 1 : 0) + (bc ? 1 : 0)
+				+ (ca ? 1 : 0) + (cb ? 1 : 0);
+
+		// 12
+		if (sum == 5) {
+			return DirectedMotifType.DM12;
+		}
+		// 13
+		if (sum == 6) {
+			return DirectedMotifType.DM13;
+		}
+
+		// 1
+		if (ab && ac && !ba && !bc && !ca && !cb) {
+			return DirectedMotifType.DM01;
+		}
+		// 2
+		if (!ab && !ac && ba && !bc && ca && !cb) {
+			return DirectedMotifType.DM02;
+		}
+		// 3
+		if (!ab && ac && ba && !bc && !ca && !cb) {
+			return DirectedMotifType.DM03;
+		}
+		if (ab && !ac && !ba && !bc && ca && !cb) {
+			return DirectedMotifType.DM03;
+		}
+		// 5
+		if (ab && ac && ba && !bc && !ca && !cb) {
+			return DirectedMotifType.DM05;
+		}
+		if (ab && ac && !ba && !bc && ca && !cb) {
+			return DirectedMotifType.DM05;
+		}
+		// 6
+		if (ab && !ac && ba && !bc && ca && !cb) {
+			return DirectedMotifType.DM06;
+		}
+		if (!ab && ac && ba && !bc && ca && !cb) {
+			return DirectedMotifType.DM06;
+		}
+		// 11
+		if (ab && ac && ba && !bc && ca && !cb) {
+			return DirectedMotifType.DM11;
+		}
+
+		return null;
+
+	}
+
+	protected void incr(DirectedMotifType type) {
+		this.motifs.incr(DirectedMotifs.getIndex(type));
 	}
 
 	protected HashSet<DirectedNode> getConnectedNodes(DirectedNode node) {
