@@ -520,6 +520,7 @@ public class SeriesGeneration {
 
 			boolean success = u.apply(series.getGraph());
 			graphUpdateTimer.end();
+
 			if (!success) {
 				Log.error("could not apply update " + u.toString()
 						+ " (BUT metric before update already applied)");

@@ -26,8 +26,8 @@ import dna.updates.update.Update;
 public class RichClubConnectivityIntervalU extends RichClubConnectivityInterval {
 
 	public RichClubConnectivityIntervalU(int interval) {
-		super("RichClubConnectivityIntervalU", ApplicationType.AfterUpdate,
-				interval);
+		super("RichClubConnectivityIntervalU-" + interval,
+				ApplicationType.AfterUpdate, interval);
 	}
 
 	@Override
@@ -139,12 +139,8 @@ public class RichClubConnectivityIntervalU extends RichClubConnectivityInterval 
 							changedNodeEdges++;
 						}
 					}
-					this.richClubEdges.put(newRCNum - 1,
-							this.richClubEdges.get(newRCNum - 1)
-									+ changedNodeEdges);
-					this.richClubEdges
-							.put(newRCNum, this.richClubEdges.get(newRCNum)
-									- changedNodeEdges);
+					increaseEdgeCount(newRCNum - 1, changedNodeEdges);
+					decreaseEdgeCount(newRCNum, changedNodeEdges);
 					newRCNum++;
 					if (newRCNum <= this.richClubs.size() - 1) {
 						high = getHighestDegree(this.richClubs.get(newRCNum));
@@ -164,10 +160,8 @@ public class RichClubConnectivityIntervalU extends RichClubConnectivityInterval 
 						srcEdges++;
 					}
 				}
-				this.richClubEdges.put(srcRCNumber,
-						this.richClubEdges.get(srcRCNumber) - srcEdges);
-				this.richClubEdges.put(newRCNum - 1,
-						this.richClubEdges.get(newRCNum - 1) + srcEdges);
+				decreaseEdgeCount(srcRCNumber, srcEdges);
+				increaseEdgeCount(newRCNum - 1, srcEdges);
 				this.nodesRichClub.put(src, newRCNum - 1);
 
 			}
@@ -219,9 +213,7 @@ public class RichClubConnectivityIntervalU extends RichClubConnectivityInterval 
 	 * @return boolean
 	 */
 	private boolean applyAfterNodeRemovalDirected(Update u) {
-
 		DirectedNode n = (DirectedNode) ((NodeRemoval) u).getNode();
-
 		int max = 0;
 		HashMap<Integer, LinkedList<DirectedEdge>> order = new HashMap<>();
 		for (IElement ie : n.getIncomingEdges()) {
@@ -266,10 +258,8 @@ public class RichClubConnectivityIntervalU extends RichClubConnectivityInterval 
 					changedNodeEdges++;
 				}
 			}
-			this.richClubEdges.put(i, this.richClubEdges.get(i)
-					+ changedNodeEdges);
-			this.richClubEdges.put(i + 1, this.richClubEdges.get(i + 1)
-					- changedNodeEdges);
+			increaseEdgeCount(i, changedNodeEdges);
+			decreaseEdgeCount(i + 1, changedNodeEdges);
 
 		}
 
@@ -344,12 +334,8 @@ public class RichClubConnectivityIntervalU extends RichClubConnectivityInterval 
 							changedNodeEdges++;
 						}
 					}
-					this.richClubEdges.put(newRCNum + 1,
-							this.richClubEdges.get(newRCNum + 1)
-									+ changedNodeEdges);
-					this.richClubEdges
-							.put(newRCNum, this.richClubEdges.get(newRCNum)
-									- changedNodeEdges);
+					increaseEdgeCount(newRCNum + 1, changedNodeEdges);
+					decreaseEdgeCount(newRCNum, changedNodeEdges);
 					newRCNum--;
 					if (newRCNum >= 0)
 						low = getlowestDegree(this.richClubs.get(newRCNum));
@@ -359,6 +345,7 @@ public class RichClubConnectivityIntervalU extends RichClubConnectivityInterval 
 				addToRichClub(newRC, src);
 				int srcEdges = 0;
 
+				this.nodesRichClub.put(src, newRCNum + 1);
 				// calculate changes for richclub connectivity
 				for (IElement ie : src.getEdges()) {
 					DirectedEdge edge = (DirectedEdge) ie;
@@ -368,11 +355,8 @@ public class RichClubConnectivityIntervalU extends RichClubConnectivityInterval 
 						srcEdges++;
 					}
 				}
-				this.richClubEdges.put(srcRCNumber,
-						this.richClubEdges.get(srcRCNumber) - srcEdges);
-				this.richClubEdges.put(newRCNum + 1,
-						this.richClubEdges.get(newRCNum + 1) + srcEdges);
-				this.nodesRichClub.put(src, newRCNum + 1);
+				decreaseEdgeCount(srcRCNumber, srcEdges);
+				increaseEdgeCount(newRCNum + 1, srcEdges);
 
 			}
 		}
@@ -388,13 +372,44 @@ public class RichClubConnectivityIntervalU extends RichClubConnectivityInterval 
 	 */
 	private boolean applyAfterUndirectedEdgeRemoval(Update u) {
 		UndirectedEdge e = (UndirectedEdge) ((EdgeUpdate) u).getEdge();
+
 		UndirectedNode n1 = e.getNode1();
 		UndirectedNode n2 = e.getNode2();
 
+		if (this.nodesRichClub.get(n1) > this.nodesRichClub.get(n2)) {
+			checkRemovalForNodeN(n1, n2);
+			checkRemovalForNodeN(n2, n1);
+			return true;
+		}
+
+		if (this.nodesRichClub.get(n1) < this.nodesRichClub.get(n2)) {
+			checkRemovalForNodeN(n2, n1);
+			checkRemovalForNodeN(n1, n2);
+			return true;
+		}
+
+		if (n1.getDegree() > n2.getDegree()) {
+			checkRemovalForNodeN(n2, n1);
+			checkRemovalForNodeN(n1, n2);
+			return true;
+		}
 		checkRemovalForNodeN(n1, n2);
 		checkRemovalForNodeN(n2, n1);
-
 		return true;
+	}
+
+	private void check() {
+		for (int i : richClubs.keySet()) {
+			for (int j : richClubs.get(i).keySet()) {
+				for (Node n : richClubs.get(i).get(j)) {
+					UndirectedNode bla = (UndirectedNode) n;
+					if (bla.getDegree() != j || nodesRichClub.get(n) != i) {
+						System.out.println();
+					}
+				}
+			}
+		}
+
 	}
 
 	/**
@@ -409,81 +424,81 @@ public class RichClubConnectivityIntervalU extends RichClubConnectivityInterval 
 		int n1RCNum = this.nodesRichClub.get(n1);
 		HashMap<Integer, LinkedList<Node>> n1RC = this.richClubs.get(n1RCNum);
 
-		if (n1RC.containsKey(n1.getDegree())
-				|| n1RCNum == this.richClubs.size() - 1) {
-
+		int low = getlowestDegree(n1RC);
+		if (n1.getDegree() >= low || n1RCNum == this.richClubs.size() - 1) {
 			removeFromRichClub(n1RC, n1, n1.getDegree() + 1);
 			addToRichClub(n1RC, n1);
-
-		} else {
-			HashMap<Integer, LinkedList<Node>> newRC = this.richClubs
-					.get(n1RCNum + 1);
-			int high = getHighestDegree(newRC);
-			if (high <= n1.getDegree()) {
-				removeFromRichClub(n1RC, n1, n1.getDegree() + 1);
-				addToRichClub(n1RC, n1);
-
-			} else {
-
-				int newRCNum = n1RCNum + 1;
-				while (high > n1.getDegree()
-						&& newRCNum <= this.richClubs.size() - 1) {
-					newRC = this.richClubs.get(newRCNum);
-					UndirectedNode changedNode = (UndirectedNode) newRC.get(
-							high).getFirst();
-					if (changedNode == other) {
-						changedNode = (UndirectedNode) newRC.get(high)
-								.getLast();
-					}
-					removeFromRichClub(newRC, changedNode,
-							changedNode.getDegree());
-					addToRichClub(this.richClubs.get(newRCNum - 1), changedNode);
-					this.nodesRichClub.put(changedNode, newRCNum - 1);
-					int changedNodeEdges = 0;
-					for (IElement ie : changedNode.getEdges()) {
-						UndirectedEdge edge = (UndirectedEdge) ie;
-						UndirectedNode node = edge
-								.getDifferingNode(changedNode);
-						if (this.nodesRichClub.get(node) < this.nodesRichClub
-								.get(changedNode)) {
-							changedNodeEdges++;
-						}
-					}
-					this.richClubEdges.put(newRCNum - 1,
-							this.richClubEdges.get(newRCNum - 1)
-									+ changedNodeEdges);
-					this.richClubEdges
-							.put(newRCNum, this.richClubEdges.get(newRCNum)
-									- changedNodeEdges);
-					newRCNum++;
-					if (newRCNum <= this.richClubs.size() - 1) {
-						high = getHighestDegree(this.richClubs.get(newRCNum));
-					}
-				}
-
-				removeFromRichClub(n1RC, n1, n1.getDegree() + 1);
-				addToRichClub(newRC, n1);
-				int n1Edges = 0;
-
-				// calculate changes for richclub connectivity
-				for (IElement ie : n1.getEdges()) {
-					UndirectedEdge edge = (UndirectedEdge) ie;
-					UndirectedNode node = edge.getDifferingNode(n1);
-					if (this.nodesRichClub.get(node) <= this.nodesRichClub
-							.get(n1)) {
-						n1Edges++;
-					}
-				}
-				this.richClubEdges.put(n1RCNum, this.richClubEdges.get(n1RCNum)
-						- n1Edges);
-				this.richClubEdges.put(newRCNum - 1,
-						this.richClubEdges.get(newRCNum - 1) + n1Edges);
-				this.nodesRichClub.put(n1, newRCNum - 1);
-
-			}
-
+			return;
 		}
 
+		HashMap<Integer, LinkedList<Node>> newRC = this.richClubs
+				.get(n1RCNum + 1);
+		int high = getHighestDegree(newRC);
+		if (n1.getDegree() >= high) {
+			removeFromRichClub(n1RC, n1, n1.getDegree() + 1);
+			addToRichClub(n1RC, n1);
+			return;
+		}
+		int newRCNum = n1RCNum + 1;
+		while (high > n1.getDegree() && newRCNum <= this.richClubs.size() - 1) {
+
+			UndirectedNode changedNode = (UndirectedNode) newRC.get(high)
+					.getFirst();
+
+			if (changedNode == other) {
+				changedNode = (UndirectedNode) newRC.get(high).getLast();
+			}
+
+			removeFromRichClub(newRC, changedNode, changedNode.getDegree());
+			addToRichClub(this.richClubs.get(newRCNum - 1), changedNode);
+
+			this.nodesRichClub.put(changedNode, newRCNum - 1);
+			int changedNodeEdges = 0;
+			for (IElement ie : changedNode.getEdges()) {
+				UndirectedEdge edge = (UndirectedEdge) ie;
+				UndirectedNode node = edge.getDifferingNode(changedNode);
+				if (this.nodesRichClub.get(node) < this.nodesRichClub
+						.get(changedNode)) {
+					changedNodeEdges++;
+				}
+			}
+
+			increaseEdgeCount(newRCNum - 1, changedNodeEdges);
+			decreaseEdgeCount(newRCNum, changedNodeEdges);
+
+			newRCNum++;
+			if (newRCNum < richClubs.size()) {
+				newRC = this.richClubs.get(newRCNum);
+				high = getHighestDegree(this.richClubs.get(newRCNum));
+			}
+		}
+
+		removeFromRichClub(n1RC, n1, n1.getDegree() + 1);
+		newRC = this.richClubs.get(newRCNum - 1);
+		addToRichClub(newRC, n1);
+		int n1Edges = 0;
+
+		// calculate changes for richclub connectivity
+		for (IElement ie : n1.getEdges()) {
+			UndirectedEdge edge = (UndirectedEdge) ie;
+			UndirectedNode node = edge.getDifferingNode(n1);
+			if (this.nodesRichClub.get(node) < this.nodesRichClub.get(n1)) {
+				n1Edges++;
+			}
+		}
+		decreaseEdgeCount(n1RCNum, n1Edges);
+		increaseEdgeCount(newRCNum - 1, n1Edges);
+
+		this.nodesRichClub.put(n1, newRCNum - 1);
+
+	}
+
+	private void decreaseEdgeCount(int rCNum, int n1Edges) {
+		this.richClubEdges.put(rCNum, this.richClubEdges.get(rCNum) - n1Edges);
+	}
+
+	private void increaseEdgeCount(int rCNum, int n1Edges) {
+		this.richClubEdges.put(rCNum, this.richClubEdges.get(rCNum) + n1Edges);
 	}
 
 	/**
@@ -510,7 +525,9 @@ public class RichClubConnectivityIntervalU extends RichClubConnectivityInterval 
 	 */
 	private void addToRichClub(HashMap<Integer, LinkedList<Node>> newRC,
 			UndirectedNode node) {
+
 		int degree = node.getDegree();
+
 		if (newRC.containsKey(degree)) {
 			newRC.get(degree).add(node);
 		} else {
@@ -526,6 +543,7 @@ public class RichClubConnectivityIntervalU extends RichClubConnectivityInterval 
 	 */
 	private void removeFromRichClub(HashMap<Integer, LinkedList<Node>> n1rc,
 			Node node, int degree) {
+
 		n1rc.get(degree).remove(node);
 		if (n1rc.get(degree).isEmpty()) {
 			n1rc.remove(degree);
@@ -555,9 +573,25 @@ public class RichClubConnectivityIntervalU extends RichClubConnectivityInterval 
 		UndirectedNode n1 = e.getNode1();
 		UndirectedNode n2 = e.getNode2();
 
+		if (this.nodesRichClub.get(n1) < this.nodesRichClub.get(n2)) {
+			checkEdgeAddForNodeN(n1, n2);
+			checkEdgeAddForNodeN(n2, n1);
+			return true;
+		}
+
+		if (this.nodesRichClub.get(n1) > this.nodesRichClub.get(n2)) {
+			checkEdgeAddForNodeN(n2, n1);
+			checkEdgeAddForNodeN(n1, n2);
+			return true;
+		}
+
+		if (n1.getDegree() < n2.getDegree()) {
+			checkEdgeAddForNodeN(n2, n1);
+			checkEdgeAddForNodeN(n1, n2);
+			return true;
+		}
 		checkEdgeAddForNodeN(n1, n2);
 		checkEdgeAddForNodeN(n2, n1);
-
 		return true;
 	}
 
@@ -571,74 +605,66 @@ public class RichClubConnectivityIntervalU extends RichClubConnectivityInterval 
 		int nRCNum = this.nodesRichClub.get(n);
 		HashMap<Integer, LinkedList<Node>> nRC = this.richClubs.get(nRCNum);
 
-		if (nRC.containsKey(n.getDegree()) || nRCNum == 0) {
+		if (getHighestDegree(nRC) >= n.getDegree() || nRCNum == 0) {
 
 			removeFromRichClub(nRC, n, n.getDegree() - 1);
 			addToRichClub(nRC, n);
+			return;
+		}
+		HashMap<Integer, LinkedList<Node>> newRC = this.richClubs
+				.get(nRCNum - 1);
+		int low = getlowestDegree(newRC);
+		if (low >= n.getDegree()) {
+			removeFromRichClub(nRC, n, n.getDegree() - 1);
+			addToRichClub(nRC, n);
+			return;
+		}
+		int newRCNum = nRCNum - 1;
+		while (low < n.getDegree() && newRCNum >= 0) {
+			UndirectedNode changedNode = (UndirectedNode) newRC.get(low)
+					.getLast();
 
-		} else {
-			HashMap<Integer, LinkedList<Node>> newRC = this.richClubs
-					.get(nRCNum - 1);
-			int low = getlowestDegree(newRC);
-			if (low >= n.getDegree()) {
-				removeFromRichClub(nRC, n, n.getDegree() - 1);
-				addToRichClub(nRC, n);
-			} else {
-				int newRCNum = nRCNum - 1;
-				while (low < n.getDegree() && newRCNum >= 0) {
-					newRC = this.richClubs.get(newRCNum);
-					UndirectedNode changedNode = (UndirectedNode) newRC
-							.get(low).getLast();
-
-					if (changedNode == other) {
-						changedNode = (UndirectedNode) newRC.get(low)
-								.getFirst();
-					}
-					removeFromRichClub(newRC, changedNode,
-							changedNode.getDegree());
-					addToRichClub(this.richClubs.get(newRCNum + 1), changedNode);
-					this.nodesRichClub.put(changedNode, newRCNum + 1);
-					int changedNodeEdges = 0;
-					for (IElement ie : changedNode.getEdges()) {
-						UndirectedEdge edge = (UndirectedEdge) ie;
-						UndirectedNode node = edge
-								.getDifferingNode(changedNode);
-						if (this.nodesRichClub.get(node) < this.nodesRichClub
-								.get(changedNode)) {
-							changedNodeEdges++;
-						}
-					}
-					this.richClubEdges.put(newRCNum + 1,
-							this.richClubEdges.get(newRCNum + 1)
-									+ changedNodeEdges);
-					this.richClubEdges
-							.put(newRCNum, this.richClubEdges.get(newRCNum)
-									- changedNodeEdges);
-					newRCNum--;
-					if (newRCNum >= 0)
-						low = getlowestDegree(this.richClubs.get(newRCNum));
+			if (changedNode == other) {
+				changedNode = (UndirectedNode) newRC.get(low).getFirst();
+			}
+			removeFromRichClub(newRC, changedNode, changedNode.getDegree());
+			addToRichClub(this.richClubs.get(newRCNum + 1), changedNode);
+			this.nodesRichClub.put(changedNode, newRCNum + 1);
+			int changedNodeEdges = 0;
+			for (IElement ie : changedNode.getEdges()) {
+				UndirectedEdge edge = (UndirectedEdge) ie;
+				UndirectedNode node = edge.getDifferingNode(changedNode);
+				if (this.nodesRichClub.get(node) < this.nodesRichClub
+						.get(changedNode)) {
+					changedNodeEdges++;
 				}
-
-				removeFromRichClub(nRC, n, n.getDegree() - 1);
-				addToRichClub(newRC, n);
-				int nEdges = 0;
-
-				// calculate changes for richclub connectivity
-				for (IElement ie : n.getEdges()) {
-					UndirectedEdge edge = (UndirectedEdge) ie;
-					UndirectedNode node = edge.getDifferingNode(n);
-					if (this.nodesRichClub.get(node) <= this.nodesRichClub
-							.get(n)) {
-						nEdges++;
-					}
-				}
-				this.richClubEdges.put(nRCNum, this.richClubEdges.get(nRCNum)
-						- nEdges);
-				this.richClubEdges.put(newRCNum + 1,
-						this.richClubEdges.get(newRCNum + 1) + nEdges);
-				this.nodesRichClub.put(n, newRCNum + 1);
+			}
+			this.richClubEdges.put(newRCNum + 1,
+					this.richClubEdges.get(newRCNum + 1) + changedNodeEdges);
+			decreaseEdgeCount(newRCNum, changedNodeEdges);
+			newRCNum--;
+			if (newRCNum >= 0) {
+				low = getlowestDegree(this.richClubs.get(newRCNum));
+				newRC = this.richClubs.get(newRCNum);
 			}
 		}
+
+		removeFromRichClub(nRC, n, n.getDegree() - 1);
+		newRC = this.richClubs.get(newRCNum + 1);
+		addToRichClub(newRC, n);
+		int nEdges = 0;
+
+		this.nodesRichClub.put(n, newRCNum + 1);
+		// calculate changes for richclub connectivity
+		for (IElement ie : n.getEdges()) {
+			UndirectedEdge edge = (UndirectedEdge) ie;
+			UndirectedNode node = edge.getDifferingNode(n);
+			if (this.nodesRichClub.get(node) <= this.nodesRichClub.get(n)) {
+				nEdges++;
+			}
+		}
+		decreaseEdgeCount(nRCNum, nEdges);
+		increaseEdgeCount(newRCNum + 1, nEdges);
 	}
 
 	/**
