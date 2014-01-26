@@ -497,7 +497,55 @@ public class GraphDataStructure {
 	}
 
 	public boolean isReadable(IDataStructure list) {
-		return IReadable.class.isAssignableFrom(list.getClass());
+		return isReadable(list.getClass());
+	}
+
+	public boolean isReadable(Class<? extends IDataStructure> list) {
+		return IReadable.class.isAssignableFrom(list);
+	}
+	
+	/**
+	 * Switch data structures from the current setting stored here to another
+	 * combination. Use the graph g as an entry point into the graph. We could
+	 * also store a pointer to the graph within this object, but this currently
+	 * looks more suitable.
+	 * 
+	 * @param newGDS
+	 * @param g
+	 */
+	public void switchDatastructures(GraphDataStructure newGDS, Graph g) {
+		if (!this.isReadable(graphEdgeListType)) {
+			System.err
+					.println("Reject switching data structures, as graph edge list of type "
+							+ this.graphEdgeListType + " cannot be converted");
+			return;
+		}
+		if (!this.isReadable(nodeEdgeListType)) {
+			System.err
+					.println("Reject switching data structures, as node edge list of type "
+							+ this.nodeEdgeListType + " cannot be converted");
+			return;
+		}
+		if (!this.isReadable(nodeListType)) {
+			System.err
+					.println("Reject switching data structures, as node list of type "
+							+ this.nodeListType + " cannot be converted");
+			return;
+		}
+
+		if (this.nodeEdgeListType != newGDS.getNodeEdgeListType()) {
+			this.nodeEdgeListType = newGDS.getNodeEdgeListType();
+			g.switchDataStructure(ListType.LocalEdgeList, this.newNodeEdgeList());
+		}
+		if (this.graphEdgeListType != newGDS.getGraphEdgeListType()) {
+			this.graphEdgeListType = newGDS.getGraphEdgeListType();
+			g.switchDataStructure(ListType.GlobalEdgeList, this.newGraphEdgeList());
+		}
+		if (this.nodeListType != newGDS.getNodeListType()) {
+			this.nodeListType = newGDS.getNodeListType();
+			g.switchDataStructure(ListType.LocalNodeList, this.newNodeList(ListType.LocalNodeList));
+			g.switchDataStructure(ListType.GlobalNodeList, this.newNodeList(ListType.GlobalNodeList));
+		}
 	}
 
 	private Complexity getComplexityClass(Class<? extends IDataStructure> ds,

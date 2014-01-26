@@ -3,7 +3,9 @@ package dna.graph;
 import java.util.Collection;
 import java.util.Iterator;
 
+import dna.graph.datastructures.DataStructure.ListType;
 import dna.graph.datastructures.GraphDataStructure;
+import dna.graph.datastructures.IDataStructure;
 import dna.graph.datastructures.IEdgeListDatastructure;
 import dna.graph.datastructures.IEdgeListDatastructureReadable;
 import dna.graph.datastructures.INodeListDatastructure;
@@ -313,6 +315,27 @@ public class Graph {
 		Iterator<IElement> iterator = this.edges.iterator();
 		while (iterator.hasNext()) {
 			System.out.println("  " + iterator.next());
+		}
+	}
+	
+	public void switchDataStructure(ListType type, IDataStructure newDatastructure) {
+		switch(type) {
+		case GlobalEdgeList:
+			this.edges = (IEdgeListDatastructure) ((IEdgeListDatastructureReadable)this.edges).switchTo(newDatastructure);
+			break;
+		case GlobalNodeList:
+			this.nodes = (INodeListDatastructure) ((INodeListDatastructureReadable)this.nodes).switchTo(newDatastructure);
+			break;
+		case LocalEdgeList:
+			for ( IElement n: nodes) {
+				((Node) n).switchDataStructure(ListType.LocalEdgeList, newDatastructure);
+			}
+			break;
+		case LocalNodeList:
+			for ( IElement n: nodes) {
+				((Node) n).switchDataStructure(ListType.LocalNodeList, newDatastructure);
+			}			
+			break;
 		}
 	}
 

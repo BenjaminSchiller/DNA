@@ -9,9 +9,13 @@ import dna.graph.edges.Edge;
 
 public class DEmpty extends DataStructureReadable implements
 		IEdgeListDatastructureReadable {
+	
+	public DEmpty(ListType lt, Class<? extends IElement> dT) {
+		super(lt, dT);
+	}
 
 	public DEmpty(Class<? extends IElement> dataType) {
-		super(ListType.GlobalEdgeList, Edge.class);
+		this(ListType.GlobalEdgeList, Edge.class);
 	}
 
 	@Override
