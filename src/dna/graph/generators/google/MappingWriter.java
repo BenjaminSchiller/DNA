@@ -29,8 +29,7 @@ public class MappingWriter {
 			writer.writeln(dto.deleteAfter);
 			writer.writeln("InternalMapping;;;lastseen;;;count;;;");
 			for (int i : lastSeen.keySet()) {
-				writer.writeln(i + ";;;" + lastSeen.get(i) + ";;;"
-						+ count.get(i));
+				writer.writeln(i + ";" + lastSeen.get(i) + ";" + count.get(i));
 			}
 
 			return true;

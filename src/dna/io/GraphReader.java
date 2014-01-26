@@ -4,6 +4,7 @@ import java.io.IOException;
 
 import dna.graph.Graph;
 import dna.graph.datastructures.GraphDataStructure;
+import dna.graph.edges.DirectedEdge;
 import dna.graph.edges.Edge;
 import dna.util.Config;
 
@@ -37,7 +38,7 @@ public class GraphReader {
 		reader.readKeyword(Config.get("GRAPH_KEYWORD_TIMESTAMP"));
 		long timestamp = reader.readLong();
 
-		Graph g = ds.newGraphInstance(name, timestamp, nodes, edges);
+		Graph g = ds.newGraphInstance(name, timestamp, 500000, 100000000);
 
 		reader.readKeyword(Config.get("GRAPH_KEYWORD_NODES_LIST"));
 		String line = null;
@@ -48,11 +49,21 @@ public class GraphReader {
 
 		while ((line = reader.readString()) != null) {
 			Edge e = ds.newEdgeInstance(line, g);
-			g.addEdge(e);
-			e.connectToNodes();
+			if (e instanceof DirectedEdge) {
+				if (((DirectedEdge) e).getSrc().equals(
+						((DirectedEdge) e).getDst())) {
+					continue;
+				}
+			}
+
+			if (g.containsNodes(e)) {
+				g.addEdge(e);
+				e.connectToNodes();
+			}
 		}
 
 		reader.close();
+		System.out.println("read graph finished");
 		return g;
 	}
 

@@ -53,7 +53,7 @@ public abstract class Update {
 	public int hashCode() {
 		return this.hashCode_();
 	}
-	
+
 	protected abstract int hashCode_();
 
 	@Override

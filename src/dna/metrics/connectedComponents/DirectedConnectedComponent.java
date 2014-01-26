@@ -39,7 +39,6 @@ public abstract class DirectedConnectedComponent extends Metric {
 		this.lowLink = new int[this.g.getMaxNodeIndex() + 1];
 		this.index = new int[this.g.getMaxNodeIndex() + 1];
 		this.visited = new boolean[this.g.getMaxNodeIndex() + 1];
-		this.dagExpired = new HashMap<Integer, DirectedComponent>();
 		this.containmentEdges = new HashMap<DirectedNode, Integer>();
 		this.dag = new HashMap<Integer, DirectedComponent>();
 		this.containmentEdgesForComponents = new HashMap<>();
@@ -51,7 +50,6 @@ public abstract class DirectedConnectedComponent extends Metric {
 		this.lowLink = new int[this.g.getMaxNodeIndex() + 1];
 		this.index = new int[this.g.getMaxNodeIndex() + 1];
 		this.visited = new boolean[this.g.getMaxNodeIndex() + 1];
-		this.dagExpired = new HashMap<Integer, DirectedComponent>();
 		this.containmentEdges = new HashMap<DirectedNode, Integer>();
 		this.dag = new HashMap<Integer, DirectedComponent>();
 		this.containmentEdgesForComponents = new HashMap<>();

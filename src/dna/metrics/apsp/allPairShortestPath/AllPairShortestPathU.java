@@ -129,8 +129,7 @@ public class AllPairShortestPathU extends AllPairShortestPath {
 						continue;
 					}
 				}
-				boolean noPossibleNeighbour = (key >= g.getNodeCount() && dist > g
-						.getNodeCount())
+				boolean noPossibleNeighbour = (key >= 15 && dist > 15)
 						|| (min.isEmpty() && (!uncertain.contains(w) || (key == dist)));
 
 				// no neighbour found
@@ -268,8 +267,7 @@ public class AllPairShortestPathU extends AllPairShortestPath {
 						continue;
 					}
 				}
-				boolean noPossibleNeighbour = (key >= g.getNodeCount() && dist > g
-						.getNodeCount())
+				boolean noPossibleNeighbour = (key >= 15 && dist > 15)
 						|| (min.isEmpty() && (!uncertain.contains(w) || (key == dist)));
 
 				// no neighbour found

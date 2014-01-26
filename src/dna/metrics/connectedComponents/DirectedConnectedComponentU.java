@@ -318,17 +318,18 @@ public class DirectedConnectedComponentU extends DirectedConnectedComponent {
 			return true;
 		}
 
+		HashSet<Integer> hasexpired = new HashSet<>();
 		// update the component and the dag edges to other nodes
 		for (DirectedComponent v : mergedComponets) {
 			if (v.getIndex() != srcIndex) {
 				srcDAGNode.ed.remove(v.getIndex());
 				srcDAGNode.increaseSize(v.getSize());
 				this.containmentEdgesForComponents.put(v.getIndex(), srcIndex);
-				this.dagExpired.put(v.getIndex(), v);
+				hasexpired.add(v.getIndex());
 				this.dag.remove(v.getIndex());
 				for (int i : v.ed.keySet()) {
 					if (!mergedComponets.contains(dag.get(i))
-							&& !dagExpired.containsKey(i)) {
+							&& !hasexpired.contains(i)) {
 						if (srcDAGNode.ed.containsKey(i)) {
 							srcDAGNode.ed.put(i,
 									srcDAGNode.ed.get(i) + v.ed.get(i));
@@ -344,8 +345,7 @@ public class DirectedConnectedComponentU extends DirectedConnectedComponent {
 			Map<Integer, Integer> temp = new HashMap<Integer, Integer>();
 
 			for (int i : v.ed.keySet()) {
-				if (i != srcIndex
-						&& mergedComponets.contains(dagExpired.get(i))) {
+				if (i != srcIndex && hasexpired.contains(i)) {
 
 					if (temp.containsKey(srcDAGNode.getIndex())) {
 						temp.put(srcDAGNode.getIndex(),

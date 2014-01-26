@@ -1,5 +1,7 @@
 package dna.graph.generators.google;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -79,12 +81,16 @@ public class GoogleBatchReader {
 				.getKeywordAsLine(Config.get("GRAPH_KEYWORD_EDGES_LIST")))) {
 			int n = Integer.parseInt(line);
 			if (!nodesOutList.containsKey(n)) {
-				lastSeen.put(n, timeStamp + 1);
 				if (!count.containsKey(n)) {
 					count.put(n, 1);
-					continue;
 				}
-				count.put(n, count.get(n) + 1);
+				// else if (lastSeen.get(n) == timeStamp) {
+				// count.put(n, count.get(n) + 1);
+				// }
+				else {
+					count.put(n, count.get(n) + 1);
+				}
+				lastSeen.put(n, timeStamp + 1);
 				if (count.get(n) == insertAfter) {
 					checkNodesOut.put(n, new HashSet<Integer>(200));
 					checkNodesIn.put(n, new HashSet<Integer>(200));
@@ -105,6 +111,10 @@ public class GoogleBatchReader {
 		String[] inputs;
 		while ((line = reader.readString()) != null) {
 			inputs = line.split(Config.get("EDGE_DIRECTED_DELIMITER"));
+
+			if (inputs.length != 2) {
+				continue;
+			}
 			int srcIndex = Integer.parseInt(inputs[0]);
 			int dstIndex = Integer.parseInt(inputs[1]);
 			if (!nodesInList.containsKey(srcIndex)
@@ -344,6 +354,28 @@ public class GoogleBatchReader {
 			for (String s : edgeDel) {
 				writer.writeln(s);
 			}
+
+			BufferedWriter u = new BufferedWriter(new FileWriter(dir
+					+ "updates", true));
+			u.write((edgeAdd.size() + edgeDel.size() + nodeAdd.size() + nodeDel
+					.size()) + "\n");
+			u.close();
+			BufferedWriter eA = new BufferedWriter(new FileWriter(dir
+					+ "edgeAdds", true));
+			eA.write(edgeAdd.size() + "\n");
+			eA.close();
+			BufferedWriter eD = new BufferedWriter(new FileWriter(dir
+					+ "edgeDels", true));
+			eD.write(edgeDel.size() + "\n");
+			eD.close();
+			BufferedWriter nA = new BufferedWriter(new FileWriter(dir
+					+ "nodeAdds", true));
+			nA.write(nodeAdd.size() + "\n");
+			nA.close();
+			BufferedWriter nD = new BufferedWriter(new FileWriter(dir
+					+ "nodeDels", true));
+			nD.write(nodeDel.size() + "\n");
+			nD.close();
 
 			System.out.println("Batch from " + timeStamp + " to "
 					+ (timeStamp + 1) + " (" + nodeAdd.size() + ","
