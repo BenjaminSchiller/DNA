@@ -8,10 +8,14 @@ import dna.depr.metrics.motifs.undirectedMotifs.exceptions.UndirectedMotifInvali
 import dna.depr.metrics.motifs.undirectedMotifs.exceptions.UndirectedMotifSplittingException;
 import dna.graph.edges.UndirectedEdge;
 import dna.graph.nodes.UndirectedNode;
-import dna.metrics.motifs.UndirectedMotifs.UndirectedMotifType;
 
 @Deprecated
 public class UndirectedMotif {
+
+	public static enum UndirectedMotifType {
+		PRE1, PRE2, PRE3, UM1, UM2, UM3, UM4, UM5, UM6
+	};
+
 	private UndirectedNode a;
 
 	private UndirectedNode b;
@@ -55,7 +59,11 @@ public class UndirectedMotif {
 	}
 
 	public int getIndex() {
-		switch (this.type) {
+		return getIndex(this.type);
+	}
+
+	public static int getIndex(UndirectedMotifType type) {
+		switch (type) {
 		case PRE1:
 			return 8;
 		case PRE2:
