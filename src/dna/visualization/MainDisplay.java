@@ -35,14 +35,14 @@ import dna.visualization.config.JSON.JSONTokener;
 
 @SuppressWarnings("serial")
 public class MainDisplay extends JFrame {
+
 	/** MAIN **/
 	public static void main(String[] args) {
 		// generate config for visualizers
 		JSONObject jsonConfig = new JSONObject();
 
 		String jsonConfigPath = "config/gui_config1.cfg";
-		Log.info("Reading JSON config from " + '"' + jsonConfigPath
-				+ '"');
+		Log.info("Reading JSON config from " + '"' + jsonConfigPath + '"');
 		try {
 			FileInputStream file = new FileInputStream(jsonConfigPath);
 			JSONTokener tk = new JSONTokener(file);
@@ -54,12 +54,17 @@ public class MainDisplay extends JFrame {
 		visualizerConfig = VisualizerListConfig
 				.createConfigFromJSONObject(jsonConfig);
 
+		/** LIVE DISPLAY **/
+		Boolean liveDisplay = true;
+		/** LIVE DISPLAY **/
+
 		// init main window
 		Log.info("Initializing MainDisplay");
-		MainDisplay display = new MainDisplay();
+		MainDisplay display = new MainDisplay(liveDisplay);
 
 		// init batch handler, hand over directory and maindisplay
-		display.setBatchHandler(new BatchHandler(GuiOptions.defaultDir, display));
+		display.setBatchHandler(new BatchHandler(GuiOptions.defaultDir,
+				display, true));
 		display.initBatchHandler();
 
 		display.setVisible(true);
@@ -87,8 +92,11 @@ public class MainDisplay extends JFrame {
 	// config
 	public static VisualizerListConfig visualizerConfig;
 
+	// live display flag
+	public boolean liveDisplay;
+
 	// constructor
-	public MainDisplay() {
+	public MainDisplay(boolean liveDisplay) {
 		setTitle("DNA - Dynamic Network Analyzer");
 		setSize(GuiOptions.mainDisplaySize);
 		setLocationRelativeTo(null);
@@ -101,7 +109,7 @@ public class MainDisplay extends JFrame {
 		GridBagConstraints mainDisplayConstraints = new GridBagConstraints();
 
 		// init stats component, set position in grid and add to mainframe
-		this.statsDisplay1 = new StatsDisplay();
+		this.statsDisplay1 = new StatsDisplay(liveDisplay);
 		this.statsDisplay1.setLocation(0, 0);
 		this.statsDisplay1.setParent(this);
 		this.statsDisplay1.setDirectory(GuiOptions.defaultDir);
@@ -304,9 +312,12 @@ public class MainDisplay extends JFrame {
 	public void initData(BatchData b) {
 		for (Component c : this.dataComponents) {
 			if (c instanceof StatsDisplay) {
-				((StatsDisplay) c).initData(b, batchHandler.getDir(),
-						batchHandler.getMinTimestamp(),
-						batchHandler.getMaxTimestamp());
+				if (this.liveDisplay)
+					((StatsDisplay) c).initData(b, batchHandler.getDir());
+				else
+					((StatsDisplay) c).initData(b, batchHandler.getDir(),
+							batchHandler.getMinTimestamp(),
+							batchHandler.getMaxTimestamp());
 			}
 			if (c instanceof MetricVisualizer) {
 				((MetricVisualizer) c).initData(b);

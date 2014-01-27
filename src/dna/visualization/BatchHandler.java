@@ -1,6 +1,13 @@
 package dna.visualization;
 
 import java.io.IOException;
+import java.nio.file.FileSystem;
+import java.nio.file.FileSystems;
+import java.nio.file.Path;
+import java.nio.file.StandardWatchEventKinds;
+import java.nio.file.WatchEvent;
+import java.nio.file.WatchKey;
+import java.nio.file.WatchService;
 import java.util.Random;
 
 import dna.io.filesystem.Dir;
@@ -27,6 +34,7 @@ public class BatchHandler implements Runnable {
 	private boolean isInit;
 	private boolean threadSuspended;
 	private boolean timeSlided;
+	private boolean liveDisplay;
 
 	private Thread t;
 
@@ -50,6 +58,17 @@ public class BatchHandler implements Runnable {
 		this.timeSlided = false;
 		this.isInit = false;
 		this.threadSuspended = false;
+	}
+
+	public BatchHandler(String dir, MainDisplay mainFrame, boolean liveDisplay) {
+		this.dir = dir;
+		this.mainFrame = mainFrame;
+		this.batches = new BatchDataList();
+		this.index = 0;
+		this.timeSlided = false;
+		this.isInit = false;
+		this.threadSuspended = false;
+		this.liveDisplay = liveDisplay;
 	}
 
 	// get methods
@@ -203,47 +222,113 @@ public class BatchHandler implements Runnable {
 	 */
 	public void run() {
 		Thread thisThread = Thread.currentThread();
-		if (!isInit)
-			this.init();
 
-		while (t == thisThread && !this.isLastBatchSend()) {
+		// live display
+		if (liveDisplay) {
+
 			try {
-				long startProcessing = System.currentTimeMillis();
+				// setting up watch-service
+				FileSystem fs = FileSystems.getDefault();
+				WatchService watcher = fs.newWatchService();
+				Path p = fs.getPath(this.dir);
+				WatchKey key = p.register(watcher,
+						StandardWatchEventKinds.ENTRY_CREATE);
 
-				if (this.index == 0 && !this.timeSlided)
-					this.currentBatch = this.getInitBatch();
-				else {
-					if (this.nextBatch == null) {
-						this.currentBatch = this.getNextBatch();
-					} else {
-						this.currentBatch = this.nextBatch;
+				Log.infoSep();
+				Log.info("Watching directory: " + p.toString());
+				while (t == thisThread) {
+					for (WatchEvent<?> event : key.pollEvents()) {
+
+						WatchEvent.Kind<?> kind = event.kind();
+
+						WatchEvent<Path> ev = (WatchEvent<Path>) event;
+
+						Path filename = ev.context();
+						Path child = p.resolve(filename);
+
+						String filenameString = filename.toString();
+
+						String[] parts = filenameString.split("\\.");
+
+						if (parts.length > 1 && parts[0].equals("batch")) {
+							String suffix = parts[parts.length - 1];
+							if (suffix.charAt(suffix.length() - 1) != '_') {
+								Log.info("new batch ready: " + child.toString());
+
+								// read batch
+								// Log.info("reading: " + child.toString());
+
+								BatchData batch = BatchData.read(
+										Dir.getBatchDataDir(this.dir,
+												Long.parseLong(suffix)),
+										Long.parseLong(suffix), true);
+
+								// hand over batch
+								if (!this.isInit) {
+									this.mainFrame.initData(batch);
+									this.isInit = true;
+								} else {
+									this.mainFrame.updateData(batch);
+								}
+
+							} else {
+								Log.info("new batch generation started: "
+										+ child.toString());
+							}
+						}
+					}
+					synchronized (this) {
+						while (this.threadSuspended)
+							wait();
 					}
 				}
-				// when time was slided adjust index here
-				if (this.timeSlided) {
-					timeSlided = false;
-					index++;
-				}
-
-				// handover new batch
-				this.mainFrame.updateData(this.currentBatch);
-				// read next batch
-				if (this.index < this.getBatches().size() - 1)
-					this.nextBatch = this.getNextBatch();
-
-				this.index++;
-
-				long waitTime = this.getSpeed()
-						- (System.currentTimeMillis() - startProcessing);
-				if (waitTime > 0)
-					Thread.sleep(waitTime);
-
-				synchronized (this) {
-					while (this.threadSuspended)
-						wait();
-				}
-			} catch (InterruptedException e) {
+			} catch (IOException | InterruptedException e) {
 				e.printStackTrace();
+			}
+		} else {
+			// playback mode
+			if (!isInit)
+				this.init();
+
+			while (t == thisThread && !this.isLastBatchSend()) {
+				try {
+					long startProcessing = System.currentTimeMillis();
+
+					if (this.index == 0 && !this.timeSlided)
+						this.currentBatch = this.getInitBatch();
+					else {
+						if (this.nextBatch == null) {
+							this.currentBatch = this.getNextBatch();
+						} else {
+							this.currentBatch = this.nextBatch;
+						}
+					}
+					// when time was slided adjust index here
+					if (this.timeSlided) {
+						timeSlided = false;
+						index++;
+					}
+
+					// handover new batch
+					this.mainFrame.updateData(this.currentBatch);
+					// read next batch
+					if (this.index < this.getBatches().size() - 1)
+						this.nextBatch = this.getNextBatch();
+
+					this.index++;
+
+					long waitTime = this.getSpeed()
+							- (System.currentTimeMillis() - startProcessing);
+					if (waitTime > 0)
+						Thread.sleep(waitTime);
+
+					synchronized (this) {
+						while (this.threadSuspended)
+							wait();
+					}
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
 			}
 		}
 	}
@@ -310,9 +395,11 @@ public class BatchHandler implements Runnable {
 
 	/** initializes by sending the first batch to the mainwindow **/
 	public void init() {
-		this.mainFrame.initData(this.getInitBatch());
-		this.index = 0;
-		this.isInit = true;
+		if (!this.liveDisplay) {
+			this.mainFrame.initData(this.getInitBatch());
+			this.index = 0;
+			this.isInit = true;
+		}
 	}
 
 	/** clears the batches list **/
