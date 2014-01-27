@@ -62,9 +62,9 @@ public class CopyOfOnlyCrawledParser {
 		graphWriter.writeKeyword(Config.get("GRAPH_KEYWORD_EDGES_LIST"));
 		parseFolderOnlyCraweled(folder);
 		graphWriter.close();
-		// mappingWriter.writeln("NODELABELCOUNTER");
-		// mappingWriter.writeln(this.nodeLabelCounter);
-		// mappingWriter.close();
+		mappingWriter.writeln("NODELABELCOUNTER");
+		mappingWriter.writeln(this.nodeLabelCounter);
+		mappingWriter.close();
 		return true;
 	}
 
@@ -81,11 +81,11 @@ public class CopyOfOnlyCrawledParser {
 
 	private void getNodeFromFileName(String name) throws IOException {
 		String nodeID = name.split("-")[1];
-		// if (!mapping.containsKey(nodeID)) {
-		// mapping.put(nodeID, nodeLabelCounter);
-		// // mappingWriter.writeln(nodeID + ";;;" + nodeLabelCounter);
-		// nodeLabelCounter++;
-		// }
+		if (!mapping.containsKey(nodeID)) {
+			mapping.put(nodeID, nodeLabelCounter);
+			mappingWriter.writeln(nodeID + ";;;" + nodeLabelCounter);
+			nodeLabelCounter++;
+		}
 		graphWriter.writeln(mapping.get(nodeID));
 	}
 
