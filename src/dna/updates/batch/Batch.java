@@ -190,6 +190,10 @@ public class Batch {
 		return this.to;
 	}
 
+	public void setTo(long to) {
+		this.to = to;
+	}
+
 	/*
 	 * SIZE
 	 */

@@ -37,4 +37,9 @@ public class RandomNodeAdditions extends BatchGenerator {
 	public void reset() {
 	}
 
+	@Override
+	public boolean isFurtherBatchPossible(Graph g) {
+		return true;
+	}
+
 }

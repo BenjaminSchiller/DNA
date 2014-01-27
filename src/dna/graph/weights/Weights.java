@@ -9,15 +9,15 @@ public class Weights {
 	public static final String IntWeightPrefix = "I_";
 
 	public static enum WeightSelection {
-		None, D_NaN, D_One, D_Zero, D_Rand, D_RandTrim1, D_RandTrim2, D_RandTrim3, I_Min, I_Max, I_One, I_Zero, I_Rand, I_RandPos, I_RandNeg
+		None, D_NaN, D_One, D_Zero, D_Rand, D_RandTrim1, D_RandTrim2, D_RandTrim3, I_Min, I_Max, I_One, I_Zero, I_Rand, I_RandPos, I_RandNeg, I_RandPos100, I_RandPos10
 	}
 
 	public static enum NodeWeightSelection {
-		None, D_NaN, D_One, D_Zero, D_Rand, D_RandTrim1, D_RandTrim2, D_RandTrim3, I_Min, I_Max, I_One, I_Zero, I_Rand, I_RandPos, I_RandNeg
+		None, D_NaN, D_One, D_Zero, D_Rand, D_RandTrim1, D_RandTrim2, D_RandTrim3, I_Min, I_Max, I_One, I_Zero, I_Rand, I_RandPos, I_RandNeg, I_RandPos100, I_RandPos10
 	}
 
 	public static enum EdgeWeightSelection {
-		None, D_NaN, D_One, D_Zero, D_Rand, D_RandTrim1, D_RandTrim2, D_RandTrim3, I_Min, I_Max, I_One, I_Zero, I_Rand, I_RandPos, I_RandNeg
+		None, D_NaN, D_One, D_Zero, D_Rand, D_RandTrim1, D_RandTrim2, D_RandTrim3, I_Min, I_Max, I_One, I_Zero, I_Rand, I_RandPos, I_RandNeg, I_RandPos100, I_RandPos10
 	}
 
 	public static Object getWeight(NodeWeightSelection selection) {
@@ -84,15 +84,15 @@ public class Weights {
 	}
 
 	public static enum IntWeightSelection {
-		None, Min, Max, One, Zero, Rand, RandPos, RandNeg
+		None, Min, Max, One, Zero, Rand, RandPos, RandNeg, RandPos100, RandPos10
 	}
 
 	public static enum IntNodeWeightSelection {
-		None, Min, Max, One, Zero, Rand, RandPos, RandNeg
+		None, Min, Max, One, Zero, Rand, RandPos, RandNeg, RandPos100, RandPos10
 	}
 
 	public static enum IntEdgeWeightSelection {
-		None, Min, Max, One, Zero, Rand, RandPos, RandNeg
+		None, Min, Max, One, Zero, Rand, RandPos, RandNeg, RandPos100, RandPos10
 	}
 
 	public static int getIntWeight(IntNodeWeightSelection selection) {
@@ -119,6 +119,10 @@ public class Weights {
 			return Math.abs(Rand.rand.nextInt()) * -1;
 		case Zero:
 			return 0;
+		case RandPos100:
+			return Rand.rand.nextInt(100);
+		case RandPos10:
+			return Rand.rand.nextInt(10);
 		default:
 			return Integer.MIN_VALUE;
 		}

@@ -5,14 +5,15 @@ import java.util.PriorityQueue;
 
 import dna.graph.Graph;
 import dna.graph.IElement;
-import dna.graph.edges.DirectedDoubleWeightedEdge;
-import dna.graph.edges.UndirectedDoubleWeightedEdge;
+import dna.graph.edges.DirectedIntWeightedEdge;
+import dna.graph.edges.UndirectedIntWeightedEdge;
 import dna.graph.nodes.DirectedNode;
 import dna.graph.nodes.Node;
 import dna.graph.nodes.UndirectedNode;
 import dna.metrics.Metric;
 import dna.metrics.apsp.QueueElement;
 import dna.series.data.Distribution;
+import dna.series.data.DistributionInt;
 import dna.series.data.NodeValueList;
 import dna.series.data.Value;
 import dna.updates.batch.Batch;
@@ -20,7 +21,8 @@ import dna.updates.batch.Batch;
 public abstract class AllPairShortestPathWeights extends Metric {
 
 	protected HashMap<Node, HashMap<Node, Node>> parents;
-	protected HashMap<Node, HashMap<Node, Double>> heights;
+	protected HashMap<Node, HashMap<Node, Integer>> heights;
+	protected DistributionInt dists;
 
 	public AllPairShortestPathWeights(String name, ApplicationType type) {
 		super(name, type, MetricType.exact);
@@ -34,14 +36,14 @@ public abstract class AllPairShortestPathWeights extends Metric {
 			Node s = (Node) ie;
 
 			HashMap<Node, Node> parent = new HashMap<Node, Node>();
-			HashMap<Node, Double> height = new HashMap<Node, Double>();
+			HashMap<Node, Integer> height = new HashMap<Node, Integer>();
 
 			for (IElement iNode : g.getNodes()) {
 				Node t = (Node) iNode;
 				if (t.equals(s)) {
-					height.put(s, 0d);
+					height.put(s, 0);
 				} else {
-					height.put(t, Double.MAX_VALUE);
+					height.put(t, Integer.MAX_VALUE);
 				}
 			}
 			if (DirectedNode.class.isAssignableFrom(this.g
@@ -51,23 +53,22 @@ public abstract class AllPairShortestPathWeights extends Metric {
 				while (!q.isEmpty()) {
 					QueueElement<DirectedNode> c = q.poll();
 					DirectedNode current = c.e;
-					if (height.get(current) == Double.MAX_VALUE) {
+					if (height.get(current) == Integer.MAX_VALUE) {
 						break;
 					}
 
 					for (IElement iEdge : current.getOutgoingEdges()) {
-						DirectedDoubleWeightedEdge d = (DirectedDoubleWeightedEdge) iEdge;
+						DirectedIntWeightedEdge d = (DirectedIntWeightedEdge) iEdge;
 
 						DirectedNode neighbor = d.getDst();
 
-						double alt = height.get(current) + d.getWeight();
-
+						int alt = height.get(current) + d.getWeight();
+						if (alt < 0) {
+							continue;
+						}
 						if (alt < height.get(neighbor)) {
 							height.put(neighbor, alt);
 							parent.put(neighbor, current);
-							if (q.contains(neighbor)) {
-								q.remove(neighbor);
-							}
 							QueueElement<DirectedNode> temp = new QueueElement<DirectedNode>(
 									neighbor, height.get(neighbor));
 							if (q.contains(temp)) {
@@ -84,23 +85,22 @@ public abstract class AllPairShortestPathWeights extends Metric {
 					QueueElement<UndirectedNode> c = q.poll();
 					UndirectedNode current = c.e;
 
-					if (height.get(current) == Double.MAX_VALUE) {
+					if (height.get(current) == Integer.MAX_VALUE) {
 						break;
 					}
 
 					for (IElement iEdge : current.getEdges()) {
-						UndirectedDoubleWeightedEdge d = (UndirectedDoubleWeightedEdge) iEdge;
+						UndirectedIntWeightedEdge d = (UndirectedIntWeightedEdge) iEdge;
 
 						UndirectedNode neighbor = d.getDifferingNode(current);
 
-						double alt = height.get(current) + d.getWeight();
-
+						int alt = height.get(current) + d.getWeight();
+						if (alt < 0) {
+							continue;
+						}
 						if (alt < height.get(neighbor)) {
 							height.put(neighbor, alt);
 							parent.put(neighbor, current);
-							if (q.contains(neighbor)) {
-								q.remove(neighbor);
-							}
 							QueueElement<UndirectedNode> temp = new QueueElement<UndirectedNode>(
 									neighbor, height.get(neighbor));
 							if (q.contains(temp)) {
@@ -111,6 +111,12 @@ public abstract class AllPairShortestPathWeights extends Metric {
 					}
 				}
 			}
+			for (int i : height.values()) {
+				if (i != Integer.MAX_VALUE) {
+					dists.incr(i);
+				}
+			}
+			dists.truncate();
 			parents.put(s, parent);
 			heights.put(s, height);
 		}
@@ -121,26 +127,47 @@ public abstract class AllPairShortestPathWeights extends Metric {
 	@Override
 	public void init_() {
 		this.parents = new HashMap<Node, HashMap<Node, Node>>();
-		this.heights = new HashMap<Node, HashMap<Node, Double>>();
-		newResults = true;
-
+		this.heights = new HashMap<Node, HashMap<Node, Integer>>();
+		this.dists = new DistributionInt("ShortestPathDist");
 	}
 
 	@Override
 	public void reset_() {
 		this.parents = new HashMap<Node, HashMap<Node, Node>>();
-		this.heights = new HashMap<Node, HashMap<Node, Double>>();
-		newResults = true;
-
+		this.heights = new HashMap<Node, HashMap<Node, Integer>>();
+		this.dists = new DistributionInt("ShortestPathDist");
 	}
 
 	@Override
 	public Value[] getValues() {
-		getValueAndDist();
-		Value v1 = new Value("diameter", diameter);
-		Value v2 = new Value("avg_path_length", avg_path_length
-				/ (g.getNodeCount() * (g.getNodeCount() - 1)));
-		return new Value[] { v1, v2 };
+		double avg1;
+		double avg2;
+		double dia;
+		if (g.getNodeCount() != 0) {
+			dists.truncate();
+			double sum1 = getSum();
+			avg1 = sum1 / (double) dists.getDenominator();
+			avg2 = sum1 / (double) (g.getNodeCount() * (g.getNodeCount() - 1));
+			dia = this.dists.getMax();
+		} else {
+			avg1 = 0d;
+			avg2 = 0d;
+			dia = 0d;
+		}
+
+		Value v1 = new Value("avg_shortest_path_Number_Existing_Paths", avg1);
+		Value v2 = new Value("diameter", dia);
+		Value v3 = new Value("avg_shortest_path_Number_Possible_Paths", avg2);
+		return new Value[] { v1, v2, v3 };
+	}
+
+	private double getSum() {
+		double s = 0d;
+		int[] v = dists.getIntValues();
+		for (int i = 0; i < v.length; i++) {
+			s += v[i];
+		}
+		return s;
 	}
 
 	@Override
@@ -148,40 +175,15 @@ public abstract class AllPairShortestPathWeights extends Metric {
 		return new NodeValueList[] {};
 	}
 
-	double diameter;
-	double avg_path_length;
-	Distribution[] result;
-	boolean newResults;
-
 	@Override
 	public Distribution[] getDistributions() {
-		getValueAndDist();
-		return result;
-	}
-
-	private void getValueAndDist() {
-		if (!newResults) {
-			newResults = true;
-			return;
+		Distribution[] result;
+		if (g.getNodeCount() != 0) {
+			this.dists.truncate();
+			result = new Distribution[] { dists };
+		} else {
+			result = new Distribution[0];
 		}
-		int i = 0;
-		result = new Distribution[this.heights.size()];
-		for (Node n : heights.keySet()) {
-			result[i] = new Distribution("distsForNode_" + n.getIndex(),
-					getDistribution(this.heights.get(n)));
-			i++;
-		}
-		newResults = false;
-	}
-
-	private double[] getDistribution(HashMap<Node, Double> hashMap) {
-		double[] result = new double[this.g.getMaxNodeIndex() + 1];
-		for (Node d : hashMap.keySet()) {
-			result[d.getIndex()] = hashMap.get(d);
-			diameter = Math.max(diameter, hashMap.get(d));
-			avg_path_length += hashMap.get(d);
-		}
-
 		return result;
 	}
 
@@ -195,13 +197,27 @@ public abstract class AllPairShortestPathWeights extends Metric {
 
 		for (Node n1 : heights.keySet()) {
 			for (Node n2 : heights.get(n1).keySet()) {
-				if (this.heights.get(n1).get(n2).doubleValue() != apsp.heights
-						.get(n1).get(n2).doubleValue()) {
+				if (!this.heights.get(n1).get(n2)
+						.equals(apsp.heights.get(n1).get(n2))) {
 					success = false;
 					System.out.println("Diff @ Height for Node " + n2
 							+ " in Tree " + n1 + " expected "
 							+ this.heights.get(n1).get(n2) + " is "
 							+ apsp.heights.get(n1).get(n2));
+					if (n1.getIndex() == 93 && n2.getIndex() == 90) {
+						System.out.println("parent from "
+								+ n1
+								+ " is "
+								+ parents.get(n1).get(n2)
+								+ " and "
+								+ apsp.parents.get(n1).get(n2)
+								+ " heights "
+								+ this.heights.get(n1).get(
+										parents.get(n1).get(n2))
+								+ " "
+								+ apsp.heights.get(n1).get(
+										parents.get(n1).get(n2)));
+					}
 				}
 			}
 

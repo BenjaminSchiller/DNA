@@ -23,7 +23,7 @@ public class RandomEdgeRemovals extends BatchGenerator {
 				g.getTimestamp() + 1, 0, 0, 0, 0, this.count, 0);
 
 		HashSet<Edge> removed = new HashSet<Edge>();
-		while (removed.size() < this.count) {
+		while (removed.size() < this.count && removed.size() < g.getEdgeCount()) {
 			Edge e = g.getRandomEdge();
 			if (removed.contains(e)) {
 				continue;
@@ -37,6 +37,11 @@ public class RandomEdgeRemovals extends BatchGenerator {
 
 	@Override
 	public void reset() {
+	}
+
+	@Override
+	public boolean isFurtherBatchPossible(Graph g) {
+		return g.getEdgeCount() > 0;
 	}
 
 }

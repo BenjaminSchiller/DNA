@@ -34,7 +34,7 @@ public class BetweenessCentralityU extends BetweenessCentrality {
 	@Override
 	public void init_() {
 		super.init_();
-		int length = 10000;
+		int length = 1000;
 		qALevel = new LinkedList[length];
 		qLevel = new LinkedList[length];
 		visited = new HashMap<Node, Long>();
@@ -368,6 +368,7 @@ public class BetweenessCentralityU extends BetweenessCentrality {
 					// this.bC.get(w);
 					// this.bC.put(w,
 					// currentScore + newASums.get(w) - oldSums.get(w));
+					this.bCSum = this.bCSum + newASums.get(w) - oldSums.get(w);
 					this.bCC.setValue(w.getIndex(),
 							currentScore + newASums.get(w) - oldSums.get(w));
 				}
@@ -487,6 +488,7 @@ public class BetweenessCentralityU extends BetweenessCentrality {
 					// this.bC.get(w);
 					// this.bC.put(w,
 					// currentScore + newASums.get(w) - oldSums.get(w));
+					this.bCSum = this.bCSum + newASums.get(w) - oldSums.get(w);
 					this.bCC.setValue(w.getIndex(),
 							currentScore + newASums.get(w) - oldSums.get(w));
 				}
@@ -735,6 +737,7 @@ public class BetweenessCentralityU extends BetweenessCentrality {
 					// this.bC.get(w);
 					// this.bC.put(w,
 					// currentScore + newASums.get(w) - oldSums.get(w));
+					this.bCSum = this.bCSum + newASums.get(w) - oldSums.get(w);
 					this.bCC.setValue(w.getIndex(),
 							currentScore + newASums.get(w) - oldSums.get(w));
 				}
@@ -824,6 +827,7 @@ public class BetweenessCentralityU extends BetweenessCentrality {
 					// this.bC.get(w);
 					// this.bC.put(w,
 					// currentScore + newASums.get(w) - oldSums.get(w));
+					this.bCSum = this.bCSum + newASums.get(w) - oldSums.get(w);
 					this.bCC.setValue(w.getIndex(),
 							currentScore + newASums.get(w) - oldSums.get(w));
 				}
@@ -955,6 +959,7 @@ public class BetweenessCentralityU extends BetweenessCentrality {
 					// this.bC.get(w);
 					// this.bC.put(w,
 					// currentScore + newASums.get(w) - oldSums.get(w));
+					this.bCSum = this.bCSum + newASums.get(w) - oldSums.get(w);
 					this.bCC.setValue(w.getIndex(),
 							currentScore + newASums.get(w) - oldSums.get(w));
 				}
@@ -1072,6 +1077,7 @@ public class BetweenessCentralityU extends BetweenessCentrality {
 					// this.bC.get(w);
 					// this.bC.put(w,
 					// currentScore + newSums.get(w) - oldSums.get(w));
+					this.bCSum = this.bCSum + newSums.get(w) - oldSums.get(w);
 					this.bCC.setValue(w.getIndex(),
 							currentScore + newSums.get(w) - oldSums.get(w));
 				}
@@ -1103,6 +1109,7 @@ public class BetweenessCentralityU extends BetweenessCentrality {
 			// this.bC.put(n, this.bC.get(n) - this.accSums.get(node).get(n));
 			this.bCC.setValue(n.getIndex(), this.bCC.getValue(n.getIndex())
 					- this.accSums.get(node).get(n));
+			this.bCSum = this.bCSum - this.accSums.get(node).get(n);
 		}
 
 		this.spcs.remove(node);

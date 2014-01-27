@@ -24,13 +24,14 @@ public class RandomEdgeWeights extends BatchGenerator {
 		this.count = count;
 	}
 
+	@SuppressWarnings("rawtypes")
 	@Override
 	public Batch generate(Graph g) {
 		Batch b = new Batch(g.getGraphDatastructures(), g.getTimestamp(),
 				g.getTimestamp() + 1, 0, 0, this.count, 0, 0, 0);
 
 		HashSet<Edge> edges = new HashSet<Edge>();
-		while (edges.size() < this.count) {
+		while (edges.size() < this.count && edges.size() < g.getEdgeCount()) {
 			Edge e = g.getRandomEdge();
 			if (edges.contains(e)) {
 				continue;
@@ -44,6 +45,11 @@ public class RandomEdgeWeights extends BatchGenerator {
 
 	@Override
 	public void reset() {
+	}
+
+	@Override
+	public boolean isFurtherBatchPossible(Graph g) {
+		return g.getEdgeCount() > 0;
 	}
 
 }

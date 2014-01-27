@@ -47,4 +47,14 @@ public class BatchCombinator extends BatchGenerator {
 	public void reset() {
 	}
 
+	@Override
+	public boolean isFurtherBatchPossible(Graph g) {
+		for (BatchGenerator bg : this.bgs) {
+			if (bg.isFurtherBatchPossible(g)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
 }

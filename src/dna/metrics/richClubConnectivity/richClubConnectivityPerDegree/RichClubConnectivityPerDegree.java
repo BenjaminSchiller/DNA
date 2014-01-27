@@ -165,6 +165,15 @@ public abstract class RichClubConnectivityPerDegree extends Metric {
 			System.out.println("diff @ richClub");
 			success = false;
 		}
+		int sum = 0;
+		for (int i : rcc.richClubs.keySet()) {
+			sum += rcc.richClubs.get(i);
+		}
+		if (sum != g.getNodeCount()) {
+			System.out.println("diff @ number of nodes");
+			success = false;
+		}
+
 		return success;
 
 	}

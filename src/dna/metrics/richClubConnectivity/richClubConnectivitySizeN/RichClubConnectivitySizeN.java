@@ -51,6 +51,7 @@ public abstract class RichClubConnectivitySizeN extends Metric {
 		for (IElement iE : g.getNodes()) {
 			DirectedNode n = (DirectedNode) iE;
 			int degree = n.getOutDegree();
+
 			degrees.add(degree);
 			if (nodesSortedByDegree.containsKey(degree)) {
 				this.nodesSortedByDegree.get(degree).add(n);

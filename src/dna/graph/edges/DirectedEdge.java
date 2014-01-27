@@ -26,7 +26,6 @@ public class DirectedEdge extends Edge {
 				.parseInt(temp[1]));
 		this.src = src;
 		this.dst = dst;
-		System.out.println(src + " / " + dst);
 	}
 
 	public DirectedEdge(String s, Graph g, HashMap<Integer, Node> addedNodes) {
@@ -124,6 +123,17 @@ public class DirectedEdge extends Edge {
 		boolean remSrc = this.getSrc().removeEdge(this);
 		boolean remDst = this.getDst().removeEdge(this);
 		return remSrc && remDst;
+	}
+
+	@Override
+	public boolean isConnectedTo(Node n1, Node n2) {
+		return (this.src.equals(n1) && this.dst.equals(n2))
+				|| (this.src.equals(n2) && this.dst.equals(n1));
+	}
+
+	@Override
+	public boolean isConnectedTo(Node n1) {
+		return this.src.equals(n1) || this.dst.equals(n1);
 	}
 
 }

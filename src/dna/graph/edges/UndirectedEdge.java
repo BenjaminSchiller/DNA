@@ -120,7 +120,8 @@ public class UndirectedEdge extends Edge {
 	}
 
 	public int hashCode() {
-		String s = "" + this.getNode1().getIndex() + " <-> " + this.getNode2().getIndex();
+		String s = "" + this.getNode1().getIndex() + " <-> "
+				+ this.getNode2().getIndex();
 		return s.hashCode();
 	}
 
@@ -170,6 +171,17 @@ public class UndirectedEdge extends Edge {
 		boolean rem1 = this.getNode1().removeEdge(this);
 		boolean rem2 = this.getNode2().removeEdge(this);
 		return rem1 && rem2;
+	}
+
+	@Override
+	public boolean isConnectedTo(Node n1, Node n2) {
+		return (this.node1.equals(n1) && this.node2.equals(n2))
+				|| (this.node1.equals(n2) && this.node2.equals(n1));
+	}
+
+	@Override
+	public boolean isConnectedTo(Node n1) {
+		return this.node1.equals(n1) || this.node2.equals(n1);
 	}
 
 }

@@ -182,10 +182,26 @@ public class Graph {
 	/**
 	 * Check whether this is a directed graph or not
 	 * 
-	 * @return
+	 * @return true, if the graph is directed; fals otherwise
 	 */
 	public boolean isDirected() {
 		return gds.createsDirected();
+	}
+
+	/**
+	 * 
+	 * i.e., V*(V-1) in case of a directed graph, V*(V-1)/2 in case of an
+	 * undirected graph
+	 * 
+	 * @return maximum number of edges the graph could have with the current
+	 *         number of nodes
+	 */
+	public int getMaxEdgeCount() {
+		if (this.isDirected()) {
+			return this.getNodeCount() * (this.getNodeCount() - 1);
+		} else {
+			return this.getNodeCount() * (this.getNodeCount() - 1) / 2;
+		}
 	}
 
 	public void setName(String name) {
