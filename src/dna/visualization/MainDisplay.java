@@ -370,7 +370,6 @@ public class MainDisplay extends JFrame {
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
-
 		this.initBatchHandler();
 	}
 
@@ -398,6 +397,13 @@ public class MainDisplay extends JFrame {
 	/** sets the batch handler **/
 	public void setBatchHandler(BatchHandler bh) {
 		this.batchHandler = bh;
+	}
+
+	/** starts the live monitoring of the batchhandler **/
+	public void startLiveMonitoring() {
+		if (this.liveDisplay) {
+			this.batchHandler.start();
+		}
 	}
 
 	/** called from the pause-button to pause the gui **/

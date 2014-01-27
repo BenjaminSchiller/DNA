@@ -188,6 +188,8 @@ public class StatsDisplay extends JPanel implements ChangeListener {
 				mainDisplay.clearLists();
 				mainDisplay.setBatchHandlerDir(directoryValue.getText());
 				mainDisplay.resetBatchHandler();
+				if (liveDisplay)
+					mainDisplay.startLiveMonitoring();
 				statsdis.grabFocus();
 			}
 		});
@@ -622,7 +624,8 @@ public class StatsDisplay extends JPanel implements ChangeListener {
 	 * running
 	 **/
 	public void setStarted() {
-		this.directoryValue.setEditable(false);
+		if (!this.liveDisplay)
+			this.directoryValue.setEditable(false);
 		this.validate();
 		this.repaint();
 	}
@@ -639,7 +642,7 @@ public class StatsDisplay extends JPanel implements ChangeListener {
 	/** Resets the statistic display **/
 	public void reset() {
 		init = false;
-		this.timestampLongValue.setText("" + 0);
+		this.setTimestamp(0);
 		this.nodesValue.setText("" + 0);
 		this.edgesValue.setText("" + 0);
 		this.batchesValue.setText("" + 0);
