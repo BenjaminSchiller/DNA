@@ -24,8 +24,8 @@ public class RichClubConnectivityForOneDegreeU extends
 		RichClubConnectivityForOneDegree {
 
 	public RichClubConnectivityForOneDegreeU(int minDegree) {
-		super("RichClubConnectivityForOneDegreeU", ApplicationType.AfterUpdate,
-				minDegree);
+		super("RichClubConnectivityForOneDegreeU-" + minDegree,
+				ApplicationType.AfterUpdate, minDegree);
 	}
 
 	@Override
