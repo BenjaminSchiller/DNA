@@ -1,10 +1,12 @@
 package dna.series;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.FileSystem;
 import java.util.HashMap;
 
 import dna.io.filesystem.Dir;
+import dna.io.filesystem.Files;
 import dna.metrics.Metric;
 import dna.metrics.MetricNotApplicableException;
 import dna.series.Series.RandomSeedReset;
@@ -27,6 +29,7 @@ public class SeriesGeneration {
 	public static boolean singleFile = false;
 	public static FileSystem writeFileSystem;
 	public static FileSystem readFileSystem;
+	public static long batchGenerationTime = 300;
 
 	public static SeriesData generate(Series series, int runs, int batches)
 			throws AggregationException, IOException,
@@ -226,6 +229,9 @@ public class SeriesGeneration {
 						+ " of " + batches + ")");
 				break;
 			}
+			// * live display simulation
+			long batchGenerationStart = System.currentTimeMillis();
+			// *
 
 			// reset rand per batch
 			if (series.getRandomSeedReset() == RandomSeedReset.eachBatch) {
@@ -239,8 +245,37 @@ public class SeriesGeneration {
 			}
 			if (write) {
 				if (!SeriesGeneration.singleFile) {
-					batchData.write(Dir.getBatchDataDir(series.getDir(), run,
-							batchData.getTimestamp()));
+					String actualDir = Dir.getBatchDataDir(series.getDir(),
+							run, batchData.getTimestamp());
+					String dirTemp = actualDir.substring(0,
+							actualDir.length() - 1)
+							+ Dir.tempSuffix
+							+ Dir.delimiter;
+
+					// rename directory
+					File srcDir = new File(dirTemp);
+					File dstDir = new File(actualDir);
+
+					Files.delete(srcDir);
+					Files.delete(dstDir);
+
+					// write
+					batchData.write(dirTemp);
+
+					// live display simulation
+					long waitTime = SeriesGeneration.batchGenerationTime
+							- (System.currentTimeMillis() - batchGenerationStart);
+					if (waitTime > 0) {
+						try {
+							Thread.sleep(waitTime);
+						} catch (InterruptedException e) {
+							e.printStackTrace();
+						}
+					}
+
+					if (srcDir.isDirectory()) {
+						srcDir.renameTo(dstDir);
+					}
 				} else {
 					try {
 						batchData.writeSingleFile(

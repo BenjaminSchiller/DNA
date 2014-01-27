@@ -62,6 +62,8 @@ public class MainDisplay extends JFrame {
 		Log.info("Initializing MainDisplay");
 		MainDisplay display = new MainDisplay(liveDisplay);
 
+		display.liveDisplay = liveDisplay;
+
 		// init batch handler, hand over directory and maindisplay
 		display.setBatchHandler(new BatchHandler(GuiOptions.defaultDir,
 				display, true));
@@ -377,8 +379,10 @@ public class MainDisplay extends JFrame {
 	 * information and then hand over the initialization batch.
 	 */
 	public void initBatchHandler() {
-		this.batchHandler.updateBatches();
-		this.batchHandler.init();
+		if (!this.liveDisplay) {
+			this.batchHandler.updateBatches();
+			this.batchHandler.init();
+		}
 	}
 
 	/** sets the batch handlers directory **/

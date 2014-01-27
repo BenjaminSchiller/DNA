@@ -225,7 +225,6 @@ public class BatchHandler implements Runnable {
 
 		// live display
 		if (liveDisplay) {
-
 			try {
 				// setting up watch-service
 				FileSystem fs = FileSystems.getDefault();
@@ -238,9 +237,6 @@ public class BatchHandler implements Runnable {
 				Log.info("Watching directory: " + p.toString());
 				while (t == thisThread) {
 					for (WatchEvent<?> event : key.pollEvents()) {
-
-						WatchEvent.Kind<?> kind = event.kind();
-
 						WatchEvent<Path> ev = (WatchEvent<Path>) event;
 
 						Path filename = ev.context();
@@ -253,11 +249,9 @@ public class BatchHandler implements Runnable {
 						if (parts.length > 1 && parts[0].equals("batch")) {
 							String suffix = parts[parts.length - 1];
 							if (suffix.charAt(suffix.length() - 1) != '_') {
-								Log.info("new batch ready: " + child.toString());
+								//Log.info("new batch ready: " + child.toString());
 
 								// read batch
-								// Log.info("reading: " + child.toString());
-
 								BatchData batch = BatchData.read(
 										Dir.getBatchDataDir(this.dir,
 												Long.parseLong(suffix)),
@@ -270,10 +264,9 @@ public class BatchHandler implements Runnable {
 								} else {
 									this.mainFrame.updateData(batch);
 								}
-
 							} else {
-								Log.info("new batch generation started: "
-										+ child.toString());
+								/*Log.info("new batch generation started: "
+										+ child.toString());*/
 							}
 						}
 					}
