@@ -47,7 +47,7 @@ public class MenuBar extends JPanel implements ChangeListener {
 
 	// creates the default menu with all panels
 	public MenuBar(Visualizer parent, Dimension d) {
-		this(parent, d, true, true, true, true, true);
+		this(parent, d, true, true, true, true, false);
 	}
 
 	// constructor
@@ -448,9 +448,9 @@ public class MenuBar extends JPanel implements ChangeListener {
 		GridBagConstraints yLeftOptionsPanelConstraints = new GridBagConstraints();
 
 		// toggle left y axis grid button
-		final JButton toggleGridYLeftButton = new JButton("+Grid y1");
+		final JButton toggleGridYLeftButton = new JButton("y1");
 		toggleGridYLeftButton.setFont(GuiOptions.defaultFont);
-		toggleGridYLeftButton.setForeground(GuiOptions.defaultFontColor);
+		toggleGridYLeftButton.setForeground(Color.GRAY);
 		toggleGridYLeftButton.setPreferredSize(new Dimension(size.width - 5,
 				(int) Math.floor((size.getHeight() - 5) / 2)));
 		toggleGridYLeftButton.setMargin(new Insets(0, 0, 0, 0));
@@ -458,12 +458,13 @@ public class MenuBar extends JPanel implements ChangeListener {
 		toggleGridYLeftButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent event) {
-				if (toggleGridYLeftButton.getText().equals("+Grid y1")) {
-					toggleGridYLeftButton.setText("-Grid y1");
+				if (toggleGridYLeftButton.getForeground().equals(Color.GRAY)) {
+					toggleGridYLeftButton
+							.setForeground(GuiOptions.defaultFontColor);
 					toggleGridYLeftButton
 							.setToolTipText("Hide grid of left y-axis (y1).");
 				} else {
-					toggleGridYLeftButton.setText("+Grid y1");
+					toggleGridYLeftButton.setForeground(Color.GRAY);
 					toggleGridYLeftButton
 							.setToolTipText("Show grid of left y-axis (y1).");
 				}
@@ -475,16 +476,33 @@ public class MenuBar extends JPanel implements ChangeListener {
 		this.yLeftOptionsPanel.add(toggleGridYLeftButton,
 				yLeftOptionsPanelConstraints);
 
-		// toggle left y axis log button
-		final JButton toggleLogYLeftButton = new JButton("+log y2");
-		toggleLogYLeftButton.setFont(GuiOptions.defaultFont);
-		toggleLogYLeftButton.setForeground(Color.GRAY);
-		toggleLogYLeftButton.setPreferredSize(new Dimension(new Dimension(
+		// toggle right y axis grid button
+		final JButton toggleGridYRightButton = new JButton("y2");
+		toggleGridYRightButton.setFont(GuiOptions.defaultFont);
+		toggleGridYRightButton.setForeground(Color.GRAY);
+		toggleGridYRightButton.setPreferredSize(new Dimension(new Dimension(
 				size.width - 5, (int) Math.floor((size.getHeight() - 5) / 2))));
-		toggleLogYLeftButton.setMargin(new Insets(0, 0, 0, 0));
-		yLeftOptionsPanelConstraints.gridx = 0;
+		toggleGridYRightButton.setMargin(new Insets(0, 0, 0, 0));
+		toggleGridYRightButton
+				.setToolTipText("Show grid of right y-axis (y2).");
+		toggleGridYRightButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent event) {
+				if (toggleGridYRightButton.getForeground().equals(Color.GRAY)) {
+					toggleGridYRightButton
+							.setForeground(GuiOptions.defaultFontColor);
+					toggleGridYRightButton
+							.setToolTipText("Hide grid of right y-axis (y2).");
+				} else {
+					toggleGridYRightButton.setForeground(Color.GRAY);
+					toggleGridYRightButton
+							.setToolTipText("Show grid of right y-axis (y2).");
+				}
+				parent.toggleY2Grid();
+			}
+		});
 		yLeftOptionsPanelConstraints.gridy = 1;
-		this.yLeftOptionsPanel.add(toggleLogYLeftButton,
+		this.yLeftOptionsPanel.add(toggleGridYRightButton,
 				yLeftOptionsPanelConstraints);
 
 		// add to menu bar
@@ -505,9 +523,9 @@ public class MenuBar extends JPanel implements ChangeListener {
 		GridBagConstraints yRightOptionsPanelConstraints = new GridBagConstraints();
 
 		// toggle right y axis grid button
-		final JButton toggleGridYRightButton = new JButton("+Grid y2");
+		final JButton toggleGridYRightButton = new JButton("y2");
 		toggleGridYRightButton.setFont(GuiOptions.defaultFont);
-		toggleGridYRightButton.setForeground(GuiOptions.defaultFontColor);
+		toggleGridYRightButton.setForeground(Color.GRAY);
 		toggleGridYRightButton.setPreferredSize(new Dimension(new Dimension(
 				size.width - 5, (int) Math.floor((size.getHeight() - 5) / 2))));
 		toggleGridYRightButton.setMargin(new Insets(0, 0, 0, 0));
@@ -516,14 +534,13 @@ public class MenuBar extends JPanel implements ChangeListener {
 		toggleGridYRightButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent event) {
-				if (toggleGridYRightButton.getText().equals("+Grid y2")) {
-					toggleGridYRightButton.setText("-Grid y2");
+				if (toggleGridYRightButton.getForeground().equals(Color.GRAY)) {
+					toggleGridYRightButton
+							.setForeground(GuiOptions.defaultFontColor);
 					toggleGridYRightButton
 							.setToolTipText("Hide grid of right y-axis (y2).");
-				}
-
-				else {
-					toggleGridYRightButton.setText("+Grid y2");
+				} else {
+					toggleGridYRightButton.setForeground(Color.GRAY);
 					toggleGridYRightButton
 							.setToolTipText("Show grid of right y-axis (y2).");
 				}
@@ -565,9 +582,9 @@ public class MenuBar extends JPanel implements ChangeListener {
 		GridBagConstraints xAxisOptionsPanelConstraints = new GridBagConstraints();
 
 		// toggle x axis grid button
-		final JButton toggleGridX1Button = new JButton("+Grid x1");
+		final JButton toggleGridX1Button = new JButton("x1");
 		toggleGridX1Button.setFont(GuiOptions.defaultFont);
-		toggleGridX1Button.setForeground(GuiOptions.defaultFontColor);
+		toggleGridX1Button.setForeground(Color.GRAY);
 		toggleGridX1Button.setPreferredSize(new Dimension(new Dimension(
 				size.width - 5, (int) Math.floor((size.getHeight() - 5) / 2))));
 		toggleGridX1Button.setMargin(new Insets(0, 0, 0, 0));
@@ -575,11 +592,12 @@ public class MenuBar extends JPanel implements ChangeListener {
 		toggleGridX1Button.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent event) {
-				if (toggleGridX1Button.getText().equals("+Grid x1")) {
-					toggleGridX1Button.setText("-Grid x1");
+				if (toggleGridX1Button.getForeground().equals(Color.GRAY)) {
+					toggleGridX1Button
+							.setForeground(GuiOptions.defaultFontColor);
 					toggleGridX1Button.setToolTipText("Hide grid of x1.");
 				} else {
-					toggleGridX1Button.setText("+Grid x1");
+					toggleGridX1Button.setForeground(Color.GRAY);
 					toggleGridX1Button.setToolTipText("Show grid of x1.");
 				}
 				parent.toggleX1Grid();
@@ -592,9 +610,9 @@ public class MenuBar extends JPanel implements ChangeListener {
 
 		// if parent is multiscalarvisualizer -> add grid button for x2
 		if (parent instanceof MultiScalarVisualizer) {
-			final JButton toggleGridX2Button = new JButton("+Grid x2");
+			final JButton toggleGridX2Button = new JButton("x2");
 			toggleGridX2Button.setFont(GuiOptions.defaultFont);
-			toggleGridX2Button.setForeground(GuiOptions.defaultFontColor);
+			toggleGridX2Button.setForeground(Color.GRAY);
 			toggleGridX2Button.setPreferredSize(new Dimension(new Dimension(
 					size.width - 5,
 					(int) Math.floor((size.getHeight() - 5) / 2))));
@@ -603,11 +621,12 @@ public class MenuBar extends JPanel implements ChangeListener {
 			toggleGridX2Button.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent event) {
-					if (toggleGridX2Button.getText().equals("+Grid x2")) {
-						toggleGridX2Button.setText("-Grid x2");
+					if (toggleGridX2Button.getForeground().equals(Color.GRAY)) {
+						toggleGridX2Button
+								.setForeground(GuiOptions.defaultFontColor);
 						toggleGridX2Button.setToolTipText("Hide grid of x2.");
 					} else {
-						toggleGridX2Button.setText("+Grid x2");
+						toggleGridX2Button.setForeground(Color.GRAY);
 						toggleGridX2Button.setToolTipText("Show grid of x2.");
 					}
 					((MultiScalarVisualizer) parent).toggleX2Grid();

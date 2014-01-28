@@ -93,7 +93,7 @@ public class MetricVisualizer extends Visualizer {
 		// add menu bar
 		super.addMenuBar(
 				new Dimension(GuiOptions.visualizerDefaultMenuBarSize), true,
-				true, true, true, true);
+				true, true, true, false);
 
 		// add coordinate parsing to mouseover on chart
 		this.chart.addMouseMotionListener(new MouseMotionListener() {

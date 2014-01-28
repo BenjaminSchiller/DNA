@@ -43,6 +43,9 @@ public class StatsDisplay extends JPanel implements ChangeListener {
 	private JLabel directoryLabel;
 	private JTextField directoryValue;
 
+	private JLabel statusLabel;
+	private JLabel statusValue;
+
 	private JLabel timestampLongLabel;
 	private JLabel timestampLongValue;
 	private JLabel timestampDateLabel;
@@ -85,6 +88,7 @@ public class StatsDisplay extends JPanel implements ChangeListener {
 	private boolean paused;
 	private boolean timesliderAdjustingPause = false;
 	private boolean liveDisplay;
+	private boolean started;
 
 	// date format
 	private SimpleDateFormat dateFormat;
@@ -93,23 +97,24 @@ public class StatsDisplay extends JPanel implements ChangeListener {
 	 * constructors
 	 */
 	public StatsDisplay(boolean liveDisplay) {
-		this(GuiOptions.statsDisplaySize, !liveDisplay, !liveDisplay, true,
-				true, true);
-		this.liveDisplay = liveDisplay;
+		this(GuiOptions.statsDisplaySize, liveDisplay, !liveDisplay,
+				!liveDisplay, true, true, true);
 	}
 
 	private StatsDisplay(Dimension size) {
-		this(size, true, true, true, true, true);
-		this.liveDisplay = false;
+		this(size, false, true, true, true, true, true);
 	}
 
-	private StatsDisplay(Dimension size, boolean addTimePanel,
-			boolean addSpeedSlider, boolean addSettingsPanel,
-			boolean addMetRuntimes, boolean addGenRuntimes) {
+	private StatsDisplay(Dimension size, boolean liveDisplay,
+			boolean addTimePanel, boolean addSpeedSlider,
+			boolean addSettingsPanel, boolean addMetRuntimes,
+			boolean addGenRuntimes) {
 		// initialization
 		this.statsdis = this;
-		this.paused = true;
+		this.paused = false;
+		this.started = false;
 		this.dateFormat = new SimpleDateFormat(GuiOptions.dateFormat);
+		this.liveDisplay = liveDisplay;
 
 		// size
 		this.setPreferredSize(size);
@@ -203,6 +208,24 @@ public class StatsDisplay extends JPanel implements ChangeListener {
 		this.settingsPanelConstraints.gridx = 1;
 		this.settingsPanel.add(directoryValue, this.settingsPanelConstraints);
 		this.settingsPanelConstraints.gridy++;
+
+		/*
+		 * STATUS PANEL
+		 */
+		if (this.liveDisplay) {
+			this.statusLabel = new JLabel("Status: ");
+			this.statusLabel.setFont(GuiOptions.defaultFont);
+
+			this.statusValue = new JLabel("Idle");
+			this.statusValue.setFont(GuiOptions.defaultFont);
+
+			// adding
+			this.settingsPanelConstraints.gridx = 0;
+			this.settingsPanel.add(statusLabel, this.settingsPanelConstraints);
+			this.settingsPanelConstraints.gridx = 1;
+			this.settingsPanel.add(statusValue, this.settingsPanelConstraints);
+			this.settingsPanelConstraints.gridy++;
+		}
 
 		/*
 		 * BATCHES TOTAL
@@ -626,6 +649,9 @@ public class StatsDisplay extends JPanel implements ChangeListener {
 	public void setStarted() {
 		if (!this.liveDisplay)
 			this.directoryValue.setEditable(false);
+		else
+			this.statusValue.setText("Waiting for Batches..");
+		this.started = true;
 		this.validate();
 		this.repaint();
 	}
@@ -635,6 +661,8 @@ public class StatsDisplay extends JPanel implements ChangeListener {
 	 **/
 	public void setStopped() {
 		this.directoryValue.setEditable(true);
+		if (this.liveDisplay)
+			this.statusValue.setText("Idle");
 		this.validate();
 		this.repaint();
 	}
@@ -695,7 +723,18 @@ public class StatsDisplay extends JPanel implements ChangeListener {
 
 	/** Called when the UI gets pause/unpaused **/
 	public void togglePause() {
+		System.out.println(this.paused);
 		this.paused = !this.paused;
+		if (this.liveDisplay) {
+			if (this.paused) {
+				this.statusValue.setText("Paused..");
+			} else {
+				if (this.started)
+					this.statusValue.setText("Waiting for Batches..");
+				else
+					this.statusValue.setText("Idle");
+			}
+		}
 	}
 
 	/** sets the timeslider to the desired value **/

@@ -66,7 +66,7 @@ public class MainDisplay extends JFrame {
 
 		// init batch handler, hand over directory and maindisplay
 		display.setBatchHandler(new BatchHandler(GuiOptions.defaultDir,
-				display, true));
+				display, liveDisplay));
 		display.initBatchHandler();
 
 		display.setVisible(true);
@@ -403,6 +403,7 @@ public class MainDisplay extends JFrame {
 	public void startLiveMonitoring() {
 		if (this.liveDisplay) {
 			this.batchHandler.start();
+			this.statsDisplay1.setStarted();
 		}
 	}
 
