@@ -56,15 +56,7 @@ public class GraphDataStructure {
 		this.localEdgeListType = localEdgeListType;
 		this.nodeType = nodeType;
 		this.edgeType = edgeType;
-
-		if (this.globalEdgeListType == null && this.localEdgeListType == null) {
-			throw new RuntimeException(
-					"Either the global or local edge list must not be NULL");
-		}
-		
-		this.defaultListSizes = new EnumMap<DataStructure.ListType, Integer>(DataStructure.ListType.class);
-		this.defaultListSizes.put(ListType.GlobalEdgeList, 10);
-		this.defaultListSizes.put(ListType.GlobalNodeList, 10);
+		init();
 	}
 
 	@SuppressWarnings("unchecked")
@@ -83,6 +75,18 @@ public class GraphDataStructure {
 		} catch (ClassNotFoundException | ClassCastException e) {
 			e.printStackTrace();
 		}
+		init();
+	}
+	
+	private void init() {
+		if (this.globalEdgeListType == null && this.localEdgeListType == null) {
+			throw new RuntimeException(
+					"Either the global or local edge list must not be NULL");
+		}
+		
+		this.defaultListSizes = new EnumMap<DataStructure.ListType, Integer>(DataStructure.ListType.class);
+		this.defaultListSizes.put(ListType.GlobalEdgeList, 10);
+		this.defaultListSizes.put(ListType.GlobalNodeList, 10);		
 	}
 
 	@Override
