@@ -5,6 +5,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.Arrays;
+import java.util.EnumMap;
 import java.util.HashMap;
 
 import dna.graph.Graph;
@@ -34,32 +35,36 @@ import dna.util.Config;
  * 
  */
 public class GraphDataStructure {
-	private Class<? extends INodeListDatastructure> nodeListType;
-	private Class<? extends IEdgeListDatastructure> graphEdgeListType;
-	private Class<? extends IEdgeListDatastructure> nodeEdgeListType;
+	private Class<? extends INodeListDatastructure> globalNodeListType;
+	private Class<? extends IEdgeListDatastructure> globalEdgeListType;
+	private Class<? extends IEdgeListDatastructure> localEdgeListType;
 	private Class<? extends Node> nodeType;
 	private Class<? extends Edge> edgeType;
 	private Constructor<?> lastWeightedEdgeConstructor = null;
 	private Constructor<?> lastEdgeConstructor = null;
 	private IEdgeListDatastructure emptyList = new DEmpty(null);
-	private int defaultNodelistSize = 10;
-	private int defaultGlobalEdgelistSize = 10;
-
+	
+	private EnumMap<ListType, Integer> defaultListSizes;
+	
 	public GraphDataStructure(
-			Class<? extends INodeListDatastructure> nodeListType,
-			Class<? extends IEdgeListDatastructure> graphEdgeListType,
-			Class<? extends IEdgeListDatastructure> nodeEdgeListType,
+			Class<? extends INodeListDatastructure> globalNodeListType,
+			Class<? extends IEdgeListDatastructure> globalEdgeListType,
+			Class<? extends IEdgeListDatastructure> localEdgeListType,
 			Class<? extends Node> nodeType, Class<? extends Edge> edgeType) {
-		this.nodeListType = nodeListType;
-		this.graphEdgeListType = graphEdgeListType;
-		this.nodeEdgeListType = nodeEdgeListType;
+		this.globalNodeListType = globalNodeListType;
+		this.globalEdgeListType = globalEdgeListType;
+		this.localEdgeListType = localEdgeListType;
 		this.nodeType = nodeType;
 		this.edgeType = edgeType;
 
-		if (this.graphEdgeListType == null && this.nodeEdgeListType == null) {
+		if (this.globalEdgeListType == null && this.localEdgeListType == null) {
 			throw new RuntimeException(
 					"Either the global or local edge list must not be NULL");
 		}
+		
+		this.defaultListSizes = new EnumMap<DataStructure.ListType, Integer>(DataStructure.ListType.class);
+		this.defaultListSizes.put(ListType.GlobalEdgeList, 10);
+		this.defaultListSizes.put(ListType.GlobalNodeList, 10);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -67,11 +72,11 @@ public class GraphDataStructure {
 		String splitted[] = gdsString.split(Config
 				.get("DATASTRUCTURES_CLASS_DELIMITER"));
 		try {
-			this.nodeListType = (Class<? extends INodeListDatastructure>) Class
+			this.globalNodeListType = (Class<? extends INodeListDatastructure>) Class
 					.forName(splitted[0]);
-			this.graphEdgeListType = (Class<? extends IEdgeListDatastructure>) Class
+			this.globalEdgeListType = (Class<? extends IEdgeListDatastructure>) Class
 					.forName(splitted[1]);
-			this.nodeEdgeListType = (Class<? extends IEdgeListDatastructure>) Class
+			this.localEdgeListType = (Class<? extends IEdgeListDatastructure>) Class
 					.forName(splitted[2]);
 			this.nodeType = (Class<? extends Node>) Class.forName(splitted[3]);
 			this.edgeType = (Class<? extends Edge>) Class.forName(splitted[4]);
@@ -94,20 +99,20 @@ public class GraphDataStructure {
 				return false;
 		} else if (!edgeType.equals(other.edgeType))
 			return false;
-		if (graphEdgeListType == null) {
-			if (other.graphEdgeListType != null)
+		if (globalEdgeListType == null) {
+			if (other.globalEdgeListType != null)
 				return false;
-		} else if (!graphEdgeListType.equals(other.graphEdgeListType))
+		} else if (!globalEdgeListType.equals(other.globalEdgeListType))
 			return false;
-		if (nodeEdgeListType == null) {
-			if (other.nodeEdgeListType != null)
+		if (localEdgeListType == null) {
+			if (other.localEdgeListType != null)
 				return false;
-		} else if (!nodeEdgeListType.equals(other.nodeEdgeListType))
+		} else if (!localEdgeListType.equals(other.localEdgeListType))
 			return false;
-		if (nodeListType == null) {
-			if (other.nodeListType != null)
+		if (globalNodeListType == null) {
+			if (other.globalNodeListType != null)
 				return false;
-		} else if (!nodeListType.equals(other.nodeListType))
+		} else if (!globalNodeListType.equals(other.globalNodeListType))
 			return false;
 		if (nodeType == null) {
 			if (other.nodeType != null)
@@ -117,16 +122,16 @@ public class GraphDataStructure {
 		return true;
 	}
 
-	public Class<? extends INodeListDatastructure> getNodeListType() {
-		return nodeListType;
+	public Class<? extends INodeListDatastructure> getGlobalNodeListType() {
+		return globalNodeListType;
 	}
 
-	public Class<? extends IEdgeListDatastructure> getGraphEdgeListType() {
-		return graphEdgeListType;
+	public Class<? extends IEdgeListDatastructure> getGlobalEdgeListType() {
+		return globalEdgeListType;
 	}
 
-	public Class<? extends IEdgeListDatastructure> getNodeEdgeListType() {
-		return nodeEdgeListType;
+	public Class<? extends IEdgeListDatastructure> getLocalEdgeListType() {
+		return localEdgeListType;
 	}
 
 	public Class<? extends Node> getNodeType() {
@@ -147,8 +152,8 @@ public class GraphDataStructure {
 
 	public Graph newGraphInstance(String name, long timestamp, int nodes,
 			int edges) {
-		this.defaultNodelistSize = nodes;
-		this.defaultGlobalEdgelistSize = edges;
+		this.defaultListSizes.put(ListType.GlobalNodeList, nodes);
+		this.defaultListSizes.put(ListType.GlobalEdgeList, edges);
 		return new Graph(name, timestamp, this, nodes, edges);
 	}
 
@@ -157,15 +162,13 @@ public class GraphDataStructure {
 	}
 
 	public INodeListDatastructure newGlobalNodeList() {
-		INodeListDatastructure res = newNodeList(ListType.GlobalNodeList);
-		res.reinitializeWithSize(defaultNodelistSize);
-		return res;
+		return newNodeList(ListType.GlobalNodeList);
 	}
 
 	private INodeListDatastructure newNodeList(ListType listType) {
 		INodeListDatastructure res = null;
 		try {
-			res = (INodeListDatastructure) nodeListType.getConstructor(
+			res = (INodeListDatastructure) globalNodeListType.getConstructor(
 					ListType.class, nodeType.getClass()).newInstance(listType,
 					nodeType);
 		} catch (InstantiationException | IllegalAccessException
@@ -173,45 +176,52 @@ public class GraphDataStructure {
 				| NoSuchMethodException | SecurityException e) {
 			e.printStackTrace();
 		}
+		if ( this.defaultListSizes.containsKey(listType)) {
+			res.reinitializeWithSize(this.defaultListSizes.get(listType));
+		}
 		return res;
 	}
 
-	public IEdgeListDatastructure newGraphEdgeList() {
-		if (graphEdgeListType == null) {
+	public IEdgeListDatastructure newEdgeList(ListType listType) {
+		Class<? extends IEdgeListDatastructure> sourceClass = null;
+		
+		switch (listType) {
+		case GlobalEdgeList:
+			sourceClass = globalEdgeListType;
+			break;
+		case LocalEdgeList:
+			sourceClass = localEdgeListType;
+			break;
+		case GlobalNodeList:
+		case LocalNodeList:
+			throw new RuntimeException("newEdgeList cannot create node lists");
+		}
+		
+		if (sourceClass == null) {
 			return emptyList;
 		}
 		IEdgeListDatastructure res = null;
 		try {
-			res = graphEdgeListType.getConstructor(ListType.class,
-					edgeType.getClass()).newInstance(ListType.GlobalEdgeList,
+			res = sourceClass.getConstructor(ListType.class,
+					edgeType.getClass()).newInstance(listType,
 					edgeType);
 		} catch (InstantiationException | IllegalAccessException
 				| IllegalArgumentException | InvocationTargetException
 				| NoSuchMethodException | SecurityException e) {
 			e.printStackTrace();
 		}
-		res.reinitializeWithSize(defaultGlobalEdgelistSize);
+		if ( this.defaultListSizes.containsKey(listType)) {
+			res.reinitializeWithSize(this.defaultListSizes.get(listType));
+		}
 		return res;
 	}
+		
+	public IEdgeListDatastructure newGlobalEdgeList() {
+		return this.newEdgeList(ListType.GlobalEdgeList);
+	}
 
-	public IEdgeListDatastructure newNodeEdgeList() {
-		if (nodeEdgeListType == null) {
-			return emptyList;
-		}
-		Constructor<? extends IEdgeListDatastructure> c;
-		try {
-			c = nodeEdgeListType.getConstructor(ListType.class,
-					edgeType.getClass());
-			return c.newInstance(ListType.LocalEdgeList, edgeType);
-		} catch (InstantiationException | IllegalAccessException
-				| IllegalArgumentException | InvocationTargetException
-				| NoSuchMethodException | SecurityException e) {
-			RuntimeException rt = new RuntimeException(
-					"Could not generate new edge list instance: "
-							+ e.getMessage());
-			rt.setStackTrace(e.getStackTrace());
-			throw rt;
-		}
+	public IEdgeListDatastructure newLocalEdgeList() {
+		return this.newEdgeList(ListType.LocalEdgeList);
 	}
 
 	public Node newNodeInstance(int index) {
@@ -465,20 +475,20 @@ public class GraphDataStructure {
 
 	public String getStorageDataStructures(boolean getSimpleNames) {
 		if (getSimpleNames) {
-			return nodeListType.getSimpleName()
+			return globalNodeListType.getSimpleName()
 					+ Config.get("DATASTRUCTURES_CLASS_DELIMITER")
-					+ (graphEdgeListType == null ? "null" : graphEdgeListType
+					+ (globalEdgeListType == null ? "null" : globalEdgeListType
 							.getSimpleName())
 					+ Config.get("DATASTRUCTURES_CLASS_DELIMITER")
-					+ (nodeEdgeListType == null ? "null" : nodeEdgeListType
+					+ (localEdgeListType == null ? "null" : localEdgeListType
 							.getSimpleName());
 		} else {
-			return nodeListType.getName()
+			return globalNodeListType.getName()
 					+ Config.get("DATASTRUCTURES_CLASS_DELIMITER")
-					+ (graphEdgeListType == null ? "null" : graphEdgeListType
+					+ (globalEdgeListType == null ? "null" : globalEdgeListType
 							.getName())
 					+ Config.get("DATASTRUCTURES_CLASS_DELIMITER")
-					+ (nodeEdgeListType == null ? "null" : nodeEdgeListType
+					+ (localEdgeListType == null ? "null" : localEdgeListType
 							.getName());
 		}
 	}
@@ -492,8 +502,8 @@ public class GraphDataStructure {
 	}
 
 	public boolean isReadable() {
-		return IReadable.class.isAssignableFrom(graphEdgeListType)
-				&& IReadable.class.isAssignableFrom(nodeListType);
+		return IReadable.class.isAssignableFrom(globalEdgeListType)
+				&& IReadable.class.isAssignableFrom(globalNodeListType);
 	}
 
 	public boolean isReadable(IDataStructure list) {
@@ -514,35 +524,35 @@ public class GraphDataStructure {
 	 * @param g
 	 */
 	public void switchDatastructures(GraphDataStructure newGDS, Graph g) {
-		if (!this.isReadable(graphEdgeListType)) {
+		if (!this.isReadable(globalEdgeListType)) {
 			System.err
 					.println("Reject switching data structures, as graph edge list of type "
-							+ this.graphEdgeListType + " cannot be converted");
+							+ this.globalEdgeListType + " cannot be converted");
 			return;
 		}
-		if (!this.isReadable(nodeEdgeListType)) {
+		if (!this.isReadable(localEdgeListType)) {
 			System.err
 					.println("Reject switching data structures, as node edge list of type "
-							+ this.nodeEdgeListType + " cannot be converted");
+							+ this.localEdgeListType + " cannot be converted");
 			return;
 		}
-		if (!this.isReadable(nodeListType)) {
+		if (!this.isReadable(globalNodeListType)) {
 			System.err
 					.println("Reject switching data structures, as node list of type "
-							+ this.nodeListType + " cannot be converted");
+							+ this.globalNodeListType + " cannot be converted");
 			return;
 		}
 
-		if (this.nodeEdgeListType != newGDS.getNodeEdgeListType()) {
-			this.nodeEdgeListType = newGDS.getNodeEdgeListType();
-			g.switchDataStructure(ListType.LocalEdgeList, this.newNodeEdgeList());
+		if (this.localEdgeListType != newGDS.getLocalEdgeListType()) {
+			this.localEdgeListType = newGDS.getLocalEdgeListType();
+			g.switchDataStructure(ListType.LocalEdgeList, this.newLocalEdgeList());
 		}
-		if (this.graphEdgeListType != newGDS.getGraphEdgeListType()) {
-			this.graphEdgeListType = newGDS.getGraphEdgeListType();
-			g.switchDataStructure(ListType.GlobalEdgeList, this.newGraphEdgeList());
+		if (this.globalEdgeListType != newGDS.getGlobalEdgeListType()) {
+			this.globalEdgeListType = newGDS.getGlobalEdgeListType();
+			g.switchDataStructure(ListType.GlobalEdgeList, this.newGlobalEdgeList());
 		}
-		if (this.nodeListType != newGDS.getNodeListType()) {
-			this.nodeListType = newGDS.getNodeListType();
+		if (this.globalNodeListType != newGDS.getGlobalNodeListType()) {
+			this.globalNodeListType = newGDS.getGlobalNodeListType();
 			g.switchDataStructure(ListType.LocalNodeList, this.newNodeList(ListType.LocalNodeList));
 			g.switchDataStructure(ListType.GlobalNodeList, this.newNodeList(ListType.GlobalNodeList));
 		}
@@ -559,94 +569,94 @@ public class GraphDataStructure {
 			ProfilerDataType complexityType) {
 		switch (p) {
 		case InitEdgeGlobal:
-			return getComplexityClass(graphEdgeListType, Edge.class,
+			return getComplexityClass(globalEdgeListType, Edge.class,
 					complexityType, AccessType.Init, Base.EdgeSize);
 		case InitEdgeLocal:
-			return getComplexityClass(nodeEdgeListType, Edge.class,
+			return getComplexityClass(localEdgeListType, Edge.class,
 					complexityType, AccessType.Init, Base.Degree);
 		case InitNodeGlobal:
-			return getComplexityClass(nodeListType, Node.class, complexityType,
+			return getComplexityClass(globalNodeListType, Node.class, complexityType,
 					AccessType.Init, Base.NodeSize);
 		case InitNodeLocal:
-			return getComplexityClass(nodeListType, Node.class, complexityType,
+			return getComplexityClass(globalNodeListType, Node.class, complexityType,
 					AccessType.Init, Base.Degree);		
 		case AddEdgeGlobal:
-			return getComplexityClass(graphEdgeListType, Edge.class,
+			return getComplexityClass(globalEdgeListType, Edge.class,
 					complexityType, AccessType.Add, Base.EdgeSize);
 		case AddEdgeLocal:
-			return getComplexityClass(nodeEdgeListType, Edge.class,
+			return getComplexityClass(localEdgeListType, Edge.class,
 					complexityType, AccessType.Add, Base.Degree);
 		case AddNodeGlobal:
-			return getComplexityClass(nodeListType, Node.class, complexityType,
+			return getComplexityClass(globalNodeListType, Node.class, complexityType,
 					AccessType.Add, Base.NodeSize);
 		case AddNodeLocal:
-			return getComplexityClass(nodeListType, Node.class, complexityType,
+			return getComplexityClass(globalNodeListType, Node.class, complexityType,
 					AccessType.Add, Base.Degree);
 		case ContainsEdgeGlobal:
-			return getComplexityClass(graphEdgeListType, Edge.class,
+			return getComplexityClass(globalEdgeListType, Edge.class,
 					complexityType, AccessType.Contains, Base.EdgeSize);
 		case ContainsEdgeLocal:
-			return getComplexityClass(nodeEdgeListType, Edge.class,
+			return getComplexityClass(localEdgeListType, Edge.class,
 					complexityType, AccessType.Contains, Base.Degree);
 		case ContainsNodeGlobal:
-			return getComplexityClass(nodeListType, Node.class, complexityType,
+			return getComplexityClass(globalNodeListType, Node.class, complexityType,
 					AccessType.Contains, Base.NodeSize);
 		case ContainsNodeLocal:
-			return getComplexityClass(nodeListType, Node.class, complexityType,
+			return getComplexityClass(globalNodeListType, Node.class, complexityType,
 					AccessType.Contains, Base.Degree);
 		case GetNodeGlobal:
-			return getComplexityClass(nodeListType, Node.class, complexityType,
+			return getComplexityClass(globalNodeListType, Node.class, complexityType,
 					AccessType.Get, Base.NodeSize);
 		case GetNodeLocal:
-			return getComplexityClass(nodeListType, Node.class, complexityType,
+			return getComplexityClass(globalNodeListType, Node.class, complexityType,
 					AccessType.Get, Base.Degree);
 		case GetEdgeGlobal:
-			return getComplexityClass(graphEdgeListType, Edge.class,
+			return getComplexityClass(globalEdgeListType, Edge.class,
 					complexityType, AccessType.Get, Base.EdgeSize);
 		case GetEdgeLocal:
-			return getComplexityClass(nodeEdgeListType, Edge.class,
+			return getComplexityClass(localEdgeListType, Edge.class,
 					complexityType, AccessType.Get, Base.Degree);
 		case RandomEdgeGlobal:
-			return getComplexityClass(graphEdgeListType, Edge.class,
+			return getComplexityClass(globalEdgeListType, Edge.class,
 					complexityType, AccessType.Random, Base.EdgeSize);
 		case RandomNodeGlobal:
-			return getComplexityClass(nodeListType, Node.class, complexityType,
+			return getComplexityClass(globalNodeListType, Node.class, complexityType,
 					AccessType.Random, Base.NodeSize);
 		case RemoveEdgeGlobal:
-			return getComplexityClass(graphEdgeListType, Edge.class,
+			return getComplexityClass(globalEdgeListType, Edge.class,
 					complexityType, AccessType.Remove, Base.EdgeSize);
 		case RemoveEdgeLocal:
-			return getComplexityClass(nodeEdgeListType, Edge.class,
+			return getComplexityClass(localEdgeListType, Edge.class,
 					complexityType, AccessType.Remove, Base.Degree);
 		case RemoveNodeGlobal:
-			return getComplexityClass(nodeListType, Node.class, complexityType,
+			return getComplexityClass(globalNodeListType, Node.class, complexityType,
 					AccessType.Remove, Base.NodeSize);
 		case RemoveNodeLocal:
-			return getComplexityClass(nodeListType, Node.class, complexityType,
+			return getComplexityClass(globalNodeListType, Node.class, complexityType,
 					AccessType.Remove, Base.Degree);
 		case SizeEdgeGlobal:
-			return getComplexityClass(graphEdgeListType, Edge.class,
+			return getComplexityClass(globalEdgeListType, Edge.class,
 					complexityType, AccessType.Size, Base.EdgeSize);
 		case SizeEdgeLocal:
-			return getComplexityClass(nodeEdgeListType, Edge.class,
+			return getComplexityClass(localEdgeListType, Edge.class,
 					complexityType, AccessType.Size, Base.Degree);
 		case SizeNodeGlobal:
-			return getComplexityClass(nodeListType, Node.class, complexityType,
+			return getComplexityClass(globalNodeListType, Node.class, complexityType,
 					AccessType.Size, Base.NodeSize);
 		case SizeNodeLocal:
-			return getComplexityClass(nodeListType, Node.class, complexityType,
+			return getComplexityClass(globalNodeListType, Node.class, complexityType,
 					AccessType.Size, Base.Degree);
 		case IteratorNodeGlobal:
-			return getComplexityClass(nodeListType, Node.class, complexityType,
+			return getComplexityClass(globalNodeListType, Node.class, complexityType,
 					AccessType.Iterator, Base.NodeSize);
 		case IteratorNodeLocal:
-			return getComplexityClass(nodeListType, Node.class, complexityType,
+			return getComplexityClass(globalNodeListType, Node.class, complexityType,
 					AccessType.Iterator, Base.Degree);
 		case IteratorEdgeGlobal:
-			return getComplexityClass(graphEdgeListType, Edge.class,
+			return getComplexityClass(globalEdgeListType, Edge.class,
 					complexityType, AccessType.Iterator, Base.EdgeSize);
 		case IteratorEdgeLocal:
-			return getComplexityClass(nodeEdgeListType, Edge.class,
+			return getComplexityClass(localEdgeListType, Edge.class,
 					complexityType, AccessType.Iterator, Base.Degree);
 		}
 		throw new RuntimeException("Access " + p + " missing here");

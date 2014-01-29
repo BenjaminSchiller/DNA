@@ -36,7 +36,7 @@ public class Graph {
 		this.name = name;
 		this.timestamp = timestamp;
 		this.nodes = gds.newGlobalNodeList();
-		this.edges = gds.newGraphEdgeList();
+		this.edges = gds.newGlobalEdgeList();
 		this.gds = gds;
 	}
 

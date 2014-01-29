@@ -258,7 +258,7 @@ public class GeneratorsTest {
 			Node n = (Node) nU;
 			assertTrue(
 					"Graph g misses node " + n + " (node list type: "
-							+ gds.getNodeListType() + ")", g.containsNode(n));
+							+ gds.getGlobalNodeListType() + ")", g.containsNode(n));
 		}
 
 		for (IElement nU : g.getNodes()) {
@@ -270,7 +270,7 @@ public class GeneratorsTest {
 			Edge e = (Edge) eU;
 			Edge eOther = g.getEdge(e);
 			assertNotNull("Graph g misses edge " + e + " (edge list type: "
-					+ gds.getGraphEdgeListType() + ")", eOther);
+					+ gds.getGlobalEdgeListType() + ")", eOther);
 			assertEquals(e, eOther);
 			assertNotEquals(e.getStringRepresentation(),
 					eOther.getStringRepresentation());

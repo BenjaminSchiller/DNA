@@ -179,7 +179,7 @@ public class GraphTester {
 		assertEquals(mock2, e2.getWeight());
 		assertFalse(
 				"Adding the same edge with different weight a second time succeeded (graph edge list: "
-						+ this.gds.getGraphEdgeListType() + ")",
+						+ this.gds.getGlobalEdgeListType() + ")",
 				graph.addEdge((Edge) e2));
 	}
 
