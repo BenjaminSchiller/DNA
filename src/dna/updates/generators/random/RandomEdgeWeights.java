@@ -1,4 +1,4 @@
-package dna.updates.generators;
+package dna.updates.generators.random;
 
 import java.util.HashSet;
 
@@ -8,6 +8,7 @@ import dna.graph.edges.IWeightedEdge;
 import dna.graph.weights.Weights;
 import dna.graph.weights.Weights.EdgeWeightSelection;
 import dna.updates.batch.Batch;
+import dna.updates.generators.BatchGenerator;
 import dna.updates.update.EdgeWeight;
 import dna.util.parameters.ObjectParameter;
 

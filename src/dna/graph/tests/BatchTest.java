@@ -47,7 +47,7 @@ import dna.io.GraphWriter;
 import dna.updates.batch.Batch;
 import dna.updates.batch.BatchSanitization;
 import dna.updates.generators.BatchGenerator;
-import dna.updates.generators.RandomBatch;
+import dna.updates.generators.random.RandomBatch;
 import dna.updates.update.EdgeRemoval;
 import dna.updates.update.EdgeWeight;
 import dna.updates.update.NodeRemoval;

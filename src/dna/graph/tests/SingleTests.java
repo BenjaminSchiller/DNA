@@ -33,7 +33,7 @@ import dna.profiler.Profiler;
 import dna.series.AggregationException;
 import dna.series.Series;
 import dna.updates.generators.BatchGenerator;
-import dna.updates.generators.RandomBatch;
+import dna.updates.generators.random.RandomBatch;
 import dna.util.MathHelper;
 import dna.util.Timer;
 

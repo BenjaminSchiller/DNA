@@ -42,7 +42,8 @@ public class GlobalTestParameters {
 			edgeTypes, Class.class);
 
 	public static final Class[] dataStructures = { DArray.class,
-			DArrayList.class, DHashArrayList.class, DHashMap.class, DHashSet.class, DHashTable.class, DLinkedList.class, DEmpty.class };
+			DArrayList.class, DHashArrayList.class, DHashMap.class,
+			DHashSet.class, DHashTable.class, DLinkedList.class, DEmpty.class };
 
 	public static final Class[] graphGenerators = { RandomGraphGenerator.class,
 			CliqueGenerator.class, RingGenerator.class,
