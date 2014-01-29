@@ -1,4 +1,4 @@
-package dna.updates.generators;
+package dna.updates.generators.util;
 
 import java.io.FilenameFilter;
 import java.io.IOException;
@@ -9,6 +9,7 @@ import java.util.HashMap;
 import dna.graph.Graph;
 import dna.io.BatchReader;
 import dna.updates.batch.Batch;
+import dna.updates.generators.BatchGenerator;
 import dna.util.IOUtils;
 
 /**

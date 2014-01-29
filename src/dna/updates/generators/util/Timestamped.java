@@ -1,7 +1,8 @@
-package dna.updates.generators;
+package dna.updates.generators.util;
 
 import dna.graph.Graph;
 import dna.updates.batch.Batch;
+import dna.updates.generators.BatchGenerator;
 import dna.util.ArrayUtils;
 import dna.util.parameters.IntParameter;
 
