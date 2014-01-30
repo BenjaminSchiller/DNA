@@ -160,55 +160,36 @@ public class GraphDataStructure {
 		this.defaultListSizes.put(ListType.GlobalEdgeList, edges);
 		return new Graph(name, timestamp, this, nodes, edges);
 	}
-
-	public INodeListDatastructure newLocalNodeList() {
-		return newNodeList(ListType.LocalNodeList);
-	}
-
-	public INodeListDatastructure newGlobalNodeList() {
-		return newNodeList(ListType.GlobalNodeList);
-	}
-
-	private INodeListDatastructure newNodeList(ListType listType) {
-		INodeListDatastructure res = null;
-		try {
-			res = (INodeListDatastructure) globalNodeListType.getConstructor(
-					ListType.class, nodeType.getClass()).newInstance(listType,
-					nodeType);
-		} catch (InstantiationException | IllegalAccessException
-				| IllegalArgumentException | InvocationTargetException
-				| NoSuchMethodException | SecurityException e) {
-			e.printStackTrace();
-		}
-		if ( this.defaultListSizes.containsKey(listType)) {
-			res.reinitializeWithSize(this.defaultListSizes.get(listType));
-		}
-		return res;
-	}
-
-	public IEdgeListDatastructure newEdgeList(ListType listType) {
-		Class<? extends IEdgeListDatastructure> sourceClass = null;
+	
+	public IDataStructure newList(ListType listType) {
+		Class<? extends IDataStructure> sourceClass = null;
+		Class<? extends IElement> storedDataType = null;
 		
 		switch (listType) {
 		case GlobalEdgeList:
+			storedDataType = edgeType;
 			sourceClass = globalEdgeListType;
 			break;
 		case LocalEdgeList:
+			storedDataType = edgeType;
 			sourceClass = localEdgeListType;
 			break;
 		case GlobalNodeList:
+			storedDataType = nodeType;
+			sourceClass = globalNodeListType;
 		case LocalNodeList:
-			throw new RuntimeException("newEdgeList cannot create node lists");
+			storedDataType = nodeType;
+			sourceClass = globalNodeListType;
 		}
 		
 		if (sourceClass == null) {
 			return emptyList;
 		}
-		IEdgeListDatastructure res = null;
+		IDataStructure res = null;
 		try {
 			res = sourceClass.getConstructor(ListType.class,
-					edgeType.getClass()).newInstance(listType,
-					edgeType);
+					storedDataType.getClass()).newInstance(listType,
+							storedDataType);
 		} catch (InstantiationException | IllegalAccessException
 				| IllegalArgumentException | InvocationTargetException
 				| NoSuchMethodException | SecurityException e) {
@@ -219,13 +200,21 @@ public class GraphDataStructure {
 		}
 		return res;
 	}
+
+	public INodeListDatastructure newLocalNodeList() {
+		return (INodeListDatastructure) newList(ListType.LocalNodeList);
+	}
+
+	public INodeListDatastructure newGlobalNodeList() {
+		return (INodeListDatastructure) newList(ListType.GlobalNodeList);
+	}
 		
 	public IEdgeListDatastructure newGlobalEdgeList() {
-		return this.newEdgeList(ListType.GlobalEdgeList);
+		return (IEdgeListDatastructure) this.newList(ListType.GlobalEdgeList);
 	}
 
 	public IEdgeListDatastructure newLocalEdgeList() {
-		return this.newEdgeList(ListType.LocalEdgeList);
+		return (IEdgeListDatastructure) this.newList(ListType.LocalEdgeList);
 	}
 
 	public Node newNodeInstance(int index) {
@@ -557,8 +546,8 @@ public class GraphDataStructure {
 		}
 		if (this.globalNodeListType != newGDS.getGlobalNodeListType()) {
 			this.globalNodeListType = newGDS.getGlobalNodeListType();
-			g.switchDataStructure(ListType.LocalNodeList, this.newNodeList(ListType.LocalNodeList));
-			g.switchDataStructure(ListType.GlobalNodeList, this.newNodeList(ListType.GlobalNodeList));
+			g.switchDataStructure(ListType.LocalNodeList, this.newList(ListType.LocalNodeList));
+			g.switchDataStructure(ListType.GlobalNodeList, this.newList(ListType.GlobalNodeList));
 		}
 	}
 
