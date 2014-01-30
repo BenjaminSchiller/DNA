@@ -21,6 +21,8 @@ import dna.graph.datastructures.DEmpty;
 import dna.graph.datastructures.GraphDataStructure;
 import dna.graph.datastructures.IEdgeListDatastructure;
 import dna.graph.datastructures.INodeListDatastructure;
+import dna.graph.datastructures.DataStructure.AccessType;
+import dna.graph.datastructures.DataStructure.ListType;
 import dna.graph.edges.DirectedEdge;
 import dna.graph.edges.Edge;
 import dna.graph.edges.IWeightedEdge;
@@ -30,7 +32,6 @@ import dna.graph.nodes.IWeightedNode;
 import dna.graph.nodes.Node;
 import dna.graph.nodes.UndirectedNode;
 import dna.graph.weights.IWeighted;
-import dna.profiler.ProfilerConstants;
 import dna.profiler.ProfilerMeasurementData;
 import dna.util.Config;
 
@@ -101,11 +102,12 @@ public class GraphTester {
 
 	@Test
 	public void datastructureKnowsAboutItsComplexity() {
-		for (ProfilerConstants.ProfilerType p : ProfilerConstants.ProfilerType
-				.values()) {
-			for (ProfilerMeasurementData.ProfilerDataType pType : ProfilerMeasurementData.ProfilerDataType
-					.values()) {
-				assertNotNull(gds.getComplexityClass(p, pType));
+		for (ListType lt : ListType.values()) {
+			for (AccessType at : AccessType.values()) {
+				for (ProfilerMeasurementData.ProfilerDataType pType : ProfilerMeasurementData.ProfilerDataType
+						.values()) {
+					assertNotNull(gds.getComplexityClass(lt, at, pType));
+				}
 			}
 		}
 	}

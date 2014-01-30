@@ -8,6 +8,8 @@ import java.util.Map.Entry;
 import java.util.TreeMap;
 
 import dna.graph.datastructures.DEmpty;
+import dna.graph.datastructures.DataStructure.AccessType;
+import dna.graph.datastructures.DataStructure.ListType;
 import dna.graph.datastructures.GraphDataStructure;
 import dna.graph.datastructures.IEdgeListDatastructure;
 import dna.graph.datastructures.INodeListDatastructure;
@@ -181,8 +183,7 @@ public class Profiler {
 			tempGDS = new GraphDataStructure(nodeListType, DEmpty.class,
 					DEmpty.class, gds.getNodeType(), gds.getEdgeType());
 			nodeListComplexities.put(entry.combinedComplexity(entryType,
-					tempGDS, ProfilerConstants.globalNodeListAccesses),
-					nodeListType);
+					tempGDS, ListType.GlobalNodeList), nodeListType);
 		}
 
 		TreeMap<ComplexityMap, Class> edgeListComplexities = new TreeMap<>();
@@ -192,8 +193,7 @@ public class Profiler {
 			tempGDS = new GraphDataStructure(null, edgeListType, null,
 					gds.getNodeType(), gds.getEdgeType());
 			edgeListComplexities.put(entry.combinedComplexity(entryType,
-					tempGDS, ProfilerConstants.globalEdgeListAccesses),
-					edgeListType);
+					tempGDS, ListType.GlobalEdgeList), edgeListType);
 		}
 
 		TreeMap<ComplexityMap, Class> nodeEdgeListComplexities = new TreeMap<>();
@@ -204,8 +204,7 @@ public class Profiler {
 			tempGDS = new GraphDataStructure(null, DEmpty.class,
 					nodeEdgeListType, gds.getNodeType(), gds.getEdgeType());
 			nodeEdgeListComplexities.put(entry.combinedComplexity(entryType,
-					tempGDS, ProfilerConstants.localEdgeListAccesses),
-					nodeEdgeListType);
+					tempGDS, ListType.LocalEdgeList), nodeEdgeListType);
 		}
 
 		TreeMap<ComplexityMap, GraphDataStructure> recommendationList = new TreeMap<>();
@@ -292,12 +291,11 @@ public class Profiler {
 	}
 
 	private static boolean hasLocalEdgeListAccess(ProfileEntry entry) {
-		return entry.hasAccessesOfType(ProfilerConstants.localEdgeListAccesses);
+		return entry.hasAccessesInList(ListType.LocalEdgeList);
 	}
 
 	private static boolean hasGlobalEdgeListAccess(ProfileEntry entry) {
-		return entry
-				.hasAccessesOfType(ProfilerConstants.globalEdgeListAccesses);
+		return entry.hasAccessesInList(ListType.GlobalEdgeList);
 	}
 
 	public static String getGlobalComplexity(
@@ -312,11 +310,8 @@ public class Profiler {
 		res.append(resEntry.toString());
 		for (ProfilerMeasurementData.ProfilerDataType entryType : ProfilerMeasurementData.ProfilerDataType
 				.values()) {
-			res.append(" Aggr for "
-					+ entryType
-					+ ": "
-					+ resEntry.combinedComplexity(entryType, gds,
-							ProfilerConstants.ProfilerType.values())
+			res.append(" Aggr for " + entryType + ": "
+					+ resEntry.combinedComplexity(entryType, gds, null)
 					+ separator);
 			res.append(getOtherRuntimeComplexitiesForEntry(entryType, resEntry,
 					false));
@@ -338,8 +333,7 @@ public class Profiler {
 						+ entryType
 						+ ": "
 						+ entry.getValue().combinedComplexity(entryType, gds,
-								ProfilerConstants.ProfilerType.values())
-						+ separator);
+								null) + separator);
 				if (showRecommendations)
 					res.append(getOtherRuntimeComplexitiesForEntry(entryType,
 							entry.getValue(), false));
@@ -358,24 +352,24 @@ public class Profiler {
 		return innerMap;
 	}
 
-	public static void count(String mapKey, ProfilerConstants.ProfilerType p) {
+	public static void count(String mapKey, ListType lt, AccessType a) {
 		if (!active)
 			return;
 
 		ProfileEntry innerMap = entryForKey(singleBatchCalls, mapKey, false);
-		innerMap.increase(p, 1);
+		innerMap.increase(lt, a, 1);
 	}
 
-	public static int getCount(String mapKey, ProfilerConstants.ProfilerType p) {
-		return getCount(singleBatchCalls, mapKey, p);
+	public static int getCount(String mapKey, ListType lt, AccessType at) {
+		return getCount(singleBatchCalls, mapKey, lt, at);
 	}
 
 	public static int getCount(Map<String, ProfileEntry> calls, String mapKey,
-			ProfilerConstants.ProfilerType p) {
+			ListType lt, AccessType at) {
 		ProfileEntry innerMap = calls.get(mapKey);
 		if (innerMap == null)
 			return 0;
-		return innerMap.get(p);
+		return innerMap.get(lt, at);
 	}
 
 	private static HashMap<String, ProfileEntry> merge(
@@ -406,12 +400,8 @@ public class Profiler {
 		res.append(aggregated.callsAsString(prefix));
 		for (ProfilerMeasurementData.ProfilerDataType entryType : ProfilerMeasurementData.ProfilerDataType
 				.values()) {
-			res.append(outputPrefix
-					+ " Aggr for "
-					+ entryType
-					+ ": "
-					+ aggregated.combinedComplexity(entryType, gds,
-							ProfilerConstants.ProfilerType.values())
+			res.append(outputPrefix + " Aggr for " + entryType + ": "
+					+ aggregated.combinedComplexity(entryType, gds, null)
 					+ separator);
 			if (showRecommendations)
 				res.append(getOtherRuntimeComplexitiesForEntry(entryType,
