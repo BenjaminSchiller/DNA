@@ -4,13 +4,16 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
+import java.util.EnumMap;
 
+import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import dna.graph.datastructures.DArray;
 import dna.graph.datastructures.DArrayList;
+import dna.graph.datastructures.DataStructure.ListType;
 import dna.graph.datastructures.GraphDataStructure;
+import dna.graph.datastructures.IDataStructure;
 import dna.graph.edges.DirectedDoubleWeightedEdge;
 import dna.graph.edges.DirectedEdge;
 import dna.graph.edges.UndirectedDoubleWeightedEdge;
@@ -35,15 +38,24 @@ import dna.util.MathHelper;
 import dna.util.Timer;
 
 public class SingleTests {
+	EnumMap<ListType, Class<? extends IDataStructure>> listTypes;
+
+	@Before
+	public void init() {
+		listTypes = new EnumMap<ListType, Class<? extends IDataStructure>>(
+				ListType.class);
+		for (ListType lt : ListType.values()) {
+			listTypes.put(lt, DArrayList.class);
+		}
+	}
 
 	@Test
 	public void metricTest() throws AggregationException, IOException,
 			MetricNotApplicableException {
 		Profiler.activate();
 
-		GraphDataStructure gds = new GraphDataStructure(DArrayList.class,
-				DArrayList.class, DArrayList.class, DirectedNode.class,
-				DirectedEdge.class);
+		GraphDataStructure gds = new GraphDataStructure(listTypes,
+				DirectedNode.class, DirectedEdge.class);
 		GraphGenerator gg = new RandomGraphGenerator(gds, 40, 40);
 		BatchGenerator batchGen = new RandomBatch(5, 5, 5, 5);
 		Metric[] metrics = new Metric[] { new DegreeDistributionU(),
@@ -68,8 +80,8 @@ public class SingleTests {
 	@SuppressWarnings("rawtypes")
 	@Test
 	public void checkWeightedNode() {
-		GraphDataStructure gds = new GraphDataStructure(DArray.class,
-				DArray.class, DArray.class, DirectedDoubleWeightedNode.class,
+		GraphDataStructure gds = new GraphDataStructure(listTypes,
+				DirectedDoubleWeightedNode.class,
 				DirectedDoubleWeightedEdge.class);
 		IWeighted n = gds.newWeightedNode(1, 1d);
 		assertTrue(n instanceof DirectedDoubleWeightedNode);
@@ -88,8 +100,8 @@ public class SingleTests {
 	@Ignore
 	@Test
 	public void performanceTester() {
-		GraphDataStructure gds = new GraphDataStructure(DArray.class,
-				DArray.class, DArray.class, DirectedDoubleWeightedNode.class,
+		GraphDataStructure gds = new GraphDataStructure(listTypes,
+				DirectedDoubleWeightedNode.class,
 				DirectedDoubleWeightedEdge.class);
 
 		int limit = 1000000;

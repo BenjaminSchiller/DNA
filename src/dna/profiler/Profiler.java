@@ -1,6 +1,7 @@
 package dna.profiler;
 
 import java.io.IOException;
+import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -11,6 +12,7 @@ import dna.graph.datastructures.DEmpty;
 import dna.graph.datastructures.DataStructure.AccessType;
 import dna.graph.datastructures.DataStructure.ListType;
 import dna.graph.datastructures.GraphDataStructure;
+import dna.graph.datastructures.IDataStructure;
 import dna.graph.datastructures.IEdgeListDatastructure;
 import dna.graph.datastructures.INodeListDatastructure;
 import dna.graph.tests.GlobalTestParameters;
@@ -159,6 +161,8 @@ public class Profiler {
 	public static String getOtherRuntimeComplexitiesForEntry(
 			ProfilerMeasurementData.ProfilerDataType entryType,
 			ProfileEntry entry, boolean outputAsCommentWithPrefix) {
+
+		EnumMap<ListType, Class<? extends IDataStructure>> listTypes;
 		GraphDataStructure tempGDS;
 		StringBuilder res = new StringBuilder();
 
@@ -180,8 +184,10 @@ public class Profiler {
 		for (Class nodeListType : GlobalTestParameters.dataStructures) {
 			if (!(INodeListDatastructure.class.isAssignableFrom(nodeListType)))
 				continue;
-			tempGDS = new GraphDataStructure(nodeListType, DEmpty.class,
-					DEmpty.class, gds.getNodeType(), gds.getEdgeType());
+			listTypes = GraphDataStructure.getList(ListType.GlobalNodeList,
+					nodeListType, ListType.GlobalEdgeList, DEmpty.class);
+			tempGDS = new GraphDataStructure(listTypes, gds.getNodeType(),
+					gds.getEdgeType());
 			nodeListComplexities.put(entry.combinedComplexity(entryType,
 					tempGDS, ListType.GlobalNodeList), nodeListType);
 		}
@@ -190,8 +196,10 @@ public class Profiler {
 		for (Class edgeListType : GlobalTestParameters.dataStructures) {
 			if (!(IEdgeListDatastructure.class.isAssignableFrom(edgeListType)))
 				continue;
-			tempGDS = new GraphDataStructure(null, edgeListType, null,
-					gds.getNodeType(), gds.getEdgeType());
+			listTypes = GraphDataStructure.getList(ListType.GlobalEdgeList,
+					edgeListType, ListType.GlobalNodeList, DEmpty.class);
+			tempGDS = new GraphDataStructure(listTypes, gds.getNodeType(),
+					gds.getEdgeType());
 			edgeListComplexities.put(entry.combinedComplexity(entryType,
 					tempGDS, ListType.GlobalEdgeList), edgeListType);
 		}
@@ -201,8 +209,10 @@ public class Profiler {
 			if (!(IEdgeListDatastructure.class
 					.isAssignableFrom(nodeEdgeListType)))
 				continue;
-			tempGDS = new GraphDataStructure(null, DEmpty.class,
-					nodeEdgeListType, gds.getNodeType(), gds.getEdgeType());
+			listTypes = GraphDataStructure.getList(ListType.LocalEdgeList,
+					nodeEdgeListType, ListType.GlobalNodeList, DEmpty.class);
+			tempGDS = new GraphDataStructure(listTypes, gds.getNodeType(),
+					gds.getEdgeType());
 			nodeEdgeListComplexities.put(entry.combinedComplexity(entryType,
 					tempGDS, ListType.LocalEdgeList), nodeEdgeListType);
 		}
@@ -230,10 +240,13 @@ public class Profiler {
 						continue;
 					}
 
-					tempGDS = new GraphDataStructure(
-							nodeListRecommendation.getValue(), edgeListType,
-							nodeEdgeListType, gds.getNodeType(),
-							gds.getEdgeType());
+					listTypes = GraphDataStructure.getList(
+							ListType.GlobalNodeList,
+							nodeListRecommendation.getValue(),
+							ListType.GlobalEdgeList, edgeListType,
+							ListType.LocalEdgeList, nodeEdgeListType);
+					tempGDS = new GraphDataStructure(listTypes,
+							gds.getNodeType(), gds.getEdgeType());
 					ComplexityMap aggregated = new ComplexityMap();
 					aggregated.add(nodeListRecommendation.getKey());
 					aggregated.add(edgeListRecommendation.getKey());

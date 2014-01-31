@@ -9,7 +9,9 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.EnumMap;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -35,6 +37,7 @@ import dna.graph.nodes.DirectedNode;
 public class DatastructureSwitcherTest {
 	private Class<? extends IDataStructure> oldDS;
 	private Class<? extends IDataStructure> newDS;
+	private EnumMap<ListType, Class<? extends IDataStructure>> listTypes;
 
 	public DatastructureSwitcherTest(Class<? extends IDataStructure> oldDS,
 			Class<? extends IDataStructure> newDS)
@@ -43,6 +46,15 @@ public class DatastructureSwitcherTest {
 			NoSuchMethodException, SecurityException {
 		this.oldDS = oldDS;
 		this.newDS = newDS;
+	}
+
+	@Before
+	public void instantiateListType() {
+		listTypes = new EnumMap<ListType, Class<? extends IDataStructure>>(
+				ListType.class);
+		for (ListType lt : ListType.values()) {
+			listTypes.put(lt, DArray.class);
+		}
 	}
 
 	@SuppressWarnings("rawtypes")
@@ -78,15 +90,14 @@ public class DatastructureSwitcherTest {
 		}
 	}
 
-	@SuppressWarnings("unchecked")
 	@Test
 	public void checkChangeOfGlobalEdgeList() throws NoSuchFieldException,
 			SecurityException, IllegalArgumentException, IllegalAccessException {
 		assumeTrue(IEdgeListDatastructureReadable.class.isAssignableFrom(oldDS));
 		assumeTrue(IEdgeListDatastructure.class.isAssignableFrom(newDS));
 
-		GraphDataStructure gdsOld = new GraphDataStructure(DArray.class,
-				(Class<? extends IEdgeListDatastructure>) oldDS, DArray.class,
+		listTypes.put(ListType.GlobalEdgeList, oldDS);
+		GraphDataStructure gdsOld = new GraphDataStructure(listTypes,
 				DirectedNode.class, DirectedEdge.class);
 		GraphGenerator gg = new RandomGraphGenerator(gdsOld, 200, 100);
 		Graph g = gg.generate();
@@ -108,16 +119,15 @@ public class DatastructureSwitcherTest {
 		}
 	}
 
-	@SuppressWarnings("unchecked")
 	@Test
 	public void checkChangeOfGlobalNodeList() throws NoSuchFieldException,
 			SecurityException, IllegalArgumentException, IllegalAccessException {
 		assumeTrue(INodeListDatastructureReadable.class.isAssignableFrom(oldDS));
 		assumeTrue(INodeListDatastructure.class.isAssignableFrom(newDS));
 
-		GraphDataStructure gdsOld = new GraphDataStructure(
-				(Class<? extends INodeListDatastructure>) oldDS, DArray.class,
-				DArray.class, DirectedNode.class, DirectedEdge.class);
+		listTypes.put(ListType.GlobalNodeList, oldDS);
+		GraphDataStructure gdsOld = new GraphDataStructure(listTypes,
+				DirectedNode.class, DirectedEdge.class);
 		GraphGenerator gg = new RandomGraphGenerator(gdsOld, 200, 100);
 		Graph g = gg.generate();
 

@@ -10,6 +10,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.EnumMap;
 import java.util.Random;
 
 import org.junit.Rule;
@@ -20,10 +21,10 @@ import org.junit.runners.Parameterized;
 
 import dna.graph.Graph;
 import dna.graph.datastructures.DEmpty;
+import dna.graph.datastructures.DataStructure.ListType;
 import dna.graph.datastructures.GraphDataStructure;
-import dna.graph.datastructures.IEdgeListDatastructure;
+import dna.graph.datastructures.IDataStructure;
 import dna.graph.datastructures.IEdgeListDatastructureReadable;
-import dna.graph.datastructures.INodeListDatastructure;
 import dna.graph.datastructures.INodeListDatastructureReadable;
 import dna.graph.edges.DirectedEdge;
 import dna.graph.edges.Edge;
@@ -71,9 +72,8 @@ public class BatchTest {
 	private int nodeSize, edgeSize, nodeAdd, nodeRem, edgeAdd, edgeRem,
 			nodeWeightChanges, edgeWeightChanges;
 
-	public BatchTest(Class<? extends INodeListDatastructure> nodeListType,
-			Class<? extends IEdgeListDatastructure> graphEdgeListType,
-			Class<? extends IEdgeListDatastructure> nodeEdgeListType,
+	public BatchTest(
+			EnumMap<ListType, Class<? extends IDataStructure>> listTypes,
 			Class<? extends Node> nodeType, Class<? extends Edge> edgeType,
 			Class<? extends GraphGenerator> generator)
 			throws InstantiationException, IllegalAccessException,
@@ -84,8 +84,7 @@ public class BatchTest {
 		this.generator = generator;
 		initSizes();
 
-		this.gds = new GraphDataStructure(nodeListType, graphEdgeListType,
-				nodeEdgeListType, nodeType, edgeType);
+		this.gds = new GraphDataStructure(listTypes, nodeType, edgeType);
 		try {
 			generatorConstructor = generator.getConstructor(
 					GraphDataStructure.class, int.class, int.class);
@@ -189,7 +188,7 @@ public class BatchTest {
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	@Parameterized.Parameters(name = "{0} {1} {2} {3} {4} {5}")
+	@Parameterized.Parameters(name = "{0} {1} {2} {3}")
 	public static Collection testPairs() throws NoSuchMethodException,
 			SecurityException, InstantiationException, IllegalAccessException,
 			IllegalArgumentException, InvocationTargetException {
@@ -223,13 +222,19 @@ public class BatchTest {
 
 								if (generator == EmptyGraphGenerator.class)
 									continue;
-								
+
 								if (nodeEdgeListType == DEmpty.class
 										|| edgeListType == DEmpty.class)
 									continue;
-								
-								gds = new GraphDataStructure(nodeListType,
-										edgeListType, nodeEdgeListType,
+
+								EnumMap<ListType, Class<? extends IDataStructure>> listTypes = GraphDataStructure
+										.getList(ListType.GlobalNodeList,
+												nodeListType,
+												ListType.GlobalEdgeList,
+												edgeListType,
+												ListType.LocalEdgeList,
+												nodeEdgeListType);
+								gds = new GraphDataStructure(listTypes,
 										nodeType, edgeType);
 								GraphGenerator gg;
 								try {
@@ -253,9 +258,8 @@ public class BatchTest {
 								if (!gg.canGenerateEdgeType(edgeType))
 									continue;
 
-								result.add(new Object[] { nodeListType,
-										edgeListType, nodeEdgeListType,
-										nodeType, edgeType, generator });
+								result.add(new Object[] { listTypes, nodeType,
+										edgeType, generator });
 							}
 						}
 					}

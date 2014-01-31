@@ -10,6 +10,7 @@ import java.io.PrintStream;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.EnumMap;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -21,6 +22,7 @@ import dna.graph.datastructures.DEmpty;
 import dna.graph.datastructures.DataStructure.AccessType;
 import dna.graph.datastructures.DataStructure.ListType;
 import dna.graph.datastructures.GraphDataStructure;
+import dna.graph.datastructures.IDataStructure;
 import dna.graph.datastructures.IEdgeListDatastructure;
 import dna.graph.datastructures.INodeListDatastructure;
 import dna.graph.edges.DirectedEdge;
@@ -49,15 +51,12 @@ public class ProfilerTest {
 	private Metric metric;
 	private String metricKey;
 
-	public ProfilerTest(Class<? extends INodeListDatastructure> nodeListType,
-			Class<? extends IEdgeListDatastructure> graphEdgeListType,
-			Class<? extends IEdgeListDatastructure> nodeEdgeListType,
+	public ProfilerTest(EnumMap<ListType, Class<? extends IDataStructure>> listTypes,
 			Class<? extends Node> nodeType, Class<? extends Edge> edgeType,
 			ApplicationType applicationType) throws InstantiationException,
 			IllegalAccessException, IllegalArgumentException,
 			InvocationTargetException, NoSuchMethodException, SecurityException {
-		this.gds = new GraphDataStructure(nodeListType, graphEdgeListType,
-				nodeEdgeListType, nodeType, edgeType);
+		this.gds = new GraphDataStructure(listTypes, nodeType, edgeType);
 		this.gds.setEdgeType(edgeType);
 		this.graph = gds.newGraphInstance("ABC", 1L, 10, 10);
 		this.applicationType = applicationType;
@@ -92,8 +91,8 @@ public class ProfilerTest {
 		Profiler.startBatch(0);
 	}
 
-	@SuppressWarnings("rawtypes")
-	@Parameterized.Parameters(name = "{0} {1} {2} {3} {4} {5}")
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	@Parameterized.Parameters(name = "{0} {1} {2} {3}")
 	public static Collection<Object> testPairs() {
 		ArrayList<Object> result = new ArrayList<>();
 		Class nodeListType = null;
@@ -131,10 +130,15 @@ public class ProfilerTest {
 						|| (DirectedEdge.class.isAssignableFrom(edgeType) && UndirectedNode.class
 								.isAssignableFrom(nodeType)))
 					continue;
+				
+				EnumMap<ListType, Class<? extends IDataStructure>> listTypes = new EnumMap<ListType, Class<? extends IDataStructure>>(
+						ListType.class);
+				listTypes.put(ListType.GlobalNodeList, nodeListType);
+				listTypes.put(ListType.GlobalEdgeList, edgeListType);
+				listTypes.put(ListType.LocalEdgeList, nodeEdgeListType);				
 
 				for (ApplicationType a : ApplicationType.values()) {
-					result.add(new Object[] { nodeListType, edgeListType,
-							nodeEdgeListType, nodeType, edgeType, a });
+					result.add(new Object[] { listTypes, nodeType, edgeType, a });
 				}
 			}
 		}

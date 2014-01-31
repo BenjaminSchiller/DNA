@@ -5,6 +5,7 @@ import static org.junit.Assume.assumeTrue;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.EnumMap;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -12,6 +13,8 @@ import org.junit.runners.Parameterized;
 
 import dna.graph.datastructures.DArray;
 import dna.graph.datastructures.GraphDataStructure;
+import dna.graph.datastructures.IDataStructure;
+import dna.graph.datastructures.DataStructure.ListType;
 import dna.graph.edges.DirectedEdge;
 import dna.graph.edges.Edge;
 import dna.graph.edges.UndirectedEdge;
@@ -27,8 +30,13 @@ public class EdgeSupertypeTest {
 
 	public EdgeSupertypeTest(Class<? extends Node> nodeType,
 			Class<? extends Edge> edgeType) {
-		this.gds = new GraphDataStructure(DArray.class, DArray.class,
-				DArray.class, nodeType, edgeType);
+		EnumMap<ListType, Class<? extends IDataStructure>> listTypes = new EnumMap<ListType, Class<? extends IDataStructure>>(
+				ListType.class);
+		for (ListType lt : ListType.values()) {
+			listTypes.put(lt, DArray.class);
+		}		
+		
+		this.gds = new GraphDataStructure(listTypes, nodeType, edgeType);
 		this.nodeType = nodeType;
 		this.edgeType = edgeType;
 	}
