@@ -3,6 +3,9 @@ package dna.graph.datastructures;
 import java.util.Iterator;
 
 import dna.graph.IElement;
+import dna.graph.edges.Edge;
+import dna.graph.nodes.Node;
+import dna.profiler.complexity.ComplexityType.Base;
 
 /**
  * Base class for storing IElements
@@ -16,7 +19,23 @@ public abstract class DataStructure implements IDataStructure {
 	}
 
 	public enum ListType {
-		GlobalNodeList, GlobalEdgeList, LocalNodeList, LocalEdgeList
+		GlobalNodeList(Node.class, Base.NodeSize), GlobalEdgeList(Edge.class, Base.EdgeSize), LocalNodeList(Node.class, Base.Degree), LocalEdgeList(Edge.class, Base.NodeSize);
+		
+		private Class<? extends IElement> storedSuperClass;
+		private Base listBase;
+		
+		private ListType(Class<? extends IElement> superClass, Base base) {
+			this.storedSuperClass = superClass;
+			this.listBase = base;
+		}
+		
+		public Class<? extends IElement> getStoredClass() {
+			return this.storedSuperClass;
+		}
+		
+		public Base getBase() {
+			return this.listBase;
+		}
 	}
 
 	protected final Class<? extends IElement> dataType;

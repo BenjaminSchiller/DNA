@@ -179,20 +179,7 @@ public class GraphDataStructure {
 
 	public IDataStructure newList(ListType listType) {
 		Class<? extends IDataStructure> sourceClass = listTypes.get(listType);
-		Class<? extends IElement> storedDataType = null;
-
-		switch (listType) {
-		case GlobalEdgeList:
-			storedDataType = edgeType;
-			break;
-		case LocalEdgeList:
-			storedDataType = edgeType;
-			break;
-		case GlobalNodeList:
-			storedDataType = nodeType;
-		case LocalNodeList:
-			storedDataType = nodeType;
-		}
+		Class<? extends IElement> storedDataType = listType.getStoredClass();
 
 		if (sourceClass == null) {
 			return emptyList;
@@ -592,28 +579,8 @@ public class GraphDataStructure {
 	public Complexity getComplexityClass(ListType lt, AccessType at,
 			ProfilerDataType complexityType) {
 		Class<? extends IDataStructure> listClass = listTypes.get(lt);
-		Class<? extends IElement> storedElement = null;
-		Base baseType = null;
-
-		switch (lt) {
-		case GlobalEdgeList:
-			storedElement = Edge.class;
-			baseType = Base.EdgeSize;
-			break;
-		case GlobalNodeList:
-			storedElement = Node.class;
-			baseType = Base.NodeSize;
-			break;
-		case LocalEdgeList:
-			storedElement = Edge.class;
-			baseType = Base.Degree;
-			break;
-		case LocalNodeList:
-			storedElement = Node.class;
-			baseType = Base.Degree;
-			break;
-		}
-
+		Class<? extends IElement> storedElement = lt.getStoredClass();
+		Base baseType = lt.getBase();
 		return getComplexityClass(listClass, storedElement, complexityType, at,
 				baseType);
 	}
