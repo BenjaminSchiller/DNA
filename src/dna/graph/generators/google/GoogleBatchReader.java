@@ -3,12 +3,15 @@ package dna.graph.generators.google;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.HashSet;
 
 import dna.graph.datastructures.DHashMap;
 import dna.graph.datastructures.DHashSet;
 import dna.graph.datastructures.GraphDataStructure;
+import dna.graph.datastructures.IDataStructure;
+import dna.graph.datastructures.DataStructure.ListType;
 import dna.graph.edges.DirectedEdge;
 import dna.graph.nodes.DirectedNode;
 import dna.io.Reader;
@@ -403,9 +406,12 @@ public class GoogleBatchReader {
 
 			writer.writeKeyword(Config.get("GRAPH_KEYWORD_NAME"));
 			writer.writeln(graphName);
-			GraphDataStructure ds = new GraphDataStructure(DHashMap.class,
-					DHashSet.class, DHashSet.class, DirectedNode.class,
-					DirectedEdge.class);
+			EnumMap<ListType, Class<? extends IDataStructure>> listTypes = GraphDataStructure
+					.getList(ListType.GlobalNodeList, DHashMap.class,
+							ListType.GlobalEdgeList, DHashSet.class,
+							ListType.LocalEdgeList, DHashSet.class);
+			GraphDataStructure ds = new GraphDataStructure(listTypes,
+					DirectedNode.class, DirectedEdge.class);
 			writer.writeKeyword(Config.get("GRAPH_KEYWORD_DATASTRUCTURES"));
 			writer.writeln(ds.getDataStructures());
 

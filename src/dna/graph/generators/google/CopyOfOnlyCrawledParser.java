@@ -4,11 +4,14 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.EnumMap;
 import java.util.HashMap;
 
 import dna.graph.datastructures.DHashMap;
 import dna.graph.datastructures.DHashSet;
+import dna.graph.datastructures.DataStructure.ListType;
 import dna.graph.datastructures.GraphDataStructure;
+import dna.graph.datastructures.IDataStructure;
 import dna.graph.edges.DirectedEdge;
 import dna.graph.nodes.DirectedNode;
 import dna.io.Writer;
@@ -44,9 +47,12 @@ public class CopyOfOnlyCrawledParser {
 
 		graphWriter.writeKeyword(Config.get("GRAPH_KEYWORD_DATASTRUCTURES"));
 
-		GraphDataStructure ds = new GraphDataStructure(DHashMap.class,
-				DHashSet.class, DHashSet.class, DirectedNode.class,
-				DirectedEdge.class);
+		EnumMap<ListType, Class<? extends IDataStructure>> listTypes = GraphDataStructure
+				.getList(ListType.GlobalNodeList, DHashMap.class,
+						ListType.GlobalEdgeList, DHashSet.class,
+						ListType.LocalEdgeList, DHashSet.class);
+		GraphDataStructure ds = new GraphDataStructure(listTypes,
+				DirectedNode.class, DirectedEdge.class);
 		graphWriter.writeln(ds.getDataStructures());
 
 		graphWriter.writeKeyword(Config.get("GRAPH_KEYWORD_NODE_COUNT"));
