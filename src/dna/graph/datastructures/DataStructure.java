@@ -19,30 +19,41 @@ public abstract class DataStructure implements IDataStructure {
 	}
 
 	public enum ListType {
-		GlobalNodeList(Node.class, Base.NodeSize), GlobalEdgeList(Edge.class, Base.EdgeSize), LocalNodeList(Node.class, Base.Degree), LocalEdgeList(Edge.class, Base.NodeSize);
-		
+		GlobalNodeList(Node.class, Base.NodeSize), GlobalEdgeList(Edge.class,
+				Base.EdgeSize), LocalNodeList(Node.class, Base.Degree), LocalEdgeList(
+				Edge.class, Base.NodeSize);
+
 		private Class<? extends IElement> storedSuperClass;
 		private Base listBase;
-		
+
 		private ListType(Class<? extends IElement> superClass, Base base) {
 			this.storedSuperClass = superClass;
 			this.listBase = base;
 		}
-		
+
 		public Class<? extends IElement> getStoredClass() {
 			return this.storedSuperClass;
 		}
-		
+
 		public Base getBase() {
 			return this.listBase;
 		}
-		
+
 		public static boolean hasValue(String s) {
 			for (ListType l : values()) {
 				if (s.equals(l.toString()))
 					return true;
 			}
 			return false;
+		}
+
+		public Class<?> getRequiredType() {
+			if (this.storedSuperClass == Node.class) {
+				return INodeListDatastructure.class;
+			} else if (this.storedSuperClass == Edge.class) {
+				return IEdgeListDatastructure.class;
+			}
+			return null;
 		}
 	}
 

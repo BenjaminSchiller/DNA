@@ -7,6 +7,7 @@ import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.EnumMap;
 import java.util.HashMap;
+import java.util.Map.Entry;
 
 import dna.graph.Graph;
 import dna.graph.IElement;
@@ -60,7 +61,7 @@ public class GraphDataStructure {
 				.get("DATASTRUCTURES_CLASS_DELIMITER"));
 		listTypes = new EnumMap<ListType, Class<? extends IDataStructure>>(
 				ListType.class);
-		
+
 		try {
 			for (String singleClassDef : splitted) {
 				String innerSplitted[] = singleClassDef.split("=");
@@ -82,27 +83,49 @@ public class GraphDataStructure {
 		init();
 	}
 
-	private void init() {
+	public static boolean validListTypesSet(
+			EnumMap<ListType, Class<? extends IDataStructure>> list) {
+		for (Entry<ListType, Class<? extends IDataStructure>> entry : list
+				.entrySet()) {
+			if (!entry.getKey().getRequiredType()
+					.isAssignableFrom(entry.getValue())) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	private boolean canGDSCreateProperLists() {
 		if (listTypes.get(ListType.GlobalEdgeList) == null
 				&& listTypes.get(ListType.LocalEdgeList) == null) {
 			throw new RuntimeException(
 					"Either the global or local edge list must not be NULL");
 		}
-		
-		if ( listTypes.get(ListType.GlobalNodeList) == null ) {
-			throw new RuntimeException("The GraphDataStructure cannot be initialized without a global node list");
-		}
-		
-		if ( listTypes.get(ListType.LocalNodeList) == null ) {
-			listTypes.put(ListType.LocalNodeList, (Class<? extends IDataStructure>) listTypes.get(ListType.GlobalNodeList));
+
+		if (listTypes.get(ListType.GlobalNodeList) == null) {
+			throw new RuntimeException(
+					"The GraphDataStructure cannot be initialized without a global node list");
 		}
 
+		if (listTypes.get(ListType.LocalNodeList) == null) {
+			listTypes.put(ListType.LocalNodeList,
+					(Class<? extends IDataStructure>) listTypes
+							.get(ListType.GlobalNodeList));
+		}
+
+		if (!validListTypesSet(listTypes)) {
+			throw new RuntimeException("Invalid set of list types");
+		}
+		return true;
+	}
+
+	private void init() {
 		this.defaultListSizes = new EnumMap<DataStructure.ListType, Integer>(
 				DataStructure.ListType.class);
 		this.defaultListSizes.put(ListType.GlobalEdgeList, 10);
 		this.defaultListSizes.put(ListType.GlobalNodeList, 10);
 	}
-	
+
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
@@ -161,12 +184,15 @@ public class GraphDataStructure {
 
 	public Graph newGraphInstance(String name, long timestamp, int nodes,
 			int edges) {
+		this.canGDSCreateProperLists();
 		this.defaultListSizes.put(ListType.GlobalNodeList, nodes);
 		this.defaultListSizes.put(ListType.GlobalEdgeList, edges);
 		return new Graph(name, timestamp, this, nodes, edges);
 	}
 
 	public IDataStructure newList(ListType listType) {
+		this.canGDSCreateProperLists();
+
 		Class<? extends IDataStructure> sourceClass = listTypes.get(listType);
 		Class<? extends IElement> storedDataType = listType.getStoredClass();
 
@@ -188,8 +214,8 @@ public class GraphDataStructure {
 		}
 		return res;
 	}
-	
-	public Class<?extends IDataStructure> getListClass(ListType listType) {
+
+	public Class<? extends IDataStructure> getListClass(ListType listType) {
 		return listTypes.get(listType);
 	}
 
@@ -463,17 +489,19 @@ public class GraphDataStructure {
 
 	public String getDataStructures() {
 		return getStorageDataStructures(false)
-				+ Config.get("DATASTRUCTURES_CLASS_DELIMITER")
-				+ "node=" + nodeType.getName()
-				+ Config.get("DATASTRUCTURES_CLASS_DELIMITER")
-				+ "edge=" + edgeType.getName();
+				+ Config.get("DATASTRUCTURES_CLASS_DELIMITER") + "node="
+				+ nodeType.getName()
+				+ Config.get("DATASTRUCTURES_CLASS_DELIMITER") + "edge="
+				+ edgeType.getName();
 	}
 
 	public boolean isReadable() {
 		return IReadable.class
-				.isAssignableFrom((Class<? extends IDataStructure>) listTypes.get(ListType.GlobalEdgeList))
+				.isAssignableFrom((Class<? extends IDataStructure>) listTypes
+						.get(ListType.GlobalEdgeList))
 				&& IReadable.class
-						.isAssignableFrom((Class<? extends IDataStructure>) listTypes.get(ListType.GlobalNodeList));
+						.isAssignableFrom((Class<? extends IDataStructure>) listTypes
+								.get(ListType.GlobalNodeList));
 	}
 
 	public boolean isReadable(IDataStructure list) {
@@ -515,11 +543,11 @@ public class GraphDataStructure {
 							+ " cannot be converted");
 			return;
 		}
-		
-		for ( ListType lt: ListType.values()) {
+
+		for (ListType lt : ListType.values()) {
 			if (this.listTypes.get(lt) != newGDS.listTypes.get(lt)) {
 				this.listTypes.put(lt, newGDS.listTypes.get(lt));
-				g.switchDataStructure(lt,this.newList(lt));				
+				g.switchDataStructure(lt, this.newList(lt));
 			}
 		}
 	}

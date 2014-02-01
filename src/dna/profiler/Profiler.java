@@ -1,6 +1,7 @@
 package dna.profiler;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -13,8 +14,6 @@ import dna.graph.datastructures.DataStructure.AccessType;
 import dna.graph.datastructures.DataStructure.ListType;
 import dna.graph.datastructures.GraphDataStructure;
 import dna.graph.datastructures.IDataStructure;
-import dna.graph.datastructures.IEdgeListDatastructure;
-import dna.graph.datastructures.INodeListDatastructure;
 import dna.graph.tests.GlobalTestParameters;
 import dna.io.Writer;
 import dna.io.filesystem.Dir;
@@ -43,6 +42,8 @@ public class Profiler {
 	final static String separator = System.getProperty("line.separator");
 	private static boolean writeAllRecommendations;
 	private static boolean disableAllRecommendations;
+
+	private static ArrayList<EnumMap<ListType, Class<? extends IDataStructure>>> allListCombinations = null;
 
 	public static void activate() {
 		writeAllRecommendations = Config
@@ -157,6 +158,35 @@ public class Profiler {
 		return res.toString();
 	}
 
+	private static ArrayList<EnumMap<ListType, Class<? extends IDataStructure>>> getAllCombinations() {
+		if (allListCombinations == null)
+			allListCombinations = combineWith(
+					new EnumMap<ListType, Class<? extends IDataStructure>>(
+							ListType.class), 0);
+		return allListCombinations;
+	}
+
+	@SuppressWarnings("unchecked")
+	private static ArrayList<EnumMap<ListType, Class<? extends IDataStructure>>> combineWith(
+			EnumMap<ListType, Class<? extends IDataStructure>> inList, int i) {
+		ListType lt = ListType.values()[i];
+		ArrayList<EnumMap<ListType, Class<? extends IDataStructure>>> resAggregator = new ArrayList<EnumMap<ListType, Class<? extends IDataStructure>>>();
+		EnumMap<ListType, Class<? extends IDataStructure>> tempInList;
+		for (Class<? extends IDataStructure> clazz : GlobalTestParameters.dataStructures) {
+			if (lt.getRequiredType().isAssignableFrom(clazz)) {
+				tempInList = inList.clone();
+				tempInList.put(lt, clazz);
+				if (i == ListType.values().length - 1) {
+					if (GraphDataStructure.validListTypesSet(tempInList))
+						resAggregator.add(tempInList);
+				} else {
+					resAggregator.addAll(combineWith(tempInList, i + 1));
+				}
+			}
+		}
+		return resAggregator;
+	}
+
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public static String getOtherRuntimeComplexitiesForEntry(
 			ProfilerMeasurementData.ProfilerDataType entryType,
@@ -180,90 +210,60 @@ public class Profiler {
 			return res.toString();
 		}
 
-		TreeMap<ComplexityMap, Class> nodeListComplexities = new TreeMap<>();
-		for (Class nodeListType : GlobalTestParameters.dataStructures) {
-			if (!(INodeListDatastructure.class.isAssignableFrom(nodeListType)))
-				continue;
-			listTypes = GraphDataStructure.getList(ListType.GlobalNodeList,
-					nodeListType, ListType.GlobalEdgeList, DEmpty.class);
-			tempGDS = new GraphDataStructure(listTypes, gds.getNodeType(),
-					gds.getEdgeType());
-			nodeListComplexities.put(entry.combinedComplexity(entryType,
-					tempGDS, ListType.GlobalNodeList), nodeListType);
+		EnumMap<ListType, HashMap<Class, ComplexityMap>> listComplexities = new EnumMap<ListType, HashMap<Class, ComplexityMap>>(
+				ListType.class);
+		HashMap<Class, ComplexityMap> innerComplexities;
+
+		for (ListType lt : ListType.values()) {
+			innerComplexities = new HashMap<Class, ComplexityMap>();
+			for (Class listClass : GlobalTestParameters.dataStructures) {
+				if (!(lt.getRequiredType().isAssignableFrom(listClass)))
+					continue;
+				listTypes = GraphDataStructure.getList(lt, listClass);
+				tempGDS = new GraphDataStructure(listTypes, gds.getNodeType(),
+						gds.getEdgeType());
+				innerComplexities.put(listClass,
+						entry.combinedComplexity(entryType, tempGDS, lt));
+			}
+			listComplexities.put(lt, innerComplexities);
 		}
 
-		TreeMap<ComplexityMap, Class> edgeListComplexities = new TreeMap<>();
-		for (Class edgeListType : GlobalTestParameters.dataStructures) {
-			if (!(IEdgeListDatastructure.class.isAssignableFrom(edgeListType)))
-				continue;
-			listTypes = GraphDataStructure.getList(ListType.GlobalEdgeList,
-					edgeListType, ListType.GlobalNodeList, DEmpty.class);
-			tempGDS = new GraphDataStructure(listTypes, gds.getNodeType(),
-					gds.getEdgeType());
-			edgeListComplexities.put(entry.combinedComplexity(entryType,
-					tempGDS, ListType.GlobalEdgeList), edgeListType);
-		}
-
-		TreeMap<ComplexityMap, Class> nodeEdgeListComplexities = new TreeMap<>();
-		for (Class nodeEdgeListType : GlobalTestParameters.dataStructures) {
-			if (!(IEdgeListDatastructure.class
-					.isAssignableFrom(nodeEdgeListType)))
-				continue;
-			listTypes = GraphDataStructure.getList(ListType.LocalEdgeList,
-					nodeEdgeListType, ListType.GlobalNodeList, DEmpty.class);
-			tempGDS = new GraphDataStructure(listTypes, gds.getNodeType(),
-					gds.getEdgeType());
-			nodeEdgeListComplexities.put(entry.combinedComplexity(entryType,
-					tempGDS, ListType.LocalEdgeList), nodeEdgeListType);
-		}
+		ArrayList<EnumMap<ListType, Class<? extends IDataStructure>>> allCombinations = getAllCombinations();
 
 		TreeMap<ComplexityMap, GraphDataStructure> recommendationList = new TreeMap<>();
 		int numberOfRecommendations = Config
 				.getInt("NUMBER_OF_RECOMMENDATIONS");
-		for (Entry<ComplexityMap, Class> nodeListRecommendation : nodeListComplexities
-				.entrySet()) {
-			for (Entry<ComplexityMap, Class> edgeListRecommendation : edgeListComplexities
+
+		for (EnumMap<ListType, Class<? extends IDataStructure>> singleCombination : allCombinations) {
+			// TODO these special cases need a handling elsewhere...
+			if (singleCombination.get(ListType.GlobalEdgeList) == DEmpty.class
+					&& singleCombination.get(ListType.LocalEdgeList) == DEmpty.class)
+				continue;
+			if ((singleCombination.get(ListType.GlobalEdgeList) == DEmpty.class && hasGlobalEdgeListAccess(entry))
+					|| (singleCombination.get(ListType.LocalEdgeList) == DEmpty.class && hasLocalEdgeListAccess(entry)))
+				continue;
+			// END OF TODO
+
+			tempGDS = new GraphDataStructure(singleCombination,
+					gds.getNodeType(), gds.getEdgeType());
+			ComplexityMap aggregated = new ComplexityMap();
+			for (Entry<ListType, Class<? extends IDataStructure>> typeClass : singleCombination
 					.entrySet()) {
-				for (Entry<ComplexityMap, Class> nodeEdgeListRecommendation : nodeEdgeListComplexities
-						.entrySet()) {
-
-					final Class edgeListType = edgeListRecommendation
-							.getValue();
-					final Class nodeEdgeListType = nodeEdgeListRecommendation
-							.getValue();
-					if (edgeListType == DEmpty.class
-							&& nodeEdgeListType == DEmpty.class) {
-						continue;
-					}
-					if ((edgeListType == DEmpty.class && hasGlobalEdgeListAccess(entry))
-							|| (nodeEdgeListType == DEmpty.class && hasLocalEdgeListAccess(entry))) {
-						continue;
-					}
-
-					listTypes = GraphDataStructure.getList(
-							ListType.GlobalNodeList,
-							nodeListRecommendation.getValue(),
-							ListType.GlobalEdgeList, edgeListType,
-							ListType.LocalEdgeList, nodeEdgeListType);
-					tempGDS = new GraphDataStructure(listTypes,
-							gds.getNodeType(), gds.getEdgeType());
-					ComplexityMap aggregated = new ComplexityMap();
-					aggregated.add(nodeListRecommendation.getKey());
-					aggregated.add(edgeListRecommendation.getKey());
-					aggregated.add(nodeEdgeListRecommendation.getKey());
-
-					GraphDataStructure graphDataStructure = recommendationList
-							.get(aggregated);
-					if (graphDataStructure == null) {
-						// Key not yet in list
-						recommendationList.put(aggregated, tempGDS);
-					} else if ((edgeListType == DEmpty.class && graphDataStructure.getListClass(ListType.GlobalEdgeList) != DEmpty.class)
-							|| (nodeEdgeListType == DEmpty.class && graphDataStructure.getListClass(ListType.LocalEdgeList) != DEmpty.class)) {
-						// Key already in list, but with concrete types where we
-						// could also use DEmpty to save memory
-						recommendationList.put(aggregated, tempGDS);
-					}
-				}
+				aggregated.add(listComplexities.get(typeClass.getKey()).get(
+						typeClass.getValue()));
+			}
+			GraphDataStructure graphDataStructure = recommendationList
+					.get(aggregated);
+			if (graphDataStructure == null) {
+				// Key not yet in list
+				recommendationList.put(aggregated, tempGDS);
+			} else if ((singleCombination.get(ListType.GlobalEdgeList) == DEmpty.class && graphDataStructure
+					.getListClass(ListType.GlobalEdgeList) != DEmpty.class)
+					|| (singleCombination.get(ListType.LocalEdgeList) == DEmpty.class && graphDataStructure
+							.getListClass(ListType.LocalEdgeList) != DEmpty.class)) {
+				// Key already in list, but with concrete types where we
+				// could also use DEmpty to save memory
+				recommendationList.put(aggregated, tempGDS);
 			}
 		}
 
