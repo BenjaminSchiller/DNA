@@ -16,7 +16,7 @@ public class Parallelized extends Parameterized
         
         public ThreadPoolScheduler()
         {
-            int numThreads = 2;
+            int numThreads = 4;
             executor = Executors.newFixedThreadPool(numThreads);
         }
         

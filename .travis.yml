@@ -12,4 +12,6 @@ env:
   - TESTASPECTJ=true
   - TESTASPECTJ=false
   
-script: ant -DaspectJDir=lib/ -DjUnitJar=lib/junit.jar -DtestAspectJ=$TESTASPECTJ travisTest
+script:
+  - export ANT_OPTS="-Xmx3072m -Xms1536m"
+  - ant -DaspectJDir=lib/ -DjUnitJar=lib/junit.jar -DtestAspectJ=$TESTASPECTJ travisTest
