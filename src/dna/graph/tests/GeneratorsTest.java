@@ -23,6 +23,10 @@ import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
+import com.google.common.hash.HashCode;
+import com.google.common.hash.HashFunction;
+import com.google.common.hash.Hashing;
+
 import dna.graph.Graph;
 import dna.graph.IElement;
 import dna.graph.datastructures.DEmpty;
@@ -207,6 +211,10 @@ public class GeneratorsTest {
 
 		String graphName = gds.getDataStructures();
 
+		HashFunction hf = Hashing.md5();
+		HashCode hc = hf.newHasher().putString(graphName).hash();
+		graphName = hc.toString();
+
 		String tempFolder = folder.newFolder().getAbsolutePath();
 
 		GraphWriter.write(g, tempFolder, graphName);
@@ -238,6 +246,10 @@ public class GeneratorsTest {
 
 		String graphName = gds.getDataStructures();
 		String tempFolder = folder.newFolder().getAbsolutePath();
+
+		HashFunction hf = Hashing.md5();
+		HashCode hc = hf.newHasher().putString(graphName).hash();
+		graphName = hc.toString();
 
 		GraphWriter.write(g, tempFolder, graphName);
 
@@ -307,8 +319,11 @@ public class GeneratorsTest {
 		Graph g = gg.generate();
 
 		String graphName = gds.getDataStructures();
-
 		String tempFolder = folder.newFolder().getAbsolutePath();
+
+		HashFunction hf = Hashing.md5();
+		HashCode hc = hf.newHasher().putString(graphName).hash();
+		graphName = hc.toString();
 
 		GraphWriter.write(g, tempFolder, graphName);
 
@@ -351,8 +366,11 @@ public class GeneratorsTest {
 		Graph g = gg.generate();
 
 		String graphName = gds.getDataStructures();
-
 		String tempFolder = folder.newFolder().getAbsolutePath();
+
+		HashFunction hf = Hashing.md5();
+		HashCode hc = hf.newHasher().putString(graphName).hash();
+		graphName = hc.toString();
 
 		GraphWriter.write(g, tempFolder, graphName);
 
