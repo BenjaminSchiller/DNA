@@ -21,7 +21,7 @@ public class UndirectedNode extends Node {
 
 	@Override
 	public void init(GraphDataStructure gds) {
-		this.edges = gds.newLocalEdgeList();
+		this.edges = (IEdgeListDatastructure) gds.newList(ListType.LocalEdgeList);
 	}
 
 	public int getDegree() {

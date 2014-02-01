@@ -30,9 +30,9 @@ public class DirectedNode extends Node {
 
 	@Override
 	public void init(GraphDataStructure gds) {
-		this.in = gds.newLocalEdgeList();
-		this.out = gds.newLocalEdgeList();
-		this.neighbors = gds.newLocalNodeList();
+		this.in = (IEdgeListDatastructure) gds.newList(ListType.LocalEdgeList);
+		this.out = (IEdgeListDatastructure) gds.newList(ListType.LocalEdgeList);
+		this.neighbors = (INodeListDatastructure) gds.newList(ListType.LocalNodeList);
 		this.all = Iterables.unmodifiableIterable(Iterables.concat(in, out));
 	}
 

@@ -36,6 +36,14 @@ public abstract class DataStructure implements IDataStructure {
 		public Base getBase() {
 			return this.listBase;
 		}
+		
+		public static boolean hasValue(String s) {
+			for (ListType l : values()) {
+				if (s.equals(l.toString()))
+					return true;
+			}
+			return false;
+		}
 	}
 
 	protected final Class<? extends IElement> dataType;

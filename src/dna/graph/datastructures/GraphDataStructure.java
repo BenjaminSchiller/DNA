@@ -60,18 +60,22 @@ public class GraphDataStructure {
 				.get("DATASTRUCTURES_CLASS_DELIMITER"));
 		listTypes = new EnumMap<ListType, Class<? extends IDataStructure>>(
 				ListType.class);
+		
 		try {
-			listTypes.put(ListType.GlobalNodeList,
-					(Class<? extends INodeListDatastructure>) Class
-							.forName(splitted[0]));
-			listTypes.put(ListType.GlobalEdgeList,
-					(Class<? extends IEdgeListDatastructure>) Class
-							.forName(splitted[1]));
-			listTypes.put(ListType.LocalEdgeList,
-					(Class<? extends IEdgeListDatastructure>) Class
-							.forName(splitted[2]));
-			this.nodeType = (Class<? extends Node>) Class.forName(splitted[3]);
-			this.edgeType = (Class<? extends Edge>) Class.forName(splitted[4]);
+			for (String singleClassDef : splitted) {
+				String innerSplitted[] = singleClassDef.split("=");
+				if (innerSplitted[0].equals("edge")) {
+					this.edgeType = (Class<? extends Edge>) Class
+							.forName(innerSplitted[1]);
+				} else if (innerSplitted[0].equals("node")) {
+					this.nodeType = (Class<? extends Node>) Class
+							.forName(innerSplitted[1]);
+				} else if (ListType.hasValue(innerSplitted[0])) {
+					ListType l = ListType.valueOf(innerSplitted[0]);
+					listTypes.put(l, (Class<? extends IDataStructure>) Class
+							.forName(innerSplitted[1]));
+				}
+			}
 		} catch (ClassNotFoundException | ClassCastException e) {
 			e.printStackTrace();
 		}
@@ -187,22 +191,6 @@ public class GraphDataStructure {
 	
 	public Class<?extends IDataStructure> getListClass(ListType listType) {
 		return listTypes.get(listType);
-	}
-
-	public INodeListDatastructure newLocalNodeList() {
-		return (INodeListDatastructure) newList(ListType.LocalNodeList);
-	}
-
-	public INodeListDatastructure newGlobalNodeList() {
-		return (INodeListDatastructure) newList(ListType.GlobalNodeList);
-	}
-
-	public IEdgeListDatastructure newGlobalEdgeList() {
-		return (IEdgeListDatastructure) this.newList(ListType.GlobalEdgeList);
-	}
-
-	public IEdgeListDatastructure newLocalEdgeList() {
-		return (IEdgeListDatastructure) this.newList(ListType.LocalEdgeList);
 	}
 
 	public Node newNodeInstance(int index) {
@@ -455,35 +443,30 @@ public class GraphDataStructure {
 	}
 
 	public String getStorageDataStructures(boolean getSimpleNames) {
-		if (getSimpleNames) {
-			return listTypes.get(ListType.GlobalNodeList).getSimpleName()
-					+ Config.get("DATASTRUCTURES_CLASS_DELIMITER")
-					+ (listTypes.get(ListType.GlobalEdgeList) == null ? "null"
-							: listTypes.get(ListType.GlobalEdgeList)
-									.getSimpleName())
-					+ Config.get("DATASTRUCTURES_CLASS_DELIMITER")
-					+ (listTypes.get(ListType.LocalEdgeList) == null ? "null"
-							: listTypes.get(ListType.LocalEdgeList)
-									.getSimpleName());
-		} else {
-			return listTypes.get(ListType.GlobalNodeList).getName()
-					+ Config.get("DATASTRUCTURES_CLASS_DELIMITER")
-					+ (listTypes.get(ListType.GlobalEdgeList) == null ? "null"
-							: listTypes.get(ListType.GlobalEdgeList)
-									.getName())
-					+ Config.get("DATASTRUCTURES_CLASS_DELIMITER")
-					+ (listTypes.get(ListType.LocalEdgeList) == null ? "null"
-							: listTypes.get(ListType.LocalEdgeList)
-									.getName());
+		StringBuilder res = new StringBuilder();
+		boolean first = true;
+		Class<?> clazz = null;
+		for (ListType lt : ListType.values()) {
+			if (!first)
+				res.append(Config.get("DATASTRUCTURES_CLASS_DELIMITER"));
+			res.append(lt + "=");
+			clazz = listTypes.get(lt);
+			if (clazz == null)
+				res.append("null");
+			else
+				res.append(getSimpleNames ? clazz.getSimpleName() : clazz
+						.getName());
+			first = false;
 		}
+		return res.toString();
 	}
 
 	public String getDataStructures() {
 		return getStorageDataStructures(false)
 				+ Config.get("DATASTRUCTURES_CLASS_DELIMITER")
-				+ nodeType.getName()
+				+ "node=" + nodeType.getName()
 				+ Config.get("DATASTRUCTURES_CLASS_DELIMITER")
-				+ edgeType.getName();
+				+ "edge=" + edgeType.getName();
 	}
 
 	public boolean isReadable() {
