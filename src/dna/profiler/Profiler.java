@@ -43,8 +43,6 @@ public class Profiler {
 	private static boolean writeAllRecommendations;
 	private static boolean disableAllRecommendations;
 
-	private static ArrayList<EnumMap<ListType, Class<? extends IDataStructure>>> allListCombinations = null;
-
 	public static void activate() {
 		writeAllRecommendations = Config
 				.getBoolean("PROFILER_WRITE_ALL_RECOMMENDATIONS");
@@ -158,35 +156,6 @@ public class Profiler {
 		return res.toString();
 	}
 
-	private static ArrayList<EnumMap<ListType, Class<? extends IDataStructure>>> getAllCombinations() {
-		if (allListCombinations == null)
-			allListCombinations = combineWith(
-					new EnumMap<ListType, Class<? extends IDataStructure>>(
-							ListType.class), 0);
-		return allListCombinations;
-	}
-
-	@SuppressWarnings("unchecked")
-	private static ArrayList<EnumMap<ListType, Class<? extends IDataStructure>>> combineWith(
-			EnumMap<ListType, Class<? extends IDataStructure>> inList, int i) {
-		ListType lt = ListType.values()[i];
-		ArrayList<EnumMap<ListType, Class<? extends IDataStructure>>> resAggregator = new ArrayList<EnumMap<ListType, Class<? extends IDataStructure>>>();
-		EnumMap<ListType, Class<? extends IDataStructure>> tempInList;
-		for (Class<? extends IDataStructure> clazz : GlobalTestParameters.dataStructures) {
-			if (lt.getRequiredType().isAssignableFrom(clazz)) {
-				tempInList = inList.clone();
-				tempInList.put(lt, clazz);
-				if (i == ListType.values().length - 1) {
-					if (GraphDataStructure.validListTypesSet(tempInList))
-						resAggregator.add(tempInList);
-				} else {
-					resAggregator.addAll(combineWith(tempInList, i + 1));
-				}
-			}
-		}
-		return resAggregator;
-	}
-
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public static String getOtherRuntimeComplexitiesForEntry(
 			ProfilerMeasurementData.ProfilerDataType entryType,
@@ -228,7 +197,7 @@ public class Profiler {
 			listComplexities.put(lt, innerComplexities);
 		}
 
-		ArrayList<EnumMap<ListType, Class<? extends IDataStructure>>> allCombinations = getAllCombinations();
+		ArrayList<EnumMap<ListType, Class<? extends IDataStructure>>> allCombinations = GraphDataStructure.getAllDatastructureCombinations();
 
 		TreeMap<ComplexityMap, GraphDataStructure> recommendationList = new TreeMap<>();
 		int numberOfRecommendations = Config

@@ -4,6 +4,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.EnumMap;
 import java.util.HashMap;
@@ -19,6 +20,7 @@ import dna.graph.edges.IWeightedEdge;
 import dna.graph.edges.UndirectedEdge;
 import dna.graph.nodes.IWeightedNode;
 import dna.graph.nodes.Node;
+import dna.graph.tests.GlobalTestParameters;
 import dna.graph.weights.IWeighted;
 import dna.profiler.ProfilerMeasurementData;
 import dna.profiler.ProfilerMeasurementData.ProfilerDataType;
@@ -43,6 +45,8 @@ public class GraphDataStructure {
 
 	private EnumMap<ListType, Class<? extends IDataStructure>> listTypes;
 	private EnumMap<ListType, Integer> defaultListSizes;
+
+	private static ArrayList<EnumMap<ListType, Class<? extends IDataStructure>>> allListCombinations = null;
 
 	public GraphDataStructure(
 			EnumMap<ListType, Class<? extends IDataStructure>> listTypes,
@@ -615,5 +619,34 @@ public class GraphDataStructure {
 				c1, l2, c2, l3, c3, l4, c4);
 		res.put(l5, c5);
 		return res;
+	}
+
+	public static ArrayList<EnumMap<ListType, Class<? extends IDataStructure>>> getAllDatastructureCombinations() {
+		if (allListCombinations == null)
+			allListCombinations = combineWith(
+					new EnumMap<ListType, Class<? extends IDataStructure>>(
+							ListType.class), 0);
+		return allListCombinations;
+	}
+
+	@SuppressWarnings("unchecked")
+	private static ArrayList<EnumMap<ListType, Class<? extends IDataStructure>>> combineWith(
+			EnumMap<ListType, Class<? extends IDataStructure>> inList, int i) {
+		ListType lt = ListType.values()[i];
+		ArrayList<EnumMap<ListType, Class<? extends IDataStructure>>> resAggregator = new ArrayList<EnumMap<ListType, Class<? extends IDataStructure>>>();
+		EnumMap<ListType, Class<? extends IDataStructure>> tempInList;
+		for (Class<? extends IDataStructure> clazz : GlobalTestParameters.dataStructures) {
+			if (lt.getRequiredType().isAssignableFrom(clazz)) {
+				tempInList = inList.clone();
+				tempInList.put(lt, clazz);
+				if (i == ListType.values().length - 1) {
+					if (GraphDataStructure.validListTypesSet(tempInList))
+						resAggregator.add(tempInList);
+				} else {
+					resAggregator.addAll(combineWith(tempInList, i + 1));
+				}
+			}
+		}
+		return resAggregator;
 	}
 }

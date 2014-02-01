@@ -33,8 +33,6 @@ import dna.graph.datastructures.DEmpty;
 import dna.graph.datastructures.DataStructure.ListType;
 import dna.graph.datastructures.GraphDataStructure;
 import dna.graph.datastructures.IDataStructure;
-import dna.graph.datastructures.IEdgeListDatastructureReadable;
-import dna.graph.datastructures.INodeListDatastructureReadable;
 import dna.graph.edges.DirectedEdge;
 import dna.graph.edges.Edge;
 import dna.graph.edges.UndirectedEdge;
@@ -123,72 +121,47 @@ public class GeneratorsTest {
 		Constructor<? extends GraphGenerator> generatorConstructor;
 		GraphDataStructure gds;
 
+		ArrayList<EnumMap<ListType, Class<? extends IDataStructure>>> allCombinations = GraphDataStructure
+				.getAllDatastructureCombinations();
+
 		ArrayList<Object> result = new ArrayList<>();
-		for (Class nodeListType : GlobalTestParameters.dataStructures) {
-			for (Class edgeListType : GlobalTestParameters.dataStructures) {
-				for (Class nodeEdgeListType : GlobalTestParameters.dataStructures) {
-					for (Class generator : GlobalTestParameters.graphGenerators) {
-						for (Class edgeType : GlobalTestParameters.edgeTypes) {
-							for (Class nodeType : GlobalTestParameters.nodeTypes) {
-								if (!(INodeListDatastructureReadable.class
-										.isAssignableFrom(nodeListType)))
-									continue;
-								if (!(IEdgeListDatastructureReadable.class
-										.isAssignableFrom(edgeListType)))
-									continue;
-								if (!(IEdgeListDatastructureReadable.class
-										.isAssignableFrom(nodeEdgeListType)))
-									continue;
+		for (EnumMap<ListType, Class<? extends IDataStructure>> combination : allCombinations) {
+			for (Class generator : GlobalTestParameters.graphGenerators) {
+				for (Class edgeType : GlobalTestParameters.edgeTypes) {
+					for (Class nodeType : GlobalTestParameters.nodeTypes) {
+						if ((UndirectedEdge.class.isAssignableFrom(edgeType) && DirectedNode.class
+								.isAssignableFrom(nodeType))
+								|| (DirectedEdge.class
+										.isAssignableFrom(edgeType) && UndirectedNode.class
+										.isAssignableFrom(nodeType)))
+							continue;
 
-								if ((UndirectedEdge.class
-										.isAssignableFrom(edgeType) && DirectedNode.class
-										.isAssignableFrom(nodeType))
-										|| (DirectedEdge.class
-												.isAssignableFrom(edgeType) && UndirectedNode.class
-												.isAssignableFrom(nodeType)))
-									continue;
+						if (combination.get(ListType.GlobalEdgeList) == DEmpty.class
+								|| combination.get(ListType.LocalEdgeList) == DEmpty.class)
+							continue;
 
-								if (edgeListType == DEmpty.class
-										|| nodeEdgeListType == DEmpty.class)
-									continue;
+						gds = new GraphDataStructure(combination, nodeType,
+								edgeType);
 
-								EnumMap<ListType, Class<? extends IDataStructure>> listTypes = new EnumMap<ListType, Class<? extends IDataStructure>>(
-										ListType.class);
-								listTypes.put(ListType.GlobalNodeList,
-										nodeListType);
-								listTypes.put(ListType.GlobalEdgeList,
-										edgeListType);
-								listTypes.put(ListType.LocalEdgeList,
-										nodeEdgeListType);
-								gds = new GraphDataStructure(listTypes,
-										nodeType, edgeType);
-
-								GraphGenerator gg;
-								try {
-									generatorConstructor = generator
-											.getConstructor(
-													GraphDataStructure.class,
-													int.class, int.class);
-									gg = generatorConstructor.newInstance(gds,
-											5, 5);
-								} catch (NoSuchMethodException e) {
-									generatorConstructor = generator
-											.getConstructor(
-													GraphDataStructure.class,
-													int.class);
-									gg = generatorConstructor.newInstance(gds,
-											5);
-								}
-
-								if (!gg.canGenerateNodeType(nodeType))
-									continue;
-								if (!gg.canGenerateEdgeType(edgeType))
-									continue;
-
-								result.add(new Object[] { listTypes, nodeType,
-										edgeType, generator });
-							}
+						GraphGenerator gg;
+						try {
+							generatorConstructor = generator.getConstructor(
+									GraphDataStructure.class, int.class,
+									int.class);
+							gg = generatorConstructor.newInstance(gds, 5, 5);
+						} catch (NoSuchMethodException e) {
+							generatorConstructor = generator.getConstructor(
+									GraphDataStructure.class, int.class);
+							gg = generatorConstructor.newInstance(gds, 5);
 						}
+
+						if (!gg.canGenerateNodeType(nodeType))
+							continue;
+						if (!gg.canGenerateEdgeType(edgeType))
+							continue;
+
+						result.add(new Object[] { combination, nodeType,
+								edgeType, generator });
 					}
 				}
 			}
