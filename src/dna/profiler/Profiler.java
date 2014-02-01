@@ -257,10 +257,8 @@ public class Profiler {
 					if (graphDataStructure == null) {
 						// Key not yet in list
 						recommendationList.put(aggregated, tempGDS);
-					} else if ((edgeListType == DEmpty.class && graphDataStructure
-							.getGlobalEdgeListType() != DEmpty.class)
-							|| (nodeEdgeListType == DEmpty.class && graphDataStructure
-									.getLocalEdgeListType() != DEmpty.class)) {
+					} else if ((edgeListType == DEmpty.class && graphDataStructure.getListClass(ListType.GlobalEdgeList) != DEmpty.class)
+							|| (nodeEdgeListType == DEmpty.class && graphDataStructure.getListClass(ListType.LocalEdgeList) != DEmpty.class)) {
 						// Key already in list, but with concrete types where we
 						// could also use DEmpty to save memory
 						recommendationList.put(aggregated, tempGDS);

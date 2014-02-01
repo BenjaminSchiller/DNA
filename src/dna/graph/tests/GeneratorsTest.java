@@ -62,7 +62,8 @@ public class GeneratorsTest {
 	@Rule
 	public TemporaryFolder folder = new TemporaryFolder();
 
-	public GeneratorsTest(EnumMap<ListType, Class<? extends IDataStructure>> listTypes,
+	public GeneratorsTest(
+			EnumMap<ListType, Class<? extends IDataStructure>> listTypes,
 			Class<? extends Node> nodeType, Class<? extends Edge> edgeType,
 			Class<? extends GraphGenerator> generator)
 			throws InstantiationException, IllegalAccessException,
@@ -100,14 +101,14 @@ public class GeneratorsTest {
 					GraphDataStructure.class, int.class);
 			this.gg = this.generatorConstructor.newInstance(gds, nodeSize);
 		}
-		
+
 		/**
 		 * A short output to overcome the timeout of Travis: If there is no
 		 * console output in 10 minutes, a test run is stopped
 		 */
 		if (Math.random() < 0.001)
 			System.out.print(".");
-		
+
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
@@ -149,9 +150,12 @@ public class GeneratorsTest {
 
 								EnumMap<ListType, Class<? extends IDataStructure>> listTypes = new EnumMap<ListType, Class<? extends IDataStructure>>(
 										ListType.class);
-								listTypes.put(ListType.GlobalNodeList, nodeListType);
-								listTypes.put(ListType.GlobalEdgeList, edgeListType);
-								listTypes.put(ListType.LocalEdgeList, nodeEdgeListType);
+								listTypes.put(ListType.GlobalNodeList,
+										nodeListType);
+								listTypes.put(ListType.GlobalEdgeList,
+										edgeListType);
+								listTypes.put(ListType.LocalEdgeList,
+										nodeEdgeListType);
 								gds = new GraphDataStructure(listTypes,
 										nodeType, edgeType);
 
@@ -177,8 +181,8 @@ public class GeneratorsTest {
 								if (!gg.canGenerateEdgeType(edgeType))
 									continue;
 
-								result.add(new Object[] { listTypes,
-										nodeType, edgeType, generator });
+								result.add(new Object[] { listTypes, nodeType,
+										edgeType, generator });
 							}
 						}
 					}
@@ -259,7 +263,8 @@ public class GeneratorsTest {
 			Node n = (Node) nU;
 			assertTrue(
 					"Graph g misses node " + n + " (node list type: "
-							+ gds.getGlobalNodeListType() + ")", g.containsNode(n));
+							+ gds.getListClass(ListType.GlobalNodeList) + ")",
+					g.containsNode(n));
 		}
 
 		for (IElement nU : g.getNodes()) {
@@ -271,7 +276,7 @@ public class GeneratorsTest {
 			Edge e = (Edge) eU;
 			Edge eOther = g.getEdge(e);
 			assertNotNull("Graph g misses edge " + e + " (edge list type: "
-					+ gds.getGlobalEdgeListType() + ")", eOther);
+					+ gds.getListClass(ListType.GlobalEdgeList) + ")", eOther);
 			assertEquals(e, eOther);
 			assertNotEquals(e.getStringRepresentation(),
 					eOther.getStringRepresentation());

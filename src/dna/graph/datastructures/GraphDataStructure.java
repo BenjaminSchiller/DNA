@@ -98,7 +98,7 @@ public class GraphDataStructure {
 		this.defaultListSizes.put(ListType.GlobalEdgeList, 10);
 		this.defaultListSizes.put(ListType.GlobalNodeList, 10);
 	}
-
+	
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
@@ -137,21 +137,6 @@ public class GraphDataStructure {
 		} else if (!nodeType.equals(other.nodeType))
 			return false;
 		return true;
-	}
-
-	@SuppressWarnings("unchecked")
-	public Class<? extends INodeListDatastructure> getGlobalNodeListType() {
-		return (Class<? extends INodeListDatastructure>) listTypes.get(ListType.GlobalNodeList);
-	}
-
-	@SuppressWarnings("unchecked")
-	public Class<? extends IEdgeListDatastructure> getGlobalEdgeListType() {
-		return (Class<? extends IEdgeListDatastructure>) listTypes.get(ListType.GlobalEdgeList);
-	}
-
-	@SuppressWarnings("unchecked")
-	public Class<? extends IEdgeListDatastructure> getLocalEdgeListType() {
-		return (Class<? extends IEdgeListDatastructure>) listTypes.get(ListType.LocalEdgeList);
 	}
 
 	public Class<? extends Node> getNodeType() {
@@ -198,6 +183,10 @@ public class GraphDataStructure {
 			res.reinitializeWithSize(this.defaultListSizes.get(listType));
 		}
 		return res;
+	}
+	
+	public Class<?extends IDataStructure> getListClass(ListType listType) {
+		return listTypes.get(listType);
 	}
 
 	public INodeListDatastructure newLocalNodeList() {
@@ -543,29 +532,12 @@ public class GraphDataStructure {
 							+ " cannot be converted");
 			return;
 		}
-
-		if (this.listTypes.get(ListType.LocalEdgeList) != newGDS
-				.getLocalEdgeListType()) {
-			this.listTypes.put(ListType.LocalEdgeList,
-					newGDS.getLocalEdgeListType());
-			g.switchDataStructure(ListType.LocalEdgeList,
-					this.newLocalEdgeList());
-		}
-		if (this.listTypes.get(ListType.GlobalEdgeList) != newGDS
-				.getGlobalEdgeListType()) {
-			this.listTypes.put(ListType.GlobalEdgeList,
-					newGDS.getGlobalEdgeListType());
-			g.switchDataStructure(ListType.GlobalEdgeList,
-					this.newGlobalEdgeList());
-		}
-		if (this.listTypes.get(ListType.GlobalNodeList) != newGDS
-				.getGlobalNodeListType()) {
-			this.listTypes.put(ListType.GlobalNodeList,
-					newGDS.getGlobalNodeListType());
-			g.switchDataStructure(ListType.LocalNodeList,
-					this.newList(ListType.LocalNodeList));
-			g.switchDataStructure(ListType.GlobalNodeList,
-					this.newList(ListType.GlobalNodeList));
+		
+		for ( ListType lt: ListType.values()) {
+			if (this.listTypes.get(lt) != newGDS.listTypes.get(lt)) {
+				this.listTypes.put(lt, newGDS.listTypes.get(lt));
+				g.switchDataStructure(lt,this.newList(lt));				
+			}
 		}
 	}
 
