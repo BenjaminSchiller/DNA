@@ -127,8 +127,8 @@ public class GeneratorsTest {
 		ArrayList<Object> result = new ArrayList<>();
 		for (EnumMap<ListType, Class<? extends IDataStructure>> combination : allCombinations) {
 			for (Class generator : GlobalTestParameters.graphGenerators) {
-				for (Class edgeType : GlobalTestParameters.edgeTypes) {
-					for (Class nodeType : GlobalTestParameters.nodeTypes) {
+				for (Class edgeType : new Class[]{DirectedEdge.class, UndirectedEdge.class}) {
+					for (Class nodeType :  new Class[]{DirectedNode.class, UndirectedNode.class}) {
 						if ((UndirectedEdge.class.isAssignableFrom(edgeType) && DirectedNode.class
 								.isAssignableFrom(nodeType))
 								|| (DirectedEdge.class
