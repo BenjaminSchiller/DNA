@@ -17,10 +17,10 @@ import dna.plot.data.PlotData.DistributionPlotType;
 import dna.plot.data.PlotData.NodeValueListOrder;
 import dna.plot.data.PlotData.NodeValueListOrderBy;
 import dna.plot.data.PlotData.PlotType;
-import dna.visualization.components.visualizer.MultiScalarVisualizer.SortModeDist;
-import dna.visualization.components.visualizer.MultiScalarVisualizer.SortModeNVL;
-import dna.visualization.components.visualizer.Visualizer.xAxisSelection;
-import dna.visualization.components.visualizer.Visualizer.yAxisSelection;
+import dna.visualization.config.VisualizerListConfig.SortModeDist;
+import dna.visualization.config.VisualizerListConfig.SortModeNVL;
+import dna.visualization.config.VisualizerListConfig.xAxisSelection;
+import dna.visualization.config.VisualizerListConfig.yAxisSelection;
 
 public class Config extends PropertiesHolder {
 	private static Properties properties;
