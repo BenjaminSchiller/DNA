@@ -30,8 +30,8 @@ public class DirectedNode extends Node {
 
 	@Override
 	public void init(GraphDataStructure gds) {
-		this.in = (IEdgeListDatastructure) gds.newList(ListType.LocalEdgeList);
-		this.out = (IEdgeListDatastructure) gds.newList(ListType.LocalEdgeList);
+		this.in = (IEdgeListDatastructure) gds.newList(ListType.LocalInEdgeList);
+		this.out = (IEdgeListDatastructure) gds.newList(ListType.LocalOutEdgeList);
 		this.neighbors = (INodeListDatastructure) gds.newList(ListType.LocalNodeList);
 		this.all = Iterables.unmodifiableIterable(Iterables.concat(in, out));
 	}
@@ -141,11 +141,18 @@ public class DirectedNode extends Node {
 			System.err.println("A node is not responsible for changing global lists!");
 			break;
 		case LocalEdgeList:
-			this.in = (IEdgeListDatastructure) ((IEdgeListDatastructureReadable) this.in).switchTo(newDatastructure);
-			this.out = (IEdgeListDatastructure) ((IEdgeListDatastructureReadable) this.out).switchTo(newDatastructure);
+			// Not longer available here
 			break;
 		case LocalNodeList:
 			this.neighbors = (INodeListDatastructure) ((INodeListDatastructureReadable) this.neighbors).switchTo(newDatastructure);
+			break;
+		case LocalInEdgeList:
+			this.in = (IEdgeListDatastructure) ((IEdgeListDatastructureReadable) this.in).switchTo(newDatastructure);
+			break;
+		case LocalOutEdgeList:
+			this.out = (IEdgeListDatastructure) ((IEdgeListDatastructureReadable) this.out).switchTo(newDatastructure);
+			break;
+		default:
 			break;		
 		}
 	}

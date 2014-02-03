@@ -96,6 +96,13 @@ public class GraphDataStructure {
 				return false;
 			}
 		}
+
+		if (list.get(ListType.GlobalEdgeList) == DEmpty.class
+				&& list.get(ListType.LocalEdgeList) == DEmpty.class
+				&& list.get(ListType.LocalInEdgeList) == DEmpty.class
+				&& list.get(ListType.LocalOutEdgeList) == DEmpty.class)
+			return false;
+
 		return true;
 	}
 
@@ -199,7 +206,7 @@ public class GraphDataStructure {
 
 		Class<? extends IDataStructure> sourceClass = getListClass(listType);
 		Class<? extends IElement> storedDataType = listType.getStoredClass();
-				
+
 		if (sourceClass == DEmpty.class) {
 			return emptyList;
 		}
@@ -221,8 +228,9 @@ public class GraphDataStructure {
 
 	public Class<? extends IDataStructure> getListClass(ListType listType) {
 		Class<? extends IDataStructure> sourceClass = listTypes.get(listType);
-		if ( sourceClass == null && listType.getFallback() != null ) {
-			sourceClass = listTypes.get(listType.getFallback());
+		while (sourceClass == null && listType.getFallback() != null) {
+			listType = listType.getFallback();
+			sourceClass = listTypes.get(listType);
 		}
 		return sourceClass;
 	}

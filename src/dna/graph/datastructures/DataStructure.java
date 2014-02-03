@@ -15,19 +15,34 @@ import dna.profiler.complexity.ComplexityType.Base;
  */
 public abstract class DataStructure implements IDataStructure {
 	public enum AccessType {
-		Init, Add, Contains, Get, Random, Remove, Size, Iterator
+		Init(true), Add(true), Contains(false), Get(false), Random(false), Remove(
+				true), Size(false), Iterator(false);
+
+		private boolean isAllowedOnEmpty = false;
+
+		private AccessType(boolean allowedOnEmpty) {
+			this.isAllowedOnEmpty = allowedOnEmpty;
+		}
+
+		public boolean isAllowedOnEmpty() {
+			return this.isAllowedOnEmpty;
+		}
 	}
 
 	public enum ListType {
-		GlobalNodeList(Node.class, Base.NodeSize, null), GlobalEdgeList(Edge.class,
-				Base.EdgeSize, null), LocalNodeList(Node.class, Base.Degree, GlobalNodeList), LocalEdgeList(
-				Edge.class, Base.NodeSize, GlobalEdgeList);
+		GlobalNodeList(Node.class, Base.NodeSize, null), GlobalEdgeList(
+				Edge.class, Base.EdgeSize, null), LocalNodeList(Node.class,
+				Base.Degree, GlobalNodeList), LocalEdgeList(Edge.class,
+				Base.Degree, GlobalEdgeList), LocalInEdgeList(Edge.class,
+				Base.Degree, LocalEdgeList), LocalOutEdgeList(Edge.class,
+				Base.Degree, LocalEdgeList);
 
 		private Class<? extends IElement> storedSuperClass;
 		private Base listBase;
 		private ListType fallbackListType;
 
-		private ListType(Class<? extends IElement> superClass, Base base, ListType fallback) {
+		private ListType(Class<? extends IElement> superClass, Base base,
+				ListType fallback) {
 			this.storedSuperClass = superClass;
 			this.listBase = base;
 			this.fallbackListType = fallback;
@@ -40,7 +55,7 @@ public abstract class DataStructure implements IDataStructure {
 		public Base getBase() {
 			return this.listBase;
 		}
-		
+
 		public ListType getFallback() {
 			return this.fallbackListType;
 		}

@@ -70,6 +70,12 @@ public class UndirectedNode extends Node {
 			break;
 		case LocalNodeList:
 			// A undirected node has no node list
+			break;
+		case LocalInEdgeList:
+		case LocalOutEdgeList:
+			// Not available here
+			break;
+		default:
 			break;		
 		}
 	}	

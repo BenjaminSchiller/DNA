@@ -197,21 +197,28 @@ public class Profiler {
 			listComplexities.put(lt, innerComplexities);
 		}
 
-		ArrayList<EnumMap<ListType, Class<? extends IDataStructure>>> allCombinations = GraphDataStructure.getAllDatastructureCombinations();
+		ArrayList<EnumMap<ListType, Class<? extends IDataStructure>>> allCombinations = GraphDataStructure
+				.getAllDatastructureCombinations();
 
 		TreeMap<ComplexityMap, GraphDataStructure> recommendationList = new TreeMap<>();
 		int numberOfRecommendations = Config
 				.getInt("NUMBER_OF_RECOMMENDATIONS");
 
+		boolean skipThisEntry = false;
 		for (EnumMap<ListType, Class<? extends IDataStructure>> singleCombination : allCombinations) {
+			skipThisEntry = false;
+
 			// TODO these special cases need a handling elsewhere...
-			if (singleCombination.get(ListType.GlobalEdgeList) == DEmpty.class
-					&& singleCombination.get(ListType.LocalEdgeList) == DEmpty.class)
+			for (ListType lt : singleCombination.keySet()) {
+				if (entry.hasReadAccessesInList(lt)
+						&& singleCombination.get(lt) == DEmpty.class) {
+					skipThisEntry = true;
+				}
+			}
+
+			if (skipThisEntry) {
 				continue;
-			if ((singleCombination.get(ListType.GlobalEdgeList) == DEmpty.class && hasGlobalEdgeListAccess(entry))
-					|| (singleCombination.get(ListType.LocalEdgeList) == DEmpty.class && hasLocalEdgeListAccess(entry)))
-				continue;
-			// END OF TODO
+			}
 
 			tempGDS = new GraphDataStructure(singleCombination,
 					gds.getNodeType(), gds.getEdgeType());
@@ -268,14 +275,6 @@ public class Profiler {
 
 		res.append(separator);
 		return res.toString();
-	}
-
-	private static boolean hasLocalEdgeListAccess(ProfileEntry entry) {
-		return entry.hasAccessesInList(ListType.LocalEdgeList);
-	}
-
-	private static boolean hasGlobalEdgeListAccess(ProfileEntry entry) {
-		return entry.hasAccessesInList(ListType.GlobalEdgeList);
 	}
 
 	public static String getGlobalComplexity(

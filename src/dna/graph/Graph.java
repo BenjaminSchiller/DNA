@@ -327,15 +327,12 @@ public class Graph {
 			this.nodes = (INodeListDatastructure) ((INodeListDatastructureReadable)this.nodes).switchTo(newDatastructure);
 			break;
 		case LocalEdgeList:
-			for ( IElement n: nodes) {
-				((Node) n).switchDataStructure(ListType.LocalEdgeList, newDatastructure);
-			}
-			break;
+		case LocalInEdgeList:
+		case LocalOutEdgeList:
 		case LocalNodeList:
 			for ( IElement n: nodes) {
-				((Node) n).switchDataStructure(ListType.LocalNodeList, newDatastructure);
-			}			
-			break;
+				((Node) n).switchDataStructure(type, newDatastructure);
+			}
 		}
 	}
 

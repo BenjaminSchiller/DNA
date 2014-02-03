@@ -29,8 +29,10 @@ public class ProfileEntry {
 		return res;
 	}
 
-	public boolean hasAccessesInList(ListType lt) {
+	public boolean hasReadAccessesInList(ListType lt) {
 		for (AccessType at : AccessType.values()) {
+			if ( at.isAllowedOnEmpty() )
+				continue;
 			if (get(lt, at) != 0)
 				return true;
 		}
