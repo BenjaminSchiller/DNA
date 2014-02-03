@@ -19,16 +19,18 @@ public abstract class DataStructure implements IDataStructure {
 	}
 
 	public enum ListType {
-		GlobalNodeList(Node.class, Base.NodeSize), GlobalEdgeList(Edge.class,
-				Base.EdgeSize), LocalNodeList(Node.class, Base.Degree), LocalEdgeList(
-				Edge.class, Base.NodeSize);
+		GlobalNodeList(Node.class, Base.NodeSize, null), GlobalEdgeList(Edge.class,
+				Base.EdgeSize, null), LocalNodeList(Node.class, Base.Degree, GlobalNodeList), LocalEdgeList(
+				Edge.class, Base.NodeSize, GlobalEdgeList);
 
 		private Class<? extends IElement> storedSuperClass;
 		private Base listBase;
+		private ListType fallbackListType;
 
-		private ListType(Class<? extends IElement> superClass, Base base) {
+		private ListType(Class<? extends IElement> superClass, Base base, ListType fallback) {
 			this.storedSuperClass = superClass;
 			this.listBase = base;
+			this.fallbackListType = fallback;
 		}
 
 		public Class<? extends IElement> getStoredClass() {
@@ -37,6 +39,10 @@ public abstract class DataStructure implements IDataStructure {
 
 		public Base getBase() {
 			return this.listBase;
+		}
+		
+		public ListType getFallback() {
+			return this.fallbackListType;
 		}
 
 		public static boolean hasValue(String s) {
