@@ -282,6 +282,8 @@ public class BatchHandler implements Runnable {
 								}
 							}
 						}
+						key.reset();
+
 						synchronized (this) {
 							while (this.threadSuspended)
 								wait();
