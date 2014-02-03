@@ -8,8 +8,11 @@ import java.nio.file.StandardWatchEventKinds;
 import java.nio.file.WatchEvent;
 import java.nio.file.WatchKey;
 import java.nio.file.WatchService;
+import java.util.List;
 import java.util.Random;
 
+import name.pachler.nio.file.ClosedWatchServiceException;
+import name.pachler.nio.file.StandardWatchEventKind;
 import dna.io.filesystem.Dir;
 import dna.series.data.BatchData;
 import dna.series.lists.BatchDataList;
@@ -226,47 +229,137 @@ public class BatchHandler implements Runnable {
 		// live display
 		if (liveDisplay) {
 			try {
-				// setting up watch-service
-				FileSystem fs = FileSystems.getDefault();
-				WatchService watcher = fs.newWatchService();
-				Path p = fs.getPath(this.dir);
-				WatchKey key = p.register(watcher,
-						StandardWatchEventKinds.ENTRY_CREATE);
+				if (System.getProperty("os.name").startsWith("Windows")) {
+					// windows machine -> use java nio watchservice with native
+					// filesystem implementation
 
-				Log.infoSep();
-				Log.info("Watching directory: " + p.toString());
-				while (t == thisThread) {
-					for (WatchEvent<?> event : key.pollEvents()) {
-						WatchEvent<Path> ev = (WatchEvent<Path>) event;
+					// setting up watch-service
+					FileSystem fs = FileSystems.getDefault();
+					WatchService watcher = fs.newWatchService();
+					Path p = fs.getPath(this.dir);
+					WatchKey key = p.register(watcher,
+							StandardWatchEventKinds.ENTRY_CREATE);
 
-						Path filename = ev.context();
-						Path child = p.resolve(filename);
+					Log.infoSep();
+					Log.info("Windows operating system discovered.. using java.nio.watchservice");
+					Log.info("Watching directory: " + p.toString());
+					while (t == thisThread) {
 
-						String filenameString = filename.toString();
+						for (WatchEvent<?> event : key.pollEvents()) {
+							WatchEvent<Path> ev = (WatchEvent<Path>) event;
 
-						String[] parts = filenameString.split("\\.");
+							Path filename = ev.context();
+							Path child = p.resolve(filename);
 
-						if (parts.length > 1 && parts[0].equals("batch")) {
-							String suffix = parts[parts.length - 1];
-							if (suffix.charAt(suffix.length() - 1) != '_') {
-								//Log.info("new batch ready: " + child.toString());
+							String filenameString = filename.toString();
 
-								// read batch
-								BatchData batch = BatchData.read(
-										Dir.getBatchDataDir(this.dir,
-												Long.parseLong(suffix)),
-										Long.parseLong(suffix), true);
+							String[] parts = filenameString.split("\\.");
 
-								// hand over batch
-								if (!this.isInit) {
-									this.mainFrame.initData(batch);
-									this.isInit = true;
+							if (parts.length > 1 && parts[0].equals("batch")) {
+								String suffix = parts[parts.length - 1];
+								if (suffix.charAt(suffix.length() - 1) != '_') {
+									// Log.info("new batch ready: " +
+									// child.toString());
+
+									// read batch
+									BatchData batch = BatchData.read(
+											Dir.getBatchDataDir(this.dir,
+													Long.parseLong(suffix)),
+											Long.parseLong(suffix), true);
+
+									// hand over batch
+									if (!this.isInit) {
+										this.mainFrame.initData(batch);
+										this.isInit = true;
+									} else {
+										this.mainFrame.updateData(batch);
+									}
 								} else {
-									this.mainFrame.updateData(batch);
+									/*
+									 * Log.info("new batch generation started: "
+									 * + child.toString());
+									 */
 								}
-							} else {
-								/*Log.info("new batch generation started: "
-										+ child.toString());*/
+							}
+						}
+						synchronized (this) {
+							while (this.threadSuspended)
+								wait();
+						}
+					}
+
+				} else {
+					// not windows os, probably mac -> use jpathwatch library
+					name.pachler.nio.file.WatchService watchService = name.pachler.nio.file.FileSystems
+							.getDefault().newWatchService();
+
+					name.pachler.nio.file.Path p = name.pachler.nio.file.Paths
+							.get(this.dir);
+
+					name.pachler.nio.file.WatchKey key = p.register(
+							watchService, StandardWatchEventKind.ENTRY_CREATE);
+
+					Log.infoSep();
+					Log.info("No windows operating system.. using jpathwatch-0-95 library");
+					Log.info("Watching directory: " + p.toString());
+					while (t == thisThread) {
+						// take event key
+						name.pachler.nio.file.WatchKey eventKey;
+						try {
+							eventKey = watchService.take();
+						} catch (InterruptedException e) {
+							continue;
+						} catch (ClosedWatchServiceException e) {
+							System.out
+									.println("Watch service closed, terminating.");
+							break;
+						}
+
+						List<name.pachler.nio.file.WatchEvent<?>> list = eventKey
+								.pollEvents();
+
+						eventKey.reset();
+
+						for (name.pachler.nio.file.WatchEvent e : list) {
+							if (e.kind() == StandardWatchEventKind.ENTRY_CREATE) {
+								name.pachler.nio.file.Path filename = (name.pachler.nio.file.Path) e
+										.context();
+								name.pachler.nio.file.Path child = p
+										.resolve(filename);
+
+								String filenameString = filename.toString();
+
+								String[] parts = filenameString.split("\\.");
+
+								if (parts.length > 1
+										&& parts[0].equals("batch")) {
+									String suffix = parts[parts.length - 1];
+									if (suffix.charAt(suffix.length() - 1) != '_') {
+										// Log.info("new batch ready: " +
+										// child.toString());
+
+										// read batch
+										BatchData batch = BatchData
+												.read(Dir.getBatchDataDir(
+														this.dir,
+														Long.parseLong(suffix)),
+														Long.parseLong(suffix),
+														true);
+
+										// hand over batch
+										if (!this.isInit) {
+											this.mainFrame.initData(batch);
+											this.isInit = true;
+										} else {
+											this.mainFrame.updateData(batch);
+										}
+									} else {
+										/*
+										 * Log.info("new batch generation started: "
+										 * + child.toString());
+										 */
+									}
+								}
 							}
 						}
 					}
