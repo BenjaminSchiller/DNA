@@ -8,6 +8,7 @@ import javax.swing.BorderFactory;
 import javax.swing.border.TitledBorder;
 
 import dna.util.Config;
+import dna.util.Log.LogLevel;
 import dna.visualization.config.VisualizerListConfig.DisplayMode;
 import dna.visualization.config.VisualizerListConfig.GraphVisibility;
 import dna.visualization.config.VisualizerListConfig.SortModeDist;
@@ -105,6 +106,9 @@ public class GuiOptions {
 			65, 45);
 	public static final Dimension menuBarIntervalPanelSize = new Dimension(220,
 			45);
+
+	// LogDisplay
+	public static final LogLevel defaultLogLevel = LogLevel.info;
 
 	/** FONTS AND BORDERS **/
 	public static final Font defaultFont = Config.getFont("GUI_DEFAULT_FONT");

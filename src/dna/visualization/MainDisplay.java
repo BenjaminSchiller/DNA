@@ -25,6 +25,7 @@ import javax.swing.border.EtchedBorder;
 
 import dna.series.data.BatchData;
 import dna.util.Log;
+import dna.visualization.components.LogDisplay;
 import dna.visualization.components.statsdisplay.StatsDisplay;
 import dna.visualization.components.visualizer.MetricVisualizer;
 import dna.visualization.components.visualizer.MultiScalarVisualizer;
@@ -280,6 +281,17 @@ public class MainDisplay extends JFrame {
 		this.registerDataComponent(metric1);
 		this.registerDataComponent(metric2);
 		this.setLocationRelativeTo(null);
+
+		// add log display
+		mainDisplayConstraints.gridwidth = 2;
+		mainDisplayConstraints.gridx = 1;
+		mainDisplayConstraints.gridy = 1;
+		LogDisplay logDisplay1 = new LogDisplay("");
+
+		logDisplay1
+				.showInfo("~ Reading JSON config from config/gui_config1.cfg");
+		logDisplay1.showInfo("~ Initializing MainDisplay");
+		this.getContentPane().add(logDisplay1, mainDisplayConstraints);
 	}
 
 	/**
