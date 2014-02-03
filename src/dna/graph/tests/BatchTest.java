@@ -98,6 +98,13 @@ public class BatchTest {
 		this.bGen = new RandomBatch(nodeAdd, nodeRem, nodeWeightChanges,
 				getNodeWeightSelector(), edgeAdd, edgeRem, edgeWeightChanges,
 				getEdgeWeightSelector());
+
+		/**
+		 * A short output to overcome the timeout of Travis: If there is no
+		 * console output in 10 minutes, a test run is stopped
+		 */
+		if (Math.random() < 0.001)
+			System.out.print(".");
 	}
 
 	private EdgeWeightSelection getEdgeWeightSelector() {
