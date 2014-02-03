@@ -29,12 +29,11 @@ public class SeriesGeneration {
 	public static boolean singleFile = false;
 	public static FileSystem writeFileSystem;
 	public static FileSystem readFileSystem;
-	public static long batchGenerationTime = 300;
 
 	public static SeriesData generate(Series series, int runs, int batches)
 			throws AggregationException, IOException,
 			MetricNotApplicableException {
-		return SeriesGeneration.generate(series, runs, batches, true, true);
+		return SeriesGeneration.generate(series, runs, batches, true, true, 0);
 	}
 
 	/**
@@ -52,14 +51,18 @@ public class SeriesGeneration {
 	 * @param write
 	 *            Flag that decides whether data will be written on the
 	 *            filesystem or not
+	 * @param batchGenerationTime
+	 *            Long variable representing the artificial generation-time for
+	 *            each batch. Used to simulate a live system.
 	 * @return SeriesData object representing the given series
 	 * @throws AggregationException
 	 * @throws IOException
 	 * @throws MetricNotApplicableException
 	 */
 	public static SeriesData generate(Series series, int runs, int batches,
-			boolean compare, boolean write) throws AggregationException,
-			IOException, MetricNotApplicableException {
+			boolean compare, boolean write, long batchGenerationTime)
+			throws AggregationException, IOException,
+			MetricNotApplicableException {
 		Log.infoSep();
 		Timer timer = new Timer("seriesGeneration");
 		SeriesGeneration.singleFile = Config
@@ -98,7 +101,8 @@ public class SeriesGeneration {
 			}
 
 			// generate runW
-			SeriesGeneration.generateRun(series, r, batches, compare, write);
+			SeriesGeneration.generateRun(series, r, batches, compare, write,
+					batchGenerationTime);
 		}
 
 		// read series data structure for aggregation
@@ -149,18 +153,22 @@ public class SeriesGeneration {
 	 * @param write
 	 *            Flag that decides whether data will be written on the
 	 *            filesystem or not
+	 * @param batchGenerationTime
+	 *            Long variable representing the artificial generation-time for
+	 *            each batch. Used to simulate a live system.
 	 * @return RunDataList object containing the generated runs
 	 * @throws IOException
 	 * @throws MetricNotApplicableException
 	 */
 	public static void generateRuns(Series series, int from, int to,
-			int batches, boolean compare, boolean write, boolean batchesAsZip)
-			throws IOException, MetricNotApplicableException {
+			int batches, boolean compare, boolean write,
+			long batchGenerationTime) throws IOException,
+			MetricNotApplicableException {
 		int runs = to - from;
 
 		for (int i = 0; i < runs; i++) {
 			SeriesGeneration.generateRun(series, from + i, batches, compare,
-					write);
+					write, batchGenerationTime);
 		}
 	}
 
@@ -179,13 +187,17 @@ public class SeriesGeneration {
 	 * @param write
 	 *            Flag that decides whether data will be written on the
 	 *            filesystem or not
+	 * @param batchGenerationTime
+	 *            Long variable representing the artificial generation-time for
+	 *            each batch. Used to simulate a live system.
 	 * @return RunData object representing the generated run
 	 * @throws IOException
 	 * @throws MetricNotApplicableException
 	 */
 	public static void generateRun(Series series, int run, int batches,
-			boolean compare, boolean write) throws IOException,
-			MetricNotApplicableException {
+			boolean compare, boolean write, long batchGenerationTime)
+			throws IOException, MetricNotApplicableException {
+
 		Log.infoSep();
 		Timer timer = new Timer("runGeneration");
 		Log.info("run " + run + " (" + batches + " batches)");
@@ -245,36 +257,40 @@ public class SeriesGeneration {
 			}
 			if (write) {
 				if (!SeriesGeneration.singleFile) {
-					String actualDir = Dir.getBatchDataDir(series.getDir(),
-							run, batchData.getTimestamp());
-					String dirTemp = actualDir.substring(0,
-							actualDir.length() - 1)
-							+ Dir.tempSuffix
-							+ Dir.delimiter;
+					if (batchGenerationTime > 0) {
+						String actualDir = Dir.getBatchDataDir(series.getDir(),
+								run, batchData.getTimestamp());
+						String dirTemp = actualDir.substring(0,
+								actualDir.length() - 1)
+								+ Dir.tempSuffix + Dir.delimiter;
 
-					// rename directory
-					File srcDir = new File(dirTemp);
-					File dstDir = new File(actualDir);
+						// rename directory
+						File srcDir = new File(dirTemp);
+						File dstDir = new File(actualDir);
 
-					Files.delete(srcDir);
-					Files.delete(dstDir);
+						Files.delete(srcDir);
+						Files.delete(dstDir);
 
-					// write
-					batchData.write(dirTemp);
+						// write
+						batchData.write(dirTemp);
 
-					// live display simulation
-					long waitTime = SeriesGeneration.batchGenerationTime
-							- (System.currentTimeMillis() - batchGenerationStart);
-					if (waitTime > 0) {
-						try {
-							Thread.sleep(waitTime);
-						} catch (InterruptedException e) {
-							e.printStackTrace();
+						// live display simulation
+						long waitTime = batchGenerationTime
+								- (System.currentTimeMillis() - batchGenerationStart);
+						if (waitTime > 0) {
+							try {
+								Thread.sleep(waitTime);
+							} catch (InterruptedException e) {
+								e.printStackTrace();
+							}
 						}
-					}
 
-					if (srcDir.isDirectory()) {
-						srcDir.renameTo(dstDir);
+						if (srcDir.isDirectory()) {
+							srcDir.renameTo(dstDir);
+						}
+					} else {
+						batchData.write(Dir.getBatchDataDir(series.getDir(),
+								run, batchData.getTimestamp()));
 					}
 				} else {
 					try {
