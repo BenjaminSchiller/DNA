@@ -49,6 +49,8 @@ public class GraphDataStructure {
 
 	private static ArrayList<EnumMap<ListType, Class<? extends IDataStructure>>> allListCombinations = null;
 	private static ArrayList<EnumMap<ListType, Class<? extends IDataStructure>>> simpleListCombinations = null;
+	
+	private int defaultListSize = 10;
 
 	public GraphDataStructure(
 			EnumMap<ListType, Class<? extends IDataStructure>> listTypes,
@@ -135,8 +137,8 @@ public class GraphDataStructure {
 	private void init() {
 		this.defaultListSizes = new EnumMap<DataStructure.ListType, Integer>(
 				DataStructure.ListType.class);
-		this.defaultListSizes.put(ListType.GlobalEdgeList, 10);
-		this.defaultListSizes.put(ListType.GlobalNodeList, 10);
+		this.defaultListSizes.put(ListType.GlobalEdgeList, defaultListSize);
+		this.defaultListSizes.put(ListType.GlobalNodeList, defaultListSize);
 
 		this.overrideDefaultListSizes = new EnumMap<DataStructure.ListType, Integer>(
 				DataStructure.ListType.class);
@@ -209,6 +211,18 @@ public class GraphDataStructure {
 		this.defaultListSizes.put(ListType.GlobalEdgeList, edges);
 		return new Graph(name, timestamp, this, nodes, edges);
 	}
+	
+	private int getStartingSize(ListType lt) {
+		if (overrideDefaultListSizes.containsKey(lt)) {
+			return overrideDefaultListSizes.get(lt);
+		} else if (defaultListSizes.containsKey(lt)) {
+			return defaultListSizes.get(lt);
+		}
+		if ( lt.getFallback() != null) {
+			return getStartingSize(lt.getFallback());
+		}
+		return defaultListSize;
+	}
 
 	public IDataStructure newList(ListType listType) {
 		this.canGDSCreateProperLists();
@@ -229,12 +243,7 @@ public class GraphDataStructure {
 				| NoSuchMethodException | SecurityException e) {
 			e.printStackTrace();
 		}
-		if (this.overrideDefaultListSizes.containsKey(listType)) {
-			res.reinitializeWithSize(this.overrideDefaultListSizes
-					.get(listType));
-		} else if (this.defaultListSizes.containsKey(listType)) {
-			res.reinitializeWithSize(this.defaultListSizes.get(listType));
-		}
+		res.reinitializeWithSize(this.getStartingSize(listType));
 		return res;
 	}
 
