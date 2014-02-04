@@ -151,4 +151,36 @@ public class RandomBatch extends BatchGenerator {
 		return false;
 	}
 
+	public int getNa() {
+		return na;
+	}
+
+	public int getNr() {
+		return nr;
+	}
+
+	public int getNw() {
+		return nw;
+	}
+
+	public NodeWeightSelection getNws() {
+		return nws;
+	}
+
+	public int getEa() {
+		return ea;
+	}
+
+	public int getEr() {
+		return er;
+	}
+
+	public int getEw() {
+		return ew;
+	}
+
+	public EdgeWeightSelection getEws() {
+		return ews;
+	}
+
 }

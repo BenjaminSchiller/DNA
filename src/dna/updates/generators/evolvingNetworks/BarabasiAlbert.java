@@ -39,7 +39,6 @@ public class BarabasiAlbert extends BatchGenerator {
 		for (int i = 0; i < nodes; i++) {
 			newNodes[i] = g.getGraphDatastructures().newNodeInstance(
 					g.getMaxNodeIndex() + i + 1);
-
 			b.add(new NodeAddition(newNodes[i]));
 
 			HashSet<Node> targets = new HashSet<Node>(this.m);
