@@ -47,6 +47,7 @@ public class GraphDataStructure {
 	private EnumMap<ListType, Integer> defaultListSizes;
 
 	private static ArrayList<EnumMap<ListType, Class<? extends IDataStructure>>> allListCombinations = null;
+	private static ArrayList<EnumMap<ListType, Class<? extends IDataStructure>>> simpleListCombinations = null;
 
 	public GraphDataStructure(
 			EnumMap<ListType, Class<? extends IDataStructure>> listTypes,
@@ -633,17 +634,26 @@ public class GraphDataStructure {
 		return res;
 	}
 
+	public static ArrayList<EnumMap<ListType, Class<? extends IDataStructure>>> getSimpleDatastructureCombinations() {
+		if (simpleListCombinations == null)
+			simpleListCombinations = combineWith(
+					new EnumMap<ListType, Class<? extends IDataStructure>>(
+							ListType.class), 0, 3);
+		return simpleListCombinations;
+	}
+
 	public static ArrayList<EnumMap<ListType, Class<? extends IDataStructure>>> getAllDatastructureCombinations() {
 		if (allListCombinations == null)
 			allListCombinations = combineWith(
 					new EnumMap<ListType, Class<? extends IDataStructure>>(
-							ListType.class), 0);
+							ListType.class), 0, ListType.values().length);
 		return allListCombinations;
 	}
 
 	@SuppressWarnings("unchecked")
 	private static ArrayList<EnumMap<ListType, Class<? extends IDataStructure>>> combineWith(
-			EnumMap<ListType, Class<? extends IDataStructure>> inList, int i) {
+			EnumMap<ListType, Class<? extends IDataStructure>> inList, int i,
+			int maxI) {
 		ListType lt = ListType.values()[i];
 		ArrayList<EnumMap<ListType, Class<? extends IDataStructure>>> resAggregator = new ArrayList<EnumMap<ListType, Class<? extends IDataStructure>>>();
 		EnumMap<ListType, Class<? extends IDataStructure>> tempInList;
@@ -651,11 +661,11 @@ public class GraphDataStructure {
 			if (lt.getRequiredType().isAssignableFrom(clazz)) {
 				tempInList = inList.clone();
 				tempInList.put(lt, clazz);
-				if (i == ListType.values().length - 1) {
+				if (i == (maxI - 1)) {
 					if (GraphDataStructure.validListTypesSet(tempInList))
 						resAggregator.add(tempInList);
 				} else {
-					resAggregator.addAll(combineWith(tempInList, i + 1));
+					resAggregator.addAll(combineWith(tempInList, i + 1, maxI));
 				}
 			}
 		}

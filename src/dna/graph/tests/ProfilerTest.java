@@ -51,7 +51,8 @@ public class ProfilerTest {
 	private Metric metric;
 	private String metricKey;
 
-	public ProfilerTest(EnumMap<ListType, Class<? extends IDataStructure>> listTypes,
+	public ProfilerTest(
+			EnumMap<ListType, Class<? extends IDataStructure>> listTypes,
 			Class<? extends Node> nodeType, Class<? extends Edge> edgeType,
 			ApplicationType applicationType) throws InstantiationException,
 			IllegalAccessException, IllegalArgumentException,
@@ -130,12 +131,12 @@ public class ProfilerTest {
 						|| (DirectedEdge.class.isAssignableFrom(edgeType) && UndirectedNode.class
 								.isAssignableFrom(nodeType)))
 					continue;
-				
+
 				EnumMap<ListType, Class<? extends IDataStructure>> listTypes = new EnumMap<ListType, Class<? extends IDataStructure>>(
 						ListType.class);
 				listTypes.put(ListType.GlobalNodeList, nodeListType);
 				listTypes.put(ListType.GlobalEdgeList, edgeListType);
-				listTypes.put(ListType.LocalEdgeList, nodeEdgeListType);				
+				listTypes.put(ListType.LocalEdgeList, nodeEdgeListType);
 
 				for (ApplicationType a : ApplicationType.values()) {
 					result.add(new Object[] { listTypes, nodeType, edgeType, a });
@@ -177,11 +178,17 @@ public class ProfilerTest {
 
 	@Test
 	public void testContainsEdgeLocalIsCountedInMetric() {
-		assertEquals(0, Profiler.getCount(metricKey, ListType.LocalEdgeList,
-				AccessType.Contains));
+		assertEquals(
+				0,
+				Profiler.getCount(metricKey, new ListType[] {
+						ListType.LocalEdgeList, ListType.LocalInEdgeList,
+						ListType.LocalOutEdgeList }, AccessType.Contains));
 		metric.compute();
-		assertEquals(1, Profiler.getCount(metricKey, ListType.LocalEdgeList,
-				AccessType.Contains));
+		assertEquals(
+				1,
+				Profiler.getCount(metricKey, new ListType[] {
+						ListType.LocalEdgeList, ListType.LocalInEdgeList,
+						ListType.LocalOutEdgeList }, AccessType.Contains));
 	}
 
 	@Test
@@ -237,8 +244,11 @@ public class ProfilerTest {
 
 	@Test
 	public void testSizeEdgeLocalIsCountedInMetric() {
-		assertEquals(0, Profiler.getCount(metricKey, ListType.LocalEdgeList,
-				AccessType.Size));
+		assertEquals(
+				0,
+				Profiler.getCount(metricKey, new ListType[] {
+						ListType.LocalEdgeList, ListType.LocalInEdgeList,
+						ListType.LocalOutEdgeList }, AccessType.Size));
 		metric.compute();
 		// Local edge size is called *multiple* times in the metric: once
 		// directly, additional times for all nodes through printAll()
@@ -249,8 +259,11 @@ public class ProfilerTest {
 		if (graph.isDirected())
 			additionalCounter *= 2;
 
-		assertEquals(1 + additionalCounter, Profiler.getCount(metricKey,
-				ListType.LocalEdgeList, AccessType.Size));
+		assertEquals(
+				1 + additionalCounter,
+				Profiler.getCount(metricKey, new ListType[] {
+						ListType.LocalEdgeList, ListType.LocalInEdgeList,
+						ListType.LocalOutEdgeList }, AccessType.Size));
 	}
 
 	@Test

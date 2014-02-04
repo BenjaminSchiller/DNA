@@ -200,11 +200,11 @@ public class BatchTest {
 		Constructor<? extends GraphGenerator> generatorConstructor;
 		GraphDataStructure gds;
 		
-		ArrayList<EnumMap<ListType, Class<? extends IDataStructure>>> allCombinations = GraphDataStructure
-				.getAllDatastructureCombinations();
+		ArrayList<EnumMap<ListType, Class<? extends IDataStructure>>> simpleCombinations = GraphDataStructure
+				.getSimpleDatastructureCombinations();
 
 		ArrayList<Object> result = new ArrayList<>();
-		for (EnumMap<ListType, Class<? extends IDataStructure>> combination : allCombinations) {
+		for (EnumMap<ListType, Class<? extends IDataStructure>> combination : simpleCombinations) {
 			for (Class generator : GlobalTestParameters.graphGenerators) {
 				for (Class edgeType : GlobalTestParameters.edgeTypes) {
 					for (Class nodeType : GlobalTestParameters.nodeTypes) {

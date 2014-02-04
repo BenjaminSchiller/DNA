@@ -339,6 +339,13 @@ public class Profiler {
 		innerMap.increase(lt, a, 1);
 	}
 
+	public static int getCount(String mapKey, ListType[] lt, AccessType at) {
+		int res = 0;
+		for ( ListType inner: lt)
+			res += getCount(mapKey, inner, at);
+		return res;
+	}
+	
 	public static int getCount(String mapKey, ListType lt, AccessType at) {
 		return getCount(singleBatchCalls, mapKey, lt, at);
 	}
