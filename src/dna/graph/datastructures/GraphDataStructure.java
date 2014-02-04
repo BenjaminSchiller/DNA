@@ -45,6 +45,7 @@ public class GraphDataStructure {
 
 	private EnumMap<ListType, Class<? extends IDataStructure>> listTypes;
 	private EnumMap<ListType, Integer> defaultListSizes;
+	private EnumMap<ListType, Integer> overrideDefaultListSizes;
 
 	private static ArrayList<EnumMap<ListType, Class<? extends IDataStructure>>> allListCombinations = null;
 	private static ArrayList<EnumMap<ListType, Class<? extends IDataStructure>>> simpleListCombinations = null;
@@ -136,6 +137,13 @@ public class GraphDataStructure {
 				DataStructure.ListType.class);
 		this.defaultListSizes.put(ListType.GlobalEdgeList, 10);
 		this.defaultListSizes.put(ListType.GlobalNodeList, 10);
+
+		this.overrideDefaultListSizes = new EnumMap<DataStructure.ListType, Integer>(
+				DataStructure.ListType.class);
+	}
+
+	public void overrideDefaultListSize(ListType listType, int defaultSize) {
+		this.overrideDefaultListSizes.put(listType, defaultSize);
 	}
 
 	@Override
@@ -221,7 +229,10 @@ public class GraphDataStructure {
 				| NoSuchMethodException | SecurityException e) {
 			e.printStackTrace();
 		}
-		if (this.defaultListSizes.containsKey(listType)) {
+		if (this.overrideDefaultListSizes.containsKey(listType)) {
+			res.reinitializeWithSize(this.overrideDefaultListSizes
+					.get(listType));
+		} else if (this.defaultListSizes.containsKey(listType)) {
 			res.reinitializeWithSize(this.defaultListSizes.get(listType));
 		}
 		return res;
