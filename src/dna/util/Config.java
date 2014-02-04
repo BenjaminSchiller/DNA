@@ -18,6 +18,7 @@ public class Config {
 
 	private static HashMap<String, String> overwrite;
 
+	//
 	private static String defaultConfigFolder = "config/";
 
 	public static String get(String key) {
