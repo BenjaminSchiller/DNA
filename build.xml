@@ -4,7 +4,7 @@
 	<!-- The following two properties need to be changed -->
 	<property name="jUnitJar" location="C:\Program Files (x86)\eclipse\plugins\org.junit_4.11.0.v201303080030\junit.jar" />
 	<property name="aspectJDir" location="../aspectj-1.7.4/lib" />
-
+	
 	<property name="src" location="src" />
 	<property name="bin" location="bin" />
 
@@ -15,6 +15,9 @@
 			<include name="**/*.jar" />
 		</fileset>
 		<pathelement location="${jUnitJar}" />
+		<fileset dir="${aspectJDir}">
+			<include name="**/*.jar" />
+		</fileset>
 	</path>
 
 	<!-- Put all *common* test classes here -->
@@ -82,8 +85,10 @@
 			<manifest>
 				<attribute name="Main-Class" value="${mainClass}" />
 				<attribute name="Class-Path" value=".../" />
+       			
 			</manifest>
 			<fileset dir="${bin}" />
+			 <zipgroupfileset dir="lib" includes="**/*.jar" /> 
 		</jar>
 	</target>
 
@@ -94,6 +99,7 @@
 				<attribute name="Class-Path" value=".../" />
 			</manifest>
 			<fileset dir="${bin}" />
+			 <zipgroupfileset dir="lib" includes="**/*.jar" />
 		</jar>
 	</target>
 
