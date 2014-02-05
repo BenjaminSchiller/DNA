@@ -80,11 +80,28 @@ public class Files {
 	public static String getNodeValueListName(String filename) {
 		return filename.replace(Config.get("SUFFIX_NVL"), "");
 	}
-	
+
+	/*
+	 * NODENODEVALUELISTS
+	 */
+	public static String getNodeNodeValueListFilename(String name) {
+		return name + Config.get("SUFFIX_NNVL");
+	}
+
+	public static String[] getNodeNodeValueLists(String dir) {
+		return (new File(dir)).list(new SuffixFilenameFilter(Config
+				.get("SUFFIX_NNVL")));
+	}
+
+	public static String getNodeNodeValueListName(String filename) {
+		return filename.replace(Config.get("SUFFIX_NNVL"), "");
+	}
+
 	/*
 	 * PROFILER
 	 */
 	public static String getProfilerFilename(String name) {
-		return name + Config.get("SUFFIX_PROFILER") + Config.get("SUFFIX_VALUE");
-	}	
+		return name + Config.get("SUFFIX_PROFILER")
+				+ Config.get("SUFFIX_VALUE");
+	}
 }
