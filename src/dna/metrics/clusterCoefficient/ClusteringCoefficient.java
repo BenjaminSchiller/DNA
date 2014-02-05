@@ -3,6 +3,7 @@ package dna.metrics.clusterCoefficient;
 import dna.graph.nodes.Node;
 import dna.metrics.Metric;
 import dna.series.data.Distribution;
+import dna.series.data.NodeNodeValueList;
 import dna.series.data.NodeValueList;
 import dna.series.data.Value;
 import dna.util.ArrayUtils;
@@ -69,6 +70,11 @@ public abstract class ClusteringCoefficient extends Metric {
 	@Override
 	public NodeValueList[] getNodeValueLists() {
 		return new NodeValueList[] { this.localCC };
+	}
+
+	@Override
+	public NodeNodeValueList[] getNodeNodeValueLists() {
+		return new NodeNodeValueList[] {};
 	}
 
 	@Override

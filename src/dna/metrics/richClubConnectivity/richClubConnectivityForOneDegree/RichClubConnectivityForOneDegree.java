@@ -12,6 +12,7 @@ import dna.graph.nodes.Node;
 import dna.graph.nodes.UndirectedNode;
 import dna.metrics.Metric;
 import dna.series.data.Distribution;
+import dna.series.data.NodeNodeValueList;
 import dna.series.data.NodeValueList;
 import dna.series.data.Value;
 import dna.updates.batch.Batch;
@@ -22,8 +23,8 @@ public abstract class RichClubConnectivityForOneDegree extends Metric {
 	protected int richClubEdges;
 	protected Set<Node> richClub;
 
-	public RichClubConnectivityForOneDegree(String name,
-			ApplicationType type, int minDegree) {
+	public RichClubConnectivityForOneDegree(String name, ApplicationType type,
+			int minDegree) {
 		super(name, type, MetricType.exact);
 		this.minDegree = minDegree;
 	}
@@ -151,6 +152,11 @@ public abstract class RichClubConnectivityForOneDegree extends Metric {
 	}
 
 	@Override
+	public NodeNodeValueList[] getNodeNodeValueLists() {
+		return new NodeNodeValueList[] {};
+	}
+
+	@Override
 	public boolean isApplicable(Graph g) {
 		return UndirectedNode.class.isAssignableFrom(g.getGraphDatastructures()
 				.getNodeType())
@@ -168,8 +174,7 @@ public abstract class RichClubConnectivityForOneDegree extends Metric {
 
 	@Override
 	public boolean isComparableTo(Metric m) {
-		return m != null
-				&& m instanceof RichClubConnectivityForOneDegree;
+		return m != null && m instanceof RichClubConnectivityForOneDegree;
 
 	}
 

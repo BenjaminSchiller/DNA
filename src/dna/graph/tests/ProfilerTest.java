@@ -32,6 +32,7 @@ import dna.metrics.Metric.MetricType;
 import dna.profiler.Profiler;
 import dna.profiler.Profiler.ProfilerType;
 import dna.series.data.Distribution;
+import dna.series.data.NodeNodeValueList;
 import dna.series.data.NodeValueList;
 import dna.series.data.Value;
 import dna.updates.batch.Batch;
@@ -138,40 +139,40 @@ public class ProfilerTest {
 
 	@Test
 	public void testContainsNodeGlobalIsCountedInMetric() {
-		assertEquals(0, Profiler.getCount(metricKey,
-				ProfilerType.ContainsNodeGlobal));
+		assertEquals(0,
+				Profiler.getCount(metricKey, ProfilerType.ContainsNodeGlobal));
 		metric.compute();
-		assertEquals(1, Profiler.getCount(metricKey,
-				ProfilerType.ContainsNodeGlobal));
+		assertEquals(1,
+				Profiler.getCount(metricKey, ProfilerType.ContainsNodeGlobal));
 	}
 
 	@Test
 	public void testContainsNodeLocalIsCountedInMetric() {
 		assumeTrue(graph.isDirected());
 
-		assertEquals(0, Profiler.getCount(metricKey,
-				ProfilerType.ContainsNodeLocal));
+		assertEquals(0,
+				Profiler.getCount(metricKey, ProfilerType.ContainsNodeLocal));
 		metric.compute();
-		assertEquals(1, Profiler.getCount(metricKey,
-				ProfilerType.ContainsNodeLocal));
+		assertEquals(1,
+				Profiler.getCount(metricKey, ProfilerType.ContainsNodeLocal));
 	}
 
 	@Test
 	public void testContainsEdgeGlobalIsCountedInMetric() {
-		assertEquals(0, Profiler.getCount(metricKey,
-				ProfilerType.ContainsEdgeGlobal));
+		assertEquals(0,
+				Profiler.getCount(metricKey, ProfilerType.ContainsEdgeGlobal));
 		metric.compute();
-		assertEquals(1, Profiler.getCount(metricKey,
-				ProfilerType.ContainsEdgeGlobal));
+		assertEquals(1,
+				Profiler.getCount(metricKey, ProfilerType.ContainsEdgeGlobal));
 	}
 
 	@Test
 	public void testContainsEdgeLocalIsCountedInMetric() {
-		assertEquals(0, Profiler.getCount(metricKey,
-				ProfilerType.ContainsEdgeLocal));
+		assertEquals(0,
+				Profiler.getCount(metricKey, ProfilerType.ContainsEdgeLocal));
 		metric.compute();
-		assertEquals(1, Profiler.getCount(metricKey,
-				ProfilerType.ContainsEdgeLocal));
+		assertEquals(1,
+				Profiler.getCount(metricKey, ProfilerType.ContainsEdgeLocal));
 	}
 
 	@Test
@@ -187,11 +188,11 @@ public class ProfilerTest {
 
 	@Test
 	public void testGlobalGetRandomEdgeIsCountedInMetric() {
-		assertEquals(0, Profiler.getCount(metricKey,
-				ProfilerType.RandomEdgeGlobal));
+		assertEquals(0,
+				Profiler.getCount(metricKey, ProfilerType.RandomEdgeGlobal));
 		metric.compute();
-		assertEquals(1, Profiler.getCount(metricKey,
-				ProfilerType.RandomEdgeGlobal));
+		assertEquals(1,
+				Profiler.getCount(metricKey, ProfilerType.RandomEdgeGlobal));
 	}
 
 	@Test
@@ -245,20 +246,20 @@ public class ProfilerTest {
 
 	@Test
 	public void testIteratorNodeGlobalIsCountedInMetric() {
-		assertEquals(0, Profiler.getCount(metricKey,
-				ProfilerType.IteratorNodeGlobal));
+		assertEquals(0,
+				Profiler.getCount(metricKey, ProfilerType.IteratorNodeGlobal));
 		metric.compute();
-		assertEquals(1, Profiler.getCount(metricKey,
-				ProfilerType.IteratorNodeGlobal));
+		assertEquals(1,
+				Profiler.getCount(metricKey, ProfilerType.IteratorNodeGlobal));
 	}
 
 	@Test
 	public void testIteratorEdgeGlobalIsCountedInMetric() {
-		assertEquals(0, Profiler.getCount(metricKey,
-				ProfilerType.IteratorEdgeGlobal));
+		assertEquals(0,
+				Profiler.getCount(metricKey, ProfilerType.IteratorEdgeGlobal));
 		metric.compute();
-		assertEquals(1, Profiler.getCount(metricKey,
-				ProfilerType.IteratorEdgeGlobal));
+		assertEquals(1,
+				Profiler.getCount(metricKey, ProfilerType.IteratorEdgeGlobal));
 	}
 
 	private class TestMetric extends Metric {
@@ -350,6 +351,11 @@ public class ProfilerTest {
 
 		@Override
 		public NodeValueList[] getNodeValueLists() {
+			return null;
+		}
+
+		@Override
+		public NodeNodeValueList[] getNodeNodeValueLists() {
 			return null;
 		}
 
