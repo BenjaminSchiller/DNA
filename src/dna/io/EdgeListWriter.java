@@ -9,20 +9,36 @@ import dna.graph.edges.UndirectedEdge;
 
 public class EdgeListWriter {
 
-	public static boolean write(Graph g, String dir, String filename,
-			String separator, boolean addFirstLineNM) {
-		return write(g, dir, filename, separator, addFirstLineNM, false, "", "");
+	public enum InfoType {
+		NONE, N, NM
 	}
 
 	public static boolean write(Graph g, String dir, String filename,
-			String separator, boolean addFirstLineNM, boolean incIndex,
-			String prefix, String suffix) {
+			String separator, InfoType info, boolean addInverseEdge,
+			boolean incIndex, String prefix, String suffix) {
 		Writer writer = null;
 		try {
 			writer = new Writer(dir, filename);
 
-			if (addFirstLineNM) {
-				writer.writeln(g.getNodeCount() + separator + g.getEdgeCount());
+			switch (info) {
+			case N:
+				writer.writeln(g.getNodeCount());
+				break;
+			case NM:
+				if (addInverseEdge
+						&& g.getGraphDatastructures().getEdgeType()
+								.isAssignableFrom(UndirectedEdge.class)) {
+					writer.writeln(g.getNodeCount() + separator
+							+ (g.getEdgeCount() * 2));
+				} else {
+					writer.writeln(g.getNodeCount() + separator
+							+ g.getEdgeCount());
+				}
+				break;
+			case NONE:
+				break;
+			default:
+				break;
 			}
 
 			for (IElement e : g.getEdges()) {
@@ -34,10 +50,21 @@ public class EdgeListWriter {
 						writer.writeln(prefix
 								+ (edge.getNode1().getIndex() + 1) + separator
 								+ (edge.getNode2().getIndex() + 1) + suffix);
+						if (addInverseEdge) {
+							writer.writeln(prefix
+									+ (edge.getNode2().getIndex() + 1)
+									+ separator
+									+ (edge.getNode1().getIndex() + 1) + suffix);
+						}
 					} else {
 						writer.writeln(prefix + edge.getNode1().getIndex()
 								+ separator + edge.getNode2().getIndex()
 								+ suffix);
+						if (addInverseEdge) {
+							writer.writeln(prefix + edge.getNode2().getIndex()
+									+ separator + edge.getNode1().getIndex()
+									+ suffix);
+						}
 					}
 				} else if (e instanceof DirectedEdge) {
 					DirectedEdge edge = (DirectedEdge) e;
