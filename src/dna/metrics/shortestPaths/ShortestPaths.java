@@ -2,6 +2,7 @@ package dna.metrics.shortestPaths;
 
 import dna.metrics.Metric;
 import dna.series.data.Distribution;
+import dna.series.data.NodeNodeValueList;
 import dna.series.data.NodeValueList;
 import dna.series.data.Value;
 import dna.util.ArrayUtils;
@@ -62,6 +63,11 @@ public abstract class ShortestPaths extends Metric {
 	@Override
 	public NodeValueList[] getNodeValueLists() {
 		return new NodeValueList[0];
+	}
+
+	@Override
+	public NodeNodeValueList[] getNodeNodeValueLists() {
+		return new NodeNodeValueList[] {};
 	}
 
 	@Override

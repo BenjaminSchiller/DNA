@@ -10,6 +10,7 @@ import dna.graph.edges.Edge;
 import dna.graph.nodes.Node;
 import dna.metrics.Metric;
 import dna.series.data.Distribution;
+import dna.series.data.NodeNodeValueList;
 import dna.series.data.NodeValueList;
 import dna.series.data.Value;
 import dna.updates.batch.Batch;
@@ -189,6 +190,11 @@ public abstract class ConnectedComponent extends Metric {
 	@Override
 	public NodeValueList[] getNodeValueLists() {
 		return new NodeValueList[] {};
+	}
+
+	@Override
+	public NodeNodeValueList[] getNodeNodeValueLists() {
+		return new NodeNodeValueList[] {};
 	}
 
 	private double[] calculateComponents() {

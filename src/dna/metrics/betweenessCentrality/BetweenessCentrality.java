@@ -16,6 +16,7 @@ import dna.graph.nodes.Node;
 import dna.graph.nodes.UndirectedNode;
 import dna.metrics.Metric;
 import dna.series.data.Distribution;
+import dna.series.data.NodeNodeValueList;
 import dna.series.data.NodeValueList;
 import dna.series.data.Value;
 import dna.updates.batch.Batch;
@@ -260,6 +261,11 @@ public abstract class BetweenessCentrality extends Metric {
 	public NodeValueList[] getNodeValueLists() {
 		this.bCC.toString();
 		return new NodeValueList[] { this.bCC };
+	}
+
+	@Override
+	public NodeNodeValueList[] getNodeNodeValueLists() {
+		return new NodeNodeValueList[] {};
 	}
 
 	private double[] getDistribution(
