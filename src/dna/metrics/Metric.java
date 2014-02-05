@@ -3,6 +3,7 @@ package dna.metrics;
 import dna.graph.Graph;
 import dna.series.data.Distribution;
 import dna.series.data.MetricData;
+import dna.series.data.NodeNodeValueList;
 import dna.series.data.NodeValueList;
 import dna.series.data.Value;
 import dna.updates.batch.Batch;
@@ -200,7 +201,7 @@ public abstract class Metric extends ParameterList {
 	public MetricData getData() {
 		return new MetricData(this.getName(), this.getMetricType(),
 				this.getValues(), this.getDistributions(),
-				this.getNodeValueLists());
+				this.getNodeValueLists(), this.getNodeNodeValueLists());
 	}
 
 	/**
@@ -220,6 +221,12 @@ public abstract class Metric extends ParameterList {
 	 * @return all the nodevaluelists computed by this metric
 	 */
 	public abstract NodeValueList[] getNodeValueLists();
+
+	/**
+	 * 
+	 * @return all the nodenodevaluelists computed by this metric
+	 */
+	public abstract NodeNodeValueList[] getNodeNodeValueLists();
 
 	/*
 	 * EQUALS

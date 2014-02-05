@@ -131,6 +131,44 @@ public class ArrayUtils {
 		}
 	}
 
+	/**
+	 * Used for NodeNodeValueList values field operations. Sets all nodevalues
+	 * for one node, identified by the given index.
+	 * 
+	 * Note: The array or values field will be expanded if necessary.
+	 */
+	public static double[][] set(double[][] valuesField, int index,
+			double[] values, double defaultValue) {
+		try {
+			valuesField[index] = values;
+			if (valuesField[index].length < valuesField.length) {
+				valuesField[index] = ArrayUtils.set(valuesField[index],
+						valuesField.length - 1, defaultValue, defaultValue);
+			}
+			return valuesField;
+		} catch (IndexOutOfBoundsException e) {
+			double[][] valuesFieldNew = new double[index + 1][];
+
+			for (int i = 0; i < valuesField.length; i++) {
+				System.arraycopy(valuesField[i], 0, valuesFieldNew, 0,
+						valuesField[i].length);
+				valuesFieldNew[i] = ArrayUtils.set(valuesField[i], index,
+						defaultValue, defaultValue);
+			}
+			valuesFieldNew[index] = values;
+
+			for (int i = index - 1; i >= valuesField.length; i--) {
+				double[] valuesNew = new double[index + 1];
+				for (int j = 0; j < valuesNew.length; j++) {
+					valuesNew[j] = defaultValue;
+				}
+				valuesFieldNew[i] = valuesNew;
+			}
+
+			return valuesFieldNew;
+		}
+	}
+
 	public static long[] set(long[] values, int index, long value,
 			long defaultValue) {
 		try {

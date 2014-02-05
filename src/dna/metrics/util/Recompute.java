@@ -3,6 +3,7 @@ package dna.metrics.util;
 import dna.graph.Graph;
 import dna.metrics.Metric;
 import dna.series.data.Distribution;
+import dna.series.data.NodeNodeValueList;
 import dna.series.data.NodeValueList;
 import dna.series.data.Value;
 import dna.updates.batch.Batch;
@@ -103,6 +104,11 @@ public class Recompute extends Metric {
 	@Override
 	public NodeValueList[] getNodeValueLists() {
 		return this.m.getNodeValueLists();
+	}
+
+	@Override
+	public NodeNodeValueList[] getNodeNodeValueLists() {
+		return this.m.getNodeNodeValueLists();
 	}
 
 	@Override
