@@ -6,6 +6,7 @@ import dna.graph.datastructures.DArray;
 import dna.graph.datastructures.DArrayList;
 import dna.graph.datastructures.DHashMap;
 import dna.graph.datastructures.DHashSet;
+import dna.graph.datastructures.DHashTable;
 import dna.graph.datastructures.DLinkedList;
 import dna.graph.edges.DirectedDoubleWeightedEdge;
 import dna.graph.edges.DirectedEdge;
@@ -46,7 +47,7 @@ public class GlobalTestParameters {
 			edgeTypes, Class.class);
 
 	public static final Class[] dataStructures = { DArray.class,
-			DArrayList.class, DHashMap.class, DHashSet.class, DLinkedList.class };
+			DArrayList.class, DHashMap.class, DHashSet.class, DHashTable.class, DLinkedList.class };
 
 	public static final Class[] graphGenerators = { RandomGraphGenerator.class,
 			CliqueGenerator.class, RingGenerator.class,
