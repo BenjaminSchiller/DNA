@@ -78,6 +78,7 @@ public class MainDisplay extends JFrame {
 	// class variables
 	private StatsDisplay statsDisplay1;
 	private BatchHandler batchHandler;
+	private LogDisplay logDisplay1;
 
 	private ArrayList<Component> dataComponents;
 
@@ -168,6 +169,7 @@ public class MainDisplay extends JFrame {
 					statsDisplay1.setStopped();
 					batchHandler.reset();
 					initBatchHandler();
+					logDisplay1.stop();
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
@@ -183,6 +185,7 @@ public class MainDisplay extends JFrame {
 			public void actionPerformed(ActionEvent event) {
 				statsDisplay1.setStarted();
 				batchHandler.start();
+				logDisplay1.start();
 			}
 		});
 
@@ -286,12 +289,11 @@ public class MainDisplay extends JFrame {
 		mainDisplayConstraints.gridwidth = 2;
 		mainDisplayConstraints.gridx = 1;
 		mainDisplayConstraints.gridy = 1;
-		LogDisplay logDisplay1 = new LogDisplay("");
+		this.logDisplay1 = new LogDisplay(GuiOptions.defaultLogDir);
+		this.getContentPane().add(this.logDisplay1, mainDisplayConstraints);
 
-		logDisplay1
-				.showInfo("~ Reading JSON config from config/gui_config1.cfg");
-		logDisplay1.showInfo("~ Initializing MainDisplay");
-		this.getContentPane().add(logDisplay1, mainDisplayConstraints);
+		// start logging
+		this.logDisplay1.start();
 	}
 
 	/**

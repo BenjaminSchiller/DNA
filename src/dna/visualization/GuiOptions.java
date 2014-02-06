@@ -20,6 +20,7 @@ public class GuiOptions {
 	/** GENERAL SETTINGS **/
 	public static final String defaultDir = Config.get("GUI_DEFAULT_DIR");
 	public static final String dateFormat = Config.get("GUI_DATE_FORMAT");
+	public static final String defaultLogDir = Config.get("GUI_DEFAULT_LOG_DIR");
 
 	/** SIZES **/
 	// main display
