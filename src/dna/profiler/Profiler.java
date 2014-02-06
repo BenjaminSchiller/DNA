@@ -102,7 +102,8 @@ public class Profiler {
 		if (!active || globalCalls.isEmpty())
 			return;
 
-		System.out.println(getOutput(globalCalls, true));
+		System.out
+				.println(getOutput(globalCalls, enableCompleteRecommendations));
 		System.out.println(getGlobalComplexity(globalCalls));
 	}
 
@@ -509,14 +510,15 @@ public class Profiler {
 			Profiler.writeMultiple(singleSeriesCalls,
 					batchGeneratorNames.toArray(new String[0]), seriesDir,
 					Files.getProfilerFilename(Config.get("BATCH_PROFILER")),
-					true);
+					enableCompleteRecommendations);
 
 			Profiler.writeMultiple(singleSeriesCalls,
 					metricNames.toArray(new String[0]), seriesDir,
 					Files.getProfilerFilename(Config.get("METRIC_PROFILER")),
-					true);
+					enableCompleteRecommendations);
 
-			Profiler.writeUpdates(singleSeriesCalls, seriesDir, true);
+			Profiler.writeUpdates(singleSeriesCalls, seriesDir,
+					enableCompleteRecommendations);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -533,7 +535,8 @@ public class Profiler {
 			String runDataDir = Dir.getRunDataDir(seriesDir, run);
 			Profiler.writeSingle(singleRunCalls, graphGeneratorName,
 					runDataDir, Files.getProfilerFilename(Config
-							.get("GRAPHGENERATOR_PROFILER")), true);
+							.get("GRAPHGENERATOR_PROFILER")),
+					enableCompleteRecommendations);
 
 			Profiler.write(singleRunCalls, runDataDir, Files
 					.getProfilerFilename(Config.get("AGGREGATED_PROFILER")),
@@ -542,14 +545,15 @@ public class Profiler {
 			Profiler.writeMultiple(singleRunCalls,
 					batchGeneratorNames.toArray(new String[0]), runDataDir,
 					Files.getProfilerFilename(Config.get("BATCH_PROFILER")),
-					true);
+					enableCompleteRecommendations);
 
 			Profiler.writeMultiple(singleRunCalls,
 					metricNames.toArray(new String[0]), runDataDir,
 					Files.getProfilerFilename(Config.get("METRIC_PROFILER")),
-					true);
+					enableCompleteRecommendations);
 
-			Profiler.writeUpdates(singleRunCalls, runDataDir, true);
+			Profiler.writeUpdates(singleRunCalls, runDataDir,
+					enableCompleteRecommendations);
 
 		} catch (IOException e) {
 			e.printStackTrace();
