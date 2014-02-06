@@ -10,9 +10,7 @@ import dna.util.Rand;
  * @author Benedict
  * 
  */
-public class RandomSelection implements StartNodeSelectionStrategy {
-
-	private Graph g;
+public class RandomSelection extends StartNodeSelectionStrategy {
 
 	/**
 	 * 
@@ -21,15 +19,9 @@ public class RandomSelection implements StartNodeSelectionStrategy {
 	 *            The graph from which the node shall be selected
 	 */
 	public RandomSelection(Graph g) {
-		this.g = g;
+		super(g);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * dna.graph.startNodeSelection.StartNodeSelectionStrategy#getStartNode()
-	 */
 	@Override
 	public Node getStartNode() {
 		int n = g.getNodeCount();
