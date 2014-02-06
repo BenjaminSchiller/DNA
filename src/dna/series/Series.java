@@ -50,8 +50,8 @@ public class Series {
 			RunData runData = RunData.read(dir, run, false);
 			seriesData.addRun(runData);
 		}
-		AggregatedSeries aggregation = null;
-		// TODO read aggregated data!!!!
+		AggregatedSeries aggregation = AggregatedSeries.read(dir, name, true);
+
 		seriesData.setAggregation(aggregation);
 		return seriesData;
 	}
