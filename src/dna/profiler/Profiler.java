@@ -40,12 +40,12 @@ public class Profiler {
 	private static HashSet<String> metricNames = new HashSet<>();
 
 	final static String separator = System.getProperty("line.separator");
-	private static boolean writeAllRecommendations;
+	private static boolean enableCompleteRecommendations;
 	private static boolean disableAllRecommendations;
 
 	public static void activate() {
-		writeAllRecommendations = Config
-				.getBoolean("PROFILER_WRITE_ALL_RECOMMENDATIONS");
+		enableCompleteRecommendations = Config
+				.getBoolean("PROFILER_ENABLE_COMPLETE_RECOMMENDATIONS");
 		disableAllRecommendations = Config
 				.getBoolean("PROFILER_DISABLE_ALL_RECOMMENDATIONS");
 		active = true;
@@ -145,7 +145,7 @@ public class Profiler {
 
 			res.append(getOutputDataForProfileEntry(entry.getValue(), prefix,
 					true, (showRecommendations && prefixFilter != null)
-							|| writeAllRecommendations));
+							|| enableCompleteRecommendations));
 		}
 
 		if (prefixFilter == null) {
@@ -440,7 +440,7 @@ public class Profiler {
 			throws IOException {
 		Profiler.writeSingle(singleBatchCalls, metricKey, dir,
 				Files.getProfilerFilename(Config.get("METRIC_PROFILER")),
-				writeAllRecommendations);
+				enableCompleteRecommendations);
 	}
 
 	private static void writeUpdates(Map<String, ProfileEntry> calls,
@@ -458,7 +458,7 @@ public class Profiler {
 		}
 
 		w.writeln(getOutputDataForProfileEntry(aggregated, "aggregated", true,
-				writeRecommendations || writeAllRecommendations));
+				writeRecommendations || enableCompleteRecommendations));
 		w.close();
 	}
 
@@ -484,13 +484,13 @@ public class Profiler {
 				singleKey += Config.get("PROFILER_INITIALBATCH_KEYADDITION");
 			w.writeln(getCallList(calls, singleKey,
 					(keys.length == 1 && writeRecommendations)
-							|| writeAllRecommendations));
+							|| enableCompleteRecommendations));
 			aggregated = aggregated.add(calls.get(singleKey));
 		}
 
 		if (keys.length > 1) {
 			w.writeln(getOutputDataForProfileEntry(aggregated, "aggregated",
-					true, writeAllRecommendations || writeRecommendations));
+					true, enableCompleteRecommendations || writeRecommendations));
 		}
 		w.close();
 	}
