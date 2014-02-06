@@ -1,99 +1,48 @@
 package dna.graph.startNodeSelection;
 
+import java.util.Collection;
+
 import dna.graph.Graph;
-import dna.graph.nodes.DirectedNode;
+import dna.graph.IElement;
 import dna.graph.nodes.Node;
-import dna.graph.nodes.UndirectedNode;
-import dna.util.Log;
-import dna.util.Rand;
 
 /**
- * Selects n random nodes and chooses the one with the highest degree out of
- * them to be the start node.
- * 
  * @author Benedict
  * 
  */
-public class HighestDegreeSelection implements StartNodeSelectionStrategy {
-
-	private Graph g;
-	private int n;
+public class HighestDegreeSelection extends StartNodeSelectionStrategy {
 
 	/**
-	 * Initializes the HighestDegreeSelection start node selection strategy.
 	 * 
 	 * @param g
-	 *            The graph from which the start node is selected
-	 * @param n
-	 *            The number of random nodes, from which the strategy will
-	 *            choose a start node
 	 */
-	public HighestDegreeSelection(Graph g, int n) {
-		this.n = n;
-		this.g = g;
+	public HighestDegreeSelection(Graph g) {
+		super(g);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * dna.graph.startNodeSelection.StartNodeSelectionStrategy#getStartNode()
-	 */
 	@Override
 	public Node getStartNode() {
-
-		int maxNodeID = g.getNodeCount();
+		Collection<IElement> nodeList = g.getNodes();
+		Node startNode = null;
 		int maxDegree = 0;
 
-		if (DirectedNode.class.isAssignableFrom(this.g.getGraphDatastructures()
-				.getNodeType())) {
+		for (IElement n : nodeList) {
+			int tempDegree = getDegreeFromNode((Node) n);
 
-			DirectedNode resultNode = null;
-
-			for (int i = 0; i < n; i++) {
-
-				DirectedNode tempNode = (DirectedNode) g.getNode(Rand.rand
-						.nextInt(maxNodeID));
-				int tempDegree = tempNode.getOutDegree();
-
-				if (tempDegree > maxDegree) {
-					resultNode = tempNode;
-					maxDegree = tempDegree;
-				}
+			if (tempDegree > maxDegree) {
+				startNode = (Node) n;
+				maxDegree = tempDegree;
 			}
 
-			return resultNode;
-
-		} else if (UndirectedNode.class.isAssignableFrom(this.g
-				.getGraphDatastructures().getNodeType())) {
-
-			UndirectedNode resultNode = null;
-
-			for (int i = 0; i < n; i++) {
-
-				UndirectedNode tempNode = (UndirectedNode) g.getNode(Rand.rand
-						.nextInt(maxNodeID));
-				int tempDegree = tempNode.getDegree();
-
-				if (tempDegree > maxDegree) {
-					resultNode = tempNode;
-					maxDegree = tempDegree;
-				}
-			}
-
-			return resultNode;
-
-		} else {
-			Log.error("DD - unsupported node type "
-					+ this.g.getGraphDatastructures().getNodeType());
-			return null;
 		}
-
+		return startNode;
 	}
 
 	@Override
 	public int resourceCost() {
-		return n;
+		// TODO Realistisch? oder eher 0?
+		// return graph.getNodeCount();
+		return 0;
 	}
 
 }

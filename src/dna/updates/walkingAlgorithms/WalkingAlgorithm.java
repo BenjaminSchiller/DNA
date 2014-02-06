@@ -6,7 +6,9 @@ import java.util.List;
 
 import dna.graph.Graph;
 import dna.graph.IElement;
+import dna.graph.datastructures.GraphDataStructure;
 import dna.graph.edges.Edge;
+import dna.graph.nodes.DirectedNode;
 import dna.graph.nodes.Node;
 import dna.graph.nodes.UndirectedNode;
 import dna.graph.startNodeSelection.StartNodeSelectionStrategy;
@@ -37,6 +39,7 @@ public abstract class WalkingAlgorithm extends BatchGenerator {
 	private int costPerBatch;
 	private int graphSize;
 	private int resource;
+	private int nodeDirection;
 
 	/**
 	 * Initializes the walking algorithm
@@ -85,6 +88,13 @@ public abstract class WalkingAlgorithm extends BatchGenerator {
 		seenNodes = new HashSet<Node>(graphSize);
 		visitedNodes = new HashSet<Node>(graphSize);
 
+		if (DirectedNode.class.isAssignableFrom(this.fullGraph
+				.getGraphDatastructures().getNodeType())) {
+			nodeDirection = 1;
+		} else {
+			nodeDirection = 0;
+		}
+
 	}
 
 	/**
@@ -96,7 +106,6 @@ public abstract class WalkingAlgorithm extends BatchGenerator {
 	 */
 	public Batch generate(Graph g) {
 
-		// TODO Überprüfen ist das so korrekt mit Timestamp?
 		Batch newBatch = new Batch(g.getGraphDatastructures(),
 				g.getTimestamp(), g.getTimestamp() + 1);
 
@@ -106,7 +115,7 @@ public abstract class WalkingAlgorithm extends BatchGenerator {
 			resource = -firstCosts;
 
 			newBatch = addNodeAndNeighborsToBatch(newBatch,
-					init(fullGraph, startNodeStartegy), g);
+					init(startNodeStartegy), g);
 
 			for (int i = firstCosts; i < costPerBatch; i++) {
 				if (!isFurtherBatchPossible(g)) {
@@ -147,8 +156,7 @@ public abstract class WalkingAlgorithm extends BatchGenerator {
 	 * 
 	 * @return the first update
 	 */
-	protected abstract Node init(Graph fullyGraph,
-			StartNodeSelectionStrategy startNode);
+	protected abstract Node init(StartNodeSelectionStrategy startNode);
 
 	/**
 	 * Adds the node (and in case of all seen nodes in graph, also the
@@ -164,14 +172,18 @@ public abstract class WalkingAlgorithm extends BatchGenerator {
 	 */
 	private Batch addNodeAndNeighborsToBatch(Batch batch, Node node, Graph g) {
 
-		batch.add(new NodeAddition(node));
+		Node newNode = g.getGraphDatastructures().newNodeInstance(
+				node.getIndex());
+
+		batch.add(new NodeAddition(newNode));
 
 		seenNodes.add(node);
 		visitedNodes.add(node);
 
-		List<Update> upList = getNeighbors(node, g);
+		List<Update> upList = addNeighbors(node, newNode, g);
 
 		for (Update u : upList) {
+			System.out.println(u);
 			batch.add(u);
 		}
 
@@ -182,20 +194,21 @@ public abstract class WalkingAlgorithm extends BatchGenerator {
 	 * Returns the neighbors of a node and the edges that connects them,
 	 * additionally it updates the seenNodes HashSet
 	 * 
-	 * @param node
-	 *            the node from which we want to receive the neighbors
+	 * @param nodeFromFullGraph
+	 *            the node from the full graph from which we want to receive the
+	 *            neighbors
+	 * @param newNode
+	 *            the same node but from the sample
 	 * @param g
 	 *            the current graph
 	 * @return a list of node and edge additions
 	 */
-	private List<Update> getNeighbors(Node node, Graph g) {
+	private List<Update> addNeighbors(Node nodeFromFullGraph, Node newNode,
+			Graph g) {
 
-		// Für bessere Memory Usage könnte man das auch in
-		// addNodeAndNeighborsToBatch integrieren
+		List<Update> updateList = new ArrayList<Update>();
 
-		List<Update> list = new ArrayList<Update>();
-
-		Iterable<IElement> iter = node.getEdges();
+		Iterable<IElement> iter = getEdgesFromNode(nodeFromFullGraph);
 
 		if (onlyVisited) {
 
@@ -203,13 +216,18 @@ public abstract class WalkingAlgorithm extends BatchGenerator {
 			// Iteriere über alle Edges
 			for (IElement e : iter) {
 				Edge edge = (Edge) e;
-				Node neighbor = edge.getDifferingNode(node);
+				Node neighbor = edge.getDifferingNode(nodeFromFullGraph);
 
 				// Ist der Nachbar in der besucht Liste?
 				if (visitedNodes.contains(neighbor)) {
 
 					// Ja -> Edge in Liste, Ende
-					list.add(new EdgeAddition(edge));
+					GraphDataStructure gds = g.getGraphDatastructures();
+					// TODO Das hier kann fehlschlagen
+					Node dstNode = g.getNode(neighbor.getIndex());
+
+					updateList.add(new EdgeAddition(gds.newEdgeInstance(
+							newNode, dstNode)));
 				} else {
 
 					// Nein -> Weiter
@@ -227,20 +245,29 @@ public abstract class WalkingAlgorithm extends BatchGenerator {
 			// Iteriere über alle Edges
 			for (IElement e : iter) {
 				Edge edge = (Edge) e;
-				Node neighbor = edge.getDifferingNode(node);
-
-				// Edge bereits im Graph?
-				if (!g.containsEdge(edge)) {
-
-					// Nein -> Edge in Liste, Weiter
-					list.add(new EdgeAddition(edge));
-				}
+				Node neighbor = edge.getDifferingNode(nodeFromFullGraph);
 
 				// Ist der Nachbar im Graph?
 				if (!g.containsNode(neighbor)) {
 
 					// Nein -> Nachbar in Liste, Weiter
-					list.add(new NodeAddition(neighbor));
+					updateList.add(new NodeAddition(g.getGraphDatastructures()
+							.newNodeInstance(neighbor.getIndex())));
+				}
+
+				// Edge bereits im Graph?
+				if (!g.containsEdge(edge)) {
+
+					// Nein -> Edge in Liste, Weiter
+					GraphDataStructure gds = g.getGraphDatastructures();
+					// TODO kann fehlschlagen
+					Node dstNode = g.getNode(neighbor.getIndex());
+					System.out.println("gds: " + gds);
+					System.out.println("srcNode: " + newNode);
+					System.out.println("dstNode: " + dstNode);
+
+					updateList.add(new EdgeAddition(gds.newEdgeInstance(
+							newNode, dstNode)));
 				}
 
 				// Ist der Nachbar in der gesehen Liste?
@@ -251,7 +278,7 @@ public abstract class WalkingAlgorithm extends BatchGenerator {
 				}
 			}
 		}
-		return list;
+		return updateList;
 	}
 
 	/**
@@ -263,7 +290,7 @@ public abstract class WalkingAlgorithm extends BatchGenerator {
 
 			return false;
 
-		} else if (g.getNodeCount() == seenNodes.size()) {
+		} else if (fullGraph.getNodeCount() == seenNodes.size()) {
 
 			return false;
 
@@ -292,11 +319,73 @@ public abstract class WalkingAlgorithm extends BatchGenerator {
 	 *            the node of whom we want to receive the unvisited neighbors
 	 * @return a list of nodes
 	 */
-	protected static List<UndirectedNode> getUnvisitedNeighbors(UndirectedNode n) {
-		// TODO implementieren
-		return null;
+	protected ArrayList<Node> getUnvisitedNeighbors(Node n) {
+
+		ArrayList<Node> neighbors = new ArrayList<Node>();
+		Iterable<IElement> iter = getEdgesFromNode(n);
+
+		for (IElement e : iter) {
+			Edge edge = (Edge) e;
+			Node neighbor = edge.getDifferingNode(n);
+			if (!visitedNodes.contains(neighbor)) {
+				neighbors.add(neighbor);
+			}
+		}
+		return neighbors;
 	}
-	
-	
+
+	/**
+	 * Returns a list of all neighbors of node n
+	 * 
+	 * @param n
+	 *            the node of whom we want to receive the neighbors
+	 * @return a list of nodes
+	 */
+	protected ArrayList<Node> getAllNeighbors(Node n) {
+		ArrayList<Node> neighbors = new ArrayList<Node>();
+		Iterable<IElement> iter = getEdgesFromNode(n);
+
+		for (IElement e : iter) {
+			Edge edge = (Edge) e;
+			neighbors.add(edge.getDifferingNode(n));
+		}
+		return neighbors;
+	}
+
+	/**
+	 * Returns the iterator over the outgoing edges of a node (undirected or
+	 * directed)
+	 * 
+	 * @param n
+	 *            the node
+	 */
+	protected Iterable<IElement> getEdgesFromNode(Node n) {
+		if (nodeDirection == 1) {
+			return ((DirectedNode) n).getOutgoingEdges();
+		} else {
+			return n.getEdges();
+		}
+	}
+
+	/**
+	 * Returns the outdegree of a given node (directed o r undirected)
+	 * 
+	 * @param n
+	 *            the node
+	 */
+	protected int getDegreeFromNode(Node n) {
+		if (nodeDirection == 1) {
+			return ((DirectedNode) n).getOutDegree();
+		} else {
+			return ((UndirectedNode) n).getDegree();
+		}
+	}
+
+	/**
+	 * Returns the HashSet with the already visited Nodes
+	 */
+	protected HashSet<Node> getVisitedNodes() {
+		return visitedNodes;
+	}
 
 }
