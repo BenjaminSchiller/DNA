@@ -156,10 +156,26 @@ public class Profiler {
 		return res.toString();
 	}
 
+	private static boolean canDEmptyBeUsedForListInCurrentBatch(ListType lt) {
+		int numberOfAccesses;
+		boolean res = true;
+		for (Entry<String, ProfileEntry> entry : singleBatchCalls.entrySet()) {
+			ProfileEntry val = entry.getValue();
+			for (AccessType at : AccessType.values()) {
+				numberOfAccesses = val.get(lt, at);
+				res = res && (numberOfAccesses == 0 || at.isAllowedOnEmpty());
+				if (!res)
+					return false;
+			}
+		}
+		return true;
+	}
+
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public static String getOtherRuntimeComplexitiesForEntry(
 			ProfilerMeasurementData.ProfilerDataType entryType,
-			ProfileEntry entry, boolean outputAsCommentWithPrefix) {
+			ProfileEntry entry, boolean outputAsCommentWithPrefix,
+			boolean isCombinedOutputForAllAccessTypes) {
 
 		EnumMap<ListType, Class<? extends IDataStructure>> listTypes;
 		GraphDataStructure tempGDS;
@@ -208,9 +224,19 @@ public class Profiler {
 		for (EnumMap<ListType, Class<? extends IDataStructure>> singleCombination : allCombinations) {
 			skipThisEntry = false;
 
-			// TODO these special cases need a handling elsewhere...
 			for (ListType lt : singleCombination.keySet()) {
-				if (entry.hasReadAccessesInList(lt)
+				if (isCombinedOutputForAllAccessTypes) {
+					/**
+					 * Check here whether the current list type has any
+					 * read-access during *metrics*. If the currently used
+					 * metrics use no read-access to this list type, we can
+					 * switch it to DEmpty
+					 */
+					if (canDEmptyBeUsedForListInCurrentBatch(lt)
+							&& (singleCombination.get(lt) != DEmpty.class)) {
+						skipThisEntry = true;
+					}
+				} else if (entry.hasReadAccessesInList(lt)
 						&& singleCombination.get(lt) == DEmpty.class) {
 					skipThisEntry = true;
 				}
@@ -277,6 +303,13 @@ public class Profiler {
 		return res.toString();
 	}
 
+	/**
+	 * Method used to print the complexity analysis over all access types and
+	 * matching recommendations
+	 * 
+	 * @param listOfEntries
+	 * @return
+	 */
 	public static String getGlobalComplexity(
 			Map<String, ProfileEntry> listOfEntries) {
 		StringBuilder res = new StringBuilder();
@@ -293,7 +326,7 @@ public class Profiler {
 					+ resEntry.combinedComplexity(entryType, gds, null)
 					+ separator);
 			res.append(getOtherRuntimeComplexitiesForEntry(entryType, resEntry,
-					false));
+					false, true));
 		}
 		return res.toString();
 	}
@@ -315,7 +348,7 @@ public class Profiler {
 								null) + separator);
 				if (showRecommendations)
 					res.append(getOtherRuntimeComplexitiesForEntry(entryType,
-							entry.getValue(), false));
+							entry.getValue(), false, false));
 			}
 		}
 		return res.toString();
@@ -341,11 +374,11 @@ public class Profiler {
 
 	public static int getCount(String mapKey, ListType[] lt, AccessType at) {
 		int res = 0;
-		for ( ListType inner: lt)
+		for (ListType inner : lt)
 			res += getCount(mapKey, inner, at);
 		return res;
 	}
-	
+
 	public static int getCount(String mapKey, ListType lt, AccessType at) {
 		return getCount(singleBatchCalls, mapKey, lt, at);
 	}
@@ -391,7 +424,7 @@ public class Profiler {
 					+ separator);
 			if (showRecommendations)
 				res.append(getOtherRuntimeComplexitiesForEntry(entryType,
-						aggregated, outputAsCommentWithPrefix));
+						aggregated, outputAsCommentWithPrefix, false));
 		}
 		return res.toString();
 	}
