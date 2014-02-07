@@ -33,6 +33,7 @@ import dna.visualization.components.visualizer.Visualizer;
 import dna.visualization.config.VisualizerListConfig;
 import dna.visualization.config.JSON.JSONObject;
 import dna.visualization.config.JSON.JSONTokener;
+import dna.visualization.config.components.LogDisplayConfig;
 
 @SuppressWarnings("serial")
 public class MainDisplay extends JFrame {
@@ -41,8 +42,11 @@ public class MainDisplay extends JFrame {
 	public static void main(String[] args) {
 		// generate config for visualizers
 		JSONObject jsonConfig = new JSONObject();
+		JSONObject localLogDisplayConfig = new JSONObject();
 
 		String jsonConfigPath = "config/gui_config1.cfg";
+		String logDisplayConfigPath = "config/logDisplayConfig1.cfg";
+
 		Log.info("Reading JSON config from " + '"' + jsonConfigPath + '"');
 		try {
 			FileInputStream file = new FileInputStream(jsonConfigPath);
@@ -51,9 +55,20 @@ public class MainDisplay extends JFrame {
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		}
+		try {
+			FileInputStream file = new FileInputStream(logDisplayConfigPath);
+			JSONTokener tk = new JSONTokener(file);
+			localLogDisplayConfig = new JSONObject(tk);
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		}
 
 		visualizerConfig = VisualizerListConfig
 				.createConfigFromJSONObject(jsonConfig);
+
+		logDisplayConfig = LogDisplayConfig
+				.createLogDisplayConfigFromJSONObject(localLogDisplayConfig
+						.getJSONObject("LogDisplayConfig"));
 
 		/** LIVE DISPLAY **/
 		Boolean liveDisplay = true;
@@ -95,6 +110,7 @@ public class MainDisplay extends JFrame {
 
 	// config
 	public static VisualizerListConfig visualizerConfig;
+	public static LogDisplayConfig logDisplayConfig;
 
 	// live display flag
 	public boolean liveDisplay;
@@ -289,7 +305,8 @@ public class MainDisplay extends JFrame {
 		mainDisplayConstraints.gridwidth = 2;
 		mainDisplayConstraints.gridx = 1;
 		mainDisplayConstraints.gridy = 1;
-		this.logDisplay1 = new LogDisplay(GuiOptions.defaultLogDir);
+
+		this.logDisplay1 = new LogDisplay(this.logDisplayConfig);
 		this.getContentPane().add(this.logDisplay1, mainDisplayConstraints);
 
 		// start logging

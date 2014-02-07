@@ -8,7 +8,6 @@ import javax.swing.BorderFactory;
 import javax.swing.border.TitledBorder;
 
 import dna.util.Config;
-import dna.util.Log.LogLevel;
 import dna.visualization.config.VisualizerListConfig.DisplayMode;
 import dna.visualization.config.VisualizerListConfig.GraphVisibility;
 import dna.visualization.config.VisualizerListConfig.SortModeDist;
@@ -20,7 +19,8 @@ public class GuiOptions {
 	/** GENERAL SETTINGS **/
 	public static final String defaultDir = Config.get("GUI_DEFAULT_DIR");
 	public static final String dateFormat = Config.get("GUI_DATE_FORMAT");
-	public static final String defaultLogDir = Config.get("GUI_DEFAULT_LOG_DIR");
+	public static final String defaultLogDir = Config
+			.get("GUI_DEFAULT_LOG_DIR");
 
 	/** SIZES **/
 	// main display
@@ -109,7 +109,14 @@ public class GuiOptions {
 			45);
 
 	// LogDisplay
-	public static final LogLevel defaultLogLevel = LogLevel.info;
+	public static final String logDefaultWindowName = "LogDisplay";
+	public static final long logDefaultUpdateInterval = 300;
+	public static final Dimension logDefaultTextFieldSize = new Dimension(380,
+			80);
+	public static final boolean logDefaultShowInfo = true;
+	public static final boolean logDefaultShowWarning = true;
+	public static final boolean logDefaultShowError = true;
+	public static final boolean logDefaultShowDebug = false;
 
 	/** FONTS AND BORDERS **/
 	public static final Font defaultFont = Config.getFont("GUI_DEFAULT_FONT");

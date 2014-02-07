@@ -5,7 +5,6 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.BufferedReader;
@@ -14,7 +13,6 @@ import java.io.IOException;
 import java.util.Random;
 
 import javax.swing.BorderFactory;
-import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -26,6 +24,7 @@ import javax.swing.text.DefaultCaret;
 
 import dna.util.Log;
 import dna.visualization.GuiOptions;
+import dna.visualization.config.components.LogDisplayConfig;
 
 /**
  * A java swing component to display a log in live display visualization mode.
@@ -37,7 +36,6 @@ public class LogDisplay extends JPanel implements Runnable {
 
 	// variables
 	private String dir;
-	private LogDisplay thisItem;
 	private long updateInterval;
 	private Thread t;
 
@@ -46,7 +44,6 @@ public class LogDisplay extends JPanel implements Runnable {
 	private JTextArea logTextArea;
 
 	private JPanel checkBoxPanel;
-	private JButton logLevelButton;
 
 	private JLabel debugLabel;
 	private JCheckBox debugCheckBox;
@@ -61,21 +58,25 @@ public class LogDisplay extends JPanel implements Runnable {
 	private JCheckBox warningCheckBox;
 
 	// flags
-	private boolean showInfo = true;
-	private boolean showDebug = false;
-	private boolean showError = true;
-	private boolean showWarning = false;
+	private boolean showInfo;
+	private boolean showWarning;
+	private boolean showError;
+	private boolean showDebug;
 
 	// constructor
-	public LogDisplay(String dir) {
+	public LogDisplay(LogDisplayConfig config) {
 		// init
-		this.dir = dir;
-		this.thisItem = this;
-		this.updateInterval = 300;
+		this.dir = config.getDir();
+		this.updateInterval = config.getUpdateInterval();
+
+		this.showInfo = config.isInfoShown();
+		this.showWarning = config.isWarningShown();
+		this.showError = config.isErrorShown();
+		this.showDebug = config.isDebugShown();
 
 		// set title and border of the metric visualizer
-		TitledBorder title = BorderFactory.createTitledBorder("LogDisplay on: "
-				+ dir);
+		TitledBorder title = BorderFactory.createTitledBorder(config.getName()
+				+ " on: " + dir);
 		title.setBorder(BorderFactory
 				.createEtchedBorder((EtchedBorder.LOWERED)));
 		title.setTitleFont(GuiOptions.defaultFontBorders);
@@ -94,36 +95,19 @@ public class LogDisplay extends JPanel implements Runnable {
 		caret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
 
 		this.logAreaScrollPane = new JScrollPane(this.logTextArea);
-		this.logAreaScrollPane.setPreferredSize(new Dimension(380, 80));
+		this.logAreaScrollPane.setPreferredSize(config.getTextFieldSize());
 
 		c.gridx = 0;
 		c.gridy = 0;
 		this.add(this.logAreaScrollPane, c);
-
-		// logLevelButton
-		this.logLevelButton = new JButton("Loglevel: 1");
-		this.logLevelButton.setFont(GuiOptions.defaultFont);
-		this.logLevelButton.setForeground(GuiOptions.defaultFontColor);
-		this.logLevelButton.setPreferredSize(new Dimension(100, 20));
-		this.logLevelButton.setMargin(new Insets(0, 0, 0, 0));
-		this.logLevelButton
-				.setToolTipText("Change log-level of the displayed log.");
-		this.logLevelButton.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent event) {
-				int logLevel = (Integer.parseInt(logLevelButton.getText()
-						.substring(10)) + 1) % 5;
-				logLevelButton.setText("LogLevel: " + logLevel);
-			}
-		});
 
 		// check box panel
 		this.checkBoxPanel = new JPanel();
 		this.checkBoxPanel.setLayout(new FlowLayout(FlowLayout.RIGHT, 0, 0));
 		this.checkBoxPanel
 				.setComponentOrientation(ComponentOrientation.RIGHT_TO_LEFT);
-		this.checkBoxPanel.setPreferredSize(new Dimension(400, 20));
-		// this.checkBoxPanel.add(this.logLevelButton);
+		this.checkBoxPanel.setPreferredSize(new Dimension(config
+				.getTextFieldSize().width, 20));
 
 		c.gridx = 0;
 		c.gridy = 1;
@@ -238,9 +222,8 @@ public class LogDisplay extends JPanel implements Runnable {
 				} else {
 					this.processLine(line);
 				}
-
 			}
-
+			reader.close();
 		} catch (IOException | InterruptedException e) {
 			e.printStackTrace();
 		}
