@@ -314,6 +314,7 @@ public class GeneratorsTest {
 
 			Edge edgeMocked = mock(this.gds.getEdgeType());
 			when(edgeMocked.getStringRepresentation()).thenReturn("");
+			when(edgeMocked.getHashString()).thenReturn("");
 			if (gds.createsDirected()) {
 				when(((DirectedEdge) edgeMocked).getDst()).thenReturn(
 						(DirectedNode) random);
