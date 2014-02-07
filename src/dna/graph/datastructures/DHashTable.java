@@ -5,7 +5,6 @@ import java.util.Hashtable;
 import java.util.Iterator;
 
 import dna.graph.IElement;
-import dna.graph.datastructures.DataStructure.ListType;
 import dna.graph.edges.Edge;
 import dna.graph.nodes.Node;
 import dna.profiler.complexity.Complexity;
@@ -47,7 +46,7 @@ public class DHashTable extends DataStructureReadable implements
 	public boolean add(Node element) {
 		super.canAdd(element);
 
-		if (this.list.get(element) == null) {
+		if (!this.list.containsValue(element)) {
 			this.list.put(Integer.toString(element.getIndex()), element);
 			if (element.getIndex() > this.maxNodeIndex) {
 				this.maxNodeIndex = element.getIndex();
@@ -61,7 +60,7 @@ public class DHashTable extends DataStructureReadable implements
 	public boolean add(Edge element) {
 		super.canAdd(element);
 
-		if (this.list.get(element) == null) {
+		if (!this.list.containsValue(element)) {
 			this.list.put(Integer.toString(element.hashCode()), element);
 			return true;
 		}
@@ -85,7 +84,7 @@ public class DHashTable extends DataStructureReadable implements
 
 	@Override
 	public boolean contains(Edge element) {
-		return list.containsKey(Integer.toString(element.hashCode()));
+		return list.containsValue(element);
 	}
 
 	@Override

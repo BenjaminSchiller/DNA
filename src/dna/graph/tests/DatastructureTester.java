@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import static org.junit.Assume.assumeTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -11,6 +12,7 @@ import static org.mockito.Mockito.when;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.EnumMap;
 import java.util.Iterator;
 
 import org.junit.Test;
@@ -19,15 +21,22 @@ import org.junit.runners.Parameterized;
 
 import dna.graph.Element;
 import dna.graph.IElement;
+import dna.graph.datastructures.DArray;
 import dna.graph.datastructures.DEmpty;
 import dna.graph.datastructures.DataStructure;
+import dna.graph.datastructures.DataStructure.ListType;
+import dna.graph.datastructures.GraphDataStructure;
+import dna.graph.datastructures.IDataStructure;
 import dna.graph.datastructures.IEdgeListDatastructure;
 import dna.graph.datastructures.INodeListDatastructure;
 import dna.graph.datastructures.INodeListDatastructureReadable;
 import dna.graph.datastructures.IReadable;
-import dna.graph.datastructures.DataStructure.ListType;
+import dna.graph.edges.DirectedEdge;
 import dna.graph.edges.Edge;
+import dna.graph.edges.UndirectedEdge;
+import dna.graph.nodes.DirectedNode;
 import dna.graph.nodes.Node;
+import dna.graph.nodes.UndirectedNode;
 import dna.util.Rand;
 
 @RunWith(Parameterized.class)
@@ -41,8 +50,8 @@ public class DatastructureTester {
 			throws InstantiationException, IllegalAccessException,
 			IllegalArgumentException, InvocationTargetException,
 			NoSuchMethodException, SecurityException {
-		this.dataStructure = (DataStructure) d.getConstructor(ListType.class, Class.class)
-				.newInstance(null, e);
+		this.dataStructure = (DataStructure) d.getConstructor(ListType.class,
+				Class.class).newInstance(null, e);
 		this.elementClass = e;
 	}
 
@@ -407,15 +416,47 @@ public class DatastructureTester {
 
 	@Test
 	public void checkDuplicateCalls() {
-		IElement dummy = mock(elementClass);
-		if (dummy instanceof Node) {
-			when(((Node) dummy).getIndex()).thenReturn(1);
-		}
+		IElement dummy = getDummy(elementClass);
+
 		assertTrue(dataStructure.add(dummy));
 		assertFalse(dataStructure.add(dummy));
 
 		assertTrue(dataStructure.remove(dummy));
 		assertFalse(dataStructure.remove(dummy));
+	}
+
+	@SuppressWarnings("unchecked")
+	private IElement getDummy(Class<? extends IElement> elementClass) {
+		IElement dummy = null;
+		GraphDataStructure tempGDS;
+		EnumMap<ListType, Class<? extends IDataStructure>> listtypes = GraphDataStructure
+				.getList(ListType.GlobalNodeList, DArray.class,
+						ListType.GlobalEdgeList, DArray.class);
+
+		if (Node.class.isAssignableFrom(elementClass)) {
+			tempGDS = new GraphDataStructure(listtypes,
+					(Class<? extends Node>) elementClass, null);
+			dummy = tempGDS.newNodeInstance(42);
+		} else if (DirectedEdge.class.isAssignableFrom(elementClass)) {
+			tempGDS = new GraphDataStructure(listtypes, null,
+					(Class<? extends Edge>) elementClass);
+
+			DirectedNode n1 = new DirectedNode(1, tempGDS);
+			DirectedNode n2 = new DirectedNode(2, tempGDS);
+
+			dummy = tempGDS.newEdgeInstance(n1, n2);
+		} else if (UndirectedEdge.class.isAssignableFrom(elementClass)) {
+			tempGDS = new GraphDataStructure(listtypes, null,
+					(Class<? extends Edge>) elementClass);
+
+			UndirectedNode n1 = new UndirectedNode(1, tempGDS);
+			UndirectedNode n2 = new UndirectedNode(2, tempGDS);
+
+			dummy = tempGDS.newEdgeInstance(n1, n2);
+		} else {
+			fail("Cannot identify " + elementClass);
+		}
+		return dummy;
 	}
 
 }
