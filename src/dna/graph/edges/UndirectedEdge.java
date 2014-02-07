@@ -119,10 +119,9 @@ public class UndirectedEdge extends Edge {
 				&& this.getNode2().getIndex() == oCasted.getNode2().getIndex();
 	}
 
-	public int hashCode() {
-		String s = "" + this.getNode1().getIndex() + " <-> "
+	public String getHashString() {
+		return "" + this.getNode1().getIndex() + " <-> "
 				+ this.getNode2().getIndex();
-		return s.hashCode();
 	}
 
 	public Node getDifferingNode(Node n) {

@@ -46,7 +46,7 @@ public class DHashTable extends DataStructureReadable implements
 	public boolean add(Node element) {
 		super.canAdd(element);
 
-		if (!this.list.containsValue(element)) {
+		if (!this.contains(element)) {
 			this.list.put(Integer.toString(element.getIndex()), element);
 			if (element.getIndex() > this.maxNodeIndex) {
 				this.maxNodeIndex = element.getIndex();
@@ -60,8 +60,8 @@ public class DHashTable extends DataStructureReadable implements
 	public boolean add(Edge element) {
 		super.canAdd(element);
 
-		if (!this.list.containsValue(element)) {
-			this.list.put(Integer.toString(element.hashCode()), element);
+		if (!this.contains(element)) {
+			this.list.put(element.getHashString(), element);
 			return true;
 		}
 		return false;
@@ -79,12 +79,14 @@ public class DHashTable extends DataStructureReadable implements
 
 	@Override
 	public boolean contains(Node element) {
-		return list.containsValue(element);
+		return list.containsKey(Integer.toString(element.getIndex()))
+				&& get(element.getIndex()) != null;
 	}
 
 	@Override
 	public boolean contains(Edge element) {
-		return list.containsValue(element);
+		return list.containsKey(element.getHashString())
+				&& get(element) != null;
 	}
 
 	@Override
@@ -114,7 +116,7 @@ public class DHashTable extends DataStructureReadable implements
 
 	@Override
 	public boolean remove(Edge element) {
-		if (this.list.remove(Integer.toString(element.hashCode())) == null) {
+		if (this.list.remove(element.getHashString()) == null) {
 			return false;
 		}
 		return true;
@@ -122,7 +124,7 @@ public class DHashTable extends DataStructureReadable implements
 
 	@Override
 	public int size() {
-		return list.size();
+		return list.values().size();
 	}
 
 	@Override
@@ -155,7 +157,7 @@ public class DHashTable extends DataStructureReadable implements
 
 	@Override
 	public Edge get(Edge element) {
-		return (Edge) this.list.get(Integer.toString(element.hashCode()));
+		return (Edge) this.list.get(element.getHashString());
 	}
 
 	@Override

@@ -135,6 +135,9 @@ public class DatastructureTester {
 	@Test
 	public void checkAddAndRemove() {
 		IElement dummy = mock(elementClass);
+		if (dummy instanceof Edge) {
+			when(((Edge) dummy).getHashString()).thenReturn("1");
+		}		
 		assertFalse(dataStructure.contains(dummy));
 		assertEquals(0, dataStructure.size());
 		assertTrue(dataStructure.add(dummy));
@@ -156,6 +159,10 @@ public class DatastructureTester {
 		if (Node.class.isAssignableFrom(elementClass)) {
 			when(((Node) dummy1).getIndex()).thenReturn(1);
 			when(((Node) dummy2).getIndex()).thenReturn(2);
+		}
+		if (Edge.class.isAssignableFrom(elementClass)) {
+			when(((Edge) dummy1).getHashString()).thenReturn("1");
+			when(((Edge) dummy2).getHashString()).thenReturn("2");
 		}
 
 		assertFalse(tempDS.contains(dummy1));
@@ -235,6 +242,8 @@ public class DatastructureTester {
 			dummies[i] = mock(this.elementClass);
 			if (Node.class.isAssignableFrom(this.elementClass))
 				when(((Node) dummies[i]).getIndex()).thenReturn(i);
+			if (dummies[i] instanceof Edge)
+				when(((Edge) dummies[i]).getHashString()).thenReturn("" + i);
 			assertTrue(dataStructure.add(dummies[i]));
 		}
 		assertEquals(dummies.length, dataStructure.size());
@@ -273,6 +282,9 @@ public class DatastructureTester {
 			if (singleDummy instanceof Node) {
 				when(((Node) singleDummy).getIndex()).thenReturn(i);
 			}
+			if (singleDummy instanceof Edge) {
+				when(((Edge) singleDummy).getHashString()).thenReturn("" + i);
+			}			
 
 			assertTrue(tempDS.add(singleDummy));
 			dummies.add(singleDummy);
@@ -306,6 +318,9 @@ public class DatastructureTester {
 			if (singleDummy instanceof Node) {
 				when(((Node) singleDummy).getIndex()).thenReturn(i);
 			}
+			if (singleDummy instanceof Edge) {
+				when(((Edge) singleDummy).getHashString()).thenReturn("" + i);
+			}
 
 			dataStructure.add(singleDummy);
 		}
@@ -326,6 +341,9 @@ public class DatastructureTester {
 			 */
 			if (singleDummy instanceof Node) {
 				when(((Node) singleDummy).getIndex()).thenReturn(i);
+			}
+			if (singleDummy instanceof Edge) {
+				when(((Edge) singleDummy).getHashString()).thenReturn("" + i);
 			}
 
 			dataStructure.add(singleDummy);
@@ -403,6 +421,8 @@ public class DatastructureTester {
 		IElement[] dummies = new IElement[10];
 		for (int i = 0; i < dummies.length; i++) {
 			dummies[i] = mock(elementClass);
+			if (dummies[i] instanceof Edge)
+				when(((Edge) dummies[i]).getHashString()).thenReturn("" + i);
 			tempDS.add(dummies[i]);
 		}
 
