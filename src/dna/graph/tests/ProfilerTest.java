@@ -36,6 +36,7 @@ import dna.metrics.Metric.ApplicationType;
 import dna.metrics.Metric.MetricType;
 import dna.profiler.Profiler;
 import dna.series.data.Distribution;
+import dna.series.data.NodeNodeValueList;
 import dna.series.data.NodeValueList;
 import dna.series.data.Value;
 import dna.updates.batch.Batch;
@@ -397,6 +398,12 @@ public class ProfilerTest {
 		@Override
 		public boolean isComparableTo(Metric m) {
 			return false;
+		}
+
+		@Override
+		public NodeNodeValueList[] getNodeNodeValueLists() {
+			// TODO Auto-generated method stub
+			return null;
 		}
 
 	}

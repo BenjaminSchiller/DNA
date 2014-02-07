@@ -5,6 +5,7 @@ import java.util.Hashtable;
 import java.util.Iterator;
 
 import dna.graph.IElement;
+import dna.graph.datastructures.DataStructure.ListType;
 import dna.graph.edges.Edge;
 import dna.graph.nodes.Node;
 import dna.profiler.complexity.Complexity;
@@ -24,13 +25,12 @@ public class DHashTable extends DataStructureReadable implements
 
 	private int maxNodeIndex;
 
-	public DHashTable(Class<? extends IElement> dT) {
-		this.init(dT, defaultSize);
+	public DHashTable(ListType lt, Class<? extends IElement> dT) {
+		super(lt, dT);
 	}
 
 	@Override
 	public void init(Class<? extends IElement> dT, int initialSize) {
-		this.dataType = dT;
 		this.list = new Hashtable<String, IElement>(initialSize);
 		this.maxNodeIndex = -1;
 	}
