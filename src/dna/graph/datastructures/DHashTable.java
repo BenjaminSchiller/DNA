@@ -79,14 +79,25 @@ public class DHashTable extends DataStructureReadable implements
 
 	@Override
 	public boolean contains(Node element) {
+		/**
+		 * This is a tricky check: containsKey will check whether there is *ANY*
+		 * element using that key in the table. But if we know that there is an
+		 * element with that key in the table, we do not yet know if this is the
+		 * proper one, as there can be several entries under the same key. So we
+		 * perform an additional get() which iterates over all entries with the
+		 * same (hashed) key and performs equal() on them
+		 */
 		return list.containsKey(Integer.toString(element.getIndex()))
-				&& get(element.getIndex()) != null;
+				&& list.get(Integer.toString(element.getIndex())) != null;
 	}
 
 	@Override
 	public boolean contains(Edge element) {
+		/**
+		 * Always keep in mind the comment at contains(Node el)!
+		 */
 		return list.containsKey(element.getHashString())
-				&& get(element) != null;
+				&& list.get(element.getHashString()) != null;
 	}
 
 	@Override
@@ -152,11 +163,15 @@ public class DHashTable extends DataStructureReadable implements
 
 	@Override
 	public Node get(int index) {
+		if (!list.containsKey(Integer.toString(index)))
+			return null;
 		return (Node) this.list.get(Integer.toString(index));
 	}
 
 	@Override
 	public Edge get(Edge element) {
+		if (!list.containsKey(element.getHashString()))
+			return null;
 		return (Edge) this.list.get(element.getHashString());
 	}
 
