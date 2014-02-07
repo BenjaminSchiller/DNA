@@ -101,7 +101,7 @@ public class MultiScalarVisualizer extends Visualizer {
 		// add menu bar
 		super.addMenuBar(
 				new Dimension(GuiOptions.visualizerDefaultMenuBarSize), true,
-				true, true, true, false);
+				true, true, true);
 
 		// add coordinate parsing to mouseover on chart
 		this.chart.addMouseMotionListener(new MouseMotionListener() {

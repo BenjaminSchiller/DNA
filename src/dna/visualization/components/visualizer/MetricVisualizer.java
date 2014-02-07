@@ -1,6 +1,7 @@
 package dna.visualization.components.visualizer;
 
 import info.monitorenter.gui.chart.IAxis;
+import info.monitorenter.gui.chart.IAxis.AxisTitle;
 import info.monitorenter.gui.chart.ITrace2D;
 import info.monitorenter.gui.chart.ITracePainter;
 import info.monitorenter.gui.chart.ITracePoint2D;
@@ -18,7 +19,6 @@ import info.monitorenter.gui.chart.traces.painters.TracePainterVerticalBar;
 import info.monitorenter.util.Range;
 
 import java.awt.Color;
-import java.awt.Dimension;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
 import java.text.SimpleDateFormat;
@@ -40,6 +40,7 @@ import dna.visualization.GuiOptions;
 import dna.visualization.config.ConfigItem;
 import dna.visualization.config.MetricVisualizerItem;
 import dna.visualization.config.VisualizerListConfig;
+import dna.visualization.config.components.MetricVisualizerConfig;
 
 @SuppressWarnings("serial")
 public class MetricVisualizer extends Visualizer {
@@ -54,24 +55,24 @@ public class MetricVisualizer extends Visualizer {
 
 	private boolean xAxisTypeTimestamp;
 	private long currentTimestamp;
+	private double xAxisOffset;
 
 	// config
-	VisualizerListConfig config;
+	VisualizerListConfig listConfig;
 
 	// constructor
-	public MetricVisualizer(VisualizerListConfig config) {
+	public MetricVisualizer(MetricVisualizerConfig config) {
 		// initialization
 		this.traces = new HashMap<String, ITrace2D>();
 		this.availableValues = new ArrayList<String>();
-		this.config = config;
+		this.listConfig = config.getListConfig();
 
 		// batch buffer
 		this.batchBuffer = new LinkedList<BatchData>();
 		this.reload = false;
 
 		// set title and border of the metric visualizer
-		TitledBorder title = BorderFactory
-				.createTitledBorder("Metric Visualizer");
+		TitledBorder title = BorderFactory.createTitledBorder(config.getName());
 		title.setBorder(BorderFactory
 				.createEtchedBorder((EtchedBorder.LOWERED)));
 		title.setTitleFont(GuiOptions.defaultFontBorders);
@@ -80,20 +81,18 @@ public class MetricVisualizer extends Visualizer {
 
 		// if x axis type is date
 		this.xAxisTypeTimestamp = true;
-		if (GuiOptions.metricVisualizerXAxisType.equals("date")) {
+		if (config.getxAxisType().equals("date")) {
 			this.xAxisTypeTimestamp = false;
-			this.xAxis1
-					.setFormatter(new LabelFormatterDate(new SimpleDateFormat(
-							GuiOptions.metricVisualizerXAxisFormat)));
+			this.xAxis1.setFormatter(new LabelFormatterDate(
+					new SimpleDateFormat(config.getxAxisFormat())));
 			this.xAxis1.setMajorTickSpacing(5);
 			this.xAxis1.setMinorTickSpacing(1);
 			this.xAxis1
 					.setAxisScalePolicy(new AxisScalePolicyAutomaticBestFit());
 		}
+
 		// add menu bar
-		super.addMenuBar(
-				new Dimension(GuiOptions.visualizerDefaultMenuBarSize), true,
-				true, true, true, false);
+		super.addMenuBar(config.getMenuBarConfig());
 
 		// add coordinate parsing to mouseover on chart
 		this.chart.addMouseMotionListener(new MouseMotionListener() {
@@ -111,6 +110,13 @@ public class MetricVisualizer extends Visualizer {
 			public void mouseDragged(MouseEvent e) {
 			}
 		});
+
+		// apply config
+		this.legend.setPreferredSize(config.getLegendSize());
+		this.xAxisOffset = config.getxAxisOffset();
+
+		this.yAxis1.setAxisTitle(new AxisTitle(config.getY1AxisTitle()));
+		this.yAxis2.setAxisTitle(new AxisTitle(config.getY2AxisTitle()));
 	}
 
 	/** handles the ticks that are shown on the x axis **/
@@ -195,7 +201,7 @@ public class MetricVisualizer extends Visualizer {
 								.getValues().get(value).getValue();
 						this.traces.get(tempName).addPoint(
 								timestampDouble + offsetX, tempValue);
-						offsetX += GuiOptions.metricVisualizerXAxisOffset;
+						offsetX += this.xAxisOffset;
 						this.legend.updateItem(tempName, tempValue);
 					}
 				}
@@ -208,7 +214,7 @@ public class MetricVisualizer extends Visualizer {
 							.getRuntime();
 					this.traces.get(tempName).addPoint(
 							timestampDouble + offsetX, tempValue);
-					offsetX += GuiOptions.metricVisualizerXAxisOffset;
+					offsetX += this.xAxisOffset;
 					this.legend.updateItem(tempName, tempValue);
 				}
 			}
@@ -221,7 +227,7 @@ public class MetricVisualizer extends Visualizer {
 
 					this.traces.get(tempName).addPoint(
 							timestampDouble + offsetX, tempValue);
-					offsetX += GuiOptions.metricVisualizerXAxisOffset;
+					offsetX += this.xAxisOffset;
 					this.legend.updateItem(tempName, tempValue);
 				}
 			}
@@ -233,7 +239,7 @@ public class MetricVisualizer extends Visualizer {
 
 					this.traces.get(tempName).addPoint(
 							timestampDouble + offsetX, tempValue);
-					offsetX += GuiOptions.metricVisualizerXAxisOffset;
+					offsetX += this.xAxisOffset;
 					this.legend.updateItem(tempName, tempValue);
 				}
 			}
@@ -489,8 +495,8 @@ public class MetricVisualizer extends Visualizer {
 		this.legend.updateAddBox(tempValues);
 
 		// load config
-		if (this.config != null)
-			this.loadConfig(this.config);
+		if (this.listConfig != null)
+			this.loadConfig(this.listConfig);
 
 		// toggle visibility and validate
 		this.toggleYAxisVisibility();

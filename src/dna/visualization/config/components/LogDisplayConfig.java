@@ -76,7 +76,7 @@ public class LogDisplayConfig {
 	/** creates a logdisplay config object from a given json object **/
 	public static LogDisplayConfig createLogDisplayConfigFromJSONObject(
 			JSONObject o) {
-		String name = GuiOptions.logDefaultWindowName;
+		String name = GuiOptions.logDefaultTitle;
 		String dir = GuiOptions.defaultLogDir;
 		long updateInterval = GuiOptions.logDefaultUpdateInterval;
 		Dimension textFieldSize = GuiOptions.logDefaultTextFieldSize;

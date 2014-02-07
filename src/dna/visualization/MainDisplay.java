@@ -34,6 +34,7 @@ import dna.visualization.config.VisualizerListConfig;
 import dna.visualization.config.JSON.JSONObject;
 import dna.visualization.config.JSON.JSONTokener;
 import dna.visualization.config.components.LogDisplayConfig;
+import dna.visualization.config.components.MetricVisualizerConfig;
 
 @SuppressWarnings("serial")
 public class MainDisplay extends JFrame {
@@ -42,10 +43,10 @@ public class MainDisplay extends JFrame {
 	public static void main(String[] args) {
 		// generate config for visualizers
 		JSONObject jsonConfig = new JSONObject();
-		JSONObject localLogDisplayConfig = new JSONObject();
+		JSONObject displayConfig = new JSONObject();
 
 		String jsonConfigPath = "config/gui_config1.cfg";
-		String logDisplayConfigPath = "config/logDisplayConfig1.cfg";
+		String displayConfigPath = "config/displayConfig.cfg";
 
 		Log.info("Reading JSON config from " + '"' + jsonConfigPath + '"');
 		try {
@@ -56,9 +57,9 @@ public class MainDisplay extends JFrame {
 			e.printStackTrace();
 		}
 		try {
-			FileInputStream file = new FileInputStream(logDisplayConfigPath);
+			FileInputStream file = new FileInputStream(displayConfigPath);
 			JSONTokener tk = new JSONTokener(file);
-			localLogDisplayConfig = new JSONObject(tk);
+			displayConfig = new JSONObject(tk);
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		}
@@ -67,8 +68,12 @@ public class MainDisplay extends JFrame {
 				.createConfigFromJSONObject(jsonConfig);
 
 		logDisplayConfig = LogDisplayConfig
-				.createLogDisplayConfigFromJSONObject(localLogDisplayConfig
+				.createLogDisplayConfigFromJSONObject(displayConfig
 						.getJSONObject("LogDisplayConfig"));
+
+		metricVisualizerConfig = MetricVisualizerConfig
+				.createMetricVisualizerConfigFromJSONObject(displayConfig
+						.getJSONObject("MetricVisualizerConfig"));
 
 		/** LIVE DISPLAY **/
 		Boolean liveDisplay = true;
@@ -110,6 +115,7 @@ public class MainDisplay extends JFrame {
 
 	// config
 	public static VisualizerListConfig visualizerConfig;
+	public static MetricVisualizerConfig metricVisualizerConfig;
 	public static LogDisplayConfig logDisplayConfig;
 
 	// live display flag
@@ -286,7 +292,7 @@ public class MainDisplay extends JFrame {
 		this.logoPanel.add(logoLabel);
 
 		// add metric visualizer
-		this.metric1 = new MetricVisualizer(visualizerConfig);
+		this.metric1 = new MetricVisualizer(metricVisualizerConfig);
 		mainDisplayConstraints.gridx = 1;
 		mainDisplayConstraints.gridy = 0;
 		this.getContentPane().add(this.metric1, mainDisplayConstraints);

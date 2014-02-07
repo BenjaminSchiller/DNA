@@ -43,6 +43,12 @@ public class GuiOptions {
 			190, 330);
 	public static final Dimension visualizerDefaultChartSize = new Dimension(
 			450, 320);
+	public static final int visualizerDefaultTraceLength = Config
+			.getInt("GUI_TRACE_LENGTH");
+	public static final String visualizerDefaultX1AxisTitle = "Timestamp";
+	public static final String visualizerDefaultX2AxisTitle = "Timestamp";
+	public static final String visualizerDefaultY1AxisTitle = "y1";
+	public static final String visualizerDefaultY2AxisTitle = "y2";
 	public static final String metricVisualizerXAxisType = Config
 			.get("GUI_X_AXIS_TYPE");
 	public static final String metricVisualizerXAxisFormat = Config
@@ -55,6 +61,7 @@ public class GuiOptions {
 			.getDouble("GUI_MULTISCALAR_VISUALIZER_X_OFFSET");
 
 	// metric visualizer defaults
+	public static final String metricVisualizerDefaultTitle = "Metric Visualizer";
 	public static final DisplayMode metricVisualizerDefaultDisplayMode = DisplayMode.linespoint;
 	public static final yAxisSelection metricVisualizerDefaultYAxisSelection = yAxisSelection.y1;
 	public static final GraphVisibility metricVisualizerDefaultGraphVisibility = GraphVisibility.shown;
@@ -101,7 +108,7 @@ public class GuiOptions {
 			45);
 	public static final Dimension menuBarXOptionsPanelSize = new Dimension(65,
 			45);
-	public static final Dimension menuBarYLeftOptionsPanelSize = new Dimension(
+	public static final Dimension menuBarYOptionsPanelSize = new Dimension(
 			65, 45);
 	public static final Dimension menuBarYRightOptionsPanelSize = new Dimension(
 			65, 45);
@@ -109,7 +116,7 @@ public class GuiOptions {
 			45);
 
 	// LogDisplay
-	public static final String logDefaultWindowName = "LogDisplay";
+	public static final String logDefaultTitle = "LogDisplay";
 	public static final long logDefaultUpdateInterval = 300;
 	public static final Dimension logDefaultTextFieldSize = new Dimension(380,
 			80);

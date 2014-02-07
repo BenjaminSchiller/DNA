@@ -31,6 +31,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import dna.visualization.GuiOptions;
+import dna.visualization.config.components.MenuBarConfig;
 
 /**
  * The menubar is a bar containing several options for a visualizer, for example
@@ -47,13 +48,20 @@ public class MenuBar extends JPanel implements ChangeListener {
 
 	// creates the default menu with all panels
 	public MenuBar(Visualizer parent, Dimension d) {
-		this(parent, d, true, true, true, true, false);
+		this(parent, d, true, true, true, true);
+	}
+
+	// creates the menu with a given config
+	public MenuBar(Visualizer parent, MenuBarConfig config) {
+		this(parent, config.getSize(), config.isAddCoordsPanel(), config
+				.isAddIntervalPanel(), config.isAddXOptionsPanel(), config
+				.isAddYOptionsPanel());
 	}
 
 	// constructor
 	public MenuBar(Visualizer parent, Dimension size, boolean addCoordsPanel,
 			boolean addIntervalPanel, boolean addXOptionsPanel,
-			boolean addYLeftOptionsPanel, boolean addYRightOptionsPanel) {
+			boolean addYOptionsPanel) {
 		this.parent = parent;
 		this.thisMenuBar = this;
 		this.setLayout(new GridBagLayout());
@@ -64,36 +72,24 @@ public class MenuBar extends JPanel implements ChangeListener {
 		GuiOptions.menuBarItemBorder
 				.setTitleFont(GuiOptions.defaultFontBorders);
 
-		int spaceUsed = 0;
-
 		// add coords panel
 		if (addCoordsPanel) {
 			this.addCoordsPanel(GuiOptions.menuBarCoordsPanelSize);
-			spaceUsed += GuiOptions.menuBarCoordsPanelSize.width;
 		}
 
 		// add interval panel
 		if (addIntervalPanel) {
 			this.addIntervalPanel(GuiOptions.menuBarIntervalPanelSize);
-			spaceUsed += GuiOptions.menuBarIntervalPanelSize.width;
 		}
 
 		// add x axis options panel
 		if (addXOptionsPanel) {
 			this.addXOptionsPanel(GuiOptions.menuBarXOptionsPanelSize);
-			spaceUsed += GuiOptions.menuBarXOptionsPanelSize.width;
 		}
 
-		// add left y-axis options panel
-		if (addYLeftOptionsPanel) {
-			this.addYLeftOptionsPanel(GuiOptions.menuBarYLeftOptionsPanelSize);
-			spaceUsed += GuiOptions.menuBarYLeftOptionsPanelSize.width;
-		}
-
-		// add right y-axis option panel
-		if (addYRightOptionsPanel) {
-			this.addYRightOptionsPanel(GuiOptions.menuBarYRightOptionsPanelSize);
-			spaceUsed += GuiOptions.menuBarYRightOptionsPanelSize.width;
+		// add y-axis options panel
+		if (addYOptionsPanel) {
+			this.addYOptionsPanel(GuiOptions.menuBarYOptionsPanelSize);
 		}
 	}
 
@@ -439,7 +435,7 @@ public class MenuBar extends JPanel implements ChangeListener {
 	 * 
 	 * @param size
 	 */
-	private void addYLeftOptionsPanel(Dimension size) {
+	private void addYOptionsPanel(Dimension size) {
 		this.yLeftOptionsPanel = new JPanel();
 		this.yLeftOptionsPanel.setLayout(new GridBagLayout());
 		this.yLeftOptionsPanel.setPreferredSize(size);

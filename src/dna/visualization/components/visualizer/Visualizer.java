@@ -20,8 +20,8 @@ import java.text.NumberFormat;
 
 import javax.swing.JPanel;
 
-import dna.util.Config;
 import dna.visualization.GuiOptions;
+import dna.visualization.config.components.MenuBarConfig;
 
 @SuppressWarnings("serial")
 public class Visualizer extends JPanel {
@@ -59,10 +59,10 @@ public class Visualizer extends JPanel {
 	@SuppressWarnings("rawtypes")
 	public Visualizer() {
 		// initialization
-		this.setPreferredSize(GuiOptions.visualizerDefaultSize);
+		// this.setPreferredSize(GuiOptions.visualizerDefaultSize);
 		this.paused = true;
 
-		this.TRACE_LENGTH = Config.getInt("GUI_TRACE_LENGTH");
+		this.TRACE_LENGTH = GuiOptions.visualizerDefaultTraceLength;
 		this.FIXED_VIEWPORT = false;
 		this.minTimestamp = 0;
 		this.maxTimestamp = 0;
@@ -132,13 +132,20 @@ public class Visualizer extends JPanel {
 
 	protected void addMenuBar(Dimension size, boolean addCoordsPanel,
 			boolean addIntervalPanel, boolean addXOptionsPanel,
-			boolean addYLeftOptionsPanel, boolean addYRightOptionsPanel) {
+			boolean addYLeftOptionsPanel) {
 		this.mainConstraints.gridx = 0;
 		this.mainConstraints.gridy = 1;
 		this.mainConstraints.gridwidth = 2;
 		this.menuBar = new MenuBar(this, size, addCoordsPanel,
-				addIntervalPanel, addXOptionsPanel, addYLeftOptionsPanel,
-				addYRightOptionsPanel);
+				addIntervalPanel, addXOptionsPanel, addYLeftOptionsPanel);
+		this.add(this.menuBar, this.mainConstraints);
+	}
+
+	protected void addMenuBar(MenuBarConfig menuBarConfig) {
+		this.mainConstraints.gridx = 0;
+		this.mainConstraints.gridy = 1;
+		this.mainConstraints.gridwidth = 2;
+		this.menuBar = new MenuBar(this, menuBarConfig);
 		this.add(this.menuBar, this.mainConstraints);
 	}
 
