@@ -2,16 +2,16 @@ package dna.graph.nodes;
 
 import dna.graph.Element;
 import dna.graph.datastructures.GraphDataStructure;
+import dna.graph.datastructures.IDataStructure;
+import dna.graph.datastructures.DataStructure.ListType;
 import dna.util.MathHelper;
 
 public abstract class Node extends Element implements INode {
 	protected int index;
-	protected GraphDataStructure gds;
 
 	public Node(int index, GraphDataStructure gds) {
 		this.index = index;
-		this.gds = gds;
-		this.init();
+		this.init(gds);
 	}
 
 	public Node(String str, GraphDataStructure gds) {
@@ -46,4 +46,6 @@ public abstract class Node extends Element implements INode {
 			throw new ClassCastException();
 		return this.index - ((Node) o).getIndex();
 	}
+	
+	public abstract void switchDataStructure(ListType type, IDataStructure newDatastructure);
 }

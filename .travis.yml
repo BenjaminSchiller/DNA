@@ -1,0 +1,17 @@
+language: java
+jdk:
+  - openjdk7
+  - oraclejdk7
+  
+before_install:
+  - wget -Olib/junit.jar http://search.maven.org/remotecontent?filepath=junit/junit/4.11/junit-4.11.jar
+  - wget -Olib/aspectjtools.jar http://repo1.maven.org/maven2/org/aspectj/aspectjtools/1.7.4/aspectjtools-1.7.4.jar
+  - wget -Olib/aspectjrt.jar http://repo1.maven.org/maven2/org/aspectj/aspectjrt/1.7.4/aspectjrt-1.7.4.jar
+
+env:
+  - TESTASPECTJ=true
+  - TESTASPECTJ=false
+  
+script:
+  - export ANT_OPTS="-Xmx3072m -Xms1536m"
+  - ant -DaspectJDir=lib/ -DjUnitJar=lib/junit.jar -DtestAspectJ=$TESTASPECTJ travisTest

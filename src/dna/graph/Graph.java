@@ -3,7 +3,9 @@ package dna.graph;
 import java.util.Collection;
 import java.util.Iterator;
 
+import dna.graph.datastructures.DataStructure.ListType;
 import dna.graph.datastructures.GraphDataStructure;
+import dna.graph.datastructures.IDataStructure;
 import dna.graph.datastructures.IEdgeListDatastructure;
 import dna.graph.datastructures.IEdgeListDatastructureReadable;
 import dna.graph.datastructures.INodeListDatastructure;
@@ -33,16 +35,14 @@ public class Graph {
 	public Graph(String name, long timestamp, GraphDataStructure gds) {
 		this.name = name;
 		this.timestamp = timestamp;
-		this.nodes = gds.newNodeList();
-		this.edges = gds.newGraphEdgeList();
+		this.nodes = (INodeListDatastructure) gds.newList(ListType.GlobalNodeList);
+		this.edges = (IEdgeListDatastructure) gds.newList(ListType.GlobalEdgeList);
 		this.gds = gds;
 	}
 
 	public Graph(String name, long timestamp, GraphDataStructure gds,
 			int nodeSize, int edgeSize) {
 		this(name, timestamp, gds);
-		this.nodes.reinitializeWithSize(nodeSize);
-		this.edges.reinitializeWithSize(edgeSize);
 	}
 
 	public boolean addNode(Node n) {
@@ -315,6 +315,24 @@ public class Graph {
 		Iterator<IElement> iterator = this.edges.iterator();
 		while (iterator.hasNext()) {
 			System.out.println("  " + iterator.next());
+		}
+	}
+	
+	public void switchDataStructure(ListType type, IDataStructure newDatastructure) {
+		switch(type) {
+		case GlobalEdgeList:
+			this.edges = (IEdgeListDatastructure) ((IEdgeListDatastructureReadable)this.edges).switchTo(newDatastructure);
+			break;
+		case GlobalNodeList:
+			this.nodes = (INodeListDatastructure) ((INodeListDatastructureReadable)this.nodes).switchTo(newDatastructure);
+			break;
+		case LocalEdgeList:
+		case LocalInEdgeList:
+		case LocalOutEdgeList:
+		case LocalNodeList:
+			for ( IElement n: nodes) {
+				((Node) n).switchDataStructure(type, newDatastructure);
+			}
 		}
 	}
 

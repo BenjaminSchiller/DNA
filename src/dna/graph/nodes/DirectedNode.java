@@ -3,9 +3,13 @@ package dna.graph.nodes;
 import com.google.common.collect.Iterables;
 
 import dna.graph.IElement;
+import dna.graph.datastructures.DataStructure.ListType;
 import dna.graph.datastructures.GraphDataStructure;
+import dna.graph.datastructures.IDataStructure;
 import dna.graph.datastructures.IEdgeListDatastructure;
+import dna.graph.datastructures.IEdgeListDatastructureReadable;
 import dna.graph.datastructures.INodeListDatastructure;
+import dna.graph.datastructures.INodeListDatastructureReadable;
 import dna.graph.edges.DirectedEdge;
 import dna.graph.edges.Edge;
 
@@ -24,10 +28,11 @@ public class DirectedNode extends Node {
 		super(str, gds);
 	}
 
-	public void init() {
-		this.in = this.gds.newNodeEdgeList();
-		this.out = this.gds.newNodeEdgeList();
-		this.neighbors = this.gds.newNodeList();
+	@Override
+	public void init(GraphDataStructure gds) {
+		this.in = (IEdgeListDatastructure) gds.newList(ListType.LocalInEdgeList);
+		this.out = (IEdgeListDatastructure) gds.newList(ListType.LocalOutEdgeList);
+		this.neighbors = (INodeListDatastructure) gds.newList(ListType.LocalNodeList);
 		this.all = Iterables.unmodifiableIterable(Iterables.concat(in, out));
 	}
 
@@ -125,5 +130,30 @@ public class DirectedNode extends Node {
 	public String toString() {
 		return super.toString() + " (" + this.in.size() + "/" + this.out.size()
 				+ ")";
+	}
+
+	@Override
+	public void switchDataStructure(ListType type,
+			IDataStructure newDatastructure) {
+		switch (type) {
+		case GlobalEdgeList:
+		case GlobalNodeList:
+			System.err.println("A node is not responsible for changing global lists!");
+			break;
+		case LocalEdgeList:
+			// Not longer available here
+			break;
+		case LocalNodeList:
+			this.neighbors = (INodeListDatastructure) ((INodeListDatastructureReadable) this.neighbors).switchTo(newDatastructure);
+			break;
+		case LocalInEdgeList:
+			this.in = (IEdgeListDatastructure) ((IEdgeListDatastructureReadable) this.in).switchTo(newDatastructure);
+			break;
+		case LocalOutEdgeList:
+			this.out = (IEdgeListDatastructure) ((IEdgeListDatastructureReadable) this.out).switchTo(newDatastructure);
+			break;
+		default:
+			break;		
+		}
 	}
 }

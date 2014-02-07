@@ -2,7 +2,7 @@ package dna.profiler.complexity;
 
 import java.util.TreeSet;
 
-public class ComplexityType implements Comparable<ComplexityType> {
+public class ComplexityType implements Comparable<ComplexityType>, Cloneable {
 	/**
 	 * List of complexity types. Keep it sorted to enable comparisons in
 	 * {@link ComplexityType#compareTo(ComplexityType)}
@@ -11,15 +11,44 @@ public class ComplexityType implements Comparable<ComplexityType> {
 	 * 
 	 */
 	public enum Type {
-		Static, Linear, Unknown
+		Static, Linear, Unknown;
+
+		public static ComplexityType staticType = new ComplexityType(Static,
+				null);
+		public static ComplexityType linearType = new ComplexityType(Linear,
+				null);
+		public static ComplexityType unknownType = new ComplexityType(Unknown,
+				null);
+
+		public static ComplexityType getBasicComplexity(Type selector) {
+			switch (selector) {
+			case Static:
+				return staticType;
+			case Linear:
+				return linearType;
+			case Unknown:
+				return unknownType;
+			default:
+				throw new RuntimeException("Unknwon ComplexityType " + selector);
+			}
+		}
+
+		public static boolean contains(String type) {
+			Type[] rawValues = values();
+			for (int i = 0; i < rawValues.length; i++) {
+				if (rawValues[i].toString().equals(type))
+					return true;
+			}
+			return false;
+		}
 	}
 
 	public enum Base {
 		Degree, NodeSize, EdgeSize;
-		
+
 		@Override
 		public String toString() {
-			switch(this) {
+			switch (this) {
 			case Degree:
 				return "d";
 			case EdgeSize:
@@ -39,7 +68,11 @@ public class ComplexityType implements Comparable<ComplexityType> {
 		this.complexityType = t;
 		this.complexityBase = b;
 	}
-	
+
+	public void setBase(Base base) {
+		this.complexityBase = base;
+	}
+
 	public static TreeSet<ComplexityType> getAllComplexityTypes() {
 		TreeSet<ComplexityType> complexityTypes = new TreeSet<>();
 		for (Type t : ComplexityType.Type.values()) {
@@ -108,7 +141,9 @@ public class ComplexityType implements Comparable<ComplexityType> {
 	public String toString() {
 		switch (complexityType) {
 		case Linear:
-			return "O(" + complexityBase.toString() + ")";
+			return "O("
+					+ (complexityBase != null ? complexityBase.toString()
+							: "unknown") + ")";
 		case Static:
 			return "O(1)";
 		case Unknown:
@@ -131,5 +166,9 @@ public class ComplexityType implements Comparable<ComplexityType> {
 			res = this.complexityBase.compareTo(o.complexityBase);
 		}
 		return res;
+	}
+	
+	public ComplexityType clone() {
+		return new ComplexityType(this.complexityType, this.complexityBase);
 	}
 }

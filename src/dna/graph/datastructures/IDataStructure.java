@@ -67,6 +67,12 @@ public interface IDataStructure extends Iterable<IElement> {
 	public boolean canStore(Class<? extends IElement> elementClass);
 
 	/**
+	 * Get the data type of the objects that can be stored
+	 * @return
+	 */
+	public Class<? extends IElement> getDataType();
+	
+	/**
 	 * Print a string representation of this list
 	 */
 	public void printList();

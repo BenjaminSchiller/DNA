@@ -76,9 +76,8 @@ public class DirectedEdge extends Edge {
 				&& this.getDst().getIndex() == oCasted.getDst().getIndex();
 	}
 
-	public int hashCode() {
-		String s = "" + this.src.getIndex() + " -> " + this.dst.getIndex();
-		return s.hashCode();
+	public String getHashString() {
+		return "" + this.src.getIndex() + " -> " + this.dst.getIndex();
 	}
 
 	@Override

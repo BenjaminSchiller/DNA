@@ -11,15 +11,20 @@ import static org.junit.Assume.assumeTrue;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.EnumMap;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
 import dna.graph.Graph;
+import dna.graph.datastructures.DEmpty;
 import dna.graph.datastructures.GraphDataStructure;
+import dna.graph.datastructures.IDataStructure;
 import dna.graph.datastructures.IEdgeListDatastructure;
 import dna.graph.datastructures.INodeListDatastructure;
+import dna.graph.datastructures.DataStructure.AccessType;
+import dna.graph.datastructures.DataStructure.ListType;
 import dna.graph.edges.DirectedEdge;
 import dna.graph.edges.Edge;
 import dna.graph.edges.IWeightedEdge;
@@ -29,7 +34,7 @@ import dna.graph.nodes.IWeightedNode;
 import dna.graph.nodes.Node;
 import dna.graph.nodes.UndirectedNode;
 import dna.graph.weights.IWeighted;
-import dna.profiler.Profiler.ProfilerType;
+import dna.profiler.ProfilerMeasurementData;
 import dna.util.Config;
 
 @RunWith(Parameterized.class)
@@ -39,23 +44,20 @@ public class GraphTester {
 	private Class<? extends Node> nodeType;
 	private Class<? extends Edge> edgeType;
 
-	public GraphTester(Class<? extends INodeListDatastructure> nodeListType,
-			Class<? extends IEdgeListDatastructure> graphEdgeListType,
-			Class<? extends IEdgeListDatastructure> nodeEdgeListType,
+	public GraphTester(EnumMap<ListType, Class<? extends IDataStructure>> listTypes,
 			Class<? extends Node> nodeType, Class<? extends Edge> edgeType)
 			throws InstantiationException, IllegalAccessException,
 			IllegalArgumentException, InvocationTargetException,
 			NoSuchMethodException, SecurityException {
-		this.gds = new GraphDataStructure(nodeListType, graphEdgeListType,
-				nodeEdgeListType, nodeType, edgeType);
+		this.gds = new GraphDataStructure(listTypes, nodeType, edgeType);
 		this.gds.setEdgeType(edgeType);
 		this.graph = gds.newGraphInstance("ABC", 1L, 10, 10);
 		this.nodeType = nodeType;
 		this.edgeType = edgeType;
 	}
 
-	@SuppressWarnings("rawtypes")
-	@Parameterized.Parameters(name = "{0} {1} {2} {3} {4}")
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	@Parameterized.Parameters(name = "{0} {1} {2}")
 	public static Collection<Object> testPairs() {
 		ArrayList<Object> result = new ArrayList<>();
 		for (Class nodeListType : GlobalTestParameters.dataStructures) {
@@ -80,8 +82,18 @@ public class GraphTester {
 							if (!(IEdgeListDatastructure.class
 									.isAssignableFrom(nodeEdgeListType)))
 								continue;
-							result.add(new Object[] { nodeListType,
-									edgeListType, nodeEdgeListType, nodeType,
+
+							if (edgeListType == DEmpty.class
+									|| nodeEdgeListType == DEmpty.class)
+								continue;
+							
+							EnumMap<ListType, Class<? extends IDataStructure>> listTypes = new EnumMap<ListType, Class<? extends IDataStructure>>(
+									ListType.class);
+							listTypes.put(ListType.GlobalNodeList, nodeListType);
+							listTypes.put(ListType.GlobalEdgeList, edgeListType);
+							listTypes.put(ListType.LocalEdgeList, nodeEdgeListType);
+
+							result.add(new Object[] { listTypes, nodeType,
 									edgeType });
 						}
 					}
@@ -94,8 +106,13 @@ public class GraphTester {
 
 	@Test
 	public void datastructureKnowsAboutItsComplexity() {
-		for (ProfilerType p : ProfilerType.values()) {
-			assertNotNull(gds.getComplexityClass(p));
+		for (ListType lt : ListType.values()) {
+			for (AccessType at : AccessType.values()) {
+				for (ProfilerMeasurementData.ProfilerDataType pType : ProfilerMeasurementData.ProfilerDataType
+						.values()) {
+					assertNotNull(gds.getComplexityClass(lt, at, pType));
+				}
+			}
 		}
 	}
 
@@ -168,7 +185,7 @@ public class GraphTester {
 		assertEquals(mock2, e2.getWeight());
 		assertFalse(
 				"Adding the same edge with different weight a second time succeeded (graph edge list: "
-						+ this.gds.getGraphEdgeListType() + ")",
+						+ gds.getListClass(ListType.GlobalEdgeList) + ")",
 				graph.addEdge((Edge) e2));
 	}
 

@@ -4,6 +4,8 @@ import com.google.common.collect.ObjectArrays;
 
 import dna.graph.datastructures.DArray;
 import dna.graph.datastructures.DArrayList;
+import dna.graph.datastructures.DEmpty;
+import dna.graph.datastructures.DHashArrayList;
 import dna.graph.datastructures.DHashMap;
 import dna.graph.datastructures.DHashSet;
 import dna.graph.datastructures.DHashTable;
@@ -24,13 +26,6 @@ import dna.graph.nodes.DirectedNode;
 import dna.graph.nodes.UndirectedDoubleWeightedNode;
 import dna.graph.nodes.UndirectedIntWeightedNode;
 import dna.graph.nodes.UndirectedNode;
-import dna.updates.generators.RandomBatch;
-import dna.updates.generators.RandomEdgeAdditions;
-import dna.updates.generators.RandomEdgeRemovals;
-import dna.updates.generators.RandomEdgeWeights;
-import dna.updates.generators.RandomNodeAdditions;
-import dna.updates.generators.RandomNodeRemovals;
-import dna.updates.generators.RandomNodeWeights;
 
 public class GlobalTestParameters {
 	public static final Class[] nodeTypes = { UndirectedNode.class,
@@ -47,7 +42,7 @@ public class GlobalTestParameters {
 			edgeTypes, Class.class);
 
 	public static final Class[] dataStructures = { DArray.class,
-			DArrayList.class, DHashMap.class, DHashSet.class, DHashTable.class, DLinkedList.class };
+			DArrayList.class, DHashArrayList.class, DHashMap.class, DHashSet.class, DHashTable.class, DLinkedList.class, DEmpty.class };
 
 	public static final Class[] graphGenerators = { RandomGraphGenerator.class,
 			CliqueGenerator.class, RingGenerator.class,

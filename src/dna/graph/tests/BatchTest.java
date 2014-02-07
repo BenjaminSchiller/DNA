@@ -10,6 +10,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.EnumMap;
 import java.util.Random;
 
 import org.junit.Rule;
@@ -19,11 +20,10 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
 import dna.graph.Graph;
+import dna.graph.datastructures.DEmpty;
+import dna.graph.datastructures.DataStructure.ListType;
 import dna.graph.datastructures.GraphDataStructure;
-import dna.graph.datastructures.IEdgeListDatastructure;
-import dna.graph.datastructures.IEdgeListDatastructureReadable;
-import dna.graph.datastructures.INodeListDatastructure;
-import dna.graph.datastructures.INodeListDatastructureReadable;
+import dna.graph.datastructures.IDataStructure;
 import dna.graph.edges.DirectedEdge;
 import dna.graph.edges.Edge;
 import dna.graph.edges.IWeightedEdge;
@@ -54,7 +54,7 @@ import dna.updates.update.NodeRemoval;
 import dna.updates.update.NodeWeight;
 import dna.updates.update.Update;
 
-@RunWith(Parameterized.class)
+@RunWith(Parallelized.class)
 public class BatchTest {
 	private Class<? extends Node> nodeType;
 	private Class<? extends Edge> edgeType;
@@ -66,12 +66,12 @@ public class BatchTest {
 
 	@Rule
 	public TemporaryFolder folder = new TemporaryFolder();
+
 	private int nodeSize, edgeSize, nodeAdd, nodeRem, edgeAdd, edgeRem,
 			nodeWeightChanges, edgeWeightChanges;
 
-	public BatchTest(Class<? extends INodeListDatastructure> nodeListType,
-			Class<? extends IEdgeListDatastructure> graphEdgeListType,
-			Class<? extends IEdgeListDatastructure> nodeEdgeListType,
+	public BatchTest(
+			EnumMap<ListType, Class<? extends IDataStructure>> listTypes,
 			Class<? extends Node> nodeType, Class<? extends Edge> edgeType,
 			Class<? extends GraphGenerator> generator)
 			throws InstantiationException, IllegalAccessException,
@@ -82,8 +82,7 @@ public class BatchTest {
 		this.generator = generator;
 		initSizes();
 
-		this.gds = new GraphDataStructure(nodeListType, graphEdgeListType,
-				nodeEdgeListType, nodeType, edgeType);
+		this.gds = new GraphDataStructure(listTypes, nodeType, edgeType);
 		try {
 			generatorConstructor = generator.getConstructor(
 					GraphDataStructure.class, int.class, int.class);
@@ -97,6 +96,13 @@ public class BatchTest {
 		this.bGen = new RandomBatch(nodeAdd, nodeRem, nodeWeightChanges,
 				getNodeWeightSelector(), edgeAdd, edgeRem, edgeWeightChanges,
 				getEdgeWeightSelector());
+
+		/**
+		 * A short output to overcome the timeout of Travis: If there is no
+		 * console output in 10 minutes, a test run is stopped
+		 */
+		if (Math.random() < 0.001)
+			System.out.print(".");
 	}
 
 	private EdgeWeightSelection getEdgeWeightSelector() {
@@ -187,70 +193,56 @@ public class BatchTest {
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	@Parameterized.Parameters(name = "{0} {1} {2} {3} {4} {5}")
+	@Parameterized.Parameters(name = "{0} {1} {2} {3}")
 	public static Collection testPairs() throws NoSuchMethodException,
 			SecurityException, InstantiationException, IllegalAccessException,
 			IllegalArgumentException, InvocationTargetException {
 		Constructor<? extends GraphGenerator> generatorConstructor;
 		GraphDataStructure gds;
+		
+		ArrayList<EnumMap<ListType, Class<? extends IDataStructure>>> simpleCombinations = GraphDataStructure
+				.getSimpleDatastructureCombinations();
 
 		ArrayList<Object> result = new ArrayList<>();
-		for (Class nodeListType : GlobalTestParameters.dataStructures) {
-			for (Class edgeListType : GlobalTestParameters.dataStructures) {
-				for (Class nodeEdgeListType : GlobalTestParameters.dataStructures) {
-					for (Class generator : GlobalTestParameters.graphGenerators) {
-						for (Class edgeType : GlobalTestParameters.edgeTypes) {
-							for (Class nodeType : GlobalTestParameters.nodeTypes) {
-								if (!(INodeListDatastructureReadable.class
-										.isAssignableFrom(nodeListType)))
-									continue;
-								if (!(IEdgeListDatastructureReadable.class
-										.isAssignableFrom(edgeListType)))
-									continue;
-								if (!(IEdgeListDatastructureReadable.class
-										.isAssignableFrom(nodeEdgeListType)))
-									continue;
+		for (EnumMap<ListType, Class<? extends IDataStructure>> combination : simpleCombinations) {
+			for (Class generator : GlobalTestParameters.graphGenerators) {
+				for (Class edgeType : GlobalTestParameters.edgeTypes) {
+					for (Class nodeType : GlobalTestParameters.nodeTypes) {
+						if ((UndirectedEdge.class.isAssignableFrom(edgeType) && DirectedNode.class
+								.isAssignableFrom(nodeType))
+								|| (DirectedEdge.class
+										.isAssignableFrom(edgeType) && UndirectedNode.class
+										.isAssignableFrom(nodeType)))
+							continue;
 
-								if ((UndirectedEdge.class
-										.isAssignableFrom(edgeType) && DirectedNode.class
-										.isAssignableFrom(nodeType))
-										|| (DirectedEdge.class
-												.isAssignableFrom(edgeType) && UndirectedNode.class
-												.isAssignableFrom(nodeType)))
-									continue;
+						if (generator == EmptyGraphGenerator.class)
+							continue;
 
-								if (generator == EmptyGraphGenerator.class)
-									continue;
-								gds = new GraphDataStructure(nodeListType,
-										edgeListType, nodeEdgeListType,
-										nodeType, edgeType);
-								GraphGenerator gg;
-								try {
-									generatorConstructor = generator
-											.getConstructor(
-													GraphDataStructure.class,
-													int.class, int.class);
-									gg = generatorConstructor.newInstance(gds,
-											0, 0);
-								} catch (NoSuchMethodException e) {
-									generatorConstructor = generator
-											.getConstructor(
-													GraphDataStructure.class,
-													int.class);
-									gg = generatorConstructor.newInstance(gds,
-											0);
-								}
+						if (combination.get(ListType.GlobalEdgeList) == DEmpty.class
+								|| combination.get(ListType.LocalEdgeList) == DEmpty.class)
+							continue;
 
-								if (!gg.canGenerateNodeType(nodeType))
-									continue;
-								if (!gg.canGenerateEdgeType(edgeType))
-									continue;
-
-								result.add(new Object[] { nodeListType,
-										edgeListType, nodeEdgeListType,
-										nodeType, edgeType, generator });
-							}
+						gds = new GraphDataStructure(combination, nodeType,
+								edgeType);
+						GraphGenerator gg;
+						try {
+							generatorConstructor = generator.getConstructor(
+									GraphDataStructure.class, int.class,
+									int.class);
+							gg = generatorConstructor.newInstance(gds, 0, 0);
+						} catch (NoSuchMethodException e) {
+							generatorConstructor = generator.getConstructor(
+									GraphDataStructure.class, int.class);
+							gg = generatorConstructor.newInstance(gds, 0);
 						}
+
+						if (!gg.canGenerateNodeType(nodeType))
+							continue;
+						if (!gg.canGenerateEdgeType(edgeType))
+							continue;
+
+						result.add(new Object[] { combination, nodeType,
+								edgeType, generator });
 					}
 				}
 			}
@@ -295,8 +287,11 @@ public class BatchTest {
 				&& IWeighted.class.isAssignableFrom(edgeType));
 
 		Graph g = gg.generate();
-		Batch b = bGen.generate(g);
-		BatchSanitization.sanitize(b);
+		Batch b;
+		do {
+			b = bGen.generate(g);
+			BatchSanitization.sanitize(b);
+		} while (b.getEdgeWeightsCount() == 0 || b.getNodeWeightsCount() == 0);
 
 		// Get the first elements from weight-based updates
 		NodeWeight nwUpdate = b.getNodeWeights().iterator().next();
@@ -314,7 +309,7 @@ public class BatchTest {
 
 	@Test
 	public void batchWriteAndRead() throws ClassNotFoundException, IOException {
-		String tempFolder = folder.getRoot().getAbsolutePath();
+		String tempFolder = folder.newFolder().getAbsolutePath();
 
 		Graph g = gg.generate();
 		GraphWriter.write(g, tempFolder, "gGen");

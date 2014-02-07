@@ -7,10 +7,6 @@ import java.util.Iterator;
 import dna.graph.IElement;
 import dna.graph.edges.Edge;
 import dna.graph.nodes.Node;
-import dna.profiler.complexity.Complexity;
-import dna.profiler.complexity.ComplexityType;
-import dna.profiler.complexity.ComplexityType.Base;
-import dna.profiler.complexity.ComplexityType.Type;
 import dna.util.Rand;
 
 /**
@@ -26,8 +22,8 @@ public class DHashSet extends DataStructureReadable implements
 
 	private HashSet<IElement> list;
 
-	public DHashSet(Class<? extends IElement> dT) {
-		this.init(dT, defaultSize);
+	public DHashSet(ListType lt, Class<? extends IElement> dT) {
+		super(lt, dT);
 	}
 
 	@Override
@@ -37,7 +33,6 @@ public class DHashSet extends DataStructureReadable implements
 			// + "removing nodes and recalculating the new maxNodeIndex!");
 		}
 
-		this.dataType = dT;
 		this.list = new HashSet<>(initialSize);
 		this.maxNodeIndex = -1;
 	}
@@ -174,59 +169,5 @@ public class DHashSet extends DataStructureReadable implements
 	@Override
 	public int getMaxNodeIndex() {
 		return this.maxNodeIndex;
-	}
-
-	/**
-	 * Get the complexity class for a specific access type
-	 * 
-	 * @param access
-	 *            Access type
-	 * @param base
-	 *            Complexity base (NodeSize, EdgeSize,...)
-	 * @return
-	 */
-	public static Complexity getComplexity(Class<? extends IElement> dt,
-			AccessType access, Base base) {
-		switch (access) {
-		case Add:
-			if (Node.class.isAssignableFrom(dt)) {
-				return new Complexity(1, new ComplexityType(Type.Static, base));
-			} else if (Edge.class.isAssignableFrom(dt)) {
-				return new Complexity(1, new ComplexityType(Type.Static, base));
-			}
-		case Contains:
-			if (Node.class.isAssignableFrom(dt)) {
-				return new Complexity(1, new ComplexityType(Type.Static, base));
-			} else if (Edge.class.isAssignableFrom(dt)) {
-				return new Complexity(1, new ComplexityType(Type.Static, base));
-			}
-		case Get:
-			if (Node.class.isAssignableFrom(dt)) {
-				return new Complexity(1, new ComplexityType(Type.Linear, base));
-			} else if (Edge.class.isAssignableFrom(dt)) {
-				return new Complexity(1, new ComplexityType(Type.Linear, base));
-			}
-		case Random:
-			if (Node.class.isAssignableFrom(dt)) {
-				return new Complexity(1, new ComplexityType(Type.Linear, base));
-			} else if (Edge.class.isAssignableFrom(dt)) {
-				return new Complexity(1, new ComplexityType(Type.Linear, base));
-			}
-		case Remove:
-			if (Node.class.isAssignableFrom(dt)) {
-				return new Complexity(1, new ComplexityType(Type.Static, base));
-			} else if (Edge.class.isAssignableFrom(dt)) {
-				return new Complexity(1, new ComplexityType(Type.Static, base));
-			}
-		case Size:
-			if (Node.class.isAssignableFrom(dt)) {
-				return new Complexity(1, new ComplexityType(Type.Static, base));
-			} else if (Edge.class.isAssignableFrom(dt)) {
-				return new Complexity(1, new ComplexityType(Type.Static, base));
-			}
-		case Iterator:
-			return new Complexity(1, new ComplexityType(Type.Static, base));
-		}
-		return new Complexity(1, new ComplexityType(Type.Unknown, base));
 	}
 }

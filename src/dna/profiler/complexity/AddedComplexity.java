@@ -1,5 +1,6 @@
 package dna.profiler.complexity;
 
+import dna.profiler.complexity.ComplexityType.Base;
 
 /**
  * Complexity that is combined of two other complexities
@@ -16,11 +17,23 @@ public class AddedComplexity extends Complexity {
 		this.first = first;
 		this.second = second;
 	}
-	
+
+	@Override
+	public void setBase(Base base) {
+		this.first.setBase(base);
+		this.second.setBase(base);
+	}
+
 	@Override
 	public void setCounter(int c) {
 		this.first.setCounter(c);
 		this.second.setCounter(c);
+	}
+
+	@Override
+	public void multiplyFactorBy(int factorMultiplyer) {
+		this.first.multiplyFactorBy(factorMultiplyer);
+		this.second.multiplyFactorBy(factorMultiplyer);
 	}
 
 	@Override
@@ -45,9 +58,13 @@ public class AddedComplexity extends Complexity {
 	@Override
 	public ComplexityMap getWeightedComplexityMap() {
 		ComplexityMap res = first.getWeightedComplexityMap();
-		ComplexityMap resSecond = second
-				.getWeightedComplexityMap();
+		ComplexityMap resSecond = second.getWeightedComplexityMap();
 		res.add(resSecond);
 		return res;
+	}
+	
+	@Override
+	public Complexity clone() {
+		return new AddedComplexity(first.clone(), second.clone());
 	}
 }

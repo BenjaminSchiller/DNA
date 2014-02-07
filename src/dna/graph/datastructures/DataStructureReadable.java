@@ -15,6 +15,10 @@ import dna.util.Log;
 public abstract class DataStructureReadable extends DataStructure implements
 		IReadable {
 
+	public DataStructureReadable(ListType lt, Class<? extends IElement> dT) {
+		super(lt, dT);
+	}
+
 	public boolean dataEquals(IDataStructure that) {
 		if (that instanceof DataStructureReadable) {
 			return dataEquals((DataStructureReadable) that);
@@ -71,4 +75,11 @@ public abstract class DataStructureReadable extends DataStructure implements
 		}
 	}
 
+	public IDataStructure switchTo(IDataStructure newDatastructure) {
+		newDatastructure.init(this.dataType, this.size());
+		Iterator<IElement> elIt = this.iterator();
+		while ( elIt.hasNext() )
+			newDatastructure.add(elIt.next());
+		return newDatastructure;
+	}
 }

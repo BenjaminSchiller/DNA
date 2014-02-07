@@ -26,4 +26,6 @@ public interface IReadable extends IDataStructure {
 	 * @return
 	 */
 	public Collection<IElement> getElements();
+	
+	public IDataStructure switchTo(IDataStructure newDatastructure);
 }

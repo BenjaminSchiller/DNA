@@ -1,11 +1,8 @@
 package dna.util;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Properties;
-import java.util.Vector;
 
 import dna.plot.Gnuplot.PlotStyle;
 import dna.plot.data.PlotData.DistributionPlotType;
@@ -13,7 +10,7 @@ import dna.plot.data.PlotData.NodeValueListOrder;
 import dna.plot.data.PlotData.NodeValueListOrderBy;
 import dna.plot.data.PlotData.PlotType;
 
-public class Config {
+public class Config extends PropertiesHolder {
 	private static Properties properties;
 
 	private static HashMap<String, String> overwrite;
@@ -199,64 +196,18 @@ public class Config {
 	public static void resetAll() {
 		overwrite = new HashMap<String, String>();
 	}
-
-	public static void addFile(String file) throws IOException {
+	
+	public static void loadFromProperties(Properties in) {
 		if (properties == null) {
-			// System.out.println("initializing with " + file);
 			properties = new java.util.Properties();
-			FileInputStream in = new FileInputStream(file);
-			properties.load(in);
-		} else {
-			// System.out.println("adding " + file);
-			Properties temp = new java.util.Properties();
-			FileInputStream in = new FileInputStream(file);
-			temp.load(in);
-			properties.putAll(temp);
 		}
-	}
-
-	public static void initWithFiles(String[] file) throws IOException {
-		properties = null;
-		overwrite = null;
-		for (int i = 0; i < file.length; i++) {
-			addFile(file[i]);
-		}
-	}
-
-	public static void initWithFolders(String[] folders) throws IOException {
-		Vector<String> v = new Vector<String>();
-		for (int i = 0; i < folders.length; i++) {
-			File folder = new File(folders[i]);
-			File[] list = folder.listFiles();
-			for (int j = 0; j < list.length; j++) {
-				if (list[j].isFile()
-						&& list[j].getAbsolutePath().endsWith(".properties")) {
-					v.add(list[j].getAbsolutePath());
-				}
-			}
-		}
-		initWithFiles(ArrayUtils.toStringArray(v));
-	}
-
-	public static void initWithFile(String file) throws IOException {
-		initWithFiles(new String[] { file });
-	}
-
-	public static void initWithFolder(String folder) throws IOException {
-		initWithFolders(new String[] { folder });
+		properties.putAll(in);
 	}
 
 	public static void init() throws IOException {
-		Vector<String> v = new Vector<String>();
-		File folder = new File(defaultConfigFolder);
-		File[] list = folder.listFiles();
-		v.add(folder.getAbsolutePath());
-		for (int j = 0; j < list.length; j++) {
-			if (list[j].isDirectory() && !list[j].getName().startsWith(".")) {
-				v.add(list[j].getAbsolutePath());
-			}
-		}
-		initWithFolders(ArrayUtils.toStringArray(v));
+		properties = null;
+		overwrite = null;		
+		loadFromProperties(initFromFolder(defaultConfigFolder));
 	}
 
 	public static boolean containsKey(String key) {

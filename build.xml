@@ -3,8 +3,8 @@
 
 	<!-- The following two properties need to be changed -->
 	<property name="jUnitJar" location="C:\Program Files (x86)\eclipse\plugins\org.junit_4.11.0.v201303080030\junit.jar" />
-	<property name="aspectJDir" location="../aspectj-1.7.4" />
-
+	<property name="aspectJDir" location="../aspectj-1.7.4/lib" />
+	
 	<property name="src" location="src" />
 	<property name="bin" location="bin" />
 
@@ -15,11 +15,33 @@
 			<include name="**/*.jar" />
 		</fileset>
 		<pathelement location="${jUnitJar}" />
+		<fileset dir="${aspectJDir}">
+			<include name="**/*.jar" />
+		</fileset>
 	</path>
+
+	<!-- Put all *common* test classes here -->
+	<fileset id="commonTestClasses" dir="${bin}">
+		<include name="dna/graph/tests/*.class" />
+
+		<!-- exclude AspectJ only stuff -->
+		<exclude name="dna/graph/tests/ProfilerTest.class" />
+
+		<!-- exclude internals -->
+		<exclude name="dna/graph/tests/CompleteTestSuite.class" />
+		<exclude name="dna/graph/tests/Parallelized.class" />
+		<exclude name="dna/graph/tests/GlobalTestParameters.class" />
+		<exclude name="dna/graph/tests/*$*" />
+	</fileset>
+
+	<!-- Put all AspectJ specific test classes here -->
+	<fileset id="AspectJTestClasses" dir="${bin}">
+		<include name="dna/graph/tests/ProfilerTest.class" />
+	</fileset>
 
 	<taskdef resource="org/aspectj/tools/ant/taskdefs/aspectjTaskdefs.properties">
 		<classpath>
-			<pathelement location="${aspectJDir}/lib/aspectjtools.jar" />
+			<pathelement location="${aspectJDir}/aspectjtools.jar" />
 		</classpath>
 	</taskdef>
 
@@ -27,7 +49,7 @@
 		<mkdir dir="${bin}" />
 	</target>
 
-	<target name="clean">
+	<target name="clean" unless="executeDeleteBin">
 		<input message="Delete everything from ${bin} (neccessary if you switch from AspectJ to Java or the other way around)" addproperty="confirmDeleteBin" validargs="y,n" defaultvalue="n" />
 
 		<condition property="executeDeleteBin">
@@ -63,8 +85,10 @@
 			<manifest>
 				<attribute name="Main-Class" value="${mainClass}" />
 				<attribute name="Class-Path" value=".../" />
+       			
 			</manifest>
 			<fileset dir="${bin}" />
+			 <zipgroupfileset dir="lib" includes="**/*.jar" /> 
 		</jar>
 	</target>
 
@@ -75,6 +99,64 @@
 				<attribute name="Class-Path" value=".../" />
 			</manifest>
 			<fileset dir="${bin}" />
+			 <zipgroupfileset dir="lib" includes="**/*.jar" />
 		</jar>
 	</target>
+
+	<target name="test">
+		<junit showoutput="true" enableTestListenerEvents="on">
+			<classpath>
+				<pathelement location="${bin}" />
+				<path refid="class.path" />
+			</classpath>
+			<formatter type="brief" usefile="false" />
+			<batchtest>
+				<resources refid="testClasses" />
+			</batchtest>
+		</junit>
+	</target>
+
+	<target name="testAspectJ">
+		<union id="testClasses">
+			<fileset refid="AspectJTestClasses" />
+			<fileset refid="commonTestClasses" />
+		</union>
+		<antcall target="test" inheritrefs="true" />
+	</target>
+
+	<target name="testJava">
+		<union id="testClasses">
+			<fileset refid="commonTestClasses" />
+		</union>
+		<antcall target="test" inheritrefs="true" />
+	</target>
+
+	<target name="travisCompileAndTest">
+		<condition property="useAspectJ">
+			<and>
+				<isset property="testAspectJ" />
+				<equals arg1="${testAspectJ}" arg2="true" />
+			</and>
+		</condition>
+
+		<antcall target="travisCompileWithAspectJ" />
+		<antcall target="travisCompileWithoutAspectJ" />
+	</target>
+
+	<target name="travisCompileWithAspectJ" if="useAspectJ">
+		<antcall target="compileAspectJ" />
+		<antcall target="testAspectJ" />
+	</target>
+
+	<target name="travisCompileWithoutAspectJ" unless="useAspectJ">
+		<antcall target="compileJava" />
+		<antcall target="testJava" />
+	</target>
+
+	<target name="travisTest">
+		<property name="executeDeleteBin" value="true" />
+		<antcall target="deleteBin" />
+		<antcall target="travisCompileAndTest" />
+	</target>
+
 </project>

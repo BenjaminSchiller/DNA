@@ -1,15 +1,19 @@
 package dna.profiler;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TreeMap;
 
+import dna.graph.datastructures.DEmpty;
+import dna.graph.datastructures.DataStructure.AccessType;
+import dna.graph.datastructures.DataStructure.ListType;
 import dna.graph.datastructures.GraphDataStructure;
-import dna.graph.datastructures.IEdgeListDatastructure;
-import dna.graph.datastructures.INodeListDatastructure;
+import dna.graph.datastructures.IDataStructure;
 import dna.graph.tests.GlobalTestParameters;
 import dna.io.Writer;
 import dna.io.filesystem.Dir;
@@ -28,7 +32,6 @@ public class Profiler {
 	private static boolean active = false;
 	private static boolean inInitialBatch = false;
 	private static GraphDataStructure gds;
-	private static final int NumberOfRecommendations = 3;
 
 	private static String seriesDir, batchDir;
 	private static String graphGeneratorName;
@@ -37,16 +40,12 @@ public class Profiler {
 	private static HashSet<String> metricNames = new HashSet<>();
 
 	final static String separator = System.getProperty("line.separator");
-	private static boolean writeAllRecommendations;
+	private static boolean enableCompleteRecommendations;
 	private static boolean disableAllRecommendations;
 
-	public static enum ProfilerType {
-		AddNodeGlobal, AddNodeLocal, AddEdgeGlobal, AddEdgeLocal, RemoveNodeGlobal, RemoveNodeLocal, RemoveEdgeGlobal, RemoveEdgeLocal, ContainsNodeGlobal, ContainsNodeLocal, ContainsEdgeGlobal, ContainsEdgeLocal, GetNodeGlobal, GetNodeLocal, GetEdgeGlobal, GetEdgeLocal, SizeNodeGlobal, SizeNodeLocal, SizeEdgeGlobal, SizeEdgeLocal, RandomNodeGlobal, RandomEdgeGlobal, IteratorNodeGlobal, IteratorNodeLocal, IteratorEdgeGlobal, IteratorEdgeLocal
-	}
-
 	public static void activate() {
-		writeAllRecommendations = Config
-				.getBoolean("PROFILER_WRITE_ALL_RECOMMENDATIONS");
+		enableCompleteRecommendations = Config
+				.getBoolean("PROFILER_ENABLE_COMPLETE_RECOMMENDATIONS");
 		disableAllRecommendations = Config
 				.getBoolean("PROFILER_DISABLE_ALL_RECOMMENDATIONS");
 		active = true;
@@ -100,10 +99,11 @@ public class Profiler {
 		// Actions to be done after generation of stats, eg. writing them to
 		// disk, printing them,...
 
-		if (!active)
+		if (!active || globalCalls.isEmpty())
 			return;
 
-		System.out.println(getOutput(globalCalls, true));
+		System.out
+				.println(getOutput(globalCalls, enableCompleteRecommendations));
 		System.out.println(getGlobalComplexity(globalCalls));
 	}
 
@@ -146,7 +146,7 @@ public class Profiler {
 
 			res.append(getOutputDataForProfileEntry(entry.getValue(), prefix,
 					true, (showRecommendations && prefixFilter != null)
-							|| writeAllRecommendations));
+							|| enableCompleteRecommendations));
 		}
 
 		if (prefixFilter == null) {
@@ -157,11 +157,29 @@ public class Profiler {
 		return res.toString();
 	}
 
+	private static boolean canDEmptyBeUsedForListInCurrentBatch(ListType lt) {
+		int numberOfAccesses;
+		boolean res = true;
+		for (Entry<String, ProfileEntry> entry : singleBatchCalls.entrySet()) {
+			ProfileEntry val = entry.getValue();
+			for (AccessType at : AccessType.values()) {
+				numberOfAccesses = val.get(lt, at);
+				res = res && (numberOfAccesses == 0 || at.isAllowedOnEmpty());
+				if (!res)
+					return false;
+			}
+		}
+		return true;
+	}
+
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public static String getOtherComplexitiesForEntry(ProfileEntry entry,
-			boolean outputAsCommentWithPrefix) {
+	public static String getOtherRuntimeComplexitiesForEntry(
+			ProfilerMeasurementData.ProfilerDataType entryType,
+			ProfileEntry entry, boolean outputAsCommentWithPrefix,
+			boolean isCombinedOutputForAllAccessTypes) {
+
+		EnumMap<ListType, Class<? extends IDataStructure>> listTypes;
 		GraphDataStructure tempGDS;
-		TreeMap<ComplexityMap, GraphDataStructure> listOfOtherComplexities = new TreeMap<>();
 		StringBuilder res = new StringBuilder();
 
 		String outputPrefix = outputAsCommentWithPrefix ? "# " : "";
@@ -178,39 +196,87 @@ public class Profiler {
 			return res.toString();
 		}
 
-		for (Class nodeListType : GlobalTestParameters.dataStructures) {
-			for (Class edgeListType : GlobalTestParameters.dataStructures) {
-				for (Class nodeEdgeListType : GlobalTestParameters.dataStructures) {
-					if (!(INodeListDatastructure.class
-							.isAssignableFrom(nodeListType)))
-						continue;
-					if (!(IEdgeListDatastructure.class
-							.isAssignableFrom(edgeListType)))
-						continue;
-					if (!(IEdgeListDatastructure.class
-							.isAssignableFrom(nodeEdgeListType)))
-						continue;
-					tempGDS = new GraphDataStructure(nodeListType,
-							edgeListType, nodeEdgeListType, gds.getNodeType(),
-							gds.getEdgeType());
-					final ComplexityMap combinedComplexityMap = entry
-							.combinedComplexity(tempGDS);
-					if (!listOfOtherComplexities
-							.containsKey(combinedComplexityMap)) {
-						listOfOtherComplexities.put(combinedComplexityMap,
-								tempGDS);
+		EnumMap<ListType, HashMap<Class, ComplexityMap>> listComplexities = new EnumMap<ListType, HashMap<Class, ComplexityMap>>(
+				ListType.class);
+		HashMap<Class, ComplexityMap> innerComplexities;
+
+		for (ListType lt : ListType.values()) {
+			innerComplexities = new HashMap<Class, ComplexityMap>();
+			for (Class listClass : GlobalTestParameters.dataStructures) {
+				if (!(lt.getRequiredType().isAssignableFrom(listClass)))
+					continue;
+				listTypes = GraphDataStructure.getList(lt, listClass);
+				tempGDS = new GraphDataStructure(listTypes, gds.getNodeType(),
+						gds.getEdgeType());
+				innerComplexities.put(listClass,
+						entry.combinedComplexity(entryType, tempGDS, lt));
+			}
+			listComplexities.put(lt, innerComplexities);
+		}
+
+		ArrayList<EnumMap<ListType, Class<? extends IDataStructure>>> allCombinations = GraphDataStructure
+				.getAllDatastructureCombinations();
+
+		TreeMap<ComplexityMap, GraphDataStructure> recommendationList = new TreeMap<>();
+		int numberOfRecommendations = Config
+				.getInt("NUMBER_OF_RECOMMENDATIONS");
+
+		boolean skipThisEntry = false;
+		for (EnumMap<ListType, Class<? extends IDataStructure>> singleCombination : allCombinations) {
+			skipThisEntry = false;
+
+			for (ListType lt : singleCombination.keySet()) {
+				if (isCombinedOutputForAllAccessTypes) {
+					/**
+					 * Check here whether the current list type has any
+					 * read-access during *metrics*. If the currently used
+					 * metrics use no read-access to this list type, we can
+					 * switch it to DEmpty
+					 */
+					if (canDEmptyBeUsedForListInCurrentBatch(lt)
+							&& (singleCombination.get(lt) != DEmpty.class)) {
+						skipThisEntry = true;
 					}
+				} else if (entry.hasReadAccessesInList(lt)
+						&& singleCombination.get(lt) == DEmpty.class) {
+					skipThisEntry = true;
 				}
+			}
+
+			if (skipThisEntry) {
+				continue;
+			}
+
+			tempGDS = new GraphDataStructure(singleCombination,
+					gds.getNodeType(), gds.getEdgeType());
+			ComplexityMap aggregated = new ComplexityMap();
+			for (Entry<ListType, Class<? extends IDataStructure>> typeClass : singleCombination
+					.entrySet()) {
+				aggregated.add(listComplexities.get(typeClass.getKey()).get(
+						typeClass.getValue()));
+			}
+			GraphDataStructure graphDataStructure = recommendationList
+					.get(aggregated);
+			if (graphDataStructure == null) {
+				// Key not yet in list
+				recommendationList.put(aggregated, tempGDS);
+			} else if ((singleCombination.get(ListType.GlobalEdgeList) == DEmpty.class && graphDataStructure
+					.getListClass(ListType.GlobalEdgeList) != DEmpty.class)
+					|| (singleCombination.get(ListType.LocalEdgeList) == DEmpty.class && graphDataStructure
+							.getListClass(ListType.LocalEdgeList) != DEmpty.class)) {
+				// Key already in list, but with concrete types where we
+				// could also use DEmpty to save memory
+				recommendationList.put(aggregated, tempGDS);
 			}
 		}
 
 		/**
-		 * Recoomendations are picked from the front of the list, as they have
+		 * Recommendations are picked from the front of the list, as they have
 		 * the largest counter for the most important complexity class
 		 */
-		for (int i = 0; (i < NumberOfRecommendations && listOfOtherComplexities
+		for (int i = 0; (i < numberOfRecommendations && recommendationList
 				.size() > 0); i++) {
-			Entry<ComplexityMap, GraphDataStructure> pollFirstEntry = listOfOtherComplexities
+			Entry<ComplexityMap, GraphDataStructure> pollFirstEntry = recommendationList
 					.pollFirstEntry();
 			String polledEntry = pollFirstEntry.getValue()
 					.getStorageDataStructures(true)
@@ -221,11 +287,10 @@ public class Profiler {
 		}
 
 		// res.append(separator + "  Bottom list: ");
-		// for (int i = 0; (i < NumberOfRecommendations &&
-		// listOfOtherComplexities
+		// for (int i = 0; (i < numberOfRecommendations && recommendationList
 		// .size() > 0); i++) {
 		// Entry<ComplexityMap, GraphDataStructure> pollLastEntry =
-		// listOfOtherComplexities
+		// recommendationList
 		// .pollLastEntry();
 		// String polledEntry = pollLastEntry.getValue()
 		// .getStorageDataStructures(true)
@@ -239,6 +304,13 @@ public class Profiler {
 		return res.toString();
 	}
 
+	/**
+	 * Method used to print the complexity analysis over all access types and
+	 * matching recommendations
+	 * 
+	 * @param listOfEntries
+	 * @return
+	 */
 	public static String getGlobalComplexity(
 			Map<String, ProfileEntry> listOfEntries) {
 		StringBuilder res = new StringBuilder();
@@ -249,8 +321,14 @@ public class Profiler {
 			resEntry = resEntry.add(entry.getValue());
 		}
 		res.append(resEntry.toString());
-		res.append(" Aggr: " + resEntry.combinedComplexity(gds) + separator);
-		res.append(getOtherComplexitiesForEntry(resEntry, false));
+		for (ProfilerMeasurementData.ProfilerDataType entryType : ProfilerMeasurementData.ProfilerDataType
+				.values()) {
+			res.append(" Aggr for " + entryType + ": "
+					+ resEntry.combinedComplexity(entryType, gds, null)
+					+ separator);
+			res.append(getOtherRuntimeComplexitiesForEntry(entryType, resEntry,
+					false, true));
+		}
 		return res.toString();
 	}
 
@@ -262,10 +340,17 @@ public class Profiler {
 				res.append(separator);
 			res.append("Count type: " + entry.getKey() + separator);
 			res.append(entry.getValue().toString());
-			res.append(" Aggr: " + entry.getValue().combinedComplexity(gds)
-					+ separator);
-			if (showRecommendations)
-				res.append(getOtherComplexitiesForEntry(entry.getValue(), false));
+			for (ProfilerMeasurementData.ProfilerDataType entryType : ProfilerMeasurementData.ProfilerDataType
+					.values()) {
+				res.append(" Aggr for "
+						+ entryType
+						+ ": "
+						+ entry.getValue().combinedComplexity(entryType, gds,
+								null) + separator);
+				if (showRecommendations)
+					res.append(getOtherRuntimeComplexitiesForEntry(entryType,
+							entry.getValue(), false, false));
+			}
 		}
 		return res.toString();
 	}
@@ -280,24 +365,31 @@ public class Profiler {
 		return innerMap;
 	}
 
-	public static void count(String mapKey, ProfilerType p) {
+	public static void count(String mapKey, ListType lt, AccessType a) {
 		if (!active)
 			return;
 
 		ProfileEntry innerMap = entryForKey(singleBatchCalls, mapKey, false);
-		innerMap.increase(p, 1);
+		innerMap.increase(lt, a, 1);
 	}
 
-	public static int getCount(String mapKey, ProfilerType p) {
-		return getCount(singleBatchCalls, mapKey, p);
+	public static int getCount(String mapKey, ListType[] lt, AccessType at) {
+		int res = 0;
+		for (ListType inner : lt)
+			res += getCount(mapKey, inner, at);
+		return res;
+	}
+
+	public static int getCount(String mapKey, ListType lt, AccessType at) {
+		return getCount(singleBatchCalls, mapKey, lt, at);
 	}
 
 	public static int getCount(Map<String, ProfileEntry> calls, String mapKey,
-			ProfilerType p) {
+			ListType lt, AccessType at) {
 		ProfileEntry innerMap = calls.get(mapKey);
 		if (innerMap == null)
 			return 0;
-		return innerMap.get(p);
+		return innerMap.get(lt, at);
 	}
 
 	private static HashMap<String, ProfileEntry> merge(
@@ -326,11 +418,15 @@ public class Profiler {
 
 		StringBuilder res = new StringBuilder();
 		res.append(aggregated.callsAsString(prefix));
-		res.append(outputPrefix + " Aggr: "
-				+ aggregated.combinedComplexity(gds) + separator);
-		if (showRecommendations)
-			res.append(getOtherComplexitiesForEntry(aggregated,
-					outputAsCommentWithPrefix));
+		for (ProfilerMeasurementData.ProfilerDataType entryType : ProfilerMeasurementData.ProfilerDataType
+				.values()) {
+			res.append(outputPrefix + " Aggr for " + entryType + ": "
+					+ aggregated.combinedComplexity(entryType, gds, null)
+					+ separator);
+			if (showRecommendations)
+				res.append(getOtherRuntimeComplexitiesForEntry(entryType,
+						aggregated, outputAsCommentWithPrefix, false));
+		}
 		return res.toString();
 	}
 
@@ -345,7 +441,7 @@ public class Profiler {
 			throws IOException {
 		Profiler.writeSingle(singleBatchCalls, metricKey, dir,
 				Files.getProfilerFilename(Config.get("METRIC_PROFILER")),
-				writeAllRecommendations);
+				enableCompleteRecommendations);
 	}
 
 	private static void writeUpdates(Map<String, ProfileEntry> calls,
@@ -363,7 +459,7 @@ public class Profiler {
 		}
 
 		w.writeln(getOutputDataForProfileEntry(aggregated, "aggregated", true,
-				writeRecommendations || writeAllRecommendations));
+				writeRecommendations || enableCompleteRecommendations));
 		w.close();
 	}
 
@@ -389,13 +485,13 @@ public class Profiler {
 				singleKey += Config.get("PROFILER_INITIALBATCH_KEYADDITION");
 			w.writeln(getCallList(calls, singleKey,
 					(keys.length == 1 && writeRecommendations)
-							|| writeAllRecommendations));
+							|| enableCompleteRecommendations));
 			aggregated = aggregated.add(calls.get(singleKey));
 		}
 
 		if (keys.length > 1) {
 			w.writeln(getOutputDataForProfileEntry(aggregated, "aggregated",
-					true, writeAllRecommendations || writeRecommendations));
+					true, enableCompleteRecommendations || writeRecommendations));
 		}
 		w.close();
 	}
@@ -414,16 +510,16 @@ public class Profiler {
 			Profiler.writeMultiple(singleSeriesCalls,
 					batchGeneratorNames.toArray(new String[0]), seriesDir,
 					Files.getProfilerFilename(Config.get("BATCH_PROFILER")),
-					true);
+					enableCompleteRecommendations);
 
 			Profiler.writeMultiple(singleSeriesCalls,
 					metricNames.toArray(new String[0]), seriesDir,
 					Files.getProfilerFilename(Config.get("METRIC_PROFILER")),
-					true);
+					enableCompleteRecommendations);
 
-			Profiler.writeUpdates(singleSeriesCalls, seriesDir, true);
+			Profiler.writeUpdates(singleSeriesCalls, seriesDir,
+					enableCompleteRecommendations);
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		singleSeriesCalls = new HashMap<>();
@@ -439,7 +535,8 @@ public class Profiler {
 			String runDataDir = Dir.getRunDataDir(seriesDir, run);
 			Profiler.writeSingle(singleRunCalls, graphGeneratorName,
 					runDataDir, Files.getProfilerFilename(Config
-							.get("GRAPHGENERATOR_PROFILER")), true);
+							.get("GRAPHGENERATOR_PROFILER")),
+					enableCompleteRecommendations);
 
 			Profiler.write(singleRunCalls, runDataDir, Files
 					.getProfilerFilename(Config.get("AGGREGATED_PROFILER")),
@@ -448,14 +545,15 @@ public class Profiler {
 			Profiler.writeMultiple(singleRunCalls,
 					batchGeneratorNames.toArray(new String[0]), runDataDir,
 					Files.getProfilerFilename(Config.get("BATCH_PROFILER")),
-					true);
+					enableCompleteRecommendations);
 
 			Profiler.writeMultiple(singleRunCalls,
 					metricNames.toArray(new String[0]), runDataDir,
 					Files.getProfilerFilename(Config.get("METRIC_PROFILER")),
-					true);
+					enableCompleteRecommendations);
 
-			Profiler.writeUpdates(singleRunCalls, runDataDir, true);
+			Profiler.writeUpdates(singleRunCalls, runDataDir,
+					enableCompleteRecommendations);
 
 		} catch (IOException e) {
 			e.printStackTrace();
