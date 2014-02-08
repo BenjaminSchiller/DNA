@@ -7,25 +7,21 @@ import dna.visualization.config.VisualizerListConfig;
 import dna.visualization.config.JSON.JSONObject;
 
 /**
- * Configuration object to configure metric visualizer windows.
+ * Configuration object to configure multicscalar visualizer windows.
  * 
  * @author Rwilmes
  */
-public class MetricVisualizerConfig {
+public class MultiScalarVisualizerConfig {
 
-	// constructor
-	public MetricVisualizerConfig(String name, int traceLength,
-			Dimension chartSize, double xAxisOffset, String x1AxisTitle,
-			String xAxisType, String xAxisFormat, String y1AxisTitle,
-			String y2AxisTitle, Dimension legendSize,
+	public MultiScalarVisualizerConfig(String name, Dimension chartSize,
+			double xAxisOffset, String x1AxisTitle, String x2AxisTitle,
+			String y1AxisTitle, String y2AxisTitle, Dimension legendSize,
 			VisualizerListConfig listConfig, MenuBarConfig menuBarConfig) {
 		this.name = name;
-		this.traceLength = traceLength;
 		this.chartSize = chartSize;
 		this.xAxisOffset = xAxisOffset;
 		this.x1AxisTitle = x1AxisTitle;
-		this.xAxisType = xAxisType;
-		this.xAxisFormat = xAxisFormat;
+		this.x2AxisTitle = x2AxisTitle;
 		this.y1AxisTitle = y1AxisTitle;
 		this.y2AxisTitle = y2AxisTitle;
 		this.legendSize = legendSize;
@@ -35,7 +31,6 @@ public class MetricVisualizerConfig {
 
 	// general options
 	private String name;
-	private int traceLength;
 
 	// chart options
 	private Dimension chartSize;
@@ -43,8 +38,7 @@ public class MetricVisualizerConfig {
 
 	// x axis
 	private String x1AxisTitle;
-	private String xAxisType;
-	private String xAxisFormat;
+	private String x2AxisTitle;
 
 	// y axis
 	private String y1AxisTitle;
@@ -62,10 +56,6 @@ public class MetricVisualizerConfig {
 		return this.name;
 	}
 
-	public int getTraceLength() {
-		return this.traceLength;
-	}
-
 	public Dimension getChartSize() {
 		return this.chartSize;
 	}
@@ -78,12 +68,8 @@ public class MetricVisualizerConfig {
 		return this.x1AxisTitle;
 	}
 
-	public String getxAxisType() {
-		return this.xAxisType;
-	}
-
-	public String getxAxisFormat() {
-		return this.xAxisFormat;
+	public String getx2AxisTitle() {
+		return this.x2AxisTitle;
 	}
 
 	public String getY1AxisTitle() {
@@ -106,18 +92,18 @@ public class MetricVisualizerConfig {
 		return this.menuBarConfig;
 	}
 
-	/** Creates a metric visualizer config object from a given json object. **/
-	public static MetricVisualizerConfig createMetricVisualizerConfigFromJSONObject(
+	/**
+	 * Creates a multi scalar visualizer config object from a given json object.
+	 **/
+	public static MultiScalarVisualizerConfig createMultiScalarVisualizerConfigFromJSONObject(
 			JSONObject o) {
-		String name = GuiOptions.metricVisualizerDefaultTitle;
-		int traceLength = GuiOptions.visualizerDefaultTraceLength;
+		String name = GuiOptions.multiScalarVisualizerDefaultTitle;
 		Dimension chartSize = GuiOptions.visualizerDefaultChartSize;
 
-		double xAxisOffset = GuiOptions.metricVisualizerXAxisOffset;
+		double xAxisOffset = GuiOptions.multiScalarVisualizerXAxisOffset;
 
 		String x1AxisTitle = GuiOptions.visualizerDefaultX1AxisTitle;
-		String xAxisType = GuiOptions.metricVisualizerXAxisType;
-		String xAxisFormat = GuiOptions.metricVisualizerXAxisFormat;
+		String x2AxisTitle = GuiOptions.visualizerDefaultX2AxisTitle;
 
 		String y1AxisTitle = GuiOptions.visualizerDefaultY1AxisTitle;
 		String y2AxisTitle = GuiOptions.visualizerDefaultY2AxisTitle;
@@ -126,11 +112,6 @@ public class MetricVisualizerConfig {
 
 		try {
 			name = o.getString("Name");
-		} catch (Exception e) {
-		}
-
-		try {
-			traceLength = o.getInt("TraceLength");
 		} catch (Exception e) {
 		}
 
@@ -147,11 +128,8 @@ public class MetricVisualizerConfig {
 				case "x1AxisTitle":
 					x1AxisTitle = chart.getString(s);
 					break;
-				case "xAxisType":
-					xAxisType = chart.getString(s);
-					break;
-				case "xAxisFormat":
-					xAxisFormat = chart.getString(s);
+				case "x2AxisTitle":
+					x2AxisTitle = chart.getString(s);
 					break;
 				case "xAxisOffset":
 					xAxisOffset = chart.getDouble(s);
@@ -183,8 +161,8 @@ public class MetricVisualizerConfig {
 		MenuBarConfig menuBarConfig = MenuBarConfig
 				.createMenuBarConfigFromJSONObject(o.getJSONObject("MenuBar"));
 
-		return new MetricVisualizerConfig(name, traceLength, chartSize,
-				xAxisOffset, x1AxisTitle, xAxisType, xAxisFormat, y1AxisTitle,
-				y2AxisTitle, legendSize, listConfig, menuBarConfig);
+		return new MultiScalarVisualizerConfig(name, chartSize, xAxisOffset,
+				x1AxisTitle, x2AxisTitle, y1AxisTitle, y2AxisTitle, legendSize,
+				listConfig, menuBarConfig);
 	}
 }

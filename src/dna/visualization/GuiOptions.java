@@ -18,7 +18,8 @@ import dna.visualization.config.VisualizerListConfig.yAxisSelection;
 public class GuiOptions {
 	/** GENERAL SETTINGS **/
 	public static final String defaultDir = Config.get("GUI_DEFAULT_DIR");
-	public static final String dateFormat = Config.get("GUI_DATE_FORMAT");
+	public static final String defaultDateFormat = Config
+			.get("GUI_DATE_FORMAT");
 	public static final String defaultLogDir = Config
 			.get("GUI_DEFAULT_LOG_DIR");
 
@@ -29,10 +30,21 @@ public class GuiOptions {
 	public static final Dimension logoSize = new Dimension(270, 160);
 
 	// stats display
-	public static final Dimension statsDisplaySize = new Dimension(300, 420);
-	public static final Dimension statsDisplaySettingsPanelSize = new Dimension(
-			285, 150);
+	public static final String statsDisplayDefaultTitle = "Statistics";
+	public static final String statsDisplayDefaultMetricRuntimeTitle = "MetricRuntimes";
+	public static final String statsDisplayDefaultGeneralRuntimeTitle = "GeneralRuntimes";
+	public static final Dimension statsDisplayDefaultSize = new Dimension(300,
+			420);
+	public static final Dimension statsDisplayDefaultSettingsPanelSize = new Dimension(
+			285, 200);
 	public static final Dimension statsDisplayButtonSize = new Dimension(20, 20);
+	public static final boolean statsDisplayAddTimePanel = true;
+	public static final boolean statsDisplayAddSpeedSlider = true;
+	public static final boolean statsDisplayAddSettingsPanel = true;
+	public static final boolean statsDisplayAddMetRuntimes = true;
+	public static final boolean statsDisplayOnlyShowDefinedMetricRuntimes = false;
+	public static final boolean statsDisplayAddGenRuntimes = true;
+	public static final boolean statsDisplayOnlyShowDefinedGeneralRuntimes = false;
 
 	// visualizer
 	public static final Dimension visualizerDefaultSize = new Dimension(670,
@@ -67,6 +79,7 @@ public class GuiOptions {
 	public static final GraphVisibility metricVisualizerDefaultGraphVisibility = GraphVisibility.shown;
 
 	// multi scalar visualizer defaults
+	public static final String multiScalarVisualizerDefaultTitle = "Multi-Scalar Visualizer";
 	public static final DisplayMode multiScalarVisualizerDefaultDistributionDisplayMode = DisplayMode.bars;
 	public static final SortModeDist multiScalarVisualizerDefaultDistributionSortMode = Config
 			.getSortModeDist("GUI_SORT_MODE_DIST");
@@ -108,11 +121,11 @@ public class GuiOptions {
 			45);
 	public static final Dimension menuBarXOptionsPanelSize = new Dimension(65,
 			45);
-	public static final Dimension menuBarYOptionsPanelSize = new Dimension(
-			65, 45);
+	public static final Dimension menuBarYOptionsPanelSize = new Dimension(65,
+			45);
 	public static final Dimension menuBarYRightOptionsPanelSize = new Dimension(
 			65, 45);
-	public static final Dimension menuBarIntervalPanelSize = new Dimension(220,
+	public static final Dimension menuBarIntervalPanelSize = new Dimension(210,
 			45);
 
 	// LogDisplay

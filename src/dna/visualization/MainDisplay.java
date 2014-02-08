@@ -35,6 +35,8 @@ import dna.visualization.config.JSON.JSONObject;
 import dna.visualization.config.JSON.JSONTokener;
 import dna.visualization.config.components.LogDisplayConfig;
 import dna.visualization.config.components.MetricVisualizerConfig;
+import dna.visualization.config.components.MultiScalarVisualizerConfig;
+import dna.visualization.config.components.StatsDisplayConfig;
 
 @SuppressWarnings("serial")
 public class MainDisplay extends JFrame {
@@ -75,8 +77,16 @@ public class MainDisplay extends JFrame {
 				.createMetricVisualizerConfigFromJSONObject(displayConfig
 						.getJSONObject("MetricVisualizerConfig"));
 
+		multiScalarVisualizerConfig = MultiScalarVisualizerConfig
+				.createMultiScalarVisualizerConfigFromJSONObject(displayConfig
+						.getJSONObject("MultiScalarVisualizerConfig"));
+
+		statsDisplayConfig = StatsDisplayConfig
+				.creatStatsDisplayConfigFromJSONObject(displayConfig
+						.getJSONObject("StatsDisplayConfig"));
+
 		/** LIVE DISPLAY **/
-		Boolean liveDisplay = true;
+		Boolean liveDisplay = false;
 		/** LIVE DISPLAY **/
 
 		// init main window
@@ -116,6 +126,8 @@ public class MainDisplay extends JFrame {
 	// config
 	public static VisualizerListConfig visualizerConfig;
 	public static MetricVisualizerConfig metricVisualizerConfig;
+	public static MultiScalarVisualizerConfig multiScalarVisualizerConfig;
+	public static StatsDisplayConfig statsDisplayConfig;
 	public static LogDisplayConfig logDisplayConfig;
 
 	// live display flag
@@ -135,7 +147,7 @@ public class MainDisplay extends JFrame {
 		GridBagConstraints mainDisplayConstraints = new GridBagConstraints();
 
 		// init stats component, set position in grid and add to mainframe
-		this.statsDisplay1 = new StatsDisplay(liveDisplay);
+		this.statsDisplay1 = new StatsDisplay(statsDisplayConfig, liveDisplay);
 		this.statsDisplay1.setLocation(0, 0);
 		this.statsDisplay1.setParent(this);
 		this.statsDisplay1.setDirectory(GuiOptions.defaultDir);
@@ -298,7 +310,7 @@ public class MainDisplay extends JFrame {
 		this.getContentPane().add(this.metric1, mainDisplayConstraints);
 
 		// add multi scalar visualizer
-		this.metric2 = new MultiScalarVisualizer(visualizerConfig);
+		this.metric2 = new MultiScalarVisualizer(multiScalarVisualizerConfig);
 		mainDisplayConstraints.gridx = 2;
 		mainDisplayConstraints.gridy = 0;
 		this.getContentPane().add(this.metric2, mainDisplayConstraints);

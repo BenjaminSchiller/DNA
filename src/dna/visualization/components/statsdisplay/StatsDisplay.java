@@ -1,6 +1,5 @@
 package dna.visualization.components.statsdisplay;
 
-import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -27,6 +26,8 @@ import dna.series.data.RunTime;
 import dna.util.Log;
 import dna.visualization.GuiOptions;
 import dna.visualization.MainDisplay;
+import dna.visualization.config.components.StatsDisplayConfig;
+import dna.visualization.config.components.StatsDisplayConfig.RunTimeConfig;
 
 /**
  * A statsdisplay is used to monitor several statistics of a dynamic graph.
@@ -54,11 +55,8 @@ public class StatsDisplay extends JPanel implements ChangeListener {
 	private JLabel batchesLabel;
 	private JLabel batchesValue;
 
-	private JLabel nodesLabel;
-	private JLabel nodesValue;
-
-	private JLabel edgesLabel;
-	private JLabel edgesValue;
+	private JLabel[] shownStatisticsLabels;
+	private JLabel[] shownStatisticsValues;
 
 	private JProgressBar ProgressBar;
 	private JSlider TimeSlider;
@@ -68,8 +66,8 @@ public class StatsDisplay extends JPanel implements ChangeListener {
 	private final int SPEED_MAX = 2000;
 	private final int SPEED_INIT = 1000;
 
-	private StatsGroup metRuntimes;
-	private StatsGroup genRuntimes;
+	private RunTimeStatsGroup metRuntimes;
+	private RunTimeStatsGroup genRuntimes;
 
 	// timestamps
 	private long minTimestamp;
@@ -93,34 +91,24 @@ public class StatsDisplay extends JPanel implements ChangeListener {
 	// date format
 	private SimpleDateFormat dateFormat;
 
-	/*
-	 * constructors
-	 */
-	public StatsDisplay(boolean liveDisplay) {
-		this(GuiOptions.statsDisplaySize, liveDisplay, !liveDisplay,
-				!liveDisplay, true, true, true);
-	}
+	// config
+	StatsDisplayConfig config;
 
-	private StatsDisplay(Dimension size) {
-		this(size, false, true, true, true, true, true);
-	}
-
-	private StatsDisplay(Dimension size, boolean liveDisplay,
-			boolean addTimePanel, boolean addSpeedSlider,
-			boolean addSettingsPanel, boolean addMetRuntimes,
-			boolean addGenRuntimes) {
+	// constructor
+	public StatsDisplay(StatsDisplayConfig config, boolean liveDisplay) {
 		// initialization
 		this.statsdis = this;
 		this.paused = false;
 		this.started = false;
-		this.dateFormat = new SimpleDateFormat(GuiOptions.dateFormat);
+		this.dateFormat = config.getDateFormat();
 		this.liveDisplay = liveDisplay;
+		this.config = config;
 
 		// size
-		this.setPreferredSize(size);
+		this.setPreferredSize(config.getSize());
 
 		// set title and border of statistics
-		TitledBorder title = BorderFactory.createTitledBorder("Statistics");
+		TitledBorder title = BorderFactory.createTitledBorder(config.getName());
 		title.setBorder(BorderFactory
 				.createEtchedBorder((EtchedBorder.LOWERED)));
 		title.setTitleFont(GuiOptions.defaultFontBorders);
@@ -140,17 +128,17 @@ public class StatsDisplay extends JPanel implements ChangeListener {
 		/*
 		 * ADD COMPONENTS
 		 */
-		if (addTimePanel)
+		if (!liveDisplay && config.isAddTimePanel())
 			this.addTimePanel();
 
-		if (addSettingsPanel)
-			this.addSettingsPanel(addSpeedSlider);
+		if (config.isAddSettingsPanel())
+			this.addSettingsPanel(!liveDisplay && config.isAddSpeedSlider());
 
-		if (addMetRuntimes)
-			this.addMetricRuntimes();
+		if (config.isAddMetRuntimes())
+			this.addMetricRuntimes(config.getMetricRuntimeConfig());
 
-		if (addGenRuntimes)
-			this.addGeneralRuntimes();
+		if (config.isAddGenRuntimes())
+			this.addGeneralRuntimes(config.getGeneralRuntimeConfig());
 
 		// validate ui
 		this.validate();
@@ -160,10 +148,8 @@ public class StatsDisplay extends JPanel implements ChangeListener {
 	public void addSettingsPanel(boolean addSpeedSlider) {
 		this.settingsPanel = new JPanel();
 		this.settingsPanel.setName("SettingsPanel");
-		this.settingsPanel
-				.setPreferredSize(GuiOptions.statsDisplaySettingsPanelSize);
-		this.settingsPanel
-				.setMinimumSize(GuiOptions.statsDisplaySettingsPanelSize);
+		this.settingsPanel.setPreferredSize(this.config.getSettingsPanelSize());
+		this.settingsPanel.setMinimumSize(this.config.getSettingsPanelSize());
 
 		// set border
 		this.settingsPanel.setBorder(BorderFactory
@@ -271,7 +257,7 @@ public class StatsDisplay extends JPanel implements ChangeListener {
 
 		this.timestampDateValue = new JLabel("00:00:00:000");
 		this.timestampDateValue.setToolTipText("Dateformat: "
-				+ GuiOptions.dateFormat);
+				+ GuiOptions.defaultDateFormat);
 		this.timestampDateValue.setFont(GuiOptions.defaultFont);
 
 		// adding
@@ -284,31 +270,29 @@ public class StatsDisplay extends JPanel implements ChangeListener {
 		this.settingsPanelConstraints.gridy++;
 
 		/*
-		 * NODES AND EDGES
+		 * STATISTICS
 		 */
-		this.nodesLabel = new JLabel("Nodes: ");
-		this.nodesLabel.setFont(GuiOptions.defaultFont);
+		String[] shownStatistics = this.config.getShownStatistics();
 
-		this.nodesValue = new JLabel("" + 0);
-		this.nodesValue.setFont(GuiOptions.defaultFont);
+		this.shownStatisticsLabels = new JLabel[shownStatistics.length];
+		this.shownStatisticsValues = new JLabel[shownStatistics.length];
 
-		this.edgesLabel = new JLabel("Edges: ");
-		this.edgesLabel.setFont(GuiOptions.defaultFont);
+		for (int i = 0; i < shownStatistics.length; i++) {
+			this.shownStatisticsLabels[i] = new JLabel(shownStatistics[i]
+					.substring(0, 1).toUpperCase()
+					+ shownStatistics[i].substring(1) + ": ");
+			this.shownStatisticsLabels[i].setFont(GuiOptions.defaultFont);
+			this.shownStatisticsValues[i] = new JLabel("" + 0);
+			this.shownStatisticsValues[i].setFont(GuiOptions.defaultFont);
 
-		this.edgesValue = new JLabel("" + 0);
-		this.edgesValue.setFont(GuiOptions.defaultFont);
-
-		// adding
-		this.settingsPanelConstraints.gridx = 0;
-		this.settingsPanel.add(this.nodesLabel, this.settingsPanelConstraints);
-		this.settingsPanelConstraints.gridx = 1;
-		this.settingsPanel.add(this.nodesValue, this.settingsPanelConstraints);
-		this.settingsPanelConstraints.gridy++;
-		this.settingsPanelConstraints.gridx = 0;
-		this.settingsPanel.add(this.edgesLabel, this.settingsPanelConstraints);
-		this.settingsPanelConstraints.gridx = 1;
-		this.settingsPanel.add(this.edgesValue, this.settingsPanelConstraints);
-		this.settingsPanelConstraints.gridy++;
+			this.settingsPanelConstraints.gridx = 0;
+			this.settingsPanel.add(this.shownStatisticsLabels[i],
+					this.settingsPanelConstraints);
+			this.settingsPanelConstraints.gridx = 1;
+			this.settingsPanel.add(this.shownStatisticsValues[i],
+					this.settingsPanelConstraints);
+			this.settingsPanelConstraints.gridy++;
+		}
 
 		/*
 		 * SPEED SLIDER
@@ -439,16 +423,16 @@ public class StatsDisplay extends JPanel implements ChangeListener {
 	}
 
 	/** adds a metric runtimes statsgroup **/
-	public void addMetricRuntimes() {
-		this.metRuntimes = new StatsGroup("MetricRuntimes");
+	public void addMetricRuntimes(RunTimeConfig config) {
+		this.metRuntimes = new RunTimeStatsGroup(config);
 		this.mainConstraints.gridx = 0;
 		this.add(this.metRuntimes, this.mainConstraints);
 		this.mainConstraints.gridy++;
 	}
 
 	/** adds a general runtimes statsgroup **/
-	public void addGeneralRuntimes() {
-		this.genRuntimes = new StatsGroup("GeneralRuntimes");
+	public void addGeneralRuntimes(RunTimeConfig config) {
+		this.genRuntimes = new RunTimeStatsGroup(config);
 		this.mainConstraints.gridx = 0;
 		this.add(this.genRuntimes, this.mainConstraints);
 		this.mainConstraints.gridy++;
@@ -474,8 +458,27 @@ public class StatsDisplay extends JPanel implements ChangeListener {
 		this.setDirectory(directory);
 		this.setTimestamp(b.getTimestamp());
 
-		this.setNodes(b.getValues().get("nodes").getValue());
-		this.setEdges(b.getValues().get("edges").getValue());
+		for (String value : b.getValues().getNames()) {
+			String[] shownValues = this.config.getShownStatistics();
+			for (int i = 0; i < shownValues.length; i++) {
+				if (value.equals(shownValues[i])) {
+					for (int j = 0; j < this.shownStatisticsLabels.length; j++) {
+						if (this.shownStatisticsLabels[j].getText().equals(
+								value.substring(0, 1).toUpperCase()
+										+ value.substring(1) + ": ")) {
+							double valueDouble = b.getValues().get(value)
+									.getValue();
+							if (valueDouble % 1 == 0)
+								this.shownStatisticsValues[j].setText(""
+										+ (int) valueDouble);
+							else
+								this.shownStatisticsValues[j].setText(""
+										+ b.getValues().get(value).getValue());
+						}
+					}
+				}
+			}
+		}
 
 		if (!this.liveDisplay) {
 			this.minTimestamp = minTimestamp;
@@ -487,19 +490,25 @@ public class StatsDisplay extends JPanel implements ChangeListener {
 					|| maxTimestamp > Integer.MAX_VALUE) {
 				Log.warn("Long timestamp couldn't be cast to int in StatsDisplay");
 			} else {
-				this.TimeSlider.setMinimum((int) minTimestamp);
-				this.TimeSlider.setMaximum((int) maxTimestamp);
+				if (this.TimeSlider != null) {
+					this.TimeSlider.setMinimum((int) minTimestamp);
+					this.TimeSlider.setMaximum((int) maxTimestamp);
+				}
 			}
 		}
 
-		genRuntimes.clear();
-		metRuntimes.clear();
-
-		for (RunTime rt : b.getGeneralRuntimes().getList()) {
-			this.genRuntimes.addValue(rt.getName(), rt.getRuntime());
+		if (this.genRuntimes != null) {
+			this.genRuntimes.clear();
+			for (RunTime rt : b.getGeneralRuntimes().getList()) {
+				this.genRuntimes.addValue(rt.getName(), rt.getRuntime());
+			}
 		}
-		for (RunTime rt : b.getMetricRuntimes().getList()) {
-			this.metRuntimes.addValue(rt.getName(), rt.getRuntime());
+
+		if (this.metRuntimes != null) {
+			this.metRuntimes.clear();
+			for (RunTime rt : b.getMetricRuntimes().getList()) {
+				this.metRuntimes.addValue(rt.getName(), rt.getRuntime());
+			}
 		}
 
 		this.validate();
@@ -522,14 +531,38 @@ public class StatsDisplay extends JPanel implements ChangeListener {
 	public void updateData(BatchData b) {
 		this.init = false;
 		this.setTimestamp(b.getTimestamp());
-		this.setNodes(b.getValues().get("nodes").getValue());
-		this.setEdges(b.getValues().get("edges").getValue());
 
-		for (RunTime rt : b.getGeneralRuntimes().getList()) {
-			this.genRuntimes.updateValue(rt.getName(), rt.getRuntime());
+		for (String value : b.getValues().getNames()) {
+			String[] shownValues = this.config.getShownStatistics();
+			for (int i = 0; i < shownValues.length; i++) {
+				if (value.equals(shownValues[i])) {
+					for (int j = 0; j < this.shownStatisticsLabels.length; j++) {
+						if (this.shownStatisticsLabels[j].getText().equals(
+								value.substring(0, 1).toUpperCase()
+										+ value.substring(1) + ": ")) {
+							double valueDouble = b.getValues().get(value)
+									.getValue();
+							if (valueDouble % 1 == 0)
+								this.shownStatisticsValues[j].setText(""
+										+ (int) valueDouble);
+							else
+								this.shownStatisticsValues[j].setText(""
+										+ b.getValues().get(value).getValue());
+						}
+					}
+				}
+			}
 		}
-		for (RunTime rt : b.getMetricRuntimes().getList()) {
-			this.metRuntimes.updateValue(rt.getName(), rt.getRuntime());
+
+		if (this.genRuntimes != null) {
+			for (RunTime rt : b.getGeneralRuntimes().getList()) {
+				this.genRuntimes.updateValue(rt.getName(), rt.getRuntime());
+			}
+		}
+		if (this.metRuntimes != null) {
+			for (RunTime rt : b.getMetricRuntimes().getList()) {
+				this.metRuntimes.updateValue(rt.getName(), rt.getRuntime());
+			}
 		}
 
 		if (this.liveDisplay) {
@@ -542,11 +575,13 @@ public class StatsDisplay extends JPanel implements ChangeListener {
 				this.setProgess(100.0);
 				this.setStopped();
 			} else {
-				long amount = this.maxTimestamp - this.minTimestamp;
-				long pr = b.getTimestamp() - this.minTimestamp;
-				double percent = (Math
-						.floor(((1.0 * pr) / (1.0 * amount)) * 10000) / 100);
-				this.setProgess(percent);
+				if (this.ProgressBar != null) {
+					long amount = this.maxTimestamp - this.minTimestamp;
+					long pr = b.getTimestamp() - this.minTimestamp;
+					double percent = (Math
+							.floor(((1.0 * pr) / (1.0 * amount)) * 10000) / 100);
+					this.setProgess(percent);
+				}
 			}
 			this.setTimeSlider(b.getTimestamp());
 		}
@@ -589,35 +624,15 @@ public class StatsDisplay extends JPanel implements ChangeListener {
 
 	/** Sets the shown directory **/
 	public void setDirectory(String directory) {
-		this.directoryValue.setText(directory);
-		this.validate();
+		if (this.directoryValue != null) {
+			this.directoryValue.setText(directory);
+			this.validate();
+		}
 	}
 
 	/** Returns the shown directory **/
 	public String getDirectory() {
 		return this.directoryValue.getText();
-	}
-
-	/** Sets the shown amount of nodes **/
-	public void setNodes(int nodes) {
-		this.nodesValue.setText("" + nodes);
-		this.validate();
-	}
-
-	/** Sets the shown amount of nodes **/
-	public void setNodes(double nodes) {
-		this.setNodes((int) nodes);
-	}
-
-	/** Sets the shown amount of edges **/
-	public void setEdges(int edges) {
-		this.edgesValue.setText("" + edges);
-		this.validate();
-	}
-
-	/** Sets the shown amount of edges **/
-	public void setEdges(double edges) {
-		this.setEdges((int) edges);
 	}
 
 	/** Sets the shown amount of progress **/
@@ -671,8 +686,11 @@ public class StatsDisplay extends JPanel implements ChangeListener {
 	public void reset() {
 		init = false;
 		this.setTimestamp(0);
-		this.nodesValue.setText("" + 0);
-		this.edgesValue.setText("" + 0);
+
+		for (int i = 0; i < this.shownStatisticsValues.length; i++) {
+			this.shownStatisticsValues[i].setText("" + 0);
+		}
+
 		this.batchesValue.setText("" + 0);
 
 		this.metRuntimes.reset();
@@ -742,9 +760,11 @@ public class StatsDisplay extends JPanel implements ChangeListener {
 		if (timestamp < Integer.MIN_VALUE || timestamp > Integer.MAX_VALUE) {
 			Log.warn("Long timestamp couldn't be cast to int in StatsDisplay");
 		} else {
-			if (this.TimeSlider.getMinimum() <= timestamp
-					&& timestamp <= this.TimeSlider.getMaximum())
-				this.TimeSlider.setValue((int) timestamp);
+			if (this.TimeSlider != null) {
+				if (this.TimeSlider.getMinimum() <= timestamp
+						&& timestamp <= this.TimeSlider.getMaximum())
+					this.TimeSlider.setValue((int) timestamp);
+			}
 		}
 	}
 

@@ -1,6 +1,7 @@
 package dna.visualization.components.visualizer;
 
 import info.monitorenter.gui.chart.IAxis;
+import info.monitorenter.gui.chart.IAxis.AxisTitle;
 import info.monitorenter.gui.chart.ITrace2D;
 import info.monitorenter.gui.chart.ITracePainter;
 import info.monitorenter.gui.chart.ITracePoint2D;
@@ -11,7 +12,6 @@ import info.monitorenter.gui.chart.traces.painters.TracePainterLine;
 import info.monitorenter.gui.chart.traces.painters.TracePainterVerticalBar;
 
 import java.awt.Color;
-import java.awt.Dimension;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
 import java.util.ArrayList;
@@ -42,6 +42,7 @@ import dna.visualization.config.VisualizerListConfig.SortModeDist;
 import dna.visualization.config.VisualizerListConfig.SortModeNVL;
 import dna.visualization.config.VisualizerListConfig.xAxisSelection;
 import dna.visualization.config.VisualizerListConfig.yAxisSelection;
+import dna.visualization.config.components.MultiScalarVisualizerConfig;
 
 @SuppressWarnings("serial")
 public class MultiScalarVisualizer extends Visualizer {
@@ -60,13 +61,14 @@ public class MultiScalarVisualizer extends Visualizer {
 	private HashMap<String, double[]> doubleValues;
 
 	// config
-	VisualizerListConfig config;
+	VisualizerListConfig listConfig;
+	private double xAxisOffset;
 
 	// current batch
 	private BatchData currentBatch;
 
 	// constructor
-	public MultiScalarVisualizer(VisualizerListConfig config) {
+	public MultiScalarVisualizer(MultiScalarVisualizerConfig config) {
 		// initialization
 		this.traces = new HashMap<String, ITrace2D>();
 		this.offsets = new HashMap<ITrace2D, Double>();
@@ -83,15 +85,12 @@ public class MultiScalarVisualizer extends Visualizer {
 		this.doubleValues = new HashMap<String, double[]>();
 
 		this.currentBatch = null;
-		this.config = config;
+		this.listConfig = config.getListConfig();
 
 		// remove timestamp-label on x-axis
-		this.xAxis1.getAxisTitle().setTitle("x1");
-		this.xAxis2.getAxisTitle().setTitle("x2");
 
 		// set title and border of the visualizer
-		TitledBorder title = BorderFactory
-				.createTitledBorder("Multi-Scalar Visualizer");
+		TitledBorder title = BorderFactory.createTitledBorder(config.getName());
 		title.setBorder(BorderFactory
 				.createEtchedBorder((EtchedBorder.LOWERED)));
 		title.setTitleFont(GuiOptions.defaultFontBorders);
@@ -99,9 +98,7 @@ public class MultiScalarVisualizer extends Visualizer {
 		this.setBorder(title);
 
 		// add menu bar
-		super.addMenuBar(
-				new Dimension(GuiOptions.visualizerDefaultMenuBarSize), true,
-				true, true, true);
+		super.addMenuBar(config.getMenuBarConfig());
 
 		// add coordinate parsing to mouseover on chart
 		this.chart.addMouseMotionListener(new MouseMotionListener() {
@@ -120,6 +117,17 @@ public class MultiScalarVisualizer extends Visualizer {
 			}
 
 		});
+
+		// apply config
+		this.chart.setPreferredSize(config.getChartSize());
+		this.legend.setPreferredSize(config.getLegendSize());
+		this.xAxisOffset = config.getxAxisOffset();
+
+		this.xAxis1.setAxisTitle(new AxisTitle(config.getx1AxisTitle()));
+		this.xAxis2.setAxisTitle(new AxisTitle(config.getx2AxisTitle()));
+
+		this.yAxis1.setAxisTitle(new AxisTitle(config.getY1AxisTitle()));
+		this.yAxis2.setAxisTitle(new AxisTitle(config.getY2AxisTitle()));
 	}
 
 	/** initializes the data with the first batch **/
@@ -155,8 +163,8 @@ public class MultiScalarVisualizer extends Visualizer {
 		this.legend.updateAddBox(tempValues);
 
 		// load config
-		if (this.config != null)
-			this.loadConfig(this.config);
+		if (this.listConfig != null)
+			this.loadConfig(this.listConfig);
 
 		// put in first batch to update data
 		this.updateData(b);
