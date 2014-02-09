@@ -22,8 +22,8 @@ public class RunTimeStatsGroup extends StatsGroup {
 	// policy
 	private boolean showDefinedValuesOnly;
 
-	public RunTimeStatsGroup(RunTimeConfig config) {
-		super(config.getName());
+	public RunTimeStatsGroup(StatsDisplay statsDisplay, RunTimeConfig config) {
+		super(statsDisplay, config.getName());
 		this.showDefinedValuesOnly = config.isAllShown();
 		this.names = new HashSet<String>();
 		for (String name : config.getNames())

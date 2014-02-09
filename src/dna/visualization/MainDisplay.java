@@ -132,10 +132,9 @@ public class MainDisplay extends JFrame {
 		/*
 		 * Create StatsDisplay
 		 */
-		this.statsDisplay = new StatsDisplay(config.getStatsDisplayConfig(),
-				liveDisplay);
+		this.statsDisplay = new StatsDisplay(this,
+				config.getStatsDisplayConfig(), liveDisplay);
 		this.statsDisplay.setLocation(0, 0);
-		this.statsDisplay.setParent(this);
 		this.statsDisplay.setDirectory(config.getDefaultDir());
 
 		leftSideConstraints.gridx = 0;
@@ -268,7 +267,7 @@ public class MainDisplay extends JFrame {
 		// add metric visualizer
 		for (MetricVisualizerConfig metVisConfig : config
 				.getMetricVisualizerConfigs()) {
-			MetricVisualizer metricVisualizerTemp = new MetricVisualizer(
+			MetricVisualizer metricVisualizerTemp = new MetricVisualizer(this,
 					metVisConfig);
 
 			if (metVisConfig.getPositionX() >= 0
@@ -288,7 +287,7 @@ public class MainDisplay extends JFrame {
 		for (MultiScalarVisualizerConfig multiVisConfig : config
 				.getMultiScalarVisualizerConfigs()) {
 			MultiScalarVisualizer metricVisualizerTemp = new MultiScalarVisualizer(
-					multiVisConfig);
+					this, multiVisConfig);
 
 			if (multiVisConfig.getPositionX() >= 0
 					&& multiVisConfig.getPositionY() >= 0) {
@@ -307,7 +306,7 @@ public class MainDisplay extends JFrame {
 		}
 		// add log display
 		for (LogDisplayConfig logDisConfig : config.getLogDisplayConfigs()) {
-			LogDisplay logDisplayTemp = new LogDisplay(logDisConfig);
+			LogDisplay logDisplayTemp = new LogDisplay(this, logDisConfig);
 
 			if (logDisConfig.getPositionX() >= 0
 					&& logDisConfig.getPositionY() >= 0) {

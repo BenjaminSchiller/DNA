@@ -1,5 +1,7 @@
 package dna.visualization.components.statsdisplay;
 
+import java.awt.Color;
+import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -95,12 +97,14 @@ public class StatsDisplay extends JPanel implements ChangeListener {
 	StatsDisplayConfig config;
 
 	// constructor
-	public StatsDisplay(StatsDisplayConfig config, boolean liveDisplay) {
+	public StatsDisplay(MainDisplay mainDisplay, StatsDisplayConfig config,
+			boolean liveDisplay) {
 		// initialization
 		this.statsdis = this;
 		this.paused = false;
 		this.started = false;
 		this.dateFormat = config.getDateFormat();
+		this.mainDisplay = mainDisplay;
 		this.liveDisplay = liveDisplay;
 		this.config = config;
 
@@ -111,8 +115,10 @@ public class StatsDisplay extends JPanel implements ChangeListener {
 		TitledBorder title = BorderFactory.createTitledBorder(config.getName());
 		title.setBorder(BorderFactory
 				.createEtchedBorder((EtchedBorder.LOWERED)));
-		title.setTitleFont(GuiOptions.defaultFontBorders);
-		title.setTitleColor(GuiOptions.defaultFontBordersColor);
+		title.setTitleFont(new Font(
+				this.mainDisplay.getDefaultFont().getName(), Font.BOLD,
+				this.mainDisplay.getDefaultFont().getSize()));
+		title.setTitleColor(this.mainDisplay.getDefaultFontColor());
 		this.setBorder(title);
 
 		// set layout
@@ -169,10 +175,10 @@ public class StatsDisplay extends JPanel implements ChangeListener {
 		 * DIRECTORY
 		 */
 		this.directoryLabel = new JLabel("Directory: ");
-		this.directoryLabel.setFont(GuiOptions.defaultFont);
+		this.directoryLabel.setFont(this.mainDisplay.getDefaultFont());
 
 		this.directoryValue = new JTextField("./..");
-		this.directoryValue.setFont(GuiOptions.defaultFont);
+		this.directoryValue.setFont(this.mainDisplay.getDefaultFont());
 		this.directoryValue.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent evt) {
 				mainDisplay.reset();
@@ -200,10 +206,10 @@ public class StatsDisplay extends JPanel implements ChangeListener {
 		 */
 		if (this.liveDisplay) {
 			this.statusLabel = new JLabel("Status: ");
-			this.statusLabel.setFont(GuiOptions.defaultFont);
+			this.statusLabel.setFont(this.mainDisplay.getDefaultFont());
 
 			this.statusValue = new JLabel("Idle");
-			this.statusValue.setFont(GuiOptions.defaultFont);
+			this.statusValue.setFont(this.mainDisplay.getDefaultFont());
 
 			// adding
 			this.settingsPanelConstraints.gridx = 0;
@@ -217,10 +223,10 @@ public class StatsDisplay extends JPanel implements ChangeListener {
 		 * BATCHES TOTAL
 		 */
 		this.batchesLabel = new JLabel("Batches total: ");
-		this.batchesLabel.setFont(GuiOptions.defaultFont);
+		this.batchesLabel.setFont(this.mainDisplay.getDefaultFont());
 
 		this.batchesValue = new JLabel("" + 0);
-		this.batchesValue.setFont(GuiOptions.defaultFont);
+		this.batchesValue.setFont(this.mainDisplay.getDefaultFont());
 
 		// adding
 		this.settingsPanelConstraints.gridx = 0;
@@ -235,10 +241,10 @@ public class StatsDisplay extends JPanel implements ChangeListener {
 		 * TIMESTAMP LONG
 		 */
 		this.timestampLongLabel = new JLabel("Timestamp (long): ");
-		this.timestampLongLabel.setFont(GuiOptions.defaultFont);
+		this.timestampLongLabel.setFont(this.mainDisplay.getDefaultFont());
 
 		this.timestampLongValue = new JLabel("" + 0);
-		this.timestampLongValue.setFont(GuiOptions.defaultFont);
+		this.timestampLongValue.setFont(this.mainDisplay.getDefaultFont());
 
 		// adding
 		this.settingsPanelConstraints.gridx = 0;
@@ -253,12 +259,12 @@ public class StatsDisplay extends JPanel implements ChangeListener {
 		 * TIMESTAMP DATEFORMAT
 		 */
 		this.timestampDateLabel = new JLabel("Timestamp: ");
-		this.timestampDateLabel.setFont(GuiOptions.defaultFont);
+		this.timestampDateLabel.setFont(this.mainDisplay.getDefaultFont());
 
 		this.timestampDateValue = new JLabel("00:00:00:000");
 		this.timestampDateValue.setToolTipText("Dateformat: "
 				+ GuiOptions.defaultDateFormat);
-		this.timestampDateValue.setFont(GuiOptions.defaultFont);
+		this.timestampDateValue.setFont(this.mainDisplay.getDefaultFont());
 
 		// adding
 		this.settingsPanelConstraints.gridx = 0;
@@ -281,9 +287,11 @@ public class StatsDisplay extends JPanel implements ChangeListener {
 			this.shownStatisticsLabels[i] = new JLabel(shownStatistics[i]
 					.substring(0, 1).toUpperCase()
 					+ shownStatistics[i].substring(1) + ": ");
-			this.shownStatisticsLabels[i].setFont(GuiOptions.defaultFont);
+			this.shownStatisticsLabels[i].setFont(this.mainDisplay
+					.getDefaultFont());
 			this.shownStatisticsValues[i] = new JLabel("" + 0);
-			this.shownStatisticsValues[i].setFont(GuiOptions.defaultFont);
+			this.shownStatisticsValues[i].setFont(this.mainDisplay
+					.getDefaultFont());
 
 			this.settingsPanelConstraints.gridx = 0;
 			this.settingsPanel.add(this.shownStatisticsLabels[i],
@@ -366,8 +374,9 @@ public class StatsDisplay extends JPanel implements ChangeListener {
 		timeSliderDecrButton.setMargin(new Insets(0, 0, 0, 0));
 		timeSliderDecrButton
 				.setPreferredSize(GuiOptions.statsDisplayButtonSize);
-		timeSliderDecrButton.setFont(GuiOptions.defaultFont);
-		timeSliderDecrButton.setForeground(GuiOptions.defaultFontColor);
+		timeSliderDecrButton.setFont(this.mainDisplay.getDefaultFont());
+		timeSliderDecrButton.setForeground(this.mainDisplay
+				.getDefaultFontColor());
 		timeSliderDecrButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent event) {
@@ -400,8 +409,9 @@ public class StatsDisplay extends JPanel implements ChangeListener {
 		timeSliderIncrButton.setMargin(new Insets(0, 0, 0, 0));
 		timeSliderIncrButton
 				.setPreferredSize(GuiOptions.statsDisplayButtonSize);
-		timeSliderIncrButton.setFont(GuiOptions.defaultFont);
-		timeSliderIncrButton.setForeground(GuiOptions.defaultFontColor);
+		timeSliderIncrButton.setFont(this.mainDisplay.getDefaultFont());
+		timeSliderIncrButton.setForeground(this.mainDisplay
+				.getDefaultFontColor());
 		timeSliderIncrButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent event) {
@@ -424,7 +434,7 @@ public class StatsDisplay extends JPanel implements ChangeListener {
 
 	/** adds a metric runtimes statsgroup **/
 	public void addMetricRuntimes(RunTimeConfig config) {
-		this.metRuntimes = new RunTimeStatsGroup(config);
+		this.metRuntimes = new RunTimeStatsGroup(this, config);
 		this.mainConstraints.gridx = 0;
 		this.add(this.metRuntimes, this.mainConstraints);
 		this.mainConstraints.gridy++;
@@ -432,7 +442,7 @@ public class StatsDisplay extends JPanel implements ChangeListener {
 
 	/** adds a general runtimes statsgroup **/
 	public void addGeneralRuntimes(RunTimeConfig config) {
-		this.genRuntimes = new RunTimeStatsGroup(config);
+		this.genRuntimes = new RunTimeStatsGroup(this, config);
 		this.mainConstraints.gridx = 0;
 		this.add(this.genRuntimes, this.mainConstraints);
 		this.mainConstraints.gridy++;
@@ -797,4 +807,13 @@ public class StatsDisplay extends JPanel implements ChangeListener {
 		}
 	}
 
+	/** Returns the default font. **/
+	public Font getDefaultFont() {
+		return this.mainDisplay.getDefaultFont();
+	}
+
+	/** Returns the default font color. **/
+	public Color getDefaultFontColor() {
+		return this.mainDisplay.getDefaultFontColor();
+	}
 }

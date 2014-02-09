@@ -1,6 +1,9 @@
 package dna.visualization.config.components;
 
+import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Font;
+import java.lang.reflect.Field;
 
 import dna.visualization.GuiOptions;
 import dna.visualization.config.JSON.JSONObject;
@@ -14,14 +17,16 @@ public class LogDisplayConfig {
 
 	// constructor
 	public LogDisplayConfig(String name, String dir, int positionX,
-			int positionY, long updateInterval, Dimension textFieldSize,
-			boolean showInfo, boolean showWarning, boolean showError,
-			boolean showDebug) {
+			int positionY, long updateInterval, Font logFont,
+			Color logFontColor, Dimension textFieldSize, boolean showInfo,
+			boolean showWarning, boolean showError, boolean showDebug) {
 		this.name = name;
 		this.dir = dir;
 		this.positionX = positionX;
 		this.positionY = positionY;
 		this.updateInterval = updateInterval;
+		this.logFont = logFont;
+		this.logFontColor = logFontColor;
 		this.textFieldSize = textFieldSize;
 		this.showInfo = showInfo;
 		this.showWarning = showWarning;
@@ -35,6 +40,8 @@ public class LogDisplayConfig {
 	private int positionX;
 	private int positionY;
 	private long updateInterval;
+	private Font logFont;
+	private Color logFontColor;
 
 	// sizes
 	private Dimension textFieldSize;
@@ -53,17 +60,25 @@ public class LogDisplayConfig {
 	public String getDir() {
 		return this.dir;
 	}
-	
+
 	public int getPositionX() {
 		return this.positionX;
 	}
-	
+
 	public int getPositionY() {
 		return this.positionY;
 	}
 
 	public long getUpdateInterval() {
 		return this.updateInterval;
+	}
+
+	public Font getLogFont() {
+		return this.logFont;
+	}
+
+	public Color getLogFontColor() {
+		return this.logFontColor;
 	}
 
 	public Dimension getTextFieldSize() {
@@ -94,6 +109,8 @@ public class LogDisplayConfig {
 		int positionX = -1;
 		int positionY = -1;
 		long updateInterval = GuiOptions.logDefaultUpdateInterval;
+		Font logFont = GuiOptions.defaultFont;
+		Color logFontColor = GuiOptions.defaultFontColor;
 		Dimension textFieldSize = GuiOptions.logDefaultTextFieldSize;
 
 		boolean showInfo = GuiOptions.logDefaultShowInfo;
@@ -105,19 +122,56 @@ public class LogDisplayConfig {
 			name = o.getString("Name");
 		} catch (Exception e) {
 		}
+
 		try {
 			dir = o.getString("Dir");
 		} catch (Exception e) {
 		}
+
 		try {
 			positionX = o.getInt("PositionX");
 			positionY = o.getInt("PositionY");
 		} catch (Exception e) {
 		}
+
 		try {
 			updateInterval = o.getLong("UpdateInterval");
 		} catch (Exception e) {
 		}
+
+		try {
+			JSONObject logFontObject = o.getJSONObject("LogFont");
+			try {
+				String tempName = logFontObject.getString("Name");
+				String tempStyle = logFontObject.getString("Style");
+				int tempSize = logFontObject.getInt("Size");
+				int style;
+				switch (tempStyle) {
+				case "PLAIN":
+					style = Font.PLAIN;
+					break;
+				case "BOLD":
+					style = Font.BOLD;
+					break;
+				case "ITALIC":
+					style = Font.ITALIC;
+					break;
+				default:
+					style = Font.PLAIN;
+					break;
+				}
+				logFont = new Font(tempName, style, tempSize);
+			} catch (Exception e) {
+			}
+			try {
+				Field field = Color.class.getField(logFontObject
+						.getString("Color"));
+				logFontColor = (Color) field.get(null);
+			} catch (Exception e) {
+			}
+		} catch (Exception e) {
+		}
+
 		try {
 			textFieldSize = new Dimension(o.getInt("textAreaWidth"),
 					o.getInt("textAreaHeight"));
@@ -147,8 +201,8 @@ public class LogDisplayConfig {
 		}
 
 		return new LogDisplayConfig(name, dir, positionX, positionY,
-				updateInterval, textFieldSize, showInfo, showWarning,
-				showError, showDebug);
+				updateInterval, logFont, logFontColor, textFieldSize, showInfo,
+				showWarning, showError, showDebug);
 	}
 
 }

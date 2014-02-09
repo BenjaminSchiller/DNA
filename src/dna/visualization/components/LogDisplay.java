@@ -3,6 +3,7 @@ package dna.visualization.components;
 import java.awt.ComponentOrientation;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
@@ -23,7 +24,7 @@ import javax.swing.border.TitledBorder;
 import javax.swing.text.DefaultCaret;
 
 import dna.util.Log;
-import dna.visualization.GuiOptions;
+import dna.visualization.MainDisplay;
 import dna.visualization.config.components.LogDisplayConfig;
 
 /**
@@ -65,7 +66,7 @@ public class LogDisplay extends JPanel implements Runnable {
 	private boolean showDebug;
 
 	// constructor
-	public LogDisplay(LogDisplayConfig config) {
+	public LogDisplay(MainDisplay mainDisplay, LogDisplayConfig config) {
 		// init
 		this.dir = config.getDir();
 		this.updateInterval = config.getUpdateInterval();
@@ -80,8 +81,9 @@ public class LogDisplay extends JPanel implements Runnable {
 				+ " on: " + dir);
 		title.setBorder(BorderFactory
 				.createEtchedBorder((EtchedBorder.LOWERED)));
-		title.setTitleFont(GuiOptions.defaultFontBorders);
-		title.setTitleColor(GuiOptions.defaultFontBordersColor);
+		title.setTitleFont(new Font(mainDisplay.getDefaultFont().getName(),
+				Font.BOLD, mainDisplay.getDefaultFont().getSize()));
+		title.setTitleColor(mainDisplay.getDefaultFontColor());
 		this.setBorder(title);
 
 		// layout
@@ -89,8 +91,8 @@ public class LogDisplay extends JPanel implements Runnable {
 		GridBagConstraints c = new GridBagConstraints();
 
 		this.logTextArea = new JTextArea();
-		this.logTextArea.setFont(GuiOptions.defaultFont);
-		// this.logTextArea.setPreferredSize(new Dimension(300, 100));
+		this.logTextArea.setFont(config.getLogFont());
+		this.logTextArea.setForeground(config.getLogFontColor());
 
 		DefaultCaret caret = (DefaultCaret) this.logTextArea.getCaret();
 		caret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
@@ -116,20 +118,20 @@ public class LogDisplay extends JPanel implements Runnable {
 
 		// labels
 		this.infoLabel = new JLabel("Info:");
-		this.infoLabel.setFont(GuiOptions.defaultFont);
-		this.infoLabel.setForeground(GuiOptions.defaultFontColor);
+		this.infoLabel.setFont(mainDisplay.getDefaultFont());
+		this.infoLabel.setForeground(mainDisplay.getDefaultFontColor());
 
 		this.warningLabel = new JLabel("Warn:");
-		this.warningLabel.setFont(GuiOptions.defaultFont);
-		this.warningLabel.setForeground(GuiOptions.defaultFontColor);
+		this.warningLabel.setFont(mainDisplay.getDefaultFont());
+		this.warningLabel.setForeground(mainDisplay.getDefaultFontColor());
 
 		this.errorLabel = new JLabel("Error:");
-		this.errorLabel.setFont(GuiOptions.defaultFont);
-		this.errorLabel.setForeground(GuiOptions.defaultFontColor);
+		this.errorLabel.setFont(mainDisplay.getDefaultFont());
+		this.errorLabel.setForeground(mainDisplay.getDefaultFontColor());
 
 		this.debugLabel = new JLabel("Debug:");
-		this.debugLabel.setFont(GuiOptions.defaultFont);
-		this.debugLabel.setForeground(GuiOptions.defaultFontColor);
+		this.debugLabel.setFont(mainDisplay.getDefaultFont());
+		this.debugLabel.setForeground(mainDisplay.getDefaultFontColor());
 
 		// check boxes
 		this.infoCheckBox = new JCheckBox("", this.showInfo);

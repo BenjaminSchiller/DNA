@@ -12,6 +12,7 @@ import info.monitorenter.gui.chart.traces.painters.TracePainterLine;
 import info.monitorenter.gui.chart.traces.painters.TracePainterVerticalBar;
 
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
 import java.util.ArrayList;
@@ -34,6 +35,7 @@ import dna.series.data.NodeValueList;
 import dna.util.Config;
 import dna.util.Log;
 import dna.visualization.GuiOptions;
+import dna.visualization.MainDisplay;
 import dna.visualization.config.ConfigItem;
 import dna.visualization.config.MultiScalarDistributionItem;
 import dna.visualization.config.MultiScalarNodeValueListItem;
@@ -62,14 +64,17 @@ public class MultiScalarVisualizer extends Visualizer {
 
 	// config
 	VisualizerListConfig listConfig;
+	MainDisplay mainDisplay;
 	private double xAxisOffset;
 
 	// current batch
 	private BatchData currentBatch;
 
 	// constructor
-	public MultiScalarVisualizer(MultiScalarVisualizerConfig config) {
+	public MultiScalarVisualizer(MainDisplay mainDisplay,
+			MultiScalarVisualizerConfig config) {
 		// initialization
+		this.mainDisplay = mainDisplay;
 		this.traces = new HashMap<String, ITrace2D>();
 		this.offsets = new HashMap<ITrace2D, Double>();
 		this.addedTraces = new ArrayList<String>();
@@ -93,8 +98,10 @@ public class MultiScalarVisualizer extends Visualizer {
 		TitledBorder title = BorderFactory.createTitledBorder(config.getName());
 		title.setBorder(BorderFactory
 				.createEtchedBorder((EtchedBorder.LOWERED)));
-		title.setTitleFont(GuiOptions.defaultFontBorders);
-		title.setTitleColor(GuiOptions.defaultFontBordersColor);
+		title.setTitleFont(new Font(
+				this.mainDisplay.getDefaultFont().getName(), Font.BOLD,
+				this.mainDisplay.getDefaultFont().getSize()));
+		title.setTitleColor(this.mainDisplay.getDefaultFontColor());
 		this.setBorder(title);
 
 		// add menu bar

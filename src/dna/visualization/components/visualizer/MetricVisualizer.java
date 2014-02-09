@@ -19,6 +19,7 @@ import info.monitorenter.gui.chart.traces.painters.TracePainterVerticalBar;
 import info.monitorenter.util.Range;
 
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
 import java.text.SimpleDateFormat;
@@ -37,6 +38,7 @@ import dna.series.data.RunTime;
 import dna.series.data.Value;
 import dna.util.Config;
 import dna.visualization.GuiOptions;
+import dna.visualization.MainDisplay;
 import dna.visualization.config.ConfigItem;
 import dna.visualization.config.MetricVisualizerItem;
 import dna.visualization.config.VisualizerListConfig;
@@ -59,10 +61,13 @@ public class MetricVisualizer extends Visualizer {
 
 	// config
 	VisualizerListConfig listConfig;
+	MainDisplay mainDisplay;
 
 	// constructor
-	public MetricVisualizer(MetricVisualizerConfig config) {
+	public MetricVisualizer(MainDisplay mainDisplay,
+			MetricVisualizerConfig config) {
 		// initialization
+		this.mainDisplay = mainDisplay;
 		this.traces = new HashMap<String, ITrace2D>();
 		this.availableValues = new ArrayList<String>();
 		this.listConfig = config.getListConfig();
@@ -75,8 +80,10 @@ public class MetricVisualizer extends Visualizer {
 		TitledBorder title = BorderFactory.createTitledBorder(config.getName());
 		title.setBorder(BorderFactory
 				.createEtchedBorder((EtchedBorder.LOWERED)));
-		title.setTitleFont(GuiOptions.defaultFontBorders);
-		title.setTitleColor(GuiOptions.defaultFontBordersColor);
+		title.setTitleFont(new Font(
+				this.mainDisplay.getDefaultFont().getName(), Font.BOLD,
+				this.mainDisplay.getDefaultFont().getSize()));
+		title.setTitleColor(this.mainDisplay.getDefaultFontColor());
 		this.setBorder(title);
 
 		// if x axis type is date

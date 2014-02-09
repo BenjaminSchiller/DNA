@@ -11,8 +11,6 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.border.TitledBorder;
 
-import dna.visualization.GuiOptions;
-
 /**
  * A statstic group is a list that shows items and their corresponding values.
  * Several update- and add-methods make for an easy use.
@@ -25,19 +23,23 @@ public class StatsGroup extends JPanel {
 	// main constraints and valuelabels hashmap
 	private GridBagConstraints statsGroupConstraints;
 	private HashMap<String, JLabel> valueLabels;
+	private StatsDisplay statsDisplay;
 
 	// constructor
-	public StatsGroup(String title) {
+	public StatsGroup(StatsDisplay statsDisplay, String title) {
 		// set name
 		this.setName(title);
+		this.statsDisplay = statsDisplay;
 
 		// init hashmap
 		this.valueLabels = new HashMap<String, JLabel>();
 
 		// set border
 		TitledBorder border = BorderFactory.createTitledBorder(title);
-		border.setTitleFont(new Font(GuiOptions.defaultFont.getName(),
-				Font.BOLD, GuiOptions.defaultFont.getSize()));
+		border.setTitleFont(new Font(this.statsDisplay.getDefaultFont()
+				.getName(), Font.BOLD, this.statsDisplay.getDefaultFont()
+				.getSize()));
+		border.setTitleColor(this.statsDisplay.getDefaultFontColor());
 		this.setBorder(border);
 
 		// set layout
@@ -53,12 +55,14 @@ public class StatsGroup extends JPanel {
 	/** add values to the panel **/
 	public void addValue(String name, double value) {
 		JLabel tempName = new JLabel(name + ": ");
-		tempName.setFont(GuiOptions.defaultFont);
+		tempName.setFont(this.statsDisplay.getDefaultFont());
+		tempName.setForeground(this.statsDisplay.getDefaultFontColor());
 
 		JLabel tempValue = new JLabel("" + value);
 		tempValue.setHorizontalAlignment(JLabel.RIGHT);
 		tempValue.setName(name);
-		tempValue.setFont(GuiOptions.defaultFont);
+		tempValue.setFont(this.statsDisplay.getDefaultFont());
+		tempValue.setForeground(this.statsDisplay.getDefaultFontColor());
 
 		// add labels
 		this.statsGroupConstraints.gridx = 0;
