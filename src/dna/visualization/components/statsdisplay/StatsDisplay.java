@@ -176,9 +176,13 @@ public class StatsDisplay extends JPanel implements ChangeListener {
 		 */
 		this.directoryLabel = new JLabel("Directory: ");
 		this.directoryLabel.setFont(this.mainDisplay.getDefaultFont());
+		this.directoryLabel.setForeground(this.mainDisplay
+				.getDefaultFontColor());
 
 		this.directoryValue = new JTextField("./..");
 		this.directoryValue.setFont(this.mainDisplay.getDefaultFont());
+		this.directoryValue.setForeground(this.mainDisplay
+				.getDefaultFontColor());
 		this.directoryValue.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent evt) {
 				mainDisplay.reset();
@@ -207,9 +211,13 @@ public class StatsDisplay extends JPanel implements ChangeListener {
 		if (this.liveDisplay) {
 			this.statusLabel = new JLabel("Status: ");
 			this.statusLabel.setFont(this.mainDisplay.getDefaultFont());
+			this.statusLabel.setForeground(this.mainDisplay
+					.getDefaultFontColor());
 
 			this.statusValue = new JLabel("Idle");
 			this.statusValue.setFont(this.mainDisplay.getDefaultFont());
+			this.statusValue.setForeground(this.mainDisplay
+					.getDefaultFontColor());
 
 			// adding
 			this.settingsPanelConstraints.gridx = 0;
@@ -224,9 +232,11 @@ public class StatsDisplay extends JPanel implements ChangeListener {
 		 */
 		this.batchesLabel = new JLabel("Batches total: ");
 		this.batchesLabel.setFont(this.mainDisplay.getDefaultFont());
+		this.batchesLabel.setForeground(this.mainDisplay.getDefaultFontColor());
 
 		this.batchesValue = new JLabel("" + 0);
 		this.batchesValue.setFont(this.mainDisplay.getDefaultFont());
+		this.batchesValue.setForeground(this.mainDisplay.getDefaultFontColor());
 
 		// adding
 		this.settingsPanelConstraints.gridx = 0;
@@ -242,9 +252,13 @@ public class StatsDisplay extends JPanel implements ChangeListener {
 		 */
 		this.timestampLongLabel = new JLabel("Timestamp (long): ");
 		this.timestampLongLabel.setFont(this.mainDisplay.getDefaultFont());
+		this.timestampLongLabel.setForeground(this.mainDisplay
+				.getDefaultFontColor());
 
 		this.timestampLongValue = new JLabel("" + 0);
 		this.timestampLongValue.setFont(this.mainDisplay.getDefaultFont());
+		this.timestampLongValue.setForeground(this.mainDisplay
+				.getDefaultFontColor());
 
 		// adding
 		this.settingsPanelConstraints.gridx = 0;
@@ -260,11 +274,15 @@ public class StatsDisplay extends JPanel implements ChangeListener {
 		 */
 		this.timestampDateLabel = new JLabel("Timestamp: ");
 		this.timestampDateLabel.setFont(this.mainDisplay.getDefaultFont());
+		this.timestampDateLabel.setForeground(this.mainDisplay
+				.getDefaultFontColor());
 
 		this.timestampDateValue = new JLabel("00:00:00:000");
 		this.timestampDateValue.setToolTipText("Dateformat: "
 				+ GuiOptions.defaultDateFormat);
 		this.timestampDateValue.setFont(this.mainDisplay.getDefaultFont());
+		this.timestampDateValue.setForeground(this.mainDisplay
+				.getDefaultFontColor());
 
 		// adding
 		this.settingsPanelConstraints.gridx = 0;
@@ -289,9 +307,13 @@ public class StatsDisplay extends JPanel implements ChangeListener {
 					+ shownStatistics[i].substring(1) + ": ");
 			this.shownStatisticsLabels[i].setFont(this.mainDisplay
 					.getDefaultFont());
+			this.shownStatisticsLabels[i].setForeground(this.mainDisplay
+					.getDefaultFontColor());
 			this.shownStatisticsValues[i] = new JLabel("" + 0);
 			this.shownStatisticsValues[i].setFont(this.mainDisplay
 					.getDefaultFont());
+			this.shownStatisticsValues[i].setForeground(this.mainDisplay
+					.getDefaultFontColor());
 
 			this.settingsPanelConstraints.gridx = 0;
 			this.settingsPanel.add(this.shownStatisticsLabels[i],
@@ -324,7 +346,9 @@ public class StatsDisplay extends JPanel implements ChangeListener {
 			labelTable.put(new Integer(1500), new JLabel("1.5"));
 			labelTable.put(new Integer(2000), new JLabel("2.0"));
 			this.SpeedSlider.setLabelTable(labelTable);
-
+			this.SpeedSlider.setFont(this.mainDisplay.getDefaultFont());
+			this.SpeedSlider.setForeground(this.mainDisplay
+					.getDefaultFontColor());
 			// add event listener
 			this.SpeedSlider.addChangeListener(this);
 
