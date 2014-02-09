@@ -25,9 +25,17 @@ public class GuiOptions {
 
 	/** SIZES **/
 	// main display
-	public static final Dimension mainDisplaySize = new Dimension(1680, 800);
-	public static final Dimension mainDisplayButtonSize = new Dimension(90, 30);
-	public static final Dimension logoSize = new Dimension(270, 160);
+	public static final String mainDisplayDefaultTitle = "DNA - Dynamic Network Analyzer";
+	public static final boolean mainDisplayDefaultIsFullscreen = false;
+	public static final String mainDisplayDefaultLogoDir = "logo/dna-logo-v5.png";
+	public static final Dimension mainDisplayDefaultSize = new Dimension(1680,
+			1000);
+	public static final Dimension mainDisplayDefaultButtonSize = new Dimension(
+			90, 30);
+	public static final Dimension mainDisplayDefaultLogoSize = new Dimension(
+			270, 160);
+	public static final Dimension mainDisplayDefaultVisualizerPanelSize = new Dimension(
+			1500, 800);
 
 	// stats display
 	public static final String statsDisplayDefaultTitle = "Statistics";

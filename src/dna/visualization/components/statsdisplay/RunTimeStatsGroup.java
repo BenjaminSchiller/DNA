@@ -4,12 +4,22 @@ import java.util.HashSet;
 
 import dna.visualization.config.components.StatsDisplayConfig.RunTimeConfig;
 
+/**
+ * Extends the StatsGroup class for the use with runtimes. A
+ * showDefinedValuesOnly policy define which runtimes will be shown or hidden.
+ * 
+ * Note: When showDefinedValuesOnly is set true, all runtimes defined in the
+ * HashSet names, will be shown, but no others. When showDefinedValuesOnly is
+ * false, all runtimes will be shown, except those defined in the HashSet names.
+ * 
+ * @author Rwilmes
+ */
 public class RunTimeStatsGroup extends StatsGroup {
 
 	// names
 	private HashSet<String> names;
 
-	// poliy
+	// policy
 	private boolean showDefinedValuesOnly;
 
 	public RunTimeStatsGroup(RunTimeConfig config) {

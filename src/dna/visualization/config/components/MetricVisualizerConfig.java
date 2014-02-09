@@ -14,13 +14,15 @@ import dna.visualization.config.JSON.JSONObject;
 public class MetricVisualizerConfig {
 
 	// constructor
-	public MetricVisualizerConfig(String name, int traceLength,
-			Dimension chartSize, double xAxisOffset, String x1AxisTitle,
-			String xAxisType, String xAxisFormat, String y1AxisTitle,
-			String y2AxisTitle, Dimension legendSize,
+	public MetricVisualizerConfig(String name, int traceLength, int positionX,
+			int positionY, Dimension chartSize, double xAxisOffset,
+			String x1AxisTitle, String xAxisType, String xAxisFormat,
+			String y1AxisTitle, String y2AxisTitle, Dimension legendSize,
 			VisualizerListConfig listConfig, MenuBarConfig menuBarConfig) {
 		this.name = name;
 		this.traceLength = traceLength;
+		this.positionX = positionX;
+		this.positionY = positionY;
 		this.chartSize = chartSize;
 		this.xAxisOffset = xAxisOffset;
 		this.x1AxisTitle = x1AxisTitle;
@@ -36,6 +38,8 @@ public class MetricVisualizerConfig {
 	// general options
 	private String name;
 	private int traceLength;
+	private int positionX;
+	private int positionY;
 
 	// chart options
 	private Dimension chartSize;
@@ -64,6 +68,14 @@ public class MetricVisualizerConfig {
 
 	public int getTraceLength() {
 		return this.traceLength;
+	}
+
+	public int getPositionX() {
+		return this.positionX;
+	}
+
+	public int getPositionY() {
+		return this.positionY;
 	}
 
 	public Dimension getChartSize() {
@@ -111,6 +123,8 @@ public class MetricVisualizerConfig {
 			JSONObject o) {
 		String name = GuiOptions.metricVisualizerDefaultTitle;
 		int traceLength = GuiOptions.visualizerDefaultTraceLength;
+		int positionX = -1;
+		int positionY = -1;
 		Dimension chartSize = GuiOptions.visualizerDefaultChartSize;
 
 		double xAxisOffset = GuiOptions.metricVisualizerXAxisOffset;
@@ -131,6 +145,12 @@ public class MetricVisualizerConfig {
 
 		try {
 			traceLength = o.getInt("TraceLength");
+		} catch (Exception e) {
+		}
+
+		try {
+			positionX = o.getInt("PositionX");
+			positionY = o.getInt("PositionY");
 		} catch (Exception e) {
 		}
 
@@ -176,15 +196,18 @@ public class MetricVisualizerConfig {
 		}
 
 		// parse list config
-		VisualizerListConfig listConfig = VisualizerListConfig
-				.createConfigFromJSONObject(o);
-
+		VisualizerListConfig listConfig = null;
+		try {
+			listConfig = VisualizerListConfig.createConfigFromJSONObject(o);
+		} catch (Exception e) {
+		}
 		// calculate menu bar config
 		MenuBarConfig menuBarConfig = MenuBarConfig
 				.createMenuBarConfigFromJSONObject(o.getJSONObject("MenuBar"));
 
-		return new MetricVisualizerConfig(name, traceLength, chartSize,
-				xAxisOffset, x1AxisTitle, xAxisType, xAxisFormat, y1AxisTitle,
-				y2AxisTitle, legendSize, listConfig, menuBarConfig);
+		return new MetricVisualizerConfig(name, traceLength, positionX,
+				positionY, chartSize, xAxisOffset, x1AxisTitle, xAxisType,
+				xAxisFormat, y1AxisTitle, y2AxisTitle, legendSize, listConfig,
+				menuBarConfig);
 	}
 }

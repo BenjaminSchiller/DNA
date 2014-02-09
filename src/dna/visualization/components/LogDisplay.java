@@ -38,6 +38,7 @@ public class LogDisplay extends JPanel implements Runnable {
 	private String dir;
 	private long updateInterval;
 	private Thread t;
+	private boolean running;
 
 	// components
 	private JScrollPane logAreaScrollPane;
@@ -201,6 +202,7 @@ public class LogDisplay extends JPanel implements Runnable {
 	/** Run method tailing the log file **/
 	public void run() {
 		Thread thisThread = Thread.currentThread();
+		this.running = true;
 
 		// init reader
 		try {
@@ -232,14 +234,16 @@ public class LogDisplay extends JPanel implements Runnable {
 
 	/** processes the input line **/
 	public void processLine(String line) {
-		if (line.startsWith(Log.infoPrefix) && this.showInfo)
-			printNewLine(line);
-		if (line.startsWith(Log.warningPrefix) && this.showWarning)
-			printNewLine(line);
-		if (line.startsWith(Log.errorPrefix) && this.showError)
-			printNewLine(line);
-		if (line.startsWith(Log.debugPrefix) && this.showDebug)
-			printNewLine(line);
+		synchronized (this.logTextArea) {
+			if (line.startsWith(Log.infoPrefix) && this.showInfo)
+				printNewLine(line);
+			if (line.startsWith(Log.warningPrefix) && this.showWarning)
+				printNewLine(line);
+			if (line.startsWith(Log.errorPrefix) && this.showError)
+				printNewLine(line);
+			if (line.startsWith(Log.debugPrefix) && this.showDebug)
+				printNewLine(line);
+		}
 	}
 
 	/** Prints a string into the log **/
@@ -250,8 +254,10 @@ public class LogDisplay extends JPanel implements Runnable {
 	}
 
 	/** clears the log **/
-	private void clearLog() {
-		this.logTextArea.setText("");
+	public void clearLog() {
+		synchronized (this.logTextArea) {
+			this.logTextArea.setText("");
+		}
 	}
 
 	/** stops the log display thread **/
@@ -267,5 +273,10 @@ public class LogDisplay extends JPanel implements Runnable {
 			Log.info("Starting LogDisplay in new thread: " + t);
 			this.t.start();
 		}
+	}
+
+	/** Returns if the logdisplay is running. **/
+	public boolean isRunning() {
+		return this.running;
 	}
 }

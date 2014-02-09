@@ -741,7 +741,6 @@ public class StatsDisplay extends JPanel implements ChangeListener {
 
 	/** Called when the UI gets pause/unpaused **/
 	public void togglePause() {
-		System.out.println(this.paused);
 		this.paused = !this.paused;
 		if (this.liveDisplay) {
 			if (this.paused) {

@@ -13,11 +13,14 @@ import dna.visualization.config.JSON.JSONObject;
  */
 public class MultiScalarVisualizerConfig {
 
-	public MultiScalarVisualizerConfig(String name, Dimension chartSize,
-			double xAxisOffset, String x1AxisTitle, String x2AxisTitle,
-			String y1AxisTitle, String y2AxisTitle, Dimension legendSize,
+	public MultiScalarVisualizerConfig(String name, int positionX,
+			int positionY, Dimension chartSize, double xAxisOffset,
+			String x1AxisTitle, String x2AxisTitle, String y1AxisTitle,
+			String y2AxisTitle, Dimension legendSize,
 			VisualizerListConfig listConfig, MenuBarConfig menuBarConfig) {
 		this.name = name;
+		this.positionX = positionX;
+		this.positionY = positionY;
 		this.chartSize = chartSize;
 		this.xAxisOffset = xAxisOffset;
 		this.x1AxisTitle = x1AxisTitle;
@@ -31,6 +34,8 @@ public class MultiScalarVisualizerConfig {
 
 	// general options
 	private String name;
+	private int positionX;
+	private int positionY;
 
 	// chart options
 	private Dimension chartSize;
@@ -54,6 +59,14 @@ public class MultiScalarVisualizerConfig {
 	// get methods
 	public String getName() {
 		return this.name;
+	}
+
+	public int getPositionX() {
+		return this.positionX;
+	}
+
+	public int getPositionY() {
+		return this.positionY;
 	}
 
 	public Dimension getChartSize() {
@@ -98,6 +111,9 @@ public class MultiScalarVisualizerConfig {
 	public static MultiScalarVisualizerConfig createMultiScalarVisualizerConfigFromJSONObject(
 			JSONObject o) {
 		String name = GuiOptions.multiScalarVisualizerDefaultTitle;
+		int positionX = -1;
+		int positionY = -1;
+
 		Dimension chartSize = GuiOptions.visualizerDefaultChartSize;
 
 		double xAxisOffset = GuiOptions.multiScalarVisualizerXAxisOffset;
@@ -112,6 +128,12 @@ public class MultiScalarVisualizerConfig {
 
 		try {
 			name = o.getString("Name");
+		} catch (Exception e) {
+		}
+
+		try {
+			positionX = o.getInt("PositionX");
+			positionY = o.getInt("PositionY");
 		} catch (Exception e) {
 		}
 
@@ -154,15 +176,18 @@ public class MultiScalarVisualizerConfig {
 		}
 
 		// parse list config
-		VisualizerListConfig listConfig = VisualizerListConfig
-				.createConfigFromJSONObject(o);
+		VisualizerListConfig listConfig = null;
+		try {
+			listConfig = VisualizerListConfig.createConfigFromJSONObject(o);
+		} catch (Exception e) {
+		}
 
 		// calculate menu bar config
 		MenuBarConfig menuBarConfig = MenuBarConfig
 				.createMenuBarConfigFromJSONObject(o.getJSONObject("MenuBar"));
 
-		return new MultiScalarVisualizerConfig(name, chartSize, xAxisOffset,
-				x1AxisTitle, x2AxisTitle, y1AxisTitle, y2AxisTitle, legendSize,
-				listConfig, menuBarConfig);
+		return new MultiScalarVisualizerConfig(name, positionX, positionY,
+				chartSize, xAxisOffset, x1AxisTitle, x2AxisTitle, y1AxisTitle,
+				y2AxisTitle, legendSize, listConfig, menuBarConfig);
 	}
 }

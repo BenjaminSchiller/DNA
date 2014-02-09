@@ -13,11 +13,14 @@ import dna.visualization.config.JSON.JSONObject;
 public class LogDisplayConfig {
 
 	// constructor
-	public LogDisplayConfig(String name, String dir, long updateInterval,
-			Dimension textFieldSize, boolean showInfo, boolean showWarning,
-			boolean showError, boolean showDebug) {
+	public LogDisplayConfig(String name, String dir, int positionX,
+			int positionY, long updateInterval, Dimension textFieldSize,
+			boolean showInfo, boolean showWarning, boolean showError,
+			boolean showDebug) {
 		this.name = name;
 		this.dir = dir;
+		this.positionX = positionX;
+		this.positionY = positionY;
 		this.updateInterval = updateInterval;
 		this.textFieldSize = textFieldSize;
 		this.showInfo = showInfo;
@@ -29,6 +32,8 @@ public class LogDisplayConfig {
 	// general options
 	private String name;
 	private String dir;
+	private int positionX;
+	private int positionY;
 	private long updateInterval;
 
 	// sizes
@@ -47,6 +52,14 @@ public class LogDisplayConfig {
 
 	public String getDir() {
 		return this.dir;
+	}
+	
+	public int getPositionX() {
+		return this.positionX;
+	}
+	
+	public int getPositionY() {
+		return this.positionY;
 	}
 
 	public long getUpdateInterval() {
@@ -78,6 +91,8 @@ public class LogDisplayConfig {
 			JSONObject o) {
 		String name = GuiOptions.logDefaultTitle;
 		String dir = GuiOptions.defaultLogDir;
+		int positionX = -1;
+		int positionY = -1;
 		long updateInterval = GuiOptions.logDefaultUpdateInterval;
 		Dimension textFieldSize = GuiOptions.logDefaultTextFieldSize;
 
@@ -92,6 +107,11 @@ public class LogDisplayConfig {
 		}
 		try {
 			dir = o.getString("Dir");
+		} catch (Exception e) {
+		}
+		try {
+			positionX = o.getInt("PositionX");
+			positionY = o.getInt("PositionY");
 		} catch (Exception e) {
 		}
 		try {
@@ -126,8 +146,9 @@ public class LogDisplayConfig {
 		} catch (Exception e) {
 		}
 
-		return new LogDisplayConfig(name, dir, updateInterval, textFieldSize,
-				showInfo, showWarning, showError, showDebug);
+		return new LogDisplayConfig(name, dir, positionX, positionY,
+				updateInterval, textFieldSize, showInfo, showWarning,
+				showError, showDebug);
 	}
 
 }

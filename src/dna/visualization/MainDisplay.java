@@ -2,6 +2,7 @@ package dna.visualization;
 
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
@@ -21,6 +22,7 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.border.EtchedBorder;
 
 import dna.series.data.BatchData;
@@ -30,13 +32,12 @@ import dna.visualization.components.statsdisplay.StatsDisplay;
 import dna.visualization.components.visualizer.MetricVisualizer;
 import dna.visualization.components.visualizer.MultiScalarVisualizer;
 import dna.visualization.components.visualizer.Visualizer;
-import dna.visualization.config.VisualizerListConfig;
 import dna.visualization.config.JSON.JSONObject;
 import dna.visualization.config.JSON.JSONTokener;
 import dna.visualization.config.components.LogDisplayConfig;
+import dna.visualization.config.components.MainDisplayConfig;
 import dna.visualization.config.components.MetricVisualizerConfig;
 import dna.visualization.config.components.MultiScalarVisualizerConfig;
-import dna.visualization.config.components.StatsDisplayConfig;
 
 @SuppressWarnings("serial")
 public class MainDisplay extends JFrame {
@@ -45,45 +46,20 @@ public class MainDisplay extends JFrame {
 	public static void main(String[] args) {
 		// generate config for visualizers
 		JSONObject jsonConfig = new JSONObject();
-		JSONObject displayConfig = new JSONObject();
 
-		String jsonConfigPath = "config/gui_config1.cfg";
 		String displayConfigPath = "config/displayConfig.cfg";
 
-		Log.info("Reading JSON config from " + '"' + jsonConfigPath + '"');
 		try {
-			FileInputStream file = new FileInputStream(jsonConfigPath);
+			FileInputStream file = new FileInputStream(displayConfigPath);
 			JSONTokener tk = new JSONTokener(file);
 			jsonConfig = new JSONObject(tk);
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		}
-		try {
-			FileInputStream file = new FileInputStream(displayConfigPath);
-			JSONTokener tk = new JSONTokener(file);
-			displayConfig = new JSONObject(tk);
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		}
 
-		visualizerConfig = VisualizerListConfig
-				.createConfigFromJSONObject(jsonConfig);
-
-		logDisplayConfig = LogDisplayConfig
-				.createLogDisplayConfigFromJSONObject(displayConfig
-						.getJSONObject("LogDisplayConfig"));
-
-		metricVisualizerConfig = MetricVisualizerConfig
-				.createMetricVisualizerConfigFromJSONObject(displayConfig
-						.getJSONObject("MetricVisualizerConfig"));
-
-		multiScalarVisualizerConfig = MultiScalarVisualizerConfig
-				.createMultiScalarVisualizerConfigFromJSONObject(displayConfig
-						.getJSONObject("MultiScalarVisualizerConfig"));
-
-		statsDisplayConfig = StatsDisplayConfig
-				.creatStatsDisplayConfigFromJSONObject(displayConfig
-						.getJSONObject("StatsDisplayConfig"));
+		config = MainDisplayConfig
+				.createMainDisplayConfigFromJSONObject(jsonConfig
+						.getJSONObject("MainDisplayConfig"));
 
 		/** LIVE DISPLAY **/
 		Boolean liveDisplay = false;
@@ -91,24 +67,28 @@ public class MainDisplay extends JFrame {
 
 		// init main window
 		Log.info("Initializing MainDisplay");
-		MainDisplay display = new MainDisplay(liveDisplay);
-
-		display.liveDisplay = liveDisplay;
+		MainDisplay display = new MainDisplay(liveDisplay, config);
 
 		// init batch handler, hand over directory and maindisplay
-		display.setBatchHandler(new BatchHandler(GuiOptions.defaultDir,
+		display.setBatchHandler(new BatchHandler(config.getDefaultDir(),
 				display, liveDisplay));
 		display.initBatchHandler();
 
+		if (config.isFullscreen()) {
+			display.setExtendedState(display.getExtendedState()
+					| JFrame.MAXIMIZED_BOTH);
+		}
 		display.setVisible(true);
 	}
 
 	/** MAIN-END **/
 
 	// class variables
-	private StatsDisplay statsDisplay1;
+	private StatsDisplay statsDisplay;
 	private BatchHandler batchHandler;
-	private LogDisplay logDisplay1;
+
+	private JPanel visualizerPanel;
+	private JPanel leftSidePanel;
 
 	private ArrayList<Component> dataComponents;
 
@@ -120,50 +100,58 @@ public class MainDisplay extends JFrame {
 
 	private JPanel logoPanel;
 
-	private Visualizer metric1;
-	private Visualizer metric2;
+	private Font defaultFont;
+	private Color defaultFontColor;
 
 	// config
-	public static VisualizerListConfig visualizerConfig;
-	public static MetricVisualizerConfig metricVisualizerConfig;
-	public static MultiScalarVisualizerConfig multiScalarVisualizerConfig;
-	public static StatsDisplayConfig statsDisplayConfig;
-	public static LogDisplayConfig logDisplayConfig;
+	public static MainDisplayConfig config;
 
 	// live display flag
 	public boolean liveDisplay;
 
 	// constructor
-	public MainDisplay(boolean liveDisplay) {
-		setTitle("DNA - Dynamic Network Analyzer");
-		setSize(GuiOptions.mainDisplaySize);
+	public MainDisplay(boolean liveDisplay, MainDisplayConfig config) {
+		// init
+		setTitle(config.getName());
+		setSize(config.getSize());
 		setLocationRelativeTo(null);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-
-		this.setLayout(new GridBagLayout());
+		this.defaultFont = config.getDefaultFont();
+		this.defaultFontColor = config.getDefaultFontColor();
 		this.dataComponents = new ArrayList<Component>();
+		this.liveDisplay = liveDisplay;
 
-		// create constraints for mainDisplay Layout
-		GridBagConstraints mainDisplayConstraints = new GridBagConstraints();
+		/*
+		 * LEFT SIDE PANEL
+		 */
+		this.leftSidePanel = new JPanel();
+		this.leftSidePanel.setLayout(new GridBagLayout());
+		GridBagConstraints leftSideConstraints = new GridBagConstraints();
+		leftSideConstraints.anchor = GridBagConstraints.NORTH;
 
-		// init stats component, set position in grid and add to mainframe
-		this.statsDisplay1 = new StatsDisplay(statsDisplayConfig, liveDisplay);
-		this.statsDisplay1.setLocation(0, 0);
-		this.statsDisplay1.setParent(this);
-		this.statsDisplay1.setDirectory(GuiOptions.defaultDir);
+		/*
+		 * Create StatsDisplay
+		 */
+		this.statsDisplay = new StatsDisplay(config.getStatsDisplayConfig(),
+				liveDisplay);
+		this.statsDisplay.setLocation(0, 0);
+		this.statsDisplay.setParent(this);
+		this.statsDisplay.setDirectory(config.getDefaultDir());
 
-		mainDisplayConstraints.gridy = 0;
-		mainDisplayConstraints.gridx = 0;
-		this.getContentPane().add(this.statsDisplay1, mainDisplayConstraints);
+		leftSideConstraints.gridx = 0;
+		leftSideConstraints.gridy = 0;
+		this.leftSidePanel.add(this.statsDisplay, leftSideConstraints);
 
 		// register statsDisplay to get batchdata objects
-		this.registerDataComponent(this.statsDisplay1);
+		this.registerDataComponent(this.statsDisplay);
 
-		// create buttons
+		/*
+		 * Create buttons
+		 */
 		this.quitButton = new JButton("Quit");
-		this.quitButton.setPreferredSize(GuiOptions.mainDisplayButtonSize);
-		this.quitButton.setFont(GuiOptions.defaultFont);
-		this.quitButton.setForeground(GuiOptions.defaultFontColor);
+		this.quitButton.setPreferredSize(config.getButtonSize());
+		this.quitButton.setFont(this.defaultFont);
+		this.quitButton.setForeground(this.defaultFontColor);
 		this.quitButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent event) {
@@ -172,38 +160,37 @@ public class MainDisplay extends JFrame {
 		});
 
 		this.pauseButton = new JButton("Pause");
-		this.pauseButton.setPreferredSize(GuiOptions.mainDisplayButtonSize);
-		this.pauseButton.setFont(GuiOptions.defaultFont);
-		this.pauseButton.setForeground(GuiOptions.defaultFontColor);
+		this.pauseButton.setPreferredSize(config.getButtonSize());
+		this.pauseButton.setFont(this.defaultFont);
+		this.pauseButton.setForeground(this.defaultFontColor);
 		this.pauseButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent event) {
 				togglePause();
-				if (pauseButton.getForeground().equals(
-						GuiOptions.defaultFontColor)) {
+				if (pauseButton.getForeground().equals(defaultFontColor)) {
 					pauseButton.setForeground(Color.RED);
 					pauseButton.setText("Resume");
 				} else {
 					pauseButton.setText("Pause");
-					pauseButton.setForeground(GuiOptions.defaultFontColor);
+					pauseButton.setForeground(defaultFontColor);
 				}
 			}
 		});
 
 		this.stopButton = new JButton("Stop");
-		this.stopButton.setPreferredSize(GuiOptions.mainDisplayButtonSize);
-		this.stopButton.setFont(GuiOptions.defaultFont);
-		this.stopButton.setForeground(GuiOptions.defaultFontColor);
+		this.stopButton.setPreferredSize(config.getButtonSize());
+		this.stopButton.setFont(this.defaultFont);
+		this.stopButton.setForeground(this.defaultFontColor);
 		this.stopButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent event) {
-				pauseButton.setForeground(GuiOptions.defaultFontColor);
+				pauseButton.setForeground(defaultFontColor);
 				pauseButton.setText("Pause");
 				try {
-					statsDisplay1.setStopped();
+					statsDisplay.setStopped();
 					batchHandler.reset();
 					initBatchHandler();
-					logDisplay1.stop();
+					stopLogDisplays();
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
@@ -211,62 +198,28 @@ public class MainDisplay extends JFrame {
 		});
 
 		this.startButton = new JButton("Start");
-		this.startButton.setPreferredSize(GuiOptions.mainDisplayButtonSize);
-		this.startButton.setFont(GuiOptions.defaultFont);
-		this.startButton.setForeground(GuiOptions.defaultFontColor);
+		this.startButton.setPreferredSize(config.getButtonSize());
+		this.startButton.setFont(this.defaultFont);
+		this.startButton.setForeground(this.defaultFontColor);
 		this.startButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent event) {
-				statsDisplay1.setStarted();
+				statsDisplay.setStarted();
 				batchHandler.start();
-				logDisplay1.start();
+				startLogDisplays();
 			}
 		});
 
-		final JButton toggleM1 = new JButton("-M1");
-		toggleM1.setPreferredSize(GuiOptions.mainDisplayButtonSize);
-		toggleM1.setFont(GuiOptions.defaultFont);
-		toggleM1.setForeground(GuiOptions.defaultFontColor);
-		toggleM1.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent event) {
-				if (metric1.isVisible()) {
-					toggleM1.setText("+M1");
-					metric1.setVisible(false);
-				} else {
-					toggleM1.setText("-M1");
-					metric1.setVisible(true);
-				}
-			}
-		});
-
-		final JButton toggleM2 = new JButton("-M2");
-		toggleM2.setPreferredSize(GuiOptions.mainDisplayButtonSize);
-		toggleM2.setFont(GuiOptions.defaultFont);
-		toggleM2.setForeground(GuiOptions.defaultFontColor);
-		toggleM2.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent event) {
-				if (metric2.isVisible()) {
-					toggleM2.setText("+M2");
-					metric2.setVisible(false);
-				} else {
-					toggleM2.setText("-M2");
-					metric2.setVisible(true);
-				}
-			}
-		});
-
+		/*
+		 * Add buttons to ButtonsPanel and add it to leftSidePanel
+		 */
 		this.buttons = new JPanel();
 		this.buttons.setLayout(new GridBagLayout());
 		GridBagConstraints buttonPanelConstraints = new GridBagConstraints();
-		// this.buttons.setLayout(new BoxLayout(this.buttons,
-		// BoxLayout.X_AXIS));
 
-		// set buttons-panel position in gridlayout and add them to mainframe
-		mainDisplayConstraints.gridx = 0;
-		mainDisplayConstraints.gridy = 1;
-		this.getContentPane().add(this.buttons, mainDisplayConstraints);
+		leftSideConstraints.gridx = 0;
+		leftSideConstraints.gridy = 1;
+		this.leftSidePanel.add(this.buttons, leftSideConstraints);
 
 		buttonPanelConstraints.gridx = 0;
 		buttonPanelConstraints.gridy = 0;
@@ -275,60 +228,111 @@ public class MainDisplay extends JFrame {
 		this.buttons.add(this.pauseButton, buttonPanelConstraints);
 		buttonPanelConstraints.gridx++;
 		this.buttons.add(this.stopButton, buttonPanelConstraints);
-		buttonPanelConstraints.gridx = 0;
-		buttonPanelConstraints.gridy = 1;
-		this.buttons.add(toggleM1, buttonPanelConstraints);
-		buttonPanelConstraints.gridx++;
-		this.buttons.add(toggleM2, buttonPanelConstraints);
 		buttonPanelConstraints.gridx++;
 		this.buttons.add(this.quitButton, buttonPanelConstraints);
 
-		// init logo panel, set position in gridlayout and add to mainframe
-		mainDisplayConstraints.gridx = 0;
-		mainDisplayConstraints.gridy = 2;
+		/*
+		 * Init LogoPanel, set position and add to leftSidePanel
+		 */
 		this.logoPanel = new JPanel();
 		this.logoPanel
 				.setLayout(new BoxLayout(this.logoPanel, BoxLayout.X_AXIS));
-		this.getContentPane().add(this.logoPanel, mainDisplayConstraints);
+
 		this.logoPanel.setBorder(BorderFactory
 				.createEtchedBorder((EtchedBorder.LOWERED)));
 		BufferedImage image = null;
 		try {
-			image = ImageIO.read(new File("logo/dna-logo-v5.png"));
+			image = ImageIO.read(new File(config.getLogoDir()));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 		JLabel logoLabel = new JLabel(new ImageIcon(image));
 		this.logoPanel.setLayout(new GridBagLayout());
-		this.logoPanel.setPreferredSize(GuiOptions.logoSize);
+		this.logoPanel.setPreferredSize(config.getLogoSize());
 		this.logoPanel.add(logoLabel);
 
+		leftSideConstraints.gridx = 0;
+		leftSideConstraints.gridy = 2;
+		this.leftSidePanel.add(this.logoPanel, leftSideConstraints);
+
+		/*
+		 * VISUALIZER PANEL
+		 */
+		this.visualizerPanel = new JPanel();
+		this.visualizerPanel.setLayout(new GridBagLayout());
+		GridBagConstraints visualizerPanelConstraints = new GridBagConstraints();
+		visualizerPanelConstraints.gridx = 0;
+		visualizerPanelConstraints.gridy = 0;
+
+		// FILL PANEL
 		// add metric visualizer
-		this.metric1 = new MetricVisualizer(metricVisualizerConfig);
-		mainDisplayConstraints.gridx = 1;
-		mainDisplayConstraints.gridy = 0;
-		this.getContentPane().add(this.metric1, mainDisplayConstraints);
+		for (MetricVisualizerConfig metVisConfig : config
+				.getMetricVisualizerConfigs()) {
+			MetricVisualizer metricVisualizerTemp = new MetricVisualizer(
+					metVisConfig);
 
+			if (metVisConfig.getPositionX() >= 0
+					&& metVisConfig.getPositionY() >= 0) {
+				visualizerPanelConstraints.gridx = metVisConfig.getPositionX();
+				visualizerPanelConstraints.gridy = metVisConfig.getPositionY();
+			} else {
+				visualizerPanelConstraints.gridx++;
+				visualizerPanelConstraints.gridy++;
+			}
+
+			this.visualizerPanel.add(metricVisualizerTemp,
+					visualizerPanelConstraints);
+			this.registerDataComponent(metricVisualizerTemp);
+		}
 		// add multi scalar visualizer
-		this.metric2 = new MultiScalarVisualizer(multiScalarVisualizerConfig);
-		mainDisplayConstraints.gridx = 2;
-		mainDisplayConstraints.gridy = 0;
-		this.getContentPane().add(this.metric2, mainDisplayConstraints);
+		for (MultiScalarVisualizerConfig multiVisConfig : config
+				.getMultiScalarVisualizerConfigs()) {
+			MultiScalarVisualizer metricVisualizerTemp = new MultiScalarVisualizer(
+					multiVisConfig);
 
-		this.registerDataComponent(metric1);
-		this.registerDataComponent(metric2);
-		this.setLocationRelativeTo(null);
+			if (multiVisConfig.getPositionX() >= 0
+					&& multiVisConfig.getPositionY() >= 0) {
+				visualizerPanelConstraints.gridx = multiVisConfig
+						.getPositionX();
+				visualizerPanelConstraints.gridy = multiVisConfig
+						.getPositionY();
+			} else {
+				visualizerPanelConstraints.gridx++;
+				visualizerPanelConstraints.gridy++;
+			}
 
+			this.visualizerPanel.add(metricVisualizerTemp,
+					visualizerPanelConstraints);
+			this.registerDataComponent(metricVisualizerTemp);
+		}
 		// add log display
-		mainDisplayConstraints.gridwidth = 2;
-		mainDisplayConstraints.gridx = 1;
-		mainDisplayConstraints.gridy = 1;
+		for (LogDisplayConfig logDisConfig : config.getLogDisplayConfigs()) {
+			LogDisplay logDisplayTemp = new LogDisplay(logDisConfig);
 
-		this.logDisplay1 = new LogDisplay(this.logDisplayConfig);
-		this.getContentPane().add(this.logDisplay1, mainDisplayConstraints);
+			if (logDisConfig.getPositionX() >= 0
+					&& logDisConfig.getPositionY() >= 0) {
+				visualizerPanelConstraints.gridx = logDisConfig.getPositionX();
+				visualizerPanelConstraints.gridy = logDisConfig.getPositionY();
+			} else {
+				visualizerPanelConstraints.gridx++;
+				visualizerPanelConstraints.gridy++;
+			}
 
-		// start logging
-		this.logDisplay1.start();
+			this.visualizerPanel
+					.add(logDisplayTemp, visualizerPanelConstraints);
+			this.dataComponents.add(logDisplayTemp);
+			logDisplayTemp.start();
+		}
+
+		JScrollPane dataScrollPanel = new JScrollPane(this.visualizerPanel);
+		dataScrollPanel.setPreferredSize(config.getVisualizerPanelSize());
+		this.visualizerPanel.setPreferredSize(config
+				.getInnerVisualizerPanelSize());
+
+		this.setLayout(new BoxLayout(this.getContentPane(), BoxLayout.X_AXIS));
+		this.getContentPane().add(this.leftSidePanel);
+		this.getContentPane().add(dataScrollPanel);
+		this.validate();
 	}
 
 	/**
@@ -452,7 +456,7 @@ public class MainDisplay extends JFrame {
 	public void startLiveMonitoring() {
 		if (this.liveDisplay) {
 			this.batchHandler.start();
-			this.statsDisplay1.setStarted();
+			this.statsDisplay.setStarted();
 		}
 	}
 
@@ -478,7 +482,7 @@ public class MainDisplay extends JFrame {
 			this.pauseButton.setForeground(Color.RED);
 			this.pauseButton.setText("Resume");
 		} else {
-			this.pauseButton.setForeground(GuiOptions.defaultFontColor);
+			this.pauseButton.setForeground(this.defaultFontColor);
 			this.pauseButton.setText("Pause");
 		}
 		this.batchHandler.setPaused(paused);
@@ -507,5 +511,34 @@ public class MainDisplay extends JFrame {
 	/** called from the statsdisplay to get the amount of previous timestamps **/
 	public int getAmountOfPreviousTimestamps(long timestamp) {
 		return this.batchHandler.getAmountOfPreviousTimestamps(timestamp);
+	}
+
+	/** Returns the default font. **/
+	public Font getDefaultFont() {
+		return this.defaultFont;
+	}
+
+	/** Returns the default font color. **/
+	public Color getDefaultFontColor() {
+		return this.defaultFontColor;
+	}
+
+	/** Starts all registered log displays. **/
+	public void startLogDisplays() {
+		for (Component c : this.dataComponents) {
+			if (c instanceof LogDisplay) {
+				((LogDisplay) c).start();
+			}
+		}
+	}
+
+	/** Stops all registered log displays. **/
+	public void stopLogDisplays() {
+		for (Component c : this.dataComponents) {
+			if (c instanceof LogDisplay) {
+				((LogDisplay) c).stop();
+				((LogDisplay) c).clearLog();
+			}
+		}
 	}
 }
