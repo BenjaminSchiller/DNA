@@ -113,7 +113,7 @@ public class MetricVisualizer extends Visualizer {
 
 		// apply config
 		this.chart.setPreferredSize(config.getChartSize());
-		this.legend.setPreferredSize(config.getLegendSize());
+		this.legend.setLegendSize(config.getLegendSize());
 		this.xAxisOffset = config.getxAxisOffset();
 
 		this.yAxis1.setAxisTitle(new AxisTitle(config.getY1AxisTitle()));

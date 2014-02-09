@@ -112,8 +112,7 @@ public class Visualizer extends JPanel {
 		this.add(this.chart, this.mainConstraints);
 
 		// init and add legend
-		this.legend = new Legend(this);
-		this.legend.setPreferredSize(GuiOptions.visualizerDefaultLegendSize);
+		this.legend = new Legend(this, GuiOptions.visualizerDefaultLegendSize);
 		this.mainConstraints.gridx = 1;
 		this.mainConstraints.gridy = 0;
 		this.add(this.legend, this.mainConstraints);

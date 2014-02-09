@@ -42,7 +42,7 @@ public class Legend extends JPanel {
 	private Visualizer parent;
 	private Legend thisLegend;
 	private LegendList list;
-	private JScrollPane scrollBar;
+	private JScrollPane scrollPane;
 
 	private JPanel addButtonPanel;
 
@@ -51,11 +51,11 @@ public class Legend extends JPanel {
 
 	private ColorHandler colorHandler;
 
-	public Legend(Visualizer parent) {
+	public Legend(Visualizer parent, Dimension size) {
 		this.parent = parent;
 		thisLegend = this;
 		this.colorHandler = new ColorHandler();
-		this.setPreferredSize(new Dimension(190, 320));
+		this.setPreferredSize(size);
 		this.setLayout(new GridBagLayout());
 		GridBagConstraints c = new GridBagConstraints();
 
@@ -65,15 +65,16 @@ public class Legend extends JPanel {
 		c.gridx = 0;
 		c.gridy = 0;
 		this.add(list, c);
-		this.scrollBar = new JScrollPane(this.list);
-		this.scrollBar.setPreferredSize(new Dimension(187, 295));
-		this.scrollBar
+		this.scrollPane = new JScrollPane(this.list);
+		this.scrollPane.setPreferredSize(new Dimension(size.width - 3,
+				size.height - 25));
+		this.scrollPane
 				.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
-		this.add(scrollBar);
+		this.add(scrollPane);
 
 		// init addbutton panel and add it
 		this.addButtonPanel = new JPanel();
-		this.addButtonPanel.setPreferredSize(new Dimension(187, 20));
+		this.addButtonPanel.setPreferredSize(new Dimension(size.width - 3, 20));
 		this.addButtonPanel.setBorder(BorderFactory
 				.createEtchedBorder((EtchedBorder.LOWERED)));
 		this.addButtonPanel.setLayout(new BoxLayout(this.addButtonPanel,
@@ -84,6 +85,13 @@ public class Legend extends JPanel {
 		this.add(addButtonPanel, c);
 
 		this.initAddBox(null);
+	}
+
+	public void setLegendSize(Dimension size) {
+		this.scrollPane.setPreferredSize(new Dimension(size.width - 3,
+				size.height - 25));
+		this.addButtonPanel.setPreferredSize(new Dimension(size.width - 3, 20));
+		this.validate();
 	}
 
 	/** adds a value item to the list, if its already added nothing will happen **/
