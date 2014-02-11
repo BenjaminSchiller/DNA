@@ -1,6 +1,7 @@
 package dna.updates.walkingAlgorithms;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 
@@ -108,6 +109,7 @@ public abstract class WalkingAlgorithm extends BatchGenerator {
 
 		Batch newBatch = new Batch(g.getGraphDatastructures(),
 				g.getTimestamp(), g.getTimestamp() + 1);
+		HashMap<Integer, Node> addedNodes = new HashMap<>();
 
 		if (firstIteration) {
 			firstIteration = false;
@@ -115,14 +117,14 @@ public abstract class WalkingAlgorithm extends BatchGenerator {
 			resource = -firstCosts;
 
 			newBatch = addNodeAndNeighborsToBatch(newBatch,
-					init(startNodeStartegy), g);
+					init(startNodeStartegy), g, addedNodes);
 
 			for (int i = firstCosts; i < costPerBatch; i++) {
 				if (!isFurtherBatchPossible(g)) {
 					break;
 				}
-				newBatch = addNodeAndNeighborsToBatch(newBatch,
-						findNextNode(fullGraph, g), g);
+				newBatch = addNodeAndNeighborsToBatch(newBatch, findNextNode(),
+						g, addedNodes);
 				resource--;
 			}
 
@@ -132,8 +134,8 @@ public abstract class WalkingAlgorithm extends BatchGenerator {
 				if (!isFurtherBatchPossible(g)) {
 					break;
 				}
-				newBatch = addNodeAndNeighborsToBatch(newBatch,
-						findNextNode(fullGraph, g), g);
+				newBatch = addNodeAndNeighborsToBatch(newBatch, findNextNode(),
+						g, addedNodes);
 				resource--;
 			}
 		}
@@ -143,18 +145,17 @@ public abstract class WalkingAlgorithm extends BatchGenerator {
 	/**
 	 * Produces the update based on the specific walking algorithm
 	 * 
-	 * @param fullyGraph
-	 *            the full graph on which the algorithm operates
-	 * @param currentGraph
-	 *            the current progress on the graph
-	 * @return an update
+	 * @return a node
 	 */
-	protected abstract Node findNextNode(Graph fullyGraph, Graph currentGraph);
+	protected abstract Node findNextNode();
 
 	/**
 	 * Initializes the walking algorithm with the start node selection strategy
 	 * 
-	 * @return the first update
+	 * @param startNode
+	 *            the chosen starting node selection strategy
+	 * 
+	 * @return the first node
 	 */
 	protected abstract Node init(StartNodeSelectionStrategy startNode);
 
@@ -168,19 +169,25 @@ public abstract class WalkingAlgorithm extends BatchGenerator {
 	 *            the node that shall be added to the batch
 	 * @param g
 	 *            the current graph
+	 * @param preAddedNodes
+	 *            a HashMap which maps IDs of keys to nodes which were / will be
+	 *            added with the batch but are not yet added to the graph
 	 * @return
 	 */
-	private Batch addNodeAndNeighborsToBatch(Batch batch, Node node, Graph g) {
+	private Batch addNodeAndNeighborsToBatch(Batch batch, Node node, Graph g,
+			HashMap<Integer, Node> preAddedNodes) {
 
 		Node newNode = g.getGraphDatastructures().newNodeInstance(
 				node.getIndex());
 
 		batch.add(new NodeAddition(newNode));
 
+		preAddedNodes.put(newNode.getIndex(), newNode);
+
 		seenNodes.add(node);
 		visitedNodes.add(node);
 
-		List<Update> upList = addNeighbors(node, newNode, g);
+		List<Update> upList = addNeighbors(node, newNode, g, preAddedNodes);
 
 		for (Update u : upList) {
 			System.out.println(u);
@@ -201,10 +208,13 @@ public abstract class WalkingAlgorithm extends BatchGenerator {
 	 *            the same node but from the sample
 	 * @param g
 	 *            the current graph
+	 * @param preAddedNodes
+	 *            a HashMap which maps IDs of keys to nodes which were / will be
+	 *            added with the batch but are not yet added to the graph
 	 * @return a list of node and edge additions
 	 */
 	private List<Update> addNeighbors(Node nodeFromFullGraph, Node newNode,
-			Graph g) {
+			Graph g, HashMap<Integer, Node> preAddedNodes) {
 
 		List<Update> updateList = new ArrayList<Update>();
 
@@ -224,7 +234,7 @@ public abstract class WalkingAlgorithm extends BatchGenerator {
 					// Ja -> Edge in Liste, Ende
 					GraphDataStructure gds = g.getGraphDatastructures();
 					// TODO Das hier kann fehlschlagen
-					Node dstNode = g.getNode(neighbor.getIndex());
+					Node dstNode = preAddedNodes.get(neighbor.getIndex());
 
 					updateList.add(new EdgeAddition(gds.newEdgeInstance(
 							newNode, dstNode)));
@@ -251,8 +261,12 @@ public abstract class WalkingAlgorithm extends BatchGenerator {
 				if (!g.containsNode(neighbor)) {
 
 					// Nein -> Nachbar in Liste, Weiter
-					updateList.add(new NodeAddition(g.getGraphDatastructures()
-							.newNodeInstance(neighbor.getIndex())));
+					Node newNeighbor = g.getGraphDatastructures()
+							.newNodeInstance(neighbor.getIndex());
+
+					updateList.add(new NodeAddition(newNeighbor));
+
+					preAddedNodes.put(newNeighbor.getIndex(), newNeighbor);
 				}
 
 				// Edge bereits im Graph?
@@ -261,7 +275,7 @@ public abstract class WalkingAlgorithm extends BatchGenerator {
 					// Nein -> Edge in Liste, Weiter
 					GraphDataStructure gds = g.getGraphDatastructures();
 					// TODO kann fehlschlagen
-					Node dstNode = g.getNode(neighbor.getIndex());
+					Node dstNode = preAddedNodes.get(neighbor.getIndex());
 					System.out.println("gds: " + gds);
 					System.out.println("srcNode: " + newNode);
 					System.out.println("dstNode: " + dstNode);
@@ -328,6 +342,28 @@ public abstract class WalkingAlgorithm extends BatchGenerator {
 			Edge edge = (Edge) e;
 			Node neighbor = edge.getDifferingNode(n);
 			if (!visitedNodes.contains(neighbor)) {
+				neighbors.add(neighbor);
+			}
+		}
+		return neighbors;
+	}
+
+	/**
+	 * Returns a list of visited neighbors of node n
+	 * 
+	 * @param n
+	 *            the node of whom we want to receive the visited neighbors
+	 * @return a list of nodes
+	 */
+	protected ArrayList<Node> getVisitedNeighbors(Node n) {
+
+		ArrayList<Node> neighbors = new ArrayList<Node>();
+		Iterable<IElement> iter = getEdgesFromNode(n);
+
+		for (IElement e : iter) {
+			Edge edge = (Edge) e;
+			Node neighbor = edge.getDifferingNode(n);
+			if (visitedNodes.contains(neighbor)) {
 				neighbors.add(neighbor);
 			}
 		}

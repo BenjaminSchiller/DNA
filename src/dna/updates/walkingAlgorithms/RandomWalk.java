@@ -41,7 +41,7 @@ public class RandomWalk extends WalkingAlgorithm {
 	}
 
 	@Override
-	protected Node findNextNode(Graph fullyGraph, Graph currentGraph) {
+	protected Node findNextNode() {
 
 		ArrayList<Node> notVisitedNeighbors = getUnvisitedNeighbors(currentNode);
 		int neighborCount = notVisitedNeighbors.size();
@@ -68,12 +68,14 @@ public class RandomWalk extends WalkingAlgorithm {
 			currentNode = visitableNodes[Rand.rand
 					.nextInt(notFullyVisitedNodeCount)];
 
-			return findNextNode(fullyGraph, currentGraph);
+			return findNextNode();
+		} else {
+
+			currentNode = notVisitedNeighbors.get(Rand.rand
+					.nextInt(neighborCount));
+
+			return currentNode;
 		}
-
-		currentNode = notVisitedNeighbors.get(Rand.rand.nextInt(neighborCount));
-
-		return currentNode;
 	}
 
 	@Override
