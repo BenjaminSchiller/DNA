@@ -1,23 +1,21 @@
 package dna.updates.walkingAlgorithms;
 
 import java.util.ArrayList;
-
-import com.google.common.collect.Lists;
+import java.util.Collections;
 
 import dna.graph.Graph;
-import dna.graph.IElement;
 import dna.graph.nodes.Node;
 import dna.graph.startNodeSelection.StartNodeSelectionStrategy;
-import dna.util.Rand;
+import dna.updates.walkingAlgorithms.SortableNode.SortType;
 import dna.util.parameters.Parameter;
 
 /**
  * @author Benedict
  * 
  */
-public class UniformSampling extends WalkingAlgorithm {
+public class MaximumObservedDegree extends WalkingAlgorithm {
 
-	ArrayList<IElement> notVisited;
+	ArrayList<SortableNode> greyZone;
 
 	/**
 	 * @param name
@@ -28,27 +26,39 @@ public class UniformSampling extends WalkingAlgorithm {
 	 * @param resource
 	 * @param parameters
 	 */
-	public UniformSampling(String name, Graph fullGraph,
+	public MaximumObservedDegree(String name, Graph fullGraph,
 			StartNodeSelectionStrategy startNodeStrategy,
 			boolean onlyVisitedNodesToGraph, int costPerBatch, int resource,
 			Parameter[] parameters) {
 		super(name, fullGraph, startNodeStrategy, onlyVisitedNodesToGraph,
 				costPerBatch, resource, parameters);
 
-		notVisited = Lists.newArrayList(fullGraph.getNodes());
+		greyZone = new ArrayList<SortableNode>(fullGraph.getNodeCount());
 	}
 
 	@Override
 	protected Node findNextNode() {
+		Collections.sort(greyZone);
+		Node newNode = greyZone.remove(0).getNode();
 
-		return (Node) notVisited.remove(Rand.rand.nextInt(notVisited.size()));
+		ArrayList<Node> neighbors = getUnvisitedNeighbors(newNode);
+		for (Node n : neighbors) {
+			greyZone.add(new SortableNode(n, this,
+					SortType.SORT_BY_VISITED_NEIGHBORS));
+		}
+
+		return newNode;
 	}
 
 	@Override
 	protected Node init(StartNodeSelectionStrategy startNode) {
-		Node startingNode = startNode.getStartNode();
-		notVisited.remove(startingNode);
-		return startingNode;
+		Node firstNode = startNode.getStartNode();
+		ArrayList<Node> neighbors = getUnvisitedNeighbors(firstNode);
+		for (Node n : neighbors) {
+			greyZone.add(new SortableNode(n, this,
+					SortType.SORT_BY_VISITED_NEIGHBORS));
+		}
+		return firstNode;
 	}
 
 }

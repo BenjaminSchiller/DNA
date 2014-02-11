@@ -36,7 +36,7 @@ public class RandomWalkWithReplacement extends WalkingAlgorithm {
 	}
 
 	@Override
-	protected Node findNextNode(Graph fullyGraph, Graph currentGraph) {
+	protected Node findNextNode() {
 
 		ArrayList<Node> neighbors = getAllNeighbors(currentNode);
 		int neighborCount = neighbors.size();

@@ -37,7 +37,7 @@ public class BFS extends WalkingAlgorithm {
 	}
 
 	@Override
-	protected Node findNextNode(Graph fullyGraph, Graph currentGraph) {
+	protected Node findNextNode() {
 		currentNode = queue.poll();
 		queue.addAll(getUnvisitedNeighbors(currentNode));
 		return currentNode;

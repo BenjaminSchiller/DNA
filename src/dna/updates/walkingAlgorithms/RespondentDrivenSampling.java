@@ -41,7 +41,7 @@ public class RespondentDrivenSampling extends WalkingAlgorithm {
 	}
 
 	@Override
-	protected Node findNextNode(Graph fullyGraph, Graph currentGraph) {
+	protected Node findNextNode() {
 		currentNode = queue.poll();
 		selectNeighbors();
 		return currentNode;

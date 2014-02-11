@@ -6,6 +6,7 @@ import java.util.Collections;
 import dna.graph.Graph;
 import dna.graph.nodes.Node;
 import dna.graph.startNodeSelection.StartNodeSelectionStrategy;
+import dna.updates.walkingAlgorithms.SortableNode.SortType;
 import dna.util.parameters.Parameter;
 
 /**
@@ -36,13 +37,14 @@ public class GreedyOracle extends WalkingAlgorithm {
 	}
 
 	@Override
-	protected Node findNextNode(Graph fullyGraph, Graph currentGraph) {
+	protected Node findNextNode() {
 		Collections.sort(greyZone);
 		Node newNode = greyZone.remove(0).getNode();
 
 		ArrayList<Node> neighbors = getUnvisitedNeighbors(newNode);
 		for (Node n : neighbors) {
-			greyZone.add(new SortableNode(n, this));
+			greyZone.add(new SortableNode(n, this,
+					SortType.SORT_BY_UNVISITED_NEIGHBORS));
 		}
 
 		return newNode;
@@ -53,7 +55,8 @@ public class GreedyOracle extends WalkingAlgorithm {
 		Node firstNode = startNode.getStartNode();
 		ArrayList<Node> neighbors = getUnvisitedNeighbors(firstNode);
 		for (Node n : neighbors) {
-			greyZone.add(new SortableNode(n, this));
+			greyZone.add(new SortableNode(n, this,
+					SortType.SORT_BY_VISITED_NEIGHBORS));
 		}
 		return firstNode;
 	}
@@ -69,8 +72,13 @@ public class GreedyOracle extends WalkingAlgorithm {
  */
 class SortableNode implements Comparable<SortableNode> {
 
+	public enum SortType {
+		SORT_BY_VISITED_NEIGHBORS, SORT_BY_UNVISITED_NEIGHBORS
+	};
+
 	private Node n;
 	private WalkingAlgorithm algo;
+	private SortType sortType;
 
 	/**
 	 * Initializes the sortable node
@@ -80,9 +88,10 @@ class SortableNode implements Comparable<SortableNode> {
 	 * @param algo
 	 *            the algorithm on which we operate
 	 */
-	public SortableNode(Node n, WalkingAlgorithm algo) {
+	public SortableNode(Node n, WalkingAlgorithm algo, SortType sortType) {
 		this.n = n;
 		this.algo = algo;
+		this.sortType = sortType;
 	}
 
 	/**
@@ -96,7 +105,12 @@ class SortableNode implements Comparable<SortableNode> {
 	 * Calculates the yield (the count of unseen neighbors of this node)
 	 */
 	private int getYield() {
-		ArrayList<Node> list = algo.getUnvisitedNeighbors(n);
+		ArrayList<Node> list = null;
+		if (sortType == SortType.SORT_BY_UNVISITED_NEIGHBORS) {
+			list = algo.getUnvisitedNeighbors(n);
+		} else if (sortType == SortType.SORT_BY_VISITED_NEIGHBORS) {
+			list = algo.getVisitedNeighbors(n);
+		}
 		return list.size();
 	}
 
