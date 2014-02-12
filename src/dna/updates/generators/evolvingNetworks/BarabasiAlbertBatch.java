@@ -14,14 +14,14 @@ import dna.updates.update.NodeAddition;
 import dna.util.Rand;
 import dna.util.parameters.IntParameter;
 
-public class BarabasiAlbert extends BatchGenerator {
+public class BarabasiAlbertBatch extends BatchGenerator {
 
 	private int nodes;
 
 	private int m;
 
-	public BarabasiAlbert(int nodes, int m) {
-		super("BarabasiAlbert", new IntParameter("nodes", nodes),
+	public BarabasiAlbertBatch(int nodes, int m) {
+		super("BarabasiAlbertBatch", new IntParameter("nodes", nodes),
 				new IntParameter("m", m));
 		this.nodes = nodes;
 		this.m = m;
