@@ -23,8 +23,8 @@ public class ComplexityTests {
 		Complexity c1 = new Complexity(1, c);
 		Complexity c2 = new Complexity(1, c);
 
-		c1.increaseBy(1);
-		c2.increaseBy(1);
+		c1.setCounter(c1.getComplexityCounter() + 1);
+		c2.setCounter(c2.getComplexityCounter() + 1);
 
 		Complexity c3 = new AddedComplexity(c1, c2);
 		assertEquals(2, c3.getComplexityCounter());
@@ -41,8 +41,8 @@ public class ComplexityTests {
 		Complexity c1 = new Complexity(1, c);
 		Complexity c2 = new Complexity(3, c);
 
-		c1.increaseBy(2);
-		c2.increaseBy(4);
+		c1.setCounter(c1.getComplexityCounter() + 2);
+		c2.setCounter(c2.getComplexityCounter() + 4);
 
 		ComplexityMap weightedComplexityMap = c1.getWeightedComplexityMap();
 		assertEquals(2, (int) weightedComplexityMap.get(c));
@@ -64,8 +64,9 @@ public class ComplexityTests {
 		Complexity c1 = new Complexity(1, c);
 		Complexity c2 = new Complexity(3, c);
 
-		c1.increaseBy(2);
-		c2.increaseBy(4);
+		c1.setCounter(c1.getComplexityCounter() + 2);
+		c2.setCounter(c2.getComplexityCounter() + 4);
+		
 		Complexity c3 = new AddedComplexity(c1, c2);
 		Complexity c4 = new AddedComplexity(c3, c2);
 		assertEquals(10, c4.getComplexityCounter());

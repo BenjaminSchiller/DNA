@@ -1,10 +1,12 @@
 package dna.graph.nodes;
 
 import dna.graph.IElement;
+import dna.graph.datastructures.DataStructure.ListType;
 import dna.graph.datastructures.GraphDataStructure;
+import dna.graph.datastructures.IDataStructure;
 import dna.graph.datastructures.IEdgeListDatastructure;
+import dna.graph.datastructures.IEdgeListDatastructureReadable;
 import dna.graph.edges.Edge;
-import dna.graph.edges.UndirectedEdge;
 
 public class UndirectedNode extends Node {
 	private IEdgeListDatastructure edges;
@@ -18,8 +20,8 @@ public class UndirectedNode extends Node {
 	}
 
 	@Override
-	public void init() {
-		this.edges = this.gds.newNodeEdgeList();
+	public void init(GraphDataStructure gds) {
+		this.edges = (IEdgeListDatastructure) gds.newList(ListType.LocalEdgeList);
 	}
 
 	public int getDegree() {
@@ -54,5 +56,28 @@ public class UndirectedNode extends Node {
 	public String toString() {
 		return super.toString() + " (" + this.edges.size() + ")";
 	}
+	
+	@Override
+	public void switchDataStructure(ListType type,
+			IDataStructure newDatastructure) {
+		switch (type) {
+		case GlobalEdgeList:
+		case GlobalNodeList:
+			System.err.println("A node is not responsible for changing global lists!");
+			break;
+		case LocalEdgeList:
+			this.edges = (IEdgeListDatastructure) ((IEdgeListDatastructureReadable) this.edges).switchTo(newDatastructure);
+			break;
+		case LocalNodeList:
+			// A undirected node has no node list
+			break;
+		case LocalInEdgeList:
+		case LocalOutEdgeList:
+			// Not available here
+			break;
+		default:
+			break;		
+		}
+	}	
 
 }

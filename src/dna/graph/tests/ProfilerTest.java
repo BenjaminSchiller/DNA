@@ -10,6 +10,7 @@ import java.io.PrintStream;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.EnumMap;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -17,7 +18,11 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
 import dna.graph.Graph;
+import dna.graph.datastructures.DEmpty;
+import dna.graph.datastructures.DataStructure.AccessType;
+import dna.graph.datastructures.DataStructure.ListType;
 import dna.graph.datastructures.GraphDataStructure;
+import dna.graph.datastructures.IDataStructure;
 import dna.graph.datastructures.IEdgeListDatastructure;
 import dna.graph.datastructures.INodeListDatastructure;
 import dna.graph.edges.DirectedEdge;
@@ -30,8 +35,8 @@ import dna.metrics.Metric;
 import dna.metrics.Metric.ApplicationType;
 import dna.metrics.Metric.MetricType;
 import dna.profiler.Profiler;
-import dna.profiler.Profiler.ProfilerType;
 import dna.series.data.Distribution;
+import dna.series.data.NodeNodeValueList;
 import dna.series.data.NodeValueList;
 import dna.series.data.Value;
 import dna.updates.batch.Batch;
@@ -47,15 +52,13 @@ public class ProfilerTest {
 	private Metric metric;
 	private String metricKey;
 
-	public ProfilerTest(Class<? extends INodeListDatastructure> nodeListType,
-			Class<? extends IEdgeListDatastructure> graphEdgeListType,
-			Class<? extends IEdgeListDatastructure> nodeEdgeListType,
+	public ProfilerTest(
+			EnumMap<ListType, Class<? extends IDataStructure>> listTypes,
 			Class<? extends Node> nodeType, Class<? extends Edge> edgeType,
 			ApplicationType applicationType) throws InstantiationException,
 			IllegalAccessException, IllegalArgumentException,
 			InvocationTargetException, NoSuchMethodException, SecurityException {
-		this.gds = new GraphDataStructure(nodeListType, graphEdgeListType,
-				nodeEdgeListType, nodeType, edgeType);
+		this.gds = new GraphDataStructure(listTypes, nodeType, edgeType);
 		this.gds.setEdgeType(edgeType);
 		this.graph = gds.newGraphInstance("ABC", 1L, 10, 10);
 		this.applicationType = applicationType;
@@ -90,8 +93,8 @@ public class ProfilerTest {
 		Profiler.startBatch(0);
 	}
 
-	@SuppressWarnings("rawtypes")
-	@Parameterized.Parameters(name = "{0} {1} {2} {3} {4} {5}")
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	@Parameterized.Parameters(name = "{0} {1} {2} {3}")
 	public static Collection<Object> testPairs() {
 		ArrayList<Object> result = new ArrayList<>();
 		Class nodeListType = null;
@@ -107,6 +110,8 @@ public class ProfilerTest {
 			if (!(IEdgeListDatastructure.class
 					.isAssignableFrom(loopEdgeListType)))
 				continue;
+			if (loopEdgeListType == DEmpty.class)
+				continue;
 			edgeListType = loopEdgeListType;
 		}
 
@@ -114,6 +119,8 @@ public class ProfilerTest {
 		for (Class loopNodeEdgeListType : GlobalTestParameters.dataStructures) {
 			if (!(IEdgeListDatastructure.class
 					.isAssignableFrom(loopNodeEdgeListType)))
+				continue;
+			if (loopNodeEdgeListType == DEmpty.class)
 				continue;
 			nodeEdgeListType = loopNodeEdgeListType;
 		}
@@ -126,9 +133,14 @@ public class ProfilerTest {
 								.isAssignableFrom(nodeType)))
 					continue;
 
+				EnumMap<ListType, Class<? extends IDataStructure>> listTypes = new EnumMap<ListType, Class<? extends IDataStructure>>(
+						ListType.class);
+				listTypes.put(ListType.GlobalNodeList, nodeListType);
+				listTypes.put(ListType.GlobalEdgeList, edgeListType);
+				listTypes.put(ListType.LocalEdgeList, nodeEdgeListType);
+
 				for (ApplicationType a : ApplicationType.values()) {
-					result.add(new Object[] { nodeListType, edgeListType,
-							nodeEdgeListType, nodeType, edgeType, a });
+					result.add(new Object[] { listTypes, nodeType, edgeType, a });
 				}
 			}
 		}
@@ -138,97 +150,106 @@ public class ProfilerTest {
 
 	@Test
 	public void testContainsNodeGlobalIsCountedInMetric() {
-		assertEquals(0, Profiler.getCount(metricKey,
-				ProfilerType.ContainsNodeGlobal));
+		assertEquals(0, Profiler.getCount(metricKey, ListType.GlobalNodeList,
+				AccessType.Contains));
 		metric.compute();
-		assertEquals(1, Profiler.getCount(metricKey,
-				ProfilerType.ContainsNodeGlobal));
+		assertEquals(1, Profiler.getCount(metricKey, ListType.GlobalNodeList,
+				AccessType.Contains));
 	}
 
 	@Test
 	public void testContainsNodeLocalIsCountedInMetric() {
 		assumeTrue(graph.isDirected());
 
-		assertEquals(0, Profiler.getCount(metricKey,
-				ProfilerType.ContainsNodeLocal));
+		assertEquals(0, Profiler.getCount(metricKey, ListType.LocalNodeList,
+				AccessType.Contains));
 		metric.compute();
-		assertEquals(1, Profiler.getCount(metricKey,
-				ProfilerType.ContainsNodeLocal));
+		assertEquals(1, Profiler.getCount(metricKey, ListType.LocalNodeList,
+				AccessType.Contains));
 	}
 
 	@Test
 	public void testContainsEdgeGlobalIsCountedInMetric() {
-		assertEquals(0, Profiler.getCount(metricKey,
-				ProfilerType.ContainsEdgeGlobal));
+		assertEquals(0, Profiler.getCount(metricKey, ListType.GlobalEdgeList,
+				AccessType.Contains));
 		metric.compute();
-		assertEquals(1, Profiler.getCount(metricKey,
-				ProfilerType.ContainsEdgeGlobal));
+		assertEquals(1, Profiler.getCount(metricKey, ListType.GlobalEdgeList,
+				AccessType.Contains));
 	}
 
 	@Test
 	public void testContainsEdgeLocalIsCountedInMetric() {
-		assertEquals(0, Profiler.getCount(metricKey,
-				ProfilerType.ContainsEdgeLocal));
+		assertEquals(
+				0,
+				Profiler.getCount(metricKey, new ListType[] {
+						ListType.LocalEdgeList, ListType.LocalInEdgeList,
+						ListType.LocalOutEdgeList }, AccessType.Contains));
 		metric.compute();
-		assertEquals(1, Profiler.getCount(metricKey,
-				ProfilerType.ContainsEdgeLocal));
+		assertEquals(
+				1,
+				Profiler.getCount(metricKey, new ListType[] {
+						ListType.LocalEdgeList, ListType.LocalInEdgeList,
+						ListType.LocalOutEdgeList }, AccessType.Contains));
 	}
 
 	@Test
 	public void testSizeNodeGlobalIsCountedInMetric() {
-		assertEquals(0,
-				Profiler.getCount(metricKey, ProfilerType.SizeNodeGlobal));
+		assertEquals(0, Profiler.getCount(metricKey, ListType.GlobalNodeList,
+				AccessType.Size));
 		metric.compute();
-		// Node size is called *twice* in the metric: once directly, once
-		// through printAll()
-		assertEquals(2,
-				Profiler.getCount(metricKey, ProfilerType.SizeNodeGlobal));
+		// Node size is called *three* times in the metric: once directly, once
+		// through printAll(), and once through printE()
+		assertEquals(3, Profiler.getCount(metricKey, ListType.GlobalNodeList,
+				AccessType.Size));
 	}
 
 	@Test
 	public void testGlobalGetRandomEdgeIsCountedInMetric() {
-		assertEquals(0, Profiler.getCount(metricKey,
-				ProfilerType.RandomEdgeGlobal));
+		assertEquals(0, Profiler.getCount(metricKey, ListType.GlobalEdgeList,
+				AccessType.Random));
 		metric.compute();
-		assertEquals(1, Profiler.getCount(metricKey,
-				ProfilerType.RandomEdgeGlobal));
+		assertEquals(1, Profiler.getCount(metricKey, ListType.GlobalEdgeList,
+				AccessType.Random));
 	}
 
 	@Test
 	public void testGlobalGetSpecifiedNodeIsCountedInMetric() {
-		assertEquals(0,
-				Profiler.getCount(metricKey, ProfilerType.GetNodeGlobal));
+		assertEquals(0, Profiler.getCount(metricKey, ListType.GlobalNodeList,
+				AccessType.Get));
 		metric.compute();
-		assertEquals(1,
-				Profiler.getCount(metricKey, ProfilerType.GetNodeGlobal));
+		assertEquals(1, Profiler.getCount(metricKey, ListType.GlobalNodeList,
+				AccessType.Get));
 	}
 
 	@Test
 	public void testSizeNodeLocalIsCountedInMetric() {
 		assumeTrue(graph.isDirected());
 
-		assertEquals(0,
-				Profiler.getCount(metricKey, ProfilerType.SizeNodeLocal));
+		assertEquals(0, Profiler.getCount(metricKey, ListType.LocalNodeList,
+				AccessType.Size));
 		metric.compute();
-		assertEquals(1,
-				Profiler.getCount(metricKey, ProfilerType.SizeNodeLocal));
+		assertEquals(1, Profiler.getCount(metricKey, ListType.LocalNodeList,
+				AccessType.Size));
 	}
 
 	@Test
 	public void testSizeEdgeGlobalIsCountedInMetric() {
-		assertEquals(0,
-				Profiler.getCount(metricKey, ProfilerType.SizeEdgeGlobal));
+		assertEquals(0, Profiler.getCount(metricKey, ListType.GlobalEdgeList,
+				AccessType.Size));
 		metric.compute();
-		// Edge size is called *twice* in the metric: once directly, once
-		// through printAll()
-		assertEquals(2,
-				Profiler.getCount(metricKey, ProfilerType.SizeEdgeGlobal));
+		// Edge size is called *three* time in the metric: once directly, once
+		// through printAll(), once through printE()
+		assertEquals(3, Profiler.getCount(metricKey, ListType.GlobalEdgeList,
+				AccessType.Size));
 	}
 
 	@Test
 	public void testSizeEdgeLocalIsCountedInMetric() {
-		assertEquals(0,
-				Profiler.getCount(metricKey, ProfilerType.SizeEdgeLocal));
+		assertEquals(
+				0,
+				Profiler.getCount(metricKey, new ListType[] {
+						ListType.LocalEdgeList, ListType.LocalInEdgeList,
+						ListType.LocalOutEdgeList }, AccessType.Size));
 		metric.compute();
 		// Local edge size is called *multiple* times in the metric: once
 		// directly, additional times for all nodes through printAll()
@@ -239,26 +260,29 @@ public class ProfilerTest {
 		if (graph.isDirected())
 			additionalCounter *= 2;
 
-		assertEquals(1 + additionalCounter,
-				Profiler.getCount(metricKey, ProfilerType.SizeEdgeLocal));
+		assertEquals(
+				1 + additionalCounter,
+				Profiler.getCount(metricKey, new ListType[] {
+						ListType.LocalEdgeList, ListType.LocalInEdgeList,
+						ListType.LocalOutEdgeList }, AccessType.Size));
 	}
 
 	@Test
 	public void testIteratorNodeGlobalIsCountedInMetric() {
-		assertEquals(0, Profiler.getCount(metricKey,
-				ProfilerType.IteratorNodeGlobal));
+		assertEquals(0, Profiler.getCount(metricKey, ListType.GlobalNodeList,
+				AccessType.Iterator));
 		metric.compute();
-		assertEquals(1, Profiler.getCount(metricKey,
-				ProfilerType.IteratorNodeGlobal));
+		assertEquals(1, Profiler.getCount(metricKey, ListType.GlobalNodeList,
+				AccessType.Iterator));
 	}
 
 	@Test
 	public void testIteratorEdgeGlobalIsCountedInMetric() {
-		assertEquals(0, Profiler.getCount(metricKey,
-				ProfilerType.IteratorEdgeGlobal));
+		assertEquals(0, Profiler.getCount(metricKey, ListType.GlobalEdgeList,
+				AccessType.Iterator));
 		metric.compute();
-		assertEquals(1, Profiler.getCount(metricKey,
-				ProfilerType.IteratorEdgeGlobal));
+		assertEquals(2, Profiler.getCount(metricKey, ListType.GlobalEdgeList,
+				AccessType.Iterator));
 	}
 
 	private class TestMetric extends Metric {
@@ -314,6 +338,9 @@ public class ProfilerTest {
 
 			// Run the interesting stuff
 			g.printAll();
+
+			// Another usecase for the edge iterator
+			g.printE();
 
 			System.setOut(former);
 
@@ -371,6 +398,12 @@ public class ProfilerTest {
 		@Override
 		public boolean isComparableTo(Metric m) {
 			return false;
+		}
+
+		@Override
+		public NodeNodeValueList[] getNodeNodeValueLists() {
+			// TODO Auto-generated method stub
+			return null;
 		}
 
 	}

@@ -1,10 +1,16 @@
 package dna.metrics.motifs;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+
 import dna.graph.Graph;
+import dna.graph.IElement;
+import dna.graph.edges.UndirectedEdge;
 import dna.graph.nodes.UndirectedNode;
 import dna.metrics.Metric;
 import dna.series.data.Distribution;
 import dna.series.data.DistributionInt;
+import dna.series.data.NodeNodeValueList;
 import dna.series.data.NodeValueList;
 import dna.series.data.Value;
 import dna.updates.batch.Batch;
@@ -13,7 +19,7 @@ import dna.util.ArrayUtils;
 public abstract class UndirectedMotifs extends Metric {
 
 	public static enum UndirectedMotifType {
-		PRE1, PRE2, PRE3, UM1, UM2, UM3, UM4, UM5, UM6
+		UM1, UM2, UM3, UM4, UM5, UM6
 	};
 
 	protected DistributionInt motifs;
@@ -27,8 +33,100 @@ public abstract class UndirectedMotifs extends Metric {
 
 	@Override
 	public boolean compute() {
-		// TODO Auto-generated method stub
-		return false;
+
+		for (IElement a_ : this.g.getNodes()) {
+			UndirectedNode a = (UndirectedNode) a_;
+
+			// 1, 3
+			for (IElement b_ : a.getEdges()) {
+				UndirectedNode b = ((UndirectedEdge) b_).getDifferingNode(a);
+				for (IElement c_ : a.getEdges()) {
+					UndirectedNode c = ((UndirectedEdge) c_)
+							.getDifferingNode(a);
+					if (b.getIndex() == c.getIndex()) {
+						continue;
+					}
+					if (b.hasEdge(new UndirectedEdge(b, c))) {
+						continue;
+					}
+					for (IElement d_ : b.getEdges()) {
+						UndirectedNode d = ((UndirectedEdge) d_)
+								.getDifferingNode(b);
+						if (d.hasEdge(new UndirectedEdge(a, d))) {
+							continue;
+						}
+						if (!d.hasEdge(new UndirectedEdge(c, d))) {
+							if (a.getIndex() < b.getIndex()) {
+								this.incr(UndirectedMotifType.UM1);
+							}
+						} else if (b.getIndex() < c.getIndex()) {
+							if (a.getIndex() < b.getIndex()
+									&& a.getIndex() < c.getIndex()
+									&& a.getIndex() < d.getIndex()) {
+								this.incr(UndirectedMotifType.UM3);
+							}
+						}
+
+					}
+				}
+			}
+
+			// 2, 4, 5, 6
+			UndirectedNode[] neighbors = this.getNeighborsSorted(a);
+			for (int i = 0; i < neighbors.length; i++) {
+				UndirectedNode b = neighbors[i];
+				for (int j = i + 1; j < neighbors.length; j++) {
+					UndirectedNode c = neighbors[j];
+					boolean bc = c.hasEdge(new UndirectedEdge(b, c));
+					for (int k = j + 1; k < neighbors.length; k++) {
+						UndirectedNode d = neighbors[k];
+						boolean bd = d.hasEdge(new UndirectedEdge(b, d));
+						boolean cd = d.hasEdge(new UndirectedEdge(c, d));
+
+						int sum = (bc ? 1 : 0) + (bd ? 1 : 0) + (cd ? 1 : 0);
+
+						if (sum == 0) {
+							this.incr(UndirectedMotifType.UM2);
+						} else if (sum == 1) {
+							this.incr(UndirectedMotifType.UM4);
+						} else if (sum == 2) {
+							if (bc && bd && a.getIndex() < b.getIndex()) {
+								this.incr(UndirectedMotifType.UM5);
+							}
+							if (bc && cd && a.getIndex() < c.getIndex()) {
+								this.incr(UndirectedMotifType.UM5);
+							}
+							if (bd && cd && a.getIndex() < d.getIndex()) {
+								this.incr(UndirectedMotifType.UM5);
+							}
+						} else if (sum == 3) {
+							if (a.getIndex() < b.getIndex()
+									&& a.getIndex() < c.getIndex()
+									&& a.getIndex() < d.getIndex()) {
+								this.incr(UndirectedMotifType.UM6);
+							}
+						}
+					}
+				}
+			}
+		}
+
+		return true;
+	}
+
+	private UndirectedNode[] getNeighborsSorted(UndirectedNode n) {
+		ArrayList<UndirectedNode> unsorted = new ArrayList<UndirectedNode>(
+				n.getDegree());
+		for (IElement e : n.getEdges()) {
+			UndirectedNode neighbor = ((UndirectedEdge) e).getDifferingNode(n);
+			// if (neighbor.getIndex() > n.getIndex()) {
+			unsorted.add(neighbor);
+			// }
+		}
+		UndirectedNode[] sorted = unsorted.toArray(new UndirectedNode[unsorted
+				.size()]);
+		Arrays.sort(sorted);
+		return sorted;
 	}
 
 	protected UndirectedMotifType getType(boolean ab, boolean ac, boolean ad,
@@ -37,9 +135,29 @@ public abstract class UndirectedMotifs extends Metric {
 		return null;
 	}
 
+	protected UndirectedMotifType getType(boolean bc, boolean bd, boolean cd) {
+		int sum = (bc ? 1 : 0) + (bd ? 1 : 0) + (cd ? 1 : 0);
+
+		if (sum == 0) {
+			return UndirectedMotifType.UM2;
+		} else if (sum == 1) {
+			return UndirectedMotifType.UM4;
+		} else if (sum == 2) {
+			return UndirectedMotifType.UM5;
+		} else if (sum == 3) {
+			return UndirectedMotifType.UM6;
+		}
+
+		return null;
+	}
+
+	protected void incr(UndirectedMotifType type) {
+		this.motifs.incr(UndirectedMotifs.getIndex(type));
+	}
+
 	@Override
 	public void init_() {
-		this.motifs = new DistributionInt(motifsName, new int[11], 0);
+		this.motifs = new DistributionInt(motifsName, new int[7], 0);
 	}
 
 	@Override
@@ -49,16 +167,14 @@ public abstract class UndirectedMotifs extends Metric {
 
 	@Override
 	public Value[] getValues() {
-		Value m1 = new Value("um1", this.motifs.getIntValues()[1]);
-		Value m2 = new Value("um2", this.motifs.getIntValues()[2]);
-		Value m3 = new Value("um3", this.motifs.getIntValues()[3]);
-		Value m4 = new Value("um4", this.motifs.getIntValues()[4]);
-		Value m5 = new Value("um5", this.motifs.getIntValues()[5]);
-		Value m6 = new Value("um6", this.motifs.getIntValues()[6]);
-		Value m7 = new Value("pre1", this.motifs.getIntValues()[8]);
-		Value m8 = new Value("pre2", this.motifs.getIntValues()[9]);
-		Value m9 = new Value("pre3", this.motifs.getIntValues()[10]);
-		return new Value[] { m1, m2, m3, m4, m5, m6, m7, m8, m9 };
+		Value m0 = new Value("TOTAL", this.motifs.getDenominator());
+		Value m1 = new Value("UM1", this.motifs.getIntValues()[1]);
+		Value m2 = new Value("UM2", this.motifs.getIntValues()[2]);
+		Value m3 = new Value("UM3", this.motifs.getIntValues()[3]);
+		Value m4 = new Value("UM4", this.motifs.getIntValues()[4]);
+		Value m5 = new Value("UM5", this.motifs.getIntValues()[5]);
+		Value m6 = new Value("UM6", this.motifs.getIntValues()[6]);
+		return new Value[] { m0, m1, m2, m3, m4, m5, m6 };
 	}
 
 	@Override
@@ -69,6 +185,11 @@ public abstract class UndirectedMotifs extends Metric {
 	@Override
 	public NodeValueList[] getNodeValueLists() {
 		return new NodeValueList[] {};
+	}
+
+	@Override
+	public NodeNodeValueList[] getNodeNodeValueLists() {
+		return new NodeNodeValueList[] {};
 	}
 
 	@Override
@@ -102,12 +223,6 @@ public abstract class UndirectedMotifs extends Metric {
 
 	public static int getIndex(UndirectedMotifType type) {
 		switch (type) {
-		case PRE1:
-			return 8;
-		case PRE2:
-			return 9;
-		case PRE3:
-			return 10;
 		case UM1:
 			return 1;
 		case UM2:

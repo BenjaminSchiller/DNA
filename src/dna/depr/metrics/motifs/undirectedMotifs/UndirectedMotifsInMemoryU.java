@@ -150,7 +150,7 @@ public class UndirectedMotifsInMemoryU extends UndirectedMotifs {
 				}
 
 				UndirectedMotif m = new UndirectedMotif(a, b, c, d,
-						UndirectedMotifType.UM1);
+						UndirectedMotif.UndirectedMotifType.UM1);
 				Log.debug("adding merge: " + m);
 				newMotifs.add(m);
 				this.motifs.incr(m.getIndex());
@@ -334,9 +334,12 @@ public class UndirectedMotifsInMemoryU extends UndirectedMotifs {
 			// u).getNode()));
 		}
 
-		this.motifs.set(UndirectedMotifs.getIndex(UndirectedMotifType.PRE1), 0);
-		this.motifs.set(UndirectedMotifs.getIndex(UndirectedMotifType.PRE2), 0);
-		this.motifs.set(UndirectedMotifs.getIndex(UndirectedMotifType.PRE3), 0);
+		this.motifs.set(UndirectedMotif
+				.getIndex(UndirectedMotif.UndirectedMotifType.PRE1), 0);
+		this.motifs.set(UndirectedMotif
+				.getIndex(UndirectedMotif.UndirectedMotifType.PRE2), 0);
+		this.motifs.set(UndirectedMotif
+				.getIndex(UndirectedMotif.UndirectedMotifType.PRE3), 0);
 
 		return true;
 	}

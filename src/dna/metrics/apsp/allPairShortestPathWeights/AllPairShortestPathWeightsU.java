@@ -108,8 +108,9 @@ public class AllPairShortestPathWeightsU extends AllPairShortestPathWeights {
 				if (parent.get(dst).equals(src)) {
 					undirectedDelete(s, e);
 				}
+			} else {
+				undirectedAdd(e, s);
 			}
-			undirectedAdd(e, s);
 			dists.truncate();
 		}
 		return true;
@@ -131,8 +132,9 @@ public class AllPairShortestPathWeightsU extends AllPairShortestPathWeights {
 				if (parent.containsKey(dst) && parent.get(dst).equals(src)) {
 					directedDelete(s, e);
 				}
+			} else {
+				directedAdd(e, s);
 			}
-			directedAdd(e, s);
 			dists.truncate();
 		}
 		return true;

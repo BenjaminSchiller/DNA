@@ -49,4 +49,9 @@ public interface IEdge extends IElement {
 	 * @return true, if this edge connect the giben node; false oterhwise
 	 */
 	public boolean isConnectedTo(Node n1);
+	
+	/**
+	 * Returns a simple string that is necessary for the hash table
+	 */
+	public String getHashString();
 }

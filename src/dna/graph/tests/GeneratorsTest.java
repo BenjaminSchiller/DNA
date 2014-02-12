@@ -15,21 +15,24 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.EnumMap;
 
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
+import com.google.common.hash.HashCode;
+import com.google.common.hash.HashFunction;
+import com.google.common.hash.Hashing;
+
 import dna.graph.Graph;
 import dna.graph.IElement;
+import dna.graph.datastructures.DEmpty;
+import dna.graph.datastructures.DataStructure.ListType;
 import dna.graph.datastructures.GraphDataStructure;
-import dna.graph.datastructures.IEdgeListDatastructure;
-import dna.graph.datastructures.IEdgeListDatastructureReadable;
-import dna.graph.datastructures.INodeListDatastructure;
-import dna.graph.datastructures.INodeListDatastructureReadable;
+import dna.graph.datastructures.IDataStructure;
 import dna.graph.edges.DirectedEdge;
 import dna.graph.edges.Edge;
 import dna.graph.edges.UndirectedEdge;
@@ -61,12 +64,8 @@ public class GeneratorsTest {
 	@Rule
 	public TemporaryFolder folder = new TemporaryFolder();
 
-	@Rule
-	public ExpectedException exception = ExpectedException.none();
-
-	public GeneratorsTest(Class<? extends INodeListDatastructure> nodeListType,
-			Class<? extends IEdgeListDatastructure> graphEdgeListType,
-			Class<? extends IEdgeListDatastructure> nodeEdgeListType,
+	public GeneratorsTest(
+			EnumMap<ListType, Class<? extends IDataStructure>> listTypes,
 			Class<? extends Node> nodeType, Class<? extends Edge> edgeType,
 			Class<? extends GraphGenerator> generator)
 			throws InstantiationException, IllegalAccessException,
@@ -76,8 +75,7 @@ public class GeneratorsTest {
 		this.edgeType = edgeType;
 		this.generator = generator;
 
-		this.gds = new GraphDataStructure(nodeListType, graphEdgeListType,
-				nodeEdgeListType, nodeType, edgeType);
+		this.gds = new GraphDataStructure(listTypes, nodeType, edgeType);
 
 		if (generator == CliqueGenerator.class) {
 			/**
@@ -105,72 +103,65 @@ public class GeneratorsTest {
 					GraphDataStructure.class, int.class);
 			this.gg = this.generatorConstructor.newInstance(gds, nodeSize);
 		}
+
+		/**
+		 * A short output to overcome the timeout of Travis: If there is no
+		 * console output in 10 minutes, a test run is stopped
+		 */
+		if (Math.random() < 0.001)
+			System.out.print(".");
+
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	@Parameterized.Parameters(name = "{0} {1} {2} {3} {4} {5}")
+	@Parameterized.Parameters(name = "{0} {1} {2} {3}")
 	public static Collection testPairs() throws NoSuchMethodException,
 			SecurityException, InstantiationException, IllegalAccessException,
 			IllegalArgumentException, InvocationTargetException {
 		Constructor<? extends GraphGenerator> generatorConstructor;
 		GraphDataStructure gds;
 
+		ArrayList<EnumMap<ListType, Class<? extends IDataStructure>>> simpleCombinations = GraphDataStructure
+				.getSimpleDatastructureCombinations();
+
 		ArrayList<Object> result = new ArrayList<>();
-		for (Class nodeListType : GlobalTestParameters.dataStructures) {
-			for (Class edgeListType : GlobalTestParameters.dataStructures) {
-				for (Class nodeEdgeListType : GlobalTestParameters.dataStructures) {
-					for (Class generator : GlobalTestParameters.graphGenerators) {
-						for (Class edgeType : GlobalTestParameters.edgeTypes) {
-							for (Class nodeType : GlobalTestParameters.nodeTypes) {
-								if (!(INodeListDatastructureReadable.class
-										.isAssignableFrom(nodeListType)))
-									continue;
-								if (!(IEdgeListDatastructureReadable.class
-										.isAssignableFrom(edgeListType)))
-									continue;
-								if (!(IEdgeListDatastructureReadable.class
-										.isAssignableFrom(nodeEdgeListType)))
-									continue;
+		for (EnumMap<ListType, Class<? extends IDataStructure>> combination : simpleCombinations) {
+			for (Class generator : GlobalTestParameters.graphGenerators) {
+				for (Class edgeType : new Class[]{DirectedEdge.class, UndirectedEdge.class}) {
+					for (Class nodeType :  new Class[]{DirectedNode.class, UndirectedNode.class}) {
+						if ((UndirectedEdge.class.isAssignableFrom(edgeType) && DirectedNode.class
+								.isAssignableFrom(nodeType))
+								|| (DirectedEdge.class
+										.isAssignableFrom(edgeType) && UndirectedNode.class
+										.isAssignableFrom(nodeType)))
+							continue;
 
-								if ((UndirectedEdge.class
-										.isAssignableFrom(edgeType) && DirectedNode.class
-										.isAssignableFrom(nodeType))
-										|| (DirectedEdge.class
-												.isAssignableFrom(edgeType) && UndirectedNode.class
-												.isAssignableFrom(nodeType)))
-									continue;
+						if (combination.get(ListType.GlobalEdgeList) == DEmpty.class
+								|| combination.get(ListType.LocalEdgeList) == DEmpty.class)
+							continue;
 
-								gds = new GraphDataStructure(nodeListType,
-										edgeListType, nodeEdgeListType,
-										nodeType, edgeType);
+						gds = new GraphDataStructure(combination, nodeType,
+								edgeType);
 
-								GraphGenerator gg;
-								try {
-									generatorConstructor = generator
-											.getConstructor(
-													GraphDataStructure.class,
-													int.class, int.class);
-									gg = generatorConstructor.newInstance(gds,
-											5, 5);
-								} catch (NoSuchMethodException e) {
-									generatorConstructor = generator
-											.getConstructor(
-													GraphDataStructure.class,
-													int.class);
-									gg = generatorConstructor.newInstance(gds,
-											5);
-								}
-
-								if (!gg.canGenerateNodeType(nodeType))
-									continue;
-								if (!gg.canGenerateEdgeType(edgeType))
-									continue;
-
-								result.add(new Object[] { nodeListType,
-										edgeListType, nodeEdgeListType,
-										nodeType, edgeType, generator });
-							}
+						GraphGenerator gg;
+						try {
+							generatorConstructor = generator.getConstructor(
+									GraphDataStructure.class, int.class,
+									int.class);
+							gg = generatorConstructor.newInstance(gds, 5, 5);
+						} catch (NoSuchMethodException e) {
+							generatorConstructor = generator.getConstructor(
+									GraphDataStructure.class, int.class);
+							gg = generatorConstructor.newInstance(gds, 5);
 						}
+
+						if (!gg.canGenerateNodeType(nodeType))
+							continue;
+						if (!gg.canGenerateEdgeType(edgeType))
+							continue;
+
+						result.add(new Object[] { combination, nodeType,
+								edgeType, generator });
 					}
 				}
 			}
@@ -193,7 +184,11 @@ public class GeneratorsTest {
 
 		String graphName = gds.getDataStructures();
 
-		String tempFolder = folder.getRoot().getAbsolutePath();
+		HashFunction hf = Hashing.md5();
+		HashCode hc = hf.newHasher().putString(graphName).hash();
+		graphName = hc.toString();
+
+		String tempFolder = folder.newFolder().getAbsolutePath();
 
 		GraphWriter.write(g, tempFolder, graphName);
 		Graph g2 = GraphReader.read(tempFolder, graphName, null);
@@ -223,7 +218,11 @@ public class GeneratorsTest {
 		Graph g = gg.generate();
 
 		String graphName = gds.getDataStructures();
-		String tempFolder = folder.getRoot().getAbsolutePath();
+		String tempFolder = folder.newFolder().getAbsolutePath();
+
+		HashFunction hf = Hashing.md5();
+		HashCode hc = hf.newHasher().putString(graphName).hash();
+		graphName = hc.toString();
 
 		GraphWriter.write(g, tempFolder, graphName);
 
@@ -249,7 +248,8 @@ public class GeneratorsTest {
 			Node n = (Node) nU;
 			assertTrue(
 					"Graph g misses node " + n + " (node list type: "
-							+ gds.getNodeListType() + ")", g.containsNode(n));
+							+ gds.getListClass(ListType.GlobalNodeList) + ")",
+					g.containsNode(n));
 		}
 
 		for (IElement nU : g.getNodes()) {
@@ -261,7 +261,7 @@ public class GeneratorsTest {
 			Edge e = (Edge) eU;
 			Edge eOther = g.getEdge(e);
 			assertNotNull("Graph g misses edge " + e + " (edge list type: "
-					+ gds.getGraphEdgeListType() + ")", eOther);
+					+ gds.getListClass(ListType.GlobalEdgeList) + ")", eOther);
 			assertEquals(e, eOther);
 			assertNotEquals(e.getStringRepresentation(),
 					eOther.getStringRepresentation());
@@ -292,8 +292,11 @@ public class GeneratorsTest {
 		Graph g = gg.generate();
 
 		String graphName = gds.getDataStructures();
+		String tempFolder = folder.newFolder().getAbsolutePath();
 
-		String tempFolder = folder.getRoot().getAbsolutePath();
+		HashFunction hf = Hashing.md5();
+		HashCode hc = hf.newHasher().putString(graphName).hash();
+		graphName = hc.toString();
 
 		GraphWriter.write(g, tempFolder, graphName);
 
@@ -311,6 +314,7 @@ public class GeneratorsTest {
 
 			Edge edgeMocked = mock(this.gds.getEdgeType());
 			when(edgeMocked.getStringRepresentation()).thenReturn("");
+			when(edgeMocked.getHashString()).thenReturn("");
 			if (gds.createsDirected()) {
 				when(((DirectedEdge) edgeMocked).getDst()).thenReturn(
 						(DirectedNode) random);
@@ -336,8 +340,11 @@ public class GeneratorsTest {
 		Graph g = gg.generate();
 
 		String graphName = gds.getDataStructures();
+		String tempFolder = folder.newFolder().getAbsolutePath();
 
-		String tempFolder = folder.getRoot().getAbsolutePath();
+		HashFunction hf = Hashing.md5();
+		HashCode hc = hf.newHasher().putString(graphName).hash();
+		graphName = hc.toString();
 
 		GraphWriter.write(g, tempFolder, graphName);
 

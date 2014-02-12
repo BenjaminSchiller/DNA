@@ -10,6 +10,7 @@ import dna.graph.edges.DirectedEdge;
 import dna.graph.nodes.DirectedNode;
 import dna.metrics.Metric;
 import dna.series.data.Distribution;
+import dna.series.data.NodeNodeValueList;
 import dna.series.data.NodeValueList;
 import dna.series.data.Value;
 import dna.updates.batch.Batch;
@@ -39,7 +40,6 @@ public abstract class DirectedConnectedComponent extends Metric {
 		this.lowLink = new int[this.g.getMaxNodeIndex() + 1];
 		this.index = new int[this.g.getMaxNodeIndex() + 1];
 		this.visited = new boolean[this.g.getMaxNodeIndex() + 1];
-		this.dagExpired = new HashMap<Integer, DirectedComponent>();
 		this.containmentEdges = new HashMap<DirectedNode, Integer>();
 		this.dag = new HashMap<Integer, DirectedComponent>();
 		this.containmentEdgesForComponents = new HashMap<>();
@@ -51,7 +51,6 @@ public abstract class DirectedConnectedComponent extends Metric {
 		this.lowLink = new int[this.g.getMaxNodeIndex() + 1];
 		this.index = new int[this.g.getMaxNodeIndex() + 1];
 		this.visited = new boolean[this.g.getMaxNodeIndex() + 1];
-		this.dagExpired = new HashMap<Integer, DirectedComponent>();
 		this.containmentEdges = new HashMap<DirectedNode, Integer>();
 		this.dag = new HashMap<Integer, DirectedComponent>();
 		this.containmentEdgesForComponents = new HashMap<>();
@@ -229,6 +228,11 @@ public abstract class DirectedConnectedComponent extends Metric {
 	@Override
 	public NodeValueList[] getNodeValueLists() {
 		return new NodeValueList[] {};
+	}
+
+	@Override
+	public NodeNodeValueList[] getNodeNodeValueLists() {
+		return new NodeNodeValueList[] {};
 	}
 
 	@Override

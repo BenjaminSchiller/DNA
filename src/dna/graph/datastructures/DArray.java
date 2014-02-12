@@ -7,11 +7,6 @@ import java.util.Iterator;
 import dna.graph.IElement;
 import dna.graph.edges.Edge;
 import dna.graph.nodes.Node;
-import dna.profiler.complexity.AddedComplexity;
-import dna.profiler.complexity.Complexity;
-import dna.profiler.complexity.ComplexityType;
-import dna.profiler.complexity.ComplexityType.Base;
-import dna.profiler.complexity.ComplexityType.Type;
 import dna.util.Log;
 import dna.util.Rand;
 
@@ -27,12 +22,11 @@ public class DArray extends DataStructureReadable implements
 	private int count;
 	private int maxNodeIndex;
 
-	public DArray(Class<? extends IElement> dT) {
-		this.init(dT, defaultSize);
+	public DArray(ListType lt, Class<? extends IElement> dT) {
+		super(lt, dT);
 	}
 
 	public void init(Class<? extends IElement> dT, int initialSize) {
-		this.dataType = dT;
 		this.list = new IElement[initialSize];
 		this.maxNodeIndex = -1;
 	}
@@ -61,9 +55,7 @@ public class DArray extends DataStructureReadable implements
 		}
 
 		while (element.getIndex() >= this.list.length) {
-			IElement[] newList = new IElement[this.list.length * 2];
-			System.arraycopy(this.list, 0, newList, 0, this.list.length);
-			this.list = newList;
+			this.resize();
 		}
 		if (this.list[element.getIndex()] != null) {
 			return false;
@@ -89,9 +81,7 @@ public class DArray extends DataStructureReadable implements
 
 		if (this.count == this.list.length) {
 			addPos = this.list.length;
-			IElement[] newList = new IElement[this.list.length * 2];
-			System.arraycopy(this.list, 0, newList, 0, this.list.length);
-			this.list = newList;
+			this.resize();
 		} else {
 			// Find first free position
 			while (addPos < this.list.length && this.list[addPos] != null)
@@ -102,6 +92,12 @@ public class DArray extends DataStructureReadable implements
 		this.list[addPos] = element;
 		this.count++;
 		return true;
+	}
+
+	public void resize() {
+		IElement[] newList = new IElement[this.list.length * 2];
+		System.arraycopy(this.list, 0, newList, 0, this.list.length);
+		this.list = newList;
 	}
 
 	@Override
@@ -278,55 +274,5 @@ public class DArray extends DataStructureReadable implements
 			throw new RuntimeException("Not allowed");
 		}
 
-	}
-
-	/**
-	 * Get the complexity class for a specific access type
-	 * 
-	 * @param access
-	 *            Access type
-	 * @param base
-	 *            Complexity base (NodeSize, EdgeSize,...)
-	 * @return
-	 */
-	public static Complexity getComplexity(Class<? extends IElement> dt,
-			AccessType access, Base base) {
-		switch (access) {
-		case Add:
-			if (Node.class.isAssignableFrom(dt)) {
-				return new AddedComplexity(new Complexity(1,
-						new ComplexityType(Type.Static, base)), getComplexity(
-						dt, AccessType.Contains, base));
-			} else if (Edge.class.isAssignableFrom(dt)) {
-				return new AddedComplexity(new Complexity(1,
-						new ComplexityType(Type.Linear, base)), getComplexity(
-						dt, AccessType.Contains, base));
-			}
-		case Contains:
-			if (Node.class.isAssignableFrom(dt)) {
-				return new Complexity(1, new ComplexityType(Type.Static, base));
-			} else if (Edge.class.isAssignableFrom(dt)) {
-				return new Complexity(1, new ComplexityType(Type.Linear, base));
-			}
-		case Get:
-			if (Node.class.isAssignableFrom(dt)) {
-				return new Complexity(1, new ComplexityType(Type.Static, base));
-			} else if (Edge.class.isAssignableFrom(dt)) {
-				return new Complexity(1, new ComplexityType(Type.Linear, base));
-			}
-		case Random:
-			return new Complexity(1, new ComplexityType(Type.Static, base));
-		case Remove:
-			if (Node.class.isAssignableFrom(dt)) {
-				return new Complexity(1, new ComplexityType(Type.Static, base));
-			} else if (Edge.class.isAssignableFrom(dt)) {
-				return new Complexity(1, new ComplexityType(Type.Linear, base));
-			}
-		case Size:
-			return new Complexity(1, new ComplexityType(Type.Static, base));
-		case Iterator:
-			return new Complexity(1, new ComplexityType(Type.Static, base));
-		}
-		return new Complexity(1, new ComplexityType(Type.Unknown, base));
 	}
 }

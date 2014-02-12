@@ -59,7 +59,7 @@ public class SeriesGeneration {
 		Timer timer = new Timer("seriesGeneration");
 		Log.info("generating series");
 		Log.infoSep();
-		Log.info("ds = " + series.getGraphGenerator().getGraphDataStructure());
+		Log.info("ds = " + series.getGraphGenerator().getGraphDataStructure().getStorageDataStructures(true));
 		Log.info("gg = " + series.getGraphGenerator().getDescription());
 		Log.info("bg = " + series.getBatchGenerator().getDescription());
 		Log.info("p  = " + series.getDir());
