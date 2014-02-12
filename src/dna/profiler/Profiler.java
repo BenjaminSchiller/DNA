@@ -217,8 +217,14 @@ public class Profiler {
 			listComplexities.put(lt, innerComplexities);
 		}
 
-		ArrayList<EnumMap<ListType, Class<? extends IDataStructure>>> allCombinations = GraphDataStructure
-				.getAllDatastructureCombinations();
+		ArrayList<EnumMap<ListType, Class<? extends IDataStructure>>> allCombinations;
+		
+		if (Config.getBoolean("PROFILER_USE_SIMPLE_LIST_FOR_RECOMMENDATIONS"))
+			allCombinations = GraphDataStructure
+					.getSimpleDatastructureCombinations();
+		else
+			allCombinations = GraphDataStructure
+					.getAllDatastructureCombinations();
 
 		TreeMap<ComplexityMap, GraphDataStructure> recommendationList = new TreeMap<>();
 		int numberOfRecommendations = Config

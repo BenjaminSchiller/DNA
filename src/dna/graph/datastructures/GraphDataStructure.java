@@ -101,10 +101,10 @@ public class GraphDataStructure {
 			}
 		}
 
-		if (list.get(ListType.GlobalEdgeList) == DEmpty.class
-				&& list.get(ListType.LocalEdgeList) == DEmpty.class
-				&& list.get(ListType.LocalInEdgeList) == DEmpty.class
-				&& list.get(ListType.LocalOutEdgeList) == DEmpty.class)
+		if (getListClass(ListType.GlobalEdgeList, list) == DEmpty.class
+				&& getListClass(ListType.LocalEdgeList, list) == DEmpty.class
+				&& getListClass(ListType.LocalInEdgeList, list) == DEmpty.class
+				&& getListClass(ListType.LocalOutEdgeList, list) == DEmpty.class)
 			return false;
 
 		return true;
@@ -223,35 +223,47 @@ public class GraphDataStructure {
 		}
 		return defaultListSize;
 	}
-
-	public IDataStructure newList(ListType listType) {
-		this.canGDSCreateProperLists();
-
-		Class<? extends IDataStructure> sourceClass = getListClass(listType);
-		Class<? extends IElement> storedDataType = listType.getStoredClass();
-
-		if (sourceClass == DEmpty.class) {
-			return emptyList;
-		}
+	
+	public static IDataStructure constructList(ListType lt, Class<? extends IDataStructure> sourceClass, Class<? extends IElement> storedDataType) {
 		IDataStructure res = null;
 		try {
 			res = sourceClass.getConstructor(ListType.class,
-					storedDataType.getClass()).newInstance(listType,
+					storedDataType.getClass()).newInstance(lt,
 					storedDataType);
 		} catch (InstantiationException | IllegalAccessException
 				| IllegalArgumentException | InvocationTargetException
 				| NoSuchMethodException | SecurityException e) {
 			e.printStackTrace();
 		}
+		return res;
+	}
+
+	public IDataStructure newList(ListType listType) {
+		this.canGDSCreateProperLists();
+
+		Class<? extends IDataStructure> sourceClass = getListClass(listType, listTypes);
+		Class<? extends IElement> storedDataType = listType.getStoredClass();
+
+		if (sourceClass == DEmpty.class) {
+			return emptyList;
+		}
+		IDataStructure res = constructList(listType, sourceClass, storedDataType);
 		res.reinitializeWithSize(this.getStartingSize(listType));
 		return res;
 	}
 
-	public Class<? extends IDataStructure> getListClass(ListType listType) {
-		Class<? extends IDataStructure> sourceClass = listTypes.get(listType);
-		while (sourceClass == null && listType.getFallback() != null) {
-			listType = listType.getFallback();
-			sourceClass = listTypes.get(listType);
+	public Class<? extends IDataStructure> getListClass(ListType singleListType) {
+		return getListClass(singleListType, listTypes);
+	}
+
+	public static Class<? extends IDataStructure> getListClass(
+			ListType singleListType,
+			EnumMap<ListType, Class<? extends IDataStructure>> listTypes) {
+		Class<? extends IDataStructure> sourceClass = listTypes
+				.get(singleListType);
+		while (sourceClass == null && singleListType.getFallback() != null) {
+			singleListType = singleListType.getFallback();
+			sourceClass = listTypes.get(singleListType);
 		}
 		return sourceClass;
 	}
