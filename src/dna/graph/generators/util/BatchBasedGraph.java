@@ -7,7 +7,7 @@ import dna.updates.batch.Batch;
 import dna.updates.generators.BatchGenerator;
 import dna.util.parameters.Parameter;
 
-public class BatchBasedGraphGenerator extends GraphGenerator {
+public class BatchBasedGraph extends GraphGenerator {
 
 	private GraphGenerator gg;
 
@@ -15,9 +15,9 @@ public class BatchBasedGraphGenerator extends GraphGenerator {
 
 	private int times;
 
-	public BatchBasedGraphGenerator(GraphDataStructure gds, GraphGenerator gg,
+	public BatchBasedGraph(GraphDataStructure gds, GraphGenerator gg,
 			BatchGenerator bg, int times) {
-		super("BatchBasedGraphGenerator", new Parameter[] {}, gds, 0, 0, 0);
+		super("BatchBasedGraph", new Parameter[] {}, gds, 0, 0, 0);
 		this.gg = gg;
 		this.bg = bg;
 		this.times = times;

@@ -1,21 +1,21 @@
-package dna.graph.generators;
+package dna.graph.generators.random;
 
 import dna.graph.Graph;
 import dna.graph.datastructures.GraphDataStructure;
 import dna.graph.edges.Edge;
+import dna.graph.generators.GraphGenerator;
 import dna.graph.nodes.Node;
 import dna.util.ArrayUtils;
 import dna.util.Rand;
 import dna.util.parameters.IntParameter;
 import dna.util.parameters.Parameter;
 
-public class RandomGraphGenerator extends GraphGenerator implements
-		IRandomGenerator {
-	public RandomGraphGenerator(GraphDataStructure gds, int nodes, int edges) {
+public class RandomGraph extends GraphGenerator implements IRandomGenerator {
+	public RandomGraph(GraphDataStructure gds, int nodes, int edges) {
 		this("RandomGraph", null, gds, nodes, edges);
 	}
 
-	protected RandomGraphGenerator(String name, Parameter[] parameters,
+	protected RandomGraph(String name, Parameter[] parameters,
 			GraphDataStructure gds, int nodes, int edges) {
 		super(buildName(name, gds), ArrayUtils.append(new Parameter[] {
 				new IntParameter("N", nodes), new IntParameter("E", edges) },

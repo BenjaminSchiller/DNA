@@ -1,4 +1,6 @@
-package dna.graph.generators;
+package dna.graph.generators.random;
+
+import dna.graph.generators.IGraphGenerator;
 
 
 /**

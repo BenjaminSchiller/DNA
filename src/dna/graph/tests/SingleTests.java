@@ -18,7 +18,7 @@ import dna.graph.edges.DirectedDoubleWeightedEdge;
 import dna.graph.edges.DirectedEdge;
 import dna.graph.edges.UndirectedDoubleWeightedEdge;
 import dna.graph.generators.GraphGenerator;
-import dna.graph.generators.RandomGraphGenerator;
+import dna.graph.generators.random.RandomGraph;
 import dna.graph.nodes.DirectedDoubleWeightedNode;
 import dna.graph.nodes.DirectedNode;
 import dna.graph.nodes.IWeightedNode;
@@ -56,7 +56,7 @@ public class SingleTests {
 
 		GraphDataStructure gds = new GraphDataStructure(listTypes,
 				DirectedNode.class, DirectedEdge.class);
-		GraphGenerator gg = new RandomGraphGenerator(gds, 40, 40);
+		GraphGenerator gg = new RandomGraph(gds, 40, 40);
 		BatchGenerator batchGen = new RandomBatch(5, 5, 5, 5);
 		Metric[] metrics = new Metric[] { new DegreeDistributionU(),
 				new DirectedClusteringCoefficientU() };
