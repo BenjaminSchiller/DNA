@@ -52,6 +52,12 @@ public class RandomWalk extends WalkingAlgorithm {
 			HashSet<Node> alreadyVisitedNodes = getVisitedNodes();
 			int notFullyVisitedNodeCount = alreadyVisitedNodes.size()
 					- fullyVisited.size();
+
+			if (notFullyVisitedNodeCount <= 0) {
+				noNodeFound();
+				return null;
+			}
+
 			Node[] visitableNodes = new Node[notFullyVisitedNodeCount];
 
 			Iterator<Node> iter = alreadyVisitedNodes.iterator();

@@ -32,14 +32,13 @@ public class HighestRandomDegreeSumSelection extends StartNodeSelectionStrategy 
 	@Override
 	public Node getStartNode() {
 
-		int maxNodeID = g.getMaxNodeIndex();
 		int maxDegreeSum = 0;
 
 		Node resultNode = null;
 
 		for (int i = 0; i < n; i++) {
 
-			Node tempNode = g.getNode(Rand.rand.nextInt(maxNodeID));
+			Node tempNode = g.getRandomNode();
 
 			int tempDegreeSum = getDegreeFromNode(tempNode);
 

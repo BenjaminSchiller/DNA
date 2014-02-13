@@ -29,6 +29,8 @@ public abstract class WalkingAlgorithm extends BatchGenerator {
 	private HashSet<Node> seenNodes;
 	private HashSet<Node> visitedNodes;
 
+	private HashMap<Integer, Node> addedNodes;
+
 	private Graph fullGraph;
 
 	private StartNodeSelectionStrategy startNodeStartegy;
@@ -36,6 +38,7 @@ public abstract class WalkingAlgorithm extends BatchGenerator {
 	private boolean onlyVisited;
 	private boolean firstIteration;
 	private boolean takeResourceIntoAccount;
+	private boolean noFurtherBatch;
 
 	private int costPerBatch;
 	private int graphSize;
@@ -83,11 +86,14 @@ public abstract class WalkingAlgorithm extends BatchGenerator {
 		}
 
 		firstIteration = true;
+		noFurtherBatch = false;
 
 		graphSize = fullGraph.getNodeCount();
 
 		seenNodes = new HashSet<Node>(graphSize);
 		visitedNodes = new HashSet<Node>(graphSize);
+
+		addedNodes = new HashMap<Integer, Node>();
 
 		if (DirectedNode.class.isAssignableFrom(this.fullGraph
 				.getGraphDatastructures().getNodeType())) {
@@ -109,7 +115,7 @@ public abstract class WalkingAlgorithm extends BatchGenerator {
 
 		Batch newBatch = new Batch(g.getGraphDatastructures(),
 				g.getTimestamp(), g.getTimestamp() + 1);
-		HashMap<Integer, Node> addedNodes = new HashMap<>();
+		addedNodes = new HashMap<Integer, Node>();
 
 		if (firstIteration) {
 			firstIteration = false;
@@ -117,14 +123,14 @@ public abstract class WalkingAlgorithm extends BatchGenerator {
 			resource = -firstCosts;
 
 			newBatch = addNodeAndNeighborsToBatch(newBatch,
-					init(startNodeStartegy), g, addedNodes);
+					init(startNodeStartegy), g);
 
 			for (int i = firstCosts; i < costPerBatch; i++) {
 				if (!isFurtherBatchPossible(g)) {
 					break;
 				}
 				newBatch = addNodeAndNeighborsToBatch(newBatch, findNextNode(),
-						g, addedNodes);
+						g);
 				resource--;
 			}
 
@@ -135,7 +141,7 @@ public abstract class WalkingAlgorithm extends BatchGenerator {
 					break;
 				}
 				newBatch = addNodeAndNeighborsToBatch(newBatch, findNextNode(),
-						g, addedNodes);
+						g);
 				resource--;
 			}
 		}
@@ -174,20 +180,25 @@ public abstract class WalkingAlgorithm extends BatchGenerator {
 	 *            added with the batch but are not yet added to the graph
 	 * @return
 	 */
-	private Batch addNodeAndNeighborsToBatch(Batch batch, Node node, Graph g,
-			HashMap<Integer, Node> preAddedNodes) {
+	private Batch addNodeAndNeighborsToBatch(Batch batch, Node node, Graph g) {
+
+		if (noFurtherBatch) {
+			return batch;
+		}else if(g.getNode(node.getIndex()) != null){
+			return batch;
+		}
 
 		Node newNode = g.getGraphDatastructures().newNodeInstance(
 				node.getIndex());
 
 		batch.add(new NodeAddition(newNode));
 
-		preAddedNodes.put(newNode.getIndex(), newNode);
+		addedNodes.put(newNode.getIndex(), newNode);
 
 		seenNodes.add(node);
 		visitedNodes.add(node);
 
-		List<Update> upList = addNeighbors(node, newNode, g, preAddedNodes);
+		List<Update> upList = addNeighbors(node, newNode, g);
 
 		for (Update u : upList) {
 			System.out.println(u);
@@ -214,7 +225,7 @@ public abstract class WalkingAlgorithm extends BatchGenerator {
 	 * @return a list of node and edge additions
 	 */
 	private List<Update> addNeighbors(Node nodeFromFullGraph, Node newNode,
-			Graph g, HashMap<Integer, Node> preAddedNodes) {
+			Graph g) {
 
 		List<Update> updateList = new ArrayList<Update>();
 
@@ -233,8 +244,13 @@ public abstract class WalkingAlgorithm extends BatchGenerator {
 
 					// Ja -> Edge in Liste, Ende
 					GraphDataStructure gds = g.getGraphDatastructures();
-					// TODO Das hier kann fehlschlagen
-					Node dstNode = preAddedNodes.get(neighbor.getIndex());
+
+					Node dstNode;
+					if (g.getNode(neighbor.getIndex()) == null) {
+						dstNode = addedNodes.get(neighbor.getIndex());
+					} else {
+						dstNode = g.getNode(neighbor.getIndex());
+					}
 
 					updateList.add(new EdgeAddition(gds.newEdgeInstance(
 							newNode, dstNode)));
@@ -266,7 +282,7 @@ public abstract class WalkingAlgorithm extends BatchGenerator {
 
 					updateList.add(new NodeAddition(newNeighbor));
 
-					preAddedNodes.put(newNeighbor.getIndex(), newNeighbor);
+					addedNodes.put(newNeighbor.getIndex(), newNeighbor);
 				}
 
 				// Edge bereits im Graph?
@@ -274,11 +290,13 @@ public abstract class WalkingAlgorithm extends BatchGenerator {
 
 					// Nein -> Edge in Liste, Weiter
 					GraphDataStructure gds = g.getGraphDatastructures();
-					// TODO kann fehlschlagen
-					Node dstNode = preAddedNodes.get(neighbor.getIndex());
-					System.out.println("gds: " + gds);
-					System.out.println("srcNode: " + newNode);
-					System.out.println("dstNode: " + dstNode);
+
+					Node dstNode;
+					if (g.getNode(neighbor.getIndex()) == null) {
+						dstNode = addedNodes.get(neighbor.getIndex());
+					} else {
+						dstNode = g.getNode(neighbor.getIndex());
+					}
 
 					updateList.add(new EdgeAddition(gds.newEdgeInstance(
 							newNode, dstNode)));
@@ -305,6 +323,10 @@ public abstract class WalkingAlgorithm extends BatchGenerator {
 			return false;
 
 		} else if (fullGraph.getNodeCount() == seenNodes.size()) {
+
+			return false;
+
+		} else if (noFurtherBatch) {
 
 			return false;
 
@@ -422,6 +444,43 @@ public abstract class WalkingAlgorithm extends BatchGenerator {
 	 */
 	protected HashSet<Node> getVisitedNodes() {
 		return visitedNodes;
+	}
+
+	/**
+	 * Returns the number of nodes in the graph, the walking algorithm is
+	 * operating on
+	 * 
+	 * @return number of nodes
+	 */
+	public int getNodeCountOfBaseGraph() {
+		return fullGraph.getNodeCount();
+	}
+
+	/**
+	 * Returns the number of nodes which has either been visited or seen by the
+	 * walking algorithm
+	 * 
+	 * @return number of nodes
+	 */
+	public int getSeenAndVisitedCount() {
+		return seenNodes.size();
+	}
+
+	/**
+	 * Returns the number of nodes which has been visited by the walking
+	 * algorithm
+	 * 
+	 * @return number of nodes
+	 */
+	public int getVisitedCount() {
+		return visitedNodes.size();
+	}
+
+	/**
+	 * This method is called, if the walking algorithm can't find a further node
+	 */
+	protected void noNodeFound() {
+		noFurtherBatch = true;
 	}
 
 }

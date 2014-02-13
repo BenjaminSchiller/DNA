@@ -2,7 +2,6 @@ package dna.graph.startNodeSelection;
 
 import dna.graph.Graph;
 import dna.graph.nodes.Node;
-import dna.util.Rand;
 
 /**
  * Randomly selects a start node out of all nodes.
@@ -24,8 +23,7 @@ public class RandomSelection extends StartNodeSelectionStrategy {
 
 	@Override
 	public Node getStartNode() {
-		int n = g.getNodeCount();
-		return g.getNode(Rand.rand.nextInt(n));
+		return g.getRandomNode();
 	}
 
 	@Override
