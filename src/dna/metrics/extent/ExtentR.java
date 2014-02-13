@@ -3,12 +3,12 @@ package dna.metrics.extent;
 import dna.graph.Graph;
 import dna.metrics.Metric;
 import dna.series.data.Distribution;
+import dna.series.data.NodeNodeValueList;
 import dna.series.data.NodeValueList;
 import dna.series.data.Value;
 import dna.updates.batch.Batch;
 import dna.updates.update.Update;
 import dna.updates.walkingAlgorithms.WalkingAlgorithm;
-import dna.util.parameters.Parameter;
 
 /**
  * @author Benedict
@@ -17,6 +17,10 @@ import dna.util.parameters.Parameter;
 public class ExtentR extends Metric {
 
 	private WalkingAlgorithm algorithm;
+	private int seenNodes;
+	private int unseenNodes;
+	private int visitedNodes;
+	private int visitedAndSeenNodes;
 
 	/**
 	 * @param name
@@ -51,53 +55,72 @@ public class ExtentR extends Metric {
 
 	@Override
 	public boolean compute() {
-		return false;
+		visitedAndSeenNodes = algorithm.getSeenAndVisitedCount();
+		visitedNodes = algorithm.getVisitedCount();
+		seenNodes = visitedAndSeenNodes - visitedNodes;
+		unseenNodes = algorithm.getNodeCountOfBaseGraph() - visitedAndSeenNodes;
+		return true;
 	}
 
 	@Override
 	public void init_() {
-
+		seenNodes = 0;
+		visitedNodes = 0;
+		visitedAndSeenNodes = 0;
+		unseenNodes = algorithm.getNodeCountOfBaseGraph();
 	}
 
 	@Override
 	public void reset_() {
-
+		seenNodes = 0;
+		visitedNodes = 0;
+		visitedAndSeenNodes = 0;
+		unseenNodes = algorithm.getNodeCountOfBaseGraph();
 	}
 
 	@Override
 	public Value[] getValues() {
-		return null;
+		Value unseen = new Value("Unseen_Nodes", unseenNodes);
+		Value seen = new Value("Seen_Nodes", seenNodes);
+		Value visited = new Value("Visited_Nodes", visitedNodes);
+		Value seenAndVisited = new Value("Seen_and_Visited_Nodes",
+				visitedAndSeenNodes);
+		return new Value[] { unseen, seen, visited, seenAndVisited };
 	}
 
 	@Override
 	public Distribution[] getDistributions() {
-		return null;
+		return new Distribution[] {};
 	}
 
 	@Override
 	public NodeValueList[] getNodeValueLists() {
-		return null;
+		return new NodeValueList[] {};
+	}
+
+	@Override
+	public NodeNodeValueList[] getNodeNodeValueLists() {
+		return new NodeNodeValueList[] {};
 	}
 
 	@Override
 	public boolean equals(Metric m) {
-		return false;
+		return (this == m);
 	}
 
 	@Override
 	public boolean isApplicable(Graph g) {
-		return false;
+		return true;
 	}
 
 	@Override
 	public boolean isApplicable(Batch b) {
-		return false;
+		return true;
 	}
 
 	@Override
 	public boolean isComparableTo(Metric m) {
-		
-		return false;
+		return m instanceof ExtentR;
 	}
 
 }

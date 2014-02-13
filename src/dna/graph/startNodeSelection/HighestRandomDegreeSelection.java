@@ -2,7 +2,6 @@ package dna.graph.startNodeSelection;
 
 import dna.graph.Graph;
 import dna.graph.nodes.Node;
-import dna.util.Rand;
 
 /**
  * Selects n random nodes and chooses the one with the highest degree out of
@@ -32,14 +31,13 @@ public class HighestRandomDegreeSelection extends StartNodeSelectionStrategy {
 	@Override
 	public Node getStartNode() {
 
-		int maxNodeID = g.getMaxNodeIndex();
 		int maxDegree = 0;
 
 		Node resultNode = null;
 
 		for (int i = 0; i < n; i++) {
 
-			Node tempNode = g.getNode(Rand.rand.nextInt(maxNodeID));
+			Node tempNode = g.getRandomNode();
 			int tempDegree = getDegreeFromNode(tempNode);
 
 			if (tempDegree > maxDegree) {
