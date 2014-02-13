@@ -184,7 +184,7 @@ public abstract class WalkingAlgorithm extends BatchGenerator {
 
 		if (noFurtherBatch) {
 			return batch;
-		}else if(g.getNode(node.getIndex()) != null){
+		} else if (g.getNode(node.getIndex()) != null) {
 			return batch;
 		}
 
@@ -364,6 +364,28 @@ public abstract class WalkingAlgorithm extends BatchGenerator {
 			Edge edge = (Edge) e;
 			Node neighbor = edge.getDifferingNode(n);
 			if (!visitedNodes.contains(neighbor)) {
+				neighbors.add(neighbor);
+			}
+		}
+		return neighbors;
+	}
+
+	/**
+	 * Returns a list of unseen neighbors of node n
+	 * 
+	 * @param n
+	 *            the node of whom we want to receive the unseen neighbors
+	 * @return a list of nodes
+	 */
+	protected ArrayList<Node> getUnseenNeighbors(Node n) {
+
+		ArrayList<Node> neighbors = new ArrayList<Node>();
+		Iterable<IElement> iter = getEdgesFromNode(n);
+
+		for (IElement e : iter) {
+			Edge edge = (Edge) e;
+			Node neighbor = edge.getDifferingNode(n);
+			if (!seenNodes.contains(neighbor)) {
 				neighbors.add(neighbor);
 			}
 		}
