@@ -1,8 +1,9 @@
-package dna.graph.generators;
+package dna.graph.generators.canonical;
 
 import dna.graph.Graph;
 import dna.graph.datastructures.GraphDataStructure;
 import dna.graph.edges.Edge;
+import dna.graph.generators.GraphGenerator;
 import dna.graph.nodes.Node;
 import dna.util.parameters.IntParameter;
 import dna.util.parameters.Parameter;
@@ -13,10 +14,11 @@ import dna.util.parameters.Parameter;
  * @author Nico
  * 
  */
-public class RingGenerator extends GraphGenerator {
+public class RingGraph extends GraphGenerator {
 
-	public RingGenerator(GraphDataStructure gds, int nodes) {
-		super(buildName("Ring", gds), new Parameter[]{new IntParameter("N", nodes)}, gds, 0, nodes, nodes);
+	public RingGraph(GraphDataStructure gds, int nodes) {
+		super(buildName("RingGraph", gds), new Parameter[] { new IntParameter(
+				"N", nodes) }, gds, 0, nodes, nodes);
 	}
 
 	@Override

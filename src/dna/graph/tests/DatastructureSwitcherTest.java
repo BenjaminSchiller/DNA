@@ -30,7 +30,7 @@ import dna.graph.datastructures.INodeListDatastructureReadable;
 import dna.graph.datastructures.IReadable;
 import dna.graph.edges.DirectedEdge;
 import dna.graph.generators.GraphGenerator;
-import dna.graph.generators.RandomGraphGenerator;
+import dna.graph.generators.random.RandomGraph;
 import dna.graph.nodes.DirectedNode;
 
 @RunWith(Parameterized.class)
@@ -99,7 +99,7 @@ public class DatastructureSwitcherTest {
 		listTypes.put(ListType.GlobalEdgeList, oldDS);
 		GraphDataStructure gdsOld = new GraphDataStructure(listTypes,
 				DirectedNode.class, DirectedEdge.class);
-		GraphGenerator gg = new RandomGraphGenerator(gdsOld, 200, 100);
+		GraphGenerator gg = new RandomGraph(gdsOld, 200, 100);
 		Graph g = gg.generate();
 
 		Field innerGlobalEdgeList = Graph.class.getDeclaredField("edges");
@@ -128,7 +128,7 @@ public class DatastructureSwitcherTest {
 		listTypes.put(ListType.GlobalNodeList, oldDS);
 		GraphDataStructure gdsOld = new GraphDataStructure(listTypes,
 				DirectedNode.class, DirectedEdge.class);
-		GraphGenerator gg = new RandomGraphGenerator(gdsOld, 200, 100);
+		GraphGenerator gg = new RandomGraph(gdsOld, 200, 100);
 		Graph g = gg.generate();
 
 		Field innerGlobalNodeList = Graph.class.getDeclaredField("nodes");

@@ -1,9 +1,10 @@
-package dna.graph.generators;
+package dna.graph.generators.util;
 
 import java.io.IOException;
 
 import dna.graph.Graph;
 import dna.graph.datastructures.GraphDataStructure;
+import dna.graph.generators.GraphGenerator;
 import dna.io.GraphReader;
 
 /**
@@ -15,7 +16,7 @@ import dna.io.GraphReader;
  * @author benni
  * 
  */
-public class ReadableFileGraphGenerator extends GraphGenerator {
+public class ReadableFileGraph extends GraphGenerator {
 
 	private String dir;
 
@@ -29,8 +30,7 @@ public class ReadableFileGraphGenerator extends GraphGenerator {
 	 *            name of the graph file
 	 * @throws IOException
 	 */
-	public ReadableFileGraphGenerator(String dir, String filename)
-			throws IOException {
+	public ReadableFileGraph(String dir, String filename) throws IOException {
 		this(dir, filename, null);
 	}
 
@@ -44,8 +44,8 @@ public class ReadableFileGraphGenerator extends GraphGenerator {
 	 *            GraphDataStructure to be used when reading in the graphs
 	 * @throws IOException
 	 */
-	public ReadableFileGraphGenerator(String dir, String filename,
-			GraphDataStructure gds) throws IOException {
+	public ReadableFileGraph(String dir, String filename, GraphDataStructure gds)
+			throws IOException {
 		super(GraphReader.readName(dir, filename), null, gds, -1, -1, -1);
 		this.dir = dir;
 		this.filename = filename;

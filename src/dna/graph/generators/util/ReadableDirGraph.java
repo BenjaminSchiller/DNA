@@ -1,10 +1,11 @@
-package dna.graph.generators;
+package dna.graph.generators.util;
 
 import java.io.FilenameFilter;
 import java.io.IOException;
 
 import dna.graph.Graph;
 import dna.graph.datastructures.GraphDataStructure;
+import dna.graph.generators.GraphGenerator;
 import dna.io.GraphReader;
 import dna.util.IOUtils;
 
@@ -21,7 +22,7 @@ import dna.util.IOUtils;
  * @author benni
  * 
  */
-public class ReadableDirGraphGenerator extends GraphGenerator {
+public class ReadableDirGraph extends GraphGenerator {
 
 	private String dir;
 
@@ -35,7 +36,7 @@ public class ReadableDirGraphGenerator extends GraphGenerator {
 	 *            directory containing the graph files
 	 * @throws IOException
 	 */
-	public ReadableDirGraphGenerator(String dir) throws IOException {
+	public ReadableDirGraph(String dir) throws IOException {
 		this(dir, null, null);
 	}
 
@@ -47,7 +48,7 @@ public class ReadableDirGraphGenerator extends GraphGenerator {
 	 *            filter to specify which files to taks as input
 	 * @throws IOException
 	 */
-	public ReadableDirGraphGenerator(String dir, FilenameFilter filter)
+	public ReadableDirGraph(String dir, FilenameFilter filter)
 			throws IOException {
 		this(dir, filter, null);
 	}
@@ -60,7 +61,7 @@ public class ReadableDirGraphGenerator extends GraphGenerator {
 	 *            GraphDataStructure to be used when reading in the graphs
 	 * @throws IOException
 	 */
-	public ReadableDirGraphGenerator(String dir, GraphDataStructure gds)
+	public ReadableDirGraph(String dir, GraphDataStructure gds)
 			throws IOException {
 		this(dir, null, gds);
 	}
@@ -75,7 +76,7 @@ public class ReadableDirGraphGenerator extends GraphGenerator {
 	 *            GraphDataStructure to be used when reading in the graphs
 	 * @throws IOException
 	 */
-	public ReadableDirGraphGenerator(String dir, FilenameFilter filter,
+	public ReadableDirGraph(String dir, FilenameFilter filter,
 			GraphDataStructure gds) throws IOException {
 		super(GraphReader.readName(dir, IOUtils.getFilenames(dir, filter)[0]),
 				null, gds, -1, -1, -1);

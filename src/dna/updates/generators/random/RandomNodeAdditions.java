@@ -1,10 +1,11 @@
-package dna.updates.generators;
+package dna.updates.generators.random;
 
 import java.util.HashSet;
 
 import dna.graph.Graph;
 import dna.graph.nodes.Node;
 import dna.updates.batch.Batch;
+import dna.updates.generators.BatchGenerator;
 import dna.updates.update.NodeAddition;
 import dna.util.parameters.IntParameter;
 

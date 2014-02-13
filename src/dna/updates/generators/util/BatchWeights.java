@@ -1,4 +1,4 @@
-package dna.updates.generators;
+package dna.updates.generators.util;
 
 import dna.graph.Graph;
 import dna.graph.weights.IWeighted;
@@ -6,6 +6,7 @@ import dna.graph.weights.Weights;
 import dna.graph.weights.Weights.EdgeWeightSelection;
 import dna.graph.weights.Weights.NodeWeightSelection;
 import dna.updates.batch.Batch;
+import dna.updates.generators.BatchGenerator;
 import dna.updates.update.EdgeAddition;
 import dna.updates.update.NodeAddition;
 import dna.util.ArrayUtils;

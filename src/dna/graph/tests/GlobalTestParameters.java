@@ -16,10 +16,10 @@ import dna.graph.edges.DirectedIntWeightedEdge;
 import dna.graph.edges.UndirectedDoubleWeightedEdge;
 import dna.graph.edges.UndirectedEdge;
 import dna.graph.edges.UndirectedIntWeightedEdge;
-import dna.graph.generators.CliqueGenerator;
-import dna.graph.generators.EmptyGraphGenerator;
-import dna.graph.generators.RandomGraphGenerator;
-import dna.graph.generators.RingGenerator;
+import dna.graph.generators.canonical.CliqueGraph;
+import dna.graph.generators.canonical.RingGraph;
+import dna.graph.generators.random.RandomGraph;
+import dna.graph.generators.util.EmptyGraph;
 import dna.graph.nodes.DirectedDoubleWeightedNode;
 import dna.graph.nodes.DirectedIntWeightedNode;
 import dna.graph.nodes.DirectedNode;
@@ -42,9 +42,10 @@ public class GlobalTestParameters {
 			edgeTypes, Class.class);
 
 	public static final Class[] dataStructures = { DArray.class,
-			DArrayList.class, DHashArrayList.class, DHashMap.class, DHashSet.class, DHashTable.class, DLinkedList.class, DEmpty.class };
+			DArrayList.class, DHashArrayList.class, DHashMap.class,
+			DHashSet.class, DHashTable.class, DLinkedList.class, DEmpty.class };
 
-	public static final Class[] graphGenerators = { RandomGraphGenerator.class,
-			CliqueGenerator.class, RingGenerator.class,
-			EmptyGraphGenerator.class };
+	public static final Class[] graphGenerators = { RandomGraph.class,
+			CliqueGraph.class, RingGraph.class,
+			EmptyGraph.class };
 }

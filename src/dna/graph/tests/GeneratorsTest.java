@@ -36,12 +36,12 @@ import dna.graph.datastructures.IDataStructure;
 import dna.graph.edges.DirectedEdge;
 import dna.graph.edges.Edge;
 import dna.graph.edges.UndirectedEdge;
-import dna.graph.generators.CliqueGenerator;
-import dna.graph.generators.EmptyGraphGenerator;
 import dna.graph.generators.GraphGenerator;
 import dna.graph.generators.IGraphGenerator;
-import dna.graph.generators.IRandomGenerator;
-import dna.graph.generators.RingGenerator;
+import dna.graph.generators.canonical.CliqueGraph;
+import dna.graph.generators.canonical.RingGraph;
+import dna.graph.generators.random.IRandomGenerator;
+import dna.graph.generators.util.EmptyGraph;
 import dna.graph.nodes.DirectedNode;
 import dna.graph.nodes.Node;
 import dna.graph.nodes.UndirectedNode;
@@ -77,7 +77,7 @@ public class GeneratorsTest {
 
 		this.gds = new GraphDataStructure(listTypes, nodeType, edgeType);
 
-		if (generator == CliqueGenerator.class) {
+		if (generator == CliqueGraph.class) {
 			/**
 			 * As clique graphs are large, generate a smaller one please!
 			 */
@@ -86,9 +86,9 @@ public class GeneratorsTest {
 
 			if (UndirectedNode.class.isAssignableFrom(nodeType))
 				edgeSize = (int) edgeSize / 2;
-		} else if (generator == RingGenerator.class) {
+		} else if (generator == RingGraph.class) {
 			edgeSize = nodeSize;
-		} else if (generator == EmptyGraphGenerator.class) {
+		} else if (generator == EmptyGraph.class) {
 			nodeSize = 0;
 			edgeSize = 0;
 		}
@@ -286,8 +286,8 @@ public class GeneratorsTest {
 		 * compared multiple times. If anything is wrong that would be tested
 		 * here, we would see it with other generators too
 		 */
-		assumeFalse(CliqueGenerator.class.isAssignableFrom(generator));
-		assumeFalse(EmptyGraphGenerator.class.isAssignableFrom(generator));
+		assumeFalse(CliqueGraph.class.isAssignableFrom(generator));
+		assumeFalse(EmptyGraph.class.isAssignableFrom(generator));
 
 		Graph g = gg.generate();
 
@@ -335,7 +335,7 @@ public class GeneratorsTest {
 	@Test
 	public void testWriteReadWithErrorInNode() throws ClassNotFoundException,
 			IOException {
-		assumeFalse(EmptyGraphGenerator.class.isAssignableFrom(generator));
+		assumeFalse(EmptyGraph.class.isAssignableFrom(generator));
 
 		Graph g = gg.generate();
 

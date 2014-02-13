@@ -17,7 +17,6 @@ import dna.updates.batch.Batch;
 import dna.updates.batch.BatchSanitization;
 import dna.updates.batch.BatchSanitizationStats;
 import dna.updates.update.Update;
-import dna.util.Config;
 import dna.util.Log;
 import dna.util.Memory;
 import dna.util.Timer;
@@ -53,13 +52,12 @@ public class SeriesGeneration {
 			boolean compare, boolean write) throws AggregationException,
 			IOException, MetricNotApplicableException {
 		Log.infoSep();
-		Log.info("loading configurations");
-		Config.init();
-		Log.infoSep();
 		Timer timer = new Timer("seriesGeneration");
 		Log.info("generating series");
 		Log.infoSep();
-		Log.info("ds = " + series.getGraphGenerator().getGraphDataStructure().getStorageDataStructures(true));
+		Log.info("ds = "
+				+ series.getGraphGenerator().getGraphDataStructure()
+						.getStorageDataStructures(true));
 		Log.info("gg = " + series.getGraphGenerator().getDescription());
 		Log.info("bg = " + series.getBatchGenerator().getDescription());
 		Log.info("p  = " + series.getDir());

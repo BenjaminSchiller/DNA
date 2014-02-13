@@ -13,6 +13,22 @@ public abstract class GraphGenerator extends ParameterList implements
 	protected int nodesInit;
 	protected int edgesInit;
 
+	public long getTimestampInit() {
+		return timestampInit;
+	}
+
+	public int getNodesInit() {
+		return nodesInit;
+	}
+
+	public int getEdgesInit() {
+		return edgesInit;
+	}
+
+	public GraphDataStructure getGds() {
+		return gds;
+	}
+
 	protected GraphDataStructure gds;
 
 	public GraphGenerator(String name, Parameter[] params,

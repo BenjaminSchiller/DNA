@@ -28,10 +28,10 @@ import dna.graph.edges.DirectedEdge;
 import dna.graph.edges.Edge;
 import dna.graph.edges.IWeightedEdge;
 import dna.graph.edges.UndirectedEdge;
-import dna.graph.generators.CliqueGenerator;
-import dna.graph.generators.EmptyGraphGenerator;
 import dna.graph.generators.GraphGenerator;
 import dna.graph.generators.IGraphGenerator;
+import dna.graph.generators.canonical.CliqueGraph;
+import dna.graph.generators.util.EmptyGraph;
 import dna.graph.nodes.DirectedNode;
 import dna.graph.nodes.IWeightedNode;
 import dna.graph.nodes.Node;
@@ -47,7 +47,7 @@ import dna.io.GraphWriter;
 import dna.updates.batch.Batch;
 import dna.updates.batch.BatchSanitization;
 import dna.updates.generators.BatchGenerator;
-import dna.updates.generators.RandomBatch;
+import dna.updates.generators.random.RandomBatch;
 import dna.updates.update.EdgeRemoval;
 import dna.updates.update.EdgeWeight;
 import dna.updates.update.NodeRemoval;
@@ -163,7 +163,7 @@ public class BatchTest {
 		nodeSize = 100;
 		edgeSize = 150;
 
-		if (this.generator == CliqueGenerator.class) {
+		if (this.generator == CliqueGraph.class) {
 			/**
 			 * As clique graphs are large, generate a smaller one please!
 			 */
@@ -182,7 +182,7 @@ public class BatchTest {
 		edgeWeightChanges = edgeSize / 2;
 
 		// Adding edges in a clique graph is nonsense
-		if (this.generator == CliqueGenerator.class) {
+		if (this.generator == CliqueGraph.class) {
 			edgeAdd = 0;
 		}
 
@@ -215,7 +215,7 @@ public class BatchTest {
 										.isAssignableFrom(nodeType)))
 							continue;
 
-						if (generator == EmptyGraphGenerator.class)
+						if (generator == EmptyGraph.class)
 							continue;
 
 						if (combination.get(ListType.GlobalEdgeList) == DEmpty.class
