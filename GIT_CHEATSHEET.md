@@ -12,7 +12,7 @@ If you want to use github for a copy of your master, you can simply use the Fork
 
 2) Create a new branch
 ------------------
-Each contributer should work on its own branch. This makes it possible to distinguish changes of each contributer, and to re-pull other contributions. Additionally, it will create less problems when creating a pull request on github later. `git checkout -b branchname` will create a new branch, based on the previously used branch.
+Each contributer should work on its own branch. This makes it possible to distinguish changes of each contributer, and to re-pull other contributions. Additionally, it will create less problems when creating a pull request on github later. `git checkout -b branchname` will create a new branch with the name `branchname`, based on the previously used branch. Consider using a branch name that on the one hand is a good label for your contribution, but on the other hand clearly states that the branch contains work in progress that might also get rebased (@zoranzaric recommends the prefix `tmp`) - I'll come to the problems in a minute!
 
 3) Work on that branch
 ------------------
@@ -28,7 +28,7 @@ A [tutorial by John Metta](http://mettadore.com/analysis/a-simple-git-rebase-wor
 
 Before pushing the result to github or issuing a pull request, please check the project for syntax errors and test your code. Even if the rebase algorithm should not introduce errors, they can occur every now and then...
 
-`git push` might give you errors now. This is a security mechanism by git: the local changes you pushed the last time differ from the stuff that your local repository now contains, as rebasing rewrites the commit log and the ancestors. The last pushed commit is not the same as the last that now resides in your repository. Each commit knows about its ancestor, but rebasing somehow is like cheating as you smuggle in new commits in the middle of your history. The server cannot handle a `push` while it sees a commit on the top that does not exist in the local version you want to push. `git push --force` will solve this problem by just pushing your version and overriding everything that is on the server.
+`git push` might give you errors now. This is a security mechanism by git: the local changes you pushed the last time differ from the stuff that your local repository now contains, as rebasing rewrites the commit log and the ancestors. The last pushed commit is not the same as the last that now resides in your repository. Each commit knows about its ancestor, but rebasing somehow is like cheating as you smuggle in new commits in the middle of your history. The server cannot handle a `push` while it sees a commit on the top that does not exist in the local version you want to push. `git push --force` will solve this problem by just pushing your version and overriding everything that is on the server. This is also the reason that you want to mark your branch specifically: if someone else used your branch in the meantime for his own work and updates his copy now, he gets into the same trouble as his local copy has a different history than the one pulled from a server...
 
 5) Pull request
 ------------------
