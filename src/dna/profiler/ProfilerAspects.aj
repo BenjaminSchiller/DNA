@@ -24,14 +24,12 @@ public aspect ProfilerAspects {
 	private static Stack<String> formerCountKey = new Stack<>(); 
 	private String currentCountKey;
 
-	private long currentBatchTimestamp;
-	
 	private String batchGeneratorName;
 	public static final String initialAddition = Config.get("PROFILER_INITIALBATCH_KEYADDITION");
 
 	pointcut seriesSingleRunGeneration(Series s, int run) : execution(* SeriesGeneration.generateRun(Series, int, ..)) && args(s, run, ..);
 	pointcut startInitialBatchGeneration(Series s) : execution(* SeriesGeneration.generateInitialData(Series)) && args(s);
-	pointcut startNewBatchGeneration(Series s, long timestamp) : execution(* SeriesGeneration.generateNextBatch(Series, long)) && args(s, timestamp);
+	pointcut startNewBatchGeneration(Series s) : execution(* SeriesGeneration.generateNextBatch(Series)) && args(s);
 	pointcut seriesGeneration() : execution(* SeriesGeneration.generate(..));
 	
 	pointcut graphGeneration(IGraphGenerator graphGenerator) : execution(* IGraphGenerator+.generate()) && target(graphGenerator);
@@ -67,7 +65,7 @@ public aspect ProfilerAspects {
 	before(Series s, int run) : seriesSingleRunGeneration(s, run) {
 		Profiler.setSeriesDir(s.getDir());
 		Profiler.startRun(run);
-		Profiler.startBatch(0);
+		Profiler.startBatch();
 	}
 	
 	after(Series s, int run) : seriesSingleRunGeneration(s, run) {
@@ -78,12 +76,12 @@ public aspect ProfilerAspects {
 		Profiler.finishBatch(0);
 	}
 	
-	before(Series s, long timestamp) : startNewBatchGeneration(s, timestamp) {
-		this.currentBatchTimestamp = timestamp;
-		Profiler.startBatch(currentBatchTimestamp);
+	before(Series s) : startNewBatchGeneration(s) {
+		Profiler.startBatch();
 	}
 	
-	after(Series s, long timestamp) : startNewBatchGeneration(s, timestamp) {
+	after(Series s) : startNewBatchGeneration(s) {
+		long currentBatchTimestamp = s.getGraph().getTimestamp();
 		Profiler.finishBatch(currentBatchTimestamp);
 	}
 	

@@ -33,7 +33,7 @@ public class Profiler {
 	private static boolean inInitialBatch = false;
 	private static GraphDataStructure gds;
 
-	private static String seriesDir, batchDir;
+	private static String seriesDir;
 	private static String graphGeneratorName;
 	private static int run;
 	private static HashSet<String> batchGeneratorNames = new HashSet<>();
@@ -72,8 +72,7 @@ public class Profiler {
 		singleRunCalls = new HashMap<>();
 	}
 
-	public static void startBatch(long batchCounter) {
-		batchDir = Dir.getBatchDataDir(seriesDir, run, batchCounter);
+	public static void startBatch() {
 		singleBatchCalls = new HashMap<>();
 	}
 
@@ -95,7 +94,7 @@ public class Profiler {
 
 		if (!active || globalCalls.isEmpty())
 			return;
-		
+
 		boolean enableCompleteRecommendations = Config
 				.getBoolean("PROFILER_ENABLE_COMPLETE_RECOMMENDATIONS");
 
@@ -127,8 +126,8 @@ public class Profiler {
 			String prefixFilter, boolean showRecommendations) {
 
 		boolean enableCompleteRecommendations = Config
-				.getBoolean("PROFILER_ENABLE_COMPLETE_RECOMMENDATIONS");		
-		
+				.getBoolean("PROFILER_ENABLE_COMPLETE_RECOMMENDATIONS");
+
 		StringBuilder res = new StringBuilder();
 		String prefix;
 		ProfileEntry aggregated = new ProfileEntry();
@@ -186,8 +185,8 @@ public class Profiler {
 		res.append(outputPrefix + "  Recommendations:");
 
 		boolean disableAllRecommendations = Config
-				.getBoolean("PROFILER_DISABLE_ALL_RECOMMENDATIONS");		
-		
+				.getBoolean("PROFILER_DISABLE_ALL_RECOMMENDATIONS");
+
 		if (disableAllRecommendations) {
 			res.append(" disabled using PROFILER_DISABLE_ALL_RECOMMENDATIONS"
 					+ separator);
@@ -218,7 +217,7 @@ public class Profiler {
 		}
 
 		ArrayList<EnumMap<ListType, Class<? extends IDataStructure>>> allCombinations;
-		
+
 		if (Config.getBoolean("PROFILER_USE_SIMPLE_LIST_FOR_RECOMMENDATIONS"))
 			allCombinations = GraphDataStructure
 					.getSimpleDatastructureCombinations();
@@ -449,7 +448,7 @@ public class Profiler {
 	public static void writeMetric(String metricKey, String dir)
 			throws IOException {
 		boolean enableCompleteRecommendations = Config
-				.getBoolean("PROFILER_ENABLE_COMPLETE_RECOMMENDATIONS");		
+				.getBoolean("PROFILER_ENABLE_COMPLETE_RECOMMENDATIONS");
 		Profiler.writeSingle(singleBatchCalls, metricKey, dir,
 				Files.getProfilerFilename(Config.get("METRIC_PROFILER")),
 				enableCompleteRecommendations);
@@ -470,8 +469,8 @@ public class Profiler {
 		}
 
 		boolean enableCompleteRecommendations = Config
-				.getBoolean("PROFILER_ENABLE_COMPLETE_RECOMMENDATIONS");		
-		
+				.getBoolean("PROFILER_ENABLE_COMPLETE_RECOMMENDATIONS");
+
 		w.writeln(getOutputDataForProfileEntry(aggregated, "aggregated", true,
 				writeRecommendations || enableCompleteRecommendations));
 		w.close();
@@ -493,7 +492,7 @@ public class Profiler {
 
 		boolean enableCompleteRecommendations = Config
 				.getBoolean("PROFILER_ENABLE_COMPLETE_RECOMMENDATIONS");
-		
+
 		for (String singleKey : keys) {
 			// Are we still in the initial batch? Then add the specific key to
 			// the
@@ -518,9 +517,9 @@ public class Profiler {
 			return;
 
 		globalCalls = merge(globalCalls, singleSeriesCalls);
-		
+
 		boolean enableCompleteRecommendations = Config
-				.getBoolean("PROFILER_ENABLE_COMPLETE_RECOMMENDATIONS");		
+				.getBoolean("PROFILER_ENABLE_COMPLETE_RECOMMENDATIONS");
 
 		try {
 			Profiler.write(singleSeriesCalls, seriesDir, Files
@@ -548,9 +547,9 @@ public class Profiler {
 	public static void finishRun() {
 		if (!active)
 			return;
-		
+
 		boolean enableCompleteRecommendations = Config
-				.getBoolean("PROFILER_ENABLE_COMPLETE_RECOMMENDATIONS");		
+				.getBoolean("PROFILER_ENABLE_COMPLETE_RECOMMENDATIONS");
 
 		singleSeriesCalls = merge(singleSeriesCalls, singleRunCalls);
 
@@ -587,6 +586,7 @@ public class Profiler {
 		if (!active)
 			return;
 
+		String batchDir = Dir.getBatchDataDir(seriesDir, run, batchTimestamp);
 		singleRunCalls = merge(singleRunCalls, singleBatchCalls);
 
 		try {
