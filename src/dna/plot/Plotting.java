@@ -548,7 +548,7 @@ public class Plotting {
 	private static void plotValue(SeriesData[] seriesData, String dstDir,
 			PlotType type, PlotStyle style, String metric, String value)
 			throws IOException, InterruptedException {
-		PlotData[] data = new PlotData[seriesData.length];
+
 		int index1 = 0;
 		String m = metric == null ? Config.get("PREFIX_STATS_PLOT") : metric;
 
@@ -572,7 +572,7 @@ public class Plotting {
 			String filename = PlotFilenames.getValuesDataFile(m, value, index1);
 			String path = dstDir + "." + index1 + "." + filename;
 
-			data[index1] = PlotData.get(path, style, s.getName(), type);
+			PlotData[] data = { PlotData.get(path, style, s.getName(), type) };
 
 			// generate plot script and execute it
 			Plot plot = new Plot(data, dstDir, PlotFilenames.getValuesPlot(m,
