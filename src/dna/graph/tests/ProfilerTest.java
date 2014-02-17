@@ -28,6 +28,7 @@ import dna.graph.datastructures.INodeListDatastructure;
 import dna.graph.edges.DirectedEdge;
 import dna.graph.edges.Edge;
 import dna.graph.edges.UndirectedEdge;
+import dna.graph.generators.GraphGenerator;
 import dna.graph.nodes.DirectedNode;
 import dna.graph.nodes.Node;
 import dna.graph.nodes.UndirectedNode;
@@ -42,6 +43,7 @@ import dna.series.data.Value;
 import dna.updates.batch.Batch;
 import dna.updates.update.Update;
 import dna.util.Config;
+import dna.util.parameters.Parameter;
 
 @RunWith(Parameterized.class)
 public class ProfilerTest {
@@ -62,41 +64,54 @@ public class ProfilerTest {
 		this.gds.setEdgeType(edgeType);
 		this.graph = gds.newGraphInstance("ABC", 1L, 10, 10);
 		this.applicationType = applicationType;
-		Profiler.activate();
+	}
 
-		this.graph = generateGraph();
+	private class ProfilerTestGraphGenerator extends GraphGenerator {
+
+		public ProfilerTestGraphGenerator(String name, Parameter[] params,
+				GraphDataStructure gds, long timestampInit, int nodesInit,
+				int edgesInit) {
+			super(name, params, gds, timestampInit, nodesInit, edgesInit);
+		}
+
+		@Override
+		public Graph generate() {
+			Graph g = new Graph(this.getName(), 1, this.gds);
+
+			Node n1 = gds.newNodeInstance(1);
+			Node n2 = gds.newNodeInstance(2);
+			g.addNode(n1);
+			g.addNode(n2);
+
+			Edge e = gds.newEdgeInstance(n1, n2);
+			e.connectToNodes();
+			g.addEdge(e);
+
+			e = gds.newEdgeInstance(n2, n1);
+			e.connectToNodes();
+			g.addEdge(e);
+
+			return g;
+		}
+
+	}
+
+	@Before
+	public void resetProfiler() {
+		Profiler.activate();
+		Profiler.startRun(0);
+		Profiler.startBatch();
+
+		GraphGenerator g = new ProfilerTestGraphGenerator("testGraph", null,
+				gds, 0, 2, 2);
+		this.graph = g.generate();
+
 		metric = new TestMetric("test", this.applicationType,
 				MetricType.unknown);
 		metric.setGraph(graph);
 		this.metricKey = metric.getName();
 		if (applicationType != ApplicationType.Recomputation)
 			metricKey += Config.get("PROFILER_INITIALBATCH_KEYADDITION");
-	}
-
-	private Graph generateGraph() {
-		Graph g = new Graph("test", 1, this.gds);
-
-		Node n1 = gds.newNodeInstance(1);
-		Node n2 = gds.newNodeInstance(2);
-		g.addNode(n1);
-		g.addNode(n2);
-
-		Edge e = gds.newEdgeInstance(n1, n2);
-		e.connectToNodes();
-		g.addEdge(e);
-
-		if (g.isDirected()) {
-			e = gds.newEdgeInstance(n2, n1);
-			e.connectToNodes();
-			g.addEdge(e);
-		}
-
-		return g;
-	}
-
-	@Before
-	public void resetProfiler() {
-		Profiler.startBatch();
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
@@ -289,6 +304,26 @@ public class ProfilerTest {
 		metric.compute();
 		assertEquals(2, Profiler.getCount(metricKey, ListType.GlobalEdgeList,
 				AccessType.Iterator));
+	}
+
+	@Test
+	public void testMeanSizesAreCalculatedProperly() {
+		assertEquals(2, Profiler.getMeanSize(ListType.GlobalNodeList), 0.1);
+		assertEquals(2, Profiler.getMeanSize(ListType.GlobalEdgeList), 0.1);
+
+		if (graph.isDirected()) {
+			assertEquals(1, Profiler.getMeanSize(ListType.LocalNodeList), 0.1);
+			assertEquals(0, Profiler.getMeanSize(ListType.LocalEdgeList), 0.1);
+			assertEquals(1, Profiler.getMeanSize(ListType.LocalInEdgeList), 0.1);
+			assertEquals(1, Profiler.getMeanSize(ListType.LocalOutEdgeList),
+					0.1);
+		} else {
+			assertEquals(0, Profiler.getMeanSize(ListType.LocalNodeList), 0.1);
+			assertEquals(1, Profiler.getMeanSize(ListType.LocalEdgeList), 0.1);
+			assertEquals(0, Profiler.getMeanSize(ListType.LocalInEdgeList), 0.1);
+			assertEquals(0, Profiler.getMeanSize(ListType.LocalOutEdgeList),
+					0.1);
+		}
 	}
 
 	private class TestMetric extends Metric {

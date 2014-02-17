@@ -29,7 +29,7 @@ public class DHashTable extends DataStructureReadable implements
 	}
 
 	@Override
-	public void init(Class<? extends IElement> dT, int initialSize) {
+	public void init(Class<? extends IElement> dT, int initialSize, boolean firstTime) {
 		this.list = new Hashtable<String, IElement>(initialSize);
 		this.maxNodeIndex = -1;
 	}

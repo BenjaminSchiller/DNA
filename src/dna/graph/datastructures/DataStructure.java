@@ -85,11 +85,11 @@ public abstract class DataStructure implements IDataStructure {
 	public DataStructure(ListType lt, Class<? extends IElement> dT) {
 		this.listType = lt;
 		dataType = dT;
-		this.init(dT, defaultSize);
+		this.init(dT, defaultSize, true);
 	}
 
 	public void reinitializeWithSize(int reinitSize) {
-		this.init(this.dataType, reinitSize);
+		this.init(this.dataType, reinitSize, false);
 	}
 
 	public boolean canAdd(IElement element) {

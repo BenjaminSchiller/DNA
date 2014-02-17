@@ -24,7 +24,7 @@ public class DLinkedList extends DataStructureReadable implements
 		super(lt, dT);
 	}
 
-	public void init(Class<? extends IElement> dT, int initialSize) {
+	public void init(Class<? extends IElement> dT, int initialSize, boolean firstTime) {
 		this.list = new LinkedList<IElement>();
 		this.maxNodeIndex = -1;
 	}

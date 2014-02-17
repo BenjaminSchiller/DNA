@@ -19,7 +19,7 @@ public class DEmpty extends DataStructureReadable implements
 	}
 
 	@Override
-	public void init(Class<? extends IElement> dataType, int initialSize) {
+	public void init(Class<? extends IElement> dataType, int initialSize, boolean firstTime) {
 	}
 
 	@Override

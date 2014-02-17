@@ -24,7 +24,7 @@ public class DArrayList extends DataStructureReadable implements
 		super(lt, dT);
 	}
 
-	public void init(Class<? extends IElement> dT, int initialSize) {
+	public void init(Class<? extends IElement> dT, int initialSize, boolean firstTime) {
 		this.list = new ArrayList<>(initialSize);
 		this.maxNodeIndex = -1;
 	}

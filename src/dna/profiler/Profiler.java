@@ -10,6 +10,7 @@ import java.util.Map.Entry;
 import java.util.TreeMap;
 
 import dna.graph.datastructures.DEmpty;
+import dna.graph.datastructures.DataStructure;
 import dna.graph.datastructures.DataStructure.AccessType;
 import dna.graph.datastructures.DataStructure.ListType;
 import dna.graph.datastructures.GraphDataStructure;
@@ -29,6 +30,9 @@ public class Profiler {
 	private static Map<String, ProfileEntry> singleSeriesCalls = new HashMap<>();
 	private static Map<String, ProfileEntry> globalCalls = new HashMap<>();
 
+	private static EnumMap<DataStructure.ListType, Integer> generatedListsCounter;
+	private static EnumMap<DataStructure.ListType, Integer> listSizeCounter;
+	
 	private static boolean active = false;
 	private static boolean inInitialBatch = false;
 	private static GraphDataStructure gds;
@@ -70,6 +74,16 @@ public class Profiler {
 	public static void startRun(int newRun) {
 		run = newRun;
 		singleRunCalls = new HashMap<>();
+		
+		 generatedListsCounter = new EnumMap<DataStructure.ListType, Integer>(
+					DataStructure.ListType.class);
+		 listSizeCounter = new EnumMap<DataStructure.ListType, Integer>(
+					DataStructure.ListType.class);
+		 
+		 for ( ListType lt: ListType.values()) {
+			 generatedListsCounter.put(lt, 0);
+			 listSizeCounter.put(lt, 0);
+		 }
 	}
 
 	public static void startBatch() {
@@ -379,6 +393,27 @@ public class Profiler {
 
 		ProfileEntry innerMap = entryForKey(singleBatchCalls, mapKey, false);
 		innerMap.increase(lt, a, 1);
+		
+		switch (a) {
+		case Init:
+			generatedListsCounter.put(lt, generatedListsCounter.get(lt) + 1);
+			break;
+		case Add:
+			listSizeCounter.put(lt, listSizeCounter.get(lt) + 1);
+			break;
+		case Remove:
+			listSizeCounter.put(lt, listSizeCounter.get(lt) - 1);
+			break;
+		case Get:
+		case Iterator:
+		case Contains:
+		case Random:
+		case Size:
+			break;
+		default:
+			throw new RuntimeException("AccessType " + a
+					+ " needs a case statement here");
+		}
 	}
 
 	public static int getCount(String mapKey, ListType[] lt, AccessType at) {
@@ -635,5 +670,13 @@ public class Profiler {
 				e.printStackTrace();
 			}
 		}
+	}
+	
+	public static double getMeanSize(ListType lt) {
+		double numberOfLists = generatedListsCounter.get(lt);
+		if (numberOfLists == 0)
+			return 0;
+		double accumulatedNumberOfElements = listSizeCounter.get(lt);
+		return accumulatedNumberOfElements / numberOfLists;
 	}
 }

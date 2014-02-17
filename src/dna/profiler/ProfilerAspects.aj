@@ -53,7 +53,7 @@ public aspect ProfilerAspects {
 
 	pointcut initGDS(Graph g, GraphDataStructure gds) : this(g) && execution(Graph+.new(String,long, GraphDataStructure,..)) && args(*,*,gds,..);
 
-	pointcut init(DataStructure list) : call(* IDataStructure+.init(..)) && target(list) && watchedCall();
+	pointcut init(DataStructure list, boolean firstTime) : call(* IDataStructure+.init(Class, int, boolean)) && target(list) && args(*,*, firstTime) && watchedCall();
 	pointcut add(DataStructure list) : call(* IDataStructure+.add(..)) && target(list) && watchedCall();
 	pointcut remove(DataStructure list) : call(* IDataStructure+.remove(..)) && target(list) && watchedCall();
 	pointcut contains(DataStructure list) : call(* IDataStructure+.contains(..)) && target(list) && watchedCall();
@@ -148,8 +148,9 @@ public aspect ProfilerAspects {
 		Profiler.init(gds);
 	}
 
-	after(DataStructure list): init(list) {
-		Profiler.count(this.currentCountKey, list.listType, AccessType.Init);
+	after(DataStructure list, boolean firstTime): init(list, firstTime) {
+		if (firstTime)
+			Profiler.count(this.currentCountKey, list.listType, AccessType.Init);
 	}
 	
 	after(DataStructure list): add(list) {
