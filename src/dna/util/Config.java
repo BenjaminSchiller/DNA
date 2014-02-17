@@ -18,8 +18,10 @@ public class Config {
 
 	private static HashMap<String, String> overwrite;
 
-	//
 	private static String defaultConfigFolder = "config/";
+
+	// private static String defaultConfigFolder =
+	// "C:\\Users\\Jan\\git\\DNA\\config\\";
 
 	public static String get(String key) {
 		String temp = null;

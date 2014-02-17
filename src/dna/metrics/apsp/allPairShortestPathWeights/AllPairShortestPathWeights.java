@@ -204,20 +204,6 @@ public abstract class AllPairShortestPathWeights extends Metric {
 							+ " in Tree " + n1 + " expected "
 							+ this.heights.get(n1).get(n2) + " is "
 							+ apsp.heights.get(n1).get(n2));
-					if (n1.getIndex() == 93 && n2.getIndex() == 90) {
-						System.out.println("parent from "
-								+ n1
-								+ " is "
-								+ parents.get(n1).get(n2)
-								+ " and "
-								+ apsp.parents.get(n1).get(n2)
-								+ " heights "
-								+ this.heights.get(n1).get(
-										parents.get(n1).get(n2))
-								+ " "
-								+ apsp.heights.get(n1).get(
-										parents.get(n1).get(n2)));
-					}
 				}
 			}
 

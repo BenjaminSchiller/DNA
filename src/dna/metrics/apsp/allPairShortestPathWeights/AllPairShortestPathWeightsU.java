@@ -94,7 +94,6 @@ public class AllPairShortestPathWeightsU extends AllPairShortestPathWeights {
 
 			UndirectedNode src;
 			UndirectedNode dst;
-
 			if (height.get(n1) > height.get(n2)) {
 				src = n2;
 				dst = n1;
@@ -103,7 +102,12 @@ public class AllPairShortestPathWeightsU extends AllPairShortestPathWeights {
 				dst = n2;
 			}
 
-			if (height.get(src) + e.getWeight() >= height.get(dst)
+			if (!parent.containsKey(dst)
+					|| height.get(src) + e.getWeight() == height.get(dst)) {
+				continue;
+			}
+
+			if (height.get(src) + e.getWeight() > height.get(dst)
 					|| height.get(src) + e.getWeight() < 0) {
 				if (parent.get(dst).equals(src)) {
 					undirectedDelete(s, e);
@@ -127,7 +131,12 @@ public class AllPairShortestPathWeightsU extends AllPairShortestPathWeights {
 
 			DirectedNode src = e.getSrc();
 			DirectedNode dst = e.getDst();
-			if (height.get(src) + e.getWeight() >= height.get(dst)
+
+			if (height.get(src) + e.getWeight() == height.get(dst)) {
+				continue;
+			}
+
+			if (height.get(src) + e.getWeight() > height.get(dst)
 					|| height.get(src) + e.getWeight() < 0) {
 				if (parent.containsKey(dst) && parent.get(dst).equals(src)) {
 					directedDelete(s, e);
@@ -158,6 +167,7 @@ public class AllPairShortestPathWeightsU extends AllPairShortestPathWeights {
 		HashMap<Node, Integer> height = this.heights.get(r);
 		DirectedNode src = e.getSrc();
 		DirectedNode dst = e.getDst();
+
 		// if the source or dst or edge is not in tree do nothing
 		if (height.get(src) == Integer.MAX_VALUE
 				|| height.get(dst) == Integer.MAX_VALUE || dst.equals(r)
@@ -180,7 +190,7 @@ public class AllPairShortestPathWeightsU extends AllPairShortestPathWeights {
 			QueueElement<DirectedNode> qE = q.poll();
 			DirectedNode w = qE.e;
 
-			int key = ((Integer) qE.distance);
+			int key = qE.distance;
 
 			// find the new shortest path
 			int dist = Integer.MAX_VALUE;
@@ -211,12 +221,13 @@ public class AllPairShortestPathWeightsU extends AllPairShortestPathWeights {
 				}
 			}
 
-			boolean noPossibleNeighbour = (key >= 10000d && dist > 10000d)
+			boolean noPossibleNeighbour = (key >= breakLoop && dist > breakLoop)
 					|| (min.isEmpty() && (!uncertain.contains(w) || (key == dist)));
 
 			// no neighbour found
 			if (noPossibleNeighbour) {
-				dists.decr(height.get(w));
+				if (height.get(w) != Integer.MAX_VALUE)
+					dists.decr(height.get(w));
 				height.put(w, Integer.MAX_VALUE);
 				parent.remove(w);
 				continue;
@@ -234,6 +245,7 @@ public class AllPairShortestPathWeightsU extends AllPairShortestPathWeights {
 					height.put(w, dist);
 					for (IElement iEgde : w.getOutgoingEdges()) {
 						DirectedIntWeightedEdge edge = (DirectedIntWeightedEdge) iEgde;
+
 						DirectedNode z = edge.getDst();
 
 						if (height.get(z) > dist + edge.getWeight()) {
@@ -251,7 +263,9 @@ public class AllPairShortestPathWeightsU extends AllPairShortestPathWeights {
 					uncertain.remove(w);
 					for (IElement iEgde : w.getOutgoingEdges()) {
 						DirectedEdge edge = (DirectedEdge) iEgde;
+
 						DirectedNode z = edge.getDst();
+
 						if (parent.get(z) == w) {
 							parent.remove(z);
 							uncertain.add(z);
@@ -273,6 +287,7 @@ public class AllPairShortestPathWeightsU extends AllPairShortestPathWeights {
 			} else {
 				parent.put(w, minSettled.get(0));
 			}
+
 			changed.remove(w);
 			if (height.get(w) != Integer.MAX_VALUE)
 				dists.decr(height.get(w));
@@ -280,6 +295,7 @@ public class AllPairShortestPathWeightsU extends AllPairShortestPathWeights {
 			height.put(w, dist);
 			for (IElement iEgde : w.getOutgoingEdges()) {
 				DirectedIntWeightedEdge edge = (DirectedIntWeightedEdge) iEgde;
+
 				DirectedNode z = edge.getDst();
 
 				if (height.get(z) > dist + edge.getWeight()) {
@@ -292,6 +308,8 @@ public class AllPairShortestPathWeightsU extends AllPairShortestPathWeights {
 			}
 		}
 	}
+
+	private int breakLoop = 10000;
 
 	private boolean applyAfterUndirectedEdgeRemoval(Update u) {
 		UndirectedEdge e = (UndirectedEdge) ((EdgeRemoval) u).getEdge();
@@ -352,8 +370,7 @@ public class AllPairShortestPathWeightsU extends AllPairShortestPathWeights {
 			for (IElement iEdge : w.getEdges()) {
 				UndirectedIntWeightedEdge edge = (UndirectedIntWeightedEdge) iEdge;
 				Node z = edge.getDifferingNode(w);
-				if (parent.get(w) == z || changed.contains(z)
-						|| height.get(z) == Integer.MAX_VALUE) {
+				if (changed.contains(z) || height.get(z) == Integer.MAX_VALUE) {
 					continue;
 				}
 				if (height.get(z) + edge.getWeight() < dist) {
@@ -362,7 +379,7 @@ public class AllPairShortestPathWeightsU extends AllPairShortestPathWeights {
 					min.add(z);
 					if (!uncertain.contains(z))
 						minSettled.add(z);
-					dist = height.get(z) + 1;
+					dist = height.get(z) + edge.getWeight();
 					continue;
 				}
 				if (height.get(z) + edge.getWeight() == dist) {
@@ -372,13 +389,13 @@ public class AllPairShortestPathWeightsU extends AllPairShortestPathWeights {
 					continue;
 				}
 			}
-			boolean noPossibleNeighbour = (key >= g.getNodeCount() && dist > g
-					.getNodeCount())
+			boolean noPossibleNeighbour = (key >= breakLoop && dist > breakLoop)
 					|| (min.isEmpty() && (!uncertain.contains(w) || (key == dist)));
 
 			// no neighbour found
 			if (noPossibleNeighbour) {
-				dists.decr(height.get(w));
+				if (height.get(w) != Integer.MAX_VALUE)
+					dists.decr(height.get(w));
 				height.put(w, Integer.MAX_VALUE);
 				parent.remove(w);
 				continue;
@@ -397,7 +414,7 @@ public class AllPairShortestPathWeightsU extends AllPairShortestPathWeights {
 					for (IElement iEdge : w.getEdges()) {
 						UndirectedIntWeightedEdge ed = (UndirectedIntWeightedEdge) iEdge;
 						Node z = ed.getDifferingNode(w);
-						if (height.get(z) > dist + 1) {
+						if (height.get(z) > dist + ed.getWeight()) {
 							q.remove(new QueueElement<Node>(z, dist
 									+ ed.getWeight()));
 							q.add(new QueueElement<Node>(z, dist
@@ -438,7 +455,7 @@ public class AllPairShortestPathWeightsU extends AllPairShortestPathWeights {
 			for (IElement iEdge : w.getEdges()) {
 				UndirectedIntWeightedEdge ed = (UndirectedIntWeightedEdge) iEdge;
 				Node z = ed.getDifferingNode(w);
-				if (height.get(z) > dist + 1) {
+				if (height.get(z) > dist + ed.getWeight()) {
 					q.remove(new QueueElement<Node>(z, dist + ed.getWeight()));
 					q.add(new QueueElement<Node>(z, dist + ed.getWeight()));
 				}
