@@ -13,7 +13,6 @@ import java.util.Collection;
 import java.util.EnumMap;
 
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -85,6 +84,12 @@ public class ProfilerTest {
 		Edge e = gds.newEdgeInstance(n1, n2);
 		e.connectToNodes();
 		g.addEdge(e);
+
+		if (g.isDirected()) {
+			e = gds.newEdgeInstance(n2, n1);
+			e.connectToNodes();
+			g.addEdge(e);
+		}
 
 		return g;
 	}
@@ -158,10 +163,6 @@ public class ProfilerTest {
 				AccessType.Contains));
 	}
 
-	/**
-	 * This needs to be fixed by Benni!
-	 */
-	@Ignore
 	@Test
 	public void testContainsNodeLocalIsCountedInMetric() {
 		assumeTrue(graph.isDirected());
@@ -169,7 +170,7 @@ public class ProfilerTest {
 		assertEquals(0, Profiler.getCount(metricKey, ListType.LocalNodeList,
 				AccessType.Contains));
 		metric.compute();
-		assertEquals(1, Profiler.getCount(metricKey, ListType.LocalNodeList,
+		assertEquals(2, Profiler.getCount(metricKey, ListType.LocalNodeList,
 				AccessType.Contains));
 	}
 
