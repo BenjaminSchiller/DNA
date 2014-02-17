@@ -134,7 +134,8 @@ public class AllPairShortestPathU extends AllPairShortestPath {
 
 				// no neighbour found
 				if (noPossibleNeighbour) {
-					dists.decr(height.get(w));
+					if (height.get(w) != Integer.MAX_VALUE)
+						dists.decr(height.get(w));
 					sum -= height.get(w);
 					height.put(w, Integer.MAX_VALUE);
 					parent.remove(w);
@@ -272,7 +273,8 @@ public class AllPairShortestPathU extends AllPairShortestPath {
 
 				// no neighbour found
 				if (noPossibleNeighbour) {
-					dists.decr(height.get(w));
+					if (height.get(w) != Integer.MAX_VALUE)
+						dists.decr(height.get(w));
 					height.put(w, Integer.MAX_VALUE);
 					sum -= height.get(w);
 					parent.remove(w);

@@ -120,9 +120,9 @@ public class Weights {
 		case Zero:
 			return 0;
 		case RandPos100:
-			return Rand.rand.nextInt(100);
+			return Rand.rand.nextInt(100) + 1;
 		case RandPos10:
-			return Rand.rand.nextInt(10);
+			return Rand.rand.nextInt(10) + 1;
 		default:
 			return Integer.MIN_VALUE;
 		}
