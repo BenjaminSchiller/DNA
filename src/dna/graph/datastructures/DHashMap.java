@@ -57,8 +57,8 @@ public class DHashMap extends DataStructureReadable implements
 	public boolean add(Edge element) {
 		super.canAdd(element);
 
-		if (!this.list.containsKey(Integer.toString(element.hashCode()))) {
-			this.list.put(Integer.toString(element.hashCode()), element);
+		if (!this.list.containsKey(element.toString())) {
+			this.list.put(element.toString(), element);
 			return true;
 		}
 		return false;
@@ -81,7 +81,7 @@ public class DHashMap extends DataStructureReadable implements
 
 	@Override
 	public boolean contains(Edge element) {
-		return list.containsKey(Integer.toString(element.hashCode()));
+		return list.containsKey(element.toString());
 	}
 
 	@Override
@@ -111,7 +111,7 @@ public class DHashMap extends DataStructureReadable implements
 
 	@Override
 	public boolean remove(Edge element) {
-		if (this.list.remove(Integer.toString(element.hashCode())) == null) {
+		if (this.list.remove(element.toString()) == null) {
 			return false;
 		}
 		return true;
@@ -152,7 +152,7 @@ public class DHashMap extends DataStructureReadable implements
 
 	@Override
 	public Edge get(Edge element) {
-		return (Edge) this.list.get(Integer.toString(element.hashCode()));
+		return (Edge) this.list.get(element.toString());
 	}
 
 	@Override

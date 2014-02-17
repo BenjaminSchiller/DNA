@@ -17,6 +17,9 @@ public class Config extends PropertiesHolder {
 
 	private static String defaultConfigFolder = "config/";
 
+	// private static String defaultConfigFolder =
+	// "C:\\Users\\Jan\\git\\DNA\\config\\";
+
 	public static String get(String key) {
 		String temp = null;
 		if (overwrite != null && (temp = overwrite.get(key)) != null) {

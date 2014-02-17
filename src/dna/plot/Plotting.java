@@ -106,8 +106,8 @@ public class Plotting {
 		Plotting.plotValues(seriesData, dstDir, type, style);
 		Plotting.plotStatistics(seriesData, dstDir, type, style);
 		Plotting.plotRuntimes(seriesData, dstDir, type, style);
-		Plotting.plotNodeValueLists(seriesData, dstDir, type, style, sortBy,
-				sortOrder);
+		// Plotting.plotNodeValueLists(seriesData, dstDir, type, style, sortBy,
+		// sortOrder);
 	}
 
 	/**
