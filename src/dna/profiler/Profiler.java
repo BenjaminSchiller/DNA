@@ -243,20 +243,22 @@ public class Profiler {
 			skipThisEntry = false;
 
 			for (ListType lt : singleCombination.keySet()) {
-				if (isCombinedOutputForAllAccessTypes) {
-					/**
-					 * Check here whether the current list type has any
-					 * read-access during *metrics*. If the currently used
-					 * metrics use no read-access to this list type, we can
-					 * switch it to DEmpty
-					 */
-					if (canDEmptyBeUsedForListInCurrentBatch(lt)
-							&& (singleCombination.get(lt) != DEmpty.class)) {
+				if (!skipThisEntry) {
+					if (isCombinedOutputForAllAccessTypes) {
+						/**
+						 * Check here whether the current list type has any
+						 * read-access during *metrics*. If the currently used
+						 * metrics use no read-access to this list type, we can
+						 * switch it to DEmpty
+						 */
+						if (canDEmptyBeUsedForListInCurrentBatch(lt)
+								&& (singleCombination.get(lt) != DEmpty.class)) {
+							skipThisEntry = true;
+						}
+					} else if (entry.hasReadAccessesInList(lt)
+							&& singleCombination.get(lt) == DEmpty.class) {
 						skipThisEntry = true;
 					}
-				} else if (entry.hasReadAccessesInList(lt)
-						&& singleCombination.get(lt) == DEmpty.class) {
-					skipThisEntry = true;
 				}
 			}
 
