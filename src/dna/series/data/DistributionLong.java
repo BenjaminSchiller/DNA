@@ -39,6 +39,12 @@ public class DistributionLong extends Distribution {
 		this.denominator = denominator;
 	}
 
+	public DistributionLong(String name) {
+		super(name);
+		this.values = new long[0];
+		this.denominator = 0;
+	}
+
 	public DistributionLong(String name, long[] values, long denominator,
 			long sum, long min, long max, long med, double avg) {
 		super(name);
@@ -236,6 +242,14 @@ public class DistributionLong extends Distribution {
 		if (d1.getDenominator() != d2.getDenominator())
 			return false;
 		return ArrayUtils.equals(d1.getLongValues(), d2.getLongValues());
+	}
+
+	public double computeAverage() {
+		double avg = 0;
+		for (int i = 0; i < this.values.length; i++) {
+			avg += i * this.values[i];
+		}
+		return avg / this.denominator;
 	}
 
 }
