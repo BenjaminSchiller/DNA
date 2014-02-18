@@ -1,4 +1,4 @@
-package dna.metrics.apsp.allPairShortestPath;
+package dna.metrics.apsp;
 
 import java.util.LinkedList;
 
@@ -11,10 +11,10 @@ import dna.graph.nodes.UndirectedNode;
 import dna.updates.batch.Batch;
 import dna.updates.update.Update;
 
-public class AllPairShortestPathR extends AllPairShortestPath {
+public class UnweightedAllPairsShortestPathsR extends UnweightedAllPairsShortestPaths {
 
-	public AllPairShortestPathR() {
-		super("AllPairShortestPathR", ApplicationType.Recomputation);
+	public UnweightedAllPairsShortestPathsR() {
+		super("UnweightedAllPairsShortestPathsR", ApplicationType.Recomputation);
 	}
 
 	@Override

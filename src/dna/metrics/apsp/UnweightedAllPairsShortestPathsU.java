@@ -1,4 +1,4 @@
-package dna.metrics.apsp.allPairShortestPath;
+package dna.metrics.apsp;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -14,7 +14,6 @@ import dna.graph.edges.UndirectedEdge;
 import dna.graph.nodes.DirectedNode;
 import dna.graph.nodes.Node;
 import dna.graph.nodes.UndirectedNode;
-import dna.metrics.apsp.QueueElement;
 import dna.updates.batch.Batch;
 import dna.updates.update.EdgeAddition;
 import dna.updates.update.EdgeRemoval;
@@ -22,7 +21,7 @@ import dna.updates.update.NodeAddition;
 import dna.updates.update.NodeRemoval;
 import dna.updates.update.Update;
 
-public class AllPairShortestPathU extends AllPairShortestPath {
+public class UnweightedAllPairsShortestPathsU extends UnweightedAllPairsShortestPaths {
 
 	// FIXME there seems to be a bug when edges are removed!!!
 
@@ -32,8 +31,8 @@ public class AllPairShortestPathU extends AllPairShortestPath {
 
 	protected int sum;
 
-	public AllPairShortestPathU() {
-		super("AllPairShortestPathU", ApplicationType.AfterUpdate);
+	public UnweightedAllPairsShortestPathsU() {
+		super("UnweightedAllPairsShortestPathsU", ApplicationType.AfterUpdate);
 	}
 
 	@Override

@@ -1,4 +1,4 @@
-package dna.metrics.apsp.allPairShortestPathWeights;
+package dna.metrics.apsp;
 
 import java.util.HashMap;
 import java.util.PriorityQueue;
@@ -9,14 +9,15 @@ import dna.graph.edges.UndirectedIntWeightedEdge;
 import dna.graph.nodes.DirectedNode;
 import dna.graph.nodes.Node;
 import dna.graph.nodes.UndirectedNode;
-import dna.metrics.apsp.QueueElement;
 import dna.updates.batch.Batch;
 import dna.updates.update.Update;
 
-public class AllPairShortestPathWeightsR extends AllPairShortestPathWeights {
+public class IntWeightedAllPairsShortestPathsR extends
+		IntWeightedAllPairsShortestPaths {
 
-	public AllPairShortestPathWeightsR() {
-		super("AllPairShortestPathWeightsR", ApplicationType.Recomputation);
+	public IntWeightedAllPairsShortestPathsR() {
+		super("IntWeightedAllPairsShortestPathsR",
+				ApplicationType.Recomputation);
 	}
 
 	@Override
