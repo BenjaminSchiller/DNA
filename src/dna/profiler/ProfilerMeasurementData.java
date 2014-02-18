@@ -2,9 +2,7 @@ package dna.profiler;
 
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.Properties;
-import java.util.Queue;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -56,7 +54,7 @@ public class ProfilerMeasurementData extends PropertiesHolder {
 				e.printStackTrace();
 			}
 		Complexity res = complexityData.get(key);
-		if ( res != null ) {
+		if (res != null) {
 			res = res.clone();
 		}
 		return res;
@@ -92,18 +90,7 @@ public class ProfilerMeasurementData extends PropertiesHolder {
 							.getBasicComplexity(t);
 					temp = new Complexity(counter, baseType);
 				} else {
-					// Seems to be a complex type - look it up!
-					temp = get(type);
-
-					if (temp == null) {
-						/**
-						 * Complex type that was not defined yet - we cannot
-						 * continue with this one, so return to sender
-						 */
-						return null;
-					}
-
-					temp.multiplyFactorBy(counter);
+					return null;
 				}
 
 				if (res == null) {
@@ -127,27 +114,12 @@ public class ProfilerMeasurementData extends PropertiesHolder {
 			complexityData = new HashMap<String, Complexity>();
 		}
 
-		int queuedParsings = 0;
-
-		/**
-		 * It might occur that we cannot parse a complexity entry on the first
-		 * try, eg. when it refers to a second one that is not parsed yet. Thats
-		 * what we use the todoList for: these entries will be queued for later
-		 * parsing
-		 */
-		Queue<String> todoList = new LinkedList<String>();
-		todoList.addAll(in.stringPropertyNames());
-		String key;
-		while ((key = todoList.poll()) != null) {
+		for (String key : in.stringPropertyNames()) {
 			String val = in.getProperty(key);
 			Complexity c = parseComplexityString(val);
 			if (c == null) {
-				todoList.add(key);
-				queuedParsings++;
-				if (queuedParsings > 2 * in.size()) {
-					throw new RuntimeException(
-							"Could not properly parse complexities - is there a loop?");
-				}
+				throw new RuntimeException(
+						"Could not properly parse complexity entry " + val);
 			} else {
 				complexityData.put(key, c);
 			}

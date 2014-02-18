@@ -56,32 +56,6 @@ public class ProfilerMeasurementDataTest {
 				c);
 	}
 
-	@Test
-	public void testParsingOfNestedType() {
-		Properties p = new Properties();
-		p.setProperty("Get", "1 Linear + 2 Contains");
-		p.setProperty("Remove", "2 Get + 1 Static");
-		p.setProperty("Contains", "2 Linear");
-		ProfilerMeasurementData.loadFromProperties(p);
-		Complexity c = ProfilerMeasurementData.get("Get");
-		c.setBase(ComplexityType.Base.Degree);
-
-		Complexity getComp = new AddedComplexity(new Complexity(1,
-				new ComplexityType(Type.Linear, Base.Degree)), new Complexity(
-				4, new ComplexityType(Type.Linear, Base.Degree)));
-		assertEquals(getComp, c);
-
-		c = ProfilerMeasurementData.get("Remove");
-		c.setBase(ComplexityType.Base.Degree);
-
-		Complexity removeComp = new AddedComplexity(
-				new AddedComplexity(new Complexity(2, new ComplexityType(
-						Type.Linear, Base.Degree)), new Complexity(8,
-						new ComplexityType(Type.Linear, Base.Degree))),
-				new Complexity(1, new ComplexityType(Type.Static, Base.Degree)));
-		assertEquals(removeComp, c);
-	}
-
 	@Test(expected = RuntimeException.class)
 	public void testParsingOfLoop() {
 		Properties p = new Properties();
