@@ -10,6 +10,7 @@ Commonly, multiple implementations of the same metric *MyMetric* exist.
 The most common differences are:
 
 - only applicable to *Directed* (Directed) or *Undirected* (Undirected) graphs or not restricted ()
+- only applicable to *Int Weighted* (IntWeighted) or *Double Weighted* (DoubleWeighted) nodes or edges (in case it is clear if nodes, edges, or both are weighted there is no need to specify, otherwise, use (IntWeightedNode) or (DoubleWeightedEdge) instead), (Unweighted) should be used to indicate that weights are not considered
 - complete *Re-computation* (R) after each batch or application of *Updates* (U)
 - computing *Exact* () results or applying a *Heuristic* (H) to approximate the values
 
@@ -17,22 +18,26 @@ It is recommended to implement an abstract Metric *MyMetric* that contains all d
 This metric should be names *MyMetric* and already implement all shared methods (mainly leaving out the actual computation / update / approximation of the desired results).
 The general naming convention for specific metric implementation is as follows:
 
-- *${Directed|Undirected|}$MetricName${R|U}${|H}*
+- *${Directed|Undirected|}${|Unweighted|IntWeighted|DoubleWeighted}$MetricName${R|U}${|H}*
 
 The components of a metric implementation's name (given name as well as class name) are therefore:
 
 1. restrictions to the graph type: *${Directed|Undirected|}*
+2. restrictions to the existance of weights: *${|IntWeighted|DoubleWeighted}*
 1. metric name *$MetricName*
 1. computation type *${R|U}*
 1. exact or heuristic *${|H}*
 
 Assuming a metric that is not restricted to a specific graph type as default, the first part of the name is left blank.
+Similarly, in case there are no restrictions on the weights and their type, the second parts is omitted as well.
 Similarly, an exact computation does not need to be further specified since this assumed as the default case.
 
 General examples are:
 
 - *MyMetricR* - exact re-computation of MyMetric for all graphs
 - *DirectedMyMetricU* - exact update application of MyMetric for directed graphs
+- *DirectedIntWeightedMyMetricR* - exact update application of MyMetric for directed graphs with int weights (for either nodes or edges)
+- - *UndirectedDoubleWeightedEdgeMyMetricR* - exact recomputation of MyMetric for undirected graphs with double weights for edges
 - *UndirectedMyMetricRH* - approximation of MyMetric using re-computation for undirected graphs
 
 Please note that in some cases UndirectedX does not neccessarily mean that this metric can ONLY be applied to undirected graphs.
