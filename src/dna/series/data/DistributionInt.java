@@ -260,4 +260,12 @@ public class DistributionInt extends Distribution {
 		return ArrayUtils.equals(d1.getIntValues(), d2.getIntValues());
 	}
 
+	public double computeAverage() {
+		double avg = 0;
+		for (int i = 0; i < this.values.length; i++) {
+			avg += i * this.values[i];
+		}
+		return avg / this.denominator;
+	}
+
 }

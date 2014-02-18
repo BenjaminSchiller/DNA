@@ -3,7 +3,9 @@ package dna.metrics.apsp.allPairShortestPath;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.PriorityQueue;
+import java.util.Queue;
 
 import dna.graph.IElement;
 import dna.graph.edges.DirectedEdge;
@@ -22,9 +24,32 @@ import dna.updates.update.Update;
 
 public class AllPairShortestPathU extends AllPairShortestPath {
 
+	// FIXME there seems to be a bug when edges are removed!!!
+
+	protected HashMap<Node, HashMap<Node, Node>> parents;
+
+	protected HashMap<Node, HashMap<Node, Integer>> heights;
+
+	protected int sum;
+
 	public AllPairShortestPathU() {
 		super("AllPairShortestPathU", ApplicationType.AfterUpdate);
+	}
 
+	@Override
+	public void init_() {
+		super.init_();
+		this.parents = new HashMap<Node, HashMap<Node, Node>>();
+		this.heights = new HashMap<Node, HashMap<Node, Integer>>();
+		this.sum = 0;
+	}
+
+	@Override
+	public void reset_() {
+		super.reset_();
+		this.parents = new HashMap<Node, HashMap<Node, Node>>();
+		this.heights = new HashMap<Node, HashMap<Node, Integer>>();
+		this.sum = 0;
 	}
 
 	@Override
@@ -135,7 +160,7 @@ public class AllPairShortestPathU extends AllPairShortestPath {
 				// no neighbour found
 				if (noPossibleNeighbour) {
 					if (height.get(w) != Integer.MAX_VALUE)
-						dists.decr(height.get(w));
+						apsp.decr(height.get(w));
 					sum -= height.get(w);
 					height.put(w, Integer.MAX_VALUE);
 					parent.remove(w);
@@ -177,8 +202,8 @@ public class AllPairShortestPathU extends AllPairShortestPath {
 				}
 				changed.remove(w);
 				if (height.get(w) != Integer.MAX_VALUE)
-					dists.decr(height.get(w));
-				dists.incr(dist);
+					apsp.decr(height.get(w));
+				apsp.incr(dist);
 				sum = sum + dist - height.get(w);
 				height.put(w, dist);
 				for (IElement iEgde : w.getOutgoingEdges()) {
@@ -274,7 +299,7 @@ public class AllPairShortestPathU extends AllPairShortestPath {
 				// no neighbour found
 				if (noPossibleNeighbour) {
 					if (height.get(w) != Integer.MAX_VALUE)
-						dists.decr(height.get(w));
+						apsp.decr(height.get(w));
 					height.put(w, Integer.MAX_VALUE);
 					sum -= height.get(w);
 					parent.remove(w);
@@ -315,8 +340,8 @@ public class AllPairShortestPathU extends AllPairShortestPath {
 				}
 				changed.remove(w);
 				if (height.get(w) != Integer.MAX_VALUE)
-					dists.decr(height.get(w));
-				dists.incr(dist);
+					apsp.decr(height.get(w));
+				apsp.incr(dist);
 				sum = sum + dist - height.get(w);
 				height.put(w, dist);
 				for (IElement iEdge : w.getEdges()) {
@@ -396,8 +421,8 @@ public class AllPairShortestPathU extends AllPairShortestPath {
 		parent.put(b, a);
 		h_b = h_a + 1;
 		if (height.get(b) != Integer.MAX_VALUE)
-			dists.decr(height.get(b));
-		dists.incr(h_b);
+			apsp.decr(height.get(b));
+		apsp.incr(h_b);
 		sum = sum + h_b - height.get(b);
 		height.put(b, h_b);
 		for (IElement iEdge : b.getEdges()) {
@@ -417,8 +442,8 @@ public class AllPairShortestPathU extends AllPairShortestPath {
 		parent.put(b, a);
 		h_b = h_a + 1;
 		if (height.get(b) != Integer.MAX_VALUE)
-			dists.decr(height.get(b));
-		dists.incr(h_b);
+			apsp.decr(height.get(b));
+		apsp.incr(h_b);
 		sum = sum + h_b - height.get(b);
 		height.put(b, h_b);
 		for (IElement iEdge : b.getOutgoingEdges()) {
@@ -474,5 +499,72 @@ public class AllPairShortestPathU extends AllPairShortestPath {
 		}
 
 		return true;
+	}
+
+	@Override
+	public boolean compute() {
+
+		for (IElement ie : g.getNodes()) {
+			Node n = (Node) ie;
+			buildTrees(n);
+		}
+
+		return true;
+
+	}
+
+	protected void buildTrees(Node n) {
+		HashMap<Node, Node> parent = new HashMap<>();
+		HashMap<Node, Integer> height = new HashMap<>();
+
+		for (IElement ie : g.getNodes()) {
+			Node t = (Node) ie;
+			if (t.equals(n)) {
+				height.put(n, 0);
+			} else {
+				height.put(t, Integer.MAX_VALUE);
+			}
+		}
+
+		Queue<Node> q = new LinkedList<Node>();
+		q.add(n);
+
+		if (DirectedNode.class.isAssignableFrom(this.g.getGraphDatastructures()
+				.getNodeType())) {
+			while (!q.isEmpty()) {
+				DirectedNode current = (DirectedNode) q.poll();
+				for (IElement ie : current.getOutgoingEdges()) {
+					DirectedEdge e = (DirectedEdge) ie;
+					if (height.get(e.getDst()) != Integer.MAX_VALUE) {
+						continue;
+					}
+					height.put(e.getDst(), height.get(current) + 1);
+					parent.put(e.getDst(), current);
+					apsp.incr(height.get(e.getDst()));
+					sum += height.get(e.getDst());
+					q.add(e.getDst());
+				}
+			}
+		} else {
+
+			while (!q.isEmpty()) {
+				Node current = q.poll();
+				for (IElement iEdge : current.getEdges()) {
+					UndirectedEdge e = (UndirectedEdge) iEdge;
+					Node t = e.getDifferingNode(current);
+
+					if (height.get(t) != Integer.MAX_VALUE) {
+						continue;
+					}
+					height.put(t, height.get(current) + 1);
+					parent.put(t, current);
+					apsp.incr(height.get(t));
+					q.add(t);
+					sum += height.get(t);
+				}
+			}
+		}
+		this.heights.put(n, height);
+		this.parents.put(n, parent);
 	}
 }
