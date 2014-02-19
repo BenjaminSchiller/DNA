@@ -9,6 +9,16 @@ import dna.series.data.Value;
 import dna.util.ArrayUtils;
 import dna.util.DataUtils;
 
+/**
+ * 
+ * Abstract super class for all metrics that compute the clustering coefficient.
+ * the following metrics are computed: (1) globalCC, i.e., # of triangles / # of
+ * potential triangles (2) averageCC, i.e., the average of all nodes' localCC
+ * (3) localCC, i.e., the local clustering coefficient of each node
+ * 
+ * @author benni
+ * 
+ */
 public abstract class ClusteringCoefficient extends Metric {
 
 	public ClusteringCoefficient(String name, ApplicationType type,
@@ -64,7 +74,7 @@ public abstract class ClusteringCoefficient extends Metric {
 
 	@Override
 	public Distribution[] getDistributions() {
-		return new Distribution[0];
+		return new Distribution[] {};
 	}
 
 	@Override

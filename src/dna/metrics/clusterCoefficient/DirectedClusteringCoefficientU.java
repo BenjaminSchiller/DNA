@@ -13,6 +13,13 @@ import dna.updates.update.NodeRemoval;
 import dna.updates.update.Update;
 import dna.util.ArrayUtils;
 
+/**
+ * 
+ * Update version of the directed clustering coefficient.
+ * 
+ * @author benni
+ * 
+ */
 public class DirectedClusteringCoefficientU extends
 		DirectedClusteringCoefficient {
 
@@ -197,52 +204,6 @@ public class DirectedClusteringCoefficientU extends
 			}
 
 		}
-		return true;
-	}
-
-	@Override
-	public boolean compute() {
-		this.triangleCount = 0;
-		this.potentialCount = 0;
-		for (IElement nUncasted : g.getNodes()) {
-			DirectedNode n = (DirectedNode) nUncasted;
-			this.nodeTriangleCount[n.getIndex()] = 0;
-			this.nodePotentialCount[n.getIndex()] = 0;
-			for (IElement uUncasted : n.getNeighbors()) {
-				DirectedNode u = (DirectedNode) uUncasted;
-				for (IElement vUncasted : n.getNeighbors()) {
-					DirectedNode v = (DirectedNode) vUncasted;
-					if (u.equals(v)) {
-						continue;
-					}
-					this.nodePotentialCount[n.getIndex()]++;
-					if (u.hasEdge(new DirectedEdge(u, v))) {
-						this.nodeTriangleCount[n.getIndex()]++;
-					}
-				}
-			}
-			this.triangleCount += this.nodeTriangleCount[n.getIndex()];
-			this.potentialCount += this.nodePotentialCount[n.getIndex()];
-			if (this.nodePotentialCount[n.getIndex()] == 0) {
-				this.localCC.setValue(n.getIndex(), 0);
-			} else {
-				this.localCC
-						.setValue(
-								n.getIndex(),
-								(double) this.nodeTriangleCount[n.getIndex()]
-										/ (double) this.nodePotentialCount[n
-												.getIndex()]);
-			}
-		}
-
-		if (this.potentialCount == 0) {
-			this.globalCC = 0;
-		} else {
-			this.globalCC = (double) this.triangleCount
-					/ (double) this.potentialCount;
-		}
-		this.averageCC = ArrayUtils.avg(this.localCC.getValues());
-
 		return true;
 	}
 

@@ -15,6 +15,13 @@ import dna.updates.update.NodeRemoval;
 import dna.updates.update.Update;
 import dna.util.ArrayUtils;
 
+/**
+ * 
+ * Update version of the undirected clustering coefficient.
+ * 
+ * @author benni
+ * 
+ */
 public class UndirectedClusteringCoefficientU extends
 		UndirectedClusteringCoefficient {
 
