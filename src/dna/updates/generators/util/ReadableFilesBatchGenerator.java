@@ -36,7 +36,7 @@ public class ReadableFilesBatchGenerator extends BatchGenerator {
 		this.dir = dir;
 		this.prefix = prefix;
 		this.filenameType = filenameType;
-		this.prefix = prefix;
+		this.suffix = suffix;
 	}
 
 	@Override
