@@ -172,10 +172,14 @@ public class ProfilerTest {
 	@Test
 	public void testContainsNodeGlobalIsCountedInMetric() {
 		assertEquals(0, Profiler.getCount(metricKey, ListType.GlobalNodeList,
-				AccessType.Contains));
+				AccessType.ContainsSuccess));
+		assertEquals(0, Profiler.getCount(metricKey, ListType.GlobalNodeList,
+				AccessType.ContainsFailure));
 		metric.compute();
-		assertEquals(2, Profiler.getCount(metricKey, ListType.GlobalNodeList,
-				AccessType.Contains));
+		assertEquals(1, Profiler.getCount(metricKey, ListType.GlobalNodeList,
+				AccessType.ContainsSuccess));
+		assertEquals(1, Profiler.getCount(metricKey, ListType.GlobalNodeList,
+				AccessType.ContainsFailure));
 	}
 
 	@Test
@@ -183,19 +187,27 @@ public class ProfilerTest {
 		assumeTrue(graph.isDirected());
 
 		assertEquals(0, Profiler.getCount(metricKey, ListType.LocalNodeList,
-				AccessType.Contains));
+				AccessType.ContainsSuccess));
+		assertEquals(0, Profiler.getCount(metricKey, ListType.LocalNodeList,
+				AccessType.ContainsFailure));		
 		metric.compute();
-		assertEquals(2, Profiler.getCount(metricKey, ListType.LocalNodeList,
-				AccessType.Contains));
+		assertEquals(1, Profiler.getCount(metricKey, ListType.LocalNodeList,
+				AccessType.ContainsSuccess));
+		assertEquals(1, Profiler.getCount(metricKey, ListType.LocalNodeList,
+				AccessType.ContainsFailure));		
 	}
 
 	@Test
 	public void testContainsEdgeGlobalIsCountedInMetric() {
 		assertEquals(0, Profiler.getCount(metricKey, ListType.GlobalEdgeList,
-				AccessType.Contains));
+				AccessType.ContainsSuccess));
+		assertEquals(0, Profiler.getCount(metricKey, ListType.GlobalEdgeList,
+				AccessType.ContainsFailure));		
 		metric.compute();
-		assertEquals(2, Profiler.getCount(metricKey, ListType.GlobalEdgeList,
-				AccessType.Contains));
+		assertEquals(1, Profiler.getCount(metricKey, ListType.GlobalEdgeList,
+				AccessType.ContainsSuccess));
+		assertEquals(1, Profiler.getCount(metricKey, ListType.GlobalEdgeList,
+				AccessType.ContainsFailure));		
 	}
 
 	@Test
@@ -204,13 +216,13 @@ public class ProfilerTest {
 				0,
 				Profiler.getCount(metricKey, new ListType[] {
 						ListType.LocalEdgeList, ListType.LocalInEdgeList,
-						ListType.LocalOutEdgeList }, AccessType.Contains));
+						ListType.LocalOutEdgeList }, AccessType.ContainsSuccess));
 		metric.compute();
 		assertEquals(
 				1,
 				Profiler.getCount(metricKey, new ListType[] {
 						ListType.LocalEdgeList, ListType.LocalInEdgeList,
-						ListType.LocalOutEdgeList }, AccessType.Contains));
+						ListType.LocalOutEdgeList }, AccessType.ContainsSuccess));
 	}
 
 	@Test

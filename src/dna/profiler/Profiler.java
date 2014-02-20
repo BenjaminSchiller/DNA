@@ -389,7 +389,8 @@ public class Profiler {
 			break;
 		case Get:
 		case Iterator:
-		case Contains:
+		case ContainsSuccess:
+		case ContainsFailure:
 		case Random:
 		case Size:
 			break;

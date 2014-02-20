@@ -161,8 +161,13 @@ public aspect ProfilerAspects {
 		Profiler.count(this.currentCountKey, list.listType, AccessType.Remove);
 	}
 	
-	after(DataStructure list) : contains(list) {
-		Profiler.count(this.currentCountKey, list.listType, AccessType.Contains);
+	boolean around(DataStructure list) : contains(list) {
+		boolean res = proceed(list);
+		if (res)
+			Profiler.count(this.currentCountKey, list.listType, AccessType.ContainsSuccess);
+		else
+			Profiler.count(this.currentCountKey, list.listType, AccessType.ContainsFailure);
+		return res;
 	}
 	
 	after(DataStructure list) : getElement(list) {
