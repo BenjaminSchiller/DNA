@@ -269,11 +269,20 @@ public class Profiler {
 			tempGDS = new GraphDataStructure(singleCombination,
 					gds.getNodeType(), gds.getEdgeType());
 			ComplexityMap aggregated = new ComplexityMap();
-			for (Entry<ListType, Class<? extends IDataStructure>> typeClass : singleCombination
-					.entrySet()) {
-				aggregated.add(listComplexities.get(typeClass.getKey()).get(
-						typeClass.getValue()));
+
+			Class<? extends IDataStructure> currClass;
+			ListType recLT;
+
+			for (ListType loopLT : ListType.values()) {
+				currClass = null;
+				recLT = loopLT;
+				while (currClass == null) {
+					currClass = singleCombination.get(recLT);
+					recLT = recLT.getFallback();
+				}
+				aggregated.add(listComplexities.get(loopLT).get(currClass));
 			}
+
 			GraphDataStructure graphDataStructure = recommendationList
 					.get(aggregated);
 			if (graphDataStructure == null) {

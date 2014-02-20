@@ -20,31 +20,27 @@ public class ProfilerGranularity {
 	}
 
 	private boolean writeFor(int innerKey) {
-		if ((granularitySetting & all) != 0)
-			return true;
-		if ((granularitySetting & disabled) != 0)
-			return false;
 		return (granularitySetting & innerKey) != 0;
 	}
 
 	public boolean writeAfterMetric() {
-		return writeFor(eachMetric);
+		return (writeFor(eachMetric) || forceAll()) && !disabled();
 	}
 
 	public boolean writeAfterBatch() {
-		return writeFor(eachBatch);
+		return (writeFor(eachBatch) || forceAll()) && !disabled();
 	}
 
 	public boolean writeAfterRun() {
-		return writeFor(eachRun);
+		return (writeFor(eachRun) || forceAll()) && !disabled();
 	}
 
 	public boolean writeAfterSeries() {
-		return writeFor(eachSeries);
+		return (writeFor(eachSeries) || forceAll()) && !disabled();
 	}
 
 	public boolean writeAfterUpdate() {
-		return writeFor(eachUpdateType);
+		return (writeFor(eachUpdateType) || forceAll()) && !disabled();
 	}
 
 	public boolean disabled() {
