@@ -26,6 +26,8 @@ public aspect ProfilerAspects {
 
 	private String batchGeneratorName;
 	public static final String initialAddition = Config.get("PROFILER_INITIALBATCH_KEYADDITION");
+	
+	private boolean inAdd, addFailedAsContainsReturnsTrue;
 
 	pointcut seriesSingleRunGeneration(Series s, int run) : execution(* SeriesGeneration.generateRun(Series, int, ..)) && args(s, run, ..);
 	pointcut startInitialBatchGeneration(Series s) : execution(* SeriesGeneration.generateInitialData(Series)) && args(s);
@@ -153,8 +155,14 @@ public aspect ProfilerAspects {
 			Profiler.count(this.currentCountKey, list.listType, AccessType.Init);
 	}
 	
-	after(DataStructure list): add(list) {
-		Profiler.count(this.currentCountKey, list.listType, AccessType.Add);
+	boolean around(DataStructure list): add(list) {
+		inAdd = true;
+		addFailedAsContainsReturnsTrue = false;
+		boolean res = proceed(list);
+		inAdd = false;
+		if (!addFailedAsContainsReturnsTrue)
+			Profiler.count(this.currentCountKey, list.listType, AccessType.Add);
+		return res;
 	}	
 	
 	after(DataStructure list) : remove(list) {
@@ -163,8 +171,11 @@ public aspect ProfilerAspects {
 	
 	boolean around(DataStructure list) : contains(list) {
 		boolean res = proceed(list);
-		if (res)
+		if (res) {
 			Profiler.count(this.currentCountKey, list.listType, AccessType.ContainsSuccess);
+			if (inAdd)
+				addFailedAsContainsReturnsTrue = true;
+		}
 		else
 			Profiler.count(this.currentCountKey, list.listType, AccessType.ContainsFailure);
 		return res;
