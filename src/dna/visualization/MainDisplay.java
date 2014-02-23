@@ -327,6 +327,8 @@ public class MainDisplay extends JFrame {
 		GridBagConstraints visualizerPanelConstraints = new GridBagConstraints();
 		visualizerPanelConstraints.gridx = 0;
 		visualizerPanelConstraints.gridy = 0;
+		visualizerPanelConstraints.gridwidth = 1;
+		visualizerPanelConstraints.gridheight = 1;
 
 		// FILL PANEL
 		// add metric visualizer
@@ -343,7 +345,16 @@ public class MainDisplay extends JFrame {
 				visualizerPanelConstraints.gridx++;
 				visualizerPanelConstraints.gridy++;
 			}
-
+			if (metVisConfig.getColSpan() >= 1
+					&& metVisConfig.getRowSpan() >= 1) {
+				visualizerPanelConstraints.gridwidth = metVisConfig
+						.getRowSpan();
+				visualizerPanelConstraints.gridheight = metVisConfig
+						.getColSpan();
+			} else {
+				visualizerPanelConstraints.gridwidth = 1;
+				visualizerPanelConstraints.gridheight = 1;
+			}
 			this.visualizerPanel.add(metricVisualizerTemp,
 					visualizerPanelConstraints);
 			this.registerDataComponent(metricVisualizerTemp);
@@ -364,6 +375,16 @@ public class MainDisplay extends JFrame {
 				visualizerPanelConstraints.gridx++;
 				visualizerPanelConstraints.gridy++;
 			}
+			if (multiVisConfig.getColSpan() >= 1
+					&& multiVisConfig.getRowSpan() >= 1) {
+				visualizerPanelConstraints.gridwidth = multiVisConfig
+						.getRowSpan();
+				visualizerPanelConstraints.gridheight = multiVisConfig
+						.getColSpan();
+			} else {
+				visualizerPanelConstraints.gridwidth = 1;
+				visualizerPanelConstraints.gridheight = 1;
+			}
 
 			this.visualizerPanel.add(metricVisualizerTemp,
 					visualizerPanelConstraints);
@@ -380,6 +401,16 @@ public class MainDisplay extends JFrame {
 			} else {
 				visualizerPanelConstraints.gridx++;
 				visualizerPanelConstraints.gridy++;
+			}
+			if (logDisConfig.getColSpan() >= 1
+					&& logDisConfig.getRowSpan() >= 1) {
+				visualizerPanelConstraints.gridwidth = logDisConfig
+						.getRowSpan();
+				visualizerPanelConstraints.gridheight = logDisConfig
+						.getColSpan();
+			} else {
+				visualizerPanelConstraints.gridwidth = 1;
+				visualizerPanelConstraints.gridheight = 1;
 			}
 
 			this.visualizerPanel

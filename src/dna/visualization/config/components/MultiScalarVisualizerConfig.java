@@ -350,7 +350,7 @@ public class MultiScalarVisualizerConfig {
 			}
 
 			try {
-				rowSpan = positionObject.getInt("rowspawn");
+				rowSpan = positionObject.getInt("rowspan");
 				colSpan = positionObject.getInt("colspan");
 			} catch (Exception e) {
 			}

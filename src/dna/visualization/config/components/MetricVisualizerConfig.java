@@ -385,9 +385,8 @@ public class MetricVisualizerConfig {
 				positionY = positionObject.getInt("y");
 			} catch (Exception e) {
 			}
-
 			try {
-				rowSpan = positionObject.getInt("rowspawn");
+				rowSpan = positionObject.getInt("rowspan");
 				colSpan = positionObject.getInt("colspan");
 			} catch (Exception e) {
 			}
