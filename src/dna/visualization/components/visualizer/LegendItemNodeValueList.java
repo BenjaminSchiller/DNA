@@ -7,10 +7,10 @@ import java.awt.event.ActionListener;
 
 import javax.swing.JButton;
 
-import dna.util.Config;
-import dna.visualization.GuiOptions;
+import dna.visualization.MainDisplay;
 import dna.visualization.config.VisualizerListConfig.SortModeNVL;
 import dna.visualization.config.VisualizerListConfig.xAxisSelection;
+import dna.visualization.config.components.MultiScalarVisualizerConfig;
 
 /**
  * A legenditem in the legendlist representing a nodevaluelist.
@@ -31,15 +31,17 @@ public class LegendItemNodeValueList extends LegendItem {
 	public LegendItemNodeValueList(LegendList parent, String name, Color color) {
 		// init
 		super(parent, name, color);
-		this.valueLabel
-				.setPreferredSize(GuiOptions.legendItemNvlValueLabelSize);
-		this.buttonPanel
-				.setPreferredSize(GuiOptions.legendItemNvlButtonPanelSize);
 
 		// load defaults
-		this.sortMode = Config.getSortModeNVL("GUI_SORT_MODE_NVL");
-		this.xAxis = Config.getXAxisSelection("GUI_NVL_X_AXIS");
-		this.yAxis = Config.getYAxisSelection("GUI_NVL_Y_AXIS");
+		if (parent.parent.parent instanceof MultiScalarVisualizer) {
+			MultiScalarVisualizerConfig config = ((MultiScalarVisualizer) parent.parent.parent).config;
+			this.sortMode = config.getListConfig().getAllNodeValueListsConfig()
+					.getSortMode();
+			this.xAxis = config.getListConfig().getAllNodeValueListsConfig()
+					.getXAxis();
+			this.yAxis = config.getListConfig().getAllNodeValueListsConfig()
+					.getYAxis();
+		}
 
 		// adjust toggle y axis button
 		switch (this.yAxis) {
@@ -69,10 +71,10 @@ public class LegendItemNodeValueList extends LegendItem {
 					.setToolTipText("Currently plotted on x-axis 2. Click to change to x-axis 1");
 			break;
 		}
-		this.toggleXAxisButton.setFont(GuiOptions.defaultFont);
-		this.toggleXAxisButton.setForeground(GuiOptions.defaultFontColor);
-		this.toggleXAxisButton
-				.setPreferredSize(GuiOptions.legendItemButtonSize);
+		this.toggleXAxisButton.setFont(MainDisplay.config.getDefaultFont());
+		this.toggleXAxisButton.setForeground(MainDisplay.config
+				.getDefaultFontColor());
+		this.toggleXAxisButton.setPreferredSize(this.buttonSize);
 		this.toggleXAxisButton.setMargin(new Insets(0, 0, 0, 0));
 		this.toggleXAxisButton.addActionListener(new ActionListener() {
 			@Override
@@ -111,9 +113,10 @@ public class LegendItemNodeValueList extends LegendItem {
 					.setToolTipText("NodeValueList is sorted by index. Click to change to ascending order.");
 			break;
 		}
-		this.sortModeButton.setFont(GuiOptions.defaultFont);
-		this.sortModeButton.setForeground(GuiOptions.defaultFontColor);
-		this.sortModeButton.setPreferredSize(GuiOptions.legendItemButtonSize);
+		this.sortModeButton.setFont(MainDisplay.config.getDefaultFont());
+		this.sortModeButton.setForeground(MainDisplay.config
+				.getDefaultFontColor());
+		this.sortModeButton.setPreferredSize(this.buttonSize);
 		this.sortModeButton.setMargin(new Insets(0, 0, 0, 0));
 		this.sortModeButton.addActionListener(new ActionListener() {
 			@Override

@@ -147,7 +147,6 @@ public class VisualizerListConfig {
 	/** creates a visualizerlistconfig from a json object **/
 	public static VisualizerListConfig createConfigFromJSONObject(JSONObject o) {
 		VisualizerListConfig config = new VisualizerListConfig();
-
 		JSONObject visConfig = o.getJSONObject("VisualizerConfig");
 
 		for (String config1 : JSONObject.getNames(visConfig)) {

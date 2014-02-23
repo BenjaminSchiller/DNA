@@ -20,7 +20,7 @@ import java.text.NumberFormat;
 
 import javax.swing.JPanel;
 
-import dna.visualization.GuiOptions;
+import dna.visualization.MainDisplay;
 import dna.visualization.config.components.MenuBarConfig;
 
 @SuppressWarnings("serial")
@@ -62,7 +62,8 @@ public class Visualizer extends JPanel {
 		// this.setPreferredSize(GuiOptions.visualizerDefaultSize);
 		this.paused = true;
 
-		this.TRACE_LENGTH = GuiOptions.visualizerDefaultTraceLength;
+		this.TRACE_LENGTH = MainDisplay.DefaultConfig
+				.getMetricVisualizerConfigs()[0].getTraceLength();
 		this.FIXED_VIEWPORT = false;
 		this.minTimestamp = 0;
 		this.maxTimestamp = 0;
@@ -77,7 +78,8 @@ public class Visualizer extends JPanel {
 
 		// init chart
 		this.chart = new Chart2D();
-		this.chart.setPreferredSize(GuiOptions.visualizerDefaultChartSize);
+		this.chart.setPreferredSize(MainDisplay.DefaultConfig
+				.getMetricVisualizerConfigs()[0].getChartSize());
 
 		/*
 		 * axis configuration
@@ -112,7 +114,9 @@ public class Visualizer extends JPanel {
 		this.add(this.chart, this.mainConstraints);
 
 		// init and add legend
-		this.legend = new Legend(this, GuiOptions.visualizerDefaultLegendSize);
+		this.legend = new Legend(this,
+				MainDisplay.DefaultConfig.getMetricVisualizerConfigs()[0]
+						.getLegendSize());
 		this.mainConstraints.gridx = 1;
 		this.mainConstraints.gridy = 0;
 		this.add(this.legend, this.mainConstraints);

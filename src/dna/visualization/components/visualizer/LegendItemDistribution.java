@@ -8,9 +8,10 @@ import java.awt.event.ActionListener;
 import javax.swing.JButton;
 
 import dna.util.Config;
-import dna.visualization.GuiOptions;
+import dna.visualization.MainDisplay;
 import dna.visualization.config.VisualizerListConfig.SortModeDist;
 import dna.visualization.config.VisualizerListConfig.xAxisSelection;
+import dna.visualization.config.components.MultiScalarVisualizerConfig;
 
 /**
  * A legenditem in the legendlist representing a distribution.
@@ -32,15 +33,14 @@ public class LegendItemDistribution extends LegendItem {
 		// init
 		super(parent, name, color);
 		this.valueLabel.setText("D=0");
-		this.valueLabel
-				.setPreferredSize(GuiOptions.legendItemDistValueLabelSize);
-		this.buttonPanel
-				.setPreferredSize(GuiOptions.legendItemDistButtonPanelSize);
 
 		// load defaults
-		this.sortMode = Config.getSortModeDist("GUI_SORT_MODE_DIST");
-		this.xAxis = Config.getXAxisSelection("GUI_DIST_X_AXIS");
-		this.yAxis = Config.getYAxisSelection("GUI_DIST_Y_AXIS");
+		if(parent.parent.parent instanceof MultiScalarVisualizer) {
+			MultiScalarVisualizerConfig config = ((MultiScalarVisualizer) parent.parent.parent).config;
+			this.sortMode = config.getListConfig().getAllDistributionsConfig().getSortMode();
+			this.xAxis = config.getListConfig().getAllDistributionsConfig().getXAxis();
+			this.yAxis = config.getListConfig().getAllDistributionsConfig().getYAxis();
+		}
 
 		// adjust toggle y axis button
 		switch (this.yAxis) {
@@ -72,10 +72,10 @@ public class LegendItemDistribution extends LegendItem {
 					.setToolTipText("Currently plotted on x-axis 2. Click to change to x-axis 1");
 			break;
 		}
-		this.toggleXAxisButton.setFont(GuiOptions.defaultFont);
-		this.toggleXAxisButton.setForeground(GuiOptions.defaultFontColor);
-		this.toggleXAxisButton
-				.setPreferredSize(GuiOptions.legendItemButtonSize);
+		this.toggleXAxisButton.setFont(MainDisplay.config.getDefaultFont());
+		this.toggleXAxisButton.setForeground(MainDisplay.config
+				.getDefaultFontColor());
+		this.toggleXAxisButton.setPreferredSize(this.buttonSize);
 		this.toggleXAxisButton.setMargin(new Insets(0, 0, 0, 0));
 		this.toggleXAxisButton
 				.setToolTipText("Currently plotted on x-axis 1. Click to change to x-axis 2");
@@ -110,9 +110,10 @@ public class LegendItemDistribution extends LegendItem {
 					.setToolTipText("Distribution is shown as cdf plot. Click to change to distribution.");
 			break;
 		}
-		this.sortModeButton.setFont(GuiOptions.defaultFont);
-		this.sortModeButton.setForeground(GuiOptions.defaultFontColor);
-		this.sortModeButton.setPreferredSize(GuiOptions.legendItemButtonSize);
+		this.sortModeButton.setFont(MainDisplay.config.getDefaultFont());
+		this.sortModeButton.setForeground(MainDisplay.config
+				.getDefaultFontColor());
+		this.sortModeButton.setPreferredSize(this.buttonSize);
 		this.sortModeButton.setMargin(new Insets(0, 0, 0, 0));
 		this.sortModeButton.addActionListener(new ActionListener() {
 			@Override

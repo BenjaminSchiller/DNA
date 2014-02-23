@@ -3,7 +3,6 @@ package dna.visualization.config;
 import java.awt.Color;
 import java.lang.reflect.Field;
 
-import dna.visualization.GuiOptions;
 import dna.visualization.config.VisualizerListConfig.DisplayMode;
 import dna.visualization.config.VisualizerListConfig.GraphVisibility;
 import dna.visualization.config.VisualizerListConfig.SortModeNVL;
@@ -56,11 +55,11 @@ public class MultiScalarNodeValueListItem extends ConfigItem {
 	public static MultiScalarNodeValueListItem createMultiScalarNodeValueListItemFromJSONObject(
 			JSONObject o) {
 		String name = o.getString("Name");
-		SortModeNVL sortMode = GuiOptions.multiScalarVisualizerDefaultNodeValueListSortMode;
-		xAxisSelection xAxis = GuiOptions.multiScalarVisualizerDefaultNVLXAxisSelection;
-		yAxisSelection yAxis = GuiOptions.multiScalarVisualizerDefaultNVLYAxisSelection;
-		DisplayMode displayMode = GuiOptions.multiScalarVisualizerDefaultNodeValueListDisplayMode;
-		GraphVisibility visibility = GuiOptions.multiScalarVisualizerDefaultGraphVisibility;
+		SortModeNVL sortMode = MultiScalarNodeValueListItem.multiScalarVisualizerDefaultNodeValueListSortMode;
+		xAxisSelection xAxis = MultiScalarNodeValueListItem.multiScalarVisualizerDefaultNVLXAxisSelection;
+		yAxisSelection yAxis = MultiScalarNodeValueListItem.multiScalarVisualizerDefaultNVLYAxisSelection;
+		DisplayMode displayMode = MultiScalarNodeValueListItem.multiScalarVisualizerDefaultNodeValueListDisplayMode;
+		GraphVisibility visibility = MultiScalarNodeValueListItem.multiScalarVisualizerDefaultGraphVisibility;
 		Color color = null;
 
 		try {

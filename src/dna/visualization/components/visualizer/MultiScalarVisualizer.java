@@ -32,9 +32,7 @@ import dna.series.data.DistributionInt;
 import dna.series.data.DistributionLong;
 import dna.series.data.MetricData;
 import dna.series.data.NodeValueList;
-import dna.util.Config;
 import dna.util.Log;
-import dna.visualization.GuiOptions;
 import dna.visualization.MainDisplay;
 import dna.visualization.config.ConfigItem;
 import dna.visualization.config.MultiScalarDistributionItem;
@@ -63,8 +61,9 @@ public class MultiScalarVisualizer extends Visualizer {
 	private HashMap<String, double[]> doubleValues;
 
 	// config
-	VisualizerListConfig listConfig;
+	private VisualizerListConfig listConfig;
 	MainDisplay mainDisplay;
+	protected MultiScalarVisualizerConfig config;
 	private double xAxisOffset;
 
 	// current batch
@@ -74,6 +73,7 @@ public class MultiScalarVisualizer extends Visualizer {
 	public MultiScalarVisualizer(MainDisplay mainDisplay,
 			MultiScalarVisualizerConfig config) {
 		// initialization
+		this.config = config;
 		this.mainDisplay = mainDisplay;
 		this.traces = new HashMap<String, ITrace2D>();
 		this.offsets = new HashMap<ITrace2D, Double>();
@@ -436,10 +436,10 @@ public class MultiScalarVisualizer extends Visualizer {
 		else
 			this.yAxis2.addTrace(newTrace);
 
-		if (Config.getBoolean("GUI_PAINT_LINESPOINT"))
-			newTrace.addTracePainter(new TracePainterDisc(Config
-					.getInt("GUI_LINESPOINT_SIZE")));
-		if (Config.getBoolean("GUI_PAINT_FILL"))
+		if (config.isPaintLinesPoint())
+			newTrace.addTracePainter(new TracePainterDisc(config
+					.getLinesPointSize()));
+		if (config.isPaintFill())
 			newTrace.addTracePainter(new TracePainterFill(this.chart));
 	}
 
@@ -468,8 +468,8 @@ public class MultiScalarVisualizer extends Visualizer {
 						double[] tempValues = ((DistributionDouble) this.currentBatch
 								.getMetrics().get(metric).getDistributions()
 								.get(dist)).getDoubleValues();
-						SortModeDist tempSortMode = Config
-								.getSortModeDist("GUI_SORT_MODE_DIST");
+						SortModeDist tempSortMode = config.getListConfig()
+								.getAllDistributionsConfig().getSortMode();
 
 						this.doubleValues.put(tempName, tempValues);
 
@@ -483,8 +483,8 @@ public class MultiScalarVisualizer extends Visualizer {
 						int tempDenominator = ((DistributionInt) this.currentBatch
 								.getMetrics().get(metric).getDistributions()
 								.get(dist)).getDenominator();
-						SortModeDist tempSortMode = Config
-								.getSortModeDist("GUI_SORT_MODE_DIST");
+						SortModeDist tempSortMode = config.getListConfig()
+								.getAllDistributionsConfig().getSortMode();
 
 						this.addDistributionPoints(tempName, tempValues,
 								tempDenominator, tempSortMode, offsetX);
@@ -499,8 +499,8 @@ public class MultiScalarVisualizer extends Visualizer {
 						long tempDenominator = ((DistributionLong) this.currentBatch
 								.getMetrics().get(metric).getDistributions()
 								.get(dist)).getDenominator();
-						SortModeDist tempSortMode = Config
-								.getSortModeDist("GUI_SORT_MODE_DIST");
+						SortModeDist tempSortMode = config.getListConfig()
+								.getAllDistributionsConfig().getSortMode();
 
 						this.addDistributionPoints(tempName, tempValues,
 								tempDenominator, tempSortMode, offsetX);
@@ -769,12 +769,14 @@ public class MultiScalarVisualizer extends Visualizer {
 					verticalBar = true;
 			}
 			if (verticalBar) {
-				trace.setTracePainter(new TracePainterDisc(Config
-						.getInt("GUI_LINESPOINT_SIZE")));
+
+				trace.setTracePainter(new TracePainterDisc(config
+						.getLinesPointSize()));
 				trace.addTracePainter(new TracePainterLine());
 			} else {
-				trace.setTracePainter(new TracePainterVerticalBar(Config
-						.getInt("GUI_VERTICALBAR_SIZE"), this.chart));
+
+				trace.setTracePainter(new TracePainterVerticalBar(config
+						.getVerticalBarSize(), this.chart));
 			}
 		}
 	}
@@ -911,12 +913,12 @@ public class MultiScalarVisualizer extends Visualizer {
 		// calculate new offset
 		int counter = 0;
 		for (double d : usedOffsets) {
-			if (counter * GuiOptions.multiScalarVisualizerXAxisOffset != d) {
-				return counter * GuiOptions.multiScalarVisualizerXAxisOffset;
+			if (counter * this.xAxisOffset != d) {
+				return counter * this.xAxisOffset;
 			}
 			counter++;
 		}
-		return counter * GuiOptions.multiScalarVisualizerXAxisOffset;
+		return counter * this.xAxisOffset;
 	}
 
 	/** recalculates the offsets for all traces on x1 **/
@@ -925,7 +927,7 @@ public class MultiScalarVisualizer extends Visualizer {
 			if (this.xAxis1.containsTrace(trace))
 				if (this.offsets.get(trace) != 0)
 					this.offsets.put(trace, this.offsets.get(trace)
-							- GuiOptions.multiScalarVisualizerXAxisOffset);
+							- this.xAxisOffset);
 		}
 	}
 
@@ -935,7 +937,7 @@ public class MultiScalarVisualizer extends Visualizer {
 			if (this.xAxis2.containsTrace(trace))
 				if (this.offsets.get(trace) != 0)
 					this.offsets.put(trace, this.offsets.get(trace)
-							- GuiOptions.multiScalarVisualizerXAxisOffset);
+							- this.xAxisOffset);
 		}
 	}
 }

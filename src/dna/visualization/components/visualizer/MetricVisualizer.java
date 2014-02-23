@@ -36,8 +36,6 @@ import dna.series.data.BatchData;
 import dna.series.data.MetricData;
 import dna.series.data.RunTime;
 import dna.series.data.Value;
-import dna.util.Config;
-import dna.visualization.GuiOptions;
 import dna.visualization.MainDisplay;
 import dna.visualization.config.ConfigItem;
 import dna.visualization.config.MetricVisualizerItem;
@@ -52,7 +50,7 @@ public class MetricVisualizer extends Visualizer {
 
 	private LinkedList<BatchData> batchBuffer;
 	private BatchData initBatch;
-	private int bufferSize = GuiOptions.metricVisualizerBatchBufferSize;
+	private int bufferSize;
 	private boolean reload;
 
 	private boolean xAxisTypeTimestamp;
@@ -60,8 +58,9 @@ public class MetricVisualizer extends Visualizer {
 	private double xAxisOffset;
 
 	// config
-	VisualizerListConfig listConfig;
+	private VisualizerListConfig listConfig;
 	MainDisplay mainDisplay;
+	protected MetricVisualizerConfig config;
 
 	// constructor
 	public MetricVisualizer(MainDisplay mainDisplay,
@@ -71,6 +70,9 @@ public class MetricVisualizer extends Visualizer {
 		this.traces = new HashMap<String, ITrace2D>();
 		this.availableValues = new ArrayList<String>();
 		this.listConfig = config.getListConfig();
+		this.bufferSize = config.getTraceLength();
+		this.TRACE_LENGTH = config.getTraceLength();
+		this.config = config;
 
 		// batch buffer
 		this.batchBuffer = new LinkedList<BatchData>();
@@ -252,7 +254,7 @@ public class MetricVisualizer extends Visualizer {
 				}
 			}
 			// timestamp adjustmens for x-axis tick calculation
-			if (Config.getBoolean("GUI_TRACE_MODE_LTD") && !this.FIXED_VIEWPORT) {
+			if (config.isTraceModeLtd() && !this.FIXED_VIEWPORT) {
 				this.maxShownTimestamp = this.maxTimestamp;
 				if (this.maxShownTimestamp - this.TRACE_LENGTH > 0)
 					this.minShownTimestamp = this.maxShownTimestamp
@@ -394,17 +396,15 @@ public class MetricVisualizer extends Visualizer {
 	/** adds trace to the visualizer with default trace length **/
 	public void addTrace(String name, Color color) {
 		if (!this.traces.containsKey(name)) {
-			if (Config.getBoolean("GUI_TRACE_MODE_LTD")) {
-				Trace2DLtd newTrace = new Trace2DLtd(
-						Config.getInt("GUI_TRACE_LENGTH"));
+			if (config.isTraceModeLtd()) {
+				Trace2DLtd newTrace = new Trace2DLtd(this.TRACE_LENGTH);
 				newTrace.setColor(color);
 				this.traces.put(name, newTrace);
 				this.chart.addTrace(newTrace);
-
-				if (Config.getBoolean("GUI_PAINT_LINESPOINT"))
-					newTrace.addTracePainter(new TracePainterDisc(Config
-							.getInt("GUI_LINESPOINT_SIZE")));
-				if (Config.getBoolean("GUI_PAINT_FILL"))
+				if (config.isPaintLinesPoint())
+					newTrace.addTracePainter(new TracePainterDisc(config
+							.getLinesPointSize()));
+				if (config.isPaintFill())
 					newTrace.addTracePainter(new TracePainterFill(this.chart));
 			} else {
 				Trace2DSimple newTrace = new Trace2DSimple();
@@ -412,10 +412,10 @@ public class MetricVisualizer extends Visualizer {
 				this.traces.put(name, newTrace);
 				this.chart.addTrace(newTrace);
 
-				if (Config.getBoolean("GUI_PAINT_LINESPOINT"))
-					newTrace.addTracePainter(new TracePainterDisc(Config
-							.getInt("GUI_LINESPOINT_SIZE")));
-				if (Config.getBoolean("GUI_PAINT_FILL"))
+				if (config.isPaintLinesPoint())
+					newTrace.addTracePainter(new TracePainterDisc(config
+							.getLinesPointSize()));
+				if (config.isPaintFill())
 					newTrace.addTracePainter(new TracePainterFill(this.chart));
 			}
 		}
@@ -424,9 +424,8 @@ public class MetricVisualizer extends Visualizer {
 	/** adds trace to the visualizer with default trace length **/
 	public void addTrace(String name, Color color, boolean verticalBar) {
 		if (!this.traces.containsKey(name)) {
-			if (Config.getBoolean("GUI_TRACE_MODE_LTD")) {
-				Trace2DLtd newTrace = new Trace2DLtd(
-						Config.getInt("GUI_TRACE_LENGTH"));
+			if (config.isTraceModeLtd()) {
+				Trace2DLtd newTrace = new Trace2DLtd(this.TRACE_LENGTH);
 				newTrace.setColor(color);
 				this.traces.put(name, newTrace);
 				this.chart.addTrace(newTrace);
@@ -436,14 +435,14 @@ public class MetricVisualizer extends Visualizer {
 						if (painter instanceof TracePainterPolyline)
 							newTrace.removeTracePainter(painter);
 					}
-					newTrace.addTracePainter(new TracePainterVerticalBar(Config
-							.getInt("GUI_VERTICALBAR_SIZE"), this.chart));
+					newTrace.addTracePainter(new TracePainterVerticalBar(config
+							.getVerticalBarSize(), this.chart));
 				} else {
-					if (Config.getBoolean("GUI_PAINT_LINESPOINT"))
-						newTrace.addTracePainter(new TracePainterDisc(Config
-								.getInt("GUI_LINESPOINT_SIZE")));
+					if (config.isPaintLinesPoint())
+						newTrace.addTracePainter(new TracePainterDisc(config
+								.getLinesPointSize()));
 
-					if (Config.getBoolean("GUI_PAINT_FILL"))
+					if (config.isPaintFill())
 						newTrace.addTracePainter(new TracePainterFill(
 								this.chart));
 				}
@@ -453,10 +452,10 @@ public class MetricVisualizer extends Visualizer {
 				this.traces.put(name, newTrace);
 				this.chart.addTrace(newTrace);
 
-				if (Config.getBoolean("GUI_PAINT_LINESPOINT"))
-					newTrace.addTracePainter(new TracePainterDisc(Config
-							.getInt("GUI_LINESPOINT_SIZE")));
-				if (Config.getBoolean("GUI_PAINT_FILL"))
+				if (config.isPaintLinesPoint())
+					newTrace.addTracePainter(new TracePainterDisc(config
+							.getLinesPointSize()));
+				if (config.isPaintFill())
 					newTrace.addTracePainter(new TracePainterFill(this.chart));
 			}
 		}
@@ -544,12 +543,12 @@ public class MetricVisualizer extends Visualizer {
 					verticalBar = true;
 			}
 			if (verticalBar) {
-				trace.setTracePainter(new TracePainterDisc(Config
-						.getInt("GUI_LINESPOINT_SIZE")));
+				trace.setTracePainter(new TracePainterDisc(config
+						.getLinesPointSize()));
 				trace.addTracePainter(new TracePainterLine());
 			} else {
-				trace.setTracePainter(new TracePainterVerticalBar(Config
-						.getInt("GUI_VERTICALBAR_SIZE"), this.chart));
+				trace.setTracePainter(new TracePainterVerticalBar(config
+						.getVerticalBarSize(), this.chart));
 			}
 		}
 	}

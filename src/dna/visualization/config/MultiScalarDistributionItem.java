@@ -3,7 +3,6 @@ package dna.visualization.config;
 import java.awt.Color;
 import java.lang.reflect.Field;
 
-import dna.visualization.GuiOptions;
 import dna.visualization.config.VisualizerListConfig.DisplayMode;
 import dna.visualization.config.VisualizerListConfig.GraphVisibility;
 import dna.visualization.config.VisualizerListConfig.SortModeDist;
@@ -56,11 +55,11 @@ public class MultiScalarDistributionItem extends ConfigItem {
 	public static MultiScalarDistributionItem createMultiScalarDistributionItemFromJSONObject(
 			JSONObject o) {
 		String name = o.getString("Name");
-		SortModeDist sortMode = GuiOptions.multiScalarVisualizerDefaultDistributionSortMode;
-		xAxisSelection xAxis = GuiOptions.multiScalarVisualizerDefaultDistXAxisSelection;
-		yAxisSelection yAxis = GuiOptions.multiScalarVisualizerDefaultDistYAxisSelection;
-		DisplayMode displayMode = GuiOptions.multiScalarVisualizerDefaultDistributionDisplayMode;
-		GraphVisibility visibility = GuiOptions.multiScalarVisualizerDefaultGraphVisibility;
+		SortModeDist sortMode = MultiScalarDistributionItem.multiScalarVisualizerDefaultDistributionSortMode;
+		xAxisSelection xAxis = MultiScalarDistributionItem.multiScalarVisualizerDefaultDistXAxisSelection;
+		yAxisSelection yAxis = MultiScalarDistributionItem.multiScalarVisualizerDefaultDistYAxisSelection;
+		DisplayMode displayMode = MultiScalarDistributionItem.multiScalarVisualizerDefaultDistributionDisplayMode;
+		GraphVisibility visibility = MultiScalarDistributionItem.multiScalarVisualizerDefaultGraphVisibility;
 		Color color = null;
 
 		try {

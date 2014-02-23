@@ -3,7 +3,6 @@ package dna.visualization.config;
 import java.awt.Color;
 import java.lang.reflect.Field;
 
-import dna.visualization.GuiOptions;
 import dna.visualization.config.VisualizerListConfig.DisplayMode;
 import dna.visualization.config.VisualizerListConfig.GraphVisibility;
 import dna.visualization.config.VisualizerListConfig.yAxisSelection;
@@ -35,9 +34,9 @@ public class MetricVisualizerItem extends ConfigItem {
 	public static MetricVisualizerItem createMetricVisualizerItemFromJSONObject(
 			JSONObject o) {
 		String name = o.getString("Name");
-		DisplayMode displayMode = GuiOptions.metricVisualizerDefaultDisplayMode;
-		yAxisSelection yAxis = GuiOptions.metricVisualizerDefaultYAxisSelection;
-		GraphVisibility visibility = GuiOptions.metricVisualizerDefaultGraphVisibility;
+		DisplayMode displayMode = metricVisualizerDefaultDisplayMode;
+		yAxisSelection yAxis = MetricVisualizerItem.metricVisualizerDefaultYAxisSelection;
+		GraphVisibility visibility = MetricVisualizerItem.metricVisualizerDefaultGraphVisibility;
 		Color color = null;
 
 		try {

@@ -26,7 +26,6 @@ import javax.swing.event.ChangeListener;
 import dna.series.data.BatchData;
 import dna.series.data.RunTime;
 import dna.util.Log;
-import dna.visualization.GuiOptions;
 import dna.visualization.MainDisplay;
 import dna.visualization.config.components.StatsDisplayConfig;
 import dna.visualization.config.components.StatsDisplayConfig.RunTimeConfig;
@@ -279,7 +278,7 @@ public class StatsDisplay extends JPanel implements ChangeListener {
 
 		this.timestampDateValue = new JLabel("00:00:00:000");
 		this.timestampDateValue.setToolTipText("Dateformat: "
-				+ GuiOptions.defaultDateFormat);
+				+ config.getDateFormat().toPattern());
 		this.timestampDateValue.setFont(this.mainDisplay.getDefaultFont());
 		this.timestampDateValue.setForeground(this.mainDisplay
 				.getDefaultFontColor());
@@ -397,7 +396,7 @@ public class StatsDisplay extends JPanel implements ChangeListener {
 		final JButton timeSliderDecrButton = new JButton("<");
 		timeSliderDecrButton.setMargin(new Insets(0, 0, 0, 0));
 		timeSliderDecrButton
-				.setPreferredSize(GuiOptions.statsDisplayButtonSize);
+				.setPreferredSize(config.getTimeSliderButtonsSize());
 		timeSliderDecrButton.setFont(this.mainDisplay.getDefaultFont());
 		timeSliderDecrButton.setForeground(this.mainDisplay
 				.getDefaultFontColor());
@@ -432,7 +431,7 @@ public class StatsDisplay extends JPanel implements ChangeListener {
 		final JButton timeSliderIncrButton = new JButton(">");
 		timeSliderIncrButton.setMargin(new Insets(0, 0, 0, 0));
 		timeSliderIncrButton
-				.setPreferredSize(GuiOptions.statsDisplayButtonSize);
+				.setPreferredSize(config.getTimeSliderButtonsSize());
 		timeSliderIncrButton.setFont(this.mainDisplay.getDefaultFont());
 		timeSliderIncrButton.setForeground(this.mainDisplay
 				.getDefaultFontColor());

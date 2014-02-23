@@ -16,7 +16,7 @@ import javax.swing.JScrollPane;
 import javax.swing.border.EtchedBorder;
 
 import dna.util.Config;
-import dna.visualization.GuiOptions;
+import dna.visualization.MainDisplay;
 import dna.visualization.components.BoundsPopupMenuListener;
 import dna.visualization.components.ColorHandler;
 import dna.visualization.config.MetricVisualizerItem;
@@ -39,7 +39,7 @@ import dna.visualization.config.VisualizerListConfig.yAxisSelection;
 @SuppressWarnings("serial")
 public class Legend extends JPanel {
 	// components
-	private Visualizer parent;
+	protected Visualizer parent;
 	private Legend thisLegend;
 	private LegendList list;
 	private JScrollPane scrollPane;
@@ -401,7 +401,7 @@ public class Legend extends JPanel {
 			}
 		});
 		this.addBox.setToolTipText("Add selected value to the list");
-		this.addBox.setFont(GuiOptions.defaultFont);
+		this.addBox.setFont(MainDisplay.config.getDefaultFont());
 		BoundsPopupMenuListener listener = new BoundsPopupMenuListener(true,
 				false);
 		this.addBox.addPopupMenuListener(listener);
@@ -426,7 +426,7 @@ public class Legend extends JPanel {
 			}
 		});
 		this.addBox.setToolTipText("Add selected value to the list");
-		this.addBox.setFont(GuiOptions.defaultFont);
+		this.addBox.setFont(MainDisplay.config.getDefaultFont());
 		BoundsPopupMenuListener listener = new BoundsPopupMenuListener(true,
 				false);
 		this.addBox.addPopupMenuListener(listener);

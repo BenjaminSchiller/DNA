@@ -18,7 +18,7 @@ import dna.visualization.config.VisualizerListConfig.SortModeNVL;
 @SuppressWarnings("serial")
 public class LegendList extends JPanel {
 
-	private Legend parent;
+	protected Legend parent;
 
 	// constructor
 	public LegendList(Legend parent) {
@@ -116,7 +116,7 @@ public class LegendList extends JPanel {
 	public void toggleVisiblity(LegendItem item) {
 		this.parent.toggleVisiblity(item);
 	}
-	
+
 	/** toggles the display mode of a trace **/
 	public void toggleDisplayMode(LegendItem item) {
 		this.parent.toggleDisplayMode(item);

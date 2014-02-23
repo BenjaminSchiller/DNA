@@ -9,6 +9,7 @@ import info.monitorenter.util.Range;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -27,10 +28,11 @@ import javax.swing.JPanel;
 import javax.swing.JScrollBar;
 import javax.swing.JSlider;
 import javax.swing.border.EtchedBorder;
+import javax.swing.border.TitledBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import dna.visualization.GuiOptions;
+import dna.visualization.MainDisplay;
 import dna.visualization.config.components.MenuBarConfig;
 
 /**
@@ -45,6 +47,21 @@ public class MenuBar extends JPanel implements ChangeListener {
 	/** general options **/
 	private Visualizer parent;
 	public MenuBar thisMenuBar;
+	private TitledBorder itemBorder = BorderFactory.createTitledBorder("");
+	private Font coordsFont = new Font("Dialog", Font.PLAIN, 11);
+	private Color coordsFontColor = Color.BLACK;
+
+	// sizes
+	public static final Dimension menuBarCoordsPanelSize = new Dimension(145,
+			45);
+	public static final Dimension menuBarXOptionsPanelSize = new Dimension(65,
+			45);
+	public static final Dimension menuBarYOptionsPanelSize = new Dimension(65,
+			45);
+	public static final Dimension menuBarYRightOptionsPanelSize = new Dimension(
+			65, 45);
+	public static final Dimension menuBarIntervalPanelSize = new Dimension(210,
+			45);
 
 	// creates the default menu with all panels
 	public MenuBar(Visualizer parent, Dimension d) {
@@ -69,27 +86,25 @@ public class MenuBar extends JPanel implements ChangeListener {
 
 		this.setPreferredSize(size);
 		this.setBorder(BorderFactory.createEtchedBorder((EtchedBorder.LOWERED)));
-		GuiOptions.menuBarItemBorder
-				.setTitleFont(GuiOptions.defaultFontBorders);
 
 		// add coords panel
 		if (addCoordsPanel) {
-			this.addCoordsPanel(GuiOptions.menuBarCoordsPanelSize);
+			this.addCoordsPanel(menuBarCoordsPanelSize);
 		}
 
 		// add interval panel
 		if (addIntervalPanel) {
-			this.addIntervalPanel(GuiOptions.menuBarIntervalPanelSize);
+			this.addIntervalPanel(menuBarIntervalPanelSize);
 		}
 
 		// add x axis options panel
 		if (addXOptionsPanel) {
-			this.addXOptionsPanel(GuiOptions.menuBarXOptionsPanelSize);
+			this.addXOptionsPanel(menuBarXOptionsPanelSize);
 		}
 
 		// add y-axis options panel
 		if (addYOptionsPanel) {
-			this.addYOptionsPanel(GuiOptions.menuBarYOptionsPanelSize);
+			this.addYOptionsPanel(menuBarYOptionsPanelSize);
 		}
 	}
 
@@ -121,7 +136,7 @@ public class MenuBar extends JPanel implements ChangeListener {
 		this.intervalPanel = new JPanel();
 		this.intervalPanel.setLayout(new GridBagLayout());
 		this.intervalPanel.setPreferredSize(size);
-		this.intervalPanel.setBorder(GuiOptions.menuBarItemBorder);
+		this.intervalPanel.setBorder(this.itemBorder);
 
 		GridBagConstraints c = new GridBagConstraints();
 
@@ -134,8 +149,8 @@ public class MenuBar extends JPanel implements ChangeListener {
 		// x1 label
 		JLabel x1Label = new JLabel("x1:");
 		x1Label.setPreferredSize(new Dimension(18, 20));
-		x1Label.setFont(GuiOptions.menuBarCoordsFont);
-		x1Label.setForeground(GuiOptions.defaultFontColor);
+		x1Label.setFont(this.coordsFont);
+		x1Label.setForeground(MainDisplay.config.getDefaultFontColor());
 
 		// checkbox
 		this.x1ShowAllCheckBox = new JCheckBox("", true);
@@ -202,7 +217,7 @@ public class MenuBar extends JPanel implements ChangeListener {
 		this.x1SizeSlider = new JSlider(JSlider.HORIZONTAL, 0, 100, 50);
 		this.x1SizeSlider.setName("x1SizeSlider");
 		this.x1SizeSlider.setPreferredSize(new Dimension(60, 20));
-		this.x1SizeSlider.setFont(GuiOptions.defaultFont);
+		this.x1SizeSlider.setFont(MainDisplay.config.getDefaultFont());
 		this.x1SizeSlider.addChangeListener(this);
 		this.x1SizeSlider.setEnabled(false);
 		this.x1SizeSlider.setToolTipText("Set size of shown interval");
@@ -280,8 +295,8 @@ public class MenuBar extends JPanel implements ChangeListener {
 			// x1 label
 			JLabel x2Label = new JLabel("x2:");
 			x2Label.setPreferredSize(new Dimension(18, 20));
-			x2Label.setFont(GuiOptions.menuBarCoordsFont);
-			x2Label.setForeground(GuiOptions.defaultFontColor);
+			x2Label.setFont(this.coordsFont);
+			x2Label.setForeground(MainDisplay.config.getDefaultFontColor());
 
 			// checkbox
 			this.x2ShowAllCheckBox = new JCheckBox("", true);
@@ -348,7 +363,7 @@ public class MenuBar extends JPanel implements ChangeListener {
 			this.x2SizeSlider = new JSlider(JSlider.HORIZONTAL, 0, 100, 50);
 			this.x2SizeSlider.setName("x2SizeSlider");
 			this.x2SizeSlider.setPreferredSize(new Dimension(60, 20));
-			this.x2SizeSlider.setFont(GuiOptions.defaultFont);
+			this.x2SizeSlider.setFont(MainDisplay.config.getDefaultFont());
 			this.x2SizeSlider.addChangeListener(this);
 			this.x2SizeSlider.setEnabled(false);
 			this.x2SizeSlider.setToolTipText("Set size of shown interval");
@@ -439,13 +454,13 @@ public class MenuBar extends JPanel implements ChangeListener {
 		this.yLeftOptionsPanel = new JPanel();
 		this.yLeftOptionsPanel.setLayout(new GridBagLayout());
 		this.yLeftOptionsPanel.setPreferredSize(size);
-		this.yLeftOptionsPanel.setBorder(GuiOptions.menuBarItemBorder);
+		this.yLeftOptionsPanel.setBorder(this.itemBorder);
 
 		GridBagConstraints yLeftOptionsPanelConstraints = new GridBagConstraints();
 
 		// toggle left y axis grid button
 		final JButton toggleGridYLeftButton = new JButton("y1");
-		toggleGridYLeftButton.setFont(GuiOptions.defaultFont);
+		toggleGridYLeftButton.setFont(MainDisplay.config.getDefaultFont());
 		toggleGridYLeftButton.setForeground(Color.GRAY);
 		toggleGridYLeftButton.setPreferredSize(new Dimension(size.width - 5,
 				(int) Math.floor((size.getHeight() - 5) / 2)));
@@ -455,8 +470,8 @@ public class MenuBar extends JPanel implements ChangeListener {
 			@Override
 			public void actionPerformed(ActionEvent event) {
 				if (toggleGridYLeftButton.getForeground().equals(Color.GRAY)) {
-					toggleGridYLeftButton
-							.setForeground(GuiOptions.defaultFontColor);
+					toggleGridYLeftButton.setForeground(MainDisplay.config
+							.getDefaultFontColor());
 					toggleGridYLeftButton
 							.setToolTipText("Hide grid of left y-axis (y1).");
 				} else {
@@ -474,7 +489,7 @@ public class MenuBar extends JPanel implements ChangeListener {
 
 		// toggle right y axis grid button
 		final JButton toggleGridYRightButton = new JButton("y2");
-		toggleGridYRightButton.setFont(GuiOptions.defaultFont);
+		toggleGridYRightButton.setFont(MainDisplay.config.getDefaultFont());
 		toggleGridYRightButton.setForeground(Color.GRAY);
 		toggleGridYRightButton.setPreferredSize(new Dimension(new Dimension(
 				size.width - 5, (int) Math.floor((size.getHeight() - 5) / 2))));
@@ -485,8 +500,8 @@ public class MenuBar extends JPanel implements ChangeListener {
 			@Override
 			public void actionPerformed(ActionEvent event) {
 				if (toggleGridYRightButton.getForeground().equals(Color.GRAY)) {
-					toggleGridYRightButton
-							.setForeground(GuiOptions.defaultFontColor);
+					toggleGridYRightButton.setForeground(MainDisplay.config
+							.getDefaultFontColor());
 					toggleGridYRightButton
 							.setToolTipText("Hide grid of right y-axis (y2).");
 				} else {
@@ -514,13 +529,13 @@ public class MenuBar extends JPanel implements ChangeListener {
 		this.yRightOptionsPanel = new JPanel();
 		this.yRightOptionsPanel.setLayout(new GridBagLayout());
 		this.yRightOptionsPanel.setPreferredSize(size);
-		this.yRightOptionsPanel.setBorder(GuiOptions.menuBarItemBorder);
+		this.yRightOptionsPanel.setBorder(this.itemBorder);
 
 		GridBagConstraints yRightOptionsPanelConstraints = new GridBagConstraints();
 
 		// toggle right y axis grid button
 		final JButton toggleGridYRightButton = new JButton("y2");
-		toggleGridYRightButton.setFont(GuiOptions.defaultFont);
+		toggleGridYRightButton.setFont(MainDisplay.config.getDefaultFont());
 		toggleGridYRightButton.setForeground(Color.GRAY);
 		toggleGridYRightButton.setPreferredSize(new Dimension(new Dimension(
 				size.width - 5, (int) Math.floor((size.getHeight() - 5) / 2))));
@@ -531,8 +546,8 @@ public class MenuBar extends JPanel implements ChangeListener {
 			@Override
 			public void actionPerformed(ActionEvent event) {
 				if (toggleGridYRightButton.getForeground().equals(Color.GRAY)) {
-					toggleGridYRightButton
-							.setForeground(GuiOptions.defaultFontColor);
+					toggleGridYRightButton.setForeground(MainDisplay.config
+							.getDefaultFontColor());
 					toggleGridYRightButton
 							.setToolTipText("Hide grid of right y-axis (y2).");
 				} else {
@@ -550,7 +565,7 @@ public class MenuBar extends JPanel implements ChangeListener {
 
 		// toggle right y axis log button
 		final JButton toggleLogYRightButton = new JButton("+log y1");
-		toggleLogYRightButton.setFont(GuiOptions.defaultFont);
+		toggleLogYRightButton.setFont(MainDisplay.config.getDefaultFont());
 		toggleLogYRightButton.setForeground(Color.GRAY);
 		toggleLogYRightButton.setPreferredSize(new Dimension(new Dimension(
 				size.width - 5, (int) Math.floor((size.getHeight() - 5) / 2))));
@@ -573,13 +588,13 @@ public class MenuBar extends JPanel implements ChangeListener {
 		this.xOptionsPanel = new JPanel();
 		this.xOptionsPanel.setLayout(new GridBagLayout());
 		this.xOptionsPanel.setPreferredSize(size);
-		this.xOptionsPanel.setBorder(GuiOptions.menuBarItemBorder);
+		this.xOptionsPanel.setBorder(this.itemBorder);
 
 		GridBagConstraints xAxisOptionsPanelConstraints = new GridBagConstraints();
 
 		// toggle x axis grid button
 		final JButton toggleGridX1Button = new JButton("x1");
-		toggleGridX1Button.setFont(GuiOptions.defaultFont);
+		toggleGridX1Button.setFont(MainDisplay.config.getDefaultFont());
 		toggleGridX1Button.setForeground(Color.GRAY);
 		toggleGridX1Button.setPreferredSize(new Dimension(new Dimension(
 				size.width - 5, (int) Math.floor((size.getHeight() - 5) / 2))));
@@ -589,8 +604,8 @@ public class MenuBar extends JPanel implements ChangeListener {
 			@Override
 			public void actionPerformed(ActionEvent event) {
 				if (toggleGridX1Button.getForeground().equals(Color.GRAY)) {
-					toggleGridX1Button
-							.setForeground(GuiOptions.defaultFontColor);
+					toggleGridX1Button.setForeground(MainDisplay.config
+							.getDefaultFontColor());
 					toggleGridX1Button.setToolTipText("Hide grid of x1.");
 				} else {
 					toggleGridX1Button.setForeground(Color.GRAY);
@@ -607,7 +622,7 @@ public class MenuBar extends JPanel implements ChangeListener {
 		// if parent is multiscalarvisualizer -> add grid button for x2
 		if (parent instanceof MultiScalarVisualizer) {
 			final JButton toggleGridX2Button = new JButton("x2");
-			toggleGridX2Button.setFont(GuiOptions.defaultFont);
+			toggleGridX2Button.setFont(MainDisplay.config.getDefaultFont());
 			toggleGridX2Button.setForeground(Color.GRAY);
 			toggleGridX2Button.setPreferredSize(new Dimension(new Dimension(
 					size.width - 5,
@@ -618,8 +633,8 @@ public class MenuBar extends JPanel implements ChangeListener {
 				@Override
 				public void actionPerformed(ActionEvent event) {
 					if (toggleGridX2Button.getForeground().equals(Color.GRAY)) {
-						toggleGridX2Button
-								.setForeground(GuiOptions.defaultFontColor);
+						toggleGridX2Button.setForeground(MainDisplay.config
+								.getDefaultFontColor());
 						toggleGridX2Button.setToolTipText("Hide grid of x2.");
 					} else {
 						toggleGridX2Button.setForeground(Color.GRAY);
@@ -656,7 +671,7 @@ public class MenuBar extends JPanel implements ChangeListener {
 		this.coordsPanel = new JPanel();
 		this.coordsPanel.setLayout(new GridBagLayout());
 		this.coordsPanel.setPreferredSize(size);
-		this.coordsPanel.setBorder(GuiOptions.menuBarItemBorder);
+		this.coordsPanel.setBorder(this.itemBorder);
 
 		GridBagConstraints coordsPanelConstraints = new GridBagConstraints();
 		coordsPanelConstraints.gridx = 0;
@@ -664,22 +679,23 @@ public class MenuBar extends JPanel implements ChangeListener {
 
 		// x coords label
 		JLabel xCoordsLabel = new JLabel("x:");
-		xCoordsLabel.setFont(GuiOptions.menuBarCoordsFont);
-		xCoordsLabel.setForeground(GuiOptions.menuBarCoordsFontColor);
+		xCoordsLabel.setFont(this.coordsFont);
+		xCoordsLabel.setForeground(this.coordsFontColor);
 		xCoordsLabel.setPreferredSize(new Dimension(10, 20));
 		this.coordsPanel.add(xCoordsLabel, coordsPanelConstraints);
 		// x coords value
 		this.xCoordsValue = new JLabel();
-		if (GuiOptions.metricVisualizerXAxisType.equals("date")
-				&& (this.parent instanceof MetricVisualizer)) {
+		if (MainDisplay.config.getMetricVisualizerConfigs()[0].getxAxisType()
+				.equals("date") && (this.parent instanceof MetricVisualizer)) {
 			SimpleDateFormat tempDateFormat = new SimpleDateFormat(
-					GuiOptions.metricVisualizerXAxisFormat);
+					MainDisplay.config.getMetricVisualizerConfigs()[0]
+							.getxAxisFormat());
 			this.xCoordsValue.setText(tempDateFormat.format(new Date(0)));
 		} else {
 			this.xCoordsValue.setText("0");
 		}
-		this.xCoordsValue.setFont(GuiOptions.menuBarCoordsFont);
-		this.xCoordsValue.setForeground(GuiOptions.menuBarCoordsFontColor);
+		this.xCoordsValue.setFont(this.coordsFont);
+		this.xCoordsValue.setForeground(this.coordsFontColor);
 		this.xCoordsValue.setPreferredSize(new Dimension(120, 20));
 		coordsPanelConstraints.gridx = 1;
 		coordsPanelConstraints.gridy = 0;
@@ -687,8 +703,8 @@ public class MenuBar extends JPanel implements ChangeListener {
 
 		// y coords label
 		JLabel yCoordsLabel = new JLabel("y:");
-		yCoordsLabel.setFont(GuiOptions.menuBarCoordsFont);
-		yCoordsLabel.setForeground(GuiOptions.menuBarCoordsFontColor);
+		yCoordsLabel.setFont(this.coordsFont);
+		yCoordsLabel.setForeground(this.coordsFontColor);
 		yCoordsLabel.setPreferredSize(new Dimension(10, 20));
 		coordsPanelConstraints.gridx = 0;
 		coordsPanelConstraints.gridy = 1;
@@ -696,8 +712,8 @@ public class MenuBar extends JPanel implements ChangeListener {
 
 		// y coords value
 		this.yCoordsValue = new JLabel("0");
-		this.yCoordsValue.setFont(GuiOptions.menuBarCoordsFont);
-		this.yCoordsValue.setForeground(GuiOptions.menuBarCoordsFontColor);
+		this.yCoordsValue.setFont(this.coordsFont);
+		this.yCoordsValue.setForeground(this.coordsFontColor);
 		this.yCoordsValue.setPreferredSize(new Dimension(120, 20));
 		coordsPanelConstraints.gridx = 1;
 		coordsPanelConstraints.gridy = 1;
@@ -728,10 +744,12 @@ public class MenuBar extends JPanel implements ChangeListener {
 	 */
 	public void updateCoordsPanel(int x, double y) {
 		if (this.coordsPanel != null) {
-			if (GuiOptions.metricVisualizerXAxisType.equals("date")
+			if (MainDisplay.config.getMetricVisualizerConfigs()[0]
+					.getxAxisType().equals("date")
 					&& (this.parent instanceof MetricVisualizer)) {
 				SimpleDateFormat tempDateFormat = new SimpleDateFormat(
-						GuiOptions.metricVisualizerXAxisFormat);
+						MainDisplay.config.getMetricVisualizerConfigs()[0]
+								.getxAxisFormat());
 				this.xCoordsValue.setText(tempDateFormat.format(new Date(x)));
 			} else {
 				this.xCoordsValue.setText("" + x);

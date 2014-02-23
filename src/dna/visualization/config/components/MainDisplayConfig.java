@@ -6,22 +6,24 @@ import java.awt.Font;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 
-import dna.visualization.GuiOptions;
+import dna.visualization.MainDisplay;
 import dna.visualization.config.JSON.JSONObject;
 
 public class MainDisplayConfig {
 
 	// constructor
-	public MainDisplayConfig(String name, Dimension size, boolean fullscreen,
-			String defaultDir, Font defaultFont, Color defaultFontColor,
-			Dimension buttonSize, String logoDir, Dimension logoSize,
-			Dimension visualizerPanelSize, Dimension innerVisualizerPanelSize,
+	public MainDisplayConfig(String name, Dimension size,
+			boolean liveDisplayMode, boolean fullscreen, String defaultDir,
+			Font defaultFont, Color defaultFontColor, Dimension buttonSize,
+			String logoDir, Dimension logoSize, Dimension visualizerPanelSize,
+			Dimension innerVisualizerPanelSize,
 			StatsDisplayConfig statsDisplayConfig,
 			LogDisplayConfig[] logDisplayConfigs,
 			MetricVisualizerConfig[] metricVisualizerConfigs,
 			MultiScalarVisualizerConfig[] multiScalarVisualizerConfigs) {
 		this.name = name;
 		this.size = size;
+		this.liveDisplayMode = liveDisplayMode;
 		this.fullscreen = fullscreen;
 		this.defaultDir = defaultDir;
 		this.defaultFont = defaultFont;
@@ -39,6 +41,7 @@ public class MainDisplayConfig {
 
 	private String name;
 	private Dimension size;
+	private boolean liveDisplayMode;
 	private boolean fullscreen;
 	private String defaultDir;
 	private Font defaultFont;
@@ -66,6 +69,18 @@ public class MainDisplayConfig {
 
 	public String getDefaultDir() {
 		return this.defaultDir;
+	}
+
+	public void setDefaultDir(String defaultDir) {
+		this.defaultDir = defaultDir;
+	}
+
+	public boolean isLiveDisplayMode() {
+		return this.liveDisplayMode;
+	}
+
+	public void setLiveDisplayMode(boolean liveDisplayMode) {
+		this.liveDisplayMode = liveDisplayMode;
 	}
 
 	public boolean isFullscreen() {
@@ -119,25 +134,93 @@ public class MainDisplayConfig {
 	/** Creates a main display config object from a given json object. **/
 	public static MainDisplayConfig createMainDisplayConfigFromJSONObject(
 			JSONObject o) {
-		String name = GuiOptions.mainDisplayDefaultTitle;
-		Dimension size = GuiOptions.mainDisplayDefaultSize;
-		boolean fullscreen = GuiOptions.mainDisplayDefaultIsFullscreen;
-		String defaultDir = GuiOptions.defaultDir;
-		Font defaultFont = GuiOptions.defaultFont;
-		Color defaultFontColor = GuiOptions.defaultFontColor;
-		Dimension buttonSize = GuiOptions.mainDisplayDefaultButtonSize;
-
-		String logoDir = GuiOptions.mainDisplayDefaultLogoDir;
-		Dimension logoSize = GuiOptions.mainDisplayDefaultLogoSize;
-
-		Dimension visualizerPanelSize = GuiOptions.mainDisplayDefaultVisualizerPanelSize;
-		Dimension innerVisualizerPanelSize = GuiOptions.mainDisplayDefaultVisualizerPanelSize;
+		// init
+		String name;
+		Dimension size;
+		boolean liveDisplayMode;
+		boolean fullscreen;
+		String defaultDir;
+		Font defaultFont;
+		Color defaultFontColor;
+		Dimension buttonSize;
+		String logoDir;
+		Dimension logoSize;
+		Dimension visualizerPanelSize;
+		Dimension innerVisualizerPanelSize;
 
 		StatsDisplayConfig statsDisplayConfig = null;
 		LogDisplayConfig[] logDisplayConfigs = new LogDisplayConfig[0];
 		MetricVisualizerConfig[] metricVisualizerConfigs = new MetricVisualizerConfig[0];
 		MultiScalarVisualizerConfig[] multiScalarVisualizerConfigs = new MultiScalarVisualizerConfig[0];
 
+		// set default values
+		if (MainDisplay.DefaultConfig == null) {
+			// if the defaultconfig is not set, read default values
+			name = o.getString("Name");
+			size = new Dimension(o.getInt("Width"), o.getInt("Height"));
+			liveDisplayMode = o.getBoolean("LiveDisplayMode");
+			fullscreen = o.getBoolean("Fullscreen");
+			defaultDir = o.getString("DefaultDir");
+
+			JSONObject fontObject = o.getJSONObject("DefaultFont");
+			String tempName = fontObject.getString("Name");
+			String tempStyle = fontObject.getString("Style");
+			int tempSize = fontObject.getInt("Size");
+			int style;
+			switch (tempStyle) {
+			case "PLAIN":
+				style = Font.PLAIN;
+				break;
+			case "BOLD":
+				style = Font.BOLD;
+				break;
+			case "ITALIC":
+				style = Font.ITALIC;
+				break;
+			default:
+				style = Font.PLAIN;
+				break;
+			}
+			defaultFont = new Font(tempName, style, tempSize);
+			defaultFontColor = Color.BLACK;
+			try {
+				Field field = Color.class.getField(fontObject
+						.getString("Color"));
+				defaultFontColor = (Color) field.get(null);
+			} catch (Exception e) {
+			}
+			JSONObject buttonObject = o.getJSONObject("Buttons");
+			buttonSize = new Dimension(buttonObject.getInt("Width"),
+					buttonObject.getInt("Height"));
+			JSONObject logoObject = o.getJSONObject("Logo");
+			logoDir = logoObject.getString("Dir");
+			logoSize = new Dimension(logoObject.getInt("Width"),
+					logoObject.getInt("Height"));
+			JSONObject visPanelObject = o.getJSONObject("VisualizerPanel");
+			visualizerPanelSize = new Dimension(visPanelObject.getInt("Width"),
+					visPanelObject.getInt("Height"));
+			innerVisualizerPanelSize = new Dimension(
+					visPanelObject.getInt("InnerWidth"),
+					visPanelObject.getInt("InnerHeight"));
+		} else {
+			// use default config values as defaults
+			name = MainDisplay.DefaultConfig.getName();
+			size = MainDisplay.DefaultConfig.getSize();
+			liveDisplayMode = MainDisplay.DefaultConfig.isLiveDisplayMode();
+			fullscreen = MainDisplay.DefaultConfig.isFullscreen();
+			defaultDir = MainDisplay.DefaultConfig.getDefaultDir();
+			defaultFont = MainDisplay.DefaultConfig.getDefaultFont();
+			defaultFontColor = MainDisplay.DefaultConfig.getDefaultFontColor();
+			buttonSize = MainDisplay.DefaultConfig.getButtonSize();
+			logoDir = MainDisplay.DefaultConfig.getLogoDir();
+			logoSize = MainDisplay.DefaultConfig.getLogoSize();
+			visualizerPanelSize = MainDisplay.DefaultConfig
+					.getVisualizerPanelSize();
+			innerVisualizerPanelSize = MainDisplay.DefaultConfig
+					.getInnerVisualizerPanelSize();
+		}
+
+		// overwrite default values with parsed values
 		try {
 			name = o.getString("Name");
 		} catch (Exception e) {
@@ -145,6 +228,11 @@ public class MainDisplayConfig {
 
 		try {
 			size = new Dimension(o.getInt("Width"), o.getInt("Height"));
+		} catch (Exception e) {
+		}
+
+		try {
+			liveDisplayMode = o.getBoolean("LiveDisplayMode");
 		} catch (Exception e) {
 		}
 
@@ -265,7 +353,6 @@ public class MainDisplayConfig {
 		ArrayList<MetricVisualizerConfig> metricVisualizerConfigsArray = new ArrayList<MetricVisualizerConfig>();
 		try {
 			JSONObject mvo = o.getJSONObject("MetricVisualizerConfigs");
-
 			for (String metricVis : JSONObject.getNames(mvo)) {
 				try {
 					metricVisualizerConfigsArray.add(MetricVisualizerConfig
@@ -286,7 +373,6 @@ public class MainDisplayConfig {
 		ArrayList<MultiScalarVisualizerConfig> multiScalarVisualizerConfigsArray = new ArrayList<MultiScalarVisualizerConfig>();
 		try {
 			JSONObject mvo = o.getJSONObject("MultiScalarVisualizerConfigs");
-
 			for (String multiScalarVis : JSONObject.getNames(mvo)) {
 				try {
 					multiScalarVisualizerConfigsArray
@@ -305,9 +391,9 @@ public class MainDisplayConfig {
 					.get(i);
 		}
 
-		return new MainDisplayConfig(name, size, fullscreen, defaultDir,
-				defaultFont, defaultFontColor, buttonSize, logoDir, logoSize,
-				visualizerPanelSize, innerVisualizerPanelSize,
+		return new MainDisplayConfig(name, size, liveDisplayMode, fullscreen,
+				defaultDir, defaultFont, defaultFontColor, buttonSize, logoDir,
+				logoSize, visualizerPanelSize, innerVisualizerPanelSize,
 				statsDisplayConfig, logDisplayConfigs, metricVisualizerConfigs,
 				multiScalarVisualizerConfigs);
 	}

@@ -44,41 +44,105 @@ public class MainDisplay extends JFrame {
 
 	/** MAIN **/
 	public static void main(String[] args) {
-		// generate config for visualizers
-		JSONObject jsonConfig = new JSONObject();
+		// check if someone needs help
+		if (args.length > 0
+				&& (args[0].equals("help") || args[0].equals("-help") || args[0]
+						.equals("--help")) || args[0].equals("-h")
+				|| args[0].equals("--h")) {
+			System.out.println("DNA - Dynamic Network Analyzer");
+			System.out
+					.println("Parameters: [config-path], [livedisplay=true/false], [data-dir]");
+			System.out.println("Example: run dna.jar " + '"'
+					+ "config/gui_config1.cfg" + '"' + " true " + '"'
+					+ "data/scenario1337/run.42/" + '"');
+		} else {
+			String defaultConfigPath = "config/gui_default.cfg";
+			String displayConfigPath = "config/gui_default.cfg";
+			Boolean liveDisplay = null;
+			String dataDir = null;
 
-		String displayConfigPath = "config/displayConfig.cfg";
+			// check cmd line parameters
+			if (args.length > 0) {
+				if (args.length > 1) {
+					if (args.length > 2) {
+						displayConfigPath = args[0];
+						liveDisplay = Boolean.parseBoolean(args[1]);
+						dataDir = args[2];
+					} else {
+						if (!args[0].equals("true") && !args[0].equals("false")) {
+							displayConfigPath = args[0];
+							if (!args[1].equals("true")
+									&& !args[1].equals("false"))
+								dataDir = args[1];
+							else
+								liveDisplay = Boolean.parseBoolean(args[1]);
+						} else
+							liveDisplay = Boolean.parseBoolean(args[0]);
+						if (!args[1].equals("true") && !args[1].equals("false"))
+							dataDir = args[1];
+					}
+				} else {
+					if (!args[0].equals("true") && !args[0].equals("false"))
+						displayConfigPath = args[0];
+					else
+						liveDisplay = Boolean.parseBoolean(args[0]);
+				}
+			}
 
-		try {
-			FileInputStream file = new FileInputStream(displayConfigPath);
-			JSONTokener tk = new JSONTokener(file);
-			jsonConfig = new JSONObject(tk);
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
+			JSONObject jsonConfig = new JSONObject();
+
+			// read default config
+			try {
+				Log.info("Loading default config from " + defaultConfigPath);
+				FileInputStream file = new FileInputStream(defaultConfigPath);
+				JSONTokener tk = new JSONTokener(file);
+				jsonConfig = new JSONObject(tk);
+			} catch (FileNotFoundException e) {
+				e.printStackTrace();
+			}
+
+			MainDisplay.DefaultConfig = MainDisplayConfig
+					.createMainDisplayConfigFromJSONObject(jsonConfig
+							.getJSONObject("MainDisplayConfig"));
+
+			// read main display config
+			try {
+				Log.info("Loading config from " + displayConfigPath);
+				FileInputStream file = new FileInputStream(displayConfigPath);
+				JSONTokener tk = new JSONTokener(file);
+				jsonConfig = new JSONObject(tk);
+			} catch (FileNotFoundException e) {
+				e.printStackTrace();
+			}
+
+			config = MainDisplayConfig
+					.createMainDisplayConfigFromJSONObject(jsonConfig
+							.getJSONObject("MainDisplayConfig"));
+
+			if (liveDisplay == null)
+				liveDisplay = config.isLiveDisplayMode();
+			if (dataDir == null)
+				dataDir = config.getDefaultDir();
+			else {
+				config.setDefaultDir(dataDir);
+				MainDisplay.DefaultConfig.setDefaultDir(dataDir);
+			}
+
+			// init main window
+			Log.info("Initializing MainDisplay");
+			MainDisplay display = new MainDisplay(liveDisplay, config);
+
+			// init batch handler, hand over directory and maindisplay
+			display.setBatchHandler(new BatchHandler(config.getDefaultDir(),
+					display, liveDisplay));
+			display.initBatchHandler();
+
+			if (config.isFullscreen()) {
+				display.setExtendedState(display.getExtendedState()
+						| JFrame.MAXIMIZED_BOTH);
+			}
+			display.setVisible(true);
 		}
-
-		config = MainDisplayConfig
-				.createMainDisplayConfigFromJSONObject(jsonConfig
-						.getJSONObject("MainDisplayConfig"));
-
-		/** LIVE DISPLAY **/
-		Boolean liveDisplay = false;
-		/** LIVE DISPLAY **/
-
-		// init main window
-		Log.info("Initializing MainDisplay");
-		MainDisplay display = new MainDisplay(liveDisplay, config);
-
-		// init batch handler, hand over directory and maindisplay
-		display.setBatchHandler(new BatchHandler(config.getDefaultDir(),
-				display, liveDisplay));
-		display.initBatchHandler();
-
-		if (config.isFullscreen()) {
-			display.setExtendedState(display.getExtendedState()
-					| JFrame.MAXIMIZED_BOTH);
-		}
-		display.setVisible(true);
 	}
 
 	/** MAIN-END **/
@@ -105,6 +169,7 @@ public class MainDisplay extends JFrame {
 
 	// config
 	public static MainDisplayConfig config;
+	public static MainDisplayConfig DefaultConfig;
 
 	// live display flag
 	public boolean liveDisplay;

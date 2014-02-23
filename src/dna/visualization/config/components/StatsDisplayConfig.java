@@ -4,7 +4,7 @@ import java.awt.Dimension;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 
-import dna.visualization.GuiOptions;
+import dna.visualization.MainDisplay;
 import dna.visualization.config.JSON.JSONArray;
 import dna.visualization.config.JSON.JSONObject;
 
@@ -52,17 +52,19 @@ public class StatsDisplayConfig {
 
 	// constructor
 	public StatsDisplayConfig(String name, Dimension size,
-			Dimension settingsPanelSize, String dateFormat,
+			Dimension settingsPanelSize, SimpleDateFormat dateFormat,
 			String[] shownStatistics, boolean addTimePanel,
-			boolean addSpeedSlider, boolean addSettingsPanel,
-			boolean addMetRuntimes, RunTimeConfig metricRuntimeConfig,
-			boolean addGenRuntimes, RunTimeConfig generalRuntimeConfig) {
+			Dimension timeSliderButtonSize, boolean addSpeedSlider,
+			boolean addSettingsPanel, boolean addMetRuntimes,
+			RunTimeConfig metricRuntimeConfig, boolean addGenRuntimes,
+			RunTimeConfig generalRuntimeConfig) {
 		this.name = name;
 		this.size = size;
 		this.settingsPanelSize = settingsPanelSize;
-		this.dateFormat = new SimpleDateFormat(dateFormat);
+		this.dateFormat = dateFormat;
 		this.shownStatistics = shownStatistics;
 		this.addTimePanel = addTimePanel;
+		this.timeSliderButtonSize = timeSliderButtonSize;
 		this.addSpeedSlider = addSpeedSlider;
 		this.addSettingsPanel = addSettingsPanel;
 		this.addMetRuntimes = addMetRuntimes;
@@ -75,6 +77,7 @@ public class StatsDisplayConfig {
 	private String name;
 	private Dimension size;
 	private Dimension settingsPanelSize;
+	private Dimension timeSliderButtonSize;
 	private SimpleDateFormat dateFormat;
 
 	// statistics
@@ -102,6 +105,10 @@ public class StatsDisplayConfig {
 
 	public Dimension getSettingsPanelSize() {
 		return this.settingsPanelSize;
+	}
+
+	public Dimension getTimeSliderButtonsSize() {
+		return this.timeSliderButtonSize;
 	}
 
 	public SimpleDateFormat getDateFormat() {
@@ -143,25 +150,109 @@ public class StatsDisplayConfig {
 	/** Creates a stats display config object from a given json object. **/
 	public static StatsDisplayConfig creatStatsDisplayConfigFromJSONObject(
 			JSONObject o) {
-		String name = GuiOptions.statsDisplayDefaultTitle;
-		Dimension size = GuiOptions.statsDisplayDefaultSize;
-		Dimension settingsPanelSize = GuiOptions.statsDisplayDefaultSettingsPanelSize;
-		String dateFormat = GuiOptions.defaultDateFormat;
-
+		// init
+		String name;
+		Dimension size;
+		Dimension settingsPanelSize;
+		Dimension timeSliderButtonsSize;
+		SimpleDateFormat dateFormat;
 		ArrayList<String> shownStatistics = new ArrayList<String>();
-
-		boolean addTimePanel = GuiOptions.statsDisplayAddTimePanel;
-		boolean addSpeedSlider = GuiOptions.statsDisplayAddSpeedSlider;
-		boolean addSettingsPanel = GuiOptions.statsDisplayAddSettingsPanel;
-		boolean addMetRuntimes = GuiOptions.statsDisplayAddMetRuntimes;
-		boolean addGenRuntimes = GuiOptions.statsDisplayAddGenRuntimes;
-
+		boolean addTimePanel;
+		boolean addSpeedSlider;
+		boolean addSettingsPanel;
+		boolean addMetRuntimes;
+		boolean addGenRuntimes;
 		RunTimeConfig metricRuntimeConfig = null;
-		boolean showOnlyDefinedMetricRuntimes = GuiOptions.statsDisplayOnlyShowDefinedMetricRuntimes;
-
+		boolean showOnlyDefinedMetricRuntimes;
 		RunTimeConfig generalRuntimeConfig = null;
-		boolean showOnlyDefinedGeneralRuntimes = GuiOptions.statsDisplayOnlyShowDefinedGeneralRuntimes;
+		boolean showOnlyDefinedGeneralRuntimes;
 
+		// set default values
+		if (MainDisplay.DefaultConfig == null) {
+			// if the defaultconfig is not set, use this default values
+			name = o.getString("Name");
+			size = new Dimension(o.getInt("Width"), o.getInt("Height"));
+			JSONObject timeSliderButtonsObject = o
+					.getJSONObject("TimeSliderButtons");
+			timeSliderButtonsSize = new Dimension(
+					timeSliderButtonsObject.getInt("Width"),
+					timeSliderButtonsObject.getInt("Height"));
+			JSONObject settingsPanelObject = o.getJSONObject("SettingsPanel");
+			settingsPanelSize = new Dimension(
+					settingsPanelObject.getInt("Width"),
+					settingsPanelObject.getInt("Height"));
+			dateFormat = new SimpleDateFormat(o.getString("DateFormat"));
+			JSONArray statisticNames = o.getJSONArray("ShownStatistics");
+			for (int i = 0; i < statisticNames.length(); i++) {
+				shownStatistics.add(statisticNames.getString(i));
+			}
+			addTimePanel = o.getBoolean("ShowTimePanel");
+			addSpeedSlider = o.getBoolean("ShowSpeedSlider");
+			addSettingsPanel = o.getBoolean("ShowSettingsPanel");
+			addMetRuntimes = o.getBoolean("ShowMetricRuntimes");
+			addGenRuntimes = o.getBoolean("ShowGeneralRuntimes");
+			// metric runtimes
+			JSONObject metRuntimeObject = o
+					.getJSONObject("MetricRuntimeConfig");
+			String metRuntimeName = metRuntimeObject.getString("Name");
+			showOnlyDefinedMetricRuntimes = metRuntimeObject
+					.getBoolean("ShowDefinedValues");
+			JSONArray values = metRuntimeObject.getJSONArray("Values");
+			String[] valuesArray = new String[values.length()];
+			for (int i = 0; i < values.length(); i++) {
+				valuesArray[i] = values.getString(i);
+			}
+			metricRuntimeConfig = new RunTimeConfig(metRuntimeName,
+					valuesArray, showOnlyDefinedMetricRuntimes);
+			// general runtimes
+			JSONObject genRuntimeObject = o
+					.getJSONObject("GeneralRuntimeConfig");
+			String genRuntimeName = genRuntimeObject.getString("Name");
+			showOnlyDefinedGeneralRuntimes = genRuntimeObject
+					.getBoolean("ShowDefinedValues");
+			JSONArray values2 = genRuntimeObject.getJSONArray("Values");
+			String[] values2Array = new String[values2.length()];
+			for (int i = 0; i < values2.length(); i++) {
+				values2Array[i] = values2.getString(i);
+			}
+			generalRuntimeConfig = new RunTimeConfig(genRuntimeName,
+					values2Array, showOnlyDefinedGeneralRuntimes);
+			String[] shownStatisticsArray = new String[shownStatistics.size()];
+			shownStatisticsArray = shownStatistics
+					.toArray(shownStatisticsArray);
+
+			return new StatsDisplayConfig(name, size, settingsPanelSize,
+					dateFormat, shownStatisticsArray, addTimePanel,
+					timeSliderButtonsSize, addSpeedSlider, addSettingsPanel,
+					addMetRuntimes, metricRuntimeConfig, addGenRuntimes,
+					generalRuntimeConfig);
+		} else {
+			// use default config values as defaults
+			name = MainDisplay.DefaultConfig.getStatsDisplayConfig().getName();
+			size = MainDisplay.DefaultConfig.getStatsDisplayConfig().getSize();
+			settingsPanelSize = MainDisplay.DefaultConfig
+					.getStatsDisplayConfig().getSettingsPanelSize();
+			dateFormat = MainDisplay.DefaultConfig.getStatsDisplayConfig()
+					.getDateFormat();
+			addTimePanel = MainDisplay.DefaultConfig.getStatsDisplayConfig()
+					.isAddTimePanel();
+			timeSliderButtonsSize = MainDisplay.DefaultConfig
+					.getStatsDisplayConfig().getTimeSliderButtonsSize();
+			addSpeedSlider = MainDisplay.DefaultConfig.getStatsDisplayConfig()
+					.isAddSpeedSlider();
+			addSettingsPanel = MainDisplay.DefaultConfig
+					.getStatsDisplayConfig().isAddSettingsPanel();
+			addMetRuntimes = MainDisplay.DefaultConfig.getStatsDisplayConfig()
+					.isAddMetRuntimes();
+			addGenRuntimes = MainDisplay.DefaultConfig.getStatsDisplayConfig()
+					.isAddGenRuntimes();
+			metricRuntimeConfig = MainDisplay.DefaultConfig
+					.getStatsDisplayConfig().getMetricRuntimeConfig();
+			generalRuntimeConfig = MainDisplay.DefaultConfig
+					.getStatsDisplayConfig().getGeneralRuntimeConfig();
+		}
+
+		// overwrite default values with parsed values
 		try {
 			name = o.getString("Name");
 		} catch (Exception e) {
@@ -169,6 +260,15 @@ public class StatsDisplayConfig {
 
 		try {
 			size = new Dimension(o.getInt("Width"), o.getInt("Height"));
+		} catch (Exception e) {
+		}
+
+		try {
+			JSONObject timeSliderButtonsObject = o
+					.getJSONObject("TimeSliderButtons");
+			timeSliderButtonsSize = new Dimension(
+					timeSliderButtonsObject.getInt("Width"),
+					timeSliderButtonsObject.getInt("Height"));
 		} catch (Exception e) {
 		}
 
@@ -181,7 +281,7 @@ public class StatsDisplayConfig {
 		}
 
 		try {
-			dateFormat = o.getString("DateFormat");
+			dateFormat = new SimpleDateFormat(o.getString("DateFormat"));
 		} catch (Exception e) {
 		}
 
@@ -222,7 +322,7 @@ public class StatsDisplayConfig {
 			JSONObject metRuntimeObject = o
 					.getJSONObject("MetricRuntimeConfig");
 
-			String metRuntimeName = GuiOptions.statsDisplayDefaultMetricRuntimeTitle;
+			String metRuntimeName = "MetricRuntimes";
 			try {
 				metRuntimeName = metRuntimeObject.getString("Name");
 			} catch (Exception e) {
@@ -244,7 +344,7 @@ public class StatsDisplayConfig {
 			JSONObject genRuntimeObject = o
 					.getJSONObject("GeneralRuntimeConfig");
 
-			String genRuntimeName = GuiOptions.statsDisplayDefaultGeneralRuntimeTitle;
+			String genRuntimeName = "GeneralRuntimes";
 			try {
 				genRuntimeName = genRuntimeObject.getString("Name");
 			} catch (Exception e) {
@@ -266,8 +366,9 @@ public class StatsDisplayConfig {
 		shownStatisticsArray = shownStatistics.toArray(shownStatisticsArray);
 
 		return new StatsDisplayConfig(name, size, settingsPanelSize,
-				dateFormat, shownStatisticsArray, addTimePanel, addSpeedSlider,
-				addSettingsPanel, addMetRuntimes, metricRuntimeConfig,
-				addGenRuntimes, generalRuntimeConfig);
+				dateFormat, shownStatisticsArray, addTimePanel,
+				timeSliderButtonsSize, addSpeedSlider, addSettingsPanel,
+				addMetRuntimes, metricRuntimeConfig, addGenRuntimes,
+				generalRuntimeConfig);
 	}
 }
