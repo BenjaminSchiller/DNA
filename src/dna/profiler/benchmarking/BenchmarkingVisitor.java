@@ -18,16 +18,18 @@ import org.perfidix.result.MethodResult;
 
 import dna.graph.datastructures.IDataStructure;
 import dna.io.Writer;
-import dna.util.Config;
-import dna.util.Execute;
 
 public class BenchmarkingVisitor extends AbstractOutput {
 
 	private HashMap<String, Writer> fileWriters = new HashMap<String, Writer>();
 	private HashMap<String, StringBuilder> fileWritersBufferData = new HashMap<String, StringBuilder>();
 	private HashMap<String, StringBuilder> fileWritersBufferHeader = new HashMap<String, StringBuilder>();
-	private final String outputDir = "benchmarkResults";
-	private HashMap<String, String> lastDS = new HashMap<String, String>();
+	private HashMap<String, String> lastWrittenOp = new HashMap<String, String>();
+
+	public static final String outputDir = "benchmarkResults";
+	public static final String plotExtension = ".gnuplot";
+	public static final String rawExtension = ".rawdata";
+	public static final String aggregationFile = "aggregation" + rawExtension;
 
 	@Override
 	public void visitBenchmark(BenchmarkResult res) {
@@ -93,39 +95,38 @@ public class BenchmarkingVisitor extends AbstractOutput {
 
 		for (Entry<String, Writer> w : fileWriters.entrySet()) {
 			try {
-				String fileName = w.getKey();
 				w.getValue().close();
-				Execute.exec(Config.get("GNUPLOT_PATH") + " ." + File.separator
-						+ fileName, true);
-			} catch (IOException | InterruptedException e) {
+			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}
 	}
 
-	private void writeGnuplotHeaderCommon(Writer w, String dirName,
-			String fileName, AbstractMeter meter) throws IOException {
+	public static void writeGnuplotHeaderCommon(Writer w, String dirName,
+			String fileName, String meterUnit) throws IOException {
 		w.writeln("set terminal png large");
 		w.writeln("set output \"" + dirName + fileName + ".png\"");
 		w.writeln("set xrange [0:]");
 		w.writeln("set xlabel \"Initial list size\"");
-		w.writeln("set ylabel \"Benchmark result [" + meter.getUnit() + "]\"");
+		w.writeln("set ylabel \"Benchmark result [" + meterUnit + "]\"");
 	}
 
-	private void writeGnuplotHeaderMultiple(Writer w, String dirName,
-			String fileName, AbstractMeter meter) throws IOException {
-		writeGnuplotHeaderCommon(w, dirName, fileName, meter);
-		w.writeln("set title \"Benchmarking " + meter.getName() + "\"");
+	public static void writeGnuplotHeaderMultiple(Writer w, String dirName,
+			String fileName, String meterName, String meterUnit) throws IOException {
+		writeGnuplotHeaderCommon(w, dirName, fileName, meterUnit);
+		w.writeln("set title \"Benchmarking " + meterName + "\"");
 		w.writeln("set key below");
 	}
 
 	private void writeGnuplotHeaderSingle(Writer w, String dirName,
-			String fileName, AbstractMeter meter, String ds) throws IOException {
-		writeGnuplotHeaderCommon(w, dirName, fileName, meter);
+			String fileName, String operation, AbstractMeter meter, String ds)
+			throws IOException {
+		writeGnuplotHeaderCommon(w, dirName, fileName, meter.getUnit());
 		w.writeln("set title \"Benchmarking " + meter.getName() + " on " + ds
-				+ "\"");
-		w.writeln("plot '-' using 1:2 with lp");
+				+ " " + operation + "\"");
+		w.writeln("plot '" + dirName + fileName + rawExtension
+				+ "' using 1:2 title '" + ds + "' with lp");
 	}
 
 	private void writeResultForGnuplot(AbstractMeter meter, String ds,
@@ -134,45 +135,36 @@ public class BenchmarkingVisitor extends AbstractOutput {
 
 		// Write data for *single* plot
 		String fileName = ds + "_" + operation;
-		Writer w = fileWriters.get(dirName + fileName);
+		String extension = plotExtension;
+		Writer w = fileWriters.get(dirName + fileName + extension);
 		if (w == null) {
-			w = new Writer(dirName, fileName);
-			writeGnuplotHeaderSingle(w, dirName, fileName, meter, ds);
-			fileWriters.put(dirName + fileName, w);
+			w = new Writer(dirName, fileName + extension);
+			writeGnuplotHeaderSingle(w, dirName, fileName, operation, meter, ds);
+			fileWriters.put(dirName + fileName + extension, w);
+		}
+
+		extension = rawExtension;
+		w = fileWriters.get(dirName + fileName + extension);
+		if (w == null) {
+			w = new Writer(dirName, fileName + extension);
+			fileWriters.put(dirName + fileName + extension, w);
 		}
 		w.writeln(" " + size + " " + mean);
 
-		StringBuilder writeBufferData, writeBufferHeader;
+		// Check for the aggregation file
+		extension = plotExtension;
+		String innerLastWrittenOp = lastWrittenOp.get(dirName + operation
+				+ extension);
 
-		// Write common data
-		fileName = operation;
-		w = fileWriters.get(dirName + fileName);
-		if (w == null) {
-			w = new Writer(dirName, fileName);
-			writeGnuplotHeaderMultiple(w, dirName, fileName, meter);
-			fileWriters.put(dirName + fileName, w);
-
-			writeBufferHeader = new StringBuilder();
-			writeBufferHeader.append("plot ");
-
-			fileWritersBufferData.put(dirName + fileName, new StringBuilder());
-			fileWritersBufferHeader.put(dirName + fileName, writeBufferHeader);
-		}
-
-		String innerLastDS = lastDS.get(dirName + fileName);
-		writeBufferData = fileWritersBufferData.get(dirName + fileName);
-		writeBufferHeader = fileWritersBufferHeader.get(dirName + fileName);
-
-		if (innerLastDS == null || !innerLastDS.equals(ds)) {
-			if (innerLastDS != null) {
-				writeBufferData.append("end\r\n");
-				writeBufferHeader.append(", ");
+		if (innerLastWrittenOp == null || !innerLastWrittenOp.equals(operation)) {
+			w = fileWriters.get(dirName + aggregationFile);
+			if (w == null) {
+				w = new Writer(dirName, aggregationFile, true);
+				fileWriters.put(dirName + aggregationFile, w);
 			}
-			writeBufferHeader.append("'-' using 1:2 title \"" + ds
-					+ "\" with lp");
+			w.writeln(operation + ";" + meter.getUnit() + ";" + fileName + rawExtension);
 		}
-		lastDS.put(dirName + fileName, ds);
-		writeBufferData.append(" " + size + " " + mean + "\r\n");
+		lastWrittenOp.put(dirName + operation + extension, operation);
 	}
 
 	@Override
