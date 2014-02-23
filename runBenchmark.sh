@@ -18,4 +18,10 @@ do
 	sleep 1
 done
 
+# Wait for all benchmarking processes to be finished
+while [ $(ps aux|grep java|wc -l) -ge $maxNumberRunning ];
+do
+	sleep 5
+done
+
 java -cp "lib/*;bin/" dna.profiler.benchmarking.BenchmarkingActions plot

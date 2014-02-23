@@ -7,6 +7,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Hashtable;
 
+import org.perfidix.meter.AbstractMeter;
+
 import dna.graph.tests.GlobalTestParameters;
 import dna.io.Reader;
 import dna.io.Writer;
@@ -81,6 +83,12 @@ public class BenchmarkingActions {
 				"C:\\Program Files (x86)\\Cygwin\\bin\\gnuplot.exe");
 
 		if (args[0].equals("getDS")) {
+			BenchmarkingConf conf = new BenchmarkingConf();
+			for ( AbstractMeter m: conf.getMeters() ) {
+				File f = new File(BenchmarkingVisitor.outputDir + "/" + m.getName() + "/" + BenchmarkingVisitor.aggregationFile);
+				f.delete();
+			}
+			
 			for (Class c : GlobalTestParameters.dataStructures) {
 				System.out.println(c.getName());
 			}
