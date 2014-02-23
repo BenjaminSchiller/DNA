@@ -5,7 +5,7 @@ import java.util.Iterator;
 import dna.graph.IElement;
 import dna.graph.edges.Edge;
 import dna.graph.nodes.Node;
-import dna.profiler.complexity.ComplexityType.Base;
+import dna.profiler.datatypes.complexity.ComplexityType.Base;
 
 /**
  * Base class for storing IElements

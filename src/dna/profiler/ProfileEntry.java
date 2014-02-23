@@ -3,9 +3,10 @@ package dna.profiler;
 import dna.graph.datastructures.DataStructure.AccessType;
 import dna.graph.datastructures.DataStructure.ListType;
 import dna.graph.datastructures.GraphDataStructure;
-import dna.profiler.complexity.AddedComplexity;
-import dna.profiler.complexity.Complexity;
-import dna.profiler.complexity.ComplexityMap;
+import dna.profiler.datatypes.AddedComparableEntry;
+import dna.profiler.datatypes.ComparableEntry;
+import dna.profiler.datatypes.ComparableEntryMap;
+import dna.profiler.datatypes.complexity.Complexity;
 
 public class ProfileEntry {
 	private int[][] list;
@@ -31,7 +32,7 @@ public class ProfileEntry {
 
 	public boolean hasReadAccessesInList(ListType lt) {
 		for (AccessType at : AccessType.values()) {
-			if ( at.isAllowedOnEmpty() )
+			if (at.isAllowedOnEmpty())
 				continue;
 			if (get(lt, at) != 0)
 				return true;
@@ -76,20 +77,20 @@ public class ProfileEntry {
 		return s.toString();
 	}
 
-	public ComplexityMap combinedComplexity(
+	public ComparableEntryMap combinedComplexity(
 			ProfilerMeasurementData.ProfilerDataType entryType,
 			GraphDataStructure gds, ListType listTypeLimitor) {
-		Complexity aggregated = new Complexity();
+		ComparableEntry aggregated = new Complexity();
 		for (ListType lt : ListType.values()) {
 			if (listTypeLimitor != null && !listTypeLimitor.equals(lt))
 				continue;
 			for (AccessType at : AccessType.values()) {
-				Complexity c = gds.getComplexityClass(lt, at, entryType);
-				c.setCounter(get(lt, at));
-				aggregated = new AddedComplexity(aggregated, c);
+				ComparableEntry c = gds.getComplexityClass(lt, at, entryType);
+				c.setValues(get(lt, at), Profiler.getMeanSize(lt), lt.getBase());
+				aggregated = new AddedComparableEntry(aggregated, c);
 			}
 		}
-		return aggregated.getWeightedComplexityMap();
+		return aggregated.getWeightedMap();
 	}
 
 	public ProfileEntry add(ProfileEntry other) {

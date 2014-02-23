@@ -19,7 +19,7 @@ import dna.graph.tests.GlobalTestParameters;
 import dna.io.Writer;
 import dna.io.filesystem.Dir;
 import dna.io.filesystem.Files;
-import dna.profiler.complexity.ComplexityMap;
+import dna.profiler.datatypes.ComparableEntryMap;
 import dna.updates.update.Update.UpdateType;
 import dna.util.Config;
 import dna.util.Log;
@@ -207,12 +207,12 @@ public class Profiler {
 			return res.toString();
 		}
 
-		EnumMap<ListType, HashMap<Class, ComplexityMap>> listComplexities = new EnumMap<ListType, HashMap<Class, ComplexityMap>>(
+		EnumMap<ListType, HashMap<Class, ComparableEntryMap>> listComplexities = new EnumMap<ListType, HashMap<Class, ComparableEntryMap>>(
 				ListType.class);
-		HashMap<Class, ComplexityMap> innerComplexities;
+		HashMap<Class, ComparableEntryMap> innerComplexities;
 
 		for (ListType lt : ListType.values()) {
-			innerComplexities = new HashMap<Class, ComplexityMap>();
+			innerComplexities = new HashMap<Class, ComparableEntryMap>();
 			for (Class listClass : GlobalTestParameters.dataStructures) {
 				if (!(lt.getRequiredType().isAssignableFrom(listClass)))
 					continue;
@@ -234,7 +234,7 @@ public class Profiler {
 			allCombinations = GraphDataStructure
 					.getAllDatastructureCombinations();
 
-		TreeMap<ComplexityMap, GraphDataStructure> recommendationList = new TreeMap<>();
+		TreeMap<ComparableEntryMap, GraphDataStructure> recommendationList = new TreeMap<>();
 		int numberOfRecommendations = Config
 				.getInt("NUMBER_OF_RECOMMENDATIONS");
 
@@ -268,7 +268,8 @@ public class Profiler {
 
 			tempGDS = new GraphDataStructure(singleCombination,
 					gds.getNodeType(), gds.getEdgeType());
-			ComplexityMap aggregated = new ComplexityMap();
+			ComparableEntryMap aggregated = ProfilerMeasurementData
+					.getMap(entryType);
 
 			Class<? extends IDataStructure> currClass;
 			ListType recLT;
@@ -304,7 +305,7 @@ public class Profiler {
 		 */
 		for (int i = 0; (i < numberOfRecommendations && recommendationList
 				.size() > 0); i++) {
-			Entry<ComplexityMap, GraphDataStructure> pollFirstEntry = recommendationList
+			Entry<ComparableEntryMap, GraphDataStructure> pollFirstEntry = recommendationList
 					.pollFirstEntry();
 			String polledEntry = pollFirstEntry.getValue()
 					.getStorageDataStructures(true)
@@ -317,7 +318,7 @@ public class Profiler {
 		// res.append(separator + "  Bottom list: ");
 		// for (int i = 0; (i < numberOfRecommendations && recommendationList
 		// .size() > 0); i++) {
-		// Entry<ComplexityMap, GraphDataStructure> pollLastEntry =
+		// Entry<ComparableEntryMap, GraphDataStructure> pollLastEntry =
 		// recommendationList
 		// .pollLastEntry();
 		// String polledEntry = pollLastEntry.getValue()

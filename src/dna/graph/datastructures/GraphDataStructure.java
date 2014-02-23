@@ -24,8 +24,8 @@ import dna.graph.tests.GlobalTestParameters;
 import dna.graph.weights.IWeighted;
 import dna.profiler.ProfilerMeasurementData;
 import dna.profiler.ProfilerMeasurementData.ProfilerDataType;
-import dna.profiler.complexity.Complexity;
-import dna.profiler.complexity.ComplexityType.Base;
+import dna.profiler.datatypes.ComparableEntry;
+import dna.profiler.datatypes.complexity.ComplexityType.Base;
 import dna.util.Config;
 
 /**
@@ -601,14 +601,14 @@ public class GraphDataStructure {
 		}
 	}
 
-	private Complexity getComplexityClass(Class<? extends IDataStructure> ds,
+	private ComparableEntry getComplexityClass(Class<? extends IDataStructure> ds,
 			Class<? extends IElement> dt, ProfilerDataType complexityType,
 			AccessType at, Base b) {
 		return ProfilerMeasurementData.get(complexityType, ds.getSimpleName(),
 				at, dt.getSimpleName(), b);
 	}
 
-	public Complexity getComplexityClass(ListType lt, AccessType at,
+	public ComparableEntry getComplexityClass(ListType lt, AccessType at,
 			ProfilerDataType complexityType) {
 		Class<? extends IDataStructure> listClass = getListClass(lt);
 		Class<? extends IElement> storedElement = lt.getStoredClass();
