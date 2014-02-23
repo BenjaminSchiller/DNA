@@ -7,8 +7,6 @@ import java.util.Iterator;
 import dna.graph.IElement;
 import dna.graph.edges.Edge;
 import dna.graph.nodes.Node;
-import dna.profiler.complexity.Complexity;
-import dna.profiler.complexity.ComplexityType.Base;
 import dna.util.Rand;
 
 /**
@@ -29,7 +27,8 @@ public class DHashTable extends DataStructureReadable implements
 	}
 
 	@Override
-	public void init(Class<? extends IElement> dT, int initialSize, boolean firstTime) {
+	public void init(Class<? extends IElement> dT, int initialSize,
+			boolean firstTime) {
 		this.list = new Hashtable<String, IElement>(initialSize);
 		this.maxNodeIndex = -1;
 	}
@@ -178,11 +177,6 @@ public class DHashTable extends DataStructureReadable implements
 	@Override
 	public int getMaxNodeIndex() {
 		return this.maxNodeIndex;
-	}
-
-	public static Complexity getComplexity(Class<? extends IElement> dt,
-			AccessType access, Base base) {
-		throw new RuntimeException("Not supported yet");
 	}
 
 }
