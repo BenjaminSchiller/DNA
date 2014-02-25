@@ -3,6 +3,7 @@ package dna.graph.tests;
 import com.google.common.collect.ObjectArrays;
 
 import dna.graph.datastructures.DArray;
+import dna.graph.datastructures.DArrayDeque;
 import dna.graph.datastructures.DArrayList;
 import dna.graph.datastructures.DEmpty;
 import dna.graph.datastructures.DHashArrayList;
@@ -43,9 +44,11 @@ public class GlobalTestParameters {
 			edgeTypes, Class.class);
 
 	public static final Class[] dataStructures = { DArray.class,
-			DArrayList.class, DHashArrayList.class, DHashMap.class,
-			DHashSet.class, DHashTable.class, DLinkedList.class, DEmpty.class };
+			DArrayDeque.class, DArrayList.class, DHashArrayList.class,
+			DHashMap.class, DHashSet.class, DHashTable.class,
+			DLinkedList.class, DEmpty.class };
 
 	public static final Class[] graphGenerators = { CliqueGraph.class,
-			RingGraph.class, BarabasiAlbertGraph.class, RandomGraph.class, EmptyGraph.class };
+			RingGraph.class, BarabasiAlbertGraph.class, RandomGraph.class,
+			EmptyGraph.class };
 }
