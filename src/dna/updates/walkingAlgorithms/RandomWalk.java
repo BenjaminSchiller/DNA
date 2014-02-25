@@ -54,6 +54,7 @@ public class RandomWalk extends WalkingAlgorithm {
 					- fullyVisited.size();
 
 			if (notFullyVisitedNodeCount <= 0) {
+				
 				noNodeFound();
 				return null;
 			}
