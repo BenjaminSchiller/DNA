@@ -1,8 +1,6 @@
 package dna.updates.walkingAlgorithms;
 
-import java.util.ArrayList;
-
-import com.google.common.collect.Lists;
+import java.util.LinkedList;
 
 import dna.graph.Graph;
 import dna.graph.IElement;
@@ -17,7 +15,7 @@ import dna.util.parameters.Parameter;
  */
 public class UniformSampling extends WalkingAlgorithm {
 
-	ArrayList<IElement> notVisited;
+	LinkedList<IElement> notVisited;
 
 	/**
 	 * @param name
@@ -35,7 +33,7 @@ public class UniformSampling extends WalkingAlgorithm {
 		super(name, fullGraph, startNodeStrategy, onlyVisitedNodesToGraph,
 				costPerBatch, resource, parameters);
 
-		notVisited = Lists.newArrayList(fullGraph.getNodes());
+		notVisited = new LinkedList<IElement>(fullGraph.getNodes());
 	}
 
 	@Override

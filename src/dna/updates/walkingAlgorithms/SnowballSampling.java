@@ -20,12 +20,14 @@ public class SnowballSampling extends WalkingAlgorithm {
 	private int numberOfNeighborsVisited;
 
 	/**
+	 * 
 	 * @param name
 	 * @param fullGraph
 	 * @param startNodeStrategy
 	 * @param onlyVisitedNodesToGraph
 	 * @param costPerBatch
 	 * @param resource
+	 * @param numberOfNeighborsVisited
 	 * @param parameters
 	 */
 	public SnowballSampling(String name, Graph fullGraph,

@@ -20,12 +20,14 @@ public class RespondentDrivenSampling extends WalkingAlgorithm {
 	private int numberOfNeighborsVisited;
 
 	/**
+	 * 
 	 * @param name
 	 * @param fullGraph
 	 * @param startNodeStrategy
 	 * @param onlyVisitedNodesToGraph
 	 * @param costPerBatch
 	 * @param resource
+	 * @param numberOfNeighborsVisited
 	 * @param parameters
 	 */
 	public RespondentDrivenSampling(String name, Graph fullGraph,
