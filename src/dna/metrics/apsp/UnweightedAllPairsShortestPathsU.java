@@ -153,7 +153,7 @@ public class UnweightedAllPairsShortestPathsU extends UnweightedAllPairsShortest
 						continue;
 					}
 				}
-				boolean noPossibleNeighbour = (key >= 15 && dist > 15)
+				boolean noPossibleNeighbour = (key >= this.apsp.getMax()+2 && dist > this.apsp.getMax()+2)
 						|| (min.isEmpty() && (!uncertain.contains(w) || (key == dist)));
 
 				// no neighbour found
@@ -272,7 +272,7 @@ public class UnweightedAllPairsShortestPathsU extends UnweightedAllPairsShortest
 				for (IElement iEdge : w.getEdges()) {
 					UndirectedEdge edge = (UndirectedEdge) iEdge;
 					Node z = edge.getDifferingNode(w);
-					if (parent.get(w) == z || changed.contains(z)
+					if ( changed.contains(z)
 							|| height.get(z) == Integer.MAX_VALUE) {
 						continue;
 					}
@@ -292,7 +292,7 @@ public class UnweightedAllPairsShortestPathsU extends UnweightedAllPairsShortest
 						continue;
 					}
 				}
-				boolean noPossibleNeighbour = (key >= 15 && dist > 15)
+				boolean noPossibleNeighbour = (key >= this.apsp.getMax()+2 && dist > this.apsp.getMax()+2)
 						|| (min.isEmpty() && (!uncertain.contains(w) || (key == dist)));
 
 				// no neighbour found
