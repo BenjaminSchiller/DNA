@@ -31,7 +31,7 @@ public abstract class WalkingAlgorithm extends BatchGenerator {
 
 	private HashMap<Integer, Node> addedNodes;
 
-	private Graph fullGraph;
+	protected Graph fullGraph;
 
 	private StartNodeSelectionStrategy startNodeStartegy;
 
