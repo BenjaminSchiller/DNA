@@ -217,6 +217,9 @@ public class ArrayUtils {
 	 * @return truncated array
 	 */
 	public static int[] truncate(int[] values, int value) {
+		if (values.length == 0) {
+			return values;
+		}
 		if (values[values.length - 1] != value) {
 			return values;
 		}
@@ -243,6 +246,9 @@ public class ArrayUtils {
 	 * @return truncated array
 	 */
 	public static double[] truncate(double[] values, double value) {
+		if (values.length == 0) {
+			return values;
+		}
 		if (values[values.length - 1] != value) {
 			return values;
 		}
@@ -269,6 +275,9 @@ public class ArrayUtils {
 	 * @return truncated array
 	 */
 	public static long[] truncate(long[] values, long value) {
+		if (values.length == 0) {
+			return values;
+		}
 		if (values[values.length - 1] != value) {
 			return values;
 		}
