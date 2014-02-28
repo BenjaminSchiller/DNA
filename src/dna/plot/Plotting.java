@@ -65,6 +65,19 @@ public class Plotting {
 				Config.getNodeValueListOrder("GNUPLOT_DEFAULT_NVL_ORDER"));
 	}
 
+	public static void plot(SeriesData[] seriesData, String dstDir,
+			PlotType type, PlotStyle style) throws IOException,
+			InterruptedException {
+		Plotting.plot(
+				seriesData,
+				dstDir,
+				type,
+				style,
+				Config.getDistributionPlotType("GNUPLOT_DEFAULT_DIST_PLOTTYPE"),
+				Config.getNodeValueListOrderBy("GNUPLOT_DEFAULT_NVL_ORDERBY"),
+				Config.getNodeValueListOrder("GNUPLOT_DEFAULT_NVL_ORDER"));
+	}
+
 	/**
 	 * Main plotting method that handles the whole plotting process.
 	 * 
