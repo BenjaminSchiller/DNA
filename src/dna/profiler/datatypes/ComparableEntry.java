@@ -9,8 +9,6 @@ public abstract class ComparableEntry implements Cloneable {
 	
 	public abstract String getData();
 
-	public abstract void multiplyFactorBy(int factorMultiplyer);
-	
 	public abstract int getCounter();
 	
 	public abstract void setCounter(int counter);

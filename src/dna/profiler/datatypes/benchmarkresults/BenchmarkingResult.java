@@ -92,14 +92,6 @@ public class BenchmarkingResult extends ComparableEntry {
 
 	@Override
 	public String getData() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public void multiplyFactorBy(int factorMultiplyer) {
-		// TODO Auto-generated method stub
-
 	}
 
 	@Override

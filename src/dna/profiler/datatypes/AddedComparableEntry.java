@@ -28,12 +28,6 @@ public class AddedComparableEntry extends ComparableEntry {
 	}
 
 	@Override
-	public void multiplyFactorBy(int factorMultiplyer) {
-		this.first.multiplyFactorBy(factorMultiplyer);
-		this.second.multiplyFactorBy(factorMultiplyer);
-	}
-
-	@Override
 	public int getCounter() {
 		return this.first.getCounter() + this.second.getCounter();
 	}
