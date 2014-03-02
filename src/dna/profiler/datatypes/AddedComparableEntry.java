@@ -46,12 +46,4 @@ public class AddedComparableEntry extends ComparableEntry {
 		return res;
 	}
 
-	@Override
-	public ComparableEntryMap getWeightedMap() {
-		ComparableEntryMap res = first.getWeightedMap();
-		ComparableEntryMap resSecond = second.getWeightedMap();
-		res.add(resSecond);
-		return res;
-	}
-
 }

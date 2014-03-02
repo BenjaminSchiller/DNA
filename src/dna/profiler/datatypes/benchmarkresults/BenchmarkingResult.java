@@ -112,10 +112,4 @@ public class BenchmarkingResult extends ComparableEntry {
 		return null;
 	}
 
-	@Override
-	public ComparableEntryMap getWeightedMap() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
 }

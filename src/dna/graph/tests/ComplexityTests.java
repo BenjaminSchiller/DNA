@@ -30,10 +30,7 @@ public class ComplexityTests {
 		ComparableEntry c3 = new AddedComparableEntry(c1, c2);
 		assertEquals(2, c3.getCounter());
 
-		ComplexityMap complexityMap = (ComplexityMap) c3.getMap();
-		assertEquals(2, (int) complexityMap.get(c));
-
-		ComplexityMap weightedComplexityMap = (ComplexityMap) c3.getWeightedMap();
+		ComplexityMap weightedComplexityMap = (ComplexityMap) c3.getMap();
 		assertEquals(2, (int) weightedComplexityMap.get(c));
 	}
 
@@ -45,18 +42,15 @@ public class ComplexityTests {
 		c1.setCounter(c1.getCounter() + 2);
 		c2.setCounter(c2.getCounter() + 4);
 
-		ComplexityMap weightedComplexityMap = (ComplexityMap) c1.getWeightedMap();
+		ComplexityMap weightedComplexityMap = (ComplexityMap) c1.getMap();
 		assertEquals(2, (int) weightedComplexityMap.get(c));
-		weightedComplexityMap = (ComplexityMap) c2.getWeightedMap();
+		weightedComplexityMap = (ComplexityMap) c2.getMap();
 		assertEquals(12, (int) weightedComplexityMap.get(c));
 
 		ComparableEntry c3 = new AddedComparableEntry(c1, c2);
 		assertEquals(6, c3.getCounter());
 
-		ComplexityMap complexityMap = (ComplexityMap) c3.getMap();
-		assertEquals(6, (int) complexityMap.get(c));
-
-		weightedComplexityMap = (ComplexityMap) c3.getWeightedMap();
+		weightedComplexityMap = (ComplexityMap) c3.getMap();
 		assertEquals(14, (int) weightedComplexityMap.get(c));
 	}
 
@@ -72,16 +66,16 @@ public class ComplexityTests {
 		ComparableEntry c4 = new AddedComparableEntry(c3, c2);
 		assertEquals(10, c4.getCounter());
 
-		ComplexityMap weightedComplexityMap = (ComplexityMap) c1.getWeightedMap();
+		ComplexityMap weightedComplexityMap = (ComplexityMap) c1.getMap();
 		assertEquals(2, (int) weightedComplexityMap.get(c));
 
-		weightedComplexityMap = (ComplexityMap) c2.getWeightedMap();
+		weightedComplexityMap = (ComplexityMap) c2.getMap();
 		assertEquals(12, (int) weightedComplexityMap.get(c));
 
-		weightedComplexityMap = (ComplexityMap) c3.getWeightedMap();
+		weightedComplexityMap = (ComplexityMap) c3.getMap();
 		assertEquals(14, (int) weightedComplexityMap.get(c));
 
-		weightedComplexityMap = (ComplexityMap) c4.getWeightedMap();
+		weightedComplexityMap = (ComplexityMap) c4.getMap();
 		assertEquals(26, (int) weightedComplexityMap.get(c));
 	}
 

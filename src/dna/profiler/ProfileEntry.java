@@ -90,7 +90,7 @@ public class ProfileEntry {
 				aggregated = new AddedComparableEntry(aggregated, c);
 			}
 		}
-		return aggregated.getWeightedMap();
+		return aggregated.getMap();
 	}
 
 	public ProfileEntry add(ProfileEntry other) {

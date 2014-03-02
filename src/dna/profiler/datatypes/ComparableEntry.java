@@ -14,6 +14,4 @@ public abstract class ComparableEntry implements Cloneable {
 	public abstract void setCounter(int counter);
 
 	public abstract ComparableEntryMap getMap();
-
-	public abstract ComparableEntryMap getWeightedMap();
 }
