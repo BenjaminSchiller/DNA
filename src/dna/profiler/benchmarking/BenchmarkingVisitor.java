@@ -1,6 +1,5 @@
 package dna.profiler.benchmarking;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -18,13 +17,14 @@ import org.perfidix.result.MethodResult;
 
 import dna.graph.datastructures.IDataStructure;
 import dna.io.Writer;
+import dna.profiler.ProfilerMeasurementData;
+import dna.profiler.datatypes.benchmarkresults.BenchmarkingResult;
 
 public class BenchmarkingVisitor extends AbstractOutput {
-
 	private HashMap<String, Writer> fileWriters = new HashMap<String, Writer>();
 	private HashMap<String, StringBuilder> fileWritersBufferData = new HashMap<String, StringBuilder>();
-	private HashMap<String, StringBuilder> fileWritersBufferHeader = new HashMap<String, StringBuilder>();
 	private HashMap<String, String> lastWrittenOp = new HashMap<String, String>();
+	private HashMap<String, BenchmarkingResult> collectedMeasurementData = new HashMap<String, BenchmarkingResult>();
 
 	public static final String outputDir = "benchmarkResults";
 	public static final String plotExtension = ".gnuplot";
@@ -46,12 +46,6 @@ public class BenchmarkingVisitor extends AbstractOutput {
 					Object[] paramSet = methRes.getInputParamSet();
 					Class<? extends IDataStructure> clazz = (Class<? extends IDataStructure>) paramSet[0];
 					int inputSize = (int) paramSet[1];
-					// System.out.println("  Method "
-					// + ((BenchmarkMethod) methRes.getRelatedElement())
-					// .getMethodToBench().getName()
-					// + " on input " +
-					// Arrays.asList(methRes.getInputParamSet()) +
-					// " yielded\n   " + methRes.mean(meter));
 
 					double perElement = methRes.mean(meter)
 							/ BenchmarkingExperiments.operationSize;
@@ -67,6 +61,28 @@ public class BenchmarkingVisitor extends AbstractOutput {
 					try {
 						writeResultForGnuplot(meter, clazz.getSimpleName(),
 								methodName, inputSize, perElement);
+
+						String keyForEntry = "";
+						switch (meter.getClass().getSimpleName()) {
+						case "MemMeter":
+							keyForEntry = "MEMORYBENCHMARK";
+							break;
+						case "TimeMeter":
+							keyForEntry = "RUNTIMEBENCHMARK";
+							break;
+						default:
+							throw new RuntimeException("Got unknown meter "
+									+ meter.getClass().getSimpleName());
+						}
+						keyForEntry += "_" + clazz.getSimpleName() + "_"
+								+ methodName;
+						keyForEntry = keyForEntry.toUpperCase();
+
+						BenchmarkingResult entry = this
+								.getResultEntry(keyForEntry);
+						entry.addToMap(inputSize, methRes.getResultSet(meter));
+						collectedMeasurementData.put(keyForEntry, entry);
+
 					} catch (IOException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
@@ -75,6 +91,12 @@ public class BenchmarkingVisitor extends AbstractOutput {
 			}
 		}
 		Collections.sort(resultList);
+		try {
+			writeEntriesToProfilerFiles();
+		} catch (IOException e2) {
+			// TODO Auto-generated catch block
+			e2.printStackTrace();
+		}
 
 		for (String s : resultList) {
 			System.out.println(s);
@@ -83,9 +105,7 @@ public class BenchmarkingVisitor extends AbstractOutput {
 		for (Entry<String, StringBuilder> e : fileWritersBufferData.entrySet()) {
 			// Get the proper fileWriter
 			Writer w = fileWriters.get(e.getKey());
-			String header = fileWritersBufferHeader.get(e.getKey()).toString();
 			try {
-				w.writeln(header);
 				w.writeln(e.getValue().toString());
 			} catch (IOException e1) {
 				// TODO Auto-generated catch block
@@ -103,6 +123,34 @@ public class BenchmarkingVisitor extends AbstractOutput {
 		}
 	}
 
+	private void writeEntriesToProfilerFiles() throws IOException {
+		String dirName = ProfilerMeasurementData.folderName + "benchmarks/";
+		
+		for ( Entry<String, BenchmarkingResult> e: collectedMeasurementData.entrySet()) {
+			String key = e.getKey();
+			String[] parts = key.split("_");
+			String fileName = parts[1] + ".properties";
+			Writer w = fileWriters.get(dirName + fileName);
+			if ( w == null) {
+				w = new Writer(dirName,fileName);
+				fileWriters.put(dirName + fileName, w);
+			}
+			w.writeln(e.getValue().toString());			
+		}
+	}
+
+	private BenchmarkingResult getResultEntry(String key) {
+		BenchmarkingResult entry;
+		entry = collectedMeasurementData.get(key);
+		if (entry == null) {
+			entry = (BenchmarkingResult) ProfilerMeasurementData.get(key);
+		}
+		if (entry == null) {
+			entry = new BenchmarkingResult(key);
+		}
+		return entry;
+	}
+
 	public static void writeGnuplotHeaderCommon(Writer w, String dirName,
 			String fileName, String meterUnit) throws IOException {
 		w.writeln("set terminal png large");
@@ -113,7 +161,8 @@ public class BenchmarkingVisitor extends AbstractOutput {
 	}
 
 	public static void writeGnuplotHeaderMultiple(Writer w, String dirName,
-			String fileName, String meterName, String meterUnit) throws IOException {
+			String fileName, String meterName, String meterUnit)
+			throws IOException {
 		writeGnuplotHeaderCommon(w, dirName, fileName, meterUnit);
 		w.writeln("set title \"Benchmarking " + meterName + "\"");
 		w.writeln("set key below");
@@ -162,7 +211,8 @@ public class BenchmarkingVisitor extends AbstractOutput {
 				w = new Writer(dirName, aggregationFile, true);
 				fileWriters.put(dirName + aggregationFile, w);
 			}
-			w.writeln(operation + ";" + meter.getUnit() + ";" + fileName + rawExtension);
+			w.writeln(operation + ";" + meter.getUnit() + ";" + fileName
+					+ rawExtension);
 		}
 		lastWrittenOp.put(dirName + operation + extension, operation);
 	}
