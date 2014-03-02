@@ -13,6 +13,9 @@ import dna.profiler.datatypes.complexity.ComplexityType.Base;
 
 public class BenchmarkingResult extends ComparableEntry {
 
+	private int counter = 0;
+	private double meanListSize;	
+	
 	private String name;
 	private TreeMap<Integer, ArrayList<Double>> datamap;
 
@@ -81,35 +84,37 @@ public class BenchmarkingResult extends ComparableEntry {
 	public ComparableEntry clone() {
 		TreeMap<Integer, ArrayList<Double>> map = (TreeMap<Integer, ArrayList<Double>>) datamap
 				.clone();
-		return new BenchmarkingResult(this.name, map);
+		BenchmarkingResult cloned = new BenchmarkingResult(this.name, map);
+		cloned.setValues(counter, meanListSize, null);
+		return cloned;
 	}
 
 	@Override
 	public void setValues(int numberOfCalls, double meanListSize, Base base) {
-		// TODO Auto-generated method stub
-
+		this.counter = numberOfCalls;
+		this.meanListSize = meanListSize;
 	}
 
 	@Override
 	public String getData() {
+		return counter + " calls with a mean list size of " + meanListSize;
 	}
 
 	@Override
 	public int getCounter() {
-		// TODO Auto-generated method stub
-		return 0;
+		return counter;
 	}
 
 	@Override
 	public void setCounter(int counter) {
-		// TODO Auto-generated method stub
-
+		this.counter = counter;
 	}
 
 	@Override
 	public ComparableEntryMap getMap() {
-		// TODO Auto-generated method stub
-		return null;
+		// TODO set a proper value here!
+		BenchmarkingResultsMap map = new BenchmarkingResultsMap(0);
+		return map;
 	}
 
 }
