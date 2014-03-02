@@ -7,10 +7,9 @@ import java.util.Properties;
 import dna.graph.datastructures.DataStructure.AccessType;
 import dna.profiler.datatypes.ComparableEntry;
 import dna.profiler.datatypes.ComparableEntryMap;
+import dna.profiler.datatypes.complexity.Complexity;
 import dna.profiler.datatypes.complexity.ComplexityMap;
 import dna.profiler.datatypes.complexity.ComplexityType;
-import dna.profiler.datatypes.complexity.MemoryComplexity;
-import dna.profiler.datatypes.complexity.RuntimeComplexity;
 import dna.util.PropertiesHolder;
 
 public abstract class ProfilerMeasurementData extends PropertiesHolder {
@@ -18,7 +17,7 @@ public abstract class ProfilerMeasurementData extends PropertiesHolder {
 		RuntimeComplexity, MemoryComplexity
 	}
 
-	private static String folderName = "profilerData/";
+	public static String folderName = "profilerData/";
 
 	private static HashMap<String, ComparableEntry> measurementData;
 
@@ -62,10 +61,8 @@ public abstract class ProfilerMeasurementData extends PropertiesHolder {
 	}
 
 	public static ComparableEntry parseString(String key, String val) {
-		if (key.startsWith("RUNTIMECOMPLEXITY")) {
-			return RuntimeComplexity.parseString(key, val);
-		} else if (key.startsWith("MEMORYCOMPLEXITY")) {
-			return MemoryComplexity.parseString(key, val);
+		if (key.startsWith("RUNTIMECOMPLEXITY") || key.startsWith("MEMORYCOMPLEXITY")) {
+			return Complexity.parseString(key, val);
 		} else {
 			throw new RuntimeException("Don't know how to parse " + key + "="
 					+ val);
