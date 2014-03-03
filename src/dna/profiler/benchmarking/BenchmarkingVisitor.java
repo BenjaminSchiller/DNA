@@ -2,6 +2,7 @@ package dna.profiler.benchmarking;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -62,6 +63,15 @@ public class BenchmarkingVisitor extends AbstractOutput {
 						writeResultForGnuplot(meter, clazz.getSimpleName(),
 								methodName, inputSize, perElement);
 
+						Collection<Double> results = methRes
+								.getResultSet(meter);
+						Collection<Double> resultsNormalized = new ArrayList<Double>(
+								results.size());
+						for (Double singleRes : results) {
+							resultsNormalized.add(singleRes
+									/ BenchmarkingExperiments.operationSize);
+						}
+
 						String keyForEntry = "";
 						switch (meter.getClass().getSimpleName()) {
 						case "MemMeter":
@@ -80,7 +90,7 @@ public class BenchmarkingVisitor extends AbstractOutput {
 
 						BenchmarkingResult entry = this
 								.getResultEntry(keyForEntry);
-						entry.addToMap(inputSize, methRes.getResultSet(meter));
+						entry.addToMap(inputSize, resultsNormalized);
 						collectedMeasurementData.put(keyForEntry, entry);
 
 					} catch (IOException e) {
@@ -125,17 +135,18 @@ public class BenchmarkingVisitor extends AbstractOutput {
 
 	private void writeEntriesToProfilerFiles() throws IOException {
 		String dirName = ProfilerMeasurementData.folderName + "benchmarks/";
-		
-		for ( Entry<String, BenchmarkingResult> e: collectedMeasurementData.entrySet()) {
+
+		for (Entry<String, BenchmarkingResult> e : collectedMeasurementData
+				.entrySet()) {
 			String key = e.getKey();
 			String[] parts = key.split("_");
 			String fileName = parts[1] + ".properties";
 			Writer w = fileWriters.get(dirName + fileName);
-			if ( w == null) {
-				w = new Writer(dirName,fileName);
+			if (w == null) {
+				w = new Writer(dirName, fileName);
 				fileWriters.put(dirName + fileName, w);
 			}
-			w.writeln(e.getValue().toString());			
+			w.writeln(e.getValue().toString());
 		}
 	}
 
