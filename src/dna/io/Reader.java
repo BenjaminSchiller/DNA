@@ -18,7 +18,7 @@ import dna.util.Config;
 public class Reader {
 	private BufferedReader reader;
 
-	public static final boolean skipComments = true;
+	public static boolean skipComments = true;
 
 	public Reader(String dir, String filename) throws FileNotFoundException {
 		this.reader = new BufferedReader(new FileReader(dir + filename));

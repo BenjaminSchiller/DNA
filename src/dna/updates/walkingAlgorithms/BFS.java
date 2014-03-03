@@ -38,6 +38,10 @@ public class BFS extends WalkingAlgorithm {
 
 	@Override
 	protected Node findNextNode() {
+		if(queue.isEmpty()){
+			noNodeFound();
+			return null;
+		}
 		currentNode = queue.poll();
 		queue.addAll(getUnvisitedNeighbors(currentNode));
 		return currentNode;

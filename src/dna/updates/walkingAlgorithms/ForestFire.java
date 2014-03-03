@@ -41,8 +41,7 @@ public class ForestFire extends WalkingAlgorithm {
 				costPerBatch, resource, parameters);
 
 		if (propability < 0 || propability > 1) {
-			// TODO sinnvolle Exception deklarieren
-			throw new Exception("Propability not between 0 and 1.");
+			throw new IllegalArgumentException("Propability has to be between 0 and 1.");
 		}
 
 		this.propability = propability;
@@ -53,6 +52,11 @@ public class ForestFire extends WalkingAlgorithm {
 
 	@Override
 	protected Node findNextNode() {
+		if(queue.isEmpty()){
+			currentNode = fullGraph.getRandomNode();
+			selectNeighbors();
+			return currentNode;
+		}
 		currentNode = queue.poll();
 		selectNeighbors();
 		return currentNode;

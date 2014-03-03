@@ -38,6 +38,10 @@ public class DFS extends WalkingAlgorithm {
 
 	@Override
 	protected Node findNextNode() {
+		if(queue.isEmpty()){
+			noNodeFound();
+			return null;
+		}
 		currentNode = queue.removeLast();
 		queue.addAll(getUnvisitedNeighbors(currentNode));
 		return currentNode;

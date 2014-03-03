@@ -38,25 +38,28 @@ public class GreedyOracle extends WalkingAlgorithm {
 
 	@Override
 	protected Node findNextNode() {
+		if(greyZone.isEmpty()){
+			noNodeFound();
+			return null;
+		}
 		Collections.sort(greyZone);
 		Node newNode = greyZone.remove(0).getNode();
 
-		ArrayList<Node> neighbors = getUnvisitedNeighbors(newNode);
+		ArrayList<Node> neighbors = getUnseenNeighbors(newNode);
 		for (Node n : neighbors) {
 			greyZone.add(new SortableNode(n, this,
 					SortType.SORT_BY_UNSEEN_NEIGHBORS));
 		}
-
 		return newNode;
 	}
 
 	@Override
 	protected Node init(StartNodeSelectionStrategy startNode) {
 		Node firstNode = startNode.getStartNode();
-		ArrayList<Node> neighbors = getUnvisitedNeighbors(firstNode);
+		ArrayList<Node> neighbors = getAllNeighbors(firstNode);
 		for (Node n : neighbors) {
-			greyZone.add(new SortableNode(n, this,
-					SortType.SORT_BY_UNSEEN_NEIGHBORS));
+				greyZone.add(new SortableNode(n, this,
+						SortType.SORT_BY_UNSEEN_NEIGHBORS));
 		}
 		return firstNode;
 	}
@@ -79,6 +82,8 @@ class SortableNode implements Comparable<SortableNode> {
 	private Node n;
 	private WalkingAlgorithm algo;
 	private SortType sortType;
+	private int size;
+	private long oldTimeStamp;
 
 	/**
 	 * Initializes the sortable node
@@ -92,6 +97,8 @@ class SortableNode implements Comparable<SortableNode> {
 		this.n = n;
 		this.algo = algo;
 		this.sortType = sortType;
+		size = 0;
+		oldTimeStamp = 0;
 	}
 
 	/**
@@ -105,15 +112,18 @@ class SortableNode implements Comparable<SortableNode> {
 	 * Calculates the yield (the count of unseen neighbors of this node)
 	 */
 	private int getYield() {
-		ArrayList<Node> list = null;
-		if (sortType == SortType.SORT_BY_UNVISITED_NEIGHBORS) {
-			list = algo.getUnvisitedNeighbors(n);
-		} else if (sortType == SortType.SORT_BY_VISITED_NEIGHBORS) {
-			list = algo.getVisitedNeighbors(n);
-		} else if (sortType == SortType.SORT_BY_UNSEEN_NEIGHBORS) {
-			list = algo.getUnseenNeighbors(n);
+		if(oldTimeStamp != 0 && oldTimeStamp == algo.getTimeStamp()){
+			return size;
 		}
-		return list.size();
+		oldTimeStamp = algo.getTimeStamp();
+		if (sortType == SortType.SORT_BY_UNVISITED_NEIGHBORS) {
+			size = algo.getUnvisitedNeighbors(n).size();
+		} else if (sortType == SortType.SORT_BY_VISITED_NEIGHBORS) {
+			size = algo.getVisitedNeighbors(n).size();
+		} else if (sortType == SortType.SORT_BY_UNSEEN_NEIGHBORS) {
+			size = algo.getUnseenNeighbors(n).size();
+		}
+		return size;
 	}
 
 	/**
@@ -124,11 +134,11 @@ class SortableNode implements Comparable<SortableNode> {
 		int oCount = o.getYield();
 		int myCount = this.getYield();
 
-		if (oCount > myCount) {
+		if (oCount < myCount) {
 			return -1;
-		} else if (oCount < myCount) {
+		} else if(myCount < oCount) {
 			return 1;
-		} else {
+		} else{
 			return 0;
 		}
 	}
