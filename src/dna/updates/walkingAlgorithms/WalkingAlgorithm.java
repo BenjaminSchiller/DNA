@@ -44,6 +44,8 @@ public abstract class WalkingAlgorithm extends BatchGenerator {
 	private int graphSize;
 	private int resource;
 	private int nodeDirection;
+	
+	private long timeStamp;
 
 	/**
 	 * Initializes the walking algorithm
@@ -84,6 +86,8 @@ public abstract class WalkingAlgorithm extends BatchGenerator {
 		} else {
 			takeResourceIntoAccount = false;
 		}
+		
+		timeStamp = 0;
 
 		firstIteration = true;
 		noFurtherBatch = false;
@@ -124,6 +128,7 @@ public abstract class WalkingAlgorithm extends BatchGenerator {
 
 			newBatch = addNodeAndNeighborsToBatch(newBatch,
 					init(startNodeStartegy), g);
+			timeStamp++;
 
 			for (int i = firstCosts; i < costPerBatch; i++) {
 				if (!isFurtherBatchPossible(g)) {
@@ -132,6 +137,7 @@ public abstract class WalkingAlgorithm extends BatchGenerator {
 				newBatch = addNodeAndNeighborsToBatch(newBatch, findNextNode(),
 						g);
 				resource--;
+				timeStamp++;
 			}
 
 		} else {
@@ -143,6 +149,7 @@ public abstract class WalkingAlgorithm extends BatchGenerator {
 				newBatch = addNodeAndNeighborsToBatch(newBatch, findNextNode(),
 						g);
 				resource--;
+				timeStamp++;
 			}
 		}
 		return newBatch;
@@ -346,6 +353,8 @@ public abstract class WalkingAlgorithm extends BatchGenerator {
 		visitedNodes = new HashSet<Node>(graphSize);
 
 		firstIteration = true;
+		noFurtherBatch = false;
+		timeStamp = 0;
 	}
 
 	/**
@@ -503,6 +512,13 @@ public abstract class WalkingAlgorithm extends BatchGenerator {
 	 */
 	protected void noNodeFound() {
 		noFurtherBatch = true;
+	}
+	
+	/**
+	 * Returns the current timestamp
+	 */
+	protected long getTimeStamp(){
+		return timeStamp;
 	}
 
 }

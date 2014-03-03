@@ -44,6 +44,10 @@ public class RespondentDrivenSampling extends WalkingAlgorithm {
 
 	@Override
 	protected Node findNextNode() {
+		if(queue.isEmpty()){
+			noNodeFound();
+			return null;
+		}
 		currentNode = queue.poll();
 		selectNeighbors();
 		return currentNode;
@@ -62,7 +66,10 @@ public class RespondentDrivenSampling extends WalkingAlgorithm {
 	private void selectNeighbors() {
 		List<Node> list = getAllNeighbors(currentNode);
 		for (int i = 0; i < numberOfNeighborsVisited; i++) {
-			queue.add(list.get(Rand.rand.nextInt(list.size())));
+			if(list.size() == 0){
+				break;
+			}
+			queue.add(list.remove(Rand.rand.nextInt(list.size())));
 		}
 	}
 
