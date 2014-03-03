@@ -52,6 +52,13 @@ public class Profiler {
 		active = true;
 	}
 
+	public static void reset() {
+		singleBatchCalls = new HashMap<>();
+		singleRunCalls = new HashMap<>();
+		singleSeriesCalls = new HashMap<>();
+		globalCalls = new HashMap<>();
+	}
+
 	public static void setInInitialBatch(boolean newInInitialBatch) {
 		inInitialBatch = newInInitialBatch;
 	}
