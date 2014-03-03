@@ -26,7 +26,8 @@ public class DArray extends DataStructureReadable implements
 		super(lt, dT);
 	}
 
-	public void init(Class<? extends IElement> dT, int initialSize, boolean firstTime) {
+	public void init(Class<? extends IElement> dT, int initialSize,
+			boolean firstTime) {
 		this.list = new IElement[initialSize];
 		this.maxNodeIndex = -1;
 	}
@@ -227,6 +228,8 @@ public class DArray extends DataStructureReadable implements
 
 	@Override
 	public Node get(int index) {
+		if (index > maxNodeIndex)
+			return null;
 		return (Node) this.list[index];
 	}
 
