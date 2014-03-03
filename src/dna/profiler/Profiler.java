@@ -392,11 +392,12 @@ public class Profiler {
 		case Add:
 			listSizeCounter.put(lt, listSizeCounter.get(lt) + 1);
 			break;
-		case Remove:
+		case RemoveSuccess:
 			listSizeCounter.put(lt, listSizeCounter.get(lt) - 1);
 			break;
 		case GetSuccess:
 		case GetFailure:
+		case RemoveFailure:
 		case Iterator:
 		case ContainsSuccess:
 		case ContainsFailure:

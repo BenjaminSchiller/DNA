@@ -166,8 +166,16 @@ public aspect ProfilerAspects {
 		return res;
 	}	
 	
-	after(DataStructure list) : remove(list) {
-		Profiler.count(this.currentCountKey, list.listType, AccessType.Remove);
+	boolean around(DataStructure list) : remove(list) {
+		boolean res = proceed(list);
+		if (res) {
+			Profiler.count(this.currentCountKey, list.listType,
+					AccessType.RemoveSuccess);
+		} else {
+			Profiler.count(this.currentCountKey, list.listType,
+					AccessType.RemoveFailure);
+		}
+		return res;
 	}
 	
 	boolean around(DataStructure list) : contains(list) {
