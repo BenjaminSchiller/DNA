@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.Stack;
 
 import dna.graph.Graph;
+import dna.graph.IElement;
 import dna.graph.datastructures.DataStructure;
 import dna.graph.datastructures.DataStructure.AccessType;
 import dna.graph.datastructures.GraphDataStructure;
@@ -181,8 +182,15 @@ public aspect ProfilerAspects {
 		return res;
 	}
 	
-	after(DataStructure list) : getElement(list) {
-		Profiler.count(this.currentCountKey, list.listType, AccessType.Get);
+	Object around(DataStructure list) : getElement(list) {
+		Object res = proceed(list);
+		if (res == null)
+			Profiler.count(this.currentCountKey, list.listType,
+					AccessType.GetFailure);
+		else
+			Profiler.count(this.currentCountKey, list.listType,
+					AccessType.GetSuccess);
+		return res;
 	}	
 	
 	after(DataStructure list) : size(list) {

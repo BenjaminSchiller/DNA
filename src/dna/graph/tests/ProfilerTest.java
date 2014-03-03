@@ -248,10 +248,14 @@ public class ProfilerTest {
 	@Test
 	public void testGlobalGetSpecifiedNodeIsCountedInMetric() {
 		assertEquals(0, Profiler.getCount(metricKey, ListType.GlobalNodeList,
-				AccessType.Get));
+				AccessType.GetSuccess));
+		assertEquals(0, Profiler.getCount(metricKey, ListType.GlobalNodeList,
+				AccessType.GetFailure));
 		metric.compute();
 		assertEquals(1, Profiler.getCount(metricKey, ListType.GlobalNodeList,
-				AccessType.Get));
+				AccessType.GetSuccess));
+		assertEquals(1, Profiler.getCount(metricKey, ListType.GlobalNodeList,
+				AccessType.GetFailure));		
 	}
 
 	@Test
@@ -380,6 +384,8 @@ public class ProfilerTest {
 
 			Node n1 = g.getNode(1);
 			Edge e = g.getRandomEdge();
+			
+			Node nNotInList = g.getNode(42);
 
 			if (n1 instanceof DirectedNode) {
 				DirectedNode dn1 = (DirectedNode) n1;

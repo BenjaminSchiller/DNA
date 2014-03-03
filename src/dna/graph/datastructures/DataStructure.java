@@ -15,8 +15,9 @@ import dna.profiler.datatypes.complexity.ComplexityType.Base;
  */
 public abstract class DataStructure implements IDataStructure {
 	public enum AccessType {
-		Init(true), Add(true), ContainsSuccess(false), ContainsFailure(false), Get(false), Random(false), Remove(
-				true), Size(false), Iterator(false);
+		Init(true), Add(true), ContainsSuccess(false), ContainsFailure(false), GetSuccess(
+				false), GetFailure(false), Random(false), Remove(true), Size(
+				false), Iterator(false);
 
 		private boolean isAllowedOnEmpty = false;
 
