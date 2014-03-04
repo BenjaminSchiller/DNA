@@ -697,8 +697,6 @@ public class StatsDisplay extends JPanel implements ChangeListener {
 	public void setStarted() {
 		if (!this.liveDisplay)
 			this.directoryValue.setEditable(false);
-		else
-			this.statusValue.setText("Waiting for Batches..");
 		this.started = true;
 		this.validate();
 		this.repaint();
@@ -838,5 +836,16 @@ public class StatsDisplay extends JPanel implements ChangeListener {
 	/** Returns the default font color. **/
 	public Color getDefaultFontColor() {
 		return this.mainDisplay.getDefaultFontColor();
+	}
+
+	/**
+	 * Sets the status message in the statsdisplay.
+	 * 
+	 * Note: For livedisplay only!
+	 */
+	public void setStatusMessage(String msg) {
+		if (this.statusValue != null) {
+			this.statusValue.setText(msg);
+		}
 	}
 }

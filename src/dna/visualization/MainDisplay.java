@@ -44,6 +44,7 @@ public class MainDisplay extends JFrame {
 
 	/** MAIN **/
 	public static void main(String[] args) {
+		Log.infoSep();
 		// check if someone needs help
 		if (args.length > 0
 				&& (args[0].equals("help") || args[0].equals("-help") || args[0]
@@ -129,6 +130,7 @@ public class MainDisplay extends JFrame {
 			}
 
 			// init main window
+			Log.infoSep();
 			Log.info("Initializing MainDisplay");
 			MainDisplay display = new MainDisplay(liveDisplay, config);
 
@@ -268,9 +270,29 @@ public class MainDisplay extends JFrame {
 		this.startButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent event) {
-				statsDisplay.setStarted();
-				batchHandler.start();
-				startLogDisplays();
+				// if livedisplay start the batchhandler, he will take care of
+				// missing directory
+				if (MainDisplay.this.liveDisplay) {
+					statsDisplay.setStarted();
+					batchHandler.start();
+					startLogDisplays();
+				} else {
+					// if not livedisplay, only start when directory is there
+					File f = new File(batchHandler.getDir());
+					if (f.exists() && f.isDirectory()) {
+						if (!batchHandler.isInit()) {
+							batchHandler.updateBatches();
+							batchHandler.init();
+						}
+						statsDisplay.setStarted();
+						batchHandler.start();
+						startLogDisplays();
+					} else {
+						Log.info("Dir '"
+								+ f.getPath()
+								+ "' not present, try again with existing directory.");
+					}
+				}
 			}
 		});
 
@@ -524,11 +546,21 @@ public class MainDisplay extends JFrame {
 	/**
 	 * Initializes the batchhandler. Will update batch handlers batch
 	 * information and then hand over the initialization batch.
+	 * 
+	 * Note: If the desired directory is not existent, the batchhandler will not
+	 * be initialized.
 	 */
 	public void initBatchHandler() {
 		if (!this.liveDisplay) {
-			this.batchHandler.updateBatches();
-			this.batchHandler.init();
+			File f = new File(this.batchHandler.getDir());
+			if (f.exists() && f.isDirectory()) {
+				this.batchHandler.updateBatches();
+				this.batchHandler.init();
+			} else {
+				Log.info("Dir '"
+						+ f.getPath()
+						+ "' not existing, BatchHandler could not be initialized.");
+			}
 		}
 	}
 
@@ -633,6 +665,19 @@ public class MainDisplay extends JFrame {
 			if (c instanceof LogDisplay) {
 				((LogDisplay) c).stop();
 				((LogDisplay) c).clearLog();
+			}
+		}
+	}
+
+	/**
+	 * Sets the status message in the statsdisplay.
+	 * 
+	 * Note: For livedisplay only!
+	 */
+	public void setStatusMessage(String msg) {
+		for (Component c : this.dataComponents) {
+			if (c instanceof StatsDisplay) {
+				((StatsDisplay) c).setStatusMessage(msg);
 			}
 		}
 	}

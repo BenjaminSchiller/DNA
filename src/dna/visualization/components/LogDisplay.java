@@ -9,6 +9,7 @@ import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.Random;
@@ -40,6 +41,7 @@ public class LogDisplay extends JPanel implements Runnable {
 	private long updateInterval;
 	private Thread t;
 	private boolean running;
+	private String name;
 
 	// components
 	private JScrollPane logAreaScrollPane;
@@ -69,6 +71,7 @@ public class LogDisplay extends JPanel implements Runnable {
 	public LogDisplay(MainDisplay mainDisplay, LogDisplayConfig config) {
 		// init
 		this.dir = config.getDir();
+		this.name = config.getName();
 		this.updateInterval = config.getUpdateInterval();
 
 		this.showInfo = config.isInfoShown();
@@ -206,8 +209,18 @@ public class LogDisplay extends JPanel implements Runnable {
 		Thread thisThread = Thread.currentThread();
 		this.running = true;
 
-		// init reader
 		try {
+			// check if dir is present
+			File f = new File(this.dir);
+			if (!f.exists() || f.isDirectory()) {
+				Log.info("LogDisplay " + this.name + ": Logfile '" + this.dir
+						+ "' is not present, waiting for it to appear.");
+			}
+			while (!f.exists() || f.isDirectory()) {
+				Thread.sleep(1000);
+			}
+
+			// init reader
 			BufferedReader reader = new BufferedReader(new FileReader(this.dir));
 			String line;
 			while (t == thisThread) {
@@ -231,7 +244,6 @@ public class LogDisplay extends JPanel implements Runnable {
 		} catch (IOException | InterruptedException e) {
 			e.printStackTrace();
 		}
-
 	}
 
 	/** processes the input line **/
