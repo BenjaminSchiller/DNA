@@ -243,4 +243,8 @@ public abstract class Connectivity extends Metric {
 						.getGraphDatastructures().getNodeType());
 	}
 
+	public Iterable<ConnectedComponent> getComponents() {
+		return this.components;
+	}
+
 }
