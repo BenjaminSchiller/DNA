@@ -45,18 +45,22 @@ public class MainDisplay extends JFrame {
 	/** MAIN **/
 	public static void main(String[] args) {
 		Log.infoSep();
+		boolean help = false;
 		// check if someone needs help
-		if (args.length > 0
-				&& (args[0].equals("help") || args[0].equals("-help") || args[0]
-						.equals("--help")) || args[0].equals("-h")
-				|| args[0].equals("--h")) {
-			System.out.println("DNA - Dynamic Network Analyzer");
-			System.out
-					.println("Parameters: [config-path], [livedisplay=true/false], [data-dir]");
-			System.out.println("Example: run dna.jar " + '"'
-					+ "config/gui_config1.cfg" + '"' + " true " + '"'
-					+ "data/scenario1337/run.42/" + '"');
-		} else {
+		if (args.length > 0) {
+			if (args[0].equals("help") || args[0].equals("-help")
+					|| args[0].equals("--help") || args[0].equals("-h")
+					|| args[0].equals("--h")) {
+				System.out.println("DNA - Dynamic Network Analyzer");
+				System.out
+						.println("Parameters: [config-path], [livedisplay=true/false], [data-dir]");
+				System.out.println("Example: run dna.jar " + '"'
+						+ "config/gui_config1.cfg" + '"' + " true " + '"'
+						+ "data/scenario1337/run.42/" + '"');
+				help = true;
+			}
+		}
+		if (!help) {
 			String defaultConfigPath = "config/gui_default.cfg";
 			String displayConfigPath = "config/gui_default.cfg";
 			Boolean liveDisplay = null;
@@ -434,7 +438,11 @@ public class MainDisplay extends JFrame {
 				visualizerPanelConstraints.gridwidth = 1;
 				visualizerPanelConstraints.gridheight = 1;
 			}
-
+			System.out.println("adding logdisplay with: "
+					+ visualizerPanelConstraints.gridx + " "
+					+ visualizerPanelConstraints.gridy + " "
+					+ visualizerPanelConstraints.gridwidth + " "
+					+ visualizerPanelConstraints.gridheight);
 			this.visualizerPanel
 					.add(logDisplayTemp, visualizerPanelConstraints);
 			this.dataComponents.add(logDisplayTemp);
