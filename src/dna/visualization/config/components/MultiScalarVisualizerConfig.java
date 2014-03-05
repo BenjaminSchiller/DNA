@@ -224,7 +224,8 @@ public class MultiScalarVisualizerConfig {
 		Dimension legendItemValueLabelSize;
 		Font legendItemValueFont;
 		Color legendItemValueFontColor;
-
+		VisualizerListConfig listConfig = null;
+		MenuBarConfig menuBarConfig;
 		// set default values
 		if (MainDisplay.DefaultConfig == null) {
 			// if the defaultconfig is not set, use this default values
@@ -287,6 +288,8 @@ public class MultiScalarVisualizerConfig {
 				legendItemValueFontColor = (Color) field.get(null);
 			} catch (Exception e) {
 			}
+			menuBarConfig = MenuBarConfig.createMenuBarConfigFromJSONObject(o
+					.getJSONObject("MenuBar"));
 		} else {
 			// use default config values as defaults
 			name = MainDisplay.DefaultConfig.getMultiScalarVisualizerConfigs()[0]
@@ -333,6 +336,8 @@ public class MultiScalarVisualizerConfig {
 			legendItemValueFontColor = MainDisplay.DefaultConfig
 					.getMultiScalarVisualizerConfigs()[0]
 					.getLegendItemValueFontColor();
+			menuBarConfig = MainDisplay.DefaultConfig
+					.getMultiScalarVisualizerConfigs()[0].getMenuBarConfig();
 		}
 
 		// overwrite default values with parsed values
@@ -473,16 +478,18 @@ public class MultiScalarVisualizerConfig {
 		}
 
 		// parse list config
-		VisualizerListConfig listConfig = null;
 		try {
 			listConfig = VisualizerListConfig.createConfigFromJSONObject(o);
 		} catch (Exception e) {
 		}
 
 		// calculate menu bar config
-		MenuBarConfig menuBarConfig = MenuBarConfig
-				.createMenuBarConfigFromJSONObject(o.getJSONObject("MenuBar"));
 
+		try {
+			menuBarConfig = MenuBarConfig.createMenuBarConfigFromJSONObject(o
+					.getJSONObject("MenuBar"));
+		} catch (Exception e) {
+		}
 		return new MultiScalarVisualizerConfig(name, paintLinesPoint,
 				linesPointSize, paintFill, verticalBarSize, positionX,
 				positionY, rowSpan, colSpan, chartSize, xAxisOffset,

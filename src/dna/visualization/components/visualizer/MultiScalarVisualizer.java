@@ -468,9 +468,11 @@ public class MultiScalarVisualizer extends Visualizer {
 						double[] tempValues = ((DistributionDouble) this.currentBatch
 								.getMetrics().get(metric).getDistributions()
 								.get(dist)).getDoubleValues();
-						SortModeDist tempSortMode = config.getListConfig()
-								.getAllDistributionsConfig().getSortMode();
-
+						SortModeDist tempSortMode = SortModeDist.distribution;
+						if (config.getListConfig() != null) {
+							tempSortMode = config.getListConfig()
+									.getAllDistributionsConfig().getSortMode();
+						}
 						this.doubleValues.put(tempName, tempValues);
 
 						this.addDistributionPoints(tempName, tempValues,
@@ -483,8 +485,11 @@ public class MultiScalarVisualizer extends Visualizer {
 						int tempDenominator = ((DistributionInt) this.currentBatch
 								.getMetrics().get(metric).getDistributions()
 								.get(dist)).getDenominator();
-						SortModeDist tempSortMode = config.getListConfig()
-								.getAllDistributionsConfig().getSortMode();
+						SortModeDist tempSortMode = SortModeDist.distribution;
+						if (config.getListConfig() != null) {
+							tempSortMode = config.getListConfig()
+									.getAllDistributionsConfig().getSortMode();
+						}
 
 						this.addDistributionPoints(tempName, tempValues,
 								tempDenominator, tempSortMode, offsetX);
@@ -499,8 +504,11 @@ public class MultiScalarVisualizer extends Visualizer {
 						long tempDenominator = ((DistributionLong) this.currentBatch
 								.getMetrics().get(metric).getDistributions()
 								.get(dist)).getDenominator();
-						SortModeDist tempSortMode = config.getListConfig()
-								.getAllDistributionsConfig().getSortMode();
+						SortModeDist tempSortMode = SortModeDist.distribution;
+						if (config.getListConfig() != null) {
+							tempSortMode = config.getListConfig()
+									.getAllDistributionsConfig().getSortMode();
+						}
 
 						this.addDistributionPoints(tempName, tempValues,
 								tempDenominator, tempSortMode, offsetX);

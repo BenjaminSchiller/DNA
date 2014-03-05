@@ -7,10 +7,10 @@ import java.awt.event.ActionListener;
 
 import javax.swing.JButton;
 
-import dna.util.Config;
 import dna.visualization.MainDisplay;
 import dna.visualization.config.VisualizerListConfig.SortModeDist;
 import dna.visualization.config.VisualizerListConfig.xAxisSelection;
+import dna.visualization.config.VisualizerListConfig.yAxisSelection;
 import dna.visualization.config.components.MultiScalarVisualizerConfig;
 
 /**
@@ -35,11 +35,20 @@ public class LegendItemDistribution extends LegendItem {
 		this.valueLabel.setText("D=0");
 
 		// load defaults
-		if(parent.parent.parent instanceof MultiScalarVisualizer) {
+		this.sortMode = SortModeDist.distribution;
+		this.xAxis = xAxisSelection.x1;
+		this.yAxis = yAxisSelection.y1;
+
+		if (parent.parent.parent instanceof MultiScalarVisualizer) {
 			MultiScalarVisualizerConfig config = ((MultiScalarVisualizer) parent.parent.parent).config;
-			this.sortMode = config.getListConfig().getAllDistributionsConfig().getSortMode();
-			this.xAxis = config.getListConfig().getAllDistributionsConfig().getXAxis();
-			this.yAxis = config.getListConfig().getAllDistributionsConfig().getYAxis();
+			if (config.getListConfig() != null) {
+				this.sortMode = config.getListConfig()
+						.getAllDistributionsConfig().getSortMode();
+				this.xAxis = config.getListConfig().getAllDistributionsConfig()
+						.getXAxis();
+				this.yAxis = config.getListConfig().getAllDistributionsConfig()
+						.getYAxis();
+			}
 		}
 
 		// adjust toggle y axis button

@@ -15,7 +15,6 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.border.EtchedBorder;
 
-import dna.util.Config;
 import dna.visualization.MainDisplay;
 import dna.visualization.components.BoundsPopupMenuListener;
 import dna.visualization.components.ColorHandler;
@@ -28,6 +27,7 @@ import dna.visualization.config.VisualizerListConfig.SortModeDist;
 import dna.visualization.config.VisualizerListConfig.SortModeNVL;
 import dna.visualization.config.VisualizerListConfig.xAxisSelection;
 import dna.visualization.config.VisualizerListConfig.yAxisSelection;
+import dna.visualization.config.components.MultiScalarVisualizerConfig;
 
 /**
  * Used within a metric visualizer component to give the user control over which
@@ -201,14 +201,23 @@ public class Legend extends JPanel {
 
 			this.list.add(i);
 
+			xAxisSelection xAxis = xAxisSelection.x1;
+			yAxisSelection yAxis = yAxisSelection.y1;
+
 			// get default axis orientation
-			xAxisSelection xAxis = Config.getXAxisSelection("GUI_DIST_X_AXIS");
-			yAxisSelection yAxis = Config.getYAxisSelection("GUI_DIST_Y_AXIS");
+			if (this.parent instanceof MultiScalarVisualizer) {
+				MultiScalarVisualizerConfig config = ((MultiScalarVisualizer) this.parent).config;
+				if (config.getListConfig() != null) {
+					xAxis = config.getListConfig().getAllDistributionsConfig()
+							.getXAxis();
+					yAxis = config.getListConfig().getAllDistributionsConfig()
+							.getYAxis();
+				}
+			}
 
 			if (this.parent instanceof MultiScalarVisualizer)
 				((MultiScalarVisualizer) this.parent).addDistributionTrace(
 						name, color, xAxis, yAxis);
-
 			this.parent.updateTicks();
 		}
 		this.parent.toggleXAxisVisibility();
@@ -298,8 +307,18 @@ public class Legend extends JPanel {
 			this.list.add(i);
 
 			// get default axis orientation
-			xAxisSelection xAxis = Config.getXAxisSelection("GUI_NVL_X_AXIS");
-			yAxisSelection yAxis = Config.getYAxisSelection("GUI_NVL_Y_AXIS");
+			xAxisSelection xAxis = xAxisSelection.x2;
+			yAxisSelection yAxis = yAxisSelection.y2;
+
+			if (this.parent instanceof MultiScalarVisualizer) {
+				MultiScalarVisualizerConfig config = ((MultiScalarVisualizer) this.parent).config;
+				if (config.getListConfig() != null) {
+					xAxis = config.getListConfig().getAllNodeValueListsConfig()
+							.getXAxis();
+					yAxis = config.getListConfig().getAllNodeValueListsConfig()
+							.getYAxis();
+				}
+			}
 
 			if (this.parent instanceof MultiScalarVisualizer)
 				((MultiScalarVisualizer) this.parent).addNodeValueListTrace(

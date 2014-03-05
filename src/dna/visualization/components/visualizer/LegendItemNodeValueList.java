@@ -10,6 +10,7 @@ import javax.swing.JButton;
 import dna.visualization.MainDisplay;
 import dna.visualization.config.VisualizerListConfig.SortModeNVL;
 import dna.visualization.config.VisualizerListConfig.xAxisSelection;
+import dna.visualization.config.VisualizerListConfig.yAxisSelection;
 import dna.visualization.config.components.MultiScalarVisualizerConfig;
 
 /**
@@ -33,14 +34,20 @@ public class LegendItemNodeValueList extends LegendItem {
 		super(parent, name, color);
 
 		// load defaults
+		this.sortMode = SortModeNVL.ascending;
+		this.xAxis = xAxisSelection.x2;
+		this.yAxis = yAxisSelection.y2;
+
 		if (parent.parent.parent instanceof MultiScalarVisualizer) {
 			MultiScalarVisualizerConfig config = ((MultiScalarVisualizer) parent.parent.parent).config;
-			this.sortMode = config.getListConfig().getAllNodeValueListsConfig()
-					.getSortMode();
-			this.xAxis = config.getListConfig().getAllNodeValueListsConfig()
-					.getXAxis();
-			this.yAxis = config.getListConfig().getAllNodeValueListsConfig()
-					.getYAxis();
+			if (config.getListConfig() != null) {
+				this.sortMode = config.getListConfig()
+						.getAllNodeValueListsConfig().getSortMode();
+				this.xAxis = config.getListConfig()
+						.getAllNodeValueListsConfig().getXAxis();
+				this.yAxis = config.getListConfig()
+						.getAllNodeValueListsConfig().getYAxis();
+			}
 		}
 
 		// adjust toggle y axis button

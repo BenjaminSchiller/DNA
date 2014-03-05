@@ -245,6 +245,7 @@ public class MetricVisualizerConfig {
 		Dimension legendItemValueLabelSize;
 		Font legendItemValueFont;
 		Color legendItemValueFontColor;
+		MenuBarConfig menuBarConfig;
 
 		// set default values
 		if (MainDisplay.DefaultConfig == null) {
@@ -310,6 +311,8 @@ public class MetricVisualizerConfig {
 				legendItemValueFontColor = (Color) field.get(null);
 			} catch (Exception e) {
 			}
+			menuBarConfig = MenuBarConfig.createMenuBarConfigFromJSONObject(o
+					.getJSONObject("MenuBar"));
 		} else {
 			// use default config values as defaults
 			name = MainDisplay.DefaultConfig.getMetricVisualizerConfigs()[0]
@@ -360,6 +363,8 @@ public class MetricVisualizerConfig {
 			legendItemValueFontColor = MainDisplay.DefaultConfig
 					.getMetricVisualizerConfigs()[0]
 					.getLegendItemValueFontColor();
+			menuBarConfig = MainDisplay.DefaultConfig
+					.getMetricVisualizerConfigs()[0].getMenuBarConfig();
 		}
 
 		// overwrite default values with parsed values
@@ -517,10 +522,15 @@ public class MetricVisualizerConfig {
 			listConfig = VisualizerListConfig.createConfigFromJSONObject(o);
 		} catch (Exception e) {
 		}
-		// calculate menu bar config
-		MenuBarConfig menuBarConfig = MenuBarConfig
-				.createMenuBarConfigFromJSONObject(o.getJSONObject("MenuBar"));
 
+		// parse menu bar config
+		try {
+			menuBarConfig = MenuBarConfig.createMenuBarConfigFromJSONObject(o
+					.getJSONObject("MenuBar"));
+		} catch (Exception e) {
+		}
+
+		// craft metric visualizer config
 		return new MetricVisualizerConfig(name, traceLength, traceModeLtd,
 				paintLinesPoint, linesPointSize, paintFill, verticalBarSize,
 				positionX, positionY, rowSpan, colSpan, chartSize, xAxisOffset,
