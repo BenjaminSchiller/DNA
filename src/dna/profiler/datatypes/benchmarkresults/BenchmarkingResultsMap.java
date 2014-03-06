@@ -1,5 +1,7 @@
 package dna.profiler.datatypes.benchmarkresults;
 
+import java.text.DecimalFormat;
+
 import dna.profiler.datatypes.ComparableEntryMap;
 
 public class BenchmarkingResultsMap extends ComparableEntryMap implements
@@ -17,6 +19,11 @@ public class BenchmarkingResultsMap extends ComparableEntryMap implements
 
 	public double getValue() {
 		return this.aggregatedValue;
+	}
+	
+	public String toString() {
+		DecimalFormat f = new DecimalFormat("#0.00");
+		return f.format(this.getValue());
 	}
 
 	/**

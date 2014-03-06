@@ -8,6 +8,7 @@ import dna.graph.datastructures.DataStructure.AccessType;
 import dna.profiler.datatypes.ComparableEntry;
 import dna.profiler.datatypes.ComparableEntryMap;
 import dna.profiler.datatypes.benchmarkresults.BenchmarkingResult;
+import dna.profiler.datatypes.benchmarkresults.BenchmarkingResultsMap;
 import dna.profiler.datatypes.complexity.Complexity;
 import dna.profiler.datatypes.complexity.ComplexityMap;
 import dna.profiler.datatypes.complexity.ComplexityType;
@@ -15,7 +16,7 @@ import dna.util.PropertiesHolder;
 
 public abstract class ProfilerMeasurementData extends PropertiesHolder {
 	public enum ProfilerDataType {
-		RuntimeComplexity, MemoryComplexity
+		RuntimeComplexity, MemoryComplexity, RuntimeBenchmark, MemoryBenchmark
 	}
 
 	public static String folderName = "profilerData/";
@@ -29,7 +30,7 @@ public abstract class ProfilerMeasurementData extends PropertiesHolder {
 
 	public static ComparableEntry get(ProfilerDataType complexityType,
 			String classname, AccessType accessType, String storedDataClass,
-			ComplexityType.Base base	) {
+			ComplexityType.Base base) {
 
 		String keyName = complexityType.toString().toUpperCase() + "_"
 				+ classname.toUpperCase();
@@ -62,13 +63,28 @@ public abstract class ProfilerMeasurementData extends PropertiesHolder {
 	}
 
 	public static ComparableEntry parseString(String key, String val) {
-		if (key.startsWith("RUNTIMECOMPLEXITY") || key.startsWith("MEMORYCOMPLEXITY")) {
+		if (key.startsWith("RUNTIMECOMPLEXITY")
+				|| key.startsWith("MEMORYCOMPLEXITY")) {
 			return Complexity.parseString(key, val);
-		} else if ( key.startsWith("MEMORYBENCHMARK") || key.startsWith("RUNTIMEBENCHMARK")) {
+		} else if (key.startsWith("MEMORYBENCHMARK")
+				|| key.startsWith("RUNTIMEBENCHMARK")) {
 			return BenchmarkingResult.parseString(key, val);
 		} else {
 			throw new RuntimeException("Don't know how to parse " + key + "="
 					+ val);
+		}
+	}
+
+	public static ComparableEntry getEntry(ProfilerDataType t) {
+		switch (t) {
+		case MemoryComplexity:
+		case RuntimeComplexity:
+			return new Complexity();
+		case MemoryBenchmark:
+		case RuntimeBenchmark:
+			return new BenchmarkingResult("");
+		default:
+			throw new RuntimeException("Cannot create ComparableEntry for " + t);
 		}
 	}
 
@@ -77,6 +93,9 @@ public abstract class ProfilerMeasurementData extends PropertiesHolder {
 		case MemoryComplexity:
 		case RuntimeComplexity:
 			return new ComplexityMap();
+		case MemoryBenchmark:
+		case RuntimeBenchmark:
+			return new BenchmarkingResultsMap(0);
 		default:
 			throw new RuntimeException("Cannot create ComparableEntryMap for "
 					+ t);

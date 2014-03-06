@@ -80,14 +80,18 @@ public class ProfileEntry {
 	public ComparableEntryMap combinedComplexity(
 			ProfilerMeasurementData.ProfilerDataType entryType,
 			GraphDataStructure gds, ListType listTypeLimitor) {
-		ComparableEntry aggregated = new Complexity();
+		ComparableEntry aggregated = null;
 		for (ListType lt : ListType.values()) {
 			if (listTypeLimitor != null && !listTypeLimitor.equals(lt))
 				continue;
 			for (AccessType at : AccessType.values()) {
 				ComparableEntry c = gds.getComplexityClass(lt, at, entryType);
 				c.setValues(get(lt, at), Profiler.getMeanSize(lt), lt.getBase());
-				aggregated = new AddedComparableEntry(aggregated, c);
+				if ( aggregated == null ) {
+					aggregated = c;
+				} else {
+					aggregated = new AddedComparableEntry(aggregated, c);
+				}
 			}
 		}
 		return aggregated.getMap();
