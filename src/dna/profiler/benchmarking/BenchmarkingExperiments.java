@@ -47,6 +47,7 @@ public class BenchmarkingExperiments {
 
 	Integer[] randomIDsInList;
 	Integer[] randomIDsNotInList;
+	INode[] randomNodesNotInList;
 
 	Edge[] randomEdgesInList;
 	Edge[] randomEdgesNotInList;
@@ -121,8 +122,7 @@ public class BenchmarkingExperiments {
 				DirectedEdge.class);
 	}
 
-	public void setUp(Class<? extends IDataStructure> dsClass, Integer setupSize)
-			throws Exception {
+	public void setUp(Class<? extends IDataStructure> dsClass, Integer setupSize) {
 		setUpGds(dsClass, setupSize);
 		nodeListToBenchmark = (INodeListDatastructure) gds
 				.newList(ListType.GlobalNodeList);
@@ -137,10 +137,12 @@ public class BenchmarkingExperiments {
 		}
 
 		int rand;
+		INode n;
 		IEdge e;
 
 		randomIDsInList = new Integer[operationSize];
 		randomIDsNotInList = new Integer[operationSize];
+		randomNodesNotInList = new INode[operationSize];
 		randomEdgesInList = new Edge[operationSize];
 		randomEdgesNotInList = new Edge[operationSize];
 
@@ -158,6 +160,8 @@ public class BenchmarkingExperiments {
 				rand = Rand.rand.nextInt(Integer.MAX_VALUE);
 			} while (rand < initialSize || tempNodesNotInList.contains(rand));
 			tempNodesNotInList.add(rand);
+			n = gds.newNodeInstance(rand);
+			randomNodesNotInList[i] = n;
 
 			do {
 				rand = Rand.rand.nextInt(initialSize);
@@ -174,12 +178,11 @@ public class BenchmarkingExperiments {
 		tempEdgesInList.toArray(randomEdgesInList);
 
 		nodeListToBenchmarkCasted = null;
-		if (IReadable.class.isAssignableFrom(classToBenchmark))
-			nodeListToBenchmarkCasted = (INodeListDatastructureReadable) nodeListToBenchmark;
-
 		edgeListToBenchmarkCasted = null;
-		if (edgeListToBenchmark.getClass().isAssignableFrom(IReadable.class))
+		if (IReadable.class.isAssignableFrom(dsClass)) {
+			nodeListToBenchmarkCasted = (INodeListDatastructureReadable) nodeListToBenchmark;
 			edgeListToBenchmarkCasted = (IEdgeListDatastructureReadable) edgeListToBenchmark;
+		}
 	}
 
 	@Bench(runs = repetitions, dataProvider = "testInput", beforeEachRun = "setUpGds")
@@ -237,8 +240,10 @@ public class BenchmarkingExperiments {
 			return;
 		for (Edge e : randomEdgesInList) {
 			res = edgeListToBenchmarkCasted.get(e) != null;
-			if (!res)
-				throw new RuntimeException("Misdefined benchmark");
+			if (!res) {
+				System.err.println("Misdefined benchmark GetSuccess_Edge");
+				return;
+			}
 		}
 	}
 
@@ -249,8 +254,10 @@ public class BenchmarkingExperiments {
 			return;
 		for (int i : randomIDsNotInList) {
 			res = nodeListToBenchmarkCasted.get(i) != null;
-			if (!res)
-				throw new RuntimeException("Misdefined benchmark");
+			if (res) {
+				System.err.println("Misdefined benchmark GetFailure_Node");
+				return;
+			}
 		}
 	}
 
@@ -261,8 +268,10 @@ public class BenchmarkingExperiments {
 			return;
 		for (Edge e : randomEdgesNotInList) {
 			res = edgeListToBenchmarkCasted.get(e) != null;
-			if (res)
-				throw new RuntimeException("Misdefined benchmark");
+			if (res) {
+				System.err.println("Misdefined benchmark GetFailure_Edge");
+				return;
+			}
 		}
 	}
 
@@ -291,8 +300,10 @@ public class BenchmarkingExperiments {
 			Integer setupSize) {
 		for (i = 0; i < operationSize; i++) {
 			res = nodeListToBenchmark.remove(nodeList[randomIDsInList[i]]);
-			if (!res)
-				throw new RuntimeException("Misdefined benchmark");
+			if (!res) {
+				System.err.println("Misdefined benchmark RemoveSuccess_Node");
+				return;
+			}
 		}
 	}
 
@@ -300,9 +311,11 @@ public class BenchmarkingExperiments {
 	public void RemoveFailure_Node(Class<? extends IDataStructure> dsClass,
 			Integer setupSize) {
 		for (i = 0; i < operationSize; i++) {
-			res = nodeListToBenchmark.remove(nodeList[randomIDsNotInList[i]]);
-			if (res)
-				throw new RuntimeException("Misdefined benchmark");
+			res = nodeListToBenchmark.remove(randomNodesNotInList[i]);
+			if (res) {
+				System.err.println("Misdefined benchmark RemoveFailure_Node");
+				return;
+			}
 		}
 	}
 
@@ -311,8 +324,10 @@ public class BenchmarkingExperiments {
 			Integer setupSize) {
 		for (i = 0; i < operationSize; i++) {
 			res = edgeListToBenchmark.remove(randomEdgesInList[i]);
-			if (!res)
-				throw new RuntimeException("Misdefined benchmark");
+			if (!res) {
+				System.err.println("Misdefined benchmark RemoveSuccess_Edge");
+				return;
+			}
 		}
 	}
 
@@ -321,8 +336,10 @@ public class BenchmarkingExperiments {
 			Integer setupSize) {
 		for (i = 0; i < operationSize; i++) {
 			res = edgeListToBenchmark.remove(randomEdgesNotInList[i]);
-			if (res)
-				throw new RuntimeException("Misdefined benchmark");
+			if (res) {
+				System.err.println("Misdefined benchmark RemoveFailure_Edge");
+				return;
+			}
 		}
 	}
 

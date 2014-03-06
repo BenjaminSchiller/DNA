@@ -19,7 +19,7 @@ do
 done
 
 # Wait for all benchmarking processes to be finished
-while [ $(ps aux|grep java|wc -l) -ge $currentlyRunning ];
+while [ $(ps aux|grep java|wc -l) -gt $currentlyRunning ];
 do
 	sleep 5
 done
