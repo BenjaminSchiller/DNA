@@ -239,7 +239,8 @@ public class GraphDataStructure {
 	}
 
 	public IDataStructure newList(ListType listType) {
-		this.canGDSCreateProperLists();
+		if ( Config.getBoolean("GRAPHDATASTRUCTURE_OVERRIDE_CHECKS") != true)
+			this.canGDSCreateProperLists();
 
 		Class<? extends IDataStructure> sourceClass = getListClass(listType, listTypes);
 		Class<? extends IElement> storedDataType = listType.getStoredClass();

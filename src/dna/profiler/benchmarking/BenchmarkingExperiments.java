@@ -10,6 +10,7 @@ import org.perfidix.annotation.BenchClass;
 import org.perfidix.result.BenchmarkResult;
 
 import dna.graph.datastructures.DArray;
+import dna.graph.datastructures.DEmpty;
 import dna.graph.datastructures.DataStructure.ListType;
 import dna.graph.datastructures.GraphDataStructure;
 import dna.graph.datastructures.IDataStructure;
@@ -24,6 +25,7 @@ import dna.graph.edges.IEdge;
 import dna.graph.nodes.DirectedNode;
 import dna.graph.nodes.INode;
 import dna.graph.nodes.Node;
+import dna.util.Config;
 import dna.util.Rand;
 
 @BenchClass
@@ -78,6 +80,8 @@ public class BenchmarkingExperiments {
 
 	@BeforeFirstRun
 	public void setupGeneralLists() {
+		Config.overwrite("GRAPHDATASTRUCTURE_OVERRIDE_CHECKS", "true");
+
 		EnumMap<ListType, Class<? extends IDataStructure>> list = GraphDataStructure
 				.getList(ListType.GlobalEdgeList, DArray.class,
 						ListType.GlobalNodeList, DArray.class);
@@ -113,7 +117,6 @@ public class BenchmarkingExperiments {
 
 	public void setUpGds(Class<? extends IDataStructure> dsClass,
 			Integer setupSize) {
-
 		// Generate the set of nodes to be inserted here
 		EnumMap<ListType, Class<? extends IDataStructure>> list = GraphDataStructure
 				.getList(ListType.GlobalEdgeList, dsClass,
@@ -122,33 +125,23 @@ public class BenchmarkingExperiments {
 				DirectedEdge.class);
 	}
 
-	public void setUp(Class<? extends IDataStructure> dsClass, Integer setupSize) {
-		setUpGds(dsClass, setupSize);
+	private void initForNodeList(Class<? extends IDataStructure> dsClass,
+			int initialSize) {
 		nodeListToBenchmark = (INodeListDatastructure) gds
 				.newList(ListType.GlobalNodeList);
-		edgeListToBenchmark = (IEdgeListDatastructure) gds
-				.newList(ListType.GlobalEdgeList);
-
-		int initialSize = (int) (setupSize - Math.ceil(operationSize / 2));
-
 		for (int i = 0; i < initialSize; i++) {
 			nodeListToBenchmark.add(nodeList[i]);
-			edgeListToBenchmark.add(edgeList[i]);
 		}
 
 		int rand;
 		INode n;
-		IEdge e;
 
 		randomIDsInList = new Integer[operationSize];
 		randomIDsNotInList = new Integer[operationSize];
 		randomNodesNotInList = new INode[operationSize];
-		randomEdgesInList = new Edge[operationSize];
-		randomEdgesNotInList = new Edge[operationSize];
 
 		ArrayList<Integer> tempNodesInList = new ArrayList<Integer>();
 		ArrayList<Integer> tempNodesNotInList = new ArrayList<Integer>();
-		ArrayList<Edge> tempEdgesInList = new ArrayList<Edge>();
 
 		for (int i = 0; i < operationSize; i++) {
 			do {
@@ -163,6 +156,34 @@ public class BenchmarkingExperiments {
 			n = gds.newNodeInstance(rand);
 			randomNodesNotInList[i] = n;
 
+		}
+
+		tempNodesInList.toArray(randomIDsInList);
+		tempNodesNotInList.toArray(randomIDsNotInList);
+
+		nodeListToBenchmarkCasted = null;
+		if (IReadable.class.isAssignableFrom(dsClass)) {
+			nodeListToBenchmarkCasted = (INodeListDatastructureReadable) nodeListToBenchmark;
+		}
+	}
+
+	private void initForEdgeList(Class<? extends IDataStructure> dsClass,
+			int initialSize) {
+		edgeListToBenchmark = (IEdgeListDatastructure) gds
+				.newList(ListType.GlobalEdgeList);
+		for (int i = 0; i < initialSize; i++) {
+			edgeListToBenchmark.add(edgeList[i]);
+		}
+
+		int rand;
+		IEdge e;
+
+		randomEdgesInList = new Edge[operationSize];
+		randomEdgesNotInList = new Edge[operationSize];
+
+		ArrayList<Edge> tempEdgesInList = new ArrayList<Edge>();
+
+		for (int i = 0; i < operationSize; i++) {
 			do {
 				rand = Rand.rand.nextInt(initialSize);
 				e = edgeList[rand];
@@ -173,22 +194,32 @@ public class BenchmarkingExperiments {
 			randomEdgesNotInList[i] = (Edge) e;
 		}
 
-		tempNodesInList.toArray(randomIDsInList);
-		tempNodesNotInList.toArray(randomIDsNotInList);
 		tempEdgesInList.toArray(randomEdgesInList);
 
-		nodeListToBenchmarkCasted = null;
 		edgeListToBenchmarkCasted = null;
 		if (IReadable.class.isAssignableFrom(dsClass)) {
-			nodeListToBenchmarkCasted = (INodeListDatastructureReadable) nodeListToBenchmark;
 			edgeListToBenchmarkCasted = (IEdgeListDatastructureReadable) edgeListToBenchmark;
 		}
 	}
 
+	public void setUp(Class<? extends IDataStructure> dsClass, Integer setupSize) {
+		setUpGds(dsClass, setupSize);
+		int initialSize = (int) (setupSize - Math.ceil(operationSize / 2));
+
+		if (INodeListDatastructure.class.isAssignableFrom(dsClass)) {
+			initForNodeList(dsClass, initialSize);
+		}
+
+		if (IEdgeListDatastructure.class.isAssignableFrom(dsClass)) {
+			initForEdgeList(dsClass, initialSize);
+		}
+
+	}
+
 	@Bench(runs = repetitions, dataProvider = "testInput", beforeEachRun = "setUpGds")
 	public void Init(Class<? extends IDataStructure> dsClass, Integer setupSize) {
-		nodeListToBenchmark = (INodeListDatastructure) gds
-				.newList(ListType.GlobalNodeList);
+		edgeListToBenchmark = (IEdgeListDatastructure) gds
+				.newList(ListType.GlobalEdgeList);
 	}
 
 	@Bench(runs = repetitions, dataProvider = "testInput", beforeEachRun = "setUp")
@@ -208,7 +239,7 @@ public class BenchmarkingExperiments {
 	}
 
 	@Bench(runs = repetitions, dataProvider = "testInput", beforeEachRun = "setUp")
-	public void ContainsSuccess(Class<? extends IDataStructure> dsClass,
+	public void ContainsSuccess_Node(Class<? extends IDataStructure> dsClass,
 			Integer setupSize) {
 		for (i = 0; i < operationSize; i++) {
 			nodeListToBenchmark.contains(nodeList[i]);
@@ -216,7 +247,15 @@ public class BenchmarkingExperiments {
 	}
 
 	@Bench(runs = repetitions, dataProvider = "testInput", beforeEachRun = "setUp")
-	public void ContainsFailure(Class<? extends IDataStructure> dsClass,
+	public void ContainsSuccess_Edge(Class<? extends IDataStructure> dsClass,
+			Integer setupSize) {
+		for (i = 0; i < operationSize; i++) {
+			edgeListToBenchmark.contains(edgeList[i]);
+		}
+	}
+
+	@Bench(runs = repetitions, dataProvider = "testInput", beforeEachRun = "setUp")
+	public void ContainsFailure_Node(Class<? extends IDataStructure> dsClass,
 			Integer setupSize) {
 		for (i = 0; i < operationSize; i++) {
 			nodeListToBenchmark.contains(nodeList[setupSize + i]);
@@ -224,12 +263,24 @@ public class BenchmarkingExperiments {
 	}
 
 	@Bench(runs = repetitions, dataProvider = "testInput", beforeEachRun = "setUp")
+	public void ContainsFailure_Edge(Class<? extends IDataStructure> dsClass,
+			Integer setupSize) {
+		for (i = 0; i < operationSize; i++) {
+			edgeListToBenchmark.contains(randomEdgesNotInList[i]);
+		}
+	}
+
+	@Bench(runs = repetitions, dataProvider = "testInput", beforeEachRun = "setUp")
 	public void GetSuccess_Node(Class<? extends IDataStructure> dsClass,
 			Integer setupSize) {
 		if (nodeListToBenchmarkCasted == null)
-			return;
+			throw new RuntimeException("No benchmarking here");
 		for (int i : randomIDsInList) {
-			nodeListToBenchmarkCasted.get(i);
+			res = nodeListToBenchmarkCasted.get(i) != null;
+			if (!res) {
+				System.err.println("Misdefined benchmark GetSuccess_Edge");
+				return;
+			}
 		}
 	}
 
@@ -237,10 +288,10 @@ public class BenchmarkingExperiments {
 	public void GetSuccess_Edge(Class<? extends IDataStructure> dsClass,
 			Integer setupSize) {
 		if (edgeListToBenchmarkCasted == null)
-			return;
+			throw new RuntimeException("No benchmarking here");
 		for (Edge e : randomEdgesInList) {
 			res = edgeListToBenchmarkCasted.get(e) != null;
-			if (!res) {
+			if (!res && dsClass != DEmpty.class) {
 				System.err.println("Misdefined benchmark GetSuccess_Edge");
 				return;
 			}
@@ -251,7 +302,7 @@ public class BenchmarkingExperiments {
 	public void GetFailure_Node(Class<? extends IDataStructure> dsClass,
 			Integer setupSize) {
 		if (nodeListToBenchmarkCasted == null)
-			return;
+			throw new RuntimeException("No benchmarking here");
 		for (int i : randomIDsNotInList) {
 			res = nodeListToBenchmarkCasted.get(i) != null;
 			if (res) {
@@ -265,7 +316,7 @@ public class BenchmarkingExperiments {
 	public void GetFailure_Edge(Class<? extends IDataStructure> dsClass,
 			Integer setupSize) {
 		if (edgeListToBenchmarkCasted == null)
-			return;
+			throw new RuntimeException("No benchmarking here");
 		for (Edge e : randomEdgesNotInList) {
 			res = edgeListToBenchmarkCasted.get(e) != null;
 			if (res) {
@@ -279,7 +330,7 @@ public class BenchmarkingExperiments {
 	public void Random_Node(Class<? extends IDataStructure> dsClass,
 			Integer setupSize) {
 		if (nodeListToBenchmarkCasted == null)
-			return;
+			throw new RuntimeException("No benchmarking here");
 		for (i = 0; i < operationSize; i++) {
 			nodeListToBenchmarkCasted.getRandom();
 		}
@@ -289,7 +340,7 @@ public class BenchmarkingExperiments {
 	public void Random_Edge(Class<? extends IDataStructure> dsClass,
 			Integer setupSize) {
 		if (edgeListToBenchmarkCasted == null)
-			return;
+			throw new RuntimeException("No benchmarking here");
 		for (i = 0; i < operationSize; i++) {
 			edgeListToBenchmarkCasted.getRandom();
 		}
@@ -336,7 +387,7 @@ public class BenchmarkingExperiments {
 			Integer setupSize) {
 		for (i = 0; i < operationSize; i++) {
 			res = edgeListToBenchmark.remove(randomEdgesNotInList[i]);
-			if (res) {
+			if (res && dsClass != DEmpty.class) {
 				System.err.println("Misdefined benchmark RemoveFailure_Edge");
 				return;
 			}
@@ -344,17 +395,42 @@ public class BenchmarkingExperiments {
 	}
 
 	@Bench(runs = repetitions, dataProvider = "testInput", beforeEachRun = "setUp")
-	public void Size(Class<? extends IDataStructure> dsClass, Integer setupSize) {
+	public void Size_Node(Class<? extends IDataStructure> dsClass,
+			Integer setupSize) {
+		if (nodeListToBenchmark == null)
+			throw new RuntimeException("No benchmarking here");
 		for (i = 0; i < operationSize; i++) {
 			nodeListToBenchmark.size();
 		}
 	}
 
 	@Bench(runs = repetitions, dataProvider = "testInput", beforeEachRun = "setUp")
-	public void Iterator(Class<? extends IDataStructure> dsClass,
+	public void Size_Edge(Class<? extends IDataStructure> dsClass,
 			Integer setupSize) {
+		if (edgeListToBenchmark == null)
+			throw new RuntimeException("No benchmarking here");
+		for (i = 0; i < operationSize; i++) {
+			edgeListToBenchmark.size();
+		}
+	}
+
+	@Bench(runs = repetitions, dataProvider = "testInput", beforeEachRun = "setUp")
+	public void Iterator_Node(Class<? extends IDataStructure> dsClass,
+			Integer setupSize) {
+		if (nodeListToBenchmark == null)
+			throw new RuntimeException("No benchmarking here");
 		for (i = 0; i < operationSize; i++) {
 			nodeListToBenchmark.iterator();
+		}
+	}
+
+	@Bench(runs = repetitions, dataProvider = "testInput", beforeEachRun = "setUp")
+	public void Iterator_Edge(Class<? extends IDataStructure> dsClass,
+			Integer setupSize) {
+		if (edgeListToBenchmark == null)
+			throw new RuntimeException("No benchmarking here");
+		for (i = 0; i < operationSize; i++) {
+			edgeListToBenchmark.iterator();
 		}
 	}
 
