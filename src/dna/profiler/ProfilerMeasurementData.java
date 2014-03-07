@@ -95,7 +95,7 @@ public abstract class ProfilerMeasurementData extends PropertiesHolder {
 			return new ComplexityMap();
 		case MemoryBenchmark:
 		case RuntimeBenchmark:
-			return new BenchmarkingResultsMap(0);
+			return new BenchmarkingResultsMap();
 		default:
 			throw new RuntimeException("Cannot create ComparableEntryMap for "
 					+ t);

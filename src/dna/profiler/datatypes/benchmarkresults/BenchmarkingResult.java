@@ -123,7 +123,8 @@ public class BenchmarkingResult extends ComparableEntry {
 
 	@Override
 	public ComparableEntryMap getMap() {
-		BenchmarkingResultsMap map = new BenchmarkingResultsMap(innerStrategy.getValue(meanListSize));
+		BenchmarkingResultsMap map = new BenchmarkingResultsMap();
+		map.put(counter * innerStrategy.getValue(meanListSize));
 		return map;
 	}
 

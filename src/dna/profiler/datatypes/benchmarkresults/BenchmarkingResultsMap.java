@@ -8,8 +8,8 @@ public class BenchmarkingResultsMap extends ComparableEntryMap implements
 		Comparable<BenchmarkingResultsMap> {
 	double aggregatedValue;
 
-	public BenchmarkingResultsMap(double val) {
-		this.aggregatedValue = val;
+	public void put(double value) {
+		this.aggregatedValue = value;
 	}
 
 	public void add(ComparableEntryMap resSecondIn) {
@@ -20,9 +20,9 @@ public class BenchmarkingResultsMap extends ComparableEntryMap implements
 	public double getValue() {
 		return this.aggregatedValue;
 	}
-	
+
 	public String toString() {
-		DecimalFormat f = new DecimalFormat("#0.00");
+		DecimalFormat f = new DecimalFormat("###,##0.00");
 		return f.format(this.getValue());
 	}
 
