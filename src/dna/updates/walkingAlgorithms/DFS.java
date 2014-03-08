@@ -8,7 +8,9 @@ import dna.graph.startNodeSelection.StartNodeSelectionStrategy;
 import dna.util.parameters.Parameter;
 
 /**
- * @author Benedict
+ * A sampling algorithm based on deep first search
+ * 
+ * @author Benedict Jahn
  * 
  */
 public class DFS extends WalkingAlgorithm {
@@ -17,13 +19,26 @@ public class DFS extends WalkingAlgorithm {
 	private LinkedList<Node> queue;
 
 	/**
+	 * Creates an instance of the depth first sampling algorithm
+	 * 
 	 * @param name
+	 *            the name of this instance
 	 * @param fullGraph
-	 * @param startNodeStrategy
+	 *            the graph the algorithm shall walk on
+	 * @param startNodeStrat
+	 *            the strategy how the algorithm will select the first node
 	 * @param onlyVisitedNodesToGraph
+	 *            if set to true the generator will only put visited nodes in
+	 *            the batch
 	 * @param costPerBatch
-	 * @param resource
+	 *            how many steps the algorithm shall perform for one batch
+	 * @param ressouce
+	 *            the maximum count of steps the algorithm shall perform, if
+	 *            initialized with 0 or below the algorithm will walk until the
+	 *            graph is fully visited
 	 * @param parameters
+	 *            the parameters which makes this algorithm unique and which
+	 *            will be added to the name
 	 */
 	public DFS(String name, Graph fullGraph,
 			StartNodeSelectionStrategy startNodeStrategy,
@@ -38,7 +53,7 @@ public class DFS extends WalkingAlgorithm {
 
 	@Override
 	protected Node findNextNode() {
-		if(queue.isEmpty()){
+		if (queue.isEmpty()) {
 			noNodeFound();
 			return null;
 		}

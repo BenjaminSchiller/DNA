@@ -21,7 +21,9 @@ import dna.updates.update.Update;
 import dna.util.parameters.Parameter;
 
 /**
- * @author Benedict
+ * Base class for all sampling algorithms
+ * 
+ * @author Benedict Jahn
  * 
  */
 public abstract class WalkingAlgorithm extends BatchGenerator {

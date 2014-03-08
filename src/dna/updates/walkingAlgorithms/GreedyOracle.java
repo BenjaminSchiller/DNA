@@ -10,7 +10,12 @@ import dna.updates.walkingAlgorithms.SortableNode.SortType;
 import dna.util.parameters.Parameter;
 
 /**
- * @author Benedict
+ * An implementation of the sampling algorithm of Guha and Khuler. This
+ * algorithm is referenced as "greedy oracle" from Giovanni Neglia et Al. The
+ * algorithm is called oracle because it has a one hop look ahead and chooses
+ * the next node based on the highest count of unseen neighbors.
+ * 
+ * @author Benedict Jahn
  * 
  */
 public class GreedyOracle extends WalkingAlgorithm {
@@ -18,13 +23,26 @@ public class GreedyOracle extends WalkingAlgorithm {
 	ArrayList<SortableNode> greyZone;
 
 	/**
+	 * Creates an instance of the greedy oracle sampling algorithm
+	 * 
 	 * @param name
+	 *            the name of this instance
 	 * @param fullGraph
-	 * @param startNodeStrategy
+	 *            the graph the algorithm shall walk on
+	 * @param startNodeStrat
+	 *            the strategy how the algorithm will select the first node
 	 * @param onlyVisitedNodesToGraph
+	 *            if set to true the generator will only put visited nodes in
+	 *            the batch
 	 * @param costPerBatch
-	 * @param resource
+	 *            how many steps the algorithm shall perform for one batch
+	 * @param ressouce
+	 *            the maximum count of steps the algorithm shall perform, if
+	 *            initialized with 0 or below the algorithm will walk until the
+	 *            graph is fully visited
 	 * @param parameters
+	 *            the parameters which makes this algorithm unique and which
+	 *            will be added to the name
 	 */
 	public GreedyOracle(String name, Graph fullGraph,
 			StartNodeSelectionStrategy startNodeStrategy,
@@ -38,7 +56,7 @@ public class GreedyOracle extends WalkingAlgorithm {
 
 	@Override
 	protected Node findNextNode() {
-		if(greyZone.isEmpty()){
+		if (greyZone.isEmpty()) {
 			noNodeFound();
 			return null;
 		}
@@ -58,8 +76,8 @@ public class GreedyOracle extends WalkingAlgorithm {
 		Node firstNode = startNode.getStartNode();
 		ArrayList<Node> neighbors = getAllNeighbors(firstNode);
 		for (Node n : neighbors) {
-				greyZone.add(new SortableNode(n, this,
-						SortType.SORT_BY_UNSEEN_NEIGHBORS));
+			greyZone.add(new SortableNode(n, this,
+					SortType.SORT_BY_UNSEEN_NEIGHBORS));
 		}
 		return firstNode;
 	}
@@ -68,7 +86,7 @@ public class GreedyOracle extends WalkingAlgorithm {
 
 /**
  * This class makes nodes sortable in the way that the node with the highest
- * degree of unseen nodes is the best
+ * degree of unseen/unvisited/visited nodes is the best
  * 
  * @author Benedict
  * 
@@ -112,7 +130,7 @@ class SortableNode implements Comparable<SortableNode> {
 	 * Calculates the yield (the count of unseen neighbors of this node)
 	 */
 	private int getYield() {
-		if(oldTimeStamp != 0 && oldTimeStamp == algo.getTimeStamp()){
+		if (oldTimeStamp != 0 && oldTimeStamp == algo.getTimeStamp()) {
 			return size;
 		}
 		oldTimeStamp = algo.getTimeStamp();
@@ -136,9 +154,9 @@ class SortableNode implements Comparable<SortableNode> {
 
 		if (oCount < myCount) {
 			return -1;
-		} else if(myCount < oCount) {
+		} else if (myCount < oCount) {
 			return 1;
-		} else{
+		} else {
 			return 0;
 		}
 	}

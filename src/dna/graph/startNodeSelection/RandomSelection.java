@@ -6,13 +6,13 @@ import dna.graph.nodes.Node;
 /**
  * Randomly selects a start node out of all nodes.
  * 
- * @author Benedict
+ * @author Benedict Jahn
  * 
  */
 public class RandomSelection extends StartNodeSelectionStrategy {
 
 	/**
-	 * 
+	 * Creates an instance of the random selection start node selection strategy
 	 * 
 	 * @param g
 	 *            The graph from which the node shall be selected

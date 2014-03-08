@@ -11,7 +11,10 @@ import dna.updates.update.Update;
 import dna.updates.walkingAlgorithms.WalkingAlgorithm;
 
 /**
- * @author Benedict
+ * This metric will compute the number of seen, unseen and visited nodes in a
+ * graph which is sampled by an walking algorithm
+ * 
+ * @author Benedict Jahn
  * 
  */
 public class ExtentR extends Metric {
@@ -23,10 +26,12 @@ public class ExtentR extends Metric {
 	private int visitedAndSeenNodes;
 
 	/**
+	 * Creates an instance of the Extent metric
+	 * 
 	 * @param name
-	 * @param type
-	 * @param metricType
-	 * @param p
+	 *            the name of the metric
+	 * @param algorithm
+	 *            the walking algorithm, which walks the graph
 	 */
 	public ExtentR(String name, WalkingAlgorithm algorithm) {
 		super(name, ApplicationType.Recomputation, MetricType.exact);

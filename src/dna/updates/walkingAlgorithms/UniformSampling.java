@@ -38,7 +38,10 @@ public class UniformSampling extends WalkingAlgorithm {
 
 	@Override
 	protected Node findNextNode() {
-
+		if(notVisited.isEmpty()){
+			noNodeFound();
+			return null;
+		}
 		return (Node) notVisited.remove(Rand.rand.nextInt(notVisited.size()));
 	}
 

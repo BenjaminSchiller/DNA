@@ -1,7 +1,7 @@
 package dna.metrics.samplingModularity;
 
 /**
- * @author Benedict
+ * @author Benedict Jahn
  *
  */
 public abstract class SamplingModularity {

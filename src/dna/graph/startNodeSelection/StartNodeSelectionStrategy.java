@@ -10,9 +10,9 @@ import dna.graph.nodes.Node;
 import dna.graph.nodes.UndirectedNode;
 
 /**
- * Implements a start node selection strategy.
+ * Basis class for start node selection strategies
  * 
- * @author Benedict
+ * @author Benedict Jahn
  * 
  */
 public abstract class StartNodeSelectionStrategy {

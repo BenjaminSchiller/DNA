@@ -8,7 +8,7 @@ import dna.graph.startNodeSelection.StartNodeSelectionStrategy;
  * This is a basic selection strategy which simply returns the node with the
  * given ID
  * 
- * @author Benedict
+ * @author Benedict Jahn
  * 
  */
 public class NodeSelection extends StartNodeSelectionStrategy {
