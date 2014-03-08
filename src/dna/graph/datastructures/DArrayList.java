@@ -112,33 +112,24 @@ public class DArrayList extends DataStructureReadable implements
 	 * with index i must not be stored at position i
 	 */
 	public Node get(int index) {
-		Node n = null;
 
-		// check node at $index
-		if (this.list.size() > index) {
-			n = (Node) this.list.get(index);
-			if (n != null && n.getIndex() == index) {
-				return n;
+		// check at index
+		if (this.list.size() > index
+				&& ((Node) this.list.get(index)).getIndex() == index) {
+			return (Node) this.list.get(index);
+		}
+
+		// check before index
+		for (int i = Math.min(index - 1, list.size() - 1); i >= 0; i--) {
+			if (((Node) this.list.get(i)).getIndex() == index) {
+				return (Node) this.list.get(i);
 			}
 		}
 
-		// check nodes before $index
-		if (n == null || n.getIndex() > index) {
-			for (int i = Math.min(index - 1, this.list.size() - 1); i >= 0; i--) {
-				Node n2 = (Node) this.list.get(i);
-				if (n2 != null && n2.getIndex() == index) {
-					return n2;
-				}
-			}
-		}
-
-		// check nodes after $index
-		if (n == null || n.getIndex() < index) {
-			for (int i = index + 1; i < this.list.size(); i++) {
-				Node n2 = (Node) this.list.get(i);
-				if (n2 != null && n2.getIndex() == index) {
-					return n2;
-				}
+		// check after index
+		for (int i = index + 1; i < this.list.size(); i++) {
+			if (((Node) this.list.get(i)).getIndex() == index) {
+				return (Node) this.list.get(i);
 			}
 		}
 

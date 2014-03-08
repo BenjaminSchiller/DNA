@@ -65,6 +65,19 @@ public class Plotting {
 				Config.getNodeValueListOrder("GNUPLOT_DEFAULT_NVL_ORDER"));
 	}
 
+	public static void plot(SeriesData[] seriesData, String dstDir,
+			PlotType type, PlotStyle style) throws IOException,
+			InterruptedException {
+		Plotting.plot(
+				seriesData,
+				dstDir,
+				type,
+				style,
+				Config.getDistributionPlotType("GNUPLOT_DEFAULT_DIST_PLOTTYPE"),
+				Config.getNodeValueListOrderBy("GNUPLOT_DEFAULT_NVL_ORDERBY"),
+				Config.getNodeValueListOrder("GNUPLOT_DEFAULT_NVL_ORDER"));
+	}
+
 	/**
 	 * Main plotting method that handles the whole plotting process.
 	 * 
@@ -552,6 +565,9 @@ public class Plotting {
 		int index1 = 0;
 		String m = metric == null ? Config.get("PREFIX_STATS_PLOT") : metric;
 
+		PlotData[] allData = new PlotData[seriesData.length];
+		AggregatedValue[][] allValues = new AggregatedValue[seriesData.length][seriesData[0]
+				.getAggregation().getBatches().length];
 		// gather data..
 		// for each series
 		for (SeriesData s : seriesData) {
@@ -561,29 +577,26 @@ public class Plotting {
 			// for each batch
 			for (AggregatedBatch b : s.getAggregation().getBatches()) {
 				if (metric == null) {
-					values[index2] = b.getValues().get(value);
+					allValues[index1][index2] = b.getValues().get(value);
 				} else {
-					values[index2] = b.getMetrics().get(metric).getValues()
-							.get(value);
+					allValues[index1][index2] = b.getMetrics().get(metric)
+							.getValues().get(value);
 				}
 				index2++;
 			}
+			String path = PlotFilenames.getValuesGnuplotScript(m, value + "."
+					+ "ALL");
 
-			String filename = PlotFilenames.getValuesDataFile(m, value, index1);
-			String path = dstDir + "." + index1 + "." + filename;
-
-			PlotData[] data = { PlotData.get(path, style, s.getName(), type) };
-
-			// generate plot script and execute it
-			Plot plot = new Plot(data, dstDir, PlotFilenames.getValuesPlot(m,
-					value + "." + index1),
-					PlotFilenames.getValuesGnuplotScript(m, value + "."
-							+ index1));
-			plot.setTitle(value + " (" + type + ")");
-			plot.generate(values);
-
+			allData[index1] = PlotData.get(path, style, s.getName(), type);
 			index1++;
 		}
+
+		// generate plot script and execute it
+		Plot plot = new Plot(allData, dstDir, PlotFilenames.getValuesPlot(m,
+				value + "." + "ALL"), PlotFilenames.getValuesGnuplotScript(m,
+				value + "." + "ALL"));
+		plot.setTitle(value + " (" + type + ")");
+		plot.generate(allValues);
 	}
 
 	/**
