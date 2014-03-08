@@ -7,7 +7,7 @@ import dna.graph.nodes.Node;
  * Selects n random nodes and chooses the one with the highest degree out of
  * them to be the start node.
  * 
- * @author Benedict
+ * @author Benedict Jahn
  * 
  */
 public class HighestRandomDegreeSelection extends StartNodeSelectionStrategy {

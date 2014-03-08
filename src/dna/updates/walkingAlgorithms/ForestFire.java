@@ -10,7 +10,9 @@ import dna.util.Rand;
 import dna.util.parameters.Parameter;
 
 /**
- * @author Benedict
+ * A sampling algorithm which is based on the behavior of forest fires.
+ * 
+ * @author Benedict Jahn
  * 
  */
 public class ForestFire extends WalkingAlgorithm {
@@ -20,18 +22,29 @@ public class ForestFire extends WalkingAlgorithm {
 	private double propability;
 
 	/**
+	 * Creates an instance of the forest fire sampling algorithm
 	 * 
 	 * @param name
+	 *            the name of this instance
 	 * @param fullGraph
-	 * @param startNodeStrategy
+	 *            the graph the algorithm shall walk on
+	 * @param startNodeStrat
+	 *            the strategy how the algorithm will select the first node
 	 * @param onlyVisitedNodesToGraph
+	 *            if set to true the generator will only put visited nodes in
+	 *            the batch
 	 * @param costPerBatch
-	 * @param resource
+	 *            how many steps the algorithm shall perform for one batch
+	 * @param ressouce
+	 *            the maximum count of steps the algorithm shall perform, if
+	 *            initialized with 0 or below the algorithm will walk until the
+	 *            graph is fully visited
 	 * @param propability
 	 *            propability to select a neighbor of the current node. Have to
 	 *            be between 0 and 1
 	 * @param parameters
-	 * @throws Exception
+	 *            the parameters which makes this algorithm unique and which
+	 *            will be added to the name
 	 */
 	public ForestFire(String name, Graph fullGraph,
 			StartNodeSelectionStrategy startNodeStrategy,
@@ -41,7 +54,8 @@ public class ForestFire extends WalkingAlgorithm {
 				costPerBatch, resource, parameters);
 
 		if (propability < 0 || propability > 1) {
-			throw new IllegalArgumentException("Propability has to be between 0 and 1.");
+			throw new IllegalArgumentException(
+					"Propability has to be between 0 and 1.");
 		}
 
 		this.propability = propability;
@@ -52,7 +66,7 @@ public class ForestFire extends WalkingAlgorithm {
 
 	@Override
 	protected Node findNextNode() {
-		if(queue.isEmpty()){
+		if (queue.isEmpty()) {
 			currentNode = fullGraph.getRandomNode();
 			selectNeighbors();
 			return currentNode;
@@ -70,7 +84,8 @@ public class ForestFire extends WalkingAlgorithm {
 	}
 
 	/**
-	 * 
+	 * Select neighbors of the current node. Each neighbor is chosen with the
+	 * given propability
 	 */
 	private void selectNeighbors() {
 		List<Node> list = getAllNeighbors(currentNode);

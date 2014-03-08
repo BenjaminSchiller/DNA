@@ -7,7 +7,11 @@ import dna.graph.nodes.Node;
 import dna.util.Rand;
 
 /**
- * @author Benedict
+ * Selects n random nodes and chooses m random neighbors of these nodes. The
+ * node in n with the highest degree sum (degrees of n and all m neighbors
+ * summed up) is the new start node
+ * 
+ * @author Benedict Jahn
  * 
  */
 public class HighestRandomDegreeSumSelection extends StartNodeSelectionStrategy {
@@ -16,10 +20,16 @@ public class HighestRandomDegreeSumSelection extends StartNodeSelectionStrategy 
 	private int m;
 
 	/**
+	 * Creates an instance of the highest random degree sum start node selection
+	 * strategy
 	 * 
 	 * @param g
+	 *            the graph from which we choose the start node
 	 * @param numberOfNodes
+	 *            the number of nodes we will randomly choose from the graph
 	 * @param numberOfNeighbors
+	 *            the number of random neighbors of the randomly chosen nodes
+	 *            which will be considered for the degree sum
 	 */
 	public HighestRandomDegreeSumSelection(Graph g, int numberOfNodes,
 			int numberOfNeighbors) {

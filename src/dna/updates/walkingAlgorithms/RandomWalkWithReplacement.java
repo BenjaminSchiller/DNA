@@ -8,7 +8,11 @@ import dna.util.Rand;
 import dna.util.parameters.Parameter;
 
 /**
- * @author Benedict
+ * Implementation of a random walk sampling algorithm. It randomly chooses the
+ * next node out of all neighbors of the current node. It therefore allows
+ * revisiting nodes.
+ * 
+ * @author Benedict Jahn
  * 
  */
 public class RandomWalkWithReplacement extends WalkingAlgorithm {
@@ -16,14 +20,27 @@ public class RandomWalkWithReplacement extends WalkingAlgorithm {
 	private Node currentNode;
 
 	/**
+	 * Creates an instance of the random walk sampling algorithm with
+	 * replacement
 	 * 
 	 * @param name
+	 *            the name of this instance
 	 * @param fullGraph
-	 * @param startNodeStrategy
+	 *            the graph the algorithm shall walk on
+	 * @param startNodeStrat
+	 *            the strategy how the algorithm will select the first node
 	 * @param onlyVisitedNodesToGraph
+	 *            if set to true the generator will only put visited nodes in
+	 *            the batch
 	 * @param costPerBatch
-	 * @param resource
+	 *            how many steps the algorithm shall perform for one batch
+	 * @param ressouce
+	 *            the maximum count of steps the algorithm shall perform, if
+	 *            initialized with 0 or below the algorithm will walk until the
+	 *            graph is fully visited
 	 * @param parameters
+	 *            the parameters which makes this algorithm unique and which
+	 *            will be added to the name
 	 */
 	public RandomWalkWithReplacement(String name, Graph fullGraph,
 			StartNodeSelectionStrategy startNodeStrategy,

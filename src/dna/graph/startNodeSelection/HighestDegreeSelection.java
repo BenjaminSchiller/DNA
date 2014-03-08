@@ -7,14 +7,19 @@ import dna.graph.IElement;
 import dna.graph.nodes.Node;
 
 /**
- * @author Benedict
+ * This start node selection strategy selects the node with the highest degree
+ * in the graph
+ * 
+ * @author Benedict Jahn
  * 
  */
 public class HighestDegreeSelection extends StartNodeSelectionStrategy {
 
 	/**
+	 * Creates an instance of the highest degree selection
 	 * 
 	 * @param g
+	 *            the graph from which we choose the start node
 	 */
 	public HighestDegreeSelection(Graph g) {
 		super(g);
@@ -40,9 +45,8 @@ public class HighestDegreeSelection extends StartNodeSelectionStrategy {
 
 	@Override
 	public int resourceCost() {
-		// TODO Realistisch? oder eher 0?
-		// return graph.getNodeCount();
-		return 0;
+		return g.getNodeCount();
+		// return 0;
 	}
 
 }
