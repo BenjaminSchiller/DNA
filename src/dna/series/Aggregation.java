@@ -7,6 +7,7 @@ import java.util.HashMap;
 import dna.io.filesystem.Dir;
 import dna.io.filesystem.Files;
 import dna.series.aggdata.AggregatedBatch;
+import dna.series.aggdata.AggregatedBinnedDistribution;
 import dna.series.aggdata.AggregatedData;
 import dna.series.aggdata.AggregatedDistribution;
 import dna.series.aggdata.AggregatedDistributionList;
@@ -18,6 +19,9 @@ import dna.series.aggdata.AggregatedRunTimeList;
 import dna.series.aggdata.AggregatedSeries;
 import dna.series.aggdata.AggregatedValue;
 import dna.series.aggdata.AggregatedValueList;
+import dna.series.data.BinnedDistributionDouble;
+import dna.series.data.BinnedDistributionInt;
+import dna.series.data.BinnedDistributionLong;
 import dna.series.data.Data;
 import dna.series.data.DistributionDouble;
 import dna.series.data.DistributionInt;
@@ -525,11 +529,29 @@ public class Aggregation {
 								aggregatedValues[j] = temp2;
 							}
 						}
-						AggregatedDistribution.write(destDir,
-								Files.getDistributionFilename(distributionX),
-								aggregatedValues);
-						aggDistributions.add(new AggregatedDistribution(
-								distributionX));
+						// BinnedDistributionInt
+						if (seriesData.getRun(maxBatchesRunIndex).getBatches()
+								.get(batchX).getMetrics().get(metricX)
+								.getDistributions().get(distributionX) instanceof BinnedDistributionInt) {
+							double binsizeTemp = ((BinnedDistributionInt) seriesData
+									.getRun(maxBatchesRunIndex).getBatches()
+									.get(batchX).getMetrics().get(metricX)
+									.getDistributions().get(distributionX))
+									.getBinSize();
+							AggregatedBinnedDistribution
+									.write(destDir,
+											Files.getDistributionBinnedFilename(distributionX),
+											binsizeTemp, aggregatedValues);
+							aggDistributions
+									.add(new AggregatedBinnedDistribution(
+											distributionX));
+						} else {
+							AggregatedDistribution.write(destDir, Files
+									.getDistributionFilename(distributionX),
+									aggregatedValues);
+							aggDistributions.add(new AggregatedDistribution(
+									distributionX));
+						}
 						aggregated = true;
 					}
 
@@ -578,11 +600,29 @@ public class Aggregation {
 								aggregatedValues[j] = temp2;
 							}
 						}
-						AggregatedDistribution.write(destDir,
-								Files.getDistributionFilename(distributionX),
-								aggregatedValues);
-						aggDistributions.add(new AggregatedDistribution(
-								distributionX));
+						// BinnedDistributionLong
+						if (seriesData.getRun(maxBatchesRunIndex).getBatches()
+								.get(batchX).getMetrics().get(metricX)
+								.getDistributions().get(distributionX) instanceof BinnedDistributionLong) {
+							double binsizeTemp = ((BinnedDistributionLong) seriesData
+									.getRun(maxBatchesRunIndex).getBatches()
+									.get(batchX).getMetrics().get(metricX)
+									.getDistributions().get(distributionX))
+									.getBinSize();
+							AggregatedBinnedDistribution
+									.write(destDir,
+											Files.getDistributionBinnedFilename(distributionX),
+											binsizeTemp, aggregatedValues);
+							aggDistributions
+									.add(new AggregatedBinnedDistribution(
+											distributionX));
+						} else {
+							AggregatedDistribution.write(destDir, Files
+									.getDistributionFilename(distributionX),
+									aggregatedValues);
+							aggDistributions.add(new AggregatedDistribution(
+									distributionX));
+						}
 						aggregated = true;
 					}
 					// DistributionDouble
@@ -628,11 +668,28 @@ public class Aggregation {
 								aggregatedValues[j] = temp2;
 							}
 						}
-						AggregatedDistribution.write(destDir,
-								Files.getDistributionFilename(distributionX),
-								aggregatedValues);
-						aggDistributions.add(new AggregatedDistribution(
-								distributionX));
+						if (seriesData.getRun(maxBatchesRunIndex).getBatches()
+								.get(batchX).getMetrics().get(metricX)
+								.getDistributions().get(distributionX) instanceof BinnedDistributionDouble) {
+							double binsizeTemp = ((BinnedDistributionDouble) seriesData
+									.getRun(maxBatchesRunIndex).getBatches()
+									.get(batchX).getMetrics().get(metricX)
+									.getDistributions().get(distributionX))
+									.getBinSize();
+							AggregatedBinnedDistribution
+									.write(destDir,
+											Files.getDistributionBinnedFilename(distributionX),
+											binsizeTemp, aggregatedValues);
+							aggDistributions
+									.add(new AggregatedBinnedDistribution(
+											distributionX));
+						} else {
+							AggregatedDistribution.write(destDir, Files
+									.getDistributionFilename(distributionX),
+									aggregatedValues);
+							aggDistributions.add(new AggregatedDistribution(
+									distributionX));
+						}
 						aggregated = true;
 					}
 

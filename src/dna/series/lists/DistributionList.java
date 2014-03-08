@@ -3,6 +3,9 @@ package dna.series.lists;
 import java.io.IOException;
 
 import dna.io.filesystem.Files;
+import dna.series.data.BinnedDistributionDouble;
+import dna.series.data.BinnedDistributionInt;
+import dna.series.data.BinnedDistributionLong;
 import dna.series.data.Distribution;
 import dna.series.data.DistributionDouble;
 import dna.series.data.DistributionInt;
@@ -21,19 +24,37 @@ public class DistributionList extends List<Distribution> {
 
 	public void write(String dir) throws IOException {
 		for (Distribution d : this.getList()) {
-			if (d instanceof DistributionInt)
-				((DistributionInt) d).write(dir,
-						Files.getDistributionIntFilename(d.getName()));
-			if (d instanceof DistributionLong)
-				((DistributionLong) d).write(dir,
-						Files.getDistributionLongFilename(d.getName()));
-			if (d instanceof DistributionDouble)
-				((DistributionDouble) d).write(dir,
-						Files.getDistributionDoubleFilename(d.getName()));
+			if (d instanceof DistributionInt) {
+				if (d instanceof BinnedDistributionInt)
+					((BinnedDistributionInt) d)
+							.write(dir, Files
+									.getDistributionBinnedIntFilename(d
+											.getName()));
+				else
+					((DistributionInt) d).write(dir,
+							Files.getDistributionIntFilename(d.getName()));
+			}
+			if (d instanceof DistributionLong) {
+				if (d instanceof BinnedDistributionLong)
+					((BinnedDistributionLong) d).write(dir, Files
+							.getDistributionBinnedLongFilename(d.getName()));
+				else
+					((DistributionLong) d).write(dir,
+							Files.getDistributionLongFilename(d.getName()));
+			}
+			if (d instanceof DistributionDouble) {
+				if (d instanceof BinnedDistributionDouble)
+					((BinnedDistributionDouble) d).write(dir, Files
+							.getDistributionBinnedDoubleFilename(d.getName()));
+				else
+					((DistributionDouble) d).write(dir,
+							Files.getDistributionDoubleFilename(d.getName()));
+			}
 			if (!(d instanceof DistributionInt)
 					&& !(d instanceof DistributionLong)
 					&& !(d instanceof DistributionDouble))
 				d.write(dir, Files.getDistributionFilename(d.getName()));
+
 		}
 	}
 
@@ -78,6 +99,24 @@ public class DistributionList extends List<Distribution> {
 					list.add(Distribution.read(dir,
 							Files.getDistributionFilename(temp[0]), temp[0],
 							readValues));
+				}
+				if ((Config.get("FILE_NAME_DELIMITER") + temp[temp.length - 1])
+						.equals(Config.get("SUFFIX_DIST_BINNED_INT"))) {
+					list.add(BinnedDistributionInt.read(dir,
+							Files.getDistributionBinnedIntFilename(temp[0]),
+							temp[0], readValues));
+				}
+				if ((Config.get("FILE_NAME_DELIMITER") + temp[temp.length - 1])
+						.equals(Config.get("SUFFIX_DIST_BINNED_LONG"))) {
+					list.add(BinnedDistributionLong.read(dir,
+							Files.getDistributionBinnedLongFilename(temp[0]),
+							temp[0], readValues));
+				}
+				if ((Config.get("FILE_NAME_DELIMITER") + temp[temp.length - 1])
+						.equals(Config.get("SUFFIX_DIST_BINNED_DOUBLE"))) {
+					list.add(BinnedDistributionDouble.read(dir,
+							Files.getDistributionBinnedDoubleFilename(temp[0]),
+							temp[0], readValues));
 				}
 			} catch (IndexOutOfBoundsException e) {
 				Log.warn("Attempting to read distribution " + distribution
