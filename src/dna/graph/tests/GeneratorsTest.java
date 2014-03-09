@@ -213,7 +213,7 @@ public class GeneratorsTest {
 		String graphName = gds.getDataStructures();
 
 		HashFunction hf = Hashing.md5();
-		HashCode hc = hf.newHasher().putString(graphName).hash();
+		HashCode hc = hf.newHasher().putUnencodedChars(graphName).hash();
 		graphName = hc.toString();
 
 		String tempFolder = folder.newFolder().getAbsolutePath();
@@ -249,7 +249,7 @@ public class GeneratorsTest {
 		String tempFolder = folder.newFolder().getAbsolutePath();
 
 		HashFunction hf = Hashing.md5();
-		HashCode hc = hf.newHasher().putString(graphName).hash();
+		HashCode hc = hf.newHasher().putUnencodedChars(graphName).hash();
 		graphName = hc.toString();
 
 		GraphWriter.write(g, tempFolder, graphName);
@@ -323,7 +323,7 @@ public class GeneratorsTest {
 		String tempFolder = folder.newFolder().getAbsolutePath();
 
 		HashFunction hf = Hashing.md5();
-		HashCode hc = hf.newHasher().putString(graphName).hash();
+		HashCode hc = hf.newHasher().putUnencodedChars(graphName).hash();
 		graphName = hc.toString();
 
 		GraphWriter.write(g, tempFolder, graphName);
@@ -371,7 +371,7 @@ public class GeneratorsTest {
 		String tempFolder = folder.newFolder().getAbsolutePath();
 
 		HashFunction hf = Hashing.md5();
-		HashCode hc = hf.newHasher().putString(graphName).hash();
+		HashCode hc = hf.newHasher().putUnencodedChars(graphName).hash();
 		graphName = hc.toString();
 
 		GraphWriter.write(g, tempFolder, graphName);
