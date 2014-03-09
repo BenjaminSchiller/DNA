@@ -31,9 +31,19 @@ public abstract class ProfilerMeasurementData extends PropertiesHolder {
 	public static ComparableEntry get(ProfilerDataType complexityType,
 			String classname, AccessType accessType, String storedDataClass,
 			ComplexityType.Base base) {
+		return get(complexityType, classname, accessType, storedDataClass,
+				base, false);
+	}
+
+	public static ComparableEntry get(ProfilerDataType complexityType,
+			String classname, AccessType accessType, String storedDataClass,
+			ComplexityType.Base base, boolean checkWithDefaults) {
 
 		String keyName = complexityType.toString().toUpperCase() + "_"
 				+ classname.toUpperCase();
+
+		if (checkWithDefaults)
+			keyName = "DEFAULT_" + keyName;
 
 		ComparableEntry c = get(keyName + "_"
 				+ accessType.toString().toUpperCase() + "_"
@@ -42,8 +52,23 @@ public abstract class ProfilerMeasurementData extends PropertiesHolder {
 			c = get(keyName + "_" + accessType.toString().toUpperCase());
 		if (c == null)
 			c = get(keyName);
-		if (c == null)
-			throw new RuntimeException("Missing complexity entry " + keyName);
+		if (c == null) {
+			if (checkWithDefaults)
+				/**
+				 * This is the call where defaults are taken into account. If
+				 * nothing is present here, the data is really missing
+				 */
+				throw new RuntimeException("Missing complexity entry "
+						+ keyName);
+			else
+				/**
+				 * This is the call where defaults are not yet taken into
+				 * account. Try to search for a dataset with the default values
+				 * before failing
+				 */
+				return get(complexityType, classname, accessType, storedDataClass,
+						base, true);
+		}
 		return c;
 	}
 
@@ -67,7 +92,9 @@ public abstract class ProfilerMeasurementData extends PropertiesHolder {
 				|| key.startsWith("MEMORYCOMPLEXITY")) {
 			return Complexity.parseString(key, val);
 		} else if (key.startsWith("MEMORYBENCHMARK")
-				|| key.startsWith("RUNTIMEBENCHMARK")) {
+				|| key.startsWith("RUNTIMEBENCHMARK")
+				|| key.startsWith("DEFAULT_MEMORYBENCHMARK")
+				|| key.startsWith("DEFAULT_RUNTIMEBENCHMARK")) {
 			return BenchmarkingResult.parseString(key, val);
 		} else {
 			throw new RuntimeException("Don't know how to parse " + key + "="

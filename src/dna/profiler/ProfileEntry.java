@@ -6,7 +6,6 @@ import dna.graph.datastructures.GraphDataStructure;
 import dna.profiler.datatypes.AddedComparableEntry;
 import dna.profiler.datatypes.ComparableEntry;
 import dna.profiler.datatypes.ComparableEntryMap;
-import dna.profiler.datatypes.complexity.Complexity;
 
 public class ProfileEntry {
 	private int[][] list;
