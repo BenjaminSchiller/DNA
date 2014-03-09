@@ -16,11 +16,11 @@ import dna.profiler.datatypes.complexity.ComplexityType.Base;
 public class BenchmarkingResult extends ComparableEntry {
 
 	private int counter = 0;
-	private double meanListSize;	
-	
+	private double meanListSize;
+
 	private String name;
 	private TreeMap<Integer, ArrayList<Double>> datamap;
-	
+
 	private static ResultProcessingStrategy strategy = new MinValueLowerBoundaryStrategy();
 	private ResultProcessingStrategy innerStrategy;
 
@@ -28,66 +28,67 @@ public class BenchmarkingResult extends ComparableEntry {
 		this(name, new TreeMap<Integer, ArrayList<Double>>());
 	}
 
-	public BenchmarkingResult(String name, TreeMap<Integer, ArrayList<Double>> entryMap) {
+	public BenchmarkingResult(String name,
+			TreeMap<Integer, ArrayList<Double>> entryMap) {
 		this.name = name;
 		this.datamap = entryMap;
 		this.innerStrategy = BenchmarkingResult.strategy.clone();
 		innerStrategy.initialize(entryMap);
 	}
-	
+
 	public static void setStrategy(ResultProcessingStrategy newStrategy) {
 		strategy = newStrategy;
 	}
-	
+
 	public static ComparableEntry parseString(String key, String val) {
 		TreeMap<Integer, ArrayList<Double>> entryMap = new TreeMap<Integer, ArrayList<Double>>();
-		
+
 		String[] inputParts = val.split(";");
-		for (String singlePart: inputParts) {
+		for (String singlePart : inputParts) {
 			String[] keyValuePair = singlePart.split("=");
 			Integer partKey = Integer.parseInt(keyValuePair[0]);
 			String partValue = keyValuePair[1];
-			
-			ArrayList<Double> innerList = new ArrayList<Double>(); 
+
+			ArrayList<Double> innerList = new ArrayList<Double>();
 			String[] innerParts = partValue.split(",");
-			for ( String singleInnerPart: innerParts) {
+			for (String singleInnerPart : innerParts) {
 				innerList.add(Double.parseDouble(singleInnerPart));
 			}
 			entryMap.put(partKey, innerList);
 		}
-		
+
 		return new BenchmarkingResult(key, entryMap);
-	}	
-	
+	}
+
 	public String getName() {
 		return name;
 	}
-	
+
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
 		sb.append(name.toUpperCase() + " = ");
-		
+
 		String[] innerSets = new String[datamap.size()];
 		int count = 0;
-		for ( Entry<Integer, ArrayList<Double>> e: datamap.entrySet()) {
-			innerSets[count] = e.getKey() + "=" + Joiner.on(",").join(e.getValue());
+		for (Entry<Integer, ArrayList<Double>> e : datamap.entrySet()) {
+			innerSets[count] = e.getKey() + "="
+					+ Joiner.on(",").join(e.getValue());
 			count++;
 		}
-		sb.append(Joiner.on(";").join(innerSets));		
+		sb.append(Joiner.on(";").join(innerSets));
 		return sb.toString();
 	}
 
-	public void addToMap(Integer key, Collection<Double> value) {
+	public ArrayList<Double> addToMap(Integer key, Collection<Double> value) {
+		ArrayList<Double> values = new ArrayList<Double>();
+		values.addAll(value);
+
 		// Does the key already exist? Then append new values
 		if (datamap.containsKey(key)) {
-			ArrayList<Double> existingValues = datamap.get(key);
-			existingValues.addAll(value);
-			datamap.put(key, existingValues);
-		} else {
-			ArrayList<Double> values = new ArrayList<Double>();
-			values.addAll(value);
-			datamap.put(key, values);
+			values.addAll(datamap.get(key));
 		}
+		datamap.put(key, values);
+		return values;
 	}
 
 	@SuppressWarnings("unchecked")

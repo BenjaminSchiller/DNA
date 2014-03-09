@@ -33,8 +33,7 @@ public class BenchmarkingActions {
 			lineContent = line.split(";");
 			unitsPerMeter.put(lineContent[0], lineContent[1]);
 
-			listOfFiles = filesToAggregate
-					.get(lineContent[0]);
+			listOfFiles = filesToAggregate.get(lineContent[0]);
 			if (listOfFiles == null)
 				listOfFiles = new ArrayList<String>();
 			listOfFiles.add(lineContent[2]);
@@ -56,8 +55,11 @@ public class BenchmarkingActions {
 					w.write(", ");
 				String ds = singleRawDataSet.replace("_" + operation, "")
 						.replace(BenchmarkingVisitor.rawExtension, "");
-				w.write("'" + dirName + singleRawDataSet
-						+ "' using 1:2 title '" + ds + "' with lp");
+				w.write("'"
+						+ dirName
+						+ singleRawDataSet
+						+ "' using 1:2 notitle with lp, \"\" using 1:2:3:4 title '"
+						+ ds + "' with errorbars");
 				appendComma = true;
 			}
 			w.close();
@@ -84,11 +86,13 @@ public class BenchmarkingActions {
 
 		if (args[0].equals("getDS")) {
 			BenchmarkingConf conf = new BenchmarkingConf();
-			for ( AbstractMeter m: conf.getMeters() ) {
-				File f = new File(BenchmarkingVisitor.outputDir + "/" + m.getName() + "/" + BenchmarkingVisitor.aggregationFile);
+			for (AbstractMeter m : conf.getMeters()) {
+				File f = new File(BenchmarkingVisitor.outputDir + "/"
+						+ m.getName() + "/"
+						+ BenchmarkingVisitor.aggregationFile);
 				f.delete();
 			}
-			
+
 			for (Class c : GlobalTestParameters.dataStructures) {
 				System.out.println(c.getName());
 			}

@@ -16,6 +16,8 @@ import org.perfidix.result.BenchmarkResult;
 import org.perfidix.result.ClassResult;
 import org.perfidix.result.MethodResult;
 
+import com.google.common.math.DoubleMath;
+
 import dna.graph.datastructures.IDataStructure;
 import dna.io.Writer;
 import dna.profiler.ProfilerMeasurementData;
@@ -60,9 +62,6 @@ public class BenchmarkingVisitor extends AbstractOutput {
 							+ perElement;
 					resultList.add(resString);
 					try {
-						writeResultForGnuplot(meter, clazz.getSimpleName(),
-								methodName, inputSize, perElement);
-
 						Collection<Double> results = methRes
 								.getResultSet(meter);
 						Collection<Double> resultsNormalized = new ArrayList<Double>(
@@ -90,9 +89,12 @@ public class BenchmarkingVisitor extends AbstractOutput {
 
 						BenchmarkingResult entry = this
 								.getResultEntry(keyForEntry);
-						entry.addToMap(inputSize, resultsNormalized);
+						resultsNormalized = entry.addToMap(inputSize,
+								resultsNormalized);
 						collectedMeasurementData.put(keyForEntry, entry);
 
+						writeResultForGnuplot(meter, clazz.getSimpleName(),
+								methodName, inputSize, resultsNormalized);
 					} catch (IOException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
@@ -185,12 +187,17 @@ public class BenchmarkingVisitor extends AbstractOutput {
 		writeGnuplotHeaderCommon(w, dirName, fileName, meter.getUnit());
 		w.writeln("set title \"Benchmarking " + meter.getName() + " on " + ds
 				+ " " + operation + "\"");
-		w.writeln("plot '" + dirName + fileName + rawExtension
-				+ "' using 1:2 title '" + ds + "' with lp");
+		w.writeln("plot '"
+				+ dirName
+				+ fileName
+				+ rawExtension
+				+ "' using 1:2 notitle with lp linetype 1, \"\" using 1:2:3:4 title '"
+				+ ds + "' with errorbars linetype 1");
 	}
 
 	private void writeResultForGnuplot(AbstractMeter meter, String ds,
-			String operation, int size, double mean) throws IOException {
+			String operation, int size, Collection<Double> values)
+			throws IOException {
 		String dirName = outputDir + "/" + meter.getName() + "/";
 
 		// Write data for *single* plot
@@ -209,7 +216,12 @@ public class BenchmarkingVisitor extends AbstractOutput {
 			w = new Writer(dirName, fileName + extension);
 			fileWriters.put(dirName + fileName + extension, w);
 		}
-		w.writeln(" " + size + " " + mean);
+
+		double min = Collections.min(values);
+		double max = Collections.max(values);
+		double mean = DoubleMath.mean(values);
+
+		w.writeln(" " + size + " " + mean + " " + min + " " + max);
 
 		// Check for the aggregation file
 		extension = plotExtension;
