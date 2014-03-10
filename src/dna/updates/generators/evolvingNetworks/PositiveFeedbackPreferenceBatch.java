@@ -226,11 +226,13 @@ public class PositiveFeedbackPreferenceBatch extends BatchGenerator {
 		// sum on old nodes
 		for (int j = 0; j <= maxOldId; j++){ 
 			int kj = oldDegrees[j];
-			sumK += Math.pow(kj,  calcExponent(kj));
+			if(kj!=0)	
+				sumK += Math.pow(kj,  calcExponent(kj));
 		}
 		// sum on new nodes
 		for(int j = 0; j < (maxId-maxOldId-1); j++){
 			int kj = newDegrees[j];
+			if(kj!=0)
 			sumK += Math.pow(kj, calcExponent(kj));
 		}
 		
@@ -246,7 +248,8 @@ public class PositiveFeedbackPreferenceBatch extends BatchGenerator {
 			// check old nodes for valid destination
 			for(int k = 0; k <= maxOldId; k++){
 				int kj = oldDegrees[k];
-				sumK2 += Math.pow(kj, calcExponent(kj)) / sumK;
+				if(kj!=0)
+					sumK2 += Math.pow(kj, calcExponent(kj)) / sumK;
 				
 				Node dst = g.getNode(k);
 				if(sumK2 > takeNode && 
@@ -259,7 +262,8 @@ public class PositiveFeedbackPreferenceBatch extends BatchGenerator {
 			// check new nodes for valid destination
 			for(int k = 0; k <= maxId-maxOldId-1; k++){
 				int kj = newDegrees[k];
-				sumK2 += Math.pow(kj, calcExponent(kj)) / sumK;
+				if(kj!=0)
+					sumK2 += Math.pow(kj, calcExponent(kj)) / sumK;
 				
 				Node dst = newNodes[k];
 				
@@ -281,9 +285,7 @@ public class PositiveFeedbackPreferenceBatch extends BatchGenerator {
 	 * @return
 	 */
 	private double calcExponent(int kj) {
-		if(kj==0)	// TODO not correct! how to handle isolated nodes?
-			return 0;
-		
+	
 		double exp;
 		
 		double logi = Math.log10(kj);
