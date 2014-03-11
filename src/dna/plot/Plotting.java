@@ -566,8 +566,10 @@ public class Plotting {
 		String m = metric == null ? Config.get("PREFIX_STATS_PLOT") : metric;
 
 		PlotData[] allData = new PlotData[seriesData.length];
-		AggregatedValue[][] allValues = new AggregatedValue[seriesData.length][seriesData[0]
-				.getAggregation().getBatches().length];
+		AggregatedValue[][] allValues = new AggregatedValue[seriesData.length][0];
+		for(int i = 0; i < seriesData.length; i++){
+			allValues[i] = new AggregatedValue[seriesData[i].getAggregation().getBatches().length];
+		}
 		// gather data..
 		// for each series
 		for (SeriesData s : seriesData) {
