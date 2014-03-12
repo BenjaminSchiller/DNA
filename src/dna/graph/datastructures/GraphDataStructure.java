@@ -49,7 +49,7 @@ public class GraphDataStructure {
 
 	private static ArrayList<EnumMap<ListType, Class<? extends IDataStructure>>> allListCombinations = null;
 	private static ArrayList<EnumMap<ListType, Class<? extends IDataStructure>>> simpleListCombinations = null;
-	
+
 	private int defaultListSize = 10;
 
 	public GraphDataStructure(
@@ -211,25 +211,26 @@ public class GraphDataStructure {
 		this.defaultListSizes.put(ListType.GlobalEdgeList, edges);
 		return new Graph(name, timestamp, this, nodes, edges);
 	}
-	
+
 	private int getStartingSize(ListType lt) {
 		if (overrideDefaultListSizes.containsKey(lt)) {
 			return overrideDefaultListSizes.get(lt);
 		} else if (defaultListSizes.containsKey(lt)) {
 			return defaultListSizes.get(lt);
 		}
-		if ( lt.getFallback() != null) {
+		if (lt.getFallback() != null) {
 			return getStartingSize(lt.getFallback());
 		}
 		return defaultListSize;
 	}
-	
-	public static IDataStructure constructList(ListType lt, Class<? extends IDataStructure> sourceClass, Class<? extends IElement> storedDataType) {
+
+	public static IDataStructure constructList(ListType lt,
+			Class<? extends IDataStructure> sourceClass,
+			Class<? extends IElement> storedDataType) {
 		IDataStructure res = null;
 		try {
 			res = sourceClass.getConstructor(ListType.class,
-					storedDataType.getClass()).newInstance(lt,
-					storedDataType);
+					storedDataType.getClass()).newInstance(lt, storedDataType);
 		} catch (InstantiationException | IllegalAccessException
 				| IllegalArgumentException | InvocationTargetException
 				| NoSuchMethodException | SecurityException e) {
@@ -239,16 +240,18 @@ public class GraphDataStructure {
 	}
 
 	public IDataStructure newList(ListType listType) {
-		if ( Config.getBoolean("GRAPHDATASTRUCTURE_OVERRIDE_CHECKS") != true)
+		if (Config.getBoolean("GRAPHDATASTRUCTURE_OVERRIDE_CHECKS") != true)
 			this.canGDSCreateProperLists();
 
-		Class<? extends IDataStructure> sourceClass = getListClass(listType, listTypes);
+		Class<? extends IDataStructure> sourceClass = getListClass(listType,
+				listTypes);
 		Class<? extends IElement> storedDataType = listType.getStoredClass();
 
 		if (sourceClass == DEmpty.class) {
 			return emptyList;
 		}
-		IDataStructure res = constructList(listType, sourceClass, storedDataType);
+		IDataStructure res = constructList(listType, sourceClass,
+				storedDataType);
 		res.reinitializeWithSize(this.getStartingSize(listType));
 		return res;
 	}
@@ -274,9 +277,13 @@ public class GraphDataStructure {
 		try {
 			c = nodeType.getConstructor(int.class, GraphDataStructure.class);
 			return c.newInstance(index, this);
-		} catch (NoSuchMethodException | SecurityException
-				| InstantiationException | IllegalAccessException
-				| IllegalArgumentException | InvocationTargetException e) {
+		} catch (InvocationTargetException ite) {
+			RuntimeException rt = new RuntimeException(
+					"Could not generate new node instance: "
+							+ ite.getTargetException().getMessage());
+			rt.setStackTrace(ite.getTargetException().getStackTrace());
+			throw rt;
+		} catch (Exception e) {
 			RuntimeException rt = new RuntimeException(
 					"Could not generate new node instance: " + e.getMessage());
 			rt.setStackTrace(e.getStackTrace());
@@ -289,11 +296,15 @@ public class GraphDataStructure {
 		try {
 			c = nodeType.getConstructor(String.class, GraphDataStructure.class);
 			return c.newInstance(str, this);
-		} catch (NoSuchMethodException | SecurityException
-				| InstantiationException | IllegalAccessException
-				| IllegalArgumentException | InvocationTargetException e) {
+		} catch (InvocationTargetException ite) {
 			RuntimeException rt = new RuntimeException(
-					"Could not generate new node instance");
+					"Could not generate new node instance: "
+							+ ite.getTargetException().getMessage());
+			rt.setStackTrace(ite.getTargetException().getStackTrace());
+			throw rt;
+		} catch (Exception e) {
+			RuntimeException rt = new RuntimeException(
+					"Could not generate new node instance: " + e.getMessage());
 			rt.setStackTrace(e.getStackTrace());
 			throw rt;
 		}
@@ -306,11 +317,16 @@ public class GraphDataStructure {
 			c = (Constructor<? extends IWeightedNode>) nodeType.getConstructor(
 					int.class, weight.getClass(), GraphDataStructure.class);
 			return (IWeightedNode<?>) c.newInstance(index, weight, this);
-		} catch (NoSuchMethodException | SecurityException
-				| InstantiationException | IllegalAccessException
-				| IllegalArgumentException | InvocationTargetException e) {
+		} catch (InvocationTargetException ite) {
 			RuntimeException rt = new RuntimeException(
-					"Could not generate new weighted node instance");
+					"Could not generate new weighted node instance: "
+							+ ite.getTargetException().getMessage());
+			rt.setStackTrace(ite.getTargetException().getStackTrace());
+			throw rt;
+		} catch (Exception e) {
+			RuntimeException rt = new RuntimeException(
+					"Could not generate new weighted node instance: "
+							+ e.getMessage());
 			rt.setStackTrace(e.getStackTrace());
 			throw rt;
 		}
@@ -366,11 +382,15 @@ public class GraphDataStructure {
 		try {
 			this.lastEdgeConstructor = cNeeded;
 			return edgeType.cast(cNeeded.newInstance(src, dst));
-		} catch (SecurityException | InstantiationException
-				| IllegalAccessException | IllegalArgumentException
-				| InvocationTargetException e) {
+		} catch (InvocationTargetException ite) {
 			RuntimeException rt = new RuntimeException(
-					"Could not generate new edge instance");
+					"Could not generate new edge instance: "
+							+ ite.getTargetException().getMessage());
+			rt.setStackTrace(ite.getTargetException().getStackTrace());
+			throw rt;
+		} catch (Exception e) {
+			RuntimeException rt = new RuntimeException(
+					"Could not generate new edge instance: " + e.getMessage());
 			rt.setStackTrace(e.getStackTrace());
 			throw rt;
 		}
@@ -383,11 +403,15 @@ public class GraphDataStructure {
 			c = edgeType.getConstructor(String.class, Graph.class,
 					HashMap.class);
 			return c.newInstance(str, graph, addedNodes);
-		} catch (NoSuchMethodException | SecurityException
-				| InstantiationException | IllegalAccessException
-				| IllegalArgumentException | InvocationTargetException e) {
+		} catch (InvocationTargetException ite) {
 			RuntimeException rt = new RuntimeException(
-					"Could not generate new edge instance");
+					"Could not generate new edge instance: "
+							+ ite.getTargetException().getMessage());
+			rt.setStackTrace(ite.getTargetException().getStackTrace());
+			throw rt;
+		} catch (Exception e) {
+			RuntimeException rt = new RuntimeException(
+					"Could not generate new edge instance: " + e.getMessage());
 			rt.setStackTrace(e.getStackTrace());
 			throw rt;
 		}
@@ -398,11 +422,15 @@ public class GraphDataStructure {
 		try {
 			c = edgeType.getConstructor(String.class, Graph.class);
 			return c.newInstance(str, graph);
-		} catch (NoSuchMethodException | SecurityException
-				| InstantiationException | IllegalAccessException
-				| IllegalArgumentException | InvocationTargetException e) {
+		} catch (InvocationTargetException ite) {
 			RuntimeException rt = new RuntimeException(
-					"Could not generate new edge instance");
+					"Could not generate new edge instance: "
+							+ ite.getTargetException().getMessage());
+			rt.setStackTrace(ite.getTargetException().getStackTrace());
+			throw rt;
+		} catch (Exception e) {
+			RuntimeException rt = new RuntimeException(
+					"Could not generate new edge instance: " + e.getMessage());
 			rt.setStackTrace(e.getStackTrace());
 			throw rt;
 		}
@@ -477,11 +505,16 @@ public class GraphDataStructure {
 			this.lastWeightedEdgeConstructor = cNeeded;
 			return (IWeightedEdge<?>) edgeType.cast(cNeeded.newInstance(src,
 					dst, weight));
-		} catch (SecurityException | InstantiationException
-				| IllegalAccessException | IllegalArgumentException
-				| InvocationTargetException e) {
+		} catch (InvocationTargetException ite) {
 			RuntimeException rt = new RuntimeException(
-					"Could not generate new edge instance");
+					"Could not generate new weighted edge instance: "
+							+ ite.getTargetException().getMessage());
+			rt.setStackTrace(ite.getTargetException().getStackTrace());
+			throw rt;
+		} catch (Exception e) {
+			RuntimeException rt = new RuntimeException(
+					"Could not generate new weighted edge instance: "
+							+ e.getMessage());
 			rt.setStackTrace(e.getStackTrace());
 			throw rt;
 		}
@@ -602,9 +635,9 @@ public class GraphDataStructure {
 		}
 	}
 
-	private ComparableEntry getComplexityClass(Class<? extends IDataStructure> ds,
-			Class<? extends IElement> dt, ProfilerDataType complexityType,
-			AccessType at, Base b) {
+	private ComparableEntry getComplexityClass(
+			Class<? extends IDataStructure> ds, Class<? extends IElement> dt,
+			ProfilerDataType complexityType, AccessType at, Base b) {
 		return ProfilerMeasurementData.get(complexityType, ds.getSimpleName(),
 				at, dt.getSimpleName(), b);
 	}
