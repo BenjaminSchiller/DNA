@@ -17,7 +17,8 @@ public class MaxValueUpperBoundaryStrategy extends
 
 	@Override
 	public int selectBucket(double meanListSize) {
-		Integer bucketSelector = buckets.ceilingKey((int) meanListSize);
+		Integer bucketSelector = buckets.ceilingKey((int) Math
+				.ceil(meanListSize));
 		if (bucketSelector == null) {
 			bucketSelector = buckets.lastKey();
 		}

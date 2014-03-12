@@ -17,7 +17,8 @@ public class MaxValueLowerBoundaryStrategy extends
 
 	@Override
 	public int selectBucket(double meanListSize) {
-		Integer bucketSelector = buckets.floorKey((int) meanListSize);
+		Integer bucketSelector = buckets.floorKey((int) Math
+				.floor(meanListSize));
 		if (bucketSelector == null) {
 			bucketSelector = buckets.firstKey();
 		}
