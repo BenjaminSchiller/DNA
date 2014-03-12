@@ -127,10 +127,13 @@ public class BenchmarkingExperiments {
 
 	private void initForNodeList(Class<? extends IDataStructure> dsClass,
 			int initialSize) {
-		nodeListToBenchmark = (INodeListDatastructure) gds
-				.newList(ListType.GlobalNodeList);
-		for (int i = 0; i < initialSize; i++) {
-			nodeListToBenchmark.add(nodeList[i]);
+		if (nodeListToBenchmark == null
+				|| nodeListToBenchmark.size() != initialSize) {
+			nodeListToBenchmark = (INodeListDatastructure) gds
+					.newList(ListType.GlobalNodeList);
+			for (int i = 0; i < initialSize; i++) {
+				nodeListToBenchmark.add(nodeList[i]);
+			}
 		}
 
 		int rand;
@@ -169,10 +172,13 @@ public class BenchmarkingExperiments {
 
 	private void initForEdgeList(Class<? extends IDataStructure> dsClass,
 			int initialSize) {
-		edgeListToBenchmark = (IEdgeListDatastructure) gds
-				.newList(ListType.GlobalEdgeList);
-		for (int i = 0; i < initialSize; i++) {
-			edgeListToBenchmark.add(edgeList[i]);
+		if (edgeListToBenchmark == null
+				|| edgeListToBenchmark.size() != initialSize) {
+			edgeListToBenchmark = (IEdgeListDatastructure) gds
+					.newList(ListType.GlobalEdgeList);
+			for (int i = 0; i < initialSize; i++) {
+				edgeListToBenchmark.add(edgeList[i]);
+			}
 		}
 
 		int rand;
@@ -278,7 +284,11 @@ public class BenchmarkingExperiments {
 		for (int i : randomIDsInList) {
 			res = nodeListToBenchmarkCasted.get(i) != null;
 			if (!res) {
-				System.err.println("Misdefined benchmark GetSuccess_Edge");
+				System.err
+						.println("Misdefined benchmark GetSuccess_Node for class "
+								+ dsClass.getSimpleName()
+								+ " and input size "
+								+ setupSize);
 				return;
 			}
 		}
@@ -292,7 +302,11 @@ public class BenchmarkingExperiments {
 		for (Edge e : randomEdgesInList) {
 			res = edgeListToBenchmarkCasted.get(e) != null;
 			if (!res && dsClass != DEmpty.class) {
-				System.err.println("Misdefined benchmark GetSuccess_Edge");
+				System.err
+						.println("Misdefined benchmark GetSuccess_Edge for class "
+								+ dsClass.getSimpleName()
+								+ " and input size "
+								+ setupSize);
 				return;
 			}
 		}
@@ -320,7 +334,11 @@ public class BenchmarkingExperiments {
 		for (Edge e : randomEdgesNotInList) {
 			res = edgeListToBenchmarkCasted.get(e) != null;
 			if (res) {
-				System.err.println("Misdefined benchmark GetFailure_Edge");
+				System.err
+						.println("Misdefined benchmark GetFailure_Edge for class "
+								+ dsClass.getSimpleName()
+								+ " and input size "
+								+ setupSize);
 				return;
 			}
 		}
@@ -352,7 +370,11 @@ public class BenchmarkingExperiments {
 		for (i = 0; i < operationSize; i++) {
 			res = nodeListToBenchmark.remove(nodeList[randomIDsInList[i]]);
 			if (!res) {
-				System.err.println("Misdefined benchmark RemoveSuccess_Node");
+				System.err
+						.println("Misdefined benchmark RemoveSuccess_Node for class "
+								+ dsClass.getSimpleName()
+								+ " and input size "
+								+ setupSize);
 				return;
 			}
 		}
@@ -364,7 +386,11 @@ public class BenchmarkingExperiments {
 		for (i = 0; i < operationSize; i++) {
 			res = nodeListToBenchmark.remove(randomNodesNotInList[i]);
 			if (res) {
-				System.err.println("Misdefined benchmark RemoveFailure_Node");
+				System.err
+						.println("Misdefined benchmark RemoveFailure_Node for class "
+								+ dsClass.getSimpleName()
+								+ " and input size "
+								+ setupSize);
 				return;
 			}
 		}
@@ -376,7 +402,11 @@ public class BenchmarkingExperiments {
 		for (i = 0; i < operationSize; i++) {
 			res = edgeListToBenchmark.remove(randomEdgesInList[i]);
 			if (!res) {
-				System.err.println("Misdefined benchmark RemoveSuccess_Edge");
+				System.err
+						.println("Misdefined benchmark RemoveSuccess_Edge for class "
+								+ dsClass.getSimpleName()
+								+ " and input size "
+								+ setupSize);
 				return;
 			}
 		}
@@ -388,7 +418,11 @@ public class BenchmarkingExperiments {
 		for (i = 0; i < operationSize; i++) {
 			res = edgeListToBenchmark.remove(randomEdgesNotInList[i]);
 			if (res && dsClass != DEmpty.class) {
-				System.err.println("Misdefined benchmark RemoveFailure_Edge");
+				System.err
+						.println("Misdefined benchmark RemoveFailure_Edge for class "
+								+ dsClass.getSimpleName()
+								+ " and input size "
+								+ setupSize);
 				return;
 			}
 		}
