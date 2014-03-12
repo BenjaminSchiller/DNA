@@ -25,6 +25,12 @@ public class InterpolateMeanValuesStrategy extends
 				.ceil(meanListSize));
 		if (higherSelector == null) {
 			higherSelector = buckets.lastKey();
+			System.err
+					.println("The "
+							+ this.getClass().getSimpleName()
+							+ " will return erroneous results, as the given meanListSize of "
+							+ meanListSize + " exceeds the upper bound of "
+							+ higherSelector + " in the benchmarking results");
 		}
 		double higherValue = buckets.get(higherSelector);
 
