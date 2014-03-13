@@ -1,54 +1,54 @@
 package dna.profiler;
 
+import java.util.EnumMap;
+
+import dna.util.Config;
+
 public class ProfilerGranularity {
-	public static final int disabled = 0x00000001;
-	public static final int aggregationOnly = 0x00000002;
+	public enum Options {
+		DISABLED, AGGREGATIONONLY, EACHMETRIC, EACHBATCHGENERATION, EACHUPDATETYPE, EACHBATCH, EACHRUN, EACHSERIES, ALL
+	};
 
-	public static final int eachMetric = 0x00000004;
-	public static final int eachBatchGeneration = 0x0000008;
-	public static final int eachUpdateType = 0x00000010;
-	public static final int eachBatch = 0x00000020;
-	public static final int eachRun = 0x00000040;
-	public static final int eachSeries = 0x00000080;
+	private static EnumMap<Options, Boolean> usedOptions = null;
 
-	public static final int all = 0x00000400;
+	public static void init() {
+		usedOptions = new EnumMap<>(Options.class);
+		for (Options o : Options.values()) {
+			usedOptions.put(o, false);
+		}
 
-	private int granularitySetting;
-
-	public ProfilerGranularity(int granularitySetting) {
-		this.granularitySetting = granularitySetting;
+		String key = Config.get("PROFILER_GRANULARITY");
+		String[] splitted = key.split(";");
+		for (String singleVal : splitted) {
+			Options oParsed;
+			try {
+				oParsed = Options.valueOf(singleVal);
+			} catch (IllegalArgumentException e) {
+				RuntimeException rt = new RuntimeException(
+						"Could not parse profiler granularity option "
+								+ singleVal + " from configuration");
+				throw rt;
+			}
+			usedOptions.put(oParsed, true);
+		}
 	}
 
-	private boolean writeFor(int innerKey) {
-		return (granularitySetting & innerKey) != 0;
+	public static boolean isEnabled(Options o) {
+		if (usedOptions == null)
+			init();
+		if (usedOptions.get(Options.DISABLED))
+			return false;
+		if (usedOptions.get(Options.ALL))
+			return true;
+		return usedOptions.get(o);
 	}
 
-	public boolean writeAfterMetric() {
-		return (writeFor(eachMetric) || forceAll()) && !disabled();
+	public static boolean all() {
+		return isEnabled(Options.ALL);
 	}
 
-	public boolean writeAfterBatch() {
-		return (writeFor(eachBatch) || forceAll()) && !disabled();
-	}
-
-	public boolean writeAfterRun() {
-		return (writeFor(eachRun) || forceAll()) && !disabled();
-	}
-
-	public boolean writeAfterSeries() {
-		return (writeFor(eachSeries) || forceAll()) && !disabled();
-	}
-
-	public boolean writeAfterUpdate() {
-		return (writeFor(eachUpdateType) || forceAll()) && !disabled();
-	}
-
-	public boolean disabled() {
-		return writeFor(disabled);
-	}
-
-	public boolean forceAll() {
-		return writeFor(all);
+	public static boolean disabled() {
+		return isEnabled(Options.DISABLED);
 	}
 
 }

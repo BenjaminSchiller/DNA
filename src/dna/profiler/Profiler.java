@@ -19,6 +19,7 @@ import dna.graph.tests.GlobalTestParameters;
 import dna.io.Writer;
 import dna.io.filesystem.Dir;
 import dna.io.filesystem.Files;
+import dna.profiler.ProfilerGranularity.Options;
 import dna.profiler.datatypes.ComparableEntryMap;
 import dna.updates.update.Update.UpdateType;
 import dna.util.Config;
@@ -45,8 +46,6 @@ public class Profiler {
 
 	final static String separator = System.getProperty("line.separator");
 
-	private static final ProfilerGranularity granularity = new ProfilerGranularity(
-			ProfilerGranularity.eachRun | ProfilerGranularity.eachMetric);
 
 	public static void activate() {
 		active = true;
@@ -144,7 +143,7 @@ public class Profiler {
 	public static String getCallList(Map<String, ProfileEntry> listOfEntries,
 			String prefixFilter, boolean showRecommendations) {
 
-		boolean forceAllRecommendations = granularity.forceAll();
+		boolean forceAllRecommendations = ProfilerGranularity.all();
 
 		StringBuilder res = new StringBuilder();
 		String prefix;
@@ -202,7 +201,7 @@ public class Profiler {
 		String outputPrefix = outputAsCommentWithPrefix ? "# " : "";
 		res.append(outputPrefix + "  Recommendations:");
 
-		boolean disableAllRecommendations = granularity.disabled();
+		boolean disableAllRecommendations = ProfilerGranularity.disabled();
 
 		if (disableAllRecommendations) {
 			res.append(" disabled using ProfilerGranularity" + separator);
@@ -476,7 +475,7 @@ public class Profiler {
 
 	public static void writeMetric(String metricKey, String dir)
 			throws IOException {
-		boolean rec = granularity.writeAfterMetric();
+		boolean rec = ProfilerGranularity.isEnabled(Options.EACHMETRIC);
 		Profiler.writeSingle(singleBatchCalls, metricKey, dir,
 				Files.getProfilerFilename(Config.get("METRIC_PROFILER")), rec);
 	}
@@ -488,7 +487,8 @@ public class Profiler {
 
 		ProfileEntry aggregated = new ProfileEntry();
 
-		boolean writeUpdateRecommendations = granularity.writeAfterUpdate();
+		boolean writeUpdateRecommendations = ProfilerGranularity
+				.isEnabled(Options.EACHUPDATETYPE);
 
 		for (UpdateType u : UpdateType.values()) {
 			// Ensure that the update type is in the needed list
@@ -517,7 +517,7 @@ public class Profiler {
 
 		ProfileEntry aggregated = new ProfileEntry();
 
-		boolean forceAllRecommendations = granularity.forceAll();
+		boolean forceAllRecommendations = ProfilerGranularity.all();
 
 		for (String singleKey : keys) {
 			// Are we still in the initial batch? Then add the specific key to
@@ -544,7 +544,7 @@ public class Profiler {
 
 		globalCalls = merge(globalCalls, singleSeriesCalls);
 
-		boolean rec = granularity.writeAfterSeries();
+		boolean rec = ProfilerGranularity.isEnabled(Options.EACHSERIES);
 
 		try {
 			Profiler.write(singleSeriesCalls, seriesDir, Files
@@ -572,7 +572,7 @@ public class Profiler {
 		if (!active)
 			return;
 
-		boolean rec = granularity.writeAfterRun();
+		boolean rec = ProfilerGranularity.isEnabled(Options.EACHRUN);
 
 		singleSeriesCalls = merge(singleSeriesCalls, singleRunCalls);
 
@@ -619,7 +619,7 @@ public class Profiler {
 					Files.getProfilerFilename(Config.get("METRIC_PROFILER")),
 					false);
 			writeUpdates(singleBatchCalls, batchDir,
-					granularity.writeAfterBatch());
+					ProfilerGranularity.isEnabled(Options.EACHBATCH));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
