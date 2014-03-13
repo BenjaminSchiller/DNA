@@ -70,6 +70,7 @@ public class GraphDataStructure {
 		listTypes = new EnumMap<ListType, Class<? extends IDataStructure>>(
 				ListType.class);
 
+		int legacyParsePosition = 0;
 		try {
 			for (String singleClassDef : splitted) {
 				String innerSplitted[] = singleClassDef.split("=");
@@ -83,12 +84,47 @@ public class GraphDataStructure {
 					ListType l = ListType.valueOf(innerSplitted[0]);
 					listTypes.put(l, (Class<? extends IDataStructure>) Class
 							.forName(innerSplitted[1]));
+				} else {
+					// Legacy parsing?
+					legacyParse(legacyParsePosition, singleClassDef);
+					legacyParsePosition++;
 				}
 			}
 		} catch (ClassNotFoundException | ClassCastException e) {
 			e.printStackTrace();
 		}
 		init();
+	}
+
+	@SuppressWarnings("unchecked")
+	private void legacyParse(int position, String input)
+			throws ClassNotFoundException {
+		switch (position) {
+		case 0:
+			listTypes.put(ListType.GlobalNodeList,
+					(Class<? extends INodeListDatastructure>) Class
+							.forName(input));
+			break;
+		case 1:
+			listTypes.put(ListType.GlobalEdgeList,
+					(Class<? extends IEdgeListDatastructure>) Class
+							.forName(input));
+			break;
+		case 2:
+			listTypes.put(ListType.LocalEdgeList,
+					(Class<? extends IEdgeListDatastructure>) Class
+							.forName(input));
+			break;
+		case 3:
+			this.nodeType = (Class<? extends Node>) Class.forName(input);
+			break;
+		case 4:
+			this.edgeType = (Class<? extends Edge>) Class.forName(input);
+			break;
+		default:
+			throw new RuntimeException("Cannot handle input " + input
+					+ " at legacy position " + position);
+		}
 	}
 
 	public static boolean validListTypesSet(
