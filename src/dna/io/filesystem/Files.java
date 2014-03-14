@@ -13,6 +13,10 @@ public class Files {
 		return name + Config.get("SUFFIX_DIST");
 	}
 
+	public static String getDistributionBinnedFilename(String name) {
+		return name + Config.get("SUFFIX_DIST_BINNED");
+	}
+
 	public static String getDistributionIntFilename(String name) {
 		return name + Config.get("SUFFIX_DIST_INT");
 	}
@@ -23,6 +27,18 @@ public class Files {
 
 	public static String getDistributionDoubleFilename(String name) {
 		return name + Config.get("SUFFIX_DIST_DOUBLE");
+	}
+
+	public static String getDistributionBinnedIntFilename(String name) {
+		return name + Config.get("SUFFIX_DIST_BINNED_INT");
+	}
+
+	public static String getDistributionBinnedLongFilename(String name) {
+		return name + Config.get("SUFFIX_DIST_BINNED_LONG");
+	}
+
+	public static String getDistributionBinnedDoubleFilename(String name) {
+		return name + Config.get("SUFFIX_DIST_BINNED_DOUBLE");
 	}
 
 	public static String[] getDistributions(String dir) {
