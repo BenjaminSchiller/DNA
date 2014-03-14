@@ -107,6 +107,7 @@ public class SNAPGraphReader {
 		int nodeID = 0;
 		if (line.contains(Config.get("SNAP_GRAPH_KEYWORD_EDGES_LIST"))) {
 			while ((line = reader.readString()) != null) {
+				System.out.println(nodeID);
 				int tabIndex = line.indexOf('\t');
 				int srcIndex = Integer.parseInt(line.substring(0, tabIndex));
 				int destIndex = Integer.parseInt(line.substring(tabIndex + 1,
