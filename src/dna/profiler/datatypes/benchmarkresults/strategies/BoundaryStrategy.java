@@ -5,6 +5,8 @@ import java.util.Collections;
 import java.util.Map.Entry;
 import java.util.TreeMap;
 
+import com.google.common.math.DoubleMath;
+
 public class BoundaryStrategy extends ResultProcessingStrategy {
 
 	protected TreeMap<Integer, Double> buckets;
@@ -12,11 +14,11 @@ public class BoundaryStrategy extends ResultProcessingStrategy {
 	private Selector s;
 
 	public enum Boundary {
-		LOWER, UPPER
+		LOWER, UPPER, INTERPOLATE
 	};
 
 	public enum Selector {
-		MIN, MAX
+		MIN, MAX, MEAN
 	}
 
 	public BoundaryStrategy(Boundary b, Selector s) {
@@ -39,36 +41,74 @@ public class BoundaryStrategy extends ResultProcessingStrategy {
 			return Collections.max(valueSet);
 		case MIN:
 			return Collections.min(valueSet);
+		case MEAN:
+			return DoubleMath.mean(valueSet);
 		default:
 			return -1;
 		}
 	}
 
-	public int selectBucket(double meanListSize) {
-		Integer bucketSelector;
-
-		switch (b) {
-		case LOWER:
-			bucketSelector = buckets.floorKey((int) Math.floor(meanListSize));
-			if (bucketSelector == null) {
-				bucketSelector = buckets.firstKey();
-			}
-			return bucketSelector;
-		case UPPER:
-			bucketSelector = buckets.ceilingKey((int) Math.ceil(meanListSize));
-			if (bucketSelector == null) {
-				bucketSelector = buckets.lastKey();
-			}
-			return bucketSelector;
-		default:
-			return -1;
+	public int getLowerKey(double meanListSize) {
+		Integer bucketSelector = buckets.floorKey((int) Math
+				.floor(meanListSize));
+		if (bucketSelector == null) {
+			bucketSelector = buckets.firstKey();
 		}
+		return bucketSelector;
+	}
 
+	public int getUpperKey(double meanListSize) {
+		Integer bucketSelector = buckets.ceilingKey((int) Math
+				.ceil(meanListSize));
+		if (bucketSelector == null) {
+			bucketSelector = buckets.lastKey();
+			System.err
+					.println("The "
+							+ this.getClass().getSimpleName()
+							+ " will return erroneous results, as the given meanListSize of "
+							+ meanListSize + " exceeds the upper bound of "
+							+ buckets.get(bucketSelector)
+							+ " in the benchmarking results");
+		}
+		return bucketSelector;
 	}
 
 	@Override
 	public double getValue(double meanListSize) {
-		return buckets.get(selectBucket(meanListSize));
+		switch (b) {
+		case LOWER:
+			return buckets.get(getLowerKey(meanListSize));
+		case UPPER:
+			return buckets.get(getUpperKey(meanListSize));
+		case INTERPOLATE:
+			int lowerSelector = getLowerKey(meanListSize);
+			double lowerValue = buckets.get(lowerSelector);
+			int higherSelector = getUpperKey(meanListSize);
+
+			if (lowerSelector == higherSelector) {
+				if (lowerValue == meanListSize)
+					return lowerValue;
+
+				if (lowerSelector != buckets.firstKey()) {
+					lowerSelector = getLowerKey(lowerValue - 1);
+					lowerValue = buckets.get(lowerSelector);
+				} else {
+					higherSelector = getUpperKey(lowerValue + 1);
+				}
+			}
+
+			double higherValue = buckets.get(higherSelector);
+
+			if (lowerSelector == higherSelector)
+				return lowerValue;
+
+			double res = lowerValue
+					+ ((higherValue - lowerValue) / (higherSelector - lowerSelector))
+					* (meanListSize - lowerSelector);
+			return res;
+		default:
+			throw new RuntimeException("How did I even get here?");
+		}
 	}
 
 	@Override

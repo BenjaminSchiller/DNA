@@ -13,9 +13,9 @@ import org.junit.Test;
 
 import dna.profiler.datatypes.benchmarkresults.BenchmarkingResult;
 import dna.profiler.datatypes.benchmarkresults.BenchmarkingResultsMap;
-import dna.profiler.datatypes.benchmarkresults.strategies.InterpolateMeanValuesStrategy;
-import dna.profiler.datatypes.benchmarkresults.strategies.MaxValueUpperBoundaryStrategy;
-import dna.profiler.datatypes.benchmarkresults.strategies.MinValueLowerBoundaryStrategy;
+import dna.profiler.datatypes.benchmarkresults.strategies.BoundaryStrategy;
+import dna.profiler.datatypes.benchmarkresults.strategies.BoundaryStrategy.Boundary;
+import dna.profiler.datatypes.benchmarkresults.strategies.BoundaryStrategy.Selector;
 
 public class BenchmarkResultsTest {
 	@Test
@@ -34,7 +34,8 @@ public class BenchmarkResultsTest {
 	@Test
 	public void testIfMaxValueUpperBoundaryStrategyWorks() {
 		String val = "500=0.7,0.8,0.9;1000=1.6,1.4,1.5";
-		BenchmarkingResult.setStrategy(new MaxValueUpperBoundaryStrategy());
+		BenchmarkingResult.setStrategy(new BoundaryStrategy(Boundary.UPPER,
+				Selector.MAX));
 		BenchmarkingResult res = (BenchmarkingResult) BenchmarkingResult
 				.parseString("", val);
 
@@ -58,7 +59,8 @@ public class BenchmarkResultsTest {
 	@Test
 	public void testIfMinValueLowerBoundaryStrategyWorks() {
 		String val = "500=0.7,0.8,0.9;1000=1.6,1.4,1.5";
-		BenchmarkingResult.setStrategy(new MinValueLowerBoundaryStrategy());
+		BenchmarkingResult.setStrategy(new BoundaryStrategy(Boundary.LOWER,
+				Selector.MIN));
 		BenchmarkingResult res = (BenchmarkingResult) BenchmarkingResult
 				.parseString("", val);
 
@@ -90,12 +92,17 @@ public class BenchmarkResultsTest {
 	@Test
 	public void testCorrectInterpolation() {
 		String val = "1=1;2=2";
-		BenchmarkingResult.setStrategy(new InterpolateMeanValuesStrategy());
+		BenchmarkingResult.setStrategy(new BoundaryStrategy(
+				Boundary.INTERPOLATE, Selector.MEAN));
 		BenchmarkingResult res = (BenchmarkingResult) BenchmarkingResult
 				.parseString("", val);
 
-		res.setValues(1, 1, null);
+		res.setValues(1, 0.1, null);
 		BenchmarkingResultsMap results = (BenchmarkingResultsMap) res.getMap();
+		assertEquals(0.1, results.getValue(), 0.1);
+
+		res.setValues(1, 1, null);
+		results = (BenchmarkingResultsMap) res.getMap();
 		assertEquals(1, results.getValue(), 0.1);
 
 		res.setValues(1, 1.1, null);
@@ -115,5 +122,6 @@ public class BenchmarkResultsTest {
 		res.setValues(1, 10, null);
 		results = (BenchmarkingResultsMap) res.getMap();
 		assertTrue(outContent.toString().contains("erroneous"));
+		assertEquals(10, results.getValue(), 0.1);
 	}
 }
