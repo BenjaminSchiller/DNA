@@ -24,6 +24,10 @@ public class Reader {
 	public Reader(String dir, String filename) throws FileNotFoundException {
 		this.reader = new BufferedReader(new FileReader(dir + filename));
 	}
+	
+	public Reader() {
+		
+	}
 
 	public String readString() throws IOException {
 		String line = this.reader.readLine();
@@ -66,11 +70,11 @@ public class Reader {
 	 * BatchData.fs FileSystem is set or not. If it is set, a ZipReader for the
 	 * FileSystem will be returned.
 	 */
-	public static Reader getReaader(String dir, String filename)
+	public static Reader getReader(String dir, String filename)
 			throws IOException {
-		if (SeriesGeneration.fs == null)
+		if (SeriesGeneration.readFileSystem == null)
 			return new Reader(dir, filename);
 		else
-			return new ZipReader(SeriesGeneration.fs, dir, filename);
+			return new ZipReader(SeriesGeneration.readFileSystem, dir, filename);
 	}
 }

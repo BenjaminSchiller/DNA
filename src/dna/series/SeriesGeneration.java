@@ -24,8 +24,9 @@ import dna.util.Timer;
 
 public class SeriesGeneration {
 
-	public static final boolean singleFile = true;
-	public static FileSystem fs;
+	public static boolean singleFile = false;
+	public static FileSystem writeFileSystem;
+	public static FileSystem readFileSystem;
 
 	public static SeriesData generate(Series series, int runs, int batches)
 			throws AggregationException, IOException,
@@ -178,6 +179,7 @@ public class SeriesGeneration {
 			boolean compare, boolean write, boolean batchesAsZip)
 			throws IOException, MetricNotApplicableException {
 		/** SINGLE FILES **/
+		SeriesGeneration.singleFile = batchesAsZip;
 		Log.infoSep();
 		if (batchesAsZip)
 			Log.info("Generating single zip files for batches");

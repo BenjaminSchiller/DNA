@@ -82,14 +82,6 @@ public class BatchData {
 		this.metrics.write(dir);
 	}
 
-	public void writeSingleFile(String fsDir, long timestamp, String dir)
-			throws Throwable {
-		SeriesGeneration.fs = ZipWriter.createBatchFileSystem(fsDir, timestamp);
-		this.write(dir);
-		SeriesGeneration.fs.close();
-		SeriesGeneration.fs = null;
-	}
-
 	public static BatchData read(String dir, long timestamp, boolean readValues)
 			throws IOException {
 		ValueList values = ValueList.read(dir,
@@ -102,6 +94,27 @@ public class BatchData {
 		MetricDataList metrics = MetricDataList.read(dir, readValues);
 		return new BatchData(timestamp, values, generalRuntimes,
 				metricRuntimes, metrics);
+	}
+
+	/** Writes the whole batch in a single zip file **/
+	public void writeSingleFile(String fsDir, long timestamp, String dir)
+			throws Throwable {
+		SeriesGeneration.writeFileSystem = ZipWriter.createBatchFileSystem(
+				fsDir, timestamp);
+		this.write(dir);
+		SeriesGeneration.writeFileSystem.close();
+		SeriesGeneration.writeFileSystem = null;
+	}
+
+	/** Reads the whole batch from a single zip file **/
+	public static BatchData readFromSingleFile(String fsDir, long timestamp,
+			String dir, boolean readValues) throws Throwable {
+		SeriesGeneration.readFileSystem = ZipWriter.createBatchFileSystem(
+				fsDir, timestamp);
+		BatchData tempBatchData = read(dir, timestamp, readValues);
+		SeriesGeneration.readFileSystem.close();
+		SeriesGeneration.readFileSystem = null;
+		return tempBatchData;
 	}
 
 	/**

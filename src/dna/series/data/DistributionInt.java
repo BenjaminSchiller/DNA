@@ -221,7 +221,7 @@ public class DistributionInt extends Distribution {
 		if (!readValues) {
 			return new DistributionInt(name, null, 0);
 		}
-		Reader r = new Reader(dir, filename);
+		Reader r = Reader.getReader(dir, filename);
 		ArrayList<Integer> list = new ArrayList<Integer>();
 		String line = null;
 		int index = 0;
