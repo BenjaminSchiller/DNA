@@ -1,10 +1,10 @@
 package dna.series.data;
 
 import java.io.IOException;
-import java.nio.file.FileSystem;
 
 import dna.io.ZipWriter;
 import dna.io.filesystem.Files;
+import dna.series.SeriesGeneration;
 import dna.series.lists.MetricDataList;
 import dna.series.lists.RunTimeList;
 import dna.series.lists.ValueList;
@@ -12,9 +12,6 @@ import dna.util.Config;
 import dna.util.Log;
 
 public class BatchData {
-
-	public static final boolean singleFile = true;
-	public static FileSystem fs;
 
 	public BatchData(long timestamp) {
 		this.timestamp = timestamp;
@@ -87,10 +84,10 @@ public class BatchData {
 
 	public void writeSingleFile(String fsDir, long timestamp, String dir)
 			throws Throwable {
-		BatchData.fs = ZipWriter.createBatchFileSystem(fsDir, timestamp);
+		SeriesGeneration.fs = ZipWriter.createBatchFileSystem(fsDir, timestamp);
 		this.write(dir);
-		BatchData.fs.close();
-		BatchData.fs = null;
+		SeriesGeneration.fs.close();
+		SeriesGeneration.fs = null;
 	}
 
 	public static BatchData read(String dir, long timestamp, boolean readValues)
