@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 
+import dna.series.data.BatchData;
 import dna.util.Config;
 
 /**
@@ -14,7 +15,7 @@ import dna.util.Config;
  * 
  */
 public class Writer {
-	private BufferedWriter writer;
+	protected BufferedWriter writer;
 
 	public Writer(String dir, String filename) throws IOException {
 		(new File(dir)).mkdirs();
@@ -62,4 +63,16 @@ public class Writer {
 		return Config.get("COMMENT_PREFIX") + comment;
 	}
 
+	/**
+	 * Returns either a Writer or a ZipWriter. Depends if the static
+	 * BatchData.fs FileSystem is set or not. If it is set, a ZipWriter for the
+	 * FileSystem will be returned.
+	 */
+	public static Writer getWriter(String dir, String filename)
+			throws IOException {
+		if (BatchData.fs == null)
+			return new Writer(dir, filename);
+		else
+			return new ZipWriter(BatchData.fs, dir, filename);
+	}
 }
