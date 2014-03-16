@@ -71,7 +71,7 @@ public class BatchData {
 	}
 
 	public void write(String dir) throws IOException {
-		Log.info("writing BatchData for " + this.timestamp + " to " + dir);
+		Log.debug("writing BatchData for " + this.timestamp + " to " + dir);
 		this.stats.write(dir,
 				Files.getValuesFilename(Config.get("BATCH_STATS")));
 		this.generalRuntimes
