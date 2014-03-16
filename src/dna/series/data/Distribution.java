@@ -93,7 +93,7 @@ public class Distribution extends Data {
 		if (!readValues) {
 			return new Distribution(name, null);
 		}
-		Reader r = new Reader(dir, filename);
+		Reader r = Reader.getReader(dir, filename);
 		ArrayList<Double> list = new ArrayList<Double>();
 		String line = null;
 		int index = 0;

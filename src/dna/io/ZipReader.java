@@ -18,18 +18,18 @@ public class ZipReader extends Reader {
 
 	public ZipReader(FileSystem fs, String dir, String filename)
 			throws IOException, FileNotFoundException {
-		super(dir, filename);
+//		super(dir, filename);
 		this.zipFile = fs;
 
 		// if directory does not exist, create it
 		Path innerDir = fs.getPath(dir);
 		if (!Files.exists(innerDir))
-			throw new FileNotFoundException();
+			throw new FileNotFoundException(innerDir.toString());
 
 		// if file does not exist, create it
 		Path innerFile = fs.getPath(dir + filename);
 		if (!Files.exists(innerFile))
-			throw new FileNotFoundException();
+			throw new FileNotFoundException(innerFile.toString());
 
 		// create buffered reader
 		this.reader = Files
@@ -63,11 +63,14 @@ public class ZipReader extends Reader {
 			throws Throwable {
 		Path fileSystemDir = Paths.get(fsDir);
 		if (!Files.exists(fileSystemDir))
-			throw new FileNotFoundException();
+			throw new FileNotFoundException(fileSystemDir.toString());
 
 		Path fsFile = Paths.get(fsDir + filename);
+		System.out.println("TESTING: " + fsFile + "   ex:"
+				+ Files.exists(fsFile) + "    isDir:"
+				+ Files.isDirectory(fsFile));
 		if (!Files.exists(fsFile))
-			throw new FileNotFoundException();
+			throw new FileNotFoundException(fsFile.toString());
 
 		// init filesystem settings
 		Map<String, String> env = new HashMap<>();
