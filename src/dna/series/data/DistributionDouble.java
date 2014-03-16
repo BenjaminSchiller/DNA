@@ -173,7 +173,7 @@ public class DistributionDouble extends Distribution {
 		if (!readValues) {
 			return new DistributionDouble(name, null);
 		}
-		Reader r = new Reader(dir, filename);
+		Reader r = Reader.getReader(dir, filename);
 		ArrayList<Double> list = new ArrayList<Double>();
 		String line = null;
 		int index = 0;

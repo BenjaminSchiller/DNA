@@ -336,8 +336,8 @@ public class Aggregation {
 
 		// set filesystem for single output
 		try {
-			SeriesGeneration.fs = ZipWriter.createFileSystem(aggDir,
-					Files.getAggregationFileName());
+			SeriesGeneration.writeFileSystem = ZipWriter.createFileSystem(
+					aggDir, Files.getAggregationFileName());
 		} catch (Throwable e1) {
 			e1.printStackTrace();
 		}
@@ -820,8 +820,8 @@ public class Aggregation {
 			aggBatches[batchX] = new AggregatedBatch(batchXTimestamp, aggStats,
 					aggGeneralRuntime, aggMetricRuntime, aggMetrics);
 		}
-		SeriesGeneration.fs.close();
-		SeriesGeneration.fs = null;
+		SeriesGeneration.writeFileSystem.close();
+		SeriesGeneration.writeFileSystem = null;
 		return new AggregatedSeries(aggBatches);
 	}
 
