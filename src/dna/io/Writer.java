@@ -4,7 +4,6 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-
 import dna.series.SeriesGeneration;
 import dna.util.Config;
 
@@ -15,7 +14,7 @@ import dna.util.Config;
  * 
  */
 public class Writer {
-	private BufferedWriter writer;
+	protected BufferedWriter writer;
 	private boolean fileExistedBefore;
 
 	public Writer(String dir, String filename) throws IOException {

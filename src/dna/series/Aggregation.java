@@ -340,6 +340,14 @@ public class Aggregation {
 		 */
 		AggregatedBatch[] aggBatches = new AggregatedBatch[maxBatches];
 
+		// set filesystem for single output
+		try {
+			BatchData.fs = ZipWriter.createFileSystem(aggDir,
+					Files.getAggregationFileName());
+		} catch (Throwable e1) {
+			e1.printStackTrace();
+		}
+
 		for (int batchX = 0; batchX < maxBatches; batchX++) {
 			int batchXTimestamp = (int) rdList.get(maxBatchesRunIndex)
 					.getBatches().get(batchX).getTimestamp();

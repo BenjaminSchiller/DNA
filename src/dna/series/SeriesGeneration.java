@@ -89,7 +89,8 @@ public class SeriesGeneration {
 			}
 
 			// generate run
-			SeriesGeneration.generateRun(series, r, batches, compare, write, batchesAsZip);
+			SeriesGeneration.generateRun(series, r, batches, compare, write,
+					batchesAsZip);
 		}
 
 		// read series data structure for aggregation
@@ -184,6 +185,7 @@ public class SeriesGeneration {
 		else
 			Log.info("Generation lots of files for lots of data");
 		/** SINGLE FILES **/
+
 		Log.infoSep();
 		Timer timer = new Timer("runGeneration");
 		Log.info("run " + run + " (" + batches + " batches)");
