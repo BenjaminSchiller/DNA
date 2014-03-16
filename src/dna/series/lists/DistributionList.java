@@ -54,7 +54,6 @@ public class DistributionList extends List<Distribution> {
 					&& !(d instanceof DistributionLong)
 					&& !(d instanceof DistributionDouble))
 				d.write(dir, Files.getDistributionFilename(d.getName()));
-
 		}
 	}
 
