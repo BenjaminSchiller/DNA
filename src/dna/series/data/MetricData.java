@@ -206,7 +206,6 @@ public class MetricData implements ListItem {
 			throws IOException {
 		String[] temp = dir.split("\\" + Config.get("FILE_NAME_DELIMITER"));
 		MetricType tempType = MetricType.unknown;
-
 		try {
 			if (temp[temp.length - 1].equals(MetricType.exact.name() + "/"))
 				tempType = MetricType.exact;

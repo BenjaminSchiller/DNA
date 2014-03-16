@@ -4,6 +4,7 @@ import java.io.File;
 
 import dna.io.filter.SuffixFilenameFilter;
 import dna.util.Config;
+import dna.util.Log;
 
 public class Files {
 	/*
@@ -59,6 +60,14 @@ public class Files {
 	}
 
 	public static String[] getDistributions(String dir) {
+		File f = new File(dir);
+		String[] names = f.list();
+		Log.infoSep();
+		Log.info("Reading for distributions on dir: " + dir);
+		for (String n : names) {
+			System.out.println("NAME: " + n);
+		}
+		Log.infoSep();
 		return (new File(dir)).list(new SuffixFilenameFilter("distribution"));
 	}
 

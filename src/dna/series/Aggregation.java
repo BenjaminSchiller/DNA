@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import dna.io.ZipReader;
 import dna.io.ZipWriter;
 import dna.io.filesystem.Dir;
 import dna.io.filesystem.Files;
@@ -334,18 +335,14 @@ public class Aggregation {
 		 */
 		AggregatedBatch[] aggBatches = new AggregatedBatch[maxBatches];
 
-		// set filesystem for single output
-		try {
-			SeriesGeneration.writeFileSystem = ZipWriter.createFileSystem(
-					aggDir, Files.getAggregationFileName());
-		} catch (Throwable e1) {
-			e1.printStackTrace();
-		}
-
 		for (int batchX = 0; batchX < maxBatches; batchX++) {
 			int batchXTimestamp = (int) rdList.get(maxBatchesRunIndex)
 					.getBatches().get(batchX).getTimestamp();
-			String batchDir = Dir.getBatchDataDir(aggDir, batchXTimestamp);
+			String batchDir;
+			if (!SeriesGeneration.singleFile)
+				batchDir = Dir.getBatchDataDir(aggDir, batchXTimestamp);
+			else
+				batchDir = Dir.delimiter;
 
 			/*
 			 * GENERAL RUNTIMES
@@ -365,22 +362,54 @@ public class Aggregation {
 					} else {
 						long tempTimestamp = rdList.get(i).getBatches()
 								.get(batchX).getTimestamp();
-						String dir = Dir.getBatchDataDir(Dir.getRunDataDir(
-								seriesData.getDir(), rdList.get(i).getRun()),
-								tempTimestamp);
+						String dir;
+
+						// if batch in zip
+						if (SeriesGeneration.singleFile) {
+							try {
+								SeriesGeneration.readFileSystem = ZipReader
+										.getBatchFileSystem(
+												Dir.getRunDataDir(seriesDir, i),
+												batchXTimestamp);
+							} catch (Throwable e1) {
+								e1.printStackTrace();
+							}
+							dir = Dir.delimiter;
+						} else {
+							dir = Dir.getBatchDataDir(
+									Dir.getRunDataDir(seriesData.getDir(),
+											rdList.get(i).getRun()),
+									tempTimestamp);
+						}
 						RunTimeList tempGeneralRunTime = RunTimeList.read(
 								dir,
 								Config.get("BATCH_GENERAL_RUNTIMES")
 										+ Config.get("SUFFIX_RUNTIME"));
 						values[i] = tempGeneralRunTime.get(genRuntimeX)
 								.getRuntime();
+						if (SeriesGeneration.readFileSystem != null) {
+							SeriesGeneration.readFileSystem.close();
+							SeriesGeneration.readFileSystem = null;
+						}
 					}
 				}
 				aggGeneralRunTime.put(genRuntimeX,
 						Aggregation.aggregate(values));
 			}
+			if (SeriesGeneration.singleFile) {
+				try {
+					SeriesGeneration.writeFileSystem = ZipWriter
+							.createBatchFileSystem(aggDir, batchXTimestamp);
+				} catch (Throwable e1) {
+					e1.printStackTrace();
+				}
+			}
 			AggregatedData.write(aggGeneralRunTime, batchDir, Files
 					.getRuntimesFilename(Config.get("BATCH_GENERAL_RUNTIMES")));
+			if (SeriesGeneration.writeFileSystem != null) {
+				SeriesGeneration.writeFileSystem.close();
+				SeriesGeneration.writeFileSystem = null;
+			}
 
 			/*
 			 * METRIC RUNTIMES
@@ -400,22 +429,52 @@ public class Aggregation {
 					} else {
 						long tempTimestamp = rdList.get(i).getBatches()
 								.get(batchX).getTimestamp();
-						String dir = Dir.getBatchDataDir(Dir.getRunDataDir(
-								seriesData.getDir(), rdList.get(i).getRun()),
-								tempTimestamp);
+						String dir;
+						if (SeriesGeneration.singleFile) {
+							try {
+								SeriesGeneration.readFileSystem = ZipReader
+										.getBatchFileSystem(
+												Dir.getRunDataDir(seriesDir, i),
+												batchXTimestamp);
+							} catch (Throwable e1) {
+								e1.printStackTrace();
+							}
+							dir = Dir.delimiter;
+						} else {
+							dir = Dir.getBatchDataDir(
+									Dir.getRunDataDir(seriesData.getDir(),
+											rdList.get(i).getRun()),
+									tempTimestamp);
+						}
 						RunTimeList tempMetricRunTime = RunTimeList.read(
 								dir,
 								Config.get("BATCH_METRIC_RUNTIMES")
 										+ Config.get("SUFFIX_RUNTIME"));
 						values[i] = tempMetricRunTime.get(metRuntimeX)
 								.getRuntime();
+						if (SeriesGeneration.readFileSystem != null) {
+							SeriesGeneration.readFileSystem.close();
+							SeriesGeneration.readFileSystem = null;
+						}
 					}
 				}
 				aggMetricRunTime
 						.put(metRuntimeX, Aggregation.aggregate(values));
 			}
+			if (SeriesGeneration.singleFile) {
+				try {
+					SeriesGeneration.writeFileSystem = ZipWriter
+							.createBatchFileSystem(aggDir, batchXTimestamp);
+				} catch (Throwable e1) {
+					e1.printStackTrace();
+				}
+			}
 			AggregatedData.write(aggMetricRunTime, batchDir, Files
 					.getRuntimesFilename(Config.get("BATCH_METRIC_RUNTIMES")));
+			if (SeriesGeneration.writeFileSystem != null) {
+				SeriesGeneration.writeFileSystem.close();
+				SeriesGeneration.writeFileSystem = null;
+			}
 
 			/*
 			 * BATCH STATISTICS
@@ -433,20 +492,50 @@ public class Aggregation {
 					} else {
 						long tempTimestamp = rdList.get(i).getBatches()
 								.get(batchX).getTimestamp();
-						String dir = Dir.getBatchDataDir(Dir.getRunDataDir(
-								seriesData.getDir(), rdList.get(i).getRun()),
-								tempTimestamp);
+						String dir;
+						if (SeriesGeneration.singleFile) {
+							try {
+								SeriesGeneration.readFileSystem = ZipReader
+										.getBatchFileSystem(
+												Dir.getRunDataDir(seriesDir, i),
+												batchXTimestamp);
+							} catch (Throwable e1) {
+								e1.printStackTrace();
+							}
+							dir = Dir.delimiter;
+						} else {
+							dir = Dir.getBatchDataDir(
+									Dir.getRunDataDir(seriesData.getDir(),
+											rdList.get(i).getRun()),
+									tempTimestamp);
+						}
 						ValueList vList = ValueList.read(
 								dir,
 								Config.get("BATCH_STATS")
 										+ Config.get("SUFFIX_VALUE"));
 						values[i] = vList.get(statX).getValue();
+						if (SeriesGeneration.readFileSystem != null) {
+							SeriesGeneration.readFileSystem.close();
+							SeriesGeneration.readFileSystem = null;
+						}
 					}
 				}
 				aggBatchStats.put(statX, Aggregation.aggregate(values));
 			}
+			if (SeriesGeneration.singleFile) {
+				try {
+					SeriesGeneration.writeFileSystem = ZipWriter
+							.createBatchFileSystem(aggDir, batchXTimestamp);
+				} catch (Throwable e1) {
+					e1.printStackTrace();
+				}
+			}
 			AggregatedData.write(aggBatchStats, batchDir,
 					Files.getValuesFilename(Config.get("BATCH_STATS")));
+			if (SeriesGeneration.writeFileSystem != null) {
+				SeriesGeneration.writeFileSystem.close();
+				SeriesGeneration.writeFileSystem = null;
+			}
 
 			/*
 			 * METRICS
@@ -462,9 +551,21 @@ public class Aggregation {
 						.getNodeValues();
 				ValueList nList1 = rdList.get(maxBatchesRunIndex).getBatches()
 						.get(batchX).getMetrics().get(metricX).getValues();
-
-				String destDir = Dir.getMetricDataDir(
-						Dir.getBatchDataDir(aggDir, batchXTimestamp), metricX);
+				String destDir;
+				if (!SeriesGeneration.singleFile)
+					destDir = Dir.getMetricDataDir(
+							Dir.getBatchDataDir(aggDir, batchXTimestamp),
+							metricX,
+							rdList.get(maxBatchesRunIndex).getBatches()
+									.get(batchX).getMetrics().get(metricX)
+									.getType());
+				else
+					destDir = Dir.getMetricDataDir(
+							Dir.delimiter,
+							metricX,
+							rdList.get(maxBatchesRunIndex).getBatches()
+									.get(batchX).getMetrics().get(metricX)
+									.getType());
 
 				// reading metric X for batch X for each run from filesystem
 				MetricData[] Metrics = new MetricData[runs];
@@ -476,12 +577,39 @@ public class Aggregation {
 					} else {
 						long tempTimestamp = rdList.get(i).getBatches()
 								.get(batchX).getTimestamp();
-						String dir = Dir.getBatchDataDir(Dir.getRunDataDir(
-								seriesData.getDir(), rdList.get(i).getRun()),
-								tempTimestamp);
+						String dir;
+						if (SeriesGeneration.singleFile) {
+							try {
+								System.out
+										.println("establishing single read filesystem on "
+												+ Dir.getRunDataDir(seriesDir,
+														i)
+												+ " with timestamp: "
+												+ batchXTimestamp);
+								SeriesGeneration.readFileSystem = ZipReader
+										.getBatchFileSystem(
+												Dir.getRunDataDir(seriesDir, i),
+												batchXTimestamp);
+							} catch (Throwable e1) {
+								e1.printStackTrace();
+							}
+							dir = Dir.delimiter;
+						} else {
+							dir = Dir.getBatchDataDir(
+									Dir.getRunDataDir(seriesData.getDir(),
+											rdList.get(i).getRun()),
+									tempTimestamp);
+						}
+
 						Metrics[i] = MetricData.read(
-								Dir.getMetricDataDir(dir, metricX), metricX,
-								true);
+								Dir.getMetricDataDir(dir, metricX, rdList
+										.get(i).getBatches().get(batchX)
+										.getMetrics().get(metricX).getType()),
+								metricX, true);
+						if (SeriesGeneration.readFileSystem != null) {
+							SeriesGeneration.readFileSystem.close();
+							SeriesGeneration.readFileSystem = null;
+						}
 					}
 				}
 
@@ -534,6 +662,15 @@ public class Aggregation {
 								aggregatedValues[j] = temp2;
 							}
 						}
+						if (SeriesGeneration.singleFile) {
+							try {
+								SeriesGeneration.writeFileSystem = ZipWriter
+										.createBatchFileSystem(aggDir,
+												batchXTimestamp);
+							} catch (Throwable e1) {
+								e1.printStackTrace();
+							}
+						}
 						// BinnedDistributionInt
 						if (seriesData.getRun(maxBatchesRunIndex).getBatches()
 								.get(batchX).getMetrics().get(metricX)
@@ -556,6 +693,10 @@ public class Aggregation {
 									aggregatedValues);
 							aggDistributions.add(new AggregatedDistribution(
 									distributionX));
+						}
+						if (SeriesGeneration.writeFileSystem != null) {
+							SeriesGeneration.writeFileSystem.close();
+							SeriesGeneration.writeFileSystem = null;
 						}
 						aggregated = true;
 					}
@@ -605,6 +746,15 @@ public class Aggregation {
 								aggregatedValues[j] = temp2;
 							}
 						}
+						if (SeriesGeneration.singleFile) {
+							try {
+								SeriesGeneration.writeFileSystem = ZipWriter
+										.createBatchFileSystem(aggDir,
+												batchXTimestamp);
+							} catch (Throwable e1) {
+								e1.printStackTrace();
+							}
+						}
 						// BinnedDistributionLong
 						if (seriesData.getRun(maxBatchesRunIndex).getBatches()
 								.get(batchX).getMetrics().get(metricX)
@@ -627,6 +777,10 @@ public class Aggregation {
 									aggregatedValues);
 							aggDistributions.add(new AggregatedDistribution(
 									distributionX));
+						}
+						if (SeriesGeneration.writeFileSystem != null) {
+							SeriesGeneration.writeFileSystem.close();
+							SeriesGeneration.writeFileSystem = null;
 						}
 						aggregated = true;
 					}
@@ -673,6 +827,15 @@ public class Aggregation {
 								aggregatedValues[j] = temp2;
 							}
 						}
+						if (SeriesGeneration.singleFile) {
+							try {
+								SeriesGeneration.writeFileSystem = ZipWriter
+										.createBatchFileSystem(aggDir,
+												batchXTimestamp);
+							} catch (Throwable e1) {
+								e1.printStackTrace();
+							}
+						}
 						if (seriesData.getRun(maxBatchesRunIndex).getBatches()
 								.get(batchX).getMetrics().get(metricX)
 								.getDistributions().get(distributionX) instanceof BinnedDistributionDouble) {
@@ -694,6 +857,10 @@ public class Aggregation {
 									aggregatedValues);
 							aggDistributions.add(new AggregatedDistribution(
 									distributionX));
+						}
+						if (SeriesGeneration.writeFileSystem != null) {
+							SeriesGeneration.writeFileSystem.close();
+							SeriesGeneration.writeFileSystem = null;
 						}
 						aggregated = true;
 					}
@@ -737,9 +904,22 @@ public class Aggregation {
 								aggregatedValues[j] = temp2;
 							}
 						}
+						if (SeriesGeneration.singleFile) {
+							try {
+								SeriesGeneration.writeFileSystem = ZipWriter
+										.createBatchFileSystem(aggDir,
+												batchXTimestamp);
+							} catch (Throwable e1) {
+								e1.printStackTrace();
+							}
+						}
 						AggregatedDistribution.write(destDir,
 								Files.getDistributionFilename(distributionX),
 								aggregatedValues);
+						if (SeriesGeneration.writeFileSystem != null) {
+							SeriesGeneration.writeFileSystem.close();
+							SeriesGeneration.writeFileSystem = null;
+						}
 						aggDistributions.add(new AggregatedDistribution(
 								distributionX));
 						aggregated = true;
@@ -783,9 +963,22 @@ public class Aggregation {
 							aggregatedValues[j] = temp2;
 						}
 					}
+					if (SeriesGeneration.singleFile) {
+						try {
+							SeriesGeneration.writeFileSystem = ZipWriter
+									.createBatchFileSystem(aggDir,
+											batchXTimestamp);
+						} catch (Throwable e1) {
+							e1.printStackTrace();
+						}
+					}
 					AggregatedNodeValueList.write(destDir,
 							Files.getNodeValueListFilename(nodevaluelistX),
 							aggregatedValues);
+					if (SeriesGeneration.writeFileSystem != null) {
+						SeriesGeneration.writeFileSystem.close();
+						SeriesGeneration.writeFileSystem = null;
+					}
 					aggNodeValues.add(new AggregatedNodeValueList(
 							nodevaluelistX));
 				}
@@ -809,19 +1002,37 @@ public class Aggregation {
 					aggregatedValues.put(valueX, values);
 					aggValues.add(new AggregatedValue(valueX));
 				}
+				if (SeriesGeneration.singleFile) {
+					try {
+						SeriesGeneration.writeFileSystem = ZipWriter
+								.createBatchFileSystem(aggDir, batchXTimestamp);
+					} catch (Throwable e1) {
+						e1.printStackTrace();
+					}
+				}
 				AggregatedValue.write(
 						aggregatedValues,
 						destDir,
 						Config.get("METRIC_DATA_VALUES")
 								+ Config.get("SUFFIX_VALUE"));
+				if (SeriesGeneration.writeFileSystem != null) {
+					SeriesGeneration.writeFileSystem.close();
+					SeriesGeneration.writeFileSystem = null;
+				}
 				aggMetrics.add(new AggregatedMetric(metricX, aggValues,
 						aggDistributions, aggNodeValues));
 			}
 			aggBatches[batchX] = new AggregatedBatch(batchXTimestamp, aggStats,
 					aggGeneralRuntime, aggMetricRuntime, aggMetrics);
 		}
-		SeriesGeneration.writeFileSystem.close();
-		SeriesGeneration.writeFileSystem = null;
+		if (SeriesGeneration.writeFileSystem != null) {
+			SeriesGeneration.writeFileSystem.close();
+			SeriesGeneration.writeFileSystem = null;
+		}
+		if (SeriesGeneration.readFileSystem != null) {
+			SeriesGeneration.readFileSystem.close();
+			SeriesGeneration.readFileSystem = null;
+		}
 		return new AggregatedSeries(aggBatches);
 	}
 
