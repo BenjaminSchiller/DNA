@@ -7,6 +7,23 @@ import dna.util.Config;
 
 public class Files {
 	/*
+	 * ZIP FILENAMES
+	 */
+	public static String getBatchFilename(long timestamp) {
+		return Config.get("PREFIX_BATCHDATA_DIR") + timestamp
+				+ Config.get("SUFFIX_ZIP_FILE");
+	}
+
+	public static String getRunFilename(int run) {
+		return Config.get("PREFIX_RUNDATA_DIR") + run
+				+ Config.get("SUFFIX_ZIP_FILE");
+	}
+
+	public static String getAggregationFileName() {
+		return Config.get("RUN_AGGREGATION") + Config.get("SUFFIX_ZIP_FILE");
+	}
+
+	/*
 	 * DISTRIBUTION
 	 */
 	public static String getDistributionFilename(String name) {

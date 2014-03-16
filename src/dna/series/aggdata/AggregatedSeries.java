@@ -34,6 +34,12 @@ public class AggregatedSeries {
 		for (int i = 0; i < this.getBatches().length; i++) {
 			long tempTimestamp = this.getBatches()[i].getTimestamp();
 			this.getBatches()[i].write(Dir.getBatchDataDir(dir, tempTimestamp));
+			try {
+				this.getBatches()[i].writeSingleFile(dir,
+						this.getBatches()[i].getTimestamp(), Dir.delimiter);
+			} catch (Throwable e) {
+				e.printStackTrace();
+			}
 		}
 	}
 

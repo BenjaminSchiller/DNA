@@ -1,7 +1,9 @@
 package dna.series.data;
 
 import java.io.IOException;
+import java.nio.file.FileSystem;
 
+import dna.io.ZipWriter;
 import dna.io.filesystem.Files;
 import dna.series.lists.MetricDataList;
 import dna.series.lists.RunTimeList;
@@ -10,6 +12,9 @@ import dna.util.Config;
 import dna.util.Log;
 
 public class BatchData {
+
+	public static final boolean singleFile = true;
+	public static FileSystem fs;
 
 	public BatchData(long timestamp) {
 		this.timestamp = timestamp;
@@ -69,7 +74,7 @@ public class BatchData {
 	}
 
 	public void write(String dir) throws IOException {
-		Log.debug("writing BatchData for " + this.timestamp + " to " + dir);
+		Log.info("writing BatchData for " + this.timestamp + " to " + dir);
 		this.stats.write(dir,
 				Files.getValuesFilename(Config.get("BATCH_STATS")));
 		this.generalRuntimes
@@ -78,6 +83,14 @@ public class BatchData {
 		this.metricRuntimes.write(dir,
 				Files.getRuntimesFilename(Config.get("BATCH_METRIC_RUNTIMES")));
 		this.metrics.write(dir);
+	}
+
+	public void writeSingleFile(String fsDir, long timestamp, String dir)
+			throws Throwable {
+		BatchData.fs = ZipWriter.createBatchFileSystem(fsDir, timestamp);
+		this.write(dir);
+		BatchData.fs.close();
+		BatchData.fs = null;
 	}
 
 	public static BatchData read(String dir, long timestamp, boolean readValues)

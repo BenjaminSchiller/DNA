@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import dna.io.ZipWriter;
 import dna.io.filesystem.Dir;
 import dna.io.filesystem.Files;
 import dna.series.aggdata.AggregatedBatch;
@@ -19,6 +20,7 @@ import dna.series.aggdata.AggregatedRunTimeList;
 import dna.series.aggdata.AggregatedSeries;
 import dna.series.aggdata.AggregatedValue;
 import dna.series.aggdata.AggregatedValueList;
+import dna.series.data.BatchData;
 import dna.series.data.BinnedDistributionDouble;
 import dna.series.data.BinnedDistributionInt;
 import dna.series.data.BinnedDistributionLong;
@@ -332,6 +334,14 @@ public class Aggregation {
 		 * BATCHES
 		 */
 		AggregatedBatch[] aggBatches = new AggregatedBatch[maxBatches];
+
+		// set filesystem for single output
+		try {
+			BatchData.fs = ZipWriter.createFileSystem(aggDir,
+					Files.getAggregationFileName());
+		} catch (Throwable e1) {
+			e1.printStackTrace();
+		}
 
 		for (int batchX = 0; batchX < maxBatches; batchX++) {
 			int batchXTimestamp = (int) rdList.get(maxBatchesRunIndex)
@@ -811,6 +821,8 @@ public class Aggregation {
 			aggBatches[batchX] = new AggregatedBatch(batchXTimestamp, aggStats,
 					aggGeneralRuntime, aggMetricRuntime, aggMetrics);
 		}
+		BatchData.fs.close();
+		BatchData.fs = null;
 		return new AggregatedSeries(aggBatches);
 	}
 
