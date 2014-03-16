@@ -25,7 +25,6 @@ public class SeriesGeneration {
 	public static boolean singleFile = false;
 	public static FileSystem writeFileSystem;
 	public static FileSystem readFileSystem;
-
 	public static SeriesData generate(Series series, int runs, int batches)
 			throws AggregationException, IOException,
 			MetricNotApplicableException {

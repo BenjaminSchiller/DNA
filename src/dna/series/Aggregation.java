@@ -342,7 +342,7 @@ public class Aggregation {
 
 		// set filesystem for single output
 		try {
-			BatchData.fs = ZipWriter.createFileSystem(aggDir,
+			SeriesGeneration.writeFileSystem = ZipWriter.createFileSystem(aggDir,
 					Files.getAggregationFileName());
 		} catch (Throwable e1) {
 			e1.printStackTrace();
