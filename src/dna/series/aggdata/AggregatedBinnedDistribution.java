@@ -63,7 +63,7 @@ public class AggregatedBinnedDistribution extends AggregatedDistribution {
 
 	public static void write(String dir, String filename, double binsize,
 			double[][] values) throws IOException {
-		Writer w = new Writer(dir, filename);
+		Writer w = Writer.getWriter(dir, filename);
 
 		for (int i = 0; i < values.length; i++) {
 			String temp = "";

@@ -282,7 +282,8 @@ public class AggregatedNodeValueList extends AggregatedData {
 	}
 
 	public void write(String dir, String filename) throws IOException {
-		Writer w = new Writer(dir, filename);
+		Writer w = Writer.getWriter(dir, filename);
+
 		AggregatedValue[] tempData = this.getValues();
 
 		for (AggregatedValue aggData : tempData) {

@@ -44,7 +44,7 @@ public class AggregatedRunTimeList extends List<AggregatedValue> {
 
 	// IO methods
 	public void write(String dir, String filename) throws IOException {
-		Writer w = new Writer(dir, filename);
+		Writer w = Writer.getWriter(dir, filename);
 
 		for (AggregatedValue aggData : this.getList()) {
 			String temp = "" + aggData.getName()
