@@ -7,6 +7,7 @@ import java.io.IOException;
 
 import com.sun.media.sound.InvalidFormatException;
 
+import dna.series.SeriesGeneration;
 import dna.util.Config;
 
 /**
@@ -16,7 +17,7 @@ import dna.util.Config;
  * 
  */
 public class Reader {
-	private BufferedReader reader;
+	protected BufferedReader reader;
 
 	public static boolean skipComments = true;
 
@@ -58,5 +59,18 @@ public class Reader {
 
 	public void close() throws IOException {
 		this.reader.close();
+	}
+
+	/**
+	 * Returns either a Reader or a ZipReader. Depends if the static
+	 * BatchData.fs FileSystem is set or not. If it is set, a ZipReader for the
+	 * FileSystem will be returned.
+	 */
+	public static Reader getReaader(String dir, String filename)
+			throws IOException {
+		if (SeriesGeneration.fs == null)
+			return new Reader(dir, filename);
+		else
+			return new ZipReader(SeriesGeneration.fs, dir, filename);
 	}
 }

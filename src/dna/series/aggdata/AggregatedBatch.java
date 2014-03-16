@@ -4,7 +4,7 @@ import java.io.IOException;
 
 import dna.io.ZipWriter;
 import dna.io.filesystem.Files;
-import dna.series.data.BatchData;
+import dna.series.SeriesGeneration;
 import dna.util.Config;
 import dna.util.Log;
 
@@ -88,10 +88,10 @@ public class AggregatedBatch {
 
 	public void writeSingleFile(String fsDir, long timestamp, String dir)
 			throws Throwable {
-		BatchData.fs = ZipWriter.createBatchFileSystem(fsDir, timestamp);
+		SeriesGeneration.fs = ZipWriter.createBatchFileSystem(fsDir, timestamp);
 		this.write(dir);
-		BatchData.fs.close();
-		BatchData.fs = null;
+		SeriesGeneration.fs.close();
+		SeriesGeneration.fs = null;
 	}
 
 	public static AggregatedBatch read(String dir, long timestamp,
