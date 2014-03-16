@@ -69,6 +69,9 @@ public class ZipReader extends Reader {
 
 		// chick if file exists
 		Path fsFile = Paths.get(fsDir + filename);
+		System.out.println("TESTING: " + fsFile + "   ex:"
+				+ Files.exists(fsFile) + "    isDir:"
+				+ Files.isDirectory(fsFile));
 		if (!Files.exists(fsFile))
 			throw new FileNotFoundException(fsFile.toString());
 

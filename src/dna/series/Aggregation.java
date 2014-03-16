@@ -342,8 +342,8 @@ public class Aggregation {
 
 		// set filesystem for single output
 		try {
-			SeriesGeneration.writeFileSystem = ZipWriter.createFileSystem(aggDir,
-					Files.getAggregationFileName());
+			SeriesGeneration.writeFileSystem = ZipWriter.createFileSystem(
+					aggDir, Files.getAggregationFileName());
 		} catch (Throwable e1) {
 			e1.printStackTrace();
 		}
