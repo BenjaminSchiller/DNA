@@ -318,7 +318,9 @@ public class NodeNodeValueList extends Data {
 			throw new NullPointerException("no values for nodenodevaluelist \""
 					+ super.getName() + "\" set to be written to " + dir);
 		}
-		Writer w = new Writer(dir, filename);
+
+		Writer w = Writer.getWriter(dir, filename);
+
 		for (int i = 0; i < this.values.length; i++) {
 			String line = i + Config.get("DATA_DELIMITER");
 			for (int j = 0; j < this.values.length; j++) {

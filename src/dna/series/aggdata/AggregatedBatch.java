@@ -2,7 +2,9 @@ package dna.series.aggdata;
 
 import java.io.IOException;
 
+import dna.io.ZipWriter;
 import dna.io.filesystem.Files;
+import dna.series.data.BatchData;
 import dna.util.Config;
 import dna.util.Log;
 
@@ -72,7 +74,8 @@ public class AggregatedBatch {
 
 	// IO methods
 	public void write(String dir) throws IOException {
-		Log.debug("writing AggregatedBatchfor " + this.timestamp + " to " + dir);
+		Log.debug("writing AggregatedBatch for " + this.timestamp + " to "
+				+ dir);
 		this.stats.write(dir,
 				Files.getValuesFilename(Config.get("BATCH_STATS")));
 		this.generalRuntimes
@@ -81,6 +84,14 @@ public class AggregatedBatch {
 		this.metricRuntimes.write(dir,
 				Files.getRuntimesFilename(Config.get("BATCH_METRIC_RUNTIMES")));
 		this.metrics.write(dir);
+	}
+
+	public void writeSingleFile(String fsDir, long timestamp, String dir)
+			throws Throwable {
+		BatchData.fs = ZipWriter.createBatchFileSystem(fsDir, timestamp);
+		this.write(dir);
+		BatchData.fs.close();
+		BatchData.fs = null;
 	}
 
 	public static AggregatedBatch read(String dir, long timestamp,

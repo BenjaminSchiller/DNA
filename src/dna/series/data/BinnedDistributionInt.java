@@ -113,7 +113,7 @@ public class BinnedDistributionInt extends DistributionInt {
 			throw new NullPointerException("no values for distribution \""
 					+ this.getName() + "\" set to be written to " + dir);
 		}
-		Writer w = new Writer(dir, filename);
+		Writer w = Writer.getWriter(dir, filename);
 
 		w.writeln(this.getDenominator()); // write denominator in first line
 		w.writeln(this.binsize); // write binsize in second line

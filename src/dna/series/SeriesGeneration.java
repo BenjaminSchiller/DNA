@@ -23,7 +23,8 @@ public class SeriesGeneration {
 	public static SeriesData generate(Series series, int runs, int batches)
 			throws AggregationException, IOException,
 			MetricNotApplicableException {
-		return SeriesGeneration.generate(series, runs, batches, true, true);
+		return SeriesGeneration.generate(series, runs, batches, true, true,
+				false);
 	}
 
 	/**
@@ -47,8 +48,9 @@ public class SeriesGeneration {
 	 * @throws MetricNotApplicableException
 	 */
 	public static SeriesData generate(Series series, int runs, int batches,
-			boolean compare, boolean write) throws AggregationException,
-			IOException, MetricNotApplicableException {
+			boolean compare, boolean write, boolean batchesAsZip)
+			throws AggregationException, IOException,
+			MetricNotApplicableException {
 		Log.infoSep();
 		Timer timer = new Timer("seriesGeneration");
 		Log.info("generating series");
@@ -81,7 +83,8 @@ public class SeriesGeneration {
 			}
 
 			// generate run
-			SeriesGeneration.generateRun(series, r, batches, compare, write);
+			SeriesGeneration.generateRun(series, r, batches, compare, write,
+					batchesAsZip);
 		}
 
 		// read series data structure for aggregation
@@ -135,13 +138,13 @@ public class SeriesGeneration {
 	 * @throws MetricNotApplicableException
 	 */
 	public static void generateRuns(Series series, int from, int to,
-			int batches, boolean compare, boolean write) throws IOException,
-			MetricNotApplicableException {
+			int batches, boolean compare, boolean write, boolean batchesAsZip)
+			throws IOException, MetricNotApplicableException {
 		int runs = to - from;
 
 		for (int i = 0; i < runs; i++) {
 			SeriesGeneration.generateRun(series, from + i, batches, compare,
-					write);
+					write, batchesAsZip);
 		}
 	}
 
@@ -165,8 +168,16 @@ public class SeriesGeneration {
 	 * @throws MetricNotApplicableException
 	 */
 	public static void generateRun(Series series, int run, int batches,
-			boolean compare, boolean write) throws IOException,
-			MetricNotApplicableException {
+			boolean compare, boolean write, boolean batchesAsZip)
+			throws IOException, MetricNotApplicableException {
+		/** SINGLE FILES **/
+		Log.infoSep();
+		if (batchesAsZip)
+			Log.info("Generating single zip files for batches");
+		else
+			Log.info("Generation lots of files for lots of data");
+		/** SINGLE FILES **/
+
 		Log.infoSep();
 		Timer timer = new Timer("runGeneration");
 		Log.info("run " + run + " (" + batches + " batches)");
@@ -185,8 +196,18 @@ public class SeriesGeneration {
 			SeriesGeneration.compareMetrics(series);
 		}
 		if (write) {
-			initialData.write(Dir.getBatchDataDir(series.getDir(), run,
-					initialData.getTimestamp()));
+			if (!batchesAsZip) {
+				initialData.write(Dir.getBatchDataDir(series.getDir(), run,
+						initialData.getTimestamp()));
+			} else {
+				try {
+					initialData.writeSingleFile(
+							Dir.getRunDataDir(series.getDir(), run),
+							initialData.getTimestamp(), Dir.delimiter);
+				} catch (Throwable e) {
+					e.printStackTrace();
+				}
+			}
 		}
 
 		// generate batch data
@@ -209,8 +230,18 @@ public class SeriesGeneration {
 				SeriesGeneration.compareMetrics(series);
 			}
 			if (write) {
-				batchData.write(Dir.getBatchDataDir(series.getDir(), run,
-						batchData.getTimestamp()));
+				if (!batchesAsZip) {
+					batchData.write(Dir.getBatchDataDir(series.getDir(), run,
+							batchData.getTimestamp()));
+				} else {
+					try {
+						batchData.writeSingleFile(
+								Dir.getRunDataDir(series.getDir(), run),
+								batchData.getTimestamp(), Dir.delimiter);
+					} catch (Throwable e) {
+						e.printStackTrace();
+					}
+				}
 			}
 		}
 
