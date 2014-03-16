@@ -28,7 +28,6 @@ public class RunTimeList extends List<RunTime> {
 	public static RunTimeList read(String dir, String name) throws IOException {
 		RunTimeList list = new RunTimeList();
 		Reader r = Reader.getReader(dir, name);
-		System.out.println(r);
 
 		String line = null;
 		while ((line = r.readString()) != null) {

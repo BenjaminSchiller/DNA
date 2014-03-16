@@ -134,10 +134,12 @@ public class ZipWriter extends Writer implements AutoCloseable {
 	/** Creates a zip filesystem for a specified directory and filename. **/
 	public static FileSystem createFileSystem(String fsDir, String filename)
 			throws Throwable {
+		// chick if dir exists
 		Path fileSystemDir = Paths.get(fsDir);
 		if (!Files.exists(fileSystemDir))
 			Files.createDirectories(fileSystemDir);
 
+		// chick if file exists
 		Path fsFile = Paths.get(fsDir + filename);
 		if (!Files.exists(fsFile))
 			ZipWriter.createZip(fsFile);
