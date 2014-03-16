@@ -142,7 +142,7 @@ public class BinnedDistributionLong extends DistributionLong {
 		if (!readValues) {
 			return new BinnedDistributionLong(name, 1, null, 0);
 		}
-		Reader r = new Reader(dir, filename);
+		Reader r = Reader.getReader(dir, filename);
 		ArrayList<Long> list = new ArrayList<Long>();
 		String line = null;
 		int index = 0;

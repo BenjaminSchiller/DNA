@@ -142,7 +142,7 @@ public class BinnedDistributionInt extends DistributionInt {
 		if (!readValues) {
 			return new BinnedDistributionInt(name, 1, null, 0);
 		}
-		Reader r = new Reader(dir, filename);
+		Reader r = Reader.getReader(dir, filename);
 		ArrayList<Integer> list = new ArrayList<Integer>();
 		String line = null;
 		int index = 0;

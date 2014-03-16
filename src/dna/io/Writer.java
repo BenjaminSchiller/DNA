@@ -88,9 +88,9 @@ public class Writer {
 	 */
 	public static Writer getWriter(String dir, String filename)
 			throws IOException {
-		if (SeriesGeneration.fs == null)
+		if (SeriesGeneration.writeFileSystem == null)
 			return new Writer(dir, filename);
 		else
-			return new ZipWriter(SeriesGeneration.fs, dir, filename);
+			return new ZipWriter(SeriesGeneration.writeFileSystem, dir, filename);
 	}
 }

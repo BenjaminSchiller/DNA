@@ -205,7 +205,7 @@ public class DistributionLong extends Distribution {
 		if (!readValues) {
 			return new DistributionLong(name, null, 0);
 		}
-		Reader r = new Reader(dir, filename);
+		Reader r = Reader.getReader(dir, filename);
 		ArrayList<Long> list = new ArrayList<Long>();
 		String line = null;
 		int index = 0;

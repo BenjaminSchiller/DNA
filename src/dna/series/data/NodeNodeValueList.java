@@ -351,7 +351,7 @@ public class NodeNodeValueList extends Data {
 			return new NodeNodeValueList(name, null);
 		}
 
-		Reader r = new Reader(dir, filename);
+		Reader r = Reader.getReader(dir, filename);
 		ArrayList<double[]> list = new ArrayList<double[]>();
 		String line = null;
 		int index = 0;
