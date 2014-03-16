@@ -20,7 +20,6 @@ import dna.series.aggdata.AggregatedRunTimeList;
 import dna.series.aggdata.AggregatedSeries;
 import dna.series.aggdata.AggregatedValue;
 import dna.series.aggdata.AggregatedValueList;
-import dna.series.data.BatchData;
 import dna.series.data.BinnedDistributionDouble;
 import dna.series.data.BinnedDistributionInt;
 import dna.series.data.BinnedDistributionLong;
@@ -337,7 +336,7 @@ public class Aggregation {
 
 		// set filesystem for single output
 		try {
-			BatchData.fs = ZipWriter.createFileSystem(aggDir,
+			SeriesGeneration.fs = ZipWriter.createFileSystem(aggDir,
 					Files.getAggregationFileName());
 		} catch (Throwable e1) {
 			e1.printStackTrace();
@@ -825,8 +824,8 @@ public class Aggregation {
 			aggBatches[batchX] = new AggregatedBatch(batchXTimestamp, aggStats,
 					aggGeneralRuntime, aggMetricRuntime, aggMetrics);
 		}
-		BatchData.fs.close();
-		BatchData.fs = null;
+		SeriesGeneration.fs.close();
+		SeriesGeneration.fs = null;
 		return new AggregatedSeries(aggBatches);
 	}
 

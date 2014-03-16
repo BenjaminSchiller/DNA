@@ -1,6 +1,7 @@
 package dna.series;
 
 import java.io.IOException;
+import java.nio.file.FileSystem;
 import java.util.HashMap;
 
 import dna.io.filesystem.Dir;
@@ -22,6 +23,10 @@ import dna.util.Memory;
 import dna.util.Timer;
 
 public class SeriesGeneration {
+
+	public static final boolean singleFile = true;
+	public static FileSystem fs;
+
 	public static SeriesData generate(Series series, int runs, int batches)
 			throws AggregationException, IOException,
 			MetricNotApplicableException {
