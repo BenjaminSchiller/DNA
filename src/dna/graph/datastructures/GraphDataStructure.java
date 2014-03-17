@@ -245,6 +245,10 @@ public class GraphDataStructure {
 		this.canGDSCreateProperLists();
 		this.defaultListSizes.put(ListType.GlobalNodeList, nodes);
 		this.defaultListSizes.put(ListType.GlobalEdgeList, edges);
+		int estimatedMeanSize = (int) ((edges / nodes) * 1.1d);
+		this.defaultListSizes.put(ListType.LocalEdgeList, estimatedMeanSize);
+		this.defaultListSizes.put(ListType.LocalNodeList, estimatedMeanSize);
+
 		return new Graph(name, timestamp, this, nodes, edges);
 	}
 
