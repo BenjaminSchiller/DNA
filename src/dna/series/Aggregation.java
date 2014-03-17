@@ -411,10 +411,6 @@ public class Aggregation {
 			}
 			AggregatedData.write(aggGeneralRunTime, batchDir, Files
 					.getRuntimesFilename(Config.get("BATCH_GENERAL_RUNTIMES")));
-			if (SeriesGeneration.writeFileSystem != null) {
-				SeriesGeneration.writeFileSystem.close();
-				SeriesGeneration.writeFileSystem = null;
-			}
 
 			/*
 			 * METRIC RUNTIMES
@@ -466,20 +462,8 @@ public class Aggregation {
 				aggMetricRunTime
 						.put(metRuntimeX, Aggregation.aggregate(values));
 			}
-			if (SeriesGeneration.singleFile) {
-				try {
-					SeriesGeneration.writeFileSystem = ZipWriter
-							.createBatchFileSystem(aggDir, batchXTimestamp);
-				} catch (Throwable e1) {
-					e1.printStackTrace();
-				}
-			}
 			AggregatedData.write(aggMetricRunTime, batchDir, Files
 					.getRuntimesFilename(Config.get("BATCH_METRIC_RUNTIMES")));
-			if (SeriesGeneration.writeFileSystem != null) {
-				SeriesGeneration.writeFileSystem.close();
-				SeriesGeneration.writeFileSystem = null;
-			}
 
 			/*
 			 * BATCH STATISTICS
@@ -526,14 +510,6 @@ public class Aggregation {
 					}
 				}
 				aggBatchStats.put(statX, Aggregation.aggregate(values));
-			}
-			if (SeriesGeneration.singleFile) {
-				try {
-					SeriesGeneration.writeFileSystem = ZipWriter
-							.createBatchFileSystem(aggDir, batchXTimestamp);
-				} catch (Throwable e1) {
-					e1.printStackTrace();
-				}
 			}
 			AggregatedData.write(aggBatchStats, batchDir,
 					Files.getValuesFilename(Config.get("BATCH_STATS")));
@@ -756,6 +732,7 @@ public class Aggregation {
 								e1.printStackTrace();
 							}
 						}
+
 						// BinnedDistributionLong
 						if (seriesData.getRun(maxBatchesRunIndex).getBatches()
 								.get(batchX).getMetrics().get(metricX)

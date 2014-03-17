@@ -9,7 +9,6 @@ import java.util.ArrayList;
 import dna.io.filter.SuffixFilenameFilter;
 import dna.series.SeriesGeneration;
 import dna.util.Config;
-import dna.util.Log;
 
 public class Files {
 	/*
