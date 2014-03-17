@@ -71,6 +71,9 @@ public class DistributionList extends List<Distribution> {
 	public static DistributionList read(String dir, boolean readValues)
 			throws IOException {
 		String[] distributions = Files.getDistributions(dir);
+		if (distributions == null)
+			return new DistributionList(0);
+
 		DistributionList list = new DistributionList(distributions.length);
 
 		for (String distribution : distributions) {

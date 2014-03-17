@@ -36,6 +36,10 @@ public class Writer {
 		this.writer.write(line);
 	}
 
+	public Writer() {
+
+	}
+
 	public void writeln(String line) throws IOException {
 		this.write(line + "\n");
 	}
@@ -91,6 +95,7 @@ public class Writer {
 		if (SeriesGeneration.writeFileSystem == null)
 			return new Writer(dir, filename);
 		else
-			return new ZipWriter(SeriesGeneration.writeFileSystem, dir, filename);
+			return new ZipWriter(SeriesGeneration.writeFileSystem, dir,
+					filename);
 	}
 }
