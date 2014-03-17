@@ -20,21 +20,16 @@ import java.util.Map;
  * @author RWilmes
  * @date 16.03.2014
  */
-public class ZipWriter extends Writer implements AutoCloseable {
+public class ZipWriter extends Writer {
 
 	private FileSystem zipFile;
 
 	public ZipWriter(String fsDir, String fsFileName, String dir,
 			String filename) throws Throwable {
-		super(dir, filename);
-
 		// if filesystem directory does not exist, create it
 		Path fileSystemDir = Paths.get(fsDir);
-		if (!Files.exists(fileSystemDir)) {
-			System.out.println(fsDir + "  ex:" + Files.exists(fileSystemDir)
-					+ "  isdir:" + Files.isDirectory(fileSystemDir));
+		if (!Files.exists(fileSystemDir))
 			Files.createDirectories(fileSystemDir);
-		}
 
 		// if filesystem file does not exist, create it
 		Path fsFile = Paths.get(fsDir + fsFileName);
@@ -71,7 +66,6 @@ public class ZipWriter extends Writer implements AutoCloseable {
 
 	public ZipWriter(FileSystem fs, String dir, String filename)
 			throws IOException {
-		super(dir, filename);
 		this.zipFile = fs;
 
 		// if directory does not exist, create it

@@ -30,6 +30,9 @@ public class NodeNodeValueListList extends List<NodeNodeValueList> {
 	public static NodeNodeValueListList read(String dir, boolean readValues)
 			throws IOException {
 		String[] NodeNodeValueLists = Files.getNodeNodeValueLists(dir);
+		if (NodeNodeValueLists == null)
+			return new NodeNodeValueListList(0);
+
 		NodeNodeValueListList list = new NodeNodeValueListList(
 				NodeNodeValueLists.length);
 		for (String nodeNodeValueList : NodeNodeValueLists) {

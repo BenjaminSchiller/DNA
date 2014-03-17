@@ -48,7 +48,7 @@ public class AggregatedData implements ListItem {
 	 */
 	public static void write(AggregatedValue[] inputData, String dir,
 			String filename) throws IOException {
-		Writer w = new Writer(dir, filename);
+		Writer w = Writer.getWriter(dir, filename);
 
 		for (AggregatedValue aggData : inputData) {
 			String temp = "" + aggData.getName()
@@ -67,7 +67,7 @@ public class AggregatedData implements ListItem {
 
 	public static void write(ArrayList<AggregatedValue> inputData, String dir,
 			String filename) throws IOException {
-		Writer w = new Writer(dir, filename);
+		Writer w = Writer.getWriter(dir, filename);
 
 		for (AggregatedValue aggData : inputData) {
 			String temp = "" + aggData.getName()
@@ -86,7 +86,7 @@ public class AggregatedData implements ListItem {
 
 	public static void write(AggregatedValue inputData, String dir,
 			String filename) throws IOException {
-		Writer w = new Writer(dir, filename);
+		Writer w = Writer.getWriter(dir, filename);
 
 		String temp = "" + inputData.getName()
 				+ Config.get("AGGREGATED_DATA_DELIMITER");
