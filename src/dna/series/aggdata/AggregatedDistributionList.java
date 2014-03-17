@@ -39,6 +39,9 @@ public class AggregatedDistributionList extends List<AggregatedDistribution> {
 	public static AggregatedDistributionList read(String dir, boolean readValues)
 			throws IOException {
 		String[] distributions = Files.getDistributions(dir);
+		if (distributions == null)
+			return new AggregatedDistributionList(0);
+
 		AggregatedDistributionList list = new AggregatedDistributionList(
 				distributions.length);
 		for (String distribution : distributions) {
