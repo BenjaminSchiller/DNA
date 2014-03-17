@@ -15,26 +15,40 @@ import dna.util.Config;
  */
 public class Writer {
 	private BufferedWriter writer;
+	private boolean fileExistedBefore;
 
 	public Writer(String dir, String filename) throws IOException {
+		this(dir, filename, false);
+	}
+
+	public Writer(String dir, String filename, boolean append)
+			throws IOException {
 		(new File(dir)).mkdirs();
-		this.writer = new BufferedWriter(new FileWriter(dir + filename));
+
+		File f = new File(dir + filename);
+		fileExistedBefore = f.exists();
+
+		this.writer = new BufferedWriter(new FileWriter(f, append));
+	}
+	
+	public void write(String line) throws IOException {
+		this.writer.write(line);
 	}
 
 	public void writeln(String line) throws IOException {
-		this.writer.write(line + "\n");
+		this.write(line + "\n");
 	}
 
 	public void writeln(int line) throws IOException {
-		this.writer.write(line + "\n");
+		this.write(line + "\n");
 	}
 
 	public void writeln(long line) throws IOException {
-		this.writer.write(line + "\n");
+		this.write(line + "\n");
 	}
 
 	public void writeln(double line) throws IOException {
-		this.writer.write(line + "\n");
+		this.write(line + "\n");
 	}
 
 	@SuppressWarnings("rawtypes")
@@ -60,6 +74,10 @@ public class Writer {
 
 	public static String getCommentAsLine(String comment) {
 		return Config.get("COMMENT_PREFIX") + comment;
+	}
+	
+	public boolean fileExistedBefore() {
+		return this.fileExistedBefore;
 	}
 
 }

@@ -35,6 +35,10 @@ public class UndirectedEdge extends Edge {
 	 */
 	public UndirectedEdge(String s, Graph g) {
 		String[] temp = s.split(Config.get("EDGE_UNDIRECTED_DELIMITER"));
+		if (temp.length != 2) {
+			throw new IllegalArgumentException("Cannot parse " + s
+					+ " into an undirected edge");
+		}
 		UndirectedNode node1 = (UndirectedNode) g.getNode(MathHelper
 				.parseInt(temp[0]));
 		UndirectedNode node2 = (UndirectedNode) g.getNode(MathHelper
@@ -44,6 +48,10 @@ public class UndirectedEdge extends Edge {
 
 	public UndirectedEdge(String s, Graph g, HashMap<Integer, Node> addedNodes) {
 		String[] temp = s.split(Config.get("EDGE_UNDIRECTED_DELIMITER"));
+		if (temp.length != 2) {
+			throw new IllegalArgumentException("Cannot parse " + s
+					+ " into an undirected edge");
+		}
 		int index1 = MathHelper.parseInt(temp[0]);
 		int index2 = MathHelper.parseInt(temp[1]);
 		UndirectedNode node1 = null;

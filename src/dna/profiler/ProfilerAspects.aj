@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.Stack;
 
 import dna.graph.Graph;
+import dna.graph.IElement;
 import dna.graph.datastructures.DataStructure;
 import dna.graph.datastructures.DataStructure.AccessType;
 import dna.graph.datastructures.GraphDataStructure;
@@ -24,14 +25,14 @@ public aspect ProfilerAspects {
 	private static Stack<String> formerCountKey = new Stack<>(); 
 	private String currentCountKey;
 
-	private long currentBatchTimestamp;
-	
 	private String batchGeneratorName;
 	public static final String initialAddition = Config.get("PROFILER_INITIALBATCH_KEYADDITION");
+	
+	private boolean inAdd, addFailedAsContainsReturnsTrue;
 
 	pointcut seriesSingleRunGeneration(Series s, int run) : execution(* SeriesGeneration.generateRun(Series, int, ..)) && args(s, run, ..);
 	pointcut startInitialBatchGeneration(Series s) : execution(* SeriesGeneration.generateInitialData(Series)) && args(s);
-	pointcut startNewBatchGeneration(Series s, long timestamp) : execution(* SeriesGeneration.generateNextBatch(Series, long)) && args(s, timestamp);
+	pointcut startNewBatchGeneration(Series s) : execution(* SeriesGeneration.generateNextBatch(Series)) && args(s);
 	pointcut seriesGeneration() : execution(* SeriesGeneration.generate(..));
 	
 	pointcut graphGeneration(IGraphGenerator graphGenerator) : execution(* IGraphGenerator+.generate()) && target(graphGenerator);
@@ -55,7 +56,7 @@ public aspect ProfilerAspects {
 
 	pointcut initGDS(Graph g, GraphDataStructure gds) : this(g) && execution(Graph+.new(String,long, GraphDataStructure,..)) && args(*,*,gds,..);
 
-	pointcut init(DataStructure list) : call(* IDataStructure+.init(..)) && target(list) && watchedCall();
+	pointcut init(DataStructure list, boolean firstTime) : call(* IDataStructure+.init(Class, int, boolean)) && target(list) && args(*,*, firstTime) && watchedCall();
 	pointcut add(DataStructure list) : call(* IDataStructure+.add(..)) && target(list) && watchedCall();
 	pointcut remove(DataStructure list) : call(* IDataStructure+.remove(..)) && target(list) && watchedCall();
 	pointcut contains(DataStructure list) : call(* IDataStructure+.contains(..)) && target(list) && watchedCall();
@@ -67,7 +68,7 @@ public aspect ProfilerAspects {
 	before(Series s, int run) : seriesSingleRunGeneration(s, run) {
 		Profiler.setSeriesDir(s.getDir());
 		Profiler.startRun(run);
-		Profiler.startBatch(0);
+		Profiler.startBatch();
 	}
 	
 	after(Series s, int run) : seriesSingleRunGeneration(s, run) {
@@ -78,12 +79,12 @@ public aspect ProfilerAspects {
 		Profiler.finishBatch(0);
 	}
 	
-	before(Series s, long timestamp) : startNewBatchGeneration(s, timestamp) {
-		this.currentBatchTimestamp = timestamp;
-		Profiler.startBatch(currentBatchTimestamp);
+	before(Series s) : startNewBatchGeneration(s) {
+		Profiler.startBatch();
 	}
 	
-	after(Series s, long timestamp) : startNewBatchGeneration(s, timestamp) {
+	after(Series s) : startNewBatchGeneration(s) {
+		long currentBatchTimestamp = s.getGraph().getTimestamp();
 		Profiler.finishBatch(currentBatchTimestamp);
 	}
 	
@@ -150,24 +151,54 @@ public aspect ProfilerAspects {
 		Profiler.init(gds);
 	}
 
-	after(DataStructure list): init(list) {
-		Profiler.count(this.currentCountKey, list.listType, AccessType.Init);
+	after(DataStructure list, boolean firstTime): init(list, firstTime) {
+		if (firstTime)
+			Profiler.count(this.currentCountKey, list.listType, AccessType.Init);
 	}
 	
-	after(DataStructure list): add(list) {
-		Profiler.count(this.currentCountKey, list.listType, AccessType.Add);
+	boolean around(DataStructure list): add(list) {
+		inAdd = true;
+		addFailedAsContainsReturnsTrue = false;
+		boolean res = proceed(list);
+		inAdd = false;
+		if (!addFailedAsContainsReturnsTrue)
+			Profiler.count(this.currentCountKey, list.listType, AccessType.Add);
+		return res;
 	}	
 	
-	after(DataStructure list) : remove(list) {
-		Profiler.count(this.currentCountKey, list.listType, AccessType.Remove);
+	boolean around(DataStructure list) : remove(list) {
+		boolean res = proceed(list);
+		if (res) {
+			Profiler.count(this.currentCountKey, list.listType,
+					AccessType.RemoveSuccess);
+		} else {
+			Profiler.count(this.currentCountKey, list.listType,
+					AccessType.RemoveFailure);
+		}
+		return res;
 	}
 	
-	after(DataStructure list) : contains(list) {
-		Profiler.count(this.currentCountKey, list.listType, AccessType.Contains);
+	boolean around(DataStructure list) : contains(list) {
+		boolean res = proceed(list);
+		if (res) {
+			Profiler.count(this.currentCountKey, list.listType, AccessType.ContainsSuccess);
+			if (inAdd)
+				addFailedAsContainsReturnsTrue = true;
+		}
+		else
+			Profiler.count(this.currentCountKey, list.listType, AccessType.ContainsFailure);
+		return res;
 	}
 	
-	after(DataStructure list) : getElement(list) {
-		Profiler.count(this.currentCountKey, list.listType, AccessType.Get);
+	Object around(DataStructure list) : getElement(list) {
+		Object res = proceed(list);
+		if (res == null)
+			Profiler.count(this.currentCountKey, list.listType,
+					AccessType.GetFailure);
+		else
+			Profiler.count(this.currentCountKey, list.listType,
+					AccessType.GetSuccess);
+		return res;
 	}	
 	
 	after(DataStructure list) : size(list) {

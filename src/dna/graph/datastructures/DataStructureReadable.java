@@ -76,7 +76,7 @@ public abstract class DataStructureReadable extends DataStructure implements
 	}
 
 	public IDataStructure switchTo(IDataStructure newDatastructure) {
-		newDatastructure.init(this.dataType, this.size());
+		newDatastructure.init(this.dataType, this.size(), false);
 		Iterator<IElement> elIt = this.iterator();
 		while ( elIt.hasNext() )
 			newDatastructure.add(elIt.next());

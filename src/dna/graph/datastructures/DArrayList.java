@@ -24,7 +24,7 @@ public class DArrayList extends DataStructureReadable implements
 		super(lt, dT);
 	}
 
-	public void init(Class<? extends IElement> dT, int initialSize) {
+	public void init(Class<? extends IElement> dT, int initialSize, boolean firstTime) {
 		this.list = new ArrayList<>(initialSize);
 		this.maxNodeIndex = -1;
 	}
@@ -112,24 +112,30 @@ public class DArrayList extends DataStructureReadable implements
 	 * with index i must not be stored at position i
 	 */
 	public Node get(int index) {
+		Node n = null;
 
-		// check at index
-		if (this.list.size() > index
-				&& ((Node) this.list.get(index)).getIndex() == index) {
-			return (Node) this.list.get(index);
-		}
-
-		// check before index
-		for (int i = Math.min(index - 1, list.size() - 1); i >= 0; i--) {
-			if (((Node) this.list.get(i)).getIndex() == index) {
-				return (Node) this.list.get(i);
+		// check node at $index
+		if (this.list.size() > index) {
+			n = (Node) this.list.get(index);
+			if (n != null && n.getIndex() == index) {
+				return n;
 			}
 		}
 
-		// check after index
-		for (int i = index + 1; i < this.list.size(); i++) {
-			if (((Node) this.list.get(i)).getIndex() == index) {
-				return (Node) this.list.get(i);
+		// check nodes around $index in both directions
+		Node n2;
+		int i;
+		for (i = index; i < this.list.size(); i++) {
+			n2 = (Node) this.list.get(i);
+			if (n2 != null && n2.getIndex() == index) {
+				return n2;
+			}
+		}
+
+		for (i = Math.min(this.list.size() - 1, index); i >= 0; i--) {
+			n2 = (Node) this.list.get(i);
+			if (n2 != null && n2.getIndex() == index) {
+				return n2;
 			}
 		}
 

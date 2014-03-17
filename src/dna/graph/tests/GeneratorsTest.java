@@ -40,6 +40,7 @@ import dna.graph.generators.GraphGenerator;
 import dna.graph.generators.IGraphGenerator;
 import dna.graph.generators.canonical.CliqueGraph;
 import dna.graph.generators.canonical.RingGraph;
+import dna.graph.generators.evolvingNetworks.BarabasiAlbertGraph;
 import dna.graph.generators.random.IRandomGenerator;
 import dna.graph.generators.util.EmptyGraph;
 import dna.graph.nodes.DirectedNode;
@@ -94,10 +95,22 @@ public class GeneratorsTest {
 		}
 
 		try {
-			this.generatorConstructor = generator.getConstructor(
-					GraphDataStructure.class, int.class, int.class);
-			this.gg = this.generatorConstructor.newInstance(gds, nodeSize,
-					edgeSize);
+			if (generator == BarabasiAlbertGraph.class) {
+				generatorConstructor = generator.getConstructor(
+						GraphDataStructure.class, int.class, int.class,
+						int.class, int.class);
+				int nodesToAdd = 15;
+				int edgesPerNode = 5;
+
+				gg = generatorConstructor.newInstance(gds, nodeSize
+						- nodesToAdd, edgeSize - (nodesToAdd * edgesPerNode),
+						nodesToAdd, edgesPerNode);
+			} else {
+				this.generatorConstructor = generator.getConstructor(
+						GraphDataStructure.class, int.class, int.class);
+				this.gg = this.generatorConstructor.newInstance(gds, nodeSize,
+						edgeSize);
+			}
 		} catch (NoSuchMethodException e) {
 			this.generatorConstructor = generator.getConstructor(
 					GraphDataStructure.class, int.class);
@@ -127,8 +140,10 @@ public class GeneratorsTest {
 		ArrayList<Object> result = new ArrayList<>();
 		for (EnumMap<ListType, Class<? extends IDataStructure>> combination : simpleCombinations) {
 			for (Class generator : GlobalTestParameters.graphGenerators) {
-				for (Class edgeType : new Class[]{DirectedEdge.class, UndirectedEdge.class}) {
-					for (Class nodeType :  new Class[]{DirectedNode.class, UndirectedNode.class}) {
+				for (Class edgeType : new Class[] { DirectedEdge.class,
+						UndirectedEdge.class }) {
+					for (Class nodeType : new Class[] { DirectedNode.class,
+							UndirectedNode.class }) {
 						if ((UndirectedEdge.class.isAssignableFrom(edgeType) && DirectedNode.class
 								.isAssignableFrom(nodeType))
 								|| (DirectedEdge.class
@@ -144,11 +159,24 @@ public class GeneratorsTest {
 								edgeType);
 
 						GraphGenerator gg;
+
 						try {
-							generatorConstructor = generator.getConstructor(
-									GraphDataStructure.class, int.class,
-									int.class);
-							gg = generatorConstructor.newInstance(gds, 5, 5);
+							if (generator == BarabasiAlbertGraph.class) {
+								generatorConstructor = generator
+										.getConstructor(
+												GraphDataStructure.class,
+												int.class, int.class,
+												int.class, int.class);
+								gg = generatorConstructor.newInstance(gds, 5,
+										5, 5, 2);
+							} else {
+								generatorConstructor = generator
+										.getConstructor(
+												GraphDataStructure.class,
+												int.class, int.class);
+								gg = generatorConstructor
+										.newInstance(gds, 5, 5);
+							}
 						} catch (NoSuchMethodException e) {
 							generatorConstructor = generator.getConstructor(
 									GraphDataStructure.class, int.class);
@@ -185,7 +213,7 @@ public class GeneratorsTest {
 		String graphName = gds.getDataStructures();
 
 		HashFunction hf = Hashing.md5();
-		HashCode hc = hf.newHasher().putString(graphName).hash();
+		HashCode hc = hf.newHasher().putUnencodedChars(graphName).hash();
 		graphName = hc.toString();
 
 		String tempFolder = folder.newFolder().getAbsolutePath();
@@ -221,7 +249,7 @@ public class GeneratorsTest {
 		String tempFolder = folder.newFolder().getAbsolutePath();
 
 		HashFunction hf = Hashing.md5();
-		HashCode hc = hf.newHasher().putString(graphName).hash();
+		HashCode hc = hf.newHasher().putUnencodedChars(graphName).hash();
 		graphName = hc.toString();
 
 		GraphWriter.write(g, tempFolder, graphName);
@@ -295,7 +323,7 @@ public class GeneratorsTest {
 		String tempFolder = folder.newFolder().getAbsolutePath();
 
 		HashFunction hf = Hashing.md5();
-		HashCode hc = hf.newHasher().putString(graphName).hash();
+		HashCode hc = hf.newHasher().putUnencodedChars(graphName).hash();
 		graphName = hc.toString();
 
 		GraphWriter.write(g, tempFolder, graphName);
@@ -343,7 +371,7 @@ public class GeneratorsTest {
 		String tempFolder = folder.newFolder().getAbsolutePath();
 
 		HashFunction hf = Hashing.md5();
-		HashCode hc = hf.newHasher().putString(graphName).hash();
+		HashCode hc = hf.newHasher().putUnencodedChars(graphName).hash();
 		graphName = hc.toString();
 
 		GraphWriter.write(g, tempFolder, graphName);

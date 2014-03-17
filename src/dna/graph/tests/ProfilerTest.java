@@ -28,6 +28,7 @@ import dna.graph.datastructures.INodeListDatastructure;
 import dna.graph.edges.DirectedEdge;
 import dna.graph.edges.Edge;
 import dna.graph.edges.UndirectedEdge;
+import dna.graph.generators.GraphGenerator;
 import dna.graph.nodes.DirectedNode;
 import dna.graph.nodes.Node;
 import dna.graph.nodes.UndirectedNode;
@@ -42,6 +43,7 @@ import dna.series.data.Value;
 import dna.updates.batch.Batch;
 import dna.updates.update.Update;
 import dna.util.Config;
+import dna.util.parameters.Parameter;
 
 @RunWith(Parameterized.class)
 public class ProfilerTest {
@@ -62,35 +64,54 @@ public class ProfilerTest {
 		this.gds.setEdgeType(edgeType);
 		this.graph = gds.newGraphInstance("ABC", 1L, 10, 10);
 		this.applicationType = applicationType;
-		Profiler.activate();
+	}
 
-		this.graph = generateGraph();
+	private class ProfilerTestGraphGenerator extends GraphGenerator {
+
+		public ProfilerTestGraphGenerator(String name, Parameter[] params,
+				GraphDataStructure gds, long timestampInit, int nodesInit,
+				int edgesInit) {
+			super(name, params, gds, timestampInit, nodesInit, edgesInit);
+		}
+
+		@Override
+		public Graph generate() {
+			Graph g = new Graph(this.getName(), 1, this.gds);
+
+			Node n1 = gds.newNodeInstance(1);
+			Node n2 = gds.newNodeInstance(2);
+			g.addNode(n1);
+			g.addNode(n2);
+
+			Edge e = gds.newEdgeInstance(n1, n2);
+			e.connectToNodes();
+			g.addEdge(e);
+
+			e = gds.newEdgeInstance(n2, n1);
+			e.connectToNodes();
+			g.addEdge(e);
+
+			return g;
+		}
+
+	}
+
+	@Before
+	public void resetProfiler() {
+		Profiler.activate();
+		Profiler.startRun(0);
+		Profiler.startBatch();
+
+		GraphGenerator g = new ProfilerTestGraphGenerator("testGraph", null,
+				gds, 0, 2, 2);
+		this.graph = g.generate();
+
 		metric = new TestMetric("test", this.applicationType,
 				MetricType.unknown);
 		metric.setGraph(graph);
 		this.metricKey = metric.getName();
 		if (applicationType != ApplicationType.Recomputation)
 			metricKey += Config.get("PROFILER_INITIALBATCH_KEYADDITION");
-	}
-
-	private Graph generateGraph() {
-		Graph g = new Graph("test", 1, this.gds);
-
-		Node n1 = gds.newNodeInstance(1);
-		Node n2 = gds.newNodeInstance(2);
-		g.addNode(n1);
-		g.addNode(n2);
-
-		Edge e = gds.newEdgeInstance(n1, n2);
-		e.connectToNodes();
-		g.addEdge(e);
-
-		return g;
-	}
-
-	@Before
-	public void resetProfiler() {
-		Profiler.startBatch(0);
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
@@ -151,10 +172,14 @@ public class ProfilerTest {
 	@Test
 	public void testContainsNodeGlobalIsCountedInMetric() {
 		assertEquals(0, Profiler.getCount(metricKey, ListType.GlobalNodeList,
-				AccessType.Contains));
+				AccessType.ContainsSuccess));
+		assertEquals(0, Profiler.getCount(metricKey, ListType.GlobalNodeList,
+				AccessType.ContainsFailure));
 		metric.compute();
 		assertEquals(1, Profiler.getCount(metricKey, ListType.GlobalNodeList,
-				AccessType.Contains));
+				AccessType.ContainsSuccess));
+		assertEquals(1, Profiler.getCount(metricKey, ListType.GlobalNodeList,
+				AccessType.ContainsFailure));
 	}
 
 	@Test
@@ -162,19 +187,27 @@ public class ProfilerTest {
 		assumeTrue(graph.isDirected());
 
 		assertEquals(0, Profiler.getCount(metricKey, ListType.LocalNodeList,
-				AccessType.Contains));
+				AccessType.ContainsSuccess));
+		assertEquals(0, Profiler.getCount(metricKey, ListType.LocalNodeList,
+				AccessType.ContainsFailure));		
 		metric.compute();
 		assertEquals(1, Profiler.getCount(metricKey, ListType.LocalNodeList,
-				AccessType.Contains));
+				AccessType.ContainsSuccess));
+		assertEquals(1, Profiler.getCount(metricKey, ListType.LocalNodeList,
+				AccessType.ContainsFailure));		
 	}
 
 	@Test
 	public void testContainsEdgeGlobalIsCountedInMetric() {
 		assertEquals(0, Profiler.getCount(metricKey, ListType.GlobalEdgeList,
-				AccessType.Contains));
+				AccessType.ContainsSuccess));
+		assertEquals(0, Profiler.getCount(metricKey, ListType.GlobalEdgeList,
+				AccessType.ContainsFailure));		
 		metric.compute();
 		assertEquals(1, Profiler.getCount(metricKey, ListType.GlobalEdgeList,
-				AccessType.Contains));
+				AccessType.ContainsSuccess));
+		assertEquals(1, Profiler.getCount(metricKey, ListType.GlobalEdgeList,
+				AccessType.ContainsFailure));		
 	}
 
 	@Test
@@ -183,13 +216,13 @@ public class ProfilerTest {
 				0,
 				Profiler.getCount(metricKey, new ListType[] {
 						ListType.LocalEdgeList, ListType.LocalInEdgeList,
-						ListType.LocalOutEdgeList }, AccessType.Contains));
+						ListType.LocalOutEdgeList }, AccessType.ContainsSuccess));
 		metric.compute();
 		assertEquals(
 				1,
 				Profiler.getCount(metricKey, new ListType[] {
 						ListType.LocalEdgeList, ListType.LocalInEdgeList,
-						ListType.LocalOutEdgeList }, AccessType.Contains));
+						ListType.LocalOutEdgeList }, AccessType.ContainsSuccess));
 	}
 
 	@Test
@@ -215,10 +248,14 @@ public class ProfilerTest {
 	@Test
 	public void testGlobalGetSpecifiedNodeIsCountedInMetric() {
 		assertEquals(0, Profiler.getCount(metricKey, ListType.GlobalNodeList,
-				AccessType.Get));
+				AccessType.GetSuccess));
+		assertEquals(0, Profiler.getCount(metricKey, ListType.GlobalNodeList,
+				AccessType.GetFailure));
 		metric.compute();
 		assertEquals(1, Profiler.getCount(metricKey, ListType.GlobalNodeList,
-				AccessType.Get));
+				AccessType.GetSuccess));
+		assertEquals(1, Profiler.getCount(metricKey, ListType.GlobalNodeList,
+				AccessType.GetFailure));		
 	}
 
 	@Test
@@ -285,6 +322,26 @@ public class ProfilerTest {
 				AccessType.Iterator));
 	}
 
+	@Test
+	public void testMeanSizesAreCalculatedProperly() {
+		assertEquals(2, Profiler.getMeanSize(ListType.GlobalNodeList), 0.1);
+		assertEquals(2, Profiler.getMeanSize(ListType.GlobalEdgeList), 0.1);
+
+		if (graph.isDirected()) {
+			assertEquals(1, Profiler.getMeanSize(ListType.LocalNodeList), 0.1);
+			assertEquals(0, Profiler.getMeanSize(ListType.LocalEdgeList), 0.1);
+			assertEquals(1, Profiler.getMeanSize(ListType.LocalInEdgeList), 0.1);
+			assertEquals(1, Profiler.getMeanSize(ListType.LocalOutEdgeList),
+					0.1);
+		} else {
+			assertEquals(0, Profiler.getMeanSize(ListType.LocalNodeList), 0.1);
+			assertEquals(1, Profiler.getMeanSize(ListType.LocalEdgeList), 0.1);
+			assertEquals(0, Profiler.getMeanSize(ListType.LocalInEdgeList), 0.1);
+			assertEquals(0, Profiler.getMeanSize(ListType.LocalOutEdgeList),
+					0.1);
+		}
+	}
+
 	private class TestMetric extends Metric {
 		public TestMetric(String name, ApplicationType type,
 				MetricType metricType) {
@@ -313,14 +370,29 @@ public class ProfilerTest {
 
 		@Override
 		public boolean compute() {
+			// This will yield a count for Contains, even if a mocked node
+			// cannot be found in the list
 			g.containsNode(mock(Node.class));
+
+			// This will yield a count for Contains, as the node was surely
+			// added
+			Node n = gds.newNodeInstance(1);
+			g.containsNode(n);
+
+			Edge eNotInList = gds.newEdgeInstance(n, n);
+			g.containsEdge(eNotInList);
 
 			Node n1 = g.getNode(1);
 			Edge e = g.getRandomEdge();
+			
+			Node nNotInList = g.getNode(42);
 
 			if (n1 instanceof DirectedNode) {
 				DirectedNode dn1 = (DirectedNode) n1;
 				dn1.hasNeighbor(dn1);
+
+				DirectedNode dn2 = (DirectedNode) gds.newNodeInstance(2);
+				dn1.hasNeighbor(dn2);
 			}
 
 			g.containsEdge(e);
