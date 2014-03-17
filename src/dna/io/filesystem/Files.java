@@ -1,8 +1,13 @@
 package dna.io.filesystem;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.DirectoryStream;
+import java.nio.file.Path;
+import java.util.ArrayList;
 
 import dna.io.filter.SuffixFilenameFilter;
+import dna.series.SeriesGeneration;
 import dna.util.Config;
 
 public class Files {
@@ -58,8 +63,24 @@ public class Files {
 		return name + Config.get("SUFFIX_DIST_BINNED_DOUBLE");
 	}
 
-	public static String[] getDistributions(String dir) {
-		return (new File(dir)).list(new SuffixFilenameFilter("distribution"));
+	public static String[] getDistributions(String dir) throws IOException {
+		if (SeriesGeneration.readFileSystem != null) {
+			Path p = SeriesGeneration.readFileSystem.getPath(dir);
+			ArrayList<String> fileList = new ArrayList<String>();
+			try (DirectoryStream<Path> directoryStream = java.nio.file.Files
+					.newDirectoryStream(p)) {
+				for (Path file : directoryStream) {
+					if ((file.getFileName().toString())
+							.endsWith("distribution")) {
+						fileList.add(file.getFileName().toString());
+					}
+				}
+			}
+			return (String[]) fileList.toArray(new String[0]);
+		} else {
+			return (new File(dir))
+					.list(new SuffixFilenameFilter("distribution"));
+		}
 	}
 
 	public static String getDistributionName(String filename) {
