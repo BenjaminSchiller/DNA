@@ -7,7 +7,7 @@ import java.util.Map.Entry;
 
 import dna.profiler.datatypes.ComparableEntryMap;
 
-public class ComplexityMap extends ComparableEntryMap implements Comparable<ComplexityMap> {
+public class ComplexityMap extends ComparableEntryMap {
 	private TreeMap<ComplexityType, Integer> map = new TreeMap<>();
 
 	public ComplexityMap() {
@@ -65,7 +65,7 @@ public class ComplexityMap extends ComparableEntryMap implements Comparable<Comp
 	 * Returning 1 iff this > o
 	 */
 	@Override
-	public int compareTo(ComplexityMap o) {
+	public int compareTo(ComparableEntryMap o) {
 		if (this.equals(o))
 			return 0;
 		
@@ -73,7 +73,7 @@ public class ComplexityMap extends ComparableEntryMap implements Comparable<Comp
 		final TreeSet<ComplexityType> listOfComplexityTypes = ComplexityType.getAllComplexityTypes();
 		while ((t = listOfComplexityTypes.pollLast()) != null) {
 			Integer thisCounter = this.get(t);
-			Integer thatCounter = o.get(t);
+			Integer thatCounter = ((ComplexityMap) o).get(t);
 			if (thisCounter == null && thatCounter == null) {
 				continue;
 			}

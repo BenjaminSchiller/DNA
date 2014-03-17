@@ -7,7 +7,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.TreeMap;
+import java.util.TreeSet;
 
 import dna.graph.datastructures.DEmpty;
 import dna.graph.datastructures.DataStructure;
@@ -240,7 +240,7 @@ public class Profiler {
 			allCombinations = GraphDataStructure
 					.getAllDatastructureCombinations();
 
-		TreeMap<ComparableEntryMap, GraphDataStructure> recommendationList = new TreeMap<>();
+		TreeSet<RecommenderEntry> recommendationQueue = new TreeSet<RecommenderEntry>();
 		int numberOfRecommendations = Config
 				.getInt("NUMBER_OF_RECOMMENDATIONS");
 
@@ -272,8 +272,6 @@ public class Profiler {
 				continue;
 			}
 
-			tempGDS = new GraphDataStructure(singleCombination,
-					gds.getNodeType(), gds.getEdgeType());
 			ComparableEntryMap aggregated = ProfilerMeasurementData
 					.getMap(entryType);
 
@@ -289,19 +287,23 @@ public class Profiler {
 				}
 				aggregated.add(listComplexities.get(loopLT).get(currClass));
 			}
+			RecommenderEntry aggregatedEntry = new RecommenderEntry(aggregated,
+					singleCombination);
 
-			GraphDataStructure graphDataStructure = recommendationList
-					.get(aggregated);
-			if (graphDataStructure == null) {
+			RecommenderEntry lowerEntry = recommendationQueue
+					.floor(aggregatedEntry);
+			if (lowerEntry == null
+					|| !lowerEntry.getCosts()
+							.equals(aggregatedEntry.getCosts())) {
 				// Key not yet in list
-				recommendationList.put(aggregated, tempGDS);
-			} else if ((singleCombination.get(ListType.GlobalEdgeList) == DEmpty.class && graphDataStructure
-					.getListClass(ListType.GlobalEdgeList) != DEmpty.class)
-					|| (singleCombination.get(ListType.LocalEdgeList) == DEmpty.class && graphDataStructure
-							.getListClass(ListType.LocalEdgeList) != DEmpty.class)) {
+				recommendationQueue.add(aggregatedEntry);
+			} else if ((singleCombination.get(ListType.GlobalEdgeList) == DEmpty.class && lowerEntry
+					.getDatastructure(ListType.GlobalEdgeList) != DEmpty.class)
+					|| (singleCombination.get(ListType.LocalEdgeList) == DEmpty.class && lowerEntry
+							.getDatastructure(ListType.LocalEdgeList) != DEmpty.class)) {
 				// Key already in list, but with concrete types where we
 				// could also use DEmpty to save memory
-				recommendationList.put(aggregated, tempGDS);
+				recommendationQueue.add(aggregatedEntry);
 			}
 		}
 
@@ -309,28 +311,26 @@ public class Profiler {
 		 * Recommendations are picked from the front of the list, as they have
 		 * the largest counter for the most important complexity class
 		 */
-		for (int i = 0; (i < numberOfRecommendations && recommendationList
+		for (int i = 0; (i < numberOfRecommendations && recommendationQueue
 				.size() > 0); i++) {
-			Entry<ComparableEntryMap, GraphDataStructure> pollFirstEntry = recommendationList
-					.pollFirstEntry();
-			String polledEntry = pollFirstEntry.getValue()
+			RecommenderEntry pollFirstEntry = recommendationQueue.pollFirst();
+
+			String polledEntry = pollFirstEntry.getGraphDataStructure()
 					.getStorageDataStructures(true)
 					+ ": "
-					+ pollFirstEntry.getKey();
+					+ pollFirstEntry.getCosts();
 			res.append(separator);
 			res.append(outputPrefix + "   " + polledEntry);
 		}
 
 		// res.append(separator + "  Bottom list: ");
-		// for (int i = 0; (i < numberOfRecommendations && recommendationList
+		// for (int i = 0; (i < numberOfRecommendations && recommendationQueue
 		// .size() > 0); i++) {
-		// Entry<ComparableEntryMap, GraphDataStructure> pollLastEntry =
-		// recommendationList
-		// .pollLastEntry();
-		// String polledEntry = pollLastEntry.getValue()
+		// RecommenderEntry pollLastEntry = recommendationQueue.pollLast();
+		// String polledEntry = pollLastEntry.getGraphDataStructure()
 		// .getStorageDataStructures(true)
 		// + ": "
-		// + pollLastEntry.getKey();
+		// + pollLastEntry.getCosts();
 		// res.append(separator);
 		// res.append(outputPrefix + "   " + polledEntry);
 		// }

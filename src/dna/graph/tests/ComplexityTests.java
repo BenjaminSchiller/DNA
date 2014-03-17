@@ -10,6 +10,7 @@ import org.junit.Test;
 import dna.graph.datastructures.GraphDataStructure;
 import dna.profiler.datatypes.AddedComparableEntry;
 import dna.profiler.datatypes.ComparableEntry;
+import dna.profiler.datatypes.ComparableEntryMap;
 import dna.profiler.datatypes.complexity.Complexity;
 import dna.profiler.datatypes.complexity.ComplexityMap;
 import dna.profiler.datatypes.complexity.ComplexityType;
@@ -291,7 +292,7 @@ public class ComplexityTests {
 		assertEquals(unknownCompl, entrySet[4].getKey());
 	}
 
-	private <T extends java.lang.Comparable<T>> void assertFirstIsSmallerThanSecond(T one,
+	private <T extends ComparableEntryMap> void assertFirstIsSmallerThanSecond(T one,
 			T two) {
 		/**
 		 * As a remark: a.compareTo(b) returns the following results:

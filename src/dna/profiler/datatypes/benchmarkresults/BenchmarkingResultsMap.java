@@ -4,8 +4,7 @@ import java.text.DecimalFormat;
 
 import dna.profiler.datatypes.ComparableEntryMap;
 
-public class BenchmarkingResultsMap extends ComparableEntryMap implements
-		Comparable<BenchmarkingResultsMap> {
+public class BenchmarkingResultsMap extends ComparableEntryMap {
 	double aggregatedValue;
 
 	public void put(double value) {
@@ -27,15 +26,16 @@ public class BenchmarkingResultsMap extends ComparableEntryMap implements
 	}
 
 	/**
-	 * This should compare different complexity maps based on their counted
-	 * accesses.
+	 * This should compare different complexity maps based on their counted accesses.
 	 * 
-	 * Returning -1 iff this < o Returning 0 iff this == o Returning 1 iff this
-	 * > o
+	 * Returning -1 iff this < o
+	 * Returning 0 iff this == o
+	 * Returning 1 iff this > o
 	 */
 	@Override
-	public int compareTo(BenchmarkingResultsMap o) {
-		return Double.compare(this.aggregatedValue, o.getValue());
+	public int compareTo(ComparableEntryMap o) {
+		return Double.compare(this.aggregatedValue,
+				((BenchmarkingResultsMap) o).getValue());
 	}
 
 	@Override
