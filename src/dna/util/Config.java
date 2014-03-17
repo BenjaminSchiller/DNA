@@ -1,8 +1,13 @@
 package dna.util;
 
+import java.io.File;
 import java.io.IOException;
+import java.net.URISyntaxException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Properties;
+import java.util.Vector;
 
 import dna.plot.Gnuplot.PlotStyle;
 import dna.plot.data.PlotData.DistributionPlotType;
@@ -196,7 +201,7 @@ public class Config extends PropertiesHolder {
 	public static void resetAll() {
 		overwrite = new HashMap<String, String>();
 	}
-	
+
 	public static void loadFromProperties(Properties in) {
 		if (properties == null) {
 			properties = new java.util.Properties();
@@ -206,8 +211,23 @@ public class Config extends PropertiesHolder {
 
 	public static void init() throws IOException {
 		properties = null;
-		overwrite = null;		
-		loadFromProperties(initFromFolder(defaultConfigFolder));
+		overwrite = null;
+
+		Vector<File> folders = new Vector<File>();
+		folders.add(new File(defaultConfigFolder));
+
+		try {
+			Path pPath = Paths.get(Config.class.getProtectionDomain()
+					.getCodeSource().getLocation().toURI());
+			if (pPath.getFileName().toString().endsWith(".jar")) {
+				folders.add(pPath.toFile());
+			}
+
+		} catch (URISyntaxException e) {
+			e.printStackTrace();
+		}
+
+		loadFromProperties(initFromFolders(folders));
 	}
 
 	public static boolean containsKey(String key) {

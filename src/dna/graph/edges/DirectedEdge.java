@@ -20,6 +20,10 @@ public class DirectedEdge extends Edge {
 
 	public DirectedEdge(String s, Graph g) {
 		String[] temp = s.split(Config.get("EDGE_DIRECTED_DELIMITER"));
+		if (temp.length != 2) {
+			throw new IllegalArgumentException("Cannot parse " + s
+					+ " into a directed edge");
+		}
 		DirectedNode src = (DirectedNode) g.getNode(MathHelper
 				.parseInt(temp[0]));
 		DirectedNode dst = (DirectedNode) g.getNode(MathHelper
@@ -30,6 +34,10 @@ public class DirectedEdge extends Edge {
 
 	public DirectedEdge(String s, Graph g, HashMap<Integer, Node> addedNodes) {
 		String[] temp = s.split(Config.get("EDGE_DIRECTED_DELIMITER"));
+		if (temp.length != 2) {
+			throw new IllegalArgumentException("Cannot parse " + s
+					+ " into a directed edge");
+		}
 		int index1 = MathHelper.parseInt(temp[0]);
 		int index2 = MathHelper.parseInt(temp[1]);
 		if (addedNodes.containsKey(index1)) {

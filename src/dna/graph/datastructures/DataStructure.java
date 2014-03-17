@@ -5,7 +5,7 @@ import java.util.Iterator;
 import dna.graph.IElement;
 import dna.graph.edges.Edge;
 import dna.graph.nodes.Node;
-import dna.profiler.complexity.ComplexityType.Base;
+import dna.profiler.datatypes.complexity.ComplexityType.Base;
 
 /**
  * Base class for storing IElements
@@ -15,7 +15,8 @@ import dna.profiler.complexity.ComplexityType.Base;
  */
 public abstract class DataStructure implements IDataStructure {
 	public enum AccessType {
-		Init(true), Add(true), Contains(false), Get(false), Random(false), Remove(
+		Init(true), Add(true), ContainsSuccess(false), ContainsFailure(false), GetSuccess(
+				false), GetFailure(false), Random(false), RemoveSuccess(true), RemoveFailure(
 				true), Size(false), Iterator(false);
 
 		private boolean isAllowedOnEmpty = false;
@@ -85,11 +86,11 @@ public abstract class DataStructure implements IDataStructure {
 	public DataStructure(ListType lt, Class<? extends IElement> dT) {
 		this.listType = lt;
 		dataType = dT;
-		this.init(dT, defaultSize);
+		this.init(dT, defaultSize, true);
 	}
 
 	public void reinitializeWithSize(int reinitSize) {
-		this.init(this.dataType, reinitSize);
+		this.init(this.dataType, reinitSize, false);
 	}
 
 	public boolean canAdd(IElement element) {
