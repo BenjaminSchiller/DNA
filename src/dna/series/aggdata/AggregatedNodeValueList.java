@@ -231,7 +231,7 @@ public class AggregatedNodeValueList extends AggregatedData {
 		if (!readValues) {
 			return new AggregatedNodeValueList(name);
 		}
-		Reader r = new Reader(dir, filename);
+		Reader r = Reader.getReader(dir, filename);
 		ArrayList<AggregatedValue> list = new ArrayList<AggregatedValue>();
 		String line = null;
 		int index = 0;
@@ -302,7 +302,7 @@ public class AggregatedNodeValueList extends AggregatedData {
 	}
 
 	private void writeSorted(String dir, String filename) throws IOException {
-		Writer w = new Writer(dir, filename);
+		Writer w = Writer.getWriter(dir, filename);
 		AggregatedValue[] tempData = this.getValues();
 
 		for (int i = 0; i < this.sortIndex.length; i++) {
@@ -328,7 +328,7 @@ public class AggregatedNodeValueList extends AggregatedData {
 
 	public static void write(String dir, String filename, double[][] values)
 			throws IOException {
-		Writer w = new Writer(dir, filename);
+		Writer w = Writer.getWriter(dir, filename);
 
 		for (int i = 0; i < values.length; i++) {
 			String temp = "";

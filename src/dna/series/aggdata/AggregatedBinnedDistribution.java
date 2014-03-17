@@ -38,7 +38,7 @@ public class AggregatedBinnedDistribution extends AggregatedDistribution {
 		if (!readValues) {
 			return new AggregatedBinnedDistribution(name, null);
 		}
-		Reader r = new Reader(dir, filename);
+		Reader r = Reader.getReader(dir, filename);
 		ArrayList<AggregatedValue> list = new ArrayList<AggregatedValue>();
 		String line = null;
 

@@ -22,6 +22,10 @@ public class Writer {
 		this.writer = new BufferedWriter(new FileWriter(dir + filename));
 	}
 
+	public Writer() {
+
+	}
+
 	public void writeln(String line) throws IOException {
 		this.writer.write(line + "\n");
 	}
@@ -73,6 +77,7 @@ public class Writer {
 		if (SeriesGeneration.writeFileSystem == null)
 			return new Writer(dir, filename);
 		else
-			return new ZipWriter(SeriesGeneration.writeFileSystem, dir, filename);
+			return new ZipWriter(SeriesGeneration.writeFileSystem, dir,
+					filename);
 	}
 }
