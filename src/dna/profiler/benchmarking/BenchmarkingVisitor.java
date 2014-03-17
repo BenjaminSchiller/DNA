@@ -34,6 +34,12 @@ public class BenchmarkingVisitor extends AbstractOutput {
 	public static final String rawExtension = ".rawdata";
 	public static final String aggregationFile = "aggregation" + rawExtension;
 
+	private BenchmarkingConf conf;
+	
+	public BenchmarkingVisitor(BenchmarkingConf benchmarkingConf) {
+		this.conf = benchmarkingConf;
+	}
+
 	@Override
 	public void visitBenchmark(BenchmarkResult res) {
 		ArrayList<String> resultList = new ArrayList<String>();
@@ -51,7 +57,7 @@ public class BenchmarkingVisitor extends AbstractOutput {
 					int inputSize = (int) paramSet[1];
 
 					double perElement = methRes.mean(meter)
-							/ BenchmarkingExperiments.operationSize;
+							/ conf.getOperationSize();
 
 					String methodName = ((BenchmarkMethod) methRes
 							.getRelatedElement()).getMethodToBench().getName();
@@ -68,7 +74,7 @@ public class BenchmarkingVisitor extends AbstractOutput {
 								results.size());
 						for (Double singleRes : results) {
 							resultsNormalized.add(singleRes
-									/ BenchmarkingExperiments.operationSize);
+									/ conf.getOperationSize());
 						}
 
 						String keyForEntry = "";

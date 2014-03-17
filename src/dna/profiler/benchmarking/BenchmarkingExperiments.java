@@ -38,14 +38,12 @@ public class BenchmarkingExperiments {
 	private IEdgeListDatastructure edgeListToBenchmark;
 	private IEdgeListDatastructureReadable edgeListToBenchmarkCasted;
 
-	private static final int repetitions = 5;
-	private static int[] inputSizes = new int[] { 1000, 5000, 10000 };
-	public static int operationSize = 50;
-	private static int maxListSize = (int) (getMax(inputSizes)
-			+ Math.ceil(operationSize / 2) + operationSize);
+	private static int[] inputSizes;
+	private int operationSize;
+	private int maxListSize;
 
-	INode[] nodeList = new INode[maxListSize + 2];
-	IEdge[] edgeList = new IEdge[maxListSize + 2];
+	INode[] nodeList;
+	IEdge[] edgeList;
 
 	Integer[] randomIDsInList;
 	Integer[] randomIDsNotInList;
@@ -60,10 +58,16 @@ public class BenchmarkingExperiments {
 	Integer i;
 
 	@SuppressWarnings("unchecked")
-	public BenchmarkingExperiments(String dsClass) {
+	public BenchmarkingExperiments(String dsClass, BenchmarkingConf benchmarkingConf) {
 		try {
 			BenchmarkingExperiments.classToBenchmark = (Class<? extends IDataStructure>) Class
 					.forName(dsClass);
+			BenchmarkingExperiments.inputSizes = benchmarkingConf.getInputSizes();
+			this.operationSize = benchmarkingConf.getOperationSize();
+			this.maxListSize = (int) (getMax(inputSizes)
+					+ Math.ceil(operationSize / 2) + operationSize);
+			nodeList = new INode[maxListSize + 2];
+			edgeList = new IEdge[maxListSize + 2];			
 		} catch (ClassNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -222,13 +226,13 @@ public class BenchmarkingExperiments {
 
 	}
 
-	@Bench(runs = repetitions, dataProvider = "testInput", beforeEachRun = "setUpGds")
+	@Bench(dataProvider = "testInput", beforeEachRun = "setUpGds")
 	public void Init(Class<? extends IDataStructure> dsClass, Integer setupSize) {
 		edgeListToBenchmark = (IEdgeListDatastructure) gds
 				.newList(ListType.GlobalEdgeList);
 	}
 
-	@Bench(runs = repetitions, dataProvider = "testInput", beforeEachRun = "setUp")
+	@Bench(dataProvider = "testInput", beforeEachRun = "setUp")
 	public void Add_Node(Class<? extends IDataStructure> dsClass,
 			Integer setupSize) {
 		for (i = setupSize; i < (setupSize + Math.ceil(operationSize / 2)); i++) {
@@ -236,7 +240,7 @@ public class BenchmarkingExperiments {
 		}
 	}
 
-	@Bench(runs = repetitions, dataProvider = "testInput", beforeEachRun = "setUp")
+	@Bench(dataProvider = "testInput", beforeEachRun = "setUp")
 	public void Add_Edge(Class<? extends IDataStructure> dsClass,
 			Integer setupSize) {
 		for (i = setupSize; i < (setupSize + Math.ceil(operationSize / 2)); i++) {
@@ -244,7 +248,7 @@ public class BenchmarkingExperiments {
 		}
 	}
 
-	@Bench(runs = repetitions, dataProvider = "testInput", beforeEachRun = "setUp")
+	@Bench(dataProvider = "testInput", beforeEachRun = "setUp")
 	public void ContainsSuccess_Node(Class<? extends IDataStructure> dsClass,
 			Integer setupSize) {
 		for (i = 0; i < operationSize; i++) {
@@ -252,7 +256,7 @@ public class BenchmarkingExperiments {
 		}
 	}
 
-	@Bench(runs = repetitions, dataProvider = "testInput", beforeEachRun = "setUp")
+	@Bench(dataProvider = "testInput", beforeEachRun = "setUp")
 	public void ContainsSuccess_Edge(Class<? extends IDataStructure> dsClass,
 			Integer setupSize) {
 		for (i = 0; i < operationSize; i++) {
@@ -260,7 +264,7 @@ public class BenchmarkingExperiments {
 		}
 	}
 
-	@Bench(runs = repetitions, dataProvider = "testInput", beforeEachRun = "setUp")
+	@Bench(dataProvider = "testInput", beforeEachRun = "setUp")
 	public void ContainsFailure_Node(Class<? extends IDataStructure> dsClass,
 			Integer setupSize) {
 		for (i = 0; i < operationSize; i++) {
@@ -268,7 +272,7 @@ public class BenchmarkingExperiments {
 		}
 	}
 
-	@Bench(runs = repetitions, dataProvider = "testInput", beforeEachRun = "setUp")
+	@Bench(dataProvider = "testInput", beforeEachRun = "setUp")
 	public void ContainsFailure_Edge(Class<? extends IDataStructure> dsClass,
 			Integer setupSize) {
 		for (i = 0; i < operationSize; i++) {
@@ -276,7 +280,7 @@ public class BenchmarkingExperiments {
 		}
 	}
 
-	@Bench(runs = repetitions, dataProvider = "testInput", beforeEachRun = "setUp")
+	@Bench(dataProvider = "testInput", beforeEachRun = "setUp")
 	public void GetSuccess_Node(Class<? extends IDataStructure> dsClass,
 			Integer setupSize) {
 		if (nodeListToBenchmarkCasted == null)
@@ -294,7 +298,7 @@ public class BenchmarkingExperiments {
 		}
 	}
 
-	@Bench(runs = repetitions, dataProvider = "testInput", beforeEachRun = "setUp")
+	@Bench(dataProvider = "testInput", beforeEachRun = "setUp")
 	public void GetSuccess_Edge(Class<? extends IDataStructure> dsClass,
 			Integer setupSize) {
 		if (edgeListToBenchmarkCasted == null)
@@ -312,7 +316,7 @@ public class BenchmarkingExperiments {
 		}
 	}
 
-	@Bench(runs = repetitions, dataProvider = "testInput", beforeEachRun = "setUp")
+	@Bench(dataProvider = "testInput", beforeEachRun = "setUp")
 	public void GetFailure_Node(Class<? extends IDataStructure> dsClass,
 			Integer setupSize) {
 		if (nodeListToBenchmarkCasted == null)
@@ -326,7 +330,7 @@ public class BenchmarkingExperiments {
 		}
 	}
 
-	@Bench(runs = repetitions, dataProvider = "testInput", beforeEachRun = "setUp")
+	@Bench(dataProvider = "testInput", beforeEachRun = "setUp")
 	public void GetFailure_Edge(Class<? extends IDataStructure> dsClass,
 			Integer setupSize) {
 		if (edgeListToBenchmarkCasted == null)
@@ -344,7 +348,7 @@ public class BenchmarkingExperiments {
 		}
 	}
 
-	@Bench(runs = repetitions, dataProvider = "testInput", beforeEachRun = "setUp")
+	@Bench(dataProvider = "testInput", beforeEachRun = "setUp")
 	public void Random_Node(Class<? extends IDataStructure> dsClass,
 			Integer setupSize) {
 		if (nodeListToBenchmarkCasted == null)
@@ -354,7 +358,7 @@ public class BenchmarkingExperiments {
 		}
 	}
 
-	@Bench(runs = repetitions, dataProvider = "testInput", beforeEachRun = "setUp")
+	@Bench(dataProvider = "testInput", beforeEachRun = "setUp")
 	public void Random_Edge(Class<? extends IDataStructure> dsClass,
 			Integer setupSize) {
 		if (edgeListToBenchmarkCasted == null)
@@ -364,7 +368,7 @@ public class BenchmarkingExperiments {
 		}
 	}
 
-	@Bench(runs = repetitions, dataProvider = "testInput", beforeEachRun = "setUp")
+	@Bench(dataProvider = "testInput", beforeEachRun = "setUp")
 	public void RemoveSuccess_Node(Class<? extends IDataStructure> dsClass,
 			Integer setupSize) {
 		for (i = 0; i < operationSize; i++) {
@@ -380,7 +384,7 @@ public class BenchmarkingExperiments {
 		}
 	}
 
-	@Bench(runs = repetitions, dataProvider = "testInput", beforeEachRun = "setUp")
+	@Bench(dataProvider = "testInput", beforeEachRun = "setUp")
 	public void RemoveFailure_Node(Class<? extends IDataStructure> dsClass,
 			Integer setupSize) {
 		for (i = 0; i < operationSize; i++) {
@@ -396,7 +400,7 @@ public class BenchmarkingExperiments {
 		}
 	}
 
-	@Bench(runs = repetitions, dataProvider = "testInput", beforeEachRun = "setUp")
+	@Bench(dataProvider = "testInput", beforeEachRun = "setUp")
 	public void RemoveSuccess_Edge(Class<? extends IDataStructure> dsClass,
 			Integer setupSize) {
 		for (i = 0; i < operationSize; i++) {
@@ -412,7 +416,7 @@ public class BenchmarkingExperiments {
 		}
 	}
 
-	@Bench(runs = repetitions, dataProvider = "testInput", beforeEachRun = "setUp")
+	@Bench(dataProvider = "testInput", beforeEachRun = "setUp")
 	public void RemoveFailure_Edge(Class<? extends IDataStructure> dsClass,
 			Integer setupSize) {
 		for (i = 0; i < operationSize; i++) {
@@ -428,7 +432,7 @@ public class BenchmarkingExperiments {
 		}
 	}
 
-	@Bench(runs = repetitions, dataProvider = "testInput", beforeEachRun = "setUp")
+	@Bench(dataProvider = "testInput", beforeEachRun = "setUp")
 	public void Size_Node(Class<? extends IDataStructure> dsClass,
 			Integer setupSize) {
 		if (nodeListToBenchmark == null)
@@ -438,7 +442,7 @@ public class BenchmarkingExperiments {
 		}
 	}
 
-	@Bench(runs = repetitions, dataProvider = "testInput", beforeEachRun = "setUp")
+	@Bench(dataProvider = "testInput", beforeEachRun = "setUp")
 	public void Size_Edge(Class<? extends IDataStructure> dsClass,
 			Integer setupSize) {
 		if (edgeListToBenchmark == null)
@@ -448,7 +452,7 @@ public class BenchmarkingExperiments {
 		}
 	}
 
-	@Bench(runs = repetitions, dataProvider = "testInput", beforeEachRun = "setUp")
+	@Bench(dataProvider = "testInput", beforeEachRun = "setUp")
 	public void Iterator_Node(Class<? extends IDataStructure> dsClass,
 			Integer setupSize) {
 		if (nodeListToBenchmark == null)
@@ -458,7 +462,7 @@ public class BenchmarkingExperiments {
 		}
 	}
 
-	@Bench(runs = repetitions, dataProvider = "testInput", beforeEachRun = "setUp")
+	@Bench(dataProvider = "testInput", beforeEachRun = "setUp")
 	public void Iterator_Edge(Class<? extends IDataStructure> dsClass,
 			Integer setupSize) {
 		if (edgeListToBenchmark == null)
@@ -471,9 +475,9 @@ public class BenchmarkingExperiments {
 	public static void main(String[] args) {
 		BenchmarkingConf benchmarkingConf = new BenchmarkingConf();
 		final Benchmark bm = new Benchmark(benchmarkingConf);
-		bm.add(new BenchmarkingExperiments(args[0]));
+		bm.add(new BenchmarkingExperiments(args[0], benchmarkingConf));
 		final BenchmarkResult res = bm.run();
-		new BenchmarkingVisitor().visitBenchmark(res);
+		new BenchmarkingVisitor(benchmarkingConf).visitBenchmark(res);
 		// new TabularSummaryOutput().visitBenchmark(res);
 	}
 }
