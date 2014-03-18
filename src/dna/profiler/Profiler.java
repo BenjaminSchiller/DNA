@@ -285,6 +285,7 @@ public class Profiler {
 					currClass = singleCombination.get(recLT);
 					recLT = recLT.getFallback();
 				}
+				singleCombination.put(loopLT, currClass);
 				aggregated.add(listComplexities.get(loopLT).get(currClass));
 			}
 			RecommenderEntry aggregatedEntry = new RecommenderEntry(aggregated,
