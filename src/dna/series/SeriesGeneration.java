@@ -8,11 +8,9 @@ import dna.metrics.Metric;
 import dna.metrics.MetricNotApplicableException;
 import dna.series.Series.RandomSeedReset;
 import dna.series.data.BatchData;
-import dna.series.data.RunData;
 import dna.series.data.RunTime;
 import dna.series.data.SeriesData;
 import dna.series.data.Value;
-import dna.series.lists.RunDataList;
 import dna.updates.batch.Batch;
 import dna.updates.batch.BatchSanitization;
 import dna.updates.batch.BatchSanitizationStats;
@@ -70,8 +68,6 @@ public class SeriesGeneration {
 		}
 		Log.info("m  = " + buff.toString());
 
-		SeriesData sd = new SeriesData(series.getDir(), series.getName(), runs);
-
 		// reset rand per series
 		if (series.getRandomSeedReset() == RandomSeedReset.eachSeries) {
 			series.resetRand();
@@ -85,9 +81,12 @@ public class SeriesGeneration {
 			}
 
 			// generate run
-			sd.addRun(SeriesGeneration.generateRun(series, r, batches, compare,
-					write));
+			SeriesGeneration.generateRun(series, r, batches, compare, write);
 		}
+
+		// read series data structure for aggregation
+		SeriesData sd = SeriesData.read(series.getDir(), series.getName(),
+				false, false);
 
 		// compare metrics
 		if (compare) {
@@ -100,7 +99,9 @@ public class SeriesGeneration {
 		// aggregate all runs
 		Log.infoSep();
 		Log.info("aggregating data for " + sd.getRuns().size() + " runs");
+
 		sd.setAggregation(Aggregation.aggregate(sd));
+
 		// end of aggregation
 		Log.infoSep();
 		timer.end();
@@ -133,19 +134,15 @@ public class SeriesGeneration {
 	 * @throws IOException
 	 * @throws MetricNotApplicableException
 	 */
-	public static RunDataList generateRuns(Series series, int from, int to,
+	public static void generateRuns(Series series, int from, int to,
 			int batches, boolean compare, boolean write) throws IOException,
 			MetricNotApplicableException {
 		int runs = to - from;
 
-		RunDataList runList = new RunDataList();
-
 		for (int i = 0; i < runs; i++) {
-			runList.add(SeriesGeneration.generateRun(series, from + i, batches,
-					compare, write));
+			SeriesGeneration.generateRun(series, from + i, batches, compare,
+					write);
 		}
-
-		return runList;
 	}
 
 	/**
@@ -167,15 +164,12 @@ public class SeriesGeneration {
 	 * @throws IOException
 	 * @throws MetricNotApplicableException
 	 */
-	public static RunData generateRun(Series series, int run, int batches,
+	public static void generateRun(Series series, int run, int batches,
 			boolean compare, boolean write) throws IOException,
 			MetricNotApplicableException {
-
 		Log.infoSep();
 		Timer timer = new Timer("runGeneration");
 		Log.info("run " + run + " (" + batches + " batches)");
-
-		RunData rd = new RunData(run, batches + 1);
 
 		// reset batch generator
 		series.getBatchGenerator().reset();
@@ -190,7 +184,6 @@ public class SeriesGeneration {
 		if (compare) {
 			SeriesGeneration.compareMetrics(series);
 		}
-		rd.getBatches().add(initialData);
 		if (write) {
 			initialData.write(Dir.getBatchDataDir(series.getDir(), run,
 					initialData.getTimestamp()));
@@ -198,7 +191,6 @@ public class SeriesGeneration {
 
 		// generate batch data
 		for (int i = 0; i < batches; i++) {
-
 			if (!series.getBatchGenerator().isFurtherBatchPossible(
 					series.getGraph())) {
 				Log.info("    no further batch possible (generated " + i
@@ -212,10 +204,10 @@ public class SeriesGeneration {
 			}
 
 			BatchData batchData = SeriesGeneration.generateNextBatch(series);
+
 			if (compare) {
 				SeriesGeneration.compareMetrics(series);
 			}
-			rd.getBatches().add(batchData);
 			if (write) {
 				batchData.write(Dir.getBatchDataDir(series.getDir(), run,
 						batchData.getTimestamp()));
@@ -224,8 +216,6 @@ public class SeriesGeneration {
 
 		timer.end();
 		Log.info(timer.toString());
-
-		return rd;
 	}
 
 	private static boolean compareMetrics(Series series) {

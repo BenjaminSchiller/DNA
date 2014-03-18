@@ -455,9 +455,7 @@ public class Aggregation {
 						.get(batchX).getMetrics().get(metricX).getValues();
 
 				String destDir = Dir.getMetricDataDir(
-						Dir.getBatchDataDir(aggDir, batchXTimestamp), metricX,
-						rdList.get(maxBatchesRunIndex).getBatches().get(batchX)
-								.getMetrics().get(metricX).getType());
+						Dir.getBatchDataDir(aggDir, batchXTimestamp), metricX);
 
 				// reading metric X for batch X for each run from filesystem
 				MetricData[] Metrics = new MetricData[runs];
@@ -473,10 +471,8 @@ public class Aggregation {
 								seriesData.getDir(), rdList.get(i).getRun()),
 								tempTimestamp);
 						Metrics[i] = MetricData.read(
-								Dir.getMetricDataDir(dir, metricX, rdList
-										.get(i).getBatches().get(batchX)
-										.getMetrics().get(metricX).getType()),
-								metricX, true);
+								Dir.getMetricDataDir(dir, metricX), metricX,
+								true);
 					}
 				}
 
