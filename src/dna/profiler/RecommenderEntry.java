@@ -37,4 +37,35 @@ public class RecommenderEntry implements Comparable<RecommenderEntry> {
 		return costs.compareTo(o.costs);
 	}
 
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result
+				+ ((datastructures == null) ? 0 : datastructures.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (obj == null) {
+			return false;
+		}
+		if (getClass() != obj.getClass()) {
+			return false;
+		}
+		RecommenderEntry other = (RecommenderEntry) obj;
+		if (datastructures == null) {
+			if (other.datastructures != null) {
+				return false;
+			}
+		} else if (!datastructures.equals(other.datastructures)) {
+			return false;
+		}
+		return true;
+	}
+
 }

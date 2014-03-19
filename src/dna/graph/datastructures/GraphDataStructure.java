@@ -712,15 +712,24 @@ public class GraphDataStructure {
 		return UndirectedEdge.class.isAssignableFrom(edgeType);
 	}
 
+	public EnumMap<ListType, Class<? extends IDataStructure>> getStorageDataStructures() {
+		EnumMap<ListType, Class<? extends IDataStructure>> result = new EnumMap<DataStructure.ListType, Class<? extends IDataStructure>>(ListType.class);
+		for (ListType lt : ListType.values()) {
+			result.put(lt, getListClass(lt));
+		}
+		return result;
+	}
+
 	public String getStorageDataStructures(boolean getSimpleNames) {
 		StringBuilder res = new StringBuilder();
 		boolean first = true;
 		Class<?> clazz = null;
+		EnumMap<ListType, Class<? extends IDataStructure>> list = getStorageDataStructures();
 		for (ListType lt : ListType.values()) {
 			if (!first)
 				res.append(Config.get("DATASTRUCTURES_CLASS_DELIMITER"));
 			res.append(lt + "=");
-			clazz = getListClass(lt);
+			clazz = list.get(lt);
 			if (clazz == null)
 				res.append("null");
 			else

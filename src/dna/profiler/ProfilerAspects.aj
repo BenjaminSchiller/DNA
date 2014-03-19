@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.util.Stack;
 
 import dna.graph.Graph;
-import dna.graph.IElement;
 import dna.graph.datastructures.DataStructure;
 import dna.graph.datastructures.DataStructure.AccessType;
 import dna.graph.datastructures.GraphDataStructure;
@@ -24,6 +23,7 @@ import dna.util.Config;
 public aspect ProfilerAspects {
 	private static Stack<String> formerCountKey = new Stack<>(); 
 	private String currentCountKey;
+	private Graph currentGraph;
 
 	private String batchGeneratorName;
 	public static final String initialAddition = Config.get("PROFILER_INITIALBATCH_KEYADDITION");
@@ -98,9 +98,9 @@ public aspect ProfilerAspects {
 		currentCountKey = ((GraphGenerator) graphGenerator).getName();
 		Profiler.setInInitialBatch(false);
 		Profiler.setGraphGeneratorName(currentCountKey);
-		Graph res = proceed(graphGenerator);
+		currentGraph = proceed(graphGenerator);
 		currentCountKey = formerCountKey.pop();
-		return res;
+		return currentGraph;
 	}
 	
 	Batch around(BatchGenerator batchGenerator) : batchGeneration(batchGenerator) {
@@ -148,7 +148,7 @@ public aspect ProfilerAspects {
 	}
 
 	after(Graph g, GraphDataStructure gds) : initGDS(g, gds) {
-		Profiler.init(gds);
+		Profiler.init(g, gds);
 	}
 
 	after(DataStructure list, boolean firstTime): init(list, firstTime) {

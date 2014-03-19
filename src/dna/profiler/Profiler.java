@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TreeSet;
 
+import dna.graph.Graph;
 import dna.graph.datastructures.DEmpty;
 import dna.graph.datastructures.DataStructure;
 import dna.graph.datastructures.DataStructure.AccessType;
@@ -20,6 +21,7 @@ import dna.io.Writer;
 import dna.io.filesystem.Dir;
 import dna.io.filesystem.Files;
 import dna.profiler.ProfilerGranularity.Options;
+import dna.profiler.ProfilerMeasurementData.ProfilerDataType;
 import dna.profiler.datatypes.ComparableEntryMap;
 import dna.updates.update.Update.UpdateType;
 import dna.util.Config;
@@ -36,6 +38,7 @@ public class Profiler {
 
 	private static boolean active = false;
 	private static boolean inInitialBatch = false;
+	private static Graph graph;
 	private static GraphDataStructure gds;
 
 	private static String seriesDir;
@@ -46,6 +49,10 @@ public class Profiler {
 
 	final static String separator = System.getProperty("line.separator");
 
+	private static Map<ProfilerMeasurementData.ProfilerDataType, RecommenderEntry> lastRecommendations = new EnumMap<>(
+			ProfilerDataType.class);
+	private static Map<ProfilerMeasurementData.ProfilerDataType, RecommenderEntry> lastCosts = new EnumMap<>(
+			ProfilerDataType.class);
 
 	public static void activate() {
 		active = true;
@@ -66,13 +73,12 @@ public class Profiler {
 		return active;
 	}
 
-	public static void init(GraphDataStructure newGds) {
-		// This is initialization of profiles
-
+	public static void init(Graph g, GraphDataStructure newGds) {
 		if (!active)
 			return;
 
 		Log.debug("Created new graph with gds" + newGds.getDataStructures());
+		graph = g;
 		gds = newGds;
 	}
 
@@ -322,6 +328,10 @@ public class Profiler {
 					+ pollFirstEntry.getCosts();
 			res.append(separator);
 			res.append(outputPrefix + "   " + polledEntry);
+
+			if (i == 0) {
+				lastRecommendations.put(entryType, pollFirstEntry);
+			}
 		}
 
 		// res.append(separator + "  Bottom list: ");
@@ -359,8 +369,12 @@ public class Profiler {
 		res.append(resEntry.toString());
 		for (ProfilerMeasurementData.ProfilerDataType entryType : ProfilerMeasurementData.ProfilerDataType
 				.values()) {
-			res.append(" Aggr for " + entryType + ": "
-					+ resEntry.combinedComplexity(entryType, gds, null)
+			ComparableEntryMap aggregatedMap = resEntry.combinedComplexity(
+					entryType, gds, null);
+			RecommenderEntry aggregatedEntry = new RecommenderEntry(
+					aggregatedMap, gds.getStorageDataStructures());
+
+			res.append(" Aggr for " + entryType + ": " + aggregatedMap
 					+ separator);
 			res.append(getOtherRuntimeComplexitiesForEntry(entryType, resEntry,
 					false, true));
@@ -457,14 +471,30 @@ public class Profiler {
 		res.append(aggregated.callsAsString(prefix));
 		for (ProfilerMeasurementData.ProfilerDataType entryType : ProfilerMeasurementData.ProfilerDataType
 				.values()) {
+			ComparableEntryMap aggregatedMap = aggregated.combinedComplexity(
+					entryType, gds, null);
+			RecommenderEntry aggregatedEntry = new RecommenderEntry(
+					aggregatedMap, gds.getStorageDataStructures());
+			lastCosts.put(entryType, aggregatedEntry);
 			res.append(outputPrefix + " Aggr for " + entryType + ": "
-					+ aggregated.combinedComplexity(entryType, gds, null)
-					+ separator);
+					+ aggregatedMap + separator);
 			if (showRecommendations)
 				res.append(getOtherRuntimeComplexitiesForEntry(entryType,
 						aggregated, outputAsCommentWithPrefix, false));
 		}
 		return res.toString();
+	}
+
+	public static void writeAggregation(Map<String, ProfileEntry> calls,
+			String dir, boolean additionalCond) throws IOException {
+		boolean enabledHotswap = Config.getBoolean("HOTSWAP_ENABLED");
+		Profiler.write(calls, dir,
+				Files.getProfilerFilename(Config.get("AGGREGATED_PROFILER")),
+				enabledHotswap || additionalCond);
+		if (enabledHotswap) {
+			HotSwap.addNewResults();
+			HotSwap.trySwap(graph);
+		}
 	}
 
 	public static void write(Map<String, ProfileEntry> calls, String dir,
@@ -548,9 +578,7 @@ public class Profiler {
 		boolean rec = ProfilerGranularity.isEnabled(Options.EACHSERIES);
 
 		try {
-			Profiler.write(singleSeriesCalls, seriesDir, Files
-					.getProfilerFilename(Config.get("AGGREGATED_PROFILER")),
-					true);
+			Profiler.writeAggregation(singleSeriesCalls, seriesDir, true);
 
 			Profiler.writeMultiple(singleSeriesCalls,
 					batchGeneratorNames.toArray(new String[0]), seriesDir,
@@ -583,9 +611,7 @@ public class Profiler {
 					runDataDir, Files.getProfilerFilename(Config
 							.get("GRAPHGENERATOR_PROFILER")), rec);
 
-			Profiler.write(singleRunCalls, runDataDir, Files
-					.getProfilerFilename(Config.get("AGGREGATED_PROFILER")),
-					rec);
+			Profiler.writeAggregation(singleRunCalls, runDataDir, rec);
 
 			Profiler.writeMultiple(singleRunCalls,
 					batchGeneratorNames.toArray(new String[0]), runDataDir,
@@ -612,9 +638,8 @@ public class Profiler {
 		singleRunCalls = merge(singleRunCalls, singleBatchCalls);
 
 		try {
-			Profiler.write(singleBatchCalls, batchDir, Files
-					.getProfilerFilename(Config.get("AGGREGATED_PROFILER")),
-					false);
+			Profiler.writeAggregation(singleBatchCalls, batchDir,
+					ProfilerGranularity.isEnabled(Options.EACHBATCH));
 			Profiler.writeMultiple(singleBatchCalls,
 					metricNames.toArray(new String[0]), batchDir,
 					Files.getProfilerFilename(Config.get("METRIC_PROFILER")),
@@ -666,5 +691,15 @@ public class Profiler {
 			return 0;
 		double accumulatedNumberOfElements = listSizeCounter.get(lt);
 		return accumulatedNumberOfElements / numberOfLists;
+	}
+
+	public static RecommenderEntry getRecommendation(
+			ProfilerMeasurementData.ProfilerDataType selector) {
+		return lastRecommendations.get(selector);
+	}
+
+	public static RecommenderEntry getLastCosts(
+			ProfilerMeasurementData.ProfilerDataType selector) {
+		return lastCosts.get(selector);
 	}
 }
