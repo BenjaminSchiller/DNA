@@ -204,15 +204,25 @@ public class MetricData implements ListItem {
 	 */
 	public static MetricData read(String dir, String name, boolean readValues)
 			throws IOException {
+		String tempName = name;
 		String[] temp = dir.split("\\" + Config.get("FILE_NAME_DELIMITER"));
 		MetricType tempType = MetricType.unknown;
 		try {
-			if (temp[temp.length - 1].equals(MetricType.exact.name() + "/"))
+			if (temp[temp.length - 1].equals(MetricType.exact.name() + "/")) {
 				tempType = MetricType.exact;
-			if (temp[temp.length - 1].equals(MetricType.heuristic.name() + "/"))
+				tempName = name.replace(Config.get("FILE_NAME_DELIMITER")
+						+ MetricType.exact.name(), "");
+			}
+			if (temp[temp.length - 1].equals(MetricType.heuristic.name() + "/")) {
 				tempType = MetricType.heuristic;
-			if (temp[temp.length - 1].equals(MetricType.quality.name() + "/"))
+				tempName = name.replace(Config.get("FILE_NAME_DELIMITER")
+						+ MetricType.heuristic.name(), "");
+			}
+			if (temp[temp.length - 1].equals(MetricType.quality.name() + "/")) {
 				tempType = MetricType.quality;
+				tempName = name.replace(Config.get("FILE_NAME_DELIMITER")
+						+ MetricType.quality.name(), "");
+			}
 		} catch (IndexOutOfBoundsException e) {
 			Log.warn("Attempting to read metric " + name + " at " + dir
 					+ " ! No MetricType detected!");
@@ -223,7 +233,7 @@ public class MetricData implements ListItem {
 		NodeValueListList nodevalues = NodeValueListList.read(dir, readValues);
 		NodeNodeValueListList nodenodevalues = NodeNodeValueListList.read(dir,
 				readValues);
-		return new MetricData(name, tempType, values, distributions,
+		return new MetricData(tempName, tempType, values, distributions,
 				nodevalues, nodenodevalues);
 	}
 
