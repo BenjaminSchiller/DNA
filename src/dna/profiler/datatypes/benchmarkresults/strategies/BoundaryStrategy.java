@@ -67,7 +67,7 @@ public class BoundaryStrategy extends ResultProcessingStrategy {
 							+ this.getClass().getSimpleName()
 							+ " will return erroneous results, as the given meanListSize of "
 							+ meanListSize + " exceeds the upper bound of "
-							+ buckets.get(bucketSelector)
+							+ bucketSelector
 							+ " in the benchmarking results");
 		}
 		return bucketSelector;
@@ -90,10 +90,10 @@ public class BoundaryStrategy extends ResultProcessingStrategy {
 					return lowerValue;
 
 				if (lowerSelector != buckets.firstKey()) {
-					lowerSelector = getLowerKey(lowerValue - 1);
+					lowerSelector = getLowerKey(meanListSize - 1);
 					lowerValue = buckets.get(lowerSelector);
 				} else {
-					higherSelector = getUpperKey(lowerValue + 1);
+					higherSelector = getUpperKey(meanListSize + 1);
 				}
 			}
 
