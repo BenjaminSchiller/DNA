@@ -28,7 +28,7 @@ import dna.graph.nodes.Node;
 import dna.util.Config;
 import dna.util.Rand;
 
-@BenchClass
+@BenchClass(runs=-1)
 public class BenchmarkingExperiments {
 	private static Class<? extends IDataStructure> classToBenchmark;
 
