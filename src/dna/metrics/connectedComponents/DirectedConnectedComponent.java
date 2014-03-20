@@ -216,7 +216,7 @@ public abstract class DirectedConnectedComponent extends Metric {
 		if (this.dag.isEmpty()) {
 			return 0d;
 		} else {
-			return this.g.getNodeCount() / this.dag.size();
+			return (double) this.g.getNodeCount() / (double) this.dag.size();
 		}
 	}
 
