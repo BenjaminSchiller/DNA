@@ -46,6 +46,11 @@ public abstract class RootMeanSquareDeviation<W> extends Metric {
 		super(name, type, metricType);
 	}
 
+	protected void initDistr() {
+		this.distr = new BinnedDistributionInt("DeviationDistribution", 0.1,
+				new int[0], 0);
+	}
+
 	/**
 	 * Returns the current weight of the given node. null is returned in case
 	 * the node does not have a double- or int-array weight.

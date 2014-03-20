@@ -24,8 +24,7 @@ public class RootMeanSquareDeviationU<W> extends RootMeanSquareDeviation<W> {
 	public boolean applyBeforeBatch(Batch b) {
 		this.changes = 0;
 		this.rmsd = 0;
-		this.distr = new BinnedDistributionInt("DeviationDistribution", 0.1,
-				new int[0], 0);
+		this.initDistr();
 		for (NodeWeight u : b.getNodeWeights()) {
 			double deviation = this.getDeviation(
 					this.getWeight(this.g.getNode(u.getNode().getIndex())),

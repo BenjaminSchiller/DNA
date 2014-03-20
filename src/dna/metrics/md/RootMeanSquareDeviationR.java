@@ -88,8 +88,7 @@ public class RootMeanSquareDeviationR<W> extends RootMeanSquareDeviation<W> {
 	public boolean compute() {
 		this.changes = 0;
 		this.rmsd = 0;
-		this.distr = new BinnedDistributionInt("DeviationDistribution", 0.1,
-				new int[0], 0);
+		this.initDistr();
 		if (this.positions == null) {
 			this.positions = new HashMap<Integer, W>();
 			for (IElement n : this.g.getNodes()) {
@@ -103,7 +102,7 @@ public class RootMeanSquareDeviationR<W> extends RootMeanSquareDeviation<W> {
 					double deviation = this
 							.getDeviation(old, this.getWeight(n));
 					this.rmsd += deviation;
-					this.distr.incr((int) Math.floor(deviation / 0.1));
+					this.distr.incr(deviation);
 					this.changes++;
 				}
 				this.positions.put(n.getIndex(), this.getWeight(n));
