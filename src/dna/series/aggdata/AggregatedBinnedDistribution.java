@@ -65,18 +65,12 @@ public class AggregatedBinnedDistribution extends AggregatedDistribution {
 			double[][] values) throws IOException {
 		Writer w = new Writer(dir, filename);
 
-		String[] binsizeSplit = Double.toString(binsize).split("\\.");
-		int decimal = binsizeSplit[1].length();
-
 		for (int i = 0; i < values.length; i++) {
 			String temp = "";
 			for (int j = 0; j < values[i].length; j++) {
 				if (j == 0) {
 					String v = Double.toString(values[i][j] * binsize);
-					String[] value = v.split("\\.");
-					String index = value[0] + "."
-							+ value[1].substring(0, decimal);
-					temp += index + Config.get("AGGREGATED_DATA_DELIMITER");
+					temp += v + Config.get("AGGREGATED_DATA_DELIMITER");
 				} else {
 					if (j == values[i].length - 1)
 						temp += values[i][j];
