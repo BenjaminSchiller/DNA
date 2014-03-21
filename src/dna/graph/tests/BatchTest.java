@@ -31,6 +31,7 @@ import dna.graph.edges.UndirectedEdge;
 import dna.graph.generators.GraphGenerator;
 import dna.graph.generators.IGraphGenerator;
 import dna.graph.generators.canonical.CliqueGraph;
+import dna.graph.generators.evolvingNetworks.BarabasiAlbertGraph;
 import dna.graph.generators.util.EmptyGraph;
 import dna.graph.nodes.DirectedNode;
 import dna.graph.nodes.IWeightedNode;
@@ -84,9 +85,21 @@ public class BatchTest {
 
 		this.gds = new GraphDataStructure(listTypes, nodeType, edgeType);
 		try {
-			generatorConstructor = generator.getConstructor(
-					GraphDataStructure.class, int.class, int.class);
-			gg = generatorConstructor.newInstance(gds, nodeSize, edgeSize);
+			if (generator == BarabasiAlbertGraph.class) {
+				generatorConstructor = generator.getConstructor(
+						GraphDataStructure.class, int.class, int.class,
+						int.class, int.class);
+				int nodesToAdd = 5;
+				int edgesPerNode = 2;
+
+				gg = generatorConstructor.newInstance(gds, nodeSize
+						- nodesToAdd, edgeSize - (nodesToAdd * edgesPerNode),
+						nodesToAdd, edgesPerNode);
+			} else {
+				generatorConstructor = generator.getConstructor(
+						GraphDataStructure.class, int.class, int.class);
+				gg = generatorConstructor.newInstance(gds, nodeSize, edgeSize);
+			}
 		} catch (NoSuchMethodException e) {
 			generatorConstructor = generator.getConstructor(
 					GraphDataStructure.class, int.class);
@@ -199,7 +212,7 @@ public class BatchTest {
 			IllegalArgumentException, InvocationTargetException {
 		Constructor<? extends GraphGenerator> generatorConstructor;
 		GraphDataStructure gds;
-		
+
 		ArrayList<EnumMap<ListType, Class<? extends IDataStructure>>> simpleCombinations = GraphDataStructure
 				.getSimpleDatastructureCombinations();
 
@@ -226,10 +239,22 @@ public class BatchTest {
 								edgeType);
 						GraphGenerator gg;
 						try {
-							generatorConstructor = generator.getConstructor(
-									GraphDataStructure.class, int.class,
-									int.class);
-							gg = generatorConstructor.newInstance(gds, 0, 0);
+							if (generator == BarabasiAlbertGraph.class) {
+								generatorConstructor = generator
+										.getConstructor(
+												GraphDataStructure.class,
+												int.class, int.class,
+												int.class, int.class);
+								gg = generatorConstructor.newInstance(gds, 0,
+										0, 0, 0);
+							} else {
+								generatorConstructor = generator
+										.getConstructor(
+												GraphDataStructure.class,
+												int.class, int.class);
+								gg = generatorConstructor
+										.newInstance(gds, 0, 0);
+							}
 						} catch (NoSuchMethodException e) {
 							generatorConstructor = generator.getConstructor(
 									GraphDataStructure.class, int.class);

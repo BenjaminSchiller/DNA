@@ -27,7 +27,7 @@ public class DHashSet extends DataStructureReadable implements
 	}
 
 	@Override
-	public void init(Class<? extends IElement> dT, int initialSize) {
+	public void init(Class<? extends IElement> dT, int initialSize, boolean firstTime) {
 		if (Node.class.isAssignableFrom(dT)) {
 			// System.out.println("Warning: DHashSet is *incredibly* slow on "
 			// + "removing nodes and recalculating the new maxNodeIndex!");

@@ -21,6 +21,8 @@ public class ReadableFileGraph extends GraphGenerator {
 	private String dir;
 
 	private String filename;
+	
+	private Graph g;
 
 	/**
 	 * 
@@ -49,20 +51,22 @@ public class ReadableFileGraph extends GraphGenerator {
 		super(GraphReader.readName(dir, filename), null, gds, -1, -1, -1);
 		this.dir = dir;
 		this.filename = filename;
+		try {
+			if (this.gds == null) {
+				this.g = GraphReader.read(this.dir, this.filename);
+				this.gds = g.getGraphDatastructures();
+			} else {
+				this.g = GraphReader.read(this.dir, this.filename, this.gds);
+			}
+		} catch (IOException | ClassNotFoundException e) {
+			e.printStackTrace();
+		}
+
 	}
 
 	@Override
 	public Graph generate() {
-		try {
-			if (this.gds == null) {
-				return GraphReader.read(this.dir, this.filename);
-			} else {
-				return GraphReader.read(this.dir, this.filename, this.gds);
-			}
-		} catch (IOException | ClassNotFoundException e) {
-			e.printStackTrace();
-			return null;
-		}
+		return g;
 	}
 
 }

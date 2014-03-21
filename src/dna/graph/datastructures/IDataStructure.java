@@ -16,8 +16,13 @@ public interface IDataStructure extends Iterable<IElement> {
 	 * @param dataType
 	 *            Data type to be stored here
 	 * @param initialSize
+	 *            Default list size
+	 * @param firstTime
+	 *            Is this called for the first time? Necessary for the profiler,
+	 *            to distinguish constructor calls and following, where the list
+	 *            is only re-initialized
 	 */
-	public void init(Class<? extends IElement> dataType, int initialSize);
+	public void init(Class<? extends IElement> dataType, int initialSize, boolean firstTime);
 
 	/**
 	 * Reinitialize this data structure with a new size

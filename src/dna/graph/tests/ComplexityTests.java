@@ -8,79 +8,75 @@ import java.util.TreeMap;
 import org.junit.Test;
 
 import dna.graph.datastructures.GraphDataStructure;
-import dna.profiler.complexity.AddedComplexity;
-import dna.profiler.complexity.Complexity;
-import dna.profiler.complexity.ComplexityMap;
-import dna.profiler.complexity.ComplexityType;
-import dna.profiler.complexity.ComplexityType.Base;
-import dna.profiler.complexity.ComplexityType.Type;
+import dna.profiler.datatypes.AddedComparableEntry;
+import dna.profiler.datatypes.ComparableEntry;
+import dna.profiler.datatypes.ComparableEntryMap;
+import dna.profiler.datatypes.complexity.Complexity;
+import dna.profiler.datatypes.complexity.ComplexityMap;
+import dna.profiler.datatypes.complexity.ComplexityType;
+import dna.profiler.datatypes.complexity.ComplexityType.Base;
+import dna.profiler.datatypes.complexity.ComplexityType.Type;
 
 public class ComplexityTests {
 	private ComplexityType c = new ComplexityType(Type.Static, null);
 
 	@Test
 	public void simpleAdditionOfSameKind() {
-		Complexity c1 = new Complexity(1, c);
-		Complexity c2 = new Complexity(1, c);
+		ComparableEntry c1 = new Complexity(1, c);
+		ComparableEntry c2 = new Complexity(1, c);
 
-		c1.setCounter(c1.getComplexityCounter() + 1);
-		c2.setCounter(c2.getComplexityCounter() + 1);
+		c1.setCounter(c1.getCounter() + 1);
+		c2.setCounter(c2.getCounter() + 1);
 
-		Complexity c3 = new AddedComplexity(c1, c2);
-		assertEquals(2, c3.getComplexityCounter());
+		ComparableEntry c3 = new AddedComparableEntry(c1, c2);
+		assertEquals(2, c3.getCounter());
 
-		ComplexityMap complexityMap = c3.getComplexityMap();
-		assertEquals(2, (int) complexityMap.get(c));
-
-		ComplexityMap weightedComplexityMap = c3.getWeightedComplexityMap();
+		ComplexityMap weightedComplexityMap = (ComplexityMap) c3.getMap();
 		assertEquals(2, (int) weightedComplexityMap.get(c));
 	}
 
 	@Test
 	public void simpleAdditionOfSameKindWithDifferentFactor() {
-		Complexity c1 = new Complexity(1, c);
-		Complexity c2 = new Complexity(3, c);
+		ComparableEntry c1 = new Complexity(1, c);
+		ComparableEntry c2 = new Complexity(3, c);
 
-		c1.setCounter(c1.getComplexityCounter() + 2);
-		c2.setCounter(c2.getComplexityCounter() + 4);
+		c1.setCounter(c1.getCounter() + 2);
+		c2.setCounter(c2.getCounter() + 4);
 
-		ComplexityMap weightedComplexityMap = c1.getWeightedComplexityMap();
+		ComplexityMap weightedComplexityMap = (ComplexityMap) c1.getMap();
 		assertEquals(2, (int) weightedComplexityMap.get(c));
-		weightedComplexityMap = c2.getWeightedComplexityMap();
+		weightedComplexityMap = (ComplexityMap) c2.getMap();
 		assertEquals(12, (int) weightedComplexityMap.get(c));
 
-		Complexity c3 = new AddedComplexity(c1, c2);
-		assertEquals(6, c3.getComplexityCounter());
+		ComparableEntry c3 = new AddedComparableEntry(c1, c2);
+		assertEquals(6, c3.getCounter());
 
-		ComplexityMap complexityMap = c3.getComplexityMap();
-		assertEquals(6, (int) complexityMap.get(c));
-
-		weightedComplexityMap = c3.getWeightedComplexityMap();
+		weightedComplexityMap = (ComplexityMap) c3.getMap();
 		assertEquals(14, (int) weightedComplexityMap.get(c));
 	}
 
 	@Test
 	public void nestedAdditionWithDifferentFactor() {
-		Complexity c1 = new Complexity(1, c);
-		Complexity c2 = new Complexity(3, c);
+		ComparableEntry c1 = new Complexity(1, c);
+		ComparableEntry c2 = new Complexity(3, c);
 
-		c1.setCounter(c1.getComplexityCounter() + 2);
-		c2.setCounter(c2.getComplexityCounter() + 4);
+		c1.setCounter(c1.getCounter() + 2);
+		c2.setCounter(c2.getCounter() + 4);
 		
-		Complexity c3 = new AddedComplexity(c1, c2);
-		Complexity c4 = new AddedComplexity(c3, c2);
-		assertEquals(10, c4.getComplexityCounter());
+		ComparableEntry c3 = new AddedComparableEntry(c1, c2);
+		ComparableEntry c4 = new AddedComparableEntry(c3, c2);
+		assertEquals(10, c4.getCounter());
 
-		ComplexityMap weightedComplexityMap = c1.getWeightedComplexityMap();
+		ComplexityMap weightedComplexityMap = (ComplexityMap) c1.getMap();
 		assertEquals(2, (int) weightedComplexityMap.get(c));
 
-		weightedComplexityMap = c2.getWeightedComplexityMap();
+		weightedComplexityMap = (ComplexityMap) c2.getMap();
 		assertEquals(12, (int) weightedComplexityMap.get(c));
 
-		weightedComplexityMap = c3.getWeightedComplexityMap();
+		weightedComplexityMap = (ComplexityMap) c3.getMap();
 		assertEquals(14, (int) weightedComplexityMap.get(c));
 
-		weightedComplexityMap = c4.getWeightedComplexityMap();
+		weightedComplexityMap = (ComplexityMap) c4.getMap();
 		assertEquals(26, (int) weightedComplexityMap.get(c));
 	}
 
@@ -296,7 +292,7 @@ public class ComplexityTests {
 		assertEquals(unknownCompl, entrySet[4].getKey());
 	}
 
-	private <T extends java.lang.Comparable<T>> void assertFirstIsSmallerThanSecond(T one,
+	private <T extends ComparableEntryMap> void assertFirstIsSmallerThanSecond(T one,
 			T two) {
 		/**
 		 * As a remark: a.compareTo(b) returns the following results:

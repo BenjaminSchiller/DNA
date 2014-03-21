@@ -24,7 +24,7 @@ public class DLinkedList extends DataStructureReadable implements
 		super(lt, dT);
 	}
 
-	public void init(Class<? extends IElement> dT, int initialSize) {
+	public void init(Class<? extends IElement> dT, int initialSize, boolean firstTime) {
 		this.list = new LinkedList<IElement>();
 		this.maxNodeIndex = -1;
 	}
@@ -122,23 +122,20 @@ public class DLinkedList extends DataStructureReadable implements
 			}
 		}
 
-		// check nodes before $index
-		if (n == null || n.getIndex() > index) {
-			for (int i = Math.min(index - 1, this.list.size() - 1); i >= 0; i--) {
-				Node n2 = (Node) this.list.get(i);
-				if (n2 != null && n2.getIndex() == index) {
-					return n2;
-				}
+		// check nodes around $index in both directions
+		Node n2;
+		int i;
+		for (i = index; i < this.list.size(); i++) {
+			n2 = (Node) this.list.get(i);
+			if (n2 != null && n2.getIndex() == index) {
+				return n2;
 			}
 		}
 
-		// check nodes after $index
-		if (n == null || n.getIndex() < index) {
-			for (int i = index + 1; i < this.list.size(); i++) {
-				Node n2 = (Node) this.list.get(i);
-				if (n2 != null && n2.getIndex() == index) {
-					return n2;
-				}
+		for (i = Math.min(this.list.size() - 1, index); i >= 0; i--) {
+			n2 = (Node) this.list.get(i);
+			if (n2 != null && n2.getIndex() == index) {
+				return n2;
 			}
 		}
 
