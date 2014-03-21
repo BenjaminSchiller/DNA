@@ -121,10 +121,6 @@ public class BenchmarkingVisitor extends AbstractOutput {
 			e2.printStackTrace();
 		}
 
-		for (String s : resultList) {
-			System.out.println(s);
-		}
-
 		for (Entry<String, StringBuilder> e : fileWritersBufferData.entrySet()) {
 			// Get the proper fileWriter
 			Writer w = fileWriters.get(e.getKey());

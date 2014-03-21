@@ -28,7 +28,7 @@ import dna.graph.nodes.Node;
 import dna.util.Config;
 import dna.util.Rand;
 
-@BenchClass(runs=-1)
+@BenchClass(runs = -1)
 public class BenchmarkingExperiments {
 	private static Class<? extends IDataStructure> classToBenchmark;
 
@@ -58,16 +58,18 @@ public class BenchmarkingExperiments {
 	Integer i;
 
 	@SuppressWarnings("unchecked")
-	public BenchmarkingExperiments(String dsClass, BenchmarkingConf benchmarkingConf) {
+	public BenchmarkingExperiments(String dsClass,
+			BenchmarkingConf benchmarkingConf) {
 		try {
 			BenchmarkingExperiments.classToBenchmark = (Class<? extends IDataStructure>) Class
 					.forName(dsClass);
-			BenchmarkingExperiments.inputSizes = benchmarkingConf.getInputSizes();
+			BenchmarkingExperiments.inputSizes = benchmarkingConf
+					.getInputSizes();
 			this.operationSize = benchmarkingConf.getOperationSize();
 			this.maxListSize = (int) (getMax(inputSizes)
 					+ Math.ceil(operationSize / 2) + operationSize);
 			nodeList = new INode[maxListSize + 2];
-			edgeList = new IEdge[maxListSize + 2];			
+			edgeList = new IEdge[maxListSize + 2];
 		} catch (ClassNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -473,11 +475,17 @@ public class BenchmarkingExperiments {
 	}
 
 	public static void main(String[] args) {
+		long startTime = System.currentTimeMillis();
+
 		BenchmarkingConf benchmarkingConf = new BenchmarkingConf();
 		final Benchmark bm = new Benchmark(benchmarkingConf);
 		bm.add(new BenchmarkingExperiments(args[0], benchmarkingConf));
 		final BenchmarkResult res = bm.run();
 		new BenchmarkingVisitor(benchmarkingConf).visitBenchmark(res);
-		// new TabularSummaryOutput().visitBenchmark(res);
+
+		long endTime = System.currentTimeMillis();
+		long totalTime = (endTime - startTime) / (1000 * 60);
+		System.out.println("Benchmarking " + args[0] + " took " + totalTime
+				+ " minutes");
 	}
 }
