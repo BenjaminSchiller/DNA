@@ -35,7 +35,7 @@ public class BenchmarkingVisitor extends AbstractOutput {
 	public static final String aggregationFile = "aggregation" + rawExtension;
 
 	private BenchmarkingConf conf;
-	
+
 	public BenchmarkingVisitor(BenchmarkingConf benchmarkingConf) {
 		this.conf = benchmarkingConf;
 	}
@@ -70,9 +70,14 @@ public class BenchmarkingVisitor extends AbstractOutput {
 					try {
 						Collection<Double> results = methRes
 								.getResultSet(meter);
+						double maxElement = Collections.max(results);
 						Collection<Double> resultsNormalized = new ArrayList<Double>(
-								results.size());
+								results.size() - 1);
 						for (Double singleRes : results) {
+							if (singleRes == maxElement) {
+								maxElement = -1;
+								continue;
+							}
 							resultsNormalized.add(singleRes
 									/ conf.getOperationSize());
 						}

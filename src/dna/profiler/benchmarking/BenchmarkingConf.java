@@ -16,7 +16,7 @@ import dna.util.Config;
 
 public class BenchmarkingConf extends AbstractConfig {
 
-	private final static int RUNS = Config.getInt("BENCHMARKING_RUNS");
+	private final static int RUNS = Config.getInt("BENCHMARKING_RUNS") + 1;
 	private final static Set<AbstractMeter> METERS = new HashSet<AbstractMeter>();
 	private final static Set<AbstractOutput> OUTPUT = new HashSet<AbstractOutput>();
 
