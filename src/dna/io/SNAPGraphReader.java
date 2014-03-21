@@ -6,6 +6,7 @@ import java.util.HashMap;
 import com.sun.media.sound.InvalidFormatException;
 
 import dna.graph.Graph;
+import dna.graph.datastructures.DataStructure.ListType;
 import dna.graph.datastructures.GraphDataStructure;
 import dna.graph.nodes.Node;
 import dna.util.Config;
@@ -43,7 +44,7 @@ public class SNAPGraphReader {
 	 * @param filename
 	 *            the name of the file containing the SNAP graph
 	 * @param ds
-	 *            the datastructure the constructed graph shall have
+	 *            the data structure the constructed graph shall have
 	 * @return the name as a string
 	 * @throws IOException
 	 *             in case the file does not exist there
@@ -63,7 +64,12 @@ public class SNAPGraphReader {
 		if (ds == null) {
 			if (structure.contains(Config.get("SNAP_GRAPH_KEYWORD_DIRECTED"))) {
 
-				ds = new GraphDataStructure(directedGDSSetup);
+				//ds = new GraphDataStructure(directedGDSSetup);
+				ds = new GraphDataStructure(
+						GraphDataStructure.getList(ListType.GlobalNodeList,
+						DArray.class, ListType.GlobalEdgeList, DHashMap.class,
+						ListType.LocalEdgeList, DArrayList.class),
+						DirectedNode.class, DirectedEdge.class);
 			} else if (structure.contains(Config
 					.get("SNAP_GRAPH_KEYWORD_UNDIRECTED"))) {
 
