@@ -1,5 +1,6 @@
 package dna.graph;
 
+import java.math.BigInteger;
 import java.util.Collection;
 import java.util.Iterator;
 
@@ -194,12 +195,14 @@ public class Graph {
 	 * @return maximum number of edges the graph could have with the current
 	 *         number of nodes
 	 */
-	public int getMaxEdgeCount() {
-		if (this.isDirected()) {
-			return this.getNodeCount() * (this.getNodeCount() - 1);
-		} else {
-			return this.getNodeCount() * (this.getNodeCount() - 1) / 2;
+	public BigInteger getMaxEdgeCount() {
+		int nodeCount = this.getNodeCount();
+		BigInteger res = BigInteger.valueOf(nodeCount);
+		res = res.multiply(BigInteger.valueOf(nodeCount - 1));
+		if (!this.isDirected()) {
+			res = res.divide(BigInteger.valueOf(2));
 		}
+		return res;
 	}
 
 	public void setName(String name) {
