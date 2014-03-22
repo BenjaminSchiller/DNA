@@ -6,9 +6,17 @@ import java.util.HashMap;
 import com.sun.media.sound.InvalidFormatException;
 
 import dna.graph.Graph;
+import dna.graph.datastructures.DArray;
+import dna.graph.datastructures.DArrayList;
+import dna.graph.datastructures.DHashMap;
 import dna.graph.datastructures.DataStructure.ListType;
 import dna.graph.datastructures.GraphDataStructure;
 import dna.graph.nodes.Node;
+import dna.graph.nodes.DirectedNode;
+import dna.graph.nodes.UndirectedNode;
+import dna.graph.edges.Edge;
+import dna.graph.edges.DirectedEdge;
+import dna.graph.edges.UndirectedEdge;
 import dna.util.Config;
 
 /**
@@ -19,8 +27,17 @@ import dna.util.Config;
  */
 public class SNAPGraphReader {
 
-	private final static String directedGDSSetup = "GlobalNodeList=dna.graph.datastructures.DHashMap;GlobalEdgeList=dna.graph.datastructures.DHashMap;LocalNodeList=dna.graph.datastructures.DHashMap;LocalEdgeList=dna.graph.datastructures.DHashMap;LocalInEdgeList=dna.graph.datastructures.DHashMap;LocalOutEdgeList=dna.graph.datastructures.DHashMap;node=dna.graph.nodes.DirectedNode;edge=dna.graph.edges.DirectedEdge";
-	private final static String undirectedGDSSetup = "GlobalNodeList=dna.graph.datastructures.DHashMap;GlobalEdgeList=dna.graph.datastructures.DHashMap;LocalNodeList=dna.graph.datastructures.DHashMap;LocalEdgeList=dna.graph.datastructures.DHashMap;LocalInEdgeList=dna.graph.datastructures.DHashMap;LocalOutEdgeList=dna.graph.datastructures.DHashMap;node=dna.graph.nodes.UndirectedNode;edge=dna.graph.edges.UndirectedEdge";
+	private static GraphDataStructure directedGDSSetup = new GraphDataStructure(
+			GraphDataStructure.getList(ListType.GlobalNodeList, DArray.class,
+					ListType.GlobalEdgeList, DHashMap.class,
+					ListType.LocalEdgeList, DArrayList.class),
+			DirectedNode.class, DirectedEdge.class);
+
+	private static GraphDataStructure undirectedGDSSetup = new GraphDataStructure(
+			GraphDataStructure.getList(ListType.GlobalNodeList, DArray.class,
+					ListType.GlobalEdgeList, DHashMap.class,
+					ListType.LocalEdgeList, DArrayList.class),
+			UndirectedNode.class, UndirectedEdge.class);
 
 	/**
 	 * Creates a graph out of an file with a SNAP based graph
@@ -53,6 +70,9 @@ public class SNAPGraphReader {
 			throws IOException {
 
 		HashMap<Integer, Integer> map = new HashMap<Integer, Integer>();
+		// For the case that the IDs are higher than 2.147.483.648, use long
+		// instead
+		// HashMap<Long, Integer> map = new HashMap<Long, Integer>();
 
 		// Creates the reader
 		Reader reader = new Reader(dir, filename);
@@ -64,16 +84,11 @@ public class SNAPGraphReader {
 		if (ds == null) {
 			if (structure.contains(Config.get("SNAP_GRAPH_KEYWORD_DIRECTED"))) {
 
-				//ds = new GraphDataStructure(directedGDSSetup);
-				ds = new GraphDataStructure(
-						GraphDataStructure.getList(ListType.GlobalNodeList,
-						DArray.class, ListType.GlobalEdgeList, DHashMap.class,
-						ListType.LocalEdgeList, DArrayList.class),
-						DirectedNode.class, DirectedEdge.class);
+				ds = directedGDSSetup;
 			} else if (structure.contains(Config
 					.get("SNAP_GRAPH_KEYWORD_UNDIRECTED"))) {
 
-				ds = new GraphDataStructure(undirectedGDSSetup);
+				ds = undirectedGDSSetup;
 			} else {
 
 				throw new InvalidFormatException("Expected keyword '"
@@ -107,17 +122,36 @@ public class SNAPGraphReader {
 
 		// Creates the graph
 		Graph g = ds.newGraphInstance(name, 0, nodeCount, edgeCount);
-
+		System.out.println(name);
+		System.out.println(nodeCount);
+		System.out.println(edgeCount);
 		// Reads and adds the edges
 		String line = reader.readString();
 		int nodeID = 0;
+		double percentage = 0.05;
 		if (line.contains(Config.get("SNAP_GRAPH_KEYWORD_EDGES_LIST"))) {
 			while ((line = reader.readString()) != null) {
-				System.out.println(nodeID);
+				// Notification system
+				if (((double) nodeID / (double) nodeCount) >= percentage) {
+					System.out.println("Reading: "
+							+ Math.round(percentage * 100) + "% finished.");
+					percentage += 0.05;
+				}
+
 				int tabIndex = line.indexOf('\t');
 				int srcIndex = Integer.parseInt(line.substring(0, tabIndex));
 				int destIndex = Integer.parseInt(line.substring(tabIndex + 1,
 						line.length()));
+
+				// For the case the IDs are too long to be seperated through a
+				// tab use this instead
+				// int tabIndex = line.indexOf(' ');
+
+				// For the case you use the <long, int> HashMap
+				// long srcIndex = Long.parseLong(line.substring(0, tabIndex));
+				// long destIndex = Long.parseLong(line.substring(tabIndex + 1,
+				// line.length()));
+
 				Node src;
 				Node dest;
 				if (map.containsKey(srcIndex)) {
@@ -136,16 +170,10 @@ public class SNAPGraphReader {
 					g.addNode(dest);
 					nodeID++;
 				}
-				// TODO entfernen falls nicht mehr benötigt
-				/*
-				 * Node src = g.getNode(srcIndex); Node dest =
-				 * g.getNode(destIndex); if (src == null) {
-				 * g.addNode(ds.newNodeInstance(srcIndex)); src =
-				 * g.getNode(srcIndex); } if (dest == null) {
-				 * g.addNode(ds.newNodeInstance(destIndex)); dest =
-				 * g.getNode(destIndex); }
-				 */
-				g.addEdge(ds.newEdgeInstance(src, dest));
+				Edge e = ds.newEdgeInstance(src, dest);
+				g.addEdge(e);
+				e.connectToNodes();
+
 			}
 		}
 
