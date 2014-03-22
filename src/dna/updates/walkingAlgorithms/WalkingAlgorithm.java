@@ -46,7 +46,7 @@ public abstract class WalkingAlgorithm extends BatchGenerator {
 	private int graphSize;
 	private int resource;
 	private int nodeDirection;
-	
+
 	private long timeStamp;
 
 	/**
@@ -88,7 +88,7 @@ public abstract class WalkingAlgorithm extends BatchGenerator {
 		} else {
 			takeResourceIntoAccount = false;
 		}
-		
+
 		timeStamp = 0;
 
 		firstIteration = true;
@@ -260,9 +260,9 @@ public abstract class WalkingAlgorithm extends BatchGenerator {
 					} else {
 						dstNode = g.getNode(neighbor.getIndex());
 					}
-
-					updateList.add(new EdgeAddition(gds.newEdgeInstance(
-							newNode, dstNode)));
+					Edge newEdge = gds.newEdgeInstance(newNode, dstNode);
+					newEdge.connectToNodes();
+					updateList.add(new EdgeAddition(newEdge));
 				} else {
 
 					// Nein -> Weiter
@@ -307,8 +307,9 @@ public abstract class WalkingAlgorithm extends BatchGenerator {
 						dstNode = g.getNode(neighbor.getIndex());
 					}
 
-					updateList.add(new EdgeAddition(gds.newEdgeInstance(
-							newNode, dstNode)));
+					Edge newEdge = gds.newEdgeInstance(newNode, dstNode);
+					newEdge.connectToNodes();
+					updateList.add(new EdgeAddition(newEdge));
 				}
 
 				// Ist der Nachbar in der gesehen Liste?
@@ -515,11 +516,11 @@ public abstract class WalkingAlgorithm extends BatchGenerator {
 	protected void noNodeFound() {
 		noFurtherBatch = true;
 	}
-	
+
 	/**
 	 * Returns the current timestamp
 	 */
-	protected long getTimeStamp(){
+	protected long getTimeStamp() {
 		return timeStamp;
 	}
 
