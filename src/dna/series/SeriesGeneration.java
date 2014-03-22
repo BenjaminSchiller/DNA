@@ -189,6 +189,9 @@ public class SeriesGeneration {
 					initialData.getTimestamp()));
 		}
 
+		// garbage collection counter
+		int gcCounter = 1;
+
 		// generate batch data
 		for (int i = 0; i < batches; i++) {
 			if (!series.getBatchGenerator().isFurtherBatchPossible(
@@ -211,6 +214,11 @@ public class SeriesGeneration {
 			if (write) {
 				batchData.write(Dir.getBatchDataDir(series.getDir(), run,
 						batchData.getTimestamp()));
+			}
+			// call garbage collection
+			if (series.isCallGC() && i == series.getGcOccurence() * gcCounter) {
+				System.gc();
+				gcCounter++;
 			}
 		}
 
@@ -450,10 +458,7 @@ public class SeriesGeneration {
 
 		// release batch
 		b = null;
-		// call garbage collection
-		if (series.isCallGC()) {
-			System.gc();
-		}
+
 		// record memory usage
 		double mem = (new Memory()).getUsed();
 		batchData.getValues().add(new Value(SeriesStats.memory, mem));
