@@ -44,7 +44,7 @@ public aspect ProfilerAspects {
 	pointcut initialMetric(Metric metricObject) : execution(* Metric+.compute()) && target(metricObject);
 	pointcut metricAppliedOnUpdate(Metric metricObject, Update updateObject) : (execution(* Metric+.applyBeforeUpdate(Update+))
 			 || execution(* Metric+.applyAfterUpdate(Update+))) && args(updateObject) && target(metricObject);
-	pointcut metricAppliedOnBatch(Metric metricObject, Update batchObject) : (execution(* Metric+.applyBeforeBatch(Batch+))
+	pointcut metricAppliedOnBatch(Metric metricObject, Batch batchObject) : (execution(* Metric+.applyBeforeBatch(Batch+))
 			 || execution(* Metric+.applyAfterBatch(Batch+))) && args(batchObject) && target(metricObject);
 	pointcut metricApplied() : cflow(initialMetric(*)) || cflow(metricAppliedOnUpdate(*, *)) || cflow(metricAppliedOnBatch(*, *));
 	pointcut writeMetric(MetricData md, String dir) : call(* MetricData.write(String)) && args(dir) && target(md);
@@ -137,6 +137,16 @@ public aspect ProfilerAspects {
 		currentCountKey = formerCountKey.pop();
 		return res;
 	}
+	
+	boolean around(Metric metricObject, Batch batchObject) : metricAppliedOnBatch(metricObject, batchObject) {
+		formerCountKey.push(currentCountKey);
+		currentCountKey = metricObject.getName();
+		Profiler.addMetricName(currentCountKey);
+		Profiler.setInInitialBatch(false);
+		boolean res = proceed(metricObject, batchObject);
+		currentCountKey = formerCountKey.pop();
+		return res;
+	}	
 	
 	boolean around(Update updateObject) : updateApplication(updateObject) {
 		formerCountKey.push(currentCountKey);
