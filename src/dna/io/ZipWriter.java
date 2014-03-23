@@ -2,6 +2,7 @@ package dna.io;
 
 import java.io.IOException;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
@@ -12,6 +13,8 @@ import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.HashMap;
 import java.util.Map;
+
+import dna.util.Log;
 
 /**
  * The ZipWriter is used to write several files into the same ZipFile. It uses
@@ -25,7 +28,7 @@ public class ZipWriter extends Writer {
 	private FileSystem zipFile;
 
 	public ZipWriter(String fsDir, String fsFileName, String dir,
-			String filename) throws Throwable {
+			String filename) throws IOException {
 		// if filesystem directory does not exist, create it
 		Path fileSystemDir = Paths.get(fsDir);
 		if (!Files.exists(fileSystemDir))
@@ -97,37 +100,44 @@ public class ZipWriter extends Writer {
 	}
 
 	/** Creates an empty zip file on the specified path. **/
-	public static void createZip(Path zipLocation) throws Throwable {
+	public static void createZip(Path zipLocation) throws IOException {
 		Map<String, String> env = new HashMap<String, String>();
 		// check if file exists
 		env.put("create", String.valueOf(!zipLocation.toFile().exists()));
 		// use a Zip filesystem URI
 		URI fileUri = zipLocation.toUri(); // here
-		URI zipUri = new URI("jar:" + fileUri.getScheme(), fileUri.getPath(),
-				null);
 
-		// try with resource
-		try (FileSystem zipfs = FileSystems.newFileSystem(zipUri, env)) {
+		try {
+			URI zipUri = new URI("jar:" + fileUri.getScheme(),
+					fileUri.getPath(), null);
+
+			// try with resource
+			try (FileSystem zipfs = FileSystems.newFileSystem(zipUri, env)) {
+			}
+		} catch (URISyntaxException e) {
+			Log.error("Failed to create zip file on path "
+					+ zipLocation.toString() + ".");
+			e.printStackTrace();
 		}
 	}
 
 	/** Creates a zip filesystem for a batch in the specified directory. **/
 	public static FileSystem createBatchFileSystem(String fsDir, long timestamp)
-			throws Throwable {
+			throws IOException {
 		return createFileSystem(fsDir,
 				dna.io.filesystem.Files.getBatchFilename(timestamp));
 	}
 
 	/** Creates a zip filesystem for a run in the specified directory. **/
 	public static FileSystem createRunFileSystem(String fsDir, int run)
-			throws Throwable {
+			throws IOException {
 		return createFileSystem(fsDir,
 				dna.io.filesystem.Files.getRunFilename(run));
 	}
 
 	/** Creates a zip filesystem for a specified directory and filename. **/
 	public static FileSystem createFileSystem(String fsDir, String filename)
-			throws Throwable {
+			throws IOException {
 		// chick if dir exists
 		Path fileSystemDir = Paths.get(fsDir);
 		if (!Files.exists(fileSystemDir))

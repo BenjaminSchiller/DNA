@@ -107,9 +107,10 @@ public class SeriesGeneration {
 		// aggregate all runs
 		Log.infoSep();
 		Log.info("aggregating data for " + sd.getRuns().size() + " runs");
-
+		Timer aggregationTimer = new Timer("aggregation");
 		sd.setAggregation(Aggregation.aggregate(sd));
-
+		aggregationTimer.end();
+		Log.info(aggregationTimer.toString());
 		// end of aggregation
 		Log.infoSep();
 		timer.end();
@@ -209,7 +210,7 @@ public class SeriesGeneration {
 					initialData.writeSingleFile(
 							Dir.getRunDataDir(series.getDir(), run),
 							initialData.getTimestamp(), Dir.delimiter);
-				} catch (Throwable e) {
+				} catch (IOException e) {
 					e.printStackTrace();
 				}
 			}
@@ -246,7 +247,7 @@ public class SeriesGeneration {
 						batchData.writeSingleFile(
 								Dir.getRunDataDir(series.getDir(), run),
 								batchData.getTimestamp(), Dir.delimiter);
-					} catch (Throwable e) {
+					} catch (IOException e) {
 						e.printStackTrace();
 					}
 				}

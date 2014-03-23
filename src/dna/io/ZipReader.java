@@ -48,20 +48,20 @@ public class ZipReader extends Reader {
 
 	/** Creates a zip filesystem for a batch in the specified directory. **/
 	public static FileSystem getBatchFileSystem(String fsDir, long timestamp)
-			throws Throwable {
+			throws IOException {
 		return getFileSystem(fsDir,
 				dna.io.filesystem.Files.getBatchFilename(timestamp));
 	}
 
 	/** Creates a zip filesystem for a run in the specified directory. **/
 	public static FileSystem getRunFileSystem(String fsDir, int run)
-			throws Throwable {
+			throws IOException {
 		return getFileSystem(fsDir, dna.io.filesystem.Files.getRunFilename(run));
 	}
 
 	/** Creates a zip filesystem for a specified directory and filename. **/
 	public static FileSystem getFileSystem(String fsDir, String filename)
-			throws Throwable {
+			throws IOException {
 		// chick if dir exists
 		Path fileSystemDir = Paths.get(fsDir);
 		if (!Files.exists(fileSystemDir))
