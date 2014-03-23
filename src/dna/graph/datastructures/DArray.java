@@ -88,6 +88,9 @@ public class DArray extends DataStructureReadable implements
 			while (addPos < this.list.length && this.list[addPos] != null)
 				addPos++;
 		}
+		while (addPos > this.list.length) {
+			this.resize();
+		}
 		if (this.list[addPos] != null)
 			throw new RuntimeException("Won't overwrite");
 		this.list[addPos] = element;
