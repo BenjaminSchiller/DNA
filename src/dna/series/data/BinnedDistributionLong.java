@@ -113,7 +113,7 @@ public class BinnedDistributionLong extends DistributionLong {
 			throw new NullPointerException("no values for distribution \""
 					+ this.getName() + "\" set to be written to " + dir);
 		}
-		Writer w = new Writer(dir, filename);
+		Writer w = Writer.getWriter(dir, filename);
 
 		w.writeln(this.getDenominator()); // write denominator in first line
 		w.writeln(this.binsize); // write binsize in second line
@@ -142,7 +142,7 @@ public class BinnedDistributionLong extends DistributionLong {
 		if (!readValues) {
 			return new BinnedDistributionLong(name, 1, null, 0);
 		}
-		Reader r = new Reader(dir, filename);
+		Reader r = Reader.getReader(dir, filename);
 		ArrayList<Long> list = new ArrayList<Long>();
 		String line = null;
 		int index = 0;

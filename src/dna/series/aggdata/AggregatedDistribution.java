@@ -57,7 +57,7 @@ public class AggregatedDistribution extends AggregatedData {
 		if (!readValues) {
 			return new AggregatedDistribution(name);
 		}
-		Reader r = new Reader(dir, filename);
+		Reader r = Reader.getReader(dir, filename);
 		ArrayList<AggregatedValue> list = new ArrayList<AggregatedValue>();
 		String line = null;
 		int index = 0;
@@ -86,7 +86,8 @@ public class AggregatedDistribution extends AggregatedData {
 	}
 
 	public void write(String dir, String filename) throws IOException {
-		Writer w = new Writer(dir, filename);
+		Writer w = Writer.getWriter(dir, filename);
+
 		AggregatedValue[] tempData = this.getValues();
 
 		for (AggregatedValue aggData : tempData) {
@@ -106,7 +107,7 @@ public class AggregatedDistribution extends AggregatedData {
 
 	public static void write(String dir, String filename, double[][] values)
 			throws IOException {
-		Writer w = new Writer(dir, filename);
+		Writer w = Writer.getWriter(dir, filename);
 
 		for (int i = 0; i < values.length; i++) {
 			String temp = "";

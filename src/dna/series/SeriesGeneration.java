@@ -1,12 +1,14 @@
 package dna.series;
 
 import java.io.IOException;
+import java.nio.file.FileSystem;
 import java.util.HashMap;
 
 import dna.io.filesystem.Dir;
 import dna.metrics.Metric;
 import dna.metrics.MetricNotApplicableException;
 import dna.series.Series.RandomSeedReset;
+import dna.series.aggdata.AggregatedSeries;
 import dna.series.data.BatchData;
 import dna.series.data.RunTime;
 import dna.series.data.SeriesData;
@@ -15,11 +17,17 @@ import dna.updates.batch.Batch;
 import dna.updates.batch.BatchSanitization;
 import dna.updates.batch.BatchSanitizationStats;
 import dna.updates.update.Update;
+import dna.util.Config;
 import dna.util.Log;
 import dna.util.Memory;
 import dna.util.Timer;
 
 public class SeriesGeneration {
+
+	public static boolean singleFile = false;
+	public static FileSystem writeFileSystem;
+	public static FileSystem readFileSystem;
+
 	public static SeriesData generate(Series series, int runs, int batches)
 			throws AggregationException, IOException,
 			MetricNotApplicableException {
@@ -51,6 +59,8 @@ public class SeriesGeneration {
 			IOException, MetricNotApplicableException {
 		Log.infoSep();
 		Timer timer = new Timer("seriesGeneration");
+		SeriesGeneration.singleFile = Config
+				.getBoolean("GENERATION_BATCHES_AS_ZIP");
 		Log.info("generating series");
 		Log.infoSep();
 		Log.info("ds = "
@@ -59,6 +69,10 @@ public class SeriesGeneration {
 		Log.info("gg = " + series.getGraphGenerator().getDescription());
 		Log.info("bg = " + series.getBatchGenerator().getDescription());
 		Log.info("p  = " + series.getDir());
+		if (SeriesGeneration.singleFile)
+			Log.info("b  = zipped");
+		else
+			Log.info("b  = files");
 		StringBuffer buff = new StringBuffer("");
 		for (Metric m : series.getMetrics()) {
 			if (buff.length() > 0) {
@@ -80,7 +94,7 @@ public class SeriesGeneration {
 				series.resetRand();
 			}
 
-			// generate run
+			// generate runW
 			SeriesGeneration.generateRun(series, r, batches, compare, write);
 		}
 
@@ -98,10 +112,14 @@ public class SeriesGeneration {
 		}
 		// aggregate all runs
 		Log.infoSep();
-		Log.info("aggregating data for " + sd.getRuns().size() + " runs");
+		Timer aggregationTimer = new Timer("aggregation");
 
-		sd.setAggregation(Aggregation.aggregate(sd));
-
+		AggregatedSeries aSd = Aggregation.aggregateSeries(sd);
+		if (write)
+			aSd.write(Dir.getAggregationDataDir(series.getDir()));
+		sd.setAggregation(aSd);
+		aggregationTimer.end();
+		Log.info(aggregationTimer.toString());
 		// end of aggregation
 		Log.infoSep();
 		timer.end();
@@ -135,8 +153,9 @@ public class SeriesGeneration {
 	 * @throws MetricNotApplicableException
 	 */
 	public static void generateRuns(Series series, int from, int to,
-			int batches, boolean compare, boolean write) throws IOException,
-			MetricNotApplicableException {
+
+	int batches, boolean compare, boolean write, boolean batchesAsZip)
+			throws IOException, MetricNotApplicableException {
 		int runs = to - from;
 
 		for (int i = 0; i < runs; i++) {
@@ -185,8 +204,18 @@ public class SeriesGeneration {
 			SeriesGeneration.compareMetrics(series);
 		}
 		if (write) {
-			initialData.write(Dir.getBatchDataDir(series.getDir(), run,
-					initialData.getTimestamp()));
+			if (!SeriesGeneration.singleFile) {
+				initialData.write(Dir.getBatchDataDir(series.getDir(), run,
+						initialData.getTimestamp()));
+			} else {
+				try {
+					initialData.writeSingleFile(
+							Dir.getRunDataDir(series.getDir(), run),
+							initialData.getTimestamp(), Dir.delimiter);
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
 		}
 
 		// generate batch data
@@ -209,8 +238,18 @@ public class SeriesGeneration {
 				SeriesGeneration.compareMetrics(series);
 			}
 			if (write) {
-				batchData.write(Dir.getBatchDataDir(series.getDir(), run,
-						batchData.getTimestamp()));
+				if (!SeriesGeneration.singleFile) {
+					batchData.write(Dir.getBatchDataDir(series.getDir(), run,
+							batchData.getTimestamp()));
+				} else {
+					try {
+						batchData.writeSingleFile(
+								Dir.getRunDataDir(series.getDir(), run),
+								batchData.getTimestamp(), Dir.delimiter);
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+				}
 			}
 		}
 
