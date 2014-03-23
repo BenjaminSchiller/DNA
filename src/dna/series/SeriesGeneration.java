@@ -88,7 +88,7 @@ public class SeriesGeneration {
 				series.resetRand();
 			}
 
-			// generate run
+			// generate runW
 			SeriesGeneration.generateRun(series, r, batches, compare, write,
 					batchesAsZip);
 		}
@@ -145,7 +145,8 @@ public class SeriesGeneration {
 	 * @throws MetricNotApplicableException
 	 */
 	public static void generateRuns(Series series, int from, int to,
-			int batches, boolean compare, boolean write, boolean batchesAsZip)
+
+	int batches, boolean compare, boolean write, boolean batchesAsZip)
 			throws IOException, MetricNotApplicableException {
 		int runs = to - from;
 

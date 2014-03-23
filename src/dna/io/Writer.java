@@ -40,6 +40,10 @@ public class Writer {
 
 	}
 
+	public Writer() {
+
+	}
+
 	public void writeln(String line) throws IOException {
 		this.write(line + "\n");
 	}
