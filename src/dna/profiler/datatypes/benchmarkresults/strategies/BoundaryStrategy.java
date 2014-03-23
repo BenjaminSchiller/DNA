@@ -90,10 +90,10 @@ public class BoundaryStrategy extends ResultProcessingStrategy {
 					return lowerValue;
 
 				if (lowerSelector != buckets.firstKey()) {
-					lowerSelector = getLowerKey(meanListSize - 1);
+					lowerSelector = getLowerKey(lowerSelector - 0.1);
 					lowerValue = buckets.get(lowerSelector);
 				} else {
-					higherSelector = getUpperKey(meanListSize + 1);
+					higherSelector = getUpperKey(higherSelector + 0.1);
 				}
 			}
 
