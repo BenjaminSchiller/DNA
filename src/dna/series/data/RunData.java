@@ -3,6 +3,7 @@ package dna.series.data;
 import java.io.IOException;
 
 import dna.io.filesystem.Dir;
+import dna.series.SeriesGeneration;
 import dna.series.lists.BatchDataList;
 import dna.util.Log;
 
@@ -50,10 +51,17 @@ public class RunData {
 		String[] batches = Dir.getBatches(dir);
 		RunData runData = new RunData(run, batches.length);
 		for (String batch : batches) {
-			runData.getBatches().add(
-					BatchData.read(
-							Dir.getBatchDataDir(dir, Dir.getTimestamp(batch)),
-							Dir.getTimestamp(batch), readValues));
+			if (SeriesGeneration.singleFile)
+				runData.getBatches().add(
+						BatchData.readFromSingleFile(dir,
+								Dir.getTimestamp(batch), Dir.delimiter,
+								readValues));
+			else
+				runData.getBatches().add(
+						BatchData.read(
+								Dir.getBatchDataDir(dir,
+										Dir.getTimestamp(batch)),
+								Dir.getTimestamp(batch), readValues));
 		}
 		return runData;
 	}
