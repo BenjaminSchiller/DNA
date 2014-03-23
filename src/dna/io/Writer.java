@@ -15,7 +15,7 @@ import dna.util.Config;
  * 
  */
 public class Writer {
-	private BufferedWriter writer;
+	protected BufferedWriter writer;
 	private boolean fileExistedBefore;
 
 	public Writer(String dir, String filename) throws IOException {
@@ -31,13 +31,9 @@ public class Writer {
 
 		this.writer = new BufferedWriter(new FileWriter(f, append));
 	}
-	
+
 	public void write(String line) throws IOException {
 		this.writer.write(line);
-	}
-
-	public Writer() {
-
 	}
 
 	public Writer() {
@@ -84,7 +80,7 @@ public class Writer {
 	public static String getCommentAsLine(String comment) {
 		return Config.get("COMMENT_PREFIX") + comment;
 	}
-	
+
 	public boolean fileExistedBefore() {
 		return this.fileExistedBefore;
 	}

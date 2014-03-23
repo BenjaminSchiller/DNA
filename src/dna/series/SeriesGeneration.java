@@ -146,7 +146,7 @@ public class SeriesGeneration {
 	 */
 	public static void generateRuns(Series series, int from, int to,
 
-	int batches, boolean compare, boolean write, boolean batchesAsZip)
+			int batches, boolean compare, boolean write, boolean batchesAsZip)
 			throws IOException, MetricNotApplicableException {
 		int runs = to - from;
 
