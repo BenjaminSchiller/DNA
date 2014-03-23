@@ -203,14 +203,18 @@ public class BatchData {
 	 * given batch for a faster read without "list"-calls inside the zip-file.
 	 * 
 	 * @param fsDir
+	 *            Directory where the batch zip is located.
 	 * @param timestamp
+	 *            Timestamp of the batch that will be read.
 	 * @param dir
+	 *            Relative directoy inside the zip-file.
 	 * @param readValues
-	 * @return
-	 * @throws Throwable
+	 *            If false, no actual data will be read and stored.
+	 * @return BatchData object read from the zip-file.
+	 * @throws IOException
 	 */
 	public static BatchData readBatchValuesFromSingleFile(String fsDir,
-			long timestamp, String dir, BatchData structure) throws Throwable {
+			long timestamp, String dir, BatchData structure) throws IOException {
 		SeriesGeneration.readFileSystem = ZipWriter.createBatchFileSystem(
 				fsDir, timestamp);
 		BatchData tempBatchData = readBatchValues(dir, timestamp, structure);
@@ -221,7 +225,7 @@ public class BatchData {
 
 	/** Writes the whole batch in a single zip file **/
 	public void writeSingleFile(String fsDir, long timestamp, String dir)
-			throws Throwable {
+			throws IOException {
 		SeriesGeneration.writeFileSystem = ZipWriter.createBatchFileSystem(
 				fsDir, timestamp);
 		this.write(dir);
@@ -231,7 +235,7 @@ public class BatchData {
 
 	/** Reads the whole batch from a single zip file **/
 	public static BatchData readFromSingleFile(String fsDir, long timestamp,
-			String dir, boolean readValues) throws Throwable {
+			String dir, boolean readValues) throws IOException {
 		SeriesGeneration.readFileSystem = ZipWriter.createBatchFileSystem(
 				fsDir, timestamp);
 		BatchData tempBatchData = read(dir, timestamp, readValues);
