@@ -1015,19 +1015,6 @@ public class Aggregation {
 	}
 
 	/**
-	 * Aggregates over a whole series.
-	 * 
-	 * @param series
-	 *            Series to be aggregated.
-	 * @return Returns an aggregated series.
-	 */
-	public static AggregatedSeries aggregateSeries(SeriesData series)
-			throws IOException {
-		return new AggregatedSeries(aggregateRuns(series.getDir(),
-				series.getRuns()));
-	}
-
-	/**
 	 * Aggregates over several runs.
 	 * 
 	 * @param dir
