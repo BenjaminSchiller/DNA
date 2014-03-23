@@ -185,7 +185,7 @@ public class Aggregation {
 	 *            Batches to be aggregated.
 	 * @return List of aggregated statistics.
 	 */
-	public static AggregatedValueList aggregateBatchStatistics(
+	private static AggregatedValueList aggregateBatchStatistics(
 			ArrayList<BatchData> batches) {
 		if (batches.size() == 1)
 			return aggregateBatchStatistics(batches.get(0));
@@ -213,7 +213,7 @@ public class Aggregation {
 	 *            BatchData object to be aggregated.
 	 * @return List of aggregated statistics.
 	 */
-	public static AggregatedValueList aggregateBatchStatistics(BatchData b) {
+	private static AggregatedValueList aggregateBatchStatistics(BatchData b) {
 		AggregatedValueList aStats = new AggregatedValueList();
 
 		for (Value stat : b.getValues().getList()) {
@@ -232,7 +232,7 @@ public class Aggregation {
 	 *            Batches to be aggregated.
 	 * @return Aggregated general runtimes.
 	 */
-	public static AggregatedRunTimeList aggregateGeneralRuntimes(
+	private static AggregatedRunTimeList aggregateGeneralRuntimes(
 			ArrayList<BatchData> batches) {
 		if (batches.size() == 1)
 			return aggregateGeneralRuntimes(batches.get(0));
@@ -261,7 +261,7 @@ public class Aggregation {
 	 *            BatchData object to be aggregated.
 	 * @return Aggregated general runtimes.
 	 */
-	public static AggregatedRunTimeList aggregateGeneralRuntimes(BatchData b) {
+	private static AggregatedRunTimeList aggregateGeneralRuntimes(BatchData b) {
 		AggregatedRunTimeList aGeneralRuntimes = new AggregatedRunTimeList(
 				Config.get("BATCH_GENERAL_RUNTIMES"));
 
@@ -282,7 +282,7 @@ public class Aggregation {
 	 *            Batches to be aggregated.
 	 * @return Aggregated metric runtimes.
 	 */
-	public static AggregatedRunTimeList aggregateMetricRuntimes(
+	private static AggregatedRunTimeList aggregateMetricRuntimes(
 			ArrayList<BatchData> batches) {
 		if (batches.size() == 1)
 			return aggregateMetricRuntimes(batches.get(0));
@@ -311,7 +311,7 @@ public class Aggregation {
 	 *            BatchData object to be aggregated.
 	 * @return Aggregated metric runtimes.
 	 */
-	public static AggregatedRunTimeList aggregateMetricRuntimes(BatchData b) {
+	private static AggregatedRunTimeList aggregateMetricRuntimes(BatchData b) {
 		AggregatedRunTimeList aMetricRuntimes = new AggregatedRunTimeList(
 				Config.get("BATCH_METRIC_RUNTIMES"));
 
@@ -334,7 +334,7 @@ public class Aggregation {
 	 *            MetricData object to be aggregated
 	 * @return AggregatedMetric object
 	 */
-	public static AggregatedMetricList aggregateMetrics(
+	private static AggregatedMetricList aggregateMetrics(
 			ArrayList<BatchData> batches) {
 		if (batches.size() == 1)
 			return aggregateMetrics(batches.get(0));
@@ -420,7 +420,7 @@ public class Aggregation {
 	 *            Distributions to be aggregated
 	 * @return Aggregated distribution
 	 */
-	public static AggregatedDistribution aggregateDistributions(
+	private static AggregatedDistribution aggregateDistributions(
 			Distribution[] distributions) {
 		// get reference distribution which contains data
 		Distribution refDist = null;
@@ -600,7 +600,7 @@ public class Aggregation {
 	 *            NodeValueLists to be aggregated.
 	 * @return Aggregated node value lists.
 	 */
-	public static AggregatedNodeValueList aggregateNodeValueLists(
+	private static AggregatedNodeValueList aggregateNodeValueLists(
 			NodeValueList[] nodevalues) {
 		// get reference nodevaluelist which contains data
 		NodeValueList refNvl = null;
@@ -642,7 +642,7 @@ public class Aggregation {
 	 *            BatchData object to be aggregated.
 	 * @return List of aggregated metrics.
 	 */
-	public static AggregatedMetricList aggregateMetrics(BatchData b) {
+	private static AggregatedMetricList aggregateMetrics(BatchData b) {
 		AggregatedMetricList aMetrics = new AggregatedMetricList(b.getMetrics()
 				.size());
 		for (MetricData m : b.getMetrics().getList()) {
@@ -658,7 +658,7 @@ public class Aggregation {
 	 *            MetricData object to be aggregated
 	 * @return AggregatedMetric object
 	 */
-	public static AggregatedMetric aggregateMetric(MetricData m) {
+	private static AggregatedMetric aggregateMetric(MetricData m) {
 		// VALUES
 		AggregatedValueList aValuesList = new AggregatedValueList(m.getValues()
 				.size());
@@ -778,7 +778,7 @@ public class Aggregation {
 	 * 
 	 * @throws Throwable
 	 */
-	public static AggregatedBatch[] aggregateRun(String dir, RunData run)
+	private static AggregatedBatch[] aggregateRun(String dir, RunData run)
 			throws IOException {
 		// init
 		int batchesAmount = run.getBatches().size();
@@ -821,7 +821,7 @@ public class Aggregation {
 	 * @param inputData
 	 * @return double array containing the aggregated data
 	 */
-	public static double[] aggregate(double[] inputData) {
+	private static double[] aggregate(double[] inputData) {
 		// aggregated array structure: { avg, min, max, median, variance,
 		// variance-low, variance-up, confidence-low, confidence-up }
 		double avg = ArrayUtils.avg(inputData);
@@ -840,7 +840,7 @@ public class Aggregation {
 	 * @param inputData
 	 * @return double array containing the aggregated data
 	 */
-	public static double[] aggregate(long[] inputData) {
+	private static double[] aggregate(long[] inputData) {
 		// aggregated array structure: { avg, min, max, median, variance,
 		// variance-low, variance-up, confidence-low, confidence-up }
 		double avg = ArrayUtils.avg(inputData);
@@ -859,7 +859,7 @@ public class Aggregation {
 	 * @param inputData
 	 * @return double array containing the aggregated data
 	 */
-	public static double[] aggregate(int[] inputData) {
+	private static double[] aggregate(int[] inputData) {
 		// aggregated array structure: { avg, min, max, median, variance,
 		// variance-low, variance-up, confidence-low, confidence-up }
 		double avg = ArrayUtils.avg(inputData);
