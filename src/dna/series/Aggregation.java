@@ -106,9 +106,12 @@ public class Aggregation {
 			ArrayList<RunData> runs) throws IOException {
 		String runInfo = "";
 		for (int i = 0; i < runs.size(); i++) {
-			runInfo += "run " + runs.get(i).getRun() + ", ";
+			if (i == runs.size() - 1)
+				runInfo += "run " + runs.get(i).getRun();
+			else
+				runInfo += "run " + runs.get(i).getRun() + ", ";
 		}
-		Log.info("aggregating data from: " + runInfo);
+		Log.info("aggregating data for " + runInfo);
 
 		// treat single run as special case
 		if (runs.size() == 1)
