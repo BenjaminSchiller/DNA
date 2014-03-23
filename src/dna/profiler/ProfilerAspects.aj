@@ -30,7 +30,7 @@ public aspect ProfilerAspects {
 	
 	private boolean inAdd, addFailedAsContainsReturnsTrue;
 
-	pointcut seriesSingleRunGeneration(Series s, int run) : execution(* SeriesGeneration.generateRun(Series, int, ..)) && args(s, run, ..);
+	pointcut seriesSingleRunGeneration(Series s, int run, int numberOfBatches) : execution(* SeriesGeneration.generateRun(Series, int, int, ..)) && args(s, run, numberOfBatches, ..);
 	pointcut startInitialBatchGeneration(Series s) : execution(* SeriesGeneration.generateInitialData(Series)) && args(s);
 	pointcut startNewBatchGeneration(Series s) : execution(* SeriesGeneration.generateNextBatch(Series)) && args(s);
 	pointcut seriesGeneration() : execution(* SeriesGeneration.generate(..));
@@ -65,13 +65,13 @@ public aspect ProfilerAspects {
 	pointcut random(DataStructure list) : call(* IDataStructure+.getRandom()) && target(list) && watchedCall();
 	pointcut iterator(DataStructure list) : execution(* DataStructure+.iterator()) && target(list) && watchedCall();
 	
-	before(Series s, int run) : seriesSingleRunGeneration(s, run) {
-		Profiler.setSeriesDir(s.getDir());
+	before(Series s, int run, int numberOfBatches) : seriesSingleRunGeneration(s, run, numberOfBatches) {
+		Profiler.setSeriesData(s, numberOfBatches);
 		Profiler.startRun(run);
 		Profiler.startBatch();
 	}
 	
-	after(Series s, int run) : seriesSingleRunGeneration(s, run) {
+	after(Series s, int run, int numberOfBatches) : seriesSingleRunGeneration(s, run, numberOfBatches) {
 		Profiler.finishRun();
 	}
 	

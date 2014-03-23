@@ -23,6 +23,7 @@ import dna.io.filesystem.Files;
 import dna.profiler.ProfilerGranularity.Options;
 import dna.profiler.ProfilerMeasurementData.ProfilerDataType;
 import dna.profiler.datatypes.ComparableEntryMap;
+import dna.series.Series;
 import dna.updates.update.Update.UpdateType;
 import dna.util.Config;
 import dna.util.Log;
@@ -44,6 +45,7 @@ public class Profiler {
 	private static String seriesDir;
 	private static String graphGeneratorName;
 	private static int run;
+	private static int totalNumberOfBatches;
 	private static HashSet<String> batchGeneratorNames = new HashSet<>();
 	private static HashSet<String> metricNames = new HashSet<>();
 
@@ -82,8 +84,10 @@ public class Profiler {
 		gds = newGds;
 	}
 
-	public static void setSeriesDir(String dir) {
-		seriesDir = dir;
+	public static void setSeriesData(Series s, int numberOfBatches) {
+		seriesDir = s.getDir();
+		totalNumberOfBatches = numberOfBatches;
+		HotSwap.setTotalNumberOfBatches(totalNumberOfBatches);
 	}
 
 	public static void startRun(int newRun) {
@@ -636,6 +640,8 @@ public class Profiler {
 
 		String batchDir = Dir.getBatchDataDir(seriesDir, run, batchTimestamp);
 		singleRunCalls = merge(singleRunCalls, singleBatchCalls);
+
+		HotSwap.setLastFinishedBatch(batchTimestamp);
 
 		try {
 			Profiler.writeAggregation(singleBatchCalls, batchDir,

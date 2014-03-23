@@ -10,6 +10,8 @@ import dna.profiler.ProfilerMeasurementData.ProfilerDataType;
 
 public class HotSwap {
 	private static Map<ProfilerMeasurementData.ProfilerDataType, HotSwapMap> slidingWindow = null;
+	private static long lastFinishedBatch;
+	private static int totalNumberOfBatches;
 
 	private static void init() {
 		slidingWindow = new EnumMap<ProfilerMeasurementData.ProfilerDataType, HotSwapMap>(
@@ -61,6 +63,14 @@ public class HotSwap {
 				}
 			}
 		}
+	}
+
+	public static void setLastFinishedBatch(long batchTimestamp) {
+		lastFinishedBatch = batchTimestamp;
+	}
+
+	public static void setTotalNumberOfBatches(int n) {
+		totalNumberOfBatches = n;
 	}
 
 }
