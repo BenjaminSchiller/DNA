@@ -128,11 +128,11 @@ public class Aggregation {
 					maxTimestamp = batch.getTimestamp();
 			}
 		}
-		boolean nmode = true;
+		boolean nmode = Config.getBoolean("AGGREGATION_IGNORE_MISSING_VALUES");
 		if (nmode)
-			Log.info("aggregation mode /n");
+			Log.info("aggregation mode /n, ignoring missing values");
 		else
-			Log.info("aggregation mode: /n+1");
+			Log.info("aggregation mode: /n+1, treating missing values as 0");
 
 		RunData maxRun = runs.get(runId);
 		AggregatedBatch[] aBatches = new AggregatedBatch[maxAmountBatches];
