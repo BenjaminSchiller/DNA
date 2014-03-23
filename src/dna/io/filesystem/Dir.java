@@ -79,14 +79,16 @@ public class Dir {
 				.get("PREFIX_BATCHDATA_DIR")));
 		int[] timestamps = new int[names.length];
 		for (int i = 0; i < names.length; i++) {
-			timestamps[i] = Integer.parseInt(names[i].replace(
-					Config.get("PREFIX_BATCHDATA_DIR"), ""));
+			timestamps[i] = Integer.parseInt((names[i].replace(
+					Config.get("PREFIX_BATCHDATA_DIR"), "")).replace(
+					Config.get("SUFFIX_ZIP_FILE"), ""));
 		}
 		Arrays.sort(timestamps);
 		for (int i = 0; i < timestamps.length; i++) {
 			names[i] = Config.get("PREFIX_BATCHDATA_DIR") + timestamps[i];
 		}
 		return names;
+
 	}
 
 	public static long getTimestamp(String batchFolderName) {
