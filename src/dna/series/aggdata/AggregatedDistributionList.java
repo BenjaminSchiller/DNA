@@ -28,7 +28,7 @@ public class AggregatedDistributionList extends List<AggregatedDistribution> {
 	public void write(String dir) throws IOException {
 		for (AggregatedDistribution n : this.getList()) {
 			if (n instanceof AggregatedBinnedDistribution)
-				AggregatedData.write(n, dir,
+				((AggregatedBinnedDistribution) n).write(dir,
 						Files.getDistributionBinnedFilename(n.getName()));
 			else
 				AggregatedData.write(n, dir,
