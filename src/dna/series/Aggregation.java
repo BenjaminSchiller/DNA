@@ -298,7 +298,7 @@ public class Aggregation {
 						+ " which is not available.");
 			}
 		}
-		return Aggregation.aggregateRuns(seriesData, rdList);
+		return new AggregatedSeries(aggregateRuns(seriesData.getDir(), rdList));
 	}
 
 	/**
@@ -1013,6 +1013,19 @@ public class Aggregation {
 			SeriesGeneration.readFileSystem = null;
 		}
 		return new AggregatedSeries(aggBatches);
+	}
+
+	/**
+	 * Aggregates over a whole series.
+	 * 
+	 * @param series
+	 *            Series to be aggregated.
+	 * @return Returns an aggregated series.
+	 */
+	public static AggregatedSeries aggregateSeries(SeriesData series)
+			throws IOException {
+		return new AggregatedSeries(aggregateRuns(series.getDir(),
+				series.getRuns()));
 	}
 
 	/**
