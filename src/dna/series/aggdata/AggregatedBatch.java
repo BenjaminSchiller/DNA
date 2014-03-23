@@ -88,7 +88,7 @@ public class AggregatedBatch {
 
 	/** Writes the whole aggregated batch in a single zip file **/
 	public void writeSingleFile(String fsDir, long timestamp, String dir)
-			throws Throwable {
+			throws IOException {
 		SeriesGeneration.writeFileSystem = ZipWriter.createBatchFileSystem(
 				fsDir, timestamp);
 		this.write(dir);
