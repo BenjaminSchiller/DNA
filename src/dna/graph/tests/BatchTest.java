@@ -54,7 +54,7 @@ import dna.updates.update.NodeRemoval;
 import dna.updates.update.NodeWeight;
 import dna.updates.update.Update;
 
-@RunWith(Parallelized.class)
+@RunWith(Parameterized.class)
 public class BatchTest {
 	private Class<? extends Node> nodeType;
 	private Class<? extends Edge> edgeType;
