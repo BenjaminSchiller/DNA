@@ -1039,6 +1039,13 @@ public class Aggregation {
 	 */
 	public static AggregatedBatch[] aggregateRuns(String dir,
 			ArrayList<RunData> runs) throws IOException {
+		String runInfo = "";
+		for (int i = 0; i < runs.size(); i++) {
+			runInfo += "run " + runs.get(i).getRun() + ", ";
+		}
+		Log.info("aggregating data from: " + runInfo);
+
+		// treat single run as special case
 		if (runs.size() == 1)
 			return aggregateRun(dir, runs.get(0));
 
@@ -1056,11 +1063,11 @@ public class Aggregation {
 					maxTimestamp = batch.getTimestamp();
 			}
 		}
-		Log.info("Biggest run: run." + runId + " with " + maxAmountBatches
-				+ " batches");
-		Log.info("Max timestamp: " + maxTimestamp);
 		boolean nmode = true;
-		Log.info("Aggregation of missing values: " + nmode);
+		if(nmode)
+			Log.info("aggregation mode /n");
+		else 
+			Log.info("aggregation mode: /n+1");
 
 		RunData maxRun = runs.get(runId);
 		AggregatedBatch[] aBatches = new AggregatedBatch[maxAmountBatches];
@@ -1071,6 +1078,8 @@ public class Aggregation {
 			BatchData structure = maxRun.getBatches().get(batchId);
 			long timestamp = structure.getTimestamp();
 
+			Log.info("\tBatch: " + timestamp);
+			
 			// iterate over runs and read batches
 			for (int i = 0; i < runs.size(); i++) {
 				try {

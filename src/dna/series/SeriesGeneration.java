@@ -8,6 +8,7 @@ import dna.io.filesystem.Dir;
 import dna.metrics.Metric;
 import dna.metrics.MetricNotApplicableException;
 import dna.series.Series.RandomSeedReset;
+import dna.series.aggdata.AggregatedSeries;
 import dna.series.data.BatchData;
 import dna.series.data.RunTime;
 import dna.series.data.SeriesData;
@@ -108,7 +109,11 @@ public class SeriesGeneration {
 		Log.infoSep();
 		Log.info("aggregating data for " + sd.getRuns().size() + " runs");
 		Timer aggregationTimer = new Timer("aggregation");
-		sd.setAggregation(Aggregation.aggregate(sd));
+
+		AggregatedSeries aSd = Aggregation.aggregateSeries(sd);
+		if (write)
+			aSd.write(Dir.getAggregationDataDir(series.getDir()));
+		sd.setAggregation(aSd);
 		aggregationTimer.end();
 		Log.info(aggregationTimer.toString());
 		// end of aggregation
