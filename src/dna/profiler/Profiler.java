@@ -582,8 +582,6 @@ public class Profiler {
 		boolean rec = ProfilerGranularity.isEnabled(Options.EACHSERIES);
 
 		try {
-			Profiler.writeAggregation(singleSeriesCalls, seriesDir, true);
-
 			Profiler.writeMultiple(singleSeriesCalls,
 					batchGeneratorNames.toArray(new String[0]), seriesDir,
 					Files.getProfilerFilename(Config.get("BATCH_PROFILER")),
@@ -595,6 +593,8 @@ public class Profiler {
 					rec);
 
 			Profiler.writeUpdates(singleSeriesCalls, seriesDir, rec);
+
+			Profiler.writeAggregation(singleSeriesCalls, seriesDir, true);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -615,8 +615,6 @@ public class Profiler {
 					runDataDir, Files.getProfilerFilename(Config
 							.get("GRAPHGENERATOR_PROFILER")), rec);
 
-			Profiler.writeAggregation(singleRunCalls, runDataDir, rec);
-
 			Profiler.writeMultiple(singleRunCalls,
 					batchGeneratorNames.toArray(new String[0]), runDataDir,
 					Files.getProfilerFilename(Config.get("BATCH_PROFILER")),
@@ -629,6 +627,7 @@ public class Profiler {
 
 			Profiler.writeUpdates(singleRunCalls, runDataDir, rec);
 
+			Profiler.writeAggregation(singleRunCalls, runDataDir, rec);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -644,8 +643,6 @@ public class Profiler {
 		HotSwap.setLastFinishedBatch(batchTimestamp);
 
 		try {
-			Profiler.writeAggregation(singleBatchCalls, batchDir,
-					ProfilerGranularity.isEnabled(Options.EACHBATCH));
 			Profiler.writeMultiple(singleBatchCalls,
 					metricNames.toArray(new String[0]), batchDir,
 					Files.getProfilerFilename(Config.get("METRIC_PROFILER")),
@@ -688,6 +685,13 @@ public class Profiler {
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
+		}
+
+		try {
+			Profiler.writeAggregation(singleBatchCalls, batchDir,
+					ProfilerGranularity.isEnabled(Options.EACHBATCH));
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
 	}
 
