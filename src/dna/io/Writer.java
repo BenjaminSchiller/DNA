@@ -30,7 +30,7 @@ public class Writer {
 
 		this.writer = new BufferedWriter(new FileWriter(f, append));
 	}
-	
+
 	public void write(String line) throws IOException {
 		this.writer.write(line);
 	}
@@ -79,7 +79,7 @@ public class Writer {
 	public static String getCommentAsLine(String comment) {
 		return Config.get("COMMENT_PREFIX") + comment;
 	}
-	
+
 	public boolean fileExistedBefore() {
 		return this.fileExistedBefore;
 	}
