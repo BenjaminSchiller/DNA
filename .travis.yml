@@ -9,9 +9,11 @@ before_install:
   - cp build/testing.xml ./build.xml
 
 env:
-  - TESTASPECTJ=true
-  - TESTASPECTJ=false
+  global:
+    - ANT_OPTS="-Xmx3072m -Xms1536m"
+  matrix:
+    - TESTASPECTJ=true
+    - TESTASPECTJ=false
   
 script:
-  - export ANT_OPTS="-Xmx3072m -Xms1536m"
   - ant -DaspectJDir=lib/ -DjUnitJar=lib/junit.jar -DtestAspectJ=$TESTASPECTJ travisTest

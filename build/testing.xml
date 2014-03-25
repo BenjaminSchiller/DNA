@@ -112,7 +112,7 @@
 	</target>
 
 	<target name="test">
-		<junit showoutput="true" enableTestListenerEvents="on">
+		<junit showoutput="true" enableTestListenerEvents="true" failureproperty="junitFailed">
 			<classpath>
 				<pathelement location="${bin}" />
 				<path refid="class.path" />
@@ -122,6 +122,8 @@
 				<resources refid="testClasses" />
 			</batchtest>
 		</junit>
+		
+		<fail message="JUnit test FAILED" if="junitFailed" />
 	</target>
 
 	<target name="testAspectJ">
