@@ -341,6 +341,11 @@ public class GraphDataStructure {
 
 		Class<? extends IDataStructure> sourceClass = getListClass(listType,
 				listTypes);
+		return newList(listType, sourceClass);
+	}
+
+	public IDataStructure newList(ListType listType,
+			Class<? extends IDataStructure> sourceClass) {
 		Class<? extends IElement> storedDataType = listType.getStoredClass();
 
 		if (sourceClass == DEmpty.class) {
@@ -648,7 +653,7 @@ public class GraphDataStructure {
 					"Could not generate new weight instance: " + e.getMessage());
 			rt.setStackTrace(e.getStackTrace());
 			throw rt;
-		}
+	}
 		return w;
 	}
 
@@ -659,14 +664,14 @@ public class GraphDataStructure {
 		if (weightClass == null) {
 			throw new RuntimeException(
 					"Can not generate new weight instance as weightClass is NULL");
-		}
+	}
 
 		/**
 		 * Legacy parsing of "old" weights
 		 */
 		if (s.startsWith("(W)")) {
 			s = s.substring(4);
-		}
+	}
 
 		try {
 			c = weightClass.getConstructor(String.class);
@@ -713,7 +718,8 @@ public class GraphDataStructure {
 	}
 
 	public EnumMap<ListType, Class<? extends IDataStructure>> getStorageDataStructures() {
-		EnumMap<ListType, Class<? extends IDataStructure>> result = new EnumMap<DataStructure.ListType, Class<? extends IDataStructure>>(ListType.class);
+		EnumMap<ListType, Class<? extends IDataStructure>> result = new EnumMap<DataStructure.ListType, Class<? extends IDataStructure>>(
+				ListType.class);
 		for (ListType lt : ListType.values()) {
 			result.put(lt, getListClass(lt));
 		}
@@ -752,7 +758,7 @@ public class GraphDataStructure {
 					+ edgeWeightType.getName();
 			res += Config.get("DATASTRUCTURES_CLASS_DELIMITER")
 					+ "edgeWeightSelection=" + edgeWeightSelection.name();
-		}
+	}
 
 		if (createsWeightedNodes()) {
 			res += Config.get("DATASTRUCTURES_CLASS_DELIMITER") + "nodeWeight="
@@ -815,9 +821,13 @@ public class GraphDataStructure {
 
 		for (ListType lt : ListType.values()) {
 			if (this.getListClass(lt) != newGDS.getListClass(lt)) {
-				this.listTypes.put(lt, newGDS.getListClass(lt));
-				g.switchDataStructure(lt, this.newList(lt));
+				g.switchDataStructure(lt,
+						this.newList(lt, newGDS.getListClass(lt)));
 			}
+		}
+
+		for (ListType lt : ListType.values()) {
+			this.listTypes.put(lt, newGDS.getListClass(lt));
 		}
 	}
 
