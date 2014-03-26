@@ -3,15 +3,19 @@ package dna.profiler;
 import java.util.EnumMap;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.TreeMap;
 
 import dna.graph.Graph;
+import dna.graph.datastructures.DataStructure.ListType;
 import dna.graph.datastructures.GraphDataStructure;
+import dna.graph.datastructures.IDataStructure;
 import dna.profiler.ProfilerMeasurementData.ProfilerDataType;
 
 public class HotSwap {
 	private static Map<ProfilerMeasurementData.ProfilerDataType, HotSwapMap> slidingWindow = null;
 	private static long lastFinishedBatch;
 	private static int totalNumberOfBatches;
+	private static Map<Long, EnumMap<ListType, Class<? extends IDataStructure>>> manualSwitching = null;
 
 	private static void init() {
 		slidingWindow = new EnumMap<ProfilerMeasurementData.ProfilerDataType, HotSwapMap>(
@@ -35,7 +39,36 @@ public class HotSwap {
 		}
 	}
 
+	public static void addForManualSwitching(long batchCount,
+			EnumMap<ListType, Class<? extends IDataStructure>> newDatastructures) {
+		if (manualSwitching == null) {
+			manualSwitching = new TreeMap<>();
+		}
+		manualSwitching.put(batchCount, newDatastructures);
+	}
+
+	private static void doSwap(Graph g, GraphDataStructure newGDS) {
+		GraphDataStructure gds = g.getGraphDatastructures();
+		System.out.println("  Old DS: " + gds.getStorageDataStructures(true));
+		System.out
+				.println("  New DS: " + newGDS.getStorageDataStructures(true));
+		gds.switchDatastructures(newGDS, g);
+	}
+
 	public static void trySwap(Graph g) {
+		if (manualSwitching != null) {
+			EnumMap<ListType, Class<? extends IDataStructure>> listTypes = manualSwitching
+					.get(lastFinishedBatch);
+			if (listTypes != null) {
+				System.out
+						.println("Should swap here according to manualSwitchingMap");
+				GraphDataStructure newGDS = new GraphDataStructure(listTypes,
+						null, null);
+				doSwap(g, newGDS);
+			}
+			return;
+		}
+
 		for (Entry<ProfilerDataType, HotSwapMap> e : slidingWindow.entrySet()) {
 			RecommenderEntry entry = e.getValue().getRecommendation();
 
@@ -53,13 +86,8 @@ public class HotSwap {
 					System.out.println("  Last own costs: "
 							+ lastCosts.getCosts()
 							+ ", recommended entry costs: " + entry.getCosts());
-					GraphDataStructure gds = g.getGraphDatastructures();
 					GraphDataStructure newGDS = entry.getGraphDataStructure();
-					System.out.println("  Old DS: "
-							+ gds.getStorageDataStructures(true));
-					System.out.println("  New DS: "
-							+ newGDS.getStorageDataStructures(true));
-					gds.switchDatastructures(newGDS, g);
+					doSwap(g, newGDS);
 				}
 			}
 		}
