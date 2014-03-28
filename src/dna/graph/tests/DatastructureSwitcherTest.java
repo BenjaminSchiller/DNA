@@ -110,8 +110,7 @@ public class DatastructureSwitcherTest {
 
 		int edgesInGraph = g.getEdgeCount();
 
-		g.switchDataStructure(ListType.GlobalEdgeList,
-				instantiate(ListType.GlobalEdgeList, newDS));
+		g.switchDataStructure(ListType.GlobalEdgeList, newDS);
 		listOld = (IEdgeListDatastructure) innerGlobalEdgeList.get(g);
 		assertTrue(listOld.getClass().equals(newDS));
 		if (!newDS.equals(DEmpty.class)) {
@@ -139,8 +138,7 @@ public class DatastructureSwitcherTest {
 
 		int nodesInGraph = g.getNodeCount();
 
-		g.switchDataStructure(ListType.GlobalNodeList,
-				instantiate(ListType.GlobalNodeList, newDS));
+		g.switchDataStructure(ListType.GlobalNodeList, newDS);
 		listOld = (INodeListDatastructure) innerGlobalNodeList.get(g);
 		assertTrue(listOld.getClass().equals(newDS));
 		if (!newDS.equals(DEmpty.class)) {

@@ -319,19 +319,23 @@ public class Graph {
 		}
 	}
 	
-	public void switchDataStructure(ListType type, IDataStructure newDatastructure) {
+	public void switchDataStructure(ListType type, Class<? extends IDataStructure> newDatastructureType) {
+		IDataStructure newDatastructure;
 		switch(type) {
 		case GlobalEdgeList:
+			newDatastructure = gds.newList(type, newDatastructureType);
 			this.edges = (IEdgeListDatastructure) ((IEdgeListDatastructureReadable)this.edges).switchTo(newDatastructure);
 			break;
 		case GlobalNodeList:
+			newDatastructure = gds.newList(type, newDatastructureType);
 			this.nodes = (INodeListDatastructure) ((INodeListDatastructureReadable)this.nodes).switchTo(newDatastructure);
 			break;
 		case LocalEdgeList:
 		case LocalInEdgeList:
 		case LocalOutEdgeList:
 		case LocalNodeList:
-			for ( IElement n: nodes) {
+			for ( IElement n: this.getNodes()) {
+				newDatastructure = gds.newList(type, newDatastructureType);
 				((Node) n).switchDataStructure(type, newDatastructure);
 			}
 		}

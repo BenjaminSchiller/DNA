@@ -821,8 +821,7 @@ public class GraphDataStructure {
 
 		for (ListType lt : ListType.values()) {
 			if (this.getListClass(lt) != newGDS.getListClass(lt)) {
-				g.switchDataStructure(lt,
-						this.newList(lt, newGDS.getListClass(lt)));
+				g.switchDataStructure(lt,newGDS.getListClass(lt));
 			}
 		}
 
