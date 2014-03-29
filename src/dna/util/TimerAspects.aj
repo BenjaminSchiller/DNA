@@ -22,7 +22,7 @@ public aspect TimerAspects {
 	private HashSet<String> resetList = new HashSet<>();
 	private HashSet<String> metricList = new HashSet<>();
 	private HashSet<String> generalRuntimesList = new HashSet<>();
-	private TimerMap map;
+	private TimerMap map = new TimerMap();
 
 	pointcut seriesGeneration() : call(* SeriesGeneration.generate(Series, int, int, boolean, boolean));
 	pointcut runGeneration(): call(* SeriesGeneration.generateRun(Series, int, int,..));
