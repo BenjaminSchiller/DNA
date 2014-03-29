@@ -10,13 +10,16 @@ import dna.series.SeriesGeneration;
 import dna.series.SeriesStats;
 import dna.series.data.BatchData;
 import dna.series.data.RunData;
+import dna.series.data.RunTime;
 import dna.series.data.SeriesData;
+import dna.series.lists.RunTimeList;
 import dna.updates.batch.Batch;
 import dna.updates.generators.BatchGenerator;
 import dna.updates.update.Update;
 
 public aspect TimerAspects {
 	private HashSet<String> resetList = new HashSet<>();
+	private HashSet<String> metricList = new HashSet<>();
 
 	pointcut seriesGeneration() : call(* SeriesGeneration.generate(Series, int, int, boolean, boolean));
 	pointcut runGeneration(): call(* SeriesGeneration.generateRun(Series, int, int,..));
@@ -54,6 +57,7 @@ public aspect TimerAspects {
 	}
 
 	Graph around(): graphGeneration() {
+		resetList.add(SeriesStats.graphGenerationRuntime);
 		Timer graphGenerationTimer = new Timer(
 				SeriesStats.graphGenerationRuntime);
 		Graph res = proceed();
@@ -71,6 +75,44 @@ public aspect TimerAspects {
 		BatchData res = proceed();
 		t.end();
 		TimerMap.put(t);
+		
+		res.getGeneralRuntimes().add(
+				TimerMap.get(SeriesStats.totalRuntime).getRuntime());
+		res.getGeneralRuntimes().add(
+				TimerMap.get(SeriesStats.graphGenerationRuntime).getRuntime());
+		res.getGeneralRuntimes().add(
+				TimerMap.get(SeriesStats.batchGenerationRuntime).getRuntime());
+		res.getGeneralRuntimes().add(
+				TimerMap.get(SeriesStats.graphUpdateRuntime).getRuntime());		
+		res.getGeneralRuntimes().add(
+				TimerMap.get(SeriesStats.metricsRuntime).getRuntime());
+		
+
+		// add metric runtimes
+		for (String m : metricList) {
+			res.getMetricRuntimes().add(
+					TimerMap.get(m).getRuntime());
+		}
+		
+		RunTimeList generalRuntimes = res.getGeneralRuntimes();
+		double total = generalRuntimes.get(SeriesStats.totalRuntime)
+				.getRuntime();
+		double metrics = generalRuntimes.get(SeriesStats.metricsRuntime)
+				.getRuntime();
+		
+		long sumRt = 0;
+		for (RunTime rt : res.getGeneralRuntimes().getList()) {
+			sumRt += rt.getRuntime();
+		}
+		for (RunTime rt : res.getMetricRuntimes().getList()) {
+			sumRt += rt.getRuntime();
+		}
+		
+		double sum = sumRt - total - metrics;
+		double overhead = total - sum;
+		generalRuntimes.add(new RunTime("sum", sum));
+		generalRuntimes.add(new RunTime("overhead", overhead));
+		
 		return res;
 	}
 
@@ -79,6 +121,12 @@ public aspect TimerAspects {
 		BatchData res = proceed();
 		t.end();
 		TimerMap.put(t);
+		
+		for (String metricName: metricList) {
+			res.getMetricRuntimes().add(
+					TimerMap.get(metricName).getRuntime());
+		}
+		
 		return res;
 	}
 
@@ -104,7 +152,9 @@ public aspect TimerAspects {
 	}
 
 	Object around(Metric metric): metricApplicationInInitialization(metric) {
-		Timer t = new Timer(metric.getName());
+		String metricName = metric.getName();
+		metricList.add(metricName);
+		Timer t = new Timer(metricName);
 		Object res = proceed(metric);
 		t.end();
 		TimerMap.put(t);

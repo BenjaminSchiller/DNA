@@ -13,10 +13,8 @@ import dna.metrics.MetricNotApplicableException;
 import dna.series.Series.RandomSeedReset;
 import dna.series.aggdata.AggregatedSeries;
 import dna.series.data.BatchData;
-import dna.series.data.RunTime;
 import dna.series.data.SeriesData;
 import dna.series.data.Value;
-import dna.series.lists.RunTimeList;
 import dna.updates.batch.Batch;
 import dna.updates.batch.BatchSanitization;
 import dna.updates.batch.BatchSanitizationStats;
@@ -24,7 +22,6 @@ import dna.updates.update.Update;
 import dna.util.Config;
 import dna.util.Log;
 import dna.util.Memory;
-import dna.util.TimerMap;
 
 public class SeriesGeneration {
 
@@ -324,7 +321,7 @@ public class SeriesGeneration {
 					else
 						batchData.write(Dir.getBatchDataDir(series.getDir(),
 								run, batchData.getTimestamp()));
-				}
+	}
 			}
 
 			// call garbage collection
@@ -394,8 +391,6 @@ public class SeriesGeneration {
 			m.init();
 			m.compute();
 			initialData.getMetrics().add(m.getData());
-			initialData.getMetricRuntimes().add(
-					TimerMap.get(m.getName()).getRuntime());
 		}
 		return initialData;
 	}
@@ -403,20 +398,6 @@ public class SeriesGeneration {
 	public static BatchData generateInitialData(Series series)
 			throws MetricNotApplicableException {
 		BatchData initialData = computeInitialData(series);
-
-		// add general runtimes
-		initialData.getGeneralRuntimes().add(
-				TimerMap.get(SeriesStats.totalRuntime).getRuntime());
-		initialData.getGeneralRuntimes().add(
-				TimerMap.get(SeriesStats.graphGenerationRuntime).getRuntime());
-		initialData.getGeneralRuntimes().add(
-				TimerMap.get(SeriesStats.metricsRuntime).getRuntime());
-		// batchGeneration runtime is not present in the initialdata and added
-		// for gui purposes only
-		initialData.getGeneralRuntimes().add(
-				new RunTime("batchGeneration", 0.0));
-
-		addSummaryRuntimes(initialData);
 
 		// add values
 		initialData.getValues().add(new Value("randomSeed", series.getSeed()));
@@ -613,26 +594,7 @@ public class SeriesGeneration {
 			batchData.getMetrics().add(m.getData());
 		}
 
-		// add metric runtimes
-		for (Metric m : series.getMetrics()) {
-			String timerName = m.getName();
-			batchData.getMetricRuntimes().add(
-					TimerMap.get(timerName).getRuntime());
-		}
-
-		// add general runtimes
-		batchData.getGeneralRuntimes().add(
-				TimerMap.get(SeriesStats.totalRuntime).getRuntime());
-		batchData.getGeneralRuntimes().add(
-				TimerMap.get(SeriesStats.batchGenerationRuntime).getRuntime());
-		batchData.getGeneralRuntimes().add(
-				TimerMap.get(SeriesStats.graphUpdateRuntime).getRuntime());
-		batchData.getGeneralRuntimes().add(
-				TimerMap.get(SeriesStats.metricsRuntime).getRuntime());
-		addSummaryRuntimes(batchData);
-
 		return batchData;
-
 	}
 
 	private static int applyUpdates(Series series,
@@ -666,29 +628,6 @@ public class SeriesGeneration {
 
 		return counter;
 
-	}
-
-	private static void addSummaryRuntimes(BatchData batchData) {
-		RunTimeList generalRuntimes = batchData.getGeneralRuntimes();
-		double total = generalRuntimes.get(SeriesStats.totalRuntime)
-				.getRuntime();
-		double metrics = generalRuntimes.get(SeriesStats.metricsRuntime)
-				.getRuntime();
-		double sum = sumRuntimes(batchData) - total - metrics;
-		double overhead = total - sum;
-		generalRuntimes.add(new RunTime("sum", sum));
-		generalRuntimes.add(new RunTime("overhead", overhead));
-	}
-
-	private static long sumRuntimes(BatchData batchData) {
-		long sum = 0;
-		for (RunTime rt : batchData.getGeneralRuntimes().getList()) {
-			sum += rt.getRuntime();
-		}
-		for (RunTime rt : batchData.getMetricRuntimes().getList()) {
-			sum += rt.getRuntime();
-		}
-		return sum;
 	}
 
 }

@@ -14,7 +14,11 @@ public class TimerMap {
 	}
 	
 	public static Timer get(String key) {
-		return timerList.get(key);
+		Timer res = timerList.get(key);
+		if ( res == null ) {
+			res = new Timer(key);
+		}
+		return res;
 	}
 
 	public static void remove(String resetTimerName) {
