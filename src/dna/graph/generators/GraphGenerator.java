@@ -2,6 +2,8 @@ package dna.graph.generators;
 
 import dna.graph.Graph;
 import dna.graph.datastructures.GraphDataStructure;
+import dna.graph.edges.Edge;
+import dna.graph.nodes.Node;
 import dna.util.parameters.Parameter;
 import dna.util.parameters.ParameterList;
 
@@ -21,6 +23,10 @@ public abstract class GraphGenerator extends ParameterList implements
 
 	public int getEdgesInit() {
 		return edgesInit;
+	}
+
+	public GraphDataStructure getGds() {
+		return gds;
 	}
 
 	protected GraphDataStructure gds;
@@ -44,12 +50,29 @@ public abstract class GraphGenerator extends ParameterList implements
 	}
 
 	public Graph newGraphInstance() {
-		return this.gds.newGraphInstance(this.getName(), this.timestampInit,
+		GraphDataStructure newGDS = gds.clone();
+		if (!this.canGenerateNodeType(newGDS.getNodeType())) {
+			throw new RuntimeException(
+					"This generator can not be run with a graph data structure containing a node of type "
+							+ newGDS.getNodeType());
+		}
+
+		return newGDS.newGraphInstance(this.getName(), this.timestampInit,
 				this.nodesInit, this.edgesInit);
 	}
 
 	public GraphDataStructure getGraphDataStructure() {
 		return this.gds;
+	}
+
+	@Override
+	public boolean canGenerateNodeType(Class<? extends Node> nodeType) {
+		return true;
+	}
+
+	@Override
+	public boolean canGenerateEdgeType(Class<? extends Edge> edgeType) {
+		return true;
 	}
 
 	public static String buildName(String name, GraphDataStructure gds) {

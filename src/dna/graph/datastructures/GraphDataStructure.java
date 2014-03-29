@@ -34,7 +34,7 @@ import dna.util.Config;
  * @author Nico
  * 
  */
-public class GraphDataStructure {
+public class GraphDataStructure implements Cloneable {
 	private Class<? extends Node> nodeType;
 	private Class<? extends Edge> edgeType;
 	private Class<? extends Weight> nodeWeightType;
@@ -931,6 +931,12 @@ public class GraphDataStructure {
 			}
 		}
 		return resAggregator;
+	}
+	
+	public GraphDataStructure clone() {
+		String representation = this.getDataStructures();
+		GraphDataStructure cloned = new GraphDataStructure(representation);
+		return cloned;
 	}
 
 	public boolean isNodeType(Class... types) {
