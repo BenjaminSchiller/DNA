@@ -150,7 +150,7 @@ public class Profiler {
 	 *            entry)
 	 * @return
 	 */
-	public static String getCallList(Map<String, ProfileEntry> listOfEntries,
+	private static String getCallList(Map<String, ProfileEntry> listOfEntries,
 			String prefixFilter, boolean showRecommendations) {
 
 		boolean forceAllRecommendations = ProfilerGranularity.all();
@@ -199,7 +199,7 @@ public class Profiler {
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public static String getOtherRuntimeComplexitiesForEntry(
+	private static String getOtherRuntimeComplexitiesForEntry(
 			ProfilerMeasurementData.ProfilerDataType entryType,
 			ProfileEntry entry, boolean outputAsCommentWithPrefix,
 			boolean isCombinedOutputForAllAccessTypes) {
@@ -361,7 +361,7 @@ public class Profiler {
 	 * @param listOfEntries
 	 * @return
 	 */
-	public static String getGlobalComplexity(
+	private static String getGlobalComplexity(
 			Map<String, ProfileEntry> listOfEntries) {
 		StringBuilder res = new StringBuilder();
 		ProfileEntry resEntry = new ProfileEntry();
@@ -386,7 +386,7 @@ public class Profiler {
 		return res.toString();
 	}
 
-	public static ProfileEntry entryForKey(Map<String, ProfileEntry> calls,
+	private static ProfileEntry entryForKey(Map<String, ProfileEntry> calls,
 			String mapKey, boolean forceReset) {
 		ProfileEntry innerMap = calls.get(mapKey);
 		if (innerMap == null || forceReset) {
