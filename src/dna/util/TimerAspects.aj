@@ -20,6 +20,7 @@ import dna.updates.update.Update;
 public aspect TimerAspects {
 	private HashSet<String> resetList = new HashSet<>();
 	private HashSet<String> metricList = new HashSet<>();
+	private TimerMap map;
 
 	pointcut seriesGeneration() : call(* SeriesGeneration.generate(Series, int, int, boolean, boolean));
 	pointcut runGeneration(): call(* SeriesGeneration.generateRun(Series, int, int,..));
@@ -38,6 +39,7 @@ public aspect TimerAspects {
 			 || call(* Metric+.applyAfterUpdate(Update+))) && args(update) && target(metric);
 
 	SeriesData around(): seriesGeneration() {
+		map = new TimerMap();
 		Timer timer = new Timer("seriesGeneration");
 		SeriesData res = proceed();
 		timer.end();
@@ -62,36 +64,36 @@ public aspect TimerAspects {
 				SeriesStats.graphGenerationRuntime);
 		Graph res = proceed();
 		graphGenerationTimer.end();
-		TimerMap.put(graphGenerationTimer);
+		map.put(graphGenerationTimer);
 		return res;
 	}
 
 	BatchData around(): initialBatchData() {
 		for (String resetTimerName : resetList) {
-			TimerMap.remove(resetTimerName);
+			map.remove(resetTimerName);
 		}
 
 		Timer t = new Timer(SeriesStats.totalRuntime);
 		BatchData res = proceed();
 		t.end();
-		TimerMap.put(t);
+		map.put(t);
 		
 		res.getGeneralRuntimes().add(
-				TimerMap.get(SeriesStats.totalRuntime).getRuntime());
+				map.get(SeriesStats.totalRuntime).getRuntime());
 		res.getGeneralRuntimes().add(
-				TimerMap.get(SeriesStats.graphGenerationRuntime).getRuntime());
+				map.get(SeriesStats.graphGenerationRuntime).getRuntime());
 		res.getGeneralRuntimes().add(
-				TimerMap.get(SeriesStats.batchGenerationRuntime).getRuntime());
+				map.get(SeriesStats.batchGenerationRuntime).getRuntime());
 		res.getGeneralRuntimes().add(
-				TimerMap.get(SeriesStats.graphUpdateRuntime).getRuntime());		
+				map.get(SeriesStats.graphUpdateRuntime).getRuntime());		
 		res.getGeneralRuntimes().add(
-				TimerMap.get(SeriesStats.metricsRuntime).getRuntime());
+				map.get(SeriesStats.metricsRuntime).getRuntime());
 		
 
 		// add metric runtimes
 		for (String m : metricList) {
 			res.getMetricRuntimes().add(
-					TimerMap.get(m).getRuntime());
+					map.get(m).getRuntime());
 		}
 		
 		RunTimeList generalRuntimes = res.getGeneralRuntimes();
@@ -120,11 +122,11 @@ public aspect TimerAspects {
 		Timer t = new Timer(SeriesStats.metricsRuntime);
 		BatchData res = proceed();
 		t.end();
-		TimerMap.put(t);
+		map.put(t);
 		
 		for (String metricName: metricList) {
 			res.getMetricRuntimes().add(
-					TimerMap.get(metricName).getRuntime());
+					map.get(metricName).getRuntime());
 		}
 		
 		return res;
@@ -134,20 +136,20 @@ public aspect TimerAspects {
 		Timer t = new Timer(SeriesStats.batchGenerationRuntime);
 		Batch res = proceed();
 		t.end();
-		TimerMap.put(t);
+		map.put(t);
 		return res;
 	}
 
 	boolean around(): batchApplication() {
 		resetList.add(SeriesStats.graphUpdateRuntime);
-		Timer t = TimerMap.get(SeriesStats.graphUpdateRuntime);
+		Timer t = map.get(SeriesStats.graphUpdateRuntime);
 		if (t == null) {
 			t = new Timer(SeriesStats.graphUpdateRuntime);
 		}
 		t.restart();
 		boolean res = proceed();
 		t.end();
-		TimerMap.put(t);
+		map.put(t);
 		return res;
 	}
 
@@ -157,19 +159,19 @@ public aspect TimerAspects {
 		Timer t = new Timer(metricName);
 		Object res = proceed(metric);
 		t.end();
-		TimerMap.put(t);
+		map.put(t);
 		return res;
 	}
 
 	boolean around(Metric metric, Batch b): metricApplicationPerBatch(metric, b) {
 		resetList.add(metric.getName());
-		Timer singleMetricTimer = TimerMap.get(metric.getName());
+		Timer singleMetricTimer = map.get(metric.getName());
 		if (singleMetricTimer == null) {
 			singleMetricTimer = new Timer(metric.getName());
 		}
 
 		resetList.add(SeriesStats.metricsRuntime);
-		Timer wholeMetricsTimer = TimerMap.get(SeriesStats.metricsRuntime);
+		Timer wholeMetricsTimer = map.get(SeriesStats.metricsRuntime);
 		if (wholeMetricsTimer == null) {
 			wholeMetricsTimer = new Timer(SeriesStats.metricsRuntime);
 		}
@@ -179,20 +181,20 @@ public aspect TimerAspects {
 		boolean res = proceed(metric, b);
 		singleMetricTimer.end();
 		wholeMetricsTimer.end();
-		TimerMap.put(singleMetricTimer);
-		TimerMap.put(wholeMetricsTimer);
+		map.put(singleMetricTimer);
+		map.put(wholeMetricsTimer);
 		return res;
 	}
 
 	boolean around(Metric metric, Update u): metricApplicationPerUpdate(metric, u) {
 		resetList.add(metric.getName());
-		Timer singleMetricTimer = TimerMap.get(metric.getName());
+		Timer singleMetricTimer = map.get(metric.getName());
 		if (singleMetricTimer == null) {
 			singleMetricTimer = new Timer(metric.getName());
 		}
 
 		resetList.add(SeriesStats.metricsRuntime);
-		Timer wholeMetricsTimer = TimerMap.get(SeriesStats.metricsRuntime);
+		Timer wholeMetricsTimer = map.get(SeriesStats.metricsRuntime);
 		if (wholeMetricsTimer == null) {
 			wholeMetricsTimer = new Timer(SeriesStats.metricsRuntime);
 		}
@@ -202,8 +204,8 @@ public aspect TimerAspects {
 		boolean res = proceed(metric, u);
 		singleMetricTimer.end();
 		wholeMetricsTimer.end();
-		TimerMap.put(singleMetricTimer);
-		TimerMap.put(wholeMetricsTimer);
+		map.put(singleMetricTimer);
+		map.put(wholeMetricsTimer);
 		return res;
 	}
 }
