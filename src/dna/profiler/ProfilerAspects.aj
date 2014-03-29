@@ -69,6 +69,7 @@ public aspect ProfilerAspects {
 		Profiler.setSeriesData(s, numberOfBatches);
 		Profiler.startRun(run);
 		Profiler.startBatch();
+		HotSwap.reset();
 	}
 	
 	after(Series s, int run, int numberOfBatches) : seriesSingleRunGeneration(s, run, numberOfBatches) {

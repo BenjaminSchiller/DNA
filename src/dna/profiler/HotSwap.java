@@ -17,7 +17,7 @@ public class HotSwap {
 	private static int totalNumberOfBatches;
 	private static Map<Long, EnumMap<ListType, Class<? extends IDataStructure>>> manualSwitching = null;
 
-	private static void init() {
+	public static void reset() {
 		slidingWindow = new EnumMap<ProfilerMeasurementData.ProfilerDataType, HotSwapMap>(
 				ProfilerDataType.class);
 		for (ProfilerDataType dt : ProfilerDataType.values()) {
@@ -27,7 +27,7 @@ public class HotSwap {
 
 	public static void addNewResults() {
 		if (slidingWindow == null) {
-			init();
+			reset();
 		}
 		for (ProfilerDataType dt : ProfilerDataType.values()) {
 			RecommenderEntry latestRecommendation = Profiler
