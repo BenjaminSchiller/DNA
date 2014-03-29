@@ -5,6 +5,7 @@ import java.util.HashSet;
 import dna.graph.Graph;
 import dna.graph.generators.IGraphGenerator;
 import dna.metrics.Metric;
+import dna.profiler.HotSwap;
 import dna.series.Series;
 import dna.series.SeriesGeneration;
 import dna.series.SeriesStats;
@@ -20,6 +21,7 @@ import dna.updates.update.Update;
 public aspect TimerAspects {
 	private HashSet<String> resetList = new HashSet<>();
 	private HashSet<String> metricList = new HashSet<>();
+	private HashSet<String> generalRuntimesList = new HashSet<>();
 	private TimerMap map;
 
 	pointcut seriesGeneration() : call(* SeriesGeneration.generate(Series, int, int, boolean, boolean));
@@ -37,6 +39,8 @@ public aspect TimerAspects {
 			 || call(* Metric+.applyAfterBatch(Batch+))) && args(b) && target(metric);
 	pointcut metricApplicationPerUpdate(Metric metric, Update update) : (call(* Metric+.applyBeforeUpdate(Update+))
 			 || call(* Metric+.applyAfterUpdate(Update+))) && args(update) && target(metric);
+
+	pointcut hotswappingExecution(): call(* HotSwap.trySwap(..));
 
 	SeriesData around(): seriesGeneration() {
 		map = new TimerMap();
@@ -96,6 +100,11 @@ public aspect TimerAspects {
 					map.get(m).getRuntime());
 		}
 		
+		// add other runtimes
+		for (String m: generalRuntimesList) {
+			res.getGeneralRuntimes().add(map.get(m).getRuntime());
+		}
+
 		RunTimeList generalRuntimes = res.getGeneralRuntimes();
 		double total = generalRuntimes.get(SeriesStats.totalRuntime)
 				.getRuntime();
@@ -207,5 +216,13 @@ public aspect TimerAspects {
 		map.put(singleMetricTimer);
 		map.put(wholeMetricsTimer);
 		return res;
+	}
+
+	void around(): hotswappingExecution() {
+		Timer t = new Timer(SeriesStats.hotswapRuntime);
+		proceed();
+		t.end();
+		map.put(t);
+		generalRuntimesList.add(SeriesStats.hotswapRuntime);
 	}
 }
