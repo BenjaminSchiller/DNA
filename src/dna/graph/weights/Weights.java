@@ -39,7 +39,7 @@ public class Weights {
 	public static Object getWeight(WeightSelection selection) {
 		if (selection.toString().startsWith(DoubleWeightPrefix)) {
 			return getDoubleWeight(DoubleWeightSelection.valueOf(selection
-					.toString().replaceFirst(Double2WeightPrefix, "")));
+					.toString().replaceFirst(DoubleWeightPrefix, "")));
 		} else if (selection.toString().startsWith(Double2WeightPrefix)) {
 			return new double[] {
 					getDoubleWeight(DoubleWeightSelection.valueOf(selection
