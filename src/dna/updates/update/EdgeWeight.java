@@ -32,4 +32,8 @@ public class EdgeWeight extends EdgeUpdate {
 		return super.toString_() + " [" + this.weight + "]";
 	}
 
+	public Object getWeight() {
+		return this.weight;
+	}
+
 }

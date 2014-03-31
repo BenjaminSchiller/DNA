@@ -154,9 +154,8 @@ public class Series {
 				+ this.randomSeedReset + "/" + this.randomSeedType + ")");
 	}
 
-	public static boolean defaultCallGC = false;
-
-	private boolean callGC = Series.defaultCallGC;
+	private boolean callGC = Config.getBoolean("GENERATION_CALL_GC");
+	private int gcOccurence = Config.getInt("GENERATION_GC_OCCURENCE");
 
 	public boolean isCallGC() {
 		return callGC;
@@ -166,4 +165,7 @@ public class Series {
 		this.callGC = callGC;
 	}
 
+	public int getGcOccurence() {
+		return this.gcOccurence;
+	}
 }
