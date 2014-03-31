@@ -63,8 +63,7 @@ public class Series {
 	}
 
 	public SeriesData generate(int runs, int batches, boolean compare,
-
-	boolean write) throws AggregationException, IOException,
+			boolean write) throws AggregationException, IOException,
 			MetricNotApplicableException {
 		return SeriesGeneration.generate(this, runs, batches, compare, write);
 	}
