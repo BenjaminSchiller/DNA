@@ -653,7 +653,7 @@ public class GraphDataStructure implements Cloneable {
 					"Could not generate new weight instance: " + e.getMessage());
 			rt.setStackTrace(e.getStackTrace());
 			throw rt;
-	}
+		}
 		return w;
 	}
 
@@ -664,14 +664,14 @@ public class GraphDataStructure implements Cloneable {
 		if (weightClass == null) {
 			throw new RuntimeException(
 					"Can not generate new weight instance as weightClass is NULL");
-	}
+		}
 
 		/**
 		 * Legacy parsing of "old" weights
 		 */
 		if (s.startsWith("(W)")) {
 			s = s.substring(4);
-	}
+		}
 
 		try {
 			c = weightClass.getConstructor(String.class);
@@ -758,7 +758,7 @@ public class GraphDataStructure implements Cloneable {
 					+ edgeWeightType.getName();
 			res += Config.get("DATASTRUCTURES_CLASS_DELIMITER")
 					+ "edgeWeightSelection=" + edgeWeightSelection.name();
-	}
+		}
 
 		if (createsWeightedNodes()) {
 			res += Config.get("DATASTRUCTURES_CLASS_DELIMITER") + "nodeWeight="
@@ -821,7 +821,7 @@ public class GraphDataStructure implements Cloneable {
 
 		for (ListType lt : ListType.values()) {
 			if (this.getListClass(lt) != newGDS.getListClass(lt)) {
-				g.switchDataStructure(lt,newGDS.getListClass(lt));
+				g.switchDataStructure(lt, newGDS.getListClass(lt));
 			}
 		}
 
@@ -924,7 +924,8 @@ public class GraphDataStructure implements Cloneable {
 				tempInList.put(lt, clazz);
 				if (i == (maxI - 1)) {
 					if (GraphDataStructure.validListTypesSet(tempInList))
-						resAggregator.add(tempInList);
+						resAggregator.add(GraphDataStructure
+								.fillUpWithFallback(tempInList));
 				} else {
 					resAggregator.addAll(combineWith(tempInList, i + 1, maxI));
 				}
@@ -932,11 +933,30 @@ public class GraphDataStructure implements Cloneable {
 		}
 		return resAggregator;
 	}
-	
+
 	public GraphDataStructure clone() {
 		String representation = this.getDataStructures();
 		GraphDataStructure cloned = new GraphDataStructure(representation);
 		return cloned;
+	}
+
+	public static EnumMap<ListType, Class<? extends IDataStructure>> fillUpWithFallback(
+			EnumMap<ListType, Class<? extends IDataStructure>> in) {
+		EnumMap<ListType, Class<? extends IDataStructure>> res = new EnumMap<>(
+				ListType.class);
+
+		Class<? extends IDataStructure> currClass;
+		ListType recLT;
+		for (ListType lt : ListType.values()) {
+			currClass = null;
+			recLT = lt;
+			while (currClass == null) {
+				currClass = in.get(recLT);
+				recLT = recLT.getFallback();
+			}
+			res.put(lt, currClass);
+		}
+		return res;
 	}
 
 	public boolean isNodeType(Class... types) {
