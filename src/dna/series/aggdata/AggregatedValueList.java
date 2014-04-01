@@ -26,7 +26,8 @@ public class AggregatedValueList extends List<AggregatedValue> {
 
 	// IO methods
 	public void write(String dir, String filename) throws IOException {
-		Writer w = new Writer(dir, filename);
+		Writer w = Writer.getWriter(dir, filename);
+
 		for (String name : this.map.keySet()) {
 			String temp = "";
 			for (int i = 0; i < this.map.get(name).getValues().length; i++) {
@@ -44,7 +45,7 @@ public class AggregatedValueList extends List<AggregatedValue> {
 			return new AggregatedValueList();
 		}
 		AggregatedValueList list = new AggregatedValueList();
-		Reader r = new Reader(dir, filename);
+		Reader r = Reader.getReader(dir, filename);
 		String line = null;
 		while ((line = r.readString()) != null) {
 			String[] temp = line.split(Config.get("AGGREGATED_DATA_DELIMITER"));

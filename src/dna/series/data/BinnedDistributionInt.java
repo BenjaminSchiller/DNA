@@ -25,6 +25,15 @@ public class BinnedDistributionInt extends DistributionInt {
 	private double binsize;
 
 	// constructors
+	/**
+	 * Creates a BinnedDistributionInt with an empty int-array of size zero and
+	 * a denominator of zero.
+	 **/
+	public BinnedDistributionInt(String name, double binsize) {
+		super(name, new int[0], 0);
+		this.binsize = binsize;
+	}
+
 	public BinnedDistributionInt(String name, double binsize, int[] values,
 			int denominator) {
 		super(name, values, denominator);
@@ -113,7 +122,7 @@ public class BinnedDistributionInt extends DistributionInt {
 			throw new NullPointerException("no values for distribution \""
 					+ this.getName() + "\" set to be written to " + dir);
 		}
-		Writer w = new Writer(dir, filename);
+		Writer w = Writer.getWriter(dir, filename);
 
 		w.writeln(this.getDenominator()); // write denominator in first line
 		w.writeln(this.binsize); // write binsize in second line
@@ -142,7 +151,7 @@ public class BinnedDistributionInt extends DistributionInt {
 		if (!readValues) {
 			return new BinnedDistributionInt(name, 1, null, 0);
 		}
-		Reader r = new Reader(dir, filename);
+		Reader r = Reader.getReader(dir, filename);
 		ArrayList<Integer> list = new ArrayList<Integer>();
 		String line = null;
 		int index = 0;

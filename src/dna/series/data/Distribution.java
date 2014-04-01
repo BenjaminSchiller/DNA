@@ -53,7 +53,8 @@ public class Distribution extends Data {
 			throw new NullPointerException("no values for distribution \""
 					+ this.getName() + "\" set to be written to " + dir);
 		}
-		Writer w = new Writer(dir, filename);
+		Writer w = Writer.getWriter(dir, filename);
+
 		for (int i = 0; i < this.values.length; i++) {
 			w.writeln(i + Config.get("DISTRIBUTION_DELIMITER") + this.values[i]);
 		}
@@ -92,7 +93,7 @@ public class Distribution extends Data {
 		if (!readValues) {
 			return new Distribution(name, null);
 		}
-		Reader r = new Reader(dir, filename);
+		Reader r = Reader.getReader(dir, filename);
 		ArrayList<Double> list = new ArrayList<Double>();
 		String line = null;
 		int index = 0;

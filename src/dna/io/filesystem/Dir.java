@@ -1,10 +1,15 @@
 package dna.io.filesystem;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.DirectoryStream;
+import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Arrays;
 
 import dna.io.filter.PrefixFilenameFilter;
 import dna.metrics.Metric.MetricType;
+import dna.series.SeriesGeneration;
 import dna.util.Config;
 
 /**
@@ -74,14 +79,16 @@ public class Dir {
 				.get("PREFIX_BATCHDATA_DIR")));
 		int[] timestamps = new int[names.length];
 		for (int i = 0; i < names.length; i++) {
-			timestamps[i] = Integer.parseInt(names[i].replace(
-					Config.get("PREFIX_BATCHDATA_DIR"), ""));
+			timestamps[i] = Integer.parseInt((names[i].replace(
+					Config.get("PREFIX_BATCHDATA_DIR"), "")).replace(
+					Config.get("SUFFIX_ZIP_FILE"), ""));
 		}
 		Arrays.sort(timestamps);
 		for (int i = 0; i < timestamps.length; i++) {
 			names[i] = Config.get("PREFIX_BATCHDATA_DIR") + timestamps[i];
 		}
 		return names;
+
 	}
 
 	public static long getTimestamp(String batchFolderName) {
@@ -143,9 +150,29 @@ public class Dir {
 		}
 	}
 
-	public static String[] getMetrics(String dir) {
-		return (new File(dir)).list(new PrefixFilenameFilter(Config
-				.get("PREFIX_METRICDATA_DIR")));
+	public static String[] getMetrics(String dir) throws IOException {
+		if (SeriesGeneration.readFileSystem != null) {
+			Path p = SeriesGeneration.readFileSystem.getPath(dir);
+			ArrayList<String> fileList = new ArrayList<String>();
+			try (DirectoryStream<Path> directoryStream = java.nio.file.Files
+					.newDirectoryStream(p)) {
+				for (Path file : directoryStream) {
+					if ((file.getFileName().toString()).startsWith(Config
+							.get("PREFIX_METRICDATA_DIR"))) {
+						fileList.add(file
+								.getFileName()
+								.toString()
+								.substring(
+										0,
+										file.getFileName().toString().length() - 1));
+					}
+				}
+			}
+			return (String[]) fileList.toArray(new String[0]);
+		} else {
+			return (new File(dir)).list(new PrefixFilenameFilter(Config
+					.get("PREFIX_METRICDATA_DIR")));
+		}
 	}
 
 	public static String getMetricName(String metricFolderName) {

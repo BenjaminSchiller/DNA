@@ -17,7 +17,8 @@ public class RunTimeList extends List<RunTime> {
 	}
 
 	public void write(String dir, String filename) throws IOException {
-		Writer w = new Writer(dir, filename);
+		Writer w = Writer.getWriter(dir, filename);
+
 		for (String name : this.map.keySet()) {
 			w.writeln(name + "=" + this.map.get(name).getRuntime());
 		}
@@ -26,7 +27,8 @@ public class RunTimeList extends List<RunTime> {
 
 	public static RunTimeList read(String dir, String name) throws IOException {
 		RunTimeList list = new RunTimeList();
-		Reader r = new Reader(dir, name);
+		Reader r = Reader.getReader(dir, name);
+
 		String line = null;
 		while ((line = r.readString()) != null) {
 			String[] temp = line.split("=");

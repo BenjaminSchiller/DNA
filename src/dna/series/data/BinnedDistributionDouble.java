@@ -25,6 +25,15 @@ public class BinnedDistributionDouble extends DistributionDouble {
 	private double binsize;
 
 	// constructors
+	/**
+	 * Creates a BinnedDistributionDouble with an empty double-array of size
+	 * zero.
+	 **/
+	public BinnedDistributionDouble(String name, double binsize) {
+		super(name, new double[0]);
+		this.binsize = binsize;
+	}
+
 	public BinnedDistributionDouble(String name, double binsize, double[] values) {
 		super(name, values);
 		this.binsize = binsize;
@@ -112,7 +121,7 @@ public class BinnedDistributionDouble extends DistributionDouble {
 			throw new NullPointerException("no values for distribution \""
 					+ this.getName() + "\" set to be written to " + dir);
 		}
-		Writer w = new Writer(dir, filename);
+		Writer w = Writer.getWriter(dir, filename);
 
 		w.writeln(this.binsize); // write binsize in first line
 
@@ -140,7 +149,7 @@ public class BinnedDistributionDouble extends DistributionDouble {
 		if (!readValues) {
 			return new BinnedDistributionDouble(name, 1, null);
 		}
-		Reader r = new Reader(dir, filename);
+		Reader r = Reader.getReader(dir, filename);
 		ArrayList<Double> list = new ArrayList<Double>();
 		String line = null;
 		int index = 0;

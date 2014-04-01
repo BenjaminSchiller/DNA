@@ -9,6 +9,8 @@ import dna.util.Config;
 
 public class AggregatedBinnedDistribution extends AggregatedDistribution {
 
+	private double binsize;
+
 	// constructor
 	public AggregatedBinnedDistribution(String name) {
 		super(name);
@@ -16,9 +18,40 @@ public class AggregatedBinnedDistribution extends AggregatedDistribution {
 
 	public AggregatedBinnedDistribution(String name, AggregatedValue[] values) {
 		super(name, values);
+		this.binsize = 1;
+	}
+
+	public AggregatedBinnedDistribution(String name, AggregatedValue[] values,
+			double binsize) {
+		super(name, values);
+		this.binsize = binsize;
 	}
 
 	// IO methods
+	public void write(String dir, String filename) throws IOException {
+		Writer w = Writer.getWriter(dir, filename);
+
+		for (int i = 0; i < super.getValues().length; i++) {
+			String temp = "";
+			for (int j = 0; j < super.getValues()[i].getValues().length; j++) {
+				if (j == 0) {
+					String v = Double
+							.toString(super.getValues()[i].getValues()[j]
+									* this.binsize);
+					temp += v + Config.get("AGGREGATED_DATA_DELIMITER");
+				} else {
+					if (j == super.getValues()[i].getValues().length - 1)
+						temp += super.getValues()[i].getValues()[j];
+					else
+						temp += super.getValues()[i].getValues()[j]
+								+ Config.get("AGGREGATED_DATA_DELIMITER");
+				}
+			}
+			w.writeln(temp);
+		}
+		w.close();
+	}
+
 	/**
 	 * @param dir
 	 *            String which contains the path to the directory the
@@ -38,7 +71,7 @@ public class AggregatedBinnedDistribution extends AggregatedDistribution {
 		if (!readValues) {
 			return new AggregatedBinnedDistribution(name, null);
 		}
-		Reader r = new Reader(dir, filename);
+		Reader r = Reader.getReader(dir, filename);
 		ArrayList<AggregatedValue> list = new ArrayList<AggregatedValue>();
 		String line = null;
 
@@ -63,7 +96,7 @@ public class AggregatedBinnedDistribution extends AggregatedDistribution {
 
 	public static void write(String dir, String filename, double binsize,
 			double[][] values) throws IOException {
-		Writer w = new Writer(dir, filename);
+		Writer w = Writer.getWriter(dir, filename);
 
 		for (int i = 0; i < values.length; i++) {
 			String temp = "";

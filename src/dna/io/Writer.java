@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 
+import dna.series.SeriesGeneration;
 import dna.util.Config;
 
 /**
@@ -14,7 +15,7 @@ import dna.util.Config;
  * 
  */
 public class Writer {
-	private BufferedWriter writer;
+	protected BufferedWriter writer;
 	private boolean fileExistedBefore;
 
 	public Writer(String dir, String filename) throws IOException {
@@ -30,9 +31,13 @@ public class Writer {
 
 		this.writer = new BufferedWriter(new FileWriter(f, append));
 	}
-	
+
 	public void write(String line) throws IOException {
 		this.writer.write(line);
+	}
+
+	public Writer() {
+
 	}
 
 	public void writeln(String line) throws IOException {
@@ -75,9 +80,22 @@ public class Writer {
 	public static String getCommentAsLine(String comment) {
 		return Config.get("COMMENT_PREFIX") + comment;
 	}
-	
+
 	public boolean fileExistedBefore() {
 		return this.fileExistedBefore;
 	}
 
+	/**
+	 * Returns either a Writer or a ZipWriter. Depends if the static
+	 * BatchData.fs FileSystem is set or not. If it is set, a ZipWriter for the
+	 * FileSystem will be returned.
+	 */
+	public static Writer getWriter(String dir, String filename)
+			throws IOException {
+		if (SeriesGeneration.writeFileSystem == null)
+			return new Writer(dir, filename);
+		else
+			return new ZipWriter(SeriesGeneration.writeFileSystem, dir,
+					filename);
+	}
 }

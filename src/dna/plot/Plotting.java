@@ -107,12 +107,6 @@ public class Plotting {
 				+ type + "/" + style + ")");
 		(new File(dstDir)).mkdirs();
 
-		// read aggregation data
-		for (int i = 0; i < seriesData.length; i++) {
-			seriesData[i].setAggregation(AggregatedSeries.read(
-					seriesData[i].getDir(), seriesData[i].getName() + i + "_"
-							+ Config.get("RUN_AGGREGATION"), true));
-		}
 		// plot different data from the aggregation data
 		Plotting.plotDistributions(seriesData, dstDir, type, style,
 				distPlotType);
@@ -567,8 +561,9 @@ public class Plotting {
 
 		PlotData[] allData = new PlotData[seriesData.length];
 		AggregatedValue[][] allValues = new AggregatedValue[seriesData.length][0];
-		for(int i = 0; i < seriesData.length; i++){
-			allValues[i] = new AggregatedValue[seriesData[i].getAggregation().getBatches().length];
+		for (int i = 0; i < seriesData.length; i++) {
+			allValues[i] = new AggregatedValue[seriesData[i].getAggregation()
+					.getBatches().length];
 		}
 		// gather data..
 		// for each series

@@ -17,7 +17,8 @@ public class ValueList extends List<Value> {
 	}
 
 	public void write(String dir, String filename) throws IOException {
-		Writer w = new Writer(dir, filename);
+		Writer w = Writer.getWriter(dir, filename);
+
 		for (String name : this.map.keySet()) {
 			w.writeln(name + "=" + this.map.get(name).getValue());
 		}
@@ -27,7 +28,8 @@ public class ValueList extends List<Value> {
 	public static ValueList read(String dir, String filename)
 			throws IOException {
 		ValueList list = new ValueList();
-		Reader r = new Reader(dir, filename);
+		Reader r = Reader.getReader(dir, filename);
+
 		String line = null;
 		while ((line = r.readString()) != null) {
 			String[] temp = line.split("=");

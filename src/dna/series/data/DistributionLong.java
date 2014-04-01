@@ -177,7 +177,7 @@ public class DistributionLong extends Distribution {
 			throw new NullPointerException("no values for distribution \""
 					+ this.getName() + "\" set to be written to " + dir);
 		}
-		Writer w = new Writer(dir, filename);
+		Writer w = Writer.getWriter(dir, filename);
 
 		w.writeln(this.denominator); // write denominator in first line
 
@@ -205,7 +205,7 @@ public class DistributionLong extends Distribution {
 		if (!readValues) {
 			return new DistributionLong(name, null, 0);
 		}
-		Reader r = new Reader(dir, filename);
+		Reader r = Reader.getReader(dir, filename);
 		ArrayList<Long> list = new ArrayList<Long>();
 		String line = null;
 		int index = 0;

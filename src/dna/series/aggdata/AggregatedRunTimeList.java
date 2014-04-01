@@ -44,7 +44,7 @@ public class AggregatedRunTimeList extends List<AggregatedValue> {
 
 	// IO methods
 	public void write(String dir, String filename) throws IOException {
-		Writer w = new Writer(dir, filename);
+		Writer w = Writer.getWriter(dir, filename);
 
 		for (AggregatedValue aggData : this.getList()) {
 			String temp = "" + aggData.getName()
@@ -67,7 +67,7 @@ public class AggregatedRunTimeList extends List<AggregatedValue> {
 			return new AggregatedRunTimeList(filename);
 		}
 		AggregatedRunTimeList list = new AggregatedRunTimeList();
-		Reader r = new Reader(dir, filename);
+		Reader r = Reader.getReader(dir, filename);
 		String line = null;
 		while ((line = r.readString()) != null) {
 			String[] temp = line.split(Config.get("AGGREGATED_DATA_DELIMITER"));
