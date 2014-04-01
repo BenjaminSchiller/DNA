@@ -1,40 +1,51 @@
 package dna.profiler;
 
+import java.util.Comparator;
 import java.util.EnumMap;
 
 import dna.graph.datastructures.GraphDataStructure;
 import dna.graph.datastructures.IDataStructure;
 import dna.graph.datastructures.DataStructure.ListType;
+import dna.profiler.ProfilerMeasurementData.ProfilerDataType;
 import dna.profiler.datatypes.ComparableEntryMap;
 
-public class RecommenderEntry implements Comparable<RecommenderEntry> {
-	private ComparableEntryMap costs;
+public class RecommenderEntry {
+	private EnumMap<ProfilerDataType, ComparableEntryMap> costs;
 	private EnumMap<ListType, Class<? extends IDataStructure>> datastructures;
-	
-	public RecommenderEntry(ComparableEntryMap costs, EnumMap<ListType, Class<? extends IDataStructure>> ds) {
-		this.costs = costs;
+
+	public RecommenderEntry(
+			EnumMap<ListType, Class<? extends IDataStructure>> ds) {
+		this.costs = new EnumMap<ProfilerDataType, ComparableEntryMap>(
+				ProfilerDataType.class);
 		this.datastructures = ds;
 	}
-	
-	public ComparableEntryMap getCosts() {
-		return costs;
+
+	public void setCosts(ProfilerDataType pdt, ComparableEntryMap newCosts) {
+		costs.put(pdt, newCosts);
 	}
-	
+
+	public ComparableEntryMap getCosts(ProfilerDataType pdt) {
+		return costs.get(pdt);
+	}
+
 	public Class<? extends IDataStructure> getDatastructure(ListType lt) {
 		return datastructures.get(lt);
 	}
-	
+
 	public EnumMap<ListType, Class<? extends IDataStructure>> getDatastructures() {
-		return datastructures;
+		EnumMap<ListType, Class<? extends IDataStructure>> res = GraphDataStructure
+				.fillUpWithFallback(datastructures);
+		return res;
 	}
-	
+
 	public GraphDataStructure getGraphDataStructure() {
 		return new GraphDataStructure(datastructures, null, null);
 	}
 
-	@Override
-	public int compareTo(RecommenderEntry o) {
-		return costs.compareTo(o.costs);
+	public int compareToOther(RecommenderEntry o, ProfilerDataType pdt) {
+		ComparableEntryMap myCosts = costs.get(pdt);
+		ComparableEntryMap otherCosts = o.getCosts(pdt);
+		return myCosts.compareTo(otherCosts);
 	}
 
 	@Override
@@ -66,6 +77,11 @@ public class RecommenderEntry implements Comparable<RecommenderEntry> {
 			return false;
 		}
 		return true;
+	}
+
+	public static Comparator<? super RecommenderEntry> getComparator(
+			ProfilerDataType entryType) {
+		return new RecommenderEntryComparator(entryType);
 	}
 
 }

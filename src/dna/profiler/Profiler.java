@@ -51,6 +51,7 @@ public class Profiler {
 
 	final static String separator = System.getProperty("line.separator");
 
+	private static HashMap<EnumMap<ListType, Class<? extends IDataStructure>>, RecommenderEntry> recEntryMap = new HashMap<>();
 	private static Map<ProfilerMeasurementData.ProfilerDataType, RecommenderEntry> lastRecommendations = new EnumMap<>(
 			ProfilerDataType.class);
 	private static Map<ProfilerMeasurementData.ProfilerDataType, RecommenderEntry> lastCosts = new EnumMap<>(
@@ -250,7 +251,7 @@ public class Profiler {
 			allCombinations = GraphDataStructure
 					.getAllDatastructureCombinations();
 
-		TreeSet<RecommenderEntry> recommendationQueue = new TreeSet<RecommenderEntry>();
+		TreeSet<RecommenderEntry> recommendationQueue = new TreeSet<RecommenderEntry>(RecommenderEntry.getComparator(entryType));
 		int numberOfRecommendations = Config
 				.getInt("NUMBER_OF_RECOMMENDATIONS");
 
@@ -297,14 +298,20 @@ public class Profiler {
 				}
 				aggregated.add(listComplexities.get(loopLT).get(currClass));
 			}
-			RecommenderEntry aggregatedEntry = new RecommenderEntry(aggregated,
-					singleCombination);
+
+			RecommenderEntry aggregatedEntry = recEntryMap
+					.get(singleCombination);
+			if (aggregatedEntry == null) {
+				aggregatedEntry = new RecommenderEntry(singleCombination);
+				recEntryMap.put(singleCombination, aggregatedEntry);
+			}
+			aggregatedEntry.setCosts(entryType, aggregated);
 
 			RecommenderEntry lowerEntry = recommendationQueue
 					.floor(aggregatedEntry);
 			if (lowerEntry == null
-					|| !lowerEntry.getCosts()
-							.equals(aggregatedEntry.getCosts())) {
+					|| !lowerEntry.getCosts(entryType).equals(
+							aggregatedEntry.getCosts(entryType))) {
 				// Key not yet in list
 				recommendationQueue.add(aggregatedEntry);
 			} else if ((singleCombination.get(ListType.GlobalEdgeList) == DEmpty.class && lowerEntry
@@ -328,7 +335,7 @@ public class Profiler {
 			String polledEntry = pollFirstEntry.getGraphDataStructure()
 					.getStorageDataStructures(true)
 					+ ": "
-					+ pollFirstEntry.getCosts();
+					+ pollFirstEntry.getCosts(entryType);
 			res.append(separator);
 			res.append(outputPrefix + "   " + polledEntry);
 
@@ -374,8 +381,15 @@ public class Profiler {
 				.values()) {
 			ComparableEntryMap aggregatedMap = resEntry.combinedComplexity(
 					entryType, gds, null);
-			RecommenderEntry aggregatedEntry = new RecommenderEntry(
-					aggregatedMap, gds.getStorageDataStructures());
+			RecommenderEntry aggregatedEntry = recEntryMap.get(gds
+					.getStorageDataStructures());
+			if (aggregatedEntry == null) {
+				aggregatedEntry = new RecommenderEntry(
+						gds.getStorageDataStructures());
+				recEntryMap
+						.put(gds.getStorageDataStructures(), aggregatedEntry);
+			}
+			aggregatedEntry.setCosts(entryType, aggregatedMap);
 
 			res.append(" Aggr for " + entryType + ": " + aggregatedMap
 					+ separator);
@@ -476,8 +490,17 @@ public class Profiler {
 				.values()) {
 			ComparableEntryMap aggregatedMap = aggregated.combinedComplexity(
 					entryType, gds, null);
-			RecommenderEntry aggregatedEntry = new RecommenderEntry(
-					aggregatedMap, gds.getStorageDataStructures());
+
+			RecommenderEntry aggregatedEntry = recEntryMap.get(gds
+					.getStorageDataStructures());
+			if (aggregatedEntry == null) {
+				aggregatedEntry = new RecommenderEntry(
+						gds.getStorageDataStructures());
+				recEntryMap
+						.put(gds.getStorageDataStructures(), aggregatedEntry);
+			}
+			aggregatedEntry.setCosts(entryType, aggregatedMap);
+
 			lastCosts.put(entryType, aggregatedEntry);
 			res.append(outputPrefix + " Aggr for " + entryType + ": "
 					+ aggregatedMap + separator);
