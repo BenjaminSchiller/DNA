@@ -289,7 +289,7 @@ public class BenchmarkingExperiments {
 			throw new RuntimeException("No benchmarking here");
 		for (int i : randomIDsInList) {
 			res = nodeListToBenchmarkCasted.get(i) != null;
-			if (!res) {
+			if (!res && dsClass != DEmpty.class) {
 				System.err
 						.println("Misdefined benchmark GetSuccess_Node for class "
 								+ dsClass.getSimpleName()
@@ -391,7 +391,7 @@ public class BenchmarkingExperiments {
 			Integer setupSize) {
 		for (i = 0; i < operationSize; i++) {
 			res = nodeListToBenchmark.remove(randomNodesNotInList[i]);
-			if (res) {
+			if (res && dsClass != DEmpty.class) {
 				System.err
 						.println("Misdefined benchmark RemoveFailure_Node for class "
 								+ dsClass.getSimpleName()
