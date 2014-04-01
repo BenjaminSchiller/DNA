@@ -30,6 +30,14 @@ public class DistributionDouble extends Distribution {
 	private double comparedAvg;
 
 	// constructors
+	/**
+	 * Creates a dDistributionDouble with an empty double-array of size zero.
+	 **/
+	public DistributionDouble(String name) {
+		super(name);
+		this.values = new double[0];
+	}
+
 	public DistributionDouble(String name, double[] values) {
 		super(name);
 		this.values = values;

@@ -25,6 +25,15 @@ public class BinnedDistributionLong extends DistributionLong {
 	private double binsize;
 
 	// constructors
+	/**
+	 * Creates a BinnedDistributionLong with an empty long-array of size zero
+	 * and a denominator of zero.
+	 **/
+	public BinnedDistributionLong(String name, double binsize) {
+		super(name, new long[0], 0);
+		this.binsize = binsize;
+	}
+
 	public BinnedDistributionLong(String name, double binsize, long[] values,
 			long denominator) {
 		super(name, values, denominator);

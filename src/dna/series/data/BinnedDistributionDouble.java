@@ -25,6 +25,15 @@ public class BinnedDistributionDouble extends DistributionDouble {
 	private double binsize;
 
 	// constructors
+	/**
+	 * Creates a BinnedDistributionDouble with an empty double-array of size
+	 * zero.
+	 **/
+	public BinnedDistributionDouble(String name, double binsize) {
+		super(name, new double[0]);
+		this.binsize = binsize;
+	}
+
 	public BinnedDistributionDouble(String name, double binsize, double[] values) {
 		super(name, values);
 		this.binsize = binsize;

@@ -25,6 +25,15 @@ public class BinnedDistributionInt extends DistributionInt {
 	private double binsize;
 
 	// constructors
+	/**
+	 * Creates a BinnedDistributionInt with an empty int-array of size zero and
+	 * a denominator of zero.
+	 **/
+	public BinnedDistributionInt(String name, double binsize) {
+		super(name, new int[0], 0);
+		this.binsize = binsize;
+	}
+
 	public BinnedDistributionInt(String name, double binsize, int[] values,
 			int denominator) {
 		super(name, values, denominator);
