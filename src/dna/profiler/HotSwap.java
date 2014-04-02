@@ -84,10 +84,10 @@ public class HotSwap {
 							+ entry.getGraphDataStructure()
 									.getStorageDataStructures(true));
 					System.out
-							.println("  Last own costs: "
+							.println("  Last own runtime costs: "
 									+ lastCosts
 											.getCosts(ProfilerDataType.RuntimeBenchmark)
-									+ ", recommended entry costs: "
+									+ ", recommended entry runtime costs: "
 									+ entry.getCosts(ProfilerDataType.RuntimeBenchmark));
 					GraphDataStructure newGDS = entry.getGraphDataStructure();
 					doSwap(g, newGDS);
