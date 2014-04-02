@@ -23,6 +23,7 @@ import dna.io.filesystem.Files;
 import dna.profiler.ProfilerGranularity.Options;
 import dna.profiler.ProfilerMeasurementData.ProfilerDataType;
 import dna.profiler.datatypes.ComparableEntryMap;
+import dna.profiler.datatypes.benchmarkresults.BenchmarkingResultsMap;
 import dna.series.Series;
 import dna.updates.update.Update.UpdateType;
 import dna.util.Config;
@@ -359,6 +360,8 @@ public class Profiler {
 			}
 		}
 
+		res = postfilter(res);
+
 		return res;
 	}
 
@@ -385,7 +388,6 @@ public class Profiler {
 		HashSet<ListType> fallbackListTypes = new HashSet<>();
 
 		Class<? extends IDataStructure> currClass;
-		ListType recLT;
 
 		if (oldList.size() > 0) {
 			EnumMap<ListType, Class<? extends IDataStructure>> first = oldList
@@ -439,6 +441,40 @@ public class Profiler {
 
 			if (!skipThisEntry) {
 				res.add(el);
+			}
+		}
+		return res;
+	}
+
+	/**
+	 * Do some post-filtering, based on the recommendations that were calculated
+	 * 
+	 * @param res
+	 * @return
+	 */
+	private static HashMap<EnumMap<ListType, Class<? extends IDataStructure>>, RecommenderEntry> postfilter(
+			HashMap<EnumMap<ListType, Class<? extends IDataStructure>>, RecommenderEntry> input) {
+		HashMap<EnumMap<ListType, Class<? extends IDataStructure>>, RecommenderEntry> res = new HashMap<>();
+
+		boolean isElementBlocked = false;
+		int maxMemoryBound = Config.getInt("RECOMMENDER_MAX_MEMORY_BOUND");
+
+		for (Entry<EnumMap<ListType, Class<? extends IDataStructure>>, RecommenderEntry> element : input
+				.entrySet()) {
+			isElementBlocked = false;
+
+			RecommenderEntry entry = element.getValue();
+			BenchmarkingResultsMap memoryCosts = (BenchmarkingResultsMap) entry
+					.getCosts(ProfilerDataType.MemoryBenchmark);
+			double rawMemoryCosts = memoryCosts.getValue();
+			if (maxMemoryBound > 0 && rawMemoryCosts > maxMemoryBound) {
+				System.out.println("Will filter out " + element.getKey()
+						+ " due to high memory costs of " + rawMemoryCosts);
+				isElementBlocked = true;
+			}
+
+			if (!isElementBlocked || true) {
+				res.put(element.getKey(), element.getValue());
 			}
 		}
 		return res;
