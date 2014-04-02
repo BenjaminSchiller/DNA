@@ -14,6 +14,10 @@ public class Log {
 
 	private static LogLevel logLevel = LogLevel.info;
 
+	public static LogLevel getLogLevel() {
+		return Log.logLevel;
+	}
+
 	public static void setLogLevel(LogLevel logLevel) {
 		Log.logLevel = logLevel;
 	}

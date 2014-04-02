@@ -262,7 +262,7 @@ public class ComplexityTests {
 		TreeMap<ComplexityMap, GraphDataStructure> tree = new TreeMap<>();
 		tree.put(c1, null);
 		tree.put(c2, null);
-		System.out.println(tree.keySet());
+		// System.out.println(tree.keySet());
 		
 		assertEquals(2, tree.size());
 		assertEquals(c1, tree.pollFirstEntry().getKey());

@@ -54,7 +54,6 @@ public class EdgeSupertypeTest {
 				result.add(new Object[] { nodeType, edgeType });
 			}
 		}
-		System.out.println(result);
 		return result;
 	}
 

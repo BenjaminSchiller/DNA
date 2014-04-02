@@ -37,6 +37,8 @@ import dna.series.AggregationException;
 import dna.series.Series;
 import dna.updates.generators.BatchGenerator;
 import dna.updates.generators.random.RandomBatch;
+import dna.util.Log.LogLevel;
+import dna.util.Log;
 import dna.util.MathHelper;
 import dna.util.Timer;
 
@@ -56,6 +58,8 @@ public class SingleTests {
 	public void metricTest() throws AggregationException, IOException,
 			MetricNotApplicableException {
 		Profiler.activate();
+		LogLevel oldLogLevel = Log.getLogLevel();
+		Log.setLogLevel(LogLevel.warn);
 
 		GraphDataStructure gds = new GraphDataStructure(listTypes,
 				DirectedNode.class, DirectedEdge.class);
@@ -65,6 +69,7 @@ public class SingleTests {
 				new DirectedClusteringCoefficientU() };
 		Series s = new Series(gg, batchGen, metrics, "./graphs/", "test");
 		s.generate(2, 1);
+		Log.setLogLevel(oldLogLevel);
 	}
 
 	@Test
