@@ -11,6 +11,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 import dna.graph.datastructures.DArrayList;
+import dna.graph.datastructures.DEmpty;
 import dna.graph.datastructures.DataStructure.ListType;
 import dna.graph.datastructures.GraphDataStructure;
 import dna.graph.datastructures.IDataStructure;
@@ -152,6 +153,8 @@ public class SingleTests {
 		 */
 		for (Class dsClass : GlobalTestParameters.dataStructures) {
 			if (!INodeListDatastructureReadable.class.isAssignableFrom(dsClass))
+				continue;
+			if (dsClass == DEmpty.class)
 				continue;
 
 			EnumMap<ListType, Class<? extends IDataStructure>> list = GraphDataStructure

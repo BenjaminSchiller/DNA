@@ -128,6 +128,8 @@ public class ProfilerTest {
 			if (!(INodeListDatastructure.class
 					.isAssignableFrom(loopNodeListType)))
 				continue;
+			if (loopNodeListType == DEmpty.class)
+				continue;
 			nodeListType = loopNodeListType;
 		}
 

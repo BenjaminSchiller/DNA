@@ -176,7 +176,8 @@ public class BatchTest {
 						if (generator == EmptyGraph.class)
 							continue;
 
-						if (combination.get(ListType.GlobalEdgeList) == DEmpty.class
+						if (combination.get(ListType.GlobalNodeList) == DEmpty.class
+								|| combination.get(ListType.GlobalEdgeList) == DEmpty.class
 								|| combination.get(ListType.LocalEdgeList) == DEmpty.class)
 							continue;
 

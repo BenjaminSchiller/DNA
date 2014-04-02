@@ -90,7 +90,8 @@ public class GraphTester {
 									.isAssignableFrom(nodeEdgeListType)))
 								continue;
 
-							if (edgeListType == DEmpty.class
+							if (nodeListType == DEmpty.class
+									|| edgeListType == DEmpty.class
 									|| nodeEdgeListType == DEmpty.class)
 								continue;
 
