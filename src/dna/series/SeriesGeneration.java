@@ -115,8 +115,6 @@ public class SeriesGeneration {
 		Timer aggregationTimer = new Timer("aggregation");
 
 		AggregatedSeries aSd = Aggregation.aggregateSeries(sd);
-		if (write)
-			aSd.write(Dir.getAggregationDataDir(series.getDir()));
 		sd.setAggregation(aSd);
 		aggregationTimer.end();
 		Log.info(aggregationTimer.toString());

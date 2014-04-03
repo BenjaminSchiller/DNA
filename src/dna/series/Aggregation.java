@@ -33,6 +33,7 @@ import dna.series.data.Value;
 import dna.util.ArrayUtils;
 import dna.util.Config;
 import dna.util.Log;
+import dna.util.Memory;
 
 /**
  * 
@@ -137,8 +138,11 @@ public class Aggregation {
 		else
 			Log.info("aggregation mode: /n+1, treating missing values as 0");
 
+		int gcCounter = 1;
+
 		RunData maxRun = runs.get(runId);
 		AggregatedBatch[] aBatches = new AggregatedBatch[maxAmountBatches];
+		AggregatedBatch tempBatch;
 
 		// iterate over batches
 		for (int batchId = 0; batchId < runs.get(runId).getBatches().size(); batchId++) {
@@ -146,7 +150,9 @@ public class Aggregation {
 			BatchData structure = maxRun.getBatches().get(batchId);
 			long timestamp = structure.getTimestamp();
 
-			Log.info("\tBatch: " + timestamp);
+			// record memory usage
+			double mem = (new Memory()).getUsed();
+			Log.info("\tBatch: " + timestamp + " (memory: " + mem + ")");
 
 			// iterate over runs and read batches
 			for (int i = 0; i < runs.size(); i++) {
@@ -173,8 +179,28 @@ public class Aggregation {
 			AggregatedMetricList aMetrics = aggregateMetrics(batches);
 
 			// craft aggregated batch
-			aBatches[batchId] = new AggregatedBatch(timestamp, aStats,
+			String aggdir = Dir.getAggregationDataDir(dir);
+
+			tempBatch = new AggregatedBatch(timestamp, aStats,
 					aGeneralRuntimes, aMetricRuntimes, aMetrics);
+
+			// write batch
+			if (SeriesGeneration.singleFile)
+				tempBatch.writeSingleFile(aggdir, timestamp, Dir.delimiter);
+			else
+				tempBatch.write(Dir.getBatchDataDir(aggdir, timestamp));
+
+			// overwrite tempbatch
+			tempBatch = null;
+			aBatches[batchId] = new AggregatedBatch(timestamp);
+
+			// call garbage collection
+			if (Config.getBoolean("GENERATION_CALL_GC")
+					&& batchId == Config.getInt("GENERATION_GC_OCCURENCE")
+							* gcCounter) {
+				System.gc();
+				gcCounter++;
+			}
 		}
 
 		// return
