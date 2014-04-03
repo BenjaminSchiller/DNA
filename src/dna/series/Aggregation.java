@@ -812,12 +812,20 @@ public class Aggregation {
 		// init
 		int batchesAmount = run.getBatches().size();
 		AggregatedBatch[] aBatches = new AggregatedBatch[batchesAmount];
+		AggregatedBatch tempBatch;
+
+		int gcCounter = 1;
 
 		// iterate over batches
 		for (int batchId = 0; batchId < run.getBatches().size(); batchId++) {
 			BatchData structure = run.getBatches().get(batchId);
 			BatchData b;
 			long timestamp = structure.getTimestamp();
+
+			// record memory usage
+			double mem = (new Memory()).getUsed();
+			Log.info("\tBatch: " + timestamp + " (memory: " + mem + ")");
+
 			// read batch
 			if (SeriesGeneration.singleFile) {
 				b = BatchData.readBatchValuesFromSingleFile(
@@ -836,8 +844,28 @@ public class Aggregation {
 			AggregatedMetricList aMetrics = aggregateMetrics(b);
 
 			// craft aggregated batch
-			aBatches[batchId] = new AggregatedBatch(timestamp, aStats,
+			String aggdir = Dir.getAggregationDataDir(dir);
+
+			tempBatch = new AggregatedBatch(timestamp, aStats,
 					aGeneralRuntimes, aMetricRuntimes, aMetrics);
+
+			// write batch
+			if (SeriesGeneration.singleFile)
+				tempBatch.writeSingleFile(aggdir, timestamp, Dir.delimiter);
+			else
+				tempBatch.write(Dir.getBatchDataDir(aggdir, timestamp));
+
+			// overwrite tempbatch
+			tempBatch = null;
+			aBatches[batchId] = new AggregatedBatch(timestamp);
+
+			// call garbage collection
+			if (Config.getBoolean("GENERATION_CALL_GC")
+					&& batchId == Config.getInt("GENERATION_GC_OCCURENCE")
+							* gcCounter) {
+				System.gc();
+				gcCounter++;
+			}
 		}
 
 		// return
