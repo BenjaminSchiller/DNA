@@ -195,8 +195,8 @@ public class Aggregation {
 			aBatches[batchId] = new AggregatedBatch(timestamp);
 
 			// call garbage collection
-			if (Config.getBoolean("GENERATION_CALL_GC")
-					&& batchId == Config.getInt("GENERATION_GC_OCCURENCE")
+			if (Config.getBoolean("AGGREGATION_CALL_GC")
+					&& batchId == Config.getInt("AGGREGATION_GC_OCCURENCE")
 							* gcCounter) {
 				System.gc();
 				gcCounter++;
@@ -860,8 +860,8 @@ public class Aggregation {
 			aBatches[batchId] = new AggregatedBatch(timestamp);
 
 			// call garbage collection
-			if (Config.getBoolean("GENERATION_CALL_GC")
-					&& batchId == Config.getInt("GENERATION_GC_OCCURENCE")
+			if (Config.getBoolean("AGGREGATION_CALL_GC")
+					&& batchId == Config.getInt("AGGREGATION_GC_OCCURENCE")
 							* gcCounter) {
 				System.gc();
 				gcCounter++;
