@@ -107,6 +107,13 @@ public class Plotting {
 				+ type + "/" + style + ")");
 		(new File(dstDir)).mkdirs();
 
+		// read aggregation data
+		for (int i = 0; i < seriesData.length; i++) {
+			seriesData[i].setAggregation(AggregatedSeries.read(
+					seriesData[i].getDir(), seriesData[i].getName() + i + "_"
+							+ Config.get("RUN_AGGREGATION"), true));
+		}
+
 		// plot different data from the aggregation data
 		Plotting.plotDistributions(seriesData, dstDir, type, style,
 				distPlotType);
