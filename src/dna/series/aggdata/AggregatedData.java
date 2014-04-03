@@ -48,7 +48,7 @@ public class AggregatedData implements ListItem {
 	 */
 	public static void write(AggregatedValue[] inputData, String dir,
 			String filename) throws IOException {
-		Writer w = new Writer(dir, filename);
+		Writer w = Writer.getWriter(dir, filename);
 
 		for (AggregatedValue aggData : inputData) {
 			String temp = "" + aggData.getName()
@@ -67,7 +67,7 @@ public class AggregatedData implements ListItem {
 
 	public static void write(ArrayList<AggregatedValue> inputData, String dir,
 			String filename) throws IOException {
-		Writer w = new Writer(dir, filename);
+		Writer w = Writer.getWriter(dir, filename);
 
 		for (AggregatedValue aggData : inputData) {
 			String temp = "" + aggData.getName()
@@ -86,7 +86,7 @@ public class AggregatedData implements ListItem {
 
 	public static void write(AggregatedValue inputData, String dir,
 			String filename) throws IOException {
-		Writer w = new Writer(dir, filename);
+		Writer w = Writer.getWriter(dir, filename);
 
 		String temp = "" + inputData.getName()
 				+ Config.get("AGGREGATED_DATA_DELIMITER");
@@ -105,7 +105,8 @@ public class AggregatedData implements ListItem {
 
 	public static void write(AggregatedNodeValueList inputData, String dir,
 			String filename) throws IOException {
-		Writer w = new Writer(dir, filename);
+		Writer w = Writer.getWriter(dir, filename);
+
 		AggregatedValue[] tempData = inputData.getValues();
 
 		for (AggregatedValue aggData : tempData) {
@@ -125,7 +126,8 @@ public class AggregatedData implements ListItem {
 
 	public static void write(AggregatedDistribution inputData, String dir,
 			String filename) throws IOException {
-		Writer w = new Writer(dir, filename);
+		Writer w = Writer.getWriter(dir, filename);
+
 		AggregatedValue[] tempData = inputData.getValues();
 
 		for (AggregatedValue aggData : tempData) {
@@ -145,14 +147,13 @@ public class AggregatedData implements ListItem {
 
 	public static void write(HashMap<String, double[]> inputData, String dir,
 			String filename) throws IOException {
-		Writer w = new Writer(dir, filename);
+		Writer w = Writer.getWriter(dir, filename);
 
 		for (String value : inputData.keySet()) {
 			double[] tempValues = inputData.get(value);
 
 			String temp = value + Config.get("AGGREGATED_DATA_DELIMITER")
-					+ tempValues[0]
-					+ Config.get("AGGREGATED_DATA_DELIMITER");
+					+ tempValues[0] + Config.get("AGGREGATED_DATA_DELIMITER");
 			for (int i = 1; i < tempValues.length; i++) {
 				if (i == tempValues.length - 1)
 					temp += tempValues[i];

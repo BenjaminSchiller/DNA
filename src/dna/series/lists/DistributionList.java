@@ -54,13 +54,15 @@ public class DistributionList extends List<Distribution> {
 					&& !(d instanceof DistributionLong)
 					&& !(d instanceof DistributionDouble))
 				d.write(dir, Files.getDistributionFilename(d.getName()));
-
 		}
 	}
 
 	public static DistributionList readDiff(String dir, boolean readValues)
 			throws IOException {
 		String[] distributions = Files.getDistributions(dir);
+		if (distributions == null)
+			return new DistributionList(0);
+
 		DistributionList list = new DistributionList(distributions.length);
 		for (String distribution : distributions) {
 			list.add(Distribution.read(dir, distribution,
@@ -72,6 +74,9 @@ public class DistributionList extends List<Distribution> {
 	public static DistributionList read(String dir, boolean readValues)
 			throws IOException {
 		String[] distributions = Files.getDistributions(dir);
+		if (distributions == null)
+			return new DistributionList(0);
+
 		DistributionList list = new DistributionList(distributions.length);
 
 		for (String distribution : distributions) {

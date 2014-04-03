@@ -80,7 +80,8 @@ public class AggregatedValue extends AggregatedData {
 
 	// IO methods
 	public void write(String dir, String filename) throws IOException {
-		Writer w = new Writer(dir, filename);
+		Writer w = Writer.getWriter(dir, filename);
+
 		String temp = "name";
 		for (int i = 0; i < this.values.length; i++) {
 			temp = temp + Config.get("AGGREGATED_DATA_DELIMITER")
@@ -109,7 +110,7 @@ public class AggregatedValue extends AggregatedData {
 		if (!readValues) {
 			return new AggregatedValue(name, null);
 		}
-		Reader r = new Reader(dir, filename);
+		Reader r = Reader.getReader(dir, filename);
 
 		String line = null;
 
@@ -127,7 +128,7 @@ public class AggregatedValue extends AggregatedData {
 
 	public static void write(double[] x, AggregatedValue[] values, String dir,
 			String filename) throws IOException {
-		Writer w = new Writer(dir, filename);
+		Writer w = Writer.getWriter(dir, filename);
 		for (int i = 0; i < x.length; i++) {
 			StringBuffer buff = new StringBuffer(x[i] + "");
 			for (int j = 0; j < values[i].getValues().length; j++) {

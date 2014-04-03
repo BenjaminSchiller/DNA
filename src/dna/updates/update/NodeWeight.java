@@ -31,4 +31,8 @@ public class NodeWeight extends NodeUpdate {
 		return super.toString_() + " [" + this.weight + "]";
 	}
 
+	public Object getWeight() {
+		return this.weight;
+	}
+
 }

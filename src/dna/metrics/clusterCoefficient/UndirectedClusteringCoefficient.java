@@ -9,6 +9,18 @@ import dna.metrics.Metric;
 import dna.updates.batch.Batch;
 import dna.util.ArrayUtils;
 
+/**
+ * 
+ * Abstract super class of all metrics that compute the undirected clustering
+ * coefficient, i.e., a potential triangle is a triplet a-b-c. An actual
+ * triangle exists if the edge a-c exists as well. This metric can be applied to
+ * DIRECTED or UNDIRECTED graphs. In case of a directed graph, potential
+ * triangles are of the form a<->b<->c and actual triangles exist if a->c and
+ * a<-c exist (a<->c).
+ * 
+ * @author benni
+ * 
+ */
 public abstract class UndirectedClusteringCoefficient extends
 		ClusteringCoefficient {
 

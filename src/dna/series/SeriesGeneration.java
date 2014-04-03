@@ -1,27 +1,33 @@
 package dna.series;
 
 import java.io.IOException;
+import java.nio.file.FileSystem;
 import java.util.HashMap;
 
 import dna.io.filesystem.Dir;
 import dna.metrics.Metric;
 import dna.metrics.MetricNotApplicableException;
 import dna.series.Series.RandomSeedReset;
+import dna.series.aggdata.AggregatedSeries;
 import dna.series.data.BatchData;
-import dna.series.data.RunData;
 import dna.series.data.RunTime;
 import dna.series.data.SeriesData;
 import dna.series.data.Value;
-import dna.series.lists.RunDataList;
 import dna.updates.batch.Batch;
 import dna.updates.batch.BatchSanitization;
 import dna.updates.batch.BatchSanitizationStats;
 import dna.updates.update.Update;
+import dna.util.Config;
 import dna.util.Log;
 import dna.util.Memory;
 import dna.util.Timer;
 
 public class SeriesGeneration {
+
+	public static boolean singleFile = false;
+	public static FileSystem writeFileSystem;
+	public static FileSystem readFileSystem;
+
 	public static SeriesData generate(Series series, int runs, int batches)
 			throws AggregationException, IOException,
 			MetricNotApplicableException {
@@ -53,6 +59,8 @@ public class SeriesGeneration {
 			IOException, MetricNotApplicableException {
 		Log.infoSep();
 		Timer timer = new Timer("seriesGeneration");
+		SeriesGeneration.singleFile = Config
+				.getBoolean("GENERATION_BATCHES_AS_ZIP");
 		Log.info("generating series");
 		Log.infoSep();
 		Log.info("ds = "
@@ -61,6 +69,10 @@ public class SeriesGeneration {
 		Log.info("gg = " + series.getGraphGenerator().getDescription());
 		Log.info("bg = " + series.getBatchGenerator().getDescription());
 		Log.info("p  = " + series.getDir());
+		if (SeriesGeneration.singleFile)
+			Log.info("b  = zipped");
+		else
+			Log.info("b  = files");
 		StringBuffer buff = new StringBuffer("");
 		for (Metric m : series.getMetrics()) {
 			if (buff.length() > 0) {
@@ -69,8 +81,6 @@ public class SeriesGeneration {
 			buff.append(m.getDescription());
 		}
 		Log.info("m  = " + buff.toString());
-
-		SeriesData sd = new SeriesData(series.getDir(), series.getName(), runs);
 
 		// reset rand per series
 		if (series.getRandomSeedReset() == RandomSeedReset.eachSeries) {
@@ -84,10 +94,13 @@ public class SeriesGeneration {
 				series.resetRand();
 			}
 
-			// generate run
-			sd.addRun(SeriesGeneration.generateRun(series, r, batches, compare,
-					write));
+			// generate runW
+			SeriesGeneration.generateRun(series, r, batches, compare, write);
 		}
+
+		// read series data structure for aggregation
+		SeriesData sd = SeriesData.read(series.getDir(), series.getName(),
+				false, false);
 
 		// compare metrics
 		if (compare) {
@@ -99,8 +112,14 @@ public class SeriesGeneration {
 		}
 		// aggregate all runs
 		Log.infoSep();
-		Log.info("aggregating data for " + sd.getRuns().size() + " runs");
-		sd.setAggregation(Aggregation.aggregate(sd));
+		Timer aggregationTimer = new Timer("aggregation");
+
+		AggregatedSeries aSd = Aggregation.aggregateSeries(sd);
+		if (write)
+			aSd.write(Dir.getAggregationDataDir(series.getDir()));
+		sd.setAggregation(aSd);
+		aggregationTimer.end();
+		Log.info(aggregationTimer.toString());
 		// end of aggregation
 		Log.infoSep();
 		timer.end();
@@ -133,19 +152,15 @@ public class SeriesGeneration {
 	 * @throws IOException
 	 * @throws MetricNotApplicableException
 	 */
-	public static RunDataList generateRuns(Series series, int from, int to,
-			int batches, boolean compare, boolean write) throws IOException,
-			MetricNotApplicableException {
+	public static void generateRuns(Series series, int from, int to,
+			int batches, boolean compare, boolean write, boolean batchesAsZip)
+			throws IOException, MetricNotApplicableException {
 		int runs = to - from;
 
-		RunDataList runList = new RunDataList();
-
 		for (int i = 0; i < runs; i++) {
-			runList.add(SeriesGeneration.generateRun(series, from + i, batches,
-					compare, write));
+			SeriesGeneration.generateRun(series, from + i, batches, compare,
+					write);
 		}
-
-		return runList;
 	}
 
 	/**
@@ -167,15 +182,12 @@ public class SeriesGeneration {
 	 * @throws IOException
 	 * @throws MetricNotApplicableException
 	 */
-	public static RunData generateRun(Series series, int run, int batches,
+	public static void generateRun(Series series, int run, int batches,
 			boolean compare, boolean write) throws IOException,
 			MetricNotApplicableException {
-
 		Log.infoSep();
 		Timer timer = new Timer("runGeneration");
 		Log.info("run " + run + " (" + batches + " batches)");
-
-		RunData rd = new RunData(run, batches + 1);
 
 		// reset batch generator
 		series.getBatchGenerator().reset();
@@ -190,15 +202,26 @@ public class SeriesGeneration {
 		if (compare) {
 			SeriesGeneration.compareMetrics(series);
 		}
-		rd.getBatches().add(initialData);
 		if (write) {
-			initialData.write(Dir.getBatchDataDir(series.getDir(), run,
-					initialData.getTimestamp()));
+			if (!SeriesGeneration.singleFile) {
+				initialData.write(Dir.getBatchDataDir(series.getDir(), run,
+						initialData.getTimestamp()));
+			} else {
+				try {
+					initialData.writeSingleFile(
+							Dir.getRunDataDir(series.getDir(), run),
+							initialData.getTimestamp(), Dir.delimiter);
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
 		}
+
+		// garbage collection counter
+		int gcCounter = 1;
 
 		// generate batch data
 		for (int i = 0; i < batches; i++) {
-
 			if (!series.getBatchGenerator().isFurtherBatchPossible(
 					series.getGraph())) {
 				Log.info("    no further batch possible (generated " + i
@@ -212,20 +235,33 @@ public class SeriesGeneration {
 			}
 
 			BatchData batchData = SeriesGeneration.generateNextBatch(series);
+
 			if (compare) {
 				SeriesGeneration.compareMetrics(series);
 			}
-			rd.getBatches().add(batchData);
 			if (write) {
-				batchData.write(Dir.getBatchDataDir(series.getDir(), run,
-						batchData.getTimestamp()));
+				if (!SeriesGeneration.singleFile) {
+					batchData.write(Dir.getBatchDataDir(series.getDir(), run,
+							batchData.getTimestamp()));
+				} else {
+					try {
+						batchData.writeSingleFile(
+								Dir.getRunDataDir(series.getDir(), run),
+								batchData.getTimestamp(), Dir.delimiter);
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+				}
+			}
+			// call garbage collection
+			if (series.isCallGC() && i == series.getGcOccurence() * gcCounter) {
+				System.gc();
+				gcCounter++;
 			}
 		}
 
 		timer.end();
 		Log.info(timer.toString());
-
-		return rd;
 	}
 
 	private static boolean compareMetrics(Series series) {
@@ -460,10 +496,7 @@ public class SeriesGeneration {
 
 		// release batch
 		b = null;
-		// call garbage collection
-		if (series.isCallGC()) {
-			System.gc();
-		}
+
 		// record memory usage
 		double mem = (new Memory()).getUsed();
 		batchData.getValues().add(new Value(SeriesStats.memory, mem));

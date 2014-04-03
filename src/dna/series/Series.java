@@ -63,8 +63,7 @@ public class Series {
 	}
 
 	public SeriesData generate(int runs, int batches, boolean compare,
-
-	boolean write) throws AggregationException, IOException,
+			boolean write) throws AggregationException, IOException,
 			MetricNotApplicableException {
 		return SeriesGeneration.generate(this, runs, batches, compare, write);
 	}
@@ -154,9 +153,8 @@ public class Series {
 				+ this.randomSeedReset + "/" + this.randomSeedType + ")");
 	}
 
-	public static boolean defaultCallGC = false;
-
-	private boolean callGC = Series.defaultCallGC;
+	private boolean callGC = Config.getBoolean("GENERATION_CALL_GC");
+	private int gcOccurence = Config.getInt("GENERATION_GC_OCCURENCE");
 
 	public boolean isCallGC() {
 		return callGC;
@@ -166,4 +164,7 @@ public class Series {
 		this.callGC = callGC;
 	}
 
+	public int getGcOccurence() {
+		return this.gcOccurence;
+	}
 }

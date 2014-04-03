@@ -3,6 +3,7 @@ package dna.series.aggdata;
 import java.io.IOException;
 
 import dna.io.filesystem.Dir;
+import dna.series.SeriesGeneration;
 
 /**
  * AggregatedSeries is a class for objects that contain the aggregation for a
@@ -33,7 +34,12 @@ public class AggregatedSeries {
 	public void write(String dir) throws IOException {
 		for (int i = 0; i < this.getBatches().length; i++) {
 			long tempTimestamp = this.getBatches()[i].getTimestamp();
-			this.getBatches()[i].write(Dir.getBatchDataDir(dir, tempTimestamp));
+			if (SeriesGeneration.singleFile)
+				this.getBatches()[i].writeSingleFile(dir,
+						this.getBatches()[i].getTimestamp(), Dir.delimiter);
+			else
+				this.getBatches()[i].write(Dir.getBatchDataDir(dir,
+						tempTimestamp));
 		}
 	}
 

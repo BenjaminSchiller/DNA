@@ -32,7 +32,7 @@ public class Values {
 	}
 
 	public void write(String dir, String filename) throws IOException {
-		Writer writer = new Writer(dir, filename);
+		Writer writer = Writer.getWriter(dir, filename);
 		for (int i = 0; i < this.values.length; i++) {
 			StringBuffer buff = new StringBuffer();
 			for (int j = 0; j < this.values[i].length; j++) {

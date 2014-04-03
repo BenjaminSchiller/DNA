@@ -6,18 +6,26 @@ public class Weights {
 
 	public static final String DoubleWeightPrefix = "D_";
 
+	public static final String Double2WeightPrefix = "D2_";
+
+	public static final String Double3WeightPrefix = "D3_";
+
 	public static final String IntWeightPrefix = "I_";
 
+	public static final String Int2WeightPrefix = "I2_";
+
+	public static final String Int3WeightPrefix = "I3_";
+
 	public static enum WeightSelection {
-		None, D_NaN, D_One, D_Zero, D_Rand, D_RandTrim1, D_RandTrim2, D_RandTrim3, I_Min, I_Max, I_One, I_Zero, I_Rand, I_RandPos, I_RandNeg, I_RandPos100, I_RandPos10
+		None, D_NaN, D_One, D_Zero, D_Rand, D_RandTrim1, D_RandTrim2, D_RandTrim3, D2_NaN, D2_One, D2_Zero, D2_Rand, D2_RandTrim1, D2_RandTrim2, D2_RandTrim3, D3_NaN, D3_One, D3_Zero, D3_Rand, D3_RandTrim1, D3_RandTrim2, D3_RandTrim3, I_Min, I_Max, I_One, I_Zero, I_Rand, I_RandPos, I_RandNeg, I_RandPos100, I_RandPos10, I2_Min, I2_Max, I2_One, I2_Zero, I2_Rand, I2_RandPos, I2_RandNeg, I2_RandPos100, I2_RandPos10, I3_Min, I3_Max, I3_One, I3_Zero, I3_Rand, I3_RandPos, I3_RandNeg, I3_RandPos100, I3_RandPos10
 	}
 
 	public static enum NodeWeightSelection {
-		None, D_NaN, D_One, D_Zero, D_Rand, D_RandTrim1, D_RandTrim2, D_RandTrim3, I_Min, I_Max, I_One, I_Zero, I_Rand, I_RandPos, I_RandNeg, I_RandPos100, I_RandPos10
+		None, D_NaN, D_One, D_Zero, D_Rand, D_RandTrim1, D_RandTrim2, D_RandTrim3, D2_NaN, D2_One, D2_Zero, D2_Rand, D2_RandTrim1, D2_RandTrim2, D2_RandTrim3, D3_NaN, D3_One, D3_Zero, D3_Rand, D3_RandTrim1, D3_RandTrim2, D3_RandTrim3, I_Min, I_Max, I_One, I_Zero, I_Rand, I_RandPos, I_RandNeg, I_RandPos100, I_RandPos10, I2_Min, I2_Max, I2_One, I2_Zero, I2_Rand, I2_RandPos, I2_RandNeg, I2_RandPos100, I2_RandPos10, I3_Min, I3_Max, I3_One, I3_Zero, I3_Rand, I3_RandPos, I3_RandNeg, I3_RandPos100, I3_RandPos10
 	}
 
 	public static enum EdgeWeightSelection {
-		None, D_NaN, D_One, D_Zero, D_Rand, D_RandTrim1, D_RandTrim2, D_RandTrim3, I_Min, I_Max, I_One, I_Zero, I_Rand, I_RandPos, I_RandNeg, I_RandPos100, I_RandPos10
+		None, D_NaN, D_One, D_Zero, D_Rand, D_RandTrim1, D_RandTrim2, D_RandTrim3, D2_NaN, D2_One, D2_Zero, D2_Rand, D2_RandTrim1, D2_RandTrim2, D2_RandTrim3, D3_NaN, D3_One, D3_Zero, D3_Rand, D3_RandTrim1, D3_RandTrim2, D3_RandTrim3, I_Min, I_Max, I_One, I_Zero, I_Rand, I_RandPos, I_RandNeg, I_RandPos100, I_RandPos10, I2_Min, I2_Max, I2_One, I2_Zero, I2_Rand, I2_RandPos, I2_RandNeg, I2_RandPos100, I2_RandPos10, I3_Min, I3_Max, I3_One, I3_Zero, I3_Rand, I3_RandPos, I3_RandNeg, I3_RandPos100, I3_RandPos10
 	}
 
 	public static Object getWeight(NodeWeightSelection selection) {
@@ -32,9 +40,37 @@ public class Weights {
 		if (selection.toString().startsWith(DoubleWeightPrefix)) {
 			return getDoubleWeight(DoubleWeightSelection.valueOf(selection
 					.toString().replaceFirst(DoubleWeightPrefix, "")));
+		} else if (selection.toString().startsWith(Double2WeightPrefix)) {
+			return new double[] {
+					getDoubleWeight(DoubleWeightSelection.valueOf(selection
+							.toString().replaceFirst(Double2WeightPrefix, ""))),
+					getDoubleWeight(DoubleWeightSelection.valueOf(selection
+							.toString().replaceFirst(Double2WeightPrefix, ""))) };
+		} else if (selection.toString().startsWith(Double3WeightPrefix)) {
+			return new double[] {
+					getDoubleWeight(DoubleWeightSelection.valueOf(selection
+							.toString().replaceFirst(Double3WeightPrefix, ""))),
+					getDoubleWeight(DoubleWeightSelection.valueOf(selection
+							.toString().replaceFirst(Double3WeightPrefix, ""))),
+					getDoubleWeight(DoubleWeightSelection.valueOf(selection
+							.toString().replaceFirst(Double3WeightPrefix, ""))) };
 		} else if (selection.toString().startsWith(IntWeightPrefix)) {
 			return getIntWeight(IntWeightSelection.valueOf(selection.toString()
 					.replaceFirst(IntWeightPrefix, "")));
+		} else if (selection.toString().startsWith(Int2WeightPrefix)) {
+			return new int[] {
+					getIntWeight(IntWeightSelection.valueOf(selection
+							.toString().replaceFirst(Int2WeightPrefix, ""))),
+					getIntWeight(IntWeightSelection.valueOf(selection
+							.toString().replaceFirst(Int2WeightPrefix, ""))) };
+		} else if (selection.toString().startsWith(Int3WeightPrefix)) {
+			return new int[] {
+					getIntWeight(IntWeightSelection.valueOf(selection
+							.toString().replaceFirst(Int3WeightPrefix, ""))),
+					getIntWeight(IntWeightSelection.valueOf(selection
+							.toString().replaceFirst(Int3WeightPrefix, ""))),
+					getIntWeight(IntWeightSelection.valueOf(selection
+							.toString().replaceFirst(Int3WeightPrefix, ""))) };
 		} else {
 			return null;
 		}
