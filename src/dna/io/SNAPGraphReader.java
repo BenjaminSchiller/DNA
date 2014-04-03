@@ -122,9 +122,7 @@ public class SNAPGraphReader {
 
 		// Creates the graph
 		Graph g = ds.newGraphInstance(name, 0, nodeCount, edgeCount);
-		System.out.println(name);
-		System.out.println(nodeCount);
-		System.out.println(edgeCount);
+		
 		// Reads and adds the edges
 		String line = reader.readString();
 		int nodeID = 0;

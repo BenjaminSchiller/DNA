@@ -210,7 +210,7 @@ public abstract class WalkingAlgorithm extends BatchGenerator {
 		List<Update> upList = addNeighbors(node, newNode, g);
 
 		for (Update u : upList) {
-			System.out.println(u);
+			//System.out.println(u);
 			batch.add(u);
 		}
 
@@ -261,7 +261,7 @@ public abstract class WalkingAlgorithm extends BatchGenerator {
 						dstNode = g.getNode(neighbor.getIndex());
 					}
 					Edge newEdge = gds.newEdgeInstance(newNode, dstNode);
-					newEdge.connectToNodes();
+					//newEdge.connectToNodes();
 					updateList.add(new EdgeAddition(newEdge));
 				} else {
 
@@ -308,7 +308,7 @@ public abstract class WalkingAlgorithm extends BatchGenerator {
 					}
 
 					Edge newEdge = gds.newEdgeInstance(newNode, dstNode);
-					newEdge.connectToNodes();
+					//newEdge.connectToNodes();
 					updateList.add(new EdgeAddition(newEdge));
 				}
 
