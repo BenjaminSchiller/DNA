@@ -53,9 +53,13 @@ public class AggregatedSeries {
 
 		for (int i = 0; i < batches.length; i++) {
 			long timestamp = Dir.getTimestamp(batches[i]);
-			aggBatches[i] = AggregatedBatch.read(
-					Dir.getAggregationBatchDir(dir, timestamp), timestamp,
-					readValues);
+			if (SeriesGeneration.singleFile)
+				aggBatches[i] = AggregatedBatch.readFromSingleFile(tempDir,
+						timestamp, Dir.delimiter, readValues);
+			else
+				aggBatches[i] = AggregatedBatch.read(
+						Dir.getAggregationBatchDir(dir, timestamp), timestamp,
+						readValues);
 		}
 
 		return new AggregatedSeries(aggBatches);
