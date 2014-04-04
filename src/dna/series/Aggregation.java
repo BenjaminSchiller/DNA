@@ -655,11 +655,21 @@ public class Aggregation {
 			for (int j = 0; j < nodevalues.length; j++) {
 				if (nodevalues[j] == null)
 					values[j] = 0;
-				else
-					values[j] = nodevalues[j].getValues()[i];
+				else {
+					try {
+						values[j] = nodevalues[j].getValues()[i];
+					} catch (IndexOutOfBoundsException | NullPointerException e) {
+						values[j] = 0;
+					}
+				}
 			}
-			aValues[i] = new AggregatedValue(refNvl.getName(),
-					aggregate(values));
+			double[] aggregatedValues = aggregate(values);
+			double[] temp = new double[aggregatedValues.length + 1];
+			temp[0] = i;
+			for (int j = 0; j < aggregatedValues.length; j++) {
+				temp[j + 1] = aggregatedValues[j];
+			}
+			aValues[i] = new AggregatedValue(refNvl.getName(), temp);
 		}
 		return new AggregatedNodeValueList(refNvl.getName(), aValues);
 	}
