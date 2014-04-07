@@ -111,4 +111,15 @@ public class AggregatedBatch {
 		return new AggregatedBatch(timestamp, values, generalRuntimes,
 				metricRuntimes, metrics);
 	}
+
+	/** Reads the whole batch from a single zip file **/
+	public static AggregatedBatch readFromSingleFile(String fsDir,
+			long timestamp, String dir, boolean readValues) throws IOException {
+		SeriesGeneration.readFileSystem = ZipWriter.createBatchFileSystem(
+				fsDir, timestamp);
+		AggregatedBatch tempBatchData = read(dir, timestamp, readValues);
+		SeriesGeneration.readFileSystem.close();
+		SeriesGeneration.readFileSystem = null;
+		return tempBatchData;
+	}
 }
