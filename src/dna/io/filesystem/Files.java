@@ -15,8 +15,7 @@ public class Files {
 	 * ZIP FILENAMES
 	 */
 	public static String getBatchFilename(long timestamp) {
-		return Config.get("PREFIX_BATCHDATA_DIR") + timestamp
-				+ Config.get("SUFFIX_ZIP_FILE");
+		return Config.get("PREFIX_BATCHDATA_DIR") + timestamp;
 	}
 
 	public static String getRunFilename(int run) {

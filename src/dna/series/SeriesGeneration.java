@@ -79,6 +79,8 @@ public class SeriesGeneration {
 			Log.info("b  = zipped");
 		else
 			Log.info("b  = files");
+		if (batchGenerationTime > 0)
+			Log.info("t  = " + batchGenerationTime + " msec / batch");
 		StringBuffer buff = new StringBuffer("");
 		for (Metric m : series.getMetrics()) {
 			if (buff.length() > 0) {
@@ -223,7 +225,8 @@ public class SeriesGeneration {
 				try {
 					initialData.writeSingleFile(
 							Dir.getRunDataDir(series.getDir(), run),
-							initialData.getTimestamp(), Dir.delimiter);
+							initialData.getTimestamp(),
+							Config.get("SUFFIX_ZIP_FILE"), Dir.delimiter);
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
@@ -256,52 +259,70 @@ public class SeriesGeneration {
 				SeriesGeneration.compareMetrics(series);
 			}
 			if (write) {
-				if (!SeriesGeneration.singleFile) {
-					if (batchGenerationTime > 0) {
-						String actualDir = Dir.getBatchDataDir(series.getDir(),
+				if (batchGenerationTime > 0) {
+					// generation simulation
+					String actualDir;
+					String dirTemp;
+
+					if (SeriesGeneration.singleFile) {
+						String nonZipDir = Dir.getBatchDataDir(series.getDir(),
 								run, batchData.getTimestamp());
-						String dirTemp = actualDir.substring(0,
-								actualDir.length() - 1)
-								+ Dir.tempSuffix + Dir.delimiter;
-
-						// rename directory
-						File srcDir = new File(dirTemp);
-						File dstDir = new File(actualDir);
-
-						Files.delete(srcDir);
-						Files.delete(dstDir);
-
-						// write
-						batchData.write(dirTemp);
-
-						// live display simulation
-						long waitTime = batchGenerationTime
-								- (System.currentTimeMillis() - batchGenerationStart);
-						if (waitTime > 0) {
-							try {
-								Thread.sleep(waitTime);
-							} catch (InterruptedException e) {
-								e.printStackTrace();
-							}
-						}
-
-						if (srcDir.isDirectory()) {
-							srcDir.renameTo(dstDir);
-						}
+						actualDir = nonZipDir.substring(0,
+								nonZipDir.length() - 1)
+								+ Config.get("SUFFIX_ZIP_FILE");
+						dirTemp = actualDir + Dir.tempSuffix;
 					} else {
-						batchData.write(Dir.getBatchDataDir(series.getDir(),
-								run, batchData.getTimestamp()));
+						actualDir = Dir.getBatchDataDir(series.getDir(), run,
+								batchData.getTimestamp());
+						dirTemp = actualDir
+								.substring(0, actualDir.length() - 1)
+								+ Dir.tempSuffix + Dir.delimiter;
 					}
-				} else {
-					try {
+
+					// rename directory
+					File srcDir = new File(dirTemp);
+					File dstDir = new File(actualDir);
+
+					Files.delete(srcDir);
+					Files.delete(dstDir);
+
+					// write
+					if (SeriesGeneration.singleFile)
 						batchData.writeSingleFile(
 								Dir.getRunDataDir(series.getDir(), run),
-								batchData.getTimestamp(), Dir.delimiter);
-					} catch (IOException e) {
-						e.printStackTrace();
+								batchData.getTimestamp(),
+								Config.get("SUFFIX_ZIP_FILE") + Dir.tempSuffix,
+								Dir.delimiter);
+					else
+						batchData.write(dirTemp);
+
+					// live display simulation
+					long waitTime = batchGenerationTime
+							- (System.currentTimeMillis() - batchGenerationStart);
+					if (waitTime > 0) {
+						try {
+							Thread.sleep(waitTime);
+						} catch (InterruptedException e) {
+							e.printStackTrace();
+						}
 					}
+
+					// rename
+					if (srcDir.exists())
+						srcDir.renameTo(dstDir);
+				} else {
+					// no generation simulation
+					if (SeriesGeneration.singleFile)
+						batchData.writeSingleFile(
+								Dir.getRunDataDir(series.getDir(), run),
+								batchData.getTimestamp(),
+								Config.get("SUFFIX_ZIP_FILE"), Dir.delimiter);
+					else
+						batchData.write(Dir.getBatchDataDir(series.getDir(),
+								run, batchData.getTimestamp()));
 				}
 			}
+
 			// call garbage collection
 			if (series.isCallGC() && i == series.getGcOccurence() * gcCounter) {
 				System.gc();
