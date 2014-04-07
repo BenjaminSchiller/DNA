@@ -13,10 +13,10 @@ public class MainDisplayConfig {
 
 	// constructor
 	public MainDisplayConfig(String name, Dimension size,
-			boolean liveDisplayMode, boolean fullscreen, String defaultDir,
-			Font defaultFont, Color defaultFontColor, Dimension buttonSize,
-			String logoDir, Dimension logoSize, Dimension visualizerPanelSize,
-			Dimension innerVisualizerPanelSize,
+			boolean liveDisplayMode, boolean fullscreen, boolean batchesZipped,
+			String defaultDir, Font defaultFont, Color defaultFontColor,
+			Dimension buttonSize, String logoDir, Dimension logoSize,
+			Dimension visualizerPanelSize, Dimension innerVisualizerPanelSize,
 			StatsDisplayConfig statsDisplayConfig,
 			LogDisplayConfig[] logDisplayConfigs,
 			MetricVisualizerConfig[] metricVisualizerConfigs,
@@ -25,6 +25,7 @@ public class MainDisplayConfig {
 		this.size = size;
 		this.liveDisplayMode = liveDisplayMode;
 		this.fullscreen = fullscreen;
+		this.batchesZipped = batchesZipped;
 		this.defaultDir = defaultDir;
 		this.defaultFont = defaultFont;
 		this.defaultFontColor = defaultFontColor;
@@ -43,6 +44,7 @@ public class MainDisplayConfig {
 	private Dimension size;
 	private boolean liveDisplayMode;
 	private boolean fullscreen;
+	private boolean batchesZipped;
 	private String defaultDir;
 	private Font defaultFont;
 	private Color defaultFontColor;
@@ -85,6 +87,10 @@ public class MainDisplayConfig {
 
 	public boolean isFullscreen() {
 		return this.fullscreen;
+	}
+
+	public boolean isBatchesZipped() {
+		return this.batchesZipped;
 	}
 
 	public Font getDefaultFont() {
@@ -139,6 +145,7 @@ public class MainDisplayConfig {
 		Dimension size;
 		boolean liveDisplayMode;
 		boolean fullscreen;
+		boolean batchesZipped;
 		String defaultDir;
 		Font defaultFont;
 		Color defaultFontColor;
@@ -160,6 +167,7 @@ public class MainDisplayConfig {
 			size = new Dimension(o.getInt("Width"), o.getInt("Height"));
 			liveDisplayMode = o.getBoolean("LiveDisplayMode");
 			fullscreen = o.getBoolean("Fullscreen");
+			batchesZipped = o.getBoolean("BatchesZipped");
 			defaultDir = o.getString("DefaultDir");
 
 			JSONObject fontObject = o.getJSONObject("DefaultFont");
@@ -208,6 +216,7 @@ public class MainDisplayConfig {
 			size = MainDisplay.DefaultConfig.getSize();
 			liveDisplayMode = MainDisplay.DefaultConfig.isLiveDisplayMode();
 			fullscreen = MainDisplay.DefaultConfig.isFullscreen();
+			batchesZipped = MainDisplay.DefaultConfig.isBatchesZipped();
 			defaultDir = MainDisplay.DefaultConfig.getDefaultDir();
 			defaultFont = MainDisplay.DefaultConfig.getDefaultFont();
 			defaultFontColor = MainDisplay.DefaultConfig.getDefaultFontColor();
@@ -238,6 +247,11 @@ public class MainDisplayConfig {
 
 		try {
 			fullscreen = o.getBoolean("Fullscreen");
+		} catch (Exception e) {
+		}
+
+		try {
+			batchesZipped = o.getBoolean("BatchesZipped");
 		} catch (Exception e) {
 		}
 
@@ -392,9 +406,10 @@ public class MainDisplayConfig {
 		}
 
 		return new MainDisplayConfig(name, size, liveDisplayMode, fullscreen,
-				defaultDir, defaultFont, defaultFontColor, buttonSize, logoDir,
-				logoSize, visualizerPanelSize, innerVisualizerPanelSize,
-				statsDisplayConfig, logDisplayConfigs, metricVisualizerConfigs,
+				batchesZipped, defaultDir, defaultFont, defaultFontColor,
+				buttonSize, logoDir, logoSize, visualizerPanelSize,
+				innerVisualizerPanelSize, statsDisplayConfig,
+				logDisplayConfigs, metricVisualizerConfigs,
 				multiScalarVisualizerConfigs);
 	}
 }
