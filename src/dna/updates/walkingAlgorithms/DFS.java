@@ -1,5 +1,7 @@
 package dna.updates.walkingAlgorithms;
 
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.LinkedList;
 
 import dna.graph.Graph;
@@ -15,8 +17,9 @@ import dna.util.parameters.Parameter;
  */
 public class DFS extends WalkingAlgorithm {
 
-	private Node currentNode;
+	private HashSet<Node> nodesInQueue;
 	private LinkedList<Node> queue;
+	private Node currentNode;
 
 	/**
 	 * Creates an instance of the depth first sampling algorithm
@@ -48,6 +51,7 @@ public class DFS extends WalkingAlgorithm {
 				costPerBatch, resource, parameters);
 
 		queue = new LinkedList<Node>();
+		nodesInQueue = new HashSet<Node>();
 		currentNode = null;
 	}
 
@@ -57,16 +61,39 @@ public class DFS extends WalkingAlgorithm {
 			noNodeFound();
 			return null;
 		}
+
 		currentNode = queue.removeLast();
-		queue.addAll(getUnvisitedNeighbors(currentNode));
+		ArrayList<Node> neighborsList = getUnvisitedNeighbors(currentNode);
+		for (Node n : neighborsList) {
+			if (!nodesInQueue.contains(n)) {
+				queue.add(n);
+				nodesInQueue.add(n);
+			}
+		}
+		nodesInQueue.remove(currentNode);
 		return currentNode;
 	}
 
 	@Override
 	protected Node init(StartNodeSelectionStrategy startNode) {
 		currentNode = startNode.getStartNode();
-		queue.addAll(getUnvisitedNeighbors(currentNode));
+		nodesInQueue.add(currentNode);
+
+		ArrayList<Node> neighborsList = getUnvisitedNeighbors(currentNode);
+		for (Node n : neighborsList) {
+			if (!nodesInQueue.contains(n)) {
+				queue.add(n);
+				nodesInQueue.add(n);
+			}
+		}
 		return currentNode;
+	}
+
+	@Override
+	protected void localReset() {
+		queue = new LinkedList<Node>();
+		nodesInQueue = new HashSet<Node>();
+		currentNode = null;
 	}
 
 }

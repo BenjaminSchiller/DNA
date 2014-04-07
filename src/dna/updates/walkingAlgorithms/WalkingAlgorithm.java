@@ -45,6 +45,7 @@ public abstract class WalkingAlgorithm extends BatchGenerator {
 	private int costPerBatch;
 	private int graphSize;
 	private int resource;
+	private int initialResource;
 	private int nodeDirection;
 
 	private long timeStamp;
@@ -82,6 +83,7 @@ public abstract class WalkingAlgorithm extends BatchGenerator {
 		this.costPerBatch = costPerBatch;
 		this.startNodeStartegy = startNodeStrategy;
 		this.resource = resource;
+		this.initialResource = resource;
 
 		if (resource > 0) {
 			takeResourceIntoAccount = true;
@@ -210,7 +212,7 @@ public abstract class WalkingAlgorithm extends BatchGenerator {
 		List<Update> upList = addNeighbors(node, newNode, g);
 
 		for (Update u : upList) {
-			//System.out.println(u);
+			// System.out.println(u);
 			batch.add(u);
 		}
 
@@ -261,7 +263,7 @@ public abstract class WalkingAlgorithm extends BatchGenerator {
 						dstNode = g.getNode(neighbor.getIndex());
 					}
 					Edge newEdge = gds.newEdgeInstance(newNode, dstNode);
-					//newEdge.connectToNodes();
+					// newEdge.connectToNodes();
 					updateList.add(new EdgeAddition(newEdge));
 				} else {
 
@@ -308,7 +310,7 @@ public abstract class WalkingAlgorithm extends BatchGenerator {
 					}
 
 					Edge newEdge = gds.newEdgeInstance(newNode, dstNode);
-					//newEdge.connectToNodes();
+					// newEdge.connectToNodes();
 					updateList.add(new EdgeAddition(newEdge));
 				}
 
@@ -354,10 +356,32 @@ public abstract class WalkingAlgorithm extends BatchGenerator {
 
 		seenNodes = new HashSet<Node>(graphSize);
 		visitedNodes = new HashSet<Node>(graphSize);
+		
+		addedNodes = new HashMap<Integer, Node>();
+		
+		resource = initialResource;
 
 		firstIteration = true;
 		noFurtherBatch = false;
 		timeStamp = 0;
+		
+		localReset();
+	}
+	
+	/**
+	 * Resets the walking algorithm instance, so it will start again from the beginning
+	 */
+	protected abstract void localReset();
+
+	/**
+	 * Returns true if the node was already visited by the sampling algorithm
+	 * 
+	 * @param n
+	 *            the node
+	 * @return true if it has been visited, false if it has not been visited yet
+	 */
+	protected boolean visited(Node n) {
+		return visitedNodes.contains(n);
 	}
 
 	/**

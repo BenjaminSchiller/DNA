@@ -63,7 +63,7 @@ public class FrontierSampling extends WalkingAlgorithm {
 					"Frontier sampling does not allow other start node selection strategies than RandomSelection.");
 		}
 
-		fullyVisited = new HashSet<Node>(fullGraph.getNodeCount());
+		fullyVisited = new HashSet<Node>();
 		walkerPositions = new LinkedList<Node>();
 		m = numberOfWalkers;
 	}
@@ -72,6 +72,9 @@ public class FrontierSampling extends WalkingAlgorithm {
 	protected Node findNextNode() {
 		if (walkerPositions.size() < m) {
 			Node m1 = fullGraph.getRandomNode();
+			while (walkerPositions.contains(m1)) {
+				m1 = fullGraph.getRandomNode();
+			}
 			addToList(m1);
 			return m1;
 		}
@@ -113,7 +116,6 @@ public class FrontierSampling extends WalkingAlgorithm {
 
 			return findNextNode();
 		} else {
-
 			currentNode = notVisitedNeighbors.get(Rand.rand
 					.nextInt(neighborCount));
 
@@ -131,21 +133,33 @@ public class FrontierSampling extends WalkingAlgorithm {
 		return start;
 	}
 
+	/**
+	 * Sorts nodes into the list of walker positions (== nodes). The list is
+	 * sorted by the degree of the nodes.
+	 * 
+	 * @param n
+	 *            the node that was acquired through the algorithm
+	 */
 	private void addToList(Node n) {
-		Node tempNode = null;
 		int tempDegree = getDegreeFromNode(n);
-		for (int i = 0; i < walkerPositions.size(); i++) {
-			if ((tempNode = walkerPositions.get(i)) != null) {
+		for (int i = 0; i < m; i++) {
+			if (i >= walkerPositions.size()) {
+				walkerPositions.add(i, n);
+				break;
+			} else {
+				Node tempNode = walkerPositions.get(i);
 				if (tempDegree > getDegreeFromNode(tempNode)) {
 					walkerPositions.add(i, n);
 					break;
 				}
-			} else {
-				walkerPositions.add(i, n);
-				break;
 			}
-
 		}
+	}
+
+	@Override
+	protected void localReset() {
+		fullyVisited = new HashSet<Node>();
+		walkerPositions = new LinkedList<Node>();
 	}
 
 }
