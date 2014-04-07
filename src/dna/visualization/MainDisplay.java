@@ -356,6 +356,7 @@ public class MainDisplay extends JFrame {
 		visualizerPanelConstraints.gridwidth = 1;
 		visualizerPanelConstraints.gridheight = 1;
 
+		int maxYPosition = 0;
 		// FILL PANEL
 		// add metric visualizer
 		for (MetricVisualizerConfig metVisConfig : config
@@ -367,16 +368,17 @@ public class MainDisplay extends JFrame {
 					&& metVisConfig.getPositionY() >= 0) {
 				visualizerPanelConstraints.gridx = metVisConfig.getPositionX();
 				visualizerPanelConstraints.gridy = metVisConfig.getPositionY();
+				if (visualizerPanelConstraints.gridy > maxYPosition)
+					maxYPosition = visualizerPanelConstraints.gridy;
 			} else {
-				visualizerPanelConstraints.gridx++;
-				visualizerPanelConstraints.gridy++;
+				visualizerPanelConstraints.gridy = maxYPosition++;
 			}
 			if (metVisConfig.getColSpan() >= 1
 					&& metVisConfig.getRowSpan() >= 1) {
 				visualizerPanelConstraints.gridwidth = metVisConfig
-						.getRowSpan();
-				visualizerPanelConstraints.gridheight = metVisConfig
 						.getColSpan();
+				visualizerPanelConstraints.gridheight = metVisConfig
+						.getRowSpan();
 			} else {
 				visualizerPanelConstraints.gridwidth = 1;
 				visualizerPanelConstraints.gridheight = 1;
@@ -397,16 +399,17 @@ public class MainDisplay extends JFrame {
 						.getPositionX();
 				visualizerPanelConstraints.gridy = multiVisConfig
 						.getPositionY();
+				if (visualizerPanelConstraints.gridy > maxYPosition)
+					maxYPosition = visualizerPanelConstraints.gridy;
 			} else {
-				visualizerPanelConstraints.gridx++;
-				visualizerPanelConstraints.gridy++;
+				visualizerPanelConstraints.gridy = maxYPosition++;
 			}
 			if (multiVisConfig.getColSpan() >= 1
 					&& multiVisConfig.getRowSpan() >= 1) {
 				visualizerPanelConstraints.gridwidth = multiVisConfig
-						.getRowSpan();
-				visualizerPanelConstraints.gridheight = multiVisConfig
 						.getColSpan();
+				visualizerPanelConstraints.gridheight = multiVisConfig
+						.getRowSpan();
 			} else {
 				visualizerPanelConstraints.gridwidth = 1;
 				visualizerPanelConstraints.gridheight = 1;
@@ -424,25 +427,21 @@ public class MainDisplay extends JFrame {
 					&& logDisConfig.getPositionY() >= 0) {
 				visualizerPanelConstraints.gridx = logDisConfig.getPositionX();
 				visualizerPanelConstraints.gridy = logDisConfig.getPositionY();
+				if (visualizerPanelConstraints.gridy > maxYPosition)
+					maxYPosition = visualizerPanelConstraints.gridy;
 			} else {
-				visualizerPanelConstraints.gridx++;
-				visualizerPanelConstraints.gridy++;
+				visualizerPanelConstraints.gridy = maxYPosition++;
 			}
 			if (logDisConfig.getColSpan() >= 1
 					&& logDisConfig.getRowSpan() >= 1) {
 				visualizerPanelConstraints.gridwidth = logDisConfig
-						.getRowSpan();
-				visualizerPanelConstraints.gridheight = logDisConfig
 						.getColSpan();
+				visualizerPanelConstraints.gridheight = logDisConfig
+						.getRowSpan();
 			} else {
 				visualizerPanelConstraints.gridwidth = 1;
 				visualizerPanelConstraints.gridheight = 1;
 			}
-			System.out.println("adding logdisplay with: "
-					+ visualizerPanelConstraints.gridx + " "
-					+ visualizerPanelConstraints.gridy + " "
-					+ visualizerPanelConstraints.gridwidth + " "
-					+ visualizerPanelConstraints.gridheight);
 			this.visualizerPanel
 					.add(logDisplayTemp, visualizerPanelConstraints);
 			this.dataComponents.add(logDisplayTemp);
