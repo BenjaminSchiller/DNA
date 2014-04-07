@@ -39,6 +39,7 @@ public class BatchHandler implements Runnable {
 	private boolean threadSuspended;
 	private boolean timeSlided;
 	private boolean liveDisplay;
+	private boolean batchesZipped;
 
 	private Thread t;
 
@@ -46,26 +47,8 @@ public class BatchHandler implements Runnable {
 	private int dirTimeout = 120;
 
 	// constructors
-	public BatchHandler(String dir) {
-		this.dir = dir;
-		this.batches = new BatchDataList();
-		this.index = 0;
-		this.timeSlided = false;
-		this.isInit = false;
-		this.threadSuspended = false;
-	}
-
-	public BatchHandler(String dir, MainDisplay mainFrame) {
-		this.dir = dir;
-		this.mainFrame = mainFrame;
-		this.batches = new BatchDataList();
-		this.index = 0;
-		this.timeSlided = false;
-		this.isInit = false;
-		this.threadSuspended = false;
-	}
-
-	public BatchHandler(String dir, MainDisplay mainFrame, boolean liveDisplay) {
+	public BatchHandler(String dir, MainDisplay mainFrame, boolean liveDisplay,
+			boolean batchesZipped) {
 		this.dir = dir;
 		this.mainFrame = mainFrame;
 		this.batches = new BatchDataList();
@@ -74,6 +57,7 @@ public class BatchHandler implements Runnable {
 		this.isInit = false;
 		this.threadSuspended = false;
 		this.liveDisplay = liveDisplay;
+		this.batchesZipped = batchesZipped;
 	}
 
 	// get methods
@@ -131,9 +115,16 @@ public class BatchHandler implements Runnable {
 	/** return the initialization batch **/
 	public BatchData getInitBatch() {
 		try {
-			return BatchData.read(Dir.getBatchDataDir(this.dir, this.batches
-					.get(0).getTimestamp()),
-					this.batches.get(0).getTimestamp(), true);
+			long timestamp = this.getBatches().get(0).getTimestamp();
+			BatchData tempBatch;
+			if (this.batchesZipped)
+				tempBatch = BatchData.readFromSingleFile(this.dir, timestamp,
+						Dir.delimiter, true);
+			else
+				tempBatch = BatchData.read(
+						Dir.getBatchDataDir(this.dir, timestamp), timestamp,
+						true);
+			return tempBatch;
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -285,12 +276,21 @@ public class BatchHandler implements Runnable {
 										// child.toString());
 
 										// read batch
-										BatchData batch = BatchData
-												.read(Dir.getBatchDataDir(
-														this.dir,
-														Long.parseLong(suffix)),
-														Long.parseLong(suffix),
-														true);
+										BatchData batch;
+										if (this.batchesZipped)
+											batch = BatchData
+													.readFromSingleFile(
+															this.dir,
+															Long.parseLong(parts[1]),
+															Dir.delimiter, true);
+										else
+											batch = BatchData
+													.read(Dir
+															.getBatchDataDir(
+																	this.dir,
+																	Long.parseLong(suffix)),
+															Long.parseLong(suffix),
+															true);
 
 										// hand over batch
 										if (!this.isInit) {
@@ -537,24 +537,18 @@ public class BatchHandler implements Runnable {
 		this.index = 0;
 	}
 
-	/** reads and returns the next batch **/
-	public BatchData readNextBatch() {
-		try {
-			return BatchData.read(
-					Dir.getBatchDataDir(this.dir, this.index + 1),
-					this.index + 1, true);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		return null;
-	}
-
 	/** reads and returns a batch from the filesystem **/
 	public BatchData readBatch(int index) {
 		try {
 			long timestamp = this.getBatches().get(index).getTimestamp();
-			BatchData tempBatch = BatchData.read(
-					Dir.getBatchDataDir(this.dir, timestamp), timestamp, true);
+			BatchData tempBatch;
+			if (this.batchesZipped)
+				tempBatch = BatchData.readFromSingleFile(this.dir, timestamp,
+						Dir.delimiter, true);
+			else
+				tempBatch = BatchData.read(
+						Dir.getBatchDataDir(this.dir, timestamp), timestamp,
+						true);
 			return tempBatch;
 		} catch (IOException e) {
 			e.printStackTrace();

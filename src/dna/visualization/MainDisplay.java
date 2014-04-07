@@ -140,7 +140,7 @@ public class MainDisplay extends JFrame {
 
 			// init batch handler, hand over directory and maindisplay
 			display.setBatchHandler(new BatchHandler(config.getDefaultDir(),
-					display, liveDisplay));
+					display, liveDisplay, config.isBatchesZipped()));
 			display.initBatchHandler();
 
 			if (config.isFullscreen()) {
