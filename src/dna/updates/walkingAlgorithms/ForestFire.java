@@ -96,4 +96,10 @@ public class ForestFire extends WalkingAlgorithm {
 		}
 	}
 
+	@Override
+	protected void localReset() {
+		queue = new LinkedList<Node>();
+		currentNode = null;
+	}
+
 }

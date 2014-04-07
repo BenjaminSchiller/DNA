@@ -52,4 +52,9 @@ public class UniformSampling extends WalkingAlgorithm {
 		return startingNode;
 	}
 
+	@Override
+	protected void localReset() {
+		notVisited = new LinkedList<IElement>(fullGraph.getNodes());
+	}
+
 }

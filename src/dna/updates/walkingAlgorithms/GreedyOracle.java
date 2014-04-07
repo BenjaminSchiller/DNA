@@ -76,10 +76,17 @@ public class GreedyOracle extends WalkingAlgorithm {
 		Node firstNode = startNode.getStartNode();
 		ArrayList<Node> neighbors = getAllNeighbors(firstNode);
 		for (Node n : neighbors) {
-			greyZone.add(new SortableNode(n, this,
-					SortType.SORT_BY_UNSEEN_NEIGHBORS));
+			if(n != firstNode){
+				greyZone.add(new SortableNode(n, this,
+						SortType.SORT_BY_UNSEEN_NEIGHBORS));
+			}
 		}
 		return firstNode;
+	}
+
+	@Override
+	protected void localReset() {
+		greyZone = new ArrayList<SortableNode>(fullGraph.getNodeCount());
 	}
 
 }

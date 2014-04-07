@@ -1,5 +1,6 @@
 package dna.updates.walkingAlgorithms;
 
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -20,6 +21,7 @@ import dna.util.parameters.Parameter;
  */
 public class SnowballSampling extends WalkingAlgorithm {
 
+	private HashSet<Node> nodesInQueue;
 	private LinkedList<Node> queue;
 	private Node currentNode;
 	private int numberOfNeighborsVisited;
@@ -57,6 +59,7 @@ public class SnowballSampling extends WalkingAlgorithm {
 				costPerBatch, resource, parameters);
 
 		this.numberOfNeighborsVisited = numberOfNeighborsVisited;
+		nodesInQueue = new HashSet<Node>();
 		queue = new LinkedList<Node>();
 		currentNode = null;
 	}
@@ -69,12 +72,14 @@ public class SnowballSampling extends WalkingAlgorithm {
 		}
 		currentNode = queue.poll();
 		selectNeighbors();
+		nodesInQueue.remove(currentNode);
 		return currentNode;
 	}
 
 	@Override
 	protected Node init(StartNodeSelectionStrategy startNode) {
 		currentNode = startNode.getStartNode();
+		nodesInQueue.add(currentNode);
 		selectNeighbors();
 		return currentNode;
 	}
@@ -89,8 +94,19 @@ public class SnowballSampling extends WalkingAlgorithm {
 			if (list.isEmpty()) {
 				break;
 			}
-			queue.add(list.remove(Rand.rand.nextInt(list.size())));
+			Node n = list.remove(Rand.rand.nextInt(list.size()));
+			if (!nodesInQueue.contains(n)) {
+				queue.add(n);
+				nodesInQueue.add(n);
+			}
 		}
+	}
+
+	@Override
+	protected void localReset() {
+		nodesInQueue = new HashSet<Node>();
+		queue = new LinkedList<Node>();
+		currentNode = null;
 	}
 
 }

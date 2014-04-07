@@ -114,6 +114,13 @@ public class MaximumObservedDegree extends WalkingAlgorithm {
 		return currentNode;
 	}
 
+	@Override
+	protected void localReset() {
+		greyZone = new HashMap<Integer, Double>();
+		NeighborComparator nc = new NeighborComparator(greyZone);
+		sortedGreyZone = new TreeMap<Integer, Double>(nc);
+	}
+
 }
 
 /**

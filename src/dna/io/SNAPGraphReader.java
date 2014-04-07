@@ -26,6 +26,8 @@ import dna.util.Config;
  * 
  */
 public class SNAPGraphReader {
+	
+	private static boolean alwaysUndirected = false;
 
 	private static GraphDataStructure directedGDSSetup = new GraphDataStructure(
 			GraphDataStructure.getList(ListType.GlobalNodeList, DArray.class,
