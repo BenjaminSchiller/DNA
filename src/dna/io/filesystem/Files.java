@@ -15,8 +15,7 @@ public class Files {
 	 * ZIP FILENAMES
 	 */
 	public static String getBatchFilename(long timestamp) {
-		return Config.get("PREFIX_BATCHDATA_DIR") + timestamp
-				+ Config.get("SUFFIX_ZIP_FILE");
+		return Config.get("PREFIX_BATCHDATA_DIR") + timestamp;
 	}
 
 	public static String getRunFilename(int run) {
@@ -173,5 +172,28 @@ public class Files {
 	public static String getProfilerFilename(String name) {
 		return name + Config.get("SUFFIX_PROFILER")
 				+ Config.get("SUFFIX_VALUE");
+	}
+
+	/*
+	 * FILESYSTEM OPERATIONS
+	 */
+	public static void delete(File file) {
+		if (file.isDirectory()) {
+			if (file.list().length == 0) {
+				file.delete();
+			} else {
+				String files[] = file.list();
+
+				for (String temp : files) {
+					File fileDelete = new File(file, temp);
+					delete(fileDelete);
+				}
+			}
+			if (file.list().length == 0) {
+				file.delete();
+			}
+		} else {
+			file.delete();
+		}
 	}
 }

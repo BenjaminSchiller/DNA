@@ -216,7 +216,7 @@ public class BatchData {
 	public static BatchData readBatchValuesFromSingleFile(String fsDir,
 			long timestamp, String dir, BatchData structure) throws IOException {
 		SeriesGeneration.readFileSystem = ZipWriter.createBatchFileSystem(
-				fsDir, timestamp);
+				fsDir, Config.get("SUFFIX_ZIP_FILE"), timestamp);
 		BatchData tempBatchData = readBatchValues(dir, timestamp, structure);
 		SeriesGeneration.readFileSystem.close();
 		SeriesGeneration.readFileSystem = null;
@@ -224,10 +224,10 @@ public class BatchData {
 	}
 
 	/** Writes the whole batch in a single zip file **/
-	public void writeSingleFile(String fsDir, long timestamp, String dir)
-			throws IOException {
+	public void writeSingleFile(String fsDir, long timestamp, String suffix,
+			String dir) throws IOException {
 		SeriesGeneration.writeFileSystem = ZipWriter.createBatchFileSystem(
-				fsDir, timestamp);
+				fsDir, suffix, timestamp);
 		this.write(dir);
 		SeriesGeneration.writeFileSystem.close();
 		SeriesGeneration.writeFileSystem = null;
@@ -237,7 +237,7 @@ public class BatchData {
 	public static BatchData readFromSingleFile(String fsDir, long timestamp,
 			String dir, boolean readValues) throws IOException {
 		SeriesGeneration.readFileSystem = ZipWriter.createBatchFileSystem(
-				fsDir, timestamp);
+				fsDir, Config.get("SUFFIX_ZIP_FILE"), timestamp);
 		BatchData tempBatchData = read(dir, timestamp, readValues);
 		SeriesGeneration.readFileSystem.close();
 		SeriesGeneration.readFileSystem = null;

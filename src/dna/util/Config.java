@@ -1,10 +1,13 @@
 package dna.util;
 
+import java.awt.Color;
+import java.awt.Font;
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Properties;
 import java.util.Vector;
@@ -14,6 +17,10 @@ import dna.plot.data.PlotData.DistributionPlotType;
 import dna.plot.data.PlotData.NodeValueListOrder;
 import dna.plot.data.PlotData.NodeValueListOrderBy;
 import dna.plot.data.PlotData.PlotType;
+import dna.visualization.config.VisualizerListConfig.SortModeDist;
+import dna.visualization.config.VisualizerListConfig.SortModeNVL;
+import dna.visualization.config.VisualizerListConfig.xAxisSelection;
+import dna.visualization.config.VisualizerListConfig.yAxisSelection;
 
 public class Config extends PropertiesHolder {
 	private static Properties properties;
@@ -114,6 +121,96 @@ public class Config extends PropertiesHolder {
 		default:
 			return DistributionPlotType.distOnly;
 		}
+	}
+
+	public static SortModeNVL getSortModeNVL(String key) {
+		switch (Config.get(key)) {
+		case "index":
+			return SortModeNVL.index;
+		case "ascending":
+			return SortModeNVL.ascending;
+		case "descending":
+			return SortModeNVL.descending;
+		default:
+			return SortModeNVL.ascending;
+		}
+	}
+
+	public static SortModeDist getSortModeDist(String key) {
+		switch (Config.get(key)) {
+		case "distribution":
+			return SortModeDist.distribution;
+		case "cdf":
+			return SortModeDist.cdf;
+		default:
+			return SortModeDist.distribution;
+		}
+	}
+
+	public static xAxisSelection getXAxisSelection(String key) {
+		switch (Config.get(key)) {
+		case "x1":
+			return xAxisSelection.x1;
+		case "x2":
+			return xAxisSelection.x2;
+		default:
+			return xAxisSelection.x1;
+		}
+	}
+
+	public static yAxisSelection getYAxisSelection(String key) {
+		switch (Config.get(key)) {
+		case "y1":
+			return yAxisSelection.y1;
+		case "y2":
+			return yAxisSelection.y2;
+		default:
+			return yAxisSelection.y1;
+		}
+	}
+
+	public static Color getColor(String key) {
+		Color color;
+		try {
+			Field field = Color.class.getField(Config.get(key));
+			color = (Color) field.get(null);
+		} catch (Exception e) {
+			color = null;
+			e.printStackTrace();
+		}
+		return color;
+	}
+
+	/**
+	 * Reads a font from config file. Note: Needs a name, style and size!
+	 * Example: getFont("GUI_DEFAULT_FONT") reads "GUI_DEFAULT_FONT_NAME",
+	 * "GUI_DEFAULT_SONT_STYLE" and "GUI_DEFAULT_FONT_SIZE"
+	 * 
+	 * @param key
+	 * @return
+	 */
+	public static Font getFont(String key) {
+		String name = Config.get(key + "_NAME");
+		String tempStyle = Config.get(key + "_STYLE");
+		int size = Config.getInt(key + "_SIZE");
+		int style;
+
+		switch (tempStyle) {
+		case "PLAIN":
+			style = Font.PLAIN;
+			break;
+		case "BOLD":
+			style = Font.BOLD;
+			break;
+		case "ITALIC":
+			style = Font.ITALIC;
+			break;
+		default:
+			style = Font.PLAIN;
+			break;
+		}
+
+		return new Font(name, style, size);
 	}
 
 	public static PlotType getPlotType(String key) {

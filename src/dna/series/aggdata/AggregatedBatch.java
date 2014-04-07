@@ -90,7 +90,7 @@ public class AggregatedBatch {
 	public void writeSingleFile(String fsDir, long timestamp, String dir)
 			throws IOException {
 		SeriesGeneration.writeFileSystem = ZipWriter.createBatchFileSystem(
-				fsDir, timestamp);
+				fsDir, Config.get("SUFFIX_ZIP_FILE"), timestamp);
 		this.write(dir);
 		SeriesGeneration.writeFileSystem.close();
 		SeriesGeneration.writeFileSystem = null;
@@ -116,7 +116,7 @@ public class AggregatedBatch {
 	public static AggregatedBatch readFromSingleFile(String fsDir,
 			long timestamp, String dir, boolean readValues) throws IOException {
 		SeriesGeneration.readFileSystem = ZipWriter.createBatchFileSystem(
-				fsDir, timestamp);
+				fsDir, Config.get("SUFFIX_ZIP_FILE"), timestamp);
 		AggregatedBatch tempBatchData = read(dir, timestamp, readValues);
 		SeriesGeneration.readFileSystem.close();
 		SeriesGeneration.readFileSystem = null;
