@@ -17,7 +17,7 @@ public class ComplexityMap extends ComparableEntryMap {
 	}
 
 	public void add(ComparableEntryMap resSecondIn) {
-		ComplexityMap resSecond = (ComplexityMap)resSecondIn;
+		ComplexityMap resSecond = (ComplexityMap) resSecondIn;
 		for (Entry<ComplexityType, Integer> e : resSecond.entrySet()) {
 			Integer tempCounter = this.get(e.getKey());
 			if (tempCounter == null)
@@ -58,7 +58,8 @@ public class ComplexityMap extends ComparableEntryMap {
 	}
 	
 	/**
-	 * This should compare different complexity maps based on their counted accesses.
+	 * This should compare different complexity maps based on their counted
+	 * accesses.
 	 * 
 	 * Returning -1 iff this < o
 	 * Returning 0 iff this == o
@@ -70,7 +71,8 @@ public class ComplexityMap extends ComparableEntryMap {
 			return 0;
 		
 		ComplexityType t;
-		final TreeSet<ComplexityType> listOfComplexityTypes = ComplexityType.getAllComplexityTypes();
+		final TreeSet<ComplexityType> listOfComplexityTypes = ComplexityType
+				.getAllComplexityTypes();
 		while ((t = listOfComplexityTypes.pollLast()) != null) {
 			Integer thisCounter = this.get(t);
 			Integer thatCounter = ((ComplexityMap) o).get(t);
@@ -84,14 +86,14 @@ public class ComplexityMap extends ComparableEntryMap {
 			if (thisCounter != null && thatCounter != null) {
 				return thisCounter.compareTo(thatCounter);
 			}
-			
-			if ( thisCounter == null && thatCounter != null) {
+
+			if (thisCounter == null && thatCounter != null) {
 				return -1;
 			}
-			
-			if ( thisCounter != null && thatCounter == null) {
+
+			if (thisCounter != null && thatCounter == null) {
 				return +1;
-			}			
+			}
 		}
 		return -1;
 	}
@@ -124,6 +126,15 @@ public class ComplexityMap extends ComparableEntryMap {
 			return false;
 		}
 		return true;
+	}
+
+	@Override
+	public ComparableEntryMap clone() {
+		ComplexityMap res = new ComplexityMap();
+		for (ComplexityType ct : ComplexityType.getAllComplexityTypes()) {
+			res.put(ct, this.get(ct));
+		}
+		return res;
 	}
 
 }

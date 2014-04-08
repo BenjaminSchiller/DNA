@@ -69,4 +69,11 @@ public class BenchmarkingResultsMap extends ComparableEntryMap {
 		return true;
 	}
 
+	@Override
+	public ComparableEntryMap clone() {
+		BenchmarkingResultsMap res = new BenchmarkingResultsMap();
+		res.put(this.getValue());
+		return res;
+	}
+
 }
