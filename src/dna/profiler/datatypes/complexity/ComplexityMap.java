@@ -137,4 +137,11 @@ public class ComplexityMap extends ComparableEntryMap {
 		return res;
 	}
 
+	@Override
+	public void multiplyBy(int factor) {
+		for (ComplexityType ct : ComplexityType.getAllComplexityTypes()) {
+			put(ct, factor * get(ct));
+		}
+	}
+
 }
