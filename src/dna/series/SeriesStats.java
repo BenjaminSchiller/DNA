@@ -35,6 +35,7 @@ public class SeriesStats {
 	public static final String graphGenerationRuntime = "graphGeneration";
 	public static final String batchGenerationRuntime = "batchGeneration";
 	public static final String graphUpdateRuntime = "graphUpdate";
+	public static final String profilerRuntime = "profiler";
 	public static final String hotswapRuntime = "hotSwap";
 	public static final String sumRuntime = "sum";
 	public static final String overheadRuntime = "overhead";
@@ -47,6 +48,6 @@ public class SeriesStats {
 
 	public static final String[] generalRuntimesOfCombinedPlot = new String[] {
 			totalRuntime, metricsRuntime, batchGenerationRuntime, sumRuntime,
-			graphUpdateRuntime, hotswapRuntime, overheadRuntime };
+			graphUpdateRuntime, hotswapRuntime, profilerRuntime, overheadRuntime };
 
 }

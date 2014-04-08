@@ -14,8 +14,12 @@ public class TimerMap {
 	}
 	
 	public Timer get(String key) {
+		return get(key, false);
+	}
+	
+	public Timer get(String key, boolean createIfNotExisting) {
 		Timer res = timerList.get(key);
-		if ( res == null ) {
+		if (res == null && createIfNotExisting) {
 			res = new Timer(key);
 		}
 		return res;

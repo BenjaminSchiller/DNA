@@ -9,6 +9,7 @@ import dna.profiler.HotSwap;
 import dna.series.Series;
 import dna.series.SeriesGeneration;
 import dna.series.SeriesStats;
+import dna.profiler.Profiler;
 import dna.series.data.BatchData;
 import dna.series.data.RunData;
 import dna.series.data.RunTime;
@@ -21,7 +22,7 @@ import dna.updates.update.Update;
 public aspect TimerAspects {
 	private HashSet<String> resetList = new HashSet<>();
 	private HashSet<String> metricList = new HashSet<>();
-	private HashSet<String> generalRuntimesList = new HashSet<>();
+	private HashSet<String> additionalNotInTotalRuntimesList = new HashSet<>();
 	private TimerMap map = new TimerMap();
 
 	pointcut seriesGeneration() : call(* SeriesGeneration.generate(Series, int, int, boolean, boolean));
@@ -29,6 +30,7 @@ public aspect TimerAspects {
 	pointcut graphGeneration(): call(* IGraphGenerator.generate(..));
 
 	pointcut initialBatchData(): call(* SeriesGeneration.computeInitialData(..)) || call(* SeriesGeneration.computeNextBatch(..));
+	pointcut initialBatchDataGeneration(): call(* SeriesGeneration.generateInitialData(..)) || call(* SeriesGeneration.generateNextBatch(..));
 	pointcut initialMetricData(): call(* SeriesGeneration.computeInitialMetrics(..));
 
 	pointcut batchGeneration(): call(* BatchGenerator+.generate(..));
@@ -40,6 +42,7 @@ public aspect TimerAspects {
 	pointcut metricApplicationPerUpdate(Metric metric, Update update) : (call(* Metric+.applyBeforeUpdate(Update+))
 			 || call(* Metric+.applyAfterUpdate(Update+))) && args(update) && target(metric);
 
+	pointcut profilerExecution(): execution(* Profiler.start*(..)) || execution(* Profiler.finish*(..));
 	pointcut hotswappingExecution(): call(* HotSwap.trySwap(..));
 
 	SeriesData around(): seriesGeneration() {
@@ -71,59 +74,71 @@ public aspect TimerAspects {
 		map.put(graphGenerationTimer);
 		return res;
 	}
-
-	BatchData around(): initialBatchData() {
+	
+	BatchData around(): initialBatchDataGeneration() {
 		for (String resetTimerName : resetList) {
 			map.remove(resetTimerName);
 		}
-
-		Timer t = new Timer(SeriesStats.totalRuntime);
 		BatchData res = proceed();
-		t.end();
-		map.put(t);
-		
-		res.getGeneralRuntimes().add(
-				map.get(SeriesStats.totalRuntime).getRuntime());
-		res.getGeneralRuntimes().add(
-				map.get(SeriesStats.graphGenerationRuntime).getRuntime());
-		res.getGeneralRuntimes().add(
-				map.get(SeriesStats.batchGenerationRuntime).getRuntime());
-		res.getGeneralRuntimes().add(
-				map.get(SeriesStats.graphUpdateRuntime).getRuntime());		
-		res.getGeneralRuntimes().add(
-				map.get(SeriesStats.metricsRuntime).getRuntime());
-		
+
+		RunTimeList generalRuntimes = res.getGeneralRuntimes();
+
+		generalRuntimes.add(map.get(SeriesStats.graphGenerationRuntime, true)
+				.getRuntime());
+		generalRuntimes.add(map.get(SeriesStats.batchGenerationRuntime, true)
+				.getRuntime());
+		generalRuntimes.add(map.get(SeriesStats.graphUpdateRuntime, true)
+				.getRuntime());
+		generalRuntimes.add(map.get(SeriesStats.metricsRuntime).getRuntime());
 
 		// add metric runtimes
 		for (String m : metricList) {
-			res.getMetricRuntimes().add(
-					map.get(m).getRuntime());
-		}
-		
-		// add other runtimes
-		for (String m: generalRuntimesList) {
-			res.getGeneralRuntimes().add(map.get(m).getRuntime());
+			res.getMetricRuntimes().add(map.get(m).getRuntime());
 		}
 
-		RunTimeList generalRuntimes = res.getGeneralRuntimes();
-		double total = generalRuntimes.get(SeriesStats.totalRuntime)
-				.getRuntime();
+		/**
+		 * Add other runtimes that might occur off-site, as in: not counted in
+		 * total. Stuff like the profiler and hotswapping is done after the
+		 * total counter has stopped!
+		 */
+		long notInTotalRt = 0;
+		for (String m : additionalNotInTotalRuntimesList) {
+			Timer singleTimer = map.get(m);
+			generalRuntimes.add(singleTimer.getRuntime());
+			notInTotalRt += singleTimer.getRuntime().getRuntime();
+		}
+
+		// Be sure to add additional stuff to the total counter!
+		double total = map.get(SeriesStats.totalRuntime).getRuntime()
+				.getRuntime()
+				+ notInTotalRt;
+		generalRuntimes.add(new RunTime("total", total));
+
 		double metrics = generalRuntimes.get(SeriesStats.metricsRuntime)
 				.getRuntime();
-		
+
 		long sumRt = 0;
-		for (RunTime rt : res.getGeneralRuntimes().getList()) {
+		for (RunTime rt : generalRuntimes.getList()) {
 			sumRt += rt.getRuntime();
 		}
 		for (RunTime rt : res.getMetricRuntimes().getList()) {
 			sumRt += rt.getRuntime();
 		}
-		
+
 		double sum = sumRt - total - metrics;
-		double overhead = total - sum;
+		double overhead = total - sum;// -notInTotalRt;
+
 		generalRuntimes.add(new RunTime("sum", sum));
 		generalRuntimes.add(new RunTime("overhead", overhead));
-		
+
+		return res;
+	}
+
+	BatchData around(): initialBatchData() {
+		Timer t = new Timer(SeriesStats.totalRuntime);
+		BatchData res = proceed();
+		t.end();
+		map.put(t);
 		return res;
 	}
 
@@ -218,11 +233,35 @@ public aspect TimerAspects {
 		return res;
 	}
 
+	Object around(): profilerExecution() {
+		resetList.add(SeriesStats.profilerRuntime);
+		Timer t = map.get(SeriesStats.profilerRuntime);
+		if (t == null) {
+			t = new Timer(SeriesStats.profilerRuntime);
+		}
+
+		t.restart();
+		Object res = proceed();
+		t.end();
+		map.put(t);
+		additionalNotInTotalRuntimesList.add(SeriesStats.profilerRuntime);
+
+		return res;
+	}
+
 	void around(): hotswappingExecution() {
+		resetList.add(SeriesStats.hotswapRuntime);
+		Timer profilerTimer = map.get(SeriesStats.profilerRuntime);
+		if (profilerTimer != null) {
+			profilerTimer.end();
+		}
 		Timer t = new Timer(SeriesStats.hotswapRuntime);
 		proceed();
 		t.end();
+		if (profilerTimer != null) {
+			profilerTimer.restart();
+		}
 		map.put(t);
-		generalRuntimesList.add(SeriesStats.hotswapRuntime);
+		additionalNotInTotalRuntimesList.add(SeriesStats.hotswapRuntime);
 	}
 }
