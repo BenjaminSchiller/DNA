@@ -41,28 +41,18 @@ public class DHashMap extends DataStructureReadable implements
 				+ element.getClass() + " here");
 	}
 
-	public boolean add(Node element) {
-		super.canAdd(element);
-
-		if (!this.list.containsKey(Integer.toString(element.getIndex()))) {
-			this.list.put(Integer.toString(element.getIndex()), element);
-			if (element.getIndex() > this.maxNodeIndex) {
-				this.maxNodeIndex = element.getIndex();
-			}
-			return true;
+	protected boolean add_(Node element) {
+		this.list.put(Integer.toString(element.getIndex()), element);
+		if (element.getIndex() > this.maxNodeIndex) {
+			this.maxNodeIndex = element.getIndex();
 		}
-		return false;
+		return true;
 	}
 
 	@Override
-	public boolean add(Edge element) {
-		super.canAdd(element);
-
-		if (!this.list.containsKey(Integer.toString(element.hashCode()))) {
-			this.list.put(Integer.toString(element.hashCode()), element);
-			return true;
-		}
-		return false;
+	protected boolean add_(Edge element) {
+		this.list.put(Integer.toString(element.hashCode()), element);
+		return true;
 	}
 
 	@Override

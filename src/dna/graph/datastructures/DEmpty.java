@@ -30,12 +30,12 @@ public class DEmpty extends DataStructureReadable implements
 	}
 
 	@Override
-	public boolean add(Node element) {
+	protected boolean add_(Node element) {
 		return true;
 	}
 
 	@Override
-	public boolean add(Edge element) {
+	protected boolean add_(Edge element) {
 		return true;
 	}
 

@@ -48,7 +48,7 @@ public class DBloomFilter extends DataStructure implements
 	}
 
 	@Override
-	public boolean add(Edge element) {
+	protected boolean add_(Edge element) {
 		// TODO Auto-generated method stub
 		return false;
 	}
@@ -66,7 +66,7 @@ public class DBloomFilter extends DataStructure implements
 	}
 
 	@Override
-	public boolean add(Node element) {
+	protected boolean add_(Node element) {
 		// TODO Auto-generated method stub
 		return false;
 	}

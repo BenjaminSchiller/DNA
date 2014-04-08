@@ -45,12 +45,7 @@ public class DArray extends DataStructureReadable implements
 	 * Adding a node needs some more treatment than just writing it, as the
 	 * array might need to grow to the proper size
 	 */
-	public boolean add(Node element) {
-		super.canAdd(element);
-
-		if (this.contains(element))
-			return false;
-
+	protected boolean add_(Node element) {
 		if (this.list.length == 0) {
 			this.list = new IElement[element.getIndex() + 1];
 		}
@@ -70,13 +65,8 @@ public class DArray extends DataStructureReadable implements
 	}
 
 	@Override
-	public boolean add(Edge element) {
-		super.canAdd(element);
-
+	protected boolean add_(Edge element) {
 		int addPos = 0;
-
-		if (this.contains(element))
-			return false;
 
 		// TODO these lists need shrinking!
 
