@@ -23,6 +23,10 @@ public class DoubleWeight extends Weight {
 		this.weight = weight;
 	}
 
+	public DoubleWeight() {
+		this(0);
+	}
+
 	public DoubleWeight(String str) {
 		this.weight = Double.parseDouble(str);
 	}

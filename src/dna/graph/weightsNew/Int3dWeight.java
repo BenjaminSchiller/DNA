@@ -44,6 +44,10 @@ public class Int3dWeight extends Weight {
 		this.z = z;
 	}
 
+	public Int3dWeight() {
+		this(0, 0, 0);
+	}
+
 	public Int3dWeight(String str) {
 		String[] temp = str.split(Weight.WeightSeparator);
 		this.x = Integer.parseInt(temp[0]);
