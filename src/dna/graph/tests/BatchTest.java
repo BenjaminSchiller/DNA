@@ -106,9 +106,11 @@ public class BatchTest {
 			gg = generatorConstructor.newInstance(gds, nodeSize);
 		}
 
-		this.bGen = new RandomBatch(nodeAdd, nodeRem, nodeWeightChanges,
-				getNodeWeightSelector(), edgeAdd, edgeRem, edgeWeightChanges,
-				getEdgeWeightSelector());
+		// this.bGen = new RandomBatch(nodeAdd, nodeRem, nodeWeightChanges,
+		// getNodeWeightSelector(), edgeAdd, edgeRem, edgeWeightChanges,
+		// getEdgeWeightSelector());
+		// TODO add weight changes to test case again
+		this.bGen = new RandomBatch(nodeAdd, nodeRem, edgeAdd, edgeRem);
 
 		/**
 		 * A short output to overcome the timeout of Travis: If there is no

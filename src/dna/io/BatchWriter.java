@@ -22,7 +22,7 @@ public class BatchWriter {
 			writer.writeKeyword(Config.get("BATCH_KEYWORD_UPDATES"));
 
 			for (Update u : b.getAllUpdates()) {
-				writer.writeln(u.getStringRepresentation());
+				writer.writeln(u.asString());
 			}
 
 			return true;

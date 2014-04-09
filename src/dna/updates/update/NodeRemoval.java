@@ -14,7 +14,11 @@ import dna.util.Log;
 public class NodeRemoval extends NodeUpdate {
 
 	public NodeRemoval(INode node) {
-		super(UpdateType.NODE_REMOVAL, node);
+		super(node);
+	}
+
+	public NodeRemoval(String str, Graph g) {
+		super(g.getNode(Integer.parseInt(str)));
 	}
 
 	@Override
@@ -44,6 +48,21 @@ public class NodeRemoval extends NodeUpdate {
 		}
 		success &= g.removeNode((Node) this.node);
 		return success;
+	}
+
+	@Override
+	public UpdateType getType() {
+		return UpdateType.NODE_REMOVAL;
+	}
+
+	@Override
+	protected String asString_() {
+		return Integer.toString(this.node.getIndex());
+	}
+
+	@Override
+	protected String toString_() {
+		return Integer.toString(this.node.getIndex());
 	}
 
 }
