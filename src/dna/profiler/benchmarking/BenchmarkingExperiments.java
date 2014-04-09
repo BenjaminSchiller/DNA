@@ -65,7 +65,7 @@ public class BenchmarkingExperiments {
 					.forName(dsClass);
 			BenchmarkingExperiments.inputSizes = benchmarkingConf
 					.getInputSizes();
-			this.operationSize = benchmarkingConf.getOperationSize();
+			this.operationSize = benchmarkingConf.getMaxOperationSize();
 			this.maxListSize = (int) (getMax(inputSizes)
 					+ Math.ceil(operationSize / 2) + operationSize);
 			nodeList = new INode[maxListSize + 2];

@@ -29,7 +29,6 @@ public class BenchmarkingConf extends AbstractConfig {
 	}
 
 	private int[] inputSizes;
-	private int operationSize;
 
 	/**
 	 * Public constructor.
@@ -44,16 +43,21 @@ public class BenchmarkingConf extends AbstractConfig {
 		for (int i = 0; i < splitted.length; i++) {
 			inputSizes[i] = Integer.parseInt(splitted[i]);
 		}
-
-		this.operationSize = 50;
 	}
 
 	public int[] getInputSizes() {
 		return this.inputSizes;
 	}
 
-	public int getOperationSize() {
-		return this.operationSize;
+	public int getMaxOperationSize() {
+		int defaultBenchmarkSize = 50;
+		return defaultBenchmarkSize;
+	}
+
+	public int getOperationSize(int inputSize) {
+		int defaultSize = getMaxOperationSize();
+		int calculatedSize = (int) Math.ceil(inputSize / 3);
+		return Math.min(defaultSize, calculatedSize);
 	}
 
 }

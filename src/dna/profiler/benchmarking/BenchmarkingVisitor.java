@@ -55,9 +55,9 @@ public class BenchmarkingVisitor extends AbstractOutput {
 					Object[] paramSet = methRes.getInputParamSet();
 					Class<? extends IDataStructure> clazz = (Class<? extends IDataStructure>) paramSet[0];
 					int inputSize = (int) paramSet[1];
+					int operationSize = conf.getOperationSize(inputSize);
 
-					double perElement = methRes.mean(meter)
-							/ conf.getOperationSize();
+					double perElement = methRes.mean(meter) / operationSize;
 
 					String methodName = ((BenchmarkMethod) methRes
 							.getRelatedElement()).getMethodToBench().getName();
@@ -78,8 +78,7 @@ public class BenchmarkingVisitor extends AbstractOutput {
 								maxElement = -1;
 								continue;
 							}
-							resultsNormalized.add(singleRes
-									/ conf.getOperationSize());
+							resultsNormalized.add(singleRes / operationSize);
 						}
 
 						String keyForEntry = "";
