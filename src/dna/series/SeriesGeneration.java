@@ -1,10 +1,12 @@
 package dna.series;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.FileSystem;
 import java.util.HashMap;
 
 import dna.io.filesystem.Dir;
+import dna.io.filesystem.Files;
 import dna.metrics.Metric;
 import dna.metrics.MetricNotApplicableException;
 import dna.series.Series.RandomSeedReset;
@@ -31,7 +33,7 @@ public class SeriesGeneration {
 	public static SeriesData generate(Series series, int runs, int batches)
 			throws AggregationException, IOException,
 			MetricNotApplicableException {
-		return SeriesGeneration.generate(series, runs, batches, true, true);
+		return SeriesGeneration.generate(series, runs, batches, true, true, 0);
 	}
 
 	/**
@@ -49,14 +51,18 @@ public class SeriesGeneration {
 	 * @param write
 	 *            Flag that decides whether data will be written on the
 	 *            filesystem or not
+	 * @param batchGenerationTime
+	 *            Long variable representing the artificial generation-time for
+	 *            each batch. Used to simulate a live system.
 	 * @return SeriesData object representing the given series
 	 * @throws AggregationException
 	 * @throws IOException
 	 * @throws MetricNotApplicableException
 	 */
 	public static SeriesData generate(Series series, int runs, int batches,
-			boolean compare, boolean write) throws AggregationException,
-			IOException, MetricNotApplicableException {
+			boolean compare, boolean write, long batchGenerationTime)
+			throws AggregationException, IOException,
+			MetricNotApplicableException {
 		Log.infoSep();
 		Timer timer = new Timer("seriesGeneration");
 		SeriesGeneration.singleFile = Config
@@ -73,6 +79,8 @@ public class SeriesGeneration {
 			Log.info("b  = zipped");
 		else
 			Log.info("b  = files");
+		if (batchGenerationTime > 0)
+			Log.info("t  = " + batchGenerationTime + " msec / batch");
 		StringBuffer buff = new StringBuffer("");
 		for (Metric m : series.getMetrics()) {
 			if (buff.length() > 0) {
@@ -95,7 +103,8 @@ public class SeriesGeneration {
 			}
 
 			// generate runW
-			SeriesGeneration.generateRun(series, r, batches, compare, write);
+			SeriesGeneration.generateRun(series, r, batches, compare, write,
+					batchGenerationTime);
 		}
 
 		// read series data structure for aggregation
@@ -146,18 +155,22 @@ public class SeriesGeneration {
 	 * @param write
 	 *            Flag that decides whether data will be written on the
 	 *            filesystem or not
+	 * @param batchGenerationTime
+	 *            Long variable representing the artificial generation-time for
+	 *            each batch. Used to simulate a live system.
 	 * @return RunDataList object containing the generated runs
 	 * @throws IOException
 	 * @throws MetricNotApplicableException
 	 */
 	public static void generateRuns(Series series, int from, int to,
-			int batches, boolean compare, boolean write, boolean batchesAsZip)
-			throws IOException, MetricNotApplicableException {
+			int batches, boolean compare, boolean write,
+			long batchGenerationTime) throws IOException,
+			MetricNotApplicableException {
 		int runs = to - from;
 
 		for (int i = 0; i < runs; i++) {
 			SeriesGeneration.generateRun(series, from + i, batches, compare,
-					write);
+					write, batchGenerationTime);
 		}
 	}
 
@@ -176,13 +189,17 @@ public class SeriesGeneration {
 	 * @param write
 	 *            Flag that decides whether data will be written on the
 	 *            filesystem or not
+	 * @param batchGenerationTime
+	 *            Long variable representing the artificial generation-time for
+	 *            each batch. Used to simulate a live system.
 	 * @return RunData object representing the generated run
 	 * @throws IOException
 	 * @throws MetricNotApplicableException
 	 */
 	public static void generateRun(Series series, int run, int batches,
-			boolean compare, boolean write) throws IOException,
-			MetricNotApplicableException {
+			boolean compare, boolean write, long batchGenerationTime)
+			throws IOException, MetricNotApplicableException {
+
 		Log.infoSep();
 		Timer timer = new Timer("runGeneration");
 		Log.info("run " + run + " (" + batches + " batches)");
@@ -208,7 +225,8 @@ public class SeriesGeneration {
 				try {
 					initialData.writeSingleFile(
 							Dir.getRunDataDir(series.getDir(), run),
-							initialData.getTimestamp(), Dir.delimiter);
+							initialData.getTimestamp(),
+							Config.get("SUFFIX_ZIP_FILE"), Dir.delimiter);
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
@@ -226,6 +244,9 @@ public class SeriesGeneration {
 						+ " of " + batches + ")");
 				break;
 			}
+			// * live display simulation
+			long batchGenerationStart = System.currentTimeMillis();
+			// *
 
 			// reset rand per batch
 			if (series.getRandomSeedReset() == RandomSeedReset.eachBatch) {
@@ -238,19 +259,70 @@ public class SeriesGeneration {
 				SeriesGeneration.compareMetrics(series);
 			}
 			if (write) {
-				if (!SeriesGeneration.singleFile) {
-					batchData.write(Dir.getBatchDataDir(series.getDir(), run,
-							batchData.getTimestamp()));
-				} else {
-					try {
+				if (batchGenerationTime > 0) {
+					// generation simulation
+					String actualDir;
+					String dirTemp;
+
+					if (SeriesGeneration.singleFile) {
+						String nonZipDir = Dir.getBatchDataDir(series.getDir(),
+								run, batchData.getTimestamp());
+						actualDir = nonZipDir.substring(0,
+								nonZipDir.length() - 1)
+								+ Config.get("SUFFIX_ZIP_FILE");
+						dirTemp = actualDir + Dir.tempSuffix;
+					} else {
+						actualDir = Dir.getBatchDataDir(series.getDir(), run,
+								batchData.getTimestamp());
+						dirTemp = actualDir
+								.substring(0, actualDir.length() - 1)
+								+ Dir.tempSuffix + Dir.delimiter;
+					}
+
+					// rename directory
+					File srcDir = new File(dirTemp);
+					File dstDir = new File(actualDir);
+
+					Files.delete(srcDir);
+					Files.delete(dstDir);
+
+					// write
+					if (SeriesGeneration.singleFile)
 						batchData.writeSingleFile(
 								Dir.getRunDataDir(series.getDir(), run),
-								batchData.getTimestamp(), Dir.delimiter);
-					} catch (IOException e) {
-						e.printStackTrace();
+								batchData.getTimestamp(),
+								Config.get("SUFFIX_ZIP_FILE") + Dir.tempSuffix,
+								Dir.delimiter);
+					else
+						batchData.write(dirTemp);
+
+					// live display simulation
+					long waitTime = batchGenerationTime
+							- (System.currentTimeMillis() - batchGenerationStart);
+					if (waitTime > 0) {
+						try {
+							Thread.sleep(waitTime);
+						} catch (InterruptedException e) {
+							e.printStackTrace();
+						}
 					}
+
+					// rename
+					if (srcDir.exists())
+						srcDir.renameTo(dstDir);
+				} else {
+					// no generation simulation
+					if (SeriesGeneration.singleFile)
+						batchData.writeSingleFile(
+								Dir.getRunDataDir(series.getDir(), run),
+								batchData.getTimestamp(),
+								Config.get("SUFFIX_ZIP_FILE"), Dir.delimiter);
+					else
+						batchData.write(Dir.getBatchDataDir(series.getDir(),
+								run, batchData.getTimestamp()));
 				}
 			}
+
 			// call garbage collection
 			if (series.isCallGC() && i == series.getGcOccurence() * gcCounter) {
 				System.gc();
@@ -323,10 +395,48 @@ public class SeriesGeneration {
 		initialData.getGeneralRuntimes().add(totalTimer.getRuntime());
 		initialData.getGeneralRuntimes().add(graphGenerationTimer.getRuntime());
 		initialData.getGeneralRuntimes().add(allMetricsTimer.getRuntime());
+		// batchGeneration runtime is not present in the initialdata and added
+		// for gui purposes only
+		initialData.getGeneralRuntimes().add(
+				new RunTime("batchGeneration", 0.0));
+
 		addSummaryRuntimes(initialData);
 
 		// add values
 		initialData.getValues().add(new Value("randomSeed", series.getSeed()));
+
+		// these values are not present in the initialdata and added for gui
+		// purposes only
+		initialData.getValues().add(new Value(SeriesStats.nodesToAdd, 0.0));
+		initialData.getValues().add(new Value(SeriesStats.addedNodes, 0.0));
+		initialData.getValues().add(new Value(SeriesStats.nodesToRemove, 0.0));
+		initialData.getValues().add(new Value(SeriesStats.removedNodes, 0.0));
+		initialData.getValues().add(
+				new Value(SeriesStats.nodeWeightsToUpdate, 0.0));
+		initialData.getValues().add(
+				new Value(SeriesStats.updatedNodeWeights, 0.0));
+
+		initialData.getValues().add(new Value(SeriesStats.edgesToAdd, 0.0));
+		initialData.getValues().add(new Value(SeriesStats.addedEdges, 0.0));
+		initialData.getValues().add(new Value(SeriesStats.edgesToRemove, 0.0));
+		initialData.getValues().add(new Value(SeriesStats.removedEdges, 0.0));
+		initialData.getValues().add(
+				new Value(SeriesStats.edgeWeightsToUpdate, 0.0));
+		initialData.getValues().add(
+				new Value(SeriesStats.updatedEdgeWeights, 0.0));
+
+		initialData.getValues().add(
+				new Value(SeriesStats.deletedNodeAdditions, 0.0));
+		initialData.getValues().add(
+				new Value(SeriesStats.deletedEdgeAdditions, 0.0));
+		initialData.getValues().add(
+				new Value(SeriesStats.deletedNodeRemovals, 0.0));
+		initialData.getValues().add(
+				new Value(SeriesStats.deletedEdgeRemovals, 0.0));
+		initialData.getValues().add(
+				new Value(SeriesStats.deletedNodeWeightUpdates, 0.0));
+		initialData.getValues().add(
+				new Value(SeriesStats.deletedEdgeWeightUpdates, 0.0));
 
 		// call garbage collection
 		if (series.isCallGC()) {

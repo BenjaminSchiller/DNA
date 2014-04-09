@@ -1,7 +1,7 @@
+/build/*.jar
 /data/
 /plots/
 /deploy/
-/build/
 /bin/
 /src/dna/Test*.java
 /src/dna/test/

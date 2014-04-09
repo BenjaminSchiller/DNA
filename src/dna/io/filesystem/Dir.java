@@ -21,6 +21,7 @@ import dna.util.Config;
  */
 public class Dir {
 	public static final String delimiter = "/";
+	public static final String tempSuffix = "_";
 
 	/*
 	 * AGGREGATION

@@ -50,8 +50,8 @@ public class Series {
 			RunData runData = RunData.read(dir, run, false);
 			seriesData.addRun(runData);
 		}
-		AggregatedSeries aggregation = null;
-		// TODO read aggregated data!!!!
+		AggregatedSeries aggregation = AggregatedSeries.read(dir, name, true);
+
 		seriesData.setAggregation(aggregation);
 		return seriesData;
 	}
@@ -59,13 +59,21 @@ public class Series {
 	public SeriesData generate(int runs, int batches)
 			throws AggregationException, IOException,
 			MetricNotApplicableException {
-		return this.generate(runs, batches, true, true);
+		return this.generate(runs, batches, true, true, 0);
+	}
+
+	public SeriesData generate(int runs, int batches, long batchGenerationTime)
+			throws AggregationException, IOException,
+			MetricNotApplicableException {
+		return this.generate(runs, batches, true, true, batchGenerationTime);
 	}
 
 	public SeriesData generate(int runs, int batches, boolean compare,
-			boolean write) throws AggregationException, IOException,
+			boolean write, long batchGenerationTime)
+			throws AggregationException, IOException,
 			MetricNotApplicableException {
-		return SeriesGeneration.generate(this, runs, batches, compare, write);
+		return SeriesGeneration.generate(this, runs, batches, compare, write,
+				batchGenerationTime);
 	}
 
 	private GraphGenerator graphGenerator;

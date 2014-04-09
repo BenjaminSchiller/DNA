@@ -27,9 +27,27 @@ public class BatchDataList extends SortedList<BatchData> {
 		String[] batches = Dir.getBatches(dir);
 		BatchDataList list = new BatchDataList(batches.length);
 		for (String batch : batches) {
-			list.add(BatchData.read(dir, Dir.getTimestamp(batch), readValues));
+			list.add(BatchData.read(
+					Dir.getBatchDataDir(dir, Dir.getTimestamp(batch)),
+					Dir.getTimestamp(batch), readValues));
 		}
 		return list;
 	}
 
+	/**
+	 * Reads only the timestamps of available batches and returns a list full of
+	 * empty batches with only the corresponding timestamp.
+	 * 
+	 * @param dir
+	 *            Directory to be read in
+	 * @return BatchDataList filled with empty batches
+	 */
+	public static BatchDataList readTimestamps(String dir) {
+		String[] batches = Dir.getBatches(dir);
+		BatchDataList list = new BatchDataList(batches.length);
+		for (String batch : batches) {
+			list.add(new BatchData(Dir.getTimestamp(batch)));
+		}
+		return list;
+	}
 }

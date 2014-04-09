@@ -122,10 +122,10 @@ public class ZipWriter extends Writer {
 	}
 
 	/** Creates a zip filesystem for a batch in the specified directory. **/
-	public static FileSystem createBatchFileSystem(String fsDir, long timestamp)
-			throws IOException {
+	public static FileSystem createBatchFileSystem(String fsDir, String suffix,
+			long timestamp) throws IOException {
 		return createFileSystem(fsDir,
-				dna.io.filesystem.Files.getBatchFilename(timestamp));
+				dna.io.filesystem.Files.getBatchFilename(timestamp) + suffix);
 	}
 
 	/** Creates a zip filesystem for a run in the specified directory. **/
