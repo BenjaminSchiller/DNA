@@ -23,6 +23,10 @@ public class IntWeight extends Weight {
 		this.weight = weight;
 	}
 
+	public IntWeight() {
+		this(0);
+	}
+
 	public IntWeight(String str) {
 		this.weight = Integer.parseInt(str);
 	}

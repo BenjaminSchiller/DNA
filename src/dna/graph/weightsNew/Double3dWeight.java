@@ -45,6 +45,10 @@ public class Double3dWeight extends Weight {
 		this.z = z;
 	}
 
+	public Double3dWeight() {
+		this(0, 0, 0);
+	}
+
 	public Double3dWeight(String str) {
 		String[] temp = str.split(Weight.WeightSeparator);
 		this.x = Double.parseDouble(temp[0]);
