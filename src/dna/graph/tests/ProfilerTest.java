@@ -328,15 +328,16 @@ public class ProfilerTest {
 	@Test
 	public void testMeanSizesAreCalculatedProperly() {
 		assertEquals(2, Profiler.getMeanSize(ListType.GlobalNodeList), 0.1);
-		assertEquals(2, Profiler.getMeanSize(ListType.GlobalEdgeList), 0.1);
 
 		if (graph.isDirected()) {
+			assertEquals(2, Profiler.getMeanSize(ListType.GlobalEdgeList), 0.1);			
 			assertEquals(1, Profiler.getMeanSize(ListType.LocalNodeList), 0.1);
 			assertEquals(0, Profiler.getMeanSize(ListType.LocalEdgeList), 0.1);
 			assertEquals(1, Profiler.getMeanSize(ListType.LocalInEdgeList), 0.1);
 			assertEquals(1, Profiler.getMeanSize(ListType.LocalOutEdgeList),
 					0.1);
 		} else {
+			assertEquals(1, Profiler.getMeanSize(ListType.GlobalEdgeList), 0.1);			
 			assertEquals(0, Profiler.getMeanSize(ListType.LocalNodeList), 0.1);
 			assertEquals(1, Profiler.getMeanSize(ListType.LocalEdgeList), 0.1);
 			assertEquals(0, Profiler.getMeanSize(ListType.LocalInEdgeList), 0.1);

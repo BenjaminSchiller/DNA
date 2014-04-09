@@ -111,4 +111,9 @@ public class DEmpty extends DataStructureReadable implements
 	protected Iterator<IElement> iterator_() {
 		return Collections.<IElement> emptyList().iterator();
 	}
+	
+	@Override
+	public boolean canAdd(IElement element) {
+		return true;
+	}
 }
