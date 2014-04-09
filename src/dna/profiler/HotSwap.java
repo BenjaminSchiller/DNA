@@ -6,10 +6,14 @@ import java.util.Map.Entry;
 import java.util.TreeMap;
 
 import dna.graph.Graph;
+import dna.graph.datastructures.DataStructure.AccessType;
 import dna.graph.datastructures.DataStructure.ListType;
 import dna.graph.datastructures.GraphDataStructure;
 import dna.graph.datastructures.IDataStructure;
 import dna.profiler.ProfilerMeasurementData.ProfilerDataType;
+import dna.profiler.datatypes.ComparableEntry;
+import dna.profiler.datatypes.ComparableEntryMap;
+import dna.util.Config;
 
 public class HotSwap {
 	private static Map<ProfilerMeasurementData.ProfilerDataType, HotSwapMap> slidingWindow = null;
@@ -89,11 +93,91 @@ public class HotSwap {
 											.getCosts(ProfilerDataType.RuntimeBenchmark)
 									+ ", recommended entry runtime costs: "
 									+ entry.getCosts(ProfilerDataType.RuntimeBenchmark));
+
 					GraphDataStructure newGDS = entry.getGraphDataStructure();
-					doSwap(g, newGDS);
+
+					if (isSwapEfficient(lastCosts, entry)) {
+						System.out
+								.println("  Swapping looks efficient, so do it now");
+						doSwap(g, newGDS);
+					} else {
+						System.out
+								.println("  Skip the swap, it is inefficient");
+					}
 				}
 			}
 		}
+	}
+
+	private static boolean isSwapEfficient(RecommenderEntry currentState,
+			RecommenderEntry recommendedState) {
+		/**
+		 * How many batches should we look into the future to see whether the
+		 * currently used GDS performs worse than a new one, taking the costs of
+		 * switching into account?
+		 */
+		long amortizationCounterInBatches = Config
+				.getInt("HOTSWAP_AMORTIZATION_COUNTER");
+		long maxNumberOfBatchesLeft = totalNumberOfBatches - lastFinishedBatch;
+		int amortizationCounterToUse = (int) Math.min(
+				amortizationCounterInBatches, maxNumberOfBatchesLeft);
+		System.out.println("  Check whether the swap will be amortized within "
+				+ amortizationCounterToUse + " batches");
+
+		/**
+		 * Generate the costs for the current state
+		 */
+		ComparableEntryMap currentStateCosts = currentState.getCosts(
+				ProfilerDataType.RuntimeBenchmark).clone();
+		currentStateCosts.multiplyBy(amortizationCounterToUse);
+
+		/**
+		 * Generate the costs for the recommended state
+		 */
+		ComparableEntryMap recStateCosts = recommendedState.getCosts(
+				ProfilerDataType.RuntimeBenchmark).clone();
+		recStateCosts.multiplyBy(amortizationCounterToUse);
+
+		/**
+		 * Generate the costs for swapping, which is: for each list type the
+		 * number of lists * (init + meanlistSize * (add + containsFailure) )
+		 */
+
+		GraphDataStructure recGDS = recommendedState.getGraphDataStructure();
+		ComparableEntryMap swappingCosts = ProfilerMeasurementData
+				.getMap(ProfilerDataType.RuntimeBenchmark);
+		for (ListType lt : ListType.values()) {
+			int numberOfLists = Profiler.getNumberOfGeneratedLists(lt);
+			double meanListSize = Profiler.getMeanSize(lt);
+			int totalNumberOfElements = (int) (numberOfLists * meanListSize);
+
+			ComparableEntry initCosts = recGDS.getComplexityClass(lt,
+					AccessType.Init, ProfilerDataType.RuntimeBenchmark);
+			initCosts.setValues(numberOfLists, meanListSize, null);
+			swappingCosts.add(initCosts.getMap());
+
+			ComparableEntry cfCosts = recGDS.getComplexityClass(lt,
+					AccessType.ContainsFailure,
+					ProfilerDataType.RuntimeBenchmark);
+			cfCosts.setValues(totalNumberOfElements, meanListSize, null);
+			swappingCosts.add(cfCosts.getMap());
+
+			ComparableEntry addCosts = recGDS.getComplexityClass(lt,
+					AccessType.Add, ProfilerDataType.RuntimeBenchmark);
+			addCosts.setValues(totalNumberOfElements, meanListSize, null);
+			swappingCosts.add(addCosts.getMap());
+		}
+
+		System.out.println("  Total costs with current GDS: "
+				+ currentStateCosts + ", total swapping costs: "
+				+ swappingCosts + ", total costs with recommended GDS: "
+				+ recStateCosts);
+		recStateCosts.add(swappingCosts);
+		System.out.println("  Total costs with NEW GDS, incl swap: "
+				+ recStateCosts);
+
+		boolean isEfficient = recStateCosts.compareTo(currentStateCosts) < 0;
+		return isEfficient;
 	}
 
 	public static void setLastFinishedBatch(long batchTimestamp) {

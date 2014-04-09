@@ -840,9 +840,13 @@ public class Profiler {
 			e.printStackTrace();
 		}
 	}
+	
+	public static int getNumberOfGeneratedLists(ListType lt) {
+		return generatedListsCounter.get(lt);
+	}
 
 	public static double getMeanSize(ListType lt) {
-		double numberOfLists = generatedListsCounter.get(lt);
+		double numberOfLists = getNumberOfGeneratedLists(lt);
 		if (numberOfLists == 0)
 			return 0;
 		double accumulatedNumberOfElements = listSizeCounter.get(lt);
