@@ -356,20 +356,21 @@ public abstract class WalkingAlgorithm extends BatchGenerator {
 
 		seenNodes = new HashSet<Node>(graphSize);
 		visitedNodes = new HashSet<Node>(graphSize);
-		
+
 		addedNodes = new HashMap<Integer, Node>();
-		
+
 		resource = initialResource;
 
 		firstIteration = true;
 		noFurtherBatch = false;
 		timeStamp = 0;
-		
+
 		localReset();
 	}
-	
+
 	/**
-	 * Resets the walking algorithm instance, so it will start again from the beginning
+	 * Resets the walking algorithm instance, so it will start again from the
+	 * beginning
 	 */
 	protected abstract void localReset();
 
@@ -542,7 +543,7 @@ public abstract class WalkingAlgorithm extends BatchGenerator {
 	}
 
 	/**
-	 * Returns the current timestamp
+	 * Returns the current time stamp of this walking algorithm
 	 */
 	protected long getTimeStamp() {
 		return timeStamp;

@@ -26,8 +26,6 @@ import dna.util.Config;
  * 
  */
 public class SNAPGraphReader {
-	
-	private static boolean alwaysUndirected = false;
 
 	private static GraphDataStructure directedGDSSetup = new GraphDataStructure(
 			GraphDataStructure.getList(ListType.GlobalNodeList, DArray.class,
@@ -50,10 +48,27 @@ public class SNAPGraphReader {
 	 *            the name of the file containing the SNAP graph
 	 * @return the graph
 	 * @throws IOException
-	 *             in case the file does not exist there
+	 *             in case the file does not exist
 	 */
 	public static Graph read(String dir, String filename) throws IOException {
 		return read(dir, filename, null);
+	}
+
+	/**
+	 * Creates an undirected graph out of an file with a SNAP based graph,
+	 * independent of the structure (directed / undirected) of the SNAP graph
+	 * 
+	 * @param dir
+	 *            directory where the SNAP graph file lays
+	 * @param filename
+	 *            the name of the file containing the SNAP graph
+	 * @return the undirected graph
+	 * @throws IOException
+	 *             in case the file does not exist
+	 */
+	public static Graph readUndirected(String dir, String filename)
+			throws IOException {
+		return read(dir, filename, undirectedGDSSetup);
 	}
 
 	/**
@@ -66,7 +81,7 @@ public class SNAPGraphReader {
 	 *            the data structure the constructed graph shall have
 	 * @return the name as a string
 	 * @throws IOException
-	 *             in case the file does not exist there
+	 *             in case the file does not exist
 	 */
 	public static Graph read(String dir, String filename, GraphDataStructure ds)
 			throws IOException {
@@ -124,19 +139,31 @@ public class SNAPGraphReader {
 
 		// Creates the graph
 		Graph g = ds.newGraphInstance(name, 0, nodeCount, edgeCount);
-		
+
 		// Reads and adds the edges
 		String line = reader.readString();
 		int nodeID = 0;
-		double percentage = 0.05;
+
+		// ######################### Notification system #########################
+		double percentage = 0.00;
+		double stepSize = 0.05;
+		if (nodeCount < 10) {
+			stepSize = 0.20;
+		} else if (nodeCount < 20) {
+			stepSize = 0.10;
+		}
+		// ######################### End of Notification #########################
+
 		if (line.contains(Config.get("SNAP_GRAPH_KEYWORD_EDGES_LIST"))) {
 			while ((line = reader.readString()) != null) {
-				// Notification system
+
+				// ######################### Notification system #########################
 				if (((double) nodeID / (double) nodeCount) >= percentage) {
 					System.out.println("Reading: "
 							+ Math.round(percentage * 100) + "% finished.");
-					percentage += 0.05;
+					percentage += stepSize;
 				}
+				// ######################### End of Notification #########################
 
 				int tabIndex = line.indexOf('\t');
 				int srcIndex = Integer.parseInt(line.substring(0, tabIndex));
