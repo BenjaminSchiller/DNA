@@ -4,46 +4,43 @@ import java.util.HashSet;
 
 import dna.graph.Graph;
 import dna.graph.edges.Edge;
-import dna.graph.edges.IWeightedEdge;
-import dna.graph.nodes.IWeightedNode;
 import dna.graph.nodes.Node;
-import dna.graph.weights.Weights;
-import dna.graph.weights.Weights.EdgeWeightSelection;
-import dna.graph.weights.Weights.NodeWeightSelection;
+import dna.graph.weightsNew.IWeightedEdge;
+import dna.graph.weightsNew.IWeightedNode;
+import dna.graph.weightsNew.Weight;
+import dna.graph.weightsNew.Weight.WeightSelection;
+import dna.graph.weightsNew.Weight.WeightType;
 import dna.updates.batch.Batch;
 import dna.updates.generators.BatchGenerator;
 import dna.updates.update.EdgeWeight;
 import dna.updates.update.NodeWeight;
-import dna.util.parameters.ObjectParameter;
 
 public class WeightChanges extends BatchGenerator {
 
-	private EdgeWeightSelection ew;
+	int nodes;
 
-	private int edges;
+	private WeightType nType;
 
-	private NodeWeightSelection nw;
+	private WeightSelection nSelection;
 
-	private int nodes;
+	int edges;
 
-	public WeightChanges(NodeWeightSelection nw, int nodes,
-			EdgeWeightSelection ew, int edges) {
-		super("WeightChanges", new ObjectParameter("EW", ew));
-		this.nw = nw;
+	private WeightType eType;
+
+	private WeightSelection eSelection;
+
+	public WeightChanges(int nodes, WeightType nType,
+			WeightSelection nSelection, int edges, WeightType eType,
+			WeightSelection eSelection) {
+		super("WeightChanges");
 		this.nodes = nodes;
-		this.ew = ew;
+		this.nType = nType;
+		this.nSelection = nSelection;
 		this.edges = edges;
+		this.eType = eType;
+		this.eSelection = eSelection;
 	}
 
-	public WeightChanges(NodeWeightSelection nw, int nodes) {
-		this(nw, nodes, null, 0);
-	}
-
-	public WeightChanges(EdgeWeightSelection ew, int edges) {
-		this(null, 0, ew, edges);
-	}
-
-	@SuppressWarnings("rawtypes")
 	@Override
 	public Batch generate(Graph g) {
 		Batch b = new Batch(g.getGraphDatastructures(), g.getTimestamp(),
@@ -60,11 +57,13 @@ public class WeightChanges extends BatchGenerator {
 		}
 
 		for (Edge e : edges) {
-			b.add(new EdgeWeight((IWeightedEdge) e, Weights.getWeight(this.ew)));
+			b.add(new EdgeWeight((IWeightedEdge) e, Weight.getWeight(
+					this.eType, this.eSelection)));
 		}
 
 		for (Node n : nodes) {
-			b.add(new NodeWeight((IWeightedNode) n, Weights.getWeight(this.nw)));
+			b.add(new NodeWeight((IWeightedNode) n, Weight.getWeight(
+					this.nType, this.nSelection)));
 		}
 
 		return b;

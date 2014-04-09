@@ -43,7 +43,7 @@ public class BatchReader {
 			String line = null;
 			while ((line = reader.readString()) != null) {
 				Update u = Update.fromString(g.getGraphDatastructures(), g,
-						line, addedNodes, addedEdges);
+						line, addedNodes);
 
 				b.add(u);
 				if (u instanceof NodeAddition) {

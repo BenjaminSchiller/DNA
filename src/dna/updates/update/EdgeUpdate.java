@@ -6,25 +6,14 @@ public abstract class EdgeUpdate extends Update {
 
 	protected IEdge edge;
 
-	public EdgeUpdate(UpdateType type, IEdge edge) {
-		super(type);
-		this.edge = edge;
-	}
-
 	public IEdge getEdge() {
 		return this.edge;
 	}
 
-	@Override
-	protected String getStringRepresentation_() {
-		return this.edge.getStringRepresentation();
+	public EdgeUpdate(IEdge edge) {
+		this.edge = edge;
 	}
 
-	@Override
-	protected String toString_() {
-		return this.edge.toString();
-	}
-	
 	@Override
 	protected int hashCode_() {
 		return this.edge.hashCode();
