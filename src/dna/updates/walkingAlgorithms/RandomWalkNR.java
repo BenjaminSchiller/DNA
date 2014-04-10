@@ -26,8 +26,6 @@ public class RandomWalkNR extends WalkingAlgorithm {
 	/**
 	 * Creates an instance of the random walk sampling algorithm
 	 * 
-	 * @param name
-	 *            the name of this instance
 	 * @param fullGraph
 	 *            the graph the algorithm shall walk on
 	 * @param startNodeStrat
@@ -45,11 +43,11 @@ public class RandomWalkNR extends WalkingAlgorithm {
 	 *            the parameters which makes this algorithm unique and which
 	 *            will be added to the name
 	 */
-	public RandomWalkNR(String name, Graph fullGraph,
+	public RandomWalkNR(Graph fullGraph,
 			StartNodeSelectionStrategy startNodeStrategy,
 			boolean onlyVisitedNodesToGraph, int costPerBatch, int resource,
 			Parameter[] parameters) {
-		super(name, fullGraph, startNodeStrategy, onlyVisitedNodesToGraph,
+		super("RWnr", fullGraph, startNodeStrategy, onlyVisitedNodesToGraph,
 				costPerBatch, resource, parameters);
 
 		currentNode = null;

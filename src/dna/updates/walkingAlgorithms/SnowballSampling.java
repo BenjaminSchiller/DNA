@@ -29,8 +29,6 @@ public class SnowballSampling extends WalkingAlgorithm {
 	/**
 	 * Creates an instance of the snowball sampling algorithm
 	 * 
-	 * @param name
-	 *            the name of this instance
 	 * @param fullGraph
 	 *            the graph the algorithm shall walk on
 	 * @param startNodeStrat
@@ -51,12 +49,12 @@ public class SnowballSampling extends WalkingAlgorithm {
 	 *            the parameters which makes this algorithm unique and which
 	 *            will be added to the name
 	 */
-	public SnowballSampling(String name, Graph fullGraph,
+	public SnowballSampling(Graph fullGraph,
 			StartNodeSelectionStrategy startNodeStrategy,
 			boolean onlyVisitedNodesToGraph, int costPerBatch, int resource,
 			int numberOfNeighborsVisited, Parameter[] parameters) {
-		super(name, fullGraph, startNodeStrategy, onlyVisitedNodesToGraph,
-				costPerBatch, resource, parameters);
+		super("SS_" + numberOfNeighborsVisited, fullGraph, startNodeStrategy,
+				onlyVisitedNodesToGraph, costPerBatch, resource, parameters);
 
 		this.numberOfNeighborsVisited = numberOfNeighborsVisited;
 		nodesInQueue = new HashSet<Node>();

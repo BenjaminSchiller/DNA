@@ -24,8 +24,6 @@ public class BFS extends WalkingAlgorithm {
 	/**
 	 * Creates an instance of the breadth first sampling algorithm
 	 * 
-	 * @param name
-	 *            the name of this instance
 	 * @param fullGraph
 	 *            the graph the algorithm shall walk on
 	 * @param startNodeStrat
@@ -43,11 +41,10 @@ public class BFS extends WalkingAlgorithm {
 	 *            the parameters which makes this algorithm unique and which
 	 *            will be added to the name
 	 */
-	public BFS(String name, Graph fullGraph,
-			StartNodeSelectionStrategy startNodeStrategy,
+	public BFS(Graph fullGraph, StartNodeSelectionStrategy startNodeStrategy,
 			boolean onlyVisitedNodesToGraph, int costPerBatch, int resource,
 			Parameter[] parameters) {
-		super(name, fullGraph, startNodeStrategy, onlyVisitedNodesToGraph,
+		super("BFS", fullGraph, startNodeStrategy, onlyVisitedNodesToGraph,
 				costPerBatch, resource, parameters);
 
 		queue = new LinkedList<Node>();

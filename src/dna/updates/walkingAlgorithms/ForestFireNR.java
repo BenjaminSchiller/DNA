@@ -22,13 +22,11 @@ public class ForestFireNR extends WalkingAlgorithm {
 	private HashSet<Node> nodesInQueue;
 	private LinkedList<Node> queue;
 	private Node currentNode;
-	private double propability;
+	private double probability;
 
 	/**
 	 * Creates an instance of the forest fire sampling algorithm
 	 * 
-	 * @param name
-	 *            the name of this instance
 	 * @param fullGraph
 	 *            the graph the algorithm shall walk on
 	 * @param startNodeStrat
@@ -42,26 +40,26 @@ public class ForestFireNR extends WalkingAlgorithm {
 	 *            the maximum count of steps the algorithm shall perform, if
 	 *            initialized with 0 or below the algorithm will walk until the
 	 *            graph is fully visited
-	 * @param propability
-	 *            propability to select a neighbor of the current node. Have to
+	 * @param probability
+	 *            probability to select a neighbor of the current node. Have to
 	 *            be between 0 and 1
 	 * @param parameters
 	 *            the parameters which makes this algorithm unique and which
 	 *            will be added to the name
 	 */
-	public ForestFireNR(String name, Graph fullGraph,
+	public ForestFireNR(Graph fullGraph,
 			StartNodeSelectionStrategy startNodeStrategy,
 			boolean onlyVisitedNodesToGraph, int costPerBatch, int resource,
-			double propability, Parameter[] parameters) throws Exception {
-		super(name, fullGraph, startNodeStrategy, onlyVisitedNodesToGraph,
-				costPerBatch, resource, parameters);
+			double probability, Parameter[] parameters) throws Exception {
+		super("FFnr_" + probability, fullGraph, startNodeStrategy,
+				onlyVisitedNodesToGraph, costPerBatch, resource, parameters);
 
-		if (propability < 0 || propability > 1) {
+		if (probability < 0 || probability > 1) {
 			throw new IllegalArgumentException(
-					"Propability has to be between 0 and 1.");
+					"Probability has to be between 0 and 1.");
 		}
 
-		this.propability = propability;
+		this.probability = probability;
 		nodesInQueue = new HashSet<Node>();
 		queue = new LinkedList<Node>();
 		currentNode = null;
@@ -97,7 +95,7 @@ public class ForestFireNR extends WalkingAlgorithm {
 		List<Node> list = getUnvisitedNeighbors(currentNode);
 		for (Node n : list) {
 			if (!nodesInQueue.contains(n)) {
-				if (Rand.rand.nextDouble() <= propability) {
+				if (Rand.rand.nextDouble() <= probability) {
 					queue.add(n);
 					nodesInQueue.add(n);
 				}

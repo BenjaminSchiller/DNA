@@ -25,8 +25,6 @@ public class GreedyOracle extends WalkingAlgorithm {
 	/**
 	 * Creates an instance of the greedy oracle sampling algorithm
 	 * 
-	 * @param name
-	 *            the name of this instance
 	 * @param fullGraph
 	 *            the graph the algorithm shall walk on
 	 * @param startNodeStrat
@@ -44,11 +42,11 @@ public class GreedyOracle extends WalkingAlgorithm {
 	 *            the parameters which makes this algorithm unique and which
 	 *            will be added to the name
 	 */
-	public GreedyOracle(String name, Graph fullGraph,
+	public GreedyOracle(Graph fullGraph,
 			StartNodeSelectionStrategy startNodeStrategy,
 			boolean onlyVisitedNodesToGraph, int costPerBatch, int resource,
 			Parameter[] parameters) {
-		super(name, fullGraph, startNodeStrategy, onlyVisitedNodesToGraph,
+		super("GO", fullGraph, startNodeStrategy, onlyVisitedNodesToGraph,
 				costPerBatch, resource, parameters);
 
 		greyZone = new ArrayList<SortableNode>(fullGraph.getNodeCount());
@@ -76,7 +74,7 @@ public class GreedyOracle extends WalkingAlgorithm {
 		Node firstNode = startNode.getStartNode();
 		ArrayList<Node> neighbors = getAllNeighbors(firstNode);
 		for (Node n : neighbors) {
-			if(n != firstNode){
+			if (n != firstNode) {
 				greyZone.add(new SortableNode(n, this,
 						SortType.SORT_BY_UNSEEN_NEIGHBORS));
 			}

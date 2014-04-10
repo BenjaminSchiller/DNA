@@ -28,8 +28,6 @@ public class RespondentDrivenSampling extends WalkingAlgorithm {
 	/**
 	 * Creates an instance of the respondent driven sampling algorithm
 	 * 
-	 * @param name
-	 *            the name of this instance
 	 * @param fullGraph
 	 *            the graph the algorithm shall walk on
 	 * @param startNodeStrat
@@ -50,12 +48,12 @@ public class RespondentDrivenSampling extends WalkingAlgorithm {
 	 *            the parameters which makes this algorithm unique and which
 	 *            will be added to the name
 	 */
-	public RespondentDrivenSampling(String name, Graph fullGraph,
+	public RespondentDrivenSampling(Graph fullGraph,
 			StartNodeSelectionStrategy startNodeStrategy,
 			boolean onlyVisitedNodesToGraph, int costPerBatch, int resource,
 			int numberOfNeighborsVisited, Parameter[] parameters) {
-		super(name, fullGraph, startNodeStrategy, onlyVisitedNodesToGraph,
-				costPerBatch, resource, parameters);
+		super("RDS_" + numberOfNeighborsVisited, fullGraph, startNodeStrategy,
+				onlyVisitedNodesToGraph, costPerBatch, resource, parameters);
 
 		this.numberOfNeighborsVisited = numberOfNeighborsVisited;
 		queue = new LinkedList<Node>();
