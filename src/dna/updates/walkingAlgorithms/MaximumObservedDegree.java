@@ -28,8 +28,6 @@ public class MaximumObservedDegree extends WalkingAlgorithm {
 	/**
 	 * Creates an MOD instance
 	 * 
-	 * @param name
-	 *            the name of the sampling algorithm
 	 * @param fullGraph
 	 *            the graph the algorithm shall operate on
 	 * @param startNodeStrat
@@ -47,11 +45,11 @@ public class MaximumObservedDegree extends WalkingAlgorithm {
 	 *            the parameters which makes this algorithm unique and which
 	 *            will be added to the name
 	 */
-	public MaximumObservedDegree(String name, Graph fullGraph,
+	public MaximumObservedDegree(Graph fullGraph,
 			StartNodeSelectionStrategy startNodeStrategy,
 			boolean onlyVisitedNodesToGraph, int costPerBatch, int resource,
 			Parameter[] parameters) {
-		super(name, fullGraph, startNodeStrategy, onlyVisitedNodesToGraph,
+		super("MOD", fullGraph, startNodeStrategy, onlyVisitedNodesToGraph,
 				costPerBatch, resource, parameters);
 
 		maxNodeID = fullGraph.getMaxNodeIndex() + 1;

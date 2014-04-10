@@ -29,8 +29,6 @@ public class FrontierSampling extends WalkingAlgorithm {
 	/**
 	 * Creates an instance of the frontier sampling algorithm
 	 * 
-	 * @param name
-	 *            the name of this instance
 	 * @param fullGraph
 	 *            the graph the algorithm shall walk on
 	 * @param startNodeStrat
@@ -51,12 +49,12 @@ public class FrontierSampling extends WalkingAlgorithm {
 	 *            the parameters which makes this algorithm unique and which
 	 *            will be added to the name
 	 */
-	public FrontierSampling(String name, Graph fullGraph,
+	public FrontierSampling(Graph fullGraph,
 			StartNodeSelectionStrategy startNodeStrategy,
 			boolean onlyVisitedNodesToGraph, int costPerBatch, int resource,
 			int numberOfWalkers, Parameter[] parameters) {
-		super(name, fullGraph, startNodeStrategy, onlyVisitedNodesToGraph,
-				costPerBatch, resource, parameters);
+		super("FS_" + numberOfWalkers, fullGraph, startNodeStrategy,
+				onlyVisitedNodesToGraph, costPerBatch, resource, parameters);
 
 		if (startNodeStrategy.getClass() != RandomSelection.class) {
 			throw new IllegalArgumentException(
