@@ -46,7 +46,7 @@ import dna.graph.generators.util.EmptyGraph;
 import dna.graph.nodes.DirectedNode;
 import dna.graph.nodes.Node;
 import dna.graph.nodes.UndirectedNode;
-import dna.graph.weights.IWeighted;
+import dna.graph.weightsNew.IWeighted;
 import dna.io.GraphReader;
 import dna.io.GraphWriter;
 

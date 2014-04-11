@@ -9,7 +9,6 @@ import dna.graph.weightsNew.IWeightedEdge;
 import dna.graph.weightsNew.IWeightedNode;
 import dna.graph.weightsNew.Weight;
 import dna.graph.weightsNew.Weight.WeightSelection;
-import dna.graph.weightsNew.Weight.WeightType;
 import dna.updates.batch.Batch;
 import dna.updates.generators.BatchGenerator;
 import dna.updates.update.EdgeWeight;
@@ -18,26 +17,17 @@ import dna.updates.update.NodeWeight;
 public class WeightChanges extends BatchGenerator {
 
 	int nodes;
-
-	private WeightType nType;
-
-	private WeightSelection nSelection;
-
 	int edges;
 
-	private WeightType eType;
-
+	private WeightSelection nSelection;
 	private WeightSelection eSelection;
 
-	public WeightChanges(int nodes, WeightType nType,
-			WeightSelection nSelection, int edges, WeightType eType,
+	public WeightChanges(int nodes, WeightSelection nSelection, int edges,
 			WeightSelection eSelection) {
 		super("WeightChanges");
 		this.nodes = nodes;
-		this.nType = nType;
 		this.nSelection = nSelection;
 		this.edges = edges;
-		this.eType = eType;
 		this.eSelection = eSelection;
 	}
 
@@ -55,15 +45,16 @@ public class WeightChanges extends BatchGenerator {
 		while (nodes.size() < this.nodes) {
 			nodes.add(g.getRandomNode());
 		}
-
+		
+		Weight w;
 		for (Edge e : edges) {
-			b.add(new EdgeWeight((IWeightedEdge) e, Weight.getWeight(
-					this.eType, this.eSelection)));
+			w = g.getGraphDatastructures().newEdgeWeight(eSelection);
+			b.add(new EdgeWeight((IWeightedEdge) e, w));
 		}
 
 		for (Node n : nodes) {
-			b.add(new NodeWeight((IWeightedNode) n, Weight.getWeight(
-					this.nType, this.nSelection)));
+			w = g.getGraphDatastructures().newNodeWeight(nSelection);
+			b.add(new NodeWeight((IWeightedNode) n, w));
 		}
 
 		return b;

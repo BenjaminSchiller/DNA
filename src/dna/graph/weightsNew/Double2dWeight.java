@@ -10,24 +10,7 @@ package dna.graph.weightsNew;
 public class Double2dWeight extends Weight {
 
 	private double x;
-
-	public double getX() {
-		return x;
-	}
-
-	public void setX(double x) {
-		this.x = x;
-	}
-
 	private double y;
-
-	public double getY() {
-		return y;
-	}
-
-	public void setY(double y) {
-		this.y = y;
-	}
 
 	public Double2dWeight(double x, double y) {
 		this.x = x;
@@ -42,6 +25,27 @@ public class Double2dWeight extends Weight {
 		String[] temp = str.split(Weight.WeightSeparator);
 		this.x = Double.parseDouble(temp[0]);
 		this.y = Double.parseDouble(temp[1]);
+	}
+	
+	public Double2dWeight(WeightSelection ws) {
+		this.x = DoubleWeight.getDoubleWeight(ws);
+		this.y = DoubleWeight.getDoubleWeight(ws);
+	}
+
+	public double getX() {
+		return x;
+	}
+
+	public void setX(double x) {
+		this.x = x;
+	}
+
+	public double getY() {
+		return y;
+	}
+
+	public void setY(double y) {
+		this.y = y;
 	}
 
 	@Override

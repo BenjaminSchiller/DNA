@@ -5,20 +5,13 @@ import java.util.HashMap;
 import dna.graph.Graph;
 import dna.graph.nodes.Node;
 import dna.graph.nodes.UndirectedNode;
-import dna.graph.weightsNew.IWeighted;
+import dna.graph.weightsNew.IWeightedEdge;
 import dna.graph.weightsNew.Weight;
 
-public class UndirectedWeightedEdge extends UndirectedEdge implements IWeighted {
+public class UndirectedWeightedEdge extends UndirectedEdge implements
+		IWeightedEdge {
 
 	protected Weight weight;
-
-	public Weight getWeight() {
-		return weight;
-	}
-
-	public void setWeight(Weight weight) {
-		this.weight = weight;
-	}
 
 	public UndirectedWeightedEdge(UndirectedNode src, UndirectedNode dst,
 			Weight weight) {
@@ -28,13 +21,23 @@ public class UndirectedWeightedEdge extends UndirectedEdge implements IWeighted 
 
 	public UndirectedWeightedEdge(String s, Graph g) {
 		super(s.split(Weight.WeightDelimiter)[0], g);
-		this.weight = Weight.fromString(s.split(Weight.WeightDelimiter)[1]);
+		this.weight = g.getGraphDatastructures().newEdgeWeight(
+				s.split(Weight.WeightDelimiter)[1]);
 	}
 
 	public UndirectedWeightedEdge(String s, Graph g,
 			HashMap<Integer, Node> addedNodes) {
 		super(s.split(Weight.WeightDelimiter)[0], g, addedNodes);
-		this.weight = Weight.fromString(s.split(Weight.WeightDelimiter)[1]);
+		this.weight = g.getGraphDatastructures().newEdgeWeight(
+				s.split(Weight.WeightDelimiter)[1]);
+	}
+
+	public Weight getWeight() {
+		return weight;
+	}
+
+	public void setWeight(Weight weight) {
+		this.weight = weight;
 	}
 
 	@Override
