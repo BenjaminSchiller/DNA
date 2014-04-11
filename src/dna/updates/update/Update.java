@@ -61,17 +61,17 @@ public abstract class Update {
 
 		switch (t) {
 		case EDGE_ADDITION:
-			return new EdgeAddition(str, gds, g, addedNodes);
+			return new EdgeAddition(temp[1], gds, g, addedNodes);
 		case EDGE_REMOVAL:
-			return new EdgeRemoval(str, gds, g);
+			return new EdgeRemoval(temp[1], gds, g);
 		case EDGE_WEIGHT:
-			return new EdgeWeight(str, gds, g);
+			return new EdgeWeight(temp[1], gds, g);
 		case NODE_ADDITION:
-			return new NodeAddition(str, gds);
+			return new NodeAddition(temp[1], gds);
 		case NODE_REMOVAL:
-			return new NodeRemoval(str, g);
+			return new NodeRemoval(temp[1], g);
 		case NODE_WEIGHT:
-			return new NodeWeight(str, g);
+			return new NodeWeight(temp[1], g);
 		default:
 			return null;
 		}

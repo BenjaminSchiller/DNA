@@ -2,8 +2,6 @@ package dna.graph.datastructures;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.EnumMap;
@@ -16,12 +14,15 @@ import dna.graph.datastructures.DataStructure.AccessType;
 import dna.graph.datastructures.DataStructure.ListType;
 import dna.graph.edges.DirectedEdge;
 import dna.graph.edges.Edge;
-import dna.graph.edges.IWeightedEdge;
 import dna.graph.edges.UndirectedEdge;
-import dna.graph.nodes.IWeightedNode;
 import dna.graph.nodes.Node;
 import dna.graph.tests.GlobalTestParameters;
-import dna.graph.weights.IWeighted;
+import dna.graph.weightsNew.IWeighted;
+import dna.graph.weightsNew.IWeightedEdge;
+import dna.graph.weightsNew.IWeightedNode;
+import dna.graph.weightsNew.NullWeight;
+import dna.graph.weightsNew.Weight;
+import dna.graph.weightsNew.Weight.WeightSelection;
 import dna.profiler.ProfilerMeasurementData;
 import dna.profiler.ProfilerMeasurementData.ProfilerDataType;
 import dna.profiler.datatypes.ComparableEntry;
@@ -39,9 +40,13 @@ import dna.util.Config;
 public class GraphDataStructure {
 	private Class<? extends Node> nodeType;
 	private Class<? extends Edge> edgeType;
+	private Class<? extends Weight> nodeWeightType;
+	private Class<? extends Weight> edgeWeightType;
 	private Constructor<?> lastWeightedEdgeConstructor = null;
 	private Constructor<?> lastEdgeConstructor = null;
+	
 	private IEdgeListDatastructure emptyList = new DEmpty(null);
+	private Weight nullWeight = new NullWeight("");
 
 	private EnumMap<ListType, Class<? extends IDataStructure>> listTypes;
 	private EnumMap<ListType, Integer> defaultListSizes;
@@ -55,11 +60,23 @@ public class GraphDataStructure {
 	public GraphDataStructure(
 			EnumMap<ListType, Class<? extends IDataStructure>> listTypes,
 			Class<? extends Node> nodeType, Class<? extends Edge> edgeType) {
+		this(listTypes, nodeType, edgeType, NullWeight.class, NullWeight.class);
+	}
+
+	public GraphDataStructure(
+			EnumMap<ListType, Class<? extends IDataStructure>> listTypes,
+			Class<? extends Node> nodeType, Class<? extends Edge> edgeType,
+			Class<? extends Weight> nodeWeightType,
+			Class<? extends Weight> edgeWeightType) {
 
 		this.listTypes = listTypes;
 
 		this.nodeType = nodeType;
 		this.edgeType = edgeType;
+
+		this.nodeWeightType = nodeWeightType;
+		this.edgeWeightType = edgeWeightType;
+
 		init();
 	}
 
@@ -79,6 +96,12 @@ public class GraphDataStructure {
 							.forName(innerSplitted[1]);
 				} else if (innerSplitted[0].equals("node")) {
 					this.nodeType = (Class<? extends Node>) Class
+							.forName(innerSplitted[1]);
+				} else if (innerSplitted[0].equals("edgeWeight")) {
+					this.edgeWeightType = (Class<? extends Weight>) Class
+							.forName(innerSplitted[1]);
+				} else if (innerSplitted[0].equals("nodeWeight")) {
+					this.nodeWeightType = (Class<? extends Weight>) Class
 							.forName(innerSplitted[1]);
 				} else if (ListType.hasValue(innerSplitted[0])) {
 					ListType l = ListType.valueOf(innerSplitted[0]);
@@ -319,6 +342,11 @@ public class GraphDataStructure {
 
 	public Node newNodeInstance(int index) {
 		Constructor<? extends Node> c;
+		
+		if ( this.createsWeightedNodes()) {
+			return (Node) newWeightedNode(index, nullWeight);
+		}
+		
 		try {
 			c = nodeType.getConstructor(int.class, GraphDataStructure.class);
 			return c.newInstance(index, this);
@@ -355,13 +383,13 @@ public class GraphDataStructure {
 		}
 	}
 
-	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public IWeightedNode<?> newWeightedNode(int index, Object weight) {
+	@SuppressWarnings({ "unchecked" })
+	public IWeightedNode newWeightedNode(int index, Weight weight) {
 		Constructor<? extends IWeighted> c;
 		try {
 			c = (Constructor<? extends IWeightedNode>) nodeType.getConstructor(
-					int.class, weight.getClass(), GraphDataStructure.class);
-			return (IWeightedNode<?>) c.newInstance(index, weight, this);
+					int.class, Weight.class, GraphDataStructure.class);
+			return (IWeightedNode) c.newInstance(index, weight, this);
 		} catch (InvocationTargetException ite) {
 			RuntimeException rt = new RuntimeException(
 					"Could not generate new weighted node instance: "
@@ -382,6 +410,9 @@ public class GraphDataStructure {
 			throw new RuntimeException(
 					"Could not generate new edge instance for non-equal node classes "
 							+ src.getClass() + " and " + dst.getClass());
+		}
+		if ( this.createsWeightedEdges()) {
+			return (Edge) newWeightedEdge(src, dst, this.nullWeight);
 		}
 
 		if (this.lastEdgeConstructor != null) {
@@ -500,7 +531,7 @@ public class GraphDataStructure {
 		return cNeeded;
 	}
 
-	public IWeightedEdge<?> newWeightedEdge(Node src, Node dst, Object weight) {
+	public IWeightedEdge newWeightedEdge(Node src, Node dst, Weight weight) {
 		if (src.getClass() != dst.getClass()) {
 			throw new RuntimeException(
 					"Could not generate new edge instance for non-equal node classes "
@@ -511,7 +542,7 @@ public class GraphDataStructure {
 			// Try to use cached constructor, but throw it away if it is not the
 			// correct one
 			try {
-				return (IWeightedEdge<?>) edgeType
+				return (IWeightedEdge) edgeType
 						.cast(this.lastWeightedEdgeConstructor.newInstance(src,
 								dst, weight));
 			} catch (InstantiationException | IllegalAccessException
@@ -526,7 +557,7 @@ public class GraphDataStructure {
 
 		// First: search matching constructor for src.getClass and dst.getClass
 		Class<?>[] cRequired = new Class[] { src.getClass(), dst.getClass(),
-				weight.getClass() };
+				Weight.class };
 		cNeeded = getConstructor(cList, cRequired);
 
 		// Okay, check for super types if needed
@@ -535,7 +566,7 @@ public class GraphDataStructure {
 			superType = src.getClass().getSuperclass();
 			while (cNeeded == null && Node.class.isAssignableFrom(superType)) {
 				cRequired = new Class[] { superType, superType,
-						weight.getClass() };
+						Weight.class };
 				cNeeded = getConstructor(cList, cRequired);
 				superType = superType.getSuperclass();
 			}
@@ -548,8 +579,8 @@ public class GraphDataStructure {
 
 		try {
 			this.lastWeightedEdgeConstructor = cNeeded;
-			return (IWeightedEdge<?>) edgeType.cast(cNeeded.newInstance(src,
-					dst, weight));
+			return (IWeightedEdge) edgeType.cast(cNeeded.newInstance(src, dst,
+					weight));
 		} catch (InvocationTargetException ite) {
 			RuntimeException rt = new RuntimeException(
 					"Could not generate new weighted edge instance: "
@@ -564,28 +595,73 @@ public class GraphDataStructure {
 			throw rt;
 		}
 	}
+	
+	private Weight newWeight(Class<? extends Weight> weightClass,
+			WeightSelection ws) {
+		Constructor<?> c;
+		Weight w = null;
 
-	private Class<?> getWeightType(Class<?> in, Class<?> superInterface) {
-		Class<?> weightType = null;
-
-		// Get the type of weight
-		for (Type ptU : in.getGenericInterfaces()) {
-			ParameterizedType pt = (ParameterizedType) ptU;
-			if (pt.getRawType() != superInterface)
-				continue;
-			Type[] args = pt.getActualTypeArguments();
-			weightType = (Class<?>) args[0];
-			return weightType;
+		if (weightClass == null) {
+			throw new RuntimeException(
+					"Can not generate new weight instance as weightClass is NULL");
 		}
-		return null;
+
+		try {
+			c = weightClass.getConstructor(WeightSelection.class);
+			w = (Weight) c.newInstance(ws);
+		} catch (Exception e) {
+			RuntimeException rt = new RuntimeException(
+					"Could not generate new weight instance: " + e.getMessage());
+			rt.setStackTrace(e.getStackTrace());
+			throw rt;
+		}
+		return w;
+	}
+	
+	private Weight newWeight(Class<? extends Weight> weightClass,
+			String s) {
+		Constructor<?> c;
+		Weight w = null;
+
+		if (weightClass == null) {
+			throw new RuntimeException(
+					"Can not generate new weight instance as weightClass is NULL");
+		}
+
+		try {
+			c = weightClass.getConstructor(String.class);
+			w = (Weight) c.newInstance(s);
+		} catch (Exception e) {
+			RuntimeException rt = new RuntimeException(
+					"Could not generate new weight instance: " + e.getMessage());
+			rt.setStackTrace(e.getStackTrace());
+			throw rt;
+		}
+		return w;	
+	}
+	
+	public Weight newNodeWeight(WeightSelection ws) {
+		return newWeight(nodeWeightType, ws);
 	}
 
-	public Class<?> getNodeWeightType() {
-		return this.getWeightType(nodeType, IWeightedNode.class);
+	public Weight newEdgeWeight(WeightSelection ws) {
+		return newWeight(edgeWeightType, ws);
 	}
 
-	public Class<?> getEdgeWeightType() {
-		return this.getWeightType(edgeType, IWeightedEdge.class);
+	public Weight newNodeWeight(String s) {
+		return newWeight(nodeWeightType, s);
+	}
+
+	public Weight newEdgeWeight(String s) {
+		return newWeight(edgeWeightType, s);
+	}
+
+	public boolean createsWeightedNodes() {
+		return IWeighted.class.isAssignableFrom(nodeType);
+	}
+
+	public boolean createsWeightedEdges() {
+		return IWeighted.class.isAssignableFrom(edgeType);
 	}
 
 	public boolean createsDirected() {
@@ -616,11 +692,20 @@ public class GraphDataStructure {
 	}
 
 	public String getDataStructures() {
-		return getStorageDataStructures(false)
+		String res = getStorageDataStructures(false)
 				+ Config.get("DATASTRUCTURES_CLASS_DELIMITER") + "node="
 				+ nodeType.getName()
 				+ Config.get("DATASTRUCTURES_CLASS_DELIMITER") + "edge="
 				+ edgeType.getName();
+		
+		if (createsWeightedEdges() || createsWeightedNodes()) {
+			res += Config.get("DATASTRUCTURES_CLASS_DELIMITER") + "nodeWeight="
+					+ nodeWeightType.getName();
+			res += Config.get("DATASTRUCTURES_CLASS_DELIMITER") + "edgeWeight="
+					+ edgeWeightType.getName();			
+		}
+		
+		return res;
 	}
 
 	public boolean isReadable() {

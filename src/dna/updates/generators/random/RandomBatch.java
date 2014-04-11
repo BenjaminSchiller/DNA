@@ -81,7 +81,7 @@ public class RandomBatch extends BatchGenerator {
 			this.bgs.add(new RandomNodeRemovals(nr));
 		}
 		if (nw > 0) {
-			this.bgs.add(new NodeWeightChanges(this.nw, this.nwt, this.nws));
+			this.bgs.add(new NodeWeightChanges(this.nw, this.nws));
 		}
 		if (ea > 0) {
 			this.bgs.add(new RandomEdgeAdditions(ea));
@@ -90,7 +90,7 @@ public class RandomBatch extends BatchGenerator {
 			this.bgs.add(new RandomEdgeRemovals(er));
 		}
 		if (ew > 0) {
-			this.bgs.add(new EdgeWeightChanges(this.ew, this.ewt, this.ews));
+			this.bgs.add(new EdgeWeightChanges(this.ew, this.ews));
 		}
 	}
 

@@ -21,7 +21,7 @@ public class NodeWeight extends NodeUpdate {
 		super(null);
 		String[] temp = str.split(Update.WeightDelimiter);
 		this.node = g.getNode(Integer.parseInt(temp[0]));
-		this.weight = Weight.fromString(temp[1]);
+		this.weight = g.getGraphDatastructures().newNodeWeight(temp[1]);
 	}
 
 	@Override
