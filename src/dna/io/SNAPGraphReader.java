@@ -197,10 +197,14 @@ public class SNAPGraphReader {
 					g.addNode(dest);
 					nodeID++;
 				}
-				Edge e = ds.newEdgeInstance(src, dest);
-				g.addEdge(e);
-				e.connectToNodes();
 
+				// We don't want self loops so source and of an
+				// edge have to be different
+				if (!(src == dest)) {
+					Edge e = ds.newEdgeInstance(src, dest);
+					g.addEdge(e);
+					e.connectToNodes();
+				}
 			}
 		}
 
