@@ -25,6 +25,7 @@ public class FrontierSampling extends WalkingAlgorithm {
 	private LinkedList<Node> walkerPositions;
 
 	int m;
+	int initialize;
 
 	/**
 	 * Creates an instance of the frontier sampling algorithm
@@ -64,17 +65,23 @@ public class FrontierSampling extends WalkingAlgorithm {
 		fullyVisited = new HashSet<Node>();
 		walkerPositions = new LinkedList<Node>();
 		m = numberOfWalkers;
+		initialize = 0;
 	}
 
 	@Override
 	protected Node findNextNode() {
-		if (walkerPositions.size() < m) {
+		if(initialize < m){
 			Node m1 = fullGraph.getRandomNode();
 			while (walkerPositions.contains(m1)) {
 				m1 = fullGraph.getRandomNode();
 			}
 			addToList(m1);
+			initialize++;
 			return m1;
+		}
+		
+		if (walkerPositions.size() < m) {
+
 		}
 
 		Node currentNode = walkerPositions.poll();
@@ -128,6 +135,7 @@ public class FrontierSampling extends WalkingAlgorithm {
 
 		Node start = startNode.getStartNode();
 		walkerPositions.add(start);
+		initialize++;
 		return start;
 	}
 
@@ -158,6 +166,7 @@ public class FrontierSampling extends WalkingAlgorithm {
 	protected void localReset() {
 		fullyVisited = new HashSet<Node>();
 		walkerPositions = new LinkedList<Node>();
+		initialize = 0;
 	}
 
 }

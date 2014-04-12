@@ -1,6 +1,7 @@
 package dna.updates.walkingAlgorithms;
 
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -22,6 +23,7 @@ import dna.util.parameters.Parameter;
 public class SnowballSampling extends WalkingAlgorithm {
 
 	private HashSet<Node> nodesInQueue;
+	private HashSet<Node> fullyVisited;
 	private LinkedList<Node> queue;
 	private Node currentNode;
 	private int numberOfNeighborsVisited;
@@ -58,6 +60,7 @@ public class SnowballSampling extends WalkingAlgorithm {
 
 		this.numberOfNeighborsVisited = numberOfNeighborsVisited;
 		nodesInQueue = new HashSet<Node>();
+		fullyVisited = new HashSet<Node>(fullGraph.getNodeCount());
 		queue = new LinkedList<Node>();
 		currentNode = null;
 	}
@@ -65,8 +68,33 @@ public class SnowballSampling extends WalkingAlgorithm {
 	@Override
 	protected Node findNextNode() {
 		if (queue.isEmpty()) {
-			noNodeFound();
-			return null;
+			HashSet<Node> alreadyVisitedNodes = getVisitedNodes();
+			int notFullyVisitedNodeCount = alreadyVisitedNodes.size()
+					- fullyVisited.size();
+
+			if (notFullyVisitedNodeCount <= 0) {
+
+				noNodeFound();
+				return null;
+			}
+
+			Node[] visitableNodes = new Node[notFullyVisitedNodeCount];
+
+			Iterator<Node> iter = alreadyVisitedNodes.iterator();
+			int i = 0;
+			while (iter.hasNext()) {
+				Node n = iter.next();
+				if (!fullyVisited.contains(n)) {
+					visitableNodes[i] = n;
+					i++;
+				}
+			}
+
+			currentNode = visitableNodes[Rand.rand
+					.nextInt(notFullyVisitedNodeCount)];
+
+			selectNeighbors();
+			return currentNode;
 		}
 		currentNode = queue.poll();
 		selectNeighbors();
@@ -90,6 +118,7 @@ public class SnowballSampling extends WalkingAlgorithm {
 		List<Node> list = getUnvisitedNeighbors(currentNode);
 		for (int i = 0; i < numberOfNeighborsVisited; i++) {
 			if (list.isEmpty()) {
+				fullyVisited.add(currentNode);
 				break;
 			}
 			Node n = list.remove(Rand.rand.nextInt(list.size()));
@@ -103,6 +132,7 @@ public class SnowballSampling extends WalkingAlgorithm {
 	@Override
 	protected void localReset() {
 		nodesInQueue = new HashSet<Node>();
+		fullyVisited = new HashSet<Node>(fullGraph.getNodeCount());
 		queue = new LinkedList<Node>();
 		currentNode = null;
 	}

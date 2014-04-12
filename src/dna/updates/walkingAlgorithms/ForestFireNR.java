@@ -1,6 +1,7 @@
 package dna.updates.walkingAlgorithms;
 
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -20,6 +21,7 @@ import dna.util.parameters.Parameter;
 public class ForestFireNR extends WalkingAlgorithm {
 
 	private HashSet<Node> nodesInQueue;
+	private HashSet<Node> fullyVisited;
 	private LinkedList<Node> queue;
 	private Node currentNode;
 	private double probability;
@@ -61,6 +63,7 @@ public class ForestFireNR extends WalkingAlgorithm {
 
 		this.probability = probability;
 		nodesInQueue = new HashSet<Node>();
+		fullyVisited = new HashSet<Node>(fullGraph.getNodeCount());
 		queue = new LinkedList<Node>();
 		currentNode = null;
 
@@ -69,7 +72,31 @@ public class ForestFireNR extends WalkingAlgorithm {
 	@Override
 	protected Node findNextNode() {
 		if (queue.isEmpty()) {
-			currentNode = fullGraph.getRandomNode();
+			HashSet<Node> alreadyVisitedNodes = getVisitedNodes();
+			int notFullyVisitedNodeCount = alreadyVisitedNodes.size()
+					- fullyVisited.size();
+
+			if (notFullyVisitedNodeCount <= 0) {
+
+				noNodeFound();
+				return null;
+			}
+
+			Node[] visitableNodes = new Node[notFullyVisitedNodeCount];
+
+			Iterator<Node> iter = alreadyVisitedNodes.iterator();
+			int i = 0;
+			while (iter.hasNext()) {
+				Node n = iter.next();
+				if (!fullyVisited.contains(n)) {
+					visitableNodes[i] = n;
+					i++;
+				}
+			}
+
+			currentNode = visitableNodes[Rand.rand
+					.nextInt(notFullyVisitedNodeCount)];
+
 			selectNeighbors();
 			return currentNode;
 		}
@@ -93,6 +120,9 @@ public class ForestFireNR extends WalkingAlgorithm {
 	 */
 	private void selectNeighbors() {
 		List<Node> list = getUnvisitedNeighbors(currentNode);
+		if (list.isEmpty()) {
+			fullyVisited.add(currentNode);
+		}
 		for (Node n : list) {
 			if (!nodesInQueue.contains(n)) {
 				if (Rand.rand.nextDouble() <= probability) {
@@ -106,6 +136,7 @@ public class ForestFireNR extends WalkingAlgorithm {
 	@Override
 	protected void localReset() {
 		nodesInQueue = new HashSet<Node>();
+		fullyVisited = new HashSet<Node>(fullGraph.getNodeCount());
 		queue = new LinkedList<Node>();
 		currentNode = null;
 	}
