@@ -288,6 +288,9 @@ public class GraphDataStructure {
 
 		if (nodes > 0) {
 			int estimatedMeanSize = (int) ((edges / nodes) * 1.1d);
+			if (estimatedMeanSize < 1) {
+				estimatedMeanSize = 1;
+			}
 			this.defaultListSizes
 					.put(ListType.LocalEdgeList, estimatedMeanSize);
 			this.defaultListSizes
