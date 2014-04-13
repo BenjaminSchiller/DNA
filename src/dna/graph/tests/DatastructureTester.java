@@ -37,6 +37,9 @@ import dna.graph.edges.UndirectedEdge;
 import dna.graph.nodes.DirectedNode;
 import dna.graph.nodes.Node;
 import dna.graph.nodes.UndirectedNode;
+import dna.graph.weightsNew.DoubleWeight;
+import dna.graph.weightsNew.IntWeight;
+import dna.graph.weightsNew.Weight.WeightSelection;
 import dna.util.Rand;
 
 @RunWith(Parameterized.class)
@@ -455,11 +458,15 @@ public class DatastructureTester {
 
 		if (Node.class.isAssignableFrom(elementClass)) {
 			tempGDS = new GraphDataStructure(listtypes,
-					(Class<? extends Node>) elementClass, null);
+					(Class<? extends Node>) elementClass, null,
+					DoubleWeight.class, WeightSelection.RandTrim1,
+					IntWeight.class, WeightSelection.RandPos100);
 			dummy = tempGDS.newNodeInstance(42);
 		} else if (DirectedEdge.class.isAssignableFrom(elementClass)) {
 			tempGDS = new GraphDataStructure(listtypes, null,
-					(Class<? extends Edge>) elementClass);
+					(Class<? extends Edge>) elementClass, DoubleWeight.class,
+					WeightSelection.RandTrim1, IntWeight.class,
+					WeightSelection.RandPos100);
 
 			DirectedNode n1 = new DirectedNode(1, tempGDS);
 			DirectedNode n2 = new DirectedNode(2, tempGDS);
@@ -467,7 +474,9 @@ public class DatastructureTester {
 			dummy = tempGDS.newEdgeInstance(n1, n2);
 		} else if (UndirectedEdge.class.isAssignableFrom(elementClass)) {
 			tempGDS = new GraphDataStructure(listtypes, null,
-					(Class<? extends Edge>) elementClass);
+					(Class<? extends Edge>) elementClass, DoubleWeight.class,
+					WeightSelection.RandTrim1, IntWeight.class,
+					WeightSelection.RandPos100);
 
 			UndirectedNode n1 = new UndirectedNode(1, tempGDS);
 			UndirectedNode n2 = new UndirectedNode(2, tempGDS);
