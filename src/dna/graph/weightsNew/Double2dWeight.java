@@ -26,7 +26,7 @@ public class Double2dWeight extends Weight {
 		this.x = Double.parseDouble(temp[0]);
 		this.y = Double.parseDouble(temp[1]);
 	}
-	
+
 	public Double2dWeight(WeightSelection ws) {
 		this.x = DoubleWeight.getDoubleWeight(ws);
 		this.y = DoubleWeight.getDoubleWeight(ws);
@@ -56,6 +56,11 @@ public class Double2dWeight extends Weight {
 	@Override
 	public WeightType getWeightType() {
 		return WeightType.D2;
+	}
+
+	@Override
+	public Object getWeight() {
+		return new double[] { x, y };
 	}
 
 }

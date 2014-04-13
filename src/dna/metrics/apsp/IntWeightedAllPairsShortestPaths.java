@@ -1,12 +1,13 @@
 package dna.metrics.apsp;
 
 import dna.graph.Graph;
-import dna.graph.edges.DirectedIntWeightedEdge;
-import dna.graph.edges.UndirectedIntWeightedEdge;
 import dna.graph.nodes.Node;
+import dna.graph.weightsNew.IWeightedEdge;
+import dna.graph.weightsNew.IntWeight;
 import dna.updates.batch.Batch;
 
-public abstract class IntWeightedAllPairsShortestPaths extends AllPairsShortestPaths {
+public abstract class IntWeightedAllPairsShortestPaths extends
+		AllPairsShortestPaths {
 
 	public IntWeightedAllPairsShortestPaths(String name, ApplicationType type) {
 		super(name, type, MetricType.exact);
@@ -15,10 +16,10 @@ public abstract class IntWeightedAllPairsShortestPaths extends AllPairsShortestP
 
 	@Override
 	public boolean isApplicable(Graph g) {
-		return DirectedIntWeightedEdge.class.isAssignableFrom(g
-				.getGraphDatastructures().getEdgeType())
-				|| UndirectedIntWeightedEdge.class.isAssignableFrom(g
-						.getGraphDatastructures().getEdgeType());
+		return IWeightedEdge.class.isAssignableFrom(g.getGraphDatastructures()
+				.getEdgeType())
+				&& IntWeight.class.isAssignableFrom(g.getGraphDatastructures()
+						.getEdgeWeightType());
 	}
 
 	@Override

@@ -264,6 +264,14 @@ public class GraphDataStructure {
 		return edgeType;
 	}
 
+	public Class<? extends Weight> getNodeWeightType() {
+		return nodeWeightType;
+	}
+
+	public Class<? extends Weight> getEdgeWeightType() {
+		return edgeWeightType;
+	}
+
 	public WeightSelection getNodeWeightSelection() {
 		return nodeWeightSelection;
 	}

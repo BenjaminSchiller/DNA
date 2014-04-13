@@ -1,6 +1,5 @@
 package dna.graph.weightsNew;
 
-
 /**
  * 
  * 2-dimensional int weight holding two int values (x and y).
@@ -57,6 +56,11 @@ public class Int2dWeight extends Weight {
 	@Override
 	public WeightType getWeightType() {
 		return WeightType.I2;
+	}
+
+	@Override
+	public Object getWeight() {
+		return new int[] { x, y };
 	}
 
 }

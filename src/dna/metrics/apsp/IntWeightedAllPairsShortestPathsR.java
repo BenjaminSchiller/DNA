@@ -5,12 +5,12 @@ import java.util.PriorityQueue;
 
 import dna.graph.IElement;
 import dna.graph.edges.DirectedEdge;
-import dna.graph.edges.DirectedIntWeightedEdge;
 import dna.graph.edges.UndirectedEdge;
-import dna.graph.edges.UndirectedIntWeightedEdge;
 import dna.graph.nodes.DirectedNode;
 import dna.graph.nodes.Node;
 import dna.graph.nodes.UndirectedNode;
+import dna.graph.weightsNew.IWeighted;
+import dna.graph.weightsNew.IntWeight;
 import dna.updates.batch.Batch;
 import dna.updates.update.Update;
 
@@ -69,16 +69,16 @@ public class IntWeightedAllPairsShortestPathsR extends
 					for (IElement e : ((DirectedNode) current)
 							.getOutgoingEdges()) {
 						Node n = ((DirectedEdge) e).getDst();
-						this.process(source, current, n,
-								((DirectedIntWeightedEdge) e).getWeight(),
-								dist, previous, visited, Q);
+						IntWeight w = (IntWeight) ((IWeighted) e).getWeight();
+						this.process(source, current, n, (int) w.getWeight(), dist,
+								previous, visited, Q);
 					}
 				} else if (current instanceof UndirectedNode) {
 					for (IElement e : ((UndirectedNode) current).getEdges()) {
 						Node n = ((UndirectedEdge) e).getDifferingNode(current);
-						this.process(source, current, n,
-								((UndirectedIntWeightedEdge) e).getWeight(),
-								dist, previous, visited, Q);
+						IntWeight w = (IntWeight) ((IWeighted) e).getWeight();
+						this.process(source, current, n, (int) w.getWeight(), dist,
+								previous, visited, Q);
 					}
 				}
 			}
