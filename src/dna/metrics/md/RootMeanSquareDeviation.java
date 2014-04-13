@@ -3,11 +3,13 @@ package dna.metrics.md;
 import java.util.HashMap;
 
 import dna.graph.Graph;
-import dna.graph.nodes.DirectedDoubleArrayWeightedNode;
-import dna.graph.nodes.DirectedIntArrayWeightedNode;
 import dna.graph.nodes.Node;
-import dna.graph.nodes.UndirectedDoubleArrayWeightedNode;
-import dna.graph.nodes.UndirectedIntArrayWeightedNode;
+import dna.graph.weightsNew.Double2dWeight;
+import dna.graph.weightsNew.Double3dWeight;
+import dna.graph.weightsNew.IWeightedNode;
+import dna.graph.weightsNew.Int2dWeight;
+import dna.graph.weightsNew.Int3dWeight;
+import dna.graph.weightsNew.Weight;
 import dna.metrics.Metric;
 import dna.series.data.BinnedDistributionInt;
 import dna.series.data.Distribution;
@@ -31,7 +33,7 @@ import dna.util.DataUtils;
  * @author benni
  * 
  */
-public abstract class RootMeanSquareDeviation<W> extends Metric {
+public abstract class RootMeanSquareDeviation extends Metric {
 
 	protected int changes;
 
@@ -39,7 +41,7 @@ public abstract class RootMeanSquareDeviation<W> extends Metric {
 
 	protected BinnedDistributionInt distr;
 
-	protected HashMap<Integer, W> positions;
+	protected HashMap<Integer, Weight> positions;
 
 	public RootMeanSquareDeviation(String name, ApplicationType type,
 			MetricType metricType) {
@@ -58,16 +60,9 @@ public abstract class RootMeanSquareDeviation<W> extends Metric {
 	 * @param n
 	 * @return
 	 */
-	@SuppressWarnings("unchecked")
-	protected W getWeight(Node n) {
-		if (n instanceof DirectedIntArrayWeightedNode) {
-			return (W) ((DirectedIntArrayWeightedNode) n).getWeight();
-		} else if (n instanceof DirectedDoubleArrayWeightedNode) {
-			return (W) ((DirectedDoubleArrayWeightedNode) n).getWeight();
-		} else if (n instanceof UndirectedIntArrayWeightedNode) {
-			return (W) ((UndirectedIntArrayWeightedNode) n).getWeight();
-		} else if (n instanceof UndirectedDoubleArrayWeightedNode) {
-			return (W) ((UndirectedDoubleArrayWeightedNode) n).getWeight();
+	protected Weight getWeight(Node n) {
+		if (n instanceof IWeightedNode) {
+			return ((IWeightedNode) n).getWeight();
 		}
 		return null;
 	}
@@ -81,10 +76,10 @@ public abstract class RootMeanSquareDeviation<W> extends Metric {
 	 * @param pos2
 	 * @return
 	 */
-	protected double getDeviation(W pos1, W pos2) {
-		if (pos1 instanceof int[]) {
-			int[] before = (int[]) pos1;
-			int[] after = (int[]) pos2;
+	protected double getDeviation(Weight pos1, Weight pos2) {
+		if (pos1 instanceof Int2dWeight || pos1 instanceof Int3dWeight) {
+			int[] before = (int[]) pos1.getWeight();
+			int[] after = (int[]) pos2.getWeight();
 			if (before.length < after.length) {
 				before = new int[after.length];
 			}
@@ -94,9 +89,9 @@ public abstract class RootMeanSquareDeviation<W> extends Metric {
 				deviation += (double) (diff * diff);
 			}
 			return deviation;
-		} else if (pos1 instanceof double[]) {
-			double[] before = (double[]) pos1;
-			double[] after = (double[]) pos2;
+		} else if (pos1 instanceof Double2dWeight || pos1 instanceof Double3dWeight) {
+			double[] before = (double[]) pos1.getWeight();
+			double[] after = (double[]) pos2.getWeight();
 			if (before.length < after.length) {
 				before = new double[after.length];
 			}
@@ -146,7 +141,6 @@ public abstract class RootMeanSquareDeviation<W> extends Metric {
 		return new NodeNodeValueList[] {};
 	}
 
-	@SuppressWarnings("rawtypes")
 	@Override
 	public boolean equals(Metric m) {
 		if (m == null || !(m instanceof RootMeanSquareDeviation)) {
@@ -163,32 +157,38 @@ public abstract class RootMeanSquareDeviation<W> extends Metric {
 
 	@Override
 	public boolean isApplicable(Graph g) {
-		return g.getGraphDatastructures().getNodeType()
-				.isAssignableFrom(DirectedIntArrayWeightedNode.class)
-				|| g.getGraphDatastructures()
-						.getNodeType()
-						.isAssignableFrom(DirectedDoubleArrayWeightedNode.class)
-				|| g.getGraphDatastructures().getNodeType()
-						.isAssignableFrom(UndirectedIntArrayWeightedNode.class)
-				|| g.getGraphDatastructures()
-						.getNodeType()
-						.isAssignableFrom(
-								UndirectedDoubleArrayWeightedNode.class);
+		Class<? extends Node> nodeType = g.getGraphDatastructures()
+				.getNodeType();
+		if (!IWeightedNode.class.isAssignableFrom(nodeType))
+			return false;
+
+		Class<? extends Weight> nodeWeightType = g.getGraphDatastructures()
+				.getNodeWeightType();
+		if (!Double2dWeight.class.isAssignableFrom(nodeWeightType)
+				|| !Double3dWeight.class.isAssignableFrom(nodeWeightType)
+				|| !Int2dWeight.class.isAssignableFrom(nodeWeightType)
+				|| !Int3dWeight.class.isAssignableFrom(nodeWeightType))
+			return false;
+
+		return true;
 	}
 
 	@Override
 	public boolean isApplicable(Batch b) {
-		return b.getGraphDatastructures().getNodeType()
-				.isAssignableFrom(DirectedIntArrayWeightedNode.class)
-				|| b.getGraphDatastructures()
-						.getNodeType()
-						.isAssignableFrom(DirectedDoubleArrayWeightedNode.class)
-				|| b.getGraphDatastructures().getNodeType()
-						.isAssignableFrom(UndirectedIntArrayWeightedNode.class)
-				|| b.getGraphDatastructures()
-						.getNodeType()
-						.isAssignableFrom(
-								UndirectedDoubleArrayWeightedNode.class);
+		Class<? extends Node> nodeType = b.getGraphDatastructures()
+				.getNodeType();
+		if (!IWeightedNode.class.isAssignableFrom(nodeType))
+			return false;
+
+		Class<? extends Weight> nodeWeightType = b.getGraphDatastructures()
+				.getNodeWeightType();
+		if (!Double2dWeight.class.isAssignableFrom(nodeWeightType)
+				|| !Double3dWeight.class.isAssignableFrom(nodeWeightType)
+				|| !Int2dWeight.class.isAssignableFrom(nodeWeightType)
+				|| !Int3dWeight.class.isAssignableFrom(nodeWeightType))
+			return false;
+
+		return true;		
 	}
 
 	@Override

@@ -1,6 +1,5 @@
 package dna.graph.weightsNew;
 
-
 /**
  * 
  * 3-dimensional int weight holding three int values (x, y, and z).
@@ -69,6 +68,11 @@ public class Int3dWeight extends Weight {
 	@Override
 	public WeightType getWeightType() {
 		return WeightType.I3;
+	}
+
+	@Override
+	public Object getWeight() {
+		return new int[] { x, y, z };
 	}
 
 }

@@ -30,7 +30,7 @@ public class IntWeight extends Weight {
 		this.weight = IntWeight.getIntWeight(ws);
 	}
 
-	public int getWeight() {
+	public Object getWeight() {
 		return this.weight;
 	}
 

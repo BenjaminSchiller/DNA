@@ -12,14 +12,13 @@ import dna.updates.update.Update;
  * 
  * @param <W>
  */
-public class RootMeanSquareDeviationU<W> extends RootMeanSquareDeviation<W> {
+public class RootMeanSquareDeviationU extends RootMeanSquareDeviation {
 
 	public RootMeanSquareDeviationU() {
 		super("RootMeanSquareDeviationU", ApplicationType.BeforeBatch,
 				MetricType.exact);
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public boolean applyBeforeBatch(Batch b) {
 		this.changes = 0;
@@ -28,7 +27,7 @@ public class RootMeanSquareDeviationU<W> extends RootMeanSquareDeviation<W> {
 		for (NodeWeight u : b.getNodeWeights()) {
 			double deviation = this.getDeviation(
 					this.getWeight(this.g.getNode(u.getNode().getIndex())),
-					(W) u.getWeight());
+					u.getWeight());
 			this.changes++;
 			this.rmsd += deviation;
 			this.distr.incr((int) Math.floor(deviation / 0.1));

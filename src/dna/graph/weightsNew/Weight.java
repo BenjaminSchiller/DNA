@@ -72,5 +72,23 @@ public abstract class Weight {
 	 * @return weight type of this weight.
 	 */
 	public abstract WeightType getWeightType();
-
+	
+	/**
+	 * Get a condensed version of the weight
+	 * 
+	 * @return weight
+	 */
+	public abstract Object getWeight();
+	
+	/**
+	 * Equality of weights
+	 * @return
+	 */
+	public boolean equals(Object o) {
+		if ( Weight.class.isAssignableFrom(o.getClass())) {
+			Weight oCasted = (Weight)o;
+			return oCasted.toString().equals(this.toString());
+		}
+		return false;
+	}
 }

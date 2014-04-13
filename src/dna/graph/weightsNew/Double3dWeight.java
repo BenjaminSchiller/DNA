@@ -1,6 +1,5 @@
 package dna.graph.weightsNew;
 
-
 /**
  * 
  * 3-dimensional double weight holding three double values (x, y, and z).
@@ -30,8 +29,7 @@ public class Double3dWeight extends Weight {
 		this.y = Double.parseDouble(temp[1]);
 		this.z = Double.parseDouble(temp[2]);
 	}
-	
-	
+
 	public Double3dWeight(WeightSelection ws) {
 		this.x = DoubleWeight.getDoubleWeight(ws);
 		this.y = DoubleWeight.getDoubleWeight(ws);
@@ -71,6 +69,11 @@ public class Double3dWeight extends Weight {
 	@Override
 	public WeightType getWeightType() {
 		return WeightType.D3;
+	}
+
+	@Override
+	public Object getWeight() {
+		return new double[] { x, y, z };
 	}
 
 }
