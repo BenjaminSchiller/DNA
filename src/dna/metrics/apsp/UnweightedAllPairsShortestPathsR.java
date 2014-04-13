@@ -65,7 +65,7 @@ public class UnweightedAllPairsShortestPathsR extends UnweightedAllPairsShortest
 				} else if (current instanceof UndirectedNode) {
 					UndirectedNode curr = (UndirectedNode) current;
 					for (IElement out_ : curr.getEdges()) {
-						UndirectedNode out = ((UndirectedEdge) out_)
+						Node out = ((UndirectedEdge) out_)
 								.getDifferingNode(curr);
 						if (!seen[out.getIndex()]) {
 							queue.addLast(out);

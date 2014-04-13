@@ -137,14 +137,14 @@ public class UndirectedMotifsInMemoryU extends UndirectedMotifs {
 
 		for (IElement en1 : a.getEdges()) {
 			UndirectedEdge e1 = (UndirectedEdge) en1;
-			UndirectedNode c = e1.getDifferingNode(a);
+			UndirectedNode c = (UndirectedNode) e1.getDifferingNode(a);
 			if (c.equals(b)) {
 				continue;
 			}
 
 			for (IElement en2 : b.getEdges()) {
 				UndirectedEdge e2 = (UndirectedEdge) en2;
-				UndirectedNode d = e2.getDifferingNode(b);
+				UndirectedNode d = (UndirectedNode) e2.getDifferingNode(b);
 				if (d.equals(a) || d.equals(c)) {
 					continue;
 				}

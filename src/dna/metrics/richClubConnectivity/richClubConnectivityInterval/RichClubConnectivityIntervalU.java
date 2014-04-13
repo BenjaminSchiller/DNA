@@ -133,7 +133,7 @@ public class RichClubConnectivityIntervalU extends RichClubConnectivityInterval 
 					int changedNodeEdges = 0;
 					for (IElement ie : changedNode.getEdges()) {
 						DirectedEdge edge = (DirectedEdge) ie;
-						DirectedNode node = edge.getDifferingNode(changedNode);
+						Node node = edge.getDifferingNode(changedNode);
 						if (this.nodesRichClub.get(node) < this.nodesRichClub
 								.get(changedNode)) {
 							changedNodeEdges++;
@@ -154,7 +154,7 @@ public class RichClubConnectivityIntervalU extends RichClubConnectivityInterval 
 				// calculate changes for richclub connectivity
 				for (IElement ie : src.getEdges()) {
 					DirectedEdge edge = (DirectedEdge) ie;
-					DirectedNode node = edge.getDifferingNode(src);
+					Node node = edge.getDifferingNode(src);
 					if (this.nodesRichClub.get(node) <= this.nodesRichClub
 							.get(src)) {
 						srcEdges++;
@@ -252,7 +252,7 @@ public class RichClubConnectivityIntervalU extends RichClubConnectivityInterval 
 			int changedNodeEdges = 0;
 			for (IElement ie : changedNode.getEdges()) {
 				DirectedEdge edge = (DirectedEdge) ie;
-				DirectedNode node = edge.getDifferingNode(changedNode);
+				Node node = edge.getDifferingNode(changedNode);
 				if (this.nodesRichClub.get(node) < this.nodesRichClub
 						.get(changedNode)) {
 					changedNodeEdges++;
@@ -328,7 +328,7 @@ public class RichClubConnectivityIntervalU extends RichClubConnectivityInterval 
 					int changedNodeEdges = 0;
 					for (IElement ie : changedNode.getEdges()) {
 						DirectedEdge edge = (DirectedEdge) ie;
-						DirectedNode node = edge.getDifferingNode(changedNode);
+						Node node = edge.getDifferingNode(changedNode);
 						if (this.nodesRichClub.get(node) < this.nodesRichClub
 								.get(changedNode)) {
 							changedNodeEdges++;
@@ -349,7 +349,7 @@ public class RichClubConnectivityIntervalU extends RichClubConnectivityInterval 
 				// calculate changes for richclub connectivity
 				for (IElement ie : src.getEdges()) {
 					DirectedEdge edge = (DirectedEdge) ie;
-					DirectedNode node = edge.getDifferingNode(src);
+					Node node = edge.getDifferingNode(src);
 					if (this.nodesRichClub.get(node) <= this.nodesRichClub
 							.get(src)) {
 						srcEdges++;
@@ -456,7 +456,7 @@ public class RichClubConnectivityIntervalU extends RichClubConnectivityInterval 
 			int changedNodeEdges = 0;
 			for (IElement ie : changedNode.getEdges()) {
 				UndirectedEdge edge = (UndirectedEdge) ie;
-				UndirectedNode node = edge.getDifferingNode(changedNode);
+				Node node = edge.getDifferingNode(changedNode);
 				if (this.nodesRichClub.get(node) < this.nodesRichClub
 						.get(changedNode)) {
 					changedNodeEdges++;
@@ -481,7 +481,7 @@ public class RichClubConnectivityIntervalU extends RichClubConnectivityInterval 
 		// calculate changes for richclub connectivity
 		for (IElement ie : n1.getEdges()) {
 			UndirectedEdge edge = (UndirectedEdge) ie;
-			UndirectedNode node = edge.getDifferingNode(n1);
+			Node node = edge.getDifferingNode(n1);
 			if (this.nodesRichClub.get(node) < this.nodesRichClub.get(n1)) {
 				n1Edges++;
 			}
@@ -633,7 +633,7 @@ public class RichClubConnectivityIntervalU extends RichClubConnectivityInterval 
 			int changedNodeEdges = 0;
 			for (IElement ie : changedNode.getEdges()) {
 				UndirectedEdge edge = (UndirectedEdge) ie;
-				UndirectedNode node = edge.getDifferingNode(changedNode);
+				Node node = edge.getDifferingNode(changedNode);
 				if (this.nodesRichClub.get(node) < this.nodesRichClub
 						.get(changedNode)) {
 					changedNodeEdges++;
@@ -658,7 +658,7 @@ public class RichClubConnectivityIntervalU extends RichClubConnectivityInterval 
 		// calculate changes for richclub connectivity
 		for (IElement ie : n.getEdges()) {
 			UndirectedEdge edge = (UndirectedEdge) ie;
-			UndirectedNode node = edge.getDifferingNode(n);
+			Node node = edge.getDifferingNode(n);
 			if (this.nodesRichClub.get(node) <= this.nodesRichClub.get(n)) {
 				nEdges++;
 			}
@@ -715,7 +715,7 @@ public class RichClubConnectivityIntervalU extends RichClubConnectivityInterval 
 			int changedNodeEdges = 0;
 			for (IElement ie : changedNode.getEdges()) {
 				UndirectedEdge edge = (UndirectedEdge) ie;
-				UndirectedNode node = edge.getDifferingNode(changedNode);
+				Node node = edge.getDifferingNode(changedNode);
 				if (this.nodesRichClub.get(node) < this.nodesRichClub
 						.get(changedNode)) {
 					changedNodeEdges++;
