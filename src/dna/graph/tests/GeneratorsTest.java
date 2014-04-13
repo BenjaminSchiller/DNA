@@ -34,8 +34,10 @@ import dna.graph.datastructures.DataStructure.ListType;
 import dna.graph.datastructures.GraphDataStructure;
 import dna.graph.datastructures.IDataStructure;
 import dna.graph.edges.DirectedEdge;
+import dna.graph.edges.DirectedWeightedEdge;
 import dna.graph.edges.Edge;
 import dna.graph.edges.UndirectedEdge;
+import dna.graph.edges.UndirectedWeightedEdge;
 import dna.graph.generators.GraphGenerator;
 import dna.graph.generators.IGraphGenerator;
 import dna.graph.generators.canonical.CliqueGraph;
@@ -52,6 +54,7 @@ import dna.graph.weightsNew.IntWeight;
 import dna.graph.weightsNew.Weight.WeightSelection;
 import dna.io.GraphReader;
 import dna.io.GraphWriter;
+import dna.util.Rand;
 
 @RunWith(Parallelized.class)
 public class GeneratorsTest {
@@ -155,7 +158,7 @@ public class GeneratorsTest {
 						if (combination.get(ListType.GlobalEdgeList) == DEmpty.class
 								|| combination.get(ListType.LocalEdgeList) == DEmpty.class)
 							continue;
-						
+
 						result.add(new Object[] { combination, nodeType,
 								edgeType, generator });
 					}
@@ -301,26 +304,25 @@ public class GeneratorsTest {
 		assertEquals(g, g2);
 
 		// Change getStringRepresentation now to see that it is used for
-		// equality checks
+		// equality checks, and weights are left out of sight
 		Node random = g.getRandomNode();
 		for (int i = 0; i < (int) Math.floor(edgeSize / 5); i++) {
 			Edge edgeReal = g.getRandomEdge();
 			assertNotNull(edgeReal);
 			g.removeEdge(edgeReal);
 
-			Edge edgeMocked = mock(this.gds.getEdgeType());
-			when(edgeMocked.getStringRepresentation()).thenReturn("");
-			when(edgeMocked.getHashString()).thenReturn("");
+			Edge edgeMocked = null;
+
 			if (gds.createsDirected()) {
-				when(((DirectedEdge) edgeMocked).getDst()).thenReturn(
-						(DirectedNode) random);
-				when(((DirectedEdge) edgeMocked).getSrc()).thenReturn(
-						(DirectedNode) random);
+				edgeMocked = new DirectedWeightedEdge(
+						(DirectedNode) edgeReal.getN1(),
+						(DirectedNode) edgeReal.getN2(), new IntWeight(
+								Rand.rand.nextInt()));
 			} else if (gds.createsUndirected()) {
-				when(((UndirectedEdge) edgeMocked).getNode1()).thenReturn(
-						(UndirectedNode) random);
-				when(((UndirectedEdge) edgeMocked).getNode2()).thenReturn(
-						(UndirectedNode) random);
+				edgeMocked = new UndirectedWeightedEdge(
+						(UndirectedNode) edgeReal.getN1(),
+						(UndirectedNode) edgeReal.getN2(), new IntWeight(
+								Rand.rand.nextInt()));
 			}
 
 			g.addEdge(edgeMocked);
