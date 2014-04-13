@@ -27,7 +27,8 @@ public class DHashSet extends DataStructureReadable implements
 	}
 
 	@Override
-	public void init(Class<? extends IElement> dT, int initialSize, boolean firstTime) {
+	public void init(Class<? extends IElement> dT, int initialSize,
+			boolean firstTime) {
 		if (Node.class.isAssignableFrom(dT)) {
 			// System.out.println("Warning: DHashSet is *incredibly* slow on "
 			// + "removing nodes and recalculating the new maxNodeIndex!");
@@ -133,12 +134,21 @@ public class DHashSet extends DataStructureReadable implements
 		return null;
 	}
 
-	public Edge get(Edge e) {
-		for (Object o : list) {
-			if (o.equals(e))
-				return (Edge) o;
+	@Override
+	public Edge get(Node n1, Node n2) {
+		for (IElement eU : list) {
+			if (eU == null)
+				continue;
+			Edge e = (Edge) eU;
+			if (e.getN1().equals(n1) && e.getN2().equals(n2))
+				return e;
 		}
 		return null;
+	}
+
+	@Override
+	public Edge get(Edge element) {
+		return get(element.getN1(), element.getN2());
 	}
 
 	@Override

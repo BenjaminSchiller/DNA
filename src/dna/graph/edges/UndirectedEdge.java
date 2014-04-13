@@ -121,17 +121,6 @@ public class UndirectedEdge extends Edge {
 				&& this.getNode2().getIndex() == oCasted.getNode2().getIndex();
 	}
 
-	public String getHashString() {
-		return "" + this.getNode1().getIndex() + " <-> "
-				+ this.getNode2().getIndex();
-	}
-
-	public Node getDifferingNode(Node n) {
-		if (n instanceof UndirectedNode)
-			return this.getDifferingNode((UndirectedNode) n);
-		return null;
-	}
-
 	@Override
 	public int compareTo(Element eIn) {
 		if (!(eIn instanceof UndirectedEdge))

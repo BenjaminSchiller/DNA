@@ -2,7 +2,6 @@ package dna.graph.edges;
 
 import dna.graph.Element;
 import dna.graph.nodes.Node;
-import dna.graph.nodes.UndirectedNode;
 
 public abstract class Edge extends Element implements IEdge {
 	private Node n1;
@@ -21,8 +20,12 @@ public abstract class Edge extends Element implements IEdge {
 		return n2;
 	}
 	
-	public int hashCode() {
-		return this.getHashString().hashCode();
+	public final String getHashString() {
+		return Integer.toString(this.hashCode());
+	}
+	
+	public final int hashCode() {
+		return getHashcode(n1, n2);
 	}
 	
 	/**
@@ -41,5 +44,9 @@ public abstract class Edge extends Element implements IEdge {
 		} else {
 			return null;
 		}
+	}
+	
+	public static int getHashcode(Node n1, Node n2) {
+		return n1.getIndex() * (int) Math.pow(2, 16) + n2.getIndex();
 	}
 }
