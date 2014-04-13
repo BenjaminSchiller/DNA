@@ -16,14 +16,13 @@ public class EdgeRemoval extends EdgeUpdate {
 
 	public EdgeRemoval(String str, GraphDataStructure gds, Graph g) {
 		super(
-				g.getEdge(gds.newEdgeInstance(g.getNode(Integer.parseInt(str
+				g.getEdge(g.getNode(Integer.parseInt(str
 						.split(Update.EdgeSeparator)[0])), g.getNode(Integer
-						.parseInt(str.split(Update.EdgeSeparator)[1])))));
+						.parseInt(str.split(Update.EdgeSeparator)[1]))));
 	}
 
 	public EdgeRemoval(int index1, int index2, GraphDataStructure gds, Graph g) {
-		super(g.getEdge(gds.newEdgeInstance(g.getNode(index1),
-				g.getNode(index2))));
+		super(g.getEdge(g.getNode(index1), g.getNode(index2)));
 	}
 
 	@Override

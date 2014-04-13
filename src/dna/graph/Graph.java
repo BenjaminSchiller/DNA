@@ -132,17 +132,15 @@ public class Graph {
 	}
 
 	/**
-	 * Get an edge by a generated dummy edge (see
-	 * {@link IEdgeListDatastructureReadable#get(IElement)} for details)
+	 * Get an edge by its attached nodes
 	 * 
-	 * @param e
-	 * @return
+	 * @param Node n1, Node n2
 	 */
-	public Edge getEdge(Edge e) {
+	public Edge getEdge(Node n1, Node n2) {
 		if (!gds.isReadable(edges))
 			throw new RuntimeException("This is not a readable graph");
-		return ((IEdgeListDatastructureReadable) edges).get(e);
-	}
+		return ((IEdgeListDatastructureReadable) edges).get(n1, n2);
+	}	
 
 	/**
 	 * Retrieve a random edge

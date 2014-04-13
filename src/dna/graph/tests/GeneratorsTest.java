@@ -255,7 +255,7 @@ public class GeneratorsTest {
 
 		for (IElement eU : g2.getEdges()) {
 			Edge e = (Edge) eU;
-			Edge eOther = g.getEdge(e);
+			Edge eOther = g.getEdge(e.getN1(), e.getN2());
 			assertNotNull("Graph g misses edge " + e + " (edge list type: "
 					+ gds.getListClass(ListType.GlobalEdgeList) + ")", eOther);
 			assertEquals(e, eOther);
@@ -265,7 +265,7 @@ public class GeneratorsTest {
 
 		for (IElement eU : g.getEdges()) {
 			Edge e = (Edge) eU;
-			Edge eOther = g2.getEdge(e);
+			Edge eOther = g2.getEdge(e.getN1(), e.getN2());
 			assertNotNull(eOther);
 			assertEquals(e, eOther);
 			assertNotEquals(e.getStringRepresentation(),
