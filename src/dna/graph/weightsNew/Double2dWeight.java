@@ -49,7 +49,7 @@ public class Double2dWeight extends Weight {
 	}
 
 	@Override
-	protected String asString_() {
+	public String asString() {
 		return this.x + Weight.WeightSeparator + this.y;
 	}
 

@@ -61,7 +61,7 @@ public class Int3dWeight extends Weight {
 	}
 
 	@Override
-	protected String asString_() {
+	public String asString() {
 		return this.x + Weight.WeightSeparator + this.y
 				+ Weight.WeightSeparator + this.z;
 	}

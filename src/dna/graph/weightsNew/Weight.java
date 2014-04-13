@@ -56,27 +56,16 @@ public abstract class Weight {
 	}
 
 	public String toString() {
-		return "(W) " + this.asString();
+		return this.asString();
 	}
 
 	/**
-	 * format: ${WeightType}:${Weight}, e.g., I:13, D2:6.2;2.4
+	 * format: ${Weight}, e.g., 13, 6.2;2.4
 	 * 
 	 * @return String representation of the weight that can be parsed using the
 	 *         fromString(String str) method.
 	 */
-	public String asString() {
-		return this.getWeightType() + Weight.WeightTypeDelimiter
-				+ this.asString_();
-	}
-
-	/**
-	 * 
-	 * @return String representation of this weight type's weight component that
-	 *         can be parsed and interpreted by this weight's
-	 *         String-constructor.
-	 */
-	protected abstract String asString_();
+	public abstract String asString();
 
 	/**
 	 * 
