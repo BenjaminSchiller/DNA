@@ -40,7 +40,7 @@ public class DoubleWeight extends Weight {
 	}
 
 	@Override
-	protected String asString_() {
+	public String asString() {
 		return Double.toString(this.weight);
 	}
 

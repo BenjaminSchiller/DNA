@@ -39,7 +39,7 @@ public class IntWeight extends Weight {
 	}
 
 	@Override
-	protected String asString_() {
+	public String asString() {
 		return Integer.toString(this.weight);
 	}
 
