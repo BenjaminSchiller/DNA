@@ -34,12 +34,11 @@ import dna.graph.generators.util.EmptyGraph;
 import dna.graph.nodes.DirectedNode;
 import dna.graph.nodes.Node;
 import dna.graph.nodes.UndirectedNode;
+import dna.graph.weightsNew.DoubleWeight;
 import dna.graph.weightsNew.IWeighted;
 import dna.graph.weightsNew.IWeightedEdge;
 import dna.graph.weightsNew.IWeightedNode;
 import dna.graph.weightsNew.IntWeight;
-import dna.graph.weightsNew.NullWeight;
-import dna.graph.weightsNew.Weight;
 import dna.graph.weightsNew.Weight.WeightSelection;
 import dna.io.BatchReader;
 import dna.io.BatchWriter;
@@ -74,7 +73,6 @@ public class BatchTest {
 	public BatchTest(
 			EnumMap<ListType, Class<? extends IDataStructure>> listTypes,
 			Class<? extends Node> nodeType, Class<? extends Edge> edgeType,
-			Class<? extends Weight> weight,
 			Class<? extends GraphGenerator> generator)
 			throws InstantiationException, IllegalAccessException,
 			IllegalArgumentException, InvocationTargetException,
@@ -85,7 +83,8 @@ public class BatchTest {
 		initSizes();
 
 		this.gds = new GraphDataStructure(listTypes, nodeType, edgeType,
-				weight, weight);
+				DoubleWeight.class, WeightSelection.RandTrim1, IntWeight.class,
+				WeightSelection.RandPos100);
 		try {
 			if (generator == BarabasiAlbertGraph.class) {
 				generatorConstructor = generator.getConstructor(
@@ -109,8 +108,8 @@ public class BatchTest {
 		}
 
 		this.bGen = new RandomBatch(nodeAdd, nodeRem, nodeWeightChanges, null,
-				WeightSelection.RandPos100, edgeAdd, edgeRem,
-				edgeWeightChanges, null, WeightSelection.RandPos100);
+				gds.getNodeWeightSelection(), edgeAdd, edgeRem,
+				edgeWeightChanges, null, gds.getEdgeWeightSelection());
 
 		/**
 		 * A short output to overcome the timeout of Travis: If there is no
@@ -153,13 +152,11 @@ public class BatchTest {
 			edgeWeightChanges = 0;
 	}
 
-	@SuppressWarnings({ "rawtypes", "unchecked" })
+	@SuppressWarnings({ "rawtypes" })
 	@Parameterized.Parameters(name = "{0} {1} {2} {3}")
 	public static Collection testPairs() throws NoSuchMethodException,
 			SecurityException, InstantiationException, IllegalAccessException,
 			IllegalArgumentException, InvocationTargetException {
-		Constructor<? extends GraphGenerator> generatorConstructor;
-		GraphDataStructure gds;
 
 		ArrayList<EnumMap<ListType, Class<? extends IDataStructure>>> simpleCombinations = GraphDataStructure
 				.getSimpleDatastructureCombinations();
@@ -183,41 +180,8 @@ public class BatchTest {
 								|| combination.get(ListType.LocalEdgeList) == DEmpty.class)
 							continue;
 
-						gds = new GraphDataStructure(combination, nodeType,
-								edgeType);
-						GraphGenerator gg;
-						try {
-							if (generator == BarabasiAlbertGraph.class) {
-								generatorConstructor = generator
-										.getConstructor(
-												GraphDataStructure.class,
-												int.class, int.class,
-												int.class, int.class);
-								gg = generatorConstructor.newInstance(gds, 0,
-										0, 0, 0);
-							} else {
-								generatorConstructor = generator
-										.getConstructor(
-												GraphDataStructure.class,
-												int.class, int.class);
-								gg = generatorConstructor
-										.newInstance(gds, 0, 0);
-							}
-						} catch (NoSuchMethodException e) {
-							generatorConstructor = generator.getConstructor(
-									GraphDataStructure.class, int.class);
-							gg = generatorConstructor.newInstance(gds, 0);
-						}
-
-						if (!gg.canGenerateNodeType(nodeType))
-							continue;
-						if (!gg.canGenerateEdgeType(edgeType))
-							continue;
-
 						result.add(new Object[] { combination, nodeType,
-								edgeType, NullWeight.class, generator });
-						result.add(new Object[] { combination, nodeType,
-								edgeType, IntWeight.class, generator });
+								edgeType, generator });
 					}
 				}
 			}
