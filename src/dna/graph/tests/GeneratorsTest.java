@@ -46,7 +46,10 @@ import dna.graph.generators.util.EmptyGraph;
 import dna.graph.nodes.DirectedNode;
 import dna.graph.nodes.Node;
 import dna.graph.nodes.UndirectedNode;
+import dna.graph.weightsNew.DoubleWeight;
 import dna.graph.weightsNew.IWeighted;
+import dna.graph.weightsNew.IntWeight;
+import dna.graph.weightsNew.Weight.WeightSelection;
 import dna.io.GraphReader;
 import dna.io.GraphWriter;
 
@@ -76,7 +79,9 @@ public class GeneratorsTest {
 		this.edgeType = edgeType;
 		this.generator = generator;
 
-		this.gds = new GraphDataStructure(listTypes, nodeType, edgeType);
+		this.gds = new GraphDataStructure(listTypes, nodeType, edgeType,
+				DoubleWeight.class, WeightSelection.RandTrim1, IntWeight.class,
+				WeightSelection.RandPos100);
 
 		if (generator == CliqueGraph.class) {
 			/**
@@ -126,13 +131,11 @@ public class GeneratorsTest {
 
 	}
 
-	@SuppressWarnings({ "rawtypes", "unchecked" })
+	@SuppressWarnings({ "rawtypes" })
 	@Parameterized.Parameters(name = "{0} {1} {2} {3}")
 	public static Collection testPairs() throws NoSuchMethodException,
 			SecurityException, InstantiationException, IllegalAccessException,
 			IllegalArgumentException, InvocationTargetException {
-		Constructor<? extends GraphGenerator> generatorConstructor;
-		GraphDataStructure gds;
 
 		ArrayList<EnumMap<ListType, Class<? extends IDataStructure>>> simpleCombinations = GraphDataStructure
 				.getSimpleDatastructureCombinations();
@@ -140,10 +143,8 @@ public class GeneratorsTest {
 		ArrayList<Object> result = new ArrayList<>();
 		for (EnumMap<ListType, Class<? extends IDataStructure>> combination : simpleCombinations) {
 			for (Class generator : GlobalTestParameters.graphGenerators) {
-				for (Class edgeType : new Class[] { DirectedEdge.class,
-						UndirectedEdge.class }) {
-					for (Class nodeType : new Class[] { DirectedNode.class,
-							UndirectedNode.class }) {
+				for (Class edgeType : GlobalTestParameters.edgeTypes) {
+					for (Class nodeType : GlobalTestParameters.nodeTypes) {
 						if ((UndirectedEdge.class.isAssignableFrom(edgeType) && DirectedNode.class
 								.isAssignableFrom(nodeType))
 								|| (DirectedEdge.class
@@ -154,40 +155,7 @@ public class GeneratorsTest {
 						if (combination.get(ListType.GlobalEdgeList) == DEmpty.class
 								|| combination.get(ListType.LocalEdgeList) == DEmpty.class)
 							continue;
-
-						gds = new GraphDataStructure(combination, nodeType,
-								edgeType);
-
-						GraphGenerator gg;
-
-						try {
-							if (generator == BarabasiAlbertGraph.class) {
-								generatorConstructor = generator
-										.getConstructor(
-												GraphDataStructure.class,
-												int.class, int.class,
-												int.class, int.class);
-								gg = generatorConstructor.newInstance(gds, 5,
-										5, 5, 2);
-							} else {
-								generatorConstructor = generator
-										.getConstructor(
-												GraphDataStructure.class,
-												int.class, int.class);
-								gg = generatorConstructor
-										.newInstance(gds, 5, 5);
-							}
-						} catch (NoSuchMethodException e) {
-							generatorConstructor = generator.getConstructor(
-									GraphDataStructure.class, int.class);
-							gg = generatorConstructor.newInstance(gds, 5);
-						}
-
-						if (!gg.canGenerateNodeType(nodeType))
-							continue;
-						if (!gg.canGenerateEdgeType(edgeType))
-							continue;
-
+						
 						result.add(new Object[] { combination, nodeType,
 								edgeType, generator });
 					}
