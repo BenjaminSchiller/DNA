@@ -44,7 +44,7 @@ public class UndirectedMotifsU extends UndirectedMotifs {
 			HashSet<UndirectedNode> bOnly = new HashSet<UndirectedNode>();
 
 			for (IElement e_a : a.getEdges()) {
-				UndirectedNode n = ((UndirectedEdge) e_a).getDifferingNode(a);
+				UndirectedNode n = (UndirectedNode) ((UndirectedEdge) e_a).getDifferingNode(a);
 				if (n.getIndex() == b.getIndex()) {
 					continue;
 				}
@@ -55,7 +55,7 @@ public class UndirectedMotifsU extends UndirectedMotifs {
 				}
 			}
 			for (IElement e_b : b.getEdges()) {
-				UndirectedNode n = ((UndirectedEdge) e_b).getDifferingNode(b);
+				UndirectedNode n = (UndirectedNode) ((UndirectedEdge) e_b).getDifferingNode(b);
 				if (n.getIndex() == a.getIndex()) {
 					continue;
 				}
@@ -123,7 +123,7 @@ public class UndirectedMotifsU extends UndirectedMotifs {
 			HashSet<UndirectedNode> only, Update u) {
 		for (UndirectedNode c : only) {
 			for (IElement e_c : c.getEdges()) {
-				UndirectedNode d = ((UndirectedEdge) e_c).getDifferingNode(c);
+				UndirectedNode d = (UndirectedNode) ((UndirectedEdge) e_c).getDifferingNode(c);
 				if (d.hasEdge(new UndirectedEdge(d, a))) {
 					continue;
 				}
@@ -145,7 +145,7 @@ public class UndirectedMotifsU extends UndirectedMotifs {
 			HashSet<UndirectedNode> ab, Update u) {
 		for (UndirectedNode c : ab) {
 			for (IElement e_c : c.getEdges()) {
-				UndirectedNode d = ((UndirectedEdge) e_c).getDifferingNode(c);
+				UndirectedNode d = (UndirectedNode) ((UndirectedEdge) e_c).getDifferingNode(c);
 				if (d.hasEdge(new UndirectedEdge(d, a))) {
 					continue;
 				}

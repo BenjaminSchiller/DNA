@@ -75,7 +75,7 @@ public abstract class RichClubConnectivityForOneDegree extends Metric {
 			UndirectedNode uN = (UndirectedNode) n;
 			for (IElement iE : n.getEdges()) {
 				UndirectedEdge ed = (UndirectedEdge) iE;
-				UndirectedNode d = ed.getDifferingNode(uN);
+				Node d = ed.getDifferingNode(uN);
 				if (richClub.contains(d)) {
 					this.richClubEdges++;
 				}

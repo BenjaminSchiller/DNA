@@ -79,7 +79,8 @@ public class BetweenessCentralityR extends BetweenessCentrality {
 					s.push(v);
 					for (IElement iEdges : v.getOutgoingEdges()) {
 						DirectedEdge edge = (DirectedEdge) iEdges;
-						DirectedNode w = edge.getDifferingNode(v);
+						DirectedNode w = (DirectedNode) edge
+								.getDifferingNode(v);
 
 						if (d.get(w).equals(Integer.MAX_VALUE)) {
 							q.add(w);
@@ -100,7 +101,8 @@ public class BetweenessCentralityR extends BetweenessCentrality {
 
 					for (IElement iEdges : v.getEdges()) {
 						UndirectedEdge edge = (UndirectedEdge) iEdges;
-						UndirectedNode w = edge.getDifferingNode(v);
+						UndirectedNode w = (UndirectedNode) edge
+								.getDifferingNode(v);
 
 						if (d.get(w).equals(Integer.MAX_VALUE)) {
 							q.add(w);

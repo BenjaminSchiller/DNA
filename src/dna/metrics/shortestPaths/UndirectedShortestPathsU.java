@@ -6,6 +6,7 @@ import java.util.Queue;
 
 import dna.graph.IElement;
 import dna.graph.edges.UndirectedEdge;
+import dna.graph.nodes.Node;
 import dna.graph.nodes.UndirectedNode;
 import dna.updates.batch.Batch;
 import dna.updates.update.EdgeAddition;
@@ -21,9 +22,9 @@ public class UndirectedShortestPathsU extends UndirectedShortestPaths {
 		super("UndirectedShortestPathsU", ApplicationType.BeforeUpdate);
 	}
 
-	protected HashMap<UndirectedNode, HashMap<UndirectedNode, UndirectedNode>> parents;
+	protected HashMap<Node, HashMap<Node, Node>> parents;
 
-	protected HashMap<UndirectedNode, HashMap<UndirectedNode, Integer>> heights;
+	protected HashMap<Node, HashMap<Node, Integer>> heights;
 
 	@Override
 	public boolean applyBeforeBatch(Batch b) {
@@ -49,10 +50,9 @@ public class UndirectedShortestPathsU extends UndirectedShortestPaths {
 			UndirectedNode n2 = (UndirectedNode) e.getNode2();
 
 			for (IElement sUncasted : g.getNodes()) {
-				UndirectedNode s = (UndirectedNode) sUncasted;
-				HashMap<UndirectedNode, UndirectedNode> parent = this.parents
-						.get(s);
-				HashMap<UndirectedNode, Integer> height = this.heights.get(s);
+				Node s = (Node) sUncasted;
+				HashMap<Node, Node> parent = this.parents.get(s);
+				HashMap<Node, Integer> height = this.heights.get(s);
 
 				if (n1.equals(s)) {
 					this.check(n1, n2, parent, height);
@@ -80,9 +80,8 @@ public class UndirectedShortestPathsU extends UndirectedShortestPaths {
 		return true;
 	}
 
-	protected void check(UndirectedNode a, UndirectedNode b,
-			HashMap<UndirectedNode, UndirectedNode> parent,
-			HashMap<UndirectedNode, Integer> height) {
+	protected void check(Node a, Node b, HashMap<Node, Node> parent,
+			HashMap<Node, Integer> height) {
 		int h_a = height.get(a);
 		int h_b = height.get(b);
 		if (h_a == Integer.MAX_VALUE || h_a + 1 >= h_b) {
@@ -100,7 +99,7 @@ public class UndirectedShortestPathsU extends UndirectedShortestPaths {
 		this.spl = ArrayUtils.incr(this.spl, h_b);
 		for (IElement eUncasted : b.getEdges()) {
 			UndirectedEdge e = (UndirectedEdge) eUncasted;
-			UndirectedNode c = e.getDifferingNode(b);
+			UndirectedNode c = (UndirectedNode) e.getDifferingNode(b);
 			this.check(b, c, parent, height);
 		}
 	}
@@ -113,9 +112,9 @@ public class UndirectedShortestPathsU extends UndirectedShortestPaths {
 	@Override
 	public boolean compute() {
 		for (IElement sUncasted : g.getNodes()) {
-			UndirectedNode s = (UndirectedNode) sUncasted;
-			HashMap<UndirectedNode, UndirectedNode> parent = new HashMap<UndirectedNode, UndirectedNode>();
-			HashMap<UndirectedNode, Integer> height = new HashMap<UndirectedNode, Integer>();
+			Node s = (Node) sUncasted;
+			HashMap<Node, Node> parent = new HashMap<Node, Node>();
+			HashMap<Node, Integer> height = new HashMap<Node, Integer>();
 
 			for (IElement tUncasted : g.getNodes()) {
 				UndirectedNode t = (UndirectedNode) tUncasted;
@@ -126,14 +125,14 @@ public class UndirectedShortestPathsU extends UndirectedShortestPaths {
 				}
 			}
 
-			Queue<UndirectedNode> q = new LinkedList<UndirectedNode>();
+			Queue<Node> q = new LinkedList<Node>();
 			q.add(s);
 
 			while (!q.isEmpty()) {
-				UndirectedNode current = q.poll();
+				Node current = q.poll();
 				for (IElement eUncasted : current.getEdges()) {
 					UndirectedEdge e = (UndirectedEdge) eUncasted;
-					UndirectedNode neighbor = e.getDifferingNode(current);
+					Node neighbor = e.getDifferingNode(current);
 					if (height.get(neighbor) != Integer.MAX_VALUE) {
 						continue;
 					}
@@ -157,8 +156,8 @@ public class UndirectedShortestPathsU extends UndirectedShortestPaths {
 
 	public void init_() {
 		super.init_();
-		this.parents = new HashMap<UndirectedNode, HashMap<UndirectedNode, UndirectedNode>>();
-		this.heights = new HashMap<UndirectedNode, HashMap<UndirectedNode, Integer>>();
+		this.parents = new HashMap<Node, HashMap<Node, Node>>();
+		this.heights = new HashMap<Node, HashMap<Node, Integer>>();
 	}
 
 	public void reset_() {

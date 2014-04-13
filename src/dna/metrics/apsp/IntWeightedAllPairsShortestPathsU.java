@@ -576,10 +576,10 @@ public class IntWeightedAllPairsShortestPathsU extends
 		apsp.incr(height.get(n1) + (int)eWeight.getWeight());
 		height.put(n2, height.get(n1) + (int)eWeight.getWeight());
 		parent.put(n2, n1);
-		PriorityQueue<UndirectedNode> q = new PriorityQueue<>();
-		q.add((UndirectedNode) n2);
+		PriorityQueue<Node> q = new PriorityQueue<>();
+		q.add(n2);
 		while (!q.isEmpty()) {
-			UndirectedNode current = q.poll();
+			Node current = q.poll();
 
 			if (height.get(current) == Integer.MAX_VALUE) {
 				break;
@@ -588,7 +588,7 @@ public class IntWeightedAllPairsShortestPathsU extends
 			for (IElement edge : current.getEdges()) {
 				UndirectedWeightedEdge d = (UndirectedWeightedEdge) edge;
 
-				UndirectedNode neighbor = d.getDifferingNode(current);
+				Node neighbor = d.getDifferingNode(current);
 				IntWeight dWeight = (IntWeight) d.getWeight();
 
 				int alt = height.get(current) + (int)dWeight.getWeight();
@@ -725,11 +725,11 @@ public class IntWeightedAllPairsShortestPathsU extends
 					}
 				}
 			} else {
-				PriorityQueue<QueueElement<UndirectedNode>> q = new PriorityQueue<QueueElement<UndirectedNode>>();
-				q.add(new QueueElement((UndirectedNode) s, height.get(s)));
+				PriorityQueue<QueueElement<Node>> q = new PriorityQueue<QueueElement<Node>>();
+				q.add(new QueueElement((Node) s, height.get(s)));
 				while (!q.isEmpty()) {
-					QueueElement<UndirectedNode> c = q.poll();
-					UndirectedNode current = c.e;
+					QueueElement<Node> c = q.poll();
+					Node current = c.e;
 
 					if (height.get(current) == Integer.MAX_VALUE) {
 						break;
@@ -739,7 +739,7 @@ public class IntWeightedAllPairsShortestPathsU extends
 						UndirectedWeightedEdge d = (UndirectedWeightedEdge) iEdge;
 						IntWeight dWeight = (IntWeight) d.getWeight();
 
-						UndirectedNode neighbor = d.getDifferingNode(current);
+						Node neighbor = d.getDifferingNode(current);
 
 						int alt = height.get(current) + (int)dWeight.getWeight();
 						if (alt < 0) {
@@ -748,7 +748,7 @@ public class IntWeightedAllPairsShortestPathsU extends
 						if (alt < height.get(neighbor)) {
 							height.put(neighbor, alt);
 							parent.put(neighbor, current);
-							QueueElement<UndirectedNode> temp = new QueueElement<UndirectedNode>(
+							QueueElement<Node> temp = new QueueElement<Node>(
 									neighbor, height.get(neighbor));
 							if (q.contains(temp)) {
 								q.remove(temp);

@@ -129,8 +129,8 @@ public class BetweenessCentralityU extends BetweenessCentrality {
 		} else if (UndirectedNode.class.isAssignableFrom(this.g
 				.getGraphDatastructures().getNodeType())) {
 			UndirectedEdge e = (UndirectedEdge) ((EdgeRemoval) u).getEdge();
-			UndirectedNode n1 = e.getNode1();
-			UndirectedNode n2 = e.getNode2();
+			Node n1 = e.getNode1();
+			Node n2 = e.getNode2();
 
 			for (IElement iE : g.getNodes()) {
 				UndirectedNode root = (UndirectedNode) iE;
@@ -199,10 +199,10 @@ public class BetweenessCentralityU extends BetweenessCentrality {
 					DirectedNode w = (DirectedNode) qLevel[i].poll();
 
 					int dist = Integer.MAX_VALUE;
-					ArrayList<DirectedNode> min = new ArrayList<DirectedNode>();
+					ArrayList<Node> min = new ArrayList<Node>();
 					for (IElement iEdges : w.getIncomingEdges()) {
 						DirectedEdge ed = (DirectedEdge) iEdges;
-						DirectedNode z = ed.getDifferingNode(w);
+						Node z = ed.getDifferingNode(w);
 
 						if (d.get(z) < dist) {
 							min.clear();
@@ -218,7 +218,7 @@ public class BetweenessCentralityU extends BetweenessCentrality {
 
 					for (IElement iEdges : w.getOutgoingEdges()) {
 						DirectedEdge ed = (DirectedEdge) iEdges;
-						DirectedNode z = ed.getDifferingNode(w);
+						Node z = ed.getDifferingNode(w);
 						if (d.get(z).equals(d.get(w) + 1)
 								&& Math.abs(visited.get(z)) < counter) {
 							qLevel[i + 1].add(z);
@@ -245,7 +245,7 @@ public class BetweenessCentralityU extends BetweenessCentrality {
 					boolean found = false;
 					newSpc.put(w, 0);
 					newParents.get(w).clear();
-					for (DirectedNode mNode : min) {
+					for (Node mNode : min) {
 
 						if ((!uncertain.contains(mNode))
 								&& d.get(mNode).intValue() + 1 == i) {
@@ -275,10 +275,10 @@ public class BetweenessCentralityU extends BetweenessCentrality {
 
 					UndirectedNode w = (UndirectedNode) qLevel[i].poll();
 					int dist = Integer.MAX_VALUE;
-					ArrayList<UndirectedNode> min = new ArrayList<UndirectedNode>();
+					ArrayList<Node> min = new ArrayList<Node>();
 					for (IElement iEdges : w.getEdges()) {
 						UndirectedEdge ed = (UndirectedEdge) iEdges;
-						UndirectedNode z = ed.getDifferingNode(w);
+						Node z = ed.getDifferingNode(w);
 
 						if (d.get(z).equals(d.get(w) + 1)
 								&& Math.abs(visited.get(z)) < counter) {
@@ -316,7 +316,7 @@ public class BetweenessCentralityU extends BetweenessCentrality {
 					boolean found = false;
 					newSpc.put(w, 0);
 					newParents.get(w).clear();
-					for (UndirectedNode mNode : min) {
+					for (Node mNode : min) {
 						if ((!uncertain.contains(mNode))
 								&& d.get(mNode).intValue() + 1 == i) {
 							uncertain.remove(w);
@@ -434,7 +434,7 @@ public class BetweenessCentralityU extends BetweenessCentrality {
 				// all neighbours of v
 				for (IElement iEdge : v.getOutgoingEdges()) {
 					DirectedEdge edge = (DirectedEdge) iEdge;
-					DirectedNode w = edge.getDifferingNode(v);
+					Node w = edge.getDifferingNode(v);
 
 					if (d.get(w).equals(d.get(v) + 1)) {
 						if (Math.abs(visited.get(w)) < counter) {
@@ -459,7 +459,7 @@ public class BetweenessCentralityU extends BetweenessCentrality {
 				// all neighbours of v
 				for (IElement iEdge : v.getEdges()) {
 					UndirectedEdge edge = (UndirectedEdge) iEdge;
-					UndirectedNode w = edge.getDifferingNode(v);
+					Node w = edge.getDifferingNode(v);
 
 					if (d.get(w).equals(d.get(v) + 1)) {
 						if (Math.abs(visited.get(w)) < counter) {
@@ -571,8 +571,8 @@ public class BetweenessCentralityU extends BetweenessCentrality {
 		} else if (UndirectedNode.class.isAssignableFrom(this.g
 				.getGraphDatastructures().getNodeType())) {
 			UndirectedEdge e = (UndirectedEdge) ((EdgeAddition) u).getEdge();
-			UndirectedNode n1 = e.getNode1();
-			UndirectedNode n2 = e.getNode2();
+			Node n1 = e.getNode1();
+			Node n2 = e.getNode2();
 			for (IElement iE : g.getNodes()) {
 				UndirectedNode root = (UndirectedNode) iE;
 
@@ -767,8 +767,7 @@ public class BetweenessCentralityU extends BetweenessCentrality {
 
 	}
 
-	private void mergeOfComponentsInsertion(UndirectedNode root,
-			UndirectedNode src, UndirectedNode dst) {
+	private void mergeOfComponentsInsertion(Node root, Node src, Node dst) {
 
 		counter++;
 
@@ -800,7 +799,7 @@ public class BetweenessCentralityU extends BetweenessCentrality {
 			maxHeight = Math.max(maxHeight, d.get(v));
 			for (IElement iEdge : v.getEdges()) {
 				UndirectedEdge ed = (UndirectedEdge) iEdge;
-				UndirectedNode n = ed.getDifferingNode(v);
+				Node n = ed.getDifferingNode(v);
 				if (Math.abs(visited.get(n)) < counter && n != src
 						&& d.get(n).equals(Integer.MAX_VALUE)) {
 					qBFS.add(n);
@@ -854,8 +853,7 @@ public class BetweenessCentralityU extends BetweenessCentrality {
 		oldSums.putAll(newASums);
 	}
 
-	private void nonAdjacentLevelInsertion(UndirectedNode root,
-			UndirectedNode src, UndirectedNode dst) {
+	private void nonAdjacentLevelInsertion(Node root, Node src, Node dst) {
 
 		counter++;
 		// old values
@@ -892,7 +890,7 @@ public class BetweenessCentralityU extends BetweenessCentrality {
 			// all neighbours of v
 			for (IElement iEdge : v.getEdges()) {
 				UndirectedEdge ed = (UndirectedEdge) iEdge;
-				UndirectedNode n = ed.getDifferingNode(v);
+				Node n = ed.getDifferingNode(v);
 
 				// Lower Node moves up
 				if (d.get(n).intValue() > d.get(v).intValue() + 1) {
@@ -1043,7 +1041,7 @@ public class BetweenessCentralityU extends BetweenessCentrality {
 				// all neighbours of v
 				for (IElement iEdges : v.getEdges()) {
 					UndirectedEdge edge = (UndirectedEdge) iEdges;
-					UndirectedNode w = edge.getDifferingNode(v);
+					Node w = edge.getDifferingNode(v);
 
 					if (d.get(w).equals(d.get(v).intValue() + 1)) {
 						if (Math.abs(visited.get(w)) < counter) {
@@ -1201,7 +1199,8 @@ public class BetweenessCentralityU extends BetweenessCentrality {
 					s.push(v);
 					for (IElement iEdges : v.getOutgoingEdges()) {
 						DirectedEdge edge = (DirectedEdge) iEdges;
-						DirectedNode w = edge.getDifferingNode(v);
+						DirectedNode w = (DirectedNode) edge
+								.getDifferingNode(v);
 
 						if (d.get(w).equals(Integer.MAX_VALUE)) {
 							q.add(w);
@@ -1223,7 +1222,8 @@ public class BetweenessCentralityU extends BetweenessCentrality {
 
 					for (IElement iEdges : v.getEdges()) {
 						UndirectedEdge edge = (UndirectedEdge) iEdges;
-						UndirectedNode w = edge.getDifferingNode(v);
+						UndirectedNode w = (UndirectedNode) edge
+								.getDifferingNode(v);
 
 						if (d.get(w).equals(Integer.MAX_VALUE)) {
 							q.add(w);

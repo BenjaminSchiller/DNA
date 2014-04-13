@@ -27,6 +27,8 @@ public interface INode extends IElement {
 	public abstract boolean removeEdge(Edge e);
 
 	public abstract Iterable<IElement> getEdges();
+	
+	public abstract int getDegree();
 
 	public abstract void print();	
 }

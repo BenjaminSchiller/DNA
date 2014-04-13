@@ -426,7 +426,7 @@ public class UnweightedAllPairsShortestPathsU extends UnweightedAllPairsShortest
 		height.put(b, h_b);
 		for (IElement iEdge : b.getEdges()) {
 			UndirectedEdge e = (UndirectedEdge) iEdge;
-			UndirectedNode c = e.getDifferingNode(b);
+			UndirectedNode c = (UndirectedNode) e.getDifferingNode(b);
 			this.check(b, c, parent, height);
 		}
 	}
