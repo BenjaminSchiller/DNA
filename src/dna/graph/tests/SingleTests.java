@@ -87,7 +87,7 @@ public class SingleTests {
 				DirectedWeightedEdge.class);
 
 		int limit = 1000000;
-		IWeightedNode n;
+		Node n;
 
 		Timer t = new Timer("Test");
 		for (int i = 0; i < limit; i++) {

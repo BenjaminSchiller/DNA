@@ -31,11 +31,13 @@ import dna.graph.edges.UndirectedEdge;
 import dna.graph.nodes.DirectedNode;
 import dna.graph.nodes.Node;
 import dna.graph.nodes.UndirectedNode;
+import dna.graph.weightsNew.DoubleWeight;
 import dna.graph.weightsNew.IWeighted;
 import dna.graph.weightsNew.IWeightedEdge;
 import dna.graph.weightsNew.IWeightedNode;
 import dna.graph.weightsNew.IntWeight;
 import dna.graph.weightsNew.Weight;
+import dna.graph.weightsNew.Weight.WeightSelection;
 import dna.profiler.ProfilerMeasurementData;
 import dna.util.Config;
 
@@ -53,7 +55,8 @@ public class GraphTester {
 			IllegalArgumentException, InvocationTargetException,
 			NoSuchMethodException, SecurityException {
 		this.gds = new GraphDataStructure(listTypes, nodeType, edgeType,
-				IntWeight.class, IntWeight.class);
+				DoubleWeight.class, WeightSelection.RandTrim1, IntWeight.class,
+				WeightSelection.RandPos100);
 		this.gds.setEdgeType(edgeType);
 		this.graph = gds.newGraphInstance("ABC", 1L, 10, 10);
 		this.nodeType = nodeType;
@@ -162,15 +165,15 @@ public class GraphTester {
 		assumeTrue(IWeightedNode.class.isAssignableFrom(nodeType));
 
 		Weight mock = mockedWeight(nodeType, true);
-		IWeightedNode n = gds.newWeightedNode(1, mock);
-		assertEquals(mock, n.getWeight());
+		Node n = gds.newWeightedNode(1, mock);
+		assertEquals(mock, ((IWeighted) n).getWeight());
 		assertTrue(graph.addNode((Node) n));
 
 		Weight mock2 = mockedWeight(nodeType, false);
 		assertNotEquals("mockedWeight not returning two different mocks", mock,
 				mock2);
-		IWeightedNode n2 = gds.newWeightedNode(1, mock2);
-		assertEquals(mock2, n2.getWeight());
+		Node n2 = gds.newWeightedNode(1, mock2);
+		assertEquals(mock2, ((IWeighted) n2).getWeight());
 		assertFalse(graph.addNode((Node) n2));
 	}
 
@@ -184,15 +187,15 @@ public class GraphTester {
 		graph.addNode(n2);
 
 		Weight mock = mockedWeight(edgeType, true);
-		IWeightedEdge e = gds.newWeightedEdge(n1, n2, mock);
-		assertEquals(mock, e.getWeight());
+		Edge e = gds.newWeightedEdge(n1, n2, mock);
+		assertEquals(mock, ((IWeighted) e).getWeight());
 		assertTrue(graph.addEdge((Edge) e));
 
 		Weight mock2 = mockedWeight(edgeType, false);
 		assertNotEquals("mockedWeight not returning two different mocks", mock,
 				mock2);
-		IWeightedEdge e2 = gds.newWeightedEdge(n1, n2, mock2);
-		assertEquals(mock2, e2.getWeight());
+		Edge e2 = gds.newWeightedEdge(n1, n2, mock2);
+		assertEquals(mock2, ((IWeighted) e2).getWeight());
 		assertFalse(
 				"Adding the same edge with different weight a second time succeeded (graph edge list: "
 						+ gds.getListClass(ListType.GlobalEdgeList) + ")",
@@ -260,18 +263,18 @@ public class GraphTester {
 		Node n2 = gds.newNodeInstance(2);
 		graph.addNode(n1);
 		graph.addNode(n2);
-		IWeightedEdge e = gds.newWeightedEdge(n1, n2, mock);
+		Edge e = gds.newWeightedEdge(n1, n2, mock);
 		graph.addEdge((Edge) e);
 
 		// Then create a dummy using the nodes, with obvious inequal weights
 		mock = mockedWeight(edgeType, false);
-		IWeightedEdge eDummy = gds.newWeightedEdge(n1, n2, mock);
+		Edge eDummy = gds.newWeightedEdge(n1, n2, mock);
 		assertEquals(e, eDummy);
-		assertNotEquals(e.getWeight(), eDummy.getWeight());
+		assertNotEquals(((IWeighted) e).getWeight(), ((IWeighted) eDummy).getWeight());
 
-		eDummy = (IWeightedEdge) graph.getEdge((Edge) eDummy);
+		eDummy = graph.getEdge(eDummy);
 		assertEquals(e, eDummy);
-		assertEquals(e.getWeight(), eDummy.getWeight());
+		assertEquals(((IWeighted) e).getWeight(), ((IWeighted) eDummy).getWeight());
 	}
 
 	@Test
