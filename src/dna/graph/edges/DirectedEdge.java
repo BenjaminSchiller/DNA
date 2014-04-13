@@ -84,10 +84,6 @@ public class DirectedEdge extends Edge {
 				&& this.getDst().getIndex() == oCasted.getDst().getIndex();
 	}
 
-	public String getHashString() {
-		return "" + this.getN1().getIndex() + " -> " + this.getN2().getIndex();
-	}
-
 	@Override
 	public int compareTo(Element eIn) {
 		if (!(eIn instanceof DirectedEdge))

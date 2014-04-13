@@ -1,6 +1,7 @@
 package dna.graph.datastructures;
 
 import dna.graph.edges.Edge;
+import dna.graph.nodes.Node;
 
 public interface IEdgeListDatastructureReadable extends IEdgeListDatastructure,
 		IReadable {
@@ -13,4 +14,14 @@ public interface IEdgeListDatastructureReadable extends IEdgeListDatastructure,
 	 * @return
 	 */
 	public Edge get(Edge element);
+	
+	/**
+	 * Retrieve an edge from this data structure (use case: we know source and
+	 * destination node, but want to get additional data too like weights,
+	 * flows,...)
+	 * 
+	 * @param Node n1, n2
+	 * @return
+	 */
+	public Edge get(Node n1, Node n2);
 }
