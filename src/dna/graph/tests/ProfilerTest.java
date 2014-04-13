@@ -32,6 +32,9 @@ import dna.graph.generators.GraphGenerator;
 import dna.graph.nodes.DirectedNode;
 import dna.graph.nodes.Node;
 import dna.graph.nodes.UndirectedNode;
+import dna.graph.weightsNew.DoubleWeight;
+import dna.graph.weightsNew.IntWeight;
+import dna.graph.weightsNew.Weight.WeightSelection;
 import dna.metrics.Metric;
 import dna.metrics.Metric.ApplicationType;
 import dna.metrics.Metric.MetricType;
@@ -60,7 +63,9 @@ public class ProfilerTest {
 			ApplicationType applicationType) throws InstantiationException,
 			IllegalAccessException, IllegalArgumentException,
 			InvocationTargetException, NoSuchMethodException, SecurityException {
-		this.gds = new GraphDataStructure(listTypes, nodeType, edgeType);
+		this.gds = new GraphDataStructure(listTypes, nodeType, edgeType,
+				DoubleWeight.class, WeightSelection.RandTrim1, IntWeight.class,
+				WeightSelection.RandPos100);
 		this.gds.setEdgeType(edgeType);
 		this.graph = gds.newGraphInstance("ABC", 1L, 10, 10);
 		this.applicationType = applicationType;
@@ -189,12 +194,12 @@ public class ProfilerTest {
 		assertEquals(0, Profiler.getCount(metricKey, ListType.LocalNodeList,
 				AccessType.ContainsSuccess));
 		assertEquals(0, Profiler.getCount(metricKey, ListType.LocalNodeList,
-				AccessType.ContainsFailure));		
+				AccessType.ContainsFailure));
 		metric.compute();
 		assertEquals(1, Profiler.getCount(metricKey, ListType.LocalNodeList,
 				AccessType.ContainsSuccess));
 		assertEquals(1, Profiler.getCount(metricKey, ListType.LocalNodeList,
-				AccessType.ContainsFailure));		
+				AccessType.ContainsFailure));
 	}
 
 	@Test
@@ -202,27 +207,23 @@ public class ProfilerTest {
 		assertEquals(0, Profiler.getCount(metricKey, ListType.GlobalEdgeList,
 				AccessType.ContainsSuccess));
 		assertEquals(0, Profiler.getCount(metricKey, ListType.GlobalEdgeList,
-				AccessType.ContainsFailure));		
+				AccessType.ContainsFailure));
 		metric.compute();
 		assertEquals(1, Profiler.getCount(metricKey, ListType.GlobalEdgeList,
 				AccessType.ContainsSuccess));
 		assertEquals(1, Profiler.getCount(metricKey, ListType.GlobalEdgeList,
-				AccessType.ContainsFailure));		
+				AccessType.ContainsFailure));
 	}
 
 	@Test
 	public void testContainsEdgeLocalIsCountedInMetric() {
-		assertEquals(
-				0,
-				Profiler.getCount(metricKey, new ListType[] {
-						ListType.LocalEdgeList, ListType.LocalInEdgeList,
-						ListType.LocalOutEdgeList }, AccessType.ContainsSuccess));
+		assertEquals(0, Profiler.getCount(metricKey, new ListType[] {
+				ListType.LocalEdgeList, ListType.LocalInEdgeList,
+				ListType.LocalOutEdgeList }, AccessType.ContainsSuccess));
 		metric.compute();
-		assertEquals(
-				1,
-				Profiler.getCount(metricKey, new ListType[] {
-						ListType.LocalEdgeList, ListType.LocalInEdgeList,
-						ListType.LocalOutEdgeList }, AccessType.ContainsSuccess));
+		assertEquals(1, Profiler.getCount(metricKey, new ListType[] {
+				ListType.LocalEdgeList, ListType.LocalInEdgeList,
+				ListType.LocalOutEdgeList }, AccessType.ContainsSuccess));
 	}
 
 	@Test
@@ -255,7 +256,7 @@ public class ProfilerTest {
 		assertEquals(1, Profiler.getCount(metricKey, ListType.GlobalNodeList,
 				AccessType.GetSuccess));
 		assertEquals(1, Profiler.getCount(metricKey, ListType.GlobalNodeList,
-				AccessType.GetFailure));		
+				AccessType.GetFailure));
 	}
 
 	@Test
@@ -384,7 +385,7 @@ public class ProfilerTest {
 
 			Node n1 = g.getNode(1);
 			Edge e = g.getRandomEdge();
-			
+
 			Node nNotInList = g.getNode(42);
 
 			if (n1 instanceof DirectedNode) {
