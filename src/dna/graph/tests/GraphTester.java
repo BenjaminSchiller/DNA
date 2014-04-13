@@ -252,32 +252,6 @@ public class GraphTester {
 	}
 
 	@Test
-	public void checkGetEdgeByDummy() {
-		assumeTrue(gds.isReadable());
-		assumeTrue(IWeighted.class.isAssignableFrom(edgeType));
-
-		Weight mock = mockedWeight(edgeType, true);
-
-		// Create a "real" edge first
-		Node n1 = gds.newNodeInstance(1);
-		Node n2 = gds.newNodeInstance(2);
-		graph.addNode(n1);
-		graph.addNode(n2);
-		Edge e = gds.newWeightedEdge(n1, n2, mock);
-		graph.addEdge((Edge) e);
-
-		// Then create a dummy using the nodes, with obvious inequal weights
-		mock = mockedWeight(edgeType, false);
-		Edge eDummy = gds.newWeightedEdge(n1, n2, mock);
-		assertEquals(e, eDummy);
-		assertNotEquals(((IWeighted) e).getWeight(), ((IWeighted) eDummy).getWeight());
-
-		eDummy = graph.getEdge(eDummy);
-		assertEquals(e, eDummy);
-		assertEquals(((IWeighted) e).getWeight(), ((IWeighted) eDummy).getWeight());
-	}
-
-	@Test
 	public void removeNode() {
 		Node dummy = gds.newNodeInstance(0);
 		Node dummy2 = gds.newNodeInstance(1);
