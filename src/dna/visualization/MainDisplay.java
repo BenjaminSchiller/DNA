@@ -59,6 +59,7 @@ public class MainDisplay extends JFrame {
 		boolean dataFlag = false;
 		String dataDir = null;
 		boolean liveFlag = false;
+		boolean playbackFlag = false;
 		boolean zipFlag = false;
 
 		try {
@@ -78,6 +79,9 @@ public class MainDisplay extends JFrame {
 				case "-l":
 					liveFlag = true;
 					break;
+				case "-p":
+					playbackFlag = true;
+					break;
 				case "-z":
 					zipFlag = true;
 					break;
@@ -86,6 +90,11 @@ public class MainDisplay extends JFrame {
 		} catch (IndexOutOfBoundsException e) {
 			Log.error("Error in parameter parsing, please check syntax!");
 			System.out.println();
+			helpFlag = true;
+		}
+
+		if (liveFlag && playbackFlag) {
+			Log.warn("Live display AND playback flag set. Showing -help and exiting.");
 			helpFlag = true;
 		}
 
@@ -101,6 +110,8 @@ public class MainDisplay extends JFrame {
 			System.out.println("-h" + "\t\t\t" + "Displays this help message");
 			System.out.println("-l" + "\t\t\t"
 					+ "Runs the GUI in live display mode");
+			System.out.println("-p" + "\t\t\t"
+					+ "Runs the GUI in playback mode");
 			System.out.println("-z" + "\t\t\t"
 					+ "Enables zipped batches support");
 
@@ -187,9 +198,14 @@ public class MainDisplay extends JFrame {
 				config.setDefaultDir(dataDir);
 				MainDisplay.DefaultConfig.setDefaultDir(dataDir);
 			}
-			if (!liveFlag)
-				liveFlag = config.isLiveDisplayMode();
-			else {
+			if (!liveFlag) {
+				if (playbackFlag) {
+					liveFlag = !playbackFlag;
+					config.setLiveDisplayMode(liveFlag);
+					MainDisplay.DefaultConfig.setLiveDisplayMode(liveFlag);
+				} else
+					liveFlag = config.isLiveDisplayMode();
+			} else {
 				config.setLiveDisplayMode(liveFlag);
 				MainDisplay.DefaultConfig.setLiveDisplayMode(liveFlag);
 			}
