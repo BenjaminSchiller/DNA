@@ -11,6 +11,7 @@ import org.perfidix.result.BenchmarkResult;
 
 import dna.graph.datastructures.DArray;
 import dna.graph.datastructures.DEmpty;
+import dna.graph.datastructures.DataStructure;
 import dna.graph.datastructures.DataStructure.ListType;
 import dna.graph.datastructures.GraphDataStructure;
 import dna.graph.datastructures.IDataStructure;
@@ -111,6 +112,8 @@ public class BenchmarkingExperiments {
 			edge = gds.newEdgeInstance(formerNode, node);
 			edgeList[i] = edge;
 		}
+
+		DataStructure.disableContainsOnAddition();
 	}
 
 	public static Object[][] testInput() {
@@ -487,8 +490,12 @@ public class BenchmarkingExperiments {
 		new BenchmarkingVisitor(benchmarkingConf).visitBenchmark(res);
 
 		long endTime = System.currentTimeMillis();
-		long totalTime = (endTime - startTime) / (1000 * 60);
-		System.out.println("Benchmarking " + args[0] + " took " + totalTime
-				+ " minutes");
+
+		long totalSeconds = (endTime - startTime) / 1000;
+
+		long totalMinutes = totalSeconds / 60;
+		long restSeconds = totalSeconds - (totalMinutes * 60);
+		System.out.println("Benchmarking " + args[0] + " took " + totalMinutes
+				+ " minutes " + restSeconds + " seconds");
 	}
 }

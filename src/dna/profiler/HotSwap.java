@@ -8,6 +8,7 @@ import java.util.TreeMap;
 import dna.graph.Graph;
 import dna.graph.datastructures.DataStructure.AccessType;
 import dna.graph.datastructures.DataStructure.ListType;
+import dna.graph.datastructures.DataStructure;
 import dna.graph.datastructures.GraphDataStructure;
 import dna.graph.datastructures.IDataStructure;
 import dna.profiler.ProfilerMeasurementData.ProfilerDataType;
@@ -56,7 +57,9 @@ public class HotSwap {
 		System.out.println("  Old DS: " + gds.getStorageDataStructures(true));
 		System.out
 				.println("  New DS: " + newGDS.getStorageDataStructures(true));
+		DataStructure.disableContainsOnAddition();
 		gds.switchDatastructures(newGDS, g);
+		DataStructure.enableContainsOnAddition();
 	}
 
 	public static void trySwap(Graph g) {
@@ -140,7 +143,7 @@ public class HotSwap {
 
 		/**
 		 * Generate the costs for swapping, which is: for each list type the
-		 * number of lists * (init + meanlistSize * (add + containsFailure) )
+		 * number of lists * (init + meanlistSize * add)
 		 */
 
 		GraphDataStructure recGDS = recommendedState.getGraphDataStructure();
@@ -155,12 +158,6 @@ public class HotSwap {
 					AccessType.Init, ProfilerDataType.RuntimeBenchmark);
 			initCosts.setValues(numberOfLists, meanListSize, null);
 			swappingCosts.add(initCosts.getMap());
-
-			ComparableEntry cfCosts = recGDS.getComplexityClass(lt,
-					AccessType.ContainsFailure,
-					ProfilerDataType.RuntimeBenchmark);
-			cfCosts.setValues(totalNumberOfElements, meanListSize, null);
-			swappingCosts.add(cfCosts.getMap());
 
 			ComparableEntry addCosts = recGDS.getComplexityClass(lt,
 					AccessType.Add, ProfilerDataType.RuntimeBenchmark);

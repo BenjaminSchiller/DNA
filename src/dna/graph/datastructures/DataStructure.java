@@ -83,6 +83,8 @@ public abstract class DataStructure implements IDataStructure {
 	public final ListType listType;
 	protected final int defaultSize = 10;
 
+	private static boolean overrideContainsCheck = false;
+
 	public DataStructure(ListType lt, Class<? extends IElement> dT) {
 		this.listType = lt;
 		dataType = dT;
@@ -92,25 +94,25 @@ public abstract class DataStructure implements IDataStructure {
 	public void reinitializeWithSize(int reinitSize) {
 		this.init(this.dataType, reinitSize, false);
 	}
-	
+
 	public final boolean add(Node n) {
 		canAdd(n);
-		if (this.contains(n))
+		if (!overrideContainsCheck && this.contains(n))
 			return false;
 		return this.add_(n);
 	}
-	
+
 	protected abstract boolean add_(Node n);
-	
+
 	public final boolean add(Edge e) {
 		canAdd(e);
-		if (this.contains(e))
+		if (!overrideContainsCheck && this.contains(e))
 			return false;
 		return this.add_(e);
 	}
 
 	protected abstract boolean add_(Edge e);
-	
+
 	public boolean canAdd(IElement element) {
 		if (!dataType.isInstance(element))
 			throw new RuntimeException("Datatype to be stored here: "
@@ -156,5 +158,13 @@ public abstract class DataStructure implements IDataStructure {
 
 	public Iterator<IElement> iterator() {
 		return this.iterator_();
+	}
+
+	public static void disableContainsOnAddition() {
+		overrideContainsCheck = true;
+	}
+
+	public static void enableContainsOnAddition() {
+		overrideContainsCheck = false;
 	}
 }
