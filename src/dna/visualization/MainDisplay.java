@@ -45,54 +45,67 @@ public class MainDisplay extends JFrame {
 	/** MAIN **/
 	public static void main(String[] args) {
 		Log.infoSep();
-		boolean help = false;
-		// check if someone needs help
-		if (args.length > 0) {
-			if (args[0].equals("help") || args[0].equals("-help")
-					|| args[0].equals("--help") || args[0].equals("-h")
-					|| args[0].equals("--h")) {
-				System.out.println("DNA - Dynamic Network Analyzer");
-				System.out
-						.println("Parameters: [config-path], [livedisplay=true/false], [data-dir]");
-				System.out.println("Example: run dna.jar " + '"'
-						+ "config/gui_config1.cfg" + '"' + " true " + '"'
-						+ "data/scenario1337/run.42/" + '"');
-				help = true;
-			}
-		}
-		if (!help) {
-			String defaultConfigPath = "config/gui_default.cfg";
-			String displayConfigPath = "config/gui_default.cfg";
-			Boolean liveDisplay = null;
-			String dataDir = null;
 
-			// check cmd line parameters
-			if (args.length > 0) {
-				if (args.length > 1) {
-					if (args.length > 2) {
-						displayConfigPath = args[0];
-						liveDisplay = Boolean.parseBoolean(args[1]);
-						dataDir = args[2];
-					} else {
-						if (!args[0].equals("true") && !args[0].equals("false")) {
-							displayConfigPath = args[0];
-							if (!args[1].equals("true")
-									&& !args[1].equals("false"))
-								dataDir = args[1];
-							else
-								liveDisplay = Boolean.parseBoolean(args[1]);
-						} else
-							liveDisplay = Boolean.parseBoolean(args[0]);
-						if (!args[1].equals("true") && !args[1].equals("false"))
-							dataDir = args[1];
-					}
-				} else {
-					if (!args[0].equals("true") && !args[0].equals("false"))
-						displayConfigPath = args[0];
-					else
-						liveDisplay = Boolean.parseBoolean(args[0]);
+		// check cmd line parameters
+		boolean helpFlag = false;
+		boolean configFlag = false;
+		String configPath = null;
+		boolean dataFlag = false;
+		String dataDir = null;
+		boolean liveFlag = false;
+		boolean zipFlag = false;
+
+		try {
+			for (int i = 0; i < args.length; i++) {
+				switch (args[i]) {
+				case "-c":
+					configFlag = true;
+					configPath = args[i + 1];
+					break;
+				case "-d":
+					dataFlag = true;
+					dataDir = args[i + 1];
+					break;
+				case "-h":
+					helpFlag = true;
+					break;
+				case "-l":
+					liveFlag = true;
+					break;
+				case "-z":
+					zipFlag = true;
+					break;
 				}
 			}
+		} catch (IndexOutOfBoundsException e) {
+			Log.error("Error in parameter parsing, please check syntax!");
+			System.out.println();
+			helpFlag = true;
+		}
+
+		if (helpFlag) {
+			System.out.println("DNA - Dynamic Network Analyzer");
+			System.out
+					.println("Run the program with the following command line parameters to change the GUI's behaviour:");
+			System.out.println("Parameter" + "\t\t" + "Function");
+			System.out.println("-c <config-path>" + "\t"
+					+ "Uses the specified file as main display configuration");
+			System.out.println("-d <data-dir>" + "\t\t"
+					+ "Specifies the data-dir as default dir");
+			System.out.println("-h" + "\t\t\t" + "Displays this help message");
+			System.out.println("-l" + "\t\t\t"
+					+ "Runs the GUI in live display mode");
+			System.out.println("-z" + "\t\t\t"
+					+ "Enables zipped batches support");
+
+			System.out.println("Example: run vis.jar -c " + '"'
+					+ "config/my_guy.cfg" + '"' + " -d " + '"'
+					+ "data/scenario1337/run.42/" + '"' + " -l -z");
+		} else {
+			String defaultConfigPath = "config/gui_default.cfg";
+
+			if (!configFlag)
+				configPath = defaultConfigPath;
 
 			JSONObject jsonConfig = new JSONObject();
 
@@ -112,8 +125,8 @@ public class MainDisplay extends JFrame {
 
 			// read main display config
 			try {
-				Log.info("Loading config from " + displayConfigPath);
-				FileInputStream file = new FileInputStream(displayConfigPath);
+				Log.info("Loading config from " + configPath);
+				FileInputStream file = new FileInputStream(configPath);
 				JSONTokener tk = new JSONTokener(file);
 				jsonConfig = new JSONObject(tk);
 			} catch (FileNotFoundException e) {
@@ -124,23 +137,30 @@ public class MainDisplay extends JFrame {
 					.createMainDisplayConfigFromJSONObject(jsonConfig
 							.getJSONObject("MainDisplayConfig"));
 
-			if (liveDisplay == null)
-				liveDisplay = config.isLiveDisplayMode();
-			if (dataDir == null)
+			// use cmd line parameters
+			if (!dataFlag)
 				dataDir = config.getDefaultDir();
 			else {
 				config.setDefaultDir(dataDir);
 				MainDisplay.DefaultConfig.setDefaultDir(dataDir);
 			}
+			if (!liveFlag)
+				liveFlag = config.isLiveDisplayMode();
+			else {
+				config.setLiveDisplayMode(liveFlag);
+				MainDisplay.DefaultConfig.setLiveDisplayMode(liveFlag);
+			}
+			if (!zipFlag)
+				zipFlag = config.isBatchesZipped();
 
 			// init main window
 			Log.infoSep();
 			Log.info("Initializing MainDisplay");
-			MainDisplay display = new MainDisplay(liveDisplay, config);
+			MainDisplay display = new MainDisplay(liveFlag, config);
 
 			// init batch handler, hand over directory and maindisplay
-			display.setBatchHandler(new BatchHandler(config.getDefaultDir(),
-					display, liveDisplay, config.isBatchesZipped()));
+			display.setBatchHandler(new BatchHandler(dataDir, display,
+					liveFlag, zipFlag));
 			display.initBatchHandler();
 
 			if (config.isFullscreen()) {
