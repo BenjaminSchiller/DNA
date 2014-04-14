@@ -10,9 +10,13 @@ import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.URISyntaxException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.jar.JarFile;
 
 import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
@@ -26,12 +30,14 @@ import javax.swing.JScrollPane;
 import javax.swing.border.EtchedBorder;
 
 import dna.series.data.BatchData;
+import dna.util.Config;
 import dna.util.Log;
 import dna.visualization.components.LogDisplay;
 import dna.visualization.components.statsdisplay.StatsDisplay;
 import dna.visualization.components.visualizer.MetricVisualizer;
 import dna.visualization.components.visualizer.MultiScalarVisualizer;
 import dna.visualization.components.visualizer.Visualizer;
+import dna.visualization.config.JSON.JSONException;
 import dna.visualization.config.JSON.JSONObject;
 import dna.visualization.config.JSON.JSONTokener;
 import dna.visualization.config.components.LogDisplayConfig;
@@ -43,7 +49,7 @@ import dna.visualization.config.components.MultiScalarVisualizerConfig;
 public class MainDisplay extends JFrame {
 
 	/** MAIN **/
-	public static void main(String[] args) {
+	public static void main(String[] args) throws URISyntaxException {
 		Log.infoSep();
 
 		// check cmd line parameters
@@ -107,35 +113,72 @@ public class MainDisplay extends JFrame {
 			if (!configFlag)
 				configPath = defaultConfigPath;
 
-			JSONObject jsonConfig = new JSONObject();
+			runFromJar = false;
+			Path pPath = Paths.get(Config.class.getProtectionDomain()
+					.getCodeSource().getLocation().toURI());
+			if (pPath.getFileName().toString().endsWith(".jar"))
+				runFromJar = true;
 
-			// read default config
 			try {
-				Log.info("Loading default config from " + defaultConfigPath);
-				FileInputStream file = new FileInputStream(defaultConfigPath);
-				JSONTokener tk = new JSONTokener(file);
+				InputStream is;
+				JSONTokener tk;
+				JSONObject jsonConfig;
+				JarFile x = null;
+
+				// read default config
+				if (runFromJar) {
+					String[] splits = defaultConfigPath.split("/");
+					x = new JarFile(pPath.toFile(), false);
+					Log.info("Loading default config from inside .jar-file: "
+							+ splits[splits.length - 1]);
+					is = x.getInputStream(x.getEntry(splits[splits.length - 1]));
+				} else {
+					Log.info("Loading default config from " + defaultConfigPath);
+					is = new FileInputStream(defaultConfigPath);
+				}
+				tk = new JSONTokener(is);
 				jsonConfig = new JSONObject(tk);
-			} catch (FileNotFoundException e) {
+				MainDisplay.DefaultConfig = MainDisplayConfig
+						.createMainDisplayConfigFromJSONObject(jsonConfig
+								.getJSONObject("MainDisplayConfig"));
+
+				// free resources
+				is.close();
+				if (x != null)
+					x.close();
+				x = null;
+				is = null;
+				tk = null;
+				jsonConfig = null;
+
+				// read main display config
+				if (runFromJar && !configFlag) {
+					String[] splits = configPath.split("/");
+					x = new JarFile(pPath.toFile(), false);
+					Log.info("Loading config from inside .jar-file: "
+							+ splits[splits.length - 1]);
+					is = x.getInputStream(x.getEntry(splits[splits.length - 1]));
+				} else {
+					Log.info("Loading config from " + configPath);
+					is = new FileInputStream(configPath);
+				}
+				tk = new JSONTokener(is);
+				jsonConfig = new JSONObject(tk);
+				config = MainDisplayConfig
+						.createMainDisplayConfigFromJSONObject(jsonConfig
+								.getJSONObject("MainDisplayConfig"));
+
+				// free resources
+				is.close();
+				is = null;
+				if (x != null)
+					x.close();
+				x = null;
+				tk = null;
+				jsonConfig = null;
+			} catch (JSONException | IOException e) {
 				e.printStackTrace();
 			}
-
-			MainDisplay.DefaultConfig = MainDisplayConfig
-					.createMainDisplayConfigFromJSONObject(jsonConfig
-							.getJSONObject("MainDisplayConfig"));
-
-			// read main display config
-			try {
-				Log.info("Loading config from " + configPath);
-				FileInputStream file = new FileInputStream(configPath);
-				JSONTokener tk = new JSONTokener(file);
-				jsonConfig = new JSONObject(tk);
-			} catch (FileNotFoundException e) {
-				e.printStackTrace();
-			}
-
-			config = MainDisplayConfig
-					.createMainDisplayConfigFromJSONObject(jsonConfig
-							.getJSONObject("MainDisplayConfig"));
 
 			// use cmd line parameters
 			if (!dataFlag)
@@ -196,6 +239,7 @@ public class MainDisplay extends JFrame {
 	// config
 	public static MainDisplayConfig config;
 	public static MainDisplayConfig DefaultConfig;
+	public static boolean runFromJar;
 
 	// live display flag
 	public boolean liveDisplay;
@@ -351,15 +395,39 @@ public class MainDisplay extends JFrame {
 		this.logoPanel.setBorder(BorderFactory
 				.createEtchedBorder((EtchedBorder.LOWERED)));
 		BufferedImage image = null;
+		JarFile x = null;
+		InputStream is = null;
 		try {
-			image = ImageIO.read(new File(config.getLogoDir()));
-		} catch (IOException e) {
+			if (runFromJar) {
+				Path pPath = Paths.get(Config.class.getProtectionDomain()
+						.getCodeSource().getLocation().toURI());
+				String[] splits = config.getLogoDir().split("/");
+				x = new JarFile(pPath.toFile(), false);
+				is = x.getInputStream(x.getEntry(splits[splits.length - 1]));
+				image = ImageIO.read(is);
+			} else {
+				image = ImageIO.read(new File(config.getLogoDir()));
+			}
+		} catch (IOException | URISyntaxException e) {
 			e.printStackTrace();
 		}
+
 		JLabel logoLabel = new JLabel(new ImageIcon(image));
 		this.logoPanel.setLayout(new GridBagLayout());
 		this.logoPanel.setPreferredSize(config.getLogoSize());
 		this.logoPanel.add(logoLabel);
+
+		// free resources
+		try {
+			if (is != null)
+				is.close();
+			if (x != null)
+				x.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		is = null;
+		x = null;
 
 		leftSideConstraints.gridx = 0;
 		leftSideConstraints.gridy = 2;
