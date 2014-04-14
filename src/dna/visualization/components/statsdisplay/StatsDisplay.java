@@ -360,6 +360,18 @@ public class StatsDisplay extends JPanel implements ChangeListener {
 			this.settingsPanelConstraints.gridwidth = 1;
 		}
 
+		// add buttons to settingspanel
+		this.settingsPanelConstraints.gridx = 0;
+		this.settingsPanelConstraints.gridwidth = 2;
+		this.settingsPanelConstraints.ipady = 10;
+		this.settingsPanel.add(this.mainDisplay.buttons,
+				settingsPanelConstraints);
+
+		// reset constraints
+		this.settingsPanelConstraints.gridx = 0;
+		this.settingsPanelConstraints.gridwidth = 1;
+		this.settingsPanelConstraints.ipady = 0;
+
 		// adding SettingsPanel to mainPanel
 		this.mainConstraints.gridx = 0;
 		this.add(this.settingsPanel, this.mainConstraints);

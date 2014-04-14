@@ -241,7 +241,7 @@ public class MainDisplay extends JFrame {
 
 	private ArrayList<Component> dataComponents;
 
-	private JPanel buttons;
+	public JPanel buttons;
 	private JButton pauseButton;
 	private JButton startButton;
 	private JButton stopButton;
@@ -279,21 +279,6 @@ public class MainDisplay extends JFrame {
 		this.leftSidePanel.setLayout(new GridBagLayout());
 		GridBagConstraints leftSideConstraints = new GridBagConstraints();
 		leftSideConstraints.anchor = GridBagConstraints.NORTH;
-
-		/*
-		 * Create StatsDisplay
-		 */
-		this.statsDisplay = new StatsDisplay(this,
-				config.getStatsDisplayConfig(), liveDisplay);
-		this.statsDisplay.setLocation(0, 0);
-		this.statsDisplay.setDirectory(config.getDefaultDir());
-
-		leftSideConstraints.gridx = 0;
-		leftSideConstraints.gridy = 0;
-		this.leftSidePanel.add(this.statsDisplay, leftSideConstraints);
-
-		// register statsDisplay to get batchdata objects
-		this.registerDataComponent(this.statsDisplay);
 
 		/*
 		 * Create buttons
@@ -389,7 +374,9 @@ public class MainDisplay extends JFrame {
 
 		leftSideConstraints.gridx = 0;
 		leftSideConstraints.gridy = 1;
-		this.leftSidePanel.add(this.buttons, leftSideConstraints);
+		// this.statsDisplay.add(this.buttons, leftSideConstraints);
+
+		// this.statsDisplay.add(this.buttons);
 
 		buttonPanelConstraints.gridx = 0;
 		buttonPanelConstraints.gridy = 0;
@@ -400,6 +387,21 @@ public class MainDisplay extends JFrame {
 		this.buttons.add(this.stopButton, buttonPanelConstraints);
 		buttonPanelConstraints.gridx++;
 		this.buttons.add(this.quitButton, buttonPanelConstraints);
+
+		/*
+		 * Create StatsDisplay
+		 */
+		this.statsDisplay = new StatsDisplay(this,
+				config.getStatsDisplayConfig(), liveDisplay);
+		this.statsDisplay.setLocation(0, 0);
+		this.statsDisplay.setDirectory(config.getDefaultDir());
+
+		leftSideConstraints.gridx = 0;
+		leftSideConstraints.gridy = 0;
+		this.leftSidePanel.add(this.statsDisplay, leftSideConstraints);
+
+		// register statsDisplay to get batchdata objects
+		this.registerDataComponent(this.statsDisplay);
 
 		/*
 		 * Init LogoPanel, set position and add to leftSidePanel
