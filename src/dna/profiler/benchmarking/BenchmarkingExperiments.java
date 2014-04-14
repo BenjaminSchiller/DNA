@@ -31,6 +31,7 @@ import dna.util.Rand;
 @BenchClass(runs = -1)
 public class BenchmarkingExperiments {
 	private static Class<? extends IDataStructure> classToBenchmark;
+	private BenchmarkingConf config;
 
 	private GraphDataStructure gds;
 	private INodeListDatastructure nodeListToBenchmark;
@@ -61,13 +62,14 @@ public class BenchmarkingExperiments {
 	public BenchmarkingExperiments(String dsClass,
 			BenchmarkingConf benchmarkingConf) {
 		try {
+			this.config = benchmarkingConf;
+
 			BenchmarkingExperiments.classToBenchmark = (Class<? extends IDataStructure>) Class
 					.forName(dsClass);
-			BenchmarkingExperiments.inputSizes = benchmarkingConf
-					.getInputSizes();
-			this.operationSize = benchmarkingConf.getMaxOperationSize();
+			BenchmarkingExperiments.inputSizes = config.getInputSizes();
+			int operationSizeForList = config.getMaxOperationSize();
 			this.maxListSize = (int) (getMax(inputSizes)
-					+ Math.ceil(operationSize / 2) + operationSize);
+					+ Math.ceil(operationSizeForList / 2) + operationSizeForList);
 			nodeList = new INode[maxListSize + 2];
 			edgeList = new IEdge[maxListSize + 2];
 		} catch (ClassNotFoundException e) {
@@ -129,6 +131,7 @@ public class BenchmarkingExperiments {
 						ListType.GlobalNodeList, dsClass);
 		gds = new GraphDataStructure(list, DirectedNode.class,
 				DirectedEdge.class);
+		this.operationSize = config.getOperationSize(setupSize);
 	}
 
 	private void initForNodeList(Class<? extends IDataStructure> dsClass,
