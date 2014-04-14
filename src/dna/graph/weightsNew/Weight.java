@@ -1,7 +1,5 @@
 package dna.graph.weightsNew;
 
-import dna.util.Log;
-import dna.util.Rand;
 
 /**
  * 
@@ -58,175 +56,39 @@ public abstract class Weight {
 	}
 
 	public String toString() {
-		return "(W) " + this.asString();
+		return this.asString();
 	}
 
 	/**
-	 * format: ${WeightType}:${Weight}, e.g., I:13, D2:6.2;2.4
+	 * format: ${Weight}, e.g., 13, 6.2;2.4
 	 * 
 	 * @return String representation of the weight that can be parsed using the
 	 *         fromString(String str) method.
 	 */
-	public String asString() {
-		return this.getWeightType() + Weight.WeightTypeDelimiter
-				+ this.asString_();
-	}
-
-	/**
-	 * 
-	 * @return String representation of this weight type's weight component that
-	 *         can be parsed and interpreted by this weight's
-	 *         String-constructor.
-	 */
-	protected abstract String asString_();
+	public abstract String asString();
 
 	/**
 	 * 
 	 * @return weight type of this weight.
 	 */
 	public abstract WeightType getWeightType();
-
+	
 	/**
+	 * Get a condensed version of the weight
 	 * 
-	 * @param str
-	 *            String representation of a weight as given by the asString()
-	 *            method
-	 * @return weight object as specified by the type and weight component of
-	 *         the given String; null in case the type is not supported (yet)
+	 * @return weight
 	 */
-	public static Weight fromString(String str) {
-		String[] temp = str.split(Weight.WeightTypeDelimiter);
-		WeightType t = WeightType.valueOf(temp[0]);
-		switch (t) {
-		case D:
-			return new DoubleWeight(temp[1]);
-		case D2:
-			return new Double2dWeight(temp[1]);
-		case D3:
-			return new Double3dWeight(temp[1]);
-		case I:
-			return new IntWeight(temp[1]);
-		case I2:
-			return new Int2dWeight(temp[1]);
-		case I3:
-			return new Int3dWeight(temp[1]);
-		default:
-			return null;
-		}
-	}
-
+	public abstract Object getWeight();
+	
 	/**
-	 * generates a weight for the given type based on the given weight
-	 * selection. it uses the getDoubleWeight and getIntWeight methods,
-	 * depending on the weight type. this method can be used to generate random
-	 * weights as specified by the weight selection.
-	 * 
-	 * @param t
-	 *            type of the weight to be generated and returned
-	 * @param sel
-	 *            selection that defines how the components of the weight are to
-	 *            be generated
-	 * @return generated weight
+	 * Equality of weights
+	 * @return
 	 */
-	public static Weight getWeight(WeightType t, WeightSelection sel) {
-		double x_d, y_d, z_d;
-		int x_i, y_i, z_i;
-
-		switch (t) {
-		case D:
-			x_d = Weight.getDoubleWeight(sel);
-			return new DoubleWeight(x_d);
-		case D2:
-			x_d = Weight.getDoubleWeight(sel);
-			y_d = Weight.getDoubleWeight(sel);
-			return new Double2dWeight(x_d, y_d);
-		case D3:
-			x_d = Weight.getDoubleWeight(sel);
-			y_d = Weight.getDoubleWeight(sel);
-			z_d = Weight.getDoubleWeight(sel);
-			return new Double3dWeight(x_d, y_d, z_d);
-		case I:
-			x_i = Weight.getIntWeight(sel);
-			return new IntWeight(x_i);
-		case I2:
-			x_i = Weight.getIntWeight(sel);
-			y_i = Weight.getIntWeight(sel);
-			return new Int2dWeight(x_i, y_i);
-		case I3:
-			x_i = Weight.getIntWeight(sel);
-			y_i = Weight.getIntWeight(sel);
-			z_i = Weight.getIntWeight(sel);
-			return new Int3dWeight(x_i, y_i, z_i);
-		default:
-			Log.warn("using unknown weight type '" + t + "'");
-			return null;
+	public boolean equals(Object o) {
+		if ( Weight.class.isAssignableFrom(o.getClass())) {
+			Weight oCasted = (Weight)o;
+			return oCasted.toString().equals(this.toString());
 		}
+		return false;
 	}
-
-	/**
-	 * generates and returns a double value as (part of) a new weight depending
-	 * on the given selection.
-	 * 
-	 * @param selection
-	 *            weight selection
-	 * @return double value as (part of) a new weight; Double.NaN in case the
-	 *         selection is not applicable to double weights
-	 */
-	public static double getDoubleWeight(WeightSelection selection) {
-		switch (selection) {
-		case NaN:
-			return Double.NaN;
-		case One:
-			return 1.0;
-		case Zero:
-			return 0.0;
-		case Rand:
-			return Rand.rand.nextDouble();
-		case RandTrim1:
-			return (double) Math.round(Rand.rand.nextDouble() * 10) / 10.0;
-		case RandTrim2:
-			return (double) Math.round(Rand.rand.nextDouble() * 100.0) / 100.0;
-		case RandTrim3:
-			return (double) Math.round(Rand.rand.nextDouble() * 1000.0) / 1000.0;
-		default:
-			Log.warn("using non-double weight selection '" + selection + "'");
-			return Double.NaN;
-		}
-	}
-
-	/**
-	 * generates and returns an int value as (part of) a new weight depending on
-	 * the given selection.
-	 * 
-	 * @param selection
-	 *            weight selection
-	 * @return int value as (part of) a new weight; Integer.MIN_VALUE in case
-	 *         the selection is not applicable to int weights
-	 */
-	public static int getIntWeight(WeightSelection selection) {
-		switch (selection) {
-		case Max:
-			return Integer.MAX_VALUE;
-		case Min:
-			return Integer.MIN_VALUE;
-		case One:
-			return 1;
-		case Rand:
-			return Rand.rand.nextInt();
-		case RandPos:
-			return Math.abs(Rand.rand.nextInt());
-		case RandNeg:
-			return Math.abs(Rand.rand.nextInt()) * -1;
-		case Zero:
-			return 0;
-		case RandPos100:
-			return Rand.rand.nextInt(100) + 1;
-		case RandPos10:
-			return Rand.rand.nextInt(10) + 1;
-		default:
-			Log.warn("using non-int weight selection '" + selection + "'");
-			return Integer.MIN_VALUE;
-		}
-	}
-
 }

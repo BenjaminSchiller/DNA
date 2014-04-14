@@ -6,10 +6,11 @@ import java.util.Iterator;
 
 import dna.graph.IElement;
 import dna.graph.edges.Edge;
+import dna.graph.nodes.Node;
 
 public class DEmpty extends DataStructureReadable implements
 		IEdgeListDatastructureReadable {
-	
+
 	public DEmpty(ListType lt, Class<? extends IElement> dT) {
 		super(lt, dT);
 	}
@@ -19,7 +20,8 @@ public class DEmpty extends DataStructureReadable implements
 	}
 
 	@Override
-	public void init(Class<? extends IElement> dataType, int initialSize, boolean firstTime) {
+	public void init(Class<? extends IElement> dataType, int initialSize,
+			boolean firstTime) {
 	}
 
 	@Override
@@ -70,6 +72,11 @@ public class DEmpty extends DataStructureReadable implements
 	}
 
 	@Override
+	public Edge get(Node n1, Node n2) {
+		return null;
+	}
+
+	@Override
 	public Edge get(Edge element) {
 		return null;
 	}
@@ -78,4 +85,5 @@ public class DEmpty extends DataStructureReadable implements
 	protected Iterator<IElement> iterator_() {
 		return Collections.<IElement> emptyList().iterator();
 	}
+
 }

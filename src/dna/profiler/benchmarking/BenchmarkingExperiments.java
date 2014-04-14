@@ -304,7 +304,7 @@ public class BenchmarkingExperiments {
 		if (edgeListToBenchmarkCasted == null)
 			throw new RuntimeException("No benchmarking here");
 		for (Edge e : randomEdgesInList) {
-			res = edgeListToBenchmarkCasted.get(e) != null;
+			res = edgeListToBenchmarkCasted.get(e.getN1(), e.getN2()) != null;
 			if (!res && dsClass != DEmpty.class) {
 				System.err
 						.println("Misdefined benchmark GetSuccess_Edge for class "
@@ -336,7 +336,7 @@ public class BenchmarkingExperiments {
 		if (edgeListToBenchmarkCasted == null)
 			throw new RuntimeException("No benchmarking here");
 		for (Edge e : randomEdgesNotInList) {
-			res = edgeListToBenchmarkCasted.get(e) != null;
+			res = edgeListToBenchmarkCasted.get(e.getN1(), e.getN2()) != null;
 			if (res) {
 				System.err
 						.println("Misdefined benchmark GetFailure_Edge for class "

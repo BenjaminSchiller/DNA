@@ -24,7 +24,8 @@ public class DArrayList extends DataStructureReadable implements
 		super(lt, dT);
 	}
 
-	public void init(Class<? extends IElement> dT, int initialSize, boolean firstTime) {
+	public void init(Class<? extends IElement> dT, int initialSize,
+			boolean firstTime) {
 		this.list = new ArrayList<>(initialSize);
 		this.maxNodeIndex = -1;
 	}
@@ -142,13 +143,21 @@ public class DArrayList extends DataStructureReadable implements
 		return null;
 	}
 
-	public Edge get(Edge e) {
-		for (IElement edge : this.list) {
-			if (edge.equals(e)) {
-				return (Edge) edge;
-			}
+	@Override
+	public Edge get(Node n1, Node n2) {
+		for (IElement eU : list) {
+			if (eU == null)
+				continue;
+			Edge e = (Edge) eU;
+			if (e.getN1().equals(n1) && e.getN2().equals(n2))
+				return e;
 		}
 		return null;
+	}
+
+	@Override
+	public Edge get(Edge element) {
+		return get(element.getN1(), element.getN2());
 	}
 
 	@Override

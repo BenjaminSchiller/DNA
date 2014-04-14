@@ -19,21 +19,25 @@ import org.junit.runners.Parameterized;
 
 import dna.graph.Graph;
 import dna.graph.datastructures.DEmpty;
+import dna.graph.datastructures.DataStructure.AccessType;
+import dna.graph.datastructures.DataStructure.ListType;
 import dna.graph.datastructures.GraphDataStructure;
 import dna.graph.datastructures.IDataStructure;
 import dna.graph.datastructures.IEdgeListDatastructure;
 import dna.graph.datastructures.INodeListDatastructure;
-import dna.graph.datastructures.DataStructure.AccessType;
-import dna.graph.datastructures.DataStructure.ListType;
 import dna.graph.edges.DirectedEdge;
 import dna.graph.edges.Edge;
-import dna.graph.edges.IWeightedEdge;
 import dna.graph.edges.UndirectedEdge;
 import dna.graph.nodes.DirectedNode;
-import dna.graph.nodes.IWeightedNode;
 import dna.graph.nodes.Node;
 import dna.graph.nodes.UndirectedNode;
-import dna.graph.weights.IWeighted;
+import dna.graph.weightsNew.DoubleWeight;
+import dna.graph.weightsNew.IWeighted;
+import dna.graph.weightsNew.IWeightedEdge;
+import dna.graph.weightsNew.IWeightedNode;
+import dna.graph.weightsNew.IntWeight;
+import dna.graph.weightsNew.Weight;
+import dna.graph.weightsNew.Weight.WeightSelection;
 import dna.profiler.ProfilerMeasurementData;
 import dna.util.Config;
 
@@ -44,12 +48,15 @@ public class GraphTester {
 	private Class<? extends Node> nodeType;
 	private Class<? extends Edge> edgeType;
 
-	public GraphTester(EnumMap<ListType, Class<? extends IDataStructure>> listTypes,
+	public GraphTester(
+			EnumMap<ListType, Class<? extends IDataStructure>> listTypes,
 			Class<? extends Node> nodeType, Class<? extends Edge> edgeType)
 			throws InstantiationException, IllegalAccessException,
 			IllegalArgumentException, InvocationTargetException,
 			NoSuchMethodException, SecurityException {
-		this.gds = new GraphDataStructure(listTypes, nodeType, edgeType);
+		this.gds = new GraphDataStructure(listTypes, nodeType, edgeType,
+				DoubleWeight.class, WeightSelection.RandTrim1, IntWeight.class,
+				WeightSelection.RandPos100);
 		this.gds.setEdgeType(edgeType);
 		this.graph = gds.newGraphInstance("ABC", 1L, 10, 10);
 		this.nodeType = nodeType;
@@ -86,12 +93,15 @@ public class GraphTester {
 							if (edgeListType == DEmpty.class
 									|| nodeEdgeListType == DEmpty.class)
 								continue;
-							
+
 							EnumMap<ListType, Class<? extends IDataStructure>> listTypes = new EnumMap<ListType, Class<? extends IDataStructure>>(
 									ListType.class);
-							listTypes.put(ListType.GlobalNodeList, nodeListType);
-							listTypes.put(ListType.GlobalEdgeList, edgeListType);
-							listTypes.put(ListType.LocalEdgeList, nodeEdgeListType);
+							listTypes
+									.put(ListType.GlobalNodeList, nodeListType);
+							listTypes
+									.put(ListType.GlobalEdgeList, edgeListType);
+							listTypes.put(ListType.LocalEdgeList,
+									nodeEdgeListType);
 
 							result.add(new Object[] { listTypes, nodeType,
 									edgeType });
@@ -136,7 +146,12 @@ public class GraphTester {
 
 	@Test
 	public void addNodeByString() {
-		Node n = gds.newNodeInstance("42");
+		String nodeString = "42";
+		if (graph.getGraphDatastructures().createsWeightedNodes()) {
+			nodeString += Weight.WeightDelimiter + "1";
+		}
+
+		Node n = gds.newNodeInstance(nodeString);
 
 		assertEquals(-1, graph.getMaxNodeIndex());
 		graph.addNode(n);
@@ -145,25 +160,23 @@ public class GraphTester {
 		assertEquals(42, graph.getMaxNodeIndex());
 	}
 
-	@SuppressWarnings("rawtypes")
 	@Test
 	public void addWeightedNode() {
 		assumeTrue(IWeightedNode.class.isAssignableFrom(nodeType));
 
-		Object mock = mockedWeight(nodeType, true);
-		IWeightedNode n = gds.newWeightedNode(1, mock);
-		assertEquals(mock, n.getWeight());
+		Weight mock = mockedWeight(nodeType, true);
+		Node n = gds.newWeightedNode(1, mock);
+		assertEquals(mock, ((IWeighted) n).getWeight());
 		assertTrue(graph.addNode((Node) n));
 
-		Object mock2 = mockedWeight(nodeType, false);
+		Weight mock2 = mockedWeight(nodeType, false);
 		assertNotEquals("mockedWeight not returning two different mocks", mock,
 				mock2);
-		IWeightedNode n2 = gds.newWeightedNode(1, mock2);
-		assertEquals(mock2, n2.getWeight());
+		Node n2 = gds.newWeightedNode(1, mock2);
+		assertEquals(mock2, ((IWeighted) n2).getWeight());
 		assertFalse(graph.addNode((Node) n2));
 	}
 
-	@SuppressWarnings("rawtypes")
 	@Test
 	public void addWeightedEdge() {
 		assumeTrue(IWeightedEdge.class.isAssignableFrom(edgeType));
@@ -173,16 +186,16 @@ public class GraphTester {
 		graph.addNode(n1);
 		graph.addNode(n2);
 
-		Object mock = mockedWeight(edgeType, true);
-		IWeightedEdge e = gds.newWeightedEdge(n1, n2, mock);
-		assertEquals(mock, e.getWeight());
+		Weight mock = mockedWeight(edgeType, true);
+		Edge e = gds.newWeightedEdge(n1, n2, mock);
+		assertEquals(mock, ((IWeighted) e).getWeight());
 		assertTrue(graph.addEdge((Edge) e));
 
-		Object mock2 = mockedWeight(edgeType, false);
+		Weight mock2 = mockedWeight(edgeType, false);
 		assertNotEquals("mockedWeight not returning two different mocks", mock,
 				mock2);
-		IWeightedEdge e2 = gds.newWeightedEdge(n1, n2, mock2);
-		assertEquals(mock2, e2.getWeight());
+		Edge e2 = gds.newWeightedEdge(n1, n2, mock2);
+		assertEquals(mock2, ((IWeighted) e2).getWeight());
 		assertFalse(
 				"Adding the same edge with different weight a second time succeeded (graph edge list: "
 						+ gds.getListClass(ListType.GlobalEdgeList) + ")",
@@ -196,7 +209,12 @@ public class GraphTester {
 		graph.addNode(n1);
 		graph.addNode(n2);
 
-		Edge e = gds.newEdgeInstance(n1, n2);
+		Edge e = null;
+		if (graph.getGraphDatastructures().createsWeightedEdges()) {
+			e = (Edge) gds.newWeightedEdge(n1, n2, new IntWeight(1));
+		} else {
+			e = gds.newEdgeInstance(n1, n2);
+		}
 		graph.addEdge(e);
 		n1.addEdge(e);
 		n2.addEdge(e);
@@ -220,6 +238,9 @@ public class GraphTester {
 		} else {
 			edgeString = "1" + Config.get("EDGE_UNDIRECTED_DELIMITER") + "2";
 		}
+		if (gds.createsWeightedEdges()) {
+			edgeString += Weight.WeightDelimiter + "1";
+		}
 
 		Edge e = gds.newEdgeInstance(edgeString, graph);
 		graph.addEdge(e);
@@ -228,32 +249,6 @@ public class GraphTester {
 
 		assertTrue(n1.hasEdge(e));
 		assertTrue(n2.hasEdge(e));
-	}
-
-	@Test
-	public void checkGetEdgeByDummy() {
-		assumeTrue(gds.isReadable());
-		assumeTrue(IWeighted.class.isAssignableFrom(edgeType));
-
-		Object mock = mockedWeight(edgeType, true);
-
-		// Create a "real" edge first
-		Node n1 = gds.newNodeInstance(1);
-		Node n2 = gds.newNodeInstance(2);
-		graph.addNode(n1);
-		graph.addNode(n2);
-		IWeightedEdge<?> e = gds.newWeightedEdge(n1, n2, mock);
-		graph.addEdge((Edge) e);
-
-		// Then create a dummy using the nodes, with obvious inequal weights
-		mock = mockedWeight(edgeType, false);
-		IWeightedEdge<?> eDummy = gds.newWeightedEdge(n1, n2, mock);
-		assertEquals(e, eDummy);
-		assertNotEquals(e.getWeight(), eDummy.getWeight());
-
-		eDummy = (IWeightedEdge<?>) graph.getEdge((Edge) eDummy);
-		assertEquals(e, eDummy);
-		assertEquals(e.getWeight(), eDummy.getWeight());
 	}
 
 	@Test
@@ -317,6 +312,13 @@ public class GraphTester {
 		Node g2n1 = this.gds.newNodeInstance(42);
 		Node g2n2 = this.gds.newNodeInstance(23);
 
+		if (gds.createsWeightedNodes()) {
+			((IWeighted) g1n1).setWeight(new IntWeight(1));
+			((IWeighted) g1n2).setWeight(new IntWeight(1));
+			((IWeighted) g2n1).setWeight(new IntWeight(1));
+			((IWeighted) g2n2).setWeight(new IntWeight(1));
+		}
+
 		assertTrue(g1.addNode(g1n1));
 		assertNotEquals(g1, g2);
 
@@ -370,34 +372,11 @@ public class GraphTester {
 	 *            so select which you like please
 	 * @return
 	 */
-	public Object mockedWeight(Class<?> type, boolean kindSelector) {
-		Class<?> weightType = null;
-		if (Node.class.isAssignableFrom(type)) {
-			weightType = gds.getNodeWeightType();
-		} else if (Edge.class.isAssignableFrom(type)) {
-			weightType = gds.getEdgeWeightType();
-		} else {
-			fail("Can't get weight type for " + type);
-		}
-
-		if (weightType == null)
-			fail("Cannot get weight for " + type.getSimpleName());
-
-		switch (weightType.getSimpleName()) {
-		case "Integer":
-			if (kindSelector)
-				return (Integer) 1;
-			else
-				return (Integer) 2;
-		case "Double":
-			if (kindSelector)
-				return (Double) 1d;
-			else
-				return 2d;
-		default:
-			fail("Cannot mock type " + weightType.getName());
-		}
-		return null;
+	public Weight mockedWeight(Class<?> type, boolean kindSelector) {
+		if (kindSelector)
+			return new IntWeight(1);
+		else
+			return new IntWeight(2);
 	}
 
 }

@@ -1,10 +1,10 @@
 package dna.updates.generators.util;
 
 import dna.graph.Graph;
-import dna.graph.weights.IWeighted;
-import dna.graph.weights.Weights;
-import dna.graph.weights.Weights.EdgeWeightSelection;
-import dna.graph.weights.Weights.NodeWeightSelection;
+import dna.graph.datastructures.GraphDataStructure;
+import dna.graph.weightsNew.IWeighted;
+import dna.graph.weightsNew.Weight;
+import dna.graph.weightsNew.Weight.WeightSelection;
 import dna.updates.batch.Batch;
 import dna.updates.generators.BatchGenerator;
 import dna.updates.update.EdgeAddition;
@@ -16,12 +16,11 @@ public class BatchWeights extends BatchGenerator {
 
 	private BatchGenerator bg;
 
-	private NodeWeightSelection nw;
+	private WeightSelection nw;
+	private WeightSelection ew;
 
-	private EdgeWeightSelection ew;
-
-	public BatchWeights(BatchGenerator bg, NodeWeightSelection nw,
-			EdgeWeightSelection ew) {
+	public BatchWeights(BatchGenerator bg, WeightSelection nw,
+			WeightSelection ew) {
 		super("Weighted" + bg.getNamePlain(), ArrayUtils.append(
 				bg.getParameters(), new ObjectParameter("NW", nw),
 				new ObjectParameter("EW", ew)));
@@ -30,36 +29,22 @@ public class BatchWeights extends BatchGenerator {
 		this.ew = ew;
 	}
 
-	public BatchWeights(BatchGenerator bg, NodeWeightSelection nw) {
-		super("Weighted" + bg.getNamePlain(), ArrayUtils.append(
-				bg.getParameters(), new ObjectParameter("NW", nw)));
-		this.bg = bg;
-		this.nw = nw;
-		this.ew = null;
-	}
-
-	public BatchWeights(BatchGenerator bg, EdgeWeightSelection ew) {
-		super("Weighted" + bg.getNamePlain(), ArrayUtils.append(
-				bg.getParameters(), new ObjectParameter("EW", ew)));
-		this.bg = bg;
-		this.nw = null;
-		this.ew = ew;
-	}
-
-	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Override
 	public Batch generate(Graph g) {
 		Batch b = this.bg.generate(g);
+		GraphDataStructure gds = g.getGraphDatastructures();
 
-		if (this.nw != null && !this.nw.equals(NodeWeightSelection.None)) {
+		if (this.nw != null && !this.nw.equals(WeightSelection.None)) {
 			for (NodeAddition u : b.getNodeAdditions()) {
-				((IWeighted) u.getNode()).setWeight(Weights.getWeight(this.nw));
+				Weight nodeWeight = gds.newNodeWeight(this.nw);
+				((IWeighted) u.getNode()).setWeight(nodeWeight);
 			}
 		}
 
-		if (this.ew != null && !this.ew.equals(EdgeWeightSelection.None)) {
+		if (this.ew != null && !this.ew.equals(WeightSelection.None)) {
 			for (EdgeAddition u : b.getEdgeAdditions()) {
-				((IWeighted) u.getEdge()).setWeight(Weights.getWeight(this.ew));
+				Weight edgeWeight = gds.newEdgeWeight(this.ew);
+				((IWeighted) u.getEdge()).setWeight(edgeWeight);
 			}
 		}
 

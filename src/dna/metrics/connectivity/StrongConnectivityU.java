@@ -111,7 +111,7 @@ public class StrongConnectivityU extends StrongConnectivity {
 					this.components.remove(this.nodeComponents.get(n));
 					this.nodeComponents.remove(n);
 				} else {
-					DirectedNode n1 = ((DirectedEdge) n.getEdges().iterator()
+					Node n1 = ((DirectedEdge) n.getEdges().iterator()
 							.next()).getDifferingNode(n);
 					if (this.getConnectedNodes(n1).size() == c.getSize() - 1) {
 						// remove node from component (still connected)
@@ -131,7 +131,7 @@ public class StrongConnectivityU extends StrongConnectivity {
 					this.components.remove(this.nodeComponents.get(n));
 					this.nodeComponents.remove(n);
 				} else {
-					UndirectedNode n1 = ((UndirectedEdge) n.getEdges()
+					Node n1 = ((UndirectedEdge) n.getEdges()
 							.iterator().next()).getDifferingNode(n);
 					if (this.getConnectedNodes(n1).size() == c.getSize() - 1) {
 						// remove node from component (still connected)

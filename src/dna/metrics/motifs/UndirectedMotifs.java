@@ -39,9 +39,9 @@ public abstract class UndirectedMotifs extends Metric {
 
 			// 1, 3
 			for (IElement b_ : a.getEdges()) {
-				UndirectedNode b = ((UndirectedEdge) b_).getDifferingNode(a);
+				UndirectedNode b = (UndirectedNode) ((UndirectedEdge) b_).getDifferingNode(a);
 				for (IElement c_ : a.getEdges()) {
-					UndirectedNode c = ((UndirectedEdge) c_)
+					UndirectedNode c = (UndirectedNode) ((UndirectedEdge) c_)
 							.getDifferingNode(a);
 					if (b.getIndex() == c.getIndex()) {
 						continue;
@@ -50,7 +50,7 @@ public abstract class UndirectedMotifs extends Metric {
 						continue;
 					}
 					for (IElement d_ : b.getEdges()) {
-						UndirectedNode d = ((UndirectedEdge) d_)
+						UndirectedNode d = (UndirectedNode) ((UndirectedEdge) d_)
 								.getDifferingNode(b);
 						if (d.hasEdge(new UndirectedEdge(a, d))) {
 							continue;
@@ -118,7 +118,7 @@ public abstract class UndirectedMotifs extends Metric {
 		ArrayList<UndirectedNode> unsorted = new ArrayList<UndirectedNode>(
 				n.getDegree());
 		for (IElement e : n.getEdges()) {
-			UndirectedNode neighbor = ((UndirectedEdge) e).getDifferingNode(n);
+			UndirectedNode neighbor = (UndirectedNode) ((UndirectedEdge) e).getDifferingNode(n);
 			// if (neighbor.getIndex() > n.getIndex()) {
 			unsorted.add(neighbor);
 			// }

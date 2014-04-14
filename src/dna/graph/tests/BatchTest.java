@@ -11,7 +11,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.EnumMap;
-import java.util.Random;
 
 import org.junit.Rule;
 import org.junit.Test;
@@ -26,7 +25,6 @@ import dna.graph.datastructures.GraphDataStructure;
 import dna.graph.datastructures.IDataStructure;
 import dna.graph.edges.DirectedEdge;
 import dna.graph.edges.Edge;
-import dna.graph.edges.IWeightedEdge;
 import dna.graph.edges.UndirectedEdge;
 import dna.graph.generators.GraphGenerator;
 import dna.graph.generators.IGraphGenerator;
@@ -34,13 +32,14 @@ import dna.graph.generators.canonical.CliqueGraph;
 import dna.graph.generators.evolvingNetworks.BarabasiAlbertGraph;
 import dna.graph.generators.util.EmptyGraph;
 import dna.graph.nodes.DirectedNode;
-import dna.graph.nodes.IWeightedNode;
 import dna.graph.nodes.Node;
 import dna.graph.nodes.UndirectedNode;
-import dna.graph.weights.IWeighted;
-import dna.graph.weights.Weights;
-import dna.graph.weights.Weights.EdgeWeightSelection;
-import dna.graph.weights.Weights.NodeWeightSelection;
+import dna.graph.weightsNew.DoubleWeight;
+import dna.graph.weightsNew.IWeighted;
+import dna.graph.weightsNew.IWeightedEdge;
+import dna.graph.weightsNew.IWeightedNode;
+import dna.graph.weightsNew.IntWeight;
+import dna.graph.weightsNew.Weight.WeightSelection;
 import dna.io.BatchReader;
 import dna.io.BatchWriter;
 import dna.io.GraphReader;
@@ -83,7 +82,9 @@ public class BatchTest {
 		this.generator = generator;
 		initSizes();
 
-		this.gds = new GraphDataStructure(listTypes, nodeType, edgeType);
+		this.gds = new GraphDataStructure(listTypes, nodeType, edgeType,
+				DoubleWeight.class, WeightSelection.RandTrim1, IntWeight.class,
+				WeightSelection.RandPos100);
 		try {
 			if (generator == BarabasiAlbertGraph.class) {
 				generatorConstructor = generator.getConstructor(
@@ -106,11 +107,9 @@ public class BatchTest {
 			gg = generatorConstructor.newInstance(gds, nodeSize);
 		}
 
-		// this.bGen = new RandomBatch(nodeAdd, nodeRem, nodeWeightChanges,
-		// getNodeWeightSelector(), edgeAdd, edgeRem, edgeWeightChanges,
-		// getEdgeWeightSelector());
-		// TODO add weight changes to test case again
-		this.bGen = new RandomBatch(nodeAdd, nodeRem, edgeAdd, edgeRem);
+		this.bGen = new RandomBatch(nodeAdd, nodeRem, nodeWeightChanges, null,
+				gds.getNodeWeightSelection(), edgeAdd, edgeRem,
+				edgeWeightChanges, null, gds.getEdgeWeightSelection());
 
 		/**
 		 * A short output to overcome the timeout of Travis: If there is no
@@ -118,60 +117,6 @@ public class BatchTest {
 		 */
 		if (Math.random() < 0.001)
 			System.out.print(".");
-	}
-
-	private EdgeWeightSelection getEdgeWeightSelector() {
-		EdgeWeightSelection res = null;
-		String prefix;
-
-		if (!IWeightedEdge.class.isAssignableFrom(edgeType))
-			return null;
-
-		// Determine which weight type is used
-		Class<?> weightType = gds.getEdgeWeightType();
-		if (Integer.class.equals(weightType)) {
-			prefix = Weights.IntWeightPrefix;
-		} else if (Double.class.equals(weightType)) {
-			prefix = Weights.DoubleWeightPrefix;
-		} else {
-			throw new RuntimeException("Can not determine weight type for "
-					+ gds.getEdgeType());
-		}
-
-		EdgeWeightSelection[] values = EdgeWeightSelection.values();
-		do {
-			int pos = new Random().nextInt(values.length);
-			if (values[pos].toString().startsWith(prefix))
-				res = values[pos];
-		} while (res == null);
-		return res;
-	}
-
-	private NodeWeightSelection getNodeWeightSelector() {
-		NodeWeightSelection res = null;
-		String prefix;
-
-		if (!IWeightedNode.class.isAssignableFrom(nodeType))
-			return null;
-
-		// Determine which weight type is used
-		Class<?> weightType = gds.getNodeWeightType();
-		if (Integer.class.equals(weightType)) {
-			prefix = Weights.IntWeightPrefix;
-		} else if (Double.class.equals(weightType)) {
-			prefix = Weights.DoubleWeightPrefix;
-		} else {
-			throw new RuntimeException("Can not determine weight type for "
-					+ gds.getNodeType());
-		}
-
-		NodeWeightSelection[] values = NodeWeightSelection.values();
-		do {
-			int pos = new Random().nextInt(values.length);
-			if (values[pos].toString().startsWith(prefix))
-				res = values[pos];
-		} while (res == null);
-		return res;
 	}
 
 	public void initSizes() {
@@ -207,13 +152,11 @@ public class BatchTest {
 			edgeWeightChanges = 0;
 	}
 
-	@SuppressWarnings({ "rawtypes", "unchecked" })
+	@SuppressWarnings({ "rawtypes" })
 	@Parameterized.Parameters(name = "{0} {1} {2} {3}")
 	public static Collection testPairs() throws NoSuchMethodException,
 			SecurityException, InstantiationException, IllegalAccessException,
 			IllegalArgumentException, InvocationTargetException {
-		Constructor<? extends GraphGenerator> generatorConstructor;
-		GraphDataStructure gds;
 
 		ArrayList<EnumMap<ListType, Class<? extends IDataStructure>>> simpleCombinations = GraphDataStructure
 				.getSimpleDatastructureCombinations();
@@ -235,37 +178,6 @@ public class BatchTest {
 
 						if (combination.get(ListType.GlobalEdgeList) == DEmpty.class
 								|| combination.get(ListType.LocalEdgeList) == DEmpty.class)
-							continue;
-
-						gds = new GraphDataStructure(combination, nodeType,
-								edgeType);
-						GraphGenerator gg;
-						try {
-							if (generator == BarabasiAlbertGraph.class) {
-								generatorConstructor = generator
-										.getConstructor(
-												GraphDataStructure.class,
-												int.class, int.class,
-												int.class, int.class);
-								gg = generatorConstructor.newInstance(gds, 0,
-										0, 0, 0);
-							} else {
-								generatorConstructor = generator
-										.getConstructor(
-												GraphDataStructure.class,
-												int.class, int.class);
-								gg = generatorConstructor
-										.newInstance(gds, 0, 0);
-							}
-						} catch (NoSuchMethodException e) {
-							generatorConstructor = generator.getConstructor(
-									GraphDataStructure.class, int.class);
-							gg = generatorConstructor.newInstance(gds, 0);
-						}
-
-						if (!gg.canGenerateNodeType(nodeType))
-							continue;
-						if (!gg.canGenerateEdgeType(edgeType))
 							continue;
 
 						result.add(new Object[] { combination, nodeType,

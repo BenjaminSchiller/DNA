@@ -8,6 +8,7 @@ import dna.graph.IElement;
 import dna.graph.edges.DirectedEdge;
 import dna.graph.edges.UndirectedEdge;
 import dna.graph.nodes.DirectedNode;
+import dna.graph.nodes.Node;
 import dna.graph.nodes.UndirectedNode;
 import dna.updates.batch.Batch;
 import dna.updates.update.EdgeAddition;
@@ -227,7 +228,7 @@ public class RichClubConnectivityPerDegreeU extends
 		int edges = 0;
 		for (IElement iEdge : node.getEdges()) {
 			UndirectedEdge ed = (UndirectedEdge) iEdge;
-			UndirectedNode n = ed.getDifferingNode(node);
+			Node n = ed.getDifferingNode(node);
 			if (n.getDegree() > degree) {
 				edges += 2;
 			}
@@ -272,7 +273,7 @@ public class RichClubConnectivityPerDegreeU extends
 		int node2Degree = node2.getDegree();
 		for (IElement iEdge : node.getEdges()) {
 			UndirectedEdge ed = (UndirectedEdge) iEdge;
-			UndirectedNode n = ed.getDifferingNode(node);
+			Node n = ed.getDifferingNode(node);
 			if (n == node2 && n.getDegree() == degree) {
 				edges++;
 				continue;
@@ -330,7 +331,7 @@ public class RichClubConnectivityPerDegreeU extends
 			for (IElement iedge : n.getOutgoingEdges()) {
 				DirectedEdge e1 = (DirectedEdge) iedge;
 
-				DirectedNode dN = e1.getDifferingNode(n);
+				DirectedNode dN = (DirectedNode) e1.getDifferingNode(n);
 				if (dN.getOutDegree() > n.getOutDegree()) {
 					edges++;
 				} else {
@@ -343,7 +344,7 @@ public class RichClubConnectivityPerDegreeU extends
 			for (IElement iedge : n.getIncomingEdges()) {
 				DirectedEdge e1 = (DirectedEdge) iedge;
 
-				DirectedNode dN = e1.getDifferingNode(n);
+				DirectedNode dN = (DirectedNode) e1.getDifferingNode(n);
 				if (inNodes.contains(dN)
 						&& dN.getOutDegree() > n.getOutDegree()) {
 					edges++;
@@ -423,7 +424,7 @@ public class RichClubConnectivityPerDegreeU extends
 			int edges = 0;
 			for (IElement ieEdges : n.getEdges()) {
 				UndirectedEdge ed = (UndirectedEdge) ieEdges;
-				UndirectedNode node = ed.getDifferingNode(n);
+				Node node = ed.getDifferingNode(n);
 				if (node.getDegree() > degree) {
 					edges += 2;
 				}
@@ -460,22 +461,22 @@ public class RichClubConnectivityPerDegreeU extends
 
 	private boolean applyAfterUndirectedNodeRemoval(Update u) {
 		UndirectedNode node = (UndirectedNode) ((NodeRemoval) u).getNode();
-		HashSet<UndirectedNode> inNodes = new HashSet<UndirectedNode>();
+		HashSet<Node> inNodes = new HashSet<Node>();
 		for (IElement ie : node.getEdges()) {
 			UndirectedEdge e = (UndirectedEdge) ie;
-			UndirectedNode n = e.getDifferingNode(node);
+			Node n = e.getDifferingNode(node);
 			inNodes.add(n);
 		}
 
 		for (IElement ie : node.getEdges()) {
 			UndirectedEdge e = (UndirectedEdge) ie;
-			UndirectedNode n = e.getDifferingNode(node);
+			Node n = e.getDifferingNode(node);
 			int edges = 0;
 
 			for (IElement iedge : n.getEdges()) {
 				UndirectedEdge e1 = (UndirectedEdge) iedge;
 
-				UndirectedNode dN = e1.getDifferingNode(n);
+				Node dN = e1.getDifferingNode(n);
 				if (dN.getDegree() > n.getDegree()) {
 					edges += 2;
 				} else {

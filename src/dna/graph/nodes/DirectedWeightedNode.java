@@ -1,13 +1,26 @@
 package dna.graph.nodes;
 
 import dna.graph.datastructures.GraphDataStructure;
-import dna.graph.weightsNew.IWeighted;
+import dna.graph.weightsNew.IWeightedNode;
 import dna.graph.weightsNew.Weight;
-import dna.util.Config;
 
-public class DirectedWeightedNode extends DirectedNode implements IWeighted {
+public class DirectedWeightedNode extends DirectedNode implements IWeightedNode {
 
 	protected Weight weight;
+
+	public DirectedWeightedNode(int i, GraphDataStructure gds) {
+		super(i, gds);
+	}
+
+	public DirectedWeightedNode(int i, Weight weight, GraphDataStructure gds) {
+		this(i, gds);
+		this.weight = weight;
+	}
+
+	public DirectedWeightedNode(String str, GraphDataStructure gds) {
+		super(str.split(Weight.WeightDelimiter)[0], gds);
+		this.weight = gds.newNodeWeight(str.split(Weight.WeightDelimiter)[1]);
+	}
 
 	@Override
 	public Weight getWeight() {
@@ -17,16 +30,6 @@ public class DirectedWeightedNode extends DirectedNode implements IWeighted {
 	@Override
 	public void setWeight(Weight weight) {
 		this.weight = weight;
-	}
-
-	public DirectedWeightedNode(int i, Weight weight, GraphDataStructure gds) {
-		super(i, gds);
-		this.weight = weight;
-	}
-
-	public DirectedWeightedNode(String str, GraphDataStructure gds) {
-		super(str.split(Weight.WeightDelimiter)[0], gds);
-		this.weight = Weight.fromString(str.split(Weight.WeightDelimiter)[1]);
 	}
 
 	@Override

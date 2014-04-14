@@ -26,7 +26,8 @@ public class DHashMap extends DataStructureReadable implements
 		super(lt, dT);
 	}
 
-	public void init(Class<? extends IElement> dT, int initialSize, boolean firstTime) {
+	public void init(Class<? extends IElement> dT, int initialSize,
+			boolean firstTime) {
 		this.list = new HashMap<String, IElement>(initialSize);
 		this.maxNodeIndex = -1;
 	}
@@ -151,8 +152,13 @@ public class DHashMap extends DataStructureReadable implements
 	}
 
 	@Override
+	public Edge get(Node n1, Node n2) {
+		return (Edge) this.list.get(Integer.toString(Edge.getHashcode(n1, n2)));
+	}
+
+	@Override
 	public Edge get(Edge element) {
-		return (Edge) this.list.get(Integer.toString(element.hashCode()));
+		return get(element.getN1(), element.getN2());
 	}
 
 	@Override

@@ -234,12 +234,20 @@ public class DArray extends DataStructureReadable implements
 	}
 
 	@Override
-	public Edge get(Edge element) {
+	public Edge get(Node n1, Node n2) {
 		for (IElement eU : list) {
-			if (element.equals(eU))
-				return (Edge) eU;
+			if (eU == null)
+				continue;
+			Edge e = (Edge) eU;
+			if (e.getN1().equals(n1) && e.getN2().equals(n2))
+				return e;
 		}
 		return null;
+	}
+
+	@Override
+	public Edge get(Edge element) {
+		return get(element.getN1(), element.getN2());
 	}
 
 	@Override

@@ -9,34 +9,8 @@ package dna.graph.weightsNew;
  */
 public class Int3dWeight extends Weight {
 	private int x;
-
-	public int getX() {
-		return this.x;
-	}
-
-	public void setX(int x) {
-		this.x = x;
-	}
-
 	private int y;
-
-	public int getY() {
-		return this.y;
-	}
-
-	public void setY(int y) {
-		this.y = y;
-	}
-
 	private int z;
-
-	public int getZ() {
-		return z;
-	}
-
-	public void setZ(int z) {
-		this.z = z;
-	}
 
 	public Int3dWeight(int x, int y, int z) {
 		this.x = x;
@@ -55,8 +29,38 @@ public class Int3dWeight extends Weight {
 		this.z = Integer.parseInt(temp[2]);
 	}
 
+	public Int3dWeight(WeightSelection ws) {
+		this.x = IntWeight.getIntWeight(ws);
+		this.y = IntWeight.getIntWeight(ws);
+		this.z = IntWeight.getIntWeight(ws);
+	}
+
+	public int getX() {
+		return this.x;
+	}
+
+	public void setX(int x) {
+		this.x = x;
+	}
+
+	public int getY() {
+		return this.y;
+	}
+
+	public void setY(int y) {
+		this.y = y;
+	}
+
+	public int getZ() {
+		return z;
+	}
+
+	public void setZ(int z) {
+		this.z = z;
+	}
+
 	@Override
-	protected String asString_() {
+	public String asString() {
 		return this.x + Weight.WeightSeparator + this.y
 				+ Weight.WeightSeparator + this.z;
 	}
@@ -64,6 +68,11 @@ public class Int3dWeight extends Weight {
 	@Override
 	public WeightType getWeightType() {
 		return WeightType.I3;
+	}
+
+	@Override
+	public Object getWeight() {
+		return new int[] { x, y, z };
 	}
 
 }

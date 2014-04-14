@@ -37,6 +37,9 @@ import dna.graph.edges.UndirectedEdge;
 import dna.graph.nodes.DirectedNode;
 import dna.graph.nodes.Node;
 import dna.graph.nodes.UndirectedNode;
+import dna.graph.weightsNew.DoubleWeight;
+import dna.graph.weightsNew.IntWeight;
+import dna.graph.weightsNew.Weight.WeightSelection;
 import dna.util.Rand;
 
 @RunWith(Parameterized.class)
@@ -134,10 +137,7 @@ public class DatastructureTester {
 
 	@Test
 	public void checkAddAndRemove() {
-		IElement dummy = mock(elementClass);
-		if (dummy instanceof Edge) {
-			when(((Edge) dummy).getHashString()).thenReturn("1");
-		}		
+		IElement dummy = getDummy(elementClass);
 		assertFalse(dataStructure.contains(dummy));
 		assertEquals(0, dataStructure.size());
 		assertTrue(dataStructure.add(dummy));
@@ -153,17 +153,8 @@ public class DatastructureTester {
 		assumeTrue(dataStructure instanceof INodeListDatastructureReadable);
 		IReadable tempDS = (IReadable) dataStructure;
 
-		IElement dummy1 = mock(elementClass);
-		IElement dummy2 = mock(elementClass);
-
-		if (Node.class.isAssignableFrom(elementClass)) {
-			when(((Node) dummy1).getIndex()).thenReturn(1);
-			when(((Node) dummy2).getIndex()).thenReturn(2);
-		}
-		if (Edge.class.isAssignableFrom(elementClass)) {
-			when(((Edge) dummy1).getHashString()).thenReturn("1");
-			when(((Edge) dummy2).getHashString()).thenReturn("2");
-		}
+		IElement dummy1 = getDummy(elementClass, 1);
+		IElement dummy2 = getDummy(elementClass, 5);
 
 		assertFalse(tempDS.contains(dummy1));
 		assertFalse(tempDS.contains(dummy2));
@@ -239,11 +230,7 @@ public class DatastructureTester {
 	public void checkCorrectSize() {
 		IElement[] dummies = new IElement[10];
 		for (int i = 0; i < dummies.length; i++) {
-			dummies[i] = mock(this.elementClass);
-			if (Node.class.isAssignableFrom(this.elementClass))
-				when(((Node) dummies[i]).getIndex()).thenReturn(i);
-			if (dummies[i] instanceof Edge)
-				when(((Edge) dummies[i]).getHashString()).thenReturn("" + i);
+			dummies[i] = getDummy(this.elementClass, i);
 			assertTrue(dataStructure.add(dummies[i]));
 		}
 		assertEquals(dummies.length, dataStructure.size());
@@ -274,18 +261,7 @@ public class DatastructureTester {
 
 		ArrayList<IElement> dummies = new ArrayList<>();
 		for (int i = 0; i < size; i++) {
-			singleDummy = mock(this.elementClass);
-
-			/*
-			 * Nodes are stored with an index, so set it please!
-			 */
-			if (singleDummy instanceof Node) {
-				when(((Node) singleDummy).getIndex()).thenReturn(i);
-			}
-			if (singleDummy instanceof Edge) {
-				when(((Edge) singleDummy).getHashString()).thenReturn("" + i);
-			}			
-
+			singleDummy = getDummy(this.elementClass, i);
 			assertTrue(tempDS.add(singleDummy));
 			dummies.add(singleDummy);
 		}
@@ -310,18 +286,7 @@ public class DatastructureTester {
 		IElement singleDummy;
 
 		for (int i = 0; i < goalSize; i++) {
-			singleDummy = mock(this.elementClass);
-
-			/*
-			 * Nodes are stored with an index, so set it please!
-			 */
-			if (singleDummy instanceof Node) {
-				when(((Node) singleDummy).getIndex()).thenReturn(i);
-			}
-			if (singleDummy instanceof Edge) {
-				when(((Edge) singleDummy).getHashString()).thenReturn("" + i);
-			}
-
+			singleDummy = getDummy(this.elementClass, i);
 			dataStructure.add(singleDummy);
 		}
 		assertEquals(goalSize, dataStructure.size());
@@ -334,18 +299,7 @@ public class DatastructureTester {
 
 		ArrayList<IElement> dummies = new ArrayList<>();
 		for (int i = 0; i < size; i++) {
-			singleDummy = mock(this.elementClass);
-
-			/*
-			 * Nodes are stored with an index, so set it please!
-			 */
-			if (singleDummy instanceof Node) {
-				when(((Node) singleDummy).getIndex()).thenReturn(i);
-			}
-			if (singleDummy instanceof Edge) {
-				when(((Edge) singleDummy).getHashString()).thenReturn("" + i);
-			}
-
+			singleDummy = getDummy(this.elementClass, i);
 			dataStructure.add(singleDummy);
 			dummies.add(singleDummy);
 		}
@@ -420,9 +374,7 @@ public class DatastructureTester {
 
 		IElement[] dummies = new IElement[10];
 		for (int i = 0; i < dummies.length; i++) {
-			dummies[i] = mock(elementClass);
-			if (dummies[i] instanceof Edge)
-				when(((Edge) dummies[i]).getHashString()).thenReturn("" + i);
+			dummies[i] = getDummy(elementClass);
 			tempDS.add(dummies[i]);
 		}
 
@@ -445,8 +397,12 @@ public class DatastructureTester {
 		assertFalse(dataStructure.remove(dummy));
 	}
 
-	@SuppressWarnings("unchecked")
 	private IElement getDummy(Class<? extends IElement> elementClass) {
+		return getDummy(elementClass, 1);
+	}
+	
+	@SuppressWarnings("unchecked")
+	private IElement getDummy(Class<? extends IElement> elementClass, int firstNumber) {
 		IElement dummy = null;
 		GraphDataStructure tempGDS;
 		EnumMap<ListType, Class<? extends IDataStructure>> listtypes = GraphDataStructure
@@ -455,22 +411,28 @@ public class DatastructureTester {
 
 		if (Node.class.isAssignableFrom(elementClass)) {
 			tempGDS = new GraphDataStructure(listtypes,
-					(Class<? extends Node>) elementClass, null);
-			dummy = tempGDS.newNodeInstance(42);
+					(Class<? extends Node>) elementClass, null,
+					DoubleWeight.class, WeightSelection.RandTrim1,
+					IntWeight.class, WeightSelection.RandPos100);
+			dummy = tempGDS.newNodeInstance(firstNumber++);
 		} else if (DirectedEdge.class.isAssignableFrom(elementClass)) {
 			tempGDS = new GraphDataStructure(listtypes, null,
-					(Class<? extends Edge>) elementClass);
+					(Class<? extends Edge>) elementClass, DoubleWeight.class,
+					WeightSelection.RandTrim1, IntWeight.class,
+					WeightSelection.RandPos100);
 
-			DirectedNode n1 = new DirectedNode(1, tempGDS);
-			DirectedNode n2 = new DirectedNode(2, tempGDS);
+			DirectedNode n1 = new DirectedNode(firstNumber++, tempGDS);
+			DirectedNode n2 = new DirectedNode(firstNumber++, tempGDS);
 
 			dummy = tempGDS.newEdgeInstance(n1, n2);
 		} else if (UndirectedEdge.class.isAssignableFrom(elementClass)) {
 			tempGDS = new GraphDataStructure(listtypes, null,
-					(Class<? extends Edge>) elementClass);
+					(Class<? extends Edge>) elementClass, DoubleWeight.class,
+					WeightSelection.RandTrim1, IntWeight.class,
+					WeightSelection.RandPos100);
 
-			UndirectedNode n1 = new UndirectedNode(1, tempGDS);
-			UndirectedNode n2 = new UndirectedNode(2, tempGDS);
+			UndirectedNode n1 = new UndirectedNode(firstNumber++, tempGDS);
+			UndirectedNode n2 = new UndirectedNode(firstNumber++, tempGDS);
 
 			dummy = tempGDS.newEdgeInstance(n1, n2);
 		} else {

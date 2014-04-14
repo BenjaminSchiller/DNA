@@ -6,6 +6,7 @@ jdk:
 before_install:
   - wget -Olib/junit.jar http://search.maven.org/remotecontent?filepath=junit/junit/4.11/junit-4.11.jar
   - wget -Olib/aspectjtools.jar http://repo1.maven.org/maven2/org/aspectj/aspectjtools/1.7.4/aspectjtools-1.7.4.jar
+  - cp build/testing.xml ./build.xml
 
 env:
   - TESTASPECTJ=true

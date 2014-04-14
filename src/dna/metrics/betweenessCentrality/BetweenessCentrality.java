@@ -99,7 +99,7 @@ public abstract class BetweenessCentrality extends Metric {
 					s.push(v);
 					for (IElement iEdges : v.getOutgoingEdges()) {
 						DirectedEdge edge = (DirectedEdge) iEdges;
-						DirectedNode w = edge.getDifferingNode(v);
+						Node w = edge.getDifferingNode(v);
 
 						if (d.get(w).equals(Integer.MAX_VALUE)) {
 							q.add(w);
@@ -120,7 +120,7 @@ public abstract class BetweenessCentrality extends Metric {
 
 					for (IElement iEdges : v.getEdges()) {
 						UndirectedEdge edge = (UndirectedEdge) iEdges;
-						UndirectedNode w = edge.getDifferingNode(v);
+						Node w = edge.getDifferingNode(v);
 
 						if (d.get(w).equals(Integer.MAX_VALUE)) {
 							q.add(w);

@@ -34,8 +34,10 @@ import dna.graph.datastructures.DataStructure.ListType;
 import dna.graph.datastructures.GraphDataStructure;
 import dna.graph.datastructures.IDataStructure;
 import dna.graph.edges.DirectedEdge;
+import dna.graph.edges.DirectedWeightedEdge;
 import dna.graph.edges.Edge;
 import dna.graph.edges.UndirectedEdge;
+import dna.graph.edges.UndirectedWeightedEdge;
 import dna.graph.generators.GraphGenerator;
 import dna.graph.generators.IGraphGenerator;
 import dna.graph.generators.canonical.CliqueGraph;
@@ -46,9 +48,13 @@ import dna.graph.generators.util.EmptyGraph;
 import dna.graph.nodes.DirectedNode;
 import dna.graph.nodes.Node;
 import dna.graph.nodes.UndirectedNode;
-import dna.graph.weights.IWeighted;
+import dna.graph.weightsNew.DoubleWeight;
+import dna.graph.weightsNew.IWeighted;
+import dna.graph.weightsNew.IntWeight;
+import dna.graph.weightsNew.Weight.WeightSelection;
 import dna.io.GraphReader;
 import dna.io.GraphWriter;
+import dna.util.Rand;
 
 @RunWith(Parallelized.class)
 public class GeneratorsTest {
@@ -76,7 +82,9 @@ public class GeneratorsTest {
 		this.edgeType = edgeType;
 		this.generator = generator;
 
-		this.gds = new GraphDataStructure(listTypes, nodeType, edgeType);
+		this.gds = new GraphDataStructure(listTypes, nodeType, edgeType,
+				DoubleWeight.class, WeightSelection.RandTrim1, IntWeight.class,
+				WeightSelection.RandPos100);
 
 		if (generator == CliqueGraph.class) {
 			/**
@@ -126,13 +134,11 @@ public class GeneratorsTest {
 
 	}
 
-	@SuppressWarnings({ "rawtypes", "unchecked" })
+	@SuppressWarnings({ "rawtypes" })
 	@Parameterized.Parameters(name = "{0} {1} {2} {3}")
 	public static Collection testPairs() throws NoSuchMethodException,
 			SecurityException, InstantiationException, IllegalAccessException,
 			IllegalArgumentException, InvocationTargetException {
-		Constructor<? extends GraphGenerator> generatorConstructor;
-		GraphDataStructure gds;
 
 		ArrayList<EnumMap<ListType, Class<? extends IDataStructure>>> simpleCombinations = GraphDataStructure
 				.getSimpleDatastructureCombinations();
@@ -140,10 +146,8 @@ public class GeneratorsTest {
 		ArrayList<Object> result = new ArrayList<>();
 		for (EnumMap<ListType, Class<? extends IDataStructure>> combination : simpleCombinations) {
 			for (Class generator : GlobalTestParameters.graphGenerators) {
-				for (Class edgeType : new Class[] { DirectedEdge.class,
-						UndirectedEdge.class }) {
-					for (Class nodeType : new Class[] { DirectedNode.class,
-							UndirectedNode.class }) {
+				for (Class edgeType : GlobalTestParameters.edgeTypes) {
+					for (Class nodeType : GlobalTestParameters.nodeTypes) {
 						if ((UndirectedEdge.class.isAssignableFrom(edgeType) && DirectedNode.class
 								.isAssignableFrom(nodeType))
 								|| (DirectedEdge.class
@@ -153,39 +157,6 @@ public class GeneratorsTest {
 
 						if (combination.get(ListType.GlobalEdgeList) == DEmpty.class
 								|| combination.get(ListType.LocalEdgeList) == DEmpty.class)
-							continue;
-
-						gds = new GraphDataStructure(combination, nodeType,
-								edgeType);
-
-						GraphGenerator gg;
-
-						try {
-							if (generator == BarabasiAlbertGraph.class) {
-								generatorConstructor = generator
-										.getConstructor(
-												GraphDataStructure.class,
-												int.class, int.class,
-												int.class, int.class);
-								gg = generatorConstructor.newInstance(gds, 5,
-										5, 5, 2);
-							} else {
-								generatorConstructor = generator
-										.getConstructor(
-												GraphDataStructure.class,
-												int.class, int.class);
-								gg = generatorConstructor
-										.newInstance(gds, 5, 5);
-							}
-						} catch (NoSuchMethodException e) {
-							generatorConstructor = generator.getConstructor(
-									GraphDataStructure.class, int.class);
-							gg = generatorConstructor.newInstance(gds, 5);
-						}
-
-						if (!gg.canGenerateNodeType(nodeType))
-							continue;
-						if (!gg.canGenerateEdgeType(edgeType))
 							continue;
 
 						result.add(new Object[] { combination, nodeType,
@@ -287,7 +258,7 @@ public class GeneratorsTest {
 
 		for (IElement eU : g2.getEdges()) {
 			Edge e = (Edge) eU;
-			Edge eOther = g.getEdge(e);
+			Edge eOther = g.getEdge(e.getN1(), e.getN2());
 			assertNotNull("Graph g misses edge " + e + " (edge list type: "
 					+ gds.getListClass(ListType.GlobalEdgeList) + ")", eOther);
 			assertEquals(e, eOther);
@@ -297,7 +268,7 @@ public class GeneratorsTest {
 
 		for (IElement eU : g.getEdges()) {
 			Edge e = (Edge) eU;
-			Edge eOther = g2.getEdge(e);
+			Edge eOther = g2.getEdge(e.getN1(), e.getN2());
 			assertNotNull(eOther);
 			assertEquals(e, eOther);
 			assertNotEquals(e.getStringRepresentation(),
@@ -333,26 +304,25 @@ public class GeneratorsTest {
 		assertEquals(g, g2);
 
 		// Change getStringRepresentation now to see that it is used for
-		// equality checks
+		// equality checks, and weights are left out of sight
 		Node random = g.getRandomNode();
 		for (int i = 0; i < (int) Math.floor(edgeSize / 5); i++) {
 			Edge edgeReal = g.getRandomEdge();
 			assertNotNull(edgeReal);
 			g.removeEdge(edgeReal);
 
-			Edge edgeMocked = mock(this.gds.getEdgeType());
-			when(edgeMocked.getStringRepresentation()).thenReturn("");
-			when(edgeMocked.getHashString()).thenReturn("");
+			Edge edgeMocked = null;
+
 			if (gds.createsDirected()) {
-				when(((DirectedEdge) edgeMocked).getDst()).thenReturn(
-						(DirectedNode) random);
-				when(((DirectedEdge) edgeMocked).getSrc()).thenReturn(
-						(DirectedNode) random);
+				edgeMocked = new DirectedWeightedEdge(
+						(DirectedNode) edgeReal.getN1(),
+						(DirectedNode) edgeReal.getN2(), new IntWeight(
+								Rand.rand.nextInt()));
 			} else if (gds.createsUndirected()) {
-				when(((UndirectedEdge) edgeMocked).getNode1()).thenReturn(
-						(UndirectedNode) random);
-				when(((UndirectedEdge) edgeMocked).getNode2()).thenReturn(
-						(UndirectedNode) random);
+				edgeMocked = new UndirectedWeightedEdge(
+						(UndirectedNode) edgeReal.getN1(),
+						(UndirectedNode) edgeReal.getN2(), new IntWeight(
+								Rand.rand.nextInt()));
 			}
 
 			g.addEdge(edgeMocked);

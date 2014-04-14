@@ -103,7 +103,7 @@ public abstract class RichClubConnectivityInterval extends Metric {
 			}
 			this.richClubEdges.put(rcCounter, edges);
 			for (IElement ie : temp.get(i).getEdges()) {
-				DirectedNode n = ((DirectedEdge) ie).getDifferingNode(temp
+				Node n = ((DirectedEdge) ie).getDifferingNode(temp
 						.get(i));
 				if (this.nodesRichClub.containsKey(n)) {
 					edges++;
@@ -164,7 +164,7 @@ public abstract class RichClubConnectivityInterval extends Metric {
 			}
 			this.richClubEdges.put(rcCounter, edges);
 			for (IElement ie : temp.get(i).getEdges()) {
-				UndirectedNode n = ((UndirectedEdge) ie).getDifferingNode(temp
+				Node n = ((UndirectedEdge) ie).getDifferingNode(temp
 						.get(i));
 				if (this.nodesRichClub.containsKey(n)) {
 					edges++;

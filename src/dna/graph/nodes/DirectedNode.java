@@ -108,6 +108,7 @@ public class DirectedNode extends Node {
 		return this.neighbors.contains(n);
 	}
 
+	@Override
 	public int getDegree() {
 		return this.getInDegree() + this.getOutDegree();
 	}

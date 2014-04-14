@@ -52,10 +52,10 @@ public abstract class UndirectedClusteringCoefficient extends
 
 			for (IElement e1Uncasted : a.getEdges()) {
 				UndirectedEdge e1 = (UndirectedEdge) e1Uncasted;
-				UndirectedNode b = e1.getDifferingNode(a);
+				UndirectedNode b = (UndirectedNode) e1.getDifferingNode(a);
 				for (IElement e2Uncasted : a.getEdges()) {
 					UndirectedEdge e2 = (UndirectedEdge) e2Uncasted;
-					UndirectedNode c = e2.getDifferingNode(a);
+					UndirectedNode c = (UndirectedNode) e2.getDifferingNode(a);
 					if (b.equals(c)) {
 						continue;
 					}
