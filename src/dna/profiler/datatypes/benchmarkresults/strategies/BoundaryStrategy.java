@@ -10,18 +10,18 @@ import com.google.common.math.DoubleMath;
 public class BoundaryStrategy extends ResultProcessingStrategy {
 
 	protected TreeMap<Integer, Double> buckets;
-	private Boundary b;
-	private Selector s;
+	private BucketSelector b;
+	private ListAggregator s;
 
-	public enum Boundary {
+	public enum BucketSelector {
 		LOWER, UPPER, INTERPOLATE
 	};
 
-	public enum Selector {
+	public enum ListAggregator {
 		MIN, MAX, MEAN
 	}
 
-	public BoundaryStrategy(Boundary b, Selector s) {
+	public BoundaryStrategy(BucketSelector b, ListAggregator s) {
 		this.b = b;
 		this.s = s;
 	}
