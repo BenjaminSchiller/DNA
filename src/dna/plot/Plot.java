@@ -272,7 +272,7 @@ public class Plot {
 		script.add("set output \"" + this.dir + this.filename + "."
 				+ Config.get("GNUPLOT_EXTENSION") + "\"");
 		if (!Config.get("GNUPLOT_KEY").equals("null")) {
-			script.add("set key " + Config.get("GNUPOT_KEY"));
+			script.add("set key " + Config.get("GNUPLOT_KEY"));
 		}
 		if (Config.getBoolean("GNUPLOT_GRID")) {
 			script.add("set grid");
