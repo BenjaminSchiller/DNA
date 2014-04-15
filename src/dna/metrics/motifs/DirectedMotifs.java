@@ -8,7 +8,7 @@ import dna.graph.edges.DirectedEdge;
 import dna.graph.nodes.DirectedNode;
 import dna.metrics.Metric;
 import dna.series.data.Distribution;
-import dna.series.data.DistributionInt;
+import dna.series.data.DistributionLong;
 import dna.series.data.NodeNodeValueList;
 import dna.series.data.NodeValueList;
 import dna.series.data.Value;
@@ -30,7 +30,7 @@ public abstract class DirectedMotifs extends Metric {
 		DM01, DM02, DM03, DM04, DM05, DM06, DM07, DM08, DM09, DM10, DM11, DM12, DM13
 	}
 
-	protected DistributionInt motifs;
+	protected DistributionLong motifs;
 
 	public static final String motifsName = "directedMotifs";
 
@@ -300,7 +300,7 @@ public abstract class DirectedMotifs extends Metric {
 
 	@Override
 	public void init_() {
-		this.motifs = new DistributionInt(motifsName, new int[14], 0);
+		this.motifs = new DistributionLong(motifsName, new long[14], 0);
 	}
 
 	@Override
@@ -311,19 +311,19 @@ public abstract class DirectedMotifs extends Metric {
 	@Override
 	public Value[] getValues() {
 		Value m0 = new Value("TOTAL", this.motifs.getDenominator());
-		Value m1 = new Value("DM01", this.motifs.getIntValues()[1]);
-		Value m2 = new Value("DM02", this.motifs.getIntValues()[2]);
-		Value m3 = new Value("DM03", this.motifs.getIntValues()[3]);
-		Value m4 = new Value("DM04", this.motifs.getIntValues()[4]);
-		Value m5 = new Value("DM05", this.motifs.getIntValues()[5]);
-		Value m6 = new Value("DM06", this.motifs.getIntValues()[6]);
-		Value m7 = new Value("DM07", this.motifs.getIntValues()[7]);
-		Value m8 = new Value("DM08", this.motifs.getIntValues()[8]);
-		Value m9 = new Value("DM09", this.motifs.getIntValues()[9]);
-		Value m10 = new Value("DM10", this.motifs.getIntValues()[10]);
-		Value m11 = new Value("DM11", this.motifs.getIntValues()[11]);
-		Value m12 = new Value("DM12", this.motifs.getIntValues()[12]);
-		Value m13 = new Value("DM13", this.motifs.getIntValues()[13]);
+		Value m1 = new Value("DM01", this.motifs.getValues()[1]);
+		Value m2 = new Value("DM02", this.motifs.getValues()[2]);
+		Value m3 = new Value("DM03", this.motifs.getValues()[3]);
+		Value m4 = new Value("DM04", this.motifs.getValues()[4]);
+		Value m5 = new Value("DM05", this.motifs.getValues()[5]);
+		Value m6 = new Value("DM06", this.motifs.getValues()[6]);
+		Value m7 = new Value("DM07", this.motifs.getValues()[7]);
+		Value m8 = new Value("DM08", this.motifs.getValues()[8]);
+		Value m9 = new Value("DM09", this.motifs.getValues()[9]);
+		Value m10 = new Value("DM10", this.motifs.getValues()[10]);
+		Value m11 = new Value("DM11", this.motifs.getValues()[11]);
+		Value m12 = new Value("DM12", this.motifs.getValues()[12]);
+		Value m13 = new Value("DM13", this.motifs.getValues()[13]);
 		return new Value[] { m0, m1, m2, m3, m4, m5, m6, m7, m8, m9, m10, m11,
 				m12, m13 };
 	}
@@ -350,8 +350,8 @@ public abstract class DirectedMotifs extends Metric {
 		}
 		DirectedMotifs dm = (DirectedMotifs) m;
 		boolean success = true;
-		success &= ArrayUtils.equals(this.motifs.getIntValues(),
-				dm.motifs.getIntValues(), "DM/" + motifsName);
+		success &= ArrayUtils.equals(this.motifs.getValues(),
+				dm.motifs.getValues(), "DM/" + motifsName);
 		return success;
 	}
 
