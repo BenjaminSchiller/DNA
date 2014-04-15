@@ -5,8 +5,8 @@ import java.util.HashMap;
 import dna.graph.Graph;
 import dna.graph.nodes.DirectedNode;
 import dna.graph.nodes.Node;
-import dna.graph.weightsNew.IWeightedEdge;
-import dna.graph.weightsNew.Weight;
+import dna.graph.weights.IWeightedEdge;
+import dna.graph.weights.Weight;
 
 public class DirectedWeightedEdge extends DirectedEdge implements IWeightedEdge {
 

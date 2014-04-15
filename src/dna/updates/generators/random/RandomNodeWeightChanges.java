@@ -1,6 +1,6 @@
 package dna.updates.generators.random;
 
-import dna.graph.weightsNew.Weight.WeightSelection;
+import dna.graph.weights.Weight.WeightSelection;
 
 public class RandomNodeWeightChanges extends RandomWeightChanges {
 

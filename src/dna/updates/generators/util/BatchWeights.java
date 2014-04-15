@@ -2,9 +2,9 @@ package dna.updates.generators.util;
 
 import dna.graph.Graph;
 import dna.graph.datastructures.GraphDataStructure;
-import dna.graph.weightsNew.IWeighted;
-import dna.graph.weightsNew.Weight;
-import dna.graph.weightsNew.Weight.WeightSelection;
+import dna.graph.weights.IWeighted;
+import dna.graph.weights.Weight;
+import dna.graph.weights.Weight.WeightSelection;
 import dna.updates.batch.Batch;
 import dna.updates.generators.BatchGenerator;
 import dna.updates.update.EdgeAddition;

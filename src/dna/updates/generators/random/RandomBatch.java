@@ -3,7 +3,7 @@ package dna.updates.generators.random;
 import java.util.ArrayList;
 
 import dna.graph.Graph;
-import dna.graph.weightsNew.Weight.WeightSelection;
+import dna.graph.weights.Weight.WeightSelection;
 import dna.updates.batch.Batch;
 import dna.updates.generators.BatchGenerator;
 import dna.util.parameters.IntParameter;

@@ -1,4 +1,4 @@
-package dna.graph.weightsNew;
+package dna.graph.weights;
 
 import dna.util.Log;
 import dna.util.Rand;

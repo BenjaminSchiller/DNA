@@ -2,8 +2,8 @@ package dna.metrics.apsp;
 
 import dna.graph.Graph;
 import dna.graph.nodes.Node;
-import dna.graph.weightsNew.IWeightedEdge;
-import dna.graph.weightsNew.IntWeight;
+import dna.graph.weights.IWeightedEdge;
+import dna.graph.weights.IntWeight;
 import dna.updates.batch.Batch;
 
 public abstract class IntWeightedAllPairsShortestPaths extends

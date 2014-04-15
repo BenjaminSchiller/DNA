@@ -5,8 +5,8 @@ import dna.graph.datastructures.GraphDataStructure;
 import dna.graph.edges.DirectedEdge;
 import dna.graph.edges.IEdge;
 import dna.graph.edges.UndirectedEdge;
-import dna.graph.weightsNew.IWeightedEdge;
-import dna.graph.weightsNew.Weight;
+import dna.graph.weights.IWeightedEdge;
+import dna.graph.weights.Weight;
 import dna.util.Log;
 
 public class EdgeWeight extends EdgeUpdate {

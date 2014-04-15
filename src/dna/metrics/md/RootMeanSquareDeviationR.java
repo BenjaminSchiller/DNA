@@ -4,8 +4,8 @@ import java.util.HashMap;
 
 import dna.graph.IElement;
 import dna.graph.nodes.Node;
-import dna.graph.weightsNew.IWeightedNode;
-import dna.graph.weightsNew.Weight;
+import dna.graph.weights.IWeightedNode;
+import dna.graph.weights.Weight;
 import dna.updates.batch.Batch;
 import dna.updates.update.Update;
 

@@ -1,8 +1,8 @@
 package dna.updates.update;
 
 import dna.graph.Graph;
-import dna.graph.weightsNew.IWeightedNode;
-import dna.graph.weightsNew.Weight;
+import dna.graph.weights.IWeightedNode;
+import dna.graph.weights.Weight;
 
 public class NodeWeight extends NodeUpdate {
 

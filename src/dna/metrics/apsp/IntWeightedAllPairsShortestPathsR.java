@@ -9,8 +9,8 @@ import dna.graph.edges.UndirectedEdge;
 import dna.graph.nodes.DirectedNode;
 import dna.graph.nodes.Node;
 import dna.graph.nodes.UndirectedNode;
-import dna.graph.weightsNew.IWeighted;
-import dna.graph.weightsNew.IntWeight;
+import dna.graph.weights.IWeighted;
+import dna.graph.weights.IntWeight;
 import dna.updates.batch.Batch;
 import dna.updates.update.Update;
 

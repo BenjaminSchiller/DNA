@@ -4,12 +4,12 @@ import java.util.HashMap;
 
 import dna.graph.Graph;
 import dna.graph.nodes.Node;
-import dna.graph.weightsNew.Double2dWeight;
-import dna.graph.weightsNew.Double3dWeight;
-import dna.graph.weightsNew.IWeightedNode;
-import dna.graph.weightsNew.Int2dWeight;
-import dna.graph.weightsNew.Int3dWeight;
-import dna.graph.weightsNew.Weight;
+import dna.graph.weights.Double2dWeight;
+import dna.graph.weights.Double3dWeight;
+import dna.graph.weights.IWeightedNode;
+import dna.graph.weights.Int2dWeight;
+import dna.graph.weights.Int3dWeight;
+import dna.graph.weights.Weight;
 import dna.metrics.Metric;
 import dna.series.data.BinnedDistributionInt;
 import dna.series.data.Distribution;

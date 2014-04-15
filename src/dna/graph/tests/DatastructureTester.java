@@ -37,9 +37,9 @@ import dna.graph.edges.UndirectedEdge;
 import dna.graph.nodes.DirectedNode;
 import dna.graph.nodes.Node;
 import dna.graph.nodes.UndirectedNode;
-import dna.graph.weightsNew.DoubleWeight;
-import dna.graph.weightsNew.IntWeight;
-import dna.graph.weightsNew.Weight.WeightSelection;
+import dna.graph.weights.DoubleWeight;
+import dna.graph.weights.IntWeight;
+import dna.graph.weights.Weight.WeightSelection;
 import dna.util.Rand;
 
 @RunWith(Parameterized.class)

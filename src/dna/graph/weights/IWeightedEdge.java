@@ -1,4 +1,4 @@
-package dna.graph.weightsNew;
+package dna.graph.weights;
 
 import dna.graph.edges.IEdge;
 

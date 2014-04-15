@@ -1,4 +1,4 @@
-package dna.graph.weightsNew;
+package dna.graph.weights;
 
 
 /**
