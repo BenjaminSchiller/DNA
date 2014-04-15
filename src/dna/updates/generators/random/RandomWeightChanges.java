@@ -1,4 +1,4 @@
-package dna.updates.generators.weights;
+package dna.updates.generators.random;
 
 import java.util.HashSet;
 
@@ -14,7 +14,7 @@ import dna.updates.generators.BatchGenerator;
 import dna.updates.update.EdgeWeight;
 import dna.updates.update.NodeWeight;
 
-public class WeightChanges extends BatchGenerator {
+public class RandomWeightChanges extends BatchGenerator {
 
 	int nodes;
 	int edges;
@@ -22,9 +22,9 @@ public class WeightChanges extends BatchGenerator {
 	private WeightSelection nSelection;
 	private WeightSelection eSelection;
 
-	public WeightChanges(int nodes, WeightSelection nSelection, int edges,
+	public RandomWeightChanges(int nodes, WeightSelection nSelection, int edges,
 			WeightSelection eSelection) {
-		super("WeightChanges");
+		super("RandomWeightChanges");
 		this.nodes = nodes;
 		this.nSelection = nSelection;
 		this.edges = edges;

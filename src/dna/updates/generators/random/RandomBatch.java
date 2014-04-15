@@ -4,11 +4,8 @@ import java.util.ArrayList;
 
 import dna.graph.Graph;
 import dna.graph.weightsNew.Weight.WeightSelection;
-import dna.graph.weightsNew.Weight.WeightType;
 import dna.updates.batch.Batch;
 import dna.updates.generators.BatchGenerator;
-import dna.updates.generators.weights.EdgeWeightChanges;
-import dna.updates.generators.weights.NodeWeightChanges;
 import dna.util.parameters.IntParameter;
 import dna.util.parameters.ObjectParameter;
 
@@ -21,7 +18,6 @@ public class RandomBatch extends BatchGenerator {
 	private int nr = 0;
 
 	private int nw = 0;
-	private WeightType nwt;
 	private WeightSelection nws;
 
 	private int ea = 0;
@@ -29,18 +25,15 @@ public class RandomBatch extends BatchGenerator {
 	private int er = 0;
 
 	private int ew = 0;
-	private WeightType ewt;
 	private WeightSelection ews;
 
-	public RandomBatch(int na, int nr, int nw, WeightType nwt,
-			WeightSelection nws, int ea, int er, int ew, WeightType ewt,
-			WeightSelection ews) {
+	public RandomBatch(int na, int nr, int nw, WeightSelection nws, int ea,
+			int er, int ew, WeightSelection ews) {
 		super("RandomBatch", new IntParameter("NA", na), new IntParameter("NR",
 				nr), new IntParameter("NW", nw),
-				new ObjectParameter("NWT", nwt),
 				new ObjectParameter("NWS", nws), new IntParameter("EA", ea),
 				new IntParameter("ER", er), new IntParameter("EW", ew),
-				new ObjectParameter("EWT", ewt),
+
 				new ObjectParameter("EWS", ews));
 
 		this.bgs = new ArrayList<BatchGenerator>(6);
@@ -48,12 +41,10 @@ public class RandomBatch extends BatchGenerator {
 		this.na = na;
 		this.nr = nr;
 		this.nw = nw;
-		this.nwt = nwt;
 		this.nws = nws;
 		this.ea = ea;
 		this.er = er;
 		this.ew = ew;
-		this.ewt = ewt;
 		this.ews = ews;
 
 		this.init();
@@ -81,7 +72,7 @@ public class RandomBatch extends BatchGenerator {
 			this.bgs.add(new RandomNodeRemovals(nr));
 		}
 		if (nw > 0) {
-			this.bgs.add(new NodeWeightChanges(this.nw, this.nws));
+			this.bgs.add(new RandomNodeWeightChanges(this.nw, this.nws));
 		}
 		if (ea > 0) {
 			this.bgs.add(new RandomEdgeAdditions(ea));
@@ -90,7 +81,7 @@ public class RandomBatch extends BatchGenerator {
 			this.bgs.add(new RandomEdgeRemovals(er));
 		}
 		if (ew > 0) {
-			this.bgs.add(new EdgeWeightChanges(this.ew, this.ews));
+			this.bgs.add(new RandomEdgeWeightChanges(this.ew, this.ews));
 		}
 	}
 
@@ -133,10 +124,6 @@ public class RandomBatch extends BatchGenerator {
 		return nw;
 	}
 
-	public WeightType getNwt() {
-		return nwt;
-	}
-
 	public WeightSelection getNws() {
 		return nws;
 	}
@@ -151,10 +138,6 @@ public class RandomBatch extends BatchGenerator {
 
 	public int getEw() {
 		return ew;
-	}
-
-	public WeightType getEwt() {
-		return ewt;
 	}
 
 	public WeightSelection getEws() {
