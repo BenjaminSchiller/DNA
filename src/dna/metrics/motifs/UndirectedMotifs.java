@@ -9,7 +9,7 @@ import dna.graph.edges.UndirectedEdge;
 import dna.graph.nodes.UndirectedNode;
 import dna.metrics.Metric;
 import dna.series.data.Distribution;
-import dna.series.data.DistributionInt;
+import dna.series.data.DistributionLong;
 import dna.series.data.NodeNodeValueList;
 import dna.series.data.NodeValueList;
 import dna.series.data.Value;
@@ -22,7 +22,7 @@ public abstract class UndirectedMotifs extends Metric {
 		UM1, UM2, UM3, UM4, UM5, UM6
 	};
 
-	protected DistributionInt motifs;
+	protected DistributionLong motifs;
 
 	public static final String motifsName = "undirectedMotifs";
 
@@ -157,7 +157,7 @@ public abstract class UndirectedMotifs extends Metric {
 
 	@Override
 	public void init_() {
-		this.motifs = new DistributionInt(motifsName, new int[7], 0);
+		this.motifs = new DistributionLong(motifsName, new long[7], 0);
 	}
 
 	@Override
@@ -168,12 +168,12 @@ public abstract class UndirectedMotifs extends Metric {
 	@Override
 	public Value[] getValues() {
 		Value m0 = new Value("TOTAL", this.motifs.getDenominator());
-		Value m1 = new Value("UM1", this.motifs.getIntValues()[1]);
-		Value m2 = new Value("UM2", this.motifs.getIntValues()[2]);
-		Value m3 = new Value("UM3", this.motifs.getIntValues()[3]);
-		Value m4 = new Value("UM4", this.motifs.getIntValues()[4]);
-		Value m5 = new Value("UM5", this.motifs.getIntValues()[5]);
-		Value m6 = new Value("UM6", this.motifs.getIntValues()[6]);
+		Value m1 = new Value("UM1", this.motifs.getValues()[1]);
+		Value m2 = new Value("UM2", this.motifs.getValues()[2]);
+		Value m3 = new Value("UM3", this.motifs.getValues()[3]);
+		Value m4 = new Value("UM4", this.motifs.getValues()[4]);
+		Value m5 = new Value("UM5", this.motifs.getValues()[5]);
+		Value m6 = new Value("UM6", this.motifs.getValues()[6]);
 		return new Value[] { m0, m1, m2, m3, m4, m5, m6 };
 	}
 
@@ -199,8 +199,8 @@ public abstract class UndirectedMotifs extends Metric {
 		}
 		UndirectedMotifs um = (UndirectedMotifs) m;
 		boolean success = true;
-		success &= ArrayUtils.equals(this.motifs.getIntValues(),
-				um.motifs.getIntValues(), "UM/" + motifsName);
+		success &= ArrayUtils.equals(this.motifs.getValues(),
+				um.motifs.getValues(), "UM/" + motifsName);
 		return success;
 	}
 
