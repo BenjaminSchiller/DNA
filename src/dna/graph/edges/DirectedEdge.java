@@ -6,16 +6,18 @@ import dna.graph.Element;
 import dna.graph.Graph;
 import dna.graph.nodes.DirectedNode;
 import dna.graph.nodes.Node;
-import dna.util.Config;
 import dna.util.MathHelper;
 
 public class DirectedEdge extends Edge {
+
+	public static final String separator = "->";
+
 	public DirectedEdge(DirectedNode src, DirectedNode dst) {
 		init(src, dst);
 	}
 
 	public DirectedEdge(String s, Graph g) {
-		String[] temp = s.split(Config.get("EDGE_DIRECTED_DELIMITER"));
+		String[] temp = s.split(DirectedEdge.separator);
 		if (temp.length != 2) {
 			throw new IllegalArgumentException("Cannot parse " + s
 					+ " into a directed edge");
@@ -28,17 +30,17 @@ public class DirectedEdge extends Edge {
 	}
 
 	public DirectedEdge(String s, Graph g, HashMap<Integer, Node> addedNodes) {
-		String[] temp = s.split(Config.get("EDGE_DIRECTED_DELIMITER"));
+		String[] temp = s.split(DirectedEdge.separator);
 		if (temp.length != 2) {
 			throw new IllegalArgumentException("Cannot parse " + s
 					+ " into a directed edge");
 		}
 		int index1 = MathHelper.parseInt(temp[0]);
 		int index2 = MathHelper.parseInt(temp[1]);
-		
+
 		DirectedNode src;
 		DirectedNode dst;
-		
+
 		if (addedNodes.containsKey(index1)) {
 			src = (DirectedNode) addedNodes.get(index1);
 		} else {
@@ -66,7 +68,7 @@ public class DirectedEdge extends Edge {
 
 	@Override
 	public String getStringRepresentation() {
-		return this.getN1().getIndex() + Config.get("EDGE_DIRECTED_DELIMITER")
+		return this.getN1().getIndex() + DirectedEdge.separator
 				+ this.getN2().getIndex();
 	}
 
@@ -98,7 +100,8 @@ public class DirectedEdge extends Edge {
 	}
 
 	public DirectedEdge invert() {
-		return new DirectedEdge((DirectedNode)this.getN2(), (DirectedNode)this.getN1());
+		return new DirectedEdge((DirectedNode) this.getN2(),
+				(DirectedNode) this.getN1());
 	}
 
 	public Node getDifferingNode(Node n) {

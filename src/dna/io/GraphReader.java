@@ -18,31 +18,31 @@ public class GraphReader {
 			throws IOException {
 		Reader reader = new Reader(dir, filename);
 
-		reader.readKeyword(Config.get("GRAPH_KEYWORD_NAME"));
+		reader.readKeyword(GraphWriter.nameKeyword);
 		String name = reader.readString();
 
-		reader.readKeyword(Config.get("GRAPH_KEYWORD_DATASTRUCTURES"));
+		reader.readKeyword(GraphWriter.datastructuresKeyword);
 		String gdsString = reader.readString();
 
 		if (ds == null) {
 			ds = new GraphDataStructure(gdsString);
 		}
 
-		reader.readKeyword(Config.get("GRAPH_KEYWORD_NODE_COUNT"));
+		reader.readKeyword(GraphWriter.nodeCountKeyword);
 		int nodes = reader.readInt();
 
-		reader.readKeyword(Config.get("GRAPH_KEYWORD_EDGE_COUNT"));
+		reader.readKeyword(GraphWriter.edgeCountKeyword);
 		int edges = reader.readInt();
 
-		reader.readKeyword(Config.get("GRAPH_KEYWORD_TIMESTAMP"));
+		reader.readKeyword(GraphWriter.timestampKeyword);
 		long timestamp = reader.readLong();
 
 		Graph g = ds.newGraphInstance(name, timestamp, nodes, edges);
 
-		reader.readKeyword(Config.get("GRAPH_KEYWORD_NODES_LIST"));
+		reader.readKeyword(GraphWriter.nodesListKeyword);
 		String line = null;
 		while (!(line = reader.readString()).equals(Writer
-				.getKeywordAsLine(Config.get("GRAPH_KEYWORD_EDGES_LIST")))) {
+				.getKeywordAsLine(GraphWriter.edgesListKeyword))) {
 			g.addNode(ds.newNodeInstance(line));
 		}
 
@@ -60,7 +60,7 @@ public class GraphReader {
 			throws IOException {
 		Reader reader = new Reader(dir, filename);
 
-		reader.readKeyword(Config.get("GRAPH_KEYWORD_NAME"));
+		reader.readKeyword(GraphWriter.nameKeyword);
 		String name = reader.readString();
 
 		reader.close();

@@ -27,15 +27,15 @@ public class BatchReader {
 		try {
 			reader = new Reader(dir, filename);
 
-			reader.readKeyword(Config.get("BATCH_KEYWORD_FROM"));
+			reader.readKeyword(BatchWriter.fromKeyword);
 			long from = reader.readLong();
 
-			reader.readKeyword(Config.get("BATCH_KEYWORD_TO"));
+			reader.readKeyword(BatchWriter.toKeyword);
 			long to = reader.readLong();
 
 			Batch b = new Batch(g.getGraphDatastructures(), from, to);
 
-			reader.readKeyword(Config.get("BATCH_KEYWORD_UPDATES"));
+			reader.readKeyword(BatchWriter.updatesKeyword);
 
 			HashMap<Integer, Node> addedNodes = new HashMap<Integer, Node>();
 			HashSet<Edge> addedEdges = new HashSet<Edge>();

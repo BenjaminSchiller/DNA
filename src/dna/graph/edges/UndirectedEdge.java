@@ -6,10 +6,11 @@ import dna.graph.Element;
 import dna.graph.Graph;
 import dna.graph.nodes.Node;
 import dna.graph.nodes.UndirectedNode;
-import dna.util.Config;
 import dna.util.MathHelper;
 
 public class UndirectedEdge extends Edge {
+
+	public static final String separator = "<->";
 
 	/**
 	 * 
@@ -34,7 +35,7 @@ public class UndirectedEdge extends Edge {
 	 *            node object pointers)
 	 */
 	public UndirectedEdge(String s, Graph g) {
-		String[] temp = s.split(Config.get("EDGE_UNDIRECTED_DELIMITER"));
+		String[] temp = s.split(UndirectedEdge.separator);
 		if (temp.length != 2) {
 			throw new IllegalArgumentException("Cannot parse " + s
 					+ " into an undirected edge");
@@ -47,7 +48,7 @@ public class UndirectedEdge extends Edge {
 	}
 
 	public UndirectedEdge(String s, Graph g, HashMap<Integer, Node> addedNodes) {
-		String[] temp = s.split(Config.get("EDGE_UNDIRECTED_DELIMITER"));
+		String[] temp = s.split(UndirectedEdge.separator);
 		if (temp.length != 2) {
 			throw new IllegalArgumentException("Cannot parse " + s
 					+ " into an undirected edge");
@@ -74,7 +75,7 @@ public class UndirectedEdge extends Edge {
 	 * @return String representation of this edge
 	 */
 	public String getStringRepresentation() {
-		return this.getN1().getIndex() + Config.get("EDGE_UNDIRECTED_DELIMITER")
+		return this.getN1().getIndex() + UndirectedEdge.separator
 				+ this.getN2().getIndex();
 	}
 
