@@ -22,7 +22,7 @@ public class NodeAddition extends NodeUpdate {
 
 	@Override
 	public UpdateType getType() {
-		return UpdateType.NODE_ADDITION;
+		return UpdateType.NA;
 	}
 
 	@Override

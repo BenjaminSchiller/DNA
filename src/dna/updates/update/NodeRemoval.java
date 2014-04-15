@@ -52,7 +52,7 @@ public class NodeRemoval extends NodeUpdate {
 
 	@Override
 	public UpdateType getType() {
-		return UpdateType.NODE_REMOVAL;
+		return UpdateType.NR;
 	}
 
 	@Override

@@ -34,7 +34,7 @@ public class EdgeRemoval extends EdgeUpdate {
 
 	@Override
 	public UpdateType getType() {
-		return UpdateType.EDGE_REMOVAL;
+		return UpdateType.ER;
 	}
 
 	@Override

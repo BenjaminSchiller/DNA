@@ -32,7 +32,7 @@ public class NodeWeight extends NodeUpdate {
 
 	@Override
 	public UpdateType getType() {
-		return UpdateType.NODE_WEIGHT;
+		return UpdateType.NW;
 	}
 
 	@Override

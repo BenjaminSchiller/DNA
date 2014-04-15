@@ -40,7 +40,7 @@ public class EdgeWeight extends EdgeUpdate {
 
 	@Override
 	public UpdateType getType() {
-		return UpdateType.EDGE_WEIGHT;
+		return UpdateType.EW;
 	}
 
 	@Override

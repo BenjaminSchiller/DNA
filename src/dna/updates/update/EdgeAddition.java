@@ -28,7 +28,7 @@ public class EdgeAddition extends EdgeUpdate {
 
 	@Override
 	public UpdateType getType() {
-		return UpdateType.EDGE_ADDITION;
+		return UpdateType.EA;
 	}
 
 	@Override

@@ -8,15 +8,20 @@ import dna.graph.nodes.Node;
 
 public abstract class Update {
 
-	public static final String TypeDelimiter = "#";
+	public static final String TypeDelimiter = "_";
 
-	public static final String WeightDelimiter = "@";
+	public static final String WeightDelimiter = ":";
 
-	public static final String EdgeSeparator = "--";
+	public static final String EdgeSeparator = "-";
 
 	public static enum UpdateType {
-		NODE_ADDITION, NODE_REMOVAL, NODE_WEIGHT, EDGE_ADDITION, EDGE_REMOVAL, EDGE_WEIGHT
+		NA, NR, NW, EA, ER, EW
 	};
+
+	// public static enum UpdateType {
+	// NODE_ADDITION, NODE_REMOVAL, NODE_WEIGHT, EDGE_ADDITION, EDGE_REMOVAL,
+	// EDGE_WEIGHT
+	// };
 
 	public boolean apply(Graph g) {
 		return this.apply_(g);
@@ -60,17 +65,17 @@ public abstract class Update {
 		UpdateType t = UpdateType.valueOf(temp[0]);
 
 		switch (t) {
-		case EDGE_ADDITION:
+		case EA:
 			return new EdgeAddition(temp[1], gds, g, addedNodes);
-		case EDGE_REMOVAL:
+		case ER:
 			return new EdgeRemoval(temp[1], gds, g);
-		case EDGE_WEIGHT:
+		case EW:
 			return new EdgeWeight(temp[1], gds, g);
-		case NODE_ADDITION:
+		case NA:
 			return new NodeAddition(temp[1], gds);
-		case NODE_REMOVAL:
+		case NR:
 			return new NodeRemoval(temp[1], g);
-		case NODE_WEIGHT:
+		case NW:
 			return new NodeWeight(temp[1], g);
 		default:
 			return null;
