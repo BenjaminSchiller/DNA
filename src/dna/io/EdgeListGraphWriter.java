@@ -7,7 +7,7 @@ import dna.graph.IElement;
 import dna.graph.edges.DirectedEdge;
 import dna.graph.edges.UndirectedEdge;
 
-public class EdgeListWriter {
+public class EdgeListGraphWriter {
 
 	public enum InfoType {
 		NONE, N, NM
