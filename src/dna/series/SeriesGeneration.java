@@ -3,7 +3,6 @@ package dna.series;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.FileSystem;
-import java.util.HashMap;
 
 import dna.io.filesystem.Dir;
 import dna.io.filesystem.Files;
@@ -124,12 +123,9 @@ public class SeriesGeneration {
 		// aggregate all runs
 		if (aggregate) {
 		Log.infoSep();
-		Timer aggregationTimer = new Timer("aggregation");
 
 		AggregatedSeries aSd = Aggregation.aggregateSeries(sd);
 		sd.setAggregation(aSd);
-		aggregationTimer.end();
-		Log.info(aggregationTimer.toString());
 		// end of aggregation
 		Log.infoSep();
 		}
@@ -330,9 +326,6 @@ public class SeriesGeneration {
 				gcCounter++;
 			}
 		}
-
-		timer.end();
-		Log.info(timer.toString());
 	}
 
 	private static boolean compareMetrics(Series series) {

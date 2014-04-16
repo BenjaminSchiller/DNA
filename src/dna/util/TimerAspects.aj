@@ -6,12 +6,13 @@ import dna.graph.Graph;
 import dna.graph.generators.IGraphGenerator;
 import dna.metrics.Metric;
 import dna.profiler.HotSwap;
+import dna.series.Aggregation;
 import dna.series.Series;
 import dna.series.SeriesGeneration;
 import dna.series.SeriesStats;
 import dna.profiler.Profiler;
+import dna.series.aggdata.AggregatedSeries;
 import dna.series.data.BatchData;
-import dna.series.data.RunData;
 import dna.series.data.RunTime;
 import dna.series.data.SeriesData;
 import dna.series.lists.RunTimeList;
@@ -25,7 +26,7 @@ public aspect TimerAspects {
 	private HashSet<String> additionalNotInTotalRuntimesList = new HashSet<>();
 	private TimerMap map = new TimerMap();
 
-	pointcut seriesGeneration() : call(* SeriesGeneration.generate(Series, int, int, boolean, boolean));
+	pointcut seriesGeneration() : call(* SeriesGeneration.generate(Series, int, int, boolean, boolean, long));
 	pointcut runGeneration(): call(* SeriesGeneration.generateRun(Series, int, int,..));
 	pointcut graphGeneration(): call(* IGraphGenerator.generate(..));
 
@@ -41,6 +42,7 @@ public aspect TimerAspects {
 			 || call(* Metric+.applyAfterBatch(Batch+))) && args(b) && target(metric);
 	pointcut metricApplicationPerUpdate(Metric metric, Update update) : (call(* Metric+.applyBeforeUpdate(Update+))
 			 || call(* Metric+.applyAfterUpdate(Update+))) && args(update) && target(metric);
+	pointcut aggregation(SeriesData sd): call(* Aggregation.aggregateSeries(SeriesData)) && args(sd);
 
 	pointcut profilerExecution(): execution(* Profiler.start*(..)) || execution(* Profiler.finish*(..));
 	pointcut hotswappingExecution(): call(* HotSwap.trySwap(..));
@@ -56,13 +58,11 @@ public aspect TimerAspects {
 		return res;
 	}
 
-	RunData around(): runGeneration() {
+	void around(): runGeneration() {
 		Timer timer = new Timer("runGeneration");
-		RunData res = proceed();
+		proceed();
 		timer.end();
 		Log.info(timer.toString());
-
-		return res;
 	}
 
 	Graph around(): graphGeneration() {
@@ -230,6 +230,14 @@ public aspect TimerAspects {
 		wholeMetricsTimer.end();
 		map.put(singleMetricTimer);
 		map.put(wholeMetricsTimer);
+		return res;
+	}
+	
+	AggregatedSeries around(SeriesData sd): aggregation(sd) {
+		Timer aggregationTimer = new Timer("aggregation");
+		AggregatedSeries res = proceed(sd);
+		aggregationTimer.end();
+		Log.info("Aggregation: " + aggregationTimer.toString());
 		return res;
 	}
 
