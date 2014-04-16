@@ -29,7 +29,7 @@ These basic nodes are implemented in:
 - *dna.graph.nodes.DirectedNode*
 - *dna.graph.nodes.UndirectedNode*
 
-For **weighted nodes**, the string representation of their weight as simply added to the index, separated by "@":
+For **weighted nodes**, the string representation of their weight is simply added to the index, separated by "@":
 
 	${index}@${weight}
 
@@ -91,9 +91,9 @@ These weighted versions of directed and undirected edges are implemented in:
 Weights
 ---------------------
 So far, only very simple **weights** have been implemented.
-Each weight consists of one, two, or three numbers, either double or int.
+Each weight consists of one, two, or three numbers, either int, long, or double.
 In case of multiple numbers, they are separated by ";".
-Hence, hhe general format of these basic weights is as follows:
+Hence, the general format of these basic weights is as follows:
 
 	${w1}
 	${w1};${w2}
@@ -111,6 +111,9 @@ The following weights have been implemented so far:
 - int weight: *dna.graph.weights.IntWeight*
 - int weight (2d): *dna.graph.weights.Int2dWeight*
 - int weight (3d): *dna.graph.weights.Int3dWeight*
+- long weight: *dna.graph.weights.LongWeight*
+- long weight (2d): *dna.graph.weights.Long2dWeight*
+- long weight (3d): *dna.graph.weights.Long3dWeight*
 - double weight: *dna.graph.weights.DoubleWeight*
 - double weight (2d): *dna.graph.weights.Double2dWeight*
 - double weight (3d): *dna.graph.weights.Double3dWeight*
