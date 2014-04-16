@@ -51,28 +51,12 @@ public abstract class GraphGenerator extends ParameterList implements
 
 	public Graph newGraphInstance() {
 		GraphDataStructure newGDS = gds.clone();
-		if (!this.canGenerateNodeType(newGDS.getNodeType())) {
-			throw new RuntimeException(
-					"This generator can not be run with a graph data structure containing a node of type "
-							+ newGDS.getNodeType());
-		}
-
 		return newGDS.newGraphInstance(this.getName(), this.timestampInit,
 				this.nodesInit, this.edgesInit);
 	}
 
 	public GraphDataStructure getGraphDataStructure() {
 		return this.gds;
-	}
-
-	@Override
-	public boolean canGenerateNodeType(Class<? extends Node> nodeType) {
-		return true;
-	}
-
-	@Override
-	public boolean canGenerateEdgeType(Class<? extends Edge> edgeType) {
-		return true;
 	}
 
 	public static String buildName(String name, GraphDataStructure gds) {
