@@ -66,11 +66,6 @@ public class Int3dWeight extends Weight {
 	}
 
 	@Override
-	public WeightType getWeightType() {
-		return WeightType.I3;
-	}
-
-	@Override
 	public Object getWeight() {
 		return new int[] { x, y, z };
 	}

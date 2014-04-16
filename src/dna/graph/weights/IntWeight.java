@@ -43,11 +43,6 @@ public class IntWeight extends Weight {
 		return Integer.toString(this.weight);
 	}
 
-	@Override
-	public WeightType getWeightType() {
-		return WeightType.I;
-	}
-
 	/**
 	 * generates and returns an int value as (part of) a new weight depending on
 	 * the given selection.

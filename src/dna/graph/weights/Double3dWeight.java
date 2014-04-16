@@ -67,11 +67,6 @@ public class Double3dWeight extends Weight {
 	}
 
 	@Override
-	public WeightType getWeightType() {
-		return WeightType.D3;
-	}
-
-	@Override
 	public Object getWeight() {
 		return new double[] { x, y, z };
 	}

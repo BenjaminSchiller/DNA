@@ -1,6 +1,5 @@
 package dna.graph.weights;
 
-
 /**
  * 
  * this class implements an abstract class for representing node and edge
@@ -26,25 +25,10 @@ public abstract class Weight {
 	public static final String WeightDelimiter = "@";
 
 	/**
-	 * delimiter to separate the weight type from the actual weightm´, e.g.,
-	 * D:0.24, I3:214;572;2
-	 */
-	public static final String WeightTypeDelimiter = ":";
-
-	/**
 	 * keyword to separate the different parts of a single weight, e.g. 14;2;52,
 	 * 1.4;0.253;25.0
 	 */
 	public static final String WeightSeparator = ";";
-
-	/**
-	 * types of weights, used as keywords in String representation. each type
-	 * has a separate class implementing the type, e.g., D2 => Double2dWeight, I
-	 * => IntWeight
-	 */
-	public static enum WeightType {
-		D, D2, D3, I, I2, I3
-	};
 
 	/**
 	 * types that describe how a new weight is selected. some types can only be
@@ -68,25 +52,20 @@ public abstract class Weight {
 	public abstract String asString();
 
 	/**
-	 * 
-	 * @return weight type of this weight.
-	 */
-	public abstract WeightType getWeightType();
-	
-	/**
 	 * Get a condensed version of the weight
 	 * 
 	 * @return weight
 	 */
 	public abstract Object getWeight();
-	
+
 	/**
 	 * Equality of weights
+	 * 
 	 * @return
 	 */
 	public boolean equals(Object o) {
-		if ( Weight.class.isAssignableFrom(o.getClass())) {
-			Weight oCasted = (Weight)o;
+		if (Weight.class.isAssignableFrom(o.getClass())) {
+			Weight oCasted = (Weight) o;
 			return oCasted.toString().equals(this.toString());
 		}
 		return false;
