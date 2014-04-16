@@ -262,8 +262,8 @@ public class GeneratorsTest {
 			assertNotNull("Graph g misses edge " + e + " (edge list type: "
 					+ gds.getListClass(ListType.GlobalEdgeList) + ")", eOther);
 			assertEquals(e, eOther);
-			assertNotEquals(e.getStringRepresentation(),
-					eOther.getStringRepresentation());
+			assertNotEquals(e.asString(),
+					eOther.asString());
 		}
 
 		for (IElement eU : g.getEdges()) {
@@ -271,8 +271,8 @@ public class GeneratorsTest {
 			Edge eOther = g2.getEdge(e.getN1(), e.getN2());
 			assertNotNull(eOther);
 			assertEquals(e, eOther);
-			assertNotEquals(e.getStringRepresentation(),
-					eOther.getStringRepresentation());
+			assertNotEquals(e.asString(),
+					eOther.asString());
 		}
 
 	}
@@ -303,7 +303,7 @@ public class GeneratorsTest {
 
 		assertEquals(g, g2);
 
-		// Change getStringRepresentation now to see that it is used for
+		// Change asString now to see that it is used for
 		// equality checks, and weights are left out of sight
 		Node random = g.getRandomNode();
 		for (int i = 0; i < (int) Math.floor(edgeSize / 5); i++) {
@@ -350,13 +350,13 @@ public class GeneratorsTest {
 
 		assertEquals(g, g2);
 
-		// Change getStringRepresentation now to see that it is used for
+		// Change asString now to see that it is used for
 		// equality checks
 		Node nodeReal = g.getNode(g.getNodeCount() - 1);
 		assertNotNull(nodeReal);
 		g.removeNode(nodeReal);
 		Node nodeMocked = mock(this.nodeType);
-		when(nodeMocked.getStringRepresentation()).thenReturn("");
+		when(nodeMocked.asString()).thenReturn("");
 		g.addNode(nodeMocked);
 		assertNotEquals(g, g2);
 	}

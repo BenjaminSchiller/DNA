@@ -40,8 +40,8 @@ public class DirectedWeightedEdge extends DirectedEdge implements IWeightedEdge 
 	}
 
 	@Override
-	public String getStringRepresentation() {
-		return super.getStringRepresentation() + Weight.WeightDelimiter
+	public String asString() {
+		return super.asString() + Weight.WeightDelimiter
 				+ this.weight.asString();
 	}
 

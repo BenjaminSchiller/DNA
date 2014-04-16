@@ -10,7 +10,7 @@ public interface INode extends IElement {
 
 	public String toString();
 
-	public String getStringRepresentation();
+	public String asString();
 
 	public int hashCode();
 

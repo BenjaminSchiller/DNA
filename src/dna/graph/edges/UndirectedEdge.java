@@ -74,7 +74,7 @@ public class UndirectedEdge extends Edge {
 	 * 
 	 * @return String representation of this edge
 	 */
-	public String getStringRepresentation() {
+	public String asString() {
 		return this.getN1().getIndex() + UndirectedEdge.separator
 				+ this.getN2().getIndex();
 	}

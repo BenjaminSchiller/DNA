@@ -33,7 +33,7 @@ public class EdgeAddition extends EdgeUpdate {
 
 	@Override
 	protected String asString_() {
-		return this.edge.getStringRepresentation();
+		return this.edge.asString();
 	}
 
 	@Override

@@ -189,7 +189,7 @@ public class DArray extends DataStructureReadable implements
 				return true;
 			}
 		}
-		Log.debug("Cannot remove element " + element.getStringRepresentation()
+		Log.debug("Cannot remove element " + element.asString()
 				+ " that is not in list of size " + this.size() + " / length "
 				+ this.list.length);
 		return false;

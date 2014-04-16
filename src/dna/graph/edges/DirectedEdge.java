@@ -67,7 +67,7 @@ public class DirectedEdge extends Edge {
 	}
 
 	@Override
-	public String getStringRepresentation() {
+	public String asString() {
 		return this.getN1().getIndex() + DirectedEdge.separator
 				+ this.getN2().getIndex();
 	}

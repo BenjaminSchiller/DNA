@@ -42,14 +42,14 @@ public class GraphWriter {
 			for (IElement n : g.getNodes()) {
 				if (n == null)
 					continue;
-				writer.writeln(n.getStringRepresentation());
+				writer.writeln(n.asString());
 			}
 
 			writer.writeKeyword(GraphWriter.edgesListKeyword);
 			for (IElement e : g.getEdges()) {
 				if (e == null)
 					continue;
-				writer.writeln(e.getStringRepresentation());
+				writer.writeln(e.asString());
 			}
 
 			return true;

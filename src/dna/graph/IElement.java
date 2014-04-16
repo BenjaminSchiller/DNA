@@ -13,7 +13,7 @@ public interface IElement extends Comparable<Element> {
 	 * 
 	 * @return
 	 */
-	public String getStringRepresentation();
+	public String asString();
 
 	/**
 	 * Checks whether two elements are completely equal, mostly defined through

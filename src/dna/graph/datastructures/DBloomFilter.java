@@ -99,7 +99,7 @@ public class DBloomFilter extends DataStructure implements
 
 		@Override
 		public void funnel(IElement element, PrimitiveSink into) {
-			into.putUnencodedChars(element.getStringRepresentation());
+			into.putUnencodedChars(element.asString());
 		}
 
 	}

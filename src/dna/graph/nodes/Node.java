@@ -26,7 +26,7 @@ public abstract class Node extends Element implements INode {
 		return "" + this.index;
 	}
 
-	public String getStringRepresentation() {
+	public String asString() {
 		return Integer.toString(this.index);
 	}
 

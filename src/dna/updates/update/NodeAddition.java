@@ -27,7 +27,7 @@ public class NodeAddition extends NodeUpdate {
 
 	@Override
 	protected String asString_() {
-		return this.node.getStringRepresentation();
+		return this.node.asString();
 	}
 
 	@Override

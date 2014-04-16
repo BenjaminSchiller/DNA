@@ -285,7 +285,6 @@ public class Batch {
 		System.out.println(name + ": " + updates.size());
 		for (Update u : updates) {
 			System.out.println("  " + u);
-			// System.out.println("  " + u.getStringRepresentation());
 		}
 	}
 }
