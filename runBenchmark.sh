@@ -13,7 +13,8 @@ do
 		sleep 5
 	done
 	
-	echo "Starting benchmark for $line"
+	startTime=$(date +"%d. %B %T")
+	echo "[$startTime] Starting benchmark for $line"
 	java -cp DNA.jar dna.profiler.benchmarking.BenchmarkingExperiments $line &
 	sleep 1
 done
