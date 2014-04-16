@@ -192,9 +192,9 @@ public abstract class RootMeanSquareDeviation extends Metric {
 		Class<? extends Weight> nodeWeightType = g.getGraphDatastructures()
 				.getNodeWeightType();
 		if (!Double2dWeight.class.isAssignableFrom(nodeWeightType)
-				|| !Double3dWeight.class.isAssignableFrom(nodeWeightType)
-				|| !Int2dWeight.class.isAssignableFrom(nodeWeightType)
-				|| !Int3dWeight.class.isAssignableFrom(nodeWeightType))
+				&& !Double3dWeight.class.isAssignableFrom(nodeWeightType)
+				&& !Int2dWeight.class.isAssignableFrom(nodeWeightType)
+				&& !Int3dWeight.class.isAssignableFrom(nodeWeightType))
 			return false;
 
 		return true;
@@ -210,9 +210,9 @@ public abstract class RootMeanSquareDeviation extends Metric {
 		Class<? extends Weight> nodeWeightType = b.getGraphDatastructures()
 				.getNodeWeightType();
 		if (!Double2dWeight.class.isAssignableFrom(nodeWeightType)
-				|| !Double3dWeight.class.isAssignableFrom(nodeWeightType)
-				|| !Int2dWeight.class.isAssignableFrom(nodeWeightType)
-				|| !Int3dWeight.class.isAssignableFrom(nodeWeightType))
+				&& !Double3dWeight.class.isAssignableFrom(nodeWeightType)
+				&& !Int2dWeight.class.isAssignableFrom(nodeWeightType)
+				&& !Int3dWeight.class.isAssignableFrom(nodeWeightType))
 			return false;
 
 		return true;
