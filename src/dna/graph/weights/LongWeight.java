@@ -35,11 +35,6 @@ public class LongWeight extends Weight {
 		return Long.toString(this.weight);
 	}
 
-	@Override
-	public Object getWeight() {
-		return new long[] { this.weight };
-	}
-
 	/**
 	 * 
 	 * generates and returns a long value as (part of) a new weight depending on

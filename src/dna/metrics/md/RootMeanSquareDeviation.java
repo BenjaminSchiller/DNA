@@ -78,8 +78,21 @@ public abstract class RootMeanSquareDeviation extends Metric {
 	 */
 	protected double getDeviation(Weight pos1, Weight pos2) {
 		if (pos1 instanceof Int2dWeight || pos1 instanceof Int3dWeight) {
-			int[] before = (int[]) pos1.getWeight();
-			int[] after = (int[]) pos2.getWeight();
+			int[] before, after;
+			if (pos1 instanceof Int2dWeight) {
+				before = new int[] { ((Int2dWeight) pos1).getX(),
+						((Int2dWeight) pos2).getY() };
+				after = new int[] { ((Int2dWeight) pos2).getX(),
+						((Int2dWeight) pos2).getY() };
+			} else {
+				before = new int[] { ((Int3dWeight) pos1).getX(),
+						((Int3dWeight) pos2).getY(),
+						((Int3dWeight) pos2).getZ() };
+				after = new int[] { ((Int3dWeight) pos2).getX(),
+						((Int3dWeight) pos2).getY(),
+						((Int3dWeight) pos2).getZ() };
+			}
+
 			if (before.length < after.length) {
 				before = new int[after.length];
 			}
@@ -89,9 +102,23 @@ public abstract class RootMeanSquareDeviation extends Metric {
 				deviation += (double) (diff * diff);
 			}
 			return deviation;
-		} else if (pos1 instanceof Double2dWeight || pos1 instanceof Double3dWeight) {
-			double[] before = (double[]) pos1.getWeight();
-			double[] after = (double[]) pos2.getWeight();
+		} else if (pos1 instanceof Double2dWeight
+				|| pos1 instanceof Double3dWeight) {
+			double[] before, after;
+			if (pos1 instanceof Double2dWeight) {
+				before = new double[] { ((Double2dWeight) pos1).getX(),
+						((Double2dWeight) pos2).getY() };
+				after = new double[] { ((Double2dWeight) pos2).getX(),
+						((Double2dWeight) pos2).getY() };
+			} else {
+				before = new double[] { ((Double3dWeight) pos1).getX(),
+						((Double3dWeight) pos2).getY(),
+						((Double3dWeight) pos2).getZ() };
+				after = new double[] { ((Double3dWeight) pos2).getX(),
+						((Double3dWeight) pos2).getY(),
+						((Double3dWeight) pos2).getZ() };
+			}
+
 			if (before.length < after.length) {
 				before = new double[after.length];
 			}
@@ -188,7 +215,7 @@ public abstract class RootMeanSquareDeviation extends Metric {
 				|| !Int3dWeight.class.isAssignableFrom(nodeWeightType))
 			return false;
 
-		return true;		
+		return true;
 	}
 
 	@Override

@@ -53,9 +53,4 @@ public class Int2dWeight extends Weight {
 		return this.x + Weight.WeightSeparator + this.y;
 	}
 
-	@Override
-	public Object getWeight() {
-		return new int[] { x, y };
-	}
-
 }

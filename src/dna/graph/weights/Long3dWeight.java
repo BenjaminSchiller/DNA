@@ -66,9 +66,4 @@ public class Long3dWeight extends Weight {
 				+ Weight.WeightSeparator + this.z;
 	}
 
-	@Override
-	public Object getWeight() {
-		return new long[] { this.x, this.y, this.z };
-	}
-
 }

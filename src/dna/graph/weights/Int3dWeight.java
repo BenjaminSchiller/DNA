@@ -65,9 +65,4 @@ public class Int3dWeight extends Weight {
 				+ Weight.WeightSeparator + this.z;
 	}
 
-	@Override
-	public Object getWeight() {
-		return new int[] { x, y, z };
-	}
-
 }

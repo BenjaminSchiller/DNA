@@ -53,9 +53,4 @@ public class Double2dWeight extends Weight {
 		return this.x + Weight.WeightSeparator + this.y;
 	}
 
-	@Override
-	public Object getWeight() {
-		return new double[] { x, y };
-	}
-
 }

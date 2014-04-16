@@ -52,13 +52,6 @@ public abstract class Weight {
 	public abstract String asString();
 
 	/**
-	 * Get a condensed version of the weight
-	 * 
-	 * @return weight
-	 */
-	public abstract Object getWeight();
-
-	/**
 	 * Equality of weights
 	 * 
 	 * @return

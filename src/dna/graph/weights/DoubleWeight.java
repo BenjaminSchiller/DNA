@@ -39,11 +39,6 @@ public class DoubleWeight extends Weight {
 		return Double.toString(this.weight);
 	}
 
-	@Override
-	public Object getWeight() {
-		return new double[] { weight };
-	}
-
 	/**
 	 * generates and returns a double value as (part of) a new weight depending
 	 * on the given selection.

@@ -66,9 +66,4 @@ public class Double3dWeight extends Weight {
 				+ Weight.WeightSeparator + this.z;
 	}
 
-	@Override
-	public Object getWeight() {
-		return new double[] { x, y, z };
-	}
-
 }
