@@ -57,7 +57,7 @@ public class Visualizer extends JPanel {
 
 	// constructor
 	@SuppressWarnings("rawtypes")
-	public Visualizer() {
+	public Visualizer(Dimension chartSize, Dimension legendSize) {
 		// initialization
 		// this.setPreferredSize(GuiOptions.visualizerDefaultSize);
 		this.paused = true;
@@ -78,8 +78,7 @@ public class Visualizer extends JPanel {
 
 		// init chart
 		this.chart = new Chart2D();
-		this.chart.setPreferredSize(MainDisplay.DefaultConfig
-				.getMetricVisualizerConfigs()[0].getChartSize());
+		this.chart.setPreferredSize(chartSize);
 
 		/*
 		 * axis configuration
@@ -114,9 +113,7 @@ public class Visualizer extends JPanel {
 		this.add(this.chart, this.mainConstraints);
 
 		// init and add legend
-		this.legend = new Legend(this,
-				MainDisplay.DefaultConfig.getMetricVisualizerConfigs()[0]
-						.getLegendSize());
+		this.legend = new Legend(this, legendSize);
 		this.mainConstraints.gridx = 1;
 		this.mainConstraints.gridy = 0;
 		this.add(this.legend, this.mainConstraints);

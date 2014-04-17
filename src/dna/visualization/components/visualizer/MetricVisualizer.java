@@ -64,8 +64,9 @@ public class MetricVisualizer extends Visualizer {
 
 	// constructor
 	public MetricVisualizer(MainDisplay mainDisplay,
-			MetricVisualizerConfig config) {
+			MetricVisualizerConfig config) {		
 		// initialization
+		super(config.getChartSize(), config.getLegendSize());
 		this.mainDisplay = mainDisplay;
 		this.traces = new HashMap<String, ITrace2D>();
 		this.availableValues = new ArrayList<String>();
