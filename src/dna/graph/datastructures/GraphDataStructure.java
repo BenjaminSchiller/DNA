@@ -914,4 +914,46 @@ public class GraphDataStructure {
 		}
 		return resAggregator;
 	}
+
+	public boolean isNodeType(Class... types) {
+		for (Class t : types) {
+			if (t.isAssignableFrom(this.nodeType)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	public boolean isEdgeType(Class... types) {
+		for (Class t : types) {
+			if (t.isAssignableFrom(this.edgeType)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	public boolean isNodeWeightType(Class... types) {
+		if (this.nodeWeightType == null) {
+			return false;
+		}
+		for (Class t : types) {
+			if (t.isAssignableFrom(this.nodeWeightType)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	public boolean isEdgeWeightType(Class... types) {
+		if (this.edgeWeightType == null) {
+			return false;
+		}
+		for (Class t : types) {
+			if (t.isAssignableFrom(this.edgeWeightType)) {
+				return true;
+			}
+		}
+		return false;
+	}
 }
