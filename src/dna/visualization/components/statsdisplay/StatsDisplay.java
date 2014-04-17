@@ -25,6 +25,7 @@ import javax.swing.event.ChangeListener;
 
 import dna.series.data.BatchData;
 import dna.series.data.RunTime;
+import dna.series.data.Value;
 import dna.util.Log;
 import dna.visualization.MainDisplay;
 import dna.visualization.config.components.StatsDisplayConfig;
@@ -69,6 +70,8 @@ public class StatsDisplay extends JPanel implements ChangeListener {
 
 	private RunTimeStatsGroup metRuntimes;
 	private RunTimeStatsGroup genRuntimes;
+
+	private RunTimeStatsGroup statistics;
 
 	// timestamps
 	private long minTimestamp;
@@ -139,6 +142,9 @@ public class StatsDisplay extends JPanel implements ChangeListener {
 		if (config.isAddSettingsPanel())
 			this.addSettingsPanel(!liveDisplay && config.isAddSpeedSlider());
 
+		if (config.isAddStatistics())
+			this.addStats(config.getStatisticsConfig());
+
 		if (config.isAddMetRuntimes())
 			this.addMetricRuntimes(config.getMetricRuntimeConfig());
 
@@ -147,6 +153,73 @@ public class StatsDisplay extends JPanel implements ChangeListener {
 
 		// validate ui
 		this.validate();
+	}
+
+	/** adds a statistics panel as runtimegroup **/
+	public void addStats(RunTimeConfig config) {
+		this.statistics = new RunTimeStatsGroup(this, config);
+		this.mainConstraints.gridx = 0;
+		this.add(this.statistics, this.mainConstraints);
+		this.mainConstraints.gridy++;
+	}
+
+	/** adds a statistics panel **/
+	public void addStatistics(String[] statistics) {
+		JPanel statisticsPanel = new JPanel();
+		statisticsPanel.setName("Statistics");
+
+		// set border
+		TitledBorder border = BorderFactory.createTitledBorder("Statistics");
+		border.setTitleFont(new Font(this.getDefaultFont().getName(),
+				Font.BOLD, this.getDefaultFont().getSize()));
+		border.setTitleColor(this.getDefaultFontColor());
+		statisticsPanel.setBorder(border);
+
+		// set layout
+		statisticsPanel.setLayout(new GridBagLayout());
+		GridBagConstraints statisticsPanelConstraints = new GridBagConstraints();
+		statisticsPanelConstraints.insets = new Insets(0, 0, 0, 0);
+		statisticsPanelConstraints.anchor = GridBagConstraints.NORTH;
+		statisticsPanelConstraints.fill = GridBagConstraints.HORIZONTAL;
+		statisticsPanelConstraints.gridx = 0;
+		statisticsPanelConstraints.gridy = 0;
+		statisticsPanelConstraints.weightx = 0.5;
+
+		/*
+		 * STATISTICS
+		 */
+		String[] shownStatistics = statistics;
+
+		this.shownStatisticsLabels = new JLabel[shownStatistics.length];
+		this.shownStatisticsValues = new JLabel[shownStatistics.length];
+
+		for (int i = 0; i < shownStatistics.length; i++) {
+			this.shownStatisticsLabels[i] = new JLabel(shownStatistics[i]
+					.substring(0, 1).toUpperCase()
+					+ shownStatistics[i].substring(1) + ": ");
+			this.shownStatisticsLabels[i].setFont(this.mainDisplay
+					.getDefaultFont());
+			this.shownStatisticsLabels[i].setForeground(this.mainDisplay
+					.getDefaultFontColor());
+			this.shownStatisticsValues[i] = new JLabel("" + 0);
+			this.shownStatisticsValues[i].setFont(this.mainDisplay
+					.getDefaultFont());
+			this.shownStatisticsValues[i].setForeground(this.mainDisplay
+					.getDefaultFontColor());
+
+			statisticsPanelConstraints.gridx = 0;
+			statisticsPanel.add(this.shownStatisticsLabels[i],
+					statisticsPanelConstraints);
+			statisticsPanelConstraints.gridx = 1;
+			statisticsPanel.add(this.shownStatisticsValues[i],
+					statisticsPanelConstraints);
+			statisticsPanelConstraints.gridy++;
+		}
+
+		// adding statistics to mainPanel
+		this.mainConstraints.gridx = 0;
+		this.add(statisticsPanel, this.mainConstraints);
+		this.mainConstraints.gridy++;
 	}
 
 	/** adds a settingspanel containing general information and speedslider **/
@@ -160,6 +233,14 @@ public class StatsDisplay extends JPanel implements ChangeListener {
 		this.settingsPanel.setBorder(BorderFactory
 				.createEtchedBorder((EtchedBorder.LOWERED)));
 		this.settingsPanel.setBorder(BorderFactory.createTitledBorder(""));
+		
+		// set border
+		TitledBorder border = BorderFactory.createTitledBorder("Control");
+		border.setTitleFont(new Font(this.getDefaultFont()
+				.getName(), Font.BOLD, this.getDefaultFont()
+				.getSize()));
+		border.setTitleColor(this.getDefaultFontColor());
+		this.settingsPanel.setBorder(border);
 
 		// set layout
 		this.settingsPanel.setLayout(new GridBagLayout());
@@ -293,37 +374,6 @@ public class StatsDisplay extends JPanel implements ChangeListener {
 		this.settingsPanelConstraints.gridy++;
 
 		/*
-		 * STATISTICS
-		 */
-		String[] shownStatistics = this.config.getShownStatistics();
-
-		this.shownStatisticsLabels = new JLabel[shownStatistics.length];
-		this.shownStatisticsValues = new JLabel[shownStatistics.length];
-
-		for (int i = 0; i < shownStatistics.length; i++) {
-			this.shownStatisticsLabels[i] = new JLabel(shownStatistics[i]
-					.substring(0, 1).toUpperCase()
-					+ shownStatistics[i].substring(1) + ": ");
-			this.shownStatisticsLabels[i].setFont(this.mainDisplay
-					.getDefaultFont());
-			this.shownStatisticsLabels[i].setForeground(this.mainDisplay
-					.getDefaultFontColor());
-			this.shownStatisticsValues[i] = new JLabel("" + 0);
-			this.shownStatisticsValues[i].setFont(this.mainDisplay
-					.getDefaultFont());
-			this.shownStatisticsValues[i].setForeground(this.mainDisplay
-					.getDefaultFontColor());
-
-			this.settingsPanelConstraints.gridx = 0;
-			this.settingsPanel.add(this.shownStatisticsLabels[i],
-					this.settingsPanelConstraints);
-			this.settingsPanelConstraints.gridx = 1;
-			this.settingsPanel.add(this.shownStatisticsValues[i],
-					this.settingsPanelConstraints);
-			this.settingsPanelConstraints.gridy++;
-		}
-
-		/*
 		 * SPEED SLIDER
 		 */
 		if (addSpeedSlider) {
@@ -366,6 +416,7 @@ public class StatsDisplay extends JPanel implements ChangeListener {
 		this.settingsPanelConstraints.ipady = 10;
 		this.settingsPanel.add(this.mainDisplay.buttons,
 				settingsPanelConstraints);
+		this.settingsPanelConstraints.gridy++;
 
 		// reset constraints
 		this.settingsPanelConstraints.gridx = 0;
@@ -503,28 +554,6 @@ public class StatsDisplay extends JPanel implements ChangeListener {
 		this.setDirectory(directory);
 		this.setTimestamp(b.getTimestamp());
 
-		for (String value : b.getValues().getNames()) {
-			String[] shownValues = this.config.getShownStatistics();
-			for (int i = 0; i < shownValues.length; i++) {
-				if (value.equals(shownValues[i])) {
-					for (int j = 0; j < this.shownStatisticsLabels.length; j++) {
-						if (this.shownStatisticsLabels[j].getText().equals(
-								value.substring(0, 1).toUpperCase()
-										+ value.substring(1) + ": ")) {
-							double valueDouble = b.getValues().get(value)
-									.getValue();
-							if (valueDouble % 1 == 0)
-								this.shownStatisticsValues[j].setText(""
-										+ (int) valueDouble);
-							else
-								this.shownStatisticsValues[j].setText(""
-										+ b.getValues().get(value).getValue());
-						}
-					}
-				}
-			}
-		}
-
 		if (!this.liveDisplay) {
 			this.minTimestamp = minTimestamp;
 			this.maxTimestamp = maxTimestamp;
@@ -539,6 +568,13 @@ public class StatsDisplay extends JPanel implements ChangeListener {
 					this.TimeSlider.setMinimum((int) minTimestamp);
 					this.TimeSlider.setMaximum((int) maxTimestamp);
 				}
+			}
+		}
+
+		if (this.statistics != null) {
+			this.statistics.clear();
+			for (Value v : b.getValues().getList()) {
+				this.statistics.addValue(v.getName(), v.getValue());
 			}
 		}
 
@@ -577,25 +613,9 @@ public class StatsDisplay extends JPanel implements ChangeListener {
 		this.init = false;
 		this.setTimestamp(b.getTimestamp());
 
-		for (String value : b.getValues().getNames()) {
-			String[] shownValues = this.config.getShownStatistics();
-			for (int i = 0; i < shownValues.length; i++) {
-				if (value.equals(shownValues[i])) {
-					for (int j = 0; j < this.shownStatisticsLabels.length; j++) {
-						if (this.shownStatisticsLabels[j].getText().equals(
-								value.substring(0, 1).toUpperCase()
-										+ value.substring(1) + ": ")) {
-							double valueDouble = b.getValues().get(value)
-									.getValue();
-							if (valueDouble % 1 == 0)
-								this.shownStatisticsValues[j].setText(""
-										+ (int) valueDouble);
-							else
-								this.shownStatisticsValues[j].setText(""
-										+ b.getValues().get(value).getValue());
-						}
-					}
-				}
+		if (this.statistics != null) {
+			for (Value v : b.getValues().getList()) {
+				this.statistics.updateValue(v.getName(), v.getValue());
 			}
 		}
 
@@ -730,12 +750,9 @@ public class StatsDisplay extends JPanel implements ChangeListener {
 		init = false;
 		this.setTimestamp(0);
 
-		for (int i = 0; i < this.shownStatisticsValues.length; i++) {
-			this.shownStatisticsValues[i].setText("" + 0);
-		}
-
 		this.batchesValue.setText("" + 0);
 
+		this.statistics.reset();
 		this.metRuntimes.reset();
 		this.genRuntimes.reset();
 
