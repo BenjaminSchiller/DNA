@@ -10,9 +10,13 @@ import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.URISyntaxException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.jar.JarFile;
 
 import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
@@ -26,12 +30,14 @@ import javax.swing.JScrollPane;
 import javax.swing.border.EtchedBorder;
 
 import dna.series.data.BatchData;
+import dna.util.Config;
 import dna.util.Log;
 import dna.visualization.components.LogDisplay;
 import dna.visualization.components.statsdisplay.StatsDisplay;
 import dna.visualization.components.visualizer.MetricVisualizer;
 import dna.visualization.components.visualizer.MultiScalarVisualizer;
 import dna.visualization.components.visualizer.Visualizer;
+import dna.visualization.config.JSON.JSONException;
 import dna.visualization.config.JSON.JSONObject;
 import dna.visualization.config.JSON.JSONTokener;
 import dna.visualization.config.components.LogDisplayConfig;
@@ -43,104 +49,177 @@ import dna.visualization.config.components.MultiScalarVisualizerConfig;
 public class MainDisplay extends JFrame {
 
 	/** MAIN **/
-	public static void main(String[] args) {
+	public static void main(String[] args) throws URISyntaxException {
 		Log.infoSep();
-		boolean help = false;
-		// check if someone needs help
-		if (args.length > 0) {
-			if (args[0].equals("help") || args[0].equals("-help")
-					|| args[0].equals("--help") || args[0].equals("-h")
-					|| args[0].equals("--h")) {
-				System.out.println("DNA - Dynamic Network Analyzer");
-				System.out
-						.println("Parameters: [config-path], [livedisplay=true/false], [data-dir]");
-				System.out.println("Example: run dna.jar " + '"'
-						+ "config/gui_config1.cfg" + '"' + " true " + '"'
-						+ "data/scenario1337/run.42/" + '"');
-				help = true;
-			}
-		}
-		if (!help) {
-			String defaultConfigPath = "config/gui_default.cfg";
-			String displayConfigPath = "config/gui_default.cfg";
-			Boolean liveDisplay = null;
-			String dataDir = null;
 
-			// check cmd line parameters
-			if (args.length > 0) {
-				if (args.length > 1) {
-					if (args.length > 2) {
-						displayConfigPath = args[0];
-						liveDisplay = Boolean.parseBoolean(args[1]);
-						dataDir = args[2];
-					} else {
-						if (!args[0].equals("true") && !args[0].equals("false")) {
-							displayConfigPath = args[0];
-							if (!args[1].equals("true")
-									&& !args[1].equals("false"))
-								dataDir = args[1];
-							else
-								liveDisplay = Boolean.parseBoolean(args[1]);
-						} else
-							liveDisplay = Boolean.parseBoolean(args[0]);
-						if (!args[1].equals("true") && !args[1].equals("false"))
-							dataDir = args[1];
-					}
-				} else {
-					if (!args[0].equals("true") && !args[0].equals("false"))
-						displayConfigPath = args[0];
-					else
-						liveDisplay = Boolean.parseBoolean(args[0]);
+		// check cmd line parameters
+		boolean helpFlag = false;
+		boolean configFlag = false;
+		String configPath = null;
+		boolean dataFlag = false;
+		String dataDir = null;
+		boolean liveFlag = false;
+		boolean playbackFlag = false;
+		boolean zipFlag = false;
+
+		try {
+			for (int i = 0; i < args.length; i++) {
+				switch (args[i]) {
+				case "-c":
+					configFlag = true;
+					configPath = args[i + 1];
+					break;
+				case "-d":
+					dataFlag = true;
+					dataDir = args[i + 1];
+					break;
+				case "-h":
+					helpFlag = true;
+					break;
+				case "-l":
+					liveFlag = true;
+					break;
+				case "-p":
+					playbackFlag = true;
+					break;
+				case "-z":
+					zipFlag = true;
+					break;
 				}
 			}
+		} catch (IndexOutOfBoundsException e) {
+			Log.error("Error in parameter parsing, please check syntax!");
+			System.out.println();
+			helpFlag = true;
+		}
 
-			JSONObject jsonConfig = new JSONObject();
+		if (liveFlag && playbackFlag) {
+			Log.warn("Live display AND playback flag set. Showing -help and exiting.");
+			helpFlag = true;
+		}
 
-			// read default config
+		if (helpFlag) {
+			System.out.println("DNA - Dynamic Network Analyzer");
+			System.out
+					.println("Run the program with the following command line parameters to change the GUI's behaviour:");
+			System.out.println("Parameter" + "\t\t" + "Function");
+			System.out.println("-c <config-path>" + "\t"
+					+ "Uses the specified file as main display configuration");
+			System.out.println("-d <data-dir>" + "\t\t"
+					+ "Specifies the data-dir as default dir");
+			System.out.println("-h" + "\t\t\t" + "Displays this help message");
+			System.out.println("-l" + "\t\t\t"
+					+ "Runs the GUI in live display mode");
+			System.out.println("-p" + "\t\t\t"
+					+ "Runs the GUI in playback mode");
+			System.out.println("-z" + "\t\t\t"
+					+ "Enables zipped batches support");
+
+			System.out.println("Example: run vis.jar -c " + '"'
+					+ "config/my_guy.cfg" + '"' + " -d " + '"'
+					+ "data/scenario1337/run.42/" + '"' + " -l -z");
+		} else {
+			String defaultConfigPath = "config/gui_default.cfg";
+
+			if (!configFlag)
+				configPath = defaultConfigPath;
+
+			runFromJar = false;
+			Path pPath = Paths.get(Config.class.getProtectionDomain()
+					.getCodeSource().getLocation().toURI());
+			if (pPath.getFileName().toString().endsWith(".jar"))
+				runFromJar = true;
+
 			try {
-				Log.info("Loading default config from " + defaultConfigPath);
-				FileInputStream file = new FileInputStream(defaultConfigPath);
-				JSONTokener tk = new JSONTokener(file);
+				InputStream is;
+				JSONTokener tk;
+				JSONObject jsonConfig;
+				JarFile x = null;
+
+				// read default config
+				if (runFromJar) {
+					String[] splits = defaultConfigPath.split("/");
+					x = new JarFile(pPath.toFile(), false);
+					Log.info("Loading default config from inside .jar-file: "
+							+ splits[splits.length - 1]);
+					is = x.getInputStream(x.getEntry(splits[splits.length - 1]));
+				} else {
+					Log.info("Loading default config from " + defaultConfigPath);
+					is = new FileInputStream(defaultConfigPath);
+				}
+				tk = new JSONTokener(is);
 				jsonConfig = new JSONObject(tk);
-			} catch (FileNotFoundException e) {
+				MainDisplay.DefaultConfig = MainDisplayConfig
+						.createMainDisplayConfigFromJSONObject(jsonConfig
+								.getJSONObject("MainDisplayConfig"));
+
+				// free resources
+				is.close();
+				if (x != null)
+					x.close();
+				x = null;
+				is = null;
+				tk = null;
+				jsonConfig = null;
+
+				// read main display config
+				if (runFromJar && !configFlag) {
+					String[] splits = configPath.split("/");
+					x = new JarFile(pPath.toFile(), false);
+					Log.info("Loading config from inside .jar-file: "
+							+ splits[splits.length - 1]);
+					is = x.getInputStream(x.getEntry(splits[splits.length - 1]));
+				} else {
+					Log.info("Loading config from " + configPath);
+					is = new FileInputStream(configPath);
+				}
+				tk = new JSONTokener(is);
+				jsonConfig = new JSONObject(tk);
+				config = MainDisplayConfig
+						.createMainDisplayConfigFromJSONObject(jsonConfig
+								.getJSONObject("MainDisplayConfig"));
+
+				// free resources
+				is.close();
+				is = null;
+				if (x != null)
+					x.close();
+				x = null;
+				tk = null;
+				jsonConfig = null;
+			} catch (JSONException | IOException e) {
 				e.printStackTrace();
 			}
 
-			MainDisplay.DefaultConfig = MainDisplayConfig
-					.createMainDisplayConfigFromJSONObject(jsonConfig
-							.getJSONObject("MainDisplayConfig"));
-
-			// read main display config
-			try {
-				Log.info("Loading config from " + displayConfigPath);
-				FileInputStream file = new FileInputStream(displayConfigPath);
-				JSONTokener tk = new JSONTokener(file);
-				jsonConfig = new JSONObject(tk);
-			} catch (FileNotFoundException e) {
-				e.printStackTrace();
-			}
-
-			config = MainDisplayConfig
-					.createMainDisplayConfigFromJSONObject(jsonConfig
-							.getJSONObject("MainDisplayConfig"));
-
-			if (liveDisplay == null)
-				liveDisplay = config.isLiveDisplayMode();
-			if (dataDir == null)
+			// use cmd line parameters
+			if (!dataFlag)
 				dataDir = config.getDefaultDir();
 			else {
 				config.setDefaultDir(dataDir);
 				MainDisplay.DefaultConfig.setDefaultDir(dataDir);
 			}
+			if (!liveFlag) {
+				if (playbackFlag) {
+					liveFlag = !playbackFlag;
+					config.setLiveDisplayMode(liveFlag);
+					MainDisplay.DefaultConfig.setLiveDisplayMode(liveFlag);
+				} else
+					liveFlag = config.isLiveDisplayMode();
+			} else {
+				config.setLiveDisplayMode(liveFlag);
+				MainDisplay.DefaultConfig.setLiveDisplayMode(liveFlag);
+			}
+			if (!zipFlag)
+				zipFlag = config.isBatchesZipped();
 
 			// init main window
 			Log.infoSep();
 			Log.info("Initializing MainDisplay");
-			MainDisplay display = new MainDisplay(liveDisplay, config);
+			MainDisplay display = new MainDisplay(liveFlag, config);
 
 			// init batch handler, hand over directory and maindisplay
-			display.setBatchHandler(new BatchHandler(config.getDefaultDir(),
-					display, liveDisplay, config.isBatchesZipped()));
+			display.setBatchHandler(new BatchHandler(dataDir, display,
+					liveFlag, zipFlag));
 			display.initBatchHandler();
 
 			if (config.isFullscreen()) {
@@ -162,7 +241,7 @@ public class MainDisplay extends JFrame {
 
 	private ArrayList<Component> dataComponents;
 
-	private JPanel buttons;
+	public JPanel buttons;
 	private JButton pauseButton;
 	private JButton startButton;
 	private JButton stopButton;
@@ -176,6 +255,7 @@ public class MainDisplay extends JFrame {
 	// config
 	public static MainDisplayConfig config;
 	public static MainDisplayConfig DefaultConfig;
+	public static boolean runFromJar;
 
 	// live display flag
 	public boolean liveDisplay;
@@ -199,21 +279,6 @@ public class MainDisplay extends JFrame {
 		this.leftSidePanel.setLayout(new GridBagLayout());
 		GridBagConstraints leftSideConstraints = new GridBagConstraints();
 		leftSideConstraints.anchor = GridBagConstraints.NORTH;
-
-		/*
-		 * Create StatsDisplay
-		 */
-		this.statsDisplay = new StatsDisplay(this,
-				config.getStatsDisplayConfig(), liveDisplay);
-		this.statsDisplay.setLocation(0, 0);
-		this.statsDisplay.setDirectory(config.getDefaultDir());
-
-		leftSideConstraints.gridx = 0;
-		leftSideConstraints.gridy = 0;
-		this.leftSidePanel.add(this.statsDisplay, leftSideConstraints);
-
-		// register statsDisplay to get batchdata objects
-		this.registerDataComponent(this.statsDisplay);
 
 		/*
 		 * Create buttons
@@ -309,7 +374,9 @@ public class MainDisplay extends JFrame {
 
 		leftSideConstraints.gridx = 0;
 		leftSideConstraints.gridy = 1;
-		this.leftSidePanel.add(this.buttons, leftSideConstraints);
+		// this.statsDisplay.add(this.buttons, leftSideConstraints);
+
+		// this.statsDisplay.add(this.buttons);
 
 		buttonPanelConstraints.gridx = 0;
 		buttonPanelConstraints.gridy = 0;
@@ -322,6 +389,21 @@ public class MainDisplay extends JFrame {
 		this.buttons.add(this.quitButton, buttonPanelConstraints);
 
 		/*
+		 * Create StatsDisplay
+		 */
+		this.statsDisplay = new StatsDisplay(this,
+				config.getStatsDisplayConfig(), liveDisplay);
+		this.statsDisplay.setLocation(0, 0);
+		this.statsDisplay.setDirectory(config.getDefaultDir());
+
+		leftSideConstraints.gridx = 0;
+		leftSideConstraints.gridy = 0;
+		this.leftSidePanel.add(this.statsDisplay, leftSideConstraints);
+
+		// register statsDisplay to get batchdata objects
+		this.registerDataComponent(this.statsDisplay);
+
+		/*
 		 * Init LogoPanel, set position and add to leftSidePanel
 		 */
 		this.logoPanel = new JPanel();
@@ -331,15 +413,39 @@ public class MainDisplay extends JFrame {
 		this.logoPanel.setBorder(BorderFactory
 				.createEtchedBorder((EtchedBorder.LOWERED)));
 		BufferedImage image = null;
+		JarFile x = null;
+		InputStream is = null;
 		try {
-			image = ImageIO.read(new File(config.getLogoDir()));
-		} catch (IOException e) {
+			if (runFromJar) {
+				Path pPath = Paths.get(Config.class.getProtectionDomain()
+						.getCodeSource().getLocation().toURI());
+				String[] splits = config.getLogoDir().split("/");
+				x = new JarFile(pPath.toFile(), false);
+				is = x.getInputStream(x.getEntry(splits[splits.length - 1]));
+				image = ImageIO.read(is);
+			} else {
+				image = ImageIO.read(new File(config.getLogoDir()));
+			}
+		} catch (IOException | URISyntaxException e) {
 			e.printStackTrace();
 		}
+
 		JLabel logoLabel = new JLabel(new ImageIcon(image));
 		this.logoPanel.setLayout(new GridBagLayout());
 		this.logoPanel.setPreferredSize(config.getLogoSize());
 		this.logoPanel.add(logoLabel);
+
+		// free resources
+		try {
+			if (is != null)
+				is.close();
+			if (x != null)
+				x.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		is = null;
+		x = null;
 
 		leftSideConstraints.gridx = 0;
 		leftSideConstraints.gridy = 2;
