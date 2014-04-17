@@ -42,9 +42,9 @@ public class UnweightedKSingleSourceShortestPaths extends
 	@Override
 	public boolean compute() {
 		HashSet<Node> nodes = new HashSet<Node>();
-		while (nodes.size() < this.k) {
+		while (nodes.size() < this.k && nodes.size() < g.getNodeCount()) {
 			Node n = this.g.getRandomNode();
-			if (nodes.contains(n.getIndex())) {
+			if (nodes.contains(n)) {
 				continue;
 			}
 			nodes.add(n);
