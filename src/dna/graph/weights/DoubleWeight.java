@@ -14,6 +14,10 @@ public class DoubleWeight extends Weight {
 
 	private double weight;
 
+	public double getWeight() {
+		return weight;
+	}
+
 	public DoubleWeight(double weight) {
 		this.weight = weight;
 	}
