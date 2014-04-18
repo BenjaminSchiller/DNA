@@ -12,3 +12,4 @@
 *.war
 *.ear
 .gitignore
+/bin
