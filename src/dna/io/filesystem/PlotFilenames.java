@@ -114,8 +114,20 @@ public class PlotFilenames {
 		return Config.get("PREFIX_RUNTIMES_METRIC_PLOT") + name;
 	}
 
+	public static String getRuntimesMetricPlotCDF(String name) {
+		return Config.get("PREFIX_RUNTIMES_METRIC_PLOT") + name
+				+ Config.get("PLOT_DELIMITER")
+				+ Config.get("PLOT_DISTRIBUTION_CDF");
+	}
+
 	public static String getRuntimesStatisticPlot(String name) {
 		return Config.get("PREFIX_RUNTIMES_STATISTIC_PLOT") + name;
+	}
+
+	public static String getRuntimesStatisticPlotCDF(String name) {
+		return Config.get("PREFIX_RUNTIMES_STATISTIC_PLOT") + name
+				+ Config.get("PLOT_DELIMITER")
+				+ Config.get("PLOT_DISTRIBUTION_CDF");
 	}
 
 	public static String getNodeValueListDataFile(MetricData m, NodeValueList n) {
