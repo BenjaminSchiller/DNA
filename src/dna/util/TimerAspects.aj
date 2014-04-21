@@ -89,11 +89,22 @@ public aspect TimerAspects {
 				.getRuntime());
 		generalRuntimes.add(map.get(SeriesStats.graphUpdateRuntime, true)
 				.getRuntime());
-		generalRuntimes.add(map.get(SeriesStats.metricsRuntime).getRuntime());
+		
+		Timer metricsRT = map.get(SeriesStats.metricsRuntime);
+		if (metricsRT == null) {
+			generalRuntimes.add(new RunTime(SeriesStats.metricsRuntime, 0));
+		} else {
+			generalRuntimes.add(metricsRT.getRuntime());
+		}
 
 		// add metric runtimes
 		for (String m : metricList) {
-			res.getMetricRuntimes().add(map.get(m).getRuntime());
+			Timer metricRT = map.get(m);
+			if (metricRT == null) {
+				res.getMetricRuntimes().add(new RunTime(m, 0));
+			} else {
+				res.getMetricRuntimes().add(metricRT.getRuntime());
+			}
 		}
 
 		/**
