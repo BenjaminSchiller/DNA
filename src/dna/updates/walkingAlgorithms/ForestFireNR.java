@@ -98,7 +98,7 @@ public class ForestFireNR extends WalkingAlgorithm {
 					.nextInt(notFullyVisitedNodeCount)];
 
 			selectNeighbors();
-			return currentNode;
+			return findNextNode();
 		}
 		currentNode = queue.poll();
 		selectNeighbors();
