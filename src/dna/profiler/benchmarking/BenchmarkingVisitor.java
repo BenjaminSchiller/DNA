@@ -39,6 +39,23 @@ public class BenchmarkingVisitor extends AbstractOutput {
 	public BenchmarkingVisitor(BenchmarkingConf benchmarkingConf) {
 		this.conf = benchmarkingConf;
 	}
+	
+	private Collection<Double> skipMaxElements(Collection<Double> in, int elementsToSkip) {
+		if (elementsToSkip <= 0 || in.size() <= 1) {
+			return in;
+		} else {
+			double maxElement = Collections.max(in);
+			Collection<Double> out = new ArrayList<Double>(in.size() - 1);
+			for (Double singleIn : in) {
+				if (singleIn == maxElement) {
+					maxElement = Double.NEGATIVE_INFINITY;
+				} else {
+					out.add(singleIn);
+				}
+			}
+			return skipMaxElements(out, elementsToSkip - 1);
+		}
+	}
 
 	@Override
 	public void visitBenchmark(BenchmarkResult res) {
@@ -70,14 +87,13 @@ public class BenchmarkingVisitor extends AbstractOutput {
 					try {
 						Collection<Double> results = methRes
 								.getResultSet(meter);
-						double maxElement = Collections.max(results);
+
+						Collection<Double> listWithoutMaxN = skipMaxElements(
+								results, BenchmarkingConf.elementsToSkip);
+
 						Collection<Double> resultsNormalized = new ArrayList<Double>(
 								results.size() - 1);
-						for (Double singleRes : results) {
-							if (singleRes == maxElement) {
-								maxElement = -1;
-								continue;
-							}
+						for (Double singleRes : listWithoutMaxN) {
 							resultsNormalized.add(singleRes / operationSize);
 						}
 

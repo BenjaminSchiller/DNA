@@ -15,8 +15,10 @@ import org.perfidix.ouput.AbstractOutput;
 import dna.util.Config;
 
 public class BenchmarkingConf extends AbstractConfig {
-
-	private final static int RUNS = Config.getInt("BENCHMARKING_RUNS") + 1;
+	
+	public final static int elementsToSkip = 3;
+	private final static int RUNS = Config.getInt("BENCHMARKING_RUNS") + elementsToSkip;
+	
 	private final static Set<AbstractMeter> METERS = new HashSet<AbstractMeter>();
 	private final static Set<AbstractOutput> OUTPUT = new HashSet<AbstractOutput>();
 
