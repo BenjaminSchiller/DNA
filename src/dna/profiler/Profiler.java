@@ -221,6 +221,11 @@ public class Profiler {
 
 		if (allCosts.size() == 0) {
 			res.append(" no recommendations available" + separator);
+			
+			RecommenderEntry elementToNull = lastRecommendations.get(entryType).clone();
+			elementToNull.resetCosts();
+			lastRecommendations.put(entryType, elementToNull);
+			
 			return res.toString();
 		}
 

@@ -9,7 +9,7 @@ import dna.graph.datastructures.DataStructure.ListType;
 import dna.profiler.ProfilerMeasurementData.ProfilerDataType;
 import dna.profiler.datatypes.ComparableEntryMap;
 
-public class RecommenderEntry {
+public class RecommenderEntry implements Cloneable {
 	private EnumMap<ProfilerDataType, ComparableEntryMap> costs;
 	private EnumMap<ListType, Class<? extends IDataStructure>> datastructures;
 
@@ -26,6 +26,13 @@ public class RecommenderEntry {
 
 	public ComparableEntryMap getCosts(ProfilerDataType pdt) {
 		return costs.get(pdt);
+	}
+	
+	public void resetCosts() {
+		for (ProfilerDataType pdt : ProfilerDataType.values()) {
+			ComparableEntryMap costs = ProfilerMeasurementData.getMap(pdt);
+			this.setCosts(pdt, costs);
+		}
 	}
 
 	public Class<? extends IDataStructure> getDatastructure(ListType lt) {
@@ -82,6 +89,15 @@ public class RecommenderEntry {
 	public static Comparator<? super RecommenderEntry> getComparator(
 			ProfilerDataType entryType) {
 		return new RecommenderEntryComparator(entryType);
+	}
+	
+	@Override
+	public RecommenderEntry clone() {
+		RecommenderEntry res = new RecommenderEntry(datastructures.clone());
+		for (ProfilerDataType pdt : ProfilerDataType.values()) {
+			res.setCosts(pdt, this.getCosts(pdt));
+		}
+		return res;
 	}
 
 }
