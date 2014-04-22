@@ -615,9 +615,9 @@ public class Plotting {
 				runtimesCDF[i] = aggrValues;
 			}
 			Plotting.plot(runtimesCDF, names, dstDir, PlotFilenames
-					.getRuntimesStatisticPlotCDF(metric), PlotFilenames
+					.getRuntimesMetricPlotCDF(metric), PlotFilenames
 					.getRuntimesGnuplotScript(PlotFilenames
-							.getRuntimesStatisticPlotCDF(metric)), "CDF of "
+							.getRuntimesMetricPlotCDF(metric)), "CDF of "
 					+ metric + " (" + type + ")", type, style);
 		}
 
