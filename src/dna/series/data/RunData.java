@@ -3,8 +3,8 @@ package dna.series.data;
 import java.io.IOException;
 
 import dna.io.filesystem.Dir;
-import dna.series.SeriesGeneration;
 import dna.series.lists.BatchDataList;
+import dna.util.Config;
 import dna.util.Log;
 
 public class RunData {
@@ -50,8 +50,10 @@ public class RunData {
 			throws NumberFormatException, IOException {
 		String[] batches = Dir.getBatches(dir);
 		RunData runData = new RunData(run, batches.length);
+		boolean singleFile = Config.getBoolean("GENERATION_BATCHES_AS_ZIP");
+
 		for (String batch : batches) {
-			if (SeriesGeneration.singleFile)
+			if (singleFile)
 				runData.getBatches().add(
 						BatchData.readFromSingleFile(dir,
 								Dir.getTimestamp(batch), Dir.delimiter,

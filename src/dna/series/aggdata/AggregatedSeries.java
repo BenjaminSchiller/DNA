@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 import dna.io.filesystem.Dir;
-import dna.series.SeriesGeneration;
 import dna.util.Config;
 
 /**
@@ -35,9 +34,10 @@ public class AggregatedSeries {
 
 	// IO Methods
 	public void write(String dir) throws IOException {
+		boolean singleFile = Config.getBoolean("GENERATION_BATCHES_AS_ZIP");
 		for (int i = 0; i < this.getBatches().length; i++) {
 			long tempTimestamp = this.getBatches()[i].getTimestamp();
-			if (SeriesGeneration.singleFile)
+			if (singleFile)
 				this.getBatches()[i].writeSingleFile(dir,
 						this.getBatches()[i].getTimestamp(), Dir.delimiter);
 			else
@@ -56,10 +56,11 @@ public class AggregatedSeries {
 			String[] batches, boolean readValues) throws IOException {
 		String tempDir = Dir.getAggregationDataDir(dir);
 		AggregatedBatch[] aggBatches = new AggregatedBatch[batches.length];
+		boolean singleFile = Config.getBoolean("GENERATION_BATCHES_AS_ZIP");
 
 		for (int i = 0; i < batches.length; i++) {
 			long timestamp = Dir.getTimestamp(batches[i]);
-			if (SeriesGeneration.singleFile)
+			if (singleFile)
 				aggBatches[i] = AggregatedBatch.readFromSingleFile(tempDir,
 						timestamp, Dir.delimiter, readValues);
 			else

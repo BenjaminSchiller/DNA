@@ -26,7 +26,6 @@ import dna.util.Timer;
 
 public class SeriesGeneration {
 
-	public static boolean singleFile = false;
 	public static FileSystem writeFileSystem;
 	public static FileSystem readFileSystem;
 
@@ -65,8 +64,6 @@ public class SeriesGeneration {
 			MetricNotApplicableException {
 		Log.infoSep();
 		Timer timer = new Timer("seriesGeneration");
-		SeriesGeneration.singleFile = Config
-				.getBoolean("GENERATION_BATCHES_AS_ZIP");
 		Log.info("generating series");
 		Log.infoSep();
 		Log.info("ds = "
@@ -75,7 +72,7 @@ public class SeriesGeneration {
 		Log.info("gg = " + series.getGraphGenerator().getDescription());
 		Log.info("bg = " + series.getBatchGenerator().getDescription());
 		Log.info("p  = " + series.getDir());
-		if (SeriesGeneration.singleFile)
+		if (Config.getBoolean("GENERATION_BATCHES_AS_ZIP"))
 			Log.info("b  = zipped");
 		else
 			Log.info("b  = files");
@@ -204,6 +201,8 @@ public class SeriesGeneration {
 		Timer timer = new Timer("runGeneration");
 		Log.info("run " + run + " (" + batches + " batches)");
 
+		boolean singleFile = Config.getBoolean("GENERATION_BATCHES_AS_ZIP");
+
 		// reset batch generator
 		series.getBatchGenerator().reset();
 
@@ -218,7 +217,7 @@ public class SeriesGeneration {
 			SeriesGeneration.compareMetrics(series);
 		}
 		if (write) {
-			if (!SeriesGeneration.singleFile) {
+			if (!singleFile) {
 				initialData.write(Dir.getBatchDataDir(series.getDir(), run,
 						initialData.getTimestamp()));
 			} else {
@@ -264,7 +263,7 @@ public class SeriesGeneration {
 					String actualDir;
 					String dirTemp;
 
-					if (SeriesGeneration.singleFile) {
+					if (singleFile) {
 						String nonZipDir = Dir.getBatchDataDir(series.getDir(),
 								run, batchData.getTimestamp());
 						actualDir = nonZipDir.substring(0,
@@ -287,7 +286,7 @@ public class SeriesGeneration {
 					Files.delete(dstDir);
 
 					// write
-					if (SeriesGeneration.singleFile)
+					if (singleFile)
 						batchData.writeSingleFile(
 								Dir.getRunDataDir(series.getDir(), run),
 								batchData.getTimestamp(),
@@ -312,7 +311,7 @@ public class SeriesGeneration {
 						srcDir.renameTo(dstDir);
 				} else {
 					// no generation simulation
-					if (SeriesGeneration.singleFile)
+					if (singleFile)
 						batchData.writeSingleFile(
 								Dir.getRunDataDir(series.getDir(), run),
 								batchData.getTimestamp(),
