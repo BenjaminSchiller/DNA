@@ -35,11 +35,19 @@ public class Plotting {
 	public static void plot(SeriesData seriesData, String dstDir,
 			PlotType type, PlotStyle style) throws IOException,
 			InterruptedException {
-		Plotting.plot(
+		Plotting.plot(new SeriesData[] { seriesData }, dstDir);
+	}
+
+	public static void plot(SeriesData[] seriesData, String dstDir)
+			throws IOException, InterruptedException {
+		Plotting.plotFromTo(
 				seriesData,
 				dstDir,
-				type,
-				style,
+				0,
+				Long.MAX_VALUE,
+				1,
+				Config.getPlotType("GNUPLOT_DEFAULT_PLOTTYPE"),
+				Config.getPlotStyle("GNUPLOT_DEFAULT_PLOTSTYLE"),
 				Config.getDistributionPlotType("GNUPLOT_DEFAULT_DIST_PLOTTYPE"),
 				Config.getNodeValueListOrderBy("GNUPLOT_DEFAULT_NVL_ORDERBY"),
 				Config.getNodeValueListOrder("GNUPLOT_DEFAULT_NVL_ORDER"));
@@ -49,30 +57,121 @@ public class Plotting {
 			PlotType type, PlotStyle style, DistributionPlotType distPlotType,
 			NodeValueListOrderBy sortBy, NodeValueListOrder sortOrder)
 			throws IOException, InterruptedException {
-		Plotting.plot(new SeriesData[] { seriesData }, dstDir, type, style,
-				distPlotType, sortBy, sortOrder);
-	}
-
-	public static void plot(SeriesData[] seriesData, String dstDir)
-			throws IOException, InterruptedException {
-		Plotting.plot(
-				seriesData,
-				dstDir,
-				Config.getPlotType("GNUPLOT_DEFAULT_PLOTTYPE"),
-				Config.getPlotStyle("GNUPLOT_DEFAULT_PLOTSTYLE"),
-				Config.getDistributionPlotType("GNUPLOT_DEFAULT_DIST_PLOTTYPE"),
-				Config.getNodeValueListOrderBy("GNUPLOT_DEFAULT_NVL_ORDERBY"),
-				Config.getNodeValueListOrder("GNUPLOT_DEFAULT_NVL_ORDER"));
+		Plotting.plotFromTo(new SeriesData[] { seriesData }, dstDir, 0,
+				Long.MAX_VALUE, 1, type, style, distPlotType, sortBy, sortOrder);
 	}
 
 	public static void plot(SeriesData[] seriesData, String dstDir,
 			PlotType type, PlotStyle style) throws IOException,
 			InterruptedException {
-		Plotting.plot(
+		Plotting.plotFromTo(
 				seriesData,
 				dstDir,
+				0,
+				Long.MAX_VALUE,
+				1,
 				type,
 				style,
+				Config.getDistributionPlotType("GNUPLOT_DEFAULT_DIST_PLOTTYPE"),
+				Config.getNodeValueListOrderBy("GNUPLOT_DEFAULT_NVL_ORDERBY"),
+				Config.getNodeValueListOrder("GNUPLOT_DEFAULT_NVL_ORDER"));
+	}
+
+	/**
+	 * Plots data from the given SeriesData's. Which batches are plotted is
+	 * defined by the given parameters.
+	 * 
+	 * Example:
+	 * 
+	 * plot(data, dir, 2, 12, 3) - will plot every third batch between 2 and 12
+	 * -> batches 2, 5, 8, 11
+	 * 
+	 * @param seriesData
+	 *            SeriesData which will be plotted
+	 * @param dstDir
+	 *            Destination directory where plots and scripts will be written
+	 * @param timestampFrom
+	 *            Starting timestamp
+	 * @param timestampTo
+	 *            Ending timestamp
+	 * @param stepSize
+	 *            StepSize between batches.
+	 * @param type
+	 *            PlotType
+	 * @param style
+	 *            PlotStyle
+	 * @param distPlotType
+	 *            DistributionPlotType
+	 * @param sortBy
+	 *            Argument the NodeValueList will be sorted by
+	 * @param sortOrder
+	 *            Sorting order
+	 * @throws IOException
+	 *             thrown by the writer in Plot.writeScript or in Execute.exec
+	 * @throws InterruptedException
+	 *             thrown in Execute.exec
+	 */
+	public static void plotFromTo(SeriesData[] seriesData, String dstDir,
+			long timestampFrom, long timestampTo, long stepSize, PlotType type,
+			PlotStyle style, DistributionPlotType distPlotType,
+			NodeValueListOrderBy sortBy, NodeValueListOrder sortOrder)
+			throws IOException, InterruptedException {
+		for (int i = 0; i < seriesData.length; i++) {
+			seriesData[i].setAggregation(AggregatedSeries.readFromTo(
+					seriesData[i].getDir(), seriesData[i].getName() + i + "_"
+							+ Config.get("RUN_AGGREGATION"), timestampFrom,
+					timestampTo, stepSize, true));
+		}
+
+		Log.infoSep();
+		Log.info("plotting data from batch " + timestampFrom + " - "
+				+ timestampTo + " with stepsize " + stepSize + " for "
+				+ seriesData.length + " series to " + dstDir);
+		(new File(dstDir)).mkdirs();
+
+		// plot different data from the aggregation data
+		Plotting.plotDistributions(seriesData, dstDir);
+		Plotting.plotValues(seriesData, dstDir);
+		Plotting.plotStatistics(seriesData, dstDir);
+		Plotting.plotRuntimes(seriesData, dstDir);
+		Plotting.plotNodeValueLists(seriesData, dstDir);
+	}
+
+	/**
+	 * Plots data from the given SeriesData's. Which batches are plotted is
+	 * defined by the given parameters.
+	 * 
+	 * Example:
+	 * 
+	 * plot(data, dir, 2, 12, 3) - will plot every third batch between 2 and 12
+	 * -> batches 2, 5, 8, 11
+	 * 
+	 * @param seriesData
+	 *            SeriesData which will be plotted
+	 * @param dstDir
+	 *            Destination directory where plots and scripts will be written
+	 * @param timestampFrom
+	 *            Starting timestamp
+	 * @param timestampTo
+	 *            Ending timestamp
+	 * @param stepSize
+	 *            StepSize between batches.
+	 * @throws IOException
+	 *             thrown by the writer in Plot.writeScript or in Execute.exec
+	 * @throws InterruptedException
+	 *             thrown in Execute.exec
+	 */
+	public static void plotFromTo(SeriesData[] seriesData, String dstDir,
+			long timestampFrom, long timestampTo, long stepSize)
+			throws IOException, InterruptedException {
+		Plotting.plotFromTo(
+				seriesData,
+				dstDir,
+				timestampFrom,
+				timestampTo,
+				stepSize,
+				Config.getPlotType("GNUPLOT_DEFAULT_PLOTTYPE"),
+				Config.getPlotStyle("GNUPLOT_DEFAULT_PLOTTYPE"),
 				Config.getDistributionPlotType("GNUPLOT_DEFAULT_DIST_PLOTTYPE"),
 				Config.getNodeValueListOrderBy("GNUPLOT_DEFAULT_NVL_ORDERBY"),
 				Config.getNodeValueListOrder("GNUPLOT_DEFAULT_NVL_ORDER"));
@@ -141,6 +240,7 @@ public class Plotting {
 			DistributionPlotType distPlotType) throws IOException,
 			InterruptedException {
 		Log.info("plotting distributions with " + distPlotType.toString());
+
 		for (AggregatedMetric m : seriesData[0].getAggregation().getBatches()[0]
 				.getMetrics().getList()) {
 			for (AggregatedDistribution d : m.getDistributions().getList()) {
@@ -148,6 +248,44 @@ public class Plotting {
 						distPlotType, m.getName(), d.getName());
 			}
 		}
+	}
+
+	/**
+	 * Plots distributions with default PlotTypes and PlotStyles.
+	 * 
+	 * @param seriesData
+	 *            SeriesData which will be plotted
+	 * @param dstDir
+	 *            Destination directory
+	 * @throws IOException
+	 *             thrown by the writer in Plot.writeScript or in Execute.exec
+	 * @throws InterruptedException
+	 *             thrown in Execute.exec
+	 */
+	public static void plotDistributions(SeriesData[] seriesData, String dstDir)
+			throws IOException, InterruptedException {
+		Plotting.plotDistributions(seriesData, dstDir,
+				Config.getPlotType("GNUPLOT_DEFAULT_PLOTTYPE"),
+				Config.getPlotStyle("GNUPLOT_DEFAULT_PLOTSTYLE"),
+				Config.getDistributionPlotType("GNUPLOT_DEFAULT_DIST_PLOTTYPE"));
+	}
+
+	/**
+	 * Plots distributions of single series with default PlotTypes and
+	 * PlotStyles.
+	 * 
+	 * @param seriesData
+	 *            SeriesData which will be plotted
+	 * @param dstDir
+	 *            Destination directory
+	 * @throws IOException
+	 *             thrown by the writer in Plot.writeScript or in Execute.exec
+	 * @throws InterruptedException
+	 *             thrown in Execute.exec
+	 */
+	public static void plotDistributions(SeriesData series, String dstDir)
+			throws IOException, InterruptedException {
+		Plotting.plotDistributions(new SeriesData[] { series }, dstDir);
 	}
 
 	/**
@@ -186,7 +324,47 @@ public class Plotting {
 	}
 
 	/**
-	 * Plots Values by calling Plotting.plotValue for each value.
+	 * Plots NodeValueLists with default PlotType, PlotStyles and
+	 * NVL-Orderoptions.
+	 * 
+	 * @param seriesData
+	 *            SeriesData which will be plotted
+	 * @param dstDir
+	 *            Destination directory
+	 * @throws IOException
+	 *             thrown by the writer in Plot.writeScript or in Execute.exec
+	 * @throws InterruptedException
+	 *             thrown in Execute.exec
+	 */
+	public static void plotNodeValueLists(SeriesData[] seriesData, String dstDir)
+			throws IOException, InterruptedException {
+		Plotting.plotNodeValueLists(seriesData, dstDir,
+				Config.getPlotType("GNUPLOT_DEFAULT_PLOTTYPE"),
+				Config.getPlotStyle("GNUPLOT_DEFAULT_PLOTSTYLE"),
+				Config.getNodeValueListOrderBy("GNUPLOT_DEFAULT_NVL_ORDERBY"),
+				Config.getNodeValueListOrder("GNUPLOT_DEFAULT_NVL_ORDER"));
+	}
+
+	/**
+	 * Plots NodeValueLists of single series with default PlotType, PlotStyles
+	 * and NVL-Orderoptions.
+	 * 
+	 * @param seriesData
+	 *            SeriesData which will be plotted
+	 * @param dstDir
+	 *            Destination directory
+	 * @throws IOException
+	 *             thrown by the writer in Plot.writeScript or in Execute.exec
+	 * @throws InterruptedException
+	 *             thrown in Execute.exec
+	 */
+	public static void plotNodeValueLists(SeriesData series, String dstDir)
+			throws IOException, InterruptedException {
+		Plotting.plotNodeValueLists(new SeriesData[] { series }, dstDir);
+	}
+
+	/**
+	 * Plots Metric-Values by calling Plotting.plotValue for each value.
 	 * 
 	 * @param seriesData
 	 *            SeriesData which will be plotted
@@ -215,6 +393,43 @@ public class Plotting {
 	}
 
 	/**
+	 * Plots Metric-Values with default PlotType and PlotStyles.
+	 * 
+	 * @param seriesData
+	 *            SeriesData which will be plotted
+	 * @param dstDir
+	 *            Destination directory
+	 * @throws IOException
+	 *             thrown by the writer in Plot.writeScript or in Execute.exec
+	 * @throws InterruptedException
+	 *             thrown in Execute.exec
+	 */
+	public static void plotValues(SeriesData[] seriesData, String dstDir)
+			throws IOException, InterruptedException {
+		Plotting.plotValues(seriesData, dstDir,
+				Config.getPlotType("GNUPLOT_DEFAULT_PLOTTYPE"),
+				Config.getPlotStyle("GNUPLOT_DEFAULT_PLOTSTYLE"));
+	}
+
+	/**
+	 * Plots Metric-Values of a single series with default PlotType and
+	 * PlotStyles.
+	 * 
+	 * @param seriesData
+	 *            SeriesData which will be plotted
+	 * @param dstDir
+	 *            Destination directory
+	 * @throws IOException
+	 *             thrown by the writer in Plot.writeScript or in Execute.exec
+	 * @throws InterruptedException
+	 *             thrown in Execute.exec
+	 */
+	public static void plotValues(SeriesData series, String dstDir)
+			throws IOException, InterruptedException {
+		Plotting.plotValues(new SeriesData[] { series }, dstDir);
+	}
+
+	/**
 	 * Plots statistics by calling Plotting.plotValue for each statistical
 	 * value.
 	 * 
@@ -238,6 +453,43 @@ public class Plotting {
 		for (String value : SeriesStats.statisticsToPlot) {
 			Plotting.plotValue(seriesData, dstDir, type, style, null, value);
 		}
+	}
+
+	/**
+	 * Plots statistics with default PlotTypes and PlotStyles.
+	 * 
+	 * @param seriesData
+	 *            SeriesData which will be plotted
+	 * @param dstDir
+	 *            Destination directory
+	 * @throws IOException
+	 *             thrown by the writer in Plot.writeScript or in Execute.exec
+	 * @throws InterruptedException
+	 *             thrown in Execute.exec
+	 */
+	public static void plotStatistics(SeriesData[] seriesData, String dstDir)
+			throws IOException, InterruptedException {
+		Plotting.plotStatistics(seriesData, dstDir,
+				Config.getPlotType("GNUPLOT_DEFAULT_PLOTTYPE"),
+				Config.getPlotStyle("GNUPLOT_DEFAULT_PLOTSTYLE"));
+	}
+
+	/**
+	 * Plots statistics of a single series with default PlotTypes and
+	 * PlotStyles.
+	 * 
+	 * @param seriesData
+	 *            SeriesData which will be plotted
+	 * @param dstDir
+	 *            Destination directory
+	 * @throws IOException
+	 *             thrown by the writer in Plot.writeScript or in Execute.exec
+	 * @throws InterruptedException
+	 *             thrown in Execute.exec
+	 */
+	public static void plotStatistics(SeriesData series, String dstDir)
+			throws IOException, InterruptedException {
+		Plotting.plotStatistics(new SeriesData[] { series }, dstDir);
 	}
 
 	/**
@@ -291,6 +543,32 @@ public class Plotting {
 					.getRuntimesGnuplotScript(PlotFilenames
 							.getRuntimesStatisticPlot(runtime)), runtime + " ("
 					+ type + ")", type, style);
+
+			// plot cdf test
+			AggregatedValue[][] runtimesCDF = new AggregatedValue[seriesData.length][];
+			for (int i = 0; i < runtimes.length; i++) {
+				AggregatedValue value = runtimes[i][0];
+				AggregatedValue[] aggrValues = new AggregatedValue[runtimes[i].length];
+				for (int j = 0; j < runtimes[i].length; j++) {
+					double[] v1 = value.getValues();
+					if (j != 0) {
+						double[] v2 = runtimes[i][j].getValues();
+						for (int k = 0; k < v1.length; k++) {
+							v1[k] += v2[k];
+						}
+					}
+					double[] v3 = new double[v1.length];
+					System.arraycopy(v1, 0, v3, 0, v1.length);
+					aggrValues[j] = new AggregatedValue(
+							runtimes[i][j].getName(), v3);
+				}
+				runtimesCDF[i] = aggrValues;
+			}
+			Plotting.plot(runtimesCDF, names, dstDir, PlotFilenames
+					.getRuntimesStatisticPlotCDF(runtime), PlotFilenames
+					.getRuntimesGnuplotScript(PlotFilenames
+							.getRuntimesStatisticPlotCDF(runtime)), "CDF of "
+					+ runtime + " (" + type + ")", type, style);
 		}
 
 		for (String metric : seriesData[0].getAggregation().getBatches()[0]
@@ -310,6 +588,32 @@ public class Plotting {
 					.getRuntimesGnuplotScript(PlotFilenames
 							.getRuntimesMetricPlot(metric)), metric + " ("
 					+ type + ")", type, style);
+
+			// plot cdf test
+			AggregatedValue[][] runtimesCDF = new AggregatedValue[seriesData.length][];
+			for (int i = 0; i < runtimes.length; i++) {
+				AggregatedValue value = runtimes[i][0];
+				AggregatedValue[] aggrValues = new AggregatedValue[runtimes[i].length];
+				for (int j = 0; j < runtimes[i].length; j++) {
+					double[] v1 = value.getValues();
+					if (j != 0) {
+						double[] v2 = runtimes[i][j].getValues();
+						for (int k = 0; k < v1.length; k++) {
+							v1[k] += v2[k];
+						}
+					}
+					double[] v3 = new double[v1.length];
+					System.arraycopy(v1, 0, v3, 0, v1.length);
+					aggrValues[j] = new AggregatedValue(
+							runtimes[i][j].getName(), v3);
+				}
+				runtimesCDF[i] = aggrValues;
+			}
+			Plotting.plot(runtimesCDF, names, dstDir, PlotFilenames
+					.getRuntimesMetricPlotCDF(metric), PlotFilenames
+					.getRuntimesGnuplotScript(PlotFilenames
+							.getRuntimesMetricPlotCDF(metric)), "CDF of "
+					+ metric + " (" + type + ")", type, style);
 		}
 
 		// gather runtime data..
@@ -320,8 +624,12 @@ public class Plotting {
 		double[][] generalX = new double[gr][];
 		double[][] metricsX = new double[mr][];
 
+		AggregatedValue[][] generalCDF = new AggregatedValue[gr][];
+		AggregatedValue[][] metricsCDF = new AggregatedValue[mr][];
+
 		int index1 = 0;
 		int index2 = 0;
+
 		// for each series
 		for (SeriesData s : seriesData) {
 			// for each statistic
@@ -342,28 +650,6 @@ public class Plotting {
 			}
 		}
 
-		// TODO re-add fraction of runtimes....
-
-		// int index = 0;
-		// for (SeriesData s : seriesData) {
-		// double[] sum = new double[s.getAggregation().getBatches().length -
-		// 1];
-		// int metricCount = s.getAggregation().getBatches()[0]
-		// .getMetricRuntimes().getNames().size();
-		// for (int i = 0; i < metricCount; i++) {
-		// for (int j = 0; j < sum.length; j++) {
-		// sum[j] += metrics[index + i].getValues()[j][1];
-		// }
-		// }
-		// for (int i = 0; i < metricCount; i++) {
-		// for (int j = 0; j < sum.length; j++) {
-		// metricsFraction[index + i].getValues()[j][1] /= sum[j];
-		// }
-		// }
-		//
-		// index += metricCount;
-		// }
-
 		// generate plot script for runtime statistics and execute it
 		Plotting.plot(general, generalNames, dstDir, PlotFilenames
 				.getRuntimesStatisticPlot(Config.get("PLOT_GENERAL_RUNTIMES")),
@@ -372,6 +658,34 @@ public class Plotting {
 								.get("PLOT_GENERAL_RUNTIMES"))),
 				"general runtimes (" + type + ")", type, style);
 
+		for (int i = 0; i < general.length; i++) {
+			// generate cdf plot
+			AggregatedValue value = general[i][0];
+			AggregatedValue[] aggrValues = new AggregatedValue[general[i].length];
+			for (int j = 0; j < general[i].length; j++) {
+				double[] v1 = value.getValues();
+				if (j != 0) {
+					double[] v2 = general[i][j].getValues();
+					for (int k = 0; k < v1.length; k++) {
+						v1[k] += v2[k];
+					}
+				}
+				double[] v3 = new double[v1.length];
+				System.arraycopy(v1, 0, v3, 0, v3.length);
+				aggrValues[j] = new AggregatedValue(general[i][j].getName(), v3);
+			}
+			generalCDF[i] = aggrValues;
+		}
+
+		// generate CDF plot script for runtime statistics and execute it
+		Plotting.plot(generalCDF, generalNames, dstDir, PlotFilenames
+				.getRuntimesStatisticPlotCDF(Config
+						.get("PLOT_GENERAL_RUNTIMES")), PlotFilenames
+				.getRuntimesGnuplotScript(PlotFilenames
+						.getRuntimesStatisticPlotCDF(Config
+								.get("PLOT_GENERAL_RUNTIMES"))),
+				"CDF of general runtimes (" + type + ")", type, style);
+
 		// generate plot script for metric runtimes and execute it
 		Plotting.plot(metrics, metricsNames, dstDir, PlotFilenames
 				.getRuntimesMetricPlot(Config.get("PLOT_METRIC_RUNTIMES")),
@@ -379,6 +693,70 @@ public class Plotting {
 						.getRuntimesMetricPlot(Config
 								.get("PLOT_METRIC_RUNTIMES"))),
 				"metric runtimes (" + type + ")", type, style);
+
+		for (int i = 0; i < metrics.length; i++) {
+			// generate cdf plots
+			AggregatedValue value = metrics[i][0];
+			AggregatedValue[] aggrValues = new AggregatedValue[metrics[i].length];
+			for (int j = 0; j < metrics[i].length; j++) {
+				double[] v1 = value.getValues();
+				if (j != 0) {
+					double[] v2 = metrics[i][j].getValues();
+					for (int k = 0; k < v1.length; k++) {
+						v1[k] += v2[k];
+					}
+				}
+				double[] v3 = new double[v1.length];
+				System.arraycopy(v1, 0, v3, 0, v1.length);
+				aggrValues[j] = new AggregatedValue(metrics[i][j].getName(), v3);
+			}
+			metricsCDF[i] = aggrValues;
+		}
+
+		// generate CDF plot script for metric runtimes and execute it
+		Plotting.plot(metricsCDF, metricsNames, dstDir, PlotFilenames
+				.getRuntimesMetricPlotCDF(Config.get("PLOT_METRIC_RUNTIMES")),
+				PlotFilenames.getRuntimesGnuplotScript(PlotFilenames
+						.getRuntimesMetricPlotCDF(Config
+								.get("PLOT_METRIC_RUNTIMES"))),
+				"CDF of metric runtimes (" + type + ")", type, style);
+	}
+
+	/**
+	 * Plots runtimes for each batch of each series with default PlotTypes and
+	 * PlotStyles.
+	 * 
+	 * @param seriesData
+	 *            SeriesData which will be plotted
+	 * @param dstDir
+	 *            destination directory
+	 * @throws IOException
+	 *             thrown by the writer in Plot.writeScript or in Execute.exec
+	 * @throws InterruptedException
+	 *             thrown in Execute.exec
+	 */
+	public static void plotRuntimes(SeriesData[] seriesData, String dstDir)
+			throws IOException, InterruptedException {
+		Plotting.plotRuntimes(seriesData, dstDir,
+				Config.getPlotType("GNUPLOT_DEFAULT_PLOTTYPE"),
+				Config.getPlotStyle("GNUPLOT_DEFAULT_PLOTSTYLE"));
+	}
+
+	/**
+	 * Plots runtimes of a single series with default PlotTypes and PlotStyles.
+	 * 
+	 * @param seriesData
+	 *            SeriesData which will be plotted
+	 * @param dstDir
+	 *            destination directory
+	 * @throws IOException
+	 *             thrown by the writer in Plot.writeScript or in Execute.exec
+	 * @throws InterruptedException
+	 *             thrown in Execute.exec
+	 */
+	public static void plotRuntimes(SeriesData series, String dstDir)
+			throws IOException, InterruptedException {
+		Plotting.plotRuntimes(new SeriesData[] { series }, dstDir);
 	}
 
 	/**
@@ -624,7 +1002,7 @@ public class Plotting {
 	 * @throws InterruptedException
 	 *             thrown when metric is null or in Execute.exec
 	 */
-	public static void plot(AggregatedValue[][] values, String[] names,
+	private static void plot(AggregatedValue[][] values, String[] names,
 			String dstDir, String filename, String script, String title,
 			PlotType type, PlotStyle style) throws IOException,
 			InterruptedException {

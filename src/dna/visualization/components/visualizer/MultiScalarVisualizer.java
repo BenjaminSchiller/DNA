@@ -73,6 +73,7 @@ public class MultiScalarVisualizer extends Visualizer {
 	public MultiScalarVisualizer(MainDisplay mainDisplay,
 			MultiScalarVisualizerConfig config) {
 		// initialization
+		super(config.getChartSize(), config.getLegendSize());
 		this.config = config;
 		this.mainDisplay = mainDisplay;
 		this.traces = new HashMap<String, ITrace2D>();

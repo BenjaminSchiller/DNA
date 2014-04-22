@@ -17,7 +17,6 @@ import dna.util.Config;
 import dna.util.Log;
 import dna.util.Rand;
 
-@SuppressWarnings("rawtypes")
 public class Series {
 
 	// TODO add separate rand for Series and pass it down to metrics, bg, gg

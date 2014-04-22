@@ -114,6 +114,8 @@ public class Aggregation {
 		}
 		Log.info("aggregating data for " + runInfo);
 
+		boolean singleFile = Config.getBoolean("GENERATION_BATCHES_AS_ZIP");
+
 		// treat single run as special case
 		if (runs.size() == 1)
 			return aggregateRun(dir, runs.get(0));
@@ -157,7 +159,7 @@ public class Aggregation {
 			// iterate over runs and read batches
 			for (int i = 0; i < runs.size(); i++) {
 				try {
-					if (SeriesGeneration.singleFile) {
+					if (singleFile) {
 						batches.add(BatchData.readBatchValuesFromSingleFile(
 								Dir.getRunDataDir(dir, i), timestamp,
 								Dir.delimiter, structure));
@@ -185,7 +187,7 @@ public class Aggregation {
 					aGeneralRuntimes, aMetricRuntimes, aMetrics);
 
 			// write batch
-			if (SeriesGeneration.singleFile)
+			if (singleFile)
 				tempBatch.writeSingleFile(aggdir, timestamp, Dir.delimiter);
 			else
 				tempBatch.write(Dir.getBatchDataDir(aggdir, timestamp));
@@ -824,6 +826,8 @@ public class Aggregation {
 		AggregatedBatch[] aBatches = new AggregatedBatch[batchesAmount];
 		AggregatedBatch tempBatch;
 
+		boolean singleFile = Config.getBoolean("GENERATION_BATCHES_AS_ZIP");
+
 		int gcCounter = 1;
 
 		// iterate over batches
@@ -837,7 +841,7 @@ public class Aggregation {
 			Log.info("\tBatch: " + timestamp + " (memory: " + mem + ")");
 
 			// read batch
-			if (SeriesGeneration.singleFile) {
+			if (singleFile) {
 				b = BatchData.readBatchValuesFromSingleFile(
 						Dir.getRunDataDir(dir, run.getRun()), timestamp,
 						Dir.delimiter, structure);
@@ -860,7 +864,7 @@ public class Aggregation {
 					aGeneralRuntimes, aMetricRuntimes, aMetrics);
 
 			// write batch
-			if (SeriesGeneration.singleFile)
+			if (singleFile)
 				tempBatch.writeSingleFile(aggdir, timestamp, Dir.delimiter);
 			else
 				tempBatch.write(Dir.getBatchDataDir(aggdir, timestamp));
