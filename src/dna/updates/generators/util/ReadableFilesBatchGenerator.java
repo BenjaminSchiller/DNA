@@ -22,13 +22,13 @@ public class ReadableFilesBatchGenerator extends BatchGenerator {
 		CURRENT_TIMESTAMP, NEXT_TIMESTAMP
 	}
 
-	private String dir;
+	protected String dir;
 
-	private String prefix;
+	protected String prefix;
 
-	private String suffix;
+	protected String suffix;
 
-	private FilenameIndexType filenameType;
+	protected FilenameIndexType filenameType;
 
 	public ReadableFilesBatchGenerator(String dir, String prefix,
 			FilenameIndexType filenameType, String suffix) {

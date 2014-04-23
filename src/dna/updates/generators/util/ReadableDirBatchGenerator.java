@@ -26,11 +26,11 @@ import dna.util.IOUtils;
  */
 public class ReadableDirBatchGenerator extends BatchGenerator {
 
-	private String dir;
+	protected String dir;
 
-	private String[] filenames;
+	protected String[] filenames;
 
-	private int index;
+	protected int index;
 
 	public ReadableDirBatchGenerator(String name, String dir) {
 		this(name, dir, null);
@@ -56,7 +56,7 @@ public class ReadableDirBatchGenerator extends BatchGenerator {
 
 		for (String filename : filenames) {
 			long[] t = timestamps.get(filename);
-			System.out.println(filename + " - " + t[0] + " => " + t[1]);
+			// System.out.println(filename + " - " + t[0] + " => " + t[1]);
 		}
 	}
 
