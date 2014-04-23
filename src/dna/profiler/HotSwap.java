@@ -22,18 +22,33 @@ public class HotSwap {
 	private static int totalNumberOfBatches;
 	private static Map<Long, EnumMap<ListType, Class<? extends IDataStructure>>> manualSwitching = null;
 
+	/**
+	 * Three variables for storing the accesses onto underlying lists
+	 */
+	private static final int maxAccessListSize = Config
+			.getInt("HOTSWAP_AMORTIZATION_COUNTER");
+	private static ProfileEntry[] accessList;
+	private static int currAccessListIndex = 0;
+
 	public static void reset() {
 		slidingWindow = new EnumMap<ProfilerMeasurementData.ProfilerDataType, HotSwapMap>(
 				ProfilerDataType.class);
 		for (ProfilerDataType dt : ProfilerDataType.values()) {
 			slidingWindow.put(dt, new HotSwapMap());
 		}
+
+		accessList = new ProfileEntry[maxAccessListSize];
 	}
 
 	public static void addNewResults() {
 		if (slidingWindow == null) {
 			reset();
 		}
+
+		ProfileEntry accesses = Profiler.getLastAccesses();
+		accessList[currAccessListIndex] = accesses;
+		currAccessListIndex = (currAccessListIndex + 1) % maxAccessListSize;
+
 		for (ProfilerDataType dt : ProfilerDataType.values()) {
 			RecommenderEntry latestRecommendation = Profiler
 					.getRecommendation(dt);
@@ -42,6 +57,20 @@ public class HotSwap {
 				innerMap.put(latestRecommendation);
 			}
 		}
+	}
+
+	private static ProfileEntry getAccumulatedAccesses(int amortizationCounter) {
+		ProfileEntry res = new ProfileEntry();
+
+		for (int i = maxAccessListSize - 1; (i >= 0 && amortizationCounter > 0); i--) {
+			int index = (currAccessListIndex + i) % maxAccessListSize;
+			if (accessList[index] != null) {
+				res = res.add(accessList[index]);
+			}
+			amortizationCounter--;
+		}
+
+		return res;
 	}
 
 	public static void addForManualSwitching(long batchCount,
@@ -62,6 +91,20 @@ public class HotSwap {
 		DataStructure.enableContainsOnAddition();
 	}
 
+	public static int getAmortizationCounter() {
+		/**
+		 * How many batches should we look into the future to see whether the
+		 * currently used GDS performs worse than a new one, taking the costs of
+		 * switching into account?
+		 */
+		long amortizationCounterInBatches = Config
+				.getInt("HOTSWAP_AMORTIZATION_COUNTER");
+		long maxNumberOfBatchesLeft = totalNumberOfBatches - lastFinishedBatch;
+		int amortizationCounterToUse = (int) Math.min(
+				amortizationCounterInBatches, maxNumberOfBatchesLeft);
+		return amortizationCounterToUse;
+	}
+
 	public static void trySwap(Graph g) {
 		if (manualSwitching != null) {
 			EnumMap<ListType, Class<? extends IDataStructure>> listTypes = manualSwitching
@@ -76,13 +119,16 @@ public class HotSwap {
 			return;
 		}
 
+		int amortizationCounter = getAmortizationCounter();
+		ProfileEntry accumulatedAccesses = getAccumulatedAccesses(amortizationCounter);
+
 		for (Entry<ProfilerDataType, HotSwapMap> e : slidingWindow.entrySet()) {
 			RecommenderEntry entry = e.getValue().getRecommendation();
-
 			if (entry != null
 					&& e.getKey().equals(ProfilerDataType.RuntimeBenchmark)) {
 
 				RecommenderEntry lastCosts = Profiler.getLastCosts(e.getKey());
+
 				if (!entry.getDatastructures().equals(
 						g.getGraphDatastructures().getStorageDataStructures())) {
 					System.out.println("Recommendation based on "
@@ -91,15 +137,16 @@ public class HotSwap {
 							+ entry.getGraphDataStructure()
 									.getStorageDataStructures(true));
 					System.out
-							.println("  Last own runtime costs: "
+							.println("  Runtime costs in last batch with current combination: "
 									+ lastCosts
 											.getCosts(ProfilerDataType.RuntimeBenchmark)
-									+ ", recommended entry runtime costs: "
+									+ ", with recommended entry runtime: "
 									+ entry.getCosts(ProfilerDataType.RuntimeBenchmark));
 
+					GraphDataStructure currentGDS = g.getGraphDatastructures();
 					GraphDataStructure newGDS = entry.getGraphDataStructure();
 
-					if (isSwapEfficient(lastCosts, entry)) {
+					if (isSwapEfficient(accumulatedAccesses, currentGDS, newGDS)) {
 						System.out
 								.println("  Swapping looks efficient, so do it now");
 						doSwap(g, newGDS);
@@ -112,41 +159,29 @@ public class HotSwap {
 		}
 	}
 
-	private static boolean isSwapEfficient(RecommenderEntry currentState,
-			RecommenderEntry recommendedState) {
-		/**
-		 * How many batches should we look into the future to see whether the
-		 * currently used GDS performs worse than a new one, taking the costs of
-		 * switching into account?
-		 */
-		long amortizationCounterInBatches = Config
-				.getInt("HOTSWAP_AMORTIZATION_COUNTER");
-		long maxNumberOfBatchesLeft = totalNumberOfBatches - lastFinishedBatch;
-		int amortizationCounterToUse = (int) Math.min(
-				amortizationCounterInBatches, maxNumberOfBatchesLeft);
+	private static boolean isSwapEfficient(ProfileEntry accesses,
+			GraphDataStructure currentGDS, GraphDataStructure recGDS) {
+		int amortizationCounterToUse = getAmortizationCounter();
 		System.out.println("  Check whether the swap will be amortized within "
 				+ amortizationCounterToUse + " batches");
 
 		/**
 		 * Generate the costs for the current state
 		 */
-		ComparableEntryMap currentStateCosts = currentState.getCosts(
-				ProfilerDataType.RuntimeBenchmark).clone();
-		currentStateCosts.multiplyBy(amortizationCounterToUse);
+		ComparableEntryMap currentStateCosts = accesses.combinedComplexity(
+				ProfilerDataType.RuntimeBenchmark, currentGDS, null);
 
 		/**
 		 * Generate the costs for the recommended state
 		 */
-		ComparableEntryMap recStateCosts = recommendedState.getCosts(
-				ProfilerDataType.RuntimeBenchmark).clone();
-		recStateCosts.multiplyBy(amortizationCounterToUse);
+		ComparableEntryMap recStateCosts = accesses.combinedComplexity(
+				ProfilerDataType.RuntimeBenchmark, recGDS, null);
 
 		/**
 		 * Generate the costs for swapping, which is: for each list type the
 		 * number of lists * (init + meanlistSize * add)
 		 */
 
-		GraphDataStructure recGDS = recommendedState.getGraphDataStructure();
 		ComparableEntryMap swappingCosts = ProfilerMeasurementData
 				.getMap(ProfilerDataType.RuntimeBenchmark);
 		for (ListType lt : ListType.values()) {

@@ -6,18 +6,20 @@ import java.util.Map.Entry;
 import dna.util.Config;
 
 public class HotSwapMap {
+	/**
+	 * Three variables for the sliding window of the hot swap map
+	 */
+	private final int windowSize = Config.getInt("HOTSWAP_WINDOWSIZE");
 	private RecommenderEntry[] innerMap;
-	private int windowSize;
-	private int currIndex = 0;
-
+	private int currInnerMapIndex = 0;
+	
 	public HotSwapMap() {
-		windowSize = Config.getInt("HOTSWAP_WINDOWSIZE");
 		innerMap = new RecommenderEntry[windowSize];
 	}
 
 	public void put(RecommenderEntry entry) {
-		innerMap[currIndex] = entry;
-		currIndex = (currIndex + 1) % windowSize;
+		innerMap[currInnerMapIndex] = entry;
+		currInnerMapIndex = (currInnerMapIndex + 1) % windowSize;
 	}
 
 	public RecommenderEntry getRecommendation() {
@@ -25,7 +27,7 @@ public class HotSwapMap {
 
 		HashMap<RecommenderEntry, Integer> entrySet = new HashMap<>();
 		for (int i = windowSize - 1; i >= 0; i--) {
-			int index = (currIndex + i) % windowSize;
+			int index = (currInnerMapIndex + i) % windowSize;
 			RecommenderEntry singleEntry = innerMap[index];
 
 			if (singleEntry == null)

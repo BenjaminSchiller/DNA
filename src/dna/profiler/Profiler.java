@@ -56,6 +56,7 @@ public class Profiler {
 			ProfilerDataType.class);
 	private static Map<ProfilerMeasurementData.ProfilerDataType, RecommenderEntry> lastCosts = new EnumMap<>(
 			ProfilerDataType.class);
+	private static ProfileEntry lastAccesses;
 
 	public static void activate() {
 		active = true;
@@ -625,6 +626,8 @@ public class Profiler {
 			aggregatedEntry.setCosts(entryType, aggregatedMap);
 
 			lastCosts.put(entryType, aggregatedEntry);
+			lastAccesses = aggregated;
+			
 			res.append(outputPrefix + " Aggr for " + entryType + ": "
 					+ aggregatedMap + separator);
 			if (showRecommendations)
@@ -866,5 +869,9 @@ public class Profiler {
 	public static RecommenderEntry getLastCosts(
 			ProfilerMeasurementData.ProfilerDataType selector) {
 		return lastCosts.get(selector);
+	}
+	
+	public static ProfileEntry getLastAccesses() {
+		return lastAccesses;
 	}
 }
