@@ -378,7 +378,10 @@ public class SeriesGeneration {
 		Timer graphGenerationTimer = new Timer("graphGeneration");
 		series.setGraph(series.getGraphGenerator().generate());
 		graphGenerationTimer.end();
+
+		// reset all metrics
 		for (Metric m : series.getMetrics()) {
+			m.reset();
 			m.setGraph(series.getGraph());
 		}
 
