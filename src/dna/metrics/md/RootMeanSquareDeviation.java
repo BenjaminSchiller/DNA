@@ -1,15 +1,13 @@
 package dna.metrics.md;
 
-import java.util.HashMap;
-
 import dna.graph.Graph;
-import dna.graph.nodes.Node;
 import dna.graph.weights.Double2dWeight;
 import dna.graph.weights.Double3dWeight;
+import dna.graph.weights.DoubleWeight;
 import dna.graph.weights.IWeightedNode;
 import dna.graph.weights.Int2dWeight;
 import dna.graph.weights.Int3dWeight;
-import dna.graph.weights.Weight;
+import dna.graph.weights.IntWeight;
 import dna.metrics.Metric;
 import dna.series.data.BinnedDistributionInt;
 import dna.series.data.Distribution;
@@ -28,7 +26,7 @@ import dna.util.DataUtils;
  * the first snapshot, all nodes are initialize dwith their current position.
  * Since there is no point of reference to compute the distance to, their
  * deviation in this first step is 0.
- * http://en.wikipedia.org/wiki/Root-mean-square_deviation_of_atomic_positions
+ * http://en.wikipedia.org/wiki/Root_mean_square_deviation
  * 
  * @author benni
  * 
@@ -41,95 +39,13 @@ public abstract class RootMeanSquareDeviation extends Metric {
 
 	protected BinnedDistributionInt distr;
 
-	protected HashMap<Integer, Weight> positions;
-
 	public RootMeanSquareDeviation(String name, ApplicationType type,
 			MetricType metricType) {
 		super(name, type, metricType);
 	}
 
 	protected void initDistr() {
-		this.distr = new BinnedDistributionInt("DeviationDistribution", 0.1,
-				new int[0], 0);
-	}
-
-	/**
-	 * Returns the current weight of the given node. null is returned in case
-	 * the node does not have a double- or int-array weight.
-	 * 
-	 * @param n
-	 * @return
-	 */
-	protected Weight getWeight(Node n) {
-		if (n instanceof IWeightedNode) {
-			return ((IWeightedNode) n).getWeight();
-		}
-		return null;
-	}
-
-	/**
-	 * 
-	 * Computes and returns the deviation between the two given positions, i.e.
-	 * the squared distance between the two positions.
-	 * 
-	 * @param pos1
-	 * @param pos2
-	 * @return
-	 */
-	protected double getDeviation(Weight pos1, Weight pos2) {
-		if (pos1 instanceof Int2dWeight || pos1 instanceof Int3dWeight) {
-			int[] before, after;
-			if (pos1 instanceof Int2dWeight) {
-				before = new int[] { ((Int2dWeight) pos1).getX(),
-						((Int2dWeight) pos2).getY() };
-				after = new int[] { ((Int2dWeight) pos2).getX(),
-						((Int2dWeight) pos2).getY() };
-			} else {
-				before = new int[] { ((Int3dWeight) pos1).getX(),
-						((Int3dWeight) pos2).getY(),
-						((Int3dWeight) pos2).getZ() };
-				after = new int[] { ((Int3dWeight) pos2).getX(),
-						((Int3dWeight) pos2).getY(),
-						((Int3dWeight) pos2).getZ() };
-			}
-
-			if (before.length < after.length) {
-				before = new int[after.length];
-			}
-			double deviation = 0;
-			for (int i = 0; i < before.length; i++) {
-				int diff = before[i] - after[i];
-				deviation += (double) (diff * diff);
-			}
-			return deviation;
-		} else if (pos1 instanceof Double2dWeight
-				|| pos1 instanceof Double3dWeight) {
-			double[] before, after;
-			if (pos1 instanceof Double2dWeight) {
-				before = new double[] { ((Double2dWeight) pos1).getX(),
-						((Double2dWeight) pos2).getY() };
-				after = new double[] { ((Double2dWeight) pos2).getX(),
-						((Double2dWeight) pos2).getY() };
-			} else {
-				before = new double[] { ((Double3dWeight) pos1).getX(),
-						((Double3dWeight) pos2).getY(),
-						((Double3dWeight) pos2).getZ() };
-				after = new double[] { ((Double3dWeight) pos2).getX(),
-						((Double3dWeight) pos2).getY(),
-						((Double3dWeight) pos2).getZ() };
-			}
-
-			if (before.length < after.length) {
-				before = new double[after.length];
-			}
-			double deviation = 0;
-			for (int i = 0; i < before.length; i++) {
-				double diff = before[i] - after[i];
-				deviation += diff * diff;
-			}
-			return deviation;
-		}
-		return -1;
+		this.distr = new BinnedDistributionInt("DistanceDistribution", 0.05);
 	}
 
 	@Override
@@ -178,44 +94,26 @@ public abstract class RootMeanSquareDeviation extends Metric {
 		success &= DataUtils.equals(this.rmsd, m2.rmsd,
 				"RootMeanSquareDeviation");
 		success &= ArrayUtils.equals(this.distr.getIntValues(),
-				m2.distr.getIntValues(), "DeviationDistribution");
+				m2.distr.getIntValues(), "DistanceDistribution");
 		return success;
 	}
 
 	@Override
 	public boolean isApplicable(Graph g) {
-		Class<? extends Node> nodeType = g.getGraphDatastructures()
-				.getNodeType();
-		if (!IWeightedNode.class.isAssignableFrom(nodeType))
-			return false;
-
-		Class<? extends Weight> nodeWeightType = g.getGraphDatastructures()
-				.getNodeWeightType();
-		if (!Double2dWeight.class.isAssignableFrom(nodeWeightType)
-				&& !Double3dWeight.class.isAssignableFrom(nodeWeightType)
-				&& !Int2dWeight.class.isAssignableFrom(nodeWeightType)
-				&& !Int3dWeight.class.isAssignableFrom(nodeWeightType))
-			return false;
-
-		return true;
+		return g.getGraphDatastructures().isNodeType(IWeightedNode.class)
+				&& g.getGraphDatastructures().isNodeWeightType(
+						DoubleWeight.class, Double2dWeight.class,
+						Double3dWeight.class, IntWeight.class,
+						Int2dWeight.class, Int3dWeight.class);
 	}
 
 	@Override
 	public boolean isApplicable(Batch b) {
-		Class<? extends Node> nodeType = b.getGraphDatastructures()
-				.getNodeType();
-		if (!IWeightedNode.class.isAssignableFrom(nodeType))
-			return false;
-
-		Class<? extends Weight> nodeWeightType = b.getGraphDatastructures()
-				.getNodeWeightType();
-		if (!Double2dWeight.class.isAssignableFrom(nodeWeightType)
-				&& !Double3dWeight.class.isAssignableFrom(nodeWeightType)
-				&& !Int2dWeight.class.isAssignableFrom(nodeWeightType)
-				&& !Int3dWeight.class.isAssignableFrom(nodeWeightType))
-			return false;
-
-		return true;
+		return b.getGraphDatastructures().isNodeType(IWeightedNode.class)
+				&& b.getGraphDatastructures().isNodeWeightType(
+						DoubleWeight.class, Double2dWeight.class,
+						Double3dWeight.class, IntWeight.class,
+						Int2dWeight.class, Int3dWeight.class);
 	}
 
 	@Override

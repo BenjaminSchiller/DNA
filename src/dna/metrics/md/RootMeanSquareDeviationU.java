@@ -1,6 +1,7 @@
 package dna.metrics.md;
 
-import dna.series.data.BinnedDistributionInt;
+import dna.graph.weights.IWeightedNode;
+import dna.graph.weights.distances.EuclideanDistance;
 import dna.updates.batch.Batch;
 import dna.updates.update.NodeWeight;
 import dna.updates.update.Update;
@@ -25,13 +26,13 @@ public class RootMeanSquareDeviationU extends RootMeanSquareDeviation {
 		this.rmsd = 0;
 		this.initDistr();
 		for (NodeWeight u : b.getNodeWeights()) {
-			double deviation = this.getDeviation(
-					this.getWeight(this.g.getNode(u.getNode().getIndex())),
-					u.getWeight());
+			double dist = EuclideanDistance.dist(
+					((IWeightedNode) u.getNode()).getWeight(), u.getWeight());
+			this.rmsd += dist * dist;
+			this.distr.incr(dist);
 			this.changes++;
-			this.rmsd += deviation;
-			this.distr.incr((int) Math.floor(deviation / 0.1));
 		}
+		this.rmsd /= this.g.getNodeCount();
 		this.rmsd = Math.sqrt(this.rmsd);
 		return true;
 	}
@@ -55,8 +56,7 @@ public class RootMeanSquareDeviationU extends RootMeanSquareDeviation {
 	public boolean compute() {
 		this.changes = 0;
 		this.rmsd = 0;
-		this.distr = new BinnedDistributionInt("DeviationDistribution", 0.1,
-				new int[0], 0);
+		this.initDistr();
 		return true;
 	}
 

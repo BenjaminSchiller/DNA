@@ -6,6 +6,7 @@ import dna.graph.IElement;
 import dna.graph.nodes.Node;
 import dna.graph.weights.IWeightedNode;
 import dna.graph.weights.Weight;
+import dna.graph.weights.distances.EuclideanDistance;
 import dna.updates.batch.Batch;
 import dna.updates.update.Update;
 
@@ -25,7 +26,13 @@ public class RootMeanSquareDeviationR extends RootMeanSquareDeviation {
 				MetricType.exact);
 	}
 
-	protected HashMap<Integer, Weight> positions;
+	protected HashMap<Node, Weight> positions;
+
+	@Override
+	public void reset_() {
+		super.reset_();
+		this.positions = null;
+	}
 
 	/**
 	 * 
@@ -35,7 +42,7 @@ public class RootMeanSquareDeviationR extends RootMeanSquareDeviation {
 	 * @param n
 	 */
 	protected void updatePosition(Node n) {
-		this.positions.put(n.getIndex(), ((IWeightedNode) n).getWeight());
+		this.positions.put(n, ((IWeightedNode) n).getWeight());
 	}
 
 	@Override
@@ -64,23 +71,24 @@ public class RootMeanSquareDeviationR extends RootMeanSquareDeviation {
 		this.rmsd = 0;
 		this.initDistr();
 		if (this.positions == null) {
-			this.positions = new HashMap<Integer, Weight>();
+			this.positions = new HashMap<Node, Weight>();
 			for (IElement n : this.g.getNodes()) {
 				this.updatePosition((Node) n);
 			}
 		} else {
 			for (IElement n_ : this.g.getNodes()) {
 				Node n = (Node) n_;
-				Weight old = this.positions.get(n.getIndex());
-				if (old != null && !old.equals(this.getWeight(n))) {
-					double deviation = this
-							.getDeviation(old, this.getWeight(n));
-					this.rmsd += deviation;
-					this.distr.incr(deviation);
+				Weight old = this.positions.get(n);
+				if (old != null && !old.equals(((IWeightedNode) n).getWeight())) {
+					double dist = EuclideanDistance.dist(old,
+							((IWeightedNode) n).getWeight());
+					this.rmsd += dist * dist;
+					this.distr.incr(dist);
 					this.changes++;
 				}
-				this.positions.put(n.getIndex(), this.getWeight(n));
+				this.updatePosition((Node) n);
 			}
+			this.rmsd /= this.g.getNodeCount();
 			this.rmsd = Math.sqrt(this.rmsd);
 		}
 		return true;
