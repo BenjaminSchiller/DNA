@@ -11,7 +11,6 @@ import dna.updates.batch.Batch;
 import dna.updates.update.EdgeAddition;
 import dna.updates.update.NodeAddition;
 import dna.updates.update.Update;
-import dna.util.Config;
 
 /**
  * A batch reader to read in a written batch
@@ -42,8 +41,7 @@ public class BatchReader {
 
 			String line = null;
 			while ((line = reader.readString()) != null) {
-				Update u = Update.fromString(g.getGraphDatastructures(), g,
-						line, addedNodes);
+				Update u = parseLine(line, g, addedNodes);
 
 				b.add(u);
 				if (u instanceof NodeAddition) {
@@ -69,14 +67,20 @@ public class BatchReader {
 		}
 	}
 
+	protected static Update parseLine(String line, Graph g,
+			HashMap<Integer, Node> addedNodes) {
+		return Update.fromString(g.getGraphDatastructures(), g, line,
+				addedNodes);
+	}
+
 	public static long[] readTimestamps(String dir, String filename)
 			throws IOException {
 		Reader reader = new Reader(dir, filename);
 
-		reader.readKeyword(Config.get("BATCH_KEYWORD_FROM"));
+		reader.readKeyword(BatchWriter.fromKeyword);
 		long from = reader.readLong();
 
-		reader.readKeyword(Config.get("BATCH_KEYWORD_TO"));
+		reader.readKeyword(BatchWriter.toKeyword);
 		long to = reader.readLong();
 
 		reader.close();
