@@ -14,6 +14,14 @@ public class LongWeight extends Weight {
 
 	private long weight;
 
+	public long getWeight() {
+		return weight;
+	}
+
+	public void setWeight(long weight) {
+		this.weight = weight;
+	}
+
 	public LongWeight(long weight) {
 		this.weight = weight;
 	}
