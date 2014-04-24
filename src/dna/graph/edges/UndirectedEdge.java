@@ -86,6 +86,10 @@ public class UndirectedEdge extends Edge {
 	public UndirectedNode getNode1() {
 		return (UndirectedNode) this.getN1();
 	}
+	
+	public int getNode1Index() {
+		return getNode1().getIndex();
+	}
 
 	/**
 	 * 
@@ -94,6 +98,10 @@ public class UndirectedEdge extends Edge {
 	 */
 	public UndirectedNode getNode2() {
 		return (UndirectedNode) this.getN2();
+	}
+	
+	public int getNode2Index() {
+		return getNode2().getIndex();
 	}
 
 	private void init(UndirectedNode node1, UndirectedNode node2) {
@@ -118,8 +126,8 @@ public class UndirectedEdge extends Edge {
 		if (oCasted.getNode1() == null || oCasted.getNode2() == null)
 			return false;
 
-		return this.getNode1().getIndex() == oCasted.getNode1().getIndex()
-				&& this.getNode2().getIndex() == oCasted.getNode2().getIndex();
+		return this.getNode1Index() == oCasted.getNode1Index()
+				&& this.getNode2Index() == oCasted.getNode2Index();
 	}
 
 	@Override

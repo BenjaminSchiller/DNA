@@ -2,7 +2,7 @@ package dna.metrics.clusterCoefficient;
 
 import dna.graph.Graph;
 import dna.graph.IElement;
-import dna.graph.edges.DirectedEdge;
+import dna.graph.datastructures.GraphDataStructure;
 import dna.graph.nodes.DirectedNode;
 import dna.metrics.Metric;
 import dna.updates.batch.Batch;
@@ -20,6 +20,8 @@ import dna.util.ArrayUtils;
  */
 public abstract class DirectedClusteringCoefficient extends
 		ClusteringCoefficient {
+	
+	GraphDataStructure gds;
 
 	public DirectedClusteringCoefficient(String name, ApplicationType type,
 			MetricType mType) {
@@ -45,6 +47,8 @@ public abstract class DirectedClusteringCoefficient extends
 
 	@Override
 	public boolean compute() {
+		gds = g.getGraphDatastructures();
+		
 		this.triangleCount = 0;
 		this.potentialCount = 0;
 		for (IElement nUncasted : g.getNodes()) {
@@ -59,7 +63,7 @@ public abstract class DirectedClusteringCoefficient extends
 						continue;
 					}
 					this.nodePotentialCount[n.getIndex()]++;
-					if (u.hasEdge(new DirectedEdge(u, v))) {
+					if (u.hasEdge(u, v)) {
 						this.nodeTriangleCount[n.getIndex()]++;
 					}
 				}

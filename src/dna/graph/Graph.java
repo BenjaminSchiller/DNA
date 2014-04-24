@@ -113,6 +113,14 @@ public class Graph {
 	public boolean addEdge(Edge e) {
 		return this.containsNodes(e) && edges.add(e);
 	}
+	
+	public boolean containsEdge(Node n1, Node n2) {
+		return containsEdge(gds.getDummyEdge(n1, n2));
+	}
+
+	public boolean containsEdge(int n1, int n2) {
+		return containsEdge(gds.getDummyEdge(n1, n2));
+	}
 
 	public boolean containsEdge(Edge e) {
 		return edges.contains(e);

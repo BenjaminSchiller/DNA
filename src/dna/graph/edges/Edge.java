@@ -20,12 +20,20 @@ public abstract class Edge extends Element implements IEdge {
 		return n2;
 	}
 	
-	public final String getHashString() {
+	public int getN1Index() {
+		return n1.getIndex();
+	}
+	
+	public int getN2Index() {
+		return n2.getIndex();
+	}
+	
+	public String getHashString() {
 		return Integer.toString(this.hashCode());
 	}
 	
-	public final int hashCode() {
-		return getHashcode(n1, n2);
+	public int hashCode() {
+		return getHashcode(n1.getIndex(), n2.getIndex());
 	}
 	
 	/**
@@ -47,6 +55,10 @@ public abstract class Edge extends Element implements IEdge {
 	}
 	
 	public static int getHashcode(Node n1, Node n2) {
-		return n1.getIndex() * (int) Math.pow(2, 15) + n2.getIndex();
+		return getHashcode(n1.getIndex(), n2.getIndex());
+	}
+	
+	public static int getHashcode(int n1Index, int n2Index) {
+		return n1Index * (int) Math.pow(2, 15) + n2Index;
 	}
 }

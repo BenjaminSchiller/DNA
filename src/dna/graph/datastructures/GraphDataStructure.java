@@ -13,9 +13,14 @@ import dna.graph.IElement;
 import dna.graph.datastructures.DataStructure.AccessType;
 import dna.graph.datastructures.DataStructure.ListType;
 import dna.graph.edges.DirectedEdge;
+import dna.graph.edges.DummyDirectedEdge;
+import dna.graph.edges.DummyUndirectedEdge;
 import dna.graph.edges.Edge;
+import dna.graph.edges.IEdgeDummy;
 import dna.graph.edges.UndirectedEdge;
+import dna.graph.nodes.DirectedNode;
 import dna.graph.nodes.Node;
+import dna.graph.nodes.UndirectedNode;
 import dna.graph.tests.GlobalTestParameters;
 import dna.graph.weights.IWeighted;
 import dna.graph.weights.Weight;
@@ -45,6 +50,7 @@ public class GraphDataStructure implements Cloneable {
 	private Constructor<?> lastEdgeConstructor = null;
 
 	private IEdgeListDatastructure emptyList = new DEmpty(null);
+	private IEdgeDummy edgeDummy;
 
 	private EnumMap<ListType, Class<? extends IDataStructure>> listTypes;
 	private EnumMap<ListType, Integer> defaultListSizes;
@@ -54,6 +60,8 @@ public class GraphDataStructure implements Cloneable {
 	private static ArrayList<EnumMap<ListType, Class<? extends IDataStructure>>> simpleListCombinations = null;
 
 	private int defaultListSize = 10;
+	
+	private static GraphDataStructure currentGDS;
 
 	public GraphDataStructure(
 			EnumMap<ListType, Class<? extends IDataStructure>> listTypes,
@@ -79,8 +87,14 @@ public class GraphDataStructure implements Cloneable {
 
 		this.nodeWeightSelection = nodeWeightSelection;
 		this.edgeWeightSelection = edgeWeightSelection;
+		
+		GraphDataStructure.currentGDS = this;
 
 		init();
+	}
+	
+	public static GraphDataStructure current() {
+		return currentGDS;
 	}
 
 	@SuppressWarnings("unchecked")
@@ -547,6 +561,26 @@ public class GraphDataStructure implements Cloneable {
 			rt.setStackTrace(e.getStackTrace());
 			throw rt;
 		}
+	}
+	
+	public Edge getDummyEdge(Node n1, Node n2) {
+		return getDummyEdge(n1.getIndex(), n2.getIndex());
+	}
+	
+	public Edge getDummyEdge(int n1, int n2) {
+		if ( edgeDummy == null ) {
+			if ( createsDirected() ) {
+				DirectedNode node1 = new DirectedNode(1, this);
+				DirectedNode node2 = new DirectedNode(2, this);
+				edgeDummy = new DummyDirectedEdge(node1, node2);
+			} else {
+				UndirectedNode node1 = new UndirectedNode(1, this);
+				UndirectedNode node2 = new UndirectedNode(2, this);
+				edgeDummy = new DummyUndirectedEdge(node1, node2);
+			}
+		}
+		edgeDummy.setNodes(n1, n2);
+		return (Edge) edgeDummy;
 	}
 
 	public Constructor<?> getConstructor(Constructor<?>[] list,

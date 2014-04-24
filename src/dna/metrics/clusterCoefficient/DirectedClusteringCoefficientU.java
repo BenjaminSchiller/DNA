@@ -61,10 +61,10 @@ public class DirectedClusteringCoefficientU extends
 					if (!a.hasNeighbor(b)) {
 						continue;
 					}
-					if (c.hasEdge(new DirectedEdge(c, b))) {
+					if (c.hasEdge(c, b)) {
 						this.removeTriangle(a);
 					}
-					if (c.hasEdge(new DirectedEdge(b, c))) {
+					if (c.hasEdge(b, c)) {
 						this.removeTriangle(a);
 					}
 				}
@@ -72,10 +72,10 @@ public class DirectedClusteringCoefficientU extends
 				// t3
 				for (IElement cUncasted : b.getNeighbors()) {
 					DirectedNode c = (DirectedNode) cUncasted;
-					if (c.hasEdge(new DirectedEdge(c, a))) {
+					if (c.hasEdge(c, a)) {
 						this.removeTriangle(b);
 					}
-					if (c.hasEdge(new DirectedEdge(a, c))) {
+					if (c.hasEdge(a, c)) {
 						this.removeTriangle(b);
 					}
 				}
@@ -113,7 +113,7 @@ public class DirectedClusteringCoefficientU extends
 					if (b.equals(c)) {
 						continue;
 					}
-					if (b.hasEdge(new DirectedEdge(b, c))) {
+					if (b.hasEdge(b, c)) {
 						this.removeTriangle(a);
 					}
 				}
@@ -124,10 +124,10 @@ public class DirectedClusteringCoefficientU extends
 				DirectedNode b = (DirectedNode) bUncasted;
 				for (IElement cUncasted : b.getNeighbors()) {
 					DirectedNode c = (DirectedNode) cUncasted;
-					if (a.hasEdge(new DirectedEdge(a, c))) {
+					if (a.hasEdge(a, c)) {
 						this.removeTriangle(b);
 					}
-					if (a.hasEdge(new DirectedEdge(c, a))) {
+					if (a.hasEdge(c, a)) {
 						this.removeTriangle(b);
 					}
 				}
@@ -176,10 +176,10 @@ public class DirectedClusteringCoefficientU extends
 					if (!a.hasNeighbor(b)) {
 						continue;
 					}
-					if (c.hasEdge(new DirectedEdge(c, b))) {
+					if (c.hasEdge(c, b)) {
 						this.addTriangle(a);
 					}
-					if (c.hasEdge(new DirectedEdge(b, c))) {
+					if (c.hasEdge(b, c)) {
 						this.addTriangle(a);
 					}
 				}
@@ -187,10 +187,10 @@ public class DirectedClusteringCoefficientU extends
 				// t3
 				for (IElement cUncasted : b.getNeighbors()) {
 					DirectedNode c = (DirectedNode) cUncasted;
-					if (c.hasEdge(new DirectedEdge(c, a))) {
+					if (c.hasEdge(c, a)) {
 						this.addTriangle(b);
 					}
-					if (c.hasEdge(new DirectedEdge(a, c))) {
+					if (c.hasEdge(a, c)) {
 						this.addTriangle(b);
 					}
 				}
