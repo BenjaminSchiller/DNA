@@ -381,8 +381,8 @@ public class SeriesGeneration {
 
 		// reset all metrics
 		for (Metric m : series.getMetrics()) {
-			m.reset();
 			m.setGraph(series.getGraph());
+			m.reset();
 		}
 
 		// initialize data
