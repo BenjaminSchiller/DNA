@@ -104,12 +104,6 @@ public class DirectedEdge extends Edge {
 				(DirectedNode) this.getN1());
 	}
 
-	public Node getDifferingNode(Node n) {
-		if (n instanceof DirectedNode)
-			return this.getDifferingNode((DirectedNode) n);
-		return null;
-	}
-
 	public boolean connectToNodes() {
 		boolean addSrc = this.getSrc().addEdge(this);
 		boolean addDst = this.getDst().addEdge(this);
