@@ -231,7 +231,7 @@ public class Plot {
 	 *             thrown by the writer
 	 */
 	public void writeScript(String dir, String filename,
-			AggregatedValue[][] data) throws IOException {
+			AggregatedValue[][] data, long[][] timestamps) throws IOException {
 		Writer w = new Writer(dir, filename);
 
 		// write script header
@@ -243,7 +243,7 @@ public class Plot {
 		// write script data
 		for (int i = 0; i < data.length; i++) {
 			for (int j = 0; j < data[i].length; j++) {
-				String temp = "" + j;
+				String temp = "" + timestamps[i][j];
 				for (int k = 0; k < data[i][j].getValues().length; k++) {
 					temp += Config.get("PLOTDATA_DELIMITER")
 							+ data[i][j].getValues()[k];
@@ -368,10 +368,10 @@ public class Plot {
 	 * @throws InterruptedException
 	 *             thrown in Execute.exec
 	 */
-	public void generate(AggregatedValue[][] inputData) throws IOException,
-			InterruptedException {
+	public void generate(AggregatedValue[][] inputData, long[][] timestamps)
+			throws IOException, InterruptedException {
 		Log.info("  => \"" + this.filename + "\" in " + this.dir);
-		this.writeScript(this.dir, this.scriptFilename, inputData);
+		this.writeScript(this.dir, this.scriptFilename, inputData, timestamps);
 		Execute.exec(Config.get("GNUPLOT_PATH") + " " + this.dir
 				+ this.scriptFilename, true);
 	}
