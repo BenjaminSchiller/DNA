@@ -7,6 +7,7 @@ import dna.io.filesystem.Dir;
 import dna.metrics.Metric.MetricType;
 import dna.series.aggdata.AggregatedSeries;
 import dna.series.lists.MetricDataList;
+import dna.util.Config;
 import dna.util.Log;
 
 public class SeriesData {
@@ -168,37 +169,52 @@ public class SeriesData {
 					if (MetricData.isComparable(heuristic, exacts.get(exact))) {
 						for (RunData runZ : this.getRuns()) {
 							int batchCounter = 0;
-							for (BatchData batchZ : this.getRun(runZ.getRun())
-									.getBatches().getList()) {
-								MetricData exactTemp = MetricData.read(Dir
-										.getMetricDataDir(Dir.getBatchDataDir(
-												Dir.getRunDataDir(this.dir,
-														runZ.getRun()), batchZ
-														.getTimestamp()),
-												exact, MetricType.exact),
-										exact, true);
+							for (BatchData batchZ : runZ.getBatches().getList()) {
+								BatchData tempBatch;
+								boolean singleFile = Config
+										.getBoolean("GENERATION_BATCHES_AS_ZIP");
 
-								MetricData heuristicTemp = MetricData.read(Dir
-										.getMetricDataDir(Dir.getBatchDataDir(
-												Dir.getRunDataDir(this.dir,
-														runZ.getRun()), batchZ
-														.getTimestamp()),
-												heuristic.getName(),
-												MetricType.heuristic),
-										heuristic.getName(), true);
-
-								MetricData quality = MetricData.compare(
-										exactTemp, heuristicTemp);
-								this.getRuns().get(runZ.getRun()).getBatches()
-										.get(batchCounter).getMetrics()
-										.add(quality);
-								if (writeValues)
-									quality.write(Dir.getMetricDataDir(Dir
-											.getBatchDataDir(
-													Dir.getRunDataDir(dir,
+								// read batch
+								if (singleFile)
+									tempBatch = BatchData
+											.readBatchValuesFromSingleFile(Dir
+													.getRunDataDir(this.dir,
 															runZ.getRun()),
+													batchZ.getTimestamp(),
+													Dir.delimiter, batchZ);
+								else
+									tempBatch = BatchData.read(
+											Dir.getBatchDataDir(this.dir,
+													runZ.getRun(),
 													batchZ.getTimestamp()),
-											quality.getName()));
+											batchZ.getTimestamp(), true);
+
+								// compare metrics
+								MetricData quality = MetricData.compare(
+										tempBatch.getMetrics().get(exact),
+										tempBatch.getMetrics().get(
+												heuristic.getName()));
+
+								// add quality metric to current structure
+								runZ.getBatches().get(batchCounter)
+										.getMetrics().add(quality);
+								tempBatch.getMetrics().add(quality);
+
+								// write
+								if (writeValues)
+									if (singleFile)
+										tempBatch.writeSingleFile(Dir
+												.getRunDataDir(this.dir,
+														runZ.getRun()),
+												tempBatch.getTimestamp(),
+												Config.get("SUFFIX_ZIP_FILE"),
+												Dir.delimiter);
+									else
+										tempBatch.write(Dir.getBatchDataDir(
+												this.dir, runZ.getRun(),
+												tempBatch.getTimestamp()));
+
+								// increment counter
 								batchCounter++;
 							}
 						}
