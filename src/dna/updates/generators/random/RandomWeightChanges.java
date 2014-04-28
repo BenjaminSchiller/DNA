@@ -13,6 +13,7 @@ import dna.updates.batch.Batch;
 import dna.updates.generators.BatchGenerator;
 import dna.updates.update.EdgeWeight;
 import dna.updates.update.NodeWeight;
+import dna.util.parameters.IntParameter;
 
 public class RandomWeightChanges extends BatchGenerator {
 
@@ -22,9 +23,10 @@ public class RandomWeightChanges extends BatchGenerator {
 	private WeightSelection nSelection;
 	private WeightSelection eSelection;
 
-	public RandomWeightChanges(int nodes, WeightSelection nSelection, int edges,
-			WeightSelection eSelection) {
-		super("RandomWeightChanges");
+	public RandomWeightChanges(int nodes, WeightSelection nSelection,
+			int edges, WeightSelection eSelection) {
+		super("RandomWeightChanges", new IntParameter("NODES", nodes),
+				new IntParameter("EDGES", edges));
 		this.nodes = nodes;
 		this.nSelection = nSelection;
 		this.edges = edges;
@@ -45,7 +47,7 @@ public class RandomWeightChanges extends BatchGenerator {
 		while (nodes.size() < this.nodes) {
 			nodes.add(g.getRandomNode());
 		}
-		
+
 		Weight w;
 		for (Edge e : edges) {
 			w = g.getGraphDatastructures().newEdgeWeight(eSelection);
