@@ -228,11 +228,14 @@ public class Profiler {
 		if (allCosts.size() == 0) {
 			res.append(" no recommendations available" + separator);
 
-			RecommenderEntry elementToNull = lastRecommendations.get(entryType)
-					.clone();
-			elementToNull.resetCosts();
-			lastRecommendations.put(entryType, elementToNull);
-
+			RecommenderEntry oldEl = lastRecommendations.get(entryType);
+			if (oldEl == null) {
+				lastRecommendations.put(entryType, null);
+			} else {
+				RecommenderEntry elementToNull = oldEl.clone();
+				elementToNull.resetCosts();
+				lastRecommendations.put(entryType, elementToNull);
+			}
 			return res.toString();
 		}
 
@@ -313,17 +316,17 @@ public class Profiler {
 			return res;
 		}
 
-		ArrayList<EnumMap<ListType, Class<? extends IDataStructure>>> allCombinations;
+		ArrayList<EnumMap<ListType, Class<? extends IDataStructure>>> allCombinationsRaw;
 
 		if (Config.getBoolean("PROFILER_USE_SIMPLE_LIST_FOR_RECOMMENDATIONS"))
-			allCombinations = GraphDataStructure
+			allCombinationsRaw = GraphDataStructure
 					.getSimpleDatastructureCombinations();
 		else
-			allCombinations = GraphDataStructure
+			allCombinationsRaw = GraphDataStructure
 					.getAllDatastructureCombinations();
 
-		allCombinations = prefilter(allCombinations, entry,
-				isCombinedOutputForAllAccessTypes);
+		HashSet<EnumMap<ListType, Class<? extends IDataStructure>>> allCombinations = prefilter(
+				allCombinationsRaw, entry, isCombinedOutputForAllAccessTypes);
 
 		for (ProfilerDataType entryType : ProfilerDataType.values()) {
 			EnumMap<ListType, Class<? extends IDataStructure>> listTypes;
@@ -390,26 +393,13 @@ public class Profiler {
 	 *            over a whole batch or not
 	 * @return
 	 */
-	private static ArrayList<EnumMap<ListType, Class<? extends IDataStructure>>> prefilter(
+	private static HashSet<EnumMap<ListType, Class<? extends IDataStructure>>> prefilter(
 			ArrayList<EnumMap<ListType, Class<? extends IDataStructure>>> oldList,
 			ProfileEntry entry, boolean isCombinedOutputForAllAccessTypes) {
 
-		ArrayList<EnumMap<ListType, Class<? extends IDataStructure>>> res = new ArrayList<>();
+		HashSet<EnumMap<ListType, Class<? extends IDataStructure>>> res = new HashSet<>();
 		EnumMap<ListType, Boolean> canDEmptyBeUsedForListInCurrentBatch = new EnumMap<>(
 				ListType.class);
-		HashSet<ListType> fallbackListTypes = new HashSet<>();
-
-		Class<? extends IDataStructure> currClass;
-
-		if (oldList.size() > 0) {
-			EnumMap<ListType, Class<? extends IDataStructure>> first = oldList
-					.get(0);
-			for (ListType lt : ListType.values()) {
-				currClass = first.get(lt);
-				if (currClass != null)
-					fallbackListTypes.add(lt);
-			}
-		}
 
 		for (ListType lt : ListType.values()) {
 			canDEmptyBeUsedForListInCurrentBatch.put(lt,
@@ -419,13 +409,6 @@ public class Profiler {
 		boolean skipThisEntry;
 		for (EnumMap<ListType, Class<? extends IDataStructure>> el : oldList) {
 			skipThisEntry = false;
-
-			/*
-			 * for (ListType lt : ListType.values()) { currClass = el.get(lt);
-			 * recLT = lt; while (currClass == null) { currClass =
-			 * el.get(recLT); recLT = recLT.getFallback(); } el.put(lt,
-			 * currClass); }
-			 */
 
 			for (ListType lt : el.keySet()) {
 				if (!skipThisEntry) {
@@ -437,9 +420,8 @@ public class Profiler {
 						 * switch it to DEmpty
 						 */
 						if (canDEmptyBeUsedForListInCurrentBatch.get(lt)
-								&& !fallbackListTypes.contains(lt)
 								&& el.get(lt) != DEmpty.class) {
-							skipThisEntry = true;
+							el.put(lt, DEmpty.class);
 						} else if (!canDEmptyBeUsedForListInCurrentBatch
 								.get(lt) && el.get(lt) == DEmpty.class) {
 							skipThisEntry = true;
