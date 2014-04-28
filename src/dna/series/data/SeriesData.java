@@ -224,4 +224,51 @@ public class SeriesData {
 			}
 		}
 	}
+
+	/**
+	 * Reads the aggregation of the series data object.
+	 * 
+	 * @param index
+	 *            The index will be used in the aggregations name. Used for
+	 *            plotting with multiple series.
+	 * @throws IOException
+	 *             Can be thrown when reading aggregation from filesystem.
+	 */
+	public void readAggregation(int index) throws IOException {
+		this.setAggregation(AggregatedSeries.read(this.getDir(), this.getName()
+				+ index + "_" + Config.get("RUN_AGGREGATION"), true));
+	}
+
+	/**
+	 * Reads the aggregation of the series data objects.
+	 * 
+	 * @param seriesData
+	 *            SeriesData objects whose aggregations will be read.
+	 * @return Same seriesData objects that are handed over.
+	 * @throws IOException
+	 *             Can be thrown when reading aggregations from filesystem.
+	 */
+	public static SeriesData[] getAggregations(SeriesData[] seriesData)
+			throws IOException {
+		for (int i = 0; i < seriesData.length; i++) {
+			seriesData[i].readAggregation(i);
+		}
+		return seriesData;
+	}
+
+	/**
+	 * Returns if an array of series data objects is plottable, which means no
+	 * series has a null aggregation.
+	 * 
+	 * @param seriesData
+	 *            SeriesData objects which will be checked.
+	 * @return If the objects are ready to be plotted or not.
+	 */
+	public static boolean isPlottable(SeriesData[] seriesData) {
+		for (int i = 0; i < seriesData.length; i++) {
+			if (seriesData[i].getAggregation() == null)
+				return false;
+		}
+		return true;
+	}
 }
