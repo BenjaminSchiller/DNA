@@ -8,6 +8,7 @@ import java.util.HashMap;
 import dna.io.filesystem.Dir;
 import dna.io.filesystem.Files;
 import dna.metrics.Metric;
+import dna.metrics.Metric.MetricType;
 import dna.metrics.MetricNotApplicableException;
 import dna.series.Series.RandomSeedReset;
 import dna.series.aggdata.AggregatedSeries;
@@ -341,7 +342,11 @@ public class SeriesGeneration {
 					continue;
 				}
 				if (!series.getMetrics()[i]
-						.isComparableTo(series.getMetrics()[j])) {
+						.isComparableTo(series.getMetrics()[j])
+						|| !series.getMetrics()[i].getMetricType().equals(
+								MetricType.exact)
+						|| !series.getMetrics()[j].getMetricType().equals(
+								MetricType.exact)) {
 					continue;
 				}
 				if (!series.getMetrics()[i].equals(series.getMetrics()[j])) {
