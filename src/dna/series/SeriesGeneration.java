@@ -33,7 +33,8 @@ public class SeriesGeneration {
 	public static SeriesData generate(Series series, int runs, int batches)
 			throws AggregationException, IOException,
 			MetricNotApplicableException {
-		return SeriesGeneration.generate(series, runs, batches, true, true, 0);
+		return SeriesGeneration.generate(series, runs, batches, true, true,
+				true, 0);
 	}
 
 	/**
@@ -48,6 +49,8 @@ public class SeriesGeneration {
 	 * @param compare
 	 *            Flag that decides whether metrics will be automatically
 	 *            compared or not
+	 * @param aggregate
+	 *            Flag that decides whether data will be aggregated or not
 	 * @param write
 	 *            Flag that decides whether data will be written on the
 	 *            filesystem or not
@@ -60,8 +63,8 @@ public class SeriesGeneration {
 	 * @throws MetricNotApplicableException
 	 */
 	public static SeriesData generate(Series series, int runs, int batches,
-			boolean compare, boolean write, long batchGenerationTime)
-			throws AggregationException, IOException,
+			boolean compare, boolean aggregate, boolean write,
+			long batchGenerationTime) throws AggregationException, IOException,
 			MetricNotApplicableException {
 		Log.infoSep();
 		Timer timer = new Timer("seriesGeneration");
@@ -72,11 +75,15 @@ public class SeriesGeneration {
 						.getStorageDataStructures(true));
 		Log.info("gg = " + series.getGraphGenerator().getDescription());
 		Log.info("bg = " + series.getBatchGenerator().getDescription());
-		Log.info("p  = " + series.getDir());
+		if (aggregate)
+			Log.info("ag = enabled");
+		else
+			Log.info("ag = disabled");
 		if (Config.getBoolean("GENERATION_BATCHES_AS_ZIP"))
 			Log.info("b  = zipped");
 		else
 			Log.info("b  = files");
+		Log.info("p  = " + series.getDir());
 		if (batchGenerationTime > 0)
 			Log.info("t  = " + batchGenerationTime + " msec / batch");
 		StringBuffer buff = new StringBuffer("");
@@ -118,19 +125,20 @@ public class SeriesGeneration {
 			}
 		}
 		// aggregate all runs
-		Log.infoSep();
-		Timer aggregationTimer = new Timer("aggregation");
+		if (aggregate) {
+			Log.infoSep();
+			Timer aggregationTimer = new Timer("aggregation");
 
-		AggregatedSeries aSd = Aggregation.aggregateSeries(sd);
-		sd.setAggregation(aSd);
-		aggregationTimer.end();
-		Log.info(aggregationTimer.toString());
-		// end of aggregation
-		Log.infoSep();
-		timer.end();
-		Log.info("total time: " + timer.toString());
-		Log.infoSep();
-
+			AggregatedSeries aSd = Aggregation.aggregateSeries(sd);
+			sd.setAggregation(aSd);
+			aggregationTimer.end();
+			Log.info(aggregationTimer.toString());
+			// end of aggregation
+			Log.infoSep();
+			timer.end();
+			Log.info("total time: " + timer.toString());
+			Log.infoSep();
+		}
 		return sd;
 	}
 
