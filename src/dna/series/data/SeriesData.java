@@ -234,9 +234,11 @@ public class SeriesData {
 	 * @throws IOException
 	 *             Can be thrown when reading aggregation from filesystem.
 	 */
-	public void readAggregation(int index) throws IOException {
-		this.setAggregation(AggregatedSeries.read(this.getDir(), this.getName()
-				+ index + "_" + Config.get("RUN_AGGREGATION"), true));
+	public void readAggregation(int index, long timestampFrom,
+			long timestampTo, long stepSize) throws IOException {
+		this.setAggregation(AggregatedSeries.readFromTo(this.getDir(),
+				this.getName() + index + "_" + Config.get("RUN_AGGREGATION"),
+				timestampFrom, timestampTo, stepSize, true));
 	}
 
 	/**
@@ -248,10 +250,12 @@ public class SeriesData {
 	 * @throws IOException
 	 *             Can be thrown when reading aggregations from filesystem.
 	 */
-	public static SeriesData[] getAggregations(SeriesData[] seriesData)
+	public static SeriesData[] getAggregations(SeriesData[] seriesData,
+			long timestampFrom, long timestampTo, long stepSize)
 			throws IOException {
 		for (int i = 0; i < seriesData.length; i++) {
-			seriesData[i].readAggregation(i);
+			seriesData[i].readAggregation(i, timestampFrom, timestampTo,
+					stepSize);
 		}
 		return seriesData;
 	}
