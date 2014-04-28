@@ -46,7 +46,8 @@ public class RootMeanSquareFluctuationR extends RootMeanSquareFluctuation {
 
 		for (IElement n_ : this.g.getNodes()) {
 			Node n = (Node) n_;
-			this.update(n, ((IWeightedNode) n).getWeight());
+			LinkedList<double[]> positions = this.update(n,
+					((IWeightedNode) n).getWeight());
 			double rmsf = this.computeRMSF(this.positions.get(n));
 			this.rmsf.setValue(n.getIndex(), rmsf);
 			this.rmsfD.incr(rmsf);

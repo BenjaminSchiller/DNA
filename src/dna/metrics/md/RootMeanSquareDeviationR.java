@@ -79,7 +79,7 @@ public class RootMeanSquareDeviationR extends RootMeanSquareDeviation {
 			for (IElement n_ : this.g.getNodes()) {
 				Node n = (Node) n_;
 				Weight old = this.positions.get(n);
-				if (old != null && !old.equals(((IWeightedNode) n).getWeight())) {
+				if (old != null) {
 					double dist = EuclideanDistance.dist(old,
 							((IWeightedNode) n).getWeight());
 					this.rmsd += dist * dist;

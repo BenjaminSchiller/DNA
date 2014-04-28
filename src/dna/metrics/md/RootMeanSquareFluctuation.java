@@ -130,7 +130,7 @@ public abstract class RootMeanSquareFluctuation extends Metric {
 				&& ((RootMeanSquareFluctuation) m).steps == this.steps;
 	}
 
-	protected void update(Node n, Weight w) {
+	protected LinkedList<double[]> update(Node n, Weight w) {
 		LinkedList<double[]> positions = this.positions.get(n);
 		if (positions == null) {
 			positions = new LinkedList<double[]>();
@@ -140,6 +140,7 @@ public abstract class RootMeanSquareFluctuation extends Metric {
 		if (positions.size() > this.steps) {
 			positions.removeFirst();
 		}
+		return positions;
 	}
 
 	protected double[] getWeight(Weight w) {
