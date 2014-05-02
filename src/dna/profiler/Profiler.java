@@ -730,7 +730,7 @@ public class Profiler {
 		w.close();
 	}
 
-	public static void finishSeries() {
+	public static void finishSeries() throws IOException {
 		if (!active)
 			return;
 
@@ -740,27 +740,24 @@ public class Profiler {
 
 		currentFileSystem = null;
 
-		try {
-			Profiler.writeMultiple(singleSeriesCalls,
-					batchGeneratorNames.toArray(new String[0]), seriesDir,
-					Files.getProfilerFilename(Config.get("BATCH_PROFILER")),
-					rec, false);
+		Profiler.writeMultiple(singleSeriesCalls,
+				batchGeneratorNames.toArray(new String[0]), seriesDir,
+				Files.getProfilerFilename(Config.get("BATCH_PROFILER")), rec,
+				false);
 
-			Profiler.writeMultiple(singleSeriesCalls,
-					metricNames.toArray(new String[0]), seriesDir,
-					Files.getProfilerFilename(Config.get("METRIC_PROFILER")),
-					rec, false);
+		Profiler.writeMultiple(singleSeriesCalls,
+				metricNames.toArray(new String[0]), seriesDir,
+				Files.getProfilerFilename(Config.get("METRIC_PROFILER")), rec,
+				false);
 
-			Profiler.writeUpdates(singleSeriesCalls, seriesDir, rec);
+		Profiler.writeUpdates(singleSeriesCalls, seriesDir, rec);
 
-			Profiler.writeAggregation(singleSeriesCalls, seriesDir, true);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		Profiler.writeAggregation(singleSeriesCalls, seriesDir, true);
+
 		singleSeriesCalls = new HashMap<>();
 	}
 
-	public static void finishRun() {
+	public static void finishRun() throws IOException {
 		if (!active)
 			return;
 
@@ -770,30 +767,29 @@ public class Profiler {
 		String runDataDir = Dir.getRunDataDir(seriesDir, run);
 		currentFileSystem = null;
 
-		try {
-			Profiler.writeSingle(singleRunCalls, graphGeneratorName,
-					runDataDir, Files.getProfilerFilename(Config
-							.get("GRAPHGENERATOR_PROFILER")), rec, false);
+		Profiler.writeSingle(
+				singleRunCalls,
+				graphGeneratorName,
+				runDataDir,
+				Files.getProfilerFilename(Config.get("GRAPHGENERATOR_PROFILER")),
+				rec, false);
 
-			Profiler.writeMultiple(singleRunCalls,
-					batchGeneratorNames.toArray(new String[0]), runDataDir,
-					Files.getProfilerFilename(Config.get("BATCH_PROFILER")),
-					rec, false);
+		Profiler.writeMultiple(singleRunCalls,
+				batchGeneratorNames.toArray(new String[0]), runDataDir,
+				Files.getProfilerFilename(Config.get("BATCH_PROFILER")), rec,
+				false);
 
-			Profiler.writeMultiple(singleRunCalls,
-					metricNames.toArray(new String[0]), runDataDir,
-					Files.getProfilerFilename(Config.get("METRIC_PROFILER")),
-					rec, false);
+		Profiler.writeMultiple(singleRunCalls,
+				metricNames.toArray(new String[0]), runDataDir,
+				Files.getProfilerFilename(Config.get("METRIC_PROFILER")), rec,
+				false);
 
-			Profiler.writeUpdates(singleRunCalls, runDataDir, rec);
+		Profiler.writeUpdates(singleRunCalls, runDataDir, rec);
 
-			Profiler.writeAggregation(singleRunCalls, runDataDir, rec);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		Profiler.writeAggregation(singleRunCalls, runDataDir, rec);
 	}
 
-	public static void finishBatch(long batchTimestamp) {
+	public static void finishBatch(long batchTimestamp) throws IOException {
 		if (!active)
 			return;
 
@@ -804,21 +800,17 @@ public class Profiler {
 
 		HotSwap.setLastFinishedBatch(batchTimestamp);
 
-		try {
-			if (SeriesGeneration.singleFile) {
-				currentFileSystem = ZipWriter.createBatchFileSystem(runDataDir,
-						Config.get("SUFFIX_ZIP_FILE"), batchTimestamp);
-			}
-
-			Profiler.writeMultiple(singleBatchCalls,
-					metricNames.toArray(new String[0]), batchDir,
-					Files.getProfilerFilename(Config.get("METRIC_PROFILER")),
-					false, false);
-			writeUpdates(singleBatchCalls, batchDir,
-					ProfilerGranularity.isEnabled(Options.EACHBATCH));
-		} catch (IOException e) {
-			e.printStackTrace();
+		if (SeriesGeneration.singleFile) {
+			currentFileSystem = ZipWriter.createBatchFileSystem(runDataDir,
+					Config.get("SUFFIX_ZIP_FILE"), batchTimestamp);
 		}
+
+		Profiler.writeMultiple(singleBatchCalls,
+				metricNames.toArray(new String[0]), batchDir,
+				Files.getProfilerFilename(Config.get("METRIC_PROFILER")),
+				false, false);
+		writeUpdates(singleBatchCalls, batchDir,
+				ProfilerGranularity.isEnabled(Options.EACHBATCH));
 
 		if (batchTimestamp == 1) {
 			/**
@@ -829,36 +821,26 @@ public class Profiler {
 			for (String bGenName : batchGeneratorNames) {
 				Profiler.entryForKey(singleBatchCalls, bGenName, true);
 			}
-			try {
-				Profiler.writeMultiple(
-						singleBatchCalls,
-						batchGeneratorNames.toArray(new String[0]),
-						Dir.getBatchDataDir(seriesDir, run, 0),
-						Files.getProfilerFilename(Config.get("BATCH_PROFILER")),
-						false, false);
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
+			Profiler.writeMultiple(singleBatchCalls,
+					batchGeneratorNames.toArray(new String[0]),
+					Dir.getBatchDataDir(seriesDir, run, 0),
+					Files.getProfilerFilename(Config.get("BATCH_PROFILER")),
+					false, false);
 		}
 
 		if (batchTimestamp > 0) {
-			try {
-				Profiler.writeMultiple(
-						singleBatchCalls,
-						batchGeneratorNames.toArray(new String[0]),
-						Dir.getBatchDataDir(seriesDir, run, batchTimestamp),
-						Files.getProfilerFilename(Config.get("BATCH_PROFILER")),
-						false, false);
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
+			Profiler.writeMultiple(singleBatchCalls,
+					batchGeneratorNames.toArray(new String[0]),
+					Dir.getBatchDataDir(seriesDir, run, batchTimestamp),
+					Files.getProfilerFilename(Config.get("BATCH_PROFILER")),
+					false, false);
 		}
 
-		try {
-			Profiler.writeAggregation(singleBatchCalls, batchDir,
-					ProfilerGranularity.isEnabled(Options.EACHBATCH));
-		} catch (IOException e) {
-			e.printStackTrace();
+		Profiler.writeAggregation(singleBatchCalls, batchDir,
+				ProfilerGranularity.isEnabled(Options.EACHBATCH));
+
+		if (SeriesGeneration.singleFile) {
+			currentFileSystem.close();
 		}
 	}
 

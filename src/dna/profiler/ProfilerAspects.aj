@@ -31,8 +31,7 @@ public aspect ProfilerAspects {
 	private boolean inAdd, addFailedAsContainsReturnsTrue;
 
 	pointcut seriesSingleRunGeneration(Series s, int run, int numberOfBatches) : execution(* SeriesGeneration.generateRun(Series, int, int, ..)) && args(s, run, numberOfBatches, ..);
-	pointcut startInitialBatchGeneration(Series s) : execution(* SeriesGeneration.generateInitialData(Series)) && args(s);
-	pointcut startNewBatchGeneration(Series s) : execution(* SeriesGeneration.generateNextBatch(Series)) && args(s);
+	pointcut batchGenerationCallee(Series s) : (execution(* SeriesGeneration.generateInitialData(Series)) || execution(* SeriesGeneration.generateNextBatch(Series))) && args(s);
 	pointcut seriesGeneration() : execution(* SeriesGeneration.generate(..));
 	
 	pointcut graphGeneration(IGraphGenerator graphGenerator) : execution(* IGraphGenerator+.generate()) && target(graphGenerator);
@@ -68,30 +67,40 @@ public aspect ProfilerAspects {
 	before(Series s, int run, int numberOfBatches) : seriesSingleRunGeneration(s, run, numberOfBatches) {
 		Profiler.setSeriesData(s, numberOfBatches);
 		Profiler.startRun(run);
-		Profiler.startBatch();
 		HotSwap.reset();
 	}
 	
 	after(Series s, int run, int numberOfBatches) : seriesSingleRunGeneration(s, run, numberOfBatches) {
-		Profiler.finishRun();
+		try {
+			Profiler.finishRun();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
-	
-	after(Series s) : startInitialBatchGeneration(s) {
-		Profiler.finishBatch(0);
-	}
-	
-	before(Series s) : startNewBatchGeneration(s) {
+		
+	before(Series s) : batchGenerationCallee(s) {
 		Profiler.startBatch();
 	}
 	
-	after(Series s) : startNewBatchGeneration(s) {
+	after(Series s) : batchGenerationCallee(s) {
 		long currentBatchTimestamp = s.getGraph().getTimestamp();
-		Profiler.finishBatch(currentBatchTimestamp);
+		try {
+			Profiler.finishBatch(currentBatchTimestamp);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 	
 	
 	after() : seriesGeneration() {
-		Profiler.finishSeries();
+		try {
+			Profiler.finishSeries();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	Graph around(IGraphGenerator graphGenerator) : graphGeneration(graphGenerator) {
