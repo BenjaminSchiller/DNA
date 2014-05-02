@@ -88,12 +88,14 @@ public class GraphDataStructure implements Cloneable {
 		this.nodeWeightSelection = nodeWeightSelection;
 		this.edgeWeightSelection = edgeWeightSelection;
 		
-		GraphDataStructure.currentGDS = this;
-
 		init();
 	}
 	
-	public static GraphDataStructure current() {
+	public static void setCurrent(GraphDataStructure gds) {
+		currentGDS = gds;
+	}
+	
+	public static GraphDataStructure getCurrent() {
 		return currentGDS;
 	}
 
@@ -319,6 +321,8 @@ public class GraphDataStructure implements Cloneable {
 					.put(ListType.LocalNodeList, estimatedMeanSize);
 		}
 
+		setCurrent(this);
+		
 		return new Graph(name, timestamp, this, nodes, edges);
 	}
 

@@ -31,11 +31,11 @@ public abstract class Node extends Element implements INode {
 	}
 	
 	public boolean hasEdge(Node n1, Node n2) {
-		return hasEdge(GraphDataStructure.current().getDummyEdge(n1, n2));
+		return hasEdge(GraphDataStructure.getCurrent().getDummyEdge(n1, n2));
 	}
 
 	public boolean hasEdge(int n1, int n2) {
-		return hasEdge(GraphDataStructure.current().getDummyEdge(n1, n2));
+		return hasEdge(GraphDataStructure.getCurrent().getDummyEdge(n1, n2));
 	}
 
 	public int hashCode() {
