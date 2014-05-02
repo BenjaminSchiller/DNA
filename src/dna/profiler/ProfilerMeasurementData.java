@@ -19,10 +19,18 @@ public abstract class ProfilerMeasurementData extends PropertiesHolder {
 		RuntimeComplexity, MemoryComplexity, RuntimeBenchmark, MemoryBenchmark
 	}
 
-	public static String folderName = "profilerData/";
+	private static String folderName = "profilerData/";
 
 	private static HashMap<String, ComparableEntry> measurementData;
 
+	public static void setDataFolder(String df) {
+		folderName = df;
+	}
+	
+	public static String getDataFolder() {
+		return folderName;
+	}
+	
 	public static void init() throws IOException {
 		measurementData = null;
 		loadFromProperties(initFromFolder(folderName));

@@ -158,7 +158,7 @@ public class BenchmarkingVisitor extends AbstractOutput {
 	}
 
 	private void writeEntriesToProfilerFiles() throws IOException {
-		String dirName = ProfilerMeasurementData.folderName + "benchmarks/";
+		String dirName = ProfilerMeasurementData.getDataFolder() + "benchmarks/";
 
 		for (Entry<String, BenchmarkingResult> e : collectedMeasurementData
 				.entrySet()) {
