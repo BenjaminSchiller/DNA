@@ -1,6 +1,8 @@
 package dna.profiler;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Properties;
 
@@ -16,7 +18,19 @@ import dna.util.PropertiesHolder;
 
 public abstract class ProfilerMeasurementData extends PropertiesHolder {
 	public enum ProfilerDataType {
-		RuntimeComplexity, MemoryComplexity, RuntimeBenchmark, MemoryBenchmark
+		RuntimeComplexity(), MemoryComplexity(AccessType.Init, AccessType.Add), RuntimeBenchmark(), MemoryBenchmark(
+				AccessType.Init, AccessType.Add);
+
+		private ArrayList<AccessType> accessTypesToUseFromAggregation;
+
+		private ProfilerDataType(AccessType... at) {
+			this.accessTypesToUseFromAggregation = new ArrayList<>(
+					Arrays.asList(at));
+		}
+
+		public ArrayList<AccessType> getAccessTypesFromAggregation() {
+			return accessTypesToUseFromAggregation;
+		}
 	}
 
 	private static String folderName = "profilerData/";
@@ -26,11 +40,11 @@ public abstract class ProfilerMeasurementData extends PropertiesHolder {
 	public static void setDataFolder(String df) {
 		folderName = df;
 	}
-	
+
 	public static String getDataFolder() {
 		return folderName;
 	}
-	
+
 	public static void init() throws IOException {
 		measurementData = null;
 		loadFromProperties(initFromFolder(folderName));
@@ -74,8 +88,8 @@ public abstract class ProfilerMeasurementData extends PropertiesHolder {
 				 * account. Try to search for a dataset with the default values
 				 * before failing
 				 */
-				return get(complexityType, classname, accessType, storedDataClass,
-						base, true);
+				return get(complexityType, classname, accessType,
+						storedDataClass, base, true);
 		}
 		return c;
 	}

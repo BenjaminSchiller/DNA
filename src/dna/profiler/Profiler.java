@@ -37,6 +37,7 @@ public class Profiler {
 	private static Map<String, ProfileEntry> singleRunCalls = new HashMap<>();
 	private static Map<String, ProfileEntry> singleSeriesCalls = new HashMap<>();
 	private static Map<String, ProfileEntry> globalCalls = new HashMap<>();
+	private static Map<String, ProfileEntry> pointerForMemoryAggregation = null;
 
 	private static EnumMap<DataStructure.ListType, Integer> generatedListsCounter;
 	private static EnumMap<DataStructure.ListType, Integer> listSizeCounter;
@@ -56,6 +57,7 @@ public class Profiler {
 	private static FileSystem currentFileSystem;
 
 	final static String separator = System.getProperty("line.separator");
+	final static String aggregatedPrefix = "aggregated";
 
 	private static Map<ProfilerMeasurementData.ProfilerDataType, RecommenderEntry> lastRecommendations = new EnumMap<>(
 			ProfilerDataType.class);
@@ -185,8 +187,8 @@ public class Profiler {
 		}
 
 		if (prefixFilter == null) {
-			res.append(getOutputDataForProfileEntry(aggregated, "aggregated",
-					true, showRecommendations,
+			res.append(getOutputDataForProfileEntry(aggregated,
+					aggregatedPrefix, true, showRecommendations,
 					isCombinedOutputForAllAccessTypes));
 		}
 
@@ -307,12 +309,13 @@ public class Profiler {
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	private static HashMap<EnumMap<ListType, Class<? extends IDataStructure>>, RecommenderEntry> calculateAllRecommendations(
-			ProfileEntry entry, boolean isCombinedOutputForAllAccessTypes) {
+			ProfileEntry globalMemoryEntry, ProfileEntry currentEntry,
+			boolean isCombinedOutputForAllAccessTypes) {
 		boolean disableAllRecommendations = ProfilerGranularity.disabled();
 
 		HashMap<EnumMap<ListType, Class<? extends IDataStructure>>, RecommenderEntry> res = new HashMap<>();
 
-		if (disableAllRecommendations || entry.getCombined() == 0) {
+		if (disableAllRecommendations || currentEntry.getCombined() == 0) {
 			return res;
 		}
 
@@ -326,7 +329,8 @@ public class Profiler {
 					.getAllDatastructureCombinations();
 
 		HashSet<EnumMap<ListType, Class<? extends IDataStructure>>> allCombinations = prefilter(
-				allCombinationsRaw, entry, isCombinedOutputForAllAccessTypes);
+				allCombinationsRaw, currentEntry,
+				isCombinedOutputForAllAccessTypes);
 
 		for (ProfilerDataType entryType : ProfilerDataType.values()) {
 			EnumMap<ListType, Class<? extends IDataStructure>> listTypes;
@@ -343,8 +347,12 @@ public class Profiler {
 					listTypes = GraphDataStructure.getList(lt, listClass);
 					tempGDS = new GraphDataStructure(listTypes,
 							gds.getNodeType(), gds.getEdgeType());
-					innerComplexities.put(listClass,
-							entry.combinedComplexity(entryType, tempGDS, lt));
+
+					ComparableEntryMap combinedComplexityMap = combineFiltered(
+							entryType, tempGDS, currentEntry,
+							globalMemoryEntry,
+							entryType.getAccessTypesFromAggregation(), lt);
+					innerComplexities.put(listClass, combinedComplexityMap);
 				}
 				listComplexities.put(lt, innerComplexities);
 			}
@@ -376,6 +384,30 @@ public class Profiler {
 		}
 
 		res = postfilter(res);
+
+		return res;
+	}
+
+	private static ComparableEntryMap combineFiltered(
+			ProfilerDataType entryType, GraphDataStructure gds,
+			ProfileEntry currentEntry, ProfileEntry globalMemoryEntry,
+			ArrayList<AccessType> accessTypesFromAggregation,
+			ListType listTypeLimitor) {
+		if (accessTypesFromAggregation.size() == 0)
+			return currentEntry.combinedComplexity(entryType, gds,
+					listTypeLimitor);
+
+		ComparableEntryMap res = ProfilerMeasurementData.getMap(entryType);
+
+		for (AccessType at : AccessType.values()) {
+			if (accessTypesFromAggregation.contains(at)) {
+				res.add(globalMemoryEntry.combinedComplexity(entryType, gds,
+						listTypeLimitor, at));
+			} else {
+				res.add(currentEntry.combinedComplexity(entryType, gds,
+						listTypeLimitor, at));
+			}
+		}
 
 		return res;
 	}
@@ -451,7 +483,8 @@ public class Profiler {
 		HashMap<EnumMap<ListType, Class<? extends IDataStructure>>, RecommenderEntry> res = new HashMap<>();
 
 		boolean isElementBlocked = false;
-		int maxMemoryBound = Config.getInt("RECOMMENDER_MAX_MEMORY_BOUND");
+		double maxMemoryBound = Config
+				.getDouble("RECOMMENDER_MAX_MEMORY_BOUND");
 
 		for (Entry<EnumMap<ListType, Class<? extends IDataStructure>>, RecommenderEntry> element : input
 				.entrySet()) {
@@ -462,12 +495,13 @@ public class Profiler {
 					.getCosts(ProfilerDataType.MemoryBenchmark);
 			double rawMemoryCosts = memoryCosts.getValue();
 			if (maxMemoryBound > 0 && rawMemoryCosts > maxMemoryBound) {
-				System.out.println("Will filter out " + element.getKey()
-						+ " due to high memory costs of " + rawMemoryCosts);
+				Log.debug("Will filter out " + element.getKey()
+						+ " due to high memory costs of " + rawMemoryCosts
+						+ " (maximum of " + maxMemoryBound + " is configured)");
 				isElementBlocked = true;
 			}
 
-			if (!isElementBlocked || true) {
+			if (!isElementBlocked) {
 				res.put(element.getKey(), element.getValue());
 			}
 		}
@@ -491,12 +525,21 @@ public class Profiler {
 			resEntry = resEntry.add(entry.getValue());
 		}
 		res.append(resEntry.toString());
+
+		ProfileEntry globalMemoryEntry = new ProfileEntry();
+		for (ProfileEntry other : pointerForMemoryAggregation.values()) {
+			globalMemoryEntry = globalMemoryEntry.add(other);
+		}
+
 		HashMap<EnumMap<ListType, Class<? extends IDataStructure>>, RecommenderEntry> recEntryMap = calculateAllRecommendations(
-				resEntry, true);
+				globalMemoryEntry, resEntry, true);
 		for (ProfilerMeasurementData.ProfilerDataType entryType : ProfilerMeasurementData.ProfilerDataType
 				.values()) {
-			ComparableEntryMap aggregatedMap = resEntry.combinedComplexity(
-					entryType, gds, null);
+
+			ComparableEntryMap aggregatedMap = combineFiltered(entryType, gds,
+					resEntry, globalMemoryEntry,
+					entryType.getAccessTypesFromAggregation(), null);
+
 			RecommenderEntry aggregatedEntry = new RecommenderEntry(
 					gds.getStorageDataStructures());
 			aggregatedEntry.setCosts(entryType, aggregatedMap);
@@ -598,16 +641,26 @@ public class Profiler {
 		StringBuilder res = new StringBuilder();
 		res.append(aggregated.callsAsString(prefix));
 
+		ProfileEntry globalMemoryEntry = aggregated;
+		if (prefix == aggregatedPrefix) {
+			globalMemoryEntry = new ProfileEntry();
+			for (ProfileEntry other : pointerForMemoryAggregation.values()) {
+				globalMemoryEntry = globalMemoryEntry.add(other);
+			}
+		}
+
 		HashMap<EnumMap<ListType, Class<? extends IDataStructure>>, RecommenderEntry> recEntryMap = null;
 		if (showRecommendations) {
-			recEntryMap = calculateAllRecommendations(aggregated,
-					isCombinedOutputForAllAccessTypes);
+			recEntryMap = calculateAllRecommendations(globalMemoryEntry,
+					aggregated, isCombinedOutputForAllAccessTypes);
 		}
 
 		for (ProfilerMeasurementData.ProfilerDataType entryType : ProfilerMeasurementData.ProfilerDataType
 				.values()) {
-			ComparableEntryMap aggregatedMap = aggregated.combinedComplexity(
-					entryType, gds, null);
+
+			ComparableEntryMap aggregatedMap = combineFiltered(entryType, gds,
+					aggregated, globalMemoryEntry,
+					entryType.getAccessTypesFromAggregation(), null);
 
 			RecommenderEntry aggregatedEntry = new RecommenderEntry(
 					gds.getStorageDataStructures());
@@ -735,6 +788,7 @@ public class Profiler {
 			return;
 
 		globalCalls = merge(globalCalls, singleSeriesCalls);
+		pointerForMemoryAggregation = globalCalls;
 
 		boolean rec = ProfilerGranularity.isEnabled(Options.EACHSERIES);
 
@@ -764,6 +818,8 @@ public class Profiler {
 		boolean rec = ProfilerGranularity.isEnabled(Options.EACHRUN);
 
 		singleSeriesCalls = merge(singleSeriesCalls, singleRunCalls);
+		pointerForMemoryAggregation = singleSeriesCalls;
+
 		String runDataDir = Dir.getRunDataDir(seriesDir, run);
 		currentFileSystem = null;
 
@@ -797,6 +853,7 @@ public class Profiler {
 		String runDataDir = Dir.getRunDataDir(seriesDir, run);
 
 		singleRunCalls = merge(singleRunCalls, singleBatchCalls);
+		pointerForMemoryAggregation = singleRunCalls;
 
 		HotSwap.setLastFinishedBatch(batchTimestamp);
 
