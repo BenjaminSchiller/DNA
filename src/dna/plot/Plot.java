@@ -218,6 +218,47 @@ public class Plot {
 	}
 
 	/**
+	 * Writes the gnuplot script header and returns the writer.
+	 * 
+	 * @param dir
+	 *            destination directory
+	 * @param filename
+	 *            script filename
+	 * @throws IOException
+	 *             thrown by the writer
+	 */
+	public Writer writeScriptHeader(String dir, String filename)
+			throws IOException {
+		Writer w = new Writer(dir, filename);
+
+		// write script header
+		List<String> script = this.getScript();
+		for (String line : script) {
+			w.writeln(line);
+		}
+		return w;
+	}
+
+	public void appendData(Writer w, AggregatedValue[] values,
+			double[] timestamps) throws IOException {
+		for (int i = 0; i < values.length; i++) {
+			this.appendData(w, values[i], timestamps[i]);
+		}
+	}
+
+	public void appendData(Writer w, AggregatedValue value, double timestamp)
+			throws IOException {
+		String temp = "" + timestamp;
+		for (int k = 0; k < value.getValues().length; k++) {
+			temp += Config.get("PLOTDATA_DELIMITER") + value.getValues()[k];
+		}
+		w.writeln(temp);
+
+		// end-of-file indicates the end of the data
+		w.writeln("EOF");
+	}
+
+	/**
 	 * Writes the gnuplot script for runtime data of a whole series to the
 	 * destination directory
 	 * 
