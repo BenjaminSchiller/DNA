@@ -39,7 +39,7 @@ public abstract class Node extends Element implements INode {
 	}
 
 	public int hashCode() {
-		return Integer.toString(this.index).hashCode();
+		return this.index;
 	}
 
 	@Override
