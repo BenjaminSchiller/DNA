@@ -61,6 +61,9 @@ public class Profiler {
 
 	private static Map<ProfilerMeasurementData.ProfilerDataType, RecommenderEntry> lastRecommendations = new EnumMap<>(
 			ProfilerDataType.class);
+	private static Map<ProfilerMeasurementData.ProfilerDataType, RecommenderEntry> lastWorstCase = new EnumMap<>(
+			ProfilerDataType.class);
+
 	private static Map<ProfilerMeasurementData.ProfilerDataType, RecommenderEntry> lastCosts = new EnumMap<>(
 			ProfilerDataType.class);
 	private static ProfileEntry lastAccesses;
@@ -275,33 +278,27 @@ public class Profiler {
 		 * Recommendations are picked from the front of the list, as they have
 		 * the largest counter for the most important complexity class
 		 */
+		RecommenderEntry entry = null;
 		for (int i = 0; (i < numberOfRecommendations && recommendationQueue
 				.size() > 0); i++) {
-			RecommenderEntry pollFirstEntry = recommendationQueue.pollFirst();
+			entry = recommendationQueue.pollFirst();
 
-			String polledEntry = pollFirstEntry.getGraphDataStructure()
+			String polledEntry = entry.getGraphDataStructure()
 					.getStorageDataStructures(true)
 					+ ": "
-					+ pollFirstEntry.getCosts(entryType);
+					+ entry.getCosts(entryType);
 			res.append(separator);
 			res.append(outputPrefix + "   " + polledEntry);
 
 			if (i == 0) {
-				lastRecommendations.put(entryType, pollFirstEntry);
+				lastRecommendations.put(entryType, entry);
 			}
 		}
 
-		// res.append(separator + "  Bottom list: ");
-		// for (int i = 0; (i < numberOfRecommendations && recommendationQueue
-		// .size() > 0); i++) {
-		// RecommenderEntry pollLastEntry = recommendationQueue.pollLast();
-		// String polledEntry = pollLastEntry.getGraphDataStructure()
-		// .getStorageDataStructures(true)
-		// + ": "
-		// + pollLastEntry.getCosts();
-		// res.append(separator);
-		// res.append(outputPrefix + "   " + polledEntry);
-		// }
+		if (recommendationQueue.size() > 0) {
+			entry = recommendationQueue.pollLast();
+		}
+		lastWorstCase.put(entryType, entry);
 
 		res.append(separator);
 		return res.toString();
@@ -887,14 +884,29 @@ public class Profiler {
 
 		if (batchTimestamp > 0) {
 			Profiler.writeMultiple(singleBatchCalls,
-					batchGeneratorNames.toArray(new String[0]),
-					Dir.getBatchDataDir(seriesDir, run, batchTimestamp),
+					batchGeneratorNames.toArray(new String[0]), batchDir,
 					Files.getProfilerFilename(Config.get("BATCH_PROFILER")),
 					false, false);
 		}
 
 		Profiler.writeAggregation(singleBatchCalls, batchDir,
 				ProfilerGranularity.isEnabled(Options.EACHBATCH));
+
+		String profilerRange = "minimum="
+				+ ((BenchmarkingResultsMap) lastRecommendations.get(
+						ProfilerDataType.RuntimeBenchmark).getCosts(
+						ProfilerDataType.RuntimeBenchmark)).getValue()
+				+ "\ncurrent="
+				+ ((BenchmarkingResultsMap) lastCosts.get(
+						ProfilerDataType.RuntimeBenchmark).getCosts(
+						ProfilerDataType.RuntimeBenchmark)).getValue()
+				+ "\nmaximum="
+				+ ((BenchmarkingResultsMap) lastWorstCase.get(
+						ProfilerDataType.RuntimeBenchmark).getCosts(
+						ProfilerDataType.RuntimeBenchmark)).getValue();
+		rawWrite(batchDir,
+				Files.getProfilerFilename(Config.get("PROFILER_RANGE")),
+				profilerRange);
 
 		if (SeriesGeneration.singleFile) {
 			currentFileSystem.close();
