@@ -178,13 +178,17 @@ public class HotSwap {
 				ProfilerDataType.RuntimeBenchmark, recGDS, null);
 
 		/**
-		 * Generate the costs for swapping, which is: for each list type the
-		 * number of lists * (init + meanlistSize * add)
+		 * Generate the costs for swapping, which is: for each changed list type
+		 * the number of lists * (init + meanlistSize * add)
 		 */
 
 		ComparableEntryMap swappingCosts = ProfilerMeasurementData
 				.getMap(ProfilerDataType.RuntimeBenchmark);
 		for (ListType lt : ListType.values()) {
+			if (recGDS.getListClass(lt) == currentGDS.getListClass(lt)) {
+				continue;
+			}
+
 			int numberOfLists = Profiler.getNumberOfGeneratedLists(lt);
 			double meanListSize = Profiler.getMeanSize(lt);
 			int totalNumberOfElements = (int) (numberOfLists * meanListSize);
