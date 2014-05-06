@@ -21,10 +21,10 @@ import dna.updates.generators.BatchGenerator;
 import dna.updates.update.Update;
 
 public aspect TimerAspects {
-	private HashSet<String> resetList = new HashSet<>();
-	private HashSet<String> metricList = new HashSet<>();
-	private HashSet<String> additionalNotInTotalRuntimesList = new HashSet<>();
-	private TimerMap map = new TimerMap();
+	private HashSet<String> resetList;
+	private HashSet<String> metricList;
+	private HashSet<String> additionalNotInTotalRuntimesList;
+	private TimerMap map;
 
 	pointcut seriesGeneration() : call(* SeriesGeneration.generate(Series, int, int, boolean, boolean, long));
 	pointcut runGeneration(): call(* SeriesGeneration.generateRun(Series, int, int,..));
@@ -49,6 +49,10 @@ public aspect TimerAspects {
 
 	SeriesData around(): seriesGeneration() {
 		map = new TimerMap();
+		resetList = new HashSet<>();
+		metricList = new HashSet<>();
+		additionalNotInTotalRuntimesList = new HashSet<>();
+		
 		Timer timer = new Timer("seriesGeneration");
 		SeriesData res = proceed();
 		timer.end();
