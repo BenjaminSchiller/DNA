@@ -1,10 +1,15 @@
 package dna.profiler;
 
+import java.io.File;
 import java.io.IOException;
+import java.net.URISyntaxException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Properties;
+import java.util.Vector;
 
 import dna.graph.datastructures.DataStructure.AccessType;
 import dna.profiler.datatypes.ComparableEntry;
@@ -14,6 +19,7 @@ import dna.profiler.datatypes.benchmarkresults.BenchmarkingResultsMap;
 import dna.profiler.datatypes.complexity.Complexity;
 import dna.profiler.datatypes.complexity.ComplexityMap;
 import dna.profiler.datatypes.complexity.ComplexityType;
+import dna.util.Config;
 import dna.util.PropertiesHolder;
 
 public abstract class ProfilerMeasurementData extends PropertiesHolder {
@@ -47,7 +53,21 @@ public abstract class ProfilerMeasurementData extends PropertiesHolder {
 
 	public static void init() throws IOException {
 		measurementData = null;
-		loadFromProperties(initFromFolder(folderName));
+
+		Vector<File> folders = new Vector<File>();
+		folders.add(new File(folderName));
+		try {
+			Path pPath = Paths.get(Config.class.getProtectionDomain()
+					.getCodeSource().getLocation().toURI());
+			if (pPath.getFileName().toString().endsWith(".jar")) {
+				folders.add(pPath.toFile());
+			}
+
+		} catch (URISyntaxException e) {
+			e.printStackTrace();
+		}
+
+		loadFromProperties(initFromFolders(folders));
 	}
 
 	public static ComparableEntry get(ProfilerDataType complexityType,
@@ -75,14 +95,17 @@ public abstract class ProfilerMeasurementData extends PropertiesHolder {
 		if (c == null)
 			c = get(keyName);
 		if (c == null) {
-			if (checkWithDefaults)
+			if (checkWithDefaults) {
 				/**
 				 * This is the call where defaults are taken into account. If
 				 * nothing is present here, the data is really missing
 				 */
-				throw new RuntimeException("Missing complexity entry "
-						+ keyName);
-			else
+				throw new RuntimeException("Missing complexity entry for "
+						+ complexityType.toString().toUpperCase() + "_"
+						+ classname.toUpperCase() + "_"
+						+ accessType.toString().toUpperCase() + "_"
+						+ storedDataClass.toUpperCase());
+			} else
 				/**
 				 * This is the call where defaults are not yet taken into
 				 * account. Try to search for a dataset with the default values
@@ -119,8 +142,7 @@ public abstract class ProfilerMeasurementData extends PropertiesHolder {
 				|| key.startsWith("DEFAULT_RUNTIMEBENCHMARK")) {
 			return BenchmarkingResult.parseString(key, val);
 		} else {
-			throw new RuntimeException("Don't know how to parse " + key + "="
-					+ val);
+			return null;
 		}
 	}
 
@@ -159,10 +181,7 @@ public abstract class ProfilerMeasurementData extends PropertiesHolder {
 		for (String key : in.stringPropertyNames()) {
 			String val = in.getProperty(key);
 			ComparableEntry c = parseString(key, val);
-			if (c == null) {
-				throw new RuntimeException(
-						"Could not properly parse complexity entry " + val);
-			} else {
+			if (c != null) {
 				measurementData.put(key, c);
 			}
 		}
