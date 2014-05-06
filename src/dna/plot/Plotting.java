@@ -194,20 +194,24 @@ public class Plotting {
 		AggregatedValueList values = initBatch.getValues();
 		Log.infoSep();
 		Log.info("Values:");
-		for (AggregatedValue v : values.getList()) {
-			for (String value : SeriesStats.statisticsToPlot) {
-				if (v.getName().equals(value)) {
-					Log.info("creating gnuplot script for " + v.getName());
-					scriptWriters.put(value, Plotting.plotValue2(seriesData,
-							dstDir, type, style, null, value));
-				}
+		for (String value : SeriesStats.statisticsToPlot) {
+			if (values.getNames().contains(value)) {
+				Log.info("creating gnuplot script for " + value);
+				scriptWriters.put(value, Plotting.plotValue2(seriesData,
+						dstDir, type, style, null, value));
 			}
 		}
 		AggregatedRunTimeList generalRuntimes = initBatch.getGeneralRuntimes();
 		Log.infoSep();
 		Log.info("GEN RT:");
+
 		for (AggregatedValue gen : generalRuntimes.getList()) {
-			Log.info(gen.getName());
+			String runtime = gen.getName();
+			Log.info("creating gnuplot script for general runtime: "
+					+ runtime);
+			
+			scriptWriters.put(runtime,
+					Plotting.plotRuntimes2(seriesData, dstDir, runtime, type, style));
 		}
 		AggregatedRunTimeList metricRuntimes = initBatch.getMetricRuntimes();
 		Log.infoSep();
@@ -890,6 +894,35 @@ public class Plotting {
 						.getRuntimesMetricPlotCDF(Config
 								.get("PLOT_METRIC_RUNTIMES"))),
 				"CDF of metric runtimes (" + type + ")", type, style);
+	}
+
+	private static Writer plotRuntimes2(SeriesData[] seriesData, String dstDir,
+			String runtime, PlotType type, PlotStyle style) throws IOException,
+			InterruptedException {
+
+		for (SeriesData s : seriesData) {
+
+		}
+
+		PlotData[] data = new PlotData[seriesData.length];
+		// gather data
+		for (int i = 0; i < seriesData.length; i++) {
+			data[i] = PlotData.get(
+					dstDir
+							+ PlotFilenames.getRuntimesDataFile(seriesData[i]
+									.getName()), style,
+					seriesData[i].getName(), type);
+		}
+		// generate plot script and execute it
+		Plot plot = new Plot(data, dstDir,
+				PlotFilenames.getRuntimesStatisticPlot(runtime),
+				PlotFilenames.getRuntimesGnuplotScript(PlotFilenames
+						.getRuntimesStatisticPlot(runtime)));
+		plot.setTitle(runtime + " (" + type + ")");
+		
+
+		return plot.writeScriptHeader(dstDir, PlotFilenames.getRuntimesGnuplotScript(PlotFilenames
+				.getRuntimesStatisticPlot(runtime)));
 	}
 
 	/**
