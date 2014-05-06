@@ -143,8 +143,15 @@ public aspect TimerAspects {
 		double sum = sumRt - total - metrics;
 		double overhead = total - sum;// -notInTotalRt;
 
-		generalRuntimes.add(new RunTime("sum", sum));
-		generalRuntimes.add(new RunTime("overhead", overhead));
+		generalRuntimes.add(new RunTime(SeriesStats.sumRuntime, sum));
+		generalRuntimes.add(new RunTime(SeriesStats.overheadRuntime, overhead));
+		
+		// Check whether we missed something...
+		for ( String rt: SeriesStats.generalRuntimesOfCombinedPlot) {
+			if ( generalRuntimes.get(rt) == null) {
+				generalRuntimes.add(new RunTime(rt, 0));
+			}
+		}
 
 		return res;
 	}
