@@ -699,6 +699,11 @@ public class Profiler {
 	public static void writeMetric(String metricKey, String dir)
 			throws IOException {
 		boolean rec = ProfilerGranularity.isEnabled(Options.EACHMETRIC);
+		
+		if (SeriesGeneration.singleFile) {
+			currentFileSystem = SeriesGeneration.writeFileSystem;
+		}
+		
 		Profiler.writeSingle(singleBatchCalls, metricKey, dir,
 				Files.getProfilerFilename(Config.get("METRIC_PROFILER")), rec,
 				false);
