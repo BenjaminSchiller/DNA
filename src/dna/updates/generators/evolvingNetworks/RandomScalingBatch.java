@@ -10,7 +10,7 @@ public class RandomScalingBatch extends BatchGenerator {
 	private double nodeShrinkFactor;
 	private double edgeGrowthFactor;
 	private double edgeShrinkFactor;
-	
+
 	public RandomScalingBatch(double nodeGrowthFactor, double nodeShrinkFactor,
 			double edgeGrowthFactor, double edgeShrinkFactor) {
 		super("RandomScalingBatch");
@@ -38,10 +38,10 @@ public class RandomScalingBatch extends BatchGenerator {
 		int nodes = g.getNodeCount();
 		int edges = g.getEdgeCount();
 
-		return new RandomBatch((int) (nodes * nodeGrowthFactor),
-				(int) (nodes * nodeShrinkFactor), 0, null,
-				(int) (edges * edgeGrowthFactor),
-				(int) (edges * edgeShrinkFactor), 0, null);
+		return new RandomBatch((int) Math.ceil(nodes * nodeGrowthFactor),
+				(int) Math.ceil(nodes * nodeShrinkFactor), 0, null,
+				(int) Math.ceil(edges * edgeGrowthFactor),
+				(int) Math.ceil(edges * edgeShrinkFactor), 0, null);
 	}
 
 	@Override
