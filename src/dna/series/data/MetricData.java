@@ -220,8 +220,6 @@ public class MetricData implements ListItem {
 			}
 			if (temp[temp.length - 1].equals(MetricType.quality.name() + "/")) {
 				tempType = MetricType.quality;
-				tempName = name.replace(Config.get("FILE_NAME_DELIMITER")
-						+ MetricType.quality.name(), "");
 			}
 		} catch (IndexOutOfBoundsException e) {
 			Log.warn("Attempting to read metric " + name + " at " + dir

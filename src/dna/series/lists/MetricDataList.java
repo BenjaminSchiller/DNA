@@ -27,7 +27,7 @@ public class MetricDataList extends List<MetricData> {
 				suffix = Config.get("SUFFIX_METRIC_HEURISTIC");
 				break;
 			case quality:
-				suffix = Config.get("SUFFIX_METRIC_QUALITY");
+				suffix = "";;
 				break;
 			default:
 				suffix = "";

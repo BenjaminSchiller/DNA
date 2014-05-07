@@ -7,13 +7,13 @@ import dna.updates.batch.Batch;
 import dna.updates.update.Update;
 import dna.util.parameters.IntParameter;
 
-public class UnweightedKSingleSourceShortestPaths extends
+public class UnweightedKSingleSourceShortestPathsRH extends
 		UnweightedAllPairsShortestPaths {
 
 	protected int k;
 
-	public UnweightedKSingleSourceShortestPaths(int k) {
-		super("UnweightedKSingleSourceShortestPaths",
+	public UnweightedKSingleSourceShortestPathsRH(int k) {
+		super("UnweightedKSingleSourceShortestPathsRH",
 				ApplicationType.Recomputation, MetricType.heuristic,
 				new IntParameter("k", k));
 		this.k = k;

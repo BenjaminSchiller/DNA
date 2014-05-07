@@ -528,7 +528,7 @@ public class Plotting {
 		for (String runtime : SeriesStats.generalRuntimesToPlot) {
 			AggregatedValue[][] runtimes = new AggregatedValue[seriesData.length][];
 			String[] names = new String[seriesData.length];
-			double[][] x = new double[seriesData.length][];
+			long[][] x = new long[seriesData.length][];
 			int index = 0;
 
 			for (SeriesData s : seriesData) {
@@ -538,7 +538,7 @@ public class Plotting {
 				names[index] = s.getName();
 				index++;
 			}
-			Plotting.plot(runtimes, names, dstDir, PlotFilenames
+			Plotting.plot(runtimes, x, names, dstDir, PlotFilenames
 					.getRuntimesStatisticPlot(runtime), PlotFilenames
 					.getRuntimesGnuplotScript(PlotFilenames
 							.getRuntimesStatisticPlot(runtime)), runtime + " ("
@@ -564,7 +564,7 @@ public class Plotting {
 				}
 				runtimesCDF[i] = aggrValues;
 			}
-			Plotting.plot(runtimesCDF, names, dstDir, PlotFilenames
+			Plotting.plot(runtimesCDF, x, names, dstDir, PlotFilenames
 					.getRuntimesStatisticPlotCDF(runtime), PlotFilenames
 					.getRuntimesGnuplotScript(PlotFilenames
 							.getRuntimesStatisticPlotCDF(runtime)), "CDF of "
@@ -575,7 +575,7 @@ public class Plotting {
 				.getMetricRuntimes().getNames()) {
 			AggregatedValue[][] runtimes = new AggregatedValue[seriesData.length][];
 			String[] names = new String[seriesData.length];
-			double[][] x = new double[seriesData.length][];
+			long[][] x = new long[seriesData.length][];
 			int index = 0;
 			for (SeriesData s : seriesData) {
 				runtimes[index] = getMetricRuntimes(s.getAggregation(), metric);
@@ -583,7 +583,7 @@ public class Plotting {
 				names[index] = s.getName();
 				index++;
 			}
-			Plotting.plot(runtimes, names, dstDir, PlotFilenames
+			Plotting.plot(runtimes, x, names, dstDir, PlotFilenames
 					.getRuntimesMetricPlot(metric), PlotFilenames
 					.getRuntimesGnuplotScript(PlotFilenames
 							.getRuntimesMetricPlot(metric)), metric + " ("
@@ -609,7 +609,7 @@ public class Plotting {
 				}
 				runtimesCDF[i] = aggrValues;
 			}
-			Plotting.plot(runtimesCDF, names, dstDir, PlotFilenames
+			Plotting.plot(runtimesCDF, x, names, dstDir, PlotFilenames
 					.getRuntimesMetricPlotCDF(metric), PlotFilenames
 					.getRuntimesGnuplotScript(PlotFilenames
 							.getRuntimesMetricPlotCDF(metric)), "CDF of "
@@ -621,8 +621,8 @@ public class Plotting {
 		AggregatedValue[][] metrics = new AggregatedValue[mr][];
 		String[] generalNames = new String[gr];
 		String[] metricsNames = new String[mr];
-		double[][] generalX = new double[gr][];
-		double[][] metricsX = new double[mr][];
+		long[][] generalX = new long[gr][];
+		long[][] metricsX = new long[mr][];
 
 		AggregatedValue[][] generalCDF = new AggregatedValue[gr][];
 		AggregatedValue[][] metricsCDF = new AggregatedValue[mr][];
@@ -651,7 +651,7 @@ public class Plotting {
 		}
 
 		// generate plot script for runtime statistics and execute it
-		Plotting.plot(general, generalNames, dstDir, PlotFilenames
+		Plotting.plot(general, generalX, generalNames, dstDir, PlotFilenames
 				.getRuntimesStatisticPlot(Config.get("PLOT_GENERAL_RUNTIMES")),
 				PlotFilenames.getRuntimesGnuplotScript(PlotFilenames
 						.getRuntimesStatisticPlot(Config
@@ -678,7 +678,7 @@ public class Plotting {
 		}
 
 		// generate CDF plot script for runtime statistics and execute it
-		Plotting.plot(generalCDF, generalNames, dstDir, PlotFilenames
+		Plotting.plot(generalCDF, generalX, generalNames, dstDir, PlotFilenames
 				.getRuntimesStatisticPlotCDF(Config
 						.get("PLOT_GENERAL_RUNTIMES")), PlotFilenames
 				.getRuntimesGnuplotScript(PlotFilenames
@@ -687,7 +687,7 @@ public class Plotting {
 				"CDF of general runtimes (" + type + ")", type, style);
 
 		// generate plot script for metric runtimes and execute it
-		Plotting.plot(metrics, metricsNames, dstDir, PlotFilenames
+		Plotting.plot(metrics, metricsX, metricsNames, dstDir, PlotFilenames
 				.getRuntimesMetricPlot(Config.get("PLOT_METRIC_RUNTIMES")),
 				PlotFilenames.getRuntimesGnuplotScript(PlotFilenames
 						.getRuntimesMetricPlot(Config
@@ -714,7 +714,7 @@ public class Plotting {
 		}
 
 		// generate CDF plot script for metric runtimes and execute it
-		Plotting.plot(metricsCDF, metricsNames, dstDir, PlotFilenames
+		Plotting.plot(metricsCDF, metricsX, metricsNames, dstDir, PlotFilenames
 				.getRuntimesMetricPlotCDF(Config.get("PLOT_METRIC_RUNTIMES")),
 				PlotFilenames.getRuntimesGnuplotScript(PlotFilenames
 						.getRuntimesMetricPlotCDF(Config
@@ -941,6 +941,7 @@ public class Plotting {
 
 		PlotData[] allData = new PlotData[seriesData.length];
 		AggregatedValue[][] allValues = new AggregatedValue[seriesData.length][0];
+		long[][] timestamps = new long[seriesData.length][];
 		for (int i = 0; i < seriesData.length; i++) {
 			allValues[i] = new AggregatedValue[seriesData[i].getAggregation()
 					.getBatches().length];
@@ -948,9 +949,8 @@ public class Plotting {
 		// gather data..
 		// for each series
 		for (SeriesData s : seriesData) {
-			AggregatedValue[] values = new AggregatedValue[s.getAggregation()
-					.getBatches().length];
 			int index2 = 0;
+			long[] timestampsTemp = new long[s.getAggregation().getBatches().length];
 			// for each batch
 			for (AggregatedBatch b : s.getAggregation().getBatches()) {
 				if (metric == null) {
@@ -959,12 +959,14 @@ public class Plotting {
 					allValues[index1][index2] = b.getMetrics().get(metric)
 							.getValues().get(value);
 				}
+				timestampsTemp[index2] = b.getTimestamp();
 				index2++;
 			}
 			String path = PlotFilenames.getValuesGnuplotScript(m, value + "."
 					+ "ALL");
 
 			allData[index1] = PlotData.get(path, style, s.getName(), type);
+			timestamps[index1] = timestampsTemp;
 			index1++;
 		}
 
@@ -973,7 +975,7 @@ public class Plotting {
 				value + "." + "ALL"), PlotFilenames.getValuesGnuplotScript(m,
 				value + "." + "ALL"));
 		plot.setTitle(value + " (" + type + ")");
-		plot.generate(allValues);
+		plot.generate(allValues, timestamps);
 	}
 
 	/**
@@ -1002,9 +1004,9 @@ public class Plotting {
 	 * @throws InterruptedException
 	 *             thrown when metric is null or in Execute.exec
 	 */
-	private static void plot(AggregatedValue[][] values, String[] names,
-			String dstDir, String filename, String script, String title,
-			PlotType type, PlotStyle style) throws IOException,
+	private static void plot(AggregatedValue[][] values, long[][] timestamps,
+			String[] names, String dstDir, String filename, String script,
+			String title, PlotType type, PlotStyle style) throws IOException,
 			InterruptedException {
 		PlotData[] data = new PlotData[values.length];
 		// gather data
@@ -1016,7 +1018,7 @@ public class Plotting {
 		// generate plot script and execute it
 		Plot plot = new Plot(data, dstDir, filename, script);
 		plot.setTitle(title);
-		plot.generate(values);
+		plot.generate(values, timestamps);
 	}
 
 	/**
@@ -1075,8 +1077,8 @@ public class Plotting {
 		return values;
 	}
 
-	private static double[] getX(AggregatedSeries aggregation) {
-		double[] x = new double[aggregation.getBatches().length - 1];
+	private static long[] getX(AggregatedSeries aggregation) {
+		long[] x = new long[aggregation.getBatches().length - 1];
 		for (int i = 1; i < aggregation.getBatches().length; i++) {
 			x[i - 1] = aggregation.getBatches()[i].getTimestamp();
 		}

@@ -58,21 +58,28 @@ public class Series {
 	public SeriesData generate(int runs, int batches)
 			throws AggregationException, IOException,
 			MetricNotApplicableException {
-		return this.generate(runs, batches, true, true, 0);
+		return this.generate(runs, batches, true, true, true, 0);
+	}
+
+	public SeriesData generate(int runs, int batches, boolean aggregate)
+			throws AggregationException, IOException,
+			MetricNotApplicableException {
+		return this.generate(runs, batches, true, aggregate, true, 0);
 	}
 
 	public SeriesData generate(int runs, int batches, long batchGenerationTime)
 			throws AggregationException, IOException,
 			MetricNotApplicableException {
-		return this.generate(runs, batches, true, true, batchGenerationTime);
+		return this.generate(runs, batches, true, true, true,
+				batchGenerationTime);
 	}
 
 	public SeriesData generate(int runs, int batches, boolean compare,
-			boolean write, long batchGenerationTime)
+			boolean aggregate, boolean write, long batchGenerationTime)
 			throws AggregationException, IOException,
 			MetricNotApplicableException {
-		return SeriesGeneration.generate(this, runs, batches, compare, write,
-				batchGenerationTime);
+		return SeriesGeneration.generate(this, runs, batches, compare,
+				aggregate, write, batchGenerationTime);
 	}
 
 	private GraphGenerator graphGenerator;
