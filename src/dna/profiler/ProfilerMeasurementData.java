@@ -12,6 +12,7 @@ import java.util.Properties;
 import java.util.Vector;
 
 import dna.graph.datastructures.DataStructure.AccessType;
+import dna.profiler.datatypes.CombinedEntry;
 import dna.profiler.datatypes.ComparableEntry;
 import dna.profiler.datatypes.ComparableEntryMap;
 import dna.profiler.datatypes.benchmarkresults.BenchmarkingResult;
@@ -25,7 +26,7 @@ import dna.util.PropertiesHolder;
 public abstract class ProfilerMeasurementData extends PropertiesHolder {
 	public enum ProfilerDataType {
 		RuntimeComplexity(), MemoryComplexity(AccessType.Init, AccessType.Add), RuntimeBenchmark(), MemoryBenchmark(
-				AccessType.Init, AccessType.Add);
+				AccessType.Init, AccessType.Add), CombinedBenchmark();
 
 		private ArrayList<AccessType> accessTypesToUseFromAggregation;
 
@@ -49,6 +50,38 @@ public abstract class ProfilerMeasurementData extends PropertiesHolder {
 
 	public static String getDataFolder() {
 		return folderName;
+	}
+
+	public static double[] getWeights(ProfilerDataType pdt) {
+		switch (pdt) {
+		case CombinedBenchmark:
+			return new double[] {
+					Config.getDouble("RECOMMENDER_COMBINEDCOMPLEXITY_RUNTIMEWEIGHT"),
+					Config.getDouble("RECOMMENDER_COMBINEDCOMPLEXITY_MEMORYWEIGHT") };
+		case MemoryBenchmark:
+		case MemoryComplexity:
+		case RuntimeBenchmark:
+		case RuntimeComplexity:
+			return null;
+		default:
+			throw new RuntimeException("No combination weights found for "
+					+ pdt);
+		}
+	}
+
+	public static ProfilerDataType[] getDependencies(ProfilerDataType pdt) {
+		switch (pdt) {
+		case CombinedBenchmark:
+			return new ProfilerDataType[] { ProfilerDataType.RuntimeBenchmark,
+					ProfilerDataType.MemoryBenchmark };
+		case MemoryBenchmark:
+		case MemoryComplexity:
+		case RuntimeBenchmark:
+		case RuntimeComplexity:
+			return null;
+		default:
+			throw new RuntimeException("No dependencies found for " + pdt);
+		}
 	}
 
 	public static void init() throws IOException {
@@ -80,6 +113,18 @@ public abstract class ProfilerMeasurementData extends PropertiesHolder {
 	public static ComparableEntry get(ProfilerDataType complexityType,
 			String classname, AccessType accessType, String storedDataClass,
 			ComplexityType.Base base, boolean checkWithDefaults) {
+
+		ProfilerDataType[] dependencies = getDependencies(complexityType);
+		if (dependencies != null) {
+			ComparableEntry[] res = new ComparableEntry[dependencies.length];
+			int countee = 0;
+			for (ProfilerDataType pdt : dependencies) {
+				res[countee] = get(pdt, classname, accessType, storedDataClass,
+						base, checkWithDefaults);
+				countee++;
+			}
+			return new CombinedEntry(res, getWeights(complexityType));
+		}
 
 		String keyName = complexityType.toString().toUpperCase() + "_"
 				+ classname.toUpperCase();
@@ -146,19 +191,6 @@ public abstract class ProfilerMeasurementData extends PropertiesHolder {
 		}
 	}
 
-	public static ComparableEntry getEntry(ProfilerDataType t) {
-		switch (t) {
-		case MemoryComplexity:
-		case RuntimeComplexity:
-			return new Complexity();
-		case MemoryBenchmark:
-		case RuntimeBenchmark:
-			return new BenchmarkingResult("");
-		default:
-			throw new RuntimeException("Cannot create ComparableEntry for " + t);
-		}
-	}
-
 	public static ComparableEntryMap getMap(ProfilerDataType t) {
 		switch (t) {
 		case MemoryComplexity:
@@ -166,6 +198,7 @@ public abstract class ProfilerMeasurementData extends PropertiesHolder {
 			return new ComplexityMap();
 		case MemoryBenchmark:
 		case RuntimeBenchmark:
+		case CombinedBenchmark:
 			return new BenchmarkingResultsMap();
 		default:
 			throw new RuntimeException("Cannot create ComparableEntryMap for "
