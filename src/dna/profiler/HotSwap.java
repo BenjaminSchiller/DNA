@@ -6,9 +6,9 @@ import java.util.Map.Entry;
 import java.util.TreeMap;
 
 import dna.graph.Graph;
+import dna.graph.datastructures.DataStructure;
 import dna.graph.datastructures.DataStructure.AccessType;
 import dna.graph.datastructures.DataStructure.ListType;
-import dna.graph.datastructures.DataStructure;
 import dna.graph.datastructures.GraphDataStructure;
 import dna.graph.datastructures.IDataStructure;
 import dna.profiler.ProfilerMeasurementData.ProfilerDataType;
@@ -131,7 +131,7 @@ public class HotSwap {
 		for (Entry<ProfilerDataType, HotSwapMap> e : slidingWindow.entrySet()) {
 			RecommenderEntry entry = e.getValue().getRecommendation();
 			if (entry != null
-					&& e.getKey().equals(ProfilerDataType.RuntimeBenchmark)) {
+					&& e.getKey().equals(Profiler.profilerDataTypeForHotSwap)) {
 
 				RecommenderEntry lastCosts = Profiler.getLastCosts(e.getKey());
 
@@ -143,11 +143,13 @@ public class HotSwap {
 							+ entry.getGraphDataStructure()
 									.getStorageDataStructures(true));
 					System.out
-							.println("  Runtime costs in last batch with current combination: "
+							.println("  "
+									+ Profiler.profilerDataTypeForHotSwap
+									+ " costs in last batch with current combination: "
 									+ lastCosts
-											.getCosts(ProfilerDataType.RuntimeBenchmark)
-									+ ", with recommended entry runtime: "
-									+ entry.getCosts(ProfilerDataType.RuntimeBenchmark));
+											.getCosts(Profiler.profilerDataTypeForHotSwap)
+									+ ", with recommended entry: "
+									+ entry.getCosts(Profiler.profilerDataTypeForHotSwap));
 
 					GraphDataStructure currentGDS = g.getGraphDatastructures();
 					GraphDataStructure newGDS = entry.getGraphDataStructure();
@@ -175,13 +177,13 @@ public class HotSwap {
 		 * Generate the costs for the current state
 		 */
 		ComparableEntryMap currentStateCosts = accesses.combinedComplexity(
-				ProfilerDataType.RuntimeBenchmark, currentGDS, null);
+				Profiler.profilerDataTypeForHotSwap, currentGDS, null);
 
 		/**
 		 * Generate the costs for the recommended state
 		 */
 		ComparableEntryMap recStateCosts = accesses.combinedComplexity(
-				ProfilerDataType.RuntimeBenchmark, recGDS, null);
+				Profiler.profilerDataTypeForHotSwap, recGDS, null);
 
 		/**
 		 * Generate the costs for swapping, which is: for each changed list type
@@ -189,7 +191,7 @@ public class HotSwap {
 		 */
 
 		ComparableEntryMap swappingCosts = ProfilerMeasurementData
-				.getMap(ProfilerDataType.RuntimeBenchmark);
+				.getMap(Profiler.profilerDataTypeForHotSwap);
 		for (ListType lt : ListType.values()) {
 			if (recGDS.getListClass(lt) == currentGDS.getListClass(lt)) {
 				continue;
@@ -200,12 +202,12 @@ public class HotSwap {
 			int totalNumberOfElements = (int) (numberOfLists * meanListSize);
 
 			ComparableEntry initCosts = recGDS.getComplexityClass(lt,
-					AccessType.Init, ProfilerDataType.RuntimeBenchmark);
+					AccessType.Init, Profiler.profilerDataTypeForHotSwap);
 			initCosts.setValues(numberOfLists, meanListSize, null);
 			swappingCosts.add(initCosts.getMap());
 
 			ComparableEntry addCosts = recGDS.getComplexityClass(lt,
-					AccessType.Add, ProfilerDataType.RuntimeBenchmark);
+					AccessType.Add, Profiler.profilerDataTypeForHotSwap);
 			addCosts.setValues(totalNumberOfElements, meanListSize, null);
 			swappingCosts.add(addCosts.getMap());
 		}

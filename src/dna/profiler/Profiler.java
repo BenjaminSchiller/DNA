@@ -59,6 +59,9 @@ public class Profiler {
 	final static String separator = System.getProperty("line.separator");
 	final static String aggregatedPrefix = "aggregated";
 
+	final static ProfilerDataType profilerDataTypeForHotSwap = ProfilerDataType
+			.valueOf(Config.get("HOTSWAP_PROFILERDATATYPE_SELECTOR"));
+
 	private static Map<ProfilerMeasurementData.ProfilerDataType, RecommenderEntry> lastRecommendations = new EnumMap<>(
 			ProfilerDataType.class);
 	private static Map<ProfilerMeasurementData.ProfilerDataType, RecommenderEntry> lastWorstCase = new EnumMap<>(
@@ -699,11 +702,11 @@ public class Profiler {
 	public static void writeMetric(String metricKey, String dir)
 			throws IOException {
 		boolean rec = ProfilerGranularity.isEnabled(Options.EACHMETRIC);
-		
+
 		if (SeriesGeneration.singleFile) {
 			currentFileSystem = SeriesGeneration.writeFileSystem;
 		}
-		
+
 		Profiler.writeSingle(singleBatchCalls, metricKey, dir,
 				Files.getProfilerFilename(Config.get("METRIC_PROFILER")), rec,
 				false);
@@ -899,16 +902,16 @@ public class Profiler {
 
 		String profilerRange = "minimum="
 				+ ((BenchmarkingResultsMap) lastRecommendations.get(
-						ProfilerDataType.RuntimeBenchmark).getCosts(
-						ProfilerDataType.RuntimeBenchmark)).getValue()
+						profilerDataTypeForHotSwap).getCosts(
+						profilerDataTypeForHotSwap)).getValue()
 				+ "\ncurrent="
 				+ ((BenchmarkingResultsMap) lastCosts.get(
-						ProfilerDataType.RuntimeBenchmark).getCosts(
-						ProfilerDataType.RuntimeBenchmark)).getValue()
+						profilerDataTypeForHotSwap).getCosts(
+						profilerDataTypeForHotSwap)).getValue()
 				+ "\nmaximum="
 				+ ((BenchmarkingResultsMap) lastWorstCase.get(
-						ProfilerDataType.RuntimeBenchmark).getCosts(
-						ProfilerDataType.RuntimeBenchmark)).getValue();
+						profilerDataTypeForHotSwap).getCosts(
+						profilerDataTypeForHotSwap)).getValue();
 		rawWrite(batchDir,
 				Files.getProfilerFilename(Config.get("PROFILER_RANGE")),
 				profilerRange);
