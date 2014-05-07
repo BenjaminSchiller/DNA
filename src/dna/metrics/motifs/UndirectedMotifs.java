@@ -205,8 +205,8 @@ public abstract class UndirectedMotifs extends Metric {
 		}
 		UndirectedMotifs um = (UndirectedMotifs) m;
 		boolean success = true;
-		success &= ArrayUtils.equals(this.motifs.getValues(),
-				um.motifs.getValues(), "UM/" + motifsName);
+		success &= ArrayUtils.equals(this.motifs.getLongValues(),
+				um.motifs.getLongValues(), "UM/" + motifsName);
 		return success;
 	}
 

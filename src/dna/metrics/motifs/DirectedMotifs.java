@@ -363,8 +363,8 @@ public abstract class DirectedMotifs extends Metric {
 		}
 		DirectedMotifs dm = (DirectedMotifs) m;
 		boolean success = true;
-		success &= ArrayUtils.equals(this.motifs.getValues(),
-				dm.motifs.getValues(), "DM/" + motifsName);
+		success &= ArrayUtils.equals(this.motifs.getLongValues(),
+				dm.motifs.getLongValues(), "DM/" + motifsName);
 		return success;
 	}
 
