@@ -21,6 +21,7 @@ public class HotSwap {
 	private static long lastFinishedBatch;
 	private static int totalNumberOfBatches;
 	private static Map<Long, EnumMap<ListType, Class<? extends IDataStructure>>> manualSwitching = null;
+	private static EnumMap<ListType, Class<? extends IDataStructure>> firstSwitch = null;
 
 	/**
 	 * Three variables for storing the accesses onto underlying lists
@@ -38,6 +39,7 @@ public class HotSwap {
 		}
 
 		accessList = new ProfileEntry[maxAccessListSize];
+		firstSwitch = null;
 	}
 
 	public static void addNewResults() {
@@ -89,6 +91,10 @@ public class HotSwap {
 		DataStructure.disableContainsOnAddition();
 		gds.switchDatastructures(newGDS, g);
 		DataStructure.enableContainsOnAddition();
+
+		if (firstSwitch == null) {
+			firstSwitch = newGDS.getStorageDataStructures();
+		}
 	}
 
 	public static int getAmortizationCounter() {
@@ -222,6 +228,10 @@ public class HotSwap {
 
 	public static void setTotalNumberOfBatches(int n) {
 		totalNumberOfBatches = n;
+	}
+
+	public static EnumMap<ListType, Class<? extends IDataStructure>> getFirstSwitch() {
+		return firstSwitch;
 	}
 
 }
