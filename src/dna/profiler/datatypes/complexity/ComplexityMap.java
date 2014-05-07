@@ -1,5 +1,6 @@
 package dna.profiler.datatypes.complexity;
 
+import java.text.DecimalFormat;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
@@ -8,48 +9,53 @@ import java.util.Map.Entry;
 import dna.profiler.datatypes.ComparableEntryMap;
 
 public class ComplexityMap extends ComparableEntryMap {
-	private TreeMap<ComplexityType, Integer> map = new TreeMap<>();
+	private TreeMap<ComplexityType, Double> map = new TreeMap<>();
 
 	public ComplexityMap() {
 		for (ComplexityType t : ComplexityType.getAllComplexityTypes()) {
-			map.put(t, 0);
+			map.put(t, 0d);
 		}
 	}
 
 	public void add(ComparableEntryMap resSecondIn) {
 		ComplexityMap resSecond = (ComplexityMap) resSecondIn;
-		for (Entry<ComplexityType, Integer> e : resSecond.entrySet()) {
-			Integer tempCounter = this.get(e.getKey());
+		for (Entry<ComplexityType, Double> e : resSecond.entrySet()) {
+			Double tempCounter = this.get(e.getKey());
 			if (tempCounter == null)
-				tempCounter = 0;
-			Integer addedValue = e.getValue();
+				tempCounter = 0d;
+			Double addedValue = e.getValue();
 			if (addedValue == null)
-				addedValue = 0;
+				addedValue = 0d;
 			tempCounter += addedValue;
 			this.put(e.getKey(), tempCounter);
 		}
 	}
 
-	public void put(ComplexityType key, Integer tempCounter) {
+	public void put(ComplexityType key, int tempCounter) {
+		put(key,(double)tempCounter);
+	}
+	
+	public void put(ComplexityType key, Double tempCounter) {
 		map.put(key, tempCounter);
 	}
 
-	public Integer get(ComplexityType key) {
+	public Double get(ComplexityType key) {
 		return map.get(key);
 	}
 
-	public Set<Entry<ComplexityType, Integer>> entrySet() {
+	public Set<Entry<ComplexityType, Double>> entrySet() {
 		return map.entrySet();
 	}
 
 	public String toString() {
 		StringBuilder s = new StringBuilder();
-		for (Entry<ComplexityType, Integer> elem : entrySet()) {
+		DecimalFormat f = new DecimalFormat("###,##0");
+		for (Entry<ComplexityType, Double> elem : entrySet()) {
 			if (elem.getValue() == null || elem.getValue() == 0)
 				continue;
 			if (s.length() > 0)
 				s.append(" + ");
-			s.append(elem.getValue() + "*" + elem.getKey());
+			s.append(f.format(elem.getValue()) + "*" + elem.getKey());
 		}
 		if (s.length() == 0)
 			s.append("0");
@@ -74,8 +80,8 @@ public class ComplexityMap extends ComparableEntryMap {
 		final TreeSet<ComplexityType> listOfComplexityTypes = ComplexityType
 				.getAllComplexityTypes();
 		while ((t = listOfComplexityTypes.pollLast()) != null) {
-			Integer thisCounter = this.get(t);
-			Integer thatCounter = ((ComplexityMap) o).get(t);
+			Double thisCounter = this.get(t);
+			Double thatCounter = ((ComplexityMap) o).get(t);
 			if (thisCounter == null && thatCounter == null) {
 				continue;
 			}
@@ -138,7 +144,7 @@ public class ComplexityMap extends ComparableEntryMap {
 	}
 
 	@Override
-	public void multiplyBy(int factor) {
+	public void multiplyBy(double factor) {
 		for (ComplexityType ct : ComplexityType.getAllComplexityTypes()) {
 			put(ct, factor * get(ct));
 		}

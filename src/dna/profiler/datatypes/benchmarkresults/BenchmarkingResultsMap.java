@@ -77,7 +77,7 @@ public class BenchmarkingResultsMap extends ComparableEntryMap {
 	}
 
 	@Override
-	public void multiplyBy(int factor) {
+	public void multiplyBy(double factor) {
 		put(getValue() * factor);
 	}
 

@@ -4,7 +4,7 @@ public abstract class ComparableEntryMap implements
 		Comparable<ComparableEntryMap> {
 	public abstract void add(ComparableEntryMap resSecond);
 
-	public abstract void multiplyBy(int factor);
+	public abstract void multiplyBy(double factor);
 
 	public abstract int hashCode();
 
