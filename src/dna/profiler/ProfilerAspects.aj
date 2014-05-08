@@ -14,7 +14,6 @@ import dna.metrics.Metric;
 import dna.metrics.Metric.ApplicationType;
 import dna.series.Series;
 import dna.series.SeriesGeneration;
-import dna.series.data.MetricData;
 import dna.updates.batch.Batch;
 import dna.updates.generators.BatchGenerator;
 import dna.updates.update.Update;
@@ -46,7 +45,6 @@ public aspect ProfilerAspects {
 	pointcut metricAppliedOnBatch(Metric metricObject, Batch batchObject) : (execution(* Metric+.applyBeforeBatch(Batch+))
 			 || execution(* Metric+.applyAfterBatch(Batch+))) && args(batchObject) && target(metricObject);
 	pointcut metricApplied() : cflow(initialMetric(*)) || cflow(metricAppliedOnUpdate(*, *)) || cflow(metricAppliedOnBatch(*, *));
-	pointcut writeMetric(MetricData md, String dir) : call(* MetricData.write(String)) && args(dir) && target(md);
 	
 	pointcut updateApplication(Update updateObject) : execution(* Update+.apply(*)) && target(updateObject);
 	pointcut updateApplied(): cflow(updateApplication(*));
@@ -231,10 +229,6 @@ public aspect ProfilerAspects {
 	
 	after(DataStructure list) : iterator(list) {
 		Profiler.count(this.currentCountKey, list.listType, AccessType.Iterator);
-	}
-
-	after(MetricData md, String dir) throws IOException : writeMetric(md, dir) {
-		Profiler.writeMetric(md.getName(), dir);		
 	}
 
 }
