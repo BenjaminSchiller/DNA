@@ -1,4 +1,4 @@
-package dna.updates.walkingAlgorithms;
+package dna.updates.samplingAlgorithms;
 
 import java.util.HashSet;
 import java.util.Iterator;
@@ -7,66 +7,58 @@ import java.util.List;
 
 import dna.graph.Graph;
 import dna.graph.nodes.Node;
-import dna.graph.startNodeSelection.StartNodeSelectionStrategy;
+import dna.updates.samplingAlgorithms.startNodeSelection.StartNodeSelectionStrategy;
 import dna.util.Rand;
 import dna.util.parameters.Parameter;
 
 /**
- * A sampling algorithm which is based on the behavior of forest fires. Does not
- * allow revisiting.
+ * Implementation of the snowball sampling algorithm. Depending on how you
+ * choose the numberOfNeighborsVisited parameter it behaves more like a BFS for
+ * higher values or more like a RW for lower values. It is the same algorithm as
+ * RDS sampling, but in contrary it does not allow revisiting.
  * 
  * @author Benedict Jahn
  * 
  */
-public class ForestFireNR extends WalkingAlgorithm {
+public class SnowballSampling extends SamplingAlgorithm {
 
 	private HashSet<Node> nodesInQueue;
 	private HashSet<Node> fullyVisited;
 	private LinkedList<Node> queue;
 	private Node currentNode;
-	private double probability;
+	private int numberOfNeighborsVisited;
 
 	/**
-	 * Creates an instance of the forest fire sampling algorithm
+	 * Creates an instance of the snowball sampling algorithm
 	 * 
 	 * @param fullGraph
 	 *            the graph the algorithm shall walk on
 	 * @param startNodeStrat
 	 *            the strategy how the algorithm will select the first node
-	 * @param onlyVisitedNodesToGraph
-	 *            if set to true the generator will only put visited nodes in
-	 *            the batch
 	 * @param costPerBatch
 	 *            how many steps the algorithm shall perform for one batch
 	 * @param ressouce
 	 *            the maximum count of steps the algorithm shall perform, if
 	 *            initialized with 0 or below the algorithm will walk until the
 	 *            graph is fully visited
-	 * @param probability
-	 *            probability to select a neighbor of the current node. Have to
-	 *            be between 0 and 1
+	 * @param numberOfNeighborsVisited
+	 *            count of how many of the neighbors of the current node will be
+	 *            queued
 	 * @param parameters
 	 *            the parameters which makes this algorithm unique and which
 	 *            will be added to the name
 	 */
-	public ForestFireNR(Graph fullGraph,
-			StartNodeSelectionStrategy startNodeStrategy,
-			boolean onlyVisitedNodesToGraph, int costPerBatch, int resource,
-			double probability, Parameter[] parameters) throws Exception {
-		super("FFnr_" + probability, fullGraph, startNodeStrategy,
-				onlyVisitedNodesToGraph, costPerBatch, resource, parameters);
+	public SnowballSampling(Graph fullGraph,
+			StartNodeSelectionStrategy startNodeStrategy, int costPerBatch,
+			int resource, int numberOfNeighborsVisited, Parameter[] parameters) {
+		super("SS_" + numberOfNeighborsVisited, fullGraph, startNodeStrategy,
+				costPerBatch, resource, parameters);
 
-		if (probability < 0 || probability > 1) {
-			throw new IllegalArgumentException(
-					"Probability has to be between 0 and 1.");
-		}
-
-		this.probability = probability;
+		this.numberOfNeighborsVisited = numberOfNeighborsVisited;
 		nodesInQueue = new HashSet<Node>();
 		fullyVisited = new HashSet<Node>(fullGraph.getNodeCount());
 		queue = new LinkedList<Node>();
 		currentNode = null;
-
 	}
 
 	@Override
@@ -115,20 +107,20 @@ public class ForestFireNR extends WalkingAlgorithm {
 	}
 
 	/**
-	 * Select unvisited neighbors of the current node. Each neighbor is chosen
-	 * with the given propability
+	 * Randomly selects the chosen amount of unvisited neighbors from the
+	 * current node and adds them to the queue
 	 */
 	private void selectNeighbors() {
 		List<Node> list = getUnvisitedNeighbors(currentNode);
-		if (list.isEmpty()) {
-			fullyVisited.add(currentNode);
-		}
-		for (Node n : list) {
+		for (int i = 0; i < numberOfNeighborsVisited; i++) {
+			if (list.isEmpty()) {
+				fullyVisited.add(currentNode);
+				break;
+			}
+			Node n = list.remove(Rand.rand.nextInt(list.size()));
 			if (!nodesInQueue.contains(n)) {
-				if (Rand.rand.nextDouble() <= probability) {
-					queue.add(n);
-					nodesInQueue.add(n);
-				}
+				queue.add(n);
+				nodesInQueue.add(n);
 			}
 		}
 	}

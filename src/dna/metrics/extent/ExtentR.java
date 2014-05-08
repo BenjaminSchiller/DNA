@@ -1,15 +1,15 @@
 package dna.metrics.extent;
 
 import dna.updates.batch.Batch;
+import dna.updates.samplingAlgorithms.SamplingAlgorithm;
 import dna.updates.update.Update;
-import dna.updates.walkingAlgorithms.WalkingAlgorithm;
 
 /**
- * This metric will compute the number of seen, unseen and visited nodes in a
- * graph which is sampled by an walking algorithm
+ * This metric will measure to which extent a sampling algorithm has sampled the
+ * graph. It will compute the number of seen, unseen and visited nodes in a
+ * graph.
  * 
  * @author Benedict Jahn
- * 
  */
 public class ExtentR extends Extent {
 
@@ -21,8 +21,9 @@ public class ExtentR extends Extent {
 	 * @param algorithm
 	 *            the walking algorithm, which walks the graph
 	 */
-	public ExtentR(WalkingAlgorithm algorithm) {
-		super("ExtentR", ApplicationType.Recomputation, MetricType.exact, algorithm);
+	public ExtentR(SamplingAlgorithm algorithm) {
+		super("ExtentR", ApplicationType.Recomputation, MetricType.exact,
+				algorithm);
 	}
 
 	@Override

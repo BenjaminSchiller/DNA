@@ -1,25 +1,25 @@
-package dna.updates.walkingAlgorithms;
+package dna.updates.samplingAlgorithms;
 
 import java.util.LinkedList;
 import java.util.List;
 
 import dna.graph.Graph;
 import dna.graph.nodes.Node;
-import dna.graph.startNodeSelection.StartNodeSelectionStrategy;
+import dna.updates.samplingAlgorithms.startNodeSelection.StartNodeSelectionStrategy;
 import dna.util.Rand;
 import dna.util.parameters.Parameter;
 
 /**
  * Implementation of the respondent driven sampling algorithm. Depending on how
  * you choose the numberOfNeighborsVisited parameter it behaves more like a BFS
- * for higher values or more like a DFS for lower values. It is the same
+ * for higher values or more like a RW for lower values. It is the same
  * algorithm as snowball sampling, but in contrary it allows revisiting of
  * nodes.
  * 
  * @author Benedict Jahn
  * 
  */
-public class RespondentDrivenSampling extends WalkingAlgorithm {
+public class RespondentDrivenSampling extends SamplingAlgorithm {
 
 	private LinkedList<Node> queue;
 	private Node currentNode;
@@ -32,9 +32,6 @@ public class RespondentDrivenSampling extends WalkingAlgorithm {
 	 *            the graph the algorithm shall walk on
 	 * @param startNodeStrat
 	 *            the strategy how the algorithm will select the first node
-	 * @param onlyVisitedNodesToGraph
-	 *            if set to true the generator will only put visited nodes in
-	 *            the batch
 	 * @param costPerBatch
 	 *            how many steps the algorithm shall perform for one batch
 	 * @param ressouce
@@ -49,11 +46,10 @@ public class RespondentDrivenSampling extends WalkingAlgorithm {
 	 *            will be added to the name
 	 */
 	public RespondentDrivenSampling(Graph fullGraph,
-			StartNodeSelectionStrategy startNodeStrategy,
-			boolean onlyVisitedNodesToGraph, int costPerBatch, int resource,
-			int numberOfNeighborsVisited, Parameter[] parameters) {
+			StartNodeSelectionStrategy startNodeStrategy, int costPerBatch,
+			int resource, int numberOfNeighborsVisited, Parameter[] parameters) {
 		super("RDS_" + numberOfNeighborsVisited, fullGraph, startNodeStrategy,
-				onlyVisitedNodesToGraph, costPerBatch, resource, parameters);
+				costPerBatch, resource, parameters);
 
 		this.numberOfNeighborsVisited = numberOfNeighborsVisited;
 		queue = new LinkedList<Node>();

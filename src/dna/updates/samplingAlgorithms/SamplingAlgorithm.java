@@ -1,4 +1,4 @@
-package dna.updates.walkingAlgorithms;
+package dna.updates.samplingAlgorithms;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -12,9 +12,9 @@ import dna.graph.edges.Edge;
 import dna.graph.nodes.DirectedNode;
 import dna.graph.nodes.Node;
 import dna.graph.nodes.UndirectedNode;
-import dna.graph.startNodeSelection.StartNodeSelectionStrategy;
 import dna.updates.batch.Batch;
 import dna.updates.generators.BatchGenerator;
+import dna.updates.samplingAlgorithms.startNodeSelection.StartNodeSelectionStrategy;
 import dna.updates.update.EdgeAddition;
 import dna.updates.update.NodeAddition;
 import dna.updates.update.Update;
@@ -26,7 +26,7 @@ import dna.util.parameters.Parameter;
  * @author Benedict Jahn
  * 
  */
-public abstract class WalkingAlgorithm extends BatchGenerator {
+public abstract class SamplingAlgorithm extends BatchGenerator {
 
 	private HashSet<Node> seenNodes;
 	private HashSet<Node> visitedNodes;
@@ -37,7 +37,6 @@ public abstract class WalkingAlgorithm extends BatchGenerator {
 
 	private StartNodeSelectionStrategy startNodeStartegy;
 
-	private boolean onlyVisited;
 	private boolean firstIteration;
 	private boolean takeResourceIntoAccount;
 	private boolean noFurtherBatch;
@@ -51,7 +50,7 @@ public abstract class WalkingAlgorithm extends BatchGenerator {
 	private long timeStamp;
 
 	/**
-	 * Initializes the walking algorithm
+	 * Initializes the sampling algorithm
 	 * 
 	 * @param name
 	 *            the name of the algorithm
@@ -59,11 +58,9 @@ public abstract class WalkingAlgorithm extends BatchGenerator {
 	 *            the graph the algorithm shall walk on
 	 * @param startNodeStrat
 	 *            the strategy how the algorithm will select the first node
-	 * @param onlyVisitedNodesToGraph
-	 *            if set to true the generator will only put visited nodes in
-	 *            the batch
 	 * @param costPerBatch
-	 *            how many steps the algorithm shall perform for one batch
+	 *            how many steps the algorithm shall perform for one batch,
+	 *            which indicates the amount of nodes added per batch
 	 * @param ressouce
 	 *            the maximum count of steps the algorithm shall perform, if
 	 *            initialized with 0 or below the algorithm will walk until the
@@ -72,14 +69,12 @@ public abstract class WalkingAlgorithm extends BatchGenerator {
 	 *            the parameters which makes this algorithm unique and which
 	 *            will be added to the name
 	 */
-	public WalkingAlgorithm(String name, Graph fullGraph,
-			StartNodeSelectionStrategy startNodeStrategy,
-			boolean onlyVisitedNodesToGraph, int costPerBatch, int resource,
-			Parameter[] parameters) {
+	public SamplingAlgorithm(String name, Graph fullGraph,
+			StartNodeSelectionStrategy startNodeStrategy, int costPerBatch,
+			int resource, Parameter[] parameters) {
 		super(name, parameters);
 
 		this.fullGraph = fullGraph;
-		this.onlyVisited = onlyVisitedNodesToGraph;
 		this.costPerBatch = costPerBatch;
 		this.startNodeStartegy = startNodeStrategy;
 		this.resource = resource;
@@ -113,11 +108,11 @@ public abstract class WalkingAlgorithm extends BatchGenerator {
 	}
 
 	/**
-	 * Let the walking algorithm walk further and produce a batch based on the
+	 * Let the sampling algorithm walk further and produce a batch based on the
 	 * graph
 	 * 
 	 * @param g
-	 *            the current progress of the walking algorithm
+	 *            the current sample
 	 */
 	public Batch generate(Graph g) {
 
@@ -160,14 +155,14 @@ public abstract class WalkingAlgorithm extends BatchGenerator {
 	}
 
 	/**
-	 * Produces the update based on the specific walking algorithm
+	 * Produces the update based on the specific sampling algorithm
 	 * 
 	 * @return a node
 	 */
 	protected abstract Node findNextNode();
 
 	/**
-	 * Initializes the walking algorithm with the start node selection strategy
+	 * Initializes the sampling algorithm with the start node selection strategy
 	 * 
 	 * @param startNode
 	 *            the chosen starting node selection strategy
@@ -177,19 +172,19 @@ public abstract class WalkingAlgorithm extends BatchGenerator {
 	protected abstract Node init(StartNodeSelectionStrategy startNode);
 
 	/**
-	 * Adds the node (and in case of all seen nodes in graph, also the
-	 * neighbors) to the batch and updates the hashMaps
+	 * Adds the node and if necessary the connected edges to the batch and
+	 * updates the seen and visited structures
 	 * 
 	 * @param batch
 	 *            the batch to which the updates shall be added
 	 * @param node
 	 *            the node that shall be added to the batch
 	 * @param g
-	 *            the current graph
+	 *            the sample
 	 * @param preAddedNodes
 	 *            a HashMap which maps IDs of keys to nodes which were / will be
-	 *            added with the batch but are not yet added to the graph
-	 * @return
+	 *            added to the batch but are not yet added to the sample
+	 * @return the current batch
 	 */
 	private Batch addNodeAndNeighborsToBatch(Batch batch, Node node, Graph g) {
 
@@ -212,7 +207,6 @@ public abstract class WalkingAlgorithm extends BatchGenerator {
 		List<Update> upList = addNeighbors(node, newNode, g);
 
 		for (Update u : upList) {
-			// System.out.println(u);
 			batch.add(u);
 		}
 
@@ -220,8 +214,8 @@ public abstract class WalkingAlgorithm extends BatchGenerator {
 	}
 
 	/**
-	 * Returns the neighbors of a node and the edges that connects them,
-	 * additionally it updates the seenNodes HashSet
+	 * Adds the neighbors of a node into the seen structure and produces a list
+	 * of edge editions if the neighbors were already visited
 	 * 
 	 * @param nodeFromFullGraph
 	 *            the node from the full graph from which we want to receive the
@@ -229,10 +223,10 @@ public abstract class WalkingAlgorithm extends BatchGenerator {
 	 * @param newNode
 	 *            the same node but from the sample
 	 * @param g
-	 *            the current graph
+	 *            the sample
 	 * @param preAddedNodes
 	 *            a HashMap which maps IDs of keys to nodes which were / will be
-	 *            added with the batch but are not yet added to the graph
+	 *            added to the batch but are not yet added to the sample
 	 * @return a list of node and edge additions
 	 */
 	private List<Update> addNeighbors(Node nodeFromFullGraph, Node newNode,
@@ -242,82 +236,32 @@ public abstract class WalkingAlgorithm extends BatchGenerator {
 
 		Iterable<IElement> iter = getEdgesFromNode(nodeFromFullGraph);
 
-		if (onlyVisited) {
+		// Iterate over all edges
+		for (IElement e : iter) {
+			Edge edge = (Edge) e;
+			Node neighbor = edge.getDifferingNode(nodeFromFullGraph);
 
-			// Nur besuchte Nodes in Graph
-			// Iteriere über alle Edges
-			for (IElement e : iter) {
-				Edge edge = (Edge) e;
-				Node neighbor = edge.getDifferingNode(nodeFromFullGraph);
+			// Is the neighbor in the visited HashSet?
+			if (visitedNodes.contains(neighbor)) {
 
-				// Ist der Nachbar in der besucht Liste?
-				if (visitedNodes.contains(neighbor)) {
+				// Yes -> Put Edge in list, End
+				GraphDataStructure gds = g.getGraphDatastructures();
 
-					// Ja -> Edge in Liste, Ende
-					GraphDataStructure gds = g.getGraphDatastructures();
-
-					Node dstNode;
-					if (g.getNode(neighbor.getIndex()) == null) {
-						dstNode = addedNodes.get(neighbor.getIndex());
-					} else {
-						dstNode = g.getNode(neighbor.getIndex());
-					}
-					Edge newEdge = gds.newEdgeInstance(newNode, dstNode);
-					// newEdge.connectToNodes();
-					updateList.add(new EdgeAddition(newEdge));
+				Node dstNode;
+				if (g.getNode(neighbor.getIndex()) == null) {
+					dstNode = addedNodes.get(neighbor.getIndex());
 				} else {
-
-					// Nein -> Weiter
-					// Ist der Nachbar in der gesehen Liste?
-					if (!seenNodes.contains(neighbor)) {
-
-						// Nein -> Nachbar in gesehen Liste, Ende
-						seenNodes.add(neighbor);
-					}
+					dstNode = g.getNode(neighbor.getIndex());
 				}
-			}
-		} else {
+				Edge newEdge = gds.newEdgeInstance(newNode, dstNode);
+				updateList.add(new EdgeAddition(newEdge));
+			} else {
 
-			// Besuchte und gesehene Nodes in Graph
-			// Iteriere über alle Edges
-			for (IElement e : iter) {
-				Edge edge = (Edge) e;
-				Node neighbor = edge.getDifferingNode(nodeFromFullGraph);
-
-				// Ist der Nachbar im Graph?
-				if (!g.containsNode(neighbor)) {
-
-					// Nein -> Nachbar in Liste, Weiter
-					Node newNeighbor = g.getGraphDatastructures()
-							.newNodeInstance(neighbor.getIndex());
-
-					updateList.add(new NodeAddition(newNeighbor));
-
-					addedNodes.put(newNeighbor.getIndex(), newNeighbor);
-				}
-
-				// Edge bereits im Graph?
-				if (!g.containsEdge(edge)) {
-
-					// Nein -> Edge in Liste, Weiter
-					GraphDataStructure gds = g.getGraphDatastructures();
-
-					Node dstNode;
-					if (g.getNode(neighbor.getIndex()) == null) {
-						dstNode = addedNodes.get(neighbor.getIndex());
-					} else {
-						dstNode = g.getNode(neighbor.getIndex());
-					}
-
-					Edge newEdge = gds.newEdgeInstance(newNode, dstNode);
-					// newEdge.connectToNodes();
-					updateList.add(new EdgeAddition(newEdge));
-				}
-
-				// Ist der Nachbar in der gesehen Liste?
+				// No -> continue
+				// Is the neighbor in the seen HashSet?
 				if (!seenNodes.contains(neighbor)) {
 
-					// Nein -> Nachbar in gesehen Liste, Ende
+					// No -> Put neighbor in the seen HashSet, End
 					seenNodes.add(neighbor);
 				}
 			}
@@ -326,7 +270,7 @@ public abstract class WalkingAlgorithm extends BatchGenerator {
 	}
 
 	/**
-	 * Returns if the walking algorithm can walk further through the graph
+	 * Returns if the sampling algorithm can walk further through the graph
 	 */
 	public boolean isFurtherBatchPossible(Graph g) {
 
@@ -350,7 +294,7 @@ public abstract class WalkingAlgorithm extends BatchGenerator {
 	}
 
 	/**
-	 * Resets the walking algorithm, so it will start again from the beginning
+	 * Resets the sampling algorithm, so it will start again from the beginning
 	 */
 	public void reset() {
 
@@ -369,8 +313,8 @@ public abstract class WalkingAlgorithm extends BatchGenerator {
 	}
 
 	/**
-	 * Resets the walking algorithm instance, so it will start again from the
-	 * beginning
+	 * Resets the specific sampling algorithm instance, so it will start again
+	 * from the beginning
 	 */
 	protected abstract void localReset();
 
@@ -390,7 +334,7 @@ public abstract class WalkingAlgorithm extends BatchGenerator {
 	 * 
 	 * @param n
 	 *            the node of whom we want to receive the unvisited neighbors
-	 * @return a list of nodes
+	 * @return a list of unvisited nodes
 	 */
 	protected ArrayList<Node> getUnvisitedNeighbors(Node n) {
 
@@ -412,7 +356,7 @@ public abstract class WalkingAlgorithm extends BatchGenerator {
 	 * 
 	 * @param n
 	 *            the node of whom we want to receive the unseen neighbors
-	 * @return a list of nodes
+	 * @return a list of unseen nodes
 	 */
 	protected ArrayList<Node> getUnseenNeighbors(Node n) {
 
@@ -434,7 +378,7 @@ public abstract class WalkingAlgorithm extends BatchGenerator {
 	 * 
 	 * @param n
 	 *            the node of whom we want to receive the visited neighbors
-	 * @return a list of nodes
+	 * @return a list of already visited nodes
 	 */
 	protected ArrayList<Node> getVisitedNeighbors(Node n) {
 
@@ -485,7 +429,7 @@ public abstract class WalkingAlgorithm extends BatchGenerator {
 	}
 
 	/**
-	 * Returns the outdegree of a given node (directed o r undirected)
+	 * Returns the outdegree of a given node (directed or undirected)
 	 * 
 	 * @param n
 	 *            the node
@@ -506,8 +450,8 @@ public abstract class WalkingAlgorithm extends BatchGenerator {
 	}
 
 	/**
-	 * Returns the number of nodes in the graph, the walking algorithm is
-	 * operating on
+	 * Returns the number of nodes in the original graph, the sampling algorithm
+	 * is operating on
 	 * 
 	 * @return number of nodes
 	 */
@@ -517,7 +461,7 @@ public abstract class WalkingAlgorithm extends BatchGenerator {
 
 	/**
 	 * Returns the number of nodes which has either been visited or seen by the
-	 * walking algorithm
+	 * sampling algorithm
 	 * 
 	 * @return number of nodes
 	 */
@@ -526,7 +470,7 @@ public abstract class WalkingAlgorithm extends BatchGenerator {
 	}
 
 	/**
-	 * Returns the number of nodes which has been visited by the walking
+	 * Returns the number of nodes which has been visited by the sampling
 	 * algorithm
 	 * 
 	 * @return number of nodes
@@ -536,14 +480,15 @@ public abstract class WalkingAlgorithm extends BatchGenerator {
 	}
 
 	/**
-	 * This method is called, if the walking algorithm can't find a further node
+	 * This method is called, if the specific sampling algorithm can't find a
+	 * further node
 	 */
 	protected void noNodeFound() {
 		noFurtherBatch = true;
 	}
 
 	/**
-	 * Returns the current time stamp of this walking algorithm
+	 * Returns the current time stamp of this sampling algorithm
 	 */
 	protected long getTimeStamp() {
 		return timeStamp;

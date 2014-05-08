@@ -7,19 +7,20 @@ import dna.series.data.NodeNodeValueList;
 import dna.series.data.NodeValueList;
 import dna.series.data.Value;
 import dna.updates.batch.Batch;
-import dna.updates.walkingAlgorithms.WalkingAlgorithm;
+import dna.updates.samplingAlgorithms.SamplingAlgorithm;
 import dna.util.DataUtils;
 
 /**
- * This metric will compute the number of seen, unseen and visited nodes in a
- * graph which is sampled by an walking algorithm
+ * This metric will measure to which extent a sampling algorithm has sampled the
+ * graph. It will compute the number of seen, unseen and visited nodes in a
+ * graph.
  * 
  * @author Benedict Jahn
  * 
  */
 public abstract class Extent extends Metric {
 
-	private WalkingAlgorithm algorithm;
+	private SamplingAlgorithm algorithm;
 	private int seenNodes;
 	private int unseenNodes;
 	private int visitedNodes;
@@ -31,10 +32,10 @@ public abstract class Extent extends Metric {
 	 * @param name
 	 *            the name of the metric
 	 * @param algorithm
-	 *            the walking algorithm, which walks the graph
+	 *            the sampling algorithm, which samples the graph
 	 */
 	public Extent(String name, ApplicationType type, MetricType metricType,
-			WalkingAlgorithm algorithm) {
+			SamplingAlgorithm algorithm) {
 		super(name, type, metricType);
 		this.algorithm = algorithm;
 	}
@@ -110,7 +111,7 @@ public abstract class Extent extends Metric {
 	public boolean isApplicable(Graph g) {
 		return true;
 	}
-	
+
 	@Override
 	public boolean isApplicable(Batch b) {
 		return true;

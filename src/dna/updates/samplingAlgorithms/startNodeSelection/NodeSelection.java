@@ -1,8 +1,8 @@
-package dna.graph.startNodeSelection;
+package dna.updates.samplingAlgorithms.startNodeSelection;
 
 import dna.graph.Graph;
 import dna.graph.nodes.Node;
-import dna.graph.startNodeSelection.StartNodeSelectionStrategy;
+import dna.updates.samplingAlgorithms.startNodeSelection.StartNodeSelectionStrategy;
 
 /**
  * This is a basic selection strategy which simply returns the node with the

@@ -1,4 +1,4 @@
-package dna.graph.startNodeSelection;
+package dna.updates.samplingAlgorithms.startNodeSelection;
 
 import java.util.ArrayList;
 
