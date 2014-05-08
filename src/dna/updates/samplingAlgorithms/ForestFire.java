@@ -1,11 +1,11 @@
-package dna.updates.walkingAlgorithms;
+package dna.updates.samplingAlgorithms;
 
 import java.util.LinkedList;
 import java.util.List;
 
 import dna.graph.Graph;
 import dna.graph.nodes.Node;
-import dna.graph.startNodeSelection.StartNodeSelectionStrategy;
+import dna.updates.samplingAlgorithms.startNodeSelection.StartNodeSelectionStrategy;
 import dna.util.Rand;
 import dna.util.parameters.Parameter;
 
@@ -15,7 +15,7 @@ import dna.util.parameters.Parameter;
  * @author Benedict Jahn
  * 
  */
-public class ForestFire extends WalkingAlgorithm {
+public class ForestFire extends SamplingAlgorithm {
 
 	private LinkedList<Node> queue;
 	private Node currentNode;
@@ -28,16 +28,13 @@ public class ForestFire extends WalkingAlgorithm {
 	 *            the graph the algorithm shall walk on
 	 * @param startNodeStrat
 	 *            the strategy how the algorithm will select the first node
-	 * @param onlyVisitedNodesToGraph
-	 *            if set to true the generator will only put visited nodes in
-	 *            the batch
 	 * @param costPerBatch
 	 *            how many steps the algorithm shall perform for one batch
 	 * @param ressouce
 	 *            the maximum count of steps the algorithm shall perform, if
 	 *            initialized with 0 or below the algorithm will walk until the
 	 *            graph is fully visited
-	 * @param propability
+	 * @param probability
 	 *            probability to select a neighbor of the current node. Have to
 	 *            be between 0 and 1
 	 * @param parameters
@@ -45,11 +42,11 @@ public class ForestFire extends WalkingAlgorithm {
 	 *            will be added to the name
 	 */
 	public ForestFire(Graph fullGraph,
-			StartNodeSelectionStrategy startNodeStrategy,
-			boolean onlyVisitedNodesToGraph, int costPerBatch, int resource,
-			double probability, Parameter[] parameters) throws Exception {
-		super("FF_" + probability, fullGraph, startNodeStrategy,
-				onlyVisitedNodesToGraph, costPerBatch, resource, parameters);
+			StartNodeSelectionStrategy startNodeStrategy, int costPerBatch,
+			int resource, double probability, Parameter[] parameters)
+			throws Exception {
+		super("FF_" + probability, fullGraph, startNodeStrategy, costPerBatch,
+				resource, parameters);
 
 		if (probability < 0 || probability > 1) {
 			throw new IllegalArgumentException(
@@ -83,7 +80,7 @@ public class ForestFire extends WalkingAlgorithm {
 
 	/**
 	 * Select neighbors of the current node. Each neighbor is chosen with the
-	 * given propability
+	 * given probability.
 	 */
 	private void selectNeighbors() {
 		List<Node> list = getAllNeighbors(currentNode);

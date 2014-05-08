@@ -1,4 +1,4 @@
-package dna.updates.walkingAlgorithms;
+package dna.updates.samplingAlgorithms;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -7,18 +7,19 @@ import java.util.LinkedList;
 
 import dna.graph.Graph;
 import dna.graph.nodes.Node;
-import dna.graph.startNodeSelection.RandomSelection;
-import dna.graph.startNodeSelection.StartNodeSelectionStrategy;
+import dna.updates.samplingAlgorithms.startNodeSelection.RandomSelection;
+import dna.updates.samplingAlgorithms.startNodeSelection.StartNodeSelectionStrategy;
 import dna.util.Rand;
 import dna.util.parameters.Parameter;
 
 /**
- * An implementation of the frontier sampling algorithm
+ * Implementation of a multiple random walk, which chooses the current walker
+ * based on the highest degree.
  * 
  * @author Benedict Jahn
  * 
  */
-public class FrontierSampling extends WalkingAlgorithm {
+public class FrontierSampling extends SamplingAlgorithm {
 
 	private HashSet<Node> fullyVisited;
 
@@ -34,9 +35,6 @@ public class FrontierSampling extends WalkingAlgorithm {
 	 *            the graph the algorithm shall walk on
 	 * @param startNodeStrat
 	 *            the strategy how the algorithm will select the first node
-	 * @param onlyVisitedNodesToGraph
-	 *            if set to true the generator will only put visited nodes in
-	 *            the batch
 	 * @param costPerBatch
 	 *            how many steps the algorithm shall perform for one batch
 	 * @param ressouce
@@ -44,18 +42,17 @@ public class FrontierSampling extends WalkingAlgorithm {
 	 *            initialized with 0 or below the algorithm will walk until the
 	 *            graph is fully visited
 	 * @param numberOfWalkers
-	 *            the number of nodes which will be considered when chosing the
-	 *            next node based on the degree
+	 *            the number of nodes which will be considered when choosing the
+	 *            next node based on the highest degree
 	 * @param parameters
 	 *            the parameters which makes this algorithm unique and which
 	 *            will be added to the name
 	 */
 	public FrontierSampling(Graph fullGraph,
-			StartNodeSelectionStrategy startNodeStrategy,
-			boolean onlyVisitedNodesToGraph, int costPerBatch, int resource,
-			int numberOfWalkers, Parameter[] parameters) {
+			StartNodeSelectionStrategy startNodeStrategy, int costPerBatch,
+			int resource, int numberOfWalkers, Parameter[] parameters) {
 		super("FS_" + numberOfWalkers, fullGraph, startNodeStrategy,
-				onlyVisitedNodesToGraph, costPerBatch, resource, parameters);
+				costPerBatch, resource, parameters);
 
 		if (startNodeStrategy.getClass() != RandomSelection.class) {
 			throw new IllegalArgumentException(
@@ -70,7 +67,7 @@ public class FrontierSampling extends WalkingAlgorithm {
 
 	@Override
 	protected Node findNextNode() {
-		if(initialize < m){
+		if (initialize < m) {
 			Node m1 = fullGraph.getRandomNode();
 			while (walkerPositions.contains(m1)) {
 				m1 = fullGraph.getRandomNode();
@@ -79,7 +76,7 @@ public class FrontierSampling extends WalkingAlgorithm {
 			initialize++;
 			return m1;
 		}
-		
+
 		if (walkerPositions.size() < m) {
 
 		}
@@ -144,7 +141,7 @@ public class FrontierSampling extends WalkingAlgorithm {
 	 * sorted by the degree of the nodes.
 	 * 
 	 * @param n
-	 *            the node that was acquired through the algorithm
+	 *            the node that was visited through the algorithm
 	 */
 	private void addToList(Node n) {
 		int tempDegree = getDegreeFromNode(n);

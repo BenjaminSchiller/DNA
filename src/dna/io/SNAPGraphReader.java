@@ -27,6 +27,7 @@ import dna.util.Config;
  */
 public class SNAPGraphReader {
 
+	// standard setups for graph data structures
 	private static GraphDataStructure directedGDSSetup = new GraphDataStructure(
 			GraphDataStructure.getList(ListType.GlobalNodeList, DArray.class,
 					ListType.GlobalEdgeList, DHashMap.class,
@@ -43,10 +44,10 @@ public class SNAPGraphReader {
 	 * Creates a graph out of an file with a SNAP based graph
 	 * 
 	 * @param dir
-	 *            directory where the SNAP graph file lays
+	 *            directory where the SNAP graph file is located
 	 * @param filename
 	 *            the name of the file containing the SNAP graph
-	 * @return the graph
+	 * @return a Graph object
 	 * @throws IOException
 	 *             in case the file does not exist
 	 */
@@ -59,10 +60,10 @@ public class SNAPGraphReader {
 	 * independent of the structure (directed / undirected) of the SNAP graph
 	 * 
 	 * @param dir
-	 *            directory where the SNAP graph file lays
+	 *            directory where the SNAP graph file is located
 	 * @param filename
 	 *            the name of the file containing the SNAP graph
-	 * @return the undirected graph
+	 * @return a Graph object
 	 * @throws IOException
 	 *             in case the file does not exist
 	 */
@@ -72,13 +73,15 @@ public class SNAPGraphReader {
 	}
 
 	/**
+	 * Creates a graph with predefined data structure out of an file with a SNAP
+	 * based graph
 	 * 
 	 * @param dir
-	 *            directory where the SNAP graph file lays
+	 *            directory where the SNAP graph file is located
 	 * @param filename
 	 *            the name of the file containing the SNAP graph
 	 * @param ds
-	 *            the data structure the constructed graph shall have
+	 *            the data structure the constructed Graph object shall use
 	 * @return the name as a string
 	 * @throws IOException
 	 *             in case the file does not exist
@@ -144,7 +147,7 @@ public class SNAPGraphReader {
 		String line = reader.readString();
 		int nodeID = 0;
 
-		// ######################### Notification system #########################
+		// ############ Notification system ############
 		double percentage = 0.00;
 		double stepSize = 0.05;
 		if (nodeCount < 10) {
@@ -152,18 +155,18 @@ public class SNAPGraphReader {
 		} else if (nodeCount < 20) {
 			stepSize = 0.10;
 		}
-		// ######################### End of Notification #########################
+		// ############ End of Notification ############
 
 		if (line.contains(Config.get("SNAP_GRAPH_KEYWORD_EDGES_LIST"))) {
 			while ((line = reader.readString()) != null) {
 
-				// ######################### Notification system #########################
+				// ############ Notification system ############
 				if (((double) nodeID / (double) nodeCount) >= percentage) {
 					System.out.println("Reading: "
 							+ Math.round(percentage * 100) + "% finished.");
 					percentage += stepSize;
 				}
-				// ######################### End of Notification #########################
+				// ############ End of Notification ############
 
 				int tabIndex = line.indexOf('\t');
 				int srcIndex = Integer.parseInt(line.substring(0, tabIndex));
@@ -198,7 +201,7 @@ public class SNAPGraphReader {
 					nodeID++;
 				}
 
-				// We don't want self loops so source and of an
+				// We don't want self loops so source and destination of an
 				// edge have to be different
 				if (!(src == dest)) {
 					Edge e = ds.newEdgeInstance(src, dest);
@@ -218,7 +221,7 @@ public class SNAPGraphReader {
 	 * Reads the name of the SNAP graph
 	 * 
 	 * @param dir
-	 *            directory where the SNAP graph file lays
+	 *            directory where the SNAP graph file is located
 	 * @param filename
 	 *            the name of the file containing the SNAP graph
 	 * @return the name as a string

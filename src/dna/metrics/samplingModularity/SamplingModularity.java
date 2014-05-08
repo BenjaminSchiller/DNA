@@ -16,13 +16,24 @@ import dna.updates.batch.Batch;
 import dna.util.DataUtils;
 
 /**
+ * This metric will measure the fraction between sample and original graph. It
+ * will generate two values: SamplingModularityV1 and SamplingModularityV2. SMV1
+ * compares the amount of edges in the sample with the amount of edges in the
+ * original graph. SMV2 compares the amount of edges between sampled and not
+ * sampled nodes, with the amount of edges in the original graph.
+ * 
  * @author Benedict Jahn
  * 
  */
 public abstract class SamplingModularity extends Metric {
 
 	/**
+	 * Creates an instance of the sampling modularity metric
 	 * 
+	 * @param name
+	 *            the name of the metric
+	 * @param graph
+	 *            the original graph
 	 */
 	public SamplingModularity(String name, ApplicationType type,
 			MetricType metrictype, Graph graph) {
@@ -44,7 +55,7 @@ public abstract class SamplingModularity extends Metric {
 	protected int degreeSum;
 
 	// degreeSum - 2x edgesInGraph computes the degree amount of edges between
-	// the sample and the not original graph
+	// the sample and the original graph
 
 	@Override
 	public boolean compute() {
@@ -132,7 +143,7 @@ public abstract class SamplingModularity extends Metric {
 			return ((UndirectedNode) node).getDegree();
 		}
 	}
-	
+
 	@Override
 	public boolean isApplicable(Graph g) {
 		return true;

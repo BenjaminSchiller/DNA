@@ -1,4 +1,4 @@
-package dna.graph.startNodeSelection;
+package dna.updates.samplingAlgorithms.startNodeSelection;
 
 import java.util.Collection;
 
@@ -46,7 +46,6 @@ public class HighestDegreeSelection extends StartNodeSelectionStrategy {
 	@Override
 	public int resourceCost() {
 		return g.getNodeCount();
-		// return 0;
 	}
 
 }

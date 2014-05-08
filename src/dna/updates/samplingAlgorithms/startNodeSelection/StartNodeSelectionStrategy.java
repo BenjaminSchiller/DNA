@@ -1,4 +1,4 @@
-package dna.graph.startNodeSelection;
+package dna.updates.samplingAlgorithms.startNodeSelection;
 
 import java.util.ArrayList;
 
@@ -24,7 +24,7 @@ public abstract class StartNodeSelectionStrategy {
 	 * Initializes the start node selection strategy.
 	 * 
 	 * @param g
-	 *            the Graph the strategy shall operate on.
+	 *            the graph from which the strategy shall select the first node.
 	 */
 	public StartNodeSelectionStrategy(Graph g) {
 		this.g = g;
@@ -38,12 +38,12 @@ public abstract class StartNodeSelectionStrategy {
 	}
 
 	/**
-	 * Returns a start node based on the specific node selection strategy.
+	 * Returns a start node based on the specific node selection strategy
 	 */
 	public abstract Node getStartNode();
 
 	/**
-	 * Returns the resource costs for this strategy
+	 * Returns the resource costs for the specific strategy
 	 */
 	public abstract int resourceCost();
 

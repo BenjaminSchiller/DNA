@@ -1,4 +1,4 @@
-package dna.updates.walkingAlgorithms;
+package dna.updates.samplingAlgorithms;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -6,7 +6,7 @@ import java.util.LinkedList;
 
 import dna.graph.Graph;
 import dna.graph.nodes.Node;
-import dna.graph.startNodeSelection.StartNodeSelectionStrategy;
+import dna.updates.samplingAlgorithms.startNodeSelection.StartNodeSelectionStrategy;
 import dna.util.parameters.Parameter;
 
 /**
@@ -15,7 +15,7 @@ import dna.util.parameters.Parameter;
  * @author Benedict Jahn
  * 
  */
-public class BFS extends WalkingAlgorithm {
+public class BFS extends SamplingAlgorithm {
 
 	private HashSet<Node> nodesInQueue;
 	private LinkedList<Node> queue;
@@ -25,12 +25,9 @@ public class BFS extends WalkingAlgorithm {
 	 * Creates an instance of the breadth first sampling algorithm
 	 * 
 	 * @param fullGraph
-	 *            the graph the algorithm shall walk on
+	 *            the graph the algorithm shall sample
 	 * @param startNodeStrat
 	 *            the strategy how the algorithm will select the first node
-	 * @param onlyVisitedNodesToGraph
-	 *            if set to true the generator will only put visited nodes in
-	 *            the batch
 	 * @param costPerBatch
 	 *            how many steps the algorithm shall perform for one batch
 	 * @param ressouce
@@ -42,10 +39,9 @@ public class BFS extends WalkingAlgorithm {
 	 *            will be added to the name
 	 */
 	public BFS(Graph fullGraph, StartNodeSelectionStrategy startNodeStrategy,
-			boolean onlyVisitedNodesToGraph, int costPerBatch, int resource,
-			Parameter[] parameters) {
-		super("BFS", fullGraph, startNodeStrategy, onlyVisitedNodesToGraph,
-				costPerBatch, resource, parameters);
+			int costPerBatch, int resource, Parameter[] parameters) {
+		super("BFS", fullGraph, startNodeStrategy, costPerBatch, resource,
+				parameters);
 
 		queue = new LinkedList<Node>();
 		nodesInQueue = new HashSet<Node>();

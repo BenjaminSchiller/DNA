@@ -1,35 +1,32 @@
-package dna.updates.walkingAlgorithms;
+package dna.updates.samplingAlgorithms;
 
 import java.util.ArrayList;
+
 import dna.graph.Graph;
 import dna.graph.nodes.Node;
-import dna.graph.startNodeSelection.StartNodeSelectionStrategy;
+import dna.updates.samplingAlgorithms.startNodeSelection.StartNodeSelectionStrategy;
 import dna.util.Rand;
 import dna.util.parameters.Parameter;
 
 /**
  * Implementation of a random walk sampling algorithm. It randomly chooses the
  * next node out of all neighbors of the current node. It therefore allows
- * revisiting nodes.
+ * revisiting of nodes.
  * 
  * @author Benedict Jahn
  * 
  */
-public class RandomWalk extends WalkingAlgorithm {
+public class RandomWalk extends SamplingAlgorithm {
 
 	private Node currentNode;
 
 	/**
-	 * Creates an instance of the random walk sampling algorithm with
-	 * replacement
+	 * Creates an instance of the random walk sampling algorithm with revisiting
 	 * 
 	 * @param fullGraph
 	 *            the graph the algorithm shall walk on
 	 * @param startNodeStrat
 	 *            the strategy how the algorithm will select the first node
-	 * @param onlyVisitedNodesToGraph
-	 *            if set to true the generator will only put visited nodes in
-	 *            the batch
 	 * @param costPerBatch
 	 *            how many steps the algorithm shall perform for one batch
 	 * @param ressouce
@@ -41,11 +38,10 @@ public class RandomWalk extends WalkingAlgorithm {
 	 *            will be added to the name
 	 */
 	public RandomWalk(Graph fullGraph,
-			StartNodeSelectionStrategy startNodeStrategy,
-			boolean onlyVisitedNodesToGraph, int costPerBatch, int resource,
-			Parameter[] parameters) {
-		super("RW", fullGraph, startNodeStrategy, onlyVisitedNodesToGraph,
-				costPerBatch, resource, parameters);
+			StartNodeSelectionStrategy startNodeStrategy, int costPerBatch,
+			int resource, Parameter[] parameters) {
+		super("RW", fullGraph, startNodeStrategy, costPerBatch, resource,
+				parameters);
 
 		currentNode = null;
 	}

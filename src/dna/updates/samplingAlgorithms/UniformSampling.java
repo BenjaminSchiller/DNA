@@ -1,19 +1,22 @@
-package dna.updates.walkingAlgorithms;
+package dna.updates.samplingAlgorithms;
 
 import java.util.LinkedList;
 
 import dna.graph.Graph;
 import dna.graph.IElement;
 import dna.graph.nodes.Node;
-import dna.graph.startNodeSelection.StartNodeSelectionStrategy;
+import dna.updates.samplingAlgorithms.startNodeSelection.StartNodeSelectionStrategy;
 import dna.util.Rand;
 import dna.util.parameters.Parameter;
 
 /**
+ * Sampling algorithm that randomly selects the next node out of all nodes from
+ * the graph.
+ * 
  * @author Benedict
  * 
  */
-public class UniformSampling extends WalkingAlgorithm {
+public class UniformSampling extends SamplingAlgorithm {
 
 	LinkedList<IElement> notVisited;
 
@@ -24,9 +27,6 @@ public class UniformSampling extends WalkingAlgorithm {
 	 *            the graph the algorithm shall walk on
 	 * @param startNodeStrat
 	 *            the strategy how the algorithm will select the first node
-	 * @param onlyVisitedNodesToGraph
-	 *            if set to true the generator will only put visited nodes in
-	 *            the batch
 	 * @param costPerBatch
 	 *            how many steps the algorithm shall perform for one batch
 	 * @param ressouce
@@ -38,11 +38,10 @@ public class UniformSampling extends WalkingAlgorithm {
 	 *            will be added to the name
 	 */
 	public UniformSampling(Graph fullGraph,
-			StartNodeSelectionStrategy startNodeStrategy,
-			boolean onlyVisitedNodesToGraph, int costPerBatch, int resource,
-			Parameter[] parameters) {
-		super("US", fullGraph, startNodeStrategy, onlyVisitedNodesToGraph,
-				costPerBatch, resource, parameters);
+			StartNodeSelectionStrategy startNodeStrategy, int costPerBatch,
+			int resource, Parameter[] parameters) {
+		super("US", fullGraph, startNodeStrategy, costPerBatch, resource,
+				parameters);
 
 		notVisited = new LinkedList<IElement>(fullGraph.getNodes());
 	}

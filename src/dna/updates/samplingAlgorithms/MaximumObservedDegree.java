@@ -1,4 +1,4 @@
-package dna.updates.walkingAlgorithms;
+package dna.updates.samplingAlgorithms;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -8,7 +8,7 @@ import java.util.TreeMap;
 
 import dna.graph.Graph;
 import dna.graph.nodes.Node;
-import dna.graph.startNodeSelection.StartNodeSelectionStrategy;
+import dna.updates.samplingAlgorithms.startNodeSelection.StartNodeSelectionStrategy;
 import dna.util.parameters.Parameter;
 
 /**
@@ -18,7 +18,7 @@ import dna.util.parameters.Parameter;
  * @author Benedict Jahn
  * 
  */
-public class MaximumObservedDegree extends WalkingAlgorithm {
+public class MaximumObservedDegree extends SamplingAlgorithm {
 
 	TreeMap<Integer, Double> sortedGreyZone;
 	HashMap<Integer, Double> greyZone;
@@ -32,9 +32,6 @@ public class MaximumObservedDegree extends WalkingAlgorithm {
 	 *            the graph the algorithm shall operate on
 	 * @param startNodeStrat
 	 *            the strategy how the algorithm will select the first node
-	 * @param onlyVisitedNodesToGraph
-	 *            if set to true the generator will only put visited nodes in
-	 *            the batch
 	 * @param costPerBatch
 	 *            how many steps the algorithm shall perform for one batch
 	 * @param ressouce
@@ -46,11 +43,10 @@ public class MaximumObservedDegree extends WalkingAlgorithm {
 	 *            will be added to the name
 	 */
 	public MaximumObservedDegree(Graph fullGraph,
-			StartNodeSelectionStrategy startNodeStrategy,
-			boolean onlyVisitedNodesToGraph, int costPerBatch, int resource,
-			Parameter[] parameters) {
-		super("MOD", fullGraph, startNodeStrategy, onlyVisitedNodesToGraph,
-				costPerBatch, resource, parameters);
+			StartNodeSelectionStrategy startNodeStrategy, int costPerBatch,
+			int resource, Parameter[] parameters) {
+		super("MOD", fullGraph, startNodeStrategy, costPerBatch, resource,
+				parameters);
 
 		maxNodeID = fullGraph.getMaxNodeIndex() + 1;
 		greyZone = new HashMap<Integer, Double>();

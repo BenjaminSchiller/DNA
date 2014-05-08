@@ -1,4 +1,4 @@
-package dna.graph.startNodeSelection;
+package dna.updates.samplingAlgorithms.startNodeSelection;
 
 import dna.graph.Graph;
 import dna.graph.nodes.Node;
@@ -15,7 +15,7 @@ public class HighestRandomDegreeSelection extends StartNodeSelectionStrategy {
 	private int n;
 
 	/**
-	 * Initializes the HighestDegreeSelection start node selection strategy.
+	 * Initializes the HighestDegreeSelection start node selection strategy
 	 * 
 	 * @param g
 	 *            The graph from which the start node is selected

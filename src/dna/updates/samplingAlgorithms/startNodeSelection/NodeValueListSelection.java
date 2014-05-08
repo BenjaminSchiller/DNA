@@ -1,4 +1,4 @@
-package dna.graph.startNodeSelection;
+package dna.updates.samplingAlgorithms.startNodeSelection;
 
 import java.util.Arrays;
 
@@ -44,11 +44,11 @@ public class NodeValueListSelection extends StartNodeSelectionStrategy {
 
 	@Override
 	public Node getStartNode() {
-		if(nvlOrder == NodeValueListOrderBy.median){
+		if (nvlOrder == NodeValueListOrderBy.median) {
 			return selectMedian();
-		} else if(nvlOrder == NodeValueListOrderBy.maximum){
+		} else if (nvlOrder == NodeValueListOrderBy.maximum) {
 			return selectMaximum();
-		} else{
+		} else {
 			return selectMinimum();
 		}
 	}
@@ -57,52 +57,52 @@ public class NodeValueListSelection extends StartNodeSelectionStrategy {
 	public int resourceCost() {
 		return nvl.length;
 	}
-	
+
 	/**
 	 * Selects the node with the median value of the NodeValueList
 	 */
-	private Node selectMedian(){
+	private Node selectMedian() {
 		int index = 0;
 		double[] tempArr = new double[nvl.length];
-		for(int i = 0; i < nvl.length; i++){
+		for (int i = 0; i < nvl.length; i++) {
 			tempArr[i] = nvl[i];
 		}
-		
+
 		Arrays.sort(tempArr);
 		double median = tempArr[nvl.length / 2];
-		for(int i = 0; i < nvl.length; i++){
-			if(nvl[i] == median){
+		for (int i = 0; i < nvl.length; i++) {
+			if (nvl[i] == median) {
 				index = i;
 				break;
 			}
 		}
-		
+
 		return g.getNode(index);
 	}
-	
+
 	/**
 	 * Selects the node with the maximal value of the NodeValueList
 	 */
-	private Node selectMaximum(){
+	private Node selectMaximum() {
 		double tempVal = Double.MIN_VALUE;
 		int index = 0;
-		for(int i = 0; i < nvl.length; i++){
-			if(tempVal < nvl[i]){
+		for (int i = 0; i < nvl.length; i++) {
+			if (tempVal < nvl[i]) {
 				tempVal = nvl[i];
 				index = i;
 			}
 		}
 		return g.getNode(index);
 	}
-	
+
 	/**
 	 * Selects the node with the minimal value of the NodeValueList
 	 */
-	private Node selectMinimum(){
+	private Node selectMinimum() {
 		double tempVal = Double.MAX_VALUE;
 		int index = 0;
-		for(int i = 0; i < nvl.length; i++){
-			if(tempVal > nvl[i]){
+		for (int i = 0; i < nvl.length; i++) {
+			if (tempVal > nvl[i]) {
 				tempVal = nvl[i];
 				index = i;
 			}

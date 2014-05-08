@@ -1,4 +1,4 @@
-package dna.updates.walkingAlgorithms;
+package dna.updates.samplingAlgorithms;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -6,33 +6,32 @@ import java.util.Iterator;
 
 import dna.graph.Graph;
 import dna.graph.nodes.Node;
-import dna.graph.startNodeSelection.StartNodeSelectionStrategy;
+import dna.updates.samplingAlgorithms.startNodeSelection.StartNodeSelectionStrategy;
 import dna.util.Rand;
 import dna.util.parameters.Parameter;
 
 /**
  * Implementation of a random walk sampling algorithm. It randomly chooses the
- * next node out of the unvisited neighbors of the current node.
+ * next node out of the unvisited neighbors of the current node. Therefore it
+ * does not allow revisiting.
  * 
  * @author Benedict Jahn
  * 
  */
-public class RandomWalkNR extends WalkingAlgorithm {
+public class RandomWalkNR extends SamplingAlgorithm {
 
 	private HashSet<Node> fullyVisited;
 
 	private Node currentNode;
 
 	/**
-	 * Creates an instance of the random walk sampling algorithm
+	 * Creates an instance of the random walk sampling algorithm without
+	 * revisiting
 	 * 
 	 * @param fullGraph
 	 *            the graph the algorithm shall walk on
 	 * @param startNodeStrat
 	 *            the strategy how the algorithm will select the first node
-	 * @param onlyVisitedNodesToGraph
-	 *            if set to true the generator will only put visited nodes in
-	 *            the batch
 	 * @param costPerBatch
 	 *            how many steps the algorithm shall perform for one batch
 	 * @param ressouce
@@ -44,11 +43,10 @@ public class RandomWalkNR extends WalkingAlgorithm {
 	 *            will be added to the name
 	 */
 	public RandomWalkNR(Graph fullGraph,
-			StartNodeSelectionStrategy startNodeStrategy,
-			boolean onlyVisitedNodesToGraph, int costPerBatch, int resource,
-			Parameter[] parameters) {
-		super("RWnr", fullGraph, startNodeStrategy, onlyVisitedNodesToGraph,
-				costPerBatch, resource, parameters);
+			StartNodeSelectionStrategy startNodeStrategy, int costPerBatch,
+			int resource, Parameter[] parameters) {
+		super("RWnr", fullGraph, startNodeStrategy, costPerBatch, resource,
+				parameters);
 
 		currentNode = null;
 		fullyVisited = new HashSet<Node>(fullGraph.getNodeCount());

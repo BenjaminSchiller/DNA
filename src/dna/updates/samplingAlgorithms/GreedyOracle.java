@@ -1,12 +1,12 @@
-package dna.updates.walkingAlgorithms;
+package dna.updates.samplingAlgorithms;
 
 import java.util.ArrayList;
 import java.util.Collections;
 
 import dna.graph.Graph;
 import dna.graph.nodes.Node;
-import dna.graph.startNodeSelection.StartNodeSelectionStrategy;
-import dna.updates.walkingAlgorithms.SortableNode.SortType;
+import dna.updates.samplingAlgorithms.SortableNode.SortType;
+import dna.updates.samplingAlgorithms.startNodeSelection.StartNodeSelectionStrategy;
 import dna.util.parameters.Parameter;
 
 /**
@@ -18,7 +18,7 @@ import dna.util.parameters.Parameter;
  * @author Benedict Jahn
  * 
  */
-public class GreedyOracle extends WalkingAlgorithm {
+public class GreedyOracle extends SamplingAlgorithm {
 
 	ArrayList<SortableNode> greyZone;
 
@@ -29,9 +29,6 @@ public class GreedyOracle extends WalkingAlgorithm {
 	 *            the graph the algorithm shall walk on
 	 * @param startNodeStrat
 	 *            the strategy how the algorithm will select the first node
-	 * @param onlyVisitedNodesToGraph
-	 *            if set to true the generator will only put visited nodes in
-	 *            the batch
 	 * @param costPerBatch
 	 *            how many steps the algorithm shall perform for one batch
 	 * @param ressouce
@@ -43,11 +40,10 @@ public class GreedyOracle extends WalkingAlgorithm {
 	 *            will be added to the name
 	 */
 	public GreedyOracle(Graph fullGraph,
-			StartNodeSelectionStrategy startNodeStrategy,
-			boolean onlyVisitedNodesToGraph, int costPerBatch, int resource,
-			Parameter[] parameters) {
-		super("GO", fullGraph, startNodeStrategy, onlyVisitedNodesToGraph,
-				costPerBatch, resource, parameters);
+			StartNodeSelectionStrategy startNodeStrategy, int costPerBatch,
+			int resource, Parameter[] parameters) {
+		super("GO", fullGraph, startNodeStrategy, costPerBatch, resource,
+				parameters);
 
 		greyZone = new ArrayList<SortableNode>(fullGraph.getNodeCount());
 	}
@@ -90,7 +86,7 @@ public class GreedyOracle extends WalkingAlgorithm {
 }
 
 /**
- * This class makes nodes sortable in the way that the node with the highest
+ * This class makes nodes sortable in the way, that the node with the highest
  * degree of unseen/unvisited/visited nodes is the best
  * 
  * @author Benedict
@@ -103,7 +99,7 @@ class SortableNode implements Comparable<SortableNode> {
 	};
 
 	private Node n;
-	private WalkingAlgorithm algo;
+	private SamplingAlgorithm algo;
 	private SortType sortType;
 	private int size;
 	private long oldTimeStamp;
@@ -116,7 +112,7 @@ class SortableNode implements Comparable<SortableNode> {
 	 * @param algo
 	 *            the algorithm on which we operate
 	 */
-	public SortableNode(Node n, WalkingAlgorithm algo, SortType sortType) {
+	public SortableNode(Node n, SamplingAlgorithm algo, SortType sortType) {
 		this.n = n;
 		this.algo = algo;
 		this.sortType = sortType;
@@ -132,7 +128,8 @@ class SortableNode implements Comparable<SortableNode> {
 	}
 
 	/**
-	 * Calculates the yield (the count of unseen neighbors of this node)
+	 * Calculates the yield, the count of unseen/unvisited/visited neighbors of
+	 * this node
 	 */
 	private int getYield() {
 		if (oldTimeStamp != 0 && oldTimeStamp == algo.getTimeStamp()) {
