@@ -92,6 +92,9 @@ public abstract class DataStructure implements IDataStructure {
 	}
 
 	public void reinitializeWithSize(int reinitSize) {
+		if (reinitSize < 1) {
+			reinitSize = 1;
+		}
 		this.init(this.dataType, reinitSize, false);
 	}
 
