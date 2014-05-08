@@ -20,6 +20,7 @@ public class HotSwap {
 	private static Map<ProfilerMeasurementData.ProfilerDataType, HotSwapMap> slidingWindow = null;
 	private static long lastFinishedBatch;
 	private static int totalNumberOfBatches;
+	private static boolean inFirstBatch = true;
 	private static Map<Long, EnumMap<ListType, Class<? extends IDataStructure>>> manualSwitching = null;
 	private static EnumMap<ListType, Class<? extends IDataStructure>> firstSwitch = null;
 
@@ -40,6 +41,7 @@ public class HotSwap {
 
 		accessList = new ProfileEntry[maxAccessListSize];
 		firstSwitch = null;
+		inFirstBatch = true;
 	}
 
 	public static void addNewResults() {
@@ -47,8 +49,14 @@ public class HotSwap {
 			reset();
 		}
 
-		ProfileEntry accesses = Profiler.getLastAccesses();
-		accessList[currAccessListIndex] = accesses;
+		if (!inFirstBatch
+				|| Config
+						.getBoolean("HOTSWAP_INCLUDE_FIRSTBATCH_FOR_EFFICIENCY_CHECK")) {
+			ProfileEntry accesses = Profiler.getLastAccesses();
+			accessList[currAccessListIndex] = accesses;
+			System.out.println("Adding batch " + lastFinishedBatch
+					+ " to results");
+		}
 		currAccessListIndex = (currAccessListIndex + 1) % maxAccessListSize;
 
 		for (ProfilerDataType dt : ProfilerDataType.values()) {
@@ -59,6 +67,7 @@ public class HotSwap {
 				innerMap.put(latestRecommendation);
 			}
 		}
+		inFirstBatch = false;
 	}
 
 	private static ProfileEntry getAccumulatedAccesses(int amortizationCounter) {
