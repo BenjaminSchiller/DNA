@@ -81,20 +81,19 @@ public class BetweenessCentralityU extends BetweenessCentrality {
 	public boolean applyAfterUpdate(Update u) {
 		boolean applied = false;
 		if (u instanceof NodeAddition) {
-			applied= applyAfterNodeAddition(u);
+			applied = applyAfterNodeAddition(u);
 		} else if (u instanceof NodeRemoval) {
-			applied= applyAfterNodeRemoval(u);
+			applied = applyAfterNodeRemoval(u);
 		} else if (u instanceof EdgeAddition) {
-			applied= applyAfterEdgeAddition(u); 
+			applied = applyAfterEdgeAddition(u);
 		} else if (u instanceof EdgeRemoval) {
-			applied= applyAfterEdgeRemoval(u); 
-		}
-		
-		sumShortestPaths=0; // reinit necessary!
-		for(Entry<Node, HashMap<Node, Integer>> e : spcs.entrySet()){
-			sumShortestPaths += sumSPFromHM(e.getValue(), e.getKey());
+			applied = applyAfterEdgeRemoval(u);
 		}
 
+		sumShortestPaths = 0; // reinit necessary!
+		for (Entry<Node, HashMap<Node, Integer>> e : spcs.entrySet()) {
+			sumShortestPaths += sumSPFromHM(e.getValue(), e.getKey());
+		}
 
 		return applied;
 	}
@@ -754,9 +753,6 @@ public class BetweenessCentralityU extends BetweenessCentrality {
 				}
 				if (!w.equals(root)) {
 					double currentScore = this.bCC.getValue(w.getIndex());
-					// this.bC.get(w);
-					// this.bC.put(w,
-					// currentScore + newASums.get(w) - oldSums.get(w));
 					this.bCSum = this.bCSum + newASums.get(w) - oldSums.get(w);
 					this.bCC.setValue(w.getIndex(),
 							currentScore + newASums.get(w) - oldSums.get(w));
@@ -854,10 +850,8 @@ public class BetweenessCentralityU extends BetweenessCentrality {
 
 			}
 		}
-
 		spcs.put(root, newSpc);
 		oldSums.putAll(newASums);
-
 	}
 
 	private void nonAdjacentLevelInsertion(UndirectedNode root,
@@ -976,9 +970,6 @@ public class BetweenessCentralityU extends BetweenessCentrality {
 				}
 				if (!w.equals(root)) {
 					double currentScore = this.bCC.getValue(w.getIndex());
-					// this.bC.get(w);
-					// this.bC.put(w,
-					// currentScore + newASums.get(w) - oldSums.get(w));
 					this.bCSum = this.bCSum + newASums.get(w) - oldSums.get(w);
 					this.bCC.setValue(w.getIndex(),
 							currentScore + newASums.get(w) - oldSums.get(w));
@@ -1219,7 +1210,7 @@ public class BetweenessCentralityU extends BetweenessCentrality {
 						if (d.get(w).equals(d.get(v) + 1)) {
 							spc.put(w, spc.get(w) + spc.get(v));
 							p.get(w).add(v);
-						
+
 						}
 					}
 				}
@@ -1241,7 +1232,7 @@ public class BetweenessCentralityU extends BetweenessCentrality {
 						if (d.get(w).equals(d.get(v) + 1)) {
 							spc.put(w, spc.get(w) + spc.get(v));
 							p.get(w).add(v);
-							
+
 						}
 					}
 				}
@@ -1271,7 +1262,7 @@ public class BetweenessCentralityU extends BetweenessCentrality {
 			accSums.put(n, sums);
 		}
 
-		for(Entry<Node, HashMap<Node, Integer>> e : spcs.entrySet()){
+		for (Entry<Node, HashMap<Node, Integer>> e : spcs.entrySet()) {
 			sumShortestPaths += sumSPFromHM(e.getValue(), e.getKey());
 		}
 		return true;

@@ -2,16 +2,10 @@ package dna.metrics.betweenessCentrality;
 
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.Map.Entry;
-import java.util.Queue;
-import java.util.Stack;
 
 import dna.graph.Graph;
 import dna.graph.IElement;
-import dna.graph.edges.DirectedEdge;
-import dna.graph.edges.UndirectedEdge;
 import dna.graph.nodes.DirectedNode;
 import dna.graph.nodes.Node;
 import dna.graph.nodes.UndirectedNode;
@@ -29,7 +23,7 @@ public abstract class BetweenessCentrality extends Metric {
 
 	protected NodeValueList bCC;
 	protected double bCSum;
-	
+
 	protected BinnedDistributionDouble binnedBC;
 	protected int sumShortestPaths;
 
@@ -40,7 +34,7 @@ public abstract class BetweenessCentrality extends Metric {
 	@Override
 	public void init_() {
 		this.bCC = new NodeValueList("BC_Score",
-		new double[this.g.getMaxNodeIndex() + 1]);
+				new double[this.g.getMaxNodeIndex() + 1]);
 		this.binnedBC = new BinnedDistributionDouble("Normalized-BC", 0.01d);
 		this.bCSum = 0d;
 		this.sumShortestPaths = 0;
@@ -54,8 +48,6 @@ public abstract class BetweenessCentrality extends Metric {
 		this.bCSum = 0d;
 	}
 
-	
-
 	@Override
 	public boolean equals(Metric m) {
 		if (!(m instanceof BetweenessCentrality)) {
@@ -65,9 +57,10 @@ public abstract class BetweenessCentrality extends Metric {
 		BetweenessCentrality bc = (BetweenessCentrality) m;
 
 		/*
-		 * detailed comparison is no longer possible -> only saved in update variant
+		 * detailed comparison is no longer possible -> only saved in update
+		 * variant
 		 */
-		
+
 		for (IElement ie : g.getNodes()) {
 			Node n = (Node) ie;
 			if (Math.abs(this.bCC.getValue(n.getIndex())
@@ -79,10 +72,12 @@ public abstract class BetweenessCentrality extends Metric {
 			}
 
 		}
-		
-		if(sumShortestPaths != bc.getSumShortestPaths()){
+
+		if (sumShortestPaths != bc.getSumShortestPaths()) {
 			success = false;
-			System.out.println("diff at sum of shortest paths: " + sumShortestPaths + " is expected. Result is: " + bc.getSumShortestPaths());
+			System.out.println("diff at sum of shortest paths: "
+					+ sumShortestPaths + " is expected. Result is: "
+					+ bc.getSumShortestPaths());
 		}
 
 		return success;
@@ -111,7 +106,7 @@ public abstract class BetweenessCentrality extends Metric {
 	@Override
 	public Distribution[] getDistributions() {
 		computeBinnedBC();
-		return new Distribution[] {binnedBC};
+		return new Distribution[] { binnedBC };
 
 	}
 
@@ -161,28 +156,27 @@ public abstract class BetweenessCentrality extends Metric {
 	protected void computeBinnedBC() {
 		double min = Double.MAX_VALUE;
 		double max = Double.MIN_VALUE;
-	
-		for(Double d : bCC.getValues()){
+
+		for (Double d : bCC.getValues()) {
 			max = (d > max) ? d : max;
 			min = (d < min) ? d : min;
 		}
 
-		
-		for(Double d : bCC.getValues()){
+		for (Double d : bCC.getValues()) {
 			double norm = 0;
-			if(sumShortestPaths!=0)
-				norm = d/sumShortestPaths;
+			if (sumShortestPaths != 0)
+				norm = d / sumShortestPaths;
 			else
 				norm = 0.0;
-			
+
 			binnedBC.incr(norm);
 		}
 	}
 
 	protected int sumSPFromHM(HashMap<Node, Integer> spc, Node n) {
 		int sum = 0;
-		for(Entry<Node, Integer> e : spc.entrySet()){
-			if(!e.getKey().equals(n)){
+		for (Entry<Node, Integer> e : spc.entrySet()) {
+			if (!e.getKey().equals(n)) {
 				sum += e.getValue();
 			}
 		}

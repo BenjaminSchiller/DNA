@@ -20,7 +20,7 @@ public class BetweenessCentralityR extends BetweenessCentrality {
 	public BetweenessCentralityR() {
 		super("BetweenessCentralityR", ApplicationType.Recomputation);
 	}
-	
+
 	@Override
 	public boolean applyBeforeBatch(Batch b) {
 		return false;
@@ -40,7 +40,7 @@ public class BetweenessCentralityR extends BetweenessCentrality {
 	public boolean applyAfterUpdate(Update u) {
 		return false;
 	}
-	
+
 	@Override
 	public boolean compute() {
 		Queue<Node> q = new LinkedList<Node>();
@@ -115,8 +115,6 @@ public class BetweenessCentralityR extends BetweenessCentrality {
 			}
 
 			// stage 3
-
-			// stage 3
 			while (!s.isEmpty()) {
 				Node w = s.pop();
 				for (Node parent : p.get(w)) {
@@ -126,13 +124,11 @@ public class BetweenessCentralityR extends BetweenessCentrality {
 				}
 				if (w != n) {
 					double currentScore = this.bCC.getValue(w.getIndex());
-					// this.bC.get(w);
-					// this.bC.put(w, currentScore + sums.get(w));
 					this.bCC.setValue(w.getIndex(), currentScore + sums.get(w));
-					this.bCSum += sums.get(w)-3;
+					this.bCSum += sums.get(w) - 3;
 				}
 			}
-			
+
 			sumShortestPaths += sumSPFromHM(spc, n);
 
 		}
