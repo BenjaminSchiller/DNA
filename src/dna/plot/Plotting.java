@@ -15,6 +15,7 @@ import dna.plot.data.PlotData.NodeValueListOrderBy;
 import dna.plot.data.PlotData.PlotType;
 import dna.series.SeriesStats;
 import dna.series.aggdata.AggregatedBatch;
+import dna.series.aggdata.AggregatedBatch.BatchReadMode;
 import dna.series.aggdata.AggregatedDistribution;
 import dna.series.aggdata.AggregatedMetric;
 import dna.series.aggdata.AggregatedMetricList;
@@ -182,11 +183,11 @@ public class Plotting {
 		long initTimestamp = Dir.getTimestamp(batches[0]);
 		if (singleFile)
 			initBatch = AggregatedBatch.readFromSingleFile(tempDir,
-					initTimestamp, Dir.delimiter, true);
+					initTimestamp, Dir.delimiter, BatchReadMode.readAllValues);
 		else
 			initBatch = AggregatedBatch.read(
 					Dir.getBatchDataDir(tempDir, initTimestamp), initTimestamp,
-					true);
+					BatchReadMode.readAllValues);
 
 		// instantiate writers
 		HashMap<String, Writer> scriptWriters = new HashMap<String, Writer>();
@@ -207,11 +208,10 @@ public class Plotting {
 
 		for (AggregatedValue gen : generalRuntimes.getList()) {
 			String runtime = gen.getName();
-			Log.info("creating gnuplot script for general runtime: "
-					+ runtime);
-			
-			scriptWriters.put(runtime,
-					Plotting.plotRuntimes2(seriesData, dstDir, runtime, type, style));
+			Log.info("creating gnuplot script for general runtime: " + runtime);
+
+			scriptWriters.put(runtime, Plotting.plotRuntimes2(seriesData,
+					dstDir, runtime, type, style));
 		}
 		AggregatedRunTimeList metricRuntimes = initBatch.getMetricRuntimes();
 		Log.infoSep();
@@ -250,11 +250,11 @@ public class Plotting {
 			System.out.println(tempDir + " " + timestamp + " " + batch);
 			if (singleFile)
 				tempBatch = AggregatedBatch.readFromSingleFile(tempDir,
-						timestamp, Dir.delimiter, true);
+						timestamp, Dir.delimiter, BatchReadMode.readAllValues);
 			else
 				tempBatch = AggregatedBatch.read(
 						Dir.getBatchDataDir(tempDir, timestamp), timestamp,
-						true);
+						BatchReadMode.readAllValues);
 
 			// append data to scripts
 			Plotting.appendData(tempBatch, scriptWriters);
@@ -919,10 +919,10 @@ public class Plotting {
 				PlotFilenames.getRuntimesGnuplotScript(PlotFilenames
 						.getRuntimesStatisticPlot(runtime)));
 		plot.setTitle(runtime + " (" + type + ")");
-		
 
-		return plot.writeScriptHeader(dstDir, PlotFilenames.getRuntimesGnuplotScript(PlotFilenames
-				.getRuntimesStatisticPlot(runtime)));
+		return plot.writeScriptHeader(dstDir, PlotFilenames
+				.getRuntimesGnuplotScript(PlotFilenames
+						.getRuntimesStatisticPlot(runtime)));
 	}
 
 	/**
