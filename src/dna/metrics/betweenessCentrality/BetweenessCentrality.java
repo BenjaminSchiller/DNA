@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
+import java.util.Map.Entry;
 import java.util.Queue;
 import java.util.Stack;
 
@@ -15,6 +16,7 @@ import dna.graph.nodes.DirectedNode;
 import dna.graph.nodes.Node;
 import dna.graph.nodes.UndirectedNode;
 import dna.metrics.Metric;
+import dna.series.data.BinnedDistributionDouble;
 import dna.series.data.Distribution;
 import dna.series.data.NodeNodeValueList;
 import dna.series.data.NodeValueList;
@@ -27,6 +29,9 @@ public abstract class BetweenessCentrality extends Metric {
 
 	protected NodeValueList bCC;
 	protected double bCSum;
+	
+	protected BinnedDistributionDouble binnedBC;
+	protected int sumShortestPaths;
 
 	public BetweenessCentrality(String name, ApplicationType type) {
 		super(name, type, MetricType.exact);
@@ -34,10 +39,11 @@ public abstract class BetweenessCentrality extends Metric {
 
 	@Override
 	public void init_() {
-		
 		this.bCC = new NodeValueList("BC_Score",
 		new double[this.g.getMaxNodeIndex() + 1]);
+		this.binnedBC = new BinnedDistributionDouble("Normalized-BC", 0.01d);
 		this.bCSum = 0d;
+		this.sumShortestPaths = 0;
 	}
 
 	@Override
@@ -62,51 +68,6 @@ public abstract class BetweenessCentrality extends Metric {
 		 * detailed comparison is no longer possible -> only saved in update variant
 		 */
 		
-//		for (IElement ie1 : g.getNodes()) {
-//			Node n1 = (Node) ie1;
-//			for (IElement ie2 : g.getNodes()) {
-//				Node n2 = (Node) ie2;
-//
-//				if (!this.spcs.get(n1).get(n2).equals(bc.spcs.get(n1).get(n2))) {
-//					System.out.println("diff at Tree " + n1 + "in Node n " + n2
-//							+ " expected SPC "
-//							+ this.spcs.get(n1).get(n2).intValue() + " is "
-//							+ bc.spcs.get(n1).get(n2).intValue());
-//					success = false;
-//				}
-//
-//				if (!this.parents.get(n1).get(n2)
-//						.containsAll(bc.parents.get(n1).get(n2))
-//						|| this.parents.get(n1).get(n2).size() != bc.parents
-//								.get(n1).get(n2).size()) {
-//					System.out.println("diff at Tree " + n1 + "in Node n " + n2
-//							+ " expected parents "
-//							+ this.parents.get(n1).get(n2) + " is "
-//							+ bc.parents.get(n1).get(n2));
-//					success = false;
-//				}
-//
-//				if (Math.abs(this.accSums.get(n1).get(n2).doubleValue()
-//						- bc.accSums.get(n1).get(n2).doubleValue()) > 0.000001) {
-//					System.out.println("diff at Tree " + n1 + "in Node n " + n2
-//							+ " expected Sum " + this.accSums.get(n1).get(n2)
-//							+ " is " + bc.accSums.get(n1).get(n2)
-//							+ " height == " + bc.distances.get(n1).get(n2));
-//					success = false;
-//				}
-//
-//				if (!this.distances.get(n1).get(n2)
-//						.equals(bc.distances.get(n1).get(n2))) {
-//					System.out.println("diff at Tree " + n1 + "in Node n " + n2
-//							+ " expected dist "
-//							+ this.distances.get(n1).get(n2) + " is "
-//							+ bc.distances.get(n1).get(n2));
-//					success = false;
-//				}
-//
-//			}
-//		}
-
 		for (IElement ie : g.getNodes()) {
 			Node n = (Node) ie;
 			if (Math.abs(this.bCC.getValue(n.getIndex())
@@ -117,6 +78,11 @@ public abstract class BetweenessCentrality extends Metric {
 				success = false;
 			}
 
+		}
+		
+		if(sumShortestPaths != bc.getSumShortestPaths()){
+			success = false;
+			System.out.println("diff at sum of shortest paths: " + sumShortestPaths + " is expected. Result is: " + bc.getSumShortestPaths());
 		}
 
 		return success;
@@ -144,9 +110,8 @@ public abstract class BetweenessCentrality extends Metric {
 
 	@Override
 	public Distribution[] getDistributions() {
-		// Distribution d1 = new Distribution("BetweenessCentrality",
-		// getDistribution(this.bC));
-		return new Distribution[] {};
+		computeBinnedBC();
+		return new Distribution[] {binnedBC};
 
 	}
 
@@ -191,6 +156,41 @@ public abstract class BetweenessCentrality extends Metric {
 				.getNodeType())
 				|| DirectedNode.class.isAssignableFrom(b
 						.getGraphDatastructures().getNodeType());
+	}
+
+	protected void computeBinnedBC() {
+		double min = Double.MAX_VALUE;
+		double max = Double.MIN_VALUE;
+	
+		for(Double d : bCC.getValues()){
+			max = (d > max) ? d : max;
+			min = (d < min) ? d : min;
+		}
+
+		
+		for(Double d : bCC.getValues()){
+			double norm = 0;
+			if(sumShortestPaths!=0)
+				norm = d/sumShortestPaths;
+			else
+				norm = 0.0;
+			
+			binnedBC.incr(norm);
+		}
+	}
+
+	protected int sumSPFromHM(HashMap<Node, Integer> spc, Node n) {
+		int sum = 0;
+		for(Entry<Node, Integer> e : spc.entrySet()){
+			if(!e.getKey().equals(n)){
+				sum += e.getValue();
+			}
+		}
+		return sum;
+	}
+
+	public int getSumShortestPaths() {
+		return sumShortestPaths;
 	}
 
 }

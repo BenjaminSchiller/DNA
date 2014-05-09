@@ -17,39 +17,9 @@ import dna.updates.update.Update;
 
 public class BetweenessCentralityR extends BetweenessCentrality {
 
-	
-
-	protected HashMap<Node, HashMap<Node, HashSet<Node>>> parents;
-	protected HashMap<Node, HashMap<Node, Integer>> distances;
-	protected HashMap<Node, HashMap<Node, Integer>> spcs;
-	protected HashMap<Node, HashMap<Node, Double>> accSums;
-	
-	
-	
-	
 	public BetweenessCentralityR() {
 		super("BetweenessCentralityR", ApplicationType.Recomputation);
 	}
-
-	@Override
-	public void init_(){
-		super.init_();
-		// this.bC = new HashMap<Node, Double>();
-		this.parents = new HashMap<>();
-		this.distances = new HashMap<>();
-		this.spcs = new HashMap<>();
-		this.accSums = new HashMap<>();
-	}
-	
-	@Override
-	public void reset_() {
-		super.reset_();
-		this.parents = new HashMap<>();
-		this.distances = new HashMap<>();
-		this.spcs = new HashMap<>();
-		this.accSums = new HashMap<>();
-	}
-	
 	
 	@Override
 	public boolean applyBeforeBatch(Batch b) {
@@ -159,15 +129,13 @@ public class BetweenessCentralityR extends BetweenessCentrality {
 					// this.bC.get(w);
 					// this.bC.put(w, currentScore + sums.get(w));
 					this.bCC.setValue(w.getIndex(), currentScore + sums.get(w));
-					this.bCSum += sums.get(w);
+					this.bCSum += sums.get(w)-3;
 				}
 			}
-			parents.put(n, p);
-			distances.put(n, d);
-			spcs.put(n, spc);
-			accSums.put(n, sums);
-		}
+			
+			sumShortestPaths += sumSPFromHM(spc, n);
 
+		}
 		return true;
 	}
 
