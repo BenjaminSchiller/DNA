@@ -17,6 +17,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
+import dna.graph.ClassPointers;
 import dna.graph.Graph;
 import dna.graph.datastructures.DEmpty;
 import dna.graph.datastructures.DataStructure.AccessType;
@@ -124,7 +125,7 @@ public class ProfilerTest {
 	public static Collection<Object> testPairs() {
 		ArrayList<Object> result = new ArrayList<>();
 		Class nodeListType = null;
-		for (Class loopNodeListType : GlobalTestParameters.dataStructures) {
+		for (Class loopNodeListType : ClassPointers.dataStructures) {
 			if (!(INodeListDatastructure.class
 					.isAssignableFrom(loopNodeListType)))
 				continue;
@@ -134,7 +135,7 @@ public class ProfilerTest {
 		}
 
 		Class edgeListType = null;
-		for (Class loopEdgeListType : GlobalTestParameters.dataStructures) {
+		for (Class loopEdgeListType : ClassPointers.dataStructures) {
 			if (!(IEdgeListDatastructure.class
 					.isAssignableFrom(loopEdgeListType)))
 				continue;
@@ -144,7 +145,7 @@ public class ProfilerTest {
 		}
 
 		Class nodeEdgeListType = null;
-		for (Class loopNodeEdgeListType : GlobalTestParameters.dataStructures) {
+		for (Class loopNodeEdgeListType : ClassPointers.dataStructures) {
 			if (!(IEdgeListDatastructure.class
 					.isAssignableFrom(loopNodeEdgeListType)))
 				continue;
@@ -153,8 +154,8 @@ public class ProfilerTest {
 			nodeEdgeListType = loopNodeEdgeListType;
 		}
 
-		for (Class nodeType : GlobalTestParameters.nodeTypes) {
-			for (Class edgeType : GlobalTestParameters.edgeTypes) {
+		for (Class nodeType : ClassPointers.nodeTypes) {
+			for (Class edgeType : ClassPointers.edgeTypes) {
 				if ((UndirectedEdge.class.isAssignableFrom(edgeType) && DirectedNode.class
 						.isAssignableFrom(nodeType))
 						|| (DirectedEdge.class.isAssignableFrom(edgeType) && UndirectedNode.class

@@ -18,6 +18,7 @@ import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
+import dna.graph.ClassPointers;
 import dna.graph.Graph;
 import dna.graph.datastructures.DEmpty;
 import dna.graph.datastructures.DataStructure.ListType;
@@ -163,9 +164,9 @@ public class BatchTest {
 
 		ArrayList<Object> result = new ArrayList<>();
 		for (EnumMap<ListType, Class<? extends IDataStructure>> combination : simpleCombinations) {
-			for (Class generator : GlobalTestParameters.graphGenerators) {
-				for (Class edgeType : GlobalTestParameters.edgeTypes) {
-					for (Class nodeType : GlobalTestParameters.nodeTypes) {
+			for (Class generator : ClassPointers.graphGenerators) {
+				for (Class edgeType : ClassPointers.edgeTypes) {
+					for (Class nodeType : ClassPointers.nodeTypes) {
 						if ((UndirectedEdge.class.isAssignableFrom(edgeType) && DirectedNode.class
 								.isAssignableFrom(nodeType))
 								|| (DirectedEdge.class

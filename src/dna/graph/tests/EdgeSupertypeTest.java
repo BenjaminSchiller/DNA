@@ -11,6 +11,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
+import dna.graph.ClassPointers;
 import dna.graph.datastructures.DArray;
 import dna.graph.datastructures.GraphDataStructure;
 import dna.graph.datastructures.IDataStructure;
@@ -49,8 +50,8 @@ public class EdgeSupertypeTest {
 	@Parameterized.Parameters(name = "{0} {1}")
 	public static Collection<Object> testPairs() {
 		ArrayList<Object> result = new ArrayList<>();
-		for (Class<?> nodeType : GlobalTestParameters.nodeTypes) {
-			for (Class<?> edgeType : GlobalTestParameters.edgeTypes) {
+		for (Class<?> nodeType : ClassPointers.nodeTypes) {
+			for (Class<?> edgeType : ClassPointers.edgeTypes) {
 				result.add(new Object[] { nodeType, edgeType });
 			}
 		}

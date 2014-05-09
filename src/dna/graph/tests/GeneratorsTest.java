@@ -27,6 +27,7 @@ import com.google.common.hash.HashCode;
 import com.google.common.hash.HashFunction;
 import com.google.common.hash.Hashing;
 
+import dna.graph.ClassPointers;
 import dna.graph.Graph;
 import dna.graph.IElement;
 import dna.graph.datastructures.DEmpty;
@@ -145,9 +146,9 @@ public class GeneratorsTest {
 
 		ArrayList<Object> result = new ArrayList<>();
 		for (EnumMap<ListType, Class<? extends IDataStructure>> combination : simpleCombinations) {
-			for (Class generator : GlobalTestParameters.graphGenerators) {
-				for (Class edgeType : GlobalTestParameters.edgeTypes) {
-					for (Class nodeType : GlobalTestParameters.nodeTypes) {
+			for (Class generator : ClassPointers.graphGenerators) {
+				for (Class edgeType : ClassPointers.edgeTypes) {
+					for (Class nodeType : ClassPointers.nodeTypes) {
 						if ((UndirectedEdge.class.isAssignableFrom(edgeType) && DirectedNode.class
 								.isAssignableFrom(nodeType))
 								|| (DirectedEdge.class

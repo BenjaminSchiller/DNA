@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TreeSet;
 
+import dna.graph.ClassPointers;
 import dna.graph.Graph;
 import dna.graph.datastructures.DEmpty;
 import dna.graph.datastructures.DataStructure;
@@ -17,7 +18,6 @@ import dna.graph.datastructures.DataStructure.AccessType;
 import dna.graph.datastructures.DataStructure.ListType;
 import dna.graph.datastructures.GraphDataStructure;
 import dna.graph.datastructures.IDataStructure;
-import dna.graph.tests.GlobalTestParameters;
 import dna.io.Writer;
 import dna.io.ZipWriter;
 import dna.io.filesystem.Dir;
@@ -341,7 +341,7 @@ public class Profiler {
 
 			for (ListType lt : ListType.values()) {
 				innerComplexities = new HashMap<Class, ComparableEntryMap>();
-				for (Class listClass : GlobalTestParameters.dataStructures) {
+				for (Class listClass : ClassPointers.dataStructures) {
 					if (!(lt.getRequiredType().isAssignableFrom(listClass)))
 						continue;
 					listTypes = GraphDataStructure.getList(lt, listClass);

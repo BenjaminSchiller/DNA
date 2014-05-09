@@ -8,6 +8,7 @@ import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.Map.Entry;
 
+import dna.graph.ClassPointers;
 import dna.graph.Graph;
 import dna.graph.IElement;
 import dna.graph.datastructures.DataStructure.AccessType;
@@ -21,7 +22,6 @@ import dna.graph.edges.UndirectedEdge;
 import dna.graph.nodes.DirectedNode;
 import dna.graph.nodes.Node;
 import dna.graph.nodes.UndirectedNode;
-import dna.graph.tests.GlobalTestParameters;
 import dna.graph.weights.IWeighted;
 import dna.graph.weights.Weight;
 import dna.graph.weights.Weight.WeightSelection;
@@ -956,7 +956,7 @@ public class GraphDataStructure implements Cloneable {
 		ListType lt = ListType.values()[i];
 		ArrayList<EnumMap<ListType, Class<? extends IDataStructure>>> resAggregator = new ArrayList<EnumMap<ListType, Class<? extends IDataStructure>>>();
 		EnumMap<ListType, Class<? extends IDataStructure>> tempInList;
-		for (Class<? extends IDataStructure> clazz : GlobalTestParameters.dataStructures) {
+		for (Class<? extends IDataStructure> clazz : ClassPointers.dataStructures) {
 			if (lt.getRequiredType().isAssignableFrom(clazz)) {
 				tempInList = inList.clone();
 				tempInList.put(lt, clazz);

@@ -17,6 +17,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
+import dna.graph.ClassPointers;
 import dna.graph.Graph;
 import dna.graph.datastructures.DEmpty;
 import dna.graph.datastructures.DataStructure.AccessType;
@@ -67,11 +68,11 @@ public class GraphTester {
 	@Parameterized.Parameters(name = "{0} {1} {2}")
 	public static Collection<Object> testPairs() {
 		ArrayList<Object> result = new ArrayList<>();
-		for (Class nodeListType : GlobalTestParameters.dataStructures) {
-			for (Class edgeListType : GlobalTestParameters.dataStructures) {
-				for (Class nodeEdgeListType : GlobalTestParameters.dataStructures) {
-					for (Class nodeType : GlobalTestParameters.nodeTypes) {
-						for (Class edgeType : GlobalTestParameters.edgeTypes) {
+		for (Class nodeListType : ClassPointers.dataStructures) {
+			for (Class edgeListType : ClassPointers.dataStructures) {
+				for (Class nodeEdgeListType : ClassPointers.dataStructures) {
+					for (Class nodeType : ClassPointers.nodeTypes) {
+						for (Class edgeType : ClassPointers.edgeTypes) {
 							if ((UndirectedEdge.class
 									.isAssignableFrom(edgeType) && DirectedNode.class
 									.isAssignableFrom(nodeType))
@@ -345,7 +346,7 @@ public class GraphTester {
 		Node n1 = this.gds.newNodeInstance(1);
 		Node n2 = this.gds.newNodeInstance(2);
 
-		for (Class<? extends Edge> edge : GlobalTestParameters.edgeTypes) {
+		for (Class<? extends Edge> edge : ClassPointers.edgeTypes) {
 			if ((UndirectedEdge.class.isAssignableFrom(edge) && DirectedNode.class
 					.isAssignableFrom(nodeType))
 					|| (DirectedEdge.class.isAssignableFrom(edge) && UndirectedNode.class

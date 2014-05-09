@@ -16,6 +16,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
+import dna.graph.ClassPointers;
 import dna.graph.Graph;
 import dna.graph.IElement;
 import dna.graph.datastructures.DArray;
@@ -61,8 +62,8 @@ public class DatastructureSwitcherTest {
 	@Parameterized.Parameters(name = "{0} {1}")
 	public static Collection<Object> testPairs() {
 		ArrayList<Object> result = new ArrayList<>();
-		for (Class oldDS : GlobalTestParameters.dataStructures) {
-			for (Class newDS : GlobalTestParameters.dataStructures) {
+		for (Class oldDS : ClassPointers.dataStructures) {
+			for (Class newDS : ClassPointers.dataStructures) {
 				if (oldDS.equals(DEmpty.class))
 					continue;
 				result.add(new Object[] { oldDS, newDS });

@@ -12,6 +12,7 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
+import dna.graph.ClassPointers;
 import dna.graph.datastructures.DArrayList;
 import dna.graph.datastructures.DEmpty;
 import dna.graph.datastructures.DataStructure.ListType;
@@ -158,7 +159,7 @@ public class SingleTests {
 		 * above position 5 would get checked for having the node with index 5,
 		 * but not the ones below position 5
 		 */
-		for (Class dsClass : GlobalTestParameters.dataStructures) {
+		for (Class dsClass : ClassPointers.dataStructures) {
 			if (!INodeListDatastructureReadable.class.isAssignableFrom(dsClass))
 				continue;
 			if (dsClass == DEmpty.class)
