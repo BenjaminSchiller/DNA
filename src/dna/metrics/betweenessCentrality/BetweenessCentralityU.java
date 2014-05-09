@@ -4,7 +4,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
+import java.util.Map.Entry;
 import java.util.Queue;
+import java.util.Stack;
 
 import dna.graph.IElement;
 import dna.graph.edges.DirectedEdge;
@@ -13,6 +15,7 @@ import dna.graph.edges.UndirectedEdge;
 import dna.graph.nodes.DirectedNode;
 import dna.graph.nodes.Node;
 import dna.graph.nodes.UndirectedNode;
+import dna.metrics.Metric;
 import dna.updates.batch.Batch;
 import dna.updates.update.EdgeAddition;
 import dna.updates.update.EdgeRemoval;
@@ -27,6 +30,11 @@ public class BetweenessCentralityU extends BetweenessCentrality {
 	HashMap<Node, Long> visited;
 	long counter;
 
+	protected HashMap<Node, HashMap<Node, HashSet<Node>>> parents;
+	protected HashMap<Node, HashMap<Node, Integer>> distances;
+	protected HashMap<Node, HashMap<Node, Integer>> spcs;
+	protected HashMap<Node, HashMap<Node, Double>> accSums;
+
 	public BetweenessCentralityU() {
 		super("BetweenessCentralityU", ApplicationType.AfterUpdate);
 	}
@@ -34,6 +42,12 @@ public class BetweenessCentralityU extends BetweenessCentrality {
 	@Override
 	public void init_() {
 		super.init_();
+		// this.bC = new HashMap<Node, Double>();
+		this.parents = new HashMap<>();
+		this.distances = new HashMap<>();
+		this.spcs = new HashMap<>();
+		this.accSums = new HashMap<>();
+
 		int length = 1000;
 		qALevel = new LinkedList[length];
 		qLevel = new LinkedList[length];
@@ -65,18 +79,23 @@ public class BetweenessCentralityU extends BetweenessCentrality {
 
 	@Override
 	public boolean applyAfterUpdate(Update u) {
-
+		boolean applied = false;
 		if (u instanceof NodeAddition) {
-			return applyAfterNodeAddition(u);
+			applied = applyAfterNodeAddition(u);
 		} else if (u instanceof NodeRemoval) {
-			return applyAfterNodeRemoval(u);
+			applied = applyAfterNodeRemoval(u);
 		} else if (u instanceof EdgeAddition) {
-			return applyAfterEdgeAddition(u);
+			applied = applyAfterEdgeAddition(u);
 		} else if (u instanceof EdgeRemoval) {
-			return applyAfterEdgeRemoval(u);
+			applied = applyAfterEdgeRemoval(u);
 		}
 
-		return false;
+		sumShortestPaths = 0; // reinit necessary!
+		for (Entry<Node, HashMap<Node, Integer>> e : spcs.entrySet()) {
+			sumShortestPaths += sumSPFromHM(e.getValue(), e.getKey());
+		}
+
+		return applied;
 	}
 
 	private boolean applyAfterEdgeRemoval(Update u) {
@@ -734,9 +753,6 @@ public class BetweenessCentralityU extends BetweenessCentrality {
 				}
 				if (!w.equals(root)) {
 					double currentScore = this.bCC.getValue(w.getIndex());
-					// this.bC.get(w);
-					// this.bC.put(w,
-					// currentScore + newASums.get(w) - oldSums.get(w));
 					this.bCSum = this.bCSum + newASums.get(w) - oldSums.get(w);
 					this.bCC.setValue(w.getIndex(),
 							currentScore + newASums.get(w) - oldSums.get(w));
@@ -834,10 +850,8 @@ public class BetweenessCentralityU extends BetweenessCentrality {
 
 			}
 		}
-
 		spcs.put(root, newSpc);
 		oldSums.putAll(newASums);
-
 	}
 
 	private void nonAdjacentLevelInsertion(UndirectedNode root,
@@ -956,9 +970,6 @@ public class BetweenessCentralityU extends BetweenessCentrality {
 				}
 				if (!w.equals(root)) {
 					double currentScore = this.bCC.getValue(w.getIndex());
-					// this.bC.get(w);
-					// this.bC.put(w,
-					// currentScore + newASums.get(w) - oldSums.get(w));
 					this.bCSum = this.bCSum + newASums.get(w) - oldSums.get(w);
 					this.bCC.setValue(w.getIndex(),
 							currentScore + newASums.get(w) - oldSums.get(w));
@@ -1150,6 +1161,167 @@ public class BetweenessCentralityU extends BetweenessCentrality {
 		bCC.setValue(node.getIndex(), 0d);
 		visited.put(node, 0L);
 		return true;
+	}
+
+	@Override
+	public boolean compute() {
+		Queue<Node> q = new LinkedList<Node>();
+		Stack<Node> s = new Stack<Node>();
+
+		for (IElement ie : g.getNodes()) {
+			Node n = (Node) ie;
+			// stage ONE
+			s.clear();
+			q.clear();
+			HashMap<Node, HashSet<Node>> p = new HashMap<Node, HashSet<Node>>();
+			HashMap<Node, Integer> d = new HashMap<Node, Integer>();
+			HashMap<Node, Integer> spc = new HashMap<Node, Integer>();
+			HashMap<Node, Double> sums = new HashMap<Node, Double>();
+
+			for (IElement ieE : g.getNodes()) {
+				Node t = (Node) ieE;
+				if (t == n) {
+					d.put(t, 0);
+					spc.put(t, 1);
+				} else {
+					spc.put(t, 0);
+					d.put(t, Integer.MAX_VALUE);
+				}
+				sums.put(t, 0d);
+				p.put(t, new HashSet<Node>());
+			}
+
+			q.add(n);
+
+			if (DirectedNode.class.isAssignableFrom(this.g
+					.getGraphDatastructures().getNodeType())) {
+				// stage 2
+				while (!q.isEmpty()) {
+					DirectedNode v = (DirectedNode) q.poll();
+					s.push(v);
+					for (IElement iEdges : v.getOutgoingEdges()) {
+						DirectedEdge edge = (DirectedEdge) iEdges;
+						DirectedNode w = edge.getDifferingNode(v);
+
+						if (d.get(w).equals(Integer.MAX_VALUE)) {
+							q.add(w);
+							d.put(w, d.get(v) + 1);
+						}
+						if (d.get(w).equals(d.get(v) + 1)) {
+							spc.put(w, spc.get(w) + spc.get(v));
+							p.get(w).add(v);
+
+						}
+					}
+				}
+			} else if (UndirectedNode.class.isAssignableFrom(this.g
+					.getGraphDatastructures().getNodeType())) {
+				// stage 2
+				while (!q.isEmpty()) {
+					UndirectedNode v = (UndirectedNode) q.poll();
+					s.push(v);
+
+					for (IElement iEdges : v.getEdges()) {
+						UndirectedEdge edge = (UndirectedEdge) iEdges;
+						UndirectedNode w = edge.getDifferingNode(v);
+
+						if (d.get(w).equals(Integer.MAX_VALUE)) {
+							q.add(w);
+							d.put(w, d.get(v) + 1);
+						}
+						if (d.get(w).equals(d.get(v) + 1)) {
+							spc.put(w, spc.get(w) + spc.get(v));
+							p.get(w).add(v);
+
+						}
+					}
+				}
+			}
+
+			// stage 3
+
+			// stage 3
+			while (!s.isEmpty()) {
+				Node w = s.pop();
+				for (Node parent : p.get(w)) {
+					double sumForCurretConnection = spc.get(parent)
+							* (1 + sums.get(w)) / spc.get(w);
+					sums.put(parent, sums.get(parent) + sumForCurretConnection);
+				}
+				if (w != n) {
+					double currentScore = this.bCC.getValue(w.getIndex());
+					// this.bC.get(w);
+					// this.bC.put(w, currentScore + sums.get(w));
+					this.bCC.setValue(w.getIndex(), currentScore + sums.get(w));
+					this.bCSum += sums.get(w);
+				}
+			}
+			parents.put(n, p);
+			distances.put(n, d);
+			spcs.put(n, spc);
+			accSums.put(n, sums);
+		}
+
+		for (Entry<Node, HashMap<Node, Integer>> e : spcs.entrySet()) {
+			sumShortestPaths += sumSPFromHM(e.getValue(), e.getKey());
+		}
+		return true;
+	}
+
+	public boolean equals(Metric m) {
+		boolean success = super.equals(m);
+
+		if (success && m instanceof BetweenessCentralityU) {
+			BetweenessCentralityU bc = (BetweenessCentralityU) m;
+
+			for (IElement ie1 : g.getNodes()) {
+				Node n1 = (Node) ie1;
+				for (IElement ie2 : g.getNodes()) {
+					Node n2 = (Node) ie2;
+
+					if (!this.spcs.get(n1).get(n2)
+							.equals(bc.spcs.get(n1).get(n2))) {
+						System.out.println("diff at Tree " + n1 + "in Node n "
+								+ n2 + " expected SPC "
+								+ this.spcs.get(n1).get(n2).intValue() + " is "
+								+ bc.spcs.get(n1).get(n2).intValue());
+						success = false;
+					}
+
+					if (!this.parents.get(n1).get(n2)
+							.containsAll(bc.parents.get(n1).get(n2))
+							|| this.parents.get(n1).get(n2).size() != bc.parents
+									.get(n1).get(n2).size()) {
+						System.out.println("diff at Tree " + n1 + "in Node n "
+								+ n2 + " expected parents "
+								+ this.parents.get(n1).get(n2) + " is "
+								+ bc.parents.get(n1).get(n2));
+						success = false;
+					}
+
+					if (Math.abs(this.accSums.get(n1).get(n2).doubleValue()
+							- bc.accSums.get(n1).get(n2).doubleValue()) > 0.000001) {
+						System.out.println("diff at Tree " + n1 + "in Node n "
+								+ n2 + " expected Sum "
+								+ this.accSums.get(n1).get(n2) + " is "
+								+ bc.accSums.get(n1).get(n2) + " height == "
+								+ bc.distances.get(n1).get(n2));
+						success = false;
+					}
+
+					if (!this.distances.get(n1).get(n2)
+							.equals(bc.distances.get(n1).get(n2))) {
+						System.out.println("diff at Tree " + n1 + "in Node n "
+								+ n2 + " expected dist "
+								+ this.distances.get(n1).get(n2) + " is "
+								+ bc.distances.get(n1).get(n2));
+						success = false;
+					}
+
+				}
+			}
+		}
+		return success;
 	}
 
 }
