@@ -14,6 +14,9 @@ import java.util.TreeSet;
 import dna.graph.ClassPointers;
 import dna.graph.Graph;
 import dna.graph.datastructures.DEmpty;
+import dna.graph.datastructures.DHashArrayList;
+import dna.graph.datastructures.DHashMap;
+import dna.graph.datastructures.DHashTable;
 import dna.graph.datastructures.DataStructure;
 import dna.graph.datastructures.DataStructure.AccessType;
 import dna.graph.datastructures.DataStructure.ListType;
@@ -423,6 +426,10 @@ public class Profiler {
 			ArrayList<EnumMap<ListType, Class<? extends IDataStructure>>> oldList,
 			ProfileEntry entry, boolean isCombinedOutputForAllAccessTypes) {
 
+		int maxCurrentNodeIndex = graph.getMaxNodeIndex();
+		boolean forceHashbasedEdgeList = Config
+				.getBoolean("RECOMMENDER_FORCE_USAGE_OF_HASHBASED_FOR_GLOBALEDGELIST");
+
 		HashSet<EnumMap<ListType, Class<? extends IDataStructure>>> res = new HashSet<>();
 		EnumMap<ListType, Boolean> canDEmptyBeUsedForListInCurrentBatch = new EnumMap<>(
 				ListType.class);
@@ -454,6 +461,22 @@ public class Profiler {
 						}
 					} else if (entry.hasReadAccessesInList(lt)
 							&& el.get(lt) == DEmpty.class) {
+						skipThisEntry = true;
+					}
+				}
+
+				/**
+				 * The following check will avoid hash collisions on edge lists.
+				 * If the graph has nodes with ah higher ID than 32k nodes and
+				 * nearly each pair of nodes is connected, using a hash-based
+				 * edge list will lead to collisions. Thus, we will avoid using
+				 * DHashMap, DHashTable, or DHashArrayList for the global edge
+				 * list in this case
+				 */
+				if (lt == ListType.GlobalEdgeList
+						&& (el.get(lt) == DHashMap.class
+								|| el.get(lt) == DHashTable.class || el.get(lt) == DHashArrayList.class)) {
+					if (!forceHashbasedEdgeList && maxCurrentNodeIndex > 32000) {
 						skipThisEntry = true;
 					}
 				}
