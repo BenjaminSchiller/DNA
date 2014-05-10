@@ -1,33 +1,37 @@
 package dna.profiler;
 
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map.Entry;
+import java.util.TreeSet;
 
 import dna.util.Config;
 
 public class HotSwapMap {
-	/**
-	 * Three variables for the sliding window of the hot swap map
-	 */
 	private final int windowSize = Config.getInt("HOTSWAP_WINDOWSIZE");
+	private final int recommendationsPerBatchToCheck = 5;
 	private RecommenderEntry[] innerMap;
 	private int currInnerMapIndex = 0;
-	
+
 	public HotSwapMap() {
-		innerMap = new RecommenderEntry[windowSize];
+		innerMap = new RecommenderEntry[windowSize
+				* recommendationsPerBatchToCheck];
 	}
 
-	public void put(RecommenderEntry entry) {
-		innerMap[currInnerMapIndex] = entry;
-		currInnerMapIndex = (currInnerMapIndex + 1) % windowSize;
+	public void put(TreeSet<RecommenderEntry> latestRecommendations) {
+		Iterator<RecommenderEntry> it = latestRecommendations.iterator();
+		for (int i = 0; (i < recommendationsPerBatchToCheck && it.hasNext()); i++) {
+			innerMap[currInnerMapIndex] = it.next();
+			currInnerMapIndex = (currInnerMapIndex + 1) % innerMap.length;
+		}
 	}
 
 	public RecommenderEntry getRecommendation() {
 		double lowerSwappingBound = Config.getDouble("HOTSWAP_LOWER_BOUND");
 
 		HashMap<RecommenderEntry, Integer> entrySet = new HashMap<>();
-		for (int i = windowSize - 1; i >= 0; i--) {
-			int index = (currInnerMapIndex + i) % windowSize;
+		for (int i = innerMap.length - 1; i >= 0; i--) {
+			int index = (currInnerMapIndex + i) % innerMap.length;
 			RecommenderEntry singleEntry = innerMap[index];
 
 			if (singleEntry == null)

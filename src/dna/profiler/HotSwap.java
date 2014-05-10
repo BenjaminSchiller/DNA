@@ -4,6 +4,7 @@ import java.util.EnumMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TreeMap;
+import java.util.TreeSet;
 
 import dna.graph.Graph;
 import dna.graph.datastructures.DataStructure;
@@ -60,11 +61,11 @@ public class HotSwap {
 		currAccessListIndex = (currAccessListIndex + 1) % maxAccessListSize;
 
 		for (ProfilerDataType dt : ProfilerDataType.values()) {
-			RecommenderEntry latestRecommendation = Profiler
-					.getRecommendation(dt);
-			if (latestRecommendation != null) {
+			TreeSet<RecommenderEntry> latestRecommendations = Profiler
+					.getRecommendations(dt);
+			if (latestRecommendations != null) {
 				HotSwapMap innerMap = slidingWindow.get(dt);
-				innerMap.put(latestRecommendation);
+				innerMap.put(latestRecommendations);
 			}
 		}
 		inFirstBatch = false;

@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TreeSet;
@@ -62,11 +63,8 @@ public class Profiler {
 	final static ProfilerDataType profilerDataTypeForHotSwap = ProfilerDataType
 			.valueOf(Config.get("HOTSWAP_PROFILERDATATYPE_SELECTOR"));
 
-	private static Map<ProfilerMeasurementData.ProfilerDataType, RecommenderEntry> lastRecommendations = new EnumMap<>(
+	private static Map<ProfilerMeasurementData.ProfilerDataType, TreeSet<RecommenderEntry>> lastRecommendations = new EnumMap<>(
 			ProfilerDataType.class);
-	private static Map<ProfilerMeasurementData.ProfilerDataType, RecommenderEntry> lastWorstCase = new EnumMap<>(
-			ProfilerDataType.class);
-
 	private static Map<ProfilerMeasurementData.ProfilerDataType, RecommenderEntry> lastCosts = new EnumMap<>(
 			ProfilerDataType.class);
 	private static ProfileEntry lastAccesses;
@@ -239,15 +237,7 @@ public class Profiler {
 
 		if (allCosts.size() == 0) {
 			res.append(" no recommendations available" + separator);
-
-			RecommenderEntry oldEl = lastRecommendations.get(entryType);
-			if (oldEl == null) {
-				lastRecommendations.put(entryType, null);
-			} else {
-				RecommenderEntry elementToNull = oldEl.clone();
-				elementToNull.resetCosts();
-				lastRecommendations.put(entryType, elementToNull);
-			}
+			lastRecommendations.put(entryType, new TreeSet<RecommenderEntry>());
 			return res.toString();
 		}
 
@@ -281,31 +271,31 @@ public class Profiler {
 			}
 		}
 
+		lastRecommendations.put(entryType, recommendationQueue);
+
 		/**
 		 * Recommendations are picked from the front of the list, as they have
 		 * the largest counter for the most important complexity class
 		 */
-		RecommenderEntry entry = null;
-		for (int i = 0; (i < numberOfRecommendations && recommendationQueue
-				.size() > 0); i++) {
-			entry = recommendationQueue.pollFirst();
 
+		RecommenderEntry entry = null;
+		Iterator<RecommenderEntry> it = recommendationQueue.iterator();
+		int i = 0;
+
+		while (it.hasNext() && i < numberOfRecommendations) {
+			entry = it.next();
 			String polledEntry = entry.getGraphDataStructure()
 					.getStorageDataStructures(true)
 					+ ": "
 					+ entry.getCosts(entryType);
 			res.append(separator);
 			res.append(outputPrefix + "   " + polledEntry);
-
-			if (i == 0) {
-				lastRecommendations.put(entryType, entry);
-			}
+			i++;
 		}
 
 		if (recommendationQueue.size() > 0) {
-			entry = recommendationQueue.pollLast();
+			entry = recommendationQueue.last();
 		}
-		lastWorstCase.put(entryType, entry);
 
 		res.append(separator);
 		return res.toString();
@@ -892,17 +882,17 @@ public class Profiler {
 				ProfilerGranularity.isEnabled(Options.EACHBATCH));
 
 		String profilerRange = "minimum="
-				+ ((BenchmarkingResultsMap) lastRecommendations.get(
-						profilerDataTypeForHotSwap).getCosts(
-						profilerDataTypeForHotSwap)).getValue()
+				+ ((BenchmarkingResultsMap) lastRecommendations
+						.get(profilerDataTypeForHotSwap).first()
+						.getCosts(profilerDataTypeForHotSwap)).getValue()
 				+ "\ncurrent="
 				+ ((BenchmarkingResultsMap) lastCosts.get(
 						profilerDataTypeForHotSwap).getCosts(
 						profilerDataTypeForHotSwap)).getValue()
 				+ "\nmaximum="
-				+ ((BenchmarkingResultsMap) lastWorstCase.get(
-						profilerDataTypeForHotSwap).getCosts(
-						profilerDataTypeForHotSwap)).getValue();
+				+ ((BenchmarkingResultsMap) lastRecommendations
+						.get(profilerDataTypeForHotSwap).last()
+						.getCosts(profilerDataTypeForHotSwap)).getValue();
 		rawWrite(batchDir,
 				Files.getProfilerFilename(Config.get("PROFILER_RANGE")),
 				profilerRange);
@@ -924,7 +914,7 @@ public class Profiler {
 		return accumulatedNumberOfElements / numberOfLists;
 	}
 
-	public static RecommenderEntry getRecommendation(
+	public static TreeSet<RecommenderEntry> getRecommendations(
 			ProfilerMeasurementData.ProfilerDataType selector) {
 		return lastRecommendations.get(selector);
 	}
