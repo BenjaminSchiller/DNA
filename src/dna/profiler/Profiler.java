@@ -75,6 +75,10 @@ public class Profiler {
 		active = true;
 	}
 
+	public static void deactivate() {
+		active = false;
+	}
+
 	public static void reset() {
 		singleBatchCalls = new HashMap<>();
 		singleRunCalls = new HashMap<>();
