@@ -25,6 +25,10 @@ public class HotSwap {
 	private static Map<Long, EnumMap<ListType, Class<? extends IDataStructure>>> manualSwitching = null;
 	private static EnumMap<ListType, Class<? extends IDataStructure>> firstSwitch = null;
 
+	private static double hotswapLowerBound = Config
+			.getDouble("HOTSWAP_LOWER_BOUND");
+	private static int hotswapWindowSize = Config.getInt("HOTSWAP_WINDOWSIZE");
+
 	/**
 	 * Three variables for storing the accesses onto underlying lists
 	 */
@@ -135,6 +139,11 @@ public class HotSwap {
 			return;
 		}
 
+		if (lastFinishedBatch < Math.floor(hotswapLowerBound
+				* hotswapWindowSize)) {
+			return;
+		}
+
 		int amortizationCounter = getAmortizationCounter();
 		ProfileEntry accumulatedAccesses = getAccumulatedAccesses(amortizationCounter);
 
@@ -180,20 +189,22 @@ public class HotSwap {
 	private static boolean isSwapEfficient(ProfileEntry accesses,
 			GraphDataStructure currentGDS, GraphDataStructure recGDS) {
 		int amortizationCounterToUse = getAmortizationCounter();
-		System.out.println("  Check whether the swap will be amortized within "
-				+ amortizationCounterToUse + " batches");
+		System.out
+				.println("   Check whether the swap will be amortized within "
+						+ amortizationCounterToUse
+						+ " batches by runtime costs");
 
 		/**
 		 * Generate the costs for the current state
 		 */
 		ComparableEntryMap currentStateCosts = accesses.combinedComplexity(
-				Profiler.profilerDataTypeForHotSwap, currentGDS, null);
+				ProfilerDataType.RuntimeBenchmark, currentGDS, null);
 
 		/**
 		 * Generate the costs for the recommended state
 		 */
 		ComparableEntryMap recStateCosts = accesses.combinedComplexity(
-				Profiler.profilerDataTypeForHotSwap, recGDS, null);
+				ProfilerDataType.RuntimeBenchmark, recGDS, null);
 
 		/**
 		 * Generate the costs for swapping, which is: for each changed list type
@@ -201,7 +212,7 @@ public class HotSwap {
 		 */
 
 		ComparableEntryMap swappingCosts = ProfilerMeasurementData
-				.getMap(Profiler.profilerDataTypeForHotSwap);
+				.getMap(ProfilerDataType.RuntimeBenchmark);
 		for (ListType lt : ListType.values()) {
 			if (recGDS.getListClass(lt) == currentGDS.getListClass(lt)) {
 				continue;
@@ -212,22 +223,22 @@ public class HotSwap {
 			int totalNumberOfElements = (int) (numberOfLists * meanListSize);
 
 			ComparableEntry initCosts = recGDS.getComplexityClass(lt,
-					AccessType.Init, Profiler.profilerDataTypeForHotSwap);
+					AccessType.Init, ProfilerDataType.RuntimeBenchmark);
 			initCosts.setValues(numberOfLists, meanListSize, null);
 			swappingCosts.add(initCosts.getMap());
 
 			ComparableEntry addCosts = recGDS.getComplexityClass(lt,
-					AccessType.Add, Profiler.profilerDataTypeForHotSwap);
+					AccessType.Add, ProfilerDataType.RuntimeBenchmark);
 			addCosts.setValues(totalNumberOfElements, meanListSize, null);
 			swappingCosts.add(addCosts.getMap());
 		}
 
-		System.out.println("  Total costs with current GDS: "
+		System.out.println("   Total costs with current GDS: "
 				+ currentStateCosts + ", total swapping costs: "
 				+ swappingCosts + ", total costs with recommended GDS: "
 				+ recStateCosts);
 		recStateCosts.add(swappingCosts);
-		System.out.println("  Total costs with NEW GDS, incl swap: "
+		System.out.println("   Total costs with NEW GDS, incl swap: "
 				+ recStateCosts);
 
 		boolean isEfficient = recStateCosts.compareTo(currentStateCosts) < 0;
