@@ -9,6 +9,7 @@ import dna.io.filesystem.Dir;
 import dna.io.filter.PrefixFilenameFilter;
 import dna.metrics.Metric;
 import dna.metrics.MetricNotApplicableException;
+import dna.series.aggdata.AggregatedBatch.BatchReadMode;
 import dna.series.aggdata.AggregatedSeries;
 import dna.series.data.RunData;
 import dna.series.data.SeriesData;
@@ -49,7 +50,8 @@ public class Series {
 			RunData runData = RunData.read(dir, run, false);
 			seriesData.addRun(runData);
 		}
-		AggregatedSeries aggregation = AggregatedSeries.read(dir, name, true);
+		AggregatedSeries aggregation = AggregatedSeries.read(dir, name,
+				BatchReadMode.readAllValues);
 
 		seriesData.setAggregation(aggregation);
 		return seriesData;

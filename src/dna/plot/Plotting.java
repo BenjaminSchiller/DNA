@@ -126,7 +126,7 @@ public class Plotting {
 			seriesData[i].setAggregation(AggregatedSeries.readFromTo(
 					seriesData[i].getDir(), seriesData[i].getName() + i + "_"
 							+ Config.get("RUN_AGGREGATION"), timestampFrom,
-					timestampTo, stepSize, true));
+					timestampTo, stepSize, BatchReadMode.readAllValues));
 		}
 
 		Log.infoSep();
@@ -153,15 +153,6 @@ public class Plotting {
 				+ " - " + timestampTo + " with stepsize " + stepSize + " for "
 				+ seriesData.length + " series to " + dstDir);
 		(new File(dstDir)).mkdirs();
-
-		// plot different data from the aggregation data
-		// Plotting.plotDistributions(seriesData, dstDir);
-		//
-		// Plotting.plotValues(seriesData, dstDir, type, style);
-		//
-		// Plotting.plotStatistics(seriesData, dstDir);
-		// Plotting.plotRuntimes(seriesData, dstDir);
-		// Plotting.plotNodeValueLists(seriesData, dstDir);
 
 		// gather relevant batches
 		String tempDir = Dir.getAggregationDataDir(seriesData[0].getDir());
@@ -379,7 +370,8 @@ public class Plotting {
 		for (int i = 0; i < seriesData.length; i++) {
 			seriesData[i].setAggregation(AggregatedSeries.read(
 					seriesData[i].getDir(), seriesData[i].getName() + i + "_"
-							+ Config.get("RUN_AGGREGATION"), true));
+							+ Config.get("RUN_AGGREGATION"),
+					BatchReadMode.readAllValues));
 		}
 
 		// plot different data from the aggregation data
