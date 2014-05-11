@@ -27,7 +27,7 @@ public class RecommenderEntry implements Cloneable {
 	public ComparableEntryMap getCosts(ProfilerDataType pdt) {
 		return costs.get(pdt);
 	}
-	
+
 	public void resetCosts() {
 		for (ProfilerDataType pdt : ProfilerDataType.values()) {
 			ComparableEntryMap costs = ProfilerMeasurementData.getMap(pdt);
@@ -49,10 +49,35 @@ public class RecommenderEntry implements Cloneable {
 		return new GraphDataStructure(datastructures, null, null);
 	}
 
+	/**
+	 * Compare this RecommenderEntry to another one, based on the costs for a
+	 * specific ProfilerDataType. If the costs are equal, the comparision is
+	 * done based on the used data structures. If they are also equal, both
+	 * RecommenderEntries must be equal.
+	 * 
+	 * If the data structures would not be taken into account, this could cause
+	 * problems for insertions into a TreeSet/Map, as this only checks through
+	 * this comparison where to insert a new entry. If this method returns 0,
+	 * the current entry in the tree would get overwritten, even if the data
+	 * structures are different.
+	 * 
+	 * @param o
+	 * @param pdt
+	 * @return
+	 */
 	public int compareToOther(RecommenderEntry o, ProfilerDataType pdt) {
 		ComparableEntryMap myCosts = costs.get(pdt);
 		ComparableEntryMap otherCosts = o.getCosts(pdt);
-		return myCosts.compareTo(otherCosts);
+		int res = myCosts.compareTo(otherCosts);
+		if (res == 0) {
+			if (getDatastructures().equals(o.getDatastructures())) {
+				return 0;
+			} else {
+				return 1;
+			}
+		} else {
+			return res;
+		}
 	}
 
 	@Override
@@ -90,7 +115,7 @@ public class RecommenderEntry implements Cloneable {
 			ProfilerDataType entryType) {
 		return new RecommenderEntryComparator(entryType);
 	}
-	
+
 	@Override
 	public RecommenderEntry clone() {
 		RecommenderEntry res = new RecommenderEntry(datastructures.clone());

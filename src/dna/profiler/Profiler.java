@@ -3,12 +3,16 @@ package dna.profiler;
 import java.io.IOException;
 import java.nio.file.FileSystem;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Hashtable;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Queue;
 import java.util.TreeSet;
 
 import dna.graph.ClassPointers;
@@ -30,6 +34,7 @@ import dna.profiler.ProfilerGranularity.Options;
 import dna.profiler.ProfilerMeasurementData.ProfilerDataType;
 import dna.profiler.datatypes.ComparableEntryMap;
 import dna.profiler.datatypes.benchmarkresults.BenchmarkingResultsMap;
+import dna.profiler.datatypes.combined.CombinedResultsMap;
 import dna.series.Series;
 import dna.series.SeriesGeneration;
 import dna.updates.update.Update.UpdateType;
@@ -221,9 +226,112 @@ public class Profiler {
 		return true;
 	}
 
+	private static CompleteRecommendationsHolder calculateRecommendations(
+			HashMap<EnumMap<ListType, Class<? extends IDataStructure>>, RecommenderEntry> costMap,
+			EnumMap<ListType, Class<? extends IDataStructure>> currentConfiguration) {
+		CompleteRecommendationsHolder res = new CompleteRecommendationsHolder();
+		boolean disableAllRecommendations = ProfilerGranularity.disabled();
+		if (disableAllRecommendations) {
+			return res;
+		}
+
+		if (costMap.size() == 0) {
+			return res;
+		}
+
+		Queue<ProfilerDataType> entryTypeQueue = new LinkedList<>();
+		entryTypeQueue.addAll(Arrays.asList(ProfilerDataType.values()));
+		while (!entryTypeQueue.isEmpty()) {
+			ProfilerDataType currentPDT = entryTypeQueue.poll();
+
+			boolean handleNow = true;
+			ProfilerDataType[] dependencies = ProfilerMeasurementData
+					.getDependencies(currentPDT);
+			for (ProfilerDataType dep : dependencies) {
+				if (handleNow && !res.containsKey(dep)) {
+					Log.info("  Putting " + currentPDT + " back into queue");
+					entryTypeQueue.add(currentPDT);
+					handleNow = false;
+				}
+			}
+			if (!handleNow) {
+				continue;
+			}
+
+			TreeSet<RecommenderEntry> recommendationQueue = new TreeSet<>(
+					RecommenderEntry.getComparator(currentPDT));
+			RecommenderEntry aggregatedEntry;
+			EnumMap<ListType, Class<? extends IDataStructure>> singleCombination;
+
+			if (dependencies.length == 0) {
+				for (Entry<EnumMap<ListType, Class<? extends IDataStructure>>, RecommenderEntry> singleCostEntry : costMap
+						.entrySet()) {
+					aggregatedEntry = singleCostEntry.getValue();
+					singleCombination = singleCostEntry.getKey();
+					recommendationQueue.add(aggregatedEntry);
+
+					if (singleCombination.equals(currentConfiguration)) {
+						res.setOwnCosts(currentPDT, aggregatedEntry);
+					}
+				}
+			} else {
+				Hashtable<EnumMap<ListType, Class<? extends IDataStructure>>, Double> currentPositions = new Hashtable<>();
+				double[] weights = ProfilerMeasurementData
+						.getWeights(currentPDT);
+
+				for (int i = 0; i < dependencies.length; i++) {
+					ProfilerDataType dep = dependencies[i];
+					double w = weights[i];
+
+					TreeSet<RecommenderEntry> currentList = res.get(dep);
+					Iterator<RecommenderEntry> it = currentList.iterator();
+					int pos = 1;
+					RecommenderEntry cur;
+					EnumMap<ListType, Class<? extends IDataStructure>> conf;
+					ComparableEntryMap lastCosts = null;
+
+					while (it.hasNext()) {
+						cur = it.next();
+						conf = cur.getDatastructures();
+						Double currAggrPos = currentPositions.get(conf);
+						if (currAggrPos == null) {
+							currAggrPos = 0d;
+						}
+						currAggrPos += w * pos;
+						currentPositions.put(conf, currAggrPos);
+						if (lastCosts == null
+								|| cur.getCosts(dep).compareTo(lastCosts) != 0) {
+							pos++;
+						}
+
+						lastCosts = cur.getCosts(dep);
+					}
+				}
+
+				for (Entry<EnumMap<ListType, Class<? extends IDataStructure>>, Double> e : currentPositions
+						.entrySet()) {
+					singleCombination = e.getKey();
+					RecommenderEntry re = costMap.get(singleCombination);
+					ComparableEntryMap costs = new CombinedResultsMap(
+							e.getValue());
+					re.setCosts(currentPDT, costs);
+					recommendationQueue.add(re);
+					if (singleCombination.equals(currentConfiguration)) {
+						res.setOwnCosts(currentPDT, re);
+					}
+				}
+			}
+
+			lastRecommendations.put(currentPDT, recommendationQueue);
+			res.put(currentPDT, recommendationQueue);
+		}
+
+		return res;
+	}
+
 	private static String getOtherRuntimeComplexitiesForEntry(
 			ProfilerMeasurementData.ProfilerDataType entryType,
-			HashMap<EnumMap<ListType, Class<? extends IDataStructure>>, RecommenderEntry> allCosts,
+			TreeSet<RecommenderEntry> recommendationQueue,
 			boolean outputAsCommentWithPrefix) {
 
 		StringBuilder res = new StringBuilder();
@@ -238,43 +346,14 @@ public class Profiler {
 			return res.toString();
 		}
 
-		if (allCosts.size() == 0) {
+		if (recommendationQueue.size() == 0) {
 			res.append(" no recommendations available" + separator);
 			lastRecommendations.put(entryType, new TreeSet<RecommenderEntry>());
 			return res.toString();
 		}
 
-		TreeSet<RecommenderEntry> recommendationQueue = new TreeSet<RecommenderEntry>(
-				RecommenderEntry.getComparator(entryType));
 		int numberOfRecommendations = Config
 				.getInt("NUMBER_OF_RECOMMENDATIONS");
-
-		RecommenderEntry aggregatedEntry;
-		EnumMap<ListType, Class<? extends IDataStructure>> singleCombination;
-
-		for (Entry<EnumMap<ListType, Class<? extends IDataStructure>>, RecommenderEntry> singleCostEntry : allCosts
-				.entrySet()) {
-			aggregatedEntry = singleCostEntry.getValue();
-			singleCombination = singleCostEntry.getKey();
-
-			RecommenderEntry lowerEntry = recommendationQueue
-					.floor(aggregatedEntry);
-			if (lowerEntry == null
-					|| !lowerEntry.getCosts(entryType).equals(
-							aggregatedEntry.getCosts(entryType))) {
-				// Key not yet in list
-				recommendationQueue.add(aggregatedEntry);
-			} else if ((singleCombination.get(ListType.GlobalEdgeList) == DEmpty.class && lowerEntry
-					.getDatastructure(ListType.GlobalEdgeList) != DEmpty.class)
-					|| (singleCombination.get(ListType.LocalEdgeList) == DEmpty.class && lowerEntry
-							.getDatastructure(ListType.LocalEdgeList) != DEmpty.class)) {
-				// Key already in list, but with concrete types where we
-				// could also use DEmpty to save memory
-				recommendationQueue.add(aggregatedEntry);
-			}
-		}
-
-		lastRecommendations.put(entryType, recommendationQueue);
 
 		/**
 		 * Recommendations are picked from the front of the list, as they have
@@ -305,7 +384,7 @@ public class Profiler {
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	private static HashMap<EnumMap<ListType, Class<? extends IDataStructure>>, RecommenderEntry> calculateAllRecommendations(
+	private static HashMap<EnumMap<ListType, Class<? extends IDataStructure>>, RecommenderEntry> calculateAllBasicCosts(
 			ProfileEntry globalMemoryEntry, ProfileEntry currentEntry,
 			boolean isCombinedOutputForAllAccessTypes) {
 		boolean disableAllRecommendations = ProfilerGranularity.disabled();
@@ -328,8 +407,12 @@ public class Profiler {
 		HashSet<EnumMap<ListType, Class<? extends IDataStructure>>> allCombinations = prefilter(
 				allCombinationsRaw, currentEntry,
 				isCombinedOutputForAllAccessTypes);
+		allCombinations.add(gds.getStorageDataStructures());
 
 		for (ProfilerDataType entryType : ProfilerDataType.values()) {
+			if (ProfilerMeasurementData.getDependencies(entryType).length > 0)
+				continue;
+
 			EnumMap<ListType, Class<? extends IDataStructure>> listTypes;
 			GraphDataStructure tempGDS;
 			EnumMap<ListType, HashMap<Class, ComparableEntryMap>> listComplexities = new EnumMap<ListType, HashMap<Class, ComparableEntryMap>>(
@@ -380,7 +463,7 @@ public class Profiler {
 			}
 		}
 
-		res = postfilter(res);
+		res = postfilter(res, gds.getStorageDataStructures());
 
 		return res;
 	}
@@ -496,7 +579,8 @@ public class Profiler {
 	 * @return
 	 */
 	private static HashMap<EnumMap<ListType, Class<? extends IDataStructure>>, RecommenderEntry> postfilter(
-			HashMap<EnumMap<ListType, Class<? extends IDataStructure>>, RecommenderEntry> input) {
+			HashMap<EnumMap<ListType, Class<? extends IDataStructure>>, RecommenderEntry> input,
+			EnumMap<ListType, Class<? extends IDataStructure>> currentConfiguration) {
 		HashMap<EnumMap<ListType, Class<? extends IDataStructure>>, RecommenderEntry> res = new HashMap<>();
 
 		boolean isElementBlocked = false;
@@ -518,7 +602,8 @@ public class Profiler {
 				isElementBlocked = true;
 			}
 
-			if (!isElementBlocked) {
+			if (!isElementBlocked
+					|| entry.getDatastructures().equals(currentConfiguration)) {
 				res.put(element.getKey(), element.getValue());
 			}
 		}
@@ -548,23 +633,20 @@ public class Profiler {
 			globalMemoryEntry = globalMemoryEntry.add(other);
 		}
 
-		HashMap<EnumMap<ListType, Class<? extends IDataStructure>>, RecommenderEntry> recEntryMap = calculateAllRecommendations(
+		HashMap<EnumMap<ListType, Class<? extends IDataStructure>>, RecommenderEntry> costMap = calculateAllBasicCosts(
 				globalMemoryEntry, resEntry, true);
+		CompleteRecommendationsHolder recommendationList = calculateRecommendations(
+				costMap, gds.getStorageDataStructures());
+
 		for (ProfilerMeasurementData.ProfilerDataType entryType : ProfilerMeasurementData.ProfilerDataType
 				.values()) {
-
-			ComparableEntryMap aggregatedMap = combineFiltered(entryType, gds,
-					resEntry, globalMemoryEntry,
-					entryType.getAccessTypesFromAggregation(), null);
-
-			RecommenderEntry aggregatedEntry = new RecommenderEntry(
-					gds.getStorageDataStructures());
-			aggregatedEntry.setCosts(entryType, aggregatedMap);
-
-			res.append(" Aggr for " + entryType + ": " + aggregatedMap
+			String currentCosts = recommendationList.getOwnCosts(entryType)
+					.toString();
+			res.append(" Aggr for " + entryType + ": " + currentCosts
 					+ separator);
+
 			res.append(getOtherRuntimeComplexitiesForEntry(entryType,
-					recEntryMap, false));
+					recommendationList.get(entryType), false));
 		}
 		return res.toString();
 	}
@@ -666,31 +748,56 @@ public class Profiler {
 			}
 		}
 
-		HashMap<EnumMap<ListType, Class<? extends IDataStructure>>, RecommenderEntry> recEntryMap = null;
+		HashMap<EnumMap<ListType, Class<? extends IDataStructure>>, RecommenderEntry> costMap = null;
+		CompleteRecommendationsHolder recommendationList = null;
+
 		if (showRecommendations) {
-			recEntryMap = calculateAllRecommendations(globalMemoryEntry,
-					aggregated, isCombinedOutputForAllAccessTypes);
+			costMap = calculateAllBasicCosts(globalMemoryEntry, aggregated,
+					isCombinedOutputForAllAccessTypes);
+			if (costMap.size() > 0) {
+				recommendationList = calculateRecommendations(costMap,
+						gds.getStorageDataStructures());
+			}
 		}
 
 		for (ProfilerMeasurementData.ProfilerDataType entryType : ProfilerMeasurementData.ProfilerDataType
 				.values()) {
+			if (ProfilerMeasurementData.getDependencies(entryType).length > 0
+					&& recommendationList == null) {
+				/**
+				 * No recommendations have been computed, so we cannot combine
+				 * the positions in the lists
+				 */
+				res.append(outputPrefix + " Aggr for " + entryType
+						+ " not computed" + separator);
+				continue;
+			}
 
-			ComparableEntryMap aggregatedMap = combineFiltered(entryType, gds,
-					aggregated, globalMemoryEntry,
-					entryType.getAccessTypesFromAggregation(), null);
+			RecommenderEntry aggregatedEntry = null;
+			ComparableEntryMap costs = null;
 
-			RecommenderEntry aggregatedEntry = new RecommenderEntry(
-					gds.getStorageDataStructures());
-			aggregatedEntry.setCosts(entryType, aggregatedMap);
+			if (recommendationList == null) {
+				costs = combineFiltered(entryType, gds, aggregated,
+						globalMemoryEntry,
+						entryType.getAccessTypesFromAggregation(), null);
+
+				aggregatedEntry = new RecommenderEntry(
+						gds.getStorageDataStructures());
+				aggregatedEntry.setCosts(entryType, costs);
+			} else {
+				aggregatedEntry = recommendationList.getOwnCosts(entryType);
+				costs = aggregatedEntry.getCosts(entryType);
+			}
 
 			lastCosts.put(entryType, aggregatedEntry);
 			lastAccesses = aggregated;
 
 			res.append(outputPrefix + " Aggr for " + entryType + ": "
-					+ aggregatedMap + separator);
-			if (showRecommendations)
+					+ costs.toString() + separator);
+			if (showRecommendations && recommendationList != null)
 				res.append(getOtherRuntimeComplexitiesForEntry(entryType,
-						recEntryMap, outputAsCommentWithPrefix));
+						recommendationList.get(entryType),
+						outputAsCommentWithPrefix));
 		}
 		return res.toString();
 	}
@@ -905,17 +1012,14 @@ public class Profiler {
 				ProfilerGranularity.isEnabled(Options.EACHBATCH));
 
 		String profilerRange = "minimum="
-				+ ((BenchmarkingResultsMap) lastRecommendations
-						.get(profilerDataTypeForHotSwap).first()
-						.getCosts(profilerDataTypeForHotSwap)).getValue()
+				+ (lastRecommendations.get(profilerDataTypeForHotSwap).first()
+						.getCosts(profilerDataTypeForHotSwap))
 				+ "\ncurrent="
-				+ ((BenchmarkingResultsMap) lastCosts.get(
-						profilerDataTypeForHotSwap).getCosts(
-						profilerDataTypeForHotSwap)).getValue()
+				+ (lastCosts.get(profilerDataTypeForHotSwap)
+						.getCosts(profilerDataTypeForHotSwap))
 				+ "\nmaximum="
-				+ ((BenchmarkingResultsMap) lastRecommendations
-						.get(profilerDataTypeForHotSwap).last()
-						.getCosts(profilerDataTypeForHotSwap)).getValue();
+				+ (lastRecommendations.get(profilerDataTypeForHotSwap).last()
+						.getCosts(profilerDataTypeForHotSwap));
 		rawWrite(batchDir,
 				Files.getProfilerFilename(Config.get("PROFILER_RANGE")),
 				profilerRange);

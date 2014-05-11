@@ -12,7 +12,6 @@ import java.util.Properties;
 import java.util.Vector;
 
 import dna.graph.datastructures.DataStructure.AccessType;
-import dna.profiler.datatypes.CombinedEntry;
 import dna.profiler.datatypes.ComparableEntry;
 import dna.profiler.datatypes.ComparableEntryMap;
 import dna.profiler.datatypes.benchmarkresults.BenchmarkingResult;
@@ -78,7 +77,7 @@ public abstract class ProfilerMeasurementData extends PropertiesHolder {
 		case MemoryComplexity:
 		case RuntimeBenchmark:
 		case RuntimeComplexity:
-			return null;
+			return new ProfilerDataType[] {};
 		default:
 			throw new RuntimeException("No dependencies found for " + pdt);
 		}
@@ -115,15 +114,8 @@ public abstract class ProfilerMeasurementData extends PropertiesHolder {
 			ComplexityType.Base base, boolean checkWithDefaults) {
 
 		ProfilerDataType[] dependencies = getDependencies(complexityType);
-		if (dependencies != null) {
-			ComparableEntry[] res = new ComparableEntry[dependencies.length];
-			int countee = 0;
-			for (ProfilerDataType pdt : dependencies) {
-				res[countee] = get(pdt, classname, accessType, storedDataClass,
-						base, checkWithDefaults);
-				countee++;
-			}
-			return new CombinedEntry(res, getWeights(complexityType));
+		if (dependencies.length != 0) {
+			return null;
 		}
 
 		String keyName = complexityType.toString().toUpperCase() + "_"
