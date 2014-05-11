@@ -19,7 +19,7 @@ import dna.util.parameters.Parameter;
  * @author Benedict Jahn
  * 
  */
-public class DFS_ extends SamplingAlgorithm {
+public class DFS_random extends SamplingAlgorithm {
 
 	private HashSet<Node> nodesInQueue;
 	private LinkedList<Node> queue;
@@ -43,7 +43,7 @@ public class DFS_ extends SamplingAlgorithm {
 	 *            the parameters which makes this algorithm unique and which
 	 *            will be added to the name
 	 */
-	public DFS_(Graph fullGraph, StartNodeSelectionStrategy startNodeStrategy,
+	public DFS_random(Graph fullGraph, StartNodeSelectionStrategy startNodeStrategy,
 			int costPerBatch, int resource, Parameter[] parameters) {
 		super("DFS_random", fullGraph, startNodeStrategy, costPerBatch,
 				resource, parameters);
