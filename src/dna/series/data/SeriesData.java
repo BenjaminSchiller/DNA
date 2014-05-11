@@ -5,6 +5,7 @@ import java.util.ArrayList;
 
 import dna.io.filesystem.Dir;
 import dna.metrics.Metric.MetricType;
+import dna.series.aggdata.AggregatedBatch.BatchReadMode;
 import dna.series.aggdata.AggregatedSeries;
 import dna.series.lists.MetricDataList;
 import dna.util.Config;
@@ -112,8 +113,13 @@ public class SeriesData {
 					readValues);
 		}
 		if (readAggregation) {
-			AggregatedSeries aggr = AggregatedSeries
-					.read(dir, name, readValues);
+			BatchReadMode batchReadMode;
+			if (readValues)
+				batchReadMode = BatchReadMode.readAllValues;
+			else
+				batchReadMode = BatchReadMode.readNoValues;
+			AggregatedSeries aggr = AggregatedSeries.read(dir, name,
+					batchReadMode);
 			return new SeriesData(dir, name, runList, aggr);
 		} else {
 			return new SeriesData(dir, name, runList);
@@ -238,7 +244,8 @@ public class SeriesData {
 			long timestampTo, long stepSize) throws IOException {
 		this.setAggregation(AggregatedSeries.readFromTo(this.getDir(),
 				this.getName() + index + "_" + Config.get("RUN_AGGREGATION"),
-				timestampFrom, timestampTo, stepSize, true));
+				timestampFrom, timestampTo, stepSize,
+				BatchReadMode.readAllValues));
 	}
 
 	/**
