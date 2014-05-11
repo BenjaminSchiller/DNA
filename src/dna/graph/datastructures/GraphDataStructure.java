@@ -60,7 +60,7 @@ public class GraphDataStructure implements Cloneable {
 	private static ArrayList<EnumMap<ListType, Class<? extends IDataStructure>>> simpleListCombinations = null;
 
 	private int defaultListSize = 10;
-	
+
 	private static GraphDataStructure currentGDS;
 
 	public GraphDataStructure(
@@ -87,14 +87,14 @@ public class GraphDataStructure implements Cloneable {
 
 		this.nodeWeightSelection = nodeWeightSelection;
 		this.edgeWeightSelection = edgeWeightSelection;
-		
+
 		init();
 	}
-	
+
 	public static void setCurrent(GraphDataStructure gds) {
 		currentGDS = gds;
 	}
-	
+
 	public static GraphDataStructure getCurrent() {
 		return currentGDS;
 	}
@@ -322,7 +322,7 @@ public class GraphDataStructure implements Cloneable {
 		}
 
 		setCurrent(this);
-		
+
 		return new Graph(name, timestamp, this, nodes, edges);
 	}
 
@@ -566,14 +566,14 @@ public class GraphDataStructure implements Cloneable {
 			throw rt;
 		}
 	}
-	
+
 	public Edge getDummyEdge(Node n1, Node n2) {
 		return getDummyEdge(n1.getIndex(), n2.getIndex());
 	}
-	
+
 	public Edge getDummyEdge(int n1, int n2) {
-		if ( edgeDummy == null ) {
-			if ( createsDirected() ) {
+		if (edgeDummy == null) {
+			if (createsDirected()) {
 				DirectedNode node1 = new DirectedNode(1, this);
 				DirectedNode node2 = new DirectedNode(2, this);
 				edgeDummy = new DummyDirectedEdge(node1, node2);
@@ -868,20 +868,19 @@ public class GraphDataStructure implements Cloneable {
 		}
 	}
 
-	private ComparableEntry getComplexityClass(
-			Class<? extends IDataStructure> ds, Class<? extends IElement> dt,
-			ProfilerDataType complexityType, AccessType at, Base b) {
-		return ProfilerMeasurementData.get(complexityType, ds.getSimpleName(),
-				at, dt.getSimpleName(), b);
+	private ComparableEntry getCostData(Class<? extends IDataStructure> ds,
+			Class<? extends IElement> dt, ProfilerDataType pdt, AccessType at,
+			Base b) {
+		return ProfilerMeasurementData.get(pdt, ds.getSimpleName(), at,
+				dt.getSimpleName(), b);
 	}
 
-	public ComparableEntry getComplexityClass(ListType lt, AccessType at,
-			ProfilerDataType complexityType) {
+	public ComparableEntry getCostData(ListType lt, AccessType at,
+			ProfilerDataType pdt) {
 		Class<? extends IDataStructure> listClass = getListClass(lt);
 		Class<? extends IElement> storedElement = lt.getStoredClass();
 		Base baseType = lt.getBase();
-		return getComplexityClass(listClass, storedElement, complexityType, at,
-				baseType);
+		return getCostData(listClass, storedElement, pdt, at, baseType);
 	}
 
 	public static EnumMap<ListType, Class<? extends IDataStructure>> getList(

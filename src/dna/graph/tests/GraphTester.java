@@ -122,7 +122,13 @@ public class GraphTester {
 			for (AccessType at : AccessType.values()) {
 				for (ProfilerMeasurementData.ProfilerDataType pType : ProfilerMeasurementData.ProfilerDataType
 						.values()) {
-					assertNotNull(gds.getComplexityClass(lt, at, pType));
+					if ( ProfilerMeasurementData.getDependencies(pType).length > 0) {
+						/**
+						 * Ignore this, as a PDT with dependencies does not declare it's own data
+						 */
+						continue;
+					}
+					assertNotNull(gds.getCostData(lt, at, pType));
 				}
 			}
 		}

@@ -222,13 +222,13 @@ public class HotSwap {
 			double meanListSize = Profiler.getMeanSize(lt);
 			int totalNumberOfElements = (int) (numberOfLists * meanListSize);
 
-			ComparableEntry initCosts = recGDS.getComplexityClass(lt,
-					AccessType.Init, ProfilerDataType.RuntimeBenchmark);
+			ComparableEntry initCosts = recGDS.getCostData(lt, AccessType.Init,
+					ProfilerDataType.RuntimeBenchmark);
 			initCosts.setValues(numberOfLists, meanListSize, null);
 			swappingCosts.add(initCosts.getMap());
 
-			ComparableEntry addCosts = recGDS.getComplexityClass(lt,
-					AccessType.Add, ProfilerDataType.RuntimeBenchmark);
+			ComparableEntry addCosts = recGDS.getCostData(lt, AccessType.Add,
+					ProfilerDataType.RuntimeBenchmark);
 			addCosts.setValues(totalNumberOfElements, meanListSize, null);
 			swappingCosts.add(addCosts.getMap());
 		}

@@ -87,7 +87,7 @@ public class ProfileEntry {
 			for (AccessType at : AccessType.values()) {
 				if (accessTypeLimitor != null && !accessTypeLimitor.equals(at))
 					continue;
-				ComparableEntry c = gds.getComplexityClass(lt, at, entryType);
+				ComparableEntry c = gds.getCostData(lt, at, entryType);
 				c.setValues(get(lt, at), Profiler.getMeanSize(lt), lt.getBase());
 				if (aggregated == null) {
 					aggregated = c;
