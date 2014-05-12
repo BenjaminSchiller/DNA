@@ -23,8 +23,12 @@ public class Plot {
 	private String dir = Config.get("GNUPLOT_DIR");
 
 	private String filename = Config.get("GNUPLOT_FILENAME");
-
+	private String plotFilename;
 	private String scriptFilename = Config.get("GNUPLOT_SCRIPTFILENAME");
+
+	private Writer fileWriter;
+
+	private int dataWriteCounter;
 
 	// private variables
 	private PlotData[] data;
@@ -34,6 +38,87 @@ public class Plot {
 	private NodeValueListOrderBy orderBy;
 
 	private NodeValueListOrder sortOrder;
+
+	// new constructors
+
+	/**
+	 * Creates a plot object which will can written to a gnuplot script file.
+	 * Data to be plotted can be added via appendData methods.
+	 * 
+	 * @param dir
+	 *            Destination directory of the plot and script file.
+	 * @param plotFilename
+	 *            Filename of the plotted file.
+	 * @param scriptFilename
+	 *            Filename of the scriptfile.
+	 * @param data
+	 *            Array of PlotData objects, each representing a type of "data",
+	 *            which will be plotted into the same plot.
+	 * @throws IOException
+	 *             Might be thrown by the writer.
+	 */
+	public Plot(String dir, String plotFilename, String scriptFilename,
+			PlotData[] data) throws IOException {
+		this.dir = dir;
+		this.plotFilename = plotFilename;
+		this.scriptFilename = scriptFilename;
+		this.data = data;
+
+		// init writer
+		this.fileWriter = new Writer(dir, scriptFilename);
+		this.dataWriteCounter = 0;
+	}
+
+	// new methods
+	public void writeScriptHeaderNeu() throws IOException {
+		Writer w = this.fileWriter;
+
+		// write script header
+		List<String> script = this.getScript();
+		for (String line : script) {
+			w.writeln(line);
+		}
+	}
+
+	public void appendData(AggregatedValue[] values) throws IOException {
+		for (int i = 0; i < values.length; i++)
+			this.appendData(values[i], i * 1.0);
+	}
+
+	public void appendData(AggregatedValue[] values, double[] timestamps)
+			throws IOException {
+		for (int i = 0; i < values.length; i++) {
+			this.appendData(values[i], timestamps[i]);
+		}
+	}
+
+	public void appendData(AggregatedValue value, double timestamp)
+			throws IOException {
+		Writer w = this.fileWriter;
+
+		String temp = "" + timestamp;
+		for (int k = 0; k < value.getValues().length; k++) {
+			temp += Config.get("PLOTDATA_DELIMITER") + value.getValues()[k];
+		}
+		w.writeln(temp);
+
+		// end-of-file indicates the end of the data
+		w.writeln("EOF");
+	}
+
+	public void close() throws IOException {
+		if (this.dataWriteCounter != this.data.length)
+			Log.warn("Unexpected number of plotdata written to file "
+					+ this.dir + this.scriptFilename + ". Expected: "
+					+ this.data.length + "  Written: " + this.dataWriteCounter);
+		this.fileWriter.close();
+		this.fileWriter = null;
+		this.dir = null;
+		this.plotFilename = null;
+		this.scriptFilename = null;
+		this.data = null;
+		this.dataWriteCounter = 0;
+	}
 
 	// constructors
 	public Plot(PlotData[] data, String dir, String filename,
@@ -54,6 +139,8 @@ public class Plot {
 	public Plot(PlotData[] data, String dir, String filename,
 			String scriptFilename, DistributionPlotType distPlotType,
 			NodeValueListOrderBy orderBy, NodeValueListOrder sortOrder) {
+		Log.info("PLOT CONSTRUCTOR DEBUG: " + dir + "\t" + filename + "\t"
+				+ scriptFilename);
 		this.data = data;
 		this.dir = dir;
 		this.filename = filename;
