@@ -2,6 +2,7 @@ package dna.plot;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 
 import dna.io.Writer;
@@ -144,20 +145,21 @@ public class Plotting {
 	}
 
 	public static void plotFromToSeq(SeriesData[] seriesData, String dstDir,
-			long timestampFrom, long timestampTo, long stepSize, PlotType type,
-			PlotStyle style, DistributionPlotType distPlotType,
-			NodeValueListOrderBy sortBy, NodeValueListOrder sortOrder)
-			throws IOException, InterruptedException {
+			PlottingConfig config) throws IOException, InterruptedException {
+		long timestampFrom = config.getTimestampFrom();
+		long timestampTo = config.getTimestampTo();
+		long stepsize = config.getStepsize();
+
 		Log.infoSep();
 		Log.info("plotting sequentially data from batch " + timestampFrom
-				+ " - " + timestampTo + " with stepsize " + stepSize + " for "
+				+ " - " + timestampTo + " with stepsize " + stepsize + " for "
 				+ seriesData.length + " series to " + dstDir);
 		(new File(dstDir)).mkdirs();
 
 		// gather relevant batches
 		String tempDir = Dir.getAggregationDataDir(seriesData[0].getDir());
 		String[] batches = Dir.getBatchesFromTo(tempDir, timestampFrom,
-				timestampTo, stepSize);
+				timestampTo, stepsize);
 
 		// list relevant batches
 		Log.infoSep();
@@ -180,19 +182,35 @@ public class Plotting {
 					Dir.getBatchDataDir(tempDir, initTimestamp), initTimestamp,
 					BatchReadMode.readAllValues);
 
-		// instantiate writers
-		HashMap<String, Writer> scriptWriters = new HashMap<String, Writer>();
+		ArrayList<Plot> seqPlots = new ArrayList<Plot>();
+		ArrayList<Plot> allPlots = new ArrayList<Plot>();
 
+		// instantiate writers
 		AggregatedValueList values = initBatch.getValues();
 		Log.infoSep();
 		Log.info("Values:");
 		for (String value : SeriesStats.statisticsToPlot) {
 			if (values.getNames().contains(value)) {
-				Log.info("creating gnuplot script for " + value);
-				scriptWriters.put(value, Plotting.plotValue2(seriesData,
-						dstDir, type, style, null, value));
+				Log.info("creating plot for " + value);
+				// scriptWriters.put(value, Plotting.plotValue2(seriesData,
+				// dstDir, type, style, null, value));
+				Plot valuePlot = new Plot(dstDir, PlotFilenames.getValuesPlot(
+						Config.get("PREFIX_STATS_PLOT"), value),
+						PlotFilenames.getValuesGnuplotScript(
+								Config.get("PREFIX_STATS_PLOT"), value),
+						new PlotData[] { PlotData.get(value,
+								config.getPlotStyle(), "itle",
+								config.getPlotType()) });
+				allPlots.add(valuePlot);
 			}
 		}
+		
+		// TODO: combination of values ?
+		for(Plot p : allPlots) {
+			p.writeScriptHeaderNeu();
+			p.close();
+		}
+		
 		AggregatedRunTimeList generalRuntimes = initBatch.getGeneralRuntimes();
 		Log.infoSep();
 		Log.info("GEN RT:");
@@ -201,8 +219,8 @@ public class Plotting {
 			String runtime = gen.getName();
 			Log.info("creating gnuplot script for general runtime: " + runtime);
 
-			scriptWriters.put(runtime, Plotting.plotRuntimes2(seriesData,
-					dstDir, runtime, type, style));
+			// scriptWriters.put(runtime, Plotting.plotRuntimes2(seriesData,
+			// dstDir, runtime, type, style));
 		}
 		AggregatedRunTimeList metricRuntimes = initBatch.getMetricRuntimes();
 		Log.infoSep();
@@ -232,36 +250,27 @@ public class Plotting {
 		}
 
 		// write headers
-
-		// read batches and write content
-		for (String batch : batches) {
-			AggregatedBatch tempBatch;
-
-			long timestamp = Dir.getTimestamp(batch);
-			System.out.println(tempDir + " " + timestamp + " " + batch);
-			if (singleFile)
-				tempBatch = AggregatedBatch.readFromSingleFile(tempDir,
-						timestamp, Dir.delimiter, BatchReadMode.readAllValues);
-			else
-				tempBatch = AggregatedBatch.read(
-						Dir.getBatchDataDir(tempDir, timestamp), timestamp,
-						BatchReadMode.readAllValues);
-
-			// append data to scripts
-			Plotting.appendData(tempBatch, scriptWriters);
-		}
-
-		// append end-of-file line
-		for (AggregatedValue v : values.getList()) {
-			if (scriptWriters.get(v.getName()) != null)
-				scriptWriters.get(v.getName()).write("EOF");
-		}
-
-		// close writers
-		for (String s : scriptWriters.keySet()) {
-			scriptWriters.get(s).close();
-		}
-
+		/*
+		 * // read batches and write content for (String batch : batches) {
+		 * AggregatedBatch tempBatch;
+		 * 
+		 * long timestamp = Dir.getTimestamp(batch); System.out.println(tempDir
+		 * + " " + timestamp + " " + batch); if (singleFile) tempBatch =
+		 * AggregatedBatch.readFromSingleFile(tempDir, timestamp, Dir.delimiter,
+		 * BatchReadMode.readAllValues); else tempBatch = AggregatedBatch.read(
+		 * Dir.getBatchDataDir(tempDir, timestamp), timestamp,
+		 * BatchReadMode.readAllValues);
+		 * 
+		 * // append data to scripts Plotting.appendData(tempBatch,
+		 * scriptWriters); }
+		 * 
+		 * // append end-of-file line for (AggregatedValue v : values.getList())
+		 * { if (scriptWriters.get(v.getName()) != null)
+		 * scriptWriters.get(v.getName()).write("EOF"); }
+		 * 
+		 * // close writers for (String s : scriptWriters.keySet()) {
+		 * scriptWriters.get(s).close(); }
+		 */
 		// execute scripts
 		// TODO: exec
 
