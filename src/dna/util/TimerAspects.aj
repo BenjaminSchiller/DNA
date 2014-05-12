@@ -201,6 +201,7 @@ public aspect TimerAspects {
 
 	Object around(Metric metric): metricApplicationInInitialization(metric) {
 		String metricName = metric.getName();
+		resetList.add(metricName);
 		metricList.add(metricName);
 		Timer t = new Timer(metricName);
 		Object res = proceed(metric);
@@ -210,10 +211,11 @@ public aspect TimerAspects {
 	}
 
 	boolean around(Metric metric, Batch b): metricApplicationPerBatch(metric, b) {
-		resetList.add(metric.getName());
-		Timer singleMetricTimer = map.get(metric.getName());
+		String metricName = metric.getName();
+		resetList.add(metricName);
+		Timer singleMetricTimer = map.get(metricName);
 		if (singleMetricTimer == null) {
-			singleMetricTimer = new Timer(metric.getName());
+			singleMetricTimer = new Timer(metricName);
 		}
 
 		resetList.add(SeriesStats.metricsRuntime);
