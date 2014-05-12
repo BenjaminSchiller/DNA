@@ -59,8 +59,6 @@ public class HotSwap {
 						.getBoolean("HOTSWAP_INCLUDE_FIRSTBATCH_FOR_EFFICIENCY_CHECK")) {
 			ProfileEntry accesses = Profiler.getLastAccesses();
 			accessList[currAccessListIndex] = accesses;
-			System.out.println("Adding batch " + lastFinishedBatch
-					+ " to results");
 		}
 		currAccessListIndex = (currAccessListIndex + 1) % maxAccessListSize;
 
