@@ -17,9 +17,10 @@ public class DBloomFilter extends DataStructure implements
 
 	public DBloomFilter(ListType lt, Class<? extends IElement> dT) {
 		super(lt, dT);
-	}	
+	}
 
-	public void init(Class<? extends IElement> dT, int initialSize, boolean firstTime) {
+	public void init(Class<? extends IElement> dT, int initialSize,
+			boolean firstTime) {
 		this.list = BloomFilter.create(new IElementFunnel(), initialSize);
 		this.maxNodeIndex = -1;
 	}
@@ -107,5 +108,9 @@ public class DBloomFilter extends DataStructure implements
 	@Override
 	public void printList() {
 		// TODO Auto-generated method stub
+	}
+
+	public void prepareForGC() {
+		this.list = null;
 	}
 }

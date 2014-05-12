@@ -174,4 +174,8 @@ public class DHashSet extends DataStructureReadable implements
 	public int getMaxNodeIndex() {
 		return this.maxNodeIndex;
 	}
+
+	public void prepareForGC() {
+		this.list = null;
+	}
 }

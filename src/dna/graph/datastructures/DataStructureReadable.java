@@ -80,6 +80,7 @@ public abstract class DataStructureReadable extends DataStructure implements
 		Iterator<IElement> elIt = this.iterator();
 		while ( elIt.hasNext() )
 			newDatastructure.add(elIt.next());
+		this.prepareForGC();
 		return newDatastructure;
 	}
 }

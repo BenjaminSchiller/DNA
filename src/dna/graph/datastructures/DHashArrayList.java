@@ -187,4 +187,9 @@ public class DHashArrayList extends DataStructureReadable implements
 	protected Iterator<IElement> iterator_() {
 		return this.list.iterator();
 	}
+
+	public void prepareForGC() {
+		this.list = null;
+		this.set = null;
+	}
 }

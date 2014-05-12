@@ -10,7 +10,7 @@ import dna.graph.nodes.Node;
 
 public class DEmpty extends DataStructureReadable implements
 		IEdgeListDatastructureReadable, INodeListDatastructureReadable {
-	
+
 	public DEmpty(ListType lt, Class<? extends IElement> dT) {
 		super(lt, dT);
 	}
@@ -111,9 +111,12 @@ public class DEmpty extends DataStructureReadable implements
 	protected Iterator<IElement> iterator_() {
 		return Collections.<IElement> emptyList().iterator();
 	}
-	
+
 	@Override
 	public boolean canAdd(IElement element) {
 		return true;
+	}
+
+	public void prepareForGC() {
 	}
 }

@@ -81,5 +81,9 @@ public interface IDataStructure extends Iterable<IElement> {
 	 * Print a string representation of this list
 	 */
 	public void printList();
-
+	
+	/**
+	 * Prepare this data structure for garbage collection
+	 */
+	public void prepareForGC();
 }

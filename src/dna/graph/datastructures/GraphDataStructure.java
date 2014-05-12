@@ -862,6 +862,8 @@ public class GraphDataStructure implements Cloneable {
 				g.switchDataStructure(lt, newGDS.getListClass(lt));
 			}
 		}
+		
+		System.gc();
 
 		for (ListType lt : ListType.values()) {
 			this.listTypes.put(lt, newGDS.getListClass(lt));

@@ -172,4 +172,8 @@ public class DHashTable extends DataStructureReadable implements
 		return this.maxNodeIndex;
 	}
 
+	public void prepareForGC() {
+		this.list = null;
+	}
+
 }

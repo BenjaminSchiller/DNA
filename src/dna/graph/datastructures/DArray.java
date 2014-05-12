@@ -279,4 +279,8 @@ public class DArray extends DataStructureReadable implements
 		}
 
 	}
+
+	public void prepareForGC() {
+		this.list = null;
+	}
 }
