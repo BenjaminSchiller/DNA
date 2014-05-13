@@ -13,6 +13,7 @@ import dna.updates.update.NodeAddition;
 import dna.updates.update.NodeRemoval;
 import dna.updates.update.NodeWeight;
 import dna.updates.update.Update;
+import dna.util.Log;
 
 public class Batch {
 	private HashSet<NodeAddition> nodeAdditions;
@@ -87,7 +88,10 @@ public class Batch {
 	private boolean apply(Graph g, Iterable<? extends Update> updates) {
 		boolean success = true;
 		for (Update u : updates) {
-			success &= u.apply(g);
+			if (!u.apply(g)) {
+				Log.error("cannot apply '" + u + "' to '" + g + "'");
+				success = false;
+			}
 		}
 		return success;
 	}
@@ -285,7 +289,6 @@ public class Batch {
 		System.out.println(name + ": " + updates.size());
 		for (Update u : updates) {
 			System.out.println("  " + u);
-			// System.out.println("  " + u.getStringRepresentation());
 		}
 	}
 }

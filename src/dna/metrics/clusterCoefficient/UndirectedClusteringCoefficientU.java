@@ -173,7 +173,7 @@ public class UndirectedClusteringCoefficientU extends
 			int index = 0;
 			for (IElement eUncasted : n.getEdges()) {
 				UndirectedEdge e = (UndirectedEdge) eUncasted;
-				neighbors[index++] = e.getDifferingNode(n);
+				neighbors[index++] = (UndirectedNode) e.getDifferingNode(n);
 			}
 
 			for (int i = 0; i < neighbors.length; i++) {
@@ -206,7 +206,7 @@ public class UndirectedClusteringCoefficientU extends
 			// new triangles
 			for (IElement c_Uncasted : a.getEdges()) {
 				UndirectedEdge c_ = (UndirectedEdge) c_Uncasted;
-				UndirectedNode c = c_.getDifferingNode(a);
+				UndirectedNode c = (UndirectedNode) c_.getDifferingNode(a);
 				if (c.hasEdge(new UndirectedEdge(c, b))) {
 					this.addTriangle(a);
 					this.addTriangle(b);
@@ -227,7 +227,7 @@ public class UndirectedClusteringCoefficientU extends
 			UndirectedNode b = e.getNode2();
 			for (IElement a_Uncasted : a.getEdges()) {
 				UndirectedEdge a_ = (UndirectedEdge) a_Uncasted;
-				UndirectedNode c = a_.getDifferingNode(a);
+				UndirectedNode c = (UndirectedNode) a_.getDifferingNode(a);
 				if (c.hasEdge(new UndirectedEdge(c, b))) {
 					// remove triangles
 					this.removeTriangle(a);

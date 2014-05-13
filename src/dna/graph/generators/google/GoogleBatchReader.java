@@ -99,7 +99,7 @@ public class GoogleBatchReader {
 					checkNodesIn.put(n, new HashSet<Integer>(200));
 					nodesOutList.put(n, new HashSet<Integer>(200));
 					nodesInList.put(n, new HashSet<Integer>(200));
-					nodeAdd.add(UpdateType.NODE_ADDITION
+					nodeAdd.add(UpdateType.NA
 							+ Config.get("UPDATE_DELIMITER1") + n);
 				}
 			} else {
@@ -127,7 +127,7 @@ public class GoogleBatchReader {
 
 			if (checkNodesOut.containsKey(srcIndex)) {
 				if (!checkNodesOut.get(srcIndex).contains(dstIndex)) {
-					edgeAdd.add(UpdateType.EDGE_ADDITION
+					edgeAdd.add(UpdateType.EA
 							+ Config.get("UPDATE_DELIMITER1") + line);
 					nodesOutList.get(srcIndex).add(dstIndex);
 					nodesInList.get(dstIndex).add(srcIndex);
@@ -145,7 +145,7 @@ public class GoogleBatchReader {
 
 			if (checkNodesIn.containsKey(dstIndex)) {
 				if (!checkNodesIn.get(dstIndex).contains(srcIndex)) {
-					edgeAdd.add(UpdateType.EDGE_ADDITION
+					edgeAdd.add(UpdateType.EA
 							+ Config.get("UPDATE_DELIMITER1") + line);
 					nodesOutList.get(srcIndex).add(dstIndex);
 					nodesInList.get(dstIndex).add(srcIndex);
@@ -158,7 +158,7 @@ public class GoogleBatchReader {
 		if (!checkNodesOut.isEmpty()) {
 			for (int i : checkNodesOut.keySet()) {
 				for (int s : checkNodesOut.get(i)) {
-					edgeDel.add(UpdateType.EDGE_REMOVAL
+					edgeDel.add(UpdateType.ER
 							+ Config.get("UPDATE_DELIMITER1") + i
 							+ Config.get("EDGE_DIRECTED_DELIMITER") + s);
 					if (checkNodesIn.containsKey(s)) {
@@ -173,7 +173,7 @@ public class GoogleBatchReader {
 		if (!checkNodesIn.isEmpty()) {
 			for (int i : checkNodesIn.keySet()) {
 				for (int s : checkNodesIn.get(i)) {
-					edgeDel.add(UpdateType.EDGE_REMOVAL
+					edgeDel.add(UpdateType.ER
 							+ Config.get("UPDATE_DELIMITER1") + s
 							+ Config.get("EDGE_DIRECTED_DELIMITER") + i);
 					nodesOutList.get(s).remove(i);
@@ -201,7 +201,7 @@ public class GoogleBatchReader {
 				checkNodesIn.put(n, new HashSet<Integer>(200));
 				nodesOutList.put(n, new HashSet<Integer>(200));
 				nodesInList.put(n, new HashSet<Integer>(200));
-				nodeAdd.add(UpdateType.NODE_ADDITION
+				nodeAdd.add(UpdateType.NA
 						+ Config.get("UPDATE_DELIMITER1") + n);
 			} else {
 				lastSeen.put(n, timeStamp + 1);
@@ -224,7 +224,7 @@ public class GoogleBatchReader {
 			}
 			if (checkNodesOut.containsKey(srcIndex)) {
 				if (!checkNodesOut.get(srcIndex).contains(dstIndex)) {
-					edgeAdd.add(UpdateType.EDGE_ADDITION
+					edgeAdd.add(UpdateType.EA
 							+ Config.get("UPDATE_DELIMITER1") + line);
 					nodesOutList.get(srcIndex).add(dstIndex);
 					nodesInList.get(dstIndex).add(srcIndex);
@@ -243,7 +243,7 @@ public class GoogleBatchReader {
 
 			if (checkNodesIn.containsKey(dstIndex)) {
 				if (!checkNodesIn.get(dstIndex).contains(srcIndex)) {
-					edgeAdd.add(UpdateType.EDGE_ADDITION
+					edgeAdd.add(UpdateType.EA
 							+ Config.get("UPDATE_DELIMITER1") + line);
 					nodesOutList.get(srcIndex).add(dstIndex);
 					nodesInList.get(dstIndex).add(srcIndex);
@@ -257,7 +257,7 @@ public class GoogleBatchReader {
 		if (!checkNodesOut.isEmpty()) {
 			for (int i : checkNodesOut.keySet()) {
 				for (int s : checkNodesOut.get(i)) {
-					edgeDel.add(UpdateType.EDGE_REMOVAL
+					edgeDel.add(UpdateType.ER
 							+ Config.get("UPDATE_DELIMITER1") + i
 							+ Config.get("EDGE_DIRECTED_DELIMITER") + s);
 					if (checkNodesIn.containsKey(s)) {
@@ -272,7 +272,7 @@ public class GoogleBatchReader {
 		if (!checkNodesIn.isEmpty()) {
 			for (int i : checkNodesIn.keySet()) {
 				for (int s : checkNodesIn.get(i)) {
-					edgeDel.add(UpdateType.EDGE_REMOVAL
+					edgeDel.add(UpdateType.ER
 							+ Config.get("UPDATE_DELIMITER1") + s
 							+ Config.get("EDGE_DIRECTED_DELIMITER") + i);
 					nodesOutList.get(s).remove(i);
@@ -292,7 +292,7 @@ public class GoogleBatchReader {
 			for (int i = 0; i < deltype.length; i++) {
 				if (deltype[i].equals(GraphNodeDeletionType.AfterNTimes)) {
 					if (timeStamp + 1L - lastSeen.get(n) > deleteAfter) {
-						nodeDel.add(UpdateType.NODE_REMOVAL
+						nodeDel.add(UpdateType.NR
 								+ Config.get("UPDATE_DELIMITER1") + n);
 						removals.add(n);
 						continue;
@@ -301,12 +301,12 @@ public class GoogleBatchReader {
 				if (deltype[i].equals(GraphNodeDeletionType.EmptyNodes)) {
 					if (nodesOutList.get(n).isEmpty()
 							&& nodesInList.get(n).isEmpty()) {
-						String s = UpdateType.NODE_ADDITION
+						String s = UpdateType.NA
 								+ Config.get("UPDATE_DELIMITER1") + n;
 						if (nodeAdd.contains(s)) {
 							nodeAdd.remove(s);
 						} else {
-							nodeDel.add(UpdateType.NODE_REMOVAL
+							nodeDel.add(UpdateType.NR
 									+ Config.get("UPDATE_DELIMITER1") + n);
 						}
 						removals.add(n);

@@ -6,25 +6,14 @@ public abstract class NodeUpdate extends Update {
 
 	protected INode node;
 
-	public NodeUpdate(UpdateType type, INode node) {
-		super(type);
-		this.node = node;
-	}
-
 	public INode getNode() {
 		return this.node;
 	}
 
-	@Override
-	protected String getStringRepresentation_() {
-		return this.node.getStringRepresentation();
+	public NodeUpdate(INode node) {
+		this.node = node;
 	}
 
-	@Override
-	protected String toString_() {
-		return this.node.toString();
-	}
-	
 	@Override
 	protected int hashCode_() {
 		return this.node.hashCode();

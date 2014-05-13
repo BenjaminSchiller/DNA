@@ -115,7 +115,7 @@ public class RichClubConnectivitySizeNU extends RichClubConnectivitySizeN {
 			// calculate changes for richclub connectivity
 			for (IElement ie : src.getEdges()) {
 				DirectedEdge edge = (DirectedEdge) ie;
-				DirectedNode node = edge.getDifferingNode(src);
+				DirectedNode node = (DirectedNode) edge.getDifferingNode(src);
 				if (this.richClub.containsKey(node.getOutDegree())
 						&& this.richClub.get(node.getOutDegree())
 								.contains(node)) {
@@ -125,7 +125,7 @@ public class RichClubConnectivitySizeNU extends RichClubConnectivitySizeN {
 
 			for (IElement ie : lastNode.getEdges()) {
 				DirectedEdge edge = (DirectedEdge) ie;
-				DirectedNode node = edge.getDifferingNode(lastNode);
+				DirectedNode node = (DirectedNode) edge.getDifferingNode(lastNode);
 				if (this.richClub.containsKey(node.getOutDegree())
 						&& this.richClub.get(node.getOutDegree())
 								.contains(node)) {
@@ -226,7 +226,7 @@ public class RichClubConnectivitySizeNU extends RichClubConnectivitySizeN {
 				// calculate changes for richclub connectivity
 				for (IElement ie : n1.getEdges()) {
 					DirectedEdge edge = (DirectedEdge) ie;
-					DirectedNode n2 = edge.getDifferingNode(n1);
+					DirectedNode n2 = (DirectedNode) edge.getDifferingNode(n1);
 					if (this.richClub.containsKey(n2.getOutDegree())
 							&& this.richClub.get(n2.getOutDegree())
 									.contains(n2)) {
@@ -236,7 +236,7 @@ public class RichClubConnectivitySizeNU extends RichClubConnectivitySizeN {
 
 				for (IElement ie : firstNode.getEdges()) {
 					DirectedEdge edge = (DirectedEdge) ie;
-					DirectedNode n2 = edge.getDifferingNode(firstNode);
+					DirectedNode n2 = (DirectedNode) edge.getDifferingNode(firstNode);
 					if (this.richClub.containsKey(n2.getOutDegree())
 							&& this.richClub.get(n2.getOutDegree())
 									.contains(n2)) {
@@ -267,7 +267,7 @@ public class RichClubConnectivitySizeNU extends RichClubConnectivitySizeN {
 			// calculate changes for richclub connectivity
 			for (IElement ie : node.getOutgoingEdges()) {
 				DirectedEdge edge = (DirectedEdge) ie;
-				DirectedNode n2 = edge.getDifferingNode(node);
+				DirectedNode n2 = (DirectedNode) edge.getDifferingNode(node);
 				if (this.richClub.containsKey(n2.getOutDegree())
 						&& this.richClub.get(n2.getOutDegree()).contains(n2)) {
 					this.edgesBetweenRichClub--;
@@ -276,7 +276,7 @@ public class RichClubConnectivitySizeNU extends RichClubConnectivitySizeN {
 
 			for (IElement ie : firstNode.getEdges()) {
 				DirectedEdge edge = (DirectedEdge) ie;
-				DirectedNode n2 = edge.getDifferingNode(firstNode);
+				DirectedNode n2 = (DirectedNode) edge.getDifferingNode(firstNode);
 				if (this.richClub.containsKey(n2.getOutDegree())
 						&& this.richClub.get(n2.getOutDegree()).contains(n2)) {
 					this.edgesBetweenRichClub++;
@@ -300,10 +300,10 @@ public class RichClubConnectivitySizeNU extends RichClubConnectivitySizeN {
 		UndirectedNode node = (UndirectedNode) ((NodeRemoval) u).getNode();
 		int min = Integer.MAX_VALUE;
 		int max = 0;
-		HashMap<Integer, LinkedList<UndirectedNode>> order = new HashMap<>();
+		HashMap<Integer, LinkedList<Node>> order = new HashMap<>();
 		for (IElement ie : node.getEdges()) {
 			UndirectedEdge e = (UndirectedEdge) ie;
-			UndirectedNode n = e.getDifferingNode(node);
+			Node n = e.getDifferingNode(node);
 
 			if (richClub.containsKey(n.getDegree() + 1)
 					&& richClub.get(n.getDegree() + 1).contains(n)) {
@@ -323,7 +323,7 @@ public class RichClubConnectivitySizeNU extends RichClubConnectivitySizeN {
 				if (order.containsKey(n.getDegree())) {
 					order.get(n.getDegree()).add(n);
 				} else {
-					order.put(n.getDegree(), new LinkedList<UndirectedNode>());
+					order.put(n.getDegree(), new LinkedList<Node>());
 					order.get(n.getDegree()).add(n);
 				}
 			} else if (nodesSortedByDegree.containsKey(n.getDegree() + 1)
@@ -352,7 +352,7 @@ public class RichClubConnectivitySizeNU extends RichClubConnectivitySizeN {
 			if (!order.containsKey(i)) {
 				continue;
 			}
-			for (UndirectedNode n1 : order.get(i)) {
+			for (Node n1 : order.get(i)) {
 				int big = getBiggest();
 				if (i >= big) {
 					f = true;
@@ -373,12 +373,12 @@ public class RichClubConnectivitySizeNU extends RichClubConnectivitySizeN {
 				if (this.richClub.get(i).isEmpty()) {
 					this.richClub.remove(i);
 				}
-				addNodeToRest(n1);
+				addNodeToRest((UndirectedNode)n1);
 
 				// calculate changes for richclub connectivity
 				for (IElement ie : n1.getEdges()) {
 					UndirectedEdge edge = (UndirectedEdge) ie;
-					UndirectedNode n2 = edge.getDifferingNode(n1);
+					Node n2 = edge.getDifferingNode(n1);
 					if (this.richClub.containsKey(n2.getDegree())
 							&& this.richClub.get(n2.getDegree()).contains(n2)) {
 						this.edgesBetweenRichClub--;
@@ -387,7 +387,7 @@ public class RichClubConnectivitySizeNU extends RichClubConnectivitySizeN {
 
 				for (IElement ie : firstNode.getEdges()) {
 					UndirectedEdge edge = (UndirectedEdge) ie;
-					UndirectedNode n2 = edge.getDifferingNode(firstNode);
+					Node n2 = edge.getDifferingNode(firstNode);
 					if (this.richClub.containsKey(n2.getDegree())
 							&& this.richClub.get(n2.getDegree()).contains(n2)) {
 						this.edgesBetweenRichClub++;
@@ -415,7 +415,7 @@ public class RichClubConnectivitySizeNU extends RichClubConnectivitySizeN {
 
 			for (IElement ie : firstNode.getEdges()) {
 				UndirectedEdge edge = (UndirectedEdge) ie;
-				UndirectedNode n2 = edge.getDifferingNode(firstNode);
+				Node n2 = edge.getDifferingNode(firstNode);
 				if (this.richClub.containsKey(n2.getDegree())
 						&& this.richClub.get(n2.getDegree()).contains(n2)) {
 					this.edgesBetweenRichClub++;
@@ -501,7 +501,7 @@ public class RichClubConnectivitySizeNU extends RichClubConnectivitySizeN {
 			// calculate changes for richclub connectivity
 			for (IElement ie : src.getEdges()) {
 				DirectedEdge edge = (DirectedEdge) ie;
-				DirectedNode node = edge.getDifferingNode(src);
+				DirectedNode node = (DirectedNode) edge.getDifferingNode(src);
 				if (this.richClub.containsKey(node.getOutDegree())
 						&& this.richClub.get(node.getOutDegree())
 								.contains(node)) {
@@ -511,7 +511,7 @@ public class RichClubConnectivitySizeNU extends RichClubConnectivitySizeN {
 
 			for (IElement ie : firstNode.getEdges()) {
 				DirectedEdge edge = (DirectedEdge) ie;
-				DirectedNode node = edge.getDifferingNode(firstNode);
+				DirectedNode node = (DirectedNode) edge.getDifferingNode(firstNode);
 				if (this.richClub.containsKey(node.getOutDegree())
 						&& this.richClub.get(node.getOutDegree())
 								.contains(node)) {
@@ -596,7 +596,7 @@ public class RichClubConnectivitySizeNU extends RichClubConnectivitySizeN {
 			// calculate changes for richclub connectivity
 			for (IElement ie : n1.getEdges()) {
 				UndirectedEdge edge = (UndirectedEdge) ie;
-				UndirectedNode node = edge.getDifferingNode(n1);
+				Node node = edge.getDifferingNode(n1);
 				if (this.richClub.containsKey(node.getDegree())
 						&& this.richClub.get(node.getDegree()).contains(node)) {
 					this.edgesBetweenRichClub++;
@@ -605,7 +605,7 @@ public class RichClubConnectivitySizeNU extends RichClubConnectivitySizeN {
 
 			for (IElement ie : lastNode.getEdges()) {
 				UndirectedEdge edge = (UndirectedEdge) ie;
-				UndirectedNode node = edge.getDifferingNode(lastNode);
+				Node node = edge.getDifferingNode(lastNode);
 				if (this.richClub.containsKey(node.getDegree())
 						&& this.richClub.get(node.getDegree()).contains(node)) {
 					this.edgesBetweenRichClub--;
@@ -692,7 +692,7 @@ public class RichClubConnectivitySizeNU extends RichClubConnectivitySizeN {
 			// calculate changes for richclub connectivity
 			for (IElement ie : n.getEdges()) {
 				UndirectedEdge edge = (UndirectedEdge) ie;
-				UndirectedNode node = edge.getDifferingNode(n);
+				Node node = edge.getDifferingNode(n);
 				if (this.richClub.containsKey(node.getDegree())
 						&& this.richClub.get(node.getDegree()).contains(node)) {
 					this.edgesBetweenRichClub--;
@@ -701,7 +701,7 @@ public class RichClubConnectivitySizeNU extends RichClubConnectivitySizeN {
 
 			for (IElement ie : firstNode.getEdges()) {
 				UndirectedEdge edge = (UndirectedEdge) ie;
-				UndirectedNode node = edge.getDifferingNode(firstNode);
+				Node node = edge.getDifferingNode(firstNode);
 				if (this.richClub.containsKey(node.getDegree())
 						&& this.richClub.get(node.getDegree()).contains(node)) {
 					this.edgesBetweenRichClub++;

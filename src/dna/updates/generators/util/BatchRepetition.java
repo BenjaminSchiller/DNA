@@ -1,11 +1,8 @@
 package dna.updates.generators.util;
 
 import dna.graph.Graph;
-import dna.graph.nodes.Node;
-import dna.graph.nodes.UndirectedNode;
 import dna.updates.batch.Batch;
 import dna.updates.generators.BatchGenerator;
-import dna.updates.update.NodeAddition;
 
 public class BatchRepetition extends BatchGenerator {
 
@@ -42,13 +39,6 @@ public class BatchRepetition extends BatchGenerator {
 	public Batch generate(Graph g) {
 		Batch b = this.getNext().generate(g);
 		this.index = (index + 1) % this.total;
-		
-		Node a = g.getNode(234);
-			
-		
-		b.add(new NodeAddition(g.getGraphDatastructures().newNodeInstance(10)));
-		
-		
 		return b;
 	}
 

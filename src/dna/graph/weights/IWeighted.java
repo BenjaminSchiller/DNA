@@ -1,16 +1,14 @@
 package dna.graph.weights;
 
 /**
- * Interface for weighted nodes and edges
  * 
- * @author Nico
+ * interface for weighted nodes and edges.
  * 
- * @param <T>
- *            data type to store weight information
+ * @author benni
+ * 
  */
-public interface IWeighted<T> {
+public interface IWeighted {
+	public Weight getWeight();
 
-	public void setWeight(T newWeight);
-
-	public T getWeight();
+	public void setWeight(Weight weight);
 }

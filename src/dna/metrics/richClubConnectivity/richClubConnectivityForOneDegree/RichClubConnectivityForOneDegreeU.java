@@ -4,6 +4,7 @@ import dna.graph.IElement;
 import dna.graph.edges.DirectedEdge;
 import dna.graph.edges.UndirectedEdge;
 import dna.graph.nodes.DirectedNode;
+import dna.graph.nodes.Node;
 import dna.graph.nodes.UndirectedNode;
 import dna.updates.batch.Batch;
 import dna.updates.update.EdgeAddition;
@@ -190,7 +191,7 @@ public class RichClubConnectivityForOneDegreeU extends
 			this.richClub.remove(node);
 			for (IElement iEdge : node.getEdges()) {
 				UndirectedEdge edge = (UndirectedEdge) iEdge;
-				UndirectedNode n = edge.getDifferingNode(node);
+				Node n = edge.getDifferingNode(node);
 				if (this.richClub.contains(n)) {
 					this.richClubEdges -= 2;
 				}
@@ -255,7 +256,7 @@ public class RichClubConnectivityForOneDegreeU extends
 			this.richClub.add(node);
 			for (IElement iEdge : node.getEdges()) {
 				UndirectedEdge ed = (UndirectedEdge) iEdge;
-				UndirectedNode n = ed.getDifferingNode(node);
+				Node n = ed.getDifferingNode(node);
 				if (this.richClub.contains(n)) {
 					this.richClubEdges += 2;
 				}
@@ -275,7 +276,7 @@ public class RichClubConnectivityForOneDegreeU extends
 			this.richClub.remove(node);
 			for (IElement iEdge : node.getEdges()) {
 				UndirectedEdge edge = (UndirectedEdge) iEdge;
-				UndirectedNode n = edge.getDifferingNode(node);
+				UndirectedNode n = (UndirectedNode) edge.getDifferingNode(node);
 				if (this.richClub.contains(n)) {
 					checkNodeREM(n);
 					this.richClubEdges -= 2;
@@ -284,7 +285,7 @@ public class RichClubConnectivityForOneDegreeU extends
 		} else {
 			for (IElement iEdge : node.getEdges()) {
 				UndirectedEdge edge = (UndirectedEdge) iEdge;
-				UndirectedNode n = edge.getDifferingNode(node);
+				UndirectedNode n = (UndirectedNode) edge.getDifferingNode(node);
 				if (this.richClub.contains(n)) {
 					checkNodeREM(n);
 				}

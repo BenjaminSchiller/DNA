@@ -168,10 +168,13 @@ public class DHashTable extends DataStructureReadable implements
 	}
 
 	@Override
+	public Edge get(Node n1, Node n2) {
+		return (Edge) this.list.get(Integer.toString(Edge.getHashcode(n1, n2)));
+	}
+
+	@Override
 	public Edge get(Edge element) {
-		if (!list.containsKey(element.getHashString()))
-			return null;
-		return (Edge) this.list.get(element.getHashString());
+		return get(element.getN1(), element.getN2());
 	}
 
 	@Override

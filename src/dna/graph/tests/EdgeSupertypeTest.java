@@ -21,6 +21,9 @@ import dna.graph.edges.UndirectedEdge;
 import dna.graph.nodes.DirectedNode;
 import dna.graph.nodes.Node;
 import dna.graph.nodes.UndirectedNode;
+import dna.graph.weights.DoubleWeight;
+import dna.graph.weights.IntWeight;
+import dna.graph.weights.Weight.WeightSelection;
 
 @RunWith(Parameterized.class)
 public class EdgeSupertypeTest {
@@ -34,9 +37,11 @@ public class EdgeSupertypeTest {
 				ListType.class);
 		for (ListType lt : ListType.values()) {
 			listTypes.put(lt, DArray.class);
-		}		
-		
-		this.gds = new GraphDataStructure(listTypes, nodeType, edgeType);
+		}
+
+		this.gds = new GraphDataStructure(listTypes, nodeType, edgeType,
+				DoubleWeight.class, WeightSelection.RandTrim1, IntWeight.class,
+				WeightSelection.RandPos100);
 		this.nodeType = nodeType;
 		this.edgeType = edgeType;
 	}

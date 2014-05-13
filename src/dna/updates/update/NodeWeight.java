@@ -1,38 +1,49 @@
 package dna.updates.update;
 
 import dna.graph.Graph;
-import dna.graph.nodes.IWeightedNode;
-import dna.graph.weights.IWeighted;
-import dna.util.Config;
+import dna.graph.weights.IWeightedNode;
+import dna.graph.weights.Weight;
 
 public class NodeWeight extends NodeUpdate {
 
-	private Object weight;
+	protected Weight weight;
 
-	public NodeWeight(IWeightedNode node, Object weight) {
-		super(UpdateType.NODE_WEIGHT, node);
+	public Weight getWeight() {
+		return this.weight;
+	}
+
+	public NodeWeight(IWeightedNode node, Weight weight) {
+		super(node);
 		this.weight = weight;
+	}
+
+	public NodeWeight(String str, Graph g) {
+		super(null);
+		String[] temp = str.split(Update.WeightDelimiter);
+		this.node = g.getNode(Integer.parseInt(temp[0]));
+		this.weight = g.getGraphDatastructures().newNodeWeight(temp[1]);
 	}
 
 	@Override
 	public boolean apply_(Graph g) {
-		((IWeighted) this.node).setWeight(this.weight);
-		return g.getNode(this.node.getIndex()) == this.node;
+		((IWeightedNode) this.node).setWeight(this.weight);
+		return true;
 	}
 
 	@Override
-	protected String getStringRepresentation_() {
-		return super.getStringRepresentation_()
-				+ Config.get("UPDATE_DELIMITER2") + this.weight;
+	public UpdateType getType() {
+		return UpdateType.NW;
+	}
+
+	@Override
+	protected String asString_() {
+		return this.node.getIndex() + Update.WeightDelimiter
+				+ this.weight.asString();
 	}
 
 	@Override
 	protected String toString_() {
-		return super.toString_() + " [" + this.weight + "]";
-	}
-
-	public Object getWeight() {
-		return this.weight;
+		return this.node.getIndex() + " @ " + this.weight.toString();
 	}
 
 }

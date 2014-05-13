@@ -5,6 +5,7 @@ import java.util.Queue;
 
 import dna.graph.IElement;
 import dna.graph.edges.UndirectedEdge;
+import dna.graph.nodes.Node;
 import dna.graph.nodes.UndirectedNode;
 import dna.updates.batch.Batch;
 import dna.updates.update.Update;
@@ -43,16 +44,16 @@ public class UndirectedShortestPathsR extends UndirectedShortestPaths {
 		for (IElement sUncasted : g.getNodes()) {
 			UndirectedNode s = (UndirectedNode) sUncasted;
 			int[] dist = ArrayUtils.init(this.g.getMaxNodeIndex() + 1, -1);
-			Queue<UndirectedNode> q = new LinkedList<UndirectedNode>();
+			Queue<Node> q = new LinkedList<Node>();
 
 			dist[s.getIndex()] = 0;
 			q.add(s);
 
 			while (!q.isEmpty()) {
-				UndirectedNode current = q.poll();
+				Node current = q.poll();
 				for (IElement eUncasted : current.getEdges()) {
 					UndirectedEdge e = (UndirectedEdge) eUncasted;
-					UndirectedNode neighbor = e.getDifferingNode(current);
+					Node neighbor = e.getDifferingNode(current);
 					if (dist[neighbor.getIndex()] != -1) {
 						continue;
 					}

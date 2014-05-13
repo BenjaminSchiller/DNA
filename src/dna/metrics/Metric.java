@@ -180,7 +180,6 @@ public abstract class Metric extends ParameterList {
 	 * reset of all data structures
 	 */
 	public void reset() {
-		this.g = null;
 		this.timestamp = Long.MIN_VALUE;
 		this.reset_();
 	}

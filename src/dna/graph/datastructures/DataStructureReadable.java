@@ -71,7 +71,7 @@ public abstract class DataStructureReadable extends DataStructure implements
 		Log.debug(this.size() + " elements stored in this list");
 		int count = 1;
 		for (IElement e : this.getElements()) {
-			Log.debug((count++) + ": " + e.getStringRepresentation());
+			Log.debug((count++) + ": " + e.asString());
 		}
 	}
 

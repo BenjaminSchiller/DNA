@@ -54,4 +54,8 @@ public interface IEdge extends IElement {
 	 * Returns a simple string that is necessary for the hash table
 	 */
 	public String getHashString();
+	
+	public Node getN1();
+	
+	public Node getN2();
 }

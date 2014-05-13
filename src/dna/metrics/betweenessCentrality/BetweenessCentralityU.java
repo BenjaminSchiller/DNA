@@ -4,7 +4,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
+import java.util.Map.Entry;
 import java.util.Queue;
+import java.util.Stack;
 
 import dna.graph.IElement;
 import dna.graph.edges.DirectedEdge;
@@ -13,6 +15,7 @@ import dna.graph.edges.UndirectedEdge;
 import dna.graph.nodes.DirectedNode;
 import dna.graph.nodes.Node;
 import dna.graph.nodes.UndirectedNode;
+import dna.metrics.Metric;
 import dna.updates.batch.Batch;
 import dna.updates.update.EdgeAddition;
 import dna.updates.update.EdgeRemoval;
@@ -27,6 +30,11 @@ public class BetweenessCentralityU extends BetweenessCentrality {
 	HashMap<Node, Long> visited;
 	long counter;
 
+	protected HashMap<Node, HashMap<Node, HashSet<Node>>> parents;
+	protected HashMap<Node, HashMap<Node, Integer>> distances;
+	protected HashMap<Node, HashMap<Node, Integer>> spcs;
+	protected HashMap<Node, HashMap<Node, Double>> accSums;
+
 	public BetweenessCentralityU() {
 		super("BetweenessCentralityU", ApplicationType.AfterUpdate);
 	}
@@ -34,6 +42,12 @@ public class BetweenessCentralityU extends BetweenessCentrality {
 	@Override
 	public void init_() {
 		super.init_();
+		// this.bC = new HashMap<Node, Double>();
+		this.parents = new HashMap<>();
+		this.distances = new HashMap<>();
+		this.spcs = new HashMap<>();
+		this.accSums = new HashMap<>();
+
 		int length = 1000;
 		qALevel = new LinkedList[length];
 		qLevel = new LinkedList[length];
@@ -65,18 +79,23 @@ public class BetweenessCentralityU extends BetweenessCentrality {
 
 	@Override
 	public boolean applyAfterUpdate(Update u) {
-
+		boolean applied = false;
 		if (u instanceof NodeAddition) {
-			return applyAfterNodeAddition(u);
+			applied = applyAfterNodeAddition(u);
 		} else if (u instanceof NodeRemoval) {
-			return applyAfterNodeRemoval(u);
+			applied = applyAfterNodeRemoval(u);
 		} else if (u instanceof EdgeAddition) {
-			return applyAfterEdgeAddition(u);
+			applied = applyAfterEdgeAddition(u);
 		} else if (u instanceof EdgeRemoval) {
-			return applyAfterEdgeRemoval(u);
+			applied = applyAfterEdgeRemoval(u);
 		}
 
-		return false;
+		sumShortestPaths = 0; // reinit necessary!
+		for (Entry<Node, HashMap<Node, Integer>> e : spcs.entrySet()) {
+			sumShortestPaths += sumSPFromHM(e.getValue(), e.getKey());
+		}
+
+		return applied;
 	}
 
 	private boolean applyAfterEdgeRemoval(Update u) {
@@ -110,8 +129,8 @@ public class BetweenessCentralityU extends BetweenessCentrality {
 		} else if (UndirectedNode.class.isAssignableFrom(this.g
 				.getGraphDatastructures().getNodeType())) {
 			UndirectedEdge e = (UndirectedEdge) ((EdgeRemoval) u).getEdge();
-			UndirectedNode n1 = e.getNode1();
-			UndirectedNode n2 = e.getNode2();
+			Node n1 = e.getNode1();
+			Node n2 = e.getNode2();
 
 			for (IElement iE : g.getNodes()) {
 				UndirectedNode root = (UndirectedNode) iE;
@@ -180,10 +199,10 @@ public class BetweenessCentralityU extends BetweenessCentrality {
 					DirectedNode w = (DirectedNode) qLevel[i].poll();
 
 					int dist = Integer.MAX_VALUE;
-					ArrayList<DirectedNode> min = new ArrayList<DirectedNode>();
+					ArrayList<Node> min = new ArrayList<Node>();
 					for (IElement iEdges : w.getIncomingEdges()) {
 						DirectedEdge ed = (DirectedEdge) iEdges;
-						DirectedNode z = ed.getDifferingNode(w);
+						Node z = ed.getDifferingNode(w);
 
 						if (d.get(z) < dist) {
 							min.clear();
@@ -199,7 +218,7 @@ public class BetweenessCentralityU extends BetweenessCentrality {
 
 					for (IElement iEdges : w.getOutgoingEdges()) {
 						DirectedEdge ed = (DirectedEdge) iEdges;
-						DirectedNode z = ed.getDifferingNode(w);
+						Node z = ed.getDifferingNode(w);
 						if (d.get(z).equals(d.get(w) + 1)
 								&& Math.abs(visited.get(z)) < counter) {
 							qLevel[i + 1].add(z);
@@ -226,7 +245,7 @@ public class BetweenessCentralityU extends BetweenessCentrality {
 					boolean found = false;
 					newSpc.put(w, 0);
 					newParents.get(w).clear();
-					for (DirectedNode mNode : min) {
+					for (Node mNode : min) {
 
 						if ((!uncertain.contains(mNode))
 								&& d.get(mNode).intValue() + 1 == i) {
@@ -256,10 +275,10 @@ public class BetweenessCentralityU extends BetweenessCentrality {
 
 					UndirectedNode w = (UndirectedNode) qLevel[i].poll();
 					int dist = Integer.MAX_VALUE;
-					ArrayList<UndirectedNode> min = new ArrayList<UndirectedNode>();
+					ArrayList<Node> min = new ArrayList<Node>();
 					for (IElement iEdges : w.getEdges()) {
 						UndirectedEdge ed = (UndirectedEdge) iEdges;
-						UndirectedNode z = ed.getDifferingNode(w);
+						Node z = ed.getDifferingNode(w);
 
 						if (d.get(z).equals(d.get(w) + 1)
 								&& Math.abs(visited.get(z)) < counter) {
@@ -297,7 +316,7 @@ public class BetweenessCentralityU extends BetweenessCentrality {
 					boolean found = false;
 					newSpc.put(w, 0);
 					newParents.get(w).clear();
-					for (UndirectedNode mNode : min) {
+					for (Node mNode : min) {
 						if ((!uncertain.contains(mNode))
 								&& d.get(mNode).intValue() + 1 == i) {
 							uncertain.remove(w);
@@ -415,7 +434,7 @@ public class BetweenessCentralityU extends BetweenessCentrality {
 				// all neighbours of v
 				for (IElement iEdge : v.getOutgoingEdges()) {
 					DirectedEdge edge = (DirectedEdge) iEdge;
-					DirectedNode w = edge.getDifferingNode(v);
+					Node w = edge.getDifferingNode(v);
 
 					if (d.get(w).equals(d.get(v) + 1)) {
 						if (Math.abs(visited.get(w)) < counter) {
@@ -440,7 +459,7 @@ public class BetweenessCentralityU extends BetweenessCentrality {
 				// all neighbours of v
 				for (IElement iEdge : v.getEdges()) {
 					UndirectedEdge edge = (UndirectedEdge) iEdge;
-					UndirectedNode w = edge.getDifferingNode(v);
+					Node w = edge.getDifferingNode(v);
 
 					if (d.get(w).equals(d.get(v) + 1)) {
 						if (Math.abs(visited.get(w)) < counter) {
@@ -552,8 +571,8 @@ public class BetweenessCentralityU extends BetweenessCentrality {
 		} else if (UndirectedNode.class.isAssignableFrom(this.g
 				.getGraphDatastructures().getNodeType())) {
 			UndirectedEdge e = (UndirectedEdge) ((EdgeAddition) u).getEdge();
-			UndirectedNode n1 = e.getNode1();
-			UndirectedNode n2 = e.getNode2();
+			Node n1 = e.getNode1();
+			Node n2 = e.getNode2();
 			for (IElement iE : g.getNodes()) {
 				UndirectedNode root = (UndirectedNode) iE;
 
@@ -734,9 +753,6 @@ public class BetweenessCentralityU extends BetweenessCentrality {
 				}
 				if (!w.equals(root)) {
 					double currentScore = this.bCC.getValue(w.getIndex());
-					// this.bC.get(w);
-					// this.bC.put(w,
-					// currentScore + newASums.get(w) - oldSums.get(w));
 					this.bCSum = this.bCSum + newASums.get(w) - oldSums.get(w);
 					this.bCC.setValue(w.getIndex(),
 							currentScore + newASums.get(w) - oldSums.get(w));
@@ -751,8 +767,7 @@ public class BetweenessCentralityU extends BetweenessCentrality {
 
 	}
 
-	private void mergeOfComponentsInsertion(UndirectedNode root,
-			UndirectedNode src, UndirectedNode dst) {
+	private void mergeOfComponentsInsertion(Node root, Node src, Node dst) {
 
 		counter++;
 
@@ -784,7 +799,7 @@ public class BetweenessCentralityU extends BetweenessCentrality {
 			maxHeight = Math.max(maxHeight, d.get(v));
 			for (IElement iEdge : v.getEdges()) {
 				UndirectedEdge ed = (UndirectedEdge) iEdge;
-				UndirectedNode n = ed.getDifferingNode(v);
+				Node n = ed.getDifferingNode(v);
 				if (Math.abs(visited.get(n)) < counter && n != src
 						&& d.get(n).equals(Integer.MAX_VALUE)) {
 					qBFS.add(n);
@@ -834,14 +849,11 @@ public class BetweenessCentralityU extends BetweenessCentrality {
 
 			}
 		}
-
 		spcs.put(root, newSpc);
 		oldSums.putAll(newASums);
-
 	}
 
-	private void nonAdjacentLevelInsertion(UndirectedNode root,
-			UndirectedNode src, UndirectedNode dst) {
+	private void nonAdjacentLevelInsertion(Node root, Node src, Node dst) {
 
 		counter++;
 		// old values
@@ -878,7 +890,7 @@ public class BetweenessCentralityU extends BetweenessCentrality {
 			// all neighbours of v
 			for (IElement iEdge : v.getEdges()) {
 				UndirectedEdge ed = (UndirectedEdge) iEdge;
-				UndirectedNode n = ed.getDifferingNode(v);
+				Node n = ed.getDifferingNode(v);
 
 				// Lower Node moves up
 				if (d.get(n).intValue() > d.get(v).intValue() + 1) {
@@ -956,9 +968,6 @@ public class BetweenessCentralityU extends BetweenessCentrality {
 				}
 				if (!w.equals(root)) {
 					double currentScore = this.bCC.getValue(w.getIndex());
-					// this.bC.get(w);
-					// this.bC.put(w,
-					// currentScore + newASums.get(w) - oldSums.get(w));
 					this.bCSum = this.bCSum + newASums.get(w) - oldSums.get(w);
 					this.bCC.setValue(w.getIndex(),
 							currentScore + newASums.get(w) - oldSums.get(w));
@@ -1032,7 +1041,7 @@ public class BetweenessCentralityU extends BetweenessCentrality {
 				// all neighbours of v
 				for (IElement iEdges : v.getEdges()) {
 					UndirectedEdge edge = (UndirectedEdge) iEdges;
-					UndirectedNode w = edge.getDifferingNode(v);
+					Node w = edge.getDifferingNode(v);
 
 					if (d.get(w).equals(d.get(v).intValue() + 1)) {
 						if (Math.abs(visited.get(w)) < counter) {
@@ -1150,6 +1159,169 @@ public class BetweenessCentralityU extends BetweenessCentrality {
 		bCC.setValue(node.getIndex(), 0d);
 		visited.put(node, 0L);
 		return true;
+	}
+
+	@Override
+	public boolean compute() {
+		Queue<Node> q = new LinkedList<Node>();
+		Stack<Node> s = new Stack<Node>();
+
+		for (IElement ie : g.getNodes()) {
+			Node n = (Node) ie;
+			// stage ONE
+			s.clear();
+			q.clear();
+			HashMap<Node, HashSet<Node>> p = new HashMap<Node, HashSet<Node>>();
+			HashMap<Node, Integer> d = new HashMap<Node, Integer>();
+			HashMap<Node, Integer> spc = new HashMap<Node, Integer>();
+			HashMap<Node, Double> sums = new HashMap<Node, Double>();
+
+			for (IElement ieE : g.getNodes()) {
+				Node t = (Node) ieE;
+				if (t == n) {
+					d.put(t, 0);
+					spc.put(t, 1);
+				} else {
+					spc.put(t, 0);
+					d.put(t, Integer.MAX_VALUE);
+				}
+				sums.put(t, 0d);
+				p.put(t, new HashSet<Node>());
+			}
+
+			q.add(n);
+
+			if (DirectedNode.class.isAssignableFrom(this.g
+					.getGraphDatastructures().getNodeType())) {
+				// stage 2
+				while (!q.isEmpty()) {
+					DirectedNode v = (DirectedNode) q.poll();
+					s.push(v);
+					for (IElement iEdges : v.getOutgoingEdges()) {
+						DirectedEdge edge = (DirectedEdge) iEdges;
+						DirectedNode w = (DirectedNode) edge
+								.getDifferingNode(v);
+
+						if (d.get(w).equals(Integer.MAX_VALUE)) {
+							q.add(w);
+							d.put(w, d.get(v) + 1);
+						}
+						if (d.get(w).equals(d.get(v) + 1)) {
+							spc.put(w, spc.get(w) + spc.get(v));
+							p.get(w).add(v);
+
+						}
+					}
+				}
+			} else if (UndirectedNode.class.isAssignableFrom(this.g
+					.getGraphDatastructures().getNodeType())) {
+				// stage 2
+				while (!q.isEmpty()) {
+					UndirectedNode v = (UndirectedNode) q.poll();
+					s.push(v);
+
+					for (IElement iEdges : v.getEdges()) {
+						UndirectedEdge edge = (UndirectedEdge) iEdges;
+						UndirectedNode w = (UndirectedNode) edge
+								.getDifferingNode(v);
+
+						if (d.get(w).equals(Integer.MAX_VALUE)) {
+							q.add(w);
+							d.put(w, d.get(v) + 1);
+						}
+						if (d.get(w).equals(d.get(v) + 1)) {
+							spc.put(w, spc.get(w) + spc.get(v));
+							p.get(w).add(v);
+
+						}
+					}
+				}
+			}
+
+			// stage 3
+
+			// stage 3
+			while (!s.isEmpty()) {
+				Node w = s.pop();
+				for (Node parent : p.get(w)) {
+					double sumForCurretConnection = spc.get(parent)
+							* (1 + sums.get(w)) / spc.get(w);
+					sums.put(parent, sums.get(parent) + sumForCurretConnection);
+				}
+				if (w != n) {
+					double currentScore = this.bCC.getValue(w.getIndex());
+					// this.bC.get(w);
+					// this.bC.put(w, currentScore + sums.get(w));
+					this.bCC.setValue(w.getIndex(), currentScore + sums.get(w));
+					this.bCSum += sums.get(w);
+				}
+			}
+			parents.put(n, p);
+			distances.put(n, d);
+			spcs.put(n, spc);
+			accSums.put(n, sums);
+		}
+
+		for (Entry<Node, HashMap<Node, Integer>> e : spcs.entrySet()) {
+			sumShortestPaths += sumSPFromHM(e.getValue(), e.getKey());
+		}
+		return true;
+	}
+
+	public boolean equals(Metric m) {
+		boolean success = super.equals(m);
+
+		if (success && m instanceof BetweenessCentralityU) {
+			BetweenessCentralityU bc = (BetweenessCentralityU) m;
+
+			for (IElement ie1 : g.getNodes()) {
+				Node n1 = (Node) ie1;
+				for (IElement ie2 : g.getNodes()) {
+					Node n2 = (Node) ie2;
+
+					if (!this.spcs.get(n1).get(n2)
+							.equals(bc.spcs.get(n1).get(n2))) {
+						System.out.println("diff at Tree " + n1 + "in Node n "
+								+ n2 + " expected SPC "
+								+ this.spcs.get(n1).get(n2).intValue() + " is "
+								+ bc.spcs.get(n1).get(n2).intValue());
+						success = false;
+					}
+
+					if (!this.parents.get(n1).get(n2)
+							.containsAll(bc.parents.get(n1).get(n2))
+							|| this.parents.get(n1).get(n2).size() != bc.parents
+									.get(n1).get(n2).size()) {
+						System.out.println("diff at Tree " + n1 + "in Node n "
+								+ n2 + " expected parents "
+								+ this.parents.get(n1).get(n2) + " is "
+								+ bc.parents.get(n1).get(n2));
+						success = false;
+					}
+
+					if (Math.abs(this.accSums.get(n1).get(n2).doubleValue()
+							- bc.accSums.get(n1).get(n2).doubleValue()) > 0.000001) {
+						System.out.println("diff at Tree " + n1 + "in Node n "
+								+ n2 + " expected Sum "
+								+ this.accSums.get(n1).get(n2) + " is "
+								+ bc.accSums.get(n1).get(n2) + " height == "
+								+ bc.distances.get(n1).get(n2));
+						success = false;
+					}
+
+					if (!this.distances.get(n1).get(n2)
+							.equals(bc.distances.get(n1).get(n2))) {
+						System.out.println("diff at Tree " + n1 + "in Node n "
+								+ n2 + " expected dist "
+								+ this.distances.get(n1).get(n2) + " is "
+								+ bc.distances.get(n1).get(n2));
+						success = false;
+					}
+
+				}
+			}
+		}
+		return success;
 	}
 
 }

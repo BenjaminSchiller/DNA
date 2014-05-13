@@ -4,42 +4,52 @@ import java.io.IOException;
 
 import dna.graph.Graph;
 import dna.graph.IElement;
-import dna.util.Config;
 
 public class GraphWriter {
+
+	public static final String nameKeyword = "DNA Graph";
+	public static final String datastructuresKeyword = "Data Structures";
+
+	public static final String nodeCountKeyword = "Nodes";
+	public static final String edgeCountKeyword = "Edges";
+
+	public static final String timestampKeyword = "Timestamp";
+
+	public static final String nodesListKeyword = "List of Nodes";
+	public static final String edgesListKeyword = "List of Edges";
 
 	public static boolean write(Graph g, String dir, String filename) {
 		Writer writer = null;
 		try {
 			writer = new Writer(dir, filename);
 
-			writer.writeKeyword(Config.get("GRAPH_KEYWORD_NAME"));
+			writer.writeKeyword(GraphWriter.nameKeyword);
 			writer.writeln(g.getName());
 
-			writer.writeKeyword(Config.get("GRAPH_KEYWORD_DATASTRUCTURES"));
+			writer.writeKeyword(GraphWriter.datastructuresKeyword);
 			writer.writeln(g.getGraphDatastructures().getDataStructures());
 
-			writer.writeKeyword(Config.get("GRAPH_KEYWORD_NODE_COUNT"));
+			writer.writeKeyword(GraphWriter.nodeCountKeyword);
 			writer.writeln(g.getNodeCount());
 
-			writer.writeKeyword(Config.get("GRAPH_KEYWORD_EDGE_COUNT"));
+			writer.writeKeyword(GraphWriter.edgeCountKeyword);
 			writer.writeln(g.getEdgeCount());
 
-			writer.writeKeyword(Config.get("GRAPH_KEYWORD_TIMESTAMP"));
+			writer.writeKeyword(GraphWriter.timestampKeyword);
 			writer.writeln(g.getTimestamp());
 
-			writer.writeKeyword(Config.get("GRAPH_KEYWORD_NODES_LIST"));
+			writer.writeKeyword(GraphWriter.nodesListKeyword);
 			for (IElement n : g.getNodes()) {
 				if (n == null)
 					continue;
-				writer.writeln(n.getStringRepresentation());
+				writer.writeln(n.asString());
 			}
 
-			writer.writeKeyword(Config.get("GRAPH_KEYWORD_EDGES_LIST"));
+			writer.writeKeyword(GraphWriter.edgesListKeyword);
 			for (IElement e : g.getEdges()) {
 				if (e == null)
 					continue;
-				writer.writeln(e.getStringRepresentation());
+				writer.writeln(e.asString());
 			}
 
 			return true;

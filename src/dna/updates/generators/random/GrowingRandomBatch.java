@@ -1,8 +1,7 @@
 package dna.updates.generators.random;
 
 import dna.graph.Graph;
-import dna.graph.weights.Weights.EdgeWeightSelection;
-import dna.graph.weights.Weights.NodeWeightSelection;
+import dna.graph.weights.Weight.WeightSelection;
 import dna.updates.batch.Batch;
 import dna.updates.generators.BatchGenerator;
 
@@ -11,11 +10,11 @@ public class GrowingRandomBatch extends BatchGenerator {
 	private int na;
 	private int nr;
 	private int nw;
-	private NodeWeightSelection nws;
+	private WeightSelection nws;
 	private int ea;
 	private int er;
 	private int ew;
-	private EdgeWeightSelection ews;
+	private WeightSelection ews;
 
 	int time = 0;
 

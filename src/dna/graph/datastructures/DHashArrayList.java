@@ -33,7 +33,8 @@ public class DHashArrayList extends DataStructureReadable implements
 		super(lt, dT);
 	}
 
-	public void init(Class<? extends IElement> dT, int initialSize, boolean firstTime) {
+	public void init(Class<? extends IElement> dT, int initialSize,
+			boolean firstTime) {
 		this.list = new ArrayList<>(initialSize);
 		this.set = new HashSet<>(initialSize);
 		this.maxNodeIndex = -1;
@@ -50,7 +51,8 @@ public class DHashArrayList extends DataStructureReadable implements
 
 	public boolean add(Node element) {
 		super.canAdd(element);
-		if (this.list.contains(element) || !this.list.add(element) || !this.set.add(element)) {
+		if (this.list.contains(element) || !this.list.add(element)
+				|| !this.set.add(element)) {
 			return false;
 		}
 		this.maxNodeIndex = Math.max(this.maxNodeIndex, element.getIndex());
@@ -59,7 +61,8 @@ public class DHashArrayList extends DataStructureReadable implements
 
 	public boolean add(Edge element) {
 		super.canAdd(element);
-		return !this.list.contains(element) && this.list.add(element) && this.set.add(element);
+		return !this.list.contains(element) && this.list.add(element)
+				&& this.set.add(element);
 	}
 
 	@Override
@@ -152,13 +155,21 @@ public class DHashArrayList extends DataStructureReadable implements
 		return null;
 	}
 
-	public Edge get(Edge e) {
-		for (IElement edge : this.list) {
-			if (edge.equals(e)) {
-				return (Edge) edge;
-			}
+	@Override
+	public Edge get(Node n1, Node n2) {
+		for (IElement eU : list) {
+			if (eU == null)
+				continue;
+			Edge e = (Edge) eU;
+			if (e.getN1().equals(n1) && e.getN2().equals(n2))
+				return e;
 		}
 		return null;
+	}
+
+	@Override
+	public Edge get(Edge element) {
+		return get(element.getN1(), element.getN2());
 	}
 
 	@Override

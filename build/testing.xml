@@ -13,6 +13,7 @@
 	<path id="class.path">
 		<fileset dir="lib">
 			<include name="**/*.jar" />
+			<exclude name="jchart2d-3.2.2_original.jar" />
 		</fileset>
 		<pathelement location="${jUnitJar}" />
 		<fileset dir="${aspectJDir}">

@@ -10,6 +10,7 @@ import dna.graph.IElement;
 import dna.graph.edges.DirectedEdge;
 import dna.graph.edges.UndirectedEdge;
 import dna.graph.nodes.DirectedNode;
+import dna.graph.nodes.Node;
 import dna.graph.nodes.UndirectedNode;
 import dna.metrics.Metric;
 import dna.series.data.Distribution;
@@ -102,7 +103,7 @@ public abstract class RichClubConnectivityPerDegree extends Metric {
 			int edges = 0;
 			for (IElement ieEdges : n.getEdges()) {
 				UndirectedEdge ed = (UndirectedEdge) ieEdges;
-				UndirectedNode node = ed.getDifferingNode(n);
+				Node node = ed.getDifferingNode(n);
 				if (node.getDegree() > degree) {
 					edges += 2;
 				}
