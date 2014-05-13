@@ -17,7 +17,7 @@ import dna.profiler.datatypes.ComparableEntryMap;
 import dna.util.Config;
 
 public class HotSwap {
-	private static Map<ProfilerMeasurementData.ProfilerDataType, HotSwapMap> slidingWindow = null;
+	private static HotSwapMap slidingWindow = null;
 	private static long lastFinishedBatch;
 	private static int totalNumberOfBatches;
 	private static boolean inFirstBatch = true;
@@ -37,12 +37,7 @@ public class HotSwap {
 	private static int currAccessListIndex = 0;
 
 	public static void reset() {
-		slidingWindow = new EnumMap<ProfilerMeasurementData.ProfilerDataType, HotSwapMap>(
-				ProfilerDataType.class);
-		for (ProfilerDataType dt : ProfilerDataType.values()) {
-			slidingWindow.put(dt, new HotSwapMap());
-		}
-
+		slidingWindow = new HotSwapMap();
 		accessList = new ProfileEntry[maxAccessListSize];
 		firstSwitch = null;
 		inFirstBatch = true;
@@ -61,13 +56,10 @@ public class HotSwap {
 		}
 		currAccessListIndex = (currAccessListIndex + 1) % maxAccessListSize;
 
-		for (ProfilerDataType dt : ProfilerDataType.values()) {
-			TreeSet<RecommenderEntry> latestRecommendations = Profiler
-					.getRecommendations(dt);
-			if (latestRecommendations != null) {
-				HotSwapMap innerMap = slidingWindow.get(dt);
-				innerMap.put(latestRecommendations);
-			}
+		TreeSet<RecommenderEntry> latestRecommendations = Profiler
+				.getRecommendations(Profiler.profilerDataTypeForHotSwap);
+		if (latestRecommendations != null) {
+			slidingWindow.put(latestRecommendations);
 		}
 		inFirstBatch = false;
 	}
@@ -144,10 +136,8 @@ public class HotSwap {
 		int amortizationCounter = getAmortizationCounter();
 		ProfileEntry accumulatedAccesses = getAccumulatedAccesses(amortizationCounter);
 
-		HotSwapMap map = slidingWindow.get(Profiler.profilerDataTypeForHotSwap);
-		RecommenderEntry entry = map.getRecommendation();
+		RecommenderEntry entry = slidingWindow.getRecommendation();
 		if (entry != null) {
-
 			ComparableEntryMap lastOwnCosts = Profiler
 					.getLastCosts(Profiler.profilerDataTypeForHotSwap);
 			ComparableEntryMap recCosts = entry
