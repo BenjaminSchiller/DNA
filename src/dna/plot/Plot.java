@@ -25,6 +25,7 @@ public class Plot {
 	private String filename = Config.get("GNUPLOT_FILENAME");
 	private String plotFilename;
 	private String scriptFilename = Config.get("GNUPLOT_SCRIPTFILENAME");
+	private String title;
 
 	private Writer fileWriter;
 
@@ -58,10 +59,11 @@ public class Plot {
 	 *             Might be thrown by the writer.
 	 */
 	public Plot(String dir, String plotFilename, String scriptFilename,
-			PlotData[] data) throws IOException {
+			String title, PlotData[] data) throws IOException {
 		this.dir = dir;
-		this.plotFilename = plotFilename;
+		this.filename = plotFilename;
 		this.scriptFilename = scriptFilename;
+		this.title = title;
 		this.data = data;
 
 		// init writer
@@ -82,7 +84,15 @@ public class Plot {
 
 	public void appendData(AggregatedValue[] values) throws IOException {
 		for (int i = 0; i < values.length; i++)
-			this.appendData(values[i], i * 1.0);
+			this.appendData(values[i], "");
+		this.appendEOF();
+	}
+
+	public void appendDataWithIndex(AggregatedValue[] values)
+			throws IOException {
+		for (int i = 0; i < values.length; i++)
+			this.appendData(values[i], "" + i);
+		this.appendEOF();
 	}
 
 	public void appendData(AggregatedValue[] values, double[] timestamps)
@@ -90,20 +100,30 @@ public class Plot {
 		for (int i = 0; i < values.length; i++) {
 			this.appendData(values[i], timestamps[i]);
 		}
+		this.appendEOF();
+	}
+
+	public void appendData(AggregatedValue value, String timestamp)
+			throws IOException {
+		Writer w = this.fileWriter;
+		String temp = "" + timestamp;
+		for (int k = 0; k < value.getValues().length; k++) {
+			if (temp.equals(""))
+				temp += value.getValues()[k];
+			else
+				temp += Config.get("PLOTDATA_DELIMITER") + value.getValues()[k];
+		}
+		w.writeln(temp);
 	}
 
 	public void appendData(AggregatedValue value, double timestamp)
 			throws IOException {
-		Writer w = this.fileWriter;
+		this.appendData(value, "" + timestamp);
+	}
 
-		String temp = "" + timestamp;
-		for (int k = 0; k < value.getValues().length; k++) {
-			temp += Config.get("PLOTDATA_DELIMITER") + value.getValues()[k];
-		}
-		w.writeln(temp);
-
-		// end-of-file indicates the end of the data
-		w.writeln("EOF");
+	public void appendEOF() throws IOException {
+		this.dataWriteCounter++;
+		this.fileWriter.writeln("EOF");
 	}
 
 	public void close() throws IOException {
@@ -113,11 +133,6 @@ public class Plot {
 					+ this.data.length + "  Written: " + this.dataWriteCounter);
 		this.fileWriter.close();
 		this.fileWriter = null;
-		this.dir = null;
-		this.plotFilename = null;
-		this.scriptFilename = null;
-		this.data = null;
-		this.dataWriteCounter = 0;
 	}
 
 	// constructors
@@ -405,8 +420,8 @@ public class Plot {
 		if (Config.getBoolean("GNUPLOT_GRID")) {
 			script.add("set grid");
 		}
-		if (!Config.get("GNUPLOT_TITLE").equals("null")) {
-			script.add("set title \"" + Config.get("GNUPLOT_TITLE") + "\"");
+		if (this.title != null) {
+			script.add("set title \"" + this.title + "\"");
 		}
 		if (!Config.get("GNUPLOT_XLABEL").equals("null")) {
 			script.add("set xlabel \"" + Config.get("GNUPLOT_XLABEL") + "\"");
@@ -504,8 +519,14 @@ public class Plot {
 				+ this.scriptFilename, true);
 	}
 
+	public void execute() throws IOException, InterruptedException {
+		Execute.exec(Config.get("GNUPLOT_PATH") + " " + this.dir
+				+ this.scriptFilename, true);
+	}
+
 	public void setTitle(String title) {
 		Config.overwrite("GNUPLOT_TITLE", title);
+		this.title = title;
 	}
 
 	// datetime examples:
