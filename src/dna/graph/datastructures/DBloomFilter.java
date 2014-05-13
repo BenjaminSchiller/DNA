@@ -105,11 +105,6 @@ public class DBloomFilter extends DataStructure implements
 
 	}
 
-	@Override
-	public void printList() {
-		// TODO Auto-generated method stub
-	}
-
 	public void prepareForGC() {
 		this.list = null;
 	}
