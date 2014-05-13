@@ -3,7 +3,6 @@ package dna.plot;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 
 import dna.io.Writer;
 import dna.io.filesystem.Dir;
@@ -28,6 +27,7 @@ import dna.series.aggdata.AggregatedValueList;
 import dna.series.data.SeriesData;
 import dna.util.Config;
 import dna.util.Log;
+import dna.util.Memory;
 
 public class Plotting {
 
@@ -150,9 +150,24 @@ public class Plotting {
 		long timestampTo = config.getTimestampTo();
 		long stepsize = config.getStepsize();
 
+		PlotType type = config.getPlotType();
+		PlotStyle style = config.getPlotStyle();
+
+		String title = seriesData[0].getName();
+
+		ArrayList<String> y = new ArrayList<String>();
+		y.add("total");
+		y.add("overhead");
+		y.add("metrics");
+		y.add("sum");
+		y.add("batchGeneration");
+		y.add("graphUpdate");
+
+		boolean singleFile = Config.getBoolean("GENERATION_BATCHES_AS_ZIP");
+
 		Log.infoSep();
-		Log.info("plotting sequentially data from batch " + timestampFrom
-				+ " - " + timestampTo + " with stepsize " + stepsize + " for "
+		Log.info("plotting data from batch " + timestampFrom + " - "
+				+ timestampTo + " with stepsize " + stepsize + " for "
 				+ seriesData.length + " series to " + dstDir);
 		(new File(dstDir)).mkdirs();
 
@@ -160,150 +175,565 @@ public class Plotting {
 		String tempDir = Dir.getAggregationDataDir(seriesData[0].getDir());
 		String[] batches = Dir.getBatchesFromTo(tempDir, timestampFrom,
 				timestampTo, stepsize);
+		double timestamps[] = new double[batches.length];
+		for (int i = 0; i < batches.length; i++) {
+			timestamps[i] = Dir.getTimestamp(batches[i]);
+		}
+
+		// read single values
+		AggregatedBatch[] batchData = new AggregatedBatch[batches.length];
+		for (int i = 0; i < batches.length; i++) {
+			long timestamp = Dir.getTimestamp(batches[i]);
+			if (singleFile)
+				batchData[i] = AggregatedBatch.readFromSingleFile(tempDir,
+						timestamp, Dir.delimiter,
+						BatchReadMode.readOnlySingleValues);
+			else
+				batchData[i] = AggregatedBatch.read(
+						Dir.getBatchDataDir(tempDir, timestamp), timestamp,
+						BatchReadMode.readOnlySingleValues);
+		}
 
 		// list relevant batches
 		Log.infoSep();
-		Log.info("Relevant Batches:");
-		for (int i = 0; i < batches.length; i++) {
-			Log.info(batches[i]);
+		Log.info("Plotting batches:");
+		for (int i = 0; i < batches.length && i <= 3; i++) {
+			Log.info("\t" + batches[i]);
 		}
-		Log.infoSep();
+		if (batches.length > 3) {
+			Log.info("\t...");
+			Log.info("\t" + batches[batches.length - 1]);
+		}
 
 		// generate gnuplot script files
-		boolean singleFile = Config.getBoolean("GENERATION_BATCHES_AS_ZIP");
+		AggregatedBatch initBatch = batchData[0];
 
-		AggregatedBatch initBatch;
-		long initTimestamp = Dir.getTimestamp(batches[0]);
-		if (singleFile)
-			initBatch = AggregatedBatch.readFromSingleFile(tempDir,
-					initTimestamp, Dir.delimiter, BatchReadMode.readAllValues);
-		else
-			initBatch = AggregatedBatch.read(
-					Dir.getBatchDataDir(tempDir, initTimestamp), initTimestamp,
-					BatchReadMode.readAllValues);
+		if (config.isPlotStatistics()) {
+			// plot statistics
+			AggregatedValueList values = initBatch.getValues();
+			Plotting.plotStatistics(batchData, timestamps, values, dstDir,
+					title, style, type);
+		}
 
-		ArrayList<Plot> seqPlots = new ArrayList<Plot>();
-		ArrayList<Plot> allPlots = new ArrayList<Plot>();
+		if (config.isPlotRuntimes()) {
+			// plot general runtimes
+			Plotting.plotGeneralRuntimes(batchData, timestamps, y, dstDir,
+					title, style, type);
 
-		// instantiate writers
-		AggregatedValueList values = initBatch.getValues();
+			// plot metric runtimes
+			AggregatedRunTimeList metricRuntimes = initBatch
+					.getMetricRuntimes();
+			Plotting.plotMetricRuntimes(batchData, timestamps, metricRuntimes,
+					dstDir, title, style, type);
+		}
+
+		if (config.isPlotMetricValues()) {
+			// plot metric values
+			AggregatedMetricList metrics = initBatch.getMetrics();
+			Plotting.plotMetricValues(batchData, timestamps, metrics, dstDir,
+					title, style, type);
+		}
+
+		double mem1 = new Memory().getUsed();
+
 		Log.infoSep();
-		Log.info("Values:");
-		for (String value : SeriesStats.statisticsToPlot) {
-			if (values.getNames().contains(value)) {
-				Log.info("creating plot for " + value);
-				// scriptWriters.put(value, Plotting.plotValue2(seriesData,
-				// dstDir, type, style, null, value));
-				Plot valuePlot = new Plot(dstDir, PlotFilenames.getValuesPlot(
-						Config.get("PREFIX_STATS_PLOT"), value),
-						PlotFilenames.getValuesGnuplotScript(
-								Config.get("PREFIX_STATS_PLOT"), value),
-						new PlotData[] { PlotData.get(value,
-								config.getPlotStyle(), "itle",
-								config.getPlotType()) });
-				allPlots.add(valuePlot);
-			}
-		}
-		
-		// TODO: combination of values ?
-		for(Plot p : allPlots) {
-			p.writeScriptHeaderNeu();
-			p.close();
-		}
-		
-		AggregatedRunTimeList generalRuntimes = initBatch.getGeneralRuntimes();
-		Log.infoSep();
-		Log.info("GEN RT:");
+		Log.info("Finished first plotting attempt");
+		Log.info("\tused memory: " + mem1);
+		Log.info("Erasing unsused data");
 
-		for (AggregatedValue gen : generalRuntimes.getList()) {
-			String runtime = gen.getName();
-			Log.info("creating gnuplot script for general runtime: " + runtime);
+		// free resources
+		batchData = null;
+		System.gc();
 
-			// scriptWriters.put(runtime, Plotting.plotRuntimes2(seriesData,
-			// dstDir, runtime, type, style));
-		}
-		AggregatedRunTimeList metricRuntimes = initBatch.getMetricRuntimes();
-		Log.infoSep();
-		Log.info("MET RT:");
-		for (AggregatedValue met : metricRuntimes.getList()) {
-			Log.info(met.getName());
-		}
+		double mem2 = new Memory().getUsed();
+		Log.info("\tremoved: " + (mem1 - mem2));
+		Log.info("\tused memory: " + mem2);
 
-		AggregatedMetricList metrics = initBatch.getMetrics();
-		Log.infoSep();
-		Log.info("METRICS:");
-		for (AggregatedMetric metric : metrics.getList()) {
-			Log.info("Metric: " + metric.getName());
-			Log.info("Distributions:");
-			for (AggregatedDistribution d : metric.getDistributions().getList()) {
-				Log.info("\t" + d.getName());
-			}
-			Log.info("NodeValueLists");
-			for (AggregatedNodeValueList n : metric.getNodeValues().getList()) {
-				Log.info("\t" + n.getName());
-			}
-			Log.info("Distributions:");
-			for (AggregatedValue v : metric.getValues().getList()) {
-				Log.info("\t" + v.getName());
-			}
-			Log.infoSep();
-		}
+		boolean plotDistributions = config.isPlotDistributions();
+		boolean plotNodeValues = config.isPlotNodeValueLists();
 
-		// write headers
-		/*
-		 * // read batches and write content for (String batch : batches) {
-		 * AggregatedBatch tempBatch;
-		 * 
-		 * long timestamp = Dir.getTimestamp(batch); System.out.println(tempDir
-		 * + " " + timestamp + " " + batch); if (singleFile) tempBatch =
-		 * AggregatedBatch.readFromSingleFile(tempDir, timestamp, Dir.delimiter,
-		 * BatchReadMode.readAllValues); else tempBatch = AggregatedBatch.read(
-		 * Dir.getBatchDataDir(tempDir, timestamp), timestamp,
-		 * BatchReadMode.readAllValues);
-		 * 
-		 * // append data to scripts Plotting.appendData(tempBatch,
-		 * scriptWriters); }
-		 * 
-		 * // append end-of-file line for (AggregatedValue v : values.getList())
-		 * { if (scriptWriters.get(v.getName()) != null)
-		 * scriptWriters.get(v.getName()).write("EOF"); }
-		 * 
-		 * // close writers for (String s : scriptWriters.keySet()) {
-		 * scriptWriters.get(s).close(); }
-		 */
-		// execute scripts
-		// TODO: exec
+		if (plotDistributions || plotNodeValues)
+			Plotting.plotDistributionsAndNodeValues(plotDistributions,
+					plotNodeValues, initBatch, batches, timestamps, tempDir,
+					dstDir, title, style, type);
 
 	}
 
-	/**
-	 * Appends data from the batch to all gnuplot scripts.
-	 * 
-	 * @param b
-	 *            AggregatedBatch whose data will be appended
-	 * @param scriptWriters
-	 *            Writers for the scripts
-	 * @throws IOException
-	 *             Can be thrown by a writer
-	 */
-	private static void appendData(AggregatedBatch b,
-			HashMap<String, Writer> scriptWriters) throws IOException {
-		String plotDelimiter = Config.get("PLOTDATA_DELIMITER");
-		Log.info("Appending data from batch : " + b.getTimestamp());
-		AggregatedValueList values = b.getValues();
-		Log.info("\tvalues");
-		for (AggregatedValue v : values.getList()) {
-			for (String value : SeriesStats.statisticsToPlot) {
-				Writer w = scriptWriters.get(value);
-				if (v.getName().equals(value)) {
-					String temp = "" + b.getTimestamp();
-					for (double d : v.getValues()) {
-						temp += plotDelimiter + d;
+	private static void plotDistributionsAndNodeValues(
+			boolean plotDistributions, boolean plotNodeValues,
+			AggregatedBatch initBatch, String[] batches, double[] timestamps,
+			String aggrDir, String dstDir, String title, PlotStyle style,
+			PlotType type) throws IOException, InterruptedException {
+		boolean singleFile = Config.getBoolean("GENERATION_BATCHES_AS_ZIP");
+
+		Log.infoSep();
+		Log.info("Sequentially plotting Distributions and / or NodeValueLists");
+
+		Plot[][] distributionPlots = null;
+		Plot[][] nodevaluePlots = null;
+		if (plotDistributions)
+			distributionPlots = Plotting.generateDistributionPlots(initBatch,
+					batches, timestamps, dstDir, title, style, type);
+		if (plotNodeValues)
+			nodevaluePlots = Plotting.generateNodeValueListPlots(initBatch,
+					batches, timestamps, dstDir, title, style, type);
+
+		for (int i = 0; i < batches.length; i++) {
+			AggregatedBatch tempBatch;
+			long timestamp = Dir.getTimestamp(batches[i]);
+
+			if (singleFile)
+				tempBatch = AggregatedBatch.readFromSingleFile(aggrDir,
+						timestamp, Dir.delimiter,
+						BatchReadMode.readOnlyDistAndNvl);
+			else
+				tempBatch = AggregatedBatch.read(
+						Dir.getBatchDataDir(aggrDir, timestamp), timestamp,
+						BatchReadMode.readOnlyDistAndNvl);
+
+			if (plotDistributions) {
+				// append data to distribution plots
+				int metricIndex = 0;
+				for (AggregatedMetric m : tempBatch.getMetrics().getList()) {
+					int distIndex = 0;
+					for (AggregatedDistribution d : m.getDistributions()
+							.getList()) {
+						AggregatedValue[] values = d.getValues();
+
+						distributionPlots[metricIndex][distIndex]
+								.appendData(values);
+						for (int j = 1; j < values.length; j++) {
+							for (int k = 1; k < values[j].getValues().length; k++) {
+								values[j].getValues()[k] += values[j - 1]
+										.getValues()[k];
+							}
+						}
+						distributionPlots[metricIndex][distIndex + 1]
+								.appendData(values);
+						distIndex += 2;
 					}
-					w.writeln(temp);
+					metricIndex++;
+				}
+			}
+
+			if (plotNodeValues) {
+				// append data to nvl plots
+				int metricIndex = 0;
+				for (AggregatedMetric m : tempBatch.getMetrics().getList()) {
+					int nvlIndex = 0;
+					for (AggregatedNodeValueList n : m.getNodeValues()
+							.getList()) {
+						nodevaluePlots[metricIndex][nvlIndex]
+								.appendDataWithIndex(n.getValues());
+						nvlIndex++;
+					}
+					metricIndex++;
+				}
+			}
+
+			// free resources
+			tempBatch = null;
+			System.gc();
+		}
+
+		// close and execute plot scripts
+		if (plotDistributions) {
+			for (int i = 0; i < distributionPlots.length; i++) {
+				for (int j = 0; j < distributionPlots[i].length; j++) {
+					Plot distPlot = distributionPlots[i][j];
+
+					// close and execute
+					distPlot.close();
+					distPlot.execute();
 				}
 			}
 		}
+		if (plotNodeValues) {
+			for (int i = 0; i < nodevaluePlots.length; i++) {
+				for (int j = 0; j < nodevaluePlots[i].length; j++) {
+					Plot nvlPlot = nodevaluePlots[i][j];
+
+					// close and execute
+					nvlPlot.close();
+					nvlPlot.execute();
+				}
+			}
+		}
+
+	}
+
+	private static Plot[][] generateNodeValueListPlots(
+			AggregatedBatch initBatch, String[] batches, double[] timestamps,
+			String dstDir, String title, PlotStyle style, PlotType type)
+			throws IOException {
+		Plot[][] nodevaluesPlots = new Plot[initBatch.getMetrics().size()][];
+
+		// gather all available nvls
+		int index = 0;
+		for (AggregatedMetric m : initBatch.getMetrics().getList()) {
+			ArrayList<AggregatedNodeValueList> nodevalues = new ArrayList<AggregatedNodeValueList>();
+
+			String metric = m.getName();
+			for (AggregatedNodeValueList n : m.getNodeValues().getList()) {
+				Log.info("\tplotting '" + n.getName() + "'");
+				nodevalues.add(n);
+			}
+
+			PlotData[][] nodevaluesPlotData = new PlotData[nodevalues.size()][batches.length];
+
+			// create plot data
+			for (int i = 0; i < nodevalues.size(); i++) {
+				for (int j = 0; j < batches.length; j++) {
+					nodevaluesPlotData[i][j] = PlotData.get(nodevalues.get(i)
+							.getName(), style, title + " @ " + timestamps[j],
+							type);
+				}
+			}
+
+			// create plots
+			nodevaluesPlots[index] = new Plot[nodevalues.size()];
+			for (int i = 0; i < nodevaluesPlots[index].length; i++) {
+				String nodevaluelist = nodevalues.get(i).getName();
+				nodevaluesPlots[index][i] = new Plot(dstDir,
+						PlotFilenames.getNodeValueListPlot(metric,
+								nodevaluelist),
+						PlotFilenames.getNodeValueListGnuplotScript(metric,
+								nodevaluelist), nodevaluelist + " (" + type
+								+ ")", nodevaluesPlotData[i]);
+			}
+			index++;
+		}
+
+		// write headers
+		for (int i = 0; i < nodevaluesPlots.length; i++) {
+			for (int j = 0; j < nodevaluesPlots[i].length; j++) {
+				nodevaluesPlots[i][j].writeScriptHeaderNeu();
+			}
+		}
+		return nodevaluesPlots;
+	}
+
+	private static Plot[][] generateDistributionPlots(
+			AggregatedBatch initBatch, String[] batches, double[] timestamps,
+			String dstDir, String title, PlotStyle style, PlotType type)
+			throws IOException {
+		Plot[][] distributionPlots = new Plot[initBatch.getMetrics().size()][];
+
+		// gather all available distributions
+		int index = 0;
+		for (AggregatedMetric m : initBatch.getMetrics().getList()) {
+			ArrayList<AggregatedDistribution> distributions = new ArrayList<AggregatedDistribution>();
+			Log.info("plotting metric " + m.getName());
+			String metric = m.getName();
+			for (AggregatedDistribution d : m.getDistributions().getList()) {
+				Log.info("\tplotting '" + d.getName() + "'");
+				distributions.add(d);
+			}
+
+			PlotData[][] distributionPlotData = new PlotData[distributions
+					.size()][batches.length];
+
+			// create plot data
+			for (int i = 0; i < distributions.size(); i++) {
+				for (int j = 0; j < batches.length; j++) {
+					distributionPlotData[i][j] = PlotData.get(distributions
+							.get(i).getName(), style, title + " @ "
+							+ timestamps[j], type);
+				}
+			}
+
+			// create plots
+			// each distribution will also be plotted as cdf -> " size*2 "
+			distributionPlots[index] = new Plot[distributions.size() * 2];
+			for (int i = 0; i < distributionPlots[index].length; i += 2) {
+				String distribution = distributions.get(i).getName();
+				distributionPlots[index][i] = new Plot(dstDir, PlotFilenames
+						.getDistributionPlot(metric, distribution),
+						PlotFilenames.getDistributionGnuplotScript(metric,
+								distribution),
+						distribution + " (" + type + ")",
+						distributionPlotData[i]);
+				distributionPlots[index][i + 1] = new Plot(dstDir,
+						PlotFilenames.getDistributionCdfPlot(metric,
+								distribution),
+						PlotFilenames.getDistributionCdfGnuplotScript(metric,
+								distribution), "CDF of " + distribution + " ("
+								+ type + ")", distributionPlotData[i]);
+			}
+			index++;
+		}
+
+		// write headers
+		for (int i = 0; i < distributionPlots.length; i++) {
+			for (int j = 0; j < distributionPlots[i].length; j++) {
+				distributionPlots[i][j].writeScriptHeaderNeu();
+			}
+		}
+		return distributionPlots;
+	}
+
+	/** Plot statistics **/
+	private static void plotStatistics(AggregatedBatch[] batchData,
+			double[] timestamps, AggregatedValueList values, String dstDir,
+			String title, PlotStyle style, PlotType type) throws IOException,
+			InterruptedException {
+		Log.infoSep();
+		Log.info("Plotting values:");
+		for (String value : SeriesStats.statisticsToPlot) {
+			if (values.getNames().contains(value)) {
+				Log.info("\tplotting '" + value + "'");
+
+				// get plot data
+				PlotData valuePlotData = PlotData
+						.get(value, style, title, type);
+
+				// create plot
+				Plot valuePlot = new Plot(dstDir, PlotFilenames.getValuesPlot(
+						Config.get("PREFIX_STATS_PLOT"), value),
+						PlotFilenames.getValuesGnuplotScript(
+								Config.get("PREFIX_STATS_PLOT"), value), value
+								+ " (" + type + ")",
+						new PlotData[] { valuePlotData });
+
+				// write header
+				valuePlot.writeScriptHeaderNeu();
+
+				// append data
+				for (int i = 0; i < batchData.length; i++) {
+					AggregatedValue aValue = batchData[i].getValues()
+							.get(value);
+					valuePlot.appendData(aValue,
+							(double) batchData[i].getTimestamp());
+				}
+				valuePlot.appendEOF();
+
+				// close and execute
+				valuePlot.close();
+				valuePlot.execute();
+			}
+		}
+		// TODO: combination of values ?
+	}
+
+	/** Plots metric values **/
+	private static void plotMetricValues(AggregatedBatch[] batchData,
+			double[] timestamps, AggregatedMetricList metrics, String dstDir,
+			String title, PlotStyle style, PlotType type) throws IOException,
+			InterruptedException {
+		Log.infoSep();
+
+		for (AggregatedMetric m : metrics.getList()) {
+			String metric = m.getName();
+			Log.info("Plotting metric " + metric);
+			for (AggregatedValue v : m.getValues().getList()) {
+				String value = v.getName();
+				Log.info("\tplotting '" + value + "'");
+
+				// get plot data
+				PlotData valuePlotData = PlotData.get(value, style, value + "-"
+						+ title, type);
+
+				// create plot
+				Plot valuePlot = new Plot(dstDir, PlotFilenames.getValuesPlot(
+						metric, value), PlotFilenames.getValuesGnuplotScript(
+						metric, value), value + " (" + type + ")",
+						new PlotData[] { valuePlotData });
+
+				// write header
+				valuePlot.writeScriptHeaderNeu();
+
+				// append data
+				for (int i = 0; i < batchData.length; i++) {
+					valuePlot.appendData(batchData[i].getMetrics().get(metric)
+							.getValues().get(value), timestamps[i]);
+				}
+				valuePlot.appendEOF();
+
+				// close and execute
+				valuePlot.close();
+				valuePlot.execute();
+			}
+		}
+
+		// TODO: CONFIGURABLE? HEURISTICS VS EXACTS?
+	}
+
+	/** Plots metric runtimes **/
+	private static void plotMetricRuntimes(AggregatedBatch[] batchData,
+			double[] timestamps, AggregatedRunTimeList metricRuntimes,
+			String dstDir, String title, PlotStyle style, PlotType type)
+			throws IOException, InterruptedException {
+		Log.infoSep();
+		Log.info("Plotting Metric-Runtimes:");
+
+		PlotData[] metRuntimes = new PlotData[metricRuntimes.size()];
+		int index = 0;
+		for (AggregatedValue met : metricRuntimes.getList()) {
+			String runtime = met.getName();
+			Log.info("\tplotting '" + runtime + "'");
+
+			// get plot data
+			PlotData metPlotData = PlotData.get(runtime, style, runtime + "-"
+					+ title, type);
+			metRuntimes[index] = metPlotData;
+
+			// create plot
+			Plot metRuntimeSinglePlot = new Plot(dstDir,
+					PlotFilenames.getRuntimesMetricPlot(runtime),
+					PlotFilenames.getRuntimesGnuplotScript(runtime), runtime
+							+ " (" + type + ")", new PlotData[] { metPlotData });
+			Plot metRuntimeSinglePlotCDF = new Plot(dstDir,
+					PlotFilenames.getRuntimesMetricPlotCDF(runtime),
+					PlotFilenames.getRuntimesGnuplotScriptCDF(runtime),
+					"CDF of " + runtime + " (" + type + ")",
+					new PlotData[] { metPlotData });
+
+			// write header
+			metRuntimeSinglePlot.writeScriptHeaderNeu();
+			metRuntimeSinglePlotCDF.writeScriptHeaderNeu();
+
+			// append data
+			AggregatedValue cdfValue = new AggregatedValue(null, new double[] {
+					0, 0, 0, 0, 0, 0, 0, 0, 0 });
+			for (int i = 0; i < batchData.length; i++) {
+				metRuntimeSinglePlot.appendData(batchData[i]
+						.getMetricRuntimes().get(runtime), timestamps[i]);
+
+				for (int j = 0; j < cdfValue.getValues().length; j++) {
+					cdfValue.getValues()[j] += batchData[i].getMetricRuntimes()
+							.get(runtime).getValues()[j];
+				}
+
+				metRuntimeSinglePlotCDF.appendData(cdfValue, timestamps[i]);
+			}
+			metRuntimeSinglePlot.appendEOF();
+			metRuntimeSinglePlotCDF.appendEOF();
+
+			// close and execute
+			metRuntimeSinglePlot.close();
+			metRuntimeSinglePlotCDF.close();
+
+			metRuntimeSinglePlot.execute();
+			metRuntimeSinglePlotCDF.execute();
+
+			index++;
+		}
+
+		// create plots
+		String metricRuntimeName = Config.get("PLOT_METRIC_RUNTIMES");
+		Plot metricRuntimesPlot = new Plot(dstDir,
+				PlotFilenames.getRuntimesStatisticPlot(metricRuntimeName),
+				PlotFilenames.getRuntimesGnuplotScript(metricRuntimeName),
+				metricRuntimeName + " runtimes (" + type + ")", metRuntimes);
+		Plot metricRuntimesPlotCDF = new Plot(dstDir,
+				PlotFilenames.getRuntimesStatisticPlotCDF(metricRuntimeName),
+				PlotFilenames.getRuntimesGnuplotScriptCDF(metricRuntimeName),
+				"CDF of " + metricRuntimeName + " runtimes (" + type + ")",
+				metRuntimes);
+
+		// write headers
+		metricRuntimesPlot.writeScriptHeaderNeu();
+		metricRuntimesPlotCDF.writeScriptHeaderNeu();
+
+		// append data
+		index = 0;
+		for (AggregatedValue met : metricRuntimes.getList()) {
+			AggregatedValue[] runtimeData = new AggregatedValue[batchData.length];
+			for (int i = 0; i < batchData.length; i++) {
+				runtimeData[i] = batchData[i].getMetricRuntimes().get(
+						met.getName());
+			}
+			metricRuntimesPlot.appendData(runtimeData, timestamps);
+
+			// cdf data
+			for (int i = 1; i < runtimeData.length; i++) {
+				for (int j = 0; j < runtimeData[i].getValues().length; j++) {
+					runtimeData[i].getValues()[j] += runtimeData[i - 1]
+							.getValues()[j];
+				}
+			}
+			metricRuntimesPlotCDF.appendData(runtimeData, timestamps);
+			index++;
+		}
+
+		// close and execute
+		metricRuntimesPlot.close();
+		metricRuntimesPlotCDF.close();
+
+		metricRuntimesPlot.execute();
+		metricRuntimesPlotCDF.execute();
+	}
+
+	/** Plot general runtimes **/
+	private static void plotGeneralRuntimes(AggregatedBatch[] batchData,
+			double[] timestamps, ArrayList<String> y, String dstDir,
+			String title, PlotStyle style, PlotType type) throws IOException,
+			InterruptedException {
+		Log.infoSep();
+		Log.info("Plotting General-Runtimes:");
+		PlotData[] genRuntimes = new PlotData[y.size()];
+		int index = 0;
+		for (String gen : y) {
+			Log.info("\tplotting '" + gen + "'");
+			genRuntimes[index] = PlotData.get(gen, style, gen + "-" + title,
+					type);
+			index++;
+		}
+
+		// create plots
+		String generalRuntimeName = Config.get("PLOT_GENERAL_RUNTIMES");
+		Plot generalRuntimesPlot = new Plot(dstDir,
+				PlotFilenames.getRuntimesStatisticPlot(generalRuntimeName),
+				PlotFilenames.getRuntimesGnuplotScript(generalRuntimeName),
+				generalRuntimeName + " runtimes (" + type + ")", genRuntimes);
+		Plot generalRuntimesPlotCDF = new Plot(dstDir,
+				PlotFilenames.getRuntimesStatisticPlotCDF(generalRuntimeName),
+				PlotFilenames.getRuntimesGnuplotScriptCDF(generalRuntimeName),
+				"CDF of " + generalRuntimeName + " runtimes (" + type + ")",
+				genRuntimes);
+
+		// write headers
+		generalRuntimesPlot.writeScriptHeaderNeu();
+		generalRuntimesPlotCDF.writeScriptHeaderNeu();
+
+		// gather data
+		AggregatedValue[][] runtimesData = new AggregatedValue[y.size()][batchData.length];
+
+		index = 0;
+		for (String gen : y) {
+			for (int i = 0; i < batchData.length; i++) {
+				// if stat is not present, add zero as values
+				if (batchData[i].getGeneralRuntimes().get(gen) == null)
+					runtimesData[index][i] = new AggregatedValue(gen,
+							new double[] { 0, 0, 0, 0, 0, 0, 0, 0, 0 });
+				else
+					runtimesData[index][i] = batchData[i].getGeneralRuntimes()
+							.get(gen);
+			}
+			index++;
+
+		}
+
+		// append data
+		for (int i = 0; i < runtimesData.length; i++) {
+			generalRuntimesPlot.appendData(runtimesData[i], timestamps);
+
+			// generate cdf data
+			for (int j = 1; j < runtimesData[i].length; j++) {
+				for (int k = 0; k < runtimesData[i][j].getValues().length; k++) {
+					runtimesData[i][j].getValues()[k] += runtimesData[i][j - 1]
+							.getValues()[k];
+				}
+			}
+			generalRuntimesPlotCDF.appendData(runtimesData[i], timestamps);
+		}
+
+		// close and execute
+		generalRuntimesPlot.close();
+		generalRuntimesPlotCDF.close();
+
+		generalRuntimesPlot.execute();
+		generalRuntimesPlotCDF.execute();
 	}
 
 	/**
@@ -895,35 +1325,6 @@ public class Plotting {
 						.getRuntimesMetricPlotCDF(Config
 								.get("PLOT_METRIC_RUNTIMES"))),
 				"CDF of metric runtimes (" + type + ")", type, style);
-	}
-
-	private static Writer plotRuntimes2(SeriesData[] seriesData, String dstDir,
-			String runtime, PlotType type, PlotStyle style) throws IOException,
-			InterruptedException {
-
-		for (SeriesData s : seriesData) {
-
-		}
-
-		PlotData[] data = new PlotData[seriesData.length];
-		// gather data
-		for (int i = 0; i < seriesData.length; i++) {
-			data[i] = PlotData.get(
-					dstDir
-							+ PlotFilenames.getRuntimesDataFile(seriesData[i]
-									.getName()), style,
-					seriesData[i].getName(), type);
-		}
-		// generate plot script and execute it
-		Plot plot = new Plot(data, dstDir,
-				PlotFilenames.getRuntimesStatisticPlot(runtime),
-				PlotFilenames.getRuntimesGnuplotScript(PlotFilenames
-						.getRuntimesStatisticPlot(runtime)));
-		plot.setTitle(runtime + " (" + type + ")");
-
-		return plot.writeScriptHeader(dstDir, PlotFilenames
-				.getRuntimesGnuplotScript(PlotFilenames
-						.getRuntimesStatisticPlot(runtime)));
 	}
 
 	/**
