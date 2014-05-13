@@ -110,6 +110,13 @@ public class PlotFilenames {
 				+ Config.get("SUFFIX_GNUPLOT");
 	}
 
+	public static String getRuntimesGnuplotScriptCDF(String name) {
+		return Config.get("PREFIX_RUNTIMES_GNUPLOT_SCRIPT") + name
+				+ Config.get("PLOT_DELIMITER")
+				+ Config.get("PLOT_DISTRIBUTION_CDF")
+				+ Config.get("SUFFIX_GNUPLOT");
+	}
+
 	public static String getRuntimesMetricPlot(String name) {
 		return Config.get("PREFIX_RUNTIMES_METRIC_PLOT") + name;
 	}
