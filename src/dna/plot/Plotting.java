@@ -144,6 +144,16 @@ public class Plotting {
 		Plotting.plotNodeValueLists(seriesData, dstDir);
 	}
 
+	/**
+	 * Main plotting method. Takes a plotting config object which controls the
+	 * behaviour.
+	 * 
+	 * @param seriesData
+	 * @param dstDir
+	 * @param config
+	 * @throws IOException
+	 * @throws InterruptedException
+	 */
 	public static void plotFromToSeq(SeriesData[] seriesData, String dstDir,
 			PlottingConfig config) throws IOException, InterruptedException {
 		long timestampFrom = config.getTimestampFrom();
@@ -155,13 +165,7 @@ public class Plotting {
 
 		String title = seriesData[0].getName();
 
-		ArrayList<String> y = new ArrayList<String>();
-		y.add("total");
-		y.add("overhead");
-		y.add("metrics");
-		y.add("sum");
-		y.add("batchGeneration");
-		y.add("graphUpdate");
+		ArrayList<String> metRuntimes = config.getMetricRuntimes();
 
 		boolean singleFile = Config.getBoolean("GENERATION_BATCHES_AS_ZIP");
 
@@ -217,8 +221,8 @@ public class Plotting {
 
 		if (config.isPlotRuntimes()) {
 			// plot general runtimes
-			Plotting.plotGeneralRuntimes(batchData, timestamps, y, dstDir,
-					title, style, type);
+			Plotting.plotGeneralRuntimes(batchData, timestamps, metRuntimes,
+					dstDir, title, style, type);
 
 			// plot metric runtimes
 			AggregatedRunTimeList metricRuntimes = initBatch
@@ -235,7 +239,6 @@ public class Plotting {
 		}
 
 		double mem1 = new Memory().getUsed();
-
 		Log.infoSep();
 		Log.info("Finished first plotting attempt");
 		Log.info("\tused memory: " + mem1);
@@ -259,6 +262,7 @@ public class Plotting {
 
 	}
 
+	/** Plots Distributions and NodeValueLists **/
 	private static void plotDistributionsAndNodeValues(
 			boolean plotDistributions, boolean plotNodeValues,
 			AggregatedBatch initBatch, String[] batches, double[] timestamps,
@@ -362,6 +366,7 @@ public class Plotting {
 
 	}
 
+	/** Generates NodeValueList Plots **/
 	private static Plot[][] generateNodeValueListPlots(
 			AggregatedBatch initBatch, String[] batches, double[] timestamps,
 			String dstDir, String title, PlotStyle style, PlotType type)
@@ -413,6 +418,7 @@ public class Plotting {
 		return nodevaluesPlots;
 	}
 
+	/** Generates Distribution Plots **/
 	private static Plot[][] generateDistributionPlots(
 			AggregatedBatch initBatch, String[] batches, double[] timestamps,
 			String dstDir, String title, PlotStyle style, PlotType type)

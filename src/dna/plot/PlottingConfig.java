@@ -1,5 +1,7 @@
 package dna.plot;
 
+import java.util.ArrayList;
+
 import dna.plot.Gnuplot.PlotStyle;
 import dna.plot.data.PlotData.DistributionPlotType;
 import dna.plot.data.PlotData.NodeValueListOrder;
@@ -24,6 +26,9 @@ public class PlottingConfig {
 	private DistributionPlotType distPlotType;
 	private NodeValueListOrder nvlOrder;
 	private NodeValueListOrderBy nvlOrderBy;
+
+	// combined metric runtimes plot
+	private ArrayList<String> metricRuntimes;
 
 	// plot flags
 	private boolean plotStatistics;
@@ -50,6 +55,14 @@ public class PlottingConfig {
 		this.distPlotType = distPlotType;
 		this.nvlOrder = nvlOrder;
 		this.nvlOrderBy = nvlOrderBy;
+
+		this.metricRuntimes = new ArrayList<String>();
+		this.metricRuntimes.add("total");
+		this.metricRuntimes.add("overhead");
+		this.metricRuntimes.add("metrics");
+		this.metricRuntimes.add("sum");
+		this.metricRuntimes.add("batchGeneration");
+		this.metricRuntimes.add("graphUpdate");
 
 		this.plotStatistics = false;
 		this.plotRuntimes = false;
@@ -212,4 +225,7 @@ public class PlottingConfig {
 		return stepsize;
 	}
 
+	public ArrayList<String> getMetricRuntimes() {
+		return this.metricRuntimes;
+	}
 }
