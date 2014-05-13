@@ -5,6 +5,7 @@ import java.util.Iterator;
 import java.util.Map.Entry;
 import java.util.TreeSet;
 
+import dna.profiler.datatypes.ComparableEntryMap;
 import dna.util.Config;
 
 public class HotSwapMap {
@@ -46,10 +47,27 @@ public class HotSwapMap {
 
 		int maxCounter = -1;
 		RecommenderEntry maxEntry = null;
+		RecommenderEntry tempEntry;
+		ComparableEntryMap maxEntryCosts, tempEntryCosts;
+
 		for (Entry<RecommenderEntry, Integer> e : entrySet.entrySet()) {
-			if (e.getValue() > maxCounter) {
+			tempEntry = e.getKey();
+			if (maxEntry == null) {
 				maxCounter = e.getValue();
-				maxEntry = e.getKey();
+				maxEntry = tempEntry;
+			} else if (e.getValue() >= maxCounter) {
+				/**
+				 * Okay, there might be a new number one. Look if it is also
+				 * more efficient!
+				 */
+				maxEntryCosts = maxEntry
+						.getCosts(Profiler.profilerDataTypeForHotSwap);
+				tempEntryCosts = tempEntry
+						.getCosts(Profiler.profilerDataTypeForHotSwap);
+				if (maxEntryCosts.compareTo(tempEntryCosts) > 0) {
+					maxCounter = e.getValue();
+					maxEntry = e.getKey();
+				}
 			}
 		}
 
