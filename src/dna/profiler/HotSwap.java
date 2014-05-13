@@ -148,8 +148,10 @@ public class HotSwap {
 		RecommenderEntry entry = map.getRecommendation();
 		if (entry != null) {
 
-			RecommenderEntry lastOwnCosts = Profiler
+			ComparableEntryMap lastOwnCosts = Profiler
 					.getLastCosts(Profiler.profilerDataTypeForHotSwap);
+			ComparableEntryMap recCosts = entry
+					.getCosts(Profiler.profilerDataTypeForHotSwap);
 
 			if (!entry.getDatastructures().equals(
 					g.getGraphDatastructures().getStorageDataStructures())) {
@@ -158,13 +160,10 @@ public class HotSwap {
 						+ " will swap to "
 						+ entry.getGraphDataStructure()
 								.getStorageDataStructures(true));
-				System.out.println("  "
-						+ Profiler.profilerDataTypeForHotSwap
+				System.out.println("  " + Profiler.profilerDataTypeForHotSwap
 						+ " costs in last batch with current combination: "
-						+ lastOwnCosts
-								.getCosts(Profiler.profilerDataTypeForHotSwap)
-						+ ", with recommended entry: "
-						+ entry.getCosts(Profiler.profilerDataTypeForHotSwap));
+						+ lastOwnCosts + ", with recommended entry: "
+						+ recCosts);
 
 				GraphDataStructure currentGDS = g.getGraphDatastructures();
 				GraphDataStructure newGDS = entry.getGraphDataStructure();

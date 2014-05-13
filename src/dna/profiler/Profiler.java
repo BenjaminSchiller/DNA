@@ -73,7 +73,7 @@ public class Profiler {
 
 	private static Map<ProfilerMeasurementData.ProfilerDataType, TreeSet<RecommenderEntry>> lastRecommendations = new EnumMap<>(
 			ProfilerDataType.class);
-	private static Map<ProfilerMeasurementData.ProfilerDataType, RecommenderEntry> lastCosts = new EnumMap<>(
+	private static Map<ProfilerMeasurementData.ProfilerDataType, ComparableEntryMap> lastCosts = new EnumMap<>(
 			ProfilerDataType.class);
 	private static ProfileEntry lastAccesses;
 
@@ -789,7 +789,7 @@ public class Profiler {
 				costs = aggregatedEntry.getCosts(entryType);
 			}
 
-			lastCosts.put(entryType, aggregatedEntry);
+			lastCosts.put(entryType, aggregatedEntry.getCosts(entryType));
 			lastAccesses = aggregated;
 
 			res.append(outputPrefix + " Aggr for " + entryType + ": "
@@ -1015,8 +1015,7 @@ public class Profiler {
 				+ (lastRecommendations.get(profilerDataTypeForHotSwap).first()
 						.getCosts(profilerDataTypeForHotSwap))
 				+ "\ncurrent="
-				+ (lastCosts.get(profilerDataTypeForHotSwap)
-						.getCosts(profilerDataTypeForHotSwap))
+				+ (lastCosts.get(profilerDataTypeForHotSwap))
 				+ "\nmaximum="
 				+ (lastRecommendations.get(profilerDataTypeForHotSwap).last()
 						.getCosts(profilerDataTypeForHotSwap));
@@ -1046,7 +1045,7 @@ public class Profiler {
 		return lastRecommendations.get(selector);
 	}
 
-	public static RecommenderEntry getLastCosts(
+	public static ComparableEntryMap getLastCosts(
 			ProfilerMeasurementData.ProfilerDataType selector) {
 		return lastCosts.get(selector);
 	}
