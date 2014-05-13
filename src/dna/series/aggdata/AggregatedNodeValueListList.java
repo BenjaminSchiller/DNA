@@ -37,7 +37,7 @@ public class AggregatedNodeValueListList extends List<AggregatedNodeValueList> {
 				nodevalues.length);
 		for (String nvl : nodevalues) {
 			list.add(AggregatedNodeValueList.read(dir, nvl,
-					Files.getDistributionName(nvl), readValues));
+					Files.getNodeValueListName(nvl), readValues));
 		}
 		return list;
 	}
