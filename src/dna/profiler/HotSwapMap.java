@@ -5,7 +5,6 @@ import java.util.Iterator;
 import java.util.Map.Entry;
 import java.util.TreeSet;
 
-import dna.profiler.datatypes.ComparableEntryMap;
 import dna.util.Config;
 
 public class HotSwapMap {
@@ -27,7 +26,7 @@ public class HotSwapMap {
 		}
 	}
 
-	public RecommenderEntry getRecommendation() {
+	public TreeSet<RecommenderEntry> getRecommendations() {
 		double lowerSwappingBound = Config.getDouble("HOTSWAP_LOWER_BOUND");
 
 		HashMap<RecommenderEntry, Integer> entrySet = new HashMap<>();
@@ -45,36 +44,21 @@ public class HotSwapMap {
 			entrySet.put(singleEntry, formerCounter);
 		}
 
-		int maxCounter = -1;
-		RecommenderEntry maxEntry = null;
+		int currCounter;
 		RecommenderEntry tempEntry;
-		ComparableEntryMap maxEntryCosts, tempEntryCosts;
+
+		TreeSet<RecommenderEntry> res = new TreeSet<RecommenderEntry>(
+				RecommenderEntry
+						.getComparator(Profiler.profilerDataTypeForHotSwap));
 
 		for (Entry<RecommenderEntry, Integer> e : entrySet.entrySet()) {
 			tempEntry = e.getKey();
-			if (maxEntry == null) {
-				maxCounter = e.getValue();
-				maxEntry = tempEntry;
-			} else if (e.getValue() >= maxCounter) {
-				/**
-				 * Okay, there might be a new number one. Look if it is also
-				 * more efficient!
-				 */
-				maxEntryCosts = maxEntry
-						.getCosts(Profiler.profilerDataTypeForHotSwap);
-				tempEntryCosts = tempEntry
-						.getCosts(Profiler.profilerDataTypeForHotSwap);
-				if (maxEntryCosts.compareTo(tempEntryCosts) > 0) {
-					maxCounter = e.getValue();
-					maxEntry = e.getKey();
-				}
+			currCounter = e.getValue();
+			if (currCounter > lowerSwappingBound * windowSize) {
+				res.add(tempEntry);
 			}
 		}
 
-		if (maxCounter > lowerSwappingBound * windowSize) {
-			return maxEntry;
-		} else {
-			return null;
-		}
+		return res;
 	}
 }

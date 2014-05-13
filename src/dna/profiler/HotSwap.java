@@ -136,8 +136,8 @@ public class HotSwap {
 		int amortizationCounter = getAmortizationCounter();
 		ProfileEntry accumulatedAccesses = getAccumulatedAccesses(amortizationCounter);
 
-		RecommenderEntry entry = slidingWindow.getRecommendation();
-		if (entry != null) {
+		TreeSet<RecommenderEntry> entrySet = slidingWindow.getRecommendations();
+		for (RecommenderEntry entry : entrySet) {
 			ComparableEntryMap lastOwnCosts = Profiler
 					.getLastCosts(Profiler.profilerDataTypeForHotSwap);
 			ComparableEntryMap recCosts = entry
@@ -147,7 +147,7 @@ public class HotSwap {
 					g.getGraphDatastructures().getStorageDataStructures())) {
 				System.out.println("Recommendation based on "
 						+ Profiler.profilerDataTypeForHotSwap
-						+ " will swap to "
+						+ " could swap to "
 						+ entry.getGraphDataStructure()
 								.getStorageDataStructures(true));
 				System.out.println("  " + Profiler.profilerDataTypeForHotSwap
@@ -162,6 +162,7 @@ public class HotSwap {
 					System.out
 							.println("  Swapping looks efficient, so do it now");
 					doSwap(g, newGDS);
+					return;
 				} else {
 					System.out.println("  Skip the swap, it is inefficient");
 				}
