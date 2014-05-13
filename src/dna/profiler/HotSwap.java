@@ -2,7 +2,6 @@ package dna.profiler;
 
 import java.util.EnumMap;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
@@ -145,40 +144,37 @@ public class HotSwap {
 		int amortizationCounter = getAmortizationCounter();
 		ProfileEntry accumulatedAccesses = getAccumulatedAccesses(amortizationCounter);
 
-		for (Entry<ProfilerDataType, HotSwapMap> e : slidingWindow.entrySet()) {
-			RecommenderEntry entry = e.getValue().getRecommendation();
-			if (entry != null
-					&& e.getKey().equals(Profiler.profilerDataTypeForHotSwap)) {
+		HotSwapMap map = slidingWindow.get(Profiler.profilerDataTypeForHotSwap);
+		RecommenderEntry entry = map.getRecommendation();
+		if (entry != null) {
 
-				RecommenderEntry lastCosts = Profiler.getLastCosts(e.getKey());
+			RecommenderEntry lastOwnCosts = Profiler
+					.getLastCosts(Profiler.profilerDataTypeForHotSwap);
 
-				if (!entry.getDatastructures().equals(
-						g.getGraphDatastructures().getStorageDataStructures())) {
-					System.out.println("Recommendation based on "
-							+ e.getKey()
-							+ " will swap to "
-							+ entry.getGraphDataStructure()
-									.getStorageDataStructures(true));
+			if (!entry.getDatastructures().equals(
+					g.getGraphDatastructures().getStorageDataStructures())) {
+				System.out.println("Recommendation based on "
+						+ Profiler.profilerDataTypeForHotSwap
+						+ " will swap to "
+						+ entry.getGraphDataStructure()
+								.getStorageDataStructures(true));
+				System.out.println("  "
+						+ Profiler.profilerDataTypeForHotSwap
+						+ " costs in last batch with current combination: "
+						+ lastOwnCosts
+								.getCosts(Profiler.profilerDataTypeForHotSwap)
+						+ ", with recommended entry: "
+						+ entry.getCosts(Profiler.profilerDataTypeForHotSwap));
+
+				GraphDataStructure currentGDS = g.getGraphDatastructures();
+				GraphDataStructure newGDS = entry.getGraphDataStructure();
+
+				if (isSwapEfficient(accumulatedAccesses, currentGDS, newGDS)) {
 					System.out
-							.println("  "
-									+ Profiler.profilerDataTypeForHotSwap
-									+ " costs in last batch with current combination: "
-									+ lastCosts
-											.getCosts(Profiler.profilerDataTypeForHotSwap)
-									+ ", with recommended entry: "
-									+ entry.getCosts(Profiler.profilerDataTypeForHotSwap));
-
-					GraphDataStructure currentGDS = g.getGraphDatastructures();
-					GraphDataStructure newGDS = entry.getGraphDataStructure();
-
-					if (isSwapEfficient(accumulatedAccesses, currentGDS, newGDS)) {
-						System.out
-								.println("  Swapping looks efficient, so do it now");
-						doSwap(g, newGDS);
-					} else {
-						System.out
-								.println("  Skip the swap, it is inefficient");
-					}
+							.println("  Swapping looks efficient, so do it now");
+					doSwap(g, newGDS);
+				} else {
+					System.out.println("  Skip the swap, it is inefficient");
 				}
 			}
 		}
