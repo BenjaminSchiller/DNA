@@ -26,7 +26,7 @@ public aspect TimerAspects {
 	private HashSet<String> additionalNotInTotalRuntimesList = new HashSet<>();
 	private TimerMap map = new TimerMap();
 
-	pointcut seriesGeneration() : call(* SeriesGeneration.generate(Series, int, int, boolean, boolean, long));
+	pointcut seriesGeneration() : call(* SeriesGeneration.generate(Series, int, int, boolean, boolean, boolean, long));
 	pointcut runGeneration(): call(* SeriesGeneration.generateRun(Series, int, int,..));
 	pointcut graphGeneration(): call(* IGraphGenerator.generate(..));
 
