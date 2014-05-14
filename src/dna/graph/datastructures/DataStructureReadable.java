@@ -59,27 +59,15 @@ public abstract class DataStructureReadable extends DataStructure implements
 			}
 		}
 
-		Log.debug("Found in both lists: " + checkedAndFound + ", list size: "
-				+ this.size());
-		boolean res = (checkedAndFound == this.size());
-		if (!res)
-			this.printList();
-		return res;
-	}
-
-	public void printList() {
-		Log.debug(this.size() + " elements stored in this list");
-		int count = 1;
-		for (IElement e : this.getElements()) {
-			Log.debug((count++) + ": " + e.asString());
-		}
+		return (checkedAndFound == this.size());
 	}
 
 	public IDataStructure switchTo(IDataStructure newDatastructure) {
-		newDatastructure.init(this.dataType, this.size(), false);
+		newDatastructure.reinitializeWithSize(this.size());
 		Iterator<IElement> elIt = this.iterator();
 		while ( elIt.hasNext() )
 			newDatastructure.add(elIt.next());
+		this.prepareForGC();
 		return newDatastructure;
 	}
 }

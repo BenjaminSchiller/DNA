@@ -10,8 +10,8 @@ import com.google.common.base.Joiner;
 import dna.profiler.datatypes.ComparableEntry;
 import dna.profiler.datatypes.ComparableEntryMap;
 import dna.profiler.datatypes.benchmarkresults.strategies.BoundaryStrategy;
-import dna.profiler.datatypes.benchmarkresults.strategies.BoundaryStrategy.Boundary;
-import dna.profiler.datatypes.benchmarkresults.strategies.BoundaryStrategy.Selector;
+import dna.profiler.datatypes.benchmarkresults.strategies.BoundaryStrategy.BucketSelector;
+import dna.profiler.datatypes.benchmarkresults.strategies.BoundaryStrategy.ListAggregator;
 import dna.profiler.datatypes.benchmarkresults.strategies.ResultProcessingStrategy;
 import dna.profiler.datatypes.complexity.ComplexityType.Base;
 
@@ -23,7 +23,7 @@ public class BenchmarkingResult extends ComparableEntry {
 	private String name;
 	private TreeMap<Integer, ArrayList<Double>> datamap;
 
-	private static ResultProcessingStrategy strategy = new BoundaryStrategy(Boundary.LOWER, Selector.MIN);
+	private static ResultProcessingStrategy strategy = new BoundaryStrategy(BucketSelector.LOWER, ListAggregator.MIN);
 	private ResultProcessingStrategy innerStrategy;
 
 	public BenchmarkingResult(String name) {

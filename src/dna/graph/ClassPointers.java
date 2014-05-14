@@ -1,4 +1,4 @@
-package dna.graph.tests;
+package dna.graph;
 
 import com.google.common.collect.ObjectArrays;
 
@@ -25,7 +25,7 @@ import dna.graph.nodes.DirectedWeightedNode;
 import dna.graph.nodes.UndirectedNode;
 import dna.graph.nodes.UndirectedWeightedNode;
 
-public class GlobalTestParameters {
+public class ClassPointers {
 	public static final Class[] nodeTypes = { UndirectedNode.class,
 			UndirectedWeightedNode.class, DirectedNode.class,
 			DirectedWeightedNode.class };

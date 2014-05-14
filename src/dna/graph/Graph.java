@@ -1,5 +1,6 @@
 package dna.graph;
 
+import java.math.BigInteger;
 import java.util.Collection;
 import java.util.Iterator;
 
@@ -112,6 +113,14 @@ public class Graph {
 	public boolean addEdge(Edge e) {
 		return this.containsNodes(e) && edges.add(e);
 	}
+	
+	public boolean containsEdge(Node n1, Node n2) {
+		return containsEdge(gds.getDummyEdge(n1, n2));
+	}
+
+	public boolean containsEdge(int n1, int n2) {
+		return containsEdge(gds.getDummyEdge(n1, n2));
+	}
 
 	public boolean containsEdge(Edge e) {
 		return edges.contains(e);
@@ -194,12 +203,14 @@ public class Graph {
 	 * @return maximum number of edges the graph could have with the current
 	 *         number of nodes
 	 */
-	public int getMaxEdgeCount() {
-		if (this.isDirected()) {
-			return this.getNodeCount() * (this.getNodeCount() - 1);
-		} else {
-			return this.getNodeCount() * (this.getNodeCount() - 1) / 2;
+	public BigInteger getMaxEdgeCount() {
+		int nodeCount = this.getNodeCount();
+		BigInteger res = BigInteger.valueOf(nodeCount);
+		res = res.multiply(BigInteger.valueOf(nodeCount - 1));
+		if (!this.isDirected()) {
+			res = res.divide(BigInteger.valueOf(2));
 		}
+		return res;
 	}
 
 	public void setName(String name) {
@@ -316,19 +327,23 @@ public class Graph {
 		}
 	}
 	
-	public void switchDataStructure(ListType type, IDataStructure newDatastructure) {
+	public void switchDataStructure(ListType type, Class<? extends IDataStructure> newDatastructureType) {
+		IDataStructure newDatastructure;
 		switch(type) {
 		case GlobalEdgeList:
+			newDatastructure = gds.newList(type, newDatastructureType);
 			this.edges = (IEdgeListDatastructure) ((IEdgeListDatastructureReadable)this.edges).switchTo(newDatastructure);
 			break;
 		case GlobalNodeList:
+			newDatastructure = gds.newList(type, newDatastructureType);
 			this.nodes = (INodeListDatastructure) ((INodeListDatastructureReadable)this.nodes).switchTo(newDatastructure);
 			break;
 		case LocalEdgeList:
 		case LocalInEdgeList:
 		case LocalOutEdgeList:
 		case LocalNodeList:
-			for ( IElement n: nodes) {
+			for ( IElement n: this.getNodes()) {
+				newDatastructure = gds.newList(type, newDatastructureType);
 				((Node) n).switchDataStructure(type, newDatastructure);
 			}
 		}

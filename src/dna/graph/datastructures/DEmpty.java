@@ -9,7 +9,7 @@ import dna.graph.edges.Edge;
 import dna.graph.nodes.Node;
 
 public class DEmpty extends DataStructureReadable implements
-		IEdgeListDatastructureReadable {
+		IEdgeListDatastructureReadable, INodeListDatastructureReadable {
 
 	public DEmpty(ListType lt, Class<? extends IElement> dT) {
 		super(lt, dT);
@@ -25,17 +25,28 @@ public class DEmpty extends DataStructureReadable implements
 	}
 
 	@Override
-	public boolean add(Edge element) {
-		return true;
-	}
-
-	@Override
 	public boolean add(IElement element) {
 		return true;
 	}
 
 	@Override
+	protected boolean add_(Node element) {
+		return true;
+	}
+
+	@Override
+	protected boolean add_(Edge element) {
+		return true;
+	}
+
+	@Override
 	public boolean contains(IElement element) {
+		// TODO Define a DEFAULT return value
+		return false;
+	}
+
+	@Override
+	public boolean contains(Node element) {
 		// TODO Define a DEFAULT return value
 		return false;
 	}
@@ -48,6 +59,11 @@ public class DEmpty extends DataStructureReadable implements
 
 	@Override
 	public boolean remove(IElement element) {
+		return true;
+	}
+
+	@Override
+	public boolean remove(Node element) {
 		return true;
 	}
 
@@ -77,6 +93,16 @@ public class DEmpty extends DataStructureReadable implements
 	}
 
 	@Override
+	public int getMaxNodeIndex() {
+		return 0;
+	}
+
+	@Override
+	public Node get(int index) {
+		return null;
+	}
+
+	@Override
 	public Edge get(Edge element) {
 		return null;
 	}
@@ -86,4 +112,11 @@ public class DEmpty extends DataStructureReadable implements
 		return Collections.<IElement> emptyList().iterator();
 	}
 
+	@Override
+	public boolean canAdd(IElement element) {
+		return true;
+	}
+
+	public void prepareForGC() {
+	}
 }

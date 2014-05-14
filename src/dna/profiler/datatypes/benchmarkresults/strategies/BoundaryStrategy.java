@@ -10,18 +10,18 @@ import com.google.common.math.DoubleMath;
 public class BoundaryStrategy extends ResultProcessingStrategy {
 
 	protected TreeMap<Integer, Double> buckets;
-	private Boundary b;
-	private Selector s;
+	private BucketSelector b;
+	private ListAggregator s;
 
-	public enum Boundary {
+	public enum BucketSelector {
 		LOWER, UPPER, INTERPOLATE
 	};
 
-	public enum Selector {
+	public enum ListAggregator {
 		MIN, MAX, MEAN
 	}
 
-	public BoundaryStrategy(Boundary b, Selector s) {
+	public BoundaryStrategy(BucketSelector b, ListAggregator s) {
 		this.b = b;
 		this.s = s;
 	}
@@ -67,7 +67,7 @@ public class BoundaryStrategy extends ResultProcessingStrategy {
 							+ this.getClass().getSimpleName()
 							+ " will return erroneous results, as the given meanListSize of "
 							+ meanListSize + " exceeds the upper bound of "
-							+ buckets.get(bucketSelector)
+							+ bucketSelector
 							+ " in the benchmarking results");
 		}
 		return bucketSelector;
@@ -90,10 +90,10 @@ public class BoundaryStrategy extends ResultProcessingStrategy {
 					return lowerValue;
 
 				if (lowerSelector != buckets.firstKey()) {
-					lowerSelector = getLowerKey(lowerValue - 1);
+					lowerSelector = getLowerKey(lowerSelector - 0.1);
 					lowerValue = buckets.get(lowerSelector);
 				} else {
-					higherSelector = getUpperKey(lowerValue + 1);
+					higherSelector = getUpperKey(higherSelector + 0.1);
 				}
 			}
 

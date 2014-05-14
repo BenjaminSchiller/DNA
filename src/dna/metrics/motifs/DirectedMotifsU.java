@@ -52,7 +52,7 @@ public class DirectedMotifsU extends DirectedMotifs {
 
 			HashSet<DirectedNode> ab = this.getUnion(a, b);
 
-			if (a.hasEdge(new DirectedEdge(b, a))) {
+			if (a.hasEdge(b, a)) {
 				this.processBothDirections(a, b, ab, add);
 			} else {
 				this.processSingleDirection(a, b, ab, add);
@@ -67,10 +67,10 @@ public class DirectedMotifsU extends DirectedMotifs {
 	private void processSingleDirection(DirectedNode a, DirectedNode b,
 			HashSet<DirectedNode> ab, boolean add) {
 		for (DirectedNode c : ab) {
-			boolean ca = c.hasEdge(new DirectedEdge(c, a));
-			boolean ac = c.hasEdge(new DirectedEdge(a, c));
-			boolean cb = c.hasEdge(new DirectedEdge(c, b));
-			boolean bc = c.hasEdge(new DirectedEdge(b, c));
+			boolean ca = c.hasEdge(c, a);
+			boolean ac = c.hasEdge(a, c);
+			boolean cb = c.hasEdge(c, b);
+			boolean bc = c.hasEdge(b, c);
 
 			if (ca && !ac && !cb && !bc) {
 				this.changeMotif(DirectedMotifType.DM03, add);
@@ -121,10 +121,10 @@ public class DirectedMotifsU extends DirectedMotifs {
 	private void processBothDirections(DirectedNode a, DirectedNode b,
 			HashSet<DirectedNode> ab, boolean add) {
 		for (DirectedNode c : ab) {
-			boolean ca = c.hasEdge(new DirectedEdge(c, a));
-			boolean ac = c.hasEdge(new DirectedEdge(a, c));
-			boolean cb = c.hasEdge(new DirectedEdge(c, b));
-			boolean bc = c.hasEdge(new DirectedEdge(b, c));
+			boolean ca = c.hasEdge(c, a);
+			boolean ac = c.hasEdge(a, c);
+			boolean cb = c.hasEdge(c, b);
+			boolean bc = c.hasEdge(b, c);
 
 			if (ca && !ac && !cb && !bc) {
 				this.changeMotif(DirectedMotifType.DM02,

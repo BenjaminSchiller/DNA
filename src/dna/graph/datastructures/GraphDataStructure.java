@@ -8,15 +8,20 @@ import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.Map.Entry;
 
+import dna.graph.ClassPointers;
 import dna.graph.Graph;
 import dna.graph.IElement;
 import dna.graph.datastructures.DataStructure.AccessType;
 import dna.graph.datastructures.DataStructure.ListType;
 import dna.graph.edges.DirectedEdge;
+import dna.graph.edges.DummyDirectedEdge;
+import dna.graph.edges.DummyUndirectedEdge;
 import dna.graph.edges.Edge;
+import dna.graph.edges.IEdgeDummy;
 import dna.graph.edges.UndirectedEdge;
+import dna.graph.nodes.DirectedNode;
 import dna.graph.nodes.Node;
-import dna.graph.tests.GlobalTestParameters;
+import dna.graph.nodes.UndirectedNode;
 import dna.graph.weights.IWeighted;
 import dna.graph.weights.Weight;
 import dna.graph.weights.Weight.WeightSelection;
@@ -34,7 +39,7 @@ import dna.util.Config;
  * @author Nico
  * 
  */
-public class GraphDataStructure {
+public class GraphDataStructure implements Cloneable {
 	private Class<? extends Node> nodeType;
 	private Class<? extends Edge> edgeType;
 	private Class<? extends Weight> nodeWeightType;
@@ -45,6 +50,7 @@ public class GraphDataStructure {
 	private Constructor<?> lastEdgeConstructor = null;
 
 	private IEdgeListDatastructure emptyList = new DEmpty(null);
+	private IEdgeDummy edgeDummy;
 
 	private EnumMap<ListType, Class<? extends IDataStructure>> listTypes;
 	private EnumMap<ListType, Integer> defaultListSizes;
@@ -54,6 +60,8 @@ public class GraphDataStructure {
 	private static ArrayList<EnumMap<ListType, Class<? extends IDataStructure>>> simpleListCombinations = null;
 
 	private int defaultListSize = 10;
+
+	private static GraphDataStructure currentGDS;
 
 	public GraphDataStructure(
 			EnumMap<ListType, Class<? extends IDataStructure>> listTypes,
@@ -81,6 +89,14 @@ public class GraphDataStructure {
 		this.edgeWeightSelection = edgeWeightSelection;
 
 		init();
+	}
+
+	public static void setCurrent(GraphDataStructure gds) {
+		currentGDS = gds;
+	}
+
+	public static GraphDataStructure getCurrent() {
+		return currentGDS;
 	}
 
 	@SuppressWarnings("unchecked")
@@ -305,6 +321,8 @@ public class GraphDataStructure {
 					.put(ListType.LocalNodeList, estimatedMeanSize);
 		}
 
+		setCurrent(this);
+
 		return new Graph(name, timestamp, this, nodes, edges);
 	}
 
@@ -341,6 +359,11 @@ public class GraphDataStructure {
 
 		Class<? extends IDataStructure> sourceClass = getListClass(listType,
 				listTypes);
+		return newList(listType, sourceClass);
+	}
+
+	public IDataStructure newList(ListType listType,
+			Class<? extends IDataStructure> sourceClass) {
 		Class<? extends IElement> storedDataType = listType.getStoredClass();
 
 		if (sourceClass == DEmpty.class) {
@@ -544,6 +567,26 @@ public class GraphDataStructure {
 		}
 	}
 
+	public Edge getDummyEdge(Node n1, Node n2) {
+		return getDummyEdge(n1.getIndex(), n2.getIndex());
+	}
+
+	public Edge getDummyEdge(int n1, int n2) {
+		if (edgeDummy == null) {
+			if (createsDirected()) {
+				DirectedNode node1 = new DirectedNode(1, this);
+				DirectedNode node2 = new DirectedNode(2, this);
+				edgeDummy = new DummyDirectedEdge(node1, node2);
+			} else {
+				UndirectedNode node1 = new UndirectedNode(1, this);
+				UndirectedNode node2 = new UndirectedNode(2, this);
+				edgeDummy = new DummyUndirectedEdge(node1, node2);
+			}
+		}
+		edgeDummy.setNodes(n1, n2);
+		return (Edge) edgeDummy;
+	}
+
 	public Constructor<?> getConstructor(Constructor<?>[] list,
 			Class<?>[] required) {
 		Constructor<?> cNeeded = null;
@@ -712,15 +755,25 @@ public class GraphDataStructure {
 		return UndirectedEdge.class.isAssignableFrom(edgeType);
 	}
 
+	public EnumMap<ListType, Class<? extends IDataStructure>> getStorageDataStructures() {
+		EnumMap<ListType, Class<? extends IDataStructure>> result = new EnumMap<DataStructure.ListType, Class<? extends IDataStructure>>(
+				ListType.class);
+		for (ListType lt : ListType.values()) {
+			result.put(lt, getListClass(lt));
+		}
+		return result;
+	}
+
 	public String getStorageDataStructures(boolean getSimpleNames) {
 		StringBuilder res = new StringBuilder();
 		boolean first = true;
 		Class<?> clazz = null;
+		EnumMap<ListType, Class<? extends IDataStructure>> list = getStorageDataStructures();
 		for (ListType lt : ListType.values()) {
 			if (!first)
 				res.append(Config.get("DATASTRUCTURES_CLASS_DELIMITER"));
 			res.append(lt + "=");
-			clazz = getListClass(lt);
+			clazz = list.get(lt);
 			if (clazz == null)
 				res.append("null");
 			else
@@ -806,26 +859,30 @@ public class GraphDataStructure {
 
 		for (ListType lt : ListType.values()) {
 			if (this.getListClass(lt) != newGDS.getListClass(lt)) {
-				this.listTypes.put(lt, newGDS.getListClass(lt));
-				g.switchDataStructure(lt, this.newList(lt));
+				g.switchDataStructure(lt, newGDS.getListClass(lt));
 			}
+		}
+		
+		System.gc();
+
+		for (ListType lt : ListType.values()) {
+			this.listTypes.put(lt, newGDS.getListClass(lt));
 		}
 	}
 
-	private ComparableEntry getComplexityClass(
-			Class<? extends IDataStructure> ds, Class<? extends IElement> dt,
-			ProfilerDataType complexityType, AccessType at, Base b) {
-		return ProfilerMeasurementData.get(complexityType, ds.getSimpleName(),
-				at, dt.getSimpleName(), b);
+	private ComparableEntry getCostData(Class<? extends IDataStructure> ds,
+			Class<? extends IElement> dt, ProfilerDataType pdt, AccessType at,
+			Base b) {
+		return ProfilerMeasurementData.get(pdt, ds.getSimpleName(), at,
+				dt.getSimpleName(), b);
 	}
 
-	public ComparableEntry getComplexityClass(ListType lt, AccessType at,
-			ProfilerDataType complexityType) {
+	public ComparableEntry getCostData(ListType lt, AccessType at,
+			ProfilerDataType pdt) {
 		Class<? extends IDataStructure> listClass = getListClass(lt);
 		Class<? extends IElement> storedElement = lt.getStoredClass();
 		Base baseType = lt.getBase();
-		return getComplexityClass(listClass, storedElement, complexityType, at,
-				baseType);
+		return getCostData(listClass, storedElement, pdt, at, baseType);
 	}
 
 	public static EnumMap<ListType, Class<? extends IDataStructure>> getList(
@@ -900,19 +957,45 @@ public class GraphDataStructure {
 		ListType lt = ListType.values()[i];
 		ArrayList<EnumMap<ListType, Class<? extends IDataStructure>>> resAggregator = new ArrayList<EnumMap<ListType, Class<? extends IDataStructure>>>();
 		EnumMap<ListType, Class<? extends IDataStructure>> tempInList;
-		for (Class<? extends IDataStructure> clazz : GlobalTestParameters.dataStructures) {
+		for (Class<? extends IDataStructure> clazz : ClassPointers.dataStructures) {
 			if (lt.getRequiredType().isAssignableFrom(clazz)) {
 				tempInList = inList.clone();
 				tempInList.put(lt, clazz);
 				if (i == (maxI - 1)) {
 					if (GraphDataStructure.validListTypesSet(tempInList))
-						resAggregator.add(tempInList);
+						resAggregator.add(GraphDataStructure
+								.fillUpWithFallback(tempInList));
 				} else {
 					resAggregator.addAll(combineWith(tempInList, i + 1, maxI));
 				}
 			}
 		}
 		return resAggregator;
+	}
+
+	public GraphDataStructure clone() {
+		String representation = this.getDataStructures();
+		GraphDataStructure cloned = new GraphDataStructure(representation);
+		return cloned;
+	}
+
+	public static EnumMap<ListType, Class<? extends IDataStructure>> fillUpWithFallback(
+			EnumMap<ListType, Class<? extends IDataStructure>> in) {
+		EnumMap<ListType, Class<? extends IDataStructure>> res = new EnumMap<>(
+				ListType.class);
+
+		Class<? extends IDataStructure> currClass;
+		ListType recLT;
+		for (ListType lt : ListType.values()) {
+			currClass = null;
+			recLT = lt;
+			while (currClass == null) {
+				currClass = in.get(recLT);
+				recLT = recLT.getFallback();
+			}
+			res.put(lt, currClass);
+		}
+		return res;
 	}
 
 	public boolean isNodeType(Class... types) {

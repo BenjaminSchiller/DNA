@@ -1,7 +1,9 @@
 package dna.graph.tests;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 import java.util.EnumMap;
@@ -10,13 +12,17 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
+import dna.graph.ClassPointers;
 import dna.graph.datastructures.DArrayList;
+import dna.graph.datastructures.DEmpty;
 import dna.graph.datastructures.DataStructure.ListType;
 import dna.graph.datastructures.GraphDataStructure;
 import dna.graph.datastructures.IDataStructure;
 import dna.graph.datastructures.INodeListDatastructureReadable;
 import dna.graph.edges.DirectedEdge;
 import dna.graph.edges.DirectedWeightedEdge;
+import dna.graph.edges.Edge;
+import dna.graph.edges.UndirectedEdge;
 import dna.graph.edges.UndirectedWeightedEdge;
 import dna.graph.generators.GraphGenerator;
 import dna.graph.generators.random.RandomGraph;
@@ -26,7 +32,6 @@ import dna.graph.nodes.Node;
 import dna.graph.nodes.UndirectedNode;
 import dna.graph.nodes.UndirectedWeightedNode;
 import dna.graph.weights.DoubleWeight;
-import dna.graph.weights.IWeightedNode;
 import dna.metrics.Metric;
 import dna.metrics.MetricNotApplicableException;
 import dna.metrics.clusterCoefficient.DirectedClusteringCoefficientU;
@@ -36,6 +41,8 @@ import dna.series.AggregationException;
 import dna.series.Series;
 import dna.updates.generators.BatchGenerator;
 import dna.updates.generators.random.RandomBatch;
+import dna.util.Log;
+import dna.util.Log.LogLevel;
 import dna.util.MathHelper;
 import dna.util.Timer;
 
@@ -55,6 +62,8 @@ public class SingleTests {
 	public void metricTest() throws AggregationException, IOException,
 			MetricNotApplicableException {
 		Profiler.activate();
+		LogLevel oldLogLevel = Log.getLogLevel();
+		Log.setLogLevel(LogLevel.warn);
 
 		GraphDataStructure gds = new GraphDataStructure(listTypes,
 				DirectedNode.class, DirectedEdge.class);
@@ -64,6 +73,7 @@ public class SingleTests {
 				new DirectedClusteringCoefficientU() };
 		Series s = new Series(gg, batchGen, metrics, "./graphs/", "test");
 		s.generate(2, 1);
+		Log.setLogLevel(oldLogLevel);
 	}
 
 	@Test
@@ -83,8 +93,7 @@ public class SingleTests {
 	@Test
 	public void performanceTester() {
 		GraphDataStructure gds = new GraphDataStructure(listTypes,
-				DirectedWeightedNode.class,
-				DirectedWeightedEdge.class);
+				DirectedWeightedNode.class, DirectedWeightedEdge.class);
 
 		int limit = 1000000;
 		Node n;
@@ -109,7 +118,8 @@ public class SingleTests {
 
 		t = new Timer("Test");
 		for (int i = 0; i < limit; i++) {
-			e = (DirectedWeightedEdge) gds.newWeightedEdge(n1, n2, new DoubleWeight(1d));
+			e = (DirectedWeightedEdge) gds.newWeightedEdge(n1, n2,
+					new DoubleWeight(1d));
 		}
 		System.out.println("Generating " + limit
 				+ " directed edge instances via gds: " + t.end());
@@ -124,8 +134,7 @@ public class SingleTests {
 		gds.setEdgeType(UndirectedWeightedEdge.class);
 		UndirectedWeightedEdge ue;
 		UndirectedNode un1 = new UndirectedWeightedNode(1, gds);
-		UndirectedWeightedNode un2 = new UndirectedWeightedNode(2,
-				gds);
+		UndirectedWeightedNode un2 = new UndirectedWeightedNode(2, gds);
 
 		t = new Timer("Test");
 		for (int i = 0; i < limit; i++) {
@@ -150,8 +159,10 @@ public class SingleTests {
 		 * above position 5 would get checked for having the node with index 5,
 		 * but not the ones below position 5
 		 */
-		for (Class dsClass : GlobalTestParameters.dataStructures) {
+		for (Class dsClass : ClassPointers.dataStructures) {
 			if (!INodeListDatastructureReadable.class.isAssignableFrom(dsClass))
+				continue;
+			if (dsClass == DEmpty.class)
 				continue;
 
 			EnumMap<ListType, Class<? extends IDataStructure>> list = GraphDataStructure
@@ -177,5 +188,50 @@ public class SingleTests {
 			ds.add(n3);
 			assertNotNull("DS.get yields NULL on " + dsClass, ds.get(nodeIndex));
 		}
+	}
+
+	@Test
+	public void equalityForDirectedEdgeDummies() {
+		GraphDataStructure gds = new GraphDataStructure(listTypes,
+				DirectedNode.class, DirectedEdge.class);
+		Node n1 = gds.newNodeInstance(1);
+		Node n2 = gds.newNodeInstance(2);
+
+		Edge eReal = gds.newEdgeInstance(n1, n2);
+		Edge eDummy = gds.getDummyEdge(n1.getIndex(), n2.getIndex());
+		assertEquals(eReal, eDummy);
+		assertEquals(eReal.getHashString(), eDummy.getHashString());
+
+		n1 = gds.newNodeInstance(23);
+		n2 = gds.newNodeInstance(42);
+
+		eDummy = gds.getDummyEdge(n1.getIndex(), n2.getIndex());
+		assertFalse(eReal.equals(eDummy));
+		assertFalse(eDummy.equals(eReal));
+		assertTrue(eDummy.equals(eDummy));
+		
+		eReal = gds.newEdgeInstance(n1, n2);
+		assertEquals(eReal, eDummy);
+		assertEquals(eReal.getHashString(), eDummy.getHashString());		
+	}
+
+	@Test
+	public void equalityForUndirectedEdgeDummies() {
+		GraphDataStructure gds = new GraphDataStructure(listTypes,
+				UndirectedNode.class, UndirectedEdge.class);
+		Node n1 = gds.newNodeInstance(1);
+		Node n2 = gds.newNodeInstance(2);
+
+		Edge eReal = gds.newEdgeInstance(n1, n2);
+		Edge eDummy = gds.getDummyEdge(n1.getIndex(), n2.getIndex());
+		assertEquals(eReal, eDummy);
+		
+		n1 = gds.newNodeInstance(23);
+		n2 = gds.newNodeInstance(42);
+
+		eDummy = gds.getDummyEdge(n1.getIndex(), n2.getIndex());
+		assertFalse(eReal.equals(eDummy));
+		assertFalse(eDummy.equals(eReal));
+		assertTrue(eDummy.equals(eDummy));
 	}
 }

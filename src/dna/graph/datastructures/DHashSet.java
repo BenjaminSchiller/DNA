@@ -48,10 +48,7 @@ public class DHashSet extends DataStructureReadable implements
 	}
 
 	@Override
-	public boolean add(Node element) {
-		super.canAdd(element);
-		if (this.list.contains(element))
-			return false;
+	protected boolean add_(Node element) {
 		if (element != null && this.list.add(element)) {
 			if (element.getIndex() > this.maxNodeIndex) {
 				this.maxNodeIndex = element.getIndex();
@@ -61,10 +58,7 @@ public class DHashSet extends DataStructureReadable implements
 		return false;
 	}
 
-	public boolean add(Edge element) {
-		super.canAdd(element);
-		if (this.list.contains(element))
-			return false;
+	protected boolean add_(Edge element) {
 		return element != null && this.list.add(element);
 	}
 
@@ -179,5 +173,9 @@ public class DHashSet extends DataStructureReadable implements
 	@Override
 	public int getMaxNodeIndex() {
 		return this.maxNodeIndex;
+	}
+
+	public void prepareForGC() {
+		this.list = null;
 	}
 }

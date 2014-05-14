@@ -39,18 +39,16 @@ public class DLinkedList extends DataStructureReadable implements
 				+ element.getClass() + " here");
 	}
 
-	public boolean add(Node element) {
-		super.canAdd(element);
-		if (this.list.contains(element) || !this.list.add(element)) {
+	protected boolean add_(Node element) {
+		if (!this.list.add(element)) {
 			return false;
 		}
 		this.maxNodeIndex = Math.max(this.maxNodeIndex, element.getIndex());
 		return true;
 	}
 
-	public boolean add(Edge element) {
-		super.canAdd(element);
-		return !this.list.contains(element) && this.list.add(element);
+	protected boolean add_(Edge element) {
+		return this.list.add(element);
 	}
 
 	@Override
@@ -178,5 +176,9 @@ public class DLinkedList extends DataStructureReadable implements
 	@Override
 	protected Iterator<IElement> iterator_() {
 		return this.list.iterator();
+	}
+
+	public void prepareForGC() {
+		this.list = null;
 	}
 }

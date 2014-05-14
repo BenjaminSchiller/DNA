@@ -34,8 +34,10 @@ public class BenchmarkingResultsMap extends ComparableEntryMap {
 	 */
 	@Override
 	public int compareTo(ComparableEntryMap o) {
-		return Double.compare(this.aggregatedValue,
-				((BenchmarkingResultsMap) o).getValue());
+		double otherValue = ((BenchmarkingResultsMap) o).getValue();
+		if (Math.abs(otherValue - this.aggregatedValue) < 0.01)
+			return 0;
+		return Double.compare(this.aggregatedValue, otherValue);
 	}
 
 	@Override
@@ -65,6 +67,18 @@ public class BenchmarkingResultsMap extends ComparableEntryMap {
 			return false;
 		}
 		return true;
+	}
+
+	@Override
+	public ComparableEntryMap clone() {
+		BenchmarkingResultsMap res = new BenchmarkingResultsMap();
+		res.put(this.getValue());
+		return res;
+	}
+
+	@Override
+	public void multiplyBy(double factor) {
+		put(getValue() * factor);
 	}
 
 }

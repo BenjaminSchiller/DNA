@@ -97,7 +97,7 @@ public class Complexity extends ComparableEntry {
 
 	public ComparableEntryMap getMap() {
 		ComplexityMap res = new ComplexityMap();
-		res.put(this.complexityType, this.counter * this.factor);
+		res.put(this.complexityType, (double) (this.counter * this.factor));
 		return res;
 	}
 

@@ -61,9 +61,17 @@ public class DirectedEdge extends Edge {
 	public DirectedNode getDst() {
 		return (DirectedNode) getN2();
 	}
+	
+	public int getSrcIndex() {
+		return getN1().getIndex();
+	}
+	
+	public int getDstIndex() {
+		return getN2().getIndex();
+	}
 
 	public String toString() {
-		return this.getN1().getIndex() + " -> " + this.getN2().getIndex();
+		return getSrcIndex() + " -> " + getDstIndex();
 	}
 
 	@Override
@@ -82,8 +90,8 @@ public class DirectedEdge extends Edge {
 		if (oCasted.getSrc() == null || oCasted.getDst() == null)
 			return false;
 
-		return this.getSrc().getIndex() == oCasted.getSrc().getIndex()
-				&& this.getDst().getIndex() == oCasted.getDst().getIndex();
+		return this.getSrcIndex() == oCasted.getSrcIndex()
+				&& this.getDstIndex() == oCasted.getDstIndex();
 	}
 
 	@Override

@@ -4,6 +4,7 @@ import java.util.HashSet;
 
 import dna.graph.Graph;
 import dna.graph.IElement;
+import dna.graph.datastructures.GraphDataStructure;
 import dna.graph.edges.DirectedEdge;
 import dna.graph.nodes.DirectedNode;
 import dna.metrics.Metric;
@@ -33,6 +34,8 @@ public abstract class DirectedMotifs extends Metric {
 	protected DistributionLong motifs;
 
 	public static final String motifsName = "directedMotifs";
+	
+	protected GraphDataStructure gds;
 
 	public DirectedMotifs(String name, ApplicationType type,
 			MetricType metricType) {
@@ -41,18 +44,19 @@ public abstract class DirectedMotifs extends Metric {
 
 	@Override
 	public boolean compute() {
+		gds = g.getGraphDatastructures();
 		for (IElement element : this.g.getNodes()) {
 			DirectedNode a = (DirectedNode) element;
 			HashSet<DirectedNode> a_ = this.getConnectedNodes(a);
 			for (DirectedNode b : a_) {
-				boolean ab = a.hasEdge(new DirectedEdge(a, b));
-				boolean ba = a.hasEdge(new DirectedEdge(b, a));
+				boolean ab = a.hasEdge(a, b);
+				boolean ba = a.hasEdge(b, a);
 
 				for (DirectedNode c : a_) {
-					boolean ac = a.hasEdge(new DirectedEdge(a, c));
-					boolean ca = a.hasEdge(new DirectedEdge(c, a));
-					boolean bc = b.hasEdge(new DirectedEdge(b, c));
-					boolean cb = b.hasEdge(new DirectedEdge(c, b));
+					boolean ac = a.hasEdge(a, c);
+					boolean ca = a.hasEdge(c, a);
+					boolean bc = b.hasEdge(b, c);
+					boolean cb = b.hasEdge(c, b);
 
 					if (!bc && !cb) {
 						if (b.getIndex() < c.getIndex()) {

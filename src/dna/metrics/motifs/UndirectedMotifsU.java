@@ -48,7 +48,7 @@ public class UndirectedMotifsU extends UndirectedMotifs {
 				if (n.getIndex() == b.getIndex()) {
 					continue;
 				}
-				if (!n.hasEdge(new UndirectedEdge(n, b))) {
+				if (!n.hasEdge(n, b)) {
 					aOnly.add(n);
 				} else {
 					ab.add(n);
@@ -59,7 +59,7 @@ public class UndirectedMotifsU extends UndirectedMotifs {
 				if (n.getIndex() == a.getIndex()) {
 					continue;
 				}
-				if (!n.hasEdge(new UndirectedEdge(n, a))) {
+				if (!n.hasEdge(n, a)) {
 					bOnly.add(n);
 				}
 			}
@@ -94,7 +94,7 @@ public class UndirectedMotifsU extends UndirectedMotifs {
 				if (c.getIndex() >= d.getIndex()) {
 					continue;
 				}
-				if (c.hasEdge(new UndirectedEdge(c, d))) {
+				if (c.hasEdge(c, d)) {
 					this.changeMotif(UndirectedMotifType.UM5,
 							UndirectedMotifType.UM6, u);
 				} else {
@@ -109,7 +109,7 @@ public class UndirectedMotifsU extends UndirectedMotifs {
 			HashSet<UndirectedNode> bOnly, Update u) {
 		for (UndirectedNode c : aOnly) {
 			for (UndirectedNode d : bOnly) {
-				if (c.hasEdge(new UndirectedEdge(c, d))) {
+				if (c.hasEdge(c, d)) {
 					this.changeMotif(UndirectedMotifType.UM1,
 							UndirectedMotifType.UM3, u);
 				} else {
@@ -124,10 +124,10 @@ public class UndirectedMotifsU extends UndirectedMotifs {
 		for (UndirectedNode c : only) {
 			for (IElement e_c : c.getEdges()) {
 				UndirectedNode d = (UndirectedNode) ((UndirectedEdge) e_c).getDifferingNode(c);
-				if (d.hasEdge(new UndirectedEdge(d, a))) {
+				if (d.hasEdge(d, a)) {
 					continue;
 				}
-				if (d.hasEdge(new UndirectedEdge(d, b))) {
+				if (d.hasEdge(d, b)) {
 					continue;
 				}
 				if (d.getIndex() == a.getIndex()) {
@@ -146,10 +146,10 @@ public class UndirectedMotifsU extends UndirectedMotifs {
 		for (UndirectedNode c : ab) {
 			for (IElement e_c : c.getEdges()) {
 				UndirectedNode d = (UndirectedNode) ((UndirectedEdge) e_c).getDifferingNode(c);
-				if (d.hasEdge(new UndirectedEdge(d, a))) {
+				if (d.hasEdge(d, a)) {
 					continue;
 				}
-				if (d.hasEdge(new UndirectedEdge(d, b))) {
+				if (d.hasEdge(d, b)) {
 					continue;
 				}
 				if (d.getIndex() == a.getIndex()) {
@@ -170,7 +170,7 @@ public class UndirectedMotifsU extends UndirectedMotifs {
 				if (c.getIndex() >= d.getIndex()) {
 					continue;
 				}
-				if (c.hasEdge(new UndirectedEdge(c, d))) {
+				if (c.hasEdge(c, d)) {
 					this.changeMotif(UndirectedMotifType.UM4, u);
 				} else {
 					this.changeMotif(UndirectedMotifType.UM2, u);
@@ -183,7 +183,7 @@ public class UndirectedMotifsU extends UndirectedMotifs {
 			HashSet<UndirectedNode> only, Update u) {
 		for (UndirectedNode c : ab) {
 			for (UndirectedNode d : only) {
-				if (c.hasEdge(new UndirectedEdge(c, d))) {
+				if (c.hasEdge(c, d)) {
 					this.changeMotif(UndirectedMotifType.UM4,
 							UndirectedMotifType.UM5, u);
 				} else {

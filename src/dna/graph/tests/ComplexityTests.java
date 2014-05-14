@@ -32,7 +32,7 @@ public class ComplexityTests {
 		assertEquals(2, c3.getCounter());
 
 		ComplexityMap weightedComplexityMap = (ComplexityMap) c3.getMap();
-		assertEquals(2, (int) weightedComplexityMap.get(c));
+		assertEquals(2, weightedComplexityMap.get(c), 0);
 	}
 
 	@Test
@@ -44,15 +44,15 @@ public class ComplexityTests {
 		c2.setCounter(c2.getCounter() + 4);
 
 		ComplexityMap weightedComplexityMap = (ComplexityMap) c1.getMap();
-		assertEquals(2, (int) weightedComplexityMap.get(c));
+		assertEquals(2, weightedComplexityMap.get(c), 0);
 		weightedComplexityMap = (ComplexityMap) c2.getMap();
-		assertEquals(12, (int) weightedComplexityMap.get(c));
+		assertEquals(12, weightedComplexityMap.get(c), 0);
 
 		ComparableEntry c3 = new AddedComparableEntry(c1, c2);
 		assertEquals(6, c3.getCounter());
 
 		weightedComplexityMap = (ComplexityMap) c3.getMap();
-		assertEquals(14, (int) weightedComplexityMap.get(c));
+		assertEquals(14, weightedComplexityMap.get(c), 0);
 	}
 
 	@Test
@@ -62,22 +62,22 @@ public class ComplexityTests {
 
 		c1.setCounter(c1.getCounter() + 2);
 		c2.setCounter(c2.getCounter() + 4);
-		
+
 		ComparableEntry c3 = new AddedComparableEntry(c1, c2);
 		ComparableEntry c4 = new AddedComparableEntry(c3, c2);
 		assertEquals(10, c4.getCounter());
 
 		ComplexityMap weightedComplexityMap = (ComplexityMap) c1.getMap();
-		assertEquals(2, (int) weightedComplexityMap.get(c));
+		assertEquals(2, weightedComplexityMap.get(c), 0);
 
 		weightedComplexityMap = (ComplexityMap) c2.getMap();
-		assertEquals(12, (int) weightedComplexityMap.get(c));
+		assertEquals(12, weightedComplexityMap.get(c), 0);
 
 		weightedComplexityMap = (ComplexityMap) c3.getMap();
-		assertEquals(14, (int) weightedComplexityMap.get(c));
+		assertEquals(14, weightedComplexityMap.get(c), 0);
 
 		weightedComplexityMap = (ComplexityMap) c4.getMap();
-		assertEquals(26, (int) weightedComplexityMap.get(c));
+		assertEquals(26, weightedComplexityMap.get(c), 0);
 	}
 
 	@Test
@@ -126,7 +126,7 @@ public class ComplexityTests {
 		c1.put(new ComplexityType(Type.Static, Base.NodeSize), 5);
 		c2.put(new ComplexityType(Type.Linear, Base.NodeSize), 1);
 		assertFirstIsSmallerThanSecond(c1, c2);
-		
+
 		c1 = new ComplexityMap();
 		c2 = new ComplexityMap();
 
@@ -134,157 +134,161 @@ public class ComplexityTests {
 		c2.put(new ComplexityType(Type.Static, Base.NodeSize), 15);
 		assertFirstIsSmallerThanSecond(c2, c1);
 	}
-	
+
 	@Test
 	public void checkSomeSortingCases() {
 		ComplexityMap c1, c2;
-		
+
 		c1 = new ComplexityMap();
 		c1.put(new ComplexityType(Type.Static, Base.Degree), 2067);
-		
+
 		c2 = new ComplexityMap();
 		c2.put(new ComplexityType(Type.Static, Base.Degree), 2067);
 		c2.put(new ComplexityType(Type.Linear, Base.EdgeSize), 2067);
-		
+
 		assertFirstIsSmallerThanSecond(c1, c2);
 	}
-	
+
 	@Test
 	public void checkSortingCasesInTheTree_A() {
 		ComplexityMap c1, c2;
-		
+
 		c1 = new ComplexityMap();
 		c1.put(new ComplexityType(Type.Static, Base.Degree), 2067);
-		
+
 		c2 = new ComplexityMap();
 		c2.put(new ComplexityType(Type.Static, Base.Degree), 2067);
 		c2.put(new ComplexityType(Type.Linear, Base.EdgeSize), 2067);
-		
+
 		TreeMap<ComplexityMap, GraphDataStructure> tree = new TreeMap<>();
 		tree.put(c2, null);
 		tree.put(c1, null);
-		
+
 		assertEquals(2, tree.size());
 		assertEquals(c1, tree.pollFirstEntry().getKey());
 		assertEquals(c2, tree.pollFirstEntry().getKey());
 	}
-	
+
 	@Test
 	public void checkSortingCasesInTheTree_B() {
 		ComplexityMap c1, c2;
-			
+
 		c1 = new ComplexityMap();
 		c1.put(new ComplexityType(Type.Static, Base.Degree), 8158);
 		c1.put(new ComplexityType(Type.Linear, Base.EdgeSize), 4071);
-		
+
 		c2 = new ComplexityMap();
 		c2.put(new ComplexityType(Type.Linear, Base.NodeSize), 8158);
 		c2.put(new ComplexityType(Type.Linear, Base.EdgeSize), 4071);
-		
+
 		TreeMap<ComplexityMap, GraphDataStructure> tree = new TreeMap<>();
 		tree.put(new ComplexityMap(), null);
 		tree.put(c1, null);
 		tree.put(c2, null);
-		
+
 		assertEquals(3, tree.size());
 		tree.pollFirstEntry();
 		assertEquals(c1, tree.pollFirstEntry().getKey());
 		assertEquals(c2, tree.pollFirstEntry().getKey());
 	}
-	
+
 	@Test
 	public void checkSortingCasesInTheTree_C() {
 		ComplexityMap c1, c2, c3;
-			
+
 		c1 = new ComplexityMap();
 		c1.put(new ComplexityType(Type.Static, Base.Degree), 246016);
-		
+
 		c2 = new ComplexityMap();
-		c2.put(new ComplexityType(Type.Static, Base.Degree), 246016);		
+		c2.put(new ComplexityType(Type.Static, Base.Degree), 246016);
 		c2.put(new ComplexityType(Type.Linear, Base.EdgeSize), 20196);
-		
+
 		c3 = new ComplexityMap();
 		c3.put(new ComplexityType(Type.Static, Base.Degree), 225820);
 		c3.put(new ComplexityType(Type.Linear, Base.EdgeSize), 40392);
-		
+
 		TreeMap<ComplexityMap, GraphDataStructure> tree = new TreeMap<>();
 		tree.put(c3, null);
 		tree.put(c1, null);
 		tree.put(c2, null);
-		
+
 		assertEquals(3, tree.size());
 		assertEquals(c1, tree.pollFirstEntry().getKey());
 		assertEquals(c2, tree.pollFirstEntry().getKey());
-	}	
-	
+	}
+
 	@Test
 	public void checkSortingCasesInTheTree_D() {
 		ComplexityMap c1, c2, c3, c4;
-			
+
 		c1 = new ComplexityMap();
 		c1.put(new ComplexityType(Type.Static, Base.Degree), 1);
-		
+
 		c2 = new ComplexityMap();
-		c2.put(new ComplexityType(Type.Static, Base.Degree), 1);		
+		c2.put(new ComplexityType(Type.Static, Base.Degree), 1);
 		c2.put(new ComplexityType(Type.Linear, Base.EdgeSize), 1);
 
 		c3 = new ComplexityMap();
-		c3.put(new ComplexityType(Type.Static, Base.Degree), 1);		
-		c3.put(new ComplexityType(Type.Linear, Base.EdgeSize), 2);		
-		
+		c3.put(new ComplexityType(Type.Static, Base.Degree), 1);
+		c3.put(new ComplexityType(Type.Linear, Base.EdgeSize), 2);
+
 		c4 = new ComplexityMap();
-		c4.put(new ComplexityType(Type.Static, Base.Degree), 1);		
-		c4.put(new ComplexityType(Type.Linear, Base.EdgeSize), 1);	
-				
+		c4.put(new ComplexityType(Type.Static, Base.Degree), 1);
+		c4.put(new ComplexityType(Type.Linear, Base.EdgeSize), 1);
+
 		TreeMap<ComplexityMap, GraphDataStructure> tree = new TreeMap<>();
 		tree.put(c1, null);
 		tree.put(c2, null);
 		tree.put(c3, null);
 		tree.put(c4, null);
-		
+
 		assertEquals(3, tree.size());
 		assertEquals(c1, tree.pollFirstEntry().getKey());
 		assertEquals(c2, tree.pollFirstEntry().getKey());
 	}
-	
+
 	@Test
 	public void checkSortingCasesInTheTree_E() {
 		ComplexityMap c1, c2;
-			
+
 		c1 = new ComplexityMap();
 		c1.put(new ComplexityType(Type.Static, Base.Degree), 1);
 		c1.put(new ComplexityType(Type.Linear, Base.Degree), 5);
-		
+
 		c2 = new ComplexityMap();
-		c2.put(new ComplexityType(Type.Static, Base.Degree), 20);		
+		c2.put(new ComplexityType(Type.Static, Base.Degree), 20);
 		c2.put(new ComplexityType(Type.Linear, Base.Degree), 5);
-			
+
 		TreeMap<ComplexityMap, GraphDataStructure> tree = new TreeMap<>();
 		tree.put(c1, null);
 		tree.put(c2, null);
-		System.out.println(tree.keySet());
-		
+		// System.out.println(tree.keySet());
+
 		assertEquals(2, tree.size());
 		assertEquals(c1, tree.pollFirstEntry().getKey());
 		assertEquals(c2, tree.pollFirstEntry().getKey());
-	}	
-	
+	}
+
 	@Test
 	public void checkProperOrderOfComplexityMap() {
 		ComplexityType staticCompl = new ComplexityType(Type.Static, null);
-		ComplexityType linearDegreeCompl = new ComplexityType(Type.Linear, Base.Degree);
-		ComplexityType linearNodeSizeCompl = new ComplexityType(Type.Linear, Base.NodeSize);
-		ComplexityType linearEdgeSizeCompl = new ComplexityType(Type.Linear, Base.EdgeSize);
+		ComplexityType linearDegreeCompl = new ComplexityType(Type.Linear,
+				Base.Degree);
+		ComplexityType linearNodeSizeCompl = new ComplexityType(Type.Linear,
+				Base.NodeSize);
+		ComplexityType linearEdgeSizeCompl = new ComplexityType(Type.Linear,
+				Base.EdgeSize);
 		ComplexityType unknownCompl = new ComplexityType(Type.Unknown, null);
-		
+
 		ComplexityMap c = new ComplexityMap();
 		c.put(staticCompl, 1);
 		c.put(linearDegreeCompl, 1);
 		c.put(linearNodeSizeCompl, 1);
 		c.put(linearEdgeSizeCompl, 1);
 		c.put(unknownCompl, 1);
-		
-		Entry<ComplexityType, Integer>[] entrySet = c.entrySet().toArray(new Entry[0]);
+
+		Entry<ComplexityType, Integer>[] entrySet = c.entrySet().toArray(
+				new Entry[0]);
 		assertEquals(staticCompl, entrySet[0].getKey());
 		assertEquals(linearDegreeCompl, entrySet[1].getKey());
 		assertEquals(linearNodeSizeCompl, entrySet[2].getKey());
@@ -292,8 +296,8 @@ public class ComplexityTests {
 		assertEquals(unknownCompl, entrySet[4].getKey());
 	}
 
-	private <T extends ComparableEntryMap> void assertFirstIsSmallerThanSecond(T one,
-			T two) {
+	private <T extends ComparableEntryMap> void assertFirstIsSmallerThanSecond(
+			T one, T two) {
 		/**
 		 * As a remark: a.compareTo(b) returns the following results:
 		 * 		-1 iff a < b

@@ -14,8 +14,8 @@ import org.junit.Test;
 import dna.profiler.datatypes.benchmarkresults.BenchmarkingResult;
 import dna.profiler.datatypes.benchmarkresults.BenchmarkingResultsMap;
 import dna.profiler.datatypes.benchmarkresults.strategies.BoundaryStrategy;
-import dna.profiler.datatypes.benchmarkresults.strategies.BoundaryStrategy.Boundary;
-import dna.profiler.datatypes.benchmarkresults.strategies.BoundaryStrategy.Selector;
+import dna.profiler.datatypes.benchmarkresults.strategies.BoundaryStrategy.BucketSelector;
+import dna.profiler.datatypes.benchmarkresults.strategies.BoundaryStrategy.ListAggregator;
 
 public class BenchmarkResultsTest {
 	@Test
@@ -34,8 +34,8 @@ public class BenchmarkResultsTest {
 	@Test
 	public void testIfMaxValueUpperBoundaryStrategyWorks() {
 		String val = "500=0.7,0.8,0.9;1000=1.6,1.4,1.5";
-		BenchmarkingResult.setStrategy(new BoundaryStrategy(Boundary.UPPER,
-				Selector.MAX));
+		BenchmarkingResult.setStrategy(new BoundaryStrategy(BucketSelector.UPPER,
+				ListAggregator.MAX));
 		BenchmarkingResult res = (BenchmarkingResult) BenchmarkingResult
 				.parseString("", val);
 
@@ -59,8 +59,8 @@ public class BenchmarkResultsTest {
 	@Test
 	public void testIfMinValueLowerBoundaryStrategyWorks() {
 		String val = "500=0.7,0.8,0.9;1000=1.6,1.4,1.5";
-		BenchmarkingResult.setStrategy(new BoundaryStrategy(Boundary.LOWER,
-				Selector.MIN));
+		BenchmarkingResult.setStrategy(new BoundaryStrategy(BucketSelector.LOWER,
+				ListAggregator.MIN));
 		BenchmarkingResult res = (BenchmarkingResult) BenchmarkingResult
 				.parseString("", val);
 
@@ -93,7 +93,7 @@ public class BenchmarkResultsTest {
 	public void testCorrectInterpolation() {
 		String val = "1=1;2=2";
 		BenchmarkingResult.setStrategy(new BoundaryStrategy(
-				Boundary.INTERPOLATE, Selector.MEAN));
+				BucketSelector.INTERPOLATE, ListAggregator.MEAN));
 		BenchmarkingResult res = (BenchmarkingResult) BenchmarkingResult
 				.parseString("", val);
 

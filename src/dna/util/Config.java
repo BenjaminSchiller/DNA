@@ -28,6 +28,10 @@ public class Config extends PropertiesHolder {
 	private static HashMap<String, String> overwrite;
 
 	private static String defaultConfigFolder = "config/";
+	
+	public static void setConfigFolder(String cf) {
+		defaultConfigFolder = cf;
+	}
 
 	public static String get(String key) {
 		String temp = null;

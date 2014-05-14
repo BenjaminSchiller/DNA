@@ -12,6 +12,8 @@ import dna.series.lists.NodeNodeValueListList;
 import dna.series.lists.NodeValueListList;
 import dna.series.lists.RunTimeList;
 import dna.series.lists.ValueList;
+import dna.updates.batch.Batch;
+import dna.updates.batch.BatchSanitizationStats;
 import dna.util.Config;
 import dna.util.Log;
 
@@ -23,6 +25,15 @@ public class BatchData {
 		this.generalRuntimes = new RunTimeList();
 		this.metricRuntimes = new RunTimeList();
 		this.metrics = new MetricDataList();
+	}
+
+	public BatchData(Batch b, BatchSanitizationStats sanitizationStats,
+			int sizeValues, int sizeGeneralRuntimes, int sizeMetricRuntimes,
+			int sizeMetrics) {
+		this(b.getTo(), sizeValues, sizeGeneralRuntimes, sizeMetricRuntimes,
+				sizeMetrics);
+		this.batch = b;
+		this.sanitizationStats = sanitizationStats;
 	}
 
 	public BatchData(long timestamp, int sizeValues, int sizeGeneralRuntimes,
@@ -42,6 +53,22 @@ public class BatchData {
 		this.generalRuntimes = generalRuntimes;
 		this.metricRuntimes = metricRuntimes;
 		this.metrics = metrics;
+	}
+
+	private Batch batch;
+
+	public Batch getBatch() {
+		return this.batch;
+	}
+
+	public void releaseBatch() {
+		this.batch = null;
+	}
+
+	private BatchSanitizationStats sanitizationStats;
+
+	public BatchSanitizationStats getSanitizationStats() {
+		return this.sanitizationStats;
 	}
 
 	private long timestamp;
