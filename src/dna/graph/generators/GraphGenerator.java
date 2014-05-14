@@ -2,8 +2,6 @@ package dna.graph.generators;
 
 import dna.graph.Graph;
 import dna.graph.datastructures.GraphDataStructure;
-import dna.graph.edges.Edge;
-import dna.graph.nodes.Node;
 import dna.util.parameters.Parameter;
 import dna.util.parameters.ParameterList;
 
@@ -27,6 +25,10 @@ public abstract class GraphGenerator extends ParameterList implements
 
 	public GraphDataStructure getGds() {
 		return gds;
+	}
+	
+	public void setGds(GraphDataStructure newGDS) {
+		this.gds = newGDS;
 	}
 
 	protected GraphDataStructure gds;
