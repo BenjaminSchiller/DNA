@@ -18,7 +18,7 @@ import dna.util.Rand;
 public class DHashTable extends DataStructureReadable implements
 		INodeListDatastructureReadable, IEdgeListDatastructureReadable {
 
-	private Hashtable<String, IElement> list;
+	private Hashtable<Integer, IElement> list;
 
 	private int maxNodeIndex;
 
@@ -29,7 +29,7 @@ public class DHashTable extends DataStructureReadable implements
 	@Override
 	public void init(Class<? extends IElement> dT, int initialSize,
 			boolean firstTime) {
-		this.list = new Hashtable<String, IElement>(initialSize);
+		this.list = new Hashtable<Integer, IElement>(initialSize);
 		this.maxNodeIndex = -1;
 	}
 
@@ -43,7 +43,7 @@ public class DHashTable extends DataStructureReadable implements
 	}
 
 	protected boolean add_(Node element) {
-		this.list.put(Integer.toString(element.getIndex()), element);
+		this.list.put(element.getIndex(), element);
 		if (element.getIndex() > this.maxNodeIndex) {
 			this.maxNodeIndex = element.getIndex();
 		}
@@ -52,7 +52,7 @@ public class DHashTable extends DataStructureReadable implements
 
 	@Override
 	protected boolean add_(Edge element) {
-		this.list.put(element.getHashString(), element);
+		this.list.put(element.hashCode(), element);
 		return true;
 	}
 
@@ -76,8 +76,8 @@ public class DHashTable extends DataStructureReadable implements
 		 * perform an additional get() which iterates over all entries with the
 		 * same (hashed) key and performs equal() on them
 		 */
-		return list.containsKey(Integer.toString(element.getIndex()))
-				&& list.get(Integer.toString(element.getIndex())) != null;
+		return list.containsKey(element.getIndex())
+				&& list.get(element.getIndex()) != null;
 	}
 
 	@Override
@@ -85,8 +85,8 @@ public class DHashTable extends DataStructureReadable implements
 		/**
 		 * Always keep in mind the comment at contains(Node el)!
 		 */
-		return list.containsKey(element.getHashString())
-				&& list.get(element.getHashString()) != null;
+		return list.containsKey(element.hashCode())
+				&& list.get(element.hashCode()) != null;
 	}
 
 	@Override
@@ -101,12 +101,12 @@ public class DHashTable extends DataStructureReadable implements
 
 	@Override
 	public boolean remove(Node element) {
-		if (this.list.remove(Integer.toString(element.getIndex())) == null) {
+		if (this.list.remove(element.getIndex()) == null) {
 			return false;
 		}
 		if (element.getIndex() == this.maxNodeIndex) {
 			int max = this.maxNodeIndex - 1;
-			while (!this.list.containsKey(Integer.toString(max)) && max >= 0) {
+			while (!this.list.containsKey(max) && max >= 0) {
 				max--;
 			}
 			this.maxNodeIndex = max;
@@ -116,7 +116,7 @@ public class DHashTable extends DataStructureReadable implements
 
 	@Override
 	public boolean remove(Edge element) {
-		if (this.list.remove(element.getHashString()) == null) {
+		if (this.list.remove(element.hashCode()) == null) {
 			return false;
 		}
 		return true;
@@ -152,14 +152,14 @@ public class DHashTable extends DataStructureReadable implements
 
 	@Override
 	public Node get(int index) {
-		if (!list.containsKey(Integer.toString(index)))
+		if (!list.containsKey(index))
 			return null;
-		return (Node) this.list.get(Integer.toString(index));
+		return (Node) this.list.get(index);
 	}
 
 	@Override
 	public Edge get(Node n1, Node n2) {
-		return (Edge) this.list.get(Integer.toString(Edge.getHashcode(n1, n2)));
+		return (Edge) this.list.get(Edge.getHashcode(n1, n2));
 	}
 
 	@Override

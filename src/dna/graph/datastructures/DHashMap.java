@@ -18,7 +18,7 @@ import dna.util.Rand;
 public class DHashMap extends DataStructureReadable implements
 		INodeListDatastructureReadable, IEdgeListDatastructureReadable {
 
-	private HashMap<String, IElement> list;
+	private HashMap<Integer, IElement> list;
 
 	private int maxNodeIndex;
 
@@ -28,7 +28,7 @@ public class DHashMap extends DataStructureReadable implements
 
 	public void init(Class<? extends IElement> dT, int initialSize,
 			boolean firstTime) {
-		this.list = new HashMap<String, IElement>(initialSize);
+		this.list = new HashMap<Integer, IElement>(initialSize);
 		this.maxNodeIndex = -1;
 	}
 
@@ -42,7 +42,7 @@ public class DHashMap extends DataStructureReadable implements
 	}
 
 	protected boolean add_(Node element) {
-		this.list.put(Integer.toString(element.getIndex()), element);
+		this.list.put(element.getIndex(), element);
 		if (element.getIndex() > this.maxNodeIndex) {
 			this.maxNodeIndex = element.getIndex();
 		}
@@ -51,7 +51,7 @@ public class DHashMap extends DataStructureReadable implements
 
 	@Override
 	protected boolean add_(Edge element) {
-		this.list.put(Integer.toString(element.hashCode()), element);
+		this.list.put(element.hashCode(), element);
 		return true;
 	}
 
@@ -72,7 +72,7 @@ public class DHashMap extends DataStructureReadable implements
 
 	@Override
 	public boolean contains(Edge element) {
-		return list.containsKey(Integer.toString(element.hashCode()));
+		return list.containsKey(element.hashCode());
 	}
 
 	@Override
@@ -87,12 +87,12 @@ public class DHashMap extends DataStructureReadable implements
 
 	@Override
 	public boolean remove(Node element) {
-		if (this.list.remove(Integer.toString(element.getIndex())) == null) {
+		if (this.list.remove(element.getIndex()) == null) {
 			return false;
 		}
 		if (element.getIndex() == this.maxNodeIndex) {
 			int max = this.maxNodeIndex - 1;
-			while (!this.list.containsKey(Integer.toString(max)) && max >= 0) {
+			while (!this.list.containsKey(max) && max >= 0) {
 				max--;
 			}
 			this.maxNodeIndex = max;
@@ -102,7 +102,7 @@ public class DHashMap extends DataStructureReadable implements
 
 	@Override
 	public boolean remove(Edge element) {
-		if (this.list.remove(Integer.toString(element.hashCode())) == null) {
+		if (this.list.remove(element.hashCode()) == null) {
 			return false;
 		}
 		return true;
@@ -138,12 +138,12 @@ public class DHashMap extends DataStructureReadable implements
 
 	@Override
 	public Node get(int index) {
-		return (Node) this.list.get(Integer.toString(index));
+		return (Node) this.list.get(index);
 	}
 
 	@Override
 	public Edge get(Node n1, Node n2) {
-		return (Edge) this.list.get(Integer.toString(Edge.getHashcode(n1, n2)));
+		return (Edge) this.list.get(Edge.getHashcode(n1, n2));
 	}
 
 	@Override
