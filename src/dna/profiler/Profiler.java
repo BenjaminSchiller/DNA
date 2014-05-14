@@ -36,7 +36,6 @@ import dna.profiler.datatypes.ComparableEntryMap;
 import dna.profiler.datatypes.benchmarkresults.BenchmarkingResultsMap;
 import dna.profiler.datatypes.combined.CombinedResultsMap;
 import dna.series.Series;
-import dna.series.SeriesGeneration;
 import dna.updates.update.Update.UpdateType;
 import dna.util.Config;
 import dna.util.Log;
@@ -889,7 +888,7 @@ public class Profiler {
 			throws IOException {
 		Writer w;
 
-		if (SeriesGeneration.singleFile && currentFileSystem != null
+		if (Config.getBoolean("GENERATION_BATCHES_AS_ZIP") && currentFileSystem != null
 				&& currentFileSystem.isOpen()) {
 			w = new ZipWriter(currentFileSystem, "/", filename);
 		} else {
@@ -973,7 +972,7 @@ public class Profiler {
 
 		HotSwap.setLastFinishedBatch(batchTimestamp);
 
-		if (SeriesGeneration.singleFile) {
+		if (Config.getBoolean("GENERATION_BATCHES_AS_ZIP")) {
 			currentFileSystem = ZipWriter.createBatchFileSystem(runDataDir,
 					Config.get("SUFFIX_ZIP_FILE"), batchTimestamp);
 		}
@@ -1023,7 +1022,7 @@ public class Profiler {
 				Files.getProfilerFilename(Config.get("PROFILER_RANGE")),
 				profilerRange);
 
-		if (SeriesGeneration.singleFile) {
+		if (Config.getBoolean("GENERATION_BATCHES_AS_ZIP")) {
 			currentFileSystem.close();
 		}
 	}
