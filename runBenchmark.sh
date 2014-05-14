@@ -17,7 +17,7 @@ do
 	
 	startTime=$(date +"%d. %B %T")
 	echo "[$startTime] Starting benchmark for $todoLine"
-	java -cp DNA.jar dna.profiler.benchmarking.BenchmarkingExperiments $todoLine &
+	java -Djava.compiler=NONE -cp DNA.jar dna.profiler.benchmarking.BenchmarkingExperiments $todoLine &
 	sleep 1
 done
 
