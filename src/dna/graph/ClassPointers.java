@@ -10,6 +10,7 @@ import dna.graph.datastructures.DHashArrayList;
 import dna.graph.datastructures.DHashMap;
 import dna.graph.datastructures.DHashSet;
 import dna.graph.datastructures.DHashTable;
+import dna.graph.datastructures.DLinkedHashMultimap;
 import dna.graph.datastructures.DLinkedList;
 import dna.graph.edges.DirectedEdge;
 import dna.graph.edges.DirectedWeightedEdge;
@@ -40,7 +41,7 @@ public class ClassPointers {
 	public static final Class[] dataStructures = { DArray.class,
 			DArrayDeque.class, DArrayList.class, DHashArrayList.class,
 			DHashMap.class, DHashSet.class, DHashTable.class,
-			DLinkedList.class, DEmpty.class };
+			DLinkedHashMultimap.class, DLinkedList.class, DEmpty.class };
 
 	public static final Class[] graphGenerators = { CliqueGraph.class,
 			RingGraph.class, BarabasiAlbertGraph.class, RandomGraph.class,
