@@ -89,7 +89,7 @@ public class DArray extends DataStructureReadable implements
 	}
 
 	public void resize() {
-		IElement[] newList = new IElement[this.list.length * 2];
+		IElement[] newList = new IElement[this.list.length + 1];
 		System.arraycopy(this.list, 0, newList, 0, this.list.length);
 		this.list = newList;
 	}
