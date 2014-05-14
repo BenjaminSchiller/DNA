@@ -1,7 +1,7 @@
 package dna.profiler.benchmarking;
 
-import java.util.ArrayList;
 import java.util.EnumMap;
+import java.util.HashSet;
 
 import org.perfidix.Benchmark;
 import org.perfidix.annotation.BeforeFirstRun;
@@ -155,8 +155,8 @@ public class BenchmarkingExperiments {
 		randomIDsNotInList = new Integer[operationSize];
 		randomNodesNotInList = new INode[operationSize];
 
-		ArrayList<Integer> tempNodesInList = new ArrayList<Integer>();
-		ArrayList<Integer> tempNodesNotInList = new ArrayList<Integer>();
+		HashSet<Integer> tempNodesInList = new HashSet<Integer>();
+		HashSet<Integer> tempNodesNotInList = new HashSet<Integer>();
 
 		for (int i = 0; i < operationSize; i++) {
 			do {
@@ -199,7 +199,7 @@ public class BenchmarkingExperiments {
 		randomEdgesInList = new Edge[operationSize];
 		randomEdgesNotInList = new Edge[operationSize];
 
-		ArrayList<Edge> tempEdgesInList = new ArrayList<Edge>();
+		HashSet<Edge> tempEdgesInList = new HashSet<Edge>();
 
 		for (int i = 0; i < operationSize; i++) {
 			do {
@@ -207,9 +207,15 @@ public class BenchmarkingExperiments {
 				e = edgeList[rand];
 			} while (tempEdgesInList.contains(e));
 			tempEdgesInList.add((Edge) e);
+		}
 
+		int listCounter = 0;
+		for (int i = 0; listCounter < operationSize; i++) {
 			e = gds.newEdgeInstance((Node) nodeList[i], (Node) nodeList[i]);
-			randomEdgesNotInList[i] = (Edge) e;
+			if (!edgeListToBenchmark.contains(e)) {
+				randomEdgesNotInList[listCounter] = (Edge) e;
+				listCounter++;
+			}
 		}
 
 		tempEdgesInList.toArray(randomEdgesInList);
