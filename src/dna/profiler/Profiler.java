@@ -20,6 +20,7 @@ import dna.graph.Graph;
 import dna.graph.datastructures.DEmpty;
 import dna.graph.datastructures.DHashArrayList;
 import dna.graph.datastructures.DHashMap;
+import dna.graph.datastructures.DHashSet;
 import dna.graph.datastructures.DHashTable;
 import dna.graph.datastructures.DataStructure;
 import dna.graph.datastructures.DataStructure.AccessType;
@@ -552,11 +553,12 @@ public class Profiler {
 				 * If the graph has nodes with ah higher ID than 32k nodes and
 				 * nearly each pair of nodes is connected, using a hash-based
 				 * edge list will lead to collisions. Thus, we will avoid using
-				 * DHashMap, DHashTable, or DHashArrayList for the global edge
-				 * list in this case
+				 * DHashMap, DHashSet, DHashTable, or DHashArrayList for the
+				 * global edge list in this case
 				 */
 				if (lt == ListType.GlobalEdgeList
 						&& (el.get(lt) == DHashMap.class
+								|| el.get(lt) == DHashSet.class
 								|| el.get(lt) == DHashTable.class || el.get(lt) == DHashArrayList.class)) {
 					if (!forceHashbasedEdgeList && maxCurrentNodeIndex > 32000) {
 						skipThisEntry = true;
