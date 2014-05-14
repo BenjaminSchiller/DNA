@@ -59,6 +59,6 @@ public abstract class Edge extends Element implements IEdge {
 	}
 	
 	public static int getHashcode(int n1Index, int n2Index) {
-		return n1Index * (int) Math.pow(2, 15) + n2Index;
+		return n1Index * (int) Math.pow(2, 16) + n2Index;
 	}
 }

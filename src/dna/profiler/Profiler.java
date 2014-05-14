@@ -550,7 +550,7 @@ public class Profiler {
 
 				/**
 				 * The following check will avoid hash collisions on edge lists.
-				 * If the graph has nodes with ah higher ID than 32k nodes and
+				 * If the graph has nodes with ah higher ID than 65k nodes and
 				 * nearly each pair of nodes is connected, using a hash-based
 				 * edge list will lead to collisions. Thus, we will avoid using
 				 * DHashMap, DHashSet, DHashTable, or DHashArrayList for the
@@ -560,7 +560,7 @@ public class Profiler {
 						&& (el.get(lt) == DHashMap.class
 								|| el.get(lt) == DHashSet.class
 								|| el.get(lt) == DHashTable.class || el.get(lt) == DHashArrayList.class)) {
-					if (!forceHashbasedEdgeList && maxCurrentNodeIndex > 32000) {
+					if (!forceHashbasedEdgeList && maxCurrentNodeIndex > 65000) {
 						skipThisEntry = true;
 					}
 				}
