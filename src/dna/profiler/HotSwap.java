@@ -15,6 +15,7 @@ import dna.profiler.ProfilerMeasurementData.ProfilerDataType;
 import dna.profiler.datatypes.ComparableEntry;
 import dna.profiler.datatypes.ComparableEntryMap;
 import dna.util.Config;
+import dna.util.Log;
 
 public class HotSwap {
 	private static HotSwapMap slidingWindow = null;
@@ -88,9 +89,8 @@ public class HotSwap {
 
 	private static void doSwap(Graph g, GraphDataStructure newGDS) {
 		GraphDataStructure gds = g.getGraphDatastructures();
-		System.out.println("  Old DS: " + gds.getStorageDataStructures(true));
-		System.out
-				.println("  New DS: " + newGDS.getStorageDataStructures(true));
+		Log.info("        Old DS: " + gds.getStorageDataStructures(true));
+		Log.info("        New DS: " + newGDS.getStorageDataStructures(true));
 		DataStructure.disableContainsOnAddition();
 		gds.switchDatastructures(newGDS, g);
 		DataStructure.enableContainsOnAddition();
@@ -119,8 +119,7 @@ public class HotSwap {
 			EnumMap<ListType, Class<? extends IDataStructure>> listTypes = manualSwitching
 					.get(lastFinishedBatch);
 			if (listTypes != null) {
-				System.out
-						.println("Should swap here according to manualSwitchingMap");
+				Log.info("     Should swap here according to manualSwitchingMap");
 				GraphDataStructure newGDS = new GraphDataStructure(listTypes,
 						null, null);
 				doSwap(g, newGDS);
@@ -145,12 +144,12 @@ public class HotSwap {
 
 			if (!entry.getDatastructures().equals(
 					g.getGraphDatastructures().getStorageDataStructures())) {
-				System.out.println("Recommendation based on "
+				Log.info("     Recommendation based on "
 						+ Profiler.profilerDataTypeForHotSwap
 						+ " could swap to "
 						+ entry.getGraphDataStructure()
 								.getStorageDataStructures(true));
-				System.out.println("  " + Profiler.profilerDataTypeForHotSwap
+				Log.info("       " + Profiler.profilerDataTypeForHotSwap
 						+ " costs in last batch with current combination: "
 						+ lastOwnCosts + ", with recommended entry: "
 						+ recCosts);
@@ -159,12 +158,11 @@ public class HotSwap {
 				GraphDataStructure newGDS = entry.getGraphDataStructure();
 
 				if (isSwapEfficient(accumulatedAccesses, currentGDS, newGDS)) {
-					System.out
-							.println("  Swapping looks efficient, so do it now");
+					Log.info("       Swapping looks efficient, so do it now");
 					doSwap(g, newGDS);
 					return;
 				} else {
-					System.out.println("  Skip the swap, it is inefficient");
+					Log.info("       Skip the swap, it is inefficient");
 				}
 			}
 		}
@@ -173,10 +171,8 @@ public class HotSwap {
 	private static boolean isSwapEfficient(ProfileEntry accesses,
 			GraphDataStructure currentGDS, GraphDataStructure recGDS) {
 		int amortizationCounterToUse = getAmortizationCounter();
-		System.out
-				.println("   Check whether the swap will be amortized within "
-						+ amortizationCounterToUse
-						+ " batches by runtime costs");
+		Log.debug("    Check whether the swap will be amortized within "
+				+ amortizationCounterToUse + " batches by runtime costs");
 
 		/**
 		 * Generate the costs for the current state
@@ -217,12 +213,11 @@ public class HotSwap {
 			swappingCosts.add(addCosts.getMap());
 		}
 
-		System.out.println("   Total costs with current GDS: "
-				+ currentStateCosts + ", total swapping costs: "
-				+ swappingCosts + ", total costs with recommended GDS: "
-				+ recStateCosts);
+		Log.debug("        Total costs with current GDS: " + currentStateCosts
+				+ ", total swapping costs: " + swappingCosts
+				+ ", total costs with recommended GDS: " + recStateCosts);
 		recStateCosts.add(swappingCosts);
-		System.out.println("   Total costs with NEW GDS, incl swap: "
+		Log.debug("        Total costs with NEW GDS, incl swap: "
 				+ recStateCosts);
 
 		boolean isEfficient = recStateCosts.compareTo(currentStateCosts) < 0;
