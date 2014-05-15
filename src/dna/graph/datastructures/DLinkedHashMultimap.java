@@ -38,7 +38,9 @@ public class DLinkedHashMultimap extends DataStructureReadable implements
 	}
 
 	protected boolean add_(Node element) {
-		this.list.put(element.getIndex(), element);
+		if ( !this.list.put(element.getIndex(), element) ) {
+			return false;
+		}
 		if (element.getIndex() > this.maxNodeIndex) {
 			this.maxNodeIndex = element.getIndex();
 		}
@@ -47,8 +49,7 @@ public class DLinkedHashMultimap extends DataStructureReadable implements
 
 	@Override
 	protected boolean add_(Edge element) {
-		this.list.put(element.hashCode(), element);
-		return true;
+		return this.list.put(element.hashCode(), element);
 	}
 
 	@Override
@@ -136,7 +137,12 @@ public class DLinkedHashMultimap extends DataStructureReadable implements
 
 	@Override
 	public Edge get(Node n1, Node n2) {
-		return (Edge) Iterables.getFirst(this.list.get(Edge.getHashcode(n1, n2)),null);
+		for ( IElement e: this.list.get(Edge.getHashcode(n1, n2))) {
+			if (((Edge) e).isConnectedTo(n1, n2)) {
+				return (Edge) e;
+			}
+		}
+		return null;
 	}
 
 	@Override
