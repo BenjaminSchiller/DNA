@@ -390,8 +390,8 @@ public class Plotting {
 			for (int i = 0; i < nodevalues.size(); i++) {
 				for (int j = 0; j < batches.length; j++) {
 					nodevaluesPlotData[i][j] = PlotData.get(nodevalues.get(i)
-							.getName(), style, title + " @ " + timestamps[j],
-							type);
+							.getName(), m.getName(), style, title + " @ "
+							+ timestamps[j], type);
 				}
 			}
 
@@ -443,8 +443,8 @@ public class Plotting {
 			for (int i = 0; i < distributions.size(); i++) {
 				for (int j = 0; j < batches.length; j++) {
 					distributionPlotData[i][j] = PlotData.get(distributions
-							.get(i).getName(), style, title + " @ "
-							+ timestamps[j], type);
+							.get(i).getName(), m.getName(), style, title
+							+ " @ " + timestamps[j], type);
 				}
 			}
 
@@ -490,8 +490,8 @@ public class Plotting {
 				Log.info("\tplotting '" + value + "'");
 
 				// get plot data
-				PlotData valuePlotData = PlotData
-						.get(value, style, title, type);
+				PlotData valuePlotData = PlotData.get(value,
+						Config.get("PLOT_STATISTICS"), style, title, type);
 
 				// create plot
 				Plot valuePlot = new Plot(dstDir, PlotFilenames.getValuesPlot(
@@ -536,8 +536,8 @@ public class Plotting {
 				Log.info("\tplotting '" + value + "'");
 
 				// get plot data
-				PlotData valuePlotData = PlotData.get(value, style, value + "-"
-						+ title, type);
+				PlotData valuePlotData = PlotData.get(value, m.getName(),
+						style, value + "-" + title, type);
 
 				// create plot
 				Plot valuePlot = new Plot(dstDir, PlotFilenames.getValuesPlot(
@@ -579,8 +579,9 @@ public class Plotting {
 			Log.info("\tplotting '" + runtime + "'");
 
 			// get plot data
-			PlotData metPlotData = PlotData.get(runtime, style, runtime + "-"
-					+ title, type);
+			PlotData metPlotData = PlotData.get(runtime,
+					Config.get("PLOT_STATISTICS"), style,
+					runtime + "-" + title, type);
 			metRuntimes[index] = metPlotData;
 
 			// create plot
@@ -681,7 +682,8 @@ public class Plotting {
 		int index = 0;
 		for (String gen : y) {
 			Log.info("\tplotting '" + gen + "'");
-			genRuntimes[index] = PlotData.get(gen, style, gen + "-" + title,
+			genRuntimes[index] = PlotData.get(gen,
+					Config.get("PLOT_STATISTICS"), style, gen + "-" + title,
 					type);
 			index++;
 		}
@@ -1415,8 +1417,8 @@ public class Plotting {
 				String path = Dir.getAggregatedMetricDataDir(s.getDir(),
 						b.getTimestamp(), metric)
 						+ distribution + Config.get("SUFFIX_DIST");
-				data[index++] = PlotData.get(path, style, s.getName() + " @ "
-						+ b.getTimestamp(), type);
+				data[index++] = PlotData.get(path, metric, style, s.getName()
+						+ " @ " + b.getTimestamp(), type);
 			}
 		}
 		// generate plot script and execute it
@@ -1510,8 +1512,8 @@ public class Plotting {
 				path = dstDir
 						+ PlotFilenames.getNodeValueListDataFile(metric,
 								nodevaluelist, (int) b.getTimestamp());
-				data[index++] = PlotData.get(path, style, s.getName() + " @ "
-						+ b.getTimestamp(), type);
+				data[index++] = PlotData.get(path, metric, style, s.getName()
+						+ " @ " + b.getTimestamp(), type);
 			}
 		}
 		// generate plot script and execute it
@@ -1576,7 +1578,8 @@ public class Plotting {
 			String path = PlotFilenames.getValuesGnuplotScript(m, value + "."
 					+ "ALL");
 
-			allData[index1] = PlotData.get(path, style, s.getName(), type);
+			allData[index1] = PlotData.get(path, metric, style, s.getName(),
+					type);
 			timestamps[index1] = timestampsTemp;
 			index1++;
 		}
@@ -1601,7 +1604,7 @@ public class Plotting {
 			allData[i] = PlotData.get(
 					PlotFilenames.getValuesGnuplotScript(m,
 							value + Config.get("FILE_NAME_DELIMITER") + "ALL"),
-					style, seriesData[i].getName(), type);
+					metric, style, seriesData[i].getName(), type);
 		}
 
 		Plot plot = new Plot(allData, dstDir, PlotFilenames.getValuesPlot(m,
@@ -1651,7 +1654,7 @@ public class Plotting {
 		for (int i = 0; i < values.length; i++) {
 			data[i] = PlotData.get(
 					dstDir + PlotFilenames.getRuntimesDataFile(names[i]),
-					style, names[i], type);
+					Config.get("PLOT_STATISTICS"), style, names[i], type);
 		}
 		// generate plot script and execute it
 		Plot plot = new Plot(data, dstDir, filename, script);

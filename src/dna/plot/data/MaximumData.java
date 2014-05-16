@@ -8,8 +8,8 @@ import dna.plot.Gnuplot.PlotStyle;
  */
 public class MaximumData extends PlotData {
 
-	public MaximumData(String data, PlotStyle style, String title) {
-		super(data, style, title);
+	public MaximumData(String data, String domain, PlotStyle style, String title) {
+		super(data, domain, style, title);
 	}
 
 	@Override

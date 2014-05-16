@@ -8,8 +8,9 @@ import dna.plot.Gnuplot.PlotStyle;
  */
 public class ConfidenceData2 extends PlotData {
 
-	public ConfidenceData2(String data, PlotStyle style, String title) {
-		super(data, style, title);
+	public ConfidenceData2(String data, String domain, PlotStyle style,
+			String title) {
+		super(data, domain, style, title);
 	}
 
 	@Override
