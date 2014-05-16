@@ -582,7 +582,7 @@ public class Plotting {
 
 			// get plot data
 			PlotData metPlotData = PlotData.get(runtime,
-					Config.get("PLOT_STATISTICS"), style,
+					Config.get("PLOT_METRICRUNTIMES"), style,
 					runtime + "-" + title, type);
 			metRuntimes[index] = metPlotData;
 
@@ -685,7 +685,7 @@ public class Plotting {
 		for (String gen : y) {
 			Log.info("\tplotting '" + gen + "'");
 			genRuntimes[index] = PlotData.get(gen,
-					Config.get("PLOT_STATISTICS"), style, gen + "-" + title,
+					Config.get("PLOT_GENERALRUNTIMES"), style, gen + "-" + title,
 					type);
 			index++;
 		}
