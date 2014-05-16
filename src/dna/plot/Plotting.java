@@ -451,20 +451,22 @@ public class Plotting {
 			// create plots
 			// each distribution will also be plotted as cdf -> " size*2 "
 			distributionPlots[index] = new Plot[distributions.size() * 2];
+			int j = 0;
 			for (int i = 0; i < distributionPlots[index].length; i += 2) {
-				String distribution = distributions.get(i).getName();
+				String distribution = distributions.get(j).getName();
 				distributionPlots[index][i] = new Plot(dstDir, PlotFilenames
 						.getDistributionPlot(metric, distribution),
 						PlotFilenames.getDistributionGnuplotScript(metric,
 								distribution),
 						distribution + " (" + type + ")",
-						distributionPlotData[i]);
+						distributionPlotData[j]);
 				distributionPlots[index][i + 1] = new Plot(dstDir,
 						PlotFilenames.getDistributionCdfPlot(metric,
 								distribution),
 						PlotFilenames.getDistributionCdfGnuplotScript(metric,
 								distribution), "CDF of " + distribution + " ("
-								+ type + ")", distributionPlotData[i]);
+								+ type + ")", distributionPlotData[j]);
+				j++;
 			}
 			index++;
 		}
