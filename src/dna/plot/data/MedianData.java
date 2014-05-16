@@ -8,8 +8,8 @@ import dna.plot.Gnuplot.PlotStyle;
  */
 public class MedianData extends PlotData {
 
-	public MedianData(String data, PlotStyle style, String title) {
-		super(data, style, title);
+	public MedianData(String data, String domain, PlotStyle style, String title) {
+		super(data, domain, style, title);
 	}
 
 	@Override
