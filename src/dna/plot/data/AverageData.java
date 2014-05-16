@@ -8,8 +8,8 @@ import dna.plot.Gnuplot.PlotStyle;
  */
 public class AverageData extends PlotData {
 
-	public AverageData(String data, PlotStyle style, String title) {
-		super(data, style, title);
+	public AverageData(String data, String domain, PlotStyle style, String title) {
+		super(data, domain, style, title);
 	}
 
 	@Override
