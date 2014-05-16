@@ -1,6 +1,7 @@
 package dna.plot;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -33,6 +34,8 @@ public class Plot {
 
 	// private variables
 	private PlotData[] data;
+
+	private ArrayList<String> names;
 
 	private DistributionPlotType distPlotType;
 
@@ -69,6 +72,13 @@ public class Plot {
 		// init writer
 		this.fileWriter = new Writer(dir, scriptFilename);
 		this.dataWriteCounter = 0;
+	}
+
+	public Plot(String dir, String plotFilename, String scriptFilename,
+			String title, ArrayList<String> names, PlotData[] data)
+			throws IOException {
+		this(dir, plotFilename, scriptFilename, title, data);
+		this.names = names;
 	}
 
 	// new methods
@@ -124,6 +134,10 @@ public class Plot {
 	public void appendEOF() throws IOException {
 		this.dataWriteCounter++;
 		this.fileWriter.writeln("EOF");
+	}
+
+	public ArrayList<String> getNames() {
+		return this.names;
 	}
 
 	public void close() throws IOException {
