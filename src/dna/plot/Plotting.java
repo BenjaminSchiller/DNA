@@ -301,6 +301,7 @@ public class Plotting {
 					String distribution = d.getName();
 					Log.info("\tplotting distribution '" + distribution + "'");
 
+					// check what to plot
 					boolean plotDist = false;
 					boolean plotCdf = false;
 					switch (distPlotType) {
@@ -315,6 +316,7 @@ public class Plotting {
 						plotCdf = true;
 						break;
 					}
+
 					// generate normal plots
 					if (plotDist) {
 						PlotData[] dPlotData = new PlotData[batches.length];
@@ -456,6 +458,10 @@ public class Plotting {
 			InterruptedException {
 		Log.infoSep();
 
+		// init list for plots
+		List<Plot> plots = new LinkedList<Plot>();
+
+		// generate single plots
 		for (AggregatedMetric m : metrics.getList()) {
 			String metric = m.getName();
 			Log.info("Plotting metric " + metric);
@@ -468,24 +474,73 @@ public class Plotting {
 						style, title, type);
 
 				// create plot
-				Plot valuePlot = new Plot(dstDir, PlotFilenames.getValuesPlot(
-						metric, value), PlotFilenames.getValuesGnuplotScript(
-						metric, value), value + " (" + type + ")",
-						new PlotData[] { valuePlotData });
-
-				// write header
-				valuePlot.writeScriptHeaderNeu();
-
-				// append data
-				valuePlot.addData(batchData);
-
-				// close and execute
-				valuePlot.close();
-				valuePlot.execute();
+				plots.add(new Plot(dstDir, PlotFilenames.getValuesPlot(metric,
+						value), PlotFilenames.getValuesGnuplotScript(metric,
+						value), value + " (" + type + ")",
+						new PlotData[] { valuePlotData }));
 			}
 		}
 
-		// TODO: CONFIGURABLE? HEURISTICS VS EXACTS?
+		/*
+		 * COMBINED PLOTS
+		 */
+		ArrayList<String> values = new ArrayList<String>();
+
+		for (AggregatedMetric m : metrics.getList()) {
+			for (AggregatedValue v : m.getValues().getList()) {
+				if (!values.contains(v.getName()))
+					values.add(v.getName());
+			}
+		}
+
+		// list of values, which all have an own list of metrics
+		ArrayList<ArrayList<String>> valuesList = new ArrayList<ArrayList<String>>(
+				values.size());
+
+		for (int i = 0; i < values.size(); i++) {
+			valuesList.add(i, new ArrayList<String>());
+		}
+
+		// for each value add metric that has the value
+		for (AggregatedMetric m : metrics.getList()) {
+			for (AggregatedValue v : m.getValues().getList()) {
+				int index = values.indexOf(v.getName());
+				valuesList.get(index).add(m.getName());
+			}
+		}
+
+		for (int i = 0; i < valuesList.size(); i++) {
+			ArrayList<String> metricsList = valuesList.get(i);
+			String value = values.get(i);
+			if (metricsList.size() > 1) {
+				// gather plot data
+				PlotData[] valuePlotDatas = new PlotData[metricsList.size()];
+				for (int j = 0; j < metricsList.size(); j++) {
+					String metric = metricsList.get(j);
+					valuePlotDatas[j] = PlotData.get(value, metric, style,
+							metric, type);
+				}
+
+				// create plot
+				plots.add(new Plot(dstDir, PlotFilenames
+						.getCombinationPlot(value), PlotFilenames
+						.getCombinationGnuplotScript(value), value + " ("
+						+ type + ")", valuePlotDatas));
+			}
+		}
+
+		for (Plot p : plots) {
+			// write header
+			p.writeScriptHeaderNeu();
+
+			// append data
+			p.addData(batchData);
+
+			// close and execute
+			p.close();
+			p.execute();
+		}
+		plots = null;
 	}
 
 	/** Plots metric runtimes **/
@@ -506,7 +561,8 @@ public class Plotting {
 
 			// get plot data
 			PlotData metPlotData = PlotData.get(runtime,
-					Config.get("PLOT_METRICRUNTIMES"), style, title, type);
+					Config.get("PLOT_METRICRUNTIMES"), style, runtime + "-"
+							+ title, type);
 			metRuntimes[index] = metPlotData;
 
 			// create plot
@@ -580,7 +636,8 @@ public class Plotting {
 		for (String gen : y) {
 			Log.info("\tplotting '" + gen + "'");
 			genRuntimes[index] = PlotData.get(gen,
-					Config.get("PLOT_GENERALRUNTIMES"), style, title, type);
+					Config.get("PLOT_GENERALRUNTIMES"), style, gen + "-"
+							+ title, type);
 			index++;
 		}
 
