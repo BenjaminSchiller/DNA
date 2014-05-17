@@ -273,17 +273,14 @@ public class Plotting {
 		Log.infoSep();
 		Log.info("Sequentially plotting Distributions and / or NodeValueLists");
 
-		ArrayList<Plot> distributionPlots2 = new ArrayList<Plot>();
-		ArrayList<Plot> nodevaluePlots2 = new ArrayList<Plot>();
-		Plot[][] nodevaluePlots = null;
+		ArrayList<Plot> distributionPlots = new ArrayList<Plot>();
+		ArrayList<Plot> nodeValueListPlots = new ArrayList<Plot>();
 		if (plotDistributions) {
-			distributionPlots2 = Plotting.generateDistributionPlots(initBatch,
+			distributionPlots = Plotting.generateDistributionPlots(initBatch,
 					batches, timestamps, dstDir, title, style, type);
 		}
 		if (plotNodeValues) {
-			nodevaluePlots = Plotting.generateNodeValueListPlots(initBatch,
-					batches, timestamps, dstDir, title, style, type);
-			nodevaluePlots2 = Plotting.generateNodeValueListPlots2(initBatch,
+			nodeValueListPlots = Plotting.generateNodeValueListPlots(initBatch,
 					batches, timestamps, dstDir, title, style, type);
 		}
 
@@ -300,30 +297,14 @@ public class Plotting {
 						Dir.getBatchDataDir(aggrDir, timestamp), timestamp,
 						BatchReadMode.readOnlyDistAndNvl);
 
-			if (plotDistributions) {
-				// append data to distribution plots
-				for (Plot p : distributionPlots2) {
-					p.addDataSequentially(tempBatch);
-				}
+			// append data to distribution plots
+			for (Plot p : distributionPlots) {
+				p.addDataSequentially(tempBatch);
 			}
+			// append data to nvl plots
+			for (Plot p : nodeValueListPlots) {
+				p.addDataSequentially(tempBatch);
 
-			if (plotNodeValues) {
-				// append data to nvl plots
-				for (Plot p : nodevaluePlots2) {
-					p.addDataSequentially(tempBatch);
-				}
-
-				int metricIndex = 0;
-				for (AggregatedMetric m : tempBatch.getMetrics().getList()) {
-					int nvlIndex = 0;
-					for (AggregatedNodeValueList n : m.getNodeValues()
-							.getList()) {
-						nodevaluePlots[metricIndex][nvlIndex]
-								.appendDataWithIndex(n.getValues());
-						nvlIndex++;
-					}
-					metricIndex++;
-				}
 			}
 
 			// free resources
@@ -332,79 +313,19 @@ public class Plotting {
 		}
 
 		// close and execute plot scripts
-		if (plotDistributions) {
-			for (Plot p : distributionPlots2) {
-				p.close();
-				p.execute();
-			}
+		for (Plot p : distributionPlots) {
+			p.close();
+			p.execute();
 		}
-		if (plotNodeValues) {
-			for (int i = 0; i < nodevaluePlots.length; i++) {
-				for (int j = 0; j < nodevaluePlots[i].length; j++) {
-					Plot nvlPlot = nodevaluePlots[i][j];
-
-					// close and execute
-					nvlPlot.close();
-					nvlPlot.execute();
-				}
-			}
+		for (Plot p : nodeValueListPlots) {
+			p.close();
+			p.execute();
 		}
 
 	}
 
 	/** Generates NodeValueList Plots **/
-	private static Plot[][] generateNodeValueListPlots(
-			AggregatedBatch initBatch, String[] batches, double[] timestamps,
-			String dstDir, String title, PlotStyle style, PlotType type)
-			throws IOException {
-		Plot[][] nodevaluesPlots = new Plot[initBatch.getMetrics().size()][];
-
-		// gather all available nvls
-		int index = 0;
-		for (AggregatedMetric m : initBatch.getMetrics().getList()) {
-			ArrayList<AggregatedNodeValueList> nodevalues = new ArrayList<AggregatedNodeValueList>();
-
-			String metric = m.getName();
-			for (AggregatedNodeValueList n : m.getNodeValues().getList()) {
-				Log.info("\tplotting '" + n.getName() + "'");
-				nodevalues.add(n);
-			}
-
-			PlotData[][] nodevaluesPlotData = new PlotData[nodevalues.size()][batches.length];
-
-			// create plot data
-			for (int i = 0; i < nodevalues.size(); i++) {
-				for (int j = 0; j < batches.length; j++) {
-					nodevaluesPlotData[i][j] = PlotData.get(nodevalues.get(i)
-							.getName(), m.getName(), style, title + " @ "
-							+ timestamps[j], type);
-				}
-			}
-
-			// create plots
-			nodevaluesPlots[index] = new Plot[nodevalues.size()];
-			for (int i = 0; i < nodevaluesPlots[index].length; i++) {
-				String nodevaluelist = nodevalues.get(i).getName();
-				nodevaluesPlots[index][i] = new Plot(dstDir,
-						PlotFilenames.getNodeValueListPlot(metric,
-								nodevaluelist),
-						PlotFilenames.getNodeValueListGnuplotScript(metric,
-								nodevaluelist), nodevaluelist + " (" + type
-								+ ")", nodevaluesPlotData[i]);
-			}
-			index++;
-		}
-
-		// write headers
-		for (int i = 0; i < nodevaluesPlots.length; i++) {
-			for (int j = 0; j < nodevaluesPlots[i].length; j++) {
-				nodevaluesPlots[i][j].writeScriptHeaderNeu();
-			}
-		}
-		return nodevaluesPlots;
-	}
-
-	private static ArrayList<Plot> generateNodeValueListPlots2(
+	private static ArrayList<Plot> generateNodeValueListPlots(
 			AggregatedBatch initBatch, String[] batches, double[] timestamps,
 			String dstDir, String title, PlotStyle style, PlotType type)
 			throws IOException {
@@ -420,15 +341,19 @@ public class Plotting {
 				// generate normal plots
 				PlotData[] nPlotData = new PlotData[batches.length];
 				for (int i = 0; i < batches.length; i++) {
-					nPlotData[i] = PlotData.get(nodevaluelist, metric, style,
-							title + " @ " + timestamps[i], type);
+					PlotData plotData = PlotData.get(nodevaluelist, metric,
+							style, title + " @ " + timestamps[i], type);
+					nPlotData[i] = plotData;
 				}
 
-				nodevaluesPlots.add(new Plot(dstDir, PlotFilenames
-						.getNodeValueListPlot(metric, nodevaluelist),
+				Plot nPlot = new Plot(dstDir,
+						PlotFilenames.getNodeValueListPlot(metric,
+								nodevaluelist + 2),
 						PlotFilenames.getNodeValueListGnuplotScript(metric,
-								nodevaluelist), nodevaluelist + " (" + type
-								+ ")", nPlotData));
+								nodevaluelist + 2), nodevaluelist + " (" + type
+								+ ")", nPlotData);
+				nPlot.setNodeValueListOrder(NodeValueListOrder.ascending);
+				nodevaluesPlots.add(nPlot);
 			}
 		}
 

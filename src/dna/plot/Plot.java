@@ -71,6 +71,10 @@ public class Plot {
 		this.scriptFilename = scriptFilename;
 		this.title = title;
 		this.data = data;
+		this.sortOrder = Config
+				.getNodeValueListOrder("GNUPLOT_DEFAULT_NVL_ORDER");
+		this.orderBy = Config
+				.getNodeValueListOrderBy("GNUPLOT_DEFAULT_NVL_ORDERBY");
 
 		// init writer
 		this.fileWriter = new Writer(dir, scriptFilename);
@@ -185,26 +189,25 @@ public class Plot {
 						this.appendData(values);
 					}
 				} else if (m.getNodeValues().getNames().contains(name)) {
-					AggregatedValue[] values = m.getNodeValues().get(name)
-							.getValues();
-					if (addAsCDF) {
+					if (this.orderBy.equals(NodeValueListOrderBy.index)) {
+						this.appendDataWithIndex(m.getNodeValues().get(name)
+								.getValues());
+					} else {
+						AggregatedNodeValueList nvl = m.getNodeValues().get(
+								name);
+						nvl.setsortIndex(this.orderBy, this.sortOrder);
+						AggregatedValue[] values = nvl.getValues();
 						AggregatedValue[] tempValues = new AggregatedValue[values.length];
-						for (int i = 0; i < tempValues.length; i++) {
+						int index = 0;
+						for (int i : nvl.getSortIndex()) {
 							double[] tempV = new double[values[i].getValues().length];
 							System.arraycopy(values[i].getValues(), 0, tempV,
 									0, values[i].getValues().length);
-							tempValues[i] = new AggregatedValue(
+							tempValues[index] = new AggregatedValue(
 									values[i].getName(), tempV);
+							index++;
 						}
-						for (int j = 1; j < tempValues.length; j++) {
-							for (int k = 1; k < tempValues[j].getValues().length; k++) {
-								tempValues[j].getValues()[k] += tempValues[j - 1]
-										.getValues()[k];
-							}
-						}
-						this.appendData(tempValues);
-					} else {
-						this.appendData(values);
+						this.appendDataWithIndex(tempValues);
 					}
 				} else if (m.getValues().getNames().contains(name)) {
 					this.appendData(m.getValues().get(name), timestamp);
@@ -233,9 +236,9 @@ public class Plot {
 
 	public void addDataSequentially(AggregatedBatch batchData)
 			throws IOException {
-//		Log.info("add data sequentially debug: batchtimestamp: "
-//				+ batchData.getTimestamp() + "  datacounter: "
-//				+ this.dataWriteCounter);
+		// Log.info("add data sequentially debug: batchtimestamp: "
+		// + batchData.getTimestamp() + "  datacounter: "
+		// + this.dataWriteCounter);
 		String name = this.data[dataWriteCounter].getName();
 		String domain = this.data[dataWriteCounter].getDomain();
 		if (this.data[dataWriteCounter].isPlotAsCdf())
@@ -357,8 +360,6 @@ public class Plot {
 	public Plot(PlotData[] data, String dir, String filename,
 			String scriptFilename, DistributionPlotType distPlotType,
 			NodeValueListOrderBy orderBy, NodeValueListOrder sortOrder) {
-		Log.info("PLOT CONSTRUCTOR DEBUG: " + dir + "\t" + filename + "\t"
-				+ scriptFilename);
 		this.data = data;
 		this.dir = dir;
 		this.filename = filename;
@@ -746,5 +747,21 @@ public class Plot {
 
 	public void setPlotDateTime(boolean plotDateTime) {
 		Config.overwrite("GNUPLOT_PLOTDATETIME", Boolean.toString(plotDateTime));
+	}
+
+	public void setNodeValueListOrder(NodeValueListOrder sortOrder) {
+		this.sortOrder = sortOrder;
+	}
+
+	public NodeValueListOrder getNodeValueListSortOrder() {
+		return this.sortOrder;
+	}
+
+	public void setNodeValueListOrderBy(NodeValueListOrderBy orderBy) {
+		this.orderBy = orderBy;
+	}
+
+	public NodeValueListOrderBy getNodeValueListOrderBy() {
+		return this.orderBy;
 	}
 }
