@@ -273,15 +273,80 @@ public class Plotting {
 		Log.infoSep();
 		Log.info("Sequentially plotting Distributions and / or NodeValueLists");
 
-		ArrayList<Plot> distributionPlots = new ArrayList<Plot>();
-		ArrayList<Plot> nodeValueListPlots = new ArrayList<Plot>();
-		if (plotDistributions) {
-			distributionPlots = Plotting.generateDistributionPlots(initBatch,
-					batches, timestamps, dstDir, title, style, type);
+		// generate plots
+		ArrayList<Plot> plots = new ArrayList<Plot>();
+
+		// iterate over metrics and create plots
+		for (AggregatedMetric m : initBatch.getMetrics().getList()) {
+			String metric = m.getName();
+			Log.info("Plotting metric " + metric);
+
+			// generate distribution plots
+			if (plotDistributions) {
+				for (AggregatedDistribution d : m.getDistributions().getList()) {
+					String distribution = d.getName();
+					Log.info("\tplotting distribution '" + distribution + "'");
+
+					// generate normal plots
+					PlotData[] dPlotData = new PlotData[batches.length];
+					for (int i = 0; i < batches.length; i++) {
+						dPlotData[i] = PlotData.get(distribution, metric,
+								style, title + " @ " + timestamps[i], type);
+					}
+
+					plots.add(new Plot(dstDir, PlotFilenames
+							.getDistributionPlot(metric, distribution),
+							PlotFilenames.getDistributionGnuplotScript(metric,
+									distribution), distribution + " (" + type
+									+ ")", dPlotData));
+
+					// generate cdf plots
+					PlotData[] dPlotDataCDF = new PlotData[batches.length];
+					for (int i = 0; i < batches.length; i++) {
+						PlotData cdfPlotData = PlotData.get(distribution,
+								metric, style, title + " @ " + timestamps[i],
+								type);
+						cdfPlotData.setPlotAsCdf(true);
+						dPlotDataCDF[i] = cdfPlotData;
+					}
+					plots.add(new Plot(dstDir, PlotFilenames
+							.getDistributionCdfPlot(metric, distribution),
+							PlotFilenames.getDistributionCdfGnuplotScript(
+									metric, distribution), "CDF of "
+									+ distribution + " (" + type + ")",
+							dPlotDataCDF));
+				}
+			}
+
+			// generate nodevaluelist plots
+			if (plotNodeValues) {
+				for (AggregatedNodeValueList n : m.getNodeValues().getList()) {
+					String nodevaluelist = n.getName();
+					Log.info("\tplotting nodevaluelist '" + nodevaluelist + "'");
+
+					// generate normal plots
+					PlotData[] nPlotData = new PlotData[batches.length];
+					for (int i = 0; i < batches.length; i++) {
+						PlotData plotData = PlotData.get(nodevaluelist, metric,
+								style, title + " @ " + timestamps[i], type);
+						nPlotData[i] = plotData;
+					}
+
+					Plot nPlot = new Plot(dstDir,
+							PlotFilenames.getNodeValueListPlot(metric,
+									nodevaluelist),
+							PlotFilenames.getNodeValueListGnuplotScript(metric,
+									nodevaluelist), nodevaluelist + " (" + type
+									+ ")", nPlotData);
+					nPlot.setNodeValueListOrder(NodeValueListOrder.ascending);
+					plots.add(nPlot);
+				}
+			}
 		}
-		if (plotNodeValues) {
-			nodeValueListPlots = Plotting.generateNodeValueListPlots(initBatch,
-					batches, timestamps, dstDir, title, style, type);
+
+		// write headers
+		for (Plot p : plots) {
+			p.writeScriptHeaderNeu();
 		}
 
 		for (int i = 0; i < batches.length; i++) {
@@ -297,14 +362,9 @@ public class Plotting {
 						Dir.getBatchDataDir(aggrDir, timestamp), timestamp,
 						BatchReadMode.readOnlyDistAndNvl);
 
-			// append data to distribution plots
-			for (Plot p : distributionPlots) {
+			// append data to plots
+			for (Plot p : plots) {
 				p.addDataSequentially(tempBatch);
-			}
-			// append data to nvl plots
-			for (Plot p : nodeValueListPlots) {
-				p.addDataSequentially(tempBatch);
-
 			}
 
 			// free resources
@@ -313,106 +373,10 @@ public class Plotting {
 		}
 
 		// close and execute plot scripts
-		for (Plot p : distributionPlots) {
+		for (Plot p : plots) {
 			p.close();
 			p.execute();
 		}
-		for (Plot p : nodeValueListPlots) {
-			p.close();
-			p.execute();
-		}
-
-	}
-
-	/** Generates NodeValueList Plots **/
-	private static ArrayList<Plot> generateNodeValueListPlots(
-			AggregatedBatch initBatch, String[] batches, double[] timestamps,
-			String dstDir, String title, PlotStyle style, PlotType type)
-			throws IOException {
-		ArrayList<Plot> nodevaluesPlots = new ArrayList<Plot>();
-
-		// gather all available nvls
-		for (AggregatedMetric m : initBatch.getMetrics().getList()) {
-			String metric = m.getName();
-			for (AggregatedNodeValueList n : m.getNodeValues().getList()) {
-				String nodevaluelist = n.getName();
-				Log.info("\tplotting '" + nodevaluelist + "'");
-
-				// generate normal plots
-				PlotData[] nPlotData = new PlotData[batches.length];
-				for (int i = 0; i < batches.length; i++) {
-					PlotData plotData = PlotData.get(nodevaluelist, metric,
-							style, title + " @ " + timestamps[i], type);
-					nPlotData[i] = plotData;
-				}
-
-				Plot nPlot = new Plot(dstDir,
-						PlotFilenames.getNodeValueListPlot(metric,
-								nodevaluelist + 2),
-						PlotFilenames.getNodeValueListGnuplotScript(metric,
-								nodevaluelist + 2), nodevaluelist + " (" + type
-								+ ")", nPlotData);
-				nPlot.setNodeValueListOrder(NodeValueListOrder.ascending);
-				nodevaluesPlots.add(nPlot);
-			}
-		}
-
-		// write headers
-		for (Plot p : nodevaluesPlots) {
-			p.writeScriptHeaderNeu();
-		}
-		return nodevaluesPlots;
-	}
-
-	/** Generates Distribution Plots **/
-	private static ArrayList<Plot> generateDistributionPlots(
-			AggregatedBatch initBatch, String[] batches, double[] timestamps,
-			String dstDir, String title, PlotStyle style, PlotType type)
-			throws IOException {
-		ArrayList<Plot> distributionPlots = new ArrayList<Plot>();
-
-		// gather all available distributions
-		for (AggregatedMetric m : initBatch.getMetrics().getList()) {
-			Log.info("plotting metric " + m.getName());
-			String metric = m.getName();
-			for (AggregatedDistribution d : m.getDistributions().getList()) {
-				String distribution = d.getName();
-				Log.info("\tplotting '" + distribution + "'");
-
-				// generate normal plots
-				PlotData[] dPlotData = new PlotData[batches.length];
-				for (int i = 0; i < batches.length; i++) {
-					dPlotData[i] = PlotData.get(distribution, metric, style,
-							title + " @ " + timestamps[i], type);
-				}
-
-				distributionPlots.add(new Plot(dstDir, PlotFilenames
-						.getDistributionPlot(metric, distribution),
-						PlotFilenames.getDistributionGnuplotScript(metric,
-								distribution),
-						distribution + " (" + type + ")", dPlotData));
-
-				// generate cdf plots
-				PlotData[] dPlotDataCDF = new PlotData[batches.length];
-				for (int i = 0; i < batches.length; i++) {
-					PlotData cdfPlotData = PlotData.get(distribution, metric,
-							style, title + " @ " + timestamps[i], type);
-					cdfPlotData.setPlotAsCdf(true);
-					dPlotDataCDF[i] = cdfPlotData;
-				}
-				distributionPlots.add(new Plot(dstDir, PlotFilenames
-						.getDistributionCdfPlot(metric, distribution),
-						PlotFilenames.getDistributionCdfGnuplotScript(metric,
-								distribution), "CDF of " + distribution + " ("
-								+ type + ")", dPlotDataCDF));
-			}
-		}
-
-		// write headers
-		for (Plot p : distributionPlots) {
-			p.writeScriptHeaderNeu();
-		}
-		return distributionPlots;
 	}
 
 	/** Plot statistics **/
