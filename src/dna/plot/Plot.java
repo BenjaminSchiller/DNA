@@ -10,9 +10,12 @@ import dna.plot.data.PlotData;
 import dna.plot.data.PlotData.DistributionPlotType;
 import dna.plot.data.PlotData.NodeValueListOrder;
 import dna.plot.data.PlotData.NodeValueListOrderBy;
+import dna.series.aggdata.AggregatedBatch;
 import dna.series.aggdata.AggregatedData;
 import dna.series.aggdata.AggregatedDistribution;
+import dna.series.aggdata.AggregatedMetric;
 import dna.series.aggdata.AggregatedNodeValueList;
+import dna.series.aggdata.AggregatedRunTimeList;
 import dna.series.aggdata.AggregatedValue;
 import dna.util.Config;
 import dna.util.Execute;
@@ -117,11 +120,17 @@ public class Plot {
 			throws IOException {
 		Writer w = this.fileWriter;
 		String temp = "" + timestamp;
-		for (int k = 0; k < value.getValues().length; k++) {
+
+		double[] values;
+		if (value == null)
+			values = new double[] { 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+		else
+			values = value.getValues();
+		for (int k = 0; k < values.length; k++) {
 			if (temp.equals(""))
-				temp += value.getValues()[k];
+				temp += values[k];
 			else
-				temp += Config.get("PLOTDATA_DELIMITER") + value.getValues()[k];
+				temp += Config.get("PLOTDATA_DELIMITER") + values[k];
 		}
 		w.writeln(temp);
 	}
@@ -140,7 +149,134 @@ public class Plot {
 		return this.names;
 	}
 
+	public void addData(String name, String domain, AggregatedBatch batch)
+			throws IOException {
+		double timestamp = (double) batch.getTimestamp();
+		// figure out where to get the data from
+		if (domain.equals(Config.get("PLOT_STATISTICS"))) {
+			this.appendData(batch.getValues().get(name), timestamp);
+		} else if (domain.equals(Config.get("PLOT_METRICRUNTIMES"))) {
+			this.appendData(batch.getMetricRuntimes().get(name), timestamp);
+		} else if (domain.equals(Config.get("PLOT_GENERALRUNTIMES"))) {
+			this.appendData(batch.getGeneralRuntimes().get(name), timestamp);
+		} else {
+			if (batch.getMetrics().getNames().contains(domain)) {
+				AggregatedMetric m = batch.getMetrics().get(domain);
+				if (m.getDistributions().getNames().contains(name)) {
+					this.appendData(m.getDistributions().get(name).getValues());
+				} else if (m.getNodeValues().getNames().contains(name)) {
+					this.appendData(m.getNodeValues().get(name).getValues());
+				} else if (m.getValues().getNames().contains(name)) {
+					this.appendData(m.getValues().get(name), timestamp);
+				} else {
+					Log.warn("problem when adding data to plot "
+							+ this.scriptFilename + ". Value " + name
+							+ " was not found in domain " + domain
+							+ " of batch." + timestamp);
+				}
+			} else {
+				Log.warn("problem when adding data to plot "
+						+ this.scriptFilename + ". domain " + domain
+						+ " not found in batch." + timestamp);
+			}
+		}
+	}
+
+	public void addDataWithEOF(AggregatedBatch batchData) throws IOException {
+		for (int i = 0; i < this.data.length; i++) {
+			String name = this.data[i].getName();
+			String domain = this.data[i].getDomain();
+			this.addData(name, domain, batchData);
+			this.appendEOF();
+		}
+	}
+
+	public void addData(AggregatedBatch[] batchData) throws IOException {
+		for (int i = 0; i < this.data.length; i++) {
+			String name = this.data[i].getName();
+			String domain = this.data[i].getDomain();
+			for (int j = 0; j < batchData.length; j++) {
+				this.addData(name, domain, batchData[j]);
+			}
+			this.appendEOF();
+		}
+	}
+
+	public void addDataFromRuntimesAsCDF(AggregatedBatch[] batchData)
+			throws IOException {
+		for (int i = 0; i < this.data.length; i++) {
+			String name = this.data[i].getName();
+			String domain = this.data[i].getDomain();
+			AggregatedBatch prevBatch = batchData[0];
+			AggregatedBatch tempBatch;
+			for (int j = 0; j < batchData.length; j++) {
+				if (j > 0) {
+					tempBatch = Plot.sumRuntimes(batchData[j], prevBatch);
+				} else {
+					tempBatch = batchData[j];
+				}
+				this.addData(name, domain, tempBatch);
+				prevBatch = tempBatch;
+			}
+			this.appendEOF();
+		}
+	}
+
+	private static AggregatedBatch sumRuntimes(AggregatedBatch b1,
+			AggregatedBatch b2) {
+
+		AggregatedRunTimeList genRuntimes = new AggregatedRunTimeList(b1
+				.getGeneralRuntimes().getName(), b1.getGeneralRuntimes().size());
+		AggregatedRunTimeList metRuntimes = new AggregatedRunTimeList(b1
+				.getMetricRuntimes().getName(), b1.getMetricRuntimes().size());
+		for (String gen : b1.getGeneralRuntimes().getNames()) {
+			AggregatedValue v1 = b1.getGeneralRuntimes().get(gen);
+			AggregatedValue v2 = b2.getGeneralRuntimes().get(gen);
+
+			double[] values3 = new double[v1.getValues().length];
+
+			for (int i = 0; i < v1.getValues().length; i++) {
+				double[] values2;
+				if (v2 == null)
+					values2 = new double[] { 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+				else
+					values2 = v2.getValues();
+				values3[i] = 0;
+				values3[i] += v1.getValues()[i] + values2[i];
+			}
+
+			genRuntimes.add(new AggregatedValue(v1.getName(), values3));
+		}
+		for (String met : b1.getMetricRuntimes().getNames()) {
+			AggregatedValue v1 = b1.getMetricRuntimes().get(met);
+			AggregatedValue v2 = b2.getMetricRuntimes().get(met);
+
+			double[] values3 = new double[v1.getValues().length];
+
+			for (int i = 0; i < v1.getValues().length; i++) {
+				double[] values2;
+				if (v2 == null)
+					values2 = new double[] { 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+				else
+					values2 = v2.getValues();
+				values3[i] = 0;
+				values3[i] += v1.getValues()[i] + values2[i];
+			}
+
+			metRuntimes.add(new AggregatedValue(v1.getName(), values3));
+		}
+
+		// return new crafted batch
+		return new AggregatedBatch(b1.getTimestamp(), b1.getValues(),
+				genRuntimes, metRuntimes, b1.getMetrics());
+	}
+
 	public void close() throws IOException {
+		// for (int i = 0; i < this.data.length; i++) {
+		// System.out.println(this.filename + "\t" + this.data[i].getDomain()
+		// + "\t" + this.data[i].getName());
+		// }
+
 		if (this.dataWriteCounter != this.data.length)
 			Log.warn("Unexpected number of plotdata written to file "
 					+ this.dir + this.scriptFilename + ". Expected: "
