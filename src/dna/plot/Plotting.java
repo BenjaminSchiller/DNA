@@ -149,10 +149,15 @@ public class Plotting {
 	 * behaviour.
 	 * 
 	 * @param seriesData
+	 *            SeriesData to be plotted
 	 * @param dstDir
+	 *            Destination directory of the plots
 	 * @param config
+	 *            PlottingConfig to control plotting behaviour
 	 * @throws IOException
+	 *             Thrown by writer
 	 * @throws InterruptedException
+	 *             Thrown by writer
 	 */
 	public static void plotFromToSeq(SeriesData[] seriesData, String dstDir,
 			PlottingConfig config) throws IOException, InterruptedException {
