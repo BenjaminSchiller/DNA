@@ -149,8 +149,8 @@ public class Plot {
 		return this.names;
 	}
 
-	public void addData(String name, String domain, AggregatedBatch batch)
-			throws IOException {
+	public void addData(String name, String domain, AggregatedBatch batch,
+			boolean addAsCDF) throws IOException {
 		double timestamp = (double) batch.getTimestamp();
 		// figure out where to get the data from
 		if (domain.equals(Config.get("PLOT_STATISTICS"))) {
@@ -163,9 +163,49 @@ public class Plot {
 			if (batch.getMetrics().getNames().contains(domain)) {
 				AggregatedMetric m = batch.getMetrics().get(domain);
 				if (m.getDistributions().getNames().contains(name)) {
-					this.appendData(m.getDistributions().get(name).getValues());
+					AggregatedValue[] values = m.getDistributions().get(name)
+							.getValues();
+					if (addAsCDF) {
+						AggregatedValue[] tempValues = new AggregatedValue[values.length];
+						for (int i = 0; i < tempValues.length; i++) {
+							double[] tempV = new double[values[i].getValues().length];
+							System.arraycopy(values[i].getValues(), 0, tempV,
+									0, values[i].getValues().length);
+							tempValues[i] = new AggregatedValue(
+									values[i].getName(), tempV);
+						}
+						for (int j = 1; j < tempValues.length; j++) {
+							for (int k = 1; k < tempValues[j].getValues().length; k++) {
+								tempValues[j].getValues()[k] += tempValues[j - 1]
+										.getValues()[k];
+							}
+						}
+						this.appendData(tempValues);
+					} else {
+						this.appendData(values);
+					}
 				} else if (m.getNodeValues().getNames().contains(name)) {
-					this.appendData(m.getNodeValues().get(name).getValues());
+					AggregatedValue[] values = m.getNodeValues().get(name)
+							.getValues();
+					if (addAsCDF) {
+						AggregatedValue[] tempValues = new AggregatedValue[values.length];
+						for (int i = 0; i < tempValues.length; i++) {
+							double[] tempV = new double[values[i].getValues().length];
+							System.arraycopy(values[i].getValues(), 0, tempV,
+									0, values[i].getValues().length);
+							tempValues[i] = new AggregatedValue(
+									values[i].getName(), tempV);
+						}
+						for (int j = 1; j < tempValues.length; j++) {
+							for (int k = 1; k < tempValues[j].getValues().length; k++) {
+								tempValues[j].getValues()[k] += tempValues[j - 1]
+										.getValues()[k];
+							}
+						}
+						this.appendData(tempValues);
+					} else {
+						this.appendData(values);
+					}
 				} else if (m.getValues().getNames().contains(name)) {
 					this.appendData(m.getValues().get(name), timestamp);
 				} else {
@@ -186,9 +226,22 @@ public class Plot {
 		for (int i = 0; i < this.data.length; i++) {
 			String name = this.data[i].getName();
 			String domain = this.data[i].getDomain();
-			this.addData(name, domain, batchData);
+			this.addData(name, domain, batchData, false);
 			this.appendEOF();
 		}
+	}
+
+	public void addDataSequentially(AggregatedBatch batchData)
+			throws IOException {
+//		Log.info("add data sequentially debug: batchtimestamp: "
+//				+ batchData.getTimestamp() + "  datacounter: "
+//				+ this.dataWriteCounter);
+		String name = this.data[dataWriteCounter].getName();
+		String domain = this.data[dataWriteCounter].getDomain();
+		if (this.data[dataWriteCounter].isPlotAsCdf())
+			this.addData(name, domain, batchData, true);
+		else
+			this.addData(name, domain, batchData, false);
 	}
 
 	public void addData(AggregatedBatch[] batchData) throws IOException {
@@ -196,7 +249,7 @@ public class Plot {
 			String name = this.data[i].getName();
 			String domain = this.data[i].getDomain();
 			for (int j = 0; j < batchData.length; j++) {
-				this.addData(name, domain, batchData[j]);
+				this.addData(name, domain, batchData[j], false);
 			}
 			this.appendEOF();
 		}
@@ -215,7 +268,7 @@ public class Plot {
 				} else {
 					tempBatch = batchData[j];
 				}
-				this.addData(name, domain, tempBatch);
+				this.addData(name, domain, tempBatch, false);
 				prevBatch = tempBatch;
 			}
 			this.appendEOF();
