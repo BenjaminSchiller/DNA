@@ -1,6 +1,7 @@
 package dna.plot.data;
 
 import dna.plot.Gnuplot.PlotStyle;
+import dna.util.Config;
 
 /**
  * @author benni
@@ -13,6 +14,10 @@ public abstract class PlotData {
 
 	public static enum NodeValueListOrder {
 		ascending, descending
+	}
+
+	public static enum PlottingSortMode {
+		unsorted, ascending, descending
 	}
 
 	public static enum NodeValueListOrderBy {
@@ -33,12 +38,15 @@ public abstract class PlotData {
 
 	protected boolean plotAsCdf;
 
+	protected PlottingSortMode sortMode;
+	
+	protected NodeValueListOrder nodeValueListOrder;
+
 	public PlotData(String data, String domain, PlotStyle style, String title) {
 		this.data = data;
 		this.domain = domain;
 		this.style = style;
 		this.title = title;
-		this.plotAsCdf = false;
 	}
 
 	public abstract boolean isStyleValid();
@@ -49,6 +57,14 @@ public abstract class PlotData {
 
 	public String getDomain() {
 		return this.domain;
+	}
+
+	public void setSortMode(PlottingSortMode sortMode) {
+		this.sortMode = sortMode;
+	}
+
+	public PlottingSortMode getSortMode() {
+		return this.sortMode;
 	}
 
 	public void setPlotAsCdf(boolean plotAsCdf) {
