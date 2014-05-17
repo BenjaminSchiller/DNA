@@ -104,7 +104,6 @@ public class Profiler {
 		if (!active)
 			return;
 
-		Log.debug("Created new graph with gds" + newGds.getDataStructures());
 		graph = g;
 		gds = newGds;
 	}
