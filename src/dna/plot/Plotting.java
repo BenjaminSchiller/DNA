@@ -274,14 +274,18 @@ public class Plotting {
 		Log.info("Sequentially plotting Distributions and / or NodeValueLists");
 
 		ArrayList<Plot> distributionPlots2 = new ArrayList<Plot>();
+		ArrayList<Plot> nodevaluePlots2 = new ArrayList<Plot>();
 		Plot[][] nodevaluePlots = null;
 		if (plotDistributions) {
 			distributionPlots2 = Plotting.generateDistributionPlots(initBatch,
 					batches, timestamps, dstDir, title, style, type);
 		}
-		if (plotNodeValues)
+		if (plotNodeValues) {
 			nodevaluePlots = Plotting.generateNodeValueListPlots(initBatch,
 					batches, timestamps, dstDir, title, style, type);
+			nodevaluePlots2 = Plotting.generateNodeValueListPlots2(initBatch,
+					batches, timestamps, dstDir, title, style, type);
+		}
 
 		for (int i = 0; i < batches.length; i++) {
 			AggregatedBatch tempBatch;
@@ -305,6 +309,10 @@ public class Plotting {
 
 			if (plotNodeValues) {
 				// append data to nvl plots
+				for (Plot p : nodevaluePlots2) {
+					p.addDataSequentially(tempBatch);
+				}
+
 				int metricIndex = 0;
 				for (AggregatedMetric m : tempBatch.getMetrics().getList()) {
 					int nvlIndex = 0;
@@ -392,6 +400,41 @@ public class Plotting {
 			for (int j = 0; j < nodevaluesPlots[i].length; j++) {
 				nodevaluesPlots[i][j].writeScriptHeaderNeu();
 			}
+		}
+		return nodevaluesPlots;
+	}
+
+	private static ArrayList<Plot> generateNodeValueListPlots2(
+			AggregatedBatch initBatch, String[] batches, double[] timestamps,
+			String dstDir, String title, PlotStyle style, PlotType type)
+			throws IOException {
+		ArrayList<Plot> nodevaluesPlots = new ArrayList<Plot>();
+
+		// gather all available nvls
+		for (AggregatedMetric m : initBatch.getMetrics().getList()) {
+			String metric = m.getName();
+			for (AggregatedNodeValueList n : m.getNodeValues().getList()) {
+				String nodevaluelist = n.getName();
+				Log.info("\tplotting '" + nodevaluelist + "'");
+
+				// generate normal plots
+				PlotData[] nPlotData = new PlotData[batches.length];
+				for (int i = 0; i < batches.length; i++) {
+					nPlotData[i] = PlotData.get(nodevaluelist, metric, style,
+							title + " @ " + timestamps[i], type);
+				}
+
+				nodevaluesPlots.add(new Plot(dstDir, PlotFilenames
+						.getNodeValueListPlot(metric, nodevaluelist),
+						PlotFilenames.getNodeValueListGnuplotScript(metric,
+								nodevaluelist), nodevaluelist + " (" + type
+								+ ")", nPlotData));
+			}
+		}
+
+		// write headers
+		for (Plot p : nodevaluesPlots) {
+			p.writeScriptHeaderNeu();
 		}
 		return nodevaluesPlots;
 	}
