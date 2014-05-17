@@ -31,11 +31,14 @@ public abstract class PlotData {
 
 	protected String title;
 
+	protected boolean plotAsCdf;
+
 	public PlotData(String data, String domain, PlotStyle style, String title) {
 		this.data = data;
 		this.domain = domain;
 		this.style = style;
 		this.title = title;
+		this.plotAsCdf = false;
 	}
 
 	public abstract boolean isStyleValid();
@@ -46,6 +49,14 @@ public abstract class PlotData {
 
 	public String getDomain() {
 		return this.domain;
+	}
+
+	public void setPlotAsCdf(boolean plotAsCdf) {
+		this.plotAsCdf = plotAsCdf;
+	}
+
+	public boolean isPlotAsCdf() {
+		return this.plotAsCdf;
 	}
 
 	public abstract String getEntry(int lt, int lw, double offsetX,
