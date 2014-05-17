@@ -3,6 +3,8 @@ package dna.plot;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
 
 import dna.io.Writer;
 import dna.io.filesystem.Dir;
@@ -286,7 +288,7 @@ public class Plotting {
 		Log.info("Sequentially plotting Distributions and / or NodeValueLists");
 
 		// generate plots
-		ArrayList<Plot> plots = new ArrayList<Plot>();
+		List<Plot> plots = new LinkedList<Plot>();
 
 		// iterate over metrics and create plots
 		for (AggregatedMetric m : initBatch.getMetrics().getList()) {
