@@ -156,23 +156,27 @@ public class Plotting {
 	 */
 	public static void plotFromToSeq(SeriesData[] seriesData, String dstDir,
 			PlottingConfig config) throws IOException, InterruptedException {
+		// read values from config
 		long timestampFrom = config.getTimestampFrom();
 		long timestampTo = config.getTimestampTo();
 		long stepsize = config.getStepsize();
-
 		PlotType type = config.getPlotType();
 		PlotStyle style = config.getPlotStyle();
-
+		NodeValueListOrder order = config.getNvlOrder();
+		NodeValueListOrderBy orderBy = config.getNvlOrderBy();
+		DistributionPlotType distPlotType = config.getDistPlotType();
 		String title = seriesData[0].getName();
-
 		ArrayList<String> metRuntimes = config.getMetricRuntimes();
-
 		boolean singleFile = Config.getBoolean("GENERATION_BATCHES_AS_ZIP");
+		boolean plotDistributions = config.isPlotDistributions();
+		boolean plotNodeValues = config.isPlotNodeValueLists();
 
 		Log.infoSep();
 		Log.info("plotting data from batch " + timestampFrom + " - "
 				+ timestampTo + " with stepsize " + stepsize + " for "
 				+ seriesData.length + " series to " + dstDir);
+
+		// create dir
 		(new File(dstDir)).mkdirs();
 
 		// gather relevant batches
@@ -212,13 +216,14 @@ public class Plotting {
 		// generate gnuplot script files
 		AggregatedBatch initBatch = batchData[0];
 
+		// plot statistics
 		if (config.isPlotStatistics()) {
-			// plot statistics
 			AggregatedValueList values = initBatch.getValues();
 			Plotting.plotStatistics(batchData, timestamps, values, dstDir,
 					title, style, type);
 		}
 
+		// plot runtimes
 		if (config.isPlotRuntimes()) {
 			// plot general runtimes
 			Plotting.plotGeneralRuntimes(batchData, timestamps, metRuntimes,
@@ -231,13 +236,14 @@ public class Plotting {
 					dstDir, title, style, type);
 		}
 
+		// plot metric values
 		if (config.isPlotMetricValues()) {
-			// plot metric values
 			AggregatedMetricList metrics = initBatch.getMetrics();
 			Plotting.plotMetricValues(batchData, timestamps, metrics, dstDir,
 					title, style, type);
 		}
 
+		// print memory usage
 		double mem1 = new Memory().getUsed();
 		Log.infoSep();
 		Log.info("Finished first plotting attempt");
@@ -248,17 +254,16 @@ public class Plotting {
 		batchData = null;
 		System.gc();
 
+		// print memory usage after resoruce freeing
 		double mem2 = new Memory().getUsed();
 		Log.info("\tremoved: " + (mem1 - mem2));
 		Log.info("\tused memory: " + mem2);
 
-		boolean plotDistributions = config.isPlotDistributions();
-		boolean plotNodeValues = config.isPlotNodeValueLists();
-
+		// plot distributions
 		if (plotDistributions || plotNodeValues)
 			Plotting.plotDistributionsAndNodeValues(plotDistributions,
 					plotNodeValues, initBatch, batches, timestamps, tempDir,
-					dstDir, title, style, type);
+					dstDir, title, style, type, distPlotType, order, orderBy);
 
 	}
 
@@ -267,7 +272,9 @@ public class Plotting {
 			boolean plotDistributions, boolean plotNodeValues,
 			AggregatedBatch initBatch, String[] batches, double[] timestamps,
 			String aggrDir, String dstDir, String title, PlotStyle style,
-			PlotType type) throws IOException, InterruptedException {
+			PlotType type, DistributionPlotType distPlotType,
+			NodeValueListOrder order, NodeValueListOrderBy orderBy)
+			throws IOException, InterruptedException {
 		boolean singleFile = Config.getBoolean("GENERATION_BATCHES_AS_ZIP");
 
 		Log.infoSep();
@@ -287,34 +294,52 @@ public class Plotting {
 					String distribution = d.getName();
 					Log.info("\tplotting distribution '" + distribution + "'");
 
-					// generate normal plots
-					PlotData[] dPlotData = new PlotData[batches.length];
-					for (int i = 0; i < batches.length; i++) {
-						dPlotData[i] = PlotData.get(distribution, metric,
-								style, title + " @ " + timestamps[i], type);
+					boolean plotDist = false;
+					boolean plotCdf = false;
+					switch (distPlotType) {
+					case distOnly:
+						plotDist = true;
+						break;
+					case cdfOnly:
+						plotCdf = true;
+						break;
+					case distANDcdf:
+						plotDist = true;
+						plotCdf = true;
+						break;
 					}
+					// generate normal plots
+					if (plotDist) {
+						PlotData[] dPlotData = new PlotData[batches.length];
+						for (int i = 0; i < batches.length; i++) {
+							dPlotData[i] = PlotData.get(distribution, metric,
+									style, title + " @ " + timestamps[i], type);
+						}
 
-					plots.add(new Plot(dstDir, PlotFilenames
-							.getDistributionPlot(metric, distribution),
-							PlotFilenames.getDistributionGnuplotScript(metric,
-									distribution), distribution + " (" + type
-									+ ")", dPlotData));
+						plots.add(new Plot(dstDir, PlotFilenames
+								.getDistributionPlot(metric, distribution),
+								PlotFilenames.getDistributionGnuplotScript(
+										metric, distribution), distribution
+										+ " (" + type + ")", dPlotData));
+					}
 
 					// generate cdf plots
-					PlotData[] dPlotDataCDF = new PlotData[batches.length];
-					for (int i = 0; i < batches.length; i++) {
-						PlotData cdfPlotData = PlotData.get(distribution,
-								metric, style, title + " @ " + timestamps[i],
-								type);
-						cdfPlotData.setPlotAsCdf(true);
-						dPlotDataCDF[i] = cdfPlotData;
+					if (plotCdf) {
+						PlotData[] dPlotDataCDF = new PlotData[batches.length];
+						for (int i = 0; i < batches.length; i++) {
+							PlotData cdfPlotData = PlotData.get(distribution,
+									metric, style, title + " @ "
+											+ timestamps[i], type);
+							cdfPlotData.setPlotAsCdf(true);
+							dPlotDataCDF[i] = cdfPlotData;
+						}
+						plots.add(new Plot(dstDir, PlotFilenames
+								.getDistributionCdfPlot(metric, distribution),
+								PlotFilenames.getDistributionCdfGnuplotScript(
+										metric, distribution), "CDF of "
+										+ distribution + " (" + type + ")",
+								dPlotDataCDF));
 					}
-					plots.add(new Plot(dstDir, PlotFilenames
-							.getDistributionCdfPlot(metric, distribution),
-							PlotFilenames.getDistributionCdfGnuplotScript(
-									metric, distribution), "CDF of "
-									+ distribution + " (" + type + ")",
-							dPlotDataCDF));
 				}
 			}
 
@@ -338,7 +363,8 @@ public class Plotting {
 							PlotFilenames.getNodeValueListGnuplotScript(metric,
 									nodevaluelist), nodevaluelist + " (" + type
 									+ ")", nPlotData);
-					nPlot.setNodeValueListOrder(NodeValueListOrder.ascending);
+					nPlot.setNodeValueListOrder(order);
+					nPlot.setNodeValueListOrderBy(orderBy);
 					plots.add(nPlot);
 				}
 			}

@@ -749,8 +749,8 @@ public class Plot {
 		Config.overwrite("GNUPLOT_PLOTDATETIME", Boolean.toString(plotDateTime));
 	}
 
-	public void setNodeValueListOrder(NodeValueListOrder sortOrder) {
-		this.sortOrder = sortOrder;
+	public void setNodeValueListOrder(NodeValueListOrder order) {
+		this.sortOrder = order;
 	}
 
 	public NodeValueListOrder getNodeValueListSortOrder() {
