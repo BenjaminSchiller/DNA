@@ -172,4 +172,13 @@ public class PlotFilenames {
 			String nodevaluelist) {
 		return metric + Config.get("PLOT_DELIMITER") + nodevaluelist;
 	}
+
+	public static String getCombinationPlot(String value) {
+		return Config.get("PREFIX_COMBINATION_METRIC_PLOT") + value;
+	}
+
+	public static String getCombinationGnuplotScript(String value) {
+		return Config.get("PREFIX_COMBINATION_METRIC_GNUPLOT_SCRIPT") + value
+				+ Config.get("SUFFIX_GNUPLOT");
+	}
 }
