@@ -468,7 +468,7 @@ public class Plotting {
 
 				// get plot data
 				PlotData valuePlotData = PlotData.get(value, m.getName(),
-						style, value + "-" + title, type);
+						style, title, type);
 
 				// create plot
 				Plot valuePlot = new Plot(dstDir, PlotFilenames.getValuesPlot(
@@ -509,8 +509,7 @@ public class Plotting {
 
 			// get plot data
 			PlotData metPlotData = PlotData.get(runtime,
-					Config.get("PLOT_METRICRUNTIMES"), style, runtime + "-"
-							+ title, type);
+					Config.get("PLOT_METRICRUNTIMES"), style, title, type);
 			metRuntimes[index] = metPlotData;
 
 			// create plot
@@ -584,8 +583,7 @@ public class Plotting {
 		for (String gen : y) {
 			Log.info("\tplotting '" + gen + "'");
 			genRuntimes[index] = PlotData.get(gen,
-					Config.get("PLOT_GENERALRUNTIMES"), style, gen + "-"
-							+ title, type);
+					Config.get("PLOT_GENERALRUNTIMES"), style, title, type);
 			index++;
 		}
 
