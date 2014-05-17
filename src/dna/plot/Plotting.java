@@ -471,7 +471,7 @@ public class Plotting {
 
 				// get plot data
 				PlotData valuePlotData = PlotData.get(value, m.getName(),
-						style, title, type);
+						style, metric + "-" + title, type);
 
 				// create plot
 				plots.add(new Plot(dstDir, PlotFilenames.getValuesPlot(metric,
