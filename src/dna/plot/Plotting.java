@@ -502,18 +502,11 @@ public class Plotting {
 								Config.get("PREFIX_STATS_PLOT"), value), value
 								+ " (" + type + ")",
 						new PlotData[] { valuePlotData });
-
 				// write header
 				valuePlot.writeScriptHeaderNeu();
 
 				// append data
-				for (int i = 0; i < batchData.length; i++) {
-					AggregatedValue aValue = batchData[i].getValues()
-							.get(value);
-					valuePlot.appendData(aValue,
-							(double) batchData[i].getTimestamp());
-				}
-				valuePlot.appendEOF();
+				valuePlot.addData(batchData);
 
 				// close and execute
 				valuePlot.close();
@@ -576,14 +569,16 @@ public class Plotting {
 
 		PlotData[] metRuntimes = new PlotData[metricRuntimes.size()];
 		int index = 0;
+
+		// plot single runtime plots
 		for (AggregatedValue met : metricRuntimes.getList()) {
 			String runtime = met.getName();
 			Log.info("\tplotting '" + runtime + "'");
 
 			// get plot data
 			PlotData metPlotData = PlotData.get(runtime,
-					Config.get("PLOT_METRICRUNTIMES"), style,
-					runtime + "-" + title, type);
+					Config.get("PLOT_METRICRUNTIMES"), style, runtime + "-"
+							+ title, type);
 			metRuntimes[index] = metPlotData;
 
 			// create plot
@@ -602,21 +597,8 @@ public class Plotting {
 			metRuntimeSinglePlotCDF.writeScriptHeaderNeu();
 
 			// append data
-			AggregatedValue cdfValue = new AggregatedValue(null, new double[] {
-					0, 0, 0, 0, 0, 0, 0, 0, 0 });
-			for (int i = 0; i < batchData.length; i++) {
-				metRuntimeSinglePlot.appendData(batchData[i]
-						.getMetricRuntimes().get(runtime), timestamps[i]);
-
-				for (int j = 0; j < cdfValue.getValues().length; j++) {
-					cdfValue.getValues()[j] += batchData[i].getMetricRuntimes()
-							.get(runtime).getValues()[j];
-				}
-
-				metRuntimeSinglePlotCDF.appendData(cdfValue, timestamps[i]);
-			}
-			metRuntimeSinglePlot.appendEOF();
-			metRuntimeSinglePlotCDF.appendEOF();
+			metRuntimeSinglePlot.addData(batchData);
+			metRuntimeSinglePlotCDF.addDataFromRuntimesAsCDF(batchData);
 
 			// close and execute
 			metRuntimeSinglePlot.close();
@@ -628,7 +610,7 @@ public class Plotting {
 			index++;
 		}
 
-		// create plots
+		// create combined plots
 		String metricRuntimeName = Config.get("PLOT_METRIC_RUNTIMES");
 		Plot metricRuntimesPlot = new Plot(dstDir,
 				PlotFilenames.getRuntimesStatisticPlot(metricRuntimeName),
@@ -644,32 +626,17 @@ public class Plotting {
 		metricRuntimesPlot.writeScriptHeaderNeu();
 		metricRuntimesPlotCDF.writeScriptHeaderNeu();
 
-		// append data
-		index = 0;
-		for (AggregatedValue met : metricRuntimes.getList()) {
-			AggregatedValue[] runtimeData = new AggregatedValue[batchData.length];
-			for (int i = 0; i < batchData.length; i++) {
-				runtimeData[i] = batchData[i].getMetricRuntimes().get(
-						met.getName());
-			}
-			metricRuntimesPlot.appendData(runtimeData, timestamps);
+		// add data to metric runtime plot
+		metricRuntimesPlot.addData(batchData);
 
-			// cdf data
-			for (int i = 1; i < runtimeData.length; i++) {
-				for (int j = 0; j < runtimeData[i].getValues().length; j++) {
-					runtimeData[i].getValues()[j] += runtimeData[i - 1]
-							.getValues()[j];
-				}
-			}
-			metricRuntimesPlotCDF.appendData(runtimeData, timestamps);
-			index++;
-		}
+		// add cdf data to metric runtime cdf plot
+		metricRuntimesPlotCDF.addDataFromRuntimesAsCDF(batchData);
 
 		// close and execute
 		metricRuntimesPlot.close();
-		metricRuntimesPlotCDF.close();
-
 		metricRuntimesPlot.execute();
+
+		metricRuntimesPlotCDF.close();
 		metricRuntimesPlotCDF.execute();
 	}
 
@@ -685,8 +652,8 @@ public class Plotting {
 		for (String gen : y) {
 			Log.info("\tplotting '" + gen + "'");
 			genRuntimes[index] = PlotData.get(gen,
-					Config.get("PLOT_GENERALRUNTIMES"), style, gen + "-" + title,
-					type);
+					Config.get("PLOT_GENERALRUNTIMES"), style, gen + "-"
+							+ title, type);
 			index++;
 		}
 
@@ -706,43 +673,17 @@ public class Plotting {
 		generalRuntimesPlot.writeScriptHeaderNeu();
 		generalRuntimesPlotCDF.writeScriptHeaderNeu();
 
-		// gather data
-		AggregatedValue[][] runtimesData = new AggregatedValue[y.size()][batchData.length];
+		// add data to general runtime plot
+		generalRuntimesPlot.addData(batchData);
 
-		index = 0;
-		for (String gen : y) {
-			for (int i = 0; i < batchData.length; i++) {
-				// if stat is not present, add zero as values
-				if (batchData[i].getGeneralRuntimes().get(gen) == null)
-					runtimesData[index][i] = new AggregatedValue(gen,
-							new double[] { 0, 0, 0, 0, 0, 0, 0, 0, 0 });
-				else
-					runtimesData[index][i] = batchData[i].getGeneralRuntimes()
-							.get(gen);
-			}
-			index++;
-
-		}
-
-		// append data
-		for (int i = 0; i < runtimesData.length; i++) {
-			generalRuntimesPlot.appendData(runtimesData[i], timestamps);
-
-			// generate cdf data
-			for (int j = 1; j < runtimesData[i].length; j++) {
-				for (int k = 0; k < runtimesData[i][j].getValues().length; k++) {
-					runtimesData[i][j].getValues()[k] += runtimesData[i][j - 1]
-							.getValues()[k];
-				}
-			}
-			generalRuntimesPlotCDF.appendData(runtimesData[i], timestamps);
-		}
+		// add cdf data to general runtime cdf plot
+		generalRuntimesPlotCDF.addDataFromRuntimesAsCDF(batchData);
 
 		// close and execute
 		generalRuntimesPlot.close();
-		generalRuntimesPlotCDF.close();
-
 		generalRuntimesPlot.execute();
+
+		generalRuntimesPlotCDF.close();
 		generalRuntimesPlotCDF.execute();
 	}
 
