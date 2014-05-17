@@ -502,6 +502,7 @@ public class Plotting {
 								Config.get("PREFIX_STATS_PLOT"), value), value
 								+ " (" + type + ")",
 						new PlotData[] { valuePlotData });
+
 				// write header
 				valuePlot.writeScriptHeaderNeu();
 
@@ -544,11 +545,7 @@ public class Plotting {
 				valuePlot.writeScriptHeaderNeu();
 
 				// append data
-				for (int i = 0; i < batchData.length; i++) {
-					valuePlot.appendData(batchData[i].getMetrics().get(metric)
-							.getValues().get(value), timestamps[i]);
-				}
-				valuePlot.appendEOF();
+				valuePlot.addData(batchData);
 
 				// close and execute
 				valuePlot.close();
