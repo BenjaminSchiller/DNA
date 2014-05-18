@@ -239,6 +239,10 @@ public class Plotting {
 			// plot metric runtimes
 			Plotting.plotMetricRuntimes(batchData, timestamps,
 					initBatch.getMetricRuntimes(), dstDir, title, style, type);
+
+			// plot custom runtimes
+			Plotting.plotCustomRuntimes(batchData,
+					config.getCustomRuntimePlots(), dstDir, title, style, type);
 		}
 
 		// plot metric values
@@ -667,6 +671,55 @@ public class Plotting {
 
 		generalRuntimesPlotCDF.close();
 		generalRuntimesPlotCDF.execute();
+	}
+
+	/** Plot custom runtime plots **/
+	private static void plotCustomRuntimes(AggregatedBatch[] batchData,
+			ArrayList<PlotConfig> customPlots, String dstDir, String title,
+			PlotStyle style, PlotType type) throws IOException,
+			InterruptedException {
+		Log.infoSep();
+		Log.info("Plotting Custom-Runtimes");
+		for (PlotConfig pc : customPlots) {
+			String name = pc.getName();
+			Log.info("\tplotting '" + name + "'");
+			String[] values = pc.getValues();
+			String[] domains = pc.getDomains();
+			boolean plotAsCdf = pc.isPlotAsCdf();
+			String plotFilename;
+			String scriptFilename;
+			String plotTitle;
+			if (plotAsCdf) {
+				plotFilename = PlotFilenames.getRuntimesPlotFileCDF(name);
+				scriptFilename = PlotFilenames
+						.getRuntimesGnuplotScriptCDF(name);
+				plotTitle = "CDF of ";
+
+			} else {
+				plotFilename = PlotFilenames.getRuntimesPlotFile(name);
+				scriptFilename = PlotFilenames.getRuntimesGnuplotScript(name);
+				plotTitle = "";
+			}
+			plotTitle += name + " (" + type + ")";
+
+			PlotData[] plotData = new PlotData[values.length];
+			for (int i = 0; i < plotData.length; i++) {
+				plotData[i] = PlotData.get(values[i], domains[i], style,
+						values[i] + "-" + title, type);
+			}
+
+			Plot p = new Plot(dstDir, plotFilename, scriptFilename, plotTitle,
+					plotData);
+
+			p.writeScriptHeaderNeu();
+			if (plotAsCdf)
+				p.addDataFromRuntimesAsCDF(batchData);
+			else
+				p.addData(batchData);
+
+			p.close();
+			p.execute();
+		}
 	}
 
 	/**

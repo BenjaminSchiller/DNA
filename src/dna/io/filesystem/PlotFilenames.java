@@ -100,6 +100,16 @@ public class PlotFilenames {
 				+ Config.get("SUFFIX_DATA");
 	}
 
+	public static String getRuntimesPlotFile(String name) {
+		return Config.get("PREFIX_RUNTIMES_PLOT") + name;
+	}
+
+	public static String getRuntimesPlotFileCDF(String name) {
+		return Config.get("PREFIX_RUNTIMES_PLOT") + name
+				+ Config.get("PLOT_DELIMITER")
+				+ Config.get("PLOT_DISTRIBUTION_CDF");
+	}
+
 	public static String getRuntimesGnuplotScript(Values v) {
 		return Config.get("PREFIX_RUNTIMES_GNUPLOT_SCRIPT") + v.getName()
 				+ Config.get("SUFFIX_GNUPLOT");
