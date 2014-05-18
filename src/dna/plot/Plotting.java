@@ -173,7 +173,7 @@ public class Plotting {
 		NodeValueListOrderBy orderBy = config.getNvlOrderBy();
 		DistributionPlotType distPlotType = config.getDistPlotType();
 		String title = seriesData[0].getName();
-		ArrayList<String> metRuntimes = config.getMetricRuntimes();
+		ArrayList<String> combinedGeneralRuntimes = config.getGeneralRuntimes();
 		boolean singleFile = Config.getBoolean("GENERATION_BATCHES_AS_ZIP");
 		boolean plotDistributions = config.isPlotDistributions();
 		boolean plotNodeValues = config.isPlotNodeValueLists();
@@ -233,14 +233,12 @@ public class Plotting {
 		// plot runtimes
 		if (config.isPlotRuntimes()) {
 			// plot general runtimes
-			Plotting.plotGeneralRuntimes(batchData, timestamps, metRuntimes,
-					dstDir, title, style, type);
+			Plotting.plotGeneralRuntimes(batchData, timestamps,
+					combinedGeneralRuntimes, dstDir, title, style, type);
 
 			// plot metric runtimes
-			AggregatedRunTimeList metricRuntimes = initBatch
-					.getMetricRuntimes();
-			Plotting.plotMetricRuntimes(batchData, timestamps, metricRuntimes,
-					dstDir, title, style, type);
+			Plotting.plotMetricRuntimes(batchData, timestamps,
+					initBatch.getMetricRuntimes(), dstDir, title, style, type);
 		}
 
 		// plot metric values
