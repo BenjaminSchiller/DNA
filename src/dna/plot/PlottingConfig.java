@@ -30,6 +30,13 @@ public class PlottingConfig {
 	// combined metric runtimes plot
 	private ArrayList<String> metricRuntimes;
 
+	// custom plots
+	private ArrayList<PlotConfig> customStatisticPlots;
+	private ArrayList<PlotConfig> customRuntimePlots;
+	private ArrayList<PlotConfig> customMetricValuePlots;
+	private ArrayList<PlotConfig> customDistributionPlots;
+	private ArrayList<PlotConfig> customNodeValueListPlots;
+
 	// plot flags
 	private boolean plotStatistics;
 	private boolean plotRuntimes;
@@ -97,6 +104,9 @@ public class PlottingConfig {
 				break;
 			}
 		}
+		// if custom plots are enabled by default, read them
+		if (Config.getBoolean("CUSTOM_PLOTS_ENABLED"))
+			this.createCustomPlotsFromConfig();
 	}
 
 	public PlottingConfig(long timestampFrom, long timestampTo, long stepsize) {
@@ -123,6 +133,31 @@ public class PlottingConfig {
 				Config.getNodeValueListOrder("GNUPLOT_DEFAULT_NVL_ORDER"),
 				Config.getNodeValueListOrderBy("GNUPLOT_DEFAULT_NVL_ORDERBY"),
 				flags);
+	}
+
+	// class methods
+	/**
+	 * Creates custom plots from the config. This method will be called by
+	 * default on initialization if "CUSTOM_PLOTS_ENABLED" is set as true in the
+	 * plotting.properties.
+	 * 
+	 * Note: Configs will be created depending on the PlotFlag's that the
+	 * PlottingConfig object holds.
+	 **/
+	public void createCustomPlotsFromConfig() {
+		if (plotStatistics)
+			this.customStatisticPlots = PlotConfig.getCustomStatisticPlots();
+		if (plotRuntimes)
+			this.customRuntimePlots = PlotConfig.getCustomRuntimePlots();
+		if (plotMetricValues)
+			this.customMetricValuePlots = PlotConfig
+					.getCustomMetricValuePlots();
+		if (plotDistributions)
+			this.customDistributionPlots = PlotConfig
+					.getCustomMetricDistributionPlots();
+		if (plotNodeValueLists)
+			this.customNodeValueListPlots = PlotConfig
+					.getCustomMetricNodeValueListPlots();
 	}
 
 	// getters and setters
@@ -227,5 +262,25 @@ public class PlottingConfig {
 
 	public ArrayList<String> getMetricRuntimes() {
 		return this.metricRuntimes;
+	}
+
+	public ArrayList<PlotConfig> getCustomStatisticPlots() {
+		return customStatisticPlots;
+	}
+
+	public ArrayList<PlotConfig> getCustomRuntimePlots() {
+		return customRuntimePlots;
+	}
+
+	public ArrayList<PlotConfig> getCustomMetricValuePlots() {
+		return customMetricValuePlots;
+	}
+
+	public ArrayList<PlotConfig> getCustomDistributionPlots() {
+		return customDistributionPlots;
+	}
+
+	public ArrayList<PlotConfig> getCustomNodeValueListPlots() {
+		return customNodeValueListPlots;
 	}
 }
