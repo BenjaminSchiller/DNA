@@ -226,8 +226,8 @@ public class Plotting {
 		// plot statistics
 		if (config.isPlotStatistics()) {
 			AggregatedValueList values = initBatch.getValues();
-			Plotting.plotStatistics(batchData, timestamps, values, dstDir,
-					title, style, type);
+			Plotting.plotStatistics(batchData, values, dstDir, title, style,
+					type);
 		}
 
 		// plot runtimes
@@ -248,8 +248,8 @@ public class Plotting {
 		// plot metric values
 		if (config.isPlotMetricValues()) {
 			AggregatedMetricList metrics = initBatch.getMetrics();
-			Plotting.plotMetricValues(batchData, timestamps, metrics, dstDir,
-					title, style, type);
+			Plotting.plotMetricValues(batchData, metrics, dstDir, title, style,
+					type);
 		}
 
 		// print memory usage
@@ -418,8 +418,8 @@ public class Plotting {
 
 	/** Plot statistics **/
 	private static void plotStatistics(AggregatedBatch[] batchData,
-			double[] timestamps, AggregatedValueList values, String dstDir,
-			String title, PlotStyle style, PlotType type) throws IOException,
+			AggregatedValueList values, String dstDir, String title,
+			PlotStyle style, PlotType type) throws IOException,
 			InterruptedException {
 		Log.infoSep();
 		Log.info("Plotting values:");
@@ -455,8 +455,8 @@ public class Plotting {
 
 	/** Plots metric values **/
 	private static void plotMetricValues(AggregatedBatch[] batchData,
-			double[] timestamps, AggregatedMetricList metrics, String dstDir,
-			String title, PlotStyle style, PlotType type) throws IOException,
+			AggregatedMetricList metrics, String dstDir, String title,
+			PlotStyle style, PlotType type) throws IOException,
 			InterruptedException {
 		Log.infoSep();
 
