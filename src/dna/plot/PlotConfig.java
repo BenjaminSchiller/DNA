@@ -99,7 +99,7 @@ public class PlotConfig {
 			String[] domains = new String[values.length];
 			if (prefix.equals(Config.get("CUSTOM_PLOT_PREFIX_RUNTIMES"))) {
 				for (int i = 0; i < values.length; i++) {
-					domains[i] = Config.get("PLOT_STATISTICS");
+					domains[i] = Config.get("PLOT_CUSTOM_RUNTIME");
 				}
 			}
 			boolean plotAsCdf = Config.getBoolean(prefix + s + cdfSuffix);

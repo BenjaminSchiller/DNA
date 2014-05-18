@@ -163,6 +163,11 @@ public class Plot {
 			this.appendData(batch.getMetricRuntimes().get(name), timestamp);
 		} else if (domain.equals(Config.get("PLOT_GENERALRUNTIMES"))) {
 			this.appendData(batch.getGeneralRuntimes().get(name), timestamp);
+		} else if (domain.equals(Config.get("PLOT_CUSTOM_RUNTIME"))) {
+			if (batch.getGeneralRuntimes().getNames().contains(name))
+				this.appendData(batch.getGeneralRuntimes().get(name), timestamp);
+			else if (batch.getMetricRuntimes().getNames().contains(name))
+				this.appendData(batch.getMetricRuntimes().get(name), timestamp);
 		} else {
 			if (batch.getMetrics().getNames().contains(domain)) {
 				AggregatedMetric m = batch.getMetrics().get(domain);
