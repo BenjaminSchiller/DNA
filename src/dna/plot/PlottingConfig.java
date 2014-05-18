@@ -28,7 +28,7 @@ public class PlottingConfig {
 	private NodeValueListOrderBy nvlOrderBy;
 
 	// combined metric runtimes plot
-	private ArrayList<String> metricRuntimes;
+	private ArrayList<String> generalRuntimes;
 
 	// custom plots
 	private ArrayList<PlotConfig> customStatisticPlots;
@@ -63,13 +63,13 @@ public class PlottingConfig {
 		this.nvlOrder = nvlOrder;
 		this.nvlOrderBy = nvlOrderBy;
 
-		this.metricRuntimes = new ArrayList<String>();
-		this.metricRuntimes.add("total");
-		this.metricRuntimes.add("overhead");
-		this.metricRuntimes.add("metrics");
-		this.metricRuntimes.add("sum");
-		this.metricRuntimes.add("batchGeneration");
-		this.metricRuntimes.add("graphUpdate");
+		this.generalRuntimes = new ArrayList<String>();
+		this.generalRuntimes.add("total");
+		this.generalRuntimes.add("overhead");
+		this.generalRuntimes.add("metrics");
+		this.generalRuntimes.add("sum");
+		this.generalRuntimes.add("batchGeneration");
+		this.generalRuntimes.add("graphUpdate");
 
 		this.plotStatistics = false;
 		this.plotRuntimes = false;
@@ -260,8 +260,8 @@ public class PlottingConfig {
 		return stepsize;
 	}
 
-	public ArrayList<String> getMetricRuntimes() {
-		return this.metricRuntimes;
+	public ArrayList<String> getGeneralRuntimes() {
+		return this.generalRuntimes;
 	}
 
 	public ArrayList<PlotConfig> getCustomStatisticPlots() {
