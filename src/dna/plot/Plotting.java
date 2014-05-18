@@ -233,11 +233,11 @@ public class Plotting {
 		// plot runtimes
 		if (config.isPlotRuntimes()) {
 			// plot general runtimes
-			Plotting.plotGeneralRuntimes(batchData, timestamps,
-					combinedGeneralRuntimes, dstDir, title, style, type);
+			Plotting.plotGeneralRuntimes(batchData, combinedGeneralRuntimes,
+					dstDir, title, style, type);
 
 			// plot metric runtimes
-			Plotting.plotMetricRuntimes(batchData, timestamps,
+			Plotting.plotMetricRuntimes(batchData,
 					initBatch.getMetricRuntimes(), dstDir, title, style, type);
 
 			// plot custom runtimes
@@ -547,9 +547,9 @@ public class Plotting {
 
 	/** Plots metric runtimes **/
 	private static void plotMetricRuntimes(AggregatedBatch[] batchData,
-			double[] timestamps, AggregatedRunTimeList metricRuntimes,
-			String dstDir, String title, PlotStyle style, PlotType type)
-			throws IOException, InterruptedException {
+			AggregatedRunTimeList metricRuntimes, String dstDir, String title,
+			PlotStyle style, PlotType type) throws IOException,
+			InterruptedException {
 		Log.infoSep();
 		Log.info("Plotting Metric-Runtimes:");
 
@@ -628,9 +628,8 @@ public class Plotting {
 
 	/** Plot general runtimes **/
 	private static void plotGeneralRuntimes(AggregatedBatch[] batchData,
-			double[] timestamps, ArrayList<String> y, String dstDir,
-			String title, PlotStyle style, PlotType type) throws IOException,
-			InterruptedException {
+			ArrayList<String> y, String dstDir, String title, PlotStyle style,
+			PlotType type) throws IOException, InterruptedException {
 		Log.infoSep();
 		Log.info("Plotting General-Runtimes:");
 		PlotData[] genRuntimes = new PlotData[y.size()];
