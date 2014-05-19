@@ -938,7 +938,7 @@ public class GraphDataStructure implements Cloneable {
 		if (simpleListCombinations == null)
 			simpleListCombinations = combineWith(
 					new EnumMap<ListType, Class<? extends IDataStructure>>(
-							ListType.class), 0, 3);
+							ListType.class), 0, 4);
 		return simpleListCombinations;
 	}
 
