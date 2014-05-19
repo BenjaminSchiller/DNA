@@ -34,6 +34,7 @@ public class Plot {
 	private Writer fileWriter;
 
 	private int dataWriteCounter;
+	private int dataQuantity;
 
 	// private variables
 	private PlotData[] data;
@@ -79,6 +80,7 @@ public class Plot {
 		// init writer
 		this.fileWriter = new Writer(dir, scriptFilename);
 		this.dataWriteCounter = 0;
+		this.dataQuantity = 1;
 	}
 
 	public Plot(String dir, String plotFilename, String scriptFilename,
@@ -768,5 +770,13 @@ public class Plot {
 
 	public NodeValueListOrderBy getNodeValueListOrderBy() {
 		return this.orderBy;
+	}
+
+	public int getDataQuantity() {
+		return dataQuantity;
+	}
+
+	public void setDataQuantity(int dataQuantity) {
+		this.dataQuantity = dataQuantity;
 	}
 }

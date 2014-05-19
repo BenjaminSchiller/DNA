@@ -224,11 +224,14 @@ public class Plotting {
 		AggregatedBatch initBatch = batchData[0];
 
 		// plot statistics
-		if (config.isPlotStatistics()) {
-			AggregatedValueList values = initBatch.getValues();
-			Plotting.plotStatistics(batchData, values, dstDir, title, style,
-					type);
-		}
+		if (config.isPlotStatistics())
+			Plotting.plotStatistics(batchData, initBatch.getValues(), dstDir,
+					title, style, type);
+
+		// plot custom value plots
+		if (config.isPlotCustomValues())
+			Plotting.plotCustomValues(batchData, config.getCustomValuePlots(),
+					dstDir, title, style, type);
 
 		// plot runtimes
 		if (config.isPlotRuntimes()) {
@@ -246,12 +249,11 @@ public class Plotting {
 		}
 
 		// plot metric values
-		if (config.isPlotMetricValues()) {
-			AggregatedMetricList metrics = initBatch.getMetrics();
-			Plotting.plotMetricValues(batchData, metrics, dstDir, title, style,
-					type);
-		}
+		if (config.isPlotMetricValues())
+			Plotting.plotMetricValues(batchData, initBatch.getMetrics(),
+					dstDir, title, style, type);
 
+		// all at-once plots finished
 		// print memory usage
 		double mem1 = new Memory().getUsed();
 		Log.infoSep();
@@ -266,26 +268,74 @@ public class Plotting {
 		// print memory usage after resoruce freeing
 		double mem2 = new Memory().getUsed();
 		Log.info("\tremoved: " + (mem1 - mem2));
-		Log.info("\tused memory: " + mem2);
+		Log.info("\tused memory (new): " + mem2);
 
 		// plot distributions
 		if (plotDistributions || plotNodeValues)
 			Plotting.plotDistributionsAndNodeValues(plotDistributions,
-					plotNodeValues, initBatch, batches, timestamps, tempDir,
-					dstDir, title, style, type, distPlotType, order, orderBy);
+					plotNodeValues, initBatch, batches, timestamps,
+					config.getCustomDistributionPlots(),
+					config.getCustomNodeValueListPlots(), tempDir, dstDir,
+					title, style, type, distPlotType, order, orderBy);
 
+	}
+
+	/** Plots custom value plots **/
+	private static void plotCustomValues(AggregatedBatch[] batchData,
+			ArrayList<PlotConfig> customValuePlots, String dstDir,
+			String title, PlotStyle style, PlotType type) throws IOException,
+			InterruptedException {
+		Log.infoSep();
+		Log.info("Plotting Custom-Value-Plots:");
+		for (PlotConfig pc : customValuePlots) {
+			String name = pc.getName();
+			Log.info("\tplotting '" + name + "'");
+			String[] values = pc.getValues();
+			String[] domains = pc.getDomains();
+
+			if (pc.isPlotAsCdf())
+				Log.warn("plot '"
+						+ name
+						+ "' can not be plotted as cdf, it is a value plot! Plotting as regular plot.");
+
+			// gather plot data
+			PlotData[] data = new PlotData[values.length];
+			for (int j = 0; j < values.length; j++) {
+				String value = values[j];
+				String domain = domains[j];
+				data[j] = PlotData.get(value, domain, style, domain + "."
+						+ value + "-" + title, type);
+			}
+
+			// create plot
+			Plot p = new Plot(dstDir, PlotFilenames.getValuesPlot("custom",
+					name),
+					PlotFilenames.getValuesGnuplotScript("custom", name), name
+							+ " (" + type + ")", data);
+
+			// write script header
+			p.writeScriptHeaderNeu();
+
+			// add data
+			p.addData(batchData);
+
+			// close and execute
+			p.close();
+			p.execute();
+		}
 	}
 
 	/** Plots Distributions and NodeValueLists **/
 	private static void plotDistributionsAndNodeValues(
 			boolean plotDistributions, boolean plotNodeValues,
 			AggregatedBatch initBatch, String[] batches, double[] timestamps,
-			String aggrDir, String dstDir, String title, PlotStyle style,
-			PlotType type, DistributionPlotType distPlotType,
-			NodeValueListOrder order, NodeValueListOrderBy orderBy)
-			throws IOException, InterruptedException {
+			ArrayList<PlotConfig> customDistributionPlots,
+			ArrayList<PlotConfig> customNodeValueListPlots, String aggrDir,
+			String dstDir, String title, PlotStyle style, PlotType type,
+			DistributionPlotType distPlotType, NodeValueListOrder order,
+			NodeValueListOrderBy orderBy) throws IOException,
+			InterruptedException {
 		boolean singleFile = Config.getBoolean("GENERATION_BATCHES_AS_ZIP");
-
 		Log.infoSep();
 		Log.info("Sequentially plotting Distributions and / or NodeValueLists");
 
@@ -381,6 +431,108 @@ public class Plotting {
 			}
 		}
 
+		// generate custom distribution plots
+		if (customDistributionPlots != null) {
+			Log.infoSep();
+			Log.info("Plotting Custom-Distribution-Plots: ");
+			for (PlotConfig pc : customDistributionPlots) {
+				String name = pc.getName();
+				Log.info("\tplotting '" + name + "'");
+				String[] values = pc.getValues();
+				String[] domains = pc.getDomains();
+
+				int valuesCount = values.length;
+
+				// check what to plot
+				boolean plotDist = false;
+				boolean plotCdf = false;
+
+				if (pc.getDistPlotType() != null) {
+					switch (pc.getDistPlotType()) {
+					case distOnly:
+						plotDist = true;
+						break;
+					case cdfOnly:
+						plotCdf = true;
+						break;
+					case distANDcdf:
+						plotDist = true;
+						plotCdf = true;
+						break;
+					}
+				} else {
+					plotDist = true;
+				}
+
+				// gather plot data
+				PlotData[] data = null;
+				PlotData[] dataCdf = null;
+
+				if (plotDist)
+					data = new PlotData[valuesCount * batches.length];
+				if (plotCdf)
+					dataCdf = new PlotData[valuesCount * batches.length];
+
+				// gather plot data
+				// example: distributions d1, d2
+				// -> data[] = { d1(0), d2(0), d1(1), d2(1), ... }
+				// where d1(x) is the plotdata of d1 at timestamp x
+				for (int i = 0; i < batches.length; i++) {
+					for (int j = 0; j < valuesCount; j++) {
+						if (plotDist)
+							data[i * valuesCount + j] = PlotData.get(values[j],
+									domains[j], style,
+									domains[j] + "." + values[j] + " @ "
+											+ timestamps[i], type);
+						if (plotCdf) {
+							PlotData dCdf = PlotData.get(values[j], domains[j],
+									style, domains[j] + "." + values[j] + " @ "
+											+ timestamps[i], type);
+							dCdf.setPlotAsCdf(true);
+							dataCdf[i * valuesCount + j] = dCdf;
+						}
+					}
+				}
+
+				// create normal plot
+				if (plotDist) {
+					Plot p = new Plot(dstDir,
+							PlotFilenames.getDistributionPlot("custom.dist",
+									name),
+							PlotFilenames.getDistributionGnuplotScript(
+									"custom.dist", name), name + " (" + type
+									+ ")", data);
+
+					// set data quantity
+					p.setDataQuantity(values.length);
+
+					// add to plots
+					plots.add(p);
+				}
+
+				// create cdf plot
+				if (plotCdf) {
+					Plot pCdf = new Plot(dstDir,
+							PlotFilenames.getDistributionCdfPlot("custom.dist",
+									name),
+							PlotFilenames.getDistributionCdfGnuplotScript(
+									"custom.dist", name), "CDF of " + name
+									+ " (" + type + ")", dataCdf);
+
+					// set data quantity
+					pCdf.setDataQuantity(values.length);
+
+					// add to plots
+					plots.add(pCdf);
+				}
+			}
+		}
+
+		// generate custom nodevaluelist plots
+		if (customNodeValueListPlots != null) {
+
+		}
+
 		// write headers
 		for (Plot p : plots) {
 			p.writeScriptHeaderNeu();
@@ -401,7 +553,9 @@ public class Plotting {
 
 			// append data to plots
 			for (Plot p : plots) {
-				p.addDataSequentially(tempBatch);
+				for (int j = 0; j < p.getDataQuantity(); j++) {
+					p.addDataSequentially(tempBatch);
+				}
 			}
 
 			// free resources
@@ -678,7 +832,7 @@ public class Plotting {
 			PlotStyle style, PlotType type) throws IOException,
 			InterruptedException {
 		Log.infoSep();
-		Log.info("Plotting Custom-Runtimes");
+		Log.info("Plotting Custom-Runtime-Plots:");
 		for (PlotConfig pc : customPlots) {
 			String name = pc.getName();
 			Log.info("\tplotting '" + name + "'");
@@ -701,21 +855,27 @@ public class Plotting {
 			}
 			plotTitle += name + " (" + type + ")";
 
+			// gather plot data
 			PlotData[] plotData = new PlotData[values.length];
 			for (int i = 0; i < plotData.length; i++) {
 				plotData[i] = PlotData.get(values[i], domains[i], style,
 						values[i] + "-" + title, type);
 			}
 
+			// create plot
 			Plot p = new Plot(dstDir, plotFilename, scriptFilename, plotTitle,
 					plotData);
 
+			// write script header
 			p.writeScriptHeaderNeu();
+
+			// add data
 			if (plotAsCdf)
 				p.addDataFromRuntimesAsCDF(batchData);
 			else
 				p.addData(batchData);
 
+			// close and execute
 			p.close();
 			p.execute();
 		}
