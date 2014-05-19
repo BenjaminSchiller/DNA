@@ -96,6 +96,7 @@ public class Plot {
 		}
 	}
 
+	// append data methods
 	private void appendData(AggregatedValue[] values) throws IOException {
 		for (int i = 0; i < values.length; i++)
 			this.appendData(values[i], "");
