@@ -65,6 +65,20 @@ public class HotSwap {
 		inFirstBatch = false;
 	}
 
+	private static int getNumberofAccumulatedAccesses(int amortizationCounter) {
+		int res = 0;
+
+		for (int i = maxAccessListSize - 1; (i >= 0 && amortizationCounter > 0); i--) {
+			int index = (currAccessListIndex + i) % maxAccessListSize;
+			if (accessList[index] != null) {
+				res++;
+			}
+			amortizationCounter--;
+		}
+
+		return res;
+	}
+
 	private static ProfileEntry getAccumulatedAccesses(int amortizationCounter) {
 		ProfileEntry res = new ProfileEntry();
 
@@ -134,6 +148,11 @@ public class HotSwap {
 
 		int amortizationCounter = getAmortizationCounter();
 		ProfileEntry accumulatedAccesses = getAccumulatedAccesses(amortizationCounter);
+		int numberOfAccumulatedAccesses = getNumberofAccumulatedAccesses(amortizationCounter);
+		double prefactor = 0;
+		if (amortizationCounter > 0) {
+			prefactor = amortizationCounter / numberOfAccumulatedAccesses;
+		}
 
 		TreeSet<RecommenderEntry> entrySet = slidingWindow.getRecommendations();
 		for (RecommenderEntry entry : entrySet) {
@@ -157,7 +176,8 @@ public class HotSwap {
 				GraphDataStructure currentGDS = g.getGraphDatastructures();
 				GraphDataStructure newGDS = entry.getGraphDataStructure();
 
-				if (isSwapEfficient(accumulatedAccesses, currentGDS, newGDS)) {
+				if (isSwapEfficient(accumulatedAccesses, prefactor, currentGDS,
+						newGDS)) {
 					Log.info("       Swapping looks efficient, so do it now");
 					doSwap(g, newGDS);
 					return;
@@ -169,7 +189,8 @@ public class HotSwap {
 	}
 
 	private static boolean isSwapEfficient(ProfileEntry accesses,
-			GraphDataStructure currentGDS, GraphDataStructure recGDS) {
+			double prefactor, GraphDataStructure currentGDS,
+			GraphDataStructure recGDS) {
 		int amortizationCounterToUse = getAmortizationCounter();
 		Log.debug("    Check whether the swap will be amortized within "
 				+ amortizationCounterToUse + " batches by runtime costs");
@@ -212,6 +233,9 @@ public class HotSwap {
 			addCosts.setValues(totalNumberOfElements, meanListSize, null);
 			swappingCosts.add(addCosts.getMap());
 		}
+
+		currentStateCosts.multiplyBy(prefactor);
+		recStateCosts.multiplyBy(prefactor);
 
 		Log.debug("        Total costs with current GDS: " + currentStateCosts
 				+ ", total swapping costs: " + swappingCosts
