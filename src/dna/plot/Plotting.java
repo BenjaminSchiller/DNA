@@ -8,6 +8,7 @@ import java.util.List;
 
 import dna.io.filesystem.Dir;
 import dna.io.filesystem.PlotFilenames;
+import dna.plot.PlottingConfig.PlotFlag;
 import dna.plot.data.PlotData;
 import dna.plot.data.PlotData.DistributionPlotType;
 import dna.plot.data.PlotData.NodeValueListOrder;
@@ -43,17 +44,17 @@ public class Plotting {
 	 * be plotted is given by the parameters in the PlottingConfig.
 	 * 
 	 * @param seriesData
-	 *            SeriesData to be plotted
+	 *            SeriesData to be plotted.
 	 * @param dstDir
-	 *            Destination directory of the plots
+	 *            Destination directory of the plots.
 	 * @param config
-	 *            PlottingConfig to control plotting behaviour
+	 *            PlottingConfig to control plotting behaviour.
 	 * @throws IOException
-	 *             Thrown by writer
+	 *             Thrown by writer.
 	 * @throws InterruptedException
-	 *             Thrown by writer
+	 *             Thrown by executing gnuplot.
 	 */
-	public static void plotFromTo(SeriesData[] seriesData, String dstDir,
+	private static void plotFromTo(SeriesData[] seriesData, String dstDir,
 			PlottingConfig config) throws IOException, InterruptedException {
 		// read values from config
 		long timestampFrom = config.getTimestampFrom();
@@ -70,10 +71,10 @@ public class Plotting {
 		boolean plotDistributions = config.isPlotDistributions();
 		boolean plotNodeValues = config.isPlotNodeValueLists();
 
+		// log output
 		Log.infoSep();
-		Log.info("plotting data from batch " + timestampFrom + " - "
-				+ timestampTo + " with stepsize " + stepsize + " for "
-				+ seriesData.length + " series to " + dstDir);
+		Log.info("plotting data from " + seriesData.length + " series to "
+				+ dstDir);
 
 		// create dir
 		(new File(dstDir)).mkdirs();
@@ -173,6 +174,319 @@ public class Plotting {
 					config.getCustomNodeValueListPlots(), tempDir, dstDir,
 					title, style, type, distPlotType, order, orderBy);
 
+	}
+
+	/**
+	 * Plots the series to the destination dir.
+	 * 
+	 * @param seriesData
+	 *            SeriesData to be plotted.
+	 * @param dstDir
+	 *            Destination directory of the plots.
+	 * @param config
+	 *            PlottingConfig to control plotting behaviour.
+	 * @throws IOException
+	 *             Thrown by writer.
+	 * @throws InterruptedException
+	 *             Thrown by executing gnuplot.
+	 */
+	public static void plot(SeriesData[] seriesData, String dstDir,
+			PlottingConfig config) throws IOException, InterruptedException {
+		Plotting.plotFromTo(seriesData, dstDir, config);
+	}
+
+	/**
+	 * Plots the series to the destination dir.
+	 * 
+	 * @param seriesData
+	 *            SeriesData to be plotted.
+	 * @param dstDir
+	 *            Destination directory of the plots.
+	 * @param config
+	 *            PlottingConfig to control plotting behaviour.
+	 * @throws IOException
+	 *             Thrown by writer.
+	 * @throws InterruptedException
+	 *             Thrown by executing gnuplot.
+	 */
+	public static void plot(SeriesData seriesData, String dstDir,
+			PlottingConfig config) throws IOException, InterruptedException {
+		Plotting.plotFromTo(new SeriesData[] { seriesData }, dstDir, config);
+	}
+
+	/**
+	 * Plots the series to the destination dir.
+	 * 
+	 * @param seriesData
+	 *            SeriesData to be plotted.
+	 * @param dstDir
+	 *            Destination directory of the plots.
+	 * @param timestampFrom
+	 *            Beginning of the timestamp interval to be plotted.
+	 * @param timestampTo
+	 *            Ending of the timestamp interval to be plotted.
+	 * @param stepsize
+	 *            Stepsize of the batches to be plotted.
+	 * @param flags
+	 *            Flags that define which will be plotted.
+	 * @throws IOException
+	 *             Thrown by writer.
+	 * @throws InterruptedException
+	 *             Thrown by executing gnuplot.
+	 */
+	public static void plotFromTo(SeriesData[] seriesData, String dstDir,
+			long timestampFrom, long timestampTo, long stepsize,
+			PlotFlag... flags) throws IOException, InterruptedException {
+		// craft config
+		PlottingConfig config = new PlottingConfig(flags);
+		config.setPlotInterval(timestampFrom, timestampTo, stepsize);
+
+		// call plotting method
+		Plotting.plotFromTo(seriesData, dstDir, config);
+	}
+
+	/**
+	 * Plots the series to the destination dir.
+	 * 
+	 * @param seriesData
+	 *            SeriesData to be plotted.
+	 * @param dstDir
+	 *            Destination directory of the plots.
+	 * @param timestampFrom
+	 *            Beginning of the timestamp interval to be plotted.
+	 * @param timestampTo
+	 *            Ending of the timestamp interval to be plotted.
+	 * @param stepsize
+	 *            Stepsize of the batches to be plotted.
+	 * @param flags
+	 *            Flags that define which will be plotted.
+	 * @throws IOException
+	 *             Thrown by writer.
+	 * @throws InterruptedException
+	 *             Thrown by executing gnuplot.
+	 */
+	public static void plotFromTo(SeriesData seriesData, String dstDir,
+			long timestampFrom, long timestampTo, long stepsize,
+			PlotFlag... flags) throws IOException, InterruptedException {
+		Plotting.plotFromTo(new SeriesData[] { seriesData }, dstDir,
+				timestampFrom, timestampTo, stepsize, flags);
+	}
+
+	/**
+	 * Plots the series to the destination dir.
+	 * 
+	 * @param seriesData
+	 *            SeriesData to be plotted
+	 * @param dstDir
+	 *            Destination directory of the plots
+	 * @param flags
+	 *            Flags that define which will be plotted.
+	 * @throws IOException
+	 *             Thrown by writer.
+	 * @throws InterruptedException
+	 *             Thrown by executing gnuplot.
+	 */
+	public static void plot(SeriesData[] seriesData, String dstDir,
+			PlotFlag... flags) throws IOException, InterruptedException {
+		// craft config
+		PlottingConfig config = new PlottingConfig(flags);
+
+		// call plotting method
+		Plotting.plotFromTo(seriesData, dstDir, config);
+	}
+
+	/**
+	 * Plots the series to the destination dir.
+	 * 
+	 * @param seriesData
+	 *            SeriesData to be plotted.
+	 * @param dstDir
+	 *            Destination directory of the plots.
+	 * @param flags
+	 *            Flags that define which will be plotted.
+	 * @throws IOException
+	 *             Thrown by writer.
+	 * @throws InterruptedException
+	 *             Thrown by executing gnuplot.
+	 */
+	public static void plot(SeriesData seriesData, String dstDir,
+			PlotFlag... flags) throws IOException, InterruptedException {
+		Plotting.plot(new SeriesData[] { seriesData }, dstDir, flags);
+	}
+
+	/**
+	 * Plots only the statistics of the given series.
+	 * 
+	 * @param seriesData
+	 *            SeriesData to be plotted.
+	 * @param dstDir
+	 *            Destination directory of the plots.
+	 * @throws IOException
+	 *             Thrown by writer.
+	 * @throws InterruptedException
+	 *             Thrown by executing gnuplot.
+	 */
+	public static void plotStatistic(SeriesData[] seriesData, String dstDir)
+			throws IOException, InterruptedException {
+		Plotting.plot(seriesData, dstDir, PlotFlag.plotStatistics);
+	}
+
+	/**
+	 * Plots only the statistics of the given series.
+	 * 
+	 * @param seriesData
+	 *            SeriesData to be plotted.
+	 * @param dstDir
+	 *            Destination directory of the plots.
+	 * @throws IOException
+	 *             Thrown by writer.
+	 * @throws InterruptedException
+	 *             Thrown by executing gnuplot.
+	 */
+	public static void plotStatistic(SeriesData seriesData, String dstDir)
+			throws IOException, InterruptedException {
+		Plotting.plot(new SeriesData[] { seriesData }, dstDir,
+				PlotFlag.plotStatistics);
+	}
+
+	/**
+	 * Plots only the metric values of the given series.
+	 * 
+	 * @param seriesData
+	 *            SeriesData to be plotted.
+	 * @param dstDir
+	 *            Destination directory of the plots.
+	 * @throws IOException
+	 *             Thrown by writer.
+	 * @throws InterruptedException
+	 *             Thrown by executing gnuplot.
+	 */
+	public static void plotMetricValues(SeriesData[] seriesData, String dstDir)
+			throws IOException, InterruptedException {
+		Plotting.plot(seriesData, dstDir, PlotFlag.plotMetricValues);
+	}
+
+	/**
+	 * Plots only the metric values of the given series.
+	 * 
+	 * @param seriesData
+	 *            SeriesData to be plotted.
+	 * @param dstDir
+	 *            Destination directory of the plots.
+	 * @throws IOException
+	 *             Thrown by writer.
+	 * @throws InterruptedException
+	 *             Thrown by executing gnuplot.
+	 */
+	public static void plotMetricValues(SeriesData seriesData, String dstDir)
+			throws IOException, InterruptedException {
+		Plotting.plot(new SeriesData[] { seriesData }, dstDir,
+				PlotFlag.plotMetricValues);
+	}
+
+	/**
+	 * Plots only the runtimes of the given series.
+	 * 
+	 * @param seriesData
+	 *            SeriesData to be plotted.
+	 * @param dstDir
+	 *            Destination directory of the plots.
+	 * @throws IOException
+	 *             Thrown by writer.
+	 * @throws InterruptedException
+	 *             Thrown by executing gnuplot.
+	 */
+	public static void plotRuntimes(SeriesData[] seriesData, String dstDir)
+			throws IOException, InterruptedException {
+		Plotting.plot(seriesData, dstDir, PlotFlag.plotRuntimes);
+	}
+
+	/**
+	 * Plots only the runtimes of the given series.
+	 * 
+	 * @param seriesData
+	 *            SeriesData to be plotted.
+	 * @param dstDir
+	 *            Destination directory of the plots.
+	 * @throws IOException
+	 *             Thrown by writer.
+	 * @throws InterruptedException
+	 *             Thrown by executing gnuplot.
+	 */
+	public static void plotRuntimes(SeriesData seriesData, String dstDir)
+			throws IOException, InterruptedException {
+		Plotting.plot(new SeriesData[] { seriesData }, dstDir,
+				PlotFlag.plotRuntimes);
+	}
+
+	/**
+	 * Plots only the distributions of the given series.
+	 * 
+	 * @param seriesData
+	 *            SeriesData to be plotted.
+	 * @param dstDir
+	 *            Destination directory of the plots.
+	 * @throws IOException
+	 *             Thrown by writer.
+	 * @throws InterruptedException
+	 *             Thrown by executing gnuplot.
+	 */
+	public static void plotDistributions(SeriesData[] seriesData, String dstDir)
+			throws IOException, InterruptedException {
+		Plotting.plot(seriesData, dstDir, PlotFlag.plotDistributions);
+	}
+
+	/**
+	 * Plots only the distributions of the given series.
+	 * 
+	 * @param seriesData
+	 *            SeriesData to be plotted.
+	 * @param dstDir
+	 *            Destination directory of the plots.
+	 * @throws IOException
+	 *             Thrown by writer.
+	 * @throws InterruptedException
+	 *             Thrown by executing gnuplot.
+	 */
+	public static void plotDistributions(SeriesData seriesData, String dstDir)
+			throws IOException, InterruptedException {
+		Plotting.plot(new SeriesData[] { seriesData }, dstDir,
+				PlotFlag.plotDistributions);
+	}
+
+	/**
+	 * Plots only the nodevaluelists of the given series.
+	 * 
+	 * @param seriesData
+	 *            SeriesData to be plotted.
+	 * @param dstDir
+	 *            Destination directory of the plots.
+	 * @throws IOException
+	 *             Thrown by writer.
+	 * @throws InterruptedException
+	 *             Thrown by executing gnuplot.
+	 */
+	public static void plotNodeValueLists(SeriesData[] seriesData, String dstDir)
+			throws IOException, InterruptedException {
+		Plotting.plot(seriesData, dstDir, PlotFlag.plotNodeValueLists);
+	}
+
+	/**
+	 * Plots only the nodevaluelists of the given series.
+	 * 
+	 * @param seriesData
+	 *            SeriesData to be plotted.
+	 * @param dstDir
+	 *            Destination directory of the plots.
+	 * @throws IOException
+	 *             Thrown by writer.
+	 * @throws InterruptedException
+	 *             Thrown by executing gnuplot.
+	 */
+	public static void plotNodeValueLists(SeriesData seriesData, String dstDir)
+			throws IOException, InterruptedException {
+		Plotting.plot(new SeriesData[] { seriesData }, dstDir,
+				PlotFlag.plotNodeValueLists);
 	}
 
 	/** Plots custom value plots **/
