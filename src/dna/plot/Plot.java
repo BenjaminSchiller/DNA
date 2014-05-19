@@ -96,20 +96,20 @@ public class Plot {
 		}
 	}
 
-	public void appendData(AggregatedValue[] values) throws IOException {
+	private void appendData(AggregatedValue[] values) throws IOException {
 		for (int i = 0; i < values.length; i++)
 			this.appendData(values[i], "");
 		this.appendEOF();
 	}
 
-	public void appendDataWithIndex(AggregatedValue[] values)
+	private void appendDataWithIndex(AggregatedValue[] values)
 			throws IOException {
 		for (int i = 0; i < values.length; i++)
 			this.appendData(values[i], "" + i);
 		this.appendEOF();
 	}
 
-	public void appendData(AggregatedValue value, String timestamp)
+	private void appendData(AggregatedValue value, String timestamp)
 			throws IOException {
 		Writer w = this.fileWriter;
 		String temp = "" + timestamp;
@@ -128,12 +128,12 @@ public class Plot {
 		w.writeln(temp);
 	}
 
-	public void appendData(AggregatedValue value, double timestamp)
+	private void appendData(AggregatedValue value, double timestamp)
 			throws IOException {
 		this.appendData(value, "" + timestamp);
 	}
 
-	public void appendEOF() throws IOException {
+	private void appendEOF() throws IOException {
 		this.dataWriteCounter++;
 		this.fileWriter.writeln("EOF");
 	}
@@ -166,7 +166,7 @@ public class Plot {
 	 * @throws IOException
 	 *             Thrown by the writer.
 	 */
-	public void addData(String name, String domain, AggregatedBatch batch,
+	private void addData(String name, String domain, AggregatedBatch batch,
 			boolean addAsCDF) throws IOException {
 		double timestamp = (double) batch.getTimestamp();
 		// figure out where to get the data from
