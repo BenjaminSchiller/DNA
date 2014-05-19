@@ -31,6 +31,9 @@ public class Plot {
 	private String scriptFilename = Config.get("GNUPLOT_SCRIPTFILENAME");
 	private String title;
 
+	private String dateTime;
+	private boolean plotDateTime;
+
 	private Writer fileWriter;
 
 	private int dataWriteCounter;
@@ -72,10 +75,14 @@ public class Plot {
 		this.scriptFilename = scriptFilename;
 		this.title = title;
 		this.data = data;
+
+		// load default values
 		this.sortOrder = Config
 				.getNodeValueListOrder("GNUPLOT_DEFAULT_NVL_ORDER");
 		this.orderBy = Config
 				.getNodeValueListOrderBy("GNUPLOT_DEFAULT_NVL_ORDERBY");
+		this.dateTime = Config.get("GNUPLOT_DATETIME");
+		this.plotDateTime = Config.getBoolean("GNUPLOT_PLOTDATETIME");
 
 		// init writer
 		this.fileWriter = new Writer(dir, scriptFilename);
@@ -654,9 +661,9 @@ public class Plot {
 		} else if (Config.getBoolean("GNUPLOT_YLOGSCALE")) {
 			script.add("set logscale y");
 		}
-		if (Config.getBoolean("GNUPLOT_PLOTDATETIME")) {
+		if (this.plotDateTime) {
 			script.add("set xdata time");
-			script.add("set timeft " + Config.get("GNUPLOT_DATETIME"));
+			script.add("set timefmt " + '"' + this.dateTime + '"');
 		}
 
 		script.add("set style " + Config.get("GNUPLOT_STYLE"));
@@ -749,11 +756,19 @@ public class Plot {
 	// 02:45:03 . %H:%M:%S "%H" . 24-hour
 	// 1076909172 . %s . seconds since 1/1/1970 00:00
 	public void setDateTime(String dateTime) {
-		Config.overwrite("GNUPLOT_DATETIME", dateTime);
+		this.dateTime = dateTime;
+	}
+
+	public String getDateTime() {
+		return dateTime;
 	}
 
 	public void setPlotDateTime(boolean plotDateTime) {
-		Config.overwrite("GNUPLOT_PLOTDATETIME", Boolean.toString(plotDateTime));
+		this.plotDateTime = plotDateTime;
+	}
+
+	public boolean isPlotDateTime() {
+		return plotDateTime;
 	}
 
 	public void setNodeValueListOrder(NodeValueListOrder order) {
