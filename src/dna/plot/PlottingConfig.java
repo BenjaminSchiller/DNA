@@ -2,10 +2,10 @@ package dna.plot;
 
 import java.util.ArrayList;
 
-import dna.plot.Gnuplot.PlotStyle;
 import dna.plot.data.PlotData.DistributionPlotType;
 import dna.plot.data.PlotData.NodeValueListOrder;
 import dna.plot.data.PlotData.NodeValueListOrderBy;
+import dna.plot.data.PlotData.PlotStyle;
 import dna.plot.data.PlotData.PlotType;
 import dna.util.Config;
 
