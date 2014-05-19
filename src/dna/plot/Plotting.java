@@ -292,6 +292,8 @@ public class Plotting {
 		Log.info("Plotting Custom-Value-Plots:");
 		for (PlotConfig pc : customValuePlots) {
 			String name = pc.getName();
+			if (name == null)
+				continue;
 			Log.info("\tplotting '" + name + "'");
 			String[] values = pc.getValues();
 			String[] domains = pc.getDomains();
@@ -442,6 +444,8 @@ public class Plotting {
 			Log.info("Plotting Custom-Distribution-Plots:");
 			for (PlotConfig pc : customDistributionPlots) {
 				String name = pc.getName();
+				if (name == null)
+					continue;
 				Log.info("\tplotting '" + name + "'");
 				String[] values = pc.getValues();
 				String[] domains = pc.getDomains();
@@ -539,6 +543,8 @@ public class Plotting {
 			Log.info("Plotting Custom-NodeValueList-Plots:");
 			for (PlotConfig pc : customNodeValueListPlots) {
 				String name = pc.getName();
+				if (name == null)
+					continue;
 				Log.info("\tplotting '" + name + "'");
 				String[] values = pc.getValues();
 				String[] domains = pc.getDomains();
@@ -877,6 +883,8 @@ public class Plotting {
 		Log.info("Plotting Custom-Runtime-Plots:");
 		for (PlotConfig pc : customPlots) {
 			String name = pc.getName();
+			if (name == null)
+				continue;
 			Log.info("\tplotting '" + name + "'");
 			String[] values = pc.getValues();
 			String[] domains = pc.getDomains();
