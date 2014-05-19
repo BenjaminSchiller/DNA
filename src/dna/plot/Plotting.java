@@ -8,11 +8,11 @@ import java.util.List;
 
 import dna.io.filesystem.Dir;
 import dna.io.filesystem.PlotFilenames;
-import dna.plot.Gnuplot.PlotStyle;
 import dna.plot.data.PlotData;
 import dna.plot.data.PlotData.DistributionPlotType;
 import dna.plot.data.PlotData.NodeValueListOrder;
 import dna.plot.data.PlotData.NodeValueListOrderBy;
+import dna.plot.data.PlotData.PlotStyle;
 import dna.plot.data.PlotData.PlotType;
 import dna.series.SeriesStats;
 import dna.series.aggdata.AggregatedBatch;
@@ -53,7 +53,7 @@ public class Plotting {
 	 * @throws InterruptedException
 	 *             Thrown by writer
 	 */
-	public static void plotFromToSeq(SeriesData[] seriesData, String dstDir,
+	public static void plotFromTo(SeriesData[] seriesData, String dstDir,
 			PlottingConfig config) throws IOException, InterruptedException {
 		// read values from config
 		long timestampFrom = config.getTimestampFrom();

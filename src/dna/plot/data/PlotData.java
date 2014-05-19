@@ -1,13 +1,14 @@
 package dna.plot.data;
 
-import dna.plot.Gnuplot.PlotStyle;
-import dna.util.Config;
-
 /**
  * @author benni
  * 
  */
 public abstract class PlotData {
+	public static enum PlotStyle {
+		lines, dots, points, linespoint, impulses, steps, boxes, candlesticks, yerrorbars
+	}
+
 	public static enum PlotType {
 		average, median, minimum, maximum, variance, confidence1, confidence2, function
 	}
@@ -39,7 +40,7 @@ public abstract class PlotData {
 	protected boolean plotAsCdf;
 
 	protected PlottingSortMode sortMode;
-	
+
 	protected NodeValueListOrder nodeValueListOrder;
 
 	public PlotData(String data, String domain, PlotStyle style, String title) {

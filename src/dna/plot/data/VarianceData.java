@@ -1,7 +1,5 @@
 package dna.plot.data;
 
-import dna.plot.Gnuplot.PlotStyle;
-
 /**
  * @author benni
  * 
