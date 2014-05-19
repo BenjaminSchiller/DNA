@@ -211,6 +211,10 @@ public class Profiler {
 	}
 
 	private static boolean canDEmptyBeUsedForListInCurrentBatch(ListType lt) {
+		if (lt.equals(ListType.GlobalNodeList)
+				|| lt.equals(ListType.GlobalEdgeList))
+			return false;
+
 		int numberOfAccesses;
 		boolean res = true;
 		for (Entry<String, ProfileEntry> entry : singleBatchCalls.entrySet()) {
@@ -889,8 +893,8 @@ public class Profiler {
 			throws IOException {
 		Writer w;
 
-		if (Config.getBoolean("GENERATION_BATCHES_AS_ZIP") && currentFileSystem != null
-				&& currentFileSystem.isOpen()) {
+		if (Config.getBoolean("GENERATION_BATCHES_AS_ZIP")
+				&& currentFileSystem != null && currentFileSystem.isOpen()) {
 			w = new ZipWriter(currentFileSystem, "/", filename);
 		} else {
 			w = new Writer(dir, filename);
