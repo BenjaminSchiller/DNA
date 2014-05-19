@@ -385,6 +385,41 @@ public class Plotting {
 	}
 
 	/**
+	 * Plots only the custom values plots on the given series.
+	 * 
+	 * @param seriesData
+	 *            SeriesData to be plotted.
+	 * @param dstDir
+	 *            Destination directory of the plots.
+	 * @throws IOException
+	 *             Thrown by writer.
+	 * @throws InterruptedException
+	 *             Thrown by executing gnuplot.
+	 */
+	public static void plotCustomValuePlots(SeriesData[] seriesData,
+			String dstDir) throws IOException, InterruptedException {
+		Plotting.plot(seriesData, dstDir, PlotFlag.plotCustomValues);
+	}
+
+	/**
+	 * Plots only the custom value plots on the given series.
+	 * 
+	 * @param seriesData
+	 *            SeriesData to be plotted.
+	 * @param dstDir
+	 *            Destination directory of the plots.
+	 * @throws IOException
+	 *             Thrown by writer.
+	 * @throws InterruptedException
+	 *             Thrown by executing gnuplot.
+	 */
+	public static void plotCustomValuesPlots(SeriesData seriesData,
+			String dstDir) throws IOException, InterruptedException {
+		Plotting.plot(new SeriesData[] { seriesData }, dstDir,
+				PlotFlag.plotCustomValues);
+	}
+
+	/**
 	 * Plots only the runtimes of the given series.
 	 * 
 	 * @param seriesData
