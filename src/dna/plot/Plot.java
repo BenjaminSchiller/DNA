@@ -86,7 +86,7 @@ public class Plot {
 	}
 
 	// new methods
-	public void writeScriptHeaderNeu() throws IOException {
+	public void writeScriptHeader() throws IOException {
 		Writer w = this.fileWriter;
 
 		// write script header

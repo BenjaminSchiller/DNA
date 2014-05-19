@@ -211,7 +211,7 @@ public class Plotting {
 							+ " (" + type + ")", data);
 
 			// write script header
-			p.writeScriptHeaderNeu();
+			p.writeScriptHeader();
 
 			// add data
 			p.addData(batchData);
@@ -504,7 +504,7 @@ public class Plotting {
 
 		// write headers
 		for (Plot p : plots) {
-			p.writeScriptHeaderNeu();
+			p.writeScriptHeader();
 		}
 
 		for (int i = 0; i < batches.length; i++) {
@@ -563,7 +563,7 @@ public class Plotting {
 						new PlotData[] { valuePlotData });
 
 				// write header
-				valuePlot.writeScriptHeaderNeu();
+				valuePlot.writeScriptHeader();
 
 				// append data
 				valuePlot.addData(batchData);
@@ -655,7 +655,7 @@ public class Plotting {
 
 		for (Plot p : plots) {
 			// write header
-			p.writeScriptHeaderNeu();
+			p.writeScriptHeader();
 
 			// append data
 			p.addData(batchData);
@@ -701,8 +701,8 @@ public class Plotting {
 					new PlotData[] { metPlotData });
 
 			// write header
-			metRuntimeSinglePlot.writeScriptHeaderNeu();
-			metRuntimeSinglePlotCDF.writeScriptHeaderNeu();
+			metRuntimeSinglePlot.writeScriptHeader();
+			metRuntimeSinglePlotCDF.writeScriptHeader();
 
 			// append data
 			metRuntimeSinglePlot.addData(batchData);
@@ -731,8 +731,8 @@ public class Plotting {
 				metRuntimes);
 
 		// write headers
-		metricRuntimesPlot.writeScriptHeaderNeu();
-		metricRuntimesPlotCDF.writeScriptHeaderNeu();
+		metricRuntimesPlot.writeScriptHeader();
+		metricRuntimesPlotCDF.writeScriptHeader();
 
 		// add data to metric runtime plot
 		metricRuntimesPlot.addData(batchData);
@@ -777,8 +777,8 @@ public class Plotting {
 				genRuntimes);
 
 		// write headers
-		generalRuntimesPlot.writeScriptHeaderNeu();
-		generalRuntimesPlotCDF.writeScriptHeaderNeu();
+		generalRuntimesPlot.writeScriptHeader();
+		generalRuntimesPlotCDF.writeScriptHeader();
 
 		// add data to general runtime plot
 		generalRuntimesPlot.addData(batchData);
@@ -837,7 +837,7 @@ public class Plotting {
 					plotData);
 
 			// write script header
-			p.writeScriptHeaderNeu();
+			p.writeScriptHeader();
 
 			// add data
 			if (plotAsCdf)
