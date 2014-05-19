@@ -434,7 +434,7 @@ public class Plotting {
 		// generate custom distribution plots
 		if (customDistributionPlots != null) {
 			Log.infoSep();
-			Log.info("Plotting Custom-Distribution-Plots: ");
+			Log.info("Plotting Custom-Distribution-Plots:");
 			for (PlotConfig pc : customDistributionPlots) {
 				String name = pc.getName();
 				Log.info("\tplotting '" + name + "'");
@@ -530,7 +530,44 @@ public class Plotting {
 
 		// generate custom nodevaluelist plots
 		if (customNodeValueListPlots != null) {
+			Log.infoSep();
+			Log.info("Plotting Custom-NodeValueList-Plots:");
+			for (PlotConfig pc : customNodeValueListPlots) {
+				String name = pc.getName();
+				Log.info("\tplotting '" + name + "'");
+				String[] values = pc.getValues();
+				String[] domains = pc.getDomains();
 
+				int valuesCount = values.length;
+
+				// gather plot data
+				PlotData[] data = new PlotData[batches.length * values.length];
+
+				// example: distributions d1, d2
+				// -> data[] = { d1(0), d2(0), d1(1), d2(1), ... }
+				// where d1(x) is the plotdata of d1 at timestamp x
+				for (int i = 0; i < batches.length; i++) {
+					for (int j = 0; j < valuesCount; j++) {
+						data[i * valuesCount + j] = PlotData.get(values[j],
+								domains[j], style, domains[j] + "." + values[j]
+										+ " @ " + timestamps[i], type);
+					}
+				}
+
+				// create plot
+				Plot p = new Plot(dstDir, PlotFilenames.getNodeValueListPlot(
+						"custom.nvl", name),
+						PlotFilenames.getNodeValueListGnuplotScript(
+								"custom.nvl", name), name + " (" + type + ")",
+						data);
+
+				// set nvl sort options
+				p.setNodeValueListOrder(pc.getOrder());
+				p.setNodeValueListOrderBy(pc.getOrderBy());
+
+				// add to plots
+				plots.add(p);
+			}
 		}
 
 		// write headers
