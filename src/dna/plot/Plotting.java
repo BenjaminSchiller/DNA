@@ -413,8 +413,8 @@ public class Plotting {
 	 * @throws InterruptedException
 	 *             Thrown by executing gnuplot.
 	 */
-	public static void plotCustomValuesPlots(SeriesData seriesData,
-			String dstDir) throws IOException, InterruptedException {
+	public static void plotCustomValuePlots(SeriesData seriesData, String dstDir)
+			throws IOException, InterruptedException {
 		Plotting.plot(new SeriesData[] { seriesData }, dstDir,
 				PlotFlag.plotCustomValues);
 	}
