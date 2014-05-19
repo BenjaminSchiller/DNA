@@ -2,6 +2,7 @@ package dna.plot;
 
 import java.util.ArrayList;
 
+import dna.plot.data.PlotData.DistributionPlotType;
 import dna.util.Config;
 import dna.util.Log;
 
@@ -17,14 +18,16 @@ public class PlotConfig {
 	private String[] values;
 	private String[] domains;
 	private boolean plotAsCdf;
+	private DistributionPlotType distPlotType;
 
 	// constructor
 	private PlotConfig(String name, boolean plotAsCdf, String[] values,
-			String[] domains) {
+			String[] domains, DistributionPlotType distPlotType) {
 		this.name = name;
 		this.plotAsCdf = plotAsCdf;
 		this.values = values;
 		this.domains = domains;
+		this.distPlotType = distPlotType;
 	}
 
 	// getters
@@ -42,6 +45,10 @@ public class PlotConfig {
 
 	public boolean isPlotAsCdf() {
 		return plotAsCdf;
+	}
+
+	public DistributionPlotType getDistPlotType() {
+		return distPlotType;
 	}
 
 	/** Returns the custom value plots created from config **/
@@ -93,7 +100,6 @@ public class PlotConfig {
 				plots.length);
 
 		for (String s : plots) {
-			System.out.println(prefix + s + valuesSuffix);
 			String name = Config.get(prefix + s + nameSuffix);
 			String[] values = Config.keys(prefix + s + valuesSuffix);
 			String[] domains = new String[values.length];
@@ -101,7 +107,7 @@ public class PlotConfig {
 				for (int i = 0; i < values.length; i++) {
 					domains[i] = Config.get("PLOT_CUSTOM_RUNTIME");
 				}
-			} else if (prefix.equals(Config.get("CUSTOM_PLOT_PREFIX_VALUES"))) {
+			} else {
 				for (int i = 0; i < values.length; i++) {
 					String[] split = values[i].split("\\.");
 					domains[i] = split[0];
@@ -113,7 +119,17 @@ public class PlotConfig {
 				}
 			}
 			boolean plotAsCdf = Config.getBoolean(prefix + s + cdfSuffix);
-			plotConfigs.add(new PlotConfig(name, plotAsCdf, values, domains));
+
+			DistributionPlotType distPlotType = null;
+			try {
+				distPlotType = Config.getDistributionPlotType(prefix + s
+						+ Config.get("CUSTOM_PLOT_SUFFIX_DIST_TYPE"));
+			} catch (NullPointerException e) {
+			}
+
+			System.out.println(distPlotType);
+			plotConfigs.add(new PlotConfig(name, plotAsCdf, values, domains,
+					distPlotType));
 		}
 		return plotConfigs;
 	}
