@@ -17,7 +17,7 @@ import dna.util.Config;
  */
 public class PlottingConfig {
 	public static enum PlotFlag {
-		plotAll, plotStatistics, plotRuntimes, plotMetricValues, plotDistributions, plotNodeValueLists
+		plotAll, plotStatistics, plotRuntimes, plotMetricValues, plotDistributions, plotNodeValueLists, plotCustomValues
 	};
 
 	// config
@@ -31,6 +31,7 @@ public class PlottingConfig {
 	private ArrayList<String> generalRuntimes;
 
 	// custom plots
+	private ArrayList<PlotConfig> customValuePlots;
 	private ArrayList<PlotConfig> customStatisticPlots;
 	private ArrayList<PlotConfig> customRuntimePlots;
 	private ArrayList<PlotConfig> customMetricValuePlots;
@@ -43,6 +44,7 @@ public class PlottingConfig {
 	private boolean plotMetricValues;
 	private boolean plotDistributions;
 	private boolean plotNodeValueLists;
+	private boolean plotCustomValues;
 
 	// interval selection
 	private long timestampFrom;
@@ -76,6 +78,7 @@ public class PlottingConfig {
 		this.plotMetricValues = false;
 		this.plotDistributions = false;
 		this.plotNodeValueLists = false;
+		this.plotCustomValues = false;
 
 		// check plot flags
 		for (PlotFlag flag : flags) {
@@ -86,6 +89,7 @@ public class PlottingConfig {
 				this.plotMetricValues = true;
 				this.plotDistributions = true;
 				this.plotNodeValueLists = true;
+				this.plotCustomValues = true;
 				break;
 			case plotStatistics:
 				this.plotStatistics = true;
@@ -101,6 +105,9 @@ public class PlottingConfig {
 				break;
 			case plotNodeValueLists:
 				this.plotNodeValueLists = true;
+				break;
+			case plotCustomValues:
+				this.plotCustomValues = true;
 				break;
 			}
 		}
@@ -145,19 +152,21 @@ public class PlottingConfig {
 	 * PlottingConfig object holds.
 	 **/
 	public void createCustomPlotsFromConfig() {
-		if (plotStatistics)
+		if (this.plotStatistics)
 			this.customStatisticPlots = PlotConfig.getCustomStatisticPlots();
-		if (plotRuntimes)
+		if (this.plotRuntimes)
 			this.customRuntimePlots = PlotConfig.getCustomRuntimePlots();
-		if (plotMetricValues)
+		if (this.plotMetricValues)
 			this.customMetricValuePlots = PlotConfig
 					.getCustomMetricValuePlots();
-		if (plotDistributions)
+		if (this.plotDistributions)
 			this.customDistributionPlots = PlotConfig
 					.getCustomMetricDistributionPlots();
-		if (plotNodeValueLists)
+		if (this.plotNodeValueLists)
 			this.customNodeValueListPlots = PlotConfig
 					.getCustomMetricNodeValueListPlots();
+		if (this.plotCustomValues)
+			this.customValuePlots = PlotConfig.getCustomValuePlots();
 	}
 
 	// getters and setters
@@ -282,5 +291,21 @@ public class PlottingConfig {
 
 	public ArrayList<PlotConfig> getCustomNodeValueListPlots() {
 		return customNodeValueListPlots;
+	}
+
+	public ArrayList<PlotConfig> getCustomValuePlots() {
+		return customValuePlots;
+	}
+
+	public void setCustomValuePlots(ArrayList<PlotConfig> customValuePlots) {
+		this.customValuePlots = customValuePlots;
+	}
+
+	public boolean isPlotCustomValues() {
+		return plotCustomValues;
+	}
+
+	public void setPlotCustomValues(boolean plotCustomValues) {
+		this.plotCustomValues = plotCustomValues;
 	}
 }
