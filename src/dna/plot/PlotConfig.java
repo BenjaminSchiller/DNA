@@ -6,7 +6,6 @@ import dna.plot.data.PlotData.DistributionPlotType;
 import dna.plot.data.PlotData.NodeValueListOrder;
 import dna.plot.data.PlotData.NodeValueListOrderBy;
 import dna.util.Config;
-import dna.util.Log;
 
 /**
  * Configuration object representing one plot which will be read from properties
@@ -106,7 +105,6 @@ public class PlotConfig {
 	private static ArrayList<PlotConfig> getCustomPlots(String prefix) {
 		String[] plots = Config.keys(prefix
 				+ Config.get("CUSTOM_PLOT_SUFFIX_PLOTS"));
-		Log.info("reading plot configs with prefix '" + prefix + "'");
 		String nameSuffix = Config.get("CUSTOM_PLOT_SUFFIX_NAME");
 		String valuesSuffix = Config.get("CUSTOM_PLOT_SUFFIX_VALUES");
 		String cdfSuffix = Config.get("CUSTOM_PLOT_SUFFIX_CDF");
