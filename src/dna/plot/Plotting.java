@@ -383,12 +383,18 @@ public class Plotting {
 							dPlotData[i] = PlotData.get(distribution, metric,
 									style, title + " @ " + timestamps[i], type);
 						}
-
-						plots.add(new Plot(dstDir, PlotFilenames
-								.getDistributionPlot(metric, distribution),
+						Plot p = new Plot(dstDir,
+								PlotFilenames.getDistributionPlot(metric,
+										distribution),
 								PlotFilenames.getDistributionGnuplotScript(
 										metric, distribution), distribution
-										+ " (" + type + ")", dPlotData));
+										+ " (" + type + ")", dPlotData);
+
+						// disable datetime for distribution plot
+						p.setPlotDateTime(false);
+
+						// add to plots
+						plots.add(p);
 					}
 
 					// generate cdf plots
@@ -401,12 +407,19 @@ public class Plotting {
 							cdfPlotData.setPlotAsCdf(true);
 							dPlotDataCDF[i] = cdfPlotData;
 						}
-						plots.add(new Plot(dstDir, PlotFilenames
-								.getDistributionCdfPlot(metric, distribution),
+						Plot p = new Plot(dstDir,
+								PlotFilenames.getDistributionCdfPlot(metric,
+										distribution),
 								PlotFilenames.getDistributionCdfGnuplotScript(
 										metric, distribution), "CDF of "
 										+ distribution + " (" + type + ")",
-								dPlotDataCDF));
+								dPlotDataCDF);
+
+						// disable datetime for distribution plot
+						p.setPlotDateTime(false);
+
+						// add to plots
+						plots.add(p);
 					}
 				}
 			}
@@ -431,8 +444,15 @@ public class Plotting {
 							PlotFilenames.getNodeValueListGnuplotScript(metric,
 									nodevaluelist), nodevaluelist + " (" + type
 									+ ")", nPlotData);
+
+					// disable datetime for nodevaluelist plot
+					nPlot.setPlotDateTime(false);
+
+					// set nvl sort options
 					nPlot.setNodeValueListOrder(order);
 					nPlot.setNodeValueListOrderBy(orderBy);
+
+					// add to plots
 					plots.add(nPlot);
 				}
 			}
@@ -515,6 +535,9 @@ public class Plotting {
 					// set data quantity
 					p.setDataQuantity(values.length);
 
+					// disable datetime for distribution plot
+					p.setPlotDateTime(false);
+
 					// add to plots
 					plots.add(p);
 				}
@@ -530,6 +553,9 @@ public class Plotting {
 
 					// set data quantity
 					pCdf.setDataQuantity(values.length);
+
+					// disable datetime for distribution plot
+					pCdf.setPlotDateTime(false);
 
 					// add to plots
 					plots.add(pCdf);
@@ -571,6 +597,9 @@ public class Plotting {
 						PlotFilenames.getNodeValueListGnuplotScript(
 								"custom.nvl", name), name + " (" + type + ")",
 						data);
+
+				// disable datetime for nodevaluelist plot
+				p.setPlotDateTime(false);
 
 				// set nvl sort options
 				p.setNodeValueListOrder(pc.getOrder());
