@@ -44,6 +44,12 @@ public class PlotConfig {
 		return plotAsCdf;
 	}
 
+	/** Returns the custom value plots created from config **/
+	public static ArrayList<PlotConfig> getCustomValuePlots() {
+		return PlotConfig.getCustomPlots(Config
+				.get("CUSTOM_PLOT_PREFIX_VALUES"));
+	}
+
 	/** Returns the custom statistic plots created from config **/
 	public static ArrayList<PlotConfig> getCustomStatisticPlots() {
 		return PlotConfig.getCustomPlots(Config
@@ -78,13 +84,7 @@ public class PlotConfig {
 	private static ArrayList<PlotConfig> getCustomPlots(String prefix) {
 		String[] plots = Config.keys(prefix
 				+ Config.get("CUSTOM_PLOT_SUFFIX_PLOTS"));
-
-		Log.infoSep();
-		Log.info("read plot id's:");
-		for (String s : plots) {
-			Log.info("\t" + s);
-		}
-
+		Log.info("reading plot configs with prefix '" + prefix + "'");
 		String nameSuffix = Config.get("CUSTOM_PLOT_SUFFIX_NAME");
 		String valuesSuffix = Config.get("CUSTOM_PLOT_SUFFIX_VALUES");
 		String cdfSuffix = Config.get("CUSTOM_PLOT_SUFFIX_CDF");
@@ -100,6 +100,16 @@ public class PlotConfig {
 			if (prefix.equals(Config.get("CUSTOM_PLOT_PREFIX_RUNTIMES"))) {
 				for (int i = 0; i < values.length; i++) {
 					domains[i] = Config.get("PLOT_CUSTOM_RUNTIME");
+				}
+			} else if (prefix.equals(Config.get("CUSTOM_PLOT_PREFIX_VALUES"))) {
+				for (int i = 0; i < values.length; i++) {
+					String[] split = values[i].split("\\.");
+					domains[i] = split[0];
+					String value = "";
+					for (int j = 1; j < split.length; j++) {
+						value += split[j];
+					}
+					values[i] = value;
 				}
 			}
 			boolean plotAsCdf = Config.getBoolean(prefix + s + cdfSuffix);
