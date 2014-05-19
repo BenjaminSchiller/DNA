@@ -133,7 +133,7 @@ public class Plotting {
 		}
 
 		Log.infoSep();
-		Log.info("plotting data from batch " + timestampFrom + " - "
+		Log.info("Plotting data from batch " + timestampFrom + " - "
 				+ timestampTo + " with stepsize " + stepSize + " for "
 				+ seriesData.length + " series to " + dstDir);
 		(new File(dstDir)).mkdirs();
@@ -257,8 +257,10 @@ public class Plotting {
 		// print memory usage
 		double mem1 = new Memory().getUsed();
 		Log.infoSep();
+		Log.info("");
 		Log.info("Finished first plotting attempt");
 		Log.info("\tused memory: " + mem1);
+		Log.info("");
 		Log.info("Erasing unsused data");
 
 		// free resources
@@ -269,6 +271,7 @@ public class Plotting {
 		double mem2 = new Memory().getUsed();
 		Log.info("\tremoved: " + (mem1 - mem2));
 		Log.info("\tused memory (new): " + mem2);
+		Log.info("");
 
 		// plot distributions
 		if (plotDistributions || plotNodeValues)
@@ -338,6 +341,7 @@ public class Plotting {
 		boolean singleFile = Config.getBoolean("GENERATION_BATCHES_AS_ZIP");
 		Log.infoSep();
 		Log.info("Sequentially plotting Distributions and / or NodeValueLists");
+		Log.info("");
 
 		// generate plots
 		List<Plot> plots = new LinkedList<Plot>();
@@ -345,6 +349,7 @@ public class Plotting {
 		// iterate over metrics and create plots
 		for (AggregatedMetric m : initBatch.getMetrics().getList()) {
 			String metric = m.getName();
+			Log.infoSep();
 			Log.info("Plotting metric " + metric);
 
 			// generate distribution plots
@@ -649,7 +654,6 @@ public class Plotting {
 			AggregatedMetricList metrics, String dstDir, String title,
 			PlotStyle style, PlotType type) throws IOException,
 			InterruptedException {
-		Log.infoSep();
 
 		// init list for plots
 		List<Plot> plots = new LinkedList<Plot>();
@@ -657,6 +661,7 @@ public class Plotting {
 		// generate single plots
 		for (AggregatedMetric m : metrics.getList()) {
 			String metric = m.getName();
+			Log.infoSep();
 			Log.info("Plotting metric " + metric);
 			for (AggregatedValue v : m.getValues().getList()) {
 				String value = v.getName();
