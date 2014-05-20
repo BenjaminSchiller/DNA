@@ -16,6 +16,11 @@ import dna.util.Log;
  */
 public class AggregatedBatch {
 
+	// read enumeration
+	public static enum BatchReadMode {
+		readAllValues, readOnlySingleValues, readOnlyDistAndNvl, readNoValues
+	};
+
 	// member variables
 	private long timestamp;
 	private AggregatedValueList stats;
@@ -97,7 +102,13 @@ public class AggregatedBatch {
 	}
 
 	public static AggregatedBatch read(String dir, long timestamp,
-			boolean readValues) throws IOException {
+			BatchReadMode batchReadMode) throws IOException {
+		boolean readValues;
+		if (batchReadMode.equals(BatchReadMode.readNoValues)
+				|| batchReadMode.equals(BatchReadMode.readOnlyDistAndNvl))
+			readValues = false;
+		else
+			readValues = true;
 		AggregatedValueList values = AggregatedValueList.read(dir,
 				Files.getValuesFilename(Config.get("BATCH_STATS")), readValues);
 		AggregatedRunTimeList generalRuntimes = AggregatedRunTimeList
@@ -107,17 +118,18 @@ public class AggregatedBatch {
 				Files.getRuntimesFilename(Config.get("BATCH_METRIC_RUNTIMES")),
 				readValues);
 		AggregatedMetricList metrics = AggregatedMetricList.read(dir,
-				readValues);
+				batchReadMode);
 		return new AggregatedBatch(timestamp, values, generalRuntimes,
 				metricRuntimes, metrics);
 	}
 
 	/** Reads the whole batch from a single zip file **/
 	public static AggregatedBatch readFromSingleFile(String fsDir,
-			long timestamp, String dir, boolean readValues) throws IOException {
+			long timestamp, String dir, BatchReadMode batchReadMode)
+			throws IOException {
 		SeriesGeneration.readFileSystem = ZipWriter.createBatchFileSystem(
 				fsDir, Config.get("SUFFIX_ZIP_FILE"), timestamp);
-		AggregatedBatch tempBatchData = read(dir, timestamp, readValues);
+		AggregatedBatch tempBatchData = read(dir, timestamp, batchReadMode);
 		SeriesGeneration.readFileSystem.close();
 		SeriesGeneration.readFileSystem = null;
 		return tempBatchData;

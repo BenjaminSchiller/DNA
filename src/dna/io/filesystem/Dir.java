@@ -97,6 +97,49 @@ public class Dir {
 				Config.get("PREFIX_BATCHDATA_DIR"), ""));
 	}
 
+	public static String[] getBatchesFromTo(String dir, long timestampFrom,
+			long timestampTo, long stepSize) {
+		// TODO: implement zipped batches support
+		String[] tempBatches = Dir.getBatches(dir);
+		long[] timestamps = new long[tempBatches.length];
+
+		// get timestamps
+		for (int i = 0; i < tempBatches.length; i++) {
+			String[] splits = tempBatches[i].split("\\.");
+			timestamps[i] = Long.parseLong(splits[splits.length - 1]);
+		}
+
+		// sort timestamps
+		Arrays.sort(timestamps);
+
+		// gather relevant batches
+		ArrayList<String> batchesList = new ArrayList<String>();
+		boolean firstBatch = true;
+		int counter = 0;
+		int firstBatchIndex = 0;
+		for (int i = 0; i < timestamps.length; i++) {
+			if (timestamps[i] < timestampFrom || timestamps[i] > timestampTo)
+				continue;
+			if (timestamps[i] >= timestampFrom) {
+				if (firstBatch) {
+					batchesList.add(Config.get("PREFIX_BATCHDATA_DIR")
+							+ timestamps[i]);
+					firstBatch = false;
+					firstBatchIndex = i;
+					counter = 1;
+				} else {
+					long offset = counter * stepSize;
+					if (i == firstBatchIndex + offset) {
+						batchesList.add(Config.get("PREFIX_BATCHDATA_DIR")
+								+ timestamps[i]);
+						counter++;
+					}
+				}
+			}
+		}
+		return batchesList.toArray(new String[batchesList.size()]);
+	}
+
 	/*
 	 * METRIC data
 	 */

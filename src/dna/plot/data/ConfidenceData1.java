@@ -1,15 +1,14 @@
 package dna.plot.data;
 
-import dna.plot.Gnuplot.PlotStyle;
-
 /**
  * @author benni
  * 
  */
 public class ConfidenceData1 extends PlotData {
 
-	public ConfidenceData1(String data, PlotStyle style, String title) {
-		super(data, style, title);
+	public ConfidenceData1(String data, String domain, PlotStyle style,
+			String title) {
+		super(data, domain, style, title);
 	}
 
 	@Override

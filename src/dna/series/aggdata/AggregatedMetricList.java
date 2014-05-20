@@ -3,6 +3,7 @@ package dna.series.aggdata;
 import java.io.IOException;
 
 import dna.io.filesystem.Dir;
+import dna.series.aggdata.AggregatedBatch.BatchReadMode;
 import dna.series.lists.List;
 
 /**
@@ -29,13 +30,13 @@ public class AggregatedMetricList extends List<AggregatedMetric> {
 		}
 	}
 
-	public static AggregatedMetricList read(String dir, boolean readValues)
-			throws IOException {
+	public static AggregatedMetricList read(String dir,
+			BatchReadMode batchReadMode) throws IOException {
 		String[] metrics = Dir.getMetrics(dir);
 		AggregatedMetricList list = new AggregatedMetricList(metrics.length);
 		for (String metric : metrics) {
 			list.add(AggregatedMetric.read(dir + metric + Dir.delimiter,
-					Dir.getMetricName(metric), readValues));
+					Dir.getMetricName(metric), batchReadMode));
 		}
 		return list;
 	}

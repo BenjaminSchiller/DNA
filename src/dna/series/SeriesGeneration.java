@@ -122,12 +122,12 @@ public class SeriesGeneration {
 		}
 		// aggregate all runs
 		if (aggregate) {
-		Log.infoSep();
+			Log.infoSep();
 
-		AggregatedSeries aSd = Aggregation.aggregateSeries(sd);
-		sd.setAggregation(aSd);
-		// end of aggregation
-		Log.infoSep();
+			AggregatedSeries aSd = Aggregation.aggregateSeries(sd);
+			sd.setAggregation(aSd);
+			// end of aggregation
+			Log.infoSep();
 		}
 		return sd;
 	}
@@ -216,8 +216,8 @@ public class SeriesGeneration {
 		}
 		if (write) {
 			if (!singleFile) {
-			initialData.write(Dir.getBatchDataDir(series.getDir(), run,
-					initialData.getTimestamp()));
+				initialData.write(Dir.getBatchDataDir(series.getDir(), run,
+						initialData.getTimestamp()));
 			} else {
 				try {
 					initialData.writeSingleFile(
@@ -226,7 +226,7 @@ public class SeriesGeneration {
 							Config.get("SUFFIX_ZIP_FILE"), Dir.delimiter);
 				} catch (IOException e) {
 					e.printStackTrace();
-		}
+				}
 			}
 		}
 
@@ -274,7 +274,7 @@ public class SeriesGeneration {
 						dirTemp = actualDir
 								.substring(0, actualDir.length() - 1)
 								+ Dir.tempSuffix + Dir.delimiter;
-			}
+					}
 
 					// rename directory
 					File srcDir = new File(dirTemp);
@@ -301,7 +301,7 @@ public class SeriesGeneration {
 							Thread.sleep(waitTime);
 						} catch (InterruptedException e) {
 							e.printStackTrace();
-		}
+						}
 					}
 
 					// rename
@@ -317,7 +317,7 @@ public class SeriesGeneration {
 					else
 						batchData.write(Dir.getBatchDataDir(series.getDir(),
 								run, batchData.getTimestamp()));
-	}
+				}
 			}
 
 			// call garbage collection
