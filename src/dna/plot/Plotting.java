@@ -279,6 +279,27 @@ public class Plotting {
 	 *            SeriesData to be plotted
 	 * @param dstDir
 	 *            Destination directory of the plots
+	 * @throws IOException
+	 *             Thrown by writer.
+	 * @throws InterruptedException
+	 *             Thrown by executing gnuplot.
+	 */
+	public static void plot(SeriesData[] seriesData, String dstDir)
+			throws IOException, InterruptedException {
+		// craft config
+		PlottingConfig config = new PlottingConfig(PlotFlag.plotAll);
+
+		// call plotting method
+		Plotting.plotFromTo(seriesData, dstDir, config);
+	}
+
+	/**
+	 * Plots the series to the destination dir.
+	 * 
+	 * @param seriesData
+	 *            SeriesData to be plotted
+	 * @param dstDir
+	 *            Destination directory of the plots
 	 * @param flags
 	 *            Flags that define which will be plotted.
 	 * @throws IOException
