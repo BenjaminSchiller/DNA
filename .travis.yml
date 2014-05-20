@@ -10,7 +10,7 @@ before_install:
 
 env:
   global:
-    - ANT_OPTS="-Xmx3072m -Xms1536m"
+    - ANT_OPTS="-Xmx3072m -Xms2048m -XX:+UseConcMarkSweepGC"
   matrix:
     - TESTASPECTJ=true
     - TESTASPECTJ=false
