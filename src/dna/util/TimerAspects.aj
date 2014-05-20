@@ -42,6 +42,7 @@ public aspect TimerAspects {
 			 || call(* Metric+.applyAfterBatch(Batch+))) && args(b) && target(metric);
 	pointcut metricApplicationPerUpdate(Metric metric, Update update) : (call(* Metric+.applyBeforeUpdate(Update+))
 			 || call(* Metric+.applyAfterUpdate(Update+))) && args(update) && target(metric);
+	pointcut metricApplicationRecomputation(Metric metric): call(* Metric+.compute()) && target(metric) && !cflow(initialMetricData());
 	pointcut aggregation(SeriesData sd): call(* Aggregation.aggregateSeries(SeriesData)) && args(sd);
 
 	pointcut profilerExecution(): execution(* Profiler.start*(..)) || execution(* Profiler.finish*(..));
@@ -256,6 +257,29 @@ public aspect TimerAspects {
 		map.put(wholeMetricsTimer);
 		return res;
 	}
+	
+	boolean around(Metric metric): metricApplicationRecomputation(metric) {
+		resetList.add(metric.getName());
+		Timer singleMetricTimer = map.get(metric.getName());
+		if (singleMetricTimer == null) {
+			singleMetricTimer = new Timer(metric.getName());
+		}
+
+		resetList.add(SeriesStats.metricsRuntime);
+		Timer wholeMetricsTimer = map.get(SeriesStats.metricsRuntime);
+		if (wholeMetricsTimer == null) {
+			wholeMetricsTimer = new Timer(SeriesStats.metricsRuntime);
+		}
+
+		singleMetricTimer.restart();
+		wholeMetricsTimer.restart();
+		boolean res = proceed(metric);
+		singleMetricTimer.end();
+		wholeMetricsTimer.end();
+		map.put(singleMetricTimer);
+		map.put(wholeMetricsTimer);
+		return res;
+	}	
 	
 	AggregatedSeries around(SeriesData sd): aggregation(sd) {
 		Timer aggregationTimer = new Timer("aggregation");
