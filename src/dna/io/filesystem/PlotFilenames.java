@@ -100,6 +100,16 @@ public class PlotFilenames {
 				+ Config.get("SUFFIX_DATA");
 	}
 
+	public static String getRuntimesPlotFile(String name) {
+		return Config.get("PREFIX_RUNTIMES_PLOT") + name;
+	}
+
+	public static String getRuntimesPlotFileCDF(String name) {
+		return Config.get("PREFIX_RUNTIMES_PLOT") + name
+				+ Config.get("PLOT_DELIMITER")
+				+ Config.get("PLOT_DISTRIBUTION_CDF");
+	}
+
 	public static String getRuntimesGnuplotScript(Values v) {
 		return Config.get("PREFIX_RUNTIMES_GNUPLOT_SCRIPT") + v.getName()
 				+ Config.get("SUFFIX_GNUPLOT");
@@ -107,6 +117,13 @@ public class PlotFilenames {
 
 	public static String getRuntimesGnuplotScript(String name) {
 		return Config.get("PREFIX_RUNTIMES_GNUPLOT_SCRIPT") + name
+				+ Config.get("SUFFIX_GNUPLOT");
+	}
+
+	public static String getRuntimesGnuplotScriptCDF(String name) {
+		return Config.get("PREFIX_RUNTIMES_GNUPLOT_SCRIPT") + name
+				+ Config.get("PLOT_DELIMITER")
+				+ Config.get("PLOT_DISTRIBUTION_CDF")
 				+ Config.get("SUFFIX_GNUPLOT");
 	}
 
@@ -164,5 +181,14 @@ public class PlotFilenames {
 	public static String getNodeValueListPlot(String metric,
 			String nodevaluelist) {
 		return metric + Config.get("PLOT_DELIMITER") + nodevaluelist;
+	}
+
+	public static String getCombinationPlot(String value) {
+		return Config.get("PREFIX_COMBINATION_METRIC_PLOT") + value;
+	}
+
+	public static String getCombinationGnuplotScript(String value) {
+		return Config.get("PREFIX_COMBINATION_METRIC_GNUPLOT_SCRIPT") + value
+				+ Config.get("SUFFIX_GNUPLOT");
 	}
 }

@@ -3,6 +3,7 @@ package dna.series.aggdata;
 import java.io.IOException;
 
 import dna.io.filesystem.Files;
+import dna.series.aggdata.AggregatedBatch.BatchReadMode;
 import dna.series.lists.ListItem;
 import dna.util.Config;
 
@@ -71,15 +72,44 @@ public class AggregatedMetric implements ListItem {
 	}
 
 	public static AggregatedMetric read(String dir, String name,
-			boolean readValues) throws IOException {
+			BatchReadMode batchReadMode) throws IOException {
+		boolean readSingleValues;
+		boolean readDistributions;
+		boolean readNodeValues;
+		switch (batchReadMode) {
+		case readAllValues:
+			readSingleValues = true;
+			readDistributions = true;
+			readNodeValues = true;
+			break;
+		case readOnlySingleValues:
+			readSingleValues = true;
+			readDistributions = false;
+			readNodeValues = false;
+			break;
+		case readOnlyDistAndNvl:
+			readSingleValues = false;
+			readDistributions = true;
+			readNodeValues = true;
+			break;
+		case readNoValues:
+			readSingleValues = false;
+			readDistributions = false;
+			readNodeValues = false;
+			break;
+		default:
+			readSingleValues = true;
+			readDistributions = true;
+			readNodeValues = true;
+			break;
+		}
 		AggregatedValueList values = AggregatedValueList.read(dir,
 				Files.getValuesFilename(Config.get("METRIC_DATA_VALUES")),
-				readValues);
+				readSingleValues);
 		AggregatedDistributionList distributions = AggregatedDistributionList
-				.read(dir, readValues);
+				.read(dir, readDistributions);
 		AggregatedNodeValueListList nodevalues = AggregatedNodeValueListList
-				.read(dir, readValues);
+				.read(dir, readNodeValues);
 		return new AggregatedMetric(name, values, distributions, nodevalues);
 	}
-
 }

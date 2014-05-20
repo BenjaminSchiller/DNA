@@ -9,255 +9,355 @@ import dna.plot.data.PlotData;
 import dna.plot.data.PlotData.DistributionPlotType;
 import dna.plot.data.PlotData.NodeValueListOrder;
 import dna.plot.data.PlotData.NodeValueListOrderBy;
-import dna.series.aggdata.AggregatedData;
-import dna.series.aggdata.AggregatedDistribution;
+import dna.series.aggdata.AggregatedBatch;
+import dna.series.aggdata.AggregatedMetric;
 import dna.series.aggdata.AggregatedNodeValueList;
+import dna.series.aggdata.AggregatedRunTimeList;
 import dna.series.aggdata.AggregatedValue;
 import dna.util.Config;
 import dna.util.Execute;
 import dna.util.Log;
 
+/**
+ * The plot class is used to create a gnuplot script file, add data to it and
+ * execute it. Each object of the PlotData[] data field represents one line in
+ * the plot.
+ * 
+ * @author RWilmes
+ * @date 19.05.2014
+ */
 public class Plot {
 
-	// default values
-	private String dir = Config.get("GNUPLOT_DIR");
-
-	private String filename = Config.get("GNUPLOT_FILENAME");
-
-	private String scriptFilename = Config.get("GNUPLOT_SCRIPTFILENAME");
-
-	// private variables
+	// plot data
 	private PlotData[] data;
 
+	// writer
+	private String dir;
+	private String plotFilename;
+	private String scriptFilename;
+	private Writer fileWriter;
+	private int dataWriteCounter;
+	private int dataQuantity;
+
+	// plot styles
+	private String title;
+	private String dateTime;
+	private boolean plotDateTime;
 	private DistributionPlotType distPlotType;
-
 	private NodeValueListOrderBy orderBy;
-
 	private NodeValueListOrder sortOrder;
 
-	// constructors
-	public Plot(PlotData[] data, String dir, String filename,
-			String scriptFilename) {
-		this(data, dir, filename, scriptFilename, Config
-				.getDistributionPlotType("GNUPLOT_DEFAULT_DIST_PLOTTYPE"),
-				Config.getNodeValueListOrderBy("GNUPLOT_DEFAULT_NVL_ORDERBY"),
-				Config.getNodeValueListOrder("GNUPLOT_DEFAULT_NVL_ORDER"));
-	}
-
-	public Plot(PlotData[] data, String dir, String filename,
-			String scriptFilename, DistributionPlotType distPlotType) {
-		this(data, dir, filename, scriptFilename, distPlotType, Config
-				.getNodeValueListOrderBy("GNUPLOT_DEFAULT_NVL_ORDERBY"), Config
-				.getNodeValueListOrder("GNUPLOT_DEFAULT_NVL_ORDER"));
-	}
-
-	public Plot(PlotData[] data, String dir, String filename,
-			String scriptFilename, DistributionPlotType distPlotType,
-			NodeValueListOrderBy orderBy, NodeValueListOrder sortOrder) {
-		this.data = data;
+	/**
+	 * Creates a plot object which will can written to a gnuplot script file.
+	 * Data to be plotted can be added via appendData methods.
+	 * 
+	 * @param dir
+	 *            Destination directory of the plot and script file.
+	 * @param plotFilename
+	 *            Filename of the plotted file.
+	 * @param scriptFilename
+	 *            Filename of the scriptfile.
+	 * @param data
+	 *            Array of PlotData objects, each representing a type of "data",
+	 *            which will be plotted into the same plot.
+	 * @throws IOException
+	 *             Might be thrown by the writer.
+	 */
+	public Plot(String dir, String plotFilename, String scriptFilename,
+			String title, PlotData[] data) throws IOException {
 		this.dir = dir;
-		this.filename = filename;
+		this.plotFilename = plotFilename;
 		this.scriptFilename = scriptFilename;
-		this.distPlotType = distPlotType;
-		this.orderBy = orderBy;
-		this.sortOrder = sortOrder;
+		this.title = title;
+		this.data = data;
+
+		// load default values
+		this.sortOrder = Config
+				.getNodeValueListOrder("GNUPLOT_DEFAULT_NVL_ORDER");
+		this.orderBy = Config
+				.getNodeValueListOrderBy("GNUPLOT_DEFAULT_NVL_ORDERBY");
+		this.dateTime = Config.get("GNUPLOT_DATETIME");
+		this.plotDateTime = Config.getBoolean("GNUPLOT_PLOTDATETIME");
+
+		// init writer
+		this.fileWriter = new Writer(dir, scriptFilename);
+		this.dataWriteCounter = 0;
+		this.dataQuantity = 1;
 	}
 
-	/**
-	 * Writes the gnuplot script for an array of AggregatedNodeValueList objects
-	 * to the destination directory
-	 * 
-	 * @param dir
-	 *            destination directory
-	 * @param filename
-	 *            script filename
-	 * @param data
-	 *            input data gathered in Plotting.plotDistribution
-	 * @param sortBy
-	 *            argument the NodeValueList will be sorted by
-	 * @param sortOrder
-	 *            sorting order
-	 * @throws IOException
-	 *             thrown by the writer
-	 */
-	public void writeScript(String dir, String filename,
-			AggregatedNodeValueList[] data) throws IOException {
-		Writer w = new Writer(dir, filename);
+	// new methods
+	public void writeScriptHeader() throws IOException {
+		Writer w = this.fileWriter;
 
 		// write script header
 		List<String> script = this.getScript();
 		for (String line : script) {
 			w.writeln(line);
 		}
-
-		// write script data
-		if (data[0].getSortIndex() == null) {
-			for (int i = 0; i < data.length; i++) {
-				AggregatedValue[] tempValues = data[i].getValues();
-
-				for (int j = 0; j < tempValues.length; j++) {
-					String temp = "" + j;
-					double[] values = tempValues[j].getValues();
-					for (int k = 0; k < values.length; k++) {
-						temp += Config.get("PLOTDATA_DELIMITER") + values[k];
-					}
-					w.writeln(temp);
-				}
-				// end-of-file indicates the end of this nodevaluelist data
-				w.writeln("EOF");
-			}
-		} else {
-			for (int i = 0; i < data.length; i++) {
-				AggregatedValue[] tempValues = data[i].getValues();
-
-				for (int j = 0; j < tempValues.length; j++) {
-					String temp = "" + j;
-					double[] values = tempValues[data[i].getSortIndex()[j]]
-							.getValues();
-					for (int k = 0; k < values.length; k++) {
-						temp += Config.get("PLOTDATA_DELIMITER") + values[k];
-					}
-					w.writeln(temp);
-				}
-				// end-of-file indicates the end of this nodevaluelist data
-				w.writeln("EOF");
-			}
-		}
-		w.close();
 	}
 
-	/**
-	 * Writes the gnuplot script for an array of AggregatedDistribution objects
-	 * to the destination directory
-	 * 
-	 * @param dir
-	 *            destination directory
-	 * @param filename
-	 *            script filename
-	 * @param data
-	 *            input data gathered in Plotting.plotDistribution
-	 * @throws IOException
-	 *             thrown by the writer
-	 */
-	public void writeScript(String dir, String filename,
-			AggregatedDistribution[] data) throws IOException {
-		Writer w = new Writer(dir, filename);
-
-		// write script header
-		switch (this.distPlotType) {
-		case distOnly:
-			List<String> scriptDist = this.getScript(this.distPlotType);
-			for (String line : scriptDist) {
-				w.writeln(line);
-			}
-			break;
-		case cdfOnly:
-			List<String> scriptCdf = this.getScript(this.distPlotType);
-			for (String line : scriptCdf) {
-				w.writeln(line);
-			}
-			break;
-		default:
-			Log.warn("distPlotType variable not set");
-		}
-
-		// write script data
-		for (int i = 0; i < data.length; i++) {
-			AggregatedValue[] tempValues = data[i].getValues();
-
-			for (int j = 0; j < tempValues.length; j++) {
-				double[] values = tempValues[j].getValues();
-				String temp = "" + values[0];
-				for (int k = 1; k < values.length; k++) {
-					temp += Config.get("PLOTDATA_DELIMITER") + values[k];
-				}
-				w.writeln(temp);
-			}
-			// end-of-file indicates the end of this distribution data
-			w.writeln("EOF");
-		}
-		w.close();
+	// append data methods
+	private void appendData(AggregatedValue[] values) throws IOException {
+		for (int i = 0; i < values.length; i++)
+			this.appendData(values[i], "");
+		this.appendEOF();
 	}
 
-	/**
-	 * Writes the gnuplot script for an array of AggregatedValue objects to the
-	 * destination directory
-	 * 
-	 * @param dir
-	 *            destination directory
-	 * @param filename
-	 *            script filename
-	 * @param data
-	 *            input data gathered in Plotting.plotValue
-	 * @throws IOException
-	 *             thrown by the writer
-	 */
-	public void writeScript(String dir, String filename, AggregatedValue[] data)
+	private void appendDataWithIndex(AggregatedValue[] values)
 			throws IOException {
-		Writer w = new Writer(dir, filename);
+		for (int i = 0; i < values.length; i++)
+			this.appendData(values[i], "" + i);
+		this.appendEOF();
+	}
 
-		// write script header
-		List<String> script = this.getScript();
-		for (String line : script) {
-			w.writeln(line);
+	private void appendData(AggregatedValue value, String timestamp)
+			throws IOException {
+		Writer w = this.fileWriter;
+		String temp = "" + timestamp;
+
+		double[] values;
+		if (value == null)
+			values = new double[] { 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+		else
+			values = value.getValues();
+		for (int k = 0; k < values.length; k++) {
+			if (temp.equals(""))
+				temp += values[k];
+			else
+				temp += Config.get("PLOTDATA_DELIMITER") + values[k];
 		}
+		w.writeln(temp);
+	}
 
-		// write script data
-		for (int i = 0; i < data.length; i++) {
-			String temp = "" + i;
+	private void appendData(AggregatedValue value, double timestamp)
+			throws IOException {
+		this.appendData(value, "" + timestamp);
+	}
 
-			for (int j = 0; j < data[i].getValues().length; j++) {
-				temp += Config.get("PLOTDATA_DELIMITER")
-						+ data[i].getValues()[j];
-			}
-			w.writeln(temp);
-		}
-		// end-of-file indicates the end of this value data
-		w.writeln("EOF");
-		w.close();
+	private void appendEOF() throws IOException {
+		this.dataWriteCounter++;
+		this.fileWriter.writeln("EOF");
 	}
 
 	/**
-	 * Writes the gnuplot script for runtime data of a whole series to the
-	 * destination directory
+	 * Main method to add data to the plot. The data to be added will be
+	 * identified by its name and domain.
 	 * 
-	 * @param dir
-	 *            destination directory
-	 * @param filename
-	 *            script filename
-	 * @param data
-	 *            input data gathered in Plotting.plotRuntimes
+	 * Note: Convention of domains:
+	 * 
+	 * Statistical values : Config.get("PLOT_STATISTICS")
+	 * 
+	 * General Runtimes : Config.get("PLOT_GENERALRUNTIMES")
+	 * 
+	 * Metric Runtimes: Config.get("PLOT_METRICRUNTIMES")
+	 * 
+	 * If it can be either a general or metric runtime:
+	 * Config.get("PLOT_CUSTOM_RUNTIME")
+	 * 
+	 * Metric Values, Distributions, NodeValueLists: name of the metric
+	 * 
+	 * @param name
+	 *            Name of the value.
+	 * @param domain
+	 *            Domain of the value.
+	 * @param batch
+	 *            Batch the data will be taken from.
+	 * @param addAsCDF
+	 *            If its a distribution and shall be plotted as cdf
 	 * @throws IOException
-	 *             thrown by the writer
+	 *             Thrown by the writer.
 	 */
-	public void writeScript(String dir, String filename,
-			AggregatedValue[][] data, long[][] timestamps) throws IOException {
-		Writer w = new Writer(dir, filename);
-
-		// write script header
-		List<String> script = this.getScript();
-		for (String line : script) {
-			w.writeln(line);
-		}
-
-		// write script data
-		for (int i = 0; i < data.length; i++) {
-			for (int j = 0; j < data[i].length; j++) {
-				String temp = "" + timestamps[i][j];
-				for (int k = 0; k < data[i][j].getValues().length; k++) {
-					temp += Config.get("PLOTDATA_DELIMITER")
-							+ data[i][j].getValues()[k];
+	private void addData(String name, String domain, AggregatedBatch batch,
+			boolean addAsCDF) throws IOException {
+		double timestamp = (double) batch.getTimestamp();
+		// figure out where to get the data from
+		if (domain.equals(Config.get("PLOT_STATISTICS"))) {
+			this.appendData(batch.getValues().get(name), timestamp);
+		} else if (domain.equals(Config.get("PLOT_METRICRUNTIMES"))) {
+			this.appendData(batch.getMetricRuntimes().get(name), timestamp);
+		} else if (domain.equals(Config.get("PLOT_GENERALRUNTIMES"))) {
+			this.appendData(batch.getGeneralRuntimes().get(name), timestamp);
+		} else if (domain.equals(Config.get("PLOT_CUSTOM_RUNTIME"))) {
+			if (batch.getGeneralRuntimes().getNames().contains(name))
+				this.appendData(batch.getGeneralRuntimes().get(name), timestamp);
+			else if (batch.getMetricRuntimes().getNames().contains(name))
+				this.appendData(batch.getMetricRuntimes().get(name), timestamp);
+		} else {
+			if (batch.getMetrics().getNames().contains(domain)) {
+				AggregatedMetric m = batch.getMetrics().get(domain);
+				if (m.getDistributions().getNames().contains(name)) {
+					AggregatedValue[] values = m.getDistributions().get(name)
+							.getValues();
+					if (addAsCDF) {
+						AggregatedValue[] tempValues = new AggregatedValue[values.length];
+						for (int i = 0; i < tempValues.length; i++) {
+							double[] tempV = new double[values[i].getValues().length];
+							System.arraycopy(values[i].getValues(), 0, tempV,
+									0, values[i].getValues().length);
+							tempValues[i] = new AggregatedValue(
+									values[i].getName(), tempV);
+						}
+						for (int j = 1; j < tempValues.length; j++) {
+							for (int k = 1; k < tempValues[j].getValues().length; k++) {
+								tempValues[j].getValues()[k] += tempValues[j - 1]
+										.getValues()[k];
+							}
+						}
+						this.appendData(tempValues);
+					} else {
+						this.appendData(values);
+					}
+				} else if (m.getNodeValues().getNames().contains(name)) {
+					if (this.orderBy.equals(NodeValueListOrderBy.index)) {
+						this.appendDataWithIndex(m.getNodeValues().get(name)
+								.getValues());
+					} else {
+						AggregatedNodeValueList nvl = m.getNodeValues().get(
+								name);
+						nvl.setsortIndex(this.orderBy, this.sortOrder);
+						AggregatedValue[] values = nvl.getValues();
+						AggregatedValue[] tempValues = new AggregatedValue[values.length];
+						int index = 0;
+						for (int i : nvl.getSortIndex()) {
+							double[] tempV = new double[values[i].getValues().length];
+							System.arraycopy(values[i].getValues(), 0, tempV,
+									0, values[i].getValues().length);
+							tempValues[index] = new AggregatedValue(
+									values[i].getName(), tempV);
+							index++;
+						}
+						this.appendDataWithIndex(tempValues);
+					}
+				} else if (m.getValues().getNames().contains(name)) {
+					this.appendData(m.getValues().get(name), timestamp);
+				} else {
+					Log.warn("problem when adding data to plot "
+							+ this.scriptFilename + ". Value " + name
+							+ " was not found in domain " + domain
+							+ " of batch." + timestamp);
 				}
-				w.writeln(temp);
+			} else {
+				Log.warn("problem when adding data to plot "
+						+ this.scriptFilename + ". domain " + domain
+						+ " not found in batch." + timestamp);
 			}
-			// end-of-file indicates the end of this runtime data
-			w.writeln("EOF");
 		}
-		w.close();
 	}
 
-	protected List<String> getScript() {
-		return this.getScript(null);
+	/**
+	 * Adds data from one batch to the plot. Used for distribution and
+	 * nodevaluelist plots, when batches will be read and handed over
+	 * sequentially
+	 **/
+	public void addDataSequentially(AggregatedBatch batchData)
+			throws IOException {
+		String name = this.data[dataWriteCounter].getName();
+		String domain = this.data[dataWriteCounter].getDomain();
+		if (this.data[dataWriteCounter].isPlotAsCdf())
+			this.addData(name, domain, batchData, true);
+		else
+			this.addData(name, domain, batchData, false);
+	}
+
+	/** Adds data to the plot **/
+	public void addData(AggregatedBatch[] batchData) throws IOException {
+		for (int i = 0; i < this.data.length; i++) {
+			String name = this.data[i].getName();
+			String domain = this.data[i].getDomain();
+			for (int j = 0; j < batchData.length; j++) {
+				this.addData(name, domain, batchData[j], false);
+			}
+			this.appendEOF();
+		}
+	}
+
+	/** Adds data from runtimes as CDF's **/
+	public void addDataFromRuntimesAsCDF(AggregatedBatch[] batchData)
+			throws IOException {
+		for (int i = 0; i < this.data.length; i++) {
+			String name = this.data[i].getName();
+			String domain = this.data[i].getDomain();
+			AggregatedBatch prevBatch = batchData[0];
+			AggregatedBatch tempBatch;
+			for (int j = 0; j < batchData.length; j++) {
+				if (j > 0) {
+					tempBatch = Plot.sumRuntimes(batchData[j], prevBatch);
+				} else {
+					tempBatch = batchData[j];
+				}
+				this.addData(name, domain, tempBatch, false);
+				prevBatch = tempBatch;
+			}
+			this.appendEOF();
+		}
+	}
+
+	/**
+	 * Returns a new AggregatedBatch, which equals b1, except that all runtime
+	 * values equal the sum of the runtimes of b1 and b2.
+	 * 
+	 * @param b1
+	 *            First runtime, will be cloned and returned with the sum of b2.
+	 * @param b2
+	 *            Will be added to b1.
+	 * @return New AggregatedBatch, equalling b1, except for the runtime values.
+	 */
+	private static AggregatedBatch sumRuntimes(AggregatedBatch b1,
+			AggregatedBatch b2) {
+		AggregatedRunTimeList genRuntimes = new AggregatedRunTimeList(b1
+				.getGeneralRuntimes().getName(), b1.getGeneralRuntimes().size());
+		AggregatedRunTimeList metRuntimes = new AggregatedRunTimeList(b1
+				.getMetricRuntimes().getName(), b1.getMetricRuntimes().size());
+		for (String gen : b1.getGeneralRuntimes().getNames()) {
+			AggregatedValue v1 = b1.getGeneralRuntimes().get(gen);
+			AggregatedValue v2 = b2.getGeneralRuntimes().get(gen);
+
+			double[] values3 = new double[v1.getValues().length];
+
+			for (int i = 0; i < v1.getValues().length; i++) {
+				double[] values2;
+				if (v2 == null)
+					values2 = new double[] { 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+				else
+					values2 = v2.getValues();
+				values3[i] = 0;
+				values3[i] += v1.getValues()[i] + values2[i];
+			}
+
+			genRuntimes.add(new AggregatedValue(v1.getName(), values3));
+		}
+		for (String met : b1.getMetricRuntimes().getNames()) {
+			AggregatedValue v1 = b1.getMetricRuntimes().get(met);
+			AggregatedValue v2 = b2.getMetricRuntimes().get(met);
+
+			double[] values3 = new double[v1.getValues().length];
+
+			for (int i = 0; i < v1.getValues().length; i++) {
+				double[] values2;
+				if (v2 == null)
+					values2 = new double[] { 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+				else
+					values2 = v2.getValues();
+				values3[i] = 0;
+				values3[i] += v1.getValues()[i] + values2[i];
+			}
+
+			metRuntimes.add(new AggregatedValue(v1.getName(), values3));
+		}
+
+		// return new crafted batch
+		return new AggregatedBatch(b1.getTimestamp(), b1.getValues(),
+				genRuntimes, metRuntimes, b1.getMetrics());
+	}
+
+	/** Closes the fileWriter of the plot **/
+	public void close() throws IOException {
+		if (this.dataWriteCounter != this.data.length)
+			Log.warn("Unexpected number of plotdata written to file "
+					+ this.dir + this.scriptFilename + ". Expected: "
+					+ this.data.length + "  Written: " + this.dataWriteCounter);
+		this.fileWriter.close();
+		this.fileWriter = null;
 	}
 
 	/**
@@ -265,11 +365,11 @@ public class Plot {
 	 * 
 	 * @return the header part of the gnuplot script
 	 */
-	protected List<String> getScript(DistributionPlotType distPlotType) {
+	protected List<String> getScript() {
 		List<String> script = new LinkedList<String>();
 
 		script.add("set terminal " + Config.get("GNUPLOT_TERMINAL"));
-		script.add("set output \"" + this.dir + this.filename + "."
+		script.add("set output \"" + this.dir + this.plotFilename + "."
 				+ Config.get("GNUPLOT_EXTENSION") + "\"");
 		if (!Config.get("GNUPLOT_KEY").equals("null")) {
 			script.add("set key " + Config.get("GNUPLOT_KEY"));
@@ -277,8 +377,8 @@ public class Plot {
 		if (Config.getBoolean("GNUPLOT_GRID")) {
 			script.add("set grid");
 		}
-		if (!Config.get("GNUPLOT_TITLE").equals("null")) {
-			script.add("set title \"" + Config.get("GNUPLOT_TITLE") + "\"");
+		if (this.title != null) {
+			script.add("set title \"" + this.title + "\"");
 		}
 		if (!Config.get("GNUPLOT_XLABEL").equals("null")) {
 			script.add("set xlabel \"" + Config.get("GNUPLOT_XLABEL") + "\"");
@@ -300,9 +400,9 @@ public class Plot {
 		} else if (Config.getBoolean("GNUPLOT_YLOGSCALE")) {
 			script.add("set logscale y");
 		}
-		if (Config.getBoolean("GNUPLOT_PLOTDATETIME")) {
+		if (this.plotDateTime) {
 			script.add("set xdata time");
-			script.add("set timeft " + Config.get("GNUPLOT_DATETIME"));
+			script.add("set timefmt " + '"' + this.dateTime + '"');
 		}
 
 		script.add("set style " + Config.get("GNUPLOT_STYLE"));
@@ -310,7 +410,7 @@ public class Plot {
 
 		for (int i = 0; i < this.data.length; i++) {
 			String line = "";
-			if (distPlotType == null)
+			if (this.distPlotType == null)
 				line = this.data[i].getEntry(i + 1,
 						Config.getInt("GNUPLOT_LW"),
 						Config.getDouble("GNUPLOT_XOFFSET") * i,
@@ -319,7 +419,8 @@ public class Plot {
 				line = this.data[i].getEntry(i + 1,
 						Config.getInt("GNUPLOT_LW"),
 						Config.getDouble("GNUPLOT_XOFFSET") * i,
-						Config.getDouble("GNUPLOT_YOFFSET") * i, distPlotType);
+						Config.getDouble("GNUPLOT_YOFFSET") * i,
+						this.distPlotType);
 			if (i == 0) {
 				line = "plot " + line;
 			}
@@ -331,53 +432,15 @@ public class Plot {
 		return script;
 	}
 
-	/**
-	 * generates the gnuplot script depending on the type of the given inputData
-	 * 
-	 * @param inputData
-	 *            data to be plotted
-	 * @throws IOException
-	 *             thrown by the writer in Plot.writeScript or in Execute.exec
-	 * @throws InterruptedException
-	 *             thrown in Execute.exec
-	 */
-	public void generate(AggregatedData[] inputData) throws IOException,
-			InterruptedException {
-		Log.info("  => \"" + this.filename + "\" in " + this.dir);
-		if (inputData[0] instanceof AggregatedValue)
-			this.writeScript(this.dir, this.scriptFilename,
-					(AggregatedValue[]) inputData);
-		if (inputData[0] instanceof AggregatedDistribution)
-			this.writeScript(this.dir, this.scriptFilename,
-					(AggregatedDistribution[]) inputData);
-		if (inputData[0] instanceof AggregatedNodeValueList)
-			this.writeScript(this.dir, this.scriptFilename,
-					(AggregatedNodeValueList[]) inputData);
+	/** Executes the gnuplot script **/
+	public void execute() throws IOException, InterruptedException {
 		Execute.exec(Config.get("GNUPLOT_PATH") + " " + this.dir
 				+ this.scriptFilename, true);
 	}
 
-	/**
-	 * generates the gnuplot script for runtimes
-	 * 
-	 * @param inputData
-	 *            2-dimensional array of AggregatedValue objects created in
-	 *            Plotting.plotRuntimes
-	 * @throws IOException
-	 *             thrown by the writer in Plot.writeScript or in Execute.exec
-	 * @throws InterruptedException
-	 *             thrown in Execute.exec
-	 */
-	public void generate(AggregatedValue[][] inputData, long[][] timestamps)
-			throws IOException, InterruptedException {
-		Log.info("  => \"" + this.filename + "\" in " + this.dir);
-		this.writeScript(this.dir, this.scriptFilename, inputData, timestamps);
-		Execute.exec(Config.get("GNUPLOT_PATH") + " " + this.dir
-				+ this.scriptFilename, true);
-	}
-
+	// setters and getters
 	public void setTitle(String title) {
-		Config.overwrite("GNUPLOT_TITLE", title);
+		this.title = title;
 	}
 
 	// datetime examples:
@@ -389,10 +452,42 @@ public class Plot {
 	// 02:45:03 . %H:%M:%S "%H" . 24-hour
 	// 1076909172 . %s . seconds since 1/1/1970 00:00
 	public void setDateTime(String dateTime) {
-		Config.overwrite("GNUPLOT_DATETIME", dateTime);
+		this.dateTime = dateTime;
+	}
+
+	public String getDateTime() {
+		return dateTime;
 	}
 
 	public void setPlotDateTime(boolean plotDateTime) {
-		Config.overwrite("GNUPLOT_PLOTDATETIME", Boolean.toString(plotDateTime));
+		this.plotDateTime = plotDateTime;
+	}
+
+	public boolean isPlotDateTime() {
+		return plotDateTime;
+	}
+
+	public void setNodeValueListOrder(NodeValueListOrder order) {
+		this.sortOrder = order;
+	}
+
+	public NodeValueListOrder getNodeValueListSortOrder() {
+		return this.sortOrder;
+	}
+
+	public void setNodeValueListOrderBy(NodeValueListOrderBy orderBy) {
+		this.orderBy = orderBy;
+	}
+
+	public NodeValueListOrderBy getNodeValueListOrderBy() {
+		return this.orderBy;
+	}
+
+	public int getDataQuantity() {
+		return dataQuantity;
+	}
+
+	public void setDataQuantity(int dataQuantity) {
+		this.dataQuantity = dataQuantity;
 	}
 }

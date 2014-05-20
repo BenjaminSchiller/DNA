@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 import dna.io.filesystem.Dir;
+import dna.series.aggdata.AggregatedBatch.BatchReadMode;
 import dna.util.Config;
 
 /**
@@ -47,13 +48,13 @@ public class AggregatedSeries {
 	}
 
 	public static AggregatedSeries read(String dir, String name,
-			boolean readValues) throws IOException {
+			BatchReadMode batchReadMode) throws IOException {
 		return read(dir, name, Dir.getBatches(Dir.getAggregationDataDir(dir)),
-				readValues);
+				batchReadMode);
 	}
 
 	private static AggregatedSeries read(String dir, String name,
-			String[] batches, boolean readValues) throws IOException {
+			String[] batches, BatchReadMode batchReadMode) throws IOException {
 		String tempDir = Dir.getAggregationDataDir(dir);
 		AggregatedBatch[] aggBatches = new AggregatedBatch[batches.length];
 		boolean singleFile = Config.getBoolean("GENERATION_BATCHES_AS_ZIP");
@@ -62,11 +63,11 @@ public class AggregatedSeries {
 			long timestamp = Dir.getTimestamp(batches[i]);
 			if (singleFile)
 				aggBatches[i] = AggregatedBatch.readFromSingleFile(tempDir,
-						timestamp, Dir.delimiter, readValues);
+						timestamp, Dir.delimiter, batchReadMode);
 			else
 				aggBatches[i] = AggregatedBatch.read(
 						Dir.getAggregationBatchDir(dir, timestamp), timestamp,
-						readValues);
+						batchReadMode);
 		}
 		return new AggregatedSeries(aggBatches);
 	}
@@ -74,10 +75,10 @@ public class AggregatedSeries {
 	/** Reads only selected batches with a given stepSize **/
 	public static AggregatedSeries readFromTo(String dir, String name,
 			long timestampFrom, long timestampTo, long stepSize,
-			boolean readValues) throws IOException {
+			BatchReadMode batchReadMode) throws IOException {
 		if (timestampTo == Long.MAX_VALUE && stepSize == 1) {
 			// if read all batches -> use normal method
-			return AggregatedSeries.read(dir, name, readValues);
+			return AggregatedSeries.read(dir, name, batchReadMode);
 		}
 
 		String tempDir = Dir.getAggregationDataDir(dir);
@@ -121,6 +122,6 @@ public class AggregatedSeries {
 		}
 		String[] batches = batchesList.toArray(new String[batchesList.size()]);
 
-		return read(dir, name, batches, readValues);
+		return read(dir, name, batches, batchReadMode);
 	}
 }
