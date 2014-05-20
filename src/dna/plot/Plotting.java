@@ -292,6 +292,23 @@ public class Plotting {
 		// call plotting method
 		Plotting.plotFromTo(seriesData, dstDir, config);
 	}
+	
+	/**
+	 * Plots the series to the destination dir.
+	 * 
+	 * @param seriesData
+	 *            SeriesData to be plotted
+	 * @param dstDir
+	 *            Destination directory of the plots
+	 * @throws IOException
+	 *             Thrown by writer.
+	 * @throws InterruptedException
+	 *             Thrown by executing gnuplot.
+	 */
+	public static void plot(SeriesData seriesData, String dstDir)
+			throws IOException, InterruptedException {
+		Plotting.plot(new SeriesData[] {seriesData}, dstDir);
+	}
 
 	/**
 	 * Plots the series to the destination dir.
