@@ -142,25 +142,8 @@
 	</target>
 
 	<target name="travisCompileAndTest">
-		<condition property="useAspectJ">
-			<and>
-				<isset property="testAspectJ" />
-				<equals arg1="${testAspectJ}" arg2="true" />
-			</and>
-		</condition>
-
-		<antcall target="travisCompileWithAspectJ" />
-		<antcall target="travisCompileWithoutAspectJ" />
-	</target>
-
-	<target name="travisCompileWithAspectJ" if="useAspectJ">
 		<antcall target="compileAspectJ" />
 		<antcall target="testAspectJ" />
-	</target>
-
-	<target name="travisCompileWithoutAspectJ" unless="useAspectJ">
-		<antcall target="compileJava" />
-		<antcall target="testJava" />
 	</target>
 
 	<target name="travisTest">
