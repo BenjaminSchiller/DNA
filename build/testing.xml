@@ -141,15 +141,15 @@
 		<antcall target="test" inheritrefs="true" />
 	</target>
 
-	<target name="travisCompileAndTest">
+	<target name="travisCompile">
+		<property name="executeDeleteBin" value="true" />
+		<antcall target="deleteBin" />
 		<antcall target="compileAspectJ" />
-		<antcall target="testAspectJ" />
 	</target>
 
 	<target name="travisTest">
-		<property name="executeDeleteBin" value="true" />
-		<antcall target="deleteBin" />
-		<antcall target="travisCompileAndTest" />
+		<antcall target="travisCompile" />
+		<antcall target="testAspectJ" />		
 	</target>
 
 </project>
