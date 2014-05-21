@@ -11,7 +11,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.EnumMap;
-import java.util.Random;
 
 import org.junit.Rule;
 import org.junit.Test;
@@ -184,7 +183,7 @@ public class BatchTest {
 								|| combination.get(ListType.LocalEdgeList) == DEmpty.class)
 							continue;
 
-						if (Rand.rand.nextInt(20) > 5)
+						if (Rand.rand.nextInt(20) > 4)
 							continue;
 
 						result.add(new Object[] { combination, nodeType,
@@ -193,6 +192,9 @@ public class BatchTest {
 				}
 			}
 		}
+
+		System.out.println("Running this test with " + result.size()
+				+ " input combinations");
 
 		return result;
 	}
