@@ -1,4 +1,4 @@
-package dna.graph.tests;
+package dna.tests;
 
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
