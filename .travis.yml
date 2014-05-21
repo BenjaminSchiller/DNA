@@ -11,9 +11,6 @@ before_install:
 env:
   global:
     - ANT_OPTS="-Xmx3072m -Xms2048m -XX:+UseConcMarkSweepGC"
-  matrix:
-    - TESTASPECTJ=true
-    - TESTASPECTJ=false
   
 script:
-  - ant -DaspectJDir=lib/ -DjUnitJar=lib/junit.jar -DtestAspectJ=$TESTASPECTJ travisTest
+  - ant -DaspectJDir=lib/ -DjUnitJar=lib/junit.jar travisTest
