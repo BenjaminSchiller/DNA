@@ -1,4 +1,4 @@
-package dna.graph.tests;
+package dna.tests;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
@@ -161,12 +161,18 @@ public class GeneratorsTest {
 								|| combination.get(ListType.LocalEdgeList) == DEmpty.class)
 							continue;
 
+						if (Rand.rand.nextInt(20) > 4)
+							continue;
+
 						result.add(new Object[] { combination, nodeType,
 								edgeType, generator });
 					}
 				}
 			}
 		}
+
+		System.out.println("Running this test with " + result.size()
+				+ " input combinations");
 
 		return result;
 	}
@@ -264,8 +270,7 @@ public class GeneratorsTest {
 			assertNotNull("Graph g misses edge " + e + " (edge list type: "
 					+ gds.getListClass(ListType.GlobalEdgeList) + ")", eOther);
 			assertEquals(e, eOther);
-			assertNotEquals(e.asString(),
-					eOther.asString());
+			assertNotEquals(e.asString(), eOther.asString());
 		}
 
 		for (IElement eU : g.getEdges()) {
@@ -273,8 +278,7 @@ public class GeneratorsTest {
 			Edge eOther = g2.getEdge(e.getN1(), e.getN2());
 			assertNotNull(eOther);
 			assertEquals(e, eOther);
-			assertNotEquals(e.asString(),
-					eOther.asString());
+			assertNotEquals(e.asString(), eOther.asString());
 		}
 
 	}

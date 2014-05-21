@@ -1,4 +1,4 @@
-package dna.graph.tests;
+package dna.tests;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
@@ -54,6 +54,7 @@ import dna.updates.update.EdgeWeight;
 import dna.updates.update.NodeRemoval;
 import dna.updates.update.NodeWeight;
 import dna.updates.update.Update;
+import dna.util.Rand;
 
 @RunWith(Parameterized.class)
 public class BatchTest {
@@ -182,12 +183,18 @@ public class BatchTest {
 								|| combination.get(ListType.LocalEdgeList) == DEmpty.class)
 							continue;
 
+						if (Rand.rand.nextInt(20) > 4)
+							continue;
+
 						result.add(new Object[] { combination, nodeType,
 								edgeType, generator });
 					}
 				}
 			}
 		}
+
+		System.out.println("Running this test with " + result.size()
+				+ " input combinations");
 
 		return result;
 	}
