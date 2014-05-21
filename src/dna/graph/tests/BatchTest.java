@@ -11,6 +11,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.EnumMap;
+import java.util.Random;
 
 import org.junit.Rule;
 import org.junit.Test;
@@ -54,6 +55,7 @@ import dna.updates.update.EdgeWeight;
 import dna.updates.update.NodeRemoval;
 import dna.updates.update.NodeWeight;
 import dna.updates.update.Update;
+import dna.util.Rand;
 
 @RunWith(Parameterized.class)
 public class BatchTest {
@@ -162,6 +164,8 @@ public class BatchTest {
 		ArrayList<EnumMap<ListType, Class<? extends IDataStructure>>> simpleCombinations = GraphDataStructure
 				.getSimpleDatastructureCombinations();
 
+		Random r = Rand.rand;
+
 		ArrayList<Object> result = new ArrayList<>();
 		for (EnumMap<ListType, Class<? extends IDataStructure>> combination : simpleCombinations) {
 			for (Class generator : ClassPointers.graphGenerators) {
@@ -180,6 +184,9 @@ public class BatchTest {
 						if (combination.get(ListType.GlobalNodeList) == DEmpty.class
 								|| combination.get(ListType.GlobalEdgeList) == DEmpty.class
 								|| combination.get(ListType.LocalEdgeList) == DEmpty.class)
+							continue;
+
+						if (r.nextInt(20) > 5)
 							continue;
 
 						result.add(new Object[] { combination, nodeType,
