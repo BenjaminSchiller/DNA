@@ -164,8 +164,6 @@ public class BatchTest {
 		ArrayList<EnumMap<ListType, Class<? extends IDataStructure>>> simpleCombinations = GraphDataStructure
 				.getSimpleDatastructureCombinations();
 
-		Random r = Rand.rand;
-
 		ArrayList<Object> result = new ArrayList<>();
 		for (EnumMap<ListType, Class<? extends IDataStructure>> combination : simpleCombinations) {
 			for (Class generator : ClassPointers.graphGenerators) {
@@ -186,7 +184,7 @@ public class BatchTest {
 								|| combination.get(ListType.LocalEdgeList) == DEmpty.class)
 							continue;
 
-						if (r.nextInt(20) > 5)
+						if (Rand.rand.nextInt(20) > 5)
 							continue;
 
 						result.add(new Object[] { combination, nodeType,
