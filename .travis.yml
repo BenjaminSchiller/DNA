@@ -12,8 +12,11 @@ env:
   global:
     - ANT_OPTS="-Xmx3072m -Xms2048m -XX:+UseConcMarkSweepGC"
   matrix:
-    - TESTCLASS=src/dna/tests/*.java
+  - TESTCLASS=src/dna/tests/BatchTest.java
+  - TESTCLASS=src/dna/tests/GeneratorsTest.java
+  - TESTCLASS=src/dna/tests/*.java
   
 script:
   - ant -DaspectJDir=lib/ -DjUnitJar=lib/junit.jar travisCompile
-  - echo $TESTCLASS
+  - chmod 777 travisTests.sh
+  - ./travisTests.sh $TESTCLASS
