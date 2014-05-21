@@ -11,6 +11,9 @@ before_install:
 env:
   global:
     - ANT_OPTS="-Xmx3072m -Xms2048m -XX:+UseConcMarkSweepGC"
+  matrix:
+    - TESTCLASS=src/dna/tests/*.java
   
 script:
-  - ant -DaspectJDir=lib/ -DjUnitJar=lib/junit.jar travisTest
+  - ant -DaspectJDir=lib/ -DjUnitJar=lib/junit.jar travisCompile
+  - echo $TESTCLASS
