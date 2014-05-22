@@ -646,8 +646,8 @@ public class Profiler {
 
 		for (ProfilerMeasurementData.ProfilerDataType entryType : ProfilerMeasurementData.ProfilerDataType
 				.values()) {
-			String currentCosts = recommendationList.getOwnCosts(entryType)
-					.toString();
+			ComparableEntryMap currentCosts = recommendationList.getOwnCosts(
+					entryType).getCosts(entryType);
 			res.append(" Aggr for " + entryType + ": " + currentCosts
 					+ separator);
 
