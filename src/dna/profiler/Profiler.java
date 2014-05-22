@@ -41,6 +41,7 @@ import dna.series.data.BatchData;
 import dna.series.data.Value;
 import dna.updates.update.Update.UpdateType;
 import dna.util.Config;
+import dna.util.Execute;
 import dna.util.Log;
 
 public class Profiler {
@@ -965,6 +966,11 @@ public class Profiler {
 		Profiler.writeUpdates(singleRunCalls, runDataDir, rec);
 
 		Profiler.writeAggregation(singleRunCalls, runDataDir, rec);
+
+		if (Config.getBoolean("PROFILER_WRITE_ACCESSSTATS_PER_RUN")) {
+			Profiler.plotAccessStatistics(singleRunCalls, runDataDir,
+					"accessStats-run");
+		}
 	}
 
 	public static void finishBatch(long batchTimestamp, BatchData res)
@@ -1018,6 +1024,11 @@ public class Profiler {
 		Profiler.writeAggregation(singleBatchCalls, batchDir,
 				ProfilerGranularity.isEnabled(Options.EACHBATCH));
 
+		if (Config.getBoolean("PROFILER_WRITE_ACCESSSTATS_PER_BATCH")) {
+			Profiler.plotAccessStatistics(singleBatchCalls, runDataDir,
+					"accessStats-batch" + batchTimestamp);
+		}
+
 		if (profilerDataTypeForHotSwap == ProfilerDataType.CombinedBenchmark) {
 			TreeSet<RecommenderEntry> recSet = lastRecommendations
 					.get(profilerDataTypeForHotSwap);
@@ -1056,6 +1067,89 @@ public class Profiler {
 
 		if (Config.getBoolean("GENERATION_BATCHES_AS_ZIP")) {
 			currentFileSystem.close();
+		}
+	}
+
+	private static void plotAccessStatistics(Map<String, ProfileEntry> calls,
+			String dir, String fileName) throws IOException {
+		// First: aggregate data per list
+		ProfileEntry aggr = new ProfileEntry();
+		for (ProfileEntry e : calls.values()) {
+			aggr = aggr.add(e);
+		}
+
+		// Then: create plots
+		AccessType[] at = AccessType.values();
+		ListType[] ltArray = ListType.values();
+
+		int[][] counts = new int[ltArray.length][];
+		boolean[] skipLT = new boolean[ltArray.length];
+
+		for (int i = 0; i < ltArray.length; i++) {
+			counts[i] = new int[at.length];
+			skipLT[i] = true;
+			for (int j = 0; j < counts[i].length; j++) {
+				counts[i][j] = aggr.get(ltArray[i], at[j]);
+				skipLT[i] &= (counts[i][j] == 0);
+			}
+		}
+
+		// Then: write it to file
+		LinkedList<String> script = new LinkedList<String>();
+		script.add("set terminal " + Config.get("GNUPLOT_TERMINAL"));
+		script.add("set output \"" + dir + fileName + "."
+				+ Config.get("GNUPLOT_EXTENSION") + "\"");
+		script.add("set grid");
+		script.add("set title \"Access statistics\"");
+		script.add("set style data histogram");
+		script.add("set style fill solid border");
+		script.add("set style histogram clustered");
+		script.add("set xtics rotate out");
+
+		LinkedList<String> plotHeader = new LinkedList<>();
+		for (int i = 0; i < ltArray.length; i++) {
+			if (skipLT[i]) {
+				continue;
+			}
+
+			plotHeader.add("'-' using 2:xtic(1) title \"" + ltArray[i] + "\"");
+		}
+
+		for (int i = 0; i < plotHeader.size(); i++) {
+			String post = "";
+			if (i < (plotHeader.size() - 1)) {
+				post = ", \\";
+			}
+
+			if (i == 0) {
+				script.add("plot " + plotHeader.get(i) + post);
+			} else {
+				script.add(plotHeader.get(i) + post);
+			}
+		}
+
+		for (int j = 0; j < counts.length; j++) {
+			if (skipLT[j]) {
+				continue;
+			}
+			for (int i = 0; i < at.length; i++) {
+				script.add(at[i].name() + Config.get("PLOTDATA_DELIMITER")
+						+ counts[j][i]);
+			}
+			script.add("EOF");
+		}
+
+		Writer w = new Writer(dir, fileName + ".gnuplot");
+		for (String line : script) {
+			w.writeln(line);
+		}
+		w.close();
+
+		try {
+			Execute.exec(Config.get("GNUPLOT_PATH") + " " + dir + fileName
+					+ ".gnuplot", true);
+		} catch (InterruptedException e1) {
+			e1.printStackTrace();
 		}
 	}
 
