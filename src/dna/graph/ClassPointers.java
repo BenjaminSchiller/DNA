@@ -8,6 +8,7 @@ import dna.graph.datastructures.DArrayList;
 import dna.graph.datastructures.DEmpty;
 import dna.graph.datastructures.DHashArrayList;
 import dna.graph.datastructures.DHashMap;
+import dna.graph.datastructures.DHashMultimap;
 import dna.graph.datastructures.DHashSet;
 import dna.graph.datastructures.DHashTable;
 import dna.graph.datastructures.DLinkedHashMultimap;
@@ -40,7 +41,7 @@ public class ClassPointers {
 
 	public static final Class[] dataStructures = { DArray.class,
 			DArrayDeque.class, DArrayList.class, DHashArrayList.class,
-			DHashMap.class, DHashSet.class, DHashTable.class,
+			DHashMap.class, DHashMultimap.class, DHashSet.class, DHashTable.class,
 			DLinkedHashMultimap.class, DLinkedList.class, DEmpty.class };
 
 	public static final Class[] graphGenerators = { CliqueGraph.class,
