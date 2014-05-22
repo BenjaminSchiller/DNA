@@ -130,7 +130,7 @@ public class GeneratorsTest {
 		 * A short output to overcome the timeout of Travis: If there is no
 		 * console output in 10 minutes, a test run is stopped
 		 */
-		if (Math.random() < 0.001)
+		if (Math.random() < 0.005)
 			System.out.print(".");
 
 	}
@@ -161,7 +161,7 @@ public class GeneratorsTest {
 								|| combination.get(ListType.LocalEdgeList) == DEmpty.class)
 							continue;
 
-						if (Rand.rand.nextInt(20) > 4)
+						if (Rand.rand.nextInt(30) > 2)
 							continue;
 
 						result.add(new Object[] { combination, nodeType,
