@@ -1,15 +1,14 @@
 package dna.plot.data;
 
-import dna.plot.Gnuplot.PlotStyle;
-
 /**
  * @author benni
  * 
  */
 public class FunctionData extends PlotData {
 
-	public FunctionData(String data, PlotStyle style, String title) {
-		super(data, style, title);
+	public FunctionData(String data, String domain, PlotStyle style,
+			String title) {
+		super(data, domain, style, title);
 	}
 
 	@Override
