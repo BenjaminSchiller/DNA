@@ -37,6 +37,8 @@ import dna.profiler.datatypes.ComparableEntryMap;
 import dna.profiler.datatypes.benchmarkresults.BenchmarkingResultsMap;
 import dna.profiler.datatypes.combined.CombinedResultsMap;
 import dna.series.Series;
+import dna.series.data.BatchData;
+import dna.series.data.Value;
 import dna.updates.update.Update.UpdateType;
 import dna.util.Config;
 import dna.util.Log;
@@ -965,7 +967,8 @@ public class Profiler {
 		Profiler.writeAggregation(singleRunCalls, runDataDir, rec);
 	}
 
-	public static void finishBatch(long batchTimestamp) throws IOException {
+	public static void finishBatch(long batchTimestamp, BatchData res)
+			throws IOException {
 		if (!active)
 			return;
 
@@ -1015,17 +1018,41 @@ public class Profiler {
 		Profiler.writeAggregation(singleBatchCalls, batchDir,
 				ProfilerGranularity.isEnabled(Options.EACHBATCH));
 
-		String profilerRange = "minimum="
-				+ (lastRecommendations.get(profilerDataTypeForHotSwap).first()
-						.getCosts(profilerDataTypeForHotSwap))
-				+ "\ncurrent="
-				+ (lastCosts.get(profilerDataTypeForHotSwap))
-				+ "\nmaximum="
-				+ (lastRecommendations.get(profilerDataTypeForHotSwap).last()
-						.getCosts(profilerDataTypeForHotSwap));
-		rawWrite(batchDir,
-				Files.getProfilerFilename(Config.get("PROFILER_RANGE")),
-				profilerRange);
+		if (profilerDataTypeForHotSwap == ProfilerDataType.CombinedBenchmark) {
+			TreeSet<RecommenderEntry> recSet = lastRecommendations
+					.get(profilerDataTypeForHotSwap);
+
+			res.getValues().add(
+					new Value("profilerBestCase", ((CombinedResultsMap) recSet
+							.first().getCosts(profilerDataTypeForHotSwap))
+							.getPos()));
+			res.getValues()
+					.add(new Value("profilerCurrentCase",
+							(((CombinedResultsMap) lastCosts
+									.get(profilerDataTypeForHotSwap)).getPos())));
+			res.getValues().add(
+					new Value("profilerWorstCase", ((CombinedResultsMap) recSet
+							.last().getCosts(profilerDataTypeForHotSwap))
+							.getPos()));
+		} else if (profilerDataTypeForHotSwap == ProfilerDataType.RuntimeBenchmark
+				|| profilerDataTypeForHotSwap == ProfilerDataType.MemoryBenchmark) {
+			TreeSet<RecommenderEntry> recSet = lastRecommendations
+					.get(profilerDataTypeForHotSwap);
+
+			res.getValues().add(
+					new Value("profilerBestCase",
+							((BenchmarkingResultsMap) recSet.first().getCosts(
+									profilerDataTypeForHotSwap)).getValue()));
+			res.getValues().add(
+					new Value("profilerCurrentCase",
+							(((BenchmarkingResultsMap) lastCosts
+									.get(profilerDataTypeForHotSwap))
+									.getValue())));
+			res.getValues().add(
+					new Value("profilerWorstCase",
+							((BenchmarkingResultsMap) recSet.last().getCosts(
+									profilerDataTypeForHotSwap)).getValue()));
+		}
 
 		if (Config.getBoolean("GENERATION_BATCHES_AS_ZIP")) {
 			currentFileSystem.close();

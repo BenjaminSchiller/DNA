@@ -15,7 +15,7 @@ public class CombinedResultsMap extends ComparableEntryMap {
 	public void add(ComparableEntryMap resSecond) {
 	}
 
-	private double getPos() {
+	public double getPos() {
 		return pos;
 	}
 	

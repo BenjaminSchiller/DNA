@@ -5,15 +5,16 @@ import java.util.Stack;
 
 import dna.graph.Graph;
 import dna.graph.datastructures.DataStructure;
-import dna.graph.datastructures.DataStructure.AccessType;
 import dna.graph.datastructures.GraphDataStructure;
 import dna.graph.datastructures.IDataStructure;
+import dna.graph.datastructures.DataStructure.AccessType;
 import dna.graph.generators.GraphGenerator;
 import dna.graph.generators.IGraphGenerator;
 import dna.metrics.Metric;
 import dna.metrics.Metric.ApplicationType;
 import dna.series.Series;
 import dna.series.SeriesGeneration;
+import dna.series.data.BatchData;
 import dna.updates.batch.Batch;
 import dna.updates.generators.BatchGenerator;
 import dna.updates.update.Update;
@@ -76,19 +77,18 @@ public aspect ProfilerAspects {
 			e.printStackTrace();
 		}
 	}
-		
-	before(Series s) : batchGenerationCallee(s) {
-		Profiler.startBatch();
-	}
 	
-	after(Series s) : batchGenerationCallee(s) {
+	BatchData around(Series s):	batchGenerationCallee(s) {
+		Profiler.startBatch();
+		BatchData res = proceed(s);
 		long currentBatchTimestamp = s.getGraph().getTimestamp();
 		try {
-			Profiler.finishBatch(currentBatchTimestamp);
+			Profiler.finishBatch(currentBatchTimestamp, res);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		return res;
 	}
 	
 	
