@@ -15,11 +15,11 @@ public class DummyUndirectedEdge extends UndirectedEdge implements IEdgeDummy {
 		this.dstIndex = Math.max(n1, n2);
 	}
 	
-	public int getNode1Index() {
+	public int getN1Index() {
 		return srcIndex;
 	}
 	
-	public int getNode2Index() {
+	public int getN2Index() {
 		return dstIndex;
 	}
 	

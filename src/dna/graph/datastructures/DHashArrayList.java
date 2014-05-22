@@ -152,12 +152,12 @@ public class DHashArrayList extends DataStructureReadable implements
 	}
 
 	@Override
-	public Edge get(Node n1, Node n2) {
+	public Edge get(int n1, int n2) {
 		for (IElement eU : list) {
 			if (eU == null)
 				continue;
 			Edge e = (Edge) eU;
-			if (e.getN1().equals(n1) && e.getN2().equals(n2))
+			if (e.getN1Index() == n1 && e.getN2Index() == n2)
 				return e;
 		}
 		return null;
@@ -165,7 +165,7 @@ public class DHashArrayList extends DataStructureReadable implements
 
 	@Override
 	public Edge get(Edge element) {
-		return get(element.getN1(), element.getN2());
+		return get(element.getN1Index(), element.getN2Index());
 	}
 
 	@Override

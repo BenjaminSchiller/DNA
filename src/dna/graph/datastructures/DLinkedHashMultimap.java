@@ -136,8 +136,8 @@ public class DLinkedHashMultimap extends DataStructureReadable implements
 	}
 
 	@Override
-	public Edge get(Node n1, Node n2) {
-		for ( IElement e: this.list.get(Edge.getHashcode(n1, n2))) {
+	public Edge get(int n1, int n2) {
+		for (IElement e : this.list.get(Edge.getHashcode(n1, n2))) {
 			if (((Edge) e).isConnectedTo(n1, n2)) {
 				return (Edge) e;
 			}
@@ -147,7 +147,7 @@ public class DLinkedHashMultimap extends DataStructureReadable implements
 
 	@Override
 	public Edge get(Edge element) {
-		return get(element.getN1(), element.getN2());
+		return get(element.getN1Index(), element.getN2Index());
 	}
 
 	@Override

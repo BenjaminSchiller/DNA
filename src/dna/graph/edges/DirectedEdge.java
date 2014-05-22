@@ -61,11 +61,11 @@ public class DirectedEdge extends Edge {
 	public DirectedNode getDst() {
 		return (DirectedNode) getN2();
 	}
-	
+
 	public int getSrcIndex() {
 		return getN1().getIndex();
 	}
-	
+
 	public int getDstIndex() {
 		return getN2().getIndex();
 	}
@@ -122,17 +122,6 @@ public class DirectedEdge extends Edge {
 		boolean remSrc = this.getSrc().removeEdge(this);
 		boolean remDst = this.getDst().removeEdge(this);
 		return remSrc && remDst;
-	}
-
-	@Override
-	public boolean isConnectedTo(Node n1, Node n2) {
-		return (this.getN1().equals(n1) && this.getN2().equals(n2))
-				|| (this.getN1().equals(n2) && this.getN2().equals(n1));
-	}
-
-	@Override
-	public boolean isConnectedTo(Node n1) {
-		return this.getN1().equals(n1) || this.getN2().equals(n1);
 	}
 
 }

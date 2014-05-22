@@ -15,6 +15,16 @@ public class DummyDirectedEdge extends DirectedEdge implements IEdgeDummy {
 		this.dstIndex = n2;
 	}
 	
+	@Override
+	public int getN1Index() {
+		return getSrcIndex();
+	}
+	
+	@Override
+	public int getN2Index() {
+		return getDstIndex();
+	}
+	
 	public int getSrcIndex() {
 		return srcIndex;
 	}

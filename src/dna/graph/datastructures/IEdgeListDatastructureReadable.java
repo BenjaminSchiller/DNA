@@ -20,8 +20,8 @@ public interface IEdgeListDatastructureReadable extends IEdgeListDatastructure,
 	 * destination node, but want to get additional data too like weights,
 	 * flows,...)
 	 * 
-	 * @param Node n1, n2
+	 * @param int n1, n2
 	 * @return
 	 */
-	public Edge get(Node n1, Node n2);
+	public Edge get(int n1, int n2);
 }

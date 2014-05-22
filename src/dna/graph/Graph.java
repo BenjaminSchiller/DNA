@@ -148,7 +148,7 @@ public class Graph {
 	public Edge getEdge(Node n1, Node n2) {
 		if (!gds.isReadable(edges))
 			throw new RuntimeException("This is not a readable graph");
-		return ((IEdgeListDatastructureReadable) edges).get(n1, n2);
+		return ((IEdgeListDatastructureReadable) edges).get(gds.getDummyEdge(n1, n2));
 	}	
 
 	/**
