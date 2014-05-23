@@ -1029,40 +1029,44 @@ public class Profiler {
 					"accessStats-batch" + batchTimestamp);
 		}
 
-		if (profilerDataTypeForHotSwap == ProfilerDataType.CombinedBenchmark) {
-			TreeSet<RecommenderEntry> recSet = lastRecommendations
-					.get(profilerDataTypeForHotSwap);
-
-			res.getValues().add(
-					new Value("profilerBestCase", ((CombinedResultsMap) recSet
-							.first().getCosts(profilerDataTypeForHotSwap))
-							.getPos()));
-			res.getValues()
-					.add(new Value("profilerCurrentCase",
-							(((CombinedResultsMap) lastCosts
-									.get(profilerDataTypeForHotSwap)).getPos())));
-			res.getValues().add(
-					new Value("profilerWorstCase", ((CombinedResultsMap) recSet
-							.last().getCosts(profilerDataTypeForHotSwap))
-							.getPos()));
-		} else if (profilerDataTypeForHotSwap == ProfilerDataType.RuntimeBenchmark
+		if (profilerDataTypeForHotSwap == ProfilerDataType.CombinedBenchmark
+				|| profilerDataTypeForHotSwap == ProfilerDataType.RuntimeBenchmark
 				|| profilerDataTypeForHotSwap == ProfilerDataType.MemoryBenchmark) {
+
+			if (!Config.get("VA_PLOTS").contains("PROFILERQUALITY")) {
+				Config.overwrite("VA_PLOTS", Config.get("VA_PLOTS")
+						+ ", PROFILERQUALITY");
+				Config.overwrite("VA_PROFILERQUALITY_NAME", "ProfilerQuality");
+				Config.overwrite(
+						"VA_PROFILERQUALITY_VALUES",
+						"statistics.profilerCurrentCase, statistics.profilerBestCase, statistics.profilerWorstCase");
+			}
+
 			TreeSet<RecommenderEntry> recSet = lastRecommendations
 					.get(profilerDataTypeForHotSwap);
 
-			res.getValues().add(
-					new Value("profilerBestCase",
-							((BenchmarkingResultsMap) recSet.first().getCosts(
-									profilerDataTypeForHotSwap)).getValue()));
-			res.getValues().add(
-					new Value("profilerCurrentCase",
-							(((BenchmarkingResultsMap) lastCosts
-									.get(profilerDataTypeForHotSwap))
-									.getValue())));
-			res.getValues().add(
-					new Value("profilerWorstCase",
-							((BenchmarkingResultsMap) recSet.last().getCosts(
-									profilerDataTypeForHotSwap)).getValue()));
+			ComparableEntryMap best = recSet.first().getCosts(
+					profilerDataTypeForHotSwap);
+			ComparableEntryMap curr = lastCosts.get(profilerDataTypeForHotSwap);
+			ComparableEntryMap worst = recSet.last().getCosts(
+					profilerDataTypeForHotSwap);
+
+			double bestCosts = 0, currCosts = 0, worstCosts = 0;
+
+			if (profilerDataTypeForHotSwap == ProfilerDataType.CombinedBenchmark) {
+				bestCosts = ((CombinedResultsMap) best).getPos();
+				currCosts = ((CombinedResultsMap) curr).getPos();
+				worstCosts = ((CombinedResultsMap) worst).getPos();
+			} else if (profilerDataTypeForHotSwap == ProfilerDataType.RuntimeBenchmark
+					|| profilerDataTypeForHotSwap == ProfilerDataType.MemoryBenchmark) {
+				bestCosts = ((BenchmarkingResultsMap) best).getValue();
+				currCosts = ((BenchmarkingResultsMap) curr).getValue();
+				worstCosts = ((BenchmarkingResultsMap) worst).getValue();
+			}
+
+			res.getValues().add(new Value("profilerBestCase", bestCosts));
+			res.getValues().add(new Value("profilerCurrentCase", currCosts));
+			res.getValues().add(new Value("profilerWorstCase", worstCosts));
 		}
 
 		if (Config.getBoolean("GENERATION_BATCHES_AS_ZIP")) {
