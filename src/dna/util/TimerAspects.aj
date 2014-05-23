@@ -26,6 +26,9 @@ public aspect TimerAspects {
 	private HashSet<String> additionalNotInTotalRuntimesList = new HashSet<>();
 	private TimerMap map = new TimerMap();
 
+	private boolean enhancedProfilerTimer = false;
+	private boolean enhancedHotswapTimer = false;
+
 	pointcut seriesGeneration() : call(* SeriesGeneration.generate(Series, int, int, boolean, boolean, boolean, long));
 	pointcut runGeneration(): call(* SeriesGeneration.generateRun(Series, int, int,..));
 	pointcut graphGeneration(): call(* IGraphGenerator.generate(..));
@@ -302,6 +305,11 @@ public aspect TimerAspects {
 		map.put(t);
 		additionalNotInTotalRuntimesList.add(SeriesStats.profilerRuntime);
 
+		if (!enhancedProfilerTimer) {
+			enhanceTimer(SeriesStats.profilerRuntime);
+			enhancedProfilerTimer = true;
+		}
+
 		return res;
 	}
 
@@ -319,5 +327,17 @@ public aspect TimerAspects {
 		}
 		map.put(t);
 		additionalNotInTotalRuntimesList.add(SeriesStats.hotswapRuntime);
+
+		if (!enhancedHotswapTimer) {
+			enhanceTimer(SeriesStats.hotswapRuntime);
+			enhancedHotswapTimer = true;
+		}
+	}
+
+	private void enhanceTimer(String key) {
+		Config.overwrite("RT_GENERAL_VALUES", Config.get("RT_GENERAL_VALUES")
+				+ ", " + key);
+		Config.overwrite("RT_GENERAL_CDF_VALUES",
+				Config.get("RT_GENERAL_CDF_VALUES") + ", " + key);
 	}
 }
