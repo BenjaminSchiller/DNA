@@ -88,7 +88,7 @@ public class DEmpty extends DataStructureReadable implements
 	}
 
 	@Override
-	public Edge get(Node n1, Node n2) {
+	public Edge get(int n1, int n2) {
 		return null;
 	}
 

@@ -41,6 +41,15 @@ public interface IEdge extends IElement {
 	 * @return true, if this edges connects the two given nodes; false otherwise
 	 */
 	public boolean isConnectedTo(Node n1, Node n2);
+	
+	/**
+	 * checks if this edge connects both given nodes
+	 * 
+	 * @param n1
+	 * @param n2
+	 * @return true, if this edges connects the two given nodes; false otherwise
+	 */
+	public boolean isConnectedTo(int n1, int n2);	
 
 	/**
 	 * checks if thus edges connects the given node to another node

@@ -1,35 +1,30 @@
 package dna.graph.datastructures;
 
 import java.util.Collection;
-import java.util.Hashtable;
 import java.util.Iterator;
+
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Iterables;
 
 import dna.graph.IElement;
 import dna.graph.edges.Edge;
 import dna.graph.nodes.Node;
 import dna.util.Rand;
 
-/**
- * Data structure to store IElements in a hashtable
- * 
- * @author Nico
- * 
- */
-public class DHashTable extends DataStructureReadable implements
+public class DHashMultimap extends DataStructureReadable implements
 		INodeListDatastructureReadable, IEdgeListDatastructureReadable {
 
-	private Hashtable<Integer, IElement> list;
-
+	private HashMultimap<Integer, IElement> list;
 	private int maxNodeIndex;
 
-	public DHashTable(ListType lt, Class<? extends IElement> dT) {
+	public DHashMultimap(ListType lt, Class<? extends IElement> dT) {
 		super(lt, dT);
 	}
 
 	@Override
 	public void init(Class<? extends IElement> dT, int initialSize,
 			boolean firstTime) {
-		this.list = new Hashtable<Integer, IElement>(initialSize);
+		this.list = HashMultimap.create(initialSize, 1);
 		this.maxNodeIndex = -1;
 	}
 
@@ -43,7 +38,9 @@ public class DHashTable extends DataStructureReadable implements
 	}
 
 	protected boolean add_(Node element) {
-		this.list.put(element.getIndex(), element);
+		if (!this.list.put(element.getIndex(), element)) {
+			return false;
+		}
 		if (element.getIndex() > this.maxNodeIndex) {
 			this.maxNodeIndex = element.getIndex();
 		}
@@ -52,8 +49,7 @@ public class DHashTable extends DataStructureReadable implements
 
 	@Override
 	protected boolean add_(Edge element) {
-		this.list.put(element.hashCode(), element);
-		return true;
+		return this.list.put(element.hashCode(), element);
 	}
 
 	@Override
@@ -68,25 +64,12 @@ public class DHashTable extends DataStructureReadable implements
 
 	@Override
 	public boolean contains(Node element) {
-		/**
-		 * This is a tricky check: containsKey will check whether there is *ANY*
-		 * element using that key in the table. But if we know that there is an
-		 * element with that key in the table, we do not yet know if this is the
-		 * proper one, as there can be several entries under the same key. So we
-		 * perform an additional get() which iterates over all entries with the
-		 * same (hashed) key and performs equal() on them
-		 */
-		return list.containsKey(element.getIndex())
-				&& list.get(element.getIndex()) != null;
+		return list.containsKey(element.getIndex());
 	}
 
 	@Override
 	public boolean contains(Edge element) {
-		/**
-		 * Always keep in mind the comment at contains(Node el)!
-		 */
-		return list.containsKey(element.hashCode())
-				&& list.get(element.hashCode()) != null;
+		return list.containsKey(element.hashCode());
 	}
 
 	@Override
@@ -101,7 +84,7 @@ public class DHashTable extends DataStructureReadable implements
 
 	@Override
 	public boolean remove(Node element) {
-		if (this.list.remove(element.getIndex()) == null) {
+		if (!this.list.remove(element.getIndex(), element)) {
 			return false;
 		}
 		if (element.getIndex() == this.maxNodeIndex) {
@@ -116,15 +99,12 @@ public class DHashTable extends DataStructureReadable implements
 
 	@Override
 	public boolean remove(Edge element) {
-		if (this.list.remove(element.hashCode()) == null) {
-			return false;
-		}
-		return true;
+		return this.list.remove(element.hashCode(), element);
 	}
 
 	@Override
 	public int size() {
-		return list.values().size();
+		return list.size();
 	}
 
 	@Override
@@ -152,14 +132,17 @@ public class DHashTable extends DataStructureReadable implements
 
 	@Override
 	public Node get(int index) {
-		if (!list.containsKey(index))
-			return null;
-		return (Node) this.list.get(index);
+		return (Node) Iterables.getFirst(this.list.get(index), null);
 	}
 
 	@Override
 	public Edge get(int n1, int n2) {
-		return (Edge) this.list.get(Edge.getHashcode(n1, n2));
+		for (IElement e : this.list.get(Edge.getHashcode(n1, n2))) {
+			if (((Edge) e).isConnectedTo(n1, n2)) {
+				return (Edge) e;
+			}
+		}
+		return null;
 	}
 
 	@Override
@@ -175,5 +158,4 @@ public class DHashTable extends DataStructureReadable implements
 	public void prepareForGC() {
 		this.list = null;
 	}
-
 }

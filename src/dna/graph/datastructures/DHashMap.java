@@ -142,13 +142,13 @@ public class DHashMap extends DataStructureReadable implements
 	}
 
 	@Override
-	public Edge get(Node n1, Node n2) {
+	public Edge get(int n1, int n2) {
 		return (Edge) this.list.get(Edge.getHashcode(n1, n2));
 	}
 
 	@Override
 	public Edge get(Edge element) {
-		return get(element.getN1(), element.getN2());
+		return get(element.getN1Index(), element.getN2Index());
 	}
 
 	@Override

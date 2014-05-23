@@ -1,7 +1,8 @@
-package dna.graph.tests;
+package dna.tests;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
@@ -13,8 +14,10 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 import dna.graph.ClassPointers;
+import dna.graph.Graph;
 import dna.graph.datastructures.DArrayList;
 import dna.graph.datastructures.DEmpty;
+import dna.graph.datastructures.DHashTable;
 import dna.graph.datastructures.DataStructure.ListType;
 import dna.graph.datastructures.GraphDataStructure;
 import dna.graph.datastructures.IDataStructure;
@@ -209,10 +212,14 @@ public class SingleTests {
 		assertFalse(eReal.equals(eDummy));
 		assertFalse(eDummy.equals(eReal));
 		assertTrue(eDummy.equals(eDummy));
-		
+
 		eReal = gds.newEdgeInstance(n1, n2);
 		assertEquals(eReal, eDummy);
-		assertEquals(eReal.getHashString(), eDummy.getHashString());		
+		assertEquals(eReal.getHashString(), eDummy.getHashString());
+
+		eReal = gds.newEdgeInstance(n2, n1);
+		assertNotEquals(eReal, eDummy);
+		assertNotEquals(eReal.getHashString(), eDummy.getHashString());
 	}
 
 	@Test
@@ -225,7 +232,7 @@ public class SingleTests {
 		Edge eReal = gds.newEdgeInstance(n1, n2);
 		Edge eDummy = gds.getDummyEdge(n1.getIndex(), n2.getIndex());
 		assertEquals(eReal, eDummy);
-		
+
 		n1 = gds.newNodeInstance(23);
 		n2 = gds.newNodeInstance(42);
 
@@ -233,5 +240,37 @@ public class SingleTests {
 		assertFalse(eReal.equals(eDummy));
 		assertFalse(eDummy.equals(eReal));
 		assertTrue(eDummy.equals(eDummy));
+
+		eReal = gds.newEdgeInstance(n2, n1);
+		assertEquals(eReal, eDummy);
+		assertEquals(eReal.getHashString(), eDummy.getHashString());
+	}
+
+	@Test
+	public void checkDummyEdgeContainsBehavesLikeGet() {
+		DHashTable ht = new DHashTable(ListType.GlobalEdgeList, Edge.class);
+
+		GraphDataStructure gds = new GraphDataStructure(listTypes,
+				UndirectedNode.class, UndirectedEdge.class);
+		Graph g = gds.newGraphInstance("", 0, 2, 1);
+
+		Node n1 = gds.newNodeInstance(1);
+		g.addNode(n1);
+
+		Node n2 = gds.newNodeInstance(2);
+		g.addNode(n2);
+
+		Edge eReal = gds.newEdgeInstance(n1, n2);
+		g.addEdge(eReal);
+
+		ht.add(eReal);
+
+		assertTrue(ht.contains(eReal));
+
+		Edge dummyEdge = g.getEdge(n1, n2);
+		assertTrue(ht.contains(dummyEdge));
+
+		dummyEdge = g.getEdge(n2, n1);
+		assertTrue(ht.contains(dummyEdge));
 	}
 }
