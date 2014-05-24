@@ -2,6 +2,7 @@ package dna.profiler.benchmarking;
 
 import java.util.EnumMap;
 import java.util.HashSet;
+import java.util.Iterator;
 
 import org.perfidix.Benchmark;
 import org.perfidix.annotation.BeforeFirstRun;
@@ -9,6 +10,7 @@ import org.perfidix.annotation.Bench;
 import org.perfidix.annotation.BenchClass;
 import org.perfidix.result.BenchmarkResult;
 
+import dna.graph.IElement;
 import dna.graph.datastructures.DArray;
 import dna.graph.datastructures.DEmpty;
 import dna.graph.datastructures.DataStructure;
@@ -472,7 +474,18 @@ public class BenchmarkingExperiments {
 		if (nodeListToBenchmark == null)
 			throw new RuntimeException("No benchmarking here");
 		for (i = 0; i < operationSize; i++) {
-			nodeListToBenchmark.iterator();
+			Iterator<IElement> it = nodeListToBenchmark.iterator();
+			IElement e;
+			while (it.hasNext()) {
+				e = it.next();
+				if (e == null) {
+					/**
+					 * We need this line to ensure that the optimization won't
+					 * remove dead code from the iterator's result
+					 */
+					System.out.println("Error for Iterator_Node");
+				}
+			}
 		}
 	}
 
@@ -482,7 +495,18 @@ public class BenchmarkingExperiments {
 		if (edgeListToBenchmark == null)
 			throw new RuntimeException("No benchmarking here");
 		for (i = 0; i < operationSize; i++) {
-			edgeListToBenchmark.iterator();
+			Iterator<IElement> it = edgeListToBenchmark.iterator();
+			IElement e;
+			while (it.hasNext()) {
+				e = it.next();
+				if (e == null) {
+					/**
+					 * We need this line to ensure that the optimization won't
+					 * remove dead code from the iterator's result
+					 */
+					System.out.println("Error for Iterator_Edge");
+				}
+			}
 		}
 	}
 
