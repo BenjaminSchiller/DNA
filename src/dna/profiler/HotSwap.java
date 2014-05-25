@@ -128,6 +128,37 @@ public class HotSwap {
 		return amortizationCounterToUse;
 	}
 
+	private static ComparableEntryMap getSwappingCosts(
+			GraphDataStructure currentGDS, GraphDataStructure recGDS) {
+		/**
+		 * Generate the costs for swapping, which is: for each changed list type
+		 * the number of lists * (init + meanlistSize * add)
+		 */
+
+		ComparableEntryMap swappingCosts = ProfilerMeasurementData
+				.getMap(ProfilerDataType.RuntimeBenchmark);
+		for (ListType lt : ListType.values()) {
+			if (recGDS.getListClass(lt) == currentGDS.getListClass(lt)) {
+				continue;
+			}
+
+			int numberOfLists = Profiler.getNumberOfGeneratedLists(lt);
+			double meanListSize = Profiler.getMeanSize(lt);
+			int totalNumberOfElements = (int) (numberOfLists * meanListSize);
+
+			ComparableEntry initCosts = recGDS.getCostData(lt, AccessType.Init,
+					ProfilerDataType.RuntimeBenchmark);
+			initCosts.setValues(numberOfLists, meanListSize, null);
+			swappingCosts.add(initCosts.getMap());
+
+			ComparableEntry addCosts = recGDS.getCostData(lt, AccessType.Add,
+					ProfilerDataType.RuntimeBenchmark);
+			addCosts.setValues(totalNumberOfElements, meanListSize, null);
+			swappingCosts.add(addCosts.getMap());
+		}
+		return swappingCosts;
+	}
+
 	public static void trySwap(Graph g) {
 		if (manualSwitching != null) {
 			EnumMap<ListType, Class<? extends IDataStructure>> listTypes = manualSwitching
@@ -178,7 +209,10 @@ public class HotSwap {
 
 				if (isSwapEfficient(accumulatedAccesses, prefactor, currentGDS,
 						newGDS)) {
-					Log.info("       Swapping looks efficient, so do it now");
+					ComparableEntryMap swappingCosts = getSwappingCosts(
+							currentGDS, newGDS);
+					Log.info("       Swapping looks efficient, so do it now at RuntimeBenchmark costs of "
+							+ swappingCosts);
 					doSwap(g, newGDS);
 					return;
 				} else {
@@ -207,33 +241,7 @@ public class HotSwap {
 		ComparableEntryMap recStateCosts = accesses.combinedComplexity(
 				ProfilerDataType.RuntimeBenchmark, recGDS, null);
 
-		/**
-		 * Generate the costs for swapping, which is: for each changed list type
-		 * the number of lists * (init + meanlistSize * add)
-		 */
-
-		ComparableEntryMap swappingCosts = ProfilerMeasurementData
-				.getMap(ProfilerDataType.RuntimeBenchmark);
-		for (ListType lt : ListType.values()) {
-			if (recGDS.getListClass(lt) == currentGDS.getListClass(lt)) {
-				continue;
-			}
-
-			int numberOfLists = Profiler.getNumberOfGeneratedLists(lt);
-			double meanListSize = Profiler.getMeanSize(lt);
-			int totalNumberOfElements = (int) (numberOfLists * meanListSize);
-
-			ComparableEntry initCosts = recGDS.getCostData(lt, AccessType.Init,
-					ProfilerDataType.RuntimeBenchmark);
-			initCosts.setValues(numberOfLists, meanListSize, null);
-			swappingCosts.add(initCosts.getMap());
-
-			ComparableEntry addCosts = recGDS.getCostData(lt, AccessType.Add,
-					ProfilerDataType.RuntimeBenchmark);
-			addCosts.setValues(totalNumberOfElements, meanListSize, null);
-			swappingCosts.add(addCosts.getMap());
-		}
-
+		ComparableEntryMap swappingCosts = getSwappingCosts(currentGDS, recGDS);
 		currentStateCosts.multiplyBy(prefactor);
 		recStateCosts.multiplyBy(prefactor);
 
