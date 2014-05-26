@@ -22,11 +22,13 @@ public class PlotConfig {
 	private DistributionPlotType distPlotType;
 	private NodeValueListOrder order;
 	private NodeValueListOrderBy orderBy;
+	private boolean plotAll;
 
 	// constructor
 	private PlotConfig(String name, boolean plotAsCdf, String[] values,
 			String[] domains, DistributionPlotType distPlotType,
-			NodeValueListOrder order, NodeValueListOrderBy orderBy) {
+			NodeValueListOrder order, NodeValueListOrderBy orderBy,
+			boolean plotAll) {
 		this.name = name;
 		this.plotAsCdf = plotAsCdf;
 		this.values = values;
@@ -34,6 +36,7 @@ public class PlotConfig {
 		this.distPlotType = distPlotType;
 		this.order = order;
 		this.orderBy = orderBy;
+		this.plotAll = plotAll;
 	}
 
 	// getters
@@ -63,6 +66,10 @@ public class PlotConfig {
 
 	public NodeValueListOrderBy getOrderBy() {
 		return orderBy;
+	}
+
+	public boolean isPlotAll() {
+		return plotAll;
 	}
 
 	/** Returns the custom value plots created from config **/
@@ -109,6 +116,8 @@ public class PlotConfig {
 		String valuesSuffix = Config.get("CUSTOM_PLOT_SUFFIX_VALUES");
 		String cdfSuffix = Config.get("CUSTOM_PLOT_SUFFIX_CDF");
 
+		boolean plotAll = false;
+
 		ArrayList<PlotConfig> plotConfigs = new ArrayList<PlotConfig>(
 				plots.length);
 
@@ -125,15 +134,43 @@ public class PlotConfig {
 
 			// get domains
 			if (prefix.equals(Config.get("CUSTOM_PLOT_PREFIX_RUNTIMES"))) {
+				String mrd = Config.get("CUSTOM_PLOT_DOMAIN_METRICRUNTIMES");
+				String grd = Config.get("CUSTOM_PLOT_DOMAIN_GENERALRUNTIMES");
+				String rd = Config.get("CUSTOM_PLOT_DOMAIN_RUNTIMES");
 				// if runtimes plot, add runtimes domain
 				for (int i = 0; i < values.length; i++) {
-					domains[i] = Config.get("CUSTOM_PLOT_DOMAIN_RUNTIMES");
+//					domains[i] = Config.get("CUSTOM_PLOT_DOMAIN_RUNTIMES");
+
+					String[] split = values[i].split("\\.");
+					if (!split[0].equals(rd) && !split[0].equals(mrd)
+							&& !split[0].equals(grd)) {
+						domains[i] = rd;
+					} else {
+						domains[i] = split[0];
+						String domain = "";
+						for (int j = 0; j < split.length - 1; j++) {
+							if (j == 0)
+								domain += split[j];
+							else
+								domain += "." + split[j];
+						}
+						domains[i] = domain;
+						values[i] = split[split.length - 1];
+					}
+
+					// check for wildcard
+					if (values[i].equals(Config.get("CUSTOM_PLOT_WILDCARD")))
+						plotAll = true;
 				}
 			} else if (prefix.equals(Config
 					.get("CUSTOM_PLOT_PREFIX_STATISTICS"))) {
 				// if statistics plot, add statistics domain
 				for (int i = 0; i < values.length; i++) {
 					domains[i] = Config.get("CUSTOM_PLOT_DOMAIN_STATISTICS");
+
+					// check for wildcard
+					if (values[i].equals("CUSTOM_PLOT_WILDCARD"))
+						plotAll = true;
 				}
 			} else {
 				// get domains from strings
@@ -173,7 +210,7 @@ public class PlotConfig {
 
 			// Craft PlotConfig and add to configs list
 			plotConfigs.add(new PlotConfig(name, plotAsCdf, values, domains,
-					distPlotType, order, orderBy));
+					distPlotType, order, orderBy, plotAll));
 		}
 		return plotConfigs;
 	}
