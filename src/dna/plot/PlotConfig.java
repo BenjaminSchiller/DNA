@@ -123,11 +123,20 @@ public class PlotConfig {
 			NodeValueListOrderBy orderBy = Config
 					.getNodeValueListOrderBy("GNUPLOT_DEFAULT_NVL_ORDERBY");
 
+			// get domains
 			if (prefix.equals(Config.get("CUSTOM_PLOT_PREFIX_RUNTIMES"))) {
+				// if runtimes plot, add runtimes domain
 				for (int i = 0; i < values.length; i++) {
-					domains[i] = Config.get("PLOT_CUSTOM_RUNTIME");
+					domains[i] = Config.get("CUSTOM_PLOT_DOMAIN_RUNTIMES");
+				}
+			} else if (prefix.equals(Config
+					.get("CUSTOM_PLOT_PREFIX_STATISTICS"))) {
+				// if statistics plot, add statistics domain
+				for (int i = 0; i < values.length; i++) {
+					domains[i] = Config.get("CUSTOM_PLOT_DOMAIN_STATISTICS");
 				}
 			} else {
+				// get domains from strings
 				for (int i = 0; i < values.length; i++) {
 					String[] split = values[i].split("\\.");
 					domains[i] = split[0];
