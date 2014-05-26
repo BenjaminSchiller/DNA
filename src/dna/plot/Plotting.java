@@ -738,153 +738,161 @@ public class Plotting {
 
 		// generate custom distribution plots
 		if (customDistributionPlots != null) {
-			Log.infoSep();
-			Log.info("Plotting Custom-Distribution-Plots:");
-			for (PlotConfig pc : customDistributionPlots) {
-				String name = pc.getName();
-				if (name == null)
-					continue;
-				Log.info("\tplotting '" + name + "'");
-				String[] values = pc.getValues();
-				String[] domains = pc.getDomains();
+			if (!customDistributionPlots.isEmpty()) {
+				Log.infoSep();
+				Log.info("Plotting Custom-Distribution-Plots:");
+				for (PlotConfig pc : customDistributionPlots) {
+					String name = pc.getName();
+					if (name == null)
+						continue;
+					Log.info("\tplotting '" + name + "'");
+					String[] values = pc.getValues();
+					String[] domains = pc.getDomains();
 
-				int valuesCount = values.length;
+					int valuesCount = values.length;
 
-				// check what to plot
-				boolean plotDist = false;
-				boolean plotCdf = false;
+					// check what to plot
+					boolean plotDist = false;
+					boolean plotCdf = false;
 
-				if (pc.getDistPlotType() != null) {
-					switch (pc.getDistPlotType()) {
-					case distOnly:
+					if (pc.getDistPlotType() != null) {
+						switch (pc.getDistPlotType()) {
+						case distOnly:
+							plotDist = true;
+							break;
+						case cdfOnly:
+							plotCdf = true;
+							break;
+						case distANDcdf:
+							plotDist = true;
+							plotCdf = true;
+							break;
+						}
+					} else {
 						plotDist = true;
-						break;
-					case cdfOnly:
-						plotCdf = true;
-						break;
-					case distANDcdf:
-						plotDist = true;
-						plotCdf = true;
-						break;
 					}
-				} else {
-					plotDist = true;
-				}
 
-				// gather plot data
-				PlotData[] data = null;
-				PlotData[] dataCdf = null;
+					// gather plot data
+					PlotData[] data = null;
+					PlotData[] dataCdf = null;
 
-				if (plotDist)
-					data = new PlotData[valuesCount * batches.length];
-				if (plotCdf)
-					dataCdf = new PlotData[valuesCount * batches.length];
+					if (plotDist)
+						data = new PlotData[valuesCount * batches.length];
+					if (plotCdf)
+						dataCdf = new PlotData[valuesCount * batches.length];
 
-				// gather plot data
-				// example: distributions d1, d2
-				// -> data[] = { d1(0), d2(0), d1(1), d2(1), ... }
-				// where d1(x) is the plotdata of d1 at timestamp x
-				for (int i = 0; i < batches.length; i++) {
-					for (int j = 0; j < valuesCount; j++) {
-						if (plotDist)
-							data[i * valuesCount + j] = PlotData.get(values[j],
-									domains[j], style,
-									domains[j] + "." + values[j] + " @ "
-											+ timestamps[i], type);
-						if (plotCdf) {
-							PlotData dCdf = PlotData.get(values[j], domains[j],
-									style, domains[j] + "." + values[j] + " @ "
-											+ timestamps[i], type);
-							dCdf.setPlotAsCdf(true);
-							dataCdf[i * valuesCount + j] = dCdf;
+					// gather plot data
+					// example: distributions d1, d2
+					// -> data[] = { d1(0), d2(0), d1(1), d2(1), ... }
+					// where d1(x) is the plotdata of d1 at timestamp x
+					for (int i = 0; i < batches.length; i++) {
+						for (int j = 0; j < valuesCount; j++) {
+							if (plotDist)
+								data[i * valuesCount + j] = PlotData.get(
+										values[j], domains[j], style,
+										domains[j] + "." + values[j] + " @ "
+												+ timestamps[i], type);
+							if (plotCdf) {
+								PlotData dCdf = PlotData.get(values[j],
+										domains[j], style, domains[j] + "."
+												+ values[j] + " @ "
+												+ timestamps[i], type);
+								dCdf.setPlotAsCdf(true);
+								dataCdf[i * valuesCount + j] = dCdf;
+							}
 						}
 					}
-				}
 
-				// create normal plot
-				if (plotDist) {
-					Plot p = new Plot(dstDir,
-							PlotFilenames.getDistributionPlot("custom.dist",
-									name),
-							PlotFilenames.getDistributionGnuplotScript(
-									"custom.dist", name), name + " (" + type
-									+ ")", data);
+					// create normal plot
+					if (plotDist) {
+						Plot p = new Plot(dstDir,
+								PlotFilenames.getDistributionPlot(
+										"custom.dist", name),
+								PlotFilenames.getDistributionGnuplotScript(
+										"custom.dist", name), name + " ("
+										+ type + ")", data);
 
-					// set data quantity
-					p.setDataQuantity(values.length);
+						// set data quantity
+						p.setDataQuantity(values.length);
 
-					// disable datetime for distribution plot
-					p.setPlotDateTime(false);
+						// disable datetime for distribution plot
+						p.setPlotDateTime(false);
 
-					// add to plots
-					plots.add(p);
-				}
+						// add to plots
+						plots.add(p);
+					}
 
-				// create cdf plot
-				if (plotCdf) {
-					Plot pCdf = new Plot(dstDir,
-							PlotFilenames.getDistributionCdfPlot("custom.dist",
-									name),
-							PlotFilenames.getDistributionCdfGnuplotScript(
-									"custom.dist", name), "CDF of " + name
-									+ " (" + type + ")", dataCdf);
+					// create cdf plot
+					if (plotCdf) {
+						Plot pCdf = new Plot(dstDir,
+								PlotFilenames.getDistributionCdfPlot(
+										"custom.dist", name),
+								PlotFilenames.getDistributionCdfGnuplotScript(
+										"custom.dist", name), "CDF of " + name
+										+ " (" + type + ")", dataCdf);
 
-					// set data quantity
-					pCdf.setDataQuantity(values.length);
+						// set data quantity
+						pCdf.setDataQuantity(values.length);
 
-					// disable datetime for distribution plot
-					pCdf.setPlotDateTime(false);
+						// disable datetime for distribution plot
+						pCdf.setPlotDateTime(false);
 
-					// add to plots
-					plots.add(pCdf);
+						// add to plots
+						plots.add(pCdf);
+					}
 				}
 			}
 		}
 
 		// generate custom nodevaluelist plots
 		if (customNodeValueListPlots != null) {
-			Log.infoSep();
-			Log.info("Plotting Custom-NodeValueList-Plots:");
-			for (PlotConfig pc : customNodeValueListPlots) {
-				String name = pc.getName();
-				if (name == null)
-					continue;
-				Log.info("\tplotting '" + name + "'");
-				String[] values = pc.getValues();
-				String[] domains = pc.getDomains();
+			if (!customNodeValueListPlots.isEmpty()) {
+				Log.infoSep();
+				Log.info("Plotting Custom-NodeValueList-Plots:");
+				for (PlotConfig pc : customNodeValueListPlots) {
+					String name = pc.getName();
+					if (name == null)
+						continue;
+					Log.info("\tplotting '" + name + "'");
+					String[] values = pc.getValues();
+					String[] domains = pc.getDomains();
 
-				int valuesCount = values.length;
+					int valuesCount = values.length;
 
-				// gather plot data
-				PlotData[] data = new PlotData[batches.length * values.length];
+					// gather plot data
+					PlotData[] data = new PlotData[batches.length
+							* values.length];
 
-				// example: distributions d1, d2
-				// -> data[] = { d1(0), d2(0), d1(1), d2(1), ... }
-				// where d1(x) is the plotdata of d1 at timestamp x
-				for (int i = 0; i < batches.length; i++) {
-					for (int j = 0; j < valuesCount; j++) {
-						data[i * valuesCount + j] = PlotData.get(values[j],
-								domains[j], style, domains[j] + "." + values[j]
-										+ " @ " + timestamps[i], type);
+					// example: distributions d1, d2
+					// -> data[] = { d1(0), d2(0), d1(1), d2(1), ... }
+					// where d1(x) is the plotdata of d1 at timestamp x
+					for (int i = 0; i < batches.length; i++) {
+						for (int j = 0; j < valuesCount; j++) {
+							data[i * valuesCount + j] = PlotData.get(values[j],
+									domains[j], style,
+									domains[j] + "." + values[j] + " @ "
+											+ timestamps[i], type);
+						}
 					}
+
+					// create plot
+					Plot p = new Plot(dstDir,
+							PlotFilenames.getNodeValueListPlot("custom.nvl",
+									name),
+							PlotFilenames.getNodeValueListGnuplotScript(
+									"custom.nvl", name), name + " (" + type
+									+ ")", data);
+
+					// disable datetime for nodevaluelist plot
+					p.setPlotDateTime(false);
+
+					// set nvl sort options
+					p.setNodeValueListOrder(pc.getOrder());
+					p.setNodeValueListOrderBy(pc.getOrderBy());
+
+					// add to plots
+					plots.add(p);
 				}
-
-				// create plot
-				Plot p = new Plot(dstDir, PlotFilenames.getNodeValueListPlot(
-						"custom.nvl", name),
-						PlotFilenames.getNodeValueListGnuplotScript(
-								"custom.nvl", name), name + " (" + type + ")",
-						data);
-
-				// disable datetime for nodevaluelist plot
-				p.setPlotDateTime(false);
-
-				// set nvl sort options
-				p.setNodeValueListOrder(pc.getOrder());
-				p.setNodeValueListOrderBy(pc.getOrderBy());
-
-				// add to plots
-				plots.add(p);
 			}
 		}
 
