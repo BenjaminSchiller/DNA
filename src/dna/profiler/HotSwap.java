@@ -24,10 +24,13 @@ public class HotSwap {
 	private static boolean inFirstBatch = true;
 	private static Map<Long, EnumMap<ListType, Class<? extends IDataStructure>>> manualSwitching = null;
 	private static EnumMap<ListType, Class<? extends IDataStructure>> firstSwitch = null;
+	private static int swapsDone = 0;
 
 	private static double hotswapLowerBound = Config
 			.getDouble("HOTSWAP_LOWER_BOUND");
 	private static int hotswapWindowSize = Config.getInt("HOTSWAP_WINDOWSIZE");
+	private static int maxNumberOfSwaps = Config
+			.getInt("HOTSWAP_MAXNUMBER_OF_SWAPS");
 
 	/**
 	 * Three variables for storing the accesses onto underlying lists
@@ -42,11 +45,17 @@ public class HotSwap {
 		accessList = new ProfileEntry[maxAccessListSize];
 		firstSwitch = null;
 		inFirstBatch = true;
+		swapsDone = 0;
 	}
 
 	public static void addNewResults() {
 		if (slidingWindow == null) {
 			reset();
+		}
+
+		if (maxNumberOfSwaps >= 0 && swapsDone >= maxNumberOfSwaps) {
+			// We won't do more swaps, so don't add new results
+			return;
 		}
 
 		if (!inFirstBatch
@@ -112,6 +121,7 @@ public class HotSwap {
 		if (firstSwitch == null) {
 			firstSwitch = newGDS.getStorageDataStructures();
 		}
+		swapsDone++;
 	}
 
 	public static int getAmortizationCounter() {
@@ -174,6 +184,11 @@ public class HotSwap {
 
 		if (lastFinishedBatch < Math.floor(hotswapLowerBound
 				* hotswapWindowSize)) {
+			return;
+		}
+
+		if (maxNumberOfSwaps >= 0 && swapsDone >= maxNumberOfSwaps) {
+			Log.info("     maxNumberOfSwaps reached, won't swap no more");
 			return;
 		}
 
