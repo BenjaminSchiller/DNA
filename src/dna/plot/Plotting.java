@@ -829,11 +829,10 @@ public class Plotting {
 					// create normal plot
 					if (plotDist) {
 						Plot p = new Plot(dstDir,
-								PlotFilenames.getDistributionPlot(
-										"custom.dist", name),
-								PlotFilenames.getDistributionGnuplotScript(
-										"custom.dist", name), name + " ("
-										+ type + ")", data);
+								PlotFilenames.getDistributionPlot(name),
+								PlotFilenames
+										.getDistributionGnuplotScript(name),
+								name + " (" + type + ")", data);
 
 						// set data quantity
 						p.setDataQuantity(values.length);
@@ -848,11 +847,10 @@ public class Plotting {
 					// create cdf plot
 					if (plotCdf) {
 						Plot pCdf = new Plot(dstDir,
-								PlotFilenames.getDistributionCdfPlot(
-										"custom.dist", name),
-								PlotFilenames.getDistributionCdfGnuplotScript(
-										"custom.dist", name), "CDF of " + name
-										+ " (" + type + ")", dataCdf);
+								PlotFilenames.getDistributionCdfPlot(name),
+								PlotFilenames
+										.getDistributionCdfGnuplotScript(name),
+								"CDF of " + name + " (" + type + ")", dataCdf);
 
 						// set data quantity
 						pCdf.setDataQuantity(values.length);
@@ -900,8 +898,7 @@ public class Plotting {
 
 					// create plot
 					Plot p = new Plot(dstDir,
-							PlotFilenames.getNodeValueListPlot("custom.nvl",
-									name),
+							PlotFilenames.getNodeValueListPlot(name),
 							PlotFilenames.getNodeValueListGnuplotScript(
 									"custom.nvl", name), name + " (" + type
 									+ ")", data);
