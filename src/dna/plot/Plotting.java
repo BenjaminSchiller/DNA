@@ -769,8 +769,33 @@ public class Plotting {
 					if (name == null)
 						continue;
 					Log.info("\tplotting '" + name + "'");
-					String[] values = pc.getValues();
-					String[] domains = pc.getDomains();
+
+					// check for invalid values
+					String[] tempValues = pc.getValues();
+					String[] tempDomains = pc.getDomains();
+					ArrayList<String> valuesList = new ArrayList<String>();
+					ArrayList<String> domainsList = new ArrayList<String>();
+
+					for (int i = 0; i < tempValues.length; i++) {
+						String v = tempValues[i];
+						String d = tempDomains[i];
+
+						if (d.equals(Config
+								.get("CUSTOM_PLOT_DOMAIN_STATISTICS"))
+								|| d.equals(Config
+										.get("CUSTOM_PLOT_DOMAIN_REUNTIMES"))) {
+							Log.warn("invalid value '" + tempDomains[i] + "."
+									+ tempValues[i]
+									+ "' in distribution plot '" + name + "'");
+						} else {
+							valuesList.add(v);
+							domainsList.add(d);
+						}
+					}
+
+					// only take over valid values
+					String[] values = valuesList.toArray(new String[0]);
+					String[] domains = domainsList.toArray(new String[0]);
 
 					int valuesCount = values.length;
 
@@ -875,8 +900,33 @@ public class Plotting {
 					if (name == null)
 						continue;
 					Log.info("\tplotting '" + name + "'");
-					String[] values = pc.getValues();
-					String[] domains = pc.getDomains();
+
+					// check for invalid values
+					String[] tempValues = pc.getValues();
+					String[] tempDomains = pc.getDomains();
+					ArrayList<String> valuesList = new ArrayList<String>();
+					ArrayList<String> domainsList = new ArrayList<String>();
+
+					for (int i = 0; i < tempValues.length; i++) {
+						String v = tempValues[i];
+						String d = tempDomains[i];
+
+						if (d.equals(Config
+								.get("CUSTOM_PLOT_DOMAIN_STATISTICS"))
+								|| d.equals(Config
+										.get("CUSTOM_PLOT_DOMAIN_REUNTIMES"))) {
+							Log.warn("invalid value '" + tempDomains[i] + "."
+									+ tempValues[i]
+									+ "' in distribution plot '" + name + "'");
+						} else {
+							valuesList.add(v);
+							domainsList.add(d);
+						}
+					}
+
+					// only take over valid values
+					String[] values = valuesList.toArray(new String[0]);
+					String[] domains = domainsList.toArray(new String[0]);
 
 					int valuesCount = values.length;
 
