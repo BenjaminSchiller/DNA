@@ -21,8 +21,8 @@ public class PlotConfig {
 	private String yLabel;
 	private String logscale;
 	private String datetime;
-	private int xOffset;
-	private int yOffset;
+	private double xOffset;
+	private double yOffset;
 	private boolean plotAsCdf;
 	private String[] values;
 	private String[] domains;
@@ -34,13 +34,19 @@ public class PlotConfig {
 	// constructor
 	private PlotConfig(String name, String filename, String title,
 			String xLabel, String yLabel, String logscale, String datetime,
-			int xOffset, int yOffset, boolean plotAsCdf, String[] values,
+			double xOffset, double yOffset, boolean plotAsCdf, String[] values,
 			String[] domains, DistributionPlotType distPlotType,
 			NodeValueListOrder order, NodeValueListOrderBy orderBy,
 			boolean plotAll) {
 		this.name = name;
 		this.filename = filename;
 		this.title = title;
+		this.xLabel = xLabel;
+		this.yLabel = yLabel;
+		this.logscale = logscale;
+		this.datetime = datetime;
+		this.xOffset = xOffset;
+		this.yOffset = yOffset;
 		this.plotAsCdf = plotAsCdf;
 		this.values = values;
 		this.domains = domains;
@@ -107,11 +113,11 @@ public class PlotConfig {
 		return datetime;
 	}
 
-	public int getxOffset() {
+	public double getxOffset() {
 		return xOffset;
 	}
 
-	public int getyOffset() {
+	public double getyOffset() {
 		return yOffset;
 	}
 
@@ -181,12 +187,6 @@ public class PlotConfig {
 			boolean plotAll = false;
 			String[] values = Config.keys(prefix + s + valuesSuffix);
 			String[] domains = new String[values.length];
-			DistributionPlotType distPlotType = Config
-					.getDistributionPlotType("GNUPLOT_DEFAULT_DIST_PLOTTYPE");
-			NodeValueListOrder order = Config
-					.getNodeValueListOrder("GNUPLOT_DEFAULT_NVL_ORDER");
-			NodeValueListOrderBy orderBy = Config
-					.getNodeValueListOrderBy("GNUPLOT_DEFAULT_NVL_ORDERBY");
 
 			// get domains
 			if (prefix.equals(Config.get("CUSTOM_PLOT_PREFIX_RUNTIMES"))) {
@@ -253,51 +253,60 @@ public class PlotConfig {
 			// read optional values from config
 			boolean plotAsCdf = Config.getBoolean(prefix + s + cdfSuffix);
 
+			// default values
 			String filename = name;
+			String title = filename;
+			String xLabel = Config.get("GNUPLOT_XLABEL");
+			String yLabel = Config.get("GNUPLOT_YLABEL");
+			String logscale = null;
+			String datetime = "";
+			double xOffset = Config.getDouble("GNUPLOT_XOFFSET");
+			double yOffset = Config.getDouble("GNUPLOT_YOFFSET");
+			DistributionPlotType distPlotType = Config
+					.getDistributionPlotType("GNUPLOT_DEFAULT_DIST_PLOTTYPE");
+			NodeValueListOrder order = Config
+					.getNodeValueListOrder("GNUPLOT_DEFAULT_NVL_ORDER");
+			NodeValueListOrderBy orderBy = Config
+					.getNodeValueListOrderBy("GNUPLOT_DEFAULT_NVL_ORDERBY");
+
+			// try to get config values
 			try {
 				filename = Config.get(prefix + s + filenameSuffix);
 			} catch (NullPointerException e) {
 			}
 
-			String title = filename;
 			try {
-				name = Config.get(prefix + s + titleSuffix);
+				title = Config.get(prefix + s + titleSuffix);
 			} catch (NullPointerException e) {
 			}
 
-			String xLabel = "";
 			try {
 				xLabel = Config.get(prefix + s + xLabelSuffix);
 			} catch (NullPointerException e) {
 			}
 
-			String yLabel = "";
 			try {
 				yLabel = Config.get(prefix + s + yLabelSuffix);
 			} catch (NullPointerException e) {
 			}
 
-			String logscale = "";
 			try {
 				logscale = Config.get(prefix + s + logscaleSuffix);
 			} catch (NullPointerException e) {
 			}
 
-			String datetime = "";
 			try {
 				datetime = Config.get(prefix + s + datetimeSuffix);
 			} catch (NullPointerException e) {
 			}
 
-			int xOffset = 0;
 			try {
-				xOffset = Config.getInt(prefix + s + xOffsetSuffix);
+				xOffset = Config.getDouble(prefix + s + xOffsetSuffix);
 			} catch (NullPointerException | NumberFormatException e) {
 			}
 
-			int yOffset = 0;
 			try {
-				yOffset = Config.getInt(prefix + s + yOffsetSuffix);
+				yOffset = Config.getDouble(prefix + s + yOffsetSuffix);
 			} catch (NullPointerException | NumberFormatException e) {
 			}
 

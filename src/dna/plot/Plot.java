@@ -38,10 +38,23 @@ public class Plot {
 	private Writer fileWriter;
 	private int dataWriteCounter;
 	private int dataQuantity;
+	private String xlogscale;
+	private boolean enablexlog;
+	private String ylogscale;
+	private boolean enableylog;
+
+	private String xLabel;
+	private String yLabel;
+
+	private double xOffset;
+	private double yOffset;
+
+	// plot config
+	PlotConfig config;
 
 	// plot styles
 	private String title;
-	private String dateTime;
+	private String datetime;
 	private boolean plotDateTime;
 	private DistributionPlotType distPlotType;
 	private NodeValueListOrderBy orderBy;
@@ -76,13 +89,31 @@ public class Plot {
 				.getNodeValueListOrder("GNUPLOT_DEFAULT_NVL_ORDER");
 		this.orderBy = Config
 				.getNodeValueListOrderBy("GNUPLOT_DEFAULT_NVL_ORDERBY");
-		this.dateTime = Config.get("GNUPLOT_DATETIME");
+		this.datetime = Config.get("GNUPLOT_DATETIME");
 		this.plotDateTime = Config.getBoolean("GNUPLOT_PLOTDATETIME");
 
 		// init writer
 		this.fileWriter = new Writer(dir, scriptFilename);
 		this.dataWriteCounter = 0;
 		this.dataQuantity = 1;
+	}
+
+	public Plot(String dir, String plotFilename, String scriptFilename,
+			String title, PlotConfig config, PlotData[] data)
+			throws IOException {
+		this(dir, plotFilename, scriptFilename, title, data);
+		this.config = config;
+
+		// title
+		if (config.getTitle() != null) {
+			this.title = config.getTitle();
+		}
+
+		// datetime
+		if (config.getDatetime() != null) {
+			this.datetime = config.getDatetime();
+			this.plotDateTime = true;
+		}
 	}
 
 	// new methods
@@ -380,70 +411,137 @@ public class Plot {
 	 * @return the header part of the gnuplot script
 	 */
 	protected List<String> getScript() {
-		List<String> script = new LinkedList<String>();
+		if (this.config == null) {
 
-		script.add("set terminal " + Config.get("GNUPLOT_TERMINAL"));
-		script.add("set output \"" + this.dir + this.plotFilename + "."
-				+ Config.get("GNUPLOT_EXTENSION") + "\"");
-		if (!Config.get("GNUPLOT_KEY").equals("null")) {
-			script.add("set key " + Config.get("GNUPLOT_KEY"));
-		}
-		if (Config.getBoolean("GNUPLOT_GRID")) {
-			script.add("set grid");
-		}
-		if (this.title != null) {
-			script.add("set title \"" + this.title + "\"");
-		}
-		if (!Config.get("GNUPLOT_XLABEL").equals("null")) {
-			script.add("set xlabel \"" + Config.get("GNUPLOT_XLABEL") + "\"");
-		}
-		if (!Config.get("GNUPLOT_XRANGE").equals("null")) {
-			script.add("set xrange " + Config.get("GNUPLOT_XRANGE"));
-		}
-		if (!Config.get("GNUPLOT_YLABEL").equals("null")) {
-			script.add("set ylabel \"" + Config.get("GNUPLOT_YLABEL") + "\"");
-		}
-		if (!Config.get("GNUPLOT_YRANGE").equals("null")) {
-			script.add("set yrange " + Config.get("GNUPLOT_YRANGE"));
-		}
-		if (Config.getBoolean("GNUPLOT_XLOGSCALE")
-				&& Config.getBoolean("GNUPLOT_YLOGSCALE")) {
-			script.add("set logscale xy");
-		} else if (Config.getBoolean("GNUPLOT_XLOGSCALE")) {
-			script.add("set logscale x");
-		} else if (Config.getBoolean("GNUPLOT_YLOGSCALE")) {
-			script.add("set logscale y");
-		}
-		if (this.plotDateTime) {
-			script.add("set xdata time");
-			script.add("set timefmt " + '"' + this.dateTime + '"');
-		}
+			List<String> script = new LinkedList<String>();
 
-		script.add("set style " + Config.get("GNUPLOT_STYLE"));
-		script.add("set boxwidth " + Config.get("GNUPLOT_BOXWIDTH"));
-
-		for (int i = 0; i < this.data.length; i++) {
-			String line = "";
-			if (this.distPlotType == null)
-				line = this.data[i].getEntry(i + 1,
-						Config.getInt("GNUPLOT_LW"),
-						Config.getDouble("GNUPLOT_XOFFSET") * i,
-						Config.getDouble("GNUPLOT_YOFFSET") * i);
-			else
-				line = this.data[i].getEntry(i + 1,
-						Config.getInt("GNUPLOT_LW"),
-						Config.getDouble("GNUPLOT_XOFFSET") * i,
-						Config.getDouble("GNUPLOT_YOFFSET") * i,
-						this.distPlotType);
-			if (i == 0) {
-				line = "plot " + line;
+			script.add("set terminal " + Config.get("GNUPLOT_TERMINAL"));
+			script.add("set output \"" + this.dir + this.plotFilename + "."
+					+ Config.get("GNUPLOT_EXTENSION") + "\"");
+			if (!Config.get("GNUPLOT_KEY").equals("null")) {
+				script.add("set key " + Config.get("GNUPLOT_KEY"));
 			}
-			if (i < this.data.length - 1) {
-				line = line + " , \\";
+			if (Config.getBoolean("GNUPLOT_GRID")) {
+				script.add("set grid");
 			}
-			script.add(line);
+			if (this.title != null) {
+				script.add("set title \"" + this.title + "\"");
+			}
+			if (!Config.get("GNUPLOT_XLABEL").equals("null")) {
+				script.add("set xlabel \"" + Config.get("GNUPLOT_XLABEL")
+						+ "\"");
+			}
+			if (!Config.get("GNUPLOT_XRANGE").equals("null")) {
+				script.add("set xrange " + Config.get("GNUPLOT_XRANGE"));
+			}
+			if (!Config.get("GNUPLOT_YLABEL").equals("null")) {
+				script.add("set ylabel \"" + Config.get("GNUPLOT_YLABEL")
+						+ "\"");
+			}
+			if (!Config.get("GNUPLOT_YRANGE").equals("null")) {
+				script.add("set yrange " + Config.get("GNUPLOT_YRANGE"));
+			}
+			if (Config.getBoolean("GNUPLOT_XLOGSCALE")
+					&& Config.getBoolean("GNUPLOT_YLOGSCALE")) {
+				script.add("set logscale xy");
+			} else if (Config.getBoolean("GNUPLOT_XLOGSCALE")) {
+				script.add("set logscale x");
+			} else if (Config.getBoolean("GNUPLOT_YLOGSCALE")) {
+				script.add("set logscale y");
+			}
+			if (this.plotDateTime) {
+				script.add("set xdata time");
+				script.add("set timefmt " + '"' + this.datetime + '"');
+			}
+
+			script.add("set style " + Config.get("GNUPLOT_STYLE"));
+			script.add("set boxwidth " + Config.get("GNUPLOT_BOXWIDTH"));
+
+			for (int i = 0; i < this.data.length; i++) {
+				String line = "";
+				if (this.distPlotType == null)
+					line = this.data[i].getEntry(i + 1,
+							Config.getInt("GNUPLOT_LW"),
+							Config.getDouble("GNUPLOT_XOFFSET") * i,
+							Config.getDouble("GNUPLOT_YOFFSET") * i);
+				else
+					line = this.data[i].getEntry(i + 1,
+							Config.getInt("GNUPLOT_LW"),
+							Config.getDouble("GNUPLOT_XOFFSET") * i,
+							Config.getDouble("GNUPLOT_YOFFSET") * i,
+							this.distPlotType);
+				if (i == 0) {
+					line = "plot " + line;
+				}
+				if (i < this.data.length - 1) {
+					line = line + " , \\";
+				}
+				script.add(line);
+			}
+			return script;
+
+		} else {
+			List<String> script = new LinkedList<String>();
+
+			script.add("set terminal " + Config.get("GNUPLOT_TERMINAL"));
+			script.add("set output \"" + this.dir + this.plotFilename + "."
+					+ Config.get("GNUPLOT_EXTENSION") + "\"");
+			if (!Config.get("GNUPLOT_KEY").equals("null")) {
+				script.add("set key " + Config.get("GNUPLOT_KEY"));
+			}
+			if (Config.getBoolean("GNUPLOT_GRID")) {
+				script.add("set grid");
+			}
+			if (this.title != null) {
+				script.add("set title \"" + this.title + "\"");
+			}
+
+			if (this.config.getxLabel() != null) {
+				script.add("set xlabel \"" + this.config.getxLabel() + "\"");
+			}
+			if (!Config.get("GNUPLOT_XRANGE").equals("null")) {
+				script.add("set xrange " + Config.get("GNUPLOT_XRANGE"));
+			}
+			if (this.config.getyLabel() != null) {
+				script.add("set ylabel \"" + this.config.getyLabel() + "\"");
+			}
+			if (!Config.get("GNUPLOT_YRANGE").equals("null")) {
+				script.add("set yrange " + Config.get("GNUPLOT_YRANGE"));
+			}
+			if (this.config.getLogscale() != null) {
+				script.add("set logscale " + this.config.getLogscale());
+			}
+			if (this.plotDateTime) {
+				script.add("set xdata time");
+				script.add("set timefmt " + '"' + this.datetime + '"');
+			}
+
+			script.add("set style " + Config.get("GNUPLOT_STYLE"));
+			script.add("set boxwidth " + Config.get("GNUPLOT_BOXWIDTH"));
+
+			for (int i = 0; i < this.data.length; i++) {
+				String line = "";
+				if (this.config.getDistPlotType() == null)
+					line = this.data[i].getEntry(i + 1,
+							Config.getInt("GNUPLOT_LW"),
+							this.config.getxOffset() * i,
+							this.config.getyOffset() * i);
+				else
+					line = this.data[i].getEntry(i + 1,
+							Config.getInt("GNUPLOT_LW"),
+							this.config.getxOffset() * i,
+							this.config.getyOffset() * i,
+							this.config.getDistPlotType());
+				if (i == 0) {
+					line = "plot " + line;
+				}
+				if (i < this.data.length - 1) {
+					line = line + " , \\";
+				}
+				script.add(line);
+			}
+			return script;
 		}
-		return script;
 	}
 
 	/** Executes the gnuplot script **/
@@ -466,11 +564,11 @@ public class Plot {
 	// 02:45:03 . %H:%M:%S "%H" . 24-hour
 	// 1076909172 . %s . seconds since 1/1/1970 00:00
 	public void setDateTime(String dateTime) {
-		this.dateTime = dateTime;
+		this.datetime = dateTime;
 	}
 
 	public String getDateTime() {
-		return dateTime;
+		return datetime;
 	}
 
 	public void setPlotDateTime(boolean plotDateTime) {

@@ -698,10 +698,16 @@ public class Plotting {
 						+ value + "-" + title, type);
 			}
 
+			// get filename
+			String filename = PlotFilenames.getValuesPlot(name);
+			if (pc.getFilename() != null) {
+				filename = pc.getFilename();
+			}
+
 			// create plot
-			Plot p = new Plot(dstDir, PlotFilenames.getValuesPlot(name),
-					PlotFilenames.getValuesGnuplotScript(name), name + " ("
-							+ type + ")", data);
+			Plot p = new Plot(dstDir, filename,
+					PlotFilenames.getValuesGnuplotScript(filename), name + " ("
+							+ type + ")", pc, data);
 
 			// write script header
 			p.writeScriptHeader();
@@ -938,12 +944,19 @@ public class Plotting {
 						}
 					}
 
+					// get filename
+					String filename = name;
+					if (pc.getFilename() != null) {
+						filename = pc.getFilename();
+					}
+
 					// create normal plot
 					if (plotDist) {
-						Plot p = new Plot(dstDir,
+						Plot p = new Plot(
+								dstDir,
 								PlotFilenames.getDistributionPlot(name),
 								PlotFilenames
-										.getDistributionGnuplotScript(name),
+										.getDistributionGnuplotScript(filename),
 								name + " (" + type + ")", data);
 
 						// set data quantity
@@ -958,10 +971,11 @@ public class Plotting {
 
 					// create cdf plot
 					if (plotCdf) {
-						Plot pCdf = new Plot(dstDir,
-								PlotFilenames.getDistributionCdfPlot(name),
+						Plot pCdf = new Plot(
+								dstDir,
+								PlotFilenames.getDistributionCdfPlot(filename),
 								PlotFilenames
-										.getDistributionCdfGnuplotScript(name),
+										.getDistributionCdfGnuplotScript(filename),
 								"CDF of " + name + " (" + type + ")", dataCdf);
 
 						// set data quantity
@@ -1031,6 +1045,12 @@ public class Plotting {
 									domains[j] + "." + values[j] + " @ "
 											+ timestamps[i], type);
 						}
+					}
+
+					// get filename
+					String filename = name;
+					if (pc.getFilename() != null) {
+						filename = pc.getFilename();
 					}
 
 					// create plot
@@ -1362,7 +1382,12 @@ public class Plotting {
 			String[] domains = pc.getDomains();
 			boolean plotAsCdf = pc.isPlotAsCdf();
 			boolean plotAll = pc.isPlotAll();
-			String plotFilename = name;
+
+			// get filename
+			String plotFilename = PlotFilenames.getValuesPlot(name);
+			if (pc.getFilename() != null) {
+				plotFilename = pc.getFilename();
+			}
 			String scriptFilename;
 			String plotTitle;
 
@@ -1437,13 +1462,14 @@ public class Plotting {
 				domains = domainsList.toArray(new String[0]);
 			}
 			if (plotAsCdf) {
+				scriptFilename = PlotFilenames
+						.getRuntimesGnuplotScriptCDF(plotFilename);
 				plotFilename += Config.get("PLOT_DELIMITER")
 						+ Config.get("PLOT_DISTRIBUTION_CDF");
-				scriptFilename = PlotFilenames
-						.getRuntimesGnuplotScriptCDF(name);
 				plotTitle = "CDF of ";
 			} else {
-				scriptFilename = PlotFilenames.getRuntimesGnuplotScript(name);
+				scriptFilename = PlotFilenames
+						.getRuntimesGnuplotScript(plotFilename);
 				plotTitle = "";
 			}
 			plotTitle += name + " (" + type + ")";
@@ -1457,7 +1483,7 @@ public class Plotting {
 
 			// create plot
 			Plot p = new Plot(dstDir, plotFilename, scriptFilename, plotTitle,
-					plotData);
+					pc, plotData);
 
 			// write script header
 			p.writeScriptHeader();
