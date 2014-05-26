@@ -292,7 +292,7 @@ public class Plotting {
 		// call plotting method
 		Plotting.plotFromTo(seriesData, dstDir, config);
 	}
-	
+
 	/**
 	 * Plots the series to the destination dir.
 	 * 
@@ -307,7 +307,7 @@ public class Plotting {
 	 */
 	public static void plot(SeriesData seriesData, String dstDir)
 			throws IOException, InterruptedException {
-		Plotting.plot(new SeriesData[] {seriesData}, dstDir);
+		Plotting.plot(new SeriesData[] { seriesData }, dstDir);
 	}
 
 	/**
@@ -592,10 +592,9 @@ public class Plotting {
 			}
 
 			// create plot
-			Plot p = new Plot(dstDir, PlotFilenames.getValuesPlot("custom",
-					name),
-					PlotFilenames.getValuesGnuplotScript("custom", name), name
-							+ " (" + type + ")", data);
+			Plot p = new Plot(dstDir, PlotFilenames.getValuesPlot(name),
+					PlotFilenames.getValuesGnuplotScript(name), name + " ("
+							+ type + ")", data);
 
 			// write script header
 			p.writeScriptHeader();
@@ -1196,17 +1195,16 @@ public class Plotting {
 			String[] values = pc.getValues();
 			String[] domains = pc.getDomains();
 			boolean plotAsCdf = pc.isPlotAsCdf();
-			String plotFilename;
+			String plotFilename = name;
 			String scriptFilename;
 			String plotTitle;
 			if (plotAsCdf) {
-				plotFilename = PlotFilenames.getRuntimesPlotFileCDF(name);
+				plotFilename += Config.get("PLOT_DELIMITER")
+						+ Config.get("PLOT_DISTRIBUTION_CDF");
 				scriptFilename = PlotFilenames
 						.getRuntimesGnuplotScriptCDF(name);
 				plotTitle = "CDF of ";
-
 			} else {
-				plotFilename = PlotFilenames.getRuntimesPlotFile(name);
 				scriptFilename = PlotFilenames.getRuntimesGnuplotScript(name);
 				plotTitle = "";
 			}

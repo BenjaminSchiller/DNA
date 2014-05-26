@@ -78,6 +78,11 @@ public class PlotFilenames {
 				+ Config.get("SUFFIX_GNUPLOT");
 	}
 
+	public static String getValuesGnuplotScript(String value) {
+		return Config.get("PREFIX_VALUE_GNUPLOT_SCRIPT") + value
+				+ Config.get("SUFFIX_GNUPLOT");
+	}
+
 	public static String getValuesGnuplotScript(Values v) {
 		return Config.get("PREFIX_VALUE_GNUPLOT_SCRIPT") + v.getName()
 				+ Config.get("SUFFIX_GNUPLOT");
@@ -89,6 +94,10 @@ public class PlotFilenames {
 
 	public static String getValuesPlot(String metric, String value) {
 		return metric + Config.get("PLOT_DELIMITER") + value;
+	}
+
+	public static String getValuesPlot(String value) {
+		return value;
 	}
 
 	public static String getValuesPlot(Values v) {
