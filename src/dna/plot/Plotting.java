@@ -126,7 +126,7 @@ public class Plotting {
 				if (config.getCustomStatisticPlots().size() > 0) {
 					Log.infoSep();
 					Log.info("Plotting Custom-Statistic-Plots:");
-					Plotting.plotCustomValues(batchData,
+					Plotting.plotCustomValuePlots(batchData,
 							config.getCustomStatisticPlots(), dstDir, title,
 							style, type);
 				}
@@ -137,8 +137,8 @@ public class Plotting {
 		if (config.isPlotCustomValues()) {
 			Log.infoSep();
 			Log.info("Plotting Custom-Value-Plots:");
-			Plotting.plotCustomValues(batchData, config.getCustomValuePlots(),
-					dstDir, title, style, type);
+			Plotting.plotCustomValuePlots(batchData,
+					config.getCustomValuePlots(), dstDir, title, style, type);
 		}
 
 		// plot runtimes
@@ -166,7 +166,7 @@ public class Plotting {
 				if (config.getCustomMetricValuePlots().size() > 0) {
 					Log.infoSep();
 					Log.info("Plotting Custom-MetricValue-Plots:");
-					Plotting.plotCustomValues(batchData,
+					Plotting.plotCustomValuePlots(batchData,
 							config.getCustomMetricValuePlots(), dstDir, title,
 							style, type);
 				}
@@ -590,7 +590,7 @@ public class Plotting {
 	}
 
 	/** Plots custom value plots **/
-	private static void plotCustomValues(AggregatedBatch[] batchData,
+	private static void plotCustomValuePlots(AggregatedBatch[] batchData,
 			ArrayList<PlotConfig> customValuePlots, String dstDir,
 			String title, PlotStyle style, PlotType type) throws IOException,
 			InterruptedException {
