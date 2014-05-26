@@ -1274,9 +1274,81 @@ public class Plotting {
 			String[] values = pc.getValues();
 			String[] domains = pc.getDomains();
 			boolean plotAsCdf = pc.isPlotAsCdf();
+			boolean plotAll = pc.isPlotAll();
 			String plotFilename = name;
 			String scriptFilename;
 			String plotTitle;
+
+			// if plot all, make plot for all runtimes
+			if (pc.isPlotAll()) {
+				String runtimeDomain = Config
+						.get("CUSTOM_PLOT_DOMAIN_RUNTIMES");
+
+				ArrayList<String> valuesList = new ArrayList<String>();
+				ArrayList<String> domainsList = new ArrayList<String>();
+
+				ArrayList<String> wildCardDomainsList = new ArrayList<String>();
+
+				// check which wildcards are present
+				for (int i = 0; i < values.length; i++) {
+					if (values[i].equals(Config.get("CUSTOM_PLOT_WILDCARD"))) {
+						// if wildcard, add domain to domainlist
+						if (!wildCardDomainsList.contains(domains[i]))
+							wildCardDomainsList.add(domains[i]);
+					} else {
+						// add normal values
+						valuesList.add(values[i]);
+						domainsList.add(domains[i]);
+					}
+				}
+
+				// gather all values implied by wildcards
+				for (int i = 0; i < wildCardDomainsList.size(); i++) {
+					String domain = wildCardDomainsList.get(i);
+					AggregatedBatch b = batchData[0];
+					boolean metricRuntimes = false;
+					boolean generalRuntimes = false;
+
+					if (domain
+							.equals(Config.get("CUSTOM_PLOT_DOMAIN_RUNTIMES"))) {
+						metricRuntimes = true;
+						generalRuntimes = true;
+					} else if (domain.equals(Config
+							.get("CUSTOM_PLOT_DOMAIN_METRICRUNTIMES"))) {
+						metricRuntimes = true;
+					} else if (domain.equals(Config
+							.get("CUSTOM_PLOT_DOMAIN_GENERALRUNTIMES"))) {
+						generalRuntimes = true;
+					}
+
+					// gather metric runtimes
+					if (metricRuntimes) {
+						for (AggregatedValue metRuntime : b.getMetricRuntimes()
+								.getList()) {
+							String runtimeName = metRuntime.getName();
+							if (!valuesList.contains(runtimeName)) {
+								valuesList.add(runtimeName);
+								domainsList.add(runtimeDomain);
+							}
+						}
+					}
+					// gather general runtimes
+					if (generalRuntimes) {
+						for (AggregatedValue genRuntime : b
+								.getGeneralRuntimes().getList()) {
+							String runtimeName = genRuntime.getName();
+							if (!valuesList.contains(runtimeName)) {
+								valuesList.add(runtimeName);
+								domainsList.add(runtimeDomain);
+							}
+						}
+					}
+				}
+
+				// overwrite old arrays
+				values = valuesList.toArray(new String[0]);
+				domains = domainsList.toArray(new String[0]);
+			}
 			if (plotAsCdf) {
 				plotFilename += Config.get("PLOT_DELIMITER")
 						+ Config.get("PLOT_DISTRIBUTION_CDF");
