@@ -12,6 +12,7 @@ public class BoundaryStrategy extends ResultProcessingStrategy {
 	protected TreeMap<Integer, Double> buckets;
 	private BucketSelector b;
 	private ListAggregator s;
+	private static boolean warningForTooLargeListsGiven = false;
 
 	public enum BucketSelector {
 		LOWER, UPPER, INTERPOLATE
@@ -62,14 +63,18 @@ public class BoundaryStrategy extends ResultProcessingStrategy {
 				.ceil(meanListSize));
 		if (bucketSelector == null) {
 			bucketSelector = buckets.lastKey();
-			System.err
-					.println("The "
-							+ this.getClass().getSimpleName()
-							+ " will return erroneous results, as the given meanListSize of "
-							+ meanListSize + " exceeds the upper bound of "
-							+ bucketSelector
-							+ " in the benchmarking results");
+			if (!warningForTooLargeListsGiven) {
+				System.err
+						.println("\n   Warning!\nThe "
+								+ this.getClass().getSimpleName()
+								+ " will return erroneous results, as the given meanListSize of "
+								+ meanListSize + " exceeds the upper bound of "
+								+ bucketSelector
+								+ " in the benchmarking results\n");
+			}
+			warningForTooLargeListsGiven = true;
 		}
+
 		return bucketSelector;
 	}
 
