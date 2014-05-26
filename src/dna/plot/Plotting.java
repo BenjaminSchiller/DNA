@@ -601,7 +601,6 @@ public class Plotting {
 			Log.info("\tplotting '" + name + "'");
 			String[] values = pc.getValues();
 			String[] domains = pc.getDomains();
-			boolean plotAll = pc.isPlotAll();
 
 			// if plot all, make plot for all runtimes
 			if (pc.isPlotAll()) {
