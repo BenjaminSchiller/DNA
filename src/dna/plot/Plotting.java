@@ -1055,10 +1055,10 @@ public class Plotting {
 
 					// create plot
 					Plot p = new Plot(dstDir,
-							PlotFilenames.getNodeValueListPlot(name),
-							PlotFilenames.getNodeValueListGnuplotScript(
-									"custom.nvl", name), name + " (" + type
-									+ ")", data);
+							PlotFilenames.getNodeValueListPlot(filename),
+							PlotFilenames
+									.getNodeValueListGnuplotScript(filename),
+							name + " (" + type + ")", data);
 
 					// disable datetime for nodevaluelist plot
 					p.setPlotDateTime(false);
@@ -1381,7 +1381,6 @@ public class Plotting {
 			String[] values = pc.getValues();
 			String[] domains = pc.getDomains();
 			boolean plotAsCdf = pc.isPlotAsCdf();
-			boolean plotAll = pc.isPlotAll();
 
 			// get filename
 			String plotFilename = PlotFilenames.getValuesPlot(name);
