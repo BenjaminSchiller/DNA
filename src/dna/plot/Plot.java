@@ -38,16 +38,6 @@ public class Plot {
 	private Writer fileWriter;
 	private int dataWriteCounter;
 	private int dataQuantity;
-	private String xlogscale;
-	private boolean enablexlog;
-	private String ylogscale;
-	private boolean enableylog;
-
-	private String xLabel;
-	private String yLabel;
-
-	private double xOffset;
-	private double yOffset;
 
 	// plot config
 	PlotConfig config;
@@ -61,8 +51,8 @@ public class Plot {
 	private NodeValueListOrder sortOrder;
 
 	/**
-	 * Creates a plot object which will can written to a gnuplot script file.
-	 * Data to be plotted can be added via appendData methods.
+	 * Creates a plot object which will be written to a gnuplot script file.
+	 * Data to be plotted can be added via addData methods.
 	 * 
 	 * @param dir
 	 *            Destination directory of the plot and script file.
@@ -70,6 +60,8 @@ public class Plot {
 	 *            Filename of the plotted file.
 	 * @param scriptFilename
 	 *            Filename of the scriptfile.
+	 * @param title
+	 *            The plots title.
 	 * @param data
 	 *            Array of PlotData objects, each representing a type of "data",
 	 *            which will be plotted into the same plot.
@@ -98,6 +90,26 @@ public class Plot {
 		this.dataQuantity = 1;
 	}
 
+	/**
+	 * Creates a plot object which will be written to a gnuplot script file.
+	 * Data to be plotted can be added via addData methods.
+	 * 
+	 * @param dir
+	 *            Destination directory of the plot and script file.
+	 * @param plotFilename
+	 *            Filename of the plotted file.
+	 * @param scriptFilename
+	 *            Filename of the scriptfile.
+	 * @param title
+	 *            The plots title.
+	 * @param config
+	 *            PlotConfig that allows for detailed configuration of the plot.
+	 * @param data
+	 *            Array of PlotData objects, each representing a type of "data",
+	 *            which will be plotted into the same plot.
+	 * @throws IOException
+	 *             Might be thrown by the writer.
+	 */
 	public Plot(String dir, String plotFilename, String scriptFilename,
 			String title, PlotConfig config, PlotData[] data)
 			throws IOException {
@@ -113,6 +125,19 @@ public class Plot {
 		if (config.getDatetime() != null) {
 			this.datetime = config.getDatetime();
 			this.plotDateTime = true;
+		}
+
+		// sort settings
+		if (config.getDistPlotType() != null) {
+			this.distPlotType = config.getDistPlotType();
+		}
+
+		if (config.getOrder() != null) {
+			this.sortOrder = config.getOrder();
+		}
+
+		if (config.getOrderBy() != null) {
+			this.orderBy = config.getOrderBy();
 		}
 	}
 
@@ -411,35 +436,44 @@ public class Plot {
 	 * @return the header part of the gnuplot script
 	 */
 	protected List<String> getScript() {
+		// init script list
+		List<String> script = new LinkedList<String>();
+
+		// add script lines
+		script.add("set terminal " + Config.get("GNUPLOT_TERMINAL"));
+		script.add("set output \"" + this.dir + this.plotFilename + "."
+				+ Config.get("GNUPLOT_EXTENSION") + "\"");
+		if (!Config.get("GNUPLOT_KEY").equals("null")) {
+			script.add("set key " + Config.get("GNUPLOT_KEY"));
+		}
+		if (Config.getBoolean("GNUPLOT_GRID")) {
+			script.add("set grid");
+		}
+		if (this.title != null) {
+			script.add("set title \"" + this.title + "\"");
+		}
+		if (!Config.get("GNUPLOT_XRANGE").equals("null")) {
+			script.add("set xrange " + Config.get("GNUPLOT_XRANGE"));
+		}
+		if (!Config.get("GNUPLOT_YRANGE").equals("null")) {
+			script.add("set yrange " + Config.get("GNUPLOT_YRANGE"));
+		}
+		if (this.plotDateTime) {
+			script.add("set xdata time");
+			script.add("set timefmt " + '"' + this.datetime + '"');
+		}
+		script.add("set style " + Config.get("GNUPLOT_STYLE"));
+		script.add("set boxwidth " + Config.get("GNUPLOT_BOXWIDTH"));
+
+		// if no config is present
 		if (this.config == null) {
-
-			List<String> script = new LinkedList<String>();
-
-			script.add("set terminal " + Config.get("GNUPLOT_TERMINAL"));
-			script.add("set output \"" + this.dir + this.plotFilename + "."
-					+ Config.get("GNUPLOT_EXTENSION") + "\"");
-			if (!Config.get("GNUPLOT_KEY").equals("null")) {
-				script.add("set key " + Config.get("GNUPLOT_KEY"));
-			}
-			if (Config.getBoolean("GNUPLOT_GRID")) {
-				script.add("set grid");
-			}
-			if (this.title != null) {
-				script.add("set title \"" + this.title + "\"");
-			}
 			if (!Config.get("GNUPLOT_XLABEL").equals("null")) {
 				script.add("set xlabel \"" + Config.get("GNUPLOT_XLABEL")
 						+ "\"");
 			}
-			if (!Config.get("GNUPLOT_XRANGE").equals("null")) {
-				script.add("set xrange " + Config.get("GNUPLOT_XRANGE"));
-			}
 			if (!Config.get("GNUPLOT_YLABEL").equals("null")) {
 				script.add("set ylabel \"" + Config.get("GNUPLOT_YLABEL")
 						+ "\"");
-			}
-			if (!Config.get("GNUPLOT_YRANGE").equals("null")) {
-				script.add("set yrange " + Config.get("GNUPLOT_YRANGE"));
 			}
 			if (Config.getBoolean("GNUPLOT_XLOGSCALE")
 					&& Config.getBoolean("GNUPLOT_YLOGSCALE")) {
@@ -449,14 +483,6 @@ public class Plot {
 			} else if (Config.getBoolean("GNUPLOT_YLOGSCALE")) {
 				script.add("set logscale y");
 			}
-			if (this.plotDateTime) {
-				script.add("set xdata time");
-				script.add("set timefmt " + '"' + this.datetime + '"');
-			}
-
-			script.add("set style " + Config.get("GNUPLOT_STYLE"));
-			script.add("set boxwidth " + Config.get("GNUPLOT_BOXWIDTH"));
-
 			for (int i = 0; i < this.data.length; i++) {
 				String line = "";
 				if (this.distPlotType == null)
@@ -478,46 +504,16 @@ public class Plot {
 				}
 				script.add(line);
 			}
-			return script;
-
 		} else {
-			List<String> script = new LinkedList<String>();
-
-			script.add("set terminal " + Config.get("GNUPLOT_TERMINAL"));
-			script.add("set output \"" + this.dir + this.plotFilename + "."
-					+ Config.get("GNUPLOT_EXTENSION") + "\"");
-			if (!Config.get("GNUPLOT_KEY").equals("null")) {
-				script.add("set key " + Config.get("GNUPLOT_KEY"));
-			}
-			if (Config.getBoolean("GNUPLOT_GRID")) {
-				script.add("set grid");
-			}
-			if (this.title != null) {
-				script.add("set title \"" + this.title + "\"");
-			}
-
 			if (this.config.getxLabel() != null) {
 				script.add("set xlabel \"" + this.config.getxLabel() + "\"");
-			}
-			if (!Config.get("GNUPLOT_XRANGE").equals("null")) {
-				script.add("set xrange " + Config.get("GNUPLOT_XRANGE"));
 			}
 			if (this.config.getyLabel() != null) {
 				script.add("set ylabel \"" + this.config.getyLabel() + "\"");
 			}
-			if (!Config.get("GNUPLOT_YRANGE").equals("null")) {
-				script.add("set yrange " + Config.get("GNUPLOT_YRANGE"));
-			}
 			if (this.config.getLogscale() != null) {
 				script.add("set logscale " + this.config.getLogscale());
 			}
-			if (this.plotDateTime) {
-				script.add("set xdata time");
-				script.add("set timefmt " + '"' + this.datetime + '"');
-			}
-
-			script.add("set style " + Config.get("GNUPLOT_STYLE"));
-			script.add("set boxwidth " + Config.get("GNUPLOT_BOXWIDTH"));
 
 			for (int i = 0; i < this.data.length; i++) {
 				String line = "";
@@ -540,8 +536,8 @@ public class Plot {
 				}
 				script.add(line);
 			}
-			return script;
 		}
+		return script;
 	}
 
 	/** Executes the gnuplot script **/
