@@ -134,15 +134,19 @@ public class PlotConfig {
 
 			// get domains
 			if (prefix.equals(Config.get("CUSTOM_PLOT_PREFIX_RUNTIMES"))) {
-				String mrd = Config.get("CUSTOM_PLOT_DOMAIN_METRICRUNTIMES");
-				String grd = Config.get("CUSTOM_PLOT_DOMAIN_GENERALRUNTIMES");
-				String rd = Config.get("CUSTOM_PLOT_DOMAIN_RUNTIMES");
+				String metricRuntimeDomain = Config
+						.get("CUSTOM_PLOT_DOMAIN_METRICRUNTIMES");
+				String generalRuntimeDomain = Config
+						.get("CUSTOM_PLOT_DOMAIN_GENERALRUNTIMES");
+				String runtimeDomain = Config
+						.get("CUSTOM_PLOT_DOMAIN_RUNTIMES");
 				// if runtimes plot, add runtimes domain
 				for (int i = 0; i < values.length; i++) {
 					String[] split = values[i].split("\\.");
-					if (!split[0].equals(rd) && !split[0].equals(mrd)
-							&& !split[0].equals(grd)) {
-						domains[i] = rd;
+					if (!split[0].equals(runtimeDomain)
+							&& !split[0].equals(metricRuntimeDomain)
+							&& !split[0].equals(generalRuntimeDomain)) {
+						domains[i] = runtimeDomain;
 					} else {
 						domains[i] = split[0];
 						String domain = "";
@@ -167,7 +171,7 @@ public class PlotConfig {
 					domains[i] = Config.get("CUSTOM_PLOT_DOMAIN_STATISTICS");
 
 					// check for wildcard
-					if (values[i].equals("CUSTOM_PLOT_WILDCARD"))
+					if (values[i].equals(Config.get("CUSTOM_PLOT_WILDCARD")))
 						plotAll = true;
 				}
 			} else {
