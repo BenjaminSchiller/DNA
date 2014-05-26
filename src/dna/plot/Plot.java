@@ -184,45 +184,57 @@ public class Plot {
 				if (m.getDistributions().getNames().contains(name)) {
 					AggregatedValue[] values = m.getDistributions().get(name)
 							.getValues();
-					if (addAsCDF) {
-						AggregatedValue[] tempValues = new AggregatedValue[values.length];
-						for (int i = 0; i < tempValues.length; i++) {
-							double[] tempV = new double[values[i].getValues().length];
-							System.arraycopy(values[i].getValues(), 0, tempV,
-									0, values[i].getValues().length);
-							tempValues[i] = new AggregatedValue(
-									values[i].getName(), tempV);
-						}
-						for (int j = 1; j < tempValues.length; j++) {
-							for (int k = 1; k < tempValues[j].getValues().length; k++) {
-								tempValues[j].getValues()[k] += tempValues[j - 1]
-										.getValues()[k];
-							}
-						}
-						this.appendData(tempValues);
+					if (values == null) {
+						Log.warn("no values found in plot '"
+								+ this.plotFilename + "' for '" + domain + "."
+								+ name + "'");
 					} else {
-						this.appendData(values);
+						if (addAsCDF) {
+							AggregatedValue[] tempValues = new AggregatedValue[values.length];
+							for (int i = 0; i < tempValues.length; i++) {
+								double[] tempV = new double[values[i]
+										.getValues().length];
+								System.arraycopy(values[i].getValues(), 0,
+										tempV, 0, values[i].getValues().length);
+								tempValues[i] = new AggregatedValue(
+										values[i].getName(), tempV);
+							}
+							for (int j = 1; j < tempValues.length; j++) {
+								for (int k = 1; k < tempValues[j].getValues().length; k++) {
+									tempValues[j].getValues()[k] += tempValues[j - 1]
+											.getValues()[k];
+								}
+							}
+							this.appendData(tempValues);
+						} else {
+							this.appendData(values);
+						}
 					}
 				} else if (m.getNodeValues().getNames().contains(name)) {
-					if (this.orderBy.equals(NodeValueListOrderBy.index)) {
-						this.appendDataWithIndex(m.getNodeValues().get(name)
-								.getValues());
+					AggregatedNodeValueList nvl = m.getNodeValues().get(name);
+					if (nvl.getValues() == null) {
+						Log.warn("no values found in plot '"
+								+ this.plotFilename + "' for '" + domain + "."
+								+ name + "'");
 					} else {
-						AggregatedNodeValueList nvl = m.getNodeValues().get(
-								name);
-						nvl.setsortIndex(this.orderBy, this.sortOrder);
-						AggregatedValue[] values = nvl.getValues();
-						AggregatedValue[] tempValues = new AggregatedValue[values.length];
-						int index = 0;
-						for (int i : nvl.getSortIndex()) {
-							double[] tempV = new double[values[i].getValues().length];
-							System.arraycopy(values[i].getValues(), 0, tempV,
-									0, values[i].getValues().length);
-							tempValues[index] = new AggregatedValue(
-									values[i].getName(), tempV);
-							index++;
+						if (this.orderBy.equals(NodeValueListOrderBy.index)) {
+							this.appendDataWithIndex(nvl.getValues());
+						} else {
+							nvl.setsortIndex(this.orderBy, this.sortOrder);
+							AggregatedValue[] values = nvl.getValues();
+							AggregatedValue[] tempValues = new AggregatedValue[values.length];
+							int index = 0;
+							for (int i : nvl.getSortIndex()) {
+								double[] tempV = new double[values[i]
+										.getValues().length];
+								System.arraycopy(values[i].getValues(), 0,
+										tempV, 0, values[i].getValues().length);
+								tempValues[index] = new AggregatedValue(
+										values[i].getName(), tempV);
+								index++;
+							}
+							this.appendDataWithIndex(tempValues);
 						}
-						this.appendDataWithIndex(tempValues);
 					}
 				} else if (m.getValues().getNames().contains(name)) {
 					this.appendData(m.getValues().get(name), timestamp);
