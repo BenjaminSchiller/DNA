@@ -602,11 +602,6 @@ public class Plotting {
 			String[] values = pc.getValues();
 			String[] domains = pc.getDomains();
 
-			if (pc.isPlotAsCdf())
-				Log.warn("plot '"
-						+ name
-						+ "' can not be plotted as cdf, it is a value plot! Plotting as regular plot.");
-
 			// gather plot data
 			PlotData[] data = new PlotData[values.length];
 			for (int j = 0; j < values.length; j++) {
@@ -625,7 +620,10 @@ public class Plotting {
 			p.writeScriptHeader();
 
 			// add data
-			p.addData(batchData);
+			if (pc.isPlotAsCdf())
+				p.addDataFromRuntimesAsCDF(batchData);
+			else
+				p.addData(batchData);
 
 			// close and execute
 			p.close();
@@ -971,7 +969,8 @@ public class Plotting {
 
 				// get plot data
 				PlotData valuePlotData = PlotData.get(value,
-						Config.get("PLOT_STATISTICS"), style, title, type);
+						Config.get("CUSTOM_PLOT_DOMAIN_STATISTICS"), style,
+						title, type);
 
 				// create plot
 				Plot valuePlot = new Plot(dstDir, PlotFilenames.getValuesPlot(
@@ -1104,8 +1103,8 @@ public class Plotting {
 
 			// get plot data
 			PlotData metPlotData = PlotData.get(runtime,
-					Config.get("PLOT_METRICRUNTIMES"), style, runtime + "-"
-							+ title, type);
+					Config.get("CUSTOM_PLOT_DOMAIN_RUNTIMES"), style, runtime
+							+ "-" + title, type);
 			metRuntimes[index] = metPlotData;
 
 			// create plot
@@ -1178,7 +1177,7 @@ public class Plotting {
 		for (String gen : y) {
 			Log.info("\tplotting '" + gen + "'");
 			genRuntimes[index] = PlotData.get(gen,
-					Config.get("PLOT_GENERALRUNTIMES"), style, gen + "-"
+					Config.get("CUSTOM_PLOT_DOMAIN_RUNTIMES"), style, gen + "-"
 							+ title, type);
 			index++;
 		}

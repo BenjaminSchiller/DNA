@@ -171,13 +171,9 @@ public class Plot {
 			boolean addAsCDF) throws IOException {
 		double timestamp = (double) batch.getTimestamp();
 		// figure out where to get the data from
-		if (domain.equals(Config.get("PLOT_STATISTICS"))) {
+		if (domain.equals(Config.get("CUSTOM_PLOT_DOMAIN_STATISTICS"))) {
 			this.appendData(batch.getValues().get(name), timestamp);
-		} else if (domain.equals(Config.get("PLOT_METRICRUNTIMES"))) {
-			this.appendData(batch.getMetricRuntimes().get(name), timestamp);
-		} else if (domain.equals(Config.get("PLOT_GENERALRUNTIMES"))) {
-			this.appendData(batch.getGeneralRuntimes().get(name), timestamp);
-		} else if (domain.equals(Config.get("PLOT_CUSTOM_RUNTIME"))) {
+		} else if (domain.equals(Config.get("CUSTOM_PLOT_DOMAIN_RUNTIMES"))) {
 			if (batch.getGeneralRuntimes().getNames().contains(name))
 				this.appendData(batch.getGeneralRuntimes().get(name), timestamp);
 			else if (batch.getMetricRuntimes().getNames().contains(name))
@@ -232,14 +228,14 @@ public class Plot {
 					this.appendData(m.getValues().get(name), timestamp);
 				} else {
 					Log.warn("problem when adding data to plot "
-							+ this.scriptFilename + ". Value " + name
-							+ " was not found in domain " + domain
-							+ " of batch." + timestamp);
+							+ this.scriptFilename + ". Value '" + name
+							+ "' was not found in domain '" + domain
+							+ "' of batch." + timestamp);
 				}
 			} else {
 				Log.warn("problem when adding data to plot "
-						+ this.scriptFilename + ". domain " + domain
-						+ " not found in batch." + timestamp);
+						+ this.scriptFilename + ". domain '" + domain
+						+ "' not found in batch." + timestamp);
 			}
 		}
 	}
