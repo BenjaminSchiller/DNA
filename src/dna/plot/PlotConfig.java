@@ -139,8 +139,6 @@ public class PlotConfig {
 				String rd = Config.get("CUSTOM_PLOT_DOMAIN_RUNTIMES");
 				// if runtimes plot, add runtimes domain
 				for (int i = 0; i < values.length; i++) {
-//					domains[i] = Config.get("CUSTOM_PLOT_DOMAIN_RUNTIMES");
-
 					String[] split = values[i].split("\\.");
 					if (!split[0].equals(rd) && !split[0].equals(mrd)
 							&& !split[0].equals(grd)) {
@@ -186,6 +184,9 @@ public class PlotConfig {
 					}
 					domains[i] = domain;
 					values[i] = split[split.length - 1];
+
+					if (values[i].equals(Config.get("CUSTOM_PLOT_WILDCARD")))
+						plotAll = true;
 				}
 			}
 			boolean plotAsCdf = Config.getBoolean(prefix + s + cdfSuffix);
