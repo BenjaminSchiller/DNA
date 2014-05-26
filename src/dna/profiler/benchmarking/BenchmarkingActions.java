@@ -9,7 +9,7 @@ import java.util.Hashtable;
 
 import org.perfidix.meter.AbstractMeter;
 
-import dna.graph.tests.GlobalTestParameters;
+import dna.graph.ClassPointers;
 import dna.io.Reader;
 import dna.io.Writer;
 import dna.util.Config;
@@ -93,7 +93,7 @@ public class BenchmarkingActions {
 				f.delete();
 			}
 
-			for (Class c : GlobalTestParameters.dataStructures) {
+			for (Class c : ClassPointers.dataStructures) {
 				System.out.println(c.getName());
 			}
 		} else if (args[0].equals("plot")) {

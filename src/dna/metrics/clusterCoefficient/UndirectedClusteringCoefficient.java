@@ -2,6 +2,7 @@ package dna.metrics.clusterCoefficient;
 
 import dna.graph.Graph;
 import dna.graph.IElement;
+import dna.graph.datastructures.GraphDataStructure;
 import dna.graph.edges.UndirectedEdge;
 import dna.graph.nodes.DirectedNode;
 import dna.graph.nodes.UndirectedNode;
@@ -23,6 +24,8 @@ import dna.util.ArrayUtils;
  */
 public abstract class UndirectedClusteringCoefficient extends
 		ClusteringCoefficient {
+	
+	GraphDataStructure gds;
 
 	public UndirectedClusteringCoefficient(String name, ApplicationType type,
 			MetricType mType) {
@@ -31,13 +34,12 @@ public abstract class UndirectedClusteringCoefficient extends
 
 	@Override
 	public boolean compute() {
+		gds = g.getGraphDatastructures();
 		this.triangleCount = 0;
 		this.potentialCount = 0;
-		if (DirectedNode.class.isAssignableFrom(this.g.getGraphDatastructures()
-				.getNodeType())) {
+		if (g.isDirected()) {
 			return this.computeDirected();
-		} else if (UndirectedNode.class.isAssignableFrom(this.g
-				.getGraphDatastructures().getNodeType())) {
+		} else if (!g.isDirected()) {
 			return this.computeUndirected();
 		}
 		return false;
@@ -60,7 +62,7 @@ public abstract class UndirectedClusteringCoefficient extends
 						continue;
 					}
 					this.nodePotentialCount[a.getIndex()]++;
-					if (b.hasEdge(new UndirectedEdge(b, c))) {
+					if (b.hasEdge(b, c)) {
 						this.nodeTriangleCount[a.getIndex()]++;
 					}
 				}

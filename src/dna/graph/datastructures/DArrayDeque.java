@@ -33,18 +33,16 @@ public class DArrayDeque extends DataStructureReadable implements
 				+ element.getClass() + " here");
 	}
 
-	public boolean add(Node element) {
-		super.canAdd(element);
-		if (this.list.contains(element) || !this.list.add(element)) {
+	protected boolean add_(Node element) {
+		if (!this.list.add(element)) {
 			return false;
 		}
 		this.maxNodeIndex = Math.max(this.maxNodeIndex, element.getIndex());
 		return true;
 	}
 
-	public boolean add(Edge element) {
-		super.canAdd(element);
-		return !this.list.contains(element) && this.list.add(element);
+	protected boolean add_(Edge element) {
+		return this.list.add(element);
 	}
 
 	@Override
@@ -113,12 +111,12 @@ public class DArrayDeque extends DataStructureReadable implements
 	}
 
 	@Override
-	public Edge get(Node n1, Node n2) {
+	public Edge get(int n1, int n2) {
 		for (IElement eU : list) {
 			if (eU == null)
 				continue;
 			Edge e = (Edge) eU;
-			if (e.getN1().equals(n1) && e.getN2().equals(n2))
+			if (e.getN1Index() == n1 && e.getN2Index() == n2)
 				return e;
 		}
 		return null;
@@ -126,7 +124,7 @@ public class DArrayDeque extends DataStructureReadable implements
 
 	@Override
 	public Edge get(Edge element) {
-		return get(element.getN1(), element.getN2());
+		return get(element.getN1Index(), element.getN2Index());
 	}
 
 	@Override
@@ -155,5 +153,9 @@ public class DArrayDeque extends DataStructureReadable implements
 	@Override
 	protected Iterator<IElement> iterator_() {
 		return this.list.iterator();
+	}
+
+	public void prepareForGC() {
+		this.list = null;
 	}
 }

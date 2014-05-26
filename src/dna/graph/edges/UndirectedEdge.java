@@ -87,6 +87,10 @@ public class UndirectedEdge extends Edge {
 		return (UndirectedNode) this.getN1();
 	}
 
+	public int getN1Index() {
+		return getNode1().getIndex();
+	}
+
 	/**
 	 * 
 	 * @return second node connected by this edge (the node with the higher
@@ -94,6 +98,10 @@ public class UndirectedEdge extends Edge {
 	 */
 	public UndirectedNode getNode2() {
 		return (UndirectedNode) this.getN2();
+	}
+
+	public int getN2Index() {
+		return getNode2().getIndex();
 	}
 
 	private void init(UndirectedNode node1, UndirectedNode node2) {
@@ -118,8 +126,8 @@ public class UndirectedEdge extends Edge {
 		if (oCasted.getNode1() == null || oCasted.getNode2() == null)
 			return false;
 
-		return this.getNode1().getIndex() == oCasted.getNode1().getIndex()
-				&& this.getNode2().getIndex() == oCasted.getNode2().getIndex();
+		return this.getN1Index() == oCasted.getN1Index()
+				&& this.getN2Index() == oCasted.getN2Index();
 	}
 
 	@Override
@@ -144,17 +152,6 @@ public class UndirectedEdge extends Edge {
 		boolean rem1 = this.getNode1().removeEdge(this);
 		boolean rem2 = this.getNode2().removeEdge(this);
 		return rem1 && rem2;
-	}
-
-	@Override
-	public boolean isConnectedTo(Node n1, Node n2) {
-		return (this.getN1().equals(n1) && this.getN2().equals(n2))
-				|| (this.getN1().equals(n2) && this.getN2().equals(n1));
-	}
-
-	@Override
-	public boolean isConnectedTo(Node n1) {
-		return this.getN1().equals(n1) || this.getN2().equals(n1);
 	}
 
 }

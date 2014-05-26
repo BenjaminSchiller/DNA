@@ -11,23 +11,45 @@ public abstract class Edge extends Element implements IEdge {
 		this.n1 = n1;
 		this.n2 = n2;
 	}
-	
+
 	public Node getN1() {
 		return n1;
 	}
-	
+
 	public Node getN2() {
 		return n2;
 	}
-	
-	public final String getHashString() {
+
+	public int getN1Index() {
+		return n1.getIndex();
+	}
+
+	public int getN2Index() {
+		return n2.getIndex();
+	}
+
+	public final boolean isConnectedTo(Node n1, Node n2) {
+		return (this.getN1().equals(n1) && this.getN2().equals(n2))
+				|| (this.getN1().equals(n2) && this.getN2().equals(n1));
+	}
+
+	public final boolean isConnectedTo(int n1, int n2) {
+		return (this.getN1Index() == n1 && this.getN2Index() == n2)
+				|| (this.getN1Index() == n2 && this.getN2Index() == n1);
+	}
+
+	public final boolean isConnectedTo(Node n1) {
+		return this.getN1().equals(n1) || this.getN2().equals(n1);
+	}
+
+	public String getHashString() {
 		return Integer.toString(this.hashCode());
 	}
-	
-	public final int hashCode() {
-		return getHashcode(n1, n2);
+
+	public int hashCode() {
+		return getHashcode(n1.getIndex(), n2.getIndex());
 	}
-	
+
 	/**
 	 * 
 	 * @param n
@@ -45,8 +67,13 @@ public abstract class Edge extends Element implements IEdge {
 			return null;
 		}
 	}
-	
+
 	public static int getHashcode(Node n1, Node n2) {
-		return n1.getIndex() * (int) Math.pow(2, 16) + n2.getIndex();
+		return getHashcode(n1.getIndex(), n2.getIndex());
 	}
+
+	public static int getHashcode(int n1Index, int n2Index) {
+		return n1Index * (int) Math.pow(2, 16) + n2Index;
+	}
+
 }

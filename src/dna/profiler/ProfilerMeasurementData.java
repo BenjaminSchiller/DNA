@@ -1,8 +1,15 @@
 package dna.profiler;
 
+import java.io.File;
 import java.io.IOException;
+import java.net.URISyntaxException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Properties;
+import java.util.Vector;
 
 import dna.graph.datastructures.DataStructure.AccessType;
 import dna.profiler.datatypes.ComparableEntry;
@@ -12,20 +19,87 @@ import dna.profiler.datatypes.benchmarkresults.BenchmarkingResultsMap;
 import dna.profiler.datatypes.complexity.Complexity;
 import dna.profiler.datatypes.complexity.ComplexityMap;
 import dna.profiler.datatypes.complexity.ComplexityType;
+import dna.util.Config;
 import dna.util.PropertiesHolder;
 
 public abstract class ProfilerMeasurementData extends PropertiesHolder {
 	public enum ProfilerDataType {
-		RuntimeComplexity, MemoryComplexity, RuntimeBenchmark, MemoryBenchmark
+		RuntimeComplexity(), MemoryComplexity(AccessType.Init, AccessType.Add), RuntimeBenchmark(), MemoryBenchmark(
+				AccessType.Init, AccessType.Add), CombinedBenchmark();
+
+		private ArrayList<AccessType> accessTypesToUseFromAggregation;
+
+		private ProfilerDataType(AccessType... at) {
+			this.accessTypesToUseFromAggregation = new ArrayList<>(
+					Arrays.asList(at));
+		}
+
+		public ArrayList<AccessType> getAccessTypesFromAggregation() {
+			return accessTypesToUseFromAggregation;
+		}
 	}
 
-	public static String folderName = "profilerData/";
+	private static String folderName = "profilerData/";
 
 	private static HashMap<String, ComparableEntry> measurementData;
 
+	public static void setDataFolder(String df) {
+		folderName = df;
+	}
+
+	public static String getDataFolder() {
+		return folderName;
+	}
+
+	public static double[] getWeights(ProfilerDataType pdt) {
+		switch (pdt) {
+		case CombinedBenchmark:
+			return new double[] {
+					Config.getDouble("RECOMMENDER_COMBINEDCOMPLEXITY_RUNTIMEWEIGHT"),
+					Config.getDouble("RECOMMENDER_COMBINEDCOMPLEXITY_MEMORYWEIGHT") };
+		case MemoryBenchmark:
+		case MemoryComplexity:
+		case RuntimeBenchmark:
+		case RuntimeComplexity:
+			return null;
+		default:
+			throw new RuntimeException("No combination weights found for "
+					+ pdt);
+		}
+	}
+
+	public static ProfilerDataType[] getDependencies(ProfilerDataType pdt) {
+		switch (pdt) {
+		case CombinedBenchmark:
+			return new ProfilerDataType[] { ProfilerDataType.RuntimeBenchmark,
+					ProfilerDataType.MemoryBenchmark };
+		case MemoryBenchmark:
+		case MemoryComplexity:
+		case RuntimeBenchmark:
+		case RuntimeComplexity:
+			return new ProfilerDataType[] {};
+		default:
+			throw new RuntimeException("No dependencies found for " + pdt);
+		}
+	}
+
 	public static void init() throws IOException {
 		measurementData = null;
-		loadFromProperties(initFromFolder(folderName));
+
+		Vector<File> folders = new Vector<File>();
+		folders.add(new File(folderName));
+		try {
+			Path pPath = Paths.get(Config.class.getProtectionDomain()
+					.getCodeSource().getLocation().toURI());
+			if (pPath.getFileName().toString().endsWith(".jar")) {
+				folders.add(pPath.toFile());
+			}
+
+		} catch (URISyntaxException e) {
+			e.printStackTrace();
+		}
+
+		loadFromProperties(initFromFolders(folders));
 	}
 
 	public static ComparableEntry get(ProfilerDataType complexityType,
@@ -38,6 +112,11 @@ public abstract class ProfilerMeasurementData extends PropertiesHolder {
 	public static ComparableEntry get(ProfilerDataType complexityType,
 			String classname, AccessType accessType, String storedDataClass,
 			ComplexityType.Base base, boolean checkWithDefaults) {
+
+		ProfilerDataType[] dependencies = getDependencies(complexityType);
+		if (dependencies.length != 0) {
+			return null;
+		}
 
 		String keyName = complexityType.toString().toUpperCase() + "_"
 				+ classname.toUpperCase();
@@ -53,21 +132,24 @@ public abstract class ProfilerMeasurementData extends PropertiesHolder {
 		if (c == null)
 			c = get(keyName);
 		if (c == null) {
-			if (checkWithDefaults)
+			if (checkWithDefaults) {
 				/**
 				 * This is the call where defaults are taken into account. If
 				 * nothing is present here, the data is really missing
 				 */
-				throw new RuntimeException("Missing complexity entry "
-						+ keyName);
-			else
+				throw new RuntimeException("Missing complexity entry for "
+						+ complexityType.toString().toUpperCase() + "_"
+						+ classname.toUpperCase() + "_"
+						+ accessType.toString().toUpperCase() + "_"
+						+ storedDataClass.toUpperCase());
+			} else
 				/**
 				 * This is the call where defaults are not yet taken into
 				 * account. Try to search for a dataset with the default values
 				 * before failing
 				 */
-				return get(complexityType, classname, accessType, storedDataClass,
-						base, true);
+				return get(complexityType, classname, accessType,
+						storedDataClass, base, true);
 		}
 		return c;
 	}
@@ -97,21 +179,7 @@ public abstract class ProfilerMeasurementData extends PropertiesHolder {
 				|| key.startsWith("DEFAULT_RUNTIMEBENCHMARK")) {
 			return BenchmarkingResult.parseString(key, val);
 		} else {
-			throw new RuntimeException("Don't know how to parse " + key + "="
-					+ val);
-		}
-	}
-
-	public static ComparableEntry getEntry(ProfilerDataType t) {
-		switch (t) {
-		case MemoryComplexity:
-		case RuntimeComplexity:
-			return new Complexity();
-		case MemoryBenchmark:
-		case RuntimeBenchmark:
-			return new BenchmarkingResult("");
-		default:
-			throw new RuntimeException("Cannot create ComparableEntry for " + t);
+			return null;
 		}
 	}
 
@@ -122,6 +190,7 @@ public abstract class ProfilerMeasurementData extends PropertiesHolder {
 			return new ComplexityMap();
 		case MemoryBenchmark:
 		case RuntimeBenchmark:
+		case CombinedBenchmark:
 			return new BenchmarkingResultsMap();
 		default:
 			throw new RuntimeException("Cannot create ComparableEntryMap for "
@@ -137,10 +206,7 @@ public abstract class ProfilerMeasurementData extends PropertiesHolder {
 		for (String key : in.stringPropertyNames()) {
 			String val = in.getProperty(key);
 			ComparableEntry c = parseString(key, val);
-			if (c == null) {
-				throw new RuntimeException(
-						"Could not properly parse complexity entry " + val);
-			} else {
+			if (c != null) {
 				measurementData.put(key, c);
 			}
 		}

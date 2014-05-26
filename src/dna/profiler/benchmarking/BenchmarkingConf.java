@@ -12,9 +12,13 @@ import org.perfidix.meter.Time;
 import org.perfidix.meter.TimeMeter;
 import org.perfidix.ouput.AbstractOutput;
 
-public class BenchmarkingConf extends AbstractConfig {
+import dna.util.Config;
 
-	private final static int RUNS = 5;
+public class BenchmarkingConf extends AbstractConfig {
+	
+	public final static int elementsToSkip = 3;
+	private final static int RUNS = Config.getInt("BENCHMARKING_RUNS") + elementsToSkip;
+	
 	private final static Set<AbstractMeter> METERS = new HashSet<AbstractMeter>();
 	private final static Set<AbstractOutput> OUTPUT = new HashSet<AbstractOutput>();
 
@@ -27,23 +31,35 @@ public class BenchmarkingConf extends AbstractConfig {
 	}
 
 	private int[] inputSizes;
-	private int operationSize;
 
 	/**
 	 * Public constructor.
 	 */
 	public BenchmarkingConf() {
 		super(RUNS, METERS, OUTPUT, ARRAN, GCPROB);
-		this.inputSizes = new int[] { 1000, 5000, 10000 };
-		this.operationSize = 50;
+
+		String inputSizesString = Config.get("BENCHMARKING_INPUTSIZES");
+		String[] splitted = inputSizesString.split(";");
+
+		this.inputSizes = new int[splitted.length];
+		for (int i = 0; i < splitted.length; i++) {
+			inputSizes[i] = Integer.parseInt(splitted[i]);
+		}
 	}
 
 	public int[] getInputSizes() {
 		return this.inputSizes;
 	}
-	
-	public int getOperationSize() {
-		return this.operationSize;
+
+	public int getMaxOperationSize() {
+		int defaultBenchmarkSize = 50;
+		return defaultBenchmarkSize;
+	}
+
+	public int getOperationSize(int inputSize) {
+		int defaultSize = getMaxOperationSize();
+		int calculatedSize = (int) Math.ceil(inputSize / 3);
+		return Math.min(defaultSize, calculatedSize);
 	}
 
 }

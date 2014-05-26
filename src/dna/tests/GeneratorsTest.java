@@ -1,4 +1,4 @@
-package dna.graph.tests;
+package dna.tests;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
@@ -27,6 +27,7 @@ import com.google.common.hash.HashCode;
 import com.google.common.hash.HashFunction;
 import com.google.common.hash.Hashing;
 
+import dna.graph.ClassPointers;
 import dna.graph.Graph;
 import dna.graph.IElement;
 import dna.graph.datastructures.DEmpty;
@@ -56,7 +57,7 @@ import dna.io.GraphReader;
 import dna.io.GraphWriter;
 import dna.util.Rand;
 
-@RunWith(Parallelized.class)
+@RunWith(Parameterized.class)
 public class GeneratorsTest {
 	private Class<? extends Node> nodeType;
 	private Class<? extends Edge> edgeType;
@@ -129,7 +130,7 @@ public class GeneratorsTest {
 		 * A short output to overcome the timeout of Travis: If there is no
 		 * console output in 10 minutes, a test run is stopped
 		 */
-		if (Math.random() < 0.001)
+		if (Math.random() < 0.005)
 			System.out.print(".");
 
 	}
@@ -145,9 +146,9 @@ public class GeneratorsTest {
 
 		ArrayList<Object> result = new ArrayList<>();
 		for (EnumMap<ListType, Class<? extends IDataStructure>> combination : simpleCombinations) {
-			for (Class generator : GlobalTestParameters.graphGenerators) {
-				for (Class edgeType : GlobalTestParameters.edgeTypes) {
-					for (Class nodeType : GlobalTestParameters.nodeTypes) {
+			for (Class generator : ClassPointers.graphGenerators) {
+				for (Class edgeType : ClassPointers.edgeTypes) {
+					for (Class nodeType : ClassPointers.nodeTypes) {
 						if ((UndirectedEdge.class.isAssignableFrom(edgeType) && DirectedNode.class
 								.isAssignableFrom(nodeType))
 								|| (DirectedEdge.class
@@ -155,8 +156,12 @@ public class GeneratorsTest {
 										.isAssignableFrom(nodeType)))
 							continue;
 
-						if (combination.get(ListType.GlobalEdgeList) == DEmpty.class
+						if (combination.get(ListType.GlobalNodeList) == DEmpty.class
+								|| combination.get(ListType.GlobalEdgeList) == DEmpty.class
 								|| combination.get(ListType.LocalEdgeList) == DEmpty.class)
+							continue;
+
+						if (Rand.rand.nextInt(30) > 2)
 							continue;
 
 						result.add(new Object[] { combination, nodeType,
@@ -165,6 +170,9 @@ public class GeneratorsTest {
 				}
 			}
 		}
+
+		System.out.println("Running this test with " + result.size()
+				+ " input combinations");
 
 		return result;
 	}
@@ -262,8 +270,7 @@ public class GeneratorsTest {
 			assertNotNull("Graph g misses edge " + e + " (edge list type: "
 					+ gds.getListClass(ListType.GlobalEdgeList) + ")", eOther);
 			assertEquals(e, eOther);
-			assertNotEquals(e.asString(),
-					eOther.asString());
+			assertNotEquals(e.asString(), eOther.asString());
 		}
 
 		for (IElement eU : g.getEdges()) {
@@ -271,8 +278,7 @@ public class GeneratorsTest {
 			Edge eOther = g2.getEdge(e.getN1(), e.getN2());
 			assertNotNull(eOther);
 			assertEquals(e, eOther);
-			assertNotEquals(e.asString(),
-					eOther.asString());
+			assertNotEquals(e.asString(), eOther.asString());
 		}
 
 	}

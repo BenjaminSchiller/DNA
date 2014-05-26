@@ -255,7 +255,7 @@ public class PositiveFeedbackPreferenceBatch extends BatchGenerator {
 				if(sumK2 > takeNode && 
 						k != srcNode && 
 						k != ignoreNode && 
-						!g.containsEdge(g.getGraphDatastructures().newEdgeInstance(src, dst))){
+						!g.containsEdge(src, dst)){
 					return dst;
 				}
 			}
@@ -270,7 +270,7 @@ public class PositiveFeedbackPreferenceBatch extends BatchGenerator {
 				if(sumK2 > takeNode && 
 						k+maxOldId+1 != srcNode &&
 						k+maxOldId+1 != ignoreNode && 
-						!g.containsEdge(g.getGraphDatastructures().newEdgeInstance(src, dst))){
+						!g.containsEdge(src, dst)){
 					return dst;
 				}
 			}

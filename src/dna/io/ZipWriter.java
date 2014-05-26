@@ -5,6 +5,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystem;
+import java.nio.file.FileSystemAlreadyExistsException;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.OpenOption;
@@ -26,6 +27,17 @@ import dna.util.Log;
 public class ZipWriter extends Writer {
 
 	private FileSystem zipFile;
+	
+	private static FileSystem getFileSystem(URI uri, Map<String, ?> env)
+			throws IOException {
+		FileSystem fs;
+		try {
+			fs = FileSystems.newFileSystem(uri, env);
+		} catch (FileSystemAlreadyExistsException e) {
+			fs = FileSystems.getFileSystem(uri);
+		}
+		return fs;
+	}
 
 	public ZipWriter(String fsDir, String fsFileName, String dir,
 			String filename) throws IOException {
@@ -45,7 +57,7 @@ public class ZipWriter extends Writer {
 		URI fsFileUri = URI.create("jar:" + fsFile.toUri().toString());
 
 		// create filesystem
-		FileSystem fs = FileSystems.newFileSystem(fsFileUri, env);
+		FileSystem fs = getFileSystem(fsFileUri, env);
 		this.zipFile = fs;
 
 		// if directory does not exist, create it
@@ -112,7 +124,7 @@ public class ZipWriter extends Writer {
 					fileUri.getPath(), null);
 
 			// try with resource
-			try (FileSystem zipfs = FileSystems.newFileSystem(zipUri, env)) {
+			try (FileSystem zipfs = getFileSystem(zipUri, env)) {
 			}
 		} catch (URISyntaxException e) {
 			Log.error("Failed to create zip file on path "
@@ -154,6 +166,6 @@ public class ZipWriter extends Writer {
 		URI fsFileUri = URI.create("jar:" + fsFile.toUri().toString());
 
 		// create filesystem
-		return FileSystems.newFileSystem(fsFileUri, env);
+		return getFileSystem(fsFileUri, env);
 	}
 }

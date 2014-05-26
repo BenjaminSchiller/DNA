@@ -29,9 +29,17 @@ public abstract class Node extends Element implements INode {
 	public String asString() {
 		return Integer.toString(this.index);
 	}
+	
+	public boolean hasEdge(Node n1, Node n2) {
+		return hasEdge(GraphDataStructure.getCurrent().getDummyEdge(n1, n2));
+	}
+
+	public boolean hasEdge(int n1, int n2) {
+		return hasEdge(GraphDataStructure.getCurrent().getDummyEdge(n1, n2));
+	}
 
 	public int hashCode() {
-		return Integer.toString(this.index).hashCode();
+		return this.index;
 	}
 
 	@Override

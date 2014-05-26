@@ -1,4 +1,4 @@
-package dna.graph.tests;
+package dna.tests;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
@@ -18,6 +18,7 @@ import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
+import dna.graph.ClassPointers;
 import dna.graph.Graph;
 import dna.graph.datastructures.DEmpty;
 import dna.graph.datastructures.DataStructure.ListType;
@@ -53,8 +54,9 @@ import dna.updates.update.EdgeWeight;
 import dna.updates.update.NodeRemoval;
 import dna.updates.update.NodeWeight;
 import dna.updates.update.Update;
+import dna.util.Rand;
 
-@RunWith(Parallelized.class)
+@RunWith(Parameterized.class)
 public class BatchTest {
 	private Class<? extends Node> nodeType;
 	private Class<? extends Edge> edgeType;
@@ -115,7 +117,7 @@ public class BatchTest {
 		 * A short output to overcome the timeout of Travis: If there is no
 		 * console output in 10 minutes, a test run is stopped
 		 */
-		if (Math.random() < 0.001)
+		if (Math.random() < 0.0002)
 			System.out.print(".");
 	}
 
@@ -163,9 +165,9 @@ public class BatchTest {
 
 		ArrayList<Object> result = new ArrayList<>();
 		for (EnumMap<ListType, Class<? extends IDataStructure>> combination : simpleCombinations) {
-			for (Class generator : GlobalTestParameters.graphGenerators) {
-				for (Class edgeType : GlobalTestParameters.edgeTypes) {
-					for (Class nodeType : GlobalTestParameters.nodeTypes) {
+			for (Class generator : ClassPointers.graphGenerators) {
+				for (Class edgeType : ClassPointers.edgeTypes) {
+					for (Class nodeType : ClassPointers.nodeTypes) {
 						if ((UndirectedEdge.class.isAssignableFrom(edgeType) && DirectedNode.class
 								.isAssignableFrom(nodeType))
 								|| (DirectedEdge.class
@@ -176,8 +178,12 @@ public class BatchTest {
 						if (generator == EmptyGraph.class)
 							continue;
 
-						if (combination.get(ListType.GlobalEdgeList) == DEmpty.class
+						if (combination.get(ListType.GlobalNodeList) == DEmpty.class
+								|| combination.get(ListType.GlobalEdgeList) == DEmpty.class
 								|| combination.get(ListType.LocalEdgeList) == DEmpty.class)
+							continue;
+
+						if (Rand.rand.nextInt(20) > 3)
 							continue;
 
 						result.add(new Object[] { combination, nodeType,
@@ -186,6 +192,9 @@ public class BatchTest {
 				}
 			}
 		}
+
+		System.out.println("Running this test with " + result.size()
+				+ " input combinations");
 
 		return result;
 	}

@@ -5,6 +5,7 @@ import java.util.Arrays;
 
 import dna.graph.Graph;
 import dna.graph.IElement;
+import dna.graph.datastructures.GraphDataStructure;
 import dna.graph.edges.UndirectedEdge;
 import dna.graph.nodes.UndirectedNode;
 import dna.metrics.Metric;
@@ -25,6 +26,8 @@ public abstract class UndirectedMotifs extends Metric {
 	protected DistributionLong motifs;
 
 	public static final String motifsName = "undirectedMotifs";
+	
+	GraphDataStructure gds;
 
 	public UndirectedMotifs(String name, ApplicationType type,
 			MetricType metricType) {
@@ -33,7 +36,7 @@ public abstract class UndirectedMotifs extends Metric {
 
 	@Override
 	public boolean compute() {
-
+		gds = g.getGraphDatastructures();
 		for (IElement a_ : this.g.getNodes()) {
 			UndirectedNode a = (UndirectedNode) a_;
 
@@ -46,16 +49,16 @@ public abstract class UndirectedMotifs extends Metric {
 					if (b.getIndex() == c.getIndex()) {
 						continue;
 					}
-					if (b.hasEdge(new UndirectedEdge(b, c))) {
+					if (b.hasEdge(b, c)) {
 						continue;
 					}
 					for (IElement d_ : b.getEdges()) {
 						UndirectedNode d = (UndirectedNode) ((UndirectedEdge) d_)
 								.getDifferingNode(b);
-						if (d.hasEdge(new UndirectedEdge(a, d))) {
+						if (d.hasEdge(a, d)) {
 							continue;
 						}
-						if (!d.hasEdge(new UndirectedEdge(c, d))) {
+						if (!d.hasEdge(c, d)) {
 							if (a.getIndex() < b.getIndex()) {
 								this.incr(UndirectedMotifType.UM1);
 							}
@@ -77,11 +80,11 @@ public abstract class UndirectedMotifs extends Metric {
 				UndirectedNode b = neighbors[i];
 				for (int j = i + 1; j < neighbors.length; j++) {
 					UndirectedNode c = neighbors[j];
-					boolean bc = c.hasEdge(new UndirectedEdge(b, c));
+					boolean bc = c.hasEdge(b, c);
 					for (int k = j + 1; k < neighbors.length; k++) {
 						UndirectedNode d = neighbors[k];
-						boolean bd = d.hasEdge(new UndirectedEdge(b, d));
-						boolean cd = d.hasEdge(new UndirectedEdge(c, d));
+						boolean bd = d.hasEdge(b, d);
+						boolean cd = d.hasEdge(c, d);
 
 						int sum = (bc ? 1 : 0) + (bd ? 1 : 0) + (cd ? 1 : 0);
 

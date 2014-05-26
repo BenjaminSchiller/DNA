@@ -78,8 +78,7 @@ public interface IDataStructure extends Iterable<IElement> {
 	public Class<? extends IElement> getDataType();
 	
 	/**
-	 * Print a string representation of this list
+	 * Prepare this data structure for garbage collection
 	 */
-	public void printList();
-
+	public void prepareForGC();
 }

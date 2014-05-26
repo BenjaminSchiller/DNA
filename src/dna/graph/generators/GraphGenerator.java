@@ -23,6 +23,14 @@ public abstract class GraphGenerator extends ParameterList implements
 		return edgesInit;
 	}
 
+	public GraphDataStructure getGds() {
+		return gds;
+	}
+	
+	public void setGds(GraphDataStructure newGDS) {
+		this.gds = newGDS;
+	}
+
 	protected GraphDataStructure gds;
 
 	public GraphGenerator(String name, Parameter[] params,
@@ -44,7 +52,8 @@ public abstract class GraphGenerator extends ParameterList implements
 	}
 
 	public Graph newGraphInstance() {
-		return this.gds.newGraphInstance(this.getName(), this.timestampInit,
+		GraphDataStructure newGDS = gds.clone();
+		return newGDS.newGraphInstance(this.getName(), this.timestampInit,
 				this.nodesInit, this.edgesInit);
 	}
 

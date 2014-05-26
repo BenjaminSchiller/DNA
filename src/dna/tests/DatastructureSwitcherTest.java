@@ -1,4 +1,4 @@
-package dna.graph.tests;
+package dna.tests;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -16,6 +16,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
+import dna.graph.ClassPointers;
 import dna.graph.Graph;
 import dna.graph.IElement;
 import dna.graph.datastructures.DArray;
@@ -61,8 +62,8 @@ public class DatastructureSwitcherTest {
 	@Parameterized.Parameters(name = "{0} {1}")
 	public static Collection<Object> testPairs() {
 		ArrayList<Object> result = new ArrayList<>();
-		for (Class oldDS : GlobalTestParameters.dataStructures) {
-			for (Class newDS : GlobalTestParameters.dataStructures) {
+		for (Class oldDS : ClassPointers.dataStructures) {
+			for (Class newDS : ClassPointers.dataStructures) {
 				if (oldDS.equals(DEmpty.class))
 					continue;
 				result.add(new Object[] { oldDS, newDS });
@@ -110,8 +111,7 @@ public class DatastructureSwitcherTest {
 
 		int edgesInGraph = g.getEdgeCount();
 
-		g.switchDataStructure(ListType.GlobalEdgeList,
-				instantiate(ListType.GlobalEdgeList, newDS));
+		g.switchDataStructure(ListType.GlobalEdgeList, newDS);
 		listOld = (IEdgeListDatastructure) innerGlobalEdgeList.get(g);
 		assertTrue(listOld.getClass().equals(newDS));
 		if (!newDS.equals(DEmpty.class)) {
@@ -139,8 +139,7 @@ public class DatastructureSwitcherTest {
 
 		int nodesInGraph = g.getNodeCount();
 
-		g.switchDataStructure(ListType.GlobalNodeList,
-				instantiate(ListType.GlobalNodeList, newDS));
+		g.switchDataStructure(ListType.GlobalNodeList, newDS);
 		listOld = (INodeListDatastructure) innerGlobalNodeList.get(g);
 		assertTrue(listOld.getClass().equals(newDS));
 		if (!newDS.equals(DEmpty.class)) {

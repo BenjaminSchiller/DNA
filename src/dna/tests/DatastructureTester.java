@@ -1,4 +1,4 @@
-package dna.graph.tests;
+package dna.tests;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -20,6 +20,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
 import dna.graph.Element;
+import dna.graph.ClassPointers;
 import dna.graph.IElement;
 import dna.graph.datastructures.DArray;
 import dna.graph.datastructures.DEmpty;
@@ -64,8 +65,8 @@ public class DatastructureTester {
 			InvocationTargetException, NoSuchMethodException, SecurityException {
 
 		ArrayList<Object> result = new ArrayList<>();
-		for (Class sD : GlobalTestParameters.dataStructures) {
-			for (Class sE : GlobalTestParameters.elementClasses) {
+		for (Class sD : ClassPointers.dataStructures) {
+			for (Class sE : ClassPointers.elementClasses) {
 				// Check whether we can store an object of sE in sD
 				if ((Node.class.isAssignableFrom(sE) && !INodeListDatastructure.class
 						.isAssignableFrom(sD))
@@ -97,7 +98,7 @@ public class DatastructureTester {
 		 * each *rejected* class. There should be no gap in between...
 		 */
 
-		for (Class otherElementClass : GlobalTestParameters.elementClasses) {
+		for (Class otherElementClass : ClassPointers.elementClasses) {
 			if (elementClass.isAssignableFrom(otherElementClass)) {
 				assertTrue("Datastructure " + dataStructure.getClass() + "["
 						+ this.elementClass + "] can't store "
@@ -131,7 +132,7 @@ public class DatastructureTester {
 			 */
 		}
 
-		assertEquals(GlobalTestParameters.elementClasses.length,
+		assertEquals(ClassPointers.elementClasses.length,
 				exceptionCounter);
 	}
 

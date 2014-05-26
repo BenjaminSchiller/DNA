@@ -1,4 +1,4 @@
-package dna.graph.tests;
+package dna.tests;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assume.assumeTrue;
@@ -17,6 +17,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
+import dna.graph.ClassPointers;
 import dna.graph.Graph;
 import dna.graph.datastructures.DEmpty;
 import dna.graph.datastructures.DataStructure.AccessType;
@@ -124,15 +125,17 @@ public class ProfilerTest {
 	public static Collection<Object> testPairs() {
 		ArrayList<Object> result = new ArrayList<>();
 		Class nodeListType = null;
-		for (Class loopNodeListType : GlobalTestParameters.dataStructures) {
+		for (Class loopNodeListType : ClassPointers.dataStructures) {
 			if (!(INodeListDatastructure.class
 					.isAssignableFrom(loopNodeListType)))
+				continue;
+			if (loopNodeListType == DEmpty.class)
 				continue;
 			nodeListType = loopNodeListType;
 		}
 
 		Class edgeListType = null;
-		for (Class loopEdgeListType : GlobalTestParameters.dataStructures) {
+		for (Class loopEdgeListType : ClassPointers.dataStructures) {
 			if (!(IEdgeListDatastructure.class
 					.isAssignableFrom(loopEdgeListType)))
 				continue;
@@ -142,7 +145,7 @@ public class ProfilerTest {
 		}
 
 		Class nodeEdgeListType = null;
-		for (Class loopNodeEdgeListType : GlobalTestParameters.dataStructures) {
+		for (Class loopNodeEdgeListType : ClassPointers.dataStructures) {
 			if (!(IEdgeListDatastructure.class
 					.isAssignableFrom(loopNodeEdgeListType)))
 				continue;
@@ -151,8 +154,8 @@ public class ProfilerTest {
 			nodeEdgeListType = loopNodeEdgeListType;
 		}
 
-		for (Class nodeType : GlobalTestParameters.nodeTypes) {
-			for (Class edgeType : GlobalTestParameters.edgeTypes) {
+		for (Class nodeType : ClassPointers.nodeTypes) {
+			for (Class edgeType : ClassPointers.edgeTypes) {
 				if ((UndirectedEdge.class.isAssignableFrom(edgeType) && DirectedNode.class
 						.isAssignableFrom(nodeType))
 						|| (DirectedEdge.class.isAssignableFrom(edgeType) && UndirectedNode.class
@@ -326,15 +329,16 @@ public class ProfilerTest {
 	@Test
 	public void testMeanSizesAreCalculatedProperly() {
 		assertEquals(2, Profiler.getMeanSize(ListType.GlobalNodeList), 0.1);
-		assertEquals(2, Profiler.getMeanSize(ListType.GlobalEdgeList), 0.1);
 
 		if (graph.isDirected()) {
+			assertEquals(2, Profiler.getMeanSize(ListType.GlobalEdgeList), 0.1);			
 			assertEquals(1, Profiler.getMeanSize(ListType.LocalNodeList), 0.1);
 			assertEquals(0, Profiler.getMeanSize(ListType.LocalEdgeList), 0.1);
 			assertEquals(1, Profiler.getMeanSize(ListType.LocalInEdgeList), 0.1);
 			assertEquals(1, Profiler.getMeanSize(ListType.LocalOutEdgeList),
 					0.1);
 		} else {
+			assertEquals(1, Profiler.getMeanSize(ListType.GlobalEdgeList), 0.1);			
 			assertEquals(0, Profiler.getMeanSize(ListType.LocalNodeList), 0.1);
 			assertEquals(1, Profiler.getMeanSize(ListType.LocalEdgeList), 0.1);
 			assertEquals(0, Profiler.getMeanSize(ListType.LocalInEdgeList), 0.1);

@@ -4,18 +4,18 @@ import java.awt.Color;
 import java.awt.Font;
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Properties;
 import java.util.Vector;
 
-import dna.plot.Gnuplot.PlotStyle;
 import dna.plot.data.PlotData.DistributionPlotType;
 import dna.plot.data.PlotData.NodeValueListOrder;
 import dna.plot.data.PlotData.NodeValueListOrderBy;
+import dna.plot.data.PlotData.PlotStyle;
 import dna.plot.data.PlotData.PlotType;
 import dna.visualization.config.VisualizerListConfig.SortModeDist;
 import dna.visualization.config.VisualizerListConfig.SortModeNVL;
@@ -28,6 +28,10 @@ public class Config extends PropertiesHolder {
 	private static HashMap<String, String> overwrite;
 
 	private static String defaultConfigFolder = "config/";
+	
+	public static void setConfigFolder(String cf) {
+		defaultConfigFolder = cf;
+	}
 
 	public static String get(String key) {
 		String temp = null;
@@ -332,6 +336,13 @@ public class Config extends PropertiesHolder {
 	}
 
 	public static String[] keys(String from) {
+		String key = Config.get(from);
+		if (key == null) {
+			Log.debug("null string received when reading keys from '" + from
+					+ "'. Returning empty string array.");
+			return new String[0];
+		}
+
 		String[] keys = Config.get(from).split(
 				Config.get("CONFIG_LIST_SEPARATOR"));
 		for (int i = 0; i < keys.length; i++) {

@@ -1,7 +1,8 @@
 package dna.profiler.benchmarking;
 
-import java.util.ArrayList;
 import java.util.EnumMap;
+import java.util.HashSet;
+import java.util.Iterator;
 
 import org.perfidix.Benchmark;
 import org.perfidix.annotation.BeforeFirstRun;
@@ -9,8 +10,10 @@ import org.perfidix.annotation.Bench;
 import org.perfidix.annotation.BenchClass;
 import org.perfidix.result.BenchmarkResult;
 
+import dna.graph.IElement;
 import dna.graph.datastructures.DArray;
 import dna.graph.datastructures.DEmpty;
+import dna.graph.datastructures.DataStructure;
 import dna.graph.datastructures.DataStructure.ListType;
 import dna.graph.datastructures.GraphDataStructure;
 import dna.graph.datastructures.IDataStructure;
@@ -28,9 +31,10 @@ import dna.graph.nodes.Node;
 import dna.util.Config;
 import dna.util.Rand;
 
-@BenchClass
+@BenchClass(runs = -1)
 public class BenchmarkingExperiments {
 	private static Class<? extends IDataStructure> classToBenchmark;
+	private BenchmarkingConf config;
 
 	private GraphDataStructure gds;
 	private INodeListDatastructure nodeListToBenchmark;
@@ -58,16 +62,19 @@ public class BenchmarkingExperiments {
 	Integer i;
 
 	@SuppressWarnings("unchecked")
-	public BenchmarkingExperiments(String dsClass, BenchmarkingConf benchmarkingConf) {
+	public BenchmarkingExperiments(String dsClass,
+			BenchmarkingConf benchmarkingConf) {
 		try {
+			this.config = benchmarkingConf;
+
 			BenchmarkingExperiments.classToBenchmark = (Class<? extends IDataStructure>) Class
 					.forName(dsClass);
-			BenchmarkingExperiments.inputSizes = benchmarkingConf.getInputSizes();
-			this.operationSize = benchmarkingConf.getOperationSize();
+			BenchmarkingExperiments.inputSizes = config.getInputSizes();
+			int operationSizeForList = config.getMaxOperationSize();
 			this.maxListSize = (int) (getMax(inputSizes)
-					+ Math.ceil(operationSize / 2) + operationSize);
+					+ Math.ceil(operationSizeForList / 2) + operationSizeForList);
 			nodeList = new INode[maxListSize + 2];
-			edgeList = new IEdge[maxListSize + 2];			
+			edgeList = new IEdge[maxListSize + 2];
 		} catch (ClassNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -107,6 +114,8 @@ public class BenchmarkingExperiments {
 			edge = gds.newEdgeInstance(formerNode, node);
 			edgeList[i] = edge;
 		}
+
+		DataStructure.disableContainsOnAddition();
 	}
 
 	public static Object[][] testInput() {
@@ -127,6 +136,7 @@ public class BenchmarkingExperiments {
 						ListType.GlobalNodeList, dsClass);
 		gds = new GraphDataStructure(list, DirectedNode.class,
 				DirectedEdge.class);
+		this.operationSize = config.getOperationSize(setupSize);
 	}
 
 	private void initForNodeList(Class<? extends IDataStructure> dsClass,
@@ -147,8 +157,8 @@ public class BenchmarkingExperiments {
 		randomIDsNotInList = new Integer[operationSize];
 		randomNodesNotInList = new INode[operationSize];
 
-		ArrayList<Integer> tempNodesInList = new ArrayList<Integer>();
-		ArrayList<Integer> tempNodesNotInList = new ArrayList<Integer>();
+		HashSet<Integer> tempNodesInList = new HashSet<Integer>();
+		HashSet<Integer> tempNodesNotInList = new HashSet<Integer>();
 
 		for (int i = 0; i < operationSize; i++) {
 			do {
@@ -191,7 +201,7 @@ public class BenchmarkingExperiments {
 		randomEdgesInList = new Edge[operationSize];
 		randomEdgesNotInList = new Edge[operationSize];
 
-		ArrayList<Edge> tempEdgesInList = new ArrayList<Edge>();
+		HashSet<Edge> tempEdgesInList = new HashSet<Edge>();
 
 		for (int i = 0; i < operationSize; i++) {
 			do {
@@ -199,9 +209,15 @@ public class BenchmarkingExperiments {
 				e = edgeList[rand];
 			} while (tempEdgesInList.contains(e));
 			tempEdgesInList.add((Edge) e);
+		}
 
+		int listCounter = 0;
+		for (int i = 0; listCounter < operationSize; i++) {
 			e = gds.newEdgeInstance((Node) nodeList[i], (Node) nodeList[i]);
-			randomEdgesNotInList[i] = (Edge) e;
+			if (!edgeListToBenchmark.contains(e)) {
+				randomEdgesNotInList[listCounter] = (Edge) e;
+				listCounter++;
+			}
 		}
 
 		tempEdgesInList.toArray(randomEdgesInList);
@@ -287,7 +303,7 @@ public class BenchmarkingExperiments {
 			throw new RuntimeException("No benchmarking here");
 		for (int i : randomIDsInList) {
 			res = nodeListToBenchmarkCasted.get(i) != null;
-			if (!res) {
+			if (!res && dsClass != DEmpty.class) {
 				System.err
 						.println("Misdefined benchmark GetSuccess_Node for class "
 								+ dsClass.getSimpleName()
@@ -304,7 +320,7 @@ public class BenchmarkingExperiments {
 		if (edgeListToBenchmarkCasted == null)
 			throw new RuntimeException("No benchmarking here");
 		for (Edge e : randomEdgesInList) {
-			res = edgeListToBenchmarkCasted.get(e.getN1(), e.getN2()) != null;
+			res = edgeListToBenchmarkCasted.get(e.getN1Index(), e.getN2Index()) != null;
 			if (!res && dsClass != DEmpty.class) {
 				System.err
 						.println("Misdefined benchmark GetSuccess_Edge for class "
@@ -336,7 +352,7 @@ public class BenchmarkingExperiments {
 		if (edgeListToBenchmarkCasted == null)
 			throw new RuntimeException("No benchmarking here");
 		for (Edge e : randomEdgesNotInList) {
-			res = edgeListToBenchmarkCasted.get(e.getN1(), e.getN2()) != null;
+			res = edgeListToBenchmarkCasted.get(e.getN1Index(), e.getN2Index()) != null;
 			if (res) {
 				System.err
 						.println("Misdefined benchmark GetFailure_Edge for class "
@@ -389,7 +405,7 @@ public class BenchmarkingExperiments {
 			Integer setupSize) {
 		for (i = 0; i < operationSize; i++) {
 			res = nodeListToBenchmark.remove(randomNodesNotInList[i]);
-			if (res) {
+			if (res && dsClass != DEmpty.class) {
 				System.err
 						.println("Misdefined benchmark RemoveFailure_Node for class "
 								+ dsClass.getSimpleName()
@@ -458,7 +474,18 @@ public class BenchmarkingExperiments {
 		if (nodeListToBenchmark == null)
 			throw new RuntimeException("No benchmarking here");
 		for (i = 0; i < operationSize; i++) {
-			nodeListToBenchmark.iterator();
+			Iterator<IElement> it = nodeListToBenchmark.iterator();
+			IElement e;
+			while (it.hasNext()) {
+				e = it.next();
+				if (e == null) {
+					/**
+					 * We need this line to ensure that the optimization won't
+					 * remove dead code from the iterator's result
+					 */
+					System.out.println("Error for Iterator_Node");
+				}
+			}
 		}
 	}
 
@@ -468,16 +495,37 @@ public class BenchmarkingExperiments {
 		if (edgeListToBenchmark == null)
 			throw new RuntimeException("No benchmarking here");
 		for (i = 0; i < operationSize; i++) {
-			edgeListToBenchmark.iterator();
+			Iterator<IElement> it = edgeListToBenchmark.iterator();
+			IElement e;
+			while (it.hasNext()) {
+				e = it.next();
+				if (e == null) {
+					/**
+					 * We need this line to ensure that the optimization won't
+					 * remove dead code from the iterator's result
+					 */
+					System.out.println("Error for Iterator_Edge");
+				}
+			}
 		}
 	}
 
 	public static void main(String[] args) {
+		long startTime = System.currentTimeMillis();
+
 		BenchmarkingConf benchmarkingConf = new BenchmarkingConf();
 		final Benchmark bm = new Benchmark(benchmarkingConf);
 		bm.add(new BenchmarkingExperiments(args[0], benchmarkingConf));
 		final BenchmarkResult res = bm.run();
 		new BenchmarkingVisitor(benchmarkingConf).visitBenchmark(res);
-		// new TabularSummaryOutput().visitBenchmark(res);
+
+		long endTime = System.currentTimeMillis();
+
+		long totalSeconds = (endTime - startTime) / 1000;
+
+		long totalMinutes = totalSeconds / 60;
+		long restSeconds = totalSeconds - (totalMinutes * 60);
+		System.out.println("Benchmarking " + args[0] + " took " + totalMinutes
+				+ " minutes " + restSeconds + " seconds");
 	}
 }

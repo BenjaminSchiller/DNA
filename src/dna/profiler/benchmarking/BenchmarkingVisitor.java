@@ -35,9 +35,26 @@ public class BenchmarkingVisitor extends AbstractOutput {
 	public static final String aggregationFile = "aggregation" + rawExtension;
 
 	private BenchmarkingConf conf;
-	
+
 	public BenchmarkingVisitor(BenchmarkingConf benchmarkingConf) {
 		this.conf = benchmarkingConf;
+	}
+	
+	private Collection<Double> skipMaxElements(Collection<Double> in, int elementsToSkip) {
+		if (elementsToSkip <= 0 || in.size() <= 1) {
+			return in;
+		} else {
+			double maxElement = Collections.max(in);
+			Collection<Double> out = new ArrayList<Double>(in.size() - 1);
+			for (Double singleIn : in) {
+				if (singleIn == maxElement) {
+					maxElement = Double.NEGATIVE_INFINITY;
+				} else {
+					out.add(singleIn);
+				}
+			}
+			return skipMaxElements(out, elementsToSkip - 1);
+		}
 	}
 
 	@Override
@@ -55,9 +72,9 @@ public class BenchmarkingVisitor extends AbstractOutput {
 					Object[] paramSet = methRes.getInputParamSet();
 					Class<? extends IDataStructure> clazz = (Class<? extends IDataStructure>) paramSet[0];
 					int inputSize = (int) paramSet[1];
+					int operationSize = conf.getOperationSize(inputSize);
 
-					double perElement = methRes.mean(meter)
-							/ conf.getOperationSize();
+					double perElement = methRes.mean(meter) / operationSize;
 
 					String methodName = ((BenchmarkMethod) methRes
 							.getRelatedElement()).getMethodToBench().getName();
@@ -70,11 +87,14 @@ public class BenchmarkingVisitor extends AbstractOutput {
 					try {
 						Collection<Double> results = methRes
 								.getResultSet(meter);
+
+						Collection<Double> listWithoutMaxN = skipMaxElements(
+								results, BenchmarkingConf.elementsToSkip);
+
 						Collection<Double> resultsNormalized = new ArrayList<Double>(
-								results.size());
-						for (Double singleRes : results) {
-							resultsNormalized.add(singleRes
-									/ conf.getOperationSize());
+								results.size() - 1);
+						for (Double singleRes : listWithoutMaxN) {
+							resultsNormalized.add(singleRes / operationSize);
 						}
 
 						String keyForEntry = "";
@@ -116,10 +136,6 @@ public class BenchmarkingVisitor extends AbstractOutput {
 			e2.printStackTrace();
 		}
 
-		for (String s : resultList) {
-			System.out.println(s);
-		}
-
 		for (Entry<String, StringBuilder> e : fileWritersBufferData.entrySet()) {
 			// Get the proper fileWriter
 			Writer w = fileWriters.get(e.getKey());
@@ -142,7 +158,7 @@ public class BenchmarkingVisitor extends AbstractOutput {
 	}
 
 	private void writeEntriesToProfilerFiles() throws IOException {
-		String dirName = ProfilerMeasurementData.folderName + "benchmarks/";
+		String dirName = ProfilerMeasurementData.getDataFolder() + "benchmarks/";
 
 		for (Entry<String, BenchmarkingResult> e : collectedMeasurementData
 				.entrySet()) {

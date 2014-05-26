@@ -3,7 +3,6 @@ package dna.series;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.FileSystem;
-import java.util.HashMap;
 
 import dna.io.filesystem.Dir;
 import dna.io.filesystem.Files;
@@ -13,7 +12,6 @@ import dna.metrics.MetricNotApplicableException;
 import dna.series.Series.RandomSeedReset;
 import dna.series.aggdata.AggregatedSeries;
 import dna.series.data.BatchData;
-import dna.series.data.RunTime;
 import dna.series.data.SeriesData;
 import dna.series.data.Value;
 import dna.updates.batch.Batch;
@@ -23,7 +21,6 @@ import dna.updates.update.Update;
 import dna.util.Config;
 import dna.util.Log;
 import dna.util.Memory;
-import dna.util.Timer;
 
 public class SeriesGeneration {
 
@@ -67,7 +64,6 @@ public class SeriesGeneration {
 			long batchGenerationTime) throws AggregationException, IOException,
 			MetricNotApplicableException {
 		Log.infoSep();
-		Timer timer = new Timer("seriesGeneration");
 		Log.info("generating series");
 		Log.infoSep();
 		Log.info("ds = "
@@ -126,18 +122,12 @@ public class SeriesGeneration {
 		}
 		// aggregate all runs
 		if (aggregate) {
-			Log.infoSep();
-			Timer aggregationTimer = new Timer("aggregation");
+		Log.infoSep();
 
-			AggregatedSeries aSd = Aggregation.aggregateSeries(sd);
-			sd.setAggregation(aSd);
-			aggregationTimer.end();
-			Log.info(aggregationTimer.toString());
-			// end of aggregation
-			Log.infoSep();
-			timer.end();
-			Log.info("total time: " + timer.toString());
-			Log.infoSep();
+		AggregatedSeries aSd = Aggregation.aggregateSeries(sd);
+		sd.setAggregation(aSd);
+		// end of aggregation
+		Log.infoSep();
 		}
 		return sd;
 	}
@@ -207,7 +197,6 @@ public class SeriesGeneration {
 			throws IOException, MetricNotApplicableException {
 
 		Log.infoSep();
-		Timer timer = new Timer("runGeneration");
 		Log.info("run " + run + " (" + batches + " batches)");
 
 		boolean singleFile = Config.getBoolean("GENERATION_BATCHES_AS_ZIP");
@@ -227,8 +216,8 @@ public class SeriesGeneration {
 		}
 		if (write) {
 			if (!singleFile) {
-				initialData.write(Dir.getBatchDataDir(series.getDir(), run,
-						initialData.getTimestamp()));
+			initialData.write(Dir.getBatchDataDir(series.getDir(), run,
+					initialData.getTimestamp()));
 			} else {
 				try {
 					initialData.writeSingleFile(
@@ -237,7 +226,7 @@ public class SeriesGeneration {
 							Config.get("SUFFIX_ZIP_FILE"), Dir.delimiter);
 				} catch (IOException e) {
 					e.printStackTrace();
-				}
+		}
 			}
 		}
 
@@ -285,7 +274,7 @@ public class SeriesGeneration {
 						dirTemp = actualDir
 								.substring(0, actualDir.length() - 1)
 								+ Dir.tempSuffix + Dir.delimiter;
-					}
+			}
 
 					// rename directory
 					File srcDir = new File(dirTemp);
@@ -312,7 +301,7 @@ public class SeriesGeneration {
 							Thread.sleep(waitTime);
 						} catch (InterruptedException e) {
 							e.printStackTrace();
-						}
+		}
 					}
 
 					// rename
@@ -328,7 +317,7 @@ public class SeriesGeneration {
 					else
 						batchData.write(Dir.getBatchDataDir(series.getDir(),
 								run, batchData.getTimestamp()));
-				}
+	}
 			}
 
 			// call garbage collection
@@ -337,9 +326,6 @@ public class SeriesGeneration {
 				gcCounter++;
 			}
 		}
-
-		timer.end();
-		Log.info(timer.toString());
 	}
 
 	private static boolean compareMetrics(Series series) {
@@ -367,17 +353,12 @@ public class SeriesGeneration {
 		return ok;
 	}
 
-	public static BatchData generateInitialData(Series series)
+	private static BatchData computeInitialData(Series series)
 			throws MetricNotApplicableException {
-
-		Timer totalTimer = new Timer("total");
-
-		Log.info("    inital data");
+		Log.info("    initial data");
 
 		// generate graph
-		Timer graphGenerationTimer = new Timer("graphGeneration");
 		series.setGraph(series.getGraphGenerator().generate());
-		graphGenerationTimer.end();
 
 		// reset all metrics
 		for (Metric m : series.getMetrics()) {
@@ -388,34 +369,28 @@ public class SeriesGeneration {
 		// initialize data
 		BatchData initialData = new BatchData(series.getGraph().getTimestamp(),
 				0, 4, series.getMetrics().length, series.getMetrics().length);
+		initialData = computeInitialMetrics(series, initialData);
 
+		return initialData;
+	}
+
+	private static BatchData computeInitialMetrics(Series series,
+			BatchData initialData) throws MetricNotApplicableException {
 		// initial computation of all metrics
-		Timer allMetricsTimer = new Timer("metrics");
 		for (Metric m : series.getMetrics()) {
-			Timer metricTimer = new Timer(m.getName());
 			if (!m.isApplicable(series.getGraph())) {
 				throw new MetricNotApplicableException(m, series.getGraph());
 			}
 			m.init();
 			m.compute();
-			metricTimer.end();
 			initialData.getMetrics().add(m.getData());
-			initialData.getMetricRuntimes().add(metricTimer.getRuntime());
 		}
-		allMetricsTimer.end();
+		return initialData;
+	}
 
-		totalTimer.end();
-
-		// add general runtimes
-		initialData.getGeneralRuntimes().add(totalTimer.getRuntime());
-		initialData.getGeneralRuntimes().add(graphGenerationTimer.getRuntime());
-		initialData.getGeneralRuntimes().add(allMetricsTimer.getRuntime());
-		// batchGeneration runtime is not present in the initialdata and added
-		// for gui purposes only
-		initialData.getGeneralRuntimes().add(
-				new RunTime("batchGeneration", 0.0));
-
-		addSummaryRuntimes(initialData);
+	public static BatchData generateInitialData(Series series)
+			throws MetricNotApplicableException {
+		BatchData initialData = computeInitialData(series);
 
 		// add values
 		initialData.getValues().add(new Value("randomSeed", series.getSeed()));
@@ -469,6 +444,64 @@ public class SeriesGeneration {
 
 	}
 
+	private static BatchData computeNextBatch(Series series)
+			throws MetricNotApplicableException {
+		Batch b = series.getBatchGenerator().generate(series.getGraph());
+		Log.info("    " + b.toString());
+
+		// init metric timers
+		for (Metric m : series.getMetrics()) {
+			if (!m.isApplicable(b)) {
+				throw new MetricNotApplicableException(m, b);
+			}
+		}
+
+		// apply before batch
+		for (Metric m : series.getMetrics()) {
+			if (m.isAppliedBeforeBatch()) {
+				m.applyBeforeBatch(b);
+			}
+		}
+
+		BatchSanitizationStats sanitizationStats = BatchSanitization
+				.sanitize(b);
+		if (sanitizationStats.getTotal() > 0) {
+			Log.info("      " + sanitizationStats);
+			Log.info("      => " + b.toString());
+		}
+
+		SeriesGeneration.applyUpdates(series, b.getNodeRemovals());
+		SeriesGeneration.applyUpdates(series, b.getEdgeRemovals());
+
+		SeriesGeneration.applyUpdates(series, b.getNodeAdditions());
+		SeriesGeneration.applyUpdates(series, b.getEdgeAdditions());
+
+		SeriesGeneration.applyUpdates(series, b.getNodeWeights());
+		SeriesGeneration.applyUpdates(series, b.getEdgeWeights());
+
+		series.getGraph().setTimestamp(b.getTo());
+
+		// apply after batch
+		for (Metric m : series.getMetrics()) {
+			if (m.isAppliedAfterBatch()) {
+				m.applyAfterBatch(b);
+			}
+		}
+
+		// compute / cleanup
+		for (Metric m : series.getMetrics()) {
+			if (m.isRecomputed()) {
+				m.init();
+				m.compute();
+			}
+		}
+
+		BatchData batchData = new BatchData(b, sanitizationStats, 5, 5,
+				series.getMetrics().length, series.getMetrics().length);
+
+		return batchData;
+	}
+
 	public static BatchData generateNextBatch(Series series)
 			throws MetricNotApplicableException {
 
@@ -479,146 +512,65 @@ public class SeriesGeneration {
 		int removedEdges = 0;
 		int updatedEdgeWeights = 0;
 
-		Timer totalTimer = new Timer(SeriesStats.totalRuntime);
-
-		Timer batchGenerationTimer = new Timer(
-				SeriesStats.batchGenerationRuntime);
-		Batch b = series.getBatchGenerator().generate(series.getGraph());
-		batchGenerationTimer.end();
-
-		Log.info("    " + b.toString());
-
-		BatchData batchData = new BatchData(b.getTo(), 5, 5,
-				series.getMetrics().length, series.getMetrics().length);
-
-		Timer graphUpdateTimer = new Timer(SeriesStats.graphUpdateRuntime);
-
-		// init metric timers
-		HashMap<Metric, Timer> timer = new HashMap<Metric, Timer>();
-		for (Metric m : series.getMetrics()) {
-			if (!m.isApplicable(b)) {
-				throw new MetricNotApplicableException(m, b);
-			}
-			Timer t = new Timer(m.getName());
-			t.end();
-			timer.put(m, t);
-		}
-		Timer metricsTotal = new Timer(SeriesStats.metricsRuntime);
-		metricsTotal.end();
-
-		// apply before batch
-		metricsTotal.restart();
-		for (Metric m : series.getMetrics()) {
-			if (m.isAppliedBeforeBatch()) {
-				timer.get(m).restart();
-				m.applyBeforeBatch(b);
-				timer.get(m).end();
-			}
-		}
-		metricsTotal.end();
-
-		BatchSanitizationStats sanitizationStats = BatchSanitization
-				.sanitize(b);
-		if (sanitizationStats.getTotal() > 0) {
-			Log.info("      " + sanitizationStats);
-			Log.info("      => " + b.toString());
-		}
-
-		SeriesGeneration.applyUpdates(series, b.getNodeRemovals(),
-				graphUpdateTimer, metricsTotal, timer);
-		SeriesGeneration.applyUpdates(series, b.getEdgeRemovals(),
-				graphUpdateTimer, metricsTotal, timer);
-
-		SeriesGeneration.applyUpdates(series, b.getNodeAdditions(),
-				graphUpdateTimer, metricsTotal, timer);
-		SeriesGeneration.applyUpdates(series, b.getEdgeAdditions(),
-				graphUpdateTimer, metricsTotal, timer);
-
-		SeriesGeneration.applyUpdates(series, b.getNodeWeights(),
-				graphUpdateTimer, metricsTotal, timer);
-		SeriesGeneration.applyUpdates(series, b.getEdgeWeights(),
-				graphUpdateTimer, metricsTotal, timer);
-
-		series.getGraph().setTimestamp(b.getTo());
-
-		// apply after batch
-		metricsTotal.restart();
-		for (Metric m : series.getMetrics()) {
-			if (m.isAppliedAfterBatch()) {
-				timer.get(m).restart();
-				m.applyAfterBatch(b);
-				timer.get(m).end();
-			}
-		}
-		metricsTotal.end();
-
-		// compute / cleanup
-		metricsTotal.restart();
-		for (Metric m : series.getMetrics()) {
-			if (m.isRecomputed()) {
-				timer.get(m).restart();
-				m.init();
-				m.compute();
-				timer.get(m).end();
-			}
-		}
-		metricsTotal.end();
-
-		totalTimer.end();
+		BatchData batchData = computeNextBatch(series);
 
 		// add values
 		batchData.getValues().add(
-				new Value(SeriesStats.nodesToAdd, b.getNodeAdditionsCount()));
+				new Value(SeriesStats.nodesToAdd, batchData.getBatch()
+						.getNodeAdditionsCount()));
 		batchData.getValues()
 				.add(new Value(SeriesStats.addedNodes, addedNodes));
 		batchData.getValues().add(
-				new Value(SeriesStats.nodesToRemove, b.getNodeRemovalsCount()));
+				new Value(SeriesStats.nodesToRemove, batchData.getBatch()
+						.getNodeRemovalsCount()));
 		batchData.getValues().add(
 				new Value(SeriesStats.removedNodes, removedNodes));
 		batchData.getValues().add(
-				new Value(SeriesStats.nodeWeightsToUpdate, b
+				new Value(SeriesStats.nodeWeightsToUpdate, batchData.getBatch()
 						.getNodeWeightsCount()));
 		batchData.getValues().add(
 				new Value(SeriesStats.updatedNodeWeights, updatedNodeWeights));
 
 		batchData.getValues().add(
-				new Value(SeriesStats.edgesToAdd, b.getEdgeAdditionsCount()));
+				new Value(SeriesStats.edgesToAdd, batchData.getBatch()
+						.getEdgeAdditionsCount()));
 		batchData.getValues()
 				.add(new Value(SeriesStats.addedEdges, addedEdges));
 		batchData.getValues().add(
-				new Value(SeriesStats.edgesToRemove, b.getEdgeRemovalsCount()));
+				new Value(SeriesStats.edgesToRemove, batchData.getBatch()
+						.getEdgeRemovalsCount()));
 		batchData.getValues().add(
 				new Value(SeriesStats.removedEdges, removedEdges));
 		batchData.getValues().add(
-				new Value(SeriesStats.edgeWeightsToUpdate, b
+				new Value(SeriesStats.edgeWeightsToUpdate, batchData.getBatch()
 						.getEdgeWeightsCount()));
 		batchData.getValues().add(
 				new Value(SeriesStats.updatedEdgeWeights, updatedEdgeWeights));
 
 		batchData.getValues().add(
-				new Value(SeriesStats.deletedNodeAdditions, sanitizationStats
-						.getDeletedNodeAdditions()));
+				new Value(SeriesStats.deletedNodeAdditions, batchData
+						.getSanitizationStats().getDeletedNodeAdditions()));
 		batchData.getValues().add(
-				new Value(SeriesStats.deletedEdgeAdditions, sanitizationStats
-						.getDeletedEdgeAdditions()));
+				new Value(SeriesStats.deletedEdgeAdditions, batchData
+						.getSanitizationStats().getDeletedEdgeAdditions()));
 		batchData.getValues().add(
-				new Value(SeriesStats.deletedNodeRemovals, sanitizationStats
-						.getDeletedNodeRemovals()));
+				new Value(SeriesStats.deletedNodeRemovals, batchData
+						.getSanitizationStats().getDeletedNodeRemovals()));
 		batchData.getValues().add(
-				new Value(SeriesStats.deletedEdgeRemovals, sanitizationStats
-						.getDeletedEdgeRemovals()));
+				new Value(SeriesStats.deletedEdgeRemovals, batchData
+						.getSanitizationStats().getDeletedEdgeRemovals()));
 		batchData.getValues().add(
-				new Value(SeriesStats.deletedNodeWeightUpdates,
-						sanitizationStats.getDeletedNodeWeights()));
+				new Value(SeriesStats.deletedNodeWeightUpdates, batchData
+						.getSanitizationStats().getDeletedNodeWeights()));
 		batchData.getValues().add(
-				new Value(SeriesStats.deletedEdgeWeightUpdates,
-						sanitizationStats.getDeletedEdgeWeights()));
+				new Value(SeriesStats.deletedEdgeWeightUpdates, batchData
+						.getSanitizationStats().getDeletedEdgeWeights()));
 
 		batchData.getValues().add(
 				new Value(SeriesStats.randomSeed, series.getSeed()));
 
 		// release batch
-		b = null;
+		batchData.releaseBatch();
 
 		// record memory usage
 		double mem = (new Memory()).getUsed();
@@ -635,45 +587,23 @@ public class SeriesGeneration {
 			batchData.getMetrics().add(m.getData());
 		}
 
-		// add metric runtimes
-		for (Metric m : series.getMetrics()) {
-			batchData.getMetricRuntimes().add(timer.get(m).getRuntime());
-		}
-
-		// add general runtimes
-		batchData.getGeneralRuntimes().add(totalTimer.getRuntime());
-		batchData.getGeneralRuntimes().add(batchGenerationTimer.getRuntime());
-		batchData.getGeneralRuntimes().add(graphUpdateTimer.getRuntime());
-		batchData.getGeneralRuntimes().add(metricsTotal.getRuntime());
-		addSummaryRuntimes(batchData);
-
 		return batchData;
-
 	}
 
 	private static int applyUpdates(Series series,
-			Iterable<? extends Update> updates, Timer graphUpdateTimer,
-			Timer metricsTotal, HashMap<Metric, Timer> timer) {
+			Iterable<? extends Update> updates) {
 
 		int counter = 0;
 		for (Update u : updates) {
 
 			// apply update to metrics beforehand
-			metricsTotal.restart();
 			for (Metric m : series.getMetrics()) {
 				if (m.isAppliedBeforeUpdate()) {
-					timer.get(m).restart();
 					m.applyBeforeUpdate(u);
-					timer.get(m).end();
 				}
 			}
-			metricsTotal.end();
-
-			// update graph datastructures
-			graphUpdateTimer.restart();
 
 			boolean success = u.apply(series.getGraph());
-			graphUpdateTimer.end();
 			if (!success) {
 				Log.error("could not apply update " + u.toString()
 						+ " (BUT metric before update already applied)");
@@ -682,40 +612,15 @@ public class SeriesGeneration {
 			counter++;
 
 			// apply update to metrics afterwards
-			metricsTotal.restart();
 			for (Metric m : series.getMetrics()) {
 				if (m.isAppliedAfterUpdate()) {
-					timer.get(m).restart();
 					m.applyAfterUpdate(u);
-					timer.get(m).end();
 				}
 			}
-			metricsTotal.end();
 		}
 
 		return counter;
 
-	}
-
-	private static void addSummaryRuntimes(BatchData batchData) {
-		double total = batchData.getGeneralRuntimes().get("total").getRuntime();
-		double metrics = batchData.getGeneralRuntimes().get("metrics")
-				.getRuntime();
-		double sum = sumRuntimes(batchData) - total - metrics;
-		double overhead = total - sum;
-		batchData.getGeneralRuntimes().add(new RunTime("sum", sum));
-		batchData.getGeneralRuntimes().add(new RunTime("overhead", overhead));
-	}
-
-	private static long sumRuntimes(BatchData batchData) {
-		long sum = 0;
-		for (RunTime rt : batchData.getGeneralRuntimes().getList()) {
-			sum += rt.getRuntime();
-		}
-		for (RunTime rt : batchData.getMetricRuntimes().getList()) {
-			sum += rt.getRuntime();
-		}
-		return sum;
 	}
 
 }
