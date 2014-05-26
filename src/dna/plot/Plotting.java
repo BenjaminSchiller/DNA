@@ -117,14 +117,29 @@ public class Plotting {
 		AggregatedBatch initBatch = batchData[0];
 
 		// plot statistics
-		if (config.isPlotStatistics())
+		if (config.isPlotStatistics()) {
 			Plotting.plotStatistics(batchData, initBatch.getValues(), dstDir,
 					title, style, type);
 
+			// plot custom statistic plots
+			if (config.getCustomStatisticPlots() != null) {
+				if (config.getCustomStatisticPlots().size() > 0) {
+					Log.infoSep();
+					Log.info("Plotting Custom-Statistic-Plots:");
+					Plotting.plotCustomValues(batchData,
+							config.getCustomStatisticPlots(), dstDir, title,
+							style, type);
+				}
+			}
+		}
+
 		// plot custom value plots
-		if (config.isPlotCustomValues())
+		if (config.isPlotCustomValues()) {
+			Log.infoSep();
+			Log.info("Plotting Custom-Value-Plots:");
 			Plotting.plotCustomValues(batchData, config.getCustomValuePlots(),
 					dstDir, title, style, type);
+		}
 
 		// plot runtimes
 		if (config.isPlotRuntimes()) {
@@ -142,9 +157,21 @@ public class Plotting {
 		}
 
 		// plot metric values
-		if (config.isPlotMetricValues())
+		if (config.isPlotMetricValues()) {
 			Plotting.plotMetricValues(batchData, initBatch.getMetrics(),
 					dstDir, title, style, type);
+
+			// plot custom metric value plots
+			if (config.getCustomMetricValuePlots() != null) {
+				if (config.getCustomMetricValuePlots().size() > 0) {
+					Log.infoSep();
+					Log.info("Plotting Custom-MetricValue-Plots:");
+					Plotting.plotCustomValues(batchData,
+							config.getCustomMetricValuePlots(), dstDir, title,
+							style, type);
+				}
+			}
+		}
 
 		// all at-once plots finished
 		// print memory usage
@@ -567,8 +594,6 @@ public class Plotting {
 			ArrayList<PlotConfig> customValuePlots, String dstDir,
 			String title, PlotStyle style, PlotType type) throws IOException,
 			InterruptedException {
-		Log.infoSep();
-		Log.info("Plotting Custom-Value-Plots:");
 		for (PlotConfig pc : customValuePlots) {
 			String name = pc.getName();
 			if (name == null)
