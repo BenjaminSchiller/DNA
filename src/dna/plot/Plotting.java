@@ -694,8 +694,21 @@ public class Plotting {
 			for (int j = 0; j < values.length; j++) {
 				String value = values[j];
 				String domain = domains[j];
-				data[j] = PlotData.get(value, domain, style, domain + "."
-						+ value + "-" + title, type);
+
+				// check if function
+				if (domain.equals(Config.get("CUSTOM_PLOT_DOMAIN_FUNCTION"))) {
+					String[] functionSplit = value.split("=");
+					if (functionSplit.length != 2) {
+						Log.warn("wrong function syntax for " + value);
+						continue;
+					}
+					data[j] = PlotData.get(functionSplit[0].trim(),
+							functionSplit[1].trim(), style, domain + "."
+									+ value + "-" + title, PlotType.function);
+				} else {
+					data[j] = PlotData.get(value, domain, style, domain + "."
+							+ value + "-" + title, type);
+				}
 			}
 
 			// get filename
@@ -868,18 +881,24 @@ public class Plotting {
 					String[] tempDomains = pc.getDomains();
 					ArrayList<String> valuesList = new ArrayList<String>();
 					ArrayList<String> domainsList = new ArrayList<String>();
+					ArrayList<String> functionsList = new ArrayList<String>();
 
 					for (int i = 0; i < tempValues.length; i++) {
 						String v = tempValues[i];
 						String d = tempDomains[i];
 
+						// check if invalid value
 						if (d.equals(Config
 								.get("CUSTOM_PLOT_DOMAIN_STATISTICS"))
 								|| d.equals(Config
-										.get("CUSTOM_PLOT_DOMAIN_REUNTIMES"))) {
+										.get("CUSTOM_PLOT_DOMAIN_RUNTIMES"))) {
 							Log.warn("invalid value '" + tempDomains[i] + "."
 									+ tempValues[i]
 									+ "' in distribution plot '" + name + "'");
+						} else if (d.equals(Config
+								.get("CUSTOM_PLOT_DOMAIN_FUNCTION"))) {
+							// check if function
+							functionsList.add(v);
 						} else {
 							valuesList.add(v);
 							domainsList.add(d);
@@ -918,9 +937,9 @@ public class Plotting {
 					PlotData[] dataCdf = null;
 
 					if (plotDist)
-						data = new PlotData[valuesCount * batches.length];
+						data = new PlotData[valuesCount * batches.length + functionsList.size()];
 					if (plotCdf)
-						dataCdf = new PlotData[valuesCount * batches.length];
+						dataCdf = new PlotData[valuesCount * batches.length + functionsList.size()];
 
 					// gather plot data
 					// example: distributions d1, d2
@@ -942,6 +961,23 @@ public class Plotting {
 								dataCdf[i * valuesCount + j] = dCdf;
 							}
 						}
+					}
+					
+					// add function datas
+					int offset = batches.length * valuesCount;
+					for (int i = 0; i < functionsList.size(); i++) {
+						String f = functionsList.get(i);
+						String[] functionSplit = f.split("=");
+						if(functionSplit.length != 2) {
+							Log.warn("wrong function syntax for " + f);
+							continue;
+						}
+						if(plotDist)
+							data[offset + i] = PlotData.get(functionSplit[0], functionSplit[1], style, title, PlotType.function);
+						if(plotCdf)
+							dataCdf[offset + i] = PlotData.get(functionSplit[0], functionSplit[1], style, title, PlotType.function);
+							
+						
 					}
 
 					// get filename
@@ -1476,8 +1512,22 @@ public class Plotting {
 			// gather plot data
 			PlotData[] plotData = new PlotData[values.length];
 			for (int i = 0; i < plotData.length; i++) {
-				plotData[i] = PlotData.get(values[i], domains[i], style,
-						values[i] + "-" + title, type);
+				String value = values[i];
+				String domain = domains[i];
+				// check if function
+				if (domain.equals(Config.get("CUSTOM_PLOT_DOMAIN_FUNCTION"))) {
+					String[] functionSplit = value.split("=");
+					if (functionSplit.length != 2) {
+						Log.warn("wrong function syntax for " + value);
+						continue;
+					}
+					plotData[i] = PlotData.get(functionSplit[0].trim(),
+							functionSplit[1].trim(), style, domain + "."
+									+ value + "-" + title, PlotType.function);
+				} else {
+					plotData[i] = PlotData.get(value, domain, style, value
+							+ "-" + title, type);
+				}
 			}
 
 			// create plot

@@ -198,12 +198,79 @@ public class PlotConfig {
 						.get("CUSTOM_PLOT_DOMAIN_RUNTIMES");
 				// if runtimes plot, add runtimes domain
 				for (int i = 0; i < values.length; i++) {
-					String[] split = values[i].split("\\.");
-					if (!split[0].equals(runtimeDomain)
-							&& !split[0].equals(metricRuntimeDomain)
-							&& !split[0].equals(generalRuntimeDomain)) {
-						domains[i] = runtimeDomain;
+
+					// check if function
+					String[] functionSplit = values[i].split("=");
+					if (functionSplit.length > 1) {
+						domains[i] = Config.get("CUSTOM_PLOT_DOMAIN_FUNCTION");
 					} else {
+						// not a function
+						String[] split = values[i].split("\\.");
+						if (!split[0].equals(runtimeDomain)
+								&& !split[0].equals(metricRuntimeDomain)
+								&& !split[0].equals(generalRuntimeDomain)) {
+							domains[i] = runtimeDomain;
+						} else {
+							domains[i] = split[0];
+							String domain = "";
+							for (int j = 0; j < split.length - 1; j++) {
+								if (j == 0)
+									domain += split[j];
+								else
+									domain += "." + split[j];
+							}
+							domains[i] = domain;
+							values[i] = split[split.length - 1];
+						}
+
+						// check for wildcard
+						if (values[i]
+								.equals(Config.get("CUSTOM_PLOT_WILDCARD")))
+							plotAll = true;
+					}
+				}
+			} else if (prefix.equals(Config
+					.get("CUSTOM_PLOT_PREFIX_STATISTICS"))) {
+				// if statistics plot, add statistics domain
+				for (int i = 0; i < values.length; i++) {
+					// check if function
+					String[] functionSplit = values[i].split("=");
+					if (functionSplit.length > 1) {
+						domains[i] = Config.get("CUSTOM_PLOT_DOMAIN_FUNCTION");
+					} else {
+						// not a function
+						domains[i] = Config
+								.get("CUSTOM_PLOT_DOMAIN_STATISTICS");
+						String[] split = values[i].split("\\.");
+						if (split[0].equals(Config
+								.get("CUSTOM_PLOT_DOMAIN_STATISTICS"))) {
+							String domain = "";
+							for (int j = 0; j < split.length - 1; j++) {
+								if (j == 0)
+									domain += split[j];
+								else
+									domain += "." + split[j];
+							}
+							domains[i] = domain;
+							values[i] = split[split.length - 1];
+						}
+
+						// check for wildcard
+						if (values[i]
+								.equals(Config.get("CUSTOM_PLOT_WILDCARD")))
+							plotAll = true;
+					}
+				}
+			} else {
+				// get domains from strings
+				for (int i = 0; i < values.length; i++) {
+					// check if function
+					String[] functionSplit = values[i].split("=");
+					if (functionSplit.length > 1) {
+						domains[i] = Config.get("CUSTOM_PLOT_DOMAIN_FUNCTION");
+					} else {
+						// not a function
+						String[] split = values[i].split("\\.");
 						domains[i] = split[0];
 						String domain = "";
 						for (int j = 0; j < split.length - 1; j++) {
@@ -212,41 +279,13 @@ public class PlotConfig {
 							else
 								domain += "." + split[j];
 						}
-						domains[i] = domain;
 						values[i] = split[split.length - 1];
+						domains[i] = domain;
+
+						if (values[i]
+								.equals(Config.get("CUSTOM_PLOT_WILDCARD")))
+							plotAll = true;
 					}
-
-					// check for wildcard
-					if (values[i].equals(Config.get("CUSTOM_PLOT_WILDCARD")))
-						plotAll = true;
-				}
-			} else if (prefix.equals(Config
-					.get("CUSTOM_PLOT_PREFIX_STATISTICS"))) {
-				// if statistics plot, add statistics domain
-				for (int i = 0; i < values.length; i++) {
-					domains[i] = Config.get("CUSTOM_PLOT_DOMAIN_STATISTICS");
-
-					// check for wildcard
-					if (values[i].equals(Config.get("CUSTOM_PLOT_WILDCARD")))
-						plotAll = true;
-				}
-			} else {
-				// get domains from strings
-				for (int i = 0; i < values.length; i++) {
-					String[] split = values[i].split("\\.");
-					domains[i] = split[0];
-					String domain = "";
-					for (int j = 0; j < split.length - 1; j++) {
-						if (j == 0)
-							domain += split[j];
-						else
-							domain += "." + split[j];
-					}
-					domains[i] = domain;
-					values[i] = split[split.length - 1];
-
-					if (values[i].equals(Config.get("CUSTOM_PLOT_WILDCARD")))
-						plotAll = true;
 				}
 			}
 

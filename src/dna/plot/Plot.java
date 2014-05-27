@@ -5,6 +5,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import dna.io.Writer;
+import dna.plot.data.FunctionData;
 import dna.plot.data.PlotData;
 import dna.plot.data.PlotData.DistributionPlotType;
 import dna.plot.data.PlotData.NodeValueListOrder;
@@ -38,6 +39,7 @@ public class Plot {
 	private Writer fileWriter;
 	private int dataWriteCounter;
 	private int dataQuantity;
+	private int functionQuantity;
 
 	// plot config
 	PlotConfig config;
@@ -87,7 +89,14 @@ public class Plot {
 		// init writer
 		this.fileWriter = new Writer(dir, scriptFilename);
 		this.dataWriteCounter = 0;
+		this.functionQuantity = 0;
 		this.dataQuantity = 1;
+
+		for (PlotData pd : this.data) {
+			if (pd instanceof FunctionData) {
+				this.functionQuantity++;
+			}
+		}
 	}
 
 	/**
@@ -321,9 +330,9 @@ public class Plot {
 	 **/
 	public void addDataSequentially(AggregatedBatch batchData)
 			throws IOException {
-		String name = this.data[dataWriteCounter].getName();
-		String domain = this.data[dataWriteCounter].getDomain();
-		if (this.data[dataWriteCounter].isPlotAsCdf())
+		String name = this.data[this.dataWriteCounter].getName();
+		String domain = this.data[this.dataWriteCounter].getDomain();
+		if (this.data[this.dataWriteCounter].isPlotAsCdf())
 			this.addData(name, domain, batchData, true);
 		else
 			this.addData(name, domain, batchData, false);
@@ -331,34 +340,50 @@ public class Plot {
 
 	/** Adds data to the plot **/
 	public void addData(AggregatedBatch[] batchData) throws IOException {
+		// iterate over plotdata
 		for (int i = 0; i < this.data.length; i++) {
-			String name = this.data[i].getName();
-			String domain = this.data[i].getDomain();
-			for (int j = 0; j < batchData.length; j++) {
-				this.addData(name, domain, batchData[j], false);
+			// check if function
+			if (!(this.data[i] instanceof FunctionData)) {
+				// if not a function, add data
+				String name = this.data[i].getName();
+				String domain = this.data[i].getDomain();
+				for (int j = 0; j < batchData.length; j++) {
+					this.addData(name, domain, batchData[j], false);
+				}
+				this.appendEOF();
+			} else {
+				// if function, only increment data write counter
+				this.dataWriteCounter++;
 			}
-			this.appendEOF();
 		}
 	}
 
 	/** Adds data from runtimes as CDF's **/
 	public void addDataFromRuntimesAsCDF(AggregatedBatch[] batchData)
 			throws IOException {
+		// iterate over plotdata
 		for (int i = 0; i < this.data.length; i++) {
-			String name = this.data[i].getName();
-			String domain = this.data[i].getDomain();
-			AggregatedBatch prevBatch = batchData[0];
-			AggregatedBatch tempBatch;
-			for (int j = 0; j < batchData.length; j++) {
-				if (j > 0) {
-					tempBatch = Plot.sumRuntimes(batchData[j], prevBatch);
-				} else {
-					tempBatch = batchData[j];
+			// check if function
+			if (!(this.data[i] instanceof FunctionData)) {
+				// if not a function, add data
+				String name = this.data[i].getName();
+				String domain = this.data[i].getDomain();
+				AggregatedBatch prevBatch = batchData[0];
+				AggregatedBatch tempBatch;
+				for (int j = 0; j < batchData.length; j++) {
+					if (j > 0) {
+						tempBatch = Plot.sumRuntimes(batchData[j], prevBatch);
+					} else {
+						tempBatch = batchData[j];
+					}
+					this.addData(name, domain, tempBatch, false);
+					prevBatch = tempBatch;
 				}
-				this.addData(name, domain, tempBatch, false);
-				prevBatch = tempBatch;
+				this.appendEOF();
+			} else {
+				// if function, only increment data write counter
+				this.dataWriteCounter++;
 			}
-			this.appendEOF();
 		}
 	}
 
@@ -422,7 +447,7 @@ public class Plot {
 
 	/** Closes the fileWriter of the plot **/
 	public void close() throws IOException {
-		if (this.dataWriteCounter != this.data.length)
+		if (this.dataWriteCounter + this.functionQuantity != this.data.length)
 			Log.warn("Unexpected number of plotdata written to file "
 					+ this.dir + this.scriptFilename + ". Expected: "
 					+ this.data.length + "  Written: " + this.dataWriteCounter);
@@ -461,6 +486,12 @@ public class Plot {
 		if (this.plotDateTime) {
 			script.add("set xdata time");
 			script.add("set timefmt " + '"' + this.datetime + '"');
+		}
+
+		for (int i = 0; i < this.data.length; i++) {
+			if (data[i] instanceof FunctionData) {
+				script.add(((FunctionData) data[i]).getLine());
+			}
 		}
 		script.add("set style " + Config.get("GNUPLOT_STYLE"));
 		script.add("set boxwidth " + Config.get("GNUPLOT_BOXWIDTH"));
