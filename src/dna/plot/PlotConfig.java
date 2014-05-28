@@ -6,6 +6,7 @@ import dna.plot.data.PlotData.DistributionPlotType;
 import dna.plot.data.PlotData.NodeValueListOrder;
 import dna.plot.data.PlotData.NodeValueListOrderBy;
 import dna.util.Config;
+import dna.util.Log;
 
 /**
  * Configuration object representing one plot which will be read from properties
@@ -14,7 +15,6 @@ import dna.util.Config;
  * @author RWilmes
  */
 public class PlotConfig {
-	private String name;
 	private String filename;
 	private String title;
 	private String xLabel;
@@ -32,13 +32,12 @@ public class PlotConfig {
 	private boolean plotAll;
 
 	// constructor
-	private PlotConfig(String name, String filename, String title,
-			String xLabel, String yLabel, String logscale, String datetime,
-			double xOffset, double yOffset, boolean plotAsCdf, String[] values,
+	private PlotConfig(String filename, String title, String xLabel,
+			String yLabel, String logscale, String datetime, double xOffset,
+			double yOffset, boolean plotAsCdf, String[] values,
 			String[] domains, DistributionPlotType distPlotType,
 			NodeValueListOrder order, NodeValueListOrderBy orderBy,
 			boolean plotAll) {
-		this.name = name;
 		this.filename = filename;
 		this.title = title;
 		this.xLabel = xLabel;
@@ -57,10 +56,6 @@ public class PlotConfig {
 	}
 
 	// getters
-	public String getName() {
-		return name;
-	}
-
 	public String[] getValues() {
 		return values;
 	}
@@ -183,7 +178,7 @@ public class PlotConfig {
 
 		for (String s : plots) {
 			// get plot from config
-			String name = Config.get(prefix + s + nameSuffix);
+			String name = s;
 			boolean plotAll = false;
 			String[] values = Config.keys(prefix + s + valuesSuffix);
 			String[] domains = new String[values.length];
@@ -294,7 +289,6 @@ public class PlotConfig {
 
 			// default values
 			String filename = name;
-			String title = filename;
 			String xLabel = Config.get("GNUPLOT_XLABEL");
 			String yLabel = Config.get("GNUPLOT_YLABEL");
 			String logscale = null;
@@ -309,16 +303,15 @@ public class PlotConfig {
 					.getNodeValueListOrderBy("GNUPLOT_DEFAULT_NVL_ORDERBY");
 
 			// try to get config values
-			try {
+			Log.infoSep();
+			if (Config.get(prefix + s + filenameSuffix) != null)
 				filename = Config.get(prefix + s + filenameSuffix);
-			} catch (NullPointerException e) {
-			}
 
-			try {
+			String title = filename;
+			if (Config.get(prefix + s + titleSuffix) != null)
 				title = Config.get(prefix + s + titleSuffix);
-			} catch (NullPointerException e) {
-			}
-
+			System.out.println(filename + "\t" + title);
+			Log.infoSep();
 			try {
 				xLabel = Config.get(prefix + s + xLabelSuffix);
 			} catch (NullPointerException e) {
@@ -368,9 +361,9 @@ public class PlotConfig {
 			}
 
 			// Craft PlotConfig and add to configs list
-			plotConfigs.add(new PlotConfig(name, filename, title, xLabel,
-					yLabel, logscale, datetime, xOffset, yOffset, plotAsCdf,
-					values, domains, distPlotType, order, orderBy, plotAll));
+			plotConfigs.add(new PlotConfig(filename, title, xLabel, yLabel,
+					logscale, datetime, xOffset, yOffset, plotAsCdf, values,
+					domains, distPlotType, order, orderBy, plotAll));
 		}
 		return plotConfigs;
 	}

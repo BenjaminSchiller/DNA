@@ -584,7 +584,7 @@ public class Plotting {
 			String title, PlotStyle style, PlotType type) throws IOException,
 			InterruptedException {
 		for (PlotConfig pc : customValuePlots) {
-			String name = pc.getName();
+			String name = pc.getTitle();
 			if (name == null)
 				continue;
 			Log.info("\tplotting '" + name + "'");
@@ -860,7 +860,7 @@ public class Plotting {
 				Log.infoSep();
 				Log.info("Plotting Custom-Distribution-Plots:");
 				for (PlotConfig pc : customDistributionPlots) {
-					String name = pc.getName();
+					String name = pc.getTitle();
 					if (name == null)
 						continue;
 					Log.info("\tplotting '" + name + "'");
@@ -1026,7 +1026,7 @@ public class Plotting {
 				Log.infoSep();
 				Log.info("Plotting Custom-NodeValueList-Plots:");
 				for (PlotConfig pc : customNodeValueListPlots) {
-					String name = pc.getName();
+					String name = pc.getTitle();
 					if (name == null)
 						continue;
 					Log.info("\tplotting '" + name + "'");
@@ -1422,7 +1422,7 @@ public class Plotting {
 		Log.infoSep();
 		Log.info("Plotting Custom-Runtime-Plots:");
 		for (PlotConfig pc : customPlots) {
-			String name = pc.getName();
+			String name = pc.getTitle();
 			if (name == null)
 				continue;
 			Log.info("\tplotting '" + name + "'");
