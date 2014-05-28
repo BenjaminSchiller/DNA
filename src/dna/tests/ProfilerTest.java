@@ -105,6 +105,7 @@ public class ProfilerTest {
 	@Before
 	public void resetProfiler() {
 		Config.overwrite("PROFILER_ACTIVATED", "true");
+		Profiler.reset();
 		Profiler.startRun(0);
 		Profiler.startBatch();
 
