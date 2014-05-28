@@ -118,9 +118,6 @@ public class Plotting {
 
 		// plot statistics
 		if (config.isPlotStatistics()) {
-			Plotting.plotStatistics(batchData, initBatch.getValues(), dstDir,
-					title, style, type);
-
 			// plot custom statistic plots
 			if (config.getCustomStatisticPlots() != null) {
 				if (config.getCustomStatisticPlots().size() > 0) {
@@ -143,14 +140,6 @@ public class Plotting {
 
 		// plot runtimes
 		if (config.isPlotRuntimes()) {
-			// plot general runtimes
-			Plotting.plotGeneralRuntimes(batchData, combinedGeneralRuntimes,
-					dstDir, title, style, type);
-
-			// plot metric runtimes
-			Plotting.plotMetricRuntimes(batchData,
-					initBatch.getMetricRuntimes(), dstDir, title, style, type);
-
 			// plot custom runtimes
 			Plotting.plotCustomRuntimes(batchData,
 					config.getCustomRuntimePlots(), dstDir, title, style, type);
