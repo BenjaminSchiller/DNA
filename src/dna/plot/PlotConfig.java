@@ -153,23 +153,22 @@ public class PlotConfig {
 
 	/** Returns the custom plots created from config **/
 	private static ArrayList<PlotConfig> getCustomPlots(String prefix) {
-		// get suffix from config
+		// define suffix
 		String[] plots = Config.keys(prefix
-				+ Config.get("CUSTOM_PLOT_SUFFIX_PLOTS"));
-		String nameSuffix = Config.get("CUSTOM_PLOT_SUFFIX_NAME");
-		String valuesSuffix = Config.get("CUSTOM_PLOT_SUFFIX_VALUES");
-		String cdfSuffix = Config.get("CUSTOM_PLOT_SUFFIX_CDF");
-		String filenameSuffix = Config.get("CUSTOM_PLOT_SUFFIX_FILENAME");
-		String titleSuffix = Config.get("CUSTOM_PLOT_SUFFIX_TITLE");
-		String datetimeSuffix = Config.get("CUSTOM_PLOT_SUFFIX_DATETIME");
-		String logscaleSuffix = Config.get("CUSTOM_PLOT_SUFFIX_LOGSCALE");
-		String xLabelSuffix = Config.get("CUSTOM_PLOT_SUFFIX_XLABEL");
-		String yLabelSuffix = Config.get("CUSTOM_PLOT_SUFFIX_YLABEL");
-		String xOffsetSuffix = Config.get("CUSTOM_PLOT_SUFFIX_XOFFSET");
-		String yOffsetSuffix = Config.get("CUSTOM_PLOT_SUFFIX_YOFFSET");
-		String distTypeSuffix = Config.get("CUSTOM_PLOT_SUFFIX_DIST_TYPE");
-		String nvlOrderSuffix = Config.get("CUSTOM_PLOT_SUFFIX_NVL_ORDER");
-		String nvlOrderBySuffix = Config.get("CUSTOM_PLOT_SUFFIX_NVL_ORDERBY");
+				+ "PLOTS");
+		String valuesSuffix = "_VALUES";
+		String cdfSuffix = "_CDF";
+		String filenameSuffix = "_FILENAME";
+		String titleSuffix = "_TITLE";
+		String datetimeSuffix = "_DATETIME";
+		String logscaleSuffix = "_LOGSCALE";
+		String xLabelSuffix = "_XLABEL";
+		String yLabelSuffix = "_YLABEL";
+		String xOffsetSuffix = "_XOFFSET";
+		String yOffsetSuffix = "_YOFFSET";
+		String distTypeSuffix = "_TYPE";
+		String nvlOrderSuffix = "_ORDER";
+		String nvlOrderBySuffix = "_ORDERBY";
 
 		// init list of configs
 		ArrayList<PlotConfig> plotConfigs = new ArrayList<PlotConfig>(
