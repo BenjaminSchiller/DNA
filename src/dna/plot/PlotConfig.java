@@ -6,7 +6,6 @@ import dna.plot.data.PlotData.DistributionPlotType;
 import dna.plot.data.PlotData.NodeValueListOrder;
 import dna.plot.data.PlotData.NodeValueListOrderBy;
 import dna.util.Config;
-import dna.util.Log;
 
 /**
  * Configuration object representing one plot which will be read from properties
@@ -303,34 +302,24 @@ public class PlotConfig {
 					.getNodeValueListOrderBy("GNUPLOT_DEFAULT_NVL_ORDERBY");
 
 			// try to get config values
-			Log.infoSep();
 			if (Config.get(prefix + s + filenameSuffix) != null)
 				filename = Config.get(prefix + s + filenameSuffix);
 
 			String title = filename;
 			if (Config.get(prefix + s + titleSuffix) != null)
 				title = Config.get(prefix + s + titleSuffix);
-			System.out.println(filename + "\t" + title);
-			Log.infoSep();
-			try {
+
+			if (Config.get(prefix + s + xLabelSuffix) != null)
 				xLabel = Config.get(prefix + s + xLabelSuffix);
-			} catch (NullPointerException e) {
-			}
 
-			try {
+			if (Config.get(prefix + s + yLabelSuffix) != null)
 				yLabel = Config.get(prefix + s + yLabelSuffix);
-			} catch (NullPointerException e) {
-			}
 
-			try {
+			if (Config.get(prefix + s + logscaleSuffix) != null)
 				logscale = Config.get(prefix + s + logscaleSuffix);
-			} catch (NullPointerException e) {
-			}
 
-			try {
+			if (Config.get(prefix + s + datetimeSuffix) != null)
 				datetime = Config.get(prefix + s + datetimeSuffix);
-			} catch (NullPointerException e) {
-			}
 
 			try {
 				xOffset = Config.getDouble(prefix + s + xOffsetSuffix);
