@@ -6,9 +6,9 @@ package dna.plot.data;
  */
 public class FunctionData extends PlotData {
 
-	public FunctionData(String data, String domain, PlotStyle style,
+	public FunctionData(String functionName, String formular, PlotStyle style,
 			String title) {
-		super(data, domain, style, title);
+		super(functionName, formular, style, title);
 	}
 
 	@Override
@@ -22,8 +22,7 @@ public class FunctionData extends PlotData {
 		StringBuffer buff = new StringBuffer();
 		buff.append(this.data + " with " + this.style);
 		buff.append(" lt " + lt + " lw " + lw);
-		buff.append(title == null ? " notitle" : " title \"" + this.title
-				+ "\"");
+		buff.append(" title \"" + this.getLine() + "\"");
 		return buff.toString();
 	}
 
@@ -31,4 +30,9 @@ public class FunctionData extends PlotData {
 			DistributionPlotType distPlotType) {
 		return this.getEntry(lt, lw, offsetX, offsetY);
 	}
+
+	public String getLine() {
+		return super.data + "=" + super.domain;
+	}
+
 }

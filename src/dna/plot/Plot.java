@@ -5,6 +5,8 @@ import java.util.LinkedList;
 import java.util.List;
 
 import dna.io.Writer;
+import dna.plot.data.ExpressionData;
+import dna.plot.data.FunctionData;
 import dna.plot.data.PlotData;
 import dna.plot.data.PlotData.DistributionPlotType;
 import dna.plot.data.PlotData.NodeValueListOrder;
@@ -17,6 +19,10 @@ import dna.series.aggdata.AggregatedValue;
 import dna.util.Config;
 import dna.util.Execute;
 import dna.util.Log;
+import dna.util.expr.Expr;
+import dna.util.expr.Parser;
+import dna.util.expr.SyntaxException;
+import dna.util.expr.Variable;
 
 /**
  * The plot class is used to create a gnuplot script file, add data to it and
@@ -38,6 +44,7 @@ public class Plot {
 	private Writer fileWriter;
 	private int dataWriteCounter;
 	private int dataQuantity;
+	private int functionQuantity;
 
 	// plot config
 	PlotConfig config;
@@ -87,7 +94,14 @@ public class Plot {
 		// init writer
 		this.fileWriter = new Writer(dir, scriptFilename);
 		this.dataWriteCounter = 0;
+		this.functionQuantity = 0;
 		this.dataQuantity = 1;
+
+		for (PlotData pd : this.data) {
+			if (pd instanceof FunctionData) {
+				this.functionQuantity++;
+			}
+		}
 	}
 
 	/**
@@ -321,44 +335,159 @@ public class Plot {
 	 **/
 	public void addDataSequentially(AggregatedBatch batchData)
 			throws IOException {
-		String name = this.data[dataWriteCounter].getName();
-		String domain = this.data[dataWriteCounter].getDomain();
-		if (this.data[dataWriteCounter].isPlotAsCdf())
-			this.addData(name, domain, batchData, true);
-		else
-			this.addData(name, domain, batchData, false);
+		if (!(this.data[this.dataWriteCounter] instanceof FunctionData)) {
+			// if not function, add data
+			String name = this.data[this.dataWriteCounter].getName();
+			String domain = this.data[this.dataWriteCounter].getDomain();
+			if (this.data[this.dataWriteCounter].isPlotAsCdf())
+				this.addData(name, domain, batchData, true);
+			else
+				this.addData(name, domain, batchData, false);
+		}
 	}
 
 	/** Adds data to the plot **/
 	public void addData(AggregatedBatch[] batchData) throws IOException {
+		// iterate over plotdata
 		for (int i = 0; i < this.data.length; i++) {
-			String name = this.data[i].getName();
-			String domain = this.data[i].getDomain();
+			// check what type of data
+			if (this.data[i] instanceof FunctionData) {
+				// if function, skip
+				continue;
+			}
+
+			// default case
 			for (int j = 0; j < batchData.length; j++) {
-				this.addData(name, domain, batchData[j], false);
+				// check if expression
+				if (this.data[i] instanceof ExpressionData)
+					this.addDataFromExpression(batchData[j],
+							(ExpressionData) this.data[i]);
+				else
+					this.addData(this.data[i].getName(),
+							this.data[i].getDomain(), batchData[j], false);
 			}
 			this.appendEOF();
+
 		}
+	}
+
+	/** Adds data according to the expression **/
+	public void addDataFromExpression(AggregatedBatch b, ExpressionData d)
+			throws IOException {
+		long timestamp = b.getTimestamp();
+		String expression = d.getExpressionWithoutMarks();
+
+		String[] vars = d.getVariables();
+		String[] domains = d.getDomains();
+
+		AggregatedValue[] values = new AggregatedValue[vars.length];
+
+		for (int i = 0; i < vars.length; i++) {
+			String value = vars[i];
+			String domain = domains[i];
+			if (domain.equals(Config.get("CUSTOM_PLOT_DOMAIN_STATISTICS"))) {
+				values[i] = b.getValues().get(value);
+			} else if (domain.equals(Config.get("CUSTOM_PLOT_DOMAIN_RUNTIMES"))) {
+				if (b.getGeneralRuntimes().getNames().contains(value))
+					values[i] = b.getGeneralRuntimes().get(value);
+				else if (b.getMetricRuntimes().getNames().contains(value))
+					values[i] = b.getMetricRuntimes().get(value);
+			} else if (domain.equals(Config
+					.get("CUSTOM_PLOT_DOMAIN_GENERALRUNTIMES"))) {
+				values[i] = b.getGeneralRuntimes().get(value);
+			} else if (domain.equals(Config
+					.get("CUSTOM_PLOT_DOMAIN_METRICRUNTIMES"))) {
+				values[i] = b.getMetricRuntimes().get(value);
+			} else if (b.getMetrics().getNames().contains(domain)) {
+				AggregatedMetric m = b.getMetrics().get(domain);
+				if (m.getValues().getNames().contains(value)) {
+					values[i] = m.getValues().get(value);
+				} else {
+					Log.warn("problem when adding data to plot "
+							+ this.scriptFilename + ". Value '" + value
+							+ "' was not found in domain '" + domain
+							+ "' of batch." + timestamp);
+				}
+			} else {
+				Log.warn("problem when adding expression data to plot "
+						+ this.scriptFilename + ". domain '" + domain
+						+ "' not found in batch." + timestamp);
+			}
+		}
+
+		// parse expression
+		Expr expr = null;
+		try {
+			expr = Parser.parse(expression);
+		} catch (SyntaxException e) {
+			// print what went wrong
+			if (Config.getBoolean("CUSTOM_PLOT_EXPLAIN_EXPRESSION_FAILURE"))
+				System.out.println(e.explain());
+			else
+				e.printStackTrace();
+		}
+
+		// define variables
+		Variable[] variables = new Variable[vars.length];
+		for (int i = 0; i < variables.length; i++) {
+			variables[i] = Variable.make(vars[i]);
+		}
+
+		// only print warning message once
+		boolean[] warningsPrinted = new boolean[vars.length];
+
+		// calculate values
+		int valuesCount = 9;
+		double[] valuesNew = new double[valuesCount];
+		for (int i = 0; i < valuesCount; i++) {
+			// set variables
+			for (int j = 0; j < variables.length; j++) {
+				if (values[j] == null) {
+					// if null, print warning and set 0 as value
+					if (!warningsPrinted[j]) {
+						Log.warn("no values found for '" + domains[j] + "."
+								+ vars[j] + "'. Values assumed to be zero.");
+						warningsPrinted[j] = true;
+					}
+					variables[j].setValue(0.0);
+				} else {
+					// set variable
+					variables[j].setValue(values[j].getValues()[i]);
+				}
+			}
+			valuesNew[i] = expr.value();
+		}
+
+		// append data
+		this.appendData(new AggregatedValue(null, valuesNew), "" + timestamp);
 	}
 
 	/** Adds data from runtimes as CDF's **/
 	public void addDataFromRuntimesAsCDF(AggregatedBatch[] batchData)
 			throws IOException {
+		// iterate over plotdata
 		for (int i = 0; i < this.data.length; i++) {
-			String name = this.data[i].getName();
-			String domain = this.data[i].getDomain();
-			AggregatedBatch prevBatch = batchData[0];
-			AggregatedBatch tempBatch;
-			for (int j = 0; j < batchData.length; j++) {
-				if (j > 0) {
-					tempBatch = Plot.sumRuntimes(batchData[j], prevBatch);
-				} else {
-					tempBatch = batchData[j];
+			// check if function
+			if (!(this.data[i] instanceof FunctionData)) {
+				// if not a function, add data
+				String name = this.data[i].getName();
+				String domain = this.data[i].getDomain();
+				AggregatedBatch prevBatch = batchData[0];
+				AggregatedBatch tempBatch;
+				for (int j = 0; j < batchData.length; j++) {
+					if (j > 0) {
+						tempBatch = Plot.sumRuntimes(batchData[j], prevBatch);
+					} else {
+						tempBatch = batchData[j];
+					}
+					this.addData(name, domain, tempBatch, false);
+					prevBatch = tempBatch;
 				}
-				this.addData(name, domain, tempBatch, false);
-				prevBatch = tempBatch;
+				this.appendEOF();
+			} else {
+				// if function, only increment data write counter
+				this.dataWriteCounter++;
 			}
-			this.appendEOF();
 		}
 	}
 
@@ -422,7 +551,7 @@ public class Plot {
 
 	/** Closes the fileWriter of the plot **/
 	public void close() throws IOException {
-		if (this.dataWriteCounter != this.data.length)
+		if (this.dataWriteCounter + this.functionQuantity != this.data.length)
 			Log.warn("Unexpected number of plotdata written to file "
 					+ this.dir + this.scriptFilename + ". Expected: "
 					+ this.data.length + "  Written: " + this.dataWriteCounter);
@@ -452,15 +581,15 @@ public class Plot {
 		if (this.title != null) {
 			script.add("set title \"" + this.title + "\"");
 		}
-		if (!Config.get("GNUPLOT_XRANGE").equals("null")) {
-			script.add("set xrange " + Config.get("GNUPLOT_XRANGE"));
-		}
-		if (!Config.get("GNUPLOT_YRANGE").equals("null")) {
-			script.add("set yrange " + Config.get("GNUPLOT_YRANGE"));
-		}
 		if (this.plotDateTime) {
 			script.add("set xdata time");
 			script.add("set timefmt " + '"' + this.datetime + '"');
+		}
+
+		for (int i = 0; i < this.data.length; i++) {
+			if (data[i] instanceof FunctionData) {
+				script.add(((FunctionData) data[i]).getLine());
+			}
 		}
 		script.add("set style " + Config.get("GNUPLOT_STYLE"));
 		script.add("set boxwidth " + Config.get("GNUPLOT_BOXWIDTH"));
@@ -482,6 +611,12 @@ public class Plot {
 				script.add("set logscale x");
 			} else if (Config.getBoolean("GNUPLOT_YLOGSCALE")) {
 				script.add("set logscale y");
+			}
+			if (!Config.get("GNUPLOT_XRANGE").equals("null")) {
+				script.add("set xrange " + Config.get("GNUPLOT_XRANGE"));
+			}
+			if (!Config.get("GNUPLOT_YRANGE").equals("null")) {
+				script.add("set yrange " + Config.get("GNUPLOT_YRANGE"));
 			}
 			for (int i = 0; i < this.data.length; i++) {
 				String line = "";
@@ -505,15 +640,16 @@ public class Plot {
 				script.add(line);
 			}
 		} else {
-			if (this.config.getxLabel() != null) {
+			if (!this.config.getxLabel().equals("null"))
 				script.add("set xlabel \"" + this.config.getxLabel() + "\"");
-			}
-			if (this.config.getyLabel() != null) {
+			if (!this.config.getyLabel().equals("null"))
 				script.add("set ylabel \"" + this.config.getyLabel() + "\"");
-			}
-			if (this.config.getLogscale() != null) {
+			if (!this.config.getxRange().equals("null"))
+				script.add("set xrange " + this.config.getxRange());
+			if (!this.config.getyRange().equals("null"))
+				script.add("set yrange " + this.config.getyRange());
+			if (this.config.getLogscale() != null)
 				script.add("set logscale " + this.config.getLogscale());
-			}
 
 			for (int i = 0; i < this.data.length; i++) {
 				String line = "";
