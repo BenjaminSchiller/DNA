@@ -1033,12 +1033,13 @@ public class Profiler {
 				|| profilerDataTypeForHotSwap == ProfilerDataType.RuntimeBenchmark
 				|| profilerDataTypeForHotSwap == ProfilerDataType.MemoryBenchmark) {
 
-			if (!Config.get("VA_PLOTS").contains("PROFILERQUALITY")) {
-				Config.overwrite("VA_PLOTS", Config.get("VA_PLOTS")
+			if (!Config.get("CUSTOM_PLOTS").contains("PROFILERQUALITY")) {
+				Config.overwrite("CUSTOM_PLOTS", Config.get("CUSTOM_PLOTS")
 						+ ", PROFILERQUALITY");
-				Config.overwrite("VA_PROFILERQUALITY_NAME", "ProfilerQuality");
+				Config.overwrite("CUSTOM_PROFILERQUALITY_NAME",
+						"ProfilerQuality");
 				Config.overwrite(
-						"VA_PROFILERQUALITY_VALUES",
+						"CUSTOM_PROFILERQUALITY_VALUES",
 						"statistics.profilerCurrentCase, statistics.profilerBestCase, statistics.profilerWorstCase");
 			}
 
