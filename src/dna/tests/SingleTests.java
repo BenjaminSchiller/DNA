@@ -48,6 +48,7 @@ import dna.updates.generators.BatchGenerator;
 import dna.updates.generators.random.RandomBatch;
 import dna.util.Log;
 import dna.util.Log.LogLevel;
+import dna.util.Config;
 import dna.util.MathHelper;
 import dna.util.Timer;
 
@@ -66,7 +67,7 @@ public class SingleTests {
 	@Test
 	public void metricTest() throws AggregationException, IOException,
 			MetricNotApplicableException {
-		Profiler.activate();
+		Config.overwrite("PROFILER_ACTIVATED", "true");
 		LogLevel oldLogLevel = Log.getLogLevel();
 		Log.setLogLevel(LogLevel.warn);
 

@@ -80,15 +80,9 @@ public class Profiler {
 			ProfilerDataType.class);
 	private static ProfileEntry lastAccesses;
 
-	public static void activate() {
-		active = true;
-	}
-
-	public static void deactivate() {
-		active = false;
-	}
-
 	public static void reset() {
+		active = Config.getBoolean("PROFILER_ACTIVATED");
+
 		singleBatchCalls = new HashMap<>();
 		singleRunCalls = new HashMap<>();
 		singleSeriesCalls = new HashMap<>();
