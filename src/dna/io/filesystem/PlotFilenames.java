@@ -27,10 +27,22 @@ public class PlotFilenames {
 				+ Config.get("SUFFIX_GNUPLOT");
 	}
 
+	public static String getDistributionGnuplotScript(String distribution) {
+		return Config.get("PREFIX_DIST_GNUPLOT_SCRIPT") + distribution
+				+ Config.get("SUFFIX_GNUPLOT");
+	}
+
 	public static String getDistributionCdfGnuplotScript(String metric,
 			String distribution) {
 		return Config.get("PREFIX_DIST_GNUPLOT_SCRIPT") + metric
 				+ Config.get("PLOT_DELIMITER") + distribution
+				+ Config.get("PLOT_DELIMITER")
+				+ Config.get("PLOT_DISTRIBUTION_CDF")
+				+ Config.get("SUFFIX_GNUPLOT");
+	}
+
+	public static String getDistributionCdfGnuplotScript(String distribution) {
+		return Config.get("PREFIX_DIST_GNUPLOT_SCRIPT") + distribution
 				+ Config.get("PLOT_DELIMITER")
 				+ Config.get("PLOT_DISTRIBUTION_CDF")
 				+ Config.get("SUFFIX_GNUPLOT");
@@ -44,10 +56,19 @@ public class PlotFilenames {
 		return metric + Config.get("PLOT_DELIMITER") + distribution;
 	}
 
+	public static String getDistributionPlot(String distribution) {
+		return distribution;
+	}
+
 	public static String getDistributionCdfPlot(String metric,
 			String distribution) {
 		return metric + Config.get("PLOT_DELIMITER") + distribution
 				+ Config.get("PLOT_DELIMITER")
+				+ Config.get("PLOT_DISTRIBUTION_CDF");
+	}
+
+	public static String getDistributionCdfPlot(String distribution) {
+		return distribution + Config.get("PLOT_DELIMITER")
 				+ Config.get("PLOT_DISTRIBUTION_CDF");
 	}
 
@@ -78,6 +99,11 @@ public class PlotFilenames {
 				+ Config.get("SUFFIX_GNUPLOT");
 	}
 
+	public static String getValuesGnuplotScript(String value) {
+		return Config.get("PREFIX_VALUE_GNUPLOT_SCRIPT") + value
+				+ Config.get("SUFFIX_GNUPLOT");
+	}
+
 	public static String getValuesGnuplotScript(Values v) {
 		return Config.get("PREFIX_VALUE_GNUPLOT_SCRIPT") + v.getName()
 				+ Config.get("SUFFIX_GNUPLOT");
@@ -89,6 +115,10 @@ public class PlotFilenames {
 
 	public static String getValuesPlot(String metric, String value) {
 		return metric + Config.get("PLOT_DELIMITER") + value;
+	}
+
+	public static String getValuesPlot(String value) {
+		return value;
 	}
 
 	public static String getValuesPlot(Values v) {
@@ -174,6 +204,11 @@ public class PlotFilenames {
 				+ Config.get("SUFFIX_GNUPLOT");
 	}
 
+	public static String getNodeValueListGnuplotScript(String nodevaluelist) {
+		return Config.get("PREFIX_NVL_GNUPLOT_SCRIPT") + nodevaluelist
+				+ Config.get("SUFFIX_GNUPLOT");
+	}
+
 	public static String getNodeValueListPlot(MetricData m, NodeValueList n) {
 		return PlotFilenames.getNodeValueListPlot(m.getName(), n.getName());
 	}
@@ -181,6 +216,10 @@ public class PlotFilenames {
 	public static String getNodeValueListPlot(String metric,
 			String nodevaluelist) {
 		return metric + Config.get("PLOT_DELIMITER") + nodevaluelist;
+	}
+
+	public static String getNodeValueListPlot(String nodevaluelist) {
+		return nodevaluelist;
 	}
 
 	public static String getCombinationPlot(String value) {

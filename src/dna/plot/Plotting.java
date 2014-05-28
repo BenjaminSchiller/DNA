@@ -118,14 +118,29 @@ public class Plotting {
 		AggregatedBatch initBatch = batchData[0];
 
 		// plot statistics
-		if (config.isPlotStatistics())
+		if (config.isPlotStatistics()) {
 			Plotting.plotStatistics(batchData, initBatch.getValues(), dstDir,
 					title, style, type);
 
+			// plot custom statistic plots
+			if (config.getCustomStatisticPlots() != null) {
+				if (config.getCustomStatisticPlots().size() > 0) {
+					Log.infoSep();
+					Log.info("Plotting Custom-Statistic-Plots:");
+					Plotting.plotCustomValuePlots(batchData,
+							config.getCustomStatisticPlots(), dstDir, title,
+							style, type);
+				}
+			}
+		}
+
 		// plot custom value plots
-		if (config.isPlotCustomValues())
-			Plotting.plotCustomValues(batchData, config.getCustomValuePlots(),
-					dstDir, title, style, type);
+		if (config.isPlotCustomValues()) {
+			Log.infoSep();
+			Log.info("Plotting Custom-Value-Plots:");
+			Plotting.plotCustomValuePlots(batchData,
+					config.getCustomValuePlots(), dstDir, title, style, type);
+		}
 
 		// plot runtimes
 		if (config.isPlotRuntimes()) {
@@ -143,9 +158,21 @@ public class Plotting {
 		}
 
 		// plot metric values
-		if (config.isPlotMetricValues())
+		if (config.isPlotMetricValues()) {
 			Plotting.plotMetricValues(batchData, initBatch.getMetrics(),
 					dstDir, title, style, type);
+
+			// plot custom metric value plots
+			if (config.getCustomMetricValuePlots() != null) {
+				if (config.getCustomMetricValuePlots().size() > 0) {
+					Log.infoSep();
+					Log.info("Plotting Custom-MetricValue-Plots:");
+					Plotting.plotCustomValuePlots(batchData,
+							config.getCustomMetricValuePlots(), dstDir, title,
+							style, type);
+				}
+			}
+		}
 
 		// all at-once plots finished
 		// print memory usage
@@ -293,7 +320,7 @@ public class Plotting {
 		// call plotting method
 		Plotting.plotFromTo(seriesData, dstDir, config);
 	}
-	
+
 	/**
 	 * Plots the series to the destination dir.
 	 * 
@@ -308,7 +335,7 @@ public class Plotting {
 	 */
 	public static void plot(SeriesData seriesData, String dstDir)
 			throws IOException, InterruptedException {
-		Plotting.plot(new SeriesData[] {seriesData}, dstDir);
+		Plotting.plot(new SeriesData[] { seriesData }, dstDir);
 	}
 
 	/**
@@ -564,12 +591,10 @@ public class Plotting {
 	}
 
 	/** Plots custom value plots **/
-	private static void plotCustomValues(AggregatedBatch[] batchData,
+	private static void plotCustomValuePlots(AggregatedBatch[] batchData,
 			ArrayList<PlotConfig> customValuePlots, String dstDir,
 			String title, PlotStyle style, PlotType type) throws IOException,
 			InterruptedException {
-		Log.infoSep();
-		Log.info("Plotting Custom-Value-Plots:");
 		for (PlotConfig pc : customValuePlots) {
 			String name = pc.getName();
 			if (name == null)
@@ -578,10 +603,92 @@ public class Plotting {
 			String[] values = pc.getValues();
 			String[] domains = pc.getDomains();
 
-			if (pc.isPlotAsCdf())
-				Log.warn("plot '"
-						+ name
-						+ "' can not be plotted as cdf, it is a value plot! Plotting as regular plot.");
+			// if plot all, make plot for all runtimes
+			if (pc.isPlotAll()) {
+				String runtimeDomain = Config
+						.get("CUSTOM_PLOT_DOMAIN_RUNTIMES");
+				String statisticsDomain = Config
+						.get("CUSTOM_PLOT_DOMAIN_STATISTICS");
+
+				ArrayList<String> valuesList = new ArrayList<String>();
+				ArrayList<String> domainsList = new ArrayList<String>();
+
+				ArrayList<String> wildCardDomainsList = new ArrayList<String>();
+
+				// check which wildcards are present
+				for (int i = 0; i < values.length; i++) {
+					if (values[i].equals(Config.get("CUSTOM_PLOT_WILDCARD"))) {
+						// if wildcard, add domain to domainlist
+						if (!wildCardDomainsList.contains(domains[i]))
+							wildCardDomainsList.add(domains[i]);
+					} else {
+						// add normal values
+						valuesList.add(values[i]);
+						domainsList.add(domains[i]);
+					}
+				}
+
+				// gather all values implied by wildcards
+				for (int i = 0; i < wildCardDomainsList.size(); i++) {
+					String domain = wildCardDomainsList.get(i);
+					AggregatedBatch b = batchData[0];
+					boolean metricRuntimes = false;
+					boolean generalRuntimes = false;
+					boolean statistics = false;
+
+					if (domain
+							.equals(Config.get("CUSTOM_PLOT_DOMAIN_RUNTIMES"))) {
+						metricRuntimes = true;
+						generalRuntimes = true;
+					} else if (domain.equals(Config
+							.get("CUSTOM_PLOT_DOMAIN_METRICRUNTIMES"))) {
+						metricRuntimes = true;
+					} else if (domain.equals(Config
+							.get("CUSTOM_PLOT_DOMAIN_GENERALRUNTIMES"))) {
+						generalRuntimes = true;
+					} else if (domain.equals(Config
+							.get("CUSTOM_PLOT_DOMAIN_STATISTICS"))) {
+						statistics = true;
+					}
+
+					// gather metric runtimes
+					if (metricRuntimes) {
+						for (AggregatedValue metRuntime : b.getMetricRuntimes()
+								.getList()) {
+							String runtimeName = metRuntime.getName();
+							if (!valuesList.contains(runtimeName)) {
+								valuesList.add(runtimeName);
+								domainsList.add(runtimeDomain);
+							}
+						}
+					}
+					// gather general runtimes
+					if (generalRuntimes) {
+						for (AggregatedValue genRuntime : b
+								.getGeneralRuntimes().getList()) {
+							String runtimeName = genRuntime.getName();
+							if (!valuesList.contains(runtimeName)) {
+								valuesList.add(runtimeName);
+								domainsList.add(runtimeDomain);
+							}
+						}
+					}
+					// gather statistics
+					if (statistics) {
+						for (AggregatedValue stat : b.getValues().getList()) {
+							String statName = stat.getName();
+							if (!valuesList.contains(statName)) {
+								valuesList.add(statName);
+								domainsList.add(statisticsDomain);
+							}
+						}
+					}
+				}
+
+				// overwrite old arrays
+				values = valuesList.toArray(new String[0]);
+				domains = domainsList.toArray(new String[0]);
+			}
 
 			// gather plot data
 			PlotData[] data = new PlotData[values.length];
@@ -592,17 +699,25 @@ public class Plotting {
 						+ value + "-" + title, type);
 			}
 
+			// get filename
+			String filename = PlotFilenames.getValuesPlot(name);
+			if (pc.getFilename() != null) {
+				filename = pc.getFilename();
+			}
+
 			// create plot
-			Plot p = new Plot(dstDir, PlotFilenames.getValuesPlot("custom",
-					name),
-					PlotFilenames.getValuesGnuplotScript("custom", name), name
-							+ " (" + type + ")", data);
+			Plot p = new Plot(dstDir, filename,
+					PlotFilenames.getValuesGnuplotScript(filename), name + " ("
+							+ type + ")", pc, data);
 
 			// write script header
 			p.writeScriptHeader();
 
 			// add data
-			p.addData(batchData);
+			if (pc.isPlotAsCdf())
+				p.addDataFromRuntimesAsCDF(batchData);
+			else
+				p.addData(batchData);
 
 			// close and execute
 			p.close();
@@ -740,153 +855,222 @@ public class Plotting {
 
 		// generate custom distribution plots
 		if (customDistributionPlots != null) {
-			Log.infoSep();
-			Log.info("Plotting Custom-Distribution-Plots:");
-			for (PlotConfig pc : customDistributionPlots) {
-				String name = pc.getName();
-				if (name == null)
-					continue;
-				Log.info("\tplotting '" + name + "'");
-				String[] values = pc.getValues();
-				String[] domains = pc.getDomains();
+			if (!customDistributionPlots.isEmpty()) {
+				Log.infoSep();
+				Log.info("Plotting Custom-Distribution-Plots:");
+				for (PlotConfig pc : customDistributionPlots) {
+					String name = pc.getName();
+					if (name == null)
+						continue;
+					Log.info("\tplotting '" + name + "'");
 
-				int valuesCount = values.length;
+					// check for invalid values
+					String[] tempValues = pc.getValues();
+					String[] tempDomains = pc.getDomains();
+					ArrayList<String> valuesList = new ArrayList<String>();
+					ArrayList<String> domainsList = new ArrayList<String>();
 
-				// check what to plot
-				boolean plotDist = false;
-				boolean plotCdf = false;
+					for (int i = 0; i < tempValues.length; i++) {
+						String v = tempValues[i];
+						String d = tempDomains[i];
 
-				if (pc.getDistPlotType() != null) {
-					switch (pc.getDistPlotType()) {
-					case distOnly:
-						plotDist = true;
-						break;
-					case cdfOnly:
-						plotCdf = true;
-						break;
-					case distANDcdf:
-						plotDist = true;
-						plotCdf = true;
-						break;
-					}
-				} else {
-					plotDist = true;
-				}
-
-				// gather plot data
-				PlotData[] data = null;
-				PlotData[] dataCdf = null;
-
-				if (plotDist)
-					data = new PlotData[valuesCount * batches.length];
-				if (plotCdf)
-					dataCdf = new PlotData[valuesCount * batches.length];
-
-				// gather plot data
-				// example: distributions d1, d2
-				// -> data[] = { d1(0), d2(0), d1(1), d2(1), ... }
-				// where d1(x) is the plotdata of d1 at timestamp x
-				for (int i = 0; i < batches.length; i++) {
-					for (int j = 0; j < valuesCount; j++) {
-						if (plotDist)
-							data[i * valuesCount + j] = PlotData.get(values[j],
-									domains[j], style,
-									domains[j] + "." + values[j] + " @ "
-											+ timestamps[i], type);
-						if (plotCdf) {
-							PlotData dCdf = PlotData.get(values[j], domains[j],
-									style, domains[j] + "." + values[j] + " @ "
-											+ timestamps[i], type);
-							dCdf.setPlotAsCdf(true);
-							dataCdf[i * valuesCount + j] = dCdf;
+						if (d.equals(Config
+								.get("CUSTOM_PLOT_DOMAIN_STATISTICS"))
+								|| d.equals(Config
+										.get("CUSTOM_PLOT_DOMAIN_REUNTIMES"))) {
+							Log.warn("invalid value '" + tempDomains[i] + "."
+									+ tempValues[i]
+									+ "' in distribution plot '" + name + "'");
+						} else {
+							valuesList.add(v);
+							domainsList.add(d);
 						}
 					}
-				}
 
-				// create normal plot
-				if (plotDist) {
-					Plot p = new Plot(dstDir,
-							PlotFilenames.getDistributionPlot("custom.dist",
-									name),
-							PlotFilenames.getDistributionGnuplotScript(
-									"custom.dist", name), name + " (" + type
-									+ ")", data);
+					// only take over valid values
+					String[] values = valuesList.toArray(new String[0]);
+					String[] domains = domainsList.toArray(new String[0]);
 
-					// set data quantity
-					p.setDataQuantity(values.length);
+					int valuesCount = values.length;
 
-					// disable datetime for distribution plot
-					p.setPlotDateTime(false);
+					// check what to plot
+					boolean plotDist = false;
+					boolean plotCdf = false;
 
-					// add to plots
-					plots.add(p);
-				}
+					if (pc.getDistPlotType() != null) {
+						switch (pc.getDistPlotType()) {
+						case distOnly:
+							plotDist = true;
+							break;
+						case cdfOnly:
+							plotCdf = true;
+							break;
+						case distANDcdf:
+							plotDist = true;
+							plotCdf = true;
+							break;
+						}
+					} else {
+						plotDist = true;
+					}
 
-				// create cdf plot
-				if (plotCdf) {
-					Plot pCdf = new Plot(dstDir,
-							PlotFilenames.getDistributionCdfPlot("custom.dist",
-									name),
-							PlotFilenames.getDistributionCdfGnuplotScript(
-									"custom.dist", name), "CDF of " + name
-									+ " (" + type + ")", dataCdf);
+					// gather plot data
+					PlotData[] data = null;
+					PlotData[] dataCdf = null;
 
-					// set data quantity
-					pCdf.setDataQuantity(values.length);
+					if (plotDist)
+						data = new PlotData[valuesCount * batches.length];
+					if (plotCdf)
+						dataCdf = new PlotData[valuesCount * batches.length];
 
-					// disable datetime for distribution plot
-					pCdf.setPlotDateTime(false);
+					// gather plot data
+					// example: distributions d1, d2
+					// -> data[] = { d1(0), d2(0), d1(1), d2(1), ... }
+					// where d1(x) is the plotdata of d1 at timestamp x
+					for (int i = 0; i < batches.length; i++) {
+						for (int j = 0; j < valuesCount; j++) {
+							if (plotDist)
+								data[i * valuesCount + j] = PlotData.get(
+										values[j], domains[j], style,
+										domains[j] + "." + values[j] + " @ "
+												+ timestamps[i], type);
+							if (plotCdf) {
+								PlotData dCdf = PlotData.get(values[j],
+										domains[j], style, domains[j] + "."
+												+ values[j] + " @ "
+												+ timestamps[i], type);
+								dCdf.setPlotAsCdf(true);
+								dataCdf[i * valuesCount + j] = dCdf;
+							}
+						}
+					}
 
-					// add to plots
-					plots.add(pCdf);
+					// get filename
+					String filename = name;
+					if (pc.getFilename() != null) {
+						filename = pc.getFilename();
+					}
+
+					// create normal plot
+					if (plotDist) {
+						Plot p = new Plot(
+								dstDir,
+								PlotFilenames.getDistributionPlot(name),
+								PlotFilenames
+										.getDistributionGnuplotScript(filename),
+								name + " (" + type + ")", data);
+
+						// set data quantity
+						p.setDataQuantity(values.length);
+
+						// disable datetime for distribution plot
+						p.setPlotDateTime(false);
+
+						// add to plots
+						plots.add(p);
+					}
+
+					// create cdf plot
+					if (plotCdf) {
+						Plot pCdf = new Plot(
+								dstDir,
+								PlotFilenames.getDistributionCdfPlot(filename),
+								PlotFilenames
+										.getDistributionCdfGnuplotScript(filename),
+								"CDF of " + name + " (" + type + ")", dataCdf);
+
+						// set data quantity
+						pCdf.setDataQuantity(values.length);
+
+						// disable datetime for distribution plot
+						pCdf.setPlotDateTime(false);
+
+						// add to plots
+						plots.add(pCdf);
+					}
 				}
 			}
 		}
 
 		// generate custom nodevaluelist plots
 		if (customNodeValueListPlots != null) {
-			Log.infoSep();
-			Log.info("Plotting Custom-NodeValueList-Plots:");
-			for (PlotConfig pc : customNodeValueListPlots) {
-				String name = pc.getName();
-				if (name == null)
-					continue;
-				Log.info("\tplotting '" + name + "'");
-				String[] values = pc.getValues();
-				String[] domains = pc.getDomains();
+			if (!customNodeValueListPlots.isEmpty()) {
+				Log.infoSep();
+				Log.info("Plotting Custom-NodeValueList-Plots:");
+				for (PlotConfig pc : customNodeValueListPlots) {
+					String name = pc.getName();
+					if (name == null)
+						continue;
+					Log.info("\tplotting '" + name + "'");
 
-				int valuesCount = values.length;
+					// check for invalid values
+					String[] tempValues = pc.getValues();
+					String[] tempDomains = pc.getDomains();
+					ArrayList<String> valuesList = new ArrayList<String>();
+					ArrayList<String> domainsList = new ArrayList<String>();
 
-				// gather plot data
-				PlotData[] data = new PlotData[batches.length * values.length];
+					for (int i = 0; i < tempValues.length; i++) {
+						String v = tempValues[i];
+						String d = tempDomains[i];
 
-				// example: distributions d1, d2
-				// -> data[] = { d1(0), d2(0), d1(1), d2(1), ... }
-				// where d1(x) is the plotdata of d1 at timestamp x
-				for (int i = 0; i < batches.length; i++) {
-					for (int j = 0; j < valuesCount; j++) {
-						data[i * valuesCount + j] = PlotData.get(values[j],
-								domains[j], style, domains[j] + "." + values[j]
-										+ " @ " + timestamps[i], type);
+						if (d.equals(Config
+								.get("CUSTOM_PLOT_DOMAIN_STATISTICS"))
+								|| d.equals(Config
+										.get("CUSTOM_PLOT_DOMAIN_REUNTIMES"))) {
+							Log.warn("invalid value '" + tempDomains[i] + "."
+									+ tempValues[i]
+									+ "' in distribution plot '" + name + "'");
+						} else {
+							valuesList.add(v);
+							domainsList.add(d);
+						}
 					}
+
+					// only take over valid values
+					String[] values = valuesList.toArray(new String[0]);
+					String[] domains = domainsList.toArray(new String[0]);
+
+					int valuesCount = values.length;
+
+					// gather plot data
+					PlotData[] data = new PlotData[batches.length
+							* values.length];
+
+					// example: distributions d1, d2
+					// -> data[] = { d1(0), d2(0), d1(1), d2(1), ... }
+					// where d1(x) is the plotdata of d1 at timestamp x
+					for (int i = 0; i < batches.length; i++) {
+						for (int j = 0; j < valuesCount; j++) {
+							data[i * valuesCount + j] = PlotData.get(values[j],
+									domains[j], style,
+									domains[j] + "." + values[j] + " @ "
+											+ timestamps[i], type);
+						}
+					}
+
+					// get filename
+					String filename = name;
+					if (pc.getFilename() != null) {
+						filename = pc.getFilename();
+					}
+
+					// create plot
+					Plot p = new Plot(dstDir,
+							PlotFilenames.getNodeValueListPlot(filename),
+							PlotFilenames
+									.getNodeValueListGnuplotScript(filename),
+							name + " (" + type + ")", data);
+
+					// disable datetime for nodevaluelist plot
+					p.setPlotDateTime(false);
+
+					// set nvl sort options
+					p.setNodeValueListOrder(pc.getOrder());
+					p.setNodeValueListOrderBy(pc.getOrderBy());
+
+					// add to plots
+					plots.add(p);
 				}
-
-				// create plot
-				Plot p = new Plot(dstDir, PlotFilenames.getNodeValueListPlot(
-						"custom.nvl", name),
-						PlotFilenames.getNodeValueListGnuplotScript(
-								"custom.nvl", name), name + " (" + type + ")",
-						data);
-
-				// disable datetime for nodevaluelist plot
-				p.setPlotDateTime(false);
-
-				// set nvl sort options
-				p.setNodeValueListOrder(pc.getOrder());
-				p.setNodeValueListOrderBy(pc.getOrderBy());
-
-				// add to plots
-				plots.add(p);
 			}
 		}
 
@@ -940,7 +1124,8 @@ public class Plotting {
 
 				// get plot data
 				PlotData valuePlotData = PlotData.get(value,
-						Config.get("PLOT_STATISTICS"), style, title, type);
+						Config.get("CUSTOM_PLOT_DOMAIN_STATISTICS"), style,
+						title, type);
 
 				// create plot
 				Plot valuePlot = new Plot(dstDir, PlotFilenames.getValuesPlot(
@@ -1073,8 +1258,8 @@ public class Plotting {
 
 			// get plot data
 			PlotData metPlotData = PlotData.get(runtime,
-					Config.get("PLOT_METRICRUNTIMES"), style, runtime + "-"
-							+ title, type);
+					Config.get("CUSTOM_PLOT_DOMAIN_RUNTIMES"), style, runtime
+							+ "-" + title, type);
 			metRuntimes[index] = metPlotData;
 
 			// create plot
@@ -1147,7 +1332,7 @@ public class Plotting {
 		for (String gen : y) {
 			Log.info("\tplotting '" + gen + "'");
 			genRuntimes[index] = PlotData.get(gen,
-					Config.get("PLOT_GENERALRUNTIMES"), style, gen + "-"
+					Config.get("CUSTOM_PLOT_DOMAIN_RUNTIMES"), style, gen + "-"
 							+ title, type);
 			index++;
 		}
@@ -1197,18 +1382,94 @@ public class Plotting {
 			String[] values = pc.getValues();
 			String[] domains = pc.getDomains();
 			boolean plotAsCdf = pc.isPlotAsCdf();
-			String plotFilename;
+
+			// get filename
+			String plotFilename = PlotFilenames.getValuesPlot(name);
+			if (pc.getFilename() != null) {
+				plotFilename = pc.getFilename();
+			}
 			String scriptFilename;
 			String plotTitle;
-			if (plotAsCdf) {
-				plotFilename = PlotFilenames.getRuntimesPlotFileCDF(name);
-				scriptFilename = PlotFilenames
-						.getRuntimesGnuplotScriptCDF(name);
-				plotTitle = "CDF of ";
 
+			// if plot all, make plot for all runtimes
+			if (pc.isPlotAll()) {
+				String runtimeDomain = Config
+						.get("CUSTOM_PLOT_DOMAIN_RUNTIMES");
+
+				ArrayList<String> valuesList = new ArrayList<String>();
+				ArrayList<String> domainsList = new ArrayList<String>();
+
+				ArrayList<String> wildCardDomainsList = new ArrayList<String>();
+
+				// check which wildcards are present
+				for (int i = 0; i < values.length; i++) {
+					if (values[i].equals(Config.get("CUSTOM_PLOT_WILDCARD"))) {
+						// if wildcard, add domain to domainlist
+						if (!wildCardDomainsList.contains(domains[i]))
+							wildCardDomainsList.add(domains[i]);
+					} else {
+						// add normal values
+						valuesList.add(values[i]);
+						domainsList.add(domains[i]);
+					}
+				}
+
+				// gather all values implied by wildcards
+				for (int i = 0; i < wildCardDomainsList.size(); i++) {
+					String domain = wildCardDomainsList.get(i);
+					AggregatedBatch b = batchData[0];
+					boolean metricRuntimes = false;
+					boolean generalRuntimes = false;
+
+					if (domain
+							.equals(Config.get("CUSTOM_PLOT_DOMAIN_RUNTIMES"))) {
+						metricRuntimes = true;
+						generalRuntimes = true;
+					} else if (domain.equals(Config
+							.get("CUSTOM_PLOT_DOMAIN_METRICRUNTIMES"))) {
+						metricRuntimes = true;
+					} else if (domain.equals(Config
+							.get("CUSTOM_PLOT_DOMAIN_GENERALRUNTIMES"))) {
+						generalRuntimes = true;
+					}
+
+					// gather metric runtimes
+					if (metricRuntimes) {
+						for (AggregatedValue metRuntime : b.getMetricRuntimes()
+								.getList()) {
+							String runtimeName = metRuntime.getName();
+							if (!valuesList.contains(runtimeName)) {
+								valuesList.add(runtimeName);
+								domainsList.add(runtimeDomain);
+							}
+						}
+					}
+					// gather general runtimes
+					if (generalRuntimes) {
+						for (AggregatedValue genRuntime : b
+								.getGeneralRuntimes().getList()) {
+							String runtimeName = genRuntime.getName();
+							if (!valuesList.contains(runtimeName)) {
+								valuesList.add(runtimeName);
+								domainsList.add(runtimeDomain);
+							}
+						}
+					}
+				}
+
+				// overwrite old arrays
+				values = valuesList.toArray(new String[0]);
+				domains = domainsList.toArray(new String[0]);
+			}
+			if (plotAsCdf) {
+				scriptFilename = PlotFilenames
+						.getRuntimesGnuplotScriptCDF(plotFilename);
+				plotFilename += Config.get("PLOT_DELIMITER")
+						+ Config.get("PLOT_DISTRIBUTION_CDF");
+				plotTitle = "CDF of ";
 			} else {
-				plotFilename = PlotFilenames.getRuntimesPlotFile(name);
-				scriptFilename = PlotFilenames.getRuntimesGnuplotScript(name);
+				scriptFilename = PlotFilenames
+						.getRuntimesGnuplotScript(plotFilename);
 				plotTitle = "";
 			}
 			plotTitle += name + " (" + type + ")";
@@ -1222,7 +1483,7 @@ public class Plotting {
 
 			// create plot
 			Plot p = new Plot(dstDir, plotFilename, scriptFilename, plotTitle,
-					plotData);
+					pc, plotData);
 
 			// write script header
 			p.writeScriptHeader();

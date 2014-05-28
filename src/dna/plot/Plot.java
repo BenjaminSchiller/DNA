@@ -39,17 +39,20 @@ public class Plot {
 	private int dataWriteCounter;
 	private int dataQuantity;
 
+	// plot config
+	PlotConfig config;
+
 	// plot styles
 	private String title;
-	private String dateTime;
+	private String datetime;
 	private boolean plotDateTime;
 	private DistributionPlotType distPlotType;
 	private NodeValueListOrderBy orderBy;
 	private NodeValueListOrder sortOrder;
 
 	/**
-	 * Creates a plot object which will can written to a gnuplot script file.
-	 * Data to be plotted can be added via appendData methods.
+	 * Creates a plot object which will be written to a gnuplot script file.
+	 * Data to be plotted can be added via addData methods.
 	 * 
 	 * @param dir
 	 *            Destination directory of the plot and script file.
@@ -57,6 +60,8 @@ public class Plot {
 	 *            Filename of the plotted file.
 	 * @param scriptFilename
 	 *            Filename of the scriptfile.
+	 * @param title
+	 *            The plots title.
 	 * @param data
 	 *            Array of PlotData objects, each representing a type of "data",
 	 *            which will be plotted into the same plot.
@@ -76,13 +81,64 @@ public class Plot {
 				.getNodeValueListOrder("GNUPLOT_DEFAULT_NVL_ORDER");
 		this.orderBy = Config
 				.getNodeValueListOrderBy("GNUPLOT_DEFAULT_NVL_ORDERBY");
-		this.dateTime = Config.get("GNUPLOT_DATETIME");
+		this.datetime = Config.get("GNUPLOT_DATETIME");
 		this.plotDateTime = Config.getBoolean("GNUPLOT_PLOTDATETIME");
 
 		// init writer
 		this.fileWriter = new Writer(dir, scriptFilename);
 		this.dataWriteCounter = 0;
 		this.dataQuantity = 1;
+	}
+
+	/**
+	 * Creates a plot object which will be written to a gnuplot script file.
+	 * Data to be plotted can be added via addData methods.
+	 * 
+	 * @param dir
+	 *            Destination directory of the plot and script file.
+	 * @param plotFilename
+	 *            Filename of the plotted file.
+	 * @param scriptFilename
+	 *            Filename of the scriptfile.
+	 * @param title
+	 *            The plots title.
+	 * @param config
+	 *            PlotConfig that allows for detailed configuration of the plot.
+	 * @param data
+	 *            Array of PlotData objects, each representing a type of "data",
+	 *            which will be plotted into the same plot.
+	 * @throws IOException
+	 *             Might be thrown by the writer.
+	 */
+	public Plot(String dir, String plotFilename, String scriptFilename,
+			String title, PlotConfig config, PlotData[] data)
+			throws IOException {
+		this(dir, plotFilename, scriptFilename, title, data);
+		this.config = config;
+
+		// title
+		if (config.getTitle() != null) {
+			this.title = config.getTitle();
+		}
+
+		// datetime
+		if (config.getDatetime() != null) {
+			this.datetime = config.getDatetime();
+			this.plotDateTime = true;
+		}
+
+		// sort settings
+		if (config.getDistPlotType() != null) {
+			this.distPlotType = config.getDistPlotType();
+		}
+
+		if (config.getOrder() != null) {
+			this.sortOrder = config.getOrder();
+		}
+
+		if (config.getOrderBy() != null) {
+			this.orderBy = config.getOrderBy();
+		}
 	}
 
 	// new methods
@@ -97,22 +153,21 @@ public class Plot {
 	}
 
 	// append data methods
-	public void appendData(AggregatedValue[] values, int normalizeDivisor)
+	public void appendData(AggregatedValue[] values) throws IOException {
+		for (int i = 0; i < values.length; i++)
+			this.appendData(values[i], "");
+		this.appendEOF();
+	}
+
+	public void appendDataWithIndex(AggregatedValue[] values)
 			throws IOException {
 		for (int i = 0; i < values.length; i++)
-			this.appendData(values[i], "", normalizeDivisor);
+			this.appendData(values[i], "" + i);
 		this.appendEOF();
 	}
 
-	public void appendDataWithIndex(AggregatedValue[] values,
-			int normalizeDivisor) throws IOException {
-		for (int i = 0; i < values.length; i++)
-			this.appendData(values[i], "" + i, normalizeDivisor);
-		this.appendEOF();
-	}
-
-	private void appendData(AggregatedValue value, String timestamp,
-			int normalizeDivisor) throws IOException {
+	private void appendData(AggregatedValue value, String timestamp)
+			throws IOException {
 		Writer w = this.fileWriter;
 		String temp = "" + timestamp;
 
@@ -123,17 +178,16 @@ public class Plot {
 			values = value.getValues();
 		for (int k = 0; k < values.length; k++) {
 			if (temp.equals(""))
-				temp += (values[k] / normalizeDivisor);
+				temp += values[k];
 			else
-				temp += Config.get("PLOTDATA_DELIMITER")
-						+ (values[k] / normalizeDivisor);
+				temp += Config.get("PLOTDATA_DELIMITER") + values[k];
 		}
 		w.writeln(temp);
 	}
 
-	private void appendData(AggregatedValue value, double timestamp,
-			int normalizeDivisor) throws IOException {
-		this.appendData(value, "" + timestamp, normalizeDivisor);
+	private void appendData(AggregatedValue value, double timestamp)
+			throws IOException {
+		this.appendData(value, "" + timestamp);
 	}
 
 	private void appendEOF() throws IOException {
@@ -173,79 +227,89 @@ public class Plot {
 			boolean addAsCDF) throws IOException {
 		double timestamp = (double) batch.getTimestamp();
 		// figure out where to get the data from
-		if (domain.equals(Config.get("PLOT_STATISTICS"))) {
-			this.appendData(batch.getValues().get(name), timestamp, 1);
-		} else if (domain.equals(Config.get("PLOT_METRICRUNTIMES"))) {
-			this.appendData(batch.getMetricRuntimes().get(name), timestamp,
-					1000 * 1000 * 1000);
-		} else if (domain.equals(Config.get("PLOT_GENERALRUNTIMES"))) {
-			this.appendData(batch.getGeneralRuntimes().get(name), timestamp,
-					1000 * 1000 * 1000);
-		} else if (domain.equals(Config.get("PLOT_CUSTOM_RUNTIME"))) {
+		if (domain.equals(Config.get("CUSTOM_PLOT_DOMAIN_STATISTICS"))) {
+			this.appendData(batch.getValues().get(name), timestamp);
+		} else if (domain.equals(Config.get("CUSTOM_PLOT_DOMAIN_RUNTIMES"))) {
 			if (batch.getGeneralRuntimes().getNames().contains(name))
-				this.appendData(batch.getGeneralRuntimes().get(name),
-						timestamp, 1000 * 1000 * 1000);
+				this.appendData(batch.getGeneralRuntimes().get(name), timestamp);
 			else if (batch.getMetricRuntimes().getNames().contains(name))
-				this.appendData(batch.getMetricRuntimes().get(name), timestamp,
-						1000 * 1000 * 1000);
+				this.appendData(batch.getMetricRuntimes().get(name), timestamp);
+		} else if (domain.equals(Config
+				.get("CUSTOM_PLOT_DOMAIN_METRICRUNTIMES"))) {
+			this.appendData(batch.getMetricRuntimes().get(name), timestamp);
+		} else if (domain.equals(Config
+				.get("CUSTOM_PLOT_DOMAIN_GENERALRUNTIMES"))) {
+			this.appendData(batch.getGeneralRuntimes().get(name), timestamp);
 		} else {
 			if (batch.getMetrics().getNames().contains(domain)) {
 				AggregatedMetric m = batch.getMetrics().get(domain);
 				if (m.getDistributions().getNames().contains(name)) {
 					AggregatedValue[] values = m.getDistributions().get(name)
 							.getValues();
-					if (addAsCDF) {
-						AggregatedValue[] tempValues = new AggregatedValue[values.length];
-						for (int i = 0; i < tempValues.length; i++) {
-							double[] tempV = new double[values[i].getValues().length];
-							System.arraycopy(values[i].getValues(), 0, tempV,
-									0, values[i].getValues().length);
-							tempValues[i] = new AggregatedValue(
-									values[i].getName(), tempV);
-						}
-						for (int j = 1; j < tempValues.length; j++) {
-							for (int k = 1; k < tempValues[j].getValues().length; k++) {
-								tempValues[j].getValues()[k] += tempValues[j - 1]
-										.getValues()[k];
-							}
-						}
-						this.appendData(tempValues, 1);
+					if (values == null) {
+						Log.warn("no values found in plot '"
+								+ this.plotFilename + "' for '" + domain + "."
+								+ name + "'");
 					} else {
-						this.appendData(values, 1);
+						if (addAsCDF) {
+							AggregatedValue[] tempValues = new AggregatedValue[values.length];
+							for (int i = 0; i < tempValues.length; i++) {
+								double[] tempV = new double[values[i]
+										.getValues().length];
+								System.arraycopy(values[i].getValues(), 0,
+										tempV, 0, values[i].getValues().length);
+								tempValues[i] = new AggregatedValue(
+										values[i].getName(), tempV);
+							}
+							for (int j = 1; j < tempValues.length; j++) {
+								for (int k = 1; k < tempValues[j].getValues().length; k++) {
+									tempValues[j].getValues()[k] += tempValues[j - 1]
+											.getValues()[k];
+								}
+							}
+							this.appendData(tempValues);
+						} else {
+							this.appendData(values);
+						}
 					}
 				} else if (m.getNodeValues().getNames().contains(name)) {
-					if (this.orderBy.equals(NodeValueListOrderBy.index)) {
-						this.appendDataWithIndex(m.getNodeValues().get(name)
-								.getValues(), 1);
+					AggregatedNodeValueList nvl = m.getNodeValues().get(name);
+					if (nvl.getValues() == null) {
+						Log.warn("no values found in plot '"
+								+ this.plotFilename + "' for '" + domain + "."
+								+ name + "'");
 					} else {
-						AggregatedNodeValueList nvl = m.getNodeValues().get(
-								name);
-						nvl.setsortIndex(this.orderBy, this.sortOrder);
-						AggregatedValue[] values = nvl.getValues();
-						AggregatedValue[] tempValues = new AggregatedValue[values.length];
-						int index = 0;
-						for (int i : nvl.getSortIndex()) {
-							double[] tempV = new double[values[i].getValues().length];
-							System.arraycopy(values[i].getValues(), 0, tempV,
-									0, values[i].getValues().length);
-							tempValues[index] = new AggregatedValue(
-									values[i].getName(), tempV);
-							index++;
+						if (this.orderBy.equals(NodeValueListOrderBy.index)) {
+							this.appendDataWithIndex(nvl.getValues());
+						} else {
+							nvl.setsortIndex(this.orderBy, this.sortOrder);
+							AggregatedValue[] values = nvl.getValues();
+							AggregatedValue[] tempValues = new AggregatedValue[values.length];
+							int index = 0;
+							for (int i : nvl.getSortIndex()) {
+								double[] tempV = new double[values[i]
+										.getValues().length];
+								System.arraycopy(values[i].getValues(), 0,
+										tempV, 0, values[i].getValues().length);
+								tempValues[index] = new AggregatedValue(
+										values[i].getName(), tempV);
+								index++;
+							}
+							this.appendDataWithIndex(tempValues);
 						}
-						this.appendDataWithIndex(tempValues, 1);
 					}
 				} else if (m.getValues().getNames().contains(name)) {
-					this.appendData(m.getValues().get(name), timestamp, 1);
+					this.appendData(m.getValues().get(name), timestamp);
 				} else {
 					Log.warn("problem when adding data to plot "
-							+ this.scriptFilename + ". Value " + name
-							+ " was not found in domain " + domain
-							+ " of batch." + timestamp);
+							+ this.scriptFilename + ". Value '" + name
+							+ "' was not found in domain '" + domain
+							+ "' of batch." + timestamp);
 				}
 			} else {
 				Log.warn("problem when adding data to plot "
-						+ this.scriptFilename + ". domain " + domain
-						+ " not found in batch." + timestamp);
+						+ this.scriptFilename + ". domain '" + domain
+						+ "' not found in batch." + timestamp);
 			}
 		}
 	}
@@ -361,7 +425,7 @@ public class Plot {
 		if (this.dataWriteCounter != this.data.length)
 			Log.warn("Unexpected number of plotdata written to file "
 					+ this.dir + this.scriptFilename + ". Expected: "
-					+ this.data.length + "  Written: " + this.dataWriteCounter);
+					+ this.data.length + " Written: " + this.dataWriteCounter);
 		this.fileWriter.close();
 		this.fileWriter = null;
 	}
@@ -372,8 +436,10 @@ public class Plot {
 	 * @return the header part of the gnuplot script
 	 */
 	protected List<String> getScript() {
+		// init script list
 		List<String> script = new LinkedList<String>();
 
+		// add script lines
 		script.add("set terminal " + Config.get("GNUPLOT_TERMINAL"));
 		script.add("set output \"" + this.dir + this.plotFilename + "."
 				+ Config.get("GNUPLOT_EXTENSION") + "\"");
@@ -386,54 +452,90 @@ public class Plot {
 		if (this.title != null) {
 			script.add("set title \"" + this.title + "\"");
 		}
-		if (!Config.get("GNUPLOT_XLABEL").equals("null")) {
-			script.add("set xlabel \"" + Config.get("GNUPLOT_XLABEL") + "\"");
-		}
 		if (!Config.get("GNUPLOT_XRANGE").equals("null")) {
 			script.add("set xrange " + Config.get("GNUPLOT_XRANGE"));
-		}
-		if (!Config.get("GNUPLOT_YLABEL").equals("null")) {
-			script.add("set ylabel \"" + Config.get("GNUPLOT_YLABEL") + "\"");
 		}
 		if (!Config.get("GNUPLOT_YRANGE").equals("null")) {
 			script.add("set yrange " + Config.get("GNUPLOT_YRANGE"));
 		}
-		if (Config.getBoolean("GNUPLOT_XLOGSCALE")
-				&& Config.getBoolean("GNUPLOT_YLOGSCALE")) {
-			script.add("set logscale xy");
-		} else if (Config.getBoolean("GNUPLOT_XLOGSCALE")) {
-			script.add("set logscale x");
-		} else if (Config.getBoolean("GNUPLOT_YLOGSCALE")) {
-			script.add("set logscale y");
-		}
 		if (this.plotDateTime) {
 			script.add("set xdata time");
-			script.add("set timefmt " + '"' + this.dateTime + '"');
+			script.add("set timefmt " + '"' + this.datetime + '"');
 		}
-
 		script.add("set style " + Config.get("GNUPLOT_STYLE"));
 		script.add("set boxwidth " + Config.get("GNUPLOT_BOXWIDTH"));
 
-		for (int i = 0; i < this.data.length; i++) {
-			String line = "";
-			if (this.distPlotType == null)
-				line = this.data[i].getEntry(i + 1,
-						Config.getInt("GNUPLOT_LW"),
-						Config.getDouble("GNUPLOT_XOFFSET") * i,
-						Config.getDouble("GNUPLOT_YOFFSET") * i);
-			else
-				line = this.data[i].getEntry(i + 1,
-						Config.getInt("GNUPLOT_LW"),
-						Config.getDouble("GNUPLOT_XOFFSET") * i,
-						Config.getDouble("GNUPLOT_YOFFSET") * i,
-						this.distPlotType);
-			if (i == 0) {
-				line = "plot " + line;
+		// if no config is present
+		if (this.config == null) {
+			if (!Config.get("GNUPLOT_XLABEL").equals("null")) {
+				script.add("set xlabel \"" + Config.get("GNUPLOT_XLABEL")
+						+ "\"");
 			}
-			if (i < this.data.length - 1) {
-				line = line + " , \\";
+			if (!Config.get("GNUPLOT_YLABEL").equals("null")) {
+				script.add("set ylabel \"" + Config.get("GNUPLOT_YLABEL")
+						+ "\"");
 			}
-			script.add(line);
+			if (Config.getBoolean("GNUPLOT_XLOGSCALE")
+					&& Config.getBoolean("GNUPLOT_YLOGSCALE")) {
+				script.add("set logscale xy");
+			} else if (Config.getBoolean("GNUPLOT_XLOGSCALE")) {
+				script.add("set logscale x");
+			} else if (Config.getBoolean("GNUPLOT_YLOGSCALE")) {
+				script.add("set logscale y");
+			}
+			for (int i = 0; i < this.data.length; i++) {
+				String line = "";
+				if (this.distPlotType == null)
+					line = this.data[i].getEntry(i + 1,
+							Config.getInt("GNUPLOT_LW"),
+							Config.getDouble("GNUPLOT_XOFFSET") * i,
+							Config.getDouble("GNUPLOT_YOFFSET") * i);
+				else
+					line = this.data[i].getEntry(i + 1,
+							Config.getInt("GNUPLOT_LW"),
+							Config.getDouble("GNUPLOT_XOFFSET") * i,
+							Config.getDouble("GNUPLOT_YOFFSET") * i,
+							this.distPlotType);
+				if (i == 0) {
+					line = "plot " + line;
+				}
+				if (i < this.data.length - 1) {
+					line = line + " , \\";
+				}
+				script.add(line);
+			}
+		} else {
+			if (this.config.getxLabel() != null) {
+				script.add("set xlabel \"" + this.config.getxLabel() + "\"");
+			}
+			if (this.config.getyLabel() != null) {
+				script.add("set ylabel \"" + this.config.getyLabel() + "\"");
+			}
+			if (this.config.getLogscale() != null) {
+				script.add("set logscale " + this.config.getLogscale());
+			}
+
+			for (int i = 0; i < this.data.length; i++) {
+				String line = "";
+				if (this.config.getDistPlotType() == null)
+					line = this.data[i].getEntry(i + 1,
+							Config.getInt("GNUPLOT_LW"),
+							this.config.getxOffset() * i,
+							this.config.getyOffset() * i);
+				else
+					line = this.data[i].getEntry(i + 1,
+							Config.getInt("GNUPLOT_LW"),
+							this.config.getxOffset() * i,
+							this.config.getyOffset() * i,
+							this.config.getDistPlotType());
+				if (i == 0) {
+					line = "plot " + line;
+				}
+				if (i < this.data.length - 1) {
+					line = line + " , \\";
+				}
+				script.add(line);
+			}
 		}
 		return script;
 	}
@@ -458,11 +560,11 @@ public class Plot {
 	// 02:45:03 . %H:%M:%S "%H" . 24-hour
 	// 1076909172 . %s . seconds since 1/1/1970 00:00
 	public void setDateTime(String dateTime) {
-		this.dateTime = dateTime;
+		this.datetime = dateTime;
 	}
 
 	public String getDateTime() {
-		return dateTime;
+		return datetime;
 	}
 
 	public void setPlotDateTime(boolean plotDateTime) {
