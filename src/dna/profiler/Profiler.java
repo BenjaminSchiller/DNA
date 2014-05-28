@@ -142,16 +142,6 @@ public class Profiler {
 		metricNames.add(name);
 	}
 
-	public static void finish() {
-		// Actions to be done after generation of stats, eg. writing them to
-		// disk, printing them,...
-
-		if (!active || globalCalls.isEmpty())
-			return;
-
-		System.out.println(getGlobalComplexity(globalCalls));
-	}
-
 	/**
 	 * Get a string representation of the monitored calls
 	 * 
@@ -611,47 +601,6 @@ public class Profiler {
 		return res;
 	}
 
-	/**
-	 * Method used to print the complexity analysis over all access types and
-	 * matching recommendations
-	 * 
-	 * @param listOfEntries
-	 * @return
-	 */
-	private static String getGlobalComplexity(
-			Map<String, ProfileEntry> listOfEntries) {
-		StringBuilder res = new StringBuilder();
-		ProfileEntry resEntry = new ProfileEntry();
-		res.append(separator + "Complexity analysis over all access types:"
-				+ separator);
-		for (Entry<String, ProfileEntry> entry : listOfEntries.entrySet()) {
-			resEntry = resEntry.add(entry.getValue());
-		}
-		res.append(resEntry.toString());
-
-		ProfileEntry globalMemoryEntry = new ProfileEntry();
-		for (ProfileEntry other : pointerForMemoryAggregation.values()) {
-			globalMemoryEntry = globalMemoryEntry.add(other);
-		}
-
-		HashMap<EnumMap<ListType, Class<? extends IDataStructure>>, RecommenderEntry> costMap = calculateAllBasicCosts(
-				globalMemoryEntry, resEntry, true);
-		CompleteRecommendationsHolder recommendationList = calculateRecommendations(
-				costMap, gds.getStorageDataStructures());
-
-		for (ProfilerMeasurementData.ProfilerDataType entryType : ProfilerMeasurementData.ProfilerDataType
-				.values()) {
-			ComparableEntryMap currentCosts = recommendationList.getOwnCosts(
-					entryType).getCosts(entryType);
-			res.append(" Aggr for " + entryType + ": " + currentCosts
-					+ separator);
-
-			res.append(getOtherRuntimeComplexitiesForEntry(entryType,
-					recommendationList.get(entryType), false));
-		}
-		return res.toString();
-	}
-
 	private static ProfileEntry entryForKey(Map<String, ProfileEntry> calls,
 			String mapKey, boolean forceReset) {
 		ProfileEntry innerMap = calls.get(mapKey);
@@ -961,11 +910,37 @@ public class Profiler {
 
 		Profiler.writeAggregation(singleRunCalls, runDataDir, rec);
 
+		if (Config.getBoolean("PROFILER_PRINTRECOMMENDATION_AFTER_EACH_RUN")) {
+			printLastRecommendation("  ");
+		}
+
 		if (Config.getBoolean("PROFILER_WRITE_ACCESSSTATS_PER_RUN")) {
 			Profiler.plotAccessStatistics(singleRunCalls, runDataDir,
 					"accessStats-run", false);
 			Profiler.plotAccessStatistics(singleRunCalls, runDataDir,
 					"accessStats-run", true);
+		}
+	}
+
+	private static void printLastRecommendation(String prefix) {
+		TreeSet<RecommenderEntry> recSet;
+		RecommenderEntry recEntry;
+		Iterator<RecommenderEntry> it;
+
+		int numberOfRecommendations = Config
+				.getInt("NUMBER_OF_RECOMMENDATIONS");
+
+		for (ProfilerDataType pdt : ProfilerDataType.values()) {
+			Log.info(prefix + "Current costs for " + pdt + ": "
+					+ getLastCosts(pdt));
+			recSet = getRecommendations(pdt);
+			it = recSet.iterator();
+			for (int i = 0; (i < numberOfRecommendations && it.hasNext()); i++) {
+				recEntry = it.next();
+				Log.info(prefix + " Costs for combination "
+						+ recEntry.getDatastructures() + ": "
+						+ recEntry.getCosts(pdt));
+			}
 		}
 	}
 
@@ -1019,6 +994,10 @@ public class Profiler {
 
 		Profiler.writeAggregation(singleBatchCalls, batchDir,
 				ProfilerGranularity.isEnabled(Options.EACHBATCH));
+
+		if (Config.getBoolean("PROFILER_PRINTRECOMMENDATION_AFTER_EACH_BATCH")) {
+			printLastRecommendation("      ");
+		}
 
 		if (Config.getBoolean("PROFILER_WRITE_ACCESSSTATS_PER_BATCH")) {
 			Profiler.plotAccessStatistics(singleBatchCalls, runDataDir,
