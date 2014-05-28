@@ -54,7 +54,7 @@ public class Profiler {
 	private static EnumMap<DataStructure.ListType, Integer> generatedListsCounter;
 	private static EnumMap<DataStructure.ListType, Integer> listSizeCounter;
 
-	private static boolean active = false;
+	private static boolean active = Config.getBoolean("PROFILER_ACTIVATED");
 	private static boolean inInitialBatch = false;
 	private static Graph graph;
 	private static GraphDataStructure gds;
