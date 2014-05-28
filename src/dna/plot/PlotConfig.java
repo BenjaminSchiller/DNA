@@ -189,117 +189,76 @@ public class PlotConfig {
 
 		for (String s : plots) {
 			// get plot from config
-			String name = s;
+			String keyword = s;
 			boolean plotAll = false;
+
+			// get values
 			String[] values = Config.keys(prefix + s + valuesSuffix);
+
+			// init domains arrays
 			String[] domains = new String[values.length];
 
-			// get domains
-			if (prefix.equals(Config.get("CUSTOM_PLOT_PREFIX_RUNTIMES"))) {
-				String metricRuntimeDomain = Config
-						.get("CUSTOM_PLOT_DOMAIN_METRICRUNTIMES");
-				String generalRuntimeDomain = Config
-						.get("CUSTOM_PLOT_DOMAIN_GENERALRUNTIMES");
-				String runtimeDomain = Config
-						.get("CUSTOM_PLOT_DOMAIN_RUNTIMES");
-				// if runtimes plot, add runtimes domain
-				for (int i = 0; i < values.length; i++) {
+			// parse values and get domains
+			for (int i = 0; i < values.length; i++) {
+				String value = values[i];
 
-					// check if function
-					String[] functionSplit = values[i].split("=");
-					if (functionSplit.length > 1) {
-						domains[i] = Config.get("CUSTOM_PLOT_DOMAIN_FUNCTION");
-					} else {
-						// not a function
-						String[] split = values[i].split("\\.");
-						if (!split[0].equals(runtimeDomain)
-								&& !split[0].equals(metricRuntimeDomain)
-								&& !split[0].equals(generalRuntimeDomain)) {
-							domains[i] = runtimeDomain;
-						} else {
-							domains[i] = split[0];
-							String domain = "";
-							for (int j = 0; j < split.length - 1; j++) {
-								if (j == 0)
-									domain += split[j];
-								else
-									domain += "." + split[j];
-							}
-							domains[i] = domain;
-							values[i] = split[split.length - 1];
-						}
-
-						// check for wildcard
-						if (values[i]
-								.equals(Config.get("CUSTOM_PLOT_WILDCARD")))
-							plotAll = true;
-					}
+				// check if function
+				String[] split = value.split("=");
+				if (split.length == 2) {
+					// if function -> set domain and continue with next value
+					domains[i] = Config.get("CUSTOM_PLOT_DOMAIN_FUNCTION");
+					continue;
 				}
-			} else if (prefix.equals(Config
-					.get("CUSTOM_PLOT_PREFIX_STATISTICS"))) {
-				// if statistics plot, add statistics domain
-				for (int i = 0; i < values.length; i++) {
-					// check if function
-					String[] functionSplit = values[i].split("=");
-					if (functionSplit.length > 1) {
-						domains[i] = Config.get("CUSTOM_PLOT_DOMAIN_FUNCTION");
-					} else {
-						// not a function
-						domains[i] = Config
-								.get("CUSTOM_PLOT_DOMAIN_STATISTICS");
-						String[] split = values[i].split("\\.");
-						if (split[0].equals(Config
-								.get("CUSTOM_PLOT_DOMAIN_STATISTICS"))) {
-							String domain = "";
-							for (int j = 0; j < split.length - 1; j++) {
-								if (j == 0)
-									domain += split[j];
-								else
-									domain += "." + split[j];
-							}
-							domains[i] = domain;
-							values[i] = split[split.length - 1];
-						}
 
-						// check for wildcard
-						if (values[i]
-								.equals(Config.get("CUSTOM_PLOT_WILDCARD")))
-							plotAll = true;
-					}
+				// check if expression
+				split = value.split(":");
+				if (split.length > 1) {
+					// if expression -> set domain and continue with next value
+					domains[i] = Config.get("CUSTOM_PLOT_DOMAIN_EXPRESSION");
+					continue;
 				}
-			} else {
-				// get domains from strings
-				for (int i = 0; i < values.length; i++) {
-					// check if function
-					String[] functionSplit = values[i].split("=");
-					if (functionSplit.length > 1) {
-						domains[i] = Config.get("CUSTOM_PLOT_DOMAIN_FUNCTION");
-					} else {
-						// not a function
-						String[] split = values[i].split("\\.");
-						domains[i] = split[0];
-						String domain = "";
-						for (int j = 0; j < split.length - 1; j++) {
-							if (j == 0)
-								domain += split[j];
-							else
-								domain += "." + split[j];
-						}
-						values[i] = split[split.length - 1];
-						domains[i] = domain;
 
-						if (values[i]
-								.equals(Config.get("CUSTOM_PLOT_WILDCARD")))
-							plotAll = true;
+				// check if contains domain
+				split = value.split("\\.");
+				if (split.length > 1) {
+					String domain = "";
+					for (int j = 0; j < split.length - 1; j++) {
+						if (j == 0)
+							domain += split[j];
+						else
+							domain += "." + split[j];
 					}
+					// take first part as domain
+					domains[i] = domain;
+
+					// take last part as value name
+					values[i] = split[split.length - 1];
+
+					// check for wildcard
+					if (values[i].equals(Config.get("CUSTOM_PLOT_WILDCARD")))
+						plotAll = true;
+
+					// continue with next value
+					continue;
 				}
+
+				// if value doesnt contain domain
+				if (prefix.equals(Config.get("CUSTOM_PLOT_PREFIX_RUNTIMES")))
+					domains[i] = Config.get("CUSTOM_PLOT_DOMAIN_RUNTIMES");
+
+				//
+				if (prefix.equals(Config.get("CUSTOM_PLOT_PREFIX_STATISTICS")))
+					domains[i] = Config.get("CUSTOM_PLOT_DOMAIN_STATISTICS");
+
+				if (value.equals(Config.get("CUSTOM_PLOT_WILDCARD")))
+					plotAll = true;
 			}
 
 			// read optional values from config
 			boolean plotAsCdf = Config.getBoolean(prefix + s + cdfSuffix);
 
 			// default values
-			String filename = name;
+			String filename = keyword;
 			String xLabel = Config.get("GNUPLOT_XLABEL");
 			String yLabel = Config.get("GNUPLOT_YLABEL");
 			String logscale = null;
