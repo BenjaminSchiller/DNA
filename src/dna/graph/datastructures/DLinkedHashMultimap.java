@@ -20,14 +20,14 @@ public class DLinkedHashMultimap extends DataStructureReadable implements
 	public DLinkedHashMultimap(ListType lt, Class<? extends IElement> dT) {
 		super(lt, dT);
 	}
-	
+
 	@Override
 	public void init(Class<? extends IElement> dT, int initialSize,
 			boolean firstTime) {
 		this.list = LinkedHashMultimap.create(initialSize, 1);
 		this.maxNodeIndex = -1;
 	}
-	
+
 	public boolean add(IElement element) {
 		if (element instanceof Node)
 			return this.add((Node) element);
@@ -38,7 +38,7 @@ public class DLinkedHashMultimap extends DataStructureReadable implements
 	}
 
 	protected boolean add_(Node element) {
-		if ( !this.list.put(element.getIndex(), element) ) {
+		if (!this.list.put(element.getIndex(), element)) {
 			return false;
 		}
 		if (element.getIndex() > this.maxNodeIndex) {
@@ -61,7 +61,7 @@ public class DLinkedHashMultimap extends DataStructureReadable implements
 		throw new RuntimeException("Can't handle element of type "
 				+ element.getClass() + " here");
 	}
-	
+
 	@Override
 	public boolean contains(Node element) {
 		return list.containsKey(element.getIndex());
@@ -69,9 +69,15 @@ public class DLinkedHashMultimap extends DataStructureReadable implements
 
 	@Override
 	public boolean contains(Edge element) {
-		return list.containsKey(element.hashCode());
+		if (!list.containsKey(element.hashCode()))
+			return false;
+		for (IElement e : list.get(element.hashCode())) {
+			if (e.equals(element))
+				return true;
+		}
+		return false;
 	}
-	
+
 	@Override
 	public boolean remove(IElement element) {
 		if (element instanceof Node)
@@ -157,5 +163,5 @@ public class DLinkedHashMultimap extends DataStructureReadable implements
 
 	public void prepareForGC() {
 		this.list = null;
-	}	
+	}
 }
