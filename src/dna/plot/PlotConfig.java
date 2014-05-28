@@ -22,6 +22,8 @@ public class PlotConfig {
 	private String datetime;
 	private double xOffset;
 	private double yOffset;
+	private String xRange;
+	private String yRange;
 	private boolean plotAsCdf;
 	private String[] values;
 	private String[] domains;
@@ -33,10 +35,10 @@ public class PlotConfig {
 	// constructor
 	private PlotConfig(String filename, String title, String xLabel,
 			String yLabel, String logscale, String datetime, double xOffset,
-			double yOffset, boolean plotAsCdf, String[] values,
-			String[] domains, DistributionPlotType distPlotType,
-			NodeValueListOrder order, NodeValueListOrderBy orderBy,
-			boolean plotAll) {
+			double yOffset, String xRange, String yRange, boolean plotAsCdf,
+			String[] values, String[] domains,
+			DistributionPlotType distPlotType, NodeValueListOrder order,
+			NodeValueListOrderBy orderBy, boolean plotAll) {
 		this.filename = filename;
 		this.title = title;
 		this.xLabel = xLabel;
@@ -45,6 +47,8 @@ public class PlotConfig {
 		this.datetime = datetime;
 		this.xOffset = xOffset;
 		this.yOffset = yOffset;
+		this.xRange = xRange;
+		this.yRange = yRange;
 		this.plotAsCdf = plotAsCdf;
 		this.values = values;
 		this.domains = domains;
@@ -115,6 +119,14 @@ public class PlotConfig {
 		return yOffset;
 	}
 
+	public String getxRange() {
+		return xRange;
+	}
+
+	public String getyRange() {
+		return yRange;
+	}
+
 	/** Returns the custom value plots created from config **/
 	public static ArrayList<PlotConfig> getCustomValuePlots() {
 		return PlotConfig.getCustomPlots(Config
@@ -154,8 +166,7 @@ public class PlotConfig {
 	/** Returns the custom plots created from config **/
 	private static ArrayList<PlotConfig> getCustomPlots(String prefix) {
 		// define suffix
-		String[] plots = Config.keys(prefix
-				+ "PLOTS");
+		String[] plots = Config.keys(prefix + "PLOTS");
 		String valuesSuffix = "_VALUES";
 		String cdfSuffix = "_CDF";
 		String filenameSuffix = "_FILENAME";
@@ -166,6 +177,8 @@ public class PlotConfig {
 		String yLabelSuffix = "_YLABEL";
 		String xOffsetSuffix = "_XOFFSET";
 		String yOffsetSuffix = "_YOFFSET";
+		String xRangeSuffix = "_XRANGE";
+		String yRangeSuffix = "_YRANGE";
 		String distTypeSuffix = "_TYPE";
 		String nvlOrderSuffix = "_ORDER";
 		String nvlOrderBySuffix = "_ORDERBY";
@@ -293,6 +306,8 @@ public class PlotConfig {
 			String datetime = "";
 			double xOffset = Config.getDouble("GNUPLOT_XOFFSET");
 			double yOffset = Config.getDouble("GNUPLOT_YOFFSET");
+			String xRange = Config.get("GNUPLOT_XRANGE");
+			String yRange = Config.get("GNUPLOT_YRANGE");
 			DistributionPlotType distPlotType = Config
 					.getDistributionPlotType("GNUPLOT_DEFAULT_DIST_PLOTTYPE");
 			NodeValueListOrder order = Config
@@ -300,48 +315,59 @@ public class PlotConfig {
 			NodeValueListOrderBy orderBy = Config
 					.getNodeValueListOrderBy("GNUPLOT_DEFAULT_NVL_ORDERBY");
 
-			// try to get config values
+			// read config values
+			// filename
 			if (Config.get(prefix + s + filenameSuffix) != null)
 				filename = Config.get(prefix + s + filenameSuffix);
 
+			// title
 			String title = filename;
 			if (Config.get(prefix + s + titleSuffix) != null)
 				title = Config.get(prefix + s + titleSuffix);
 
+			// labels
 			if (Config.get(prefix + s + xLabelSuffix) != null)
 				xLabel = Config.get(prefix + s + xLabelSuffix);
-
 			if (Config.get(prefix + s + yLabelSuffix) != null)
 				yLabel = Config.get(prefix + s + yLabelSuffix);
 
+			// logscale
 			if (Config.get(prefix + s + logscaleSuffix) != null)
 				logscale = Config.get(prefix + s + logscaleSuffix);
 
+			// datetime
 			if (Config.get(prefix + s + datetimeSuffix) != null)
 				datetime = Config.get(prefix + s + datetimeSuffix);
 
+			// ranges
+			if (Config.get(prefix + s + xRangeSuffix) != null)
+				xRange = Config.get(prefix + s + xRangeSuffix);
+			if (Config.get(prefix + s + yRangeSuffix) != null)
+				yRange = Config.get(prefix + s + yRangeSuffix);
+
+			// offsets
 			try {
 				xOffset = Config.getDouble(prefix + s + xOffsetSuffix);
 			} catch (NullPointerException | NumberFormatException e) {
 			}
-
 			try {
 				yOffset = Config.getDouble(prefix + s + yOffsetSuffix);
 			} catch (NullPointerException | NumberFormatException e) {
 			}
 
+			// dist plot type
 			try {
 				distPlotType = Config.getDistributionPlotType(prefix + s
 						+ distTypeSuffix);
 			} catch (NullPointerException e) {
 			}
 
+			// node value list sort orders
 			try {
 				order = Config.getNodeValueListOrder(prefix + s
 						+ nvlOrderSuffix);
 			} catch (NullPointerException e) {
 			}
-
 			try {
 				orderBy = Config.getNodeValueListOrderBy(prefix + s
 						+ nvlOrderBySuffix);
@@ -350,8 +376,9 @@ public class PlotConfig {
 
 			// Craft PlotConfig and add to configs list
 			plotConfigs.add(new PlotConfig(filename, title, xLabel, yLabel,
-					logscale, datetime, xOffset, yOffset, plotAsCdf, values,
-					domains, distPlotType, order, orderBy, plotAll));
+					logscale, datetime, xOffset, yOffset, xRange, yRange,
+					plotAsCdf, values, domains, distPlotType, order, orderBy,
+					plotAll));
 		}
 		return plotConfigs;
 	}

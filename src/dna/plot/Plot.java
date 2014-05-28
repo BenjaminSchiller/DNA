@@ -480,12 +480,6 @@ public class Plot {
 		if (this.title != null) {
 			script.add("set title \"" + this.title + "\"");
 		}
-		if (!Config.get("GNUPLOT_XRANGE").equals("null")) {
-			script.add("set xrange " + Config.get("GNUPLOT_XRANGE"));
-		}
-		if (!Config.get("GNUPLOT_YRANGE").equals("null")) {
-			script.add("set yrange " + Config.get("GNUPLOT_YRANGE"));
-		}
 		if (this.plotDateTime) {
 			script.add("set xdata time");
 			script.add("set timefmt " + '"' + this.datetime + '"');
@@ -517,6 +511,12 @@ public class Plot {
 			} else if (Config.getBoolean("GNUPLOT_YLOGSCALE")) {
 				script.add("set logscale y");
 			}
+			if (!Config.get("GNUPLOT_XRANGE").equals("null")) {
+				script.add("set xrange " + Config.get("GNUPLOT_XRANGE"));
+			}
+			if (!Config.get("GNUPLOT_YRANGE").equals("null")) {
+				script.add("set yrange " + Config.get("GNUPLOT_YRANGE"));
+			}
 			for (int i = 0; i < this.data.length; i++) {
 				String line = "";
 				if (this.distPlotType == null)
@@ -539,15 +539,16 @@ public class Plot {
 				script.add(line);
 			}
 		} else {
-			if (this.config.getxLabel() != null) {
+			if (!this.config.getxLabel().equals("null"))
 				script.add("set xlabel \"" + this.config.getxLabel() + "\"");
-			}
-			if (this.config.getyLabel() != null) {
+			if (!this.config.getyLabel().equals("null"))
 				script.add("set ylabel \"" + this.config.getyLabel() + "\"");
-			}
-			if (this.config.getLogscale() != null) {
+			if (!this.config.getxRange().equals("null"))
+				script.add("set xrange " + this.config.getxRange());
+			if (!this.config.getyRange().equals("null"))
+				script.add("set yrange " + this.config.getyRange());
+			if (this.config.getLogscale() != null)
 				script.add("set logscale " + this.config.getLogscale());
-			}
 
 			for (int i = 0; i < this.data.length; i++) {
 				String line = "";
