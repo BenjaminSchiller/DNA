@@ -6,6 +6,7 @@ import dna.plot.data.PlotData.DistributionPlotType;
 import dna.plot.data.PlotData.NodeValueListOrder;
 import dna.plot.data.PlotData.NodeValueListOrderBy;
 import dna.util.Config;
+import dna.util.Log;
 
 /**
  * Configuration object representing one plot which will be read from properties
@@ -31,6 +32,7 @@ public class PlotConfig {
 	private NodeValueListOrder order;
 	private NodeValueListOrderBy orderBy;
 	private boolean plotAll;
+	private String generalDomain;
 
 	// constructor
 	private PlotConfig(String filename, String title, String xLabel,
@@ -38,7 +40,7 @@ public class PlotConfig {
 			double yOffset, String xRange, String yRange, boolean plotAsCdf,
 			String[] values, String[] domains,
 			DistributionPlotType distPlotType, NodeValueListOrder order,
-			NodeValueListOrderBy orderBy, boolean plotAll) {
+			NodeValueListOrderBy orderBy, boolean plotAll, String generalDomain) {
 		this.filename = filename;
 		this.title = title;
 		this.xLabel = xLabel;
@@ -56,6 +58,7 @@ public class PlotConfig {
 		this.order = order;
 		this.orderBy = orderBy;
 		this.plotAll = plotAll;
+		this.generalDomain = generalDomain;
 	}
 
 	// getters
@@ -127,6 +130,10 @@ public class PlotConfig {
 		return yRange;
 	}
 
+	public String getGeneralDomain() {
+		return generalDomain;
+	}
+
 	/** Returns the custom value plots created from config **/
 	public static ArrayList<PlotConfig> getCustomValuePlots() {
 		return PlotConfig.getCustomPlots(Config
@@ -190,7 +197,14 @@ public class PlotConfig {
 		for (String s : plots) {
 			// get plot from config
 			String keyword = s;
+			String generalDomain = null;
 			boolean plotAll = false;
+
+			// set general domain
+			if (prefix.equals(Config.get("CUSTOM_PLOT_PREFIX_STATISTICS")))
+				generalDomain = Config.get("CUSTOM_PLOT_DOMAIN_STATISTICS");
+			if (prefix.equals(Config.get("CUSTOM_PLOT_PREFIX_RUNTIMES")))
+				generalDomain = Config.get("CUSTOM_PLOT_DOMAIN_RUNTIMES");
 
 			// get values
 			String[] values = Config.keys(prefix + s + valuesSuffix);
@@ -212,7 +226,16 @@ public class PlotConfig {
 
 				// check if expression
 				split = value.split(":");
-				if (split.length > 1) {
+				if (split.length == 2) {
+					// minor syntax check on amount of $
+					int count = 0;
+					for (int j = 0; j < split[1].length(); j++) {
+						if (split[1].charAt(j) == '$')
+							count++;
+					}
+					if ((count & 1) != 0)
+						Log.warn("syntax error on parsing '" + value + "'");
+
 					// if expression -> set domain and continue with next value
 					domains[i] = Config.get("CUSTOM_PLOT_DOMAIN_EXPRESSION");
 					continue;
@@ -252,6 +275,10 @@ public class PlotConfig {
 
 				if (value.equals(Config.get("CUSTOM_PLOT_WILDCARD")))
 					plotAll = true;
+
+				if (domains[i] == null)
+					Log.warn("custom plot config parsing failure: '" + value
+							+ "' has unknown domain!");
 			}
 
 			// read optional values from config
@@ -337,7 +364,7 @@ public class PlotConfig {
 			plotConfigs.add(new PlotConfig(filename, title, xLabel, yLabel,
 					logscale, datetime, xOffset, yOffset, xRange, yRange,
 					plotAsCdf, values, domains, distPlotType, order, orderBy,
-					plotAll));
+					plotAll, generalDomain));
 		}
 		return plotConfigs;
 	}

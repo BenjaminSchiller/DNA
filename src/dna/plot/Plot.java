@@ -5,6 +5,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import dna.io.Writer;
+import dna.plot.data.ExpressionData;
 import dna.plot.data.FunctionData;
 import dna.plot.data.PlotData;
 import dna.plot.data.PlotData.DistributionPlotType;
@@ -18,6 +19,10 @@ import dna.series.aggdata.AggregatedValue;
 import dna.util.Config;
 import dna.util.Execute;
 import dna.util.Log;
+import dna.util.expr.Expr;
+import dna.util.expr.Parser;
+import dna.util.expr.SyntaxException;
+import dna.util.expr.Variable;
 
 /**
  * The plot class is used to create a gnuplot script file, add data to it and
@@ -345,20 +350,116 @@ public class Plot {
 	public void addData(AggregatedBatch[] batchData) throws IOException {
 		// iterate over plotdata
 		for (int i = 0; i < this.data.length; i++) {
-			// check if function
-			if (!(this.data[i] instanceof FunctionData)) {
-				// if not a function, add data
-				String name = this.data[i].getName();
-				String domain = this.data[i].getDomain();
-				for (int j = 0; j < batchData.length; j++) {
-					this.addData(name, domain, batchData[j], false);
+			// check what type of data
+			if (this.data[i] instanceof FunctionData) {
+				// if function, skip
+				continue;
+			}
+
+			// default case
+			for (int j = 0; j < batchData.length; j++) {
+				// check if expression
+				if (this.data[i] instanceof ExpressionData)
+					this.addDataFromExpression(batchData[j],
+							(ExpressionData) this.data[i]);
+				else
+					this.addData(this.data[i].getName(),
+							this.data[i].getDomain(), batchData[j], false);
+			}
+			this.appendEOF();
+
+		}
+	}
+
+	/** Adds data according to the expression **/
+	public void addDataFromExpression(AggregatedBatch b, ExpressionData d)
+			throws IOException {
+		long timestamp = b.getTimestamp();
+		String expression = d.getExpressionWithoutMarks();
+
+		String[] vars = d.getVariables();
+		String[] domains = d.getDomains();
+
+		AggregatedValue[] values = new AggregatedValue[vars.length];
+
+		for (int i = 0; i < vars.length; i++) {
+			String value = vars[i];
+			String domain = domains[i];
+			if (domain.equals(Config.get("CUSTOM_PLOT_DOMAIN_STATISTICS"))) {
+				values[i] = b.getValues().get(value);
+			} else if (domain.equals(Config.get("CUSTOM_PLOT_DOMAIN_RUNTIMES"))) {
+				if (b.getGeneralRuntimes().getNames().contains(value))
+					values[i] = b.getGeneralRuntimes().get(value);
+				else if (b.getMetricRuntimes().getNames().contains(value))
+					values[i] = b.getMetricRuntimes().get(value);
+			} else if (domain.equals(Config
+					.get("CUSTOM_PLOT_DOMAIN_GENERALRUNTIMES"))) {
+				values[i] = b.getGeneralRuntimes().get(value);
+			} else if (domain.equals(Config
+					.get("CUSTOM_PLOT_DOMAIN_METRICRUNTIMES"))) {
+				values[i] = b.getMetricRuntimes().get(value);
+			} else if (b.getMetrics().getNames().contains(domain)) {
+				AggregatedMetric m = b.getMetrics().get(domain);
+				if (m.getValues().getNames().contains(value)) {
+					values[i] = m.getValues().get(value);
+				} else {
+					Log.warn("problem when adding data to plot "
+							+ this.scriptFilename + ". Value '" + value
+							+ "' was not found in domain '" + domain
+							+ "' of batch." + timestamp);
 				}
-				this.appendEOF();
 			} else {
-				// if function, only increment data write counter
-				this.dataWriteCounter++;
+				Log.warn("problem when adding expression data to plot "
+						+ this.scriptFilename + ". domain '" + domain
+						+ "' not found in batch." + timestamp);
 			}
 		}
+
+		// parse expression
+		Expr expr = null;
+		try {
+			expr = Parser.parse(expression);
+		} catch (SyntaxException e) {
+			// print what went wrong
+			if (Config.getBoolean("CUSTOM_PLOT_EXPLAIN_EXPRESSION_FAILURE"))
+				System.out.println(e.explain());
+			else
+				e.printStackTrace();
+		}
+
+		// define variables
+		Variable[] variables = new Variable[vars.length];
+		for (int i = 0; i < variables.length; i++) {
+			variables[i] = Variable.make(vars[i]);
+		}
+
+		// only print warning message once
+		boolean[] warningsPrinted = new boolean[vars.length];
+
+		// calculate values
+		int valuesCount = 9;
+		double[] valuesNew = new double[valuesCount];
+		for (int i = 0; i < valuesCount; i++) {
+			// set variables
+			for (int j = 0; j < variables.length; j++) {
+				if (values[j] == null) {
+					// if null, print warning and set 0 as value
+					if (!warningsPrinted[j]) {
+						Log.warn("no values found for '" + domains[j] + "."
+								+ vars[j] + "'. Values assumed to be zero.");
+						warningsPrinted[j] = true;
+					}
+					variables[j].setValue(0.0);
+				} else {
+					// set variable
+					variables[j].setValue(values[j].getValues()[i]);
+				}
+			}
+			valuesNew[i] = expr.value();
+		}
+
+		// append data
+		this.appendData(new AggregatedValue(null, valuesNew), "" + timestamp);
 	}
 
 	/** Adds data from runtimes as CDF's **/

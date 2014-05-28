@@ -9,6 +9,7 @@ import java.util.List;
 import dna.io.filesystem.Dir;
 import dna.io.filesystem.PlotFilenames;
 import dna.plot.PlottingConfig.PlotFlag;
+import dna.plot.data.ExpressionData;
 import dna.plot.data.PlotData;
 import dna.plot.data.PlotData.DistributionPlotType;
 import dna.plot.data.PlotData.NodeValueListOrder;
@@ -688,12 +689,29 @@ public class Plotting {
 				if (domain.equals(Config.get("CUSTOM_PLOT_DOMAIN_FUNCTION"))) {
 					String[] functionSplit = value.split("=");
 					if (functionSplit.length != 2) {
-						Log.warn("wrong function syntax for " + value);
+						Log.warn("wrong function syntax for '" + value + "'");
 						continue;
 					}
 					data[j] = PlotData.get(functionSplit[0].trim(),
 							functionSplit[1].trim(), style, domain + "."
 									+ value + "-" + title, PlotType.function);
+				} else if (domain.equals(Config
+						.get("CUSTOM_PLOT_DOMAIN_EXPRESSION"))) {
+					// if expression
+					String[] expressionSplit = value.split(":");
+					if (expressionSplit.length != 2) {
+						Log.warn("wrong expression syntax for '" + value + "'");
+						continue;
+					}
+					// parse name
+					String exprName;
+					if (expressionSplit[0].equals(""))
+						exprName = expressionSplit[1];
+					else
+						exprName = expressionSplit[0];
+					data[j] = new ExpressionData(exprName, expressionSplit[1],
+							style, exprName.replace("$", "") + "-" + title,
+							pc.getGeneralDomain());
 				} else {
 					data[j] = PlotData.get(value, domain, style, domain + "."
 							+ value + "-" + title, type);
@@ -1536,6 +1554,24 @@ public class Plotting {
 					plotData[i] = PlotData.get(functionSplit[0].trim(),
 							functionSplit[1].trim(), style, domain + "."
 									+ value + "-" + title, PlotType.function);
+				} else if (domain.equals(Config
+						.get("CUSTOM_PLOT_DOMAIN_EXPRESSION"))) {
+					// if expression
+					String[] expressionSplit = value.split(":");
+					if (expressionSplit.length != 2) {
+						Log.warn("wrong expression syntax for '" + value + "'");
+						continue;
+					}
+					// parse name
+					String exprName;
+					if (expressionSplit[0].equals(""))
+						exprName = expressionSplit[1];
+					else
+						exprName = expressionSplit[0];
+					plotData[i] = new ExpressionData(exprName,
+							expressionSplit[1], style,
+							exprName.replace("$", "") + "-" + title,
+							pc.getGeneralDomain());
 				} else {
 					plotData[i] = PlotData.get(value, domain, style, value
 							+ "-" + title, type);
