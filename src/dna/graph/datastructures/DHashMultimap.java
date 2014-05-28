@@ -69,7 +69,13 @@ public class DHashMultimap extends DataStructureReadable implements
 
 	@Override
 	public boolean contains(Edge element) {
-		return list.containsKey(element.hashCode());
+		if (!list.containsKey(element.hashCode()))
+			return false;
+		for (IElement e : list.get(element.hashCode())) {
+			if (e.equals(element))
+				return true;
+		}
+		return false;
 	}
 
 	@Override
