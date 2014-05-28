@@ -16,6 +16,7 @@ import dna.profiler.datatypes.benchmarkresults.BenchmarkingResultsMap;
 import dna.profiler.datatypes.benchmarkresults.strategies.BoundaryStrategy;
 import dna.profiler.datatypes.benchmarkresults.strategies.BoundaryStrategy.BucketSelector;
 import dna.profiler.datatypes.benchmarkresults.strategies.BoundaryStrategy.ListAggregator;
+import dna.util.Config;
 
 public class BenchmarkResultsTest {
 	@Test
@@ -34,8 +35,10 @@ public class BenchmarkResultsTest {
 	@Test
 	public void testIfMaxValueUpperBoundaryStrategyWorks() {
 		String val = "500=0.7,0.8,0.9;1000=1.6,1.4,1.5";
-		BenchmarkingResult.setStrategy(new BoundaryStrategy(BucketSelector.UPPER,
-				ListAggregator.MAX));
+		
+		Config.overwrite("RECOMMENDER_BUCKETSELECTOR", "Upper");
+		Config.overwrite("RECOMMENDER_LISTAGGREGATOR", "Max");
+		
 		BenchmarkingResult res = (BenchmarkingResult) BenchmarkingResult
 				.parseString("", val);
 
@@ -59,8 +62,10 @@ public class BenchmarkResultsTest {
 	@Test
 	public void testIfMinValueLowerBoundaryStrategyWorks() {
 		String val = "500=0.7,0.8,0.9;1000=1.6,1.4,1.5";
-		BenchmarkingResult.setStrategy(new BoundaryStrategy(BucketSelector.LOWER,
-				ListAggregator.MIN));
+		
+		Config.overwrite("RECOMMENDER_BUCKETSELECTOR", "Lower");
+		Config.overwrite("RECOMMENDER_LISTAGGREGATOR", "Min");
+		
 		BenchmarkingResult res = (BenchmarkingResult) BenchmarkingResult
 				.parseString("", val);
 
@@ -92,8 +97,10 @@ public class BenchmarkResultsTest {
 	@Test
 	public void testCorrectInterpolation() {
 		String val = "1=1;2=2";
-		BenchmarkingResult.setStrategy(new BoundaryStrategy(
-				BucketSelector.INTERPOLATE, ListAggregator.MEAN));
+		
+		Config.overwrite("RECOMMENDER_BUCKETSELECTOR", "Interpolate");
+		Config.overwrite("RECOMMENDER_LISTAGGREGATOR", "Mean");
+		
 		BenchmarkingResult res = (BenchmarkingResult) BenchmarkingResult
 				.parseString("", val);
 
