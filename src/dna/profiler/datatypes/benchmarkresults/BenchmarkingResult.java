@@ -14,6 +14,7 @@ import dna.profiler.datatypes.benchmarkresults.strategies.BoundaryStrategy.Bucke
 import dna.profiler.datatypes.benchmarkresults.strategies.BoundaryStrategy.ListAggregator;
 import dna.profiler.datatypes.benchmarkresults.strategies.ResultProcessingStrategy;
 import dna.profiler.datatypes.complexity.ComplexityType.Base;
+import dna.util.Config;
 
 public class BenchmarkingResult extends ComparableEntry {
 
@@ -23,7 +24,6 @@ public class BenchmarkingResult extends ComparableEntry {
 	private String name;
 	private TreeMap<Integer, ArrayList<Double>> datamap;
 
-	private static ResultProcessingStrategy strategy = new BoundaryStrategy(BucketSelector.LOWER, ListAggregator.MIN);
 	private ResultProcessingStrategy innerStrategy;
 
 	public BenchmarkingResult(String name) {
@@ -34,12 +34,16 @@ public class BenchmarkingResult extends ComparableEntry {
 			TreeMap<Integer, ArrayList<Double>> entryMap) {
 		this.name = name;
 		this.datamap = entryMap;
-		this.innerStrategy = BenchmarkingResult.strategy.clone();
+		this.innerStrategy = getCurrentStrategy();
 		innerStrategy.initialize(entryMap);
 	}
 
-	public static void setStrategy(ResultProcessingStrategy newStrategy) {
-		strategy = newStrategy;
+	public static BoundaryStrategy getCurrentStrategy() {
+		BucketSelector bs = BucketSelector.valueOf(Config.get(
+				"RECOMMENDER_BUCKETSELECTOR").toUpperCase());
+		ListAggregator la = ListAggregator.valueOf(Config.get(
+				"RECOMMENDER_LISTAGGREGATOR").toUpperCase());
+		return new BoundaryStrategy(bs, la);
 	}
 
 	public static ComparableEntry parseString(String key, String val) {
