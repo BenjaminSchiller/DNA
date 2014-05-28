@@ -330,12 +330,15 @@ public class Plot {
 	 **/
 	public void addDataSequentially(AggregatedBatch batchData)
 			throws IOException {
-		String name = this.data[this.dataWriteCounter].getName();
-		String domain = this.data[this.dataWriteCounter].getDomain();
-		if (this.data[this.dataWriteCounter].isPlotAsCdf())
-			this.addData(name, domain, batchData, true);
-		else
-			this.addData(name, domain, batchData, false);
+		if (!(this.data[this.dataWriteCounter] instanceof FunctionData)) {
+			// if not function, add data
+			String name = this.data[this.dataWriteCounter].getName();
+			String domain = this.data[this.dataWriteCounter].getDomain();
+			if (this.data[this.dataWriteCounter].isPlotAsCdf())
+				this.addData(name, domain, batchData, true);
+			else
+				this.addData(name, domain, batchData, false);
+		}
 	}
 
 	/** Adds data to the plot **/
