@@ -289,7 +289,7 @@ public class PlotConfig {
 			String xLabel = Config.get("GNUPLOT_XLABEL");
 			String yLabel = Config.get("GNUPLOT_YLABEL");
 			String logscale = null;
-			String datetime = "";
+			String datetime = null;
 			double xOffset = Config.getDouble("GNUPLOT_XOFFSET");
 			double yOffset = Config.getDouble("GNUPLOT_YOFFSET");
 			String xRange = Config.get("GNUPLOT_XRANGE");
