@@ -963,7 +963,9 @@ public class Profiler {
 
 		if (Config.getBoolean("PROFILER_WRITE_ACCESSSTATS_PER_RUN")) {
 			Profiler.plotAccessStatistics(singleRunCalls, runDataDir,
-					"accessStats-run");
+					"accessStats-run", false);
+			Profiler.plotAccessStatistics(singleRunCalls, runDataDir,
+					"accessStats-run", true);
 		}
 	}
 
@@ -1020,7 +1022,9 @@ public class Profiler {
 
 		if (Config.getBoolean("PROFILER_WRITE_ACCESSSTATS_PER_BATCH")) {
 			Profiler.plotAccessStatistics(singleBatchCalls, runDataDir,
-					"accessStats-batch" + batchTimestamp);
+					"accessStats-batch" + batchTimestamp, false);
+			Profiler.plotAccessStatistics(singleBatchCalls, runDataDir,
+					"accessStats-batch" + batchTimestamp, true);
 		}
 
 		if (profilerDataTypeForHotSwap == ProfilerDataType.CombinedBenchmark
@@ -1070,7 +1074,8 @@ public class Profiler {
 	}
 
 	private static void plotAccessStatistics(Map<String, ProfileEntry> calls,
-			String dir, String fileName) throws IOException {
+			String dir, String fileName, boolean useLogscale)
+			throws IOException {
 		// First: aggregate data per list
 		ProfileEntry aggr = new ProfileEntry();
 		for (ProfileEntry e : calls.values()) {
@@ -1094,16 +1099,27 @@ public class Profiler {
 		}
 
 		// Then: write it to file
+		if (useLogscale) {
+			fileName += "_logScale";
+		}
+
 		LinkedList<String> script = new LinkedList<String>();
 		script.add("set terminal " + Config.get("GNUPLOT_TERMINAL"));
 		script.add("set output \"" + dir + fileName + "."
 				+ Config.get("GNUPLOT_EXTENSION") + "\"");
 		script.add("set grid");
 		script.add("set title \"Access statistics\"");
+		script.add("set ylabel \"Number of accesses\"");
 		script.add("set style data histogram");
 		script.add("set style fill solid border");
 		script.add("set style histogram clustered");
 		script.add("set xtics rotate out");
+
+		if (useLogscale) {
+			script.add("set logscale y");
+		} else {
+			script.add("unset logscale");
+		}
 
 		LinkedList<String> plotHeader = new LinkedList<>();
 		for (int i = 0; i < ltArray.length; i++) {
