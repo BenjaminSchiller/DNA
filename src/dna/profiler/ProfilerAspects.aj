@@ -18,7 +18,6 @@ import dna.series.data.BatchData;
 import dna.updates.batch.Batch;
 import dna.updates.generators.BatchGenerator;
 import dna.updates.update.Update;
-import dna.util.Config;
 
 public aspect ProfilerAspects {
 	private static Stack<String> formerCountKey = new Stack<>(); 
@@ -26,7 +25,6 @@ public aspect ProfilerAspects {
 	private Graph currentGraph;
 
 	private String batchGeneratorName;
-	public static final String initialAddition = Config.get("PROFILER_INITIALBATCH_KEYADDITION");
 	
 	private boolean inAdd, addFailedAsContainsReturnsTrue;
 
@@ -128,7 +126,7 @@ public aspect ProfilerAspects {
 		Profiler.addMetricName(currentCountKey);
 		Profiler.setInInitialBatch(false);
 		if (metricObject.getApplicationType() != ApplicationType.Recomputation) {
-			currentCountKey += initialAddition;
+			currentCountKey += Profiler.initialBatchKeySuffix;
 			Profiler.setInInitialBatch(true);
 		}
 		boolean res = proceed(metricObject);
