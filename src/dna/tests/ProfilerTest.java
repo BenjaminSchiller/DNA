@@ -118,7 +118,7 @@ public class ProfilerTest {
 		metric.setGraph(graph);
 		this.metricKey = metric.getName();
 		if (applicationType != ApplicationType.Recomputation)
-			metricKey += Config.get("PROFILER_INITIALBATCH_KEYADDITION");
+			metricKey += Profiler.initialBatchKeySuffix;
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })

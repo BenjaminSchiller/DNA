@@ -68,6 +68,7 @@ public class Profiler {
 
 	private static FileSystem currentFileSystem;
 
+	public final static String initialBatchKeySuffix = ".initialBatch";
 	final static String separator = System.getProperty("line.separator");
 	final static String aggregatedPrefix = "aggregated";
 
@@ -343,7 +344,7 @@ public class Profiler {
 		}
 
 		int numberOfRecommendations = Config
-				.getInt("NUMBER_OF_RECOMMENDATIONS");
+				.getInt("RECOMMENDER_NUMBER_OF_RECOMMENDATIONS");
 
 		/**
 		 * Recommendations are picked from the front of the list, as they have
@@ -387,7 +388,7 @@ public class Profiler {
 
 		ArrayList<EnumMap<ListType, Class<? extends IDataStructure>>> allCombinationsRaw;
 
-		if (Config.getBoolean("PROFILER_USE_SIMPLE_LIST_FOR_RECOMMENDATIONS"))
+		if (Config.getBoolean("RECOMMENDER_USE_SIMPLE_LIST"))
 			allCombinationsRaw = GraphDataStructure
 					.getSimpleDatastructureCombinations();
 		else
@@ -753,11 +754,11 @@ public class Profiler {
 	}
 
 	public static void writeAggregation(Map<String, ProfileEntry> calls,
-			String dir, boolean additionalCond) throws IOException {
+			String dir, boolean computeAndWriteRecommendations) throws IOException {
 		boolean enabledHotswap = Config.getBoolean("HOTSWAP_ENABLED");
 		Profiler.write(calls, dir,
 				Files.getProfilerFilename(Config.get("AGGREGATED_PROFILER")),
-				enabledHotswap || additionalCond, true);
+				enabledHotswap || computeAndWriteRecommendations, true);
 		if (enabledHotswap) {
 			HotSwap.addNewResults();
 			HotSwap.trySwap(graph);
@@ -820,7 +821,7 @@ public class Profiler {
 			// the
 			// end of the metric name
 			if (inInitialBatch)
-				singleKey += Config.get("PROFILER_INITIALBATCH_KEYADDITION");
+				singleKey += Profiler.initialBatchKeySuffix;
 			data.append(getCallList(calls, singleKey,
 					(keys.length == 1 && forceRecommendations)
 							|| forceAllRecommendations, false));
@@ -910,7 +911,7 @@ public class Profiler {
 
 		Profiler.writeAggregation(singleRunCalls, runDataDir, rec);
 
-		if (Config.getBoolean("PROFILER_PRINTRECOMMENDATION_AFTER_EACH_RUN")) {
+		if (Config.getBoolean("RECOMMENDER_PRINTRECOMMENDATION_AFTER_EACH_RUN")) {
 			printLastRecommendation("  ");
 		}
 
@@ -928,7 +929,7 @@ public class Profiler {
 		Iterator<RecommenderEntry> it;
 
 		int numberOfRecommendations = Config
-				.getInt("NUMBER_OF_RECOMMENDATIONS");
+				.getInt("RECOMMENDER_NUMBER_OF_RECOMMENDATIONS");
 
 		for (ProfilerDataType pdt : ProfilerDataType.values()) {
 			Log.info(prefix + "Current costs for " + pdt + ": "
@@ -995,7 +996,7 @@ public class Profiler {
 		Profiler.writeAggregation(singleBatchCalls, batchDir,
 				ProfilerGranularity.isEnabled(Options.EACHBATCH));
 
-		if (Config.getBoolean("PROFILER_PRINTRECOMMENDATION_AFTER_EACH_BATCH")) {
+		if (Config.getBoolean("RECOMMENDER_PRINTRECOMMENDATION_AFTER_EACH_BATCH")) {
 			printLastRecommendation("      ");
 		}
 

@@ -17,7 +17,7 @@ public class ProfilerGranularity {
 			usedOptions.put(o, false);
 		}
 
-		String key = Config.get("PROFILER_GRANULARITY");
+		String key = Config.get("RECOMMENDER_GRANULARITY");
 		String[] splitted = key.split(";");
 		for (String singleVal : splitted) {
 			Options oParsed;
