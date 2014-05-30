@@ -1,7 +1,6 @@
 package dna.graph;
 
 import java.math.BigInteger;
-import java.util.Collection;
 import java.util.Iterator;
 
 import dna.graph.datastructures.DataStructure.ListType;
@@ -82,10 +81,10 @@ public class Graph {
 	 * 
 	 * @return
 	 */
-	public Collection<IElement> getNodes() {
+	public Iterable<IElement> getNodes() {
 		if (!gds.isReadable(nodes))
 			throw new RuntimeException("This is not a readable graph");
-		return ((INodeListDatastructureReadable) nodes).getElements();
+		return (INodeListDatastructureReadable) nodes;
 	}
 
 	public boolean removeNode(Node n) {
@@ -167,10 +166,10 @@ public class Graph {
 	 * 
 	 * @return
 	 */
-	public Collection<IElement> getEdges() {
+	public Iterable<IElement> getEdges() {
 		if (!gds.isReadable(edges))
 			throw new RuntimeException("This is not a readable graph");
-		return ((IEdgeListDatastructureReadable) edges).getElements();
+		return (IEdgeListDatastructureReadable) edges;
 	}
 
 	public boolean removeEdge(Edge e) {

@@ -177,7 +177,7 @@ public abstract class ConnectedComponent extends Metric {
 		if (this.componentList.isEmpty()) {
 			return 0;
 		} else {
-			return (double) this.g.getNodes().size()
+			return (double) this.g.getNodeCount()
 					/ (double) componentList.size();
 		}
 	}
