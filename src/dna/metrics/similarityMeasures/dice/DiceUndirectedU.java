@@ -49,10 +49,8 @@ public class DiceUndirectedU extends DiceUndirected {
 		HashSet<UndirectedNode> neighborsNode2 = this.getNeighborNodes(newEdge
 				.getNode2());
 
-		this.increaseMatching(neighborsNode1,
-				newEdge.getNode2());
-		this.increaseMatching(neighborsNode2,
-				newEdge.getNode1());
+		this.increaseMatching(neighborsNode1, newEdge.getNode2());
+		this.increaseMatching(neighborsNode2, newEdge.getNode1());
 
 		// Increasing the number of the neighbors of the two nodes of the edge
 		// by 1

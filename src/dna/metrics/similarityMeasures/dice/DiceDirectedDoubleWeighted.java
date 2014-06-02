@@ -1,6 +1,5 @@
 package dna.metrics.similarityMeasures.dice;
 
-import java.util.Collection;
 import java.util.HashMap;
 
 import dna.graph.IElement;
@@ -44,7 +43,7 @@ public abstract class DiceDirectedDoubleWeighted extends
 
 	@Override
 	public boolean compute() {
-		final Collection<IElement> nodesOfGraph = this.g.getNodes();
+		final Iterable<IElement> nodesOfGraph = this.g.getNodes();
 
 		DirectedNode node1, node2;
 		// neighbors for node1, node2:

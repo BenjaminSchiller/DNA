@@ -81,9 +81,9 @@ public class MatchingDirectedIntWeightedU extends MatchingDirectedIntWeighted {
 		if (u instanceof NodeAddition)
 			for (IElement iterable_element : this.g.getNodes()) {
 				Node node = (Node) iterable_element;
-//				if (!(node.getIndex() == ((NodeAddition) u).getNode()
-//						.getIndex()))
-					this.matchingDirectedWeightedD.incr(0.0);
+				// if (!(node.getIndex() == ((NodeAddition) u).getNode()
+				// .getIndex()))
+				this.matchingDirectedWeightedD.incr(0.0);
 			}
 		else if (u instanceof NodeRemoval)
 			// New matchings for NodeRemovals are calculated before the update.
@@ -165,12 +165,12 @@ public class MatchingDirectedIntWeightedU extends MatchingDirectedIntWeighted {
 
 		for (IElement iterable_element : this.g.getNodes()) {
 			Node node = (Node) iterable_element;
-//			if (!(nodeToRemove.getIndex() == node.getIndex()))
-				if (this.matchings.get(nodeToRemove, node) == null)
-					this.matchingDirectedWeightedD.decr(0.0);
-				else
-					this.matchingDirectedWeightedD.decr(this.matchings.get(
-							nodeToRemove, node));
+			// if (!(nodeToRemove.getIndex() == node.getIndex()))
+			if (this.matchings.get(nodeToRemove, node) == null)
+				this.matchingDirectedWeightedD.decr(0.0);
+			else
+				this.matchingDirectedWeightedD.decr(this.matchings.get(
+						nodeToRemove, node));
 		}
 
 		this.matchings.removeRow(nodeToRemove);
@@ -203,9 +203,8 @@ public class MatchingDirectedIntWeightedU extends MatchingDirectedIntWeighted {
 
 	private void decreaseMatching(DirectedNode node1, int value1,
 			DirectedNode node2, int value2) {
-//		if (!(node1.getIndex() == node2.getIndex()))
-			this.matchingDirectedWeightedD.decr(this.matchings
-					.get(node1, node2));
+		// if (!(node1.getIndex() == node2.getIndex()))
+		this.matchingDirectedWeightedD.decr(this.matchings.get(node1, node2));
 		int value = this.matchings.get(node1, node2) - Math.min(value1, value2);
 		if (value < 0)
 			System.out.println("DecreaseMatching: "
@@ -215,9 +214,8 @@ public class MatchingDirectedIntWeightedU extends MatchingDirectedIntWeighted {
 					+ value);
 
 		this.matchings.put(node1, node2, value);
-//		if (!(node1.getIndex() == node2.getIndex()))
-			this.matchingDirectedWeightedD.incr(this.matchings
-					.get(node1, node2));
+		// if (!(node1.getIndex() == node2.getIndex()))
+		this.matchingDirectedWeightedD.incr(this.matchings.get(node1, node2));
 	}
 
 	/**
@@ -299,11 +297,11 @@ public class MatchingDirectedIntWeightedU extends MatchingDirectedIntWeighted {
 	private void increaseMatching(DirectedNode node1, int value1,
 			DirectedNode node2, int value2) {
 		Integer matchingG = this.matchings.get(node1, node2);
-//		if (!(node1.getIndex() == node2.getIndex()))
-			if (matchingG == null)
-				this.matchingDirectedWeightedD.decr(0.0);
-			else
-				this.matchingDirectedWeightedD.decr(matchingG);
+		// if (!(node1.getIndex() == node2.getIndex()))
+		if (matchingG == null)
+			this.matchingDirectedWeightedD.decr(0.0);
+		else
+			this.matchingDirectedWeightedD.decr(matchingG);
 
 		Integer value = matchingG == null ? Math.min(value1, value2)
 				: matchingG + Math.min(value1, value2);
@@ -316,9 +314,8 @@ public class MatchingDirectedIntWeightedU extends MatchingDirectedIntWeighted {
 					+ " ist: " + Math.min(value1, value2) + " Ergebnis "
 					+ value);
 		this.matchings.put(node1, node2, value);
-//		if (!(node1.getIndex() == node2.getIndex()))
-			this.matchingDirectedWeightedD.incr(this.matchings
-					.get(node1, node2));
+		// if (!(node1.getIndex() == node2.getIndex()))
+		this.matchingDirectedWeightedD.incr(this.matchings.get(node1, node2));
 	}
 
 	/**

@@ -1,6 +1,5 @@
 package dna.metrics.similarityMeasures.matching;
 
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -53,7 +52,7 @@ public abstract class MatchingUndirectedIntWeighted extends Metric {
 
 	@Override
 	public boolean compute() {
-		final Collection<IElement> nodesOfGraph = this.g.getNodes();
+		final Iterable<IElement> nodesOfGraph = this.g.getNodes();
 
 		UndirectedNode node1, node2;
 		// neighbors for node1, node2:
