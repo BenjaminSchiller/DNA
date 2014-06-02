@@ -340,7 +340,7 @@ public class OverlapDirectedIntWeightedU extends OverlapDirectedIntWeighted {
 		else
 			this.binnedDistribution.decr(overlapG);
 		this.result.put(node1, node2, fraction);
-		
+
 		this.binnedDistribution.incr(fraction);
 	}
 

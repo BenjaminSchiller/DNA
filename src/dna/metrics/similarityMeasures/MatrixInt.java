@@ -34,12 +34,12 @@ public class MatrixInt {
 						.get(element1).get(element2) == null)
 						|| (this.values.get(element1).get(element2) == null && m.values
 								.get(element1).get(element2) == 0)
-						||  (this.values.get(element1).get(element2) == 0 && m.values
+						|| (this.values.get(element1).get(element2) == 0 && m.values
 								.get(element1).get(element2) == null))
 					equals = true;
 				else
-					equals = ((m.values.get(element1).get(element2) -  this.values
-									.get(element1).get(element2)) == 0);
+					equals = ((m.values.get(element1).get(element2) - this.values
+							.get(element1).get(element2)) == 0);
 				if (!equals) {
 					return false;
 				}

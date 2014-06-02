@@ -1,6 +1,5 @@
 package dna.metrics.similarityMeasures.jaccard;
 
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
@@ -36,7 +35,7 @@ public abstract class JaccardUndirected extends MeasuresUndirectedUnweighted {
 
 	@Override
 	public boolean compute() {
-		final Collection<IElement> nodesOfGraph = this.g.getNodes();
+		final Iterable<IElement> nodesOfGraph = this.g.getNodes();
 
 		UndirectedNode node1, node2;
 		// neighbors for node1, node2:
