@@ -8,7 +8,7 @@ import com.sun.media.sound.InvalidFormatException;
 import dna.graph.Graph;
 import dna.graph.datastructures.DArray;
 import dna.graph.datastructures.DArrayList;
-import dna.graph.datastructures.DHashMap;
+import dna.graph.datastructures.DLinkedHashMultimap;
 import dna.graph.datastructures.DataStructure.ListType;
 import dna.graph.datastructures.GraphDataStructure;
 import dna.graph.nodes.Node;
@@ -30,13 +30,13 @@ public class SNAPGraphReader {
 	// standard setups for graph data structures
 	private static GraphDataStructure directedGDSSetup = new GraphDataStructure(
 			GraphDataStructure.getList(ListType.GlobalNodeList, DArray.class,
-					ListType.GlobalEdgeList, DHashMap.class,
+					ListType.GlobalEdgeList, DLinkedHashMultimap.class,
 					ListType.LocalEdgeList, DArrayList.class),
 			DirectedNode.class, DirectedEdge.class);
 
 	private static GraphDataStructure undirectedGDSSetup = new GraphDataStructure(
 			GraphDataStructure.getList(ListType.GlobalNodeList, DArray.class,
-					ListType.GlobalEdgeList, DHashMap.class,
+					ListType.GlobalEdgeList, DLinkedHashMultimap.class,
 					ListType.LocalEdgeList, DArrayList.class),
 			UndirectedNode.class, UndirectedEdge.class);
 
