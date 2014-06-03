@@ -24,10 +24,13 @@ public class HotSwap {
 	private static boolean inFirstBatch = true;
 	private static Map<Long, EnumMap<ListType, Class<? extends IDataStructure>>> manualSwitching = null;
 	private static EnumMap<ListType, Class<? extends IDataStructure>> firstSwitch = null;
+	private static int swapsDone = 0;
 
 	private static double hotswapLowerBound = Config
 			.getDouble("HOTSWAP_LOWER_BOUND");
 	private static int hotswapWindowSize = Config.getInt("HOTSWAP_WINDOWSIZE");
+	private static int maxNumberOfSwaps = Config
+			.getInt("HOTSWAP_MAXNUMBER_OF_SWAPS");
 
 	/**
 	 * Three variables for storing the accesses onto underlying lists
@@ -42,11 +45,17 @@ public class HotSwap {
 		accessList = new ProfileEntry[maxAccessListSize];
 		firstSwitch = null;
 		inFirstBatch = true;
+		swapsDone = 0;
 	}
 
 	public static void addNewResults() {
 		if (slidingWindow == null) {
 			reset();
+		}
+
+		if (maxNumberOfSwaps >= 0 && swapsDone >= maxNumberOfSwaps) {
+			// We won't do more swaps, so don't add new results
+			return;
 		}
 
 		if (!inFirstBatch
@@ -112,6 +121,7 @@ public class HotSwap {
 		if (firstSwitch == null) {
 			firstSwitch = newGDS.getStorageDataStructures();
 		}
+		swapsDone++;
 	}
 
 	public static int getAmortizationCounter() {
@@ -126,6 +136,37 @@ public class HotSwap {
 		int amortizationCounterToUse = (int) Math.min(
 				amortizationCounterInBatches, maxNumberOfBatchesLeft);
 		return amortizationCounterToUse;
+	}
+
+	private static ComparableEntryMap getSwappingCosts(
+			GraphDataStructure currentGDS, GraphDataStructure recGDS) {
+		/**
+		 * Generate the costs for swapping, which is: for each changed list type
+		 * the number of lists * (init + meanlistSize * add)
+		 */
+
+		ComparableEntryMap swappingCosts = ProfilerMeasurementData
+				.getMap(ProfilerDataType.RuntimeBenchmark);
+		for (ListType lt : ListType.values()) {
+			if (recGDS.getListClass(lt) == currentGDS.getListClass(lt)) {
+				continue;
+			}
+
+			int numberOfLists = Profiler.getNumberOfGeneratedLists(lt);
+			double meanListSize = Profiler.getMeanSize(lt);
+			int totalNumberOfElements = (int) (numberOfLists * meanListSize);
+
+			ComparableEntry initCosts = recGDS.getCostData(lt, AccessType.Init,
+					ProfilerDataType.RuntimeBenchmark);
+			initCosts.setValues(numberOfLists, meanListSize, null);
+			swappingCosts.add(initCosts.getMap());
+
+			ComparableEntry addCosts = recGDS.getCostData(lt, AccessType.Add,
+					ProfilerDataType.RuntimeBenchmark);
+			addCosts.setValues(totalNumberOfElements, meanListSize, null);
+			swappingCosts.add(addCosts.getMap());
+		}
+		return swappingCosts;
 	}
 
 	public static void trySwap(Graph g) {
@@ -143,6 +184,11 @@ public class HotSwap {
 
 		if (lastFinishedBatch < Math.floor(hotswapLowerBound
 				* hotswapWindowSize)) {
+			return;
+		}
+
+		if (maxNumberOfSwaps >= 0 && swapsDone >= maxNumberOfSwaps) {
+			Log.info("     maxNumberOfSwaps reached, won't swap no more");
 			return;
 		}
 
@@ -178,7 +224,10 @@ public class HotSwap {
 
 				if (isSwapEfficient(accumulatedAccesses, prefactor, currentGDS,
 						newGDS)) {
-					Log.info("       Swapping looks efficient, so do it now");
+					ComparableEntryMap swappingCosts = getSwappingCosts(
+							currentGDS, newGDS);
+					Log.info("       Swapping looks efficient, so do it now at RuntimeBenchmark costs of "
+							+ swappingCosts);
 					doSwap(g, newGDS);
 					return;
 				} else {
@@ -207,33 +256,7 @@ public class HotSwap {
 		ComparableEntryMap recStateCosts = accesses.combinedComplexity(
 				ProfilerDataType.RuntimeBenchmark, recGDS, null);
 
-		/**
-		 * Generate the costs for swapping, which is: for each changed list type
-		 * the number of lists * (init + meanlistSize * add)
-		 */
-
-		ComparableEntryMap swappingCosts = ProfilerMeasurementData
-				.getMap(ProfilerDataType.RuntimeBenchmark);
-		for (ListType lt : ListType.values()) {
-			if (recGDS.getListClass(lt) == currentGDS.getListClass(lt)) {
-				continue;
-			}
-
-			int numberOfLists = Profiler.getNumberOfGeneratedLists(lt);
-			double meanListSize = Profiler.getMeanSize(lt);
-			int totalNumberOfElements = (int) (numberOfLists * meanListSize);
-
-			ComparableEntry initCosts = recGDS.getCostData(lt, AccessType.Init,
-					ProfilerDataType.RuntimeBenchmark);
-			initCosts.setValues(numberOfLists, meanListSize, null);
-			swappingCosts.add(initCosts.getMap());
-
-			ComparableEntry addCosts = recGDS.getCostData(lt, AccessType.Add,
-					ProfilerDataType.RuntimeBenchmark);
-			addCosts.setValues(totalNumberOfElements, meanListSize, null);
-			swappingCosts.add(addCosts.getMap());
-		}
-
+		ComparableEntryMap swappingCosts = getSwappingCosts(currentGDS, recGDS);
 		currentStateCosts.multiplyBy(prefactor);
 		recStateCosts.multiplyBy(prefactor);
 

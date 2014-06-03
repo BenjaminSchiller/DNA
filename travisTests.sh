@@ -23,4 +23,8 @@ done
 for todoLine in ${TESTCLASSES[@]}
 do
 	ant -DaspectJDir=lib/ -DjUnitJar=lib/junit.jar travisTest -DtestClass=$todoLine
+	result=$?
+	if [[ $result != 0 ]] ; then
+		exit $result
+	fi
 done

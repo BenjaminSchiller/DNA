@@ -17,7 +17,9 @@ import dna.graph.ClassPointers;
 import dna.graph.Graph;
 import dna.graph.datastructures.DArrayList;
 import dna.graph.datastructures.DEmpty;
+import dna.graph.datastructures.DHashSet;
 import dna.graph.datastructures.DHashTable;
+import dna.graph.datastructures.DLinkedHashMultimap;
 import dna.graph.datastructures.DataStructure.ListType;
 import dna.graph.datastructures.GraphDataStructure;
 import dna.graph.datastructures.IDataStructure;
@@ -46,6 +48,7 @@ import dna.updates.generators.BatchGenerator;
 import dna.updates.generators.random.RandomBatch;
 import dna.util.Log;
 import dna.util.Log.LogLevel;
+import dna.util.Config;
 import dna.util.MathHelper;
 import dna.util.Timer;
 
@@ -64,7 +67,7 @@ public class SingleTests {
 	@Test
 	public void metricTest() throws AggregationException, IOException,
 			MetricNotApplicableException {
-		Profiler.activate();
+		Config.overwrite("PROFILER_ACTIVATED", "true");
 		LogLevel oldLogLevel = Log.getLogLevel();
 		Log.setLogLevel(LogLevel.warn);
 
@@ -272,5 +275,33 @@ public class SingleTests {
 
 		dummyEdge = g.getEdge(n2, n1);
 		assertTrue(ht.contains(dummyEdge));
+	}
+
+	@Test
+	public void checkDuplicateHashesInMultimap() {
+		GraphDataStructure undirected = new GraphDataStructure(
+				GraphDataStructure.getList(ListType.GlobalNodeList,
+						DHashSet.class, ListType.GlobalEdgeList,
+						DLinkedHashMultimap.class, ListType.LocalEdgeList,
+						DHashSet.class), UndirectedNode.class,
+				UndirectedEdge.class);
+
+		Node n1 = undirected.newNodeInstance(266);
+		Node n2 = undirected.newNodeInstance(80264);
+		Node n3 = undirected.newNodeInstance(267);
+		Node n4 = undirected.newNodeInstance(14728);
+
+		Edge e1 = undirected.newEdgeInstance(n1, n2);
+		Edge e2 = undirected.newEdgeInstance(n3, n4);
+
+		assertEquals(e1.getHashString(), e2.getHashString());
+
+		IDataStructure list = undirected.newList(ListType.GlobalEdgeList);
+		assertTrue(list.add(e1));
+		assertTrue(list.contains(e1));
+
+		assertFalse(list.contains(e2));
+		assertTrue(list.add(e2));
+		assertTrue(list.contains(e2));
 	}
 }

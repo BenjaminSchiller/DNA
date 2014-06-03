@@ -6,6 +6,7 @@ import dna.plot.data.PlotData.DistributionPlotType;
 import dna.plot.data.PlotData.NodeValueListOrder;
 import dna.plot.data.PlotData.NodeValueListOrderBy;
 import dna.util.Config;
+import dna.util.Log;
 
 /**
  * Configuration object representing one plot which will be read from properties
@@ -14,7 +15,6 @@ import dna.util.Config;
  * @author RWilmes
  */
 public class PlotConfig {
-	private String name;
 	private String filename;
 	private String title;
 	private String xLabel;
@@ -23,6 +23,8 @@ public class PlotConfig {
 	private String datetime;
 	private double xOffset;
 	private double yOffset;
+	private String xRange;
+	private String yRange;
 	private boolean plotAsCdf;
 	private String[] values;
 	private String[] domains;
@@ -30,15 +32,15 @@ public class PlotConfig {
 	private NodeValueListOrder order;
 	private NodeValueListOrderBy orderBy;
 	private boolean plotAll;
+	private String generalDomain;
 
 	// constructor
-	private PlotConfig(String name, String filename, String title,
-			String xLabel, String yLabel, String logscale, String datetime,
-			double xOffset, double yOffset, boolean plotAsCdf, String[] values,
-			String[] domains, DistributionPlotType distPlotType,
-			NodeValueListOrder order, NodeValueListOrderBy orderBy,
-			boolean plotAll) {
-		this.name = name;
+	private PlotConfig(String filename, String title, String xLabel,
+			String yLabel, String logscale, String datetime, double xOffset,
+			double yOffset, String xRange, String yRange, boolean plotAsCdf,
+			String[] values, String[] domains,
+			DistributionPlotType distPlotType, NodeValueListOrder order,
+			NodeValueListOrderBy orderBy, boolean plotAll, String generalDomain) {
 		this.filename = filename;
 		this.title = title;
 		this.xLabel = xLabel;
@@ -47,6 +49,8 @@ public class PlotConfig {
 		this.datetime = datetime;
 		this.xOffset = xOffset;
 		this.yOffset = yOffset;
+		this.xRange = xRange;
+		this.yRange = yRange;
 		this.plotAsCdf = plotAsCdf;
 		this.values = values;
 		this.domains = domains;
@@ -54,13 +58,10 @@ public class PlotConfig {
 		this.order = order;
 		this.orderBy = orderBy;
 		this.plotAll = plotAll;
+		this.generalDomain = generalDomain;
 	}
 
 	// getters
-	public String getName() {
-		return name;
-	}
-
 	public String[] getValues() {
 		return values;
 	}
@@ -121,6 +122,18 @@ public class PlotConfig {
 		return yOffset;
 	}
 
+	public String getxRange() {
+		return xRange;
+	}
+
+	public String getyRange() {
+		return yRange;
+	}
+
+	public String getGeneralDomain() {
+		return generalDomain;
+	}
+
 	/** Returns the custom value plots created from config **/
 	public static ArrayList<PlotConfig> getCustomValuePlots() {
 		return PlotConfig.getCustomPlots(Config
@@ -159,23 +172,23 @@ public class PlotConfig {
 
 	/** Returns the custom plots created from config **/
 	private static ArrayList<PlotConfig> getCustomPlots(String prefix) {
-		// get suffix from config
-		String[] plots = Config.keys(prefix
-				+ Config.get("CUSTOM_PLOT_SUFFIX_PLOTS"));
-		String nameSuffix = Config.get("CUSTOM_PLOT_SUFFIX_NAME");
-		String valuesSuffix = Config.get("CUSTOM_PLOT_SUFFIX_VALUES");
-		String cdfSuffix = Config.get("CUSTOM_PLOT_SUFFIX_CDF");
-		String filenameSuffix = Config.get("CUSTOM_PLOT_SUFFIX_FILENAME");
-		String titleSuffix = Config.get("CUSTOM_PLOT_SUFFIX_TITLE");
-		String datetimeSuffix = Config.get("CUSTOM_PLOT_SUFFIX_DATETIME");
-		String logscaleSuffix = Config.get("CUSTOM_PLOT_SUFFIX_LOGSCALE");
-		String xLabelSuffix = Config.get("CUSTOM_PLOT_SUFFIX_XLABEL");
-		String yLabelSuffix = Config.get("CUSTOM_PLOT_SUFFIX_YLABEL");
-		String xOffsetSuffix = Config.get("CUSTOM_PLOT_SUFFIX_XOFFSET");
-		String yOffsetSuffix = Config.get("CUSTOM_PLOT_SUFFIX_YOFFSET");
-		String distTypeSuffix = Config.get("CUSTOM_PLOT_SUFFIX_DIST_TYPE");
-		String nvlOrderSuffix = Config.get("CUSTOM_PLOT_SUFFIX_NVL_ORDER");
-		String nvlOrderBySuffix = Config.get("CUSTOM_PLOT_SUFFIX_NVL_ORDERBY");
+		// define suffix
+		String[] plots = Config.keys(prefix + "PLOTS");
+		String valuesSuffix = "_VALUES";
+		String cdfSuffix = "_CDF";
+		String filenameSuffix = "_FILENAME";
+		String titleSuffix = "_TITLE";
+		String datetimeSuffix = "_DATETIME";
+		String logscaleSuffix = "_LOGSCALE";
+		String xLabelSuffix = "_XLABEL";
+		String yLabelSuffix = "_YLABEL";
+		String xOffsetSuffix = "_XOFFSET";
+		String yOffsetSuffix = "_YOFFSET";
+		String xRangeSuffix = "_XRANGE";
+		String yRangeSuffix = "_YRANGE";
+		String distTypeSuffix = "_TYPE";
+		String nvlOrderSuffix = "_ORDER";
+		String nvlOrderBySuffix = "_ORDERBY";
 
 		// init list of configs
 		ArrayList<PlotConfig> plotConfigs = new ArrayList<PlotConfig>(
@@ -183,58 +196,54 @@ public class PlotConfig {
 
 		for (String s : plots) {
 			// get plot from config
-			String name = Config.get(prefix + s + nameSuffix);
+			String keyword = s;
+			String generalDomain = null;
 			boolean plotAll = false;
+
+			// set general domain
+			if (prefix.equals(Config.get("CUSTOM_PLOT_PREFIX_STATISTICS")))
+				generalDomain = Config.get("CUSTOM_PLOT_DOMAIN_STATISTICS");
+			if (prefix.equals(Config.get("CUSTOM_PLOT_PREFIX_RUNTIMES")))
+				generalDomain = Config.get("CUSTOM_PLOT_DOMAIN_RUNTIMES");
+
+			// get values
 			String[] values = Config.keys(prefix + s + valuesSuffix);
+
+			// init domains arrays
 			String[] domains = new String[values.length];
 
-			// get domains
-			if (prefix.equals(Config.get("CUSTOM_PLOT_PREFIX_RUNTIMES"))) {
-				String metricRuntimeDomain = Config
-						.get("CUSTOM_PLOT_DOMAIN_METRICRUNTIMES");
-				String generalRuntimeDomain = Config
-						.get("CUSTOM_PLOT_DOMAIN_GENERALRUNTIMES");
-				String runtimeDomain = Config
-						.get("CUSTOM_PLOT_DOMAIN_RUNTIMES");
-				// if runtimes plot, add runtimes domain
-				for (int i = 0; i < values.length; i++) {
-					String[] split = values[i].split("\\.");
-					if (!split[0].equals(runtimeDomain)
-							&& !split[0].equals(metricRuntimeDomain)
-							&& !split[0].equals(generalRuntimeDomain)) {
-						domains[i] = runtimeDomain;
-					} else {
-						domains[i] = split[0];
-						String domain = "";
-						for (int j = 0; j < split.length - 1; j++) {
-							if (j == 0)
-								domain += split[j];
-							else
-								domain += "." + split[j];
-						}
-						domains[i] = domain;
-						values[i] = split[split.length - 1];
+			// parse values and get domains
+			for (int i = 0; i < values.length; i++) {
+				String value = values[i];
+
+				// check if function
+				String[] split = value.split("=");
+				if (split.length == 2) {
+					// if function -> set domain and continue with next value
+					domains[i] = Config.get("CUSTOM_PLOT_DOMAIN_FUNCTION");
+					continue;
+				}
+
+				// check if expression
+				split = value.split(":");
+				if (split.length == 2) {
+					// minor syntax check on amount of $
+					int count = 0;
+					for (int j = 0; j < split[1].length(); j++) {
+						if (split[1].charAt(j) == '$')
+							count++;
 					}
+					if ((count & 1) != 0)
+						Log.warn("syntax error on parsing '" + value + "'");
 
-					// check for wildcard
-					if (values[i].equals(Config.get("CUSTOM_PLOT_WILDCARD")))
-						plotAll = true;
+					// if expression -> set domain and continue with next value
+					domains[i] = Config.get("CUSTOM_PLOT_DOMAIN_EXPRESSION");
+					continue;
 				}
-			} else if (prefix.equals(Config
-					.get("CUSTOM_PLOT_PREFIX_STATISTICS"))) {
-				// if statistics plot, add statistics domain
-				for (int i = 0; i < values.length; i++) {
-					domains[i] = Config.get("CUSTOM_PLOT_DOMAIN_STATISTICS");
 
-					// check for wildcard
-					if (values[i].equals(Config.get("CUSTOM_PLOT_WILDCARD")))
-						plotAll = true;
-				}
-			} else {
-				// get domains from strings
-				for (int i = 0; i < values.length; i++) {
-					String[] split = values[i].split("\\.");
-					domains[i] = split[0];
+				// check if contains domain
+				split = value.split("\\.");
+				if (split.length > 1) {
 					String domain = "";
 					for (int j = 0; j < split.length - 1; j++) {
 						if (j == 0)
@@ -242,26 +251,49 @@ public class PlotConfig {
 						else
 							domain += "." + split[j];
 					}
+					// take first part as domain
 					domains[i] = domain;
+
+					// take last part as value name
 					values[i] = split[split.length - 1];
 
+					// check for wildcard
 					if (values[i].equals(Config.get("CUSTOM_PLOT_WILDCARD")))
 						plotAll = true;
+
+					// continue with next value
+					continue;
 				}
+
+				// if value doesnt contain domain
+				if (prefix.equals(Config.get("CUSTOM_PLOT_PREFIX_RUNTIMES")))
+					domains[i] = Config.get("CUSTOM_PLOT_DOMAIN_RUNTIMES");
+
+				//
+				if (prefix.equals(Config.get("CUSTOM_PLOT_PREFIX_STATISTICS")))
+					domains[i] = Config.get("CUSTOM_PLOT_DOMAIN_STATISTICS");
+
+				if (value.equals(Config.get("CUSTOM_PLOT_WILDCARD")))
+					plotAll = true;
+
+				if (domains[i] == null)
+					Log.warn("custom plot config parsing failure: '" + value
+							+ "' has unknown domain!");
 			}
 
 			// read optional values from config
 			boolean plotAsCdf = Config.getBoolean(prefix + s + cdfSuffix);
 
 			// default values
-			String filename = name;
-			String title = filename;
+			String filename = keyword;
 			String xLabel = Config.get("GNUPLOT_XLABEL");
 			String yLabel = Config.get("GNUPLOT_YLABEL");
 			String logscale = null;
-			String datetime = "";
+			String datetime = null;
 			double xOffset = Config.getDouble("GNUPLOT_XOFFSET");
 			double yOffset = Config.getDouble("GNUPLOT_YOFFSET");
+			String xRange = Config.get("GNUPLOT_XRANGE");
+			String yRange = Config.get("GNUPLOT_YRANGE");
 			DistributionPlotType distPlotType = Config
 					.getDistributionPlotType("GNUPLOT_DEFAULT_DIST_PLOTTYPE");
 			NodeValueListOrder order = Config
@@ -269,59 +301,59 @@ public class PlotConfig {
 			NodeValueListOrderBy orderBy = Config
 					.getNodeValueListOrderBy("GNUPLOT_DEFAULT_NVL_ORDERBY");
 
-			// try to get config values
-			try {
+			// read config values
+			// filename
+			if (Config.get(prefix + s + filenameSuffix) != null)
 				filename = Config.get(prefix + s + filenameSuffix);
-			} catch (NullPointerException e) {
-			}
 
-			try {
+			// title
+			String title = filename;
+			if (Config.get(prefix + s + titleSuffix) != null)
 				title = Config.get(prefix + s + titleSuffix);
-			} catch (NullPointerException e) {
-			}
 
-			try {
+			// labels
+			if (Config.get(prefix + s + xLabelSuffix) != null)
 				xLabel = Config.get(prefix + s + xLabelSuffix);
-			} catch (NullPointerException e) {
-			}
-
-			try {
+			if (Config.get(prefix + s + yLabelSuffix) != null)
 				yLabel = Config.get(prefix + s + yLabelSuffix);
-			} catch (NullPointerException e) {
-			}
 
-			try {
+			// logscale
+			if (Config.get(prefix + s + logscaleSuffix) != null)
 				logscale = Config.get(prefix + s + logscaleSuffix);
-			} catch (NullPointerException e) {
-			}
 
-			try {
+			// datetime
+			if (Config.get(prefix + s + datetimeSuffix) != null)
 				datetime = Config.get(prefix + s + datetimeSuffix);
-			} catch (NullPointerException e) {
-			}
 
+			// ranges
+			if (Config.get(prefix + s + xRangeSuffix) != null)
+				xRange = Config.get(prefix + s + xRangeSuffix);
+			if (Config.get(prefix + s + yRangeSuffix) != null)
+				yRange = Config.get(prefix + s + yRangeSuffix);
+
+			// offsets
 			try {
 				xOffset = Config.getDouble(prefix + s + xOffsetSuffix);
 			} catch (NullPointerException | NumberFormatException e) {
 			}
-
 			try {
 				yOffset = Config.getDouble(prefix + s + yOffsetSuffix);
 			} catch (NullPointerException | NumberFormatException e) {
 			}
 
+			// dist plot type
 			try {
 				distPlotType = Config.getDistributionPlotType(prefix + s
 						+ distTypeSuffix);
 			} catch (NullPointerException e) {
 			}
 
+			// node value list sort orders
 			try {
 				order = Config.getNodeValueListOrder(prefix + s
 						+ nvlOrderSuffix);
 			} catch (NullPointerException e) {
 			}
-
 			try {
 				orderBy = Config.getNodeValueListOrderBy(prefix + s
 						+ nvlOrderBySuffix);
@@ -329,9 +361,10 @@ public class PlotConfig {
 			}
 
 			// Craft PlotConfig and add to configs list
-			plotConfigs.add(new PlotConfig(name, filename, title, xLabel,
-					yLabel, logscale, datetime, xOffset, yOffset, plotAsCdf,
-					values, domains, distPlotType, order, orderBy, plotAll));
+			plotConfigs.add(new PlotConfig(filename, title, xLabel, yLabel,
+					logscale, datetime, xOffset, yOffset, xRange, yRange,
+					plotAsCdf, values, domains, distPlotType, order, orderBy,
+					plotAll, generalDomain));
 		}
 		return plotConfigs;
 	}

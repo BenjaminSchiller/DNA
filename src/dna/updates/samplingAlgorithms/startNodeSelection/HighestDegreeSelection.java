@@ -1,7 +1,5 @@
 package dna.updates.samplingAlgorithms.startNodeSelection;
 
-import java.util.Collection;
-
 import dna.graph.Graph;
 import dna.graph.IElement;
 import dna.graph.nodes.Node;
@@ -27,7 +25,7 @@ public class HighestDegreeSelection extends StartNodeSelectionStrategy {
 
 	@Override
 	public Node getStartNode() {
-		Collection<IElement> nodeList = g.getNodes();
+		Iterable<IElement> nodeList = g.getNodes();
 		Node startNode = null;
 		int maxDegree = 0;
 

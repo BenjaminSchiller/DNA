@@ -54,7 +54,7 @@ public class Profiler {
 	private static EnumMap<DataStructure.ListType, Integer> generatedListsCounter;
 	private static EnumMap<DataStructure.ListType, Integer> listSizeCounter;
 
-	private static boolean active = false;
+	private static boolean active = Config.getBoolean("PROFILER_ACTIVATED");
 	private static boolean inInitialBatch = false;
 	private static Graph graph;
 	private static GraphDataStructure gds;
@@ -68,6 +68,7 @@ public class Profiler {
 
 	private static FileSystem currentFileSystem;
 
+	public final static String initialBatchKeySuffix = ".initialBatch";
 	final static String separator = System.getProperty("line.separator");
 	final static String aggregatedPrefix = "aggregated";
 
@@ -80,15 +81,9 @@ public class Profiler {
 			ProfilerDataType.class);
 	private static ProfileEntry lastAccesses;
 
-	public static void activate() {
-		active = true;
-	}
-
-	public static void deactivate() {
-		active = false;
-	}
-
 	public static void reset() {
+		active = Config.getBoolean("PROFILER_ACTIVATED");
+
 		singleBatchCalls = new HashMap<>();
 		singleRunCalls = new HashMap<>();
 		singleSeriesCalls = new HashMap<>();
@@ -146,16 +141,6 @@ public class Profiler {
 
 	public static void addMetricName(String name) {
 		metricNames.add(name);
-	}
-
-	public static void finish() {
-		// Actions to be done after generation of stats, eg. writing them to
-		// disk, printing them,...
-
-		if (!active || globalCalls.isEmpty())
-			return;
-
-		System.out.println(getGlobalComplexity(globalCalls));
 	}
 
 	/**
@@ -359,7 +344,7 @@ public class Profiler {
 		}
 
 		int numberOfRecommendations = Config
-				.getInt("NUMBER_OF_RECOMMENDATIONS");
+				.getInt("RECOMMENDER_NUMBER_OF_RECOMMENDATIONS");
 
 		/**
 		 * Recommendations are picked from the front of the list, as they have
@@ -403,7 +388,7 @@ public class Profiler {
 
 		ArrayList<EnumMap<ListType, Class<? extends IDataStructure>>> allCombinationsRaw;
 
-		if (Config.getBoolean("PROFILER_USE_SIMPLE_LIST_FOR_RECOMMENDATIONS"))
+		if (Config.getBoolean("RECOMMENDER_USE_SIMPLE_LIST"))
 			allCombinationsRaw = GraphDataStructure
 					.getSimpleDatastructureCombinations();
 		else
@@ -617,47 +602,6 @@ public class Profiler {
 		return res;
 	}
 
-	/**
-	 * Method used to print the complexity analysis over all access types and
-	 * matching recommendations
-	 * 
-	 * @param listOfEntries
-	 * @return
-	 */
-	private static String getGlobalComplexity(
-			Map<String, ProfileEntry> listOfEntries) {
-		StringBuilder res = new StringBuilder();
-		ProfileEntry resEntry = new ProfileEntry();
-		res.append(separator + "Complexity analysis over all access types:"
-				+ separator);
-		for (Entry<String, ProfileEntry> entry : listOfEntries.entrySet()) {
-			resEntry = resEntry.add(entry.getValue());
-		}
-		res.append(resEntry.toString());
-
-		ProfileEntry globalMemoryEntry = new ProfileEntry();
-		for (ProfileEntry other : pointerForMemoryAggregation.values()) {
-			globalMemoryEntry = globalMemoryEntry.add(other);
-		}
-
-		HashMap<EnumMap<ListType, Class<? extends IDataStructure>>, RecommenderEntry> costMap = calculateAllBasicCosts(
-				globalMemoryEntry, resEntry, true);
-		CompleteRecommendationsHolder recommendationList = calculateRecommendations(
-				costMap, gds.getStorageDataStructures());
-
-		for (ProfilerMeasurementData.ProfilerDataType entryType : ProfilerMeasurementData.ProfilerDataType
-				.values()) {
-			ComparableEntryMap currentCosts = recommendationList.getOwnCosts(
-					entryType).getCosts(entryType);
-			res.append(" Aggr for " + entryType + ": " + currentCosts
-					+ separator);
-
-			res.append(getOtherRuntimeComplexitiesForEntry(entryType,
-					recommendationList.get(entryType), false));
-		}
-		return res.toString();
-	}
-
 	private static ProfileEntry entryForKey(Map<String, ProfileEntry> calls,
 			String mapKey, boolean forceReset) {
 		ProfileEntry innerMap = calls.get(mapKey);
@@ -810,11 +754,12 @@ public class Profiler {
 	}
 
 	public static void writeAggregation(Map<String, ProfileEntry> calls,
-			String dir, boolean additionalCond) throws IOException {
+			String dir, boolean computeAndWriteRecommendations)
+			throws IOException {
 		boolean enabledHotswap = Config.getBoolean("HOTSWAP_ENABLED");
 		Profiler.write(calls, dir,
 				Files.getProfilerFilename(Config.get("AGGREGATED_PROFILER")),
-				enabledHotswap || additionalCond, true);
+				enabledHotswap || computeAndWriteRecommendations, true);
 		if (enabledHotswap) {
 			HotSwap.addNewResults();
 			HotSwap.trySwap(graph);
@@ -877,7 +822,7 @@ public class Profiler {
 			// the
 			// end of the metric name
 			if (inInitialBatch)
-				singleKey += Config.get("PROFILER_INITIALBATCH_KEYADDITION");
+				singleKey += Profiler.initialBatchKeySuffix;
 			data.append(getCallList(calls, singleKey,
 					(keys.length == 1 && forceRecommendations)
 							|| forceAllRecommendations, false));
@@ -967,9 +912,37 @@ public class Profiler {
 
 		Profiler.writeAggregation(singleRunCalls, runDataDir, rec);
 
+		if (Config.getBoolean("RECOMMENDER_PRINTRECOMMENDATION_AFTER_EACH_RUN")) {
+			printLastRecommendation("  ");
+		}
+
 		if (Config.getBoolean("PROFILER_WRITE_ACCESSSTATS_PER_RUN")) {
 			Profiler.plotAccessStatistics(singleRunCalls, runDataDir,
-					"accessStats-run");
+					"accessStats-run", false);
+			Profiler.plotAccessStatistics(singleRunCalls, runDataDir,
+					"accessStats-run", true);
+		}
+	}
+
+	private static void printLastRecommendation(String prefix) {
+		TreeSet<RecommenderEntry> recSet;
+		RecommenderEntry recEntry;
+		Iterator<RecommenderEntry> it;
+
+		int numberOfRecommendations = Config
+				.getInt("RECOMMENDER_NUMBER_OF_RECOMMENDATIONS");
+
+		for (ProfilerDataType pdt : ProfilerDataType.values()) {
+			Log.info(prefix + "Current costs for " + pdt + ": "
+					+ getLastCosts(pdt));
+			recSet = getRecommendations(pdt);
+			it = recSet.iterator();
+			for (int i = 0; (i < numberOfRecommendations && it.hasNext()); i++) {
+				recEntry = it.next();
+				Log.info(prefix + " Costs for combination "
+						+ recEntry.getDatastructures() + ": "
+						+ recEntry.getCosts(pdt));
+			}
 		}
 	}
 
@@ -1024,49 +997,60 @@ public class Profiler {
 		Profiler.writeAggregation(singleBatchCalls, batchDir,
 				ProfilerGranularity.isEnabled(Options.EACHBATCH));
 
+		if (Config
+				.getBoolean("RECOMMENDER_PRINTRECOMMENDATION_AFTER_EACH_BATCH")) {
+			printLastRecommendation("      ");
+		}
+
 		if (Config.getBoolean("PROFILER_WRITE_ACCESSSTATS_PER_BATCH")) {
 			Profiler.plotAccessStatistics(singleBatchCalls, runDataDir,
-					"accessStats-batch" + batchTimestamp);
+					"accessStats-batch" + batchTimestamp, false);
+			Profiler.plotAccessStatistics(singleBatchCalls, runDataDir,
+					"accessStats-batch" + batchTimestamp, true);
 		}
 
 		if (profilerDataTypeForHotSwap == ProfilerDataType.CombinedBenchmark
 				|| profilerDataTypeForHotSwap == ProfilerDataType.RuntimeBenchmark
 				|| profilerDataTypeForHotSwap == ProfilerDataType.MemoryBenchmark) {
 
-			if (!Config.get("VA_PLOTS").contains("PROFILERQUALITY")) {
-				Config.overwrite("VA_PLOTS", Config.get("VA_PLOTS")
-						+ ", PROFILERQUALITY");
-				Config.overwrite("VA_PROFILERQUALITY_NAME", "ProfilerQuality");
-				Config.overwrite(
-						"VA_PROFILERQUALITY_VALUES",
-						"statistics.profilerCurrentCase, statistics.profilerBestCase, statistics.profilerWorstCase");
-			}
-
 			TreeSet<RecommenderEntry> recSet = lastRecommendations
 					.get(profilerDataTypeForHotSwap);
+			if (recSet != null && !recSet.isEmpty()) {
+				if (!Config.get("CUSTOM_PLOTS").contains("PROFILERQUALITY")) {
+					Config.overwrite("CUSTOM_PLOTS", Config.get("CUSTOM_PLOTS")
+							+ ", PROFILERQUALITY");
+					Config.overwrite("CUSTOM_PROFILERQUALITY_NAME",
+							"ProfilerQuality");
+					Config.overwrite(
+							"CUSTOM_PROFILERQUALITY_VALUES",
+							"statistics.profilerCurrentCase, statistics.profilerBestCase, statistics.profilerWorstCase");
+				}
 
-			ComparableEntryMap best = recSet.first().getCosts(
-					profilerDataTypeForHotSwap);
-			ComparableEntryMap curr = lastCosts.get(profilerDataTypeForHotSwap);
-			ComparableEntryMap worst = recSet.last().getCosts(
-					profilerDataTypeForHotSwap);
+				ComparableEntryMap best = recSet.first().getCosts(
+						profilerDataTypeForHotSwap);
+				ComparableEntryMap curr = lastCosts
+						.get(profilerDataTypeForHotSwap);
+				ComparableEntryMap worst = recSet.last().getCosts(
+						profilerDataTypeForHotSwap);
 
-			double bestCosts = 0, currCosts = 0, worstCosts = 0;
+				double bestCosts = 0, currCosts = 0, worstCosts = 0;
 
-			if (profilerDataTypeForHotSwap == ProfilerDataType.CombinedBenchmark) {
-				bestCosts = ((CombinedResultsMap) best).getPos();
-				currCosts = ((CombinedResultsMap) curr).getPos();
-				worstCosts = ((CombinedResultsMap) worst).getPos();
-			} else if (profilerDataTypeForHotSwap == ProfilerDataType.RuntimeBenchmark
-					|| profilerDataTypeForHotSwap == ProfilerDataType.MemoryBenchmark) {
-				bestCosts = ((BenchmarkingResultsMap) best).getValue();
-				currCosts = ((BenchmarkingResultsMap) curr).getValue();
-				worstCosts = ((BenchmarkingResultsMap) worst).getValue();
+				if (profilerDataTypeForHotSwap == ProfilerDataType.CombinedBenchmark) {
+					bestCosts = ((CombinedResultsMap) best).getPos();
+					currCosts = ((CombinedResultsMap) curr).getPos();
+					worstCosts = ((CombinedResultsMap) worst).getPos();
+				} else if (profilerDataTypeForHotSwap == ProfilerDataType.RuntimeBenchmark
+						|| profilerDataTypeForHotSwap == ProfilerDataType.MemoryBenchmark) {
+					bestCosts = ((BenchmarkingResultsMap) best).getValue();
+					currCosts = ((BenchmarkingResultsMap) curr).getValue();
+					worstCosts = ((BenchmarkingResultsMap) worst).getValue();
+				}
+
+				res.getValues().add(new Value("profilerBestCase", bestCosts));
+				res.getValues()
+						.add(new Value("profilerCurrentCase", currCosts));
+				res.getValues().add(new Value("profilerWorstCase", worstCosts));
 			}
-
-			res.getValues().add(new Value("profilerBestCase", bestCosts));
-			res.getValues().add(new Value("profilerCurrentCase", currCosts));
-			res.getValues().add(new Value("profilerWorstCase", worstCosts));
 		}
 
 		if (Config.getBoolean("GENERATION_BATCHES_AS_ZIP")) {
@@ -1075,7 +1059,8 @@ public class Profiler {
 	}
 
 	private static void plotAccessStatistics(Map<String, ProfileEntry> calls,
-			String dir, String fileName) throws IOException {
+			String dir, String fileName, boolean useLogscale)
+			throws IOException {
 		// First: aggregate data per list
 		ProfileEntry aggr = new ProfileEntry();
 		for (ProfileEntry e : calls.values()) {
@@ -1099,16 +1084,27 @@ public class Profiler {
 		}
 
 		// Then: write it to file
+		if (useLogscale) {
+			fileName += "_logScale";
+		}
+
 		LinkedList<String> script = new LinkedList<String>();
 		script.add("set terminal " + Config.get("GNUPLOT_TERMINAL"));
 		script.add("set output \"" + dir + fileName + "."
 				+ Config.get("GNUPLOT_EXTENSION") + "\"");
 		script.add("set grid");
 		script.add("set title \"Access statistics\"");
+		script.add("set ylabel \"Number of accesses\"");
 		script.add("set style data histogram");
 		script.add("set style fill solid border");
 		script.add("set style histogram clustered");
 		script.add("set xtics rotate out");
+
+		if (useLogscale) {
+			script.add("set logscale y");
+		} else {
+			script.add("unset logscale");
+		}
 
 		LinkedList<String> plotHeader = new LinkedList<>();
 		for (int i = 0; i < ltArray.length; i++) {

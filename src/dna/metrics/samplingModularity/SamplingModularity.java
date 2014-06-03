@@ -1,7 +1,5 @@
 package dna.metrics.samplingModularity;
 
-import java.util.Collection;
-
 import dna.graph.Graph;
 import dna.graph.IElement;
 import dna.graph.nodes.DirectedNode;
@@ -61,7 +59,7 @@ public abstract class SamplingModularity extends Metric {
 	public boolean compute() {
 		edgesInSample = g.getEdgeCount();
 		degreeSum = 0;
-		Collection<IElement> nodes = g.getNodes();
+		Iterable<IElement> nodes = g.getNodes();
 		for (IElement e : nodes) {
 			degreeSum += getDegreeFromOriginalNode((Node) e);
 		}
