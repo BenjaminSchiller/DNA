@@ -1,5 +1,7 @@
 package dna.updates.samplingAlgorithms;
 
+import java.util.Collection;
+import java.util.Iterator;
 import java.util.LinkedList;
 
 import dna.graph.Graph;
@@ -43,7 +45,7 @@ public class UniformSampling extends SamplingAlgorithm {
 		super("US", fullGraph, startNodeStrategy, costPerBatch, resource,
 				parameters);
 
-		notVisited = new LinkedList<IElement>(fullGraph.getNodes());
+		notVisited = makeList(fullGraph.getNodes());
 	}
 
 	@Override
@@ -64,7 +66,16 @@ public class UniformSampling extends SamplingAlgorithm {
 
 	@Override
 	protected void localReset() {
-		notVisited = new LinkedList<IElement>(fullGraph.getNodes());
+		notVisited = makeList(fullGraph.getNodes());
+	}
+	
+	private LinkedList<IElement> makeList(Iterable<IElement> iterable){
+		Iterator<IElement> iter = iterable.iterator();
+		LinkedList<IElement> list = new LinkedList<IElement>();
+		while(iter.hasNext()){
+			list.add(iter.next());
+		}
+		return list;
 	}
 
 }
