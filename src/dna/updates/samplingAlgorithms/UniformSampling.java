@@ -1,6 +1,5 @@
 package dna.updates.samplingAlgorithms;
 
-import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedList;
 
@@ -68,11 +67,11 @@ public class UniformSampling extends SamplingAlgorithm {
 	protected void localReset() {
 		notVisited = makeList(fullGraph.getNodes());
 	}
-	
-	private LinkedList<IElement> makeList(Iterable<IElement> iterable){
+
+	private LinkedList<IElement> makeList(Iterable<IElement> iterable) {
 		Iterator<IElement> iter = iterable.iterator();
 		LinkedList<IElement> list = new LinkedList<IElement>();
-		while(iter.hasNext()){
+		while (iter.hasNext()) {
 			list.add(iter.next());
 		}
 		return list;
