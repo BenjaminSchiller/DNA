@@ -13,8 +13,6 @@ import dna.graph.nodes.Node;
 import dna.graph.nodes.UndirectedNode;
 import dna.graph.weights.DoubleWeight;
 import dna.metrics.Metric;
-import dna.metrics.Metric.ApplicationType;
-import dna.metrics.similarityMeasures.dice.DiceDirected;
 import dna.series.data.BinnedDistributionLong;
 import dna.series.data.NodeNodeValueList;
 import dna.series.data.NodeValueList;
@@ -25,27 +23,23 @@ import dna.util.parameters.StringParameter;
 
 public abstract class MeasuresDirectedDoubleWeighted extends Metric {
 
-	/** Contains the result for each dice similarity measure. */
+	/** Contains the result for each similarity measure. */
 	protected Matrix result;
-
 	/** Contains the result for each matching measure */
 	protected Matrix matching;
-
+	/** Binned Distribution */
 	protected BinnedDistributionLong binnedDistribution;
-
+	/** Average per Node Distribution */
 	protected BinnedDistributionLong binnedDistributionEveryNodeToOtherNodes;
 
 	/**
-	 * Is either "out" (default) or "in", depending on the {@link Parameter} in
-	 * {@link #DiceDirected(String, ApplicationType, Parameter)}. This value
-	 * determines whether nodes in directed graphs are compared by there in- or
-	 * outdegree and is ignored for undirected graphs.
+	 * Is either "out" (default) or "in".
 	 */
 	protected String directedDegreeType;
-
+	
 	/**
-	 * Initializes {@link DiceDirected}. Implicitly sets degree type for
-	 * directed graphs to outdegree.
+	 * Initializes the {@link DirectedDoubleWeightedEdge} Measure. Implicitly
+	 * sets degree type for directed graphs to outdegree.
 	 * 
 	 * @param name
 	 *            The name of the metric
@@ -59,7 +53,7 @@ public abstract class MeasuresDirectedDoubleWeighted extends Metric {
 	}
 
 	/**
-	 * Initializes {@link DiceDirected}.
+	 * Initializes the {@link DirectedDoubleWeightedEdge} weighted measure.
 	 * 
 	 * @param name
 	 *            The name of the metric
@@ -75,20 +69,22 @@ public abstract class MeasuresDirectedDoubleWeighted extends Metric {
 		this.directedDegreeType = this.getParameters()[0].getValue();
 	}
 
+	/**
+	 * Decreases the matching between the given nodes by the min weight.
+	 */
 	protected void decreaseMatching(DirectedNode node1, Double value1,
 			DirectedNode node2, Double value2) {
 		double matchingG = this.matching.get(node1, node2)
 				- Math.min(value1, value2);
 		if (matchingG < 0.0 && Math.abs(matchingG) <= 1.0E-4 || matchingG > 0.0
 				&& matchingG < 1.0E-6) {
-			System.err.println("Matching war beim erhöhen -- Dec");
 			matchingG = 0.0;
 		}
 		this.matching.put(node1, node2, matchingG);
 	}
 
 	/**
-	 * Decreases the matching between each pair of the given nodes by 1.
+	 * Decreases the matching between each pair of the given nodes.
 	 * 
 	 * @param node
 	 * 
@@ -259,6 +255,9 @@ public abstract class MeasuresDirectedDoubleWeighted extends Metric {
 		return new Value[] { v1 };
 	}
 
+	/**
+	 * Increases the matching between the given nodes by the min weight.
+	 */
 	protected void increaseMatching(DirectedNode node1, Double value1,
 			DirectedNode node2, Double value2) {
 		Double matchingG = this.matching.get(node1, node2);
@@ -271,7 +270,7 @@ public abstract class MeasuresDirectedDoubleWeighted extends Metric {
 	}
 
 	/**
-	 * Increases the matching between each pair of the given nodes by 1.
+	 * Increases the matching between each pair of the given nodes.
 	 * 
 	 * @param node
 	 * 
@@ -298,7 +297,7 @@ public abstract class MeasuresDirectedDoubleWeighted extends Metric {
 	}
 
 	/**
-	 * Returns for which type of directed edges the matching is.
+	 * Returns for which type of directed edges the similarity measure is.
 	 * 
 	 * @return true, if the dice similarity measure is for outgoing edges; false
 	 *         for incoming
@@ -309,12 +308,17 @@ public abstract class MeasuresDirectedDoubleWeighted extends Metric {
 		return false;
 	}
 
+	/**
+	 * Update method that will be replaced by the respective specific similarity measure method. 
+	 */
+	protected void update(DirectedNode directed1, DirectedNode directed3) {
+	}
+
 	protected void update(DirectedWeightedEdge edge,
 			HashMap<DirectedNode, Double> neighborsIn,
 			HashMap<DirectedNode, Double> neighborsOut) {
-		// von SRc ausgehnde
+
 		this.updateDirectedNeighborsMeasure(neighborsOut);
-		// von Dst eingehende
 		this.updateDirectedNeighborsMeasure(neighborsIn);
 
 		for (DirectedNode direct1 : neighborsIn.keySet())
@@ -325,12 +329,9 @@ public abstract class MeasuresDirectedDoubleWeighted extends Metric {
 
 	}
 
-	protected void update(DirectedNode directed1, DirectedNode directed3) {
-	}
-
 	/**
-	 * Updates the jaccard similarity measure between each pair of the given
-	 * nodes.
+	 * Updates the similarity measure between each pair of the given nodes. The
+	 * given nodes are the direct Neighbors.
 	 * 
 	 * @see #increaseMatching(UndirectedNode, UndirectedNode)
 	 */
@@ -345,7 +346,7 @@ public abstract class MeasuresDirectedDoubleWeighted extends Metric {
 	}
 
 	/**
-	 * Update the Jaccard measure incoming if a node is to be removed
+	 * Update the similarity measure incoming if a node is to be removed
 	 * 
 	 * @param nodeToRemove
 	 */
@@ -365,7 +366,7 @@ public abstract class MeasuresDirectedDoubleWeighted extends Metric {
 	}
 
 	/**
-	 * Update the Jaccard measure outgoing if a node is to be removed
+	 * Update the similarity measure outgoing if a node is to be removed
 	 * 
 	 * @param nodeToRemove
 	 */

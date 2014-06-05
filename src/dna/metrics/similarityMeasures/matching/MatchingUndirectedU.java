@@ -40,14 +40,13 @@ public class MatchingUndirectedU extends MatchingUndirected {
 	 * 
 	 * @param addedEdgeUpdate
 	 *            The update from the {@link Edge} which has been added.
-	 * @return true
+	 * @return true, if successful
 	 * 
 	 * @see #increaseMatching(Set, UndirectedNode)
 	 */
 	private boolean applyAfterEdgeAddition(EdgeAddition addedEdgeUpdate) {
 		final UndirectedEdge newEdge = (UndirectedEdge) addedEdgeUpdate
 				.getEdge();
-		// increase the Matching of the neighbors by 1
 		this.increaseMatching(this.getNeighborNodes(newEdge.getNode1()),
 				newEdge.getNode2());
 		this.increaseMatching(this.getNeighborNodes(newEdge.getNode2()),
@@ -83,7 +82,7 @@ public class MatchingUndirectedU extends MatchingUndirected {
 	 * 
 	 * @param edgeRemoval
 	 *            The update from the {@link Edge} which is to be removed.
-	 * @return true
+	 * @return true, if successful
 	 * 
 	 * @see #decreaseMatching(Set, UndirectedNode)
 	 */
@@ -104,7 +103,7 @@ public class MatchingUndirectedU extends MatchingUndirected {
 	 * 
 	 * @param nodeRemoval
 	 *            The update from the {@link Node} which is to be removed.
-	 * @return true
+	 * @return true, if successful
 	 * 
 	 * @see #decreaseMatchingNodeRemove(Set)
 	 */
@@ -112,8 +111,6 @@ public class MatchingUndirectedU extends MatchingUndirected {
 		final UndirectedNode nodeToRemove = (UndirectedNode) nodeRemove
 				.getNode();
 
-		// decrease the matching of every neighbor of the removed node by one
-		// because the matching is this one node smaller
 		this.decreaseMatchingNodeRemove(this.getNeighborNodes(nodeToRemove));
 
 		for (IElement iterable_element : this.g.getNodes()) {

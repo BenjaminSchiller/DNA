@@ -42,7 +42,7 @@ public class DiceUndirectedIntWeightedU extends DiceUndirectedIntWeighted {
 	 * 
 	 * @param addedEdgeUpdate
 	 *            The update from the {@link Edge} which has been added.
-	 * @return true, if successful; false otherwise
+	 * @return true, if successful;
 	 */
 	private boolean applyAfterEdgeAddition(
 			UndirectedWeightedEdge undirectedIntWeightedEdge) {
@@ -57,8 +57,6 @@ public class DiceUndirectedIntWeightedU extends DiceUndirectedIntWeighted {
 
 		this.increaseMatching(neighborsNode2, newEdge.getNode1());
 
-		// Increasing the number of the neighbors of the two nodes of the edge
-		// by 1
 		this.increaseAmountOfNeighbor(newEdge.getNode1(),
 				((IntWeight) newEdge.getWeight()).getWeight());
 		this.increaseAmountOfNeighbor(newEdge.getNode2(),
@@ -101,7 +99,7 @@ public class DiceUndirectedIntWeightedU extends DiceUndirectedIntWeighted {
 	 * 
 	 * @param EdgeRemoval
 	 *            The update from the {@link Edge} which is to be removed.
-	 * @return true, if successful; false otherwise
+	 * @return true, if successful;
 	 */
 	private boolean applyBeforeEdgeRemoval(
 			UndirectedWeightedEdge undirectedIntWeightedEdge) {
@@ -111,13 +109,10 @@ public class DiceUndirectedIntWeightedU extends DiceUndirectedIntWeighted {
 				.getNeighborNodes(edgeToRemove.getNode1());
 		HashMap<UndirectedNode, Integer> neighborsNode2 = this
 				.getNeighborNodes(edgeToRemove.getNode2());
-		// decrease the matching of every neighbor of each adjacent node by one
-		// because they each loose one node through the edge which is going to
-		// be removed
+
 		this.decreaseMatching(neighborsNode1, edgeToRemove.getNode2());
 		this.decreaseMatching(neighborsNode2, edgeToRemove.getNode1());
-		// Decreasing the number of the neighbors of the two nodes of the edge
-		// by 1
+
 		this.decreaseAmountOfNeighbor(edgeToRemove.getNode1(),
 				((IntWeight) edgeToRemove.getWeight()).getWeight());
 		this.decreaseAmountOfNeighbor(edgeToRemove.getNode2(),
@@ -135,7 +130,7 @@ public class DiceUndirectedIntWeightedU extends DiceUndirectedIntWeighted {
 	 *            The {@link Edge} whose edge weight changes.
 	 * @param weight
 	 *            The new weight of the Edge after the Update.
-	 * @return true, if successful; false otherwise
+	 * @return true, if successful;
 	 */
 	private boolean applyBeforeEdgeWeightUpdate(
 			UndirectedWeightedEdge undirectedIntWeightedEdge, int weight) {
@@ -148,14 +143,11 @@ public class DiceUndirectedIntWeightedU extends DiceUndirectedIntWeighted {
 	 * 
 	 * @param NodeRemoval
 	 *            The update from the {@link Node} which is to be removed.
-	 * @return true, if successful; false otherwise
+	 * @return true, if successful;
 	 */
 	private boolean applyBeforeNodeRemoval(NodeRemoval u) {
 		final UndirectedNode nodeToRemove = (UndirectedNode) u.getNode();
 
-		// System.out.println("Node Remove: " + nodeToRemove);
-		// decrease the matching of every neighbor of the removed node by one
-		// because the matching is this one node smaller
 		this.decreaseMatchingNodeRemove(this.getNeighborNodes(nodeToRemove));
 
 		this.decreaseAmountOfNeighbors(nodeToRemove);
@@ -209,6 +201,15 @@ public class DiceUndirectedIntWeightedU extends DiceUndirectedIntWeighted {
 		return false;
 	}
 
+	/**
+	 * Applied the edge weight update to the graph.
+	 * 
+	 * @param undirectedIntWeightedEdge
+	 *            The {@link Edge} whose edge weight changes.
+	 * @param weight
+	 *            The new weight of the Edge after the Update.
+	 * @return true, if successful;
+	 */
 	private boolean applyEdgeWeightedUpdate(
 			UndirectedWeightedEdge undirectedIntWeightedEdge, int weight) {
 
@@ -216,9 +217,6 @@ public class DiceUndirectedIntWeightedU extends DiceUndirectedIntWeighted {
 		final int edgeToBeUpdatedWeight = ((IntWeight) edgeToBeUpdated
 				.getWeight()).getWeight();
 
-		// decrease the matching of every neighbor of each adjacent node by one
-		// because they each loose one node through the edge which is going to
-		// be removed
 		this.decreaseMatching(
 				this.getNeighborNodes(edgeToBeUpdated.getNode1()),
 				edgeToBeUpdated.getNode2());
@@ -240,7 +238,7 @@ public class DiceUndirectedIntWeightedU extends DiceUndirectedIntWeighted {
 					(weight - edgeToBeUpdatedWeight));
 		}
 
-		// neues gewicht bei oldEdge setzen
+		// set new edge weight
 		edgeToBeUpdated.setWeight(new IntWeight(weight));
 		HashMap<UndirectedNode, Integer> neighborsNode1 = this
 				.getNeighborNodes(edgeToBeUpdated.getNode1());
@@ -261,7 +259,7 @@ public class DiceUndirectedIntWeightedU extends DiceUndirectedIntWeighted {
 	}
 
 	/**
-	 * Decreases the number of neighbors of the given node by 1.
+	 * Decreases the number of neighbors of the given node.
 	 */
 	private void decreaseAmountOfNeighbor(UndirectedNode undirectedNode,
 			double weight) {
@@ -270,7 +268,7 @@ public class DiceUndirectedIntWeightedU extends DiceUndirectedIntWeighted {
 	}
 
 	/**
-	 * Decreases the number of neighbors for each node by 1.
+	 * Decreases the number of neighbors for each node.
 	 * 
 	 * @see #decreaseAmountOfNeighbors(UndirectedNode)
 	 */
@@ -288,7 +286,7 @@ public class DiceUndirectedIntWeightedU extends DiceUndirectedIntWeighted {
 	}
 
 	/**
-	 * Increases the number of neighbors of the given node by 1.
+	 * Increases the number of neighbors of the given node.
 	 */
 	private void increaseAmountOfNeighbor(UndirectedNode node, double weight) {
 		if (amountOfNeighbors.containsKey(node))

@@ -15,8 +15,7 @@ import dna.util.parameters.Parameter;
 public class JaccardDirectedR extends JaccardDirected {
 
 	/**
-	 * Initializes {@link JaccardDirectedR}. Implicitly sets degree type for
-	 * directed graphs to outdegree.
+	 * Initializes {@link JaccardDirectedR}.
 	 */
 	public JaccardDirectedR() {
 		super("JacardDirectedR", ApplicationType.Recomputation);
@@ -33,6 +32,7 @@ public class JaccardDirectedR extends JaccardDirected {
 		super("JacardDirectedR", ApplicationType.Recomputation,
 				directedDegreeType);
 	}
+
 
 	@Override
 	public boolean applyAfterBatch(Batch b) {

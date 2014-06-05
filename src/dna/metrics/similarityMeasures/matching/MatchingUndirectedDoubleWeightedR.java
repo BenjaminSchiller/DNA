@@ -22,6 +22,7 @@ public class MatchingUndirectedDoubleWeightedR extends
 				ApplicationType.Recomputation);
 	}
 
+
 	@Override
 	public boolean applyAfterBatch(Batch b) {
 		return false;

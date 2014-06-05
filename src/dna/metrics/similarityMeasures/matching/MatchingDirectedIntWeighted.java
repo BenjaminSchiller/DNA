@@ -6,13 +6,13 @@ import java.util.Map.Entry;
 
 import dna.graph.Graph;
 import dna.graph.IElement;
+import dna.graph.edges.DirectedEdge;
 import dna.graph.edges.DirectedWeightedEdge;
-import dna.graph.edges.Edge;
 import dna.graph.nodes.DirectedNode;
 import dna.graph.nodes.Node;
 import dna.graph.weights.IntWeight;
 import dna.metrics.Metric;
-import dna.metrics.similarityMeasures.MatrixInt;
+import dna.metrics.similarityMeasures.Matrix;
 import dna.series.data.BinnedDistributionLong;
 import dna.series.data.Distribution;
 import dna.series.data.NodeNodeValueList;
@@ -24,8 +24,8 @@ import dna.util.parameters.StringParameter;
 
 /**
  * Computes the similarity matching measure for graphs with {@link DirectedNode}
- * s and weighted {@link Edge}s. The similarity of two nodes <i>n</i>, <i>m</i>
- * is defined as the number of elements in the intersection of
+ * s and weighted {@link DirectedEdge}s. The similarity of two nodes <i>n</i>,
+ * <i>m</i> is defined as the number of elements in the intersection of
  * <i>neighbors(n)</i> and <i>neighbors(m)</i>.
  * 
  * @see MatchingDirectedIntWeightedR
@@ -34,10 +34,12 @@ import dna.util.parameters.StringParameter;
 public abstract class MatchingDirectedIntWeighted extends Metric {
 
 	/** Contains the result for each matching. */
-	// protected Matrix matchings;
-	protected MatrixInt matchings;
+	protected Matrix matchings;
+	/** If matching is for Incoming or Outgoing edges */
 	private String directedDegreeType;
+	/** Binned Distribution */
 	protected BinnedDistributionLong matchingDirectedWeightedD;
+	/** Average per Node Distribution */
 	protected BinnedDistributionLong binnedDistributionEveryNodeToOtherNodes;
 
 	/**
@@ -100,9 +102,8 @@ public abstract class MatchingDirectedIntWeighted extends Metric {
 				neighbors2 = this.getNeighborNodes(node2);
 
 				// #intersection
-				int sum = getMapValueSum(getMatching(neighbors1, neighbors2));
-				if (sum < 0)
-					System.out.println("compute wird minus!!: " + sum);
+				double sum = getMapValueSum(getMatching(neighbors1, neighbors2));
+
 				this.matchings.put(node1, node2, sum);
 				// müsste mit Ungleich sein if (nodeIndex1 == nodeIndex2)
 				this.matchingDirectedWeightedD.incr(sum);
@@ -119,9 +120,6 @@ public abstract class MatchingDirectedIntWeighted extends Metric {
 	@Override
 	public boolean equals(Metric m) {
 		if (m != null && m instanceof MatchingDirectedIntWeighted) {
-			// System.out.println(this.matchings.toString());
-			// System.out.println(((MatchingDirectedIntWeighted)
-			// m).matchings.toString());
 			return ((MatchingDirectedIntWeighted) m).matchings.equals(
 					this.matchings, 1.0E-4);
 		}
@@ -249,7 +247,7 @@ public abstract class MatchingDirectedIntWeighted extends Metric {
 
 	@Override
 	public void init_() {
-		this.matchings = new MatrixInt();
+		this.matchings = new Matrix();
 		this.matchingDirectedWeightedD = new BinnedDistributionLong(
 				"MatchingDirectedWeightedD", 1, new long[] {}, 0);
 		this.binnedDistributionEveryNodeToOtherNodes = new BinnedDistributionLong(
@@ -289,7 +287,7 @@ public abstract class MatchingDirectedIntWeighted extends Metric {
 
 	@Override
 	public void reset_() {
-		this.matchings = new MatrixInt();
+		this.matchings = new Matrix();
 		this.matchingDirectedWeightedD = new BinnedDistributionLong(
 				"MatchingDirectedWeightedD", 1, new long[] {}, 0);
 		this.binnedDistributionEveryNodeToOtherNodes = new BinnedDistributionLong(

@@ -39,7 +39,7 @@ public class OverlapUndirectedU extends OverlapUndirected {
 	 * 
 	 * @param addedEdgeUpdate
 	 *            The update from the {@link Edge} which has been added.
-	 * @return true, if successful; false otherwise
+	 * @return true, if successful;
 	 */
 	private boolean applyAfterEdgeAddition(EdgeAddition u) {
 		final UndirectedEdge newEdge = (UndirectedEdge) u.getEdge();
@@ -52,8 +52,6 @@ public class OverlapUndirectedU extends OverlapUndirected {
 		this.increaseMatching(neighborsNode1, newEdge.getNode2());
 		this.increaseMatching(neighborsNode2, newEdge.getNode1());
 
-		// Increasing the number of the neighbors of the two nodes of the edge
-		// by 1
 		this.increaseAmountOfNeighbor(newEdge.getNode1());
 		this.increaseAmountOfNeighbor(newEdge.getNode2());
 
@@ -91,7 +89,7 @@ public class OverlapUndirectedU extends OverlapUndirected {
 	 * 
 	 * @param EdgeRemoval
 	 *            The update from the {@link Edge} which is to be removed.
-	 * @return true
+	 * @return true, if successful
 	 */
 	private boolean applyBeforeEdgeRemoval(EdgeRemoval u) {
 		final UndirectedEdge edgeToRemove = (UndirectedEdge) u.getEdge();
@@ -101,35 +99,29 @@ public class OverlapUndirectedU extends OverlapUndirected {
 		HashSet<UndirectedNode> neighborsNode2 = this
 				.getNeighborNodes(edgeToRemove.getNode2());
 
-		// decrease the matching of every neighbor of each adjacent node by one
-		// because they each loose one node through the edge which is going to
-		// be removed
 		this.decreaseMatching(neighborsNode1, edgeToRemove.getNode2());
 		this.decreaseMatching(neighborsNode2, edgeToRemove.getNode1());
-		// Decreasing the number of the neighbors of the two nodes of the edge
-		// by 1
+
 		this.decreaseAmountOfNeighbor(edgeToRemove.getNode1());
 		this.decreaseAmountOfNeighbor(edgeToRemove.getNode2());
-		// update the overlap Measure of every neighbor of each adjacent with
-		// the
 
 		this.update(edgeToRemove, neighborsNode1, neighborsNode2);
 
 		return true;
 	}
 
+	
 	/**
 	 * Called before the update is applied to the graph.
 	 * 
 	 * @param nodeRemove
 	 *            The update from the {@link Node} which is to be removed.
-	 * @return true
+	 * @return true, if successful
 	 */
 	private boolean applyBeforeNodeRemoval(NodeRemoval nodeRemove) {
 		final UndirectedNode nodeToRemove = (UndirectedNode) nodeRemove
 				.getNode();
-		// decrease the matching of every neighbor of the removed node by one
-		// because the matching is this one node smaller
+
 		this.decreaseMatchingNodeRemove(this.getNeighborNodes(nodeToRemove));
 
 		this.decreaseAmountOfNeighbors(this.getNeighborNodes(nodeToRemove));

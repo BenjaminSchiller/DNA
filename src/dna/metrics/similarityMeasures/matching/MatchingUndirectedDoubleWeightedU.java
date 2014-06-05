@@ -4,8 +4,8 @@ import java.util.HashMap;
 import java.util.Map.Entry;
 
 import dna.graph.IElement;
-import dna.graph.edges.DirectedEdge;
 import dna.graph.edges.Edge;
+import dna.graph.edges.UndirectedEdge;
 import dna.graph.edges.UndirectedWeightedEdge;
 import dna.graph.nodes.Node;
 import dna.graph.nodes.UndirectedNode;
@@ -19,6 +19,12 @@ import dna.updates.update.NodeAddition;
 import dna.updates.update.NodeRemoval;
 import dna.updates.update.Update;
 
+/**
+ * The class implements the changes of {@link UndirectedNode}s and weighted
+ * {@link UndirectedEdge}s by updating the matching similarity measure.
+ * 
+ * @see MatchingUndirectedDoubleWeighted
+ */
 public class MatchingUndirectedDoubleWeightedU extends
 		MatchingUndirectedDoubleWeighted {
 
@@ -26,7 +32,7 @@ public class MatchingUndirectedDoubleWeightedU extends
 	 * Initializes {@link JaccardUndirectedDoubleWeightedU}.
 	 */
 	public MatchingUndirectedDoubleWeightedU() {
-		super("MatchingUndirectedWeightedU",
+		super("MatchingUndirectedDoubleWeightedU",
 				ApplicationType.BeforeAndAfterUpdate);
 	}
 
@@ -39,7 +45,7 @@ public class MatchingUndirectedDoubleWeightedU extends
 	 * Called after the update is applied to the graph.
 	 * 
 	 * @param addedEdgeUpdate
-	 *            The update from the {@link DirectedEdge} which has been added.
+	 *            The update from the {@link Edge} which has been added.
 	 * @return true
 	 */
 	private boolean applyAfterEdgeAddition(
@@ -84,7 +90,7 @@ public class MatchingUndirectedDoubleWeightedU extends
 	 * 
 	 * @param undirectedDoubleWeightedEdge
 	 *            The update from the {@link Edge} which is to be removed.
-	 * @return true
+	 * @return true, if successful
 	 */
 	private boolean applyBeforeEdgeRemoval(
 			UndirectedWeightedEdge undirectedDoubleWeightedEdge) {
@@ -103,7 +109,7 @@ public class MatchingUndirectedDoubleWeightedU extends
 	 *            The {@link Edge} whose edge weight changes.
 	 * @param weight
 	 *            The new weight of the Edge after the Update.
-	 * @return true
+	 * @return true, if successful
 	 */
 	private boolean applyBeforeEdgeWeightUpdate(
 			UndirectedWeightedEdge undirectedDoubleWeightedEdge, double weight) {
@@ -118,12 +124,12 @@ public class MatchingUndirectedDoubleWeightedU extends
 	 * 
 	 * @param nodeRemoval
 	 *            The update from the {@link Node} which is to be removed.
-	 * @return true
+	 * @return true, if successful
 	 */
 	private boolean applyBeforeNodeRemoval(NodeRemoval nodeRemoval) {
 		final UndirectedNode nodeToRemove = (UndirectedNode) nodeRemoval
 				.getNode();
-		// decrease the matching of the neighbore nodes
+
 		this.decreaseMatchingNodeRemove(nodeToRemove);
 
 		for (IElement iterable_element : this.g.getNodes()) {
@@ -179,6 +185,9 @@ public class MatchingUndirectedDoubleWeightedU extends
 
 	}
 
+	/**
+	 * Decreases the matching between the given nodes by the min weight.
+	 */
 	private void decreaseMatching(UndirectedNode node1, Double value1,
 			UndirectedNode node2, Double value2) {
 		this.matchingUndirectedWeightedD.decr(this.matchings.get(node1, node2));
@@ -211,7 +220,7 @@ public class MatchingUndirectedDoubleWeightedU extends
 	}
 
 	/**
-	 * Increases the matching between each pair of the given nodes by 1.
+	 * Increases the matching between each pair of the given nodes.
 	 * 
 	 * @param node
 	 * 
@@ -224,7 +233,10 @@ public class MatchingUndirectedDoubleWeightedU extends
 					map.get(node));
 
 	}
-
+	
+	/**
+	 * Increases the matching between the given nodes by the min weight.
+	 */
 	private void increaseMatching(UndirectedNode node1, Double value1,
 			UndirectedNode node2, Double value2) {
 		Double matchingG = this.matchings.get(node1, node2);

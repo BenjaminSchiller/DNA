@@ -23,16 +23,16 @@ import dna.util.parameters.Parameter;
  * The class implements the changes of {@link DirectedNode}s and weighted
  * {@link DirectedEdge}s by updating the overlap similarity measure.
  * 
- * @see OverlapDirectedDoubleWeighted
+ * @see OverlapDirectedIntWeighted
  */
 public class OverlapDirectedIntWeightedU extends OverlapDirectedIntWeighted {
 
 	/**
-	 * Initializes {@link OverlapDirectedIntWeightedU}. Implicitly sets degree
-	 * type for directed graphs to outdegree.
+	 * Initializes {@link OverlapDirectedIntWeightedU}.
 	 */
 	public OverlapDirectedIntWeightedU() {
-		super("OverlapDirectedWeightedU", ApplicationType.BeforeAndAfterUpdate);
+		super("OverlapDirectedIntWeightedU",
+				ApplicationType.BeforeAndAfterUpdate);
 	}
 
 	/**
@@ -43,8 +43,8 @@ public class OverlapDirectedIntWeightedU extends OverlapDirectedIntWeighted {
 	 *            outdegree for directed graphs.
 	 */
 	public OverlapDirectedIntWeightedU(Parameter directedDegreeType) {
-		super("OverlapDirectedWeightedU", ApplicationType.BeforeAndAfterUpdate,
-				directedDegreeType);
+		super("OverlapDirectedIntWeightedU",
+				ApplicationType.BeforeAndAfterUpdate, directedDegreeType);
 	}
 
 	@Override
@@ -57,7 +57,7 @@ public class OverlapDirectedIntWeightedU extends OverlapDirectedIntWeighted {
 	 * 
 	 * @param addedEdgeUpdate
 	 *            The update from the {@link DirectedEdge} which has been added.
-	 * @return true, if successful; false otherwise
+	 * @return true, if successful;
 	 */
 	private boolean applyAfterEdgeAddition(
 			DirectedWeightedEdge directedDoubleWeightedEdge) {
@@ -70,13 +70,11 @@ public class OverlapDirectedIntWeightedU extends OverlapDirectedIntWeighted {
 
 		if (isOutgoingMeasure()) {
 			this.increaseMatching(neighborsIn, newEdge.getSrc());
-			// Add a new neighbor
 			this.increaseAmountOfNeighbor(newEdge.getSrc(),
 					((IntWeight) newEdge.getWeight()).getWeight());
 
 		} else {
 			this.increaseMatching(neighborsOut, newEdge.getDst());
-			// Add a new neighbor
 			this.increaseAmountOfNeighbor(newEdge.getDst(),
 					((IntWeight) newEdge.getWeight()).getWeight());
 
@@ -117,7 +115,7 @@ public class OverlapDirectedIntWeightedU extends OverlapDirectedIntWeighted {
 	 * 
 	 * @param EdgeRemoval
 	 *            The update from the {@link Edge} which is to be removed.
-	 * @return true, if successful; false otherwise
+	 * @return true, if successful;
 	 */
 	private boolean applyBeforeEdgeRemoval(
 			DirectedWeightedEdge directedIntWeightedEdge) {
@@ -131,14 +129,12 @@ public class OverlapDirectedIntWeightedU extends OverlapDirectedIntWeighted {
 		if (isOutgoingMeasure()) {
 			this.decreaseMatching(this.getNeighborsIn(edgeToRemove.getDst()),
 					edgeToRemove.getSrc());
-			// Add a new neighbor
 			this.decreaseAmountOfNeighbor(edgeToRemove.getSrc(),
 					((IntWeight) edgeToRemove.getWeight()).getWeight());
 
 		} else {
 			this.decreaseMatching(this.getNeighborsOut(edgeToRemove.getSrc()),
 					edgeToRemove.getDst());
-			// Add a new neighbor
 			this.decreaseAmountOfNeighbor(edgeToRemove.getDst(),
 					((IntWeight) edgeToRemove.getWeight()).getWeight());
 
@@ -150,11 +146,11 @@ public class OverlapDirectedIntWeightedU extends OverlapDirectedIntWeighted {
 	/**
 	 * Called before the edge weight update is applied to the graph.
 	 * 
-	 * @param undirectedDoubleWeightedEdge
+	 * @param directedDoubleWeightedEdge
 	 *            The {@link Edge} whose edge weight changes.
 	 * @param weight
 	 *            The new weight of the Edge after the Update.
-	 * @return true, if successful; false otherwise
+	 * @return true, if successful;
 	 */
 	private boolean applyBeforeEdgeWeightUpdate(
 			DirectedWeightedEdge directedIntWeightedEdge, int weight) {
@@ -167,7 +163,7 @@ public class OverlapDirectedIntWeightedU extends OverlapDirectedIntWeighted {
 	 * 
 	 * @param NodeRemoval
 	 *            The update from the {@link Node} which is to be removed.
-	 * @return true, if successful; false otherwise
+	 * @return true, if successful;
 	 */
 	private boolean applyBeforeNodeRemoval(NodeRemoval u) {
 		final DirectedNode nodeToRemove = (DirectedNode) u.getNode();
@@ -176,7 +172,6 @@ public class OverlapDirectedIntWeightedU extends OverlapDirectedIntWeighted {
 		else
 			this.decreaseMatchingNodeRemove(this.getNeighborsOut(nodeToRemove));
 
-		// remove the node from the neighborNodes Map
 		this.decreaseAmountOfNeighbors(nodeToRemove);
 
 		for (IElement iterable_element : this.g.getNodes()) {
@@ -232,6 +227,15 @@ public class OverlapDirectedIntWeightedU extends OverlapDirectedIntWeighted {
 		return false;
 	}
 
+	/**
+	 * Applied the edge weight update to the graph.
+	 * 
+	 * @param directedIntWeightedEdge
+	 *            The {@link Edge} whose edge weight changes.
+	 * @param weight
+	 *            The new weight of the Edge after the Update.
+	 * @return true, if successful;
+	 */
 	private void applyEdgeWeightedUpdate(
 			DirectedWeightedEdge directedIntWeightedEdge, int weight) {
 		final DirectedWeightedEdge edgeToBeUpdated = directedIntWeightedEdge;
@@ -239,7 +243,6 @@ public class OverlapDirectedIntWeightedU extends OverlapDirectedIntWeighted {
 			this.decreaseMatching(
 					this.getNeighborsIn(edgeToBeUpdated.getDst()),
 					edgeToBeUpdated.getSrc());
-			// Add a new neighbor
 			this.decreaseAmountOfNeighbor(edgeToBeUpdated.getSrc(),
 					((IntWeight) edgeToBeUpdated.getWeight()).getWeight());
 
@@ -247,7 +250,6 @@ public class OverlapDirectedIntWeightedU extends OverlapDirectedIntWeighted {
 			this.decreaseMatching(
 					this.getNeighborsOut(edgeToBeUpdated.getSrc()),
 					edgeToBeUpdated.getDst());
-			// Add a new neighbor
 			this.decreaseAmountOfNeighbor(edgeToBeUpdated.getDst(),
 					((IntWeight) edgeToBeUpdated.getWeight()).getWeight());
 
@@ -261,13 +263,11 @@ public class OverlapDirectedIntWeightedU extends OverlapDirectedIntWeighted {
 
 		if (isOutgoingMeasure()) {
 			this.increaseMatching(neighborsIn, edgeToBeUpdated.getSrc());
-			// Add a new neighbor
 			this.increaseAmountOfNeighbor(edgeToBeUpdated.getSrc(),
 					((IntWeight) edgeToBeUpdated.getWeight()).getWeight());
 
 		} else {
 			this.increaseMatching(neighborsOut, edgeToBeUpdated.getDst());
-			// Add a new neighbor
 			this.increaseAmountOfNeighbor(edgeToBeUpdated.getDst(),
 					((IntWeight) edgeToBeUpdated.getWeight()).getWeight());
 

@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 
 import dna.graph.IElement;
+import dna.graph.edges.DirectedEdge;
 import dna.graph.nodes.DirectedNode;
 import dna.graph.nodes.Node;
 import dna.metrics.Metric;
@@ -14,12 +15,12 @@ import dna.series.data.Distribution;
 import dna.util.parameters.Parameter;
 
 /**
- * Computes the dice similarity measure for graphs with directed and unweighted
- * edges. The dice similarity of two nodes <i>n</i>, <i>m</i> is defined as the
- * number of elements in the intersection of <i>neighbors(n)</i> and
- * <i>neighbors(m)</i> multiplied by 2 and divided by elements of
- * <i>neighbors(n)</i> + elements of <i>neighbors(m)</i>. You can choose between
- * the dice of incoming and outgoing edges
+ * Computes the dice similarity measure for graphs with {@link DirectedNode}s
+ * and unweighted {@link DirectedEdge}s. The dice similarity of two nodes
+ * <i>n</i>, <i>m</i> is defined as the number of elements in the intersection
+ * of <i>neighbors(n)</i> and <i>neighbors(m)</i> multiplied by 2 and divided by
+ * elements of <i>neighbors(n)</i> + elements of <i>neighbors(m)</i>. You can
+ * choose between the dice of incoming and outgoing edges
  * 
  * @see DiceDirectedR
  * @see DiceDirectedU
@@ -29,10 +30,29 @@ public abstract class DiceDirected extends MeasuresDirectedUnweighted {
 	/** Contains the number of neighbors for each node */
 	protected HashMap<DirectedNode, Integer> amountOfNeighbors;
 
+	/**
+	 * Initializes {@link DiceDirected}.
+	 * 
+	 * @param name
+	 *            The name of the metric.
+	 * @param applicationType
+	 *            The {@link ApplicationType}, corresponding to the name.
+	 */
 	public DiceDirected(String name, ApplicationType applicationType) {
 		super(name, applicationType);
 	}
 
+	/**
+	 * Initializes {@link DiceDirected}.
+	 * 
+	 * @param name
+	 *            The name of the metric.
+	 * @param applicationType
+	 *            The {@link ApplicationType}, corresponding to the name.
+	 * @param directedDegreeType
+	 *            <i>in</i> or <i>out</i>, determining whether to use in- or
+	 *            outdegree for directed graphs
+	 */
 	public DiceDirected(String name, ApplicationType type,
 			Parameter directedDegreeType) {
 		super(name, type, directedDegreeType);

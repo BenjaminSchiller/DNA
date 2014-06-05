@@ -9,7 +9,7 @@ import dna.updates.update.Update;
  * The class implements the changes of {@link UndirectedNode}s and weighted
  * {@link UndirectedEdge}s by recompute the matching similarity measure.
  * 
- * @see MatchingUndirectedDoubleWeighted
+ * @see MatchingUndirectedIntWeighted
  */
 public class MatchingUndirectedIntWeightedR extends
 		MatchingUndirectedIntWeighted {

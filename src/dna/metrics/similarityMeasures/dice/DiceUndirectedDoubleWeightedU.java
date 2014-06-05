@@ -29,20 +29,20 @@ public class DiceUndirectedDoubleWeightedU extends DiceUndirectedDoubleWeighted 
 	 * Initializes {@link DiceUndirectedDoubleWeightedU}.
 	 */
 	public DiceUndirectedDoubleWeightedU() {
-		super("DiceUndirectedWeightedU", ApplicationType.BeforeAndAfterUpdate);
+		super("DiceUndirectedDoubleWeightedU",
+				ApplicationType.BeforeAndAfterUpdate);
 	}
 
 	@Override
 	public boolean applyAfterBatch(Batch b) {
 		return false;
 	}
-
 	/**
 	 * Called after the update is applied to the graph.
 	 * 
 	 * @param addedEdgeUpdate
 	 *            The update from the {@link Edge} which has been added.
-	 * @return true, if successful; false otherwise
+	 * @return true, if successful;
 	 */
 	private boolean applyAfterEdgeAddition(
 			UndirectedWeightedEdge undirectedDoubleWeightedEdge) {
@@ -57,8 +57,6 @@ public class DiceUndirectedDoubleWeightedU extends DiceUndirectedDoubleWeighted 
 
 		this.increaseMatching(neighborsNode2, newEdge.getNode1());
 
-		// Increasing the number of the neighbors of the two nodes of the edge
-		// by 1
 		this.increaseAmountOfNeighbor(newEdge.getNode1(),
 				((DoubleWeight) newEdge.getWeight()).getWeight());
 		this.increaseAmountOfNeighbor(newEdge.getNode2(),
@@ -101,7 +99,7 @@ public class DiceUndirectedDoubleWeightedU extends DiceUndirectedDoubleWeighted 
 	 * 
 	 * @param EdgeRemoval
 	 *            The update from the {@link Edge} which is to be removed.
-	 * @return true, if successful; false otherwise
+	 * @return true, if successful;
 	 */
 	private boolean applyBeforeEdgeRemoval(
 			UndirectedWeightedEdge undirectedDoubleWeightedEdge) {
@@ -110,15 +108,12 @@ public class DiceUndirectedDoubleWeightedU extends DiceUndirectedDoubleWeighted 
 				.getNeighborNodes(edgeToRemove.getNode1());
 		HashMap<UndirectedNode, Double> neighborsNode2 = this
 				.getNeighborNodes(edgeToRemove.getNode2());
-		// decrease the matching of every neighbor of each adjacent node by one
-		// because they each loose one node through the edge which is going to
-		// be removed
+
 		this.decreaseMatching(this.getNeighborNodes(edgeToRemove.getNode1()),
 				edgeToRemove.getNode2());
 		this.decreaseMatching(this.getNeighborNodes(edgeToRemove.getNode2()),
 				edgeToRemove.getNode1());
-		// Decreasing the number of the neighbors of the two nodes of the edge
-		// by 1
+
 		this.decreaseAmountOfNeighbor(edgeToRemove.getNode1(),
 				((DoubleWeight) edgeToRemove.getWeight()).getWeight());
 		this.decreaseAmountOfNeighbor(edgeToRemove.getNode2(),
@@ -136,7 +131,7 @@ public class DiceUndirectedDoubleWeightedU extends DiceUndirectedDoubleWeighted 
 	 *            The {@link Edge} whose edge weight changes.
 	 * @param weight
 	 *            The new weight of the Edge after the Update.
-	 * @return true, if successful; false otherwise
+	 * @return true, if successful;
 	 */
 	private boolean applyBeforeEdgeWeightUpdate(
 			UndirectedWeightedEdge undirectedDoubleWeightedEdge, double weight) {
@@ -149,14 +144,11 @@ public class DiceUndirectedDoubleWeightedU extends DiceUndirectedDoubleWeighted 
 	 * 
 	 * @param NodeRemoval
 	 *            The update from the {@link Node} which is to be removed.
-	 * @return true, if successful; false otherwise
+	 * @return true, if successful;
 	 */
 	private boolean applyBeforeNodeRemoval(NodeRemoval u) {
 		final UndirectedNode nodeToRemove = (UndirectedNode) u.getNode();
 
-		// System.out.println("Node Remove: " + nodeToRemove);
-		// decrease the matching of every neighbor of the removed node by one
-		// because the matching is this one node smaller
 		this.decreaseMatchingNodeRemove(this.getNeighborNodes(nodeToRemove));
 
 		this.decreaseAmountOfNeighbors(nodeToRemove);
@@ -210,6 +202,15 @@ public class DiceUndirectedDoubleWeightedU extends DiceUndirectedDoubleWeighted 
 		return false;
 	}
 
+	/**
+	 * Applied the edge weight update to the graph.
+	 * 
+	 * @param directedDoubleWeightedEdge
+	 *            The {@link Edge} whose edge weight changes.
+	 * @param weight
+	 *            The new weight of the Edge after the Update.
+	 * @return true, if successful;
+	 */
 	private void applyEdgeWeightedUpdate(
 			UndirectedWeightedEdge undirectedDoubleWeightedEdge, double weight) {
 
@@ -217,9 +218,6 @@ public class DiceUndirectedDoubleWeightedU extends DiceUndirectedDoubleWeighted 
 		final double edgeToBeUpdatedWeight = ((DoubleWeight) edgeToBeUpdated
 				.getWeight()).getWeight();
 
-		// decrease the matching of every neighbor of each adjacent node by one
-		// because they each loose one node through the edge which is going to
-		// be removed
 		this.decreaseMatching(
 				this.getNeighborNodes(edgeToBeUpdated.getNode1()),
 				edgeToBeUpdated.getNode2());
@@ -241,7 +239,6 @@ public class DiceUndirectedDoubleWeightedU extends DiceUndirectedDoubleWeighted 
 					(weight - edgeToBeUpdatedWeight));
 		}
 
-		// neues gewicht bei oldEdge setzen
 		edgeToBeUpdated.setWeight(new DoubleWeight(weight));
 
 		this.increaseMatching(
@@ -252,8 +249,6 @@ public class DiceUndirectedDoubleWeightedU extends DiceUndirectedDoubleWeighted 
 				this.getNeighborNodes(edgeToBeUpdated.getNode2()),
 				edgeToBeUpdated.getNode1());
 
-		// update the dice Measure of every neighbor of each adjacent with the
-		// new calculated values.
 		this.updateDirectNeighborsMeasure(
 				this.getNeighborNodes(edgeToBeUpdated.getNode1()),
 				edgeToBeUpdated.getNode2());
@@ -267,14 +262,13 @@ public class DiceUndirectedDoubleWeightedU extends DiceUndirectedDoubleWeighted 
 	}
 
 	/**
-	 * Decreases the number of neighbors of the given node by 1.
+	 * Decreases the number of neighbors of the given node.
 	 */
 	private void decreaseAmountOfNeighbor(UndirectedNode undirectedNode,
 			double weight) {
 		double aoN = this.amountOfNeighbors.get(undirectedNode) - weight;
 
 		if (aoN < 0.0 && Math.abs(aoN) <= 1.0E-4 || aoN > 0.0 && aoN < 1.0E-6) {
-			System.err.println("AOM  -- Dec");
 			aoN = 0.0;
 		}
 
@@ -282,7 +276,7 @@ public class DiceUndirectedDoubleWeightedU extends DiceUndirectedDoubleWeighted 
 	}
 
 	/**
-	 * Decreases the number of neighbors for each node by 1.
+	 * Decreases the number of neighbors for each node.
 	 * 
 	 * @see #decreaseAmountOfNeighbors(UndirectedNode)
 	 */
@@ -300,7 +294,7 @@ public class DiceUndirectedDoubleWeightedU extends DiceUndirectedDoubleWeighted 
 	}
 
 	/**
-	 * Increases the number of neighbors of the given node by 1.
+	 * Increases the number of neighbors of the given node by.
 	 */
 	private void increaseAmountOfNeighbor(UndirectedNode node, double weight) {
 		if (amountOfNeighbors.containsKey(node))
@@ -331,7 +325,6 @@ public class DiceUndirectedDoubleWeightedU extends DiceUndirectedDoubleWeighted 
 			this.binnedDistribution.decr(diceG);
 
 		if (fraction < 0.0 && Math.abs(fraction) <= 1.0E-4) {
-			System.err.println("Jetzt fraction minus");
 			fraction = 0.0;
 		}
 		this.result.put(node1, node2, fraction);

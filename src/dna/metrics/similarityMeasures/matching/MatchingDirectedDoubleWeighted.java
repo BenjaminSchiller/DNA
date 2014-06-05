@@ -6,8 +6,8 @@ import java.util.Map.Entry;
 
 import dna.graph.Graph;
 import dna.graph.IElement;
+import dna.graph.edges.DirectedEdge;
 import dna.graph.edges.DirectedWeightedEdge;
-import dna.graph.edges.Edge;
 import dna.graph.nodes.DirectedNode;
 import dna.graph.nodes.Node;
 import dna.graph.weights.DoubleWeight;
@@ -24,9 +24,14 @@ import dna.util.parameters.StringParameter;
 
 /**
  * Computes the similarity matching measure for graphs with {@link DirectedNode}
- * s and weighted {@link Edge}s. The similarity of two nodes <i>n</i>, <i>m</i>
- * is defined as the number of elements in the intersection of
+ * s and weighted {@link DirectedEdge}s. The similarity of two nodes <i>n</i>,
+ * <i>m</i> is defined as the number of elements in the intersection of
  * <i>neighbors(n)</i> and <i>neighbors(m)</i>.
+ * <p>
+ * <i>Note that due to {@code double} imprecisions, this metric may calculate
+ * wrong results when input edge weights or intermedia results are too
+ * small.</i>
+ * </p>
  * 
  * @see MatchingDirectedDoubleWeightedR
  * @see MatchingDirectedDoubleWeightedU
@@ -35,8 +40,11 @@ public abstract class MatchingDirectedDoubleWeighted extends Metric {
 
 	/** Contains the result for each matching. */
 	protected Matrix matchings;
+	/** If matching is for Incoming or Outgoing edges */
 	private String directedDegreeType;
+	/** Binned Distribution */
 	protected BinnedDistributionLong matchingDirectedWeightedD;
+	/** Average per Node Distribution */
 	protected BinnedDistributionLong binnedDistributionEveryNodeToOtherNodes;
 
 	/**

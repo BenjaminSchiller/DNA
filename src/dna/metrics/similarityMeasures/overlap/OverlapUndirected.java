@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 
 import dna.graph.IElement;
+import dna.graph.edges.UndirectedEdge;
 import dna.graph.nodes.Node;
 import dna.graph.nodes.UndirectedNode;
 import dna.metrics.Metric;
@@ -13,11 +14,11 @@ import dna.series.data.BinnedDistributionLong;
 import dna.series.data.Distribution;
 
 /**
- * Computes the overlap similarity measure for graphs with undirected and
- * unweighted edges. The overlap similarity of two nodes <i>n</i>, <i>m</i> is
- * defined as the number of elements in the intersection of <i>neighbors(n)</i>
- * and <i>neighbors(m)</i> divided by
- * min(|<i>neighbors(n)</i>|,|<i>neighbors(m)</i>|).
+ * Computes the overlap similarity measure for graphs with
+ * {@link UndirectedNode}s and unweighted {@link UndirectedEdge}s. The overlap
+ * similarity of two nodes <i>n</i>, <i>m</i> is defined as the number of
+ * elements in the intersection of <i>neighbors(n)</i> and <i>neighbors(m)</i>
+ * divided by min(|<i>neighbors(n)</i>|,|<i>neighbors(m)</i>|).
  * 
  * @see OverlapUndirectedR
  * @see OverlapUndirectedU
@@ -27,6 +28,15 @@ public abstract class OverlapUndirected extends MeasuresUndirectedUnweighted {
 	/** Contains the number of neighbors for each node */
 	protected HashMap<UndirectedNode, Integer> amountOfNeighbors;
 
+	/**
+	 * Initializes {@link OverlapUndirected}.
+	 * 
+	 * @param name
+	 *            The name of the metric.
+	 * @param applicationType
+	 *            The {@link ApplicationType}, corresponding to the name.
+	 * 
+	 */
 	public OverlapUndirected(String name, ApplicationType applicationType) {
 		super(name, applicationType);
 	}
