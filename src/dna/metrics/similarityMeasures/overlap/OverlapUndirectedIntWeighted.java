@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import dna.graph.IElement;
+import dna.graph.edges.UndirectedEdge;
 import dna.graph.nodes.Node;
 import dna.graph.nodes.UndirectedNode;
 import dna.metrics.Metric;
@@ -13,12 +14,13 @@ import dna.series.data.BinnedDistributionLong;
 import dna.series.data.Distribution;
 
 /**
- * Computes the overlap similarity measure for graphs with undirected and
- * weighted edges. The overlap similarity of two nodes <i>n</i>, <i>m</i> is
- * defined as the number of elements in the intersection of <i>neighbors(n)</i>
- * and <i>neighbors(m)</i> divided by
- * min(|<i>neighbors(n)</i>|,|<i>neighbors(m)</i>|).
- * 
+ * Computes the overlap similarity measure for graphs with
+ * {@link UndirectedNode}s and weighted {@link UndirectedEdge}s. The overlap
+ * similarity of two nodes <i>n</i>, <i>m</i> is defined as the number of
+ * elements in the intersection of <i>neighbors(n)</i> and <i>neighbors(m)</i>
+ * divided by min(|<i>neighbors(n)</i>|,|<i>neighbors(m)</i>|).
+ * <p><i>Note that due to {@code double} imprecisions, this metric may calculate wrong results when input edge weights or intermedia results are too small.</i></p>
+
  * @see OverlapUndirectedIntWeightedR
  * @see OverlapUndirectedIntWeightedU
  */
@@ -28,10 +30,20 @@ public abstract class OverlapUndirectedIntWeighted extends
 	/** Contains the number of neighbors for each node */
 	protected HashMap<UndirectedNode, Double> amountOfNeighbors;
 
+	/**
+	 * Initializes {@link OverlapUndirectedIntWeighted}.
+	 * 
+	 * @param name
+	 *            The name of the metric.
+	 * @param applicationType
+	 *            The {@link ApplicationType}, corresponding to the name.
+	 * 
+	 */
 	public OverlapUndirectedIntWeighted(String name,
 			ApplicationType applicationType) {
 		super(name, applicationType);
 	}
+
 
 	@Override
 	public boolean compute() {
@@ -88,12 +100,6 @@ public abstract class OverlapUndirectedIntWeighted extends
 	@Override
 	public boolean equals(Metric m) {
 		if (m != null && m instanceof OverlapUndirectedIntWeighted) {
-			// System.out.println(this.matching.toString());
-			// System.out.println(((OverlapUndirectedWeighted)
-			// m).matching.toString());
-			// System.out.println(this.overlapSimilarity.toString());
-			// System.out.println(((OverlapUndirectedWeighted)
-			// m).overlapSimilarity.toString());
 			return ((OverlapUndirectedIntWeighted) m).result.equals(
 					this.result, 1.0E-4);
 		}

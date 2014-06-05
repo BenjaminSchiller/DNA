@@ -68,6 +68,7 @@ public class Matrix {
 	 *         exist.
 	 */
 	public Double get(Node row, Node column) {
+		// triangular matrix
 		if (row.getIndex() < column.getIndex()) {
 			Node tmp = row;
 			row = column;
@@ -102,7 +103,7 @@ public class Matrix {
 	}
 
 	/**
-	 * Inserts given value at given row and column. If given row or column does
+	 * Inserts given value at given row and column(triangular matrix). If given row or column does
 	 * not exist yet, it will be created.
 	 * 
 	 * @param row

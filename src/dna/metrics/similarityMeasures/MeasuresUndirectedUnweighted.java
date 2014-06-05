@@ -16,16 +16,24 @@ import dna.series.data.Value;
 import dna.updates.batch.Batch;
 
 public abstract class MeasuresUndirectedUnweighted extends Metric {
-	/** Contains the result for each dice similarity measure. */
+	
+	/** Contains the result for each similarity measure. */
 	protected Matrix result;
-
 	/** Contains the result for each matching measure */
 	protected Matrix matching;
-
+	/** Binned Distribution */
 	protected BinnedDistributionLong binnedDistribution;
-
+	/** Average per Node Distribution */
 	protected BinnedDistributionLong binnedDistributionEveryNodeToOtherNodes;
 
+	/**
+	 * Initializes {@link UndirectedEdge} measure.
+	 * 
+	 * @param name
+	 *            The name of the metric
+	 * @param applicationType
+	 *            The {@link ApplicationType}, corresponding to the name.
+	 */
 	public MeasuresUndirectedUnweighted(String name,
 			ApplicationType applicationType) {
 		super(name, applicationType, MetricType.exact);
@@ -137,8 +145,6 @@ public abstract class MeasuresUndirectedUnweighted extends Metric {
 		return new NodeValueList[] {};
 	}
 
-	// Update Teil
-
 	@Override
 	public Value[] getValues() {
 		Value v1 = new Value("avarage",
@@ -181,23 +187,22 @@ public abstract class MeasuresUndirectedUnweighted extends Metric {
 	protected void update(UndirectedEdge newEdge,
 			HashSet<UndirectedNode> neighborsNode1,
 			HashSet<UndirectedNode> neighborsNode2) {
-		// update the dice Measure of every neighbor of each adjacent with the
-		// new calculated values.
-		// war: updateDirectNeighborsDiceMeasures
 		this.updateDirectNeighborsMeasures(neighborsNode1);
 		this.updateDirectNeighborsMeasures(neighborsNode2);
-		// war: updateDiceMeasureMatching
+		
 		this.updateMeasureMatching(newEdge.getNode1(), newEdge.getNode2());
 		this.updateMeasureMatching(newEdge.getNode2(), newEdge.getNode1());
 	}
-
+	
+	/**
+	 * Update method that will be replaced by the respective specific similarity measure method. 
+	 */
 	protected void update(UndirectedNode node1, UndirectedNode undirected2) {
-		// TODO Auto-generated method stub
 
 	}
 
 	/**
-	 * Calculates the new dice similarity measure for each node.
+	 * Calculates the new similarity measure for each direct neighbor node.
 	 * 
 	 * @param undirectedNode
 	 */
@@ -213,7 +218,9 @@ public abstract class MeasuresUndirectedUnweighted extends Metric {
 	}
 
 	/**
-	 * Update the dice Measure in the matching range.
+	 * Update the similarity measure if a node is to be removed
+	 * 
+	 * @param nodeToRemove
 	 */
 	protected void updateMeasureMatching(UndirectedNode node1,
 			UndirectedNode node2) {

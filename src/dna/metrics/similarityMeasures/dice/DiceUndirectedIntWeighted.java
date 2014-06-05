@@ -3,6 +3,7 @@ package dna.metrics.similarityMeasures.dice;
 import java.util.HashMap;
 
 import dna.graph.IElement;
+import dna.graph.edges.UndirectedEdge;
 import dna.graph.nodes.Node;
 import dna.graph.nodes.UndirectedNode;
 import dna.metrics.Metric;
@@ -12,14 +13,19 @@ import dna.series.data.BinnedDistributionLong;
 import dna.series.data.Distribution;
 
 /**
- * Computes the dice similarity measure for graphs with undirected and weighted
- * edges. The dice similarity of two nodes <i>n</i>, <i>m</i> is defined as the
- * number of elements in the intersection of <i>neighbors(n)</i> and
- * <i>neighbors(m)</i> multiplied by 2 and divided by elements of
- * <i>neighbors(n)</i> + elements of <i>neighbors(m)</i>.
+ * Computes the dice similarity measure for graphs with {@link UndirectedNode}s
+ * and weighted {@link UndirectedEdge}s. The dice similarity of two nodes
+ * <i>n</i>, <i>m</i> is defined as the number of elements in the intersection
+ * of <i>neighbors(n)</i> and <i>neighbors(m)</i> multiplied by 2 and divided by
+ * elements of <i>neighbors(n)</i> + elements of <i>neighbors(m)</i>.
+ * <p>
+ * <i>Note that due to {@code double} imprecisions, this metric may calculate
+ * wrong results when input edge weights or intermedia results are too
+ * small.</i>
+ * </p>
  * 
- * @see DiceUndirectedDoubleWeightedR
- * @see DiceUndirectedDoubleWeightedU
+ * @see DiceUndirectedIntWeightedR
+ * @see DiceUndirectedIntWeightedU
  */
 public abstract class DiceUndirectedIntWeighted extends
 		MeasuresUndirectedIntWeighted {
@@ -27,10 +33,17 @@ public abstract class DiceUndirectedIntWeighted extends
 	/** Contains the number of neighbors for each node */
 	protected HashMap<UndirectedNode, Double> amountOfNeighbors;
 
+	/**
+	 * Initializes {@link DiceUndirectedIntWeighted}.
+	 * 
+	 * @param name
+	 *            The name of the metric.
+	 * @param applicationType
+	 *            The {@link ApplicationType}, corresponding to the name.
+	 */
 	public DiceUndirectedIntWeighted(String name,
 			ApplicationType applicationType) {
 		super(name, applicationType);
-		// TODO Auto-generated constructor stub
 	}
 
 	@Override
@@ -123,8 +136,6 @@ public abstract class DiceUndirectedIntWeighted extends
 	 */
 	private double getFraction(HashMap<UndirectedNode, Integer> neighbors1,
 			HashMap<UndirectedNode, Integer> neighbors2) {
-		// numerator and denominator of the fraction
-		// # intersection
 		double intersection = getMapValueSum(getMatching(neighbors1, neighbors2));
 		double numerator = 2 * intersection;
 		double denominator = getMapValueSum(neighbors1)

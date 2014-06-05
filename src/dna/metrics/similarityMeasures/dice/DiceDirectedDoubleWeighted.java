@@ -3,6 +3,7 @@ package dna.metrics.similarityMeasures.dice;
 import java.util.HashMap;
 
 import dna.graph.IElement;
+import dna.graph.edges.DirectedEdge;
 import dna.graph.nodes.DirectedNode;
 import dna.graph.nodes.Node;
 import dna.metrics.Metric;
@@ -13,32 +14,53 @@ import dna.series.data.Distribution;
 import dna.util.parameters.Parameter;
 
 /**
- * Computes the dice similarity measure for graphs with directed and weighted
- * edges. The dice similarity of two nodes <i>n</i>, <i>m</i> is defined as the
- * number of elements in the intersection of <i>neighbors(n)</i> and
- * <i>neighbors(m)</i> multiplied by 2 and divided by elements of
- * <i>neighbors(n)</i> + elements of <i>neighbors(m)</i>. You can choose between
- * the dice of incoming and outgoing edges
+ * Computes the dice similarity measure for graphs with{@link DirectedNode}s and
+ * weighted {@link DirectedEdge}s. The dice similarity of two nodes <i>n</i>,
+ * <i>m</i> is defined as the number of elements in the intersection of
+ * <i>neighbors(n)</i> and <i>neighbors(m)</i> multiplied by 2 and divided by
+ * elements of <i>neighbors(n)</i> + elements of <i>neighbors(m)</i>. You can
+ * choose between the dice of incoming and outgoing edges
+ * <p>
+ * <i>Note that due to {@code double} imprecisions, this metric may calculate
+ * wrong results when input edge weights or intermedia results are too
+ * small.</i>
+ * </p>
  * 
  * @see DiceDirectedDoubleWeightedR
  * @see DiceDirectedDoubleWeightedU
  */
 public abstract class DiceDirectedDoubleWeighted extends
 		MeasuresDirectedDoubleWeighted {
-
 	/** Contains the number of neighbors for each node */
 	protected HashMap<DirectedNode, Double> amountOfNeighbors;
 
+	/**
+	 * Initializes {@link DiceDirectedDoubleWeighted}.
+	 * 
+	 * @param name
+	 *            The name of the metric.
+	 * @param applicationType
+	 *            The {@link ApplicationType}, corresponding to the name.
+	 */
 	public DiceDirectedDoubleWeighted(String name,
 			ApplicationType applicationType) {
 		super(name, applicationType);
-		// TODO Auto-generated constructor stub
 	}
 
+	/**
+	 * Initializes {@link DiceDirectedDoubleWeighted}.
+	 * 
+	 * @param name
+	 *            The name of the metric.
+	 * @param applicationType
+	 *            The {@link ApplicationType}, corresponding to the name.
+	 * @param directedDegreeType
+	 *            <i>in</i> or <i>out</i>, determining whether to use in- or
+	 *            outdegree for directed graphs
+	 */
 	public DiceDirectedDoubleWeighted(String name, ApplicationType type,
 			Parameter directedDegreeType) {
 		super(name, type, directedDegreeType);
-		// TODO Auto-generated constructor stub
 	}
 
 	@Override
@@ -57,8 +79,6 @@ public abstract class DiceDirectedDoubleWeighted extends
 			node1 = (DirectedNode) iElement1;
 			neighbors1 = this.getNeighborNodes(node1);
 			amountOfNeighbors.put(node1, this.getMapValueSum(neighbors1));
-			// System.out.println("Achtung Amount : "
-			// + amountOfNeighbors.get(node1));
 			nodeIndex2 = 0;
 			for (IElement iElement2 : nodesOfGraph) {
 				if (nodeIndex2 < nodeIndex1) {
@@ -91,9 +111,6 @@ public abstract class DiceDirectedDoubleWeighted extends
 	@Override
 	public boolean equals(Metric m) {
 		if (m != null && m instanceof DiceDirectedDoubleWeighted) {
-			// System.out.println(diceSimilarity.toString());
-			// System.out.println(((DiceDirectedDoubleWeighted)
-			// m).diceSimilarity.toString());
 			return ((DiceDirectedDoubleWeighted) m).result.equals(this.result,
 					1.0E-4);
 		}
@@ -136,8 +153,6 @@ public abstract class DiceDirectedDoubleWeighted extends
 	 */
 	private double getFraction(HashMap<DirectedNode, Double> neighbors1,
 			HashMap<DirectedNode, Double> neighbors2) {
-		// numerator and denominator of the fraction
-		// # intersection
 		double intersection = getMapValueSum(getMatching(neighbors1, neighbors2));
 		double numerator = 2 * intersection;
 		double denominator = getMapValueSum(neighbors1)

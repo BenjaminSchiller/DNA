@@ -6,6 +6,7 @@ import dna.updates.batch.Batch;
 import dna.updates.update.Update;
 import dna.util.parameters.Parameter;
 
+
 /**
  * The class implements the changes of {@link DirectedNode}s and weighted
  * {@link DirectedEdge}s by recompute the dice similarity measure.
@@ -15,11 +16,10 @@ import dna.util.parameters.Parameter;
 public class DiceDirectedDoubleWeightedR extends DiceDirectedDoubleWeighted {
 
 	/**
-	 * Initializes {@link DiceDirectedDoubleWeightedR}. Implicitly sets degree
-	 * type for directed graphs to outdegree.
+	 * Initializes {@link DiceDirectedDoubleWeightedR}.
 	 */
 	public DiceDirectedDoubleWeightedR() {
-		super("DiceDirectedWeightedR", ApplicationType.Recomputation);
+		super("DiceDirectedDoubleWeightedR", ApplicationType.Recomputation);
 	}
 
 	/**
@@ -30,7 +30,7 @@ public class DiceDirectedDoubleWeightedR extends DiceDirectedDoubleWeighted {
 	 *            outdegree for directed graphs
 	 */
 	public DiceDirectedDoubleWeightedR(Parameter directedDegreeType) {
-		super("DiceDirectedWeightedR", ApplicationType.Recomputation,
+		super("DiceDirectedDoubleWeightedR", ApplicationType.Recomputation,
 				directedDegreeType);
 	}
 

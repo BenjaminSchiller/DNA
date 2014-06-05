@@ -19,6 +19,7 @@ import dna.updates.update.NodeRemoval;
 import dna.updates.update.Update;
 
 /**
+/**
  * The class implements the changes of {@link UndirectedNode}s and weighted
  * {@link UndirectedEdge}s by updating the overlap similarity measure.
  * 
@@ -45,7 +46,7 @@ public class OverlapUndirectedDoubleWeightedU extends
 	 * 
 	 * @param addedEdgeUpdate
 	 *            The update from the {@link Edge} which has been added.
-	 * @return true, if successful; false otherwise
+	 * @return true, if successful;
 	 */
 	private boolean applyAfterEdgeAddition(
 			UndirectedWeightedEdge undirectedDoubleWeightedEdge) {
@@ -60,8 +61,6 @@ public class OverlapUndirectedDoubleWeightedU extends
 
 		this.increaseMatching(neighborsNode2, newEdge.getNode1());
 
-		// Increasing the number of the neighbors of the two nodes of the edge
-		// by 1
 		this.increaseAmountOfNeighbor(newEdge.getNode1(),
 				((DoubleWeight) newEdge.getWeight()).getWeight());
 		this.increaseAmountOfNeighbor(newEdge.getNode2(),
@@ -104,7 +103,7 @@ public class OverlapUndirectedDoubleWeightedU extends
 	 * 
 	 * @param EdgeRemoval
 	 *            The update from the {@link Edge} which is to be removed.
-	 * @return true, if successful; false otherwise
+	 * @return true, if successful;
 	 */
 	private boolean applyBeforeEdgeRemoval(
 			UndirectedWeightedEdge undirectedDoubleWeightedEdge) {
@@ -115,13 +114,9 @@ public class OverlapUndirectedDoubleWeightedU extends
 		HashMap<UndirectedNode, Double> neighborsNode2 = this
 				.getNeighborNodes(edgeToRemove.getNode2());
 
-		// decrease the matching of every neighbor of each adjacent node by one
-		// because they each loose one node through the edge which is going to
-		// be removed
 		this.decreaseMatching(neighborsNode1, edgeToRemove.getNode2());
 		this.decreaseMatching(neighborsNode2, edgeToRemove.getNode1());
-		// Decreasing the number of the neighbors of the two nodes of the edge
-		// by 1
+
 		this.decreaseAmountOfNeighbor(edgeToRemove.getNode1(),
 				((DoubleWeight) edgeToRemove.getWeight()).getWeight());
 		this.decreaseAmountOfNeighbor(edgeToRemove.getNode2(),
@@ -142,12 +137,11 @@ public class OverlapUndirectedDoubleWeightedU extends
 	 * 
 	 * @param NodeRemoval
 	 *            The update from the {@link Node} which is to be removed.
-	 * @return true, if successful; false otherwise
+	 * @return true, if successful;
 	 */
 	private boolean applyBeforeNodeRemoval(NodeRemoval u) {
 		final UndirectedNode nodeToRemove = (UndirectedNode) u.getNode();
-		// decrease the matching of every neighbor of the removed node by one
-		// because the matching is this one node smaller
+
 		this.decreaseMatchingNodeRemove(this.getNeighborNodes(nodeToRemove));
 
 		this.decreaseAmountOfNeighbors(nodeToRemove);
@@ -201,21 +195,27 @@ public class OverlapUndirectedDoubleWeightedU extends
 		return false;
 	}
 
+	/**
+	 * Applied the edge weight update to the graph.
+	 * 
+	 * @param undirectedDoubleWeightedEdge
+	 *            The {@link Edge} whose edge weight changes.
+	 * @param weight
+	 *            The new weight of the Edge after the Update.
+	 * @return true, if successful;
+	 */
 	private void applyEdgeWeightedUpdate(
 			UndirectedWeightedEdge undirectedDoubleWeightedEdge, double weight) {
 
 		final UndirectedWeightedEdge edgeToBeUpdated = undirectedDoubleWeightedEdge;
-		// decrease the matching of every neighbor of each adjacent node by one
-		// because they each loose one node through the edge which is going to
-		// be removed
+
 		this.decreaseMatching(
 				this.getNeighborNodes(edgeToBeUpdated.getNode1()),
 				edgeToBeUpdated.getNode2());
 		this.decreaseMatching(
 				this.getNeighborNodes(edgeToBeUpdated.getNode2()),
 				edgeToBeUpdated.getNode1());
-		// Decreasing the number of the neighbors of the two nodes of the edge
-		// by 1
+
 		this.decreaseAmountOfNeighbor(edgeToBeUpdated.getNode1(),
 				((DoubleWeight) edgeToBeUpdated.getWeight()).getWeight());
 		this.decreaseAmountOfNeighbor(edgeToBeUpdated.getNode2(),
@@ -232,8 +232,6 @@ public class OverlapUndirectedDoubleWeightedU extends
 
 		this.increaseMatching(neighborsNode2, edgeToBeUpdated.getNode1());
 
-		// Increasing the number of the neighbors of the two nodes of the edge
-		// by 1
 		this.increaseAmountOfNeighbor(edgeToBeUpdated.getNode1(),
 				((DoubleWeight) edgeToBeUpdated.getWeight()).getWeight());
 		this.increaseAmountOfNeighbor(edgeToBeUpdated.getNode2(),
@@ -243,14 +241,13 @@ public class OverlapUndirectedDoubleWeightedU extends
 	}
 
 	/**
-	 * Decreases the number of neighbors of the given node by 1.
+	 * Decreases the number of neighbors of the given node.
 	 */
 	private void decreaseAmountOfNeighbor(UndirectedNode undirectedNode,
 			double weight) {
 		double aoN = this.amountOfNeighbors.get(undirectedNode) - weight;
 
 		if (aoN < 0.0 && Math.abs(aoN) <= 1.0E-4 || aoN > 0.0 && aoN < 1.0E-6) {
-			System.err.println("AOM  -- Dec");
 			aoN = 0.0;
 		}
 
@@ -258,7 +255,7 @@ public class OverlapUndirectedDoubleWeightedU extends
 	}
 
 	/**
-	 * Decreases the number of neighbors for each node by 1.
+	 * Decreases the number of neighbors for each node.
 	 * 
 	 * @see #decreaseAmountOfNeighbors(UndirectedNode)
 	 */
@@ -276,7 +273,7 @@ public class OverlapUndirectedDoubleWeightedU extends
 	}
 
 	/**
-	 * Increases the number of neighbors of the given node by 1.
+	 * Increases the number of neighbors of the given node.
 	 */
 	private void increaseAmountOfNeighbor(UndirectedNode node, double weight) {
 		if (amountOfNeighbors.containsKey(node))

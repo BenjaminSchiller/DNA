@@ -6,6 +6,7 @@ import java.util.Map.Entry;
 
 import dna.graph.Graph;
 import dna.graph.IElement;
+import dna.graph.edges.UndirectedEdge;
 import dna.graph.edges.UndirectedWeightedEdge;
 import dna.graph.nodes.Node;
 import dna.graph.nodes.UndirectedNode;
@@ -20,10 +21,10 @@ import dna.series.data.Value;
 import dna.updates.batch.Batch;
 
 /**
- * Computes the similarity matching measure for graphs with undirected and
- * weighted edges. The similarity of two nodes <i>n</i>, <i>m</i> is defined as
- * the number of elements in the intersection of <i>neighbors(n)</i> and
- * <i>neighbors(m)</i>.
+ * Computes the similarity matching measure for graphs with
+ * {@link UndirectedNode}s and weighted {@link UndirectedEdge}s. The similarity
+ * of two nodes <i>n</i>, <i>m</i> is defined as the number of elements in the
+ * intersection of <i>neighbors(n)</i> and <i>neighbors(m)</i>.
  * 
  * @see MatchingUndirectedIntWeightedR
  * @see MatchingUndirectedIntWeightedU
@@ -31,9 +32,9 @@ import dna.updates.batch.Batch;
 public abstract class MatchingUndirectedIntWeighted extends Metric {
 	/** Contains the result for each matching. */
 	protected Matrix matchings;
-
+	/** Binned Distribution */
 	protected BinnedDistributionLong matchingUndirectedWeightedD;
-
+	/** Average per Node Distribution */
 	protected BinnedDistributionLong binnedDistributionEveryNodeToOtherNodes;
 
 	/**

@@ -17,7 +17,7 @@ public class DiceUndirectedDoubleWeightedR extends DiceUndirectedDoubleWeighted 
 	 * Initializes {@link DiceUndirectedDoubleWeightedR}
 	 */
 	public DiceUndirectedDoubleWeightedR() {
-		super("DiceUndirectedR", ApplicationType.Recomputation);
+		super("DiceUndirectedDoubleWeightedR", ApplicationType.Recomputation);
 	}
 
 	@Override

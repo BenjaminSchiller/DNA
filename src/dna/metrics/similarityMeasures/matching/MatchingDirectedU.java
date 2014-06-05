@@ -54,7 +54,7 @@ public class MatchingDirectedU extends MatchingDirected {
 	 * 
 	 * @param addedEdgeUpdate
 	 *            The update from the {@link DirectedEdge} which has been added.
-	 * @return true, if successful; false otherwise
+	 * @return true, if successful;
 	 */
 	private boolean applyAfterEdgeAddition(EdgeAddition u) {
 		final DirectedEdge newEdge = (DirectedEdge) u.getEdge();
@@ -94,7 +94,7 @@ public class MatchingDirectedU extends MatchingDirected {
 	 * 
 	 * @param EdgeRemoval
 	 *            The update from the {@link Edge} which is to be removed.
-	 * @return true, if successful; false otherwise
+	 * @return true, if successful;
 	 */
 	private boolean applyBeforeEdgeRemoval(EdgeRemoval u) {
 		final DirectedEdge edgeToRemove = (DirectedEdge) u.getEdge();
@@ -113,7 +113,7 @@ public class MatchingDirectedU extends MatchingDirected {
 	 * 
 	 * @param NodeRemoval
 	 *            The update from the {@link Node} which is to be removed.
-	 * @return true, if successful; false otherwise
+	 * @return true, if successful; 
 	 */
 	private boolean applyBeforeNodeRemoval(NodeRemoval u) {
 		final DirectedNode nodeToRemove = (DirectedNode) u.getNode();

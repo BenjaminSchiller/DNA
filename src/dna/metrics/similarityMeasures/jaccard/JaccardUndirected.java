@@ -5,6 +5,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import dna.graph.IElement;
+import dna.graph.edges.UndirectedEdge;
 import dna.graph.nodes.Node;
 import dna.graph.nodes.UndirectedNode;
 import dna.metrics.Metric;
@@ -14,11 +15,12 @@ import dna.series.data.BinnedDistributionLong;
 import dna.series.data.Distribution;
 
 /**
- * Computes the jaccard similarity measure for graphs with undirected and
- * unweighted edges. The jaccard similarity of two nodes <i>n</i>, <i>m</i> is
- * defined as the number of elements in the intersection of <i>neighbors(n)</i>
- * and <i>neighbors(m)</i> divided by the elements of the union of
- * <i>neighbors(n)</i> and <i>neighbors(m)</i>.
+ * Computes the jaccard similarity measure for graphs with
+ * {@link UndirectedNode} s and unweighted {@link UndirectedEdge}s. The jaccard
+ * similarity of two nodes <i>n</i>, <i>m</i> is defined as the number of
+ * elements in the intersection of <i>neighbors(n)</i> and <i>neighbors(m)</i>
+ * divided by the elements of the union of <i>neighbors(n)</i> and
+ * <i>neighbors(m)</i>.
  * 
  * @see JaccardUndirectedR
  * @see JaccardUndirectedU
@@ -28,9 +30,17 @@ public abstract class JaccardUndirected extends MeasuresUndirectedUnweighted {
 	/** Contains the neighbors to each node */
 	protected HashMap<Node, HashSet<UndirectedNode>> neighborNodes;
 
+	/**
+	 * Initializes {@link JaccardUndirected}.
+	 * 
+	 * @param name
+	 *            The name of the metric.
+	 * @param applicationType
+	 *            The {@link ApplicationType}, corresponding to the name.
+	 * 
+	 */
 	public JaccardUndirected(String name, ApplicationType applicationType) {
 		super(name, applicationType);
-		// TODO Auto-generated constructor stub
 	}
 
 	@Override

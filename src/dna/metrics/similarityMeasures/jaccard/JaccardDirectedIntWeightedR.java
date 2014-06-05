@@ -15,8 +15,7 @@ import dna.util.parameters.Parameter;
 public class JaccardDirectedIntWeightedR extends JaccardDirectedIntWeighted {
 
 	/**
-	 * Initializes {@link JaccardDirectedIntWeightedR}. Implicitly sets degree
-	 * type for directed graphs to outdegree.
+	 * Initializes {@link JaccardDirectedIntWeightedR}.
 	 */
 	public JaccardDirectedIntWeightedR() {
 		super("JaccardDirectedIntWeightedR", ApplicationType.Recomputation);

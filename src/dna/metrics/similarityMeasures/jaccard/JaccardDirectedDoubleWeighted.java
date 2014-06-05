@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import dna.graph.IElement;
+import dna.graph.edges.DirectedEdge;
 import dna.graph.nodes.DirectedNode;
 import dna.graph.nodes.Node;
 import dna.metrics.Metric;
@@ -15,12 +16,17 @@ import dna.series.data.Distribution;
 import dna.util.parameters.Parameter;
 
 /**
- * Computes the jaccard similarity measure for graphs with directed and weighted
- * edges. The jaccard similarity of two nodes <i>n</i>, <i>m</i> is defined as
- * the number of elements in the intersection of <i>neighbors(n)</i> and
- * <i>neighbors(m)</i> divided by the elements of the union of
- * <i>neighbors(n)</i> and <i>neighbors(m)</i>. You can choose between the
- * jaccard of incoming and outgoing edges
+ * Computes the jaccard similarity measure for graphs with {@link DirectedNode}s
+ * and weighted {@link DirectedEdge}s. The jaccard similarity of two nodes
+ * <i>n</i>, <i>m</i> is defined as the number of elements in the intersection
+ * of <i>neighbors(n)</i> and <i>neighbors(m)</i> divided by the elements of the
+ * union of <i>neighbors(n)</i> and <i>neighbors(m)</i>. You can choose between
+ * the jaccard of incoming and outgoing edges
+ * <p>
+ * <i>Note that due to {@code double} imprecisions, this metric may calculate
+ * wrong results when input edge weights or intermedia results are too
+ * small.</i>
+ * </p>
  * 
  * @see JaccardDirectedDoubleWeightedR
  * @see JaccardDirectedDoubleWeightedU
@@ -28,13 +34,33 @@ import dna.util.parameters.Parameter;
 public abstract class JaccardDirectedDoubleWeighted extends
 		MeasuresDirectedDoubleWeighted {
 
+	/** Contains the neighbors to each node */
 	protected HashMap<Node, HashMap<DirectedNode, Double>> neighborNodes;
 
+	/**
+	 * Initializes {@link JaccardDirectedIntWeighted}.
+	 * 
+	 * @param name
+	 *            The name of the metric.
+	 * @param applicationType
+	 *            The {@link ApplicationType}, corresponding to the name.
+	 */
 	public JaccardDirectedDoubleWeighted(String name,
 			ApplicationType applicationType) {
 		super(name, applicationType);
 	}
 
+	/**
+	 * Initializes {@link JaccardDirectedIntWeighted}.
+	 * 
+	 * @param name
+	 *            The name of the metric.
+	 * @param applicationType
+	 *            The {@link ApplicationType}, corresponding to the name.
+	 * @param directedDegreeType
+	 *            <i>in</i> or <i>out</i>, determining whether to use in- or
+	 *            outdegree for directed graphs
+	 */
 	public JaccardDirectedDoubleWeighted(String name, ApplicationType type,
 			Parameter directedDegreeType) {
 		super(name, type, directedDegreeType);
@@ -58,7 +84,7 @@ public abstract class JaccardDirectedDoubleWeighted extends
 			nodeIndex2 = 0;
 			for (IElement iElement2 : nodesOfGraph) {
 				if (nodeIndex2 < nodeIndex1) {
-					// matching is equal to equivalent calculated before
+					// jaccard is equal to equivalent calculated before
 					// (jaccardSimilarity(1,2) = jaccardSimilarity(2,1))
 					nodeIndex2++;
 					continue;

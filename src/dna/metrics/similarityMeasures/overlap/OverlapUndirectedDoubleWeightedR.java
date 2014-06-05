@@ -18,7 +18,7 @@ public class OverlapUndirectedDoubleWeightedR extends
 	 * Initializes {@link OverlapUndirectedDoubleWeightedR}
 	 */
 	public OverlapUndirectedDoubleWeightedR() {
-		super("OverlapUndirectedR", ApplicationType.Recomputation);
+		super("OverlapUndirectedDoubleWeightedR", ApplicationType.Recomputation);
 	}
 
 	@Override

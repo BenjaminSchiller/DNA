@@ -10,16 +10,15 @@ import dna.util.parameters.Parameter;
  * The class implements the changes of {@link DirectedNode}s and weighted
  * {@link DirectedEdge}s by recompute the overlap similarity measure.
  * 
- * @see OverlapDirectedDoubleWeighted
+ * @see OverlapDirectedIntWeighted
  */
 public class OverlapDirectedIntWeightedR extends OverlapDirectedIntWeighted {
 
 	/**
-	 * Initializes {@link OverlapDirectedIntWeightedR}. Implicitly sets degree
-	 * type for directed graphs to outdegree.
+	 * Initializes {@link OverlapDirectedIntWeightedR}.
 	 */
 	public OverlapDirectedIntWeightedR() {
-		super("OverlapDirectedWeightedR", ApplicationType.Recomputation);
+		super("OverlapDirectedIntWeightedR", ApplicationType.Recomputation);
 	}
 
 	/**
@@ -30,7 +29,7 @@ public class OverlapDirectedIntWeightedR extends OverlapDirectedIntWeighted {
 	 *            outdegree for directed graphs
 	 */
 	public OverlapDirectedIntWeightedR(Parameter directedDegreeType) {
-		super("OverlapDirectedWeightedR", ApplicationType.Recomputation,
+		super("OverlapDirectedIntWeightedR", ApplicationType.Recomputation,
 				directedDegreeType);
 	}
 

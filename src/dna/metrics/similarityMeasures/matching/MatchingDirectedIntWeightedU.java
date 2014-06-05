@@ -22,11 +22,10 @@ import dna.updates.update.Update;
 import dna.util.parameters.Parameter;
 
 /**
- * The class implements the changes of {@link DirectedNode}s and unweighted
- * {@link DirectedDoubleWeightedEdge}s by updating the matching similarity
- * measure.
+ * The class implements the changes of {@link DirectedNode}s and weighted
+ * {@link DirectedEdge}s by updating the matching similarity measure.
  * 
- * @see MatchingDirectedDoubleWeighted
+ * @see MatchingDirectedIntWeighted
  */
 public class MatchingDirectedIntWeightedU extends MatchingDirectedIntWeighted {
 
@@ -59,9 +58,9 @@ public class MatchingDirectedIntWeightedU extends MatchingDirectedIntWeighted {
 	/**
 	 * Called after the update is applied to the graph.
 	 * 
-	 * @param directedDoubleWeightedEdge
+	 * @param directedIntWeightedEdge
 	 *            The update from the {@link Edge} which has been added.
-	 * @return true, if successful; false otherwise
+	 * @return true, if successful;
 	 */
 	private boolean applyAfterEdgeAddition(
 			DirectedWeightedEdge directedIntWeightedEdge) {
@@ -80,9 +79,6 @@ public class MatchingDirectedIntWeightedU extends MatchingDirectedIntWeighted {
 	public boolean applyAfterUpdate(Update u) {
 		if (u instanceof NodeAddition)
 			for (IElement iterable_element : this.g.getNodes()) {
-				Node node = (Node) iterable_element;
-				// if (!(node.getIndex() == ((NodeAddition) u).getNode()
-				// .getIndex()))
 				this.matchingDirectedWeightedD.incr(0.0);
 			}
 		else if (u instanceof NodeRemoval)
@@ -111,7 +107,7 @@ public class MatchingDirectedIntWeightedU extends MatchingDirectedIntWeighted {
 	 * 
 	 * @param EdgeRemoval
 	 *            The update from the {@link Edge} which is to be removed.
-	 * @return true, if successful; false otherwise
+	 * @return true, if successful; 
 	 */
 	private boolean applyBeforeEdgeRemoval(
 			DirectedWeightedEdge directedIntWeightedEdge) {
@@ -132,19 +128,13 @@ public class MatchingDirectedIntWeightedU extends MatchingDirectedIntWeighted {
 	 *            The {@link Edge} whose edge weight changes.
 	 * @param weight
 	 *            The new weight of the Edge after the Update.
-	 * @return true, if successful; false otherwise
+	 * @return true, if successful;
 	 */
 	private boolean applyBeforeEdgeWeightUpdate(
 			DirectedWeightedEdge directedIntWeightedEdge, int weight) {
-		// System.err.println("Jetzt gewichtsupdate");
-		// System.out.println("AKT Kantengewicht: " +
-		// directedIntWeightedEdge.getWeight() + " nach dem Update: " + weight);
+
 		applyBeforeEdgeRemoval(directedIntWeightedEdge);
-		// System.out.println("vor update: " +
-		// directedIntWeightedEdge.getWeight());
 		directedIntWeightedEdge.setWeight(new IntWeight(weight));
-		// System.out.println("nach update: " +
-		// directedIntWeightedEdge.getWeight());
 		applyAfterEdgeAddition(directedIntWeightedEdge);
 		return false;
 	}
@@ -154,7 +144,7 @@ public class MatchingDirectedIntWeightedU extends MatchingDirectedIntWeighted {
 	 * 
 	 * @param NodeRemoval
 	 *            The update from the {@link Node} which is to be removed.
-	 * @return true, if successful; false otherwise
+	 * @return true, if successful;
 	 */
 	private boolean applyBeforeNodeRemoval(NodeRemoval nodeRemoval) {
 		final DirectedNode nodeToRemove = (DirectedNode) nodeRemoval.getNode();
@@ -165,7 +155,6 @@ public class MatchingDirectedIntWeightedU extends MatchingDirectedIntWeighted {
 
 		for (IElement iterable_element : this.g.getNodes()) {
 			Node node = (Node) iterable_element;
-			// if (!(nodeToRemove.getIndex() == node.getIndex()))
 			if (this.matchings.get(nodeToRemove, node) == null)
 				this.matchingDirectedWeightedD.decr(0.0);
 			else
@@ -201,25 +190,19 @@ public class MatchingDirectedIntWeightedU extends MatchingDirectedIntWeighted {
 		return false;
 	}
 
+	/**
+	 * Decreases the matching between the given nodes.
+	 */
 	private void decreaseMatching(DirectedNode node1, int value1,
 			DirectedNode node2, int value2) {
-		// if (!(node1.getIndex() == node2.getIndex()))
 		this.matchingDirectedWeightedD.decr(this.matchings.get(node1, node2));
-		int value = this.matchings.get(node1, node2) - Math.min(value1, value2);
-		if (value < 0)
-			System.out.println("DecreaseMatching: "
-					+ this.matchings.get(node1, node2)
-					+ " Math min von value1: " + value1 + " value2: " + value2
-					+ " ist: " + Math.min(value1, value2) + " Ergebnis "
-					+ value);
-
+		double value = this.matchings.get(node1, node2) - Math.min(value1, value2);
 		this.matchings.put(node1, node2, value);
-		// if (!(node1.getIndex() == node2.getIndex()))
 		this.matchingDirectedWeightedD.incr(this.matchings.get(node1, node2));
 	}
 
 	/**
-	 * Decreases the matching between each pair of the given nodes by 1.
+	 * Decreases the matching between each pair of the given nodes.
 	 * 
 	 * @param node
 	 * 
@@ -296,30 +279,20 @@ public class MatchingDirectedIntWeightedU extends MatchingDirectedIntWeighted {
 
 	private void increaseMatching(DirectedNode node1, int value1,
 			DirectedNode node2, int value2) {
-		Integer matchingG = this.matchings.get(node1, node2);
-		// if (!(node1.getIndex() == node2.getIndex()))
+		Double matchingG = this.matchings.get(node1, node2);
 		if (matchingG == null)
 			this.matchingDirectedWeightedD.decr(0.0);
 		else
 			this.matchingDirectedWeightedD.decr(matchingG);
 
-		Integer value = matchingG == null ? Math.min(value1, value2)
+		Double value = matchingG == null ? Math.min(value1, value2)
 				: matchingG + Math.min(value1, value2);
-		// if ((value < 0.0) && (Math.abs(value) <= 1.0E-4))
-		// value = 0.0;
-		if (value < 0)
-			System.out.println("IncreaseMatching: "
-					+ this.matchings.get(node1, node2)
-					+ " Math min von value1: " + value1 + " value2: " + value2
-					+ " ist: " + Math.min(value1, value2) + " Ergebnis "
-					+ value);
 		this.matchings.put(node1, node2, value);
-		// if (!(node1.getIndex() == node2.getIndex()))
 		this.matchingDirectedWeightedD.incr(this.matchings.get(node1, node2));
 	}
 
 	/**
-	 * Increases the matching between each pair of the given nodes by 1.
+	 * Increases the matching between each pair of the given nodes.
 	 * 
 	 * @param node
 	 * 

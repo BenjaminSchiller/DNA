@@ -25,8 +25,7 @@ import dna.util.parameters.Parameter;
 public class OverlapDirectedU extends OverlapDirected {
 
 	/**
-	 * Initializes {@link OverlapDirectedU}. Implicitly sets degree type for
-	 * directed graphs to outdegree.
+	 * Initializes {@link OverlapDirectedU}.
 	 */
 	public OverlapDirectedU() {
 		super("OverlapDirectedU", ApplicationType.BeforeAndAfterUpdate);
@@ -54,7 +53,7 @@ public class OverlapDirectedU extends OverlapDirected {
 	 * 
 	 * @param addedEdgeUpdate
 	 *            The update from the {@link DirectedEdge} which has been added.
-	 * @return true, if successful; false otherwise
+	 * @return true, if successful;
 	 */
 	private boolean applyAfterEdgeAddition(EdgeAddition u) {
 		final DirectedEdge newEdge = (DirectedEdge) u.getEdge();
@@ -66,12 +65,10 @@ public class OverlapDirectedU extends OverlapDirected {
 
 		if (isOutgoingMeasure()) {
 			this.increaseMatching(neighborsIn, newEdge.getSrc());
-			// Add a new neighbor
 			this.increaseAmountOfNeighbors(newEdge.getSrc());
 
 		} else {
 			this.increaseMatching(neighborsOut, newEdge.getDst());
-			// Add a new neighbor
 			this.increaseAmountOfNeighbors(newEdge.getDst());
 
 		}
@@ -110,7 +107,7 @@ public class OverlapDirectedU extends OverlapDirected {
 	 * 
 	 * @param EdgeRemoval
 	 *            The update from the {@link Edge} which is to be removed.
-	 * @return true, if successful; false otherwise
+	 * @return true, if successful;
 	 */
 	private boolean applyBeforeEdgeRemoval(EdgeRemoval u) {
 		final DirectedEdge edgeToRemove = (DirectedEdge) u.getEdge();
@@ -121,12 +118,10 @@ public class OverlapDirectedU extends OverlapDirected {
 
 		if (isOutgoingMeasure()) {
 			this.decreaseMatching(neighborsIn, edgeToRemove.getSrc());
-			// Add a new neighbor
 			this.decreaseAmountOfNeighbors(edgeToRemove.getSrc());
 
 		} else {
 			this.decreaseMatching(neighborsOut, edgeToRemove.getDst());
-			// Add a new neighbor
 			this.decreaseAmountOfNeighbors(edgeToRemove.getDst());
 
 		}
@@ -141,7 +136,7 @@ public class OverlapDirectedU extends OverlapDirected {
 	 * 
 	 * @param NodeRemoval
 	 *            The update from the {@link Node} which is to be removed.
-	 * @return true, if successful; false otherwise
+	 * @return true, if successful;
 	 */
 	private boolean applyBeforeNodeRemoval(NodeRemoval u) {
 		final DirectedNode nodeToRemove = (DirectedNode) u.getNode();

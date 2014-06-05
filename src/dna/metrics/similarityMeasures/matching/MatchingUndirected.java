@@ -17,11 +17,12 @@ import dna.series.data.NodeValueList;
 import dna.series.data.Value;
 import dna.updates.batch.Batch;
 
+
 /**
- * Computes the similarity matching measure for graphs with undirected and
- * unweighted edges. The similarity of two nodes <i>n</i>, <i>m</i> is defined
- * as the number of elements in the intersection of <i>neighbors(n)</i> and
- * <i>neighbors(m)</i>.
+ * Computes the similarity matching measure for graphs with
+ * {@link UndirectedNode} s and unweighted {@link UndirectedEdge}s. The
+ * similarity of two nodes <i>n</i>, <i>m</i> is defined as the number of
+ * elements in the intersection of <i>neighbors(n)</i> and <i>neighbors(m)</i>.
  * 
  * @see MatchingUndirectedR
  * @see MatchingUndirectedU
@@ -32,8 +33,10 @@ public abstract class MatchingUndirected extends Metric {
 	/** Contains the result for each matching. */
 	protected Matrix matching;
 
+	/** Binned Distribution */
 	protected BinnedDistributionLong matchingUndirectedD;
 
+	/** Average per Node Distribution */
 	protected BinnedDistributionLong binnedDistributionEveryNodeToOtherNodes;
 
 	/**
