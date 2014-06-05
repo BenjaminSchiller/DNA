@@ -23,8 +23,7 @@ import dna.util.parameters.Parameter;
 
 /**
  * The class implements the changes of {@link DirectedNode}s and unweighted
- * {@link DirectedDoubleWeightedEdge}s by updating the matching similarity
- * measure.
+ * {@link DirectedEdge}s by updating the matching similarity measure.
  * 
  * @see MatchingDirectedDoubleWeighted
  */
@@ -36,7 +35,8 @@ public class MatchingDirectedDoubleWeightedU extends
 	 * degree type for directed graphs to outdegree.
 	 */
 	public MatchingDirectedDoubleWeightedU() {
-		super("MatchingDirectedWeightedU", ApplicationType.BeforeAndAfterUpdate);
+		super("MatchingDirectedDoubleWeightedU",
+				ApplicationType.BeforeAndAfterUpdate);
 	}
 
 	/**
@@ -47,7 +47,7 @@ public class MatchingDirectedDoubleWeightedU extends
 	 *            outdegree for directed graphs.
 	 */
 	public MatchingDirectedDoubleWeightedU(Parameter directedDegreeType) {
-		super("MatchingDirectedWeightedU",
+		super("MatchingDirectedDoubleWeightedU",
 				ApplicationType.BeforeAndAfterUpdate, directedDegreeType);
 	}
 
@@ -61,7 +61,7 @@ public class MatchingDirectedDoubleWeightedU extends
 	 * 
 	 * @param directedDoubleWeightedEdge
 	 *            The update from the {@link Edge} which has been added.
-	 * @return true, if successful; false otherwise
+	 * @return true, if successful;
 	 */
 	private boolean applyAfterEdgeAddition(
 			DirectedWeightedEdge directedDoubleWeightedEdge) {
@@ -107,7 +107,7 @@ public class MatchingDirectedDoubleWeightedU extends
 	 * 
 	 * @param EdgeRemoval
 	 *            The update from the {@link Edge} which is to be removed.
-	 * @return true, if successful; false otherwise
+	 * @return true, if successful;
 	 */
 	private boolean applyBeforeEdgeRemoval(
 			DirectedWeightedEdge directedDoubleWeightedEdge) {
@@ -128,7 +128,7 @@ public class MatchingDirectedDoubleWeightedU extends
 	 *            The {@link Edge} whose edge weight changes.
 	 * @param weight
 	 *            The new weight of the Edge after the Update.
-	 * @return true, if successful; false otherwise
+	 * @return true, if successful;
 	 */
 	private boolean applyBeforeEdgeWeightUpdate(
 			DirectedWeightedEdge directedDoubleWeightedEdge, double weight) {
@@ -143,7 +143,7 @@ public class MatchingDirectedDoubleWeightedU extends
 	 * 
 	 * @param NodeRemoval
 	 *            The update from the {@link Node} which is to be removed.
-	 * @return true, if successful; false otherwise
+	 * @return true, if successful;
 	 */
 	private boolean applyBeforeNodeRemoval(NodeRemoval nodeRemoval) {
 		final DirectedNode nodeToRemove = (DirectedNode) nodeRemoval.getNode();
@@ -189,6 +189,9 @@ public class MatchingDirectedDoubleWeightedU extends
 		return false;
 	}
 
+	/**
+	 * Decreases the matching between the given nodes.
+	 */
 	private void decreaseMatching(DirectedNode node1, Double value1,
 			DirectedNode node2, Double value2) {
 
@@ -202,7 +205,7 @@ public class MatchingDirectedDoubleWeightedU extends
 	}
 
 	/**
-	 * Decreases the matching between each pair of the given nodes by 1.
+	 * Decreases the matching between each pair of the given nodes.
 	 * 
 	 * @param node
 	 * 
@@ -277,6 +280,9 @@ public class MatchingDirectedDoubleWeightedU extends
 		return neighbors;
 	}
 
+	/**
+	 * Increases the matching between the given nodes.
+	 */
 	private void increaseMatching(DirectedNode node1, Double value1,
 			DirectedNode node2, Double value2) {
 		Double matchingG = this.matchings.get(node1, node2);
@@ -295,7 +301,7 @@ public class MatchingDirectedDoubleWeightedU extends
 	}
 
 	/**
-	 * Increases the matching between each pair of the given nodes by 1.
+	 * Increases the matching between each pair of the given nodes.
 	 * 
 	 * @param node
 	 * 

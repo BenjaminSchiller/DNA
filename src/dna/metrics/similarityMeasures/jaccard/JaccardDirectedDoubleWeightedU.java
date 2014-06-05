@@ -24,7 +24,7 @@ import dna.util.parameters.Parameter;
  * The class implements the changes of {@link DirectedNode}s and weighted
  * {@link DirectedEdge}s by updating the jaccard similarity measure.
  * 
- * @see JaccardUndirected
+ * @see JaccardUndirectedDoubleWeighted
  */
 public class JaccardDirectedDoubleWeightedU extends
 		JaccardDirectedDoubleWeighted {
@@ -34,7 +34,8 @@ public class JaccardDirectedDoubleWeightedU extends
 	 * degree type for directed graphs to outdegree.
 	 */
 	public JaccardDirectedDoubleWeightedU() {
-		super("JaccardDirectedWeightedU", ApplicationType.BeforeAndAfterUpdate);
+		super("JaccardDirectedDoubleWeightedU",
+				ApplicationType.BeforeAndAfterUpdate);
 	}
 
 	/**
@@ -45,10 +46,14 @@ public class JaccardDirectedDoubleWeightedU extends
 	 *            outdegree for directed graphs.
 	 */
 	public JaccardDirectedDoubleWeightedU(Parameter directedDegreeType) {
-		super("JaccardDirectedWeightedU", ApplicationType.BeforeAndAfterUpdate,
-				directedDegreeType);
+		super("JaccardDirectedDoubleWeightedU",
+				ApplicationType.BeforeAndAfterUpdate, directedDegreeType);
 	}
 
+	/**
+	 * Add the Src node of the new {@link DirectedEdge} to the neighbors
+	 * {@link Map} entry of the Dst node.
+	 */
 	private void addNeighborNodesDst(DirectedWeightedEdge newEdge) {
 		if (this.neighborNodes.containsKey(newEdge.getDst())) {
 			this.neighborNodes.get(newEdge.getDst()).put(newEdge.getSrc(),
@@ -61,6 +66,10 @@ public class JaccardDirectedDoubleWeightedU extends
 		}
 	}
 
+	/**
+	 * Add the Dst node of the new {@link DirectedEdge} to the neighbors
+	 * {@link Map} entry of the Src node.
+	 */
 	private void addNeighborNodesSrc(DirectedWeightedEdge newEdge) {
 		if (this.neighborNodes.containsKey(newEdge.getSrc())) {
 			this.neighborNodes.get(newEdge.getSrc()).put(newEdge.getDst(),
@@ -83,7 +92,7 @@ public class JaccardDirectedDoubleWeightedU extends
 	 * 
 	 * @param addedEdgeUpdate
 	 *            The update from the {@link Edge} which has been added.
-	 * @return true, if successful; false otherwise
+	 * @return true, if successful;
 	 */
 	private boolean applyAfterEdgeAddition(
 			DirectedWeightedEdge directedDoubleWeightedEdge) {
@@ -144,7 +153,7 @@ public class JaccardDirectedDoubleWeightedU extends
 	 * 
 	 * @param EdgeRemoval
 	 *            The update from the {@link Edge} which is to be removed.
-	 * @return true, if successful; false otherwise
+	 * @return true, if successful; 
 	 */
 	private boolean applyBeforeEdgeRemoval(
 			DirectedWeightedEdge directedDoubleWeightedEdge) {
@@ -178,7 +187,7 @@ public class JaccardDirectedDoubleWeightedU extends
 	 *            The {@link Edge} whose edge weight changes.
 	 * @param weight
 	 *            The new weight of the Edge after the Update.
-	 * @return true, if successful; false otherwise
+	 * @return true, if successful;
 	 */
 	private boolean applyBeforeEdgeWeightUpdate(
 			DirectedWeightedEdge directedDoubleWeightedEdge, double weight) {
@@ -191,7 +200,7 @@ public class JaccardDirectedDoubleWeightedU extends
 	 * 
 	 * @param NodeRemoval
 	 *            The update from the {@link Node} which is to be removed.
-	 * @return true, if successful; false otherwise
+	 * @return true, if successful;
 	 */
 	private boolean applyBeforeNodeRemoval(NodeRemoval u) {
 		final DirectedNode nodeToRemove = (DirectedNode) u.getNode();
@@ -200,7 +209,6 @@ public class JaccardDirectedDoubleWeightedU extends
 		else
 			this.decreaseMatchingNodeRemove(this.getNeighborsOut(nodeToRemove));
 
-		// remove the node from the neighborNodes Map
 		this.removeFromNeighborNodes(nodeToRemove);
 
 		for (IElement iterable_element : this.g.getNodes()) {
@@ -254,6 +262,15 @@ public class JaccardDirectedDoubleWeightedU extends
 		return false;
 	}
 
+	/**
+	 * Applied the edge weight update to the graph.
+	 * 
+	 * @param directedDoubleWeightedEdge
+	 *            The {@link Edge} whose edge weight changes.
+	 * @param weight
+	 *            The new weight of the Edge after the Update.
+	 * @return true, if successful;
+	 */
 	private void applyEdgeWeightedUpdate(
 			DirectedWeightedEdge directedDoubleWeightedEdge, double weight) {
 		final DirectedWeightedEdge edgeToBeUpdated = directedDoubleWeightedEdge;
@@ -333,7 +350,6 @@ public class JaccardDirectedDoubleWeightedU extends
 					/ (double) getMapValueSum(denominator);
 
 		if (newJaccard < 0.0 && Math.abs(newJaccard) <= 1.0E-4) {
-			System.err.println("Jetzt fraction minus");
 			newJaccard = 0.0;
 		}
 		Double jaccardG = this.result.get(node1, node2);

@@ -20,7 +20,7 @@ public class OverlapDirectedDoubleWeightedR extends
 	 * degree type for directed graphs to outdegree.
 	 */
 	public OverlapDirectedDoubleWeightedR() {
-		super("OverlapDirectedWeightedR", ApplicationType.Recomputation);
+		super("OverlapDirectedDoubleWeightedR", ApplicationType.Recomputation);
 	}
 
 	/**
@@ -31,7 +31,7 @@ public class OverlapDirectedDoubleWeightedR extends
 	 *            outdegree for directed graphs
 	 */
 	public OverlapDirectedDoubleWeightedR(Parameter directedDegreeType) {
-		super("OverlapDirectedWeightedR", ApplicationType.Recomputation,
+		super("OverlapDirectedDoubleWeightedR", ApplicationType.Recomputation,
 				directedDegreeType);
 	}
 

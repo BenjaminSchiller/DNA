@@ -31,6 +31,10 @@ public class JaccardUndirectedU extends JaccardUndirected {
 		super("JaccardUndirectedU", ApplicationType.BeforeAndAfterUpdate);
 	}
 
+	/**
+	 * Add the two nodes of the new {@link UndirectedEdge} to the neighbors
+	 * {@link Map} containing all neighbors to each node
+	 */
 	private void addNeighbor(UndirectedEdge newEdge) {
 		if (this.neighborNodes.containsKey(newEdge.getNode1()))
 			this.neighborNodes.get(newEdge.getNode1()).add(newEdge.getNode2());
@@ -60,7 +64,7 @@ public class JaccardUndirectedU extends JaccardUndirected {
 	 * 
 	 * @param addedEdgeUpdate
 	 *            The update from the {@link Edge} which has been added.
-	 * @return true
+	 * @return true, if successful;
 	 */
 	private boolean applyAfterEdgeAddition(EdgeAddition u) {
 		final UndirectedEdge newEdge = (UndirectedEdge) u.getEdge();
@@ -109,7 +113,7 @@ public class JaccardUndirectedU extends JaccardUndirected {
 	 * 
 	 * @param EdgeRemoval
 	 *            The update from the {@link Edge} which is to be removed.
-	 * @return true, if successful; false otherwise
+	 * @return true, if successful;
 	 */
 	private boolean applyBeforeEdgeRemoval(EdgeRemoval u) {
 		final UndirectedEdge edgeToRemove = (UndirectedEdge) u.getEdge();
@@ -119,7 +123,6 @@ public class JaccardUndirectedU extends JaccardUndirected {
 		HashSet<UndirectedNode> neighborsNode2 = this
 				.getNeighborNodes(edgeToRemove.getNode2());
 
-		// decrease the matching similarity measure
 		this.decreaseMatching(neighborsNode1, edgeToRemove.getNode2());
 		this.decreaseMatching(neighborsNode2, edgeToRemove.getNode1());
 		this.neighborNodes.get(edgeToRemove.getNode1()).remove(
@@ -138,13 +141,12 @@ public class JaccardUndirectedU extends JaccardUndirected {
 	 * 
 	 * @param NodeRemoval
 	 *            The update from the {@link Node} which is to be removed.
-	 * @return true, if successful; false otherwise
+	 * @return true, if successful;
 	 */
 	private boolean applyBeforeNodeRemoval(NodeRemoval u) {
 		final UndirectedNode nodeToRemove = (UndirectedNode) u.getNode();
-		// TODO neighbors hochziehen
+		
 		this.decreaseMatchingNodeRemove(this.getNeighborNodes(nodeToRemove));
-		// remove the node from the neighborNodes Map
 		this.removeFromNeighborNodes(nodeToRemove);
 
 		for (IElement iterable_element : this.g.getNodes()) {
@@ -156,9 +158,10 @@ public class JaccardUndirectedU extends JaccardUndirected {
 						.get(nodeToRemove, node));
 		}
 
-		// update jaccard similarity measure
+
 		this.updateDirectNeighborsMeasures(this.getNeighborNodes(nodeToRemove));
 		this.updateNodeRemoveMeasure(nodeToRemove);
+		
 		// remove the results of the removed node calculated so far
 		this.neighborNodes.remove(nodeToRemove);
 		this.matching.removeRow(nodeToRemove);

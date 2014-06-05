@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 
 import dna.graph.IElement;
+import dna.graph.edges.DirectedEdge;
 import dna.graph.nodes.DirectedNode;
 import dna.graph.nodes.Node;
 import dna.metrics.Metric;
@@ -14,10 +15,10 @@ import dna.series.data.Distribution;
 import dna.util.parameters.Parameter;
 
 /**
- * Computes the overlap similarity measure for graphs with directed and
- * unweighted edges. The overlap similarity of two nodes <i>n</i>, <i>m</i> is
- * defined as the number of elements in the intersection of <i>neighbors(n)</i>
- * and <i>neighbors(m)</i> divided by
+ * Computes the overlap similarity measure for graphs with {@link DirectedNode}s
+ * and unweighted {@link DirectedEdge}s. The overlap similarity of two nodes
+ * <i>n</i>, <i>m</i> is defined as the number of elements in the intersection
+ * of <i>neighbors(n)</i> and <i>neighbors(m)</i> divided by
  * min(|<i>neighbors(n)</i>|,|<i>neighbors(m)</i>|).
  * 
  * @see OverlapDirectedR
@@ -27,15 +28,34 @@ public abstract class OverlapDirected extends MeasuresDirectedUnweighted {
 	/** Contains the number of neighbors for each node */
 	protected HashMap<DirectedNode, Integer> amountOfNeighbors;
 
+	/**
+	 * Initializes {@link OverlapDirected}.
+	 * 
+	 * @param name
+	 *            The name of the metric.
+	 * @param applicationType
+	 *            The {@link ApplicationType}, corresponding to the name.
+	 */
 	public OverlapDirected(String name, ApplicationType applicationType) {
 		super(name, applicationType);
 	}
 
+	/**
+	 * Initializes {@link OverlapDirected}.
+	 * 
+	 * @param name
+	 *            The name of the metric.
+	 * @param applicationType
+	 *            The {@link ApplicationType}, corresponding to the name.
+	 * @param directedDegreeType
+	 *            <i>in</i> or <i>out</i>, determining whether to use in- or
+	 *            outdegree for directed graphs
+	 */
 	public OverlapDirected(String name, ApplicationType type,
 			Parameter directedDegreeType) {
 		super(name, type, directedDegreeType);
 	}
-
+	
 	@Override
 	public boolean compute() {
 		final Iterable<IElement> nodesOfGraph = this.g.getNodes();
@@ -43,8 +63,7 @@ public abstract class OverlapDirected extends MeasuresDirectedUnweighted {
 		DirectedNode node1, node2;
 		// neighbors for node1, node2:
 		HashSet<DirectedNode> neighbors1, neighbors2;
-		// indices for both for-loops to save some time with using matching(1,2)
-		// = matching(2,1)
+		
 		int nodeIndex1 = 0, nodeIndex2;
 
 		for (IElement iElement1 : nodesOfGraph) {
@@ -54,8 +73,8 @@ public abstract class OverlapDirected extends MeasuresDirectedUnweighted {
 			nodeIndex2 = 0;
 			for (IElement iElement2 : nodesOfGraph) {
 				if (nodeIndex2 < nodeIndex1) {
-					// matching is equal to equivalent calculated before
-					// (matching(1,2) = matching(2,1))
+					// overlap is equal to equivalent calculated before
+					// (overlap(1,2) = overlap(2,1))
 					nodeIndex2++;
 					continue;
 				}
@@ -92,9 +111,6 @@ public abstract class OverlapDirected extends MeasuresDirectedUnweighted {
 	@Override
 	public boolean equals(Metric m) {
 		if (m != null && m instanceof OverlapDirected) {
-			// System.out.println(this.overlapSimilarity.toString());
-			// System.out.println(((OverlapDirected) m).overlapSimilarity
-			// .toString());
 			return ((OverlapDirected) m).result.equals(this.result, 1.0E-4);
 		}
 		return false;

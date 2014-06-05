@@ -5,6 +5,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import dna.graph.IElement;
+import dna.graph.edges.DirectedEdge;
 import dna.graph.nodes.DirectedNode;
 import dna.graph.nodes.Node;
 import dna.metrics.Metric;
@@ -15,29 +16,48 @@ import dna.series.data.Distribution;
 import dna.util.parameters.Parameter;
 
 /**
- * Computes the jaccard similarity measure for graphs with directed and
- * unweighted edges. The jaccard similarity of two nodes <i>n</i>, <i>m</i> is
- * defined as the number of elements in the intersection of <i>neighbors(n)</i>
- * and <i>neighbors(m)</i> divided by the elements of the union of
- * <i>neighbors(n)</i> and <i>neighbors(m)</i>. You can choose between the
- * matching of incoming and outgoing edges
+ * Computes the jaccard similarity measure for graphs with {@link DirectedNode}
+ * s and unweighted {@link DirectedEdge}s. The jaccard similarity of two nodes
+ * <i>n</i>, <i>m</i> is defined as the number of elements in the intersection
+ * of <i>neighbors(n)</i> and <i>neighbors(m)</i> divided by the elements of the
+ * union of <i>neighbors(n)</i> and <i>neighbors(m)</i>. You can choose between
+ * the matching of incoming and outgoing edges
  * 
  * @see JaccardDirectedR
  * @see JaccardDirectedU
  */
 public abstract class JaccardDirected extends MeasuresDirectedUnweighted {
-
 	/** Contains the neighbors to each node */
 	protected HashMap<Node, HashSet<DirectedNode>> neighborNodes;
 
+	/**
+	 * Initializes {@link JaccardDirected}.
+	 * 
+	 * @param name
+	 *            The name of the metric.
+	 * @param applicationType
+	 *            The {@link ApplicationType}, corresponding to the name.
+	 */
 	public JaccardDirected(String name, ApplicationType applicationType) {
 		super(name, applicationType);
 	}
 
+	/**
+	 * Initializes {@link JaccardDirected}.
+	 * 
+	 * @param name
+	 *            The name of the metric.
+	 * @param applicationType
+	 *            The {@link ApplicationType}, corresponding to the name.
+	 * @param directedDegreeType
+	 *            <i>in</i> or <i>out</i>, determining whether to use in- or
+	 *            outdegree for directed graphs
+	 */
 	public JaccardDirected(String name, ApplicationType type,
 			Parameter directedDegreeType) {
 		super(name, type, directedDegreeType);
 	}
+
 
 	@Override
 	public boolean compute() {

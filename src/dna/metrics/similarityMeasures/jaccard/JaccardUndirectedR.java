@@ -2,7 +2,6 @@ package dna.metrics.similarityMeasures.jaccard;
 
 import dna.graph.edges.UndirectedEdge;
 import dna.graph.nodes.UndirectedNode;
-import dna.metrics.similarityMeasures.dice.DiceUndirected;
 import dna.updates.batch.Batch;
 import dna.updates.update.Update;
 
@@ -10,7 +9,7 @@ import dna.updates.update.Update;
  * The class implements the changes of {@link UndirectedNode}s and unweighted
  * {@link UndirectedEdge}s by recompute the jaccard similarity measure.
  * 
- * @see DiceUndirected
+ * @see JaccardUndirected
  */
 public class JaccardUndirectedR extends JaccardUndirected {
 

@@ -28,11 +28,10 @@ import dna.util.parameters.Parameter;
 public class DiceDirectedDoubleWeightedU extends DiceDirectedDoubleWeighted {
 
 	/**
-	 * Initializes {@link DiceDirectedDoubleWeightedU}. Implicitly sets degree
-	 * type for directed graphs to outdegree.
+	 * Initializes {@link DiceDirectedDoubleWeightedU}.
 	 */
 	public DiceDirectedDoubleWeightedU() {
-		super("DiceDirectedWeightedU", ApplicationType.BeforeAndAfterUpdate);
+		super("DiceDirectedDoubleWeightedU", ApplicationType.BeforeAndAfterUpdate);
 	}
 
 	/**
@@ -43,7 +42,7 @@ public class DiceDirectedDoubleWeightedU extends DiceDirectedDoubleWeighted {
 	 *            outdegree for directed graphs.
 	 */
 	public DiceDirectedDoubleWeightedU(Parameter parameter) {
-		super("DiceDirectedWeightedU", ApplicationType.BeforeAndAfterUpdate,
+		super("DiceDirectedDoubleWeightedU", ApplicationType.BeforeAndAfterUpdate,
 				parameter);
 	}
 
@@ -57,7 +56,7 @@ public class DiceDirectedDoubleWeightedU extends DiceDirectedDoubleWeighted {
 	 * 
 	 * @param addedEdgeUpdate
 	 *            The update from the {@link DirectedEdge} which has been added.
-	 * @return true, if successful; false otherwise
+	 * @return true, if successful;
 	 */
 	private boolean applyAfterEdgeAddition(
 			DirectedWeightedEdge directedDoubleWeightedEdge) {
@@ -70,13 +69,11 @@ public class DiceDirectedDoubleWeightedU extends DiceDirectedDoubleWeighted {
 
 		if (isOutgoingMeasure()) {
 			this.increaseMatching(neighborsIn, newEdge.getSrc());
-			// Add a new neighbor
 			this.increaseAmountOfNeighbor(newEdge.getSrc(),
 					((DoubleWeight) newEdge.getWeight()).getWeight());
 
 		} else {
 			this.increaseMatching(neighborsOut, newEdge.getDst());
-			// Add a new neighbor
 			this.increaseAmountOfNeighbor(newEdge.getDst(),
 					((DoubleWeight) newEdge.getWeight()).getWeight());
 
@@ -116,7 +113,7 @@ public class DiceDirectedDoubleWeightedU extends DiceDirectedDoubleWeighted {
 	 * 
 	 * @param EdgeRemoval
 	 *            The update from the {@link Edge} which is to be removed.
-	 * @return true, if successful; false otherwise
+	 * @return true, if successful;
 	 */
 	private boolean applyBeforeEdgeRemoval(
 			DirectedWeightedEdge directedDoubleWeightedEdge) {
@@ -129,13 +126,11 @@ public class DiceDirectedDoubleWeightedU extends DiceDirectedDoubleWeighted {
 
 		if (isOutgoingMeasure()) {
 			this.decreaseMatching(neighborsIn, edgeToRemove.getSrc());
-			// Add a new neighbor
 			this.decreaseAmountOfNeighbor(edgeToRemove.getSrc(),
 					((DoubleWeight) edgeToRemove.getWeight()).getWeight());
 
 		} else {
 			this.decreaseMatching(neighborsOut, edgeToRemove.getDst());
-			// Add a new neighbor
 			this.decreaseAmountOfNeighbor(edgeToRemove.getDst(),
 					((DoubleWeight) edgeToRemove.getWeight()).getWeight());
 
@@ -148,11 +143,11 @@ public class DiceDirectedDoubleWeightedU extends DiceDirectedDoubleWeighted {
 	/**
 	 * Called before the edge weight update is applied to the graph.
 	 * 
-	 * @param undirectedDoubleWeightedEdge
+	 * @param directedDoubleWeightedEdge
 	 *            The {@link Edge} whose edge weight changes.
 	 * @param weight
 	 *            The new weight of the Edge after the Update.
-	 * @return true, if successful; false otherwise
+	 * @return true, if successful;
 	 */
 	private boolean applyBeforeEdgeWeightUpdate(
 			DirectedWeightedEdge directedDoubleWeightedEdge, double weight) {
@@ -165,7 +160,7 @@ public class DiceDirectedDoubleWeightedU extends DiceDirectedDoubleWeighted {
 	 * 
 	 * @param NodeRemoval
 	 *            The update from the {@link Node} which is to be removed.
-	 * @return true, if successful; false otherwise
+	 * @return true, if successful;
 	 */
 	private boolean applyBeforeNodeRemoval(NodeRemoval u) {
 		final DirectedNode nodeToRemove = (DirectedNode) u.getNode();
@@ -174,7 +169,6 @@ public class DiceDirectedDoubleWeightedU extends DiceDirectedDoubleWeighted {
 		else
 			this.decreaseMatchingNodeRemove(this.getNeighborsOut(nodeToRemove));
 
-		// remove the node from the neighborNodes Map
 		this.decreaseAmountOfNeighbors(nodeToRemove);
 
 		for (IElement iterable_element : this.g.getNodes()) {
@@ -231,6 +225,15 @@ public class DiceDirectedDoubleWeightedU extends DiceDirectedDoubleWeighted {
 		return false;
 	}
 
+	/**
+	 * Applied the edge weight update to the graph.
+	 * 
+	 * @param directedDoubleWeightedEdge
+	 *            The {@link Edge} whose edge weight changes.
+	 * @param weight
+	 *            The new weight of the Edge after the Update.
+	 * @return true, if successful;
+	 */
 	private void applyEdgeWeightedUpdate(
 			DirectedWeightedEdge directedDoubleWeightedEdge, double weight) {
 		final DirectedWeightedEdge edgeToBeUpdated = directedDoubleWeightedEdge;
@@ -238,7 +241,6 @@ public class DiceDirectedDoubleWeightedU extends DiceDirectedDoubleWeighted {
 			this.decreaseMatching(
 					this.getNeighborsIn(edgeToBeUpdated.getDst()),
 					edgeToBeUpdated.getSrc());
-			// Add a new neighbor
 			this.decreaseAmountOfNeighbor(edgeToBeUpdated.getSrc(),
 					((DoubleWeight) edgeToBeUpdated.getWeight()).getWeight());
 
@@ -246,7 +248,6 @@ public class DiceDirectedDoubleWeightedU extends DiceDirectedDoubleWeighted {
 			this.decreaseMatching(
 					this.getNeighborsOut(edgeToBeUpdated.getSrc()),
 					edgeToBeUpdated.getDst());
-			// Add a new neighbor
 			this.decreaseAmountOfNeighbor(edgeToBeUpdated.getDst(),
 					((DoubleWeight) edgeToBeUpdated.getWeight()).getWeight());
 
@@ -261,13 +262,11 @@ public class DiceDirectedDoubleWeightedU extends DiceDirectedDoubleWeighted {
 
 		if (isOutgoingMeasure()) {
 			this.increaseMatching(neighborsIn, edgeToBeUpdated.getSrc());
-			// Add a new neighbor
 			this.increaseAmountOfNeighbor(edgeToBeUpdated.getSrc(),
 					((DoubleWeight) edgeToBeUpdated.getWeight()).getWeight());
 
 		} else {
 			this.increaseMatching(neighborsOut, edgeToBeUpdated.getDst());
-			// Add a new neighbor
 			this.increaseAmountOfNeighbor(edgeToBeUpdated.getDst(),
 					((DoubleWeight) edgeToBeUpdated.getWeight()).getWeight());
 
@@ -278,14 +277,13 @@ public class DiceDirectedDoubleWeightedU extends DiceDirectedDoubleWeighted {
 	}
 
 	/**
-	 * Decreases the number of neighbors of the given node by 1.
+	 * Decreases the number of neighbors of the given node.
 	 */
 	private void decreaseAmountOfNeighbor(DirectedNode directedNode,
 			double weight) {
 		double aoN = this.amountOfNeighbors.get(directedNode) - weight;
 
 		if (aoN < 0.0 && Math.abs(aoN) <= 1.0E-4 || aoN > 0.0 && aoN < 1.0E-6) {
-			System.err.println("AOM  -- Dec");
 			aoN = 0.0;
 		}
 
@@ -293,7 +291,7 @@ public class DiceDirectedDoubleWeightedU extends DiceDirectedDoubleWeighted {
 	}
 
 	/**
-	 * Decreases the number of neighbors for each node by 1.
+	 * Decreases the number of neighbors for each node.
 	 * 
 	 * @see #decreaseAmountOfNeighbors(UndirectedNode)
 	 */
@@ -316,7 +314,7 @@ public class DiceDirectedDoubleWeightedU extends DiceDirectedDoubleWeighted {
 	}
 
 	/**
-	 * Increases the number of neighbors of the given node by 1.
+	 * Increases the number of neighbors of the given node.
 	 */
 	private void increaseAmountOfNeighbor(DirectedNode node, double weight) {
 		if (amountOfNeighbors.containsKey(node))
@@ -346,13 +344,6 @@ public class DiceDirectedDoubleWeightedU extends DiceDirectedDoubleWeighted {
 			this.binnedDistribution.decr(0.0);
 		else
 			this.binnedDistribution.decr(diceG);
-		if (fraction < 0) {
-			System.err.println("AChtung Fraction -- : Matching: "
-					+ this.matching.get(node1, node2) + " AoN1: "
-					+ this.amountOfNeighbors.get(node1) + " AoN2: "
-					+ +this.amountOfNeighbors.get(node2) + " Fraction is: "
-					+ fraction);
-		}
 		this.result.put(node1, node2, fraction);
 		this.binnedDistribution.incr(fraction);
 

@@ -6,6 +6,7 @@ import java.util.Map.Entry;
 
 import dna.graph.IElement;
 import dna.graph.edges.Edge;
+import dna.graph.edges.UndirectedEdge;
 import dna.graph.edges.UndirectedWeightedEdge;
 import dna.graph.nodes.Node;
 import dna.graph.nodes.UndirectedNode;
@@ -18,6 +19,12 @@ import dna.updates.update.NodeAddition;
 import dna.updates.update.NodeRemoval;
 import dna.updates.update.Update;
 
+/**
+ * The class implements the changes of {@link UndirectedNode}s and weighted
+ * {@link UndirectedEdge}s by updating the jaccard similarity measure.
+ * 
+ * @see JaccardUndirectedIntWeighted
+ */
 public class JaccardUndirectedIntWeightedU extends JaccardUndirectedIntWeighted {
 
 	/**
@@ -28,6 +35,10 @@ public class JaccardUndirectedIntWeightedU extends JaccardUndirectedIntWeighted 
 				ApplicationType.BeforeAndAfterUpdate);
 	}
 
+	/**
+	 * Add the two nodes of the new {@link UndirectedEdge} to the neighbors
+	 * {@link Map} containing all neighbors to each node
+	 */
 	private void addNeighbor(UndirectedWeightedEdge newEdge) {
 		if (this.neighborNodes.containsKey(newEdge.getNode1()))
 			this.neighborNodes.get(newEdge.getNode1()).put(newEdge.getNode2(),
@@ -61,7 +72,7 @@ public class JaccardUndirectedIntWeightedU extends JaccardUndirectedIntWeighted 
 	 * 
 	 * @param addedEdgeUpdate
 	 *            The update from the {@link Edge} which has been added.
-	 * @return true, if successful; false otherwise
+	 * @return true, if successful;
 	 */
 	private boolean applyAfterEdgeAddition(
 			UndirectedWeightedEdge undirectedIntWeightedEdge) {
@@ -115,7 +126,7 @@ public class JaccardUndirectedIntWeightedU extends JaccardUndirectedIntWeighted 
 	 * 
 	 * @param EdgeRemoval
 	 *            The update from the {@link Edge} which is to be removed.
-	 * @return true, if successful; false otherwise
+	 * @return true, if successful;
 	 */
 	private boolean applyBeforeEdgeRemoval(
 			UndirectedWeightedEdge undirectedIntWeightedEdge) {
@@ -131,7 +142,6 @@ public class JaccardUndirectedIntWeightedU extends JaccardUndirectedIntWeighted 
 		this.neighborNodes.get(edgeToRemove.getNode2()).remove(
 				edgeToRemove.getNode1());
 
-		// decrease the matching similarity measure
 		this.decreaseMatching(neighborsNode1, edgeToRemove.getNode2());
 		this.decreaseMatching(neighborsNode2, edgeToRemove.getNode1());
 
@@ -142,13 +152,13 @@ public class JaccardUndirectedIntWeightedU extends JaccardUndirectedIntWeighted 
 	}
 
 	/**
-	 * Called before the edge weight update is applied to the graph.
+	 * Applied the edge weight update to the graph.
 	 * 
 	 * @param undirectedDoubleWeightedEdge
 	 *            The {@link Edge} whose edge weight changes.
 	 * @param weight
 	 *            The new weight of the Edge after the Update.
-	 * @return true, if successful; false otherwise
+	 * @return true, if successful;
 	 */
 	private boolean applyBeforeEdgeWeightUpdate(
 			UndirectedWeightedEdge undirectedIntWeightedEdge, int weight) {
@@ -159,7 +169,6 @@ public class JaccardUndirectedIntWeightedU extends JaccardUndirectedIntWeighted 
 		this.neighborNodes.get(edgeToBeUpdated.getNode2()).remove(
 				edgeToBeUpdated.getNode1());
 
-		// decrease the matching similarity measure
 		this.decreaseMatching(
 				this.getNeighborNodes(edgeToBeUpdated.getNode1()),
 				edgeToBeUpdated.getNode2());
@@ -188,7 +197,7 @@ public class JaccardUndirectedIntWeightedU extends JaccardUndirectedIntWeighted 
 	 * 
 	 * @param NodeRemoval
 	 *            The update from the {@link Node} which is to be removed.
-	 * @return true, if successful; false otherwise
+	 * @return true, if successful;
 	 */
 	private boolean applyBeforeNodeRemoval(NodeRemoval u) {
 		final UndirectedNode nodeToRemove = (UndirectedNode) u.getNode();
@@ -198,7 +207,6 @@ public class JaccardUndirectedIntWeightedU extends JaccardUndirectedIntWeighted 
 
 		this.decreaseMatchingNodeRemove(neighborsNodeToRemove);
 
-		// remove the node from the neighborNodes Map
 		this.removeFromNeighborNodes(nodeToRemove);
 
 		for (IElement iterable_element : this.g.getNodes()) {
@@ -210,9 +218,7 @@ public class JaccardUndirectedIntWeightedU extends JaccardUndirectedIntWeighted 
 						.get(nodeToRemove, node));
 		}
 
-		// update jaccard similarity measure
 		this.updateDirectNeighborsMeasure(neighborsNodeToRemove, nodeToRemove);
-
 		this.updateNodeRemoveMeasure(nodeToRemove);
 
 		// remove the results of the removed node calculated so far

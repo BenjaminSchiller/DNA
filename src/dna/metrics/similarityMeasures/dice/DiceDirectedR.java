@@ -15,8 +15,7 @@ import dna.util.parameters.Parameter;
 public class DiceDirectedR extends DiceDirected {
 
 	/**
-	 * Initializes {@link DiceDirectedR}. Implicitly sets degree type for
-	 * directed graphs to outdegree.
+	 * Initializes {@link DiceDirectedR}.
 	 */
 	public DiceDirectedR() {
 		super("DiceDirectedR", ApplicationType.Recomputation);
@@ -33,7 +32,6 @@ public class DiceDirectedR extends DiceDirected {
 		super("DiceDirectedR", ApplicationType.Recomputation,
 				directedDegreeType);
 	}
-
 	@Override
 	public boolean applyAfterBatch(Batch b) {
 		return false;

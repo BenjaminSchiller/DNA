@@ -28,6 +28,11 @@ import dna.util.parameters.StringParameter;
  * together, the closer this coefficient is at -1. For directed graphs the node
  * <u>out</u>degree is important.
  * </p>
+ * <p>
+ * <i>Note that due to the limited range of {@code int}, this metric may
+ * calculate wrong results for big edge weights as these get multiplied and
+ * summed up.</i>
+ * </p>
  * 
  * @see AssortativityDoubleWeightedR This metric as Recompuation
  * @see AssortativityDoubleWeightedU This metric with Updates

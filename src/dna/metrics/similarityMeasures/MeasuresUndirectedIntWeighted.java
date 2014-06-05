@@ -19,23 +19,29 @@ import dna.updates.batch.Batch;
 
 public abstract class MeasuresUndirectedIntWeighted extends Metric {
 
-	/** Contains the result for each dice similarity measure. */
+	/** Contains the result for each similarity measure. */
 	protected Matrix result;
-
 	/** Contains the result for each matching measure */
 	protected Matrix matching;
-
+	/** Binned Distribution */
 	protected BinnedDistributionLong binnedDistribution;
-
+	/** Average per Node Distribution */
 	protected BinnedDistributionLong binnedDistributionEveryNodeToOtherNodes;
 
+	/**
+	 * Initializes {@link UndirectedIntWeightedEdge} measure.
+	 * 
+	 * @param name
+	 *            The name of the metric
+	 * @param applicationType
+	 */  
 	public MeasuresUndirectedIntWeighted(String name,
 			ApplicationType applicationType) {
 		super(name, applicationType, MetricType.exact);
 	}
 
 	/**
-	 * Decreases the matching between each pair of the given nodes by 1.
+	 * Decreases the matching between each pair of the given nodes.
 	 * 
 	 * @param node
 	 * 
@@ -49,6 +55,9 @@ public abstract class MeasuresUndirectedIntWeighted extends Metric {
 		}
 	}
 
+	/**
+	 * Decreases the matching between the given nodes by the min value.
+	 */
 	private void decreaseMatching(UndirectedNode node1, Integer value1,
 			UndirectedNode node2, Integer value2) {
 		this.matching.put(node1, node2,
@@ -177,7 +186,7 @@ public abstract class MeasuresUndirectedIntWeighted extends Metric {
 	}
 
 	/**
-	 * Increases the matching between each pair of the given nodes by 1.
+	 * Increases the matching between each pair of the given nodes.
 	 * 
 	 * @param node
 	 * 
@@ -190,7 +199,10 @@ public abstract class MeasuresUndirectedIntWeighted extends Metric {
 					map.get(node));
 		}
 	}
-
+	
+	/**
+	 * Increases the matching between the given nodes by min value.
+	 */
 	protected void increaseMatching(UndirectedNode node1, Integer value1,
 			UndirectedNode node2, Integer value2) {
 		Double matchingG = this.matching.get(node1, node2);
@@ -214,25 +226,26 @@ public abstract class MeasuresUndirectedIntWeighted extends Metric {
 				.getNodeType());
 	}
 
-	// TODO DOK
+	/**
+	 * Update method that will be replaced by the respective specific similarity measure method. 
+	 */
+	protected void update(UndirectedNode node1, UndirectedNode undirected2) {
+
+	}
+	
 	protected void update(UndirectedWeightedEdge edge,
 			HashMap<UndirectedNode, Integer> neighborsNode1,
 			HashMap<UndirectedNode, Integer> neighborsNode2) {
-		// update the dice Measure of every neighbor of each adjacent with the
-		// new calculated values.
 		this.updateDirectNeighborsMeasure(neighborsNode1, edge.getNode2());
 		this.updateDirectNeighborsMeasure(neighborsNode2, edge.getNode1());
+		
 		this.updateMeasureMatching(edge.getNode1(), edge.getNode2());
 		this.updateMeasureMatching(edge.getNode2(), edge.getNode1());
 
 	}
 
-	protected void update(UndirectedNode node1, UndirectedNode undirected2) {
-
-	}
-
 	/**
-	 * Calculates the new dice similarity measure for each node.
+	 * Calculates the new similarity measure for each node.
 	 * 
 	 * @param undirectedNode
 	 */
@@ -248,7 +261,7 @@ public abstract class MeasuresUndirectedIntWeighted extends Metric {
 	}
 
 	/**
-	 * Update the dice Measure in the matching range.
+	 * Update the similarity measure in the matching range.
 	 */
 	protected void updateMeasureMatching(UndirectedNode node1,
 			UndirectedNode node2) {
@@ -261,7 +274,7 @@ public abstract class MeasuresUndirectedIntWeighted extends Metric {
 	}
 
 	/**
-	 * Update the dice measure if a node is to be removed
+	 * Update the similarity measure if a node is to be removed
 	 * 
 	 * @param nodeToRemove
 	 */

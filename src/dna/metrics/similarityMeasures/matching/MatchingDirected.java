@@ -20,11 +20,11 @@ import dna.util.parameters.Parameter;
 import dna.util.parameters.StringParameter;
 
 /**
- * Computes the similarity matching measure for graphs with directed and
- * unweighted edges. The similarity of two nodes <i>n</i>, <i>m</i> is defined
- * as the number of elements in the intersection of <i>neighbors(n)</i> and
- * <i>neighbors(m)</i> w. You can choose between the matching of incoming and
- * outgoing edges
+ * Computes the similarity matching measure for graphs with {@link DirectedNode}
+ * s and unweighted {@link DirectedEdge}s. The similarity of two nodes <i>n</i>,
+ * <i>m</i> is defined as the number of elements in the intersection of
+ * <i>neighbors(n)</i> and <i>neighbors(m)</i>. You can choose between the
+ * matching of incoming and outgoing edges
  * 
  * @see MatchingDirectedR
  * @see MatchingDirectedU
@@ -33,8 +33,11 @@ public abstract class MatchingDirected extends Metric {
 
 	/** Contains the result for each matching. */
 	protected Matrix matchings;
+	/** If matching is for Incoming or Outgoing edges */
 	private String directedDegreeType;
+	/** Binned Distribution */
 	protected BinnedDistributionLong matchingDirectedD;
+	/** Average per Node Distribution */
 	protected BinnedDistributionLong binnedDistributionEveryNodeToOtherNodes;
 
 	/**

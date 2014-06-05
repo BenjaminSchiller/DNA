@@ -15,8 +15,7 @@ import dna.util.parameters.Parameter;
 public class OverlapDirectedR extends OverlapDirected {
 
 	/**
-	 * Initializes {@link OverlapDirectedR}. Implicitly sets degree type for
-	 * directed graphs to outdegree.
+	 * Initializes {@link OverlapDirectedR}.
 	 */
 	public OverlapDirectedR() {
 		super("OverlapDirectedR", ApplicationType.Recomputation);

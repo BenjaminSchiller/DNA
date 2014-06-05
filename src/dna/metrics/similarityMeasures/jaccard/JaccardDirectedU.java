@@ -26,8 +26,7 @@ import dna.util.parameters.Parameter;
 public class JaccardDirectedU extends JaccardDirected {
 
 	/**
-	 * Initializes {@link JaccardDirectedU}. Implicitly sets degree type for
-	 * directed graphs to outdegree.
+	 * Initializes {@link JaccardDirectedU}.
 	 */
 	public JaccardDirectedU() {
 		super("JaccardDirectedU", ApplicationType.BeforeAndAfterUpdate);
@@ -45,8 +44,10 @@ public class JaccardDirectedU extends JaccardDirected {
 				directedDegreeType);
 	}
 
-	// methode zu:
-	// this.neighborNodes.get(newEdge.getDst()).add(newEdge.getSrc());
+	/**
+	 * Add the Src node of the new {@link DirectedEdge} to the neighbors
+	 * {@link Map} entry of the Dst node.
+	 */
 	private void addNeighborNodesDst(DirectedEdge newEdge) {
 		if (this.neighborNodes.containsKey(newEdge.getDst()))
 			this.neighborNodes.get(newEdge.getDst()).add(newEdge.getSrc());
@@ -58,8 +59,10 @@ public class JaccardDirectedU extends JaccardDirected {
 		}
 	}
 
-	// methode zu:
-	// this.neighborNodes.get(newEdge.getSrc()).add(newEdge.getDst());
+	/**
+	 * Add the Dst node of the new {@link DirectedEdge} to the neighbors
+	 * {@link Map} entry of the Src node.
+	 */
 	private void addNeighborNodesSrc(DirectedEdge newEdge) {
 		if (this.neighborNodes.containsKey(newEdge.getSrc()))
 			this.neighborNodes.get(newEdge.getSrc()).add(newEdge.getDst());
@@ -81,7 +84,7 @@ public class JaccardDirectedU extends JaccardDirected {
 	 * 
 	 * @param addedEdgeUpdate
 	 *            The update from the {@link Edge} which has been added.
-	 * @return true, if successful; false otherwise
+	 * @return true, if successful;
 	 */
 	private boolean applyAfterEdgeAddition(EdgeAddition u) {
 		final DirectedEdge newEdge = (DirectedEdge) u.getEdge();
@@ -133,7 +136,7 @@ public class JaccardDirectedU extends JaccardDirected {
 	 * 
 	 * @param EdgeRemoval
 	 *            The update from the {@link Edge} which is to be removed.
-	 * @return true, if successful; false otherwise
+	 * @return true, if successful;
 	 */
 	private boolean applyBeforeEdgeRemoval(EdgeRemoval u) {
 		final DirectedEdge edgeToRemove = (DirectedEdge) u.getEdge();
@@ -163,7 +166,7 @@ public class JaccardDirectedU extends JaccardDirected {
 	 * 
 	 * @param NodeRemoval
 	 *            The update from the {@link Node} which is to be removed.
-	 * @return true, if successful; false otherwise
+	 * @return true, if successful;
 	 */
 	private boolean applyBeforeNodeRemoval(NodeRemoval u) {
 		final DirectedNode nodeToRemove = (DirectedNode) u.getNode();
@@ -176,7 +179,6 @@ public class JaccardDirectedU extends JaccardDirected {
 		else
 			this.decreaseMatchingNodeRemove(neighborsOut);
 
-		// remove the node from the neighborNodes Map
 		this.removeFromNeighborNodes(nodeToRemove);
 
 		for (IElement iterable_element : this.g.getNodes()) {

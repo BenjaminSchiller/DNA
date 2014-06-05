@@ -19,6 +19,7 @@ public class DiceUndirectedR extends DiceUndirected {
 		super("DiceUndirectedR", ApplicationType.Recomputation);
 	}
 
+
 	@Override
 	public boolean applyAfterBatch(Batch b) {
 		return false;

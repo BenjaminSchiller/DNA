@@ -16,8 +16,7 @@ public class JaccardDirectedDoubleWeightedR extends
 		JaccardDirectedDoubleWeighted {
 
 	/**
-	 * Initializes {@link JaccardDirectedDoubleWeightedR}. Implicitly sets
-	 * degree type for directed graphs to outdegree.
+	 * Initializes {@link JaccardDirectedDoubleWeightedR}.
 	 */
 	public JaccardDirectedDoubleWeightedR() {
 		super("JaccardDirectedDoubleWeightedR", ApplicationType.Recomputation);
