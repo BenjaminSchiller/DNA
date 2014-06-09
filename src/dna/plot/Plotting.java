@@ -594,10 +594,8 @@ public class Plotting {
 
 			// if plot all, make plot for all runtimes
 			if (pc.isPlotAll()) {
-				String runtimeDomain = Config
-						.get("CUSTOM_PLOT_DOMAIN_RUNTIMES");
-				String statisticsDomain = Config
-						.get("CUSTOM_PLOT_DOMAIN_STATISTICS");
+				String runtimeDomain = PlotConfig.customPlotDomainRuntimes;
+				String statisticsDomain = PlotConfig.customPlotDomainStatistics;
 
 				ArrayList<String> valuesList = new ArrayList<String>();
 				ArrayList<String> domainsList = new ArrayList<String>();
@@ -606,7 +604,7 @@ public class Plotting {
 
 				// check which wildcards are present
 				for (int i = 0; i < values.length; i++) {
-					if (values[i].equals(Config.get("CUSTOM_PLOT_WILDCARD"))) {
+					if (values[i].equals(PlotConfig.customPlotWildcard)) {
 						// if wildcard, add domain to domainlist
 						if (!wildCardDomainsList.contains(domains[i]))
 							wildCardDomainsList.add(domains[i]);
@@ -625,18 +623,17 @@ public class Plotting {
 					boolean generalRuntimes = false;
 					boolean statistics = false;
 
-					if (domain
-							.equals(Config.get("CUSTOM_PLOT_DOMAIN_RUNTIMES"))) {
+					if (domain.equals(PlotConfig.customPlotDomainRuntimes)) {
 						metricRuntimes = true;
 						generalRuntimes = true;
-					} else if (domain.equals(Config
-							.get("CUSTOM_PLOT_DOMAIN_METRICRUNTIMES"))) {
+					} else if (domain
+							.equals(PlotConfig.customPlotDomainMetricRuntimes)) {
 						metricRuntimes = true;
-					} else if (domain.equals(Config
-							.get("CUSTOM_PLOT_DOMAIN_GENERALRUNTIMES"))) {
+					} else if (domain
+							.equals(PlotConfig.customPlotDomainGeneralRuntimes)) {
 						generalRuntimes = true;
-					} else if (domain.equals(Config
-							.get("CUSTOM_PLOT_DOMAIN_STATISTICS"))) {
+					} else if (domain
+							.equals(PlotConfig.customPlotDomainStatistics)) {
 						statistics = true;
 					}
 
@@ -686,7 +683,7 @@ public class Plotting {
 				String domain = domains[j];
 
 				// check if function
-				if (domain.equals(Config.get("CUSTOM_PLOT_DOMAIN_FUNCTION"))) {
+				if (domain.equals(PlotConfig.customPlotDomainFunction)) {
 					String[] functionSplit = value.split("=");
 					if (functionSplit.length != 2) {
 						Log.warn("wrong function syntax for '" + value + "'");
@@ -695,8 +692,7 @@ public class Plotting {
 					data[j] = PlotData.get(functionSplit[0].trim(),
 							functionSplit[1].trim(), style, domain + "."
 									+ value + "-" + title, PlotType.function);
-				} else if (domain.equals(Config
-						.get("CUSTOM_PLOT_DOMAIN_EXPRESSION"))) {
+				} else if (domain.equals(PlotConfig.customPlotDomainExpression)) {
 					// if expression
 					String[] expressionSplit = value.split(":");
 					if (expressionSplit.length != 2) {
@@ -895,15 +891,13 @@ public class Plotting {
 						String d = tempDomains[i];
 
 						// check if invalid value
-						if (d.equals(Config
-								.get("CUSTOM_PLOT_DOMAIN_STATISTICS"))
-								|| d.equals(Config
-										.get("CUSTOM_PLOT_DOMAIN_RUNTIMES"))) {
+						if (d.equals(PlotConfig.customPlotDomainStatistics)
+								|| d.equals(PlotConfig.customPlotDomainRuntimes)) {
 							Log.warn("invalid value '" + tempDomains[i] + "."
 									+ tempValues[i]
 									+ "' in distribution plot '" + name + "'");
-						} else if (d.equals(Config
-								.get("CUSTOM_PLOT_DOMAIN_FUNCTION"))) {
+						} else if (d
+								.equals(PlotConfig.customPlotDomainFunction)) {
 							// check if function
 							functionsList.add(v);
 						} else {
@@ -1060,15 +1054,13 @@ public class Plotting {
 						String v = tempValues[i];
 						String d = tempDomains[i];
 
-						if (d.equals(Config
-								.get("CUSTOM_PLOT_DOMAIN_STATISTICS"))
-								|| d.equals(Config
-										.get("CUSTOM_PLOT_DOMAIN_REUNTIMES"))) {
+						if (d.equals(PlotConfig.customPlotDomainStatistics)
+								|| d.equals(PlotConfig.customPlotDomainRuntimes)) {
 							Log.warn("invalid value '" + tempDomains[i] + "."
 									+ tempValues[i]
 									+ "' in distribution plot '" + name + "'");
-						} else if (d.equals(Config
-								.get("CUSTOM_PLOT_DOMAIN_FUNCTION"))) {
+						} else if (d
+								.equals(PlotConfig.customPlotDomainFunction)) {
 							// check if function
 							functionsList.add(v);
 						} else {
@@ -1189,8 +1181,8 @@ public class Plotting {
 
 				// get plot data
 				PlotData valuePlotData = PlotData.get(value,
-						Config.get("CUSTOM_PLOT_DOMAIN_STATISTICS"), style,
-						title, type);
+						PlotConfig.customPlotDomainStatistics, style, title,
+						type);
 
 				// create plot
 				Plot valuePlot = new Plot(dstDir, PlotFilenames.getValuesPlot(
@@ -1323,8 +1315,8 @@ public class Plotting {
 
 			// get plot data
 			PlotData metPlotData = PlotData.get(runtime,
-					Config.get("CUSTOM_PLOT_DOMAIN_RUNTIMES"), style, runtime
-							+ "-" + title, type);
+					PlotConfig.customPlotDomainRuntimes, style, runtime + "-"
+							+ title, type);
 			metRuntimes[index] = metPlotData;
 
 			// create plot
@@ -1397,7 +1389,7 @@ public class Plotting {
 		for (String gen : y) {
 			Log.info("\tplotting '" + gen + "'");
 			genRuntimes[index] = PlotData.get(gen,
-					Config.get("CUSTOM_PLOT_DOMAIN_RUNTIMES"), style, gen + "-"
+					PlotConfig.customPlotDomainRuntimes, style, gen + "-"
 							+ title, type);
 			index++;
 		}
@@ -1458,8 +1450,7 @@ public class Plotting {
 
 			// if plot all, make plot for all runtimes
 			if (pc.isPlotAll()) {
-				String runtimeDomain = Config
-						.get("CUSTOM_PLOT_DOMAIN_RUNTIMES");
+				String runtimeDomain = PlotConfig.customPlotDomainRuntimes;
 
 				ArrayList<String> valuesList = new ArrayList<String>();
 				ArrayList<String> domainsList = new ArrayList<String>();
@@ -1468,7 +1459,7 @@ public class Plotting {
 
 				// check which wildcards are present
 				for (int i = 0; i < values.length; i++) {
-					if (values[i].equals(Config.get("CUSTOM_PLOT_WILDCARD"))) {
+					if (values[i].equals(PlotConfig.customPlotWildcard)) {
 						// if wildcard, add domain to domainlist
 						if (!wildCardDomainsList.contains(domains[i]))
 							wildCardDomainsList.add(domains[i]);
@@ -1486,15 +1477,14 @@ public class Plotting {
 					boolean metricRuntimes = false;
 					boolean generalRuntimes = false;
 
-					if (domain
-							.equals(Config.get("CUSTOM_PLOT_DOMAIN_RUNTIMES"))) {
+					if (domain.equals(PlotConfig.customPlotDomainRuntimes)) {
 						metricRuntimes = true;
 						generalRuntimes = true;
-					} else if (domain.equals(Config
-							.get("CUSTOM_PLOT_DOMAIN_METRICRUNTIMES"))) {
+					} else if (domain
+							.equals(PlotConfig.customPlotDomainMetricRuntimes)) {
 						metricRuntimes = true;
-					} else if (domain.equals(Config
-							.get("CUSTOM_PLOT_DOMAIN_GENERALRUNTIMES"))) {
+					} else if (domain
+							.equals(PlotConfig.customPlotDomainGeneralRuntimes)) {
 						generalRuntimes = true;
 					}
 
@@ -1545,7 +1535,7 @@ public class Plotting {
 				String value = values[i];
 				String domain = domains[i];
 				// check if function
-				if (domain.equals(Config.get("CUSTOM_PLOT_DOMAIN_FUNCTION"))) {
+				if (domain.equals(PlotConfig.customPlotDomainFunction)) {
 					String[] functionSplit = value.split("=");
 					if (functionSplit.length != 2) {
 						Log.warn("wrong function syntax for " + value);
@@ -1554,8 +1544,7 @@ public class Plotting {
 					plotData[i] = PlotData.get(functionSplit[0].trim(),
 							functionSplit[1].trim(), style, domain + "."
 									+ value + "-" + title, PlotType.function);
-				} else if (domain.equals(Config
-						.get("CUSTOM_PLOT_DOMAIN_EXPRESSION"))) {
+				} else if (domain.equals(PlotConfig.customPlotDomainExpression)) {
 					// if expression
 					String[] expressionSplit = value.split(":");
 					if (expressionSplit.length != 2) {

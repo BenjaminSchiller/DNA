@@ -240,19 +240,18 @@ public class Plot {
 	private void addData(String name, String domain, AggregatedBatch batch,
 			boolean addAsCDF) throws IOException {
 		double timestamp = (double) batch.getTimestamp();
+
 		// figure out where to get the data from
-		if (domain.equals(Config.get("CUSTOM_PLOT_DOMAIN_STATISTICS"))) {
+		if (domain.equals(PlotConfig.customPlotDomainStatistics)) {
 			this.appendData(batch.getValues().get(name), timestamp);
-		} else if (domain.equals(Config.get("CUSTOM_PLOT_DOMAIN_RUNTIMES"))) {
+		} else if (domain.equals(PlotConfig.customPlotDomainRuntimes)) {
 			if (batch.getGeneralRuntimes().getNames().contains(name))
 				this.appendData(batch.getGeneralRuntimes().get(name), timestamp);
 			else if (batch.getMetricRuntimes().getNames().contains(name))
 				this.appendData(batch.getMetricRuntimes().get(name), timestamp);
-		} else if (domain.equals(Config
-				.get("CUSTOM_PLOT_DOMAIN_METRICRUNTIMES"))) {
+		} else if (domain.equals(PlotConfig.customPlotDomainMetricRuntimes)) {
 			this.appendData(batch.getMetricRuntimes().get(name), timestamp);
-		} else if (domain.equals(Config
-				.get("CUSTOM_PLOT_DOMAIN_GENERALRUNTIMES"))) {
+		} else if (domain.equals(PlotConfig.customPlotDomainGeneralRuntimes)) {
 			this.appendData(batch.getGeneralRuntimes().get(name), timestamp);
 		} else {
 			if (batch.getMetrics().getNames().contains(domain)) {
@@ -385,18 +384,17 @@ public class Plot {
 		for (int i = 0; i < vars.length; i++) {
 			String value = vars[i];
 			String domain = domains[i];
-			if (domain.equals(Config.get("CUSTOM_PLOT_DOMAIN_STATISTICS"))) {
+			if (domain.equals(PlotConfig.customPlotDomainStatistics)) {
 				values[i] = b.getValues().get(value);
-			} else if (domain.equals(Config.get("CUSTOM_PLOT_DOMAIN_RUNTIMES"))) {
+			} else if (domain.equals(PlotConfig.customPlotDomainRuntimes)) {
 				if (b.getGeneralRuntimes().getNames().contains(value))
 					values[i] = b.getGeneralRuntimes().get(value);
 				else if (b.getMetricRuntimes().getNames().contains(value))
 					values[i] = b.getMetricRuntimes().get(value);
-			} else if (domain.equals(Config
-					.get("CUSTOM_PLOT_DOMAIN_GENERALRUNTIMES"))) {
+			} else if (domain
+					.equals(PlotConfig.customPlotDomainGeneralRuntimes)) {
 				values[i] = b.getGeneralRuntimes().get(value);
-			} else if (domain.equals(Config
-					.get("CUSTOM_PLOT_DOMAIN_METRICRUNTIMES"))) {
+			} else if (domain.equals(PlotConfig.customPlotDomainMetricRuntimes)) {
 				values[i] = b.getMetricRuntimes().get(value);
 			} else if (b.getMetrics().getNames().contains(domain)) {
 				AggregatedMetric m = b.getMetrics().get(domain);
