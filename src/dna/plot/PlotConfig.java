@@ -55,6 +55,10 @@ public class PlotConfig {
 
 	public static String customPlotSuffixYRange = "_YRANGE";
 
+	public static String customPlotSuffixXTics = "_XTICS";
+
+	public static String customPlotSuffixYTics = "_YTICS";
+
 	public static String customPlotSuffixDistType = "_TYPE";
 
 	public static String customPlotSuffixNvlOrder = "_ORDER";
@@ -73,7 +77,7 @@ public class PlotConfig {
 	public static String customPlotDomainFunction = "function";
 
 	public static String customPlotDomainExpression = "expression";
-	
+
 	// WILDCARD
 	public static String customPlotWildcard = "*";
 
@@ -88,6 +92,8 @@ public class PlotConfig {
 	private double yOffset;
 	private String xRange;
 	private String yRange;
+	private String xTics;
+	private String yTics;
 	private boolean plotAsCdf;
 	private String[] values;
 	private String[] domains;
@@ -100,8 +106,8 @@ public class PlotConfig {
 	// constructor
 	private PlotConfig(String filename, String title, String xLabel,
 			String yLabel, String logscale, String datetime, double xOffset,
-			double yOffset, String xRange, String yRange, boolean plotAsCdf,
-			String[] values, String[] domains,
+			double yOffset, String xRange, String yRange, String xTics,
+			String yTics, boolean plotAsCdf, String[] values, String[] domains,
 			DistributionPlotType distPlotType, NodeValueListOrder order,
 			NodeValueListOrderBy orderBy, boolean plotAll, String generalDomain) {
 		this.filename = filename;
@@ -114,6 +120,8 @@ public class PlotConfig {
 		this.yOffset = yOffset;
 		this.xRange = xRange;
 		this.yRange = yRange;
+		this.xTics = xTics;
+		this.yTics = yTics;
 		this.plotAsCdf = plotAsCdf;
 		this.values = values;
 		this.domains = domains;
@@ -191,6 +199,14 @@ public class PlotConfig {
 
 	public String getyRange() {
 		return yRange;
+	}
+
+	public String getxTics() {
+		return xTics;
+	}
+
+	public String getyTics() {
+		return yTics;
 	}
 
 	public String getGeneralDomain() {
@@ -341,6 +357,8 @@ public class PlotConfig {
 			double yOffset = Config.getDouble("GNUPLOT_YOFFSET");
 			String xRange = Config.get("GNUPLOT_XRANGE");
 			String yRange = Config.get("GNUPLOT_YRANGE");
+			String xTics = null;
+			String yTics = null;
 			DistributionPlotType distPlotType = Config
 					.getDistributionPlotType("GNUPLOT_DEFAULT_DIST_PLOTTYPE");
 			NodeValueListOrder order = Config
@@ -398,6 +416,14 @@ public class PlotConfig {
 			} catch (NullPointerException | NumberFormatException e) {
 			}
 
+			// tics
+			if (Config.get(prefix + s + PlotConfig.customPlotSuffixXTics) != null)
+				xTics = Config.get(prefix + s
+						+ PlotConfig.customPlotSuffixXTics);
+			if (Config.get(prefix + s + PlotConfig.customPlotSuffixYTics) != null)
+				yTics = Config.get(prefix + s
+						+ PlotConfig.customPlotSuffixYTics);
+
 			// dist plot type
 			try {
 				distPlotType = Config.getDistributionPlotType(prefix + s
@@ -420,8 +446,8 @@ public class PlotConfig {
 			// Craft PlotConfig and add to configs list
 			plotConfigs.add(new PlotConfig(filename, title, xLabel, yLabel,
 					logscale, datetime, xOffset, yOffset, xRange, yRange,
-					plotAsCdf, values, domains, distPlotType, order, orderBy,
-					plotAll, generalDomain));
+					xTics, yTics, plotAsCdf, values, domains, distPlotType,
+					order, orderBy, plotAll, generalDomain));
 		}
 		return plotConfigs;
 	}

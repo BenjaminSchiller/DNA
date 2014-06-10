@@ -646,6 +646,10 @@ public class Plot {
 				script.add("set xrange " + this.config.getxRange());
 			if (!this.config.getyRange().equals("null"))
 				script.add("set yrange " + this.config.getyRange());
+			if (this.config.getxTics() != null)
+				script.add("set xtics " + this.config.getxTics());
+			if (this.config.getyTics() != null)
+				script.add("set ytics " + this.config.getyTics());
 			if (this.config.getLogscale() != null)
 				script.add("set logscale " + this.config.getLogscale());
 
