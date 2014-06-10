@@ -324,7 +324,7 @@ public class PlotConfig {
 					values[i] = split[split.length - 1];
 
 					// check for wildcard
-					if (values[i].equals(Config.get("CUSTOM_PLOT_WILDCARD")))
+					if (values[i].equals(PlotConfig.customPlotWildcard))
 						plotAll = true;
 
 					// continue with next value
@@ -339,7 +339,7 @@ public class PlotConfig {
 				if (prefix.equals(PlotConfig.customPlotPrefixStatistics))
 					domains[i] = PlotConfig.customPlotDomainStatistics;
 
-				if (value.equals(Config.get("CUSTOM_PLOT_WILDCARD")))
+				if (value.equals(PlotConfig.customPlotWildcard))
 					plotAll = true;
 
 				if (domains[i] == null)

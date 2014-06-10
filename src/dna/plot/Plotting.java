@@ -726,8 +726,8 @@ public class Plotting {
 							style, exprName.replace("$", "") + "-" + title,
 							pc.getGeneralDomain());
 				} else {
-					data[j] = PlotData.get(value, domain, style, domain + "."
-							+ value + "-" + title, type);
+					data[j] = PlotData.get(value, domain, style, value + "-"
+							+ title, type);
 				}
 			}
 
@@ -768,7 +768,6 @@ public class Plotting {
 
 				// add data
 				p.addDataFromValuesAsCDF(batchData);
-				
 
 				// close and execute
 				p.close();
