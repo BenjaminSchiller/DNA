@@ -1141,10 +1141,10 @@ public class Plotting {
 					if (plotDist) {
 						Plot p = new Plot(
 								dstDir,
-								PlotFilenames.getDistributionPlot(name),
+								PlotFilenames.getDistributionPlot(filename),
 								PlotFilenames
 										.getDistributionGnuplotScript(filename),
-								name + " (" + type + ")", data);
+								name + " (" + type + ")", pc, data);
 
 						// set data quantity
 						p.setDataQuantity(values.length);
@@ -1163,7 +1163,8 @@ public class Plotting {
 								PlotFilenames.getDistributionCdfPlot(filename),
 								PlotFilenames
 										.getDistributionCdfGnuplotScript(filename),
-								"CDF of " + name + " (" + type + ")", dataCdf);
+								"CDF of " + name + " (" + type + ")", pc,
+								dataCdf);
 
 						// set data quantity
 						pCdf.setDataQuantity(values.length);
@@ -1262,7 +1263,7 @@ public class Plotting {
 							PlotFilenames.getNodeValueListPlot(filename),
 							PlotFilenames
 									.getNodeValueListGnuplotScript(filename),
-							name + " (" + type + ")", data);
+							name + " (" + type + ")", pc, data);
 
 					// disable datetime for nodevaluelist plot
 					p.setPlotDateTime(false);

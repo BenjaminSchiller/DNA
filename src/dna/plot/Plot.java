@@ -242,8 +242,7 @@ public class Plot {
 	private void addData(String name, String domain, AggregatedBatch batch,
 			boolean addAsCDF) throws IOException {
 		double timestamp = (double) batch.getTimestamp();
-		// System.out.println("adding data to '" + name + "' at domain '" +
-		// domain + "' as cdf:" + addAsCDF);
+
 		// figure out where to get the data from
 		if (domain.equals(PlotConfig.customPlotDomainStatistics)) {
 			this.appendData(batch.getValues().get(name), timestamp);
