@@ -287,6 +287,12 @@ public class PlotConfig {
 			// init domains arrays
 			String[] domains = new String[values.length];
 
+			
+			// replace "-characters in values
+			for(int i = 0; i < values.length; i++) {
+				values[i] = values[i].replace("" + '"', "");
+			}
+			
 			// parse values and get domains
 			for (int i = 0; i < values.length; i++) {
 				String value = values[i];
