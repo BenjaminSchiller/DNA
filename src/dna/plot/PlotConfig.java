@@ -271,6 +271,10 @@ public class PlotConfig {
 			String[] values = Config.keys(prefix + s
 					+ PlotConfig.customPlotSuffixValues);
 
+			// if no values are set, continue with next plot
+			if (values.length < 1)
+				continue;
+
 			// init domains arrays
 			String[] domains = new String[values.length];
 
