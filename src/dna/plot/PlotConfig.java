@@ -213,6 +213,15 @@ public class PlotConfig {
 		return generalDomain;
 	}
 
+	// setters
+	public void setValues(String[] values) {
+		this.values = values;
+	}
+
+	public void setDomains(String[] domains) {
+		this.domains = domains;
+	}
+
 	/** Returns the custom value plots created from config **/
 	public static ArrayList<PlotConfig> getCustomValuePlots() {
 		return PlotConfig.getCustomPlots(PlotConfig.customPlotPrefixValues);
@@ -301,6 +310,23 @@ public class PlotConfig {
 					}
 					if ((count & 1) != 0)
 						Log.warn("syntax error on parsing '" + value + "'");
+
+					// check if contains wildcard
+					int wildcardCounter = 0;
+					String[] delSplit = value.split("\\$");
+					for (int j = 1; j < delSplit.length; j += 2) {
+						if (delSplit[j].contains(PlotConfig.customPlotWildcard)) {
+							if (delSplit[j].length() > 1) {
+								String[] pSplit = delSplit[j].split("\\.");
+								if (pSplit.length == 2)
+									generalDomain = pSplit[0];
+							}
+							plotAll = true;
+							wildcardCounter++;
+						}
+					}
+					if (wildcardCounter > 1)
+						Log.warn("More than 1 wildcard in '" + value + "'");
 
 					// if expression -> set domain and continue with next value
 					domains[i] = PlotConfig.customPlotDomainExpression;

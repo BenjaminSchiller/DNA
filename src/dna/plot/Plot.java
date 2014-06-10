@@ -242,7 +242,8 @@ public class Plot {
 	private void addData(String name, String domain, AggregatedBatch batch,
 			boolean addAsCDF) throws IOException {
 		double timestamp = (double) batch.getTimestamp();
-
+		// System.out.println("adding data to '" + name + "' at domain '" +
+		// domain + "' as cdf:" + addAsCDF);
 		// figure out where to get the data from
 		if (domain.equals(PlotConfig.customPlotDomainStatistics)) {
 			this.appendData(batch.getValues().get(name), timestamp);
@@ -468,8 +469,26 @@ public class Plot {
 		// iterate over plotdata
 		for (int i = 0; i < this.data.length; i++) {
 			// check if function
-			if (!(this.data[i] instanceof FunctionData)) {
-				// if not a function, add data
+			if (this.data[i] instanceof FunctionData) {
+				// if function, only increment data write counter
+				this.dataWriteCounter++;
+			} else if (this.data[i] instanceof ExpressionData) {
+				// if expression
+				AggregatedBatch prevBatch = batchData[0];
+				AggregatedBatch tempBatch;
+				for (int j = 0; j < batchData.length; j++) {
+					if (j > 0) {
+						tempBatch = Plot.sumRuntimes(batchData[j], prevBatch);
+					} else {
+						tempBatch = batchData[j];
+					}
+					this.addDataFromExpression(tempBatch,
+							(ExpressionData) this.data[i]);
+					prevBatch = tempBatch;
+				}
+				this.appendEOF();
+			} else {
+				// if not a function or expression, add data
 				String name = this.data[i].getName();
 				String domain = this.data[i].getDomain();
 				AggregatedBatch prevBatch = batchData[0];
@@ -484,9 +503,6 @@ public class Plot {
 					prevBatch = tempBatch;
 				}
 				this.appendEOF();
-			} else {
-				// if function, only increment data write counter
-				this.dataWriteCounter++;
 			}
 		}
 	}

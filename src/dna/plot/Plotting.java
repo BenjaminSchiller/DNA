@@ -122,6 +122,10 @@ public class Plotting {
 			// plot custom statistic plots
 			if (config.getCustomStatisticPlots() != null) {
 				if (config.getCustomStatisticPlots().size() > 0) {
+					// handle wildcards
+					Plotting.replaceWildcards(config.getCustomStatisticPlots(),
+							batchData[0]);
+
 					Log.infoSep();
 					Log.info("Plotting Custom-Statistic-Plots:");
 					Plotting.plotCustomValuePlots(batchData,
@@ -133,6 +137,10 @@ public class Plotting {
 
 		// plot custom value plots
 		if (config.isPlotCustomValues()) {
+			// handle wildcards
+			Plotting.replaceWildcards(config.getCustomValuePlots(),
+					batchData[0]);
+
 			Log.infoSep();
 			Log.info("Plotting Custom-Value-Plots:");
 			Plotting.plotCustomValuePlots(batchData,
@@ -141,6 +149,10 @@ public class Plotting {
 
 		// plot runtimes
 		if (config.isPlotRuntimes()) {
+			// handle wildcards
+			Plotting.replaceWildcards(config.getCustomRuntimePlots(),
+					batchData[0]);
+
 			// plot custom runtimes
 			Plotting.plotCustomRuntimes(batchData,
 					config.getCustomRuntimePlots(), dstDir, title, style, type);
@@ -154,6 +166,10 @@ public class Plotting {
 			// plot custom metric value plots
 			if (config.getCustomMetricValuePlots() != null) {
 				if (config.getCustomMetricValuePlots().size() > 0) {
+					// handle wildcards
+					Plotting.replaceWildcards(
+							config.getCustomMetricValuePlots(), batchData[0]);
+
 					Log.infoSep();
 					Log.info("Plotting Custom-MetricValue-Plots:");
 					Plotting.plotCustomValuePlots(batchData,
@@ -191,6 +207,185 @@ public class Plotting {
 					config.getCustomNodeValueListPlots(), tempDir, dstDir,
 					title, style, type, distPlotType, order, orderBy);
 
+	}
+
+	/**
+	 * Replaces all wildcards in the given config with the corresponding values
+	 * from the given batch.
+	 * 
+	 * @param config
+	 *            Config to be altered.
+	 * @param batch
+	 *            Batch holding the names of the values which will be inserted
+	 *            into the config.
+	 */
+	private static void replaceWildcards(ArrayList<PlotConfig> config,
+			AggregatedBatch batch) {
+		if (config != null) {
+			// iterate over configs
+			for (PlotConfig cfg : config) {
+				// if plot all is false, no wildcard is included -> skip
+				if (!cfg.isPlotAll())
+					continue;
+				String[] values = cfg.getValues();
+				String[] domains = cfg.getDomains();
+
+				ArrayList<String> vList = new ArrayList<String>();
+				ArrayList<String> dList = new ArrayList<String>();
+
+				// iterate over all values
+				for (int i = 0; i < values.length; i++) {
+					String value = values[i];
+					String domain = domains[i];
+					String wildcard = PlotConfig.customPlotWildcard;
+
+					// if no wildcard included, no replacement
+					if (!value.contains(wildcard)) {
+						vList.add(value);
+						dList.add(domain);
+						continue;
+					}
+
+					if (domain.equals(PlotConfig.customPlotDomainExpression)) {
+						// case mathematical expression
+						String generalDomain = cfg.getGeneralDomain();
+						String[] split = value.split("\\$");
+						// statistics
+						if (generalDomain
+								.equals(PlotConfig.customPlotDomainStatistics)) {
+							for (String v : batch.getValues().getNames()) {
+								String string = "";
+								for (int j = 0; j < split.length; j++) {
+									if ((j & 1) == 0) {
+										// even
+										string += split[j];
+									} else {
+										// odd
+										string += "$" + v + "$";
+									}
+								}
+								vList.add(string);
+								dList.add(domain);
+							}
+
+						} else if (generalDomain
+								.equals(PlotConfig.customPlotDomainGeneralRuntimes)
+								|| generalDomain
+										.equals(PlotConfig.customPlotDomainRuntimes)) {
+							// general runtimes
+							for (String v : batch.getGeneralRuntimes()
+									.getNames()) {
+								// skip graphgeneration
+								if (v.equals("graphGeneration"))
+									continue;
+								String string = "";
+								for (int j = 0; j < split.length; j++) {
+									if ((j & 1) == 0) {
+										// even
+										string += split[j];
+									} else {
+										// odd
+										string += "$" + v + "$";
+									}
+								}
+								vList.add(string);
+								dList.add(domain);
+							}
+
+						} else if (generalDomain
+								.equals(PlotConfig.customPlotDomainMetricRuntimes)
+								|| generalDomain
+										.equals(PlotConfig.customPlotDomainRuntimes)) {
+							// metric runtimes
+							for (String v : batch.getMetricRuntimes()
+									.getNames()) {
+								String string = "";
+								for (int j = 0; j < split.length; j++) {
+									if ((j & 1) == 0) {
+										// even
+										string += split[j];
+									} else {
+										// odd
+										string += "$" + v + "$";
+									}
+								}
+								vList.add(string);
+								dList.add(domain);
+							}
+						} else {
+							// metric value
+							if (batch.getMetrics().getNames()
+									.contains(generalDomain)) {
+								AggregatedMetric m = batch.getMetrics().get(
+										generalDomain);
+								for (String v : m.getValues().getNames()) {
+									String string = "";
+									for (int j = 0; j < split.length; j++) {
+										if ((j & 1) == 0) {
+											// even
+											string += split[j];
+										} else {
+											// odd
+											string += "$" + v + "$";
+										}
+									}
+									vList.add(string);
+									dList.add(domain);
+								}
+							}
+						}
+					} else {
+						// case no mathematical expression, just replace
+						// wildcard
+						if (domain
+								.equals(PlotConfig.customPlotDomainStatistics)) {
+							// statistics
+							for (String v : batch.getValues().getNames()) {
+								vList.add(value.replace(wildcard, v));
+								dList.add(domain);
+							}
+						} else if (domain
+								.equals(PlotConfig.customPlotDomainGeneralRuntimes)
+								|| domain
+										.equals(PlotConfig.customPlotDomainRuntimes)) {
+							// general runtimes
+							for (String v : batch.getGeneralRuntimes()
+									.getNames()) {
+								// skip graphgeneration
+								if (v.equals("graphGeneration"))
+									continue;
+								vList.add(value.replace(wildcard, v));
+								dList.add(domain);
+							}
+						} else if (domain
+								.equals(PlotConfig.customPlotDomainMetricRuntimes)
+								|| domain
+										.equals(PlotConfig.customPlotDomainRuntimes)) {
+							// metric runtimes
+							for (String v : batch.getMetricRuntimes()
+									.getNames()) {
+								vList.add(value.replace(wildcard, v));
+								dList.add(domain);
+							}
+						} else {
+							// metric value
+							if (batch.getMetrics().getNames().contains(domain)) {
+								AggregatedMetric m = batch.getMetrics().get(
+										domain);
+								for (String v : m.getValues().getNames()) {
+									vList.add(value.replace(wildcard, v));
+									dList.add(domain);
+								}
+							}
+						}
+
+					}
+				}
+				// set new values and domains
+				cfg.setValues(vList.toArray(new String[0]));
+				cfg.setDomains(dList.toArray(new String[0]));
+			}
+		}
 	}
 
 	/**
@@ -609,8 +804,8 @@ public class Plotting {
 				break;
 			}
 
-			// if plot all, make plot for all runtimes
-			if (pc.isPlotAll()) {
+			// if plot all, make plot for all values
+			if (pc.isPlotAll() && false) {
 				String runtimeDomain = PlotConfig.customPlotDomainRuntimes;
 				String statisticsDomain = PlotConfig.customPlotDomainStatistics;
 
@@ -708,7 +903,7 @@ public class Plotting {
 					}
 					data[j] = PlotData.get(functionSplit[0].trim(),
 							functionSplit[1].trim(), style, domain + "."
-									+ value + "-" + title, PlotType.function);
+									+ value, PlotType.function);
 				} else if (domain.equals(PlotConfig.customPlotDomainExpression)) {
 					// if expression
 					String[] expressionSplit = value.split(":");
@@ -723,7 +918,7 @@ public class Plotting {
 					else
 						exprName = expressionSplit[0];
 					data[j] = new ExpressionData(exprName, expressionSplit[1],
-							style, exprName.replace("$", "") + "-" + title,
+							style, exprName.replace("$", ""),
 							pc.getGeneralDomain());
 				} else {
 					data[j] = PlotData.get(value, domain, style, value, type);
@@ -1498,7 +1693,7 @@ public class Plotting {
 			}
 
 			// if plot all, make plot for all runtimes
-			if (pc.isPlotAll()) {
+			if (pc.isPlotAll() && false) {
 				String runtimeDomain = PlotConfig.customPlotDomainRuntimes;
 
 				ArrayList<String> valuesList = new ArrayList<String>();
