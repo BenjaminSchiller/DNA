@@ -726,8 +726,7 @@ public class Plotting {
 							style, exprName.replace("$", "") + "-" + title,
 							pc.getGeneralDomain());
 				} else {
-					data[j] = PlotData.get(value, domain, style, value + "-"
-							+ title, type);
+					data[j] = PlotData.get(value, domain, style, value, type);
 				}
 			}
 
@@ -1261,7 +1260,7 @@ public class Plotting {
 
 				// get plot data
 				PlotData valuePlotData = PlotData.get(value, m.getName(),
-						style, metric + "-" + title, type);
+						style, metric, type);
 
 				// create plot
 				plots.add(new Plot(dstDir, PlotFilenames.getValuesPlot(metric,
@@ -1581,7 +1580,7 @@ public class Plotting {
 					}
 					plotData[i] = PlotData.get(functionSplit[0].trim(),
 							functionSplit[1].trim(), style, domain + "."
-									+ value + "-" + title, PlotType.function);
+									+ value, PlotType.function);
 				} else if (domain.equals(PlotConfig.customPlotDomainExpression)) {
 					// if expression
 					String[] expressionSplit = value.split(":");
@@ -1597,11 +1596,10 @@ public class Plotting {
 						exprName = expressionSplit[0];
 					plotData[i] = new ExpressionData(exprName,
 							expressionSplit[1], style,
-							exprName.replace("$", "") + "-" + title,
-							pc.getGeneralDomain());
+							exprName.replace("$", ""), pc.getGeneralDomain());
 				} else {
-					plotData[i] = PlotData.get(value, domain, style, value
-							+ "-" + title, type);
+					plotData[i] = PlotData.get(value, domain, style, value,
+							type);
 				}
 			}
 
