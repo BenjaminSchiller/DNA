@@ -94,7 +94,7 @@ public class PlotConfig {
 	private String yRange;
 	private String xTics;
 	private String yTics;
-	private boolean plotAsCdf;
+	private String plotAsCdf;
 	private String[] values;
 	private String[] domains;
 	private DistributionPlotType distPlotType;
@@ -107,7 +107,7 @@ public class PlotConfig {
 	private PlotConfig(String filename, String title, String xLabel,
 			String yLabel, String logscale, String datetime, double xOffset,
 			double yOffset, String xRange, String yRange, String xTics,
-			String yTics, boolean plotAsCdf, String[] values, String[] domains,
+			String yTics, String plotAsCdf, String[] values, String[] domains,
 			DistributionPlotType distPlotType, NodeValueListOrder order,
 			NodeValueListOrderBy orderBy, boolean plotAll, String generalDomain) {
 		this.filename = filename;
@@ -141,7 +141,7 @@ public class PlotConfig {
 		return domains;
 	}
 
-	public boolean isPlotAsCdf() {
+	public String getPlotAsCdf() {
 		return plotAsCdf;
 	}
 
@@ -348,8 +348,7 @@ public class PlotConfig {
 			}
 
 			// read optional values from config
-			boolean plotAsCdf = Config.getBoolean(prefix + s
-					+ PlotConfig.customPlotSuffixCdf);
+			String plotAsCdf = "false";
 
 			// default values
 			String filename = keyword;
@@ -427,6 +426,11 @@ public class PlotConfig {
 			if (Config.get(prefix + s + PlotConfig.customPlotSuffixYTics) != null)
 				yTics = Config.get(prefix + s
 						+ PlotConfig.customPlotSuffixYTics);
+
+			// as cdf
+			if (Config.get(prefix + s + PlotConfig.customPlotSuffixCdf) != null)
+				plotAsCdf = Config.get(prefix + s
+						+ PlotConfig.customPlotSuffixCdf);
 
 			// dist plot type
 			try {

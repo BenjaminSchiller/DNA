@@ -592,6 +592,23 @@ public class Plotting {
 			String[] values = pc.getValues();
 			String[] domains = pc.getDomains();
 
+			// set flags for what to plot
+			boolean plotNormal = false;
+			boolean plotAsCdf = false;
+
+			switch (pc.getPlotAsCdf()) {
+			case "true":
+				plotAsCdf = true;
+				break;
+			case "false":
+				plotNormal = true;
+				break;
+			case "both":
+				plotNormal = true;
+				plotAsCdf = true;
+				break;
+			}
+
 			// if plot all, make plot for all runtimes
 			if (pc.isPlotAll()) {
 				String runtimeDomain = PlotConfig.customPlotDomainRuntimes;
@@ -720,23 +737,42 @@ public class Plotting {
 				filename = pc.getFilename();
 			}
 
-			// create plot
-			Plot p = new Plot(dstDir, filename,
-					PlotFilenames.getValuesGnuplotScript(filename), name + " ("
-							+ type + ")", pc, data);
+			// normal plot
+			if (plotNormal) {
+				// create plot
+				Plot p = new Plot(dstDir, filename,
+						PlotFilenames.getValuesGnuplotScript(filename), name
+								+ " (" + type + ")", pc, data);
 
-			// write script header
-			p.writeScriptHeader();
+				// write script header
+				p.writeScriptHeader();
 
-			// add data
-			if (pc.isPlotAsCdf())
-				p.addDataFromRuntimesAsCDF(batchData);
-			else
+				// add data
 				p.addData(batchData);
 
-			// close and execute
-			p.close();
-			p.execute();
+				// close and execute
+				p.close();
+				p.execute();
+			}
+
+			// cdf plot
+			if (plotAsCdf) {
+				// create plot
+				Plot p = new Plot(dstDir,
+						PlotFilenames.getValuesPlotCDF(filename),
+						PlotFilenames.getValuesGnuplotScriptCDF(filename), name
+								+ " (" + type + ")", pc, data);
+
+				// write script header
+				p.writeScriptHeader();
+
+				// add data
+				p.addDataFromRuntimesAsCDF(batchData);
+
+				// close and execute
+				p.close();
+				p.execute();
+			}
 		}
 	}
 
@@ -1438,15 +1474,29 @@ public class Plotting {
 			Log.info("\tplotting '" + name + "'");
 			String[] values = pc.getValues();
 			String[] domains = pc.getDomains();
-			boolean plotAsCdf = pc.isPlotAsCdf();
+
+			// set flags for what to plot
+			boolean plotNormal = false;
+			boolean plotAsCdf = false;
+
+			switch (pc.getPlotAsCdf()) {
+			case "true":
+				plotAsCdf = true;
+				break;
+			case "false":
+				plotNormal = true;
+				break;
+			case "both":
+				plotNormal = true;
+				plotAsCdf = true;
+				break;
+			}
 
 			// get filename
 			String plotFilename = PlotFilenames.getValuesPlot(name);
 			if (pc.getFilename() != null) {
 				plotFilename = pc.getFilename();
 			}
-			String scriptFilename;
-			String plotTitle;
 
 			// if plot all, make plot for all runtimes
 			if (pc.isPlotAll()) {
@@ -1516,18 +1566,6 @@ public class Plotting {
 				values = valuesList.toArray(new String[0]);
 				domains = domainsList.toArray(new String[0]);
 			}
-			if (plotAsCdf) {
-				scriptFilename = PlotFilenames
-						.getRuntimesGnuplotScriptCDF(plotFilename);
-				plotFilename += Config.get("PLOT_DELIMITER")
-						+ Config.get("PLOT_DISTRIBUTION_CDF");
-				plotTitle = "CDF of ";
-			} else {
-				scriptFilename = PlotFilenames
-						.getRuntimesGnuplotScript(plotFilename);
-				plotTitle = "";
-			}
-			plotTitle += name + " (" + type + ")";
 
 			// gather plot data
 			PlotData[] plotData = new PlotData[values.length];
@@ -1567,22 +1605,44 @@ public class Plotting {
 				}
 			}
 
-			// create plot
-			Plot p = new Plot(dstDir, plotFilename, scriptFilename, plotTitle,
-					pc, plotData);
+			// normal plot
+			if (plotNormal) {
+				// create plot
+				Plot p = new Plot(dstDir, plotFilename,
+						PlotFilenames.getRuntimesGnuplotScript(plotFilename),
+						name + " (" + type + ")", pc, plotData);
 
-			// write script header
-			p.writeScriptHeader();
+				// write script header
+				p.writeScriptHeader();
 
-			// add data
-			if (plotAsCdf)
-				p.addDataFromRuntimesAsCDF(batchData);
-			else
+				// add data
 				p.addData(batchData);
 
-			// close and execute
-			p.close();
-			p.execute();
+				// close and execute
+				p.close();
+				p.execute();
+			}
+
+			// cdf plot
+			if (plotAsCdf) {
+				// create plot
+				Plot p = new Plot(
+						dstDir,
+						PlotFilenames.getRuntimesPlotFileCDF(plotFilename),
+						PlotFilenames.getRuntimesGnuplotScriptCDF(plotFilename),
+						"CDF of " + name + " (" + type + ")", pc, plotData);
+
+				// write script header
+				p.writeScriptHeader();
+
+				// add data
+				p.addDataFromRuntimesAsCDF(batchData);
+
+				// close and execute
+				p.close();
+				p.execute();
+
+			}
 		}
 	}
 

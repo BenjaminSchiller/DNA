@@ -99,6 +99,18 @@ public class PlotFilenames {
 				+ Config.get("SUFFIX_GNUPLOT");
 	}
 
+	public static String getValuesPlotCDF(String value) {
+		return value + Config.get("PLOT_DELIMITER")
+				+ Config.get("PLOT_DISTRIBUTION_CDF");
+	}
+
+	public static String getValuesGnuplotScriptCDF(String value) {
+		return Config.get("PREFIX_GNUPLOT_SCRIPT") + value
+				+ Config.get("PLOT_DELIMITER")
+				+ Config.get("PLOT_DISTRIBUTION_CDF")
+				+ Config.get("SUFFIX_GNUPLOT");
+	}
+
 	public static String getValuesGnuplotScript(String value) {
 		return Config.get("PREFIX_GNUPLOT_SCRIPT") + value
 				+ Config.get("SUFFIX_GNUPLOT");
