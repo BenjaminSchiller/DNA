@@ -767,7 +767,8 @@ public class Plotting {
 				p.writeScriptHeader();
 
 				// add data
-				p.addDataFromRuntimesAsCDF(batchData);
+				p.addDataFromValuesAsCDF(batchData);
+				
 
 				// close and execute
 				p.close();
