@@ -4,8 +4,8 @@ import dna.graph.Element;
 import dna.graph.nodes.Node;
 
 public abstract class Edge extends Element implements IEdge {
-	private Node n1;
-	private Node n2;
+	protected Node n1;
+	protected Node n2;
 
 	protected void init(Node n1, Node n2) {
 		this.n1 = n1;
