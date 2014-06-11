@@ -34,7 +34,7 @@ public abstract class DirectedMotifs extends Metric {
 	protected DistributionLong motifs;
 
 	public static final String motifsName = "directedMotifs";
-	
+
 	protected GraphDataStructure gds;
 
 	public DirectedMotifs(String name, ApplicationType type,
@@ -288,6 +288,10 @@ public abstract class DirectedMotifs extends Metric {
 
 	protected void incr(DirectedMotifType type) {
 		this.motifs.incr(DirectedMotifs.getIndex(type));
+	}
+
+	protected void decr(DirectedMotifType type) {
+		this.motifs.decr(DirectedMotifs.getIndex(type));
 	}
 
 	protected HashSet<DirectedNode> getConnectedNodes(DirectedNode node) {
