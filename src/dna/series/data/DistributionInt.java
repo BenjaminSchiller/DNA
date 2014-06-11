@@ -93,9 +93,14 @@ public class DistributionInt extends Distribution {
 
 	public int getMin() {
 		int y = 0;
-		while (values[y] < 0) {
+		if (values.length == 0) {
+			return -1;
+		}
+		while (values[y] <= 0) {
 			y++;
-
+			if (y == values.length) {
+				break;
+			}
 		}
 		return y;
 	}
