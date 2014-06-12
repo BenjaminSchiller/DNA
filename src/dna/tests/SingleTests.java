@@ -15,8 +15,10 @@ import org.junit.Test;
 
 import dna.graph.ClassPointers;
 import dna.graph.Graph;
+import dna.graph.datastructures.DArray;
 import dna.graph.datastructures.DArrayList;
 import dna.graph.datastructures.DEmpty;
+import dna.graph.datastructures.DHashMap;
 import dna.graph.datastructures.DHashSet;
 import dna.graph.datastructures.DHashTable;
 import dna.graph.datastructures.DLinkedHashMultimap;
@@ -31,12 +33,15 @@ import dna.graph.edges.UndirectedEdge;
 import dna.graph.edges.UndirectedWeightedEdge;
 import dna.graph.generators.GraphGenerator;
 import dna.graph.generators.random.RandomGraph;
+import dna.graph.generators.util.EmptyGraph;
 import dna.graph.nodes.DirectedNode;
 import dna.graph.nodes.DirectedWeightedNode;
 import dna.graph.nodes.Node;
 import dna.graph.nodes.UndirectedNode;
 import dna.graph.nodes.UndirectedWeightedNode;
 import dna.graph.weights.DoubleWeight;
+import dna.graph.weights.IntWeight;
+import dna.graph.weights.Weight.WeightSelection;
 import dna.metrics.MetricNotApplicableException;
 import dna.series.AggregationException;
 import dna.updates.generators.BatchGenerator;
@@ -300,4 +305,83 @@ public class SingleTests {
 		assertTrue(list.add(e2));
 		assertTrue(list.contains(e2));
 	}
+
+	@Test
+	public void hasEdgeIsCorrectForDirectedDummyEdge() {
+		GraphDataStructure gds = new GraphDataStructure(
+				GraphDataStructure.getList(ListType.GlobalNodeList,
+						DArray.class, ListType.GlobalEdgeList, DHashMap.class,
+						ListType.LocalEdgeList, DHashMap.class,
+						ListType.LocalNodeList, DHashMap.class),
+				DirectedNode.class, DirectedWeightedEdge.class, null, null,
+				IntWeight.class, WeightSelection.Zero);
+		GraphGenerator gg = new EmptyGraph(gds);
+		Graph g = gg.generate();
+
+		Node n1 = gds.newNodeInstance(0);
+		Node n2 = gds.newNodeInstance(1);
+		Node n3 = gds.newNodeInstance(2);
+
+		Edge e1 = gds.newEdgeInstance(n1, n2);
+		Edge e2 = gds.newEdgeInstance(n1, n3);
+		Edge e3 = gds.newEdgeInstance(n2, n3);
+
+		e1.connectToNodes();
+		e2.connectToNodes();
+		e3.connectToNodes();
+
+		g.addNode(n1);
+		g.addNode(n2);
+		g.addNode(n3);
+
+		g.addEdge(e1);
+		g.addEdge(e2);
+		g.addEdge(e3);
+
+		assertTrue(n1.hasEdge(n1, n2));
+		assertTrue(n1.hasEdge(n1, n3));
+
+		assertTrue(n2.hasEdge(n1, n2));
+		assertTrue(n3.hasEdge(n1, n3));
+	}
+
+	@Test
+	public void hasEdgeIsCorrectForUndirectedDummyEdge() {
+		GraphDataStructure gds = new GraphDataStructure(
+				GraphDataStructure.getList(ListType.GlobalNodeList,
+						DArray.class, ListType.GlobalEdgeList, DHashMap.class,
+						ListType.LocalEdgeList, DHashMap.class,
+						ListType.LocalNodeList, DHashMap.class),
+				UndirectedNode.class, UndirectedWeightedEdge.class, null, null,
+				IntWeight.class, WeightSelection.Zero);
+		GraphGenerator gg = new EmptyGraph(gds);
+		Graph g = gg.generate();
+
+		Node n1 = gds.newNodeInstance(0);
+		Node n2 = gds.newNodeInstance(1);
+		Node n3 = gds.newNodeInstance(2);
+
+		Edge e1 = gds.newEdgeInstance(n1, n2);
+		Edge e2 = gds.newEdgeInstance(n1, n3);
+		Edge e3 = gds.newEdgeInstance(n2, n3);
+
+		e1.connectToNodes();
+		e2.connectToNodes();
+		e3.connectToNodes();
+
+		g.addNode(n1);
+		g.addNode(n2);
+		g.addNode(n3);
+
+		g.addEdge(e1);
+		g.addEdge(e2);
+		g.addEdge(e3);
+
+		assertTrue(n1.hasEdge(n1, n2));
+		assertTrue(n1.hasEdge(n1, n3));
+
+		assertTrue(n2.hasEdge(n1, n2));
+		assertTrue(n3.hasEdge(n1, n3));
+	}
+
 }
