@@ -30,25 +30,35 @@ public aspect TimerAspects {
 	private boolean enhancedHotswapTimer = false;
 
 	pointcut seriesGeneration() : call(* SeriesGeneration.generate(Series, int, int, boolean, boolean, boolean, long));
+
 	pointcut runGeneration(): call(* SeriesGeneration.generateRun(Series, int, int,..));
+
 	pointcut graphGeneration(): call(* IGraphGenerator.generate(..));
 
 	pointcut initialBatchData(): call(* SeriesGeneration.computeInitialData(..)) || call(* SeriesGeneration.computeNextBatch(..));
+
 	pointcut initialBatchDataGeneration(): call(* SeriesGeneration.generateInitialData(..)) || call(* SeriesGeneration.generateNextBatch(..));
+
 	pointcut initialMetricData(): call(* SeriesGeneration.computeInitialMetrics(..));
 
 	pointcut batchGeneration(): call(* BatchGenerator+.generate(..));
+
 	pointcut batchApplication(): call(* Update+.apply(..));
 
 	pointcut metricApplicationInInitialization(Metric metric) : (call(* Metric+.init()) || call(* Metric+.compute())) && target(metric) && cflow(initialMetricData());
+
 	pointcut metricApplicationPerBatch(Metric metric, Batch b) : (call(* Metric+.applyBeforeBatch(Batch+))
 			 || call(* Metric+.applyAfterBatch(Batch+))) && args(b) && target(metric);
+
 	pointcut metricApplicationPerUpdate(Metric metric, Update update) : (call(* Metric+.applyBeforeUpdate(Update+))
 			 || call(* Metric+.applyAfterUpdate(Update+))) && args(update) && target(metric);
+
 	pointcut metricApplicationRecomputation(Metric metric): call(* Metric+.compute()) && target(metric) && !cflow(initialMetricData());
+
 	pointcut aggregation(SeriesData sd): call(* Aggregation.aggregateSeries(SeriesData)) && args(sd);
 
 	pointcut profilerExecution(): execution(* Profiler.start*(..)) || execution(* Profiler.finish*(..));
+
 	pointcut hotswappingExecution(): call(* HotSwap.trySwap(..));
 
 	SeriesData around(): seriesGeneration() {
@@ -56,7 +66,7 @@ public aspect TimerAspects {
 		resetList = new HashSet<>();
 		metricList = new HashSet<>();
 		additionalNotInTotalRuntimesList = new HashSet<>();
-		
+
 		Timer timer = new Timer("seriesGeneration");
 		SeriesData res = proceed();
 		timer.end();
@@ -82,7 +92,7 @@ public aspect TimerAspects {
 		map.put(graphGenerationTimer);
 		return res;
 	}
-	
+
 	BatchData around(): initialBatchDataGeneration() {
 		for (String resetTimerName : resetList) {
 			map.remove(resetTimerName);
@@ -97,7 +107,7 @@ public aspect TimerAspects {
 				.getRuntime());
 		generalRuntimes.add(map.get(SeriesStats.graphUpdateRuntime, true)
 				.getRuntime());
-		
+
 		Timer metricsRT = map.get(SeriesStats.metricsRuntime);
 		if (metricsRT == null) {
 			generalRuntimes.add(new RunTime(SeriesStats.metricsRuntime, 0));
@@ -149,10 +159,10 @@ public aspect TimerAspects {
 
 		generalRuntimes.add(new RunTime(SeriesStats.sumRuntime, sum));
 		generalRuntimes.add(new RunTime(SeriesStats.overheadRuntime, overhead));
-		
+
 		// Check whether we missed something...
-		for ( String rt: SeriesStats.generalRuntimesOfCombinedPlot) {
-			if ( generalRuntimes.get(rt) == null) {
+		for (String rt : SeriesStats.generalRuntimesOfCombinedPlot) {
+			if (generalRuntimes.get(rt) == null) {
 				generalRuntimes.add(new RunTime(rt, 0));
 			}
 		}
@@ -173,12 +183,11 @@ public aspect TimerAspects {
 		BatchData res = proceed();
 		t.end();
 		map.put(t);
-		
-		for (String metricName: metricList) {
-			res.getMetricRuntimes().add(
-					map.get(metricName).getRuntime());
+
+		for (String metricName : metricList) {
+			res.getMetricRuntimes().add(map.get(metricName).getRuntime());
 		}
-		
+
 		return res;
 	}
 
@@ -260,7 +269,7 @@ public aspect TimerAspects {
 		map.put(wholeMetricsTimer);
 		return res;
 	}
-	
+
 	boolean around(Metric metric): metricApplicationRecomputation(metric) {
 		resetList.add(metric.getName());
 		Timer singleMetricTimer = map.get(metric.getName());
@@ -282,8 +291,8 @@ public aspect TimerAspects {
 		map.put(singleMetricTimer);
 		map.put(wholeMetricsTimer);
 		return res;
-	}	
-	
+	}
+
 	AggregatedSeries around(SeriesData sd): aggregation(sd) {
 		Timer aggregationTimer = new Timer("aggregation");
 		AggregatedSeries res = proceed(sd);
@@ -335,9 +344,9 @@ public aspect TimerAspects {
 	}
 
 	private void enhanceTimer(String key) {
-		Config.overwrite("RT_GENERAL_VALUES", Config.get("RT_GENERAL_VALUES")
-				+ ", " + key);
-		Config.overwrite("RT_GENERAL_CDF_VALUES",
-				Config.get("RT_GENERAL_CDF_VALUES") + ", " + key);
+		// Config.overwrite("RT_GENERAL_VALUES", Config.get("RT_GENERAL_VALUES")
+		// + ", " + key);
+		// Config.overwrite("RT_GENERAL_CDF_VALUES",
+		// Config.get("RT_GENERAL_CDF_VALUES") + ", " + key);
 	}
 }
