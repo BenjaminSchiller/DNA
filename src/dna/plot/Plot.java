@@ -46,6 +46,7 @@ public class Plot {
 	private Writer fileWriter;
 	private int dataWriteCounter;
 	private int dataQuantity;
+	private int[] seriesDataQuantities;
 	private int functionQuantity;
 
 	// plot config
@@ -344,6 +345,45 @@ public class Plot {
 				this.addData(name, domain, batchData, true);
 			else
 				this.addData(name, domain, batchData, false);
+		}
+	}
+
+	/**
+	 * Adds data from batches of a whole series to the plot. Used for plotting
+	 * values of multiple series. Data can be read and added sequentially for
+	 * each series.
+	 */
+	public void addDataSequentially(AggregatedBatch[] batchData)
+			throws IOException {
+		if (this.dataWriteCounter >= this.data.length) {
+			// counter out of bounds, dont add more data
+			Log.warn("attempt to write to much data to plot '"
+					+ this.plotFilename + "'");
+		} else {
+			if (this.data[this.dataWriteCounter] == null) {
+				Log.error("PlotData " + this.dataWriteCounter + " of plot '"
+						+ this.plotFilename + "' is null!");
+			}
+			if (!(this.data[this.dataWriteCounter] instanceof FunctionData)) {
+				// if not function, add data
+				String name = this.data[this.dataWriteCounter].getName();
+				String domain = this.data[this.dataWriteCounter].getDomain();
+				if (this.data[this.dataWriteCounter].isPlotAsCdf()) {
+					// cdf
+				} else {
+					// default case
+					for (int j = 0; j < batchData.length; j++) {
+						// check if expression
+						if (this.data[this.dataWriteCounter] instanceof ExpressionData)
+							this.addDataFromExpression(
+									batchData[j],
+									(ExpressionData) this.data[this.dataWriteCounter]);
+						else
+							this.addData(name, domain, batchData[j], false);
+					}
+					this.appendEOF();
+				}
+			}
 		}
 	}
 
@@ -725,6 +765,7 @@ public class Plot {
 			for (int i = 0; i < this.data.length; i++) {
 				String line = "";
 				if (this.distPlotType == null)
+					
 					line = this.data[i].getEntry(i + 1,
 							Config.getInt("GNUPLOT_LW"),
 							Config.getDouble("GNUPLOT_XOFFSET") * i,
@@ -836,10 +877,22 @@ public class Plot {
 	}
 
 	public int getDataQuantity() {
-		return dataQuantity;
+		return this.dataQuantity;
 	}
 
 	public void setDataQuantity(int dataQuantity) {
 		this.dataQuantity = dataQuantity;
+	}
+
+	public int[] getSeriesDataQuantities() {
+		return this.seriesDataQuantities;
+	}
+
+	public int getSeriesDataQuantity(int index) {
+		return this.seriesDataQuantities[index];
+	}
+
+	public void setSeriesDataQuantities(int[] seriesDataQuantities) {
+		this.seriesDataQuantities = seriesDataQuantities;
 	}
 }
