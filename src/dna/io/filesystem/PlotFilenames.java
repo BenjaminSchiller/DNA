@@ -142,6 +142,15 @@ public class PlotFilenames {
 				+ Config.get("SUFFIX_DATA");
 	}
 
+	public static String getRuntimesMultiSeriesGnuplotFile(String name) {
+		return Config.get("PREFIX_RUNTIME_GNUPLOT_FILE") + name;
+	}
+
+	public static String getRuntimesMultiSeriesGnuplotScript(String name) {
+		return Config.get("PREFIX_GNUPLOT_SCRIPT")
+				+ PlotFilenames.getRuntimesMultiSeriesGnuplotFile(name);
+	}
+
 	public static String getRuntimesPlotFile(String name) {
 		return name;
 	}
