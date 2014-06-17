@@ -59,7 +59,35 @@ public class DirectedMotifsU extends DirectedMotifs {
 			}
 
 		} else if (u instanceof NodeRemoval) {
-			// TODO implement node removal for DirectedMotifsU
+			DirectedNode a = (DirectedNode) ((NodeRemoval) u).getNode();
+			HashSet<DirectedNode> a_ = this.getConnectedNodes(a);
+			for (DirectedNode b : a_) {
+				boolean ab = a.hasEdge(a, b);
+				boolean ba = a.hasEdge(b, a);
+
+				for (DirectedNode c : a_) {
+					if (b.getIndex() <= c.getIndex()) {
+						continue;
+					}
+					boolean ac = a.hasEdge(a, c);
+					boolean ca = a.hasEdge(c, a);
+					boolean bc = b.hasEdge(b, c);
+					boolean cb = b.hasEdge(c, b);
+					this.decr(this.getType(ab, ba, ac, ca, bc, cb));
+				}
+
+				HashSet<DirectedNode> b_ = this.getConnectedNodes(b);
+				for (DirectedNode c : b_) {
+					if (a_.contains(c) || c.getIndex() == a.getIndex()) {
+						continue;
+					}
+					boolean ac = a.hasEdge(a, c);
+					boolean ca = a.hasEdge(c, a);
+					boolean bc = b.hasEdge(b, c);
+					boolean cb = b.hasEdge(c, b);
+					this.decr(this.getType(ab, ba, ac, ca, bc, cb));
+				}
+			}
 		}
 		return true;
 	}

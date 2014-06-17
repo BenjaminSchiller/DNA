@@ -22,19 +22,19 @@ public class PlotFilenames {
 
 	public static String getDistributionGnuplotScript(String metric,
 			String distribution) {
-		return Config.get("PREFIX_DIST_GNUPLOT_SCRIPT") + metric
+		return Config.get("PREFIX_GNUPLOT_SCRIPT") + metric
 				+ Config.get("PLOT_DELIMITER") + distribution
 				+ Config.get("SUFFIX_GNUPLOT");
 	}
 
 	public static String getDistributionGnuplotScript(String distribution) {
-		return Config.get("PREFIX_DIST_GNUPLOT_SCRIPT") + distribution
+		return Config.get("PREFIX_GNUPLOT_SCRIPT") + distribution
 				+ Config.get("SUFFIX_GNUPLOT");
 	}
 
 	public static String getDistributionCdfGnuplotScript(String metric,
 			String distribution) {
-		return Config.get("PREFIX_DIST_GNUPLOT_SCRIPT") + metric
+		return Config.get("PREFIX_GNUPLOT_SCRIPT") + metric
 				+ Config.get("PLOT_DELIMITER") + distribution
 				+ Config.get("PLOT_DELIMITER")
 				+ Config.get("PLOT_DISTRIBUTION_CDF")
@@ -42,7 +42,7 @@ public class PlotFilenames {
 	}
 
 	public static String getDistributionCdfGnuplotScript(String distribution) {
-		return Config.get("PREFIX_DIST_GNUPLOT_SCRIPT") + distribution
+		return Config.get("PREFIX_GNUPLOT_SCRIPT") + distribution
 				+ Config.get("PLOT_DELIMITER")
 				+ Config.get("PLOT_DISTRIBUTION_CDF")
 				+ Config.get("SUFFIX_GNUPLOT");
@@ -94,18 +94,30 @@ public class PlotFilenames {
 	}
 
 	public static String getValuesGnuplotScript(String metric, String value) {
-		return Config.get("PREFIX_VALUE_GNUPLOT_SCRIPT") + metric
+		return Config.get("PREFIX_GNUPLOT_SCRIPT") + metric
 				+ Config.get("PLOT_DELIMITER") + value
 				+ Config.get("SUFFIX_GNUPLOT");
 	}
 
+	public static String getValuesPlotCDF(String value) {
+		return value + Config.get("PLOT_DELIMITER")
+				+ Config.get("PLOT_DISTRIBUTION_CDF");
+	}
+
+	public static String getValuesGnuplotScriptCDF(String value) {
+		return Config.get("PREFIX_GNUPLOT_SCRIPT") + value
+				+ Config.get("PLOT_DELIMITER")
+				+ Config.get("PLOT_DISTRIBUTION_CDF")
+				+ Config.get("SUFFIX_GNUPLOT");
+	}
+
 	public static String getValuesGnuplotScript(String value) {
-		return Config.get("PREFIX_VALUE_GNUPLOT_SCRIPT") + value
+		return Config.get("PREFIX_GNUPLOT_SCRIPT") + value
 				+ Config.get("SUFFIX_GNUPLOT");
 	}
 
 	public static String getValuesGnuplotScript(Values v) {
-		return Config.get("PREFIX_VALUE_GNUPLOT_SCRIPT") + v.getName()
+		return Config.get("PREFIX_GNUPLOT_SCRIPT") + v.getName()
 				+ Config.get("SUFFIX_GNUPLOT");
 	}
 
@@ -130,50 +142,56 @@ public class PlotFilenames {
 				+ Config.get("SUFFIX_DATA");
 	}
 
+	public static String getRuntimesMultiSeriesGnuplotFile(String name) {
+		return Config.get("PREFIX_RUNTIME_GNUPLOT_FILE") + name;
+	}
+
+	public static String getRuntimesMultiSeriesGnuplotScript(String name) {
+		return Config.get("PREFIX_GNUPLOT_SCRIPT")
+				+ PlotFilenames.getRuntimesMultiSeriesGnuplotFile(name);
+	}
+
 	public static String getRuntimesPlotFile(String name) {
-		return Config.get("PREFIX_RUNTIMES_PLOT") + name;
+		return name;
 	}
 
 	public static String getRuntimesPlotFileCDF(String name) {
-		return Config.get("PREFIX_RUNTIMES_PLOT") + name
-				+ Config.get("PLOT_DELIMITER")
+		return name + Config.get("PLOT_DELIMITER")
 				+ Config.get("PLOT_DISTRIBUTION_CDF");
 	}
 
 	public static String getRuntimesGnuplotScript(Values v) {
-		return Config.get("PREFIX_RUNTIMES_GNUPLOT_SCRIPT") + v.getName()
+		return Config.get("PREFIX_GNUPLOT_SCRIPT") + v.getName()
 				+ Config.get("SUFFIX_GNUPLOT");
 	}
 
 	public static String getRuntimesGnuplotScript(String name) {
-		return Config.get("PREFIX_RUNTIMES_GNUPLOT_SCRIPT") + name
+		return Config.get("PREFIX_GNUPLOT_SCRIPT") + name
 				+ Config.get("SUFFIX_GNUPLOT");
 	}
 
 	public static String getRuntimesGnuplotScriptCDF(String name) {
-		return Config.get("PREFIX_RUNTIMES_GNUPLOT_SCRIPT") + name
+		return Config.get("PREFIX_GNUPLOT_SCRIPT") + name
 				+ Config.get("PLOT_DELIMITER")
 				+ Config.get("PLOT_DISTRIBUTION_CDF")
 				+ Config.get("SUFFIX_GNUPLOT");
 	}
 
 	public static String getRuntimesMetricPlot(String name) {
-		return Config.get("PREFIX_RUNTIMES_METRIC_PLOT") + name;
+		return name;
 	}
 
 	public static String getRuntimesMetricPlotCDF(String name) {
-		return Config.get("PREFIX_RUNTIMES_METRIC_PLOT") + name
-				+ Config.get("PLOT_DELIMITER")
+		return name + Config.get("PLOT_DELIMITER")
 				+ Config.get("PLOT_DISTRIBUTION_CDF");
 	}
 
 	public static String getRuntimesStatisticPlot(String name) {
-		return Config.get("PREFIX_RUNTIMES_STATISTIC_PLOT") + name;
+		return name;
 	}
 
 	public static String getRuntimesStatisticPlotCDF(String name) {
-		return Config.get("PREFIX_RUNTIMES_STATISTIC_PLOT") + name
-				+ Config.get("PLOT_DELIMITER")
+		return name + Config.get("PLOT_DELIMITER")
 				+ Config.get("PLOT_DISTRIBUTION_CDF");
 	}
 
@@ -199,13 +217,13 @@ public class PlotFilenames {
 
 	public static String getNodeValueListGnuplotScript(String metric,
 			String nodevaluelist) {
-		return Config.get("PREFIX_NVL_GNUPLOT_SCRIPT") + metric
+		return Config.get("PREFIX_GNUPLOT_SCRIPT") + metric
 				+ Config.get("PLOT_DELIMITER") + nodevaluelist
 				+ Config.get("SUFFIX_GNUPLOT");
 	}
 
 	public static String getNodeValueListGnuplotScript(String nodevaluelist) {
-		return Config.get("PREFIX_NVL_GNUPLOT_SCRIPT") + nodevaluelist
+		return Config.get("PREFIX_GNUPLOT_SCRIPT") + nodevaluelist
 				+ Config.get("SUFFIX_GNUPLOT");
 	}
 

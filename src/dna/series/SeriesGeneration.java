@@ -122,12 +122,12 @@ public class SeriesGeneration {
 		}
 		// aggregate all runs
 		if (aggregate) {
-		Log.infoSep();
+			Log.infoSep();
 
-		AggregatedSeries aSd = Aggregation.aggregateSeries(sd);
-		sd.setAggregation(aSd);
-		// end of aggregation
-		Log.infoSep();
+			AggregatedSeries aSd = Aggregation.aggregateSeries(sd);
+			sd.setAggregation(aSd);
+			// end of aggregation
+			Log.infoSep();
 		}
 		return sd;
 	}
@@ -216,8 +216,8 @@ public class SeriesGeneration {
 		}
 		if (write) {
 			if (!singleFile) {
-			initialData.write(Dir.getBatchDataDir(series.getDir(), run,
-					initialData.getTimestamp()));
+				initialData.write(Dir.getBatchDataDir(series.getDir(), run,
+						initialData.getTimestamp()));
 			} else {
 				try {
 					initialData.writeSingleFile(
@@ -226,7 +226,7 @@ public class SeriesGeneration {
 							Config.get("SUFFIX_ZIP_FILE"), Dir.delimiter);
 				} catch (IOException e) {
 					e.printStackTrace();
-		}
+				}
 			}
 		}
 
@@ -274,7 +274,7 @@ public class SeriesGeneration {
 						dirTemp = actualDir
 								.substring(0, actualDir.length() - 1)
 								+ Dir.tempSuffix + Dir.delimiter;
-			}
+					}
 
 					// rename directory
 					File srcDir = new File(dirTemp);
@@ -301,7 +301,7 @@ public class SeriesGeneration {
 							Thread.sleep(waitTime);
 						} catch (InterruptedException e) {
 							e.printStackTrace();
-		}
+						}
 					}
 
 					// rename
@@ -317,7 +317,7 @@ public class SeriesGeneration {
 					else
 						batchData.write(Dir.getBatchDataDir(series.getDir(),
 								run, batchData.getTimestamp()));
-	}
+				}
 			}
 
 			// call garbage collection
@@ -470,14 +470,20 @@ public class SeriesGeneration {
 			Log.info("      => " + b.toString());
 		}
 
-		SeriesGeneration.applyUpdates(series, b.getNodeRemovals());
-		SeriesGeneration.applyUpdates(series, b.getEdgeRemovals());
+		int removedNodes = SeriesGeneration.applyUpdates(series,
+				b.getNodeRemovals());
+		int removedEdges = SeriesGeneration.applyUpdates(series,
+				b.getEdgeRemovals());
 
-		SeriesGeneration.applyUpdates(series, b.getNodeAdditions());
-		SeriesGeneration.applyUpdates(series, b.getEdgeAdditions());
+		int addedNodes = SeriesGeneration.applyUpdates(series,
+				b.getNodeAdditions());
+		int addedEdges = SeriesGeneration.applyUpdates(series,
+				b.getEdgeAdditions());
 
-		SeriesGeneration.applyUpdates(series, b.getNodeWeights());
-		SeriesGeneration.applyUpdates(series, b.getEdgeWeights());
+		int updatedNodeWeights = SeriesGeneration.applyUpdates(series,
+				b.getNodeWeights());
+		int updatedEdgeWeights = SeriesGeneration.applyUpdates(series,
+				b.getEdgeWeights());
 
 		series.getGraph().setTimestamp(b.getTo());
 
@@ -499,18 +505,24 @@ public class SeriesGeneration {
 		BatchData batchData = new BatchData(b, sanitizationStats, 5, 5,
 				series.getMetrics().length, series.getMetrics().length);
 
+		batchData.getValues()
+				.add(new Value(SeriesStats.addedNodes, addedNodes));
+		batchData.getValues().add(
+				new Value(SeriesStats.removedNodes, removedNodes));
+		batchData.getValues().add(
+				new Value(SeriesStats.updatedNodeWeights, updatedNodeWeights));
+		batchData.getValues()
+				.add(new Value(SeriesStats.addedEdges, addedEdges));
+		batchData.getValues().add(
+				new Value(SeriesStats.removedEdges, removedEdges));
+		batchData.getValues().add(
+				new Value(SeriesStats.updatedEdgeWeights, updatedEdgeWeights));
+
 		return batchData;
 	}
 
 	public static BatchData generateNextBatch(Series series)
 			throws MetricNotApplicableException {
-
-		int addedNodes = 0;
-		int removedNodes = 0;
-		int updatedNodeWeights = 0;
-		int addedEdges = 0;
-		int removedEdges = 0;
-		int updatedEdgeWeights = 0;
 
 		BatchData batchData = computeNextBatch(series);
 
@@ -518,34 +530,22 @@ public class SeriesGeneration {
 		batchData.getValues().add(
 				new Value(SeriesStats.nodesToAdd, batchData.getBatch()
 						.getNodeAdditionsCount()));
-		batchData.getValues()
-				.add(new Value(SeriesStats.addedNodes, addedNodes));
 		batchData.getValues().add(
 				new Value(SeriesStats.nodesToRemove, batchData.getBatch()
 						.getNodeRemovalsCount()));
 		batchData.getValues().add(
-				new Value(SeriesStats.removedNodes, removedNodes));
-		batchData.getValues().add(
 				new Value(SeriesStats.nodeWeightsToUpdate, batchData.getBatch()
 						.getNodeWeightsCount()));
-		batchData.getValues().add(
-				new Value(SeriesStats.updatedNodeWeights, updatedNodeWeights));
 
 		batchData.getValues().add(
 				new Value(SeriesStats.edgesToAdd, batchData.getBatch()
 						.getEdgeAdditionsCount()));
-		batchData.getValues()
-				.add(new Value(SeriesStats.addedEdges, addedEdges));
 		batchData.getValues().add(
 				new Value(SeriesStats.edgesToRemove, batchData.getBatch()
 						.getEdgeRemovalsCount()));
 		batchData.getValues().add(
-				new Value(SeriesStats.removedEdges, removedEdges));
-		batchData.getValues().add(
 				new Value(SeriesStats.edgeWeightsToUpdate, batchData.getBatch()
 						.getEdgeWeightsCount()));
-		batchData.getValues().add(
-				new Value(SeriesStats.updatedEdgeWeights, updatedEdgeWeights));
 
 		batchData.getValues().add(
 				new Value(SeriesStats.deletedNodeAdditions, batchData

@@ -22,6 +22,10 @@ public abstract class Node extends Element implements INode {
 		return this.index;
 	}
 
+	public void setIndex(int index) {
+		this.index = index;
+	}
+
 	public String toString() {
 		return "" + this.index;
 	}
@@ -29,7 +33,7 @@ public abstract class Node extends Element implements INode {
 	public String asString() {
 		return Integer.toString(this.index);
 	}
-	
+
 	public boolean hasEdge(Node n1, Node n2) {
 		return hasEdge(GraphDataStructure.getCurrent().getDummyEdge(n1, n2));
 	}
@@ -54,6 +58,7 @@ public abstract class Node extends Element implements INode {
 			throw new ClassCastException();
 		return this.index - ((Node) o).getIndex();
 	}
-	
-	public abstract void switchDataStructure(ListType type, IDataStructure newDatastructure);
+
+	public abstract void switchDataStructure(ListType type,
+			IDataStructure newDatastructure);
 }
