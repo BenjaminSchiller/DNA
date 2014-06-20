@@ -729,9 +729,9 @@ public class Plotting {
 	 * @param initBatches
 	 *            Array of init batches, one for each series data object.
 	 * @param style
-	 *            PlotStyle of the given plot.
+	 *            PlotStyle of the resulting plots.
 	 * @param type
-	 *            PlotType of the given plot.
+	 *            PlotType of the resulting plots.
 	 * @throws IOException
 	 *             Thrown by the writer created in the plots.
 	 */
@@ -870,6 +870,32 @@ public class Plotting {
 		}
 	}
 
+	/**
+	 * Generates default plots for the given SeriesData objects and adds them to
+	 * the Plot list.
+	 * 
+	 * @param plotList
+	 *            List of Plot-Objects to which the new generated plots will be
+	 *            added.
+	 * @param dstDir
+	 *            Destination directory for the plots.
+	 * @param seriesData
+	 *            Array of SeriesData objects that will be plotted.
+	 * @param initBatches
+	 *            Array of init batches, one for each series data object.
+	 * @param plotStatistics
+	 *            Flag if statistics will be plotted.
+	 * @param plotMetricValues
+	 *            Flag if metric values will be plotted.
+	 * @param plotRuntimes
+	 *            Flag if runtimes will be plotted.
+	 * @param style
+	 *            PlotStyle of the resulting plots.
+	 * @param type
+	 *            PlotType of the resulting plots.
+	 * @throws IOException
+	 *             Thrown by the writer created in the plots.
+	 */
 	private static void generateMultiSeriesDefaultPlots(
 			ArrayList<Plot> plotList, String dstDir, SeriesData[] seriesData,
 			AggregatedBatch[] initBatches, boolean plotStatistics,
