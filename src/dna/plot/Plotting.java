@@ -168,8 +168,9 @@ public class Plotting {
 		if (plotDistributions || plotNodeValues)
 			Plotting.plotDistributionAndNodeValueListPlots(seriesData, dstDir,
 					batches, timestamps, maxTimestamps, plotDistributions,
-					plotNodeValues, singleFile, distPlotType, order, orderBy,
-					type, style);
+					config.getCustomDistributionPlots(), plotNodeValues,
+					config.getCustomNodeValueListPlots(), singleFile,
+					distPlotType, order, orderBy, type, style);
 
 	}
 
@@ -177,11 +178,13 @@ public class Plotting {
 	private static void plotDistributionAndNodeValueListPlots(
 			SeriesData[] seriesData, String dstDir, String[] batches,
 			double[] timestamps, long[] maxTimestamps,
-			boolean plotDistributions, boolean plotNodeValues,
-			boolean singleFile, DistributionPlotType distPlotType,
-			NodeValueListOrder order, NodeValueListOrderBy orderBy,
-			PlotType type, PlotStyle style) throws IOException,
-			InterruptedException {
+			boolean plotDistributions,
+			ArrayList<PlotConfig> customDistributionPlots,
+			boolean plotNodeValues,
+			ArrayList<PlotConfig> customNodeValueListPlots, boolean singleFile,
+			DistributionPlotType distPlotType, NodeValueListOrder order,
+			NodeValueListOrderBy orderBy, PlotType type, PlotStyle style)
+			throws IOException, InterruptedException {
 		Log.infoSep();
 
 		// list of default plots
@@ -222,7 +225,252 @@ public class Plotting {
 		boolean loggedDist = false;
 		boolean loggedNvl = false;
 
-		ArrayList<Plot> plots = new ArrayList<Plot>();
+		ArrayList<Plot> customPlots = new ArrayList<Plot>();
+
+		if (plotDistributions) {
+			Log.info("Plotting custom distribution plots:");
+			// iterate over plot configs
+			for (PlotConfig pc : customDistributionPlots) {
+				Log.info("\tplotting '" + pc.getFilename() + "'");
+				String[] values = pc.getValues();
+				String[] domains = pc.getDomains();
+
+				// check what to plot
+				boolean plotDist = false;
+				boolean plotCdf = false;
+				switch (distPlotType) {
+				case distOnly:
+					plotDist = true;
+					break;
+				case cdfOnly:
+					plotCdf = true;
+					break;
+				case distANDcdf:
+					plotDist = true;
+					plotCdf = true;
+					break;
+				}
+
+				// count different domains
+				ArrayList<String> dList = new ArrayList<String>();
+				for (String d : domains) {
+					if (!dList.contains(d)) {
+						dList.add(d);
+					}
+				}
+
+				// set simpleTitles if only one domain
+				boolean simpleTitles = false;
+				if (dList.size() == 1)
+					simpleTitles = true;
+
+				// init plot data list
+				ArrayList<PlotData> dataList = null;
+				ArrayList<PlotData> cdfDataList = null;
+				int[] seriesDataQuantities = new int[seriesData.length];
+
+				if (plotDist)
+					dataList = new ArrayList<PlotData>();
+				if (plotCdf)
+					cdfDataList = new ArrayList<PlotData>();
+
+				// iterate over batches
+				for (int i = 0; i < batches.length; i++) {
+					long timestamp = Dir.getTimestamp(batches[i]);
+
+					// iterate over series
+					for (int j = 0; j < seriesData.length; j++) {
+						// if timestamp > maxtimestamp of series j, skip
+						if (timestamp > maxTimestamps[j])
+							continue;
+
+						// iterate over values
+						for (int k = 0; k < values.length; k++) {
+							String value = values[k];
+							String domain = domains[k];
+
+							// check if series contains domain
+							if (initBatches[j].getMetrics().getNames()
+									.contains(domain)) {
+								// check if series contains distribution
+								if (initBatches[j].getMetrics().get(domain)
+										.getDistributions().getNames()
+										.contains(value)) {
+									// set title
+									String title;
+									if (simpleTitles)
+										title = seriesData[j].getName() + " @ "
+												+ timestamp;
+									else
+										title = domain + "." + value + " ("
+												+ seriesData[j].getName()
+												+ ") @ " + timestamp;
+
+									if (plotDist)
+										dataList.add(PlotData.get(value,
+												domain, style, title, type));
+
+									if (plotCdf) {
+										PlotData data = PlotData.get(value,
+												domain, style, title, type);
+										data.setPlotAsCdf(true);
+										cdfDataList.add(data);
+									}
+									if (i == 0)
+										seriesDataQuantities[j]++;
+								}
+							}
+						}
+					}
+				}
+
+				if (plotDist) {
+					// transform plot data to array
+					PlotData[] data = dataList.toArray(new PlotData[0]);
+
+					// get filename
+					String filename = pc.getFilename();
+
+					// create plot object
+					Plot p = new Plot(dstDir,
+							PlotFilenames.getDistributionPlot(filename),
+							PlotFilenames
+									.getDistributionGnuplotScript(filename),
+							pc.getTitle(), pc, data);
+
+					// set series quantities
+					p.setSeriesDataQuantities(seriesDataQuantities);
+
+					// disable date time
+					p.setPlotDateTime(false);
+
+					// add to list
+					customPlots.add(p);
+				}
+				if (plotCdf) {
+					// transform plot data to array
+					PlotData[] cdfData = cdfDataList.toArray(new PlotData[0]);
+
+					// get filename
+					String filename = pc.getFilename();
+
+					// create plot object
+					Plot p = new Plot(dstDir,
+							PlotFilenames.getDistributionCdfPlot(filename),
+							PlotFilenames
+									.getDistributionCdfGnuplotScript(filename),
+							"CDF of " + pc.getTitle(), pc, cdfData);
+
+					// set series quantities
+					p.setSeriesDataQuantities(seriesDataQuantities);
+
+					// disable date time
+					p.setPlotDateTime(false);
+
+					// add to list
+					customPlots.add(p);
+				}
+			}
+		}
+
+		if (plotNodeValues) {
+			Log.info("Plotting custom nodevaluelist plots:");
+			// iterate over plot configs
+			for (PlotConfig pc : customNodeValueListPlots) {
+				Log.info("\tplotting '" + pc.getFilename() + "'");
+				String[] values = pc.getValues();
+				String[] domains = pc.getDomains();
+
+				// count different domains
+				ArrayList<String> dList = new ArrayList<String>();
+				for (String d : domains) {
+					if (!dList.contains(d)) {
+						dList.add(d);
+					}
+				}
+
+				// set simpleTitles if only one domain
+				boolean simpleTitles = false;
+				if (dList.size() == 1)
+					simpleTitles = true;
+
+				// init plot data list
+				ArrayList<PlotData> dataList = new ArrayList<PlotData>();
+				int[] seriesDataQuantities = new int[seriesData.length];
+
+				// iterate over batches
+				for (int i = 0; i < batches.length; i++) {
+					long timestamp = Dir.getTimestamp(batches[i]);
+
+					// iterate over series
+					for (int j = 0; j < seriesData.length; j++) {
+						// if timestamp > maxtimestamp of series j, skip
+						if (timestamp > maxTimestamps[j])
+							continue;
+
+						// iterate over values
+						for (int k = 0; k < values.length; k++) {
+							String value = values[k];
+							String domain = domains[k];
+
+							// check if series contains domain
+							if (initBatches[j].getMetrics().getNames()
+									.contains(domain)) {
+								// check if series contains nvl
+								if (initBatches[j].getMetrics().get(domain)
+										.getNodeValues().getNames()
+										.contains(value)) {
+									// set title
+									String title;
+									if (simpleTitles)
+										title = seriesData[j].getName() + " @ "
+												+ timestamp;
+									else
+										title = domain + "." + value + " ("
+												+ seriesData[j].getName()
+												+ ") @ " + timestamp;
+
+									// add data to list
+									dataList.add(PlotData.get(value, domain,
+											style, title, type));
+									if (i == 0)
+										seriesDataQuantities[j]++;
+								}
+							}
+						}
+					}
+				}
+
+				// transform plot data to array
+				PlotData[] data = dataList.toArray(new PlotData[0]);
+
+				// get filename
+				String filename = pc.getFilename();
+
+				// create plot object
+				Plot p = new Plot(dstDir,
+						PlotFilenames.getNodeValueListPlot(filename),
+						PlotFilenames.getNodeValueListGnuplotScript(filename),
+						pc.getTitle(), pc, data);
+
+				// set series quantities
+				p.setSeriesDataQuantities(seriesDataQuantities);
+
+				// disable date time
+				p.setPlotDateTime(false);
+
+				// set nvl sort modes
+				p.setNodeValueListOrder(pc.getOrder());
+				p.setNodeValueListOrderBy(pc.getOrderBy());
+
+				// add to list
+				customPlots.add(p);
+			}
+		}
+
+		// write script headers
+		for (Plot p : customPlots)
+			p.writeScriptHeader();
 
 		// gather fixed values
 		for (int i = 0; i < seriesData.length; i++) {
@@ -296,15 +544,6 @@ public class Plotting {
 			}
 		}
 
-		// TODO: custom plots!!
-		// TODO: custom plots!!
-		// TODO: custom plots!!
-		// TODO: custom plots!!
-		// TODO: custom plots!!
-		// TODO: custom plots!!
-		// TODO: custom plots!!
-		// TODO: custom plots!!
-
 		// check what to plot
 		boolean plotDist = false;
 		boolean plotCdf = false;
@@ -345,9 +584,8 @@ public class Plotting {
 				// iterate over series
 				for (int k = 0; k < seriesData.length; k++) {
 					// if timestamp > maxtimestamp of the series, skip
-					if (timestamp > maxTimestamps[k]) {
+					if (timestamp > maxTimestamps[k])
 						continue;
-					}
 
 					AggregatedBatch initBatch = initBatches[k];
 
@@ -457,9 +695,7 @@ public class Plotting {
 		// create nvl plots
 		for (int i = 0; i < nvlValues.size(); i++) {
 			String nvl = nvlValues.get(i);
-			PlotData[] data = new PlotData[nvlOccurence.get(i) * batches.length];
 			int[] seriesDataQuantities = new int[seriesData.length];
-			int index = 0;
 			ArrayList<String> domains = nvlDomainsList.get(i);
 
 			ArrayList<PlotData> dataList = new ArrayList<PlotData>();
@@ -476,9 +712,8 @@ public class Plotting {
 				// iterate over series
 				for (int k = 0; k < seriesData.length; k++) {
 					// if timestamp > maxtimestamp of the series, skip
-					if (timestamp > maxTimestamps[k]) {
+					if (timestamp > maxTimestamps[k])
 						continue;
-					}
 
 					AggregatedBatch initBatch = initBatches[k];
 
@@ -494,12 +729,11 @@ public class Plotting {
 							if (initBatch.getMetrics().get(d).getNodeValues()
 									.getNames().contains(nvl)) {
 								// create "line" in plot for each batch
-								data[index] = PlotData
+								dataList.add(PlotData
 										.get(nvl, d, style, lineTitle + " @ "
-												+ timestamps[j], type);
+												+ timestamps[j], type));
 								if (j == 0)
 									seriesDataQuantities[k]++;
-								index++;
 							} else {
 								Log.debug("Adding nodevaluelist'"
 										+ nvl
@@ -517,6 +751,9 @@ public class Plotting {
 					}
 				}
 			}
+
+			// transform to array
+			PlotData[] data = dataList.toArray(new PlotData[0]);
 
 			// title
 			String plotTitle;
@@ -550,9 +787,8 @@ public class Plotting {
 				long timestamp = Dir.getTimestamp(batches[i]);
 
 				// if timestamp > maxtimestamp of the series, skip
-				if (timestamp > maxTimestamps[j]) {
+				if (timestamp > maxTimestamps[j])
 					continue;
-				}
 
 				AggregatedBatch tempBatch;
 				String aggrDir = Dir.getAggregationDataDir(seriesData[j]
@@ -576,6 +812,15 @@ public class Plotting {
 					}
 				}
 
+				// append data to custom plots
+				for (Plot p : customPlots) {
+					// check how often the series is used in the plot
+					for (int k = 0; k < p.getSeriesDataQuantity(j); k++) {
+						// add data to plot
+						p.addDataSequentially(tempBatch);
+					}
+				}
+
 				// free resources
 				tempBatch = null;
 				System.gc();
@@ -584,6 +829,11 @@ public class Plotting {
 
 		// close and execute
 		for (Plot p : defaultPlots) {
+			p.close();
+			p.execute();
+		}
+
+		for (Plot p : customPlots) {
 			p.close();
 			p.execute();
 		}
@@ -1387,6 +1637,7 @@ public class Plotting {
 				// if plot all is false, no wildcard is included -> skip
 				if (!cfg.isPlotAll())
 					continue;
+
 				String[] values = cfg.getValues();
 				String[] domains = cfg.getDomains();
 
@@ -1438,6 +1689,7 @@ public class Plotting {
 								// skip graphgeneration
 								if (v.equals("graphGeneration"))
 									continue;
+
 								String string = "";
 								for (int j = 0; j < split.length; j++) {
 									if ((j & 1) == 0) {
@@ -1514,6 +1766,7 @@ public class Plotting {
 								// skip graphgeneration
 								if (v.equals("graphGeneration"))
 									continue;
+
 								vList.add(value.replace(wildcard, v));
 								dList.add(domain);
 							}
@@ -1943,6 +2196,7 @@ public class Plotting {
 			String name = pc.getTitle();
 			if (name == null)
 				continue;
+
 			Log.info("\tplotting '" + name + "'");
 			String[] values = pc.getValues();
 			String[] domains = pc.getDomains();
@@ -2183,6 +2437,7 @@ public class Plotting {
 					String name = pc.getTitle();
 					if (name == null)
 						continue;
+
 					Log.info("\tplotting '" + name + "'");
 
 					// check for invalid values
@@ -2348,6 +2603,7 @@ public class Plotting {
 					String name = pc.getTitle();
 					if (name == null)
 						continue;
+
 					Log.info("\tplotting '" + name + "'");
 
 					// check for invalid values
@@ -2743,6 +2999,7 @@ public class Plotting {
 			String name = pc.getTitle();
 			if (name == null)
 				continue;
+
 			Log.info("\tplotting '" + name + "'");
 			String[] values = pc.getValues();
 			String[] domains = pc.getDomains();
