@@ -120,12 +120,15 @@ public class Plotting {
 		boolean plotRuntimes = config.isPlotRuntimes();
 
 		// gather relevant batches
+		long[] maxTimestamps = new long[seriesData.length];
 		String[] batches = Dir.getBatchesFromTo(seriesData[0].getDir(),
 				timestampFrom, timestampTo, stepsize);
 		for (int i = 0; i < seriesData.length; i++) {
 			String tempDir = Dir.getAggregationDataDir(seriesData[i].getDir());
 			String[] tempBatches = Dir.getBatchesFromTo(tempDir, timestampFrom,
 					timestampTo, stepsize);
+			maxTimestamps[i] = Dir
+					.getTimestamp(tempBatches[tempBatches.length - 1]);
 			if (tempBatches.length > batches.length)
 				batches = tempBatches;
 		}
@@ -164,19 +167,21 @@ public class Plotting {
 		// plot default distribution and nodevaluelist plots
 		if (plotDistributions || plotNodeValues)
 			Plotting.plotDistributionAndNodeValueListPlots(seriesData, dstDir,
-					batches, timestamps, plotDistributions, plotNodeValues,
-					singleFile, distPlotType, order, orderBy, type, style);
+					batches, timestamps, maxTimestamps, plotDistributions,
+					plotNodeValues, singleFile, distPlotType, order, orderBy,
+					type, style);
 
 	}
 
 	/** Plots the def. distribution and nodeavluelist plots for multiple series. */
 	private static void plotDistributionAndNodeValueListPlots(
 			SeriesData[] seriesData, String dstDir, String[] batches,
-			double[] timestamps, boolean plotDistributions,
-			boolean plotNodeValues, boolean singleFile,
-			DistributionPlotType distPlotType, NodeValueListOrder order,
-			NodeValueListOrderBy orderBy, PlotType type, PlotStyle style)
-			throws IOException, InterruptedException {
+			double[] timestamps, long[] maxTimestamps,
+			boolean plotDistributions, boolean plotNodeValues,
+			boolean singleFile, DistributionPlotType distPlotType,
+			NodeValueListOrder order, NodeValueListOrderBy orderBy,
+			PlotType type, PlotStyle style) throws IOException,
+			InterruptedException {
 		Log.infoSep();
 
 		// list of default plots
@@ -216,6 +221,8 @@ public class Plotting {
 		// log flags
 		boolean loggedDist = false;
 		boolean loggedNvl = false;
+
+		ArrayList<Plot> plots = new ArrayList<Plot>();
 
 		// gather fixed values
 		for (int i = 0; i < seriesData.length; i++) {
@@ -317,14 +324,14 @@ public class Plotting {
 		// create dist plots
 		for (int i = 0; i < distValues.size(); i++) {
 			String dist = distValues.get(i);
-			PlotData[] data = null;
-			PlotData[] cdfData = null;
+			ArrayList<PlotData> dataList = null;
+			ArrayList<PlotData> cdfDataList = null;
 
 			if (plotDist)
-				data = new PlotData[distOccurence.get(i) * batches.length];
+				dataList = new ArrayList<PlotData>();
 			if (plotCdf)
-				cdfData = new PlotData[distOccurence.get(i) * batches.length];
-			int index = 0;
+				cdfDataList = new ArrayList<PlotData>();
+
 			int[] seriesDataQuantities = new int[seriesData.length];
 			ArrayList<String> domains = distDomainsList.get(i);
 			boolean simpleTitles = false;
@@ -333,8 +340,15 @@ public class Plotting {
 
 			// iterate over batches
 			for (int j = 0; j < batches.length; j++) {
+				long timestamp = Dir.getTimestamp(batches[j]);
+
 				// iterate over series
 				for (int k = 0; k < seriesData.length; k++) {
+					// if timestamp > maxtimestamp of the series, skip
+					if (timestamp > maxTimestamps[k]) {
+						continue;
+					}
+
 					AggregatedBatch initBatch = initBatches[k];
 
 					// iterate over domains that contain the value
@@ -351,21 +365,19 @@ public class Plotting {
 									.contains(dist)) {
 								// create "line" in plot for each batch
 								if (plotDist) {
-									data[index] = PlotData.get(dist, d, style,
+									dataList.add(PlotData.get(dist, d, style,
 											lineTitle + " @ " + timestamps[j],
-											type);
-
+											type));
 								}
 								if (plotCdf) {
 									PlotData cdfPlotData = PlotData.get(dist,
 											d, style, lineTitle + " @ "
 													+ timestamps[j], type);
 									cdfPlotData.setPlotAsCdf(true);
-									cdfData[index] = cdfPlotData;
+									cdfDataList.add(cdfPlotData);
 								}
 								if (j == 0)
 									seriesDataQuantities[k]++;
-								index++;
 							} else {
 								Log.debug("Adding distribution '"
 										+ dist
@@ -383,6 +395,10 @@ public class Plotting {
 					}
 				}
 			}
+
+			// transform to plot data arrays
+			PlotData[] data = dataList.toArray(new PlotData[0]);
+			PlotData[] cdfData = dataList.toArray(new PlotData[0]);
 
 			// generate normal plots
 			if (plotDist) {
@@ -411,9 +427,6 @@ public class Plotting {
 
 				// add to plot list
 				defaultPlots.add(p);
-
-				// write script header
-				p.writeScriptHeader();
 			}
 
 			// generate cdf plots
@@ -438,9 +451,6 @@ public class Plotting {
 
 				// add to plot list
 				defaultPlots.add(p);
-
-				// write script header
-				p.writeScriptHeader();
 			}
 		}
 
@@ -452,6 +462,8 @@ public class Plotting {
 			int index = 0;
 			ArrayList<String> domains = nvlDomainsList.get(i);
 
+			ArrayList<PlotData> dataList = new ArrayList<PlotData>();
+
 			// simple titles
 			boolean simpleTitles = false;
 			if (domains.size() == 1)
@@ -459,8 +471,15 @@ public class Plotting {
 
 			// iterate over batches
 			for (int j = 0; j < batches.length; j++) {
+				long timestamp = Dir.getTimestamp(batches[j]);
+
 				// iterate over series
 				for (int k = 0; k < seriesData.length; k++) {
+					// if timestamp > maxtimestamp of the series, skip
+					if (timestamp > maxTimestamps[k]) {
+						continue;
+					}
+
 					AggregatedBatch initBatch = initBatches[k];
 
 					// iterate over domains that contain the value
@@ -519,30 +538,34 @@ public class Plotting {
 
 			// add to plot list
 			defaultPlots.add(p);
-
-			// write script header
-			p.writeScriptHeader();
 		}
+
+		// write script headers
+		for (Plot p : defaultPlots)
+			p.writeScriptHeader();
 
 		// read data batch by batch and add to plots
 		for (int i = 0; i < batches.length; i++) {
 			for (int j = 0; j < seriesData.length; j++) {
-				AggregatedBatch tempBatch;
 				long timestamp = Dir.getTimestamp(batches[i]);
+
+				// if timestamp > maxtimestamp of the series, skip
+				if (timestamp > maxTimestamps[j]) {
+					continue;
+				}
+
+				AggregatedBatch tempBatch;
 				String aggrDir = Dir.getAggregationDataDir(seriesData[j]
 						.getDir());
-				try {
-					if (singleFile)
-						tempBatch = AggregatedBatch.readFromSingleFile(aggrDir,
-								timestamp, Dir.delimiter,
-								BatchReadMode.readOnlyDistAndNvl);
-					else
-						tempBatch = AggregatedBatch.read(
-								Dir.getBatchDataDir(aggrDir, timestamp),
-								timestamp, BatchReadMode.readOnlyDistAndNvl);
-				} catch (NullPointerException e) {
-					tempBatch = null;
-				}
+
+				if (singleFile)
+					tempBatch = AggregatedBatch.readFromSingleFile(aggrDir,
+							timestamp, Dir.delimiter,
+							BatchReadMode.readOnlyDistAndNvl);
+				else
+					tempBatch = AggregatedBatch.read(
+							Dir.getBatchDataDir(aggrDir, timestamp), timestamp,
+							BatchReadMode.readOnlyDistAndNvl);
 
 				// append data to plots
 				for (Plot p : defaultPlots) {

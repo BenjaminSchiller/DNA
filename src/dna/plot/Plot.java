@@ -347,18 +347,13 @@ public class Plot {
 	public void addDataSequentially(AggregatedBatch batchData)
 			throws IOException {
 		if (!(this.data[this.dataWriteCounter] instanceof FunctionData)) {
-			// if batchdata null, only append eof
-			if (batchData != null) {
-				// if not function, add data
-				String name = this.data[this.dataWriteCounter].getName();
-				String domain = this.data[this.dataWriteCounter].getDomain();
-				if (this.data[this.dataWriteCounter].isPlotAsCdf())
-					this.addData(name, domain, batchData, true);
-				else
-					this.addData(name, domain, batchData, false);
-			} else {
-				this.appendEOF();
-			}
+			// if not function, add data
+			String name = this.data[this.dataWriteCounter].getName();
+			String domain = this.data[this.dataWriteCounter].getDomain();
+			if (this.data[this.dataWriteCounter].isPlotAsCdf())
+				this.addData(name, domain, batchData, true);
+			else
+				this.addData(name, domain, batchData, false);
 		}
 	}
 
