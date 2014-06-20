@@ -576,8 +576,9 @@ public class Plotting {
 			boolean plotRuntimes, ArrayList<PlotConfig> customRuntimePlots,
 			boolean singleFile, PlotType type, PlotStyle style)
 			throws IOException, InterruptedException {
-		// list of default plots
+		// lists of plots
 		ArrayList<Plot> defaultPlots = new ArrayList<Plot>();
+		ArrayList<Plot> plots = new ArrayList<Plot>();
 
 		// array of the initbatch of each series
 		AggregatedBatch[] initBatches = new AggregatedBatch[seriesData.length];
@@ -597,11 +598,6 @@ public class Plotting {
 						Dir.getBatchDataDir(tempDir, timestamp), timestamp,
 						BatchReadMode.readOnlySingleValues);
 		}
-
-		// CUSTOM PLOTS
-		// CUSTOM PLOTS
-		// CUSTOM PLOTS
-		ArrayList<Plot> plots = new ArrayList<Plot>();
 
 		// generate statistic plots
 		if (plotStatistics) {
