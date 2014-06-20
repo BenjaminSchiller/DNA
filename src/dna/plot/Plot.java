@@ -48,6 +48,8 @@ public class Plot {
 	private int dataQuantity;
 	private int[] seriesDataQuantities;
 	private int functionQuantity;
+	private int skippedFunction;
+	private boolean errorPrinted;
 
 	// plot config
 	PlotConfig config;
@@ -98,7 +100,9 @@ public class Plot {
 		this.fileWriter = new Writer(dir, scriptFilename);
 		this.dataWriteCounter = 0;
 		this.functionQuantity = 0;
+		this.skippedFunction = 0;
 		this.dataQuantity = 1;
+		this.errorPrinted = false;
 
 		for (PlotData pd : this.data) {
 			if (pd instanceof FunctionData) {
@@ -317,15 +321,20 @@ public class Plot {
 				} else if (m.getValues().getNames().contains(name)) {
 					this.appendData(m.getValues().get(name), timestamp);
 				} else {
-					Log.warn("problem when adding data to plot "
-							+ this.scriptFilename + ". Value '" + name
-							+ "' was not found in domain '" + domain
-							+ "' of batch." + timestamp);
+					if (!this.errorPrinted) {
+						Log.warn("problem when adding data to plot '"
+								+ this.scriptFilename + "'. Value '" + name
+								+ "' was not found in domain '" + domain + "'!");
+						this.errorPrinted = true;
+					}
 				}
 			} else {
-				Log.warn("problem when adding data to plot "
-						+ this.scriptFilename + ". domain '" + domain
-						+ "' not found in batch." + timestamp);
+				if (!this.errorPrinted) {
+					Log.warn("problem when adding data to plot '"
+							+ this.scriptFilename + "', domain '" + domain
+							+ "' not found!");
+					this.errorPrinted = true;
+				}
 			}
 		}
 	}
@@ -391,6 +400,11 @@ public class Plot {
 					}
 					this.appendEOF();
 				}
+			} else {
+				// if function, increment write counter and call method again
+				this.dataWriteCounter++;
+				this.skippedFunction++;
+				this.addDataSequentially(batchData);
 			}
 		}
 	}
@@ -416,7 +430,6 @@ public class Plot {
 							this.data[i].getDomain(), batchData[j], false);
 			}
 			this.appendEOF();
-
 		}
 	}
 
@@ -451,15 +464,20 @@ public class Plot {
 				if (m.getValues().getNames().contains(value)) {
 					values[i] = m.getValues().get(value);
 				} else {
-					Log.warn("problem when adding data to plot "
-							+ this.scriptFilename + ". Value '" + value
-							+ "' was not found in domain '" + domain
-							+ "' of batch." + timestamp);
+					if (!this.errorPrinted) {
+						Log.warn("problem when adding data to plot '"
+								+ this.scriptFilename + "'. Value '" + value
+								+ "' was not found in domain '" + domain + "'!");
+						this.errorPrinted = true;
+					}
 				}
 			} else {
-				Log.warn("problem when adding expression data to plot "
-						+ this.scriptFilename + ". domain '" + domain
-						+ "' not found in batch." + timestamp);
+				if (!this.errorPrinted) {
+					Log.warn("problem when adding expression data to plot '"
+							+ this.scriptFilename + "', domain '" + domain
+							+ "' not found!");
+					this.errorPrinted = true;
+				}
 			}
 		}
 
@@ -493,8 +511,8 @@ public class Plot {
 				if (values[j] == null) {
 					// if null, print warning and set 0 as value
 					if (!warningsPrinted[j]) {
-						Log.warn("no values found for '" + domains[j] + "."
-								+ vars[j] + "'. Values assumed to be zero.");
+						// Log.warn("no values found for '" + domains[j] + "."
+						// + vars[j] + "'. Values assumed to be zero.");
 						warningsPrinted[j] = true;
 					}
 					variables[j].setValue(0.0);
@@ -703,7 +721,8 @@ public class Plot {
 
 	/** Closes the fileWriter of the plot **/
 	public void close() throws IOException {
-		if (this.dataWriteCounter + this.functionQuantity != this.data.length)
+		if (this.dataWriteCounter + this.functionQuantity
+				- this.skippedFunction != this.data.length)
 			Log.warn("Unexpected number of plotdata written to file "
 					+ this.dir + this.scriptFilename + ". Expected: "
 					+ this.data.length + "  Written: " + this.dataWriteCounter);
@@ -902,5 +921,9 @@ public class Plot {
 
 	public void setSeriesDataQuantities(int[] seriesDataQuantities) {
 		this.seriesDataQuantities = seriesDataQuantities;
+	}
+
+	public void setErrorPrinted(boolean errorPrinted) {
+		this.errorPrinted = errorPrinted;
 	}
 }
