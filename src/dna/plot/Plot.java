@@ -13,11 +13,8 @@ import dna.plot.data.PlotData.NodeValueListOrder;
 import dna.plot.data.PlotData.NodeValueListOrderBy;
 import dna.series.aggdata.AggregatedBatch;
 import dna.series.aggdata.AggregatedMetric;
-import dna.series.aggdata.AggregatedMetricList;
 import dna.series.aggdata.AggregatedNodeValueList;
-import dna.series.aggdata.AggregatedRunTimeList;
 import dna.series.aggdata.AggregatedValue;
-import dna.series.aggdata.AggregatedValueList;
 import dna.util.Config;
 import dna.util.Execute;
 import dna.util.Log;
@@ -389,10 +386,10 @@ public class Plot {
 						// if batch is null, no data -> just add EOF
 						if (batchData[j] != null) {
 							if (j > 0) {
-								tempBatch = Plot.sumValues(batchData[j],
-										prevBatch);
-								tempBatch = Plot.sumRuntimes(tempBatch,
-										prevBatch);
+								tempBatch = AggregatedBatch.sumValues(
+										batchData[j], prevBatch);
+								tempBatch = AggregatedBatch.sumRuntimes(
+										tempBatch, prevBatch);
 							} else {
 								tempBatch = batchData[j];
 							}
@@ -565,7 +562,8 @@ public class Plot {
 				AggregatedBatch tempBatch;
 				for (int j = 0; j < batchData.length; j++) {
 					if (j > 0) {
-						tempBatch = Plot.sumRuntimes(batchData[j], prevBatch);
+						tempBatch = AggregatedBatch.sumRuntimes(batchData[j],
+								prevBatch);
 					} else {
 						tempBatch = batchData[j];
 					}
@@ -582,7 +580,8 @@ public class Plot {
 				AggregatedBatch tempBatch;
 				for (int j = 0; j < batchData.length; j++) {
 					if (j > 0) {
-						tempBatch = Plot.sumRuntimes(batchData[j], prevBatch);
+						tempBatch = AggregatedBatch.sumRuntimes(batchData[j],
+								prevBatch);
 					} else {
 						tempBatch = batchData[j];
 					}
@@ -608,7 +607,8 @@ public class Plot {
 				AggregatedBatch tempBatch;
 				for (int j = 0; j < batchData.length; j++) {
 					if (j > 0) {
-						tempBatch = Plot.sumValues(batchData[j], prevBatch);
+						tempBatch = AggregatedBatch.sumValues(batchData[j],
+								prevBatch);
 					} else {
 						tempBatch = batchData[j];
 					}
@@ -621,124 +621,6 @@ public class Plot {
 				this.dataWriteCounter++;
 			}
 		}
-	}
-
-	/**
-	 * Returns a new AggregatedBatch, which equals b1, except that all runtime
-	 * values equal the sum of the runtimes of b1 and b2.
-	 * 
-	 * @param b1
-	 *            First runtime, will be cloned and returned with the sum of b2.
-	 * @param b2
-	 *            Will be added to b1.
-	 * @return New AggregatedBatch, equalling b1, except for the runtime values.
-	 */
-	private static AggregatedBatch sumRuntimes(AggregatedBatch b1,
-			AggregatedBatch b2) {
-		AggregatedRunTimeList genRuntimes = new AggregatedRunTimeList(b1
-				.getGeneralRuntimes().getName(), b1.getGeneralRuntimes().size());
-		AggregatedRunTimeList metRuntimes = new AggregatedRunTimeList(b1
-				.getMetricRuntimes().getName(), b1.getMetricRuntimes().size());
-		for (String gen : b1.getGeneralRuntimes().getNames()) {
-			AggregatedValue v1 = b1.getGeneralRuntimes().get(gen);
-			AggregatedValue v2 = b2.getGeneralRuntimes().get(gen);
-
-			double[] values3 = new double[v1.getValues().length];
-
-			for (int i = 0; i < v1.getValues().length; i++) {
-				double[] values2;
-				if (v2 == null)
-					values2 = new double[] { 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-				else
-					values2 = v2.getValues();
-				values3[i] = 0;
-				values3[i] += v1.getValues()[i] + values2[i];
-			}
-
-			genRuntimes.add(new AggregatedValue(v1.getName(), values3));
-		}
-		for (String met : b1.getMetricRuntimes().getNames()) {
-			AggregatedValue v1 = b1.getMetricRuntimes().get(met);
-			AggregatedValue v2 = b2.getMetricRuntimes().get(met);
-
-			double[] values3 = new double[v1.getValues().length];
-
-			for (int i = 0; i < v1.getValues().length; i++) {
-				double[] values2;
-				if (v2 == null)
-					values2 = new double[] { 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-				else
-					values2 = v2.getValues();
-				values3[i] = 0;
-				values3[i] += v1.getValues()[i] + values2[i];
-			}
-
-			metRuntimes.add(new AggregatedValue(v1.getName(), values3));
-		}
-
-		// return new crafted batch
-		return new AggregatedBatch(b1.getTimestamp(), b1.getValues(),
-				genRuntimes, metRuntimes, b1.getMetrics());
-	}
-
-	/**
-	 * Returns a new AggregatedBatch, which equals b1, except that all values
-	 * equal the sum of the values of b1 and b2.
-	 * 
-	 * @param b1
-	 *            First value, will be cloned and returned with the sum of b2.
-	 * @param b2
-	 *            Will be added to b1.
-	 * @return New AggregatedBatch, equalling b1, except for the value values.
-	 */
-	private static AggregatedBatch sumValues(AggregatedBatch b1,
-			AggregatedBatch b2) {
-		AggregatedValueList values = new AggregatedValueList(b1.getValues()
-				.size());
-		AggregatedMetricList metrics = new AggregatedMetricList(b1.getMetrics()
-				.size());
-		for (String value : b1.getValues().getNames()) {
-			AggregatedValue v1 = b1.getValues().get(value);
-			AggregatedValue v2 = b2.getValues().get(value);
-
-			double[] values3 = new double[v1.getValues().length];
-			for (int i = 0; i < v1.getValues().length; i++) {
-				double[] values2;
-				if (v2 == null)
-					values2 = new double[] { 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-				else
-					values2 = v2.getValues();
-				values3[i] = 0;
-				values3[i] += v1.getValues()[i] + values2[i];
-			}
-			values.add(new AggregatedValue(v1.getName(), values3));
-		}
-		for (AggregatedMetric metric : b1.getMetrics().getList()) {
-			AggregatedValueList mValues = new AggregatedValueList(metric
-					.getValues().size());
-			for (String value : metric.getValues().getNames()) {
-				AggregatedValue v1 = metric.getValues().get(value);
-				AggregatedValue v2 = metric.getValues().get(value);
-
-				double[] values3 = new double[v1.getValues().length];
-				for (int i = 0; i < v1.getValues().length; i++) {
-					double[] values2;
-					if (v2 == null)
-						values2 = new double[] { 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-					else
-						values2 = v2.getValues();
-					values3[i] = 0;
-					values3[i] += v1.getValues()[i] + values2[i];
-				}
-				mValues.add(new AggregatedValue(v1.getName(), values3));
-			}
-			metrics.add(new AggregatedMetric(metric.getName(), mValues, metric
-					.getDistributions(), metric.getNodeValues()));
-		}
-
-		// return new crafted batch
-		return new AggregatedBatch(b1.getTimestamp(), values,
-				b1.getGeneralRuntimes(), b1.getMetricRuntimes(), metrics);
 	}
 
 	/** Closes the fileWriter of the plot **/
