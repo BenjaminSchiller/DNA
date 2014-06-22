@@ -1497,6 +1497,7 @@ public class Plotting {
 		// generate gnuplot script files
 		AggregatedBatch initBatch = batchData[0];
 
+		// replace wildcards and remove unnecessary plots
 		config.checkCustomPlotConfigs(new AggregatedBatch[] { initBatch });
 
 		// plot statistics
