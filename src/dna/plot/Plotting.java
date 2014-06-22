@@ -120,15 +120,13 @@ public class Plotting {
 		boolean plotRuntimes = config.isPlotRuntimes();
 
 		// gather relevant batches
-		long[] maxTimestamps = new long[seriesData.length];
 		String[] batches = Dir.getBatchesFromTo(seriesData[0].getDir(),
 				timestampFrom, timestampTo, stepsize);
+
 		for (int i = 0; i < seriesData.length; i++) {
 			String tempDir = Dir.getAggregationDataDir(seriesData[i].getDir());
 			String[] tempBatches = Dir.getBatchesFromTo(tempDir, timestampFrom,
 					timestampTo, stepsize);
-			maxTimestamps[i] = Dir
-					.getTimestamp(tempBatches[tempBatches.length - 1]);
 			if (tempBatches.length > batches.length)
 				batches = tempBatches;
 		}
@@ -141,6 +139,24 @@ public class Plotting {
 		// list series'
 		for (int i = 0; i < seriesData.length; i++) {
 			Log.info("\t'" + seriesData[i].getName() + "'");
+		}
+
+		@SuppressWarnings("unchecked")
+		ArrayList<Long>[] seriesTimestamps = new ArrayList[seriesData.length];
+
+		// check what batches each series possesses
+		for (int i = 0; i < seriesData.length; i++) {
+			SeriesData sd = seriesData[i];
+			seriesTimestamps[i] = new ArrayList<Long>();
+
+			for (double t : timestamps) {
+				for (int j = 0; j < sd.getAggregation().getBatches().length; j++) {
+					long timestamp = sd.getAggregation().getBatches()[j]
+							.getTimestamp();
+					if (timestamp == t)
+						seriesTimestamps[i].add(timestamp);
+				}
+			}
 		}
 
 		// list relevant batches
@@ -167,7 +183,7 @@ public class Plotting {
 		// plot default distribution and nodevaluelist plots
 		if (plotDistributions || plotNodeValues)
 			Plotting.plotDistributionAndNodeValueListPlots(seriesData, dstDir,
-					batches, timestamps, maxTimestamps, plotDistributions,
+					batches, timestamps, seriesTimestamps, plotDistributions,
 					config.getCustomDistributionPlots(), plotNodeValues,
 					config.getCustomNodeValueListPlots(), singleFile,
 					distPlotType, order, orderBy, type, style);
@@ -177,7 +193,7 @@ public class Plotting {
 	/** Plots the def. distribution and nodeavluelist plots for multiple series. */
 	private static void plotDistributionAndNodeValueListPlots(
 			SeriesData[] seriesData, String dstDir, String[] batches,
-			double[] timestamps, long[] maxTimestamps,
+			double[] timestamps, ArrayList<Long>[] seriesTimestamps,
 			boolean plotDistributions,
 			ArrayList<PlotConfig> customDistributionPlots,
 			boolean plotNodeValues,
@@ -280,8 +296,8 @@ public class Plotting {
 
 					// iterate over series
 					for (int j = 0; j < seriesData.length; j++) {
-						// if timestamp > maxtimestamp of series j, skip
-						if (timestamp > maxTimestamps[j])
+						// if no batch with the timestamp, continue
+						if (!seriesTimestamps[j].contains(timestamp))
 							continue;
 
 						// iterate over values
@@ -404,8 +420,8 @@ public class Plotting {
 
 					// iterate over series
 					for (int j = 0; j < seriesData.length; j++) {
-						// if timestamp > maxtimestamp of series j, skip
-						if (timestamp > maxTimestamps[j])
+						// if no batch with the timestamp, continue
+						if (!seriesTimestamps[j].contains(timestamp))
 							continue;
 
 						// iterate over values
@@ -583,8 +599,8 @@ public class Plotting {
 
 				// iterate over series
 				for (int k = 0; k < seriesData.length; k++) {
-					// if timestamp > maxtimestamp of the series, skip
-					if (timestamp > maxTimestamps[k])
+					// if no batch with the timestamp, continue
+					if (!seriesTimestamps[k].contains(timestamp))
 						continue;
 
 					AggregatedBatch initBatch = initBatches[k];
@@ -711,8 +727,8 @@ public class Plotting {
 
 				// iterate over series
 				for (int k = 0; k < seriesData.length; k++) {
-					// if timestamp > maxtimestamp of the series, skip
-					if (timestamp > maxTimestamps[k])
+					// if no batch with the timestamp, continue
+					if (!seriesTimestamps[k].contains(timestamp))
 						continue;
 
 					AggregatedBatch initBatch = initBatches[k];
@@ -786,8 +802,8 @@ public class Plotting {
 			for (int j = 0; j < seriesData.length; j++) {
 				long timestamp = Dir.getTimestamp(batches[i]);
 
-				// if timestamp > maxtimestamp of the series, skip
-				if (timestamp > maxTimestamps[j])
+				// if no batch with the timestamp, continue
+				if (!seriesTimestamps[j].contains(timestamp))
 					continue;
 
 				AggregatedBatch tempBatch;
