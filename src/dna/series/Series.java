@@ -80,6 +80,18 @@ public class Series {
 				aggregate, write, batchGenerationTime);
 	}
 
+	public void generateRuns(int from, int to, int batches) throws IOException,
+			MetricNotApplicableException {
+		this.generateRuns(from, to, batches, true, true, 0);
+	}
+
+	public void generateRuns(int from, int to, int batches, boolean compare,
+			boolean write, long batchGenerationTime) throws IOException,
+			MetricNotApplicableException {
+		SeriesGeneration.generateRuns(this, from, to, batches, compare, write,
+				batchGenerationTime);
+	}
+
 	private GraphGenerator graphGenerator;
 
 	private BatchGenerator batchGenerator;
