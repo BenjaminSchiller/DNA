@@ -653,7 +653,7 @@ public class Plotting {
 
 			// transform to plot data arrays
 			PlotData[] data = dataList.toArray(new PlotData[0]);
-			PlotData[] cdfData = dataList.toArray(new PlotData[0]);
+			PlotData[] cdfData = cdfDataList.toArray(new PlotData[0]);
 
 			// generate normal plots
 			if (plotDist) {
