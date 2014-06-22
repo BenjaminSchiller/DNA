@@ -1049,14 +1049,6 @@ public class Plotting {
 				} else {
 					// iterate over series
 					for (int j = 0; j < seriesData.length; j++) {
-						AggregatedRunTimeList genRuntimes = initBatches[j]
-								.getGeneralRuntimes();
-						AggregatedRunTimeList metRuntimes = initBatches[j]
-								.getMetricRuntimes();
-						AggregatedMetricList metrics = initBatches[j]
-								.getMetrics();
-						AggregatedValueList statistics = initBatches[j]
-								.getValues();
 						String title = value + " (" + seriesData[j].getName()
 								+ ")";
 
@@ -1076,54 +1068,26 @@ public class Plotting {
 								exprName = expressionSplit[1];
 							else
 								exprName = expressionSplit[0];
-							dataList.add(new ExpressionData(exprName,
-									expressionSplit[1], style, exprName
-											.replace("$", "")
-											+ " ("
-											+ seriesData[j].getName() + ")",
-									config.getGeneralDomain()));
-							seriesDataQuantities[j]++;
+
+							if (initBatches[j].contains(Plotting
+									.getDomainFromExpression(value,
+											config.getGeneralDomain()),
+									Plotting.getValueFromExpression(value))) {
+								dataList.add(new ExpressionData(
+										exprName,
+										expressionSplit[1],
+										style,
+										exprName.replace("$", "") + " ("
+												+ seriesData[j].getName() + ")",
+										config.getGeneralDomain()));
+								seriesDataQuantities[j]++;
+							}
 						} else {
 							// check if series contains value
-							// check statistics
-							if (domain
-									.equals(PlotConfig.customPlotDomainStatistics)) {
-								if (statistics.getNames().contains(value)) {
-									dataList.add(PlotData.get(value, domain,
-											style, title, type));
-									seriesDataQuantities[j]++;
-								}
-							}
-							// check general runtimes
-							if (domain
-									.equals(PlotConfig.customPlotDomainGeneralRuntimes)
-									|| domain
-											.equals(PlotConfig.customPlotDomainRuntimes)) {
-								if (genRuntimes.getNames().contains(value)) {
-									dataList.add(PlotData.get(value, domain,
-											style, title, type));
-									seriesDataQuantities[j]++;
-								}
-							}
-							// check metric runtimes
-							if (domain
-									.equals(PlotConfig.customPlotDomainMetricRuntimes)
-									|| domain
-											.equals(PlotConfig.customPlotDomainRuntimes)) {
-								if (metRuntimes.getNames().contains(value)) {
-									dataList.add(PlotData.get(value, domain,
-											style, title, type));
-									seriesDataQuantities[j]++;
-								}
-							}
-							// check metric values
-							if (metrics.getNames().contains(domain)) {
-								if (metrics.get(domain).getValues().getNames()
-										.contains(value)) {
-									dataList.add(PlotData.get(value, domain,
-											style, title, type));
-									seriesDataQuantities[j]++;
-								}
+							if (initBatches[j].contains(domain, value)) {
+								dataList.add(PlotData.get(value, domain, style,
+										title, type));
+								seriesDataQuantities[j]++;
 							}
 						}
 					}
@@ -1162,6 +1126,34 @@ public class Plotting {
 				customPlots.add(p);
 			}
 		}
+	}
+
+	/** Returns the first value inside the expression. **/
+	private static String getValueFromExpression(String expr) {
+		String[] split = expr.split("\\$");
+		for (int i = 0; i < split.length; i++) {
+			if (split.length > 1) {
+				return split[1];
+			}
+		}
+		return null;
+	}
+
+	/** Returns the domain of the first value inside the expression. **/
+	private static String getDomainFromExpression(String expr,
+			String generalDomain) {
+		String[] split = expr.split("\\$");
+		for (int i = 0; i < split.length; i++) {
+			if (split.length > 1) {
+				String[] split2 = split[2].split("\\.");
+				if (split2.length > 1) {
+					return split2[0];
+				} else {
+					return generalDomain;
+				}
+			}
+		}
+		return null;
 	}
 
 	/**

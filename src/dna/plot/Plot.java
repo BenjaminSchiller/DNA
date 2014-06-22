@@ -377,7 +377,6 @@ public class Plot {
 				String name = this.data[this.dataWriteCounter].getName();
 				String domain = this.data[this.dataWriteCounter].getDomain();
 				if (this.isCdfPlot()) {
-					System.out.println("CDF PLOT : " + this.scriptFilename);
 					// if cdf plot
 					AggregatedBatch prevBatch = batchData[0];
 					AggregatedBatch tempBatch;

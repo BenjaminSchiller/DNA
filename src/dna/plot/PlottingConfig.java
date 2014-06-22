@@ -180,6 +180,10 @@ public class PlottingConfig {
 	 *            Batches to be checked.
 	 */
 	public void checkCustomPlotConfigs(AggregatedBatch[] batches) {
+		// log
+		Log.infoSep();
+		Log.info("Checking for unnecessary custom plots:");
+
 		// only check necessary
 		if (this.plotStatistics)
 			this.customStatisticPlots = PlottingConfig.checkPlotConfig(
@@ -284,7 +288,7 @@ public class PlottingConfig {
 			if (useful) {
 				configsNew.add(pc);
 			} else {
-				Log.info("removing: " + pc.getFilename());
+				Log.info("\tremoving: '" + pc.getFilename() + "'");
 			}
 		}
 
@@ -303,7 +307,7 @@ public class PlottingConfig {
 	 *            Array of batches to be checked.
 	 * @return True if domain and value is found in atleast one of the batches.
 	 */
-	private static boolean isContained(String domain, String value,
+	public static boolean isContained(String domain, String value,
 			AggregatedBatch[] batches) {
 		boolean contained = false;
 
@@ -366,6 +370,13 @@ public class PlottingConfig {
 		return contained;
 	}
 
+	/** Checks if the value and domain are contained in the given batch. **/
+	public static boolean isContained(String domain, String value,
+			AggregatedBatch batch) {
+		return PlottingConfig.isContained(domain, value,
+				new AggregatedBatch[] { batch });
+	}
+
 	/**
 	 * Replaces all wildcards in the given config with the corresponding values
 	 * from the given batches, where each batch represents the init batch of one
@@ -377,26 +388,78 @@ public class PlottingConfig {
 	 *            Array of init-batches holding the names of the values which
 	 *            will be inserted into the config.
 	 */
+	@SuppressWarnings("unchecked")
 	private static void replaceWildcards(ArrayList<PlotConfig> config,
 			AggregatedBatch[] batches) {
-		PlottingConfig.replaceWildcards(config, batches[0]);
-
-		// TODO: real replacement
-	}
-
-	/**
-	 * Replaces all wildcards in the given config with the corresponding values
-	 * from the given batch.
-	 * 
-	 * @param config
-	 *            Config to be altered.
-	 * @param batch
-	 *            Batch holding the names of the values which will be inserted
-	 *            into the config.
-	 */
-	private static void replaceWildcards(ArrayList<PlotConfig> config,
-			AggregatedBatch batch) {
 		if (config != null) {
+			ArrayList<String> stats = new ArrayList<String>();
+			ArrayList<String> metRuntimes = new ArrayList<String>();
+			ArrayList<String> genRuntimes = new ArrayList<String>();
+
+			ArrayList<String> metrics = new ArrayList<String>();
+			ArrayList<String>[] metricValues;
+			ArrayList<String>[] metricDistributions;
+			ArrayList<String>[] metricNodeValues;
+
+			// gather available values
+			for (AggregatedBatch b : batches) {
+				// statistics
+				for (String s : b.getValues().getNames()) {
+					if (!stats.contains(s))
+						stats.add(s);
+				}
+				// metric runtimes
+				for (String r : b.getMetricRuntimes().getNames()) {
+					if (!metRuntimes.contains(r))
+						metRuntimes.add(r);
+				}
+				// general runtimes
+				for (String r : b.getGeneralRuntimes().getNames()) {
+					if (!genRuntimes.contains(r))
+						genRuntimes.add(r);
+				}
+				// metric names
+				for (String m : b.getMetrics().getNames()) {
+					if (!metrics.contains(m))
+						metrics.add(m);
+				}
+			}
+
+			// metric values
+			metricValues = new ArrayList[metrics.size()];
+			metricDistributions = new ArrayList[metrics.size()];
+			metricNodeValues = new ArrayList[metrics.size()];
+
+			for (AggregatedBatch b : batches) {
+				for (int i = 0; i < metrics.size(); i++) {
+					String metric = metrics.get(i);
+					metricValues[i] = new ArrayList<String>();
+					metricDistributions[i] = new ArrayList<String>();
+					metricNodeValues[i] = new ArrayList<String>();
+
+					if (b.getMetrics().getNames().contains(metric)) {
+						// values
+						for (String v : b.getMetrics().get(metric).getValues()
+								.getNames()) {
+							if (!metricValues[i].contains(v))
+								metricValues[i].add(v);
+						}
+						// distributions
+						for (String d : b.getMetrics().get(metric)
+								.getDistributions().getNames()) {
+							if (!metricDistributions[i].contains(d))
+								metricDistributions[i].add(d);
+						}
+						// nodevaluelists
+						for (String n : b.getMetrics().get(metric)
+								.getNodeValues().getNames()) {
+							if (!metricNodeValues[i].contains(n))
+								metricNodeValues[i].add(n);
+						}
+					}
+				}
+			}
+
 			// iterate over configs
 			for (PlotConfig cfg : config) {
 				// if plot all is false, no wildcard is included -> skip
@@ -429,7 +492,7 @@ public class PlottingConfig {
 						// statistics
 						if (generalDomain
 								.equals(PlotConfig.customPlotDomainStatistics)) {
-							for (String v : batch.getValues().getNames()) {
+							for (String v : stats) {
 								String string = "";
 								for (int j = 0; j < split.length; j++) {
 									if ((j & 1) == 0) {
@@ -449,8 +512,7 @@ public class PlottingConfig {
 								|| generalDomain
 										.equals(PlotConfig.customPlotDomainRuntimes)) {
 							// general runtimes
-							for (String v : batch.getGeneralRuntimes()
-									.getNames()) {
+							for (String v : genRuntimes) {
 								// skip graphgeneration
 								if (v.equals("graphGeneration"))
 									continue;
@@ -474,8 +536,7 @@ public class PlottingConfig {
 								|| generalDomain
 										.equals(PlotConfig.customPlotDomainRuntimes)) {
 							// metric runtimes
-							for (String v : batch.getMetricRuntimes()
-									.getNames()) {
+							for (String v : metRuntimes) {
 								String string = "";
 								for (int j = 0; j < split.length; j++) {
 									if ((j & 1) == 0) {
@@ -491,11 +552,9 @@ public class PlottingConfig {
 							}
 						} else {
 							// metric value
-							if (batch.getMetrics().getNames()
-									.contains(generalDomain)) {
-								AggregatedMetric m = batch.getMetrics().get(
-										generalDomain);
-								for (String v : m.getValues().getNames()) {
+							if (metrics.contains(generalDomain)) {
+								int index = metrics.indexOf(generalDomain);
+								for (String v : metricValues[index]) {
 									String string = "";
 									for (int j = 0; j < split.length; j++) {
 										if ((j & 1) == 0) {
@@ -517,7 +576,7 @@ public class PlottingConfig {
 						if (domain
 								.equals(PlotConfig.customPlotDomainStatistics)) {
 							// statistics
-							for (String v : batch.getValues().getNames()) {
+							for (String v : stats) {
 								vList.add(value.replace(wildcard, v));
 								dList.add(domain);
 							}
@@ -526,8 +585,7 @@ public class PlottingConfig {
 								|| domain
 										.equals(PlotConfig.customPlotDomainRuntimes)) {
 							// general runtimes
-							for (String v : batch.getGeneralRuntimes()
-									.getNames()) {
+							for (String v : genRuntimes) {
 								// skip graphgeneration
 								if (v.equals("graphGeneration"))
 									continue;
@@ -540,17 +598,15 @@ public class PlottingConfig {
 								|| domain
 										.equals(PlotConfig.customPlotDomainRuntimes)) {
 							// metric runtimes
-							for (String v : batch.getMetricRuntimes()
-									.getNames()) {
+							for (String v : metRuntimes) {
 								vList.add(value.replace(wildcard, v));
 								dList.add(domain);
 							}
 						} else {
 							// metric value
-							if (batch.getMetrics().getNames().contains(domain)) {
-								AggregatedMetric m = batch.getMetrics().get(
-										domain);
-								for (String v : m.getValues().getNames()) {
+							if (metrics.contains(domain)) {
+								int index = metrics.indexOf(domain);
+								for (String v : metricValues[index]) {
 									vList.add(value.replace(wildcard, v));
 									dList.add(domain);
 								}
@@ -564,6 +620,23 @@ public class PlottingConfig {
 				cfg.setDomains(dList.toArray(new String[0]));
 			}
 		}
+
+	}
+
+	/**
+	 * Replaces all wildcards in the given config with the corresponding values
+	 * from the given batch.
+	 * 
+	 * @param config
+	 *            Config to be altered.
+	 * @param batch
+	 *            Batch holding the names of the values which will be inserted
+	 *            into the config.
+	 */
+	private static void replaceWildcards(ArrayList<PlotConfig> config,
+			AggregatedBatch batch) {
+		PlottingConfig
+				.replaceWildcards(config, new AggregatedBatch[] { batch });
 	}
 
 	// getters and setters

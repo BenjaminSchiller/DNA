@@ -4,6 +4,7 @@ import java.io.IOException;
 
 import dna.io.ZipWriter;
 import dna.io.filesystem.Files;
+import dna.plot.PlottingConfig;
 import dna.series.SeriesGeneration;
 import dna.util.Config;
 import dna.util.Log;
@@ -134,7 +135,7 @@ public class AggregatedBatch {
 		SeriesGeneration.readFileSystem = null;
 		return tempBatchData;
 	}
-	
+
 	/**
 	 * Returns a new AggregatedBatch, which equals b1, except that all runtime
 	 * values equal the sum of the runtimes of b1 and b2.
@@ -251,5 +252,10 @@ public class AggregatedBatch {
 		// return new crafted batch
 		return new AggregatedBatch(b1.getTimestamp(), values,
 				b1.getGeneralRuntimes(), b1.getMetricRuntimes(), metrics);
+	}
+
+	/** Checks if the batch contains the domain and value. **/
+	public boolean contains(String domain, String value) {
+		return PlottingConfig.isContained(domain, value, this);
 	}
 }
