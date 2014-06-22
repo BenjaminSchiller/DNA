@@ -170,11 +170,32 @@ public class Plotting {
 			Log.info("\t" + batches[batches.length - 1]);
 		}
 
+		// array of the initbatch of each series
+		AggregatedBatch[] initBatches = new AggregatedBatch[seriesData.length];
+
+		// read init batches
+		for (int i = 0; i < seriesData.length; i++) {
+			SeriesData series = seriesData[i];
+			String tempDir = Dir.getAggregationDataDir(series.getDir());
+			long timestamp = series.getAggregation().getBatches()[0]
+					.getTimestamp();
+			if (singleFile)
+				initBatches[i] = AggregatedBatch.readFromSingleFile(tempDir,
+						timestamp, Dir.delimiter, BatchReadMode.readAllValues);
+			else
+				initBatches[i] = AggregatedBatch.read(
+						Dir.getBatchDataDir(tempDir, timestamp), timestamp,
+						BatchReadMode.readAllValues);
+		}
+
+		// replace wildcards and remove unnecessary plots
+		config.checkCustomPlotConfigs(initBatches);
+
 		// plot default statistic and metric value plots
 		if (plotStatistics || plotMetricValues || plotRuntimes
 				|| plotCustomValues)
 			Plotting.plotSingleValuePlots(seriesData, dstDir, batches,
-					timestamps, plotStatistics,
+					timestamps, initBatches, plotStatistics,
 					config.getCustomStatisticPlots(), plotMetricValues,
 					config.getCustomMetricValuePlots(), plotCustomValues,
 					config.getCustomValuePlots(), plotRuntimes,
@@ -183,18 +204,17 @@ public class Plotting {
 		// plot default distribution and nodevaluelist plots
 		if (plotDistributions || plotNodeValues)
 			Plotting.plotDistributionAndNodeValueListPlots(seriesData, dstDir,
-					batches, timestamps, seriesTimestamps, plotDistributions,
-					config.getCustomDistributionPlots(), plotNodeValues,
-					config.getCustomNodeValueListPlots(), singleFile,
-					distPlotType, order, orderBy, type, style);
-
+					batches, timestamps, initBatches, seriesTimestamps,
+					plotDistributions, config.getCustomDistributionPlots(),
+					plotNodeValues, config.getCustomNodeValueListPlots(),
+					singleFile, distPlotType, order, orderBy, type, style);
 	}
 
 	/** Plots the def. distribution and nodeavluelist plots for multiple series. */
 	private static void plotDistributionAndNodeValueListPlots(
 			SeriesData[] seriesData, String dstDir, String[] batches,
-			double[] timestamps, ArrayList<Long>[] seriesTimestamps,
-			boolean plotDistributions,
+			double[] timestamps, AggregatedBatch[] initBatches,
+			ArrayList<Long>[] seriesTimestamps, boolean plotDistributions,
 			ArrayList<PlotConfig> customDistributionPlots,
 			boolean plotNodeValues,
 			ArrayList<PlotConfig> customNodeValueListPlots, boolean singleFile,
@@ -205,9 +225,6 @@ public class Plotting {
 
 		// list of default plots
 		ArrayList<Plot> defaultPlots = new ArrayList<Plot>();
-
-		// array of the initbatch of each series
-		AggregatedBatch[] initBatches = new AggregatedBatch[seriesData.length];
 
 		// contains the names of values
 		ArrayList<String> distValues = new ArrayList<String>();
@@ -220,22 +237,6 @@ public class Plotting {
 		// contains an int which states how often a value occurs
 		ArrayList<Integer> distOccurence = new ArrayList<Integer>();
 		ArrayList<Integer> nvlOccurence = new ArrayList<Integer>();
-
-		// read init batches
-		for (int i = 0; i < seriesData.length; i++) {
-			SeriesData series = seriesData[i];
-			String tempDir = Dir.getAggregationDataDir(series.getDir());
-			long timestamp = series.getAggregation().getBatches()[0]
-					.getTimestamp();
-			if (singleFile)
-				initBatches[i] = AggregatedBatch.readFromSingleFile(tempDir,
-						timestamp, Dir.delimiter,
-						BatchReadMode.readOnlyDistAndNvl);
-			else
-				initBatches[i] = AggregatedBatch.read(
-						Dir.getBatchDataDir(tempDir, timestamp), timestamp,
-						BatchReadMode.readOnlyDistAndNvl);
-		}
 
 		// log flags
 		boolean loggedDist = false;
@@ -858,7 +859,8 @@ public class Plotting {
 	/** Plots the single value plots for multiple series. */
 	private static void plotSingleValuePlots(SeriesData[] seriesData,
 			String dstDir, String[] batches, double[] timestamps,
-			boolean plotStatistics, ArrayList<PlotConfig> customStatisticPlots,
+			AggregatedBatch[] initBatches, boolean plotStatistics,
+			ArrayList<PlotConfig> customStatisticPlots,
 			boolean plotMetricValues,
 			ArrayList<PlotConfig> customMetricValuePlots,
 			boolean plotCustomValues, ArrayList<PlotConfig> customValuePlots,
@@ -869,31 +871,9 @@ public class Plotting {
 		ArrayList<Plot> defaultPlots = new ArrayList<Plot>();
 		ArrayList<Plot> plots = new ArrayList<Plot>();
 
-		// array of the initbatch of each series
-		AggregatedBatch[] initBatches = new AggregatedBatch[seriesData.length];
-
-		// read init batches
-		for (int i = 0; i < seriesData.length; i++) {
-			SeriesData series = seriesData[i];
-			String tempDir = Dir.getAggregationDataDir(series.getDir());
-			long timestamp = series.getAggregation().getBatches()[0]
-					.getTimestamp();
-			if (singleFile)
-				initBatches[i] = AggregatedBatch.readFromSingleFile(tempDir,
-						timestamp, Dir.delimiter,
-						BatchReadMode.readOnlySingleValues);
-			else
-				initBatches[i] = AggregatedBatch.read(
-						Dir.getBatchDataDir(tempDir, timestamp), timestamp,
-						BatchReadMode.readOnlySingleValues);
-		}
-
 		// generate statistic plots
 		if (plotStatistics) {
 			Log.info("Plotting custom statistic plots:");
-
-			// handle wildcards
-			Plotting.replaceWildcards(customStatisticPlots, initBatches);
 
 			// generate plots and add to customPlot List
 			Plotting.generateCustomPlots(customStatisticPlots, plots, dstDir,
@@ -904,9 +884,6 @@ public class Plotting {
 		if (plotMetricValues) {
 			Log.info("Plotting custom metric value plots:");
 
-			// handle wildcards
-			Plotting.replaceWildcards(customMetricValuePlots, initBatches);
-
 			// generate plots and add to customPlot List
 			Plotting.generateCustomPlots(customMetricValuePlots, plots, dstDir,
 					seriesData, initBatches, style, type);
@@ -916,9 +893,6 @@ public class Plotting {
 		if (plotCustomValues) {
 			Log.info("Plotting custom value plots:");
 
-			// handle wildcards
-			Plotting.replaceWildcards(customValuePlots, initBatches);
-
 			// generate plots and add to customPlot list
 			Plotting.generateCustomPlots(customValuePlots, plots, dstDir,
 					seriesData, initBatches, style, type);
@@ -927,9 +901,6 @@ public class Plotting {
 		// generate runtime plots
 		if (plotRuntimes) {
 			Log.info("Plotting custom runtime plots:");
-
-			// handle wildcards
-			Plotting.replaceWildcards(customRuntimePlots, initBatches);
 
 			// generate plots and add to customPlot List
 			Plotting.generateCustomPlots(customRuntimePlots, plots, dstDir,
@@ -1615,24 +1586,6 @@ public class Plotting {
 					config.getCustomDistributionPlots(),
 					config.getCustomNodeValueListPlots(), tempDir, dstDir,
 					title, style, type, distPlotType, order, orderBy);
-	}
-
-	/**
-	 * Replaces all wildcards in the given config with the corresponding values
-	 * from the given batches, where each batch represents the init batch of one
-	 * series.
-	 * 
-	 * @param config
-	 *            Config to be altered.
-	 * @param batches
-	 *            Array of init-batches holding the names of the values which
-	 *            will be inserted into the config.
-	 */
-	private static void replaceWildcards(ArrayList<PlotConfig> config,
-			AggregatedBatch[] batches) {
-		Plotting.replaceWildcards(config, batches[0]);
-
-		// TODO: real replacement
 	}
 
 	/**
