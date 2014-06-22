@@ -1003,8 +1003,25 @@ public class Plotting {
 			Log.info("\tplotting '" + plotConfigs.get(i).getFilename() + "'");
 
 			PlotConfig config = plotConfigs.get(i);
-			String[] runtimes = config.getValues();
+			String[] values = config.getValues();
 			String[] domains = config.getDomains();
+
+			// set flags for what to plot
+			boolean plotNormal = false;
+			boolean plotAsCdf = false;
+
+			switch (config.getPlotAsCdf()) {
+			case "true":
+				plotAsCdf = true;
+				break;
+			case "false":
+				plotNormal = true;
+				break;
+			case "both":
+				plotNormal = true;
+				plotAsCdf = true;
+				break;
+			}
 
 			// series data quantities array
 			int[] seriesDataQuantities = new int[seriesData.length];
@@ -1013,8 +1030,8 @@ public class Plotting {
 			ArrayList<PlotData> dataList = new ArrayList<PlotData>();
 
 			// iterate over values
-			for (int k = 0; k < runtimes.length; k++) {
-				String value = runtimes[k];
+			for (int k = 0; k < values.length; k++) {
+				String value = values[k];
 				String domain = domains[k];
 
 				// if function, add it only once
@@ -1112,21 +1129,38 @@ public class Plotting {
 					}
 				}
 			}
-
 			// transform datalist to array
 			PlotData[] data = dataList.toArray(new PlotData[0]);
 			String filename = config.getFilename();
 
-			// create plot
-			Plot p = new Plot(dstDir, filename,
-					PlotFilenames.getValuesGnuplotScript(filename),
-					config.getTitle(), config, data);
+			if (plotNormal) {
+				// create plot
+				Plot p = new Plot(dstDir, filename,
+						PlotFilenames.getValuesGnuplotScript(filename),
+						config.getTitle(), config, data);
 
-			// set series data quantities
-			p.setSeriesDataQuantities(seriesDataQuantities);
+				// set series data quantities
+				p.setSeriesDataQuantities(seriesDataQuantities);
 
-			// add to plot list
-			customPlots.add(p);
+				// add to plot list
+				customPlots.add(p);
+			}
+			if (plotAsCdf) {
+				// create plot
+				Plot p = new Plot(dstDir,
+						PlotFilenames.getValuesPlotCDF(filename),
+						PlotFilenames.getValuesGnuplotScriptCDF(filename),
+						"CDF of " + config.getTitle(), config, data);
+
+				// set as cdf plot
+				p.setCdfPlot(true);
+
+				// set series data quantities
+				p.setSeriesDataQuantities(seriesDataQuantities);
+
+				// add to plot list
+				customPlots.add(p);
+			}
 		}
 	}
 

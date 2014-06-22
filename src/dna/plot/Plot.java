@@ -61,6 +61,7 @@ public class Plot {
 	private DistributionPlotType distPlotType;
 	private NodeValueListOrderBy orderBy;
 	private NodeValueListOrder sortOrder;
+	private boolean cdfPlot;
 
 	/**
 	 * Creates a plot object which will be written to a gnuplot script file.
@@ -95,6 +96,7 @@ public class Plot {
 				.getNodeValueListOrderBy("GNUPLOT_DEFAULT_NVL_ORDERBY");
 		this.datetime = Config.get("GNUPLOT_DATETIME");
 		this.plotDateTime = Config.getBoolean("GNUPLOT_PLOTDATETIME");
+		this.cdfPlot = false;
 
 		// init writer
 		this.fileWriter = new Writer(dir, scriptFilename);
@@ -377,8 +379,33 @@ public class Plot {
 				// if not function, add data
 				String name = this.data[this.dataWriteCounter].getName();
 				String domain = this.data[this.dataWriteCounter].getDomain();
-				if (this.data[this.dataWriteCounter].isPlotAsCdf()) {
-					// cdf
+				if (this.isCdfPlot()) {
+					System.out.println("CDF PLOT : " + this.scriptFilename);
+					// if cdf plot
+					AggregatedBatch prevBatch = batchData[0];
+					AggregatedBatch tempBatch;
+
+					for (int j = 0; j < batchData.length; j++) {
+						// if batch is null, no data -> just add EOF
+						if (batchData[j] != null) {
+							if (j > 0) {
+								tempBatch = Plot.sumValues(batchData[j],
+										prevBatch);
+								tempBatch = Plot.sumRuntimes(tempBatch,
+										prevBatch);
+							} else {
+								tempBatch = batchData[j];
+							}
+							if (this.data[this.dataWriteCounter] instanceof ExpressionData)
+								this.addDataFromExpression(
+										tempBatch,
+										(ExpressionData) this.data[this.dataWriteCounter]);
+							else
+								this.addData(name, domain, tempBatch, false);
+							prevBatch = tempBatch;
+						}
+					}
+					this.appendEOF();
 				} else {
 					// default case
 					for (int j = 0; j < batchData.length; j++) {
@@ -920,5 +947,13 @@ public class Plot {
 
 	public void setErrorPrinted(boolean errorPrinted) {
 		this.errorPrinted = errorPrinted;
+	}
+
+	public boolean isCdfPlot() {
+		return this.cdfPlot;
+	}
+
+	public void setCdfPlot(boolean cdfPlot) {
+		this.cdfPlot = cdfPlot;
 	}
 }
