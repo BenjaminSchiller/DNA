@@ -1239,7 +1239,7 @@ public class Plotting {
 
 			// plot metric values
 			if (plotMetricValues
-					&& Config.getBoolean("DEFAULT_PLOT_METRIC_RUNTIMES")) {
+					&& Config.getBoolean("DEFAULT_PLOT_METRIC_VALUES")) {
 				AggregatedMetricList aMetrics = initBatches[i].getMetrics();
 				for (String metric : aMetrics.getNames()) {
 					AggregatedValueList aMetricValues = aMetrics.get(metric)
@@ -1271,8 +1271,7 @@ public class Plotting {
 			}
 
 			// runtimes
-			if (plotRuntimes
-					&& Config.getBoolean("DEFAULT_PLOT_GENERAL_RUNTIMES")) {
+			if (plotRuntimes && Config.getBoolean("DEFAULT_PLOT_RUNTIMES")) {
 				// general runtimes
 				for (String runtime : initBatches[i].getGeneralRuntimes()
 						.getNames()) {
