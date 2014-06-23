@@ -1,17 +1,13 @@
 package dna.series;
 
-import java.io.File;
 import java.io.IOException;
 
 import dna.graph.Graph;
 import dna.graph.generators.GraphGenerator;
-import dna.io.filesystem.Dir;
-import dna.io.filter.PrefixFilenameFilter;
 import dna.metrics.Metric;
 import dna.metrics.MetricNotApplicableException;
 import dna.series.aggdata.AggregatedBatch.BatchReadMode;
 import dna.series.aggdata.AggregatedSeries;
-import dna.series.data.RunData;
 import dna.series.data.SeriesData;
 import dna.updates.generators.BatchGenerator;
 import dna.util.Config;
@@ -42,16 +38,16 @@ public class Series {
 	public static SeriesData get(String dir, String name)
 			throws NumberFormatException, IOException {
 		SeriesData seriesData = new SeriesData(dir, name);
-		int runs = (new File(dir)).listFiles(new PrefixFilenameFilter(Config
-				.get("PREFIX_RUNDATA_DIR"))).length;
-		for (int run = 0; run < runs; run++) {
-			String runDir = Dir.getRunDataDir(dir, run);
-			System.out.println(run + ": " + runDir);
-			RunData runData = RunData.read(dir, run, false);
-			seriesData.addRun(runData);
-		}
+		// int runs = (new File(dir)).listFiles(new PrefixFilenameFilter(Config
+		// .get("PREFIX_RUNDATA_DIR"))).length;
+		// for (int run = 0; run < runs; run++) {
+		// String runDir = Dir.getRunDataDir(dir, run);
+		// System.out.println(run + ": " + runDir);
+		// RunData runData = RunData.read(dir, run, false);
+		// seriesData.addRun(runData);
+		// }
 		AggregatedSeries aggregation = AggregatedSeries.read(dir, name,
-				BatchReadMode.readAllValues);
+				BatchReadMode.readNoValues);
 
 		seriesData.setAggregation(aggregation);
 		return seriesData;

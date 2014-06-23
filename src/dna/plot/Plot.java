@@ -338,13 +338,18 @@ public class Plot {
 	public void addDataSequentially(AggregatedBatch batchData)
 			throws IOException {
 		if (!(this.data[this.dataWriteCounter] instanceof FunctionData)) {
-			// if not function, add data
-			String name = this.data[this.dataWriteCounter].getName();
-			String domain = this.data[this.dataWriteCounter].getDomain();
-			if (this.data[this.dataWriteCounter].isPlotAsCdf())
-				this.addData(name, domain, batchData, true);
-			else
-				this.addData(name, domain, batchData, false);
+			// if batchdata null, only append eof
+			if (batchData != null) {
+				// if not function, add data
+				String name = this.data[this.dataWriteCounter].getName();
+				String domain = this.data[this.dataWriteCounter].getDomain();
+				if (this.data[this.dataWriteCounter].isPlotAsCdf())
+					this.addData(name, domain, batchData, true);
+				else
+					this.addData(name, domain, batchData, false);
+			} else {
+				this.appendEOF();
+			}
 		}
 	}
 
@@ -373,13 +378,16 @@ public class Plot {
 				} else {
 					// default case
 					for (int j = 0; j < batchData.length; j++) {
-						// check if expression
-						if (this.data[this.dataWriteCounter] instanceof ExpressionData)
-							this.addDataFromExpression(
-									batchData[j],
-									(ExpressionData) this.data[this.dataWriteCounter]);
-						else
-							this.addData(name, domain, batchData[j], false);
+						// if batch is null, no data -> just add EOF
+						if (batchData[j] != null) {
+							// check if expression
+							if (this.data[this.dataWriteCounter] instanceof ExpressionData)
+								this.addDataFromExpression(
+										batchData[j],
+										(ExpressionData) this.data[this.dataWriteCounter]);
+							else
+								this.addData(name, domain, batchData[j], false);
+						}
 					}
 					this.appendEOF();
 				}
@@ -698,7 +706,7 @@ public class Plot {
 		if (this.dataWriteCounter + this.functionQuantity != this.data.length)
 			Log.warn("Unexpected number of plotdata written to file "
 					+ this.dir + this.scriptFilename + ". Expected: "
-					+ this.data.length + " Written: " + this.dataWriteCounter);
+					+ this.data.length + "  Written: " + this.dataWriteCounter);
 		this.fileWriter.close();
 		this.fileWriter = null;
 	}

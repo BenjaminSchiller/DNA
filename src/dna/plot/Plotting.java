@@ -1,6 +1,7 @@
 package dna.plot;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -75,6 +76,9 @@ public class Plotting {
 		// if no series, print out warning
 		if (seriesData.length < 1)
 			Log.error("Plotting called without a series to plot.");
+		else
+			Log.info("Plotting finished!");
+
 	}
 
 	/**
@@ -116,9 +120,16 @@ public class Plotting {
 		boolean plotRuntimes = config.isPlotRuntimes();
 
 		// gather relevant batches
-		String tempDir = Dir.getAggregationDataDir(seriesData[0].getDir());
-		String[] batches = Dir.getBatchesFromTo(tempDir, timestampFrom,
-				timestampTo, stepsize);
+		String[] batches = Dir.getBatchesFromTo(seriesData[0].getDir(),
+				timestampFrom, timestampTo, stepsize);
+		for (int i = 0; i < seriesData.length; i++) {
+			String tempDir = Dir.getAggregationDataDir(seriesData[i].getDir());
+			String[] tempBatches = Dir.getBatchesFromTo(tempDir, timestampFrom,
+					timestampTo, stepsize);
+			if (tempBatches.length > batches.length)
+				batches = tempBatches;
+		}
+
 		double timestamps[] = new double[batches.length];
 		for (int j = 0; j < batches.length; j++) {
 			timestamps[j] = Dir.getTimestamp(batches[j]);
@@ -516,15 +527,18 @@ public class Plotting {
 				long timestamp = Dir.getTimestamp(batches[i]);
 				String aggrDir = Dir.getAggregationDataDir(seriesData[j]
 						.getDir());
-
-				if (singleFile)
-					tempBatch = AggregatedBatch.readFromSingleFile(aggrDir,
-							timestamp, Dir.delimiter,
-							BatchReadMode.readOnlyDistAndNvl);
-				else
-					tempBatch = AggregatedBatch.read(
-							Dir.getBatchDataDir(aggrDir, timestamp), timestamp,
-							BatchReadMode.readOnlyDistAndNvl);
+				try {
+					if (singleFile)
+						tempBatch = AggregatedBatch.readFromSingleFile(aggrDir,
+								timestamp, Dir.delimiter,
+								BatchReadMode.readOnlyDistAndNvl);
+					else
+						tempBatch = AggregatedBatch.read(
+								Dir.getBatchDataDir(aggrDir, timestamp),
+								timestamp, BatchReadMode.readOnlyDistAndNvl);
+				} catch (NullPointerException e) {
+					tempBatch = null;
+				}
 
 				// append data to plots
 				for (Plot p : defaultPlots) {
@@ -854,14 +868,18 @@ public class Plotting {
 			AggregatedBatch[] batchData = new AggregatedBatch[batches.length];
 			for (int j = 0; j < batches.length; j++) {
 				long timestamp = Dir.getTimestamp(batches[j]);
-				if (singleFile)
-					batchData[j] = AggregatedBatch.readFromSingleFile(tempDir,
-							timestamp, Dir.delimiter,
-							BatchReadMode.readOnlySingleValues);
-				else
-					batchData[j] = AggregatedBatch.read(
-							Dir.getBatchDataDir(tempDir, timestamp), timestamp,
-							BatchReadMode.readOnlySingleValues);
+				try {
+					if (singleFile)
+						batchData[j] = AggregatedBatch.readFromSingleFile(
+								tempDir, timestamp, Dir.delimiter,
+								BatchReadMode.readOnlySingleValues);
+					else
+						batchData[j] = AggregatedBatch.read(
+								Dir.getBatchDataDir(tempDir, timestamp),
+								timestamp, BatchReadMode.readOnlySingleValues);
+				} catch (FileNotFoundException e) {
+					batchData[j] = null;
+				}
 			}
 
 			// add data
