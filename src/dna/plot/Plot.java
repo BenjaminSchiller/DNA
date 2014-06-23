@@ -695,7 +695,6 @@ public class Plot {
 			for (int i = 0; i < this.data.length; i++) {
 				String line = "";
 				if (this.distPlotType == null)
-
 					line = this.data[i].getEntry(i + 1,
 							Config.getInt("GNUPLOT_LW"),
 							Config.getDouble("GNUPLOT_XOFFSET") * i,
@@ -736,13 +735,15 @@ public class Plot {
 					line = this.data[i].getEntry(i + 1,
 							Config.getInt("GNUPLOT_LW"),
 							this.config.getxOffset() * i,
-							this.config.getyOffset() * i);
+							this.config.getyOffset() * i,
+							this.config.getStyle());
 				else
 					line = this.data[i].getEntry(i + 1,
 							Config.getInt("GNUPLOT_LW"),
 							this.config.getxOffset() * i,
 							this.config.getyOffset() * i,
-							this.config.getDistPlotType());
+							this.config.getDistPlotType(),
+							this.config.getStyle());
 				if (i == 0) {
 					line = "plot " + line;
 				}

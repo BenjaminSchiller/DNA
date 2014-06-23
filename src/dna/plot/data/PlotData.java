@@ -80,7 +80,13 @@ public abstract class PlotData {
 			double offsetY);
 
 	public abstract String getEntry(int lt, int lw, double offsetX,
+			double offsetY, PlotStyle style);
+
+	public abstract String getEntry(int lt, int lw, double offsetX,
 			double offsetY, DistributionPlotType distPotType);
+
+	public abstract String getEntry(int lt, int lw, double offsetX,
+			double offsetY, DistributionPlotType distPotType, PlotStyle style);
 
 	public static PlotData get(String data, String domain, PlotStyle style,
 			String title, PlotType type) {

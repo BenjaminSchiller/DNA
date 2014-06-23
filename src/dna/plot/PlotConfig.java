@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import dna.plot.data.PlotData.DistributionPlotType;
 import dna.plot.data.PlotData.NodeValueListOrder;
 import dna.plot.data.PlotData.NodeValueListOrderBy;
+import dna.plot.data.PlotData.PlotStyle;
 import dna.util.Config;
 import dna.util.Log;
 
@@ -65,6 +66,8 @@ public class PlotConfig {
 
 	public static String customPlotSuffixNvlOrderBy = "_ORDERBY";
 
+	public static String customPlotSuffixPlotStyle = "_STYLE";
+
 	// DOMAINS
 	public static String customPlotDomainStatistics = "statistics";
 
@@ -97,6 +100,7 @@ public class PlotConfig {
 	private String plotAsCdf;
 	private String[] values;
 	private String[] domains;
+	private PlotStyle style;
 	private DistributionPlotType distPlotType;
 	private NodeValueListOrder order;
 	private NodeValueListOrderBy orderBy;
@@ -108,8 +112,9 @@ public class PlotConfig {
 			String yLabel, String logscale, String datetime, double xOffset,
 			double yOffset, String xRange, String yRange, String xTics,
 			String yTics, String plotAsCdf, String[] values, String[] domains,
-			DistributionPlotType distPlotType, NodeValueListOrder order,
-			NodeValueListOrderBy orderBy, boolean plotAll, String generalDomain) {
+			PlotStyle style, DistributionPlotType distPlotType,
+			NodeValueListOrder order, NodeValueListOrderBy orderBy,
+			boolean plotAll, String generalDomain) {
 		this.filename = filename;
 		this.title = title;
 		this.xLabel = xLabel;
@@ -125,11 +130,13 @@ public class PlotConfig {
 		this.plotAsCdf = plotAsCdf;
 		this.values = values;
 		this.domains = domains;
+		this.style = style;
 		this.distPlotType = distPlotType;
 		this.order = order;
 		this.orderBy = orderBy;
 		this.plotAll = plotAll;
 		this.generalDomain = generalDomain;
+
 	}
 
 	// getters
@@ -143,6 +150,10 @@ public class PlotConfig {
 
 	public String getPlotAsCdf() {
 		return plotAsCdf;
+	}
+
+	public PlotStyle getStyle() {
+		return style;
 	}
 
 	public DistributionPlotType getDistPlotType() {
@@ -287,12 +298,11 @@ public class PlotConfig {
 			// init domains arrays
 			String[] domains = new String[values.length];
 
-			
 			// replace "-characters in values
-			for(int i = 0; i < values.length; i++) {
+			for (int i = 0; i < values.length; i++) {
 				values[i] = values[i].replace("" + '"', "");
 			}
-			
+
 			// parse values and get domains
 			for (int i = 0; i < values.length; i++) {
 				String value = values[i];
@@ -394,6 +404,7 @@ public class PlotConfig {
 			String yRange = Config.get("GNUPLOT_YRANGE");
 			String xTics = null;
 			String yTics = null;
+			PlotStyle style = null;
 			DistributionPlotType distPlotType = Config
 					.getDistributionPlotType("GNUPLOT_DEFAULT_DIST_PLOTTYPE");
 			NodeValueListOrder order = Config
@@ -464,6 +475,13 @@ public class PlotConfig {
 				plotAsCdf = Config.get(prefix + s
 						+ PlotConfig.customPlotSuffixCdf);
 
+			// style
+			try {
+				style = Config.getPlotStyle(prefix + s
+						+ PlotConfig.customPlotSuffixPlotStyle);
+			} catch (NullPointerException e) {
+			}
+
 			// dist plot type
 			try {
 				distPlotType = Config.getDistributionPlotType(prefix + s
@@ -486,8 +504,8 @@ public class PlotConfig {
 			// Craft PlotConfig and add to configs list
 			plotConfigs.add(new PlotConfig(filename, title, xLabel, yLabel,
 					logscale, datetime, xOffset, yOffset, xRange, yRange,
-					xTics, yTics, plotAsCdf, values, domains, distPlotType,
-					order, orderBy, plotAll, generalDomain));
+					xTics, yTics, plotAsCdf, values, domains, style,
+					distPlotType, order, orderBy, plotAll, generalDomain));
 		}
 		return plotConfigs;
 	}
