@@ -260,6 +260,8 @@ public class Config extends PropertiesHolder {
 			return PlotStyle.candlesticks;
 		case ("yerrorbars"):
 			return PlotStyle.yerrorbars;
+		case ("fillsteps"):
+			return PlotStyle.fillsteps;
 		default:
 			return PlotStyle.linespoint;
 		}
