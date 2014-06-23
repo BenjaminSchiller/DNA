@@ -6,7 +6,7 @@ package dna.plot.data;
  */
 public abstract class PlotData {
 	public static enum PlotStyle {
-		lines, dots, points, linespoint, impulses, steps, boxes, candlesticks, yerrorbars, fillsteps
+		lines, dots, points, linespoint, impulses, steps, boxes, candlesticks, yerrorbars, fillsteps, filledcurves
 	}
 
 	public static enum PlotType {
@@ -111,4 +111,5 @@ public abstract class PlotData {
 			return null;
 		}
 	}
+
 }

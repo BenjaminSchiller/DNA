@@ -705,6 +705,7 @@ public class Plot {
 							Config.getDouble("GNUPLOT_XOFFSET") * i,
 							Config.getDouble("GNUPLOT_YOFFSET") * i,
 							this.distPlotType);
+				line = line.replace("filledcurves", "filledcurves y1=0");
 				if (i == 0) {
 					line = "plot " + line;
 				}
@@ -744,6 +745,7 @@ public class Plot {
 							this.config.getyOffset() * i,
 							this.config.getDistPlotType(),
 							this.config.getStyle());
+				line = line.replace("filledcurves", "filledcurves y1=0");
 				if (i == 0) {
 					line = "plot " + line;
 				}

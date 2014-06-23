@@ -28,7 +28,7 @@ public class Config extends PropertiesHolder {
 	private static HashMap<String, String> overwrite;
 
 	private static String defaultConfigFolder = "config/";
-	
+
 	public static void setConfigFolder(String cf) {
 		defaultConfigFolder = cf;
 	}
@@ -241,30 +241,10 @@ public class Config extends PropertiesHolder {
 	}
 
 	public static PlotStyle getPlotStyle(String key) {
-		switch (Config.get(key)) {
-		case ("lines"):
-			return PlotStyle.lines;
-		case ("dots"):
-			return PlotStyle.dots;
-		case ("points"):
-			return PlotStyle.points;
-		case ("linespoint"):
-			return PlotStyle.linespoint;
-		case ("impulses"):
-			return PlotStyle.impulses;
-		case ("steps"):
-			return PlotStyle.steps;
-		case ("boxes"):
-			return PlotStyle.boxes;
-		case ("candlesticks"):
-			return PlotStyle.candlesticks;
-		case ("yerrorbars"):
-			return PlotStyle.yerrorbars;
-		case ("fillsteps"):
-			return PlotStyle.fillsteps;
-		default:
+		if (Config.get(key) == null) {
 			return PlotStyle.linespoint;
 		}
+		return PlotStyle.valueOf(Config.get(key));
 	}
 
 	public static void appendToList(String key, String value) {
