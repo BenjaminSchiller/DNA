@@ -1133,6 +1133,13 @@ public class Plotting {
 		String[] split = expr.split("\\$");
 		for (int i = 0; i < split.length; i++) {
 			if (split.length > 1) {
+				String[] split2 = split[1].split("\\.");
+				if (split2.length > 1) {
+					String value = "";
+					for (int j = 1; j < split2.length; j++)
+						value += split2[j];
+					return value;
+				}
 				return split[1];
 			}
 		}
@@ -1145,7 +1152,7 @@ public class Plotting {
 		String[] split = expr.split("\\$");
 		for (int i = 0; i < split.length; i++) {
 			if (split.length > 1) {
-				String[] split2 = split[2].split("\\.");
+				String[] split2 = split[1].split("\\.");
 				if (split2.length > 1) {
 					return split2[0];
 				} else {
