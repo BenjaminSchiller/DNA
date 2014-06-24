@@ -6,7 +6,7 @@ package dna.plot.data;
  */
 public abstract class PlotData {
 	public static enum PlotStyle {
-		lines, dots, points, linespoint, impulses, steps, boxes, candlesticks, yerrorbars
+		lines, dots, points, linespoint, impulses, steps, boxes, candlesticks, yerrorbars, fillsteps, filledcurves
 	}
 
 	public static enum PlotType {
@@ -80,7 +80,13 @@ public abstract class PlotData {
 			double offsetY);
 
 	public abstract String getEntry(int lt, int lw, double offsetX,
+			double offsetY, PlotStyle style);
+
+	public abstract String getEntry(int lt, int lw, double offsetX,
 			double offsetY, DistributionPlotType distPotType);
+
+	public abstract String getEntry(int lt, int lw, double offsetX,
+			double offsetY, DistributionPlotType distPotType, PlotStyle style);
 
 	public static PlotData get(String data, String domain, PlotStyle style,
 			String title, PlotType type) {
@@ -105,4 +111,5 @@ public abstract class PlotData {
 			return null;
 		}
 	}
+
 }

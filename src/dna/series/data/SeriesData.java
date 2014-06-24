@@ -38,7 +38,7 @@ public class SeriesData {
 	public SeriesData(String dir, String name, RunData[] runs,
 			AggregatedSeries aggregation) {
 		this(dir, name, runs);
-		// this.aggregation = aggregation;
+		this.aggregation = aggregation;
 	}
 
 	private String dir;

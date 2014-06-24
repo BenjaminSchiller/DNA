@@ -18,28 +18,53 @@ public class AverageData extends PlotData {
 
 	@Override
 	public String getEntry(int lt, int lw, double offsetX, double offsetY) {
+		return this.getEntry(lt, lw, offsetX, offsetY, this.style);
+	}
+
+	@Override
+	public String getEntry(int lt, int lw, double offsetX, double offsetY,
+			PlotStyle style) {
+		PlotStyle styleTemp;
+		if (style == null)
+			styleTemp = this.style;
+		else
+			styleTemp = style;
+
 		StringBuffer buff = new StringBuffer();
 		buff.append("'-' using ($1 + " + offsetX + "):($2 + " + offsetY
-				+ ") with " + this.style);
+				+ ") with " + styleTemp);
 		buff.append(" lt " + lt + " lw " + lw);
 		buff.append(title == null ? " notitle" : " title \"" + this.title
 				+ "\"");
 		return buff.toString();
 	}
 
+	@Override
 	public String getEntry(int lt, int lw, double offsetX, double offsetY,
 			DistributionPlotType distPlotType) {
+		return this
+				.getEntry(lt, lw, offsetX, offsetY, distPlotType, this.style);
+	}
+
+	@Override
+	public String getEntry(int lt, int lw, double offsetX, double offsetY,
+			DistributionPlotType distPlotType, PlotStyle style) {
+		PlotStyle styleTemp;
+		if (style == null)
+			styleTemp = this.style;
+		else
+			styleTemp = style;
+
 		StringBuffer buff = new StringBuffer();
 		if (distPlotType.equals(DistributionPlotType.cdfOnly))
 			buff.append("'-' using ($1 + " + offsetX + "):($2 + " + offsetY
-					+ ") smooth cumulative with " + this.style);
+					+ ") smooth cumulative with " + styleTemp);
 		else
 			buff.append("'-' using ($1 + " + offsetX + "):($2 + " + offsetY
-					+ ") with " + this.style);
+					+ ") with " + styleTemp);
 		buff.append(" lt " + lt + " lw " + lw);
 		buff.append(title == null ? " notitle" : " title \"" + this.title
 				+ "\"");
 		return buff.toString();
 	}
-
 }

@@ -164,7 +164,7 @@ public class SeriesGeneration {
 			MetricNotApplicableException {
 		int runs = to - from;
 
-		for (int i = 0; i < runs; i++) {
+		for (int i = 0; i <= runs; i++) {
 			SeriesGeneration.generateRun(series, from + i, batches, compare,
 					write, batchGenerationTime);
 		}

@@ -13,11 +13,8 @@ import dna.plot.data.PlotData.NodeValueListOrder;
 import dna.plot.data.PlotData.NodeValueListOrderBy;
 import dna.series.aggdata.AggregatedBatch;
 import dna.series.aggdata.AggregatedMetric;
-import dna.series.aggdata.AggregatedMetricList;
 import dna.series.aggdata.AggregatedNodeValueList;
-import dna.series.aggdata.AggregatedRunTimeList;
 import dna.series.aggdata.AggregatedValue;
-import dna.series.aggdata.AggregatedValueList;
 import dna.util.Config;
 import dna.util.Execute;
 import dna.util.Log;
@@ -48,6 +45,8 @@ public class Plot {
 	private int dataQuantity;
 	private int[] seriesDataQuantities;
 	private int functionQuantity;
+	private int skippedFunction;
+	private boolean errorPrinted;
 
 	// plot config
 	PlotConfig config;
@@ -59,6 +58,7 @@ public class Plot {
 	private DistributionPlotType distPlotType;
 	private NodeValueListOrderBy orderBy;
 	private NodeValueListOrder sortOrder;
+	private boolean cdfPlot;
 
 	/**
 	 * Creates a plot object which will be written to a gnuplot script file.
@@ -93,12 +93,15 @@ public class Plot {
 				.getNodeValueListOrderBy("GNUPLOT_DEFAULT_NVL_ORDERBY");
 		this.datetime = Config.get("GNUPLOT_DATETIME");
 		this.plotDateTime = Config.getBoolean("GNUPLOT_PLOTDATETIME");
+		this.cdfPlot = false;
 
 		// init writer
 		this.fileWriter = new Writer(dir, scriptFilename);
 		this.dataWriteCounter = 0;
 		this.functionQuantity = 0;
+		this.skippedFunction = 0;
 		this.dataQuantity = 1;
+		this.errorPrinted = false;
 
 		for (PlotData pd : this.data) {
 			if (pd instanceof FunctionData) {
@@ -317,15 +320,20 @@ public class Plot {
 				} else if (m.getValues().getNames().contains(name)) {
 					this.appendData(m.getValues().get(name), timestamp);
 				} else {
-					Log.warn("problem when adding data to plot "
-							+ this.scriptFilename + ". Value '" + name
-							+ "' was not found in domain '" + domain
-							+ "' of batch." + timestamp);
+					if (!this.errorPrinted) {
+						Log.warn("problem when adding data to plot '"
+								+ this.scriptFilename + "'. Value '" + name
+								+ "' was not found in domain '" + domain + "'!");
+						this.errorPrinted = true;
+					}
 				}
 			} else {
-				Log.warn("problem when adding data to plot "
-						+ this.scriptFilename + ". domain '" + domain
-						+ "' not found in batch." + timestamp);
+				if (!this.errorPrinted) {
+					Log.warn("problem when adding data to plot '"
+							+ this.scriptFilename + "', domain '" + domain
+							+ "' not found!");
+					this.errorPrinted = true;
+				}
 			}
 		}
 	}
@@ -338,18 +346,13 @@ public class Plot {
 	public void addDataSequentially(AggregatedBatch batchData)
 			throws IOException {
 		if (!(this.data[this.dataWriteCounter] instanceof FunctionData)) {
-			// if batchdata null, only append eof
-			if (batchData != null) {
-				// if not function, add data
-				String name = this.data[this.dataWriteCounter].getName();
-				String domain = this.data[this.dataWriteCounter].getDomain();
-				if (this.data[this.dataWriteCounter].isPlotAsCdf())
-					this.addData(name, domain, batchData, true);
-				else
-					this.addData(name, domain, batchData, false);
-			} else {
-				this.appendEOF();
-			}
+			// if not function, add data
+			String name = this.data[this.dataWriteCounter].getName();
+			String domain = this.data[this.dataWriteCounter].getDomain();
+			if (this.data[this.dataWriteCounter].isPlotAsCdf())
+				this.addData(name, domain, batchData, true);
+			else
+				this.addData(name, domain, batchData, false);
 		}
 	}
 
@@ -373,8 +376,32 @@ public class Plot {
 				// if not function, add data
 				String name = this.data[this.dataWriteCounter].getName();
 				String domain = this.data[this.dataWriteCounter].getDomain();
-				if (this.data[this.dataWriteCounter].isPlotAsCdf()) {
-					// cdf
+				if (this.isCdfPlot()) {
+					// if cdf plot
+					AggregatedBatch prevBatch = batchData[0];
+					AggregatedBatch tempBatch;
+
+					for (int j = 0; j < batchData.length; j++) {
+						// if batch is null, no data -> just add EOF
+						if (batchData[j] != null) {
+							if (j > 0) {
+								tempBatch = AggregatedBatch.sumValues(
+										batchData[j], prevBatch);
+								tempBatch = AggregatedBatch.sumRuntimes(
+										tempBatch, prevBatch);
+							} else {
+								tempBatch = batchData[j];
+							}
+							if (this.data[this.dataWriteCounter] instanceof ExpressionData)
+								this.addDataFromExpression(
+										tempBatch,
+										(ExpressionData) this.data[this.dataWriteCounter]);
+							else
+								this.addData(name, domain, tempBatch, false);
+							prevBatch = tempBatch;
+						}
+					}
+					this.appendEOF();
 				} else {
 					// default case
 					for (int j = 0; j < batchData.length; j++) {
@@ -391,6 +418,11 @@ public class Plot {
 					}
 					this.appendEOF();
 				}
+			} else {
+				// if function, increment write counter and call method again
+				this.dataWriteCounter++;
+				this.skippedFunction++;
+				this.addDataSequentially(batchData);
 			}
 		}
 	}
@@ -416,7 +448,6 @@ public class Plot {
 							this.data[i].getDomain(), batchData[j], false);
 			}
 			this.appendEOF();
-
 		}
 	}
 
@@ -451,15 +482,20 @@ public class Plot {
 				if (m.getValues().getNames().contains(value)) {
 					values[i] = m.getValues().get(value);
 				} else {
-					Log.warn("problem when adding data to plot "
-							+ this.scriptFilename + ". Value '" + value
-							+ "' was not found in domain '" + domain
-							+ "' of batch." + timestamp);
+					if (!this.errorPrinted) {
+						Log.warn("problem when adding data to plot '"
+								+ this.scriptFilename + "'. Value '" + value
+								+ "' was not found in domain '" + domain + "'!");
+						this.errorPrinted = true;
+					}
 				}
 			} else {
-				Log.warn("problem when adding expression data to plot "
-						+ this.scriptFilename + ". domain '" + domain
-						+ "' not found in batch." + timestamp);
+				if (!this.errorPrinted) {
+					Log.warn("problem when adding expression data to plot '"
+							+ this.scriptFilename + "', domain '" + domain
+							+ "' not found!");
+					this.errorPrinted = true;
+				}
 			}
 		}
 
@@ -493,8 +529,8 @@ public class Plot {
 				if (values[j] == null) {
 					// if null, print warning and set 0 as value
 					if (!warningsPrinted[j]) {
-						Log.warn("no values found for '" + domains[j] + "."
-								+ vars[j] + "'. Values assumed to be zero.");
+						// Log.warn("no values found for '" + domains[j] + "."
+						// + vars[j] + "'. Values assumed to be zero.");
 						warningsPrinted[j] = true;
 					}
 					variables[j].setValue(0.0);
@@ -525,7 +561,8 @@ public class Plot {
 				AggregatedBatch tempBatch;
 				for (int j = 0; j < batchData.length; j++) {
 					if (j > 0) {
-						tempBatch = Plot.sumRuntimes(batchData[j], prevBatch);
+						tempBatch = AggregatedBatch.sumRuntimes(batchData[j],
+								prevBatch);
 					} else {
 						tempBatch = batchData[j];
 					}
@@ -542,7 +579,8 @@ public class Plot {
 				AggregatedBatch tempBatch;
 				for (int j = 0; j < batchData.length; j++) {
 					if (j > 0) {
-						tempBatch = Plot.sumRuntimes(batchData[j], prevBatch);
+						tempBatch = AggregatedBatch.sumRuntimes(batchData[j],
+								prevBatch);
 					} else {
 						tempBatch = batchData[j];
 					}
@@ -568,7 +606,8 @@ public class Plot {
 				AggregatedBatch tempBatch;
 				for (int j = 0; j < batchData.length; j++) {
 					if (j > 0) {
-						tempBatch = Plot.sumValues(batchData[j], prevBatch);
+						tempBatch = AggregatedBatch.sumValues(batchData[j],
+								prevBatch);
 					} else {
 						tempBatch = batchData[j];
 					}
@@ -583,127 +622,10 @@ public class Plot {
 		}
 	}
 
-	/**
-	 * Returns a new AggregatedBatch, which equals b1, except that all runtime
-	 * values equal the sum of the runtimes of b1 and b2.
-	 * 
-	 * @param b1
-	 *            First runtime, will be cloned and returned with the sum of b2.
-	 * @param b2
-	 *            Will be added to b1.
-	 * @return New AggregatedBatch, equalling b1, except for the runtime values.
-	 */
-	private static AggregatedBatch sumRuntimes(AggregatedBatch b1,
-			AggregatedBatch b2) {
-		AggregatedRunTimeList genRuntimes = new AggregatedRunTimeList(b1
-				.getGeneralRuntimes().getName(), b1.getGeneralRuntimes().size());
-		AggregatedRunTimeList metRuntimes = new AggregatedRunTimeList(b1
-				.getMetricRuntimes().getName(), b1.getMetricRuntimes().size());
-		for (String gen : b1.getGeneralRuntimes().getNames()) {
-			AggregatedValue v1 = b1.getGeneralRuntimes().get(gen);
-			AggregatedValue v2 = b2.getGeneralRuntimes().get(gen);
-
-			double[] values3 = new double[v1.getValues().length];
-
-			for (int i = 0; i < v1.getValues().length; i++) {
-				double[] values2;
-				if (v2 == null)
-					values2 = new double[] { 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-				else
-					values2 = v2.getValues();
-				values3[i] = 0;
-				values3[i] += v1.getValues()[i] + values2[i];
-			}
-
-			genRuntimes.add(new AggregatedValue(v1.getName(), values3));
-		}
-		for (String met : b1.getMetricRuntimes().getNames()) {
-			AggregatedValue v1 = b1.getMetricRuntimes().get(met);
-			AggregatedValue v2 = b2.getMetricRuntimes().get(met);
-
-			double[] values3 = new double[v1.getValues().length];
-
-			for (int i = 0; i < v1.getValues().length; i++) {
-				double[] values2;
-				if (v2 == null)
-					values2 = new double[] { 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-				else
-					values2 = v2.getValues();
-				values3[i] = 0;
-				values3[i] += v1.getValues()[i] + values2[i];
-			}
-
-			metRuntimes.add(new AggregatedValue(v1.getName(), values3));
-		}
-
-		// return new crafted batch
-		return new AggregatedBatch(b1.getTimestamp(), b1.getValues(),
-				genRuntimes, metRuntimes, b1.getMetrics());
-	}
-
-	/**
-	 * Returns a new AggregatedBatch, which equals b1, except that all values
-	 * equal the sum of the values of b1 and b2.
-	 * 
-	 * @param b1
-	 *            First value, will be cloned and returned with the sum of b2.
-	 * @param b2
-	 *            Will be added to b1.
-	 * @return New AggregatedBatch, equalling b1, except for the value values.
-	 */
-	private static AggregatedBatch sumValues(AggregatedBatch b1,
-			AggregatedBatch b2) {
-		AggregatedValueList values = new AggregatedValueList(b1.getValues()
-				.size());
-		AggregatedMetricList metrics = new AggregatedMetricList(b1.getMetrics()
-				.size());
-		for (String value : b1.getValues().getNames()) {
-			AggregatedValue v1 = b1.getValues().get(value);
-			AggregatedValue v2 = b2.getValues().get(value);
-
-			double[] values3 = new double[v1.getValues().length];
-			for (int i = 0; i < v1.getValues().length; i++) {
-				double[] values2;
-				if (v2 == null)
-					values2 = new double[] { 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-				else
-					values2 = v2.getValues();
-				values3[i] = 0;
-				values3[i] += v1.getValues()[i] + values2[i];
-			}
-			values.add(new AggregatedValue(v1.getName(), values3));
-		}
-		for (AggregatedMetric metric : b1.getMetrics().getList()) {
-			AggregatedValueList mValues = new AggregatedValueList(metric
-					.getValues().size());
-			for (String value : metric.getValues().getNames()) {
-				AggregatedValue v1 = metric.getValues().get(value);
-				AggregatedValue v2 = metric.getValues().get(value);
-
-				double[] values3 = new double[v1.getValues().length];
-				for (int i = 0; i < v1.getValues().length; i++) {
-					double[] values2;
-					if (v2 == null)
-						values2 = new double[] { 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-					else
-						values2 = v2.getValues();
-					values3[i] = 0;
-					values3[i] += v1.getValues()[i] + values2[i];
-				}
-				mValues.add(new AggregatedValue(v1.getName(), values3));
-			}
-			metrics.add(new AggregatedMetric(metric.getName(), mValues, metric
-					.getDistributions(), metric.getNodeValues()));
-		}
-
-		// return new crafted batch
-		return new AggregatedBatch(b1.getTimestamp(), values,
-				b1.getGeneralRuntimes(), b1.getMetricRuntimes(), metrics);
-	}
-
 	/** Closes the fileWriter of the plot **/
 	public void close() throws IOException {
-		if (this.dataWriteCounter + this.functionQuantity != this.data.length)
+		if (this.dataWriteCounter + this.functionQuantity
+				- this.skippedFunction != this.data.length)
 			Log.warn("Unexpected number of plotdata written to file "
 					+ this.dir + this.scriptFilename + ". Expected: "
 					+ this.data.length + "  Written: " + this.dataWriteCounter);
@@ -773,7 +695,6 @@ public class Plot {
 			for (int i = 0; i < this.data.length; i++) {
 				String line = "";
 				if (this.distPlotType == null)
-
 					line = this.data[i].getEntry(i + 1,
 							Config.getInt("GNUPLOT_LW"),
 							Config.getDouble("GNUPLOT_XOFFSET") * i,
@@ -784,6 +705,7 @@ public class Plot {
 							Config.getDouble("GNUPLOT_XOFFSET") * i,
 							Config.getDouble("GNUPLOT_YOFFSET") * i,
 							this.distPlotType);
+				line = line.replace("filledcurves", "filledcurves y1=0");
 				if (i == 0) {
 					line = "plot " + line;
 				}
@@ -814,13 +736,16 @@ public class Plot {
 					line = this.data[i].getEntry(i + 1,
 							Config.getInt("GNUPLOT_LW"),
 							this.config.getxOffset() * i,
-							this.config.getyOffset() * i);
+							this.config.getyOffset() * i,
+							this.config.getStyle());
 				else
 					line = this.data[i].getEntry(i + 1,
 							Config.getInt("GNUPLOT_LW"),
 							this.config.getxOffset() * i,
 							this.config.getyOffset() * i,
-							this.config.getDistPlotType());
+							this.config.getDistPlotType(),
+							this.config.getStyle());
+				line = line.replace("filledcurves", "filledcurves y1=0");
 				if (i == 0) {
 					line = "plot " + line;
 				}
@@ -902,5 +827,17 @@ public class Plot {
 
 	public void setSeriesDataQuantities(int[] seriesDataQuantities) {
 		this.seriesDataQuantities = seriesDataQuantities;
+	}
+
+	public void setErrorPrinted(boolean errorPrinted) {
+		this.errorPrinted = errorPrinted;
+	}
+
+	public boolean isCdfPlot() {
+		return this.cdfPlot;
+	}
+
+	public void setCdfPlot(boolean cdfPlot) {
+		this.cdfPlot = cdfPlot;
 	}
 }

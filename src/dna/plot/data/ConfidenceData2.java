@@ -53,8 +53,21 @@ public class ConfidenceData2 extends PlotData {
 		return buff.toString();
 	}
 
+	@Override
 	public String getEntry(int lt, int lw, double offsetX, double offsetY,
 			DistributionPlotType distPlotType) {
+		return this.getEntry(lt, lw, offsetX, offsetY);
+	}
+
+	@Override
+	public String getEntry(int lt, int lw, double offsetX, double offsetY,
+			DistributionPlotType distPlotType, PlotStyle style) {
+		return this.getEntry(lt, lw, offsetX, offsetY, style);
+	}
+
+	@Override
+	public String getEntry(int lt, int lw, double offsetX, double offsetY,
+			PlotStyle style) {
 		return this.getEntry(lt, lw, offsetX, offsetY);
 	}
 }

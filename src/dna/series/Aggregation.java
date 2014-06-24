@@ -62,11 +62,11 @@ public class Aggregation {
 		ArrayList<RunData> rdList = new ArrayList<RunData>();
 
 		// check all RunData-Objects for compatibility
-		for (int i = 0; i < rdList.size() - 1; i++) {
-			if (!RunData.isSameType(seriesData.getRun(i),
-					seriesData.getRun(i + 1)))
-				throw new AggregationException("RunDatas not of the same type!");
-		}
+//		for (int i = 0; i < rdList.size() - 1; i++) {
+//			if (!RunData.isSameType(seriesData.getRun(i),
+//					seriesData.getRun(i + 1)))
+//				throw new AggregationException("RunDatas not of the same type!");
+//		}
 
 		for (int i = from; i < to + 1; i++) {
 			try {

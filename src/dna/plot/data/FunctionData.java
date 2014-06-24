@@ -19,16 +19,35 @@ public class FunctionData extends PlotData {
 
 	@Override
 	public String getEntry(int lt, int lw, double offsetX, double offsetY) {
-		StringBuffer buff = new StringBuffer();
-		buff.append(this.data + " with " + this.style);
-		buff.append(" lt " + lt + " lw " + lw);
-		buff.append(" title \"" + this.getLine() + "\"");
-		return buff.toString();
+		return this.getEntry(lt, lw, offsetX, offsetY, this.style);
 	}
 
+	@Override
 	public String getEntry(int lt, int lw, double offsetX, double offsetY,
 			DistributionPlotType distPlotType) {
 		return this.getEntry(lt, lw, offsetX, offsetY);
+	}
+
+	@Override
+	public String getEntry(int lt, int lw, double offsetX, double offsetY,
+			DistributionPlotType distPlotType, PlotStyle style) {
+		return this.getEntry(lt, lw, offsetX, offsetY, style);
+	}
+
+	@Override
+	public String getEntry(int lt, int lw, double offsetX, double offsetY,
+			PlotStyle style) {
+		PlotStyle styleTemp;
+		if (style == null)
+			styleTemp = this.style;
+		else
+			styleTemp = style;
+
+		StringBuffer buff = new StringBuffer();
+		buff.append(this.data + " with " + styleTemp);
+		buff.append(" lt " + lt + " lw " + lw);
+		buff.append(" title \"" + this.getLine() + "\"");
+		return buff.toString();
 	}
 
 	public String getLine() {
