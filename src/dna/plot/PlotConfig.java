@@ -68,6 +68,8 @@ public class PlotConfig {
 
 	public static String customPlotSuffixPlotStyle = "_STYLE";
 
+	public static String customPlotSuffixKey = "_KEY";
+
 	// DOMAINS
 	public static String customPlotDomainStatistics = "statistics";
 
@@ -84,9 +86,31 @@ public class PlotConfig {
 	// WILDCARD
 	public static String customPlotWildcard = "*";
 
+	// DEFAULT CONFIG KEYS
+	public static String gnuplotDefaultKeyKey = "GNUPLOT_KEY";
+	public static String gnuplotDefaultKeyCdfKey = "GNUPLOT_KEY_CDF";
+
+	public static String gnuplotDefaultKeyDateTime = "GNUPLOT_DATETIME";
+	public static String gnuplotDefaultKeyPlotDateTime = "GNUPLOT_PLOTDATETIME";
+
+	public static String gnuplotDefaultKeyXLabel = "GNUPLOT_XLABEL";
+	public static String gnuplotDefaultKeyYLabel = "GNUPLOT_YLABEL";
+
+	public static String gnuplotDefaultKeyXOffset = "GNUPLOT_XOFFSET";
+	public static String gnuplotDefaultKeyYOffset = "GNUPLOT_YOFFSET";
+
+	public static String gnuplotDefaultKeyXRange = "GNUPLOT_XRANGE";
+	public static String gnuplotDefaultKeyYRange = "GNUPLOT_YRANGE";
+
+	public static String gnuplotDefaultKeyDistPlotType = "GNUPLOT_DEFAULT_DIST_PLOTTYPE";
+
+	public static String gnuplotDefaultKeyNodeValueListOrder = "GNUPLOT_DEFAULT_NVL_ORDER";
+	public static String gnuplotDefaultKeyNodeValueListOrderBy = "GNUPLOT_DEFAULT_NVL_ORDERBY";
+
 	// variables
 	private String filename;
 	private String title;
+	private String key;
 	private String xLabel;
 	private String yLabel;
 	private String logscale;
@@ -108,15 +132,16 @@ public class PlotConfig {
 	private String generalDomain;
 
 	// constructor
-	private PlotConfig(String filename, String title, String xLabel,
-			String yLabel, String logscale, String datetime, double xOffset,
-			double yOffset, String xRange, String yRange, String xTics,
-			String yTics, String plotAsCdf, String[] values, String[] domains,
-			PlotStyle style, DistributionPlotType distPlotType,
-			NodeValueListOrder order, NodeValueListOrderBy orderBy,
-			boolean plotAll, String generalDomain) {
+	private PlotConfig(String filename, String title, String key,
+			String xLabel, String yLabel, String logscale, String datetime,
+			double xOffset, double yOffset, String xRange, String yRange,
+			String xTics, String yTics, String plotAsCdf, String[] values,
+			String[] domains, PlotStyle style,
+			DistributionPlotType distPlotType, NodeValueListOrder order,
+			NodeValueListOrderBy orderBy, boolean plotAll, String generalDomain) {
 		this.filename = filename;
 		this.title = title;
+		this.key = key;
 		this.xLabel = xLabel;
 		this.yLabel = yLabel;
 		this.logscale = logscale;
@@ -136,7 +161,6 @@ public class PlotConfig {
 		this.orderBy = orderBy;
 		this.plotAll = plotAll;
 		this.generalDomain = generalDomain;
-
 	}
 
 	// getters
@@ -178,6 +202,10 @@ public class PlotConfig {
 
 	public String getTitle() {
 		return title;
+	}
+
+	public String getKey() {
+		return key;
 	}
 
 	public String getxLabel() {
@@ -394,23 +422,25 @@ public class PlotConfig {
 
 			// default values
 			String filename = keyword;
-			String xLabel = Config.get("GNUPLOT_XLABEL");
-			String yLabel = Config.get("GNUPLOT_YLABEL");
+			String xLabel = Config.get(PlotConfig.gnuplotDefaultKeyXLabel);
+			String yLabel = Config.get(PlotConfig.gnuplotDefaultKeyYLabel);
 			String logscale = null;
 			String datetime = null;
-			double xOffset = Config.getDouble("GNUPLOT_XOFFSET");
-			double yOffset = Config.getDouble("GNUPLOT_YOFFSET");
-			String xRange = Config.get("GNUPLOT_XRANGE");
-			String yRange = Config.get("GNUPLOT_YRANGE");
+			double xOffset = Config
+					.getDouble(PlotConfig.gnuplotDefaultKeyXOffset);
+			double yOffset = Config
+					.getDouble(PlotConfig.gnuplotDefaultKeyYOffset);
+			String xRange = Config.get(PlotConfig.gnuplotDefaultKeyXRange);
+			String yRange = Config.get(PlotConfig.gnuplotDefaultKeyYRange);
 			String xTics = null;
 			String yTics = null;
 			PlotStyle style = null;
 			DistributionPlotType distPlotType = Config
-					.getDistributionPlotType("GNUPLOT_DEFAULT_DIST_PLOTTYPE");
+					.getDistributionPlotType(PlotConfig.gnuplotDefaultKeyDistPlotType);
 			NodeValueListOrder order = Config
-					.getNodeValueListOrder("GNUPLOT_DEFAULT_NVL_ORDER");
+					.getNodeValueListOrder(PlotConfig.gnuplotDefaultKeyNodeValueListOrder);
 			NodeValueListOrderBy orderBy = Config
-					.getNodeValueListOrderBy("GNUPLOT_DEFAULT_NVL_ORDERBY");
+					.getNodeValueListOrderBy(PlotConfig.gnuplotDefaultKeyNodeValueListOrderBy);
 
 			// read config values
 			// filename
@@ -475,6 +505,11 @@ public class PlotConfig {
 				plotAsCdf = Config.get(prefix + s
 						+ PlotConfig.customPlotSuffixCdf);
 
+			// key
+			String key = null;
+			if (Config.get(prefix + s + PlotConfig.customPlotSuffixKey) != null)
+				key = Config.get(prefix + s + PlotConfig.customPlotSuffixKey);
+
 			// style
 			try {
 				style = Config.getPlotStyle(prefix + s
@@ -502,9 +537,9 @@ public class PlotConfig {
 			}
 
 			// Craft PlotConfig and add to configs list
-			plotConfigs.add(new PlotConfig(filename, title, xLabel, yLabel,
-					logscale, datetime, xOffset, yOffset, xRange, yRange,
-					xTics, yTics, plotAsCdf, values, domains, style,
+			plotConfigs.add(new PlotConfig(filename, title, key, xLabel,
+					yLabel, logscale, datetime, xOffset, yOffset, xRange,
+					yRange, xTics, yTics, plotAsCdf, values, domains, style,
 					distPlotType, order, orderBy, plotAll, generalDomain));
 		}
 		return plotConfigs;

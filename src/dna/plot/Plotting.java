@@ -384,6 +384,9 @@ public class Plotting {
 					// disable date time
 					p.setPlotDateTime(false);
 
+					// set as cdf
+					p.setCdfPlot(true);
+
 					// add to list
 					customPlots.add(p);
 				}
@@ -703,6 +706,9 @@ public class Plotting {
 
 				// disable datetime for distribution plot
 				p.setPlotDateTime(false);
+
+				// set as cdf
+				p.setCdfPlot(true);
 
 				// add to plot list
 				defaultPlots.add(p);
@@ -2093,6 +2099,9 @@ public class Plotting {
 						PlotFilenames.getValuesGnuplotScriptCDF(filename), name
 								+ " (" + type + ")", pc, data);
 
+				// set as cdf
+				p.setCdfPlot(true);
+
 				// write script header
 				p.writeScriptHeader();
 
@@ -2190,6 +2199,9 @@ public class Plotting {
 										metric, distribution), "CDF of "
 										+ distribution + " (" + type + ")",
 								dPlotDataCDF);
+
+						// set cdf
+						p.setCdfPlot(true);
 
 						// disable datetime for distribution plot
 						p.setPlotDateTime(false);
@@ -2387,6 +2399,8 @@ public class Plotting {
 								"CDF of " + name + " (" + type + ")", pc,
 								dataCdf);
 
+						// set cdf plot
+						pCdf.setCdfPlot(true);
 						// set data quantity
 						pCdf.setDataQuantity(values.length);
 
@@ -2700,6 +2714,9 @@ public class Plotting {
 					"CDF of " + runtime + " (" + type + ")",
 					new PlotData[] { metPlotData });
 
+			// set cdf plot
+			metRuntimeSinglePlotCDF.setCdfPlot(true);
+
 			// write header
 			metRuntimeSinglePlot.writeScriptHeader();
 			metRuntimeSinglePlotCDF.writeScriptHeader();
@@ -2729,6 +2746,9 @@ public class Plotting {
 				PlotFilenames.getRuntimesGnuplotScriptCDF(metricRuntimeName),
 				"CDF of " + metricRuntimeName + " runtimes (" + type + ")",
 				metRuntimes);
+
+		// set cdf plot
+		metricRuntimesPlotCDF.setCdfPlot(true);
 
 		// write headers
 		metricRuntimesPlot.writeScriptHeader();
@@ -2775,6 +2795,9 @@ public class Plotting {
 				PlotFilenames.getRuntimesGnuplotScriptCDF(generalRuntimeName),
 				"CDF of " + generalRuntimeName + " runtimes (" + type + ")",
 				genRuntimes);
+
+		// set cdf plot
+		generalRuntimesPlotCDF.setCdfPlot(true);
 
 		// write headers
 		generalRuntimesPlot.writeScriptHeader();
