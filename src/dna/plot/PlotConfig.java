@@ -70,6 +70,8 @@ public class PlotConfig {
 
 	public static String customPlotSuffixKey = "_KEY";
 
+	public static String customPlotSuffixDomain = "_DOMAIN";
+
 	// DOMAINS
 	public static String customPlotDomainStatistics = "statistics";
 
@@ -412,6 +414,10 @@ public class PlotConfig {
 				if (value.equals(PlotConfig.customPlotWildcard))
 					plotAll = true;
 
+				if (Config.get(prefix + s + PlotConfig.customPlotSuffixDomain) != null)
+					domains[i] = Config.get(prefix + s
+							+ PlotConfig.customPlotSuffixDomain);
+
 				if (domains[i] == null)
 					Log.warn("custom plot config parsing failure: '" + value
 							+ "' has unknown domain!");
@@ -453,6 +459,51 @@ public class PlotConfig {
 			if (Config.get(prefix + s + PlotConfig.customPlotSuffixTitle) != null)
 				title = Config.get(prefix + s
 						+ PlotConfig.customPlotSuffixTitle);
+
+			// domain
+			if (Config.get(prefix + s + PlotConfig.customPlotSuffixDomain) != null) {
+				String domain = Config.get(prefix + s
+						+ PlotConfig.customPlotSuffixDomain);
+				for (int i = 0; i < domains.length; i++) {
+					// if domain == expression, insert domain to all values that
+					// have no domain
+					if (domains[i] == PlotConfig.customPlotDomainExpression) {
+						String expr = values[i];
+						String[] split = expr.split("\\$");
+
+						if (split.length < 2)
+							continue;
+
+						String expr2 = "";
+
+						for (int j = 0; j < split.length; j++) {
+							// even
+							if ((j & 1) == 0) {
+								expr2 += split[j];
+								continue;
+							}
+
+							String[] split2 = split[j].split("\\.");
+
+							// if length = 1 -> no domain -> insert
+							if (split2.length == 1) {
+								expr2 += "$" + domain + "." + split2[0] + "$";
+							} else {
+								// else, rebuild string and dont add domain
+								expr2 += "$";
+								for (int k = 0; k < split2.length; k++) {
+									if (k == 0)
+										expr2 += split2[k];
+									else
+										expr2 += "." + split2[k];
+								}
+								expr2 += "$";
+							}
+						}
+						values[i] = expr2;
+					}
+				}
+			}
 
 			// labels
 			if (Config.get(prefix + s + PlotConfig.customPlotSuffixXLabel) != null)
@@ -544,5 +595,4 @@ public class PlotConfig {
 		}
 		return plotConfigs;
 	}
-
 }
