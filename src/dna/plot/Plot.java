@@ -59,6 +59,7 @@ public class Plot {
 	private NodeValueListOrderBy orderBy;
 	private NodeValueListOrder sortOrder;
 	private boolean cdfPlot;
+	private String key;
 
 	/**
 	 * Creates a plot object which will be written to a gnuplot script file.
@@ -88,11 +89,12 @@ public class Plot {
 
 		// load default values
 		this.sortOrder = Config
-				.getNodeValueListOrder("GNUPLOT_DEFAULT_NVL_ORDER");
+				.getNodeValueListOrder(PlotConfig.gnuplotDefaultKeyNodeValueListOrder);
 		this.orderBy = Config
-				.getNodeValueListOrderBy("GNUPLOT_DEFAULT_NVL_ORDERBY");
-		this.datetime = Config.get("GNUPLOT_DATETIME");
-		this.plotDateTime = Config.getBoolean("GNUPLOT_PLOTDATETIME");
+				.getNodeValueListOrderBy(PlotConfig.gnuplotDefaultKeyNodeValueListOrderBy);
+		this.datetime = Config.get(PlotConfig.gnuplotDefaultKeyDateTime);
+		this.plotDateTime = Config
+				.getBoolean(PlotConfig.gnuplotDefaultKeyPlotDateTime);
 		this.cdfPlot = false;
 
 		// init writer
@@ -646,15 +648,14 @@ public class Plot {
 		script.add("set terminal " + Config.get("GNUPLOT_TERMINAL"));
 		script.add("set output \"" + this.dir + this.plotFilename + "."
 				+ Config.get("GNUPLOT_EXTENSION") + "\"");
-		if (!Config.get("GNUPLOT_KEY").equals("null")) {
-			script.add("set key " + Config.get("GNUPLOT_KEY"));
-		}
+
 		if (Config.getBoolean("GNUPLOT_GRID")) {
 			script.add("set grid");
 		}
 		if (this.title != null) {
 			script.add("set title \"" + this.title + "\"");
 		}
+
 		if (this.plotDateTime) {
 			script.add("set xdata time");
 			script.add("set timefmt " + '"' + this.datetime + '"');
@@ -678,6 +679,12 @@ public class Plot {
 				script.add("set ylabel \"" + Config.get("GNUPLOT_YLABEL")
 						+ "\"");
 			}
+			if (this.cdfPlot)
+				script.add("set key "
+						+ Config.get(PlotConfig.gnuplotDefaultKeyCdfKey));
+			else
+				script.add("set key "
+						+ Config.get(PlotConfig.gnuplotDefaultKeyKey));
 			if (Config.getBoolean("GNUPLOT_XLOGSCALE")
 					&& Config.getBoolean("GNUPLOT_YLOGSCALE")) {
 				script.add("set logscale xy");
@@ -729,7 +736,16 @@ public class Plot {
 				script.add("set ytics " + this.config.getyTics());
 			if (this.config.getLogscale() != null)
 				script.add("set logscale " + this.config.getLogscale());
-
+			if (this.config.getKey() != null) {
+				script.add("set key " + this.config.getKey());
+			} else {
+				if (this.cdfPlot)
+					script.add("set key "
+							+ Config.get(PlotConfig.gnuplotDefaultKeyCdfKey));
+				else
+					script.add("set key "
+							+ Config.get(PlotConfig.gnuplotDefaultKeyKey));
+			}
 			for (int i = 0; i < this.data.length; i++) {
 				String line = "";
 				if (this.config.getDistPlotType() == null)
@@ -839,5 +855,13 @@ public class Plot {
 
 	public void setCdfPlot(boolean cdfPlot) {
 		this.cdfPlot = cdfPlot;
+	}
+
+	public String getKey() {
+		return key;
+	}
+
+	public void setKey(String key) {
+		this.key = key;
 	}
 }
