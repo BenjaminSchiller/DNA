@@ -322,7 +322,9 @@ public class Plotting {
 										title = seriesData[j].getName() + " @ "
 												+ timestamp;
 									else
-										title = domain + "." + value + " ("
+										title = domain
+												+ PlotConfig.customPlotDomainDelimiter
+												+ value + " ("
 												+ seriesData[j].getName()
 												+ ") @ " + timestamp;
 
@@ -451,7 +453,9 @@ public class Plotting {
 										title = seriesData[j].getName() + " @ "
 												+ timestamp;
 									else
-										title = domain + "." + value + " ("
+										title = domain
+												+ PlotConfig.customPlotDomainDelimiter
+												+ value + " ("
 												+ seriesData[j].getName()
 												+ ") @ " + timestamp;
 
@@ -672,7 +676,9 @@ public class Plotting {
 				// title
 				String plotTitle;
 				if (simpleTitles)
-					plotTitle = domains.get(0) + "." + dist + " (" + type + ")";
+					plotTitle = domains.get(0)
+							+ PlotConfig.customPlotDomainDelimiter + dist
+							+ " (" + type + ")";
 				else
 					plotTitle = dist + " (" + type + ")";
 
@@ -701,8 +707,9 @@ public class Plotting {
 				// title
 				String plotTitle = "CDF of ";
 				if (simpleTitles)
-					plotTitle += domains.get(0) + "." + dist + " (" + type
-							+ ")";
+					plotTitle += domains.get(0)
+							+ PlotConfig.customPlotDomainDelimiter + dist
+							+ " (" + type + ")";
 				else
 					plotTitle += dist + " (" + type + ")";
 
@@ -790,7 +797,9 @@ public class Plotting {
 			// title
 			String plotTitle;
 			if (simpleTitles)
-				plotTitle = domains.get(0) + "." + nvl + " (" + type + ")";
+				plotTitle = domains.get(0)
+						+ PlotConfig.customPlotDomainDelimiter + nvl + " ("
+						+ type + ")";
 			else
 				plotTitle = nvl + " (" + type + ")";
 
@@ -830,9 +839,11 @@ public class Plotting {
 							.getDistributions();
 					for (String dist : dists.getNames()) {
 						// log
-						if (!printedValues.containsKey(metric + "." + dist)) {
-							Log.info("\tplotting '" + metric + "." + dist + "'");
-							printedValues.put(metric + "." + dist, true);
+						if (!printedValues.containsKey(metric + dist)) {
+							Log.info("\tplotting '" + metric
+									+ PlotConfig.customPlotDomainDelimiter
+									+ dist + "'");
+							printedValues.put(metric + dist, true);
 						}
 
 						ArrayList<PlotData> lines = null;
@@ -871,13 +882,15 @@ public class Plotting {
 							PlotData[] data = lines.toArray(new PlotData[0]);
 
 							// create plot
-							Plot p = new Plot(dstDir,
+							Plot p = new Plot(
+									dstDir,
 									PlotFilenames.getDistributionPlot(metric,
 											dist + "." + i),
 									PlotFilenames.getDistributionGnuplotScript(
-											metric, dist + "." + i), metric
-											+ "." + dist + " (" + type + ")",
-									data);
+											metric, dist + "." + i),
+									metric
+											+ PlotConfig.customPlotDomainDelimiter
+											+ dist + " (" + type + ")", data);
 
 							// set data quantities
 							p.setSeriesDataQuantities(seriesDataQuantities);
@@ -894,14 +907,17 @@ public class Plotting {
 							// create plot
 							PlotData[] dataCdf = linesCdf
 									.toArray(new PlotData[0]);
-							Plot pCdf = new Plot(dstDir,
+							Plot pCdf = new Plot(
+									dstDir,
 									PlotFilenames.getDistributionCdfPlot(
 											metric, dist + "." + i),
 									PlotFilenames
 											.getDistributionCdfGnuplotScript(
 													metric, dist + "." + i),
-									"CDF of " + metric + "." + dist + " ("
-											+ type + ")", dataCdf);
+									"CDF of "
+											+ metric
+											+ PlotConfig.customPlotDomainDelimiter
+											+ dist + " (" + type + ")", dataCdf);
 
 							// set data quantities
 							pCdf.setSeriesDataQuantities(seriesDataQuantities);
@@ -938,9 +954,11 @@ public class Plotting {
 							.getNodeValues();
 					for (String nvl : nvls.getNames()) {
 						// log
-						if (!printedValues.containsKey(metric + "." + nvl)) {
-							Log.info("\tplotting '" + metric + "." + nvl + "'");
-							printedValues.put(metric + "." + nvl, true);
+						if (!printedValues.containsKey(metric + nvl)) {
+							Log.info("\tplotting '" + metric
+									+ PlotConfig.customPlotDomainDelimiter
+									+ nvl + "'");
+							printedValues.put(metric + nvl, true);
 						}
 
 						ArrayList<PlotData> lines = null;
@@ -970,7 +988,8 @@ public class Plotting {
 								PlotFilenames.getNodeValueListPlot(metric, nvl
 										+ "." + i),
 								PlotFilenames.getNodeValueListGnuplotScript(
-										metric, nvl + "." + i), metric + "."
+										metric, nvl + "." + i), metric
+										+ PlotConfig.customPlotDomainDelimiter
 										+ nvl + " (" + type + ")", data);
 
 						// set data quantities
@@ -1244,7 +1263,8 @@ public class Plotting {
 						continue;
 					}
 					dataList.add(PlotData.get(functionSplit[0].trim(),
-							functionSplit[1].trim(), style, domain + "."
+							functionSplit[1].trim(), style, domain
+									+ PlotConfig.customPlotDomainDelimiter
 									+ value, PlotType.function));
 					// if not function, iterate over series
 				} else {
@@ -1294,6 +1314,7 @@ public class Plotting {
 					}
 				}
 			}
+
 			// transform datalist to array
 			PlotData[] data = dataList.toArray(new PlotData[0]);
 			String filename = config.getFilename();
@@ -1334,7 +1355,8 @@ public class Plotting {
 		String[] split = expr.split("\\$");
 		for (int i = 0; i < split.length; i++) {
 			if (split.length > 1) {
-				String[] split2 = split[1].split("\\.");
+				String[] split2 = split[1]
+						.split(PlotConfig.customPlotDomainDelimiter);
 				if (split2.length > 1) {
 					String value = "";
 					for (int j = 1; j < split2.length; j++)
@@ -1353,7 +1375,8 @@ public class Plotting {
 		String[] split = expr.split("\\$");
 		for (int i = 0; i < split.length; i++) {
 			if (split.length > 1) {
-				String[] split2 = split[1].split("\\.");
+				String[] split2 = split[1]
+						.split(PlotConfig.customPlotDomainDelimiter);
 				if (split2.length > 1) {
 					return split2[0];
 				} else {
@@ -1623,8 +1646,10 @@ public class Plotting {
 							lineTitle = value + " (" + seriesData[j].getName()
 									+ ")";
 						else
-							lineTitle = d + "." + value + " ("
-									+ seriesData[j].getName() + ")";
+							lineTitle = d
+									+ PlotConfig.customPlotDomainDelimiter
+									+ value + " (" + seriesData[j].getName()
+									+ ")";
 					}
 
 					// check if series j contains value as a statistic
@@ -1657,8 +1682,9 @@ public class Plotting {
 						.equals(PlotConfig.customPlotDomainStatistics))
 					plotTitle = value + " (" + type + ")";
 				else
-					plotTitle = domains.get(0) + "." + value + " (" + type
-							+ ")";
+					plotTitle = domains.get(0)
+							+ PlotConfig.customPlotDomainDelimiter + value
+							+ " (" + type + ")";
 			} else {
 				plotTitle = value + " (" + type + ")";
 			}
@@ -1701,18 +1727,20 @@ public class Plotting {
 						seriesDataQuantities[i] = 1;
 
 						// log
-						if (!printedValues.containsKey(metric + "." + value)) {
-							Log.info("\tplotting " + "'" + metric + "." + value
-									+ "'");
-							printedValues.put(metric + "." + value, true);
+						if (!printedValues.containsKey(metric + value)) {
+							Log.info("\tplotting " + "'" + metric
+									+ PlotConfig.customPlotDomainDelimiter
+									+ value + "'");
+							printedValues.put(metric + value, true);
 						}
 
 						// create plot
 						Plot p = new Plot(dstDir, PlotFilenames.getValuesPlot(
 								metric, value + "." + i),
 								PlotFilenames.getValuesGnuplotScript(metric,
-										value + "." + i), metric + "." + value
-										+ " (" + type + ")", data);
+										value + "." + i), metric
+										+ PlotConfig.customPlotDomainDelimiter
+										+ value + " (" + type + ")", data);
 
 						// set quantities
 						p.setSeriesDataQuantities(seriesDataQuantities);
@@ -2305,7 +2333,8 @@ public class Plotting {
 						continue;
 					}
 					data[j] = PlotData.get(functionSplit[0].trim(),
-							functionSplit[1].trim(), style, domain + "."
+							functionSplit[1].trim(), style, domain
+									+ PlotConfig.customPlotDomainDelimiter
 									+ value, PlotType.function);
 				} else if (domain.equals(PlotConfig.customPlotDomainExpression)) {
 					// if expression
@@ -2535,7 +2564,8 @@ public class Plotting {
 						// check if invalid value
 						if (d.equals(PlotConfig.customPlotDomainStatistics)
 								|| d.equals(PlotConfig.customPlotDomainRuntimes)) {
-							Log.warn("invalid value '" + tempDomains[i] + "."
+							Log.warn("invalid value '" + tempDomains[i]
+									+ PlotConfig.customPlotDomainDelimiter
 									+ tempValues[i]
 									+ "' in distribution plot '" + name + "'");
 						} else if (d
@@ -2593,15 +2623,23 @@ public class Plotting {
 					for (int i = 0; i < batches.length; i++) {
 						for (int j = 0; j < valuesCount; j++) {
 							if (plotDist)
-								data[i * valuesCount + j] = PlotData.get(
-										values[j], domains[j], style,
-										domains[j] + "." + values[j] + " @ "
-												+ timestamps[i], type);
+								data[i * valuesCount + j] = PlotData
+										.get(values[j],
+												domains[j],
+												style,
+												domains[j]
+														+ PlotConfig.customPlotDomainDelimiter
+														+ values[j] + " @ "
+														+ timestamps[i], type);
 							if (plotCdf) {
-								PlotData dCdf = PlotData.get(values[j],
-										domains[j], style, domains[j] + "."
-												+ values[j] + " @ "
-												+ timestamps[i], type);
+								PlotData dCdf = PlotData
+										.get(values[j],
+												domains[j],
+												style,
+												domains[j]
+														+ PlotConfig.customPlotDomainDelimiter
+														+ values[j] + " @ "
+														+ timestamps[i], type);
 								dCdf.setPlotAsCdf(true);
 								dataCdf[i * valuesCount + j] = dCdf;
 							}
@@ -2702,7 +2740,8 @@ public class Plotting {
 
 						if (d.equals(PlotConfig.customPlotDomainStatistics)
 								|| d.equals(PlotConfig.customPlotDomainRuntimes)) {
-							Log.warn("invalid value '" + tempDomains[i] + "."
+							Log.warn("invalid value '" + tempDomains[i]
+									+ PlotConfig.customPlotDomainDelimiter
 									+ tempValues[i]
 									+ "' in distribution plot '" + name + "'");
 						} else if (d
@@ -2730,10 +2769,14 @@ public class Plotting {
 					// where d1(x) is the plotdata of d1 at timestamp x
 					for (int i = 0; i < batches.length; i++) {
 						for (int j = 0; j < valuesCount; j++) {
-							data[i * valuesCount + j] = PlotData.get(values[j],
-									domains[j], style,
-									domains[j] + "." + values[j] + " @ "
-											+ timestamps[i], type);
+							data[i * valuesCount + j] = PlotData
+									.get(values[j],
+											domains[j],
+											style,
+											domains[j]
+													+ PlotConfig.customPlotDomainDelimiter
+													+ values[j] + " @ "
+													+ timestamps[i], type);
 						}
 					}
 
@@ -3132,7 +3175,8 @@ public class Plotting {
 						continue;
 					}
 					plotData[i] = PlotData.get(functionSplit[0].trim(),
-							functionSplit[1].trim(), style, domain + "."
+							functionSplit[1].trim(), style, domain
+									+ PlotConfig.customPlotDomainDelimiter
 									+ value, PlotType.function);
 				} else if (domain.equals(PlotConfig.customPlotDomainExpression)) {
 					// if expression

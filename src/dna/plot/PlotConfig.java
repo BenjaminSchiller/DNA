@@ -85,8 +85,9 @@ public class PlotConfig {
 
 	public static String customPlotDomainExpression = "expression";
 
-	// WILDCARD
+	// CHARACTERS
 	public static String customPlotWildcard = "*";
+	public static String customPlotDomainDelimiter = "~";
 
 	// DEFAULT CONFIG KEYS
 	public static String gnuplotDefaultKeyKey = "GNUPLOT_KEY";
@@ -363,7 +364,7 @@ public class PlotConfig {
 					for (int j = 1; j < delSplit.length; j += 2) {
 						if (delSplit[j].contains(PlotConfig.customPlotWildcard)) {
 							if (delSplit[j].length() > 1) {
-								String[] pSplit = delSplit[j].split("\\.");
+								String[] pSplit = delSplit[j].split(PlotConfig.customPlotDomainDelimiter);
 								if (pSplit.length == 2)
 									generalDomain = pSplit[0];
 							}
@@ -380,14 +381,14 @@ public class PlotConfig {
 				}
 
 				// check if contains domain
-				split = value.split("\\.");
+				split = value.split(PlotConfig.customPlotDomainDelimiter);
 				if (split.length > 1) {
 					String domain = "";
 					for (int j = 0; j < split.length - 1; j++) {
 						if (j == 0)
 							domain += split[j];
 						else
-							domain += "." + split[j];
+							domain += PlotConfig.customPlotDomainDelimiter + split[j];
 					}
 					// take first part as domain
 					domains[i] = domain;
@@ -483,11 +484,11 @@ public class PlotConfig {
 								continue;
 							}
 
-							String[] split2 = split[j].split("\\.");
+							String[] split2 = split[j].split(PlotConfig.customPlotDomainDelimiter);
 
 							// if length = 1 -> no domain -> insert
 							if (split2.length == 1) {
-								expr2 += "$" + domain + "." + split2[0] + "$";
+								expr2 += "$" + domain + PlotConfig.customPlotDomainDelimiter + split2[0] + "$";
 							} else {
 								// else, rebuild string and dont add domain
 								expr2 += "$";
@@ -495,7 +496,7 @@ public class PlotConfig {
 									if (k == 0)
 										expr2 += split2[k];
 									else
-										expr2 += "." + split2[k];
+										expr2 += PlotConfig.customPlotDomainDelimiter + split2[k];
 								}
 								expr2 += "$";
 							}

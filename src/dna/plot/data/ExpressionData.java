@@ -1,5 +1,7 @@
 package dna.plot.data;
 
+import dna.plot.PlotConfig;
+
 /**
  * @author Rwilmes
  * 
@@ -20,7 +22,7 @@ public class ExpressionData extends PlotData {
 		this.domains = new String[variables.length];
 		for (int j = 0; j < this.variables.length; j++) {
 			String var = split[j * 2 + 1];
-			String[] varSplit = var.split("\\.");
+			String[] varSplit = var.split(PlotConfig.customPlotDomainDelimiter);
 			if (varSplit.length == 2) {
 				// if it got domain, take it
 				this.domains[j] = varSplit[0];
