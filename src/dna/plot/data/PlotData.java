@@ -29,6 +29,10 @@ public abstract class PlotData {
 		distOnly, cdfOnly, distANDcdf
 	}
 
+	public static enum PlotDataLocation {
+		dataFile, scriptFile
+	}
+
 	protected String data;
 
 	protected String domain;
@@ -43,11 +47,18 @@ public abstract class PlotData {
 
 	protected NodeValueListOrder nodeValueListOrder;
 
+	protected PlotDataLocation dataLocation;
+
+	protected String dataPath;
+
 	public PlotData(String data, String domain, PlotStyle style, String title) {
 		this.data = data;
 		this.domain = domain;
 		this.style = style;
 		this.title = title;
+
+		// default type = data inside scriptfile
+		this.dataLocation = PlotDataLocation.scriptFile;
 	}
 
 	public abstract boolean isStyleValid();
@@ -74,6 +85,27 @@ public abstract class PlotData {
 
 	public boolean isPlotAsCdf() {
 		return this.plotAsCdf;
+	}
+
+	public PlotDataLocation getDataLocation() {
+		return this.dataLocation;
+	}
+
+	public void setDataLocation(PlotDataLocation dataLocation) {
+		this.dataLocation = dataLocation;
+	}
+
+	public void setDataLocation(PlotDataLocation dataLocation, String dataPath) {
+		this.dataLocation = dataLocation;
+		this.dataPath = dataPath;
+	}
+
+	public String getDataPath() {
+		return this.dataPath;
+	}
+
+	public void setDataPath(String dataPath) {
+		this.dataPath = dataPath;
 	}
 
 	public abstract String getEntry(int lt, int lw, double offsetX,

@@ -36,12 +36,21 @@ public class VarianceData extends PlotData {
 	@Override
 	public String getEntry(int lt, int lw, double offsetX, double offsetY,
 			PlotStyle style) {
+		// plot style
 		PlotStyle styleTemp;
 		if (style == null)
 			styleTemp = this.style;
 		else
 			styleTemp = style;
 
+		// data location
+		String dataLoc = null;
+		if (super.dataLocation.equals(PlotDataLocation.scriptFile))
+			dataLoc = "'-'";
+		if (super.dataLocation.equals(PlotDataLocation.dataFile))
+			dataLoc = '"' + super.dataPath + '"';
+
+		// build stringbuffer
 		StringBuffer buff = new StringBuffer();
 		// 2 avg
 		// 3 med
@@ -52,7 +61,7 @@ public class VarianceData extends PlotData {
 		// 8 varUp
 		// 9 confLow
 		// 10 confUp
-		buff.append("'-' using ($1 + " + offsetX + "):($2 + " + offsetY
+		buff.append(dataLoc + " using ($1 + " + offsetX + "):($2 + " + offsetY
 				+ "):($2 - $7 + " + offsetY + "):($2 + $8 + " + offsetY
 				+ ") with " + styleTemp);
 		buff.append(" lt " + lt + " lw " + lw);

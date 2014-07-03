@@ -1,5 +1,6 @@
 package dna.plot.data;
 
+
 /**
  * @author benni
  * 
@@ -31,12 +32,21 @@ public class MaximumData extends PlotData {
 	@Override
 	public String getEntry(int lt, int lw, double offsetX, double offsetY,
 			DistributionPlotType distPlotType, PlotStyle style) {
+		// plot style
 		PlotStyle styleTemp;
 		if (style == null)
 			styleTemp = this.style;
 		else
 			styleTemp = style;
 
+		// data location
+		String dataLoc = null;
+		if (super.dataLocation.equals(PlotDataLocation.scriptFile))
+			dataLoc = "'-'";
+		if (super.dataLocation.equals(PlotDataLocation.dataFile))
+			dataLoc = '"' + super.dataPath + '"';
+
+		// build stringbuffer
 		StringBuffer buff = new StringBuffer();
 		if (distPlotType.equals(DistributionPlotType.cdfOnly))
 			buff.append("'-' using ($1 + " + offsetX + "):($4 + " + offsetY
@@ -53,12 +63,21 @@ public class MaximumData extends PlotData {
 	@Override
 	public String getEntry(int lt, int lw, double offsetX, double offsetY,
 			PlotStyle style) {
+		// plot style
 		PlotStyle styleTemp;
 		if (style == null)
 			styleTemp = this.style;
 		else
 			styleTemp = style;
 
+		// data location
+		String dataLoc = null;
+		if (super.dataLocation.equals(PlotDataLocation.scriptFile))
+			dataLoc = "'-'";
+		if (super.dataLocation.equals(PlotDataLocation.dataFile))
+			dataLoc = '"' + super.dataPath + '"';
+
+		// build stringbuffer
 		StringBuffer buff = new StringBuffer();
 		buff.append("'-' using ($1 + " + offsetX + "):($4 + " + offsetY
 				+ ") with " + styleTemp);

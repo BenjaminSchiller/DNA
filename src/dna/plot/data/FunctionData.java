@@ -37,12 +37,14 @@ public class FunctionData extends PlotData {
 	@Override
 	public String getEntry(int lt, int lw, double offsetX, double offsetY,
 			PlotStyle style) {
+		// plot style
 		PlotStyle styleTemp;
 		if (style == null)
 			styleTemp = this.style;
 		else
 			styleTemp = style;
 
+		// build stringbuffer
 		StringBuffer buff = new StringBuffer();
 		buff.append(this.data + " with " + styleTemp);
 		buff.append(" lt " + lt + " lw " + lw);

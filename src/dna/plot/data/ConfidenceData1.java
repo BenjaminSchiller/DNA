@@ -1,5 +1,6 @@
 package dna.plot.data;
 
+
 /**
  * @author benni
  * 
@@ -37,8 +38,16 @@ public class ConfidenceData1 extends PlotData {
 		String box_high = "($10 + " + offsetY + ")";
 		String median = "($5 + " + offsetY + ")";
 
-		buff.append("'-' using " + x + ":" + box_min + ":" + whisker_min + ":"
-				+ whisker_high + ":" + box_high + " with candlesticks");
+		// data location
+		String dataLoc = null;
+		if (super.dataLocation.equals(PlotDataLocation.scriptFile))
+			dataLoc = "'-'";
+		if (super.dataLocation.equals(PlotDataLocation.dataFile))
+			dataLoc = '"' + super.dataPath + '"';
+
+		// build stringbuffer
+		buff.append(dataLoc + " using " + x + ":" + box_min + ":" + whisker_min
+				+ ":" + whisker_high + ":" + box_high + " with candlesticks");
 		buff.append(" lt " + lt + " lw " + lw);
 		buff.append(title == null ? " notitle" : " title \"" + this.title
 				+ "\"");
