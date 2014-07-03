@@ -86,8 +86,8 @@ public class ExpressionData extends PlotData {
 
 		// build stringbuffer
 		StringBuffer buff = new StringBuffer();
-		buff.append(dataLoc + "'-' using ($1 + " + offsetX + "):($2 + "
-				+ offsetY + ") with " + styleTemp);
+		buff.append(dataLoc + " using ($1 + " + offsetX + "):($2 + " + offsetY
+				+ ") with " + styleTemp);
 		buff.append(" lt " + lt + " lw " + lw);
 		buff.append(title == null ? " notitle" : " title \"" + this.title
 				+ "\"");
