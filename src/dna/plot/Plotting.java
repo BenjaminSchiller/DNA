@@ -9,6 +9,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import dna.io.filesystem.Dir;
+import dna.io.filesystem.Files;
 import dna.io.filesystem.PlotFilenames;
 import dna.plot.PlottingConfig.PlotFlag;
 import dna.plot.data.ExpressionData;
@@ -16,6 +17,7 @@ import dna.plot.data.PlotData;
 import dna.plot.data.PlotData.DistributionPlotType;
 import dna.plot.data.PlotData.NodeValueListOrder;
 import dna.plot.data.PlotData.NodeValueListOrderBy;
+import dna.plot.data.PlotData.PlotDataLocation;
 import dna.plot.data.PlotData.PlotStyle;
 import dna.plot.data.PlotData.PlotType;
 import dna.series.SeriesStats;
@@ -328,10 +330,20 @@ public class Plotting {
 												+ seriesData[j].getName()
 												+ ") @ " + timestamp;
 
-									if (plotDist)
-										dataList.add(PlotData.get(value,
-												domain, style, title, type));
-
+									if (plotDist) {
+										PlotData data = PlotData.get(value,
+												domain, style, title, type);
+										if (!Config
+												.getBoolean("GNUPLOT_DATA_IN_SCRIPT"))
+											data.setDataLocation(
+													PlotDataLocation.dataFile,
+													Dir.getAggregatedMetricDataDir(
+															seriesData[i]
+																	.getDir(),
+															timestamp, domain)
+															+ Files.getDistributionFilename(value));
+										dataList.add(data);
+									}
 									if (plotCdf) {
 										PlotData data = PlotData.get(value,
 												domain, style, title, type);
@@ -460,8 +472,17 @@ public class Plotting {
 												+ ") @ " + timestamp;
 
 									// add data to list
-									dataList.add(PlotData.get(value, domain,
-											style, title, type));
+									PlotData line = PlotData.get(value, domain,
+											style, title, type);
+									if (!Config
+											.getBoolean("GNUPLOT_DATA_IN_SCRIPT"))
+										line.setDataLocation(
+												PlotDataLocation.dataFile,
+												Dir.getAggregatedMetricDataDir(
+														seriesData[i].getDir(),
+														timestamp, domain)
+														+ Files.getNodeValueListFilename(value));
+									dataList.add(line);
 									if (i == 0)
 										seriesDataQuantities[j]++;
 								}
@@ -636,9 +657,18 @@ public class Plotting {
 									.contains(dist)) {
 								// create "line" in plot for each batch
 								if (plotDist) {
-									dataList.add(PlotData.get(dist, d, style,
-											lineTitle + " @ " + timestamps[j],
-											type));
+									PlotData line = PlotData.get(dist, d,
+											style, lineTitle + " @ "
+													+ timestamps[j], type);
+									if (!Config
+											.getBoolean("GNUPLOT_DATA_IN_SCRIPT"))
+										line.setDataLocation(
+												PlotDataLocation.dataFile,
+												Dir.getAggregatedMetricDataDir(
+														seriesData[i].getDir(),
+														timestamp, d)
+														+ Files.getDistributionFilename(dist));
+									dataList.add(line);
 								}
 								if (plotCdf) {
 									PlotData cdfPlotData = PlotData.get(dist,
@@ -768,9 +798,18 @@ public class Plotting {
 							if (initBatch.getMetrics().get(d).getNodeValues()
 									.getNames().contains(nvl)) {
 								// create "line" in plot for each batch
-								dataList.add(PlotData
+								PlotData line = PlotData
 										.get(nvl, d, style, lineTitle + " @ "
-												+ timestamps[j], type));
+												+ timestamps[j], type);
+								if (!Config
+										.getBoolean("GNUPLOT_DATA_IN_SCRIPT"))
+									line.setDataLocation(
+											PlotDataLocation.dataFile,
+											Dir.getAggregatedMetricDataDir(
+													seriesData[i].getDir(),
+													timestamp, d)
+													+ Files.getNodeValueListFilename(nvl));
+								dataList.add(line);
 								if (j == 0)
 									seriesDataQuantities[k]++;
 							} else {
@@ -866,8 +905,18 @@ public class Plotting {
 									+ timestamp;
 
 							if (plotDist) {
-								lines.add(PlotData.get(dist, metric, style,
-										title, type));
+								PlotData line = PlotData.get(dist, metric,
+										style, title, type);
+								if (!Config
+										.getBoolean("GNUPLOT_DATA_IN_SCRIPT"))
+									line.setDataLocation(
+											PlotDataLocation.dataFile,
+											Dir.getAggregatedMetricDataDir(
+													seriesData[i].getDir(),
+													timestamp, metric)
+													+ Files.getDistributionFilename(dist));
+
+								lines.add(line);
 							}
 							if (plotCdf) {
 								PlotData lineCdf = PlotData.get(dist, metric,
@@ -921,10 +970,13 @@ public class Plotting {
 
 							// set data quantities
 							pCdf.setSeriesDataQuantities(seriesDataQuantities);
+
 							// disable datetime
 							pCdf.setPlotDateTime(false);
+
 							// set cdf plot
 							pCdf.setCdfPlot(true);
+
 							// add plot to list
 							defaultPlots.add(pCdf);
 						}
@@ -976,8 +1028,19 @@ public class Plotting {
 							String title = seriesData[i].getName() + " @ "
 									+ timestamp;
 
-							lines.add(PlotData.get(nvl, metric, style, title,
-									type));
+							PlotData pd = PlotData.get(nvl, metric, style,
+									title, type);
+
+							if (!Config.getBoolean("GNUPLOT_DATA_IN_SCRIPT"))
+								pd.setDataLocation(
+										PlotDataLocation.dataFile,
+										Dir.getAggregatedMetricDataDir(
+												seriesData[i].getDir(),
+												timestamp, metric)
+												+ Files.getNodeValueListFilename(nvl));
+
+							// add to list
+							lines.add(pd);
 						}
 
 						// create normal plot

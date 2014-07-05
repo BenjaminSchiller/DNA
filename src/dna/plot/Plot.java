@@ -11,6 +11,7 @@ import dna.plot.data.PlotData;
 import dna.plot.data.PlotData.DistributionPlotType;
 import dna.plot.data.PlotData.NodeValueListOrder;
 import dna.plot.data.PlotData.NodeValueListOrderBy;
+import dna.plot.data.PlotData.PlotDataLocation;
 import dna.series.aggdata.AggregatedBatch;
 import dna.series.aggdata.AggregatedMetric;
 import dna.series.aggdata.AggregatedNodeValueList;
@@ -108,6 +109,9 @@ public class Plot {
 		for (PlotData pd : this.data) {
 			if (pd instanceof FunctionData) {
 				this.functionQuantity++;
+			} else {
+				if (pd.getDataLocation().equals(PlotDataLocation.dataFile))
+					this.functionQuantity++;
 			}
 		}
 	}
@@ -349,12 +353,20 @@ public class Plot {
 			throws IOException {
 		if (!(this.data[this.dataWriteCounter] instanceof FunctionData)) {
 			// if not function, add data
-			String name = this.data[this.dataWriteCounter].getName();
-			String domain = this.data[this.dataWriteCounter].getDomain();
-			if (this.data[this.dataWriteCounter].isPlotAsCdf())
-				this.addData(name, domain, batchData, true);
-			else
-				this.addData(name, domain, batchData, false);
+
+			// if data location is in data file, dont add data to script file
+			if (this.data[this.dataWriteCounter].getDataLocation().equals(
+					PlotDataLocation.dataFile)) {
+				this.dataWriteCounter++;
+				this.skippedFunction++;
+			} else {
+				String name = this.data[this.dataWriteCounter].getName();
+				String domain = this.data[this.dataWriteCounter].getDomain();
+				if (this.data[this.dataWriteCounter].isPlotAsCdf())
+					this.addData(name, domain, batchData, true);
+				else
+					this.addData(name, domain, batchData, false);
+			}
 		}
 	}
 
