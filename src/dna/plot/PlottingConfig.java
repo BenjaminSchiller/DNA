@@ -257,7 +257,8 @@ public class PlottingConfig {
 						if ((j & 1) == 0)
 							continue;
 
-						String[] split2 = split[j].split("\\.");
+						String[] split2 = split[j]
+								.split(PlotConfig.customPlotDomainDelimiter);
 
 						// if no split possible check gen. domain
 						if (split2.length == 1) {
@@ -277,7 +278,7 @@ public class PlottingConfig {
 				if (domain.equals(PlotConfig.customPlotDomainFunction)) {
 					continue;
 				}
-
+				
 				// check if contained in batches
 				if (PlottingConfig.isContained(domain, value, batches)) {
 					useful = true;
@@ -348,7 +349,7 @@ public class PlottingConfig {
 		for (AggregatedBatch b : batches) {
 			if (b.getMetrics().getNames().contains(domain)) {
 				AggregatedMetric m = b.getMetrics().get(domain);
-
+					
 				// if value
 				if (m.getValues().getNames().contains(value)) {
 					contained = true;
