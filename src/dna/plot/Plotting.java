@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -860,127 +859,135 @@ public class Plotting {
 		// create default dist plots
 		if (Config.getBoolean("DEFAULT_PLOTS_ENABLED")
 				&& Config.getBoolean("DEFAULT_PLOT_DISTRIBUTIONS")) {
-			HashMap<String, Boolean> printedValues = new HashMap<String, Boolean>();
-
 			// log
 			Log.info("Plotting default distribution plots:");
 
-			// iterate over series
+			// list of used metric . dist combinations
+			ArrayList<String> usedDists = new ArrayList<String>();
+
+			// gather values
 			for (int i = 0; i < seriesData.length; i++) {
-				// series data quantities
-				int[] seriesDataQuantities = new int[seriesData.length];
-				seriesDataQuantities[i] = 1;
+				AggregatedMetricList metrics = initBatches[i].getMetrics();
 
-				AggregatedMetricList aMetrics = initBatches[i].getMetrics();
 				// iterate over metrics
-				for (String metric : aMetrics.getNames()) {
-					AggregatedDistributionList dists = aMetrics.get(metric)
-							.getDistributions();
-					for (String dist : dists.getNames()) {
-						// log
-						if (!printedValues.containsKey(metric + dist)) {
-							Log.info("\tplotting '" + metric
+				for (String metric : metrics.getNames()) {
+					// iterate over distributions
+					for (String dist : metrics.get(metric).getDistributions()
+							.getNames()) {
+						if (!usedDists.contains(metric
+								+ PlotConfig.customPlotDomainDelimiter + dist)) {
+							usedDists.add(metric
 									+ PlotConfig.customPlotDomainDelimiter
-									+ dist + "'");
-							printedValues.put(metric + dist, true);
-						}
-
-						ArrayList<PlotData> lines = null;
-						ArrayList<PlotData> linesCdf = null;
-
-						if (plotDist)
-							lines = new ArrayList<PlotData>();
-						if (plotCdf)
-							linesCdf = new ArrayList<PlotData>();
-
-						// iterate over batches
-						for (int j = 0; j < batches.length; j++) {
-							long timestamp = Dir.getTimestamp(batches[j]);
-
-							if (!seriesTimestamps[i].contains(timestamp))
-								continue;
-
-							// create lines
-							String title = seriesData[i].getName() + " @ "
-									+ timestamp;
-
-							if (plotDist) {
-								PlotData line = PlotData.get(dist, metric,
-										style, title, type);
-								if (!Config
-										.getBoolean("GNUPLOT_DATA_IN_SCRIPT"))
-									line.setDataLocation(
-											PlotDataLocation.dataFile,
-											Dir.getAggregatedMetricDataDir(
-													seriesData[i].getDir(),
-													timestamp, metric)
-													+ Files.getDistributionFilename(dist));
-
-								lines.add(line);
-							}
-							if (plotCdf) {
-								PlotData lineCdf = PlotData.get(dist, metric,
-										style, title, type);
-								lineCdf.setPlotAsCdf(true);
-								linesCdf.add(lineCdf);
-							}
-						}
-
-						// create normal plot
-						if (plotDist) {
-							PlotData[] data = lines.toArray(new PlotData[0]);
-
-							// create plot
-							Plot p = new Plot(
-									dstDir,
-									PlotFilenames.getDistributionPlot(metric,
-											dist + "." + i),
-									PlotFilenames.getDistributionGnuplotScript(
-											metric, dist + "." + i),
-									metric
-											+ PlotConfig.customPlotDomainDelimiter
-											+ dist + " (" + type + ")", data);
-
-							// set data quantities
-							p.setSeriesDataQuantities(seriesDataQuantities);
-
-							// disable datetime
-							p.setPlotDateTime(false);
-
-							// add plot to list
-							defaultPlots.add(p);
-
-						}
-						// create cdf plot
-						if (plotCdf) {
-							// create plot
-							PlotData[] dataCdf = linesCdf
-									.toArray(new PlotData[0]);
-							Plot pCdf = new Plot(
-									dstDir,
-									PlotFilenames.getDistributionCdfPlot(
-											metric, dist + "." + i),
-									PlotFilenames
-											.getDistributionCdfGnuplotScript(
-													metric, dist + "." + i),
-									"CDF of "
-											+ metric
-											+ PlotConfig.customPlotDomainDelimiter
-											+ dist + " (" + type + ")", dataCdf);
-
-							// set data quantities
-							pCdf.setSeriesDataQuantities(seriesDataQuantities);
-
-							// disable datetime
-							pCdf.setPlotDateTime(false);
-
-							// set cdf plot
-							pCdf.setCdfPlot(true);
-
-							// add plot to list
-							defaultPlots.add(pCdf);
+									+ dist);
 						}
 					}
+				}
+			}
+
+			// create plots
+			for (String entry : usedDists) {
+				String[] split = entry
+						.split(PlotConfig.customPlotDomainDelimiter);
+				int[] seriesDataQuantities = new int[seriesData.length];
+				String metric = split[0];
+				String dist = split[1];
+
+				// log
+				Log.info("\tplotting '" + metric + "." + dist + "'");
+
+				ArrayList<PlotData> dataList = null;
+				ArrayList<PlotData> dataListCdf = null;
+
+				if (plotDist)
+					dataList = new ArrayList<PlotData>();
+				if (plotCdf)
+					dataListCdf = new ArrayList<PlotData>();
+
+				// iterate over series
+				for (int i = 0; i < seriesData.length; i++) {
+					seriesDataQuantities[i] = 1;
+
+					// iterate over metrics
+					if (initBatches[i].getMetrics().getNames().contains(metric)) {
+						// iterate over distributions
+						if (initBatches[i].getMetrics().get(metric)
+								.getDistributions().getNames().contains(dist)) {
+
+							// create plot data
+							for (int j = 0; j < batches.length; j++) {
+								long timestamp = (long) timestamps[j];
+
+								// skip if series doesnt contain timestamp
+								if (!seriesTimestamps[i].contains(timestamp))
+									continue;
+
+								String title = seriesData[i].getName() + " @ "
+										+ timestamp;
+
+								if (plotDist) {
+									PlotData data = PlotData.get(dist, metric,
+											style, title, type);
+									if (!Config
+											.getBoolean("GNUPLOT_DATA_IN_SCRIPT"))
+										data.setDataLocation(
+												PlotDataLocation.dataFile,
+												Dir.getAggregatedMetricDataDir(
+														seriesData[i].getDir(),
+														timestamp, metric)
+														+ Files.getDistributionFilename(dist));
+									dataList.add(data);
+								}
+								if (plotCdf) {
+									PlotData data = PlotData.get(dist, metric,
+											style, title, type);
+									data.setPlotAsCdf(true);
+									dataListCdf.add(data);
+								}
+							}
+						}
+					}
+				}
+
+				// create regular plot
+				if (plotDist) {
+					PlotData[] data = dataList.toArray(new PlotData[0]);
+
+					Plot p = new Plot(dstDir,
+							PlotFilenames.getDistributionPlot(metric, dist),
+							PlotFilenames.getDistributionGnuplotScript(metric,
+									dist), metric + "." + dist + " (" + type
+									+ ")", data);
+					// set data quantities
+					p.setSeriesDataQuantities(seriesDataQuantities);
+
+					// disable datetime
+					p.setPlotDateTime(false);
+
+					// add plot to list
+					defaultPlots.add(p);
+				}
+
+				// create cdf plot
+				if (plotCdf) {
+					PlotData[] dataCdf = dataListCdf.toArray(new PlotData[0]);
+
+					Plot p = new Plot(dstDir,
+							PlotFilenames.getDistributionCdfPlot(metric, dist),
+							PlotFilenames.getDistributionCdfGnuplotScript(
+									metric, dist), "CDF of " + metric + "."
+									+ dist + " (" + type + ")", dataCdf);
+
+					// set data quantities
+					p.setSeriesDataQuantities(seriesDataQuantities);
+
+					// set cdf plot
+					p.setCdfPlot(true);
+
+					// disable datetime
+					p.setPlotDateTime(false);
+
+					// add plot to list
+					defaultPlots.add(p);
 				}
 			}
 		}
@@ -988,88 +995,104 @@ public class Plotting {
 		// create default nvl plots
 		if (Config.getBoolean("DEFAULT_PLOTS_ENABLED")
 				&& Config.getBoolean("DEFAULT_PLOT_NODEVALUELISTS")) {
-			HashMap<String, Boolean> printedValues = new HashMap<String, Boolean>();
-
 			// log
 			Log.info("Plotting default nodevaluelist plots:");
 
-			// iterate over series
+			// list of used metric . dist combinations
+			ArrayList<String> usedNvls = new ArrayList<String>();
+
+			// gather values
 			for (int i = 0; i < seriesData.length; i++) {
-				// series data quantities
-				int[] seriesDataQuantities = new int[seriesData.length];
-				seriesDataQuantities[i] = 1;
+				AggregatedMetricList metrics = initBatches[i].getMetrics();
 
-				AggregatedMetricList aMetrics = initBatches[i].getMetrics();
 				// iterate over metrics
-				for (String metric : aMetrics.getNames()) {
-					AggregatedNodeValueListList nvls = aMetrics.get(metric)
-							.getNodeValues();
-					for (String nvl : nvls.getNames()) {
-						// log
-						if (!printedValues.containsKey(metric + nvl)) {
-							Log.info("\tplotting '" + metric
+				for (String metric : metrics.getNames()) {
+					// iterate over distributions
+					for (String nvl : metrics.get(metric).getNodeValues()
+							.getNames()) {
+						if (!usedNvls.contains(metric
+								+ PlotConfig.customPlotDomainDelimiter + nvl)) {
+							usedNvls.add(metric
 									+ PlotConfig.customPlotDomainDelimiter
-									+ nvl + "'");
-							printedValues.put(metric + nvl, true);
+									+ nvl);
 						}
-
-						ArrayList<PlotData> lines = null;
-
-						lines = new ArrayList<PlotData>();
-
-						// iterate over batches
-						for (int j = 0; j < batches.length; j++) {
-							long timestamp = Dir.getTimestamp(batches[j]);
-
-							if (!seriesTimestamps[i].contains(timestamp))
-								continue;
-
-							// create lines
-							String title = seriesData[i].getName() + " @ "
-									+ timestamp;
-
-							PlotData pd = PlotData.get(nvl, metric, style,
-									title, type);
-
-							if (!Config.getBoolean("GNUPLOT_DATA_IN_SCRIPT"))
-								pd.setDataLocation(
-										PlotDataLocation.dataFile,
-										Dir.getAggregatedMetricDataDir(
-												seriesData[i].getDir(),
-												timestamp, metric)
-												+ Files.getNodeValueListFilename(nvl));
-
-							// add to list
-							lines.add(pd);
-						}
-
-						// create normal plot
-						PlotData[] data = lines.toArray(new PlotData[0]);
-
-						// create plot
-						Plot p = new Plot(dstDir,
-								PlotFilenames.getNodeValueListPlot(metric, nvl
-										+ "." + i),
-								PlotFilenames.getNodeValueListGnuplotScript(
-										metric, nvl + "." + i), metric
-										+ PlotConfig.customPlotDomainDelimiter
-										+ nvl + " (" + type + ")", data);
-
-						// set data quantities
-						p.setSeriesDataQuantities(seriesDataQuantities);
-
-						// disable datetime
-						p.setPlotDateTime(false);
-
-						// set nvl sort options
-						p.setNodeValueListOrder(order);
-						p.setNodeValueListOrderBy(orderBy);
-
-						// add plot to list
-						defaultPlots.add(p);
-
 					}
 				}
+			}
+
+			// create plots
+			for (String entry : usedNvls) {
+				String[] split = entry
+						.split(PlotConfig.customPlotDomainDelimiter);
+				int[] seriesDataQuantities = new int[seriesData.length];
+				String metric = split[0];
+				String nvl = split[1];
+
+				// log
+				Log.info("\tplotting '" + metric + "." + nvl + "'");
+
+				ArrayList<PlotData> dataList = null;
+
+				dataList = new ArrayList<PlotData>();
+
+				// iterate over series
+				for (int i = 0; i < seriesData.length; i++) {
+					seriesDataQuantities[i] = 1;
+
+					// iterate over metrics
+					if (initBatches[i].getMetrics().getNames().contains(metric)) {
+						// iterate over distributions
+						if (initBatches[i].getMetrics().get(metric)
+								.getNodeValues().getNames().contains(nvl)) {
+
+							// create plot data
+							for (int j = 0; j < batches.length; j++) {
+								long timestamp = (long) timestamps[j];
+
+								// skip if series doesnt contain timestamp
+								if (!seriesTimestamps[i].contains(timestamp))
+									continue;
+
+								String title = seriesData[i].getName() + " @ "
+										+ timestamp;
+
+								PlotData data = PlotData.get(nvl, metric,
+										style, title, type);
+								if (!Config
+										.getBoolean("GNUPLOT_DATA_IN_SCRIPT"))
+									data.setDataLocation(
+											PlotDataLocation.dataFile,
+											Dir.getAggregatedMetricDataDir(
+													seriesData[i].getDir(),
+													timestamp, metric)
+													+ Files.getNodeValueListFilename(nvl));
+								dataList.add(data);
+							}
+						}
+					}
+				}
+
+				// create plot
+				PlotData[] data = dataList.toArray(new PlotData[0]);
+
+				Plot p = new Plot(dstDir, PlotFilenames.getNodeValueListPlot(
+						metric, nvl),
+						PlotFilenames
+								.getNodeValueListGnuplotScript(metric, nvl),
+						metric + "." + nvl + " (" + type + ")", data);
+
+				// set data quantities
+				p.setSeriesDataQuantities(seriesDataQuantities);
+
+				// set plot date time
+				p.setPlotDateTime(false);
+
+				// set nvl sort mode
+				p.setNodeValueListOrder(order);
+				p.setNodeValueListOrderBy(orderBy);
+
+				// add plot to list
+				defaultPlots.add(p);
 			}
 		}
 
@@ -1767,51 +1790,73 @@ public class Plotting {
 			plotList.add(p);
 		}
 
-		HashMap<String, Boolean> printedValues = new HashMap<String, Boolean>();
+		// HashMap<String, Boolean> printedValues = new HashMap<String,
+		// Boolean>();
 
 		// create default metric plots
 		if (plotMetricValues && Config.getBoolean("DEFAULT_PLOT_METRIC_VALUES")) {
 			// log
 			Log.info("Plotting default metric value plots:");
 
-			// iterate over series
+			ArrayList<String> usedValues = new ArrayList<String>();
+
 			for (int i = 0; i < seriesData.length; i++) {
-				AggregatedMetricList aMetrics = initBatches[i].getMetrics();
-				// iterate over metrics
-				for (String metric : aMetrics.getNames()) {
-					AggregatedValueList aMetricValues = aMetrics.get(metric)
-							.getValues();
-					// iterate over values
-					for (String value : aMetricValues.getNames()) {
-						// create plot data
-						PlotData[] data = { PlotData.get(value, metric, style,
-								seriesData[i].getName(), type) };
-						int[] seriesDataQuantities = new int[seriesData.length];
-						seriesDataQuantities[i] = 1;
+				AggregatedMetricList metrics = initBatches[i].getMetrics();
+				for (String metric : metrics.getNames()) {
+					AggregatedMetric m = metrics.get(metric);
 
-						// log
-						if (!printedValues.containsKey(metric + value)) {
-							Log.info("\tplotting " + "'" + metric
+					// check values
+					for (String value : m.getValues().getNames()) {
+						if (!usedValues.contains(metric
+								+ PlotConfig.customPlotDomainDelimiter + value)) {
+							usedValues.add(metric
 									+ PlotConfig.customPlotDomainDelimiter
-									+ value + "'");
-							printedValues.put(metric + value, true);
+									+ value);
 						}
-
-						// create plot
-						Plot p = new Plot(dstDir, PlotFilenames.getValuesPlot(
-								metric, value + "." + i),
-								PlotFilenames.getValuesGnuplotScript(metric,
-										value + "." + i), metric
-										+ PlotConfig.customPlotDomainDelimiter
-										+ value + " (" + type + ")", data);
-
-						// set quantities
-						p.setSeriesDataQuantities(seriesDataQuantities);
-
-						// add to plot list
-						plotList.add(p);
 					}
 				}
+			}
+
+			// create value plots
+			for (String entry : usedValues) {
+				String[] split = entry
+						.split(PlotConfig.customPlotDomainDelimiter);
+
+				String metric = split[0];
+				String value = split[1];
+
+				// log
+				Log.info("\tplotting '" + metric + "." + value + "'");
+
+				ArrayList<PlotData> lines = new ArrayList<PlotData>();
+				int[] seriesDataQuantities = new int[seriesData.length];
+
+				// iterate over series
+				for (int i = 0; i < seriesData.length; i++) {
+					AggregatedBatch initBatch = initBatches[i];
+					if (initBatch.getMetrics().getNames().contains(metric)) {
+						if (initBatch.getMetrics().get(metric).getValues()
+								.getNames().contains(value)) {
+							// create "line"
+							PlotData data = PlotData.get(value, metric, style,
+									seriesData[i].getName(), type);
+							lines.add(data);
+							seriesDataQuantities[i]++;
+						}
+					}
+				}
+
+				// creeate plot
+				PlotData[] data = lines.toArray(new PlotData[0]);
+
+				Plot p = new Plot(dstDir, PlotFilenames.getValuesPlot(metric,
+						value), PlotFilenames.getValuesGnuplotScript(metric,
+						value), metric + "." + value + " (" + type + ")", data);
+
+				p.setSeriesDataQuantities(seriesDataQuantities);
+
+				// add plot to list
+				plotList.add(p);
 			}
 		}
 	}
