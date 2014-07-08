@@ -2521,6 +2521,16 @@ public class Plotting {
 						for (int i = 0; i < batches.length; i++) {
 							dPlotData[i] = PlotData.get(distribution, metric,
 									style, title + " @ " + timestamps[i], type);
+							if (!Config.getBoolean("GNUPLOT_DATA_IN_SCRIPT"))
+								dPlotData[i]
+										.setDataLocation(
+												PlotDataLocation.dataFile,
+												Dir.getMetricDataDir(
+														Dir.getBatchDataDir(
+																aggrDir,
+																(long) timestamps[i]),
+														metric)
+														+ Files.getDistributionFilename(distribution));
 						}
 						Plot p = new Plot(dstDir,
 								PlotFilenames.getDistributionPlot(metric,
@@ -2578,6 +2588,13 @@ public class Plotting {
 					for (int i = 0; i < batches.length; i++) {
 						PlotData plotData = PlotData.get(nodevaluelist, metric,
 								style, title + " @ " + timestamps[i], type);
+						if (!Config.getBoolean("GNUPLOT_DATA_IN_SCRIPT"))
+							plotData.setDataLocation(
+									PlotDataLocation.dataFile,
+									Dir.getMetricDataDir(Dir.getBatchDataDir(
+											aggrDir, (long) timestamps[i]),
+											metric)
+											+ Files.getNodeValueListFilename(nodevaluelist));
 						nPlotData[i] = plotData;
 					}
 
