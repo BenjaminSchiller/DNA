@@ -1,6 +1,5 @@
 package dna.plot.data;
 
-
 /**
  * @author benni
  * 
@@ -31,13 +30,23 @@ public class MinimumData extends PlotData {
 
 	@Override
 	public String getEntry(int lt, int lw, double offsetX, double offsetY,
-			DistributionPlotType distPlotType, PlotStyle style) {
+			DistributionPlotType type, PlotStyle style) {
 		// plot style
 		PlotStyle styleTemp;
+		DistributionPlotType distPlotType;
 		if (style == null)
 			styleTemp = this.style;
 		else
 			styleTemp = style;
+
+		if (type == null) {
+			if (this.plotAsCdf)
+				distPlotType = DistributionPlotType.cdfOnly;
+			else
+				distPlotType = DistributionPlotType.distOnly;
+		} else {
+			distPlotType = type;
+		}
 
 		// data location
 		String dataLoc = null;

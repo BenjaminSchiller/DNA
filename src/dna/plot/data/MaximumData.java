@@ -1,6 +1,5 @@
 package dna.plot.data;
 
-
 /**
  * @author benni
  * 
@@ -31,13 +30,23 @@ public class MaximumData extends PlotData {
 
 	@Override
 	public String getEntry(int lt, int lw, double offsetX, double offsetY,
-			DistributionPlotType distPlotType, PlotStyle style) {
+			DistributionPlotType type, PlotStyle style) {
 		// plot style
 		PlotStyle styleTemp;
+		DistributionPlotType distPlotType;
 		if (style == null)
 			styleTemp = this.style;
 		else
 			styleTemp = style;
+
+		if (type == null) {
+			if (this.plotAsCdf)
+				distPlotType = DistributionPlotType.cdfOnly;
+			else
+				distPlotType = DistributionPlotType.distOnly;
+		} else {
+			distPlotType = type;
+		}
 
 		// data location
 		String dataLoc = null;
@@ -49,11 +58,11 @@ public class MaximumData extends PlotData {
 		// build stringbuffer
 		StringBuffer buff = new StringBuffer();
 		if (distPlotType.equals(DistributionPlotType.cdfOnly))
-			buff.append("'-' using ($1 + " + offsetX + "):($4 + " + offsetY
-					+ ") smooth cumulative with " + styleTemp);
+			buff.append(dataLoc + " using ($1 + " + offsetX + "):($4 + "
+					+ offsetY + ") smooth cumulative with " + styleTemp);
 		else
-			buff.append("'-' using ($1 + " + offsetX + "):($4 + " + offsetY
-					+ ") with " + styleTemp);
+			buff.append(dataLoc + " using ($1 + " + offsetX + "):($4 + "
+					+ offsetY + ") with " + styleTemp);
 		buff.append(" lt " + lt + " lw " + lw);
 		buff.append(title == null ? " notitle" : " title \"" + this.title
 				+ "\"");
@@ -79,7 +88,7 @@ public class MaximumData extends PlotData {
 
 		// build stringbuffer
 		StringBuffer buff = new StringBuffer();
-		buff.append("'-' using ($1 + " + offsetX + "):($4 + " + offsetY
+		buff.append(dataLoc + " using ($1 + " + offsetX + "):($4 + " + offsetY
 				+ ") with " + styleTemp);
 		buff.append(" lt " + lt + " lw " + lw);
 		buff.append(title == null ? " notitle" : " title \"" + this.title

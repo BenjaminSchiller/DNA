@@ -28,7 +28,6 @@ import dna.series.aggdata.AggregatedMetric;
 import dna.series.aggdata.AggregatedMetricList;
 import dna.series.aggdata.AggregatedNodeValueList;
 import dna.series.aggdata.AggregatedNodeValueListList;
-import dna.series.aggdata.AggregatedRunTimeList;
 import dna.series.aggdata.AggregatedValue;
 import dna.series.aggdata.AggregatedValueList;
 import dna.series.data.SeriesData;
@@ -347,6 +346,15 @@ public class Plotting {
 										PlotData data = PlotData.get(value,
 												domain, style, title, type);
 										data.setPlotAsCdf(true);
+										if (!Config
+												.getBoolean("GNUPLOT_DATA_IN_SCRIPT"))
+											data.setDataLocation(
+													PlotDataLocation.dataFile,
+													Dir.getAggregatedMetricDataDir(
+															seriesData[i]
+																	.getDir(),
+															timestamp, domain)
+															+ Files.getDistributionFilename(value));
 										cdfDataList.add(data);
 									}
 									if (i == 0)
@@ -667,6 +675,7 @@ public class Plotting {
 														seriesData[i].getDir(),
 														timestamp, d)
 														+ Files.getDistributionFilename(dist));
+									line.setPlotAsCdf(true);
 									dataList.add(line);
 								}
 								if (plotCdf) {
@@ -674,6 +683,16 @@ public class Plotting {
 											d, style, lineTitle + " @ "
 													+ timestamps[j], type);
 									cdfPlotData.setPlotAsCdf(true);
+									if (!Config
+											.getBoolean("GNUPLOT_DATA_IN_SCRIPT"))
+										cdfPlotData
+												.setDataLocation(
+														PlotDataLocation.dataFile,
+														Dir.getAggregatedMetricDataDir(
+																seriesData[i]
+																		.getDir(),
+																timestamp, d)
+																+ Files.getDistributionFilename(dist));
 									cdfDataList.add(cdfPlotData);
 								}
 								if (j == 0)
@@ -941,6 +960,14 @@ public class Plotting {
 									PlotData data = PlotData.get(dist, metric,
 											style, title, type);
 									data.setPlotAsCdf(true);
+									if (!Config
+											.getBoolean("GNUPLOT_DATA_IN_SCRIPT"))
+										data.setDataLocation(
+												PlotDataLocation.dataFile,
+												Dir.getAggregatedMetricDataDir(
+														seriesData[i].getDir(),
+														timestamp, metric)
+														+ Files.getDistributionFilename(dist));
 									dataListCdf.add(data);
 								}
 							}
@@ -2504,7 +2531,7 @@ public class Plotting {
 				p.writeScriptHeader();
 
 				// add data
-				p.addDataFromValuesAsCDF(batchData);
+				p.addData(batchData);
 
 				// close and execute
 				p.close();
@@ -2599,6 +2626,16 @@ public class Plotting {
 									metric, style, title + " @ "
 											+ timestamps[i], type);
 							cdfPlotData.setPlotAsCdf(true);
+							if (!Config.getBoolean("GNUPLOT_DATA_IN_SCRIPT"))
+								cdfPlotData
+										.setDataLocation(
+												PlotDataLocation.dataFile,
+												Dir.getMetricDataDir(
+														Dir.getBatchDataDir(
+																aggrDir,
+																(long) timestamps[i]),
+														metric)
+														+ Files.getDistributionFilename(distribution));
 							dPlotDataCDF[i] = cdfPlotData;
 						}
 						Plot p = new Plot(dstDir,
@@ -2827,6 +2864,7 @@ public class Plotting {
 
 						// set cdf plot
 						pCdf.setCdfPlot(true);
+
 						// set data quantity
 						pCdf.setDataQuantity(values.length);
 
@@ -3112,142 +3150,6 @@ public class Plotting {
 		plots = null;
 	}
 
-	/** Plots metric runtimes **/
-	private static void plotMetricRuntimes(AggregatedBatch[] batchData,
-			AggregatedRunTimeList metricRuntimes, String dstDir, String title,
-			PlotStyle style, PlotType type) throws IOException,
-			InterruptedException {
-		Log.infoSep();
-		Log.info("Plotting Metric-Runtimes:");
-
-		PlotData[] metRuntimes = new PlotData[metricRuntimes.size()];
-		int index = 0;
-
-		// plot single runtime plots
-		for (AggregatedValue met : metricRuntimes.getList()) {
-			String runtime = met.getName();
-			Log.info("\tplotting '" + runtime + "'");
-
-			// get plot data
-			PlotData metPlotData = PlotData.get(runtime,
-					PlotConfig.customPlotDomainRuntimes, style, runtime + "-"
-							+ title, type);
-			metRuntimes[index] = metPlotData;
-
-			// create plot
-			Plot metRuntimeSinglePlot = new Plot(dstDir,
-					PlotFilenames.getRuntimesMetricPlot(runtime),
-					PlotFilenames.getRuntimesGnuplotScript(runtime), runtime
-							+ " (" + type + ")", new PlotData[] { metPlotData });
-			Plot metRuntimeSinglePlotCDF = new Plot(dstDir,
-					PlotFilenames.getRuntimesMetricPlotCDF(runtime),
-					PlotFilenames.getRuntimesGnuplotScriptCDF(runtime),
-					"CDF of " + runtime + " (" + type + ")",
-					new PlotData[] { metPlotData });
-
-			// set cdf plot
-			metRuntimeSinglePlotCDF.setCdfPlot(true);
-
-			// write header
-			metRuntimeSinglePlot.writeScriptHeader();
-			metRuntimeSinglePlotCDF.writeScriptHeader();
-
-			// append data
-			metRuntimeSinglePlot.addData(batchData);
-			metRuntimeSinglePlotCDF.addDataFromRuntimesAsCDF(batchData);
-
-			// close and execute
-			metRuntimeSinglePlot.close();
-			metRuntimeSinglePlotCDF.close();
-
-			metRuntimeSinglePlot.execute();
-			metRuntimeSinglePlotCDF.execute();
-
-			index++;
-		}
-
-		// create combined plots
-		String metricRuntimeName = Config.get("PLOT_METRIC_RUNTIMES");
-		Plot metricRuntimesPlot = new Plot(dstDir,
-				PlotFilenames.getRuntimesStatisticPlot(metricRuntimeName),
-				PlotFilenames.getRuntimesGnuplotScript(metricRuntimeName),
-				metricRuntimeName + " runtimes (" + type + ")", metRuntimes);
-		Plot metricRuntimesPlotCDF = new Plot(dstDir,
-				PlotFilenames.getRuntimesStatisticPlotCDF(metricRuntimeName),
-				PlotFilenames.getRuntimesGnuplotScriptCDF(metricRuntimeName),
-				"CDF of " + metricRuntimeName + " runtimes (" + type + ")",
-				metRuntimes);
-
-		// set cdf plot
-		metricRuntimesPlotCDF.setCdfPlot(true);
-
-		// write headers
-		metricRuntimesPlot.writeScriptHeader();
-		metricRuntimesPlotCDF.writeScriptHeader();
-
-		// add data to metric runtime plot
-		metricRuntimesPlot.addData(batchData);
-
-		// add cdf data to metric runtime cdf plot
-		metricRuntimesPlotCDF.addDataFromRuntimesAsCDF(batchData);
-
-		// close and execute
-		metricRuntimesPlot.close();
-		metricRuntimesPlot.execute();
-
-		metricRuntimesPlotCDF.close();
-		metricRuntimesPlotCDF.execute();
-	}
-
-	/** Plot general runtimes **/
-	private static void plotGeneralRuntimes(AggregatedBatch[] batchData,
-			ArrayList<String> y, String dstDir, String title, PlotStyle style,
-			PlotType type) throws IOException, InterruptedException {
-		Log.infoSep();
-		Log.info("Plotting General-Runtimes:");
-		PlotData[] genRuntimes = new PlotData[y.size()];
-		int index = 0;
-		for (String gen : y) {
-			Log.info("\tplotting '" + gen + "'");
-			genRuntimes[index] = PlotData.get(gen,
-					PlotConfig.customPlotDomainRuntimes, style, gen + "-"
-							+ title, type);
-			index++;
-		}
-
-		// create plots
-		String generalRuntimeName = Config.get("PLOT_GENERAL_RUNTIMES");
-		Plot generalRuntimesPlot = new Plot(dstDir,
-				PlotFilenames.getRuntimesStatisticPlot(generalRuntimeName),
-				PlotFilenames.getRuntimesGnuplotScript(generalRuntimeName),
-				generalRuntimeName + " runtimes (" + type + ")", genRuntimes);
-		Plot generalRuntimesPlotCDF = new Plot(dstDir,
-				PlotFilenames.getRuntimesStatisticPlotCDF(generalRuntimeName),
-				PlotFilenames.getRuntimesGnuplotScriptCDF(generalRuntimeName),
-				"CDF of " + generalRuntimeName + " runtimes (" + type + ")",
-				genRuntimes);
-
-		// set cdf plot
-		generalRuntimesPlotCDF.setCdfPlot(true);
-
-		// write headers
-		generalRuntimesPlot.writeScriptHeader();
-		generalRuntimesPlotCDF.writeScriptHeader();
-
-		// add data to general runtime plot
-		generalRuntimesPlot.addData(batchData);
-
-		// add cdf data to general runtime cdf plot
-		generalRuntimesPlotCDF.addDataFromRuntimesAsCDF(batchData);
-
-		// close and execute
-		generalRuntimesPlot.close();
-		generalRuntimesPlot.execute();
-
-		generalRuntimesPlotCDF.close();
-		generalRuntimesPlotCDF.execute();
-	}
-
 	/** Plot custom runtime plots **/
 	private static void plotCustomRuntimes(AggregatedBatch[] batchData,
 			ArrayList<PlotConfig> customPlots, String dstDir, String title,
@@ -3352,11 +3254,14 @@ public class Plotting {
 						PlotFilenames.getRuntimesGnuplotScriptCDF(plotFilename),
 						"CDF of " + name + " (" + type + ")", pc, plotData);
 
+				// set cdf plot
+				p.setCdfPlot(true);
+
 				// write script header
 				p.writeScriptHeader();
 
 				// add data
-				p.addDataFromRuntimesAsCDF(batchData);
+				p.addData(batchData);
 
 				// close and execute
 				p.close();

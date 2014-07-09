@@ -63,8 +63,43 @@ public class ExpressionData extends PlotData {
 
 	@Override
 	public String getEntry(int lt, int lw, double offsetX, double offsetY,
-			DistributionPlotType distPlotType, PlotStyle style) {
-		return this.getEntry(lt, lw, offsetX, offsetY, style);
+			DistributionPlotType type, PlotStyle style) {
+		// plot style
+		PlotStyle styleTemp;
+		DistributionPlotType distPlotType;
+		if (style == null)
+			styleTemp = this.style;
+		else
+			styleTemp = style;
+
+		if (type == null) {
+			if (this.plotAsCdf)
+				distPlotType = DistributionPlotType.cdfOnly;
+			else
+				distPlotType = DistributionPlotType.distOnly;
+		} else {
+			distPlotType = type;
+		}
+
+		// data location
+		String dataLoc = null;
+		if (super.dataLocation.equals(PlotDataLocation.scriptFile))
+			dataLoc = "'-'";
+		if (super.dataLocation.equals(PlotDataLocation.dataFile))
+			dataLoc = '"' + super.dataPath + '"';
+
+		// build stringbuffer
+		StringBuffer buff = new StringBuffer();
+		if (distPlotType.equals(DistributionPlotType.cdfOnly))
+			buff.append(dataLoc + " using ($1 + " + offsetX + "):($2 + "
+					+ offsetY + ") smooth cumulative with " + styleTemp);
+		else
+			buff.append(dataLoc + " using ($1 + " + offsetX + "):($2 + "
+					+ offsetY + ") with " + styleTemp);
+		buff.append(" lt " + lt + " lw " + lw);
+		buff.append(title == null ? " notitle" : " title \"" + this.title
+				+ "\"");
+		return buff.toString();
 	}
 
 	@Override

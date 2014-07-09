@@ -362,10 +362,9 @@ public class Plot {
 			} else {
 				String name = this.data[this.dataWriteCounter].getName();
 				String domain = this.data[this.dataWriteCounter].getDomain();
-				if (this.data[this.dataWriteCounter].isPlotAsCdf())
-					this.addData(name, domain, batchData, true);
-				else
-					this.addData(name, domain, batchData, false);
+
+				// add data
+				this.addData(name, domain, batchData, false);
 			}
 		}
 	}
@@ -390,48 +389,21 @@ public class Plot {
 				// if not function, add data
 				String name = this.data[this.dataWriteCounter].getName();
 				String domain = this.data[this.dataWriteCounter].getDomain();
-				if (this.isCdfPlot()) {
-					// if cdf plot
-					AggregatedBatch prevBatch = batchData[0];
-					AggregatedBatch tempBatch;
 
-					for (int j = 0; j < batchData.length; j++) {
-						// if batch is null, no data -> just add EOF
-						if (batchData[j] != null) {
-							if (j > 0) {
-								tempBatch = AggregatedBatch.sumValues(
-										batchData[j], prevBatch);
-								tempBatch = AggregatedBatch.sumRuntimes(
-										tempBatch, prevBatch);
-							} else {
-								tempBatch = batchData[j];
-							}
-							if (this.data[this.dataWriteCounter] instanceof ExpressionData)
-								this.addDataFromExpression(
-										tempBatch,
-										(ExpressionData) this.data[this.dataWriteCounter]);
-							else
-								this.addData(name, domain, tempBatch, false);
-							prevBatch = tempBatch;
-						}
+				for (int j = 0; j < batchData.length; j++) {
+					// if batch is null, no data -> just add EOF
+					if (batchData[j] != null) {
+						// check if expression
+						if (this.data[this.dataWriteCounter] instanceof ExpressionData)
+							this.addDataFromExpression(
+									batchData[j],
+									(ExpressionData) this.data[this.dataWriteCounter]);
+						else
+							this.addData(name, domain, batchData[j], false);
 					}
-					this.appendEOF();
-				} else {
-					// default case
-					for (int j = 0; j < batchData.length; j++) {
-						// if batch is null, no data -> just add EOF
-						if (batchData[j] != null) {
-							// check if expression
-							if (this.data[this.dataWriteCounter] instanceof ExpressionData)
-								this.addDataFromExpression(
-										batchData[j],
-										(ExpressionData) this.data[this.dataWriteCounter]);
-							else
-								this.addData(name, domain, batchData[j], false);
-						}
-					}
-					this.appendEOF();
 				}
+				this.appendEOF();
+
 			} else {
 				// if function, increment write counter and call method again
 				this.dataWriteCounter++;
@@ -561,6 +533,7 @@ public class Plot {
 	}
 
 	/** Adds data from runtimes as CDF's **/
+	@Deprecated
 	public void addDataFromRuntimesAsCDF(AggregatedBatch[] batchData)
 			throws IOException {
 		// iterate over plotdata
@@ -607,6 +580,7 @@ public class Plot {
 	}
 
 	/** Adds data from values as CDF's **/
+	@Deprecated
 	public void addDataFromValuesAsCDF(AggregatedBatch[] batchData)
 			throws IOException {
 		// iterate over plotdata
@@ -713,17 +687,24 @@ public class Plot {
 			}
 			for (int i = 0; i < this.data.length; i++) {
 				String line = "";
-				if (this.distPlotType == null)
-					line = this.data[i].getEntry(i + 1,
-							Config.getInt("GNUPLOT_LW"),
-							Config.getDouble("GNUPLOT_XOFFSET") * i,
-							Config.getDouble("GNUPLOT_YOFFSET") * i);
-				else
-					line = this.data[i].getEntry(i + 1,
-							Config.getInt("GNUPLOT_LW"),
-							Config.getDouble("GNUPLOT_XOFFSET") * i,
-							Config.getDouble("GNUPLOT_YOFFSET") * i,
-							this.distPlotType);
+
+				// determine plot type
+				DistributionPlotType type = this.distPlotType;
+				if (type != null) {
+					if (type.equals(DistributionPlotType.distANDcdf)) {
+						if (this.cdfPlot)
+							type = DistributionPlotType.cdfOnly;
+						else
+							type = DistributionPlotType.distOnly;
+					}
+				}
+
+				// get line
+				line = this.data[i].getEntry(i + 1,
+						Config.getInt("GNUPLOT_LW"),
+						Config.getDouble("GNUPLOT_XOFFSET") * i,
+						Config.getDouble("GNUPLOT_YOFFSET") * i,
+						this.distPlotType);
 				line = line.replace("filledcurves", "filledcurves y1=0");
 				if (i == 0) {
 					line = "plot " + line;
@@ -760,19 +741,21 @@ public class Plot {
 			}
 			for (int i = 0; i < this.data.length; i++) {
 				String line = "";
-				if (this.config.getDistPlotType() == null)
-					line = this.data[i].getEntry(i + 1,
-							Config.getInt("GNUPLOT_LW"),
-							this.config.getxOffset() * i,
-							this.config.getyOffset() * i,
-							this.config.getStyle());
-				else
-					line = this.data[i].getEntry(i + 1,
-							Config.getInt("GNUPLOT_LW"),
-							this.config.getxOffset() * i,
-							this.config.getyOffset() * i,
-							this.config.getDistPlotType(),
-							this.config.getStyle());
+
+				// determine plot type
+				DistributionPlotType type = this.config.getDistPlotType();
+				if (type.equals(DistributionPlotType.distANDcdf)) {
+					if (this.cdfPlot)
+						type = DistributionPlotType.cdfOnly;
+					else
+						type = DistributionPlotType.distOnly;
+				}
+
+				// get line
+				line = this.data[i].getEntry(i + 1,
+						Config.getInt("GNUPLOT_LW"), this.config.getxOffset()
+								* i, this.config.getyOffset() * i, type,
+						this.config.getStyle());
 				line = line.replace("filledcurves", "filledcurves y1=0");
 				if (i == 0) {
 					line = "plot " + line;
