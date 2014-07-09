@@ -671,7 +671,7 @@ public class Plotting {
 										line.setDataLocation(
 												PlotDataLocation.dataFile,
 												Dir.getAggregatedMetricDataDir(
-														seriesData[i].getDir(),
+														seriesData[k].getDir(),
 														timestamp, d)
 														+ Files.getDistributionFilename(dist));
 									line.setPlotAsCdf(true);
@@ -688,7 +688,7 @@ public class Plotting {
 												.setDataLocation(
 														PlotDataLocation.dataFile,
 														Dir.getAggregatedMetricDataDir(
-																seriesData[i]
+																seriesData[k]
 																		.getDir(),
 																timestamp, d)
 																+ Files.getDistributionFilename(dist));
@@ -823,7 +823,7 @@ public class Plotting {
 									line.setDataLocation(
 											PlotDataLocation.dataFile,
 											Dir.getAggregatedMetricDataDir(
-													seriesData[i].getDir(),
+													seriesData[k].getDir(),
 													timestamp, d)
 													+ Files.getNodeValueListFilename(nvl));
 								dataList.add(line);
