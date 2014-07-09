@@ -19,7 +19,6 @@ import dna.plot.data.PlotData.NodeValueListOrderBy;
 import dna.plot.data.PlotData.PlotDataLocation;
 import dna.plot.data.PlotData.PlotStyle;
 import dna.plot.data.PlotData.PlotType;
-import dna.series.SeriesStats;
 import dna.series.aggdata.AggregatedBatch;
 import dna.series.aggdata.AggregatedBatch.BatchReadMode;
 import dna.series.aggdata.AggregatedDistribution;
@@ -2784,8 +2783,8 @@ public class Plotting {
 					// where d1(x) is the plotdata of d1 at timestamp x
 					for (int i = 0; i < batches.length; i++) {
 						for (int j = 0; j < valuesCount; j++) {
-							if (plotDist)
-								data[i * valuesCount + j] = PlotData
+							if (plotDist) {
+								PlotData d = PlotData
 										.get(values[j],
 												domains[j],
 												style,
@@ -2793,6 +2792,18 @@ public class Plotting {
 														+ PlotConfig.customPlotDomainDelimiter
 														+ values[j] + " @ "
 														+ timestamps[i], type);
+								if (!Config
+										.getBoolean("GNUPLOT_DATA_IN_SCRIPT"))
+									d.setDataLocation(
+											PlotDataLocation.dataFile,
+											Dir.getMetricDataDir(
+													Dir.getBatchDataDir(
+															aggrDir,
+															(long) timestamps[i]),
+													domains[j])
+													+ Files.getDistributionFilename(values[j]));
+								data[i * valuesCount + j] = d;
+							}
 							if (plotCdf) {
 								PlotData dCdf = PlotData
 										.get(values[j],
@@ -2802,6 +2813,16 @@ public class Plotting {
 														+ PlotConfig.customPlotDomainDelimiter
 														+ values[j] + " @ "
 														+ timestamps[i], type);
+								if (!Config
+										.getBoolean("GNUPLOT_DATA_IN_SCRIPT"))
+									dCdf.setDataLocation(
+											PlotDataLocation.dataFile,
+											Dir.getMetricDataDir(
+													Dir.getBatchDataDir(
+															aggrDir,
+															(long) timestamps[i]),
+													domains[j])
+													+ Files.getDistributionFilename(values[j]));
 								dCdf.setPlotAsCdf(true);
 								dataCdf[i * valuesCount + j] = dCdf;
 							}
@@ -2932,7 +2953,7 @@ public class Plotting {
 					// where d1(x) is the plotdata of d1 at timestamp x
 					for (int i = 0; i < batches.length; i++) {
 						for (int j = 0; j < valuesCount; j++) {
-							data[i * valuesCount + j] = PlotData
+							PlotData d = PlotData
 									.get(values[j],
 											domains[j],
 											style,
@@ -2940,6 +2961,15 @@ public class Plotting {
 													+ PlotConfig.customPlotDomainDelimiter
 													+ values[j] + " @ "
 													+ timestamps[i], type);
+							if (!Config.getBoolean("GNUPLOT_DATA_IN_SCRIPT"))
+								d.setDataLocation(
+										PlotDataLocation.dataFile,
+										Dir.getMetricDataDir(Dir
+												.getBatchDataDir(aggrDir,
+														(long) timestamps[i]),
+												domains[j])
+												+ Files.getNodeValueListFilename(values[j]));
+							data[i * valuesCount + j] = d;
 						}
 					}
 
@@ -3018,43 +3048,6 @@ public class Plotting {
 		for (Plot p : plots) {
 			p.close();
 			p.execute();
-		}
-	}
-
-	/** Plot statistics **/
-	private static void plotStatistics(AggregatedBatch[] batchData,
-			AggregatedValueList values, String dstDir, String title,
-			PlotStyle style, PlotType type) throws IOException,
-			InterruptedException {
-		Log.infoSep();
-		Log.info("Plotting values:");
-		for (String value : SeriesStats.statisticsToPlot) {
-			if (values.getNames().contains(value)) {
-				Log.info("\tplotting '" + value + "'");
-
-				// get plot data
-				PlotData valuePlotData = PlotData.get(value,
-						PlotConfig.customPlotDomainStatistics, style, title,
-						type);
-
-				// create plot
-				Plot valuePlot = new Plot(dstDir, PlotFilenames.getValuesPlot(
-						Config.get("PREFIX_STATS_PLOT"), value),
-						PlotFilenames.getValuesGnuplotScript(
-								Config.get("PREFIX_STATS_PLOT"), value), value
-								+ " (" + type + ")",
-						new PlotData[] { valuePlotData });
-
-				// write header
-				valuePlot.writeScriptHeader();
-
-				// append data
-				valuePlot.addData(batchData);
-
-				// close and execute
-				valuePlot.close();
-				valuePlot.execute();
-			}
 		}
 	}
 
