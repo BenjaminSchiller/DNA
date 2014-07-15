@@ -35,8 +35,8 @@ public class NodeValueListSelection extends StartNodeSelectionStrategy {
 		this.nvl = nvl.getValues();
 		this.nvlOrder = nvlOrder;
 		if (nvlOrder != NodeValueListOrderBy.median
-				|| nvlOrder != NodeValueListOrderBy.minimum
-				|| nvlOrder != NodeValueListOrderBy.maximum) {
+				&& nvlOrder != NodeValueListOrderBy.minimum
+				&& nvlOrder != NodeValueListOrderBy.maximum) {
 			throw new IllegalArgumentException(
 					"The NodeValueList based start node selection only accepts lists sorted by minimum, maximum or average.");
 		}
