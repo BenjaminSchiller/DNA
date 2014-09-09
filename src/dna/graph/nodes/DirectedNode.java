@@ -30,9 +30,12 @@ public class DirectedNode extends Node {
 
 	@Override
 	public void init(GraphDataStructure gds) {
-		this.in = (IEdgeListDatastructure) gds.newList(ListType.LocalInEdgeList);
-		this.out = (IEdgeListDatastructure) gds.newList(ListType.LocalOutEdgeList);
-		this.neighbors = (INodeListDatastructure) gds.newList(ListType.LocalNodeList);
+		this.in = (IEdgeListDatastructure) gds
+				.newList(ListType.LocalInEdgeList);
+		this.out = (IEdgeListDatastructure) gds
+				.newList(ListType.LocalOutEdgeList);
+		this.neighbors = (INodeListDatastructure) gds
+				.newList(ListType.LocalNodeList);
 		this.all = Iterables.unmodifiableIterable(Iterables.concat(in, out));
 	}
 
@@ -41,8 +44,8 @@ public class DirectedNode extends Node {
 		if (!(eIn instanceof DirectedEdge))
 			return false;
 		DirectedEdge e = (DirectedEdge) eIn;
-		return e.getSrc().getIndex() == this.index && this.out.contains(e)
-				|| e.getDst().getIndex() == this.index && this.in.contains(e);
+		return e.getSrcIndex() == this.index && this.out.contains(e)
+				|| e.getDstIndex() == this.index && this.in.contains(e);
 	}
 
 	@Override
@@ -139,22 +142,26 @@ public class DirectedNode extends Node {
 		switch (type) {
 		case GlobalEdgeList:
 		case GlobalNodeList:
-			System.err.println("A node is not responsible for changing global lists!");
+			System.err
+					.println("A node is not responsible for changing global lists!");
 			break;
 		case LocalEdgeList:
 			// Not longer available here
 			break;
 		case LocalNodeList:
-			this.neighbors = (INodeListDatastructure) ((INodeListDatastructureReadable) this.neighbors).switchTo(newDatastructure);
+			this.neighbors = (INodeListDatastructure) ((INodeListDatastructureReadable) this.neighbors)
+					.switchTo(newDatastructure);
 			break;
 		case LocalInEdgeList:
-			this.in = (IEdgeListDatastructure) ((IEdgeListDatastructureReadable) this.in).switchTo(newDatastructure);
+			this.in = (IEdgeListDatastructure) ((IEdgeListDatastructureReadable) this.in)
+					.switchTo(newDatastructure);
 			break;
 		case LocalOutEdgeList:
-			this.out = (IEdgeListDatastructure) ((IEdgeListDatastructureReadable) this.out).switchTo(newDatastructure);
+			this.out = (IEdgeListDatastructure) ((IEdgeListDatastructureReadable) this.out)
+					.switchTo(newDatastructure);
 			break;
 		default:
-			break;		
+			break;
 		}
 	}
 }
