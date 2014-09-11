@@ -923,13 +923,14 @@ public class Plotting {
 
 				// iterate over series
 				for (int i = 0; i < seriesData.length; i++) {
-					seriesDataQuantities[i] = 1;
-
 					// iterate over metrics
 					if (initBatches[i].getMetrics().getNames().contains(metric)) {
 						// iterate over distributions
 						if (initBatches[i].getMetrics().get(metric)
 								.getDistributions().getNames().contains(dist)) {
+
+							// set data quantity
+							seriesDataQuantities[i] = 1;
 
 							// create plot data
 							for (int j = 0; j < batches.length; j++) {
@@ -1063,13 +1064,14 @@ public class Plotting {
 
 				// iterate over series
 				for (int i = 0; i < seriesData.length; i++) {
-					seriesDataQuantities[i] = 1;
-
 					// iterate over metrics
 					if (initBatches[i].getMetrics().getNames().contains(metric)) {
 						// iterate over distributions
 						if (initBatches[i].getMetrics().get(metric)
 								.getNodeValues().getNames().contains(nvl)) {
+
+							// set data quantity
+							seriesDataQuantities[i] = 1;
 
 							// create plot data
 							for (int j = 0; j < batches.length; j++) {
