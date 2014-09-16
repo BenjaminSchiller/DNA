@@ -624,7 +624,6 @@ public class PlottingConfig {
 				cfg.setDomains(dList.toArray(new String[0]));
 			}
 		}
-
 	}
 
 	/**
@@ -641,6 +640,40 @@ public class PlottingConfig {
 			AggregatedBatch batch) {
 		PlottingConfig
 				.replaceWildcards(config, new AggregatedBatch[] { batch });
+	}
+
+	/**
+	 * Clones the PlottingConfig object and overwrites the plot flags by the
+	 * given PlotFlags.
+	 * 
+	 * @param flags
+	 *            PlotFlags to be set in the new PlottingConfig object.
+	 * @return
+	 */
+	public PlottingConfig clone(PlotFlag... flags) {
+		// set plot flags
+		PlottingConfig tempConfig = new PlottingConfig(flags);
+
+		// set properties
+		tempConfig.setDistPlotType(this.getDistPlotType());
+		tempConfig.setNvlOrder(this.getNvlOrder());
+		tempConfig.setNvlOrderBy(this.getNvlOrderBy());
+		tempConfig.setPlotStyle(this.getPlotStyle());
+		tempConfig.setPlotType(this.getPlotType());
+
+		// set interval
+		if (this.isIntervalByIndex())
+			tempConfig.setPlotIntervalByIndex((int) this.getPlotFrom(),
+					(int) this.getPlotTo(), (int) this.getStepsize());
+		else
+			tempConfig.setPlotInterval(this.getPlotFrom(), this.getPlotTo(),
+					this.getStepsize());
+
+		// if custom plots are enabled by default, read them
+		if (Config.getBoolean("CUSTOM_PLOTS_ENABLED"))
+			tempConfig.createCustomPlotsFromConfig();
+
+		return tempConfig;
 	}
 
 	// getters and setters
@@ -803,10 +836,6 @@ public class PlottingConfig {
 
 	public ArrayList<PlotConfig> getCustomValuePlots() {
 		return customValuePlots;
-	}
-
-	public void setCustomValuePlots(ArrayList<PlotConfig> customValuePlots) {
-		this.customValuePlots = customValuePlots;
 	}
 
 	public boolean isPlotCustomValues() {
