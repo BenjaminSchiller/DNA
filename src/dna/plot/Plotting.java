@@ -121,8 +121,9 @@ public class Plotting {
 		boolean plotRuntimes = config.isPlotRuntimes();
 
 		// gather relevant batches
-		String[] batches = Dir.getBatchesFromTo(seriesData[0].getDir(),
-				plotFrom, plotTo, stepsize, intervalByIndex);
+		String[] batches = Dir.getBatchesFromTo(
+				Dir.getAggregationDataDir(seriesData[0].getDir()), plotFrom,
+				plotTo, stepsize, intervalByIndex);
 
 		for (int i = 0; i < seriesData.length; i++) {
 			String tempDir = Dir.getAggregationDataDir(seriesData[i].getDir());
