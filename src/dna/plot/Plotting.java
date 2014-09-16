@@ -2092,16 +2092,19 @@ public class Plotting {
 	 *            Ending of the timestamp interval to be plotted.
 	 * @param stepsize
 	 *            Stepsize of the batches to be plotted.
+	 * @param flags
+	 *            (Optional) Flags that define which will be plotted. If empty
+	 *            all flags will be set.
 	 * @throws IOException
 	 *             Thrown by writer.
 	 * @throws InterruptedException
 	 *             Thrown by executing gnuplot.
 	 */
 	public static void plotFromTo(SeriesData seriesData, String dstDir,
-			long timestampFrom, long timestampTo, long stepsize)
-			throws IOException, InterruptedException {
+			long timestampFrom, long timestampTo, long stepsize,
+			PlotFlag... flags) throws IOException, InterruptedException {
 		Plotting.plotFromTo(new SeriesData[] { seriesData }, dstDir,
-				timestampFrom, timestampTo, stepsize);
+				timestampFrom, timestampTo, stepsize, flags);
 	}
 
 	/**
@@ -2144,16 +2147,25 @@ public class Plotting {
 	 *            Ending of the timestamp interval to be plotted.
 	 * @param stepsize
 	 *            Stepsize of the batches to be plotted.
+	 * @param flags
+	 *            (Optional) Flags that define which will be plotted. If empty
+	 *            all flags will be set.
 	 * @throws IOException
 	 *             Thrown by writer.
 	 * @throws InterruptedException
 	 *             Thrown by executing gnuplot.
 	 */
 	public static void plotFromTo(SeriesData[] seriesData, String dstDir,
-			long timestampFrom, long timestampTo, long stepsize)
-			throws IOException, InterruptedException {
+			long timestampFrom, long timestampTo, long stepsize,
+			PlotFlag... flags) throws IOException, InterruptedException {
 		// craft config
-		PlottingConfig config = new PlottingConfig(PlotFlag.plotAll);
+		PlottingConfig config;
+		if (flags.length == 0)
+			config = new PlottingConfig(PlotFlag.plotAll);
+		else
+			config = new PlottingConfig(flags);
+
+		// set plotting interval
 		config.setPlotInterval(timestampFrom, timestampTo, stepsize);
 
 		// call plotting method
@@ -2173,16 +2185,19 @@ public class Plotting {
 	 *            Index of the last batch to be plotted.
 	 * @param stepsize
 	 *            Stepsize of the batches to be plotted.
+	 * @param flags
+	 *            (Optional) Flags that define which will be plotted. If empty
+	 *            all flags will be set.
 	 * @throws IOException
 	 *             Thrown by writer.
 	 * @throws InterruptedException
 	 *             Thrown by executing gnuplot.
 	 */
 	public static void plotFromToByIndex(SeriesData seriesData, String dstDir,
-			int indexFrom, int indexTo, int stepsize) throws IOException,
-			InterruptedException {
+			int indexFrom, int indexTo, int stepsize, PlotFlag... flags)
+			throws IOException, InterruptedException {
 		Plotting.plotFromToByIndex(new SeriesData[] { seriesData }, dstDir,
-				indexFrom, indexTo, stepsize);
+				indexFrom, indexTo, stepsize, flags);
 	}
 
 	/**
@@ -2288,17 +2303,24 @@ public class Plotting {
 	 * @param stepsize
 	 *            Stepsize of the batches to be plotted.
 	 * @param flags
-	 *            Flags that define which will be plotted.
+	 *            (Optional) Flags that define which will be plotted. If empty
+	 *            all flags will be set.
 	 * @throws IOException
 	 *             Thrown by writer.
 	 * @throws InterruptedException
 	 *             Thrown by executing gnuplot.
 	 */
 	public static void plotFromToByIndex(SeriesData[] seriesData,
-			String dstDir, int indexFrom, int indexTo, int stepsize)
-			throws IOException, InterruptedException {
+			String dstDir, int indexFrom, int indexTo, int stepsize,
+			PlotFlag... flags) throws IOException, InterruptedException {
 		// craft config
-		PlottingConfig config = new PlottingConfig(PlotFlag.plotAll);
+		PlottingConfig config;
+		if (flags.length == 0)
+			config = new PlottingConfig(PlotFlag.plotAll);
+		else
+			config = new PlottingConfig(flags);
+
+		// set plotting interval
 		config.setPlotIntervalByIndex(indexFrom, indexTo, stepsize);
 
 		// call plotting method
