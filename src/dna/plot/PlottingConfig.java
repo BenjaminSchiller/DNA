@@ -50,9 +50,10 @@ public class PlottingConfig {
 	private boolean plotCustomValues;
 
 	// interval selection
-	private long timestampFrom;
-	private long timestampTo;
+	private long plotFrom;
+	private long plotTo;
 	private long stepsize;
+	private boolean intervalByIndex;
 
 	// constructors
 	public PlottingConfig(PlotType plotType, PlotStyle plotStyle,
@@ -61,8 +62,8 @@ public class PlottingConfig {
 			NodeValueListOrderBy nvlOrderBy, PlotFlag... flags) {
 		this.plotType = plotType;
 		this.plotStyle = plotStyle;
-		this.timestampFrom = timestampFrom;
-		this.timestampTo = timestampTo;
+		this.plotFrom = timestampFrom;
+		this.plotTo = timestampTo;
 		this.stepsize = stepsize;
 		this.distPlotType = distPlotType;
 		this.nvlOrder = nvlOrder;
@@ -82,6 +83,8 @@ public class PlottingConfig {
 		this.plotDistributions = false;
 		this.plotNodeValueLists = false;
 		this.plotCustomValues = false;
+
+		this.intervalByIndex = false;
 
 		// check plot flags
 		for (PlotFlag flag : flags) {
@@ -278,7 +281,7 @@ public class PlottingConfig {
 				if (domain.equals(PlotConfig.customPlotDomainFunction)) {
 					continue;
 				}
-				
+
 				// check if contained in batches
 				if (PlottingConfig.isContained(domain, value, batches)) {
 					useful = true;
@@ -349,7 +352,7 @@ public class PlottingConfig {
 		for (AggregatedBatch b : batches) {
 			if (b.getMetrics().getNames().contains(domain)) {
 				AggregatedMetric m = b.getMetrics().get(domain);
-					
+
 				// if value
 				if (m.getValues().getNames().contains(value)) {
 					contained = true;
@@ -721,23 +724,57 @@ public class PlottingConfig {
 		this.plotNodeValueLists = plotNodeValueLists;
 	}
 
+	/**
+	 * Sets the plotting interval [timestampFrom:timestampTo] with the specified
+	 * stepsize. Intervals are based on the timestamps of the batches.
+	 * 
+	 * @param timestamoFrom
+	 *            Timestamp of first batch to be plotted.
+	 * @param timestampTo
+	 *            Timestamp of last batch to be plotted.
+	 * @param stepsize
+	 *            Stepsize between batches.
+	 */
 	public void setPlotInterval(long timestampFrom, long timestampTo,
 			long stepsize) {
-		this.timestampFrom = timestampFrom;
-		this.timestampTo = timestampTo;
+		this.plotFrom = timestampFrom;
+		this.plotTo = timestampTo;
 		this.stepsize = stepsize;
+		this.intervalByIndex = false;
 	}
 
-	public long getTimestampFrom() {
-		return timestampFrom;
+	/**
+	 * Sets the plotting interval [indexFrom:indexTo] with the specified
+	 * stepsize. Intervals are based on batches indexes.
+	 * 
+	 * @param indexFrom
+	 *            Index of first batch to be plotted.
+	 * @param indexTo
+	 *            Index of last batch to be plotted.
+	 * @param stepsize
+	 *            Stepsize between batches.
+	 */
+	public void setPlotIntervalByIndex(int indexFrom, int indexTo, int stepsize) {
+		this.plotFrom = indexFrom;
+		this.plotTo = indexTo;
+		this.stepsize = stepsize;
+		this.intervalByIndex = true;
 	}
 
-	public long getTimestampTo() {
-		return timestampTo;
+	public long getPlotFrom() {
+		return plotFrom;
+	}
+
+	public long getPlotTo() {
+		return plotTo;
 	}
 
 	public long getStepsize() {
 		return stepsize;
+	}
+
+	public boolean isIntervalByIndex() {
+		return intervalByIndex;
 	}
 
 	public ArrayList<String> getGeneralRuntimes() {

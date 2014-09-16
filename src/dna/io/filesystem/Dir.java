@@ -11,6 +11,7 @@ import dna.io.filter.PrefixFilenameFilter;
 import dna.metrics.Metric.MetricType;
 import dna.series.SeriesGeneration;
 import dna.util.Config;
+import dna.util.Log;
 
 /**
  * 
@@ -98,46 +99,86 @@ public class Dir {
 	}
 
 	public static String[] getBatchesFromTo(String dir, long timestampFrom,
-			long timestampTo, long stepSize) {
-		// TODO: implement zipped batches support
+			long timestampTo, long stepSize, boolean intervalByIndex) {
+		// read batches from dir
 		String[] tempBatches = Dir.getBatches(dir);
-		long[] timestamps = new long[tempBatches.length];
 
-		// get timestamps
-		for (int i = 0; i < tempBatches.length; i++) {
-			String[] splits = tempBatches[i].split("\\.");
-			timestamps[i] = Long.parseLong(splits[splits.length - 1]);
-		}
+		// if interval by index
+		if (intervalByIndex) {
+			ArrayList<String> batchesList = new ArrayList<String>();
 
-		// sort timestamps
-		Arrays.sort(timestamps);
+			if (timestampTo > Integer.MAX_VALUE
+					|| timestampFrom > Integer.MAX_VALUE
+					|| stepSize > Integer.MAX_VALUE)
+				Log.error("Plotting interavl timestamps out of range. Take integers for plotting by index!");
 
-		// gather relevant batches
-		ArrayList<String> batchesList = new ArrayList<String>();
-		boolean firstBatch = true;
-		int counter = 0;
-		int firstBatchIndex = 0;
-		for (int i = 0; i < timestamps.length; i++) {
-			if (timestamps[i] < timestampFrom || timestamps[i] > timestampTo)
-				continue;
-			if (timestamps[i] >= timestampFrom) {
-				if (firstBatch) {
-					batchesList.add(Config.get("PREFIX_BATCHDATA_DIR")
-							+ timestamps[i]);
-					firstBatch = false;
-					firstBatchIndex = i;
-					counter = 1;
-				} else {
-					long offset = counter * stepSize;
-					if (i == firstBatchIndex + offset) {
+			// parse index
+			int indexFrom = (int) timestampFrom;
+			int indexTo = (int) timestampTo;
+			int step = (int) stepSize;
+
+			// if indexTo below zero, plot until lastbatch + indexTo
+			if (indexTo < 0)
+				indexTo = tempBatches.length + indexTo;
+
+			for (int i = indexFrom; i < indexTo; i += step) {
+				// if out of bounds, continue
+				if (i >= tempBatches.length)
+					continue;
+
+				// add to list
+				batchesList.add(tempBatches[i]);
+			}
+
+			if (batchesList.size() == 0) {
+				Log.warn("No batches found for plotting. Interval ["
+						+ indexFrom + ":" + indexTo + "] stepsize " + step);
+			}
+
+			return batchesList.toArray(new String[batchesList.size()]);
+		} else {
+			// if interval by timestamps
+			// init timestamps array
+			long[] timestamps = new long[tempBatches.length];
+
+			// get timestamps
+			for (int i = 0; i < tempBatches.length; i++) {
+				String[] splits = tempBatches[i].split("\\.");
+				timestamps[i] = Long.parseLong(splits[splits.length - 1]);
+			}
+
+			// sort timestamps
+			Arrays.sort(timestamps);
+
+			// gather relevant batches
+			ArrayList<String> batchesList = new ArrayList<String>();
+			boolean firstBatch = true;
+			int counter = 0;
+			int firstBatchIndex = 0;
+			for (int i = 0; i < timestamps.length; i++) {
+				if (timestamps[i] < timestampFrom
+						|| timestamps[i] > timestampTo)
+					continue;
+				if (timestamps[i] >= timestampFrom) {
+					if (firstBatch) {
 						batchesList.add(Config.get("PREFIX_BATCHDATA_DIR")
 								+ timestamps[i]);
-						counter++;
+						firstBatch = false;
+						firstBatchIndex = i;
+						counter = 1;
+					} else {
+						long offset = counter * stepSize;
+						if (i == firstBatchIndex + offset) {
+							batchesList.add(Config.get("PREFIX_BATCHDATA_DIR")
+									+ timestamps[i]);
+							counter++;
+						}
 					}
 				}
 			}
+
+			return batchesList.toArray(new String[batchesList.size()]);
 		}
-		return batchesList.toArray(new String[batchesList.size()]);
 	}
 
 	/*

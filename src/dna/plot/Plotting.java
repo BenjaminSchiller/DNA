@@ -101,9 +101,10 @@ public class Plotting {
 		// create dir
 		(new File(dstDir)).mkdirs();
 
-		long timestampFrom = config.getTimestampFrom();
-		long timestampTo = config.getTimestampTo();
+		long timestampFrom = config.getPlotFrom();
+		long timestampTo = config.getPlotTo();
 		long stepsize = config.getStepsize();
+		boolean intervalByIndex = config.isIntervalByIndex();
 		PlotType type = config.getPlotType();
 		PlotStyle style = config.getPlotStyle();
 		NodeValueListOrder order = config.getNvlOrder();
@@ -121,12 +122,12 @@ public class Plotting {
 
 		// gather relevant batches
 		String[] batches = Dir.getBatchesFromTo(seriesData[0].getDir(),
-				timestampFrom, timestampTo, stepsize);
+				timestampFrom, timestampTo, stepsize, intervalByIndex);
 
 		for (int i = 0; i < seriesData.length; i++) {
 			String tempDir = Dir.getAggregationDataDir(seriesData[i].getDir());
 			String[] tempBatches = Dir.getBatchesFromTo(tempDir, timestampFrom,
-					timestampTo, stepsize);
+					timestampTo, stepsize, intervalByIndex);
 			if (tempBatches.length > batches.length)
 				batches = tempBatches;
 		}
@@ -1907,9 +1908,10 @@ public class Plotting {
 			String dstDir, PlottingConfig config) throws IOException,
 			InterruptedException {
 		// read values from config
-		long timestampFrom = config.getTimestampFrom();
-		long timestampTo = config.getTimestampTo();
+		long plotFrom = config.getPlotFrom();
+		long plotTo = config.getPlotTo();
 		long stepsize = config.getStepsize();
+		boolean intervalByIndex = config.isIntervalByIndex();
 		PlotType type = config.getPlotType();
 		PlotStyle style = config.getPlotStyle();
 		NodeValueListOrder order = config.getNvlOrder();
@@ -1925,8 +1927,8 @@ public class Plotting {
 
 		// gather relevant batches
 		String tempDir = Dir.getAggregationDataDir(series.getDir());
-		String[] batches = Dir.getBatchesFromTo(tempDir, timestampFrom,
-				timestampTo, stepsize);
+		String[] batches = Dir.getBatchesFromTo(tempDir, plotFrom,
+				plotTo, stepsize, intervalByIndex);
 		double timestamps[] = new double[batches.length];
 		for (int i = 0; i < batches.length; i++) {
 			timestamps[i] = Dir.getTimestamp(batches[i]);
@@ -2132,6 +2134,64 @@ public class Plotting {
 			PlotFlag... flags) throws IOException, InterruptedException {
 		Plotting.plotFromTo(new SeriesData[] { seriesData }, dstDir,
 				timestampFrom, timestampTo, stepsize, flags);
+	}
+
+	/**
+	 * Plots the series to the destination dir.
+	 * 
+	 * @param seriesData
+	 *            SeriesData to be plotted.
+	 * @param dstDir
+	 *            Destination directory of the plots.
+	 * @param indexFrom
+	 *            Index of the first batch to be plotted.
+	 * @param indexTo
+	 *            Index of the last batch to be plotted.
+	 * @param stepsize
+	 *            Stepsize of the batches to be plotted.
+	 * @param flags
+	 *            Flags that define which will be plotted.
+	 * @throws IOException
+	 *             Thrown by writer.
+	 * @throws InterruptedException
+	 *             Thrown by executing gnuplot.
+	 */
+	public static void plotFromToByIndex(SeriesData[] seriesData,
+			String dstDir, int indexFrom, int indexTo, int stepsize,
+			PlotFlag... flags) throws IOException, InterruptedException {
+		// craft config
+		PlottingConfig config = new PlottingConfig(flags);
+		config.setPlotIntervalByIndex(indexFrom, indexTo, stepsize);
+
+		// call plotting method
+		Plotting.plotFromTo(seriesData, dstDir, config);
+	}
+
+	/**
+	 * Plots the series to the destination dir.
+	 * 
+	 * @param seriesData
+	 *            SeriesData to be plotted.
+	 * @param dstDir
+	 *            Destination directory of the plots.
+	 * @param indexFrom
+	 *            Index of the first batch to be plotted.
+	 * @param indexTo
+	 *            Index of the last batch to be plotted.
+	 * @param stepsize
+	 *            Stepsize of the batches to be plotted.
+	 * @param flags
+	 *            Flags that define which will be plotted.
+	 * @throws IOException
+	 *             Thrown by writer.
+	 * @throws InterruptedException
+	 *             Thrown by executing gnuplot.
+	 */
+	public static void plotFromToByIndex(SeriesData seriesData, String dstDir,
+			int indexFrom, int indexTo, int stepsize, PlotFlag... flags)
+			throws IOException, InterruptedException {
+		Plotting.plotFromToByIndex(new SeriesData[] { seriesData }, dstDir,
+				indexFrom, indexTo, stepsize, flags);
 	}
 
 	/**
