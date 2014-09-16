@@ -101,8 +101,8 @@ public class Plotting {
 		// create dir
 		(new File(dstDir)).mkdirs();
 
-		long timestampFrom = config.getPlotFrom();
-		long timestampTo = config.getPlotTo();
+		long plotFrom = config.getPlotFrom();
+		long plotTo = config.getPlotTo();
 		long stepsize = config.getStepsize();
 		boolean intervalByIndex = config.isIntervalByIndex();
 		PlotType type = config.getPlotType();
@@ -122,12 +122,12 @@ public class Plotting {
 
 		// gather relevant batches
 		String[] batches = Dir.getBatchesFromTo(seriesData[0].getDir(),
-				timestampFrom, timestampTo, stepsize, intervalByIndex);
+				plotFrom, plotTo, stepsize, intervalByIndex);
 
 		for (int i = 0; i < seriesData.length; i++) {
 			String tempDir = Dir.getAggregationDataDir(seriesData[i].getDir());
-			String[] tempBatches = Dir.getBatchesFromTo(tempDir, timestampFrom,
-					timestampTo, stepsize, intervalByIndex);
+			String[] tempBatches = Dir.getBatchesFromTo(tempDir, plotFrom,
+					plotTo, stepsize, intervalByIndex);
 			if (tempBatches.length > batches.length)
 				batches = tempBatches;
 		}
