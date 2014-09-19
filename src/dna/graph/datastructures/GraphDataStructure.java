@@ -807,6 +807,10 @@ public class GraphDataStructure implements Cloneable {
 
 		return res;
 	}
+	
+	public String toString(){
+		return this.getStorageDataStructures(true);
+	}
 
 	public boolean isReadable() {
 		return IReadable.class
