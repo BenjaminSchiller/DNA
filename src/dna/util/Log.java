@@ -9,7 +9,7 @@ public class Log {
 
 	// log levels
 	public static enum LogLevel {
-		error, warn, info, debug
+		off, error, warn, info, debug
 	};
 
 	private static LogLevel logLevel = LogLevel.info;
@@ -23,7 +23,11 @@ public class Log {
 	}
 
 	public static void error(String msg) {
-		System.err.println(Log.errorPrefix + msg.replace("\n", "\n error: "));
+		if (logLevel == LogLevel.error || logLevel == LogLevel.warn
+				|| logLevel == LogLevel.info || logLevel == LogLevel.debug) {
+			System.err.println(Log.errorPrefix
+					+ msg.replace("\n", "\n error: "));
+		}
 	}
 
 	public static void warn(String msg) {
