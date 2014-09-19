@@ -34,6 +34,9 @@ public class RandomEdgeExchange extends BatchGenerator {
 		HashSet<Edge> removedEdges = new HashSet<Edge>();
 		HashSet<Edge> addedEdges = new HashSet<Edge>();
 		while (b.getSize() / 4 < this.edges && fails < this.maxFails) {
+			if (fails > this.maxFails) {
+				break;
+			}
 			if (g.getGraphDatastructures().getEdgeType()
 					.isAssignableFrom(DirectedEdge.class)) {
 				DirectedEdge e1 = (DirectedEdge) g.getRandomEdge();
@@ -57,10 +60,18 @@ public class RandomEdgeExchange extends BatchGenerator {
 					fails++;
 					continue;
 				}
+				if (g.containsEdge(e1_) || g.containsEdge(e2_)) {
+					fails++;
+					continue;
+				}
 				b.add(new EdgeRemoval(e1));
 				b.add(new EdgeRemoval(e2));
 				b.add(new EdgeAddition(e1_));
 				b.add(new EdgeAddition(e2_));
+				removedEdges.add(e1);
+				removedEdges.add(e2);
+				addedEdges.add(e1_);
+				addedEdges.add(e2_);
 			} else if (g.getGraphDatastructures().getEdgeType()
 					.isAssignableFrom(UndirectedEdge.class)) {
 				UndirectedEdge e1 = (UndirectedEdge) g.getRandomEdge();
@@ -84,10 +95,18 @@ public class RandomEdgeExchange extends BatchGenerator {
 					fails++;
 					continue;
 				}
+				if (g.containsEdge(e1_) || g.containsEdge(e2_)) {
+					fails++;
+					continue;
+				}
 				b.add(new EdgeRemoval(e1));
 				b.add(new EdgeRemoval(e2));
 				b.add(new EdgeAddition(e1_));
 				b.add(new EdgeAddition(e2_));
+				removedEdges.add(e1);
+				removedEdges.add(e2);
+				addedEdges.add(e1_);
+				addedEdges.add(e2_);
 			}
 		}
 
