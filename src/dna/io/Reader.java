@@ -19,14 +19,23 @@ import dna.util.Config;
 public class Reader {
 	protected BufferedReader reader;
 
-	public static boolean skipComments = true;
+	private boolean skipComments;
+
+	private String commentPrefix;
 
 	public Reader(String dir, String filename) throws FileNotFoundException {
-		this.reader = new BufferedReader(new FileReader(dir + filename));
+		this(dir, filename, Config.get("COMMENT_PREFIX"), true);
 	}
-	
+
+	public Reader(String dir, String filename, String commentPrefix,
+			boolean skipComments) throws FileNotFoundException {
+		this.reader = new BufferedReader(new FileReader(dir + filename));
+		this.skipComments = skipComments;
+		this.commentPrefix = commentPrefix;
+	}
+
 	public Reader() {
-		
+
 	}
 
 	public String readString() throws IOException {
@@ -34,7 +43,7 @@ public class Reader {
 		if (line == null) {
 			return null;
 		}
-		if (skipComments && line.startsWith(Config.get("COMMENT_PREFIX"))) {
+		if (this.skipComments && line.startsWith(this.commentPrefix)) {
 			return this.readString();
 		}
 		return line;
