@@ -485,6 +485,15 @@ public class Plot {
 			}
 		}
 
+		// replace normal variables with unique dummy variables, in case normal
+		// variables contain mathematical symbols like '-'
+		String[] varsTemp = new String[vars.length];
+		System.arraycopy(vars, 0, varsTemp, 0, vars.length);
+		for (int i = 0; i < vars.length; i++) {
+			varsTemp[i] = PlotConfig.dummyVariable + i;
+			expression = expression.replace(vars[i], varsTemp[i]);
+		}
+
 		// parse expression
 		Expr expr = null;
 		try {
@@ -500,7 +509,7 @@ public class Plot {
 		// define variables
 		Variable[] variables = new Variable[vars.length];
 		for (int i = 0; i < variables.length; i++) {
-			variables[i] = Variable.make(vars[i]);
+			variables[i] = Variable.make(varsTemp[i]);
 		}
 
 		// only print warning message once

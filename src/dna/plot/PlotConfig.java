@@ -89,6 +89,9 @@ public class PlotConfig {
 	public static String customPlotWildcard = "*";
 	public static String customPlotDomainDelimiter = "~";
 
+	// DUMMY VARIABLE
+	public static String dummyVariable = "DUMMYVARIABLEREPLACEMENT";
+
 	// DEFAULT CONFIG KEYS
 	public static String gnuplotDefaultKeyKey = "GNUPLOT_KEY";
 	public static String gnuplotDefaultKeyCdfKey = "GNUPLOT_KEY_CDF";
