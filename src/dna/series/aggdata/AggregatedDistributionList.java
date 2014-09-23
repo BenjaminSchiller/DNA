@@ -59,7 +59,8 @@ public class AggregatedDistributionList extends List<AggregatedDistribution> {
 						.equals(Config.get("SUFFIX_DIST_BINNED"))) {
 					list.add(AggregatedBinnedDistribution.read(dir,
 							distribution,
-							Files.getDistributionName(distribution), readValues));
+							Files.getDistributionBinnedName(distribution),
+							readValues));
 				}
 			} catch (IndexOutOfBoundsException e) {
 				Log.warn("Attempting to read distribution " + distribution

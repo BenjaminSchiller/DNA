@@ -21,6 +21,7 @@ import dna.plot.data.PlotData.PlotStyle;
 import dna.plot.data.PlotData.PlotType;
 import dna.series.aggdata.AggregatedBatch;
 import dna.series.aggdata.AggregatedBatch.BatchReadMode;
+import dna.series.aggdata.AggregatedBinnedDistribution;
 import dna.series.aggdata.AggregatedDistribution;
 import dna.series.aggdata.AggregatedDistributionList;
 import dna.series.aggdata.AggregatedMetric;
@@ -317,6 +318,16 @@ public class Plotting {
 								if (initBatches[j].getMetrics().get(domain)
 										.getDistributions().getNames()
 										.contains(value)) {
+									String distFilename;
+									if (initBatches[j].getMetrics().get(domain)
+											.getDistributions().get(value) instanceof AggregatedBinnedDistribution) {
+										distFilename = Files
+												.getDistributionBinnedFilename(value);
+									} else {
+										distFilename = Files
+												.getDistributionFilename(value);
+									}
+
 									// set title
 									String title;
 									if (simpleTitles)
@@ -333,14 +344,15 @@ public class Plotting {
 										PlotData data = PlotData.get(value,
 												domain, style, title, type);
 										if (!Config
-												.getBoolean("GNUPLOT_DATA_IN_SCRIPT"))
+												.getBoolean("GNUPLOT_DATA_IN_SCRIPT")
+												&& !singleFile)
 											data.setDataLocation(
 													PlotDataLocation.dataFile,
 													Dir.getAggregatedMetricDataDir(
-															seriesData[i]
+															seriesData[j]
 																	.getDir(),
 															timestamp, domain)
-															+ Files.getDistributionFilename(value));
+															+ distFilename);
 										dataList.add(data);
 									}
 									if (plotCdf) {
@@ -348,14 +360,15 @@ public class Plotting {
 												domain, style, title, type);
 										data.setPlotAsCdf(true);
 										if (!Config
-												.getBoolean("GNUPLOT_DATA_IN_SCRIPT"))
+												.getBoolean("GNUPLOT_DATA_IN_SCRIPT")
+												&& !singleFile)
 											data.setDataLocation(
 													PlotDataLocation.dataFile,
 													Dir.getAggregatedMetricDataDir(
-															seriesData[i]
+															seriesData[j]
 																	.getDir(),
 															timestamp, domain)
-															+ Files.getDistributionFilename(value));
+															+ distFilename);
 										cdfDataList.add(data);
 									}
 									if (i == 0)
@@ -483,7 +496,8 @@ public class Plotting {
 									PlotData line = PlotData.get(value, domain,
 											style, title, type);
 									if (!Config
-											.getBoolean("GNUPLOT_DATA_IN_SCRIPT"))
+											.getBoolean("GNUPLOT_DATA_IN_SCRIPT")
+											&& !singleFile)
 										line.setDataLocation(
 												PlotDataLocation.dataFile,
 												Dir.getAggregatedMetricDataDir(
@@ -663,19 +677,31 @@ public class Plotting {
 							if (initBatch.getMetrics().get(d)
 									.getDistributions().getNames()
 									.contains(dist)) {
+								// get dist filename
+								String distFilename;
+								if (initBatch.getMetrics().get(d)
+										.getDistributions().get(dist) instanceof AggregatedBinnedDistribution) {
+									distFilename = Files
+											.getDistributionBinnedFilename(dist);
+								} else {
+									distFilename = Files
+											.getDistributionFilename(dist);
+								}
+
 								// create "line" in plot for each batch
 								if (plotDist) {
 									PlotData line = PlotData.get(dist, d,
 											style, lineTitle + " @ "
 													+ timestamps[j], type);
 									if (!Config
-											.getBoolean("GNUPLOT_DATA_IN_SCRIPT"))
+											.getBoolean("GNUPLOT_DATA_IN_SCRIPT")
+											&& !singleFile)
 										line.setDataLocation(
 												PlotDataLocation.dataFile,
 												Dir.getAggregatedMetricDataDir(
 														seriesData[k].getDir(),
 														timestamp, d)
-														+ Files.getDistributionFilename(dist));
+														+ distFilename);
 									line.setPlotAsCdf(true);
 									dataList.add(line);
 								}
@@ -685,15 +711,14 @@ public class Plotting {
 													+ timestamps[j], type);
 									cdfPlotData.setPlotAsCdf(true);
 									if (!Config
-											.getBoolean("GNUPLOT_DATA_IN_SCRIPT"))
-										cdfPlotData
-												.setDataLocation(
-														PlotDataLocation.dataFile,
-														Dir.getAggregatedMetricDataDir(
-																seriesData[k]
-																		.getDir(),
-																timestamp, d)
-																+ Files.getDistributionFilename(dist));
+											.getBoolean("GNUPLOT_DATA_IN_SCRIPT")
+											&& !singleFile)
+										cdfPlotData.setDataLocation(
+												PlotDataLocation.dataFile,
+												Dir.getAggregatedMetricDataDir(
+														seriesData[k].getDir(),
+														timestamp, d)
+														+ distFilename);
 									cdfDataList.add(cdfPlotData);
 								}
 								if (j == 0)
@@ -821,7 +846,8 @@ public class Plotting {
 										.get(nvl, d, style, lineTitle + " @ "
 												+ timestamps[j], type);
 								if (!Config
-										.getBoolean("GNUPLOT_DATA_IN_SCRIPT"))
+										.getBoolean("GNUPLOT_DATA_IN_SCRIPT")
+										&& !singleFile)
 									line.setDataLocation(
 											PlotDataLocation.dataFile,
 											Dir.getAggregatedMetricDataDir(
@@ -930,6 +956,16 @@ public class Plotting {
 						// iterate over distributions
 						if (initBatches[i].getMetrics().get(metric)
 								.getDistributions().getNames().contains(dist)) {
+							// get filename
+							String distFilename;
+							if (initBatches[i].getMetrics().get(metric)
+									.getDistributions().get(dist) instanceof AggregatedBinnedDistribution) {
+								distFilename = Files
+										.getDistributionBinnedFilename(dist);
+							} else {
+								distFilename = Files
+										.getDistributionFilename(dist);
+							}
 
 							// set data quantity
 							seriesDataQuantities[i] = 1;
@@ -949,13 +985,14 @@ public class Plotting {
 									PlotData data = PlotData.get(dist, metric,
 											style, title, type);
 									if (!Config
-											.getBoolean("GNUPLOT_DATA_IN_SCRIPT"))
+											.getBoolean("GNUPLOT_DATA_IN_SCRIPT")
+											&& !singleFile)
 										data.setDataLocation(
 												PlotDataLocation.dataFile,
 												Dir.getAggregatedMetricDataDir(
 														seriesData[i].getDir(),
 														timestamp, metric)
-														+ Files.getDistributionFilename(dist));
+														+ distFilename);
 									dataList.add(data);
 								}
 								if (plotCdf) {
@@ -963,13 +1000,14 @@ public class Plotting {
 											style, title, type);
 									data.setPlotAsCdf(true);
 									if (!Config
-											.getBoolean("GNUPLOT_DATA_IN_SCRIPT"))
+											.getBoolean("GNUPLOT_DATA_IN_SCRIPT")
+											&& !singleFile)
 										data.setDataLocation(
 												PlotDataLocation.dataFile,
 												Dir.getAggregatedMetricDataDir(
 														seriesData[i].getDir(),
 														timestamp, metric)
-														+ Files.getDistributionFilename(dist));
+														+ distFilename);
 									dataListCdf.add(data);
 								}
 							}
@@ -1089,7 +1127,8 @@ public class Plotting {
 								PlotData data = PlotData.get(nvl, metric,
 										style, title, type);
 								if (!Config
-										.getBoolean("GNUPLOT_DATA_IN_SCRIPT"))
+										.getBoolean("GNUPLOT_DATA_IN_SCRIPT")
+										&& !singleFile)
 									data.setDataLocation(
 											PlotDataLocation.dataFile,
 											Dir.getAggregatedMetricDataDir(
@@ -3045,6 +3084,16 @@ public class Plotting {
 					String distribution = d.getName();
 					Log.info("\tplotting distribution '" + distribution + "'");
 
+					// get dist filename
+					String distFilename;
+					if (d instanceof AggregatedBinnedDistribution) {
+						distFilename = Files.getDistributionBinnedFilename(d
+								.getName());
+					} else {
+						distFilename = Files.getDistributionFilename(d
+								.getName());
+					}
+
 					// check what to plot
 					boolean plotDist = false;
 					boolean plotCdf = false;
@@ -3067,16 +3116,15 @@ public class Plotting {
 						for (int i = 0; i < batches.length; i++) {
 							dPlotData[i] = PlotData.get(distribution, metric,
 									style, title + " @ " + timestamps[i], type);
-							if (!Config.getBoolean("GNUPLOT_DATA_IN_SCRIPT"))
-								dPlotData[i]
-										.setDataLocation(
-												PlotDataLocation.dataFile,
-												Dir.getMetricDataDir(
-														Dir.getBatchDataDir(
-																aggrDir,
-																(long) timestamps[i]),
-														metric)
-														+ Files.getDistributionFilename(distribution));
+							if (!Config.getBoolean("GNUPLOT_DATA_IN_SCRIPT")
+									&& !singleFile)
+								dPlotData[i].setDataLocation(
+										PlotDataLocation.dataFile,
+										Dir.getMetricDataDir(Dir
+												.getBatchDataDir(aggrDir,
+														(long) timestamps[i]),
+												metric)
+												+ distFilename);
 						}
 						Plot p = new Plot(dstDir,
 								PlotFilenames.getDistributionPlot(metric,
@@ -3100,16 +3148,15 @@ public class Plotting {
 									metric, style, title + " @ "
 											+ timestamps[i], type);
 							cdfPlotData.setPlotAsCdf(true);
-							if (!Config.getBoolean("GNUPLOT_DATA_IN_SCRIPT"))
-								cdfPlotData
-										.setDataLocation(
-												PlotDataLocation.dataFile,
-												Dir.getMetricDataDir(
-														Dir.getBatchDataDir(
-																aggrDir,
-																(long) timestamps[i]),
-														metric)
-														+ Files.getDistributionFilename(distribution));
+							if (!Config.getBoolean("GNUPLOT_DATA_IN_SCRIPT")
+									&& !singleFile)
+								cdfPlotData.setDataLocation(
+										PlotDataLocation.dataFile,
+										Dir.getMetricDataDir(Dir
+												.getBatchDataDir(aggrDir,
+														(long) timestamps[i]),
+												metric)
+												+ distFilename);
 							dPlotDataCDF[i] = cdfPlotData;
 						}
 						Plot p = new Plot(dstDir,
@@ -3144,7 +3191,8 @@ public class Plotting {
 					for (int i = 0; i < batches.length; i++) {
 						PlotData plotData = PlotData.get(nodevaluelist, metric,
 								style, title + " @ " + timestamps[i], type);
-						if (!Config.getBoolean("GNUPLOT_DATA_IN_SCRIPT"))
+						if (!Config.getBoolean("GNUPLOT_DATA_IN_SCRIPT")
+								&& !singleFile)
 							plotData.setDataLocation(
 									PlotDataLocation.dataFile,
 									Dir.getMetricDataDir(Dir.getBatchDataDir(
@@ -3258,6 +3306,16 @@ public class Plotting {
 					// where d1(x) is the plotdata of d1 at timestamp x
 					for (int i = 0; i < batches.length; i++) {
 						for (int j = 0; j < valuesCount; j++) {
+							String distFilename;
+							if (initBatch.getMetrics().get(domains[j])
+									.getDistributions().get(values[j]) instanceof AggregatedBinnedDistribution) {
+								distFilename = Files
+										.getDistributionBinnedFilename(values[j]);
+							} else {
+								distFilename = Files
+										.getDistributionFilename(values[j]);
+							}
+
 							if (plotDist) {
 								PlotData d = PlotData
 										.get(values[j],
@@ -3268,7 +3326,8 @@ public class Plotting {
 														+ values[j] + " @ "
 														+ timestamps[i], type);
 								if (!Config
-										.getBoolean("GNUPLOT_DATA_IN_SCRIPT"))
+										.getBoolean("GNUPLOT_DATA_IN_SCRIPT")
+										&& !singleFile)
 									d.setDataLocation(
 											PlotDataLocation.dataFile,
 											Dir.getMetricDataDir(
@@ -3276,7 +3335,7 @@ public class Plotting {
 															aggrDir,
 															(long) timestamps[i]),
 													domains[j])
-													+ Files.getDistributionFilename(values[j]));
+													+ distFilename);
 								data[i * valuesCount + j] = d;
 							}
 							if (plotCdf) {
@@ -3289,7 +3348,8 @@ public class Plotting {
 														+ values[j] + " @ "
 														+ timestamps[i], type);
 								if (!Config
-										.getBoolean("GNUPLOT_DATA_IN_SCRIPT"))
+										.getBoolean("GNUPLOT_DATA_IN_SCRIPT")
+										&& !singleFile)
 									dCdf.setDataLocation(
 											PlotDataLocation.dataFile,
 											Dir.getMetricDataDir(
@@ -3297,7 +3357,7 @@ public class Plotting {
 															aggrDir,
 															(long) timestamps[i]),
 													domains[j])
-													+ Files.getDistributionFilename(values[j]));
+													+ distFilename);
 								dCdf.setPlotAsCdf(true);
 								dataCdf[i * valuesCount + j] = dCdf;
 							}
@@ -3436,7 +3496,8 @@ public class Plotting {
 													+ PlotConfig.customPlotDomainDelimiter
 													+ values[j] + " @ "
 													+ timestamps[i], type);
-							if (!Config.getBoolean("GNUPLOT_DATA_IN_SCRIPT"))
+							if (!Config.getBoolean("GNUPLOT_DATA_IN_SCRIPT")
+									&& !singleFile)
 								d.setDataLocation(
 										PlotDataLocation.dataFile,
 										Dir.getMetricDataDir(Dir
