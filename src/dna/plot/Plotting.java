@@ -21,6 +21,7 @@ import dna.plot.data.PlotData.PlotStyle;
 import dna.plot.data.PlotData.PlotType;
 import dna.series.aggdata.AggregatedBatch;
 import dna.series.aggdata.AggregatedBatch.BatchReadMode;
+import dna.series.aggdata.AggregatedBinnedDistribution;
 import dna.series.aggdata.AggregatedDistribution;
 import dna.series.aggdata.AggregatedDistributionList;
 import dna.series.aggdata.AggregatedMetric;
@@ -317,6 +318,16 @@ public class Plotting {
 								if (initBatches[j].getMetrics().get(domain)
 										.getDistributions().getNames()
 										.contains(value)) {
+									String distFilename;
+									if (initBatches[i].getMetrics().get(domain)
+											.getDistributions().get(value) instanceof AggregatedBinnedDistribution) {
+										distFilename = Files
+												.getDistributionBinnedFilename(value);
+									} else {
+										distFilename = Files
+												.getDistributionFilename(value);
+									}
+
 									// set title
 									String title;
 									if (simpleTitles)
@@ -340,7 +351,7 @@ public class Plotting {
 															seriesData[i]
 																	.getDir(),
 															timestamp, domain)
-															+ Files.getDistributionFilename(value));
+															+ distFilename);
 										dataList.add(data);
 									}
 									if (plotCdf) {
@@ -355,7 +366,7 @@ public class Plotting {
 															seriesData[i]
 																	.getDir(),
 															timestamp, domain)
-															+ Files.getDistributionFilename(value));
+															+ distFilename);
 										cdfDataList.add(data);
 									}
 									if (i == 0)
@@ -930,6 +941,16 @@ public class Plotting {
 						// iterate over distributions
 						if (initBatches[i].getMetrics().get(metric)
 								.getDistributions().getNames().contains(dist)) {
+							// get filename
+							String distFilename;
+							if (initBatches[i].getMetrics().get(metric)
+									.getDistributions().get(dist) instanceof AggregatedBinnedDistribution) {
+								distFilename = Files
+										.getDistributionBinnedFilename(dist);
+							} else {
+								distFilename = Files
+										.getDistributionFilename(dist);
+							}
 
 							// set data quantity
 							seriesDataQuantities[i] = 1;
@@ -955,7 +976,7 @@ public class Plotting {
 												Dir.getAggregatedMetricDataDir(
 														seriesData[i].getDir(),
 														timestamp, metric)
-														+ Files.getDistributionFilename(dist));
+														+ distFilename);
 									dataList.add(data);
 								}
 								if (plotCdf) {
@@ -969,7 +990,7 @@ public class Plotting {
 												Dir.getAggregatedMetricDataDir(
 														seriesData[i].getDir(),
 														timestamp, metric)
-														+ Files.getDistributionFilename(dist));
+														+ distFilename);
 									dataListCdf.add(data);
 								}
 							}
@@ -3045,6 +3066,16 @@ public class Plotting {
 					String distribution = d.getName();
 					Log.info("\tplotting distribution '" + distribution + "'");
 
+					// get dist filename
+					String distFilename;
+					if (d instanceof AggregatedBinnedDistribution) {
+						distFilename = Files.getDistributionBinnedFilename(d
+								.getName());
+					} else {
+						distFilename = Files.getDistributionFilename(d
+								.getName());
+					}
+
 					// check what to plot
 					boolean plotDist = false;
 					boolean plotCdf = false;
@@ -3068,15 +3099,13 @@ public class Plotting {
 							dPlotData[i] = PlotData.get(distribution, metric,
 									style, title + " @ " + timestamps[i], type);
 							if (!Config.getBoolean("GNUPLOT_DATA_IN_SCRIPT"))
-								dPlotData[i]
-										.setDataLocation(
-												PlotDataLocation.dataFile,
-												Dir.getMetricDataDir(
-														Dir.getBatchDataDir(
-																aggrDir,
-																(long) timestamps[i]),
-														metric)
-														+ Files.getDistributionFilename(distribution));
+								dPlotData[i].setDataLocation(
+										PlotDataLocation.dataFile,
+										Dir.getMetricDataDir(Dir
+												.getBatchDataDir(aggrDir,
+														(long) timestamps[i]),
+												metric)
+												+ distFilename);
 						}
 						Plot p = new Plot(dstDir,
 								PlotFilenames.getDistributionPlot(metric,
@@ -3101,15 +3130,13 @@ public class Plotting {
 											+ timestamps[i], type);
 							cdfPlotData.setPlotAsCdf(true);
 							if (!Config.getBoolean("GNUPLOT_DATA_IN_SCRIPT"))
-								cdfPlotData
-										.setDataLocation(
-												PlotDataLocation.dataFile,
-												Dir.getMetricDataDir(
-														Dir.getBatchDataDir(
-																aggrDir,
-																(long) timestamps[i]),
-														metric)
-														+ Files.getDistributionFilename(distribution));
+								cdfPlotData.setDataLocation(
+										PlotDataLocation.dataFile,
+										Dir.getMetricDataDir(Dir
+												.getBatchDataDir(aggrDir,
+														(long) timestamps[i]),
+												metric)
+												+ distFilename);
 							dPlotDataCDF[i] = cdfPlotData;
 						}
 						Plot p = new Plot(dstDir,
