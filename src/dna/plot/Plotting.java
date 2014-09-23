@@ -344,7 +344,8 @@ public class Plotting {
 										PlotData data = PlotData.get(value,
 												domain, style, title, type);
 										if (!Config
-												.getBoolean("GNUPLOT_DATA_IN_SCRIPT"))
+												.getBoolean("GNUPLOT_DATA_IN_SCRIPT")
+												&& !singleFile)
 											data.setDataLocation(
 													PlotDataLocation.dataFile,
 													Dir.getAggregatedMetricDataDir(
@@ -359,7 +360,8 @@ public class Plotting {
 												domain, style, title, type);
 										data.setPlotAsCdf(true);
 										if (!Config
-												.getBoolean("GNUPLOT_DATA_IN_SCRIPT"))
+												.getBoolean("GNUPLOT_DATA_IN_SCRIPT")
+												&& !singleFile)
 											data.setDataLocation(
 													PlotDataLocation.dataFile,
 													Dir.getAggregatedMetricDataDir(
@@ -494,7 +496,8 @@ public class Plotting {
 									PlotData line = PlotData.get(value, domain,
 											style, title, type);
 									if (!Config
-											.getBoolean("GNUPLOT_DATA_IN_SCRIPT"))
+											.getBoolean("GNUPLOT_DATA_IN_SCRIPT")
+											&& !singleFile)
 										line.setDataLocation(
 												PlotDataLocation.dataFile,
 												Dir.getAggregatedMetricDataDir(
@@ -691,7 +694,8 @@ public class Plotting {
 											style, lineTitle + " @ "
 													+ timestamps[j], type);
 									if (!Config
-											.getBoolean("GNUPLOT_DATA_IN_SCRIPT"))
+											.getBoolean("GNUPLOT_DATA_IN_SCRIPT")
+											&& !singleFile)
 										line.setDataLocation(
 												PlotDataLocation.dataFile,
 												Dir.getAggregatedMetricDataDir(
@@ -707,7 +711,8 @@ public class Plotting {
 													+ timestamps[j], type);
 									cdfPlotData.setPlotAsCdf(true);
 									if (!Config
-											.getBoolean("GNUPLOT_DATA_IN_SCRIPT"))
+											.getBoolean("GNUPLOT_DATA_IN_SCRIPT")
+											&& !singleFile)
 										cdfPlotData.setDataLocation(
 												PlotDataLocation.dataFile,
 												Dir.getAggregatedMetricDataDir(
@@ -841,7 +846,8 @@ public class Plotting {
 										.get(nvl, d, style, lineTitle + " @ "
 												+ timestamps[j], type);
 								if (!Config
-										.getBoolean("GNUPLOT_DATA_IN_SCRIPT"))
+										.getBoolean("GNUPLOT_DATA_IN_SCRIPT")
+										&& !singleFile)
 									line.setDataLocation(
 											PlotDataLocation.dataFile,
 											Dir.getAggregatedMetricDataDir(
@@ -979,7 +985,8 @@ public class Plotting {
 									PlotData data = PlotData.get(dist, metric,
 											style, title, type);
 									if (!Config
-											.getBoolean("GNUPLOT_DATA_IN_SCRIPT"))
+											.getBoolean("GNUPLOT_DATA_IN_SCRIPT")
+											&& !singleFile)
 										data.setDataLocation(
 												PlotDataLocation.dataFile,
 												Dir.getAggregatedMetricDataDir(
@@ -993,7 +1000,8 @@ public class Plotting {
 											style, title, type);
 									data.setPlotAsCdf(true);
 									if (!Config
-											.getBoolean("GNUPLOT_DATA_IN_SCRIPT"))
+											.getBoolean("GNUPLOT_DATA_IN_SCRIPT")
+											&& !singleFile)
 										data.setDataLocation(
 												PlotDataLocation.dataFile,
 												Dir.getAggregatedMetricDataDir(
@@ -1119,7 +1127,8 @@ public class Plotting {
 								PlotData data = PlotData.get(nvl, metric,
 										style, title, type);
 								if (!Config
-										.getBoolean("GNUPLOT_DATA_IN_SCRIPT"))
+										.getBoolean("GNUPLOT_DATA_IN_SCRIPT")
+										&& !singleFile)
 									data.setDataLocation(
 											PlotDataLocation.dataFile,
 											Dir.getAggregatedMetricDataDir(
@@ -3107,7 +3116,8 @@ public class Plotting {
 						for (int i = 0; i < batches.length; i++) {
 							dPlotData[i] = PlotData.get(distribution, metric,
 									style, title + " @ " + timestamps[i], type);
-							if (!Config.getBoolean("GNUPLOT_DATA_IN_SCRIPT"))
+							if (!Config.getBoolean("GNUPLOT_DATA_IN_SCRIPT")
+									&& !singleFile)
 								dPlotData[i].setDataLocation(
 										PlotDataLocation.dataFile,
 										Dir.getMetricDataDir(Dir
@@ -3138,7 +3148,8 @@ public class Plotting {
 									metric, style, title + " @ "
 											+ timestamps[i], type);
 							cdfPlotData.setPlotAsCdf(true);
-							if (!Config.getBoolean("GNUPLOT_DATA_IN_SCRIPT"))
+							if (!Config.getBoolean("GNUPLOT_DATA_IN_SCRIPT")
+									&& !singleFile)
 								cdfPlotData.setDataLocation(
 										PlotDataLocation.dataFile,
 										Dir.getMetricDataDir(Dir
@@ -3180,7 +3191,8 @@ public class Plotting {
 					for (int i = 0; i < batches.length; i++) {
 						PlotData plotData = PlotData.get(nodevaluelist, metric,
 								style, title + " @ " + timestamps[i], type);
-						if (!Config.getBoolean("GNUPLOT_DATA_IN_SCRIPT"))
+						if (!Config.getBoolean("GNUPLOT_DATA_IN_SCRIPT")
+								&& !singleFile)
 							plotData.setDataLocation(
 									PlotDataLocation.dataFile,
 									Dir.getMetricDataDir(Dir.getBatchDataDir(
@@ -3314,7 +3326,8 @@ public class Plotting {
 														+ values[j] + " @ "
 														+ timestamps[i], type);
 								if (!Config
-										.getBoolean("GNUPLOT_DATA_IN_SCRIPT"))
+										.getBoolean("GNUPLOT_DATA_IN_SCRIPT")
+										&& !singleFile)
 									d.setDataLocation(
 											PlotDataLocation.dataFile,
 											Dir.getMetricDataDir(
@@ -3335,7 +3348,8 @@ public class Plotting {
 														+ values[j] + " @ "
 														+ timestamps[i], type);
 								if (!Config
-										.getBoolean("GNUPLOT_DATA_IN_SCRIPT"))
+										.getBoolean("GNUPLOT_DATA_IN_SCRIPT")
+										&& !singleFile)
 									dCdf.setDataLocation(
 											PlotDataLocation.dataFile,
 											Dir.getMetricDataDir(
@@ -3482,7 +3496,8 @@ public class Plotting {
 													+ PlotConfig.customPlotDomainDelimiter
 													+ values[j] + " @ "
 													+ timestamps[i], type);
-							if (!Config.getBoolean("GNUPLOT_DATA_IN_SCRIPT"))
+							if (!Config.getBoolean("GNUPLOT_DATA_IN_SCRIPT")
+									&& !singleFile)
 								d.setDataLocation(
 										PlotDataLocation.dataFile,
 										Dir.getMetricDataDir(Dir
