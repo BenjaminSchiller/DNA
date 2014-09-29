@@ -9,6 +9,7 @@ import dna.graph.IElement;
 import dna.graph.edges.UndirectedEdge;
 import dna.graph.nodes.UndirectedNode;
 import dna.metrics.motifs.UndirectedMotifs;
+import dna.metricsNew.IMetricNew;
 import dna.updates.batch.Batch;
 import dna.updates.update.EdgeAddition;
 import dna.updates.update.EdgeRemoval;
@@ -68,7 +69,7 @@ public class UndirectedMotifsInMemoryU extends UndirectedMotifs {
 
 	public UndirectedMotifsInMemoryU() {
 		super("UndirectedMotifsInMemoryU", ApplicationType.AfterUpdate,
-				MetricType.exact);
+				IMetricNew.MetricType.exact);
 	}
 
 	@Override

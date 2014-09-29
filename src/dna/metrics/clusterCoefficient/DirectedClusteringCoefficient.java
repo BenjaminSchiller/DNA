@@ -5,6 +5,7 @@ import dna.graph.IElement;
 import dna.graph.datastructures.GraphDataStructure;
 import dna.graph.nodes.DirectedNode;
 import dna.metrics.Metric;
+import dna.metricsNew.MetricNew;
 import dna.updates.batch.Batch;
 import dna.util.ArrayUtils;
 
@@ -24,7 +25,7 @@ public abstract class DirectedClusteringCoefficient extends
 	GraphDataStructure gds;
 
 	public DirectedClusteringCoefficient(String name, ApplicationType type,
-			MetricType mType) {
+			MetricNew.MetricType mType) {
 		super(name, type, mType);
 	}
 

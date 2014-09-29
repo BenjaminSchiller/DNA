@@ -4,7 +4,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 import dna.io.filesystem.Dir;
-import dna.metrics.Metric.MetricType;
+import dna.metricsNew.IMetricNew;
+import dna.metricsNew.IMetricNew.MetricType;
 import dna.series.aggdata.AggregatedBatch.BatchReadMode;
 import dna.series.aggdata.AggregatedSeries;
 import dna.series.lists.MetricDataList;
@@ -148,9 +149,9 @@ public class SeriesData {
 		for (MetricData metric : this.getRuns().get(0).getBatches().get(0)
 				.getMetrics().getList()) {
 			if (metric.getType() != null) {
-				if (metric.getType().equals(MetricType.exact))
+				if (metric.getType().equals(IMetricNew.MetricType.exact))
 					exacts.add(metric);
-				if (metric.getType().equals(MetricType.heuristic))
+				if (metric.getType().equals(IMetricNew.MetricType.heuristic))
 					heuristics.add(metric);
 			}
 		}

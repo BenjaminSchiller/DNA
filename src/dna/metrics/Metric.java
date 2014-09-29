@@ -1,6 +1,7 @@
 package dna.metrics;
 
 import dna.graph.Graph;
+import dna.metricsNew.MetricNew;
 import dna.series.data.Distribution;
 import dna.series.data.MetricData;
 import dna.series.data.NodeNodeValueList;
@@ -15,10 +16,6 @@ public abstract class Metric extends ParameterList {
 
 	public static enum ApplicationType {
 		BeforeBatch, AfterBatch, BeforeAndAfterBatch, BeforeUpdate, AfterUpdate, BeforeAndAfterUpdate, BatchAndUpdates, Recomputation
-	}
-
-	public static enum MetricType {
-		exact, heuristic, quality, unknown
 	}
 
 	public boolean isAppliedBeforeBatch() {
@@ -49,7 +46,7 @@ public abstract class Metric extends ParameterList {
 		return this.type == ApplicationType.Recomputation;
 	}
 
-	public Metric(String name, ApplicationType type, MetricType metricType,
+	public Metric(String name, ApplicationType type, MetricNew.MetricType metricType,
 			Parameter... p) {
 		super(name, p);
 		this.type = type;
@@ -57,7 +54,7 @@ public abstract class Metric extends ParameterList {
 		this.timestamp = Long.MIN_VALUE;
 	}
 
-	public Metric(String name, ApplicationType type, MetricType metricType,
+	public Metric(String name, ApplicationType type, MetricNew.MetricType metricType,
 			Parameter[] params, Parameter... p) {
 		super(name, combine(params, p));
 		this.type = type;
@@ -103,9 +100,9 @@ public abstract class Metric extends ParameterList {
 		this.g = g;
 	}
 
-	protected MetricType metricType;
+	protected MetricNew.MetricType metricType;
 
-	public MetricType getMetricType() {
+	public MetricNew.MetricType getMetricType() {
 		return this.metricType;
 	}
 

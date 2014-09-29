@@ -1,7 +1,6 @@
 package dna.metricsNew;
 
 import dna.graph.Graph;
-import dna.metrics.Metric.MetricType;
 import dna.series.data.Distribution;
 import dna.series.data.MetricData;
 import dna.series.data.NodeNodeValueList;
@@ -10,6 +9,11 @@ import dna.series.data.Value;
 import dna.updates.batch.Batch;
 
 public interface IMetricNew {
+
+	public static enum MetricType {
+		exact, heuristic, quality, unknown
+	}
+
 	public Graph getGraph();
 
 	public void setGraph(Graph g);
@@ -22,7 +26,7 @@ public interface IMetricNew {
 
 	public String getDescription();
 
-	public MetricType getMetricType();
+	public MetricNew.MetricType getMetricType();
 
 	/**
 	 * 

@@ -38,7 +38,8 @@ import dna.graph.weights.IntWeight;
 import dna.graph.weights.Weight.WeightSelection;
 import dna.metrics.Metric;
 import dna.metrics.Metric.ApplicationType;
-import dna.metrics.Metric.MetricType;
+import dna.metricsNew.IMetricNew;
+import dna.metricsNew.IMetricNew.MetricType;
 import dna.profiler.Profiler;
 import dna.series.data.Distribution;
 import dna.series.data.NodeNodeValueList;
@@ -114,7 +115,7 @@ public class ProfilerTest {
 		this.graph = g.generate();
 
 		metric = new TestMetric("test", this.applicationType,
-				MetricType.unknown);
+				IMetricNew.MetricType.unknown);
 		metric.setGraph(graph);
 		this.metricKey = metric.getName();
 		if (applicationType != ApplicationType.Recomputation)
@@ -350,7 +351,7 @@ public class ProfilerTest {
 
 	private class TestMetric extends Metric {
 		public TestMetric(String name, ApplicationType type,
-				MetricType metricType) {
+				IMetricNew.MetricType metricType) {
 			super(name, type, metricType);
 		}
 

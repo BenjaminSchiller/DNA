@@ -2,6 +2,7 @@ package dna.metrics.util;
 
 import dna.graph.Graph;
 import dna.metrics.Metric;
+import dna.metricsNew.IMetricNew;
 import dna.series.data.Distribution;
 import dna.series.data.NodeNodeValueList;
 import dna.series.data.NodeValueList;
@@ -20,7 +21,7 @@ public class Recompute extends Metric {
 
 	public Recompute(Metric m, int steps) {
 		super(m.getName() + "_RECOMPUTE", ApplicationType.BatchAndUpdates,
-				MetricType.heuristic, new IntParameter("steps", steps));
+				IMetricNew.MetricType.heuristic, new IntParameter("steps", steps));
 		if (m.getApplicationType() == ApplicationType.Recomputation) {
 			throw new IllegalArgumentException("cannot use metric '"
 					+ m.getName() + "' of type '" + m.getApplicationType()

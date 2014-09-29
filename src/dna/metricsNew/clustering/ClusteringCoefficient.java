@@ -1,8 +1,8 @@
 package dna.metricsNew.clustering;
 
 import dna.graph.nodes.Node;
-import dna.metrics.Metric.MetricType;
 import dna.metricsNew.IMetricNew;
+import dna.metricsNew.IMetricNew.MetricType;
 import dna.metricsNew.MetricNew;
 import dna.series.data.Distribution;
 import dna.series.data.NodeNodeValueList;
@@ -28,7 +28,7 @@ public abstract class ClusteringCoefficient extends MetricNew {
 
 	protected long[] nodePotentialCount;
 
-	public ClusteringCoefficient(String name, MetricType metricType,
+	public ClusteringCoefficient(String name, IMetricNew.MetricType metricType,
 			Parameter... p) {
 		super(name, metricType, p);
 	}

@@ -11,6 +11,7 @@ import dna.graph.nodes.DirectedNode;
 import dna.graph.nodes.Node;
 import dna.graph.nodes.UndirectedNode;
 import dna.metrics.Metric;
+import dna.metricsNew.IMetricNew;
 import dna.series.data.Distribution;
 import dna.series.data.NodeNodeValueList;
 import dna.series.data.NodeValueList;
@@ -25,7 +26,7 @@ public abstract class RichClubConnectivityForOneDegree extends Metric {
 
 	public RichClubConnectivityForOneDegree(String name, ApplicationType type,
 			int minDegree) {
-		super(name, type, MetricType.exact);
+		super(name, type, IMetricNew.MetricType.exact);
 		this.minDegree = minDegree;
 	}
 

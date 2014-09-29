@@ -11,6 +11,7 @@ import dna.graph.nodes.DirectedNode;
 import dna.graph.nodes.Node;
 import dna.graph.nodes.UndirectedNode;
 import dna.metrics.Metric;
+import dna.metricsNew.MetricNew;
 import dna.util.parameters.Parameter;
 
 /**
@@ -26,7 +27,7 @@ import dna.util.parameters.Parameter;
 public abstract class WeakConnectivity extends Connectivity {
 
 	public WeakConnectivity(String name, ApplicationType type,
-			MetricType metricType, Parameter... p) {
+			MetricNew.MetricType metricType, Parameter... p) {
 		super(name, type, metricType, p);
 	}
 

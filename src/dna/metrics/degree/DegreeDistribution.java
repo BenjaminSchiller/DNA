@@ -3,6 +3,7 @@ package dna.metrics.degree;
 import dna.graph.nodes.DirectedNode;
 import dna.graph.nodes.UndirectedNode;
 import dna.metrics.Metric;
+import dna.metricsNew.MetricNew;
 import dna.series.data.Distribution;
 import dna.series.data.DistributionInt;
 import dna.series.data.NodeNodeValueList;
@@ -34,7 +35,7 @@ public abstract class DegreeDistribution extends Metric {
 	public static final String edgesName = "edges";
 
 	public DegreeDistribution(String name, ApplicationType type,
-			MetricType mType) {
+			MetricNew.MetricType mType) {
 		super(name, type, mType);
 	}
 

@@ -9,6 +9,7 @@ import dna.graph.datastructures.GraphDataStructure;
 import dna.graph.edges.UndirectedEdge;
 import dna.graph.nodes.UndirectedNode;
 import dna.metrics.Metric;
+import dna.metricsNew.MetricNew;
 import dna.series.data.Distribution;
 import dna.series.data.DistributionLong;
 import dna.series.data.NodeNodeValueList;
@@ -30,7 +31,7 @@ public abstract class UndirectedMotifs extends Metric {
 	GraphDataStructure gds;
 
 	public UndirectedMotifs(String name, ApplicationType type,
-			MetricType metricType) {
+			MetricNew.MetricType metricType) {
 		super(name, type, metricType);
 	}
 

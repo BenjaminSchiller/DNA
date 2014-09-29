@@ -8,6 +8,7 @@ import dna.graph.nodes.DirectedNode;
 import dna.graph.nodes.Node;
 import dna.graph.nodes.UndirectedNode;
 import dna.metrics.Metric;
+import dna.metricsNew.IMetricNew;
 import dna.series.data.Distribution;
 import dna.series.data.NodeNodeValueList;
 import dna.series.data.NodeValueList;
@@ -82,7 +83,7 @@ public abstract class Assortativity extends Metric {
 	 */
 	public Assortativity(String name, ApplicationType applicationType,
 			Parameter directedDegreeType) {
-		super(name, applicationType, MetricType.exact, directedDegreeType);
+		super(name, applicationType, IMetricNew.MetricType.exact, directedDegreeType);
 
 		this.directedDegreeType = this.getParameters()[0].getValue();
 	}

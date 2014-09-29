@@ -13,6 +13,7 @@ import dna.graph.nodes.Node;
 import dna.graph.nodes.UndirectedNode;
 import dna.graph.weights.DoubleWeight;
 import dna.metrics.Metric;
+import dna.metricsNew.IMetricNew;
 import dna.series.data.BinnedDistributionLong;
 import dna.series.data.NodeNodeValueList;
 import dna.series.data.NodeValueList;
@@ -65,7 +66,7 @@ public abstract class MeasuresDirectedDoubleWeighted extends Metric {
 	 */
 	public MeasuresDirectedDoubleWeighted(String name, ApplicationType type,
 			Parameter directedDegreeType) {
-		super(name, type, MetricType.exact, directedDegreeType);
+		super(name, type, IMetricNew.MetricType.exact, directedDegreeType);
 		this.directedDegreeType = this.getParameters()[0].getValue();
 	}
 

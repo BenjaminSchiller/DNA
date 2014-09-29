@@ -4,8 +4,8 @@ import dna.graph.Graph;
 import dna.graph.IElement;
 import dna.graph.nodes.DirectedNode;
 import dna.graph.nodes.UndirectedNode;
-import dna.metrics.Metric.MetricType;
 import dna.metricsNew.IMetricNew;
+import dna.metricsNew.IMetricNew.MetricType;
 import dna.metricsNew.MetricNew;
 import dna.series.data.Distribution;
 import dna.series.data.DistributionInt;
@@ -24,7 +24,7 @@ public abstract class DegreeDistribution extends MetricNew {
 
 	protected DistributionInt outDegree;
 
-	public DegreeDistribution(String name, MetricType metricType,
+	public DegreeDistribution(String name, IMetricNew.MetricType metricType,
 			Parameter... p) {
 		super(name, metricType, p);
 	}

@@ -5,7 +5,8 @@ import java.util.HashSet;
 import dna.graph.IElement;
 import dna.graph.edges.UndirectedEdge;
 import dna.graph.nodes.UndirectedNode;
-import dna.metrics.Metric.MetricType;
+import dna.metricsNew.IMetricNew;
+import dna.metricsNew.IMetricNew.MetricType;
 import dna.metricsNew.algorithms.IBeforeUpdates;
 import dna.updates.update.EdgeAddition;
 import dna.updates.update.EdgeRemoval;
@@ -17,7 +18,7 @@ public class UndirectedMotifsU extends UndirectedMotifs implements
 		IBeforeUpdates {
 
 	public UndirectedMotifsU() {
-		super("UndirectedMotifsU", MetricType.exact);
+		super("UndirectedMotifsU", IMetricNew.MetricType.exact);
 	}
 
 	@Override

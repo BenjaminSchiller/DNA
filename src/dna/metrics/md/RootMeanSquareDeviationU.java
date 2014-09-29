@@ -2,6 +2,7 @@ package dna.metrics.md;
 
 import dna.graph.weights.IWeightedNode;
 import dna.graph.weights.distances.EuclideanDistance;
+import dna.metricsNew.IMetricNew;
 import dna.updates.batch.Batch;
 import dna.updates.update.NodeWeight;
 import dna.updates.update.Update;
@@ -17,7 +18,7 @@ public class RootMeanSquareDeviationU extends RootMeanSquareDeviation {
 
 	public RootMeanSquareDeviationU() {
 		super("RootMeanSquareDeviationU", ApplicationType.BeforeBatch,
-				MetricType.exact);
+				IMetricNew.MetricType.exact);
 	}
 
 	@Override

@@ -13,6 +13,7 @@ import dna.graph.nodes.Node;
 import dna.graph.weights.IntWeight;
 import dna.metrics.Metric;
 import dna.metrics.similarityMeasures.Matrix;
+import dna.metricsNew.IMetricNew;
 import dna.series.data.BinnedDistributionLong;
 import dna.series.data.Distribution;
 import dna.series.data.NodeNodeValueList;
@@ -70,7 +71,7 @@ public abstract class MatchingDirectedIntWeighted extends Metric {
 	 */
 	public MatchingDirectedIntWeighted(String name, ApplicationType type,
 			Parameter directedDegreeType) {
-		super(name, type, MetricType.exact, directedDegreeType);
+		super(name, type, IMetricNew.MetricType.exact, directedDegreeType);
 		this.directedDegreeType = this.getParameters()[0].getValue();
 	}
 

@@ -15,6 +15,7 @@ import dna.graph.weights.IntWeight;
 import dna.graph.weights.Weight;
 import dna.graph.weights.distances.EuclideanDistance;
 import dna.metrics.Metric;
+import dna.metricsNew.MetricNew;
 import dna.series.data.BinnedDistributionInt;
 import dna.series.data.Distribution;
 import dna.series.data.NodeNodeValueList;
@@ -49,7 +50,7 @@ public abstract class RootMeanSquareFluctuation extends Metric {
 	protected int steps;
 
 	public RootMeanSquareFluctuation(String name, ApplicationType type,
-			MetricType metricType, int steps) {
+			MetricNew.MetricType metricType, int steps) {
 		super(name, type, metricType, new IntParameter("STEPS", steps));
 		this.steps = steps;
 	}

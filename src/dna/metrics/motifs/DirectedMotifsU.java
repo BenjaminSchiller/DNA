@@ -5,6 +5,7 @@ import java.util.HashSet;
 import dna.graph.IElement;
 import dna.graph.edges.DirectedEdge;
 import dna.graph.nodes.DirectedNode;
+import dna.metricsNew.IMetricNew;
 import dna.updates.batch.Batch;
 import dna.updates.update.EdgeAddition;
 import dna.updates.update.EdgeRemoval;
@@ -23,7 +24,7 @@ import dna.updates.update.Update;
 public class DirectedMotifsU extends DirectedMotifs {
 
 	public DirectedMotifsU() {
-		super("DirectedMotifsU", ApplicationType.BeforeUpdate, MetricType.exact);
+		super("DirectedMotifsU", ApplicationType.BeforeUpdate, IMetricNew.MetricType.exact);
 	}
 
 	@Override

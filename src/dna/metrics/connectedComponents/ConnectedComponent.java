@@ -9,6 +9,7 @@ import dna.graph.IElement;
 import dna.graph.edges.Edge;
 import dna.graph.nodes.Node;
 import dna.metrics.Metric;
+import dna.metricsNew.IMetricNew;
 import dna.series.data.Distribution;
 import dna.series.data.NodeNodeValueList;
 import dna.series.data.NodeValueList;
@@ -25,7 +26,7 @@ public abstract class ConnectedComponent extends Metric {
 	protected int counter;
 
 	public ConnectedComponent(String name, ApplicationType type) {
-		super(name, type, MetricType.exact);
+		super(name, type, IMetricNew.MetricType.exact);
 	}
 
 	@Override

@@ -9,6 +9,7 @@ import dna.graph.nodes.UndirectedNode;
 import dna.graph.weights.IntWeight;
 import dna.metrics.Metric;
 import dna.metrics.Metric.ApplicationType;
+import dna.metricsNew.IMetricNew;
 import dna.series.data.Distribution;
 import dna.series.data.NodeNodeValueList;
 import dna.series.data.NodeValueList;
@@ -94,7 +95,7 @@ public abstract class AssortativityIntWeighted extends Metric {
 	 */
 	public AssortativityIntWeighted(String name,
 			ApplicationType applicationType, Parameter directedDegreeType) {
-		super(name, applicationType, MetricType.exact, directedDegreeType);
+		super(name, applicationType, IMetricNew.MetricType.exact, directedDegreeType);
 
 		this.directedDegreeType = this.getParameters()[0].getValue();
 	}

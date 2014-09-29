@@ -1,13 +1,14 @@
 package dna.metricsNew.clustering;
 
-import dna.metrics.Metric.MetricType;
+import dna.metricsNew.IMetricNew;
+import dna.metricsNew.IMetricNew.MetricType;
 import dna.metricsNew.algorithms.IRecomputation;
 
 public class UndirectedClusteringCoefficientR extends
 		UndirectedClusteringCoefficient implements IRecomputation {
 
 	public UndirectedClusteringCoefficientR() {
-		super("UndirectedClusteringCoefficientR", MetricType.exact);
+		super("UndirectedClusteringCoefficientR", IMetricNew.MetricType.exact);
 	}
 
 	@Override

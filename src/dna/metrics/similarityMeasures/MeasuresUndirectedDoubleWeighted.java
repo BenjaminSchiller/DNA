@@ -11,6 +11,7 @@ import dna.graph.nodes.Node;
 import dna.graph.nodes.UndirectedNode;
 import dna.graph.weights.DoubleWeight;
 import dna.metrics.Metric;
+import dna.metricsNew.IMetricNew;
 import dna.series.data.BinnedDistributionLong;
 import dna.series.data.NodeNodeValueList;
 import dna.series.data.NodeValueList;
@@ -38,7 +39,7 @@ public abstract class MeasuresUndirectedDoubleWeighted extends Metric {
 	 */
 	public MeasuresUndirectedDoubleWeighted(String name,
 			ApplicationType applicationType) {
-		super(name, applicationType, MetricType.exact);
+		super(name, applicationType, IMetricNew.MetricType.exact);
 	}
 
 	/**

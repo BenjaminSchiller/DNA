@@ -15,6 +15,7 @@ import dna.graph.nodes.DirectedNode;
 import dna.graph.nodes.Node;
 import dna.graph.nodes.UndirectedNode;
 import dna.metrics.Metric;
+import dna.metricsNew.IMetricNew;
 import dna.series.data.Distribution;
 import dna.series.data.NodeNodeValueList;
 import dna.series.data.NodeValueList;
@@ -29,7 +30,7 @@ public abstract class RichClubConnectivitySizeN extends Metric {
 
 	public RichClubConnectivitySizeN(String name, ApplicationType type,
 			int richClubSize) {
-		super(name, type, MetricType.exact);
+		super(name, type, IMetricNew.MetricType.exact);
 		this.richClubSize = richClubSize;
 	}
 

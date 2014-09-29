@@ -10,6 +10,7 @@ import dna.graph.nodes.DirectedNode;
 import dna.graph.nodes.Node;
 import dna.graph.nodes.UndirectedNode;
 import dna.metrics.Metric;
+import dna.metricsNew.IMetricNew;
 import dna.series.data.BinnedDistributionDouble;
 import dna.series.data.Distribution;
 import dna.series.data.NodeNodeValueList;
@@ -28,7 +29,7 @@ public abstract class BetweenessCentrality extends Metric {
 	protected int sumShortestPaths;
 
 	public BetweenessCentrality(String name, ApplicationType type) {
-		super(name, type, MetricType.exact);
+		super(name, type, IMetricNew.MetricType.exact);
 	}
 
 	@Override

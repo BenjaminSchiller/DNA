@@ -2,6 +2,7 @@ package dna.metrics.clusterCoefficient;
 
 import dna.graph.nodes.Node;
 import dna.metrics.Metric;
+import dna.metricsNew.MetricNew;
 import dna.series.data.Distribution;
 import dna.series.data.NodeNodeValueList;
 import dna.series.data.NodeValueList;
@@ -22,7 +23,7 @@ import dna.util.DataUtils;
 public abstract class ClusteringCoefficient extends Metric {
 
 	public ClusteringCoefficient(String name, ApplicationType type,
-			MetricType mType) {
+			MetricNew.MetricType mType) {
 		super(name, type, mType);
 	}
 

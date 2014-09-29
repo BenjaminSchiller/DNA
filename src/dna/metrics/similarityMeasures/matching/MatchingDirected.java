@@ -10,6 +10,7 @@ import dna.graph.nodes.DirectedNode;
 import dna.graph.nodes.Node;
 import dna.metrics.Metric;
 import dna.metrics.similarityMeasures.Matrix;
+import dna.metricsNew.IMetricNew;
 import dna.series.data.BinnedDistributionLong;
 import dna.series.data.Distribution;
 import dna.series.data.NodeNodeValueList;
@@ -67,7 +68,7 @@ public abstract class MatchingDirected extends Metric {
 	 */
 	public MatchingDirected(String name, ApplicationType type,
 			Parameter directedDegreeType) {
-		super(name, type, MetricType.exact, directedDegreeType);
+		super(name, type, IMetricNew.MetricType.exact, directedDegreeType);
 		this.directedDegreeType = this.getParameters()[0].getValue();
 	}
 

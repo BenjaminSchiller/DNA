@@ -9,6 +9,7 @@ import dna.graph.edges.UndirectedEdge;
 import dna.graph.nodes.Node;
 import dna.graph.nodes.UndirectedNode;
 import dna.metrics.Metric;
+import dna.metricsNew.IMetricNew;
 import dna.series.data.BinnedDistributionLong;
 import dna.series.data.NodeNodeValueList;
 import dna.series.data.NodeValueList;
@@ -36,7 +37,7 @@ public abstract class MeasuresUndirectedUnweighted extends Metric {
 	 */
 	public MeasuresUndirectedUnweighted(String name,
 			ApplicationType applicationType) {
-		super(name, applicationType, MetricType.exact);
+		super(name, applicationType, IMetricNew.MetricType.exact);
 	}
 
 	/**

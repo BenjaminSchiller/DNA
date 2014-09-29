@@ -1,5 +1,6 @@
 package dna.metrics.connectivity;
 
+import dna.metricsNew.IMetricNew;
 import dna.updates.batch.Batch;
 import dna.updates.update.Update;
 
@@ -14,7 +15,7 @@ public class WeakConnectivityR extends WeakConnectivity {
 
 	public WeakConnectivityR() {
 		super("WeakConnectivityR", ApplicationType.Recomputation,
-				MetricType.exact);
+				IMetricNew.MetricType.exact);
 	}
 
 	@Override

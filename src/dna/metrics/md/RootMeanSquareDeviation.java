@@ -9,6 +9,7 @@ import dna.graph.weights.Int2dWeight;
 import dna.graph.weights.Int3dWeight;
 import dna.graph.weights.IntWeight;
 import dna.metrics.Metric;
+import dna.metricsNew.MetricNew;
 import dna.series.data.BinnedDistributionInt;
 import dna.series.data.Distribution;
 import dna.series.data.NodeNodeValueList;
@@ -40,7 +41,7 @@ public abstract class RootMeanSquareDeviation extends Metric {
 	protected BinnedDistributionInt distr;
 
 	public RootMeanSquareDeviation(String name, ApplicationType type,
-			MetricType metricType) {
+			MetricNew.MetricType metricType) {
 		super(name, type, metricType);
 	}
 

@@ -7,6 +7,7 @@ import dna.graph.edges.UndirectedEdge;
 import dna.graph.nodes.DirectedNode;
 import dna.graph.nodes.UndirectedNode;
 import dna.metrics.Metric;
+import dna.metricsNew.MetricNew;
 import dna.updates.batch.Batch;
 import dna.util.ArrayUtils;
 
@@ -28,7 +29,7 @@ public abstract class UndirectedClusteringCoefficient extends
 	GraphDataStructure gds;
 
 	public UndirectedClusteringCoefficient(String name, ApplicationType type,
-			MetricType mType) {
+			MetricNew.MetricType mType) {
 		super(name, type, mType);
 	}
 

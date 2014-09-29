@@ -1,7 +1,6 @@
-package dna.metrics;
+package dna.metricsNew;
 
 import dna.graph.Graph;
-import dna.metricsNew.IMetricNew;
 import dna.updates.batch.Batch;
 
 public class MetricNotApplicableException extends Exception {

@@ -13,6 +13,7 @@ import dna.graph.IElement;
 import dna.graph.edges.DirectedEdge;
 import dna.graph.nodes.DirectedNode;
 import dna.metrics.motifs.DirectedMotifs;
+import dna.metricsNew.IMetricNew;
 import dna.updates.batch.Batch;
 import dna.updates.update.EdgeAddition;
 import dna.updates.update.EdgeRemoval;
@@ -25,7 +26,7 @@ public class DirectedMotifsInMemoryU extends DirectedMotifs {
 
 	public DirectedMotifsInMemoryU() {
 		super("DirectedMotifsInMemoryU", ApplicationType.BeforeUpdate,
-				MetricType.exact);
+				IMetricNew.MetricType.exact);
 	}
 
 	private HashSet<Integer> allMotifs;

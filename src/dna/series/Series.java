@@ -4,8 +4,8 @@ import java.io.IOException;
 
 import dna.graph.Graph;
 import dna.graph.generators.GraphGenerator;
-import dna.metrics.MetricNotApplicableException;
 import dna.metricsNew.IMetricNew;
+import dna.metricsNew.MetricNotApplicableException;
 import dna.series.aggdata.AggregatedBatch.BatchReadMode;
 import dna.series.aggdata.AggregatedSeries;
 import dna.series.data.SeriesData;

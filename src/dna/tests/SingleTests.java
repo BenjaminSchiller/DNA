@@ -37,7 +37,7 @@ import dna.graph.nodes.Node;
 import dna.graph.nodes.UndirectedNode;
 import dna.graph.nodes.UndirectedWeightedNode;
 import dna.graph.weights.DoubleWeight;
-import dna.metrics.MetricNotApplicableException;
+import dna.metricsNew.MetricNotApplicableException;
 import dna.series.AggregationException;
 import dna.updates.generators.BatchGenerator;
 import dna.updates.generators.random.RandomBatch;

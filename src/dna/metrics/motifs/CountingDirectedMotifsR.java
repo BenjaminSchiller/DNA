@@ -7,6 +7,7 @@ import dna.graph.IElement;
 import dna.graph.edges.DirectedEdge;
 import dna.graph.nodes.DirectedNode;
 import dna.metrics.Metric;
+import dna.metricsNew.IMetricNew;
 import dna.series.data.Distribution;
 import dna.series.data.NodeNodeValueList;
 import dna.series.data.NodeValueList;
@@ -34,7 +35,7 @@ public class CountingDirectedMotifsR extends Metric {
 
 	public CountingDirectedMotifsR() {
 		super("CountingDirectedMotifsR", ApplicationType.Recomputation,
-				MetricType.exact);
+				IMetricNew.MetricType.exact);
 	}
 
 	@Override

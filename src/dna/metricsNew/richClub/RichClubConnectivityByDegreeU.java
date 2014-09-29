@@ -1,7 +1,8 @@
 package dna.metricsNew.richClub;
 
 import dna.graph.nodes.Node;
-import dna.metrics.Metric.MetricType;
+import dna.metricsNew.IMetricNew;
+import dna.metricsNew.IMetricNew.MetricType;
 import dna.metricsNew.algorithms.IAfterEA;
 import dna.metricsNew.algorithms.IAfterER;
 import dna.metricsNew.algorithms.IAfterNR;
@@ -19,7 +20,7 @@ public class RichClubConnectivityByDegreeU extends RichClubConnectivityByDegree
 		IBeforeER, IAfterER {
 
 	public RichClubConnectivityByDegreeU() {
-		super("RichClubConnectivityByDegreeU", MetricType.exact);
+		super("RichClubConnectivityByDegreeU", IMetricNew.MetricType.exact);
 	}
 
 	private DegreeRichClubs rcs;

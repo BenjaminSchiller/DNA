@@ -7,8 +7,8 @@ import dna.graph.Graph;
 import dna.graph.IElement;
 import dna.graph.edges.UndirectedEdge;
 import dna.graph.nodes.UndirectedNode;
-import dna.metrics.Metric.MetricType;
 import dna.metricsNew.IMetricNew;
+import dna.metricsNew.IMetricNew.MetricType;
 import dna.metricsNew.MetricNew;
 import dna.series.data.Distribution;
 import dna.series.data.DistributionLong;
@@ -27,7 +27,7 @@ public class UndirectedMotifs extends MetricNew {
 
 	protected DistributionLong motifs;
 
-	public UndirectedMotifs(String name, MetricType metricType, Parameter... p) {
+	public UndirectedMotifs(String name, IMetricNew.MetricType metricType, Parameter... p) {
 		super(name, metricType, p);
 	}
 

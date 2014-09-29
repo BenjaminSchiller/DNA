@@ -6,9 +6,9 @@ import java.nio.file.FileSystem;
 
 import dna.io.filesystem.Dir;
 import dna.io.filesystem.Files;
-import dna.metrics.Metric.MetricType;
-import dna.metrics.MetricNotApplicableException;
 import dna.metricsNew.IMetricNew;
+import dna.metricsNew.MetricNotApplicableException;
+import dna.metricsNew.IMetricNew.MetricType;
 import dna.metricsNew.algorithms.Algorithms;
 import dna.metricsNew.algorithms.IAfterBatch;
 import dna.metricsNew.algorithms.IAfterEA;
@@ -367,9 +367,9 @@ public class SeriesGeneration {
 				if (!series.getMetrics()[i]
 						.isComparableTo(series.getMetrics()[j])
 						|| !series.getMetrics()[i].getMetricType().equals(
-								MetricType.exact)
+								IMetricNew.MetricType.exact)
 						|| !series.getMetrics()[j].getMetricType().equals(
-								MetricType.exact)) {
+								IMetricNew.MetricType.exact)) {
 					continue;
 				}
 				if (!series.getMetrics()[i].equals(series.getMetrics()[j])) {

@@ -4,7 +4,8 @@ import dna.graph.IElement;
 import dna.graph.edges.DirectedEdge;
 import dna.graph.nodes.DirectedNode;
 import dna.graph.nodes.Node;
-import dna.metrics.Metric.MetricType;
+import dna.metricsNew.IMetricNew;
+import dna.metricsNew.IMetricNew.MetricType;
 import dna.metricsNew.algorithms.IAfterEA;
 import dna.metricsNew.algorithms.IAfterNA;
 import dna.metricsNew.algorithms.IAfterNR;
@@ -21,7 +22,7 @@ public class DirectedClusteringCoefficientU extends
 		IAfterEA, IBeforeER {
 
 	public DirectedClusteringCoefficientU() {
-		super("DirectedClusteringCoefficientU", MetricType.exact);
+		super("DirectedClusteringCoefficientU", IMetricNew.MetricType.exact);
 	}
 
 	@Override

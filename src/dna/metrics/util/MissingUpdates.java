@@ -2,6 +2,7 @@ package dna.metrics.util;
 
 import dna.graph.Graph;
 import dna.metrics.Metric;
+import dna.metricsNew.IMetricNew;
 import dna.series.data.Distribution;
 import dna.series.data.NodeNodeValueList;
 import dna.series.data.NodeValueList;
@@ -19,7 +20,7 @@ public class MissingUpdates extends Metric {
 
 	public MissingUpdates(Metric m, double missProb) {
 		super(m.getName() + "_MISSING_UPDATES", m.getApplicationType(),
-				MetricType.heuristic, m.getParameters(), new DoubleParameter(
+				IMetricNew.MetricType.heuristic, m.getParameters(), new DoubleParameter(
 						"missProb", missProb));
 		this.m = m;
 		this.missProb = missProb;

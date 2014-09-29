@@ -6,7 +6,8 @@ import dna.graph.edges.UndirectedEdge;
 import dna.graph.nodes.DirectedNode;
 import dna.graph.nodes.Node;
 import dna.graph.nodes.UndirectedNode;
-import dna.metrics.Metric.MetricType;
+import dna.metricsNew.IMetricNew;
+import dna.metricsNew.IMetricNew.MetricType;
 import dna.metricsNew.algorithms.IAfterER;
 import dna.metricsNew.algorithms.IBeforeEA;
 import dna.metricsNew.algorithms.IBeforeNA;
@@ -23,7 +24,7 @@ public class UndirectedClusteringCoefficientU extends
 		IBeforeEA, IAfterER {
 
 	public UndirectedClusteringCoefficientU() {
-		super("UndirectedClusteringCoefficientU", MetricType.exact);
+		super("UndirectedClusteringCoefficientU", IMetricNew.MetricType.exact);
 	}
 
 	@Override

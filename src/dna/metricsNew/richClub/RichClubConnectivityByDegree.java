@@ -3,8 +3,8 @@ package dna.metricsNew.richClub;
 import dna.graph.Graph;
 import dna.graph.IElement;
 import dna.graph.nodes.Node;
-import dna.metrics.Metric.MetricType;
 import dna.metricsNew.IMetricNew;
+import dna.metricsNew.IMetricNew.MetricType;
 import dna.metricsNew.MetricNew;
 import dna.series.data.Distribution;
 import dna.series.data.DistributionInt;
@@ -16,7 +16,7 @@ import dna.util.ArrayUtils;
 import dna.util.parameters.Parameter;
 
 public class RichClubConnectivityByDegree extends MetricNew {
-	public RichClubConnectivityByDegree(String name, MetricType metricType,
+	public RichClubConnectivityByDegree(String name, IMetricNew.MetricType metricType,
 			Parameter... p) {
 		super(name, metricType, p);
 	}

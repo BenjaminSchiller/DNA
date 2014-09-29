@@ -1,24 +1,20 @@
 package dna.metricsNew;
 
 import dna.graph.Graph;
-import dna.metrics.Metric.MetricType;
 import dna.series.data.MetricData;
 import dna.util.parameters.Parameter;
 import dna.util.parameters.ParameterList;
 
 public abstract class MetricNew extends ParameterList implements IMetricNew {
 
-//	public static enum MetricType {
-//		exact, heuristic, quality, unknown
-//	}
-
-	public MetricNew(String name, MetricType metricType, Parameter... p) {
+	public MetricNew(String name, IMetricNew.MetricType metricType,
+			Parameter... p) {
 		super(name, p);
 		this.metricType = metricType;
 	}
 
-	public MetricNew(String name, MetricType metricType, Parameter[] params,
-			Parameter... p) {
+	public MetricNew(String name, IMetricNew.MetricType metricType,
+			Parameter[] params, Parameter... p) {
 		super(name, combine(params, p));
 		this.metricType = metricType;
 	}
@@ -49,9 +45,9 @@ public abstract class MetricNew extends ParameterList implements IMetricNew {
 		this.g = g;
 	}
 
-	protected MetricType metricType;
+	protected IMetricNew.MetricType metricType;
 
-	public MetricType getMetricType() {
+	public IMetricNew.MetricType getMetricType() {
 		return this.metricType;
 	}
 

@@ -5,7 +5,8 @@ import dna.graph.IElement;
 import dna.graph.edges.UndirectedEdge;
 import dna.graph.nodes.DirectedNode;
 import dna.graph.nodes.UndirectedNode;
-import dna.metrics.Metric.MetricType;
+import dna.metricsNew.IMetricNew;
+import dna.metricsNew.IMetricNew.MetricType;
 import dna.series.data.NodeValueList;
 import dna.updates.batch.Batch;
 import dna.util.ArrayUtils;
@@ -13,7 +14,7 @@ import dna.util.parameters.Parameter;
 
 public class UndirectedClusteringCoefficient extends ClusteringCoefficient {
 
-	public UndirectedClusteringCoefficient(String name, MetricType metricType,
+	public UndirectedClusteringCoefficient(String name, IMetricNew.MetricType metricType,
 			Parameter... p) {
 		super(name, metricType, p);
 	}

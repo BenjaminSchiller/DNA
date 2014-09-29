@@ -1,6 +1,7 @@
 package dna.metrics.apsp;
 
 import dna.metrics.Metric;
+import dna.metricsNew.MetricNew;
 import dna.series.data.Distribution;
 import dna.series.data.DistributionLong;
 import dna.series.data.NodeNodeValueList;
@@ -14,7 +15,7 @@ public abstract class AllPairsShortestPaths extends Metric {
 	protected DistributionLong apsp;
 
 	public AllPairsShortestPaths(String name, ApplicationType type,
-			MetricType metricType, Parameter... p) {
+			MetricNew.MetricType metricType, Parameter... p) {
 		super(name, type, metricType, p);
 	}
 
