@@ -11,21 +11,21 @@ The most common differences are:
 
 - only applicable to *Directed* (Directed) or *Undirected* (Undirected) graphs or not restricted ()
 - only applicable to *Int Weighted* (IntWeighted) or *Double Weighted* (DoubleWeighted) nodes or edges (in case it is clear if nodes, edges, or both are weighted there is no need to specify, otherwise, use (IntWeightedNode) or (DoubleWeightedEdge) instead), (Unweighted) should be used to indicate that weights are not considered
-- complete *Re-computation* (R) after each batch or application of *Updates* (U)
+- complete *Re-computation* (R) after each batch, application of *Updates* (U), or application of *Batches* (B)
 - computing *Exact* () results or applying a *Heuristic* (H) to approximate the values
 
 It is recommended to implement an abstract Metric *MyMetric* that contains all data structures shared by all implementation like values, distributions, node-value-lists, or auxiliary results.
 This metric should be names *MyMetric* and already implement all shared methods (mainly leaving out the actual computation / update / approximation of the desired results).
 The general naming convention for specific metric implementation is as follows:
 
-- *${Directed|Undirected|}${|Unweighted|IntWeighted|DoubleWeighted}$MetricName${R|U}${|H}*
+- *${Directed|Undirected|}${|Unweighted|IntWeighted|DoubleWeighted}$MetricName${R|U|B}${|H}*
 
 The components of a metric implementation's name (given name as well as class name) are therefore:
 
 1. restrictions to the graph type: *${Directed|Undirected|}*
 2. restrictions to the existance of weights: *${|IntWeighted|DoubleWeighted}*
 1. metric name *$MetricName*
-1. computation type *${R|U}*
+1. computation type *${R|U|B}*
 1. exact or heuristic *${|H}*
 
 Assuming a metric that is not restricted to a specific graph type as default, the first part of the name is left blank.
@@ -51,6 +51,7 @@ An explicit example are the different implementations of clustering coefficients
 - *DirectedClusteringCoefficientR* - counting directed triangles using a re-computation
 - *DirectedClusteringCoefficientU* - counting directed triangles using updates
 - *UndirectedClusteringCoefficient* - abstract class for counting undirected triangles (applicable to directed and undirected graphs)
+- *UndirectedClusteringCoefficientB* - counting undirected triangles using batches
 - *UndirectedClusteringCoefficientR* - counting undirected triangles using a re-computation
 - *UndirectedClusteringCoefficientU* - counting undirected triangles using updates
 
