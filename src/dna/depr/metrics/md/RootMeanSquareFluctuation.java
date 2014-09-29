@@ -15,7 +15,7 @@ import dna.graph.weights.Int3dWeight;
 import dna.graph.weights.IntWeight;
 import dna.graph.weights.Weight;
 import dna.graph.weights.distances.EuclideanDistance;
-import dna.metricsNew.MetricNew;
+import dna.metrics.MetricNew;
 import dna.series.data.BinnedDistributionInt;
 import dna.series.data.Distribution;
 import dna.series.data.NodeNodeValueList;

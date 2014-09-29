@@ -8,8 +8,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 import dna.io.filter.PrefixFilenameFilter;
-import dna.metricsNew.IMetricNew;
-import dna.metricsNew.IMetricNew.MetricType;
+import dna.metrics.IMetricNew;
+import dna.metrics.IMetricNew.MetricType;
 import dna.series.SeriesGeneration;
 import dna.util.Config;
 import dna.util.Log;

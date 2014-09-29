@@ -7,7 +7,7 @@ import dna.graph.datastructures.GraphDataStructure;
 import dna.graph.edges.UndirectedEdge;
 import dna.graph.nodes.DirectedNode;
 import dna.graph.nodes.UndirectedNode;
-import dna.metricsNew.MetricNew;
+import dna.metrics.MetricNew;
 import dna.updates.batch.Batch;
 import dna.util.ArrayUtils;
 

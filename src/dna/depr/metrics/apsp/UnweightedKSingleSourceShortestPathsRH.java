@@ -3,7 +3,7 @@ package dna.depr.metrics.apsp;
 import java.util.HashSet;
 
 import dna.graph.nodes.Node;
-import dna.metricsNew.IMetricNew;
+import dna.metrics.IMetricNew;
 import dna.updates.batch.Batch;
 import dna.updates.update.Update;
 import dna.util.parameters.IntParameter;

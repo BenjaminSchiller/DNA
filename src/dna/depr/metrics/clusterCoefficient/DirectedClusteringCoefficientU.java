@@ -4,7 +4,7 @@ import dna.graph.IElement;
 import dna.graph.edges.DirectedEdge;
 import dna.graph.nodes.DirectedNode;
 import dna.graph.nodes.Node;
-import dna.metricsNew.IMetricNew;
+import dna.metrics.IMetricNew;
 import dna.series.data.NodeValueList;
 import dna.updates.batch.Batch;
 import dna.updates.update.EdgeAddition;

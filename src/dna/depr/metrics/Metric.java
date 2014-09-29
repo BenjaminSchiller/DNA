@@ -1,7 +1,7 @@
 package dna.depr.metrics;
 
 import dna.graph.Graph;
-import dna.metricsNew.MetricNew;
+import dna.metrics.MetricNew;
 import dna.series.data.Distribution;
 import dna.series.data.MetricData;
 import dna.series.data.NodeNodeValueList;

@@ -1,7 +1,7 @@
 package dna.depr.metrics.apsp;
 
 import dna.depr.metrics.Metric;
-import dna.metricsNew.MetricNew;
+import dna.metrics.MetricNew;
 import dna.series.data.Distribution;
 import dna.series.data.DistributionLong;
 import dna.series.data.NodeNodeValueList;

@@ -2,7 +2,7 @@ package dna.depr.metrics.clusterCoefficient;
 
 import dna.depr.metrics.Metric;
 import dna.graph.nodes.Node;
-import dna.metricsNew.MetricNew;
+import dna.metrics.MetricNew;
 import dna.series.data.Distribution;
 import dna.series.data.NodeNodeValueList;
 import dna.series.data.NodeValueList;

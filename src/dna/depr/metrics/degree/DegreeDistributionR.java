@@ -4,7 +4,7 @@ import dna.graph.Graph;
 import dna.graph.IElement;
 import dna.graph.nodes.DirectedNode;
 import dna.graph.nodes.UndirectedNode;
-import dna.metricsNew.IMetricNew;
+import dna.metrics.IMetricNew;
 import dna.series.data.DistributionInt;
 import dna.updates.batch.Batch;
 import dna.updates.update.Update;

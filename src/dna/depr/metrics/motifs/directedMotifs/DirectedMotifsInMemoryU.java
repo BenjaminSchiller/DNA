@@ -13,7 +13,7 @@ import dna.depr.metrics.motifsNew.DirectedMotifs;
 import dna.graph.IElement;
 import dna.graph.edges.DirectedEdge;
 import dna.graph.nodes.DirectedNode;
-import dna.metricsNew.IMetricNew;
+import dna.metrics.IMetricNew;
 import dna.updates.batch.Batch;
 import dna.updates.update.EdgeAddition;
 import dna.updates.update.EdgeRemoval;

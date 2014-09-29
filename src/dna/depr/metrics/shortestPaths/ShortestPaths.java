@@ -1,7 +1,7 @@
 package dna.depr.metrics.shortestPaths;
 
 import dna.depr.metrics.Metric;
-import dna.metricsNew.IMetricNew;
+import dna.metrics.IMetricNew;
 import dna.series.data.Distribution;
 import dna.series.data.NodeNodeValueList;
 import dna.series.data.NodeValueList;

@@ -4,8 +4,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 import dna.io.filesystem.Dir;
-import dna.metricsNew.IMetricNew;
-import dna.metricsNew.IMetricNew.MetricType;
+import dna.metrics.IMetricNew;
+import dna.metrics.IMetricNew.MetricType;
 import dna.series.aggdata.AggregatedBatch.BatchReadMode;
 import dna.series.aggdata.AggregatedSeries;
 import dna.series.lists.MetricDataList;

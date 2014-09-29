@@ -1,6 +1,6 @@
 package dna.depr.metrics.motifsNew;
 
-import dna.metricsNew.IMetricNew;
+import dna.metrics.IMetricNew;
 import dna.updates.batch.Batch;
 import dna.updates.update.Update;
 

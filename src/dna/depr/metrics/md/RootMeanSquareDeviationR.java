@@ -7,7 +7,7 @@ import dna.graph.nodes.Node;
 import dna.graph.weights.IWeightedNode;
 import dna.graph.weights.Weight;
 import dna.graph.weights.distances.EuclideanDistance;
-import dna.metricsNew.IMetricNew;
+import dna.metrics.IMetricNew;
 import dna.updates.batch.Batch;
 import dna.updates.update.Update;
 

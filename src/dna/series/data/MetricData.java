@@ -3,8 +3,8 @@ package dna.series.data;
 import java.io.IOException;
 
 import dna.io.filesystem.Files;
-import dna.metricsNew.IMetricNew;
-import dna.metricsNew.IMetricNew.MetricType;
+import dna.metrics.IMetricNew;
+import dna.metrics.IMetricNew.MetricType;
 import dna.series.lists.DistributionList;
 import dna.series.lists.ListItem;
 import dna.series.lists.NodeNodeValueListList;
