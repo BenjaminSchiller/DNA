@@ -3,10 +3,10 @@ package dna.depr.metrics.motifs.directedMotifs;
 import java.util.HashSet;
 
 import dna.depr.metrics.motifs.directedMotifs.exceptions.InvalidDirectedMotifException;
+import dna.depr.metrics.motifsNew.DirectedMotifs;
 import dna.graph.IElement;
 import dna.graph.edges.DirectedEdge;
 import dna.graph.nodes.DirectedNode;
-import dna.metrics.motifs.DirectedMotifs;
 import dna.metricsNew.IMetricNew;
 import dna.updates.batch.Batch;
 import dna.updates.update.EdgeAddition;

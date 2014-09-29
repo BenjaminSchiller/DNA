@@ -3,6 +3,8 @@ package dna.profiler;
 import java.io.IOException;
 import java.util.Stack;
 
+import dna.depr.metrics.Metric;
+import dna.depr.metrics.Metric.ApplicationType;
 import dna.graph.Graph;
 import dna.graph.datastructures.DataStructure;
 import dna.graph.datastructures.GraphDataStructure;
@@ -10,8 +12,6 @@ import dna.graph.datastructures.IDataStructure;
 import dna.graph.datastructures.DataStructure.AccessType;
 import dna.graph.generators.GraphGenerator;
 import dna.graph.generators.IGraphGenerator;
-import dna.metrics.Metric;
-import dna.metrics.Metric.ApplicationType;
 import dna.series.Series;
 import dna.series.SeriesGeneration;
 import dna.series.data.BatchData;

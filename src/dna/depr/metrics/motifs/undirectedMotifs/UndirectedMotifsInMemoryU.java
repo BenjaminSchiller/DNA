@@ -5,10 +5,10 @@ import java.util.HashSet;
 import java.util.LinkedList;
 
 import dna.depr.metrics.motifs.undirectedMotifs.exceptions.UndirectedMotifInvalidEdgeAdditionException;
+import dna.depr.metrics.motifsNew.UndirectedMotifs;
 import dna.graph.IElement;
 import dna.graph.edges.UndirectedEdge;
 import dna.graph.nodes.UndirectedNode;
-import dna.metrics.motifs.UndirectedMotifs;
 import dna.metricsNew.IMetricNew;
 import dna.updates.batch.Batch;
 import dna.updates.update.EdgeAddition;

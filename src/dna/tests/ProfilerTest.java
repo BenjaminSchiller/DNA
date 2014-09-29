@@ -17,6 +17,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
+import dna.depr.metrics.Metric;
+import dna.depr.metrics.Metric.ApplicationType;
 import dna.graph.ClassPointers;
 import dna.graph.Graph;
 import dna.graph.datastructures.DEmpty;
@@ -36,8 +38,6 @@ import dna.graph.nodes.UndirectedNode;
 import dna.graph.weights.DoubleWeight;
 import dna.graph.weights.IntWeight;
 import dna.graph.weights.Weight.WeightSelection;
-import dna.metrics.Metric;
-import dna.metrics.Metric.ApplicationType;
 import dna.metricsNew.IMetricNew;
 import dna.metricsNew.IMetricNew.MetricType;
 import dna.profiler.Profiler;

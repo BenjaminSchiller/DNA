@@ -2,9 +2,9 @@ package dna.util;
 
 import java.util.HashSet;
 
+import dna.depr.metrics.Metric;
 import dna.graph.Graph;
 import dna.graph.generators.IGraphGenerator;
-import dna.metrics.Metric;
 import dna.profiler.HotSwap;
 import dna.series.Aggregation;
 import dna.series.Series;
