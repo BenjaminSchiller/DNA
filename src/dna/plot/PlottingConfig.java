@@ -20,7 +20,7 @@ import dna.util.Log;
  */
 public class PlottingConfig {
 	public static enum PlotFlag {
-		plotAll, plotStatistics, plotRuntimes, plotMetricValues, plotDistributions, plotNodeValueLists, plotCustomValues
+		plotAll, plotStatistics, plotRuntimes, plotMetricValues, plotMetricEntirely, plotDistributions, plotNodeValueLists, plotCustomValues
 	};
 
 	// config
@@ -105,6 +105,11 @@ public class PlottingConfig {
 				break;
 			case plotMetricValues:
 				this.plotMetricValues = true;
+				break;
+			case plotMetricEntirely:
+				this.plotMetricValues = true;
+				this.plotDistributions = true;
+				this.plotNodeValueLists = true;
 				break;
 			case plotDistributions:
 				this.plotDistributions = true;
