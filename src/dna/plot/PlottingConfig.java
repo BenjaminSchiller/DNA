@@ -240,6 +240,7 @@ public class PlottingConfig {
 			boolean useful = false;
 			String[] values = pc.getValues();
 			String[] domains = pc.getDomains();
+			int functionCounter = 0;
 
 			// iterate over values & domains
 			for (int i = 0; i < values.length && !useful; i++) {
@@ -279,6 +280,9 @@ public class PlottingConfig {
 				}
 				// if function -> continue
 				if (domain.equals(PlotConfig.customPlotDomainFunction)) {
+					functionCounter++;
+					if (functionCounter == values.length)
+						useful = true;
 					continue;
 				}
 
