@@ -601,6 +601,13 @@ public class PlottingConfig {
 		return PlottingConfig.isContained(domain, value,
 				new AggregatedBatch[] { batch });
 	}
+	
+	/** Checks if the value and domain are contained in the given batch. **/
+	public static boolean isContained(String domain, String value,
+			BatchData batch) {
+		return PlottingConfig.isContained(domain, value,
+				new BatchData[] { batch });
+	}
 
 	/**
 	 * Replaces all wildcards in the given config with the corresponding values

@@ -659,6 +659,49 @@ public class Plot {
 		}
 	}
 
+	/**
+	 * Adds data from batches of a whole series to the plot. Used for plotting
+	 * values of multiple series. Data can be read and added sequentially for
+	 * each series.
+	 */
+	public void addDataSequentially(BatchData[] batchData) throws IOException {
+		if (this.dataWriteCounter >= this.data.length) {
+			// counter out of bounds, dont add more data
+			Log.warn("attempt to write to much data to plot '"
+					+ this.plotFilename + "'");
+		} else {
+			if (this.data[this.dataWriteCounter] == null) {
+				Log.error("PlotData " + this.dataWriteCounter + " of plot '"
+						+ this.plotFilename + "' is null!");
+			}
+			if (!(this.data[this.dataWriteCounter] instanceof FunctionData)) {
+				// if not function, add data
+				String name = this.data[this.dataWriteCounter].getName();
+				String domain = this.data[this.dataWriteCounter].getDomain();
+
+				for (int j = 0; j < batchData.length; j++) {
+					// if batch is null, no data -> just add EOF
+					if (batchData[j] != null) {
+						// check if expression
+						if (this.data[this.dataWriteCounter] instanceof ExpressionData)
+							this.addDataFromExpression(
+									batchData[j],
+									(ExpressionData) this.data[this.dataWriteCounter]);
+						else
+							this.addData(name, domain, batchData[j], false);
+					}
+				}
+				this.appendEOF();
+
+			} else {
+				// if function, increment write counter and call method again
+				this.dataWriteCounter++;
+				this.skippedFunction++;
+				this.addDataSequentially(batchData);
+			}
+		}
+	}
+
 	/** Adds data to the plot **/
 	public void addData(AggregatedBatch[] batchData) throws IOException {
 		// iterate over plotdata
