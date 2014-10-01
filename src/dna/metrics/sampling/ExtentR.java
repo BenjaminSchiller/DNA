@@ -1,4 +1,4 @@
-package dna.metrics.extent;
+package dna.metrics.sampling;
 
 import dna.updates.batch.Batch;
 import dna.updates.samplingAlgorithms.SamplingAlgorithm;

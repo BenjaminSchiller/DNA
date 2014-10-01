@@ -1,4 +1,4 @@
-package dna.metrics.extent;
+package dna.metrics.sampling;
 
 import dna.graph.Graph;
 import dna.metrics.Metric;

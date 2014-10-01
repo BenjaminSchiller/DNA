@@ -1,9 +1,7 @@
-package dna.metrics.samplingModularity;
+package dna.metrics.sampling;
 
 import dna.graph.Graph;
-import dna.graph.nodes.Node;
 import dna.updates.batch.Batch;
-import dna.updates.update.NodeAddition;
 import dna.updates.update.Update;
 
 /**
@@ -16,17 +14,17 @@ import dna.updates.update.Update;
  * @author Benedict Jahn
  * 
  */
-public class SamplingModularityU extends SamplingModularity {
+public class SamplingModularityR extends SamplingModularity {
 
 	/**
-	 * Creates an instance of the sampling modularity metric, which gets updated
-	 * after every batch.
+	 * Creates an instance of the sampling modularity metric, which gets
+	 * completely recomputed with every batch.
 	 * 
 	 * @param fullGraph
 	 *            the original full graph
 	 */
-	public SamplingModularityU(Graph fullGraph) {
-		super("SamplingModularityU", ApplicationType.AfterBatch,
+	public SamplingModularityR(Graph fullGraph) {
+		super("SamplingModularityR", ApplicationType.Recomputation,
 				MetricType.exact, fullGraph);
 	}
 
@@ -37,12 +35,7 @@ public class SamplingModularityU extends SamplingModularity {
 
 	@Override
 	public boolean applyAfterBatch(Batch b) {
-		edgesInSample += b.getEdgeAdditionsCount();
-		Iterable<NodeAddition> iter = b.getNodeAdditions();
-		for (NodeAddition na : iter) {
-			degreeSum += getDegreeFromOriginalNode((Node) na.getNode());
-		}
-		return true;
+		return false;
 	}
 
 	@Override

@@ -1,4 +1,4 @@
-package dna.metrics.samplingModularity;
+package dna.metrics.sampling;
 
 import dna.graph.Graph;
 import dna.graph.IElement;
