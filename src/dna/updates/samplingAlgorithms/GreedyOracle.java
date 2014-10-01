@@ -65,7 +65,7 @@ public class GreedyOracle extends SamplingAlgorithm {
 
 	@Override
 	protected Node init(StartNodeSelectionStrategy startNode) {
-		Node firstNode = startNode.getStartNode();
+		Node firstNode = startNode.getStartNode(this.fullGraph);
 		ArrayList<Node> neighbors = getAllNeighbors(firstNode);
 		for (Node n : neighbors) {
 			if (n != firstNode) {

@@ -127,7 +127,7 @@ public abstract class SamplingAlgorithm extends BatchGenerator {
 
 		if (firstIteration) {
 			firstIteration = false;
-			int firstCosts = startNodeStartegy.resourceCost();
+			int firstCosts = startNodeStartegy.resourceCost(g);
 			resource = -firstCosts;
 
 			newBatch = addNodeAndNeighborsToBatch(newBatch,

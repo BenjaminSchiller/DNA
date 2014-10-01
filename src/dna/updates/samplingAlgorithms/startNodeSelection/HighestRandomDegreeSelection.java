@@ -17,19 +17,17 @@ public class HighestRandomDegreeSelection extends StartNodeSelectionStrategy {
 	/**
 	 * Initializes the HighestDegreeSelection start node selection strategy
 	 * 
-	 * @param g
-	 *            The graph from which the start node is selected
 	 * @param n
 	 *            The number of random nodes, from which the strategy will
 	 *            choose a start node
 	 */
-	public HighestRandomDegreeSelection(Graph g, int n) {
-		super(g);
+	public HighestRandomDegreeSelection(int n) {
+		super();
 		this.n = n;
 	}
 
 	@Override
-	public Node getStartNode() {
+	public Node getStartNode(Graph g) {
 
 		int maxDegree = 0;
 
@@ -50,7 +48,7 @@ public class HighestRandomDegreeSelection extends StartNodeSelectionStrategy {
 	}
 
 	@Override
-	public int resourceCost() {
+	public int resourceCost(Graph g) {
 		return n;
 	}
 

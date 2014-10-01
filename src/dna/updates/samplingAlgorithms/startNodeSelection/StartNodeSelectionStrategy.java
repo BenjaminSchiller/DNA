@@ -17,35 +17,24 @@ import dna.graph.nodes.UndirectedNode;
  */
 public abstract class StartNodeSelectionStrategy {
 
-	protected Graph g;
-	private int nodeDirection;
-
 	/**
 	 * Initializes the start node selection strategy.
 	 * 
 	 * @param g
 	 *            the graph from which the strategy shall select the first node.
 	 */
-	public StartNodeSelectionStrategy(Graph g) {
-		this.g = g;
-
-		if (DirectedNode.class.isAssignableFrom(g.getGraphDatastructures()
-				.getNodeType())) {
-			nodeDirection = 1;
-		} else {
-			nodeDirection = 0;
-		}
+	public StartNodeSelectionStrategy() {
 	}
 
 	/**
 	 * Returns a start node based on the specific node selection strategy
 	 */
-	public abstract Node getStartNode();
+	public abstract Node getStartNode(Graph g);
 
 	/**
 	 * Returns the resource costs for the specific strategy
 	 */
-	public abstract int resourceCost();
+	public abstract int resourceCost(Graph g);
 
 	/**
 	 * Returns a list of all neighbors of node n
@@ -74,7 +63,7 @@ public abstract class StartNodeSelectionStrategy {
 	 *            the node
 	 */
 	protected Iterable<IElement> getEdgesFromNode(Node n) {
-		if (nodeDirection == 1) {
+		if (n instanceof DirectedNode) {
 			return ((DirectedNode) n).getOutgoingEdges();
 		} else {
 			return n.getEdges();
@@ -88,7 +77,7 @@ public abstract class StartNodeSelectionStrategy {
 	 *            the node
 	 */
 	protected int getDegreeFromNode(Node n) {
-		if (nodeDirection == 1) {
+		if (n instanceof DirectedNode) {
 			return ((DirectedNode) n).getOutDegree();
 		} else {
 			return ((UndirectedNode) n).getDegree();

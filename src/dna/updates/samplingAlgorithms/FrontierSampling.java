@@ -129,7 +129,7 @@ public class FrontierSampling extends SamplingAlgorithm {
 	@Override
 	protected Node init(StartNodeSelectionStrategy startNode) {
 
-		Node start = startNode.getStartNode();
+		Node start = startNode.getStartNode(this.fullGraph);
 		walkerPositions.add(start);
 		initialize++;
 		return start;

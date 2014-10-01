@@ -22,16 +22,14 @@ public class NodeValueListSelection extends StartNodeSelectionStrategy {
 	 * Creates an instance of the NodeValueList based start node selection
 	 * strategy
 	 * 
-	 * @param g
-	 *            the graph from which the start node is selected
 	 * @param nvl
 	 *            the NodeValueList of a specific metric for the graph g
 	 * @param nvlOrder
 	 *            the ordering on which the selection of the start node is done
 	 */
-	public NodeValueListSelection(Graph g, NodeValueList nvl,
+	public NodeValueListSelection(NodeValueList nvl,
 			NodeValueListOrderBy nvlOrder) {
-		super(g);
+		super();
 		this.nvl = nvl.getValues();
 		this.nvlOrder = nvlOrder;
 		if (nvlOrder != NodeValueListOrderBy.median
@@ -43,25 +41,25 @@ public class NodeValueListSelection extends StartNodeSelectionStrategy {
 	}
 
 	@Override
-	public Node getStartNode() {
+	public Node getStartNode(Graph g) {
 		if (nvlOrder == NodeValueListOrderBy.median) {
-			return selectMedian();
+			return selectMedian(g);
 		} else if (nvlOrder == NodeValueListOrderBy.maximum) {
-			return selectMaximum();
+			return selectMaximum(g);
 		} else {
-			return selectMinimum();
+			return selectMinimum(g);
 		}
 	}
 
 	@Override
-	public int resourceCost() {
+	public int resourceCost(Graph g) {
 		return nvl.length;
 	}
 
 	/**
 	 * Selects the node with the median value of the NodeValueList
 	 */
-	private Node selectMedian() {
+	private Node selectMedian(Graph g) {
 		int index = 0;
 		double[] tempArr = new double[nvl.length];
 		for (int i = 0; i < nvl.length; i++) {
@@ -83,7 +81,7 @@ public class NodeValueListSelection extends StartNodeSelectionStrategy {
 	/**
 	 * Selects the node with the maximal value of the NodeValueList
 	 */
-	private Node selectMaximum() {
+	private Node selectMaximum(Graph g) {
 		double tempVal = Double.MIN_VALUE;
 		int index = 0;
 		for (int i = 0; i < nvl.length; i++) {
@@ -98,7 +96,7 @@ public class NodeValueListSelection extends StartNodeSelectionStrategy {
 	/**
 	 * Selects the node with the minimal value of the NodeValueList
 	 */
-	private Node selectMinimum() {
+	private Node selectMinimum(Graph g) {
 		double tempVal = Double.MAX_VALUE;
 		int index = 0;
 		for (int i = 0; i < nvl.length; i++) {

@@ -16,15 +16,13 @@ public class HighestDegreeSelection extends StartNodeSelectionStrategy {
 	/**
 	 * Creates an instance of the highest degree selection
 	 * 
-	 * @param g
-	 *            the graph from which we choose the start node
 	 */
-	public HighestDegreeSelection(Graph g) {
-		super(g);
+	public HighestDegreeSelection() {
+		super();
 	}
 
 	@Override
-	public Node getStartNode() {
+	public Node getStartNode(Graph g) {
 		Node startNode = null;
 		int maxDegree = 0;
 
@@ -41,7 +39,7 @@ public class HighestDegreeSelection extends StartNodeSelectionStrategy {
 	}
 
 	@Override
-	public int resourceCost() {
+	public int resourceCost(Graph g) {
 		return g.getNodeCount();
 	}
 

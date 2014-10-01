@@ -56,7 +56,7 @@ public class UniformSampling extends SamplingAlgorithm {
 
 	@Override
 	protected Node init(StartNodeSelectionStrategy startNode) {
-		Node startingNode = startNode.getStartNode();
+		Node startingNode = startNode.getStartNode(this.fullGraph);
 		notVisited.remove(startingNode);
 		return startingNode;
 	}

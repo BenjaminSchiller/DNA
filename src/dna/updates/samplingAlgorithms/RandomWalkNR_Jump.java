@@ -98,7 +98,7 @@ public class RandomWalkNR_Jump extends SamplingAlgorithm {
 
 	@Override
 	protected Node init(StartNodeSelectionStrategy startNode) {
-		currentNode = startNode.getStartNode();
+		currentNode = startNode.getStartNode(this.fullGraph);
 		return currentNode;
 	}
 

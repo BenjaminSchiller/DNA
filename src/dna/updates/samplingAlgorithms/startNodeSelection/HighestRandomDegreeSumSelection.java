@@ -23,24 +23,22 @@ public class HighestRandomDegreeSumSelection extends StartNodeSelectionStrategy 
 	 * Creates an instance of the highest random degree sum start node selection
 	 * strategy
 	 * 
-	 * @param g
-	 *            the graph from which we choose the start node
 	 * @param numberOfNodes
 	 *            the number of nodes we will randomly choose from the graph
 	 * @param numberOfNeighbors
 	 *            the number of random neighbors of the randomly chosen nodes
 	 *            which will be considered for the degree sum
 	 */
-	public HighestRandomDegreeSumSelection(Graph g, int numberOfNodes,
+	public HighestRandomDegreeSumSelection(int numberOfNodes,
 			int numberOfNeighbors) {
-		super(g);
+		super();
 
 		this.n = numberOfNodes;
 		this.m = numberOfNeighbors;
 	}
 
 	@Override
-	public Node getStartNode() {
+	public Node getStartNode(Graph g) {
 
 		int maxDegreeSum = 0;
 
@@ -78,7 +76,7 @@ public class HighestRandomDegreeSumSelection extends StartNodeSelectionStrategy 
 	}
 
 	@Override
-	public int resourceCost() {
+	public int resourceCost(Graph g) {
 		return n * m;
 	}
 

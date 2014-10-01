@@ -71,7 +71,7 @@ public class DFS_Jump extends SamplingAlgorithm {
 
 	@Override
 	protected Node init(StartNodeSelectionStrategy startNode) {
-		currentNode = startNode.getStartNode();
+		currentNode = startNode.getStartNode(this.fullGraph);
 		nodesInQueue.add(currentNode);
 
 		ArrayList<Node> neighborsList = getUnvisitedNeighbors(currentNode);

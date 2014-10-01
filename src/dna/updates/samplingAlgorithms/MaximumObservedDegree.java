@@ -102,7 +102,7 @@ public class MaximumObservedDegree extends SamplingAlgorithm {
 
 	@Override
 	protected Node init(StartNodeSelectionStrategy startNode) {
-		currentNode = startNode.getStartNode();
+		currentNode = startNode.getStartNode(this.fullGraph);
 		return currentNode;
 	}
 

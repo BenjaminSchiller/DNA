@@ -14,20 +14,18 @@ public class RandomSelection extends StartNodeSelectionStrategy {
 	/**
 	 * Creates an instance of the random selection start node selection strategy
 	 * 
-	 * @param g
-	 *            The graph from which the node shall be selected
 	 */
-	public RandomSelection(Graph g) {
-		super(g);
+	public RandomSelection() {
+		super();
 	}
 
 	@Override
-	public Node getStartNode() {
+	public Node getStartNode(Graph g) {
 		return g.getRandomNode();
 	}
 
 	@Override
-	public int resourceCost() {
+	public int resourceCost(Graph g) {
 		return 1;
 	}
 

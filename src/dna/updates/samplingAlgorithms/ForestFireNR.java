@@ -104,7 +104,7 @@ public class ForestFireNR extends SamplingAlgorithm {
 
 	@Override
 	protected Node init(StartNodeSelectionStrategy startNode) {
-		currentNode = startNode.getStartNode();
+		currentNode = startNode.getStartNode(this.fullGraph);
 		nodesInQueue.add(currentNode);
 		selectNeighbors();
 		return currentNode;
