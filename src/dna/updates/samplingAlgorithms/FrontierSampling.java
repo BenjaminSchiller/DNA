@@ -10,7 +10,6 @@ import dna.graph.nodes.Node;
 import dna.updates.samplingAlgorithms.startNodeSelection.RandomSelection;
 import dna.updates.samplingAlgorithms.startNodeSelection.StartNodeSelectionStrategy;
 import dna.util.Rand;
-import dna.util.parameters.Parameter;
 
 /**
  * Implementation of a multiple random walk, which chooses the current walker
@@ -50,9 +49,9 @@ public class FrontierSampling extends SamplingAlgorithm {
 	 */
 	public FrontierSampling(Graph fullGraph,
 			StartNodeSelectionStrategy startNodeStrategy, int costPerBatch,
-			int resource, int numberOfWalkers, Parameter[] parameters) {
+			int resource, int numberOfWalkers) {
 		super("FS_" + numberOfWalkers, fullGraph, startNodeStrategy,
-				costPerBatch, resource, parameters);
+				costPerBatch, resource);
 
 		if (startNodeStrategy.getClass() != RandomSelection.class) {
 			throw new IllegalArgumentException(

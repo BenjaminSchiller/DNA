@@ -7,7 +7,6 @@ import dna.graph.Graph;
 import dna.graph.nodes.Node;
 import dna.updates.samplingAlgorithms.SortableNode.SortType;
 import dna.updates.samplingAlgorithms.startNodeSelection.StartNodeSelectionStrategy;
-import dna.util.parameters.Parameter;
 
 /**
  * An implementation of the sampling algorithm of Guha and Khuler. This
@@ -41,9 +40,8 @@ public class GreedyOracle extends SamplingAlgorithm {
 	 */
 	public GreedyOracle(Graph fullGraph,
 			StartNodeSelectionStrategy startNodeStrategy, int costPerBatch,
-			int resource, Parameter[] parameters) {
-		super("GO", fullGraph, startNodeStrategy, costPerBatch, resource,
-				parameters);
+			int resource) {
+		super("GO", fullGraph, startNodeStrategy, costPerBatch, resource);
 
 		greyZone = new ArrayList<SortableNode>(fullGraph.getNodeCount());
 	}

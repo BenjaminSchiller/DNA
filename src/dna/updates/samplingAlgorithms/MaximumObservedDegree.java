@@ -9,7 +9,6 @@ import java.util.TreeMap;
 import dna.graph.Graph;
 import dna.graph.nodes.Node;
 import dna.updates.samplingAlgorithms.startNodeSelection.StartNodeSelectionStrategy;
-import dna.util.parameters.Parameter;
 
 /**
  * Implementation of Maximum Observed Degree (MOD) sampling algorithm by
@@ -44,9 +43,8 @@ public class MaximumObservedDegree extends SamplingAlgorithm {
 	 */
 	public MaximumObservedDegree(Graph fullGraph,
 			StartNodeSelectionStrategy startNodeStrategy, int costPerBatch,
-			int resource, Parameter[] parameters) {
-		super("MOD", fullGraph, startNodeStrategy, costPerBatch, resource,
-				parameters);
+			int resource) {
+		super("MOD", fullGraph, startNodeStrategy, costPerBatch, resource);
 
 		maxNodeID = fullGraph.getMaxNodeIndex() + 1;
 		greyZone = new HashMap<Integer, Double>();

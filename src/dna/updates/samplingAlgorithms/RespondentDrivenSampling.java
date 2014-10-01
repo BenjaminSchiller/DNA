@@ -7,7 +7,6 @@ import dna.graph.Graph;
 import dna.graph.nodes.Node;
 import dna.updates.samplingAlgorithms.startNodeSelection.StartNodeSelectionStrategy;
 import dna.util.Rand;
-import dna.util.parameters.Parameter;
 
 /**
  * Implementation of the respondent driven sampling algorithm. Depending on how
@@ -47,9 +46,9 @@ public class RespondentDrivenSampling extends SamplingAlgorithm {
 	 */
 	public RespondentDrivenSampling(Graph fullGraph,
 			StartNodeSelectionStrategy startNodeStrategy, int costPerBatch,
-			int resource, int numberOfNeighborsVisited, Parameter[] parameters) {
+			int resource, int numberOfNeighborsVisited) {
 		super("RDS_" + numberOfNeighborsVisited, fullGraph, startNodeStrategy,
-				costPerBatch, resource, parameters);
+				costPerBatch, resource);
 
 		this.numberOfNeighborsVisited = numberOfNeighborsVisited;
 		queue = new LinkedList<Node>();

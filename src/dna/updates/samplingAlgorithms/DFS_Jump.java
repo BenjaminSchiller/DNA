@@ -7,7 +7,6 @@ import java.util.LinkedList;
 import dna.graph.Graph;
 import dna.graph.nodes.Node;
 import dna.updates.samplingAlgorithms.startNodeSelection.StartNodeSelectionStrategy;
-import dna.util.parameters.Parameter;
 
 /**
  * A sampling algorithm based on depth first search
@@ -40,9 +39,8 @@ public class DFS_Jump extends SamplingAlgorithm {
 	 */
 	public DFS_Jump(Graph fullGraph,
 			StartNodeSelectionStrategy startNodeStrategy, int costPerBatch,
-			int resource, Parameter[] parameters) {
-		super("DFS_Jump", fullGraph, startNodeStrategy, costPerBatch, resource,
-				parameters);
+			int resource) {
+		super("DFS_Jump", fullGraph, startNodeStrategy, costPerBatch, resource);
 
 		queue = new LinkedList<Node>();
 		nodesInQueue = new HashSet<Node>();

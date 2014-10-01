@@ -9,7 +9,6 @@ import dna.graph.Graph;
 import dna.graph.nodes.Node;
 import dna.updates.samplingAlgorithms.startNodeSelection.StartNodeSelectionStrategy;
 import dna.util.Rand;
-import dna.util.parameters.Parameter;
 
 /**
  * A sampling algorithm which is based on the behavior of forest fires. Does not
@@ -49,10 +48,9 @@ public class ForestFireNR extends SamplingAlgorithm {
 	 */
 	public ForestFireNR(Graph fullGraph,
 			StartNodeSelectionStrategy startNodeStrategy, int costPerBatch,
-			int resource, double probability, Parameter[] parameters)
-			throws Exception {
+			int resource, double probability) throws Exception {
 		super("FFnr_" + probability, fullGraph, startNodeStrategy,
-				costPerBatch, resource, parameters);
+				costPerBatch, resource);
 
 		if (probability < 0 || probability > 1) {
 			throw new IllegalArgumentException(

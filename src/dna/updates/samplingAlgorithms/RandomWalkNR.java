@@ -8,7 +8,6 @@ import dna.graph.Graph;
 import dna.graph.nodes.Node;
 import dna.updates.samplingAlgorithms.startNodeSelection.StartNodeSelectionStrategy;
 import dna.util.Rand;
-import dna.util.parameters.Parameter;
 
 /**
  * Implementation of a random walk sampling algorithm. It randomly chooses the
@@ -44,9 +43,8 @@ public class RandomWalkNR extends SamplingAlgorithm {
 	 */
 	public RandomWalkNR(Graph fullGraph,
 			StartNodeSelectionStrategy startNodeStrategy, int costPerBatch,
-			int resource, Parameter[] parameters) {
-		super("RWnr", fullGraph, startNodeStrategy, costPerBatch, resource,
-				parameters);
+			int resource) {
+		super("RWnr", fullGraph, startNodeStrategy, costPerBatch, resource);
 
 		currentNode = null;
 		fullyVisited = new HashSet<Node>(fullGraph.getNodeCount());

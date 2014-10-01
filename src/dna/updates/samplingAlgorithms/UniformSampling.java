@@ -8,7 +8,6 @@ import dna.graph.IElement;
 import dna.graph.nodes.Node;
 import dna.updates.samplingAlgorithms.startNodeSelection.StartNodeSelectionStrategy;
 import dna.util.Rand;
-import dna.util.parameters.Parameter;
 
 /**
  * Sampling algorithm that randomly selects the next node out of all nodes from
@@ -40,9 +39,8 @@ public class UniformSampling extends SamplingAlgorithm {
 	 */
 	public UniformSampling(Graph fullGraph,
 			StartNodeSelectionStrategy startNodeStrategy, int costPerBatch,
-			int resource, Parameter[] parameters) {
-		super("US", fullGraph, startNodeStrategy, costPerBatch, resource,
-				parameters);
+			int resource) {
+		super("US", fullGraph, startNodeStrategy, costPerBatch, resource);
 
 		notVisited = makeList(fullGraph.getNodes());
 	}

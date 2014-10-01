@@ -18,7 +18,9 @@ import dna.updates.samplingAlgorithms.startNodeSelection.StartNodeSelectionStrat
 import dna.updates.update.EdgeAddition;
 import dna.updates.update.NodeAddition;
 import dna.updates.update.Update;
+import dna.util.parameters.IntParameter;
 import dna.util.parameters.Parameter;
+import dna.util.parameters.StringParameter;
 
 /**
  * Base class for all sampling algorithms
@@ -71,8 +73,11 @@ public abstract class SamplingAlgorithm extends BatchGenerator {
 	 */
 	public SamplingAlgorithm(String name, Graph fullGraph,
 			StartNodeSelectionStrategy startNodeStrategy, int costPerBatch,
-			int resource, Parameter[] parameters) {
-		super(name, parameters);
+			int resource) {
+		super(name, new Parameter[] {
+				new StringParameter("START", startNodeStrategy.getClass()
+						.getName()), new IntParameter("COST", costPerBatch),
+				new IntParameter("RESOURCE", resource) });
 
 		this.fullGraph = fullGraph;
 		this.costPerBatch = costPerBatch;

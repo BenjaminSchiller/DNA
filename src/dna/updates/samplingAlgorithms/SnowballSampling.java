@@ -9,7 +9,6 @@ import dna.graph.Graph;
 import dna.graph.nodes.Node;
 import dna.updates.samplingAlgorithms.startNodeSelection.StartNodeSelectionStrategy;
 import dna.util.Rand;
-import dna.util.parameters.Parameter;
 
 /**
  * Implementation of the snowball sampling algorithm. Depending on how you
@@ -50,9 +49,9 @@ public class SnowballSampling extends SamplingAlgorithm {
 	 */
 	public SnowballSampling(Graph fullGraph,
 			StartNodeSelectionStrategy startNodeStrategy, int costPerBatch,
-			int resource, int numberOfNeighborsVisited, Parameter[] parameters) {
+			int resource, int numberOfNeighborsVisited) {
 		super("SS_" + numberOfNeighborsVisited, fullGraph, startNodeStrategy,
-				costPerBatch, resource, parameters);
+				costPerBatch, resource);
 
 		this.numberOfNeighborsVisited = numberOfNeighborsVisited;
 		nodesInQueue = new HashSet<Node>();

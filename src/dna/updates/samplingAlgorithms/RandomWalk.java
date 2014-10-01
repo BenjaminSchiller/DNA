@@ -6,7 +6,6 @@ import dna.graph.Graph;
 import dna.graph.nodes.Node;
 import dna.updates.samplingAlgorithms.startNodeSelection.StartNodeSelectionStrategy;
 import dna.util.Rand;
-import dna.util.parameters.Parameter;
 
 /**
  * Implementation of a random walk sampling algorithm. It randomly chooses the
@@ -39,9 +38,8 @@ public class RandomWalk extends SamplingAlgorithm {
 	 */
 	public RandomWalk(Graph fullGraph,
 			StartNodeSelectionStrategy startNodeStrategy, int costPerBatch,
-			int resource, Parameter[] parameters) {
-		super("RW", fullGraph, startNodeStrategy, costPerBatch, resource,
-				parameters);
+			int resource) {
+		super("RW", fullGraph, startNodeStrategy, costPerBatch, resource);
 
 		currentNode = null;
 	}

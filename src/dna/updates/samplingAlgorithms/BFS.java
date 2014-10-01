@@ -7,7 +7,6 @@ import java.util.LinkedList;
 import dna.graph.Graph;
 import dna.graph.nodes.Node;
 import dna.updates.samplingAlgorithms.startNodeSelection.StartNodeSelectionStrategy;
-import dna.util.parameters.Parameter;
 
 /**
  * A sampling algorithm based on breadth first search
@@ -39,9 +38,8 @@ public class BFS extends SamplingAlgorithm {
 	 *            will be added to the name
 	 */
 	public BFS(Graph fullGraph, StartNodeSelectionStrategy startNodeStrategy,
-			int costPerBatch, int resource, Parameter[] parameters) {
-		super("BFS", fullGraph, startNodeStrategy, costPerBatch, resource,
-				parameters);
+			int costPerBatch, int resource) {
+		super("BFS", fullGraph, startNodeStrategy, costPerBatch, resource);
 
 		queue = new LinkedList<Node>();
 		nodesInQueue = new HashSet<Node>();

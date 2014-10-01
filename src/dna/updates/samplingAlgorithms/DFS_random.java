@@ -10,7 +10,6 @@ import dna.graph.edges.Edge;
 import dna.graph.nodes.Node;
 import dna.updates.samplingAlgorithms.startNodeSelection.StartNodeSelectionStrategy;
 import dna.util.Rand;
-import dna.util.parameters.Parameter;
 
 /**
  * A sampling algorithm based on deep first search, but with randomized node
@@ -43,10 +42,11 @@ public class DFS_random extends SamplingAlgorithm {
 	 *            the parameters which makes this algorithm unique and which
 	 *            will be added to the name
 	 */
-	public DFS_random(Graph fullGraph, StartNodeSelectionStrategy startNodeStrategy,
-			int costPerBatch, int resource, Parameter[] parameters) {
+	public DFS_random(Graph fullGraph,
+			StartNodeSelectionStrategy startNodeStrategy, int costPerBatch,
+			int resource) {
 		super("DFS_random", fullGraph, startNodeStrategy, costPerBatch,
-				resource, parameters);
+				resource);
 
 		queue = new LinkedList<Node>();
 		nodesInQueue = new HashSet<Node>();
