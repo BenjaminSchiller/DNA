@@ -2291,7 +2291,7 @@ public class Plotting {
 			PlottingConfig config) throws IOException, InterruptedException {
 		// craft config
 		PlottingConfig tempConfig = config.clone(PlotFlag.plotAll);
-		config.setPlotInterval(timestampFrom, timestampTo, stepsize);
+		tempConfig.setPlotInterval(timestampFrom, timestampTo, stepsize);
 
 		// call plotting method
 		Plotting.plotFromTo(seriesData, dstDir, tempConfig);
@@ -2458,11 +2458,11 @@ public class Plotting {
 	 * @throws InterruptedException
 	 *             Thrown by executing gnuplot.
 	 */
-//	public static void plotStatistic(SeriesData seriesData, String dstDir)
-//			throws IOException, InterruptedException {
-//		Plotting.plot(new SeriesData[] { seriesData }, dstDir,
-//				PlotFlag.plotStatistics);
-//	}
+	// public static void plotStatistic(SeriesData seriesData, String dstDir)
+	// throws IOException, InterruptedException {
+	// Plotting.plot(new SeriesData[] { seriesData }, dstDir,
+	// PlotFlag.plotStatistics);
+	// }
 
 	/**
 	 * Plots only the statistics of the given series.
@@ -2478,14 +2478,14 @@ public class Plotting {
 	 * @throws InterruptedException
 	 *             Thrown by executing gnuplot.
 	 */
-//	public static void plotStatistic(SeriesData seriesData, String dstDir,
-//			PlottingConfig config) throws IOException, InterruptedException {
-//		// craft config
-//		PlottingConfig tempConfig = config.clone(PlotFlag.plotStatistics);
-//
-//		// call plotting method
-//		Plotting.plot(new SeriesData[] { seriesData }, dstDir, tempConfig);
-//	}
+	// public static void plotStatistic(SeriesData seriesData, String dstDir,
+	// PlottingConfig config) throws IOException, InterruptedException {
+	// // craft config
+	// PlottingConfig tempConfig = config.clone(PlotFlag.plotStatistics);
+	//
+	// // call plotting method
+	// Plotting.plot(new SeriesData[] { seriesData }, dstDir, tempConfig);
+	// }
 
 	/**
 	 * Plots only the statistics of the given series.
@@ -2499,10 +2499,10 @@ public class Plotting {
 	 * @throws InterruptedException
 	 *             Thrown by executing gnuplot.
 	 */
-//	public static void plotStatistic(SeriesData[] seriesData, String dstDir)
-//			throws IOException, InterruptedException {
-//		Plotting.plot(seriesData, dstDir, PlotFlag.plotStatistics);
-//	}
+	// public static void plotStatistic(SeriesData[] seriesData, String dstDir)
+	// throws IOException, InterruptedException {
+	// Plotting.plot(seriesData, dstDir, PlotFlag.plotStatistics);
+	// }
 
 	/**
 	 * Plots only the statistics of the given series.
@@ -2518,14 +2518,14 @@ public class Plotting {
 	 * @throws InterruptedException
 	 *             Thrown by executing gnuplot.
 	 */
-//	public static void plotStatistic(SeriesData[] seriesData, String dstDir,
-//			PlottingConfig config) throws IOException, InterruptedException {
-//		// craft config
-//		PlottingConfig tempConfig = config.clone(PlotFlag.plotStatistics);
-//
-//		// call plotting method
-//		Plotting.plot(seriesData, dstDir, tempConfig);
-//	}
+	// public static void plotStatistic(SeriesData[] seriesData, String dstDir,
+	// PlottingConfig config) throws IOException, InterruptedException {
+	// // craft config
+	// PlottingConfig tempConfig = config.clone(PlotFlag.plotStatistics);
+	//
+	// // call plotting method
+	// Plotting.plot(seriesData, dstDir, tempConfig);
+	// }
 
 	/**
 	 * Plots only the metric values of the given series.
@@ -2539,51 +2539,11 @@ public class Plotting {
 	 * @throws InterruptedException
 	 *             Thrown by executing gnuplot.
 	 */
-//	public static void plotMetricValues(SeriesData seriesData, String dstDir)
-//			throws IOException, InterruptedException {
-//		Plotting.plot(new SeriesData[] { seriesData }, dstDir,
-//				PlotFlag.plotMetricValues);
-//	}
-
-	/**
-	 * Plots only the metric values of the given series.
-	 * 
-	 * @param seriesData
-	 *            SeriesData to be plotted.
-	 * @param dstDir
-	 *            Destination directory of the plots.
-	 * @param config
-	 *            PlottingConfig to control plotting behaviour.
-	 * @throws IOException
-	 *             Thrown by writer.
-	 * @throws InterruptedException
-	 *             Thrown by executing gnuplot.
-	 */
-//	public static void plotMetricValues(SeriesData seriesData, String dstDir,
-//			PlottingConfig config) throws IOException, InterruptedException {
-//		// craft config
-//		PlottingConfig tempConfig = config.clone(PlotFlag.plotMetricValues);
-//
-//		// call plotting method
-//		Plotting.plot(new SeriesData[] { seriesData }, dstDir, tempConfig);
-//	}
-
-	/**
-	 * Plots only the metric values of the given series.
-	 * 
-	 * @param seriesData
-	 *            SeriesData to be plotted.
-	 * @param dstDir
-	 *            Destination directory of the plots.
-	 * @throws IOException
-	 *             Thrown by writer.
-	 * @throws InterruptedException
-	 *             Thrown by executing gnuplot.
-	 */
-//	public static void plotMetricValues(SeriesData[] seriesData, String dstDir)
-//			throws IOException, InterruptedException {
-//		Plotting.plot(seriesData, dstDir, PlotFlag.plotMetricValues);
-//	}
+	// public static void plotMetricValues(SeriesData seriesData, String dstDir)
+	// throws IOException, InterruptedException {
+	// Plotting.plot(new SeriesData[] { seriesData }, dstDir,
+	// PlotFlag.plotMetricValues);
+	// }
 
 	/**
 	 * Plots only the metric values of the given series.
@@ -2599,14 +2559,56 @@ public class Plotting {
 	 * @throws InterruptedException
 	 *             Thrown by executing gnuplot.
 	 */
-//	public static void plotMetricValues(SeriesData[] seriesData, String dstDir,
-//			PlottingConfig config) throws IOException, InterruptedException {
-//		// craft config
-//		PlottingConfig tempConfig = config.clone(PlotFlag.plotMetricValues);
-//
-//		// call plotting method
-//		Plotting.plot(seriesData, dstDir, tempConfig);
-//	}
+	// public static void plotMetricValues(SeriesData seriesData, String dstDir,
+	// PlottingConfig config) throws IOException, InterruptedException {
+	// // craft config
+	// PlottingConfig tempConfig = config.clone(PlotFlag.plotMetricValues);
+	//
+	// // call plotting method
+	// Plotting.plot(new SeriesData[] { seriesData }, dstDir, tempConfig);
+	// }
+
+	/**
+	 * Plots only the metric values of the given series.
+	 * 
+	 * @param seriesData
+	 *            SeriesData to be plotted.
+	 * @param dstDir
+	 *            Destination directory of the plots.
+	 * @throws IOException
+	 *             Thrown by writer.
+	 * @throws InterruptedException
+	 *             Thrown by executing gnuplot.
+	 */
+	// public static void plotMetricValues(SeriesData[] seriesData, String
+	// dstDir)
+	// throws IOException, InterruptedException {
+	// Plotting.plot(seriesData, dstDir, PlotFlag.plotMetricValues);
+	// }
+
+	/**
+	 * Plots only the metric values of the given series.
+	 * 
+	 * @param seriesData
+	 *            SeriesData to be plotted.
+	 * @param dstDir
+	 *            Destination directory of the plots.
+	 * @param config
+	 *            PlottingConfig to control plotting behaviour.
+	 * @throws IOException
+	 *             Thrown by writer.
+	 * @throws InterruptedException
+	 *             Thrown by executing gnuplot.
+	 */
+	// public static void plotMetricValues(SeriesData[] seriesData, String
+	// dstDir,
+	// PlottingConfig config) throws IOException, InterruptedException {
+	// // craft config
+	// PlottingConfig tempConfig = config.clone(PlotFlag.plotMetricValues);
+	//
+	// // call plotting method
+	// Plotting.plot(seriesData, dstDir, tempConfig);
+	// }
 
 	/**
 	 * Plots only the custom values plots on the given series.
@@ -2620,10 +2622,10 @@ public class Plotting {
 	 * @throws InterruptedException
 	 *             Thrown by executing gnuplot.
 	 */
-//	public static void plotCustomValuePlots(SeriesData[] seriesData,
-//			String dstDir) throws IOException, InterruptedException {
-//		Plotting.plot(seriesData, dstDir, PlotFlag.plotCustomValues);
-//	}
+	// public static void plotCustomValuePlots(SeriesData[] seriesData,
+	// String dstDir) throws IOException, InterruptedException {
+	// Plotting.plot(seriesData, dstDir, PlotFlag.plotCustomValues);
+	// }
 
 	/**
 	 * Plots only the custom values plots on the given series.
@@ -2639,15 +2641,15 @@ public class Plotting {
 	 * @throws InterruptedException
 	 *             Thrown by executing gnuplot.
 	 */
-//	public static void plotCustomValuePlots(SeriesData seriesData,
-//			String dstDir, PlottingConfig config) throws IOException,
-//			InterruptedException {
-//		// craft new config object
-//		PlottingConfig tempConfig = config.clone(PlotFlag.plotCustomValues);
-//
-//		// call plotting method
-//		Plotting.plot(new SeriesData[] { seriesData }, dstDir, tempConfig);
-//	}
+	// public static void plotCustomValuePlots(SeriesData seriesData,
+	// String dstDir, PlottingConfig config) throws IOException,
+	// InterruptedException {
+	// // craft new config object
+	// PlottingConfig tempConfig = config.clone(PlotFlag.plotCustomValues);
+	//
+	// // call plotting method
+	// Plotting.plot(new SeriesData[] { seriesData }, dstDir, tempConfig);
+	// }
 
 	/**
 	 * Plots only the custom value plots on the given series.
@@ -2661,11 +2663,12 @@ public class Plotting {
 	 * @throws InterruptedException
 	 *             Thrown by executing gnuplot.
 	 */
-//	public static void plotCustomValuePlots(SeriesData seriesData, String dstDir)
-//			throws IOException, InterruptedException {
-//		Plotting.plot(new SeriesData[] { seriesData }, dstDir,
-//				PlotFlag.plotCustomValues);
-//	}
+	// public static void plotCustomValuePlots(SeriesData seriesData, String
+	// dstDir)
+	// throws IOException, InterruptedException {
+	// Plotting.plot(new SeriesData[] { seriesData }, dstDir,
+	// PlotFlag.plotCustomValues);
+	// }
 
 	/**
 	 * Plots only the custom values plots on the given series.
@@ -2681,15 +2684,15 @@ public class Plotting {
 	 * @throws InterruptedException
 	 *             Thrown by executing gnuplot.
 	 */
-//	public static void plotCustomValuePlots(SeriesData[] seriesData,
-//			String dstDir, PlottingConfig config) throws IOException,
-//			InterruptedException {
-//		// craft new config object
-//		PlottingConfig tempConfig = config.clone(PlotFlag.plotCustomValues);
-//
-//		// call plotting method
-//		Plotting.plot(seriesData, dstDir, tempConfig);
-//	}
+	// public static void plotCustomValuePlots(SeriesData[] seriesData,
+	// String dstDir, PlottingConfig config) throws IOException,
+	// InterruptedException {
+	// // craft new config object
+	// PlottingConfig tempConfig = config.clone(PlotFlag.plotCustomValues);
+	//
+	// // call plotting method
+	// Plotting.plot(seriesData, dstDir, tempConfig);
+	// }
 
 	/**
 	 * Plots only the runtimes of the given series.
@@ -2703,51 +2706,11 @@ public class Plotting {
 	 * @throws InterruptedException
 	 *             Thrown by executing gnuplot.
 	 */
-//	public static void plotRuntimes(SeriesData seriesData, String dstDir)
-//			throws IOException, InterruptedException {
-//		Plotting.plot(new SeriesData[] { seriesData }, dstDir,
-//				PlotFlag.plotRuntimes);
-//	}
-
-	/**
-	 * Plots only the runtimes of the given series.
-	 * 
-	 * @param seriesData
-	 *            SeriesData to be plotted.
-	 * @param dstDir
-	 *            Destination directory of the plots.
-	 * @param config
-	 *            PlottingConfig to control plotting behaviour.
-	 * @throws IOException
-	 *             Thrown by writer.
-	 * @throws InterruptedException
-	 *             Thrown by executing gnuplot.
-	 */
-//	public static void plotRuntimes(SeriesData seriesData, String dstDir,
-//			PlottingConfig config) throws IOException, InterruptedException {
-//		// craft config
-//		PlottingConfig tempConfig = config.clone(PlotFlag.plotRuntimes);
-//
-//		// call plotting method
-//		Plotting.plot(new SeriesData[] { seriesData }, dstDir, tempConfig);
-//	}
-
-	/**
-	 * Plots only the runtimes of the given series.
-	 * 
-	 * @param seriesData
-	 *            SeriesData to be plotted.
-	 * @param dstDir
-	 *            Destination directory of the plots.
-	 * @throws IOException
-	 *             Thrown by writer.
-	 * @throws InterruptedException
-	 *             Thrown by executing gnuplot.
-	 */
-//	public static void plotRuntimes(SeriesData[] seriesData, String dstDir)
-//			throws IOException, InterruptedException {
-//		Plotting.plot(seriesData, dstDir, PlotFlag.plotRuntimes);
-//	}
+	// public static void plotRuntimes(SeriesData seriesData, String dstDir)
+	// throws IOException, InterruptedException {
+	// Plotting.plot(new SeriesData[] { seriesData }, dstDir,
+	// PlotFlag.plotRuntimes);
+	// }
 
 	/**
 	 * Plots only the runtimes of the given series.
@@ -2763,14 +2726,54 @@ public class Plotting {
 	 * @throws InterruptedException
 	 *             Thrown by executing gnuplot.
 	 */
-//	public static void plotRuntimes(SeriesData[] seriesData, String dstDir,
-//			PlottingConfig config) throws IOException, InterruptedException {
-//		// craft config
-//		PlottingConfig tempConfig = config.clone(PlotFlag.plotRuntimes);
-//
-//		// call plotting methods
-//		Plotting.plot(seriesData, dstDir, tempConfig);
-//	}
+	// public static void plotRuntimes(SeriesData seriesData, String dstDir,
+	// PlottingConfig config) throws IOException, InterruptedException {
+	// // craft config
+	// PlottingConfig tempConfig = config.clone(PlotFlag.plotRuntimes);
+	//
+	// // call plotting method
+	// Plotting.plot(new SeriesData[] { seriesData }, dstDir, tempConfig);
+	// }
+
+	/**
+	 * Plots only the runtimes of the given series.
+	 * 
+	 * @param seriesData
+	 *            SeriesData to be plotted.
+	 * @param dstDir
+	 *            Destination directory of the plots.
+	 * @throws IOException
+	 *             Thrown by writer.
+	 * @throws InterruptedException
+	 *             Thrown by executing gnuplot.
+	 */
+	// public static void plotRuntimes(SeriesData[] seriesData, String dstDir)
+	// throws IOException, InterruptedException {
+	// Plotting.plot(seriesData, dstDir, PlotFlag.plotRuntimes);
+	// }
+
+	/**
+	 * Plots only the runtimes of the given series.
+	 * 
+	 * @param seriesData
+	 *            SeriesData to be plotted.
+	 * @param dstDir
+	 *            Destination directory of the plots.
+	 * @param config
+	 *            PlottingConfig to control plotting behaviour.
+	 * @throws IOException
+	 *             Thrown by writer.
+	 * @throws InterruptedException
+	 *             Thrown by executing gnuplot.
+	 */
+	// public static void plotRuntimes(SeriesData[] seriesData, String dstDir,
+	// PlottingConfig config) throws IOException, InterruptedException {
+	// // craft config
+	// PlottingConfig tempConfig = config.clone(PlotFlag.plotRuntimes);
+	//
+	// // call plotting methods
+	// Plotting.plot(seriesData, dstDir, tempConfig);
+	// }
 
 	/**
 	 * Plots only the distributions of the given series.
@@ -2784,11 +2787,12 @@ public class Plotting {
 	 * @throws InterruptedException
 	 *             Thrown by executing gnuplot.
 	 */
-//	public static void plotDistributions(SeriesData seriesData, String dstDir)
-//			throws IOException, InterruptedException {
-//		Plotting.plot(new SeriesData[] { seriesData }, dstDir,
-//				PlotFlag.plotDistributions);
-//	}
+	// public static void plotDistributions(SeriesData seriesData, String
+	// dstDir)
+	// throws IOException, InterruptedException {
+	// Plotting.plot(new SeriesData[] { seriesData }, dstDir,
+	// PlotFlag.plotDistributions);
+	// }
 
 	/**
 	 * Plots only the distributions of the given series.
@@ -2804,14 +2808,15 @@ public class Plotting {
 	 * @throws InterruptedException
 	 *             Thrown by executing gnuplot.
 	 */
-//	public static void plotDistributions(SeriesData seriesData, String dstDir,
-//			PlottingConfig config) throws IOException, InterruptedException {
-//		// craft config
-//		PlottingConfig tempConfig = config.clone(PlotFlag.plotDistributions);
-//
-//		// call plotting methods
-//		Plotting.plot(new SeriesData[] { seriesData }, dstDir, tempConfig);
-//	}
+	// public static void plotDistributions(SeriesData seriesData, String
+	// dstDir,
+	// PlottingConfig config) throws IOException, InterruptedException {
+	// // craft config
+	// PlottingConfig tempConfig = config.clone(PlotFlag.plotDistributions);
+	//
+	// // call plotting methods
+	// Plotting.plot(new SeriesData[] { seriesData }, dstDir, tempConfig);
+	// }
 
 	/**
 	 * Plots only the distributions of the given series.
@@ -2825,10 +2830,11 @@ public class Plotting {
 	 * @throws InterruptedException
 	 *             Thrown by executing gnuplot.
 	 */
-//	public static void plotDistributions(SeriesData[] seriesData, String dstDir)
-//			throws IOException, InterruptedException {
-//		Plotting.plot(seriesData, dstDir, PlotFlag.plotDistributions);
-//	}
+	// public static void plotDistributions(SeriesData[] seriesData, String
+	// dstDir)
+	// throws IOException, InterruptedException {
+	// Plotting.plot(seriesData, dstDir, PlotFlag.plotDistributions);
+	// }
 
 	/**
 	 * Plots only the distributions of the given series.
@@ -2844,15 +2850,15 @@ public class Plotting {
 	 * @throws InterruptedException
 	 *             Thrown by executing gnuplot.
 	 */
-//	public static void plotDistributions(SeriesData[] seriesData,
-//			String dstDir, PlottingConfig config) throws IOException,
-//			InterruptedException {
-//		// craft config
-//		PlottingConfig tempConfig = config.clone(PlotFlag.plotDistributions);
-//
-//		// call plotting methods
-//		Plotting.plot(seriesData, dstDir, tempConfig);
-//	}
+	// public static void plotDistributions(SeriesData[] seriesData,
+	// String dstDir, PlottingConfig config) throws IOException,
+	// InterruptedException {
+	// // craft config
+	// PlottingConfig tempConfig = config.clone(PlotFlag.plotDistributions);
+	//
+	// // call plotting methods
+	// Plotting.plot(seriesData, dstDir, tempConfig);
+	// }
 
 	/**
 	 * Plots only the nodevaluelists of the given series.
@@ -2866,51 +2872,12 @@ public class Plotting {
 	 * @throws InterruptedException
 	 *             Thrown by executing gnuplot.
 	 */
-//	public static void plotNodeValueLists(SeriesData seriesData, String dstDir)
-//			throws IOException, InterruptedException {
-//		Plotting.plot(new SeriesData[] { seriesData }, dstDir,
-//				PlotFlag.plotNodeValueLists);
-//	}
-
-	/**
-	 * Plots only the nodevaluelists of the given series.
-	 * 
-	 * @param seriesData
-	 *            SeriesData to be plotted.
-	 * @param dstDir
-	 *            Destination directory of the plots.
-	 * @param config
-	 *            PlottingConfig to control plotting behaviour.
-	 * @throws IOException
-	 *             Thrown by writer.
-	 * @throws InterruptedException
-	 *             Thrown by executing gnuplot.
-	 */
-//	public static void plotNodeValueLists(SeriesData seriesData, String dstDir,
-//			PlottingConfig config) throws IOException, InterruptedException {
-//		// craft config
-//		PlottingConfig tempConfig = config.clone(PlotFlag.plotNodeValueLists);
-//
-//		// call plotting method
-//		Plotting.plot(new SeriesData[] { seriesData }, dstDir, tempConfig);
-//	}
-
-	/**
-	 * Plots only the nodevaluelists of the given series.
-	 * 
-	 * @param seriesData
-	 *            SeriesData to be plotted.
-	 * @param dstDir
-	 *            Destination directory of the plots.
-	 * @throws IOException
-	 *             Thrown by writer.
-	 * @throws InterruptedException
-	 *             Thrown by executing gnuplot.
-	 */
-//	public static void plotNodeValueLists(SeriesData[] seriesData, String dstDir)
-//			throws IOException, InterruptedException {
-//		Plotting.plot(seriesData, dstDir, PlotFlag.plotNodeValueLists);
-//	}
+	// public static void plotNodeValueLists(SeriesData seriesData, String
+	// dstDir)
+	// throws IOException, InterruptedException {
+	// Plotting.plot(new SeriesData[] { seriesData }, dstDir,
+	// PlotFlag.plotNodeValueLists);
+	// }
 
 	/**
 	 * Plots only the nodevaluelists of the given series.
@@ -2926,15 +2893,57 @@ public class Plotting {
 	 * @throws InterruptedException
 	 *             Thrown by executing gnuplot.
 	 */
-//	public static void plotNodeValueLists(SeriesData[] seriesData,
-//			String dstDir, PlottingConfig config) throws IOException,
-//			InterruptedException {
-//		// craft config
-//		PlottingConfig tempConfig = config.clone(PlotFlag.plotNodeValueLists);
-//
-//		// call plotting method
-//		Plotting.plot(seriesData, dstDir, tempConfig);
-//	}
+	// public static void plotNodeValueLists(SeriesData seriesData, String
+	// dstDir,
+	// PlottingConfig config) throws IOException, InterruptedException {
+	// // craft config
+	// PlottingConfig tempConfig = config.clone(PlotFlag.plotNodeValueLists);
+	//
+	// // call plotting method
+	// Plotting.plot(new SeriesData[] { seriesData }, dstDir, tempConfig);
+	// }
+
+	/**
+	 * Plots only the nodevaluelists of the given series.
+	 * 
+	 * @param seriesData
+	 *            SeriesData to be plotted.
+	 * @param dstDir
+	 *            Destination directory of the plots.
+	 * @throws IOException
+	 *             Thrown by writer.
+	 * @throws InterruptedException
+	 *             Thrown by executing gnuplot.
+	 */
+	// public static void plotNodeValueLists(SeriesData[] seriesData, String
+	// dstDir)
+	// throws IOException, InterruptedException {
+	// Plotting.plot(seriesData, dstDir, PlotFlag.plotNodeValueLists);
+	// }
+
+	/**
+	 * Plots only the nodevaluelists of the given series.
+	 * 
+	 * @param seriesData
+	 *            SeriesData to be plotted.
+	 * @param dstDir
+	 *            Destination directory of the plots.
+	 * @param config
+	 *            PlottingConfig to control plotting behaviour.
+	 * @throws IOException
+	 *             Thrown by writer.
+	 * @throws InterruptedException
+	 *             Thrown by executing gnuplot.
+	 */
+	// public static void plotNodeValueLists(SeriesData[] seriesData,
+	// String dstDir, PlottingConfig config) throws IOException,
+	// InterruptedException {
+	// // craft config
+	// PlottingConfig tempConfig = config.clone(PlotFlag.plotNodeValueLists);
+	//
+	// // call plotting method
+	// Plotting.plot(seriesData, dstDir, tempConfig);
+	// }
 
 	/** Plots custom value plots **/
 	private static void plotCustomValuePlots(AggregatedBatch[] batchData,
@@ -3800,4 +3809,187 @@ public class Plotting {
 		}
 	}
 
+	/**
+	 * Plots the series to the destination dir in the given timestamp interval.
+	 * 
+	 * @param seriesData
+	 *            SeriesData to be plotted.
+	 * @param dstDir
+	 *            Destination directory of the plots.
+	 * @param from
+	 *            Beginning of the timestamp interval to be plotted.
+	 * @param to
+	 *            Ending of the timestamp interval to be plotted.
+	 * @param stepsize
+	 *            Stepsize of the batches to be plotted.
+	 * @param flags
+	 *            (Optional) Flags that define which will be plotted. If empty
+	 *            all flags will be set.
+	 * @throws IOException
+	 *             Thrown by writer.
+	 * @throws InterruptedException
+	 *             Thrown by executing gnuplot.
+	 */
+	public static void plotRunsFromTo(SeriesData seriesData, String dstDir,
+			long from, long to, long stepsize, PlotFlag... flags)
+			throws IOException, InterruptedException {
+		// craft config
+		PlottingConfig config;
+		if (flags.length == 0)
+			config = new PlottingConfig(PlotFlag.plotAll);
+		else
+			config = new PlottingConfig(flags);
+
+		// set interval
+		config.setPlotInterval(from, to, stepsize);
+
+		// call method
+		Plotting.plotRuns(seriesData, dstDir, config);
+	}
+
+	/**
+	 * Plots the series to the destination dir in the given timestamp interval.
+	 * 
+	 * @param seriesData
+	 *            SeriesData to be plotted.
+	 * @param dstDir
+	 *            Destination directory of the plots.
+	 * @param from
+	 *            Beginning of the timestamp interval to be plotted.
+	 * @param to
+	 *            Ending of the timestamp interval to be plotted.
+	 * @param stepsize
+	 *            Stepsize of the batches to be plotted.
+	 * @param config
+	 *            PlottingConfig configuring the plotting process.
+	 * @throws IOException
+	 *             Thrown by writer.
+	 * @throws InterruptedException
+	 *             Thrown by executing gnuplot.
+	 */
+	public static void plotRunsFromTo(SeriesData seriesData, String dstDir,
+			long from, long to, long stepsize, PlottingConfig config)
+			throws IOException, InterruptedException {
+		// clone config
+		PlottingConfig tempConfig = config.clone(PlotFlag.plotAll);
+		tempConfig.setPlotInterval(from, to, stepsize);
+
+		// call method
+		Plotting.plotRuns(seriesData, dstDir, tempConfig);
+	}
+
+	/**
+	 * Plots the series to the destination dir in the given index interval.
+	 * 
+	 * @param seriesData
+	 *            SeriesData to be plotted.
+	 * @param dstDir
+	 *            Destination directory of the plots.
+	 * @param from
+	 *            Beginning of the index interval to be plotted.
+	 * @param to
+	 *            Ending of the index interval to be plotted.
+	 * @param stepsize
+	 *            Stepsize of the batches to be plotted.
+	 * @param flags
+	 *            (Optional) Flags that define which will be plotted. If empty
+	 *            all flags will be set.
+	 * @throws IOException
+	 *             Thrown by writer.
+	 * @throws InterruptedException
+	 *             Thrown by executing gnuplot.
+	 */
+	public static void plotRunsFromToByIndex(SeriesData seriesData,
+			String dstDir, int from, int to, int stepsize, PlotFlag... flags)
+			throws IOException, InterruptedException {
+		// craft config
+		PlottingConfig config;
+		if (flags.length == 0)
+			config = new PlottingConfig(PlotFlag.plotAll);
+		else
+			config = new PlottingConfig(flags);
+
+		// set interval
+		config.setPlotIntervalByIndex(from, to, stepsize);
+
+		// call method
+		Plotting.plotRuns(seriesData, dstDir, config);
+	}
+
+	/**
+	 * Plots the series to the destination dir in the given index interval.
+	 * 
+	 * @param seriesData
+	 *            SeriesData to be plotted.
+	 * @param dstDir
+	 *            Destination directory of the plots.
+	 * @param from
+	 *            Beginning of the index interval to be plotted.
+	 * @param to
+	 *            Ending of the index interval to be plotted.
+	 * @param stepsize
+	 *            Stepsize of the batches to be plotted.
+	 * @param config
+	 *            PlottingConfig configuring the plotting process.
+	 * @throws IOException
+	 *             Thrown by writer.
+	 * @throws InterruptedException
+	 *             Thrown by executing gnuplot.
+	 */
+	public static void plotRunsFromToByIndex(SeriesData seriesData,
+			String dstDir, int from, int to, int stepsize, PlottingConfig config)
+			throws IOException, InterruptedException {
+		// clone config
+		PlottingConfig tempConfig = config.clone(PlotFlag.plotAll);
+		tempConfig.setPlotInterval(from, to, stepsize);
+
+		// call method
+		Plotting.plotRuns(seriesData, dstDir, tempConfig);
+	}
+
+	/**
+	 * Plots the runs of the series to the destination dir.
+	 * 
+	 * @param seriesData
+	 *            SeriesData to be plotted
+	 * @param dstDir
+	 *            Destination directory of the plots
+	 * @param flags
+	 *            Flags that define which will be plotted.
+	 * @throws IOException
+	 *             Thrown by writer.
+	 * @throws InterruptedException
+	 *             Thrown by executing gnuplot.
+	 */
+	public static void plotRuns(SeriesData seriesData, String dstDir,
+			PlotFlag... flags) throws IOException, InterruptedException {
+		// craft config
+		PlottingConfig config;
+		if (flags.length == 0)
+			config = new PlottingConfig(PlotFlag.plotAll);
+		else
+			config = new PlottingConfig(flags);
+
+		// call method
+		Plotting.plotRuns(seriesData, dstDir, config);
+	}
+
+	/**
+	 * Plots the runs of the series to the destination dir.
+	 * 
+	 * @param seriesData
+	 *            SeriesData to be plotted
+	 * @param dstDir
+	 *            Destination directory of the plots
+	 * @param config
+	 *            PlottingConfig configuring the plotting process.
+	 * @throws IOException
+	 *             Thrown by writer.
+	 * @throws InterruptedException
+	 *             Thrown by executing gnuplot.
+	 */
+	public static void plotRuns(SeriesData seriesData, String dstDir,
+			PlottingConfig config) throws IOException, InterruptedException {
+		PlottingRun.plot(seriesData, dstDir, config);
+	}
 }

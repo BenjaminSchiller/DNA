@@ -9,6 +9,8 @@ import dna.plot.data.PlotData.PlotStyle;
 import dna.plot.data.PlotData.PlotType;
 import dna.series.aggdata.AggregatedBatch;
 import dna.series.aggdata.AggregatedMetric;
+import dna.series.data.BatchData;
+import dna.series.data.MetricData;
 import dna.util.Config;
 import dna.util.Log;
 
@@ -219,6 +221,44 @@ public class PlottingConfig {
 	}
 
 	/**
+	 * Checks if the custom plots make sense on the given batches. Plots that
+	 * have no domains/values in the given batches will be removed.
+	 * 
+	 * @param batches
+	 *            Batches to be checked.
+	 */
+	public void checkCustomPlotConfigs(BatchData[] batches) {
+		// log
+		Log.infoSep();
+		Log.info("Checking for unnecessary custom plots:");
+
+		// only check necessary
+		if (this.plotStatistics)
+			this.customStatisticPlots = PlottingConfig.checkPlotConfig(
+					this.customStatisticPlots, batches);
+
+		if (this.plotMetricValues)
+			this.customMetricValuePlots = PlottingConfig.checkPlotConfig(
+					this.customMetricValuePlots, batches);
+
+		if (this.plotCustomValues)
+			this.customValuePlots = PlottingConfig.checkPlotConfig(
+					this.customValuePlots, batches);
+
+		if (this.plotRuntimes)
+			this.customRuntimePlots = PlottingConfig.checkPlotConfig(
+					this.customRuntimePlots, batches);
+
+		if (this.plotDistributions)
+			this.customDistributionPlots = PlottingConfig.checkPlotConfig(
+					this.customDistributionPlots, batches);
+
+		if (this.plotNodeValueLists)
+			this.customNodeValueListPlots = PlottingConfig.checkPlotConfig(
+					this.customNodeValueListPlots, batches);
+	}
+
+	/**
 	 * Checks if the given PlotConfig's can be plotted on the given batches. A
 	 * list of PlotConfig's with only plottable PlotConfig's will be returned.
 	 * 
@@ -230,6 +270,96 @@ public class PlottingConfig {
 	 */
 	private static ArrayList<PlotConfig> checkPlotConfig(
 			ArrayList<PlotConfig> configs, AggregatedBatch[] batches) {
+		// new list of configs
+		ArrayList<PlotConfig> configsNew = new ArrayList<PlotConfig>();
+
+		// if null, return empty list
+		if (configs == null)
+			return configsNew;
+
+		// replace wildcards
+		PlottingConfig.replaceWildcards(configs, batches);
+
+		// iterate over configs
+		for (PlotConfig pc : configs) {
+			boolean useful = false;
+			String[] values = pc.getValues();
+			String[] domains = pc.getDomains();
+			int functionCounter = 0;
+
+			// iterate over values & domains
+			for (int i = 0; i < values.length && !useful; i++) {
+				String value = values[i];
+				String domain = domains[i];
+
+				// check if null
+				if (value == null || domain == null)
+					continue;
+
+				// if expression -> check if domains exist
+				if (domain.equals(PlotConfig.customPlotDomainExpression)) {
+					String[] split = value.split("\\$");
+
+					// iterate over split
+					for (int j = 0; j < split.length; j++) {
+						// skip even numbers
+						if ((j & 1) == 0)
+							continue;
+
+						String[] split2 = split[j]
+								.split(PlotConfig.customPlotDomainDelimiter);
+
+						// if no split possible check gen. domain
+						if (split2.length == 1) {
+							useful = PlottingConfig.isContained(
+									pc.getGeneralDomain(), split2[0], batches);
+						}
+
+						// if split = 2, check domain and value
+						if (split2.length == 2) {
+							useful = PlottingConfig.isContained(split2[0],
+									split2[1], batches);
+						}
+					}
+					continue;
+				}
+				// if function -> continue
+				if (domain.equals(PlotConfig.customPlotDomainFunction)) {
+					functionCounter++;
+					if (functionCounter == values.length)
+						useful = true;
+					continue;
+				}
+
+				// check if contained in batches
+				if (PlottingConfig.isContained(domain, value, batches)) {
+					useful = true;
+					continue;
+				}
+			}
+
+			if (useful) {
+				configsNew.add(pc);
+			} else {
+				Log.info("\tremoving: '" + pc.getFilename() + "'");
+			}
+		}
+
+		return configsNew;
+	}
+
+	/**
+	 * Checks if the given PlotConfig's can be plotted on the given batches. A
+	 * list of PlotConfig's with only plottable PlotConfig's will be returned.
+	 * 
+	 * @param configs
+	 *            ArrayList of PlotConfig's to be checked.
+	 * @param batches
+	 *            Batches to be checked with the given PlotConfigs.
+	 * @return ArrayList of PlotConfig's plottable on the given Batches.
+	 */
+	private static ArrayList<PlotConfig> checkPlotConfig(
+			ArrayList<PlotConfig> configs, BatchData[] batches) {
 		// new list of configs
 		ArrayList<PlotConfig> configsNew = new ArrayList<PlotConfig>();
 
@@ -383,6 +513,81 @@ public class PlottingConfig {
 		return contained;
 	}
 
+	/**
+	 * Checks if the given value of the given domain is contained in atleast on
+	 * of the given batches. If yes, true is returned.
+	 * 
+	 * @param domain
+	 *            Domain to be checked.
+	 * @param value
+	 *            Value to be checked.
+	 * @param batches
+	 *            Array of batches to be checked.
+	 * @return True if domain and value is found in atleast one of the batches.
+	 */
+	public static boolean isContained(String domain, String value,
+			BatchData[] batches) {
+		boolean contained = false;
+
+		// if domain or value null, return false
+		if (domain == null || value == null)
+			return false;
+
+		// check if statistic
+		if (domain.equals(PlotConfig.customPlotDomainStatistics)) {
+			for (BatchData b : batches) {
+				if (b.getValues().getNames().contains(value)) {
+					contained = true;
+					continue;
+				}
+			}
+		}
+		// check if general runtime
+		if (domain.equals(PlotConfig.customPlotDomainRuntimes)
+				|| domain.equals(PlotConfig.customPlotDomainGeneralRuntimes)) {
+			for (BatchData b : batches) {
+				if (b.getGeneralRuntimes().getNames().contains(value)) {
+					contained = true;
+					continue;
+				}
+			}
+		}
+		// check if metric runtime
+		if (domain.equals(PlotConfig.customPlotDomainRuntimes)
+				|| domain.equals(PlotConfig.customPlotDomainMetricRuntimes)) {
+			for (BatchData b : batches) {
+				if (b.getMetricRuntimes().getNames().contains(value)) {
+					contained = true;
+					continue;
+				}
+			}
+		}
+		// check if domain is a metric
+		for (BatchData b : batches) {
+			if (b.getMetrics().getNames().contains(domain)) {
+				MetricData m = b.getMetrics().get(domain);
+
+				// if value
+				if (m.getValues().getNames().contains(value)) {
+					contained = true;
+					continue;
+				}
+				// if distribution
+				if (m.getDistributions().getNames().contains(value)) {
+					contained = true;
+					continue;
+				}
+				// if nodevaluelist
+				if (m.getNodeValues().getNames().contains(value)) {
+					contained = true;
+					continue;
+				}
+			}
+		}
+
+		return contained;
+	}
+
 	/** Checks if the value and domain are contained in the given batch. **/
 	public static boolean isContained(String domain, String value,
 			AggregatedBatch batch) {
@@ -444,6 +649,251 @@ public class PlottingConfig {
 			metricNodeValues = new ArrayList[metrics.size()];
 
 			for (AggregatedBatch b : batches) {
+				for (int i = 0; i < metrics.size(); i++) {
+					String metric = metrics.get(i);
+					metricValues[i] = new ArrayList<String>();
+					metricDistributions[i] = new ArrayList<String>();
+					metricNodeValues[i] = new ArrayList<String>();
+
+					if (b.getMetrics().getNames().contains(metric)) {
+						// values
+						for (String v : b.getMetrics().get(metric).getValues()
+								.getNames()) {
+							if (!metricValues[i].contains(v))
+								metricValues[i].add(v);
+						}
+						// distributions
+						for (String d : b.getMetrics().get(metric)
+								.getDistributions().getNames()) {
+							if (!metricDistributions[i].contains(d))
+								metricDistributions[i].add(d);
+						}
+						// nodevaluelists
+						for (String n : b.getMetrics().get(metric)
+								.getNodeValues().getNames()) {
+							if (!metricNodeValues[i].contains(n))
+								metricNodeValues[i].add(n);
+						}
+					}
+				}
+			}
+
+			// iterate over configs
+			for (PlotConfig cfg : config) {
+				// if plot all is false, no wildcard is included -> skip
+				if (!cfg.isPlotAll())
+					continue;
+
+				String[] values = cfg.getValues();
+				String[] domains = cfg.getDomains();
+
+				ArrayList<String> vList = new ArrayList<String>();
+				ArrayList<String> dList = new ArrayList<String>();
+
+				// iterate over all values
+				for (int i = 0; i < values.length; i++) {
+					String value = values[i];
+					String domain = domains[i];
+					String wildcard = PlotConfig.customPlotWildcard;
+
+					// if no wildcard included, no replacement
+					if (!value.contains(wildcard)) {
+						vList.add(value);
+						dList.add(domain);
+						continue;
+					}
+
+					if (domain.equals(PlotConfig.customPlotDomainExpression)) {
+						// case mathematical expression
+						String generalDomain = cfg.getGeneralDomain();
+						String[] split = value.split("\\$");
+						// statistics
+						if (generalDomain
+								.equals(PlotConfig.customPlotDomainStatistics)) {
+							for (String v : stats) {
+								String string = "";
+								for (int j = 0; j < split.length; j++) {
+									if ((j & 1) == 0) {
+										// even
+										string += split[j];
+									} else {
+										// odd
+										string += "$" + v + "$";
+									}
+								}
+								vList.add(string);
+								dList.add(domain);
+							}
+
+						} else if (generalDomain
+								.equals(PlotConfig.customPlotDomainGeneralRuntimes)
+								|| generalDomain
+										.equals(PlotConfig.customPlotDomainRuntimes)) {
+							// general runtimes
+							for (String v : genRuntimes) {
+								// skip graphgeneration
+								if (v.equals("graphGeneration"))
+									continue;
+
+								String string = "";
+								for (int j = 0; j < split.length; j++) {
+									if ((j & 1) == 0) {
+										// even
+										string += split[j];
+									} else {
+										// odd
+										string += "$" + v + "$";
+									}
+								}
+								vList.add(string);
+								dList.add(domain);
+							}
+
+						} else if (generalDomain
+								.equals(PlotConfig.customPlotDomainMetricRuntimes)
+								|| generalDomain
+										.equals(PlotConfig.customPlotDomainRuntimes)) {
+							// metric runtimes
+							for (String v : metRuntimes) {
+								String string = "";
+								for (int j = 0; j < split.length; j++) {
+									if ((j & 1) == 0) {
+										// even
+										string += split[j];
+									} else {
+										// odd
+										string += "$" + v + "$";
+									}
+								}
+								vList.add(string);
+								dList.add(domain);
+							}
+						} else {
+							// metric value
+							if (metrics.contains(generalDomain)) {
+								int index = metrics.indexOf(generalDomain);
+								for (String v : metricValues[index]) {
+									String string = "";
+									for (int j = 0; j < split.length; j++) {
+										if ((j & 1) == 0) {
+											// even
+											string += split[j];
+										} else {
+											// odd
+											string += "$" + v + "$";
+										}
+									}
+									vList.add(string);
+									dList.add(domain);
+								}
+							}
+						}
+					} else {
+						// case no mathematical expression, just replace
+						// wildcard
+						if (domain
+								.equals(PlotConfig.customPlotDomainStatistics)) {
+							// statistics
+							for (String v : stats) {
+								vList.add(value.replace(wildcard, v));
+								dList.add(domain);
+							}
+						} else if (domain
+								.equals(PlotConfig.customPlotDomainGeneralRuntimes)
+								|| domain
+										.equals(PlotConfig.customPlotDomainRuntimes)) {
+							// general runtimes
+							for (String v : genRuntimes) {
+								// skip graphgeneration
+								if (v.equals("graphGeneration"))
+									continue;
+
+								vList.add(value.replace(wildcard, v));
+								dList.add(domain);
+							}
+						} else if (domain
+								.equals(PlotConfig.customPlotDomainMetricRuntimes)
+								|| domain
+										.equals(PlotConfig.customPlotDomainRuntimes)) {
+							// metric runtimes
+							for (String v : metRuntimes) {
+								vList.add(value.replace(wildcard, v));
+								dList.add(domain);
+							}
+						} else {
+							// metric value
+							if (metrics.contains(domain)) {
+								int index = metrics.indexOf(domain);
+								for (String v : metricValues[index]) {
+									vList.add(value.replace(wildcard, v));
+									dList.add(domain);
+								}
+							}
+						}
+
+					}
+				}
+				// set new values and domains
+				cfg.setValues(vList.toArray(new String[0]));
+				cfg.setDomains(dList.toArray(new String[0]));
+			}
+		}
+	}
+
+	/**
+	 * Replaces all wildcards in the given config with the corresponding values
+	 * from the given batches, where each batch represents the init batch of one
+	 * series.
+	 * 
+	 * @param config
+	 *            Config to be altered.
+	 * @param batches
+	 *            Array of init-batches holding the names of the values which
+	 *            will be inserted into the config.
+	 */
+	@SuppressWarnings("unchecked")
+	private static void replaceWildcards(ArrayList<PlotConfig> config,
+			BatchData[] batches) {
+		if (config != null) {
+			ArrayList<String> stats = new ArrayList<String>();
+			ArrayList<String> metRuntimes = new ArrayList<String>();
+			ArrayList<String> genRuntimes = new ArrayList<String>();
+
+			ArrayList<String> metrics = new ArrayList<String>();
+			ArrayList<String>[] metricValues;
+			ArrayList<String>[] metricDistributions;
+			ArrayList<String>[] metricNodeValues;
+
+			// gather available values
+			for (BatchData b : batches) {
+				// statistics
+				for (String s : b.getValues().getNames()) {
+					if (!stats.contains(s))
+						stats.add(s);
+				}
+				// metric runtimes
+				for (String r : b.getMetricRuntimes().getNames()) {
+					if (!metRuntimes.contains(r))
+						metRuntimes.add(r);
+				}
+				// general runtimes
+				for (String r : b.getGeneralRuntimes().getNames()) {
+					if (!genRuntimes.contains(r))
+						genRuntimes.add(r);
+				}
+				// metric names
+				for (String m : b.getMetrics().getNames()) {
+					if (!metrics.contains(m))
+						metrics.add(m);
+				}
+			}
+
+			// metric values
+			metricValues = new ArrayList[metrics.size()];
+			metricDistributions = new ArrayList[metrics.size()];
+			metricNodeValues = new ArrayList[metrics.size()];
+
+			for (BatchData b : batches) {
 				for (int i = 0; i < metrics.size(); i++) {
 					String metric = metrics.get(i);
 					metricValues[i] = new ArrayList<String>();
