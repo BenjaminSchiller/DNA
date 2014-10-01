@@ -179,22 +179,21 @@ public class Plot {
 	}
 
 	// append data methods
-	public void appendData(AggregatedValue[] values, int normalizeDivisor)
+	public void appendData(AggregatedValue[] values) throws IOException {
+		for (int i = 0; i < values.length; i++)
+			this.appendData(values[i], "");
+		this.appendEOF();
+	}
+
+	public void appendDataWithIndex(AggregatedValue[] values)
 			throws IOException {
 		for (int i = 0; i < values.length; i++)
-			this.appendData(values[i], "", normalizeDivisor);
+			this.appendData(values[i], "" + i);
 		this.appendEOF();
 	}
 
-	public void appendDataWithIndex(AggregatedValue[] values,
-			int normalizeDivisor) throws IOException {
-		for (int i = 0; i < values.length; i++)
-			this.appendData(values[i], "" + i, normalizeDivisor);
-		this.appendEOF();
-	}
-
-	private void appendData(AggregatedValue value, String timestamp,
-			int normalizeDivisor) throws IOException {
+	private void appendData(AggregatedValue value, String timestamp)
+			throws IOException {
 		Writer w = this.fileWriter;
 		String temp = "" + timestamp;
 
@@ -205,17 +204,16 @@ public class Plot {
 			values = value.getValues();
 		for (int k = 0; k < values.length; k++) {
 			if (temp.equals(""))
-				temp += (values[k] / normalizeDivisor);
+				temp += values[k];
 			else
-				temp += Config.get("PLOTDATA_DELIMITER")
-						+ (values[k] / normalizeDivisor);
+				temp += Config.get("PLOTDATA_DELIMITER") + values[k];
 		}
 		w.writeln(temp);
 	}
 
-	private void appendData(AggregatedValue value, double timestamp,
-			int normalizeDivisor) throws IOException {
-		this.appendData(value, "" + timestamp, normalizeDivisor);
+	private void appendData(AggregatedValue value, double timestamp)
+			throws IOException {
+		this.appendData(value, "" + timestamp);
 	}
 
 	private void appendEOF() throws IOException {
@@ -260,8 +258,7 @@ public class Plot {
 			this.appendData(batch.getValues().get(name), timestamp);
 		} else if (domain.equals(PlotConfig.customPlotDomainRuntimes)) {
 			if (batch.getGeneralRuntimes().getNames().contains(name))
-				this.appendData(batch.getGeneralRuntimes().get(name),
-						timestamp, 1000 * 1000 * 1000);
+				this.appendData(batch.getGeneralRuntimes().get(name), timestamp);
 			else if (batch.getMetricRuntimes().getNames().contains(name))
 				this.appendData(batch.getMetricRuntimes().get(name), timestamp);
 		} else if (domain.equals(PlotConfig.customPlotDomainMetricRuntimes)) {
@@ -327,7 +324,7 @@ public class Plot {
 						}
 					}
 				} else if (m.getValues().getNames().contains(name)) {
-					this.appendData(m.getValues().get(name), timestamp, 1);
+					this.appendData(m.getValues().get(name), timestamp);
 				} else {
 					if (!this.errorPrinted) {
 						Log.warn("problem when adding data to plot '"

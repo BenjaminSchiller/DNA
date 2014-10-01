@@ -11,12 +11,12 @@ import dna.graph.datastructures.DArrayList;
 import dna.graph.datastructures.DLinkedHashMultimap;
 import dna.graph.datastructures.DataStructure.ListType;
 import dna.graph.datastructures.GraphDataStructure;
-import dna.graph.nodes.Node;
-import dna.graph.nodes.DirectedNode;
-import dna.graph.nodes.UndirectedNode;
-import dna.graph.edges.Edge;
 import dna.graph.edges.DirectedEdge;
+import dna.graph.edges.Edge;
 import dna.graph.edges.UndirectedEdge;
+import dna.graph.nodes.DirectedNode;
+import dna.graph.nodes.Node;
+import dna.graph.nodes.UndirectedNode;
 import dna.util.Config;
 
 /**
@@ -95,8 +95,7 @@ public class SNAPGraphReader {
 		// HashMap<Long, Integer> map = new HashMap<Long, Integer>();
 
 		// Creates the reader
-		Reader reader = new Reader(dir, filename);
-		Reader.skipComments = false;
+		Reader reader = new Reader(dir, filename, false);
 
 		// Check if the SNAP graph is directed or undirected and creates a GDS
 		// if necessary
@@ -213,7 +212,6 @@ public class SNAPGraphReader {
 
 		// Closes the reader, returns the graph
 		reader.close();
-		Reader.skipComments = true;
 		return g;
 	}
 
@@ -230,15 +228,13 @@ public class SNAPGraphReader {
 	 */
 	public static String readName(String dir, String filename)
 			throws IOException {
-		Reader reader = new Reader(dir, filename);
-		Reader.skipComments = false;
+		Reader reader = new Reader(dir, filename, false);
 
 		reader.readString();
 		String name = reader.readString();
 		name = name.substring(name.indexOf(" ") + 1);
 
 		reader.close();
-		Reader.skipComments = true;
 		return name;
 	}
 

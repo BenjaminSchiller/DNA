@@ -273,23 +273,14 @@ public abstract class SamplingAlgorithm extends BatchGenerator {
 	 * Returns if the sampling algorithm can walk further through the graph
 	 */
 	public boolean isFurtherBatchPossible(Graph g) {
-
 		if (takeResourceIntoAccount && resource <= 0) {
-
 			return false;
-
 		} else if (fullGraph.getNodeCount() == seenNodes.size()) {
-
 			return false;
-
 		} else if (noFurtherBatch) {
-
 			return false;
-
 		} else {
-
 			return true;
-
 		}
 	}
 
