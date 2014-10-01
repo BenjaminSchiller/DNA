@@ -1,7 +1,8 @@
-package dna.metrics.sampling;
+package dna.depr.metrics.sampling;
 
+import dna.depr.metrics.Metric;
 import dna.graph.Graph;
-import dna.metrics.Metric;
+import dna.metrics.IMetricNew.MetricType;
 import dna.series.data.Distribution;
 import dna.series.data.NodeNodeValueList;
 import dna.series.data.NodeValueList;

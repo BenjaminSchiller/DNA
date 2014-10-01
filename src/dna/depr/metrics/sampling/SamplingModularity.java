@@ -1,11 +1,12 @@
-package dna.metrics.sampling;
+package dna.depr.metrics.sampling;
 
+import dna.depr.metrics.Metric;
 import dna.graph.Graph;
 import dna.graph.IElement;
 import dna.graph.nodes.DirectedNode;
 import dna.graph.nodes.Node;
 import dna.graph.nodes.UndirectedNode;
-import dna.metrics.Metric;
+import dna.metrics.IMetricNew.MetricType;
 import dna.series.data.Distribution;
 import dna.series.data.NodeNodeValueList;
 import dna.series.data.NodeValueList;
