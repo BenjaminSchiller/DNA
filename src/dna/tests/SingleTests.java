@@ -70,9 +70,9 @@ public class SingleTests {
 				DirectedNode.class, DirectedEdge.class);
 		GraphGenerator gg = new RandomGraph(gds, 40, 40);
 		BatchGenerator batchGen = new RandomBatch(5, 5, 5, 5);
-		// TODO add again after change to new metrics
 		// Metric[] metrics = new Metric[] { new DegreeDistributionU(),
 		// new DirectedClusteringCoefficientU() };
+		// TODO add again after change to new metrics
 		// Series s = new Series(gg, batchGen, metrics, "./graphs/", "test");
 		// s.generate(2, 1);
 		Log.setLogLevel(oldLogLevel);
