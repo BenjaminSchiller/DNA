@@ -1,4 +1,4 @@
-package dna.updates.samplingAlgorithms;
+package dna.updates.generators.sampling;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -8,7 +8,7 @@ import java.util.TreeMap;
 
 import dna.graph.Graph;
 import dna.graph.nodes.Node;
-import dna.updates.samplingAlgorithms.startNodeSelection.StartNodeSelectionStrategy;
+import dna.updates.generators.sampling.startNode.StartNodeSelectionStrategy;
 
 /**
  * Implementation of Maximum Observed Degree (MOD) sampling algorithm by

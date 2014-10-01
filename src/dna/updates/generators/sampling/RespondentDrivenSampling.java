@@ -1,27 +1,31 @@
-package dna.updates.samplingAlgorithms;
+package dna.updates.generators.sampling;
 
 import java.util.LinkedList;
 import java.util.List;
 
 import dna.graph.Graph;
 import dna.graph.nodes.Node;
-import dna.updates.samplingAlgorithms.startNodeSelection.StartNodeSelectionStrategy;
+import dna.updates.generators.sampling.startNode.StartNodeSelectionStrategy;
 import dna.util.Rand;
 
 /**
- * A sampling algorithm which is based on the behavior of forest fires.
+ * Implementation of the respondent driven sampling algorithm. Depending on how
+ * you choose the numberOfNeighborsVisited parameter it behaves more like a BFS
+ * for higher values or more like a RW for lower values. It is the same
+ * algorithm as snowball sampling, but in contrary it allows revisiting of
+ * nodes.
  * 
  * @author Benedict Jahn
  * 
  */
-public class ForestFire extends SamplingAlgorithm {
+public class RespondentDrivenSampling extends SamplingAlgorithm {
 
 	private LinkedList<Node> queue;
 	private Node currentNode;
-	private double probability;
+	private int numberOfNeighborsVisited;
 
 	/**
-	 * Creates an instance of the forest fire sampling algorithm
+	 * Creates an instance of the respondent driven sampling algorithm
 	 * 
 	 * @param fullGraph
 	 *            the graph the algorithm shall walk on
@@ -33,37 +37,29 @@ public class ForestFire extends SamplingAlgorithm {
 	 *            the maximum count of steps the algorithm shall perform, if
 	 *            initialized with 0 or below the algorithm will walk until the
 	 *            graph is fully visited
-	 * @param probability
-	 *            probability to select a neighbor of the current node. Have to
-	 *            be between 0 and 1
+	 * @param numberOfNeighborsVisited
+	 *            count of how many of the neighbors of the current node will be
+	 *            queued
 	 * @param parameters
 	 *            the parameters which makes this algorithm unique and which
 	 *            will be added to the name
 	 */
-	public ForestFire(Graph fullGraph,
+	public RespondentDrivenSampling(Graph fullGraph,
 			StartNodeSelectionStrategy startNodeStrategy, int costPerBatch,
-			int resource, double probability, SamplingStop stop)
-			throws Exception {
-		super("FF_" + probability, fullGraph, startNodeStrategy, costPerBatch,
-				resource, stop);
+			int resource, int numberOfNeighborsVisited, SamplingStop stop) {
+		super("RDS_" + numberOfNeighborsVisited, fullGraph, startNodeStrategy,
+				costPerBatch, resource, stop);
 
-		if (probability < 0 || probability > 1) {
-			throw new IllegalArgumentException(
-					"Probability has to be between 0 and 1.");
-		}
-
-		this.probability = probability;
+		this.numberOfNeighborsVisited = numberOfNeighborsVisited;
 		queue = new LinkedList<Node>();
 		currentNode = null;
-
 	}
 
 	@Override
 	protected Node findNextNode() {
 		if (queue.isEmpty()) {
-			currentNode = fullGraph.getRandomNode();
-			selectNeighbors();
-			return currentNode;
+			noNodeFound();
+			return null;
 		}
 		currentNode = queue.poll();
 		selectNeighbors();
@@ -78,15 +74,16 @@ public class ForestFire extends SamplingAlgorithm {
 	}
 
 	/**
-	 * Select neighbors of the current node. Each neighbor is chosen with the
-	 * given probability.
+	 * Randomly selects the chosen amount of all neighbors from the current node
+	 * and adds them to the queue
 	 */
 	private void selectNeighbors() {
 		List<Node> list = getAllNeighbors(currentNode);
-		for (Node n : list) {
-			if (Rand.rand.nextDouble() <= probability) {
-				queue.add(n);
+		for (int i = 0; i < numberOfNeighborsVisited; i++) {
+			if (list.size() == 0) {
+				break;
 			}
+			queue.add(list.remove(Rand.rand.nextInt(list.size())));
 		}
 	}
 

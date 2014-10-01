@@ -1,4 +1,4 @@
-package dna.updates.samplingAlgorithms.startNodeSelection;
+package dna.updates.generators.sampling.startNode;
 
 import java.util.ArrayList;
 

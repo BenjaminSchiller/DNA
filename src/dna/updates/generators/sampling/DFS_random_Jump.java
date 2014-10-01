@@ -1,4 +1,4 @@
-package dna.updates.samplingAlgorithms;
+package dna.updates.generators.sampling;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -8,7 +8,7 @@ import dna.graph.Graph;
 import dna.graph.IElement;
 import dna.graph.edges.Edge;
 import dna.graph.nodes.Node;
-import dna.updates.samplingAlgorithms.startNodeSelection.StartNodeSelectionStrategy;
+import dna.updates.generators.sampling.startNode.StartNodeSelectionStrategy;
 import dna.util.Rand;
 
 /**
@@ -18,7 +18,7 @@ import dna.util.Rand;
  * @author Benedict Jahn
  * 
  */
-public class DFS_random extends SamplingAlgorithm {
+public class DFS_random_Jump extends SamplingAlgorithm {
 
 	private HashSet<Node> nodesInQueue;
 	private LinkedList<Node> queue;
@@ -42,10 +42,10 @@ public class DFS_random extends SamplingAlgorithm {
 	 *            the parameters which makes this algorithm unique and which
 	 *            will be added to the name
 	 */
-	public DFS_random(Graph fullGraph,
+	public DFS_random_Jump(Graph fullGraph,
 			StartNodeSelectionStrategy startNodeStrategy, int costPerBatch,
 			int resource, SamplingStop stop) {
-		super("DFS_random", fullGraph, startNodeStrategy, costPerBatch,
+		super("DFS_random_Jump", fullGraph, startNodeStrategy, costPerBatch,
 				resource, stop);
 
 		queue = new LinkedList<Node>();
@@ -62,6 +62,9 @@ public class DFS_random extends SamplingAlgorithm {
 
 		currentNode = queue.removeLast();
 		ArrayList<Node> neighborsList = getUnvisitedNeighborsRandomized(currentNode);
+		if (neighborsList.size() == 0) {
+			System.out.println("jump");
+		}
 		for (Node n : neighborsList) {
 			if (!nodesInQueue.contains(n)) {
 				queue.add(n);

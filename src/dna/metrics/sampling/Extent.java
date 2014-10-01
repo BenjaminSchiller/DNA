@@ -7,7 +7,7 @@ import dna.series.data.NodeNodeValueList;
 import dna.series.data.NodeValueList;
 import dna.series.data.Value;
 import dna.updates.batch.Batch;
-import dna.updates.samplingAlgorithms.SamplingAlgorithm;
+import dna.updates.generators.sampling.SamplingAlgorithm;
 import dna.util.DataUtils;
 
 /**

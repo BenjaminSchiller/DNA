@@ -1,4 +1,4 @@
-package dna.updates.samplingAlgorithms;
+package dna.updates.generators.sampling;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -14,7 +14,7 @@ import dna.graph.nodes.Node;
 import dna.graph.nodes.UndirectedNode;
 import dna.updates.batch.Batch;
 import dna.updates.generators.BatchGenerator;
-import dna.updates.samplingAlgorithms.startNodeSelection.StartNodeSelectionStrategy;
+import dna.updates.generators.sampling.startNode.StartNodeSelectionStrategy;
 import dna.updates.update.EdgeAddition;
 import dna.updates.update.NodeAddition;
 import dna.updates.update.Update;

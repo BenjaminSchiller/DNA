@@ -1,4 +1,4 @@
-package dna.updates.samplingAlgorithms;
+package dna.updates.generators.sampling;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -7,8 +7,8 @@ import java.util.LinkedList;
 
 import dna.graph.Graph;
 import dna.graph.nodes.Node;
-import dna.updates.samplingAlgorithms.startNodeSelection.RandomSelection;
-import dna.updates.samplingAlgorithms.startNodeSelection.StartNodeSelectionStrategy;
+import dna.updates.generators.sampling.startNode.RandomSelection;
+import dna.updates.generators.sampling.startNode.StartNodeSelectionStrategy;
 import dna.util.Rand;
 
 /**

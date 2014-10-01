@@ -1,4 +1,4 @@
-package dna.updates.samplingAlgorithms;
+package dna.updates.generators.sampling;
 
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -6,7 +6,7 @@ import java.util.LinkedList;
 import dna.graph.Graph;
 import dna.graph.IElement;
 import dna.graph.nodes.Node;
-import dna.updates.samplingAlgorithms.startNodeSelection.StartNodeSelectionStrategy;
+import dna.updates.generators.sampling.startNode.StartNodeSelectionStrategy;
 import dna.util.Rand;
 
 /**

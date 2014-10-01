@@ -1,4 +1,4 @@
-package dna.updates.samplingAlgorithms;
+package dna.updates.generators.sampling;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -6,7 +6,7 @@ import java.util.LinkedList;
 
 import dna.graph.Graph;
 import dna.graph.nodes.Node;
-import dna.updates.samplingAlgorithms.startNodeSelection.StartNodeSelectionStrategy;
+import dna.updates.generators.sampling.startNode.StartNodeSelectionStrategy;
 
 /**
  * A sampling algorithm based on depth first search
@@ -14,7 +14,7 @@ import dna.updates.samplingAlgorithms.startNodeSelection.StartNodeSelectionStrat
  * @author Benedict Jahn
  * 
  */
-public class DFS extends SamplingAlgorithm {
+public class DFS_Jump extends SamplingAlgorithm {
 
 	private HashSet<Node> nodesInQueue;
 	private LinkedList<Node> queue;
@@ -37,9 +37,11 @@ public class DFS extends SamplingAlgorithm {
 	 *            the parameters which makes this algorithm unique and which
 	 *            will be added to the name
 	 */
-	public DFS(Graph fullGraph, StartNodeSelectionStrategy startNodeStrategy,
-			int costPerBatch, int resource, SamplingStop stop) {
-		super("DFS", fullGraph, startNodeStrategy, costPerBatch, resource, stop);
+	public DFS_Jump(Graph fullGraph,
+			StartNodeSelectionStrategy startNodeStrategy, int costPerBatch,
+			int resource, SamplingStop stop) {
+		super("DFS_Jump", fullGraph, startNodeStrategy, costPerBatch, resource,
+				stop);
 
 		queue = new LinkedList<Node>();
 		nodesInQueue = new HashSet<Node>();
@@ -55,6 +57,9 @@ public class DFS extends SamplingAlgorithm {
 
 		currentNode = queue.removeLast();
 		ArrayList<Node> neighborsList = getUnvisitedNeighbors(currentNode);
+		if (neighborsList.size() == 0) {
+			System.out.println("jump");
+		}
 		for (Node n : neighborsList) {
 			if (!nodesInQueue.contains(n)) {
 				queue.add(n);

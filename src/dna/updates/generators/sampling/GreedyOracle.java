@@ -1,12 +1,12 @@
-package dna.updates.samplingAlgorithms;
+package dna.updates.generators.sampling;
 
 import java.util.ArrayList;
 import java.util.Collections;
 
 import dna.graph.Graph;
 import dna.graph.nodes.Node;
-import dna.updates.samplingAlgorithms.SortableNode.SortType;
-import dna.updates.samplingAlgorithms.startNodeSelection.StartNodeSelectionStrategy;
+import dna.updates.generators.sampling.SortableNode.SortType;
+import dna.updates.generators.sampling.startNode.StartNodeSelectionStrategy;
 
 /**
  * An implementation of the sampling algorithm of Guha and Khuler. This

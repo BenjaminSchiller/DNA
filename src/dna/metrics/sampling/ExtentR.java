@@ -1,7 +1,7 @@
 package dna.metrics.sampling;
 
 import dna.updates.batch.Batch;
-import dna.updates.samplingAlgorithms.SamplingAlgorithm;
+import dna.updates.generators.sampling.SamplingAlgorithm;
 import dna.updates.update.Update;
 
 /**
