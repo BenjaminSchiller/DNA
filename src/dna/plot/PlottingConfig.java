@@ -62,6 +62,13 @@ public class PlottingConfig {
 			long timestampFrom, long timestampTo, long stepsize,
 			DistributionPlotType distPlotType, NodeValueListOrder nvlOrder,
 			NodeValueListOrderBy nvlOrderBy, PlotFlag... flags) {
+		PlotFlag[] tempFlags;
+		if(flags.length == 0) {
+			Log.warn("Initializing PlottingConfig without flags, enabling ALL plots!");
+			tempFlags = new PlotFlag[] {PlotFlag.plotAll};
+		} else {
+			tempFlags = flags;
+		}
 		this.plotType = plotType;
 		this.plotStyle = plotStyle;
 		this.plotFrom = timestampFrom;
@@ -89,7 +96,7 @@ public class PlottingConfig {
 		this.intervalByIndex = false;
 
 		// check plot flags
-		for (PlotFlag flag : flags) {
+		for (PlotFlag flag : tempFlags) {
 			switch (flag) {
 			case plotAll:
 				this.plotStatistics = true;
