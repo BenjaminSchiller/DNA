@@ -538,7 +538,7 @@ public class Plot {
 							this.appendDataWithIndex(nvl.getValues());
 						} else {
 							// TODO: sorting by nvl sort_order
-							Log.warn("adding nvl with sort order "
+							Log.debug("adding nvl with sort order "
 									+ this.sortOrder.toString()
 									+ " but this is not implemented yet in run plotting");
 							this.appendDataWithIndex(nvl.getValues());
