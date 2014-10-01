@@ -22,7 +22,7 @@ import dna.util.Log;
  */
 public class PlottingConfig {
 	public static enum PlotFlag {
-		plotAll, plotStatistics, plotRuntimes, plotMetricValues, plotMetricEntirely, plotDistributions, plotNodeValueLists, plotCustomValues
+		plotAll, plotStatistics, plotRuntimes, plotMetricValues, plotMetricEntirely, plotDistributions, plotNodeValueLists, plotCustomValues, plotSingleScalarValues, plotMultiScalarValues
 	};
 
 	// config
@@ -63,9 +63,9 @@ public class PlottingConfig {
 			DistributionPlotType distPlotType, NodeValueListOrder nvlOrder,
 			NodeValueListOrderBy nvlOrderBy, PlotFlag... flags) {
 		PlotFlag[] tempFlags;
-		if(flags.length == 0) {
+		if (flags.length == 0) {
 			Log.warn("Initializing PlottingConfig without flags, enabling ALL plots!");
-			tempFlags = new PlotFlag[] {PlotFlag.plotAll};
+			tempFlags = new PlotFlag[] { PlotFlag.plotAll };
 		} else {
 			tempFlags = flags;
 		}
@@ -128,6 +128,16 @@ public class PlottingConfig {
 				break;
 			case plotCustomValues:
 				this.plotCustomValues = true;
+				break;
+			case plotMultiScalarValues:
+				this.plotDistributions = true;
+				this.plotNodeValueLists = true;
+				break;
+			case plotSingleScalarValues:
+				this.plotCustomValues = true;
+				this.plotMetricValues = true;
+				this.plotRuntimes = true;
+				this.plotStatistics = true;
 				break;
 			}
 		}
@@ -601,7 +611,7 @@ public class PlottingConfig {
 		return PlottingConfig.isContained(domain, value,
 				new AggregatedBatch[] { batch });
 	}
-	
+
 	/** Checks if the value and domain are contained in the given batch. **/
 	public static boolean isContained(String domain, String value,
 			BatchData batch) {
