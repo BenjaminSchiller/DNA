@@ -16,6 +16,17 @@ import dna.series.aggdata.AggregatedBatch;
 import dna.series.aggdata.AggregatedMetric;
 import dna.series.aggdata.AggregatedNodeValueList;
 import dna.series.aggdata.AggregatedValue;
+import dna.series.data.BatchData;
+import dna.series.data.BinnedDistributionDouble;
+import dna.series.data.BinnedDistributionInt;
+import dna.series.data.BinnedDistributionLong;
+import dna.series.data.Distribution;
+import dna.series.data.DistributionDouble;
+import dna.series.data.DistributionInt;
+import dna.series.data.DistributionLong;
+import dna.series.data.MetricData;
+import dna.series.data.NodeValueList;
+import dna.series.data.Value;
 import dna.util.Config;
 import dna.util.Execute;
 import dna.util.Log;
@@ -185,8 +196,27 @@ public class Plot {
 		this.appendEOF();
 	}
 
+	public void appendData(double[] values) throws IOException {
+		for (int i = 0; i < values.length; i++)
+			this.appendData(values[i], "");
+		this.appendEOF();
+	}
+
+	public void appendData(double[] values, double[] indizes)
+			throws IOException {
+		for (int i = 0; i < values.length; i++)
+			this.appendData(values[i], indizes[i]);
+		this.appendEOF();
+	}
+
 	public void appendDataWithIndex(AggregatedValue[] values)
 			throws IOException {
+		for (int i = 0; i < values.length; i++)
+			this.appendData(values[i], "" + i);
+		this.appendEOF();
+	}
+
+	public void appendDataWithIndex(double[] values) throws IOException {
 		for (int i = 0; i < values.length; i++)
 			this.appendData(values[i], "" + i);
 		this.appendEOF();
@@ -214,6 +244,16 @@ public class Plot {
 	private void appendData(AggregatedValue value, double timestamp)
 			throws IOException {
 		this.appendData(value, "" + timestamp);
+	}
+
+	private void appendData(double value, double timestamp) throws IOException {
+		this.appendData(value, "" + timestamp);
+	}
+
+	private void appendData(double value, String timestamp) throws IOException {
+		Writer w = this.fileWriter;
+		String temp = "" + timestamp + Config.get("PLOTDATA_DELIMITER") + value;
+		w.writeln(temp);
 	}
 
 	private void appendEOF() throws IOException {
@@ -345,12 +385,218 @@ public class Plot {
 	}
 
 	/**
+	 * Main method to add data to the plot. The data to be added will be
+	 * identified by its name and domain.
+	 * 
+	 * Note: Convention of domains:
+	 * 
+	 * Statistical values : Config.get("PLOT_STATISTICS")
+	 * 
+	 * General Runtimes : Config.get("PLOT_GENERALRUNTIMES")
+	 * 
+	 * Metric Runtimes: Config.get("PLOT_METRICRUNTIMES")
+	 * 
+	 * If it can be either a general or metric runtime:
+	 * Config.get("PLOT_CUSTOM_RUNTIME")
+	 * 
+	 * Metric Values, Distributions, NodeValueLists: name of the metric
+	 * 
+	 * @param name
+	 *            Name of the value.
+	 * @param domain
+	 *            Domain of the value.
+	 * @param batch
+	 *            Batch the data will be taken from.
+	 * @param addAsCDF
+	 *            If its a distribution and shall be plotted as cdf
+	 * @throws IOException
+	 *             Thrown by the writer.
+	 */
+	private void addData(String name, String domain, BatchData batch,
+			boolean addAsCDF) throws IOException {
+		double timestamp = (double) batch.getTimestamp();
+
+		// figure out where to get the data from
+		if (domain.equals(PlotConfig.customPlotDomainStatistics)) {
+			this.appendData(batch.getValues().get(name).getValue(), timestamp);
+		} else if (domain.equals(PlotConfig.customPlotDomainRuntimes)) {
+			if (batch.getGeneralRuntimes().getNames().contains(name))
+				this.appendData(batch.getGeneralRuntimes().get(name)
+						.getRuntime(), timestamp);
+			else if (batch.getMetricRuntimes().getNames().contains(name))
+				this.appendData(batch.getMetricRuntimes().get(name)
+						.getRuntime(), timestamp);
+		} else if (domain.equals(PlotConfig.customPlotDomainMetricRuntimes)) {
+			this.appendData(batch.getMetricRuntimes().get(name).getRuntime(),
+					timestamp);
+		} else if (domain.equals(PlotConfig.customPlotDomainGeneralRuntimes)) {
+			this.appendData(batch.getGeneralRuntimes().get(name).getRuntime(),
+					timestamp);
+		} else {
+			if (batch.getMetrics().getNames().contains(domain)) {
+				MetricData m = batch.getMetrics().get(domain);
+				if (m.getDistributions().getNames().contains(name)) {
+					Distribution d = m.getDistributions().get(name);
+					double[] values = null;
+					double[] indizes = null;
+
+					if (d instanceof BinnedDistributionInt) {
+						int[] ints = ((BinnedDistributionInt) d).getIntValues();
+						int denominator = ((BinnedDistributionInt) d)
+								.getDenominator();
+						double binSize = ((BinnedDistributionInt) d)
+								.getBinSize();
+						values = new double[ints.length];
+						indizes = new double[ints.length];
+						for (int i = 0; i < ints.length; i++) {
+							values[i] = ints[i] * 1.0 / denominator;
+							indizes[i] = i * binSize;
+						}
+					} else if (d instanceof BinnedDistributionDouble) {
+						values = ((BinnedDistributionDouble) d)
+								.getDoubleValues();
+						double binSize = ((BinnedDistributionDouble) d)
+								.getBinSize();
+						for (int i = 0; i < values.length; i++) {
+							indizes[i] = i * binSize;
+						}
+					} else if (d instanceof BinnedDistributionLong) {
+						long[] longs = ((BinnedDistributionLong) d)
+								.getLongValues();
+						long denominator = ((BinnedDistributionLong) d)
+								.getDenominator();
+						double binSize = ((BinnedDistributionLong) d)
+								.getBinSize();
+						values = new double[longs.length];
+						indizes = new double[longs.length];
+						for (int i = 0; i < longs.length; i++) {
+							values[i] = longs[i] * 1.0 / denominator;
+							indizes[i] = i * binSize;
+						}
+					} else if (d instanceof DistributionInt) {
+						int[] ints = ((DistributionInt) d).getIntValues();
+						int denominator = ((DistributionInt) d)
+								.getDenominator();
+						values = new double[ints.length];
+						indizes = new double[ints.length];
+						for (int i = 0; i < ints.length; i++) {
+							values[i] = ints[i] * 1.0 / denominator;
+							indizes[i] = i;
+						}
+
+					} else if (d instanceof DistributionDouble) {
+						values = ((DistributionDouble) d).getDoubleValues();
+					} else if (d instanceof DistributionLong) {
+						long[] longs = ((DistributionLong) d).getLongValues();
+						long denominator = ((BinnedDistributionLong) d)
+								.getDenominator();
+						values = new double[longs.length];
+						indizes = new double[longs.length];
+						for (int i = 0; i < longs.length; i++) {
+							values[i] = longs[i] * 1.0 / denominator;
+							indizes[i] = i;
+						}
+					} else {
+						values = m.getDistributions().get(name).getValues();
+						indizes = new double[values.length];
+						for (int i = 0; i < values.length; i++)
+							indizes[i] = i;
+					}
+
+					// Log.info("values of " + domain + "  " + name);
+					// for (int i = 0; i < values.length; i++) {
+					// System.out.println(i + "    " + values[i]);
+					// }
+
+					if (values == null) {
+						Log.warn("no values found in plot '"
+								+ this.plotFilename + "' for '" + domain + "."
+								+ name + "'");
+					} else {
+						if (addAsCDF) {
+							double[] tempValues = new double[values.length];
+							for (int i = 0; i < tempValues.length; i++) {
+								if (i == 0)
+									tempValues[i] = values[i];
+								else
+									tempValues[i] = values[i]
+											+ tempValues[i - 1];
+							}
+							this.appendData(tempValues, indizes);
+						} else {
+							this.appendData(values, indizes);
+						}
+					}
+				} else if (m.getNodeValues().getNames().contains(name)) {
+					NodeValueList nvl = m.getNodeValues().get(name);
+					if (nvl.getValues() == null) {
+						Log.warn("no values found in plot '"
+								+ this.plotFilename + "' for '" + domain + "."
+								+ name + "'");
+					} else {
+						if (this.orderBy.equals(NodeValueListOrderBy.index)) {
+							this.appendDataWithIndex(nvl.getValues());
+						} else {
+							// TODO: sorting by nvl sort_order
+							Log.debug("adding nvl with sort order "
+									+ this.sortOrder.toString()
+									+ " but this is not implemented yet in run plotting");
+							this.appendDataWithIndex(nvl.getValues());
+						}
+					}
+				} else if (m.getValues().getNames().contains(name)) {
+					this.appendData(m.getValues().get(name).getValue(),
+							timestamp);
+				} else {
+					if (!this.errorPrinted) {
+						Log.warn("problem when adding data to plot '"
+								+ this.scriptFilename + "'. Value '" + name
+								+ "' was not found in domain '" + domain + "'!");
+						this.errorPrinted = true;
+					}
+				}
+			} else {
+				if (!this.errorPrinted) {
+					Log.warn("problem when adding data to plot '"
+							+ this.scriptFilename + "', domain '" + domain
+							+ "' not found!");
+					this.errorPrinted = true;
+				}
+			}
+		}
+	}
+
+	/**
 	 * Adds data from one batch to the plot. Used for distribution and
 	 * nodevaluelist plots, when batches will be read and handed over
 	 * sequentially
 	 **/
 	public void addDataSequentially(AggregatedBatch batchData)
 			throws IOException {
+		if (!(this.data[this.dataWriteCounter] instanceof FunctionData)) {
+			// if not function, add data
+
+			// if data location is in data file, dont add data to script file
+			if (this.data[this.dataWriteCounter].getDataLocation().equals(
+					PlotDataLocation.dataFile)) {
+				this.dataWriteCounter++;
+				this.skippedFunction++;
+			} else {
+				String name = this.data[this.dataWriteCounter].getName();
+				String domain = this.data[this.dataWriteCounter].getDomain();
+
+				// add data
+				this.addData(name, domain, batchData, false);
+			}
+		}
+	}
+
+	/**
+	 * Adds data from one batch to the plot. Used for distribution and
+	 * nodevaluelist plots, when batches will be read and handed over
+	 * sequentially
+	 **/
+	public void addDataSequentially(BatchData batchData) throws IOException {
 		if (!(this.data[this.dataWriteCounter] instanceof FunctionData)) {
 			// if not function, add data
 
@@ -413,8 +659,75 @@ public class Plot {
 		}
 	}
 
+	/**
+	 * Adds data from batches of a whole series to the plot. Used for plotting
+	 * values of multiple series. Data can be read and added sequentially for
+	 * each series.
+	 */
+	public void addDataSequentially(BatchData[] batchData) throws IOException {
+		if (this.dataWriteCounter >= this.data.length) {
+			// counter out of bounds, dont add more data
+			Log.warn("attempt to write to much data to plot '"
+					+ this.plotFilename + "'");
+		} else {
+			if (this.data[this.dataWriteCounter] == null) {
+				Log.error("PlotData " + this.dataWriteCounter + " of plot '"
+						+ this.plotFilename + "' is null!");
+			}
+			if (!(this.data[this.dataWriteCounter] instanceof FunctionData)) {
+				// if not function, add data
+				String name = this.data[this.dataWriteCounter].getName();
+				String domain = this.data[this.dataWriteCounter].getDomain();
+
+				for (int j = 0; j < batchData.length; j++) {
+					// if batch is null, no data -> just add EOF
+					if (batchData[j] != null) {
+						// check if expression
+						if (this.data[this.dataWriteCounter] instanceof ExpressionData)
+							this.addDataFromExpression(
+									batchData[j],
+									(ExpressionData) this.data[this.dataWriteCounter]);
+						else
+							this.addData(name, domain, batchData[j], false);
+					}
+				}
+				this.appendEOF();
+
+			} else {
+				// if function, increment write counter and call method again
+				this.dataWriteCounter++;
+				this.skippedFunction++;
+				this.addDataSequentially(batchData);
+			}
+		}
+	}
+
 	/** Adds data to the plot **/
 	public void addData(AggregatedBatch[] batchData) throws IOException {
+		// iterate over plotdata
+		for (int i = 0; i < this.data.length; i++) {
+			// check what type of data
+			if (this.data[i] instanceof FunctionData) {
+				// if function, skip
+				continue;
+			}
+
+			// default case
+			for (int j = 0; j < batchData.length; j++) {
+				// check if expression
+				if (this.data[i] instanceof ExpressionData)
+					this.addDataFromExpression(batchData[j],
+							(ExpressionData) this.data[i]);
+				else
+					this.addData(this.data[i].getName(),
+							this.data[i].getDomain(), batchData[j], false);
+			}
+			this.appendEOF();
+		}
+	}
+
+	/** Adds data to the plot **/
+	public void addData(BatchData[] batchData) throws IOException {
 		// iterate over plotdata
 		for (int i = 0; i < this.data.length; i++) {
 			// check what type of data
@@ -532,6 +845,114 @@ public class Plot {
 				} else {
 					// set variable
 					variables[j].setValue(values[j].getValues()[i]);
+				}
+			}
+			valuesNew[i] = expr.value();
+		}
+
+		// append data
+		this.appendData(new AggregatedValue(null, valuesNew), "" + timestamp);
+	}
+
+	/** Adds data according to the expression **/
+	public void addDataFromExpression(BatchData b, ExpressionData d)
+			throws IOException {
+		long timestamp = b.getTimestamp();
+		String expression = d.getExpressionWithoutMarks();
+
+		String[] vars = d.getVariables();
+		String[] domains = d.getDomains();
+
+		Value[] values = new Value[vars.length];
+
+		for (int i = 0; i < vars.length; i++) {
+			String value = vars[i];
+			String domain = domains[i];
+			if (domain.equals(PlotConfig.customPlotDomainStatistics)) {
+				values[i] = b.getValues().get(value);
+			} else if (domain.equals(PlotConfig.customPlotDomainRuntimes)) {
+				if (b.getGeneralRuntimes().getNames().contains(value))
+					values[i] = new Value(value, b.getGeneralRuntimes()
+							.get(value).getRuntime());
+				else if (b.getMetricRuntimes().getNames().contains(value))
+					values[i] = new Value(value, b.getMetricRuntimes()
+							.get(value).getRuntime());
+			} else if (domain
+					.equals(PlotConfig.customPlotDomainGeneralRuntimes)) {
+				values[i] = new Value(value, b.getGeneralRuntimes().get(value)
+						.getRuntime());
+			} else if (domain.equals(PlotConfig.customPlotDomainMetricRuntimes)) {
+				values[i] = new Value(value, b.getMetricRuntimes().get(value)
+						.getRuntime());
+			} else if (b.getMetrics().getNames().contains(domain)) {
+				MetricData m = b.getMetrics().get(domain);
+				if (m.getValues().getNames().contains(value)) {
+					values[i] = m.getValues().get(value);
+				} else {
+					if (!this.errorPrinted) {
+						Log.warn("problem when adding data to plot '"
+								+ this.scriptFilename + "'. Value '" + value
+								+ "' was not found in domain '" + domain + "'!");
+						this.errorPrinted = true;
+					}
+				}
+			} else {
+				if (!this.errorPrinted) {
+					Log.warn("problem when adding expression data to plot '"
+							+ this.scriptFilename + "', domain '" + domain
+							+ "' not found!");
+					this.errorPrinted = true;
+				}
+			}
+		}
+
+		// replace normal variables with unique dummy variables, in case normal
+		// variables contain mathematical symbols like '-'
+		String[] varsTemp = new String[vars.length];
+		System.arraycopy(vars, 0, varsTemp, 0, vars.length);
+		for (int i = 0; i < vars.length; i++) {
+			varsTemp[i] = PlotConfig.dummyVariable + i;
+			expression = expression.replace(vars[i], varsTemp[i]);
+		}
+
+		// parse expression
+		Expr expr = null;
+		try {
+			expr = Parser.parse(expression);
+		} catch (SyntaxException e) {
+			// print what went wrong
+			if (Config.getBoolean("CUSTOM_PLOT_EXPLAIN_EXPRESSION_FAILURE"))
+				System.out.println(e.explain());
+			else
+				e.printStackTrace();
+		}
+
+		// define variables
+		Variable[] variables = new Variable[vars.length];
+		for (int i = 0; i < variables.length; i++) {
+			variables[i] = Variable.make(varsTemp[i]);
+		}
+
+		// only print warning message once
+		boolean[] warningsPrinted = new boolean[vars.length];
+
+		// calculate values
+		int valuesCount = 1;
+		double[] valuesNew = new double[valuesCount];
+		for (int i = 0; i < valuesCount; i++) {
+			// set variables
+			for (int j = 0; j < variables.length; j++) {
+				if (values[j] == null) {
+					// if null, print warning and set 0 as value
+					if (!warningsPrinted[j]) {
+						// Log.warn("no values found for '" + domains[j] + "."
+						// + vars[j] + "'. Values assumed to be zero.");
+						warningsPrinted[j] = true;
+					}
+					variables[j].setValue(0.0);
+				} else {
+					// set variable
+					variables[j].setValue(values[j].getValue());
 				}
 			}
 			valuesNew[i] = expr.value();
