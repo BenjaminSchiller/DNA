@@ -46,9 +46,9 @@ public class RespondentDrivenSampling extends SamplingAlgorithm {
 	 */
 	public RespondentDrivenSampling(Graph fullGraph,
 			StartNodeSelectionStrategy startNodeStrategy, int costPerBatch,
-			int resource, int numberOfNeighborsVisited) {
+			int resource, int numberOfNeighborsVisited, SamplingStop stop) {
 		super("RDS_" + numberOfNeighborsVisited, fullGraph, startNodeStrategy,
-				costPerBatch, resource);
+				costPerBatch, resource, stop);
 
 		this.numberOfNeighborsVisited = numberOfNeighborsVisited;
 		queue = new LinkedList<Node>();

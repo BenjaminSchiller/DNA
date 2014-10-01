@@ -40,8 +40,8 @@ public class GreedyOracle extends SamplingAlgorithm {
 	 */
 	public GreedyOracle(Graph fullGraph,
 			StartNodeSelectionStrategy startNodeStrategy, int costPerBatch,
-			int resource) {
-		super("GO", fullGraph, startNodeStrategy, costPerBatch, resource);
+			int resource, SamplingStop stop) {
+		super("GO", fullGraph, startNodeStrategy, costPerBatch, resource, stop);
 
 		greyZone = new ArrayList<SortableNode>(fullGraph.getNodeCount());
 	}

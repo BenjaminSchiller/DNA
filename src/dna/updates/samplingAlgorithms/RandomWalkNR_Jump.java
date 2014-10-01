@@ -43,8 +43,9 @@ public class RandomWalkNR_Jump extends SamplingAlgorithm {
 	 */
 	public RandomWalkNR_Jump(Graph fullGraph,
 			StartNodeSelectionStrategy startNodeStrategy, int costPerBatch,
-			int resource) {
-		super("RWnr_Jump", fullGraph, startNodeStrategy, costPerBatch, resource);
+			int resource, SamplingStop stop) {
+		super("RWnr_Jump", fullGraph, startNodeStrategy, costPerBatch,
+				resource, stop);
 
 		currentNode = null;
 		fullyVisited = new HashSet<Node>(fullGraph.getNodeCount());

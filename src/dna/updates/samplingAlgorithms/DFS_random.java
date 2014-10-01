@@ -44,9 +44,9 @@ public class DFS_random extends SamplingAlgorithm {
 	 */
 	public DFS_random(Graph fullGraph,
 			StartNodeSelectionStrategy startNodeStrategy, int costPerBatch,
-			int resource) {
+			int resource, SamplingStop stop) {
 		super("DFS_random", fullGraph, startNodeStrategy, costPerBatch,
-				resource);
+				resource, stop);
 
 		queue = new LinkedList<Node>();
 		nodesInQueue = new HashSet<Node>();

@@ -51,6 +51,12 @@ public abstract class SamplingAlgorithm extends BatchGenerator {
 
 	private long timeStamp;
 
+	public static enum SamplingStop {
+		Seeing, Visiting
+	}
+
+	private SamplingStop samplingStop;
+
 	/**
 	 * Initializes the sampling algorithm
 	 * 
@@ -73,11 +79,13 @@ public abstract class SamplingAlgorithm extends BatchGenerator {
 	 */
 	public SamplingAlgorithm(String name, Graph fullGraph,
 			StartNodeSelectionStrategy startNodeStrategy, int costPerBatch,
-			int resource) {
+			int resource, SamplingStop samplingStop) {
 		super(name, new Parameter[] {
-				new StringParameter("START", startNodeStrategy.getClass()
-						.getName()), new IntParameter("COST", costPerBatch),
-				new IntParameter("RESOURCE", resource) });
+				new StringParameter("start", startNodeStrategy.getClass()
+						.getSimpleName()),
+				new IntParameter("cost", costPerBatch),
+				new IntParameter("resource", resource),
+				new StringParameter("samplingStop", samplingStop.toString()) });
 
 		this.fullGraph = fullGraph;
 		this.costPerBatch = costPerBatch;
@@ -102,6 +110,8 @@ public abstract class SamplingAlgorithm extends BatchGenerator {
 		visitedNodes = new HashSet<Node>(graphSize);
 
 		addedNodes = new HashMap<Integer, Node>();
+
+		this.samplingStop = samplingStop;
 
 		if (DirectedNode.class.isAssignableFrom(this.fullGraph
 				.getGraphDatastructures().getNodeType())) {
@@ -278,15 +288,23 @@ public abstract class SamplingAlgorithm extends BatchGenerator {
 	 * Returns if the sampling algorithm can walk further through the graph
 	 */
 	public boolean isFurtherBatchPossible(Graph g) {
+
 		if (takeResourceIntoAccount && resource <= 0) {
 			return false;
-		} else if (fullGraph.getNodeCount() == seenNodes.size()) {
-			return false;
-		} else if (noFurtherBatch) {
-			return false;
-		} else {
-			return true;
 		}
+		if (this.samplingStop.equals(SamplingStop.Seeing)
+				&& this.seenNodes.size() == this.fullGraph.getNodeCount()) {
+			return false;
+		}
+		if (this.samplingStop.equals(SamplingStop.Visiting)
+				&& this.visitedNodes.size() == this.fullGraph.getNodeCount()) {
+			return false;
+		}
+		if (noFurtherBatch) {
+			return false;
+		}
+
+		return true;
 	}
 
 	/**

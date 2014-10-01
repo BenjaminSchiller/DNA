@@ -38,8 +38,8 @@ public class DFS extends SamplingAlgorithm {
 	 *            will be added to the name
 	 */
 	public DFS(Graph fullGraph, StartNodeSelectionStrategy startNodeStrategy,
-			int costPerBatch, int resource) {
-		super("DFS", fullGraph, startNodeStrategy, costPerBatch, resource);
+			int costPerBatch, int resource, SamplingStop stop) {
+		super("DFS", fullGraph, startNodeStrategy, costPerBatch, resource, stop);
 
 		queue = new LinkedList<Node>();
 		nodesInQueue = new HashSet<Node>();

@@ -38,8 +38,8 @@ public class RandomWalk extends SamplingAlgorithm {
 	 */
 	public RandomWalk(Graph fullGraph,
 			StartNodeSelectionStrategy startNodeStrategy, int costPerBatch,
-			int resource) {
-		super("RW", fullGraph, startNodeStrategy, costPerBatch, resource);
+			int resource, SamplingStop stop) {
+		super("RW", fullGraph, startNodeStrategy, costPerBatch, resource, stop);
 
 		currentNode = null;
 	}

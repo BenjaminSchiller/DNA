@@ -48,9 +48,10 @@ public class ForestFireNR extends SamplingAlgorithm {
 	 */
 	public ForestFireNR(Graph fullGraph,
 			StartNodeSelectionStrategy startNodeStrategy, int costPerBatch,
-			int resource, double probability) throws Exception {
+			int resource, double probability, SamplingStop stop)
+			throws Exception {
 		super("FFnr_" + probability, fullGraph, startNodeStrategy,
-				costPerBatch, resource);
+				costPerBatch, resource, stop);
 
 		if (probability < 0 || probability > 1) {
 			throw new IllegalArgumentException(
