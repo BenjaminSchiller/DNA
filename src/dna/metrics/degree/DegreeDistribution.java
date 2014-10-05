@@ -4,8 +4,8 @@ import dna.graph.Graph;
 import dna.graph.IElement;
 import dna.graph.nodes.DirectedNode;
 import dna.graph.nodes.UndirectedNode;
-import dna.metrics.IMetricNew;
-import dna.metrics.MetricNew;
+import dna.metrics.IMetric;
+import dna.metrics.Metric;
 import dna.series.data.Distribution;
 import dna.series.data.DistributionInt;
 import dna.series.data.NodeNodeValueList;
@@ -15,7 +15,7 @@ import dna.updates.batch.Batch;
 import dna.util.ArrayUtils;
 import dna.util.parameters.Parameter;
 
-public abstract class DegreeDistribution extends MetricNew {
+public abstract class DegreeDistribution extends Metric {
 
 	protected DistributionInt degree;
 
@@ -23,7 +23,7 @@ public abstract class DegreeDistribution extends MetricNew {
 
 	protected DistributionInt outDegree;
 
-	public DegreeDistribution(String name, IMetricNew.MetricType metricType,
+	public DegreeDistribution(String name, IMetric.MetricType metricType,
 			Parameter... p) {
 		super(name, metricType, p);
 	}
@@ -54,12 +54,12 @@ public abstract class DegreeDistribution extends MetricNew {
 	}
 
 	@Override
-	public boolean isComparableTo(IMetricNew m) {
+	public boolean isComparableTo(IMetric m) {
 		return m instanceof DegreeDistribution;
 	}
 
 	@Override
-	public boolean equals(IMetricNew m) {
+	public boolean equals(IMetric m) {
 		if (m == null || !(m instanceof DegreeDistribution)) {
 			return false;
 		}

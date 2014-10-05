@@ -17,8 +17,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
-import dna.depr.metrics.Metric;
-import dna.depr.metrics.Metric.ApplicationType;
+import dna.depr.metrics.MetricOld;
+import dna.depr.metrics.MetricOld.ApplicationType;
 import dna.graph.ClassPointers;
 import dna.graph.Graph;
 import dna.graph.datastructures.DEmpty;
@@ -38,8 +38,8 @@ import dna.graph.nodes.UndirectedNode;
 import dna.graph.weights.DoubleWeight;
 import dna.graph.weights.IntWeight;
 import dna.graph.weights.Weight.WeightSelection;
-import dna.metrics.IMetricNew;
-import dna.metrics.IMetricNew.MetricType;
+import dna.metrics.IMetric;
+import dna.metrics.IMetric.MetricType;
 import dna.profiler.Profiler;
 import dna.series.data.Distribution;
 import dna.series.data.NodeNodeValueList;
@@ -56,7 +56,7 @@ public class ProfilerTest {
 	private GraphDataStructure gds;
 	private Graph graph;
 	private ApplicationType applicationType;
-	private Metric metric;
+	private MetricOld metric;
 	private String metricKey;
 
 	public ProfilerTest(
@@ -115,7 +115,7 @@ public class ProfilerTest {
 		this.graph = g.generate();
 
 		metric = new TestMetric("test", this.applicationType,
-				IMetricNew.MetricType.unknown);
+				IMetric.MetricType.unknown);
 		metric.setGraph(graph);
 		this.metricKey = metric.getName();
 		if (applicationType != ApplicationType.Recomputation)
@@ -349,9 +349,9 @@ public class ProfilerTest {
 		}
 	}
 
-	private class TestMetric extends Metric {
+	private class TestMetric extends MetricOld {
 		public TestMetric(String name, ApplicationType type,
-				IMetricNew.MetricType metricType) {
+				IMetric.MetricType metricType) {
 			super(name, type, metricType);
 		}
 
@@ -460,7 +460,7 @@ public class ProfilerTest {
 		}
 
 		@Override
-		public boolean equals(Metric m) {
+		public boolean equals(MetricOld m) {
 			return false;
 		}
 
@@ -475,7 +475,7 @@ public class ProfilerTest {
 		}
 
 		@Override
-		public boolean isComparableTo(Metric m) {
+		public boolean isComparableTo(MetricOld m) {
 			return false;
 		}
 

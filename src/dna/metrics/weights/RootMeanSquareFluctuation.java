@@ -14,8 +14,8 @@ import dna.graph.weights.Int3dWeight;
 import dna.graph.weights.IntWeight;
 import dna.graph.weights.Weight;
 import dna.graph.weights.distances.EuclideanDistance;
-import dna.metrics.IMetricNew;
-import dna.metrics.MetricNew;
+import dna.metrics.IMetric;
+import dna.metrics.Metric;
 import dna.series.data.BinnedDistributionInt;
 import dna.series.data.Distribution;
 import dna.series.data.NodeNodeValueList;
@@ -39,7 +39,7 @@ import dna.util.parameters.IntParameter;
  * @author benni
  * 
  */
-public abstract class RootMeanSquareFluctuation extends MetricNew {
+public abstract class RootMeanSquareFluctuation extends Metric {
 
 	protected HashMap<Node, LinkedList<double[]>> positions;
 
@@ -76,13 +76,13 @@ public abstract class RootMeanSquareFluctuation extends MetricNew {
 	}
 
 	@Override
-	public boolean isComparableTo(IMetricNew m) {
+	public boolean isComparableTo(IMetric m) {
 		return m != null && m instanceof RootMeanSquareFluctuation
 				&& ((RootMeanSquareFluctuation) m).steps == this.steps;
 	}
 
 	@Override
-	public boolean equals(IMetricNew m) {
+	public boolean equals(IMetric m) {
 		if (m == null || !(m instanceof RootMeanSquareFluctuation)) {
 			return false;
 		}

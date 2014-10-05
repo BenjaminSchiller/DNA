@@ -1,7 +1,7 @@
 package dna.depr.metrics.apsp;
 
-import dna.depr.metrics.Metric;
-import dna.metrics.MetricNew;
+import dna.depr.metrics.MetricOld;
+import dna.metrics.Metric;
 import dna.series.data.Distribution;
 import dna.series.data.DistributionLong;
 import dna.series.data.NodeNodeValueList;
@@ -10,12 +10,12 @@ import dna.series.data.Value;
 import dna.util.ArrayUtils;
 import dna.util.parameters.Parameter;
 
-public abstract class AllPairsShortestPaths extends Metric {
+public abstract class AllPairsShortestPaths extends MetricOld {
 
 	protected DistributionLong apsp;
 
 	public AllPairsShortestPaths(String name, ApplicationType type,
-			MetricNew.MetricType metricType, Parameter... p) {
+			Metric.MetricType metricType, Parameter... p) {
 		super(name, type, metricType, p);
 	}
 
@@ -59,7 +59,7 @@ public abstract class AllPairsShortestPaths extends Metric {
 	}
 
 	@Override
-	public boolean equals(Metric m) {
+	public boolean equals(MetricOld m) {
 		return this.isComparableTo(m)
 				&& ArrayUtils.equals(this.apsp.getLongValues(),
 						((AllPairsShortestPaths) m).apsp.getLongValues(),
@@ -67,7 +67,7 @@ public abstract class AllPairsShortestPaths extends Metric {
 	}
 
 	@Override
-	public boolean isComparableTo(Metric m) {
+	public boolean isComparableTo(MetricOld m) {
 		return m != null && m instanceof AllPairsShortestPaths;
 	}
 

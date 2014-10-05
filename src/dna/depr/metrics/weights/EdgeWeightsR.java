@@ -1,13 +1,13 @@
 package dna.depr.metrics.weights;
 
-import dna.metrics.IMetricNew;
+import dna.metrics.IMetric;
 import dna.updates.batch.Batch;
 import dna.updates.update.Update;
 
 public class EdgeWeightsR extends EdgeWeights {
 
 	public EdgeWeightsR(double binSize) {
-		super("EdgeWeightsR", ApplicationType.Recomputation, IMetricNew.MetricType.exact,
+		super("EdgeWeightsR", ApplicationType.Recomputation, IMetric.MetricType.exact,
 				binSize);
 	}
 

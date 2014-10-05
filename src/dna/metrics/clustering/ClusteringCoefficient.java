@@ -1,8 +1,8 @@
 package dna.metrics.clustering;
 
 import dna.graph.nodes.Node;
-import dna.metrics.IMetricNew;
-import dna.metrics.MetricNew;
+import dna.metrics.IMetric;
+import dna.metrics.Metric;
 import dna.series.data.Distribution;
 import dna.series.data.NodeNodeValueList;
 import dna.series.data.NodeValueList;
@@ -11,7 +11,7 @@ import dna.util.ArrayUtils;
 import dna.util.DataUtils;
 import dna.util.parameters.Parameter;
 
-public abstract class ClusteringCoefficient extends MetricNew {
+public abstract class ClusteringCoefficient extends Metric {
 
 	protected double globalCC;
 
@@ -27,7 +27,7 @@ public abstract class ClusteringCoefficient extends MetricNew {
 
 	protected long[] nodePotentialCount;
 
-	public ClusteringCoefficient(String name, IMetricNew.MetricType metricType,
+	public ClusteringCoefficient(String name, IMetric.MetricType metricType,
 			Parameter... p) {
 		super(name, metricType, p);
 	}
@@ -55,12 +55,12 @@ public abstract class ClusteringCoefficient extends MetricNew {
 	}
 
 	@Override
-	public boolean isComparableTo(IMetricNew m) {
+	public boolean isComparableTo(IMetric m) {
 		return m != null && m instanceof ClusteringCoefficient;
 	}
 
 	@Override
-	public boolean equals(IMetricNew m) {
+	public boolean equals(IMetric m) {
 		if (m == null || !(m instanceof ClusteringCoefficient)) {
 			return false;
 		}

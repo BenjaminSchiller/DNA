@@ -1,7 +1,7 @@
 package dna.depr.metrics;
 
 import dna.graph.Graph;
-import dna.metrics.MetricNew;
+import dna.metrics.Metric;
 import dna.series.data.Distribution;
 import dna.series.data.MetricData;
 import dna.series.data.NodeNodeValueList;
@@ -12,7 +12,7 @@ import dna.updates.update.Update;
 import dna.util.parameters.Parameter;
 import dna.util.parameters.ParameterList;
 
-public abstract class Metric extends ParameterList {
+public abstract class MetricOld extends ParameterList {
 
 	public static enum ApplicationType {
 		BeforeBatch, AfterBatch, BeforeAndAfterBatch, BeforeUpdate, AfterUpdate, BeforeAndAfterUpdate, BatchAndUpdates, Recomputation
@@ -46,7 +46,7 @@ public abstract class Metric extends ParameterList {
 		return this.type == ApplicationType.Recomputation;
 	}
 
-	public Metric(String name, ApplicationType type, MetricNew.MetricType metricType,
+	public MetricOld(String name, ApplicationType type, Metric.MetricType metricType,
 			Parameter... p) {
 		super(name, p);
 		this.type = type;
@@ -54,7 +54,7 @@ public abstract class Metric extends ParameterList {
 		this.timestamp = Long.MIN_VALUE;
 	}
 
-	public Metric(String name, ApplicationType type, MetricNew.MetricType metricType,
+	public MetricOld(String name, ApplicationType type, Metric.MetricType metricType,
 			Parameter[] params, Parameter... p) {
 		super(name, combine(params, p));
 		this.type = type;
@@ -100,9 +100,9 @@ public abstract class Metric extends ParameterList {
 		this.g = g;
 	}
 
-	protected MetricNew.MetricType metricType;
+	protected Metric.MetricType metricType;
 
-	public MetricNew.MetricType getMetricType() {
+	public Metric.MetricType getMetricType() {
 		return this.metricType;
 	}
 
@@ -236,7 +236,7 @@ public abstract class Metric extends ParameterList {
 	 *         are equal (can be used to compare different implementations of
 	 *         the same metric)
 	 */
-	public abstract boolean equals(Metric m);
+	public abstract boolean equals(MetricOld m);
 
 	/**
 	 * 
@@ -261,6 +261,6 @@ public abstract class Metric extends ParameterList {
 	 * @return true, if the metric can be compared, i.e., they compute the same
 	 *         properties of a graph
 	 */
-	public abstract boolean isComparableTo(Metric m);
+	public abstract boolean isComparableTo(MetricOld m);
 
 }

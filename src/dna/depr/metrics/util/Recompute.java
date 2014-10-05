@@ -1,8 +1,8 @@
 package dna.depr.metrics.util;
 
-import dna.depr.metrics.Metric;
+import dna.depr.metrics.MetricOld;
 import dna.graph.Graph;
-import dna.metrics.IMetricNew;
+import dna.metrics.IMetric;
 import dna.series.data.Distribution;
 import dna.series.data.NodeNodeValueList;
 import dna.series.data.NodeValueList;
@@ -11,17 +11,17 @@ import dna.updates.batch.Batch;
 import dna.updates.update.Update;
 import dna.util.parameters.IntParameter;
 
-public class Recompute extends Metric {
+public class Recompute extends MetricOld {
 
-	private Metric m;
+	private MetricOld m;
 
 	private int steps;
 
 	private int step;
 
-	public Recompute(Metric m, int steps) {
+	public Recompute(MetricOld m, int steps) {
 		super(m.getName() + "_RECOMPUTE", ApplicationType.BatchAndUpdates,
-				IMetricNew.MetricType.heuristic, new IntParameter("steps", steps));
+				IMetric.MetricType.heuristic, new IntParameter("steps", steps));
 		if (m.getApplicationType() == ApplicationType.Recomputation) {
 			throw new IllegalArgumentException("cannot use metric '"
 					+ m.getName() + "' of type '" + m.getApplicationType()
@@ -113,7 +113,7 @@ public class Recompute extends Metric {
 	}
 
 	@Override
-	public boolean equals(Metric m) {
+	public boolean equals(MetricOld m) {
 		return this.m.equals(m);
 	}
 
@@ -128,7 +128,7 @@ public class Recompute extends Metric {
 	}
 
 	@Override
-	public boolean isComparableTo(Metric m) {
+	public boolean isComparableTo(MetricOld m) {
 		return this.m.isComparableTo(m);
 	}
 

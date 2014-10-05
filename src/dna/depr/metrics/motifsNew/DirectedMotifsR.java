@@ -1,6 +1,6 @@
 package dna.depr.metrics.motifsNew;
 
-import dna.metrics.IMetricNew;
+import dna.metrics.IMetric;
 import dna.updates.batch.Batch;
 import dna.updates.update.Update;
 
@@ -8,7 +8,7 @@ public class DirectedMotifsR extends DirectedMotifs {
 
 	public DirectedMotifsR() {
 		super("DirectedMotifsR", ApplicationType.Recomputation,
-				IMetricNew.MetricType.exact);
+				IMetric.MetricType.exact);
 	}
 
 	@Override

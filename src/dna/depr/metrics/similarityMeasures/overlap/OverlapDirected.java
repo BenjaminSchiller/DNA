@@ -3,7 +3,7 @@ package dna.depr.metrics.similarityMeasures.overlap;
 import java.util.HashMap;
 import java.util.HashSet;
 
-import dna.depr.metrics.Metric;
+import dna.depr.metrics.MetricOld;
 import dna.depr.metrics.similarityMeasures.Matrix;
 import dna.depr.metrics.similarityMeasures.MeasuresDirectedUnweighted;
 import dna.graph.IElement;
@@ -109,7 +109,7 @@ public abstract class OverlapDirected extends MeasuresDirectedUnweighted {
 	}
 
 	@Override
-	public boolean equals(Metric m) {
+	public boolean equals(MetricOld m) {
 		if (m != null && m instanceof OverlapDirected) {
 			return ((OverlapDirected) m).result.equals(this.result, 1.0E-4);
 		}
@@ -148,7 +148,7 @@ public abstract class OverlapDirected extends MeasuresDirectedUnweighted {
 	}
 
 	@Override
-	public boolean isComparableTo(Metric m) {
+	public boolean isComparableTo(MetricOld m) {
 		return m != null
 				&& m instanceof OverlapDirected
 				&& (((OverlapDirected) m).isOutgoingMeasure() == this

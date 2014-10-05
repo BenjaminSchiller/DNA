@@ -2,10 +2,10 @@ package dna.metrics.algorithms;
 
 import java.util.ArrayList;
 
-import dna.metrics.IMetricNew;
+import dna.metrics.IMetric;
 
 public class Algorithms {
-	private IMetricNew[] metrics;
+	private IMetric[] metrics;
 
 	public IRecomputation[] recomputation;
 	public IDynamicAlgorithm[] dynamicAlgorithm;
@@ -28,7 +28,7 @@ public class Algorithms {
 
 	public IAfterBatch[] afterBatch;
 
-	public Algorithms(IMetricNew[] metrics) {
+	public Algorithms(IMetric[] metrics) {
 		this.metrics = metrics;
 
 		this.recomputation = (IRecomputation[]) this.get(IRecomputation.class)
@@ -73,7 +73,7 @@ public class Algorithms {
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	private int count(Class test) {
 		int counter = 0;
-		for (IMetricNew m : this.metrics) {
+		for (IMetric m : this.metrics) {
 			if (test.isAssignableFrom(m.getClass())) {
 				counter++;
 			}
@@ -82,9 +82,9 @@ public class Algorithms {
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	private ArrayList<IMetricNew> get(Class test) {
-		ArrayList<IMetricNew> list = new ArrayList<IMetricNew>();
-		for (IMetricNew m : this.metrics) {
+	private ArrayList<IMetric> get(Class test) {
+		ArrayList<IMetric> list = new ArrayList<IMetric>();
+		for (IMetric m : this.metrics) {
 			if (test.isAssignableFrom(m.getClass())) {
 				list.add(m);
 			}

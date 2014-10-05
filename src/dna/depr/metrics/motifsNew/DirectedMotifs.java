@@ -2,13 +2,13 @@ package dna.depr.metrics.motifsNew;
 
 import java.util.HashSet;
 
-import dna.depr.metrics.Metric;
+import dna.depr.metrics.MetricOld;
 import dna.graph.Graph;
 import dna.graph.IElement;
 import dna.graph.datastructures.GraphDataStructure;
 import dna.graph.edges.DirectedEdge;
 import dna.graph.nodes.DirectedNode;
-import dna.metrics.MetricNew;
+import dna.metrics.Metric;
 import dna.series.data.Distribution;
 import dna.series.data.DistributionLong;
 import dna.series.data.NodeNodeValueList;
@@ -27,7 +27,7 @@ import dna.util.ArrayUtils;
  * @author benni
  * 
  */
-public abstract class DirectedMotifs extends Metric {
+public abstract class DirectedMotifs extends MetricOld {
 	public static enum DirectedMotifType {
 		DM01, DM02, DM03, DM04, DM05, DM06, DM07, DM08, DM09, DM10, DM11, DM12, DM13
 	}
@@ -39,7 +39,7 @@ public abstract class DirectedMotifs extends Metric {
 	protected GraphDataStructure gds;
 
 	public DirectedMotifs(String name, ApplicationType type,
-			MetricNew.MetricType metricType) {
+			Metric.MetricType metricType) {
 		super(name, type, metricType);
 	}
 
@@ -366,7 +366,7 @@ public abstract class DirectedMotifs extends Metric {
 	}
 
 	@Override
-	public boolean equals(Metric m) {
+	public boolean equals(MetricOld m) {
 		if (m == null || !(m instanceof DirectedMotifs)) {
 			return false;
 		}
@@ -390,7 +390,7 @@ public abstract class DirectedMotifs extends Metric {
 	}
 
 	@Override
-	public boolean isComparableTo(Metric m) {
+	public boolean isComparableTo(MetricOld m) {
 		return m instanceof DirectedMotifs;
 	}
 

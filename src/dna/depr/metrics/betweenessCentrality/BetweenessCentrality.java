@@ -4,13 +4,13 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map.Entry;
 
-import dna.depr.metrics.Metric;
+import dna.depr.metrics.MetricOld;
 import dna.graph.Graph;
 import dna.graph.IElement;
 import dna.graph.nodes.DirectedNode;
 import dna.graph.nodes.Node;
 import dna.graph.nodes.UndirectedNode;
-import dna.metrics.IMetricNew;
+import dna.metrics.IMetric;
 import dna.series.data.BinnedDistributionDouble;
 import dna.series.data.Distribution;
 import dna.series.data.NodeNodeValueList;
@@ -18,7 +18,7 @@ import dna.series.data.NodeValueList;
 import dna.series.data.Value;
 import dna.updates.batch.Batch;
 
-public abstract class BetweenessCentrality extends Metric {
+public abstract class BetweenessCentrality extends MetricOld {
 
 	// protected HashMap<Node, Double> bC;
 
@@ -29,7 +29,7 @@ public abstract class BetweenessCentrality extends Metric {
 	protected int sumShortestPaths;
 
 	public BetweenessCentrality(String name, ApplicationType type) {
-		super(name, type, IMetricNew.MetricType.exact);
+		super(name, type, IMetric.MetricType.exact);
 	}
 
 	@Override
@@ -50,7 +50,7 @@ public abstract class BetweenessCentrality extends Metric {
 	}
 
 	@Override
-	public boolean equals(Metric m) {
+	public boolean equals(MetricOld m) {
 		if (!(m instanceof BetweenessCentrality)) {
 			return false;
 		}
@@ -134,7 +134,7 @@ public abstract class BetweenessCentrality extends Metric {
 	}
 
 	@Override
-	public boolean isComparableTo(Metric m) {
+	public boolean isComparableTo(MetricOld m) {
 		return m != null && m instanceof BetweenessCentrality;
 	}
 

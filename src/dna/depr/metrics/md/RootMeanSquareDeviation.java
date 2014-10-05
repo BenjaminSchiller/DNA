@@ -1,6 +1,6 @@
 package dna.depr.metrics.md;
 
-import dna.depr.metrics.Metric;
+import dna.depr.metrics.MetricOld;
 import dna.graph.Graph;
 import dna.graph.weights.Double2dWeight;
 import dna.graph.weights.Double3dWeight;
@@ -9,7 +9,7 @@ import dna.graph.weights.IWeightedNode;
 import dna.graph.weights.Int2dWeight;
 import dna.graph.weights.Int3dWeight;
 import dna.graph.weights.IntWeight;
-import dna.metrics.MetricNew;
+import dna.metrics.Metric;
 import dna.series.data.BinnedDistributionInt;
 import dna.series.data.Distribution;
 import dna.series.data.NodeNodeValueList;
@@ -32,7 +32,7 @@ import dna.util.DataUtils;
  * @author benni
  * 
  */
-public abstract class RootMeanSquareDeviation extends Metric {
+public abstract class RootMeanSquareDeviation extends MetricOld {
 
 	protected int changes;
 
@@ -41,7 +41,7 @@ public abstract class RootMeanSquareDeviation extends Metric {
 	protected BinnedDistributionInt distr;
 
 	public RootMeanSquareDeviation(String name, ApplicationType type,
-			MetricNew.MetricType metricType) {
+			Metric.MetricType metricType) {
 		super(name, type, metricType);
 	}
 
@@ -86,7 +86,7 @@ public abstract class RootMeanSquareDeviation extends Metric {
 	}
 
 	@Override
-	public boolean equals(Metric m) {
+	public boolean equals(MetricOld m) {
 		if (m == null || !(m instanceof RootMeanSquareDeviation)) {
 			return false;
 		}
@@ -118,7 +118,7 @@ public abstract class RootMeanSquareDeviation extends Metric {
 	}
 
 	@Override
-	public boolean isComparableTo(Metric m) {
+	public boolean isComparableTo(MetricOld m) {
 		return m != null && m instanceof RootMeanSquareDeviation;
 	}
 

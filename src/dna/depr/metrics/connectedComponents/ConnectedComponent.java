@@ -4,19 +4,19 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Queue;
 
-import dna.depr.metrics.Metric;
+import dna.depr.metrics.MetricOld;
 import dna.graph.Graph;
 import dna.graph.IElement;
 import dna.graph.edges.Edge;
 import dna.graph.nodes.Node;
-import dna.metrics.IMetricNew;
+import dna.metrics.IMetric;
 import dna.series.data.Distribution;
 import dna.series.data.NodeNodeValueList;
 import dna.series.data.NodeValueList;
 import dna.series.data.Value;
 import dna.updates.batch.Batch;
 
-public abstract class ConnectedComponent extends Metric {
+public abstract class ConnectedComponent extends MetricOld {
 
 	protected HashMap<Node, Integer> nodeComponentMembership;
 	protected boolean[] visited;
@@ -26,7 +26,7 @@ public abstract class ConnectedComponent extends Metric {
 	protected int counter;
 
 	public ConnectedComponent(String name, ApplicationType type) {
-		super(name, type, IMetricNew.MetricType.exact);
+		super(name, type, IMetric.MetricType.exact);
 	}
 
 	@Override
@@ -87,7 +87,7 @@ public abstract class ConnectedComponent extends Metric {
 	}
 
 	@Override
-	public boolean equals(Metric m) {
+	public boolean equals(MetricOld m) {
 		if (!(m instanceof ConnectedComponent)) {
 			return false;
 		}
@@ -210,7 +210,7 @@ public abstract class ConnectedComponent extends Metric {
 	}
 
 	@Override
-	public boolean isComparableTo(Metric m) {
+	public boolean isComparableTo(MetricOld m) {
 		return m != null && m instanceof ConnectedComponent;
 	}
 

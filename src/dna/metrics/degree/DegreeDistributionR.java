@@ -1,13 +1,13 @@
 package dna.metrics.degree;
 
-import dna.metrics.IMetricNew;
+import dna.metrics.IMetric;
 import dna.metrics.algorithms.IRecomputation;
 
 public class DegreeDistributionR extends DegreeDistribution implements
 		IRecomputation {
 
 	public DegreeDistributionR() {
-		super("DegreeDistributionR", IMetricNew.MetricType.exact);
+		super("DegreeDistributionR", IMetric.MetricType.exact);
 	}
 
 	@Override

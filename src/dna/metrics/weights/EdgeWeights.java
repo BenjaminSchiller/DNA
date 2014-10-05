@@ -6,7 +6,7 @@ import dna.graph.edges.IEdge;
 import dna.graph.weights.DoubleWeight;
 import dna.graph.weights.IWeightedEdge;
 import dna.graph.weights.IntWeight;
-import dna.metrics.IMetricNew;
+import dna.metrics.IMetric;
 import dna.series.data.BinnedDistributionInt;
 import dna.updates.batch.Batch;
 
@@ -26,7 +26,7 @@ public abstract class EdgeWeights extends Weights {
 	}
 
 	@Override
-	public boolean isComparableTo(IMetricNew m) {
+	public boolean isComparableTo(IMetric m) {
 		return m != null && m instanceof EdgeWeights;
 	}
 

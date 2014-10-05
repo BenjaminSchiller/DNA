@@ -3,14 +3,14 @@ package dna.depr.metrics.similarityMeasures;
 import java.util.HashSet;
 import java.util.Set;
 
-import dna.depr.metrics.Metric;
+import dna.depr.metrics.MetricOld;
 import dna.graph.Graph;
 import dna.graph.IElement;
 import dna.graph.edges.DirectedEdge;
 import dna.graph.nodes.DirectedNode;
 import dna.graph.nodes.Node;
 import dna.graph.nodes.UndirectedNode;
-import dna.metrics.IMetricNew;
+import dna.metrics.IMetric;
 import dna.series.data.BinnedDistributionLong;
 import dna.series.data.NodeNodeValueList;
 import dna.series.data.NodeValueList;
@@ -19,7 +19,7 @@ import dna.updates.batch.Batch;
 import dna.util.parameters.Parameter;
 import dna.util.parameters.StringParameter;
 
-public abstract class MeasuresDirectedUnweighted extends Metric {
+public abstract class MeasuresDirectedUnweighted extends MetricOld {
 
 	/** Contains the result for each similarity measure */
 	protected Matrix result;
@@ -63,7 +63,7 @@ public abstract class MeasuresDirectedUnweighted extends Metric {
 	 */
 	public MeasuresDirectedUnweighted(String name, ApplicationType type,
 			Parameter directedDegreeType) {
-		super(name, type, IMetricNew.MetricType.exact, directedDegreeType);
+		super(name, type, IMetric.MetricType.exact, directedDegreeType);
 		this.directedDegreeType = this.getParameters()[0].getValue();
 	}
 

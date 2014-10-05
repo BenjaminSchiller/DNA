@@ -5,13 +5,13 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 
-import dna.depr.metrics.Metric;
+import dna.depr.metrics.MetricOld;
 import dna.graph.Graph;
 import dna.graph.IElement;
 import dna.graph.nodes.DirectedNode;
 import dna.graph.nodes.Node;
 import dna.graph.nodes.UndirectedNode;
-import dna.metrics.MetricNew;
+import dna.metrics.Metric;
 import dna.series.data.Distribution;
 import dna.series.data.DistributionInt;
 import dna.series.data.NodeNodeValueList;
@@ -32,7 +32,7 @@ import dna.util.parameters.Parameter;
  * @author benni
  * 
  */
-public abstract class Connectivity extends Metric {
+public abstract class Connectivity extends MetricOld {
 
 	protected HashMap<Node, ConnectedComponent> nodeComponents;
 
@@ -41,7 +41,7 @@ public abstract class Connectivity extends Metric {
 	protected int maxIndex = 0;
 
 	public Connectivity(String name, ApplicationType type,
-			MetricNew.MetricType metricType, Parameter... p) {
+			Metric.MetricType metricType, Parameter... p) {
 		super(name, type, metricType, p);
 	}
 
@@ -215,7 +215,7 @@ public abstract class Connectivity extends Metric {
 	}
 
 	@Override
-	public boolean equals(Metric m) {
+	public boolean equals(MetricOld m) {
 		if (m == null || !(m instanceof Connectivity)) {
 			return false;
 		}

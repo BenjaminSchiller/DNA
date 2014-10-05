@@ -4,7 +4,7 @@ import dna.graph.Graph;
 import dna.graph.IElement;
 import dna.graph.nodes.DirectedNode;
 import dna.graph.nodes.UndirectedNode;
-import dna.metrics.IMetricNew;
+import dna.metrics.IMetric;
 import dna.series.data.DistributionInt;
 import dna.updates.batch.Batch;
 import dna.updates.update.Update;
@@ -14,7 +14,7 @@ public class DegreeDistributionR extends DegreeDistribution {
 
 	public DegreeDistributionR() {
 		super("DegreeDistributionR", ApplicationType.Recomputation,
-				IMetricNew.MetricType.exact);
+				IMetric.MetricType.exact);
 	}
 
 	@Override

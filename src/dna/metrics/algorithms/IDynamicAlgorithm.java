@@ -1,7 +1,7 @@
 package dna.metrics.algorithms;
 
-import dna.metrics.IMetricNew;
+import dna.metrics.IMetric;
 
-public interface IDynamicAlgorithm extends IMetricNew {
+public interface IDynamicAlgorithm extends IMetric {
 	public boolean init();
 }

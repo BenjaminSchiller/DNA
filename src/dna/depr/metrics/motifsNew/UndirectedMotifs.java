@@ -3,13 +3,13 @@ package dna.depr.metrics.motifsNew;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-import dna.depr.metrics.Metric;
+import dna.depr.metrics.MetricOld;
 import dna.graph.Graph;
 import dna.graph.IElement;
 import dna.graph.datastructures.GraphDataStructure;
 import dna.graph.edges.UndirectedEdge;
 import dna.graph.nodes.UndirectedNode;
-import dna.metrics.MetricNew;
+import dna.metrics.Metric;
 import dna.series.data.Distribution;
 import dna.series.data.DistributionLong;
 import dna.series.data.NodeNodeValueList;
@@ -18,7 +18,7 @@ import dna.series.data.Value;
 import dna.updates.batch.Batch;
 import dna.util.ArrayUtils;
 
-public abstract class UndirectedMotifs extends Metric {
+public abstract class UndirectedMotifs extends MetricOld {
 
 	public static enum UndirectedMotifType {
 		UM1, UM2, UM3, UM4, UM5, UM6
@@ -31,7 +31,7 @@ public abstract class UndirectedMotifs extends Metric {
 	GraphDataStructure gds;
 
 	public UndirectedMotifs(String name, ApplicationType type,
-			MetricNew.MetricType metricType) {
+			Metric.MetricType metricType) {
 		super(name, type, metricType);
 	}
 
@@ -203,7 +203,7 @@ public abstract class UndirectedMotifs extends Metric {
 	}
 
 	@Override
-	public boolean equals(Metric m) {
+	public boolean equals(MetricOld m) {
 		if (m == null || !(m instanceof UndirectedMotifs)) {
 			return false;
 		}
@@ -227,7 +227,7 @@ public abstract class UndirectedMotifs extends Metric {
 	}
 
 	@Override
-	public boolean isComparableTo(Metric m) {
+	public boolean isComparableTo(MetricOld m) {
 		return m instanceof UndirectedMotifs;
 	}
 

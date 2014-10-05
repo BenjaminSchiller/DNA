@@ -7,8 +7,8 @@ import dna.graph.Graph;
 import dna.graph.IElement;
 import dna.graph.edges.UndirectedEdge;
 import dna.graph.nodes.UndirectedNode;
-import dna.metrics.IMetricNew;
-import dna.metrics.MetricNew;
+import dna.metrics.IMetric;
+import dna.metrics.Metric;
 import dna.series.data.Distribution;
 import dna.series.data.DistributionLong;
 import dna.series.data.NodeNodeValueList;
@@ -18,7 +18,7 @@ import dna.updates.batch.Batch;
 import dna.util.ArrayUtils;
 import dna.util.parameters.Parameter;
 
-public class UndirectedMotifs extends MetricNew {
+public class UndirectedMotifs extends Metric {
 
 	public static enum UndirectedMotifType {
 		UM1, UM2, UM3, UM4, UM5, UM6
@@ -26,7 +26,7 @@ public class UndirectedMotifs extends MetricNew {
 
 	protected DistributionLong motifs;
 
-	public UndirectedMotifs(String name, IMetricNew.MetricType metricType,
+	public UndirectedMotifs(String name, IMetric.MetricType metricType,
 			Parameter... p) {
 		super(name, metricType, p);
 	}
@@ -65,12 +65,12 @@ public class UndirectedMotifs extends MetricNew {
 	}
 
 	@Override
-	public boolean isComparableTo(IMetricNew m) {
+	public boolean isComparableTo(IMetric m) {
 		return m != null && m instanceof UndirectedMotifs;
 	}
 
 	@Override
-	public boolean equals(IMetricNew m) {
+	public boolean equals(IMetric m) {
 		if (m == null || !(m instanceof UndirectedMotifs)) {
 			return false;
 		}

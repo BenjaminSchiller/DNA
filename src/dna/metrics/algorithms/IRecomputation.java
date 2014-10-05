@@ -1,7 +1,7 @@
 package dna.metrics.algorithms;
 
-import dna.metrics.IMetricNew;
+import dna.metrics.IMetric;
 
-public interface IRecomputation extends IMetricNew {
+public interface IRecomputation extends IMetric {
 	public boolean recompute();
 }

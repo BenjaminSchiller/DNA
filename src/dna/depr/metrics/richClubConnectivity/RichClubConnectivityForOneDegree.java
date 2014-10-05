@@ -3,7 +3,7 @@ package dna.depr.metrics.richClubConnectivity;
 import java.util.HashSet;
 import java.util.Set;
 
-import dna.depr.metrics.Metric;
+import dna.depr.metrics.MetricOld;
 import dna.graph.Graph;
 import dna.graph.IElement;
 import dna.graph.edges.DirectedEdge;
@@ -11,14 +11,14 @@ import dna.graph.edges.UndirectedEdge;
 import dna.graph.nodes.DirectedNode;
 import dna.graph.nodes.Node;
 import dna.graph.nodes.UndirectedNode;
-import dna.metrics.IMetricNew;
+import dna.metrics.IMetric;
 import dna.series.data.Distribution;
 import dna.series.data.NodeNodeValueList;
 import dna.series.data.NodeValueList;
 import dna.series.data.Value;
 import dna.updates.batch.Batch;
 
-public abstract class RichClubConnectivityForOneDegree extends Metric {
+public abstract class RichClubConnectivityForOneDegree extends MetricOld {
 
 	protected int minDegree;
 	protected int richClubEdges;
@@ -26,7 +26,7 @@ public abstract class RichClubConnectivityForOneDegree extends Metric {
 
 	public RichClubConnectivityForOneDegree(String name, ApplicationType type,
 			int minDegree) {
-		super(name, type, IMetricNew.MetricType.exact);
+		super(name, type, IMetric.MetricType.exact);
 		this.minDegree = minDegree;
 	}
 
@@ -96,7 +96,7 @@ public abstract class RichClubConnectivityForOneDegree extends Metric {
 	}
 
 	@Override
-	public boolean equals(Metric m) {
+	public boolean equals(MetricOld m) {
 		if (!(m instanceof RichClubConnectivityForOneDegree)) {
 			return false;
 		}
@@ -174,7 +174,7 @@ public abstract class RichClubConnectivityForOneDegree extends Metric {
 	}
 
 	@Override
-	public boolean isComparableTo(Metric m) {
+	public boolean isComparableTo(MetricOld m) {
 		return m != null && m instanceof RichClubConnectivityForOneDegree;
 
 	}

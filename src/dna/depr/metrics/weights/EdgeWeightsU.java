@@ -1,6 +1,6 @@
 package dna.depr.metrics.weights;
 
-import dna.metrics.IMetricNew;
+import dna.metrics.IMetric;
 import dna.updates.batch.Batch;
 import dna.updates.update.EdgeAddition;
 import dna.updates.update.EdgeRemoval;
@@ -11,7 +11,7 @@ public class EdgeWeightsU extends EdgeWeights {
 
 	public EdgeWeightsU(double binSize) {
 		super("EdgeWeightsU", ApplicationType.BeforeAndAfterUpdate,
-				IMetricNew.MetricType.exact, binSize);
+				IMetric.MetricType.exact, binSize);
 	}
 
 	@Override

@@ -5,7 +5,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import dna.depr.metrics.Metric;
+import dna.depr.metrics.MetricOld;
 import dna.graph.Graph;
 import dna.graph.IElement;
 import dna.graph.edges.DirectedWeightedEdge;
@@ -13,7 +13,7 @@ import dna.graph.nodes.DirectedNode;
 import dna.graph.nodes.Node;
 import dna.graph.nodes.UndirectedNode;
 import dna.graph.weights.IntWeight;
-import dna.metrics.IMetricNew;
+import dna.metrics.IMetric;
 import dna.series.data.BinnedDistributionLong;
 import dna.series.data.NodeNodeValueList;
 import dna.series.data.NodeValueList;
@@ -22,7 +22,7 @@ import dna.updates.batch.Batch;
 import dna.util.parameters.Parameter;
 import dna.util.parameters.StringParameter;
 
-public abstract class MeasuresDirectedIntWeighted extends Metric {
+public abstract class MeasuresDirectedIntWeighted extends MetricOld {
 
 	/** Contains the result for each similarity measure. */
 	protected Matrix result;
@@ -66,7 +66,7 @@ public abstract class MeasuresDirectedIntWeighted extends Metric {
 	 */
 	public MeasuresDirectedIntWeighted(String name, ApplicationType type,
 			Parameter directedDegreeType) {
-		super(name, type, IMetricNew.MetricType.exact, directedDegreeType);
+		super(name, type, IMetric.MetricType.exact, directedDegreeType);
 		this.directedDegreeType = this.getParameters()[0].getValue();
 	}
 

@@ -8,7 +8,7 @@ import dna.series.data.NodeValueList;
 import dna.series.data.Value;
 import dna.updates.batch.Batch;
 
-public interface IMetricNew {
+public interface IMetric {
 
 	public static enum MetricType {
 		exact, heuristic, quality, unknown
@@ -26,7 +26,7 @@ public interface IMetricNew {
 
 	public String getDescription();
 
-	public MetricNew.MetricType getMetricType();
+	public Metric.MetricType getMetricType();
 
 	/**
 	 * 
@@ -58,7 +58,7 @@ public interface IMetricNew {
 	 * @return true, if the metric can be compared, i.e., they compute the same
 	 *         properties of a graph
 	 */
-	public boolean isComparableTo(IMetricNew m);
+	public boolean isComparableTo(IMetric m);
 
 	/**
 	 * 
@@ -68,7 +68,7 @@ public interface IMetricNew {
 	 *         are equal (can be used to compare different implementations of
 	 *         the same metric)
 	 */
-	public boolean equals(IMetricNew m);
+	public boolean equals(IMetric m);
 
 	/**
 	 * 

@@ -3,7 +3,7 @@ package dna.depr.metrics.apsp;
 import java.util.HashSet;
 
 import dna.graph.nodes.Node;
-import dna.metrics.IMetricNew;
+import dna.metrics.IMetric;
 import dna.updates.batch.Batch;
 import dna.updates.update.Update;
 import dna.util.parameters.IntParameter;
@@ -15,7 +15,7 @@ public class UnweightedKSingleSourceShortestPathsRH extends
 
 	public UnweightedKSingleSourceShortestPathsRH(int k) {
 		super("UnweightedKSingleSourceShortestPathsRH",
-				ApplicationType.Recomputation, IMetricNew.MetricType.heuristic,
+				ApplicationType.Recomputation, IMetric.MetricType.heuristic,
 				new IntParameter("k", k));
 		this.k = k;
 	}

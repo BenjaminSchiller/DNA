@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import dna.depr.metrics.Metric;
+import dna.depr.metrics.MetricOld;
 import dna.depr.metrics.similarityMeasures.Matrix;
 import dna.depr.metrics.similarityMeasures.MeasuresUndirectedDoubleWeighted;
 import dna.graph.IElement;
@@ -104,7 +104,7 @@ public abstract class JaccardUndirectedDoubleWeighted extends
 	}
 
 	@Override
-	public boolean equals(Metric m) {
+	public boolean equals(MetricOld m) {
 		if (m != null && m instanceof JaccardUndirectedDoubleWeighted)
 
 			return ((JaccardUndirectedDoubleWeighted) m).result.equals(
@@ -181,7 +181,7 @@ public abstract class JaccardUndirectedDoubleWeighted extends
 	}
 
 	@Override
-	public boolean isComparableTo(Metric m) {
+	public boolean isComparableTo(MetricOld m) {
 		return m != null && m instanceof JaccardUndirectedDoubleWeighted;
 	}
 

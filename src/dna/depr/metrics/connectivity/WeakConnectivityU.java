@@ -8,7 +8,7 @@ import dna.graph.edges.DirectedEdge;
 import dna.graph.edges.Edge;
 import dna.graph.edges.UndirectedEdge;
 import dna.graph.nodes.Node;
-import dna.metrics.IMetricNew;
+import dna.metrics.IMetric;
 import dna.updates.batch.Batch;
 import dna.updates.update.EdgeAddition;
 import dna.updates.update.EdgeRemoval;
@@ -27,7 +27,7 @@ public class WeakConnectivityU extends WeakConnectivity {
 
 	public WeakConnectivityU() {
 		super("WeakConnectivityU", ApplicationType.AfterUpdate,
-				IMetricNew.MetricType.exact);
+				IMetric.MetricType.exact);
 	}
 
 	@Override

@@ -1,6 +1,6 @@
 package dna.depr.metrics.connectivity;
 
-import dna.metrics.IMetricNew;
+import dna.metrics.IMetric;
 import dna.updates.batch.Batch;
 import dna.updates.update.Update;
 
@@ -15,7 +15,7 @@ public class StrongConnectivityR extends StrongConnectivity {
 
 	public StrongConnectivityR() {
 		super("StrongConnectivityR", ApplicationType.Recomputation,
-				IMetricNew.MetricType.exact);
+				IMetric.MetricType.exact);
 	}
 
 	@Override

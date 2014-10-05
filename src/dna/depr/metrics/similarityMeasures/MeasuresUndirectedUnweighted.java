@@ -3,20 +3,20 @@ package dna.depr.metrics.similarityMeasures;
 import java.util.HashSet;
 import java.util.Set;
 
-import dna.depr.metrics.Metric;
+import dna.depr.metrics.MetricOld;
 import dna.graph.Graph;
 import dna.graph.IElement;
 import dna.graph.edges.UndirectedEdge;
 import dna.graph.nodes.Node;
 import dna.graph.nodes.UndirectedNode;
-import dna.metrics.IMetricNew;
+import dna.metrics.IMetric;
 import dna.series.data.BinnedDistributionLong;
 import dna.series.data.NodeNodeValueList;
 import dna.series.data.NodeValueList;
 import dna.series.data.Value;
 import dna.updates.batch.Batch;
 
-public abstract class MeasuresUndirectedUnweighted extends Metric {
+public abstract class MeasuresUndirectedUnweighted extends MetricOld {
 	
 	/** Contains the result for each similarity measure. */
 	protected Matrix result;
@@ -37,7 +37,7 @@ public abstract class MeasuresUndirectedUnweighted extends Metric {
 	 */
 	public MeasuresUndirectedUnweighted(String name,
 			ApplicationType applicationType) {
-		super(name, applicationType, IMetricNew.MetricType.exact);
+		super(name, applicationType, IMetric.MetricType.exact);
 	}
 
 	/**

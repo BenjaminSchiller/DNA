@@ -1,7 +1,7 @@
 package dna.depr.metrics.assortativity;
 
-import dna.depr.metrics.Metric;
-import dna.depr.metrics.Metric.ApplicationType;
+import dna.depr.metrics.MetricOld;
+import dna.depr.metrics.MetricOld.ApplicationType;
 import dna.graph.Graph;
 import dna.graph.IElement;
 import dna.graph.edges.DirectedWeightedEdge;
@@ -9,7 +9,7 @@ import dna.graph.edges.UndirectedWeightedEdge;
 import dna.graph.nodes.DirectedNode;
 import dna.graph.nodes.UndirectedNode;
 import dna.graph.weights.DoubleWeight;
-import dna.metrics.IMetricNew;
+import dna.metrics.IMetric;
 import dna.series.data.Distribution;
 import dna.series.data.NodeNodeValueList;
 import dna.series.data.NodeValueList;
@@ -39,10 +39,10 @@ import dna.util.parameters.StringParameter;
  * @see AssortativityDoubleWeightedU This metric with Updates
  * @see Assortativity A version of this metric without using edgeweights
  */
-public abstract class AssortativityDoubleWeighted extends Metric {
+public abstract class AssortativityDoubleWeighted extends MetricOld {
 
 	/**
-	 * To check equality of metrics in {@link #equals(Metric)}, the
+	 * To check equality of metrics in {@link #equals(MetricOld)}, the
 	 * assortativity coefficient {@link #r} is compared. This value is the
 	 * allowed difference of two values to still accept them as equal.
 	 */
@@ -103,7 +103,7 @@ public abstract class AssortativityDoubleWeighted extends Metric {
 	 */
 	public AssortativityDoubleWeighted(String name,
 			ApplicationType applicationType, Parameter directedDegreeType) {
-		super(name, applicationType, IMetricNew.MetricType.exact, directedDegreeType);
+		super(name, applicationType, IMetric.MetricType.exact, directedDegreeType);
 
 		this.directedDegreeType = this.getParameters()[0].getValue();
 	}
@@ -170,7 +170,7 @@ public abstract class AssortativityDoubleWeighted extends Metric {
 	}
 
 	@Override
-	public boolean equals(Metric m) {
+	public boolean equals(MetricOld m) {
 		if (m != null
 				&& m instanceof AssortativityDoubleWeighted
 				&& ((AssortativityDoubleWeighted) m).directedDegreeType
@@ -213,7 +213,7 @@ public abstract class AssortativityDoubleWeighted extends Metric {
 	}
 
 	@Override
-	public boolean isComparableTo(Metric m) {
+	public boolean isComparableTo(MetricOld m) {
 		return m != null
 				&& m instanceof AssortativityDoubleWeighted
 				&& ((AssortativityDoubleWeighted) m).directedDegreeType

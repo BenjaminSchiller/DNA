@@ -1,6 +1,6 @@
 package dna.depr.metrics.sampling;
 
-import dna.metrics.IMetricNew.MetricType;
+import dna.metrics.IMetric.MetricType;
 import dna.updates.batch.Batch;
 import dna.updates.generators.sampling.SamplingAlgorithm;
 import dna.updates.update.Update;

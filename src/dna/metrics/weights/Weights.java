@@ -3,8 +3,8 @@ package dna.metrics.weights;
 import dna.graph.weights.DoubleWeight;
 import dna.graph.weights.IntWeight;
 import dna.graph.weights.Weight;
-import dna.metrics.IMetricNew;
-import dna.metrics.MetricNew;
+import dna.metrics.IMetric;
+import dna.metrics.Metric;
 import dna.series.data.BinnedDistributionInt;
 import dna.series.data.Distribution;
 import dna.series.data.NodeNodeValueList;
@@ -13,7 +13,7 @@ import dna.series.data.Value;
 import dna.util.ArrayUtils;
 import dna.util.parameters.DoubleParameter;
 
-public abstract class Weights extends MetricNew {
+public abstract class Weights extends Metric {
 
 	protected double binSize;
 
@@ -49,7 +49,7 @@ public abstract class Weights extends MetricNew {
 	}
 
 	@Override
-	public boolean equals(IMetricNew m) {
+	public boolean equals(IMetric m) {
 		if (m == null || !(m instanceof Weights)) {
 			return false;
 		}

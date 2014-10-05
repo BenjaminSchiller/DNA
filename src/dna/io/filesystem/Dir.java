@@ -8,8 +8,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 import dna.io.filter.PrefixFilenameFilter;
-import dna.metrics.IMetricNew;
-import dna.metrics.IMetricNew.MetricType;
+import dna.metrics.IMetric;
+import dna.metrics.IMetric.MetricType;
 import dna.series.SeriesGeneration;
 import dna.util.Config;
 import dna.util.Log;
@@ -191,7 +191,7 @@ public class Dir {
 	}
 
 	public static String getMetricDataDir(String dir, String name,
-			IMetricNew.MetricType type) {
+			IMetric.MetricType type) {
 		switch (type) {
 		case exact:
 			return dir + Config.get("PREFIX_METRICDATA_DIR") + name
@@ -215,7 +215,7 @@ public class Dir {
 	}
 
 	public static String getMetricDataDir(String dir, int run, long timestamp,
-			String name, IMetricNew.MetricType type) {
+			String name, IMetric.MetricType type) {
 		switch (type) {
 		case exact:
 			return Dir.getBatchDataDir(dir, run, timestamp)

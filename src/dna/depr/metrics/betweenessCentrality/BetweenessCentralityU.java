@@ -8,7 +8,7 @@ import java.util.Map.Entry;
 import java.util.Queue;
 import java.util.Stack;
 
-import dna.depr.metrics.Metric;
+import dna.depr.metrics.MetricOld;
 import dna.graph.IElement;
 import dna.graph.edges.DirectedEdge;
 import dna.graph.edges.Edge;
@@ -1268,7 +1268,7 @@ public class BetweenessCentralityU extends BetweenessCentrality {
 		return true;
 	}
 
-	public boolean equals(Metric m) {
+	public boolean equals(MetricOld m) {
 		boolean success = super.equals(m);
 
 		if (success && m instanceof BetweenessCentralityU) {

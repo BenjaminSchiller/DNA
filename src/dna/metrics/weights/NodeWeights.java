@@ -6,7 +6,7 @@ import dna.graph.nodes.INode;
 import dna.graph.weights.DoubleWeight;
 import dna.graph.weights.IWeightedNode;
 import dna.graph.weights.IntWeight;
-import dna.metrics.IMetricNew;
+import dna.metrics.IMetric;
 import dna.series.data.BinnedDistributionInt;
 import dna.updates.batch.Batch;
 
@@ -26,7 +26,7 @@ public abstract class NodeWeights extends Weights {
 	}
 
 	@Override
-	public boolean isComparableTo(IMetricNew m) {
+	public boolean isComparableTo(IMetric m) {
 		return m != null && m instanceof NodeWeights;
 	}
 

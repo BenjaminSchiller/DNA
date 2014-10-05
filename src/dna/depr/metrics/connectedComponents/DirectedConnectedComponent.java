@@ -4,19 +4,19 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Stack;
 
-import dna.depr.metrics.Metric;
+import dna.depr.metrics.MetricOld;
 import dna.graph.Graph;
 import dna.graph.IElement;
 import dna.graph.edges.DirectedEdge;
 import dna.graph.nodes.DirectedNode;
-import dna.metrics.IMetricNew;
+import dna.metrics.IMetric;
 import dna.series.data.Distribution;
 import dna.series.data.NodeNodeValueList;
 import dna.series.data.NodeValueList;
 import dna.series.data.Value;
 import dna.updates.batch.Batch;
 
-public abstract class DirectedConnectedComponent extends Metric {
+public abstract class DirectedConnectedComponent extends MetricOld {
 
 	private boolean[] visited;
 
@@ -32,7 +32,7 @@ public abstract class DirectedConnectedComponent extends Metric {
 	protected Map<Integer, DirectedComponent> dagExpired;
 
 	public DirectedConnectedComponent(String name, ApplicationType type) {
-		super(name, type, IMetricNew.MetricType.exact);
+		super(name, type, IMetric.MetricType.exact);
 	}
 
 	@Override
@@ -134,7 +134,7 @@ public abstract class DirectedConnectedComponent extends Metric {
 	}
 
 	@Override
-	public boolean equals(Metric m) {
+	public boolean equals(MetricOld m) {
 		if (!(m instanceof DirectedConnectedComponent)) {
 			return false;
 		}
@@ -268,7 +268,7 @@ public abstract class DirectedConnectedComponent extends Metric {
 	}
 
 	@Override
-	public boolean isComparableTo(Metric m) {
+	public boolean isComparableTo(MetricOld m) {
 		return m != null && m instanceof DirectedConnectedComponent;
 	}
 

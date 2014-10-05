@@ -1,8 +1,8 @@
 package dna.metrics.sampling;
 
 import dna.graph.Graph;
-import dna.metrics.IMetricNew;
-import dna.metrics.MetricNew;
+import dna.metrics.IMetric;
+import dna.metrics.Metric;
 import dna.series.data.Distribution;
 import dna.series.data.NodeNodeValueList;
 import dna.series.data.NodeValueList;
@@ -19,7 +19,7 @@ import dna.util.DataUtils;
  * @author Benedict Jahn
  * 
  */
-public abstract class Extent extends MetricNew {
+public abstract class Extent extends Metric {
 
 	private SamplingAlgorithm algorithm;
 	private int seenNodes;
@@ -59,12 +59,12 @@ public abstract class Extent extends MetricNew {
 	}
 
 	@Override
-	public boolean isComparableTo(IMetricNew m) {
+	public boolean isComparableTo(IMetric m) {
 		return (m instanceof Extent);
 	}
 
 	@Override
-	public boolean equals(IMetricNew m) {
+	public boolean equals(IMetric m) {
 		if (m == null || !(m instanceof Extent)) {
 			return false;
 		}

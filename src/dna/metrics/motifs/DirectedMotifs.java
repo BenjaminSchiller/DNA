@@ -6,8 +6,8 @@ import dna.graph.Graph;
 import dna.graph.IElement;
 import dna.graph.edges.DirectedEdge;
 import dna.graph.nodes.DirectedNode;
-import dna.metrics.IMetricNew;
-import dna.metrics.MetricNew;
+import dna.metrics.IMetric;
+import dna.metrics.Metric;
 import dna.series.data.Distribution;
 import dna.series.data.DistributionLong;
 import dna.series.data.NodeNodeValueList;
@@ -17,7 +17,7 @@ import dna.updates.batch.Batch;
 import dna.util.ArrayUtils;
 import dna.util.parameters.Parameter;
 
-public class DirectedMotifs extends MetricNew {
+public class DirectedMotifs extends Metric {
 
 	public static enum DirectedMotifType {
 		DM01, DM02, DM03, DM04, DM05, DM06, DM07, DM08, DM09, DM10, DM11, DM12, DM13
@@ -25,7 +25,7 @@ public class DirectedMotifs extends MetricNew {
 
 	protected DistributionLong motifs;
 
-	public DirectedMotifs(String name, IMetricNew.MetricType metricType,
+	public DirectedMotifs(String name, IMetric.MetricType metricType,
 			Parameter... p) {
 		super(name, metricType, p);
 	}
@@ -79,13 +79,13 @@ public class DirectedMotifs extends MetricNew {
 	}
 
 	@Override
-	public boolean isComparableTo(IMetricNew m) {
+	public boolean isComparableTo(IMetric m) {
 		// TODO Auto-generated method stub
 		return false;
 	}
 
 	@Override
-	public boolean equals(IMetricNew m) {
+	public boolean equals(IMetric m) {
 		if (m == null || !(m instanceof DirectedMotifs)) {
 			return false;
 		}

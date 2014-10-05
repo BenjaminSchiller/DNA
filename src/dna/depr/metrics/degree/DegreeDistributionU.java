@@ -6,7 +6,7 @@ import dna.graph.edges.DirectedEdge;
 import dna.graph.edges.UndirectedEdge;
 import dna.graph.nodes.DirectedNode;
 import dna.graph.nodes.UndirectedNode;
-import dna.metrics.IMetricNew;
+import dna.metrics.IMetric;
 import dna.updates.batch.Batch;
 import dna.updates.update.EdgeAddition;
 import dna.updates.update.EdgeRemoval;
@@ -20,7 +20,7 @@ public class DegreeDistributionU extends DegreeDistribution {
 
 	public DegreeDistributionU() {
 		super("DegreeDistributionU", ApplicationType.BeforeUpdate,
-				IMetricNew.MetricType.exact);
+				IMetric.MetricType.exact);
 	}
 
 	@Override

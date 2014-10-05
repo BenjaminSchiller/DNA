@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.TreeSet;
 
-import dna.depr.metrics.Metric;
+import dna.depr.metrics.MetricOld;
 import dna.graph.Graph;
 import dna.graph.IElement;
 import dna.graph.edges.DirectedEdge;
@@ -12,14 +12,14 @@ import dna.graph.edges.UndirectedEdge;
 import dna.graph.nodes.DirectedNode;
 import dna.graph.nodes.Node;
 import dna.graph.nodes.UndirectedNode;
-import dna.metrics.IMetricNew;
+import dna.metrics.IMetric;
 import dna.series.data.Distribution;
 import dna.series.data.NodeNodeValueList;
 import dna.series.data.NodeValueList;
 import dna.series.data.Value;
 import dna.updates.batch.Batch;
 
-public abstract class RichClubConnectivityInterval extends Metric {
+public abstract class RichClubConnectivityInterval extends MetricOld {
 
 	protected HashMap<Node, Integer> nodesRichClub;
 	protected int richClubIntervall;
@@ -28,7 +28,7 @@ public abstract class RichClubConnectivityInterval extends Metric {
 
 	public RichClubConnectivityInterval(String name, ApplicationType type,
 			int interval) {
-		super(name, type, IMetricNew.MetricType.exact);
+		super(name, type, IMetric.MetricType.exact);
 		this.richClubIntervall = interval;
 	}
 
@@ -191,7 +191,7 @@ public abstract class RichClubConnectivityInterval extends Metric {
 	}
 
 	@Override
-	public boolean equals(Metric m) {
+	public boolean equals(MetricOld m) {
 
 		if (m == null || !(m instanceof RichClubConnectivityInterval)) {
 			return false;
@@ -275,7 +275,7 @@ public abstract class RichClubConnectivityInterval extends Metric {
 	}
 
 	@Override
-	public boolean isComparableTo(Metric m) {
+	public boolean isComparableTo(MetricOld m) {
 		return m != null && m instanceof RichClubConnectivityInterval;
 	}
 

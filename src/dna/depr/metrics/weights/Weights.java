@@ -1,10 +1,10 @@
 package dna.depr.metrics.weights;
 
-import dna.depr.metrics.Metric;
+import dna.depr.metrics.MetricOld;
 import dna.graph.weights.DoubleWeight;
 import dna.graph.weights.IntWeight;
 import dna.graph.weights.Weight;
-import dna.metrics.IMetricNew;
+import dna.metrics.IMetric;
 import dna.series.data.BinnedDistributionInt;
 import dna.series.data.Distribution;
 import dna.series.data.NodeNodeValueList;
@@ -13,13 +13,13 @@ import dna.series.data.Value;
 import dna.util.ArrayUtils;
 import dna.util.parameters.DoubleParameter;
 
-public abstract class Weights extends Metric {
+public abstract class Weights extends MetricOld {
 
 	protected double binSize;
 
 	protected BinnedDistributionInt distr;
 
-	public Weights(String name, ApplicationType type, IMetricNew.MetricType metricType,
+	public Weights(String name, ApplicationType type, IMetric.MetricType metricType,
 			double binSize) {
 		super(name, type, metricType, new DoubleParameter("BinSize", binSize));
 		// super(name, type, metricType);
@@ -62,7 +62,7 @@ public abstract class Weights extends Metric {
 	}
 
 	@Override
-	public boolean equals(Metric m) {
+	public boolean equals(MetricOld m) {
 		if (m == null || !(m instanceof Weights)) {
 			return false;
 		}

@@ -1,6 +1,6 @@
 package dna.depr.metrics.assortativity;
 
-import dna.depr.metrics.Metric;
+import dna.depr.metrics.MetricOld;
 import dna.graph.Graph;
 import dna.graph.IElement;
 import dna.graph.edges.DirectedEdge;
@@ -8,7 +8,7 @@ import dna.graph.edges.UndirectedEdge;
 import dna.graph.nodes.DirectedNode;
 import dna.graph.nodes.Node;
 import dna.graph.nodes.UndirectedNode;
-import dna.metrics.IMetricNew;
+import dna.metrics.IMetric;
 import dna.series.data.Distribution;
 import dna.series.data.NodeNodeValueList;
 import dna.series.data.NodeValueList;
@@ -33,7 +33,7 @@ import dna.util.parameters.StringParameter;
  * @see AssortativityU This metric with Updates
  * @see AssortativityDoubleWeighted A version of this metric using edgeweights
  */
-public abstract class Assortativity extends Metric {
+public abstract class Assortativity extends MetricOld {
 
 	/**
 	 * Is either "out" (default) or "in", depending on the {@link Parameter} in
@@ -83,7 +83,7 @@ public abstract class Assortativity extends Metric {
 	 */
 	public Assortativity(String name, ApplicationType applicationType,
 			Parameter directedDegreeType) {
-		super(name, applicationType, IMetricNew.MetricType.exact, directedDegreeType);
+		super(name, applicationType, IMetric.MetricType.exact, directedDegreeType);
 
 		this.directedDegreeType = this.getParameters()[0].getValue();
 	}
@@ -152,7 +152,7 @@ public abstract class Assortativity extends Metric {
 	}
 
 	@Override
-	public boolean equals(Metric m) {
+	public boolean equals(MetricOld m) {
 		if (m != null && m instanceof Assortativity)
 			return ((Assortativity) m).r == this.r;
 
@@ -201,7 +201,7 @@ public abstract class Assortativity extends Metric {
 	}
 
 	@Override
-	public boolean isComparableTo(Metric m) {
+	public boolean isComparableTo(MetricOld m) {
 		return m != null
 				&& m instanceof Assortativity
 				&& ((Assortativity) m).directedDegreeType

@@ -4,14 +4,14 @@ import dna.graph.Graph;
 import dna.graph.nodes.Node;
 import dna.graph.weights.IWeightedEdge;
 import dna.graph.weights.IntWeight;
-import dna.metrics.IMetricNew;
+import dna.metrics.IMetric;
 import dna.updates.batch.Batch;
 
 public abstract class IntWeightedAllPairsShortestPaths extends
 		AllPairsShortestPaths {
 
 	public IntWeightedAllPairsShortestPaths(String name, ApplicationType type) {
-		super(name, type, IMetricNew.MetricType.exact);
+		super(name, type, IMetric.MetricType.exact);
 
 	}
 

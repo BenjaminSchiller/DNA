@@ -5,8 +5,8 @@ import dna.graph.IElement;
 import dna.graph.nodes.DirectedNode;
 import dna.graph.nodes.Node;
 import dna.graph.nodes.UndirectedNode;
-import dna.metrics.IMetricNew;
-import dna.metrics.MetricNew;
+import dna.metrics.IMetric;
+import dna.metrics.Metric;
 import dna.series.data.Distribution;
 import dna.series.data.NodeNodeValueList;
 import dna.series.data.NodeValueList;
@@ -24,7 +24,7 @@ import dna.util.DataUtils;
  * @author Benedict Jahn
  * 
  */
-public class SamplingModularity extends MetricNew {
+public class SamplingModularity extends Metric {
 
 	private boolean directed;
 	private Graph graph;
@@ -73,12 +73,12 @@ public class SamplingModularity extends MetricNew {
 	}
 
 	@Override
-	public boolean isComparableTo(IMetricNew m) {
+	public boolean isComparableTo(IMetric m) {
 		return (m instanceof SamplingModularity);
 	}
 
 	@Override
-	public boolean equals(IMetricNew m) {
+	public boolean equals(IMetric m) {
 		if (m == null || !(m instanceof SamplingModularity)) {
 			return false;
 		}

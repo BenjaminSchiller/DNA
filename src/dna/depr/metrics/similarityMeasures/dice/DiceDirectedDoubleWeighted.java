@@ -2,7 +2,7 @@ package dna.depr.metrics.similarityMeasures.dice;
 
 import java.util.HashMap;
 
-import dna.depr.metrics.Metric;
+import dna.depr.metrics.MetricOld;
 import dna.depr.metrics.similarityMeasures.Matrix;
 import dna.depr.metrics.similarityMeasures.MeasuresDirectedDoubleWeighted;
 import dna.graph.IElement;
@@ -109,7 +109,7 @@ public abstract class DiceDirectedDoubleWeighted extends
 	}
 
 	@Override
-	public boolean equals(Metric m) {
+	public boolean equals(MetricOld m) {
 		if (m != null && m instanceof DiceDirectedDoubleWeighted) {
 			return ((DiceDirectedDoubleWeighted) m).result.equals(this.result,
 					1.0E-4);
@@ -178,7 +178,7 @@ public abstract class DiceDirectedDoubleWeighted extends
 	}
 
 	@Override
-	public boolean isComparableTo(Metric m) {
+	public boolean isComparableTo(MetricOld m) {
 		return m != null
 				&& m instanceof DiceDirectedDoubleWeighted
 				&& (((DiceDirectedDoubleWeighted) m).isOutgoingMeasure() == this

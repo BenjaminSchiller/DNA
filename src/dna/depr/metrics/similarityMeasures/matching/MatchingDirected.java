@@ -3,14 +3,14 @@ package dna.depr.metrics.similarityMeasures.matching;
 import java.util.HashSet;
 import java.util.Set;
 
-import dna.depr.metrics.Metric;
+import dna.depr.metrics.MetricOld;
 import dna.depr.metrics.similarityMeasures.Matrix;
 import dna.graph.Graph;
 import dna.graph.IElement;
 import dna.graph.edges.DirectedEdge;
 import dna.graph.nodes.DirectedNode;
 import dna.graph.nodes.Node;
-import dna.metrics.IMetricNew;
+import dna.metrics.IMetric;
 import dna.series.data.BinnedDistributionLong;
 import dna.series.data.Distribution;
 import dna.series.data.NodeNodeValueList;
@@ -30,7 +30,7 @@ import dna.util.parameters.StringParameter;
  * @see MatchingDirectedR
  * @see MatchingDirectedU
  */
-public abstract class MatchingDirected extends Metric {
+public abstract class MatchingDirected extends MetricOld {
 
 	/** Contains the result for each matching. */
 	protected Matrix matchings;
@@ -68,7 +68,7 @@ public abstract class MatchingDirected extends Metric {
 	 */
 	public MatchingDirected(String name, ApplicationType type,
 			Parameter directedDegreeType) {
-		super(name, type, IMetricNew.MetricType.exact, directedDegreeType);
+		super(name, type, IMetric.MetricType.exact, directedDegreeType);
 		this.directedDegreeType = this.getParameters()[0].getValue();
 	}
 
@@ -113,7 +113,7 @@ public abstract class MatchingDirected extends Metric {
 	}
 
 	@Override
-	public boolean equals(Metric m) {
+	public boolean equals(MetricOld m) {
 		if (m != null
 				&& m instanceof MatchingDirected
 				&& isOutgoingMatching() == ((MatchingDirected) m)
@@ -222,7 +222,7 @@ public abstract class MatchingDirected extends Metric {
 	}
 
 	@Override
-	public boolean isComparableTo(Metric m) {
+	public boolean isComparableTo(MetricOld m) {
 		return m != null
 				&& m instanceof MatchingDirected
 				&& (((MatchingDirected) m).isOutgoingMatching() == this

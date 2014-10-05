@@ -1,9 +1,9 @@
 package dna.depr.metrics.degree;
 
-import dna.depr.metrics.Metric;
+import dna.depr.metrics.MetricOld;
 import dna.graph.nodes.DirectedNode;
 import dna.graph.nodes.UndirectedNode;
-import dna.metrics.MetricNew;
+import dna.metrics.Metric;
 import dna.series.data.Distribution;
 import dna.series.data.DistributionInt;
 import dna.series.data.NodeNodeValueList;
@@ -12,7 +12,7 @@ import dna.series.data.Value;
 import dna.util.ArrayUtils;
 import dna.util.DataUtils;
 
-public abstract class DegreeDistribution extends Metric {
+public abstract class DegreeDistribution extends MetricOld {
 
 	protected DistributionInt degree;
 
@@ -35,7 +35,7 @@ public abstract class DegreeDistribution extends Metric {
 	public static final String edgesName = "edges";
 
 	public DegreeDistribution(String name, ApplicationType type,
-			MetricNew.MetricType mType) {
+			Metric.MetricType mType) {
 		super(name, type, mType);
 	}
 
@@ -68,7 +68,7 @@ public abstract class DegreeDistribution extends Metric {
 	}
 
 	@Override
-	public boolean equals(Metric m) {
+	public boolean equals(MetricOld m) {
 		if (m == null || !(m instanceof DegreeDistribution)) {
 			return false;
 		}
@@ -98,7 +98,7 @@ public abstract class DegreeDistribution extends Metric {
 	}
 
 	@Override
-	public boolean isComparableTo(Metric m) {
+	public boolean isComparableTo(MetricOld m) {
 		return m != null && m instanceof DegreeDistribution;
 	}
 

@@ -3,14 +3,14 @@ package dna.depr.metrics.similarityMeasures.matching;
 import java.util.HashSet;
 import java.util.Set;
 
-import dna.depr.metrics.Metric;
+import dna.depr.metrics.MetricOld;
 import dna.depr.metrics.similarityMeasures.Matrix;
 import dna.graph.Graph;
 import dna.graph.IElement;
 import dna.graph.edges.UndirectedEdge;
 import dna.graph.nodes.Node;
 import dna.graph.nodes.UndirectedNode;
-import dna.metrics.IMetricNew;
+import dna.metrics.IMetric;
 import dna.series.data.BinnedDistributionLong;
 import dna.series.data.Distribution;
 import dna.series.data.NodeNodeValueList;
@@ -29,7 +29,7 @@ import dna.updates.batch.Batch;
  * @see MatchingUndirectedU
  */
 
-public abstract class MatchingUndirected extends Metric {
+public abstract class MatchingUndirected extends MetricOld {
 
 	/** Contains the result for each matching. */
 	protected Matrix matching;
@@ -50,7 +50,7 @@ public abstract class MatchingUndirected extends Metric {
 	 * 
 	 */
 	public MatchingUndirected(String name, ApplicationType applicationType) {
-		super(name, applicationType, IMetricNew.MetricType.exact);
+		super(name, applicationType, IMetric.MetricType.exact);
 	}
 
 	@Override
@@ -92,7 +92,7 @@ public abstract class MatchingUndirected extends Metric {
 	}
 
 	@Override
-	public boolean equals(Metric m) {
+	public boolean equals(MetricOld m) {
 		if (m != null && m instanceof MatchingUndirected)
 			return ((MatchingUndirected) m).matching.equals(this.matching,
 					1.0E-4);
@@ -192,7 +192,7 @@ public abstract class MatchingUndirected extends Metric {
 	}
 
 	@Override
-	public boolean isComparableTo(Metric m) {
+	public boolean isComparableTo(MetricOld m) {
 		return m != null && m instanceof MatchingUndirected;
 	}
 

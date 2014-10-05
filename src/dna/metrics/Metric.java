@@ -5,15 +5,14 @@ import dna.series.data.MetricData;
 import dna.util.parameters.Parameter;
 import dna.util.parameters.ParameterList;
 
-public abstract class MetricNew extends ParameterList implements IMetricNew {
+public abstract class Metric extends ParameterList implements IMetric {
 
-	public MetricNew(String name, IMetricNew.MetricType metricType,
-			Parameter... p) {
+	public Metric(String name, IMetric.MetricType metricType, Parameter... p) {
 		super(name, p);
 		this.metricType = metricType;
 	}
 
-	public MetricNew(String name, IMetricNew.MetricType metricType,
+	public Metric(String name, IMetric.MetricType metricType,
 			Parameter[] params, Parameter... p) {
 		super(name, combine(params, p));
 		this.metricType = metricType;
@@ -45,9 +44,9 @@ public abstract class MetricNew extends ParameterList implements IMetricNew {
 		this.g = g;
 	}
 
-	protected IMetricNew.MetricType metricType;
+	protected IMetric.MetricType metricType;
 
-	public IMetricNew.MetricType getMetricType() {
+	public IMetric.MetricType getMetricType() {
 		return this.metricType;
 	}
 

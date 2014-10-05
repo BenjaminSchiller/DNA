@@ -2,12 +2,12 @@ package dna.depr.metrics.motifsNew;
 
 import java.util.HashSet;
 
-import dna.depr.metrics.Metric;
+import dna.depr.metrics.MetricOld;
 import dna.graph.Graph;
 import dna.graph.IElement;
 import dna.graph.edges.DirectedEdge;
 import dna.graph.nodes.DirectedNode;
-import dna.metrics.IMetricNew;
+import dna.metrics.IMetric;
 import dna.series.data.Distribution;
 import dna.series.data.NodeNodeValueList;
 import dna.series.data.NodeValueList;
@@ -25,7 +25,7 @@ import dna.updates.update.Update;
  * @author benni
  * 
  */
-public class CountingDirectedMotifsR extends Metric {
+public class CountingDirectedMotifsR extends MetricOld {
 
 	protected int computation;
 
@@ -35,7 +35,7 @@ public class CountingDirectedMotifsR extends Metric {
 
 	public CountingDirectedMotifsR() {
 		super("CountingDirectedMotifsR", ApplicationType.Recomputation,
-				IMetricNew.MetricType.exact);
+				IMetric.MetricType.exact);
 	}
 
 	@Override
@@ -165,7 +165,7 @@ public class CountingDirectedMotifsR extends Metric {
 	}
 
 	@Override
-	public boolean equals(Metric m) {
+	public boolean equals(MetricOld m) {
 		if (m == null || !(m instanceof CountingDirectedMotifsR)) {
 			return false;
 		}
@@ -188,7 +188,7 @@ public class CountingDirectedMotifsR extends Metric {
 	}
 
 	@Override
-	public boolean isComparableTo(Metric m) {
+	public boolean isComparableTo(MetricOld m) {
 		return m instanceof CountingDirectedMotifsR;
 	}
 

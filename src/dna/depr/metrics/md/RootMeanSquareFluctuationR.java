@@ -7,7 +7,7 @@ import dna.graph.IElement;
 import dna.graph.nodes.Node;
 import dna.graph.weights.IWeightedNode;
 import dna.graph.weights.distances.EuclideanDistance;
-import dna.metrics.IMetricNew;
+import dna.metrics.IMetric;
 import dna.updates.batch.Batch;
 import dna.updates.update.Update;
 
@@ -15,7 +15,7 @@ public class RootMeanSquareFluctuationR extends RootMeanSquareFluctuation {
 
 	public RootMeanSquareFluctuationR(int steps) {
 		super("RootMeanSquareFluctuationR", ApplicationType.Recomputation,
-				IMetricNew.MetricType.exact, steps);
+				IMetric.MetricType.exact, steps);
 	}
 
 	@Override

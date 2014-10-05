@@ -7,7 +7,7 @@ import java.util.Map;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-import dna.depr.metrics.Metric;
+import dna.depr.metrics.MetricOld;
 import dna.graph.Graph;
 import dna.graph.IElement;
 import dna.graph.edges.DirectedEdge;
@@ -15,14 +15,14 @@ import dna.graph.edges.UndirectedEdge;
 import dna.graph.nodes.DirectedNode;
 import dna.graph.nodes.Node;
 import dna.graph.nodes.UndirectedNode;
-import dna.metrics.IMetricNew;
+import dna.metrics.IMetric;
 import dna.series.data.Distribution;
 import dna.series.data.NodeNodeValueList;
 import dna.series.data.NodeValueList;
 import dna.series.data.Value;
 import dna.updates.batch.Batch;
 
-public abstract class RichClubConnectivitySizeN extends Metric {
+public abstract class RichClubConnectivitySizeN extends MetricOld {
 	protected Map<Integer, LinkedList<Node>> richClub;
 	protected Map<Integer, LinkedList<Node>> nodesSortedByDegree;
 	protected int richClubSize;
@@ -30,7 +30,7 @@ public abstract class RichClubConnectivitySizeN extends Metric {
 
 	public RichClubConnectivitySizeN(String name, ApplicationType type,
 			int richClubSize) {
-		super(name, type, IMetricNew.MetricType.exact);
+		super(name, type, IMetric.MetricType.exact);
 		this.richClubSize = richClubSize;
 	}
 
@@ -170,7 +170,7 @@ public abstract class RichClubConnectivitySizeN extends Metric {
 	}
 
 	@Override
-	public boolean equals(Metric m) {
+	public boolean equals(MetricOld m) {
 		if (m == null || !(m instanceof RichClubConnectivitySizeN)) {
 			return false;
 		}
@@ -252,7 +252,7 @@ public abstract class RichClubConnectivitySizeN extends Metric {
 	}
 
 	@Override
-	public boolean isComparableTo(Metric m) {
+	public boolean isComparableTo(MetricOld m) {
 		return m != null && m instanceof RichClubConnectivitySizeN;
 	}
 

@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import dna.depr.metrics.Metric;
+import dna.depr.metrics.MetricOld;
 import dna.depr.metrics.similarityMeasures.Matrix;
 import dna.graph.Graph;
 import dna.graph.IElement;
@@ -13,7 +13,7 @@ import dna.graph.edges.UndirectedWeightedEdge;
 import dna.graph.nodes.Node;
 import dna.graph.nodes.UndirectedNode;
 import dna.graph.weights.DoubleWeight;
-import dna.metrics.IMetricNew;
+import dna.metrics.IMetric;
 import dna.series.data.BinnedDistributionLong;
 import dna.series.data.Distribution;
 import dna.series.data.NodeNodeValueList;
@@ -35,7 +35,7 @@ import dna.updates.batch.Batch;
  * @see MatchingUndirectedDoubleWeightedR
  * @see MatchingUndirectedDoubleWeightedU
  */
-public abstract class MatchingUndirectedDoubleWeighted extends Metric {
+public abstract class MatchingUndirectedDoubleWeighted extends MetricOld {
 	/** Contains the result for each matching. */
 	protected Matrix matchings;
 	/** Binned Distribution */
@@ -54,7 +54,7 @@ public abstract class MatchingUndirectedDoubleWeighted extends Metric {
 	 */
 	public MatchingUndirectedDoubleWeighted(String name,
 			ApplicationType applicationType) {
-		super(name, applicationType, IMetricNew.MetricType.exact);
+		super(name, applicationType, IMetric.MetricType.exact);
 	}
 
 	@Override
@@ -100,7 +100,7 @@ public abstract class MatchingUndirectedDoubleWeighted extends Metric {
 	}
 
 	@Override
-	public boolean equals(Metric m) {
+	public boolean equals(MetricOld m) {
 		if (m != null && m instanceof MatchingUndirectedDoubleWeighted)
 			return ((MatchingUndirectedDoubleWeighted) m).matchings.equals(
 					this.matchings, 1.0E-4);
@@ -248,7 +248,7 @@ public abstract class MatchingUndirectedDoubleWeighted extends Metric {
 	}
 
 	@Override
-	public boolean isComparableTo(Metric m) {
+	public boolean isComparableTo(MetricOld m) {
 		return m != null && m instanceof MatchingUndirectedDoubleWeighted;
 	}
 

@@ -4,14 +4,14 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedList;
 
-import dna.depr.metrics.Metric;
+import dna.depr.metrics.MetricOld;
 import dna.graph.IElement;
 import dna.graph.edges.DirectedEdge;
 import dna.graph.edges.UndirectedEdge;
 import dna.graph.nodes.DirectedNode;
 import dna.graph.nodes.Node;
 import dna.graph.nodes.UndirectedNode;
-import dna.metrics.MetricNew;
+import dna.metrics.Metric;
 import dna.util.parameters.Parameter;
 
 /**
@@ -27,7 +27,7 @@ import dna.util.parameters.Parameter;
 public abstract class StrongConnectivity extends Connectivity {
 
 	public StrongConnectivity(String name, ApplicationType type,
-			MetricNew.MetricType metricType, Parameter... p) {
+			Metric.MetricType metricType, Parameter... p) {
 		super(name, type, metricType, p);
 	}
 
@@ -93,7 +93,7 @@ public abstract class StrongConnectivity extends Connectivity {
 	}
 
 	@Override
-	public boolean isComparableTo(Metric m) {
+	public boolean isComparableTo(MetricOld m) {
 		return m != null && m instanceof StrongConnectivity;
 	}
 

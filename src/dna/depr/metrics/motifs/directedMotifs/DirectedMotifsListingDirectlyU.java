@@ -10,7 +10,7 @@ import dna.depr.metrics.motifsNew.DirectedMotifs;
 import dna.graph.IElement;
 import dna.graph.edges.DirectedEdge;
 import dna.graph.nodes.DirectedNode;
-import dna.metrics.IMetricNew;
+import dna.metrics.IMetric;
 import dna.updates.batch.Batch;
 import dna.updates.update.EdgeAddition;
 import dna.updates.update.EdgeRemoval;
@@ -22,7 +22,7 @@ public class DirectedMotifsListingDirectlyU extends DirectedMotifs {
 
 	public DirectedMotifsListingDirectlyU() {
 		super("DirectedMotifsListingDirectlyU",
-				ApplicationType.BeforeAndAfterUpdate, IMetricNew.MetricType.exact);
+				ApplicationType.BeforeAndAfterUpdate, IMetric.MetricType.exact);
 	}
 
 	@Override

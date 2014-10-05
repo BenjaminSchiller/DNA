@@ -1,8 +1,8 @@
 package dna.depr.metrics.clusterCoefficient;
 
-import dna.depr.metrics.Metric;
+import dna.depr.metrics.MetricOld;
 import dna.graph.nodes.Node;
-import dna.metrics.MetricNew;
+import dna.metrics.Metric;
 import dna.series.data.Distribution;
 import dna.series.data.NodeNodeValueList;
 import dna.series.data.NodeValueList;
@@ -20,10 +20,10 @@ import dna.util.DataUtils;
  * @author benni
  * 
  */
-public abstract class ClusteringCoefficient extends Metric {
+public abstract class ClusteringCoefficient extends MetricOld {
 
 	public ClusteringCoefficient(String name, ApplicationType type,
-			MetricNew.MetricType mType) {
+			Metric.MetricType mType) {
 		super(name, type, mType);
 	}
 
@@ -89,7 +89,7 @@ public abstract class ClusteringCoefficient extends Metric {
 	}
 
 	@Override
-	public boolean equals(Metric m) {
+	public boolean equals(MetricOld m) {
 		if (m == null || !(m instanceof ClusteringCoefficient)) {
 			return false;
 		}

@@ -8,8 +8,8 @@ import dna.graph.weights.IWeightedNode;
 import dna.graph.weights.Int2dWeight;
 import dna.graph.weights.Int3dWeight;
 import dna.graph.weights.IntWeight;
-import dna.metrics.IMetricNew;
-import dna.metrics.MetricNew;
+import dna.metrics.IMetric;
+import dna.metrics.Metric;
 import dna.series.data.BinnedDistributionInt;
 import dna.series.data.Distribution;
 import dna.series.data.NodeNodeValueList;
@@ -33,7 +33,7 @@ import dna.util.parameters.Parameter;
  * @author benni
  * 
  */
-public class RootMeanSquareDeviation extends MetricNew {
+public class RootMeanSquareDeviation extends Metric {
 
 	protected int changes;
 
@@ -69,12 +69,12 @@ public class RootMeanSquareDeviation extends MetricNew {
 	}
 
 	@Override
-	public boolean isComparableTo(IMetricNew m) {
+	public boolean isComparableTo(IMetric m) {
 		return m != null && m instanceof RootMeanSquareDeviation;
 	}
 
 	@Override
-	public boolean equals(IMetricNew m) {
+	public boolean equals(IMetric m) {
 		if (m == null || !(m instanceof RootMeanSquareDeviation)) {
 			return false;
 		}

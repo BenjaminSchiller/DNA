@@ -1,8 +1,8 @@
 package dna.depr.metrics.util;
 
-import dna.depr.metrics.Metric;
+import dna.depr.metrics.MetricOld;
 import dna.graph.Graph;
-import dna.metrics.IMetricNew;
+import dna.metrics.IMetric;
 import dna.series.data.Distribution;
 import dna.series.data.NodeNodeValueList;
 import dna.series.data.NodeValueList;
@@ -12,15 +12,15 @@ import dna.updates.update.Update;
 import dna.util.Rand;
 import dna.util.parameters.DoubleParameter;
 
-public class MissingUpdates extends Metric {
+public class MissingUpdates extends MetricOld {
 
-	private Metric m;
+	private MetricOld m;
 
 	private double missProb = 0.0;
 
-	public MissingUpdates(Metric m, double missProb) {
+	public MissingUpdates(MetricOld m, double missProb) {
 		super(m.getName() + "_MISSING_UPDATES", m.getApplicationType(),
-				IMetricNew.MetricType.heuristic, m.getParameters(), new DoubleParameter(
+				IMetric.MetricType.heuristic, m.getParameters(), new DoubleParameter(
 						"missProb", missProb));
 		this.m = m;
 		this.missProb = missProb;
@@ -89,7 +89,7 @@ public class MissingUpdates extends Metric {
 	}
 
 	@Override
-	public boolean equals(Metric m) {
+	public boolean equals(MetricOld m) {
 		return this.m.equals(m);
 	}
 
@@ -104,7 +104,7 @@ public class MissingUpdates extends Metric {
 	}
 
 	@Override
-	public boolean isComparableTo(Metric m) {
+	public boolean isComparableTo(MetricOld m) {
 		return this.m.isComparableTo(m);
 	}
 

@@ -1,19 +1,19 @@
 package dna.depr.metrics.weights;
 
-import dna.depr.metrics.Metric;
+import dna.depr.metrics.MetricOld;
 import dna.graph.Graph;
 import dna.graph.IElement;
 import dna.graph.nodes.INode;
 import dna.graph.weights.DoubleWeight;
 import dna.graph.weights.IWeightedNode;
 import dna.graph.weights.IntWeight;
-import dna.metrics.IMetricNew;
+import dna.metrics.IMetric;
 import dna.updates.batch.Batch;
 
 public abstract class NodeWeights extends Weights {
 
 	public NodeWeights(String name, ApplicationType type,
-			IMetricNew.MetricType metricType, double binSize) {
+			IMetric.MetricType metricType, double binSize) {
 		super(name, type, metricType, binSize);
 	}
 
@@ -40,7 +40,7 @@ public abstract class NodeWeights extends Weights {
 	}
 
 	@Override
-	public boolean isComparableTo(Metric m) {
+	public boolean isComparableTo(MetricOld m) {
 		return m != null && m instanceof NodeWeights;
 	}
 

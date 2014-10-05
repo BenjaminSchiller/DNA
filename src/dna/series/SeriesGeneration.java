@@ -6,9 +6,9 @@ import java.nio.file.FileSystem;
 
 import dna.io.filesystem.Dir;
 import dna.io.filesystem.Files;
-import dna.metrics.IMetricNew;
+import dna.metrics.IMetric;
 import dna.metrics.MetricNotApplicableException;
-import dna.metrics.IMetricNew.MetricType;
+import dna.metrics.IMetric.MetricType;
 import dna.metrics.algorithms.Algorithms;
 import dna.metrics.algorithms.IAfterBatch;
 import dna.metrics.algorithms.IAfterEA;
@@ -105,7 +105,7 @@ public class SeriesGeneration {
 		if (batchGenerationTime > 0)
 			Log.info("t  = " + batchGenerationTime + " msec / batch");
 		StringBuffer buff = new StringBuffer("");
-		for (IMetricNew m : series.getMetrics()) {
+		for (IMetric m : series.getMetrics()) {
 			if (buff.length() > 0) {
 				buff.append("\n     ");
 			}
@@ -367,9 +367,9 @@ public class SeriesGeneration {
 				if (!series.getMetrics()[i]
 						.isComparableTo(series.getMetrics()[j])
 						|| !series.getMetrics()[i].getMetricType().equals(
-								IMetricNew.MetricType.exact)
+								IMetric.MetricType.exact)
 						|| !series.getMetrics()[j].getMetricType().equals(
-								IMetricNew.MetricType.exact)) {
+								IMetric.MetricType.exact)) {
 					continue;
 				}
 				if (!series.getMetrics()[i].equals(series.getMetrics()[j])) {
@@ -388,7 +388,7 @@ public class SeriesGeneration {
 		// generate graph
 		Log.info("    generating graph");
 		series.setGraph(series.getGraphGenerator().generate());
-		for (IMetricNew m : series.getMetrics()) {
+		for (IMetric m : series.getMetrics()) {
 			m.setGraph(series.getGraph());
 		}
 
@@ -405,7 +405,7 @@ public class SeriesGeneration {
 			BatchData initialData, Algorithms algorithms)
 			throws MetricNotApplicableException {
 		// initial computation of all metrics
-		for (IMetricNew m : series.getMetrics()) {
+		for (IMetric m : series.getMetrics()) {
 			if (!m.isApplicable(series.getGraph())) {
 				throw new MetricNotApplicableException(m, series.getGraph());
 			}
@@ -488,7 +488,7 @@ public class SeriesGeneration {
 		Log.info("    " + b.toString());
 
 		// check applicability to batch
-		for (IMetricNew m : series.getMetrics()) {
+		for (IMetric m : series.getMetrics()) {
 			if (!m.isApplicable(b)) {
 				throw new MetricNotApplicableException(m, b);
 			}
@@ -629,7 +629,7 @@ public class SeriesGeneration {
 				new Value(SeriesStats.edges, series.getGraph().getEdgeCount()));
 
 		// add metric data
-		for (IMetricNew m : series.getMetrics()) {
+		for (IMetric m : series.getMetrics()) {
 			batchData.getMetrics().add(m.getData());
 		}
 

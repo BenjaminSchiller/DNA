@@ -9,7 +9,7 @@ import dna.graph.edges.UndirectedEdge;
 import dna.graph.nodes.DirectedNode;
 import dna.graph.nodes.Node;
 import dna.graph.nodes.UndirectedNode;
-import dna.metrics.IMetricNew;
+import dna.metrics.IMetric;
 import dna.updates.batch.Batch;
 import dna.util.parameters.Parameter;
 
@@ -18,11 +18,11 @@ public abstract class UnweightedAllPairsShortestPaths extends
 
 	public UnweightedAllPairsShortestPaths(String name, ApplicationType type,
 			Parameter... p) {
-		super(name, type, IMetricNew.MetricType.exact, p);
+		super(name, type, IMetric.MetricType.exact, p);
 	}
 
 	public UnweightedAllPairsShortestPaths(String name, ApplicationType type,
-			IMetricNew.MetricType mtype, Parameter... p) {
+			IMetric.MetricType mtype, Parameter... p) {
 		super(name, type, mtype, p);
 	}
 

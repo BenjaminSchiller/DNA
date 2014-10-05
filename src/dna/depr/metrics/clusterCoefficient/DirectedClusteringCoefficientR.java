@@ -1,6 +1,6 @@
 package dna.depr.metrics.clusterCoefficient;
 
-import dna.metrics.IMetricNew;
+import dna.metrics.IMetric;
 import dna.updates.batch.Batch;
 import dna.updates.update.Update;
 
@@ -16,7 +16,7 @@ public class DirectedClusteringCoefficientR extends
 
 	public DirectedClusteringCoefficientR() {
 		super("DirectedClusteringCoefficientR", ApplicationType.Recomputation,
-				IMetricNew.MetricType.exact);
+				IMetric.MetricType.exact);
 	}
 
 	@Override

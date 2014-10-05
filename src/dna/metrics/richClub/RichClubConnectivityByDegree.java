@@ -3,8 +3,8 @@ package dna.metrics.richClub;
 import dna.graph.Graph;
 import dna.graph.IElement;
 import dna.graph.nodes.Node;
-import dna.metrics.IMetricNew;
-import dna.metrics.MetricNew;
+import dna.metrics.IMetric;
+import dna.metrics.Metric;
 import dna.series.data.Distribution;
 import dna.series.data.DistributionInt;
 import dna.series.data.NodeNodeValueList;
@@ -14,9 +14,9 @@ import dna.updates.batch.Batch;
 import dna.util.ArrayUtils;
 import dna.util.parameters.Parameter;
 
-public class RichClubConnectivityByDegree extends MetricNew {
+public class RichClubConnectivityByDegree extends Metric {
 	public RichClubConnectivityByDegree(String name,
-			IMetricNew.MetricType metricType, Parameter... p) {
+			IMetric.MetricType metricType, Parameter... p) {
 		super(name, metricType, p);
 	}
 
@@ -98,12 +98,12 @@ public class RichClubConnectivityByDegree extends MetricNew {
 	}
 
 	@Override
-	public boolean isComparableTo(IMetricNew m) {
+	public boolean isComparableTo(IMetric m) {
 		return m != null && m instanceof RichClubConnectivityByDegree;
 	}
 
 	@Override
-	public boolean equals(IMetricNew m) {
+	public boolean equals(IMetric m) {
 		if (m == null || !(m instanceof RichClubConnectivityByDegree)) {
 			return false;
 		}

@@ -3,7 +3,7 @@ package dna.depr.metrics.md;
 import java.util.HashMap;
 import java.util.LinkedList;
 
-import dna.depr.metrics.Metric;
+import dna.depr.metrics.MetricOld;
 import dna.graph.Graph;
 import dna.graph.nodes.Node;
 import dna.graph.weights.Double2dWeight;
@@ -15,7 +15,7 @@ import dna.graph.weights.Int3dWeight;
 import dna.graph.weights.IntWeight;
 import dna.graph.weights.Weight;
 import dna.graph.weights.distances.EuclideanDistance;
-import dna.metrics.MetricNew;
+import dna.metrics.Metric;
 import dna.series.data.BinnedDistributionInt;
 import dna.series.data.Distribution;
 import dna.series.data.NodeNodeValueList;
@@ -39,7 +39,7 @@ import dna.util.parameters.IntParameter;
  * @author benni
  * 
  */
-public abstract class RootMeanSquareFluctuation extends Metric {
+public abstract class RootMeanSquareFluctuation extends MetricOld {
 
 	protected HashMap<Node, LinkedList<double[]>> positions;
 
@@ -50,7 +50,7 @@ public abstract class RootMeanSquareFluctuation extends Metric {
 	protected int steps;
 
 	public RootMeanSquareFluctuation(String name, ApplicationType type,
-			MetricNew.MetricType metricType, int steps) {
+			Metric.MetricType metricType, int steps) {
 		super(name, type, metricType, new IntParameter("STEPS", steps));
 		this.steps = steps;
 	}
@@ -90,7 +90,7 @@ public abstract class RootMeanSquareFluctuation extends Metric {
 	}
 
 	@Override
-	public boolean equals(Metric m) {
+	public boolean equals(MetricOld m) {
 		if (m == null || !(m instanceof RootMeanSquareFluctuation)) {
 			return false;
 		}
@@ -126,7 +126,7 @@ public abstract class RootMeanSquareFluctuation extends Metric {
 	}
 
 	@Override
-	public boolean isComparableTo(Metric m) {
+	public boolean isComparableTo(MetricOld m) {
 		return m != null && m instanceof RootMeanSquareFluctuation
 				&& ((RootMeanSquareFluctuation) m).steps == this.steps;
 	}

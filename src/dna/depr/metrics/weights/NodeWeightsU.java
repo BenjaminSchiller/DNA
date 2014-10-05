@@ -1,6 +1,6 @@
 package dna.depr.metrics.weights;
 
-import dna.metrics.IMetricNew;
+import dna.metrics.IMetric;
 import dna.updates.batch.Batch;
 import dna.updates.update.NodeAddition;
 import dna.updates.update.NodeRemoval;
@@ -10,7 +10,7 @@ import dna.updates.update.Update;
 public class NodeWeightsU extends NodeWeights {
 
 	public NodeWeightsU(double binSize) {
-		super("NodeWeightsU", ApplicationType.BeforeUpdate, IMetricNew.MetricType.exact,
+		super("NodeWeightsU", ApplicationType.BeforeUpdate, IMetric.MetricType.exact,
 				binSize);
 	}
 

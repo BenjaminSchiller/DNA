@@ -1,7 +1,7 @@
 package dna.depr.metrics.assortativity;
 
-import dna.depr.metrics.Metric;
-import dna.depr.metrics.Metric.ApplicationType;
+import dna.depr.metrics.MetricOld;
+import dna.depr.metrics.MetricOld.ApplicationType;
 import dna.graph.Graph;
 import dna.graph.IElement;
 import dna.graph.edges.DirectedWeightedEdge;
@@ -9,7 +9,7 @@ import dna.graph.edges.UndirectedWeightedEdge;
 import dna.graph.nodes.DirectedNode;
 import dna.graph.nodes.UndirectedNode;
 import dna.graph.weights.IntWeight;
-import dna.metrics.IMetricNew;
+import dna.metrics.IMetric;
 import dna.series.data.Distribution;
 import dna.series.data.NodeNodeValueList;
 import dna.series.data.NodeValueList;
@@ -39,7 +39,7 @@ import dna.util.parameters.StringParameter;
  * @see AssortativityDoubleWeightedU This metric with Updates
  * @see Assortativity A version of this metric without using edgeweights
  */
-public abstract class AssortativityIntWeighted extends Metric {
+public abstract class AssortativityIntWeighted extends MetricOld {
 
 	/**
 	 * Is either "out" (default) or "in", depending on the {@link Parameter} in
@@ -95,7 +95,7 @@ public abstract class AssortativityIntWeighted extends Metric {
 	 */
 	public AssortativityIntWeighted(String name,
 			ApplicationType applicationType, Parameter directedDegreeType) {
-		super(name, applicationType, IMetricNew.MetricType.exact, directedDegreeType);
+		super(name, applicationType, IMetric.MetricType.exact, directedDegreeType);
 
 		this.directedDegreeType = this.getParameters()[0].getValue();
 	}
@@ -146,7 +146,7 @@ public abstract class AssortativityIntWeighted extends Metric {
 	}
 
 	@Override
-	public boolean equals(Metric m) {
+	public boolean equals(MetricOld m) {
 		if (m != null
 				&& m instanceof AssortativityIntWeighted
 				&& ((AssortativityIntWeighted) m).directedDegreeType
@@ -203,7 +203,7 @@ public abstract class AssortativityIntWeighted extends Metric {
 	}
 
 	@Override
-	public boolean isComparableTo(Metric m) {
+	public boolean isComparableTo(MetricOld m) {
 		return m != null
 				&& m instanceof AssortativityIntWeighted
 				&& ((AssortativityIntWeighted) m).directedDegreeType

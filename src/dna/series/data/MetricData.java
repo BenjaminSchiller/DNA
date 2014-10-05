@@ -3,8 +3,8 @@ package dna.series.data;
 import java.io.IOException;
 
 import dna.io.filesystem.Files;
-import dna.metrics.IMetricNew;
-import dna.metrics.IMetricNew.MetricType;
+import dna.metrics.IMetric;
+import dna.metrics.IMetric.MetricType;
 import dna.series.lists.DistributionList;
 import dna.series.lists.ListItem;
 import dna.series.lists.NodeNodeValueListList;
@@ -24,7 +24,7 @@ public class MetricData implements ListItem {
 		this.nodenodevalues = new NodeNodeValueListList();
 	}
 
-	public MetricData(String name, IMetricNew.MetricType type) {
+	public MetricData(String name, IMetric.MetricType type) {
 		this.name = name;
 		this.type = type;
 		this.values = new ValueList();
@@ -32,7 +32,7 @@ public class MetricData implements ListItem {
 		this.nodevalues = new NodeValueListList();
 	}
 
-	public MetricData(String name, IMetricNew.MetricType type, int sizeValues,
+	public MetricData(String name, IMetric.MetricType type, int sizeValues,
 			int sizeDistributions) {
 		this.name = name;
 		this.type = type;
@@ -42,7 +42,7 @@ public class MetricData implements ListItem {
 		this.nodenodevalues = new NodeNodeValueListList();
 	}
 
-	public MetricData(String name, IMetricNew.MetricType type, int sizeValues,
+	public MetricData(String name, IMetric.MetricType type, int sizeValues,
 			int sizeDistributions, int sizeNodeValueList) {
 		this.name = name;
 		this.type = type;
@@ -52,7 +52,7 @@ public class MetricData implements ListItem {
 		this.nodenodevalues = new NodeNodeValueListList();
 	}
 
-	public MetricData(String name, IMetricNew.MetricType type, int sizeValues,
+	public MetricData(String name, IMetric.MetricType type, int sizeValues,
 			int sizeDistributions, int sizeNodeValueList,
 			int sizeNodeNodeValueList) {
 		this.name = name;
@@ -63,7 +63,7 @@ public class MetricData implements ListItem {
 		this.nodenodevalues = new NodeNodeValueListList(sizeNodeNodeValueList);
 	}
 
-	public MetricData(String name, IMetricNew.MetricType type, Value[] values,
+	public MetricData(String name, IMetric.MetricType type, Value[] values,
 			Distribution[] distributions) {
 		this(name, type, values.length, distributions.length);
 		for (Value v : values) {
@@ -76,7 +76,7 @@ public class MetricData implements ListItem {
 		this.nodenodevalues = new NodeNodeValueListList();
 	}
 
-	public MetricData(String name, IMetricNew.MetricType type, Value[] values,
+	public MetricData(String name, IMetric.MetricType type, Value[] values,
 			Distribution[] distributions, NodeValueList[] nodevalues) {
 		this(name, type, values.length, distributions.length, nodevalues.length);
 		for (Value v : values) {
@@ -91,7 +91,7 @@ public class MetricData implements ListItem {
 		this.nodenodevalues = new NodeNodeValueListList();
 	}
 
-	public MetricData(String name, IMetricNew.MetricType type, Value[] values,
+	public MetricData(String name, IMetric.MetricType type, Value[] values,
 			Distribution[] distributions, NodeValueList[] nodevalues,
 			NodeNodeValueList[] nodenodevalues) {
 		this(name, type, values.length, distributions.length, nodevalues.length);
@@ -109,7 +109,7 @@ public class MetricData implements ListItem {
 		}
 	}
 
-	public MetricData(String name, IMetricNew.MetricType type, ValueList values,
+	public MetricData(String name, IMetric.MetricType type, ValueList values,
 			DistributionList distributions) {
 		this.name = name;
 		this.type = type;
@@ -119,7 +119,7 @@ public class MetricData implements ListItem {
 		this.nodenodevalues = new NodeNodeValueListList();
 	}
 
-	public MetricData(String name, IMetricNew.MetricType type, ValueList values,
+	public MetricData(String name, IMetric.MetricType type, ValueList values,
 			DistributionList distributions, NodeValueListList nodevalues) {
 		this.name = name;
 		this.type = type;
@@ -129,7 +129,7 @@ public class MetricData implements ListItem {
 		this.nodenodevalues = new NodeNodeValueListList();
 	}
 
-	public MetricData(String name, IMetricNew.MetricType type, ValueList values,
+	public MetricData(String name, IMetric.MetricType type, ValueList values,
 			DistributionList distributions, NodeValueListList nodevalues,
 			NodeNodeValueListList nodenodevalues) {
 		this.name = name;
@@ -158,13 +158,13 @@ public class MetricData implements ListItem {
 		return this.name;
 	}
 
-	private IMetricNew.MetricType type;
+	private IMetric.MetricType type;
 
-	public IMetricNew.MetricType getType() {
+	public IMetric.MetricType getType() {
 		return this.type;
 	}
 
-	public void setType(IMetricNew.MetricType type) {
+	public void setType(IMetric.MetricType type) {
 		this.type = type;
 	}
 
@@ -207,20 +207,20 @@ public class MetricData implements ListItem {
 			throws IOException {
 		String tempName = name;
 		String[] temp = dir.split("\\" + Config.get("FILE_NAME_DELIMITER"));
-		IMetricNew.MetricType tempType = IMetricNew.MetricType.unknown;
+		IMetric.MetricType tempType = IMetric.MetricType.unknown;
 		try {
-			if (temp[temp.length - 1].equals(IMetricNew.MetricType.exact.name() + "/")) {
-				tempType = IMetricNew.MetricType.exact;
+			if (temp[temp.length - 1].equals(IMetric.MetricType.exact.name() + "/")) {
+				tempType = IMetric.MetricType.exact;
 				tempName = name.replace(Config.get("FILE_NAME_DELIMITER")
-						+ IMetricNew.MetricType.exact.name(), "");
+						+ IMetric.MetricType.exact.name(), "");
 			}
-			if (temp[temp.length - 1].equals(IMetricNew.MetricType.heuristic.name() + "/")) {
-				tempType = IMetricNew.MetricType.heuristic;
+			if (temp[temp.length - 1].equals(IMetric.MetricType.heuristic.name() + "/")) {
+				tempType = IMetric.MetricType.heuristic;
 				tempName = name.replace(Config.get("FILE_NAME_DELIMITER")
-						+ IMetricNew.MetricType.heuristic.name(), "");
+						+ IMetric.MetricType.heuristic.name(), "");
 			}
-			if (temp[temp.length - 1].equals(IMetricNew.MetricType.quality.name() + "/")) {
-				tempType = IMetricNew.MetricType.quality;
+			if (temp[temp.length - 1].equals(IMetric.MetricType.quality.name() + "/")) {
+				tempType = IMetric.MetricType.quality;
 			}
 		} catch (IndexOutOfBoundsException e) {
 			Log.warn("Attempting to read metric " + name + " at " + dir
@@ -367,7 +367,7 @@ public class MetricData implements ListItem {
 			return new MetricData(null);
 		}
 		// let m1 be the 'exact' metric
-		if (m1.getType() != IMetricNew.MetricType.exact) {
+		if (m1.getType() != IMetric.MetricType.exact) {
 			MetricData temp = m1;
 			m1 = m2;
 			m2 = temp;
@@ -641,7 +641,7 @@ public class MetricData implements ListItem {
 		}
 		// TODO: compare nodenodevaluelists
 		return new MetricData(m2.getName()
-				+ Config.get("SUFFIX_METRIC_QUALITY"), IMetricNew.MetricType.quality,
+				+ Config.get("SUFFIX_METRIC_QUALITY"), IMetric.MetricType.quality,
 				comparedValues, comparedDistributions, comparedNodeValues);
 	}
 

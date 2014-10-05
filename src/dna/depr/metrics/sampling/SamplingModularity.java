@@ -1,12 +1,12 @@
 package dna.depr.metrics.sampling;
 
-import dna.depr.metrics.Metric;
+import dna.depr.metrics.MetricOld;
 import dna.graph.Graph;
 import dna.graph.IElement;
 import dna.graph.nodes.DirectedNode;
 import dna.graph.nodes.Node;
 import dna.graph.nodes.UndirectedNode;
-import dna.metrics.IMetricNew.MetricType;
+import dna.metrics.IMetric.MetricType;
 import dna.series.data.Distribution;
 import dna.series.data.NodeNodeValueList;
 import dna.series.data.NodeValueList;
@@ -24,7 +24,7 @@ import dna.util.DataUtils;
  * @author Benedict Jahn
  * 
  */
-public abstract class SamplingModularity extends Metric {
+public abstract class SamplingModularity extends MetricOld {
 
 	/**
 	 * Creates an instance of the sampling modularity metric
@@ -106,7 +106,7 @@ public abstract class SamplingModularity extends Metric {
 	}
 
 	@Override
-	public boolean equals(Metric m) {
+	public boolean equals(MetricOld m) {
 		if (m == null || !(m instanceof SamplingModularity)) {
 			return false;
 		}
@@ -121,7 +121,7 @@ public abstract class SamplingModularity extends Metric {
 	}
 
 	@Override
-	public boolean isComparableTo(Metric m) {
+	public boolean isComparableTo(MetricOld m) {
 		return (m instanceof SamplingModularity);
 	}
 

@@ -1,7 +1,7 @@
 package dna.depr.metrics.shortestPaths;
 
-import dna.depr.metrics.Metric;
-import dna.metrics.IMetricNew;
+import dna.depr.metrics.MetricOld;
+import dna.metrics.IMetric;
 import dna.series.data.Distribution;
 import dna.series.data.NodeNodeValueList;
 import dna.series.data.NodeValueList;
@@ -9,10 +9,10 @@ import dna.series.data.Value;
 import dna.util.ArrayUtils;
 import dna.util.DataUtils;
 
-public abstract class ShortestPaths extends Metric {
+public abstract class ShortestPaths extends MetricOld {
 
 	public ShortestPaths(String name, ApplicationType type) {
-		super(name, type, IMetricNew.MetricType.exact);
+		super(name, type, IMetric.MetricType.exact);
 	}
 
 	protected double cpl;
@@ -72,7 +72,7 @@ public abstract class ShortestPaths extends Metric {
 	}
 
 	@Override
-	public boolean equals(Metric m) {
+	public boolean equals(MetricOld m) {
 		if (m == null || !(m instanceof ShortestPaths)) {
 			return false;
 		}

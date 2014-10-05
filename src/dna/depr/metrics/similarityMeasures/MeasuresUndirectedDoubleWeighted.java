@@ -4,21 +4,21 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import dna.depr.metrics.Metric;
+import dna.depr.metrics.MetricOld;
 import dna.graph.Graph;
 import dna.graph.IElement;
 import dna.graph.edges.UndirectedWeightedEdge;
 import dna.graph.nodes.Node;
 import dna.graph.nodes.UndirectedNode;
 import dna.graph.weights.DoubleWeight;
-import dna.metrics.IMetricNew;
+import dna.metrics.IMetric;
 import dna.series.data.BinnedDistributionLong;
 import dna.series.data.NodeNodeValueList;
 import dna.series.data.NodeValueList;
 import dna.series.data.Value;
 import dna.updates.batch.Batch;
 
-public abstract class MeasuresUndirectedDoubleWeighted extends Metric {
+public abstract class MeasuresUndirectedDoubleWeighted extends MetricOld {
 
 	/** Contains the result for each similarity measure. */
 	protected Matrix result;
@@ -39,7 +39,7 @@ public abstract class MeasuresUndirectedDoubleWeighted extends Metric {
 	 */
 	public MeasuresUndirectedDoubleWeighted(String name,
 			ApplicationType applicationType) {
-		super(name, applicationType, IMetricNew.MetricType.exact);
+		super(name, applicationType, IMetric.MetricType.exact);
 	}
 
 	/**

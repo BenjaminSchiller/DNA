@@ -1,13 +1,13 @@
 package dna.depr.metrics.clusterCoefficient;
 
-import dna.depr.metrics.Metric;
+import dna.depr.metrics.MetricOld;
 import dna.graph.Graph;
 import dna.graph.IElement;
 import dna.graph.datastructures.GraphDataStructure;
 import dna.graph.edges.UndirectedEdge;
 import dna.graph.nodes.DirectedNode;
 import dna.graph.nodes.UndirectedNode;
-import dna.metrics.MetricNew;
+import dna.metrics.Metric;
 import dna.updates.batch.Batch;
 import dna.util.ArrayUtils;
 
@@ -29,7 +29,7 @@ public abstract class UndirectedClusteringCoefficient extends
 	GraphDataStructure gds;
 
 	public UndirectedClusteringCoefficient(String name, ApplicationType type,
-			MetricNew.MetricType mType) {
+			Metric.MetricType mType) {
 		super(name, type, mType);
 	}
 
@@ -133,7 +133,7 @@ public abstract class UndirectedClusteringCoefficient extends
 	}
 
 	@Override
-	public boolean isComparableTo(Metric m) {
+	public boolean isComparableTo(MetricOld m) {
 		return m != null && m instanceof UndirectedClusteringCoefficient;
 	}
 

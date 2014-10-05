@@ -5,7 +5,7 @@ import java.util.HashSet;
 import dna.graph.IElement;
 import dna.graph.edges.UndirectedEdge;
 import dna.graph.nodes.UndirectedNode;
-import dna.metrics.IMetricNew;
+import dna.metrics.IMetric;
 import dna.updates.batch.Batch;
 import dna.updates.update.EdgeAddition;
 import dna.updates.update.EdgeRemoval;
@@ -15,7 +15,7 @@ public class UndirectedMotifsU extends UndirectedMotifs {
 
 	public UndirectedMotifsU() {
 		super("UndirectedMotifsU", ApplicationType.BeforeUpdate,
-				IMetricNew.MetricType.exact);
+				IMetric.MetricType.exact);
 	}
 
 	@Override
