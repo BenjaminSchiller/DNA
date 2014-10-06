@@ -26,9 +26,8 @@ public class UndirectedMotifs extends Metric {
 
 	protected DistributionLong motifs;
 
-	public UndirectedMotifs(String name, IMetric.MetricType metricType,
-			Parameter... p) {
-		super(name, metricType, p);
+	public UndirectedMotifs(String name, Parameter... p) {
+		super(name, p);
 	}
 
 	@Override

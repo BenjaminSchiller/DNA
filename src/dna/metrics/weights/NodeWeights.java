@@ -12,8 +12,8 @@ import dna.updates.batch.Batch;
 
 public abstract class NodeWeights extends Weights {
 
-	public NodeWeights(String name, MetricType metricType, double binSize) {
-		super(name, metricType, binSize);
+	public NodeWeights(String name, double binSize) {
+		super(name, binSize);
 	}
 
 	public boolean compute() {

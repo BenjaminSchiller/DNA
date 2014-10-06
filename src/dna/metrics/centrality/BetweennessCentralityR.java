@@ -20,7 +20,7 @@ public class BetweennessCentralityR extends BetweennessCentrality implements
 		IRecomputation {
 
 	public BetweennessCentralityR() {
-		super("BetweennessCentralityR", MetricType.exact);
+		super("BetweennessCentralityR");
 	}
 
 	@Override

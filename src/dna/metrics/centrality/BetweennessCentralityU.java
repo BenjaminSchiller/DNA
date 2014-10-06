@@ -4,9 +4,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
+import java.util.Map.Entry;
 import java.util.Queue;
 import java.util.Stack;
-import java.util.Map.Entry;
 
 import dna.graph.IElement;
 import dna.graph.edges.DirectedEdge;
@@ -40,7 +40,7 @@ public class BetweennessCentralityU extends BetweennessCentrality implements
 	protected HashMap<Node, HashMap<Node, Double>> accSums;
 
 	public BetweennessCentralityU() {
-		super("BetweennessCentralityU", MetricType.exact);
+		super("BetweennessCentralityU");
 	}
 
 	@SuppressWarnings("unchecked")

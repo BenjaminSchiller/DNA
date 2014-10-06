@@ -25,8 +25,8 @@ public abstract class BetweennessCentrality extends Metric implements IMetric {
 	protected BinnedDistributionDouble binnedBC;
 	protected int sumShortestPaths;
 
-	public BetweennessCentrality(String name, MetricType metricType) {
-		super(name, metricType);
+	public BetweennessCentrality(String name) {
+		super(name);
 	}
 
 	// private double getMedian() {

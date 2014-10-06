@@ -27,9 +27,8 @@ public abstract class ClusteringCoefficient extends Metric {
 
 	protected long[] nodePotentialCount;
 
-	public ClusteringCoefficient(String name, IMetric.MetricType metricType,
-			Parameter... p) {
-		super(name, metricType, p);
+	public ClusteringCoefficient(String name, Parameter... p) {
+		super(name, p);
 	}
 
 	@Override

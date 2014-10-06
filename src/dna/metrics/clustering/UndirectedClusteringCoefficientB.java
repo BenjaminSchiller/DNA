@@ -7,7 +7,6 @@ import dna.graph.IElement;
 import dna.graph.edges.Edge;
 import dna.graph.edges.UndirectedEdge;
 import dna.graph.nodes.UndirectedNode;
-import dna.metrics.IMetric;
 import dna.metrics.algorithms.IBeforeBatch;
 import dna.updates.batch.Batch;
 import dna.updates.update.EdgeAddition;
@@ -18,7 +17,7 @@ public class UndirectedClusteringCoefficientB extends
 		UndirectedClusteringCoefficient implements IBeforeBatch {
 
 	public UndirectedClusteringCoefficientB() {
-		super("UndirectedClusteringCoefficientB", IMetric.MetricType.exact);
+		super("UndirectedClusteringCoefficientB");
 	}
 
 	@Override

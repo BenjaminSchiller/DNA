@@ -6,7 +6,7 @@ public class StrongConnectivityR extends StrongConnectivity implements
 		IRecomputation {
 
 	public StrongConnectivityR() {
-		super("StrongConnectivityR", MetricType.exact);
+		super("StrongConnectivityR");
 	}
 
 	@Override

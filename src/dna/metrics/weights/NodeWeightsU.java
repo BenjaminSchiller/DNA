@@ -11,7 +11,7 @@ public class NodeWeightsU extends NodeWeights implements IBeforeNA, IBeforeNR,
 		IBeforeNW {
 
 	public NodeWeightsU(double binSize) {
-		super("NodeWeightsU", MetricType.exact, binSize);
+		super("NodeWeightsU", binSize);
 	}
 
 	@Override

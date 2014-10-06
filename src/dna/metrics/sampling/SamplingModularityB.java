@@ -20,7 +20,7 @@ public class SamplingModularityB extends SamplingModularity implements
 		IAfterBatch {
 
 	public SamplingModularityB(Graph graph) {
-		super("SamplingModularityB", MetricType.exact, graph);
+		super("SamplingModularityB", graph);
 	}
 
 	@Override

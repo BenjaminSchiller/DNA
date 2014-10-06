@@ -15,7 +15,7 @@ public class EdgeWeightsU extends EdgeWeights implements IBeforeEA, IBeforeER,
 		IBeforeEW, IBeforeNR {
 
 	public EdgeWeightsU(double binSize) {
-		super("EdgeWeightsU", MetricType.exact, binSize);
+		super("EdgeWeightsU", binSize);
 	}
 
 	@Override

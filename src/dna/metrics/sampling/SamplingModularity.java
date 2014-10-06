@@ -36,8 +36,8 @@ public class SamplingModularity extends Metric {
 	// degreeSum - 2x edgesInGraph computes the degree amount of edges between
 	// the sample and the original graph
 
-	public SamplingModularity(String name, MetricType metricType, Graph graph) {
-		super(name, metricType);
+	public SamplingModularity(String name, Graph graph) {
+		super(name);
 		this.graph = graph;
 		if (DirectedNode.class.isAssignableFrom(this.graph
 				.getGraphDatastructures().getNodeType())) {

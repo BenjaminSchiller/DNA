@@ -31,8 +31,8 @@ public abstract class StrongConnectivity extends Metric {
 	protected Map<Integer, StrongComponent> dag;
 	protected Map<Integer, StrongComponent> dagExpired;
 
-	public StrongConnectivity(String name, MetricType metricType) {
-		super(name, metricType);
+	public StrongConnectivity(String name) {
+		super(name);
 	}
 
 	protected boolean compute() {

@@ -15,16 +15,14 @@ import dna.util.ArrayUtils;
 import dna.util.parameters.Parameter;
 
 public class RichClubConnectivityByDegree extends Metric {
-	public RichClubConnectivityByDegree(String name,
-			IMetric.MetricType metricType, Parameter... p) {
-		super(name, metricType, p);
-	}
 
 	protected int[] edgeCount;
-
 	protected int[] nodeCount;
-
 	protected int[] size;
+
+	public RichClubConnectivityByDegree(String name, Parameter... p) {
+		super(name, p);
+	}
 
 	@Override
 	public Value[] getValues() {

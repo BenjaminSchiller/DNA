@@ -12,8 +12,8 @@ import dna.updates.batch.Batch;
 
 public abstract class EdgeWeights extends Weights {
 
-	public EdgeWeights(String name, MetricType metricType, double binSize) {
-		super(name, metricType, binSize);
+	public EdgeWeights(String name, double binSize) {
+		super(name, binSize);
 	}
 
 	public boolean compute() {

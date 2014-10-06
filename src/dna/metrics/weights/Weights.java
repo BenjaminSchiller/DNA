@@ -19,8 +19,8 @@ public abstract class Weights extends Metric {
 
 	protected BinnedDistributionInt distr;
 
-	public Weights(String name, MetricType metricType, double binSize) {
-		super(name, metricType, new DoubleParameter("BinSize", binSize));
+	public Weights(String name, double binSize) {
+		super(name, new DoubleParameter("BinSize", binSize));
 		this.binSize = binSize;
 	}
 

@@ -18,14 +18,11 @@ import dna.util.parameters.Parameter;
 public abstract class DegreeDistribution extends Metric {
 
 	protected DistributionInt degree;
-
 	protected DistributionInt inDegree;
-
 	protected DistributionInt outDegree;
 
-	public DegreeDistribution(String name, IMetric.MetricType metricType,
-			Parameter... p) {
-		super(name, metricType, p);
+	public DegreeDistribution(String name, Parameter... p) {
+		super(name, p);
 	}
 
 	@Override

@@ -6,7 +6,7 @@ public class WeakConnectivityR extends WeakConnectivity implements
 		IRecomputation {
 
 	public WeakConnectivityR() {
-		super("WeakConnectivityR", MetricType.exact);
+		super("WeakConnectivityR");
 	}
 
 	@Override

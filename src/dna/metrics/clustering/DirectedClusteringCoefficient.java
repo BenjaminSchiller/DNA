@@ -3,7 +3,6 @@ package dna.metrics.clustering;
 import dna.graph.Graph;
 import dna.graph.IElement;
 import dna.graph.nodes.DirectedNode;
-import dna.metrics.IMetric;
 import dna.series.data.NodeValueList;
 import dna.updates.batch.Batch;
 import dna.util.ArrayUtils;
@@ -11,9 +10,8 @@ import dna.util.parameters.Parameter;
 
 public class DirectedClusteringCoefficient extends ClusteringCoefficient {
 
-	public DirectedClusteringCoefficient(String name,
-			IMetric.MetricType metricType, Parameter... p) {
-		super(name, metricType, p);
+	public DirectedClusteringCoefficient(String name, Parameter... p) {
+		super(name, p);
 	}
 
 	@Override

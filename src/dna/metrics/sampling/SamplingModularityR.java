@@ -17,7 +17,7 @@ public class SamplingModularityR extends SamplingModularity implements
 		IRecomputation {
 
 	public SamplingModularityR(Graph graph) {
-		super("SamplingModularityR", MetricType.exact, graph);
+		super("SamplingModularityR", graph);
 	}
 
 	@Override

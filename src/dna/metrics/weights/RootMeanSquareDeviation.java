@@ -41,9 +41,8 @@ public class RootMeanSquareDeviation extends Metric {
 
 	protected BinnedDistributionInt distr;
 
-	public RootMeanSquareDeviation(String name, MetricType metricType,
-			Parameter... p) {
-		super(name, metricType, p);
+	public RootMeanSquareDeviation(String name, Parameter... p) {
+		super(name, p);
 	}
 
 	@Override

@@ -24,7 +24,7 @@ public class WeakConnectivityU extends WeakConnectivity implements IAfterNA,
 		IAfterNR, IAfterEA, IAfterER {
 
 	public WeakConnectivityU() {
-		super("WeakConnectivityU", MetricType.exact);
+		super("WeakConnectivityU");
 	}
 
 	@Override

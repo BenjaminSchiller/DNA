@@ -10,7 +10,7 @@ public class RootMeanSquareDeviationB extends RootMeanSquareDeviation implements
 		IBeforeBatch {
 
 	public RootMeanSquareDeviationB() {
-		super("RootMeanSquareDeviationB", MetricType.exact);
+		super("RootMeanSquareDeviationB");
 	}
 
 	@Override

@@ -14,7 +14,7 @@ public class RootMeanSquareFluctuationR extends RootMeanSquareFluctuation
 		implements IRecomputation {
 
 	public RootMeanSquareFluctuationR(int steps) {
-		super("RootMeanSquareFluctuationR", MetricType.exact, steps);
+		super("RootMeanSquareFluctuationR", steps);
 	}
 
 	@Override
@@ -30,8 +30,7 @@ public class RootMeanSquareFluctuationR extends RootMeanSquareFluctuation
 
 		for (IElement n_ : this.g.getNodes()) {
 			Node n = (Node) n_;
-			LinkedList<double[]> positions = this.update(n,
-					((IWeightedNode) n).getWeight());
+			this.update(n, ((IWeightedNode) n).getWeight());
 			double rmsf = this.computeRMSF(this.positions.get(n));
 			this.rmsf.setValue(n.getIndex(), rmsf);
 			this.rmsfD.incr(rmsf);

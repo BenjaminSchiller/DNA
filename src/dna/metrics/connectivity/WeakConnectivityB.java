@@ -17,7 +17,7 @@ import dna.updates.update.EdgeRemoval;
 public class WeakConnectivityB extends WeakConnectivity implements IAfterBatch {
 
 	public WeakConnectivityB() {
-		super("WeakConnectivityB", MetricType.exact);
+		super("WeakConnectivityB");
 	}
 
 	@Override

@@ -13,7 +13,7 @@ public class RootMeanSquareDeviationR extends RootMeanSquareDeviation implements
 		IRecomputation {
 
 	public RootMeanSquareDeviationR() {
-		super("RootMeanSquareDeviationR", MetricType.exact);
+		super("RootMeanSquareDeviationR");
 	}
 
 	protected HashMap<Node, Weight> positions;

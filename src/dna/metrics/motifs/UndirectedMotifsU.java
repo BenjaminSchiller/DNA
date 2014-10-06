@@ -17,7 +17,7 @@ public class UndirectedMotifsU extends UndirectedMotifs implements
 		IBeforeUpdates {
 
 	public UndirectedMotifsU() {
-		super("UndirectedMotifsU", IMetric.MetricType.exact);
+		super("UndirectedMotifsU");
 	}
 
 	@Override

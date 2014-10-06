@@ -28,7 +28,7 @@ public class StrongConnectivityU extends StrongConnectivity implements
 	private long extractedCounter;
 
 	public StrongConnectivityU() {
-		super("StrongConnectivityU", MetricType.exact);
+		super("StrongConnectivityU");
 	}
 
 	@Override
@@ -386,8 +386,8 @@ public class StrongConnectivityU extends StrongConnectivity implements
 		return true;
 	}
 
-	private HashSet<StrongComponent> findComponentsToMerge(
-			StrongComponent v, StrongComponent srcComp) {
+	private HashSet<StrongComponent> findComponentsToMerge(StrongComponent v,
+			StrongComponent srcComp) {
 		HashSet<StrongComponent> seen = new HashSet<StrongComponent>();
 		HashSet<StrongComponent> comp = new HashSet<StrongComponent>();
 

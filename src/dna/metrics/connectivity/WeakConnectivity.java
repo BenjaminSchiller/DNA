@@ -25,8 +25,8 @@ public abstract class WeakConnectivity extends Metric {
 	protected HashMap<Integer, Integer> componentConnection;
 	protected int counter;
 
-	public WeakConnectivity(String name, MetricType metricType) {
-		super(name, metricType);
+	public WeakConnectivity(String name) {
+		super(name);
 	}
 
 	@Override

@@ -13,7 +13,7 @@ import dna.updates.generators.sampling.SamplingAlgorithm;
 public class ExtentR extends Extent implements IRecomputation {
 
 	public ExtentR(SamplingAlgorithm algorithm) {
-		super("ExtentR", MetricType.exact, algorithm);
+		super("ExtentR", algorithm);
 	}
 
 	@Override

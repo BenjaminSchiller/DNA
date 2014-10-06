@@ -25,9 +25,8 @@ public class DirectedMotifs extends Metric {
 
 	protected DistributionLong motifs;
 
-	public DirectedMotifs(String name, IMetric.MetricType metricType,
-			Parameter... p) {
-		super(name, metricType, p);
+	public DirectedMotifs(String name, Parameter... p) {
+		super(name, p);
 	}
 
 	@Override
