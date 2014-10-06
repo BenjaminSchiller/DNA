@@ -32,7 +32,7 @@ public abstract class DegreeDistribution extends Metric {
 
 	@Override
 	public Distribution[] getDistributions() {
-		if (this.inDegree != null) {
+		if (this.g.isDirected()) {
 			return new Distribution[] { this.degree, this.inDegree,
 					this.outDegree };
 		} else {
@@ -84,15 +84,7 @@ public abstract class DegreeDistribution extends Metric {
 	}
 
 	protected boolean compute() {
-		if (this.g.getGraphDatastructures().isNodeType(UndirectedNode.class)) {
-			this.degree = new DistributionInt("DegreeDistribution");
-			for (IElement n_ : this.g.getNodes()) {
-				UndirectedNode n = (UndirectedNode) n_;
-				this.degree.incr(n.getDegree());
-			}
-			return true;
-		} else if (this.g.getGraphDatastructures().isNodeType(
-				DirectedNode.class)) {
+		if (this.g.isDirected()) {
 			this.degree = new DistributionInt("DegreeDistribution");
 			this.inDegree = new DistributionInt("InDegreeDistribution");
 			this.outDegree = new DistributionInt("OutDegreeDistribution");
@@ -102,9 +94,16 @@ public abstract class DegreeDistribution extends Metric {
 				this.inDegree.incr(n.getInDegree());
 				this.outDegree.incr(n.getOutDegree());
 			}
-			return true;
+		} else {
+			this.degree = new DistributionInt("DegreeDistribution");
+			this.inDegree = null;
+			this.outDegree = null;
+			for (IElement n_ : this.g.getNodes()) {
+				UndirectedNode n = (UndirectedNode) n_;
+				this.degree.incr(n.getDegree());
+			}
 		}
-		return false;
+		return true;
 	}
 
 }
