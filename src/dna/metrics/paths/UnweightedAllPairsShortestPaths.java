@@ -12,7 +12,8 @@ import dna.graph.nodes.UndirectedNode;
 import dna.metrics.IMetric;
 import dna.updates.batch.Batch;
 
-public class UnweightedAllPairsShortestPaths extends AllPairsShortestPaths {
+public abstract class UnweightedAllPairsShortestPaths extends
+		AllPairsShortestPaths {
 
 	public UnweightedAllPairsShortestPaths(String name) {
 		super(name);

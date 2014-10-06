@@ -17,7 +17,7 @@ import dna.updates.batch.Batch;
 import dna.util.ArrayUtils;
 import dna.util.parameters.Parameter;
 
-public class DirectedMotifs extends Metric {
+public abstract class DirectedMotifs extends Metric {
 
 	public static enum DirectedMotifType {
 		DM01, DM02, DM03, DM04, DM05, DM06, DM07, DM08, DM09, DM10, DM11, DM12, DM13

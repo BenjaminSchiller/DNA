@@ -24,7 +24,7 @@ import dna.util.DataUtils;
  * @author Benedict Jahn
  * 
  */
-public class SamplingModularity extends Metric {
+public abstract class SamplingModularity extends Metric {
 
 	private boolean directed;
 	private Graph graph;

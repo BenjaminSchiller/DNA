@@ -18,7 +18,7 @@ import dna.updates.batch.Batch;
 import dna.util.ArrayUtils;
 import dna.util.parameters.Parameter;
 
-public class UndirectedMotifs extends Metric {
+public abstract class UndirectedMotifs extends Metric {
 
 	public static enum UndirectedMotifType {
 		UM1, UM2, UM3, UM4, UM5, UM6

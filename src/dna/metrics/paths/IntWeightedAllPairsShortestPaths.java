@@ -6,7 +6,8 @@ import dna.graph.weights.IntWeight;
 import dna.metrics.IMetric;
 import dna.updates.batch.Batch;
 
-public class IntWeightedAllPairsShortestPaths extends AllPairsShortestPaths {
+public abstract class IntWeightedAllPairsShortestPaths extends
+		AllPairsShortestPaths {
 
 	public IntWeightedAllPairsShortestPaths(String name) {
 		super(name);

@@ -14,7 +14,7 @@ import dna.updates.batch.Batch;
 import dna.util.ArrayUtils;
 import dna.util.parameters.Parameter;
 
-public class RichClubConnectivityByDegree extends Metric {
+public abstract class RichClubConnectivityByDegree extends Metric {
 
 	protected int[] edgeCount;
 	protected int[] nodeCount;

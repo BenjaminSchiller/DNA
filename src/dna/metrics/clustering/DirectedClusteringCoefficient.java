@@ -8,7 +8,8 @@ import dna.updates.batch.Batch;
 import dna.util.ArrayUtils;
 import dna.util.parameters.Parameter;
 
-public class DirectedClusteringCoefficient extends ClusteringCoefficient {
+public abstract class DirectedClusteringCoefficient extends
+		ClusteringCoefficient {
 
 	public DirectedClusteringCoefficient(String name, Parameter... p) {
 		super(name, p);

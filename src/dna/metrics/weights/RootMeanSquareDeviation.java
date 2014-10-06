@@ -33,7 +33,7 @@ import dna.util.parameters.Parameter;
  * @author benni
  * 
  */
-public class RootMeanSquareDeviation extends Metric {
+public abstract class RootMeanSquareDeviation extends Metric {
 
 	protected int changes;
 
