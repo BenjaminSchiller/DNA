@@ -5,7 +5,6 @@ import java.util.HashSet;
 import dna.graph.IElement;
 import dna.graph.edges.UndirectedEdge;
 import dna.graph.nodes.UndirectedNode;
-import dna.metrics.IMetric;
 import dna.metrics.algorithms.IBeforeUpdates;
 import dna.updates.update.EdgeAddition;
 import dna.updates.update.EdgeRemoval;
