@@ -33,18 +33,12 @@ public abstract class UndirectedMotifs extends Metric {
 	@Override
 	public Value[] getValues() {
 		Value m0 = new Value("TOTAL", this.motifs.getDenominator());
-		Value m1 = new Value("UM1", (double) this.motifs.getLongValues()[1]
-				/ (double) this.motifs.getDenominator());
-		Value m2 = new Value("UM2", (double) this.motifs.getLongValues()[2]
-				/ (double) this.motifs.getDenominator());
-		Value m3 = new Value("UM3", (double) this.motifs.getLongValues()[3]
-				/ (double) this.motifs.getDenominator());
-		Value m4 = new Value("UM4", (double) this.motifs.getLongValues()[4]
-				/ (double) this.motifs.getDenominator());
-		Value m5 = new Value("UM5", (double) this.motifs.getLongValues()[5]
-				/ (double) this.motifs.getDenominator());
-		Value m6 = new Value("UM6", (double) this.motifs.getLongValues()[6]
-				/ (double) this.motifs.getDenominator());
+		Value m1 = new Value("UM1", (double) this.motifs.getLongValues()[1]);
+		Value m2 = new Value("UM2", (double) this.motifs.getLongValues()[2]);
+		Value m3 = new Value("UM3", (double) this.motifs.getLongValues()[3]);
+		Value m4 = new Value("UM4", (double) this.motifs.getLongValues()[4]);
+		Value m5 = new Value("UM5", (double) this.motifs.getLongValues()[5]);
+		Value m6 = new Value("UM6", (double) this.motifs.getLongValues()[6]);
 		return new Value[] { m0, m1, m2, m3, m4, m5, m6 };
 	}
 
@@ -113,7 +107,11 @@ public abstract class UndirectedMotifs extends Metric {
 		this.motifs.incr(UndirectedMotifs.getIndex(type));
 	}
 
-	private UndirectedNode[] getNeighborsSorted(UndirectedNode n) {
+	protected void decr(UndirectedMotifType type) {
+		this.motifs.decr(UndirectedMotifs.getIndex(type));
+	}
+
+	protected UndirectedNode[] getNeighborsSorted(UndirectedNode n) {
 		ArrayList<UndirectedNode> unsorted = new ArrayList<UndirectedNode>(
 				n.getDegree());
 		for (IElement e : n.getEdges()) {

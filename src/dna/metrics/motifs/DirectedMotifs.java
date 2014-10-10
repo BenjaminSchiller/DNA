@@ -32,32 +32,19 @@ public abstract class DirectedMotifs extends Metric {
 	@Override
 	public Value[] getValues() {
 		Value m0 = new Value("TOTAL", this.motifs.getDenominator());
-		Value m1 = new Value("DM01", (double) this.motifs.getLongValues()[1]
-				/ (double) this.motifs.getDenominator());
-		Value m2 = new Value("DM02", (double) this.motifs.getLongValues()[2]
-				/ (double) this.motifs.getDenominator());
-		Value m3 = new Value("DM03", (double) this.motifs.getLongValues()[3]
-				/ (double) this.motifs.getDenominator());
-		Value m4 = new Value("DM04", (double) this.motifs.getLongValues()[4]
-				/ (double) this.motifs.getDenominator());
-		Value m5 = new Value("DM05", (double) this.motifs.getLongValues()[5]
-				/ (double) this.motifs.getDenominator());
-		Value m6 = new Value("DM06", (double) this.motifs.getLongValues()[6]
-				/ (double) this.motifs.getDenominator());
-		Value m7 = new Value("DM07", (double) this.motifs.getLongValues()[7]
-				/ (double) this.motifs.getDenominator());
-		Value m8 = new Value("DM08", (double) this.motifs.getLongValues()[8]
-				/ (double) this.motifs.getDenominator());
-		Value m9 = new Value("DM09", (double) this.motifs.getLongValues()[9]
-				/ (double) this.motifs.getDenominator());
-		Value m10 = new Value("DM10", (double) this.motifs.getLongValues()[10]
-				/ (double) this.motifs.getDenominator());
-		Value m11 = new Value("DM11", (double) this.motifs.getLongValues()[11]
-				/ (double) this.motifs.getDenominator());
-		Value m12 = new Value("DM12", (double) this.motifs.getLongValues()[12]
-				/ (double) this.motifs.getDenominator());
-		Value m13 = new Value("DM13", (double) this.motifs.getLongValues()[13]
-				/ (double) this.motifs.getDenominator());
+		Value m1 = new Value("DM01", (double) this.motifs.getLongValues()[1]);
+		Value m2 = new Value("DM02", (double) this.motifs.getLongValues()[2]);
+		Value m3 = new Value("DM03", (double) this.motifs.getLongValues()[3]);
+		Value m4 = new Value("DM04", (double) this.motifs.getLongValues()[4]);
+		Value m5 = new Value("DM05", (double) this.motifs.getLongValues()[5]);
+		Value m6 = new Value("DM06", (double) this.motifs.getLongValues()[6]);
+		Value m7 = new Value("DM07", (double) this.motifs.getLongValues()[7]);
+		Value m8 = new Value("DM08", (double) this.motifs.getLongValues()[8]);
+		Value m9 = new Value("DM09", (double) this.motifs.getLongValues()[9]);
+		Value m10 = new Value("DM10", (double) this.motifs.getLongValues()[10]);
+		Value m11 = new Value("DM11", (double) this.motifs.getLongValues()[11]);
+		Value m12 = new Value("DM12", (double) this.motifs.getLongValues()[12]);
+		Value m13 = new Value("DM13", (double) this.motifs.getLongValues()[13]);
 		return new Value[] { m0, m1, m2, m3, m4, m5, m6, m7, m8, m9, m10, m11,
 				m12, m13 };
 	}
