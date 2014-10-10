@@ -26,14 +26,150 @@ public class UndirectedMotifsU extends UndirectedMotifs implements
 
 	@Override
 	public boolean applyBeforeUpdate(NodeAddition na) {
-		// TODO Auto-generated method stub
-		return false;
+		return true;
 	}
 
 	@Override
 	public boolean applyBeforeUpdate(NodeRemoval nr) {
-		// TODO Auto-generated method stub
-		return false;
+
+		UndirectedNode a, b, c, d;
+
+		a = (UndirectedNode) nr.getNode();
+
+		UndirectedNode[] neighborsA = this.getNeighborsSorted(a);
+
+		// b,c,d are neighbors of a
+		for (int b_ = 0; b_ < neighborsA.length; b_++) {
+			b = neighborsA[b_];
+			for (int c_ = b_ + 1; c_ < neighborsA.length; c_++) {
+				c = neighborsA[c_];
+				for (int d_ = c_ + 1; d_ < neighborsA.length; d_++) {
+					d = neighborsA[d_];
+					boolean bc = this.connected(b, c);
+					boolean bd = this.connected(b, d);
+					boolean cd = this.connected(c, d);
+					int sum = (bc ? 1 : 0) + (bd ? 1 : 0) + (cd ? 1 : 0);
+					switch (sum) {
+					case 0:
+						this.decr(UndirectedMotifType.UM2);
+						break;
+					case 1:
+						this.decr(UndirectedMotifType.UM4);
+						break;
+					case 2:
+						this.decr(UndirectedMotifType.UM5);
+						break;
+					case 3:
+						this.decr(UndirectedMotifType.UM6);
+						break;
+					}
+				}
+			}
+		}
+
+		// b,c are neighbors of a
+		for (int b_ = 0; b_ < neighborsA.length; b_++) {
+			b = neighborsA[b_];
+			for (int c_ = b_ + 1; c_ < neighborsA.length; c_++) {
+				c = neighborsA[c_];
+
+				// d is neighbor of b but not c
+				for (IElement d_ : b.getEdges()) {
+					d = this.get(d_, b);
+					if (a.equals(d) || c.equals(d)) {
+						continue;
+					}
+					if (this.connected(d, c) || this.connected(a, d)) {
+						continue;
+					}
+					if (!this.connected(b, c)) {
+						this.decr(UndirectedMotifType.UM1);
+					} else {
+						this.decr(UndirectedMotifType.UM4);
+					}
+				}
+
+				// d is neighbor of c
+				for (IElement d_ : c.getEdges()) {
+					d = this.get(d_, c);
+					if (a.equals(d) || b.equals(d)) {
+						continue;
+					}
+					if (this.connected(a, d)) {
+						continue;
+					}
+					if (!this.connected(d, b)) {
+						// d not connected to b
+						if (!this.connected(b, c)) {
+							this.decr(UndirectedMotifType.UM1);
+						} else {
+							this.decr(UndirectedMotifType.UM4);
+						}
+					} else {
+						// d connected to b
+						if (!this.connected(b, c)) {
+							this.decr(UndirectedMotifType.UM3);
+						} else {
+							this.decr(UndirectedMotifType.UM5);
+						}
+					}
+				}
+			}
+		}
+
+		// only b is neighbor of a
+		for (int b_ = 0; b_ < neighborsA.length; b_++) {
+			b = neighborsA[b_];
+			UndirectedNode[] neighborsB = this.getNeighborsSorted(b);
+
+			// c is neighbor of b
+			for (int c_ = 0; c_ < neighborsB.length; c_++) {
+				c = neighborsB[c_];
+				if (a.equals(c) || this.connected(a, c)) {
+					continue;
+				}
+
+				// d is connected to b but not c
+				for (int d_ = c_ + 1; d_ < neighborsB.length; d_++) {
+					d = neighborsB[d_];
+					if (a.equals(d) || c.equals(d)) {
+						continue;
+					}
+					if (this.connected(a, d)) {
+						continue;
+					}
+					if (!this.connected(d, c)) {
+						// d is not connected to c
+						this.decr(UndirectedMotifType.UM2);
+					} else {
+						// d is connected to c
+						this.decr(UndirectedMotifType.UM4);
+					}
+				}
+
+				// d is connected to c but not b
+				for (IElement d_ : c.getEdges()) {
+					d = this.get(d_, c);
+					if (a.equals(d) || b.equals(d)) {
+						continue;
+					}
+					if (this.connected(d, b) || this.connected(a, d)) {
+						continue;
+					}
+					this.decr(UndirectedMotifType.UM1);
+				}
+			}
+		}
+
+		return true;
+	}
+
+	private UndirectedNode get(IElement e, UndirectedNode n) {
+		return (UndirectedNode) ((UndirectedEdge) e).getDifferingNode(n);
+	}
+
+	private boolean connected(UndirectedNode a, UndirectedNode b) {
+		return a.hasEdge(a, b);
 	}
 
 	@Override
