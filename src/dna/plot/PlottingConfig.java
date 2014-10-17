@@ -720,8 +720,9 @@ public class PlottingConfig {
 					String domain = domains[i];
 					String wildcard = PlotConfig.customPlotWildcard;
 
-					// if no wildcard included, no replacement
-					if (!value.contains(wildcard)) {
+					// if function or no wildcard included, no replacement
+					if (domain.equals(PlotConfig.customPlotDomainFunction)
+							|| !value.contains(wildcard)) {
 						vList.add(value);
 						dList.add(domain);
 						continue;
