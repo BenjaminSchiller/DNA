@@ -1189,8 +1189,7 @@ public class Plot {
 				// get line
 				line = this.data[i].getEntry(i + 1,
 						Config.getInt("GNUPLOT_LW"), this.config.getxOffset()
-								* i, this.config.getyOffset() * i, type,
-						this.config.getStyle());
+								* i, this.config.getyOffset() * i, type);
 				line = line.replace("filledcurves", "filledcurves y1=0");
 				if (i == 0) {
 					line = "plot " + line;
