@@ -113,6 +113,11 @@ public class PlotConfig {
 	public static String gnuplotDefaultKeyNodeValueListOrder = "GNUPLOT_DEFAULT_NVL_ORDER";
 	public static String gnuplotDefaultKeyNodeValueListOrderBy = "GNUPLOT_DEFAULT_NVL_ORDERBY";
 
+	public static double[] gnuplotZeroLineNoIndex = new double[] { 0, 0, 0, 0,
+			0, 0, 0, 0, 0 };
+	public static double[] gnuplotZeroLineWithIndex = new double[] { 0, 0, 0,
+			0, 0, 0, 0, 0, 0, 0 };
+
 	// variables
 	private String filename;
 	private String title;

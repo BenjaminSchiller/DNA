@@ -191,6 +191,11 @@ public class Plot {
 
 	// append data methods
 	public void appendData(AggregatedValue[] values) throws IOException {
+		// if no values, add one line with zero's
+		if (values.length == 0)
+			this.appendData(new AggregatedValue("",
+					PlotConfig.gnuplotZeroLineNoIndex), "0.0");
+		// else append values
 		for (int i = 0; i < values.length; i++)
 			this.appendData(values[i], "");
 		this.appendEOF();
@@ -229,7 +234,7 @@ public class Plot {
 
 		double[] values;
 		if (value == null)
-			values = new double[] { 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+			values = PlotConfig.gnuplotZeroLineWithIndex;
 		else
 			values = value.getValues();
 		for (int k = 0; k < values.length; k++) {
