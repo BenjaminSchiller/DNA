@@ -368,7 +368,7 @@ public class PlotConfig {
 
 					// check if contains wildcard
 					int wildcardCounter = 0;
-					String[] delSplit = value.split("\\$");
+					String[] delSplit = split[1].split("\\$");
 					for (int j = 1; j < delSplit.length; j += 2) {
 						if (delSplit[j].contains(PlotConfig.customPlotWildcard)) {
 							if (delSplit[j].length() > 1) {
