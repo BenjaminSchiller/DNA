@@ -505,11 +505,13 @@ public class MetricVisualizer extends Visualizer {
 			// graphGeneration runtime will be ignored cause it is only present
 			// in the initial batch
 			if (!runtime.equals("graphGeneration")) {
-				this.availableValues.add("general runtime." + runtime);
+				this.availableValues.add(MetricVisualizer.generalRuntimesPrefix
+						+ runtime);
 			}
 		}
 		for (String runtime : b.getMetricRuntimes().getNames()) {
-			this.availableValues.add("metric runtime." + runtime);
+			this.availableValues.add(MetricVisualizer.metricRuntimesPrefix
+					+ runtime);
 		}
 		for (String value : b.getValues().getNames()) {
 			this.availableValues.add(MetricVisualizer.statisticsPrefix + value);
@@ -672,11 +674,11 @@ public class MetricVisualizer extends Visualizer {
 	public void loadConfig(VisualizerListConfig config) {
 		for (ConfigItem c : config.getEntries()) {
 			if (c instanceof MetricVisualizerItem) {
-				System.out.println(c.getName());
 				if (this.availableValues.contains(c.getName()))
 					this.legend.addValueItemToList((MetricVisualizerItem) c);
 			}
 		}
+
 		// check if any general configuration is set
 		if (config.isAnyGeneralConfigSet()) {
 			BatchData b = this.initBatch;
