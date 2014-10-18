@@ -62,9 +62,14 @@ public class MetricVisualizer extends Visualizer {
 	MainDisplay mainDisplay;
 	protected MetricVisualizerConfig config;
 
+	// static strings
+	private static String metricRuntimesPrefix = "metric runtimes.";
+	private static String generalRuntimesPrefix = "general runtimes.";
+	private static String statisticsPrefix = "statistics.";
+
 	// constructor
 	public MetricVisualizer(MainDisplay mainDisplay,
-			MetricVisualizerConfig config) {		
+			MetricVisualizerConfig config) {
 		// initialization
 		super(config.getChartSize(), config.getLegendSize());
 		this.mainDisplay = mainDisplay;
@@ -219,8 +224,11 @@ public class MetricVisualizer extends Visualizer {
 			}
 			// update general runtimes
 			for (String runtime : b.getGeneralRuntimes().getNames()) {
-				if (this.traces.containsKey("general runtimes." + runtime)) {
-					String tempName = "general runtimes." + runtime;
+				if (this.traces
+						.containsKey(MetricVisualizer.generalRuntimesPrefix
+								+ runtime)) {
+					String tempName = MetricVisualizer.generalRuntimesPrefix
+							+ runtime;
 					double tempValue = b.getGeneralRuntimes().get(runtime)
 							.getRuntime();
 					this.traces.get(tempName).addPoint(
@@ -231,8 +239,11 @@ public class MetricVisualizer extends Visualizer {
 			}
 			// update metric runtimes
 			for (String runtime : b.getMetricRuntimes().getNames()) {
-				if (this.traces.containsKey("metric runtimes." + runtime)) {
-					String tempName = "metric runtimes." + runtime;
+				if (this.traces
+						.containsKey(MetricVisualizer.metricRuntimesPrefix
+								+ runtime)) {
+					String tempName = MetricVisualizer.metricRuntimesPrefix
+							+ runtime;
 					double tempValue = b.getMetricRuntimes().get(runtime)
 							.getRuntime();
 
@@ -244,8 +255,9 @@ public class MetricVisualizer extends Visualizer {
 			}
 			// update statistics
 			for (String value : b.getValues().getNames()) {
-				if (this.traces.containsKey("statistics." + value)) {
-					String tempName = "statistics." + value;
+				if (this.traces.containsKey(MetricVisualizer.statisticsPrefix
+						+ value)) {
+					String tempName = MetricVisualizer.statisticsPrefix + value;
 					double tempValue = b.getValues().get(value).getValue();
 
 					this.traces.get(tempName).addPoint(
@@ -356,8 +368,10 @@ public class MetricVisualizer extends Visualizer {
 		}
 		// update general runtimes
 		for (String runtime : b.getGeneralRuntimes().getNames()) {
-			if (this.traces.containsKey("general runtimes." + runtime)) {
-				String tempName = "general runtimes." + runtime;
+			if (this.traces.containsKey(MetricVisualizer.generalRuntimesPrefix
+					+ runtime)) {
+				String tempName = MetricVisualizer.generalRuntimesPrefix
+						+ runtime;
 				if (tempName.equals(name)) {
 					double tempValue = b.getGeneralRuntimes().get(runtime)
 							.getRuntime();
@@ -369,8 +383,10 @@ public class MetricVisualizer extends Visualizer {
 		}
 		// update metric runtimes
 		for (String runtime : b.getMetricRuntimes().getNames()) {
-			if (this.traces.containsKey("metric runtimes." + runtime)) {
-				String tempName = "metric runtimes." + runtime;
+			if (this.traces.containsKey(MetricVisualizer.metricRuntimesPrefix
+					+ runtime)) {
+				String tempName = MetricVisualizer.metricRuntimesPrefix
+						+ runtime;
 				double tempValue = b.getMetricRuntimes().get(runtime)
 						.getRuntime();
 				if (tempName.equals(name)) {
@@ -382,8 +398,9 @@ public class MetricVisualizer extends Visualizer {
 		}
 		// update statistics
 		for (String value : b.getValues().getNames()) {
-			if (this.traces.containsKey("statistics." + value)) {
-				String tempName = "statistics." + value;
+			if (this.traces.containsKey(MetricVisualizer.statisticsPrefix
+					+ value)) {
+				String tempName = MetricVisualizer.statisticsPrefix + value;
 				if (tempName.equals(name)) {
 					double tempValue = b.getValues().get(value).getValue();
 					this.traces.get(tempName).addPoint(timestampDouble,
@@ -495,7 +512,7 @@ public class MetricVisualizer extends Visualizer {
 			this.availableValues.add("metric runtime." + runtime);
 		}
 		for (String value : b.getValues().getNames()) {
-			this.availableValues.add("statistics." + value);
+			this.availableValues.add(MetricVisualizer.statisticsPrefix + value);
 		}
 
 		// init addbox
@@ -655,6 +672,7 @@ public class MetricVisualizer extends Visualizer {
 	public void loadConfig(VisualizerListConfig config) {
 		for (ConfigItem c : config.getEntries()) {
 			if (c instanceof MetricVisualizerItem) {
+				System.out.println(c.getName());
 				if (this.availableValues.contains(c.getName()))
 					this.legend.addValueItemToList((MetricVisualizerItem) c);
 			}
@@ -689,8 +707,8 @@ public class MetricVisualizer extends Visualizer {
 								.getAllGeneralRuntimesConfig();
 						this.legend
 								.addValueItemToList(new MetricVisualizerItem(
-										"general runtime." + runtime, c
-												.getDisplayMode(),
+										MetricVisualizer.generalRuntimesPrefix
+												+ runtime, c.getDisplayMode(),
 										c.getYAxis(), c.getVisibility()));
 					}
 				}
@@ -702,8 +720,9 @@ public class MetricVisualizer extends Visualizer {
 					MetricVisualizerItem c = config
 							.getAllMetricRuntimesConfig();
 					this.legend.addValueItemToList(new MetricVisualizerItem(
-							"metric runtime." + runtime, c.getDisplayMode(), c
-									.getYAxis(), c.getVisibility()));
+							MetricVisualizer.metricRuntimesPrefix + runtime, c
+									.getDisplayMode(), c.getYAxis(), c
+									.getVisibility()));
 				}
 			}
 
@@ -712,8 +731,9 @@ public class MetricVisualizer extends Visualizer {
 				for (String value : b.getValues().getNames()) {
 					MetricVisualizerItem c = config.getAllStatisticsConfig();
 					this.legend.addValueItemToList(new MetricVisualizerItem(
-							"statistics." + value, c.getDisplayMode(), c
-									.getYAxis(), c.getVisibility()));
+							MetricVisualizer.statisticsPrefix + value, c
+									.getDisplayMode(), c.getYAxis(), c
+									.getVisibility()));
 				}
 			}
 		}
