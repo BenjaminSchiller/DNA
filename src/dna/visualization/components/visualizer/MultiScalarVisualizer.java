@@ -603,7 +603,7 @@ public class MultiScalarVisualizer extends Visualizer {
 		ArrayList<String> tempNvls = new ArrayList<String>();
 
 		for (MetricData m : b.getMetrics().getList()) {
-			if (m.getValues().size() > 0) {
+			if (m.getDistributions().size() > 0 || m.getNodeValues().size() > 0) {
 				for (Distribution d : m.getDistributions().getList()) {
 					tempDists.add(m.getName() + "." + d.getName());
 				}
