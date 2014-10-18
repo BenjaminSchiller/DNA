@@ -683,61 +683,124 @@ public class MetricVisualizer extends Visualizer {
 		if (config.isAnyGeneralConfigSet()) {
 			BatchData b = this.initBatch;
 
-			// insert all available metrics
-			if (config.getAllMetricsConfig() != null) {
-				for (String metric : b.getMetrics().getNames()) {
-					for (String value : b.getMetrics().get(metric).getValues()
-							.getNames()) {
-						MetricVisualizerItem c = config.getAllMetricsConfig();
-						this.legend
-								.addValueItemToList(new MetricVisualizerItem(
-										metric + "." + value, c
-												.getDisplayMode(),
-										c.getYAxis(), c.getVisibility()));
-					}
-				}
-			}
+			// get max order id
+			int maxId = MetricVisualizer.getMaxId(config);
 
-			// insert all available general runtimes
+			// insert all entries in the given order
+			insertForId(0, maxId, b, config);
+
+			// insert all values without id (means id = -1)
+			insertForId(-1, -1, b, config);
+		}
+	}
+
+	/** Insert the batches values by Id. **/
+	private void insertForId(int from, int to, BatchData b,
+			VisualizerListConfig config) {
+		for (int id = from; id <= to; id++) {
 			if (config.getAllGeneralRuntimesConfig() != null) {
-				for (String runtime : b.getGeneralRuntimes().getNames()) {
-					// graphGeneration runtime will be ignored cause it is only
-					// present
-					// in the initial batch
-					if (!runtime.equals("graphGeneration")) {
-						MetricVisualizerItem c = config
-								.getAllGeneralRuntimesConfig();
-						this.legend
-								.addValueItemToList(new MetricVisualizerItem(
-										MetricVisualizer.generalRuntimesPrefix
-												+ runtime, c.getDisplayMode(),
-										c.getYAxis(), c.getVisibility()));
-					}
+				if (config.getGeneralRuntimesOrderId() == id) {
+					// insert all available general runtimes
+					this.insertGeneralRuntimes(b, config);
 				}
 			}
-
-			// insert all available metric runtimes
 			if (config.getAllMetricRuntimesConfig() != null) {
-				for (String runtime : b.getMetricRuntimes().getNames()) {
-					MetricVisualizerItem c = config
-							.getAllMetricRuntimesConfig();
-					this.legend.addValueItemToList(new MetricVisualizerItem(
-							MetricVisualizer.metricRuntimesPrefix + runtime, c
-									.getDisplayMode(), c.getYAxis(), c
-									.getVisibility()));
+				if (config.getMetricRuntimesOrderId() == id) {
+					// insert all available metric runtimes
+					this.insertMetricRuntimes(b, config);
 				}
 			}
 
-			// insert all available statistics
 			if (config.getAllStatisticsConfig() != null) {
-				for (String value : b.getValues().getNames()) {
-					MetricVisualizerItem c = config.getAllStatisticsConfig();
-					this.legend.addValueItemToList(new MetricVisualizerItem(
-							MetricVisualizer.statisticsPrefix + value, c
-									.getDisplayMode(), c.getYAxis(), c
-									.getVisibility()));
+				if (config.getStatisticsOrderId() == id) {
+					// insert all available statistics
+					this.insertStatistics(b, config);
+				}
+			}
+
+			if (config.getAllMetricsConfig() != null) {
+				if (config.getMetricsOrderId() == id) {
+					// insert all available metrics
+					this.insertMetrics(b, config);
 				}
 			}
 		}
 	}
+
+	/** Calculates the maximum order id from config. **/
+	private static int getMaxId(VisualizerListConfig config) {
+		int maxId = 0;
+
+		if (config.getAllGeneralRuntimesConfig() != null)
+			if (config.getGeneralRuntimesOrderId() > maxId)
+				maxId = config.getGeneralRuntimesOrderId();
+
+		if (config.getAllMetricRuntimesConfig() != null)
+			if (config.getMetricRuntimesOrderId() > maxId)
+				maxId = config.getMetricRuntimesOrderId();
+
+		if (config.getAllStatisticsConfig() != null)
+			if (config.getStatisticsOrderId() > maxId)
+				maxId = config.getStatisticsOrderId();
+
+		if (config.getAllMetricsConfig() != null)
+			if (config.getMetricsOrderId() > maxId)
+				maxId = config.getMetricsOrderId();
+
+		return maxId;
+	}
+
+	/** Insert all available metric runtimes. **/
+	private void insertMetricRuntimes(BatchData b, VisualizerListConfig config) {
+		// insert all available metric runtimes
+		for (String runtime : b.getMetricRuntimes().getNames()) {
+			MetricVisualizerItem c = config.getAllMetricRuntimesConfig();
+			this.legend
+					.addValueItemToList(new MetricVisualizerItem(
+							MetricVisualizer.metricRuntimesPrefix + runtime, c
+									.getDisplayMode(), c.getYAxis(), c
+									.getVisibility()));
+		}
+	}
+
+	/** Insert all available general runtimes. **/
+	private void insertGeneralRuntimes(BatchData b, VisualizerListConfig config) {
+		for (String runtime : b.getGeneralRuntimes().getNames()) {
+			// graphGeneration runtime will be ignored cause it is only present
+			// in the initial batch
+			if (!runtime.equals("graphGeneration")) {
+				MetricVisualizerItem c = config.getAllGeneralRuntimesConfig();
+				this.legend.addValueItemToList(new MetricVisualizerItem(
+						MetricVisualizer.generalRuntimesPrefix + runtime, c
+								.getDisplayMode(), c.getYAxis(), c
+								.getVisibility()));
+			}
+		}
+	}
+
+	/** Insert all available statistics. **/
+	private void insertStatistics(BatchData b, VisualizerListConfig config) {
+		for (String value : b.getValues().getNames()) {
+			MetricVisualizerItem c = config.getAllStatisticsConfig();
+			this.legend
+					.addValueItemToList(new MetricVisualizerItem(
+							MetricVisualizer.statisticsPrefix + value, c
+									.getDisplayMode(), c.getYAxis(), c
+									.getVisibility()));
+		}
+	}
+
+	/** Insert all available metrics. **/
+	private void insertMetrics(BatchData b, VisualizerListConfig config) {
+		for (String metric : b.getMetrics().getNames()) {
+			for (String value : b.getMetrics().get(metric).getValues()
+					.getNames()) {
+				MetricVisualizerItem c = config.getAllMetricsConfig();
+				this.legend.addValueItemToList(new MetricVisualizerItem(metric
+						+ "." + value, c.getDisplayMode(), c.getYAxis(), c
+						.getVisibility()));
+			}
+		}
+	}
+
 }
