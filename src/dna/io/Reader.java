@@ -27,6 +27,11 @@ public class Reader {
 		this(dir, filename, Config.get("COMMENT_PREFIX"), true);
 	}
 
+	public Reader(String dir, String filename, boolean skipComments)
+			throws FileNotFoundException {
+		this(dir, filename, Config.get("COMMENT_PREFIX"), skipComments);
+	}
+
 	public Reader(String dir, String filename, String commentPrefix,
 			boolean skipComments) throws FileNotFoundException {
 		this.reader = new BufferedReader(new FileReader(dir + filename));

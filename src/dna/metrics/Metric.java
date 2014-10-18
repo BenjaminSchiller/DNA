@@ -1,68 +1,31 @@
 package dna.metrics;
 
 import dna.graph.Graph;
-import dna.series.data.Distribution;
 import dna.series.data.MetricData;
-import dna.series.data.NodeNodeValueList;
-import dna.series.data.NodeValueList;
-import dna.series.data.Value;
-import dna.updates.batch.Batch;
-import dna.updates.update.Update;
 import dna.util.parameters.Parameter;
 import dna.util.parameters.ParameterList;
 
-public abstract class Metric extends ParameterList {
+public abstract class Metric extends ParameterList implements IMetric {
 
-	public static enum ApplicationType {
-		BeforeBatch, AfterBatch, BeforeAndAfterBatch, BeforeUpdate, AfterUpdate, BeforeAndAfterUpdate, BatchAndUpdates, Recomputation
-	}
-
-	public static enum MetricType {
-		exact, heuristic, quality, unknown
-	}
-
-	public boolean isAppliedBeforeBatch() {
-		return this.type == ApplicationType.BeforeBatch
-				|| this.type == ApplicationType.BeforeAndAfterBatch
-				|| this.type == ApplicationType.BatchAndUpdates;
-	}
-
-	public boolean isAppliedAfterBatch() {
-		return this.type == ApplicationType.AfterBatch
-				|| this.type == ApplicationType.BeforeAndAfterBatch
-				|| this.type == ApplicationType.BatchAndUpdates;
-	}
-
-	public boolean isAppliedBeforeUpdate() {
-		return this.type == ApplicationType.BeforeUpdate
-				|| this.type == ApplicationType.BeforeAndAfterUpdate
-				|| this.type == ApplicationType.BatchAndUpdates;
-	}
-
-	public boolean isAppliedAfterUpdate() {
-		return this.type == ApplicationType.AfterUpdate
-				|| this.type == ApplicationType.BeforeAndAfterUpdate
-				|| this.type == ApplicationType.BatchAndUpdates;
-	}
-
-	public boolean isRecomputed() {
-		return this.type == ApplicationType.Recomputation;
-	}
-
-	public Metric(String name, ApplicationType type, MetricType metricType,
-			Parameter... p) {
+	public Metric(String name, Parameter... p) {
 		super(name, p);
-		this.type = type;
-		this.metricType = metricType;
-		this.timestamp = Long.MIN_VALUE;
+		this.metricType = MetricType.exact;
 	}
 
-	public Metric(String name, ApplicationType type, MetricType metricType,
+	public Metric(String name, Parameter[] params, Parameter... p) {
+		super(name, combine(params, p));
+		this.metricType = MetricType.exact;
+	}
+
+	public Metric(String name, IMetric.MetricType metricType, Parameter... p) {
+		super(name, p);
+		this.metricType = metricType;
+	}
+
+	public Metric(String name, IMetric.MetricType metricType,
 			Parameter[] params, Parameter... p) {
 		super(name, combine(params, p));
-		this.type = type;
 		this.metricType = metricType;
-		this.timestamp = Long.MIN_VALUE;
 	}
 
 	protected static Parameter[] combine(Parameter[] p1, Parameter[] p2) {
@@ -81,21 +44,9 @@ public abstract class Metric extends ParameterList {
 		return p;
 	}
 
-	protected ApplicationType type;
-
-	public ApplicationType getApplicationType() {
-		return this.type;
-	}
-
-	private long timestamp;
-
-	public long getTimestamp() {
-		return this.timestamp;
-	}
-
 	protected Graph g;
 
-	public Graph getGraoh() {
+	public Graph getGraph() {
 		return this.g;
 	}
 
@@ -103,167 +54,21 @@ public abstract class Metric extends ParameterList {
 		this.g = g;
 	}
 
-	protected MetricType metricType;
+	protected IMetric.MetricType metricType;
 
-	public MetricType getMetricType() {
+	public IMetric.MetricType getMetricType() {
 		return this.metricType;
 	}
-
-	/*
-	 * APPLICATION
-	 */
-
-	/**
-	 * called before the batch is applied to the graph
-	 * 
-	 * @param b
-	 *            batch of changes
-	 * @return true, if successful; false otherwise
-	 */
-	public abstract boolean applyBeforeBatch(Batch b);
-
-	/**
-	 * called after the batch is applied to the graph
-	 * 
-	 * @param b
-	 *            batch of changes
-	 * @return true, if successful; false otherwise
-	 */
-	public abstract boolean applyAfterBatch(Batch b);
-
-	/**
-	 * called before the update is applied to the graph
-	 * 
-	 * @param u
-	 *            update
-	 * @return true, if successful; false otherwise
-	 */
-	public abstract boolean applyBeforeUpdate(Update u);
-
-	/**
-	 * called after the update is applied to the graph
-	 * 
-	 * @param u
-	 *            update
-	 * @return true, if successful; false otherwise
-	 */
-	public abstract boolean applyAfterUpdate(Update u);
-
-	/**
-	 * performs the initial computation of the metric for the initial graph
-	 * 
-	 * @return true, if successful; false otherwise
-	 */
-	public abstract boolean compute();
-
-	/*
-	 * INIT
-	 */
-
-	/**
-	 * initialization of data structures
-	 */
-	public void init() {
-		this.init_();
-	}
-
-	/**
-	 * initialization of data structures
-	 */
-	public abstract void init_();
-
-	/*
-	 * RESET
-	 */
-
-	/**
-	 * reset of all data structures
-	 */
-	public void reset() {
-		this.timestamp = Long.MIN_VALUE;
-		this.reset_();
-	}
-
-	/**
-	 * reset of all data structures
-	 */
-	public abstract void reset_();
-
-	/*
-	 * DATA
-	 */
 
 	/**
 	 * 
 	 * @return all data computed by this metric
 	 */
 	public MetricData getData() {
+		// TODO remove metric type from all components
 		return new MetricData(this.getName(), this.getMetricType(),
 				this.getValues(), this.getDistributions(),
 				this.getNodeValueLists(), this.getNodeNodeValueLists());
 	}
-
-	/**
-	 * 
-	 * @return all the values computed by this metric
-	 */
-	public abstract Value[] getValues();
-
-	/**
-	 * 
-	 * @return all the distributions computed by this metric
-	 */
-	public abstract Distribution[] getDistributions();
-
-	/**
-	 * 
-	 * @return all the nodevaluelists computed by this metric
-	 */
-	public abstract NodeValueList[] getNodeValueLists();
-
-	/**
-	 * 
-	 * @return all the nodenodevaluelists computed by this metric
-	 */
-	public abstract NodeNodeValueList[] getNodeNodeValueLists();
-
-	/*
-	 * EQUALS
-	 */
-
-	/**
-	 * 
-	 * @param m
-	 *            metric to compare to
-	 * @return true, if the metric is of the same type and all computed values
-	 *         are equal (can be used to compare different implementations of
-	 *         the same metric)
-	 */
-	public abstract boolean equals(Metric m);
-
-	/**
-	 * 
-	 * @param g
-	 *            graph to check for applicability
-	 * @return true, if the metric can be applied to the given graph
-	 */
-	public abstract boolean isApplicable(Graph g);
-
-	/**
-	 * 
-	 * @param b
-	 *            batch to check for applicability
-	 * @return true, if the batch can be applied to this graph (also false in
-	 *         case of a re-computation metric)
-	 */
-	public abstract boolean isApplicable(Batch b);
-
-	/**
-	 * 
-	 * @param m
-	 * @return true, if the metric can be compared, i.e., they compute the same
-	 *         properties of a graph
-	 */
-	public abstract boolean isComparableTo(Metric m);
 
 }

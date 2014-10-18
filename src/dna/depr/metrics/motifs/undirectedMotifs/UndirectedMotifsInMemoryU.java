@@ -5,10 +5,11 @@ import java.util.HashSet;
 import java.util.LinkedList;
 
 import dna.depr.metrics.motifs.undirectedMotifs.exceptions.UndirectedMotifInvalidEdgeAdditionException;
+import dna.depr.metrics.motifsNew.UndirectedMotifs;
 import dna.graph.IElement;
 import dna.graph.edges.UndirectedEdge;
 import dna.graph.nodes.UndirectedNode;
-import dna.metrics.motifs.UndirectedMotifs;
+import dna.metrics.IMetric;
 import dna.updates.batch.Batch;
 import dna.updates.update.EdgeAddition;
 import dna.updates.update.EdgeRemoval;
@@ -68,7 +69,7 @@ public class UndirectedMotifsInMemoryU extends UndirectedMotifs {
 
 	public UndirectedMotifsInMemoryU() {
 		super("UndirectedMotifsInMemoryU", ApplicationType.AfterUpdate,
-				MetricType.exact);
+				IMetric.MetricType.exact);
 	}
 
 	@Override

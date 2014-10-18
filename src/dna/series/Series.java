@@ -4,7 +4,7 @@ import java.io.IOException;
 
 import dna.graph.Graph;
 import dna.graph.generators.GraphGenerator;
-import dna.metrics.Metric;
+import dna.metrics.IMetric;
 import dna.metrics.MetricNotApplicableException;
 import dna.series.aggdata.AggregatedBatch.BatchReadMode;
 import dna.series.aggdata.AggregatedSeries;
@@ -26,7 +26,7 @@ public class Series {
 		eachBatch, eachRun, eachSeries, never
 	};
 
-	public Series(GraphGenerator gg, BatchGenerator bg, Metric[] metrics,
+	public Series(GraphGenerator gg, BatchGenerator bg, IMetric[] metrics,
 			String dir, String name) {
 		this.graphGenerator = gg;
 		this.batchGenerator = bg;
@@ -96,7 +96,7 @@ public class Series {
 
 	private BatchGenerator batchGenerator;
 
-	private Metric[] metrics;
+	private IMetric[] metrics;
 
 	private String dir;
 
@@ -112,7 +112,7 @@ public class Series {
 		return this.batchGenerator;
 	}
 
-	public Metric[] getMetrics() {
+	public IMetric[] getMetrics() {
 		return this.metrics;
 	}
 

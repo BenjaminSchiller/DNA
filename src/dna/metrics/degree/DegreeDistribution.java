@@ -1,104 +1,43 @@
 package dna.metrics.degree;
 
+import dna.graph.Graph;
+import dna.graph.IElement;
 import dna.graph.nodes.DirectedNode;
 import dna.graph.nodes.UndirectedNode;
+import dna.metrics.IMetric;
 import dna.metrics.Metric;
 import dna.series.data.Distribution;
 import dna.series.data.DistributionInt;
 import dna.series.data.NodeNodeValueList;
 import dna.series.data.NodeValueList;
 import dna.series.data.Value;
+import dna.updates.batch.Batch;
 import dna.util.ArrayUtils;
-import dna.util.DataUtils;
+import dna.util.parameters.Parameter;
 
 public abstract class DegreeDistribution extends Metric {
 
 	protected DistributionInt degree;
-
 	protected DistributionInt inDegree;
-
 	protected DistributionInt outDegree;
 
-	public static final String degreeName = "degreeDistribution";
-
-	public static final String inDegreeName = "inDegreeDistribution";
-
-	public static final String outDegreeName = "outDegreeDistribution";
-
-	protected int nodes;
-
-	protected int edges;
-
-	public static final String nodesName = "nodes";
-
-	public static final String edgesName = "edges";
-
-	public DegreeDistribution(String name, ApplicationType type,
-			MetricType mType) {
-		super(name, type, mType);
-	}
-
-	@Override
-	public void reset_() {
-		this.degree = null;
-		this.inDegree = null;
-		this.outDegree = null;
-		this.nodes = 0;
-		this.edges = 0;
+	public DegreeDistribution(String name, Parameter... p) {
+		super(name, p);
 	}
 
 	@Override
 	public Value[] getValues() {
-		return new Value[] { new Value("NODES", this.nodes),
-				new Value("EDGES", this.edges) };
+		return new Value[0];
 	}
 
 	@Override
 	public Distribution[] getDistributions() {
-		if (DirectedNode.class.isAssignableFrom(this.g.getGraphDatastructures()
-				.getNodeType())) {
+		if (this.g.isDirected()) {
 			return new Distribution[] { this.degree, this.inDegree,
 					this.outDegree };
-		} else if (UndirectedNode.class.isAssignableFrom(this.g
-				.getGraphDatastructures().getNodeType())) {
+		} else {
 			return new Distribution[] { this.degree };
 		}
-		return null;
-	}
-
-	@Override
-	public boolean equals(Metric m) {
-		if (m == null || !(m instanceof DegreeDistribution)) {
-			return false;
-		}
-		DegreeDistribution dd = (DegreeDistribution) m;
-		boolean success = true;
-		success &= DataUtils.equals(this.nodes, dd.nodes, "DD/" + nodesName);
-		success &= DataUtils.equals(this.edges, dd.edges, "DD/" + edgesName);
-		success &= ArrayUtils.equals(this.degree.getIntValues(),
-				dd.degree.getIntValues(), "DD/" + degreeName);
-		success &= ArrayUtils.equals(this.inDegree.getIntValues(),
-				dd.inDegree.getIntValues(), "DD/" + inDegreeName);
-		success &= ArrayUtils.equals(this.outDegree.getIntValues(),
-				dd.outDegree.getIntValues(), "DD/" + outDegreeName);
-		return success;
-	}
-
-	@Override
-	public void init_() {
-		this.degree = new DistributionInt(degreeName, new int[0],
-				this.g.getNodeCount());
-		this.inDegree = new DistributionInt(inDegreeName, new int[0],
-				this.g.getNodeCount());
-		this.outDegree = new DistributionInt(outDegreeName, new int[0],
-				this.g.getNodeCount());
-		this.nodes = 0;
-		this.edges = 0;
-	}
-
-	@Override
-	public boolean isComparableTo(Metric m) {
-		return m != null && m instanceof DegreeDistribution;
 	}
 
 	@Override
@@ -109,6 +48,62 @@ public abstract class DegreeDistribution extends Metric {
 	@Override
 	public NodeNodeValueList[] getNodeNodeValueLists() {
 		return new NodeNodeValueList[0];
+	}
+
+	@Override
+	public boolean isComparableTo(IMetric m) {
+		return m instanceof DegreeDistribution;
+	}
+
+	@Override
+	public boolean equals(IMetric m) {
+		if (m == null || !(m instanceof DegreeDistribution)) {
+			return false;
+		}
+		DegreeDistribution dd = (DegreeDistribution) m;
+		boolean equals = true;
+		equals &= ArrayUtils.equals(this.degree.getIntValues(),
+				dd.degree.getIntValues(), this.degree.getName());
+		if (this.inDegree != null) {
+			equals &= ArrayUtils.equals(this.inDegree.getIntValues(),
+					dd.inDegree.getIntValues(), this.inDegree.getName());
+			equals &= ArrayUtils.equals(this.outDegree.getIntValues(),
+					dd.outDegree.getIntValues(), this.outDegree.getName());
+		}
+		return equals;
+	}
+
+	@Override
+	public boolean isApplicable(Graph g) {
+		return true;
+	}
+
+	@Override
+	public boolean isApplicable(Batch b) {
+		return true;
+	}
+
+	protected boolean compute() {
+		if (this.g.isDirected()) {
+			this.degree = new DistributionInt("DegreeDistribution");
+			this.inDegree = new DistributionInt("InDegreeDistribution");
+			this.outDegree = new DistributionInt("OutDegreeDistribution");
+			for (IElement n_ : this.g.getNodes()) {
+				DirectedNode n = (DirectedNode) n_;
+				this.degree.incr(n.getDegree());
+				this.inDegree.incr(n.getInDegree());
+				this.outDegree.incr(n.getOutDegree());
+			}
+		} else {
+			this.degree = new DistributionInt("DegreeDistribution");
+			this.inDegree = null;
+			this.outDegree = null;
+			for (IElement n_ : this.g.getNodes()) {
+				UndirectedNode n = (UndirectedNode) n_;
+				this.degree.incr(n.getDegree());
+			}
+		}
+		return true;
 	}
 
 }

@@ -9,10 +9,11 @@ import dna.depr.metrics.motifs.directedMotifs.exceptions.DirectedMotifInvalidEdg
 import dna.depr.metrics.motifs.directedMotifs.exceptions.DirectedMotifInvalidEdgeRemovalException;
 import dna.depr.metrics.motifs.directedMotifs.exceptions.DirectedMotifSplittingException;
 import dna.depr.metrics.motifs.directedMotifs.exceptions.InvalidDirectedMotifException;
+import dna.depr.metrics.motifsNew.DirectedMotifs;
 import dna.graph.IElement;
 import dna.graph.edges.DirectedEdge;
 import dna.graph.nodes.DirectedNode;
-import dna.metrics.motifs.DirectedMotifs;
+import dna.metrics.IMetric;
 import dna.updates.batch.Batch;
 import dna.updates.update.EdgeAddition;
 import dna.updates.update.EdgeRemoval;
@@ -25,7 +26,7 @@ public class DirectedMotifsInMemoryU extends DirectedMotifs {
 
 	public DirectedMotifsInMemoryU() {
 		super("DirectedMotifsInMemoryU", ApplicationType.BeforeUpdate,
-				MetricType.exact);
+				IMetric.MetricType.exact);
 	}
 
 	private HashSet<Integer> allMotifs;

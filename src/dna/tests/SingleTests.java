@@ -37,18 +37,13 @@ import dna.graph.nodes.Node;
 import dna.graph.nodes.UndirectedNode;
 import dna.graph.nodes.UndirectedWeightedNode;
 import dna.graph.weights.DoubleWeight;
-import dna.metrics.Metric;
 import dna.metrics.MetricNotApplicableException;
-import dna.metrics.clusterCoefficient.DirectedClusteringCoefficientU;
-import dna.metrics.degree.DegreeDistributionU;
-import dna.profiler.Profiler;
 import dna.series.AggregationException;
-import dna.series.Series;
 import dna.updates.generators.BatchGenerator;
 import dna.updates.generators.random.RandomBatch;
+import dna.util.Config;
 import dna.util.Log;
 import dna.util.Log.LogLevel;
-import dna.util.Config;
 import dna.util.MathHelper;
 import dna.util.Timer;
 
@@ -75,10 +70,11 @@ public class SingleTests {
 				DirectedNode.class, DirectedEdge.class);
 		GraphGenerator gg = new RandomGraph(gds, 40, 40);
 		BatchGenerator batchGen = new RandomBatch(5, 5, 5, 5);
-		Metric[] metrics = new Metric[] { new DegreeDistributionU(),
-				new DirectedClusteringCoefficientU() };
-		Series s = new Series(gg, batchGen, metrics, "./graphs/", "test");
-		s.generate(2, 1);
+		// Metric[] metrics = new Metric[] { new DegreeDistributionU(),
+		// new DirectedClusteringCoefficientU() };
+		// TODO add again after change to new metrics
+		// Series s = new Series(gg, batchGen, metrics, "./graphs/", "test");
+		// s.generate(2, 1);
 		Log.setLogLevel(oldLogLevel);
 	}
 

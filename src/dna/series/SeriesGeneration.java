@@ -6,9 +6,26 @@ import java.nio.file.FileSystem;
 
 import dna.io.filesystem.Dir;
 import dna.io.filesystem.Files;
-import dna.metrics.Metric;
-import dna.metrics.Metric.MetricType;
+import dna.metrics.IMetric;
 import dna.metrics.MetricNotApplicableException;
+import dna.metrics.IMetric.MetricType;
+import dna.metrics.algorithms.Algorithms;
+import dna.metrics.algorithms.IAfterBatch;
+import dna.metrics.algorithms.IAfterEA;
+import dna.metrics.algorithms.IAfterER;
+import dna.metrics.algorithms.IAfterEW;
+import dna.metrics.algorithms.IAfterNA;
+import dna.metrics.algorithms.IAfterNR;
+import dna.metrics.algorithms.IAfterNW;
+import dna.metrics.algorithms.IBeforeBatch;
+import dna.metrics.algorithms.IBeforeEA;
+import dna.metrics.algorithms.IBeforeER;
+import dna.metrics.algorithms.IBeforeEW;
+import dna.metrics.algorithms.IBeforeNA;
+import dna.metrics.algorithms.IBeforeNR;
+import dna.metrics.algorithms.IBeforeNW;
+import dna.metrics.algorithms.IDynamicAlgorithm;
+import dna.metrics.algorithms.IRecomputation;
 import dna.series.Series.RandomSeedReset;
 import dna.series.aggdata.AggregatedSeries;
 import dna.series.data.BatchData;
@@ -17,7 +34,12 @@ import dna.series.data.Value;
 import dna.updates.batch.Batch;
 import dna.updates.batch.BatchSanitization;
 import dna.updates.batch.BatchSanitizationStats;
-import dna.updates.update.Update;
+import dna.updates.update.EdgeAddition;
+import dna.updates.update.EdgeRemoval;
+import dna.updates.update.EdgeWeight;
+import dna.updates.update.NodeAddition;
+import dna.updates.update.NodeRemoval;
+import dna.updates.update.NodeWeight;
 import dna.util.Config;
 import dna.util.Log;
 import dna.util.Memory;
@@ -83,7 +105,7 @@ public class SeriesGeneration {
 		if (batchGenerationTime > 0)
 			Log.info("t  = " + batchGenerationTime + " msec / batch");
 		StringBuffer buff = new StringBuffer("");
-		for (Metric m : series.getMetrics()) {
+		for (IMetric m : series.getMetrics()) {
 			if (buff.length() > 0) {
 				buff.append("\n     ");
 			}
@@ -196,6 +218,11 @@ public class SeriesGeneration {
 			boolean compare, boolean write, long batchGenerationTime)
 			throws IOException, MetricNotApplicableException {
 
+		/*
+		 * compile lists of different algorithm types
+		 */
+		Algorithms algorithms = new Algorithms(series.getMetrics());
+
 		Log.infoSep();
 		Log.info("run " + run + " (" + batches + " batches)");
 
@@ -210,7 +237,8 @@ public class SeriesGeneration {
 		}
 
 		// generate initial data
-		BatchData initialData = SeriesGeneration.generateInitialData(series);
+		BatchData initialData = SeriesGeneration.generateInitialData(series,
+				algorithms);
 		if (compare) {
 			SeriesGeneration.compareMetrics(series);
 		}
@@ -250,7 +278,8 @@ public class SeriesGeneration {
 				series.resetRand();
 			}
 
-			BatchData batchData = SeriesGeneration.generateNextBatch(series);
+			BatchData batchData = SeriesGeneration.generateNextBatch(series,
+					algorithms);
 
 			if (compare) {
 				SeriesGeneration.compareMetrics(series);
@@ -338,9 +367,9 @@ public class SeriesGeneration {
 				if (!series.getMetrics()[i]
 						.isComparableTo(series.getMetrics()[j])
 						|| !series.getMetrics()[i].getMetricType().equals(
-								MetricType.exact)
+								IMetric.MetricType.exact)
 						|| !series.getMetrics()[j].getMetricType().equals(
-								MetricType.exact)) {
+								IMetric.MetricType.exact)) {
 					continue;
 				}
 				if (!series.getMetrics()[i].equals(series.getMetrics()[j])) {
@@ -353,44 +382,54 @@ public class SeriesGeneration {
 		return ok;
 	}
 
-	private static BatchData computeInitialData(Series series)
-			throws MetricNotApplicableException {
-		Log.info("    initial data");
+	private static BatchData computeInitialData(Series series,
+			Algorithms algorithms) throws MetricNotApplicableException {
 
 		// generate graph
+		Log.info("    generating graph");
 		series.setGraph(series.getGraphGenerator().generate());
-
-		// reset all metrics
-		for (Metric m : series.getMetrics()) {
+		for (IMetric m : series.getMetrics()) {
 			m.setGraph(series.getGraph());
-			m.reset();
 		}
 
-		// initialize data
+		// generate first batch
+		Log.info("    initial data");
 		BatchData initialData = new BatchData(series.getGraph().getTimestamp(),
 				0, 4, series.getMetrics().length, series.getMetrics().length);
-		initialData = computeInitialMetrics(series, initialData);
+		initialData = computeInitialMetrics(series, initialData, algorithms);
 
 		return initialData;
 	}
 
 	private static BatchData computeInitialMetrics(Series series,
-			BatchData initialData) throws MetricNotApplicableException {
+			BatchData initialData, Algorithms algorithms)
+			throws MetricNotApplicableException {
 		// initial computation of all metrics
-		for (Metric m : series.getMetrics()) {
+		for (IMetric m : series.getMetrics()) {
 			if (!m.isApplicable(series.getGraph())) {
 				throw new MetricNotApplicableException(m, series.getGraph());
 			}
-			m.init();
-			m.compute();
-			initialData.getMetrics().add(m.getData());
+			boolean success = false;
+			if (m instanceof IDynamicAlgorithm) {
+				success = ((IDynamicAlgorithm) m).init();
+			} else if (m instanceof IRecomputation) {
+				success = ((IRecomputation) m).recompute();
+			} else {
+				Log.error("unknown metric type: " + m.getClass());
+			}
+			if (success) {
+				initialData.getMetrics().add(m.getData());
+			} else {
+				Log.error("could not create initial data for metric "
+						+ m.getDescription());
+			}
 		}
 		return initialData;
 	}
 
-	public static BatchData generateInitialData(Series series)
-			throws MetricNotApplicableException {
-		BatchData initialData = computeInitialData(series);
+	public static BatchData generateInitialData(Series series,
+			Algorithms algorithms) throws MetricNotApplicableException {
+		BatchData initialData = computeInitialData(series, algorithms);
 
 		// add values
 		initialData.getValues().add(new Value("randomSeed", series.getSeed()));
@@ -439,28 +478,25 @@ public class SeriesGeneration {
 				new Value(SeriesStats.nodes, series.getGraph().getNodeCount()));
 		initialData.getValues().add(
 				new Value(SeriesStats.edges, series.getGraph().getEdgeCount()));
-
 		return initialData;
 
 	}
 
-	private static BatchData computeNextBatch(Series series)
-			throws MetricNotApplicableException {
+	private static BatchData computeNextBatch(Series series,
+			Algorithms algorithms) throws MetricNotApplicableException {
 		Batch b = series.getBatchGenerator().generate(series.getGraph());
 		Log.info("    " + b.toString());
 
-		// init metric timers
-		for (Metric m : series.getMetrics()) {
+		// check applicability to batch
+		for (IMetric m : series.getMetrics()) {
 			if (!m.isApplicable(b)) {
 				throw new MetricNotApplicableException(m, b);
 			}
 		}
 
 		// apply before batch
-		for (Metric m : series.getMetrics()) {
-			if (m.isAppliedBeforeBatch()) {
-				m.applyBeforeBatch(b);
-			}
+		for (IBeforeBatch m : algorithms.beforeBatch) {
+			m.applyBeforeBatch(b);
 		}
 
 		BatchSanitizationStats sanitizationStats = BatchSanitization
@@ -470,36 +506,46 @@ public class SeriesGeneration {
 			Log.info("      => " + b.toString());
 		}
 
-		int removedNodes = SeriesGeneration.applyUpdates(series,
+		int removedNodes = SeriesGeneration.applyNRs(series, algorithms,
 				b.getNodeRemovals());
-		int removedEdges = SeriesGeneration.applyUpdates(series,
+		int removedEdges = SeriesGeneration.applyERs(series, algorithms,
 				b.getEdgeRemovals());
 
-		int addedNodes = SeriesGeneration.applyUpdates(series,
+		int addedNodes = SeriesGeneration.applyNAs(series, algorithms,
 				b.getNodeAdditions());
-		int addedEdges = SeriesGeneration.applyUpdates(series,
+		int addedEdges = SeriesGeneration.applyEAs(series, algorithms,
 				b.getEdgeAdditions());
 
-		int updatedNodeWeights = SeriesGeneration.applyUpdates(series,
+		int updatedNodeWeights = SeriesGeneration.applyNWs(series, algorithms,
 				b.getNodeWeights());
-		int updatedEdgeWeights = SeriesGeneration.applyUpdates(series,
+		int updatedEdgeWeights = SeriesGeneration.applyEWs(series, algorithms,
 				b.getEdgeWeights());
+
+		// int removedNodes = SeriesGeneration.applyUpdates(series,
+		// b.getNodeRemovals(), beforeUpdate, afterUpdate);
+		// int removedEdges = SeriesGeneration.applyUpdates(series,
+		// b.getEdgeRemovals(), beforeUpdate, afterUpdate);
+		//
+		// int addedNodes = SeriesGeneration.applyUpdates(series,
+		// b.getNodeAdditions(), beforeUpdate, afterUpdate);
+		// int addedEdges = SeriesGeneration.applyUpdates(series,
+		// b.getEdgeAdditions(), beforeUpdate, afterUpdate);
+		//
+		// int updatedNodeWeights = SeriesGeneration.applyUpdates(series,
+		// b.getNodeWeights(), beforeUpdate, afterUpdate);
+		// int updatedEdgeWeights = SeriesGeneration.applyUpdates(series,
+		// b.getEdgeWeights(), beforeUpdate, afterUpdate);
 
 		series.getGraph().setTimestamp(b.getTo());
 
 		// apply after batch
-		for (Metric m : series.getMetrics()) {
-			if (m.isAppliedAfterBatch()) {
-				m.applyAfterBatch(b);
-			}
+		for (IAfterBatch m : algorithms.afterBatch) {
+			m.applyAfterBatch(b);
 		}
 
-		// compute / cleanup
-		for (Metric m : series.getMetrics()) {
-			if (m.isRecomputed()) {
-				m.init();
-				m.compute();
-			}
+		// compute
+		for (IRecomputation m : algorithms.recomputation) {
+			m.recompute();
 		}
 
 		BatchData batchData = new BatchData(b, sanitizationStats, 5, 5,
@@ -521,10 +567,10 @@ public class SeriesGeneration {
 		return batchData;
 	}
 
-	public static BatchData generateNextBatch(Series series)
-			throws MetricNotApplicableException {
+	public static BatchData generateNextBatch(Series series,
+			Algorithms algorithms) throws MetricNotApplicableException {
 
-		BatchData batchData = computeNextBatch(series);
+		BatchData batchData = computeNextBatch(series, algorithms);
 
 		// add values
 		batchData.getValues().add(
@@ -583,44 +629,259 @@ public class SeriesGeneration {
 				new Value(SeriesStats.edges, series.getGraph().getEdgeCount()));
 
 		// add metric data
-		for (Metric m : series.getMetrics()) {
+		for (IMetric m : series.getMetrics()) {
 			batchData.getMetrics().add(m.getData());
 		}
 
 		return batchData;
 	}
 
-	private static int applyUpdates(Series series,
-			Iterable<? extends Update> updates) {
-
+	private static int applyNAs(Series series, Algorithms algorithms,
+			Iterable<NodeAddition> updates) {
 		int counter = 0;
-		for (Update u : updates) {
 
-			// apply update to metrics beforehand
-			for (Metric m : series.getMetrics()) {
-				if (m.isAppliedBeforeUpdate()) {
-					m.applyBeforeUpdate(u);
+		for (NodeAddition u : updates) {
+			for (IBeforeNA m : algorithms.beforeUpdateNA) {
+				if (!m.applyBeforeUpdate(u)) {
+					Log.error("could not apply before update " + u.toString()
+							+ " to metric " + m.getDescription());
 				}
 			}
 
-			boolean success = u.apply(series.getGraph());
-			if (!success) {
+			if (!u.apply(series.getGraph())) {
 				Log.error("could not apply update " + u.toString()
 						+ " (BUT metric before update already applied)");
 				continue;
 			}
 			counter++;
 
-			// apply update to metrics afterwards
-			for (Metric m : series.getMetrics()) {
-				if (m.isAppliedAfterUpdate()) {
-					m.applyAfterUpdate(u);
+			for (IAfterNA m : algorithms.afterUpdateNA) {
+				if (!m.applyAfterUpdate(u)) {
+					Log.error("could not apply after update " + u.toString()
+							+ " to metric " + m.getDescription());
 				}
 			}
 		}
 
 		return counter;
-
 	}
+
+	private static int applyNRs(Series series, Algorithms algorithms,
+			Iterable<NodeRemoval> updates) {
+		int counter = 0;
+
+		for (NodeRemoval u : updates) {
+			for (IBeforeNR m : algorithms.beforeUpdateNR) {
+				if (!m.applyBeforeUpdate(u)) {
+					Log.error("could not apply before update " + u.toString()
+							+ " to metric " + m.getDescription());
+				}
+			}
+
+			if (!u.apply(series.getGraph())) {
+				Log.error("could not apply update " + u.toString()
+						+ " (BUT metric before update already applied)");
+				continue;
+			}
+			counter++;
+
+			for (IAfterNR m : algorithms.afterUpdateNR) {
+				if (!m.applyAfterUpdate(u)) {
+					Log.error("could not apply after update " + u.toString()
+							+ " to metric " + m.getDescription());
+				}
+			}
+		}
+
+		return counter;
+	}
+
+	private static int applyNWs(Series series, Algorithms algorithms,
+			Iterable<NodeWeight> updates) {
+		int counter = 0;
+
+		for (NodeWeight u : updates) {
+			for (IBeforeNW m : algorithms.beforeUpdateNW) {
+				if (!m.applyBeforeUpdate(u)) {
+					Log.error("could not apply before update " + u.toString()
+							+ " to metric " + m.getDescription());
+				}
+			}
+
+			if (!u.apply(series.getGraph())) {
+				Log.error("could not apply update " + u.toString()
+						+ " (BUT metric before update already applied)");
+				continue;
+			}
+			counter++;
+
+			for (IAfterNW m : algorithms.afterUpdateNW) {
+				if (!m.applyAfterUpdate(u)) {
+					Log.error("could not apply after update " + u.toString()
+							+ " to metric " + m.getDescription());
+				}
+			}
+		}
+
+		return counter;
+	}
+
+	private static int applyEAs(Series series, Algorithms algorithms,
+			Iterable<EdgeAddition> updates) {
+		int counter = 0;
+
+		for (EdgeAddition u : updates) {
+			for (IBeforeEA m : algorithms.beforeUpdateEA) {
+				if (!m.applyBeforeUpdate(u)) {
+					Log.error("could not apply before update " + u.toString()
+							+ " to metric " + m.getDescription());
+				}
+			}
+
+			if (!u.apply(series.getGraph())) {
+				Log.error("could not apply update " + u.toString()
+						+ " (BUT metric before update already applied)");
+				continue;
+			}
+			counter++;
+
+			for (IAfterEA m : algorithms.afterUpdateEA) {
+				if (!m.applyAfterUpdate(u)) {
+					Log.error("could not apply after update " + u.toString()
+							+ " to metric " + m.getDescription());
+				}
+			}
+		}
+
+		return counter;
+	}
+
+	private static int applyERs(Series series, Algorithms algorithms,
+			Iterable<EdgeRemoval> updates) {
+		int counter = 0;
+
+		for (EdgeRemoval u : updates) {
+			for (IBeforeER m : algorithms.beforeUpdateER) {
+				if (!m.applyBeforeUpdate(u)) {
+					Log.error("could not apply before update " + u.toString()
+							+ " to metric " + m.getDescription());
+				}
+			}
+
+			if (!u.apply(series.getGraph())) {
+				Log.error("could not apply update " + u.toString()
+						+ " (BUT metric before update already applied)");
+				continue;
+			}
+			counter++;
+
+			for (IAfterER m : algorithms.afterUpdateER) {
+				if (!m.applyAfterUpdate(u)) {
+					Log.error("could not apply after update " + u.toString()
+							+ " to metric " + m.getDescription());
+				}
+			}
+		}
+
+		return counter;
+	}
+
+	private static int applyEWs(Series series, Algorithms algorithms,
+			Iterable<EdgeWeight> updates) {
+		int counter = 0;
+
+		for (EdgeWeight u : updates) {
+			for (IBeforeEW m : algorithms.beforeUpdateEW) {
+				if (!m.applyBeforeUpdate(u)) {
+					Log.error("could not apply before update " + u.toString()
+							+ " to metric " + m.getDescription());
+				}
+			}
+
+			if (!u.apply(series.getGraph())) {
+				Log.error("could not apply update " + u.toString()
+						+ " (BUT metric before update already applied)");
+				continue;
+			}
+			counter++;
+
+			for (IAfterEW m : algorithms.afterUpdateEW) {
+				if (!m.applyAfterUpdate(u)) {
+					Log.error("could not apply after update " + u.toString()
+							+ " to metric " + m.getDescription());
+				}
+			}
+		}
+
+		return counter;
+	}
+
+	// private static int applyUpdates(Series series,
+	// Iterable<? extends Update> updates,
+	// IBeforeUpdateWeighted[] beforeUpdate,
+	// IAfterUpdateWeighted[] afterUpdate) {
+	//
+	// int counter = 0;
+	// for (Update u : updates) {
+	//
+	// // apply update to metrics beforehand
+	// for (IBeforeUpdateWeighted m : beforeUpdate) {
+	// boolean success = false;
+	// if (u instanceof NodeAddition) {
+	// success = m.applyBeforeUpdate((NodeAddition) u);
+	// } else if (u instanceof NodeRemoval) {
+	// success = m.applyBeforeUpdate((NodeRemoval) u);
+	// } else if (u instanceof EdgeAddition) {
+	// success = m.applyBeforeUpdate((EdgeAddition) u);
+	// } else if (u instanceof EdgeRemoval) {
+	// success = m.applyBeforeUpdate((EdgeRemoval) u);
+	// } else if (u instanceof NodeWeight) {
+	// success = m.applyBeforeUpdate((NodeWeight) u);
+	// } else if (u instanceof EdgeWeight) {
+	// success = m.applyBeforeUpdate((EdgeWeight) u);
+	// } else {
+	// Log.error("unknown update type: " + u.getClass());
+	// }
+	// if (!success) {
+	// Log.error("could not apply before update " + u.toString()
+	// + " to metric " + m.getDescription());
+	// }
+	// }
+	//
+	// if (!u.apply(series.getGraph())) {
+	// Log.error("could not apply update " + u.toString()
+	// + " (BUT metric before update already applied)");
+	// continue;
+	// }
+	// counter++;
+	//
+	// // apply update to metrics afterwards
+	// for (IAfterUpdateWeighted m : afterUpdate) {
+	// boolean success = false;
+	// if (u instanceof NodeAddition) {
+	// success = m.applyAfterUpdate((NodeAddition) u);
+	// } else if (u instanceof NodeRemoval) {
+	// success = m.applyAfterUpdate((NodeRemoval) u);
+	// } else if (u instanceof EdgeAddition) {
+	// success = m.applyAfterUpdate((EdgeAddition) u);
+	// } else if (u instanceof EdgeRemoval) {
+	// success = m.applyAfterUpdate((EdgeRemoval) u);
+	// } else if (u instanceof NodeWeight) {
+	// success = m.applyAfterUpdate((NodeWeight) u);
+	// } else if (u instanceof EdgeWeight) {
+	// success = m.applyAfterUpdate((EdgeWeight) u);
+	// } else {
+	// Log.error("unknown update type: " + u.getClass());
+	// }
+	// if (!success) {
+	// Log.error("could not apply after update " + u.toString()
+	// + " to metric " + m.getDescription());
+	// }
+	// }
+	// }
+	//
+	// return counter;
+	//
+	// }
 
 }
