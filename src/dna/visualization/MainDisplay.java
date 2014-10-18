@@ -227,6 +227,13 @@ public class MainDisplay extends JFrame {
 						| JFrame.MAXIMIZED_BOTH);
 			}
 			display.setVisible(true);
+
+			// if live, start immediately
+			if (liveFlag) {
+				display.statsDisplay.setStarted();
+				display.batchHandler.start();
+				display.startLogDisplays();
+			}
 		}
 	}
 
