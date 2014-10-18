@@ -242,7 +242,7 @@ public class Config extends PropertiesHolder {
 
 	public static PlotStyle getPlotStyle(String key) {
 		if (Config.get(key) == null) {
-			return PlotStyle.linespoint;
+			return null;
 		}
 		return PlotStyle.valueOf(Config.get(key));
 	}
