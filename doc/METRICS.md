@@ -10,7 +10,7 @@ In general, a *metric* maps a graph onto a certain property, i.e., *values*, *di
 Such a **value** is represented by a single number (*double* in DNA) that is a global characteristics of the graph like, e.g., average node degree, transitivity, or diameter.
 Distributions are frequency distributions (*double[]* in DNA) of certain properties like, e.g., the degree distribution or the hop plot (distribution of shortest path lengths).
 **Node-value lists** define a separate value per node (*double[]* in DNA) like, e.g., the local clustering coefficient or the betweenness centrality or a node.
-**Node-node-value lists** are very specific results that assign a separate value to each pair nodes (**double[][]* in DNA) like, e.g., various similarity measures.
+**Node-node-value lists** are very specific results that assign a separate value to each pair nodes (*double[][]* in DNA) like, e.g., various similarity measures.
 
 In DNA, we use the term metric to describe a collection of such metrics that are closely related.
 For example, the degree distribution in DNA holds the degree distribution, the maximum degree, and the average degree.
