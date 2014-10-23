@@ -3,10 +3,11 @@ package dna.depr.metrics.motifs.directedMotifs;
 import java.util.HashSet;
 
 import dna.depr.metrics.motifs.directedMotifs.exceptions.InvalidDirectedMotifException;
+import dna.depr.metrics.motifsNew.DirectedMotifs;
 import dna.graph.IElement;
 import dna.graph.edges.DirectedEdge;
 import dna.graph.nodes.DirectedNode;
-import dna.metrics.motifs.DirectedMotifs;
+import dna.metrics.IMetric;
 import dna.updates.batch.Batch;
 import dna.updates.update.EdgeAddition;
 import dna.updates.update.EdgeRemoval;
@@ -18,7 +19,7 @@ public class DirectedMotifsListingUsingMotifU extends DirectedMotifs {
 
 	public DirectedMotifsListingUsingMotifU() {
 		super("DirectedMotifsListingUsingMotifU",
-				ApplicationType.BeforeAndAfterUpdate, MetricType.exact);
+				ApplicationType.BeforeAndAfterUpdate, IMetric.MetricType.exact);
 	}
 
 	@Override

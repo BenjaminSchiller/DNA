@@ -6,9 +6,9 @@ import dna.depr.metrics.motifs.directedMotifs.exceptions.DirectedMotifInvalidEdg
 import dna.depr.metrics.motifs.directedMotifs.exceptions.DirectedMotifInvalidEdgeRemovalException;
 import dna.depr.metrics.motifs.directedMotifs.exceptions.DirectedMotifSplittingException;
 import dna.depr.metrics.motifs.directedMotifs.exceptions.InvalidDirectedMotifException;
+import dna.depr.metrics.motifsNew.DirectedMotifs.DirectedMotifType;
 import dna.graph.edges.DirectedEdge;
 import dna.graph.nodes.DirectedNode;
-import dna.metrics.motifs.DirectedMotifs.DirectedMotifType;
 
 /**
  * 

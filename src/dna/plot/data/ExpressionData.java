@@ -90,15 +90,38 @@ public class ExpressionData extends PlotData {
 
 		// build stringbuffer
 		StringBuffer buff = new StringBuffer();
-		if (distPlotType.equals(DistributionPlotType.cdfOnly))
-			buff.append(dataLoc + " using ($1 + " + offsetX + "):($2 + "
-					+ offsetY + ") smooth cumulative with " + styleTemp);
-		else
-			buff.append(dataLoc + " using ($1 + " + offsetX + "):($2 + "
-					+ offsetY + ") with " + styleTemp);
-		buff.append(" lt " + lt + " lw " + lw);
-		buff.append(title == null ? " notitle" : " title \"" + this.title
-				+ "\"");
+
+		// if candlesticks, plot like candlesticks plot
+		if (styleTemp.equals(PlotStyle.candlesticks)) {
+			String x = "($1 + " + offsetX + ")";
+			String box_min = "($9 + " + offsetY + ")";
+			String whisker_min = "($3 + " + offsetY + ")";
+			String whisker_high = "($4 + " + offsetY + ")";
+			String box_high = "($10 + " + offsetY + ")";
+			String median = "($5 + " + offsetY + ")";
+
+			buff.append(dataLoc + " using " + x + ":" + box_min + ":"
+					+ whisker_min + ":" + whisker_high + ":" + box_high
+					+ " with candlesticks");
+			buff.append(" lt " + lt + " lw " + lw);
+			buff.append(title == null ? " notitle" : " title \"" + this.title
+					+ "\"");
+//			buff.append(" whiskerbars, \\\n");
+//			buff.append(dataLoc + " using " + x + ":" + median + ":" + median
+//					+ ":" + median + ":" + median + " with candlesticks");
+//			buff.append(" lt " + lt + " lw " + lw + " notitle");
+		} else {
+			// else: plot normal
+			if (distPlotType.equals(DistributionPlotType.cdfOnly))
+				buff.append(dataLoc + " using ($1 + " + offsetX + "):($2 + "
+						+ offsetY + ") smooth cumulative with " + styleTemp);
+			else
+				buff.append(dataLoc + " using ($1 + " + offsetX + "):($2 + "
+						+ offsetY + ") with " + styleTemp);
+			buff.append(" lt " + lt + " lw " + lw);
+			buff.append(title == null ? " notitle" : " title \"" + this.title
+					+ "\"");
+		}
 		return buff.toString();
 	}
 
@@ -118,7 +141,8 @@ public class ExpressionData extends PlotData {
 			dataLoc = "'-'";
 		if (super.dataLocation.equals(PlotDataLocation.dataFile))
 			dataLoc = '"' + super.dataPath + '"';
-
+		System.out.println("expr2 debug: dataLoc: "
+				+ super.dataLocation.toString() + "    " + dataLoc);
 		// build stringbuffer
 		StringBuffer buff = new StringBuffer();
 		buff.append(dataLoc + " using ($1 + " + offsetX + "):($2 + " + offsetY

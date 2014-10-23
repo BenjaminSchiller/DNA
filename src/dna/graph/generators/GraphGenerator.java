@@ -26,7 +26,7 @@ public abstract class GraphGenerator extends ParameterList implements
 	public GraphDataStructure getGds() {
 		return gds;
 	}
-	
+
 	public void setGds(GraphDataStructure newGDS) {
 		this.gds = newGDS;
 	}
@@ -62,6 +62,9 @@ public abstract class GraphGenerator extends ParameterList implements
 	}
 
 	public static String buildName(String name, GraphDataStructure gds) {
+		if (gds == null) {
+			return name;
+		}
 		if (gds.createsDirected()) {
 			return "Directed" + name;
 		}

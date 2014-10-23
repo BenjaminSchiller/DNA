@@ -113,6 +113,11 @@ public class PlotConfig {
 	public static String gnuplotDefaultKeyNodeValueListOrder = "GNUPLOT_DEFAULT_NVL_ORDER";
 	public static String gnuplotDefaultKeyNodeValueListOrderBy = "GNUPLOT_DEFAULT_NVL_ORDERBY";
 
+	public static double[] gnuplotZeroLineNoIndex = new double[] { 0, 0, 0, 0,
+			0, 0, 0, 0, 0 };
+	public static double[] gnuplotZeroLineWithIndex = new double[] { 0, 0, 0,
+			0, 0, 0, 0, 0, 0, 0 };
+
 	// variables
 	private String filename;
 	private String title;
@@ -363,7 +368,7 @@ public class PlotConfig {
 
 					// check if contains wildcard
 					int wildcardCounter = 0;
-					String[] delSplit = value.split("\\$");
+					String[] delSplit = split[1].split("\\$");
 					for (int j = 1; j < delSplit.length; j += 2) {
 						if (delSplit[j].contains(PlotConfig.customPlotWildcard)) {
 							if (delSplit[j].length() > 1) {

@@ -40,31 +40,34 @@ public class RandomGrowth extends BatchGenerator {
 			b.add(new NodeAddition(newNodes[i]));
 
 			HashSet<Node> targets = new HashSet<Node>();
-			Node to = null;
+			while (targets.size() < this.edgesPerNode) {
+				Node to = null;
 
-			while (to == null) {
-				int target = Rand.rand.nextInt(g.getNodeCount() + i);
-				if (target < g.getNodeCount()) {
-					int index = 0;
-					for (IElement n : g.getNodes()) {
-						if (index == target) {
-							to = (Node) n;
-							break;
+				while (to == null) {
+					int target = Rand.rand.nextInt(g.getNodeCount() + i);
+					if (target < g.getNodeCount()) {
+						int index = 0;
+						for (IElement n : g.getNodes()) {
+							if (index == target) {
+								to = (Node) n;
+								break;
+							}
+							index++;
 						}
-						index++;
+					} else {
+						to = newNodes[target - g.getNodeCount()];
 					}
-				} else {
-					to = newNodes[target - g.getNodeCount()];
+
+					if (targets.contains(to)) {
+						to = null;
+					}
 				}
 
-				if (targets.contains(to)) {
-					to = null;
-				}
+				Edge e = g.getGraphDatastructures().newEdgeInstance(
+						newNodes[i], to);
+				targets.add(to);
+				b.add(new EdgeAddition(e));
 			}
-
-			Edge e = g.getGraphDatastructures()
-					.newEdgeInstance(newNodes[i], to);
-			b.add(new EdgeAddition(e));
 		}
 
 		return b;

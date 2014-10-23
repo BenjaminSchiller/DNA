@@ -4,9 +4,9 @@ import java.util.HashSet;
 
 import dna.graph.Graph;
 import dna.graph.IElement;
-import dna.graph.datastructures.GraphDataStructure;
 import dna.graph.edges.DirectedEdge;
 import dna.graph.nodes.DirectedNode;
+import dna.metrics.IMetric;
 import dna.metrics.Metric;
 import dna.series.data.Distribution;
 import dna.series.data.DistributionLong;
@@ -15,36 +15,86 @@ import dna.series.data.NodeValueList;
 import dna.series.data.Value;
 import dna.updates.batch.Batch;
 import dna.util.ArrayUtils;
+import dna.util.parameters.Parameter;
 
-/**
- * 
- * base class of metrics for counting the occurrence of directed 3-node motifs.
- * the metric returns a distribution containing the occurrences of each motif as
- * well as values for the occurrence of each motif (including a total motif
- * count).
- * 
- * @author benni
- * 
- */
 public abstract class DirectedMotifs extends Metric {
+
 	public static enum DirectedMotifType {
 		DM01, DM02, DM03, DM04, DM05, DM06, DM07, DM08, DM09, DM10, DM11, DM12, DM13
 	}
 
 	protected DistributionLong motifs;
 
-	public static final String motifsName = "directedMotifs";
-
-	protected GraphDataStructure gds;
-
-	public DirectedMotifs(String name, ApplicationType type,
-			MetricType metricType) {
-		super(name, type, metricType);
+	public DirectedMotifs(String name, Parameter... p) {
+		super(name, p);
 	}
 
 	@Override
-	public boolean compute() {
-		gds = g.getGraphDatastructures();
+	public Value[] getValues() {
+		Value m0 = new Value("TOTAL", this.motifs.getDenominator());
+		Value m1 = new Value("DM01", (double) this.motifs.getLongValues()[1]);
+		Value m2 = new Value("DM02", (double) this.motifs.getLongValues()[2]);
+		Value m3 = new Value("DM03", (double) this.motifs.getLongValues()[3]);
+		Value m4 = new Value("DM04", (double) this.motifs.getLongValues()[4]);
+		Value m5 = new Value("DM05", (double) this.motifs.getLongValues()[5]);
+		Value m6 = new Value("DM06", (double) this.motifs.getLongValues()[6]);
+		Value m7 = new Value("DM07", (double) this.motifs.getLongValues()[7]);
+		Value m8 = new Value("DM08", (double) this.motifs.getLongValues()[8]);
+		Value m9 = new Value("DM09", (double) this.motifs.getLongValues()[9]);
+		Value m10 = new Value("DM10", (double) this.motifs.getLongValues()[10]);
+		Value m11 = new Value("DM11", (double) this.motifs.getLongValues()[11]);
+		Value m12 = new Value("DM12", (double) this.motifs.getLongValues()[12]);
+		Value m13 = new Value("DM13", (double) this.motifs.getLongValues()[13]);
+		return new Value[] { m0, m1, m2, m3, m4, m5, m6, m7, m8, m9, m10, m11,
+				m12, m13 };
+	}
+
+	@Override
+	public Distribution[] getDistributions() {
+		return new Distribution[] { this.motifs };
+	}
+
+	@Override
+	public NodeValueList[] getNodeValueLists() {
+		return new NodeValueList[] {};
+	}
+
+	@Override
+	public NodeNodeValueList[] getNodeNodeValueLists() {
+		return new NodeNodeValueList[] {};
+	}
+
+	@Override
+	public boolean isComparableTo(IMetric m) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean equals(IMetric m) {
+		if (m == null || !(m instanceof DirectedMotifs)) {
+			return false;
+		}
+		DirectedMotifs dm = (DirectedMotifs) m;
+		boolean success = true;
+		success &= ArrayUtils.equals(this.motifs.getLongValues(),
+				dm.motifs.getLongValues(), this.motifs.getName());
+		return success;
+	}
+
+	@Override
+	public boolean isApplicable(Graph g) {
+		return g.getGraphDatastructures().isNodeType(DirectedNode.class);
+	}
+
+	@Override
+	public boolean isApplicable(Batch b) {
+		return b.getGraphDatastructures().isNodeType(DirectedNode.class);
+	}
+
+	protected boolean compute() {
+		this.motifs = new DistributionLong("DirectedMotifs", new long[14], 0);
+
 		for (IElement element : this.g.getNodes()) {
 			DirectedNode a = (DirectedNode) element;
 			HashSet<DirectedNode> a_ = this.getConnectedNodes(a);
@@ -72,6 +122,74 @@ public abstract class DirectedMotifs extends Metric {
 			}
 		}
 		return true;
+	}
+
+	public static int getIndex(DirectedMotifType type) {
+		switch (type) {
+		case DM01:
+			return 1;
+		case DM02:
+			return 2;
+		case DM03:
+			return 3;
+		case DM04:
+			return 4;
+		case DM05:
+			return 5;
+		case DM06:
+			return 6;
+		case DM07:
+			return 7;
+		case DM08:
+			return 8;
+		case DM09:
+			return 9;
+		case DM10:
+			return 10;
+		case DM11:
+			return 11;
+		case DM12:
+			return 12;
+		case DM13:
+			return 13;
+		default:
+			return 0;
+
+		}
+	}
+
+	public static int getEdgeCount(DirectedMotifType type) {
+		switch (type) {
+		case DM01:
+			return 2;
+		case DM02:
+			return 2;
+		case DM03:
+			return 2;
+		case DM04:
+			return 3;
+		case DM05:
+			return 3;
+		case DM06:
+			return 3;
+		case DM07:
+			return 3;
+		case DM08:
+			return 4;
+		case DM09:
+			return 4;
+		case DM10:
+			return 4;
+		case DM11:
+			return 4;
+		case DM12:
+			return 5;
+		case DM13:
+			return 6;
+		default:
+			return 0;
+
+		}
 	}
 
 	protected DirectedMotifType getType(boolean ab, boolean ba, boolean ac,
@@ -304,161 +422,6 @@ public abstract class DirectedMotifs extends Metric {
 			nodes.add(((DirectedEdge) out).getDst());
 		}
 		return nodes;
-	}
-
-	@Override
-	public void init_() {
-		this.motifs = new DistributionLong(motifsName, new long[14], 0);
-	}
-
-	@Override
-	public void reset_() {
-		this.motifs = null;
-	}
-
-	@Override
-	public Value[] getValues() {
-		Value m0 = new Value("TOTAL", this.motifs.getDenominator());
-		Value m1 = new Value("DM01", (double) this.motifs.getLongValues()[1]
-				/ (double) this.motifs.getDenominator());
-		Value m2 = new Value("DM02", (double) this.motifs.getLongValues()[2]
-				/ (double) this.motifs.getDenominator());
-		Value m3 = new Value("DM03", (double) this.motifs.getLongValues()[3]
-				/ (double) this.motifs.getDenominator());
-		Value m4 = new Value("DM04", (double) this.motifs.getLongValues()[4]
-				/ (double) this.motifs.getDenominator());
-		Value m5 = new Value("DM05", (double) this.motifs.getLongValues()[5]
-				/ (double) this.motifs.getDenominator());
-		Value m6 = new Value("DM06", (double) this.motifs.getLongValues()[6]
-				/ (double) this.motifs.getDenominator());
-		Value m7 = new Value("DM07", (double) this.motifs.getLongValues()[7]
-				/ (double) this.motifs.getDenominator());
-		Value m8 = new Value("DM08", (double) this.motifs.getLongValues()[8]
-				/ (double) this.motifs.getDenominator());
-		Value m9 = new Value("DM09", (double) this.motifs.getLongValues()[9]
-				/ (double) this.motifs.getDenominator());
-		Value m10 = new Value("DM10", (double) this.motifs.getLongValues()[10]
-				/ (double) this.motifs.getDenominator());
-		Value m11 = new Value("DM11", (double) this.motifs.getLongValues()[11]
-				/ (double) this.motifs.getDenominator());
-		Value m12 = new Value("DM12", (double) this.motifs.getLongValues()[12]
-				/ (double) this.motifs.getDenominator());
-		Value m13 = new Value("DM13", (double) this.motifs.getLongValues()[13]
-				/ (double) this.motifs.getDenominator());
-		return new Value[] { m0, m1, m2, m3, m4, m5, m6, m7, m8, m9, m10, m11,
-				m12, m13 };
-	}
-
-	@Override
-	public Distribution[] getDistributions() {
-		return new Distribution[] { this.motifs };
-	}
-
-	@Override
-	public NodeValueList[] getNodeValueLists() {
-		return new NodeValueList[] {};
-	}
-
-	@Override
-	public NodeNodeValueList[] getNodeNodeValueLists() {
-		return new NodeNodeValueList[] {};
-	}
-
-	@Override
-	public boolean equals(Metric m) {
-		if (m == null || !(m instanceof DirectedMotifs)) {
-			return false;
-		}
-		DirectedMotifs dm = (DirectedMotifs) m;
-		boolean success = true;
-		success &= ArrayUtils.equals(this.motifs.getLongValues(),
-				dm.motifs.getLongValues(), "DM/" + motifsName);
-		return success;
-	}
-
-	@Override
-	public boolean isApplicable(Graph g) {
-		return DirectedNode.class.isAssignableFrom(g.getGraphDatastructures()
-				.getNodeType());
-	}
-
-	@Override
-	public boolean isApplicable(Batch b) {
-		return DirectedNode.class.isAssignableFrom(b.getGraphDatastructures()
-				.getNodeType());
-	}
-
-	@Override
-	public boolean isComparableTo(Metric m) {
-		return m instanceof DirectedMotifs;
-	}
-
-	public static int getIndex(DirectedMotifType type) {
-		switch (type) {
-		case DM01:
-			return 1;
-		case DM02:
-			return 2;
-		case DM03:
-			return 3;
-		case DM04:
-			return 4;
-		case DM05:
-			return 5;
-		case DM06:
-			return 6;
-		case DM07:
-			return 7;
-		case DM08:
-			return 8;
-		case DM09:
-			return 9;
-		case DM10:
-			return 10;
-		case DM11:
-			return 11;
-		case DM12:
-			return 12;
-		case DM13:
-			return 13;
-		default:
-			return 0;
-
-		}
-	}
-
-	public static int getEdgeCount(DirectedMotifType type) {
-		switch (type) {
-		case DM01:
-			return 2;
-		case DM02:
-			return 2;
-		case DM03:
-			return 2;
-		case DM04:
-			return 3;
-		case DM05:
-			return 3;
-		case DM06:
-			return 3;
-		case DM07:
-			return 3;
-		case DM08:
-			return 4;
-		case DM09:
-			return 4;
-		case DM10:
-			return 4;
-		case DM11:
-			return 4;
-		case DM12:
-			return 5;
-		case DM13:
-			return 6;
-		default:
-			return 0;
-
-		}
 	}
 
 }

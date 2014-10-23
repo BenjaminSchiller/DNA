@@ -1,40 +1,17 @@
 package dna.metrics.connectivity;
 
-import dna.updates.batch.Batch;
-import dna.updates.update.Update;
+import dna.metrics.algorithms.IRecomputation;
 
-/**
- * 
- * Recomputation of weak connectivity.
- * 
- * @author benni
- * 
- */
-public class StrongConnectivityR extends StrongConnectivity {
+public class StrongConnectivityR extends StrongConnectivity implements
+		IRecomputation {
 
 	public StrongConnectivityR() {
-		super("StrongConnectivityR", ApplicationType.Recomputation,
-				MetricType.exact);
+		super("StrongConnectivityR");
 	}
 
 	@Override
-	public boolean applyBeforeBatch(Batch b) {
-		return false;
-	}
-
-	@Override
-	public boolean applyAfterBatch(Batch b) {
-		return false;
-	}
-
-	@Override
-	public boolean applyBeforeUpdate(Update u) {
-		return false;
-	}
-
-	@Override
-	public boolean applyAfterUpdate(Update u) {
-		return false;
+	public boolean recompute() {
+		return this.compute();
 	}
 
 }

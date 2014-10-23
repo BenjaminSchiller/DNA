@@ -51,10 +51,11 @@ public class ConfidenceData1 extends PlotData {
 		buff.append(" lt " + lt + " lw " + lw);
 		buff.append(title == null ? " notitle" : " title \"" + this.title
 				+ "\"");
-		buff.append(" whiskerbars, \\\n");
-		buff.append("'' using " + x + ":" + median + ":" + median + ":"
-				+ median + ":" + median + " with candlesticks");
-		buff.append(" lt " + lt + " lw " + lw + " notitle");
+//		buff.append(" whiskerbars, \\\n");
+//		buff.append("'' using " + x + ":" + median + ":" + median + ":"
+//				+ median + ":" + median + " with candlesticks");
+//		buff.append(" lt " + lt + " lw " + lw + " notitle");
+		
 		return buff.toString();
 	}
 

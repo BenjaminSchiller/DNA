@@ -603,7 +603,7 @@ public class MultiScalarVisualizer extends Visualizer {
 		ArrayList<String> tempNvls = new ArrayList<String>();
 
 		for (MetricData m : b.getMetrics().getList()) {
-			if (m.getValues().size() > 0) {
+			if (m.getDistributions().size() > 0 || m.getNodeValues().size() > 0) {
 				for (Distribution d : m.getDistributions().getList()) {
 					tempDists.add(m.getName() + "." + d.getName());
 				}
@@ -855,32 +855,54 @@ public class MultiScalarVisualizer extends Visualizer {
 							.addNodeValueListItemToList((MultiScalarNodeValueListItem) c);
 			}
 		}
+
 		// check if any general configuration is set
 		if (config.isAnyGeneralConfigSet()) {
-			// insert all available metrics
-			if (config.getAllDistributionsConfig() != null) {
-				MultiScalarDistributionItem c = config
-						.getAllDistributionsConfig();
-				for (String dist : this.availableDistributions) {
-					this.legend
-							.addDistributionItemToList(new MultiScalarDistributionItem(
-									dist, c.getSortMode(), c.getXAxis(), c
-											.getYAxis(), c.getDisplayMode(), c
-											.getVisibility()));
-				}
+			boolean distFirst = true;
+
+			if (config.getAllDistributionsConfig() != null
+					&& config.getAllNodeValueListsConfig() != null) {
+				if (config.getDistributionsOrderId() == -1
+						&& config.getNodeValueListsOrderId() != -1)
+					distFirst = false;
+				else if (config.getDistributionsOrderId() > config
+						.getNodeValueListsOrderId())
+					distFirst = false;
 			}
-			// insert all available general runtimes
-			if (config.getAllNodeValueListsConfig() != null) {
-				MultiScalarNodeValueListItem c = config
-						.getAllNodeValueListsConfig();
-				for (String nvl : this.availableNodeValueLists) {
-					this.legend
-							.addNodeValueListItemToList(new MultiScalarNodeValueListItem(
-									nvl, c.getSortMode(), c.getXAxis(), c
-											.getYAxis(), c.getDisplayMode(), c
-											.getVisibility()));
-				}
-			}
+
+			// if dist first, insert all available distributions
+			if (distFirst && config.getAllDistributionsConfig() != null)
+				this.insertDistributions(config);
+
+			// insert all available nodevaluelists
+			if (config.getAllNodeValueListsConfig() != null)
+				this.insertNodeValueLists(config);
+
+			// if dist second, insert all available distributions
+			if (!distFirst && config.getAllDistributionsConfig() != null)
+				this.insertDistributions(config);
+		}
+	}
+
+	/** Insert all available distributions. **/
+	private void insertDistributions(VisualizerListConfig config) {
+		MultiScalarDistributionItem c = config.getAllDistributionsConfig();
+		for (String dist : this.availableDistributions) {
+			this.legend
+					.addDistributionItemToList(new MultiScalarDistributionItem(
+							dist, c.getSortMode(), c.getXAxis(), c.getYAxis(),
+							c.getDisplayMode(), c.getVisibility()));
+		}
+	}
+
+	/** Insert all available nodevaluelists. **/
+	private void insertNodeValueLists(VisualizerListConfig config) {
+		MultiScalarNodeValueListItem c = config.getAllNodeValueListsConfig();
+		for (String nvl : this.availableNodeValueLists) {
+			this.legend
+					.addNodeValueListItemToList(new MultiScalarNodeValueListItem(
+							nvl, c.getSortMode(), c.getXAxis(), c.getYAxis(), c
+									.getDisplayMode(), c.getVisibility()));
 		}
 	}
 

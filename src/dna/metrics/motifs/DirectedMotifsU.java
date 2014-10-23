@@ -5,89 +5,91 @@ import java.util.HashSet;
 import dna.graph.IElement;
 import dna.graph.edges.DirectedEdge;
 import dna.graph.nodes.DirectedNode;
-import dna.updates.batch.Batch;
+import dna.metrics.algorithms.IBeforeUpdates;
 import dna.updates.update.EdgeAddition;
 import dna.updates.update.EdgeRemoval;
+import dna.updates.update.NodeAddition;
 import dna.updates.update.NodeRemoval;
 import dna.updates.update.Update;
 
-/**
- * 
- * per update computation / update of the directed 3-node motif counts. for
- * every update, all triples of nodes involved in new/changed motifs are listed.
- * they, the obsolete motifs are removed and the new ones added.
- * 
- * @author benni
- * 
- */
-public class DirectedMotifsU extends DirectedMotifs {
+public class DirectedMotifsU extends DirectedMotifs implements IBeforeUpdates {
 
 	public DirectedMotifsU() {
-		super("DirectedMotifsU", ApplicationType.BeforeUpdate, MetricType.exact);
+		super("DirectedMotifsU");
 	}
 
 	@Override
-	public boolean applyBeforeBatch(Batch b) {
-		return false;
+	public boolean init() {
+		return this.compute();
 	}
 
 	@Override
-	public boolean applyAfterBatch(Batch b) {
-		return false;
+	public boolean applyBeforeUpdate(NodeAddition na) {
+		return true;
 	}
 
 	@Override
-	public boolean applyBeforeUpdate(Update u) {
-		if (u instanceof EdgeAddition || u instanceof EdgeRemoval) {
-			DirectedEdge e = null;
-			boolean add = true;
-			if (u instanceof EdgeAddition) {
-				e = (DirectedEdge) ((EdgeAddition) u).getEdge();
-			} else {
-				e = (DirectedEdge) ((EdgeRemoval) u).getEdge();
-				add = false;
-			}
-			DirectedNode a = e.getSrc();
-			DirectedNode b = e.getDst();
+	public boolean applyBeforeUpdate(NodeRemoval nr) {
+		DirectedNode a = (DirectedNode) nr.getNode();
+		HashSet<DirectedNode> a_ = this.getConnectedNodes(a);
+		for (DirectedNode b : a_) {
+			boolean ab = a.hasEdge(a, b);
+			boolean ba = a.hasEdge(b, a);
 
-			HashSet<DirectedNode> ab = this.getUnion(a, b);
-
-			if (a.hasEdge(b, a)) {
-				this.processBothDirections(a, b, ab, add);
-			} else {
-				this.processSingleDirection(a, b, ab, add);
-			}
-
-		} else if (u instanceof NodeRemoval) {
-			DirectedNode a = (DirectedNode) ((NodeRemoval) u).getNode();
-			HashSet<DirectedNode> a_ = this.getConnectedNodes(a);
-			for (DirectedNode b : a_) {
-				boolean ab = a.hasEdge(a, b);
-				boolean ba = a.hasEdge(b, a);
-
-				for (DirectedNode c : a_) {
-					if (b.getIndex() <= c.getIndex()) {
-						continue;
-					}
-					boolean ac = a.hasEdge(a, c);
-					boolean ca = a.hasEdge(c, a);
-					boolean bc = b.hasEdge(b, c);
-					boolean cb = b.hasEdge(c, b);
-					this.decr(this.getType(ab, ba, ac, ca, bc, cb));
+			for (DirectedNode c : a_) {
+				if (b.getIndex() <= c.getIndex()) {
+					continue;
 				}
-
-				HashSet<DirectedNode> b_ = this.getConnectedNodes(b);
-				for (DirectedNode c : b_) {
-					if (a_.contains(c) || c.getIndex() == a.getIndex()) {
-						continue;
-					}
-					boolean ac = a.hasEdge(a, c);
-					boolean ca = a.hasEdge(c, a);
-					boolean bc = b.hasEdge(b, c);
-					boolean cb = b.hasEdge(c, b);
-					this.decr(this.getType(ab, ba, ac, ca, bc, cb));
-				}
+				boolean ac = a.hasEdge(a, c);
+				boolean ca = a.hasEdge(c, a);
+				boolean bc = b.hasEdge(b, c);
+				boolean cb = b.hasEdge(c, b);
+				this.decr(this.getType(ab, ba, ac, ca, bc, cb));
 			}
+
+			HashSet<DirectedNode> b_ = this.getConnectedNodes(b);
+			for (DirectedNode c : b_) {
+				if (a_.contains(c) || c.getIndex() == a.getIndex()) {
+					continue;
+				}
+				boolean ac = a.hasEdge(a, c);
+				boolean ca = a.hasEdge(c, a);
+				boolean bc = b.hasEdge(b, c);
+				boolean cb = b.hasEdge(c, b);
+				this.decr(this.getType(ab, ba, ac, ca, bc, cb));
+			}
+		}
+		return true;
+	}
+
+	@Override
+	public boolean applyBeforeUpdate(EdgeAddition ea) {
+		return this.processEdge(ea);
+	}
+
+	@Override
+	public boolean applyBeforeUpdate(EdgeRemoval er) {
+		return this.processEdge(er);
+	}
+
+	private boolean processEdge(Update u) {
+		DirectedEdge e = null;
+		boolean add = true;
+		if (u instanceof EdgeAddition) {
+			e = (DirectedEdge) ((EdgeAddition) u).getEdge();
+		} else {
+			e = (DirectedEdge) ((EdgeRemoval) u).getEdge();
+			add = false;
+		}
+		DirectedNode a = e.getSrc();
+		DirectedNode b = e.getDst();
+
+		HashSet<DirectedNode> ab = this.getUnion(a, b);
+
+		if (a.hasEdge(b, a)) {
+			this.processBothDirections(a, b, ab, add);
+		} else {
+			this.processSingleDirection(a, b, ab, add);
 		}
 		return true;
 	}
@@ -224,11 +226,6 @@ public class DirectedMotifsU extends DirectedMotifs {
 		union.remove(a);
 		union.remove(b);
 		return union;
-	}
-
-	@Override
-	public boolean applyAfterUpdate(Update u) {
-		return false;
 	}
 
 	private void changeMotif(DirectedMotifType t1, DirectedMotifType t2,
