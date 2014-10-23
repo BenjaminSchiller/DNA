@@ -46,7 +46,8 @@ public abstract class BetweennessCentrality extends Metric implements IMetric {
 	public Value[] getValues() {
 		// Value v1 = new Value("median", getMedian());
 		Value v2 = new Value("avg_bc", bCSum / (double) g.getNodeCount());
-		return new Value[] { v2 };
+		Value v3 = new Value("sum_of_path", sumShortestPaths);
+		return new Value[] { v2,v3 };
 	}
 
 	@Override
