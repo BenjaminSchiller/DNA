@@ -27,7 +27,16 @@ public abstract class DegreeDistribution extends Metric {
 
 	@Override
 	public Value[] getValues() {
-		return new Value[0];
+		Value degree_average = new Value("degree_average", degree.computeAverage());
+		Value degree_maxValue = new Value("degree_maxValue", degree.getMax());
+		Value degree_minValue = new Value("degree_minValue", degree.getMin());
+		Value indegree_average = new Value("indegree_average", inDegree.computeAverage());
+		Value indegree_maxValue = new Value("indegree_maxValue", inDegree.getMax());
+		Value indegree_minValue = new Value("indegree_minValue", inDegree.getMin());
+		Value outdegree_average = new Value("outdegree_average", outDegree.computeAverage());
+		Value outdegree_maxValue = new Value("outdegree_maxValue", outDegree.getMax());
+		Value outdegree_minValue = new Value("outdegree_minValue",outDegree.getMin());
+		return new Value[]{degree_average,degree_maxValue,degree_minValue,indegree_average,indegree_maxValue,indegree_minValue,outdegree_average,outdegree_maxValue,outdegree_minValue};
 	}
 
 	@Override
