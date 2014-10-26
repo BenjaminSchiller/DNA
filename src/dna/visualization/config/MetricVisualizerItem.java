@@ -26,8 +26,19 @@ public class MetricVisualizerItem extends ConfigItem {
 	}
 
 	public MetricVisualizerItem(String name, DisplayMode displayMode,
+			yAxisSelection yAxis, GraphVisibility visibility, int orderId) {
+		super(name, displayMode, yAxis, visibility, orderId);
+	}
+
+	public MetricVisualizerItem(String name, DisplayMode displayMode,
 			yAxisSelection yAxis, GraphVisibility visibility, Color color) {
 		super(name, displayMode, yAxis, visibility, color);
+	}
+
+	public MetricVisualizerItem(String name, DisplayMode displayMode,
+			yAxisSelection yAxis, GraphVisibility visibility, Color color,
+			int orderId) {
+		super(name, displayMode, yAxis, visibility, color, orderId);
 	}
 
 	/** creates a MetricVisualizerItem from a json object **/
@@ -38,6 +49,7 @@ public class MetricVisualizerItem extends ConfigItem {
 		yAxisSelection yAxis = MetricVisualizerItem.metricVisualizerDefaultYAxisSelection;
 		GraphVisibility visibility = MetricVisualizerItem.metricVisualizerDefaultGraphVisibility;
 		Color color = null;
+		int orderId = -1;
 
 		try {
 			if (o.getString("DisplayMode").equals("linespoint"))
@@ -70,11 +82,18 @@ public class MetricVisualizerItem extends ConfigItem {
 
 		}
 
+		try {
+			if (o.has("orderId"))
+				orderId = o.getInt("orderId");
+		} catch (Exception e) {
+
+		}
+
 		if (color != null)
 			return new MetricVisualizerItem(name, displayMode, yAxis,
-					visibility, color);
+					visibility, color, orderId);
 		else
 			return new MetricVisualizerItem(name, displayMode, yAxis,
-					visibility);
+					visibility, orderId);
 	}
 }
