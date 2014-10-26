@@ -66,6 +66,14 @@ public class VisualizerListConfig {
 	private MultiScalarNodeValueListItem insertAllNodeValueLists;
 	private int nodeValueListsOrderId;
 
+	// statics
+	public static final String generalMetricsConfigName = "GENERAL_METRICS_CONFIG_NAME_IDENTIFIER";
+	public static final String generalGeneralRuntimesConfigName = "GENERAL_GENERAL_RUNTIMES_CONFIG_NAME_IDENTIFIER";
+	public static final String generalMetricRuntimesConfigName = "GENERAL_METRIC_RUNTIMES_CONFIG_NAME_IDENTIFIER";
+	public static final String generalStatisticsConfigName = "GENERAL_STATISTICS_CONFIG_NAME_IDENTIFIER";
+	public static final String generalDistributionsConfigName = "GENERAL_DISTRIBUTIONS_CONFIG_NAME_IDENTIFIER";
+	public static final String generalNodeValueListsConfigName = "GENERAL_NODEVALUELISTS_CONFIG_NAME_IDENTIFIER";
+
 	// constructor
 	public VisualizerListConfig() {
 		this.entries = new ArrayList<ConfigItem>();
@@ -210,6 +218,7 @@ public class VisualizerListConfig {
 	public void addGeneralConfigsFromJSONObject(JSONObject o) {
 		for (int i = 0; i < JSONObject.getNames(o).length; i++) {
 			String config = JSONObject.getNames(o)[i];
+			MetricVisualizerItem tempItem;
 			int tempId = -1;
 			switch (config) {
 			case "generalMetricConfig":
@@ -224,41 +233,53 @@ public class VisualizerListConfig {
 				if (o.getJSONObject(config).has("orderId")) {
 					tempId = o.getJSONObject(config).getInt("orderId");
 				}
-				this.setAllStatistics(MetricVisualizerItem
+				tempItem = MetricVisualizerItem
 						.createMetricVisualizerItemFromJSONObject(o
-								.getJSONObject(config)), tempId);
+								.getJSONObject(config));
+				tempItem.setName(VisualizerListConfig.generalStatisticsConfigName);
+				this.setAllStatistics(tempItem, tempId);
 				break;
 			case "generalGeneralRuntimesConfig":
 				if (o.getJSONObject(config).has("orderId")) {
 					tempId = o.getJSONObject(config).getInt("orderId");
 				}
-				this.setAllGeneralRuntimes(MetricVisualizerItem
+				tempItem = MetricVisualizerItem
 						.createMetricVisualizerItemFromJSONObject(o
-								.getJSONObject(config)), tempId);
+								.getJSONObject(config));
+				tempItem.setName(VisualizerListConfig.generalGeneralRuntimesConfigName);
+				this.setAllGeneralRuntimes(tempItem, tempId);
 				break;
 			case "generalMetricRuntimesConfig":
 				if (o.getJSONObject(config).has("orderId")) {
 					tempId = o.getJSONObject(config).getInt("orderId");
 				}
-				this.setAllMetricRuntimes(MetricVisualizerItem
+				tempItem = MetricVisualizerItem
 						.createMetricVisualizerItemFromJSONObject(o
-								.getJSONObject(config)), tempId);
+								.getJSONObject(config));
+				tempItem.setName(VisualizerListConfig.generalMetricRuntimesConfigName);
+				this.setAllMetricRuntimes(tempItem, tempId);
 				break;
 			case "generalDistributionConfig":
 				if (o.getJSONObject(config).has("orderId")) {
 					tempId = o.getJSONObject(config).getInt("orderId");
 				}
-				this.setAllDistributions(MultiScalarDistributionItem
+				MultiScalarDistributionItem tempItem2 = MultiScalarDistributionItem
 						.createMultiScalarDistributionItemFromJSONObject(o
-								.getJSONObject(config)), tempId);
+								.getJSONObject(config));
+				tempItem2
+						.setName(VisualizerListConfig.generalDistributionsConfigName);
+				this.setAllDistributions(tempItem2, tempId);
 				break;
 			case "generalNodeValueListConfig":
 				if (o.getJSONObject(config).has("orderId")) {
 					tempId = o.getJSONObject(config).getInt("orderId");
 				}
-				this.setAllNodeValueLists(MultiScalarNodeValueListItem
+				MultiScalarNodeValueListItem tempItem3 = MultiScalarNodeValueListItem
 						.createMultiScalarNodeValueListItemFromJSONObject(o
-								.getJSONObject(config)), tempId);
+								.getJSONObject(config));
+				tempItem3
+						.setName(VisualizerListConfig.generalNodeValueListsConfigName);
+				this.setAllNodeValueLists(tempItem3, tempId);
 				break;
 			}
 		}
