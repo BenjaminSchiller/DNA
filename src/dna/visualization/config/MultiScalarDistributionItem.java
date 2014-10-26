@@ -106,7 +106,7 @@ public class MultiScalarDistributionItem extends ConfigItem {
 		} catch (Exception e) {
 		}
 		try {
-			Field field = Color.class.getField("CYAN");
+			Field field = Color.class.getField(o.getString("Color"));
 			color = (Color) field.get(null);
 		} catch (Exception e) {
 		}
