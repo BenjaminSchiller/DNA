@@ -9,5 +9,7 @@ public interface IGraphGenerator {
 	 * @return
 	 */
 	public Graph generate();
+	
+	public String getName();
 
 }
