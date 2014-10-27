@@ -29,6 +29,15 @@ public interface IMetric {
 	public Metric.MetricType getMetricType();
 
 	/**
+	 * this method is called every time a new eries generation is initiated. it
+	 * can be used to reset counter etc. that need to resetted after executing a
+	 * metric for one series before using it with another.
+	 * 
+	 * @return true if reset was successful
+	 */
+	public boolean reset();
+
+	/**
 	 * 
 	 * @return all the values computed by this metric
 	 */

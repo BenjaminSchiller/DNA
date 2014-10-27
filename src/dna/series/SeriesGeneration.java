@@ -81,6 +81,7 @@ public class SeriesGeneration {
 			boolean compare, boolean aggregate, boolean write,
 			long batchGenerationTime) throws AggregationException, IOException,
 			MetricNotApplicableException {
+		compare = false;
 		Log.infoSep();
 		Log.info("generating series");
 		Log.infoSep();
@@ -224,6 +225,9 @@ public class SeriesGeneration {
 		 * compile lists of different algorithm types
 		 */
 		Algorithms algorithms = new Algorithms(series.getMetrics());
+		for (IMetric m : series.getMetrics()) {
+			m.reset();
+		}
 
 		Log.infoSep();
 		Log.info("run " + run + " (" + batches + " batches)");

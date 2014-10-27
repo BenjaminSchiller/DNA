@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import dna.metrics.IMetric;
 
 public class Algorithms {
-	private IMetric[] metrics;
+	public IMetric[] metrics;
 
 	public IRecomputation[] recomputation;
 	public IDynamicAlgorithm[] dynamicAlgorithm;

@@ -71,4 +71,9 @@ public abstract class Metric extends ParameterList implements IMetric {
 				this.getNodeValueLists(), this.getNodeNodeValueLists());
 	}
 
+	@Override
+	public boolean reset() {
+		return true;
+	}
+
 }
