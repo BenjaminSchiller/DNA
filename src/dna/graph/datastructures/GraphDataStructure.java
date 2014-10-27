@@ -807,9 +807,13 @@ public class GraphDataStructure implements Cloneable {
 
 		return res;
 	}
-	
-	public String toString(){
+
+	public String toString() {
 		return this.getStorageDataStructures(true);
+	}
+
+	public String toReadableString() {
+		return this.toString().replace(";", "\n");
 	}
 
 	public boolean isReadable() {
@@ -866,7 +870,7 @@ public class GraphDataStructure implements Cloneable {
 				g.switchDataStructure(lt, newGDS.getListClass(lt));
 			}
 		}
-		
+
 		System.gc();
 
 		for (ListType lt : ListType.values()) {

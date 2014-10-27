@@ -1,17 +1,16 @@
 package dna.graph.datastructures;
 
-import dna.graph.datastructures.DHashMap;
 import dna.graph.datastructures.DataStructure.ListType;
-import dna.graph.datastructures.GraphDataStructure;
-import dna.graph.datastructures.IDataStructure;
 import dna.graph.edges.DirectedEdge;
 import dna.graph.edges.DirectedWeightedEdge;
 import dna.graph.edges.Edge;
 import dna.graph.edges.UndirectedEdge;
 import dna.graph.edges.UndirectedWeightedEdge;
 import dna.graph.nodes.DirectedNode;
+import dna.graph.nodes.DirectedWeightedNode;
 import dna.graph.nodes.Node;
 import dna.graph.nodes.UndirectedNode;
+import dna.graph.nodes.UndirectedWeightedNode;
 import dna.graph.weights.Weight;
 import dna.graph.weights.Weight.WeightSelection;
 
@@ -24,19 +23,35 @@ public class GDS {
 		return gds(DirectedNode.class, DirectedEdge.class);
 	}
 
+	public static GraphDataStructure directed(
+			Class<? extends IDataStructure> listTypes) {
+		return new GraphDataStructure(GraphDataStructure.getList(
+				ListType.GlobalNodeList, listTypes, ListType.GlobalEdgeList,
+				listTypes, ListType.LocalEdgeList, listTypes),
+				DirectedNode.class, DirectedEdge.class);
+	}
+
 	public static GraphDataStructure undirected() {
 		return gds(UndirectedNode.class, UndirectedEdge.class);
 	}
 
-	public static GraphDataStructure directedN(Class<? extends Weight> nw,
+	public static GraphDataStructure undirected(
+			Class<? extends IDataStructure> listTypes) {
+		return new GraphDataStructure(GraphDataStructure.getList(
+				ListType.GlobalNodeList, listTypes, ListType.GlobalEdgeList,
+				listTypes, ListType.LocalEdgeList, listTypes),
+				UndirectedNode.class, UndirectedEdge.class);
+	}
+
+	public static GraphDataStructure directedV(Class<? extends Weight> nw,
 			WeightSelection nws) {
-		return gds(DirectedNode.class, DirectedWeightedEdge.class, nw, nws,
+		return gds(DirectedWeightedNode.class, DirectedEdge.class, nw, nws,
 				null, null);
 	}
 
 	public static GraphDataStructure undirectedV(Class<? extends Weight> nw,
 			WeightSelection nws) {
-		return gds(UndirectedNode.class, UndirectedWeightedEdge.class, nw, nws,
+		return gds(UndirectedWeightedNode.class, UndirectedEdge.class, nw, nws,
 				null, null);
 	}
 
@@ -50,6 +65,18 @@ public class GDS {
 			WeightSelection ews) {
 		return gds(UndirectedNode.class, UndirectedWeightedEdge.class, null,
 				null, ew, ews);
+	}
+
+	public static GraphDataStructure directedVE(Class<? extends Weight> nw,
+			WeightSelection nws, Class<? extends Weight> ew, WeightSelection ews) {
+		return gds(DirectedWeightedNode.class, DirectedWeightedEdge.class, nw,
+				nws, ew, ews);
+	}
+
+	public static GraphDataStructure undirectedVE(Class<? extends Weight> nw,
+			WeightSelection nws, Class<? extends Weight> ew, WeightSelection ews) {
+		return gds(UndirectedWeightedNode.class, UndirectedWeightedEdge.class,
+				nw, nws, ew, ews);
 	}
 
 	public static GraphDataStructure gds(Class<? extends Node> node,
