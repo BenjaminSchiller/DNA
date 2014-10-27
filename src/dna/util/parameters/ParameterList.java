@@ -7,13 +7,17 @@ public class ParameterList {
 
 	private Parameter[] parameters;
 
-	public ParameterList(String name, Parameter[] parameters) {
+	public ParameterList(String name, Parameter... parameters) {
 		this.name = name;
 		if (parameters != null) {
 			this.parameters = parameters;
 		} else {
 			this.parameters = new Parameter[0];
 		}
+	}
+
+	public ParameterList(String name, Parameter[] p1, Parameter... p2) {
+		this(name, Parameter.combine(p1, p2));
 	}
 
 	public String getName() {

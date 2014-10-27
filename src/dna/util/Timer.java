@@ -16,6 +16,10 @@ public class Timer {
 		this.duration = 0;
 	}
 
+	public Timer() {
+		this(null);
+	}
+
 	public void restart() {
 		// this.start = System.currentTimeMillis();
 		this.start = System.nanoTime();
@@ -39,7 +43,7 @@ public class Timer {
 		return (this.duration / 1000.0 / 1000.0) + " msec / "
 				+ (this.duration / 1000.0 / 1000.0 / 1000.0) + " sec";
 	}
-	
+
 	public String getName() {
 		return this.name;
 	}
