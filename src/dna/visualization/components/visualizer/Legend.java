@@ -9,7 +9,9 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 import javax.swing.BorderFactory;
+import javax.swing.Box;
 import javax.swing.BoxLayout;
+import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -45,7 +47,7 @@ public class Legend extends JPanel {
 	private JScrollPane scrollPane;
 
 	private JPanel addButtonPanel;
-
+	private JCheckBox lock;
 	private JComboBox<String> addBox;
 	private String[] addBoxMenu;
 
@@ -450,6 +452,25 @@ public class Legend extends JPanel {
 				false);
 		this.addBox.addPopupMenuListener(listener);
 		this.addBox.setPrototypeDisplayValue("Test");
+
+		// create lock checkbox
+		this.lock = new JCheckBox("Lock");
+		this.lock
+				.setToolTipText("Locks the visualizer. Prevents any legend alteration on reset / directory change.");
+		this.lock.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				if (lock.isSelected()) {
+					parent.setLocked(true);
+				} else {
+					parent.setLocked(false);
+				}
+			}
+		});
+
+		// add components to addbutton-panel
+		this.addButtonPanel.add(this.lock);
+		this.addButtonPanel.add(Box.createHorizontalGlue());
 		this.addButtonPanel.add(addBox);
 		this.validate();
 	}
@@ -652,4 +673,10 @@ public class Legend extends JPanel {
 		if (this.parent instanceof MultiScalarVisualizer)
 			((MultiScalarVisualizer) this.parent).sortItem(i.getName(), s);
 	}
+
+	/** Called to toggle / untoggle locking of the visualizer. **/
+	public void setLocked(boolean locked) {
+		this.lock.setSelected(locked);
+	}
+
 }

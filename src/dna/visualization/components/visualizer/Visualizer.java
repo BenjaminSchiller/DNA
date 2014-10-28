@@ -55,6 +55,9 @@ public class Visualizer extends JPanel {
 	// shows if the UI is paused or not
 	protected boolean paused;
 
+	// shows if the visualizer is locked or not
+	protected boolean locked;
+
 	// constructor
 	@SuppressWarnings("rawtypes")
 	public Visualizer(Dimension chartSize, Dimension legendSize) {
@@ -437,7 +440,8 @@ public class Visualizer extends JPanel {
 
 	/** clears all list items in the legend **/
 	public void clearList() {
-		this.legend.reset();
+		if (!this.locked)
+			this.legend.reset();
 	}
 
 	/** updates the ticks on all axis **/
@@ -452,6 +456,22 @@ public class Visualizer extends JPanel {
 	/** Called when the UI gets pause/unpaused **/
 	public void togglePause() {
 		this.paused = !this.paused;
+	}
+
+	/** Called when the visualizer gets locked by the legend checkbox. **/
+	protected void setLocked(boolean locked) {
+		this.locked = locked;
+	}
+
+	/** Called when the visualizer gets locked by the main lock in maindisplay. **/
+	public void setLockedByMainDisplay(boolean locked) {
+		this.legend.setLocked(locked);
+		this.locked = locked;
+	}
+
+	/** Returns if the visualizer is locked. **/
+	public boolean isLocked() {
+		return this.locked;
 	}
 
 }

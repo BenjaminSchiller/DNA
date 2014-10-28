@@ -23,6 +23,7 @@ import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -254,6 +255,8 @@ public class MainDisplay extends JFrame {
 	private JButton stopButton;
 	private JButton quitButton;
 
+	private JCheckBox mainLock;
+
 	private JPanel logoPanel;
 
 	private Font defaultFont;
@@ -394,6 +397,27 @@ public class MainDisplay extends JFrame {
 		this.buttons.add(this.stopButton, buttonPanelConstraints);
 		buttonPanelConstraints.gridx++;
 		this.buttons.add(this.quitButton, buttonPanelConstraints);
+
+		// create lock checkbox and add to buttons panel
+		this.mainLock = new JCheckBox("Lock");
+		this.mainLock
+				.setToolTipText("Locks all visualizers, which means their legends wont be altered during reset / directory change.");
+		this.mainLock.setFont(new Font(this.getDefaultFont().getName(),
+				Font.BOLD, this.getDefaultFont().getSize()));
+		this.mainLock.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				boolean locked = false;
+				if (mainLock.isSelected())
+					locked = true;
+
+				// call method
+				setLocked(locked);
+			}
+		});
+
+		buttonPanelConstraints.gridx++;
+		this.buttons.add(this.mainLock, buttonPanelConstraints);
 
 		/*
 		 * Create StatsDisplay
@@ -798,6 +822,14 @@ public class MainDisplay extends JFrame {
 		for (Component c : this.dataComponents) {
 			if (c instanceof StatsDisplay) {
 				((StatsDisplay) c).setStatusMessage(msg);
+			}
+		}
+	}
+
+	public void setLocked(boolean locked) {
+		for (Component c : this.dataComponents) {
+			if (c instanceof Visualizer) {
+				((Visualizer) c).setLockedByMainDisplay(locked);
 			}
 		}
 	}

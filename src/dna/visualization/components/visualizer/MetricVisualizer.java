@@ -522,7 +522,7 @@ public class MetricVisualizer extends Visualizer {
 		this.legend.updateAddBox(tempValues);
 
 		// load config
-		if (this.listConfig != null)
+		if (this.listConfig != null && !super.locked)
 			this.loadConfig(this.listConfig);
 
 		// toggle visibility and validate
