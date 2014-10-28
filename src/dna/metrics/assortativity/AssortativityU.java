@@ -22,7 +22,6 @@ import dna.updates.update.NodeAddition;
 import dna.updates.update.NodeRemoval;
 import dna.updates.update.NodeWeight;
 import dna.util.Log;
-import dna.util.parameters.Parameter;
 
 /**
  * {@link IDynamicAlgorithm} of {@link AssortativityWeighted}.
@@ -53,7 +52,8 @@ public class AssortativityU extends Assortativity implements
 	 *            use edge weights in weighted graphs or not. Will be ignored
 	 *            for unweighted graphs.
 	 */
-	public AssortativityU(Parameter directedDegreeType, Parameter edgeWeightType) {
+	public AssortativityU(DirectedDegreeType directedDegreeType,
+			EdgeWeightType edgeWeightType) {
 		super("AssortativityU", directedDegreeType, edgeWeightType);
 	}
 
@@ -73,31 +73,31 @@ public class AssortativityU extends Assortativity implements
 		if (DirectedWeightedEdge.class.isAssignableFrom(this.g
 				.getGraphDatastructures().getEdgeType())) {
 
-			if (this.edgeWeightType.equals(USE_EDGE_WEIGHTS))
+			if (this.edgeWeightType.equals(EdgeWeightType.USE_WEIGHTS))
 				return this.updateForEdgeAddition((DirectedWeightedEdge) ea
 						.getEdge());
-			else if (this.edgeWeightType.equals(IGNORE_EDGE_WEIGHTS))
+			else if (this.edgeWeightType.equals(EdgeWeightType.IGNORE_WEIGHTS))
 				return this.updateForEdgeAddition((DirectedEdge) ea.getEdge());
 			else
 				Log.error("Graph is weighted but edge weight type set is neither '"
-						+ IGNORE_EDGE_WEIGHTS
+						+ EdgeWeightType.IGNORE_WEIGHTS
 						+ "' (default) nor '"
-						+ USE_EDGE_WEIGHTS + "'.");
+						+ EdgeWeightType.USE_WEIGHTS + "'.");
 
 		} else if (UndirectedWeightedEdge.class.isAssignableFrom(this.g
 				.getGraphDatastructures().getEdgeType())) {
 
-			if (this.edgeWeightType.equals(USE_EDGE_WEIGHTS))
+			if (this.edgeWeightType.equals(EdgeWeightType.USE_WEIGHTS))
 				return this.updateForEdgeAddition((UndirectedWeightedEdge) ea
 						.getEdge());
-			else if (this.edgeWeightType.equals(IGNORE_EDGE_WEIGHTS))
+			else if (this.edgeWeightType.equals(EdgeWeightType.IGNORE_WEIGHTS))
 				return this
 						.updateForEdgeAddition((UndirectedEdge) ea.getEdge());
 			else
 				Log.error("Graph is weighted but edge weight type set is neither '"
-						+ IGNORE_EDGE_WEIGHTS
+						+ EdgeWeightType.IGNORE_WEIGHTS
 						+ "' (default) nor '"
-						+ USE_EDGE_WEIGHTS + "'.");
+						+ EdgeWeightType.USE_WEIGHTS + "'.");
 
 		} else if (DirectedNode.class.isAssignableFrom(this.g
 				.getGraphDatastructures().getNodeType())) {
@@ -119,30 +119,30 @@ public class AssortativityU extends Assortativity implements
 		if (DirectedWeightedEdge.class.isAssignableFrom(this.g
 				.getGraphDatastructures().getEdgeType())) {
 
-			if (this.edgeWeightType.equals(USE_EDGE_WEIGHTS))
+			if (this.edgeWeightType.equals(EdgeWeightType.USE_WEIGHTS))
 				return this.updateForEdgeRemoval((DirectedWeightedEdge) er
 						.getEdge());
-			else if (this.edgeWeightType.equals(IGNORE_EDGE_WEIGHTS))
+			else if (this.edgeWeightType.equals(EdgeWeightType.IGNORE_WEIGHTS))
 				return this.updateForEdgeRemoval((DirectedEdge) er.getEdge());
 			else
 				Log.error("Graph is weighted but edge weight type set is neither '"
-						+ IGNORE_EDGE_WEIGHTS
+						+ EdgeWeightType.IGNORE_WEIGHTS
 						+ "' (default) nor '"
-						+ USE_EDGE_WEIGHTS + "'.");
+						+ EdgeWeightType.USE_WEIGHTS + "'.");
 
 		} else if (UndirectedWeightedEdge.class.isAssignableFrom(this.g
 				.getGraphDatastructures().getEdgeType())) {
 
-			if (this.edgeWeightType.equals(USE_EDGE_WEIGHTS))
+			if (this.edgeWeightType.equals(EdgeWeightType.USE_WEIGHTS))
 				return this.updateForEdgeRemoval((UndirectedWeightedEdge) er
 						.getEdge());
-			else if (this.edgeWeightType.equals(IGNORE_EDGE_WEIGHTS))
+			else if (this.edgeWeightType.equals(EdgeWeightType.IGNORE_WEIGHTS))
 				return this.updateForEdgeRemoval((UndirectedEdge) er.getEdge());
 			else
 				Log.error("Graph is weighted but edge weight type set is neither '"
-						+ IGNORE_EDGE_WEIGHTS
+						+ EdgeWeightType.IGNORE_WEIGHTS
 						+ "' (default) nor '"
-						+ USE_EDGE_WEIGHTS + "'.");
+						+ EdgeWeightType.USE_WEIGHTS + "'.");
 
 		} else if (DirectedNode.class.isAssignableFrom(this.g
 				.getGraphDatastructures().getNodeType())) {
@@ -187,32 +187,32 @@ public class AssortativityU extends Assortativity implements
 		if (DirectedWeightedEdge.class.isAssignableFrom(this.g
 				.getGraphDatastructures().getEdgeType())) {
 
-			if (this.edgeWeightType.equals(USE_EDGE_WEIGHTS))
+			if (this.edgeWeightType.equals(EdgeWeightType.USE_WEIGHTS))
 				return this
 						.directedWeightedUpdateForNodeRemoval((DirectedNode) nr
 								.getNode());
-			else if (this.edgeWeightType.equals(IGNORE_EDGE_WEIGHTS))
+			else if (this.edgeWeightType.equals(EdgeWeightType.IGNORE_WEIGHTS))
 				return this.updateForNodeRemoval((DirectedNode) nr.getNode());
 			else
 				Log.error("Graph is weighted but edge weight type set is neither '"
-						+ IGNORE_EDGE_WEIGHTS
+						+ EdgeWeightType.IGNORE_WEIGHTS
 						+ "' (default) nor '"
-						+ USE_EDGE_WEIGHTS + "'.");
+						+ EdgeWeightType.USE_WEIGHTS + "'.");
 
 		} else if (UndirectedWeightedEdge.class.isAssignableFrom(this.g
 				.getGraphDatastructures().getEdgeType())) {
 
-			if (this.edgeWeightType.equals(USE_EDGE_WEIGHTS))
+			if (this.edgeWeightType.equals(EdgeWeightType.USE_WEIGHTS))
 				return this
 						.undirectedWeightedUpdateForNodeRemoval((UndirectedNode) nr
 								.getNode());
-			else if (this.edgeWeightType.equals(IGNORE_EDGE_WEIGHTS))
+			else if (this.edgeWeightType.equals(EdgeWeightType.IGNORE_WEIGHTS))
 				return this.updateForNodeRemoval((UndirectedNode) nr.getNode());
 			else
 				Log.error("Graph is weighted but edge weight type set is neither '"
-						+ IGNORE_EDGE_WEIGHTS
+						+ EdgeWeightType.IGNORE_WEIGHTS
 						+ "' (default) nor '"
-						+ USE_EDGE_WEIGHTS + "'.");
+						+ EdgeWeightType.USE_WEIGHTS + "'.");
 
 		} else if (DirectedNode.class.isAssignableFrom(this.g
 				.getGraphDatastructures().getNodeType())) {
@@ -336,7 +336,7 @@ public class AssortativityU extends Assortativity implements
 	 */
 	private boolean directedWeightedUpdateForNodeRemoval(DirectedNode node) {
 
-		if (this.directedDegreeType.equals("out")) {
+		if (this.directedDegreeType.equals(DirectedDegreeType.OUT)) {
 
 			final double nodeOutDegree = this.weightedDegree(node);
 			final Set<Node> nodeNeighbors = new HashSet<Node>();
@@ -397,7 +397,7 @@ public class AssortativityU extends Assortativity implements
 					this.decreaseWeightedDegree(otherNode1, edgeWeight);
 			}
 
-		} else if (this.directedDegreeType.equals("in")) {
+		} else if (this.directedDegreeType.equals(DirectedDegreeType.IN)) {
 
 			final double nodeInDegree = this.weightedDegree(node);
 			final Set<Node> nodeNeighbors = new HashSet<Node>();
@@ -458,8 +458,7 @@ public class AssortativityU extends Assortativity implements
 					this.decreaseWeightedDegree(otherNode1, edgeWeight);
 			}
 
-		} else
-			Log.error(COMPUTE_FOR_DEGREE_ERROR);
+		}
 
 		this.setR();
 
@@ -675,18 +674,13 @@ public class AssortativityU extends Assortativity implements
 		final DirectedNode srcNode = edge.getSrc();
 		final DirectedNode dstNode = edge.getDst();
 
-		int srcNodeDegree;
-		int dstNodeDegree;
-
-		if (this.directedDegreeType.equals("out")) {
+		int srcNodeDegree = -1, dstNodeDegree = -1;
+		if (this.directedDegreeType.equals(DirectedDegreeType.OUT)) {
 			srcNodeDegree = srcNode.getOutDegree() + 1;
 			dstNodeDegree = dstNode.getOutDegree();
-		} else if (this.directedDegreeType.equals("in")) {
+		} else if (this.directedDegreeType.equals(DirectedDegreeType.IN)) {
 			srcNodeDegree = srcNode.getInDegree();
 			dstNodeDegree = dstNode.getInDegree() + 1;
-		} else {
-			Log.error(COMPUTE_FOR_DEGREE_ERROR);
-			return false;
 		}
 
 		this.increaseSum123(srcNodeDegree, dstNodeDegree);
@@ -694,7 +688,7 @@ public class AssortativityU extends Assortativity implements
 		DirectedEdge edgeAtNode;
 		int otherNodeDegree;
 
-		if (this.directedDegreeType.equals("out")) {
+		if (this.directedDegreeType.equals(DirectedDegreeType.OUT)) {
 			for (IElement iElement : srcNode.getEdges()) {
 				edgeAtNode = (DirectedEdge) iElement;
 				if (!edgeAtNode.equals(edge)) {
@@ -703,7 +697,7 @@ public class AssortativityU extends Assortativity implements
 					this.increaseSum123AtNode(otherNodeDegree, srcNodeDegree);
 				}
 			}
-		} else if (this.directedDegreeType.equals("in")) {
+		} else if (this.directedDegreeType.equals(DirectedDegreeType.IN)) {
 			for (IElement iElement : dstNode.getEdges()) {
 				edgeAtNode = (DirectedEdge) iElement;
 				if (!edgeAtNode.equals(edge)) {
@@ -712,9 +706,6 @@ public class AssortativityU extends Assortativity implements
 					this.increaseSum123AtNode(otherNodeDegree, dstNodeDegree);
 				}
 			}
-		} else {
-			Log.error(COMPUTE_FOR_DEGREE_ERROR);
-			return false;
 		}
 
 		this.totalEdgeWeight = this.g.getEdgeCount() + 1;
@@ -741,33 +732,25 @@ public class AssortativityU extends Assortativity implements
 		final DirectedNode srcNode = edge.getSrc();
 		final DirectedNode dstNode = edge.getDst();
 
-		double srcNodeDegree;
-		double dstNodeDegree;
-
-		if (this.directedDegreeType.equals("out")) {
+		double srcNodeDegree = -1, dstNodeDegree = -1;
+		if (this.directedDegreeType.equals(DirectedDegreeType.OUT)) {
 			srcNodeDegree = this.weightedDegree(srcNode)
 					+ this.weight(edge.getWeight());
 			dstNodeDegree = this.weightedDegree(dstNode);
-		} else if (this.directedDegreeType.equals("in")) {
+		} else if (this.directedDegreeType.equals(DirectedDegreeType.IN)) {
 			srcNodeDegree = this.weightedDegree(srcNode);
 			dstNodeDegree = this.weightedDegree(dstNode)
 					+ this.weight(edge.getWeight());
-		} else {
-			Log.error(COMPUTE_FOR_DEGREE_ERROR);
-			return false;
 		}
 
 		this.increaseSum123(srcNodeDegree, dstNodeDegree, edgeWeight);
 
-		if (this.directedDegreeType.equals("out")) {
+		if (this.directedDegreeType.equals(DirectedDegreeType.OUT)) {
 			increaseSum123AtNodeForAllEdges(edge, edgeWeight, srcNode,
 					srcNodeDegree);
-		} else if (this.directedDegreeType.equals("in")) {
+		} else if (this.directedDegreeType.equals(DirectedDegreeType.IN)) {
 			increaseSum123AtNodeForAllEdges(edge, edgeWeight, dstNode,
 					dstNodeDegree);
-		} else {
-			Log.error(COMPUTE_FOR_DEGREE_ERROR);
-			return false;
 		}
 
 		this.setR();
@@ -852,18 +835,14 @@ public class AssortativityU extends Assortativity implements
 		final DirectedNode srcNode = edge.getSrc();
 		final DirectedNode dstNode = edge.getDst();
 
-		int srcNodeDegree;
-		int dstNodeDegree;
+		int srcNodeDegree = -1, dstNodeDegree = -1;
 
-		if (this.directedDegreeType.equals("out")) {
+		if (this.directedDegreeType.equals(DirectedDegreeType.OUT)) {
 			srcNodeDegree = srcNode.getOutDegree();
 			dstNodeDegree = dstNode.getOutDegree();
-		} else if (this.directedDegreeType.equals("in")) {
+		} else if (this.directedDegreeType.equals(DirectedDegreeType.IN)) {
 			srcNodeDegree = srcNode.getInDegree();
 			dstNodeDegree = dstNode.getInDegree();
-		} else {
-			Log.error(COMPUTE_FOR_DEGREE_ERROR);
-			return false;
 		}
 
 		this.decreaseSum123(srcNodeDegree, dstNodeDegree);
@@ -871,7 +850,7 @@ public class AssortativityU extends Assortativity implements
 		DirectedEdge edgeAtNode;
 		int otherNodeDegree;
 
-		if (this.directedDegreeType.equals("out")) {
+		if (this.directedDegreeType.equals(DirectedDegreeType.OUT)) {
 			for (IElement iElement : srcNode.getEdges()) {
 				edgeAtNode = (DirectedEdge) iElement;
 				if (!edgeAtNode.equals(edge)) {
@@ -880,7 +859,7 @@ public class AssortativityU extends Assortativity implements
 					this.decreaseSum123AtNode(otherNodeDegree, srcNodeDegree);
 				}
 			}
-		} else if (this.directedDegreeType.equals("in")) {
+		} else if (this.directedDegreeType.equals(DirectedDegreeType.IN)) {
 			for (IElement iElement : dstNode.getEdges()) {
 				edgeAtNode = (DirectedEdge) iElement;
 				if (!edgeAtNode.equals(edge)) {
@@ -889,9 +868,6 @@ public class AssortativityU extends Assortativity implements
 					this.decreaseSum123AtNode(otherNodeDegree, dstNodeDegree);
 				}
 			}
-		} else {
-			Log.error(COMPUTE_FOR_DEGREE_ERROR);
-			return false;
 		}
 
 		this.totalEdgeWeight = this.g.getEdgeCount() - 1;
@@ -923,15 +899,12 @@ public class AssortativityU extends Assortativity implements
 
 		this.decreaseSum123(srcNodeDegree, dstNodeDegree, edgeWeight);
 
-		if (this.directedDegreeType.equals("out")) {
+		if (this.directedDegreeType.equals(DirectedDegreeType.OUT)) {
 			decreaseSum123AtNodeForAllEdges(edge, edgeWeight, srcNode,
 					srcNodeDegree);
-		} else if (this.directedDegreeType.equals("in")) {
+		} else if (this.directedDegreeType.equals(DirectedDegreeType.IN)) {
 			decreaseSum123AtNodeForAllEdges(edge, edgeWeight, dstNode,
 					dstNodeDegree);
-		} else {
-			Log.error(COMPUTE_FOR_DEGREE_ERROR);
-			return false;
 		}
 
 		this.setR();
@@ -1020,7 +993,7 @@ public class AssortativityU extends Assortativity implements
 		final DirectedNode srcNode = edge.getSrc();
 		final DirectedNode dstNode = edge.getDst();
 
-		if (this.directedDegreeType.equals("out")) {
+		if (this.directedDegreeType.equals(DirectedDegreeType.OUT)) {
 
 			final double oldSrcNodeOutDegree = this.weightedDegree(srcNode);
 			final double oldDstNodeOutDegree = this.weightedDegree(dstNode);
@@ -1039,7 +1012,7 @@ public class AssortativityU extends Assortativity implements
 			this.decreaseWeightedDegree(srcNode, oldEdgeWeight);
 			this.increaseWeightedDegree(srcNode, newWeight);
 
-		} else if (this.directedDegreeType.equals("in")) {
+		} else if (this.directedDegreeType.equals(DirectedDegreeType.IN)) {
 
 			final double oldSrcNodeInDegree = this.weightedDegree(srcNode);
 			final double oldDstNodeInDegree = this.weightedDegree(dstNode);
@@ -1057,8 +1030,7 @@ public class AssortativityU extends Assortativity implements
 			this.decreaseWeightedDegree(dstNode, oldEdgeWeight);
 			this.increaseWeightedDegree(dstNode, newWeight);
 
-		} else
-			Log.error(COMPUTE_FOR_DEGREE_ERROR);
+		}
 
 		this.setR();
 
@@ -1122,41 +1094,35 @@ public class AssortativityU extends Assortativity implements
 	 * @return true
 	 */
 	private boolean updateForNodeRemoval(DirectedNode node) {
-		int nodeDegree;
+		int nodeDegree = -1;
 		Set<Node> nodeNeighbors = new HashSet<Node>();
 
-		if (this.directedDegreeType.equals("out")) {
+		if (this.directedDegreeType.equals(DirectedDegreeType.OUT)) {
 			nodeDegree = node.getOutDegree();
-		} else if (this.directedDegreeType.equals("in")) {
+		} else if (this.directedDegreeType.equals(DirectedDegreeType.IN)) {
 			nodeDegree = node.getInDegree();
-		} else {
-			Log.error(COMPUTE_FOR_DEGREE_ERROR);
-			return false;
 		}
 
 		DirectedEdge edge;
 		DirectedNode otherNode1, otherNode2;
-		int otherNode1Degree;
+		int otherNode1Degree = -1;
 
 		for (IElement iElement1 : node.getEdges()) {
 			edge = (DirectedEdge) iElement1;
 			otherNode1 = (DirectedNode) edge.getDifferingNode(node);
 
-			if (this.directedDegreeType.equals("out")) {
+			if (this.directedDegreeType.equals(DirectedDegreeType.OUT)) {
 				otherNode1Degree = otherNode1.getOutDegree();
-			} else if (this.directedDegreeType.equals("in")) {
+			} else if (this.directedDegreeType.equals(DirectedDegreeType.IN)) {
 				otherNode1Degree = otherNode1.getInDegree();
-			} else {
-				Log.error(COMPUTE_FOR_DEGREE_ERROR);
-				return false;
 			}
 
 			this.decreaseSum123(nodeDegree, otherNode1Degree);
 
-			if ((this.directedDegreeType.equals("out") && edge.getDst().equals(
-					node))
-					|| (this.directedDegreeType.equals("in") && edge.getSrc()
-							.equals(node))) {
+			if ((this.directedDegreeType.equals(DirectedDegreeType.OUT) && edge
+					.getDst().equals(node))
+					|| (this.directedDegreeType.equals(DirectedDegreeType.IN) && edge
+							.getSrc().equals(node))) {
 				// only for otherNode1s at incoming (for "out") and outgoing
 				// (for "in") edges respectively of node do the following
 
@@ -1167,13 +1133,12 @@ public class AssortativityU extends Assortativity implements
 							.getDifferingNode(otherNode1);
 
 					if (!otherNode2.equals(node)) {
-						if (this.directedDegreeType.equals("out")) {
+						if (this.directedDegreeType
+								.equals(DirectedDegreeType.OUT)) {
 							this.sum1 -= otherNode2.getOutDegree();
-						} else if (this.directedDegreeType.equals("in")) {
+						} else if (this.directedDegreeType
+								.equals(DirectedDegreeType.IN)) {
 							this.sum1 -= otherNode2.getInDegree();
-						} else {
-							Log.error(COMPUTE_FOR_DEGREE_ERROR);
-							return false;
 						}
 						this.sum2 -= 1;
 						this.sum3 -= 2 * otherNode1Degree - 1;
@@ -1182,10 +1147,6 @@ public class AssortativityU extends Assortativity implements
 
 				this.sum1 += this.numberOfEdgesBetweenNodeAndNodes(otherNode1,
 						nodeNeighbors);
-			} else if ((!this.directedDegreeType.equals("out"))
-					&& (!this.directedDegreeType.equals("in"))) {
-				Log.error(COMPUTE_FOR_DEGREE_ERROR);
-				return false;
 			}
 		}
 
@@ -1353,7 +1314,7 @@ public class AssortativityU extends Assortativity implements
 
 		DirectedWeightedEdge edge_NodeNeighbor_OtherNodeNeighbor, edge_Node_NodeNeighbor, edge_Node_OtherNodeNeighbor;
 
-		if (this.directedDegreeType.equals("out")) {
+		if (this.directedDegreeType.equals(DirectedDegreeType.OUT)) {
 
 			for (Node otherNodeNeighbor : nodeNeighbors) {
 				edge_NodeNeighbor_OtherNodeNeighbor = (DirectedWeightedEdge) gds
@@ -1387,7 +1348,7 @@ public class AssortativityU extends Assortativity implements
 				}
 			}
 
-		} else if (this.directedDegreeType.equals("in")) {
+		} else if (this.directedDegreeType.equals(DirectedDegreeType.IN)) {
 
 			for (Node otherNodeNeighbor : nodeNeighbors) {
 				edge_NodeNeighbor_OtherNodeNeighbor = (DirectedWeightedEdge) gds
@@ -1422,8 +1383,7 @@ public class AssortativityU extends Assortativity implements
 
 			}
 
-		} else
-			Log.error(COMPUTE_FOR_DEGREE_ERROR);
+		}
 
 		return addAgain;
 	}
