@@ -1,7 +1,6 @@
 package dna.metrics.assortativity;
 
 import dna.metrics.algorithms.IRecomputation;
-import dna.util.parameters.Parameter;
 
 /**
  * {@link IRecomputation} of {@link Assortativity}.
@@ -28,7 +27,8 @@ public class AssortativityR extends Assortativity implements IRecomputation {
 	 *            use edge weights in weighted graphs or not. Will be ignored
 	 *            for unweighted graphs.
 	 */
-	public AssortativityR(Parameter directedDegreeType, Parameter edgeWeightType) {
+	public AssortativityR(DirectedDegreeType directedDegreeType,
+			EdgeWeightType edgeWeightType) {
 		super("AssortativityR", directedDegreeType, edgeWeightType);
 	}
 

@@ -54,52 +54,55 @@ public abstract class Assortativity extends Metric implements IMetric {
 	public static final double ACCEPTED_ERROR_FOR_EQUALITY = 1.0E-4;
 
 	/**
-	 * Setting for {@link Parameter} "directedDegreeType". Compute assortativity
-	 * for indegree in directed graphs."
+	 * Setting for {@link Parameter} "directedDegreeType".
 	 */
-	public static final String COMPUTE_FOR_INDEGREE = "in";
-	/**
-	 * Setting for {@link Parameter} "directedDegreeType". Compute assortativity
-	 * for outdegree in directed graphs."
-	 */
-	public static final String COMPUTE_FOR_OUTDEGREE = "out";
+	public static enum DirectedDegreeType {
+		IN("in"), OUT("out");
+
+		private final StringParameter param;
+
+		DirectedDegreeType(String value) {
+			this.param = new StringParameter("directedDegreeType", value);
+		}
+
+		public StringParameter StringParameter() {
+			return this.param;
+		}
+	}
 
 	/**
-	 * Error message shown when graph is directed but
-	 * {@link #directedDegreeType} is neither set to
-	 * {@link #COMPUTE_FOR_INDEGREE} nor set to {@link #COMPUTE_FOR_OUTDEGREE}
+	 * Setting for {@link Parameter} "edgeWeightType".
 	 */
-	public static final String COMPUTE_FOR_DEGREE_ERROR = "Graph is directed but degree type set is neither '"
-			+ COMPUTE_FOR_OUTDEGREE
-			+ "' (default) nor '"
-			+ COMPUTE_FOR_INDEGREE + "'.";
+	public static enum EdgeWeightType {
+		IGNORE_WEIGHTS("unweighted"), USE_WEIGHTS("weighted");
 
-	/**
-	 * Setting for {@link Parameter} "edgeWeightType". Compute assortativity
-	 * using edge weights in weighted graphs."
-	 */
-	public static final String USE_EDGE_WEIGHTS = "weighted";
-	/**
-	 * Setting for {@link Parameter} "edgeWeightType". Compute assortativity
-	 * ignoring edge weights in weighted graphs."
-	 */
-	public static final String IGNORE_EDGE_WEIGHTS = "unweighted";
+		private final StringParameter param;
+
+		EdgeWeightType(String value) {
+			this.param = new StringParameter("edgeWeightType", value);
+		}
+
+		public StringParameter StringParameter() {
+			return this.param;
+		}
+	}
 
 	/**
 	 * Is either "out" (default) or "in", depending on the {@link Parameter} in
-	 * {@link #Assortativity(String, Parameter, Parameter)}. This value
-	 * determines whether nodes in directed graphs are compared by there in- or
-	 * outdegree and is ignored for undirected graphs.
+	 * {@link #Assortativity(String, DirectedDegreeType, EdgeWeightType)}. This
+	 * value determines whether nodes in directed graphs are compared by there
+	 * in- or outdegree and is ignored for undirected graphs.
 	 */
-	String directedDegreeType;
+	DirectedDegreeType directedDegreeType;
 
 	/**
 	 * Is either "unweighted" (default) or "weighted", depending on the
-	 * {@link Parameter} in {@link #Assortativity(String, Parameter, Parameter)}
-	 * . This value determines whether edge weights in weighted graphs are
-	 * ignored not (will always be ignored for weighted graphs).
+	 * {@link Parameter} in
+	 * {@link #Assortativity(String, DirectedDegreeType, EdgeWeightType)} . This
+	 * value determines whether edge weights in weighted graphs are ignored not
+	 * (will always be ignored for weighted graphs).
 	 */
-	String edgeWeightType;
+	EdgeWeightType edgeWeightType;
 
 	/** The sum of all edge weights in the graph. */
 	double totalEdgeWeight;
@@ -125,9 +128,7 @@ public abstract class Assortativity extends Metric implements IMetric {
 	 *            <i>AssortativityWeightedU</i> for the Assortativity Updates.
 	 */
 	public Assortativity(String name) {
-		this(name, new StringParameter("directedDegreeType",
-				COMPUTE_FOR_OUTDEGREE), new StringParameter("edgeWeightType",
-				IGNORE_EDGE_WEIGHTS));
+		this(name, DirectedDegreeType.OUT, EdgeWeightType.IGNORE_WEIGHTS);
 	}
 
 	/**
@@ -146,13 +147,13 @@ public abstract class Assortativity extends Metric implements IMetric {
 	 *            use edge weights in weighted graphs or not. Will be ignored
 	 *            for unweighted graphs.
 	 */
-	public Assortativity(String name, Parameter directedDegreeType,
-			Parameter edgeWeightType) {
-		super(name, IMetric.MetricType.exact, directedDegreeType,
-				edgeWeightType);
+	public Assortativity(String name, DirectedDegreeType directedDegreeType,
+			EdgeWeightType edgeWeightType) {
+		super(name, IMetric.MetricType.exact, directedDegreeType
+				.StringParameter(), edgeWeightType.StringParameter());
 
-		this.directedDegreeType = this.getParameters()[0].getValue();
-		this.edgeWeightType = this.getParameters()[1].getValue();
+		this.directedDegreeType = directedDegreeType;
+		this.edgeWeightType = edgeWeightType;
 	}
 
 	/**
@@ -168,30 +169,20 @@ public abstract class Assortativity extends Metric implements IMetric {
 
 			// directed weighted graph
 
-			if (this.edgeWeightType.equals(USE_EDGE_WEIGHTS))
+			if (this.edgeWeightType.equals(EdgeWeightType.USE_WEIGHTS))
 				return this.computeForDirectedWeightedGraph();
-			else if (this.edgeWeightType.equals(IGNORE_EDGE_WEIGHTS))
+			else if (this.edgeWeightType.equals(EdgeWeightType.IGNORE_WEIGHTS))
 				return this.computeForDirectedUnweightedGraph();
-			else
-				Log.error("Graph is weighted but edge weight type set is neither '"
-						+ IGNORE_EDGE_WEIGHTS
-						+ "' (default) nor '"
-						+ USE_EDGE_WEIGHTS + "'.");
 
 		} else if (UndirectedWeightedEdge.class.isAssignableFrom(this.g
 				.getGraphDatastructures().getEdgeType())) {
 
 			// undirected weighted graph
 
-			if (this.edgeWeightType.equals(USE_EDGE_WEIGHTS))
+			if (this.edgeWeightType.equals(EdgeWeightType.USE_WEIGHTS))
 				return this.computeForUndirectedWeightedGraph();
-			else if (this.edgeWeightType.equals(IGNORE_EDGE_WEIGHTS))
+			else if (this.edgeWeightType.equals(EdgeWeightType.IGNORE_WEIGHTS))
 				return this.computeForUndirectedUnweightedGraph();
-			else
-				Log.error("Graph is weighted but edge weight type set is neither '"
-						+ IGNORE_EDGE_WEIGHTS
-						+ "' (default) nor '"
-						+ USE_EDGE_WEIGHTS + "'.");
 
 		} else if (DirectedNode.class.isAssignableFrom(this.g
 				.getGraphDatastructures().getNodeType())) {
@@ -215,20 +206,15 @@ public abstract class Assortativity extends Metric implements IMetric {
 	 */
 	private boolean computeForDirectedUnweightedGraph() {
 		DirectedEdge edge;
-		int srcNodeDegree, dstNodeDegree;
+		int srcNodeDegree = 0, dstNodeDegree = 0;
 		for (IElement iElement : this.g.getEdges()) {
 			edge = (DirectedEdge) iElement;
-			if (this.directedDegreeType.equals(COMPUTE_FOR_OUTDEGREE)) {
+			if (this.directedDegreeType.equals(DirectedDegreeType.OUT)) {
 				srcNodeDegree = edge.getSrc().getOutDegree();
 				dstNodeDegree = edge.getDst().getOutDegree();
-			} else if (this.directedDegreeType.equals(COMPUTE_FOR_INDEGREE)) {
+			} else if (this.directedDegreeType.equals(DirectedDegreeType.IN)) {
 				srcNodeDegree = edge.getSrc().getInDegree();
 				dstNodeDegree = edge.getDst().getInDegree();
-			} else {
-				Log.error("Graph is directed but degree type set is neither '"
-						+ COMPUTE_FOR_OUTDEGREE + "' (default) nor '"
-						+ COMPUTE_FOR_INDEGREE + "'.");
-				return false;
 			}
 
 			this.increaseSum123(srcNodeDegree, dstNodeDegree);
@@ -426,18 +412,14 @@ public abstract class Assortativity extends Metric implements IMetric {
 
 		if (node instanceof DirectedNode) {
 
-			if (this.directedDegreeType.equals(COMPUTE_FOR_OUTDEGREE))
+			if (this.directedDegreeType.equals(DirectedDegreeType.OUT))
 				for (IElement iEdge : ((DirectedNode) node).getOutgoingEdges())
 					weightedDegree += this
 							.weight(((DirectedWeightedEdge) iEdge).getWeight());
-			else if (this.directedDegreeType.equals(COMPUTE_FOR_INDEGREE))
+			else if (this.directedDegreeType.equals(DirectedDegreeType.IN))
 				for (IElement iEdge : ((DirectedNode) node).getIncomingEdges())
 					weightedDegree += this
 							.weight(((DirectedWeightedEdge) iEdge).getWeight());
-			else
-				Log.error("Graph is directed but degree type set is neither '"
-						+ COMPUTE_FOR_OUTDEGREE + "' (default) nor '"
-						+ COMPUTE_FOR_INDEGREE + "'.");
 
 		} else if (node instanceof UndirectedNode) {
 
