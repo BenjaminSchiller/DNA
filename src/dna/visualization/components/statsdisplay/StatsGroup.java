@@ -106,11 +106,9 @@ public class StatsGroup extends JPanel {
 		int height = this.scrollPane.getMinimumSize().height;
 		if (height < StatsGroup.sizingMaxThreshold) {
 			if (!this.firstStep) {
-				System.out.println(this.getName() + "    first");
 				this.firstStep = true;
 				height += StatsGroup.sizingFirstStepSize;
 			} else {
-				System.out.println(this.getName() + "    not first");
 				height += StatsGroup.sizingStepSize;
 			}
 		}
