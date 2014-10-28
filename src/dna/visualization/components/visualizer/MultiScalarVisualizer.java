@@ -909,9 +909,6 @@ public class MultiScalarVisualizer extends Visualizer {
 			if (item.getOrderId() < -1)
 				continue;
 
-			System.out.println("ADDING: " + item.getName() + "\t"
-					+ item.getOrderId());
-
 			switch (item.getName()) {
 			case (VisualizerListConfig.generalDistributionsConfigName):
 				this.insertDistributions(config, configsNamesList);
