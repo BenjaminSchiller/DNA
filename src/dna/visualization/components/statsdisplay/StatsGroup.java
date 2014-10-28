@@ -33,8 +33,10 @@ public class StatsGroup extends JPanel {
 	private static final Dimension scrollPaneMinSize = new Dimension(0, 0);
 	private static final Dimension scrollPanePrefSize = new Dimension(285, 100);
 	private static final Dimension panelMinSize = new Dimension(50, 50);
+	private static final int sizingFirstStepSize = 19;
 	private static final int sizingStepSize = 17;
 	private static final int sizingMaxThreshold = 100;
+	private boolean firstStep = false;
 
 	// constructor
 	public StatsGroup(StatsDisplay statsDisplay, String title) {
@@ -102,8 +104,16 @@ public class StatsGroup extends JPanel {
 
 		// increase scrollpane size
 		int height = this.scrollPane.getMinimumSize().height;
-		if (height < StatsGroup.sizingMaxThreshold)
-			height += StatsGroup.sizingStepSize;
+		if (height < StatsGroup.sizingMaxThreshold) {
+			if (!this.firstStep) {
+				System.out.println(this.getName() + "    first");
+				this.firstStep = true;
+				height += StatsGroup.sizingFirstStepSize;
+			} else {
+				System.out.println(this.getName() + "    not first");
+				height += StatsGroup.sizingStepSize;
+			}
+		}
 		Dimension dim = new Dimension(this.scrollPane.getMinimumSize().width,
 				height);
 		this.scrollPane.setMinimumSize(dim);
@@ -145,6 +155,7 @@ public class StatsGroup extends JPanel {
 	/** resets all set values to zero **/
 	public void reset() {
 		this.scrollPane.setMinimumSize(StatsGroup.scrollPaneMinSize);
+		this.firstStep = false;
 		for (String s : this.valueLabels.keySet()) {
 			this.valueLabels.get(s).setText("" + 0.0);
 		}
