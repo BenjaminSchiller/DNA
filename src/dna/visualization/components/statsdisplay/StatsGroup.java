@@ -1,6 +1,7 @@
 package dna.visualization.components.statsdisplay;
 
 import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -9,6 +10,7 @@ import java.util.HashMap;
 import javax.swing.BorderFactory;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.border.TitledBorder;
 
 /**
@@ -24,6 +26,15 @@ public class StatsGroup extends JPanel {
 	private GridBagConstraints statsGroupConstraints;
 	private HashMap<String, JLabel> valueLabels;
 	private StatsDisplay statsDisplay;
+	private JScrollPane scrollPane;
+	private JPanel panel;
+
+	// sizes
+	private static final Dimension scrollPaneMinSize = new Dimension(0, 0);
+	private static final Dimension scrollPanePrefSize = new Dimension(285, 100);
+	private static final Dimension panelMinSize = new Dimension(50, 50);
+	private static final int sizingStepSize = 17;
+	private static final int sizingMaxThreshold = 100;
 
 	// constructor
 	public StatsGroup(StatsDisplay statsDisplay, String title) {
@@ -45,11 +56,23 @@ public class StatsGroup extends JPanel {
 		// set layout
 		this.setLayout(new GridBagLayout());
 		this.statsGroupConstraints = new GridBagConstraints();
+		GridBagConstraints c = new GridBagConstraints();
+		c.fill = GridBagConstraints.BOTH;
+		c.weightx = 1;
+		c.weighty = 1;
+
 		this.statsGroupConstraints.fill = GridBagConstraints.HORIZONTAL;
 		this.statsGroupConstraints.anchor = GridBagConstraints.WEST;
 		this.statsGroupConstraints.weightx = 0.5;
 		this.statsGroupConstraints.gridx = 0;
 		this.statsGroupConstraints.gridy = 0;
+		this.panel = new JPanel(new GridBagLayout());
+		this.panel.setMinimumSize(StatsGroup.panelMinSize);
+		this.scrollPane = new JScrollPane(this.panel);
+		this.scrollPane.setMinimumSize(StatsGroup.scrollPaneMinSize);
+		this.scrollPane.setPreferredSize(StatsGroup.scrollPanePrefSize);
+		this.scrollPane.setAlignmentX(LEFT_ALIGNMENT);
+		this.add(this.scrollPane, c);
 	}
 
 	/** add values to the panel **/
@@ -67,17 +90,27 @@ public class StatsGroup extends JPanel {
 		// add labels
 		this.statsGroupConstraints.gridx = 0;
 		this.statsGroupConstraints.anchor = GridBagConstraints.WEST;
-		this.add(tempName, this.statsGroupConstraints);
+		this.panel.add(tempName, this.statsGroupConstraints);
 
 		this.statsGroupConstraints.gridx = 1;
 		this.statsGroupConstraints.anchor = GridBagConstraints.EAST;
-		this.add(tempValue, this.statsGroupConstraints);
+		this.panel.add(tempValue, this.statsGroupConstraints);
 		this.valueLabels.put(tempValue.getName(), tempValue);
 
 		// increment y position
 		this.statsGroupConstraints.gridy++;
 
-		this.validate();
+		// increase scrollpane size
+		int height = this.scrollPane.getMinimumSize().height;
+		if (height < StatsGroup.sizingMaxThreshold)
+			height += StatsGroup.sizingStepSize;
+		Dimension dim = new Dimension(this.scrollPane.getMinimumSize().width,
+				height);
+		this.scrollPane.setMinimumSize(dim);
+
+		// validate
+		this.scrollPane.validate();
+		this.revalidate();
 	}
 
 	/** update value already on the panel **/
@@ -111,6 +144,7 @@ public class StatsGroup extends JPanel {
 
 	/** resets all set values to zero **/
 	public void reset() {
+		this.scrollPane.setMinimumSize(StatsGroup.scrollPaneMinSize);
 		for (String s : this.valueLabels.keySet()) {
 			this.valueLabels.get(s).setText("" + 0.0);
 		}
@@ -120,8 +154,8 @@ public class StatsGroup extends JPanel {
 	/** clears the whole list **/
 	public void clear() {
 		this.statsGroupConstraints.gridy = 0;
-		for (Component c : this.getComponents()) {
-			this.remove(c);
+		for (Component c : this.panel.getComponents()) {
+			this.panel.remove(c);
 		}
 		this.validate();
 	}
