@@ -583,9 +583,15 @@ public class BatchHandler implements Runnable {
 
 		// send best matching batch to mainFrame
 		try {
-			mainFrame.updateData(BatchData.read(
-					Dir.getBatchDataDir(this.getDir(), bestMatchingTimestamp),
-					bestMatchingTimestamp, true));
+			BatchData tempBatch;
+			if (this.batchesZipped)
+				tempBatch = BatchData.readFromSingleFile(this.getDir(),
+						bestMatchingTimestamp, Dir.delimiter, true);
+			else
+				tempBatch = BatchData.read(
+						Dir.getBatchDataDir(this.dir, bestMatchingTimestamp),
+						bestMatchingTimestamp, true);
+			mainFrame.updateData(tempBatch);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
