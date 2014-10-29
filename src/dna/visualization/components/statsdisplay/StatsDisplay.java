@@ -155,14 +155,6 @@ public class StatsDisplay extends JPanel implements ChangeListener {
 		this.validate();
 	}
 
-	/** adds a statistics panel as runtimegroup **/
-	public void addStats(RunTimeConfig config) {
-		this.statistics = new RunTimeStatsGroup(this, config);
-		this.mainConstraints.gridx = 0;
-		this.add(this.statistics, this.mainConstraints);
-		this.mainConstraints.gridy++;
-	}
-
 	/** adds a statistics panel **/
 	public void addStatistics(String[] statistics) {
 		JPanel statisticsPanel = new JPanel();
@@ -233,12 +225,11 @@ public class StatsDisplay extends JPanel implements ChangeListener {
 		this.settingsPanel.setBorder(BorderFactory
 				.createEtchedBorder((EtchedBorder.LOWERED)));
 		this.settingsPanel.setBorder(BorderFactory.createTitledBorder(""));
-		
+
 		// set border
 		TitledBorder border = BorderFactory.createTitledBorder("Control");
-		border.setTitleFont(new Font(this.getDefaultFont()
-				.getName(), Font.BOLD, this.getDefaultFont()
-				.getSize()));
+		border.setTitleFont(new Font(this.getDefaultFont().getName(),
+				Font.BOLD, this.getDefaultFont().getSize()));
 		border.setTitleColor(this.getDefaultFontColor());
 		this.settingsPanel.setBorder(border);
 
@@ -515,6 +506,14 @@ public class StatsDisplay extends JPanel implements ChangeListener {
 
 		this.mainConstraints.gridx = 0;
 		this.add(this.timePanel, this.mainConstraints);
+		this.mainConstraints.gridy++;
+	}
+
+	/** adds a statistics panel as runtimegroup **/
+	public void addStats(RunTimeConfig config) {
+		this.statistics = new RunTimeStatsGroup(this, config);
+		this.mainConstraints.gridx = 0;
+		this.add(this.statistics, this.mainConstraints);
 		this.mainConstraints.gridy++;
 	}
 

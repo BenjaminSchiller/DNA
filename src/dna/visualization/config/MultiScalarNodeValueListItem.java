@@ -30,7 +30,13 @@ public class MultiScalarNodeValueListItem extends ConfigItem {
 	public MultiScalarNodeValueListItem(String name, SortModeNVL sortMode,
 			xAxisSelection xAxis, yAxisSelection yAxis,
 			DisplayMode displayMode, GraphVisibility visibility) {
-		super(name, DisplayMode.linespoint, yAxis, visibility);
+		this(name, sortMode, xAxis, yAxis, displayMode, visibility, -1);
+	}
+
+	public MultiScalarNodeValueListItem(String name, SortModeNVL sortMode,
+			xAxisSelection xAxis, yAxisSelection yAxis,
+			DisplayMode displayMode, GraphVisibility visibility, int orderId) {
+		super(name, DisplayMode.linespoint, yAxis, visibility, orderId);
 		this.sortMode = sortMode;
 		this.xAxis = xAxis;
 	}
@@ -38,7 +44,14 @@ public class MultiScalarNodeValueListItem extends ConfigItem {
 	public MultiScalarNodeValueListItem(String name, SortModeNVL sortMode,
 			xAxisSelection xAxis, yAxisSelection yAxis,
 			DisplayMode displayMode, GraphVisibility visibility, Color color) {
-		super(name, DisplayMode.linespoint, yAxis, visibility, color);
+		this(name, sortMode, xAxis, yAxis, displayMode, visibility, color, -1);
+	}
+
+	public MultiScalarNodeValueListItem(String name, SortModeNVL sortMode,
+			xAxisSelection xAxis, yAxisSelection yAxis,
+			DisplayMode displayMode, GraphVisibility visibility, Color color,
+			int orderId) {
+		super(name, DisplayMode.linespoint, yAxis, visibility, color, orderId);
 		this.sortMode = sortMode;
 		this.xAxis = xAxis;
 	}
@@ -61,6 +74,7 @@ public class MultiScalarNodeValueListItem extends ConfigItem {
 		DisplayMode displayMode = MultiScalarNodeValueListItem.multiScalarVisualizerDefaultNodeValueListDisplayMode;
 		GraphVisibility visibility = MultiScalarNodeValueListItem.multiScalarVisualizerDefaultGraphVisibility;
 		Color color = null;
+		int orderId = -1;
 
 		try {
 			if (o.getString("DisplayMode").equals("linespoint"))
@@ -100,16 +114,23 @@ public class MultiScalarNodeValueListItem extends ConfigItem {
 		} catch (Exception e) {
 		}
 		try {
-			Field field = Color.class.getField("CYAN");
+			Field field = Color.class.getField(o.getString("Color"));
 			color = (Color) field.get(null);
 		} catch (Exception e) {
 		}
 
+		try {
+			if (o.has("orderId"))
+				orderId = o.getInt("orderId");
+		} catch (Exception e) {
+
+		}
+
 		if (color != null)
 			return new MultiScalarNodeValueListItem(name, sortMode, xAxis,
-					yAxis, displayMode, visibility, color);
+					yAxis, displayMode, visibility, color, orderId);
 		else
 			return new MultiScalarNodeValueListItem(name, sortMode, xAxis,
-					yAxis, displayMode, visibility);
+					yAxis, displayMode, visibility, orderId);
 	}
 }

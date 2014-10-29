@@ -30,15 +30,22 @@ public class MultiScalarDistributionItem extends ConfigItem {
 	public MultiScalarDistributionItem(String name, SortModeDist sortMode,
 			xAxisSelection xAxis, yAxisSelection yAxis,
 			DisplayMode displayMode, GraphVisibility visibility) {
-		super(name, displayMode, yAxis, visibility);
+		this(name, sortMode, xAxis, yAxis, displayMode, visibility, -1);
+	}
+
+	public MultiScalarDistributionItem(String name, SortModeDist sortMode,
+			xAxisSelection xAxis, yAxisSelection yAxis,
+			DisplayMode displayMode, GraphVisibility visibility, int orderId) {
+		super(name, displayMode, yAxis, visibility, orderId);
 		this.sortMode = sortMode;
 		this.xAxis = xAxis;
 	}
 
 	public MultiScalarDistributionItem(String name, SortModeDist sortMode,
 			xAxisSelection xAxis, yAxisSelection yAxis,
-			DisplayMode displayMode, GraphVisibility visibility, Color color) {
-		super(name, displayMode, yAxis, visibility, color);
+			DisplayMode displayMode, GraphVisibility visibility, Color color,
+			int orderId) {
+		super(name, displayMode, yAxis, visibility, color, orderId);
 		this.sortMode = sortMode;
 		this.xAxis = xAxis;
 	}
@@ -61,6 +68,7 @@ public class MultiScalarDistributionItem extends ConfigItem {
 		DisplayMode displayMode = MultiScalarDistributionItem.multiScalarVisualizerDefaultDistributionDisplayMode;
 		GraphVisibility visibility = MultiScalarDistributionItem.multiScalarVisualizerDefaultGraphVisibility;
 		Color color = null;
+		int orderId = -1;
 
 		try {
 			if (o.getString("DisplayMode").equals("linespoint"))
@@ -98,16 +106,23 @@ public class MultiScalarDistributionItem extends ConfigItem {
 		} catch (Exception e) {
 		}
 		try {
-			Field field = Color.class.getField("CYAN");
+			Field field = Color.class.getField(o.getString("Color"));
 			color = (Color) field.get(null);
 		} catch (Exception e) {
 		}
 
+		try {
+			if (o.has("orderId"))
+				orderId = o.getInt("orderId");
+		} catch (Exception e) {
+
+		}
+
 		if (color != null)
 			return new MultiScalarDistributionItem(name, sortMode, xAxis,
-					yAxis, displayMode, visibility, color);
+					yAxis, displayMode, visibility, color, orderId);
 		else
 			return new MultiScalarDistributionItem(name, sortMode, xAxis,
-					yAxis, displayMode, visibility);
+					yAxis, displayMode, visibility, orderId);
 	}
 }

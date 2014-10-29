@@ -171,7 +171,7 @@ public class MultiScalarVisualizer extends Visualizer {
 		this.legend.updateAddBox(tempValues);
 
 		// load config
-		if (this.listConfig != null)
+		if (this.listConfig != null && !super.locked)
 			this.loadConfig(this.listConfig);
 
 		// put in first batch to update data
@@ -778,7 +778,6 @@ public class MultiScalarVisualizer extends Visualizer {
 					verticalBar = true;
 			}
 			if (verticalBar) {
-
 				trace.setTracePainter(new TracePainterDisc(config
 						.getLinesPointSize()));
 				trace.addTracePainter(new TracePainterLine());
@@ -842,67 +841,139 @@ public class MultiScalarVisualizer extends Visualizer {
 
 	/** loads a config for displayed values etc. **/
 	public void loadConfig(VisualizerListConfig config) {
-		// add possible items
+		// check orderIds
+		ArrayList<ConfigItem> configsList = new ArrayList<ConfigItem>();
+
+		// add single configs to lists
 		for (ConfigItem c : config.getEntries()) {
 			if (c instanceof MultiScalarDistributionItem) {
-				if (this.availableDistributions.contains(c.getName()))
-					this.legend
-							.addDistributionItemToList(((MultiScalarDistributionItem) c));
+				if (this.availableDistributions.contains(c.getName())
+						&& c.getOrderId() >= -1) {
+					configsList.add(c);
+				}
 			}
 			if (c instanceof MultiScalarNodeValueListItem) {
-				if (this.availableNodeValueLists.contains(c.getName()))
-					this.legend
-							.addNodeValueListItemToList((MultiScalarNodeValueListItem) c);
+				if (this.availableNodeValueLists.contains(c.getName())
+						&& c.getOrderId() >= -1) {
+					configsList.add(c);
+				}
 			}
 		}
 
-		// check if any general configuration is set
-		if (config.isAnyGeneralConfigSet()) {
-			boolean distFirst = true;
+		// add general configs to list
+		MultiScalarVisualizer.addGeneralConfigs(configsList, config);
 
-			if (config.getAllDistributionsConfig() != null
-					&& config.getAllNodeValueListsConfig() != null) {
-				if (config.getDistributionsOrderId() == -1
-						&& config.getNodeValueListsOrderId() != -1)
-					distFirst = false;
-				else if (config.getDistributionsOrderId() > config
-						.getNodeValueListsOrderId())
-					distFirst = false;
+		// craft names list to use as a blacklist for general configs later
+		ArrayList<String> configsNamesList = new ArrayList<String>(
+				configsList.size());
+		for (ConfigItem c : configsList)
+			configsNamesList.add(c.getName());
+
+		// convert list to array
+		ConfigItem[] configsArray = configsList
+				.toArray(new ConfigItem[configsList.size()]);
+
+		// sort array with insertion sort
+		for (int i = 1; i < configsArray.length; i++) {
+			ConfigItem single = configsArray[i];
+			int j = i;
+			while (j > 0
+					&& configsArray[j - 1].getOrderId() > single.getOrderId()) {
+				configsArray[j] = configsArray[j - 1];
+				j--;
 			}
+			configsArray[j] = single;
+		}
+		;
 
-			// if dist first, insert all available distributions
-			if (distFirst && config.getAllDistributionsConfig() != null)
-				this.insertDistributions(config);
+		// calculate "breakpoint" in sorted list: where does -1 end?
+		int breakpoint = 0;
+		for (int i = 0; i < configsArray.length
+				&& configsArray[i].getOrderId() < 0; i++)
+			breakpoint = i + 1;
 
-			// insert all available nodevaluelists
-			if (config.getAllNodeValueListsConfig() != null)
-				this.insertNodeValueLists(config);
+		// first insert items with id > -1, then those with -1
+		this.insertForId(breakpoint, configsArray.length, configsNamesList,
+				configsArray, config);
+		this.insertForId(0, breakpoint, configsNamesList, configsArray, config);
+	}
 
-			// if dist second, insert all available distributions
-			if (!distFirst && config.getAllDistributionsConfig() != null)
-				this.insertDistributions(config);
+	/** Inserts items from the configs array to the legend. **/
+	private void insertForId(int from, int to,
+			ArrayList<String> configsNamesList, ConfigItem[] configsArray,
+			VisualizerListConfig config) {
+		for (int i = from; i < to; i++) {
+			ConfigItem item = configsArray[i];
+
+			// if orderId < -1, skip
+			if (item.getOrderId() < -1)
+				continue;
+
+			switch (item.getName()) {
+			case (VisualizerListConfig.generalDistributionsConfigName):
+				this.insertDistributions(config, configsNamesList);
+				break;
+			case (VisualizerListConfig.generalNodeValueListsConfigName):
+				this.insertNodeValueLists(config, configsNamesList);
+				break;
+
+			default:
+				if (item instanceof MultiScalarDistributionItem) {
+					if (this.availableDistributions.contains(item.getName()))
+						this.legend
+								.addDistributionItemToList((MultiScalarDistributionItem) item);
+				}
+				if (item instanceof MultiScalarNodeValueListItem) {
+					if (this.availableNodeValueLists.contains(item.getName()))
+						this.legend
+								.addNodeValueListItemToList((MultiScalarNodeValueListItem) item);
+				}
+				break;
+			}
+		}
+	}
+
+	/** Adds all set general configs to the list. **/
+	private static void addGeneralConfigs(ArrayList<ConfigItem> configs,
+			VisualizerListConfig config) {
+		if (config.isAnyGeneralConfigSet()) {
+			if (config.getAllDistributionsConfig() != null
+					&& config.getAllDistributionsConfig().getOrderId() >= -1)
+				configs.add(config.getAllDistributionsConfig());
+
+			if (config.getAllNodeValueListsConfig() != null
+					&& config.getAllNodeValueListsConfig().getOrderId() >= -1)
+				configs.add(config.getAllNodeValueListsConfig());
 		}
 	}
 
 	/** Insert all available distributions. **/
-	private void insertDistributions(VisualizerListConfig config) {
+	private void insertDistributions(VisualizerListConfig config,
+			ArrayList<String> blackList) {
 		MultiScalarDistributionItem c = config.getAllDistributionsConfig();
 		for (String dist : this.availableDistributions) {
-			this.legend
-					.addDistributionItemToList(new MultiScalarDistributionItem(
-							dist, c.getSortMode(), c.getXAxis(), c.getYAxis(),
-							c.getDisplayMode(), c.getVisibility()));
+			if (!blackList.contains(dist)) {
+				this.legend
+						.addDistributionItemToList(new MultiScalarDistributionItem(
+								dist, c.getSortMode(), c.getXAxis(), c
+										.getYAxis(), c.getDisplayMode(), c
+										.getVisibility()));
+			}
 		}
 	}
 
 	/** Insert all available nodevaluelists. **/
-	private void insertNodeValueLists(VisualizerListConfig config) {
+	private void insertNodeValueLists(VisualizerListConfig config,
+			ArrayList<String> blackList) {
 		MultiScalarNodeValueListItem c = config.getAllNodeValueListsConfig();
 		for (String nvl : this.availableNodeValueLists) {
-			this.legend
-					.addNodeValueListItemToList(new MultiScalarNodeValueListItem(
-							nvl, c.getSortMode(), c.getXAxis(), c.getYAxis(), c
-									.getDisplayMode(), c.getVisibility()));
+			if (!blackList.contains(nvl)) {
+				this.legend
+						.addNodeValueListItemToList(new MultiScalarNodeValueListItem(
+								nvl, c.getSortMode(), c.getXAxis(), c
+										.getYAxis(), c.getDisplayMode(), c
+										.getVisibility()));
+			}
 		}
 	}
 

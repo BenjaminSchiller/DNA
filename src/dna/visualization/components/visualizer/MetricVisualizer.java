@@ -522,7 +522,7 @@ public class MetricVisualizer extends Visualizer {
 		this.legend.updateAddBox(tempValues);
 
 		// load config
-		if (this.listConfig != null)
+		if (this.listConfig != null && !super.locked)
 			this.loadConfig(this.listConfig);
 
 		// toggle visibility and validate
@@ -672,103 +672,141 @@ public class MetricVisualizer extends Visualizer {
 
 	/** loads a config for displayed values etc. **/
 	public void loadConfig(VisualizerListConfig config) {
+		// check orderIds
+		ArrayList<MetricVisualizerItem> configsList = new ArrayList<MetricVisualizerItem>();
+
+		// add single configs to lists
 		for (ConfigItem c : config.getEntries()) {
 			if (c instanceof MetricVisualizerItem) {
-				if (this.availableValues.contains(c.getName()))
-					this.legend.addValueItemToList((MetricVisualizerItem) c);
+				if (this.availableValues.contains(c.getName())
+						&& c.getOrderId() >= -1) {
+					configsList.add((MetricVisualizerItem) c);
+				}
 			}
 		}
 
-		// check if any general configuration is set
-		if (config.isAnyGeneralConfigSet()) {
-			BatchData b = this.initBatch;
+		// add general configs to list
+		MetricVisualizer.addGeneralConfigs(configsList, config);
 
-			// get max order id
-			int maxId = MetricVisualizer.getMaxId(config);
+		// craft names list to use as a blacklist for general configs later
+		ArrayList<String> configsNamesList = new ArrayList<String>(
+				configsList.size());
+		for (MetricVisualizerItem c : configsList)
+			configsNamesList.add(c.getName());
 
-			// insert all entries in the given order
-			insertForId(0, maxId, b, config);
+		// convert list to array
+		MetricVisualizerItem[] configsArray = configsList
+				.toArray(new MetricVisualizerItem[configsList.size()]);
 
-			// insert all values without id (means id = -1)
-			insertForId(-1, -1, b, config);
+		// sort array with insertion sort
+		for (int i = 1; i < configsArray.length; i++) {
+			MetricVisualizerItem single = configsArray[i];
+			int j = i;
+			while (j > 0
+					&& configsArray[j - 1].getOrderId() > single.getOrderId()) {
+				configsArray[j] = configsArray[j - 1];
+				j--;
+			}
+			configsArray[j] = single;
 		}
+
+		// add according to right order
+		BatchData b = this.initBatch;
+
+		// calculate "breakpoint" in sorted list: where does -1 end?
+		int breakpoint = 0;
+		for (int i = 0; i < configsArray.length
+				&& configsArray[i].getOrderId() < 0; i++)
+			breakpoint = i + 1;
+
+		// first insert items with id > -1, then those with -1
+		this.insertForId(breakpoint, configsArray.length, b, configsNamesList,
+				configsArray, config);
+		this.insertForId(0, breakpoint, b, configsNamesList, configsArray,
+				config);
 	}
 
-	/** Insert the batches values by Id. **/
+	/** Inserts items from the configs array to the legend. **/
 	private void insertForId(int from, int to, BatchData b,
-			VisualizerListConfig config) {
-		for (int id = from; id <= to; id++) {
-			if (config.getAllGeneralRuntimesConfig() != null) {
-				if (config.getGeneralRuntimesOrderId() == id) {
-					// insert all available general runtimes
-					this.insertGeneralRuntimes(b, config);
-				}
-			}
-			if (config.getAllMetricRuntimesConfig() != null) {
-				if (config.getMetricRuntimesOrderId() == id) {
-					// insert all available metric runtimes
-					this.insertMetricRuntimes(b, config);
-				}
-			}
+			ArrayList<String> configsNamesList,
+			MetricVisualizerItem[] configsArray, VisualizerListConfig config) {
+		for (int i = from; i < to; i++) {
+			MetricVisualizerItem item = configsArray[i];
 
-			if (config.getAllStatisticsConfig() != null) {
-				if (config.getStatisticsOrderId() == id) {
-					// insert all available statistics
-					this.insertStatistics(b, config);
-				}
-			}
+			// if orderId < -1, skip
+			if (item.getOrderId() < -1)
+				continue;
 
-			if (config.getAllMetricsConfig() != null) {
-				if (config.getMetricsOrderId() == id) {
-					// insert all available metrics
-					this.insertMetrics(b, config);
-				}
+			switch (item.getName()) {
+			case (VisualizerListConfig.generalGeneralRuntimesConfigName):
+				this.insertGeneralRuntimes(b, config, configsNamesList);
+				break;
+			case (VisualizerListConfig.generalMetricRuntimesConfigName):
+				this.insertMetricRuntimes(b, config, configsNamesList);
+				break;
+			case (VisualizerListConfig.generalStatisticsConfigName):
+				this.insertStatistics(b, config, configsNamesList);
+				break;
+			case (VisualizerListConfig.generalMetricsConfigName):
+				this.insertMetrics(b, config, configsNamesList);
+				break;
+
+			default:
+				if (this.availableValues.contains(item.getName()))
+					this.legend.addValueItemToList(item);
+				break;
 			}
 		}
 	}
 
-	/** Calculates the maximum order id from config. **/
-	private static int getMaxId(VisualizerListConfig config) {
-		int maxId = 0;
+	/** Adds all set general configs to the list. **/
+	private static void addGeneralConfigs(
+			ArrayList<MetricVisualizerItem> configs, VisualizerListConfig config) {
+		if (config.isAnyGeneralConfigSet()) {
+			if (config.getAllGeneralRuntimesConfig() != null
+					&& config.getAllGeneralRuntimesConfig().getOrderId() >= -1)
+				configs.add(config.getAllGeneralRuntimesConfig());
 
-		if (config.getAllGeneralRuntimesConfig() != null)
-			if (config.getGeneralRuntimesOrderId() > maxId)
-				maxId = config.getGeneralRuntimesOrderId();
+			if (config.getAllMetricRuntimesConfig() != null
+					&& config.getAllMetricRuntimesConfig().getOrderId() >= -1)
+				configs.add(config.getAllMetricRuntimesConfig());
 
-		if (config.getAllMetricRuntimesConfig() != null)
-			if (config.getMetricRuntimesOrderId() > maxId)
-				maxId = config.getMetricRuntimesOrderId();
+			if (config.getAllStatisticsConfig() != null
+					&& config.getAllStatisticsConfig().getOrderId() >= -1)
+				configs.add(config.getAllStatisticsConfig());
 
-		if (config.getAllStatisticsConfig() != null)
-			if (config.getStatisticsOrderId() > maxId)
-				maxId = config.getStatisticsOrderId();
-
-		if (config.getAllMetricsConfig() != null)
-			if (config.getMetricsOrderId() > maxId)
-				maxId = config.getMetricsOrderId();
-
-		return maxId;
+			if (config.getAllMetricsConfig() != null
+					&& config.getAllMetricsConfig().getOrderId() >= -1)
+				configs.add(config.getAllMetricsConfig());
+		}
 	}
 
 	/** Insert all available metric runtimes. **/
-	private void insertMetricRuntimes(BatchData b, VisualizerListConfig config) {
+	private void insertMetricRuntimes(BatchData b, VisualizerListConfig config,
+			ArrayList<String> blackList) {
 		// insert all available metric runtimes
 		for (String runtime : b.getMetricRuntimes().getNames()) {
-			MetricVisualizerItem c = config.getAllMetricRuntimesConfig();
-			this.legend
-					.addValueItemToList(new MetricVisualizerItem(
-							MetricVisualizer.metricRuntimesPrefix + runtime, c
-									.getDisplayMode(), c.getYAxis(), c
-									.getVisibility()));
+			if (!blackList.contains(MetricVisualizer.metricRuntimesPrefix
+					+ runtime)) {
+				MetricVisualizerItem c = config.getAllMetricRuntimesConfig();
+				this.legend.addValueItemToList(new MetricVisualizerItem(
+						MetricVisualizer.metricRuntimesPrefix + runtime, c
+								.getDisplayMode(), c.getYAxis(), c
+								.getVisibility()));
+			}
 		}
 	}
 
 	/** Insert all available general runtimes. **/
-	private void insertGeneralRuntimes(BatchData b, VisualizerListConfig config) {
+	private void insertGeneralRuntimes(BatchData b,
+			VisualizerListConfig config, ArrayList<String> blackList) {
 		for (String runtime : b.getGeneralRuntimes().getNames()) {
 			// graphGeneration runtime will be ignored cause it is only present
 			// in the initial batch
-			if (!runtime.equals("graphGeneration")) {
+			if (!runtime.equals("graphGeneration")
+					&& !blackList
+							.contains(MetricVisualizer.generalRuntimesPrefix
+									+ runtime)) {
 				MetricVisualizerItem c = config.getAllGeneralRuntimesConfig();
 				this.legend.addValueItemToList(new MetricVisualizerItem(
 						MetricVisualizer.generalRuntimesPrefix + runtime, c
@@ -779,26 +817,31 @@ public class MetricVisualizer extends Visualizer {
 	}
 
 	/** Insert all available statistics. **/
-	private void insertStatistics(BatchData b, VisualizerListConfig config) {
+	private void insertStatistics(BatchData b, VisualizerListConfig config,
+			ArrayList<String> blackList) {
 		for (String value : b.getValues().getNames()) {
-			MetricVisualizerItem c = config.getAllStatisticsConfig();
-			this.legend
-					.addValueItemToList(new MetricVisualizerItem(
-							MetricVisualizer.statisticsPrefix + value, c
-									.getDisplayMode(), c.getYAxis(), c
-									.getVisibility()));
+			if (!blackList.contains(MetricVisualizer.statisticsPrefix + value)) {
+				MetricVisualizerItem c = config.getAllStatisticsConfig();
+				this.legend.addValueItemToList(new MetricVisualizerItem(
+						MetricVisualizer.statisticsPrefix + value, c
+								.getDisplayMode(), c.getYAxis(), c
+								.getVisibility()));
+			}
 		}
 	}
 
 	/** Insert all available metrics. **/
-	private void insertMetrics(BatchData b, VisualizerListConfig config) {
+	private void insertMetrics(BatchData b, VisualizerListConfig config,
+			ArrayList<String> blackList) {
 		for (String metric : b.getMetrics().getNames()) {
 			for (String value : b.getMetrics().get(metric).getValues()
 					.getNames()) {
-				MetricVisualizerItem c = config.getAllMetricsConfig();
-				this.legend.addValueItemToList(new MetricVisualizerItem(metric
-						+ "." + value, c.getDisplayMode(), c.getYAxis(), c
-						.getVisibility()));
+				if (!blackList.contains(metric + "." + value)) {
+					MetricVisualizerItem c = config.getAllMetricsConfig();
+					this.legend.addValueItemToList(new MetricVisualizerItem(
+							metric + "." + value, c.getDisplayMode(), c
+									.getYAxis(), c.getVisibility()));
+				}
 			}
 		}
 	}
