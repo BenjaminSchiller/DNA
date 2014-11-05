@@ -1554,10 +1554,13 @@ public class PlottingRun {
 							else
 								exprName = expressionSplit[0];
 
-							if (initBatches[j].contains(Plotting
-									.getDomainFromExpression(value,
-											config.getGeneralDomain()),
-									Plotting.getValueFromExpression(value))) {
+							if (initBatches[j]
+									.contains(
+											PlottingUtils.getDomainFromExpression(
+													value,
+													config.getGeneralDomain()),
+											PlottingUtils
+													.getValueFromExpression(value))) {
 								dataList.add(new ExpressionData(exprName,
 										expressionSplit[1], style, exprName
 												.replace("$", "")

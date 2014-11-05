@@ -1445,10 +1445,13 @@ public class Plotting {
 							else
 								exprName = expressionSplit[0];
 
-							if (initBatches[j].contains(Plotting
-									.getDomainFromExpression(value,
-											config.getGeneralDomain()),
-									Plotting.getValueFromExpression(value))) {
+							if (initBatches[j]
+									.contains(
+											PlottingUtils.getDomainFromExpression(
+													value,
+													config.getGeneralDomain()),
+											PlottingUtils
+													.getValueFromExpression(value))) {
 								dataList.add(new ExpressionData(
 										exprName,
 										expressionSplit[1],
@@ -1503,43 +1506,6 @@ public class Plotting {
 				customPlots.add(p);
 			}
 		}
-	}
-
-	/** Returns the first value inside the expression. **/
-	public static String getValueFromExpression(String expr) {
-		String[] split = expr.split("\\$");
-		for (int i = 0; i < split.length; i++) {
-			if (split.length > 1) {
-				String[] split2 = split[1]
-						.split(PlotConfig.customPlotDomainDelimiter);
-				if (split2.length > 1) {
-					String value = "";
-					for (int j = 1; j < split2.length; j++)
-						value += split2[j];
-					return value;
-				}
-				return split[1];
-			}
-		}
-		return null;
-	}
-
-	/** Returns the domain of the first value inside the expression. **/
-	public static String getDomainFromExpression(String expr,
-			String generalDomain) {
-		String[] split = expr.split("\\$");
-		for (int i = 0; i < split.length; i++) {
-			if (split.length > 1) {
-				String[] split2 = split[1]
-						.split(PlotConfig.customPlotDomainDelimiter);
-				if (split2.length > 1) {
-					return split2[0];
-				} else {
-					return generalDomain;
-				}
-			}
-		}
-		return null;
 	}
 
 	/**
