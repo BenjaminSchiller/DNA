@@ -5,7 +5,7 @@ import java.io.IOException;
 import dna.io.ZipWriter;
 import dna.io.filesystem.Dir;
 import dna.io.filesystem.Files;
-import dna.plot.PlottingConfig;
+import dna.plot.PlottingUtils;
 import dna.series.SeriesGeneration;
 import dna.series.aggdata.AggregatedBatch.BatchReadMode;
 import dna.series.lists.DistributionList;
@@ -324,7 +324,7 @@ public class BatchData {
 
 	/** Checks if the batch contains the domain and value. **/
 	public boolean contains(String domain, String value) {
-		return PlottingConfig.isContained(domain, value, this);
+		return PlottingUtils.isContained(domain, value, this);
 	}
 
 }
