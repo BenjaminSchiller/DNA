@@ -19,6 +19,7 @@ import dna.plot.data.PlotData.NodeValueListOrderBy;
 import dna.plot.data.PlotData.PlotDataLocation;
 import dna.plot.data.PlotData.PlotStyle;
 import dna.plot.data.PlotData.PlotType;
+import dna.series.aggdata.AggregatedBatch.BatchReadMode;
 import dna.series.data.BatchData;
 import dna.series.data.BinnedDistributionDouble;
 import dna.series.data.BinnedDistributionInt;
@@ -214,11 +215,11 @@ public class PlottingRun {
 			if (singleFile)
 				batchData[i] = BatchData.readFromSingleFile(
 						Dir.getBatchDataDir(tempDir, timestamp), timestamp,
-						Dir.delimiter, true);
+						Dir.delimiter, BatchReadMode.readOnlySingleValues);
 			else
 				batchData[i] = BatchData.read(
 						Dir.getBatchDataDir(tempDir, timestamp), timestamp,
-						true);
+						BatchReadMode.readOnlySingleValues);
 		}
 
 		// list relevant batches
@@ -1192,11 +1193,11 @@ public class PlottingRun {
 
 			if (singleFile)
 				tempBatch = BatchData.readFromSingleFile(runDir, timestamp,
-						Dir.delimiter, true);
+						Dir.delimiter, BatchReadMode.readOnlyDistAndNvl);
 			else
-				tempBatch = BatchData
-						.read(Dir.getBatchDataDir(runDir, timestamp),
-								timestamp, true);
+				tempBatch = BatchData.read(
+						Dir.getBatchDataDir(runDir, timestamp), timestamp,
+						BatchReadMode.readOnlyDistAndNvl);
 
 			// append data to plots
 			for (Plot p : plots) {
@@ -1303,11 +1304,12 @@ public class PlottingRun {
 					.get(0).getTimestamp();
 			if (singleFile)
 				initBatches[i] = BatchData.readFromSingleFile(tempDir,
-						timestamp, Dir.delimiter, true);
+						timestamp, Dir.delimiter,
+						BatchReadMode.readOnlySingleValues);
 			else
 				initBatches[i] = BatchData.read(
 						Dir.getBatchDataDir(tempDir, timestamp), timestamp,
-						true);
+						BatchReadMode.readOnlySingleValues);
 		}
 
 		// replace wildcards and remove unnecessary plots
@@ -1413,11 +1415,12 @@ public class PlottingRun {
 				try {
 					if (singleFile)
 						batchData[j] = BatchData.readFromSingleFile(tempDir,
-								timestamp, Dir.delimiter, true);
+								timestamp, Dir.delimiter,
+								BatchReadMode.readOnlySingleValues);
 					else
 						batchData[j] = BatchData.read(
 								Dir.getBatchDataDir(tempDir, timestamp),
-								timestamp, true);
+								timestamp, BatchReadMode.readOnlySingleValues);
 				} catch (FileNotFoundException e) {
 					batchData[j] = null;
 				}
@@ -3069,11 +3072,12 @@ public class PlottingRun {
 
 				if (singleFile)
 					tempBatch = BatchData.readFromSingleFile(aggrDir,
-							timestamp, Dir.delimiter, true);
+							timestamp, Dir.delimiter,
+							BatchReadMode.readOnlyDistAndNvl);
 				else
 					tempBatch = BatchData.read(
 							Dir.getBatchDataDir(aggrDir, timestamp), timestamp,
-							true);
+							BatchReadMode.readOnlyDistAndNvl);
 
 				// append data to plots
 				for (Plot p : defaultPlots) {
