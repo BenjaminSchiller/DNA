@@ -4,7 +4,7 @@ import java.io.IOException;
 
 import dna.io.filesystem.Files;
 import dna.metrics.IMetric;
-import dna.metrics.IMetric.MetricType;
+import dna.series.aggdata.AggregatedBatch.BatchReadMode;
 import dna.series.lists.DistributionList;
 import dna.series.lists.ListItem;
 import dna.series.lists.NodeNodeValueListList;
@@ -196,30 +196,63 @@ public class MetricData implements ListItem {
 	 *            Directory the object will be read from
 	 * @param name
 	 *            Name of the returned MetricData object
-	 * @param readValues
-	 *            When true actual values will be read from the Filesystem.
+	 * @param batchReadMode
+	 *            Specifies what data should be read.
 	 * @return Resulting MetricData object
 	 * @throws IOException
 	 *             Thrown by dna/io/reader which is created in order to read the
 	 *             data.
 	 */
-	public static MetricData read(String dir, String name, boolean readValues)
-			throws IOException {
+	public static MetricData read(String dir, String name,
+			BatchReadMode batchReadMode) throws IOException {
+		boolean readSingleValues;
+		boolean readDistributions;
+		boolean readNodeValues;
+		switch (batchReadMode) {
+		case readAllValues:
+			readSingleValues = true;
+			readDistributions = true;
+			readNodeValues = true;
+			break;
+		case readOnlySingleValues:
+			readSingleValues = true;
+			readDistributions = false;
+			readNodeValues = false;
+			break;
+		case readOnlyDistAndNvl:
+			readSingleValues = false;
+			readDistributions = true;
+			readNodeValues = true;
+			break;
+		case readNoValues:
+			readSingleValues = false;
+			readDistributions = false;
+			readNodeValues = false;
+			break;
+		default:
+			readSingleValues = true;
+			readDistributions = true;
+			readNodeValues = true;
+			break;
+		}
 		String tempName = name;
 		String[] temp = dir.split("\\" + Config.get("FILE_NAME_DELIMITER"));
 		IMetric.MetricType tempType = IMetric.MetricType.unknown;
 		try {
-			if (temp[temp.length - 1].equals(IMetric.MetricType.exact.name() + "/")) {
+			if (temp[temp.length - 1].equals(IMetric.MetricType.exact.name()
+					+ "/")) {
 				tempType = IMetric.MetricType.exact;
 				tempName = name.replace(Config.get("FILE_NAME_DELIMITER")
 						+ IMetric.MetricType.exact.name(), "");
 			}
-			if (temp[temp.length - 1].equals(IMetric.MetricType.heuristic.name() + "/")) {
+			if (temp[temp.length - 1].equals(IMetric.MetricType.heuristic
+					.name() + "/")) {
 				tempType = IMetric.MetricType.heuristic;
 				tempName = name.replace(Config.get("FILE_NAME_DELIMITER")
 						+ IMetric.MetricType.heuristic.name(), "");
 			}
-			if (temp[temp.length - 1].equals(IMetric.MetricType.quality.name() + "/")) {
+			if (temp[temp.length - 1].equals(IMetric.MetricType.quality.name()
+					+ "/")) {
 				tempType = IMetric.MetricType.quality;
 			}
 		} catch (IndexOutOfBoundsException e) {
@@ -227,11 +260,14 @@ public class MetricData implements ListItem {
 					+ " ! No MetricType detected!");
 		}
 		ValueList values = ValueList.read(dir,
-				Files.getValuesFilename(Config.get("METRIC_DATA_VALUES")));
-		DistributionList distributions = DistributionList.read(dir, readValues);
-		NodeValueListList nodevalues = NodeValueListList.read(dir, readValues);
+				Files.getValuesFilename(Config.get("METRIC_DATA_VALUES")),
+				readSingleValues);
+		DistributionList distributions = DistributionList.read(dir,
+				readDistributions);
+		NodeValueListList nodevalues = NodeValueListList.read(dir,
+				readNodeValues);
 		NodeNodeValueListList nodenodevalues = NodeNodeValueListList.read(dir,
-				readValues);
+				readNodeValues);
 		return new MetricData(tempName, tempType, values, distributions,
 				nodevalues, nodenodevalues);
 	}
@@ -641,8 +677,9 @@ public class MetricData implements ListItem {
 		}
 		// TODO: compare nodenodevaluelists
 		return new MetricData(m2.getName()
-				+ Config.get("SUFFIX_METRIC_QUALITY"), IMetric.MetricType.quality,
-				comparedValues, comparedDistributions, comparedNodeValues);
+				+ Config.get("SUFFIX_METRIC_QUALITY"),
+				IMetric.MetricType.quality, comparedValues,
+				comparedDistributions, comparedNodeValues);
 	}
 
 	/**

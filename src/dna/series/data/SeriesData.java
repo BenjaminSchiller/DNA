@@ -5,7 +5,6 @@ import java.util.ArrayList;
 
 import dna.io.filesystem.Dir;
 import dna.metrics.IMetric;
-import dna.metrics.IMetric.MetricType;
 import dna.series.aggdata.AggregatedBatch.BatchReadMode;
 import dna.series.aggdata.AggregatedSeries;
 import dna.series.lists.MetricDataList;
@@ -108,17 +107,20 @@ public class SeriesData {
 		String[] runs = Dir.getRuns(dir);
 		RunData[] runList = new RunData[runs.length];
 
+		// batch read mode
+		BatchReadMode batchReadMode;
+		if (readValues)
+			batchReadMode = BatchReadMode.readAllValues;
+		else
+			batchReadMode = BatchReadMode.readNoValues;
+
 		for (String run : runs) {
 			int runId = Dir.getRun(run);
+
 			runList[runId] = RunData.read(Dir.getRunDataDir(dir, runId), runId,
-					readValues);
+					batchReadMode);
 		}
 		if (readAggregation) {
-			BatchReadMode batchReadMode;
-			if (readValues)
-				batchReadMode = BatchReadMode.readAllValues;
-			else
-				batchReadMode = BatchReadMode.readNoValues;
 			AggregatedSeries aggr = AggregatedSeries.read(dir, name,
 					batchReadMode);
 			return new SeriesData(dir, name, runList, aggr);
@@ -194,7 +196,8 @@ public class SeriesData {
 											Dir.getBatchDataDir(this.dir,
 													runZ.getRun(),
 													batchZ.getTimestamp()),
-											batchZ.getTimestamp(), true);
+											batchZ.getTimestamp(),
+											BatchReadMode.readAllValues);
 
 								// compare metrics
 								MetricData quality = MetricData.compare(

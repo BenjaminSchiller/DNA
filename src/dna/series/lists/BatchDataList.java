@@ -3,6 +3,7 @@ package dna.series.lists;
 import java.io.IOException;
 
 import dna.io.filesystem.Dir;
+import dna.series.aggdata.AggregatedBatch.BatchReadMode;
 import dna.series.data.BatchData;
 
 public class BatchDataList extends SortedList<BatchData> {
@@ -22,14 +23,14 @@ public class BatchDataList extends SortedList<BatchData> {
 		}
 	}
 
-	public static BatchDataList read(String dir, boolean readValues)
+	public static BatchDataList read(String dir, BatchReadMode batchReadMode)
 			throws IOException {
 		String[] batches = Dir.getBatches(dir);
 		BatchDataList list = new BatchDataList(batches.length);
 		for (String batch : batches) {
 			list.add(BatchData.read(
 					Dir.getBatchDataDir(dir, Dir.getTimestamp(batch)),
-					Dir.getTimestamp(batch), readValues));
+					Dir.getTimestamp(batch), batchReadMode));
 		}
 		return list;
 	}

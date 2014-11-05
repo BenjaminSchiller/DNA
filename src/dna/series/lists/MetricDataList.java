@@ -3,6 +3,7 @@ package dna.series.lists;
 import java.io.IOException;
 
 import dna.io.filesystem.Dir;
+import dna.series.aggdata.AggregatedBatch.BatchReadMode;
 import dna.series.data.MetricData;
 import dna.util.Config;
 
@@ -39,13 +40,13 @@ public class MetricDataList extends List<MetricData> {
 		}
 	}
 
-	public static MetricDataList read(String dir, boolean readValues)
+	public static MetricDataList read(String dir, BatchReadMode batchReadMode)
 			throws IOException {
 		String[] metrics = Dir.getMetrics(dir);
 		MetricDataList list = new MetricDataList(metrics.length);
 		for (String metric : metrics) {
 			list.add(MetricData.read(dir + metric + Dir.delimiter,
-					Dir.getMetricName(metric), readValues));
+					Dir.getMetricName(metric), batchReadMode));
 		}
 		return list;
 	}

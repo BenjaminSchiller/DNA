@@ -25,8 +25,10 @@ public class ValueList extends List<Value> {
 		w.close();
 	}
 
-	public static ValueList read(String dir, String filename)
+	public static ValueList read(String dir, String filename, boolean readValues)
 			throws IOException {
+		if(!readValues)
+			return new ValueList();
 		ValueList list = new ValueList();
 		Reader r = Reader.getReader(dir, filename);
 

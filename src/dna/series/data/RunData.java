@@ -3,6 +3,7 @@ package dna.series.data;
 import java.io.IOException;
 
 import dna.io.filesystem.Dir;
+import dna.series.aggdata.AggregatedBatch.BatchReadMode;
 import dna.series.lists.BatchDataList;
 import dna.util.Config;
 import dna.util.Log;
@@ -46,7 +47,7 @@ public class RunData {
 		}
 	}
 
-	public static RunData read(String dir, int run, boolean readValues)
+	public static RunData read(String dir, int run, BatchReadMode batchReadMode)
 			throws NumberFormatException, IOException {
 		String[] batches = Dir.getBatches(dir);
 		RunData runData = new RunData(run, batches.length);
@@ -57,13 +58,13 @@ public class RunData {
 				runData.getBatches().add(
 						BatchData.readFromSingleFile(dir,
 								Dir.getTimestamp(batch), Dir.delimiter,
-								readValues));
+								batchReadMode));
 			else
 				runData.getBatches().add(
 						BatchData.read(
 								Dir.getBatchDataDir(dir,
 										Dir.getTimestamp(batch)),
-								Dir.getTimestamp(batch), readValues));
+								Dir.getTimestamp(batch), batchReadMode));
 		}
 		return runData;
 	}

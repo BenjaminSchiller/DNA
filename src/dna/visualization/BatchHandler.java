@@ -15,6 +15,7 @@ import java.util.Random;
 import name.pachler.nio.file.ClosedWatchServiceException;
 import name.pachler.nio.file.StandardWatchEventKind;
 import dna.io.filesystem.Dir;
+import dna.series.aggdata.AggregatedBatch.BatchReadMode;
 import dna.series.data.BatchData;
 import dna.series.lists.BatchDataList;
 import dna.util.Log;
@@ -119,11 +120,11 @@ public class BatchHandler implements Runnable {
 			BatchData tempBatch;
 			if (this.batchesZipped)
 				tempBatch = BatchData.readFromSingleFile(this.dir, timestamp,
-						Dir.delimiter, true);
+						Dir.delimiter, BatchReadMode.readAllValues);
 			else
 				tempBatch = BatchData.read(
 						Dir.getBatchDataDir(this.dir, timestamp), timestamp,
-						true);
+						BatchReadMode.readAllValues);
 			return tempBatch;
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -165,8 +166,8 @@ public class BatchHandler implements Runnable {
 	/** checks available batches and updates timestamps, does not read values **/
 	public void getTimestamps() {
 		try {
-			BatchDataList tempBatches = BatchDataList
-					.read(this.getDir(), false);
+			BatchDataList tempBatches = BatchDataList.read(this.getDir(),
+					BatchReadMode.readNoValues);
 			if (this.getBatches().size() <= tempBatches.size()) {
 				for (BatchData b : tempBatches.list) {
 					this.getBatches().add(b);
@@ -282,7 +283,8 @@ public class BatchHandler implements Runnable {
 													.readFromSingleFile(
 															this.dir,
 															Long.parseLong(parts[1]),
-															Dir.delimiter, true);
+															Dir.delimiter,
+															BatchReadMode.readAllValues);
 										else
 											batch = BatchData
 													.read(Dir
@@ -290,7 +292,7 @@ public class BatchHandler implements Runnable {
 																	this.dir,
 																	Long.parseLong(suffix)),
 															Long.parseLong(suffix),
-															true);
+															BatchReadMode.readAllValues);
 
 										// hand over batch
 										if (!this.isInit) {
@@ -374,7 +376,7 @@ public class BatchHandler implements Runnable {
 																	this.dir,
 																	Long.parseLong(suffix)),
 															Long.parseLong(suffix),
-															true);
+															BatchReadMode.readAllValues);
 
 											// hand over batch
 											if (!this.isInit) {
@@ -544,11 +546,11 @@ public class BatchHandler implements Runnable {
 			BatchData tempBatch;
 			if (this.batchesZipped)
 				tempBatch = BatchData.readFromSingleFile(this.dir, timestamp,
-						Dir.delimiter, true);
+						Dir.delimiter, BatchReadMode.readAllValues);
 			else
 				tempBatch = BatchData.read(
 						Dir.getBatchDataDir(this.dir, timestamp), timestamp,
-						true);
+						BatchReadMode.readAllValues);
 			return tempBatch;
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -586,11 +588,12 @@ public class BatchHandler implements Runnable {
 			BatchData tempBatch;
 			if (this.batchesZipped)
 				tempBatch = BatchData.readFromSingleFile(this.getDir(),
-						bestMatchingTimestamp, Dir.delimiter, true);
+						bestMatchingTimestamp, Dir.delimiter,
+						BatchReadMode.readAllValues);
 			else
 				tempBatch = BatchData.read(
 						Dir.getBatchDataDir(this.dir, bestMatchingTimestamp),
-						bestMatchingTimestamp, true);
+						bestMatchingTimestamp, BatchReadMode.readAllValues);
 			mainFrame.updateData(tempBatch);
 		} catch (IOException e) {
 			e.printStackTrace();

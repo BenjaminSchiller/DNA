@@ -25,7 +25,9 @@ public class RunTimeList extends List<RunTime> {
 		w.close();
 	}
 
-	public static RunTimeList read(String dir, String name) throws IOException {
+	public static RunTimeList read(String dir, String name, boolean readValues) throws IOException {
+		if(!readValues)
+			return new RunTimeList();
 		RunTimeList list = new RunTimeList();
 		Reader r = Reader.getReader(dir, name);
 

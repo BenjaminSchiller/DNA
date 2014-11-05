@@ -7,6 +7,7 @@ import dna.io.filesystem.Dir;
 import dna.io.filesystem.Files;
 import dna.plot.PlottingConfig;
 import dna.series.SeriesGeneration;
+import dna.series.aggdata.AggregatedBatch.BatchReadMode;
 import dna.series.lists.DistributionList;
 import dna.series.lists.MetricDataList;
 import dna.series.lists.NodeNodeValueListList;
@@ -114,16 +115,29 @@ public class BatchData {
 		this.metrics.write(dir);
 	}
 
-	public static BatchData read(String dir, long timestamp, boolean readValues)
-			throws IOException {
+	/**
+	 * Reads the batch and its values corresponding to the BatchReadMode.
+	 * 
+	 * @throws IOException
+	 **/
+	public static BatchData read(String dir, long timestamp,
+			BatchReadMode batchReadMode) throws IOException {
+		boolean readValues;
+		if (batchReadMode.equals(BatchReadMode.readNoValues)
+				|| batchReadMode.equals(BatchReadMode.readOnlyDistAndNvl))
+			readValues = false;
+		else
+			readValues = true;
+
 		ValueList values = ValueList.read(dir,
-				Files.getValuesFilename(Config.get("BATCH_STATS")));
+				Files.getValuesFilename(Config.get("BATCH_STATS")), readValues);
 		RunTimeList generalRuntimes = RunTimeList
 				.read(dir, Files.getRuntimesFilename(Config
-						.get("BATCH_GENERAL_RUNTIMES")));
+						.get("BATCH_GENERAL_RUNTIMES")), readValues);
 		RunTimeList metricRuntimes = RunTimeList.read(dir,
-				Files.getRuntimesFilename(Config.get("BATCH_METRIC_RUNTIMES")));
-		MetricDataList metrics = MetricDataList.read(dir, readValues);
+				Files.getRuntimesFilename(Config.get("BATCH_METRIC_RUNTIMES")),
+				readValues);
+		MetricDataList metrics = MetricDataList.read(dir, batchReadMode);
 		return new BatchData(timestamp, values, generalRuntimes,
 				metricRuntimes, metrics);
 	}
@@ -142,14 +156,15 @@ public class BatchData {
 			BatchData b) throws IOException {
 		// read values
 		ValueList values = ValueList.read(dir,
-				Files.getValuesFilename(Config.get("BATCH_STATS")));
+				Files.getValuesFilename(Config.get("BATCH_STATS")), true);
 
 		// read runtimes
 		RunTimeList generalRuntimes = RunTimeList
 				.read(dir, Files.getRuntimesFilename(Config
-						.get("BATCH_GENERAL_RUNTIMES")));
+						.get("BATCH_GENERAL_RUNTIMES")), true);
 		RunTimeList metricRuntimes = RunTimeList.read(dir,
-				Files.getRuntimesFilename(Config.get("BATCH_METRIC_RUNTIMES")));
+				Files.getRuntimesFilename(Config.get("BATCH_METRIC_RUNTIMES")),
+				true);
 
 		// read metrics
 		MetricDataList metrics = new MetricDataList(b.getMetrics().size());
@@ -157,7 +172,8 @@ public class BatchData {
 			String mDir = Dir.getMetricDataDir(dir, m.getName(), m.getType());
 			// init metric values
 			ValueList mValues = ValueList.read(mDir,
-					Files.getValuesFilename(Config.get("METRIC_DATA_VALUES")));
+					Files.getValuesFilename(Config.get("METRIC_DATA_VALUES")),
+					true);
 			DistributionList mDistributions = new DistributionList(m
 					.getDistributions().size());
 			NodeValueListList mNodevalues = new NodeValueListList(m
@@ -263,10 +279,10 @@ public class BatchData {
 
 	/** Reads the whole batch from a single zip file **/
 	public static BatchData readFromSingleFile(String fsDir, long timestamp,
-			String dir, boolean readValues) throws IOException {
+			String dir, BatchReadMode batchReadMode) throws IOException {
 		SeriesGeneration.readFileSystem = ZipWriter.createBatchFileSystem(
 				fsDir, Config.get("SUFFIX_ZIP_FILE"), timestamp);
-		BatchData tempBatchData = read(dir, timestamp, readValues);
+		BatchData tempBatchData = read(dir, timestamp, batchReadMode);
 		SeriesGeneration.readFileSystem.close();
 		SeriesGeneration.readFileSystem = null;
 		return tempBatchData;
@@ -310,5 +326,5 @@ public class BatchData {
 	public boolean contains(String domain, String value) {
 		return PlottingConfig.isContained(domain, value, this);
 	}
-	
+
 }
