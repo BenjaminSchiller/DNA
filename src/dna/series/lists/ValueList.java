@@ -1,5 +1,6 @@
 package dna.series.lists;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 
 import dna.io.Reader;
@@ -27,17 +28,23 @@ public class ValueList extends List<Value> {
 
 	public static ValueList read(String dir, String filename, boolean readValues)
 			throws IOException {
-		if(!readValues)
+		if (!readValues)
 			return new ValueList();
 		ValueList list = new ValueList();
-		Reader r = Reader.getReader(dir, filename);
 
-		String line = null;
-		while ((line = r.readString()) != null) {
-			String[] temp = line.split("=");
-			list.add(new Value(temp[0], Double.parseDouble(temp[1])));
+		// try to read values, if no file exists = no values, return empty list
+		try {
+			Reader r = Reader.getReader(dir, filename);
+
+			String line = null;
+			while ((line = r.readString()) != null) {
+				String[] temp = line.split("=");
+				list.add(new Value(temp[0], Double.parseDouble(temp[1])));
+			}
+			r.close();
+		} catch (FileNotFoundException e) {
+
 		}
-		r.close();
 		return list;
 	}
 }

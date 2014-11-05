@@ -1,5 +1,6 @@
 package dna.series.aggdata;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 
 import dna.io.Reader;
@@ -45,17 +46,24 @@ public class AggregatedValueList extends List<AggregatedValue> {
 			return new AggregatedValueList();
 		}
 		AggregatedValueList list = new AggregatedValueList();
-		Reader r = Reader.getReader(dir, filename);
-		String line = null;
-		while ((line = r.readString()) != null) {
-			String[] temp = line.split(Config.get("AGGREGATED_DATA_DELIMITER"));
-			double[] values = new double[temp.length - 1];
-			for (int i = 1; i < temp.length; i++) {
-				values[i - 1] = Double.parseDouble(temp[i]);
+
+		// try to read values, if no file exists = no values, return empty list
+		try {
+			Reader r = Reader.getReader(dir, filename);
+			String line = null;
+			while ((line = r.readString()) != null) {
+				String[] temp = line.split(Config
+						.get("AGGREGATED_DATA_DELIMITER"));
+				double[] values = new double[temp.length - 1];
+				for (int i = 1; i < temp.length; i++) {
+					values[i - 1] = Double.parseDouble(temp[i]);
+				}
+				list.add(new AggregatedValue(temp[0], values));
 			}
-			list.add(new AggregatedValue(temp[0], values));
+			r.close();
+		} catch (FileNotFoundException e) {
+
 		}
-		r.close();
 		return list;
 	}
 }

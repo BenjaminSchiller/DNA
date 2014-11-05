@@ -65,8 +65,9 @@ public class AggregatedMetric implements ListItem {
 
 	// IO methods
 	public void write(String dir) throws IOException {
-		this.values.write(dir,
-				Files.getValuesFilename(Config.get("METRIC_DATA_VALUES")));
+		if (this.values.size() > 0)
+			this.values.write(dir,
+					Files.getValuesFilename(Config.get("METRIC_DATA_VALUES")));
 		this.distributions.write(dir);
 		this.nodevalues.write(dir);
 	}
