@@ -43,13 +43,15 @@ public class TrafficCrossroadBatchGenerator extends BatchGenerator{
 	DateTime initDateTime;
 	int stepSize;
 	int run=0;
+	int observationDays;
 	private int modus;
 	DateTime holidayStart;
 	boolean[] daySelection;
 	HashMap<EdgeContainer,Edge> disabledEdges = new HashMap<>();
 	private TrafficUpdate trafficUpdate;
+	HashMap<Integer,CrossroadWeightList> nodeHistory;
 
-	public TrafficCrossroadBatchGenerator(String name,DB db, DateTime initDateTime, int stepSize, int modus, DateTime holidayStart, boolean [] daySelection,TrafficUpdate trafficUpdate) {
+	public TrafficCrossroadBatchGenerator(String name,DB db, DateTime initDateTime, int stepSize, int modus, DateTime holidayStart, boolean [] daySelection,TrafficUpdate trafficUpdate, int observationDays) {
 		super(name, new IntParameter("NA", 0), new IntParameter("NR",
 				0), new IntParameter("NW", 0),
 				new ObjectParameter("NWS", 0), new IntParameter("EA", 0),
@@ -61,6 +63,7 @@ public class TrafficCrossroadBatchGenerator extends BatchGenerator{
 		this.holidayStart = holidayStart;
 		this.daySelection = daySelection;
 		this.trafficUpdate = trafficUpdate;
+		this.observationDays = observationDays;
 	}
 
 	@Override
@@ -77,11 +80,16 @@ public class TrafficCrossroadBatchGenerator extends BatchGenerator{
 		CrossroadWeight crossroadWeight = null;
 		DateTime time = null;
 		if(modus == 1 || modus == 2){
+			System.out.println("Alter Batch am : \t" +initDateTime);
 			time = initDateTime;
 			time = Helpers.calculateNextDay(time, g.getTimestamp(),daySelection,holidayStart);
+			System.out.println("Neuer Batch am : \t" +time);
+		}
+		if(modus == 3){
+			nodeHistory = new HashMap<>();
 		}
 		int newTimeStamp = (int) g.getTimestamp() + 1;
-		System.out.println("Neuer Batch am : \t" +time);
+		
 		for (IElement currentNode : nodes) {
 			DirectedWeightedNode n = (DirectedWeightedNode) currentNode;
 			double[] update = null;
@@ -97,9 +105,30 @@ public class TrafficCrossroadBatchGenerator extends BatchGenerator{
 			else if (modus == 2){ // Statische Verkehrsanalyse
 				crossroadWeight = db.getCrossroadWeightStaticBatch(n.getIndex(),trafficUpdate);
 			}
+			else if (modus == 3){
+				time = initDateTime;
+				int index = n.getIndex();
+				for (int i = 0; i < observationDays; i++) {
+					time = Helpers.calculateNextDay(time, g.getTimestamp(),daySelection,holidayStart);
+					CrossroadWeight weightOfDay = db.getCrossroadWeight(n.getIndex(),time.minusMinutes(db.timeRange*2),time.plusMinutes(db.timeRange*2),newTimeStamp);
+					if(nodeHistory.containsKey(index)){
+						nodeHistory.get(index).add(weightOfDay);
+					}
+					else{
+						CrossroadWeightList weightList = new CrossroadWeightList(weightOfDay.crossroadID,weightOfDay.crossroadName,weightOfDay.getThreshold());
+						weightList.add(weightOfDay);
+						nodeHistory.put(index, weightList);
+					}
+					//System.out.println("Alter Batch am "+initDateTime);
+					//System.out.println("Update auf Knoten mit Index " +index +" am " + time);
+				}
+				crossroadWeight = nodeHistory.get(index).getAverage();
+				
+			}
 			update = crossroadWeight.getWeight();
 			Double3dWeight oldWeight = (Double3dWeight) n.getWeight();
 			Double3dWeight newWeight = new Double3dWeight(update[0],update[1],update[2]);
+			System.out.println("Index: \t"+n.getIndex()+"\tOldWeight: "+oldWeight.asString()+"\tNewWeight:"+newWeight.asString());
 			if(!oldWeight.equals(newWeight))
 				b.add(new NodeWeight((dna.graph.weights.IWeightedNode) currentNode,newWeight));
 			

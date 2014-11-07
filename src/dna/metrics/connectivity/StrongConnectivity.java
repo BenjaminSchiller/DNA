@@ -121,7 +121,7 @@ public abstract class StrongConnectivity extends Metric {
 	@Override
 	public Value[] getValues() {
 		Value v1 = new Value("NumberofComponents", countComponents());
-		Value v2 = new Value("average size", getaverageSize());
+		Value v2 = new Value("averagesize", getaverageSize());
 		return new Value[] { v1, v2 };
 	}
 

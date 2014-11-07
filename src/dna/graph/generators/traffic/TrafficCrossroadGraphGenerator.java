@@ -79,7 +79,7 @@ public class TrafficCrossroadGraphGenerator extends GraphGenerator{
 			case 0:
 				crossroadWeight = db.getCrossroadWeight(currentWeighted.getIndex(),initDateTime,initDateTime.plusMinutes(stepsize),0);
 				break;
-			case 1:
+			case 1:case 3:
 				crossroadWeight = db.getCrossroadWeight(currentWeighted.getIndex(),initDateTime.minusMinutes(timeRange),initDateTime.plusMinutes(timeRange),0);
 				break;	
 			case 2:

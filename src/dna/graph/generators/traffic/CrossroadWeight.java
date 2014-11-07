@@ -1,6 +1,7 @@
 package dna.graph.generators.traffic;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class CrossroadWeight {
@@ -22,6 +23,10 @@ public class CrossroadWeight {
 		this.timestamp=0;
 	}
 	
+	public double getThreshold(){
+		return threshold;
+	}
+	
 	public void addWeightWay(int osmWayID, double[] weights) {
 		inputWayWeights.put(osmWayID, weights);
 	}
@@ -30,9 +35,14 @@ public class CrossroadWeight {
 		inputWayMaxWeights.put(osmWayID, maxWeights);
 	}
 	
+	public double[] getMaxWeightWay(int osmWayID) {
+		return inputWayMaxWeights.get(osmWayID);
+	}
+	
 	public void setTimestamp(int timestamp){
 		this.timestamp = timestamp;
 	}
+	
 	public int getTimestamp(){
 		return timestamp;
 	}
@@ -40,6 +50,9 @@ public class CrossroadWeight {
 	public void setMaxWeight(double[] maxWeights) {
 		this.maxCount=maxWeights[0];
 		this.maxLoad=maxWeights[1];
+	}
+	public double[] getMaxWeight() {
+		return new double[] {maxCount,maxLoad};
 	}
 	
 	public void resetInputWayWeight(double count, double load){
@@ -65,7 +78,10 @@ public class CrossroadWeight {
 			sum[1]+=entry[1];
 		}
 		int numOfinputWays = inputWayWeights.size();
-		sum[2]=(sum[0]/maxCount)*100;
+		if(maxCount>0)
+			sum[2]=(sum[0]/maxCount)*100;
+		else
+			sum[2]=0;
 		return sum;
 	}
 	
@@ -78,4 +94,38 @@ public class CrossroadWeight {
 		}
 		return result;
 	}
+	
+	public HashMap<Integer, double[]> getWayWeights(){
+		return inputWayWeights;
+		
+	}
+	
+	public boolean addWeights(HashMap<Integer,double[]> wayWeights){
+		for (Integer keys : wayWeights.keySet()) {
+			if(!inputWayWeights.containsKey(keys))
+				return false;
+		}
+		for (Map.Entry<Integer, double[]>  entry : wayWeights.entrySet()) {
+			double[] value = inputWayWeights.get(entry.getKey());
+			double[] newValue = entry.getValue();
+			for (int i = 0; i < value.length; i++) {
+				value[i]+=newValue[i];
+			}
+			inputWayWeights.put(entry.getKey(), value);
+		}
+		return true;
+	}
+	
+	public void divWays(int divisor){
+		if(divisor>0){
+			for (Map.Entry<Integer, double[]> entry : inputWayWeights.entrySet()) {
+				double[] value = entry.getValue();
+				for (int i = 0; i < value.length; i++) {
+					value[i] = value[i]/divisor;
+				}
+				inputWayWeights.put(entry.getKey(), value);
+			}
+		}
+	}
+	
 }
