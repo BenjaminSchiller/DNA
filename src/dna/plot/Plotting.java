@@ -247,6 +247,9 @@ public class Plotting {
 
 		ArrayList<Plot> customPlots = new ArrayList<Plot>();
 
+		// define list of custom plots that substitute default plots
+		ArrayList<PlotConfig> customDefaultSubstitutePlots = new ArrayList<PlotConfig>();
+
 		if (plotDistributions) {
 			if (customDistributionPlots.size() > 0)
 				Log.info("Plotting custom distribution plots:");
@@ -256,6 +259,10 @@ public class Plotting {
 				Log.info("\tplotting '" + pc.getFilename() + "'");
 				String[] values = pc.getValues();
 				String[] domains = pc.getDomains();
+
+				// if only 1 value, add plot to list of substitutes
+				if (values.length == 1)
+					customDefaultSubstitutePlots.add(pc);
 
 				// check what to plot
 				boolean plotDist = false;
@@ -441,6 +448,10 @@ public class Plotting {
 				String[] values = pc.getValues();
 				String[] domains = pc.getDomains();
 
+				// if only 1 value, add plot to list of substitutes
+				if (values.length == 1)
+					customDefaultSubstitutePlots.add(pc);
+
 				// count different domains
 				ArrayList<String> dList = new ArrayList<String>();
 				for (String d : domains) {
@@ -501,7 +512,7 @@ public class Plotting {
 										line.setDataLocation(
 												PlotDataLocation.dataFile,
 												Dir.getAggregatedMetricDataDir(
-														seriesData[i].getDir(),
+														seriesData[j].getDir(),
 														timestamp, domain)
 														+ Files.getNodeValueListFilename(value));
 									dataList.add(line);
@@ -938,6 +949,26 @@ public class Plotting {
 				String metric = split[0];
 				String dist = split[1];
 
+				// substitution
+				boolean substituteAvailable = false;
+
+				for (PlotConfig pc : customDefaultSubstitutePlots) {
+					if (substituteAvailable)
+						continue;
+
+					if (pc.getDomains()[0].equals(metric)
+							&& pc.getValues()[0].equals(dist)) {
+						Log.info("\tskipping '" + metric + "." + dist + "'");
+						Log.info("\t\t->  replaced by customplot '"
+								+ pc.getFilename() + "'");
+						substituteAvailable = true;
+					}
+				}
+
+				// skip if substitution is available
+				if (substituteAvailable)
+					continue;
+
 				// log
 				Log.info("\tplotting '" + metric + "." + dist + "'");
 
@@ -1094,6 +1125,26 @@ public class Plotting {
 				int[] seriesDataQuantities = new int[seriesData.length];
 				String metric = split[0];
 				String nvl = split[1];
+
+				// substitution
+				boolean substituteAvailable = false;
+
+				for (PlotConfig pc : customDefaultSubstitutePlots) {
+					if (substituteAvailable)
+						continue;
+
+					if (pc.getDomains()[0].equals(metric)
+							&& pc.getValues()[0].equals(nvl)) {
+						Log.info("\tskipping '" + metric + "." + nvl + "'");
+						Log.info("\t\t  ->  replaced by customplot '"
+								+ pc.getFilename() + "'");
+						substituteAvailable = true;
+					}
+				}
+
+				// skip if substitution is available
+				if (substituteAvailable)
+					continue;
 
 				// log
 				Log.info("\tplotting '" + metric + "." + nvl + "'");
@@ -1286,7 +1337,8 @@ public class Plotting {
 		if (Config.getBoolean("DEFAULT_PLOTS_ENABLED"))
 			Plotting.generateMultiSeriesDefaultPlots(defaultPlots, dstDir,
 					seriesData, initBatches, plotStatistics, plotMetricValues,
-					plotRuntimes, style, type);
+					plotRuntimes, style, type, customMetricValuePlots,
+					customValuePlots);
 
 		// write script headers
 		for (Plot p : plots)
@@ -1538,7 +1590,8 @@ public class Plotting {
 			ArrayList<Plot> plotList, String dstDir, SeriesData[] seriesData,
 			AggregatedBatch[] initBatches, boolean plotStatistics,
 			boolean plotMetricValues, boolean plotRuntimes, PlotStyle style,
-			PlotType type) throws IOException {
+			PlotType type, ArrayList<PlotConfig> customMetricValuePlots,
+			ArrayList<PlotConfig> customValuePlots) throws IOException {
 		// contains the names of values
 		ArrayList<String> values = new ArrayList<String>();
 		ArrayList<String> genRuntimeValues = new ArrayList<String>();
@@ -1551,6 +1604,21 @@ public class Plotting {
 		ArrayList<Integer> valuesOccurence = new ArrayList<Integer>();
 		ArrayList<Integer> genRuntimeOccurence = new ArrayList<Integer>();
 		ArrayList<Integer> metRuntimeOccurence = new ArrayList<Integer>();
+
+		// define list of custom plots that substitute default plots
+		ArrayList<PlotConfig> customDefaultSubstitutePlots = new ArrayList<PlotConfig>();
+		if (customMetricValuePlots != null) {
+			for (PlotConfig pc : customMetricValuePlots) {
+				// if only 1 value, add plot to list of substitutes
+				if (pc.getValues().length == 1)
+					customDefaultSubstitutePlots.add(pc);
+			}
+			for (PlotConfig pc : customValuePlots) {
+				// if only 1 value, add plot to list of substitutes
+				if (pc.getValues().length == 1)
+					customDefaultSubstitutePlots.add(pc);
+			}
+		}
 
 		// printed flag
 		boolean printed = false;
@@ -1860,6 +1928,39 @@ public class Plotting {
 				String metric = split[0];
 				String value = split[1];
 
+				// substitution
+				boolean substituteAvailable = false;
+
+				for (PlotConfig pc : customDefaultSubstitutePlots) {
+					if (substituteAvailable)
+						continue;
+
+					if (pc.getDomains()[0]
+							.equals(PlotConfig.customPlotDomainExpression)) {
+						if (PlottingUtils.getDomainFromExpression(
+								pc.getValues()[0], pc.getGeneralDomain())
+								.equals(metric)
+								&& PlottingUtils.getValueFromExpression(
+										pc.getValues()[0]).equals(value)) {
+							Log.info("\tskipping '" + metric + "." + value
+									+ "'");
+							Log.info("\t\t  ->  replaced by customplot '"
+									+ pc.getFilename() + "'");
+							substituteAvailable = true;
+						}
+					} else if (pc.getDomains()[0].equals(metric)
+							&& pc.getValues()[0].equals(value)) {
+						Log.info("\tskipping '" + metric + "." + value + "'");
+						Log.info("\t\t  ->  replaced by customplot '"
+								+ pc.getFilename() + "'");
+						substituteAvailable = true;
+					}
+				}
+
+				// skip if substitution is available
+				if (substituteAvailable)
+					continue;
+
 				// log
 				Log.info("\tplotting '" + metric + "." + value + "'");
 
@@ -2003,7 +2104,9 @@ public class Plotting {
 		// plot metric values
 		if (config.isPlotMetricValues()) {
 			Plotting.plotMetricValues(batchData, initBatch.getMetrics(),
-					dstDir, title, style, type);
+					dstDir, title, style, type,
+					config.getCustomMetricValuePlots(),
+					config.getCustomValuePlots());
 
 			// plot custom metric value plots
 			if (config.getCustomMetricValuePlots() != null) {
@@ -3046,6 +3149,19 @@ public class Plotting {
 		// generate plots
 		List<Plot> plots = new LinkedList<Plot>();
 
+		// define list of custom plots that substitute default plots
+		ArrayList<PlotConfig> customDefaultSubstitutePlots = new ArrayList<PlotConfig>();
+		for (PlotConfig pc : customDistributionPlots) {
+			// if only 1 value, add plot to list of substitutes
+			if (pc.getValues().length == 1)
+				customDefaultSubstitutePlots.add(pc);
+		}
+		for (PlotConfig pc : customNodeValueListPlots) {
+			// if only 1 value, add plot to list of substitutes
+			if (pc.getValues().length == 1)
+				customDefaultSubstitutePlots.add(pc);
+		}
+
 		// iterate over metrics and create plots
 		for (AggregatedMetric m : initBatch.getMetrics().getList()) {
 			String metric = m.getName();
@@ -3057,6 +3173,28 @@ public class Plotting {
 					&& Config.getBoolean("DEFAULT_PLOT_DISTRIBUTIONS")) {
 				for (AggregatedDistribution d : m.getDistributions().getList()) {
 					String distribution = d.getName();
+
+					// substitution
+					boolean substituteAvailable = false;
+
+					for (PlotConfig pc : customDefaultSubstitutePlots) {
+						if (substituteAvailable)
+							continue;
+
+						if (pc.getDomains()[0].equals(metric)
+								&& pc.getValues()[0].equals(distribution)) {
+							Log.info("\tskipping '" + metric + "."
+									+ distribution + "'");
+							Log.info("\t\t  ->  replaced by customplot '"
+									+ pc.getFilename() + "'");
+							substituteAvailable = true;
+						}
+					}
+
+					// skip if substitution is available
+					if (substituteAvailable)
+						continue;
+
 					Log.info("\tplotting distribution '" + distribution + "'");
 
 					// get dist filename
@@ -3159,6 +3297,28 @@ public class Plotting {
 					&& Config.getBoolean("DEFAULT_PLOT_NODEVALUELISTS")) {
 				for (AggregatedNodeValueList n : m.getNodeValues().getList()) {
 					String nodevaluelist = n.getName();
+
+					// substitution
+					boolean substituteAvailable = false;
+
+					for (PlotConfig pc : customDefaultSubstitutePlots) {
+						if (substituteAvailable)
+							continue;
+
+						if (pc.getDomains()[0].equals(metric)
+								&& pc.getValues()[0].equals(nodevaluelist)) {
+							Log.info("\tskipping '" + metric + "."
+									+ nodevaluelist + "'");
+							Log.info("\t\t  ->  replaced by customplot '"
+									+ pc.getFilename() + "'");
+							substituteAvailable = true;
+						}
+					}
+
+					// skip if substitution is available
+					if (substituteAvailable)
+						continue;
+
 					Log.info("\tplotting nodevaluelist '" + nodevaluelist + "'");
 
 					// generate normal plots
@@ -3565,11 +3725,30 @@ public class Plotting {
 	/** Plots metric values **/
 	private static void plotMetricValues(AggregatedBatch[] batchData,
 			AggregatedMetricList metrics, String dstDir, String title,
-			PlotStyle style, PlotType type) throws IOException,
+			PlotStyle style, PlotType type,
+			ArrayList<PlotConfig> customMetricValuePlots,
+			ArrayList<PlotConfig> customValuePlots) throws IOException,
 			InterruptedException {
 
 		// init list for plots
 		List<Plot> plots = new LinkedList<Plot>();
+
+		// define list of custom plots that substitute default plots
+		ArrayList<PlotConfig> customDefaultSubstitutePlots = new ArrayList<PlotConfig>();
+		if (customMetricValuePlots != null) {
+			for (PlotConfig pc : customMetricValuePlots) {
+				// if only 1 value, add plot to list of substitutes
+				if (pc.getValues().length == 1)
+					customDefaultSubstitutePlots.add(pc);
+			}
+		}
+		if (customValuePlots != null) {
+			for (PlotConfig pc : customValuePlots) {
+				// if only 1 value, add plot to list of substitutes
+				if (pc.getValues().length == 1)
+					customDefaultSubstitutePlots.add(pc);
+			}
+		}
 
 		// generate single plots
 		for (AggregatedMetric m : metrics.getList()) {
@@ -3578,6 +3757,41 @@ public class Plotting {
 			Log.info("Plotting metric " + metric);
 			for (AggregatedValue v : m.getValues().getList()) {
 				String value = v.getName();
+
+				// substitution
+				boolean substituteAvailable = false;
+
+				for (PlotConfig pc : customDefaultSubstitutePlots) {
+					if (substituteAvailable)
+						continue;
+
+					if (pc.getDomains()[0]
+							.equals(PlotConfig.customPlotDomainExpression)) {
+						if (PlottingUtils.getDomainFromExpression(
+								pc.getValues()[0], pc.getGeneralDomain())
+								.equals(metric)
+								&& PlottingUtils.getValueFromExpression(
+										pc.getValues()[0]).equals(value)) {
+							Log.info("\tskipping '" + metric + "." + value
+									+ "'");
+							Log.info("\t\t  ->  replaced by customplot '"
+									+ pc.getFilename() + "'");
+							substituteAvailable = true;
+						}
+					} else if (pc.getDomains()[0].equals(metric)
+							&& pc.getValues()[0].equals(value)) {
+						Log.info("\tskipping '" + metric + "." + value + "'");
+						Log.info("\t\t  ->  replaced by customplot '"
+								+ pc.getFilename() + "'");
+						substituteAvailable = true;
+					}
+				}
+
+				// skip if substitution is available
+				if (substituteAvailable)
+					continue;
+
+				// log
 				Log.info("\tplotting '" + value + "'");
 
 				// get plot data
