@@ -108,8 +108,9 @@ public class TrafficCrossroadBatchGenerator extends BatchGenerator{
 			else if (modus == 3){ // Aggregiert die Weiter für einen Beobachtungszeitraum in der Vergangenheit
 				time = initDateTime;
 				int index = n.getIndex();
+				long start = g.getTimestamp();
 				for (int i = 0; i < observationDays; i++) {
-					time = Helpers.calculateNextDay(time, g.getTimestamp(),daySelection,holidayStart,false);
+					time = Helpers.calculateNextDay(initDateTime, start++,daySelection,holidayStart,false);
 					CrossroadWeight weightOfDay = db.getCrossroadWeight(n.getIndex(),time.minusMinutes(db.timeRange*2),time.plusMinutes(db.timeRange*2),newTimeStamp);
 					if(nodeHistory.containsKey(index)){
 						nodeHistory.get(index).add(weightOfDay);
@@ -119,15 +120,17 @@ public class TrafficCrossroadBatchGenerator extends BatchGenerator{
 						weightList.add(weightOfDay);
 						nodeHistory.put(index, weightList);
 					}
+					System.out.println("Aggreate: "+time);
 					//System.out.println("Alter Batch am "+initDateTime);
 					//System.out.println("Update auf Knoten mit Index " +index +" am " + time);
 				}
+				
 				crossroadWeight = nodeHistory.get(index).getAverage();
 			}
 			update = crossroadWeight.getWeight();
 			Double3dWeight oldWeight = (Double3dWeight) n.getWeight();
 			Double3dWeight newWeight = new Double3dWeight(update[0],update[1],update[2]);
-			System.out.println("Index: \t"+n.getIndex()+"\tOldWeight: "+oldWeight.asString()+"\tNewWeight:"+newWeight.asString());
+			//System.out.println("Index: \t"+n.getIndex()+"\tOldWeight: "+oldWeight.asString()+"\tNewWeight:"+newWeight.asString());
 			if(Math.abs(oldWeight.getZ() - newWeight.getZ())>10 )
 				System.out.println("Alarm.");
 			if(!oldWeight.equals(newWeight))

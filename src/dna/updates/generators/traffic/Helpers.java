@@ -14,10 +14,10 @@ public class Helpers {
 		return calculateNextDay(start, l, new boolean[]{true,true,true,true,true,false,false},null,forward);
 	}
 	
-	public static DateTime calculateNextDay(DateTime end, long l, boolean[] daySelection,DateTime ignoreTo, boolean forward){
+	public static DateTime calculateNextDay(DateTime end, long timestamp, boolean[] daySelection,DateTime ignoreTo, boolean forward){
 		DateTime current = end;
 		int count = 0;
-		while(count <= l) {
+		while(count <= timestamp) {
 			current = forward ? current.plusDays(1) : current.minusDays(1);
 			if(daySelection[current.getDayOfWeek()-1] && (current.isBefore(ignoreTo) || forward)){
 				count++;

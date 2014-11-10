@@ -81,17 +81,19 @@ public class CrossroadWeight {
 		if(numOfinputWays>0){
 			sum[1]/=numOfinputWays;
 		}
-		if(maxCount>0)
+		/*if(maxCount>0)
 			sum[2]=(sum[0]/maxCount)*100;
 		else
-			sum[2]=0;
+			sum[2]=0;*/
+		if(sum[1]>0)
+		sum[2] = sum[1];
 		return sum;
 	}
 	
 	public HashMap<Integer,double[]> getOverladedEdges() {
 		HashMap<Integer, double[]> result = new HashMap<>();
 		for (Map.Entry<Integer, double[]> inputWay : inputWayWeights.entrySet()) {
-			if(inputWay.getValue()[2] >threshold){
+			if(inputWay.getValue()[1] >threshold){
 				result.put(inputWay.getKey(), inputWay.getValue());
 			}
 		}
