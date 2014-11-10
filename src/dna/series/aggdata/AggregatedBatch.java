@@ -6,6 +6,7 @@ import dna.io.ZipWriter;
 import dna.io.filesystem.Files;
 import dna.plot.PlottingUtils;
 import dna.series.SeriesGeneration;
+import dna.series.data.BatchGeneral;
 import dna.util.Config;
 import dna.util.Log;
 
@@ -15,7 +16,7 @@ import dna.util.Log;
  * @author Rwilmes
  * @date 04.07.2013
  */
-public class AggregatedBatch {
+public class AggregatedBatch implements BatchGeneral {
 
 	// read enumeration
 	public static enum BatchReadMode {
