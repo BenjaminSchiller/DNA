@@ -78,6 +78,9 @@ public class CrossroadWeight {
 			sum[1]+=entry[1];
 		}
 		int numOfinputWays = inputWayWeights.size();
+		if(numOfinputWays>0){
+			sum[1]/=numOfinputWays;
+		}
 		if(maxCount>0)
 			sum[2]=(sum[0]/maxCount)*100;
 		else

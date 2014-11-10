@@ -10,16 +10,16 @@ public class Helpers {
 		return !(d == Days.SATURDAY || d==Days.SUNDAY);
 	}
 	
-	public static DateTime calculateNextWorkDay(DateTime start,long l){
-		return calculateNextDay(start, l, new boolean[]{true,true,true,true,true,false,false},null);
+	public static DateTime calculateNextWorkDay(DateTime start,long l, boolean forward){
+		return calculateNextDay(start, l, new boolean[]{true,true,true,true,true,false,false},null,forward);
 	}
 	
-	public static DateTime calculateNextDay(DateTime end, long l, boolean[] daySelection,DateTime ignoreTo){
+	public static DateTime calculateNextDay(DateTime end, long l, boolean[] daySelection,DateTime ignoreTo, boolean forward){
 		DateTime current = end;
 		int count = 0;
 		while(count <= l) {
-			current = current.minusDays(1);
-			if(daySelection[current.getDayOfWeek()-1] && current.isBefore(ignoreTo)){
+			current = forward ? current.plusDays(1) : current.minusDays(1);
+			if(daySelection[current.getDayOfWeek()-1] && (current.isBefore(ignoreTo) || forward)){
 				count++;
 			}
 		}

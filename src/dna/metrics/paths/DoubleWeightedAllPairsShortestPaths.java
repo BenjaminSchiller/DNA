@@ -19,8 +19,8 @@ import dna.updates.batch.Batch;
 public abstract class DoubleWeightedAllPairsShortestPaths extends
 		AllPairsShortestPathsDouble {
 
-	public DoubleWeightedAllPairsShortestPaths(String name) {
-		super(name);
+	public DoubleWeightedAllPairsShortestPaths(String name,double binsize) {
+		super(name,binsize);
 	}
 
 	@Override

@@ -82,7 +82,7 @@ public class TrafficCrossroadBatchGenerator extends BatchGenerator{
 		if(modus == 1 || modus == 2){
 			System.out.println("Alter Batch am : \t" +initDateTime);
 			time = initDateTime;
-			time = Helpers.calculateNextDay(time, g.getTimestamp(),daySelection,holidayStart);
+			time = Helpers.calculateNextDay(time, g.getTimestamp(),daySelection,holidayStart,true);
 			System.out.println("Neuer Batch am : \t" +time);
 		}
 		if(modus == 3){
@@ -99,17 +99,17 @@ public class TrafficCrossroadBatchGenerator extends BatchGenerator{
 			if(modus==0){ // Vergleich in Schritten der Größe Stepsize
 				crossroadWeight =db.getCrossroadWeight(n.getIndex(), initDateTime.plusMinutes((int) (g.getTimestamp()*stepSize)),initDateTime.plusMinutes((int) (g.getTimestamp()+stepSize)*stepSize),newTimeStamp); 
 			}
-			else if (modus == 1 ){ // Vergleich für Zeiträume der Länge timeRange an Tagen aus Dayselection
+			else if (modus == 1 ){ // Vergleich für Zeiträume der Länge timeRange an Tagen aus Dayselection, Geht in die Zukunft
 				crossroadWeight = db.getCrossroadWeight(n.getIndex(),time.minusMinutes(db.timeRange),time.plusMinutes(db.timeRange),newTimeStamp);
 			}
 			else if (modus == 2){ // Statische Verkehrsanalyse
 				crossroadWeight = db.getCrossroadWeightStaticBatch(n.getIndex(),trafficUpdate);
 			}
-			else if (modus == 3){
+			else if (modus == 3){ // Aggregiert die Weiter für einen Beobachtungszeitraum in der Vergangenheit
 				time = initDateTime;
 				int index = n.getIndex();
 				for (int i = 0; i < observationDays; i++) {
-					time = Helpers.calculateNextDay(time, g.getTimestamp(),daySelection,holidayStart);
+					time = Helpers.calculateNextDay(time, g.getTimestamp(),daySelection,holidayStart,false);
 					CrossroadWeight weightOfDay = db.getCrossroadWeight(n.getIndex(),time.minusMinutes(db.timeRange*2),time.plusMinutes(db.timeRange*2),newTimeStamp);
 					if(nodeHistory.containsKey(index)){
 						nodeHistory.get(index).add(weightOfDay);
@@ -123,12 +123,13 @@ public class TrafficCrossroadBatchGenerator extends BatchGenerator{
 					//System.out.println("Update auf Knoten mit Index " +index +" am " + time);
 				}
 				crossroadWeight = nodeHistory.get(index).getAverage();
-				
 			}
 			update = crossroadWeight.getWeight();
 			Double3dWeight oldWeight = (Double3dWeight) n.getWeight();
 			Double3dWeight newWeight = new Double3dWeight(update[0],update[1],update[2]);
 			System.out.println("Index: \t"+n.getIndex()+"\tOldWeight: "+oldWeight.asString()+"\tNewWeight:"+newWeight.asString());
+			if(Math.abs(oldWeight.getZ() - newWeight.getZ())>10 )
+				System.out.println("Alarm.");
 			if(!oldWeight.equals(newWeight))
 				b.add(new NodeWeight((dna.graph.weights.IWeightedNode) currentNode,newWeight));
 			

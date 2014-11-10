@@ -27,10 +27,10 @@ import dna.series.data.DistributionLong;
 public class DoubleWeightedAllPairsShortestPathsR extends
 		DoubleWeightedAllPairsShortestPaths implements IRecomputation {
 	
-	double binsize;
+	
 
 	public DoubleWeightedAllPairsShortestPathsR(double binsize) {
-		super("DoubleWeightedAllPairsShortestPathsR");
+		super("DoubleWeightedAllPairsShortestPathsR", binsize);
 		this.binsize=binsize;
 	}
 

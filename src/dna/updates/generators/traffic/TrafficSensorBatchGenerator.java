@@ -82,30 +82,20 @@ public class TrafficSensorBatchGenerator extends BatchGenerator{
 		int newTimestamp = (int)g.getTimestamp() + 1;
 		
 		DateTime time = initDateTime;
-		time = Helpers.calculateNextDay(time, g.getTimestamp(),daySelection,holidayStart);
+		time = Helpers.calculateNextDay(time, g.getTimestamp(),daySelection,holidayStart,true);
 		DateTime fromTime = null;
 		DateTime toTime = null;
 		
 		Set<Edge> toDisable = new HashSet<>();
 		Edge edge = null;
 		
-		if(modus == 0){
-			fromTime = initDateTime.plusMinutes((int) (g.getTimestamp()+1)*stepSize);
-			toTime = initDateTime.plusMinutes((int) (g.getTimestamp()+2)*stepSize);
-		}
-		else if(modus == 1){
-			
-			time = Helpers.calculateNextDay(time, g.getTimestamp(),daySelection,holidayStart);
-			fromTime = time.minusMinutes(db.timeRange);
-			toTime = time.plusMinutes(db.timeRange);
-		}
 		switch (modus) {
 		case 0:
 			fromTime = initDateTime.plusMinutes((int) (g.getTimestamp()+1)*stepSize);
 			toTime = initDateTime.plusMinutes((int) (g.getTimestamp()+2)*stepSize);
 			break;
 		case 1:
-			time = Helpers.calculateNextDay(time, g.getTimestamp(),daySelection,holidayStart);
+			time = Helpers.calculateNextDay(time, g.getTimestamp(),daySelection,holidayStart,true);
 			fromTime = time.minusMinutes(db.timeRange);
 			toTime = time.plusMinutes(db.timeRange);
 			break;

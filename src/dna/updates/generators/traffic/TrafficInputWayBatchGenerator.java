@@ -77,7 +77,7 @@ public class TrafficInputWayBatchGenerator extends BatchGenerator{
 		Integer newKey = null;
 		if(modus == 1){
 			time = initDateTime;
-			time = Helpers.calculateNextDay(time, g.getTimestamp(),daySelection,holidayStart);
+			time = Helpers.calculateNextDay(time, g.getTimestamp(),daySelection,holidayStart,true);
 			System.out.println("Neuer Batch am : \t" +time);
 		}
 		newDisabledEdges = new HashMap<>();

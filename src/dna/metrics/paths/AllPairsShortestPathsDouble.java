@@ -22,11 +22,16 @@ public abstract class AllPairsShortestPathsDouble extends Metric {
 
 	// TODO INIT!!!
 	// this.apsp = new DistributionLong("APSP");
+	double binsize;
 
 	protected BinnedDistributionDouble apsp;
 
 	public AllPairsShortestPathsDouble(String name) {
 		super(name);
+	}
+	public AllPairsShortestPathsDouble(String name,double binsize) {
+		super(name);
+		this.binsize = binsize;
 	}
 
 	@Override
@@ -37,8 +42,8 @@ public abstract class AllPairsShortestPathsDouble extends Metric {
 		Value v2 = new Value("possiblePaths", this.g.getNodeCount()
 				* (this.g.getNodeCount() - 1));
 		Value v3 = new Value("characteristicPathLength",
-				this.apsp.computeAverage());
-		Value v4 = new Value("diameter", this.apsp.getMax());
+				this.apsp.computeAverage()*binsize);
+		Value v4 = new Value("diameter", this.apsp.getMax()*binsize);
 
 		return new Value[] { v1, v2, v3, v4 };
 	}

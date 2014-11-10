@@ -115,7 +115,12 @@ public class TrafficSensorGraphGenerator extends GraphGenerator{
 			ec = connection.get(i);	
 			fromNode = (DirectedWeightedNode) g.getNode(ec.getFrom());
 			toNode = (DirectedWeightedNode) g.getNode(ec.getTo());
-			e = gds.newEdgeInstance(fromNode,toNode);
+			try {
+				e = gds.newEdgeInstance(fromNode,toNode);
+			} catch (Exception e2) {
+				System.out.println("Problem: \t" +ec.getFrom()+"\t"+ec.getTo());
+			}
+			
 			if(overloaded.contains(fromNode.getIndex()) || overloaded.contains((toNode.getIndex()))){
 				addEdge(fromNode.getIndex(),ec,e);
 				addEdge(toNode.getIndex(),ec,e);
