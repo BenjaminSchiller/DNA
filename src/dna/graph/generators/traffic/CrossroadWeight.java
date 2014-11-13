@@ -85,8 +85,10 @@ public class CrossroadWeight {
 			sum[2]=(sum[0]/maxCount)*100;
 		else
 			sum[2]=0;*/
-		if(sum[1]>0)
-		sum[2] = sum[1];
+		if(sum[0]>1)
+			sum[2] = sum[1]/(sum[0]*10)*10;
+		else
+			sum[2] = 0;
 		return sum;
 	}
 	
