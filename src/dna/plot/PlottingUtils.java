@@ -24,7 +24,7 @@ import dna.series.aggdata.AggregatedBinnedDistribution;
 import dna.series.aggdata.AggregatedDistribution;
 import dna.series.aggdata.AggregatedMetric;
 import dna.series.data.BatchData;
-import dna.series.data.BatchGeneral;
+import dna.series.data.IBatch;
 import dna.series.data.BinnedDistributionDouble;
 import dna.series.data.BinnedDistributionInt;
 import dna.series.data.BinnedDistributionLong;
@@ -272,7 +272,7 @@ public class PlottingUtils {
 	 */
 	public static void generateCustomPlots(ArrayList<PlotConfig> plotConfigs,
 			ArrayList<Plot> customPlots, String dstDir,
-			SeriesData[] seriesData, int[] indizes, BatchGeneral[] initBatches,
+			SeriesData[] seriesData, int[] indizes, IBatch[] initBatches,
 			PlotStyle style, PlotType type) throws IOException {
 		// check if aggregated batches
 		boolean aggregatedBatches = false;
@@ -448,7 +448,7 @@ public class PlottingUtils {
 	 */
 	public static void generateMultiSeriesDefaultPlots(
 			ArrayList<Plot> plotList, String dstDir, SeriesData[] seriesData,
-			int[] indizes, BatchGeneral[] initBatches, boolean plotStatistics,
+			int[] indizes, IBatch[] initBatches, boolean plotStatistics,
 			boolean plotMetricValues, boolean plotRuntimes, PlotStyle style,
 			PlotType type, ArrayList<PlotConfig> customMetricValuePlots,
 			ArrayList<PlotConfig> customValuePlots) throws IOException {
@@ -990,7 +990,7 @@ public class PlottingUtils {
 	/** Plots Distributions and NodeValueLists **/
 	public static void plotDistributionsAndNodeValues(
 			boolean plotDistributions, boolean plotNodeValues,
-			BatchGeneral initBatch, String[] batches, double[] timestamps,
+			IBatch initBatch, String[] batches, double[] timestamps,
 			ArrayList<PlotConfig> customDistributionPlots,
 			ArrayList<PlotConfig> customNodeValueListPlots, String dir,
 			String dstDir, String title, PlotStyle style, PlotType type,
@@ -1812,7 +1812,7 @@ public class PlottingUtils {
 	}
 
 	/** Plots custom value plots **/
-	public static void plotCustomValuePlots(BatchGeneral[] batchData,
+	public static void plotCustomValuePlots(IBatch[] batchData,
 			ArrayList<PlotConfig> customValuePlots, String dstDir,
 			String title, PlotStyle style, PlotType type) throws IOException,
 			InterruptedException {
@@ -1938,7 +1938,7 @@ public class PlottingUtils {
 	}
 
 	/** Plot custom runtime plots **/
-	public static void plotCustomRuntimes(BatchGeneral[] batchData,
+	public static void plotCustomRuntimes(IBatch[] batchData,
 			ArrayList<PlotConfig> customPlots, String dstDir, String title,
 			PlotStyle style, PlotType type) throws IOException,
 			InterruptedException {
@@ -2070,8 +2070,8 @@ public class PlottingUtils {
 	}
 
 	/** Plots metric values **/
-	public static void plotMetricValues(BatchGeneral[] batchData,
-			BatchGeneral initBatch, String dstDir, String title,
+	public static void plotMetricValues(IBatch[] batchData,
+			IBatch initBatch, String dstDir, String title,
 			PlotStyle style, PlotType type,
 			ArrayList<PlotConfig> customMetricValuePlots,
 			ArrayList<PlotConfig> customValuePlots) throws IOException,
@@ -2262,7 +2262,7 @@ public class PlottingUtils {
 	/** Plots the def. distribution and nodeavluelist plots for multiple series. */
 	public static void plotDistributionAndNodeValueListPlots(
 			SeriesData[] seriesData, int[] indizes, String dstDir,
-			String[] batches, double[] timestamps, BatchGeneral[] initBatches,
+			String[] batches, double[] timestamps, IBatch[] initBatches,
 			ArrayList<Long>[] seriesTimestamps, boolean plotDistributions,
 			ArrayList<PlotConfig> customDistributionPlots,
 			boolean plotNodeValues,
@@ -2889,7 +2889,7 @@ public class PlottingUtils {
 					if (!seriesTimestamps[k].contains(timestamp))
 						continue;
 
-					BatchGeneral initBatch = initBatches[k];
+					IBatch initBatch = initBatches[k];
 
 					String runAddition = "";
 					if (!aggregatedBatches)
@@ -3150,7 +3150,7 @@ public class PlottingUtils {
 					if (!seriesTimestamps[k].contains(timestamp))
 						continue;
 
-					BatchGeneral initBatch = initBatches[k];
+					IBatch initBatch = initBatches[k];
 
 					String runAddition = "";
 					if (aggregatedBatches)
@@ -3749,7 +3749,7 @@ public class PlottingUtils {
 					continue;
 
 				// tempbatch
-				BatchGeneral tempBatch;
+				IBatch tempBatch;
 
 				if (aggregatedBatches) {
 					String aggrDir = Dir.getAggregationDataDir(seriesData[j]
@@ -3817,7 +3817,7 @@ public class PlottingUtils {
 	/** Plots the single value plots for multiple series. */
 	public static void plotSingleValuePlots(SeriesData[] seriesData,
 			int[] indizes, String dstDir, String[] batches,
-			double[] timestamps, BatchGeneral[] initBatches,
+			double[] timestamps, IBatch[] initBatches,
 			boolean plotStatistics, ArrayList<PlotConfig> customStatisticPlots,
 			boolean plotMetricValues,
 			ArrayList<PlotConfig> customMetricValuePlots,
@@ -3896,7 +3896,7 @@ public class PlottingUtils {
 				tempDir = Dir.getRunDataDir(series.getDir(), indizes[i]);
 
 			// read single values
-			BatchGeneral[] batchData;
+			IBatch[] batchData;
 			if (aggregatedBatches) {
 				batchData = new AggregatedBatch[batches.length];
 				for (int j = 0; j < batches.length; j++) {

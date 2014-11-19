@@ -17,7 +17,7 @@ import dna.series.aggdata.AggregatedMetric;
 import dna.series.aggdata.AggregatedNodeValueList;
 import dna.series.aggdata.AggregatedValue;
 import dna.series.data.BatchData;
-import dna.series.data.BatchGeneral;
+import dna.series.data.IBatch;
 import dna.series.data.BinnedDistributionDouble;
 import dna.series.data.BinnedDistributionInt;
 import dna.series.data.BinnedDistributionLong;
@@ -577,7 +577,7 @@ public class Plot {
 	 * nodevaluelist plots, when batches will be read and handed over
 	 * sequentially
 	 **/
-	public void addDataSequentially(BatchGeneral batchData) throws IOException {
+	public void addDataSequentially(IBatch batchData) throws IOException {
 		if (batchData instanceof AggregatedBatch)
 			this.addDataSequentially((AggregatedBatch) batchData);
 		if (batchData instanceof BatchData)
@@ -638,7 +638,7 @@ public class Plot {
 	 * values of multiple series. Data can be read and added sequentially for
 	 * each series.
 	 */
-	public void addDataSequentially(BatchGeneral[] batchData)
+	public void addDataSequentially(IBatch[] batchData)
 			throws IOException {
 		if (batchData instanceof AggregatedBatch[])
 			this.addDataSequentially((AggregatedBatch[]) batchData);
@@ -734,7 +734,7 @@ public class Plot {
 	}
 
 	/** Adds data to the plot **/
-	public void addData(BatchGeneral[] batchData) throws IOException {
+	public void addData(IBatch[] batchData) throws IOException {
 		if (batchData[0] instanceof BatchData)
 			this.addData((BatchData[]) batchData);
 		else

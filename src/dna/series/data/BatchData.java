@@ -19,7 +19,7 @@ import dna.updates.batch.BatchSanitizationStats;
 import dna.util.Config;
 import dna.util.Log;
 
-public class BatchData implements BatchGeneral {
+public class BatchData implements IBatch {
 
 	public BatchData(long timestamp) {
 		this.timestamp = timestamp;

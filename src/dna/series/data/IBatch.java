@@ -6,11 +6,11 @@ package dna.series.data;
  * @author Rwilmes
  * @date 10.11.2014
  */
-public interface BatchGeneral {
+public interface IBatch {
 
 	// getters
 	public long getTimestamp();
-	
+
 	// utility methods
 	public boolean contains(String domain, String value);
 }
