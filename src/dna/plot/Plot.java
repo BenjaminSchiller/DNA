@@ -17,6 +17,7 @@ import dna.series.aggdata.AggregatedMetric;
 import dna.series.aggdata.AggregatedNodeValueList;
 import dna.series.aggdata.AggregatedValue;
 import dna.series.data.BatchData;
+import dna.series.data.IBatch;
 import dna.series.data.BinnedDistributionDouble;
 import dna.series.data.BinnedDistributionInt;
 import dna.series.data.BinnedDistributionLong;
@@ -576,6 +577,18 @@ public class Plot {
 	 * nodevaluelist plots, when batches will be read and handed over
 	 * sequentially
 	 **/
+	public void addDataSequentially(IBatch batchData) throws IOException {
+		if (batchData instanceof AggregatedBatch)
+			this.addDataSequentially((AggregatedBatch) batchData);
+		if (batchData instanceof BatchData)
+			this.addDataSequentially((BatchData) batchData);
+	}
+
+	/**
+	 * Adds data from one batch to the plot. Used for distribution and
+	 * nodevaluelist plots, when batches will be read and handed over
+	 * sequentially
+	 **/
 	public void addDataSequentially(AggregatedBatch batchData)
 			throws IOException {
 		if (!(this.data[this.dataWriteCounter] instanceof FunctionData)) {
@@ -618,6 +631,19 @@ public class Plot {
 				this.addData(name, domain, batchData, false);
 			}
 		}
+	}
+
+	/**
+	 * Adds data from batches of a whole series to the plot. Used for plotting
+	 * values of multiple series. Data can be read and added sequentially for
+	 * each series.
+	 */
+	public void addDataSequentially(IBatch[] batchData)
+			throws IOException {
+		if (batchData instanceof AggregatedBatch[])
+			this.addDataSequentially((AggregatedBatch[]) batchData);
+		if (batchData instanceof BatchData[])
+			this.addDataSequentially((BatchData[]) batchData);
 	}
 
 	/**
@@ -705,6 +731,14 @@ public class Plot {
 				this.addDataSequentially(batchData);
 			}
 		}
+	}
+
+	/** Adds data to the plot **/
+	public void addData(IBatch[] batchData) throws IOException {
+		if (batchData[0] instanceof BatchData)
+			this.addData((BatchData[]) batchData);
+		else
+			this.addData((AggregatedBatch[]) batchData);
 	}
 
 	/** Adds data to the plot **/
