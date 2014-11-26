@@ -1,6 +1,9 @@
 package dna.graph.generators.zalando;
 
 import dna.graph.datastructures.GraphDataStructure;
+import dna.graph.datastructures.zalando.ZalandoGraphDataStructure;
+import dna.graph.nodes.Node;
+import dna.graph.nodes.zalando.ZalandoNode;
 
 public class CustomersProductsGraphGenerator extends
 		ZalandoEqualityGraphGenerator {
@@ -20,14 +23,13 @@ public class CustomersProductsGraphGenerator extends
 	 *            The full path of the Zalando log file. Will be passed to
 	 *            {@link EventReader}.
 	 */
-	public CustomersProductsGraphGenerator(GraphDataStructure gds,
+	public CustomersProductsGraphGenerator(ZalandoGraphDataStructure gds,
 			long timestampInit, int maxNumberOfEvents, String eventsFilepath) {
 		super("CustomersProducts", gds, timestampInit, null, maxNumberOfEvents,
-				eventsFilepath,
-				new EventColumn[] { EventColumn.PERMANENT_COOKIE_ID,
-						EventColumn.FAMILY_SKU }, true,
-				new EventColumn[] { EventColumn.PERMANENT_COOKIE_ID,
-						EventColumn.FAMILY_SKU }, true, false);
+				eventsFilepath, new EventColumn[] {
+						EventColumn.PERMANENTCOOKIEID, EventColumn.FAMILYSKU },
+				true, new EventColumn[] { EventColumn.PERMANENTCOOKIEID,
+						EventColumn.FAMILYSKU }, true, false);
 	}
 
 	/**
@@ -40,22 +42,22 @@ public class CustomersProductsGraphGenerator extends
 	@Override
 	void addEdgesForColumns(Event event) {
 		int nodeForEventIndex, mappingForColumnGroup;
-		nodeForEventIndex = this.mappings.getGlobalMapping(
+		nodeForEventIndex = this.mappings.getMapping(
 				this.columnGroupsToAddAsNodes[0], event);
 
 		for (EventColumn[] columnGroup : this.columnGroupsToCheckForEquality) {
-			mappingForColumnGroup = this.mappings.getGlobalMapping(columnGroup,
-					event);
+			mappingForColumnGroup = this.mappings
+					.getMapping(columnGroup, event);
 
 			for (int otherNodeIndex : this.nodesSortedByColumnGroupsToCheckForEquality
 					.getNodes(mappingForColumnGroup, nodeForEventIndex)) {
 				// add edges only between nodes of different columns (bipartite
 				// graph)
-				if (!this.mappings.globalMappingPrefixIsEqual(
-						nodeForEventIndex, otherNodeIndex))
-					this.addBidirectionalEdge(
-							this.gds.newNodeInstance(nodeForEventIndex),
-							this.gds.newNodeInstance(otherNodeIndex), 1);
+
+				final Node nodeForEvent = this.graph.getNode(nodeForEventIndex);
+				final Node otherNode = this.graph.getNode(otherNodeIndex);
+				if (!ZalandoNode.equalType(nodeForEvent, otherNode))
+					this.addBidirectionalEdge(nodeForEvent, otherNode, 1);
 			}
 		}
 	}

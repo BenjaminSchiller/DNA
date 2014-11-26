@@ -5,7 +5,7 @@ package dna.graph.generators.zalando;
  */
 public enum EventColumn {
 
-	SKU, FAMILY_SKU, MARKE, FARBE, WARENGRUPPE_1, WARENGRUPPE_2, WARENGRUPPE_3, WARENGRUPPE_4, WARENGRUPPE_5, PERMANENT_COOKIE_ID, SESSION_ID, AKTION, ANZAHL, PREISLAGE;
+	SKU, FAMILYSKU, MARKE, FARBE, WARENGRUPPE1, WARENGRUPPE2, WARENGRUPPE3, WARENGRUPPE4, WARENGRUPPE5, PERMANENTCOOKIEID, SESSIONID, AKTION, ANZAHL, PREISLAGE;
 
 	/**
 	 * All possible values for column {@link #AKTION}.
@@ -15,8 +15,8 @@ public enum EventColumn {
 	}
 
 	/**
-	 * This method allows to easily access {@link #WARENGRUPPE_1} to
-	 * {@link #WARENGRUPPE_5} in iterations like for-loops.
+	 * This method allows to easily access {@link #WARENGRUPPE1} to
+	 * {@link #WARENGRUPPE5} in iterations like for-loops.
 	 * 
 	 * @param i
 	 *            The index of the Warengruppe to return.
@@ -26,15 +26,15 @@ public enum EventColumn {
 	static EventColumn Warengruppe(int i) {
 		switch (i) {
 		case 0:
-			return EventColumn.WARENGRUPPE_1;
+			return EventColumn.WARENGRUPPE1;
 		case 1:
-			return EventColumn.WARENGRUPPE_2;
+			return EventColumn.WARENGRUPPE2;
 		case 2:
-			return EventColumn.WARENGRUPPE_3;
+			return EventColumn.WARENGRUPPE3;
 		case 3:
-			return EventColumn.WARENGRUPPE_4;
+			return EventColumn.WARENGRUPPE4;
 		case 4:
-			return EventColumn.WARENGRUPPE_5;
+			return EventColumn.WARENGRUPPE5;
 		default:
 			return null;
 		}

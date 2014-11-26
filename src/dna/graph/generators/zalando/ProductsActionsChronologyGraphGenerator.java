@@ -1,6 +1,7 @@
 package dna.graph.generators.zalando;
 
 import dna.graph.datastructures.GraphDataStructure;
+import dna.graph.datastructures.zalando.ZalandoGraphDataStructure;
 
 public class ProductsActionsChronologyGraphGenerator extends
 		ZalandoChronologyGraphGenerator {
@@ -20,12 +21,13 @@ public class ProductsActionsChronologyGraphGenerator extends
 	 *            The full path of the Zalando log file. Will be passed to
 	 *            {@link EventReader}.
 	 */
-	public ProductsActionsChronologyGraphGenerator(GraphDataStructure gds,
-			long timestampInit, int maxNumberOfEvents, String eventsFilepath) {
+	public ProductsActionsChronologyGraphGenerator(
+			ZalandoGraphDataStructure gds, long timestampInit,
+			int maxNumberOfEvents, String eventsFilepath) {
 		super("ProductsActionsChronology", gds, timestampInit, null,
 				maxNumberOfEvents, eventsFilepath, new EventColumn[] {
-						EventColumn.FAMILY_SKU, EventColumn.AKTION }, false,
-				new EventColumn[] { EventColumn.SESSION_ID }, false, true);
+						EventColumn.FAMILYSKU, EventColumn.AKTION }, false,
+				new EventColumn[] { EventColumn.SESSIONID }, false, true);
 	}
 
 	/**
@@ -40,10 +42,10 @@ public class ProductsActionsChronologyGraphGenerator extends
 	@Override
 	void addEdgesForColumns(Event event) {
 		int nodeForEventIndex, mappingForColumnGroup;
-		nodeForEventIndex = this.mappings.getGlobalMapping(
+		nodeForEventIndex = this.mappings.getMapping(
 				this.columnGroupsToAddAsNodes[0], event);
 
-		mappingForColumnGroup = this.mappings.getGlobalMapping(
+		mappingForColumnGroup = this.mappings.getMapping(
 				this.columnGroupsToCheckForEquality[0], event);
 
 		for (int otherNodeIndex : this.nodesSortedByColumnGroupsToCheckForEquality
@@ -51,8 +53,8 @@ public class ProductsActionsChronologyGraphGenerator extends
 			if (this.nodesSortedByColumnGroupsToCheckForEquality
 					.node1ValueLessOrEqualNode2Value(mappingForColumnGroup,
 							nodeForEventIndex, otherNodeIndex)) {
-				this.addEdge(this.gds.newNodeInstance(otherNodeIndex),
-						this.gds.newNodeInstance(nodeForEventIndex), 1);
+				this.addEdge(this.graph.getNode(otherNodeIndex),
+						this.graph.getNode(nodeForEventIndex), 1);
 
 				// for each SessionID connect newest node only to the second
 				// newest node, not to every old node
@@ -61,5 +63,4 @@ public class ProductsActionsChronologyGraphGenerator extends
 			}
 		}
 	}
-
 }

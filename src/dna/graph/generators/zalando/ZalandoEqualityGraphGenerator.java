@@ -1,6 +1,7 @@
 package dna.graph.generators.zalando;
 
 import dna.graph.datastructures.GraphDataStructure;
+import dna.graph.datastructures.zalando.ZalandoGraphDataStructure;
 import dna.graph.edges.Edge;
 import dna.graph.nodes.Node;
 
@@ -65,7 +66,7 @@ class ZalandoEqualityGraphGenerator extends ZalandoGraphGenerator {
 	 *            this number. So two nodes are "close together" if they have
 	 *            much in common.
 	 */
-	public ZalandoEqualityGraphGenerator(String name, GraphDataStructure gds,
+	public ZalandoEqualityGraphGenerator(String name, ZalandoGraphDataStructure gds,
 			long timestampInit, EventFilter eventFilter, int maxNumberOfEvents,
 			String eventsFilepath, EventColumn[] columnsToAddAsNodes,
 			boolean oneNodeForEachColumn,
@@ -119,11 +120,11 @@ class ZalandoEqualityGraphGenerator extends ZalandoGraphGenerator {
 	void addEdgesForColumns(Event event) {
 		int nodeForEventIndex, mappingForColumnGroup;
 		for (EventColumn[] eventColumnGroup : this.columnGroupsToAddAsNodes) {
-			nodeForEventIndex = this.mappings.getGlobalMapping(
+			nodeForEventIndex = this.mappings.getMapping(
 					eventColumnGroup, event);
 
 			for (EventColumn[] columnGroup : this.columnGroupsToCheckForEquality) {
-				mappingForColumnGroup = this.mappings.getGlobalMapping(
+				mappingForColumnGroup = this.mappings.getMapping(
 						columnGroup, event);
 
 				for (int otherNodeIndex : this.nodesSortedByColumnGroupsToCheckForEquality
@@ -133,8 +134,8 @@ class ZalandoEqualityGraphGenerator extends ZalandoGraphGenerator {
 									mappingForColumnGroup, nodeForEventIndex,
 									otherNodeIndex))
 						this.addBidirectionalEdge(
-								this.gds.newNodeInstance(nodeForEventIndex),
-								this.gds.newNodeInstance(otherNodeIndex), 1);
+								this.gds.newNodeInstance(nodeForEventIndex, eventColumnGroup),
+								this.gds.newNodeInstance(otherNodeIndex, eventColumnGroup), 1);
 				}
 			}
 		}
