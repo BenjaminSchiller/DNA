@@ -1,6 +1,7 @@
 package dna.graph.generators.zalando;
 
 import dna.graph.datastructures.GraphDataStructure;
+import dna.graph.datastructures.zalando.ZalandoGraphDataStructure;
 
 public class CustomersActionsGraphGenerator extends
 		ZalandoEqualityGraphGenerator {
@@ -20,12 +21,12 @@ public class CustomersActionsGraphGenerator extends
 	 *            The full path of the Zalando log file. Will be passed to
 	 *            {@link EventReader}.
 	 */
-	public CustomersActionsGraphGenerator(GraphDataStructure gds,
+	public CustomersActionsGraphGenerator(ZalandoGraphDataStructure gds,
 			long timestampInit, int maxNumberOfEvents, String eventsFilepath) {
 		super("CustomersActions", gds, timestampInit, null, maxNumberOfEvents,
 				eventsFilepath, new EventColumn[] {
-						EventColumn.PERMANENT_COOKIE_ID, EventColumn.AKTION },
-				false, new EventColumn[] { EventColumn.FAMILY_SKU }, false,
+						EventColumn.PERMANENTCOOKIEID, EventColumn.AKTION },
+				false, new EventColumn[] { EventColumn.FAMILYSKU }, false,
 				false);
 	}
 

@@ -1,6 +1,7 @@
 package dna.updates.generators.zalando;
 
 import dna.graph.datastructures.GraphDataStructure;
+import dna.graph.datastructures.zalando.ZalandoGraphDataStructure;
 import dna.graph.generators.zalando.EventColumn;
 import dna.graph.generators.zalando.EventReader;
 
@@ -22,7 +23,7 @@ public class CustomersAbsoluteBatchGenerator extends
 	 *            The full path of the Zalando log file. Will be passed to
 	 *            {@link EventReader}.
 	 */
-	public CustomersAbsoluteBatchGenerator(GraphDataStructure gds,
+	public CustomersAbsoluteBatchGenerator(ZalandoGraphDataStructure gds,
 			long timestampInit, int numberOfLinesPerBatch, String eventsFilepath) {
 		super(
 				"CustomersAbsolute",
@@ -31,9 +32,9 @@ public class CustomersAbsoluteBatchGenerator extends
 				null,
 				numberOfLinesPerBatch,
 				eventsFilepath,
-				new EventColumn[] { EventColumn.PERMANENT_COOKIE_ID },
+				new EventColumn[] { EventColumn.PERMANENTCOOKIEID },
 				true,
-				new EventColumn[] { EventColumn.FAMILY_SKU, EventColumn.AKTION },
+				new EventColumn[] { EventColumn.FAMILYSKU, EventColumn.AKTION },
 				true, true);
 	}
 

@@ -2,6 +2,7 @@ package dna.updates.generators.zalando;
 
 import dna.graph.Graph;
 import dna.graph.datastructures.GraphDataStructure;
+import dna.graph.datastructures.zalando.ZalandoGraphDataStructure;
 import dna.graph.edges.Edge;
 import dna.graph.generators.zalando.Event;
 import dna.graph.generators.zalando.EventColumn;
@@ -68,10 +69,11 @@ public class ZalandoChronologyBatchGenerator extends ZalandoBatchGenerator {
 	 *            this number. So two nodes are "close together" if they have
 	 *            much in common.
 	 */
-	public ZalandoChronologyBatchGenerator(String name, GraphDataStructure gds,
-			long timestampInit, EventFilter eventFilter,
-			int numberOfLinesPerBatch, String eventsFilepath,
-			EventColumn[] columnsToAddAsNodes, boolean oneNodeForEachColumn,
+	public ZalandoChronologyBatchGenerator(String name,
+			ZalandoGraphDataStructure gds, long timestampInit,
+			EventFilter eventFilter, int numberOfLinesPerBatch,
+			String eventsFilepath, EventColumn[] columnsToAddAsNodes,
+			boolean oneNodeForEachColumn,
 			EventColumn[] columnsToCheckForEquality,
 			boolean allColumnsMustBeEqual, boolean absoluteWeights) {
 		super(name, gds, timestampInit, eventFilter, numberOfLinesPerBatch,
@@ -101,25 +103,30 @@ public class ZalandoChronologyBatchGenerator extends ZalandoBatchGenerator {
 	 */
 	@Override
 	void addEdgesForColumns(Graph g, Event event) {
-		final GraphDataStructure gds = g.getGraphDatastructures();
+		// TODO
+//		final GraphDataStructure gds = g.getGraphDatastructures();
 
 		int nodeForEventIndex, mappingForColumnGroup;
 		for (EventColumn[] eventColumnGroup : this.columnGroupsToAddAsNodes) {
-			nodeForEventIndex = this.mappings.getGlobalMapping(
+			nodeForEventIndex = this.mappings.getMapping(
 					eventColumnGroup, event);
 
 			for (EventColumn[] columnGroup : this.columnGroupsToCheckForEquality) {
-				mappingForColumnGroup = this.mappings.getGlobalMapping(
+				mappingForColumnGroup = this.mappings.getMapping(
 						columnGroup, event);
 
 				for (int otherNodeIndex : this.nodesSortedByColumnGroupsToCheckForEquality
 						.getNodes(mappingForColumnGroup, nodeForEventIndex)) {
+					
+					final Node nodeForEvent = this.nodesAdded
+							.get(nodeForEventIndex);
+					final Node otherNode = this.nodesAdded.get(otherNodeIndex);
+					
 					if (this.nodesSortedByColumnGroupsToCheckForEquality
 							.node1ValueLessOrEqualNode2Value(
 									mappingForColumnGroup, nodeForEventIndex,
 									otherNodeIndex))
-						this.addEdge(g, gds.newNodeInstance(otherNodeIndex),
-								gds.newNodeInstance(nodeForEventIndex), 1);
+						this.addEdge(g, otherNode, nodeForEvent, 1);
 				}
 			}
 		}

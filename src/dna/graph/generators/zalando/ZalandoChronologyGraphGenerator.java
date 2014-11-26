@@ -1,6 +1,7 @@
 package dna.graph.generators.zalando;
 
 import dna.graph.datastructures.GraphDataStructure;
+import dna.graph.datastructures.zalando.ZalandoGraphDataStructure;
 import dna.graph.edges.Edge;
 import dna.graph.nodes.Node;
 
@@ -63,8 +64,9 @@ class ZalandoChronologyGraphGenerator extends ZalandoGraphGenerator {
 	 *            this number. So two nodes are "close together" if they have
 	 *            much in common.
 	 */
-	public ZalandoChronologyGraphGenerator(String name, GraphDataStructure gds,
-			long timestampInit, EventFilter eventFilter, int maxNumberOfEvents,
+	public ZalandoChronologyGraphGenerator(String name,
+			ZalandoGraphDataStructure gds, long timestampInit,
+			EventFilter eventFilter, int maxNumberOfEvents,
 			String eventsFilepath, EventColumn[] columnsToAddAsNodes,
 			boolean oneNodeForEachColumn,
 			EventColumn[] columnsToCheckForEquality,
@@ -93,12 +95,12 @@ class ZalandoChronologyGraphGenerator extends ZalandoGraphGenerator {
 	void addEdgesForColumns(Event event) {
 		int nodeForEventIndex, mappingForColumnGroup;
 		for (EventColumn[] eventColumnGroup : this.columnGroupsToAddAsNodes) {
-			nodeForEventIndex = this.mappings.getGlobalMapping(
-					eventColumnGroup, event);
+			nodeForEventIndex = this.mappings.getMapping(eventColumnGroup,
+					event);
 
 			for (EventColumn[] columnGroup : this.columnGroupsToCheckForEquality) {
-				mappingForColumnGroup = this.mappings.getGlobalMapping(
-						columnGroup, event);
+				mappingForColumnGroup = this.mappings.getMapping(columnGroup,
+						event);
 
 				for (int otherNodeIndex : this.nodesSortedByColumnGroupsToCheckForEquality
 						.getNodes(mappingForColumnGroup, nodeForEventIndex)) {
@@ -106,8 +108,9 @@ class ZalandoChronologyGraphGenerator extends ZalandoGraphGenerator {
 							.node1ValueLessOrEqualNode2Value(
 									mappingForColumnGroup, nodeForEventIndex,
 									otherNodeIndex))
-						this.addEdge(this.gds.newNodeInstance(otherNodeIndex),
-								this.gds.newNodeInstance(nodeForEventIndex), 1);
+						this.addEdge(this.gds.newNodeInstance(otherNodeIndex,
+								eventColumnGroup), this.gds.newNodeInstance(
+								nodeForEventIndex, eventColumnGroup), 1);
 				}
 			}
 		}

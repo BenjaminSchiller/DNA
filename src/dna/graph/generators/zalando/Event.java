@@ -30,7 +30,7 @@ public class Event {
 	 * bunch of {@link #sku}s, one for each product color.
 	 * </p>
 	 * 
-	 * @see EventColumn#FAMILY_SKU
+	 * @see EventColumn#FAMILYSKU
 	 */
 	private String familySku;
 	/**
@@ -51,11 +51,11 @@ public class Event {
 	 * less than five groups, indicated in the log file by either a hyphen ("-")
 	 * for the empty groups or consecutive equal groups.
 	 * 
-	 * @see EventColumn#WARENGRUPPE_1
-	 * @see EventColumn#WARENGRUPPE_2
-	 * @see EventColumn#WARENGRUPPE_3
-	 * @see EventColumn#WARENGRUPPE_4
-	 * @see EventColumn#WARENGRUPPE_5
+	 * @see EventColumn#WARENGRUPPE1
+	 * @see EventColumn#WARENGRUPPE2
+	 * @see EventColumn#WARENGRUPPE3
+	 * @see EventColumn#WARENGRUPPE4
+	 * @see EventColumn#WARENGRUPPE5
 	 */
 	private String[] warengruppe;
 	/**
@@ -65,7 +65,7 @@ public class Event {
 	 * multiple {@link #sessionID}s.
 	 * </p>
 	 * 
-	 * @see EventColumn#PERMANENT_COOKIE_ID
+	 * @see EventColumn#PERMANENTCOOKIEID
 	 */
 	private String permanentCookieId;
 	/**
@@ -76,7 +76,7 @@ public class Event {
 	 * multiple {@link #sessionID}s.
 	 * </p>
 	 * 
-	 * @see EventColumn#SESSION_ID
+	 * @see EventColumn#SESSIONID
 	 */
 	private String sessionId;
 	/**
@@ -153,25 +153,25 @@ public class Event {
 		switch (column) {
 		case SKU:
 			return this.sku;
-		case FAMILY_SKU:
+		case FAMILYSKU:
 			return this.familySku;
 		case MARKE:
 			return this.marke;
 		case FARBE:
 			return this.farbe;
-		case WARENGRUPPE_1:
+		case WARENGRUPPE1:
 			return this.warengruppe[0];
-		case WARENGRUPPE_2:
+		case WARENGRUPPE2:
 			return this.warengruppe[1];
-		case WARENGRUPPE_3:
+		case WARENGRUPPE3:
 			return this.warengruppe[2];
-		case WARENGRUPPE_4:
+		case WARENGRUPPE4:
 			return this.warengruppe[3];
-		case WARENGRUPPE_5:
+		case WARENGRUPPE5:
 			return this.warengruppe[4];
-		case PERMANENT_COOKIE_ID:
+		case PERMANENTCOOKIEID:
 			return this.permanentCookieId;
-		case SESSION_ID:
+		case SESSIONID:
 			return this.sessionId;
 		case AKTION:
 			return this.aktion.name();
