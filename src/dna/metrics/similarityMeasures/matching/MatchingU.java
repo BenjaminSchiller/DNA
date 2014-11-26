@@ -629,7 +629,7 @@ public class MatchingU extends Matching implements IBeforeUpdates,
 	 * 
 	 * @param node
 	 * 
-	 * @see #decreaseMatching(UndirectedNode, UndirectedNode)
+	 * @see #decreaseMatchingDU(UndirectedNode, UndirectedNode)
 	 */
 	private void decreaseMatchingWeighted(HashMap<Node, Double> map, Node node) {
 		for (Entry<Node, Double> node1 : map.entrySet()) {
@@ -760,7 +760,7 @@ public class MatchingU extends Matching implements IBeforeUpdates,
 	 * 
 	 * @param node
 	 * 
-	 * @see #increaseMatching(UndirectedNode, UndirectedNode)
+	 * @see #increaseMatchingDU(UndirectedNode, UndirectedNode)
 	 */
 	private void increaseMatchingWeighted(HashMap<Node, Double> map, Node node) {
 		for (Entry<Node, Double> node1 : map.entrySet()) {

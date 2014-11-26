@@ -103,8 +103,8 @@ public class Matrix {
 	}
 
 	/**
-	 * Inserts given value at given row and column(triangular matrix). If given row or column does
-	 * not exist yet, it will be created.
+	 * Inserts given value at given row and column(triangular matrix). If given
+	 * row or column does not exist yet, it will be created.
 	 * 
 	 * @param row
 	 *            The row where to insert the given value.
