@@ -582,7 +582,7 @@ public abstract class Matching extends Metric implements IMetric {
 	 * @return true, if the matching is for outgoing edges; false for incoming
 	 */
 	protected boolean isOutgoingMatching() {
-		if (this.directedDegreeType.equals(directedDegreeType.OUT))
+		if (this.directedDegreeType.equals(DirectedDegreeType.OUT))
 			return true;
 		return false;
 	}
