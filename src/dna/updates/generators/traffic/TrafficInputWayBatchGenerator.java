@@ -9,6 +9,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import org.joda.time.DateTime;
+import org.mockito.internal.util.collections.ListUtil;
 
 import dna.graph.Graph;
 import dna.graph.IElement;
@@ -28,6 +29,7 @@ import dna.updates.update.EdgeAddition;
 import dna.updates.update.EdgeRemoval;
 import dna.updates.update.NodeWeight;
 import dna.updates.update.Update;
+import dna.util.ArrayUtils;
 import dna.util.parameters.IntParameter;
 import dna.util.parameters.ObjectParameter;
 import dna.util.parameters.Parameter;
@@ -44,6 +46,7 @@ public class TrafficInputWayBatchGenerator extends BatchGenerator{
 	private HashMap<Integer, HashMap<EdgeContainer,Edge>> newDisabledEdges = new HashMap<>();
 	private double treshold;
 	private TrafficUpdate trafficUpdate;
+	private HashMap<Integer, List<Double>> nodeHistory;
 	
 	
 	public TrafficInputWayBatchGenerator(String name,DB db, DateTime initDateTime, int stepSize, int modus, DateTime holidayStart, boolean [] daySelection, double treshold,TrafficUpdate trafficUpdate) {
@@ -59,6 +62,7 @@ public class TrafficInputWayBatchGenerator extends BatchGenerator{
 		this.daySelection = daySelection;
 		this.treshold = treshold;
 		this.trafficUpdate = trafficUpdate;
+		this.nodeHistory = new HashMap<>();
 	}
 
 	@Override
@@ -96,7 +100,35 @@ public class TrafficInputWayBatchGenerator extends BatchGenerator{
 			case 2:
 				update = (trafficUpdate.isAffected(n.getIndex()))?  db.getInputWayWeightStaticBatch(n.getIndex(),trafficUpdate) : null;
 				break;
-
+			case 3:
+				time = initDateTime;
+				int index = n.getIndex();
+				long start = g.getTimestamp();
+				double max = 0;
+				for (int i = 0; i < 5; i++) {
+					time = Helpers.calculateNextDay(initDateTime, start++, daySelection, holidayStart, false);
+					double[] weightOfDay = db.getInputWayWeight(n.getIndex(),time.minusMinutes(db.timeRange),time.plusMinutes(db.timeRange));
+					if(nodeHistory.containsKey(index)){
+						System.out.println(weightOfDay[2]);
+						nodeHistory.get(index).add(weightOfDay[2]);
+					}
+					else {
+						List<Double> weightList = new ArrayList<>();
+						weightList.add(weightOfDay[2]);
+						nodeHistory.put(index, weightList);
+					}
+					//System.out.println("Aggregate " +time);
+					
+				}
+				double sum = 0;
+				List<Double> values = nodeHistory.get(index);
+				for (int i = 0; i < values.size(); i++) {
+					sum+=values.get(i);
+				}
+				double value = (values.isEmpty())? 0 : sum/values.size();
+				update = new double[]{0,0,value};
+				System.out.println("Avg: " + value);
+				break;
 			default:
 				System.out.println("Modus nicht definiert");
 				break;
@@ -106,6 +138,8 @@ public class TrafficInputWayBatchGenerator extends BatchGenerator{
 				Double3dWeight newWeight = new Double3dWeight(update[0],update[1],update[2]);
 				if(!oldWeight.equals(newWeight))
 					b.add(new NodeWeight((dna.graph.weights.IWeightedNode) currentNode,new Double3dWeight(update[0],update[1],update[2])));
+				if(update[2]>95)
+					System.out.println("ID " +n.getIndex() + "\tCount:" + update[0] +"\tLoad:"+update[1]+"\t"+"Norm:"+update[2]);
 			}
 			else{
 				update = new double[]{oldWeight.getX(),oldWeight.getY(),oldWeight.getZ()};

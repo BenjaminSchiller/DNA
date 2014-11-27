@@ -76,7 +76,7 @@ public class TrafficInputWayGraphGenerator extends GraphGenerator{
 			case 0:
 				weight = db.getInputWayWeight(currentWeighted.getIndex(), initDateTime, initDateTime.plusMinutes(stepsize));
 				break;
-			case 1:
+			case 1: case 3:
 				weight = db.getInputWayWeight(currentWeighted.getIndex(),initDateTime.minusMinutes(timeRange),initDateTime.plusMinutes(timeRange));
 				break;	
 			case 2:
@@ -92,7 +92,9 @@ public class TrafficInputWayGraphGenerator extends GraphGenerator{
 			
 			currentWeighted.setWeight(new Double3dWeight(weight[0],weight[1],weight[2]));
 			g.addNode(currentWeighted);
-			
+			if(weight[2]>96)
+			System.out.println("ID " +currentWeighted.getIndex() + "\tCount:" + weight[0] +"\tLoad:"+weight[1]+"\t"+"Norm:"+weight[2]);
+
 		}
 		
 		List<EdgeContainer> connection = db.getInputWaysConnectionForDNA();

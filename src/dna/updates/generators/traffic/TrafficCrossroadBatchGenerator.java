@@ -131,6 +131,7 @@ public class TrafficCrossroadBatchGenerator extends BatchGenerator{
 			Double3dWeight oldWeight = (Double3dWeight) n.getWeight();
 			Double3dWeight newWeight = new Double3dWeight(update[0],update[1],update[2]);
 			//System.out.println("Index: \t"+n.getIndex()+"\tOldWeight: "+oldWeight.asString()+"\tNewWeight:"+newWeight.asString());
+			db.setMaximalWeightsCrossroadImproved(n.getIndex(), update[0], update[1], time,db.timeRange);
 			if(Math.abs(oldWeight.getZ() - newWeight.getZ())>10 )
 				System.out.println("Alarm.");
 			if(!oldWeight.equals(newWeight))

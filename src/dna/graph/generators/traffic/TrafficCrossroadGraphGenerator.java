@@ -91,6 +91,8 @@ public class TrafficCrossroadGraphGenerator extends GraphGenerator{
 			}
 			
 			double[] weight = crossroadWeight.getWeight();
+			System.out.println("ID " +currentWeighted.getIndex() + "\tCount:" + weight[0] +"\tLoad:"+weight[1]+"\t"+"Norm:"+weight[2]);
+			db.setMaximalWeightsCrossroadImproved(currentWeighted.getIndex(), weight[0], weight[1], initDateTime,db.timeRange);
 			currentWeighted.setWeight(new Double3dWeight(weight[0],weight[1],weight[2]));
 			g.addNode(currentWeighted);
 			
