@@ -38,6 +38,8 @@ public class BarabasiAlbertGraph extends GraphGenerator {
 		Graph g = gg.generate();
 		Batch b = bg.generate(g);
 		b.apply(g);
+		g.setTimestamp(0);
+		g.setName(this.getName());
 		return g;
 	}
 
