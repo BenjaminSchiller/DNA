@@ -60,6 +60,7 @@ public class DB {
 	private HashMap<Integer, HashMap<EdgeContainer, Edge>> disabledEdgesInputWay;
 	private boolean dummyMax;
 	private boolean backupWays = false;
+	private boolean improvedMax = true;
 	
 	/**
 	 * Konstruktor für die Nutzung der Datenbank ohne 
@@ -209,6 +210,42 @@ public class DB {
 		return new double[]{0.0,0.0};
 	}
 	
+	public boolean setMaximalWeightsCrossroadImproved(int crossroadID, double count, double load, DateTime time, int timeRange){
+		String inserTableSQL = "UPDATE mw_MaxValues_CrossroadImproved SET COUNT_VALUE = ?, LOAD_VALUE = ?, DATETIME = ?,timeRange = ? WHERE CROSSROAD_ID ="+crossroadID+" AND COUNT_VALUE<"+count;
+		
+		try {
+			PreparedStatement insertStmt = con.prepareStatement(inserTableSQL);
+			insertStmt.setDouble(1,count);
+			insertStmt.setDouble(2, load);
+			insertStmt.setTimestamp(3, Timestamp.valueOf(toSql(time)));
+			insertStmt.setInt(4, timeRange*2);
+			insertStmt.execute();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return true;
+	}
+	public boolean setMaximalWeightsInputWayImproved(int inputWayID, double count, double load, DateTime time, int timeRange){
+		if(true)
+			return true;
+		String inserTableSQL = "UPDATE mw_MaxValues_InputWaysImproved SET COUNT_VALUE = ?, LOAD_VALUE = ?, DATETIME = ?, timeRange = ? WHERE INPUT_WAY_ID ="+inputWayID+" AND COUNT_VALUE<"+count;
+		try {
+			PreparedStatement insertStmt = con.prepareStatement(inserTableSQL);
+			insertStmt.setDouble(1,count);
+			insertStmt.setDouble(2, load);
+			insertStmt.setTimestamp(3, Timestamp.valueOf(toSql(time)));
+			insertStmt.setInt(4, timeRange*2);
+			insertStmt.execute();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return true;
+	}
+	
+	
+	
 	public double[] writeMaximalWeightsInputWays_5Minutes(int inputwayID) {
 		System.out.println("Prüfe ID " +inputwayID);
 		double count = 0;
@@ -349,8 +386,7 @@ public class DB {
 		}
 		CrossroadWeight crw = new CrossroadWeight(crossroadID, crossroadName,treshold);
 		try {
-			String selectStmt = "SELECT SUM(COUNT_VALUE)/COUNT(COUNT_VALUE) as ANZAHL, SUM(LOAD_VALUE)/COUNT(LOAD_VALUE) as BELEGUNG ,FROM_DIRECTION, OSMWAY_ID FROM (SELECT CROSSROAD_WEIGHT.*,mw_SensorConnection.FRONT_BACK,mw_SensorConnection.FROM_DIRECTION, mw_SensorConnection.TO_LEFT,mw_SensorConnection.TO_STRAIGHT,mw_SensorConnection.TO_RIGHT FROM (SELECT EVENT_ID,DATETIME,COUNT_VALUE, LOAD_VALUE,sensorName as SENSOR_NAME, sensorID as SENSOR_ID, SENSORS.CSVOFFSET, crossroadID as CROSSROAD_ID, crossroadName as CROSSROAD_NAME FROM (SELECT sensorID,sensorName, CSVOFFSET,crossroadID,crossroadName FROM (SELECT ID as SENSOR_ID, CSVOFFSET, REALNAME, CROSSROAD_ID FROM jee_crmodel_SensorDim S WHERE S.CROSSROAD_ID='"+crossroadID+"') SENSORS RIGHT JOIN (SELECT * FROM mw_SensorWays SW WHERE crossroadID ='"+crossroadID+"' AND wayID IS NOT NULL) SENSORS_MAPPED ON SENSORS.SENSOR_ID = SENSORS_MAPPED.sensorID) SENSORS LEFT JOIN (SELECT ID as EVENT_ID,cr_count as COUNT_VALUE, cr_load as LOAD_VALUE, RE.CSVOFFSET,DATETIME FROM jee_trafficlight_rawevents RE WHERE RE.DATETIME >= '"+toSql(from)+"'AND RE.DATETIME < '"+toSql(to)+"' AND CROSSROAD = '"+crossroadName+"') EVENT_DATA on SENSORS.CSVOFFSET = EVENT_DATA.CSVOFFSET) CROSSROAD_WEIGHT JOIN mw_SensorConnection ON CROSSROAD_WEIGHT.SENSOR_ID = mw_SensorConnection.SENSOR_ID) RESULT LEFT JOIN (SELECT * FROM mw_CrossroadWays WHERE TYPE = '0')CRW on RESULT.FROM_DIRECTION = CRW.DIRECTION AND RESULT.CROSSROAD_ID = CRW.CROSSROAD_ID WHERE FRONT_BACK = 0 GROUP BY OSMWAY_ID"; 
-			System.out.println(selectStmt);
+			String selectStmt = "SELECT SUM(COUNT_VALUE)/COUNT(DISTINCT DATETIME) as ANZAHL, SUM(LOAD_VALUE)/COUNT(LOAD_VALUE) as BELEGUNG ,FROM_DIRECTION, OSMWAY_ID FROM (SELECT CROSSROAD_WEIGHT.*,mw_SensorConnection.FRONT_BACK,mw_SensorConnection.FROM_DIRECTION, mw_SensorConnection.TO_LEFT,mw_SensorConnection.TO_STRAIGHT,mw_SensorConnection.TO_RIGHT FROM (SELECT EVENT_ID,DATETIME,COUNT_VALUE, LOAD_VALUE,sensorName as SENSOR_NAME, sensorID as SENSOR_ID, SENSORS.CSVOFFSET, crossroadID as CROSSROAD_ID, crossroadName as CROSSROAD_NAME FROM (SELECT sensorID,sensorName, CSVOFFSET,crossroadID,crossroadName FROM (SELECT ID as SENSOR_ID, CSVOFFSET, REALNAME, CROSSROAD_ID FROM jee_crmodel_SensorDim S WHERE S.CROSSROAD_ID='"+crossroadID+"') SENSORS RIGHT JOIN (SELECT * FROM mw_SensorWays SW WHERE crossroadID ='"+crossroadID+"' AND wayID IS NOT NULL) SENSORS_MAPPED ON SENSORS.SENSOR_ID = SENSORS_MAPPED.sensorID) SENSORS LEFT JOIN (SELECT ID as EVENT_ID,cr_count as COUNT_VALUE, cr_load as LOAD_VALUE, RE.CSVOFFSET,DATETIME FROM jee_trafficlight_rawevents RE WHERE RE.DATETIME >= '"+toSql(from)+"'AND RE.DATETIME < '"+toSql(to)+"' AND CROSSROAD = '"+crossroadName+"') EVENT_DATA on SENSORS.CSVOFFSET = EVENT_DATA.CSVOFFSET) CROSSROAD_WEIGHT JOIN mw_SensorConnection ON CROSSROAD_WEIGHT.SENSOR_ID = mw_SensorConnection.SENSOR_ID) RESULT LEFT JOIN (SELECT * FROM mw_CrossroadWays WHERE TYPE = '0')CRW on RESULT.FROM_DIRECTION = CRW.DIRECTION AND RESULT.CROSSROAD_ID = CRW.CROSSROAD_ID WHERE FRONT_BACK = 0 GROUP BY OSMWAY_ID"; 
 			Statement stmt = con.createStatement();
 			ResultSet rs = stmt.executeQuery(selectStmt);
 			while (rs.next()) {
@@ -362,6 +398,7 @@ public class DB {
 				crw.setMaxWeightWay(wayID, maxValue);
 				double count = rs.getDouble("ANZAHL");
 				double load = rs.getDouble("BELEGUNG");
+				setMaximalWeightsInputWayImproved(getInputWay(crossroadID, wayID), count, load, from, timeRange);
 				crw.addWeightWay(wayID, new double[]{count,load,(count/maxValue[0])*100});
 				crw.setTimestamp(timestamp);
 				
@@ -461,10 +498,12 @@ public class DB {
 	}
 	
 	public void getMaximalWeightInputWay() {
-		Random rand = new Random();
 		try {
 			String selectStmt = null;
-			if(!dummyMax)
+			if(improvedMax){
+				selectStmt = "SELECT * FROM mw_MaxValues_InputWaysImproved WHERE COUNT_OR_LOAD =0";
+			}
+			else if(!dummyMax)
 				selectStmt = "SELECT * FROM mw_MaxValues_InputWays WHERE COUNT_OR_LOAD =0";
 			else {
 				if(backupWays)
@@ -475,7 +514,13 @@ public class DB {
 			Statement stmt = con.createStatement();
 			ResultSet rs = stmt.executeQuery(selectStmt);
 			while(rs.next()) {
-				if(!dummyMax)
+				if(improvedMax){
+					double maxCount = rs.getDouble("COUNT_VALUE");
+					if(maxCount <1)
+						maxCount= 1;
+					maxValuesInputWays.put(rs.getInt(1), new double[]{maxCount,rs.getDouble("LOAD_VALUE")});
+				}
+				else if(!dummyMax)
 					maxValuesInputWays.put(rs.getInt(1), new double[]{rs.getDouble("COUNT"),rs.getDouble("LOAD")});
 				else{
 					maxValuesInputWays.put(rs.getInt("INPUTWAY_ID"), new double[]{rs.getDouble("MAX_COUNT"),0});
@@ -534,20 +579,30 @@ public class DB {
 		}
 	
 	}
+	
+	
 	/**
 	 * liest die maximalen Werte, welche für einen Kreuzung gemessen wurden - über dummyMax können einmalig zufällig generierte Werte geladen werden
 	 */
 	public void getMaximalWeightCrossroad() {
-		Random rand = new Random();
 		try {
 			String selectStmt = "SELECT * FROM mw_MaxValues_Crossroad WHERE COUNT_OR_LOAD =0";
 			if(dummyMax)
 				selectStmt = "SELECT * FROM mw_MaxValues_Crossroad_Random";
+			if(improvedMax)
+				selectStmt = "SELECT * FROM mw_MaxValues_CrossroadImproved";
 			Statement stmt = con.createStatement();
 			ResultSet rs = stmt.executeQuery(selectStmt);
 			while(rs.next()){
-				if(!dummyMax)
-					maxValuesCrossroad.put(rs.getInt("CROSSROAD_ID"), new double[] {rs.getInt("COUNT")+20,0});
+				if(improvedMax){
+					double maxCount = rs.getDouble("COUNT_VALUE");
+					if(maxCount <1)
+						maxCount = 1;
+					maxValuesCrossroad.put(rs.getInt("CROSSROAD_ID"), new double[] {maxCount,rs.getDouble("LOAD_VALUE")});
+
+				}
+				else if(!dummyMax)
+					maxValuesCrossroad.put(rs.getInt("CROSSROAD_ID"), new double[] {rs.getInt("COUNT"),0});
 				else{
 					maxValuesCrossroad.put(rs.getInt("CROSSROAD_ID"), new double[] {rs.getDouble("MAX_COUNT"),0});
 				}
@@ -824,7 +879,6 @@ public class DB {
 			ResultSet rs = stmt.executeQuery(statementString);
 			int i = 0;
 			while(rs.next() ) {
-				System.out.println("Added Node:"+i++);
 				currentWeighted = gds.newNodeInstance(rs.getInt(1));
 				nodes.add(currentWeighted);
 			}
@@ -1186,9 +1240,10 @@ public class DB {
 			Statement stmt = con.createStatement();
 			if(backupWays)
 				statementString = "SELECT SUM(ANZAHL)/COUNT(ANZAHL),SUM(BELEGUNG)/COUNT(BELEGUNG) FROM (SELECT SUM(cr_count) as ANZAHL, SUM(cr_load)/COUNT(cr_load) as BELEGUNG, DATETIME FROM (SELECT SENSORS.*,DATETIME,cr_count,cr_load FROM (SELECT S1.*, CSVOFFSET FROM (SELECT ID as INPUTWAY_ID, IWG.wayID as OSMWAY_ID, IWG.crossroadID as CROSSROAD_ID, crossroadName as CROSSROAD_NAME, sensorID as SENSOR_ID, sensorName as SENSOR_NAME,IWG.direction as DIRECTION FROM (SELECT * FROM mw_InputWaysGlobal IWG WHERE IWG.ID ="+inputWayID+") IWG LEFT JOIN mw_SensorWays SW ON IWG.wayID = SW.wayID AND IWG.crossroadID= SW.crossroadID AND IWG.direction = SW.direction) S1 JOIN (SELECT * FROM jee_crmodel_SensorDim SENSOR_DIM WHERE CROSSROAD_ID ="+crossroadID+") S2 ON S1.SENSOR_ID = S2.ID) SENSORS LEFT JOIN (SELECT * FROM jee_trafficlight_rawevents RE WHERE DATETIME  < '"+toSql(to)+"' AND DATETIME>='"+toSql(from)+"') EVENTS_DAY ON SENSORS.CROSSROAD_NAME = EVENTS_DAY.CROSSROAD AND SENSORS.CSVOFFSET=EVENTS_DAY.CSVOFFSET) FINAL GROUP BY DATETIME) GROUPED";
-			else
+			else{
 				statementString = "SELECT SUM(ANZAHL)/COUNT(ANZAHL),SUM(BELEGUNG)/COUNT(BELEGUNG) FROM (SELECT SUM(cr_count) as ANZAHL, SUM(cr_load)/COUNT(cr_load) as BELEGUNG, DATETIME FROM (SELECT SENSORS.*,DATETIME,cr_count,cr_load FROM (SELECT S1.*, CSVOFFSET FROM (SELECT ID as INPUTWAY_ID, IWG.wayID as OSMWAY_ID, IWG.crossroadID as CROSSROAD_ID, crossroadName as CROSSROAD_NAME, sensorID as SENSOR_ID, sensorName as SENSOR_NAME FROM (SELECT * FROM mw_InputWaysGlobal_bak2 IWG WHERE IWG.ID ="+inputWayID+") IWG LEFT JOIN mw_SensorWays_bak SW ON IWG.wayID = SW.wayID AND IWG.crossroadID= SW.crossroadID) S1 JOIN (SELECT * FROM jee_crmodel_SensorDim SENSOR_DIM WHERE CROSSROAD_ID ="+crossroadID+") S2 ON S1.SENSOR_ID = S2.ID) SENSORS LEFT JOIN (SELECT * FROM jee_trafficlight_rawevents RE WHERE DATETIME  < '"+toSql(to)+"' AND DATETIME>='"+toSql(from)+"') EVENTS_DAY ON SENSORS.CROSSROAD_NAME = EVENTS_DAY.CROSSROAD AND SENSORS.CSVOFFSET=EVENTS_DAY.CSVOFFSET) FINAL GROUP BY DATETIME) GROUPED";
-			
+				statementString = "SELECT SUM(ANZAHL)/COUNT(ANZAHL),SUM(BELEGUNG)/COUNT(BELEGUNG) FROM (SELECT SUM(cr_count) as ANZAHL, SUM(cr_load)/COUNT(cr_load) as BELEGUNG, DATETIME FROM (SELECT SENSORS.*,DATETIME,cr_count,cr_load FROM (SELECT FRONT_AND_BACK.* FROM (SELECT S1.*, CSVOFFSET FROM (SELECT ID AS INPUTWAY_ID, IWG.wayID AS OSMWAY_ID, IWG.crossroadID AS CROSSROAD_ID, crossroadName AS CROSSROAD_NAME, sensorID AS SENSOR_ID, sensorName AS SENSOR_NAME FROM (SELECT * FROM mw_InputWaysGlobal_bak2 IWG WHERE IWG.ID ='"+inputWayID+"') IWG LEFT JOIN mw_SensorWays_bak SW ON IWG.wayID = SW.wayID AND IWG.crossroadID= SW.crossroadID) S1 JOIN (SELECT * FROM jee_crmodel_SensorDim SENSOR_DIM WHERE CROSSROAD_ID ='"+crossroadID+"') S2 ON S1.SENSOR_ID = S2.ID) FRONT_AND_BACK JOIN (SELECT * FROM mw_SensorConnection_bak FR WHERE FR.FRONT_BACK = 0) ONLY_FRONT ON FRONT_AND_BACK.SENSOR_ID = ONLY_FRONT.SENSOR_ID) SENSORS LEFT JOIN (SELECT * FROM jee_trafficlight_rawevents RE WHERE DATETIME < '"+toSql(to)+"' AND DATETIME>='"+toSql(from)+"') EVENTS_DAY ON SENSORS.CROSSROAD_NAME = EVENTS_DAY.CROSSROAD AND SENSORS.CSVOFFSET=EVENTS_DAY.CSVOFFSET) FINAL GROUP BY DATETIME) GROUPED";
+			}
 			ResultSet rs = stmt.executeQuery(statementString);
 			if(rs.first()){
 				count=rs.getDouble(1);

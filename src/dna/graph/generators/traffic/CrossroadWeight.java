@@ -81,22 +81,33 @@ public class CrossroadWeight {
 		if(numOfinputWays>0){
 			sum[1]/=numOfinputWays;
 		}
-		/*if(maxCount>0)
+		
+		// Normierte Werte
+		if(maxCount>0)
 			sum[2]=(sum[0]/maxCount)*100;
 		else
-			sum[2]=0;*/
+			sum[2]=0;
+		
+		/*
+		// Load/Count
 		if(sum[0]>1)
 			sum[2] = sum[1]/(sum[0]*10)*10;
 		else
 			sum[2] = 0;
+		*/
+		/*
+		// Load-Wert
+		sum[2] = sum[1];
+		*/
 		return sum;
 	}
 	
 	public HashMap<Integer,double[]> getOverladedEdges() {
 		HashMap<Integer, double[]> result = new HashMap<>();
 		for (Map.Entry<Integer, double[]> inputWay : inputWayWeights.entrySet()) {
-			if(inputWay.getValue()[1] >threshold){
+			if(inputWay.getValue()[2] >threshold){
 				result.put(inputWay.getKey(), inputWay.getValue());
+				System.out.println("Overloaded: " +inputWay.getKey() +"Crossroad " +crossroadID +"\t"+inputWay.getValue()[0]+"\tNorm:" +inputWay.getValue()[2]);
 			}
 		}
 		return result;
