@@ -93,8 +93,15 @@ public class Latex {
 		// write metrics
 		if (config.isIncludeMetrics()) {
 			for (AggregatedMetric m : initBatch.getMetrics().getList()) {
-				file.include(TexUtils.generateMetricChapter(dstDir, s, m,
-						batchData, config));
+				if ((config.isIncludeDistributions() && m.getDistributions()
+						.size() > 0)
+						|| (config.isIncludeMetricValues() && m.getValues()
+								.size() > 0)
+						|| (config.isIncludeNodeValueLists() && m
+								.getNodeValues().size() > 0)) {
+					file.include(TexUtils.generateMetricChapter(dstDir, s, m,
+							batchData, config));
+				}
 			}
 		}
 
