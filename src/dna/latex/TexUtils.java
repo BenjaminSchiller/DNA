@@ -94,18 +94,24 @@ public class TexUtils {
 				stats.writeLine();
 				stats.writeCommentBlock("value table of " + v.getName());
 
+				// select description
+				String[] tableDescrArray = TexUtils.selectDescription(config);
+
 				// init table
-				TexTable table = new TexTable(stats, TexUtils.valueDesciptions);
+				TexTable table = new TexTable(stats, tableDescrArray);
 
 				// add values
 				for (AggregatedBatch b : batchData) {
 					if (!b.getValues().getNames().contains(v.getName())) {
-						table.addBlankRow(TexUtils.valueDesciptions.length - 1,
+						table.addBlankRow(tableDescrArray.length - 1,
 								b.getTimestamp());
 					} else {
-						table.addRow(
-								b.getValues().get(v.getName()).getValues(),
-								b.getTimestamp());
+						// select values
+						double[] selectedValues = TexUtils.selectValues(b
+								.getValues().get(v.getName()), config, false);
+
+						// add row
+						table.addRow(selectedValues, b.getTimestamp());
 					}
 				}
 
@@ -137,18 +143,26 @@ public class TexUtils {
 				genR.writeLine();
 				genR.writeCommentBlock("value table of " + v.getName());
 
+				// select description
+				String[] tableDescrArray = TexUtils.selectDescription(config);
+
 				// init table
-				TexTable table = new TexTable(genR, TexUtils.valueDesciptions);
+				TexTable table = new TexTable(genR, tableDescrArray);
 
 				// add values
 				for (AggregatedBatch b : batchData) {
 					if (!b.getGeneralRuntimes().getNames()
 							.contains(v.getName())) {
-						table.addBlankRow(TexUtils.valueDesciptions.length - 1,
+						table.addBlankRow(tableDescrArray.length - 1,
 								b.getTimestamp());
 					} else {
-						table.addRow(b.getGeneralRuntimes().get(v.getName())
-								.getValues(), b.getTimestamp());
+						// select values
+						double[] selectedValues = TexUtils.selectValues(b
+								.getGeneralRuntimes().get(v.getName()), config,
+								false);
+
+						// add row
+						table.addRow(selectedValues, b.getTimestamp());
 					}
 				}
 
@@ -180,17 +194,25 @@ public class TexUtils {
 				metR.writeLine();
 				metR.writeCommentBlock("value table of " + v.getName());
 
+				// select description
+				String[] tableDescrArray = TexUtils.selectDescription(config);
+
 				// init table
-				TexTable table = new TexTable(metR, TexUtils.valueDesciptions);
+				TexTable table = new TexTable(metR, tableDescrArray);
 
 				// add values
 				for (AggregatedBatch b : batchData) {
 					if (!b.getMetricRuntimes().getNames().contains(v.getName())) {
-						table.addBlankRow(TexUtils.valueDesciptions.length - 1,
+						table.addBlankRow(tableDescrArray.length - 1,
 								b.getTimestamp());
 					} else {
-						table.addRow(b.getMetricRuntimes().get(v.getName())
-								.getValues(), b.getTimestamp());
+						// select values
+						double[] selectedValues = TexUtils.selectValues(b
+								.getMetricRuntimes().get(v.getName()), config,
+								false);
+
+						// add row
+						table.addRow(selectedValues, b.getTimestamp());
 					}
 				}
 
