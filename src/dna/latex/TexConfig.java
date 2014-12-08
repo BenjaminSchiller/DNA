@@ -22,6 +22,14 @@ public class TexConfig {
 		this.tableFlags = tableFlags;
 	}
 
+	public void setPlotFlags(PlotFlag... flags) {
+		this.plotFlags = flags;
+	}
+
+	public void setTableFlags(TableFlag... flags) {
+		this.tableFlags = flags;
+	}
+
 	public String getDstDir() {
 		return dstDir;
 	}
@@ -41,4 +49,101 @@ public class TexConfig {
 	public TableFlag[] getTableFlags() {
 		return tableFlags;
 	}
+
+	public boolean isIncludeRuntimes() {
+		for (PlotFlag p : this.plotFlags) {
+			switch (p) {
+			case plotAll:
+				return true;
+			case plotRuntimes:
+				return true;
+			}
+		}
+		return false;
+	}
+
+	public boolean isIncludeStatistics() {
+		for (PlotFlag p : this.plotFlags) {
+			switch (p) {
+			case plotAll:
+				return true;
+			case plotSingleScalarValues:
+				return true;
+			case plotStatistics:
+				return true;
+			}
+		}
+		return false;
+	}
+
+	public boolean isIncludeDistributions() {
+		for (PlotFlag p : this.plotFlags) {
+			switch (p) {
+			case plotAll:
+				return true;
+			case plotMultiScalarValues:
+				return true;
+			case plotMetricEntirely:
+				return true;
+			case plotDistributions:
+				return true;
+			}
+		}
+		return false;
+	}
+
+	public boolean isIncludeNodeValueLists() {
+		for (PlotFlag p : this.plotFlags) {
+			switch (p) {
+			case plotAll:
+				return true;
+			case plotMultiScalarValues:
+				return true;
+			case plotMetricEntirely:
+				return true;
+			case plotNodeValueLists:
+				return true;
+			}
+		}
+		return false;
+	}
+
+	public boolean isIncludeMetricValues() {
+		for (PlotFlag p : this.plotFlags) {
+			switch (p) {
+			case plotAll:
+				return true;
+			case plotSingleScalarValues:
+				return true;
+			case plotMetricEntirely:
+				return true;
+			case plotMetricValues:
+				return true;
+			}
+		}
+		return false;
+	}
+
+	public boolean isIncludeMetrics() {
+		for (PlotFlag p : this.plotFlags) {
+			switch (p) {
+			case plotAll:
+				return true;
+			case plotSingleScalarValues:
+				return true;
+			case plotMultiScalarValues:
+				return true;
+			case plotMetricEntirely:
+				return true;
+			case plotMetricValues:
+				return true;
+			case plotDistributions:
+				return true;
+			case plotNodeValueLists:
+				return true;
+			}
+		}
+		return false;
+	}
+
 }
