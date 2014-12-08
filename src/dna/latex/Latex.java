@@ -23,8 +23,10 @@ public class Latex {
 
 	public static void test(SeriesData s, String dstDir, String filename,
 			TexConfig config) throws IOException {
+		String srcDir = s.getDir();
+
 		// log
-		Log.info("Exporting series '" + s.getName() + "' at '" + s.getDir()
+		Log.info("Exporting series '" + s.getName() + "' at '" + srcDir
 				+ "' to '" + dstDir + filename + "'");
 
 		long from = 0;
@@ -37,7 +39,7 @@ public class Latex {
 		(new File(dstDir)).mkdirs();
 
 		// gather relevant batches
-		String tempDir = Dir.getAggregationDataDir(s.getDir());
+		String tempDir = Dir.getAggregationDataDir(srcDir);
 		String[] batches = Dir.getBatchesFromTo(tempDir, from, to, stepsize,
 				intervalByIndex);
 		double timestamps[] = new double[batches.length];
@@ -61,10 +63,12 @@ public class Latex {
 
 		// init
 		AggregatedBatch initBatch = batchData[0];
-
 		TexFile file = new TexFile(dstDir, filename);
 
+		// WRITE HEADER
 		file.writeHeader();
+
+		// start with content
 		file.writeLine(TexUtils.chapter("Series "
 				+ s.getName().replace("_", "\\textunderscore ")));
 		file.writeLine("The series "
