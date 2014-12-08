@@ -68,8 +68,8 @@ public class Latex {
 		file.writeLine(TexUtils.chapter("Series "
 				+ s.getName().replace("_", "\\textunderscore ")));
 		file.writeLine("The series "
-				+ s.getName().replace("_", "\\textunderscore is ")
-				+ " located in " + dstDir.replace("_", "\\textunderscore ")
+				+ s.getName().replace("_", "\\textunderscore ")
+				+ " is located in " + dstDir.replace("_", "\\textunderscore ")
 				+ ". It contains " + s.getAggregation().getBatches().length
 				+ " batches.");
 		file.writeLine();
