@@ -3,12 +3,10 @@ package dna.latex;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Calendar;
 
 import dna.io.Writer;
 import dna.io.filesystem.Dir;
-import dna.latex.TexTable.TableFlag;
 import dna.series.aggdata.AggregatedBatch;
 import dna.series.aggdata.AggregatedBatch.BatchReadMode;
 import dna.series.aggdata.AggregatedDistribution;
@@ -66,28 +64,34 @@ public class TexFile {
 		this.writeLine(TexUtils.section(name));
 		this.writeLine();
 
-		if (m.getValues().size() > 0) {
-			this.writeLine(TexUtils.subsection("Values"));
-			for (AggregatedValue v : m.getValues().getList()) {
-				this.writeMetricValue(v, m, batchData, config);
+		if (config.isIncludeMetricValues()) {
+			if (m.getValues().size() > 0) {
+				this.writeLine(TexUtils.subsection("Values"));
+				for (AggregatedValue v : m.getValues().getList()) {
+					this.writeMetricValue(v, m, batchData, config);
+				}
+				this.writeLine();
 			}
-			this.writeLine();
 		}
 
-		if (m.getDistributions().size() > 0) {
-			this.writeLine(TexUtils.subsection("Distributions"));
-			for (AggregatedDistribution d : m.getDistributions().getList()) {
-				this.writeDistribution(d, m, s, batchData, config);
+		if (config.isIncludeDistributions()) {
+			if (m.getDistributions().size() > 0) {
+				this.writeLine(TexUtils.subsection("Distributions"));
+				for (AggregatedDistribution d : m.getDistributions().getList()) {
+					this.writeDistribution(d, m, s, batchData, config);
+				}
+				this.writeLine();
 			}
-			this.writeLine();
 		}
 
-		if (m.getNodeValues().size() > 0) {
-			this.writeLine(TexUtils.subsection("NodeValueLists"));
-			for (AggregatedNodeValueList n : m.getNodeValues().getList()) {
-				this.writeNodeValueList(n, m, s, batchData, config);
+		if (config.isIncludeNodeValueLists()) {
+			if (m.getNodeValues().size() > 0) {
+				this.writeLine(TexUtils.subsection("NodeValueLists"));
+				for (AggregatedNodeValueList n : m.getNodeValues().getList()) {
+					this.writeNodeValueList(n, m, s, batchData, config);
+				}
+				this.writeLine();
 			}
-			this.writeLine();
 		}
 	}
 

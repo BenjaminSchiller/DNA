@@ -76,25 +76,31 @@ public class Latex {
 		file.writeCommentBlock("chapters");
 
 		// write statistics
-		file.include(TexUtils.generateStatisticsChapter(dstDir, initBatch,
-				batchData, config));
+		if (config.isIncludeStatistics())
+			file.include(TexUtils.generateStatisticsChapter(dstDir, initBatch,
+					batchData, config));
 
-		// write general runtimes
-		file.include(TexUtils.generateGeneralRuntimesChapter(dstDir, initBatch,
-				batchData, config));
+		if (config.isIncludeRuntimes()) {
+			// write general runtimes
+			file.include(TexUtils.generateGeneralRuntimesChapter(dstDir,
+					initBatch, batchData, config));
 
-		// write metric runtimes
-		file.include(TexUtils.generateMetricRuntimesChapter(dstDir, initBatch,
-				batchData, config));
+			// write metric runtimes
+			file.include(TexUtils.generateMetricRuntimesChapter(dstDir,
+					initBatch, batchData, config));
+		}
 
 		// write metrics
-		for (AggregatedMetric m : initBatch.getMetrics().getList()) {
-			file.include(TexUtils.generateMetricChapter(dstDir, s, m,
-					batchData, config));
+		if (config.isIncludeMetrics()) {
+			for (AggregatedMetric m : initBatch.getMetrics().getList()) {
+				file.include(TexUtils.generateMetricChapter(dstDir, s, m,
+						batchData, config));
+			}
 		}
 
 		file.writeLine();
 
+		// close document
 		file.closeAndEnd();
 	}
 
