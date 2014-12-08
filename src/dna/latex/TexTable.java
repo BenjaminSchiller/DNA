@@ -15,7 +15,7 @@ public class TexTable {
 
 	// table flags
 	public static enum TableFlag {
-		average, min, max, median, variance, varianceLow, varianceUp, confidenceLow, confidenceUp, all
+		Average, Min, Max, Median, Var, VarLow, VarUp, ConfLow, ConfUp, all
 	};
 
 	// variables
