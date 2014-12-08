@@ -2,7 +2,6 @@ package dna.latex;
 
 import java.io.IOException;
 
-import dna.io.Writer;
 import dna.util.Log;
 
 /** Represents a table in a tex document. **/
@@ -54,8 +53,11 @@ public class TexTable {
 		// if timestamp set, add timestamp row
 		if (timestamp != unsetLong) {
 			line = TexUtils.textBf("Timestamp =") + TexTable.tableDelimiter
-					+ TexUtils.textBf("" + timestamp) + TexUtils.newline
-					+ TexTable.hline;
+					+ TexUtils.textBf("" + timestamp);
+			for (int i = 2; i < headRow.length; i++) {
+				line += TexTable.tableDelimiter;
+			}
+			line += TexUtils.newline + TexTable.hline;
 			this.parent.writeLine(line);
 		}
 
