@@ -131,15 +131,22 @@ public class TexFile {
 		this.writeCommentBlock("value tables of " + d.getName());
 		this.writeLine();
 
+		// select description
+		String[] tableDescrArray = TexUtils.selectDescription(config);
+		tableDescrArray[0] = "x";
+
+		Log.infoSep();
+		for (String se : tableDescrArray)
+			System.out.println(se);
+		Log.infoSep();
+
 		// add values
 		for (AggregatedBatch b : batchData) {
 			long timestamp = b.getTimestamp();
 			this.writeCommentLine("value table of timestamp " + timestamp);
-			String[] description = new String[TexUtils.valueDesciptions.length];
-			System.arraycopy(TexUtils.valueDesciptions, 0, description, 0,
-					TexUtils.valueDesciptions.length);
-			description[0] = "x";
-			TexTable table = new TexTable(this, description, timestamp);
+
+			// init table
+			TexTable table = new TexTable(this, tableDescrArray, timestamp);
 
 			// read batch
 			String readDir = Dir.getAggregationBatchDir(s.getDir(), timestamp);
@@ -150,18 +157,23 @@ public class TexFile {
 			if (!b.getMetrics().getNames().contains(m.getName())
 					&& !b.getMetrics().get(m.getName()).getDistributions()
 							.getNames().contains(d.getName())) {
-				table.addBlankRow(TexUtils.valueDesciptions.length - 1,
-						b.getTimestamp());
+				table.addBlankRow(tableDescrArray.length - 1, b.getTimestamp());
 			} else {
 				AggregatedValue[] values = tempBatch.getMetrics()
 						.get(m.getName()).getDistributions().get(d.getName())
 						.getValues();
 
 				for (int i = 0; i < values.length; i++) {
-					table.addRow(values[i].getValues());
+					// select values
+					double[] selectedValues = TexUtils
+							.selectValuesFromDistribution(values[i], config);
+
+					// add row to table
+					table.addRow(selectedValues, timestamp);
 				}
 
 			}
+
 			// close table
 			table.close();
 			this.writeLine();
@@ -207,8 +219,8 @@ public class TexFile {
 
 				for (int i = 0; i < values.length; i++) {
 					// select values
-					double[] selectedValuesArray = TexUtils.selectValues(
-							values[i], config);
+					double[] selectedValuesArray = TexUtils
+							.selectValuesFromNodeValueList(values[i], config);
 
 					// add row to table
 					table.addRow(selectedValuesArray, i);

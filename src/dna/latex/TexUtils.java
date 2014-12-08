@@ -249,9 +249,28 @@ public class TexUtils {
 	}
 
 	/** Selects the respective values from v defined by the tex-config. **/
-	public static double[] selectValues(AggregatedValue v, TexConfig config) {
+	public static double[] selectValuesFromDistribution(AggregatedValue v,
+			TexConfig config) {
+		return TexUtils.selectValues(v, config, true);
+	}
+
+	/** Selects the respective values from v defined by the tex-config. **/
+	public static double[] selectValuesFromNodeValueList(AggregatedValue v,
+			TexConfig config) {
+		return TexUtils.selectValues(v, config, false);
+	}
+
+	/** Selects the respective values from v defined by the tex-config. **/
+	public static double[] selectValues(AggregatedValue v, TexConfig config,
+			boolean distribution) {
 		ArrayList<Double> selectedValues = new ArrayList<Double>();
 		double[] selectedValuesArray = null;
+
+		// if distribution, add offset of 1
+		int offset = 0;
+		if (distribution)
+			offset = 1;
+
 		boolean done = false;
 		for (TableFlag tf : config.getTableFlags()) {
 			if (!done) {
@@ -261,31 +280,31 @@ public class TexUtils {
 					done = true;
 					break;
 				case Average:
-					selectedValues.add(v.getAvg());
+					selectedValues.add(v.getValues()[0 + offset]);
 					break;
 				case Min:
-					selectedValues.add(v.getMin());
+					selectedValues.add(v.getValues()[1 + offset]);
 					break;
 				case Max:
-					selectedValues.add(v.getMax());
+					selectedValues.add(v.getValues()[2 + offset]);
 					break;
 				case Median:
-					selectedValues.add(v.getMedian());
+					selectedValues.add(v.getValues()[3 + offset]);
 					break;
 				case Var:
-					selectedValues.add(v.getVariance());
+					selectedValues.add(v.getValues()[4 + offset]);
 					break;
 				case VarLow:
-					selectedValues.add(v.getVarianceLow());
+					selectedValues.add(v.getValues()[5 + offset]);
 					break;
 				case VarUp:
-					selectedValues.add(v.getVarianceUp());
+					selectedValues.add(v.getValues()[6 + offset]);
 					break;
 				case ConfLow:
-					selectedValues.add(v.getConfidenceLow());
+					selectedValues.add(v.getValues()[7 + offset]);
 					break;
 				case ConfUp:
-					selectedValues.add(v.getConfidenceUp());
+					selectedValues.add(v.getValues()[8 + offset]);
 					break;
 				}
 			}
