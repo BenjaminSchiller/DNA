@@ -75,7 +75,7 @@ public class TexUtils {
 	}
 
 	public static TexFile getStatisticsChapter(String dstDir,
-			AggregatedBatch initBatch, AggregatedBatch[] batchData)
+			AggregatedBatch initBatch, AggregatedBatch[] batchData, TexConfig config)
 			throws IOException {
 		// write statistics
 		TexFile stats = new TexFile(dstDir + TexUtils.chapterDirectory
@@ -118,7 +118,7 @@ public class TexUtils {
 	}
 
 	public static TexFile getGeneralRuntimesChapter(String dstDir,
-			AggregatedBatch initBatch, AggregatedBatch[] batchData)
+			AggregatedBatch initBatch, AggregatedBatch[] batchData, TexConfig config)
 			throws IOException {
 		// write general runtimes
 		TexFile genR = new TexFile(dstDir + TexUtils.chapterDirectory
@@ -161,7 +161,7 @@ public class TexUtils {
 	}
 
 	public static TexFile getMetricRuntimesChapter(String dstDir,
-			AggregatedBatch initBatch, AggregatedBatch[] batchData)
+			AggregatedBatch initBatch, AggregatedBatch[] batchData, TexConfig config)
 			throws IOException {
 		// write metric runtimes
 		TexFile metR = new TexFile(dstDir + TexUtils.chapterDirectory

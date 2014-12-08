@@ -7,28 +7,35 @@ import dna.util.Log;
 
 /** Represents a table in a tex document. **/
 public class TexTable {
-
+	// static textable fields
 	private static final String hline = "\\hline";
 	private static final String defaultColumnSetting = "l";
 	private static final String tableDelimiter = " & ";
 	private static final long unsetLong = -1;
 
+	// table flags
+	public static enum TableFlag {
+		average, min, max, median, variance, varianceLow, varianceUp, confidenceLow, confidenceUp, all
+	};
+
 	// variables
 	private TexFile parent;
 	private boolean open;
 	private int columns;
+	private TableFlag[] tableFlags;
 
 	// constructor
-	public TexTable(TexFile parent, String[] headRow, long timestamp)
-			throws IOException {
+	public TexTable(TexFile parent, String[] headRow, long timestamp,
+			TableFlag... tableFlags) throws IOException {
 		this.parent = parent;
 		this.columns = headRow.length;
 		this.open = true;
+		this.tableFlags = tableFlags;
 		this.begin(headRow, timestamp);
 	}
 
 	public TexTable(TexFile parent, String[] headRow) throws IOException {
-		this(parent, headRow, unsetLong);
+		this(parent, headRow, unsetLong, TableFlag.all);
 	}
 
 	// class methods
@@ -140,6 +147,10 @@ public class TexTable {
 			Log.warn("Attempt to write to closed TexTable" + this.toString()
 					+ "!");
 		}
+	}
+
+	public TableFlag[] getTableFlags() {
+		return this.tableFlags;
 	}
 
 }
