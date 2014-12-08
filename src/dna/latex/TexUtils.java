@@ -25,6 +25,8 @@ public class TexUtils {
 	public static final String statisticsFilename = "statistics";
 	public static final String generalRuntimesFilename = "generalruntimes";
 	public static final String metricRuntimesFilename = "metricruntimes";
+	public static final String titlePageFilename = "titlepage";
+	public static final String headerFilename = "header";
 
 	// comments
 	public static final String beginOfDocument = "begin of document";
@@ -74,6 +76,14 @@ public class TexUtils {
 
 	public static String include(String value) {
 		return cmd("include", value);
+	}
+
+	public static String pagenumbering(String value) {
+		return cmd("pagenumbering", value);
+	}
+
+	public static String setcounter(String value) {
+		return cmd("setcounter", "page") + "{" + value + "}";
 	}
 
 	public static TexFile generateStatisticsChapter(String dstDir,

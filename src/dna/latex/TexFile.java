@@ -260,6 +260,15 @@ public class TexFile {
 			// begin document
 			this.writeCommentLine(TexUtils.beginOfDocument);
 			this.writer.writeln(TexUtils.begin("document"));
+
+			// include header, titlepage, adjust pagenumbering
+			this.include(TexUtils.chapterDirectory + Dir.delimiter
+					+ TexUtils.headerFilename);
+			this.writeLine(TexUtils.pagenumbering("roman"));
+			this.writeLine(TexUtils.setcounter("" + 0));
+			this.include(TexUtils.chapterDirectory + Dir.delimiter
+					+ TexUtils.titlePageFilename);
+			this.writeLine(TexUtils.pagenumbering("arabic"));
 			this.writeLine();
 		} else {
 			Log.warn("Attempt to write to closed TexFile " + this.getPath()
