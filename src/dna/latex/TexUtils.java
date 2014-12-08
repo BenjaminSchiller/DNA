@@ -35,7 +35,7 @@ public class TexUtils {
 	public static final String generalRuntimes = "General Runtimes";
 	public static final String metricRuntimes = "Metric Runtimes";
 	public static final String institute = "Dresden University of Technology";
-	public static final String[] valueDesciptions = { "Timestamp", "Avg",
+	public static final String[] valueDesciptions = { "Timestamp", "Average",
 			"Min", "Max", "Median", "Var", "VarLow", "VarUp", "ConfLow",
 			"ConfUp" };
 
