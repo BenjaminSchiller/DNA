@@ -99,20 +99,26 @@ public class TexFile {
 		this.writeLine();
 		this.writeCommentBlock("value table of " + v.getName());
 
+		// select description
+		String[] tableDescrArray = TexUtils.selectDescription(config);
+
 		// init table
-		TexTable table = new TexTable(this, TexUtils.valueDesciptions);
+		TexTable table = new TexTable(this, tableDescrArray);
 
 		// add values
 		for (AggregatedBatch b : batchData) {
 			if (!b.getMetrics().getNames().contains(m.getName())
 					&& !b.getMetrics().get(m.getName()).getValues().getNames()
 							.contains(v.getName())) {
-				table.addBlankRow(TexUtils.valueDesciptions.length - 1,
-						b.getTimestamp());
+				table.addBlankRow(tableDescrArray.length - 1, b.getTimestamp());
 			} else {
-				table.addRow(
-						b.getMetrics().get(m.getName()).getValues()
-								.get(v.getName()).getValues(), b.getTimestamp());
+				// select values
+				double[] selectedValues = TexUtils.selectValues(b.getMetrics()
+						.get(m.getName()).getValues().get(v.getName()), config,
+						false);
+
+				// add row
+				table.addRow(selectedValues, b.getTimestamp());
 			}
 		}
 
@@ -134,11 +140,6 @@ public class TexFile {
 		// select description
 		String[] tableDescrArray = TexUtils.selectDescription(config);
 		tableDescrArray[0] = "x";
-
-		Log.infoSep();
-		for (String se : tableDescrArray)
-			System.out.println(se);
-		Log.infoSep();
 
 		// add values
 		for (AggregatedBatch b : batchData) {
