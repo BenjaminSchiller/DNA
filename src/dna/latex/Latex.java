@@ -21,8 +21,8 @@ import dna.util.Log;
  */
 public class Latex {
 
-	public static void test(SeriesData s, String dstDir, String filename)
-			throws IOException {
+	public static void test(SeriesData s, String dstDir, String filename,
+			TexConfig config) throws IOException {
 		// log
 		Log.info("Exporting series '" + s.getName() + "' at '" + s.getDir()
 				+ "' to '" + dstDir + filename + "'");
@@ -76,16 +76,16 @@ public class Latex {
 		file.writeCommentBlock("chapters");
 
 		// write statistics
-		file.include(TexUtils
-				.getStatisticsChapter(dstDir, initBatch, batchData));
+		file.include(TexUtils.getStatisticsChapter(dstDir, initBatch,
+				batchData, config));
 
 		// write general runtimes
 		file.include(TexUtils.getGeneralRuntimesChapter(dstDir, initBatch,
-				batchData));
+				batchData, config));
 
 		// write metric runtimes
 		file.include(TexUtils.getMetricRuntimesChapter(dstDir, initBatch,
-				batchData));
+				batchData, config));
 
 		// write metrics
 		for (AggregatedMetric m : initBatch.getMetrics().getList()) {
