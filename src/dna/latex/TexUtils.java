@@ -6,6 +6,7 @@ import dna.io.filesystem.Dir;
 import dna.series.aggdata.AggregatedBatch;
 import dna.series.aggdata.AggregatedMetric;
 import dna.series.aggdata.AggregatedValue;
+import dna.series.data.SeriesData;
 
 /**
  * Utility class for tex.
@@ -33,8 +34,8 @@ public class TexUtils {
 	public static final String metricRuntimes = "Metric Runtimes";
 	public static final String institute = "Dresden University of Technology";
 	public static final String[] valueDesciptions = { "Timestamp", "Avg",
-			"Min", "Max", "Median", "Var", "Var_{low}", "Var_{high}",
-			"Conf_{low}", "Conf_{high}" };
+			"Min", "Max", "Median", "Var", "Var\\_low", "Var\\_high",
+			"Conf\\_low", "Conf\\_high" };
 
 	// commands
 	public static String cmd(String command, String value) {
@@ -43,6 +44,10 @@ public class TexUtils {
 
 	public static String textBf(String value) {
 		return cmd("textbf", value);
+	}
+
+	public static String chapter(String value) {
+		return cmd("chapter", value);
 	}
 
 	public static String section(String value) {
@@ -70,7 +75,8 @@ public class TexUtils {
 	}
 
 	public static TexFile getStatisticsChapter(String dstDir,
-			AggregatedBatch initBatch) throws IOException {
+			AggregatedBatch initBatch, AggregatedBatch[] batchData)
+			throws IOException {
 		// write statistics
 		TexFile stats = new TexFile(dstDir + TexUtils.chapterDirectory
 				+ Dir.delimiter, TexUtils.statisticsFilename
@@ -78,10 +84,10 @@ public class TexUtils {
 
 		if (initBatch.getValues().size() > 0) {
 			stats.writeCommentBlock(TexUtils.statistics);
-			stats.writeLine(TexUtils.subsection(TexUtils.statistics));
+			stats.writeLine(TexUtils.section(TexUtils.statistics));
 			stats.writeLine();
 			for (AggregatedValue v : initBatch.getValues().getList()) {
-				stats.writeLine(TexUtils.subsubsection(v.getName()));
+				stats.writeLine(TexUtils.subsection(v.getName()));
 				stats.writeLine(v.getName() + " is a statistic.");
 				stats.writeLine();
 				stats.writeCommentBlock("value table of " + v.getName());
@@ -90,7 +96,16 @@ public class TexUtils {
 				TexTable table = new TexTable(stats, TexUtils.valueDesciptions);
 
 				// add values
-				table.addRow(v.getValues(), initBatch.getTimestamp());
+				for (AggregatedBatch b : batchData) {
+					if (!b.getValues().getNames().contains(v.getName())) {
+						table.addBlankRow(TexUtils.valueDesciptions.length - 1,
+								b.getTimestamp());
+					} else {
+						table.addRow(
+								b.getValues().get(v.getName()).getValues(),
+								b.getTimestamp());
+					}
+				}
 
 				// close table
 				table.close();
@@ -103,7 +118,8 @@ public class TexUtils {
 	}
 
 	public static TexFile getGeneralRuntimesChapter(String dstDir,
-			AggregatedBatch initBatch) throws IOException {
+			AggregatedBatch initBatch, AggregatedBatch[] batchData)
+			throws IOException {
 		// write general runtimes
 		TexFile genR = new TexFile(dstDir + TexUtils.chapterDirectory
 				+ Dir.delimiter, TexUtils.generalRuntimesFilename
@@ -111,11 +127,31 @@ public class TexUtils {
 
 		if (initBatch.getGeneralRuntimes().size() > 0) {
 			genR.writeCommentBlock(TexUtils.generalRuntimes);
-			genR.writeLine(TexUtils.subsection(TexUtils.generalRuntimes));
+			genR.writeLine(TexUtils.section(TexUtils.generalRuntimes));
 			genR.writeLine();
 			for (AggregatedValue v : initBatch.getGeneralRuntimes().getList()) {
-				genR.writeLine(TexUtils.subsubsection(v.getName()));
+				genR.writeLine(TexUtils.subsection(v.getName()));
 				genR.writeLine(v.getName() + " is a general runtime.");
+				genR.writeLine();
+				genR.writeCommentBlock("value table of " + v.getName());
+
+				// init table
+				TexTable table = new TexTable(genR, TexUtils.valueDesciptions);
+
+				// add values
+				for (AggregatedBatch b : batchData) {
+					if (!b.getGeneralRuntimes().getNames()
+							.contains(v.getName())) {
+						table.addBlankRow(TexUtils.valueDesciptions.length - 1,
+								b.getTimestamp());
+					} else {
+						table.addRow(b.getGeneralRuntimes().get(v.getName())
+								.getValues(), b.getTimestamp());
+					}
+				}
+
+				// close table
+				table.close();
 				genR.writeLine();
 			}
 			genR.writeLine();
@@ -125,7 +161,8 @@ public class TexUtils {
 	}
 
 	public static TexFile getMetricRuntimesChapter(String dstDir,
-			AggregatedBatch initBatch) throws IOException {
+			AggregatedBatch initBatch, AggregatedBatch[] batchData)
+			throws IOException {
 		// write metric runtimes
 		TexFile metR = new TexFile(dstDir + TexUtils.chapterDirectory
 				+ Dir.delimiter, TexUtils.metricRuntimesFilename
@@ -133,12 +170,32 @@ public class TexUtils {
 
 		if (initBatch.getMetricRuntimes().size() > 0) {
 			metR.writeCommentBlock(TexUtils.metricRuntimes);
-			metR.writeLine(TexUtils.subsection(TexUtils.metricRuntimes));
+			metR.writeLine(TexUtils.section(TexUtils.metricRuntimes));
 			metR.writeLine();
 			for (AggregatedValue v : initBatch.getMetricRuntimes().getList()) {
-				metR.writeLine(TexUtils.subsubsection(v.getName()));
+				metR.writeLine(TexUtils.subsection(v.getName()));
 				metR.writeLine(v.getName() + " is a metric runtime.");
 				metR.writeLine();
+				metR.writeCommentBlock("value table of " + v.getName());
+
+				// init table
+				TexTable table = new TexTable(metR, TexUtils.valueDesciptions);
+
+				// add values
+				for (AggregatedBatch b : batchData) {
+					if (!b.getMetricRuntimes().getNames().contains(v.getName())) {
+						table.addBlankRow(TexUtils.valueDesciptions.length - 1,
+								b.getTimestamp());
+					} else {
+						table.addRow(b.getMetricRuntimes().get(v.getName())
+								.getValues(), b.getTimestamp());
+					}
+				}
+
+				// close table
+				table.close();
+				metR.writeLine();
+
 			}
 			metR.writeLine();
 		}
@@ -146,12 +203,12 @@ public class TexUtils {
 		return metR;
 	}
 
-	public static TexFile getMetricChapter(String dstDir, AggregatedMetric m)
-			throws IOException {
+	public static TexFile getMetricChapter(String dstDir, SeriesData s,
+			AggregatedMetric m, AggregatedBatch[] batchData) throws IOException {
 		TexFile mFile = new TexFile(dstDir + TexUtils.chapterDirectory
 				+ Dir.delimiter, m.getName() + TexUtils.texSuffix);
 		mFile.writeCommentBlock(m.getName());
-		mFile.writeMetric(m);
+		mFile.writeMetric(s, m, batchData);
 		mFile.close();
 		return mFile;
 	}
