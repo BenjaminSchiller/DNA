@@ -74,9 +74,9 @@ public class TexUtils {
 		return cmd("include", value);
 	}
 
-	public static TexFile getStatisticsChapter(String dstDir,
-			AggregatedBatch initBatch, AggregatedBatch[] batchData, TexConfig config)
-			throws IOException {
+	public static TexFile generateStatisticsChapter(String dstDir,
+			AggregatedBatch initBatch, AggregatedBatch[] batchData,
+			TexConfig config) throws IOException {
 		// write statistics
 		TexFile stats = new TexFile(dstDir + TexUtils.chapterDirectory
 				+ Dir.delimiter, TexUtils.statisticsFilename
@@ -117,9 +117,9 @@ public class TexUtils {
 		return stats;
 	}
 
-	public static TexFile getGeneralRuntimesChapter(String dstDir,
-			AggregatedBatch initBatch, AggregatedBatch[] batchData, TexConfig config)
-			throws IOException {
+	public static TexFile generateGeneralRuntimesChapter(String dstDir,
+			AggregatedBatch initBatch, AggregatedBatch[] batchData,
+			TexConfig config) throws IOException {
 		// write general runtimes
 		TexFile genR = new TexFile(dstDir + TexUtils.chapterDirectory
 				+ Dir.delimiter, TexUtils.generalRuntimesFilename
@@ -160,9 +160,9 @@ public class TexUtils {
 		return genR;
 	}
 
-	public static TexFile getMetricRuntimesChapter(String dstDir,
-			AggregatedBatch initBatch, AggregatedBatch[] batchData, TexConfig config)
-			throws IOException {
+	public static TexFile generateMetricRuntimesChapter(String dstDir,
+			AggregatedBatch initBatch, AggregatedBatch[] batchData,
+			TexConfig config) throws IOException {
 		// write metric runtimes
 		TexFile metR = new TexFile(dstDir + TexUtils.chapterDirectory
 				+ Dir.delimiter, TexUtils.metricRuntimesFilename
@@ -203,7 +203,7 @@ public class TexUtils {
 		return metR;
 	}
 
-	public static TexFile getMetricChapter(String dstDir, SeriesData s,
+	public static TexFile generateMetricChapter(String dstDir, SeriesData s,
 			AggregatedMetric m, AggregatedBatch[] batchData) throws IOException {
 		TexFile mFile = new TexFile(dstDir + TexUtils.chapterDirectory
 				+ Dir.delimiter, m.getName() + TexUtils.texSuffix);
