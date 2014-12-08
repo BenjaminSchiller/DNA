@@ -1,12 +1,15 @@
 package dna.latex;
 
+import java.io.File;
 import java.io.IOException;
 
 import dna.io.filesystem.Dir;
 import dna.series.aggdata.AggregatedBatch;
+import dna.series.aggdata.AggregatedBatch.BatchReadMode;
 import dna.series.aggdata.AggregatedMetric;
 import dna.series.aggdata.AggregatedValue;
 import dna.series.data.SeriesData;
+import dna.util.Config;
 import dna.util.Log;
 
 /**
@@ -24,13 +27,45 @@ public class Latex {
 		Log.info("Exporting series '" + s.getName() + "' at '" + s.getDir()
 				+ "' to '" + dstDir + filename + "'");
 
+		long from = 0;
+		long to = 10;
+		int stepsize = 1;
+		boolean intervalByIndex = true;
+		boolean singleFile = Config.getBoolean("GENERATION_BATCHES_AS_ZIP");
+
+		// create dir
+		(new File(dstDir)).mkdirs();
+
+		// gather relevant batches
+		String tempDir = Dir.getAggregationDataDir(s.getDir());
+		String[] batches = Dir.getBatchesFromTo(tempDir, from, to, stepsize,
+				intervalByIndex);
+		double timestamps[] = new double[batches.length];
+		for (int i = 0; i < batches.length; i++) {
+			timestamps[i] = Dir.getTimestamp(batches[i]);
+		}
+
+		// read single values
+		AggregatedBatch[] batchData = new AggregatedBatch[batches.length];
+		for (int i = 0; i < batches.length; i++) {
+			long timestamp = Dir.getTimestamp(batches[i]);
+			if (singleFile)
+				batchData[i] = AggregatedBatch.readFromSingleFile(tempDir,
+						timestamp, Dir.delimiter,
+						BatchReadMode.readOnlySingleValues);
+			else
+				batchData[i] = AggregatedBatch.read(
+						Dir.getBatchDataDir(tempDir, timestamp), timestamp,
+						BatchReadMode.readOnlySingleValues);
+		}
+
 		// init
-		AggregatedBatch initBatch = s.getAggregation().getBatches()[0];
+		AggregatedBatch initBatch = batchData[0];
 
 		TexFile file = new TexFile(dstDir, filename);
 
 		file.writeHeader();
-		file.writeLine(TexUtils.section("Series "
+		file.writeLine(TexUtils.chapter("Series "
 				+ s.getName().replace("_", "\\textunderscore ")));
 		file.writeLine("The series "
 				+ s.getName().replace("_", "\\textunderscore is ")
@@ -41,17 +76,20 @@ public class Latex {
 		file.writeCommentBlock("chapters");
 
 		// write statistics
-		file.include(TexUtils.getStatisticsChapter(dstDir, initBatch));
+		file.include(TexUtils
+				.getStatisticsChapter(dstDir, initBatch, batchData));
 
 		// write general runtimes
-		file.include(TexUtils.getGeneralRuntimesChapter(dstDir, initBatch));
+		file.include(TexUtils.getGeneralRuntimesChapter(dstDir, initBatch,
+				batchData));
 
 		// write metric runtimes
-		file.include(TexUtils.getMetricRuntimesChapter(dstDir, initBatch));
+		file.include(TexUtils.getMetricRuntimesChapter(dstDir, initBatch,
+				batchData));
 
 		// write metrics
 		for (AggregatedMetric m : initBatch.getMetrics().getList()) {
-			file.include(TexUtils.getMetricChapter(dstDir, m));
+			file.include(TexUtils.getMetricChapter(dstDir, s, m, batchData));
 		}
 
 		file.writeLine();
