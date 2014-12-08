@@ -16,6 +16,7 @@ import dna.series.data.SeriesData;
 public class TexUtils {
 
 	// static tex strings
+	public static final String tab = "\t";
 	public static final String newline = "\\\\";
 	public static final String commentIdentifier = "%";
 	public static final String chapterDirectory = "chapters";
@@ -46,8 +47,28 @@ public class TexUtils {
 		return "\\" + command + "{" + value + "}";
 	}
 
+	public static String cmd(String command) {
+		return "\\" + command;
+	}
+
+	public static String option(String option, String value) {
+		return option(option + "=" + value);
+	}
+
+	public static String option(String option) {
+		return "[" + option + "]";
+	}
+
+	public static String argument(String argument) {
+		return "{" + argument + "}";
+	}
+
 	public static String textBf(String value) {
 		return cmd("textbf", value);
+	}
+
+	public static String textSc(String value) {
+		return cmd("textsc", value);
 	}
 
 	public static String chapter(String value) {
@@ -84,6 +105,27 @@ public class TexUtils {
 
 	public static String setcounter(String value) {
 		return cmd("setcounter", "page") + "{" + value + "}";
+	}
+
+	public static String centering() {
+		return cmd("centering");
+	}
+
+	public static String includeGraphics(String path) {
+		return cmd("includegraphics", path);
+	}
+
+	public static String includeGraphics(String path, double scale) {
+		return cmd("includegraphics") + " " + option("scale", "" + scale)
+				+ " {" + path + "}";
+	}
+
+	public static String vertDistance(int points) {
+		return option(points + "ex");
+	}
+
+	public static String large() {
+		return cmd("Large");
 	}
 
 	public static TexFile generateStatisticsChapter(String dstDir,
@@ -351,4 +393,44 @@ public class TexUtils {
 		// return
 		return selectedValuesArray;
 	}
+
+	/** Generates and writes the titlepage. **/
+	public static TexFile generateTitlepage(String dir, String filename)
+			throws IOException {
+		TexFile titlepage = new TexFile(dir, filename);
+		System.out.println("titlepage at " + dir + "   " + filename);
+		titlepage.writeLine(TexUtils.begin("titlepage"));
+		titlepage.writeLine(TexUtils.tab + TexUtils.centering());
+		titlepage.writeLine(TexUtils.tab
+				+ TexUtils.includeGraphics("images/dna-logo-v5", 0.25)
+				+ TexUtils.newline + " " + TexUtils.vertDistance(20));
+		titlepage.writeLine(TexUtils.tab
+				+ TexUtils.textSc(TexUtils.large() + " "
+						+ TexUtils.cmd("Project")) + TexUtils.newline + " "
+				+ TexUtils.vertDistance(2));
+		titlepage.writeLine(TexUtils.tab
+				+ TexUtils.textSc(TexUtils.large() + " "
+						+ TexUtils.cmd("DocumentType")) + TexUtils.newline
+				+ " " + TexUtils.vertDistance(30));
+		titlepage.writeLine(TexUtils.tab
+				+ TexUtils.textSc(TexUtils.cmd("AuthorName"))
+				+ TexUtils.newline + " " + TexUtils.vertDistance(1));
+		titlepage.writeLine(TexUtils.tab
+				+ TexUtils.textSc(TexUtils.cmd("Date")) + TexUtils.newline
+				+ " " + TexUtils.vertDistance(1));
+		titlepage.writeLine(TexUtils.tab
+				+ TexUtils.textSc(TexUtils.cmd("Instsitute"))
+				+ TexUtils.newline + " " + TexUtils.vertDistance(1));
+		titlepage.writeLine(TexUtils.tab + TexUtils.cmd("vfill"));
+		titlepage.writeLine(TexUtils.end("titlepage"));
+		titlepage.writeLine();
+		titlepage.writeLine(TexUtils.cmd("currentpdfbookmark",
+				"Table of Contents") + TexUtils.argument("content"));
+		titlepage.writeLine(TexUtils.cmd("tableofcontents"));
+
+		// close & return
+		titlepage.close();
+		return titlepage;
+	}
+
 }
