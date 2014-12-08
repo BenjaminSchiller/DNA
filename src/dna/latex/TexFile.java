@@ -3,10 +3,12 @@ package dna.latex;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 
 import dna.io.Writer;
 import dna.io.filesystem.Dir;
+import dna.latex.TexTable.TableFlag;
 import dna.series.aggdata.AggregatedBatch;
 import dna.series.aggdata.AggregatedBatch.BatchReadMode;
 import dna.series.aggdata.AggregatedDistribution;
@@ -59,7 +61,7 @@ public class TexFile {
 
 	/** Writes a metric to the texfile. **/
 	public void writeMetric(SeriesData s, AggregatedMetric m,
-			AggregatedBatch[] batchData) throws IOException {
+			AggregatedBatch[] batchData, TexConfig config) throws IOException {
 		String name = m.getName();
 		this.writeLine(TexUtils.section(name));
 		this.writeLine();
@@ -67,7 +69,7 @@ public class TexFile {
 		if (m.getValues().size() > 0) {
 			this.writeLine(TexUtils.subsection("Values"));
 			for (AggregatedValue v : m.getValues().getList()) {
-				this.writeMetricValue(v, m, batchData);
+				this.writeMetricValue(v, m, batchData, config);
 			}
 			this.writeLine();
 		}
@@ -75,7 +77,7 @@ public class TexFile {
 		if (m.getDistributions().size() > 0) {
 			this.writeLine(TexUtils.subsection("Distributions"));
 			for (AggregatedDistribution d : m.getDistributions().getList()) {
-				this.writeDistribution(d, m, s, batchData);
+				this.writeDistribution(d, m, s, batchData, config);
 			}
 			this.writeLine();
 		}
@@ -83,7 +85,7 @@ public class TexFile {
 		if (m.getNodeValues().size() > 0) {
 			this.writeLine(TexUtils.subsection("NodeValueLists"));
 			for (AggregatedNodeValueList n : m.getNodeValues().getList()) {
-				this.writeNodeValueList(n, m, s, batchData);
+				this.writeNodeValueList(n, m, s, batchData, config);
 			}
 			this.writeLine();
 		}
@@ -91,7 +93,7 @@ public class TexFile {
 
 	/** Writes a value to the TexFile. **/
 	private void writeMetricValue(AggregatedValue v, AggregatedMetric m,
-			AggregatedBatch[] batchData) throws IOException {
+			AggregatedBatch[] batchData, TexConfig config) throws IOException {
 		this.writeLine(TexUtils.subsubsection(v.getName()));
 		this.writeLine(v.getName() + " is a metric value.");
 		this.writeLine();
@@ -121,8 +123,8 @@ public class TexFile {
 
 	/** Writes a distribution to the TexFile. **/
 	private void writeDistribution(AggregatedDistribution d,
-			AggregatedMetric m, SeriesData s, AggregatedBatch[] batchData)
-			throws IOException {
+			AggregatedMetric m, SeriesData s, AggregatedBatch[] batchData,
+			TexConfig config) throws IOException {
 		this.writeLine(TexUtils.subsubsection(d.getName()));
 		this.writeLine(d.getName() + " is a distribution.");
 		this.writeLine();
@@ -168,24 +170,25 @@ public class TexFile {
 
 	/** Writes a nodevaluelist to the TexFile. **/
 	private void writeNodeValueList(AggregatedNodeValueList n,
-			AggregatedMetric m, SeriesData s, AggregatedBatch[] batchData)
-			throws IOException {
-		System.out.println("writing nvl " + m.getName()  + "." +n.getName() );
+			AggregatedMetric m, SeriesData s, AggregatedBatch[] batchData,
+			TexConfig config) throws IOException {
 		this.writeLine(TexUtils.subsubsection(n.getName()));
 		this.writeLine(n.getName() + " is a nodevaluelist.");
 		this.writeLine();
 		this.writeCommentBlock("value tables of " + n.getName());
 		this.writeLine();
 
+		// check what data to add in table
+		String[] tableDescrArray = TexUtils.selectDescription(config);
+		tableDescrArray[0] = "Node";
+
 		// add values
 		for (AggregatedBatch b : batchData) {
 			long timestamp = b.getTimestamp();
 			this.writeCommentLine("value table of timestamp " + timestamp);
-			String[] description = new String[TexUtils.valueDesciptions.length];
-			System.arraycopy(TexUtils.valueDesciptions, 0, description, 0,
-					TexUtils.valueDesciptions.length);
-			description[0] = "Node";
-			TexTable table = new TexTable(this, description, timestamp);
+
+			// init table
+			TexTable table = new TexTable(this, tableDescrArray, timestamp);
 
 			// read batch
 			String readDir = Dir.getAggregationBatchDir(s.getDir(), timestamp);
@@ -196,18 +199,22 @@ public class TexFile {
 			if (!b.getMetrics().getNames().contains(m.getName())
 					&& !b.getMetrics().get(m.getName()).getNodeValues()
 							.getNames().contains(n.getName())) {
-				table.addBlankRow(TexUtils.valueDesciptions.length - 1,
-						b.getTimestamp());
+				table.addBlankRow(tableDescrArray.length - 1, b.getTimestamp());
 			} else {
 				AggregatedValue[] values = tempBatch.getMetrics()
 						.get(m.getName()).getNodeValues().get(n.getName())
 						.getValues();
 
 				for (int i = 0; i < values.length; i++) {
-					table.addRow(values[i].getValues(), i);
-				}
+					// select values
+					double[] selectedValuesArray = TexUtils.selectValues(
+							values[i], config);
 
+					// add row to table
+					table.addRow(selectedValuesArray, i);
+				}
 			}
+
 			// close table
 			table.close();
 			this.writeLine();

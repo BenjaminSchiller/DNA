@@ -89,7 +89,8 @@ public class Latex {
 
 		// write metrics
 		for (AggregatedMetric m : initBatch.getMetrics().getList()) {
-			file.include(TexUtils.generateMetricChapter(dstDir, s, m, batchData));
+			file.include(TexUtils.generateMetricChapter(dstDir, s, m,
+					batchData, config));
 		}
 
 		file.writeLine();

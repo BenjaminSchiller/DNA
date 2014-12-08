@@ -1,8 +1,10 @@
 package dna.latex;
 
 import java.io.IOException;
+import java.util.ArrayList;
 
 import dna.io.filesystem.Dir;
+import dna.latex.TexTable.TableFlag;
 import dna.series.aggdata.AggregatedBatch;
 import dna.series.aggdata.AggregatedMetric;
 import dna.series.aggdata.AggregatedValue;
@@ -34,8 +36,8 @@ public class TexUtils {
 	public static final String metricRuntimes = "Metric Runtimes";
 	public static final String institute = "Dresden University of Technology";
 	public static final String[] valueDesciptions = { "Timestamp", "Avg",
-			"Min", "Max", "Median", "Var", "Var\\_low", "Var\\_high",
-			"Conf\\_low", "Conf\\_high" };
+			"Min", "Max", "Median", "Var", "VarLow", "VarUp", "ConfLow",
+			"ConfUp" };
 
 	// commands
 	public static String cmd(String command, String value) {
@@ -204,12 +206,98 @@ public class TexUtils {
 	}
 
 	public static TexFile generateMetricChapter(String dstDir, SeriesData s,
-			AggregatedMetric m, AggregatedBatch[] batchData) throws IOException {
+			AggregatedMetric m, AggregatedBatch[] batchData, TexConfig config)
+			throws IOException {
 		TexFile mFile = new TexFile(dstDir + TexUtils.chapterDirectory
 				+ Dir.delimiter, m.getName() + TexUtils.texSuffix);
 		mFile.writeCommentBlock(m.getName());
-		mFile.writeMetric(s, m, batchData);
+		mFile.writeMetric(s, m, batchData, config);
 		mFile.close();
 		return mFile;
+	}
+
+	/**
+	 * Returns a table description for the given tex-config. Note that the first
+	 * column will be labeled as "timestamp" by default.
+	 **/
+	public static String[] selectDescription(TexConfig config) {
+		// check what data to add in table
+		ArrayList<String> tableDescr = new ArrayList<String>();
+		tableDescr.add("Timestamp");
+		String[] tableDescrArray = null;
+
+		boolean done = false;
+		for (TableFlag tf : config.getTableFlags()) {
+			if (!done) {
+				switch (tf) {
+				case all:
+					tableDescrArray = TexUtils.valueDesciptions;
+					done = true;
+					break;
+				default:
+					tableDescr.add(tf.toString());
+					break;
+				}
+			}
+		}
+
+		if (!done)
+			tableDescrArray = tableDescr.toArray(new String[0]);
+
+		// return
+		return tableDescrArray;
+	}
+
+	/** Selects the respective values from v defined by the tex-config. **/
+	public static double[] selectValues(AggregatedValue v, TexConfig config) {
+		ArrayList<Double> selectedValues = new ArrayList<Double>();
+		double[] selectedValuesArray = null;
+		boolean done = false;
+		for (TableFlag tf : config.getTableFlags()) {
+			if (!done) {
+				switch (tf) {
+				case all:
+					selectedValuesArray = v.getValues();
+					done = true;
+					break;
+				case Average:
+					selectedValues.add(v.getAvg());
+					break;
+				case Min:
+					selectedValues.add(v.getMin());
+					break;
+				case Max:
+					selectedValues.add(v.getMax());
+					break;
+				case Median:
+					selectedValues.add(v.getMedian());
+					break;
+				case Var:
+					selectedValues.add(v.getVariance());
+					break;
+				case VarLow:
+					selectedValues.add(v.getVarianceLow());
+					break;
+				case VarUp:
+					selectedValues.add(v.getVarianceUp());
+					break;
+				case ConfLow:
+					selectedValues.add(v.getConfidenceLow());
+					break;
+				case ConfUp:
+					selectedValues.add(v.getConfidenceUp());
+					break;
+				}
+			}
+		}
+		if (!done) {
+			selectedValuesArray = new double[selectedValues.size()];
+			for (int j = 0; j < selectedValuesArray.length; j++) {
+				selectedValuesArray[j] = selectedValues.get(j);
+			}
+		}
+
+		// return
+		return selectedValuesArray;
 	}
 }
