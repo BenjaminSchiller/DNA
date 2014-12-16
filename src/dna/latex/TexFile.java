@@ -265,9 +265,9 @@ public class TexFile {
 					+ TexUtils.headerFilename);
 			this.writeLine(TexUtils.pagenumbering("roman"));
 			this.writeLine(TexUtils.setcounter("" + 0));
-			this.include(TexUtils.generateTitlepage(this.getDir() + TexUtils.chapterDirectory
-					+ Dir.delimiter, TexUtils.titlePageFilename
-					+ TexUtils.texSuffix));
+			this.include(TexUtils.generateTitlepage(this.getDir()
+					+ TexUtils.chapterDirectory + Dir.delimiter,
+					TexUtils.titlePageFilename + TexUtils.texSuffix));
 			this.writeLine(TexUtils.pagenumbering("arabic"));
 			this.writeLine();
 		} else {
@@ -283,6 +283,25 @@ public class TexFile {
 
 	public void include(String chapter) throws IOException {
 		this.writeLine(TexUtils.include(chapter));
+	}
+
+	public void includeFigure(String name, String dir, String filename)
+			throws IOException {
+		this.includeFigure(name, dir, filename, "", 0.8, "h");
+	}
+
+	public void includeFigure(String name, String dir, String filename,
+			String extension, double scale, String option) throws IOException {
+		this.writeCommentLine("plot " + filename + " containing " + name);
+		this.writeLine(TexUtils.beginFigure(option));
+		this.writeLine(TexUtils.tab + TexUtils.centering());
+		this.writeLine(TexUtils.tab
+				+ TexUtils.includeGraphics(dir + filename + extension, scale));
+		this.writeLine(TexUtils.tab + TexUtils.caption(filename));
+		this.writeLine(TexUtils.tab
+				+ TexUtils.label(TexUtils.getPlotLabel(filename)));
+		this.writeLine(TexUtils.endFigure());
+		this.writeLine();
 	}
 
 	public void writeCommentLine(String comment) throws IOException {

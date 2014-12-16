@@ -5,6 +5,9 @@ import java.util.ArrayList;
 
 import dna.io.filesystem.Dir;
 import dna.latex.TexTable.TableFlag;
+import dna.plot.PlotConfig;
+import dna.plot.PlottingConfig;
+import dna.plot.PlottingUtils;
 import dna.series.aggdata.AggregatedBatch;
 import dna.series.aggdata.AggregatedMetric;
 import dna.series.aggdata.AggregatedValue;
@@ -21,6 +24,7 @@ public class TexUtils {
 	public static final String commentIdentifier = "%";
 	public static final String chapterDirectory = "chapters";
 	public static final String texSuffix = ".tex";
+	public static final String plotLabelPrefix = "plot:";
 
 	// dir
 	public static final String statisticsFilename = "statistics";
@@ -111,8 +115,20 @@ public class TexUtils {
 		return cmd("centering");
 	}
 
+	public static String caption(String value) {
+		return cmd("caption", value);
+	}
+
+	public static String label(String value) {
+		return cmd("label", value);
+	}
+
 	public static String includeGraphics(String path) {
 		return cmd("includegraphics", path);
+	}
+
+	public static String ref(String value) {
+		return cmd("ref", value);
 	}
 
 	public static String includeGraphics(String path, double scale) {
@@ -128,9 +144,22 @@ public class TexUtils {
 		return cmd("Large");
 	}
 
+	public static String beginFigure(String option) {
+		return begin("figure") + " " + option(option);
+	}
+
+	public static String endFigure() {
+		return end("figure");
+	}
+
+	public static String getPlotLabel(String plot) {
+		return TexUtils.plotLabelPrefix + plot;
+	}
+
 	public static TexFile generateStatisticsChapter(String dstDir,
-			AggregatedBatch initBatch, AggregatedBatch[] batchData,
-			TexConfig config) throws IOException {
+			String plotDir, AggregatedBatch initBatch,
+			AggregatedBatch[] batchData, TexConfig config,
+			PlottingConfig pconfig) throws IOException {
 		// write statistics
 		TexFile stats = new TexFile(dstDir + TexUtils.chapterDirectory
 				+ Dir.delimiter, TexUtils.statisticsFilename
@@ -144,6 +173,44 @@ public class TexUtils {
 				stats.writeLine(TexUtils.subsection(v.getName()));
 				stats.writeLine(v.getName() + " is a statistic.");
 				stats.writeLine();
+
+				// plots
+				ArrayList<PlotConfig> plots = pconfig.getCustomStatisticPlots();
+				ArrayList<PlotConfig> fits = TexUtils
+						.getCustomStatisticPlotFits(v.getName(), plots);
+
+				// add ref line
+				if (fits.size() > 0) {
+					String refs;
+					if (fits.size() > 1)
+						refs = "See plots: ";
+					else
+						refs = "See plot: ";
+					boolean first = true;
+					for (PlotConfig pc : fits) {
+						String ref = TexUtils.ref(TexUtils.getPlotLabel(pc
+								.getFilename()));
+						if (first) {
+							refs += ref;
+							first = false;
+						} else {
+							refs += ", " + ref;
+						}
+					}
+					refs += ".";
+					stats.writeLine(refs);
+					stats.writeLine();
+
+					// add plots that contain the value
+					stats.writeCommentBlock("plots containing " + v.getName());
+					stats.writeLine();
+					for (PlotConfig pc : fits) {
+						stats.includeFigure(v.getName(), plotDir,
+								pc.getFilename());
+					}
+				}
+
+				// values
 				stats.writeCommentBlock("value table of " + v.getName());
 
 				// select description
@@ -419,8 +486,8 @@ public class TexUtils {
 				+ TexUtils.textSc(TexUtils.cmd("Date")) + TexUtils.newline
 				+ " " + TexUtils.vertDistance(1));
 		titlepage.writeLine(TexUtils.tab
-				+ TexUtils.textSc(TexUtils.cmd("Instsitute"))
-				+ TexUtils.newline + " " + TexUtils.vertDistance(1));
+				+ TexUtils.textSc(TexUtils.cmd("Institute")) + TexUtils.newline
+				+ " " + TexUtils.vertDistance(1));
 		titlepage.writeLine(TexUtils.tab + TexUtils.cmd("vfill"));
 		titlepage.writeLine(TexUtils.end("titlepage"));
 		titlepage.writeLine();
@@ -431,6 +498,46 @@ public class TexUtils {
 		// close & return
 		titlepage.close();
 		return titlepage;
+	}
+
+	/** Returns the custom statistic plots that contain the given statistic. **/
+	public static ArrayList<PlotConfig> getCustomStatisticPlotFits(
+			String statistic, ArrayList<PlotConfig> plots) {
+		ArrayList<PlotConfig> fits = new ArrayList<PlotConfig>();
+		for (PlotConfig p : plots) {
+			boolean finished = false;
+			String[] values = p.getValues();
+			String[] domains = p.getDomains();
+
+			for (int i = 0; i < values.length && !finished; i++) {
+				String dom = domains[i];
+				String val = values[i];
+
+				// if function
+				if (dom.equals(PlotConfig.customPlotDomainFunction))
+					continue;
+
+				if (dom.equals(PlotConfig.customPlotDomainExpression)) {
+					// if expression
+					dom = PlottingUtils.getDomainFromExpression(val,
+							p.getGeneralDomain());
+					val = PlottingUtils.getValueFromExpression(val);
+				}
+
+				// if regular plot
+				if (!dom.equals(PlotConfig.customPlotDomainStatistics))
+					continue;
+
+				// if contains value, add plot to
+				if (val.equals(statistic)) {
+					if (!fits.contains(p)) {
+						fits.add(p);
+						finished = true;
+					}
+				}
+			}
+		}
+		return fits;
 	}
 
 }

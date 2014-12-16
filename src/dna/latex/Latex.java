@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 
 import dna.io.filesystem.Dir;
+import dna.plot.PlottingConfig;
 import dna.series.aggdata.AggregatedBatch;
 import dna.series.aggdata.AggregatedBatch.BatchReadMode;
 import dna.series.aggdata.AggregatedMetric;
@@ -22,13 +23,13 @@ import dna.util.Log;
 public class Latex {
 
 	public static void test(SeriesData s, String dstDir, String filename,
-			TexConfig config) throws IOException {
+			TexConfig config, PlottingConfig pconfig) throws IOException {
 		String srcDir = s.getDir();
 
 		// log
 		Log.info("Exporting series '" + s.getName() + "' at '" + srcDir
 				+ "' to '" + dstDir + filename + "'");
-
+		String plotDir = "plots/";
 		long from = 0;
 		long to = 10;
 		int stepsize = 1;
@@ -81,8 +82,8 @@ public class Latex {
 
 		// write statistics
 		if (config.isIncludeStatistics())
-			file.include(TexUtils.generateStatisticsChapter(dstDir, initBatch,
-					batchData, config));
+			file.include(TexUtils.generateStatisticsChapter(dstDir, plotDir, initBatch,
+					batchData, config, pconfig));
 
 		if (config.isIncludeRuntimes()) {
 			// write general runtimes
