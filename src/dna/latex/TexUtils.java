@@ -165,6 +165,8 @@ public class TexUtils {
 				+ Dir.delimiter, TexUtils.statisticsFilename
 				+ TexUtils.texSuffix);
 
+		ArrayList<PlotConfig> addedPlots = new ArrayList<PlotConfig>();
+
 		if (initBatch.getValues().size() > 0) {
 			stats.writeCommentBlock(TexUtils.statistics);
 			stats.writeLine(TexUtils.section(TexUtils.statistics));
@@ -205,8 +207,11 @@ public class TexUtils {
 					stats.writeCommentBlock("plots containing " + v.getName());
 					stats.writeLine();
 					for (PlotConfig pc : fits) {
-						stats.includeFigure(v.getName(), plotDir,
-								pc.getFilename());
+						if (!addedPlots.contains(pc)) {
+							stats.includeFigure(v.getName(), plotDir,
+									pc.getFilename());
+							addedPlots.add(pc);
+						}
 					}
 				}
 
