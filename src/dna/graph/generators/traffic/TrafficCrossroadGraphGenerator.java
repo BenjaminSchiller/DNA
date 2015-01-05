@@ -30,19 +30,19 @@ public class TrafficCrossroadGraphGenerator extends GraphGenerator{
 
 	List<Node> nodeslist;
 	private DB db;
-	private int modus;
+	private TrafficModi modus;
 	private DateTime initDateTime;
 	private int stepsize;
 	private int timeRange;
 	private TrafficUpdate trafficUpdate;
 	
-	public TrafficCrossroadGraphGenerator(String name, GraphDataStructure gds, DB db,long timeStampInit,int modus, DateTime initDateTime, int stepsize,int timeRange,TrafficUpdate trafficupdate) {
+	public TrafficCrossroadGraphGenerator(String name, GraphDataStructure gds, DB db,long timeStampInit,TrafficModi modus, DateTime initDateTime, int stepsize,int timeRange,TrafficUpdate trafficupdate) {
 		this(name, null, gds,timeStampInit, 0, 0,db,modus,initDateTime,stepsize,timeRange,trafficupdate);
 	}
 	
 	public TrafficCrossroadGraphGenerator(String name, Parameter[] params,
 			GraphDataStructure gds, long timestampInit, int nodesInit,
-			int edgesInit,DB db,int modus,DateTime initDateTime,int stepsize,int timeRange,TrafficUpdate trafficUpdate) {
+			int edgesInit,DB db,TrafficModi modus,DateTime initDateTime,int stepsize,int timeRange,TrafficUpdate trafficUpdate) {
 		super(name, params, gds, timestampInit, nodesInit, edgesInit);
 		this.db= db;
 		this.modus=modus;
@@ -62,7 +62,7 @@ public class TrafficCrossroadGraphGenerator extends GraphGenerator{
 		HashMap<EdgeContainer,Edge> disabledEdges = new HashMap<>();
 		
 		// Nodes
-		nodes = db.getCrossroadsForDNA(modus);
+		nodes = db.getCrossroadsForDNA();
 		CrossroadWeight crossroadWeight = null;
 		Node currentNode = null;
 		DirectedWeightedNode currentWeighted = null;
@@ -76,13 +76,13 @@ public class TrafficCrossroadGraphGenerator extends GraphGenerator{
 			}
 			
 			switch (modus) {
-			case 0:
+			case Continuous:
 				crossroadWeight = db.getCrossroadWeight(currentWeighted.getIndex(),initDateTime,initDateTime.plusMinutes(stepsize),0);
 				break;
-			case 1:case 3:
+			case DayTimeRange: case Aggregation:
 				crossroadWeight = db.getCrossroadWeight(currentWeighted.getIndex(),initDateTime.minusMinutes(timeRange),initDateTime.plusMinutes(timeRange),0);
 				break;	
-			case 2:
+			case Simulation:
 				crossroadWeight = db.getCrossroadWeightStaticInit(currentWeighted.getIndex(),initDateTime,initDateTime.plusMinutes(1),0,trafficUpdate);
 				break;
 			default:

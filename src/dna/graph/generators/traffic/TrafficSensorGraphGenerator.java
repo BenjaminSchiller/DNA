@@ -25,7 +25,7 @@ public class TrafficSensorGraphGenerator extends GraphGenerator{
 
 	List<Node> nodeslist;
 	private DB db;
-	private int modus;
+	private TrafficModi modus;
 	private DateTime initDateTime;
 	private int stepsize;
 	private int timeRange;
@@ -33,13 +33,13 @@ public class TrafficSensorGraphGenerator extends GraphGenerator{
 	private double treshold;
 	private HashMap<Integer, HashMap<EdgeContainer,Edge>> disabledEdges = new HashMap<>();
 	
-	public TrafficSensorGraphGenerator(String name, GraphDataStructure gds, DB db,long timeStamp,int modus,DateTime initDateTime, int stepsize,int timeRange,TrafficUpdate trafficupdate,double treshold) {
+	public TrafficSensorGraphGenerator(String name, GraphDataStructure gds, DB db,long timeStamp,TrafficModi modus,DateTime initDateTime, int stepsize,int timeRange,TrafficUpdate trafficupdate,double treshold) {
 		this(name, null, gds,timeStamp, 0, 0,db,modus,initDateTime,stepsize,timeRange,trafficupdate,treshold);
 	}
 	
 	public TrafficSensorGraphGenerator(String name, Parameter[] params,
 			GraphDataStructure gds, long timestampInit, int nodesInit,
-			int edgesInit,DB db, int modus,DateTime initDateTime,int stepsize,int timeRange,TrafficUpdate trafficUpdate,double treshold) {
+			int edgesInit,DB db, TrafficModi modus,DateTime initDateTime,int stepsize,int timeRange,TrafficUpdate trafficUpdate,double treshold) {
 		super(name, params, gds, timestampInit, nodesInit, edgesInit);
 		this.db= db;
 		this.modus = modus;
@@ -60,10 +60,10 @@ public class TrafficSensorGraphGenerator extends GraphGenerator{
 		Node currentNode = null;
 		DirectedWeightedNode currentWeighted = null;
 		switch (modus) {
-		case 0:
+		case Continuous:
 			db.getSensorWeights(initDateTime, initDateTime.plusMinutes(stepsize), 0);
 			break;
-		case 1:
+		case DayTimeRange:
 			db.getSensorWeights(initDateTime.minusMinutes(timeRange),initDateTime.plusMinutes(timeRange),0);
 			break;
 
@@ -81,13 +81,13 @@ public class TrafficSensorGraphGenerator extends GraphGenerator{
 				continue;
 			}
 			switch (modus) {
-			case 0:
+			case Continuous:
 				weight = db.getSensorModelWeight(currentWeighted.getIndex(),initDateTime,initDateTime.plusMinutes(stepsize),0);
 				break;
-			case 1:
+			case DayTimeRange:
 				weight = db.getSensorModelWeight(currentWeighted.getIndex(),initDateTime.minusMinutes(timeRange),initDateTime.plusMinutes(timeRange),0);
 				break;	
-			case 2:
+			case Simulation:
 				weight = db.getSensorModelWeightStaticInit(currentWeighted.getIndex(),trafficUpdate);
 				break;
 			default:
@@ -98,7 +98,6 @@ public class TrafficSensorGraphGenerator extends GraphGenerator{
 				weight = new double[]{0,0,0};
 			}
 			if(weight[2] > treshold){
-				System.out.println("Overloaded " +currentWeighted.getIndex());
 				overloaded.add(currentWeighted.getIndex());
 			}
 			currentWeighted.setWeight(new Double3dWeight(weight[0],weight[1],weight[2]));

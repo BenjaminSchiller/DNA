@@ -16,6 +16,7 @@ import dna.graph.datastructures.INodeListDatastructure;
 import dna.graph.edges.Edge;
 import dna.graph.generators.traffic.DB;
 import dna.graph.generators.traffic.EdgeContainer;
+import dna.graph.generators.traffic.TrafficModi;
 import dna.graph.generators.traffic.TrafficUpdate;
 import dna.graph.nodes.DirectedNode;
 import dna.graph.nodes.DirectedWeightedNode;
@@ -41,7 +42,7 @@ public class TrafficSensorBatchGenerator extends BatchGenerator{
 	DateTime initDateTime;
 	int stepSize;
 	int step=0;
-	int modus;
+	TrafficModi modus;
 	private DateTime holidayStart;
 	private boolean[] daySelection;
 	private double treshold;
@@ -51,7 +52,7 @@ public class TrafficSensorBatchGenerator extends BatchGenerator{
 	private HashMap<Integer, HashMap<EdgeContainer,Edge>> newDisabledEdges;
 	private TrafficUpdate trafficUpdate;
 	
-	public TrafficSensorBatchGenerator(String name,DB db, DateTime initDateTime, int stepSize, int modus, DateTime holidayStart, boolean [] daySelection, double treshold,int timeRange,TrafficUpdate trafficUpdate) {
+	public TrafficSensorBatchGenerator(String name,DB db, DateTime initDateTime, int stepSize, TrafficModi modus, DateTime holidayStart, boolean [] daySelection, double treshold,int timeRange,TrafficUpdate trafficUpdate) {
 		super(name, new IntParameter("NA", 0), new IntParameter("NR",
 				0), new IntParameter("NW", 0),
 				new ObjectParameter("NWS", 0), new IntParameter("EA", 0),
@@ -90,11 +91,11 @@ public class TrafficSensorBatchGenerator extends BatchGenerator{
 		Edge edge = null;
 		
 		switch (modus) {
-		case 0:
+		case Continuous:
 			fromTime = initDateTime.plusMinutes((int) (g.getTimestamp()+1)*stepSize);
 			toTime = initDateTime.plusMinutes((int) (g.getTimestamp()+2)*stepSize);
 			break;
-		case 1:
+		case DayTimeRange:
 			time = Helpers.calculateNextDay(time, g.getTimestamp(),daySelection,holidayStart,true);
 			fromTime = time.minusMinutes(db.timeRange);
 			toTime = time.plusMinutes(db.timeRange);
@@ -104,7 +105,7 @@ public class TrafficSensorBatchGenerator extends BatchGenerator{
 			break;
 		}
 		// Vorabberechnung aller Gewichte der Realen Sensoren
-		if(modus == 0 || modus == 1){
+		if(modus == TrafficModi.Continuous || modus == TrafficModi.DayTimeRange){
 			db.getSensorWeights(fromTime,toTime, newTimestamp);
 		}
 		
@@ -120,17 +121,17 @@ public class TrafficSensorBatchGenerator extends BatchGenerator{
 			
 			// Get Weight
 			switch (modus) {
-			case 0:
+			case Continuous:
 				update = db.getSensorModelWeight(currentWeighted.getIndex(),fromTime,toTime,newTimestamp);
 				break;
-			case 1:
+			case DayTimeRange:
 				update = db.getSensorModelWeight(currentWeighted.getIndex(),fromTime,toTime,newTimestamp);
 				break;	
-			case 2:
+			case Simulation:
 				update = trafficUpdate.isAffected(currentWeighted.getIndex()) ? db.getSensorModelWeightStaticBatch(currentWeighted.getIndex(),trafficUpdate) : null;
 				break;
 			default:
-				System.out.println("error - Modus nicht definiert");
+				System.out.println("error - Modus nicht definiert @ TrafficSensorBatchGenerator");
 				break;
 			}
 			Double3dWeight oldWeight = (Double3dWeight) currentWeighted.getWeight();

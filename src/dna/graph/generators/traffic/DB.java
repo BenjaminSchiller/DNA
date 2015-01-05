@@ -60,7 +60,7 @@ public class DB {
 	private HashMap<Integer, HashMap<EdgeContainer, Edge>> disabledEdgesInputWay;
 	private boolean dummyMax;
 	private boolean backupWays = false;
-	private boolean improvedMax = true;
+	private boolean improvedMax = false;
 	
 	/**
 	 * Konstruktor für die Nutzung der Datenbank ohne 
@@ -680,7 +680,7 @@ public class DB {
 	}
 
 	/**
-	 * liefert eine Liste von Ausfahrtswegen, vonden der übergebene Einfahrtsweg direkt zu erreichen ist
+	 * liefert eine Liste von Ausfahrtswegen, von denen der übergebene Einfahrtsweg direkt zu erreichen ist
 	 * @param crossroadID
 	 * @param toWay
 	 * @return
@@ -866,7 +866,7 @@ public class DB {
 	 * 
 	 * @return
 	 */
-	public List<INode> getInputWaysForDNA(int modus) {
+	public List<INode> getInputWaysForDNA() {
 		List<INode> nodes = new ArrayList<INode>();
 		Node currentWeighted = null;
 		try {
@@ -900,7 +900,6 @@ public class DB {
 			ResultSet rs = stmt.executeQuery(statementString);
 			int i = 0;
 			while(rs.next() ) {
-				System.out.println("Added " +i++);
 				edges.add(new EdgeContainer(rs.getInt("fromID"),rs.getInt("toID")));
 			}
 		} catch (SQLException e) {
@@ -911,16 +910,13 @@ public class DB {
 	
 	
 	/**
-	 * liest alle Kreuzunen aus der Datenbank, das Gewicht wird gemäß dem Modus bestimmt
-	 * @param modus 0 = Voraussage mit Stepsize, 1 = Rückblick für Tagesvergleich
-	 * @return
+	 * liest alle Knoten für das Kreuzungsmodell aus der Datenbank
+	 * @return Knotenliste
 	 */
-	public List<INode> getCrossroadsForDNA(int modus) {
-		if(modus == 1) {
-			if(timeRange==0){
-				System.out.println("TimeRange ist 0, setze auf 1");
-				timeRange=1;
-			}
+	public List<INode> getCrossroadsForDNA() {
+		if(timeRange==0){
+			System.out.println("TimeRange ist 0, setze auf 1");
+			timeRange=1;
 		}
 		
 		List<INode> nodes = new ArrayList<INode>();
@@ -944,34 +940,7 @@ public class DB {
 		}
 		return nodes;
 	}
-	/*
-	public List<INode> getCrossroadsForDNA_Mode1() {
-		
-		List<INode> nodes = new ArrayList<INode>();
-		Node current = null;
-		DirectedWeightedNode currentWeighted = null;
-		try {
-			System.out.println("Lade Kreuzungen aus Datenbank...");
-			Statement stmt = con.createStatement();
-			String statementString;
-			statementString = "SELECT * FROM ((SELECT DISTINCT FROM_CROSSROAD as CROSSROAD FROM mw_CrossroadConnection) UNION (SELECT DISTINCT TO_CROSSROAD as CROSSROAD FROM mw_CrossroadConnection)) V"; 
-			ResultSet rs = stmt.executeQuery(statementString);
-			while(rs.next() ) {
-				int label = rs.getInt(1);
-				double[] weight = getCrossroadWeight(rs.getInt(1),initDateTime.minusMinutes(timeRange),initDateTime.plusMinutes(timeRange)).getWeight();
-				//System.out.println("Füge Knoten " +label +" mit Gewicht " +weight[0]+"/"+weight[1] + " hinzu ");
-				current = gds.newNodeInstance(label);
-				currentWeighted = (current instanceof DirectedWeightedNode) ? (DirectedWeightedNode) current : null;
-				if(currentWeighted!=null) {
-					currentWeighted.setWeight(new Double3dWeight(weight[0],weight[1],weight[2]));
-					nodes.add(currentWeighted);
-				}
-			}
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-		return nodes;
-	}*/
+	
 	
 	public int writeConnections(Set<InputWayConnection> connections) {
 		java.sql.PreparedStatement stmt;
@@ -986,7 +955,7 @@ public class DB {
 				stmt.setInt(5, connection.toCrossroad);
 				stmt.setString(6, getCrossroadName(connection.toCrossroad));
 				stmt.addBatch();
-			}//System.out.println(strInsertIntoMyTable);
+			}
 			stmt.executeBatch();
 		} catch (Exception e) {
 			e.printStackTrace();

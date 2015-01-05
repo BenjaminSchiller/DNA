@@ -17,6 +17,7 @@ import dna.graph.datastructures.INodeListDatastructure;
 import dna.graph.edges.Edge;
 import dna.graph.generators.traffic.DB;
 import dna.graph.generators.traffic.EdgeContainer;
+import dna.graph.generators.traffic.TrafficModi;
 import dna.graph.generators.traffic.TrafficUpdate;
 import dna.graph.nodes.DirectedNode;
 import dna.graph.nodes.DirectedWeightedNode;
@@ -39,7 +40,7 @@ public class TrafficInputWayBatchGenerator extends BatchGenerator{
 	DateTime initDateTime;
 	int stepSize;
 	int step=0;
-	int modus;
+	private TrafficModi modus;
 	private DateTime holidayStart;
 	private boolean[] daySelection;
 	private HashMap<Integer, HashMap<EdgeContainer, Edge>> disabledEdges = new HashMap<>();
@@ -49,7 +50,7 @@ public class TrafficInputWayBatchGenerator extends BatchGenerator{
 	private HashMap<Integer, List<Double>> nodeHistory;
 	
 	
-	public TrafficInputWayBatchGenerator(String name,DB db, DateTime initDateTime, int stepSize, int modus, DateTime holidayStart, boolean [] daySelection, double treshold,TrafficUpdate trafficUpdate) {
+	public TrafficInputWayBatchGenerator(String name,DB db, DateTime initDateTime, int stepSize, TrafficModi modus, DateTime holidayStart, boolean [] daySelection, double treshold,TrafficUpdate trafficUpdate) {
 		super(name, new IntParameter("NA", 0), new IntParameter("NR",
 				0), new IntParameter("NW", 10),
 				new ObjectParameter("NWS", 0), new IntParameter("EA", 0),
@@ -79,10 +80,9 @@ public class TrafficInputWayBatchGenerator extends BatchGenerator{
 		DateTime time = null;
 		Edge edge = null;
 		Integer newKey = null;
-		if(modus == 1){
+		if(modus == TrafficModi.DayTimeRange){
 			time = initDateTime;
 			time = Helpers.calculateNextDay(time, g.getTimestamp(),daySelection,holidayStart,true);
-			System.out.println("Neuer Batch am : \t" +time);
 		}
 		newDisabledEdges = new HashMap<>();
 		for (IElement currentNode : nodes) {
@@ -91,16 +91,16 @@ public class TrafficInputWayBatchGenerator extends BatchGenerator{
 			
 			//WeightUpdate
 			switch (modus) {
-			case 0:
+			case Continuous:
 				update = db.getInputWayWeight(n.getIndex(),initDateTime.plusMinutes((int) (g.getTimestamp()+1)*stepSize),initDateTime.plusMinutes((int) (g.getTimestamp()+2)*stepSize));
 				break;
-			case 1:
+			case DayTimeRange:
 				update = db.getInputWayWeight(n.getIndex(),time.minusMinutes(db.timeRange),time.plusMinutes(db.timeRange));
 				break;
-			case 2:
+			case Simulation:
 				update = (trafficUpdate.isAffected(n.getIndex()))?  db.getInputWayWeightStaticBatch(n.getIndex(),trafficUpdate) : null;
 				break;
-			case 3:
+			case Aggregation:
 				time = initDateTime;
 				int index = n.getIndex();
 				long start = g.getTimestamp();
@@ -109,16 +109,13 @@ public class TrafficInputWayBatchGenerator extends BatchGenerator{
 					time = Helpers.calculateNextDay(initDateTime, start++, daySelection, holidayStart, false);
 					double[] weightOfDay = db.getInputWayWeight(n.getIndex(),time.minusMinutes(db.timeRange),time.plusMinutes(db.timeRange));
 					if(nodeHistory.containsKey(index)){
-						System.out.println(weightOfDay[2]);
 						nodeHistory.get(index).add(weightOfDay[2]);
 					}
 					else {
 						List<Double> weightList = new ArrayList<>();
 						weightList.add(weightOfDay[2]);
 						nodeHistory.put(index, weightList);
-					}
-					//System.out.println("Aggregate " +time);
-					
+					}	
 				}
 				double sum = 0;
 				List<Double> values = nodeHistory.get(index);
@@ -127,24 +124,24 @@ public class TrafficInputWayBatchGenerator extends BatchGenerator{
 				}
 				double value = (values.isEmpty())? 0 : sum/values.size();
 				update = new double[]{0,0,value};
-				System.out.println("Avg: " + value);
 				break;
 			default:
-				System.out.println("Modus nicht definiert");
+				System.out.println("error - Modus nicht definiert");
 				break;
 			}
+			
 			Double3dWeight oldWeight = (Double3dWeight) n.getWeight();
 			if(update!=null){
 				Double3dWeight newWeight = new Double3dWeight(update[0],update[1],update[2]);
 				if(!oldWeight.equals(newWeight))
 					b.add(new NodeWeight((dna.graph.weights.IWeightedNode) currentNode,new Double3dWeight(update[0],update[1],update[2])));
-				if(update[2]>95)
-					System.out.println("ID " +n.getIndex() + "\tCount:" + update[0] +"\tLoad:"+update[1]+"\t"+"Norm:"+update[2]);
 			}
 			else{
 				update = new double[]{oldWeight.getX(),oldWeight.getY(),oldWeight.getZ()};
 			}
+			
 			EdgeContainer ec = null;
+			
 			if(update[2] > treshold) {
 				newKey = n.getIndex();
 				int from;

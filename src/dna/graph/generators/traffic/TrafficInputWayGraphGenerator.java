@@ -25,7 +25,7 @@ public class TrafficInputWayGraphGenerator extends GraphGenerator{
 	List<Node> nodeslist;
 	private DB db;
 	private DateTime initTime;
-	private int modus;
+	private TrafficModi modus;
 	private DateTime initDateTime;
 	private int stepsize;
 	private int timeRange;
@@ -33,13 +33,13 @@ public class TrafficInputWayGraphGenerator extends GraphGenerator{
 	private double treshold;
 	private HashMap<Integer, HashMap<EdgeContainer,Edge>> disabledEdges = new HashMap<>();
 	
-	public TrafficInputWayGraphGenerator(String name, GraphDataStructure gds, DB db, long timeStamp, int modus, DateTime initDateTime, int stepsize,int timeRange,TrafficUpdate trafficupdate,double treshold) {
+	public TrafficInputWayGraphGenerator(String name, GraphDataStructure gds, DB db, long timeStamp, TrafficModi modus, DateTime initDateTime, int stepsize,int timeRange,TrafficUpdate trafficupdate,double treshold) {
 		this(name, null, gds,timeStamp, 0, 0,db, modus,initDateTime,stepsize,timeRange,trafficupdate,treshold);
 	}
 	
 	public TrafficInputWayGraphGenerator(String name, Parameter[] params,
 			GraphDataStructure gds, long timestampInit, int nodesInit,
-			int edgesInit,DB db,int modus, DateTime initDateTime, int stepsize,int timeRange,TrafficUpdate trafficupdate,double treshold) {
+			int edgesInit,DB db,TrafficModi modus, DateTime initDateTime, int stepsize,int timeRange,TrafficUpdate trafficupdate,double treshold) {
 		super(name, params, gds, timestampInit, nodesInit, edgesInit);
 		this.db= db;
 		this.modus = modus;
@@ -59,7 +59,7 @@ public class TrafficInputWayGraphGenerator extends GraphGenerator{
 		Set<Integer> overloaded = new HashSet<>();
 		
 		// Nodes
-		nodes = db.getInputWaysForDNA(modus);
+		nodes = db.getInputWaysForDNA();
 
 		Node currentNode = null;
 		DirectedWeightedNode currentWeighted = null;
@@ -73,17 +73,17 @@ public class TrafficInputWayGraphGenerator extends GraphGenerator{
 			}
 			
 			switch (modus) {
-			case 0:
+			case Continuous:
 				weight = db.getInputWayWeight(currentWeighted.getIndex(), initDateTime, initDateTime.plusMinutes(stepsize));
 				break;
-			case 1: case 3:
+			case DayTimeRange: case Aggregation:
 				weight = db.getInputWayWeight(currentWeighted.getIndex(),initDateTime.minusMinutes(timeRange),initDateTime.plusMinutes(timeRange));
 				break;	
-			case 2:
+			case Simulation:
 				weight = db.getInputWayWeightStaticInit(currentWeighted.getIndex(),trafficUpdate);
 				break;
 			default:
-				System.out.println("error - Modus nicht definiert");
+				System.out.println("error - Modus nicht definiert @ TrafficInputwayGraphGenerator");
 				break;
 			}
 			if(weight[2] > treshold){
