@@ -76,6 +76,7 @@ public class TrafficInputWayGraphGenerator extends GraphGenerator{
 			case Continuous:
 				weight = db.getInputWayWeight(currentWeighted.getIndex(), initDateTime, initDateTime.plusMinutes(stepsize));
 				break;
+
 			case DayTimeRange: case Aggregation:
 				weight = db.getInputWayWeight(currentWeighted.getIndex(),initDateTime.minusMinutes(timeRange),initDateTime.plusMinutes(timeRange));
 				break;	

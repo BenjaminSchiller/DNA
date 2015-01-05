@@ -61,6 +61,7 @@ public class DB {
 	private boolean dummyMax;
 	private boolean backupWays = false;
 	private boolean improvedMax = false;
+
 	
 	/**
 	 * Konstruktor für die Nutzung der Datenbank ohne 

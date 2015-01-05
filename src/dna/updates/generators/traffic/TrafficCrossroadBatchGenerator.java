@@ -131,6 +131,7 @@ public class TrafficCrossroadBatchGenerator extends BatchGenerator{
 			update = crossroadWeight.getWeight();
 			Double3dWeight oldWeight = (Double3dWeight) n.getWeight();
 			Double3dWeight newWeight = new Double3dWeight(update[0],update[1],update[2]);
+
 			db.setMaximalWeightsCrossroadImproved(n.getIndex(), update[0], update[1], time,db.timeRange);
 			if(!oldWeight.equals(newWeight))
 				b.add(new NodeWeight((dna.graph.weights.IWeightedNode) currentNode,newWeight));
