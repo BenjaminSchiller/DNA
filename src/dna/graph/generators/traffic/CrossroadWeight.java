@@ -65,7 +65,7 @@ public class CrossroadWeight {
 	}
 	
 	/**
-	 * calculates and returns the weight of a crossroad. 
+	 * berechnet das Gewicht des Kreuzungsknotens
 	 * Index 0 - count
 	 * Index 1 - load
 	 * Index 2 - count/maxcount
@@ -88,35 +88,31 @@ public class CrossroadWeight {
 		else
 			sum[2]=0;
 		
-		/*
-		// Load/Count
-		if(sum[0]>1)
-			sum[2] = sum[1]/(sum[0]*10)*10;
-		else
-			sum[2] = 0;
-		*/
-		/*
-		// Load-Wert
-		sum[2] = sum[1];
-		*/
 		return sum;
 	}
 	
+	/**
+	 * liefert alle Einfahrtswege, deren Gewicht den Schwellwert überschritten hat
+	 * @return
+	 */
 	public HashMap<Integer,double[]> getOverladedEdges() {
 		HashMap<Integer, double[]> result = new HashMap<>();
 		for (Map.Entry<Integer, double[]> inputWay : inputWayWeights.entrySet()) {
 			if(inputWay.getValue()[2] >threshold){
 				result.put(inputWay.getKey(), inputWay.getValue());
-				System.out.println("Overloaded: " +inputWay.getKey() +"Crossroad " +crossroadID +"\t"+inputWay.getValue()[0]+"\tNorm:" +inputWay.getValue()[2]);
 			}
 		}
 		return result;
 	}
 	
+	/**
+	 * liefert alle Einfahrtswege mit ihren Gewichten
+	 * @return
+	 */
 	public HashMap<Integer, double[]> getWayWeights(){
 		return inputWayWeights;
-		
 	}
+	
 	
 	public boolean addWeights(HashMap<Integer,double[]> wayWeights){
 		for (Integer keys : wayWeights.keySet()) {

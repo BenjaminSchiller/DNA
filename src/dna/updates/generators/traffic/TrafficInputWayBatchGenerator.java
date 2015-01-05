@@ -136,8 +136,6 @@ public class TrafficInputWayBatchGenerator extends BatchGenerator{
 				Double3dWeight newWeight = new Double3dWeight(update[0],update[1],update[2]);
 				if(!oldWeight.equals(newWeight))
 					b.add(new NodeWeight((dna.graph.weights.IWeightedNode) currentNode,new Double3dWeight(update[0],update[1],update[2])));
-				if(update[2]>95)
-					System.out.println("ID " +n.getIndex() + "\tCount:" + update[0] +"\tLoad:"+update[1]+"\t"+"Norm:"+update[2]);
 			}
 			else{
 				update = new double[]{oldWeight.getX(),oldWeight.getY(),oldWeight.getZ()};
