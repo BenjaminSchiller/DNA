@@ -2,11 +2,11 @@ package dna.series.data;
 
 import java.io.IOException;
 
+import dna.io.ZipReader;
 import dna.io.ZipWriter;
 import dna.io.filesystem.Dir;
 import dna.io.filesystem.Files;
 import dna.plot.PlottingUtils;
-import dna.series.SeriesGeneration;
 import dna.series.aggdata.AggregatedBatch.BatchReadMode;
 import dna.series.lists.DistributionList;
 import dna.series.lists.MetricDataList;
@@ -259,32 +259,32 @@ public class BatchData {
 	 */
 	public static BatchData readBatchValuesFromSingleFile(String fsDir,
 			long timestamp, String dir, BatchData structure) throws IOException {
-		SeriesGeneration.readFileSystem = ZipWriter.createBatchFileSystem(
+		ZipReader.readFileSystem = ZipWriter.createBatchFileSystem(
 				fsDir, Config.get("SUFFIX_ZIP_FILE"), timestamp);
 		BatchData tempBatchData = readBatchValues(dir, timestamp, structure);
-		SeriesGeneration.readFileSystem.close();
-		SeriesGeneration.readFileSystem = null;
+		ZipReader.readFileSystem.close();
+		ZipReader.readFileSystem = null;
 		return tempBatchData;
 	}
 
 	/** Writes the whole batch in a single zip file **/
 	public void writeSingleFile(String fsDir, long timestamp, String suffix,
 			String dir) throws IOException {
-		SeriesGeneration.writeFileSystem = ZipWriter.createBatchFileSystem(
+		ZipWriter.writeFileSystem = ZipWriter.createBatchFileSystem(
 				fsDir, suffix, timestamp);
 		this.write(dir);
-		SeriesGeneration.writeFileSystem.close();
-		SeriesGeneration.writeFileSystem = null;
+		ZipWriter.writeFileSystem.close();
+		ZipWriter.writeFileSystem = null;
 	}
 
 	/** Reads the whole batch from a single zip file **/
 	public static BatchData readFromSingleFile(String fsDir, long timestamp,
 			String dir, BatchReadMode batchReadMode) throws IOException {
-		SeriesGeneration.readFileSystem = ZipWriter.createBatchFileSystem(
+		ZipReader.readFileSystem = ZipWriter.createBatchFileSystem(
 				fsDir, Config.get("SUFFIX_ZIP_FILE"), timestamp);
 		BatchData tempBatchData = read(dir, timestamp, batchReadMode);
-		SeriesGeneration.readFileSystem.close();
-		SeriesGeneration.readFileSystem = null;
+		ZipReader.readFileSystem.close();
+		ZipReader.readFileSystem = null;
 		return tempBatchData;
 	}
 

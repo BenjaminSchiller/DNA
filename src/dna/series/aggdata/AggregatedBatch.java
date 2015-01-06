@@ -2,10 +2,10 @@ package dna.series.aggdata;
 
 import java.io.IOException;
 
+import dna.io.ZipReader;
 import dna.io.ZipWriter;
 import dna.io.filesystem.Files;
 import dna.plot.PlottingUtils;
-import dna.series.SeriesGeneration;
 import dna.util.Config;
 import dna.util.Log;
 
@@ -95,11 +95,11 @@ public class AggregatedBatch {
 	/** Writes the whole aggregated batch in a single zip file **/
 	public void writeSingleFile(String fsDir, long timestamp, String dir)
 			throws IOException {
-		SeriesGeneration.writeFileSystem = ZipWriter.createBatchFileSystem(
+		ZipWriter.writeFileSystem = ZipWriter.createBatchFileSystem(
 				fsDir, Config.get("SUFFIX_ZIP_FILE"), timestamp);
 		this.write(dir);
-		SeriesGeneration.writeFileSystem.close();
-		SeriesGeneration.writeFileSystem = null;
+		ZipWriter.writeFileSystem.close();
+		ZipWriter.writeFileSystem = null;
 	}
 
 	public static AggregatedBatch read(String dir, long timestamp,
@@ -128,11 +128,11 @@ public class AggregatedBatch {
 	public static AggregatedBatch readFromSingleFile(String fsDir,
 			long timestamp, String dir, BatchReadMode batchReadMode)
 			throws IOException {
-		SeriesGeneration.readFileSystem = ZipWriter.createBatchFileSystem(
+		ZipReader.readFileSystem = ZipWriter.createBatchFileSystem(
 				fsDir, Config.get("SUFFIX_ZIP_FILE"), timestamp);
 		AggregatedBatch tempBatchData = read(dir, timestamp, batchReadMode);
-		SeriesGeneration.readFileSystem.close();
-		SeriesGeneration.readFileSystem = null;
+		ZipReader.readFileSystem.close();
+		ZipReader.readFileSystem = null;
 		return tempBatchData;
 	}
 

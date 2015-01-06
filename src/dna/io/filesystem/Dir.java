@@ -7,10 +7,10 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+import dna.io.ZipReader;
 import dna.io.filter.PrefixFilenameFilter;
 import dna.metrics.IMetric;
 import dna.metrics.IMetric.MetricType;
-import dna.series.SeriesGeneration;
 import dna.util.Config;
 import dna.util.Log;
 
@@ -237,8 +237,8 @@ public class Dir {
 	}
 
 	public static String[] getMetrics(String dir) throws IOException {
-		if (SeriesGeneration.readFileSystem != null) {
-			Path p = SeriesGeneration.readFileSystem.getPath(dir);
+		if (ZipReader.readFileSystem != null) {
+			Path p = ZipReader.readFileSystem.getPath(dir);
 			ArrayList<String> fileList = new ArrayList<String>();
 			try (DirectoryStream<Path> directoryStream = java.nio.file.Files
 					.newDirectoryStream(p)) {

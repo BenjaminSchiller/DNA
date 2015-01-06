@@ -7,7 +7,6 @@ import java.io.IOException;
 
 import com.sun.media.sound.InvalidFormatException;
 
-import dna.series.SeriesGeneration;
 import dna.util.Config;
 
 /**
@@ -86,9 +85,9 @@ public class Reader {
 	 */
 	public static Reader getReader(String dir, String filename)
 			throws IOException {
-		if (SeriesGeneration.readFileSystem == null)
+		if (ZipReader.readFileSystem == null)
 			return new Reader(dir, filename);
 		else
-			return new ZipReader(SeriesGeneration.readFileSystem, dir, filename);
+			return new ZipReader(ZipReader.readFileSystem, dir, filename);
 	}
 }

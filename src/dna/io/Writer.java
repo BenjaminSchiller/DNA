@@ -5,7 +5,6 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 
-import dna.series.SeriesGeneration;
 import dna.util.Config;
 
 /**
@@ -92,10 +91,10 @@ public class Writer {
 	 */
 	public static Writer getWriter(String dir, String filename)
 			throws IOException {
-		if (SeriesGeneration.writeFileSystem == null)
+		if (ZipWriter.writeFileSystem == null)
 			return new Writer(dir, filename);
 		else
-			return new ZipWriter(SeriesGeneration.writeFileSystem, dir,
+			return new ZipWriter(ZipWriter.writeFileSystem, dir,
 					filename);
 	}
 }

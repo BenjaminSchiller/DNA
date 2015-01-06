@@ -15,6 +15,7 @@ import java.util.Map;
 public class ZipReader extends Reader {
 
 	private FileSystem zipFile;
+	public static FileSystem readFileSystem;
 
 	public ZipReader(FileSystem fs, String dir, String filename)
 			throws IOException, FileNotFoundException {
