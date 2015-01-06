@@ -3,11 +3,11 @@ package dna.series;
 import java.io.File;
 import java.io.IOException;
 
+import dna.io.ZipWriter;
 import dna.io.filesystem.Dir;
 import dna.io.filesystem.Files;
 import dna.metrics.IMetric;
 import dna.metrics.MetricNotApplicableException;
-import dna.metrics.IMetric.MetricType;
 import dna.metrics.algorithms.Algorithms;
 import dna.metrics.algorithms.IAfterBatch;
 import dna.metrics.algorithms.IAfterEA;
@@ -93,10 +93,16 @@ public class SeriesGeneration {
 			Log.info("ag = enabled");
 		else
 			Log.info("ag = disabled");
-		if (Config.getBoolean("GENERATION_BATCHES_AS_ZIP"))
+		if (Config.get("GENERATION_AS_ZIP").equals("runs")) {
+			Log.info("r  = zipped");
+
+		} else if (Config.get("GENERATION_AS_ZIP").equals("batches")) {
+			Log.info("r  = files");
 			Log.info("b  = zipped");
-		else
+		} else {
+			Log.info("r  = files");
 			Log.info("b  = files");
+		}
 		Log.info("p  = " + series.getDir());
 		if (batchGenerationTime > 0)
 			Log.info("t  = " + batchGenerationTime + " msec / batch");
@@ -222,7 +228,19 @@ public class SeriesGeneration {
 		Log.infoSep();
 		Log.info("run " + run + " (" + batches + " batches)");
 
-		boolean singleFile = Config.getBoolean("GENERATION_BATCHES_AS_ZIP");
+		// set zip flags
+		boolean zippedBatches = false;
+		boolean zippedRuns = false;
+
+		if (Config.get("GENERATION_AS_ZIP").equals("runs"))
+			zippedRuns = true;
+		if (Config.get("GENERATION_AS_ZIP").equals("batches"))
+			zippedBatches = true;
+
+		// if zipped run, establish filesystem now
+		if (zippedRuns)
+			ZipWriter.writeFileSystem = ZipWriter.createRunFileSystem(
+					series.getDir(), run);
 
 		// reset batch generator
 		series.getBatchGenerator().reset();
@@ -239,9 +257,15 @@ public class SeriesGeneration {
 			SeriesGeneration.compareMetrics(series);
 		}
 		if (write) {
-			if (!singleFile) {
-				initialData.write(Dir.getBatchDataDir(series.getDir(), run,
-						initialData.getTimestamp()));
+			if (!zippedBatches) {
+				String tempDir;
+				if (zippedRuns)
+					tempDir = Dir.getBatchDataDir(Dir.delimiter,
+							initialData.getTimestamp());
+				else
+					tempDir = Dir.getBatchDataDir(series.getDir(), run,
+							initialData.getTimestamp());
+				initialData.write(tempDir);
 			} else {
 				try {
 					initialData.writeSingleFile(
@@ -286,7 +310,7 @@ public class SeriesGeneration {
 					String actualDir;
 					String dirTemp;
 
-					if (singleFile) {
+					if (zippedBatches) {
 						String nonZipDir = Dir.getBatchDataDir(series.getDir(),
 								run, batchData.getTimestamp());
 						actualDir = nonZipDir.substring(0,
@@ -301,6 +325,10 @@ public class SeriesGeneration {
 								+ Dir.tempSuffix + Dir.delimiter;
 					}
 
+					if (zippedRuns)
+						dirTemp = Dir.getBatchDataDir(Dir.delimiter,
+								batchData.getTimestamp());
+
 					// rename directory
 					File srcDir = new File(dirTemp);
 					File dstDir = new File(actualDir);
@@ -309,7 +337,7 @@ public class SeriesGeneration {
 					Files.delete(dstDir);
 
 					// write
-					if (singleFile)
+					if (zippedBatches)
 						batchData.writeSingleFile(
 								Dir.getRunDataDir(series.getDir(), run),
 								batchData.getTimestamp(),
@@ -334,14 +362,21 @@ public class SeriesGeneration {
 						srcDir.renameTo(dstDir);
 				} else {
 					// no generation simulation
-					if (singleFile)
+					if (zippedBatches)
 						batchData.writeSingleFile(
 								Dir.getRunDataDir(series.getDir(), run),
 								batchData.getTimestamp(),
 								Config.get("SUFFIX_ZIP_FILE"), Dir.delimiter);
-					else
-						batchData.write(Dir.getBatchDataDir(series.getDir(),
-								run, batchData.getTimestamp()));
+					else {
+						String tempDir;
+						if (zippedRuns)
+							tempDir = Dir.getBatchDataDir(Dir.delimiter,
+									batchData.getTimestamp());
+						else
+							tempDir = Dir.getBatchDataDir(series.getDir(), run,
+									batchData.getTimestamp());
+						batchData.write(tempDir);
+					}
 				}
 			}
 
@@ -350,6 +385,12 @@ public class SeriesGeneration {
 				System.gc();
 				gcCounter++;
 			}
+		}
+
+		// if zipped run, close filesystem
+		if (zippedRuns) {
+			ZipWriter.writeFileSystem.close();
+			ZipWriter.writeFileSystem = null;
 		}
 	}
 
