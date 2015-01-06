@@ -166,8 +166,9 @@ public class Aggregation {
 
 			// iterate over runs and read batches
 			for (int i = 0; i < runs.size(); i++) {
-				ZipReader.readFileSystem = ZipWriter.createRunFileSystem(dir,
-						runs.get(i).getRun());
+				if (zippedRuns)
+					ZipReader.readFileSystem = ZipWriter.createRunFileSystem(
+							dir, runs.get(i).getRun());
 				try {
 					if (zippedBatches) {
 						batches.add(BatchData.readBatchValuesFromSingleFile(
@@ -189,9 +190,11 @@ public class Aggregation {
 						batches.add(new BatchData(-1));
 				}
 
-				// close read fs
-				ZipReader.readFileSystem.close();
-				ZipReader.readFileSystem = null;
+				if (zippedRuns) {
+					// close read fs
+					ZipReader.readFileSystem.close();
+					ZipReader.readFileSystem = null;
+				}
 			}
 
 			// aggregate

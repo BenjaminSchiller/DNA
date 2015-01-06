@@ -1,5 +1,6 @@
 package dna.plot;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -24,7 +25,6 @@ import dna.series.aggdata.AggregatedBinnedDistribution;
 import dna.series.aggdata.AggregatedDistribution;
 import dna.series.aggdata.AggregatedMetric;
 import dna.series.data.BatchData;
-import dna.series.data.IBatch;
 import dna.series.data.BinnedDistributionDouble;
 import dna.series.data.BinnedDistributionInt;
 import dna.series.data.BinnedDistributionLong;
@@ -32,6 +32,7 @@ import dna.series.data.Distribution;
 import dna.series.data.DistributionDouble;
 import dna.series.data.DistributionInt;
 import dna.series.data.DistributionLong;
+import dna.series.data.IBatch;
 import dna.series.data.MetricData;
 import dna.series.data.SeriesData;
 import dna.util.Config;
@@ -1008,7 +1009,7 @@ public class PlottingUtils {
 
 		// check if singlefile
 		boolean zippedBatches = false;
-		if(Config.get("GENERATION_AS_ZIP").equals("batches"))
+		if (Config.get("GENERATION_AS_ZIP").equals("batches"))
 			zippedBatches = true;
 
 		// generate plots
@@ -2072,9 +2073,8 @@ public class PlottingUtils {
 	}
 
 	/** Plots metric values **/
-	public static void plotMetricValues(IBatch[] batchData,
-			IBatch initBatch, String dstDir, String title,
-			PlotStyle style, PlotType type,
+	public static void plotMetricValues(IBatch[] batchData, IBatch initBatch,
+			String dstDir, String title, PlotStyle style, PlotType type,
 			ArrayList<PlotConfig> customMetricValuePlots,
 			ArrayList<PlotConfig> customValuePlots) throws IOException,
 			InterruptedException {
@@ -2268,10 +2268,11 @@ public class PlottingUtils {
 			ArrayList<Long>[] seriesTimestamps, boolean plotDistributions,
 			ArrayList<PlotConfig> customDistributionPlots,
 			boolean plotNodeValues,
-			ArrayList<PlotConfig> customNodeValueListPlots, boolean zippedBatches,
-			DistributionPlotType distPlotType, NodeValueListOrder order,
-			NodeValueListOrderBy orderBy, PlotType type, PlotStyle style)
-			throws IOException, InterruptedException {
+			ArrayList<PlotConfig> customNodeValueListPlots,
+			boolean zippedBatches, DistributionPlotType distPlotType,
+			NodeValueListOrder order, NodeValueListOrderBy orderBy,
+			PlotType type, PlotStyle style) throws IOException,
+			InterruptedException {
 		Log.infoSep();
 
 		// check if aggregated batches
@@ -3819,8 +3820,8 @@ public class PlottingUtils {
 	/** Plots the single value plots for multiple series. */
 	public static void plotSingleValuePlots(SeriesData[] seriesData,
 			int[] indizes, String dstDir, String[] batches,
-			double[] timestamps, IBatch[] initBatches,
-			boolean plotStatistics, ArrayList<PlotConfig> customStatisticPlots,
+			double[] timestamps, IBatch[] initBatches, boolean plotStatistics,
+			ArrayList<PlotConfig> customStatisticPlots,
 			boolean plotMetricValues,
 			ArrayList<PlotConfig> customMetricValuePlots,
 			boolean plotCustomValues, ArrayList<PlotConfig> customValuePlots,
@@ -3914,6 +3915,14 @@ public class PlottingUtils {
 									timestamp,
 									BatchReadMode.readOnlySingleValues);
 					} catch (FileNotFoundException e) {
+						if (zippedBatches) {
+							String remDir = tempDir
+									+ Config.get("PREFIX_BATCHDATA_DIR")
+									+ timestamp + Config.get("SUFFIX_ZIP_FILE");
+							Log.debug("removing unnecessary zipfile: " + remDir);
+							Files.delete(new File(remDir));
+						}
+
 						batchData[j] = null;
 					}
 				}
@@ -3932,6 +3941,14 @@ public class PlottingUtils {
 									timestamp,
 									BatchReadMode.readOnlySingleValues);
 					} catch (FileNotFoundException e) {
+						if (zippedBatches) {
+							String remDir = tempDir
+									+ Config.get("PREFIX_BATCHDATA_DIR")
+									+ timestamp + Config.get("SUFFIX_ZIP_FILE");
+							Log.debug("removing unnecessary zipfile: " + remDir);
+							Files.delete(new File(remDir));
+						}
+
 						batchData[j] = null;
 					}
 				}
