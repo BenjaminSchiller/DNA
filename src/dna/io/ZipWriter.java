@@ -142,10 +142,10 @@ public class ZipWriter extends Writer {
 	}
 
 	/** Creates a zip filesystem for a run in the specified directory. **/
-	public static FileSystem createRunFileSystem(String fsDir, String suffix,
-			int run) throws IOException {
+	public static FileSystem createRunFileSystem(String fsDir, int run)
+			throws IOException {
 		return createFileSystem(fsDir,
-				dna.io.filesystem.Files.getRunFilename(run) + suffix);
+				dna.io.filesystem.Files.getRunFilename(run));
 	}
 
 	/** Creates a zip filesystem for a specified directory and filename. **/
