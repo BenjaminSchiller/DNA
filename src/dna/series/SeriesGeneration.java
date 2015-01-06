@@ -2,7 +2,6 @@ package dna.series;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.FileSystem;
 
 import dna.io.filesystem.Dir;
 import dna.io.filesystem.Files;
@@ -45,9 +44,6 @@ import dna.util.Log;
 import dna.util.Memory;
 
 public class SeriesGeneration {
-
-	public static FileSystem writeFileSystem;
-	public static FileSystem readFileSystem;
 
 	public static SeriesData generate(Series series, int runs, int batches)
 			throws AggregationException, IOException,

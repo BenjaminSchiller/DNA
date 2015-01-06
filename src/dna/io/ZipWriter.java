@@ -27,6 +27,7 @@ import dna.util.Log;
 public class ZipWriter extends Writer {
 
 	private FileSystem zipFile;
+	public static FileSystem writeFileSystem;
 	
 	private static FileSystem getFileSystem(URI uri, Map<String, ?> env)
 			throws IOException {

@@ -6,8 +6,8 @@ import java.nio.file.DirectoryStream;
 import java.nio.file.Path;
 import java.util.ArrayList;
 
+import dna.io.ZipReader;
 import dna.io.filter.SuffixFilenameFilter;
-import dna.series.SeriesGeneration;
 import dna.util.Config;
 
 public class Files {
@@ -63,8 +63,8 @@ public class Files {
 	}
 
 	public static String[] getDistributions(String dir) throws IOException {
-		if (SeriesGeneration.readFileSystem != null) {
-			Path p = SeriesGeneration.readFileSystem.getPath(dir);
+		if (ZipReader.readFileSystem != null) {
+			Path p = ZipReader.readFileSystem.getPath(dir);
 			ArrayList<String> fileList = new ArrayList<String>();
 			try (DirectoryStream<Path> directoryStream = java.nio.file.Files
 					.newDirectoryStream(p)) {
@@ -130,8 +130,8 @@ public class Files {
 	}
 
 	public static String[] getNodeValueLists(String dir) throws IOException {
-		if (SeriesGeneration.readFileSystem != null) {
-			Path p = SeriesGeneration.readFileSystem.getPath(dir);
+		if (ZipReader.readFileSystem != null) {
+			Path p = ZipReader.readFileSystem.getPath(dir);
 			ArrayList<String> fileList = new ArrayList<String>();
 			try (DirectoryStream<Path> directoryStream = java.nio.file.Files
 					.newDirectoryStream(p)) {
