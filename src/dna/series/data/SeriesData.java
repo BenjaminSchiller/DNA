@@ -115,10 +115,16 @@ public class SeriesData {
 			batchReadMode = BatchReadMode.readNoValues;
 
 		for (String run : runs) {
-			int runId = Dir.getRun(run);
+			int runId = Dir.getRun(run.replace(Config.get("SUFFIX_ZIP_FILE"),
+					""));
 
-			runList[runId] = RunData.read(Dir.getRunDataDir(dir, runId), runId,
-					batchReadMode);
+			if (Config.get("GENERATION_AS_ZIP").equals("runs")) {
+				runList[runId] = RunData.readFromSingleFile(dir, Dir.delimiter,
+						runId, batchReadMode);
+			} else {
+				runList[runId] = RunData.read(Dir.getRunDataDir(dir, runId),
+						runId, batchReadMode);
+			}
 		}
 		if (readAggregation) {
 			AggregatedSeries aggr = AggregatedSeries.read(dir, name,

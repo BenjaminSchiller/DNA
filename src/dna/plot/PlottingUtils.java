@@ -1007,7 +1007,9 @@ public class PlottingUtils {
 			aggregatedBatches = true;
 
 		// check if singlefile
-		boolean singleFile = Config.getBoolean("GENERATION_BATCHES_AS_ZIP");
+		boolean zippedBatches = false;
+		if(Config.get("GENERATION_AS_ZIP").equals("batches"))
+			zippedBatches = true;
 
 		// generate plots
 		List<Plot> plots = new LinkedList<Plot>();
@@ -1147,7 +1149,7 @@ public class PlottingUtils {
 							dPlotData[i] = PlotData.get(distribution, metric,
 									style, title + " @ " + timestamps[i], type);
 							if (!Config.getBoolean("GNUPLOT_DATA_IN_SCRIPT")
-									&& !singleFile) {
+									&& !zippedBatches) {
 								if (aggregatedBatches) {
 									dPlotData[i]
 											.setDataLocation(
@@ -1198,7 +1200,7 @@ public class PlottingUtils {
 											+ timestamps[i], type);
 							cdfPlotData.setPlotAsCdf(true);
 							if (!Config.getBoolean("GNUPLOT_DATA_IN_SCRIPT")
-									&& !singleFile) {
+									&& !zippedBatches) {
 								if (aggregatedBatches) {
 									cdfPlotData
 											.setDataLocation(
@@ -1291,7 +1293,7 @@ public class PlottingUtils {
 						PlotData plotData = PlotData.get(nodevaluelist, metric,
 								style, title + " @ " + timestamps[i], type);
 						if (!Config.getBoolean("GNUPLOT_DATA_IN_SCRIPT")
-								&& !singleFile) {
+								&& !zippedBatches) {
 							if (aggregatedBatches) {
 								plotData.setDataLocation(
 										PlotDataLocation.dataFile,
@@ -1478,7 +1480,7 @@ public class PlottingUtils {
 														+ timestamps[i], type);
 								if (!Config
 										.getBoolean("GNUPLOT_DATA_IN_SCRIPT")
-										&& !singleFile) {
+										&& !zippedBatches) {
 									if (aggregatedBatches) {
 										pd.setDataLocation(
 												PlotDataLocation.dataFile,
@@ -1516,7 +1518,7 @@ public class PlottingUtils {
 														+ timestamps[i], type);
 								if (!Config
 										.getBoolean("GNUPLOT_DATA_IN_SCRIPT")
-										&& !singleFile) {
+										&& !zippedBatches) {
 									if (aggregatedBatches) {
 										dCdf.setDataLocation(
 												PlotDataLocation.dataFile,
@@ -1679,7 +1681,7 @@ public class PlottingUtils {
 													+ values[j] + " @ "
 													+ timestamps[i], type);
 							if (!Config.getBoolean("GNUPLOT_DATA_IN_SCRIPT")
-									&& !singleFile) {
+									&& !zippedBatches) {
 								if (aggregatedBatches) {
 									d.setDataLocation(
 											PlotDataLocation.dataFile,
@@ -1759,7 +1761,7 @@ public class PlottingUtils {
 				AggregatedBatch tempBatch;
 				long timestamp = Dir.getTimestamp(batches[i]);
 
-				if (singleFile)
+				if (zippedBatches)
 					tempBatch = AggregatedBatch.readFromSingleFile(dir,
 							timestamp, Dir.delimiter,
 							BatchReadMode.readOnlyDistAndNvl);
@@ -1782,7 +1784,7 @@ public class PlottingUtils {
 
 				long timestamp = Dir.getTimestamp(batches[i]);
 
-				if (singleFile)
+				if (zippedBatches)
 					tempBatch = BatchData.readFromSingleFile(dir, timestamp,
 							Dir.delimiter, BatchReadMode.readOnlyDistAndNvl);
 				else
@@ -2266,7 +2268,7 @@ public class PlottingUtils {
 			ArrayList<Long>[] seriesTimestamps, boolean plotDistributions,
 			ArrayList<PlotConfig> customDistributionPlots,
 			boolean plotNodeValues,
-			ArrayList<PlotConfig> customNodeValueListPlots, boolean singleFile,
+			ArrayList<PlotConfig> customNodeValueListPlots, boolean zippedBatches,
 			DistributionPlotType distPlotType, NodeValueListOrder order,
 			NodeValueListOrderBy orderBy, PlotType type, PlotStyle style)
 			throws IOException, InterruptedException {
@@ -2465,7 +2467,7 @@ public class PlottingUtils {
 												domain, style, title, type);
 										if (!Config
 												.getBoolean("GNUPLOT_DATA_IN_SCRIPT")
-												&& !singleFile) {
+												&& !zippedBatches) {
 											if (aggregatedBatches) {
 												data.setDataLocation(
 														PlotDataLocation.dataFile,
@@ -2499,7 +2501,7 @@ public class PlottingUtils {
 										data.setPlotAsCdf(true);
 										if (!Config
 												.getBoolean("GNUPLOT_DATA_IN_SCRIPT")
-												&& !singleFile) {
+												&& !zippedBatches) {
 											if (aggregatedBatches) {
 												data.setDataLocation(
 														PlotDataLocation.dataFile,
@@ -2679,7 +2681,7 @@ public class PlottingUtils {
 											style, title, type);
 									if (!Config
 											.getBoolean("GNUPLOT_DATA_IN_SCRIPT")
-											&& !singleFile) {
+											&& !zippedBatches) {
 										if (aggregatedBatches) {
 											line.setDataLocation(
 													PlotDataLocation.dataFile,
@@ -2978,7 +2980,7 @@ public class PlottingUtils {
 													+ timestamps[j], type);
 									if (!Config
 											.getBoolean("GNUPLOT_DATA_IN_SCRIPT")
-											&& !singleFile) {
+											&& !zippedBatches) {
 										if (aggregatedBatches) {
 											line.setDataLocation(
 													PlotDataLocation.dataFile,
@@ -3013,7 +3015,7 @@ public class PlottingUtils {
 									cdfPlotData.setPlotAsCdf(true);
 									if (!Config
 											.getBoolean("GNUPLOT_DATA_IN_SCRIPT")
-											&& !singleFile) {
+											&& !zippedBatches) {
 										if (aggregatedBatches) {
 											cdfPlotData
 													.setDataLocation(
@@ -3193,7 +3195,7 @@ public class PlottingUtils {
 												+ timestamps[j], type);
 								if (!Config
 										.getBoolean("GNUPLOT_DATA_IN_SCRIPT")
-										&& !singleFile) {
+										&& !zippedBatches) {
 									if (aggregatedBatches) {
 										line.setDataLocation(
 												PlotDataLocation.dataFile,
@@ -3443,7 +3445,7 @@ public class PlottingUtils {
 											style, title, type);
 									if (!Config
 											.getBoolean("GNUPLOT_DATA_IN_SCRIPT")
-											&& !singleFile) {
+											&& !zippedBatches) {
 										if (aggregatedBatches) {
 											data.setDataLocation(
 													PlotDataLocation.dataFile,
@@ -3476,7 +3478,7 @@ public class PlottingUtils {
 									data.setPlotAsCdf(true);
 									if (!Config
 											.getBoolean("GNUPLOT_DATA_IN_SCRIPT")
-											&& !singleFile) {
+											&& !zippedBatches) {
 										if (aggregatedBatches) {
 											data.setDataLocation(
 													PlotDataLocation.dataFile,
@@ -3682,7 +3684,7 @@ public class PlottingUtils {
 										style, title, type);
 								if (!Config
 										.getBoolean("GNUPLOT_DATA_IN_SCRIPT")
-										&& !singleFile) {
+										&& !zippedBatches) {
 									if (aggregatedBatches) {
 										data.setDataLocation(
 												PlotDataLocation.dataFile,
@@ -3755,7 +3757,7 @@ public class PlottingUtils {
 					String aggrDir = Dir.getAggregationDataDir(seriesData[j]
 							.getDir());
 
-					if (singleFile)
+					if (zippedBatches)
 						tempBatch = AggregatedBatch.readFromSingleFile(aggrDir,
 								timestamp, Dir.delimiter,
 								BatchReadMode.readOnlyDistAndNvl);
@@ -3768,7 +3770,7 @@ public class PlottingUtils {
 					String aggrDir = Dir.getRunDataDir(seriesData[j].getDir(),
 							indizes[j]);
 
-					if (singleFile)
+					if (zippedBatches)
 						tempBatch = BatchData.readFromSingleFile(aggrDir,
 								timestamp, Dir.delimiter,
 								BatchReadMode.readOnlyDistAndNvl);
@@ -3823,7 +3825,7 @@ public class PlottingUtils {
 			ArrayList<PlotConfig> customMetricValuePlots,
 			boolean plotCustomValues, ArrayList<PlotConfig> customValuePlots,
 			boolean plotRuntimes, ArrayList<PlotConfig> customRuntimePlots,
-			boolean singleFile, PlotType type, PlotStyle style)
+			boolean zippedBatches, PlotType type, PlotStyle style)
 			throws IOException, InterruptedException {
 		boolean aggregatedBatches = false;
 		if (initBatches instanceof AggregatedBatch[])
@@ -3902,7 +3904,7 @@ public class PlottingUtils {
 				for (int j = 0; j < batches.length; j++) {
 					long timestamp = Dir.getTimestamp(batches[j]);
 					try {
-						if (singleFile)
+						if (zippedBatches)
 							batchData[j] = AggregatedBatch.readFromSingleFile(
 									tempDir, timestamp, Dir.delimiter,
 									BatchReadMode.readOnlySingleValues);
@@ -3920,7 +3922,7 @@ public class PlottingUtils {
 				for (int j = 0; j < batches.length; j++) {
 					long timestamp = Dir.getTimestamp(batches[j]);
 					try {
-						if (singleFile)
+						if (zippedBatches)
 							batchData[j] = BatchData.readFromSingleFile(
 									tempDir, timestamp, Dir.delimiter,
 									BatchReadMode.readOnlySingleValues);

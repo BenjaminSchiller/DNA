@@ -95,7 +95,10 @@ public class Plotting {
 		NodeValueListOrderBy orderBy = config.getNvlOrderBy();
 		DistributionPlotType distPlotType = config.getDistPlotType();
 
-		boolean singleFile = Config.getBoolean("GENERATION_BATCHES_AS_ZIP");
+		boolean zippedBatches = false;
+		if (Config.get("GENERATION_AS_ZIP").equals("batches"))
+			zippedBatches = true;
+
 		boolean plotDistributions = config.isPlotDistributions();
 		boolean plotNodeValues = config.isPlotNodeValueLists();
 
@@ -165,7 +168,7 @@ public class Plotting {
 			String tempDir = Dir.getAggregationDataDir(series.getDir());
 			long timestamp = series.getAggregation().getBatches()[0]
 					.getTimestamp();
-			if (singleFile)
+			if (zippedBatches)
 				initBatches[i] = AggregatedBatch.readFromSingleFile(tempDir,
 						timestamp, Dir.delimiter, BatchReadMode.readAllValues);
 			else
@@ -185,7 +188,7 @@ public class Plotting {
 					config.getCustomStatisticPlots(), plotMetricValues,
 					config.getCustomMetricValuePlots(), plotCustomValues,
 					config.getCustomValuePlots(), plotRuntimes,
-					config.getCustomRuntimePlots(), singleFile, type, style);
+					config.getCustomRuntimePlots(), zippedBatches, type, style);
 
 		// plot distribution and nodevaluelist plots
 		if (plotDistributions || plotNodeValues)
@@ -193,7 +196,7 @@ public class Plotting {
 					null, dstDir, batches, timestamps, initBatches,
 					seriesTimestamps, plotDistributions,
 					config.getCustomDistributionPlots(), plotNodeValues,
-					config.getCustomNodeValueListPlots(), singleFile,
+					config.getCustomNodeValueListPlots(), zippedBatches,
 					distPlotType, order, orderBy, type, style);
 	}
 
@@ -225,7 +228,9 @@ public class Plotting {
 		NodeValueListOrderBy orderBy = config.getNvlOrderBy();
 		DistributionPlotType distPlotType = config.getDistPlotType();
 		String title = series.getName();
-		boolean singleFile = Config.getBoolean("GENERATION_BATCHES_AS_ZIP");
+		boolean zippedBatches = false;
+		if (Config.get("GENERATION_AS_ZIP").equals("batches"))
+			zippedBatches = true;
 		boolean plotDistributions = config.isPlotDistributions();
 		boolean plotNodeValues = config.isPlotNodeValueLists();
 
@@ -245,7 +250,7 @@ public class Plotting {
 		AggregatedBatch[] batchData = new AggregatedBatch[batches.length];
 		for (int i = 0; i < batches.length; i++) {
 			long timestamp = Dir.getTimestamp(batches[i]);
-			if (singleFile)
+			if (zippedBatches)
 				batchData[i] = AggregatedBatch.readFromSingleFile(tempDir,
 						timestamp, Dir.delimiter,
 						BatchReadMode.readOnlySingleValues);
