@@ -2,6 +2,8 @@ package dna.series.data;
 
 import java.io.IOException;
 
+import dna.io.ZipReader;
+import dna.io.ZipWriter;
 import dna.io.filesystem.Dir;
 import dna.series.aggdata.AggregatedBatch.BatchReadMode;
 import dna.series.lists.BatchDataList;
@@ -45,6 +47,16 @@ public class RunData {
 		for (BatchData d : this.batches.getList()) {
 			d.write(Dir.getBatchDataDir(dir, d.getTimestamp()));
 		}
+	}
+
+	/** Reads the whole run from a single zip file. **/
+	public static RunData readFromSingleFile(String fsDir, String dir, int run,
+			BatchReadMode batchReadMode) throws IOException {
+		ZipReader.readFileSystem = ZipWriter.createRunFileSystem(fsDir, run);
+		RunData tempRunData = read(dir, run, batchReadMode);
+		ZipReader.readFileSystem.close();
+		ZipReader.readFileSystem = null;
+		return tempRunData;
 	}
 
 	public static RunData read(String dir, int run, BatchReadMode batchReadMode)
