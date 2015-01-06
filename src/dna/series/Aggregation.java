@@ -3,6 +3,8 @@ package dna.series;
 import java.io.IOException;
 import java.util.ArrayList;
 
+import dna.io.ZipReader;
+import dna.io.ZipWriter;
 import dna.io.filesystem.Dir;
 import dna.series.aggdata.AggregatedBatch;
 import dna.series.aggdata.AggregatedBinnedDistribution;
@@ -62,11 +64,11 @@ public class Aggregation {
 		ArrayList<RunData> rdList = new ArrayList<RunData>();
 
 		// check all RunData-Objects for compatibility
-//		for (int i = 0; i < rdList.size() - 1; i++) {
-//			if (!RunData.isSameType(seriesData.getRun(i),
-//					seriesData.getRun(i + 1)))
-//				throw new AggregationException("RunDatas not of the same type!");
-//		}
+		// for (int i = 0; i < rdList.size() - 1; i++) {
+		// if (!RunData.isSameType(seriesData.getRun(i),
+		// seriesData.getRun(i + 1)))
+		// throw new AggregationException("RunDatas not of the same type!");
+		// }
 
 		for (int i = from; i < to + 1; i++) {
 			try {
@@ -114,11 +116,17 @@ public class Aggregation {
 		}
 		Log.info("aggregating data for " + runInfo);
 
-		boolean singleFile = Config.getBoolean("GENERATION_BATCHES_AS_ZIP");
-
 		// treat single run as special case
 		if (runs.size() == 1)
 			return aggregateRun(dir, runs.get(0));
+
+		// zipped flags
+		boolean zippedRuns = false;
+		boolean zippedBatches = false;
+		if (Config.get("GENERATION_AS_ZIP").equals("runs"))
+			zippedRuns = true;
+		if (Config.get("GENERATION_AS_ZIP").equals("batches"))
+			zippedBatches = true;
 
 		long maxTimestamp = 0;
 		int maxAmountBatches = 0;
@@ -158,20 +166,32 @@ public class Aggregation {
 
 			// iterate over runs and read batches
 			for (int i = 0; i < runs.size(); i++) {
+				ZipReader.readFileSystem = ZipWriter.createRunFileSystem(dir,
+						runs.get(i).getRun());
 				try {
-					if (singleFile) {
+					if (zippedBatches) {
 						batches.add(BatchData.readBatchValuesFromSingleFile(
 								Dir.getRunDataDir(dir, i), timestamp,
 								Dir.delimiter, structure));
 					} else {
-						batches.add(BatchData.readBatchValues(
-								Dir.getBatchDataDir(dir, i, timestamp),
+						String tempDir;
+						if (zippedRuns)
+							tempDir = Dir.getBatchDataDir(Dir.delimiter,
+									timestamp);
+						else
+							tempDir = Dir.getBatchDataDir(dir, i, timestamp);
+						batches.add(BatchData.readBatchValues(tempDir,
 								timestamp, structure));
 					}
 				} catch (Exception e) {
+					e.printStackTrace();
 					if (nmode)
 						batches.add(new BatchData(-1));
 				}
+
+				// close read fs
+				ZipReader.readFileSystem.close();
+				ZipReader.readFileSystem = null;
 			}
 
 			// aggregate
@@ -187,7 +207,7 @@ public class Aggregation {
 					aGeneralRuntimes, aMetricRuntimes, aMetrics);
 
 			// write batch
-			if (singleFile)
+			if (zippedBatches)
 				tempBatch.writeSingleFile(aggdir, timestamp, Dir.delimiter);
 			else
 				tempBatch.write(Dir.getBatchDataDir(aggdir, timestamp));
@@ -826,7 +846,17 @@ public class Aggregation {
 		AggregatedBatch[] aBatches = new AggregatedBatch[batchesAmount];
 		AggregatedBatch tempBatch;
 
-		boolean singleFile = Config.getBoolean("GENERATION_BATCHES_AS_ZIP");
+		// zipped flags
+		boolean zippedRuns = false;
+		boolean zippedBatches = false;
+		if (Config.get("GENERATION_AS_ZIP").equals("runs"))
+			zippedRuns = true;
+		if (Config.get("GENERATION_AS_ZIP").equals("batches"))
+			zippedBatches = true;
+
+		if (zippedRuns)
+			ZipReader.readFileSystem = ZipWriter.createRunFileSystem(dir,
+					run.getRun());
 
 		int gcCounter = 1;
 
@@ -841,14 +871,17 @@ public class Aggregation {
 			Log.info("\tBatch: " + timestamp + " (memory: " + mem + ")");
 
 			// read batch
-			if (singleFile) {
+			if (zippedBatches) {
 				b = BatchData.readBatchValuesFromSingleFile(
 						Dir.getRunDataDir(dir, run.getRun()), timestamp,
 						Dir.delimiter, structure);
 			} else {
-				b = BatchData.readBatchValues(
-						Dir.getBatchDataDir(dir, run.getRun(), timestamp),
-						timestamp, structure);
+				String tempDir;
+				if (zippedRuns)
+					tempDir = Dir.getBatchDataDir(Dir.delimiter, timestamp);
+				else
+					tempDir = Dir.getBatchDataDir(dir, run.getRun(), timestamp);
+				b = BatchData.readBatchValues(tempDir, timestamp, structure);
 			}
 
 			// aggregate
@@ -864,7 +897,7 @@ public class Aggregation {
 					aGeneralRuntimes, aMetricRuntimes, aMetrics);
 
 			// write batch
-			if (singleFile)
+			if (zippedBatches)
 				tempBatch.writeSingleFile(aggdir, timestamp, Dir.delimiter);
 			else
 				tempBatch.write(Dir.getBatchDataDir(aggdir, timestamp));
@@ -880,6 +913,12 @@ public class Aggregation {
 				System.gc();
 				gcCounter++;
 			}
+		}
+
+		// close filesystem
+		if (zippedRuns) {
+			ZipReader.readFileSystem.close();
+			ZipReader.readFileSystem = null;
 		}
 
 		// return

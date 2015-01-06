@@ -63,10 +63,13 @@ public class RunData {
 			throws NumberFormatException, IOException {
 		String[] batches = Dir.getBatches(dir);
 		RunData runData = new RunData(run, batches.length);
-		boolean singleFile = Config.getBoolean("GENERATION_BATCHES_AS_ZIP");
+
+		boolean zippedBatches = false;
+		if (Config.get("GENERATION_AS_ZIP").equals("batches"))
+			zippedBatches = true;
 
 		for (String batch : batches) {
-			if (singleFile)
+			if (zippedBatches)
 				runData.getBatches().add(
 						BatchData.readFromSingleFile(dir,
 								Dir.getTimestamp(batch), Dir.delimiter,
