@@ -799,7 +799,12 @@ public class DB {
 		}
 		return outputDirection;
 	}
-	
+	/**
+	 * liefert alle Einfahrtswege, die mit dem übergebenen Ausfahrtsweg verbunden sind
+	 * @param outputOSM, OSM-ID des Weges
+	 * @param outputCrossroad, ID der Kreuzung, zu der der Weg gehört
+	 * @return
+	 */
 	public List<InputWay> getConnectedInputWays(int outputOSM, int outputCrossroad) {
 		List<InputWay> connections = new ArrayList<>();
 		try {
