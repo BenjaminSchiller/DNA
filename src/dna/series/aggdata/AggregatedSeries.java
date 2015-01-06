@@ -57,11 +57,13 @@ public class AggregatedSeries {
 			String[] batches, BatchReadMode batchReadMode) throws IOException {
 		String tempDir = Dir.getAggregationDataDir(dir);
 		AggregatedBatch[] aggBatches = new AggregatedBatch[batches.length];
-		boolean singleFile = Config.getBoolean("GENERATION_BATCHES_AS_ZIP");
+		boolean zippedBatches = false;
+		if (Config.get("GENERATION_AS_ZIP").equals("batches"))
+			zippedBatches = true;
 
 		for (int i = 0; i < batches.length; i++) {
 			long timestamp = Dir.getTimestamp(batches[i]);
-			if (singleFile)
+			if (zippedBatches)
 				aggBatches[i] = AggregatedBatch.readFromSingleFile(tempDir,
 						timestamp, Dir.delimiter, batchReadMode);
 			else
