@@ -1317,6 +1317,14 @@ public class Plotting {
 								Dir.getBatchDataDir(tempDir, timestamp),
 								timestamp, BatchReadMode.readOnlySingleValues);
 				} catch (FileNotFoundException e) {
+					if (zippedBatches) {
+						String remDir = tempDir
+								+ Config.get("PREFIX_BATCHDATA_DIR")
+								+ timestamp + Config.get("SUFFIX_ZIP_FILE");
+						Log.debug("removing unnecessary zipfile: " + remDir);
+						Files.delete(new File(remDir));
+					}
+
 					batchData[j] = null;
 				}
 			}
