@@ -6,11 +6,11 @@ import java.nio.file.DirectoryStream;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 
 import dna.io.ZipReader;
 import dna.io.filter.PrefixFilenameFilter;
 import dna.metrics.IMetric;
-import dna.metrics.IMetric.MetricType;
 import dna.util.Config;
 import dna.util.Log;
 
@@ -77,21 +77,45 @@ public class Dir {
 				+ timestamp + Dir.delimiter;
 	}
 
-	public static String[] getBatches(String dir) {
-		String[] names = (new File(dir)).list(new PrefixFilenameFilter(Config
-				.get("PREFIX_BATCHDATA_DIR")));
-		int[] timestamps = new int[names.length];
-		for (int i = 0; i < names.length; i++) {
-			timestamps[i] = Integer.parseInt((names[i].replace(
-					Config.get("PREFIX_BATCHDATA_DIR"), "")).replace(
-					Config.get("SUFFIX_ZIP_FILE"), ""));
-		}
-		Arrays.sort(timestamps);
-		for (int i = 0; i < timestamps.length; i++) {
-			names[i] = Config.get("PREFIX_BATCHDATA_DIR") + timestamps[i];
-		}
-		return names;
+	public static String[] getBatches(String dir) throws IOException {
+		if (ZipReader.readFileSystem != null) {
+			Path p = ZipReader.readFileSystem.getPath(dir);
+			ArrayList<String> fileList = new ArrayList<String>();
+			try (DirectoryStream<Path> directoryStream = java.nio.file.Files
+					.newDirectoryStream(p)) {
+				for (Path file : directoryStream) {
+					if ((file.getFileName().toString()).startsWith(Config
+							.get("PREFIX_BATCHDATA_DIR"))) {
+						fileList.add(file
+								.getFileName()
+								.toString()
+								.substring(
+										0,
+										file.getFileName().toString().length() - 1));
+					}
+				}
+			}
 
+			// reverse list
+			Collections.reverse(fileList);
+
+			// return
+			return (String[]) fileList.toArray(new String[0]);
+		} else {
+			String[] names = (new File(dir)).list(new PrefixFilenameFilter(
+					Config.get("PREFIX_BATCHDATA_DIR")));
+			int[] timestamps = new int[names.length];
+			for (int i = 0; i < names.length; i++) {
+				timestamps[i] = Integer.parseInt((names[i].replace(
+						Config.get("PREFIX_BATCHDATA_DIR"), "")).replace(
+						Config.get("SUFFIX_ZIP_FILE"), ""));
+			}
+			Arrays.sort(timestamps);
+			for (int i = 0; i < timestamps.length; i++) {
+				names[i] = Config.get("PREFIX_BATCHDATA_DIR") + timestamps[i];
+			}
+			return names;
+		}
 	}
 
 	public static long getTimestamp(String batchFolderName) {
@@ -100,7 +124,8 @@ public class Dir {
 	}
 
 	public static String[] getBatchesFromTo(String dir, long timestampFrom,
-			long timestampTo, long stepSize, boolean intervalByIndex) {
+			long timestampTo, long stepSize, boolean intervalByIndex)
+			throws IOException {
 		// read batches from dir
 		String[] tempBatches = Dir.getBatches(dir);
 
