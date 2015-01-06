@@ -28,7 +28,7 @@ public class ZipWriter extends Writer {
 
 	private FileSystem zipFile;
 	public static FileSystem writeFileSystem;
-	
+
 	private static FileSystem getFileSystem(URI uri, Map<String, ?> env)
 			throws IOException {
 		FileSystem fs;
@@ -142,10 +142,10 @@ public class ZipWriter extends Writer {
 	}
 
 	/** Creates a zip filesystem for a run in the specified directory. **/
-	public static FileSystem createRunFileSystem(String fsDir, int run)
-			throws IOException {
+	public static FileSystem createRunFileSystem(String fsDir, String suffix,
+			int run) throws IOException {
 		return createFileSystem(fsDir,
-				dna.io.filesystem.Files.getRunFilename(run));
+				dna.io.filesystem.Files.getRunFilename(run) + suffix);
 	}
 
 	/** Creates a zip filesystem for a specified directory and filename. **/
