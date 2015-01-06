@@ -115,7 +115,7 @@ public class TrafficCrossroadBatchGenerator extends BatchGenerator{
 						nodeHistory.get(index).add(weightOfDay);
 					}
 					else{
-						CrossroadWeightList weightList = new CrossroadWeightList(weightOfDay.crossroadID,weightOfDay.crossroadName,weightOfDay.getThreshold());
+						CrossroadWeightList weightList = new CrossroadWeightList(weightOfDay.crossroadID,weightOfDay.getCrossroadName(),weightOfDay.getThreshold());
 						weightList.add(weightOfDay);
 						nodeHistory.put(index, weightList);
 					}

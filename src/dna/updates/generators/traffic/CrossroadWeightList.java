@@ -24,7 +24,7 @@ public class CrossroadWeightList {
 	}
 	
 	public boolean add(CrossroadWeight crw){
-		if(crw.crossroadID != crossroadID || !crw.crossroadName.equals(crossroadName) )
+		if(crw.crossroadID != crossroadID || !crw.getCrossroadName().equals(crossroadName) )
 			return false;
 		else{
 			if(sum==null){

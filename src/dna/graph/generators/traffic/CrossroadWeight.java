@@ -6,55 +6,100 @@ import java.util.Map;
 
 public class CrossroadWeight {
 	public int crossroadID;
-	public String crossroadName;
+	private String crossroadName;
 	public HashMap<Integer,double[]> inputWayWeights;
-	public HashMap<Integer,double[]> inputWayMaxWeights;
-	public double maxCount;
-	public double maxLoad;
+	private HashMap<Integer,double[]> inputWayMaxWeights;
+	private double maxCount;
+	private double maxLoad;
 	private double threshold;
 	private int timestamp;
 	
 	public CrossroadWeight(int crossroadID,String crossroadName, double treshold){
 		this.crossroadID = crossroadID;
 		this.crossroadName = crossroadName;
-		inputWayWeights = new HashMap<>();
-		inputWayMaxWeights = new HashMap<>();
+		this.inputWayWeights = new HashMap<>();
+		this.inputWayMaxWeights = new HashMap<>();
 		this.threshold = treshold;
 		this.timestamp=0;
 	}
-	
+	/**
+	 * liefert den Schwellwert für die Überlastung
+	 * @return
+	 */
 	public double getThreshold(){
 		return threshold;
 	}
-	
+	/**
+	 * liefert den Namen der Kreuzung im Format "A ..."
+	 * @return
+	 */
+	public String getCrossroadName(){
+		return crossroadName;
+	}
+	/**
+	 * fügt Gewichte zu einem Einfahrtsweg hinzu
+	 * @param osmWayID, OSM-ID des Einfahrtsweges
+	 * @param weights, Gewichte des Einfahrtsweges
+	 */
 	public void addWeightWay(int osmWayID, double[] weights) {
 		inputWayWeights.put(osmWayID, weights);
 	}
-	
+	/**
+	 * fügt die maximalen Gewichte des Einfahrtsweges hinzu
+	 * @param osmWayID - OSM-ID des Einfahrtsweges
+	 * @param maxWeights
+	 */
 	public void setMaxWeightWay(int osmWayID, double[] maxWeights) {
 		inputWayMaxWeights.put(osmWayID, maxWeights);
 	}
 	
+	/**
+	 * liefert die maximalen Gewichte des Einfahrtsweges
+	 * @param osmWayID, OSM-ID des Einfahrtsweges
+	 * @return
+	 */
 	public double[] getMaxWeightWay(int osmWayID) {
 		return inputWayMaxWeights.get(osmWayID);
 	}
 	
+	/**
+	 * setzt den Zeitstempel, für den das letzte Gewicht vorliegt
+	 * @param timestamp
+	 */
 	public void setTimestamp(int timestamp){
 		this.timestamp = timestamp;
 	}
 	
+	/**
+	 * liefert den Zeitstempel, für den das letzte Gewicht vorliegt
+	 * @return
+	 */
 	public int getTimestamp(){
 		return timestamp;
 	}
 	
+	/**
+	 * setzt die maximalen Gewichte für die gesamte Kreuzung
+	 * @param maxWeights
+	 */
 	public void setMaxWeight(double[] maxWeights) {
 		this.maxCount=maxWeights[0];
 		this.maxLoad=maxWeights[1];
 	}
+	
+	/**
+	 * liefert die maximalen Werte für die gesamte Kreuzung
+	 * @return
+	 */
 	public double[] getMaxWeight() {
 		return new double[] {maxCount,maxLoad};
 	}
 	
+	/**
+	 * verteilt das Knotengewicht gleichmäßig auf die Einfahrtswege, wird bei der Simulation verwendet
+	 * @param count
+	 * @param load
+	 */
 	public void resetInputWayWeight(double count, double load){
 		double numOfInputWays = inputWayWeights.keySet().size();
 		double count_value = count/numOfInputWays;
@@ -113,7 +158,11 @@ public class CrossroadWeight {
 		return inputWayWeights;
 	}
 	
-	
+	/**
+	 * addiert die übergebenen Gewichte auf die Gewichte der Einfahrtswege
+	 * @param wayWeights
+	 * @return
+	 */
 	public boolean addWeights(HashMap<Integer,double[]> wayWeights){
 		for (Integer keys : wayWeights.keySet()) {
 			if(!inputWayWeights.containsKey(keys))
@@ -130,6 +179,10 @@ public class CrossroadWeight {
 		return true;
 	}
 	
+	/**
+	 * bildet den Durchschnitt der aufsummierten Gewichte
+	 * @param divisor, Anzahl der Batches/Tage über die aggregiert wurde
+	 */
 	public void divWays(int divisor){
 		if(divisor>0){
 			for (Map.Entry<Integer, double[]> entry : inputWayWeights.entrySet()) {

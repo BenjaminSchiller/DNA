@@ -60,20 +60,22 @@ public class DB {
 	private HashMap<Integer, HashMap<EdgeContainer, Edge>> disabledEdgesInputWay;
 	private boolean dummyMax;
 	private boolean backupWays = false;
-	private boolean improvedMax = false;
-
+	private boolean improvedMax = true;
+	private boolean newMaxValues = false;
 	
 	/**
-	 * Konstruktor für die Nutzung der Datenbank ohne 
-	 * @param stepSize
-	 * @param initTDateTime
-	 * @param days
-	 * @param timeRange
-	 * @param treshold
-	 * @param trafficUpdate
-	 * @param dummyMax
+	 * Konstruktur der Datenbank, die Login-Daten werden entweder aus einer Txt-Datei gelesen,
+	 * oder falls diese nicht vorhanden ist, aus den Parametern übernommen.
+	 * @param gds, Datenstruktur, welcher der Verwendung von DNA zugrunde liegt (für Knotentypen, Kantentypen ..)
+	 * @param initTDateTime, Startzeitpunkt für die Modi mit realen Daten
+	 * @param stepSize, Schrittweite für den kontinuerlichen Modus
+	 * @param daySelection, Boolean-Array mit 7 Einträgen für die Wochentage
+	 * @param timeRange, Intervalllänge für den Tages und Aggregationsmodus
+	 * @param treshold, Schwellwert für die Überlastungserkennung
+	 * @param trafficUpdate, statische Daten für den Simulationsmodus
+	 * @param dummyMax, Verwendung von synthetischen Max-Werten oder realen Max-Werten
 	 */
-	public DB(GraphDataStructure gds, DateTime initTDateTime, int stepSize, boolean[] days , int timeRange, double treshold,TrafficUpdate trafficUpdate,boolean dummyMax) {
+	public DB(GraphDataStructure gds, DateTime initTDateTime, int stepSize, boolean[] daySelection , int timeRange, double treshold,TrafficUpdate trafficUpdate,boolean dummyMax) {
 		try {
 			FileReader fr = new FileReader("db.txt");
 			BufferedReader br = new BufferedReader(fr);
@@ -126,7 +128,7 @@ public class DB {
 		this.gds = gds;
 		this.stepSize=stepSize;
 		this.initDateTime = initTDateTime;
-		this.days = days;
+		this.days = daySelection;
 		this.timeRange = timeRange;
 		this.maxValuesInputWays = new HashMap<>();
 		this.maxValuesCrossroad = new HashMap<>();
@@ -148,9 +150,14 @@ public class DB {
 		loadFromWays();
 		
 	}
-	
+	/**
+	 * schreibt das maximale Gewicht für eine Kreuzung in die Tabelle mw_MaxValues_Crossroad,
+	 * die Daten sind auf 1x Stepsize berechnet, ACHTUNG: Datenbankabfrage nicht mehr durchführbar, da zu viele Daten
+	 * @param crossroadID
+	 * @return
+	 */
 	public double[] writeMaximalWeightsCrossroad(int crossroadID) {
-		System.out.println("Prüfe ID " +crossroadID);
+		System.out.println("Schreibe reale Maximalwerte (Dauer 1x stepSize) für Kreuzung mit ID " +crossroadID);
 		if(crossroadID==43 || crossroadID == 44 || crossroadID == 63 || crossroadID == 99 || crossroadID == 147 || crossroadID == 93) {
 			return new double[]{0.0,0.0};
 		}
@@ -160,11 +167,12 @@ public class DB {
 		ResultSet rs;
 		String selectStmt = null;
 		try {
-			selectStmt = "SELECT * FROM (SELECT SUM(COUNT_VALUE) AS ANZAHL, SUM(LOAD_VALUE)/COUNT(LOAD_VALUE) as BELEGUNG, DATETIME,CROSSROAD_ID, CROSSROAD_NAME FROM (SELECT CROSSROAD_WEIGHT.*,mw_SensorConnection.FRONT_BACK,mw_SensorConnection.FROM_DIRECTION, mw_SensorConnection.TO_LEFT,mw_SensorConnection.TO_STRAIGHT,mw_SensorConnection.TO_RIGHT FROM (SELECT EVENT_ID,DATETIME,COUNT_VALUE, LOAD_VALUE,sensorName as SENSOR_NAME, sensorID as SENSOR_ID, SENSORS.CSVOFFSET, crossroadID as CROSSROAD_ID, crossroadName as CROSSROAD_NAME FROM (SELECT sensorID,sensorName, CSVOFFSET,crossroadID,crossroadName FROM (SELECT ID as SENSOR_ID, CSVOFFSET, REALNAME, CROSSROAD_ID FROM jee_crmodel_SensorDim S WHERE S.CROSSROAD_ID="+crossroadID+") SENSORS RIGHT JOIN (SELECT * FROM mw_SensorWays SW WHERE crossroadID = "+crossroadID+" AND wayID IS NOT NULL) SENSORS_MAPPED ON SENSORS.SENSOR_ID = SENSORS_MAPPED.sensorID) SENSORS LEFT JOIN (SELECT DATETIME,ID as EVENT_ID,cr_count as COUNT_VALUE, cr_load as LOAD_VALUE, RE.CSVOFFSET FROM jee_trafficlight_rawevents RE WHERE CROSSROAD = '"+crossroadName+"') EVENT_DATA on SENSORS.CSVOFFSET = EVENT_DATA.CSVOFFSET) CROSSROAD_WEIGHT JOIN mw_SensorConnection ON CROSSROAD_WEIGHT.SENSOR_ID = mw_SensorConnection.SENSOR_ID) RESULT WHERE FRONT_BACK = 0  GROUP BY DATETIME ORDER BY ANZAHL DESC LIMIT 1) GROUPED";
-			
+			String sensorsOfCrossroad = "SELECT ID AS SENSOR_ID, CSVOFFSET, REALNAME, CROSSROAD_ID FROM jee_crmodel_SensorDim S WHERE S.CROSSROAD_ID="+crossroadID;
+			String sensorWaysOfCrossroad = "SELECT * FROM mw_SensorWays SW WHERE crossroadID = "+crossroadID+" AND wayID IS NOT NULL";
+			String eventData = "SELECT DATETIME, ID AS EVENT_ID, cr_count AS COUNT_VALUE, cr_load AS LOAD_VALUE, RE.CSVOFFSET FROM jee_trafficlight_rawevents RE WHERE CROSSROAD = '"+crossroadName+"'";
+			String crossroadWeight = "SELECT EVENT_ID,DATETIME,COUNT_VALUE, LOAD_VALUE,sensorName as SENSOR_NAME, sensorID as SENSOR_ID, SENSORS.CSVOFFSET, crossroadID as CROSSROAD_ID, crossroadName as CROSSROAD_NAME FROM (SELECT sensorID,sensorName, CSVOFFSET,crossroadID,crossroadName FROM ("+sensorsOfCrossroad+") SENSORS RIGHT JOIN ("+sensorWaysOfCrossroad+") SENSORS_MAPPED ON SENSORS.SENSOR_ID = SENSORS_MAPPED.sensorID) SENSORS LEFT JOIN ("+eventData+") EVENT_DATA on SENSORS.CSVOFFSET = EVENT_DATA.CSVOFFSET";
+			selectStmt = "SELECT * FROM (SELECT SUM(COUNT_VALUE) AS ANZAHL, SUM(LOAD_VALUE)/COUNT(LOAD_VALUE) as BELEGUNG, DATETIME,CROSSROAD_ID, CROSSROAD_NAME FROM (SELECT CROSSROAD_WEIGHT.*,mw_SensorConnection.FRONT_BACK,mw_SensorConnection.FROM_DIRECTION, mw_SensorConnection.TO_LEFT,mw_SensorConnection.TO_STRAIGHT,mw_SensorConnection.TO_RIGHT FROM ("+crossroadWeight+") CROSSROAD_WEIGHT JOIN mw_SensorConnection ON CROSSROAD_WEIGHT.SENSOR_ID = mw_SensorConnection.SENSOR_ID) RESULT WHERE FRONT_BACK = 0  GROUP BY DATETIME ORDER BY ANZAHL DESC LIMIT 1) GROUPED";
 			// COUNT
-			if(crossroadID==1)
-				System.out.println(selectStmt);
 			Statement stmt = con.createStatement();
 			rs= stmt.executeQuery(selectStmt);
 			if(rs.first() && rs.getTime("DATETIME")!=null){
@@ -179,57 +187,53 @@ public class DB {
 				System.out.println(insertStmt);
 				insertStmt.executeUpdate();
 				count = rs.getDouble("ANZAHL");
-				//LOAD
-				//TODO: LOAD
-				/*
-				selectStmt = "SELECT * FROM (SELECT SUM(COUNT_VALUE) AS ANZAHL, SUM(LOAD_VALUE)/COUNT(LOAD_VALUE) as BELEGUNG, DATETIME,CROSSROAD_ID, CROSSROAD_NAME FROM (SELECT CROSSROAD_WEIGHT.*,mw_SensorConnection.FRONT_BACK,mw_SensorConnection.FROM_DIRECTION, mw_SensorConnection.TO_LEFT,mw_SensorConnection.TO_STRAIGHT,mw_SensorConnection.TO_RIGHT FROM (SELECT EVENT_ID,DATETIME,COUNT_VALUE, LOAD_VALUE,sensorName as SENSOR_NAME, sensorID as SENSOR_ID, SENSORS.CSVOFFSET, crossroadID as CROSSROAD_ID, crossroadName as CROSSROAD_NAME FROM (SELECT sensorID,sensorName, CSVOFFSET,crossroadID,crossroadName FROM (SELECT ID as SENSOR_ID, CSVOFFSET, REALNAME, CROSSROAD_ID FROM jee_crmodel_SensorDim S WHERE S.CROSSROAD_ID="+crossroadID+") SENSORS RIGHT JOIN (SELECT * FROM mw_SensorWays SW WHERE crossroadID = "+crossroadID+" AND wayID IS NOT NULL) SENSORS_MAPPED ON SENSORS.SENSOR_ID = SENSORS_MAPPED.sensorID) SENSORS LEFT JOIN (SELECT DATETIME,ID as EVENT_ID,cr_count as COUNT_VALUE, cr_load as LOAD_VALUE, RE.CSVOFFSET FROM jee_trafficlight_rawevents RE WHERE CROSSROAD = '"+crossroadName+"') EVENT_DATA on SENSORS.CSVOFFSET = EVENT_DATA.CSVOFFSET) CROSSROAD_WEIGHT JOIN mw_SensorConnection ON CROSSROAD_WEIGHT.SENSOR_ID = mw_SensorConnection.SENSOR_ID) RESULT WHERE FRONT_BACK = 0  GROUP BY DATETIME ORDER BY BELEGUNG DESC LIMIT 1) GROUPED";
-				// COUNT
-				
-				if(crossroadID==10)
-					System.out.println(selectStmt);
-				stmt = con.createStatement();
-				rs = null;
-				rs= stmt.executeQuery(selectStmt);
-				rs.first();
-				inserTableSQL = "REPLACE INTO mw_MaxValues_Crossroad VALUES (?,?,?,?,?,?,DEFAULT)";
-				insertStmt = con.prepareStatement(inserTableSQL);
-				System.out.println(rs.getInt("CROSSROAD_ID"));
-				insertStmt.setInt(1, rs.getInt("CROSSROAD_ID"));
-				insertStmt.setString(2, rs.getString("CROSSROAD_NAME"));
-				insertStmt.setInt(3, rs.getInt("ANZAHL"));
-				insertStmt.setInt(4, rs.getInt("BELEGUNG"));
-				insertStmt.setTimestamp(5, rs.getTimestamp("DATETIME"));
-				insertStmt.setInt(6, 1);
-				System.out.println(insertStmt);
-				insertStmt.executeUpdate();*/
-				return new double[]{count,0.0};
+				return new double[]{count,load};
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
-			System.out.println(crossroadID+"\t\t"+selectStmt);
+			System.out.println("SQLException bei " +crossroadID+"\t\t"+selectStmt);
 		}
 		return new double[]{0.0,0.0};
 	}
 	
+	/**
+	 * aktualisiert die maximalen Wert der Kreuzung, sofern dies nötig ist
+	 * - wird nur ausgeführt, wenn newMaxValues auf TRUE gesetzt ist 
+	 * @param crossroadID - ID der Kreuzung
+	 * @param count - neuer Count-Wert
+	 * @param load - neuer Load-Wert
+	 * @param time - Beginn der Aggregation
+	 * @param timeRange - Zeitintervall der Aggregation
+	 * @return
+	 */
 	public boolean setMaximalWeightsCrossroadImproved(int crossroadID, double count, double load, DateTime time, int timeRange){
 		String inserTableSQL = "UPDATE mw_MaxValues_CrossroadImproved SET COUNT_VALUE = ?, LOAD_VALUE = ?, DATETIME = ?,timeRange = ? WHERE CROSSROAD_ID ="+crossroadID+" AND COUNT_VALUE<"+count;
-		
 		try {
 			PreparedStatement insertStmt = con.prepareStatement(inserTableSQL);
 			insertStmt.setDouble(1,count);
 			insertStmt.setDouble(2, load);
 			insertStmt.setTimestamp(3, Timestamp.valueOf(toSql(time)));
 			insertStmt.setInt(4, timeRange*2);
-			insertStmt.execute();
+			if(newMaxValues)
+				insertStmt.execute();
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		return true;
 	}
+	
+	/**
+	 * Aktualisiert die maximalen Werte des Einfahrtsweges, sofern dies nötig ist 
+	 * - wird nur ausgeführt, wenn newMaxValues auf TRUE gesetzt ist 
+	 * @param inputWayID - globale ID des Einfahrtsweges
+	 * @param count - neuer Count-Wert
+	 * @param load - neuer Load-Wert
+	 * @param time Beginn der Aggregation
+	 * @param timeRange Zeitintervall der Aggregation
+	 * @return
+	 */
 	public boolean setMaximalWeightsInputWayImproved(int inputWayID, double count, double load, DateTime time, int timeRange){
-		if(true)
-			return true;
 		String inserTableSQL = "UPDATE mw_MaxValues_InputWaysImproved SET COUNT_VALUE = ?, LOAD_VALUE = ?, DATETIME = ?, timeRange = ? WHERE INPUT_WAY_ID ="+inputWayID+" AND COUNT_VALUE<"+count;
 		try {
 			PreparedStatement insertStmt = con.prepareStatement(inserTableSQL);
@@ -237,7 +241,8 @@ public class DB {
 			insertStmt.setDouble(2, load);
 			insertStmt.setTimestamp(3, Timestamp.valueOf(toSql(time)));
 			insertStmt.setInt(4, timeRange*2);
-			insertStmt.execute();
+			if(newMaxValues)
+				insertStmt.execute();
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -532,7 +537,7 @@ public class DB {
 		}
 	}
 	/**
-	 * schreibt Maximale Werte für die Einfahrtswege einer Kreuzung, die Werte orientieren sich dabei an den Maximalwerten der Kreuzung
+	 * schreibt maximale Werte für die Einfahrtswege einer Kreuzung, die Werte orientieren sich dabei an den Maximalwerten der Kreuzung
 	 */
 	public void writeMaximalWeightInputWayRandom() {
 		Random rand = new Random();
@@ -556,7 +561,7 @@ public class DB {
 	}
 	
 	/**
-	 * schreibt Maximale Werte für die realen Sensoren in die Datenbank, welche sich grob an den Werten für den passenden virtuellen Sensor orientieren
+	 * schreibt maximale Werte für die realen Sensoren in die Datenbank, welche sich grob an den Werten für den passenden virtuellen Sensor orientieren
 	 */
 	public void writeMaximalWeightSensorRandom() {
 		Random rand = new Random();
@@ -587,26 +592,24 @@ public class DB {
 	 */
 	public void getMaximalWeightCrossroad() {
 		try {
-			String selectStmt = "SELECT * FROM mw_MaxValues_Crossroad WHERE COUNT_OR_LOAD =0";
+			String selectStmt;
 			if(dummyMax)
 				selectStmt = "SELECT * FROM mw_MaxValues_Crossroad_Random";
-			if(improvedMax)
+			else
 				selectStmt = "SELECT * FROM mw_MaxValues_CrossroadImproved";
 			Statement stmt = con.createStatement();
 			ResultSet rs = stmt.executeQuery(selectStmt);
 			while(rs.next()){
-				if(improvedMax){
+				if(dummyMax)
+					maxValuesCrossroad.put(rs.getInt("CROSSROAD_ID"), new double[] {rs.getDouble("MAX_COUNT"),0});
+				else{
 					double maxCount = rs.getDouble("COUNT_VALUE");
 					if(maxCount <1)
 						maxCount = 1;
 					maxValuesCrossroad.put(rs.getInt("CROSSROAD_ID"), new double[] {maxCount,rs.getDouble("LOAD_VALUE")});
 
 				}
-				else if(!dummyMax)
-					maxValuesCrossroad.put(rs.getInt("CROSSROAD_ID"), new double[] {rs.getInt("COUNT"),0});
-				else{
-					maxValuesCrossroad.put(rs.getInt("CROSSROAD_ID"), new double[] {rs.getDouble("MAX_COUNT"),0});
-				}
+				
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
