@@ -60,6 +60,10 @@ public class PlotConfig {
 
 	public static String customPlotSuffixYTics = "_YTICS";
 
+	public static String customPlotSuffixXScaling = "_XSCALING";
+
+	public static String customPlotSuffixYScaling = "_YSCALING";
+
 	public static String customPlotSuffixDistType = "_TYPE";
 
 	public static String customPlotSuffixNvlOrder = "_ORDER";
@@ -108,6 +112,9 @@ public class PlotConfig {
 	public static String gnuplotDefaultKeyXRange = "GNUPLOT_XRANGE";
 	public static String gnuplotDefaultKeyYRange = "GNUPLOT_YRANGE";
 
+	public static String gnuplotDefaultXScaling = "GNUPLOT_XSCALING";
+	public static String gnuplotDefaultYScaling = "GNUPLOT_YSCALING";
+
 	public static String gnuplotDefaultKeyDistPlotType = "GNUPLOT_DEFAULT_DIST_PLOTTYPE";
 
 	public static String gnuplotDefaultKeyNodeValueListOrder = "GNUPLOT_DEFAULT_NVL_ORDER";
@@ -132,6 +139,8 @@ public class PlotConfig {
 	private String yRange;
 	private String xTics;
 	private String yTics;
+	private String xScaling;
+	private String yScaling;
 	private String plotAsCdf;
 	private String[] values;
 	private String[] domains;
@@ -146,10 +155,11 @@ public class PlotConfig {
 	private PlotConfig(String filename, String title, String key,
 			String xLabel, String yLabel, String logscale, String datetime,
 			double xOffset, double yOffset, String xRange, String yRange,
-			String xTics, String yTics, String plotAsCdf, String[] values,
-			String[] domains, PlotStyle style,
-			DistributionPlotType distPlotType, NodeValueListOrder order,
-			NodeValueListOrderBy orderBy, boolean plotAll, String generalDomain) {
+			String xTics, String yTics, String xScaling, String yScaling,
+			String plotAsCdf, String[] values, String[] domains,
+			PlotStyle style, DistributionPlotType distPlotType,
+			NodeValueListOrder order, NodeValueListOrderBy orderBy,
+			boolean plotAll, String generalDomain) {
 		this.filename = filename;
 		this.title = title;
 		this.key = key;
@@ -163,6 +173,8 @@ public class PlotConfig {
 		this.yRange = yRange;
 		this.xTics = xTics;
 		this.yTics = yTics;
+		this.xScaling = xScaling;
+		this.yScaling = yScaling;
 		this.plotAsCdf = plotAsCdf;
 		this.values = values;
 		this.domains = domains;
@@ -257,6 +269,14 @@ public class PlotConfig {
 
 	public String getyTics() {
 		return yTics;
+	}
+
+	public String getxScaling() {
+		return xScaling;
+	}
+
+	public String getyScaling() {
+		return yScaling;
 	}
 
 	public String getGeneralDomain() {
@@ -451,6 +471,8 @@ public class PlotConfig {
 			String yRange = Config.get(PlotConfig.gnuplotDefaultKeyYRange);
 			String xTics = null;
 			String yTics = null;
+			String xScaling = Config.get(PlotConfig.gnuplotDefaultXScaling);
+			String yScaling = Config.get(PlotConfig.gnuplotDefaultYScaling);
 			PlotStyle style = null;
 			DistributionPlotType distPlotType = Config
 					.getDistributionPlotType(PlotConfig.gnuplotDefaultKeyDistPlotType);
@@ -566,6 +588,14 @@ public class PlotConfig {
 				yTics = Config.get(prefix + s
 						+ PlotConfig.customPlotSuffixYTics);
 
+			// scalings
+			if (Config.get(prefix + s + PlotConfig.customPlotSuffixXScaling) != null)
+				xScaling = Config.get(prefix + s
+						+ PlotConfig.customPlotSuffixXScaling);
+			if (Config.get(prefix + s + PlotConfig.customPlotSuffixYScaling) != null)
+				yScaling = Config.get(prefix + s
+						+ PlotConfig.customPlotSuffixYScaling);
+
 			// as cdf
 			if (Config.get(prefix + s + PlotConfig.customPlotSuffixCdf) != null)
 				plotAsCdf = Config.get(prefix + s
@@ -605,8 +635,9 @@ public class PlotConfig {
 			// Craft PlotConfig and add to configs list
 			plotConfigs.add(new PlotConfig(filename, title, key, xLabel,
 					yLabel, logscale, datetime, xOffset, yOffset, xRange,
-					yRange, xTics, yTics, plotAsCdf, values, domains, style,
-					distPlotType, order, orderBy, plotAll, generalDomain));
+					yRange, xTics, yTics, xScaling, yScaling, plotAsCdf,
+					values, domains, style, distPlotType, order, orderBy,
+					plotAll, generalDomain));
 		}
 		return plotConfigs;
 	}

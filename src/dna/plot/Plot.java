@@ -1139,7 +1139,8 @@ public class Plot {
 						Config.getInt("GNUPLOT_LW"),
 						Config.getDouble("GNUPLOT_XOFFSET") * i,
 						Config.getDouble("GNUPLOT_YOFFSET") * i,
-						this.distPlotType);
+						Config.get("GNUPLOT_XSCALING"),
+						Config.get("GNUPLOT_YSCALING"), this.distPlotType);
 				line = line.replace("filledcurves", "filledcurves y1=0");
 				if (i == 0) {
 					line = "plot " + line;
@@ -1189,8 +1190,9 @@ public class Plot {
 				// get line
 				line = this.data[i].getEntry(i + 1,
 						Config.getInt("GNUPLOT_LW"), this.config.getxOffset()
-								* i, this.config.getyOffset() * i, type,
-						this.config.getStyle());
+								* i, this.config.getyOffset() * i,
+						this.config.getxScaling(), this.config.getyScaling(),
+						type, this.config.getStyle());
 				line = line.replace("filledcurves", "filledcurves y1=0");
 				if (i == 0) {
 					line = "plot " + line;

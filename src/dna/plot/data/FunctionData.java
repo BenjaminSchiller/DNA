@@ -18,25 +18,29 @@ public class FunctionData extends PlotData {
 	}
 
 	@Override
-	public String getEntry(int lt, int lw, double offsetX, double offsetY) {
-		return this.getEntry(lt, lw, offsetX, offsetY, this.style);
+	public String getEntry(int lt, int lw, double offsetX, double offsetY,
+			String scalingX, String scalingY) {
+		return this.getEntry(lt, lw, offsetX, offsetY, scalingX, scalingY,
+				this.style);
 	}
 
 	@Override
 	public String getEntry(int lt, int lw, double offsetX, double offsetY,
-			DistributionPlotType distPlotType) {
-		return this.getEntry(lt, lw, offsetX, offsetY);
+			String scalingX, String scalingY, DistributionPlotType distPlotType) {
+		return this.getEntry(lt, lw, offsetX, offsetY, scalingX, scalingY);
 	}
 
 	@Override
 	public String getEntry(int lt, int lw, double offsetX, double offsetY,
+			String scalingX, String scalingY,
 			DistributionPlotType distPlotType, PlotStyle style) {
-		return this.getEntry(lt, lw, offsetX, offsetY, style);
+		return this.getEntry(lt, lw, offsetX, offsetY, scalingX, scalingY,
+				style);
 	}
 
 	@Override
 	public String getEntry(int lt, int lw, double offsetX, double offsetY,
-			PlotStyle style) {
+			String scalingX, String scalingY, PlotStyle style) {
 		// plot style
 		PlotStyle styleTemp;
 		if (style == null)

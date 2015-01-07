@@ -17,25 +17,29 @@ public class VarianceData extends PlotData {
 	}
 
 	@Override
-	public String getEntry(int lt, int lw, double offsetX, double offsetY) {
-		return this.getEntry(lt, lw, offsetX, offsetY, this.style);
+	public String getEntry(int lt, int lw, double offsetX, double offsetY,
+			String scalingX, String scalingY) {
+		return this.getEntry(lt, lw, offsetX, offsetY, scalingX, scalingY,
+				this.style);
 	}
 
 	@Override
 	public String getEntry(int lt, int lw, double offsetX, double offsetY,
-			DistributionPlotType distPlotType) {
-		return this.getEntry(lt, lw, offsetX, offsetY);
+			String scalingX, String scalingY, DistributionPlotType distPlotType) {
+		return this.getEntry(lt, lw, offsetX, offsetY, scalingX, scalingY);
 	}
 
 	@Override
 	public String getEntry(int lt, int lw, double offsetX, double offsetY,
+			String scalingX, String scalingY,
 			DistributionPlotType distPlotType, PlotStyle style) {
-		return this.getEntry(lt, lw, offsetX, offsetY, style);
+		return this.getEntry(lt, lw, offsetX, offsetY, scalingX, scalingY,
+				style);
 	}
 
 	@Override
 	public String getEntry(int lt, int lw, double offsetX, double offsetY,
-			PlotStyle style) {
+			String scalingX, String scalingY, PlotStyle style) {
 		// plot style
 		PlotStyle styleTemp;
 		if (style == null)
@@ -50,6 +54,19 @@ public class VarianceData extends PlotData {
 		if (super.dataLocation.equals(PlotDataLocation.dataFile))
 			dataLoc = '"' + super.dataPath + '"';
 
+		// data point scaling
+		String xpoint = "$1 + ";
+		String ypoint = "$2 + ";
+		String yvarlow = "$2 - $7 + ";
+		String yvarhigh = "$2 + $8 + ";
+		if (!scalingX.equals("null"))
+			xpoint = scalingX.replace("x", "$1") + " + ";
+		if (!scalingY.equals("null")) {
+			ypoint = scalingY.replace("y", "$2") + " + ";
+			yvarlow = scalingY.replace("y", "$2 - $7") + " + ";
+			yvarhigh = scalingY.replace("y", "$2 + $8") + " + ";
+		}
+
 		// build stringbuffer
 		StringBuffer buff = new StringBuffer();
 		// 2 avg
@@ -61,9 +78,9 @@ public class VarianceData extends PlotData {
 		// 8 varUp
 		// 9 confLow
 		// 10 confUp
-		buff.append(dataLoc + " using ($1 + " + offsetX + "):($2 + " + offsetY
-				+ "):($2 - $7 + " + offsetY + "):($2 + $8 + " + offsetY
-				+ ") with " + styleTemp);
+		buff.append(dataLoc + " using (" + xpoint + offsetX + "):(" + ypoint
+				+ offsetY + "):(" + yvarlow + offsetY + "):(" + yvarhigh
+				+ offsetY + ") with " + styleTemp);
 		buff.append(" lt " + lt + " lw " + lw);
 		buff.append(title == null ? " notitle" : " title \"" + this.title
 				+ "\"");

@@ -1,6 +1,5 @@
 package dna.plot.data;
 
-
 /**
  * @author benni
  * 
@@ -18,7 +17,8 @@ public class ConfidenceData2 extends PlotData {
 	}
 
 	@Override
-	public String getEntry(int lt, int lw, double offsetX, double offsetY) {
+	public String getEntry(int lt, int lw, double offsetX, double offsetY,
+			String scalingX, String scalingY) {
 		StringBuffer buff = new StringBuffer();
 		// 2 avg
 		// 3 min
@@ -31,13 +31,33 @@ public class ConfidenceData2 extends PlotData {
 		// 10 confidence-up
 		// http://www.gnuplot.info/demo/candlesticks.html
 		// whisker plot: x box_min whisker_min whisker_high box_high
-		String x = "($1 + " + offsetX + ")";
-		String box_min = "($9 + " + offsetY + ")";
-		String whisker_min = "($3 + " + offsetY + ")";
-		String whisker_high = "($4 + " + offsetY + ")";
-		String box_high = "($10 + " + offsetY + ")";
-		String median = "($5 + " + offsetY + ")";
-		String average = "($2 + " + offsetY + ")";
+
+		// data point scaling
+		String xpoint = "$1 + ";
+		String y2 = "$2 + ";
+		String y9 = "$9 + ";
+		String y3 = "$3 + ";
+		String y4 = "$4 + ";
+		String y10 = "$10 + ";
+		String y5 = "$5 + ";
+		if (!scalingX.equals("null"))
+			xpoint = scalingX.replace("x", "$1") + " + ";
+		if (!scalingY.equals("null")) {
+			y2 = scalingY.replace("y", "$2") + " + ";
+			y9 = scalingY.replace("y", "$9") + " + ";
+			y3 = scalingY.replace("y", "$3") + " + ";
+			y4 = scalingY.replace("y", "$4") + " + ";
+			y10 = scalingY.replace("y", "$10") + " + ";
+			y5 = scalingY.replace("y", "$5") + " + ";
+		}
+
+		String x = "(" + xpoint + offsetX + ")";
+		String box_min = "(" + y9 + offsetY + ")";
+		String whisker_min = "(" + y3 + offsetY + ")";
+		String whisker_high = "(" + y4 + offsetY + ")";
+		String box_high = "(" + y10 + offsetY + ")";
+		String median = "(" + y5 + offsetY + ")";
+		String average = "(" + y2 + offsetY + ")";
 
 		// data location
 		String dataLoc = null;
@@ -53,30 +73,33 @@ public class ConfidenceData2 extends PlotData {
 		buff.append(title == null ? " notitle" : " title \"" + this.title
 				+ "\"");
 		buff.append(" whiskerbars, \\\n");
-//		buff.append(dataLoc + " using " + x + ":" + median + ":" + median + ":"
-//				+ median + ":" + median + " with candlesticks");
-//		buff.append(" lt " + lt + " lw " + lw + " notitle");
-//		buff.append(", \\\n");
-//		buff.append(dataLoc + " using " + x + ":" + average + " with lines");
-//		buff.append(" lt " + lt + " lw " + lw + " notitle");
+		// buff.append(dataLoc + " using " + x + ":" + median + ":" + median +
+		// ":"
+		// + median + ":" + median + " with candlesticks");
+		// buff.append(" lt " + lt + " lw " + lw + " notitle");
+		// buff.append(", \\\n");
+		// buff.append(dataLoc + " using " + x + ":" + average + " with lines");
+		// buff.append(" lt " + lt + " lw " + lw + " notitle");
 		return buff.toString();
 	}
 
 	@Override
 	public String getEntry(int lt, int lw, double offsetX, double offsetY,
-			DistributionPlotType distPlotType) {
-		return this.getEntry(lt, lw, offsetX, offsetY);
+			String scalingX, String scalingY, DistributionPlotType distPlotType) {
+		return this.getEntry(lt, lw, offsetX, offsetY, scalingX, scalingY);
 	}
 
 	@Override
 	public String getEntry(int lt, int lw, double offsetX, double offsetY,
+			String scalingX, String scalingY,
 			DistributionPlotType distPlotType, PlotStyle style) {
-		return this.getEntry(lt, lw, offsetX, offsetY, style);
+		return this.getEntry(lt, lw, offsetX, offsetY, scalingX, scalingY,
+				style);
 	}
 
 	@Override
 	public String getEntry(int lt, int lw, double offsetX, double offsetY,
-			PlotStyle style) {
-		return this.getEntry(lt, lw, offsetX, offsetY);
+			String scalingX, String scalingY, PlotStyle style) {
+		return this.getEntry(lt, lw, offsetX, offsetY, scalingX, scalingY);
 	}
 }
