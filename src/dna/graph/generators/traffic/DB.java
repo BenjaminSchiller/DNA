@@ -1267,59 +1267,32 @@ public class DB {
 		return new double[]{count,load,countNorm*100};
 	}
 
-		
-	
 	/**
-	 * liefert das Knotengewicht für einer der tatsächlichen Sensoren
-	 * @param to 
-	 * @param from 
-	 * @param sensorID
-	 * @param timeStamp
-	 * @return
-	 */
-	
-	// ALT
-	public double[] getSensorNodeWeight(int nodeID, int timestamp, DateTime from, DateTime to){
-		if(sensorModelNodes.containsKey(nodeID)){
-			SensorModelNode node = sensorModelNodes.get(nodeID);
-			if(node.getTimestep()==timestamp)
-				return node.getWeight();
-			else {	//Outdated Data	
-				if(node.isReal()){
-					getSensorWeights(from, to, timestamp);
-					return getSensorNodeWeight(nodeID, timestamp, from, to);
-				}
-				else{
-					double[] weight = (node.getInputWayID()>0)?getInputWayWeight(node.getInputWayID(), from, to):new double[]{-2,-2,-2};
-					node.setWeight(weight, timestamp);
-					return weight;
-				}
-			}
-		}
-		else{
-			System.out.println("Nicht drin " +nodeID);
-			return new double[]{0,0,0};
-		}
-	}
-	/**
-	 * Liefer TRUE, wenn es sich um einen realen Sensor handel, sonst FALSE
-	 * @param nodeID
+	 * Liefert TRUE, wenn es sich um einen realen Sensor handel, sonst FALSE
+	 * @param nodeID - globale KnotenID im Sensormodell
 	 * @return
 	 */
 	public boolean getSensorType(int nodeID){
 		return sensorModelNodes.get(nodeID).isReal();
 	}
+	
 	/**
 	 * liefert die Werte für alle tatsächlichen Sensoren
-	 * @param from
-	 * @param to
+	 * @param from - Startzeitpunkt der Aggregation
+	 * @param to - Endzeitpunkt der Aggreagtion
 	 * @return
 	 */
-	public double[] getSensorWeights(DateTime from, DateTime to,int timestemp){
+	public void getSensorWeights(DateTime from, DateTime to,int timestemp){
 		try {
 			Statement stmt = con.createStatement();
 			String statementString;
-			statementString = "SELECT NODE_ID,SUM(cr_count)/COUNT(cr_count) as ANZAHL, SUM(cr_load)/COUNT(cr_load) as BELEGUNG, SENSOR_ID,SENSOR_NAME,WAY_ID,CROSSROAD_ID,CROSSROAD_NAME,SENSOR_TYPE,CSVOFFSET FROM (SELECT NODE_ID,SENSOR_ID,SENSOR_NAME,WAY_ID,CROSSROAD_ID,CROSSROAD_NAME,SENSOR_TYPE,SENSORS.CSVOFFSET,cr_count,DATETIME,cr_load  FROM (SELECT NODES.*,CSVOFFSET FROM (SELECT * FROM mw_SensorGlobal SG WHERE SG.SENSOR_TYPE=0) NODES JOIN jee_crmodel_SensorDim SD ON NODES.SENSOR_ID = SD.ID) SENSORS LEFT JOIN (SELECT * FROM jee_trafficlight_rawevents RE WHERE DATETIME < '"+toSql(to)+"' AND DATETIME >= '"+toSql(from)+"') RE ON SENSORS.CSVOFFSET = RE.CSVOFFSET AND SENSORS.CROSSROAD_NAME = RE.CROSSROAD) RESULT GROUP BY NODE_ID ";
+			// Selection der betrachteten Sensordaten
+			String rawData = "SELECT * FROM jee_trafficlight_rawevents RE WHERE DATETIME < '"+toSql(to)+"' AND DATETIME >= '"+toSql(from)+"'";
+			// Selection der betrachteten Sensoren aus dem Modell
+			String realSensors = "SELECT * FROM mw_SensorGlobal SG WHERE SG.SENSOR_TYPE=0";
+			// Selection für die Berechnung des Gewichts
+			String endSelection = "NODE_ID,SUM(cr_count)/COUNT(cr_count) as ANZAHL, SUM(cr_load)/COUNT(cr_load) as BELEGUNG, SENSOR_ID,SENSOR_NAME,WAY_ID,CROSSROAD_ID,CROSSROAD_NAME,SENSOR_TYPE,CSVOFFSET";
+			statementString = "SELECT "+endSelection+" FROM (SELECT NODE_ID,SENSOR_ID,SENSOR_NAME,WAY_ID,CROSSROAD_ID,CROSSROAD_NAME,SENSOR_TYPE,SENSORS.CSVOFFSET,cr_count,DATETIME,cr_load  FROM (SELECT NODES.*,CSVOFFSET FROM ("+realSensors+") NODES JOIN jee_crmodel_SensorDim SD ON NODES.SENSOR_ID = SD.ID) SENSORS LEFT JOIN ("+rawData+") RE ON SENSORS.CSVOFFSET = RE.CSVOFFSET AND SENSORS.CROSSROAD_NAME = RE.CROSSROAD) RESULT GROUP BY NODE_ID ";
 			ResultSet rs = stmt.executeQuery(statementString);
 			while(rs.next()){
 				if(!rs.getBoolean("SENSOR_TYPE")){
@@ -1332,31 +1305,19 @@ public class DB {
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-		return new double[]{0,0,0};
 	}
 
-
+	/**
+	 * liefert die Verbindungen für das Sensorenmodell (Zwischen Virtuellen Sensoren zu realen Sensoren 
+	 * und von realen Sensoren zu virtuellen Sensoren )
+	 * @return
+	 */
 	public List<EdgeContainer> getSensorConnectionForDNA() {
 		List<EdgeContainer> edges = new ArrayList<>();
 		try {
 			Statement vStmt = con.createStatement();
 			String statementString;
-			/*
-			// Virtual Sensor -> Real Sensor
-			// alle Sensoren statementString = "SELECT VS.NODE_ID AS V_NODE_ID, VS.WAY_ID as V_WAY_ID, VS.CROSSROAD_ID as V_CROSSROAD, RS.NODE_ID as R_NODE_ID, RS.WAY_ID as R_WAY_ID, RS.CROSSROAD_ID as R_CROSSROAD_ID FROM (SELECT * FROM mw_SensorGlobal SG1 WHERE SENSOR_TYPE = 1) VS LEFT JOIN (SELECT * FROM mw_SensorGlobal WHERE SENSOR_TYPE = 0) RS ON VS.WAY_ID = RS.WAY_ID AND VS.CROSSROAD_ID = RS.CROSSROAD_ID WHERE RS.NODE_ID IS NOT NULL"; 
-			statementString = "SELECT VS.NODE_ID AS V_NODE_ID, VS.WAY_ID as V_WAY_ID, VS.CROSSROAD_ID as V_CROSSROAD, RS.NODE_ID as R_NODE_ID, RS.WAY_ID as R_WAY_ID, RS.CROSSROAD_ID as R_CROSSROAD_ID FROM (SELECT * FROM mw_SensorGlobal SG1 WHERE SENSOR_TYPE = 1) VS LEFT JOIN (SELECT REAL_SENSORS.* FROM (SELECT * FROM mw_SensorGlobal WHERE SENSOR_TYPE = 0) REAL_SENSORS JOIN (SELECT * FROM mw_SensorConnection WHERE FRONT_BACK = 0) FRONT_SENSORS ON REAL_SENSORS.SENSOR_ID = FRONT_SENSORS.SENSOR_ID) RS ON VS.WAY_ID = RS.WAY_ID AND VS.CROSSROAD_ID = RS.CROSSROAD_ID WHERE RS.NODE_ID IS NOT NULL";
-			ResultSet v2r = vStmt.executeQuery(statementString);
-			while(v2r.next() ) {
-				edges.add(new EdgeContainer(v2r.getInt("V_NODE_ID"), v2r.getInt("R_NODE_ID")));
-			}
 			
-			// Real Sensor -> Virtual Sensor
-			Statement rStmt = con.createStatement();
-			statementString = "SELECT DISTINCT R_NODE_ID,V_NODE_ID FROM (SELECT R_NODE.*,V_NODE.NODE_ID as V_NODE_ID FROM (SELECT FROM_NODE.*, TO_WAY,TO_CROSSROAD FROM (SELECT NODE_ID as R_NODE_ID,SENSOR_ID,SENSOR_NAME,WAY_ID as INNER_FROM_WAY,FROM_SENSOR.CROSSROAD_ID, FROM_SENSOR.CROSSROAD_NAME, FROM_SENSOR.DIRECTION as INNER_FROM_DIRECTION, TO_LEFT, OSMWAY_ID as INNER_TO_WAY,TO_WAY.DIRECTION as INNER_TO_DIRECTION FROM (SELECT NODE_ID,SC.SENSOR_ID,SC.SENSOR_NAME,SG.WAY_ID,SC.CROSSROAD_ID,SC.CROSSROAD_NAME,DIRECTION,TO_LEFT,TO_STRAIGHT,TO_RIGHT FROM (SELECT * FROM mw_SensorGlobal WHERE SENSOR_TYPE = 0) SG JOIN (SELECT * FROM mw_SensorConnection WHERE FRONT_BACK = 0) SC ON SG.SENSOR_ID = SC.SENSOR_ID) FROM_SENSOR JOIN (SELECT * FROM mw_CrossroadWays CRW WHERE TYPE = 1) TO_WAY ON FROM_SENSOR.TO_LEFT = TO_WAY.DIRECTION AND FROM_SENSOR.CROSSROAD_ID = TO_WAY.CROSSROAD_ID) FROM_NODE JOIN (SELECT * FROM mw_CrossroadConnection) CC ON FROM_NODE.CROSSROAD_ID = CC.FROM_CROSSROAD AND INNER_TO_WAY = CC.FROM_WAY) R_NODE JOIN (SELECT * FROM mw_SensorGlobal WHERE SENSOR_TYPE = 1) V_NODE ON R_NODE.TO_WAY = V_NODE.WAY_ID AND R_NODE.TO_CROSSROAD = V_NODE.CROSSROAD_ID) RESULT1 UNION SELECT DISTINCT R_NODE_ID, V_NODE_ID FROM (SELECT R_NODE.*, V_NODE.NODE_ID AS V_NODE_ID FROM (SELECT FROM_NODE.*, TO_WAY, TO_CROSSROAD FROM (SELECT NODE_ID AS R_NODE_ID, SENSOR_ID, SENSOR_NAME, WAY_ID AS INNER_FROM_WAY, FROM_SENSOR.CROSSROAD_ID, FROM_SENSOR.CROSSROAD_NAME, FROM_SENSOR.DIRECTION AS INNER_FROM_DIRECTION, TO_STRAIGHT, OSMWAY_ID AS INNER_TO_WAY, TO_WAY.DIRECTION AS INNER_TO_DIRECTION FROM (SELECT NODE_ID, SC.SENSOR_ID, SC.SENSOR_NAME, SG.WAY_ID, SC.CROSSROAD_ID, SC.CROSSROAD_NAME, DIRECTION, TO_LEFT, TO_STRAIGHT, TO_RIGHT FROM (SELECT * FROM mw_SensorGlobal WHERE SENSOR_TYPE = 0) SG JOIN (SELECT * FROM mw_SensorConnection WHERE FRONT_BACK = 0) SC ON SG.SENSOR_ID = SC.SENSOR_ID) FROM_SENSOR JOIN (SELECT * FROM mw_CrossroadWays CRW WHERE TYPE = 1) TO_WAY ON FROM_SENSOR.TO_STRAIGHT = TO_WAY.DIRECTION AND FROM_SENSOR.CROSSROAD_ID = TO_WAY.CROSSROAD_ID) FROM_NODE JOIN (SELECT * FROM mw_CrossroadConnection) CC ON FROM_NODE.CROSSROAD_ID = CC.FROM_CROSSROAD AND INNER_TO_WAY = CC.FROM_WAY) R_NODE JOIN (SELECT * FROM mw_SensorGlobal WHERE SENSOR_TYPE = 1) V_NODE ON R_NODE.TO_WAY = V_NODE.WAY_ID AND R_NODE.TO_CROSSROAD = V_NODE.CROSSROAD_ID) RESULT2 UNION SELECT DISTINCT R_NODE_ID, V_NODE_ID FROM (SELECT R_NODE.*, V_NODE.NODE_ID AS V_NODE_ID FROM (SELECT FROM_NODE.*, TO_WAY, TO_CROSSROAD FROM (SELECT NODE_ID AS R_NODE_ID, SENSOR_ID, SENSOR_NAME, WAY_ID AS INNER_FROM_WAY, FROM_SENSOR.CROSSROAD_ID, FROM_SENSOR.CROSSROAD_NAME, FROM_SENSOR.DIRECTION AS INNER_FROM_DIRECTION, TO_RIGHT, OSMWAY_ID AS INNER_TO_WAY, TO_WAY.DIRECTION AS INNER_TO_DIRECTION FROM (SELECT NODE_ID, SC.SENSOR_ID, SC.SENSOR_NAME, SG.WAY_ID, SC.CROSSROAD_ID, SC.CROSSROAD_NAME, DIRECTION, TO_LEFT, TO_STRAIGHT, TO_RIGHT FROM (SELECT * FROM mw_SensorGlobal WHERE SENSOR_TYPE = 0) SG JOIN (SELECT * FROM mw_SensorConnection WHERE FRONT_BACK = 0) SC ON SG.SENSOR_ID = SC.SENSOR_ID) FROM_SENSOR JOIN (SELECT * FROM mw_CrossroadWays CRW WHERE TYPE = 1) TO_WAY ON FROM_SENSOR.TO_RIGHT = TO_WAY.DIRECTION AND FROM_SENSOR.CROSSROAD_ID = TO_WAY.CROSSROAD_ID) FROM_NODE JOIN (SELECT * FROM mw_CrossroadConnection) CC ON FROM_NODE.CROSSROAD_ID = CC.FROM_CROSSROAD AND INNER_TO_WAY = CC.FROM_WAY) R_NODE JOIN (SELECT * FROM mw_SensorGlobal WHERE SENSOR_TYPE = 1) V_NODE ON R_NODE.TO_WAY = V_NODE.WAY_ID AND R_NODE.TO_CROSSROAD = V_NODE.CROSSROAD_ID) RESULT3";
-			ResultSet r2v = rStmt.executeQuery(statementString);
-			while(r2v.next() ) {
-				edges.add(new EdgeContainer(r2v.getInt("R_NODE_ID"), r2v.getInt("V_NODE_ID")));
-			}*/
 			statementString = "SELECT * FROM mw_SensorConnection_Global";
 			ResultSet sensor_con = vStmt.executeQuery(statementString);
 			while(sensor_con.next() ) {
@@ -1367,13 +1328,21 @@ public class DB {
 		}
 		return edges;
 	}
-
+	
+	/**
+	 * schreibt eine Verbindung zwischen realem Sensor und virtuellem Sensor in die Datenbank
+	 * @param s
+	 */
 	public void writeSensorConnection(Sensor s) {
 		try {
 			Statement stmt = con.createStatement();
 			String insertString;
 			for (InputWay connectedInputWay : s.connections.values()) {
-				insertString="INSERT IGNORE INTO mw_SensorGlobalConnection SELECT * FROM (SELECT NODE_ID as FROM_NODE_ID FROM mw_SensorGlobal WHERE mw_SensorGlobal.SENSOR_ID ='"+s.sensorID+"' AND CROSSROAD_ID = '"+s.crossroadID+"') A , (SELECT NODE_ID as TO_NODE_ID FROM mw_SensorGlobal SG WHERE SG.SENSOR_TYPE=1 AND SG.CROSSROAD_ID = '"+connectedInputWay.wayID+"' AND SG.WAY_ID = '"+connectedInputWay.crossroadID+"') B ";
+				// realer Sensor
+				String from = "SELECT NODE_ID as FROM_NODE_ID FROM mw_SensorGlobal WHERE mw_SensorGlobal.SENSOR_ID ='"+s.sensorID+"' AND CROSSROAD_ID = '"+s.crossroadID+"'";
+				// virtueller Sensor
+				String to = "SELECT NODE_ID as TO_NODE_ID FROM mw_SensorGlobal SG WHERE SG.SENSOR_TYPE=1 AND SG.CROSSROAD_ID = '"+connectedInputWay.wayID+"' AND SG.WAY_ID = '"+connectedInputWay.crossroadID+"'";
+				insertString="INSERT IGNORE INTO mw_SensorGlobalConnection SELECT * FROM ("+from+") A , ("+to+") B ";
 				stmt.executeUpdate(insertString);
 			}
 		} catch (SQLException e) {
@@ -1383,21 +1352,44 @@ public class DB {
 	}
 
 	
-	
+	/**
+	 * setzt die temporär deaktiveren Kanten für die Zwischenspeicherung
+	 * @param disabledEdges
+	 */
 	public void setDisabledEdges(HashMap<EdgeContainer,Edge> disabledEdges){
 		this.disabledEdges=disabledEdges;
 	}
+	/**
+	 * setzt die temporär deaktiveren Kanten für die Zwischenspeicherung für das Wegemodell
+	 * @param disabledEdges
+	 */
 	public void setDisabledEdgesInputWay(HashMap<Integer, HashMap<EdgeContainer,Edge>> disabledEdges){
 		this.disabledEdgesInputWay=disabledEdges;
 	}
+	
+	/**
+	 * liefert die temporär deaktiveren Kanten aus der Zwischenspeicherung
+	 * @return
+	 */
 	public HashMap<EdgeContainer,Edge> getDisabledEdges(){
 		return disabledEdges;
 	}
+	
+	/**
+	 * liefert die temporär deaktiveren Kanten aus der Zwischenspeicherung für das Wegemodell
+	 * @return
+	 */
 	public HashMap<Integer, HashMap<EdgeContainer, Edge>> getDisabledEdgesInputWay(){
 		return disabledEdgesInputWay;
 	}
 
 
+	/**
+	 * liefert das statische Gewicht im Wegemodell für die Initialisierung
+	 * @param index - Knotenindex
+	 * @param trafficUpdate - beinhaltet die statischen Daten
+	 * @return
+	 */
 	public double[] getInputWayWeightStaticInit(int index,TrafficUpdate trafficUpdate) {
 		double count = trafficUpdate.getInitCount();
 		double load = trafficUpdate.getInitLoad();
@@ -1405,6 +1397,13 @@ public class DB {
 		double countNorm =  savedMax> 0 ? Double.valueOf(count)/savedMax : 0;
 		return new double[]{count,load,countNorm*100};
 	}
+	
+	/**
+	 * liefert das statische Gewicht im Wegemodell für den Batch
+	 * @param index - Knotenindex
+	 * @param trafficUpdate - beinhaltet die statischen Daten
+	 * @return
+	 */
 	public double[] getInputWayWeightStaticBatch(int index,TrafficUpdate trafficUpdate) {
 		double count = (trafficUpdate.getSleepTillUpdate()*trafficUpdate.getInitCount()+trafficUpdate.getUpdateCount())/(trafficUpdate.getSleepTillUpdate()+1);
 		double load = (trafficUpdate.getSleepTillUpdate()*trafficUpdate.getInitLoad()+trafficUpdate.getUpdateLoad())/(trafficUpdate.getSleepTillUpdate()+1);
@@ -1412,6 +1411,13 @@ public class DB {
 		double countNorm =  savedMax> 0 ? count/savedMax : 0;
 		return new double[]{count,load,countNorm*100};
 	}
+	
+	/**
+	 * liefert das statische Gewicht im Sensormodell für die Initialisierung
+	 * @param index - Knotenindex
+	 * @param trafficUpdate - beinhaltet die statischen Daten
+	 * @return
+	 */
 	public double[] getSensorModelWeightStaticInit(int index,TrafficUpdate trafficUpdate) {
 		if(trafficUpdate.getModus()==0){
 			if(sensorModelNodes.containsKey(index)){
@@ -1438,6 +1444,13 @@ public class DB {
 			return new double[]{-1,-1,trafficUpdate.getInitUtilization()*100};
 		}
 	}
+	
+	/**
+	 * liefert das statische Gewicht im Sensormodell für den Batch
+	 * @param index - Knotenindex
+	 * @param trafficUpdate - beinhaltet die statischen Daten
+	 * @return
+	 */
 	public double[] getSensorModelWeightStaticBatch(int index,TrafficUpdate trafficUpdate) {
 		if(trafficUpdate.getModus()==0){
 			if(sensorModelNodes.containsKey(index)){
