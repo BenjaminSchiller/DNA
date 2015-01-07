@@ -1236,12 +1236,19 @@ public class DB {
 			int[] inputData = inputWays.get(inputWayID);
 			int crossroadID = inputData[1];
 			Statement stmt = con.createStatement();
-			if(backupWays)
-				statementString = "SELECT SUM(ANZAHL)/COUNT(ANZAHL),SUM(BELEGUNG)/COUNT(BELEGUNG) FROM (SELECT SUM(cr_count) as ANZAHL, SUM(cr_load)/COUNT(cr_load) as BELEGUNG, DATETIME FROM (SELECT SENSORS.*,DATETIME,cr_count,cr_load FROM (SELECT S1.*, CSVOFFSET FROM (SELECT ID as INPUTWAY_ID, IWG.wayID as OSMWAY_ID, IWG.crossroadID as CROSSROAD_ID, crossroadName as CROSSROAD_NAME, sensorID as SENSOR_ID, sensorName as SENSOR_NAME,IWG.direction as DIRECTION FROM (SELECT * FROM mw_InputWaysGlobal IWG WHERE IWG.ID ="+inputWayID+") IWG LEFT JOIN mw_SensorWays SW ON IWG.wayID = SW.wayID AND IWG.crossroadID= SW.crossroadID AND IWG.direction = SW.direction) S1 JOIN (SELECT * FROM jee_crmodel_SensorDim SENSOR_DIM WHERE CROSSROAD_ID ="+crossroadID+") S2 ON S1.SENSOR_ID = S2.ID) SENSORS LEFT JOIN (SELECT * FROM jee_trafficlight_rawevents RE WHERE DATETIME  < '"+toSql(to)+"' AND DATETIME>='"+toSql(from)+"') EVENTS_DAY ON SENSORS.CROSSROAD_NAME = EVENTS_DAY.CROSSROAD AND SENSORS.CSVOFFSET=EVENTS_DAY.CSVOFFSET) FINAL GROUP BY DATETIME) GROUPED";
-			else{
-				statementString = "SELECT SUM(ANZAHL)/COUNT(ANZAHL),SUM(BELEGUNG)/COUNT(BELEGUNG) FROM (SELECT SUM(cr_count) as ANZAHL, SUM(cr_load)/COUNT(cr_load) as BELEGUNG, DATETIME FROM (SELECT SENSORS.*,DATETIME,cr_count,cr_load FROM (SELECT S1.*, CSVOFFSET FROM (SELECT ID as INPUTWAY_ID, IWG.wayID as OSMWAY_ID, IWG.crossroadID as CROSSROAD_ID, crossroadName as CROSSROAD_NAME, sensorID as SENSOR_ID, sensorName as SENSOR_NAME FROM (SELECT * FROM mw_InputWaysGlobal_bak2 IWG WHERE IWG.ID ="+inputWayID+") IWG LEFT JOIN mw_SensorWays_bak SW ON IWG.wayID = SW.wayID AND IWG.crossroadID= SW.crossroadID) S1 JOIN (SELECT * FROM jee_crmodel_SensorDim SENSOR_DIM WHERE CROSSROAD_ID ="+crossroadID+") S2 ON S1.SENSOR_ID = S2.ID) SENSORS LEFT JOIN (SELECT * FROM jee_trafficlight_rawevents RE WHERE DATETIME  < '"+toSql(to)+"' AND DATETIME>='"+toSql(from)+"') EVENTS_DAY ON SENSORS.CROSSROAD_NAME = EVENTS_DAY.CROSSROAD AND SENSORS.CSVOFFSET=EVENTS_DAY.CSVOFFSET) FINAL GROUP BY DATETIME) GROUPED";
-				statementString = "SELECT SUM(ANZAHL)/COUNT(ANZAHL),SUM(BELEGUNG)/COUNT(BELEGUNG) FROM (SELECT SUM(cr_count) as ANZAHL, SUM(cr_load)/COUNT(cr_load) as BELEGUNG, DATETIME FROM (SELECT SENSORS.*,DATETIME,cr_count,cr_load FROM (SELECT FRONT_AND_BACK.* FROM (SELECT S1.*, CSVOFFSET FROM (SELECT ID AS INPUTWAY_ID, IWG.wayID AS OSMWAY_ID, IWG.crossroadID AS CROSSROAD_ID, crossroadName AS CROSSROAD_NAME, sensorID AS SENSOR_ID, sensorName AS SENSOR_NAME FROM (SELECT * FROM mw_InputWaysGlobal_bak2 IWG WHERE IWG.ID ='"+inputWayID+"') IWG LEFT JOIN mw_SensorWays_bak SW ON IWG.wayID = SW.wayID AND IWG.crossroadID= SW.crossroadID) S1 JOIN (SELECT * FROM jee_crmodel_SensorDim SENSOR_DIM WHERE CROSSROAD_ID ='"+crossroadID+"') S2 ON S1.SENSOR_ID = S2.ID) FRONT_AND_BACK JOIN (SELECT * FROM mw_SensorConnection_bak FR WHERE FR.FRONT_BACK = 0) ONLY_FRONT ON FRONT_AND_BACK.SENSOR_ID = ONLY_FRONT.SENSOR_ID) SENSORS LEFT JOIN (SELECT * FROM jee_trafficlight_rawevents RE WHERE DATETIME < '"+toSql(to)+"' AND DATETIME>='"+toSql(from)+"') EVENTS_DAY ON SENSORS.CROSSROAD_NAME = EVENTS_DAY.CROSSROAD AND SENSORS.CSVOFFSET=EVENTS_DAY.CSVOFFSET) FINAL GROUP BY DATETIME) GROUPED";
-			}
+			// Selection des Einfahrtsweges (neueste Tabelle)
+			String inputWay = "SELECT * FROM mw_InputWaysGlobal_bak2 IWG WHERE IWG.ID ='"+inputWayID+"'";
+			// Selection der Sensordaten für den vorgegebenen Zeitraum
+			String rawData = "SELECT * FROM jee_trafficlight_rawevents RE WHERE DATETIME < '"+toSql(to)+"' AND DATETIME>='"+toSql(from)+"'";
+			// Selection der für die Gewichtsberechnung relevanten Sensoren
+			String rawSensors = "SELECT * FROM jee_crmodel_SensorDim SENSOR_DIM WHERE CROSSROAD_ID ='"+crossroadID+"'";
+			// Selection der frontSensoren
+			String frontSensors = "SELECT * FROM mw_SensorConnection FR WHERE FR.FRONT_BACK = 0";
+			// Selection aller benätigten Sensoren
+			String sensors = "SELECT SENSORS.*,DATETIME,cr_count,cr_load FROM (SELECT FRONT_AND_BACK.* FROM (SELECT S1.*, CSVOFFSET FROM (SELECT ID AS INPUTWAY_ID, IWG.wayID AS OSMWAY_ID, IWG.crossroadID AS CROSSROAD_ID, crossroadName AS CROSSROAD_NAME, sensorID AS SENSOR_ID, sensorName AS SENSOR_NAME FROM ("+inputWay+") IWG LEFT JOIN mw_SensorWays_bak SW ON IWG.wayID = SW.wayID AND IWG.crossroadID= SW.crossroadID) S1 JOIN ("+rawSensors+") S2 ON S1.SENSOR_ID = S2.ID) FRONT_AND_BACK JOIN ("+frontSensors+") ONLY_FRONT ON FRONT_AND_BACK.SENSOR_ID = ONLY_FRONT.SENSOR_ID";
+			// Abfrage des Gewichts aus den zuvor selektierten Daten
+			statementString = "SELECT SUM(ANZAHL)/COUNT(ANZAHL),SUM(BELEGUNG)/COUNT(BELEGUNG) FROM (SELECT SUM(cr_count) as ANZAHL, SUM(cr_load)/COUNT(cr_load) as BELEGUNG, DATETIME FROM ("+sensors+") SENSORS LEFT JOIN ("+rawData+") EVENTS_DAY ON SENSORS.CROSSROAD_NAME = EVENTS_DAY.CROSSROAD AND SENSORS.CSVOFFSET=EVENTS_DAY.CSVOFFSET) FINAL GROUP BY DATETIME) GROUPED";
+			System.out.println(statementString);
 			ResultSet rs = stmt.executeQuery(statementString);
 			if(rs.first()){
 				count=rs.getDouble(1);
@@ -1255,8 +1262,8 @@ public class DB {
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-		double savedMax =  maxValuesInputWays.get(inputWayID)[0];
-		double countNorm =  savedMax> 0 ? count/savedMax : 0;
+		double savedMax =  maxValuesInputWays.get(inputWayID)[0]; // maxCount
+		double countNorm =  savedMax> 0 ? count/savedMax : 0; // keine Normierung wegen div0
 		return new double[]{count,load,countNorm*100};
 	}
 
