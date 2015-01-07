@@ -950,7 +950,7 @@ public class DB {
 	
 	/**
 	 * liest alle Knoten für das Kreuzungsmodell aus der Datenbank
-	 * @return Knotenliste mit Knoten des Kreuzungsmodells
+	 * @return Knotenliste mit Knoten des Kreuzungsmodells und den globalen KreuzungsID als Labels
 	 */
 	public List<INode> getCrossroadsForDNA() {		
 		List<INode> nodes = new ArrayList<INode>();
@@ -964,7 +964,7 @@ public class DB {
 			ResultSet rs = stmt.executeQuery(statementString);
 			
 			while(rs.next() ) {
-				int label = rs.getInt(1);	
+				int label = rs.getInt("CROSSROAD");	
 				current= gds.newNodeInstance(label);
 				nodes.add(current);
 			}
@@ -975,7 +975,11 @@ public class DB {
 		return nodes;
 	}
 	
-	
+	/**
+	 * schreibt die berechneten Verbindungen zwischen Einfahrtswegen in die Datenbank (mw_InputWayConnection)
+	 * @param connections - berechnete Verbindungen zwischen Einfahrtswegen
+	 * @return
+	 */
 	public int writeConnections(Set<InputWayConnection> connections) {
 		java.sql.PreparedStatement stmt;
 		try {
@@ -997,25 +1001,32 @@ public class DB {
 		return connections.size();
 	}
 	
-	
+	/**
+	 * erstellt das Modell einer Kreuzungs mit den internen Verbindungen zwischen Einfahrtswegen und Ausfahrtswegen
+	 * @param crossroadID - globale KreuzungsID
+	 * @return
+	 */
 	public Crossroad innerconnectionForCrossroad(int crossroadID){
 		HashMap<CardinalDirection, Integer> inputWays = getInputWays(crossroadID);
+		HashMap<CardinalDirection, Integer> outputWays = getOutputWays(crossroadID);
+		
 		if(inputWays.size()==0){
 			System.out.println("Keine Einfahrtswege");
 			return null;
 		}
+		
 		Crossroad crossroad = new Crossroad(crossroadID,this);
 		crossroad.setInputWays(inputWays);
-		HashMap<CardinalDirection, Integer> outPut = getOutputWays(crossroadID);
-		crossroad.setOutputWays(outPut);
-		HashMap<CardinalDirection, Integer> outputWays;
-	
+		crossroad.setOutputWays(outputWays);
+		
+		// Verbindung innerhalb der Kreuzung
+		HashMap<CardinalDirection, Integer> connectedOutputWays;
 		for (Map.Entry<CardinalDirection,Integer> way : inputWays.entrySet()) {
-			outputWays = getConnectedOutputWays(crossroadID, way.getValue(), way.getKey());
-			if(outputWays==null) {
+			connectedOutputWays = getConnectedOutputWays(crossroadID, way.getValue(), way.getKey());
+			if(connectedOutputWays==null) {
 				continue;
 			}
-			for (Map.Entry<CardinalDirection, Integer> outputWay : outputWays.entrySet()) {
+			for (Map.Entry<CardinalDirection, Integer> outputWay : connectedOutputWays.entrySet()) {
 				crossroad.setOutputWay(way.getKey(), outputWay.getKey());
 			}
 		}
@@ -1023,10 +1034,10 @@ public class DB {
 	}
 	
 	/**
-	 * liefert für einen InputWay alle OuputWays die innerhalb der Kreuzung zu erreichen sind
-	 * @param crossroadID
-	 * @param wayID
-	 * @param wayDirection
+	 * liefert für einen Einfahrtsweg alle Ausfahrtswege die innerhalb der Kreuzung zu erreichen sind
+	 * @param crossroadID - globale Kreuzungs-ID
+	 * @param wayID - OSMWay-ID
+	 * @param wayDirection - Direction des Einfahrtsweges
 	 * @return
 	 */
 	public HashMap<CardinalDirection, Integer> getConnectedOutputWays(int crossroadID, int wayID, CardinalDirection wayDirection) {
@@ -1034,8 +1045,10 @@ public class DB {
 		HashMap<CardinalDirection,Integer> outputWaysCrossroad = new HashMap<>();
 		HashMap<String, Integer> outputWaysSensor;
 		CardinalDirection cd;
+		
+		// Für alle Sensoren auf den Einfahrtsweg
 		for (Sensor sensor : sensors) {
-			outputWaysSensor = getOutputWays(sensor.sensorID, crossroadID);
+			outputWaysSensor = getOutputWays(sensor.sensorID, crossroadID); // Abbiegemöglichkeiten des Sensors
 			for (Map.Entry<String, Integer> integer : outputWaysSensor.entrySet()) {
 				cd = transposeDirection(wayDirection, integer.getKey());
 				if(!outputWaysCrossroad.containsKey(cd))
@@ -1046,10 +1059,10 @@ public class DB {
 	}
 	
 	/**
-	 * übersetzt InputWay-Direction und Richtung, in eine OutputWay-Direction
-	 * @param inDir
-	 * @param goDir
-	 * @return
+	 * übersetzt Himmelsrichtung und Abbiegemöglickeiten in neue Himmelsrichtung
+	 * @param inDir - eigende Himmelsrichtung
+	 * @param goDir - Abbiegerichtung
+	 * @return - ausgehende Himmelsrichtung
 	 */
 	public CardinalDirection transposeDirection (CardinalDirection inDir, String goDir) {
 		String[] directions = new String[]{"LEFT","STRAIGHT"};
@@ -1126,8 +1139,8 @@ public class DB {
 	}
 
 	/**
-	 * liefert die Knoten für das SensorModell
-	 * @return
+	 * liefert die Knoten für das SensorModell, speichert diese für weitere Abfragen in HashMap sensorModelNodes
+	 * @return Liste von Knoten mit NODE_ID als Label und Key in sensorModelNodes
 	 */
 	public List<INode> getSensorsForDNA() {
 		System.out.println("Erstelle den Graph ... ");
@@ -1138,54 +1151,32 @@ public class DB {
 			statementString = "SELECT SG.*, ID as INPUT_WAY_ID FROM (SELECT * FROM mw_SensorGlobal_bak) SG LEFT JOIN (SELECT * FROM mw_InputWaysGlobal) IWG ON SG.WAY_ID = IWG.wayID AND SG.CROSSROAD_ID = IWG.crossroadID"; 
 			ResultSet rs = stmt.executeQuery(statementString);
 			int label;
+			
 			while (rs.next()) {
 				label = rs.getInt("NODE_ID");
 				nodes.add(gds.newNodeInstance(label));
 				sensorModelNodes.put(label, new SensorModelNode(label, !rs.getBoolean("SENSOR_TYPE"),rs.getInt("INPUT_WAY_ID"),CardinalDirection.valueOf(rs.getString("DIRECTION"))));
 			}
-			/*double[] weight = null;
-			DateTime from = null;
-			DateTime to = null;
-			if(modus==0){
-				from = initDateTime;
-				to = initDateTime.plusMinutes(stepSize);
-			}
-			else if (modus == 1){
-				from = initDateTime.minusMinutes(timeRange);
-				to = initDateTime.plusMinutes(timeRange);
-			}
-			getSensorWeights(from, to,0);
-			while(rs.next() ) {
-				int label = rs.getInt("NODE_ID");
-				if(rs.getBoolean("SENSOR_TYPE")){
-					int id = getInputWay(rs.getInt("CROSSROAD_ID"),rs.getInt("WAY_ID"));
-					if(id>0){
-						weight = getInputWayWeight(id,initDateTime, initDateTime.plusMinutes(stepSize));
-					}
-					else {
-						weight = new double[]{-2,-2,-2};
-					}
-					sensorModelNodes.put(label, new SensorModelNode(label,false, weight, 0,id));
-				}
-				else {
-					weight = getSensorNodeWeight(label,0,from,to);	
-				}
-				current = gds.newNodeInstance(label);
-				currentWeighted = (current instanceof DirectedWeightedNode) ? (DirectedWeightedNode) current : null;
-				if(currentWeighted!=null) {
-					currentWeighted.setWeight(new Double3dWeight(weight[0],weight[1],weight[2]));
-					nodes.add(currentWeighted);
-				}
-			}*/
+		
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
 		return nodes;
 	}
 	
+	/**
+	 * liefert das Gewicht für einen Knoten mit Sensormodell
+	 * @param nodeID - globale KnotenID im Sensormodel (kann realer oder virtueller Sensor sein)
+	 * @param from - Startzeitpunkt der Aggregation
+	 * @param to - Endzeitpunkt der Aggregation
+	 * @param timestemp - Zeitstempel für den das Gewicht berechnet wird
+	 * @return
+	 */
 	public double[] getSensorModelWeight(int nodeID,DateTime from, DateTime to,int timestemp){
+		
 		if(sensorModelNodes.containsKey(nodeID)){
 			SensorModelNode sensorModelNode = sensorModelNodes.get(nodeID);
+			// Sensorknoten ist ein realer Sensor, Gewicht wurde bereits für alle realen Sensoren vorberechnet
 			if(sensorModelNode.isReal()){
 				if(sensorModelNode.getTimestep()==timestemp){
 					return sensorModelNode.getWeight();
@@ -1197,6 +1188,7 @@ public class DB {
 					return weight;
 				}
 			}
+			//Sensorknoten ist virtueller Sensor, Gewicht wird wie beim Wegemodell abgefragt und in SensorModelNode zwischengespeichert
 			else {
 				int inputWayID = sensorModelNode.getInputWayID();
 				if(inputWayID>0){
@@ -1204,7 +1196,8 @@ public class DB {
 					sensorModelNode.setWeight(weight, timestemp);
 					return weight;
 				}
-				return new double[]{0,0,0};
+				else
+					return new double[]{0,0,0};
 			}
 		}
 		else
@@ -1215,7 +1208,7 @@ public class DB {
 	 * liefert die Gewichte für den Einfahrtsweg
 	 * @param inputWayID
 	 * @param timestamp
-	 * @return Index 0: count/maxCount, Index 1: load
+	 * @return [0] = count, [1] = load, [2] = count/maxCount
 	 */
 	public double[] getInputWayWeight(int inputWayID, DateTime timestamp) {
 		return getInputWayWeight(inputWayID, timestamp, timestamp.plusMinutes(5));
@@ -1228,11 +1221,13 @@ public class DB {
 	 * @return Index 0: count/maxCount, Index 1: load
 	 */
 	public double[] getInputWayWeight(int inputWayID, DateTime from, DateTime to) {
+		//leeres Intervall auf Minimallänge setzen
 		if(from.equals(to)){
 			to = from.plusMinutes(1);
 		}
 		double count =0;
 		double load = 0;
+		// Nachladen von Maximalwerten
 		if(!maxValuesInputWays.containsKey(inputWayID)){
 			maxValuesInputWays.put(inputWayID, getMaximalWeightInputWay(inputWayID) );
 		}
