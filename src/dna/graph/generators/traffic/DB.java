@@ -23,14 +23,10 @@ import java.util.Set;
 
 import org.joda.time.DateTime;
 
-import sun.security.action.GetIntegerAction;
-import dna.graph.datastructures.DataStructure.ListType;
 import dna.graph.datastructures.GraphDataStructure;
 import dna.graph.edges.Edge;
-import dna.graph.nodes.DirectedWeightedNode;
 import dna.graph.nodes.INode;
 import dna.graph.nodes.Node;
-import dna.graph.weights.Double3dWeight;
 
 public class DB {
 	private static Connection con = null;
@@ -329,7 +325,7 @@ public class DB {
 			String sensors = "SELECT ID as SENSOR_ID, CSVOFFSET, REALNAME, CROSSROAD_ID FROM jee_crmodel_SensorDim S WHERE S.CROSSROAD_ID='"+crossroadID+"'"; 
 			// Wählt die Wege der Kreuzung aus, um die Sensoren darauf zu mappen
 			String sensorWays = "SELECT * FROM mw_SensorWays SW WHERE crossroadID ='"+crossroadID+"' AND wayID IS NOT NULL";
-			// Lädt die entsprechenden Sensordaten für die definierten Zeitraum
+			// Lädt die entsprechenden Sensordaten für den definierten Zeitraum
 			String eventData = "SELECT ID as EVENT_ID,cr_count as COUNT_VALUE, cr_load as LOAD_VALUE, RE.CSVOFFSET,DATETIME FROM jee_trafficlight_rawevents RE WHERE RE.DATETIME >= '"+toSql(from)+"'AND RE.DATETIME < '"+toSql(to)+"' AND CROSSROAD = '"+crossroadName+"'";
 			// Filtert aus den Sensordaten die Daten für die Sensoren raus
 			String crossroadWeight ="SELECT EVENT_ID,DATETIME,COUNT_VALUE, LOAD_VALUE,sensorName as SENSOR_NAME, sensorID as SENSOR_ID, SENSORS.CSVOFFSET, crossroadID as CROSSROAD_ID, crossroadName as CROSSROAD_NAME FROM (SELECT sensorID,sensorName, CSVOFFSET,crossroadID,crossroadName FROM ("+sensors+") SENSORS RIGHT JOIN ("+sensorWays+") SENSORS_MAPPED ON SENSORS.SENSOR_ID = SENSORS_MAPPED.sensorID) SENSORS LEFT JOIN ("+eventData+") EVENT_DATA on SENSORS.CSVOFFSET = EVENT_DATA.CSVOFFSET";
@@ -339,7 +335,6 @@ public class DB {
 			String selectStmt = "SELECT SUM(COUNT_VALUE)/COUNT(DISTINCT DATETIME) as ANZAHL, SUM(LOAD_VALUE)/COUNT(LOAD_VALUE) as BELEGUNG ,FROM_DIRECTION, OSMWAY_ID FROM ("+resultData+") RESULT LEFT JOIN (SELECT * FROM mw_CrossroadWays WHERE TYPE = '0')CRW on RESULT.FROM_DIRECTION = CRW.DIRECTION AND RESULT.CROSSROAD_ID = CRW.CROSSROAD_ID WHERE FRONT_BACK = 0 GROUP BY OSMWAY_ID"; 
 			Statement stmt = con.createStatement();
 			ResultSet rs = stmt.executeQuery(selectStmt);
-			System.out.println(selectStmt);
 			while (rs.next()) {
 				int wayID = rs.getInt("OSMWAY_ID");
 				double[] maxValue =  getMaximalWeightInputWayFromMap(wayID,crossroadID); //Index 0 = MaxCount, Index 1 = MaxLoad
@@ -349,7 +344,7 @@ public class DB {
 				crw.setMaxWeightWay(wayID, maxValue);
 				double count = rs.getDouble("ANZAHL");
 				double load = rs.getDouble("BELEGUNG");
-				setMaximalWeightsInputWayImproved(getInputWay(crossroadID, wayID), count, load, from, timeRange);
+				setMaximalWeightsInputWayImproved(getInputWay(crossroadID, wayID), count, load, from, timeRange); // aktualisiert den maximalen Count-Wert, sofern dies notwendig ist
 				crw.addWeightWay(wayID, new double[]{count,load,(count/maxValue[0])*100});
 				crw.setTimestamp(timestamp);
 				
@@ -455,55 +450,41 @@ public class DB {
 	 */
 	private double[] getMaximalWeightInputWay(int osmWayID, int crossroadRoad) {
 		try {
-			String selectStmt = null;
-			if(backupWays)
-				selectStmt = "SELECT IW.*,wayID  FROM mw_MaxValues_InputWays IW LEFT JOIN mw_InputWaysGlobal_bak2 IWG ON IW.INPUT_WAY_ID = IWG.ID WHERE wayID ='"+osmWayID+"' AND CROSSROAD_ID ="+crossroadRoad;
-			else
-				selectStmt = "SELECT IW.*,wayID  FROM mw_MaxValues_InputWays IW LEFT JOIN mw_InputWaysGlobal IWG ON IW.INPUT_WAY_ID = IWG.ID WHERE wayID ='"+osmWayID+"' AND CROSSROAD_ID ="+crossroadRoad;
+			String selectStmt = "SELECT IW.*,wayID  FROM mw_MaxValues_InputWays IW LEFT JOIN mw_InputWaysGlobal IWG ON IW.INPUT_WAY_ID = IWG.ID WHERE wayID ='"+osmWayID+"' AND CROSSROAD_ID ="+crossroadRoad;
 			Statement stmt = con.createStatement();
-			if(crossroadRoad == 8)
-				System.out.println(selectStmt);
 			ResultSet rs = stmt.executeQuery(selectStmt);
 			if(rs.first()){
 				return new double[]{rs.getDouble("COUNT"),0};
 			}
 			else
-				return new double[]{100,100}; //TODO mit osmWay und Crossroad
+				return new double[]{Double.MAX_VALUE,Double.MAX_VALUE};
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
 		return null;
 	}
+	
 	/**
 	 * liest die Maximalwerte der Einfahrtswege aus der, durch die Parameter festgelegten Tabelle
+	 * Random-Werte wenn dummyMax=true, sonst die MaximalWerte für den Berufsverkehr
 	 */
 	public void getMaximalWeightInputWay() {
 		try {
 			String selectStmt = null;
-			if(improvedMax){
+			if(dummyMax)
+				selectStmt = "SELECT * FROM mw_MaxValues_InputWay_Random JOIN mw_InputWaysGlobal on INPUTWAY_ID = ID";
+			else
 				selectStmt = "SELECT * FROM mw_MaxValues_InputWaysImproved WHERE COUNT_OR_LOAD =0";
-			}
-			else if(!dummyMax)
-				selectStmt = "SELECT * FROM mw_MaxValues_InputWays WHERE COUNT_OR_LOAD =0";
-			else {
-				if(backupWays)
-					selectStmt = "SELECT * FROM mw_MaxValues_InputWay_Random JOIN mw_InputWaysGlobal_bak2 on INPUTWAY_ID = ID";
-				else
-					selectStmt = "SELECT * FROM mw_MaxValues_InputWay_Random JOIN mw_InputWaysGlobal on INPUTWAY_ID = ID";
-			}
 			Statement stmt = con.createStatement();
 			ResultSet rs = stmt.executeQuery(selectStmt);
 			while(rs.next()) {
-				if(improvedMax){
+				if(dummyMax)
+					maxValuesInputWays.put(rs.getInt("INPUTWAY_ID"), new double[]{rs.getDouble("MAX_COUNT"),0});
+				else{
 					double maxCount = rs.getDouble("COUNT_VALUE");
 					if(maxCount <1)
 						maxCount= 1;
 					maxValuesInputWays.put(rs.getInt(1), new double[]{maxCount,rs.getDouble("LOAD_VALUE")});
-				}
-				else if(!dummyMax)
-					maxValuesInputWays.put(rs.getInt(1), new double[]{rs.getDouble("COUNT"),rs.getDouble("LOAD")});
-				else{
-					maxValuesInputWays.put(rs.getInt("INPUTWAY_ID"), new double[]{rs.getDouble("MAX_COUNT"),0});
 				}
 			}
 		} catch (SQLException e) {
@@ -562,7 +543,8 @@ public class DB {
 	
 	
 	/**
-	 * liest die maximalen Werte, welche für einen Kreuzung gemessen wurden - über dummyMax können einmalig zufällig generierte Werte geladen werden
+	 * liest die Maximalwerte der Kreuzungen aus der, durch die Parameter festgelegten Tabelle
+	 * Random-Werte wenn dummyMax=true, sonst die MaximalWerte für den Berufsverkehr
 	 */
 	public void getMaximalWeightCrossroad() {
 		try {
@@ -573,6 +555,7 @@ public class DB {
 				selectStmt = "SELECT * FROM mw_MaxValues_CrossroadImproved";
 			Statement stmt = con.createStatement();
 			ResultSet rs = stmt.executeQuery(selectStmt);
+			
 			while(rs.next()){
 				if(dummyMax)
 					maxValuesCrossroad.put(rs.getInt("CROSSROAD_ID"), new double[] {rs.getDouble("MAX_COUNT"),0});
@@ -581,19 +564,17 @@ public class DB {
 					if(maxCount <1)
 						maxCount = 1;
 					maxValuesCrossroad.put(rs.getInt("CROSSROAD_ID"), new double[] {maxCount,rs.getDouble("LOAD_VALUE")});
-
-				}
-				
+				}	
 			}
+			
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
 	}
 	/**
-	 * liest die maximalen Werte, welche für einen realen Sensor gemessen wurden - über dummyMax können einmalig zufällig generierte Werte geladen werden
+	 *  liest die hinterlegten, zufälligen Maximalwerte für die Sensoren
 	 */
 	public void getMaximalWeightSensor() {
-		Random rand = new Random();
 		try {
 			String selectStmt = "SELECT * FROM mw_MaxValues_Sensor_Random";
 			Statement stmt = con.createStatement();
@@ -607,15 +588,32 @@ public class DB {
 	}
 	
 	
-
+	/**
+	 * Aufruf von setID für Startknoten
+	 * @param id - globale ID des Einfahrtsweges
+	 * @return
+	 */
 	public int setFromID(int id) {
 		return setID(id,"from");
 	}
+	
+	/**
+	 * Aufruf von setID für Zielknoten
+	 * @param id - globale ID des Einfahrtsweges
+	 * @return
+	 */
 	public int setToID(int id) {
 		return setID(id,"to");
 	}
+	
+	/**
+	 * Hilfsmethode zur Generierung der Tabelle mw_InputWayConnection aus den Informationen der innerern Kreuzungsverbindung
+	 * Einfahrtsweg -> Ausfahrtswege -> Einfahrtswege
+	 * @param id globale ID des Einfahrtsweges
+	 * @param mode from = Startknoten, to = Zielknoten
+	 * @return
+	 */
 	public int setID(int id,String mode) {
-		
 		try {
 			String selectStmtString = "SELECT * FROM mw_InputWaysGlobal WHERE ID = "+ id;
 			Statement selectStmt = con.createStatement();
@@ -631,17 +629,21 @@ public class DB {
 		return  0;
 	}
 	
-	
+	/**
+	 * liest die Verbindungen der Kreuzungsknoten aus der Tabelle mw_CrossroadConnection
+	 * @return Liste von EdgeContainern mit (from,to)
+	 */
 	public List<EdgeContainer> getCrossroadConnection() {
 		List<EdgeContainer> connection = new ArrayList<>();
 		try {
 			String selectStmt = "SELECT FROM_CROSSROAD,TO_CROSSROAD FROM mw_CrossroadConnection";
 			Statement stmt = con.createStatement();
 			ResultSet rs = stmt.executeQuery(selectStmt);
-			int c = 0;
+			
 			while(rs.next()) {
 				connection.add(new EdgeContainer(rs.getInt(1),rs.getInt(2)));
 			}
+			
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -649,12 +651,46 @@ public class DB {
 	}
 	
 	/**
-	 * alle InputWays einer Kreuzung
-	 * @param crossroadID
+	 * liest alle Einfahrtswege einer Kreuzung
+	 * @param crossroadID - globale KreuzungsID
 	 * @return
 	 */
 	public HashMap<CardinalDirection, Integer> getInputWays(int crossroadID) {
 		return getWays(crossroadID,0);
+	}
+	
+	/**
+	 * liest alle Ausfahrtswege einer Kreuzung
+	 * @param crossroadID - globale KreuzungsID
+	 * @return
+	 */
+	public HashMap<CardinalDirection, Integer> getOutputWays(int crossroadID) {
+		return getWays(crossroadID,1);
+	}
+	
+	/**
+	 * liest alle Wege des übergebenen Typs aus der Tabelle mw_CrossroadWays
+	 * @param crossroadID - globale KreuzungsID
+	 * @param type - 0 = Einfahrtsweg, 1 = Ausfahrtsweg
+	 * @return HashMap mit Himmelsrichtung als Key, und OSM-ID des Weges als Value
+	 */
+	private HashMap<CardinalDirection, Integer> getWays(int crossroadID, int type) {
+		HashMap<CardinalDirection, Integer> ways = new HashMap<>();
+		
+		try {
+			Statement stmt = con.createStatement();
+			String statementString = "SELECT DIRECTION , OSMWAY_ID FROM mw_CrossroadWays WHERE CROSSROAD_ID ="+crossroadID+" AND TYPE =" +type;
+			ResultSet rs = stmt.executeQuery(statementString);
+			
+			while(rs.next()){
+				ways.put(CardinalDirection.valueOf(rs.getString("DIRECTION")), rs.getInt("OSMWAY_ID"));
+			}
+			
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		
+		return ways;
 	}
 
 	/**
@@ -667,13 +703,19 @@ public class DB {
 		return inputWayConnections.get(new InputWay(toWay, crossroadID));
 		
 	}
+	
+	/**
+	 * erstellt eine Hashmap mit Einfahrtswegen als Keys und Listen von Einfahrtswegen als Values
+	 */
 	public void loadFromWays(){
 		InputWay key;
 		int[] value;
+		
 		try {
 			String selectStmt = "SELECT FROM_CROSSROAD,FROM_WAY,TO_CROSSROAD,TO_WAY FROM mw_CrossroadConnection";
 			Statement stmt = con.createStatement();
 			ResultSet rs = stmt.executeQuery(selectStmt);
+			
 			while(rs.next()) {
 				key = new InputWay(rs.getInt("TO_WAY"),rs.getInt("TO_CROSSROAD"));
 				value = new int[]{rs.getInt("FROM_CROSSROAD"), rs.getInt("FROM_WAY")};
@@ -682,35 +724,19 @@ public class DB {
 				}
 				this.inputWayConnections.get(key).add(value);
 			}
+			
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
 	}
 	
-	/**
-	 * alle Output-Ways einer Kreuzung
-	 * @param crossroadID
-	 * @return
-	 */
-	public HashMap<CardinalDirection, Integer> getOutputWays(int crossroadID) {
-		return getWays(crossroadID,1);
-	}
 
-	private HashMap<CardinalDirection, Integer> getWays(int crossroadID, int type) {
-		HashMap<CardinalDirection, Integer> ways = new HashMap<>();
-		try {
-			Statement stmt = con.createStatement();
-			String statementString = "SELECT DIRECTION , OSMWAY_ID FROM mw_CrossroadWays WHERE CROSSROAD_ID ="+crossroadID+" AND TYPE =" +type;
-			ResultSet rs = stmt.executeQuery(statementString);
-			while(rs.next()){
-				ways.put(CardinalDirection.valueOf(rs.getString("DIRECTION")), rs.getInt("OSMWAY_ID"));
-			}
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-		return ways;
-	}
-	
+	/**
+	 * liest alle Sensoren, die auf den überlieferten Weg gemappt wurden
+	 * @param crossroadID - globale KreuzungsID
+	 * @param wayID - OSM-ID für den Weg
+	 * @return, Liste von Sensoren
+	 */
 	public List<Sensor> getSensors(int crossroadID, int wayID) {
 		List<Sensor> sensors = new ArrayList<>();
 		try {
@@ -725,6 +751,12 @@ public class DB {
 		}
 		return sensors;
 	}
+	
+	/**
+	 * liefert ein Sensor-Objekt für einen modellierten Sensor
+	 * @param sensorID - globale Sensor-ID
+	 * @return
+	 */
 	public Sensor getSensor(int sensorID) {
 		Set<CardinalDirection> directions= new HashSet<>();
 		try {
@@ -732,6 +764,8 @@ public class DB {
 			String statementString = "SELECT * FROM mw_SensorConnection WHERE SENSOR_ID = "+sensorID;
 			ResultSet rs = stmt.executeQuery(statementString);
 			if(rs.first()) {
+				
+				// Abfrage der Abbiegemöglichkeiten
 				if(rs.getString("TO_LEFT")!=null) {
 					directions.add(CardinalDirection.valueOf(rs.getString("TO_LEFT")));
 				}
@@ -741,7 +775,8 @@ public class DB {
 				if(rs.getString("TO_RIGHT")!=null) {
 					directions.add(CardinalDirection.valueOf(rs.getString("TO_RIGHT")));
 				}
-				return new Sensor(rs.getInt(1), rs.getString(2), rs.getInt(3), rs.getString(4), rs.getInt(5),directions);
+				
+				return new Sensor(rs.getInt("sensorID"), rs.getString("sensorName"), rs.getInt("crossroadID"), rs.getString("crossroadName"), rs.getInt("wayID"),directions);
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -750,10 +785,10 @@ public class DB {
 	}
 	
 	/**
-	 * liefert alle Outputways zu einem Sensor
-	 * @param sensorID
-	 * @param crossroadID
-	 * @return
+	 * liefert alle Ausfahrtswege, die durch die Abbiegemöglichkeiten des Sensors erreichbar sind
+	 * @param sensorID - globale SensorID
+	 * @param crossroadID - globale KreuzungsID
+	 * @return HashMap mit Abbiegerichtung und WegeID
 	 */
 	public HashMap<String, Integer> getOutputWays(int sensorID, int crossroadID) {
 		HashMap<String, Integer> outputDirection = new HashMap<>();
@@ -762,20 +797,24 @@ public class DB {
 			Statement stmt = con.createStatement();
 			int wayID;
 			String statementString;
+			
+			// Eine Abfrage je Abbiegemöglichkeit
 			for (int i = 0; i < direction.length; i++) {
 				statementString = "SELECT SC.CROSSROAD_ID, SC.CROSSROAD_NAME, SC.SENSOR_ID, SC.SENSOR_NAME, SC.FROM_WAY, SC.FROM_DIRECTION, SC.TO_LEFT, CW.OSMWAY_ID as OUT_WAYID, CW.DIRECTION as OUTDIRECTION FROM mw_SensorConnection SC , mw_CrossroadWays CW WHERE SC.CROSSROAD_ID = CW.CROSSROAD_ID AND SC.TO_"+direction[i]+" = CW.DIRECTION AND SC.CROSSROAD_ID = "+crossroadID+" AND CW.TYPE=1 AND SC.SENSOR_ID = "+sensorID;
 				ResultSet rs = stmt.executeQuery(statementString);
 				while(rs.next() ) {
 					wayID = rs.getInt("OUT_WAYID");
 					if( wayID >0 )
-					outputDirection.put(direction[i],wayID);
+						outputDirection.put(direction[i],wayID);
 				}
 			}
+			
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
 		return outputDirection;
 	}
+	
 	/**
 	 * liefert alle Einfahrtswege, die mit dem übergebenen Ausfahrtsweg verbunden sind
 	 * @param outputOSM, OSM-ID des Weges
@@ -802,40 +841,57 @@ public class DB {
 		return connections;
 	}
 	
+	/**
+	 * liefert die IDs aller Sensoren, die auf dieser Kreuzung modelliert wurden
+	 * @param crossroadID - globale ID der Kreuzung
+	 * @return
+	 */
 	public List<Integer> getSensorIDs(int crossroadID) {
 		List<Integer> sensors = new ArrayList<>();
 		try {
 			Statement stmt = con.createStatement();
 			ResultSet rs = stmt.executeQuery("SELECT SENSOR_ID FROM mw_SensorConnection WHERE CROSSROAD_ID = "+crossroadID);
+			
 			while(rs.next()) {
 				sensors.add(rs.getInt(1));
 			}
+			
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
 		return sensors;
 	}
 	
-	public void getInputWays(){
+	/**
+	 * liest die Einfahrtswege für die interne Speicherung in der DB-Klasse
+	 * erstellt daraus HashMaps für den schnellen Zugriff anhand der ID
+	 */
+	private void getInputWays(){
 		try {
 			Statement stmt = con.createStatement();
-			String statementString;
-			if(backupWays)
-				statementString = "SELECT * FROM mw_InputWaysGlobal_bak2"; 
-			else
-				statementString = "SELECT * FROM mw_InputWaysGlobal";
+			String statementString = "SELECT * FROM mw_InputWaysGlobal";
 			ResultSet rs = stmt.executeQuery(statementString);
+			
 			while(rs.next() ) {
+				
 				int wayID = rs.getInt("wayID");
 				int crossroadID = rs.getInt("crossroadID");
+				
 				inputWays.put(rs.getInt("ID"), new int[]{wayID,crossroadID});
 				inputWaysToID.put(new InputWay(wayID,crossroadID), rs.getInt(1));
 			}
+			
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
 	}
-	//TODO: Datenbankabfrage ändern
+	
+	/**
+	 * liest die globale ID des Einfahrtsweges aus der HashMap
+	 * @param crossroadID - globale KreuzungsID
+	 * @param wayID - OSMWay-ID
+	 * @return globale ID des Einfahrtsweges
+	 */
 	public int getInputWay(int crossroadID,int wayID){
 		InputWay key = new InputWay(wayID, crossroadID);
 		if(inputWaysToID.containsKey(key)){
@@ -845,46 +901,46 @@ public class DB {
 			return -1;
 		}
 	}
+	
 	/**
-	 * 
+	 * liefert eine Liste von Knoten, die alle Einfahrtsweges für den Wegegraph beinhaltet
 	 * @return
 	 */
 	public List<INode> getInputWaysForDNA() {
 		List<INode> nodes = new ArrayList<INode>();
 		Node currentWeighted = null;
+		
 		try {
 			Statement stmt = con.createStatement();
-			String statementString;
-			if(backupWays)
-				statementString = "SELECT * FROM mw_InputWaysGlobal_bak2"; 
-			else
-				statementString = "SELECT * FROM mw_InputWaysGlobal"; 
+			String statementString = "SELECT * FROM mw_InputWaysGlobal"; 
 			ResultSet rs = stmt.executeQuery(statementString);
-			int i = 0;
+
 			while(rs.next() ) {
-				currentWeighted = gds.newNodeInstance(rs.getInt(1));
+				currentWeighted = gds.newNodeInstance(rs.getInt("ID"));
 				nodes.add(currentWeighted);
 			}
+			
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
 		return nodes;
 	}
 	
+	/**
+	 * liest die Verbindungen zwischen den Knoten im WegeGraph aus der Tabelle mw_InputWayConnection_bak3 (neuste Version)
+	 * @return
+	 */
 	public List<EdgeContainer> getInputWaysConnectionForDNA() {
 		List<EdgeContainer> edges = new ArrayList<>();
 		try {
 			Statement stmt = con.createStatement();
-			String statementString;
-			if(backupWays)
-				statementString = "SELECT fromID , toID FROM mw_InputWayConnection_bak"; 
-			else
-				statementString = "SELECT fromID , toID FROM mw_InputWayConnection_bak3"; 
+			String statementString = "SELECT fromID , toID FROM mw_InputWayConnection_bak3"; 
 			ResultSet rs = stmt.executeQuery(statementString);
-			int i = 0;
+			
 			while(rs.next() ) {
 				edges.add(new EdgeContainer(rs.getInt("fromID"),rs.getInt("toID")));
 			}
+			
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -894,14 +950,9 @@ public class DB {
 	
 	/**
 	 * liest alle Knoten für das Kreuzungsmodell aus der Datenbank
-	 * @return Knotenliste
+	 * @return Knotenliste mit Knoten des Kreuzungsmodells
 	 */
-	public List<INode> getCrossroadsForDNA() {
-		if(timeRange==0){
-			System.out.println("TimeRange ist 0, setze auf 1");
-			timeRange=1;
-		}
-		
+	public List<INode> getCrossroadsForDNA() {		
 		List<INode> nodes = new ArrayList<INode>();
 		Node current = null;
 		
