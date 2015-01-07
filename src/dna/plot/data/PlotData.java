@@ -109,16 +109,18 @@ public abstract class PlotData {
 	}
 
 	public abstract String getEntry(int lt, int lw, double offsetX,
-			double offsetY);
+			double offsetY, String scalingX, String scalingY);
 
 	public abstract String getEntry(int lt, int lw, double offsetX,
-			double offsetY, PlotStyle style);
+			double offsetY, String scalingX, String scalingY, PlotStyle style);
 
 	public abstract String getEntry(int lt, int lw, double offsetX,
-			double offsetY, DistributionPlotType distPotType);
+			double offsetY, String scalingX, String scalingY,
+			DistributionPlotType distPotType);
 
 	public abstract String getEntry(int lt, int lw, double offsetX,
-			double offsetY, DistributionPlotType distPotType, PlotStyle style);
+			double offsetY, String scalingX, String scalingY,
+			DistributionPlotType distPotType, PlotStyle style);
 
 	public static PlotData get(String data, String domain, PlotStyle style,
 			String title, PlotType type) {

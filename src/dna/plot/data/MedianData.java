@@ -17,20 +17,23 @@ public class MedianData extends PlotData {
 	}
 
 	@Override
-	public String getEntry(int lt, int lw, double offsetX, double offsetY) {
-		return this.getEntry(lt, lw, offsetX, offsetY, style);
+	public String getEntry(int lt, int lw, double offsetX, double offsetY,
+			String scalingX, String scalingY) {
+		return this.getEntry(lt, lw, offsetX, offsetY, scalingX, scalingY,
+				style);
 	}
 
 	@Override
 	public String getEntry(int lt, int lw, double offsetX, double offsetY,
-			DistributionPlotType distPlotType) {
-		return this
-				.getEntry(lt, lw, offsetX, offsetY, distPlotType, this.style);
+			String scalingX, String scalingY, DistributionPlotType distPlotType) {
+		return this.getEntry(lt, lw, offsetX, offsetY, scalingX, scalingY,
+				distPlotType, this.style);
 	}
 
 	@Override
 	public String getEntry(int lt, int lw, double offsetX, double offsetY,
-			DistributionPlotType type, PlotStyle style) {
+			String scalingX, String scalingY, DistributionPlotType type,
+			PlotStyle style) {
 		// plot style
 		PlotStyle styleTemp;
 		DistributionPlotType distPlotType;
@@ -55,14 +58,23 @@ public class MedianData extends PlotData {
 		if (super.dataLocation.equals(PlotDataLocation.dataFile))
 			dataLoc = '"' + super.dataPath + '"';
 
+		// data point scaling
+		String xpoint = "$1 + ";
+		String ypoint = "$5 + ";
+		if (!scalingX.equals("null"))
+			xpoint = scalingX.replace("x", "$1") + " + ";
+		if (!scalingY.equals("null"))
+			ypoint = scalingY.replace("y", "$5") + " + ";
+
 		// build stringbuffer
 		StringBuffer buff = new StringBuffer();
 		if (distPlotType.equals(DistributionPlotType.cdfOnly))
-			buff.append(dataLoc + " using ($1 + " + offsetX + "):($5 + "
-					+ offsetY + ") smooth cumulative with " + styleTemp);
+			buff.append(dataLoc + " using (" + xpoint + offsetX + "):("
+					+ ypoint + offsetY + ") smooth cumulative with "
+					+ styleTemp);
 		else
-			buff.append(dataLoc + " using ($1 + " + offsetX + "):($5 + "
-					+ offsetY + ") with " + styleTemp);
+			buff.append(dataLoc + " using (" + xpoint + offsetX + "):("
+					+ ypoint + offsetY + ") with " + styleTemp);
 		buff.append(" lt " + lt + " lw " + lw);
 		buff.append(title == null ? " notitle" : " title \"" + this.title
 				+ "\"");
@@ -71,7 +83,7 @@ public class MedianData extends PlotData {
 
 	@Override
 	public String getEntry(int lt, int lw, double offsetX, double offsetY,
-			PlotStyle style) {
+			String scalingX, String scalingY, PlotStyle style) {
 		// plot style
 		PlotStyle styleTemp;
 		if (style == null)
@@ -86,9 +98,17 @@ public class MedianData extends PlotData {
 		if (super.dataLocation.equals(PlotDataLocation.dataFile))
 			dataLoc = '"' + super.dataPath + '"';
 
+		// data point scaling
+		String xpoint = "$1 + ";
+		String ypoint = "$5 + ";
+		if (!scalingX.equals("null"))
+			xpoint = scalingX.replace("x", "$1") + " + ";
+		if (!scalingY.equals("null"))
+			ypoint = scalingY.replace("y", "$5") + " + ";
+
 		// build stringbuffer
 		StringBuffer buff = new StringBuffer();
-		buff.append("'-' using ($1 + " + offsetX + "):($5 + " + offsetY
+		buff.append("'-' using (" + xpoint + offsetX + "):(" + ypoint + offsetY
 				+ ") with " + styleTemp);
 		buff.append(" lt " + lt + " lw " + lw);
 		buff.append(title == null ? " notitle" : " title \"" + this.title

@@ -51,19 +51,22 @@ public class ExpressionData extends PlotData {
 	}
 
 	@Override
-	public String getEntry(int lt, int lw, double offsetX, double offsetY) {
-		return this.getEntry(lt, lw, offsetX, offsetY, this.style);
+	public String getEntry(int lt, int lw, double offsetX, double offsetY,
+			String scalingX, String scalingY) {
+		return this.getEntry(lt, lw, offsetX, offsetY, scalingX, scalingY,
+				this.style);
 	}
 
 	@Override
 	public String getEntry(int lt, int lw, double offsetX, double offsetY,
-			DistributionPlotType distPlotType) {
-		return this.getEntry(lt, lw, offsetX, offsetY);
+			String scalingX, String scalingY, DistributionPlotType distPlotType) {
+		return this.getEntry(lt, lw, offsetX, offsetY, scalingX, scalingY);
 	}
 
 	@Override
 	public String getEntry(int lt, int lw, double offsetX, double offsetY,
-			DistributionPlotType type, PlotStyle style) {
+			String scalingX, String scalingY, DistributionPlotType type,
+			PlotStyle style) {
 		// plot style
 		PlotStyle styleTemp;
 		DistributionPlotType distPlotType;
@@ -88,12 +91,20 @@ public class ExpressionData extends PlotData {
 		if (super.dataLocation.equals(PlotDataLocation.dataFile))
 			dataLoc = '"' + super.dataPath + '"';
 
+		// data point scaling
+		String xpoint = "$1 + ";
+		String ypoint = "$2 + ";
+		if (!scalingX.equals("null"))
+			xpoint = scalingX.replace("x", "$1") + " + ";
+		if (!scalingY.equals("null"))
+			ypoint = scalingY.replace("y", "$2") + " + ";
+
 		// build stringbuffer
 		StringBuffer buff = new StringBuffer();
 
 		// if candlesticks, plot like candlesticks plot
 		if (styleTemp.equals(PlotStyle.candlesticks)) {
-			String x = "($1 + " + offsetX + ")";
+			String x = "(" + xpoint + offsetX + ")";
 			String box_min = "($9 + " + offsetY + ")";
 			String whisker_min = "($3 + " + offsetY + ")";
 			String whisker_high = "($4 + " + offsetY + ")";
@@ -106,18 +117,19 @@ public class ExpressionData extends PlotData {
 			buff.append(" lt " + lt + " lw " + lw);
 			buff.append(title == null ? " notitle" : " title \"" + this.title
 					+ "\"");
-//			buff.append(" whiskerbars, \\\n");
-//			buff.append(dataLoc + " using " + x + ":" + median + ":" + median
-//					+ ":" + median + ":" + median + " with candlesticks");
-//			buff.append(" lt " + lt + " lw " + lw + " notitle");
+			// buff.append(" whiskerbars, \\\n");
+			// buff.append(dataLoc + " using " + x + ":" + median + ":" + median
+			// + ":" + median + ":" + median + " with candlesticks");
+			// buff.append(" lt " + lt + " lw " + lw + " notitle");
 		} else {
 			// else: plot normal
 			if (distPlotType.equals(DistributionPlotType.cdfOnly))
-				buff.append(dataLoc + " using ($1 + " + offsetX + "):($2 + "
-						+ offsetY + ") smooth cumulative with " + styleTemp);
+				buff.append(dataLoc + " using (" + xpoint + offsetX + "):("
+						+ ypoint + offsetY + ") smooth cumulative with "
+						+ styleTemp);
 			else
-				buff.append(dataLoc + " using ($1 + " + offsetX + "):($2 + "
-						+ offsetY + ") with " + styleTemp);
+				buff.append(dataLoc + " using (" + xpoint + offsetX + "):("
+						+ ypoint + offsetY + ") with " + styleTemp);
 			buff.append(" lt " + lt + " lw " + lw);
 			buff.append(title == null ? " notitle" : " title \"" + this.title
 					+ "\"");
@@ -127,7 +139,7 @@ public class ExpressionData extends PlotData {
 
 	@Override
 	public String getEntry(int lt, int lw, double offsetX, double offsetY,
-			PlotStyle style) {
+			String scalingX, String scalingY, PlotStyle style) {
 		// plot style
 		PlotStyle styleTemp;
 		if (style == null)
@@ -141,12 +153,19 @@ public class ExpressionData extends PlotData {
 			dataLoc = "'-'";
 		if (super.dataLocation.equals(PlotDataLocation.dataFile))
 			dataLoc = '"' + super.dataPath + '"';
-		System.out.println("expr2 debug: dataLoc: "
-				+ super.dataLocation.toString() + "    " + dataLoc);
+
+		// data point scaling
+		String xpoint = "$1 + ";
+		String ypoint = "$2 + ";
+		if (!scalingX.equals("null"))
+			xpoint = scalingX.replace("x", "$1") + " + ";
+		if (!scalingY.equals("null"))
+			ypoint = scalingY.replace("y", "$2") + " + ";
+
 		// build stringbuffer
 		StringBuffer buff = new StringBuffer();
-		buff.append(dataLoc + " using ($1 + " + offsetX + "):($2 + " + offsetY
-				+ ") with " + styleTemp);
+		buff.append(dataLoc + " using (" + xpoint + offsetX + "):(" + ypoint
+				+ offsetY + ") with " + styleTemp);
 		buff.append(" lt " + lt + " lw " + lw);
 		buff.append(title == null ? " notitle" : " title \"" + this.title
 				+ "\"");
