@@ -1,5 +1,7 @@
 package dna.latex;
 
+import java.text.SimpleDateFormat;
+
 import dna.latex.TexTable.TableFlag;
 import dna.plot.PlottingConfig.PlotFlag;
 
@@ -9,6 +11,8 @@ public class TexConfig {
 	private String dstDir;
 	private String srcDir;
 	private String plotDir;
+
+	private SimpleDateFormat dateFormat;
 
 	private PlotFlag[] plotFlags;
 	private TableFlag[] tableFlags;
@@ -144,6 +148,18 @@ public class TexConfig {
 			}
 		}
 		return false;
+	}
+
+	public void setDateFormat(String pattern) {
+		this.dateFormat = new SimpleDateFormat(pattern);
+	}
+
+	public void setDateFormat(SimpleDateFormat dateFormat) {
+		this.dateFormat = dateFormat;
+	}
+
+	public SimpleDateFormat getDateFormat() {
+		return this.dateFormat;
 	}
 
 }
