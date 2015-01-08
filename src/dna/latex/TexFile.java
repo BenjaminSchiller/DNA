@@ -3,10 +3,13 @@ package dna.latex;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 
 import dna.io.Writer;
 import dna.io.filesystem.Dir;
+import dna.plot.PlotConfig;
+import dna.plot.PlottingConfig;
 import dna.series.aggdata.AggregatedBatch;
 import dna.series.aggdata.AggregatedBatch.BatchReadMode;
 import dna.series.aggdata.AggregatedDistribution;
@@ -59,48 +62,83 @@ public class TexFile {
 
 	/** Writes a metric to the texfile. **/
 	public void writeMetric(SeriesData s, AggregatedMetric m,
-			AggregatedBatch[] batchData, TexConfig config) throws IOException {
+			AggregatedBatch[] batchData, String plotDir, TexConfig config,
+			PlottingConfig pconfig) throws IOException {
 		String name = m.getName();
 		this.writeLine(TexUtils.section(name));
 		this.writeLine();
 
+		ArrayList<PlotConfig> addedPlots = new ArrayList<PlotConfig>();
+
+		// add metric values
 		if (config.isIncludeMetricValues()) {
 			if (m.getValues().size() > 0) {
 				this.writeLine(TexUtils.subsection("Values"));
 				for (AggregatedValue v : m.getValues().getList()) {
-					this.writeMetricValue(v, m, batchData, config);
+					this.writeMetricValue(v, m, batchData, addedPlots, config,
+							pconfig);
 				}
 				this.writeLine();
 			}
 		}
 
+		// add distribution
 		if (config.isIncludeDistributions()) {
 			if (m.getDistributions().size() > 0) {
 				this.writeLine(TexUtils.subsection("Distributions"));
 				for (AggregatedDistribution d : m.getDistributions().getList()) {
-					this.writeDistribution(d, m, s, batchData, config);
+					this.writeDistribution(d, m, s, batchData, addedPlots,
+							config, pconfig);
 				}
 				this.writeLine();
 			}
 		}
 
+		// add nodevaluelists
 		if (config.isIncludeNodeValueLists()) {
 			if (m.getNodeValues().size() > 0) {
 				this.writeLine(TexUtils.subsection("NodeValueLists"));
 				for (AggregatedNodeValueList n : m.getNodeValues().getList()) {
-					this.writeNodeValueList(n, m, s, batchData, config);
+					this.writeNodeValueList(n, m, s, batchData, addedPlots,
+							config, pconfig);
 				}
 				this.writeLine();
 			}
 		}
+
+		// add plots subsection
+		if (addedPlots.size() > 0)
+			TexUtils.addPlotsSubsection(this, plotDir, addedPlots);
 	}
 
 	/** Writes a value to the TexFile. **/
 	private void writeMetricValue(AggregatedValue v, AggregatedMetric m,
-			AggregatedBatch[] batchData, TexConfig config) throws IOException {
+			AggregatedBatch[] batchData, ArrayList<PlotConfig> addedPlots,
+			TexConfig config, PlottingConfig pconfig) throws IOException {
 		this.writeLine(TexUtils.subsubsection(v.getName()));
 		this.writeLine(v.getName() + " is a metric value.");
 		this.writeLine();
+
+		// gather fitting plots
+		ArrayList<PlotConfig> fits = TexUtils.getCustomMetricValuePlotFits(
+				m.getName(), v.getName(), pconfig.getCustomMetricValuePlots());
+		TexUtils.addDefaultMetricValuePlotFits(fits, m.getName(), v.getName());
+
+		// add ref line
+		if (fits.size() > 0) {
+			String refs = TexUtils.getReferenceString(fits);
+			this.writeLine(refs);
+			this.writeLine();
+
+			// add plots that contain the value
+			for (PlotConfig pc : fits) {
+				if (!addedPlots.contains(pc)) {
+					addedPlots.add(pc);
+				}
+			}
+		}
+
+		// values
 		this.writeCommentBlock("value table of " + v.getName());
 
 		// select description
@@ -134,10 +172,33 @@ public class TexFile {
 	/** Writes a distribution to the TexFile. **/
 	private void writeDistribution(AggregatedDistribution d,
 			AggregatedMetric m, SeriesData s, AggregatedBatch[] batchData,
-			TexConfig config) throws IOException {
+			ArrayList<PlotConfig> addedPlots, TexConfig config,
+			PlottingConfig pconfig) throws IOException {
 		this.writeLine(TexUtils.subsubsection(d.getName()));
 		this.writeLine(d.getName() + " is a distribution.");
 		this.writeLine();
+
+		// gather fitting plots
+		ArrayList<PlotConfig> fits = TexUtils.getCustomDistributionPlotFits(
+				m.getName(), d.getName(), pconfig.getCustomDistributionPlots());
+		TexUtils.addDefaultDistributionPlotFits(fits, m.getName(), d.getName(),
+				pconfig.getDistPlotType());
+
+		// add ref line
+		if (fits.size() > 0) {
+			String refs = TexUtils.getReferenceString(fits);
+			this.writeLine(refs);
+			this.writeLine();
+
+			// add plots that contain the value
+			for (PlotConfig pc : fits) {
+				if (!addedPlots.contains(pc)) {
+					addedPlots.add(pc);
+				}
+			}
+		}
+
+		// values
 		this.writeCommentBlock("value tables of " + d.getName());
 		this.writeLine();
 
@@ -188,10 +249,33 @@ public class TexFile {
 	/** Writes a nodevaluelist to the TexFile. **/
 	private void writeNodeValueList(AggregatedNodeValueList n,
 			AggregatedMetric m, SeriesData s, AggregatedBatch[] batchData,
-			TexConfig config) throws IOException {
+			ArrayList<PlotConfig> addedPlots, TexConfig config,
+			PlottingConfig pconfig) throws IOException {
 		this.writeLine(TexUtils.subsubsection(n.getName()));
 		this.writeLine(n.getName() + " is a nodevaluelist.");
 		this.writeLine();
+
+		// gather fitting plots
+		ArrayList<PlotConfig> fits = TexUtils
+				.getCustomNodeValueListPlotFits(m.getName(), n.getName(),
+						pconfig.getCustomNodeValueListPlots());
+		TexUtils.addDefaultNodeValueListPlotFits(fits, m.getName(), n.getName());
+
+		// add ref line
+		if (fits.size() > 0) {
+			String refs = TexUtils.getReferenceString(fits);
+			this.writeLine(refs);
+			this.writeLine();
+
+			// add plots that contain the value
+			for (PlotConfig pc : fits) {
+				if (!addedPlots.contains(pc)) {
+					addedPlots.add(pc);
+				}
+			}
+		}
+
+		// values
 		this.writeCommentBlock("value tables of " + n.getName());
 		this.writeLine();
 
