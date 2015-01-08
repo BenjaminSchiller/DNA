@@ -8,10 +8,12 @@ import dna.latex.TexTable.TableFlag;
 import dna.plot.PlotConfig;
 import dna.plot.PlottingConfig;
 import dna.plot.PlottingUtils;
+import dna.plot.data.PlotData.DistributionPlotType;
 import dna.series.aggdata.AggregatedBatch;
 import dna.series.aggdata.AggregatedMetric;
 import dna.series.aggdata.AggregatedValue;
 import dna.series.data.SeriesData;
+import dna.util.Config;
 
 /**
  * Utility class for tex.
@@ -195,8 +197,6 @@ public class TexUtils {
 					stats.writeLine();
 
 					// add plots that contain the value
-					stats.writeCommentBlock("plots containing " + v.getName());
-					stats.writeLine();
 					for (PlotConfig pc : fits) {
 						if (!addedPlots.contains(pc)) {
 							addedPlots.add(pc);
@@ -279,8 +279,6 @@ public class TexUtils {
 					genR.writeLine();
 
 					// add plots that contain the value
-					genR.writeCommentBlock("plots containing " + v.getName());
-					genR.writeLine();
 					for (PlotConfig pc : fits) {
 						if (!addedPlots.contains(pc)) {
 							addedPlots.add(pc);
@@ -364,8 +362,6 @@ public class TexUtils {
 					metR.writeLine();
 
 					// add plots that contain the value
-					metR.writeCommentBlock("plots containing " + v.getName());
-					metR.writeLine();
 					for (PlotConfig pc : fits) {
 						if (!addedPlots.contains(pc)) {
 							addedPlots.add(pc);
@@ -466,53 +462,13 @@ public class TexUtils {
 		return refs;
 	}
 
-	public static String getReferenceString(String refs, PlotConfig pc,
-			boolean first) {
-		if (pc.getPlotAsCdf().equals("true")) {
-			if (first) {
-				refs += TexUtils.ref(TexUtils.getPlotLabel(pc.getFilename()
-						+ TexUtils.cdfSuffix));
-				first = false;
-			} else {
-				refs += ", "
-						+ TexUtils.ref(TexUtils.getPlotLabel(pc.getFilename()
-								+ TexUtils.cdfSuffix));
-			}
-		} else if (pc.getPlotAsCdf().equals("both")) {
-			if (first) {
-				refs += TexUtils.ref(TexUtils.getPlotLabel(pc.getFilename()))
-						+ ", "
-						+ TexUtils.ref(TexUtils.getPlotLabel(pc.getFilename()
-								+ TexUtils.cdfSuffix));
-				first = false;
-			} else {
-				refs += ", "
-						+ TexUtils.ref(TexUtils.getPlotLabel(pc.getFilename()))
-						+ ", "
-						+ TexUtils.ref(TexUtils.getPlotLabel(pc.getFilename()
-								+ TexUtils.cdfSuffix));
-			}
-		} else {
-			if (first) {
-				refs += TexUtils.ref(TexUtils.getPlotLabel(pc.getFilename()));
-				;
-				first = false;
-			} else {
-				refs += ", "
-						+ TexUtils.ref(TexUtils.getPlotLabel(pc.getFilename()));
-				;
-			}
-		}
-		return refs;
-	}
-
 	public static TexFile generateMetricChapter(String dstDir, String plotDir,
 			SeriesData s, AggregatedMetric m, AggregatedBatch[] batchData,
 			TexConfig config, PlottingConfig pconfig) throws IOException {
 		TexFile mFile = new TexFile(dstDir + TexUtils.chapterDirectory
 				+ Dir.delimiter, m.getName() + TexUtils.texSuffix);
 		mFile.writeCommentBlock(m.getName());
-		mFile.writeMetric(s, m, batchData, config);
+		mFile.writeMetric(s, m, batchData, plotDir, config, pconfig);
 		mFile.close();
 		return mFile;
 	}
@@ -722,7 +678,7 @@ public class TexUtils {
 		return fits;
 	}
 
-	/** Returns the custom statistic plots that contain the given statistic. **/
+	/** Returns the custom runtime plots that contain the given runtime. **/
 	public static ArrayList<PlotConfig> getCustomRuntimePlotFits(
 			String runtime, ArrayList<PlotConfig> plots) {
 		ArrayList<PlotConfig> fits = new ArrayList<PlotConfig>();
@@ -762,6 +718,181 @@ public class TexUtils {
 			}
 		}
 		return fits;
+	}
+
+	/**
+	 * Returns the custom metric value plots that contain the given metric
+	 * value.
+	 **/
+	public static ArrayList<PlotConfig> getCustomMetricValuePlotFits(
+			String metric, String value, ArrayList<PlotConfig> plots) {
+		ArrayList<PlotConfig> fits = new ArrayList<PlotConfig>();
+		for (PlotConfig p : plots) {
+			boolean finished = false;
+			String[] values = p.getValues();
+			String[] domains = p.getDomains();
+
+			for (int i = 0; i < values.length && !finished; i++) {
+				String dom = domains[i];
+				String val = values[i];
+
+				// if function
+				if (dom.equals(PlotConfig.customPlotDomainFunction))
+					continue;
+
+				if (dom.equals(PlotConfig.customPlotDomainExpression)) {
+					// if expression
+					dom = PlottingUtils.getDomainFromExpression(val,
+							p.getGeneralDomain());
+					val = PlottingUtils.getValueFromExpression(val);
+				}
+
+				// if regular plot
+				if (!(dom.equals(metric)))
+					continue;
+
+				// if contains value, add plot to
+				if (val.equals(value)) {
+					if (!fits.contains(p)) {
+						fits.add(p);
+						finished = true;
+					}
+				}
+			}
+		}
+		return fits;
+	}
+
+	/** Adds the default metric value plots that contain the given metric value. **/
+	public static void addDefaultMetricValuePlotFits(
+			ArrayList<PlotConfig> fits, String metric, String value) {
+		if (Config.getBoolean("DEFAULT_PLOTS_ENABLED")
+				&& Config.getBoolean("DEFAULT_PLOT_METRIC_VALUES")) {
+			fits.add(PlotConfig.generateDummyPlotConfig(metric + "." + value,
+					"false", null, null, null));
+		}
+	}
+
+	/**
+	 * Returns the custom distribution plots that contain the given
+	 * distribution.
+	 **/
+	public static ArrayList<PlotConfig> getCustomDistributionPlotFits(
+			String metric, String dist, ArrayList<PlotConfig> plots) {
+		ArrayList<PlotConfig> fits = new ArrayList<PlotConfig>();
+		for (PlotConfig p : plots) {
+			boolean finished = false;
+			String[] values = p.getValues();
+			String[] domains = p.getDomains();
+
+			for (int i = 0; i < values.length && !finished; i++) {
+				String dom = domains[i];
+				String val = values[i];
+
+				// if function
+				if (dom.equals(PlotConfig.customPlotDomainFunction))
+					continue;
+
+				if (dom.equals(PlotConfig.customPlotDomainExpression)) {
+					// if expression
+					dom = PlottingUtils.getDomainFromExpression(val,
+							p.getGeneralDomain());
+					val = PlottingUtils.getValueFromExpression(val);
+				}
+
+				// if regular plot
+				if (!(dom.equals(metric)))
+					continue;
+
+				// if contains value, add plot to
+				if (val.equals(dist)) {
+					if (!fits.contains(p)) {
+						fits.add(p);
+						finished = true;
+					}
+				}
+			}
+		}
+		return fits;
+	}
+
+	/** Adds the default distribution plots that contain the given distribution. **/
+	public static void addDefaultDistributionPlotFits(
+			ArrayList<PlotConfig> fits, String metric, String dist,
+			DistributionPlotType distPlotType) {
+		if (Config.getBoolean("DEFAULT_PLOTS_ENABLED")
+				&& Config.getBoolean("DEFAULT_PLOT_DISTRIBUTIONS")) {
+			switch (distPlotType) {
+			case cdfOnly:
+				fits.add(PlotConfig.generateDummyPlotConfig(
+						metric + "." + dist, "true", null, null, null));
+				break;
+			case distOnly:
+				fits.add(PlotConfig.generateDummyPlotConfig(
+						metric + "." + dist, "false", null, null, null));
+				break;
+			case distANDcdf:
+				fits.add(PlotConfig.generateDummyPlotConfig(
+						metric + "." + dist, "both", null, null, null));
+				break;
+			}
+		}
+	}
+
+	/**
+	 * Returns the custom nodevaluelist plots that contain the given
+	 * nodevaluelist.
+	 **/
+	public static ArrayList<PlotConfig> getCustomNodeValueListPlotFits(
+			String metric, String nvl, ArrayList<PlotConfig> plots) {
+		ArrayList<PlotConfig> fits = new ArrayList<PlotConfig>();
+		for (PlotConfig p : plots) {
+			boolean finished = false;
+			String[] values = p.getValues();
+			String[] domains = p.getDomains();
+
+			for (int i = 0; i < values.length && !finished; i++) {
+				String dom = domains[i];
+				String val = values[i];
+
+				// if function
+				if (dom.equals(PlotConfig.customPlotDomainFunction))
+					continue;
+
+				if (dom.equals(PlotConfig.customPlotDomainExpression)) {
+					// if expression
+					dom = PlottingUtils.getDomainFromExpression(val,
+							p.getGeneralDomain());
+					val = PlottingUtils.getValueFromExpression(val);
+				}
+
+				// if regular plot
+				if (!(dom.equals(metric)))
+					continue;
+
+				// if contains value, add plot to
+				if (val.equals(nvl)) {
+					if (!fits.contains(p)) {
+						fits.add(p);
+						finished = true;
+					}
+				}
+			}
+		}
+		return fits;
+	}
+
+	/**
+	 * Adds the default nodevaluelist plots that contain the given
+	 * nodevaluelist.
+	 **/
+	public static void addDefaultNodeValueListPlotFits(
+			ArrayList<PlotConfig> fits, String metric, String nvl) {
+		if (Config.getBoolean("DEFAULT_PLOTS_ENABLED")
+				&& Config.getBoolean("DEFAULT_PLOT_NODEVALUELISTS")) {
+			fits.add(PlotConfig.generateDummyPlotConfig(metric + "." + nvl,
+					"false", null, null, null));
+		}
 	}
 
 }
