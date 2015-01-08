@@ -25,6 +25,7 @@ public class TexUtils {
 	public static final String chapterDirectory = "chapters";
 	public static final String texSuffix = ".tex";
 	public static final String plotLabelPrefix = "plot:";
+	public static final String cdfSuffix = ".CDF";
 
 	// dir
 	public static final String statisticsFilename = "statistics";
@@ -38,6 +39,7 @@ public class TexUtils {
 	public static final String endOfDocument = "end of document";
 
 	// static contents
+	public static final String plots = "Plots";
 	public static final String statistics = "Statistics";
 	public static final String generalRuntimes = "General Runtimes";
 	public static final String metricRuntimes = "Metric Runtimes";
@@ -165,21 +167,26 @@ public class TexUtils {
 				+ Dir.delimiter, TexUtils.statisticsFilename
 				+ TexUtils.texSuffix);
 
+		// added plots
 		ArrayList<PlotConfig> addedPlots = new ArrayList<PlotConfig>();
 
+		// if no values, do nothing
 		if (initBatch.getValues().size() > 0) {
 			stats.writeCommentBlock(TexUtils.statistics);
 			stats.writeLine(TexUtils.section(TexUtils.statistics));
 			stats.writeLine();
+
+			// for each value
 			for (AggregatedValue v : initBatch.getValues().getList()) {
+				// add subsection
 				stats.writeLine(TexUtils.subsection(v.getName()));
 				stats.writeLine(v.getName() + " is a statistic.");
 				stats.writeLine();
 
-				// plots
-				ArrayList<PlotConfig> plots = pconfig.getCustomStatisticPlots();
+				// gather fitting plots
 				ArrayList<PlotConfig> fits = TexUtils
-						.getCustomStatisticPlotFits(v.getName(), plots);
+						.getCustomStatisticPlotFits(v.getName(),
+								pconfig.getCustomStatisticPlots());
 
 				// add ref line
 				if (fits.size() > 0) {
@@ -190,13 +197,47 @@ public class TexUtils {
 						refs = "See plot: ";
 					boolean first = true;
 					for (PlotConfig pc : fits) {
-						String ref = TexUtils.ref(TexUtils.getPlotLabel(pc
-								.getFilename()));
-						if (first) {
-							refs += ref;
-							first = false;
+						if (pc.getPlotAsCdf().equals("true")) {
+							if (first) {
+								refs += TexUtils.ref(TexUtils.getPlotLabel(pc
+										.getFilename() + TexUtils.cdfSuffix));
+								first = false;
+							} else {
+								refs += ", "
+										+ TexUtils.ref(TexUtils.getPlotLabel(pc
+												.getFilename()
+												+ TexUtils.cdfSuffix));
+							}
+						} else if (pc.getPlotAsCdf().equals("both")) {
+							if (first) {
+								refs += TexUtils.ref(TexUtils.getPlotLabel(pc
+										.getFilename()))
+										+ ", "
+										+ TexUtils.ref(TexUtils.getPlotLabel(pc
+												.getFilename()
+												+ TexUtils.cdfSuffix));
+								first = false;
+							} else {
+								refs += ", "
+										+ TexUtils.ref(TexUtils.getPlotLabel(pc
+												.getFilename()))
+										+ ", "
+										+ TexUtils.ref(TexUtils.getPlotLabel(pc
+												.getFilename()
+												+ TexUtils.cdfSuffix));
+							}
 						} else {
-							refs += ", " + ref;
+							if (first) {
+								refs += TexUtils.ref(TexUtils.getPlotLabel(pc
+										.getFilename()));
+								;
+								first = false;
+							} else {
+								refs += ", "
+										+ TexUtils.ref(TexUtils.getPlotLabel(pc
+												.getFilename()));
+								;
+							}
 						}
 					}
 					refs += ".";
@@ -208,8 +249,6 @@ public class TexUtils {
 					stats.writeLine();
 					for (PlotConfig pc : fits) {
 						if (!addedPlots.contains(pc)) {
-							stats.includeFigure(v.getName(), plotDir,
-									pc.getFilename());
 							addedPlots.add(pc);
 						}
 					}
@@ -243,6 +282,11 @@ public class TexUtils {
 				table.close();
 				stats.writeLine();
 			}
+
+			// add plots subsection
+			if (addedPlots.size() > 0)
+				TexUtils.addPlotsSubsection(stats, plotDir, addedPlots);
+
 			stats.writeLine();
 		}
 		stats.close();
@@ -250,21 +294,103 @@ public class TexUtils {
 	}
 
 	public static TexFile generateGeneralRuntimesChapter(String dstDir,
-			AggregatedBatch initBatch, AggregatedBatch[] batchData,
-			TexConfig config) throws IOException {
+			String plotDir, AggregatedBatch initBatch,
+			AggregatedBatch[] batchData, TexConfig config,
+			PlottingConfig pconfig) throws IOException {
 		// write general runtimes
 		TexFile genR = new TexFile(dstDir + TexUtils.chapterDirectory
 				+ Dir.delimiter, TexUtils.generalRuntimesFilename
 				+ TexUtils.texSuffix);
 
+		// added plots
+		ArrayList<PlotConfig> addedPlots = new ArrayList<PlotConfig>();
+
+		// if no values, do nothing
 		if (initBatch.getGeneralRuntimes().size() > 0) {
 			genR.writeCommentBlock(TexUtils.generalRuntimes);
 			genR.writeLine(TexUtils.section(TexUtils.generalRuntimes));
 			genR.writeLine();
+
+			System.out.println("generalRuntime fits");
+
+			// for each value
 			for (AggregatedValue v : initBatch.getGeneralRuntimes().getList()) {
+				// add subsection
 				genR.writeLine(TexUtils.subsection(v.getName()));
 				genR.writeLine(v.getName() + " is a general runtime.");
 				genR.writeLine();
+
+				// gather fitting plots
+				ArrayList<PlotConfig> fits = TexUtils.getCustomRuntimePlotFits(
+						v.getName(), pconfig.getCustomRuntimePlots());
+
+				// add ref line
+				if (fits.size() > 0) {
+					String refs;
+					if (fits.size() > 1)
+						refs = "See plots: ";
+					else
+						refs = "See plot: ";
+					boolean first = true;
+					for (PlotConfig pc : fits) {
+						if (pc.getPlotAsCdf().equals("true")) {
+							if (first) {
+								refs += TexUtils.ref(TexUtils.getPlotLabel(pc
+										.getFilename() + TexUtils.cdfSuffix));
+								first = false;
+							} else {
+								refs += ", "
+										+ TexUtils.ref(TexUtils.getPlotLabel(pc
+												.getFilename()
+												+ TexUtils.cdfSuffix));
+							}
+						} else if (pc.getPlotAsCdf().equals("both")) {
+							if (first) {
+								refs += TexUtils.ref(TexUtils.getPlotLabel(pc
+										.getFilename()))
+										+ ", "
+										+ TexUtils.ref(TexUtils.getPlotLabel(pc
+												.getFilename()
+												+ TexUtils.cdfSuffix));
+								first = false;
+							} else {
+								refs += ", "
+										+ TexUtils.ref(TexUtils.getPlotLabel(pc
+												.getFilename()))
+										+ ", "
+										+ TexUtils.ref(TexUtils.getPlotLabel(pc
+												.getFilename()
+												+ TexUtils.cdfSuffix));
+							}
+						} else {
+							if (first) {
+								refs += TexUtils.ref(TexUtils.getPlotLabel(pc
+										.getFilename()));
+								;
+								first = false;
+							} else {
+								refs += ", "
+										+ TexUtils.ref(TexUtils.getPlotLabel(pc
+												.getFilename()));
+								;
+							}
+						}
+					}
+					refs += ".";
+					genR.writeLine(refs);
+					genR.writeLine();
+
+					// add plots that contain the value
+					genR.writeCommentBlock("plots containing " + v.getName());
+					genR.writeLine();
+					for (PlotConfig pc : fits) {
+						if (!addedPlots.contains(pc)) {
+							addedPlots.add(pc);
+						}
+					}
+				}
+
+				// values
 				genR.writeCommentBlock("value table of " + v.getName());
 
 				// select description
@@ -294,6 +420,11 @@ public class TexUtils {
 				table.close();
 				genR.writeLine();
 			}
+
+			// add plots subsection
+			if (addedPlots.size() > 0)
+				TexUtils.addPlotsSubsection(genR, plotDir, addedPlots);
+
 			genR.writeLine();
 		}
 		genR.close();
@@ -301,21 +432,102 @@ public class TexUtils {
 	}
 
 	public static TexFile generateMetricRuntimesChapter(String dstDir,
-			AggregatedBatch initBatch, AggregatedBatch[] batchData,
-			TexConfig config) throws IOException {
+			String plotDir, AggregatedBatch initBatch,
+			AggregatedBatch[] batchData, TexConfig config,
+			PlottingConfig pconfig) throws IOException {
 		// write metric runtimes
 		TexFile metR = new TexFile(dstDir + TexUtils.chapterDirectory
 				+ Dir.delimiter, TexUtils.metricRuntimesFilename
 				+ TexUtils.texSuffix);
 
+		// added plots
+		ArrayList<PlotConfig> addedPlots = new ArrayList<PlotConfig>();
+
+		// if no values, do nothing
 		if (initBatch.getMetricRuntimes().size() > 0) {
 			metR.writeCommentBlock(TexUtils.metricRuntimes);
 			metR.writeLine(TexUtils.section(TexUtils.metricRuntimes));
 			metR.writeLine();
+
+			System.out.println("metricRuntime fits");
+
+			// for each value
 			for (AggregatedValue v : initBatch.getMetricRuntimes().getList()) {
 				metR.writeLine(TexUtils.subsection(v.getName()));
 				metR.writeLine(v.getName() + " is a metric runtime.");
 				metR.writeLine();
+
+				// gather fitting plots
+				ArrayList<PlotConfig> fits = TexUtils.getCustomRuntimePlotFits(
+						v.getName(), pconfig.getCustomRuntimePlots());
+
+				// add ref line
+				if (fits.size() > 0) {
+					String refs;
+					if (fits.size() > 1)
+						refs = "See plots: ";
+					else
+						refs = "See plot: ";
+					boolean first = true;
+					for (PlotConfig pc : fits) {
+						if (pc.getPlotAsCdf().equals("true")) {
+							if (first) {
+								refs += TexUtils.ref(TexUtils.getPlotLabel(pc
+										.getFilename() + TexUtils.cdfSuffix));
+								first = false;
+							} else {
+								refs += ", "
+										+ TexUtils.ref(TexUtils.getPlotLabel(pc
+												.getFilename()
+												+ TexUtils.cdfSuffix));
+							}
+						} else if (pc.getPlotAsCdf().equals("both")) {
+							if (first) {
+								refs += TexUtils.ref(TexUtils.getPlotLabel(pc
+										.getFilename()))
+										+ ", "
+										+ TexUtils.ref(TexUtils.getPlotLabel(pc
+												.getFilename()
+												+ TexUtils.cdfSuffix));
+								first = false;
+							} else {
+								refs += ", "
+										+ TexUtils.ref(TexUtils.getPlotLabel(pc
+												.getFilename()))
+										+ ", "
+										+ TexUtils.ref(TexUtils.getPlotLabel(pc
+												.getFilename()
+												+ TexUtils.cdfSuffix));
+							}
+						} else {
+							if (first) {
+								refs += TexUtils.ref(TexUtils.getPlotLabel(pc
+										.getFilename()));
+								;
+								first = false;
+							} else {
+								refs += ", "
+										+ TexUtils.ref(TexUtils.getPlotLabel(pc
+												.getFilename()));
+								;
+							}
+						}
+					}
+					refs += ".";
+					metR.writeLine(refs);
+					metR.writeLine();
+
+					// add plots that contain the value
+					metR.writeCommentBlock("plots containing " + v.getName());
+					metR.writeLine();
+					for (PlotConfig pc : fits) {
+						if (!addedPlots.contains(pc)) {
+							addedPlots.add(pc);
+						}
+					}
+				}
+
+				// values
 				metR.writeCommentBlock("value table of " + v.getName());
 
 				// select description
@@ -345,21 +557,49 @@ public class TexUtils {
 				metR.writeLine();
 
 			}
+
+			// add plots subsection
+			if (addedPlots.size() > 0)
+				TexUtils.addPlotsSubsection(metR, plotDir, addedPlots);
+
 			metR.writeLine();
 		}
 		metR.close();
 		return metR;
 	}
 
-	public static TexFile generateMetricChapter(String dstDir, SeriesData s,
-			AggregatedMetric m, AggregatedBatch[] batchData, TexConfig config)
-			throws IOException {
+	public static TexFile generateMetricChapter(String dstDir, String plotDir,
+			SeriesData s, AggregatedMetric m, AggregatedBatch[] batchData,
+			TexConfig config, PlottingConfig pconfig) throws IOException {
 		TexFile mFile = new TexFile(dstDir + TexUtils.chapterDirectory
 				+ Dir.delimiter, m.getName() + TexUtils.texSuffix);
 		mFile.writeCommentBlock(m.getName());
 		mFile.writeMetric(s, m, batchData, config);
 		mFile.close();
 		return mFile;
+	}
+
+	/** Adds the Plots-Section containing all added plots in the ArrayList. **/
+	public static void addPlotsSubsection(TexFile file, String plotDir,
+			ArrayList<PlotConfig> addedPlots) throws IOException {
+		// add plots subsection
+		file.writeLine(TexUtils.subsection(TexUtils.plots));
+		file.writeLine();
+
+		// add plots
+		for (PlotConfig pc : addedPlots) {
+			System.out.println(pc.getFilename() + " " + pc.getPlotAsCdf());
+			if (pc.getPlotAsCdf().equals("true")) {
+				file.includeFigure(plotDir, pc.getFilename()
+						+ TexUtils.cdfSuffix);
+			} else if (pc.getPlotAsCdf().equals("both")) {
+				file.includeFigure(plotDir, pc.getFilename());
+				file.includeFigure(plotDir, pc.getFilename()
+						+ TexUtils.cdfSuffix);
+			} else {
+				file.includeFigure(plotDir, pc.getFilename());
+			}
+		}
 	}
 
 	/**
@@ -535,6 +775,50 @@ public class TexUtils {
 
 				// if contains value, add plot to
 				if (val.equals(statistic)) {
+					if (!fits.contains(p)) {
+						fits.add(p);
+						finished = true;
+					}
+				}
+			}
+		}
+		return fits;
+	}
+
+	/** Returns the custom statistic plots that contain the given statistic. **/
+	public static ArrayList<PlotConfig> getCustomRuntimePlotFits(
+			String runtime, ArrayList<PlotConfig> plots) {
+		ArrayList<PlotConfig> fits = new ArrayList<PlotConfig>();
+		for (PlotConfig p : plots) {
+			boolean finished = false;
+			String[] values = p.getValues();
+			String[] domains = p.getDomains();
+
+			for (int i = 0; i < values.length && !finished; i++) {
+				String dom = domains[i];
+				String val = values[i];
+
+				// if function
+				if (dom.equals(PlotConfig.customPlotDomainFunction))
+					continue;
+
+				if (dom.equals(PlotConfig.customPlotDomainExpression)) {
+					// if expression
+					dom = PlottingUtils.getDomainFromExpression(val,
+							p.getGeneralDomain());
+					val = PlottingUtils.getValueFromExpression(val);
+				}
+
+				// if regular plot
+				if (!(dom.equals(PlotConfig.customPlotDomainRuntimes)
+						|| dom.equals(PlotConfig.customPlotDomainGeneralRuntimes) || dom
+							.equals(PlotConfig.customPlotDomainMetricRuntimes)))
+					continue;
+
+				System.out.println(dom + "\t~\t" + val);
+
+				// if contains value, add plot to
+				if (val.equals(runtime)) {
 					if (!fits.contains(p)) {
 						fits.add(p);
 						finished = true;

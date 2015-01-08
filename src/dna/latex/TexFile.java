@@ -285,6 +285,10 @@ public class TexFile {
 		this.writeLine(TexUtils.include(chapter));
 	}
 
+	public void includeFigure(String dir, String filename) throws IOException {
+		this.includeFigure(null, dir, filename, "", 0.8, "h");
+	}
+
 	public void includeFigure(String name, String dir, String filename)
 			throws IOException {
 		this.includeFigure(name, dir, filename, "", 0.8, "h");
@@ -292,7 +296,10 @@ public class TexFile {
 
 	public void includeFigure(String name, String dir, String filename,
 			String extension, double scale, String option) throws IOException {
-		this.writeCommentLine("plot " + filename + " containing " + name);
+		if (name != null)
+			this.writeCommentLine("plot " + filename + " containing " + name);
+		else
+			this.writeCommentLine("plot " + filename);
 		this.writeLine(TexUtils.beginFigure(option));
 		this.writeLine(TexUtils.tab + TexUtils.centering());
 		this.writeLine(TexUtils.tab
