@@ -190,57 +190,7 @@ public class TexUtils {
 
 				// add ref line
 				if (fits.size() > 0) {
-					String refs;
-					if (fits.size() > 1)
-						refs = "See plots: ";
-					else
-						refs = "See plot: ";
-					boolean first = true;
-					for (PlotConfig pc : fits) {
-						if (pc.getPlotAsCdf().equals("true")) {
-							if (first) {
-								refs += TexUtils.ref(TexUtils.getPlotLabel(pc
-										.getFilename() + TexUtils.cdfSuffix));
-								first = false;
-							} else {
-								refs += ", "
-										+ TexUtils.ref(TexUtils.getPlotLabel(pc
-												.getFilename()
-												+ TexUtils.cdfSuffix));
-							}
-						} else if (pc.getPlotAsCdf().equals("both")) {
-							if (first) {
-								refs += TexUtils.ref(TexUtils.getPlotLabel(pc
-										.getFilename()))
-										+ ", "
-										+ TexUtils.ref(TexUtils.getPlotLabel(pc
-												.getFilename()
-												+ TexUtils.cdfSuffix));
-								first = false;
-							} else {
-								refs += ", "
-										+ TexUtils.ref(TexUtils.getPlotLabel(pc
-												.getFilename()))
-										+ ", "
-										+ TexUtils.ref(TexUtils.getPlotLabel(pc
-												.getFilename()
-												+ TexUtils.cdfSuffix));
-							}
-						} else {
-							if (first) {
-								refs += TexUtils.ref(TexUtils.getPlotLabel(pc
-										.getFilename()));
-								;
-								first = false;
-							} else {
-								refs += ", "
-										+ TexUtils.ref(TexUtils.getPlotLabel(pc
-												.getFilename()));
-								;
-							}
-						}
-					}
-					refs += ".";
+					String refs = TexUtils.getReferenceString(fits);
 					stats.writeLine(refs);
 					stats.writeLine();
 
@@ -311,8 +261,6 @@ public class TexUtils {
 			genR.writeLine(TexUtils.section(TexUtils.generalRuntimes));
 			genR.writeLine();
 
-			System.out.println("generalRuntime fits");
-
 			// for each value
 			for (AggregatedValue v : initBatch.getGeneralRuntimes().getList()) {
 				// add subsection
@@ -326,57 +274,7 @@ public class TexUtils {
 
 				// add ref line
 				if (fits.size() > 0) {
-					String refs;
-					if (fits.size() > 1)
-						refs = "See plots: ";
-					else
-						refs = "See plot: ";
-					boolean first = true;
-					for (PlotConfig pc : fits) {
-						if (pc.getPlotAsCdf().equals("true")) {
-							if (first) {
-								refs += TexUtils.ref(TexUtils.getPlotLabel(pc
-										.getFilename() + TexUtils.cdfSuffix));
-								first = false;
-							} else {
-								refs += ", "
-										+ TexUtils.ref(TexUtils.getPlotLabel(pc
-												.getFilename()
-												+ TexUtils.cdfSuffix));
-							}
-						} else if (pc.getPlotAsCdf().equals("both")) {
-							if (first) {
-								refs += TexUtils.ref(TexUtils.getPlotLabel(pc
-										.getFilename()))
-										+ ", "
-										+ TexUtils.ref(TexUtils.getPlotLabel(pc
-												.getFilename()
-												+ TexUtils.cdfSuffix));
-								first = false;
-							} else {
-								refs += ", "
-										+ TexUtils.ref(TexUtils.getPlotLabel(pc
-												.getFilename()))
-										+ ", "
-										+ TexUtils.ref(TexUtils.getPlotLabel(pc
-												.getFilename()
-												+ TexUtils.cdfSuffix));
-							}
-						} else {
-							if (first) {
-								refs += TexUtils.ref(TexUtils.getPlotLabel(pc
-										.getFilename()));
-								;
-								first = false;
-							} else {
-								refs += ", "
-										+ TexUtils.ref(TexUtils.getPlotLabel(pc
-												.getFilename()));
-								;
-							}
-						}
-					}
-					refs += ".";
+					String refs = TexUtils.getReferenceString(fits);
 					genR.writeLine(refs);
 					genR.writeLine();
 
@@ -449,8 +347,6 @@ public class TexUtils {
 			metR.writeLine(TexUtils.section(TexUtils.metricRuntimes));
 			metR.writeLine();
 
-			System.out.println("metricRuntime fits");
-
 			// for each value
 			for (AggregatedValue v : initBatch.getMetricRuntimes().getList()) {
 				metR.writeLine(TexUtils.subsection(v.getName()));
@@ -463,57 +359,7 @@ public class TexUtils {
 
 				// add ref line
 				if (fits.size() > 0) {
-					String refs;
-					if (fits.size() > 1)
-						refs = "See plots: ";
-					else
-						refs = "See plot: ";
-					boolean first = true;
-					for (PlotConfig pc : fits) {
-						if (pc.getPlotAsCdf().equals("true")) {
-							if (first) {
-								refs += TexUtils.ref(TexUtils.getPlotLabel(pc
-										.getFilename() + TexUtils.cdfSuffix));
-								first = false;
-							} else {
-								refs += ", "
-										+ TexUtils.ref(TexUtils.getPlotLabel(pc
-												.getFilename()
-												+ TexUtils.cdfSuffix));
-							}
-						} else if (pc.getPlotAsCdf().equals("both")) {
-							if (first) {
-								refs += TexUtils.ref(TexUtils.getPlotLabel(pc
-										.getFilename()))
-										+ ", "
-										+ TexUtils.ref(TexUtils.getPlotLabel(pc
-												.getFilename()
-												+ TexUtils.cdfSuffix));
-								first = false;
-							} else {
-								refs += ", "
-										+ TexUtils.ref(TexUtils.getPlotLabel(pc
-												.getFilename()))
-										+ ", "
-										+ TexUtils.ref(TexUtils.getPlotLabel(pc
-												.getFilename()
-												+ TexUtils.cdfSuffix));
-							}
-						} else {
-							if (first) {
-								refs += TexUtils.ref(TexUtils.getPlotLabel(pc
-										.getFilename()));
-								;
-								first = false;
-							} else {
-								refs += ", "
-										+ TexUtils.ref(TexUtils.getPlotLabel(pc
-												.getFilename()));
-								;
-							}
-						}
-					}
-					refs += ".";
+					String refs = TexUtils.getReferenceString(fits);
 					metR.writeLine(refs);
 					metR.writeLine();
 
@@ -568,6 +414,98 @@ public class TexUtils {
 		return metR;
 	}
 
+	public static String getReferenceString(ArrayList<PlotConfig> fits) {
+		String refs;
+		if (fits.size() > 1)
+			refs = "See plots: ";
+		else
+			refs = "See plot: ";
+		boolean first = true;
+		for (PlotConfig pc : fits) {
+			if (pc.getPlotAsCdf().equals("true")) {
+				if (first) {
+					refs += TexUtils.ref(TexUtils.getPlotLabel(pc.getFilename()
+							+ TexUtils.cdfSuffix));
+					first = false;
+				} else {
+					refs += ", "
+							+ TexUtils.ref(TexUtils.getPlotLabel(pc
+									.getFilename() + TexUtils.cdfSuffix));
+				}
+			} else if (pc.getPlotAsCdf().equals("both")) {
+				if (first) {
+					refs += TexUtils
+							.ref(TexUtils.getPlotLabel(pc.getFilename()))
+							+ ", "
+							+ TexUtils.ref(TexUtils.getPlotLabel(pc
+									.getFilename() + TexUtils.cdfSuffix));
+					first = false;
+				} else {
+					refs += ", "
+							+ TexUtils.ref(TexUtils.getPlotLabel(pc
+									.getFilename()))
+							+ ", "
+							+ TexUtils.ref(TexUtils.getPlotLabel(pc
+									.getFilename() + TexUtils.cdfSuffix));
+				}
+			} else {
+				if (first) {
+					refs += TexUtils
+							.ref(TexUtils.getPlotLabel(pc.getFilename()));
+					;
+					first = false;
+				} else {
+					refs += ", "
+							+ TexUtils.ref(TexUtils.getPlotLabel(pc
+									.getFilename()));
+					;
+				}
+			}
+		}
+		refs += ".";
+		return refs;
+	}
+
+	public static String getReferenceString(String refs, PlotConfig pc,
+			boolean first) {
+		if (pc.getPlotAsCdf().equals("true")) {
+			if (first) {
+				refs += TexUtils.ref(TexUtils.getPlotLabel(pc.getFilename()
+						+ TexUtils.cdfSuffix));
+				first = false;
+			} else {
+				refs += ", "
+						+ TexUtils.ref(TexUtils.getPlotLabel(pc.getFilename()
+								+ TexUtils.cdfSuffix));
+			}
+		} else if (pc.getPlotAsCdf().equals("both")) {
+			if (first) {
+				refs += TexUtils.ref(TexUtils.getPlotLabel(pc.getFilename()))
+						+ ", "
+						+ TexUtils.ref(TexUtils.getPlotLabel(pc.getFilename()
+								+ TexUtils.cdfSuffix));
+				first = false;
+			} else {
+				refs += ", "
+						+ TexUtils.ref(TexUtils.getPlotLabel(pc.getFilename()))
+						+ ", "
+						+ TexUtils.ref(TexUtils.getPlotLabel(pc.getFilename()
+								+ TexUtils.cdfSuffix));
+			}
+		} else {
+			if (first) {
+				refs += TexUtils.ref(TexUtils.getPlotLabel(pc.getFilename()));
+				;
+				first = false;
+			} else {
+				refs += ", "
+						+ TexUtils.ref(TexUtils.getPlotLabel(pc.getFilename()));
+				;
+			}
+		}
+		return refs;
+	}
+
 	public static TexFile generateMetricChapter(String dstDir, String plotDir,
 			SeriesData s, AggregatedMetric m, AggregatedBatch[] batchData,
 			TexConfig config, PlottingConfig pconfig) throws IOException {
@@ -588,7 +526,6 @@ public class TexUtils {
 
 		// add plots
 		for (PlotConfig pc : addedPlots) {
-			System.out.println(pc.getFilename() + " " + pc.getPlotAsCdf());
 			if (pc.getPlotAsCdf().equals("true")) {
 				file.includeFigure(plotDir, pc.getFilename()
 						+ TexUtils.cdfSuffix);
@@ -814,8 +751,6 @@ public class TexUtils {
 						|| dom.equals(PlotConfig.customPlotDomainGeneralRuntimes) || dom
 							.equals(PlotConfig.customPlotDomainMetricRuntimes)))
 					continue;
-
-				System.out.println(dom + "\t~\t" + val);
 
 				// if contains value, add plot to
 				if (val.equals(runtime)) {
