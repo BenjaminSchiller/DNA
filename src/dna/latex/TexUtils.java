@@ -712,7 +712,8 @@ public class TexUtils {
 					continue;
 
 				// if contains value, add plot to
-				if (val.equals(runtime)) {
+				if (val.equals(runtime)
+						|| val.equals(PlotConfig.customPlotWildcard)) {
 					if (!fits.contains(p)) {
 						fits.add(p);
 						finished = true;
@@ -755,7 +756,8 @@ public class TexUtils {
 					continue;
 
 				// if contains value, add plot to
-				if (val.equals(value)) {
+				if (val.equals(value)
+						|| val.equals(PlotConfig.customPlotWildcard)) {
 					if (!fits.contains(p)) {
 						fits.add(p);
 						finished = true;
@@ -808,7 +810,8 @@ public class TexUtils {
 					continue;
 
 				// if contains value, add plot to
-				if (val.equals(dist)) {
+				if (val.equals(dist)
+						|| val.equals(PlotConfig.customPlotWildcard)) {
 					if (!fits.contains(p)) {
 						fits.add(p);
 						finished = true;
@@ -874,7 +877,8 @@ public class TexUtils {
 					continue;
 
 				// if contains value, add plot to
-				if (val.equals(nvl)) {
+				if (val.equals(nvl)
+						|| val.equals(PlotConfig.customPlotWildcard)) {
 					if (!fits.contains(p)) {
 						fits.add(p);
 						finished = true;
