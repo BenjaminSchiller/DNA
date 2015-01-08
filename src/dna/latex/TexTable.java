@@ -1,6 +1,8 @@
 package dna.latex;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 import dna.util.Log;
 
@@ -22,6 +24,7 @@ public class TexTable {
 	private boolean open;
 	private int columns;
 	private TableFlag[] tableFlags;
+	private SimpleDateFormat dateFormat;
 
 	// constructor
 	public TexTable(TexFile parent, String[] headRow, long timestamp,
@@ -35,6 +38,12 @@ public class TexTable {
 
 	public TexTable(TexFile parent, String[] headRow) throws IOException {
 		this(parent, headRow, unsetLong, TableFlag.all);
+	}
+
+	public TexTable(TexFile parent, String[] headRow,
+			SimpleDateFormat dateFormat) throws IOException {
+		this(parent, headRow);
+		this.dateFormat = dateFormat;
 	}
 
 	// class methods
@@ -119,8 +128,14 @@ public class TexTable {
 	}
 
 	public void addRow(double[] values, long timestamp) throws IOException {
+		String tempTimestamp = "" + timestamp;
+
+		// if dateFormat is set, transform timestamp
+		if (this.dateFormat != null)
+			tempTimestamp = this.dateFormat.format(new Date(timestamp));
+
 		if (open) {
-			String line = "\t" + timestamp + TexTable.tableDelimiter;
+			String line = "\t" + tempTimestamp + TexTable.tableDelimiter;
 			for (int i = 0; i < values.length; i++) {
 				if (i == values.length - 1)
 					line += values[i] + " " + TexUtils.newline + " "
@@ -136,8 +151,14 @@ public class TexTable {
 	}
 
 	public void addBlankRow(int rows, long timestamp) throws IOException {
+		String tempTimestamp = "" + timestamp;
+
+		// if dateFormat is set, transform timestamp
+		if (this.dateFormat != null)
+			tempTimestamp = this.dateFormat.format(new Date(timestamp));
+
 		if (open) {
-			String line = "\t" + timestamp + TexTable.tableDelimiter;
+			String line = "\t" + tempTimestamp + TexTable.tableDelimiter;
 			for (int i = 0; i < rows; i++) {
 				if (i == rows - 1)
 					line += "-" + " " + TexUtils.newline + " " + TexTable.hline;
