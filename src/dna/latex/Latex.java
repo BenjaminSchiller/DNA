@@ -82,17 +82,17 @@ public class Latex {
 
 		// write statistics
 		if (config.isIncludeStatistics())
-			file.include(TexUtils.generateStatisticsChapter(dstDir, plotDir, initBatch,
-					batchData, config, pconfig));
+			file.include(TexUtils.generateStatisticsChapter(dstDir, plotDir,
+					initBatch, batchData, config, pconfig));
 
 		if (config.isIncludeRuntimes()) {
 			// write general runtimes
 			file.include(TexUtils.generateGeneralRuntimesChapter(dstDir,
-					initBatch, batchData, config));
+					plotDir, initBatch, batchData, config, pconfig));
 
 			// write metric runtimes
 			file.include(TexUtils.generateMetricRuntimesChapter(dstDir,
-					initBatch, batchData, config));
+					plotDir, initBatch, batchData, config, pconfig));
 		}
 
 		// write metrics
@@ -104,8 +104,8 @@ public class Latex {
 								.size() > 0)
 						|| (config.isIncludeNodeValueLists() && m
 								.getNodeValues().size() > 0)) {
-					file.include(TexUtils.generateMetricChapter(dstDir, s, m,
-							batchData, config));
+					file.include(TexUtils.generateMetricChapter(dstDir,
+							plotDir, s, m, batchData, config, pconfig));
 				}
 			}
 		}
