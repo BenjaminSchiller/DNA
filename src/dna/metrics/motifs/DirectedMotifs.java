@@ -66,8 +66,7 @@ public abstract class DirectedMotifs extends Metric {
 
 	@Override
 	public boolean isComparableTo(IMetric m) {
-		// TODO Auto-generated method stub
-		return false;
+		return m instanceof DirectedMotifs;
 	}
 
 	@Override
