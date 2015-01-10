@@ -4,6 +4,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 
+import dna.io.ZipReader;
+import dna.io.ZipWriter;
 import dna.io.filesystem.Dir;
 import dna.plot.PlottingConfig.PlotFlag;
 import dna.plot.data.PlotData.DistributionPlotType;
@@ -95,7 +97,10 @@ public class Plotting {
 		NodeValueListOrderBy orderBy = config.getNvlOrderBy();
 		DistributionPlotType distPlotType = config.getDistPlotType();
 
+		boolean zippedRuns = false;
 		boolean zippedBatches = false;
+		if (Config.get("GENERATION_AS_ZIP").equals("runs"))
+			zippedRuns = true;
 		if (Config.get("GENERATION_AS_ZIP").equals("batches"))
 			zippedBatches = true;
 
@@ -108,16 +113,40 @@ public class Plotting {
 		boolean plotRuntimes = config.isPlotRuntimes();
 
 		// gather relevant batches
-		String[] batches = Dir.getBatchesFromTo(
-				Dir.getAggregationDataDir(seriesData[0].getDir()), plotFrom,
-				plotTo, stepsize, intervalByIndex);
+		String[] batches;
+
+		if (zippedRuns) {
+			ZipReader.readFileSystem = ZipWriter
+					.createAggregationFileSystem(seriesData[0].getDir());
+			batches = Dir.getBatchesFromTo(Dir.delimiter, plotFrom, plotTo,
+					stepsize, intervalByIndex);
+			ZipReader.readFileSystem.close();
+			ZipReader.readFileSystem = null;
+		} else {
+			batches = Dir.getBatchesFromTo(
+					Dir.getAggregationDataDir(seriesData[0].getDir()),
+					plotFrom, plotTo, stepsize, intervalByIndex);
+		}
+
+		for (String s : batches)
+			System.out.println(s);
+		System.out.println(batches.length);
 
 		for (int i = 0; i < seriesData.length; i++) {
 			String tempDir = Dir.getAggregationDataDir(seriesData[i].getDir());
+			if (zippedRuns) {
+				ZipReader.readFileSystem = ZipWriter
+						.createAggregationFileSystem(seriesData[i].getDir());
+				tempDir = Dir.delimiter;
+			}
 			String[] tempBatches = Dir.getBatchesFromTo(tempDir, plotFrom,
 					plotTo, stepsize, intervalByIndex);
 			if (tempBatches.length > batches.length)
 				batches = tempBatches;
+			if (zippedRuns) {
+				ZipReader.readFileSystem.close();
+				ZipReader.readFileSystem = null;
+			}
 		}
 
 		double timestamps[] = new double[batches.length];
@@ -168,6 +197,11 @@ public class Plotting {
 			String tempDir = Dir.getAggregationDataDir(series.getDir());
 			long timestamp = series.getAggregation().getBatches()[0]
 					.getTimestamp();
+			if (zippedRuns) {
+				ZipReader.readFileSystem = ZipWriter
+						.createAggregationFileSystem(series.getDir());
+				tempDir = Dir.delimiter;
+			}
 			if (zippedBatches)
 				initBatches[i] = AggregatedBatch.readFromSingleFile(tempDir,
 						timestamp, Dir.delimiter, BatchReadMode.readAllValues);
@@ -175,6 +209,10 @@ public class Plotting {
 				initBatches[i] = AggregatedBatch.read(
 						Dir.getBatchDataDir(tempDir, timestamp), timestamp,
 						BatchReadMode.readAllValues);
+			if (zippedRuns) {
+				ZipReader.readFileSystem.close();
+				ZipReader.readFileSystem = null;
+			}
 		}
 
 		// replace wildcards and remove unnecessary plots
@@ -188,7 +226,8 @@ public class Plotting {
 					config.getCustomStatisticPlots(), plotMetricValues,
 					config.getCustomMetricValuePlots(), plotCustomValues,
 					config.getCustomValuePlots(), plotRuntimes,
-					config.getCustomRuntimePlots(), zippedBatches, type, style);
+					config.getCustomRuntimePlots(), zippedBatches, zippedRuns,
+					type, style);
 
 		// plot distribution and nodevaluelist plots
 		if (plotDistributions || plotNodeValues)
@@ -197,7 +236,7 @@ public class Plotting {
 					seriesTimestamps, plotDistributions,
 					config.getCustomDistributionPlots(), plotNodeValues,
 					config.getCustomNodeValueListPlots(), zippedBatches,
-					distPlotType, order, orderBy, type, style);
+					zippedRuns, distPlotType, order, orderBy, type, style);
 	}
 
 	/**
@@ -228,7 +267,10 @@ public class Plotting {
 		NodeValueListOrderBy orderBy = config.getNvlOrderBy();
 		DistributionPlotType distPlotType = config.getDistPlotType();
 		String title = series.getName();
+		boolean zippedRuns = false;
 		boolean zippedBatches = false;
+		if (Config.get("GENERATION_AS_ZIP").equals("runs"))
+			zippedRuns = true;
 		if (Config.get("GENERATION_AS_ZIP").equals("batches"))
 			zippedBatches = true;
 		boolean plotDistributions = config.isPlotDistributions();
@@ -239,17 +281,29 @@ public class Plotting {
 
 		// gather relevant batches
 		String tempDir = Dir.getAggregationDataDir(series.getDir());
+		if (zippedRuns) {
+			ZipReader.readFileSystem = ZipWriter
+					.createAggregationFileSystem(series.getDir());
+			tempDir = Dir.delimiter;
+		}
 		String[] batches = Dir.getBatchesFromTo(tempDir, plotFrom, plotTo,
 				stepsize, intervalByIndex);
 		double timestamps[] = new double[batches.length];
 		for (int i = 0; i < batches.length; i++) {
 			timestamps[i] = Dir.getTimestamp(batches[i]);
 		}
+		if (zippedRuns) {
+			ZipReader.readFileSystem.close();
+			ZipReader.readFileSystem = null;
+		}
 
 		// read single values
 		AggregatedBatch[] batchData = new AggregatedBatch[batches.length];
 		for (int i = 0; i < batches.length; i++) {
 			long timestamp = Dir.getTimestamp(batches[i]);
+			if (zippedRuns)
+				ZipReader.readFileSystem = ZipWriter
+						.createAggregationFileSystem(series.getDir());
 			if (zippedBatches)
 				batchData[i] = AggregatedBatch.readFromSingleFile(tempDir,
 						timestamp, Dir.delimiter,
@@ -258,6 +312,10 @@ public class Plotting {
 				batchData[i] = AggregatedBatch.read(
 						Dir.getBatchDataDir(tempDir, timestamp), timestamp,
 						BatchReadMode.readOnlySingleValues);
+			if (zippedRuns) {
+				ZipReader.readFileSystem.close();
+				ZipReader.readFileSystem = null;
+			}
 		}
 
 		// list relevant batches
@@ -349,8 +407,9 @@ public class Plotting {
 			PlottingUtils.plotDistributionsAndNodeValues(plotDistributions,
 					plotNodeValues, initBatch, batches, timestamps,
 					config.getCustomDistributionPlots(),
-					config.getCustomNodeValueListPlots(), tempDir, dstDir,
-					title, style, type, distPlotType, order, orderBy);
+					config.getCustomNodeValueListPlots(), series.getDir(),
+					tempDir, dstDir, title, style, type, distPlotType, order,
+					orderBy);
 	}
 
 	/**

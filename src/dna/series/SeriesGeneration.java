@@ -95,7 +95,7 @@ public class SeriesGeneration {
 			Log.info("ag = disabled");
 		if (Config.get("GENERATION_AS_ZIP").equals("runs")) {
 			Log.info("r  = zipped");
-
+			Log.info("b  = files");
 		} else if (Config.get("GENERATION_AS_ZIP").equals("batches")) {
 			Log.info("r  = files");
 			Log.info("b  = zipped");

@@ -209,11 +209,24 @@ public class Aggregation {
 			tempBatch = new AggregatedBatch(timestamp, aStats,
 					aGeneralRuntimes, aMetricRuntimes, aMetrics);
 
+			// create agg filesystem
+			if (zippedRuns) {
+				ZipWriter.writeFileSystem = ZipWriter
+						.createAggregationFileSystem(dir);
+				aggdir = Dir.delimiter;
+			}
+
 			// write batch
 			if (zippedBatches)
 				tempBatch.writeSingleFile(aggdir, timestamp, Dir.delimiter);
 			else
 				tempBatch.write(Dir.getBatchDataDir(aggdir, timestamp));
+
+			// close agg filesystem
+			if (zippedRuns) {
+				ZipWriter.writeFileSystem.close();
+				ZipWriter.writeFileSystem = null;
+			}
 
 			// overwrite tempbatch
 			tempBatch = null;

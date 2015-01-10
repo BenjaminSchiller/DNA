@@ -15,6 +15,8 @@ import java.nio.file.StandardOpenOption;
 import java.util.HashMap;
 import java.util.Map;
 
+import dna.io.filesystem.Dir;
+import dna.util.Config;
 import dna.util.Log;
 
 /**
@@ -146,6 +148,16 @@ public class ZipWriter extends Writer {
 			throws IOException {
 		return createFileSystem(fsDir,
 				dna.io.filesystem.Files.getRunFilename(run));
+	}
+
+	/**
+	 * Creates an aggregation filesystem for an aggregation in the specified
+	 * directory.
+	 **/
+	public static FileSystem createAggregationFileSystem(String fsDir)
+			throws IOException {
+		return createFileSystem(fsDir,
+				Config.get("RUN_AGGREGATION") + Config.get("SUFFIX_ZIP_FILE"));
 	}
 
 	/** Creates a zip filesystem for a specified directory and filename. **/
