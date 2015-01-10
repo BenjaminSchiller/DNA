@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -202,7 +203,8 @@ public class Plotting {
 					config.getCustomStatisticPlots(), plotMetricValues,
 					config.getCustomMetricValuePlots(), plotCustomValues,
 					config.getCustomValuePlots(), plotRuntimes,
-					config.getCustomRuntimePlots(), singleFile, type, style);
+					config.getCustomRuntimePlots(), singleFile, type, style,
+					config.getTimesstampMap());
 
 		// plot distribution and nodevaluelist plots
 		if (plotDistributions || plotNodeValues)
@@ -210,7 +212,8 @@ public class Plotting {
 					batches, timestamps, initBatches, seriesTimestamps,
 					plotDistributions, config.getCustomDistributionPlots(),
 					plotNodeValues, config.getCustomNodeValueListPlots(),
-					singleFile, distPlotType, order, orderBy, type, style);
+					singleFile, distPlotType, order, orderBy, type, style,
+					config.getTimesstampMap());
 	}
 
 	/** Plots the def. distribution and nodeavluelist plots for multiple series. */
@@ -222,8 +225,9 @@ public class Plotting {
 			boolean plotNodeValues,
 			ArrayList<PlotConfig> customNodeValueListPlots, boolean singleFile,
 			DistributionPlotType distPlotType, NodeValueListOrder order,
-			NodeValueListOrderBy orderBy, PlotType type, PlotStyle style)
-			throws IOException, InterruptedException {
+			NodeValueListOrderBy orderBy, PlotType type, PlotStyle style,
+			HashMap<Long, Long> timestampMap) throws IOException,
+			InterruptedException {
 		Log.infoSep();
 
 		// list of default plots
@@ -791,6 +795,7 @@ public class Plotting {
 						PlotFilenames.getDistributionCdfPlot(dist),
 						PlotFilenames.getDistributionCdfGnuplotScript(dist),
 						plotTitle, cdfData);
+
 				// set quantities
 				p.setSeriesDataQuantities(seriesDataQuantities);
 
@@ -1024,6 +1029,7 @@ public class Plotting {
 							PlotFilenames.getDistributionGnuplotScript(metric,
 									dist), metric + "." + dist + " (" + type
 									+ ")", data);
+
 					// set data quantities
 					p.setSeriesDataQuantities(seriesDataQuantities);
 
@@ -1236,8 +1242,9 @@ public class Plotting {
 			ArrayList<PlotConfig> customMetricValuePlots,
 			boolean plotCustomValues, ArrayList<PlotConfig> customValuePlots,
 			boolean plotRuntimes, ArrayList<PlotConfig> customRuntimePlots,
-			boolean singleFile, PlotType type, PlotStyle style)
-			throws IOException, InterruptedException {
+			boolean singleFile, PlotType type, PlotStyle style,
+			HashMap<Long, Long> timestampMap) throws IOException,
+			InterruptedException {
 		// lists of plots
 		ArrayList<Plot> defaultPlots = new ArrayList<Plot>();
 		ArrayList<Plot> plots = new ArrayList<Plot>();
@@ -1249,7 +1256,7 @@ public class Plotting {
 
 			// generate plots and add to customPlot List
 			Plotting.generateCustomPlots(customStatisticPlots, plots, dstDir,
-					seriesData, initBatches, style, type);
+					seriesData, initBatches, style, type, timestampMap);
 		}
 
 		// generate custom metric value plots
@@ -1259,7 +1266,7 @@ public class Plotting {
 
 			// generate plots and add to customPlot List
 			Plotting.generateCustomPlots(customMetricValuePlots, plots, dstDir,
-					seriesData, initBatches, style, type);
+					seriesData, initBatches, style, type, timestampMap);
 		}
 
 		// generate custom value plots
@@ -1269,7 +1276,7 @@ public class Plotting {
 
 			// generate plots and add to customPlot list
 			Plotting.generateCustomPlots(customValuePlots, plots, dstDir,
-					seriesData, initBatches, style, type);
+					seriesData, initBatches, style, type, timestampMap);
 		}
 
 		// generate runtime plots
@@ -1279,14 +1286,14 @@ public class Plotting {
 
 			// generate plots and add to customPlot List
 			Plotting.generateCustomPlots(customRuntimePlots, plots, dstDir,
-					seriesData, initBatches, style, type);
+					seriesData, initBatches, style, type, timestampMap);
 		}
 
 		// default plots
 		if (Config.getBoolean("DEFAULT_PLOTS_ENABLED"))
 			Plotting.generateMultiSeriesDefaultPlots(defaultPlots, dstDir,
 					seriesData, initBatches, plotStatistics, plotMetricValues,
-					plotRuntimes, style, type);
+					plotRuntimes, style, type, timestampMap);
 
 		// write script headers
 		for (Plot p : plots)
@@ -1373,7 +1380,8 @@ public class Plotting {
 	private static void generateCustomPlots(ArrayList<PlotConfig> plotConfigs,
 			ArrayList<Plot> customPlots, String dstDir,
 			SeriesData[] seriesData, AggregatedBatch[] initBatches,
-			PlotStyle style, PlotType type) throws IOException {
+			PlotStyle style, PlotType type, HashMap<Long, Long> timestampMap)
+			throws IOException {
 		for (int i = 0; i < plotConfigs.size(); i++) {
 			Log.info("\tplotting '" + plotConfigs.get(i).getFilename() + "'");
 
@@ -1483,6 +1491,9 @@ public class Plotting {
 						PlotFilenames.getValuesGnuplotScript(filename),
 						config.getTitle(), config, data);
 
+				// set timestamp mapping
+				p.setTimestampMap(timestampMap);
+
 				// set series data quantities
 				p.setSeriesDataQuantities(seriesDataQuantities);
 
@@ -1495,6 +1506,9 @@ public class Plotting {
 						PlotFilenames.getValuesPlotCDF(filename),
 						PlotFilenames.getValuesGnuplotScriptCDF(filename),
 						"CDF of " + config.getTitle(), config, data);
+
+				// set timestamp mapping
+				p.setTimestampMap(timestampMap);
 
 				// set as cdf plot
 				p.setCdfPlot(true);
@@ -1538,7 +1552,7 @@ public class Plotting {
 			ArrayList<Plot> plotList, String dstDir, SeriesData[] seriesData,
 			AggregatedBatch[] initBatches, boolean plotStatistics,
 			boolean plotMetricValues, boolean plotRuntimes, PlotStyle style,
-			PlotType type) throws IOException {
+			PlotType type, HashMap<Long, Long> timestampMap) throws IOException {
 		// contains the names of values
 		ArrayList<String> values = new ArrayList<String>();
 		ArrayList<String> genRuntimeValues = new ArrayList<String>();
@@ -1686,6 +1700,9 @@ public class Plotting {
 					PlotFilenames.getRuntimesMultiSeriesGnuplotScript(runtime),
 					runtime + " (" + type + ")", data);
 
+			// set timestamp mapping
+			p.setTimestampMap(timestampMap);
+
 			// set quantities
 			p.setSeriesDataQuantities(seriesDataQuantities);
 
@@ -1726,6 +1743,9 @@ public class Plotting {
 					PlotFilenames.getRuntimesMultiSeriesGnuplotFile(runtime),
 					PlotFilenames.getRuntimesMultiSeriesGnuplotScript(runtime),
 					runtime + " (" + type + ")", data);
+
+			// set timestamp mapping
+			p.setTimestampMap(timestampMap);
 
 			// set quantities
 			p.setSeriesDataQuantities(seriesDataQuantities);
@@ -1818,6 +1838,9 @@ public class Plotting {
 					PlotFilenames.getValuesGnuplotScript(value), plotTitle,
 					valuePlotData);
 
+			// set timestamp mapping
+			p.setTimestampMap(timestampMap);
+
 			// set quantities
 			p.setSeriesDataQuantities(seriesDataQuantities);
 
@@ -1887,6 +1910,9 @@ public class Plotting {
 				Plot p = new Plot(dstDir, PlotFilenames.getValuesPlot(metric,
 						value), PlotFilenames.getValuesGnuplotScript(metric,
 						value), metric + "." + value + " (" + type + ")", data);
+
+				// set timestamp mapping
+				p.setTimestampMap(timestampMap);
 
 				p.setSeriesDataQuantities(seriesDataQuantities);
 
@@ -1980,7 +2006,7 @@ public class Plotting {
 					Log.info("Plotting Custom-Statistic-Plots:");
 					Plotting.plotCustomValuePlots(batchData,
 							config.getCustomStatisticPlots(), dstDir, title,
-							style, type);
+							style, type, config.getTimesstampMap());
 				}
 			}
 		}
@@ -1990,20 +2016,22 @@ public class Plotting {
 			Log.infoSep();
 			Log.info("Plotting Custom-Value-Plots:");
 			Plotting.plotCustomValuePlots(batchData,
-					config.getCustomValuePlots(), dstDir, title, style, type);
+					config.getCustomValuePlots(), dstDir, title, style, type,
+					config.getTimesstampMap());
 		}
 
 		// plot runtimes
 		if (config.isPlotRuntimes()) {
 			// plot custom runtimes
 			Plotting.plotCustomRuntimes(batchData,
-					config.getCustomRuntimePlots(), dstDir, title, style, type);
+					config.getCustomRuntimePlots(), dstDir, title, style, type,
+					config.getTimesstampMap());
 		}
 
 		// plot metric values
 		if (config.isPlotMetricValues()) {
 			Plotting.plotMetricValues(batchData, initBatch.getMetrics(),
-					dstDir, title, style, type);
+					dstDir, title, style, type, config.getTimesstampMap());
 
 			// plot custom metric value plots
 			if (config.getCustomMetricValuePlots() != null) {
@@ -2012,7 +2040,7 @@ public class Plotting {
 					Log.info("Plotting Custom-MetricValue-Plots:");
 					Plotting.plotCustomValuePlots(batchData,
 							config.getCustomMetricValuePlots(), dstDir, title,
-							style, type);
+							style, type, config.getTimesstampMap());
 				}
 			}
 		}
@@ -2043,7 +2071,8 @@ public class Plotting {
 					plotNodeValues, initBatch, batches, timestamps,
 					config.getCustomDistributionPlots(),
 					config.getCustomNodeValueListPlots(), tempDir, dstDir,
-					title, style, type, distPlotType, order, orderBy);
+					title, style, type, distPlotType, order, orderBy,
+					config.getTimesstampMap());
 	}
 
 	/**
@@ -2914,7 +2943,8 @@ public class Plotting {
 	/** Plots custom value plots **/
 	private static void plotCustomValuePlots(AggregatedBatch[] batchData,
 			ArrayList<PlotConfig> customValuePlots, String dstDir,
-			String title, PlotStyle style, PlotType type) throws IOException,
+			String title, PlotStyle style, PlotType type,
+			HashMap<Long, Long> timestampMap) throws IOException,
 			InterruptedException {
 		for (PlotConfig pc : customValuePlots) {
 			String name = pc.getTitle();
@@ -2993,6 +3023,9 @@ public class Plotting {
 						PlotFilenames.getValuesGnuplotScript(filename), name
 								+ " (" + type + ")", pc, data);
 
+				// set timestamp mapping
+				p.setTimestampMap(timestampMap);
+
 				// write script header
 				p.writeScriptHeader();
 
@@ -3011,6 +3044,9 @@ public class Plotting {
 						PlotFilenames.getValuesPlotCDF(filename),
 						PlotFilenames.getValuesGnuplotScriptCDF(filename), name
 								+ " (" + type + ")", pc, data);
+
+				// set timestamp mapping
+				p.setTimestampMap(timestampMap);
 
 				// set as cdf
 				p.setCdfPlot(true);
@@ -3036,8 +3072,8 @@ public class Plotting {
 			ArrayList<PlotConfig> customNodeValueListPlots, String aggrDir,
 			String dstDir, String title, PlotStyle style, PlotType type,
 			DistributionPlotType distPlotType, NodeValueListOrder order,
-			NodeValueListOrderBy orderBy) throws IOException,
-			InterruptedException {
+			NodeValueListOrderBy orderBy, HashMap<Long, Long> timestampMap)
+			throws IOException, InterruptedException {
 		boolean singleFile = Config.getBoolean("GENERATION_BATCHES_AS_ZIP");
 		Log.infoSep();
 		Log.info("Sequentially plotting Distributions and / or NodeValueLists");
@@ -3141,6 +3177,9 @@ public class Plotting {
 										metric, distribution), "CDF of "
 										+ distribution + " (" + type + ")",
 								dPlotDataCDF);
+
+						// set timestamp mapping
+						p.setTimestampMap(timestampMap);
 
 						// set cdf
 						p.setCdfPlot(true);
@@ -3565,8 +3604,8 @@ public class Plotting {
 	/** Plots metric values **/
 	private static void plotMetricValues(AggregatedBatch[] batchData,
 			AggregatedMetricList metrics, String dstDir, String title,
-			PlotStyle style, PlotType type) throws IOException,
-			InterruptedException {
+			PlotStyle style, PlotType type, HashMap<Long, Long> timestampMap)
+			throws IOException, InterruptedException {
 
 		// init list for plots
 		List<Plot> plots = new LinkedList<Plot>();
@@ -3585,10 +3624,16 @@ public class Plotting {
 						style, metric, type);
 
 				// create plot
-				plots.add(new Plot(dstDir, PlotFilenames.getValuesPlot(metric,
+				Plot p = new Plot(dstDir, PlotFilenames.getValuesPlot(metric,
 						value), PlotFilenames.getValuesGnuplotScript(metric,
 						value), value + " (" + type + ")",
-						new PlotData[] { valuePlotData }));
+						new PlotData[] { valuePlotData });
+
+				// set timestamp mapping
+				p.setTimestampMap(timestampMap);
+
+				// add plot
+				plots.add(p);
 			}
 		}
 
@@ -3633,10 +3678,16 @@ public class Plotting {
 				}
 
 				// create plot
-				plots.add(new Plot(dstDir, PlotFilenames
-						.getCombinationPlot(value), PlotFilenames
-						.getCombinationGnuplotScript(value), value + " ("
-						+ type + ")", valuePlotDatas));
+				Plot p = new Plot(dstDir,
+						PlotFilenames.getCombinationPlot(value),
+						PlotFilenames.getCombinationGnuplotScript(value), value
+								+ " (" + type + ")", valuePlotDatas);
+
+				// set timestamp mapping
+				p.setTimestampMap(timestampMap);
+
+				// add plot
+				plots.add(p);
 			}
 		}
 
@@ -3657,8 +3708,8 @@ public class Plotting {
 	/** Plot custom runtime plots **/
 	private static void plotCustomRuntimes(AggregatedBatch[] batchData,
 			ArrayList<PlotConfig> customPlots, String dstDir, String title,
-			PlotStyle style, PlotType type) throws IOException,
-			InterruptedException {
+			PlotStyle style, PlotType type, HashMap<Long, Long> timestampMap)
+			throws IOException, InterruptedException {
 		Log.infoSep();
 		Log.info("Plotting Custom-Runtime-Plots:");
 		for (PlotConfig pc : customPlots) {
@@ -3738,6 +3789,9 @@ public class Plotting {
 						PlotFilenames.getRuntimesGnuplotScript(plotFilename),
 						name + " (" + type + ")", pc, plotData);
 
+				// set timestamp mapping
+				p.setTimestampMap(timestampMap);
+
 				// write script header
 				p.writeScriptHeader();
 
@@ -3757,6 +3811,9 @@ public class Plotting {
 						PlotFilenames.getRuntimesPlotFileCDF(plotFilename),
 						PlotFilenames.getRuntimesGnuplotScriptCDF(plotFilename),
 						"CDF of " + name + " (" + type + ")", pc, plotData);
+
+				// set timestamp mapping
+				p.setTimestampMap(timestampMap);
 
 				// set cdf plot
 				p.setCdfPlot(true);

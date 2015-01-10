@@ -1,6 +1,7 @@
 package dna.plot;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import dna.plot.data.PlotData.DistributionPlotType;
 import dna.plot.data.PlotData.NodeValueListOrder;
