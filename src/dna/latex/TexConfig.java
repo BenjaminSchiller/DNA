@@ -4,6 +4,7 @@ import java.text.SimpleDateFormat;
 
 import dna.latex.TexTable.TableFlag;
 import dna.plot.PlottingConfig.PlotFlag;
+import dna.util.Config;
 
 /** A TexConfig object is used to configure the tex-output process. **/
 public class TexConfig {
@@ -24,6 +25,13 @@ public class TexConfig {
 		this.plotDir = plotDir;
 		this.plotFlags = plotFlags;
 		this.tableFlags = tableFlags;
+
+		// if default datetime is set in config, set it here
+		if (Config.get("LATEX_DEFAULT_DATETIME") != null) {
+			String tempDateTime = Config.get("LATEX_DEFAULT_DATETIME");
+			if (!tempDateTime.equals("null"))
+				this.dateFormat = new SimpleDateFormat(tempDateTime);
+		}
 	}
 
 	public void setPlotFlags(PlotFlag... flags) {
