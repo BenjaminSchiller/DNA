@@ -4,7 +4,9 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import dna.util.Config;
 import dna.util.Log;
+import dna.util.MathHelper;
 
 /** Represents a table in a tex document. **/
 public class TexTable {
@@ -114,11 +116,17 @@ public class TexTable {
 		if (open) {
 			String line = "\t";
 			for (int i = 0; i < values.length; i++) {
+				String value = "" + values[i];
+
+				// if formatting is on, format
+				if (Config.getBoolean("LATEX_DATA_FORMATTING"))
+					value = MathHelper.format(values[i]);
+
 				if (i == values.length - 1)
-					line += values[i] + " " + TexUtils.newline + " "
+					line += value + " " + TexUtils.newline + " "
 							+ TexTable.hline;
 				else
-					line += values[i] + TexTable.tableDelimiter;
+					line += value + TexTable.tableDelimiter;
 			}
 			this.parent.writeLine(line);
 		} else {
@@ -137,11 +145,17 @@ public class TexTable {
 		if (open) {
 			String line = "\t" + tempTimestamp + TexTable.tableDelimiter;
 			for (int i = 0; i < values.length; i++) {
+				String value = "" + values[i];
+
+				// if formatting is on, format
+				if (Config.getBoolean("LATEX_DATA_FORMATTING"))
+					value = MathHelper.format(values[i]);
+
 				if (i == values.length - 1)
-					line += values[i] + " " + TexUtils.newline + " "
+					line += value + " " + TexUtils.newline + " "
 							+ TexTable.hline;
 				else
-					line += values[i] + TexTable.tableDelimiter;
+					line += value + TexTable.tableDelimiter;
 			}
 			this.parent.writeLine(line);
 		} else {
