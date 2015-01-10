@@ -1,6 +1,7 @@
 package dna.plot;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -73,6 +74,7 @@ public class Plot {
 	private NodeValueListOrder sortOrder;
 	private boolean cdfPlot;
 	private String key;
+	private HashMap<Long, Long> timestampMap;
 
 	/**
 	 * Creates a plot object which will be written to a gnuplot script file.
@@ -299,6 +301,14 @@ public class Plot {
 			boolean addAsCDF) throws IOException {
 		double timestamp = (double) batch.getTimestamp();
 
+		// map timestamps
+		if (this.getTimestampMap() != null) {
+			if (this.getTimestampMap().containsKey(batch.getTimestamp())) {
+				timestamp = (double) this.getTimestampMap().get(
+						batch.getTimestamp());
+			}
+		}
+
 		// figure out where to get the data from
 		if (domain.equals(PlotConfig.customPlotDomainStatistics)) {
 			this.appendData(batch.getValues().get(name), timestamp);
@@ -421,6 +431,14 @@ public class Plot {
 	private void addData(String name, String domain, BatchData batch,
 			boolean addAsCDF) throws IOException {
 		double timestamp = (double) batch.getTimestamp();
+
+		// map timestamps
+		if (this.getTimestampMap() != null) {
+			if (this.getTimestampMap().containsKey(batch.getTimestamp())) {
+				timestamp = (double) this.getTimestampMap().get(
+						batch.getTimestamp());
+			}
+		}
 
 		// figure out where to get the data from
 		if (domain.equals(PlotConfig.customPlotDomainStatistics)) {
@@ -793,11 +811,18 @@ public class Plot {
 	public void addDataFromExpression(AggregatedBatch b, ExpressionData d)
 			throws IOException {
 		long timestamp = b.getTimestamp();
+
+		// map timestamps
+		if (this.getTimestampMap() != null) {
+			if (this.getTimestampMap().containsKey(b.getTimestamp())) {
+				timestamp = this.getTimestampMap().get(b.getTimestamp());
+			}
+		}
+
 		String expression = d.getExpressionWithoutMarks();
 
 		String[] vars = d.getVariables();
 		String[] domains = d.getDomains();
-
 		AggregatedValue[] values = new AggregatedValue[vars.length];
 
 		for (int i = 0; i < vars.length; i++) {
@@ -897,11 +922,17 @@ public class Plot {
 	public void addDataFromExpression(BatchData b, ExpressionData d)
 			throws IOException {
 		long timestamp = b.getTimestamp();
+		// map timestamps
+		if (this.getTimestampMap() != null) {
+			if (this.getTimestampMap().containsKey(b.getTimestamp())) {
+				timestamp = this.getTimestampMap().get(b.getTimestamp());
+			}
+		}
+
 		String expression = d.getExpressionWithoutMarks();
 
 		String[] vars = d.getVariables();
 		String[] domains = d.getDomains();
-
 		Value[] values = new Value[vars.length];
 
 		for (int i = 0; i < vars.length; i++) {
@@ -1329,5 +1360,13 @@ public class Plot {
 
 	public void setKey(String key) {
 		this.key = key;
+	}
+
+	public HashMap<Long, Long> getTimestampMap() {
+		return timestampMap;
+	}
+
+	public void setTimestampMap(HashMap<Long, Long> timestampMap) {
+		this.timestampMap = timestampMap;
 	}
 }

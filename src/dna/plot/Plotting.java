@@ -227,7 +227,7 @@ public class Plotting {
 					config.getCustomMetricValuePlots(), plotCustomValues,
 					config.getCustomValuePlots(), plotRuntimes,
 					config.getCustomRuntimePlots(), zippedBatches, zippedRuns,
-					type, style);
+					type, style, config.getTimesstampMap());
 
 		// plot distribution and nodevaluelist plots
 		if (plotDistributions || plotNodeValues)
@@ -344,7 +344,7 @@ public class Plotting {
 					Log.info("Plotting Custom-Statistic-Plots:");
 					PlottingUtils.plotCustomValuePlots(batchData,
 							config.getCustomStatisticPlots(), dstDir, title,
-							style, type);
+							style, type, config.getTimesstampMap());
 				}
 			}
 		}
@@ -354,21 +354,23 @@ public class Plotting {
 			Log.infoSep();
 			Log.info("Plotting Custom-Value-Plots:");
 			PlottingUtils.plotCustomValuePlots(batchData,
-					config.getCustomValuePlots(), dstDir, title, style, type);
+					config.getCustomValuePlots(), dstDir, title, style, type,
+					config.getTimesstampMap());
 		}
 
 		// plot runtimes
 		if (config.isPlotRuntimes()) {
 			// plot custom runtimes
 			PlottingUtils.plotCustomRuntimes(batchData,
-					config.getCustomRuntimePlots(), dstDir, title, style, type);
+					config.getCustomRuntimePlots(), dstDir, title, style, type,
+					config.getTimesstampMap());
 		}
 
 		// plot metric values
 		if (config.isPlotMetricValues()) {
 			PlottingUtils.plotMetricValues(batchData, initBatch, dstDir, title,
 					style, type, config.getCustomMetricValuePlots(),
-					config.getCustomValuePlots());
+					config.getCustomValuePlots(), config.getTimesstampMap());
 
 			// plot custom metric value plots
 			if (config.getCustomMetricValuePlots() != null) {
@@ -377,7 +379,7 @@ public class Plotting {
 					Log.info("Plotting Custom-MetricValue-Plots:");
 					PlottingUtils.plotCustomValuePlots(batchData,
 							config.getCustomMetricValuePlots(), dstDir, title,
-							style, type);
+							style, type, config.getTimesstampMap());
 				}
 			}
 		}
@@ -779,7 +781,7 @@ public class Plotting {
 	}
 
 	/**
-	 * Plots the runs of the series to the destination dir.
+	 * series to the destination dir.
 	 * 
 	 * @param seriesData
 	 *            SeriesData to be plotted.

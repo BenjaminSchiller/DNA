@@ -1,6 +1,7 @@
 package dna.plot;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import dna.plot.data.PlotData.DistributionPlotType;
 import dna.plot.data.PlotData.NodeValueListOrder;
@@ -54,10 +55,12 @@ public class PlottingConfig {
 	private long plotTo;
 	private long stepsize;
 	private boolean intervalByIndex;
+	private HashMap<Long, Long> timestampMap;
 
 	// constructors
 	public PlottingConfig(PlotType plotType, PlotStyle plotStyle,
 			long timestampFrom, long timestampTo, long stepsize,
+			HashMap<Long, Long> timestampMap,
 			DistributionPlotType distPlotType, NodeValueListOrder nvlOrder,
 			NodeValueListOrderBy nvlOrderBy, PlotFlag... flags) {
 		PlotFlag[] tempFlags;
@@ -151,6 +154,7 @@ public class PlottingConfig {
 				timestampFrom,
 				timestampTo,
 				stepsize,
+				null,
 				Config.getDistributionPlotType("GNUPLOT_DEFAULT_DIST_PLOTTYPE"),
 				Config.getNodeValueListOrder("GNUPLOT_DEFAULT_NVL_ORDER"),
 				Config.getNodeValueListOrderBy("GNUPLOT_DEFAULT_NVL_ORDERBY"),
@@ -164,6 +168,7 @@ public class PlottingConfig {
 				0,
 				Long.MAX_VALUE,
 				1,
+				null,
 				Config.getDistributionPlotType("GNUPLOT_DEFAULT_DIST_PLOTTYPE"),
 				Config.getNodeValueListOrder("GNUPLOT_DEFAULT_NVL_ORDER"),
 				Config.getNodeValueListOrderBy("GNUPLOT_DEFAULT_NVL_ORDERBY"),
@@ -1075,6 +1080,14 @@ public class PlottingConfig {
 		this.plotNodeValueLists = plotNodeValueLists;
 	}
 
+	public void setPlotCustomValues(boolean plotCustomValues) {
+		this.plotCustomValues = plotCustomValues;
+	}
+
+	public void setTimestampMap(HashMap<Long, Long> timestampMap) {
+		this.timestampMap = timestampMap;
+	}
+
 	/**
 	 * Sets the plotting interval [timestampFrom:timestampTo] with the specified
 	 * stepsize. Intervals are based on the timestamps of the batches.
@@ -1160,7 +1173,8 @@ public class PlottingConfig {
 		return plotCustomValues;
 	}
 
-	public void setPlotCustomValues(boolean plotCustomValues) {
-		this.plotCustomValues = plotCustomValues;
+	public HashMap<Long, Long> getTimesstampMap() {
+		return timestampMap;
 	}
+
 }

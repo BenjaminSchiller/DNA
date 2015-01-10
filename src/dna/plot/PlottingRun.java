@@ -3,6 +3,9 @@ package dna.plot;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 
 import dna.io.filesystem.Dir;
 import dna.plot.PlottingConfig.PlotFlag;
@@ -226,7 +229,7 @@ public class PlottingRun {
 					Log.info("Plotting Custom-Statistic-Plots:");
 					PlottingUtils.plotCustomValuePlots(batchData,
 							config.getCustomStatisticPlots(), dstDir, title,
-							style, type);
+							style, type, config.getTimesstampMap());
 				}
 			}
 		}
@@ -236,21 +239,23 @@ public class PlottingRun {
 			Log.infoSep();
 			Log.info("Plotting Custom-Value-Plots:");
 			PlottingUtils.plotCustomValuePlots(batchData,
-					config.getCustomValuePlots(), dstDir, title, style, type);
+					config.getCustomValuePlots(), dstDir, title, style, type,
+					config.getTimesstampMap());
 		}
 
 		// plot runtimes
 		if (config.isPlotRuntimes()) {
 			// plot custom runtimes
 			PlottingUtils.plotCustomRuntimes(batchData,
-					config.getCustomRuntimePlots(), dstDir, title, style, type);
+					config.getCustomRuntimePlots(), dstDir, title, style, type,
+					config.getTimesstampMap());
 		}
 
 		// plot metric values
 		if (config.isPlotMetricValues()) {
 			PlottingUtils.plotMetricValues(batchData, initBatch, dstDir, title,
 					style, type, config.getCustomMetricValuePlots(),
-					config.getCustomValuePlots());
+					config.getCustomValuePlots(), config.getTimesstampMap());
 
 			// plot custom metric value plots
 			if (config.getCustomMetricValuePlots() != null) {
@@ -259,7 +264,7 @@ public class PlottingRun {
 					Log.info("Plotting Custom-MetricValue-Plots:");
 					PlottingUtils.plotCustomValuePlots(batchData,
 							config.getCustomMetricValuePlots(), dstDir, title,
-							style, type);
+							style, type, config.getTimesstampMap());
 				}
 			}
 		}
@@ -289,9 +294,9 @@ public class PlottingRun {
 			PlottingUtils.plotDistributionsAndNodeValues(plotDistributions,
 					plotNodeValues, initBatch, batches, timestamps,
 					config.getCustomDistributionPlots(),
-					config.getCustomNodeValueListPlots(), tempDir, dstDir,
-					title, style, type, distPlotType, order, orderBy);
-
+					config.getCustomNodeValueListPlots(), series.getDir(),
+					tempDir, dstDir, title, style, type, distPlotType, order,
+					orderBy);
 	}
 
 	private static void plotRuns(SeriesData[] seriesData, RunData[] runs,
@@ -312,7 +317,13 @@ public class PlottingRun {
 		NodeValueListOrderBy orderBy = config.getNvlOrderBy();
 		DistributionPlotType distPlotType = config.getDistPlotType();
 
-		boolean singleFile = Config.getBoolean("GENERATION_BATCHES_AS_ZIP");
+		boolean zippedRuns = false;
+		boolean zippedBatches = false;
+		if (Config.get("GENERATION_AS_ZIP").equals("runs"))
+			zippedRuns = true;
+		if (Config.get("GENERATION_AS_ZIP").equals("batches"))
+			zippedBatches = true;
+
 		boolean plotDistributions = config.isPlotDistributions();
 		boolean plotNodeValues = config.isPlotNodeValueLists();
 
@@ -378,7 +389,7 @@ public class PlottingRun {
 			String tempDir = Dir.getRunDataDir(series.getDir(), indizes[i]);
 			long timestamp = series.getRuns().get(indizes[i]).getBatches()
 					.get(0).getTimestamp();
-			if (singleFile)
+			if (zippedBatches)
 				initBatches[i] = BatchData.readFromSingleFile(tempDir,
 						timestamp, Dir.delimiter,
 						BatchReadMode.readOnlySingleValues);
@@ -399,7 +410,8 @@ public class PlottingRun {
 					config.getCustomStatisticPlots(), plotMetricValues,
 					config.getCustomMetricValuePlots(), plotCustomValues,
 					config.getCustomValuePlots(), plotRuntimes,
-					config.getCustomRuntimePlots(), singleFile, type, style);
+					config.getCustomRuntimePlots(), zippedBatches, zippedRuns,
+					type, style, config.getTimesstampMap());
 
 		// plot distribution and nodevaluelist plots
 		if (plotDistributions || plotNodeValues)
@@ -407,8 +419,8 @@ public class PlottingRun {
 					indizes, dstDir, batches, timestamps, initBatches,
 					seriesTimestamps, plotDistributions,
 					config.getCustomDistributionPlots(), plotNodeValues,
-					config.getCustomNodeValueListPlots(), singleFile,
-					distPlotType, order, orderBy, type, style);
+					config.getCustomNodeValueListPlots(), zippedBatches,
+					zippedRuns, distPlotType, order, orderBy, type, style);
 
 	}
 }
