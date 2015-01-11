@@ -4040,8 +4040,8 @@ public class PlottingUtils {
 					try {
 						if (zippedRuns) {
 							ZipReader.readFileSystem = ZipWriter
-									.createAggregationFileSystem(series
-											.getDir());
+									.createRunFileSystem(series.getDir(),
+											indizes[i]);
 							tempDir = Dir.delimiter;
 						}
 						if (zippedBatches)

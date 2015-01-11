@@ -3,10 +3,9 @@ package dna.plot;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
 
+import dna.io.ZipReader;
+import dna.io.ZipWriter;
 import dna.io.filesystem.Dir;
 import dna.plot.PlottingConfig.PlotFlag;
 import dna.plot.data.PlotData.DistributionPlotType;
@@ -112,6 +111,22 @@ public class PlottingRun {
 		Log.info("Plotting finished!");
 	}
 
+	/**
+	 * Plots the runs of the series to the destination dir.
+	 * 
+	 * @param seriesData
+	 *            SeriesData to be plotted.
+	 * @param inizes
+	 *            Indizes of the runs to be plotted.
+	 * @param dstDir
+	 *            Destination directory of the plots.
+	 * @param config
+	 *            PlottingConfig configuring the plotting process.
+	 * @throws IOException
+	 *             Thrown by writer.
+	 * @throws InterruptedException
+	 *             Thrown by executing gnuplot.
+	 */
 	public static void plot(SeriesData[] seriesData, int[] indizes,
 			String dstDir, PlottingConfig config) throws IOException,
 			InterruptedException {
@@ -172,7 +187,13 @@ public class PlottingRun {
 		NodeValueListOrderBy orderBy = config.getNvlOrderBy();
 		DistributionPlotType distPlotType = config.getDistPlotType();
 		String title = series.getName();
-		boolean singleFile = Config.getBoolean("GENERATION_BATCHES_AS_ZIP");
+
+		boolean zippedRuns = false;
+		boolean zippedBatches = false;
+		if (Config.get("GENERATION_AS_ZIP").equals("runs"))
+			zippedRuns = true;
+		if (Config.get("GENERATION_AS_ZIP").equals("batches"))
+			zippedBatches = true;
 		boolean plotDistributions = config.isPlotDistributions();
 		boolean plotNodeValues = config.isPlotNodeValueLists();
 
@@ -182,6 +203,11 @@ public class PlottingRun {
 		// gather relevant batches
 		String tempDir = Dir.getRunDataDir(series.getDir(), index);
 
+		if (zippedRuns) {
+			ZipReader.readFileSystem = ZipWriter.createRunFileSystem(
+					series.getDir(), index);
+			tempDir = Dir.delimiter;
+		}
 		String[] batches = Dir.getBatchesFromTo(tempDir, plotFrom, plotTo,
 				stepsize, intervalByIndex);
 		double timestamps[] = new double[batches.length];
@@ -189,11 +215,21 @@ public class PlottingRun {
 			timestamps[i] = Dir.getTimestamp(batches[i]);
 		}
 
+		if (zippedRuns) {
+			ZipReader.readFileSystem.close();
+			ZipReader.readFileSystem = null;
+		}
+
 		// read single values
 		BatchData[] batchData = new BatchData[batches.length];
 		for (int i = 0; i < batches.length; i++) {
 			long timestamp = Dir.getTimestamp(batches[i]);
-			if (singleFile)
+			if (zippedRuns) {
+				ZipReader.readFileSystem = ZipWriter.createRunFileSystem(
+						series.getDir(), index);
+				tempDir = Dir.delimiter;
+			}
+			if (zippedBatches)
 				batchData[i] = BatchData.readFromSingleFile(
 						Dir.getBatchDataDir(tempDir, timestamp), timestamp,
 						Dir.delimiter, BatchReadMode.readOnlySingleValues);
@@ -201,6 +237,10 @@ public class PlottingRun {
 				batchData[i] = BatchData.read(
 						Dir.getBatchDataDir(tempDir, timestamp), timestamp,
 						BatchReadMode.readOnlySingleValues);
+			if (zippedRuns) {
+				ZipReader.readFileSystem.close();
+				ZipReader.readFileSystem = null;
+			}
 		}
 
 		// list relevant batches
@@ -333,15 +373,35 @@ public class PlottingRun {
 		boolean plotRuntimes = config.isPlotRuntimes();
 
 		// gather relevant batches
-		String[] batches = Dir.getBatchesFromTo(
-				Dir.getRunDataDir(seriesData[0].getDir(), indizes[0]),
-				plotFrom, plotTo, stepsize, intervalByIndex);
+		String tempRunDir = Dir.getRunDataDir(seriesData[0].getDir(),
+				indizes[0]);
+		if (zippedRuns) {
+			ZipReader.readFileSystem = ZipWriter.createRunFileSystem(
+					seriesData[0].getDir(), indizes[0]);
+			tempRunDir = Dir.delimiter;
+		}
+		String[] batches = Dir.getBatchesFromTo(tempRunDir, plotFrom, plotTo,
+				stepsize, intervalByIndex);
+		if (zippedRuns) {
+			ZipReader.readFileSystem.close();
+			ZipReader.readFileSystem = null;
+		}
 
 		for (int i = 0; i < seriesData.length; i++) {
 			String tempDir = Dir.getRunDataDir(seriesData[i].getDir(),
 					indizes[i]);
+
+			if (zippedRuns) {
+				ZipReader.readFileSystem = ZipWriter.createRunFileSystem(
+						seriesData[i].getDir(), indizes[i]);
+				tempDir = Dir.delimiter;
+			}
 			String[] tempBatches = Dir.getBatchesFromTo(tempDir, plotFrom,
 					plotTo, stepsize, intervalByIndex);
+			if (zippedRuns) {
+				ZipReader.readFileSystem.close();
+				ZipReader.readFileSystem = null;
+			}
 			if (tempBatches.length > batches.length)
 				batches = tempBatches;
 		}
@@ -389,6 +449,12 @@ public class PlottingRun {
 			String tempDir = Dir.getRunDataDir(series.getDir(), indizes[i]);
 			long timestamp = series.getRuns().get(indizes[i]).getBatches()
 					.get(0).getTimestamp();
+
+			if (zippedRuns) {
+				ZipReader.readFileSystem = ZipWriter.createRunFileSystem(
+						seriesData[i].getDir(), indizes[i]);
+				tempDir = Dir.delimiter;
+			}
 			if (zippedBatches)
 				initBatches[i] = BatchData.readFromSingleFile(tempDir,
 						timestamp, Dir.delimiter,
@@ -397,6 +463,10 @@ public class PlottingRun {
 				initBatches[i] = BatchData.read(
 						Dir.getBatchDataDir(tempDir, timestamp), timestamp,
 						BatchReadMode.readOnlySingleValues);
+			if (zippedRuns) {
+				ZipReader.readFileSystem.close();
+				ZipReader.readFileSystem = null;
+			}
 		}
 
 		// replace wildcards and remove unnecessary plots
