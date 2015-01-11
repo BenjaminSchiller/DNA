@@ -1173,7 +1173,7 @@ public class PlottingConfig {
 		return plotCustomValues;
 	}
 
-	public HashMap<Long, Long> getTimesstampMap() {
+	public HashMap<Long, Long> getTimestampMap() {
 		return timestampMap;
 	}
 

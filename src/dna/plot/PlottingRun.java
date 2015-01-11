@@ -229,7 +229,7 @@ public class PlottingRun {
 					Log.info("Plotting Custom-Statistic-Plots:");
 					PlottingUtils.plotCustomValuePlots(batchData,
 							config.getCustomStatisticPlots(), dstDir, title,
-							style, type, config.getTimesstampMap());
+							style, type, config.getTimestampMap());
 				}
 			}
 		}
@@ -240,7 +240,7 @@ public class PlottingRun {
 			Log.info("Plotting Custom-Value-Plots:");
 			PlottingUtils.plotCustomValuePlots(batchData,
 					config.getCustomValuePlots(), dstDir, title, style, type,
-					config.getTimesstampMap());
+					config.getTimestampMap());
 		}
 
 		// plot runtimes
@@ -248,14 +248,14 @@ public class PlottingRun {
 			// plot custom runtimes
 			PlottingUtils.plotCustomRuntimes(batchData,
 					config.getCustomRuntimePlots(), dstDir, title, style, type,
-					config.getTimesstampMap());
+					config.getTimestampMap());
 		}
 
 		// plot metric values
 		if (config.isPlotMetricValues()) {
 			PlottingUtils.plotMetricValues(batchData, initBatch, dstDir, title,
 					style, type, config.getCustomMetricValuePlots(),
-					config.getCustomValuePlots(), config.getTimesstampMap());
+					config.getCustomValuePlots(), config.getTimestampMap());
 
 			// plot custom metric value plots
 			if (config.getCustomMetricValuePlots() != null) {
@@ -264,7 +264,7 @@ public class PlottingRun {
 					Log.info("Plotting Custom-MetricValue-Plots:");
 					PlottingUtils.plotCustomValuePlots(batchData,
 							config.getCustomMetricValuePlots(), dstDir, title,
-							style, type, config.getTimesstampMap());
+							style, type, config.getTimestampMap());
 				}
 			}
 		}
@@ -411,7 +411,7 @@ public class PlottingRun {
 					config.getCustomMetricValuePlots(), plotCustomValues,
 					config.getCustomValuePlots(), plotRuntimes,
 					config.getCustomRuntimePlots(), zippedBatches, zippedRuns,
-					type, style, config.getTimesstampMap());
+					type, style, config.getTimestampMap());
 
 		// plot distribution and nodevaluelist plots
 		if (plotDistributions || plotNodeValues)
