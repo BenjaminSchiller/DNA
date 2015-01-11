@@ -1217,7 +1217,6 @@ public class PlottingUtils {
 																	(long) timestamps[i]),
 															metric)
 															+ distFilename);
-									dPlotDataCDF[i] = cdfPlotData;
 								} else {
 									cdfPlotData
 											.setDataLocation(
@@ -1234,6 +1233,7 @@ public class PlottingUtils {
 															+ distFilename);
 								}
 							}
+							dPlotDataCDF[i] = cdfPlotData;
 						}
 						Plot p = new Plot(dstDir,
 								PlotFilenames.getDistributionCdfPlot(metric,
@@ -1761,6 +1761,8 @@ public class PlottingUtils {
 			p.writeScriptHeader();
 		}
 
+		String tempAggrDir = aggrDir;
+
 		// read data batch by batch and add to plots
 		for (int i = 0; i < batches.length; i++) {
 			if (aggregatedBatches) {
@@ -1770,16 +1772,16 @@ public class PlottingUtils {
 				if (zippedRuns) {
 					ZipReader.readFileSystem = ZipWriter
 							.createAggregationFileSystem(seriesDir);
-					aggrDir = Dir.delimiter;
+					tempAggrDir = Dir.delimiter;
 				}
 				if (zippedBatches)
-					tempBatch = AggregatedBatch.readFromSingleFile(aggrDir,
+					tempBatch = AggregatedBatch.readFromSingleFile(tempAggrDir,
 							timestamp, Dir.delimiter,
 							BatchReadMode.readOnlyDistAndNvl);
 				else
 					tempBatch = AggregatedBatch.read(
-							Dir.getBatchDataDir(aggrDir, timestamp), timestamp,
-							BatchReadMode.readOnlyDistAndNvl);
+							Dir.getBatchDataDir(tempAggrDir, timestamp),
+							timestamp, BatchReadMode.readOnlyDistAndNvl);
 				if (zippedRuns) {
 					ZipReader.readFileSystem.close();
 					ZipReader.readFileSystem = null;
@@ -1801,16 +1803,16 @@ public class PlottingUtils {
 				if (zippedRuns) {
 					ZipReader.readFileSystem = ZipWriter
 							.createAggregationFileSystem(seriesDir);
-					aggrDir = Dir.delimiter;
+					tempAggrDir = Dir.delimiter;
 				}
 				if (zippedBatches)
-					tempBatch = BatchData.readFromSingleFile(aggrDir,
+					tempBatch = BatchData.readFromSingleFile(tempAggrDir,
 							timestamp, Dir.delimiter,
 							BatchReadMode.readOnlyDistAndNvl);
 				else
 					tempBatch = BatchData.read(
-							Dir.getBatchDataDir(aggrDir, timestamp), timestamp,
-							BatchReadMode.readOnlyDistAndNvl);
+							Dir.getBatchDataDir(tempAggrDir, timestamp),
+							timestamp, BatchReadMode.readOnlyDistAndNvl);
 				if (zippedRuns) {
 					ZipReader.readFileSystem.close();
 					ZipReader.readFileSystem = null;
