@@ -727,7 +727,7 @@ public class ArrayUtils {
 		for (double v : values) {
 			x += (v - mean) * (v - mean);
 		}
-		return x / (values.length - 1);
+		return x / (double) values.length;
 	}
 
 	/**
@@ -743,7 +743,7 @@ public class ArrayUtils {
 		for (double v : values) {
 			x += (v - mean) * (v - mean);
 		}
-		return x / (values.length - 1);
+		return x / (double) values.length;
 	}
 
 	/**
@@ -759,7 +759,7 @@ public class ArrayUtils {
 		for (double v : values) {
 			x += (v - mean) * (v - mean);
 		}
-		return x / (values.length - 1);
+		return x / (double) values.length;
 	}
 
 	/**
@@ -776,8 +776,8 @@ public class ArrayUtils {
 		double var = 0;
 		double varLow = 0;
 		double varUp = 0;
-		int countLow = 0;
-		int countUp = 0;
+		double countLow = 0;
+		double countUp = 0;
 		for (double v : values) {
 			var += Math.pow(v - avg, 2);
 			if (v < avg) {
@@ -816,8 +816,8 @@ public class ArrayUtils {
 		double var = 0;
 		double varLow = 0;
 		double varUp = 0;
-		int countLow = 0;
-		int countUp = 0;
+		double countLow = 0;
+		double countUp = 0;
 		for (long v : values) {
 			var += Math.pow(v - avg, 2);
 			if (v < avg) {
@@ -856,8 +856,8 @@ public class ArrayUtils {
 		double var = 0;
 		double varLow = 0;
 		double varUp = 0;
-		int countLow = 0;
-		int countUp = 0;
+		double countLow = 0;
+		double countUp = 0;
 		for (int v : values) {
 			var += Math.pow(v - avg, 2);
 			if (v < avg) {
