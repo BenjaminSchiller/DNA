@@ -152,8 +152,8 @@ public class BatchHandler implements Runnable {
 			this.speed = speed;
 	}
 
-	/** adds new batches from the filesystem to the batches **/
-	public void updateBatches() {
+	/** adds new batches from the filesystem to the batches. **/
+	public void updateBatches() throws IOException {
 		BatchDataList tempBatches = BatchDataList.readTimestamps(this.getDir());
 		if (this.getBatches().size() <= tempBatches.size()) {
 			for (BatchData b : tempBatches.list) {

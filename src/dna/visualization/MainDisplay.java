@@ -50,7 +50,8 @@ import dna.visualization.config.components.MultiScalarVisualizerConfig;
 public class MainDisplay extends JFrame {
 
 	/** MAIN **/
-	public static void main(String[] args) throws URISyntaxException {
+	public static void main(String[] args) throws URISyntaxException,
+			IOException {
 		Log.infoSep();
 
 		// check cmd line parameters
@@ -336,7 +337,7 @@ public class MainDisplay extends JFrame {
 					batchHandler.reset();
 					initBatchHandler();
 					stopLogDisplays();
-				} catch (InterruptedException e) {
+				} catch (InterruptedException | IOException e) {
 					e.printStackTrace();
 				}
 			}
@@ -360,8 +361,12 @@ public class MainDisplay extends JFrame {
 					File f = new File(batchHandler.getDir());
 					if (f.exists() && f.isDirectory()) {
 						if (!batchHandler.isInit()) {
-							batchHandler.updateBatches();
-							batchHandler.init();
+							try {
+								batchHandler.updateBatches();
+								batchHandler.init();
+							} catch (IOException e) {
+								e.printStackTrace();
+							}
 						}
 						statsDisplay.setStarted();
 						batchHandler.start();
@@ -677,14 +682,16 @@ public class MainDisplay extends JFrame {
 	 * Resets the batch handler. All previous holded batches get lost. The
 	 * former thread that handed over batches gets free. The batchhandler will
 	 * call the maindisplay.reset() method, which resets all data components.
+	 * 
+	 * @throws IOException
 	 */
 	public void resetBatchHandler() {
 		try {
 			this.batchHandler.reset();
-		} catch (InterruptedException e) {
+			this.initBatchHandler();
+		} catch (InterruptedException | IOException e) {
 			e.printStackTrace();
 		}
-		this.initBatchHandler();
 	}
 
 	/**
@@ -693,8 +700,10 @@ public class MainDisplay extends JFrame {
 	 * 
 	 * Note: If the desired directory is not existent, the batchhandler will not
 	 * be initialized.
+	 * 
+	 * @throws IOException
 	 */
-	public void initBatchHandler() {
+	public void initBatchHandler() throws IOException {
 		if (!this.liveDisplay) {
 			File f = new File(this.batchHandler.getDir());
 			if (f.exists() && f.isDirectory()) {

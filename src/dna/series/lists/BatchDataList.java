@@ -42,8 +42,9 @@ public class BatchDataList extends SortedList<BatchData> {
 	 * @param dir
 	 *            Directory to be read in
 	 * @return BatchDataList filled with empty batches
+	 * @throws IOException 
 	 */
-	public static BatchDataList readTimestamps(String dir) {
+	public static BatchDataList readTimestamps(String dir) throws IOException {
 		String[] batches = Dir.getBatches(dir);
 		BatchDataList list = new BatchDataList(batches.length);
 		for (String batch : batches) {
