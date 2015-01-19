@@ -145,7 +145,8 @@ public class TexFile {
 		String[] tableDescrArray = TexUtils.selectDescription(config);
 
 		// init table
-		TexTable table = new TexTable(this, tableDescrArray, config.getDateFormat());
+		TexTable table = new TexTable(this, tableDescrArray,
+				config.getDateFormat());
 
 		// add values
 		for (AggregatedBatch b : batchData) {
@@ -235,7 +236,7 @@ public class TexFile {
 							.selectValuesFromDistribution(values[i], config);
 
 					// add row to table
-					table.addRow(selectedValues, timestamp);
+					table.addRow(selectedValues, i);
 				}
 
 			}
