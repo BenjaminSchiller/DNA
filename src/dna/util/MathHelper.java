@@ -60,41 +60,41 @@ public class MathHelper {
 				x = x * -1;
 
 			if (x < 10000) {
-				patternTemp = "0";
+				patternTemp = Config.get("DATA_FORMATTING_BELOW10K");
 			}
 			if (x < 1000) {
-				patternTemp = "0.0";
+				patternTemp = Config.get("DATA_FORMATTING_BELOW1K");
 			}
 			if (x < 100) {
-				patternTemp = "0.00";
+				patternTemp = Config.get("DATA_FORMATTING_BELOW100");
 			}
 			if (x < 10) {
-				patternTemp = "0.000";
+				patternTemp = Config.get("DATA_FORMATTING_BELOW10");
 			}
 			if (x < 1) {
-				patternTemp = "0.00000";
+				patternTemp = Config.get("DATA_FORMATTING_BELOW1");
 			}
 			if (x < 0.1) {
-				patternTemp = "0.000000";
+				patternTemp = Config.get("DATA_FORMATTING_BELOW01");
 			}
 			if (x < 0.01) {
-				patternTemp = "0.0000000";
+				patternTemp = Config.get("DATA_FORMATTING_BELOW001");
 			}
 			if (x < 0.001) {
-				patternTemp = "0.0000000";
+				patternTemp = Config.get("DATA_FORMATTING_BELOW0001");
 			}
 			if (x < 0.0001) {
-				patternTemp = "0.######E0";
+				patternTemp = Config.get("DATA_FORMATTING_BELOW0001");
 			}
 			if (x == 0) {
-				patternTemp = "0";
+				patternTemp = Config.get("DATA_FORMATTING_EQUAL0");
 			}
 
 			if (x > 10000000) {
-				decFormat.applyPattern("#.00M");
+				decFormat.applyPattern(Config.get("DATA_FORMATTING_ABOVE10M"));
 				return MathHelper.trim(decFormat.format(d / 1000000), '0');
 			} else if (x > 10000) {
-				decFormat.applyPattern("#.00k");
+				decFormat.applyPattern(Config.get("DATA_FORMATTING_ABOVE10K"));
 				return MathHelper.trim(decFormat.format(d / 1000), '0');
 			}
 
