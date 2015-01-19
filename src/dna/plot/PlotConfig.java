@@ -642,13 +642,13 @@ public class PlotConfig {
 		}
 		return plotConfigs;
 	}
-
+	
 	/** Generates and returns a dummy PlotConfig. **/
 	public static PlotConfig generateDummyPlotConfig(String filename,
 			String plotAsCdf, DistributionPlotType distPlotType,
 			NodeValueListOrder order, NodeValueListOrderBy orderBy) {
 		return new PlotConfig(filename, "", "", "", "", "", "", 0.0, 0.0, "",
-				"", "", "", plotAsCdf, new String[0], new String[0],
+				"", "", "", "", "", plotAsCdf, new String[0], new String[0],
 				PlotStyle.linespoint, distPlotType, order, orderBy, false, "");
 	}
 }
