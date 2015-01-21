@@ -93,7 +93,7 @@ public class Crossroad {
 			for (CardinalDirection outputDirection : connectedOutputways) {
 				if(outputToInput.containsKey(outputDirection)) {
 					connection = outputToInput.get(outputDirection);
-					connectedCrossroads.add(new InputWayConnection(this.crossroadID, inputWays.get(innerConnection.getKey()),innerConnection.getKey(), connection.wayID , connection.crossroadID,outputDirection));
+					connectedCrossroads.add(new InputWayConnection(this.crossroadID, inputWays.get(innerConnection.getKey()),innerConnection.getKey(), connection.getWayID() , connection.getCrossroadID() ,outputDirection));
 				}
 			}
 		}

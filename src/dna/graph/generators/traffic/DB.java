@@ -986,12 +986,12 @@ public class DB {
 			String inserTableSQL = "INSERT IGNORE INTO mw_InputWayConnection VALUES (?,?,?,?,?,?,DEFAULT)";
 			stmt = con.prepareStatement(inserTableSQL);
 			for (InputWayConnection connection : connections) {
-				stmt.setInt(1, connection.fromWayID);
-				stmt.setInt(2, connection.fromCrossroad);
-				stmt.setString(3, getCrossroadName(connection.fromCrossroad));
-				stmt.setInt(4, connection.toWayID);
-				stmt.setInt(5, connection.toCrossroad);
-				stmt.setString(6, getCrossroadName(connection.toCrossroad));
+				stmt.setInt(1, connection.getFromWayID());
+				stmt.setInt(2, connection.getFromCrossroad());
+				stmt.setString(3, getCrossroadName(connection.getFromCrossroad()));
+				stmt.setInt(4, connection.getToWayID());
+				stmt.setInt(5, connection.getToCrossroad());
+				stmt.setString(6, getCrossroadName(connection.getToCrossroad()));
 				stmt.addBatch();
 			}
 			stmt.executeBatch();
@@ -1048,7 +1048,7 @@ public class DB {
 		
 		// Für alle Sensoren auf den Einfahrtsweg
 		for (Sensor sensor : sensors) {
-			outputWaysSensor = getOutputWays(sensor.sensorID, crossroadID); // Abbiegemöglichkeiten des Sensors
+			outputWaysSensor = getOutputWays(sensor.getSensorID(), crossroadID); // Abbiegemöglichkeiten des Sensors
 			for (Map.Entry<String, Integer> integer : outputWaysSensor.entrySet()) {
 				cd = transposeDirection(wayDirection, integer.getKey());
 				if(!outputWaysCrossroad.containsKey(cd))
@@ -1337,11 +1337,18 @@ public class DB {
 		try {
 			Statement stmt = con.createStatement();
 			String insertString;
-			for (InputWay connectedInputWay : s.connections.values()) {
+			
+			int wayID;
+			int crossroadID;
+			for (InputWay connectedInputWay : s.getConnections().values()) {
+				
+				wayID = connectedInputWay.getWayID();
+				crossroadID = connectedInputWay.getCrossroadID();
+				
 				// realer Sensor
-				String from = "SELECT NODE_ID as FROM_NODE_ID FROM mw_SensorGlobal WHERE mw_SensorGlobal.SENSOR_ID ='"+s.sensorID+"' AND CROSSROAD_ID = '"+s.crossroadID+"'";
+				String from = "SELECT NODE_ID as FROM_NODE_ID FROM mw_SensorGlobal WHERE mw_SensorGlobal.SENSOR_ID ='"+s.getSensorID()+"' AND CROSSROAD_ID = '"+s.getCrossroadID()+"'";
 				// virtueller Sensor
-				String to = "SELECT NODE_ID as TO_NODE_ID FROM mw_SensorGlobal SG WHERE SG.SENSOR_TYPE=1 AND SG.CROSSROAD_ID = '"+connectedInputWay.wayID+"' AND SG.WAY_ID = '"+connectedInputWay.crossroadID+"'";
+				String to = "SELECT NODE_ID as TO_NODE_ID FROM mw_SensorGlobal SG WHERE SG.SENSOR_TYPE=1 AND SG.CROSSROAD_ID = '"+crossroadID+"' AND SG.WAY_ID = '"+wayID+"'";
 				insertString="INSERT IGNORE INTO mw_SensorGlobalConnection SELECT * FROM ("+from+") A , ("+to+") B ";
 				stmt.executeUpdate(insertString);
 			}
