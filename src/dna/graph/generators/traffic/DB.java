@@ -1456,9 +1456,13 @@ public class DB {
 			if(sensorModelNodes.containsKey(index)){
 				SensorModelNode sensorModelNode = sensorModelNodes.get(index);
 				if(sensorModelNode.isReal()){
+					// Count-Wert des Sensors
 					double count = (trafficUpdate.getSleepTillUpdate()*trafficUpdate.getInitCount()+trafficUpdate.getUpdateCount())/(trafficUpdate.getSleepTillUpdate()+1);
+					// Load-Wert des Sensors
 					double load = (trafficUpdate.getSleepTillUpdate()*trafficUpdate.getInitLoad()+trafficUpdate.getUpdateLoad())/(trafficUpdate.getSleepTillUpdate()+1);
+					// Maximalwert des sensors (hier statisch)
 					double savedMax = maxValuesSensors.get(sensorModelNode.getNodeID())[0];
+					// Normierter Count-Wert
 					double countNorm =  savedMax> 0 ? count/savedMax : 0;
 					return new double[]{count,load,countNorm*100};
 				}
