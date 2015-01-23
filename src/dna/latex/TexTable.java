@@ -7,6 +7,10 @@ import java.util.Date;
 import dna.util.Config;
 import dna.util.Log;
 import dna.util.MathHelper;
+import dna.util.expr.Expr;
+import dna.util.expr.Parser;
+import dna.util.expr.SyntaxException;
+import dna.util.expr.Variable;
 
 /** Represents a table in a tex document. **/
 public class TexTable {
@@ -27,6 +31,7 @@ public class TexTable {
 	private int columns;
 	private TableFlag[] tableFlags;
 	private SimpleDateFormat dateFormat;
+	private String scaling;
 
 	// constructor
 	public TexTable(TexFile parent, String[] headRow, long timestamp,
@@ -46,6 +51,12 @@ public class TexTable {
 			SimpleDateFormat dateFormat) throws IOException {
 		this(parent, headRow);
 		this.dateFormat = dateFormat;
+	}
+
+	public TexTable(TexFile parent, String[] headRow,
+			SimpleDateFormat dateFormat, String scaling) throws IOException {
+		this(parent, headRow, dateFormat);
+		this.scaling = scaling;
 	}
 
 	// class methods
@@ -138,6 +149,11 @@ public class TexTable {
 	public void addRow(double[] values, long timestamp) throws IOException {
 		String tempTimestamp = "" + timestamp;
 
+		// if scaling, scale
+		if (this.scaling != null)
+			tempTimestamp = ""
+					+ TexTable.scaleTimestamp(timestamp, this.scaling);
+
 		// if dateFormat is set, transform timestamp
 		if (this.dateFormat != null)
 			tempTimestamp = this.dateFormat.format(new Date(timestamp));
@@ -167,6 +183,11 @@ public class TexTable {
 	public void addBlankRow(int rows, long timestamp) throws IOException {
 		String tempTimestamp = "" + timestamp;
 
+		// if scaling, scale
+		if (this.scaling != null)
+			tempTimestamp = ""
+					+ TexTable.scaleTimestamp(timestamp, this.scaling);
+		
 		// if dateFormat is set, transform timestamp
 		if (this.dateFormat != null)
 			tempTimestamp = this.dateFormat.format(new Date(timestamp));
@@ -188,6 +209,28 @@ public class TexTable {
 
 	public TableFlag[] getTableFlags() {
 		return this.tableFlags;
+	}
+
+	/** Scales the timestamp according to the expression. **/
+	public static double scaleTimestamp(long timestamp, String expression) {
+		// parse expression
+		Expr expr = null;
+		try {
+			expr = Parser.parse(expression);
+		} catch (SyntaxException e) {
+			// print what went wrong
+			if (Config.getBoolean("CUSTOM_PLOT_EXPLAIN_EXPRESSION_FAILURE"))
+				System.out.println(e.explain());
+			else
+				e.printStackTrace();
+		}
+
+		// define variable
+		Variable v = Variable.make(Config.get("LATEX_SCALING_VARIABLE"));
+		v.setValue(timestamp);
+
+		// return
+		return expr.value();
 	}
 
 }

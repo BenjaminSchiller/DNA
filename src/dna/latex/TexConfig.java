@@ -9,15 +9,22 @@ import dna.util.Config;
 /** A TexConfig object is used to configure the tex-output process. **/
 public class TexConfig {
 
+	// directories
 	private String dstDir;
 	private String srcDir;
 	private String plotDir;
 
+	// output interval
+	private String scaling;
+
+	// date format
 	private SimpleDateFormat dateFormat;
 
+	// flags
 	private PlotFlag[] plotFlags;
 	private TableFlag[] tableFlags;
 
+	// constructor
 	public TexConfig(String dstDir, String srcDir, String plotDir,
 			PlotFlag[] plotFlags, TableFlag... tableFlags) {
 		this.dstDir = dstDir;
@@ -34,6 +41,7 @@ public class TexConfig {
 		}
 	}
 
+	// getters & setters
 	public void setPlotFlags(PlotFlag... flags) {
 		this.plotFlags = flags;
 	}
@@ -168,6 +176,14 @@ public class TexConfig {
 
 	public SimpleDateFormat getDateFormat() {
 		return this.dateFormat;
+	}
+
+	public void setScaling(String scaling) {
+		this.scaling = scaling;
+	}
+
+	public String getScaling() {
+		return this.scaling;
 	}
 
 }
