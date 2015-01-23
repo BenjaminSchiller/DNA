@@ -631,12 +631,27 @@ public class DB {
 	
 	/**
 	 * liest die Verbindungen der Kreuzungsknoten aus der Tabelle mw_CrossroadConnection
+	 * @param nodesFilter Array von KnotenID, die als Startknoten oder Endknoten fungieren dürfen
 	 * @return Liste von EdgeContainern mit (from,to)
 	 */
-	public List<EdgeContainer> getCrossroadConnection() {
+	public List<EdgeContainer> getCrossroadConnectionForDNA(int[] nodesFilter) {
 		List<EdgeContainer> connection = new ArrayList<>();
+		
+		String filterString ="";
+		if(nodesFilter!= null && nodesFilter.length>0){
+			StringBuffer sb = new StringBuffer(" IN (");
+			for (int i = 0; i < nodesFilter.length; i++) {
+				sb.append(nodesFilter[i]);
+				if(i<nodesFilter.length-1)
+					sb.append(",");
+			}
+			sb.append(")");
+			filterString = "WHERE FROM_CROSSROAD "+sb.toString()+" AND TO_CROSSROAD " +sb.toString();
+		}
+		
 		try {
-			String selectStmt = "SELECT FROM_CROSSROAD,TO_CROSSROAD FROM mw_CrossroadConnection";
+			String selectStmt = "SELECT FROM_CROSSROAD,TO_CROSSROAD FROM mw_CrossroadConnection " +filterString;
+			System.out.println(selectStmt);
 			Statement stmt = con.createStatement();
 			ResultSet rs = stmt.executeQuery(selectStmt);
 			
@@ -904,17 +919,32 @@ public class DB {
 	
 	/**
 	 * liefert eine Liste von Knoten, die alle Einfahrtsweges für den Wegegraph beinhaltet
+	 * @param nodesFilter - Array mit den zu berücksichtigenden Knoten
 	 * @return
 	 */
-	public List<INode> getInputWaysForDNA() {
+	public List<INode> getInputWaysForDNA(int[] nodesFilter) {
 		List<INode> nodes = new ArrayList<INode>();
 		Node currentWeighted = null;
 		
+		String filterString = "";
+		
+		// Filter aktiviert, baue Filterstring auf
+		if(nodesFilter != null && nodesFilter.length>0){
+			StringBuffer sb = new StringBuffer("WHERE ID IN (");
+			for (int i = 0; i < nodesFilter.length; i++) {
+				sb.append(nodesFilter[i]);
+				if(i<nodesFilter.length-1)
+					sb.append(",");
+			}
+			sb.append(")");
+			filterString = sb.toString();
+		}
+		
 		try {
 			Statement stmt = con.createStatement();
-			String statementString = "SELECT * FROM mw_InputWaysGlobal"; 
+			String statementString = "SELECT * FROM mw_InputWaysGlobal " + filterString; 
 			ResultSet rs = stmt.executeQuery(statementString);
-
+			System.out.println(statementString);
 			while(rs.next() ) {
 				currentWeighted = gds.newNodeInstance(rs.getInt("ID"));
 				nodes.add(currentWeighted);
@@ -928,13 +958,29 @@ public class DB {
 	
 	/**
 	 * liest die Verbindungen zwischen den Knoten im WegeGraph aus der Tabelle mw_InputWayConnection_bak3 (neuste Version)
+	 * @param nodesFilter - Array mit Knoten, für als Start- oder Endknoten fungieren dürfen
 	 * @return
 	 */
-	public List<EdgeContainer> getInputWaysConnectionForDNA() {
+	public List<EdgeContainer> getInputWaysConnectionForDNA(int[] nodesFilter) {
 		List<EdgeContainer> edges = new ArrayList<>();
+		
+		String filterString = "";
+		
+		// Filter aktiviert, baue Filterstring auf
+		if(nodesFilter != null && nodesFilter.length>0){
+			StringBuffer sb = new StringBuffer("IN (");
+			for (int i = 0; i < nodesFilter.length; i++) {
+				sb.append(nodesFilter[i]);
+				if(i<nodesFilter.length-1)
+					sb.append(",");
+			}
+			sb.append(")");
+			filterString = " WHERE fromID "+sb.toString()+" AND toID " +sb.toString();
+		}
+		
 		try {
 			Statement stmt = con.createStatement();
-			String statementString = "SELECT fromID , toID FROM mw_InputWayConnection_bak3"; 
+			String statementString = "SELECT fromID , toID FROM mw_InputWayConnection_bak3" +filterString; 
 			ResultSet rs = stmt.executeQuery(statementString);
 			
 			while(rs.next() ) {
@@ -950,19 +996,36 @@ public class DB {
 	
 	/**
 	 * liest alle Knoten für das Kreuzungsmodell aus der Datenbank
+	 * @param nodesFilter Array mit zu berücksichtigenden Knoten
 	 * @return Knotenliste mit Knoten des Kreuzungsmodells und den globalen KreuzungsID als Labels
 	 */
-	public List<INode> getCrossroadsForDNA() {		
+	public List<INode> getCrossroadsForDNA(int[] nodesFilter) {		
 		List<INode> nodes = new ArrayList<INode>();
 		Node current = null;
+		
+		String filterString = "";
+		
+		// Filter aktiviert, baue Filterstring auf
+		if(nodesFilter != null && nodesFilter.length>0){
+			StringBuffer sb  = new StringBuffer("WHERE CROSSROAD IN (");
+			for (int i = 0; i < nodesFilter.length; i++) {
+				sb.append(nodesFilter[i]);
+				if(i<nodesFilter.length-1)
+					sb.append(",");
+			}
+			sb.append(")");
+			filterString = sb.toString();
+		}
 		
 		try {
 			System.out.println("Lade Kreuzungen aus Datenbank...");
 			Statement stmt = con.createStatement();
-			String statementString;
-			statementString = "SELECT * FROM ((SELECT DISTINCT FROM_CROSSROAD as CROSSROAD FROM mw_CrossroadConnection) UNION (SELECT DISTINCT TO_CROSSROAD as CROSSROAD FROM mw_CrossroadConnection)) V"; 
-			ResultSet rs = stmt.executeQuery(statementString);
 			
+			
+			String statementString;
+			statementString = "SELECT * FROM ((SELECT DISTINCT FROM_CROSSROAD as CROSSROAD FROM mw_CrossroadConnection) UNION (SELECT DISTINCT TO_CROSSROAD as CROSSROAD FROM mw_CrossroadConnection)) V " +filterString; 
+			ResultSet rs = stmt.executeQuery(statementString);
+			System.out.println(statementString);
 			while(rs.next() ) {
 				int label = rs.getInt("CROSSROAD");	
 				current= gds.newNodeInstance(label);
@@ -1225,8 +1288,10 @@ public class DB {
 		if(from.equals(to)){
 			to = from.plusMinutes(1);
 		}
+		
 		double count =0;
 		double load = 0;
+		
 		// Nachladen von Maximalwerten
 		if(!maxValuesInputWays.containsKey(inputWayID)){
 			maxValuesInputWays.put(inputWayID, getMaximalWeightInputWay(inputWayID) );
@@ -1248,7 +1313,6 @@ public class DB {
 			String sensors = "SELECT SENSORS.*,DATETIME,cr_count,cr_load FROM (SELECT FRONT_AND_BACK.* FROM (SELECT S1.*, CSVOFFSET FROM (SELECT ID AS INPUTWAY_ID, IWG.wayID AS OSMWAY_ID, IWG.crossroadID AS CROSSROAD_ID, crossroadName AS CROSSROAD_NAME, sensorID AS SENSOR_ID, sensorName AS SENSOR_NAME FROM ("+inputWay+") IWG LEFT JOIN mw_SensorWays_bak SW ON IWG.wayID = SW.wayID AND IWG.crossroadID= SW.crossroadID) S1 JOIN ("+rawSensors+") S2 ON S1.SENSOR_ID = S2.ID) FRONT_AND_BACK JOIN ("+frontSensors+") ONLY_FRONT ON FRONT_AND_BACK.SENSOR_ID = ONLY_FRONT.SENSOR_ID";
 			// Abfrage des Gewichts aus den zuvor selektierten Daten
 			statementString = "SELECT SUM(ANZAHL)/COUNT(ANZAHL),SUM(BELEGUNG)/COUNT(BELEGUNG) FROM (SELECT SUM(cr_count) as ANZAHL, SUM(cr_load)/COUNT(cr_load) as BELEGUNG, DATETIME FROM ("+sensors+") SENSORS LEFT JOIN ("+rawData+") EVENTS_DAY ON SENSORS.CROSSROAD_NAME = EVENTS_DAY.CROSSROAD AND SENSORS.CSVOFFSET=EVENTS_DAY.CSVOFFSET) FINAL GROUP BY DATETIME) GROUPED";
-			System.out.println(statementString);
 			ResultSet rs = stmt.executeQuery(statementString);
 			if(rs.first()){
 				count=rs.getDouble(1);

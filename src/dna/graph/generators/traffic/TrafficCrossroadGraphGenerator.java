@@ -35,14 +35,15 @@ public class TrafficCrossroadGraphGenerator extends GraphGenerator{
 	private int stepsize;
 	private int timeRange;
 	private TrafficUpdate trafficUpdate;
+	private int[] nodesFilter;
 	
-	public TrafficCrossroadGraphGenerator(String name, GraphDataStructure gds, DB db,long timeStampInit,TrafficModi modus, DateTime initDateTime, int stepsize,int timeRange,TrafficUpdate trafficupdate) {
-		this(name, null, gds,timeStampInit, 0, 0,db,modus,initDateTime,stepsize,timeRange,trafficupdate);
+	public TrafficCrossroadGraphGenerator(String name, GraphDataStructure gds, DB db,long timeStampInit,TrafficModi modus, DateTime initDateTime, int stepsize,int timeRange,TrafficUpdate trafficupdate, int[] nodesFilter) {
+		this(name, null, gds,timeStampInit, 0, 0,db,modus,initDateTime,stepsize,timeRange,trafficupdate,nodesFilter);
 	}
 	
 	public TrafficCrossroadGraphGenerator(String name, Parameter[] params,
 			GraphDataStructure gds, long timestampInit, int nodesInit,
-			int edgesInit,DB db,TrafficModi modus,DateTime initDateTime,int stepsize,int timeRange,TrafficUpdate trafficUpdate) {
+			int edgesInit,DB db,TrafficModi modus,DateTime initDateTime,int stepsize,int timeRange,TrafficUpdate trafficUpdate, int[] nodesFilter) {
 		super(name, params, gds, timestampInit, nodesInit, edgesInit);
 		this.db= db;
 		this.modus=modus;
@@ -50,6 +51,7 @@ public class TrafficCrossroadGraphGenerator extends GraphGenerator{
 		this.stepsize = stepsize;
 		this.timeRange = timeRange;
 		this.trafficUpdate = trafficUpdate;
+		this.nodesFilter = nodesFilter;
 	}
 
 	@Override
@@ -62,7 +64,7 @@ public class TrafficCrossroadGraphGenerator extends GraphGenerator{
 		HashMap<EdgeContainer,Edge> disabledEdges = new HashMap<>();
 		
 		// Nodes
-		nodes = db.getCrossroadsForDNA();
+		nodes = db.getCrossroadsForDNA(nodesFilter);
 		CrossroadWeight crossroadWeight = null;
 		Node currentNode = null;
 		DirectedWeightedNode currentWeighted = null;
@@ -111,12 +113,20 @@ public class TrafficCrossroadGraphGenerator extends GraphGenerator{
 		
 		
 		//Edges
-		List<EdgeContainer> connection = db.getCrossroadConnection();
+		List<EdgeContainer> connection = db.getCrossroadConnectionForDNA(nodesFilter);
 		EdgeContainer current = null;
+		
+		Node fromNode;
+		Node toNode;
+		Edge e;
 		for (int i = 0; i < connection.size(); i++) {
 			current = connection.get(i);
-			Edge e = gds.newEdgeInstance(g.getNode(current.getFrom()), g.getNode(current.getTo()));
-			
+			fromNode = g.getNode(current.getFrom());
+			toNode = g.getNode(current.getTo());
+			if(fromNode!= null && toNode!=null)
+				e = gds.newEdgeInstance(fromNode, toNode);
+			else
+				continue;
 			if(disabledEdges.containsKey(current)){
 				disabledEdges.put(current, e);
 			}

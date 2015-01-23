@@ -19,6 +19,15 @@ public class Sensor {
 	private Set<CardinalDirection> outputDiretions;
 	private HashMap<CardinalDirection,InputWay> connections;
 	
+	/**
+	 * Konstruktur für die nachträgliche Berechnung
+	 * @param sensorID
+	 * @param sensorName
+	 * @param crossroadID
+	 * @param crossroadName
+	 * @param wayID
+	 * @param outputDirections
+	 */
 	public Sensor(int sensorID, String sensorName, int crossroadID, String crossroadName, int wayID,Set<CardinalDirection> outputDirections){
 		this.sensorID=sensorID;
 		this.sensorName=sensorName;
@@ -28,6 +37,14 @@ public class Sensor {
 		this.outputDiretions=outputDirections;
 	}
 	
+	/**
+	 * Konstruktur für die Nutzung als Container
+	 * @param sensorID
+	 * @param sensorName
+	 * @param crossroadID
+	 * @param crossroadName
+	 * @param wayID
+	 */
 	public Sensor(int sensorID, String sensorName, int crossroadID, String crossroadName, int wayID){
 		this.sensorID=sensorID;
 		this.sensorName=sensorName;
@@ -35,19 +52,34 @@ public class Sensor {
 		this.crossroadName=crossroadName;
 		this.wayID=wayID;
 	}
-	
+	/**
+	 * liefert die globale ID des Sensors
+	 * @return
+	 */
 	public int getSensorID(){
 		return sensorID;
 	}
 	
+	/**
+	 * liefert den Namen des Sensors
+	 * @return
+	 */
 	public String getSensorName(){
 		return sensorName;
 	}
 	
+	/**
+	 * liefert die globale Kreuzungs-ID
+	 * @return
+	 */
 	public int getCrossroadID(){
 		return crossroadID;
 	}
 	
+	/**
+	 * liefert den Namen der Kreuzung
+	 * @return
+	 */
 	public String getCrossroadName(){
 		return crossroadName;
 	}
@@ -63,7 +95,9 @@ public class Sensor {
 	 */
 	public HashMap<CardinalDirection, InputWay> calculateConnections(HashMap<CardinalDirection, InputWay> outputConnection) {
 		HashMap<CardinalDirection,InputWay> connections = new HashMap<>();
+		// Über alle Abbiegemöglichkeiten
 		for (CardinalDirection output : outputDiretions) {
+			// Ausfahrtsweg ist mit Einfahrtsweg benachbarter Kreuzung verbunden
 			if(outputConnection.containsKey(output))
 				connections.put(output, outputConnection.get(output));
 		}

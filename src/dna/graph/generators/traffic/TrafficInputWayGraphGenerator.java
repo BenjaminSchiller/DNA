@@ -32,14 +32,15 @@ public class TrafficInputWayGraphGenerator extends GraphGenerator{
 	private TrafficUpdate trafficUpdate;
 	private double treshold;
 	private HashMap<Integer, HashMap<EdgeContainer,Edge>> disabledEdges = new HashMap<>();
+	private int[] nodesFilter;
 	
-	public TrafficInputWayGraphGenerator(String name, GraphDataStructure gds, DB db, long timeStamp, TrafficModi modus, DateTime initDateTime, int stepsize,int timeRange,TrafficUpdate trafficupdate,double treshold) {
-		this(name, null, gds,timeStamp, 0, 0,db, modus,initDateTime,stepsize,timeRange,trafficupdate,treshold);
+	public TrafficInputWayGraphGenerator(String name, GraphDataStructure gds, DB db, long timeStamp, TrafficModi modus, DateTime initDateTime, int stepsize,int timeRange,TrafficUpdate trafficupdate,double treshold, int[] nodesFilter) {
+		this(name, null, gds,timeStamp, 0, 0,db, modus,initDateTime,stepsize,timeRange,trafficupdate,treshold, nodesFilter);
 	}
 	
 	public TrafficInputWayGraphGenerator(String name, Parameter[] params,
 			GraphDataStructure gds, long timestampInit, int nodesInit,
-			int edgesInit,DB db,TrafficModi modus, DateTime initDateTime, int stepsize,int timeRange,TrafficUpdate trafficupdate,double treshold) {
+			int edgesInit,DB db,TrafficModi modus, DateTime initDateTime, int stepsize,int timeRange,TrafficUpdate trafficupdate,double treshold, int[] nodesFilter) {
 		super(name, params, gds, timestampInit, nodesInit, edgesInit);
 		this.db= db;
 		this.modus = modus;
@@ -48,6 +49,7 @@ public class TrafficInputWayGraphGenerator extends GraphGenerator{
 		this.timeRange = timeRange;
 		this.trafficUpdate = trafficupdate;
 		this.treshold = treshold;
+		this.nodesFilter = nodesFilter;
 	}
 
 	@Override
@@ -59,7 +61,7 @@ public class TrafficInputWayGraphGenerator extends GraphGenerator{
 		Set<Integer> overloaded = new HashSet<>();
 		
 		// Nodes
-		nodes = db.getInputWaysForDNA();
+		nodes = db.getInputWaysForDNA(nodesFilter);
 
 		Node currentNode = null;
 		DirectedWeightedNode currentWeighted = null;
@@ -98,7 +100,7 @@ public class TrafficInputWayGraphGenerator extends GraphGenerator{
 
 		}
 		
-		List<EdgeContainer> connection = db.getInputWaysConnectionForDNA();
+		List<EdgeContainer> connection = db.getInputWaysConnectionForDNA(nodesFilter);
 		DirectedWeightedNode fromNode = null;
 		DirectedWeightedNode toNode = null;
 		Edge e = null;
@@ -107,7 +109,12 @@ public class TrafficInputWayGraphGenerator extends GraphGenerator{
 			ec = connection.get(i);
 			fromNode = (DirectedWeightedNode) g.getNode(ec.getFrom());
 			toNode = (DirectedWeightedNode) g.getNode(ec.getTo());
-			e = gds.newEdgeInstance(fromNode,toNode);
+			
+			if(fromNode != null && toNode != null)
+				e = gds.newEdgeInstance(fromNode,toNode);
+			else
+				continue;
+			
 			if(overloaded.contains(fromNode.getIndex()) || overloaded.contains((toNode.getIndex()))){
 				addEdge(fromNode.getIndex(),ec,e);
 				addEdge(toNode.getIndex(),ec,e);
