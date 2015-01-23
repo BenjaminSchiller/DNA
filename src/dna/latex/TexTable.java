@@ -3,6 +3,7 @@ package dna.latex;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
 
 import dna.util.Config;
 import dna.util.Log;
@@ -32,31 +33,31 @@ public class TexTable {
 	private TableFlag[] tableFlags;
 	private SimpleDateFormat dateFormat;
 	private String scaling;
+	private HashMap<Long, Long> map;
 
 	// constructor
 	public TexTable(TexFile parent, String[] headRow, long timestamp,
-			TableFlag... tableFlags) throws IOException {
+			SimpleDateFormat dateFormat, TableFlag... tableFlags)
+			throws IOException {
 		this.parent = parent;
 		this.columns = headRow.length;
 		this.open = true;
+		this.dateFormat = dateFormat;
 		this.tableFlags = tableFlags;
 		this.begin(headRow, timestamp);
 	}
 
-	public TexTable(TexFile parent, String[] headRow) throws IOException {
-		this(parent, headRow, unsetLong, TableFlag.all);
-	}
-
 	public TexTable(TexFile parent, String[] headRow,
 			SimpleDateFormat dateFormat) throws IOException {
-		this(parent, headRow);
-		this.dateFormat = dateFormat;
+		this(parent, headRow, unsetLong, dateFormat, TableFlag.all);
 	}
 
 	public TexTable(TexFile parent, String[] headRow,
-			SimpleDateFormat dateFormat, String scaling) throws IOException {
+			SimpleDateFormat dateFormat, String scaling,
+			HashMap<Long, Long> mapping) throws IOException {
 		this(parent, headRow, dateFormat);
 		this.scaling = scaling;
+		this.map = mapping;
 	}
 
 	// class methods
@@ -74,8 +75,26 @@ public class TexTable {
 
 		// if timestamp set, add timestamp row
 		if (timestamp != unsetLong) {
+			long tTimestamp = timestamp;
+
+			// if mapping, map
+			if (this.map != null) {
+				if (this.map.containsKey(tTimestamp))
+					tTimestamp = this.map.get(tTimestamp);
+			}
+
+			// if scaling, scale
+			if (this.scaling != null)
+				tTimestamp = TexTable.scaleTimestamp(tTimestamp, this.scaling);
+
+			String tempTimestamp = "" + tTimestamp;
+
+			// if dateFormat is set, transform timestamp
+			if (this.dateFormat != null)
+				tempTimestamp = this.dateFormat.format(new Date(tTimestamp));
+
 			line = TexUtils.textBf("Timestamp =") + TexTable.tableDelimiter
-					+ TexUtils.textBf("" + timestamp);
+					+ TexUtils.textBf(tempTimestamp);
 			for (int i = 2; i < headRow.length; i++) {
 				line += TexTable.tableDelimiter;
 			}
@@ -147,16 +166,23 @@ public class TexTable {
 	}
 
 	public void addRow(double[] values, long timestamp) throws IOException {
-		String tempTimestamp = "" + timestamp;
+		long tTimestamp = timestamp;
+
+		// if mapping, map
+		if (this.map != null) {
+			if (this.map.containsKey(tTimestamp))
+				tTimestamp = this.map.get(tTimestamp);
+		}
 
 		// if scaling, scale
 		if (this.scaling != null)
-			tempTimestamp = ""
-					+ TexTable.scaleTimestamp(timestamp, this.scaling);
+			tTimestamp = TexTable.scaleTimestamp(tTimestamp, this.scaling);
+
+		String tempTimestamp = "" + tTimestamp;
 
 		// if dateFormat is set, transform timestamp
 		if (this.dateFormat != null)
-			tempTimestamp = this.dateFormat.format(new Date(timestamp));
+			tempTimestamp = this.dateFormat.format(new Date(tTimestamp));
 
 		if (open) {
 			String line = "\t" + tempTimestamp + TexTable.tableDelimiter;
@@ -181,16 +207,23 @@ public class TexTable {
 	}
 
 	public void addBlankRow(int rows, long timestamp) throws IOException {
-		String tempTimestamp = "" + timestamp;
+		long tTimestamp = timestamp;
+
+		// if mapping, map
+		if (this.map != null) {
+			if (this.map.containsKey(tTimestamp))
+				tTimestamp = this.map.get(tTimestamp);
+		}
 
 		// if scaling, scale
 		if (this.scaling != null)
-			tempTimestamp = ""
-					+ TexTable.scaleTimestamp(timestamp, this.scaling);
-		
+			tTimestamp = TexTable.scaleTimestamp(tTimestamp, this.scaling);
+
+		String tempTimestamp = "" + tTimestamp;
+
 		// if dateFormat is set, transform timestamp
 		if (this.dateFormat != null)
-			tempTimestamp = this.dateFormat.format(new Date(timestamp));
+			tempTimestamp = this.dateFormat.format(new Date(tTimestamp));
 
 		if (open) {
 			String line = "\t" + tempTimestamp + TexTable.tableDelimiter;
@@ -212,7 +245,7 @@ public class TexTable {
 	}
 
 	/** Scales the timestamp according to the expression. **/
-	public static double scaleTimestamp(long timestamp, String expression) {
+	public static long scaleTimestamp(long timestamp, String expression) {
 		// parse expression
 		Expr expr = null;
 		try {
@@ -230,7 +263,7 @@ public class TexTable {
 		v.setValue(timestamp);
 
 		// return
-		return expr.value();
+		return (long) expr.value();
 	}
 
 }

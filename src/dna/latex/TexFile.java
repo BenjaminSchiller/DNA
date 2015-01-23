@@ -146,7 +146,8 @@ public class TexFile {
 
 		// init table
 		TexTable table = new TexTable(this, tableDescrArray,
-				config.getDateFormat(), config.getScaling());
+				config.getDateFormat(), config.getScaling(),
+				config.getMapping());
 
 		// add values
 		for (AggregatedBatch b : batchData) {
@@ -212,8 +213,23 @@ public class TexFile {
 			long timestamp = b.getTimestamp();
 			this.writeCommentLine("value table of timestamp " + timestamp);
 
+			// map & scale timestamp
+			long tempTimestamp = timestamp;
+
+			// if mapping, map
+			if (config.getMapping() != null) {
+				if (config.getMapping().containsKey(tempTimestamp))
+					tempTimestamp = config.getMapping().get(tempTimestamp);
+			}
+
+			// if scaling, scale
+			if (config.getScaling() != null)
+				tempTimestamp = TexTable.scaleTimestamp(tempTimestamp,
+						config.getScaling());
+
 			// init table
-			TexTable table = new TexTable(this, tableDescrArray, timestamp);
+			TexTable table = new TexTable(this, tableDescrArray, tempTimestamp,
+					config.getDateFormat());
 
 			// read batch
 			String readDir = Dir.getAggregationBatchDir(s.getDir(), timestamp);
@@ -289,8 +305,23 @@ public class TexFile {
 			long timestamp = b.getTimestamp();
 			this.writeCommentLine("value table of timestamp " + timestamp);
 
+			// map & scale timestamp
+			long tempTimestamp = timestamp;
+
+			// if mapping, map
+			if (config.getMapping() != null) {
+				if (config.getMapping().containsKey(tempTimestamp))
+					tempTimestamp = config.getMapping().get(tempTimestamp);
+			}
+
+			// if scaling, scale
+			if (config.getScaling() != null)
+				tempTimestamp = TexTable.scaleTimestamp(tempTimestamp,
+						config.getScaling());
+
 			// init table
-			TexTable table = new TexTable(this, tableDescrArray, timestamp);
+			TexTable table = new TexTable(this, tableDescrArray, tempTimestamp,
+					config.getDateFormat());
 
 			// read batch
 			String readDir = Dir.getAggregationBatchDir(s.getDir(), timestamp);
