@@ -212,7 +212,8 @@ public class TexUtils {
 
 				// init table
 				TexTable table = new TexTable(stats, tableDescrArray,
-						config.getDateFormat(), config.getScaling());
+						config.getDateFormat(), config.getScaling(),
+						config.getMapping());
 
 				// add values
 				for (AggregatedBatch b : batchData) {
@@ -295,7 +296,8 @@ public class TexUtils {
 
 				// init table
 				TexTable table = new TexTable(genR, tableDescrArray,
-						config.getDateFormat(), config.getScaling());
+						config.getDateFormat(), config.getScaling(),
+						config.getMapping());
 
 				// add values
 				for (AggregatedBatch b : batchData) {
@@ -379,7 +381,8 @@ public class TexUtils {
 
 				// init table
 				TexTable table = new TexTable(metR, tableDescrArray,
-						config.getDateFormat(), config.getScaling());
+						config.getDateFormat(), config.getScaling(),
+						config.getMapping());
 
 				// add values
 				for (AggregatedBatch b : batchData) {

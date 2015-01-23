@@ -1,6 +1,7 @@
 package dna.latex;
 
 import java.text.SimpleDateFormat;
+import java.util.HashMap;
 
 import dna.latex.TexTable.TableFlag;
 import dna.plot.PlottingConfig.PlotFlag;
@@ -16,6 +17,9 @@ public class TexConfig {
 
 	// output interval
 	private String scaling;
+
+	// scaling
+	private HashMap<Long, Long> map;
 
 	// date format
 	private SimpleDateFormat dateFormat;
@@ -184,6 +188,14 @@ public class TexConfig {
 
 	public String getScaling() {
 		return this.scaling;
+	}
+
+	public void setMapping(HashMap<Long, Long> map) {
+		this.map = map;
+	}
+
+	public HashMap<Long, Long> getMapping() {
+		return this.map;
 	}
 
 }
