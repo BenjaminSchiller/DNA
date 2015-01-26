@@ -46,7 +46,7 @@ public class BatchRepetition extends BatchGenerator {
 		int sum = 0;
 		for (BatchRepetitionWrapper bg : this.bgs) {
 			sum += bg.getCount();
-			if (sum >= this.index) {
+			if (sum > this.index) {
 				return bg.getBg();
 			}
 		}
