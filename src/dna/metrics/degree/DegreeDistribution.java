@@ -27,7 +27,9 @@ public abstract class DegreeDistribution extends Metric {
 
 	@Override
 	public Value[] getValues() {
-		return new Value[0];
+		Value min = new Value("degreeMin", this.degree.getMin());
+		Value max = new Value("degreeMax", this.degree.getMax());
+		return new Value[] { min, max };
 	}
 
 	@Override
