@@ -16,10 +16,10 @@ import dna.util.expr.Variable;
 /** Represents a table in a tex document. **/
 public class TexTable {
 	// static textable fields
-	private static final String hline = "\\hline";
-	private static final String defaultColumnSetting = "l";
-	private static final String tableDelimiter = " & ";
-	private static final long unsetLong = -1;
+	protected static final String hline = "\\hline";
+	protected static final String defaultColumnSetting = "l";
+	protected static final String tableDelimiter = " & ";
+	protected static final long unsetLong = -1;
 
 	// table flags
 	public static enum TableFlag {
@@ -27,16 +27,16 @@ public class TexTable {
 	};
 
 	// variables
-	private TexFile parent;
-	private boolean open;
-	private int columns;
-	private TableFlag[] tableFlags;
-	private SimpleDateFormat dateFormat;
-	private String scaling;
-	private HashMap<Long, Long> map;
+	protected TexFile parent;
+	protected boolean open;
+	protected int columns;
+	protected TableFlag[] tableFlags;
+	protected SimpleDateFormat dateFormat;
+	protected String scaling;
+	protected HashMap<Long, Long> map;
 
 	// constructor
-	public TexTable(TexFile parent, String[] headRow, long timestamp,
+	public TexTable(TexFile parent, String[] headRow,
 			SimpleDateFormat dateFormat, TableFlag... tableFlags)
 			throws IOException {
 		this.parent = parent;
@@ -44,12 +44,11 @@ public class TexTable {
 		this.open = true;
 		this.dateFormat = dateFormat;
 		this.tableFlags = tableFlags;
-		this.begin(headRow, timestamp);
 	}
 
 	public TexTable(TexFile parent, String[] headRow,
 			SimpleDateFormat dateFormat) throws IOException {
-		this(parent, headRow, unsetLong, dateFormat, TableFlag.all);
+		this(parent, headRow, dateFormat, TableFlag.all);
 	}
 
 	public TexTable(TexFile parent, String[] headRow,
@@ -62,7 +61,7 @@ public class TexTable {
 
 	// class methods
 	/** Begins the table, writes the head row etc. **/
-	private void begin(String[] headRow, long timestamp) throws IOException {
+	protected void begin(String[] headRow) throws IOException {
 		String line = TexUtils.begin("tabular") + "{" + "|";
 		for (int i = 0; i < headRow.length; i++) {
 			line += TexTable.defaultColumnSetting + "|";
@@ -72,35 +71,6 @@ public class TexTable {
 		line += "}";
 		this.parent.writeLine(line);
 		this.addHorizontalLine();
-
-		// if timestamp set, add timestamp row
-		if (timestamp != unsetLong) {
-			long tTimestamp = timestamp;
-
-			// if mapping, map
-			if (this.map != null) {
-				if (this.map.containsKey(tTimestamp))
-					tTimestamp = this.map.get(tTimestamp);
-			}
-
-			// if scaling, scale
-			if (this.scaling != null)
-				tTimestamp = TexTable.scaleTimestamp(tTimestamp, this.scaling);
-
-			String tempTimestamp = "" + tTimestamp;
-
-			// if dateFormat is set, transform timestamp
-			if (this.dateFormat != null)
-				tempTimestamp = this.dateFormat.format(new Date(tTimestamp));
-
-			line = TexUtils.textBf("Timestamp =") + TexTable.tableDelimiter
-					+ TexUtils.textBf(tempTimestamp);
-			for (int i = 2; i < headRow.length; i++) {
-				line += TexTable.tableDelimiter;
-			}
-			line += TexUtils.newline + TexTable.hline;
-			this.parent.writeLine(line);
-		}
 
 		for (String s : headRow) {
 			line = "\t";
@@ -114,11 +84,9 @@ public class TexTable {
 			}
 		}
 		this.parent.writeLine(line);
-		if (timestamp != unsetLong)
-			this.parent.writeLine(TexTable.hline);
 	}
 
-	private void addHorizontalLine() throws IOException {
+	protected void addHorizontalLine() throws IOException {
 		if (open) {
 			this.parent.writeLine(TexTable.hline);
 		} else {
