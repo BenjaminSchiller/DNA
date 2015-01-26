@@ -145,8 +145,8 @@ public class TexFile {
 		String[] tableDescrArray = TexUtils.selectDescription(config);
 
 		// init table
-		TexTable table = new TexTable(this, tableDescrArray,
-				config.getDateFormat(), config.getScaling(),
+		SingleScalarTexTable table = new SingleScalarTexTable(this,
+				tableDescrArray, config.getDateFormat(), config.getScaling(),
 				config.getMapping());
 
 		// add values
@@ -228,8 +228,8 @@ public class TexFile {
 						config.getScaling());
 
 			// init table
-			TexTable table = new TexTable(this, tableDescrArray, tempTimestamp,
-					config.getDateFormat());
+			MultiScalarTexTable table = new MultiScalarTexTable(this,
+					tableDescrArray, tempTimestamp, config.getDateFormat());
 
 			// read batch
 			String readDir = Dir.getAggregationBatchDir(s.getDir(), timestamp);
@@ -320,8 +320,8 @@ public class TexFile {
 						config.getScaling());
 
 			// init table
-			TexTable table = new TexTable(this, tableDescrArray, tempTimestamp,
-					config.getDateFormat());
+			MultiScalarTexTable table = new MultiScalarTexTable(this,
+					tableDescrArray, tempTimestamp, config.getDateFormat());
 
 			// read batch
 			String readDir = Dir.getAggregationBatchDir(s.getDir(), timestamp);
