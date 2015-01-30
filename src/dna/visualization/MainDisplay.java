@@ -277,7 +277,8 @@ public class MainDisplay extends JFrame {
 		setTitle(config.getName());
 		setSize(config.getSize());
 		setLocationRelativeTo(null);
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+		// setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		this.defaultFont = config.getDefaultFont();
 		this.defaultFontColor = config.getDefaultFontColor();
 		this.dataComponents = new ArrayList<Component>();
