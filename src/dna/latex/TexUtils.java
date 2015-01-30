@@ -609,7 +609,6 @@ public class TexUtils {
 	public static TexFile generateTitlepage(String dir, String filename)
 			throws IOException {
 		TexFile titlepage = new TexFile(dir, filename);
-		System.out.println("titlepage at " + dir + "   " + filename);
 		titlepage.writeLine(TexUtils.begin("titlepage"));
 		titlepage.writeLine(TexUtils.tab + TexUtils.centering());
 		titlepage.writeLine(TexUtils.tab
