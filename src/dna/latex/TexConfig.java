@@ -20,6 +20,7 @@ public class TexConfig {
 	private long from;
 	private long to;
 	private long stepsize;
+	private boolean intervalByIndex;
 
 	// scaling
 	private HashMap<Long, Long> map;
@@ -39,6 +40,8 @@ public class TexConfig {
 		this.plotDir = plotDir;
 		this.plotFlags = plotFlags;
 		this.tableFlags = tableFlags;
+
+		this.intervalByIndex = false;
 
 		// if default datetime is set in config, set it here
 		if (Config.get("LATEX_DEFAULT_DATETIME") != null) {
@@ -61,6 +64,14 @@ public class TexConfig {
 		this.from = from;
 		this.to = to;
 		this.stepsize = stepsize;
+		this.intervalByIndex = false;
+	}
+
+	public void setOutputIntervalByIndex(long from, long to, long stepsize) {
+		this.from = from;
+		this.to = to;
+		this.stepsize = stepsize;
+		this.intervalByIndex = true;
 	}
 
 	public String getDstDir() {
@@ -217,6 +228,10 @@ public class TexConfig {
 
 	public long getStepsize() {
 		return this.stepsize;
+	}
+
+	public boolean isIntervalByIndex() {
+		return this.intervalByIndex;
 	}
 
 }
