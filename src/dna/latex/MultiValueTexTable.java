@@ -61,7 +61,9 @@ public class MultiValueTexTable extends TexTable {
 		this.parent.writeLine(TexTable.hline);
 	}
 
-	public void addDataLine(AggregatedValue[] values) {
+	/** Adds a new row with the values. **/
+	public void addDataRow(AggregatedValue[] values, long timestamp)
+			throws IOException {
 		double[] tempValues = new double[values.length];
 		for (int i = 0; i < values.length; i++) {
 			switch (this.dataType) {
@@ -99,5 +101,6 @@ public class MultiValueTexTable extends TexTable {
 			}
 		}
 
+		this.addRow(tempValues, timestamp);
 	}
 }
