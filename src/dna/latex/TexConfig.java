@@ -33,14 +33,18 @@ public class TexConfig {
 	private TableFlag[] tableFlags;
 
 	// constructor
-	public TexConfig(String dstDir, String srcDir, String plotDir,
-			PlotFlag[] plotFlags, TableFlag... tableFlags) {
+	public TexConfig(String dstDir, String srcDir, String plotDir, long from,
+			long to, long stepsize, PlotFlag[] plotFlags,
+			TableFlag... tableFlags) {
 		this.dstDir = dstDir;
 		this.srcDir = srcDir;
 		this.plotDir = plotDir;
 		this.plotFlags = plotFlags;
 		this.tableFlags = tableFlags;
 
+		this.from = from;
+		this.to = to;
+		this.stepsize = stepsize;
 		this.intervalByIndex = false;
 
 		// if default datetime is set in config, set it here
@@ -49,6 +53,12 @@ public class TexConfig {
 			if (!tempDateTime.equals("null"))
 				this.dateFormat = new SimpleDateFormat(tempDateTime);
 		}
+	}
+
+	public TexConfig(String dstDir, String srcDir, String plotDir,
+			PlotFlag[] plotFlags, TableFlag... tableFlags) {
+		this(dstDir, srcDir, plotDir, 0, Long.MAX_VALUE, 1, plotFlags,
+				tableFlags);
 	}
 
 	// getters & setters
