@@ -42,7 +42,7 @@ import dna.updates.generators.util.LegacyReadableDirBatchGenerator;
 public class Demo {
 
 	public static enum CFG {
-		config_values_lists_1024
+		config_values_lists_1024, config_values_lists_1280
 	}
 
 	// 1920 x 1200
