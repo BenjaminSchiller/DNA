@@ -4,11 +4,13 @@ import java.io.File;
 import java.io.IOException;
 
 import dna.io.filesystem.Dir;
+import dna.latex.TexTable.TableFlag;
+import dna.plot.Plotting;
 import dna.plot.PlottingConfig;
+import dna.plot.PlottingConfig.PlotFlag;
 import dna.series.aggdata.AggregatedBatch;
 import dna.series.aggdata.AggregatedBatch.BatchReadMode;
 import dna.series.aggdata.AggregatedMetric;
-import dna.series.aggdata.AggregatedValue;
 import dna.series.data.SeriesData;
 import dna.util.Config;
 import dna.util.Log;
@@ -22,18 +24,49 @@ import dna.util.Log;
  */
 public class Latex {
 
-	public static void test(SeriesData s, String dstDir, String filename,
+	public static void writeTexAndPlot(SeriesData s, String dstDir,
+			String filename) throws IOException, InterruptedException {
+		Latex.writeTexAndPlotFromTo(s, dstDir, filename, 0, Long.MAX_VALUE, 1);
+	}
+
+	public static void writeTexAndPlotFromTo(SeriesData s, String dstDir,
+			String filename, long from, long to, long stepsize)
+			throws IOException, InterruptedException {
+		// craft config
+		PlottingConfig pconfig = new PlottingConfig(PlotFlag.plotAll);
+		pconfig.setPlotInterval(from, to, stepsize);
+		String plotDir = "plots/";
+
+		// plot
+		Plotting.plot(s, dstDir + plotDir, pconfig);
+		Log.infoSep();
+
+		// tex
+		Latex.writeTexFromTo(s, dstDir, filename, plotDir, from, to, stepsize,
+				pconfig);
+	}
+
+	public static void writeTexFromTo(SeriesData s, String dstDir,
+			String filename, String plotDir, long from, long to, long stepsize,
+			PlottingConfig pconfig) throws IOException {
+		TexConfig config = new TexConfig(dstDir, s.getDir(), plotDir,
+				new PlotFlag[] { PlotFlag.plotAll }, TableFlag.Average);
+		config.setOutputInterval(from, to, stepsize);
+		Latex.writeTex(s, dstDir, filename, config, pconfig);
+	}
+
+	public static void writeTex(SeriesData s, String dstDir, String filename,
 			TexConfig config, PlottingConfig pconfig) throws IOException {
 		String srcDir = s.getDir();
 
 		// log
 		Log.info("Exporting series '" + s.getName() + "' at '" + srcDir
 				+ "' to '" + dstDir + filename + "'");
-		String plotDir = "plots/";
+		String plotDir = config.getPlotDir();
 		long from = config.getFrom();
 		long to = config.getTo();
 		long stepsize = config.getStepsize();
-		boolean intervalByIndex = true;
+		boolean intervalByIndex = config.isIntervalByIndex();
 		boolean singleFile = Config.getBoolean("GENERATION_BATCHES_AS_ZIP");
 
 		// create dir
@@ -114,33 +147,8 @@ public class Latex {
 
 		// close document
 		file.closeAndEnd();
+
+		// log
+		Log.info("Latex-Output finished!");
 	}
-
-	public static void addStatisticsChapter(TexFile file, String dstDir,
-			AggregatedBatch initBatch) throws IOException {
-		// write statistics
-		TexFile stats = new TexFile(dstDir + TexUtils.chapterDirectory
-				+ Dir.delimiter, TexUtils.statisticsFilename
-				+ TexUtils.texSuffix);
-
-		if (initBatch.getValues().size() > 0) {
-			stats.writeCommentBlock(TexUtils.statistics);
-			stats.writeLine(TexUtils.subsection(TexUtils.statistics));
-			stats.writeLine();
-			for (AggregatedValue v : initBatch.getValues().getList()) {
-				stats.writeLine(TexUtils.subsubsection(v.getName()));
-				stats.writeLine(v.getName() + " is a statistic.");
-				stats.writeLine();
-			}
-			stats.writeLine();
-		}
-		stats.close();
-		file.include(stats);
-	}
-
-	// public static void addGeneralRuntimesChapter(TexFile file, String dstDir,
-	// AggregatedBatch initBatch) throws IOException {
-	//
-	// }
-
 }
