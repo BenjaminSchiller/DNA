@@ -17,6 +17,9 @@ public class TexConfig {
 
 	// output interval
 	private String scaling;
+	private long from;
+	private long to;
+	private long stepsize;
 
 	// scaling
 	private HashMap<Long, Long> map;
@@ -52,6 +55,12 @@ public class TexConfig {
 
 	public void setTableFlags(TableFlag... flags) {
 		this.tableFlags = flags;
+	}
+
+	public void setOutputInterval(long from, long to, long stepsize) {
+		this.from = from;
+		this.to = to;
+		this.stepsize = stepsize;
 	}
 
 	public String getDstDir() {
@@ -196,6 +205,18 @@ public class TexConfig {
 
 	public HashMap<Long, Long> getMapping() {
 		return this.map;
+	}
+
+	public long getFrom() {
+		return this.from;
+	}
+
+	public long getTo() {
+		return this.to;
+	}
+
+	public long getStepsize() {
+		return this.stepsize;
 	}
 
 }

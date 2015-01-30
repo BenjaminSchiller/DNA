@@ -30,9 +30,9 @@ public class Latex {
 		Log.info("Exporting series '" + s.getName() + "' at '" + srcDir
 				+ "' to '" + dstDir + filename + "'");
 		String plotDir = "plots/";
-		long from = pconfig.getPlotFrom();
-		long to = pconfig.getPlotTo();
-		long stepsize = pconfig.getStepsize();
+		long from = config.getFrom();
+		long to = config.getTo();
+		long stepsize = config.getStepsize();
 		boolean intervalByIndex = true;
 		boolean singleFile = Config.getBoolean("GENERATION_BATCHES_AS_ZIP");
 
