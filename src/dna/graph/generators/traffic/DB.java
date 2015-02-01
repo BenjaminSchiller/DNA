@@ -38,7 +38,6 @@ public class DB {
 
 	
 	private GraphDataStructure gds;
-	private int stepSize;
 	public DateTime initDateTime;
 	private HashMap<Integer,double[]> maxValuesCrossroad;
 	private HashMap<Integer,double[]> maxValuesInputWays;
@@ -49,9 +48,7 @@ public class DB {
 	public HashMap<InputWay, Integer> inputWaysToID;
 	public HashMap<InputWay,List<int[]>> inputWayConnections; //Key: ToCrossroad,ToWay - Value: List<FromCrossroad,FromWay>
 	public boolean[] days;
-	public int timeRange;
 	private double treshold;
-	private TrafficUpdate trafficUpdate;
 	private HashMap<EdgeContainer,Edge> disabledEdges;
 	private HashMap<Integer, HashMap<EdgeContainer, Edge>> disabledEdgesInputWay;
 	private boolean dummyMax;
@@ -64,14 +61,13 @@ public class DB {
 	 * oder falls diese nicht vorhanden ist, aus den Parametern übernommen.
 	 * @param gds, Datenstruktur, welcher der Verwendung von DNA zugrunde liegt (für Knotentypen, Kantentypen ..)
 	 * @param initTDateTime, Startzeitpunkt für die Modi mit realen Daten
-	 * @param stepSize, Schrittweite für den kontinuerlichen Modus
 	 * @param daySelection, Boolean-Array mit 7 Einträgen für die Wochentage
 	 * @param timeRange, Intervalllänge für den Tages und Aggregationsmodus
 	 * @param treshold, Schwellwert für die Überlastungserkennung
 	 * @param trafficUpdate, statische Daten für den Simulationsmodus
 	 * @param dummyMax, Verwendung von synthetischen Max-Werten oder realen Max-Werten
 	 */
-	public DB(GraphDataStructure gds, DateTime initTDateTime, int stepSize, boolean[] daySelection , int timeRange, double treshold,TrafficUpdate trafficUpdate,boolean dummyMax) {
+	public DB(GraphDataStructure gds, DateTime initTDateTime, boolean[] daySelection , int timeRange, double treshold,boolean dummyMax) {
 		try {
 			FileReader fr = new FileReader("db.txt");
 			BufferedReader br = new BufferedReader(fr);
@@ -122,10 +118,9 @@ public class DB {
 	        System.out.println("VendorError: " + e.getErrorCode());
 	    }
 		this.gds = gds;
-		this.stepSize=stepSize;
 		this.initDateTime = initTDateTime;
 		this.days = daySelection;
-		this.timeRange = timeRange;
+
 		this.maxValuesInputWays = new HashMap<>();
 		this.maxValuesCrossroad = new HashMap<>();
 		this.maxValuesSensors = new HashMap<>();
@@ -135,7 +130,6 @@ public class DB {
 		this.inputWaysToID = new HashMap<>();
 		this.inputWays= new HashMap<>();
 		this.treshold = treshold;
-		this.trafficUpdate = trafficUpdate;
 		this.disabledEdges = new HashMap<>();
 		this.disabledEdgesInputWay = new HashMap<>();
 		this.dummyMax = dummyMax;
@@ -311,10 +305,10 @@ public class DB {
 	 * @param crossroadID - globale ID der Kreuzung
 	 * @param from - Startzeitpunkt
 	 * @param to - Endzeitpunkt
-	 * @param timestamp - Zeitstempel für den das Gewicht berechnet wird
+	 * @param timestampInit - Zeitstempel für den das Gewicht berechnet wird
 	 * @return
 	 */
-	public CrossroadWeight getCrossroadWeight(int crossroadID, DateTime from, DateTime to,int timestamp) {
+	public CrossroadWeight getCrossroadWeight(int crossroadID, DateTime from, DateTime to,long timestampInit) {
 		String crossroadName = getCrossroadName(crossroadID);
 		if(!maxValuesCrossroad.containsKey(crossroadID)){
 			maxValuesCrossroad.put(crossroadID, getMaximalWeightCrossroad(crossroadID) );
@@ -344,9 +338,10 @@ public class DB {
 				crw.setMaxWeightWay(wayID, maxValue);
 				double count = rs.getDouble("ANZAHL");
 				double load = rs.getDouble("BELEGUNG");
-				setMaximalWeightsInputWayImproved(getInputWay(crossroadID, wayID), count, load, from, timeRange); // aktualisiert den maximalen Count-Wert, sofern dies notwendig ist
+				//TODO: Verbindung zur TimeRange, war zuvor als Parameter in Datenbank, nun nur noch im TrafficConfig
+				setMaximalWeightsInputWayImproved(getInputWay(crossroadID, wayID), count, load, from, 5); // aktualisiert den maximalen Count-Wert, sofern dies notwendig ist
 				crw.addWeightWay(wayID, new double[]{count,load,(count/maxValue[0])*100});
-				crw.setTimestamp(timestamp);
+				crw.setTimestamp(timestampInit);
 				
 			}
 		} catch (SQLException e) {
@@ -366,8 +361,8 @@ public class DB {
 	 * @param trafficUpdate, beinhaltet die synthetischen Daten
 	 * @return
 	 */
-	public CrossroadWeight getCrossroadWeightStaticInit(int crossroadID,DateTime from, DateTime to, int timestamp,TrafficUpdate trafficUpdate) {
-		CrossroadWeight crw = getCrossroadWeight(crossroadID, from, to,timestamp);
+	public CrossroadWeight getCrossroadWeightStaticInit(int crossroadID,DateTime from, DateTime to, long timestampInit,TrafficUpdate trafficUpdate) {
+		CrossroadWeight crw = getCrossroadWeight(crossroadID, from, to,timestampInit);
 		crw.resetInputWayWeight(trafficUpdate.getInitCount(), trafficUpdate.getInitLoad());
 		return crw;
 	}

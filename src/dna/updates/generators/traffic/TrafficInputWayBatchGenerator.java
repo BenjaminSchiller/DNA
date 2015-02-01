@@ -43,14 +43,16 @@ public class TrafficInputWayBatchGenerator extends BatchGenerator{
 	private TrafficModi modus;
 	private DateTime holidayStart;
 	private boolean[] daySelection;
+	private int observationDays;
 	private HashMap<Integer, HashMap<EdgeContainer, Edge>> disabledEdges = new HashMap<>();
 	private HashMap<Integer, HashMap<EdgeContainer,Edge>> newDisabledEdges = new HashMap<>();
 	private double treshold;
 	private TrafficUpdate trafficUpdate;
 	private HashMap<Integer, List<Double>> nodeHistory;
+	private int timeRange;
 	
 	
-	public TrafficInputWayBatchGenerator(String name,DB db, DateTime initDateTime, int stepSize, TrafficModi modus, DateTime holidayStart, boolean [] daySelection, double treshold,TrafficUpdate trafficUpdate) {
+	public TrafficInputWayBatchGenerator(String name,DB db, DateTime initDateTime, int stepSize, TrafficModi modus, DateTime holidayStart, boolean [] daySelection, double treshold, TrafficUpdate trafficUpdate, int timeRange, int observationDays) {
 		super(name, new IntParameter("NA", 0), new IntParameter("NR",
 				0), new IntParameter("NW", 10),
 				new ObjectParameter("NWS", 0), new IntParameter("EA", 0),
@@ -64,6 +66,8 @@ public class TrafficInputWayBatchGenerator extends BatchGenerator{
 		this.treshold = treshold;
 		this.trafficUpdate = trafficUpdate;
 		this.nodeHistory = new HashMap<>();
+		this.timeRange = timeRange;
+		this.observationDays = observationDays;
 	}
 
 	@Override
@@ -95,7 +99,7 @@ public class TrafficInputWayBatchGenerator extends BatchGenerator{
 				update = db.getInputWayWeight(n.getIndex(),initDateTime.plusMinutes((int) (g.getTimestamp()+1)*stepSize),initDateTime.plusMinutes((int) (g.getTimestamp()+2)*stepSize));
 				break;
 			case DayTimeRange:
-				update = db.getInputWayWeight(n.getIndex(),time.minusMinutes(db.timeRange),time.plusMinutes(db.timeRange));
+				update = db.getInputWayWeight(n.getIndex(),time.minusMinutes(timeRange),time.plusMinutes(timeRange));
 				break;
 			case Simulation:
 				update = (trafficUpdate.isAffected(n.getIndex()))?  db.getInputWayWeightStaticBatch(n.getIndex(),trafficUpdate) : null;
@@ -104,10 +108,10 @@ public class TrafficInputWayBatchGenerator extends BatchGenerator{
 				time = initDateTime;
 				int index = n.getIndex();
 				long start = g.getTimestamp();
-				double max = 0;
-				for (int i = 0; i < 5; i++) {
+
+				for (int i = 0; i < observationDays; i++) {
 					time = Helpers.calculateNextDay(initDateTime, start++, daySelection, holidayStart, false);
-					double[] weightOfDay = db.getInputWayWeight(n.getIndex(),time.minusMinutes(db.timeRange),time.plusMinutes(db.timeRange));
+					double[] weightOfDay = db.getInputWayWeight(n.getIndex(),time.minusMinutes(timeRange),time.plusMinutes(timeRange));
 					if(nodeHistory.containsKey(index)){
 						nodeHistory.get(index).add(weightOfDay[2]);
 					}
@@ -179,29 +183,8 @@ public class TrafficInputWayBatchGenerator extends BatchGenerator{
 				}
 			}
 			
-			
-			
-			/*
-			//EdgeRemoval
-			if(update[2] > treshold){ //Knoten ist überlastet
-				key = n.getIndex();
-				if(!disabledEdges.containsKey(key)){
-					List<Edge> edges= new ArrayList<>();
-					for (IElement e : n.getEdges()) {
-						if(e instanceof Edge){
-							edge = (Edge) e;
-							b.add(new EdgeRemoval(edge));
-						}	
-					}
-					newDisabledEdges.put(key, edges);
-				}
-				else{
-					newDisabledEdges.put(key, disabledEdges.get(key));
-				}
-				disabledEdges.remove(key);
-			}*/
 		}
-		//TODO: War in der Schleife, prüfen
+
 		for (Edge e : toDisable) {
 			b.add(new EdgeRemoval(e));
 		}

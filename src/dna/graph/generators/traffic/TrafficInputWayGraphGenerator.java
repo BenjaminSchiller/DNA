@@ -95,8 +95,7 @@ public class TrafficInputWayGraphGenerator extends GraphGenerator{
 			
 			currentWeighted.setWeight(new Double3dWeight(weight[0],weight[1],weight[2]));
 			g.addNode(currentWeighted);
-			if(weight[2]>96)
-			System.out.println("ID " +currentWeighted.getIndex() + "\tCount:" + weight[0] +"\tLoad:"+weight[1]+"\t"+"Norm:"+weight[2]);
+			System.out.println("New Node Weight");
 
 		}
 		

@@ -21,6 +21,7 @@ import dna.graph.nodes.Node;
 import dna.graph.weights.Double3dWeight;
 import dna.io.GraphReader;
 import dna.io.GraphWriter;
+import dna.metrics.IMetric;
 import dna.updates.update.EdgeRemoval;
 import dna.util.ArrayUtils;
 import dna.util.parameters.IntParameter;
@@ -53,6 +54,17 @@ public class TrafficCrossroadGraphGenerator extends GraphGenerator{
 		this.trafficUpdate = trafficUpdate;
 		this.nodesFilter = nodesFilter;
 	}
+	
+	public TrafficCrossroadGraphGenerator(TrafficConfig tc, GraphDataStructure gds, DB db, long  timeStampInit){
+		super(tc.getGraphName(), null, gds, timeStampInit,0,0);
+		this.db = db;
+		this.modus = tc.getModus();
+		this.initDateTime = tc.getInitDateTime();
+		this.stepsize = tc.getStepSize();
+		this.timeRange = tc.getTimeRange();
+		this.trafficUpdate = tc.getTrafficUpdate();
+		this.nodesFilter = tc.getNodesFilter();
+	}
 
 	@Override
 	public Graph generate() {
@@ -68,6 +80,7 @@ public class TrafficCrossroadGraphGenerator extends GraphGenerator{
 		CrossroadWeight crossroadWeight = null;
 		Node currentNode = null;
 		DirectedWeightedNode currentWeighted = null;
+		
 		for (int i = 0; i < nodes.size(); i++) {
 			
 			currentNode = (Node) nodes.get(i);
@@ -78,24 +91,31 @@ public class TrafficCrossroadGraphGenerator extends GraphGenerator{
 			}
 			
 			switch (modus) {
+			
 			case Continuous:
-				crossroadWeight = db.getCrossroadWeight(currentWeighted.getIndex(),initDateTime,initDateTime.plusMinutes(stepsize),0);
+				crossroadWeight = db.getCrossroadWeight(currentWeighted.getIndex(),initDateTime,initDateTime.plusMinutes(stepsize),timestampInit);
 				break;
+			
 			case DayTimeRange: case Aggregation:
-				crossroadWeight = db.getCrossroadWeight(currentWeighted.getIndex(),initDateTime.minusMinutes(timeRange),initDateTime.plusMinutes(timeRange),0);
+				crossroadWeight = db.getCrossroadWeight(currentWeighted.getIndex(),initDateTime.minusMinutes(timeRange),initDateTime.plusMinutes(timeRange),timestampInit);
 				break;	
+			
 			case Simulation:
-				crossroadWeight = db.getCrossroadWeightStaticInit(currentWeighted.getIndex(),initDateTime,initDateTime.plusMinutes(1),0,trafficUpdate);
+				crossroadWeight = db.getCrossroadWeightStaticInit(currentWeighted.getIndex(),initDateTime,initDateTime.plusMinutes(1),timestampInit,trafficUpdate);
 				break;
+			
 			default:
 				System.out.println("error - Modus nicht definiert");
 				break;
+			
 			}
 			
 			double[] weight = crossroadWeight.getWeight();
-			System.out.println("ID " +currentWeighted.getIndex() + "\tCount:" + weight[0] +"\tLoad:"+weight[1]+"\t"+"Norm:"+weight[2]);
-			db.setMaximalWeightsCrossroadImproved(currentWeighted.getIndex(), weight[0], weight[1], initDateTime,db.timeRange);
+
+			db.setMaximalWeightsCrossroadImproved(currentWeighted.getIndex(), weight[0], weight[1], initDateTime,timeRange);
+			
 			currentWeighted.setWeight(new Double3dWeight(weight[0],weight[1],weight[2]));
+			
 			g.addNode(currentWeighted);
 			
 			EdgeContainer ec = null;

@@ -97,8 +97,8 @@ public class TrafficSensorBatchGenerator extends BatchGenerator{
 			break;
 		case DayTimeRange:
 			time = Helpers.calculateNextDay(time, g.getTimestamp(),daySelection,holidayStart,true);
-			fromTime = time.minusMinutes(db.timeRange);
-			toTime = time.plusMinutes(db.timeRange);
+			fromTime = time.minusMinutes(timeRange);
+			toTime = time.plusMinutes(timeRange);
 			break;
 
 		default:
@@ -193,18 +193,9 @@ public class TrafficSensorBatchGenerator extends BatchGenerator{
 					b.add(new EdgeAddition(elem.getValue()));
 			}
 		}
+		
 		disabledEdges=newDisabledEdges;
-		/*
-		int node = 0;
-		//NodeWeight
-		db.getSensorWeights(from, to, newTimestamp);
-		for (IElement currentNode : g.getNodes()) {
-			Node n = (DirectedWeightedNode) currentNode;
-			double[] update = db.getSensorModelWeight(n.getIndex(), from, to, newTimestamp);
-			b.add(new NodeWeight((IWeightedNode) currentNode,new Double3dWeight(update[0],update[1],update[2])));
-			System.out.println("Updated: "+node++);
-		}
-		*/
+		
 		return b;
 	}
 

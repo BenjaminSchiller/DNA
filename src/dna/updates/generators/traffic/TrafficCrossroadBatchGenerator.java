@@ -40,19 +40,21 @@ import dna.util.parameters.ObjectParameter;
 import dna.util.parameters.Parameter;
 
 public class TrafficCrossroadBatchGenerator extends BatchGenerator{
-	DB db;
-	DateTime initDateTime;
-	int stepSize;
-	int run=0;
-	int observationDays;
+	
+	private DB db;
+	private DateTime initDateTime;
+	private int stepSize;
+	private int run=0;
+	private int observationDays;
 	private TrafficModi modus;
-	DateTime holidayStart;
-	boolean[] daySelection;
-	HashMap<EdgeContainer,Edge> disabledEdges = new HashMap<>();
+	private DateTime holidayStart;
+	private boolean[] daySelection;
+	private HashMap<EdgeContainer,Edge> disabledEdges = new HashMap<>();
 	private TrafficUpdate trafficUpdate;
-	HashMap<Integer,CrossroadWeightList> nodeHistory;
+	private HashMap<Integer,CrossroadWeightList> nodeHistory;
+	private int timeRange;
 
-	public TrafficCrossroadBatchGenerator(String name,DB db, DateTime initDateTime, int stepSize, TrafficModi modus, DateTime holidayStart, boolean [] daySelection,TrafficUpdate trafficUpdate, int observationDays) {
+	public TrafficCrossroadBatchGenerator(String name,DB db, DateTime initDateTime, int stepSize, TrafficModi modus, DateTime holidayStart, boolean [] daySelection,TrafficUpdate trafficUpdate,int timeRange, int observationDays) {
 		super(name, new IntParameter("NA", 0), new IntParameter("NR",
 				0), new IntParameter("NW", 0),
 				new ObjectParameter("NWS", 0), new IntParameter("EA", 0),
@@ -64,7 +66,9 @@ public class TrafficCrossroadBatchGenerator extends BatchGenerator{
 		this.holidayStart = holidayStart;
 		this.daySelection = daySelection;
 		this.trafficUpdate = trafficUpdate;
+		this.timeRange = timeRange;
 		this.observationDays = observationDays;
+
 	}
 
 	@Override
@@ -80,15 +84,20 @@ public class TrafficCrossroadBatchGenerator extends BatchGenerator{
 		Iterable<IElement> nodes = g.getNodes();
 		CrossroadWeight crossroadWeight = null;
 		DateTime time = null;
-		if(modus == TrafficModi.DayTimeRange || modus == TrafficModi.Simulation){
+		
+		// Bestimmte den nächsten Tag
+		if(modus == TrafficModi.DayTimeRange){
 			time = initDateTime;
 			time = Helpers.calculateNextDay(time, g.getTimestamp(),daySelection,holidayStart,true);
 		}
-		if(modus == TrafficModi.Aggregation){
+		else if(modus == TrafficModi.Aggregation){
 			nodeHistory = new HashMap<>();
 		}
-		int newTimeStamp = (int) g.getTimestamp() + 1;
 		
+		// neuer Timestamp durch Batch-Generierung
+		long newTimeStamp = (int) g.getTimestamp() + 1;
+		
+		// Berechne neues Gewicht für jeden Knoten
 		for (IElement currentNode : nodes) {
 			DirectedWeightedNode n = (DirectedWeightedNode) currentNode;
 			double[] update = null;
@@ -98,19 +107,29 @@ public class TrafficCrossroadBatchGenerator extends BatchGenerator{
 			case Continuous:
 				crossroadWeight =db.getCrossroadWeight(n.getIndex(), initDateTime.plusMinutes((int) (g.getTimestamp()*stepSize)),initDateTime.plusMinutes((int) (g.getTimestamp()+stepSize)*stepSize),newTimeStamp); 
 				break;
+				
 			case DayTimeRange:
-				crossroadWeight = db.getCrossroadWeight(n.getIndex(),time.minusMinutes(db.timeRange),time.plusMinutes(db.timeRange),newTimeStamp);
+				crossroadWeight = db.getCrossroadWeight(n.getIndex(),time.minusMinutes(timeRange),time.plusMinutes(timeRange),newTimeStamp);
 				break;
+				
 			case Simulation:
 				crossroadWeight = db.getCrossroadWeightStaticBatch(n.getIndex(),trafficUpdate);
 				break;
+				
 			case Aggregation:
+				//Initialisierung auf Starttag
 				time = initDateTime;
 				int index = n.getIndex();
 				long start = g.getTimestamp();
+				
+				// Aggregiere für observationDays-viele Tage
 				for (int i = 0; i < observationDays; i++) {
+					
+					// Gehe einen Tag zurück (gemäß daySelection) und berechne den entsprechenden Wert
 					time = Helpers.calculateNextDay(initDateTime, start++,daySelection,holidayStart,false);
-					CrossroadWeight weightOfDay = db.getCrossroadWeight(n.getIndex(),time.minusMinutes(db.timeRange*2),time.plusMinutes(db.timeRange*2),newTimeStamp);
+					CrossroadWeight weightOfDay = db.getCrossroadWeight(n.getIndex(),time.minusMinutes(timeRange*2),time.plusMinutes(timeRange*2),newTimeStamp);
+					
+					// Sammler für jeden Knoten die Gewichte der einzelnen Tage
 					if(nodeHistory.containsKey(index)){
 						nodeHistory.get(index).add(weightOfDay);
 					}
@@ -119,10 +138,13 @@ public class TrafficCrossroadBatchGenerator extends BatchGenerator{
 						weightList.add(weightOfDay);
 						nodeHistory.put(index, weightList);
 					}
+				
 				}
 				
+				// Nach der Aggregation, berechne den Average
 				crossroadWeight = nodeHistory.get(index).getAverage();
 				break;
+				
 			default:
 				System.out.println("error - Modus nicht definiert");
 				break;
@@ -132,7 +154,7 @@ public class TrafficCrossroadBatchGenerator extends BatchGenerator{
 			Double3dWeight oldWeight = (Double3dWeight) n.getWeight();
 			Double3dWeight newWeight = new Double3dWeight(update[0],update[1],update[2]);
 
-			db.setMaximalWeightsCrossroadImproved(n.getIndex(), update[0], update[1], time,db.timeRange);
+			db.setMaximalWeightsCrossroadImproved(n.getIndex(), update[0], update[1], time,timeRange);
 			if(!oldWeight.equals(newWeight))
 				b.add(new NodeWeight((dna.graph.weights.IWeightedNode) currentNode,newWeight));
 			

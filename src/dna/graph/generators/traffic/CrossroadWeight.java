@@ -12,7 +12,7 @@ public class CrossroadWeight {
 	private double maxCount;
 	private double maxLoad;
 	private double threshold;
-	private int timestamp;
+	private long timestamp;
 	
 	public CrossroadWeight(int crossroadID,String crossroadName, double treshold){
 		this.crossroadID = crossroadID;
@@ -64,17 +64,17 @@ public class CrossroadWeight {
 	
 	/**
 	 * setzt den Zeitstempel, für den das letzte Gewicht vorliegt
-	 * @param timestamp
+	 * @param timestampInit
 	 */
-	public void setTimestamp(int timestamp){
-		this.timestamp = timestamp;
+	public void setTimestamp(long timestampInit){
+		this.timestamp = timestampInit;
 	}
 	
 	/**
 	 * liefert den Zeitstempel, für den das letzte Gewicht vorliegt
 	 * @return
 	 */
-	public int getTimestamp(){
+	public long getTimestamp(){
 		return timestamp;
 	}
 	
