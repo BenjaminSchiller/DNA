@@ -75,20 +75,17 @@ public class TrafficInputWayBatchGenerator extends BatchGenerator{
 		Batch b = new Batch(g.getGraphDatastructures(), g.getTimestamp(),
 				g.getTimestamp() + 1, 0, 0, 0, 0,
 				0, 0);
-		if(g.getTimestamp()==0){
-			disabledEdges=db.getDisabledEdgesInputWay();
-		}
+		
+	
 		Set<Edge> toDisable = new HashSet<>();
-		GraphWriter.write(g, "InputWayGraph/", "batch"+step+++".txt");
 		Iterable<IElement> nodes = g.getNodes();
 		DateTime time = null;
-		Edge edge = null;
-		Integer newKey = null;
+		
 		if(modus == TrafficModi.DayTimeRange){
 			time = initDateTime;
 			time = Helpers.calculateNextDay(time, g.getTimestamp(),daySelection,holidayStart,true);
 		}
-		newDisabledEdges = new HashMap<>();
+		
 		for (IElement currentNode : nodes) {
 			DirectedWeightedNode n = (DirectedWeightedNode) currentNode;
 			double[] update =null;
@@ -146,6 +143,15 @@ public class TrafficInputWayBatchGenerator extends BatchGenerator{
 			}
 			
 			EdgeContainer ec = null;
+			Integer newKey = null;
+			Edge edge = null;
+			
+			// Infos aus Initialisierungsschritt holen
+			if(g.getTimestamp()==0){
+				disabledEdges=db.getDisabledEdgesInputWay();
+			}
+			newDisabledEdges = new HashMap<>();
+			
 			
 			if(update[2] > treshold) {
 				newKey = n.getIndex();

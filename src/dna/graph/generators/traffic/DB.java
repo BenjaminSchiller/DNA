@@ -47,7 +47,7 @@ public class DB {
 	public HashMap<Integer, int[]> inputWays;
 	public HashMap<InputWay, Integer> inputWaysToID;
 	public HashMap<InputWay,List<int[]>> inputWayConnections; //Key: ToCrossroad,ToWay - Value: List<FromCrossroad,FromWay>
-	public boolean[] days;
+	
 	private double treshold;
 	private HashMap<EdgeContainer,Edge> disabledEdges;
 	private HashMap<Integer, HashMap<EdgeContainer, Edge>> disabledEdgesInputWay;
@@ -67,7 +67,7 @@ public class DB {
 	 * @param trafficUpdate, statische Daten für den Simulationsmodus
 	 * @param dummyMax, Verwendung von synthetischen Max-Werten oder realen Max-Werten
 	 */
-	public DB(GraphDataStructure gds, DateTime initTDateTime, boolean[] daySelection , int timeRange, double treshold,boolean dummyMax) {
+	public DB(GraphDataStructure gds, DateTime initTDateTime, boolean[] daySelection, double treshold,boolean dummyMax) {
 		try {
 			FileReader fr = new FileReader("db.txt");
 			BufferedReader br = new BufferedReader(fr);
@@ -119,7 +119,6 @@ public class DB {
 	    }
 		this.gds = gds;
 		this.initDateTime = initTDateTime;
-		this.days = daySelection;
 
 		this.maxValuesInputWays = new HashMap<>();
 		this.maxValuesCrossroad = new HashMap<>();

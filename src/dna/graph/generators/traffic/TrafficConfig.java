@@ -39,6 +39,7 @@ public class TrafficConfig {
 	 */
 	private TrafficConfig(TrafficModi modus, TrafficModel model, double treshold, int[] nodesFilter, DateTime initDateTime ){
 		this.modus = modus;
+		this.model = model;
 		this.treshold = treshold;
 		this.nodesFilter = nodesFilter;
 		this.initDateTime = initDateTime;

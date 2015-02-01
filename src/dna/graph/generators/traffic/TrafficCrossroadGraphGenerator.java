@@ -112,7 +112,8 @@ public class TrafficCrossroadGraphGenerator extends GraphGenerator{
 			
 			double[] weight = crossroadWeight.getWeight();
 
-			db.setMaximalWeightsCrossroadImproved(currentWeighted.getIndex(), weight[0], weight[1], initDateTime,timeRange);
+			if(modus == TrafficModi.DayTimeRange)
+				db.setMaximalWeightsCrossroadImproved(currentWeighted.getIndex(), weight[0], weight[1], initDateTime, timeRange);
 			
 			currentWeighted.setWeight(new Double3dWeight(weight[0],weight[1],weight[2]));
 			
@@ -140,13 +141,16 @@ public class TrafficCrossroadGraphGenerator extends GraphGenerator{
 		Node toNode;
 		Edge e;
 		for (int i = 0; i < connection.size(); i++) {
+			
 			current = connection.get(i);
 			fromNode = g.getNode(current.getFrom());
 			toNode = g.getNode(current.getTo());
+			
 			if(fromNode!= null && toNode!=null)
 				e = gds.newEdgeInstance(fromNode, toNode);
 			else
 				continue;
+			
 			if(disabledEdges.containsKey(current)){
 				disabledEdges.put(current, e);
 			}
