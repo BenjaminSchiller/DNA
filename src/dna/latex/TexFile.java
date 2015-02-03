@@ -7,6 +7,8 @@ import java.util.ArrayList;
 import java.util.Calendar;
 
 import dna.io.Writer;
+import dna.io.ZipReader;
+import dna.io.ZipWriter;
 import dna.io.filesystem.Dir;
 import dna.plot.PlotConfig;
 import dna.plot.PlottingConfig;
@@ -17,6 +19,7 @@ import dna.series.aggdata.AggregatedMetric;
 import dna.series.aggdata.AggregatedNodeValueList;
 import dna.series.aggdata.AggregatedValue;
 import dna.series.data.SeriesData;
+import dna.util.Config;
 import dna.util.Log;
 
 /**
@@ -231,10 +234,34 @@ public class TexFile {
 			MultiScalarTexTable table = new MultiScalarTexTable(this,
 					tableDescrArray, tempTimestamp, config.getDateFormat());
 
+			boolean zippedBatches = false;
+			boolean zippedRuns = false;
+			if (Config.get("GENERATION_AS_ZIP").equals("batches"))
+				zippedBatches = true;
+			if (Config.get("GENERATION_AS_ZIP").equals("runs"))
+				zippedRuns = true;
+
 			// read batch
 			String readDir = Dir.getAggregationBatchDir(s.getDir(), timestamp);
-			AggregatedBatch tempBatch = AggregatedBatch.read(readDir,
-					timestamp, BatchReadMode.readOnlyDistAndNvl);
+			AggregatedBatch tempBatch;
+
+			if (zippedRuns) {
+				ZipReader.readFileSystem = ZipWriter
+						.createAggregationFileSystem(s.getDir());
+				readDir = Dir.delimiter;
+			}
+			if (zippedBatches)
+				tempBatch = AggregatedBatch.readFromSingleFile(readDir,
+						timestamp, Dir.delimiter,
+						BatchReadMode.readOnlyDistAndNvl);
+			else 
+				tempBatch = AggregatedBatch.read(
+						Dir.getBatchDataDir(readDir, timestamp), timestamp,
+						BatchReadMode.readOnlyDistAndNvl);
+			if (zippedRuns) {
+				ZipReader.readFileSystem.close();
+				ZipReader.readFileSystem = null;
+			}
 
 			// add lines
 			if (!b.getMetrics().getNames().contains(m.getName())
@@ -245,7 +272,6 @@ public class TexFile {
 				AggregatedValue[] values = tempBatch.getMetrics()
 						.get(m.getName()).getDistributions().get(d.getName())
 						.getValues();
-
 				for (int i = 0; i < values.length; i++) {
 					// select values
 					double[] selectedValues = TexUtils
