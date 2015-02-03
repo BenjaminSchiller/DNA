@@ -379,6 +379,35 @@ public class TexFile {
 			// include header, titlepage, adjust pagenumbering
 			this.include(TexUtils.chapterDirectory + Dir.delimiter
 					+ TexUtils.headerFilename);
+			this.writeLine(TexUtils.pagestyle("scrheadings"));
+			this.writeLine(TexUtils.automark());
+			this.writeLine(TexUtils.newcommand()
+					+ TexUtils.cmd("textt", TexUtils.cmd("tettt")));
+			this.writeLine(TexUtils.newcommand()
+					+ TexUtils.cmd("empf", TexUtils.cmd("emph")));
+			this.writeLine(TexUtils.definecolor("grey", "rgb", ".6,.6,.6"));
+			this.writeLine(TexUtils.definecolor("rfc", "rgb", "0,0,0",
+					".4,.4,.4"));
+			this.writeLine(TexUtils.newcommand()
+					+ TexUtils.cmd("todo")
+					+ TexUtils.option("1")
+					+ TexUtils.argument(TexUtils.argument(TexUtils.cmd("color",
+							"red")) + "#1"));
+			this.writeLine(TexUtils.newcommand()
+					+ TexUtils.cmd("bitem")
+					+ TexUtils.option("1")
+					+ TexUtils.argument(TexUtils.cmd("item")
+							+ TexUtils.cmd("textbf", "#1") + "\\"));
+			this.writeLine(TexUtils.newcommand()
+					+ TexUtils.cmd("titem")
+					+ TexUtils.option("1")
+					+ TexUtils.option("")
+					+ TexUtils.argument(TexUtils.cmd("item")
+							+ TexUtils.option(TexUtils.cmd("texttt", "#1"))));
+			this.writeLine(TexUtils.cmd("renewcommand")
+					+ TexUtils.cmd("subsubsectionautorefname")
+					+ TexUtils.cmd("subsectionautorefname"));
+
 			this.writeLine(TexUtils.pagenumbering("roman"));
 			this.writeLine(TexUtils.setcounter("" + 0));
 			this.include(TexUtils.generateTitlepage(this.getDir()
