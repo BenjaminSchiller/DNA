@@ -107,8 +107,29 @@ public class TexUtils {
 		return cmd("include", value);
 	}
 
+	public static String pagestyle(String value) {
+		return cmd("pagestyle", value);
+	}
+
 	public static String pagenumbering(String value) {
 		return cmd("pagenumbering", value);
+	}
+
+	public static String automark() {
+		return cmd("automark") + option("chapter") + argument("section");
+	}
+
+	public static String newcommand() {
+		return cmd("newcommand");
+	}
+
+	public static String definecolor(String name, String scheme, String value) {
+		return cmd("definecolor") + argument(name) + argument(scheme)
+				+ argument(value);
+	}
+	
+	public static String definecolor(String name, String scheme, String value1, String value2) {
+		return definecolor(name, scheme, value1) + '%' + argument(value2);
 	}
 
 	public static String setcounter(String value) {
