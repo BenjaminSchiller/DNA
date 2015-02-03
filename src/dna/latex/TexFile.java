@@ -356,7 +356,7 @@ public class TexFile {
 
 	// tex methods
 	/** Writes the default latex header to the texfile. **/
-	public void writeHeader() throws IOException {
+	public void writePreamble() throws IOException {
 		if (open) {
 			// auto gen
 			this.writeCommentBlock("This is an auto-generated tex-file from DNA - dynammic network analyzer.");
