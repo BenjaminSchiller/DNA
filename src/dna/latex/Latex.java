@@ -100,7 +100,7 @@ public class Latex {
 		TexFile file = new TexFile(dstDir, filename);
 
 		// WRITE HEADER
-		file.writeHeader();
+		file.writePreamble();
 
 		// start with content
 		file.writeLine(TexUtils.chapter("Series "
