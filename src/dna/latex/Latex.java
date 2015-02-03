@@ -71,6 +71,9 @@ public class Latex {
 
 		// create dir
 		(new File(dstDir)).mkdirs();
+		
+		// copy logo
+		TexUtils.copyLogo(dstDir);
 
 		// gather relevant batches
 		String tempDir = Dir.getAggregationDataDir(srcDir);
