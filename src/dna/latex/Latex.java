@@ -3,6 +3,8 @@ package dna.latex;
 import java.io.File;
 import java.io.IOException;
 
+import dna.io.ZipReader;
+import dna.io.ZipWriter;
 import dna.io.filesystem.Dir;
 import dna.latex.TexTable.TableFlag;
 import dna.plot.Plotting;
@@ -67,28 +69,45 @@ public class Latex {
 		long to = config.getTo();
 		long stepsize = config.getStepsize();
 		boolean intervalByIndex = config.isIntervalByIndex();
-		boolean singleFile = Config.getBoolean("GENERATION_BATCHES_AS_ZIP");
+		boolean zippedBatches = false;
+		boolean zippedRuns = false;
+		if (Config.get("GENERATION_AS_ZIP").equals("batches"))
+			zippedBatches = true;
+		if (Config.get("GENERATION_AS_ZIP").equals("runs"))
+			zippedRuns = true;
 
 		// create dir
 		(new File(dstDir)).mkdirs();
-		
+
 		// copy logo
 		TexUtils.copyLogo(dstDir);
 
 		// gather relevant batches
 		String tempDir = Dir.getAggregationDataDir(srcDir);
+		if (zippedRuns) {
+			ZipReader.readFileSystem = ZipWriter
+					.createAggregationFileSystem(srcDir);
+			tempDir = Dir.delimiter;
+		}
 		String[] batches = Dir.getBatchesFromTo(tempDir, from, to, stepsize,
 				intervalByIndex);
 		double timestamps[] = new double[batches.length];
 		for (int i = 0; i < batches.length; i++) {
 			timestamps[i] = Dir.getTimestamp(batches[i]);
 		}
+		if (zippedRuns) {
+			ZipReader.readFileSystem.close();
+			ZipReader.readFileSystem = null;
+		}
 
 		// read single values
 		AggregatedBatch[] batchData = new AggregatedBatch[batches.length];
 		for (int i = 0; i < batches.length; i++) {
 			long timestamp = Dir.getTimestamp(batches[i]);
-			if (singleFile)
+			if (zippedRuns)
+				ZipReader.readFileSystem = ZipWriter
+						.createAggregationFileSystem(srcDir);
+			if (zippedBatches)
 				batchData[i] = AggregatedBatch.readFromSingleFile(tempDir,
 						timestamp, Dir.delimiter,
 						BatchReadMode.readOnlySingleValues);
@@ -96,6 +115,10 @@ public class Latex {
 				batchData[i] = AggregatedBatch.read(
 						Dir.getBatchDataDir(tempDir, timestamp), timestamp,
 						BatchReadMode.readOnlySingleValues);
+			if (zippedRuns) {
+				ZipReader.readFileSystem.close();
+				ZipReader.readFileSystem = null;
+			}
 		}
 
 		// init
