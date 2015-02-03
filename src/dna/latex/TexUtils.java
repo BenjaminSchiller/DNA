@@ -79,6 +79,14 @@ public class TexUtils {
 		return cmd("textsc", value);
 	}
 
+	public static String usepackage(String value, String option) {
+		return cmd("usepackage") + option(option) + argument(value);
+	}
+
+	public static String usepackage(String value) {
+		return cmd("usepackage", value);
+	}
+
 	public static String chapter(String value) {
 		return cmd("chapter", value);
 	}
@@ -127,8 +135,9 @@ public class TexUtils {
 		return cmd("definecolor") + argument(name) + argument(scheme)
 				+ argument(value);
 	}
-	
-	public static String definecolor(String name, String scheme, String value1, String value2) {
+
+	public static String definecolor(String name, String scheme, String value1,
+			String value2) {
 		return definecolor(name, scheme, value1) + '%' + argument(value2);
 	}
 
@@ -923,6 +932,181 @@ public class TexUtils {
 			fits.add(PlotConfig.generateDummyPlotConfig(metric + "." + nvl,
 					"false", null, null, null));
 		}
+	}
+
+	/** Creates the default header file. **/
+	public static TexFile generateHeaderFile(String dstDir) throws IOException {
+		TexFile header = new TexFile(dstDir + TexUtils.chapterDirectory
+				+ Dir.delimiter, TexUtils.headerFilename + TexUtils.texSuffix);
+
+		// auto gen
+		header.writeCommentBlock(TexUtils.headerFilename + TexUtils.texSuffix);
+		header.writeCommentBlock("This is an auto-generated tex-file from DNA - dynammic network analyzer.");
+		header.writeLine();
+
+		header.writeLine(TexUtils.cmd("documentclass") + "[%");
+		header.writeLine("\tpagesize=pdftex,%");
+		header.writeLine("\tpaper=a4,%");
+		header.writeLine("\twoside=false,%");
+		header.writeLine("\tparskip=half,%");
+		header.writeLine("\tchapterprefix,%");
+		header.writeLine("\tfontsize=12pt,%");
+		header.writeLine("\tenglish,");
+		header.writeLine("]" + TexUtils.argument("scrreprt"));
+
+		header.writeLine();
+
+		header.writeLine(TexUtils.usepackage("geometry",
+				"margin=2.5cm, left=3cm"));
+		header.writeLine(TexUtils.usepackage("grffile"));
+		header.writeLine(TexUtils.usepackage("scrpage2"));
+
+		header.writeLine();
+		header.writeCommentLine("Package for utf8 charsets");
+		header.writeLine(TexUtils.usepackage("inputenc", "utf8"));
+
+		header.writeLine();
+		header.writeCommentLine("Package for index-generation");
+		header.writeLine(TexUtils.usepackage("makeidx"));
+
+		header.writeLine();
+		header.writeLine(TexUtils.usepackage("acronym",
+				"nohyperlinks,printonlyused"));
+
+		header.writeLine();
+		header.writeCommentLine("Package for translation in german");
+		header.writeLine(TexUtils.usepackage("babel", "english"));
+
+		header.writeLine();
+		header.writeCommentLine("graphic packages");
+		header.writeLine(TexUtils.usepackage("graphicx", "pdftex"));
+		header.writeLine(TexUtils.usepackage("subfigure"));
+		header.writeLine(TexUtils.usepackage("caption",
+				"margin=10pt,font=small,labelfont=bf,labelsep=endash"));
+
+		header.writeLine();
+		header.writeCommentLine("Use special font");
+		header.writeLine(TexUtils.usepackage("microtype"));
+
+		header.writeLine();
+		header.writeCommentLine("Special font in koma script");
+		header.writeLine(TexUtils.cmd("setkomafont", "sectioning")
+				+ TexUtils.argument(TexUtils.cmd("normalfont")
+						+ TexUtils.cmd("bfseries")));
+		header.writeLine(TexUtils.cmd("setkomafont", "descriptionlabel")
+				+ TexUtils.argument(TexUtils.cmd("normalfont")
+						+ TexUtils.cmd("bfseries")));
+
+		header.writeLine();
+		header.writeCommentLine("Linebreak in image descriptions");
+		header.writeLine(TexUtils.cmd("setcapindent", "1em"));
+
+		header.writeLine();
+		header.writeCommentLine("Header and footer");
+		header.writeLine(TexUtils.pagestyle("useheadings"));
+
+		header.writeLine();
+		header.writeLine(TexUtils.cmd("renewcommand", TexUtils.cmd("rmdefault"))
+				+ TexUtils.argument("bch"));
+		header.writeLine(TexUtils.cmd("renewcommand", TexUtils.cmd("sfdefault"))
+				+ TexUtils.argument("phy"));
+		header.writeLine(TexUtils.cmd("renewcommand", TexUtils.cmd("ttdefault"))
+				+ TexUtils.argument("txtt"));
+
+		header.writeLine();
+		header.writeCommentLine("Package for colours in pdf");
+		header.writeLine(TexUtils.usepackage("color"));
+
+		header.writeLine();
+		header.writeCommentLine("Package for links in pdf");
+		header.writeLine(TexUtils.definecolor("LinkColor", "rgb", "0,0,0.5"));
+		header.writeLine(TexUtils.cmd("usepackage") + "[%");
+		header.writeLine("\tpdftitle="
+				+ TexUtils.argument(TexUtils.cmd("Project") + " "
+						+ TexUtils.cmd("DocumentType")) + ",%");
+		header.writeLine("\tpdfauthor="
+				+ TexUtils.argument(TexUtils.cmd("AuthorName")) + ",");
+		header.writeLine("\tbookmarksopen=true,");
+		header.writeLine("\tbookmarksopenlevel=1");
+		header.writeLine("\t]" + TexUtils.argument("hyperref"));
+		header.writeLine(TexUtils.cmd("hypersetup") + "{colorlinks=true,%");
+		header.writeLine("\tlinkcolor=" + TexUtils.argument("black") + ",%");
+		header.writeLine("\tcitecolor=" + TexUtils.argument("black") + ",%");
+		header.writeLine("\tfilecolor=" + TexUtils.argument("black") + ",%");
+		header.writeLine("\tmenucolor=" + TexUtils.argument("black") + ",%");
+		header.writeLine("\tpagecolor=" + TexUtils.argument("black") + ",%");
+		header.writeLine("\turlcolor=" + TexUtils.argument("black") + "}");
+		header.writeLine(TexUtils.usepackage("hypcap", "all"));
+		header.writeLine(TexUtils.usepackage("hypbmsec"));
+
+		header.writeLine();
+		header.writeCommentLine("Listing formatting");
+		header.writeLine(TexUtils.usepackage("listings", "savemem"));
+		header.writeLine(TexUtils.cmd("lstloadlanguages", "TeX"));
+		header.writeLine(TexUtils.usepackage("verbatim"));
+
+		header.writeCommentBlock("-----------------------------------------------");
+		header.writeLine(TexUtils.cmd("lstset") + "{language=C++,");
+		header.writeLine("\tbasicstyle=" + TexUtils.cmd("ttfamily")
+				+ TexUtils.cmd("small") + ",");
+		header.writeLine("\tbasewidth=.52cm,");
+		header.writeLine("\ttabsize=2,");
+		header.writeLine("\txleftmargin=" + TexUtils.cmd("leftmargin") + ",");
+		header.writeLine("\taboveskip=" + TexUtils.cmd("bigskipamount") + ",");
+		header.writeLine("\tbelowskip=" + TexUtils.cmd("smallskipamount") + ",");
+		header.writeLine("\tfloat=h,");
+		header.writeLine("\tcaptionpos=b,");
+		header.writeLine("\tabovecaptionskip=" + TexUtils.cmd("medskipamount")
+				+ ",");
+		header.writeLine("}");
+
+		header.writeLine();
+		header.writeCommentBlock("-----------------------------------------------");
+		header.writeLine(TexUtils.usepackage("float"));
+		header.writeLine(TexUtils.cmd("newfloat")
+				+ TexUtils.argument("sourcecode") + TexUtils.argument("tbp")
+				+ TexUtils.argument("loc") + TexUtils.option("chapter"));
+		header.writeLine(TexUtils.cmd("floatname")
+				+ TexUtils.argument("sourcecode")
+				+ TexUtils.argument("Quelltext"));
+
+		header.writeLine();
+		header.writeCommentBlock("-----------------------------------------------");
+		header.writeLine(TexUtils.cmd("newenvironment", "ListChanges") + "%");
+		header.writeLine("\t"
+				+ TexUtils.argument(TexUtils.begin("list")
+						+ TexUtils.argument("$"
+								+ TexUtils.cmd("diamondsuit" + "$")
+								+ TexUtils.argument(""))) + "%");
+		header.writeLine("\t" + TexUtils.argument(TexUtils.end("list")));
+		header.writeLine(TexUtils.cmd("newenvironment", "mv")
+				+ TexUtils.argument(TexUtils.cmd("addmargin")
+						+ TexUtils.option(TexUtils.cmd("leftmargin"))
+						+ TexUtils.argument("0em") + TexUtils.cmd("verbatim"))
+				+ TexUtils.argument(TexUtils.cmd("endverbatim")
+						+ TexUtils.cmd("endaddmargin")));
+		header.writeLine(TexUtils.cmd("newenvironment", "ml")
+				+ TexUtils.option("1"));
+		header.writeLine("\t"
+				+ TexUtils.argument(TexUtils.cmd("addmargin")
+						+ TexUtils.option(TexUtils.cmd("leftmargin"))
+						+ TexUtils.argument("0em")
+						+ TexUtils.cmd("labeling")
+						+ TexUtils.option(TexUtils.cmd("hspace")
+								+ TexUtils.cmd("labelsep") + "--")
+						+ TexUtils.argument("#1") + TexUtils.cmd("setlength")
+						+ TexUtils.cmd("itemsep", "-.1em")));
+		header.writeLine("\t"
+				+ TexUtils.argument(TexUtils.cmd("endlabeling")
+						+ TexUtils.cmd("endaddmargin")));
+
+		header.writeLine();
+		header.writeCommentLine("Create index");
+		header.writeLine(TexUtils.cmd("makeindex"));
+
+		// close
+		header.close();
+		return header;
 	}
 
 }

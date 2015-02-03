@@ -99,8 +99,8 @@ public class Latex {
 		AggregatedBatch initBatch = batchData[0];
 		TexFile file = new TexFile(dstDir, filename);
 
-		// WRITE HEADER
-		file.writePreamble();
+		// WRITE PREAMBLE
+		file.writePreamble(dstDir);
 
 		// start with content
 		file.writeLine(TexUtils.chapter("Series "
