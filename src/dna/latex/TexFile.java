@@ -356,7 +356,7 @@ public class TexFile {
 
 	// tex methods
 	/** Writes the default latex header to the texfile. **/
-	public void writePreamble() throws IOException {
+	public void writePreamble(String dstDir) throws IOException {
 		if (open) {
 			// auto gen
 			this.writeCommentBlock("This is an auto-generated tex-file from DNA - dynammic network analyzer.");
@@ -376,9 +376,10 @@ public class TexFile {
 			// begin document
 			this.writeCommentLine(TexUtils.beginOfDocument);
 
-			// include header, titlepage, adjust pagenumbering
-			this.include(TexUtils.chapterDirectory + Dir.delimiter
-					+ TexUtils.headerFilename);
+			// generate and include header
+			this.include(TexUtils.generateHeaderFile(dir));
+
+			this.writeLine(TexUtils.begin("document"));
 			this.writeLine(TexUtils.pagestyle("scrheadings"));
 			this.writeLine(TexUtils.automark());
 			this.writeLine(TexUtils.newcommand()
@@ -397,7 +398,7 @@ public class TexFile {
 					+ TexUtils.cmd("bitem")
 					+ TexUtils.option("1")
 					+ TexUtils.argument(TexUtils.cmd("item")
-							+ TexUtils.cmd("textbf", "#1") + "\\"));
+							+ TexUtils.cmd("textbf", "#1") + TexUtils.newline));
 			this.writeLine(TexUtils.newcommand()
 					+ TexUtils.cmd("titem")
 					+ TexUtils.option("1")
