@@ -1,6 +1,10 @@
 package dna.latex;
 
+import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 
 import dna.io.filesystem.Dir;
@@ -25,9 +29,13 @@ public class TexUtils {
 	public static final String newline = "\\\\";
 	public static final String commentIdentifier = "%";
 	public static final String chapterDirectory = "chapters";
+	public static final String imagesDirectory = "images";
 	public static final String texSuffix = ".tex";
 	public static final String plotLabelPrefix = "plot:";
 	public static final String cdfSuffix = ".CDF";
+	public static String logoSrcPath = "logo/versions/";
+	public static String logoFilename = "dna-logo-v5";
+	public static String logoSuffix = ".png";
 
 	// dir
 	public static final String statisticsFilename = "statistics";
@@ -1107,6 +1115,19 @@ public class TexUtils {
 		// close
 		header.close();
 		return header;
+	}
+
+	/** Copies the logo the titlepage-logo. **/
+	public static void copyLogo(String dstDir) throws IOException {
+		File src = new File(TexUtils.logoSrcPath + TexUtils.logoFilename
+				+ TexUtils.logoSuffix);
+		File dst = new File(dstDir + TexUtils.imagesDirectory + Dir.delimiter
+				+ TexUtils.logoFilename + TexUtils.logoSuffix);
+		dst.mkdirs();
+		Path p1 = src.toPath();
+		Path p2 = dst.toPath();
+
+		Files.copy(p1, p2, StandardCopyOption.REPLACE_EXISTING);
 	}
 
 }
