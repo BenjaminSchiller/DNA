@@ -6,6 +6,7 @@ import dna.graph.Element;
 import dna.graph.Graph;
 import dna.graph.nodes.Node;
 import dna.graph.nodes.UndirectedNode;
+import dna.updates.update.Update;
 import dna.util.MathHelper;
 
 public class UndirectedEdge extends Edge {
@@ -35,7 +36,9 @@ public class UndirectedEdge extends Edge {
 	 *            node object pointers)
 	 */
 	public UndirectedEdge(String s, Graph g) {
-		String[] temp = s.split(UndirectedEdge.separator);
+		String[] temp = s.contains(UndirectedEdge.separator) ? s
+				.split(UndirectedEdge.separator) : s
+				.split(Update.EdgeSeparator);
 		if (temp.length != 2) {
 			throw new IllegalArgumentException("Cannot parse " + s
 					+ " into an undirected edge");
@@ -48,7 +51,9 @@ public class UndirectedEdge extends Edge {
 	}
 
 	public UndirectedEdge(String s, Graph g, HashMap<Integer, Node> addedNodes) {
-		String[] temp = s.split(UndirectedEdge.separator);
+		String[] temp = s.contains(UndirectedEdge.separator) ? s
+				.split(UndirectedEdge.separator) : s
+				.split(Update.EdgeSeparator);
 		if (temp.length != 2) {
 			throw new IllegalArgumentException("Cannot parse " + s
 					+ " into an undirected edge");
