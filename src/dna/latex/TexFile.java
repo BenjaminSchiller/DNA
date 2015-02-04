@@ -248,16 +248,16 @@ public class TexFile {
 			if (zippedRuns) {
 				ZipReader.readFileSystem = ZipWriter
 						.createAggregationFileSystem(s.getDir());
-				readDir = Dir.delimiter;
+				readDir = Dir.getBatchDataDir(Dir.delimiter, timestamp);
 			}
 			if (zippedBatches)
-				tempBatch = AggregatedBatch.readFromSingleFile(readDir,
-						timestamp, Dir.delimiter,
+				tempBatch = AggregatedBatch.readFromSingleFile(
+						Dir.getAggregationDataDir(s.getDir()), timestamp,
+						Dir.delimiter, BatchReadMode.readOnlyDistAndNvl);
+			else
+				tempBatch = AggregatedBatch.read(readDir, timestamp,
 						BatchReadMode.readOnlyDistAndNvl);
-			else 
-				tempBatch = AggregatedBatch.read(
-						Dir.getBatchDataDir(readDir, timestamp), timestamp,
-						BatchReadMode.readOnlyDistAndNvl);
+
 			if (zippedRuns) {
 				ZipReader.readFileSystem.close();
 				ZipReader.readFileSystem = null;
@@ -349,10 +349,41 @@ public class TexFile {
 			MultiScalarTexTable table = new MultiScalarTexTable(this,
 					tableDescrArray, tempTimestamp, config.getDateFormat());
 
+			boolean zippedBatches = false;
+			boolean zippedRuns = false;
+			if (Config.get("GENERATION_AS_ZIP").equals("batches"))
+				zippedBatches = true;
+			if (Config.get("GENERATION_AS_ZIP").equals("runs"))
+				zippedRuns = true;
+
 			// read batch
 			String readDir = Dir.getAggregationBatchDir(s.getDir(), timestamp);
-			AggregatedBatch tempBatch = AggregatedBatch.read(readDir,
-					timestamp, BatchReadMode.readOnlyDistAndNvl);
+			AggregatedBatch tempBatch;
+
+			if (zippedRuns) {
+				ZipReader.readFileSystem = ZipWriter
+						.createAggregationFileSystem(s.getDir());
+				readDir = Dir.getBatchDataDir(Dir.delimiter, timestamp);
+			}
+			if (zippedBatches) {
+				tempBatch = AggregatedBatch.readFromSingleFile(
+						Dir.getAggregationDataDir(s.getDir()), timestamp,
+						Dir.delimiter, BatchReadMode.readOnlyDistAndNvl);
+			} else
+				tempBatch = AggregatedBatch.read(readDir, timestamp,
+						BatchReadMode.readOnlyDistAndNvl);
+
+			if (zippedRuns) {
+				ZipReader.readFileSystem.close();
+				ZipReader.readFileSystem = null;
+			}
+
+			// read batch
+
+			// String readDir = Dir.getAggregationBatchDir(s.getDir(),
+			// timestamp);
+			// AggregatedBatch tempBatch = AggregatedBatch.read(readDir,
+			// timestamp, BatchReadMode.readOnlyDistAndNvl);
 
 			// add lines
 			if (!b.getMetrics().getNames().contains(m.getName())
