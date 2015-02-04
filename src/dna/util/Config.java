@@ -335,4 +335,24 @@ public class Config extends PropertiesHolder {
 		}
 		return keys;
 	}
+
+	public static String getValueDescription(String value) {
+		return Config.get("DESCRIPTION_VALUE_" + value);
+	}
+
+	public static String getRuntimeDescription(String runtime) {
+		return Config.get("DESCRIPTION_RUNTIME_" + runtime);
+	}
+
+	public static String getMetricDescription(String metric) {
+		return Config.get("DESCRIPTION_METRIC_" + metric);
+	}
+
+	public static String getDistributionDescription(String distribution) {
+		return Config.get("DESCRIPTION_DISTRIBUTION_" + distribution);
+	}
+
+	public static String getNodeValueListDescription(String nodevaluelist) {
+		return Config.get("DESCRIPTION_NODEVALUELIST_" + nodevaluelist);
+	}
 }
