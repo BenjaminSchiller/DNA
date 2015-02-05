@@ -225,9 +225,11 @@ public class VisualizerListConfig {
 				if (o.getJSONObject(config).has("orderId")) {
 					tempId = o.getJSONObject(config).getInt("orderId");
 				}
-				this.setAllMetrics(MetricVisualizerItem
+				tempItem = MetricVisualizerItem
 						.createMetricVisualizerItemFromJSONObject(o
-								.getJSONObject(config)), tempId);
+								.getJSONObject(config));
+				tempItem.setName(VisualizerListConfig.generalMetricsConfigName);
+				this.setAllMetrics(tempItem, tempId);
 				break;
 			case "generalStatisticsConfig":
 				if (o.getJSONObject(config).has("orderId")) {
