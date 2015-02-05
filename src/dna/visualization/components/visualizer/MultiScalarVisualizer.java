@@ -280,7 +280,6 @@ public class MultiScalarVisualizer extends Visualizer {
 		case cdf:
 			double sum = 0;
 			System.arraycopy(values, 0, tempValues, 0, values.length);
-			Arrays.sort(tempValues);
 			for (int i = 0; i < values.length; i++) {
 				sum += (1.0 * values[i]) / denominator;
 				tempTrace.addPoint(i + offsetX, sum);
@@ -310,7 +309,6 @@ public class MultiScalarVisualizer extends Visualizer {
 		case cdf:
 			double sum = 0;
 			System.arraycopy(values, 0, tempValues, 0, values.length);
-			Arrays.sort(tempValues);
 			for (int i = 0; i < values.length; i++) {
 				sum += (1.0 * tempValues[i]) / denominator;
 				tempTrace.addPoint(i + offsetX, sum);
@@ -340,7 +338,6 @@ public class MultiScalarVisualizer extends Visualizer {
 		case cdf:
 			double sum = 0;
 			System.arraycopy(values, 0, tempValues, 0, values.length);
-			Arrays.sort(tempValues);
 			for (int i = 0; i < values.length; i++) {
 				sum += values[i];
 				tempTrace.addPoint(i + offsetX, sum);
