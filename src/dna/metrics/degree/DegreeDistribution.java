@@ -27,9 +27,19 @@ public abstract class DegreeDistribution extends Metric {
 
 	@Override
 	public Value[] getValues() {
-		Value min = new Value("degreeMin", this.degree.getMin());
-		Value max = new Value("degreeMax", this.degree.getMax());
-		return new Value[] { min, max };
+		if (this.g.isDirected()) {
+			Value minIn = new Value("inDegreeMin", this.inDegree.getMin());
+			Value maxIn = new Value("inDegreeMax", this.inDegree.getMax());
+			Value minOut = new Value("outDegreeMin", this.outDegree.getMin());
+			Value maxOut = new Value("outDegreeMax", this.outDegree.getMax());
+			Value min = new Value("degreeMin", this.degree.getMin());
+			Value max = new Value("degreeMax", this.degree.getMax());
+			return new Value[] { minIn, maxIn, minOut, maxOut, min, max };
+		} else {
+			Value min = new Value("degreeMin", this.degree.getMin());
+			Value max = new Value("degreeMax", this.degree.getMax());
+			return new Value[] { min, max };
+		}
 	}
 
 	@Override
