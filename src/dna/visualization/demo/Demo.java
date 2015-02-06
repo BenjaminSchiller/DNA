@@ -250,11 +250,11 @@ public class Demo {
 	}
 
 	public String getTexDir() {
-		return this.getDataDir();
+		return "data/" + this.gg + "--" + this.bg + "--tex/";
 	}
 
 	public String getTexFilename() {
-		return "__analysis.pdf";
+		return "__analysis.tex";
 	}
 
 	public String getCfg() {

@@ -2,6 +2,7 @@ package dna.visualization.demo;
 
 import java.io.File;
 
+import dna.latex.Latex;
 import dna.plot.Plotting;
 import dna.series.Series;
 import dna.series.data.SeriesData;
@@ -63,7 +64,12 @@ public class DemoExecution {
 	public static void tex(Demo demo) {
 		log(demo, "TEX");
 		try {
-			Execute.exec("open /Users/benni/TUD/Students/rene.wilmes.hiwi/_readme/15-01-11.-.tex.sample.rene.wilmes.pdf");
+			SeriesData sd = SeriesData.read(demo.getDataDir(), demo.getName(),
+					true, true);
+			Latex.writeTexAndPlot(sd, demo.getTexDir(), demo.getTexFilename());
+
+			Execute.exec("open " + demo.getTexDir());
+			Execute.exec("open " + demo.getTexDir() + demo.getTexFilename());
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

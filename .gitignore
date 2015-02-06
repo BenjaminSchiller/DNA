@@ -1,4 +1,7 @@
 /build/*.jar
+/build/data
+/build/config
+
 /data/
 /plots/
 /deploy/
