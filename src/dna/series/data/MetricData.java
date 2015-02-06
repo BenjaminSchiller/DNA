@@ -181,12 +181,21 @@ public class MetricData implements ListItem {
 	}
 
 	public void write(String dir) throws IOException {
-		if (this.values.size() > 0)
-			this.values.write(dir,
-					Files.getValuesFilename(Config.get("METRIC_DATA_VALUES")));
-		this.distributions.write(dir);
-		this.nodevalues.write(dir);
-		this.nodenodevalues.write(dir);
+		if (Config.getBoolean("GENERATION_WRITE_VALUES")) {
+			if (this.values.size() > 0)
+				this.values.write(dir, Files.getValuesFilename(Config
+						.get("METRIC_DATA_VALUES")));
+		}
+		if (Config.getBoolean("GENERATION_WRITE_DISTRIBUTONS")) {
+			this.distributions.write(dir);
+		}
+		if (Config.getBoolean("GENERATION_WRITE_NVL")) {
+			this.nodevalues.write(dir);
+		}
+		if (Config.getBoolean("GENERATION_WRITE_NNVL")) {
+			this.nodenodevalues.write(dir);
+		}
+
 	}
 
 	/**
