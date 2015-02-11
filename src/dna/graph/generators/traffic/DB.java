@@ -543,10 +543,12 @@ public class DB {
 	public void getMaximalWeightCrossroad() {
 		try {
 			String selectStmt;
+			
 			if(dummyMax)
 				selectStmt = "SELECT * FROM mw_MaxValues_Crossroad_Random";
 			else
 				selectStmt = "SELECT * FROM mw_MaxValues_CrossroadImproved";
+			
 			Statement stmt = con.createStatement();
 			ResultSet rs = stmt.executeQuery(selectStmt);
 			
@@ -645,7 +647,6 @@ public class DB {
 		
 		try {
 			String selectStmt = "SELECT FROM_CROSSROAD,TO_CROSSROAD FROM mw_CrossroadConnection " +filterString;
-			System.out.println(selectStmt);
 			Statement stmt = con.createStatement();
 			ResultSet rs = stmt.executeQuery(selectStmt);
 			
@@ -1019,7 +1020,6 @@ public class DB {
 			String statementString;
 			statementString = "SELECT * FROM ((SELECT DISTINCT FROM_CROSSROAD as CROSSROAD FROM mw_CrossroadConnection) UNION (SELECT DISTINCT TO_CROSSROAD as CROSSROAD FROM mw_CrossroadConnection)) V " +filterString; 
 			ResultSet rs = stmt.executeQuery(statementString);
-			System.out.println(statementString);
 			while(rs.next() ) {
 				int label = rs.getInt("CROSSROAD");	
 				current= gds.newNodeInstance(label);

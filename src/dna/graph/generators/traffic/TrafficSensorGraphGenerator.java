@@ -49,6 +49,17 @@ public class TrafficSensorGraphGenerator extends GraphGenerator{
 		this.trafficUpdate = trafficUpdate;
 		this.treshold = treshold;
 	}
+	
+	public TrafficSensorGraphGenerator(TrafficConfig tc, GraphDataStructure gds, DB db, long timeStampInit){
+		super(tc.getGraphName(), null, gds, timeStampInit,0,0);
+		this.db = db;
+		this.modus = tc.getModus();
+		this.initDateTime=tc.getInitDateTime();
+		this.stepsize = tc.getStepSize();
+		this.timeRange = tc.getTimeRange();
+		this.trafficUpdate = tc.getTrafficUpdate();
+		this.treshold = tc.getTreshold();
+	}
 
 	@Override
 	public Graph generate() {
@@ -77,7 +88,6 @@ public class TrafficSensorGraphGenerator extends GraphGenerator{
 			if(currentNode instanceof DirectedWeightedNode)
 				currentWeighted = (DirectedWeightedNode) currentNode;
 			else{
-				System.out.println("Continue");
 				continue;
 			}
 			switch (modus) {

@@ -4,52 +4,55 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
 import org.joda.time.DateTime;
-import org.mockito.internal.util.collections.ListUtil;
 
 import dna.graph.Graph;
 import dna.graph.IElement;
-import dna.graph.datastructures.INodeListDatastructure;
 import dna.graph.edges.Edge;
 import dna.graph.generators.traffic.DB;
 import dna.graph.generators.traffic.EdgeContainer;
+import dna.graph.generators.traffic.TrafficConfig;
 import dna.graph.generators.traffic.TrafficModi;
 import dna.graph.generators.traffic.TrafficUpdate;
-import dna.graph.nodes.DirectedNode;
 import dna.graph.nodes.DirectedWeightedNode;
-import dna.graph.nodes.Node;
 import dna.graph.weights.Double3dWeight;
-import dna.io.GraphWriter;
 import dna.updates.batch.Batch;
 import dna.updates.generators.BatchGenerator;
 import dna.updates.update.EdgeAddition;
 import dna.updates.update.EdgeRemoval;
 import dna.updates.update.NodeWeight;
-import dna.updates.update.Update;
-import dna.util.ArrayUtils;
 import dna.util.parameters.IntParameter;
 import dna.util.parameters.ObjectParameter;
-import dna.util.parameters.Parameter;
 
 public class TrafficInputWayBatchGenerator extends BatchGenerator{
-	DB db;
-	DateTime initDateTime;
-	int stepSize;
-	int step=0;
+	
+	private DB db;
+	
+	// Allgemeine Parameter
+	private DateTime initDateTime;
 	private TrafficModi modus;
+	private double treshold;
+	
+	// Continous
+	private int stepSize;
+	
+	// DayTimeRange / Aggregation
 	private DateTime holidayStart;
 	private boolean[] daySelection;
+	private int timeRange;
+	
+	// Aggregation
 	private int observationDays;
+	
+	// Simulation
+	private TrafficUpdate trafficUpdate;
+	
+	private HashMap<Integer, List<Double>> nodeHistory = new HashMap<>();
 	private HashMap<Integer, HashMap<EdgeContainer, Edge>> disabledEdges = new HashMap<>();
 	private HashMap<Integer, HashMap<EdgeContainer,Edge>> newDisabledEdges = new HashMap<>();
-	private double treshold;
-	private TrafficUpdate trafficUpdate;
-	private HashMap<Integer, List<Double>> nodeHistory;
-	private int timeRange;
 	
 	
 	public TrafficInputWayBatchGenerator(String name,DB db, DateTime initDateTime, int stepSize, TrafficModi modus, DateTime holidayStart, boolean [] daySelection, double treshold, TrafficUpdate trafficUpdate, int timeRange, int observationDays) {
@@ -65,9 +68,25 @@ public class TrafficInputWayBatchGenerator extends BatchGenerator{
 		this.daySelection = daySelection;
 		this.treshold = treshold;
 		this.trafficUpdate = trafficUpdate;
-		this.nodeHistory = new HashMap<>();
 		this.timeRange = timeRange;
 		this.observationDays = observationDays;
+	}
+	
+	public TrafficInputWayBatchGenerator(DB db, TrafficConfig tc){
+		super(tc.getBatchName(), new IntParameter("NA", 0), new IntParameter("NR",
+				0), new IntParameter("NW", 0),
+				new ObjectParameter("NWS", 0), new IntParameter("EA", 0),
+				new IntParameter("ER", 0));
+		this.db = db;
+		this.initDateTime = tc.getInitDateTime();
+		this.stepSize = tc.getStepSize();
+		this.modus = tc.getModus();
+		this.holidayStart = tc.getHolidayStart();
+		this.daySelection = tc.getDaySelection();
+		this.treshold = tc.getTreshold();
+		this.trafficUpdate = tc.getTrafficUpdate();
+		this.timeRange = tc.getTimeRange();
+		this.observationDays = tc.getOberservationDays();
 	}
 
 	@Override
@@ -76,8 +95,10 @@ public class TrafficInputWayBatchGenerator extends BatchGenerator{
 				g.getTimestamp() + 1, 0, 0, 0, 0,
 				0, 0);
 		
-	
 		Set<Edge> toDisable = new HashSet<>();
+		
+		// Knoten
+		
 		Iterable<IElement> nodes = g.getNodes();
 		DateTime time = null;
 		
@@ -86,26 +107,33 @@ public class TrafficInputWayBatchGenerator extends BatchGenerator{
 			time = Helpers.calculateNextDay(time, g.getTimestamp(),daySelection,holidayStart,true);
 		}
 		
+		// Aktualisiere das Gewicht für jeden Knoten, gemäß dem aktuellen Modus
 		for (IElement currentNode : nodes) {
+			
 			DirectedWeightedNode n = (DirectedWeightedNode) currentNode;
 			double[] update =null;
 			
 			//WeightUpdate
 			switch (modus) {
+			
 			case Continuous:
 				update = db.getInputWayWeight(n.getIndex(),initDateTime.plusMinutes((int) (g.getTimestamp()+1)*stepSize),initDateTime.plusMinutes((int) (g.getTimestamp()+2)*stepSize));
 				break;
+				
 			case DayTimeRange:
 				update = db.getInputWayWeight(n.getIndex(),time.minusMinutes(timeRange),time.plusMinutes(timeRange));
 				break;
+				
 			case Simulation:
 				update = (trafficUpdate.isAffected(n.getIndex()))?  db.getInputWayWeightStaticBatch(n.getIndex(),trafficUpdate) : null;
 				break;
+				
 			case Aggregation:
 				time = initDateTime;
 				int index = n.getIndex();
 				long start = g.getTimestamp();
 
+				// Summiere für alle Beobachtungstage auf
 				for (int i = 0; i < observationDays; i++) {
 					time = Helpers.calculateNextDay(initDateTime, start++, daySelection, holidayStart, false);
 					double[] weightOfDay = db.getInputWayWeight(n.getIndex(),time.minusMinutes(timeRange),time.plusMinutes(timeRange));
@@ -118,6 +146,8 @@ public class TrafficInputWayBatchGenerator extends BatchGenerator{
 						nodeHistory.put(index, weightList);
 					}	
 				}
+				
+				//Berechne das Knotengewicht aus der Aggregation
 				double sum = 0;
 				List<Double> values = nodeHistory.get(index);
 				for (int i = 0; i < values.size(); i++) {
@@ -132,6 +162,7 @@ public class TrafficInputWayBatchGenerator extends BatchGenerator{
 				break;
 			}
 			
+			// Wende das Update des Gewichts auf den Knoten an
 			Double3dWeight oldWeight = (Double3dWeight) n.getWeight();
 			if(update!=null){
 				Double3dWeight newWeight = new Double3dWeight(update[0],update[1],update[2]);
@@ -152,11 +183,13 @@ public class TrafficInputWayBatchGenerator extends BatchGenerator{
 			}
 			newDisabledEdges = new HashMap<>();
 			
-			
+			// Knoten ist ueberlastet
 			if(update[2] > treshold) {
+				
 				newKey = n.getIndex();
 				int from;
 				int to;
+				
 				// Verhindere das Hinzufügen bereits gelöschter Kante
 				if(disabledEdges.containsKey(newKey)){
 					HashMap<EdgeContainer,Edge> oldMap = disabledEdges.get(newKey);
@@ -191,10 +224,12 @@ public class TrafficInputWayBatchGenerator extends BatchGenerator{
 			
 		}
 
+		// Füge die Löschoperation in den Batch hinzu
 		for (Edge e : toDisable) {
 			b.add(new EdgeRemoval(e));
 		}
 		
+		// Füge nicht mehr ueberlastet Knoten wieder dem Graph hinzu
 		for (Entry<Integer, HashMap<EdgeContainer, Edge>> freeEdges : disabledEdges.entrySet()) {
 			int node = freeEdges.getKey();
 			for (Entry<EdgeContainer, Edge> elem : freeEdges.getValue().entrySet()) {
@@ -219,7 +254,13 @@ public class TrafficInputWayBatchGenerator extends BatchGenerator{
 		return true;
 	}
 	
-	public void removeEdge(int index, EdgeContainer ec, Edge e){
+	/**
+	 * Entfernt eine Kante aus dem Zwischenspeicher
+	 * @param index
+	 * @param ec
+	 * @param e
+	 */
+	private void removeEdge(int index, EdgeContainer ec, Edge e){
 		if(disabledEdges.containsKey(index)){
 			HashMap<EdgeContainer,Edge> oldMap = disabledEdges.get(index);
 			oldMap.remove(ec);
@@ -228,7 +269,14 @@ public class TrafficInputWayBatchGenerator extends BatchGenerator{
 			}
 		}
 	}
-	public void addEdge(int index, EdgeContainer ec, Edge e){
+	
+	/**
+	 * fügte eine Kante zum Zwischenspeicher hinzu
+	 * @param index
+	 * @param ec
+	 * @param e
+	 */
+	private void addEdge(int index, EdgeContainer ec, Edge e){
 		if(newDisabledEdges.containsKey(index)){
 			HashMap<EdgeContainer,Edge> oldMap = newDisabledEdges.get(index);
 			oldMap.put(ec, e);

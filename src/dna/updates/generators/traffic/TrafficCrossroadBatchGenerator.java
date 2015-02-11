@@ -18,6 +18,7 @@ import dna.graph.edges.Edge;
 import dna.graph.generators.traffic.CrossroadWeight;
 import dna.graph.generators.traffic.DB;
 import dna.graph.generators.traffic.EdgeContainer;
+import dna.graph.generators.traffic.TrafficConfig;
 import dna.graph.generators.traffic.TrafficModi;
 import dna.graph.generators.traffic.TrafficUpdate;
 import dna.graph.nodes.DirectedNode;
@@ -68,7 +69,22 @@ public class TrafficCrossroadBatchGenerator extends BatchGenerator{
 		this.trafficUpdate = trafficUpdate;
 		this.timeRange = timeRange;
 		this.observationDays = observationDays;
-
+	}
+	
+	public TrafficCrossroadBatchGenerator(DB db, TrafficConfig tc){
+		super(tc.getBatchName(), new IntParameter("NA", 0), new IntParameter("NR",
+				0), new IntParameter("NW", 0),
+				new ObjectParameter("NWS", 0), new IntParameter("EA", 0),
+				new IntParameter("ER", 0));
+		this.db = db;
+		this.initDateTime = tc.getInitDateTime();
+		this.stepSize = tc.getStepSize();
+		this.modus = tc.getModus();
+		this.holidayStart = tc.getHolidayStart();
+		this.daySelection = tc.getDaySelection();
+		this.trafficUpdate = tc.getTrafficUpdate();
+		this.timeRange = tc.getTimeRange();
+		this.observationDays = tc.getOberservationDays();
 	}
 
 	@Override
@@ -116,6 +132,7 @@ public class TrafficCrossroadBatchGenerator extends BatchGenerator{
 			
 			// Gewichts-Update
 			switch (modus) {
+			
 			case Continuous:
 				crossroadWeight =db.getCrossroadWeight(n.getIndex(), initDateTime.plusMinutes((int) (g.getTimestamp()*stepSize)),initDateTime.plusMinutes((int) (g.getTimestamp()+stepSize)*stepSize),newTimeStamp); 
 				break;

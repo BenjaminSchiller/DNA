@@ -22,7 +22,7 @@ public class TrafficConfig {
 	private int timeRange;
 	private DateTime holidayStart = new DateTime(2014,10,6,7,0,0);
 	private int observationWeeks = 1;
-	private int observationDays = Helpers.weekToDay(observationWeeks, daySelection);
+	private int observationDays; //TODO wo kommt es her?
 	
 	private int[] nodesFilter;
 	
@@ -31,6 +31,7 @@ public class TrafficConfig {
 	
 	// Parameter f�r die Simulation	
 	private TrafficUpdate trafficUpdate;
+	
 	/**
 	 * Basis-Konstruktor
 	 * @param modus
@@ -110,21 +111,77 @@ public class TrafficConfig {
 		this.trafficUpdate = trafficUpdate;
 	}
 	
-	
-	public static TrafficConfig getContinousConfig(TrafficModel model, double treshold, int[] nodesFilter, DateTime initDateTime, int stepsize){
-		return new TrafficConfig(TrafficModi.Continuous,model,treshold, nodesFilter, initDateTime, stepsize);
+	/**
+	 * Konstruktor für den Aggregations-Modus
+	 * @param modus
+	 * @param model
+	 * @param treshold
+	 * @param nodesFilter
+	 * @param initDateTime
+	 * @param trafficUpdate
+	 */
+	private TrafficConfig(TrafficModi modus, TrafficModel model, double treshold, int[] nodesFilter, DateTime initDateTime, boolean[] daySelection, int observationWeeks){
+		this(modus,model,treshold,nodesFilter,initDateTime);
+		this.daySelection = daySelection;
+		this.observationWeeks = observationWeeks;
+		this.observationDays = Helpers.weekToDay(observationWeeks, daySelection);
 	}
 	
+	/**
+	 * liefert eine gültige TrafficConfig für die Verwendung des Continous-Modus
+	 * @param model
+	 * @param treshold
+	 * @param nodesFilter
+	 * @param initDateTime
+	 * @param stepsize
+	 * @return
+	 */
+	public static TrafficConfig getContinousConfig(TrafficModel model, double treshold, int[] nodesFilter, DateTime initDateTime, int stepSize){
+		return new TrafficConfig(TrafficModi.Continuous,model,treshold, nodesFilter, initDateTime, stepSize);
+	}
+	
+	/**
+	 * liefert eine gültige TrafficConfig für die Verwendung des DayTimeRange-Modus
+	 * @param model
+	 * @param treshold
+	 * @param nodesFilter
+	 * @param initDateTime
+	 * @param timeRange
+	 * @param daySelection
+	 * @param holidayStart
+	 * @return
+	 */
 	public static TrafficConfig getDayTimeRangeConfig(TrafficModel model, double treshold, int[] nodesFilter, DateTime initDateTime, int timeRange, boolean[] daySelection, DateTime holidayStart){
 		return new TrafficConfig(TrafficModi.DayTimeRange, model, treshold, nodesFilter, initDateTime, timeRange, daySelection, holidayStart);
 	}
 	
-	public static TrafficConfig getAggregationConfig(){
-		return null;
+	/**
+	 * liefert eine gültige TrafficConfig für die Verwendung des Aggregations-Modus
+	 * @param model
+	 * @param treshold
+	 * @param nodesFilter
+	 * @param initDateTime
+	 * @return
+	 */
+	public static TrafficConfig getAggregationConfig(TrafficModel model, double treshold, int[] nodesFilter, DateTime initDateTime){
+		return new TrafficConfig(TrafficModi.Aggregation, model, treshold, nodesFilter,initDateTime);
 	}
 	
+	/**
+	 * liefert eine gültige TrafficConfig für die Verwendung des Simulations-Modus
+	 * @param model
+	 * @param treshold
+	 * @param nodesFilter
+	 * @param initDateTime
+	 * @param trafficUpdate
+	 * @return
+	 */
 	public static TrafficConfig getSimulationConfig(TrafficModel model, double treshold, int[] nodesFilter, DateTime initDateTime, TrafficUpdate trafficUpdate){
 		return new TrafficConfig(TrafficModi.Simulation, model, treshold, nodesFilter, initDateTime, trafficUpdate);
+	}
+	
+	public TrafficModel getModel(){
+		return model;
 	}
 	
 	public TrafficModi getModus(){
@@ -161,6 +218,19 @@ public class TrafficConfig {
 	
 	public double getTreshold(){
 		return treshold;
+	}
+	
+	public DateTime getHolidayStart(){
+		return holidayStart;
+	}
+	
+	public boolean[] getDaySelection(){
+		return daySelection;
+	}
+	
+	public int getOberservationDays(){
+		return observationDays;
+		
 	}
 
 }
