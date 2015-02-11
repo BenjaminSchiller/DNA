@@ -1,10 +1,7 @@
 package dna.updates.generators.traffic;
 
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
-import java.util.Random;
 import java.util.Set;
 import java.util.Map.Entry;
 
@@ -12,37 +9,28 @@ import org.joda.time.DateTime;
 
 import dna.graph.Graph;
 import dna.graph.IElement;
-import dna.graph.datastructures.INodeListDatastructure;
 import dna.graph.edges.Edge;
 import dna.graph.generators.traffic.DB;
 import dna.graph.generators.traffic.EdgeContainer;
 import dna.graph.generators.traffic.TrafficModi;
 import dna.graph.generators.traffic.TrafficUpdate;
-import dna.graph.nodes.DirectedNode;
 import dna.graph.nodes.DirectedWeightedNode;
-import dna.graph.nodes.Node;
 import dna.graph.weights.Double3dWeight;
-import dna.graph.weights.IWeightedNode;
-import dna.graph.weights.Int2dWeight;
-import dna.graph.weights.IntWeight;
 import dna.io.GraphWriter;
 import dna.updates.batch.Batch;
 import dna.updates.generators.BatchGenerator;
 import dna.updates.update.EdgeAddition;
 import dna.updates.update.EdgeRemoval;
 import dna.updates.update.NodeWeight;
-import dna.updates.update.Update;
-import dna.util.Rand;
 import dna.util.parameters.IntParameter;
 import dna.util.parameters.ObjectParameter;
-import dna.util.parameters.Parameter;
 
 public class TrafficSensorBatchGenerator extends BatchGenerator{
-	DB db;
-	DateTime initDateTime;
-	int stepSize;
-	int step=0;
-	TrafficModi modus;
+	private DB db;
+	private DateTime initDateTime;
+	private int stepSize;
+	private int step=0;
+	private TrafficModi modus;
 	private DateTime holidayStart;
 	private boolean[] daySelection;
 	private double treshold;
@@ -211,6 +199,12 @@ public class TrafficSensorBatchGenerator extends BatchGenerator{
 		return true;
 	}
 	
+	/**
+	 * 
+	 * @param index
+	 * @param ec
+	 * @param e
+	 */
 	public void removeEdge(int index, EdgeContainer ec, Edge e){
 		if(disabledEdges.containsKey(index)){
 			HashMap<EdgeContainer,Edge> oldMap = disabledEdges.get(index);

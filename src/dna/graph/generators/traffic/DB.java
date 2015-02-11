@@ -13,7 +13,6 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -67,7 +66,7 @@ public class DB {
 	 * @param trafficUpdate, statische Daten für den Simulationsmodus
 	 * @param dummyMax, Verwendung von synthetischen Max-Werten oder realen Max-Werten
 	 */
-	public DB(GraphDataStructure gds, DateTime initTDateTime, boolean[] daySelection, double treshold,boolean dummyMax) {
+	public DB(GraphDataStructure gds, DateTime initTDateTime, boolean[] daySelection, double treshold,boolean dummyMax, boolean newMaxValues) {
 		try {
 			FileReader fr = new FileReader("db.txt");
 			BufferedReader br = new BufferedReader(fr);
@@ -132,6 +131,7 @@ public class DB {
 		this.disabledEdges = new HashMap<>();
 		this.disabledEdgesInputWay = new HashMap<>();
 		this.dummyMax = dummyMax;
+		this.newMaxValues = newMaxValues;
 		getInputWays();
 		getMaximalWeightCrossroad();
 		getMaximalWeightInputWay();

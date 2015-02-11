@@ -8,29 +8,35 @@ import java.util.Set;
 import org.joda.time.DateTime;
 
 import dna.graph.Graph;
-import dna.graph.IElement;
 import dna.graph.datastructures.GraphDataStructure;
 import dna.graph.edges.Edge;
 import dna.graph.generators.GraphGenerator;
-import dna.graph.generators.random.IRandomGenerator;
 import dna.graph.nodes.DirectedWeightedNode;
 import dna.graph.nodes.INode;
 import dna.graph.nodes.Node;
 import dna.graph.weights.Double3dWeight;
-import dna.util.ArrayUtils;
-import dna.util.parameters.IntParameter;
+
 import dna.util.parameters.Parameter;
 
 public class TrafficSensorGraphGenerator extends GraphGenerator{
-
-	List<Node> nodeslist;
+	
 	private DB db;
+	
+	// Allgemeine Parameter
 	private TrafficModi modus;
 	private DateTime initDateTime;
-	private int stepsize;
-	private int timeRange;
-	private TrafficUpdate trafficUpdate;
 	private double treshold;
+	
+	// Continous
+	private int stepsize;
+	
+	// DayTimeRange
+	private int timeRange;
+	
+	// Simulation
+	private TrafficUpdate trafficUpdate;
+	
+	
 	private HashMap<Integer, HashMap<EdgeContainer,Edge>> disabledEdges = new HashMap<>();
 	
 	public TrafficSensorGraphGenerator(String name, GraphDataStructure gds, DB db,long timeStamp,TrafficModi modus,DateTime initDateTime, int stepsize,int timeRange,TrafficUpdate trafficupdate,double treshold) {
@@ -66,14 +72,20 @@ public class TrafficSensorGraphGenerator extends GraphGenerator{
 		Graph g = this.newGraphInstance();
 		Set<Integer> overloaded = new HashSet<>();
 		
+		// Lade Sensoren aus der Datenbank
 		List<INode> nodes = db.getSensorsForDNA();
+		
 		double[] weight = null;
 		Node currentNode = null;
 		DirectedWeightedNode currentWeighted = null;
+		
+		// Vorabberechnung der Knotengewichte für alle realen Sensoren
 		switch (modus) {
+		
 		case Continuous:
 			db.getSensorWeights(initDateTime, initDateTime.plusMinutes(stepsize), 0);
 			break;
+		
 		case DayTimeRange:
 			db.getSensorWeights(initDateTime.minusMinutes(timeRange),initDateTime.plusMinutes(timeRange),0);
 			break;
@@ -82,31 +94,40 @@ public class TrafficSensorGraphGenerator extends GraphGenerator{
 			break;
 		}
 		
-		// Knoten	
+		// Berechne das Knotengewicht für alle Knoten
 		for (int i = 0; i < nodes.size(); i++) {
+			
 			currentNode = (Node) nodes.get(i);
 			if(currentNode instanceof DirectedWeightedNode)
 				currentWeighted = (DirectedWeightedNode) currentNode;
 			else{
 				continue;
 			}
+			
 			switch (modus) {
+			
 			case Continuous:
 				weight = db.getSensorModelWeight(currentWeighted.getIndex(),initDateTime,initDateTime.plusMinutes(stepsize),0);
 				break;
+			
 			case DayTimeRange:
 				weight = db.getSensorModelWeight(currentWeighted.getIndex(),initDateTime.minusMinutes(timeRange),initDateTime.plusMinutes(timeRange),0);
 				break;	
+			
 			case Simulation:
 				weight = db.getSensorModelWeightStaticInit(currentWeighted.getIndex(),trafficUpdate);
 				break;
+			
 			default:
-				System.out.println("error - Modus nicht definiert");
+				System.out.println("error - TrafficSensorGraphGenerator- Modus nicht definiert");
 				break;
 			}
+			
 			if(weight== null){
 				weight = new double[]{0,0,0};
 			}
+			
+			// Knoten überlastet
 			if(weight[2] > treshold){
 				overloaded.add(currentWeighted.getIndex());
 			}
@@ -120,6 +141,8 @@ public class TrafficSensorGraphGenerator extends GraphGenerator{
 		DirectedWeightedNode toNode;
 		Edge e = null;
 		EdgeContainer ec = null;
+		
+		// Prüfe ob Kante gültig ist
 		for (int i = 0; i < connection.size(); i++) {
 			ec = connection.get(i);	
 			fromNode = (DirectedWeightedNode) g.getNode(ec.getFrom());
@@ -143,7 +166,14 @@ public class TrafficSensorGraphGenerator extends GraphGenerator{
 		db.setDisabledEdgesInputWay(disabledEdges);
 		return g;
 	}
-	public void addEdge(int index,EdgeContainer ec, Edge e){
+	
+	/**
+	 * Füge Kante zum Zwischenspeicher hinzu
+	 * @param index Kontenindex eines Endknotens
+	 * @param ec ContainerKlasse der Kante
+	 * @param e Kante
+	 */
+	private void addEdge(int index,EdgeContainer ec, Edge e){
 		if(disabledEdges.containsKey(index))
 			disabledEdges.get(index).put(ec,e);
 		else{

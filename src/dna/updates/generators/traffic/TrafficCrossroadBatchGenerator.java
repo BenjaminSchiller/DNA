@@ -1,19 +1,13 @@
 package dna.updates.generators.traffic;
 
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
-import java.util.Set;
 
 import org.joda.time.DateTime;
 
 import dna.graph.Graph;
 import dna.graph.IElement;
-import dna.graph.datastructures.INodeListDatastructure;
 import dna.graph.edges.Edge;
 import dna.graph.generators.traffic.CrossroadWeight;
 import dna.graph.generators.traffic.DB;
@@ -21,39 +15,41 @@ import dna.graph.generators.traffic.EdgeContainer;
 import dna.graph.generators.traffic.TrafficConfig;
 import dna.graph.generators.traffic.TrafficModi;
 import dna.graph.generators.traffic.TrafficUpdate;
-import dna.graph.nodes.DirectedNode;
 import dna.graph.nodes.DirectedWeightedNode;
-import dna.graph.nodes.Node;
-import dna.graph.weights.Double2dWeight;
 import dna.graph.weights.Double3dWeight;
-import dna.graph.weights.Int2dWeight;
-import dna.graph.weights.IntWeight;
-import dna.io.GraphWriter;
 import dna.updates.batch.Batch;
 import dna.updates.generators.BatchGenerator;
 import dna.updates.update.EdgeAddition;
 import dna.updates.update.EdgeRemoval;
 import dna.updates.update.NodeWeight;
-import dna.updates.update.Update;
-import dna.util.Rand;
 import dna.util.parameters.IntParameter;
 import dna.util.parameters.ObjectParameter;
-import dna.util.parameters.Parameter;
 
 public class TrafficCrossroadBatchGenerator extends BatchGenerator{
 	
 	private DB db;
+	
+	//Allgemeine Parameter
 	private DateTime initDateTime;
-	private int stepSize;
-	private int run=0;
-	private int observationDays;
 	private TrafficModi modus;
+	
+	// Continous
+	private int stepSize;
+	
+	//DayTimeRange - Aggregation
 	private DateTime holidayStart;
 	private boolean[] daySelection;
-	private HashMap<EdgeContainer,Edge> disabledEdges = new HashMap<>();
-	private TrafficUpdate trafficUpdate;
-	private HashMap<Integer,CrossroadWeightList> nodeHistory;
 	private int timeRange;
+	
+	//Aggregation
+	private int observationDays;
+
+	//Simulation
+	private TrafficUpdate trafficUpdate;
+	
+	private HashMap<EdgeContainer,Edge> disabledEdges = new HashMap<>();
+	private HashMap<Integer,CrossroadWeightList> nodeHistory;
+	
 
 	public TrafficCrossroadBatchGenerator(String name,DB db, DateTime initDateTime, int stepSize, TrafficModi modus, DateTime holidayStart, boolean [] daySelection,TrafficUpdate trafficUpdate,int timeRange, int observationDays) {
 		super(name, new IntParameter("NA", 0), new IntParameter("NR",
@@ -71,6 +67,11 @@ public class TrafficCrossroadBatchGenerator extends BatchGenerator{
 		this.observationDays = observationDays;
 	}
 	
+	/**
+	 * Erstellt einen TrafficCrossroadBatchGeneratur unter Verwendung der Paramtere auf TrafficConfig
+	 * @param db
+	 * @param tc
+	 */
 	public TrafficCrossroadBatchGenerator(DB db, TrafficConfig tc){
 		super(tc.getBatchName(), new IntParameter("NA", 0), new IntParameter("NR",
 				0), new IntParameter("NW", 0),
@@ -89,7 +90,6 @@ public class TrafficCrossroadBatchGenerator extends BatchGenerator{
 
 	@Override
 	public Batch generate(Graph g) {
-		GraphWriter.write(g, "CrossroadGraph/", "batch"+run+++".txt");
 		
 		Batch b = new Batch(g.getGraphDatastructures(), g.getTimestamp(),
 				g.getTimestamp() + 1, 0, 0, 0, 0,

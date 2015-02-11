@@ -1,23 +1,36 @@
 package dna.updates.generators.traffic;
 
-
 import org.joda.time.DateTime;
-import org.joda.time.DateTimeConstants;
-import org.joda.time.JodaTimePermission;
 
 public class Helpers {
 	public static boolean isWorkDay(Days d) {
 		return !(d == Days.SATURDAY || d==Days.SUNDAY);
 	}
 	
+	/**
+	 * berechnet ausgehend von "start" den nächsten Werktag in der Zukunft(forward) oder Vergangenheit (!forward)
+	 * @param start - Startdatum
+	 * @param l - Timestep
+	 * @param forward - true = in der Zukunft, false = in der Vergangenheit
+	 * @return
+	 */
 	public static DateTime calculateNextWorkDay(DateTime start,long l, boolean forward){
 		return calculateNextDay(start, l, new boolean[]{true,true,true,true,true,false,false},null,forward);
 	}
 	
-	public static DateTime calculateNextDay(DateTime end, long timestamp, boolean[] daySelection,DateTime ignoreTo, boolean forward){
-		DateTime current = end;
+	/**
+	 *  berechnet ausgehend von "start" den nächsten Tag in der Zukunft(forward) oder Vergangenheit (!forward)
+	 * @param start - Startdatum
+	 * @param timestep - Zeitschritt für den der nächste Tag berechnet werden soll
+	 * @param daySelection - Array mit Wochentagen, die für die Berechnung berücksichtigt werden sollen
+	 * @param ignoreTo - Zeitpunkt bis zu welchem die Berechnung ignoriert wird
+	 * @param forward - true = in der Zukunft, false = in der Vergangenheit
+	 * @return
+	 */
+	public static DateTime calculateNextDay(DateTime start, long timestep, boolean[] daySelection,DateTime ignoreTo, boolean forward){
+		DateTime current = start;
 		int count = 0;
-		while(count <= timestamp) {
+		while(count <= timestep) {
 			current = forward ? current.plusDays(1) : current.minusDays(1);
 			if(daySelection[current.getDayOfWeek()-1] && (current.isBefore(ignoreTo) || forward)){
 				count++;

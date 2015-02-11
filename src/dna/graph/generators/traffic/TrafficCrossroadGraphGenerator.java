@@ -1,42 +1,38 @@
 package dna.graph.generators.traffic;
 
-import java.io.IOException;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 
 import org.joda.time.DateTime;
 
 import dna.graph.Graph;
-import dna.graph.IElement;
 import dna.graph.datastructures.GraphDataStructure;
-import dna.graph.edges.DirectedEdge;
 import dna.graph.edges.Edge;
 import dna.graph.generators.GraphGenerator;
-import dna.graph.generators.random.IRandomGenerator;
-import dna.graph.nodes.DirectedNode;
 import dna.graph.nodes.DirectedWeightedNode;
 import dna.graph.nodes.INode;
 import dna.graph.nodes.Node;
 import dna.graph.weights.Double3dWeight;
-import dna.io.GraphReader;
-import dna.io.GraphWriter;
-import dna.metrics.IMetric;
-import dna.updates.update.EdgeRemoval;
-import dna.util.ArrayUtils;
-import dna.util.parameters.IntParameter;
 import dna.util.parameters.Parameter;
 
 public class TrafficCrossroadGraphGenerator extends GraphGenerator{
 
-	List<Node> nodeslist;
 	private DB db;
+	
+	// Allgemeine Parameter
 	private TrafficModi modus;
 	private DateTime initDateTime;
-	private int stepsize;
-	private int timeRange;
-	private TrafficUpdate trafficUpdate;
 	private int[] nodesFilter;
+	
+	// Continuous
+	private int stepsize;
+	
+	// Daytime-Range Aggregation
+	private int timeRange;
+	
+	// Simulation
+	private TrafficUpdate trafficUpdate;
+	
 	
 	public TrafficCrossroadGraphGenerator(String name, GraphDataStructure gds, DB db,long timeStampInit,TrafficModi modus, DateTime initDateTime, int stepsize,int timeRange,TrafficUpdate trafficupdate, int[] nodesFilter) {
 		this(name, null, gds,timeStampInit, 0, 0,db,modus,initDateTime,stepsize,timeRange,trafficupdate,nodesFilter);
@@ -68,19 +64,19 @@ public class TrafficCrossroadGraphGenerator extends GraphGenerator{
 
 	@Override
 	public Graph generate() {
-		System.out.println("Generiere den Graph");
-		db.getMaximalWeightInputWay();
-		db.getMaximalWeightCrossroad();
+		
 		Graph g = this.newGraphInstance();
 		List<INode> nodes = null;
 		HashMap<EdgeContainer,Edge> disabledEdges = new HashMap<>();
 		
-		// Nodes
+		// Lade abstrakte Knoten gemäß dem NodesFilter
 		nodes = db.getCrossroadsForDNA(nodesFilter);
+		
 		CrossroadWeight crossroadWeight = null;
 		Node currentNode = null;
 		DirectedWeightedNode currentWeighted = null;
 		
+		// Berechne das Gewicht des abstrakten Knoten gemäß definiertem Modus
 		for (int i = 0; i < nodes.size(); i++) {
 			
 			currentNode = (Node) nodes.get(i);
@@ -119,6 +115,7 @@ public class TrafficCrossroadGraphGenerator extends GraphGenerator{
 			
 			g.addNode(currentWeighted);
 			
+			// Entferne die ueberlasteten Kanten
 			EdgeContainer ec = null;
 			for (Integer wayId : crossroadWeight.getOverladedEdges().keySet()) {
 				List<int[]> edgesToRemove = db.getFromWays(currentWeighted.getIndex(), wayId);
@@ -131,9 +128,8 @@ public class TrafficCrossroadGraphGenerator extends GraphGenerator{
 			}
 		}
 		
-		
-		
-		//Edges
+		// Kanten
+
 		List<EdgeContainer> connection = db.getCrossroadConnectionForDNA(nodesFilter);
 		EdgeContainer current = null;
 		
@@ -161,6 +157,7 @@ public class TrafficCrossroadGraphGenerator extends GraphGenerator{
 			
 		}
 		
+		// Speichere die deaktiverten Kanten für den Batch in die DB-Klasse
 		db.setDisabledEdges(disabledEdges);
         return g;
 	}
