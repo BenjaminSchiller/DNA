@@ -48,6 +48,27 @@ public class Latex {
 				pconfig);
 	}
 
+	public static void writeTexAndPlot(SeriesData s, String dstDir,
+			String filename, TexConfig config) throws IOException,
+			InterruptedException {
+		// craft config
+		PlottingConfig pconfig = new PlottingConfig(PlotFlag.plotAll);
+
+		// plot and tex
+		Latex.writeTexAndPlot(s, dstDir, filename, config, pconfig);
+	}
+
+	public static void writeTexAndPlot(SeriesData s, String dstDir,
+			String filename, TexConfig config, PlottingConfig pconfig)
+			throws IOException, InterruptedException {
+		// plot
+		Plotting.plot(s, dstDir + "plots/", pconfig);
+		Log.infoSep();
+
+		// tex
+		Latex.writeTex(s, dstDir, filename, config, pconfig);
+	}
+
 	public static void writeTexFromTo(SeriesData s, String dstDir,
 			String filename, String plotDir, long from, long to, long stepsize,
 			PlottingConfig pconfig) throws IOException {
