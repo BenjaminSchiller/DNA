@@ -952,7 +952,7 @@ public class DB {
 	}
 	
 	/**
-	 * liest die Verbindungen zwischen den Knoten im WegeGraph aus der Tabelle mw_InputWayConnection_bak3 (neuste Version)
+	 * liest die Verbindungen zwischen den Knoten im WegeGraph aus der Tabelle mw_InputWayConnection (neuste Version)
 	 * @param nodesFilter - Array mit Knoten, für als Start- oder Endknoten fungieren dürfen
 	 * @return
 	 */
@@ -975,7 +975,7 @@ public class DB {
 		
 		try {
 			Statement stmt = con.createStatement();
-			String statementString = "SELECT fromID , toID FROM mw_InputWayConnection_bak3" +filterString; 
+			String statementString = "SELECT fromID , toID FROM mw_InputWayConnection" +filterString; 
 			ResultSet rs = stmt.executeQuery(statementString);
 			
 			while(rs.next() ) {
