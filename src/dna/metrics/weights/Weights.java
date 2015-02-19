@@ -1,5 +1,6 @@
 package dna.metrics.weights;
 
+import dna.graph.weights.Double3dWeight;
 import dna.graph.weights.DoubleWeight;
 import dna.graph.weights.IntWeight;
 import dna.graph.weights.Weight;
@@ -62,6 +63,8 @@ public abstract class Weights extends Metric {
 			return (double) ((IntWeight) w).getWeight();
 		} else if (w instanceof DoubleWeight) {
 			return ((DoubleWeight) w).getWeight();
+		} else if (w instanceof Double3dWeight) {
+			return ((Double3dWeight) w).getZ();
 		} else {
 			return Double.NaN;
 		}

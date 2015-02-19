@@ -21,6 +21,7 @@ public class DistributionDouble extends Distribution {
 
 	// member variables
 	private double[] values;
+	private long denominator;
 
 	// values for comparison
 	private double comparedSum;
@@ -105,6 +106,7 @@ public class DistributionDouble extends Distribution {
 	 */
 	public void incr(int index) {
 		this.values = ArrayUtils.incr(this.values, index);
+		this.denominator++;
 	}
 
 	/**
@@ -115,6 +117,7 @@ public class DistributionDouble extends Distribution {
 	 */
 	public void decr(int index) {
 		this.values = ArrayUtils.decr(this.values, index);
+		this.denominator--;
 	}
 
 	/**
@@ -212,6 +215,18 @@ public class DistributionDouble extends Distribution {
 	 */
 	public static boolean equals(DistributionDouble d1, DistributionDouble d2) {
 		return ArrayUtils.equals(d1.getDoubleValues(), d2.getDoubleValues());
+	}
+	
+	public double getDenominator() {
+		return denominator;
+	}
+	
+	public double computeAverage() {
+		double avg = 0;
+		for (int i = 0; i < this.values.length; i++) {
+			avg += i * this.values[i];
+		}
+		return avg / this.denominator;
 	}
 
 }
