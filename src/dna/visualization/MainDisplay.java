@@ -16,6 +16,7 @@ import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
 import javax.imageio.ImageIO;
@@ -142,11 +143,12 @@ public class MainDisplay extends JFrame {
 				if (runFromJar) {
 					String[] splits = defaultConfigPath.split("/");
 					x = new JarFile(pPath.toFile(), false);
-					Log.info("Loading default config from inside .jar-file: "
-							+ splits[splits.length - 1]);
+					Log.info("Loading default config from inside .jar-file: '"
+							+ splits[splits.length - 1] + "'");
 					is = x.getInputStream(x.getEntry(splits[splits.length - 1]));
 				} else {
-					Log.info("Loading default config from " + defaultConfigPath);
+					Log.info("Loading default config from '"
+							+ defaultConfigPath + "'");
 					is = new FileInputStream(defaultConfigPath);
 				}
 				tk = new JSONTokener(is);
@@ -165,14 +167,23 @@ public class MainDisplay extends JFrame {
 				jsonConfig = null;
 
 				// read main display config
-				if (runFromJar && !configFlag) {
+				if (runFromJar) {
 					String[] splits = configPath.split("/");
 					x = new JarFile(pPath.toFile(), false);
-					Log.info("Loading config from inside .jar-file: "
-							+ splits[splits.length - 1]);
-					is = x.getInputStream(x.getEntry(splits[splits.length - 1]));
+					Log.info("Loading config from inside .jar-file: '"
+							+ splits[splits.length - 1] + "'");
+					JarEntry entry = x.getJarEntry(splits[splits.length - 1]);
+					if (entry == null) {
+						Log.info("Config '" + splits[splits.length - 1]
+								+ "' was not found in .jar-file. Checking '"
+								+ configPath + "'");
+						is = new FileInputStream(configPath);
+					} else {
+						is = x.getInputStream(x
+								.getEntry(splits[splits.length - 1]));
+					}
 				} else {
-					Log.info("Loading config from " + configPath);
+					Log.info("Loading config from '" + configPath + "'");
 					is = new FileInputStream(configPath);
 				}
 				tk = new JSONTokener(is);
