@@ -78,6 +78,94 @@ public class Latex {
 		Latex.writeTex(s, dstDir, filename, config, pconfig);
 	}
 
+	public static void writeTexAndPlot(SeriesData[] series, String dstDir,
+			String filename, TexConfig config, PlottingConfig pconfig)
+			throws IOException, InterruptedException {
+		// PLOT
+		Plotting.plot(series, config.getPlotDir(), pconfig);
+
+		// TEX
+		Latex.writeTex(series, dstDir, filename, "plots/", config, pconfig);
+	}
+
+	public static void writeTex(SeriesData[] series, String dstDir,
+			String filename, String plotDir, TexConfig config,
+			PlottingConfig pconfig) throws IOException, InterruptedException {
+		// print series'
+		String buff = "";
+		String[] srcDirs = new String[series.length];
+		for (int i = 0; i < series.length; i++) {
+			if (i == 0)
+				buff += series[i].getName();
+			else
+				buff += ", " + series[i].getName();
+			// get source dirs
+			srcDirs[i] = series[i].getDir();
+		}
+
+		// log
+		Log.infoSep();
+		Log.info("Exporting series " + buff + " to '" + dstDir + filename
+				+ "'.");
+
+		// get entries from config
+		long from = config.getFrom();
+		long to = config.getTo();
+		long stepsize = config.getStepsize();
+		boolean intervalByIndex = config.isIntervalByIndex();
+		boolean zippedBatches = false;
+		boolean zippedRuns = false;
+		if (Config.get("GENERATION_AS_ZIP").equals("batches"))
+			zippedBatches = true;
+		if (Config.get("GENERATION_AS_ZIP").equals("runs"))
+			zippedRuns = true;
+		// create dir
+		(new File(dstDir)).mkdirs();
+
+		// copy logo
+		TexUtils.copyLogo(dstDir);
+
+		// gather relevant batches and timestamps
+		String[][] batches = new String[series.length][];
+		double[][] timestamps = new double[series.length][];
+
+		for (int i = 0; i < series.length; i++) {
+			String tempDir = Dir.getAggregationDataDir(series[i].getDir());
+			if (zippedRuns) {
+				ZipReader.readFileSystem = ZipWriter
+						.createAggregationFileSystem(series[i].getDir());
+				tempDir = Dir.delimiter;
+			}
+			batches[i] = Dir.getBatchesFromTo(tempDir, from, to, stepsize,
+					intervalByIndex);
+			timestamps[i] = new double[batches[i].length];
+			for (int j = 0; j < batches[i].length; j++) {
+				timestamps[i][j] = Dir.getTimestamp(batches[i][j]);
+			}
+			if (zippedRuns) {
+				ZipReader.readFileSystem.close();
+				ZipReader.readFileSystem = null;
+			}
+		}
+
+		// CREATE TEX FILE
+		TexFile file = new TexFile(dstDir, filename);
+
+		// WRITE PREAMBLE
+		file.writePreamble(dstDir);
+
+		// ADD SERIES CHAPTERS
+		for (int i = 0; i < series.length; i++) {
+			file.addSeriesChapter(series[i], series[i].getDir(), dstDir,
+					plotDir, batches[i], config, pconfig, zippedRuns,
+					zippedBatches);
+		}
+
+		// CLOSE FILE AND END
+		file.closeAndEnd();
+		Log.info("Latex-Output finished!");
+	}
+
 	public static void writeTex(SeriesData s, String dstDir, String filename,
 			TexConfig config, PlottingConfig pconfig) throws IOException {
 		String srcDir = s.getDir();
@@ -121,76 +209,15 @@ public class Latex {
 			ZipReader.readFileSystem = null;
 		}
 
-		// read single values
-		AggregatedBatch[] batchData = new AggregatedBatch[batches.length];
-		for (int i = 0; i < batches.length; i++) {
-			long timestamp = Dir.getTimestamp(batches[i]);
-			if (zippedRuns)
-				ZipReader.readFileSystem = ZipWriter
-						.createAggregationFileSystem(srcDir);
-			if (zippedBatches)
-				batchData[i] = AggregatedBatch.readFromSingleFile(tempDir,
-						timestamp, Dir.delimiter,
-						BatchReadMode.readOnlySingleValues);
-			else
-				batchData[i] = AggregatedBatch.read(
-						Dir.getBatchDataDir(tempDir, timestamp), timestamp,
-						BatchReadMode.readOnlySingleValues);
-			if (zippedRuns) {
-				ZipReader.readFileSystem.close();
-				ZipReader.readFileSystem = null;
-			}
-		}
-
-		// init
-		AggregatedBatch initBatch = batchData[0];
+		// INIT TEX FILE
 		TexFile file = new TexFile(dstDir, filename);
 
 		// WRITE PREAMBLE
 		file.writePreamble(dstDir);
 
-		// start with content
-		file.writeLine(TexUtils.chapter("Series "
-				+ s.getName().replace("_", "\\textunderscore ")));
-		file.writeLine("The series "
-				+ s.getName().replace("_", "\\textunderscore ")
-				+ " is located in " + dstDir.replace("_", "\\textunderscore ")
-				+ ". It contains " + s.getAggregation().getBatches().length
-				+ " batches.");
-		file.writeLine();
-		file.writeCommentBlock("chapters");
-
-		// write statistics
-		if (config.isIncludeStatistics())
-			file.include(TexUtils.generateStatisticsChapter(dstDir, plotDir,
-					initBatch, batchData, config, pconfig));
-
-		if (config.isIncludeRuntimes()) {
-			// write general runtimes
-			file.include(TexUtils.generateGeneralRuntimesChapter(dstDir,
-					plotDir, initBatch, batchData, config, pconfig));
-
-			// write metric runtimes
-			file.include(TexUtils.generateMetricRuntimesChapter(dstDir,
-					plotDir, initBatch, batchData, config, pconfig));
-		}
-
-		// write metrics
-		if (config.isIncludeMetrics()) {
-			for (AggregatedMetric m : initBatch.getMetrics().getList()) {
-				if ((config.isIncludeDistributions() && m.getDistributions()
-						.size() > 0)
-						|| (config.isIncludeMetricValues() && m.getValues()
-								.size() > 0)
-						|| (config.isIncludeNodeValueLists() && m
-								.getNodeValues().size() > 0)) {
-					file.include(TexUtils.generateMetricChapter(dstDir,
-							plotDir, s, m, batchData, config, pconfig));
-				}
-			}
-		}
-
-		file.writeLine();
+		// ADD SERIES CHAPTER
+		file.addSeriesChapter(s, srcDir, dstDir, plotDir, batches, config,
+				pconfig, zippedRuns, zippedBatches);
 
 		// close document
 		file.closeAndEnd();
