@@ -128,10 +128,6 @@ public class Plotting {
 					plotFrom, plotTo, stepsize, intervalByIndex);
 		}
 
-		for (String s : batches)
-			System.out.println(s);
-		System.out.println(batches.length);
-
 		for (int i = 0; i < seriesData.length; i++) {
 			String tempDir = Dir.getAggregationDataDir(seriesData[i].getDir());
 			if (zippedRuns) {
