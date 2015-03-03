@@ -33,6 +33,7 @@ public class TexUtils {
 	public static final String texSuffix = ".tex";
 	public static final String plotLabelPrefix = "plot:";
 	public static final String cdfSuffix = ".CDF";
+	public static final String texFilenameDelimiter = "_";
 	public static String logoSrcPath = "logo/versions/";
 	public static String logoFilename = "dna-logo-v5";
 	public static String logoSuffix = ".png";
@@ -198,14 +199,14 @@ public class TexUtils {
 		return TexUtils.plotLabelPrefix + plot;
 	}
 
-	public static TexFile generateStatisticsChapter(String dstDir,
-			String plotDir, AggregatedBatch initBatch,
+	public static TexFile generateStatisticsChapter(String seriesName,
+			String dstDir, String plotDir, AggregatedBatch initBatch,
 			AggregatedBatch[] batchData, TexConfig config,
 			PlottingConfig pconfig) throws IOException {
 		// write statistics
 		TexFile stats = new TexFile(dstDir + TexUtils.chapterDirectory
-				+ Dir.delimiter, TexUtils.statisticsFilename
-				+ TexUtils.texSuffix);
+				+ Dir.delimiter, seriesName + TexUtils.texFilenameDelimiter
+				+ TexUtils.statisticsFilename + TexUtils.texSuffix);
 
 		// added plots
 		ArrayList<PlotConfig> addedPlots = new ArrayList<PlotConfig>();
@@ -283,14 +284,14 @@ public class TexUtils {
 		return stats;
 	}
 
-	public static TexFile generateGeneralRuntimesChapter(String dstDir,
-			String plotDir, AggregatedBatch initBatch,
+	public static TexFile generateGeneralRuntimesChapter(String seriesName,
+			String dstDir, String plotDir, AggregatedBatch initBatch,
 			AggregatedBatch[] batchData, TexConfig config,
 			PlottingConfig pconfig) throws IOException {
 		// write general runtimes
 		TexFile genR = new TexFile(dstDir + TexUtils.chapterDirectory
-				+ Dir.delimiter, TexUtils.generalRuntimesFilename
-				+ TexUtils.texSuffix);
+				+ Dir.delimiter, seriesName + TexUtils.texFilenameDelimiter
+				+ TexUtils.generalRuntimesFilename + TexUtils.texSuffix);
 
 		// added plots
 		ArrayList<PlotConfig> addedPlots = new ArrayList<PlotConfig>();
@@ -369,14 +370,14 @@ public class TexUtils {
 		return genR;
 	}
 
-	public static TexFile generateMetricRuntimesChapter(String dstDir,
-			String plotDir, AggregatedBatch initBatch,
+	public static TexFile generateMetricRuntimesChapter(String seriesName,
+			String dstDir, String plotDir, AggregatedBatch initBatch,
 			AggregatedBatch[] batchData, TexConfig config,
 			PlottingConfig pconfig) throws IOException {
 		// write metric runtimes
 		TexFile metR = new TexFile(dstDir + TexUtils.chapterDirectory
-				+ Dir.delimiter, TexUtils.metricRuntimesFilename
-				+ TexUtils.texSuffix);
+				+ Dir.delimiter, seriesName + TexUtils.texFilenameDelimiter
+				+ TexUtils.metricRuntimesFilename + TexUtils.texSuffix);
 
 		// added plots
 		ArrayList<PlotConfig> addedPlots = new ArrayList<PlotConfig>();
@@ -506,11 +507,13 @@ public class TexUtils {
 		return refs;
 	}
 
-	public static TexFile generateMetricChapter(String dstDir, String plotDir,
-			SeriesData s, AggregatedMetric m, AggregatedBatch[] batchData,
-			TexConfig config, PlottingConfig pconfig) throws IOException {
+	public static TexFile generateMetricChapter(String seriesName,
+			String dstDir, String plotDir, SeriesData s, AggregatedMetric m,
+			AggregatedBatch[] batchData, TexConfig config,
+			PlottingConfig pconfig) throws IOException {
 		TexFile mFile = new TexFile(dstDir + TexUtils.chapterDirectory
-				+ Dir.delimiter, m.getName() + TexUtils.texSuffix);
+				+ Dir.delimiter, seriesName + TexUtils.texFilenameDelimiter
+				+ m.getName() + TexUtils.texSuffix);
 		mFile.writeCommentBlock(m.getName());
 		mFile.writeMetric(s, m, batchData, plotDir, config, pconfig);
 		mFile.close();
