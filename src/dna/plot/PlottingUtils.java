@@ -489,6 +489,9 @@ public class PlottingUtils {
 				if (pc.getValues().length == 1)
 					customDefaultSubstitutePlots.add(pc);
 			}
+		}
+		
+		if (customValuePlots != null) {
 			for (PlotConfig pc : customValuePlots) {
 				// if only 1 value, add plot to list of substitutes
 				if (pc.getValues().length == 1)
