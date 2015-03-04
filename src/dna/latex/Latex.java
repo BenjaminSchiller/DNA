@@ -10,9 +10,6 @@ import dna.latex.TexTable.TableFlag;
 import dna.plot.Plotting;
 import dna.plot.PlottingConfig;
 import dna.plot.PlottingConfig.PlotFlag;
-import dna.series.aggdata.AggregatedBatch;
-import dna.series.aggdata.AggregatedBatch.BatchReadMode;
-import dna.series.aggdata.AggregatedMetric;
 import dna.series.data.SeriesData;
 import dna.util.Config;
 import dna.util.Log;
@@ -78,43 +75,19 @@ public class Latex {
 		Latex.writeTex(s, dstDir, filename, config, pconfig);
 	}
 
-	/**
-	 * Plots all series iteratively and creates one LaTeX document containing
-	 * each series as a separate chapter.
-	 * 
-	 * @param series
-	 *            SeriesData objects that will be plottet and added.
-	 * @param dstDir
-	 *            Destination directory.
-	 * @param filename
-	 *            Filename of the tex-preamble-file.
-	 * @param config
-	 *            TexConfig configuring the tex-output.
-	 * @param pconfig
-	 *            PlottingConfig configuring the plots.
-	 * @throws IOException
-	 * @throws InterruptedException
-	 */
-	public static void writeTexAndPlot(SeriesData[] series, String dstDir,
+	public static void writeTexAndPlotCombined(SeriesData[] s, String dstDir,
 			String filename, TexConfig config, PlottingConfig pconfig)
 			throws IOException, InterruptedException {
 		// PLOT
-		String[] plotDirs = new String[series.length];
-		for (int i = 0; i < series.length; i++) {
-			// plot to absolute dir
-			Plotting.plot(series[i], config.getPlotDir() + series[i].getName() + Dir.delimiter, pconfig);
-			
-			// set relative plot directories
-			plotDirs[i] = "plots/" + series[i].getName() + Dir.delimiter;
-		}
+		Plotting.plot(s, config.getPlotDir(), pconfig);
 
 		// TEX
-		Latex.writeTex(series, dstDir, filename, plotDirs, config, pconfig);
+		Latex.writeTexCombined(s, dstDir, filename, "plots/", config, pconfig);
 	}
 
-	public static void writeTex(SeriesData[] series, String dstDir,
-			String filename, String[] plotDirs, TexConfig config,
-			PlottingConfig pconfig) throws IOException, InterruptedException {
+	public static void writeTexCombined(SeriesData[] series, String dstDir,
+			String filename, String plotDir, TexConfig config,
+			PlottingConfig pconfig) throws IOException {
 		// print series'
 		String buff = "";
 		String[] srcDirs = new String[series.length];
@@ -166,6 +139,111 @@ public class Latex {
 			for (int j = 0; j < batches[i].length; j++) {
 				timestamps[i][j] = Dir.getTimestamp(batches[i][j]);
 			}
+			if (zippedRuns) {
+				ZipReader.readFileSystem.close();
+				ZipReader.readFileSystem = null;
+			}
+		}
+
+		// CREATE TEX FILE
+		TexFile file = new TexFile(dstDir, filename);
+
+		// WRITE PREAMBLE
+		file.writePreamble(dstDir);
+
+		// ADD SERIES CHAPTERS
+		file.addSeriesChapter(series, dstDir, plotDir,
+				batches, config, pconfig, zippedRuns, zippedBatches);
+
+		// CLOSE FILE AND END
+		file.closeAndEnd();
+		Log.info("Latex-Output finished!");
+	}
+
+	/**
+	 * Plots all series iteratively and creates one LaTeX document containing
+	 * each series as a separate chapter.
+	 * 
+	 * @param series
+	 *            SeriesData objects that will be plottet and added.
+	 * @param dstDir
+	 *            Destination directory.
+	 * @param filename
+	 *            Filename of the tex-preamble-file.
+	 * @param config
+	 *            TexConfig configuring the tex-output.
+	 * @param pconfig
+	 *            PlottingConfig configuring the plots.
+	 * @throws IOException
+	 * @throws InterruptedException
+	 */
+	public static void writeTexAndPlot(SeriesData[] series, String dstDir,
+			String filename, TexConfig config, PlottingConfig pconfig)
+			throws IOException, InterruptedException {
+		// PLOT
+		String[] plotDirs = new String[series.length];
+		for (int i = 0; i < series.length; i++) {
+			// plot to absolute dir
+			Plotting.plot(series[i], config.getPlotDir() + series[i].getName()
+					+ Dir.delimiter, pconfig);
+
+			// set relative plot directories
+			plotDirs[i] = "plots/" + series[i].getName() + Dir.delimiter;
+		}
+
+		// TEX
+		Latex.writeTex(series, dstDir, filename, plotDirs, config, pconfig);
+	}
+
+	public static void writeTex(SeriesData[] series, String dstDir,
+			String filename, String[] plotDirs, TexConfig config,
+			PlottingConfig pconfig) throws IOException, InterruptedException {
+		// print series'
+		String buff = "";
+		String[] srcDirs = new String[series.length];
+		for (int i = 0; i < series.length; i++) {
+			if (i == 0)
+				buff += series[i].getName();
+			else
+				buff += ", " + series[i].getName();
+			// get source dirs
+			srcDirs[i] = series[i].getDir();
+		}
+
+		// log
+		Log.infoSep();
+		Log.info("Exporting series " + buff + " to '" + dstDir + filename
+				+ "'.");
+
+		// get entries from config
+		long from = config.getFrom();
+		long to = config.getTo();
+		long stepsize = config.getStepsize();
+		boolean intervalByIndex = config.isIntervalByIndex();
+		boolean zippedBatches = false;
+		boolean zippedRuns = false;
+		if (Config.get("GENERATION_AS_ZIP").equals("batches"))
+			zippedBatches = true;
+		if (Config.get("GENERATION_AS_ZIP").equals("runs"))
+			zippedRuns = true;
+		// create dir
+		(new File(dstDir)).mkdirs();
+
+		// copy logo
+		TexUtils.copyLogo(dstDir);
+
+		// gather relevant batches and timestamps
+		String[][] batches = new String[series.length][];
+
+		for (int i = 0; i < series.length; i++) {
+			String tempDir = Dir.getAggregationDataDir(series[i].getDir());
+			if (zippedRuns) {
+				ZipReader.readFileSystem = ZipWriter
+						.createAggregationFileSystem(series[i].getDir());
+				tempDir = Dir.delimiter;
+			}
+			batches[i] = Dir.getBatchesFromTo(tempDir, from, to, stepsize,
+					intervalByIndex);
 			if (zippedRuns) {
 				ZipReader.readFileSystem.close();
 				ZipReader.readFileSystem = null;
