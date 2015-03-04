@@ -302,9 +302,16 @@ public class TexUtils {
 					// close table
 					table.close();
 					stats.writeLine();
-
 				}
 			}
+			
+
+			// add plots subsection
+			if (addedPlots.size() > 0)
+				TexUtils.addPlotsSubsection(stats, "", plotDir,
+						addedPlots);
+
+			stats.writeLine();
 		}
 
 		// close and return
