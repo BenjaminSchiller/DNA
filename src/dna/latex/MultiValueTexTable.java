@@ -2,10 +2,13 @@ package dna.latex;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 
 import dna.series.aggdata.AggregatedValue;
+import dna.util.Config;
 import dna.util.Log;
+import dna.util.MathHelper;
 
 /** A TexTable which compares multiple values. **/
 public class MultiValueTexTable extends TexTable {
@@ -60,46 +63,89 @@ public class MultiValueTexTable extends TexTable {
 		this.parent.writeLine(TexTable.hline);
 	}
 
-	/** Adds a new row with the values. **/
+	/** Adds a data row to the table. Null values will be added as '-'. **/
 	public void addDataRow(AggregatedValue[] values, long timestamp)
 			throws IOException {
-		double[] tempValues = new double[values.length];
-		for (int i = 0; i < values.length; i++) {
-			switch (this.dataType) {
-			case Average:
-				tempValues[i] = values[i].getAvg();
-				break;
-			case ConfLow:
-				tempValues[i] = values[i].getConfidenceLow();
-				break;
-			case ConfUp:
-				tempValues[i] = values[i].getConfidenceUp();
-				break;
-			case Max:
-				tempValues[i] = values[i].getMax();
-				break;
-			case Median:
-				tempValues[i] = values[i].getMedian();
-				break;
-			case Min:
-				tempValues[i] = values[i].getMin();
-				break;
-			case Var:
-				tempValues[i] = values[i].getVariance();
-				break;
-			case VarLow:
-				tempValues[i] = values[i].getVarianceLow();
-				break;
-			case VarUp:
-				tempValues[i] = values[i].getVarianceUp();
-				break;
-			case all:
-				Log.warn("MultiValueTexTable: wrong flag! Adding 0.0");
-				tempValues[i] = 0.0;
-				break;
-			}
+		long tTimestamp = timestamp;
+
+		// if mapping, map
+		if (this.map != null) {
+			if (this.map.containsKey(tTimestamp))
+				tTimestamp = this.map.get(tTimestamp);
 		}
 
-		this.addRow(tempValues, timestamp);
+		// if scaling, scale
+		if (this.scaling != null)
+			tTimestamp = TexTable.scaleTimestamp(tTimestamp, this.scaling);
+
+		String tempTimestamp = "" + tTimestamp;
+
+		// if dateFormat is set, transform timestamp
+		if (this.dateFormat != null)
+			tempTimestamp = this.dateFormat.format(new Date(tTimestamp));
+
+		if (open) {
+			String buff = "\t" + tempTimestamp + TexTable.tableDelimiter;
+			for (int i = 0; i < values.length; i++) {
+
+				String value = "";
+
+				if (values[i] == null) {
+					value = "-";
+				} else {
+					double temp = 0.0;
+
+					switch (this.dataType) {
+					case Average:
+						temp = values[i].getAvg();
+						break;
+					case ConfLow:
+						temp = values[i].getConfidenceLow();
+						break;
+					case ConfUp:
+						temp = values[i].getConfidenceUp();
+						break;
+					case Max:
+						temp = values[i].getMax();
+						break;
+					case Median:
+						temp = values[i].getMedian();
+						break;
+					case Min:
+						temp = values[i].getMin();
+						break;
+					case Var:
+						temp = values[i].getVariance();
+						break;
+					case VarLow:
+						temp = values[i].getVarianceLow();
+						break;
+					case VarUp:
+						temp = values[i].getVarianceUp();
+						break;
+					case all:
+						Log.warn("MultiValueTexTable: wrong flag! Adding 0.0");
+						temp = 0.0;
+						break;
+					}
+
+					value = "" + temp;
+
+					// if formatting is on, format
+					if (Config.getBoolean("LATEX_DATA_FORMATTING"))
+						value = MathHelper.format(temp);
+				}
+
+				if (i == values.length - 1)
+					buff += value + " " + TexUtils.newline + " "
+							+ TexTable.hline;
+				else
+					buff += value + TexTable.tableDelimiter;
+			}
+			this.parent.writeLine(buff);
+		} else {
+			Log.warn("Attempt to write to closed TexTable" + this.toString()
+					+ "!");
+		}
 	}
 }
