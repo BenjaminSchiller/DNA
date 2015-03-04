@@ -10,6 +10,7 @@ import dna.io.Writer;
 import dna.io.ZipReader;
 import dna.io.ZipWriter;
 import dna.io.filesystem.Dir;
+import dna.latex.TexTable.TableFlag;
 import dna.plot.PlotConfig;
 import dna.plot.PlottingConfig;
 import dna.series.aggdata.AggregatedBatch;
@@ -63,6 +64,61 @@ public class TexFile {
 		return this.dir + this.filename;
 	}
 
+	/** Writes a combined metric chapter to the texfile. **/
+	public void writeMetric(SeriesData[] s, AggregatedMetric m,
+			AggregatedBatch[][] batchData, String plotDir, TexConfig config,
+			PlottingConfig pconfig) throws IOException {
+		String name = m.getName();
+		this.writeLine(TexUtils.section(name));
+		this.writeLine();
+
+		String[] seriesNames = new String[s.length];
+		for (int i = 0; i < s.length; i++)
+			seriesNames[i] = s[i].getName();
+
+		ArrayList<PlotConfig> addedPlots = new ArrayList<PlotConfig>();
+
+		// add metric values
+		if (config.isIncludeMetricValues()) {
+			if (m.getValues().size() > 0) {
+				this.writeLine(TexUtils.subsection("Values"));
+				for (AggregatedValue v : m.getValues().getList()) {
+					this.writeMetricValue(v, m, batchData, seriesNames,
+							addedPlots, config, pconfig);
+				}
+				this.writeLine();
+			}
+		}
+
+		// add distribution
+		if (config.isIncludeDistributions()) {
+			if (m.getDistributions().size() > 0) {
+				this.writeLine(TexUtils.subsection("Distributions"));
+				for (AggregatedDistribution d : m.getDistributions().getList()) {
+//					this.writeDistribution(d, m, s, batchData, seriesNames,
+//							addedPlots, config, pconfig);
+				}
+				this.writeLine();
+			}
+		}
+
+		// add nodevaluelists
+		if (config.isIncludeNodeValueLists()) {
+			if (m.getNodeValues().size() > 0) {
+				this.writeLine(TexUtils.subsection("NodeValueLists"));
+				for (AggregatedNodeValueList n : m.getNodeValues().getList()) {
+					// this.writeNodeValueList(n, m, s, batchData, addedPlots,
+					// config, pconfig);
+				}
+				this.writeLine();
+			}
+		}
+
+		// add plots subsection
+		if (addedPlots.size() > 0)
+			TexUtils.addPlotsSubsection(this, "", plotDir, addedPlots);
+	}
+
 	/** Writes a metric to the texfile. **/
 	public void writeMetric(SeriesData s, AggregatedMetric m,
 			AggregatedBatch[] batchData, String plotDir, TexConfig config,
@@ -112,6 +168,88 @@ public class TexFile {
 		// add plots subsection
 		if (addedPlots.size() > 0)
 			TexUtils.addPlotsSubsection(this, s.getName(), plotDir, addedPlots);
+	}
+
+	/** Writes a combined value subsubsection to the TexFile. **/
+	private void writeMetricValue(AggregatedValue v, AggregatedMetric m,
+			AggregatedBatch[][] batchData, String[] seriesNames,
+			ArrayList<PlotConfig> addedPlots, TexConfig config,
+			PlottingConfig pconfig) throws IOException {
+		this.writeLine(TexUtils.subsubsection(v.getName()));
+		this.writeLine(v.getName().replace("_", "\\textunderscore ")
+				+ " is a metric value.");
+		this.writeLine();
+
+		// gather fitting plots
+		ArrayList<PlotConfig> fits = TexUtils.getCustomMetricValuePlotFits(
+				m.getName(), v.getName(), pconfig.getCustomMetricValuePlots());
+		TexUtils.addDefaultMetricValuePlotFits(fits, m.getName(), v.getName());
+
+		// add ref line
+		if (fits.size() > 0) {
+			String refs = TexUtils.getReferenceString(fits, "");
+			this.writeLine(refs);
+			this.writeLine();
+
+			// add plots that contain the value
+			for (PlotConfig pc : fits) {
+				if (!addedPlots.contains(pc)) {
+					addedPlots.add(pc);
+				}
+			}
+		}
+
+		// values
+		this.writeCommentBlock("value table of " + v.getName());
+
+		// select description
+		String[] tableDescrArray = TexUtils.selectDescription(seriesNames);
+
+		for (TableFlag tf : config.getTableFlags()) {
+			// init table
+			MultiValueTexTable table = new MultiValueTexTable(this,
+					tableDescrArray, config.getDateFormat(),
+					config.getScaling(), config.getMapping(), tf);
+
+			// check which series has the most batches
+			int max = 0;
+			for (int i = 1; i < batchData.length; i++) {
+				if (batchData[i].length > batchData[max].length)
+					max = i;
+			}
+
+			// add values
+			for (int i = 0; i < batchData[max].length; i++) {
+				long timestamp = batchData[max][i].getTimestamp();
+
+				AggregatedValue[] avs = new AggregatedValue[batchData.length];
+
+				// get values, if metric or value not present, insert null
+				for (int j = 0; j < batchData.length; j++) {
+					if (batchData[j].length > i) {
+						AggregatedBatch b = batchData[j][i];
+						if (b.getMetrics().getNames().contains(m.getName())) {
+							if (b.getMetrics().get(m.getName()).getValues()
+									.getNames().contains(v.getName())) {
+								avs[j] = b.getMetrics().get(m.getName())
+										.getValues().get(v.getName());
+							} else {
+								avs[j] = null;
+							}
+						} else {
+							avs[j] = null;
+						}
+					}
+				}
+
+				// add row
+				table.addDataRow(avs, timestamp);
+			}
+
+			// close table
+			table.close();
+			this.writeLine();
+		}
 	}
 
 	/** Writes a value to the TexFile. **/
@@ -174,6 +312,13 @@ public class TexFile {
 		// close table
 		table.close();
 		this.writeLine();
+	}
+
+	private void writeDistribution(AggregatedDistribution d,
+			AggregatedMetric m, SeriesData[] s, AggregatedBatch[][] batchData,
+			String[] seriesNames, ArrayList<PlotConfig> addedPlots,
+			TexConfig config, PlottingConfig pconfig) throws IOException {
+
 	}
 
 	/** Writes a distribution to the TexFile. **/
@@ -687,23 +832,51 @@ public class TexFile {
 		for (int i = 0; i < s.length; i++) {
 			seriesNames[i] = s[i].getName();
 		}
-		
+
 		// write statistics
 		if (config.isIncludeStatistics())
 			this.include(TexUtils.generateStatisticsChapter(seriesNames,
 					dstDir, plotDir, initBatches, batchData, config, pconfig));
-		
+
 		// write runtimes
 		if (config.isIncludeRuntimes()) {
 			// write general runtimes
-			this.include(TexUtils.generateGeneralRuntimesChapter(seriesNames, dstDir,
-					plotDir, initBatches, batchData, config, pconfig));
+			this.include(TexUtils.generateGeneralRuntimesChapter(seriesNames,
+					dstDir, plotDir, initBatches, batchData, config, pconfig));
 
 			// write metric runtimes
-			this.include(TexUtils.generateMetricRuntimesChapter(seriesNames, dstDir,
-					plotDir, initBatches, batchData, config, pconfig));
+			this.include(TexUtils.generateMetricRuntimesChapter(seriesNames,
+					dstDir, plotDir, initBatches, batchData, config, pconfig));
 		}
-		
+
+		// write metrics
+		if (config.isIncludeMetrics()) {
+
+			// list metrics
+			ArrayList<AggregatedMetric> metrics = new ArrayList<AggregatedMetric>();
+
+			for (AggregatedBatch b : initBatches) {
+				for (AggregatedMetric m : b.getMetrics().getList()) {
+					if (!metrics.contains(m)) {
+						metrics.add(m);
+					}
+				}
+			}
+
+			// for all metrics, add chapter
+			for (AggregatedMetric m : metrics) {
+				if ((config.isIncludeDistributions() && m.getDistributions()
+						.size() > 0)
+						|| (config.isIncludeMetricValues() && m.getValues()
+								.size() > 0)
+						|| (config.isIncludeNodeValueLists() && m
+								.getNodeValues().size() > 0)) {
+					this.include(TexUtils.generateMetricChapter(dstDir,
+							plotDir, s, m, batchData, config, pconfig));
+				}
+			}
+		}
+
 		// // write statistics
 		// if (config.isIncludeStatistics())
 		// this.include(TexUtils.generateStatisticsChapter(sName, dstDir,
@@ -734,7 +907,7 @@ public class TexFile {
 		// }
 		// }
 		//
-		// this.writeLine();
+		this.writeLine();
 	}
 
 	/** Adds the given series to the file. **/
@@ -808,7 +981,7 @@ public class TexFile {
 								.size() > 0)
 						|| (config.isIncludeNodeValueLists() && m
 								.getNodeValues().size() > 0)) {
-					this.include(TexUtils.generateMetricChapter(sName, dstDir,
+					this.include(TexUtils.generateMetricChapter(dstDir,
 							plotDir, s, m, batchData, config, pconfig));
 				}
 			}
