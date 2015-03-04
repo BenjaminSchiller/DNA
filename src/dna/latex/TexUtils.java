@@ -427,7 +427,6 @@ public class TexUtils {
 		}
 
 		// if no values, do nothing
-		// if no values, do nothing
 		if (values.size() > 0) {
 			genR.writeCommentBlock(TexUtils.generalRuntimes);
 			genR.writeLine(TexUtils.section(TexUtils.generalRuntimes));
@@ -633,7 +632,6 @@ public class TexUtils {
 			}
 		}
 
-		// if no values, do nothing
 		// if no values, do nothing
 		if (values.size() > 0) {
 			metR.writeCommentBlock(TexUtils.metricRuntimes);
@@ -868,12 +866,25 @@ public class TexUtils {
 		return refs;
 	}
 
-	public static TexFile generateMetricChapter(String seriesName,
-			String dstDir, String plotDir, SeriesData s, AggregatedMetric m,
-			AggregatedBatch[] batchData, TexConfig config,
+	/** Generates a combined metric chapter. **/
+	public static TexFile generateMetricChapter(String dstDir, String plotDir,
+			SeriesData[] series, AggregatedMetric m,
+			AggregatedBatch[][] batchData, TexConfig config,
 			PlottingConfig pconfig) throws IOException {
 		TexFile mFile = new TexFile(dstDir + Config.get("LATEX_CHAPTERS_DIR")
-				+ Dir.delimiter, seriesName + Config.get("LATEX_DELIMITER")
+				+ Dir.delimiter, m.getName() + Config.get("SUFFIX_TEX_FILE"));
+		mFile.writeCommentBlock(m.getName());
+		mFile.writeMetric(series, m, batchData, plotDir, config, pconfig);
+		mFile.close();
+		return mFile;
+	}
+
+	/** Generates a chapter for the given metric and series. **/
+	public static TexFile generateMetricChapter(String dstDir, String plotDir,
+			SeriesData s, AggregatedMetric m, AggregatedBatch[] batchData,
+			TexConfig config, PlottingConfig pconfig) throws IOException {
+		TexFile mFile = new TexFile(dstDir + Config.get("LATEX_CHAPTERS_DIR")
+				+ Dir.delimiter, s.getName() + Config.get("LATEX_DELIMITER")
 				+ m.getName() + Config.get("SUFFIX_TEX_FILE"));
 		mFile.writeCommentBlock(m.getName());
 		mFile.writeMetric(s, m, batchData, plotDir, config, pconfig);
