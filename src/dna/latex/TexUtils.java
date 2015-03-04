@@ -28,8 +28,6 @@ public class TexUtils {
 	public static final String tab = "\t";
 	public static final String newline = "\\\\";
 	public static final String commentIdentifier = "%";
-	public static final String chapterDirectory = "chapters";
-	public static final String imagesDirectory = "images";
 	public static final String plotLabelPrefix = "plot:";
 	public static final String cdfSuffix = ".CDF";
 	public static String logoSrcPath = "logo/versions/";
@@ -202,12 +200,125 @@ public class TexUtils {
 		return TexUtils.plotLabelPrefix + plot;
 	}
 
+	/** Generates a combined statistics chapter. **/
+	public static TexFile generateStatisticsChapter(String[] seriesNames,
+			String dstDir, String plotDir, AggregatedBatch[] initBatches,
+			AggregatedBatch[][] batchData, TexConfig config,
+			PlottingConfig pconfig) throws IOException {
+		// write statistics
+		TexFile stats = new TexFile(dstDir + Config.get("LATEX_CHAPTERS_DIR")
+				+ Dir.delimiter, TexUtils.statisticsFilename
+				+ Config.get("SUFFIX_TEX_FILE"));
+
+		// added plots
+		ArrayList<PlotConfig> addedPlots = new ArrayList<PlotConfig>();
+
+		// check values
+		// list values
+		ArrayList<String> values = new ArrayList<String>();
+		for (AggregatedBatch initBatch : initBatches) {
+			for (String v : initBatch.getValues().getNames()) {
+				if (!values.contains(v))
+					values.add(v);
+			}
+		}
+
+		// if no values, do nothing
+		if (values.size() > 0) {
+			stats.writeCommentBlock(TexUtils.statistics);
+			stats.writeLine(TexUtils.section(TexUtils.statistics));
+			stats.writeLine();
+
+			// for each value
+			for (String v : values) {
+				// add subsection
+				stats.writeLine(TexUtils.subsection(v));
+				stats.writeLine(v.replace("_", "\\textunderscore ")
+						+ " is a statistic.");
+				stats.writeLine();
+
+				// gather fitting plots
+				ArrayList<PlotConfig> fits = TexUtils
+						.getCustomStatisticPlotFits(v,
+								pconfig.getCustomStatisticPlots());
+
+				// add ref line
+				if (fits.size() > 0) {
+					String refs = TexUtils.getReferenceString(fits, "");
+					stats.writeLine(refs);
+					stats.writeLine();
+
+					// add plots that contain the value
+					for (PlotConfig pc : fits) {
+						if (!addedPlots.contains(pc)) {
+							addedPlots.add(pc);
+						}
+					}
+				}
+
+				// values
+				stats.writeCommentBlock("value table of " + v);
+
+				// select description
+				String[] tableDescrArray = TexUtils
+						.selectDescription(seriesNames);
+
+				// one table for each flag
+				for (TableFlag tf : config.getTableFlags()) {
+
+					// init table
+					MultiValueTexTable table = new MultiValueTexTable(stats,
+							tableDescrArray, config.getDateFormat(),
+							config.getScaling(), config.getMapping(), tf);
+
+					// check which series has the most batches
+					int max = 0;
+					for (int i = 1; i < batchData.length; i++) {
+						if (batchData[i].length > batchData[max].length)
+							max = i;
+					}
+
+					// add values
+					for (int i = 0; i < batchData[max].length; i++) {
+						long timestamp = batchData[max][i].getTimestamp();
+
+						AggregatedValue[] avs = new AggregatedValue[batchData.length];
+
+						for (int j = 0; j < batchData.length; j++) {
+							if (batchData[j].length > i) {
+								AggregatedBatch b = batchData[j][i];
+								if (b.getValues().getNames().contains(v))
+									avs[j] = b.getValues().get(v);
+								else
+									avs[j] = new AggregatedValue(v,
+											new double[] { 0.0, 0.0, 0.0, 0.0,
+													0.0, 0.0, 0.0, 0.0, 0.0 });
+							}
+						}
+
+						table.addDataRow(avs, timestamp);
+					}
+
+					// close table
+					table.close();
+					stats.writeLine();
+
+				}
+			}
+		}
+
+		// close and return
+		stats.close();
+		return stats;
+	}
+
+	/** Generates a statistics chapter. **/
 	public static TexFile generateStatisticsChapter(String seriesName,
 			String dstDir, String plotDir, AggregatedBatch initBatch,
 			AggregatedBatch[] batchData, TexConfig config,
 			PlottingConfig pconfig) throws IOException {
 		// write statistics
-		TexFile stats = new TexFile(dstDir + TexUtils.chapterDirectory
+		TexFile stats = new TexFile(dstDir + Config.get("LATEX_CHAPTERS_DIR")
 				+ Dir.delimiter, seriesName + Config.get("LATEX_DELIMITER")
 				+ TexUtils.statisticsFilename + Config.get("SUFFIX_TEX_FILE"));
 
@@ -294,7 +405,7 @@ public class TexUtils {
 			AggregatedBatch[] batchData, TexConfig config,
 			PlottingConfig pconfig) throws IOException {
 		// write general runtimes
-		TexFile genR = new TexFile(dstDir + TexUtils.chapterDirectory
+		TexFile genR = new TexFile(dstDir + Config.get("LATEX_CHAPTERS_DIR")
 				+ Dir.delimiter, seriesName + Config.get("LATEX_DELIMITER")
 				+ TexUtils.generalRuntimesFilename
 				+ Config.get("SUFFIX_TEX_FILE"));
@@ -383,7 +494,7 @@ public class TexUtils {
 			AggregatedBatch[] batchData, TexConfig config,
 			PlottingConfig pconfig) throws IOException {
 		// write metric runtimes
-		TexFile metR = new TexFile(dstDir + TexUtils.chapterDirectory
+		TexFile metR = new TexFile(dstDir + Config.get("LATEX_CHAPTERS_DIR")
 				+ Dir.delimiter, seriesName + Config.get("LATEX_DELIMITER")
 				+ TexUtils.metricRuntimesFilename
 				+ Config.get("SUFFIX_TEX_FILE"));
@@ -523,7 +634,7 @@ public class TexUtils {
 			String dstDir, String plotDir, SeriesData s, AggregatedMetric m,
 			AggregatedBatch[] batchData, TexConfig config,
 			PlottingConfig pconfig) throws IOException {
-		TexFile mFile = new TexFile(dstDir + TexUtils.chapterDirectory
+		TexFile mFile = new TexFile(dstDir + Config.get("LATEX_CHAPTERS_DIR")
 				+ Dir.delimiter, seriesName + Config.get("LATEX_DELIMITER")
 				+ m.getName() + Config.get("SUFFIX_TEX_FILE"));
 		mFile.writeCommentBlock(m.getName());
@@ -553,6 +664,16 @@ public class TexUtils {
 				file.includeFigure(plotDir, pc.getFilename(), seriesName);
 			}
 		}
+	}
+
+	/** Returns a table description with the given series names. **/
+	public static String[] selectDescription(String[] seriesNames) {
+		String[] tableDescr = new String[seriesNames.length + 1];
+		tableDescr[0] = "Timestamp";
+		for (int i = 0; i < seriesNames.length; i++)
+			tableDescr[i + 1] = seriesNames[i]
+					.replace("_", "\\textunderscore ");
+		return tableDescr;
 	}
 
 	/**
@@ -960,7 +1081,7 @@ public class TexUtils {
 
 	/** Creates the default header file. **/
 	public static TexFile generateHeaderFile(String dstDir) throws IOException {
-		TexFile header = new TexFile(dstDir + TexUtils.chapterDirectory
+		TexFile header = new TexFile(dstDir + Config.get("LATEX_CHAPTERS_DIR")
 				+ Dir.delimiter, TexUtils.headerFilename
 				+ Config.get("SUFFIX_TEX_FILE"));
 
@@ -1137,10 +1258,11 @@ public class TexUtils {
 
 	/** Copies the logo the titlepage-logo. **/
 	public static void copyLogo(String dstDir) throws IOException {
-		File src = new File(TexUtils.logoSrcPath + TexUtils.logoFilename
-				+ TexUtils.logoSuffix);
-		File dst = new File(dstDir + TexUtils.imagesDirectory + Dir.delimiter
-				+ TexUtils.logoFilename + TexUtils.logoSuffix);
+		File src = new File(Config.get("LATEX_LOGO_SRC_DIR")
+				+ Config.get("LATEX_LOGO_FILENAME")
+				+ Config.get("LATEX_LOGO_SUFFIX"));
+		File dst = new File(dstDir + Config.get("LATEX_IMAGES_DIR")
+				+ Dir.delimiter + TexUtils.logoFilename + TexUtils.logoSuffix);
 		dst.mkdirs();
 		Path p1 = src.toPath();
 		Path p2 = dst.toPath();
