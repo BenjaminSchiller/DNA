@@ -78,8 +78,8 @@ public class TexFile {
 			if (m.getValues().size() > 0) {
 				this.writeLine(TexUtils.subsection("Values"));
 				for (AggregatedValue v : m.getValues().getList()) {
-					this.writeMetricValue(v, m, batchData, addedPlots, config,
-							pconfig);
+					this.writeMetricValue(v, m, s.getName(), batchData,
+							addedPlots, config, pconfig);
 				}
 				this.writeLine();
 			}
@@ -111,15 +111,17 @@ public class TexFile {
 
 		// add plots subsection
 		if (addedPlots.size() > 0)
-			TexUtils.addPlotsSubsection(this, plotDir, addedPlots);
+			TexUtils.addPlotsSubsection(this, s.getName(), plotDir, addedPlots);
 	}
 
 	/** Writes a value to the TexFile. **/
 	private void writeMetricValue(AggregatedValue v, AggregatedMetric m,
-			AggregatedBatch[] batchData, ArrayList<PlotConfig> addedPlots,
-			TexConfig config, PlottingConfig pconfig) throws IOException {
+			String seriesName, AggregatedBatch[] batchData,
+			ArrayList<PlotConfig> addedPlots, TexConfig config,
+			PlottingConfig pconfig) throws IOException {
 		this.writeLine(TexUtils.subsubsection(v.getName()));
-		this.writeLine(v.getName() + " is a metric value.");
+		this.writeLine(v.getName().replace("_", "\\textunderscore ")
+				+ " is a metric value.");
 		this.writeLine();
 
 		// gather fitting plots
@@ -129,7 +131,7 @@ public class TexFile {
 
 		// add ref line
 		if (fits.size() > 0) {
-			String refs = TexUtils.getReferenceString(fits);
+			String refs = TexUtils.getReferenceString(fits, seriesName);
 			this.writeLine(refs);
 			this.writeLine();
 
@@ -180,7 +182,8 @@ public class TexFile {
 			ArrayList<PlotConfig> addedPlots, TexConfig config,
 			PlottingConfig pconfig) throws IOException {
 		this.writeLine(TexUtils.subsubsection(d.getName()));
-		this.writeLine(d.getName() + " is a distribution.");
+		this.writeLine(d.getName().replace("_", "\\textunderscore ")
+				+ " is a distribution.");
 		this.writeLine();
 
 		// gather fitting plots
@@ -191,7 +194,7 @@ public class TexFile {
 
 		// add ref line
 		if (fits.size() > 0) {
-			String refs = TexUtils.getReferenceString(fits);
+			String refs = TexUtils.getReferenceString(fits, s.getName());
 			this.writeLine(refs);
 			this.writeLine();
 
@@ -295,7 +298,8 @@ public class TexFile {
 			ArrayList<PlotConfig> addedPlots, TexConfig config,
 			PlottingConfig pconfig) throws IOException {
 		this.writeLine(TexUtils.subsubsection(n.getName()));
-		this.writeLine(n.getName() + " is a nodevaluelist.");
+		this.writeLine(n.getName().replace("_", "\\textunderscore ")
+				+ " is a nodevaluelist.");
 		this.writeLine();
 
 		// gather fitting plots
@@ -306,7 +310,7 @@ public class TexFile {
 
 		// add ref line
 		if (fits.size() > 0) {
-			String refs = TexUtils.getReferenceString(fits);
+			String refs = TexUtils.getReferenceString(fits, s.getName());
 			this.writeLine(refs);
 			this.writeLine();
 
@@ -470,7 +474,7 @@ public class TexFile {
 			this.writeLine(TexUtils.setcounter("" + 0));
 			this.include(TexUtils.generateTitlepage(this.getDir()
 					+ TexUtils.chapterDirectory + Dir.delimiter,
-					TexUtils.titlePageFilename + TexUtils.texSuffix));
+					TexUtils.titlePageFilename + Config.get("SUFFIX_TEX_FILE")));
 			this.writeLine(TexUtils.pagenumbering("arabic"));
 			this.writeLine();
 		} else {
@@ -481,7 +485,7 @@ public class TexFile {
 
 	public void include(TexFile chapter) throws IOException {
 		this.include(TexUtils.chapterDirectory + Dir.delimiter
-				+ chapter.getFilename().replaceAll(TexUtils.texSuffix, ""));
+				+ chapter.getFilename().replaceAll(Config.get("SUFFIX_TEX_FILE"), ""));
 	}
 
 	public void include(String chapter) throws IOException {
@@ -489,16 +493,22 @@ public class TexFile {
 	}
 
 	public void includeFigure(String dir, String filename) throws IOException {
-		this.includeFigure(null, dir, filename, "", 0.8, "h");
+		this.includeFigure(null, dir, filename, "", "", 0.8, "h");
 	}
 
-	public void includeFigure(String name, String dir, String filename)
+	public void includeFigure(String dir, String filename, String seriesName)
 			throws IOException {
-		this.includeFigure(name, dir, filename, "", 0.8, "h");
+		this.includeFigure(null, dir, filename, seriesName, "", 0.8, "h");
 	}
 
 	public void includeFigure(String name, String dir, String filename,
-			String extension, double scale, String option) throws IOException {
+			String seriesName) throws IOException {
+		this.includeFigure(name, dir, filename, seriesName, "", 0.8, "h");
+	}
+
+	public void includeFigure(String name, String dir, String filename,
+			String seriesName, String extension, double scale, String option)
+			throws IOException {
 		if (name != null)
 			this.writeCommentLine("plot " + filename + " containing " + name);
 		else
@@ -509,7 +519,7 @@ public class TexFile {
 				+ TexUtils.includeGraphics(dir + filename + extension, scale));
 		this.writeLine(TexUtils.tab + TexUtils.caption(filename));
 		this.writeLine(TexUtils.tab
-				+ TexUtils.label(TexUtils.getPlotLabel(filename)));
+				+ TexUtils.label(TexUtils.getPlotLabel(seriesName, filename)));
 		this.writeLine(TexUtils.endFigure());
 		this.writeLine();
 	}
