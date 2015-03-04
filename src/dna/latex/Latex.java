@@ -78,18 +78,42 @@ public class Latex {
 		Latex.writeTex(s, dstDir, filename, config, pconfig);
 	}
 
+	/**
+	 * Plots all series iteratively and creates one LaTeX document containing
+	 * each series as a separate chapter.
+	 * 
+	 * @param series
+	 *            SeriesData objects that will be plottet and added.
+	 * @param dstDir
+	 *            Destination directory.
+	 * @param filename
+	 *            Filename of the tex-preamble-file.
+	 * @param config
+	 *            TexConfig configuring the tex-output.
+	 * @param pconfig
+	 *            PlottingConfig configuring the plots.
+	 * @throws IOException
+	 * @throws InterruptedException
+	 */
 	public static void writeTexAndPlot(SeriesData[] series, String dstDir,
 			String filename, TexConfig config, PlottingConfig pconfig)
 			throws IOException, InterruptedException {
 		// PLOT
-		Plotting.plot(series, config.getPlotDir(), pconfig);
+		String[] plotDirs = new String[series.length];
+		for (int i = 0; i < series.length; i++) {
+			// plot to absolute dir
+			Plotting.plot(series[i], config.getPlotDir() + series[i].getName() + Dir.delimiter, pconfig);
+			
+			// set relative plot directories
+			plotDirs[i] = "plots/" + series[i].getName() + Dir.delimiter;
+		}
 
 		// TEX
-		Latex.writeTex(series, dstDir, filename, "plots/", config, pconfig);
+		Latex.writeTex(series, dstDir, filename, plotDirs, config, pconfig);
 	}
 
 	public static void writeTex(SeriesData[] series, String dstDir,
-			String filename, String plotDir, TexConfig config,
+			String filename, String[] plotDirs, TexConfig config,
 			PlottingConfig pconfig) throws IOException, InterruptedException {
 		// print series'
 		String buff = "";
@@ -157,7 +181,7 @@ public class Latex {
 		// ADD SERIES CHAPTERS
 		for (int i = 0; i < series.length; i++) {
 			file.addSeriesChapter(series[i], series[i].getDir(), dstDir,
-					plotDir, batches[i], config, pconfig, zippedRuns,
+					plotDirs[i], batches[i], config, pconfig, zippedRuns,
 					zippedBatches);
 		}
 

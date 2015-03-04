@@ -30,10 +30,8 @@ public class TexUtils {
 	public static final String commentIdentifier = "%";
 	public static final String chapterDirectory = "chapters";
 	public static final String imagesDirectory = "images";
-	public static final String texSuffix = ".tex";
 	public static final String plotLabelPrefix = "plot:";
 	public static final String cdfSuffix = ".CDF";
-	public static final String texFilenameDelimiter = "_";
 	public static String logoSrcPath = "logo/versions/";
 	public static String logoFilename = "dna-logo-v5";
 	public static String logoSuffix = ".png";
@@ -101,15 +99,15 @@ public class TexUtils {
 	}
 
 	public static String section(String value) {
-		return cmd("section", value);
+		return cmd("section", value.replace("_", "\\textunderscore "));
 	}
 
 	public static String subsection(String value) {
-		return cmd("subsection", value);
+		return cmd("subsection", value.replace("_", "\\textunderscore "));
 	}
 
 	public static String subsubsection(String value) {
-		return cmd("subsubsection", value);
+		return cmd("subsubsection", value.replace("_", "\\textunderscore "));
 	}
 
 	public static String begin(String value) {
@@ -159,7 +157,7 @@ public class TexUtils {
 	}
 
 	public static String caption(String value) {
-		return cmd("caption", value);
+		return cmd("caption", value.replace("_", "\\textunderscore "));
 	}
 
 	public static String label(String value) {
@@ -195,6 +193,11 @@ public class TexUtils {
 		return end("figure");
 	}
 
+	public static String getPlotLabel(String series, String plot) {
+		return TexUtils.getPlotLabel(series + Config.get("LATEX_DELIMITER")
+				+ plot);
+	}
+
 	public static String getPlotLabel(String plot) {
 		return TexUtils.plotLabelPrefix + plot;
 	}
@@ -205,8 +208,8 @@ public class TexUtils {
 			PlottingConfig pconfig) throws IOException {
 		// write statistics
 		TexFile stats = new TexFile(dstDir + TexUtils.chapterDirectory
-				+ Dir.delimiter, seriesName + TexUtils.texFilenameDelimiter
-				+ TexUtils.statisticsFilename + TexUtils.texSuffix);
+				+ Dir.delimiter, seriesName + Config.get("LATEX_DELIMITER")
+				+ TexUtils.statisticsFilename + Config.get("SUFFIX_TEX_FILE"));
 
 		// added plots
 		ArrayList<PlotConfig> addedPlots = new ArrayList<PlotConfig>();
@@ -221,7 +224,8 @@ public class TexUtils {
 			for (AggregatedValue v : initBatch.getValues().getList()) {
 				// add subsection
 				stats.writeLine(TexUtils.subsection(v.getName()));
-				stats.writeLine(v.getName() + " is a statistic.");
+				stats.writeLine(v.getName().replace("_", "\\textunderscore ")
+						+ " is a statistic.");
 				stats.writeLine();
 
 				// gather fitting plots
@@ -231,7 +235,7 @@ public class TexUtils {
 
 				// add ref line
 				if (fits.size() > 0) {
-					String refs = TexUtils.getReferenceString(fits);
+					String refs = TexUtils.getReferenceString(fits, seriesName);
 					stats.writeLine(refs);
 					stats.writeLine();
 
@@ -276,7 +280,8 @@ public class TexUtils {
 
 			// add plots subsection
 			if (addedPlots.size() > 0)
-				TexUtils.addPlotsSubsection(stats, plotDir, addedPlots);
+				TexUtils.addPlotsSubsection(stats, seriesName, plotDir,
+						addedPlots);
 
 			stats.writeLine();
 		}
@@ -290,8 +295,9 @@ public class TexUtils {
 			PlottingConfig pconfig) throws IOException {
 		// write general runtimes
 		TexFile genR = new TexFile(dstDir + TexUtils.chapterDirectory
-				+ Dir.delimiter, seriesName + TexUtils.texFilenameDelimiter
-				+ TexUtils.generalRuntimesFilename + TexUtils.texSuffix);
+				+ Dir.delimiter, seriesName + Config.get("LATEX_DELIMITER")
+				+ TexUtils.generalRuntimesFilename
+				+ Config.get("SUFFIX_TEX_FILE"));
 
 		// added plots
 		ArrayList<PlotConfig> addedPlots = new ArrayList<PlotConfig>();
@@ -306,7 +312,8 @@ public class TexUtils {
 			for (AggregatedValue v : initBatch.getGeneralRuntimes().getList()) {
 				// add subsection
 				genR.writeLine(TexUtils.subsection(v.getName()));
-				genR.writeLine(v.getName() + " is a general runtime.");
+				genR.writeLine(v.getName().replace("_", "\\textunderscore ")
+						+ " is a general runtime.");
 				genR.writeLine();
 
 				// gather fitting plots
@@ -315,7 +322,7 @@ public class TexUtils {
 
 				// add ref line
 				if (fits.size() > 0) {
-					String refs = TexUtils.getReferenceString(fits);
+					String refs = TexUtils.getReferenceString(fits, seriesName);
 					genR.writeLine(refs);
 					genR.writeLine();
 
@@ -362,7 +369,8 @@ public class TexUtils {
 
 			// add plots subsection
 			if (addedPlots.size() > 0)
-				TexUtils.addPlotsSubsection(genR, plotDir, addedPlots);
+				TexUtils.addPlotsSubsection(genR, seriesName, plotDir,
+						addedPlots);
 
 			genR.writeLine();
 		}
@@ -376,8 +384,9 @@ public class TexUtils {
 			PlottingConfig pconfig) throws IOException {
 		// write metric runtimes
 		TexFile metR = new TexFile(dstDir + TexUtils.chapterDirectory
-				+ Dir.delimiter, seriesName + TexUtils.texFilenameDelimiter
-				+ TexUtils.metricRuntimesFilename + TexUtils.texSuffix);
+				+ Dir.delimiter, seriesName + Config.get("LATEX_DELIMITER")
+				+ TexUtils.metricRuntimesFilename
+				+ Config.get("SUFFIX_TEX_FILE"));
 
 		// added plots
 		ArrayList<PlotConfig> addedPlots = new ArrayList<PlotConfig>();
@@ -391,7 +400,8 @@ public class TexUtils {
 			// for each value
 			for (AggregatedValue v : initBatch.getMetricRuntimes().getList()) {
 				metR.writeLine(TexUtils.subsection(v.getName()));
-				metR.writeLine(v.getName() + " is a metric runtime.");
+				metR.writeLine(v.getName().replace("_", "\\textunderscore ")
+						+ " is a metric runtime.");
 				metR.writeLine();
 
 				// gather fitting plots
@@ -400,7 +410,7 @@ public class TexUtils {
 
 				// add ref line
 				if (fits.size() > 0) {
-					String refs = TexUtils.getReferenceString(fits);
+					String refs = TexUtils.getReferenceString(fits, seriesName);
 					metR.writeLine(refs);
 					metR.writeLine();
 
@@ -447,7 +457,8 @@ public class TexUtils {
 
 			// add plots subsection
 			if (addedPlots.size() > 0)
-				TexUtils.addPlotsSubsection(metR, plotDir, addedPlots);
+				TexUtils.addPlotsSubsection(metR, seriesName, plotDir,
+						addedPlots);
 
 			metR.writeLine();
 		}
@@ -455,7 +466,8 @@ public class TexUtils {
 		return metR;
 	}
 
-	public static String getReferenceString(ArrayList<PlotConfig> fits) {
+	public static String getReferenceString(ArrayList<PlotConfig> fits,
+			String seriesName) {
 		String refs;
 		if (fits.size() > 1)
 			refs = "See plots: ";
@@ -465,40 +477,40 @@ public class TexUtils {
 		for (PlotConfig pc : fits) {
 			if (pc.getPlotAsCdf().equals("true")) {
 				if (first) {
-					refs += TexUtils.ref(TexUtils.getPlotLabel(pc.getFilename()
-							+ TexUtils.cdfSuffix));
+					refs += TexUtils.ref(TexUtils.getPlotLabel(seriesName,
+							pc.getFilename() + TexUtils.cdfSuffix));
 					first = false;
 				} else {
 					refs += ", "
-							+ TexUtils.ref(TexUtils.getPlotLabel(pc
-									.getFilename() + TexUtils.cdfSuffix));
+							+ TexUtils.ref(TexUtils.getPlotLabel(seriesName,
+									pc.getFilename() + TexUtils.cdfSuffix));
 				}
 			} else if (pc.getPlotAsCdf().equals("both")) {
 				if (first) {
-					refs += TexUtils
-							.ref(TexUtils.getPlotLabel(pc.getFilename()))
+					refs += TexUtils.ref(TexUtils.getPlotLabel(seriesName,
+							pc.getFilename()))
 							+ ", "
-							+ TexUtils.ref(TexUtils.getPlotLabel(pc
-									.getFilename() + TexUtils.cdfSuffix));
+							+ TexUtils.ref(TexUtils.getPlotLabel(seriesName,
+									pc.getFilename() + TexUtils.cdfSuffix));
 					first = false;
 				} else {
 					refs += ", "
-							+ TexUtils.ref(TexUtils.getPlotLabel(pc
-									.getFilename()))
+							+ TexUtils.ref(TexUtils.getPlotLabel(seriesName,
+									pc.getFilename()))
 							+ ", "
-							+ TexUtils.ref(TexUtils.getPlotLabel(pc
-									.getFilename() + TexUtils.cdfSuffix));
+							+ TexUtils.ref(TexUtils.getPlotLabel(seriesName,
+									pc.getFilename() + TexUtils.cdfSuffix));
 				}
 			} else {
 				if (first) {
-					refs += TexUtils
-							.ref(TexUtils.getPlotLabel(pc.getFilename()));
+					refs += TexUtils.ref(TexUtils.getPlotLabel(seriesName,
+							pc.getFilename()));
 					;
 					first = false;
 				} else {
 					refs += ", "
-							+ TexUtils.ref(TexUtils.getPlotLabel(pc
-									.getFilename()));
+							+ TexUtils.ref(TexUtils.getPlotLabel(seriesName,
+									pc.getFilename()));
 					;
 				}
 			}
@@ -512,8 +524,8 @@ public class TexUtils {
 			AggregatedBatch[] batchData, TexConfig config,
 			PlottingConfig pconfig) throws IOException {
 		TexFile mFile = new TexFile(dstDir + TexUtils.chapterDirectory
-				+ Dir.delimiter, seriesName + TexUtils.texFilenameDelimiter
-				+ m.getName() + TexUtils.texSuffix);
+				+ Dir.delimiter, seriesName + Config.get("LATEX_DELIMITER")
+				+ m.getName() + Config.get("SUFFIX_TEX_FILE"));
 		mFile.writeCommentBlock(m.getName());
 		mFile.writeMetric(s, m, batchData, plotDir, config, pconfig);
 		mFile.close();
@@ -521,8 +533,9 @@ public class TexUtils {
 	}
 
 	/** Adds the Plots-Section containing all added plots in the ArrayList. **/
-	public static void addPlotsSubsection(TexFile file, String plotDir,
-			ArrayList<PlotConfig> addedPlots) throws IOException {
+	public static void addPlotsSubsection(TexFile file, String seriesName,
+			String plotDir, ArrayList<PlotConfig> addedPlots)
+			throws IOException {
 		// add plots subsection
 		file.writeLine(TexUtils.subsection(TexUtils.plots));
 		file.writeLine();
@@ -531,13 +544,13 @@ public class TexUtils {
 		for (PlotConfig pc : addedPlots) {
 			if (pc.getPlotAsCdf().equals("true")) {
 				file.includeFigure(plotDir, pc.getFilename()
-						+ TexUtils.cdfSuffix);
+						+ TexUtils.cdfSuffix, seriesName);
 			} else if (pc.getPlotAsCdf().equals("both")) {
-				file.includeFigure(plotDir, pc.getFilename());
+				file.includeFigure(plotDir, pc.getFilename(), seriesName);
 				file.includeFigure(plotDir, pc.getFilename()
-						+ TexUtils.cdfSuffix);
+						+ TexUtils.cdfSuffix, seriesName);
 			} else {
-				file.includeFigure(plotDir, pc.getFilename());
+				file.includeFigure(plotDir, pc.getFilename(), seriesName);
 			}
 		}
 	}
@@ -948,10 +961,12 @@ public class TexUtils {
 	/** Creates the default header file. **/
 	public static TexFile generateHeaderFile(String dstDir) throws IOException {
 		TexFile header = new TexFile(dstDir + TexUtils.chapterDirectory
-				+ Dir.delimiter, TexUtils.headerFilename + TexUtils.texSuffix);
+				+ Dir.delimiter, TexUtils.headerFilename
+				+ Config.get("SUFFIX_TEX_FILE"));
 
 		// auto gen
-		header.writeCommentBlock(TexUtils.headerFilename + TexUtils.texSuffix);
+		header.writeCommentBlock(TexUtils.headerFilename
+				+ Config.get("SUFFIX_TEX_FILE"));
 		header.writeCommentBlock("This is an auto-generated tex-file from DNA - dynammic network analyzer.");
 		header.writeLine();
 
