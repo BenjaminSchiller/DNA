@@ -304,12 +304,10 @@ public class TexUtils {
 					stats.writeLine();
 				}
 			}
-			
 
 			// add plots subsection
 			if (addedPlots.size() > 0)
-				TexUtils.addPlotsSubsection(stats, "", plotDir,
-						addedPlots);
+				TexUtils.addPlotsSubsection(stats, "", plotDir, addedPlots);
 
 			stats.writeLine();
 		}
