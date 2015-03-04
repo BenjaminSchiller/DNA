@@ -38,9 +38,8 @@ public class MultiValueTexTable extends TexTable {
 		this.parent.writeLine(line);
 		this.addHorizontalLine();
 
-		line = TexUtils.textBf("DataType =") + TexTable.tableDelimiter
-				+ TexUtils.textBf(this.dataType.toString());
-		for (int i = 2; i < headRow.length; i++) {
+		line = TexUtils.textBf(this.dataType.toString());
+		for (int i = 1; i < headRow.length; i++) {
 			line += TexTable.tableDelimiter;
 		}
 		line += TexUtils.newline + TexTable.hline;
