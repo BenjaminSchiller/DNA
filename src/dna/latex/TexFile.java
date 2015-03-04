@@ -472,9 +472,10 @@ public class TexFile {
 
 			this.writeLine(TexUtils.pagenumbering("roman"));
 			this.writeLine(TexUtils.setcounter("" + 0));
-			this.include(TexUtils.generateTitlepage(this.getDir()
-					+ TexUtils.chapterDirectory + Dir.delimiter,
-					TexUtils.titlePageFilename + Config.get("SUFFIX_TEX_FILE")));
+			this.include(TexUtils.generateTitlepage(
+					this.getDir() + Config.get("LATEX_CHAPTERS_DIR")
+							+ Dir.delimiter, TexUtils.titlePageFilename
+							+ Config.get("SUFFIX_TEX_FILE")));
 			this.writeLine(TexUtils.pagenumbering("arabic"));
 			this.writeLine();
 		} else {
@@ -484,8 +485,10 @@ public class TexFile {
 	}
 
 	public void include(TexFile chapter) throws IOException {
-		this.include(TexUtils.chapterDirectory + Dir.delimiter
-				+ chapter.getFilename().replaceAll(Config.get("SUFFIX_TEX_FILE"), ""));
+		this.include(Config.get("LATEX_CHAPTERS_DIR")
+				+ Dir.delimiter
+				+ chapter.getFilename().replaceAll(
+						Config.get("SUFFIX_TEX_FILE"), ""));
 	}
 
 	public void include(String chapter) throws IOException {
@@ -610,6 +613,115 @@ public class TexFile {
 			Log.warn("Attempt to close TexFile '" + this.getPath()
 					+ "' but its already closed!");
 		}
+	}
+
+	/**
+	 * Adds a combined chapter for the given series'.
+	 * 
+	 * @throws IOException
+	 **/
+	public void addSeriesChapter(SeriesData[] s, String dstDir, String plotDir,
+			String[][] batches, TexConfig config, PlottingConfig pconfig,
+			boolean zippedRuns, boolean zippedBatches) throws IOException {
+
+		// read single values
+		AggregatedBatch[][] batchData = new AggregatedBatch[s.length][];
+		AggregatedBatch[] initBatches = new AggregatedBatch[s.length];
+
+		for (int i = 0; i < s.length; i++) {
+
+			String tempDir = Dir.getAggregationDataDir(s[i].getDir());
+			if (zippedRuns)
+				tempDir = Dir.delimiter;
+
+			batchData[i] = new AggregatedBatch[batches[i].length];
+
+			for (int j = 0; j < batches[i].length; j++) {
+				long timestamp = Dir.getTimestamp(batches[i][j]);
+				if (zippedRuns)
+					ZipReader.readFileSystem = ZipWriter
+							.createAggregationFileSystem(s[i].getDir());
+				if (zippedBatches)
+					batchData[i][j] = AggregatedBatch.readFromSingleFile(
+							tempDir, timestamp, Dir.delimiter,
+							BatchReadMode.readOnlySingleValues);
+				else
+					batchData[i][j] = AggregatedBatch.read(
+							Dir.getBatchDataDir(tempDir, timestamp), timestamp,
+							BatchReadMode.readOnlySingleValues);
+				if (zippedRuns) {
+					ZipReader.readFileSystem.close();
+					ZipReader.readFileSystem = null;
+				}
+			}
+
+			// set init batches
+			initBatches[i] = batchData[i][0];
+		}
+
+		// start with content
+		this.writeCommentBlock("combined series chapter");
+
+		String buff = s[0].getName();
+		for (int i = 1; i < s.length; i++)
+			buff += ", " + s[i].getName();
+
+		this.writeLine(TexUtils.chapter("Series "
+				+ buff.replace("_", "\\textunderscore ")));
+
+		for (int i = 0; i < s.length; i++) {
+			this.writeLine("The series "
+					+ s[i].getName().replace("_", "\\textunderscore ")
+					+ " is located in "
+					+ dstDir.replace("_", "\\textunderscore ")
+					+ ". It contains "
+					+ s[i].getAggregation().getBatches().length + " batches."
+					+ TexUtils.newline);
+		}
+
+		// add data chapters
+		this.writeLine();
+		this.writeCommentLine(buff + " - chapters");
+
+		String[] seriesNames = new String[s.length];
+		for (int i = 0; i < s.length; i++) {
+			seriesNames[i] = s[i].getName();
+		}
+		// write statistics
+		if (config.isIncludeStatistics())
+			this.include(TexUtils.generateStatisticsChapter(seriesNames,
+					dstDir, plotDir, initBatches, batchData, config, pconfig));
+		// // write statistics
+		// if (config.isIncludeStatistics())
+		// this.include(TexUtils.generateStatisticsChapter(sName, dstDir,
+		// plotDir, initBatch, batchData, config, pconfig));
+		//
+		// if (config.isIncludeRuntimes()) {
+		// // write general runtimes
+		// this.include(TexUtils.generateGeneralRuntimesChapter(sName, dstDir,
+		// plotDir, initBatch, batchData, config, pconfig));
+		//
+		// // write metric runtimes
+		// this.include(TexUtils.generateMetricRuntimesChapter(sName, dstDir,
+		// plotDir, initBatch, batchData, config, pconfig));
+		// }
+		//
+		// // write metrics
+		// if (config.isIncludeMetrics()) {
+		// for (AggregatedMetric m : initBatch.getMetrics().getList()) {
+		// if ((config.isIncludeDistributions() && m.getDistributions()
+		// .size() > 0)
+		// || (config.isIncludeMetricValues() && m.getValues()
+		// .size() > 0)
+		// || (config.isIncludeNodeValueLists() && m
+		// .getNodeValues().size() > 0)) {
+		// this.include(TexUtils.generateMetricChapter(sName, dstDir,
+		// plotDir, s, m, batchData, config, pconfig));
+		// }
+		// }
+		// }
+		//
+		// this.writeLine();
 	}
 
 	/** Adds the given series to the file. **/
