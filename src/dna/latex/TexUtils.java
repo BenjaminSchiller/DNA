@@ -213,7 +213,6 @@ public class TexUtils {
 		// added plots
 		ArrayList<PlotConfig> addedPlots = new ArrayList<PlotConfig>();
 
-		// check values
 		// list values
 		ArrayList<String> values = new ArrayList<String>();
 		for (AggregatedBatch initBatch : initBatches) {
@@ -405,6 +404,124 @@ public class TexUtils {
 		return stats;
 	}
 
+	/** Creates a combined general runtimes chapter. **/
+	public static TexFile generateGeneralRuntimesChapter(String[] seriesNames,
+			String dstDir, String plotDir, AggregatedBatch[] initBatches,
+			AggregatedBatch[][] batchData, TexConfig config,
+			PlottingConfig pconfig) throws IOException {
+		// write general runtimes
+		TexFile genR = new TexFile(dstDir + Config.get("LATEX_CHAPTERS_DIR")
+				+ Dir.delimiter, TexUtils.generalRuntimesFilename
+				+ Config.get("SUFFIX_TEX_FILE"));
+
+		// added plots
+		ArrayList<PlotConfig> addedPlots = new ArrayList<PlotConfig>();
+
+		// list values
+		ArrayList<String> values = new ArrayList<String>();
+		for (AggregatedBatch initBatch : initBatches) {
+			for (String v : initBatch.getGeneralRuntimes().getNames()) {
+				if (!values.contains(v))
+					values.add(v);
+			}
+		}
+
+		// if no values, do nothing
+		// if no values, do nothing
+		if (values.size() > 0) {
+			genR.writeCommentBlock(TexUtils.generalRuntimes);
+			genR.writeLine(TexUtils.section(TexUtils.generalRuntimes));
+			genR.writeLine();
+
+			// for each value
+			for (String v : values) {
+				// add subsection
+				genR.writeLine(TexUtils.subsection(v));
+				genR.writeLine(v.replace("_", "\\textunderscore ")
+						+ " is a general runtime.");
+				genR.writeLine();
+
+				// gather fitting plots
+				ArrayList<PlotConfig> fits = TexUtils.getCustomRuntimePlotFits(
+						v, pconfig.getCustomRuntimePlots());
+
+				// add ref line
+				if (fits.size() > 0) {
+					String refs = TexUtils.getReferenceString(fits, "");
+					genR.writeLine(refs);
+					genR.writeLine();
+
+					// add plots that contain the value
+					for (PlotConfig pc : fits) {
+						if (!addedPlots.contains(pc)) {
+							addedPlots.add(pc);
+						}
+					}
+				}
+
+				// values
+				genR.writeCommentBlock("value table of " + v);
+
+				// select description
+				String[] tableDescrArray = TexUtils
+						.selectDescription(seriesNames);
+
+				// one table for each flag
+				for (TableFlag tf : config.getTableFlags()) {
+
+					// init table
+					MultiValueTexTable table = new MultiValueTexTable(genR,
+							tableDescrArray, config.getDateFormat(),
+							config.getScaling(), config.getMapping(), tf);
+
+					// check which series has the most batches
+					int max = 0;
+					for (int i = 1; i < batchData.length; i++) {
+						if (batchData[i].length > batchData[max].length)
+							max = i;
+					}
+
+					// add values
+					for (int i = 0; i < batchData[max].length; i++) {
+						long timestamp = batchData[max][i].getTimestamp();
+
+						AggregatedValue[] avs = new AggregatedValue[batchData.length];
+
+						for (int j = 0; j < batchData.length; j++) {
+							if (batchData[j].length > i) {
+								AggregatedBatch b = batchData[j][i];
+								if (b.getGeneralRuntimes().getNames()
+										.contains(v))
+									avs[j] = b.getGeneralRuntimes().get(v);
+								else
+									avs[j] = new AggregatedValue(v,
+											new double[] { 0.0, 0.0, 0.0, 0.0,
+													0.0, 0.0, 0.0, 0.0, 0.0 });
+							}
+						}
+
+						table.addDataRow(avs, timestamp);
+					}
+
+					// close table
+					table.close();
+					genR.writeLine();
+				}
+			}
+
+			// add plots subsection
+			if (addedPlots.size() > 0)
+				TexUtils.addPlotsSubsection(genR, "", plotDir, addedPlots);
+
+			genR.writeLine();
+		}
+
+		// close and return
+		genR.close();
+		return genR;
+	}
+
+	/** Creates a general runtimes chapter. **/
 	public static TexFile generateGeneralRuntimesChapter(String seriesName,
 			String dstDir, String plotDir, AggregatedBatch initBatch,
 			AggregatedBatch[] batchData, TexConfig config,
@@ -494,6 +611,122 @@ public class TexUtils {
 		return genR;
 	}
 
+	/** Creates a combined metric runtimes chapter. **/
+	public static TexFile generateMetricRuntimesChapter(String[] seriesNames,
+			String dstDir, String plotDir, AggregatedBatch[] initBatches,
+			AggregatedBatch[][] batchData, TexConfig config,
+			PlottingConfig pconfig) throws IOException {
+		// write statistics
+		TexFile metR = new TexFile(dstDir + Config.get("LATEX_CHAPTERS_DIR")
+				+ Dir.delimiter, TexUtils.metricRuntimesFilename
+				+ Config.get("SUFFIX_TEX_FILE"));
+
+		// added plots
+		ArrayList<PlotConfig> addedPlots = new ArrayList<PlotConfig>();
+
+		// list values
+		ArrayList<String> values = new ArrayList<String>();
+		for (AggregatedBatch initBatch : initBatches) {
+			for (String v : initBatch.getMetricRuntimes().getNames()) {
+				if (!values.contains(v))
+					values.add(v);
+			}
+		}
+
+		// if no values, do nothing
+		// if no values, do nothing
+		if (values.size() > 0) {
+			metR.writeCommentBlock(TexUtils.metricRuntimes);
+			metR.writeLine(TexUtils.section(TexUtils.metricRuntimes));
+			metR.writeLine();
+
+			// for each value
+			for (String v : values) {
+				// add subsection
+				metR.writeLine(TexUtils.subsection(v));
+				metR.writeLine(v.replace("_", "\\textunderscore ")
+						+ " is a metric runtime.");
+				metR.writeLine();
+
+				// gather fitting plots
+				ArrayList<PlotConfig> fits = TexUtils.getCustomRuntimePlotFits(
+						v, pconfig.getCustomRuntimePlots());
+
+				// add ref line
+				if (fits.size() > 0) {
+					String refs = TexUtils.getReferenceString(fits, "");
+					metR.writeLine(refs);
+					metR.writeLine();
+
+					// add plots that contain the value
+					for (PlotConfig pc : fits) {
+						if (!addedPlots.contains(pc)) {
+							addedPlots.add(pc);
+						}
+					}
+				}
+
+				// values
+				metR.writeCommentBlock("value table of " + v);
+
+				// select description
+				String[] tableDescrArray = TexUtils
+						.selectDescription(seriesNames);
+
+				// one table for each flag
+				for (TableFlag tf : config.getTableFlags()) {
+
+					// init table
+					MultiValueTexTable table = new MultiValueTexTable(metR,
+							tableDescrArray, config.getDateFormat(),
+							config.getScaling(), config.getMapping(), tf);
+
+					// check which series has the most batches
+					int max = 0;
+					for (int i = 1; i < batchData.length; i++) {
+						if (batchData[i].length > batchData[max].length)
+							max = i;
+					}
+
+					// add values
+					for (int i = 0; i < batchData[max].length; i++) {
+						long timestamp = batchData[max][i].getTimestamp();
+
+						AggregatedValue[] avs = new AggregatedValue[batchData.length];
+
+						for (int j = 0; j < batchData.length; j++) {
+							if (batchData[j].length > i) {
+								AggregatedBatch b = batchData[j][i];
+								if (b.getMetricRuntimes().getNames()
+										.contains(v))
+									avs[j] = b.getMetricRuntimes().get(v);
+								else
+									avs[j] = null;
+							}
+						}
+
+						table.addDataRow(avs, timestamp);
+					}
+
+					// close table
+					table.close();
+					metR.writeLine();
+				}
+			}
+
+			// add plots subsection
+			if (addedPlots.size() > 0)
+				TexUtils.addPlotsSubsection(metR, "", plotDir, addedPlots);
+
+			metR.writeLine();
+		}
+
+		// close and return
+		metR.close();
+		return metR;
+	}
+
+	/** Creates a metric runtimes chapter. **/
 	public static TexFile generateMetricRuntimesChapter(String seriesName,
 			String dstDir, String plotDir, AggregatedBatch initBatch,
 			AggregatedBatch[] batchData, TexConfig config,

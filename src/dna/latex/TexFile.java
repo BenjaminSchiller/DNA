@@ -687,10 +687,23 @@ public class TexFile {
 		for (int i = 0; i < s.length; i++) {
 			seriesNames[i] = s[i].getName();
 		}
+		
 		// write statistics
 		if (config.isIncludeStatistics())
 			this.include(TexUtils.generateStatisticsChapter(seriesNames,
 					dstDir, plotDir, initBatches, batchData, config, pconfig));
+		
+		// write runtimes
+		if (config.isIncludeRuntimes()) {
+			// write general runtimes
+			this.include(TexUtils.generateGeneralRuntimesChapter(seriesNames, dstDir,
+					plotDir, initBatches, batchData, config, pconfig));
+
+			// write metric runtimes
+			this.include(TexUtils.generateMetricRuntimesChapter(seriesNames, dstDir,
+					plotDir, initBatches, batchData, config, pconfig));
+		}
+		
 		// // write statistics
 		// if (config.isIncludeStatistics())
 		// this.include(TexUtils.generateStatisticsChapter(sName, dstDir,
@@ -775,6 +788,7 @@ public class TexFile {
 			this.include(TexUtils.generateStatisticsChapter(sName, dstDir,
 					plotDir, initBatch, batchData, config, pconfig));
 
+		// write runtimes
 		if (config.isIncludeRuntimes()) {
 			// write general runtimes
 			this.include(TexUtils.generateGeneralRuntimesChapter(sName, dstDir,
