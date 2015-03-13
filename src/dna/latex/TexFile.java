@@ -351,6 +351,7 @@ public class TexFile {
 		String[] tableDescrArray = TexUtils.selectDescription(seriesNames);
 		tableDescrArray[0] = "x";
 
+		// add one table for each flag
 		for (TableFlag tf : config.getTableFlags()) {
 			// check which series has the most batches
 			int max = 0;
@@ -388,7 +389,6 @@ public class TexFile {
 					zippedRuns = true;
 
 				// get dist values, if metric or dist not present, insert null
-
 				AggregatedBatch[] batches = new AggregatedBatch[batchData.length];
 
 				// read batches
