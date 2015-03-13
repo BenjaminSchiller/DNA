@@ -107,8 +107,8 @@ public class TexFile {
 			if (m.getNodeValues().size() > 0) {
 				this.writeLine(TexUtils.subsection("NodeValueLists"));
 				for (AggregatedNodeValueList n : m.getNodeValues().getList()) {
-					// this.writeNodeValueList(n, m, s, batchData, addedPlots,
-					// config, pconfig);
+					this.writeNodeValueList(n, m, s, batchData, seriesNames,
+							addedPlots, config, pconfig);
 				}
 				this.writeLine();
 			}
@@ -583,6 +583,157 @@ public class TexFile {
 		}
 	}
 
+	/** Writes a combined nodevaluelist subsubsection to the Texfile. **/
+	private void writeNodeValueList(AggregatedNodeValueList n,
+			AggregatedMetric m, SeriesData[] s, AggregatedBatch[][] batchData,
+			String[] seriesNames, ArrayList<PlotConfig> addedPlots,
+			TexConfig config, PlottingConfig pconfig) throws IOException {
+		this.writeLine(TexUtils.subsubsection(n.getName()));
+		this.writeLine(n.getName().replace("_", "\\textunderscore ")
+				+ " is a distribution.");
+		this.writeLine();
+
+		// gather fitting plots
+		ArrayList<PlotConfig> fits = TexUtils.getCustomNodeValueListPlotFits(
+				m.getName(), n.getName(), pconfig.getCustomMetricValuePlots());
+		TexUtils.addDefaultNodeValueListPlotFits(fits, m.getName(), n.getName());
+
+		// add ref line
+		if (fits.size() > 0) {
+			String refs = TexUtils.getReferenceString(fits, "");
+			this.writeLine(refs);
+			this.writeLine();
+
+			// add plots that contain the value
+			for (PlotConfig pc : fits) {
+				if (!addedPlots.contains(pc)) {
+					addedPlots.add(pc);
+				}
+			}
+		}
+
+		// values
+		this.writeCommentBlock("value table of " + n.getName());
+
+		// select description
+		String[] tableDescrArray = TexUtils.selectDescription(seriesNames);
+		tableDescrArray[0] = "Node";
+
+		// add one table for each flag
+		for (TableFlag tf : config.getTableFlags()) {
+			// check which series has the most batches
+			int max = 0;
+			for (int i = 1; i < batchData.length; i++) {
+				if (batchData[i].length > batchData[max].length)
+					max = i;
+			}
+
+			// add values
+			for (int i = 0; i < batchData[max].length; i++) {
+				// map & scale timestamp
+				long timestamp = batchData[max][i].getTimestamp();
+
+				// if mapping, map
+				if (config.getMapping() != null) {
+					if (config.getMapping().containsKey(timestamp))
+						timestamp = config.getMapping().get(timestamp);
+				}
+
+				// if scaling, scale
+				if (config.getScaling() != null)
+					timestamp = TexTable.scaleTimestamp(timestamp,
+							config.getScaling());
+
+				// init table
+				MultiMultiScalarTexTable table = new MultiMultiScalarTexTable(
+						this, tableDescrArray, timestamp,
+						config.getDateFormat(), tf);
+
+				boolean zippedBatches = false;
+				boolean zippedRuns = false;
+				if (Config.get("GENERATION_AS_ZIP").equals("batches"))
+					zippedBatches = true;
+				if (Config.get("GENERATION_AS_ZIP").equals("runs"))
+					zippedRuns = true;
+
+				// get nvl values, if metric or nvl not present, insert null
+				AggregatedBatch[] batches = new AggregatedBatch[batchData.length];
+
+				// read batches
+				for (int j = 0; j < batchData.length; j++) {
+					if (batchData[j].length > i) {
+						String readDir = Dir.getAggregationBatchDir(
+								s[j].getDir(), timestamp);
+						if (zippedRuns) {
+							ZipReader.readFileSystem = ZipWriter
+									.createAggregationFileSystem(s[j].getDir());
+							readDir = Dir.getBatchDataDir(Dir.delimiter,
+									timestamp);
+						}
+						if (zippedBatches)
+							batches[j] = AggregatedBatch.readFromSingleFile(
+									Dir.getAggregationDataDir(s[j].getDir()),
+									timestamp, Dir.delimiter,
+									BatchReadMode.readOnlyDistAndNvl);
+						else {
+							batches[j] = AggregatedBatch
+									.read(readDir, timestamp,
+											BatchReadMode.readOnlyDistAndNvl);
+						}
+
+						if (zippedRuns) {
+							ZipReader.readFileSystem.close();
+							ZipReader.readFileSystem = null;
+						}
+					}
+				}
+
+				// figure out 'longest' nvl
+				int longestNvl = 0;
+				for (int j = 0; j < batches.length; j++) {
+					if (batches[j].getMetrics().getNames()
+							.contains(m.getName())) {
+						AggregatedMetric m1 = batches[j].getMetrics().get(
+								m.getName());
+						if (m1.getNodeValues().getNames().contains(n.getName())) {
+							AggregatedNodeValueList n1 = m1.getNodeValues()
+									.get(n.getName());
+
+							if (n1.getValues().length > longestNvl) {
+								longestNvl = n1.getValues().length;
+							}
+						}
+					}
+				}
+
+				// iterate over longest nvl
+				for (int j = 0; j < longestNvl; j++) {
+					AggregatedValue[] avs = new AggregatedValue[batchData.length];
+
+					// iterate over series
+					for (int k = 0; k < batchData.length; k++) {
+						// if batch doesnt contain metric or nvl, add nothing
+						if (batches[k].getMetrics().get(m.getName()) != null) {
+							AggregatedNodeValueList n1 = batches[k]
+									.getMetrics().get(m.getName())
+									.getNodeValues().get(n.getName());
+
+							if (n1.getValues() != null
+									&& n1.getValues().length > j) {
+								avs[k] = n1.getValues()[j];
+							}
+						}
+					}
+
+					table.addDataRow(avs, 1, j);
+				}
+
+				table.close();
+				this.writeLine();
+			}
+		}
+	}
+
 	/** Writes a nodevaluelist to the TexFile. **/
 	private void writeNodeValueList(AggregatedNodeValueList n,
 			AggregatedMetric m, SeriesData s, AggregatedBatch[] batchData,
@@ -672,13 +823,6 @@ public class TexFile {
 				ZipReader.readFileSystem.close();
 				ZipReader.readFileSystem = null;
 			}
-
-			// read batch
-
-			// String readDir = Dir.getAggregationBatchDir(s.getDir(),
-			// timestamp);
-			// AggregatedBatch tempBatch = AggregatedBatch.read(readDir,
-			// timestamp, BatchReadMode.readOnlyDistAndNvl);
 
 			// add lines
 			if (!b.getMetrics().getNames().contains(m.getName())
