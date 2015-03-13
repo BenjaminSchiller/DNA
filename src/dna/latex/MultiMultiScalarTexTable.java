@@ -40,9 +40,8 @@ public class MultiMultiScalarTexTable extends TexTable {
 		this.addHorizontalLine();
 
 		// write datatype row
-		line = TexUtils.textBf("DataType =") + TexTable.tableDelimiter
-				+ TexUtils.textBf(this.dataType.toString());
-		for (int i = 2; i < headRow.length; i++) {
+		line = TexUtils.textBf(this.dataType.toString());
+		for (int i = 1; i < headRow.length; i++) {
 			line += TexTable.tableDelimiter;
 		}
 		line += TexUtils.newline + TexTable.hline;
@@ -133,45 +132,48 @@ public class MultiMultiScalarTexTable extends TexTable {
 	}
 
 	/** Adds a new row with the values. **/
-	public void addDataRow(AggregatedValue[] values, int index)
+	public void addDataRow(AggregatedValue[] values, int offset, int index)
 			throws IOException {
 		double[] tempValues = new double[values.length];
 		for (int i = 0; i < values.length; i++) {
-			switch (this.dataType) {
-			case Average:
-				tempValues[i] = values[i].getAvg();
-				break;
-			case ConfLow:
-				tempValues[i] = values[i].getConfidenceLow();
-				break;
-			case ConfUp:
-				tempValues[i] = values[i].getConfidenceUp();
-				break;
-			case Max:
-				tempValues[i] = values[i].getMax();
-				break;
-			case Median:
-				tempValues[i] = values[i].getMedian();
-				break;
-			case Min:
-				tempValues[i] = values[i].getMin();
-				break;
-			case Var:
-				tempValues[i] = values[i].getVariance();
-				break;
-			case VarLow:
-				tempValues[i] = values[i].getVarianceLow();
-				break;
-			case VarUp:
-				tempValues[i] = values[i].getVarianceUp();
-				break;
-			case all:
-				Log.warn("MultiValueTexTable: wrong flag! Adding 0.0");
+			if (values[i] == null) {
 				tempValues[i] = 0.0;
-				break;
+			} else {
+				switch (this.dataType) {
+				case Average:
+					tempValues[i] = values[i].getValues()[0 + offset];
+					break;
+				case ConfLow:
+					tempValues[i] = values[i].getValues()[7 + offset];
+					break;
+				case ConfUp:
+					tempValues[i] = values[i].getValues()[8 + offset];
+					break;
+				case Max:
+					tempValues[i] = values[i].getValues()[2 + offset];
+					break;
+				case Median:
+					tempValues[i] = values[i].getValues()[3 + offset];
+					break;
+				case Min:
+					tempValues[i] = values[i].getValues()[1 + offset];
+					break;
+				case Var:
+					tempValues[i] = values[i].getValues()[4 + offset];
+					break;
+				case VarLow:
+					tempValues[i] = values[i].getValues()[5 + offset];
+					break;
+				case VarUp:
+					tempValues[i] = values[i].getValues()[6 + offset];
+					break;
+				case all:
+					Log.warn("MultiValueTexTable: wrong flag! Adding 0.0");
+					tempValues[i] = 0.0;
+					break;
+				}
 			}
 		}
-
 		this.addRow(tempValues, index);
 	}
 
