@@ -422,7 +422,7 @@ public class TexFile {
 
 				// figure out 'longest' dist
 				int longestDist = 0;
-				for (int j = 1; j < batches.length; j++) {
+				for (int j = 0; j < batches.length; j++) {
 					if (batches[j].getMetrics().getNames()
 							.contains(m.getName())) {
 						AggregatedMetric m1 = batches[j].getMetrics().get(
@@ -431,6 +431,21 @@ public class TexFile {
 								.contains(d.getName())) {
 							AggregatedDistribution d1 = m1.getDistributions()
 									.get(d.getName());
+							//
+							// if(batches[longestDist].getMetrics().getNames().contains(m.getName())
+							// ) {
+							// AggregatedMetric m2 =
+							// batches[longestDist].getMetrics().get(m.getName());
+							// if(m2.getDistributions().getNames().contains(d.getName()))
+							// {
+							// AggregatedDistribution d2 =
+							// m2.getDistributions().get(d.getName());
+							//
+							// if(d1.getValues().length > d2.getValues().length)
+							// longestDist = longestDist;
+							// }
+							// }
+
 							if (d1.getValues().length > longestDist) {
 								longestDist = d1.getValues().length;
 							}
@@ -438,17 +453,22 @@ public class TexFile {
 					}
 				}
 
+				// iterate over longest dist
 				for (int j = 0; j < longestDist; j++) {
 					AggregatedValue[] avs = new AggregatedValue[batchData.length];
-					for (int k = 0; k < batchData.length; k++) {
-						AggregatedDistribution d1 = batches[k].getMetrics()
-								.get(m.getName()).getDistributions()
-								.get(d.getName());
 
-						if (d1.getValues() != null && d1.getValues().length > j) {
-							avs[k] = d1.getValues()[j];
-						} else {
-							System.out.println("timestamp: " + timestamp + "  series: " + k + "   distribution: " + d.getName() + "   data = null!");
+					// iterate over series
+					for (int k = 0; k < batchData.length; k++) {
+						// if batch doesnt contain metric or dist, add nothing
+						if (batches[k].getMetrics().get(m.getName()) != null) {
+							AggregatedDistribution d1 = batches[k].getMetrics()
+									.get(m.getName()).getDistributions()
+									.get(d.getName());
+
+							if (d1.getValues() != null
+									&& d1.getValues().length > j) {
+								avs[k] = d1.getValues()[j];
+							}
 						}
 					}
 
