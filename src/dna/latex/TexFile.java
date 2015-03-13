@@ -431,20 +431,6 @@ public class TexFile {
 								.contains(d.getName())) {
 							AggregatedDistribution d1 = m1.getDistributions()
 									.get(d.getName());
-							//
-							// if(batches[longestDist].getMetrics().getNames().contains(m.getName())
-							// ) {
-							// AggregatedMetric m2 =
-							// batches[longestDist].getMetrics().get(m.getName());
-							// if(m2.getDistributions().getNames().contains(d.getName()))
-							// {
-							// AggregatedDistribution d2 =
-							// m2.getDistributions().get(d.getName());
-							//
-							// if(d1.getValues().length > d2.getValues().length)
-							// longestDist = longestDist;
-							// }
-							// }
 
 							if (d1.getValues().length > longestDist) {
 								longestDist = d1.getValues().length;
