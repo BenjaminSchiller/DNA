@@ -95,8 +95,8 @@ public class TexFile {
 			if (m.getDistributions().size() > 0) {
 				this.writeLine(TexUtils.subsection("Distributions"));
 				for (AggregatedDistribution d : m.getDistributions().getList()) {
-//					this.writeDistribution(d, m, s, batchData, seriesNames,
-//							addedPlots, config, pconfig);
+					this.writeDistribution(d, m, s, batchData, seriesNames,
+							addedPlots, config, pconfig);
 				}
 				this.writeLine();
 			}
@@ -170,7 +170,7 @@ public class TexFile {
 			TexUtils.addPlotsSubsection(this, s.getName(), plotDir, addedPlots);
 	}
 
-	/** Writes a combined value subsubsection to the TexFile. **/
+	/** Writes a combined metric value subsubsection to the TexFile. **/
 	private void writeMetricValue(AggregatedValue v, AggregatedMetric m,
 			AggregatedBatch[][] batchData, String[] seriesNames,
 			ArrayList<PlotConfig> addedPlots, TexConfig config,
@@ -314,11 +314,151 @@ public class TexFile {
 		this.writeLine();
 	}
 
+	/** Writes a combined distribution subsubsection to the Texfile. **/
 	private void writeDistribution(AggregatedDistribution d,
 			AggregatedMetric m, SeriesData[] s, AggregatedBatch[][] batchData,
 			String[] seriesNames, ArrayList<PlotConfig> addedPlots,
 			TexConfig config, PlottingConfig pconfig) throws IOException {
+		this.writeLine(TexUtils.subsubsection(d.getName()));
+		this.writeLine(d.getName().replace("_", "\\textunderscore ")
+				+ " is a distribution.");
+		this.writeLine();
 
+		// gather fitting plots
+		ArrayList<PlotConfig> fits = TexUtils.getCustomDistributionPlotFits(
+				m.getName(), d.getName(), pconfig.getCustomMetricValuePlots());
+		TexUtils.addDefaultDistributionPlotFits(fits, m.getName(), d.getName(),
+				pconfig.getDistPlotType());
+
+		// add ref line
+		if (fits.size() > 0) {
+			String refs = TexUtils.getReferenceString(fits, "");
+			this.writeLine(refs);
+			this.writeLine();
+
+			// add plots that contain the value
+			for (PlotConfig pc : fits) {
+				if (!addedPlots.contains(pc)) {
+					addedPlots.add(pc);
+				}
+			}
+		}
+
+		// values
+		this.writeCommentBlock("value table of " + d.getName());
+
+		// select description
+		String[] tableDescrArray = TexUtils.selectDescription(seriesNames);
+		tableDescrArray[0] = "x";
+
+		for (TableFlag tf : config.getTableFlags()) {
+			// check which series has the most batches
+			int max = 0;
+			for (int i = 1; i < batchData.length; i++) {
+				if (batchData[i].length > batchData[max].length)
+					max = i;
+			}
+
+			// add values
+			for (int i = 0; i < batchData[max].length; i++) {
+				// map & scale timestamp
+				long timestamp = batchData[max][i].getTimestamp();
+
+				// if mapping, map
+				if (config.getMapping() != null) {
+					if (config.getMapping().containsKey(timestamp))
+						timestamp = config.getMapping().get(timestamp);
+				}
+
+				// if scaling, scale
+				if (config.getScaling() != null)
+					timestamp = TexTable.scaleTimestamp(timestamp,
+							config.getScaling());
+
+				// init table
+				MultiMultiScalarTexTable table = new MultiMultiScalarTexTable(
+						this, tableDescrArray, timestamp,
+						config.getDateFormat(), tf);
+
+				boolean zippedBatches = false;
+				boolean zippedRuns = false;
+				if (Config.get("GENERATION_AS_ZIP").equals("batches"))
+					zippedBatches = true;
+				if (Config.get("GENERATION_AS_ZIP").equals("runs"))
+					zippedRuns = true;
+
+				// get dist values, if metric or dist not present, insert null
+
+				AggregatedBatch[] batches = new AggregatedBatch[batchData.length];
+
+				// read batches
+				for (int j = 0; j < batchData.length; j++) {
+					if (batchData[j].length > i) {
+						String readDir = Dir.getAggregationBatchDir(
+								s[j].getDir(), timestamp);
+						if (zippedRuns) {
+							ZipReader.readFileSystem = ZipWriter
+									.createAggregationFileSystem(s[j].getDir());
+							readDir = Dir.getBatchDataDir(Dir.delimiter,
+									timestamp);
+						}
+						if (zippedBatches)
+							batches[j] = AggregatedBatch.readFromSingleFile(
+									Dir.getAggregationDataDir(s[j].getDir()),
+									timestamp, Dir.delimiter,
+									BatchReadMode.readOnlyDistAndNvl);
+						else {
+							batches[j] = AggregatedBatch
+									.read(readDir, timestamp,
+											BatchReadMode.readOnlyDistAndNvl);
+						}
+
+						if (zippedRuns) {
+							ZipReader.readFileSystem.close();
+							ZipReader.readFileSystem = null;
+						}
+					}
+				}
+
+				// figure out 'longest' dist
+				int longestDist = 0;
+				for (int j = 1; j < batches.length; j++) {
+					if (batches[j].getMetrics().getNames()
+							.contains(m.getName())) {
+						AggregatedMetric m1 = batches[j].getMetrics().get(
+								m.getName());
+						if (m1.getDistributions().getNames()
+								.contains(d.getName())) {
+							AggregatedDistribution d1 = m1.getDistributions()
+									.get(d.getName());
+							if (d1.getValues().length > longestDist) {
+								longestDist = d1.getValues().length;
+							}
+						}
+					}
+				}
+
+				for (int j = 0; j < longestDist; j++) {
+					AggregatedValue[] avs = new AggregatedValue[batchData.length];
+					for (int k = 0; k < batchData.length; k++) {
+						AggregatedDistribution d1 = batches[k].getMetrics()
+								.get(m.getName()).getDistributions()
+								.get(d.getName());
+
+						if (d1.getValues() != null && d1.getValues().length > j) {
+							avs[k] = d1.getValues()[j];
+						} else {
+							System.out.println("timestamp: " + timestamp + "  series: " + k + "   distribution: " + d.getName() + "   data = null!");
+						}
+					}
+
+					table.addDataRow(avs, 1, j);
+				}
+
+				table.close();
+				this.writeLine();
+			}
+		}
 	}
 
 	/** Writes a distribution to the TexFile. **/
