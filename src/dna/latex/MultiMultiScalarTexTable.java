@@ -51,7 +51,7 @@ public class MultiMultiScalarTexTable extends TexTable {
 		for (int i = 1; i < headRow.length; i++) {
 			line += TexTable.tableDelimiter;
 		}
-		line += this.tableCounter;
+		line += "\\# " + this.tableCounter;
 		this.tableCounter++;
 		line += TexUtils.newline + TexTable.hline;
 		this.writeLine(line);
@@ -111,7 +111,7 @@ public class MultiMultiScalarTexTable extends TexTable {
 			this.horizontalTableCounter++;
 
 			// align multiple tables with each other
-			if (this.horizontalTableCounter * this.columns >= Config
+			if ((this.horizontalTableCounter + 1) * this.columns >= Config
 					.getInt("LATEX_TABLE_MAX_COLUMNS")) {
 				this.parent.writeLine();
 				this.horizontalTableCounter = 0;

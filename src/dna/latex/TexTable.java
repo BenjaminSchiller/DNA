@@ -77,7 +77,7 @@ public class TexTable {
 				line += "|";
 		}
 		line += "}";
-		this.writeLine(line);
+		this.parent.writeLine(line);
 		this.addHorizontalLine();
 
 		for (String s : headRow) {
@@ -94,9 +94,32 @@ public class TexTable {
 		this.writeLine(line);
 	}
 
+	/** Writes a line. **/
 	protected void writeLine(String line) throws IOException {
-		this.lineCounter++;
-		this.parent.writeLine(line);
+		// only write line if max lines is not exceeded
+		if (this.lineCounter < Config.getInt("LATEX_TABLE_MAX_LINES")) {
+			this.lineCounter++;
+			this.parent.writeLine(line);
+		} else {
+			// to many lines, start new table
+			this.close();
+			this.horizontalTableCounter++;
+
+			// align multiple tables with each other
+			if ((this.horizontalTableCounter + 1) * this.columns > Config
+					.getInt("LATEX_TABLE_MAX_COLUMNS")) {
+				this.parent.writeLine();
+				this.horizontalTableCounter = 0;
+			}
+
+			// reset counter
+			this.lineCounter = 0;
+
+			// begin new table
+			this.begin(this.headRow);
+			this.writeLine(line);
+		}
+
 	}
 
 	protected void addHorizontalLine() throws IOException {
