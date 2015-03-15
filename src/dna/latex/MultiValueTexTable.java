@@ -45,8 +45,10 @@ public class MultiValueTexTable extends TexTable {
 		for (int i = 1; i < headRow.length; i++) {
 			line += TexTable.tableDelimiter;
 		}
+		line += this.tableCounter;
+		this.tableCounter++;
 		line += TexUtils.newline + TexTable.hline;
-		this.parent.writeLine(line);
+		this.writeLine(line);
 
 		for (String s : headRow) {
 			line = "\t";
@@ -59,8 +61,8 @@ public class MultiValueTexTable extends TexTable {
 							+ TexTable.tableDelimiter;
 			}
 		}
-		this.parent.writeLine(line);
-		this.parent.writeLine(TexTable.hline);
+		this.writeLine(line);
+		this.addHorizontalLine();
 	}
 
 	/** Adds a data row to the table. Null values will be added as '-'. **/
@@ -140,6 +142,32 @@ public class MultiValueTexTable extends TexTable {
 			else
 				buff += value + TexTable.tableDelimiter;
 		}
-		this.parent.writeLine(buff);
+		this.writeLine(buff);
+	}
+
+	protected void writeLine(String line) throws IOException {
+		// only write line if max lines is not exceeded
+		if (this.lineCounter < Config.getInt("LATEX_TABLE_MAX_LINES")) {
+			this.lineCounter++;
+			this.parent.writeLine(line);
+		} else {
+			// to many lines, start new table
+			this.close();
+			this.horizontalTableCounter++;
+
+			// align multiple tables with each other
+			if (this.horizontalTableCounter * this.columns >= Config
+					.getInt("LATEX_TABLE_MAX_COLUMNS")) {
+				this.parent.writeLine();
+				this.horizontalTableCounter = 0;
+			}
+
+			// reset counter
+			this.lineCounter = 0;
+
+			// begin new table
+			this.begin(this.headRow);
+			this.writeLine(line);
+		}
 	}
 }
