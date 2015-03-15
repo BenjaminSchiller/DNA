@@ -15,11 +15,6 @@ public class MultiMultiScalarTexTable extends TexTable {
 	private TableFlag dataType;
 	private long timestamp;
 
-	// private String[] headRow;
-	// private int columns;
-	// private int horizontalTableCounter;
-	// private int tableCounter;
-
 	// constructor
 	public MultiMultiScalarTexTable(TexFile parent, String[] headRow,
 			long timestamp, SimpleDateFormat dateFormat, TableFlag dataType)
@@ -51,8 +46,8 @@ public class MultiMultiScalarTexTable extends TexTable {
 		for (int i = 1; i < headRow.length; i++) {
 			line += TexTable.tableDelimiter;
 		}
-		line += "\\# " + this.tableCounter;
 		this.tableCounter++;
+		line += "\\# " + this.tableCounter;
 		line += TexUtils.newline + TexTable.hline;
 		this.writeLine(line);
 
