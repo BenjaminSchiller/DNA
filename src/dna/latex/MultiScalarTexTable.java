@@ -5,17 +5,19 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import dna.util.Config;
-import dna.util.Log;
 import dna.util.MathHelper;
 
 /** A TexTable for multiscalar values. **/
 public class MultiScalarTexTable extends TexTable {
+
+	private long timestamp;
 
 	// constructor
 	public MultiScalarTexTable(TexFile parent, String[] headRow,
 			long timestamp, SimpleDateFormat dateFormat,
 			TableFlag... tableFlags) throws IOException {
 		super(parent, headRow, dateFormat, tableFlags);
+		this.timestamp = timestamp;
 		this.begin(headRow, timestamp);
 	}
 
@@ -56,6 +58,8 @@ public class MultiScalarTexTable extends TexTable {
 		for (int i = 2; i < headRow.length; i++) {
 			line += TexTable.tableDelimiter;
 		}
+		line += "\\# " + this.tableCounter;
+		this.tableCounter++;
 		line += TexUtils.newline + TexTable.hline;
 		this.parent.writeLine(line);
 
@@ -70,8 +74,8 @@ public class MultiScalarTexTable extends TexTable {
 							+ TexTable.tableDelimiter;
 			}
 		}
-		this.parent.writeLine(line);
-		this.parent.writeLine(TexTable.hline);
+		this.writeLine(line);
+		this.addHorizontalLine();
 	}
 
 	/** Adds a data row with the given index. **/
@@ -89,7 +93,7 @@ public class MultiScalarTexTable extends TexTable {
 			else
 				line += value + TexTable.tableDelimiter;
 		}
-		this.parent.writeLine(line);
+		this.writeLine(line);
 	}
 
 	/** Adds a blank row with the given index. **/
@@ -101,7 +105,34 @@ public class MultiScalarTexTable extends TexTable {
 			else
 				line += "-" + TexTable.tableDelimiter;
 		}
-		this.parent.writeLine(line);
+		this.writeLine(line);
+	}
+
+	/** Writes a line. **/
+	protected void writeLine(String line) throws IOException {
+		// only write line if max lines is not exceeded
+		if (this.lineCounter < Config.getInt("LATEX_TABLE_MAX_LINES")) {
+			this.lineCounter++;
+			this.parent.writeLine(line);
+		} else {
+			// to many lines, start new table
+			this.close();
+			this.horizontalTableCounter++;
+
+			// align multiple tables with each other
+			if ((this.horizontalTableCounter + 1) * this.columns >= Config
+					.getInt("LATEX_TABLE_MAX_COLUMNS")) {
+				this.parent.writeLine();
+				this.horizontalTableCounter = 0;
+			}
+
+			// reset counter
+			this.lineCounter = 0;
+
+			// begin new table
+			this.begin(this.headRow, this.timestamp);
+			this.writeLine(line);
+		}
 	}
 
 }
