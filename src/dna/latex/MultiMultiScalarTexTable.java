@@ -122,7 +122,7 @@ public class MultiMultiScalarTexTable extends TexTable {
 	}
 
 	/** Adds a data row with the given index. **/
-	public void addRow(double[] values, int index) throws IOException {
+	public void addRow(double[] values, double index) throws IOException {
 		String line = "\t" + index + TexTable.tableDelimiter;
 		for (int i = 0; i < values.length; i++) {
 			String value = "" + values[i];
@@ -149,6 +149,52 @@ public class MultiMultiScalarTexTable extends TexTable {
 				line += "-" + TexTable.tableDelimiter;
 		}
 		this.writeLine(line);
+	}
+
+	/** Adds a new row with the values. **/
+	public void addDataRow(AggregatedValue[] values, int offset, double index)
+			throws IOException {
+		double[] tempValues = new double[values.length];
+		for (int i = 0; i < values.length; i++) {
+			if (values[i] == null) {
+				tempValues[i] = 0.0;
+			} else {
+				switch (this.dataType) {
+				case Average:
+					tempValues[i] = values[i].getValues()[0 + offset];
+					break;
+				case ConfLow:
+					tempValues[i] = values[i].getValues()[7 + offset];
+					break;
+				case ConfUp:
+					tempValues[i] = values[i].getValues()[8 + offset];
+					break;
+				case Max:
+					tempValues[i] = values[i].getValues()[2 + offset];
+					break;
+				case Median:
+					tempValues[i] = values[i].getValues()[3 + offset];
+					break;
+				case Min:
+					tempValues[i] = values[i].getValues()[1 + offset];
+					break;
+				case Var:
+					tempValues[i] = values[i].getValues()[4 + offset];
+					break;
+				case VarLow:
+					tempValues[i] = values[i].getValues()[5 + offset];
+					break;
+				case VarUp:
+					tempValues[i] = values[i].getValues()[6 + offset];
+					break;
+				case all:
+					Log.warn("MultiValueTexTable: wrong flag! Adding 0.0");
+					tempValues[i] = 0.0;
+					break;
+				}
+			}
+		}
+		this.addRow(tempValues, index);
 	}
 
 	/** Adds a new row with the values. **/

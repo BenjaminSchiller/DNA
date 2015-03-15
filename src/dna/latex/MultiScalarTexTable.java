@@ -96,6 +96,24 @@ public class MultiScalarTexTable extends TexTable {
 		this.writeLine(line);
 	}
 
+	/** Adds a data row with the given index. **/
+	public void addRow(double[] values, double index) throws IOException {
+		String line = "\t" + index + TexTable.tableDelimiter;
+		for (int i = 0; i < values.length; i++) {
+			String value = "" + values[i];
+
+			// if formatting is on, format
+			if (Config.getBoolean("LATEX_DATA_FORMATTING"))
+				value = MathHelper.format(values[i]);
+
+			if (i == values.length - 1)
+				line += value + " " + TexUtils.newline + " " + TexTable.hline;
+			else
+				line += value + TexTable.tableDelimiter;
+		}
+		this.writeLine(line);
+	}
+
 	/** Adds a blank row with the given index. **/
 	public void addBlankRow(int rows, int index) throws IOException {
 		String line = "\t" + index + TexTable.tableDelimiter;

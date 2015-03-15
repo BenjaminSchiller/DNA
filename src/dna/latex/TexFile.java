@@ -15,6 +15,7 @@ import dna.plot.PlotConfig;
 import dna.plot.PlottingConfig;
 import dna.series.aggdata.AggregatedBatch;
 import dna.series.aggdata.AggregatedBatch.BatchReadMode;
+import dna.series.aggdata.AggregatedBinnedDistribution;
 import dna.series.aggdata.AggregatedDistribution;
 import dna.series.aggdata.AggregatedMetric;
 import dna.series.aggdata.AggregatedNodeValueList;
@@ -463,6 +464,7 @@ public class TexFile {
 
 				// iterate over longest dist
 				for (int j = 0; j < longestDist; j++) {
+					double index = j;
 					AggregatedValue[] avs = new AggregatedValue[batchData.length];
 
 					// iterate over series
@@ -478,12 +480,15 @@ public class TexFile {
 								if (d1.getValues() != null
 										&& d1.getValues().length > j) {
 									avs[k] = d1.getValues()[j];
+
+									if (d1 instanceof AggregatedBinnedDistribution)
+										index = d1.getValues()[j].getValues()[0];
 								}
 							}
 						}
 					}
 
-					table.addDataRow(avs, 1, j);
+					table.addDataRow(avs, 1, index);
 				}
 
 				table.close();
@@ -613,6 +618,9 @@ public class TexFile {
 							.selectValuesFromDistribution(values[i], config);
 
 					// add row to table
+					if (d instanceof AggregatedBinnedDistribution)
+						table.addRow(selectedValues, values[i].getValues()[0]);
+					else
 					table.addRow(selectedValues, i);
 				}
 
