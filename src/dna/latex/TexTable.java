@@ -51,7 +51,7 @@ public class TexTable {
 		this.tableFlags = tableFlags;
 		this.lineCounter = 0;
 		this.horizontalTableCounter = 0;
-		this.tableCounter = 1;
+		this.tableCounter = 0;
 	}
 
 	public TexTable(TexFile parent, String[] headRow,
@@ -235,5 +235,15 @@ public class TexTable {
 
 		// return
 		return (long) expr.value();
+	}
+
+	/** Returns the horizontal table counter. **/
+	public int getHorizontalTableCounter() {
+		return this.horizontalTableCounter;
+	}
+
+	/** Returns the table counter. **/
+	public int getTableCounter() {
+		return this.tableCounter;
 	}
 }

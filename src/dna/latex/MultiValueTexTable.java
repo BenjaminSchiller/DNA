@@ -45,8 +45,8 @@ public class MultiValueTexTable extends TexTable {
 		for (int i = 1; i < headRow.length; i++) {
 			line += TexTable.tableDelimiter;
 		}
-		line += "\\# " + this.tableCounter;
 		this.tableCounter++;
+		line += "\\# " + this.tableCounter;
 		line += TexUtils.newline + TexTable.hline;
 		this.writeLine(line);
 

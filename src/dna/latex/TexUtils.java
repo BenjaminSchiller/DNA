@@ -262,9 +262,12 @@ public class TexUtils {
 				String[] tableDescrArray = TexUtils
 						.selectDescription(seriesNames);
 
+				// variables for horizontal alignment
+				int currentColumns = 0;
+				int currentTables = 0;
+
 				// one table for each flag
 				for (TableFlag tf : config.getTableFlags()) {
-
 					// init table
 					MultiValueTexTable table = new MultiValueTexTable(stats,
 							tableDescrArray, config.getDateFormat(),
@@ -300,7 +303,19 @@ public class TexUtils {
 
 					// close table
 					table.close();
-					stats.writeLine();
+
+					// check for horizontal alignment
+					int t = table.getTableCounter();
+					currentColumns += t * tableDescrArray.length;
+					currentTables += t;
+
+					// if to large, add blankline and reset
+					if ((currentTables + 1) * currentColumns > Config
+							.getInt("LATEX_TABLE_MAX_COLUMNS")) {
+						stats.writeLine();
+						currentColumns = 0;
+						currentTables = 0;
+					}
 				}
 			}
 
@@ -465,9 +480,12 @@ public class TexUtils {
 				String[] tableDescrArray = TexUtils
 						.selectDescription(seriesNames);
 
+				// variables for horizontal alignment
+				int currentColumns = 0;
+				int currentTables = 0;
+
 				// one table for each flag
 				for (TableFlag tf : config.getTableFlags()) {
-
 					// init table
 					MultiValueTexTable table = new MultiValueTexTable(genR,
 							tableDescrArray, config.getDateFormat(),
@@ -504,7 +522,19 @@ public class TexUtils {
 
 					// close table
 					table.close();
-					genR.writeLine();
+
+					// check for horizontal alignment
+					int t = table.getTableCounter();
+					currentColumns += t * tableDescrArray.length;
+					currentTables += t;
+
+					// if to large, add blankline and reset
+					if ((currentTables + 1) * currentColumns > Config
+							.getInt("LATEX_TABLE_MAX_COLUMNS")) {
+						genR.writeLine();
+						currentColumns = 0;
+						currentTables = 0;
+					}
 				}
 			}
 
@@ -671,9 +701,12 @@ public class TexUtils {
 				String[] tableDescrArray = TexUtils
 						.selectDescription(seriesNames);
 
+				// variables for horizontal alignment
+				int currentColumns = 0;
+				int currentTables = 0;
+
 				// one table for each flag
 				for (TableFlag tf : config.getTableFlags()) {
-
 					// init table
 					MultiValueTexTable table = new MultiValueTexTable(metR,
 							tableDescrArray, config.getDateFormat(),
@@ -708,7 +741,19 @@ public class TexUtils {
 
 					// close table
 					table.close();
-					metR.writeLine();
+
+					// check for horizontal alignment
+					int t = table.getTableCounter();
+					currentColumns += t * tableDescrArray.length;
+					currentTables += t;
+
+					// if to large, add blankline and reset
+					if ((currentTables + 1) * currentColumns > Config
+							.getInt("LATEX_TABLE_MAX_COLUMNS")) {
+						metR.writeLine();
+						currentColumns = 0;
+						currentTables = 0;
+					}
 				}
 			}
 
