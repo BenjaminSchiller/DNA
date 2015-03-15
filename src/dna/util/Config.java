@@ -9,6 +9,7 @@ import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Properties;
 import java.util.Vector;
 
@@ -354,5 +355,17 @@ public class Config extends PropertiesHolder {
 
 	public static String getNodeValueListDescription(String nodevaluelist) {
 		return Config.get("DESCRIPTION_NODEVALUELIST_" + nodevaluelist);
+	}
+
+	/** Returns a locale with the given key. **/
+	public static Locale getLocale(String key) {
+		switch (Config.get(key)) {
+		case "GER":
+			return Locale.GERMAN;
+		case "US":
+			return Locale.US;
+		default:
+			return Locale.getDefault();
+		}
 	}
 }

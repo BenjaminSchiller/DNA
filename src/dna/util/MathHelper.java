@@ -50,7 +50,8 @@ public class MathHelper {
 
 	/** Formats the double in a better readable format. **/
 	public static String format(double d) {
-		NumberFormat f = NumberFormat.getInstance();
+		NumberFormat f = NumberFormat.getInstance(Config
+				.getLocale("LATEX_DATA_FORMAT_LOCALE"));
 		if (f instanceof DecimalFormat) {
 			DecimalFormat decFormat = (DecimalFormat) f;
 
