@@ -13,6 +13,11 @@ import dna.util.MathHelper;
 public class MultiMultiScalarTexTable extends TexTable {
 
 	private TableFlag dataType;
+	private long timestamp;
+	private String[] headRow;
+	private int columns;
+	private int horizontalTableCounter;
+	private int tableCounter;
 
 	// constructor
 	public MultiMultiScalarTexTable(TexFile parent, String[] headRow,
@@ -23,6 +28,11 @@ public class MultiMultiScalarTexTable extends TexTable {
 			this.dataType = TableFlag.Average;
 		else
 			this.dataType = dataType;
+		this.headRow = headRow;
+		this.columns = headRow.length;
+		this.horizontalTableCounter = 0;
+		this.tableCounter = 1;
+		this.timestamp = timestamp;
 		this.begin(headRow, timestamp);
 	}
 
@@ -36,7 +46,7 @@ public class MultiMultiScalarTexTable extends TexTable {
 				line += "|";
 		}
 		line += "}";
-		this.parent.writeLine(line);
+		this.writeLine(line);
 		this.addHorizontalLine();
 
 		// write datatype row
@@ -44,8 +54,10 @@ public class MultiMultiScalarTexTable extends TexTable {
 		for (int i = 1; i < headRow.length; i++) {
 			line += TexTable.tableDelimiter;
 		}
+		line += this.tableCounter;
+		this.tableCounter++;
 		line += TexUtils.newline + TexTable.hline;
-		this.parent.writeLine(line);
+		this.writeLine(line);
 
 		// add timestamp row
 		long tTimestamp = timestamp;
@@ -73,7 +85,7 @@ public class MultiMultiScalarTexTable extends TexTable {
 			line += TexTable.tableDelimiter;
 		}
 		line += TexUtils.newline + TexTable.hline;
-		this.parent.writeLine(line);
+		this.writeLine(line);
 
 		for (String s : headRow) {
 			line = "\t";
@@ -86,49 +98,65 @@ public class MultiMultiScalarTexTable extends TexTable {
 							+ TexTable.tableDelimiter;
 			}
 		}
-		this.parent.writeLine(line);
-		this.parent.writeLine(TexTable.hline);
+		this.writeLine(line);
+		this.addHorizontalLine();
+	}
+
+	/** Writes a line. **/
+	private void writeLine(String line) throws IOException {
+		// only write line if max lines is not exceeded
+		if (this.lineCounter < Config.getInt("LATEX_TABLE_MAX_LINES")) {
+			this.lineCounter++;
+			this.parent.writeLine(line);
+		} else {
+			// to many lines, start new table
+			this.close();
+			this.horizontalTableCounter++;
+
+			// align multiple tables with each other
+			if (this.horizontalTableCounter * this.columns >= Config
+					.getInt("LATEX_TABLE_MAX_COLUMNS")) {
+				this.parent.writeLine();
+				this.horizontalTableCounter = 0;
+			}
+
+			// reset counter
+			this.lineCounter = 0;
+
+			// begin new table
+			this.begin(this.headRow, this.timestamp);
+			this.writeLine(line);
+		}
 	}
 
 	/** Adds a data row with the given index. **/
 	public void addRow(double[] values, int index) throws IOException {
-		if (open) {
-			String line = "\t" + index + TexTable.tableDelimiter;
-			for (int i = 0; i < values.length; i++) {
-				String value = "" + values[i];
+		String line = "\t" + index + TexTable.tableDelimiter;
+		for (int i = 0; i < values.length; i++) {
+			String value = "" + values[i];
 
-				// if formatting is on, format
-				if (Config.getBoolean("LATEX_DATA_FORMATTING"))
-					value = MathHelper.format(values[i]);
+			// if formatting is on, format
+			if (Config.getBoolean("LATEX_DATA_FORMATTING"))
+				value = MathHelper.format(values[i]);
 
-				if (i == values.length - 1)
-					line += value + " " + TexUtils.newline + " "
-							+ TexTable.hline;
-				else
-					line += value + TexTable.tableDelimiter;
-			}
-			this.parent.writeLine(line);
-		} else {
-			Log.warn("Attempt to write to closed TexTable" + this.toString()
-					+ "!");
+			if (i == values.length - 1)
+				line += value + " " + TexUtils.newline + " " + TexTable.hline;
+			else
+				line += value + TexTable.tableDelimiter;
 		}
+		this.writeLine(line);
 	}
 
 	/** Adds a blank row with the given index. **/
 	public void addBlankRow(int rows, int index) throws IOException {
-		if (open) {
-			String line = "\t" + index + TexTable.tableDelimiter;
-			for (int i = 0; i < rows; i++) {
-				if (i == rows - 1)
-					line += "-" + " " + TexUtils.newline + " " + TexTable.hline;
-				else
-					line += "-" + TexTable.tableDelimiter;
-			}
-			this.parent.writeLine(line);
-		} else {
-			Log.warn("Attempt to write to closed TexTable" + this.toString()
-					+ "!");
+		String line = "\t" + index + TexTable.tableDelimiter;
+		for (int i = 0; i < rows; i++) {
+			if (i == rows - 1)
+				line += "-" + " " + TexUtils.newline + " " + TexTable.hline;
+			else
+				line += "-" + TexTable.tableDelimiter;
 		}
+		this.writeLine(line);
 	}
 
 	/** Adds a new row with the values. **/
