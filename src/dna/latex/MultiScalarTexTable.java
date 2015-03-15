@@ -120,7 +120,7 @@ public class MultiScalarTexTable extends TexTable {
 			this.horizontalTableCounter++;
 
 			// align multiple tables with each other
-			if ((this.horizontalTableCounter + 1) * this.columns >= Config
+			if ((this.horizontalTableCounter + 1) * this.columns > Config
 					.getInt("LATEX_TABLE_MAX_COLUMNS")) {
 				this.parent.writeLine();
 				this.horizontalTableCounter = 0;
