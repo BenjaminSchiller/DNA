@@ -423,17 +423,19 @@ public class TexFile {
 				// figure out 'longest' dist
 				int longestDist = 0;
 				for (int j = 0; j < batches.length; j++) {
-					if (batches[j].getMetrics().getNames()
-							.contains(m.getName())) {
-						AggregatedMetric m1 = batches[j].getMetrics().get(
-								m.getName());
-						if (m1.getDistributions().getNames()
-								.contains(d.getName())) {
-							AggregatedDistribution d1 = m1.getDistributions()
-									.get(d.getName());
+					if (batches[j] != null) {
+						if (batches[j].getMetrics().getNames()
+								.contains(m.getName())) {
+							AggregatedMetric m1 = batches[j].getMetrics().get(
+									m.getName());
+							if (m1.getDistributions().getNames()
+									.contains(d.getName())) {
+								AggregatedDistribution d1 = m1
+										.getDistributions().get(d.getName());
 
-							if (d1.getValues().length > longestDist) {
-								longestDist = d1.getValues().length;
+								if (d1.getValues().length > longestDist) {
+									longestDist = d1.getValues().length;
+								}
 							}
 						}
 					}
@@ -445,15 +447,18 @@ public class TexFile {
 
 					// iterate over series
 					for (int k = 0; k < batchData.length; k++) {
-						// if batch doesnt contain metric or dist, add nothing
-						if (batches[k].getMetrics().get(m.getName()) != null) {
-							AggregatedDistribution d1 = batches[k].getMetrics()
-									.get(m.getName()).getDistributions()
-									.get(d.getName());
+						if (batches[k] != null) {
+							// if batch doesnt contain metric or dist, add
+							// nothing
+							if (batches[k].getMetrics().get(m.getName()) != null) {
+								AggregatedDistribution d1 = batches[k]
+										.getMetrics().get(m.getName())
+										.getDistributions().get(d.getName());
 
-							if (d1.getValues() != null
-									&& d1.getValues().length > j) {
-								avs[k] = d1.getValues()[j];
+								if (d1.getValues() != null
+										&& d1.getValues().length > j) {
+									avs[k] = d1.getValues()[j];
+								}
 							}
 						}
 					}
@@ -691,16 +696,19 @@ public class TexFile {
 				// figure out 'longest' nvl
 				int longestNvl = 0;
 				for (int j = 0; j < batches.length; j++) {
-					if (batches[j].getMetrics().getNames()
-							.contains(m.getName())) {
-						AggregatedMetric m1 = batches[j].getMetrics().get(
-								m.getName());
-						if (m1.getNodeValues().getNames().contains(n.getName())) {
-							AggregatedNodeValueList n1 = m1.getNodeValues()
-									.get(n.getName());
+					if (batches[j] != null) {
+						if (batches[j].getMetrics().getNames()
+								.contains(m.getName())) {
+							AggregatedMetric m1 = batches[j].getMetrics().get(
+									m.getName());
+							if (m1.getNodeValues().getNames()
+									.contains(n.getName())) {
+								AggregatedNodeValueList n1 = m1.getNodeValues()
+										.get(n.getName());
 
-							if (n1.getValues().length > longestNvl) {
-								longestNvl = n1.getValues().length;
+								if (n1.getValues().length > longestNvl) {
+									longestNvl = n1.getValues().length;
+								}
 							}
 						}
 					}
@@ -712,15 +720,18 @@ public class TexFile {
 
 					// iterate over series
 					for (int k = 0; k < batchData.length; k++) {
-						// if batch doesnt contain metric or nvl, add nothing
-						if (batches[k].getMetrics().get(m.getName()) != null) {
-							AggregatedNodeValueList n1 = batches[k]
-									.getMetrics().get(m.getName())
-									.getNodeValues().get(n.getName());
+						if (batches[k] != null) {
+							// if batch doesnt contain metric or nvl, add
+							// nothing
+							if (batches[k].getMetrics().get(m.getName()) != null) {
+								AggregatedNodeValueList n1 = batches[k]
+										.getMetrics().get(m.getName())
+										.getNodeValues().get(n.getName());
 
-							if (n1.getValues() != null
-									&& n1.getValues().length > j) {
-								avs[k] = n1.getValues()[j];
+								if (n1.getValues() != null
+										&& n1.getValues().length > j) {
+									avs[k] = n1.getValues()[j];
+								}
 							}
 						}
 					}
