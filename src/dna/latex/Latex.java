@@ -23,11 +23,41 @@ import dna.util.Log;
  */
 public class Latex {
 
+	/**
+	 * Plots the series and creates one LaTeX document.
+	 * 
+	 * @param s
+	 *            Series to be written.
+	 * @param dstDir
+	 *            Destination directory.
+	 * @param filename
+	 *            Filename of the tex preamble.
+	 * @throws IOException
+	 * @throws InterruptedException
+	 */
 	public static void writeTexAndPlot(SeriesData s, String dstDir,
 			String filename) throws IOException, InterruptedException {
 		Latex.writeTexAndPlotFromTo(s, dstDir, filename, 0, Long.MAX_VALUE, 1);
 	}
 
+	/**
+	 * Plots the series and creates one LaTeX document.
+	 * 
+	 * @param s
+	 *            Series to be written.
+	 * @param dstDir
+	 *            Destination directory.
+	 * @param filename
+	 *            Filename of the tex preamble.
+	 * @param from
+	 *            Beginning timestamp.
+	 * @param to
+	 *            Ending timestamp.
+	 * @param stepsize
+	 *            Stepsize.
+	 * @throws IOException
+	 * @throws InterruptedException
+	 */
 	public static void writeTexAndPlotFromTo(SeriesData s, String dstDir,
 			String filename, long from, long to, long stepsize)
 			throws IOException, InterruptedException {
@@ -45,6 +75,20 @@ public class Latex {
 				pconfig);
 	}
 
+	/**
+	 * Plots the series and creates one LaTeX document.
+	 * 
+	 * @param s
+	 *            Series to be written.
+	 * @param dstDir
+	 *            Destination directory.
+	 * @param filename
+	 *            Filename of the tex preamble.
+	 * @param config
+	 *            TexConfig configuring the tex-process.
+	 * @throws IOException
+	 * @throws InterruptedException
+	 */
 	public static void writeTexAndPlot(SeriesData s, String dstDir,
 			String filename, TexConfig config) throws IOException,
 			InterruptedException {
@@ -55,6 +99,22 @@ public class Latex {
 		Latex.writeTexAndPlot(s, dstDir, filename, config, pconfig);
 	}
 
+	/**
+	 * Plots the series and creates one LaTeX document.
+	 * 
+	 * @param s
+	 *            Series to be written.
+	 * @param dstDir
+	 *            Destination directory.
+	 * @param filename
+	 *            Filename of the tex preamble.
+	 * @param config
+	 *            TexConfig configuring the tex-process.
+	 * @param pconfig
+	 *            PlottingConfig configuring the plotting process.
+	 * @throws IOException
+	 * @throws InterruptedException
+	 */
 	public static void writeTexAndPlot(SeriesData s, String dstDir,
 			String filename, TexConfig config, PlottingConfig pconfig)
 			throws IOException, InterruptedException {
@@ -66,6 +126,27 @@ public class Latex {
 		Latex.writeTex(s, dstDir, filename, config, pconfig);
 	}
 
+	/**
+	 * Writes one LaTeX document for the given series.
+	 * 
+	 * @param s
+	 *            Series to be written.
+	 * @param dstDir
+	 *            Destination directory.
+	 * @param filename
+	 *            Filename of the tex preamble.
+	 * @param plotDir
+	 *            Plotting directory of the series.
+	 * @param from
+	 *            Beginning timestamp.
+	 * @param to
+	 *            Ending timestamp.
+	 * @param stepsize
+	 *            Stepsize.
+	 * @param pconfig
+	 *            TexConfig configuring the latex-process.
+	 * @throws IOException
+	 */
 	public static void writeTexFromTo(SeriesData s, String dstDir,
 			String filename, String plotDir, long from, long to, long stepsize,
 			PlottingConfig pconfig) throws IOException {
@@ -75,6 +156,22 @@ public class Latex {
 		Latex.writeTex(s, dstDir, filename, config, pconfig);
 	}
 
+	/**
+	 * Writes one LaTeX document combining the given series.
+	 * 
+	 * @param s
+	 *            Input series.
+	 * @param dstDir
+	 *            Destination directory.
+	 * @param filename
+	 *            Filename of the latex-preamble.
+	 * @param config
+	 *            TexConfig configuring the latex-process.
+	 * @param pconfig
+	 *            PlottingConfig configuring the plotting process.
+	 * @throws IOException
+	 * @throws InterruptedException
+	 */
 	public static void writeTexAndPlotCombined(SeriesData[] s, String dstDir,
 			String filename, TexConfig config, PlottingConfig pconfig)
 			throws IOException, InterruptedException {
@@ -85,6 +182,23 @@ public class Latex {
 		Latex.writeTexCombined(s, dstDir, filename, "plots/", config, pconfig);
 	}
 
+	/**
+	 * Writes one LaTeX document combining the given series.
+	 * 
+	 * @param s
+	 *            Input series.
+	 * @param dstDir
+	 *            Destination directory.
+	 * @param filename
+	 *            Filename of the latex-preamble.
+	 * @param plotDir
+	 *            Relative plotting directory.
+	 * @param config
+	 *            TexConfig configuring the latex-process.
+	 * @param pconfig
+	 *            PlottingConfig configuring the plotting process.
+	 * @throws IOException
+	 */
 	public static void writeTexCombined(SeriesData[] series, String dstDir,
 			String filename, String plotDir, TexConfig config,
 			PlottingConfig pconfig) throws IOException {
@@ -195,6 +309,24 @@ public class Latex {
 		Latex.writeTex(series, dstDir, filename, plotDirs, config, pconfig);
 	}
 
+	/**
+	 * Writes a LaTeX document containing each series as a separate chapter.
+	 * 
+	 * @param series
+	 *            SeriesData objects that will be written.
+	 * @param dstDir
+	 *            Destination directory.
+	 * @param filename
+	 *            Filename of the tex-preamble-file.
+	 * @param plotDirs
+	 *            Relative plotting directories for the series.
+	 * @param config
+	 *            TexConfig configuring the tex-output.
+	 * @param pconfig
+	 *            PlottingConfig configuring the plots.
+	 * @throws IOException
+	 * @throws InterruptedException
+	 */
 	public static void writeTex(SeriesData[] series, String dstDir,
 			String filename, String[] plotDirs, TexConfig config,
 			PlottingConfig pconfig) throws IOException, InterruptedException {
@@ -268,6 +400,21 @@ public class Latex {
 		Log.info("Latex-Output finished!");
 	}
 
+	/**
+	 * Writes a LaTeX document for the given series.
+	 * 
+	 * @param s
+	 *            Series to be written.
+	 * @param dstDir
+	 *            Destination directory.
+	 * @param filename
+	 *            Filename of the tex preamble.
+	 * @param config
+	 *            TexConfig configuring the tex-process.
+	 * @param pconfig
+	 *            PlottingConfig configuring the plotting process.
+	 * @throws IOException
+	 */
 	public static void writeTex(SeriesData s, String dstDir, String filename,
 			TexConfig config, PlottingConfig pconfig) throws IOException {
 		String srcDir = s.getDir();
