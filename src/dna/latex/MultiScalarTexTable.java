@@ -76,43 +76,32 @@ public class MultiScalarTexTable extends TexTable {
 
 	/** Adds a data row with the given index. **/
 	public void addRow(double[] values, int index) throws IOException {
-		if (open) {
-			String line = "\t" + index + TexTable.tableDelimiter;
-			for (int i = 0; i < values.length; i++) {
-				String value = "" + values[i];
+		String line = "\t" + index + TexTable.tableDelimiter;
+		for (int i = 0; i < values.length; i++) {
+			String value = "" + values[i];
 
-				// if formatting is on, format
-				if (Config.getBoolean("LATEX_DATA_FORMATTING"))
-					value = MathHelper.format(values[i]);
+			// if formatting is on, format
+			if (Config.getBoolean("LATEX_DATA_FORMATTING"))
+				value = MathHelper.format(values[i]);
 
-				if (i == values.length - 1)
-					line += value + " " + TexUtils.newline + " "
-							+ TexTable.hline;
-				else
-					line += value + TexTable.tableDelimiter;
-			}
-			this.parent.writeLine(line);
-		} else {
-			Log.warn("Attempt to write to closed TexTable" + this.toString()
-					+ "!");
+			if (i == values.length - 1)
+				line += value + " " + TexUtils.newline + " " + TexTable.hline;
+			else
+				line += value + TexTable.tableDelimiter;
 		}
+		this.parent.writeLine(line);
 	}
 
 	/** Adds a blank row with the given index. **/
 	public void addBlankRow(int rows, int index) throws IOException {
-		if (open) {
-			String line = "\t" + index + TexTable.tableDelimiter;
-			for (int i = 0; i < rows; i++) {
-				if (i == rows - 1)
-					line += "-" + " " + TexUtils.newline + " " + TexTable.hline;
-				else
-					line += "-" + TexTable.tableDelimiter;
-			}
-			this.parent.writeLine(line);
-		} else {
-			Log.warn("Attempt to write to closed TexTable" + this.toString()
-					+ "!");
+		String line = "\t" + index + TexTable.tableDelimiter;
+		for (int i = 0; i < rows; i++) {
+			if (i == rows - 1)
+				line += "-" + " " + TexUtils.newline + " " + TexTable.hline;
+			else
+				line += "-" + TexTable.tableDelimiter;
 		}
+		this.parent.writeLine(line);
 	}
 
 }

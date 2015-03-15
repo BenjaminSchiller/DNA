@@ -152,8 +152,8 @@ public class Latex {
 		file.writePreamble(dstDir);
 
 		// ADD SERIES CHAPTERS
-		file.addSeriesChapter(series, dstDir, plotDir,
-				batches, config, pconfig, zippedRuns, zippedBatches);
+		file.addSeriesChapter(series, dstDir, plotDir, batches, config,
+				pconfig, zippedRuns, zippedBatches);
 
 		// CLOSE FILE AND END
 		file.closeAndEnd();

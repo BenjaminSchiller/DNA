@@ -84,68 +84,62 @@ public class MultiValueTexTable extends TexTable {
 		if (this.dateFormat != null)
 			tempTimestamp = this.dateFormat.format(new Date(tTimestamp));
 
-		if (open) {
-			String buff = "\t" + tempTimestamp + TexTable.tableDelimiter;
-			for (int i = 0; i < values.length; i++) {
+		String buff = "\t" + tempTimestamp + TexTable.tableDelimiter;
+		for (int i = 0; i < values.length; i++) {
 
-				String value = "";
+			String value = "";
 
-				if (values[i] == null) {
-					value = "-";
-				} else {
-					double temp = 0.0;
+			if (values[i] == null) {
+				value = "-";
+			} else {
+				double temp = 0.0;
 
-					switch (this.dataType) {
-					case Average:
-						temp = values[i].getAvg();
-						break;
-					case ConfLow:
-						temp = values[i].getConfidenceLow();
-						break;
-					case ConfUp:
-						temp = values[i].getConfidenceUp();
-						break;
-					case Max:
-						temp = values[i].getMax();
-						break;
-					case Median:
-						temp = values[i].getMedian();
-						break;
-					case Min:
-						temp = values[i].getMin();
-						break;
-					case Var:
-						temp = values[i].getVariance();
-						break;
-					case VarLow:
-						temp = values[i].getVarianceLow();
-						break;
-					case VarUp:
-						temp = values[i].getVarianceUp();
-						break;
-					case all:
-						Log.warn("MultiValueTexTable: wrong flag! Adding 0.0");
-						temp = 0.0;
-						break;
-					}
-
-					value = "" + temp;
-
-					// if formatting is on, format
-					if (Config.getBoolean("LATEX_DATA_FORMATTING"))
-						value = MathHelper.format(temp);
+				switch (this.dataType) {
+				case Average:
+					temp = values[i].getAvg();
+					break;
+				case ConfLow:
+					temp = values[i].getConfidenceLow();
+					break;
+				case ConfUp:
+					temp = values[i].getConfidenceUp();
+					break;
+				case Max:
+					temp = values[i].getMax();
+					break;
+				case Median:
+					temp = values[i].getMedian();
+					break;
+				case Min:
+					temp = values[i].getMin();
+					break;
+				case Var:
+					temp = values[i].getVariance();
+					break;
+				case VarLow:
+					temp = values[i].getVarianceLow();
+					break;
+				case VarUp:
+					temp = values[i].getVarianceUp();
+					break;
+				case all:
+					Log.warn("MultiValueTexTable: wrong flag! Adding 0.0");
+					temp = 0.0;
+					break;
 				}
 
-				if (i == values.length - 1)
-					buff += value + " " + TexUtils.newline + " "
-							+ TexTable.hline;
-				else
-					buff += value + TexTable.tableDelimiter;
+				value = "" + temp;
+
+				// if formatting is on, format
+				if (Config.getBoolean("LATEX_DATA_FORMATTING"))
+					value = MathHelper.format(temp);
 			}
-			this.parent.writeLine(buff);
-		} else {
-			Log.warn("Attempt to write to closed TexTable" + this.toString()
-					+ "!");
+
+			if (i == values.length - 1)
+				buff += value + " " + TexUtils.newline + " " + TexTable.hline;
+			else
+				buff += value + TexTable.tableDelimiter;
 		}
+		this.parent.writeLine(buff);
 	}
 }
