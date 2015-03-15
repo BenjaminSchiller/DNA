@@ -205,6 +205,10 @@ public class TexFile {
 		// select description
 		String[] tableDescrArray = TexUtils.selectDescription(seriesNames);
 
+		// variables for horizontal alignment
+		int currentTables = 0;
+		int currentColumns = 0;
+
 		for (TableFlag tf : config.getTableFlags()) {
 			// init table
 			MultiValueTexTable table = new MultiValueTexTable(this,
@@ -248,7 +252,19 @@ public class TexFile {
 
 			// close table
 			table.close();
-			this.writeLine();
+
+			// check for horizontal alignment
+			int t = table.getTableCounter();
+			currentColumns += t * tableDescrArray.length;
+			currentTables += t;
+
+			// if to large, add blankline and reset
+			if ((currentTables + 1) * currentColumns > Config
+					.getInt("LATEX_TABLE_MAX_COLUMNS")) {
+				this.writeLine();
+				currentColumns = 0;
+				currentTables = 0;
+			}
 		}
 	}
 
@@ -350,6 +366,10 @@ public class TexFile {
 		// select description
 		String[] tableDescrArray = TexUtils.selectDescription(seriesNames);
 		tableDescrArray[0] = "x";
+
+		// variables for table alignment
+		int currentColumns = 0;
+		int currentTables = 0;
 
 		// add one table for each flag
 		for (TableFlag tf : config.getTableFlags()) {
@@ -467,7 +487,19 @@ public class TexFile {
 				}
 
 				table.close();
-				this.writeLine();
+
+				// check for horizontal alignment
+				int t = table.getTableCounter();
+				currentColumns += t * tableDescrArray.length;
+				currentTables += t;
+
+				// if to large, add blankline and reset
+				if ((currentTables + 1) * currentColumns > Config
+						.getInt("LATEX_TABLE_MAX_COLUMNS")) {
+					this.writeLine();
+					currentColumns = 0;
+					currentTables = 0;
+				}
 			}
 		}
 	}
@@ -509,6 +541,10 @@ public class TexFile {
 		// select description
 		String[] tableDescrArray = TexUtils.selectDescription(config);
 		tableDescrArray[0] = "x";
+
+		// variables for table alignment
+		int currentColumns = 0;
+		int currentTables = 0;
 
 		// add values
 		for (AggregatedBatch b : batchData) {
@@ -584,7 +620,19 @@ public class TexFile {
 
 			// close table
 			table.close();
-			this.writeLine();
+
+			// check for horizontal alignment
+			int t = table.getTableCounter();
+			currentColumns += t * tableDescrArray.length;
+			currentTables += t;
+
+			// if to large, add blankline and reset
+			if ((currentTables + 1) * currentColumns > Config
+					.getInt("LATEX_TABLE_MAX_COLUMNS")) {
+				this.writeLine();
+				currentColumns = 0;
+				currentTables = 0;
+			}
 		}
 	}
 
@@ -623,6 +671,10 @@ public class TexFile {
 		// select description
 		String[] tableDescrArray = TexUtils.selectDescription(seriesNames);
 		tableDescrArray[0] = "Node";
+
+		// variables for table alignment
+		int currentColumns = 0;
+		int currentTables = 0;
 
 		// add one table for each flag
 		for (TableFlag tf : config.getTableFlags()) {
@@ -740,7 +792,19 @@ public class TexFile {
 				}
 
 				table.close();
-				this.writeLine();
+
+				// check for horizontal alignment
+				int t = table.getTableCounter();
+				currentColumns += t * tableDescrArray.length;
+				currentTables += t;
+
+				// if to large, add blankline and reset
+				if ((currentTables + 1) * currentColumns > Config
+						.getInt("LATEX_TABLE_MAX_COLUMNS")) {
+					this.writeLine();
+					currentColumns = 0;
+					currentTables = 0;
+				}
 			}
 		}
 	}
@@ -782,6 +846,10 @@ public class TexFile {
 		// check what data to add in table
 		String[] tableDescrArray = TexUtils.selectDescription(config);
 		tableDescrArray[0] = "Node";
+
+		// variables for table alignment
+		int currentColumns = 0;
+		int currentTables = 0;
 
 		// add values
 		for (AggregatedBatch b : batchData) {
@@ -857,7 +925,19 @@ public class TexFile {
 
 			// close table
 			table.close();
-			this.writeLine();
+
+			// check for horizontal alignment
+			int t = table.getTableCounter();
+			currentColumns += t * tableDescrArray.length;
+			currentTables += t;
+
+			// if to large, add blankline and reset
+			if ((currentTables + 1) * currentColumns > Config
+					.getInt("LATEX_TABLE_MAX_COLUMNS")) {
+				this.writeLine();
+				currentColumns = 0;
+				currentTables = 0;
+			}
 		}
 	}
 

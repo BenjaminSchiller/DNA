@@ -58,8 +58,8 @@ public class MultiScalarTexTable extends TexTable {
 		for (int i = 2; i < headRow.length; i++) {
 			line += TexTable.tableDelimiter;
 		}
-		line += "\\# " + this.tableCounter;
 		this.tableCounter++;
+		line += "\\# " + this.tableCounter;
 		line += TexUtils.newline + TexTable.hline;
 		this.parent.writeLine(line);
 
