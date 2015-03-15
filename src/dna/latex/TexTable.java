@@ -6,7 +6,6 @@ import java.util.Date;
 import java.util.HashMap;
 
 import dna.util.Config;
-import dna.util.Log;
 import dna.util.MathHelper;
 import dna.util.expr.Expr;
 import dna.util.expr.Parser;
@@ -18,8 +17,12 @@ public class TexTable {
 	// static textable fields
 	protected static final String hline = "\\hline";
 	protected static final String defaultColumnSetting = "l";
+	protected static final String tableNumberSetting = "r";
 	protected static final String tableDelimiter = " & ";
 	protected static final long unsetLong = -1;
+
+	// line counters
+	protected int lineCounter;
 
 	// table flags
 	public static enum TableFlag {
@@ -28,7 +31,6 @@ public class TexTable {
 
 	// variables
 	protected TexFile parent;
-	protected boolean open;
 	protected int columns;
 	protected TableFlag[] tableFlags;
 	protected SimpleDateFormat dateFormat;
@@ -41,9 +43,9 @@ public class TexTable {
 			throws IOException {
 		this.parent = parent;
 		this.columns = headRow.length;
-		this.open = true;
 		this.dateFormat = dateFormat;
 		this.tableFlags = tableFlags;
+		this.lineCounter = 0;
 	}
 
 	public TexTable(TexFile parent, String[] headRow,
@@ -87,50 +89,28 @@ public class TexTable {
 	}
 
 	protected void addHorizontalLine() throws IOException {
-		if (open) {
-			this.parent.writeLine(TexTable.hline);
-		} else {
-			Log.warn("Attempt to write to closed TexTable" + this.toString()
-					+ "!");
-		}
-	}
-
-	public boolean isOpen() {
-		return this.open;
+		this.parent.writeLine(TexTable.hline);
 	}
 
 	public void close() throws IOException {
-		if (open) {
-			this.parent.writeLine(TexUtils.end("tabular"));
-		} else {
-			Log.warn("Attempt to close TexTable '" + this.toString()
-					+ "' but its already closed!");
-		}
-
-		this.open = false;
+		this.parent.writeLine(TexUtils.end("tabular"));
 	}
 
 	public void addRow(double[] values) throws IOException {
-		if (open) {
-			String line = "\t";
-			for (int i = 0; i < values.length; i++) {
-				String value = "" + values[i];
+		String line = "\t";
+		for (int i = 0; i < values.length; i++) {
+			String value = "" + values[i];
 
-				// if formatting is on, format
-				if (Config.getBoolean("LATEX_DATA_FORMATTING"))
-					value = MathHelper.format(values[i]);
+			// if formatting is on, format
+			if (Config.getBoolean("LATEX_DATA_FORMATTING"))
+				value = MathHelper.format(values[i]);
 
-				if (i == values.length - 1)
-					line += value + " " + TexUtils.newline + " "
-							+ TexTable.hline;
-				else
-					line += value + TexTable.tableDelimiter;
-			}
-			this.parent.writeLine(line);
-		} else {
-			Log.warn("Attempt to write to closed TexTable" + this.toString()
-					+ "!");
+			if (i == values.length - 1)
+				line += value + " " + TexUtils.newline + " " + TexTable.hline;
+			else
+				line += value + TexTable.tableDelimiter;
 		}
+		this.parent.writeLine(line);
 	}
 
 	public void addRow(double[] values, long timestamp) throws IOException {
@@ -152,26 +132,20 @@ public class TexTable {
 		if (this.dateFormat != null)
 			tempTimestamp = this.dateFormat.format(new Date(tTimestamp));
 
-		if (open) {
-			String line = "\t" + tempTimestamp + TexTable.tableDelimiter;
-			for (int i = 0; i < values.length; i++) {
-				String value = "" + values[i];
+		String line = "\t" + tempTimestamp + TexTable.tableDelimiter;
+		for (int i = 0; i < values.length; i++) {
+			String value = "" + values[i];
 
-				// if formatting is on, format
-				if (Config.getBoolean("LATEX_DATA_FORMATTING"))
-					value = MathHelper.format(values[i]);
+			// if formatting is on, format
+			if (Config.getBoolean("LATEX_DATA_FORMATTING"))
+				value = MathHelper.format(values[i]);
 
-				if (i == values.length - 1)
-					line += value + " " + TexUtils.newline + " "
-							+ TexTable.hline;
-				else
-					line += value + TexTable.tableDelimiter;
-			}
-			this.parent.writeLine(line);
-		} else {
-			Log.warn("Attempt to write to closed TexTable" + this.toString()
-					+ "!");
+			if (i == values.length - 1)
+				line += value + " " + TexUtils.newline + " " + TexTable.hline;
+			else
+				line += value + TexTable.tableDelimiter;
 		}
+		this.parent.writeLine(line);
 	}
 
 	public void addBlankRow(int rows, long timestamp) throws IOException {
@@ -193,19 +167,14 @@ public class TexTable {
 		if (this.dateFormat != null)
 			tempTimestamp = this.dateFormat.format(new Date(tTimestamp));
 
-		if (open) {
-			String line = "\t" + tempTimestamp + TexTable.tableDelimiter;
-			for (int i = 0; i < rows; i++) {
-				if (i == rows - 1)
-					line += "-" + " " + TexUtils.newline + " " + TexTable.hline;
-				else
-					line += "-" + TexTable.tableDelimiter;
-			}
-			this.parent.writeLine(line);
-		} else {
-			Log.warn("Attempt to write to closed TexTable" + this.toString()
-					+ "!");
+		String line = "\t" + tempTimestamp + TexTable.tableDelimiter;
+		for (int i = 0; i < rows; i++) {
+			if (i == rows - 1)
+				line += "-" + " " + TexUtils.newline + " " + TexTable.hline;
+			else
+				line += "-" + TexTable.tableDelimiter;
 		}
+		this.parent.writeLine(line);
 	}
 
 	public TableFlag[] getTableFlags() {
@@ -233,5 +202,4 @@ public class TexTable {
 		// return
 		return (long) expr.value();
 	}
-
 }
