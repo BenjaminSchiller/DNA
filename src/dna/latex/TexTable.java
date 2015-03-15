@@ -21,9 +21,6 @@ public class TexTable {
 	protected static final String tableDelimiter = " & ";
 	protected static final long unsetLong = -1;
 
-	// line counters
-	protected int lineCounter;
-
 	// table flags
 	public static enum TableFlag {
 		Average, Min, Max, Median, Var, VarLow, VarUp, ConfLow, ConfUp, all
@@ -31,21 +28,30 @@ public class TexTable {
 
 	// variables
 	protected TexFile parent;
-	protected int columns;
 	protected TableFlag[] tableFlags;
+	protected String[] headRow;
 	protected SimpleDateFormat dateFormat;
 	protected String scaling;
 	protected HashMap<Long, Long> map;
+
+	// alignment variables
+	protected int columns;
+	protected int lineCounter;
+	protected int horizontalTableCounter;
+	protected int tableCounter;
 
 	// constructor
 	public TexTable(TexFile parent, String[] headRow,
 			SimpleDateFormat dateFormat, TableFlag... tableFlags)
 			throws IOException {
 		this.parent = parent;
+		this.headRow = headRow;
 		this.columns = headRow.length;
 		this.dateFormat = dateFormat;
 		this.tableFlags = tableFlags;
 		this.lineCounter = 0;
+		this.horizontalTableCounter = 0;
+		this.tableCounter = 1;
 	}
 
 	public TexTable(TexFile parent, String[] headRow,
@@ -71,7 +77,7 @@ public class TexTable {
 				line += "|";
 		}
 		line += "}";
-		this.parent.writeLine(line);
+		this.writeLine(line);
 		this.addHorizontalLine();
 
 		for (String s : headRow) {
@@ -85,6 +91,11 @@ public class TexTable {
 							+ TexTable.tableDelimiter;
 			}
 		}
+		this.writeLine(line);
+	}
+
+	protected void writeLine(String line) throws IOException {
+		this.lineCounter++;
 		this.parent.writeLine(line);
 	}
 
@@ -110,7 +121,7 @@ public class TexTable {
 			else
 				line += value + TexTable.tableDelimiter;
 		}
-		this.parent.writeLine(line);
+		this.writeLine(line);
 	}
 
 	public void addRow(double[] values, long timestamp) throws IOException {
@@ -145,7 +156,7 @@ public class TexTable {
 			else
 				line += value + TexTable.tableDelimiter;
 		}
-		this.parent.writeLine(line);
+		this.writeLine(line);
 	}
 
 	public void addBlankRow(int rows, long timestamp) throws IOException {
@@ -174,7 +185,7 @@ public class TexTable {
 			else
 				line += "-" + TexTable.tableDelimiter;
 		}
-		this.parent.writeLine(line);
+		this.writeLine(line);
 	}
 
 	public TableFlag[] getTableFlags() {

@@ -14,10 +14,11 @@ public class MultiMultiScalarTexTable extends TexTable {
 
 	private TableFlag dataType;
 	private long timestamp;
-	private String[] headRow;
-	private int columns;
-	private int horizontalTableCounter;
-	private int tableCounter;
+
+	// private String[] headRow;
+	// private int columns;
+	// private int horizontalTableCounter;
+	// private int tableCounter;
 
 	// constructor
 	public MultiMultiScalarTexTable(TexFile parent, String[] headRow,
@@ -28,10 +29,6 @@ public class MultiMultiScalarTexTable extends TexTable {
 			this.dataType = TableFlag.Average;
 		else
 			this.dataType = dataType;
-		this.headRow = headRow;
-		this.columns = headRow.length;
-		this.horizontalTableCounter = 0;
-		this.tableCounter = 1;
 		this.timestamp = timestamp;
 		this.begin(headRow, timestamp);
 	}
@@ -46,7 +43,7 @@ public class MultiMultiScalarTexTable extends TexTable {
 				line += "|";
 		}
 		line += "}";
-		this.writeLine(line);
+		this.parent.writeLine(line);
 		this.addHorizontalLine();
 
 		// write datatype row
@@ -103,7 +100,7 @@ public class MultiMultiScalarTexTable extends TexTable {
 	}
 
 	/** Writes a line. **/
-	private void writeLine(String line) throws IOException {
+	protected void writeLine(String line) throws IOException {
 		// only write line if max lines is not exceeded
 		if (this.lineCounter < Config.getInt("LATEX_TABLE_MAX_LINES")) {
 			this.lineCounter++;
