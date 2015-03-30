@@ -372,7 +372,7 @@ public abstract class Matching extends Metric implements IMetric {
 	@Override
 	public Distribution[] getDistributions() {
 		this.binnedDistributionEveryNodeToOtherNodes = new BinnedDistributionLong(
-				"BinnedDistributionEveryNodeToOtherNodes", 1, new long[] {}, 0);
+				"BinnedDistributionEveryNodeToOtherNodes", 0.01, new long[] {}, 0);
 
 		for (IElement iterable_element : this.g.getNodes()) {
 
