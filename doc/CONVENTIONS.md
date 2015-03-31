@@ -56,6 +56,41 @@ An explicit example are the different implementations of clustering coefficients
 - *UndirectedClusteringCoefficientU* - counting undirected triangles using updates
 
 
+Metric Results
+---------------------
+There are four kinds of results that a metric can provide:
+
+1. **Value** - single scalar value *v*, e.g., average degree
+2. **Distribution** - (frequency) distribution *P(x=k)*, e.g., in-degree distribution
+3. **NodeValueList** - one scalar value per vertex *P(v)*, e.g., local clustering coefficient
+4. **NodeNodeValueList** - one scalar value per vertex pair *P(v,w)*, e.g., similarity measures
+
+Their names should all be given similar to *Java* class names, e.g., **ThisValuesName**. You should not use names like *thisValuesName* or *THIS_VALUES_NAME*.
+
+Do not append *Distribution*, *Value*, *NodeValueList*, or *NodeNodeValueList* to the name of a result.
+
+For values that are "summaries" of distribution, simply append descriptions like *Min*, *Max*, *Avg*, or *Med* to the name instead of prefixing them.
+
+Prefix binned distribution with *Binned*.
+
+Do not abbreviate names as it makes understanding their meaning clearer, e.g., use *GlobalClusteringCoefficient* instead of *GlobalCC*.
+
+This leads to the following naming scheme:
+
+	{Binned|}NameOfResult{Min|Max|Avg|Med|}
+
+Some Examples:
+
+- Metric: **DegreeDistribution**
+	- distributions: *InDegree*, *OutDegree*, *Degree*
+	- values: *InDegreeMin*, *InDegreeMax*, *OutDegreeMin*, *OutDegreeMax*, *DegreeMin*, *DegreeMax*
+- Metric: **ClusteringCoefficient**
+	- distributions: *BinnedLocalClusteringCoefficient*
+	- values: *GlobalClusteringCoefficient*, *AverageClusteringCoefficient*
+	- nodeValueLists: *LocalClusteringCoefficient*
+
+Please note: while the *AverageClusteringCoefficient* is simply the average of the *LocalClusteringCoefficient*, it is a specific name and is therefore not called the *LocalClusteringCoefficientAvg*.
+
 
 Graph Generators
 ---------------------
