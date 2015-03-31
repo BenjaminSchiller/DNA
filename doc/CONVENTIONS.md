@@ -56,6 +56,12 @@ An explicit example are the different implementations of clustering coefficients
 - *UndirectedClusteringCoefficientU* - counting undirected triangles using updates
 
 
+Metric Parameters
+---------------------
+
+As names for the parameters of a metric, use names in analogy to *Java* class names, e.g., **FirstProperty** and **SecondProperyOfTheMetric** but not *first:Property*, *Second_Property*, or *SECOND_PROPERTY*.
+
+
 Metric Results
 ---------------------
 There are four kinds of results that a metric can provide:
