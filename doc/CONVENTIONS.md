@@ -59,7 +59,7 @@ An explicit example are the different implementations of clustering coefficients
 Metric Parameters
 ---------------------
 
-As names for the parameters of a metric, use names in analogy to *Java* class names, e.g., **FirstProperty** and **SecondProperyOfTheMetric** but not *first:Property*, *Second_Property*, or *SECOND_PROPERTY*.
+As names for the parameters of a metric, use names in analogy to *Java* class names, e.g., **FirstProperty** and **SecondProperyOfTheMetric** but not *first:Property*, *Second_Property*, or *THIRD_PROPERTY*.
 
 
 Metric Results
@@ -96,6 +96,64 @@ Some Examples:
 	- nodeValueLists: *LocalClusteringCoefficient*
 
 Please note: while the *AverageClusteringCoefficient* is simply the average of the *LocalClusteringCoefficient*, it is a specific name and is therefore not called the *LocalClusteringCoefficientAvg*.
+
+
+Metric Descriptions
+---------------------
+
+Descriptions of metrics, algorithms, and their properties can be provided by adding corresponding entries to config files.
+Since different algorithms for computing the same metric (e.g., U and R) provide the same properties, they only need to be configured once.
+
+In the following, consider `Metric` to be the name of a metric and `Algorithm1` as well `Algorithm2` to be the names of two algorithms implementing this metric, i.e., `Algorithm1` and `Algorithm2` both extend `Metric` and provide the same properties.
+
+For `Metric` and its algorithms, a single config file should be created, with the following naming convention:
+
+	$config/metrics/${Metric}.properties
+
+In this file, the description of `Metric` is then provided as the property `${Metric}_descr` as follows:
+
+	${Metric}_descr = 'description of the metric'
+
+For each property `Property` of a metric `Metric`, its description is given as the property `${Metric}_${Property}_descr` as follows:
+
+	${Metric}_${Property}_descr = 'description of the property'
+
+Since `Algorithm1` and `Algorithm2` (commonly) provide the same properties as `Metric`, their description does not need to be repeated.
+It is sufficient to note that `Algorithm1` and `Algorithm2` are extensions of `Metric`.
+This can be denoted as follows:
+
+	${Algorithm1}_extends = ${Metric}
+	${Algorithm2}_extends = ${Metric}
+
+In case the description of property `PropertyX` for algorithm `Algorithm1` is required, we first check it `Algorithm1_PropertyX_descr` exists.
+If not, we check if `Algorithm1_extends` is set.
+If this is the case, the description is returned as `${Algorithm1_extends}_PropertyX_descr`.
+In case this value does not exists, we check for `${Algorithm1_extends}_extends` and so on.
+This allows us to overwrite description of properties that might be different for certain algorithms but spares the copy-pase of all inherited properties.
+
+As an example, consider the metric `DegreeDistribution` with the two algorithms `DegreeDistributionR` and `DegreeDistributionU`.
+The metric provides distributions with names `DegreeDistribution`, `InDegreeDistribution`, and `OutDegreeDistribution`.
+In addition, it provides the values `DegreeMin`, `DegreeMax`, `InDegreeMin`, `InDegreeMax`, `OutDegreeMin`, and `OutDegreeMax`.
+Hence, the configuration file `config/metrics/DegreeDistribution.properties` should contain the following configuration
+
+	DegreeDistribution_descr = distributions of (in/out)-degree
+	DegreeDistributionR_extends = DegreeDistribution
+	DegreeDistributionU_extends = DegreeDistribution
+
+	DegreeDistribution_DegreeDistribution_descr = degree distribution P(d(v)=x)
+	DegreeDistribution_InDegreeDistribution_descr = in-degree distribution P(d_in(v)=x)
+	DegreeDistribution_OutDegreeDistribution_descr = out-degree distribution P(d_out(v)=x)
+
+	DegreeDistribution_DegreeMin_descr = minimum degree min(d(v))
+	DegreeDistribution_DegreeMax_descr = minimum degree max(d(v))
+	
+	DegreeDistribution_InDegreeMin_descr = minimum in-degree min(d_in(v))
+	DegreeDistribution_InDegreeMax_descr = minimum in-degree max(d_in(v))
+	
+	DegreeDistribution_OutDegreeMin_descr = minimum out-degree min(d_out(v))
+	DegreeDistribution_OutDegreeMax_descr = minimum out-degree max(d_out(v))
+
+
 
 
 Graph Generators
