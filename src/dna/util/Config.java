@@ -314,6 +314,14 @@ public class Config extends PropertiesHolder {
 	}
 
 	public static boolean containsKey(String key) {
+		if (properties == null) {
+			try {
+				init();
+			} catch (IOException e) {
+				e.printStackTrace();
+				return false;
+			}
+		}
 		return properties.containsKey(key);
 	}
 
@@ -336,23 +344,24 @@ public class Config extends PropertiesHolder {
 		return keys;
 	}
 
-	public static String getValueDescription(String value) {
-		return Config.get("DESCRIPTION_VALUE_" + value);
-	}
-
-	public static String getRuntimeDescription(String runtime) {
-		return Config.get("DESCRIPTION_RUNTIME_" + runtime);
-	}
-
 	public static String getMetricDescription(String metric) {
-		return Config.get("DESCRIPTION_METRIC_" + metric);
+		if (Config.containsKey(metric + "_descr")) {
+			return Config.get(metric + "_descr");
+		} else if (Config.containsKey(metric + "_extends")) {
+			return Config.getMetricDescription(Config.get(metric + "_extends"));
+		} else {
+			return null;
+		}
 	}
 
-	public static String getDistributionDescription(String distribution) {
-		return Config.get("DESCRIPTION_DISTRIBUTION_" + distribution);
-	}
-
-	public static String getNodeValueListDescription(String nodevaluelist) {
-		return Config.get("DESCRIPTION_NODEVALUELIST_" + nodevaluelist);
+	public static String getPropertyDescription(String metric, String property) {
+		if (Config.containsKey(metric + "_" + property + "_descr")) {
+			return Config.get(metric + "_" + property + "_descr");
+		} else if (Config.containsKey(metric + "_extends")) {
+			return Config.getPropertyDescription(
+					Config.get(metric + "_extends"), property);
+		} else {
+			return null;
+		}
 	}
 }
