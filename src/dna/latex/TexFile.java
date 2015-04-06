@@ -621,7 +621,7 @@ public class TexFile {
 					if (d instanceof AggregatedBinnedDistribution)
 						table.addRow(selectedValues, values[i].getValues()[0]);
 					else
-					table.addRow(selectedValues, i);
+						table.addRow(selectedValues, i);
 				}
 
 			}
@@ -1243,11 +1243,13 @@ public class TexFile {
 
 			// list metrics
 			ArrayList<AggregatedMetric> metrics = new ArrayList<AggregatedMetric>();
+			ArrayList<String> metricsNames = new ArrayList<String>();
 
 			for (AggregatedBatch b : initBatches) {
 				for (AggregatedMetric m : b.getMetrics().getList()) {
-					if (!metrics.contains(m)) {
+					if (!metricsNames.contains(m.getName())) {
 						metrics.add(m);
+						metricsNames.add(m.getName());
 					}
 				}
 			}
@@ -1266,36 +1268,6 @@ public class TexFile {
 			}
 		}
 
-		// // write statistics
-		// if (config.isIncludeStatistics())
-		// this.include(TexUtils.generateStatisticsChapter(sName, dstDir,
-		// plotDir, initBatch, batchData, config, pconfig));
-		//
-		// if (config.isIncludeRuntimes()) {
-		// // write general runtimes
-		// this.include(TexUtils.generateGeneralRuntimesChapter(sName, dstDir,
-		// plotDir, initBatch, batchData, config, pconfig));
-		//
-		// // write metric runtimes
-		// this.include(TexUtils.generateMetricRuntimesChapter(sName, dstDir,
-		// plotDir, initBatch, batchData, config, pconfig));
-		// }
-		//
-		// // write metrics
-		// if (config.isIncludeMetrics()) {
-		// for (AggregatedMetric m : initBatch.getMetrics().getList()) {
-		// if ((config.isIncludeDistributions() && m.getDistributions()
-		// .size() > 0)
-		// || (config.isIncludeMetricValues() && m.getValues()
-		// .size() > 0)
-		// || (config.isIncludeNodeValueLists() && m
-		// .getNodeValues().size() > 0)) {
-		// this.include(TexUtils.generateMetricChapter(sName, dstDir,
-		// plotDir, s, m, batchData, config, pconfig));
-		// }
-		// }
-		// }
-		//
 		this.writeLine();
 	}
 
