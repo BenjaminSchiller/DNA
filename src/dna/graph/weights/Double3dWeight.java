@@ -65,5 +65,16 @@ public class Double3dWeight extends Weight {
 		return this.x + Weight.WeightSeparator + this.y
 				+ Weight.WeightSeparator + this.z;
 	}
+	
+	
+	public boolean equals(Object o){
+		if (o == null)
+			return false;
+		if (!(o instanceof Double3dWeight))
+			return false;
+
+		Double3dWeight oCasted = (Double3dWeight) o;
+		return this.x == oCasted.getX() && this.y == oCasted.getY() && this.z == oCasted.getZ();
+	}
 
 }

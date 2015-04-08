@@ -3,6 +3,7 @@ package dna.metrics.weights;
 import dna.graph.Graph;
 import dna.graph.IElement;
 import dna.graph.nodes.INode;
+import dna.graph.weights.Double3dWeight;
 import dna.graph.weights.DoubleWeight;
 import dna.graph.weights.IWeightedNode;
 import dna.graph.weights.IntWeight;
@@ -34,14 +35,14 @@ public abstract class NodeWeights extends Weights {
 	public boolean isApplicable(Graph g) {
 		return g.getGraphDatastructures().isNodeType(IWeightedNode.class)
 				&& g.getGraphDatastructures().isNodeWeightType(IntWeight.class,
-						DoubleWeight.class);
+						DoubleWeight.class,Double3dWeight.class);
 	}
 
 	@Override
 	public boolean isApplicable(Batch b) {
 		return b.getGraphDatastructures().isNodeType(IWeightedNode.class)
 				&& b.getGraphDatastructures().isNodeWeightType(IntWeight.class,
-						DoubleWeight.class);
+						DoubleWeight.class,Double3dWeight.class);
 	}
 
 	protected double getWeight(INode n) {
