@@ -6,6 +6,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import dna.io.filesystem.Dir;
 import dna.latex.TexTable.TableFlag;
@@ -301,7 +302,8 @@ public class TexUtils {
 					}
 
 					// generate tables
-					TexUtils.generateCombinedTables(seriesNames, batchData, stats, v,
+					TexUtils.generateCombinedTables(seriesNames, batchData,
+							stats, v, PlotConfig.customPlotDomainStatistics,
 							seriesIndexList, flagList, max, config);
 
 				} else {
@@ -375,10 +377,11 @@ public class TexUtils {
 	}
 
 	/** Generates tables to the given series, batches and inputes. **/
-	private static void generateCombinedTables(String[] seriesNames,
-			AggregatedBatch[][] batchData, TexFile stats, String value,
-			ArrayList<Integer> seriesIndexList, ArrayList<TableFlag> flagList,
-			int maxSeriesIndex, TexConfig config) throws IOException {
+	public static void generateCombinedTables(String[] seriesNames,
+			AggregatedBatch[][] batchData, TexFile file, String value,
+			String domain, ArrayList<Integer> seriesIndexList,
+			ArrayList<TableFlag> flagList, int maxSeriesIndex, TexConfig config)
+			throws IOException {
 		// init
 		int maxColumns = Config.getInt("LATEX_TABLE_MAX_COLUMNS");
 		int vp = 0;
@@ -405,7 +408,7 @@ public class TexUtils {
 			}
 
 			// init table
-			MultiValueTexTable table = new MultiValueTexTable(stats,
+			MultiValueTexTable table = new MultiValueTexTable(file,
 					tableDescrArray, config.getDateFormat(),
 					config.getScaling(), config.getMapping(), null);
 
@@ -422,14 +425,37 @@ public class TexUtils {
 					int sIndex = seriesIndexList.get(pointer);
 					tableFlags[j] = flagList.get(pointer);
 
+					// get data from batches
 					if (batchData[sIndex].length > i) {
 						AggregatedBatch b = batchData[sIndex][i];
-						if (b.getValues().getNames().contains(value))
-							avs[j] = b.getValues().get(value);
-						else
-							avs[j] = new AggregatedValue(value,
-									new double[] { 0.0, 0.0, 0.0, 0.0, 0.0,
-											0.0, 0.0, 0.0, 0.0 });
+
+						if (domain
+								.equals(PlotConfig.customPlotDomainStatistics)) {
+							if (b.getValues().getNames().contains(value))
+								avs[j] = b.getValues().get(value);
+						} else if (domain
+								.equals(PlotConfig.customPlotDomainGeneralRuntimes)) {
+							if (b.getGeneralRuntimes().getNames()
+									.contains(value))
+								avs[j] = TexUtils.formatRuntime(b
+										.getGeneralRuntimes().get(value));
+						} else if (domain
+								.equals(PlotConfig.customPlotDomainMetricRuntimes)) {
+							if (b.getMetricRuntimes().getNames()
+									.contains(value)) {
+								avs[j] = TexUtils.formatRuntime(b
+										.getMetricRuntimes().get(value));
+							}
+						} else {
+							// check if domain = metric
+							if (b.getMetrics().getNames().contains(domain)) {
+								if (b.getMetrics().get(domain).getValues()
+										.getNames().contains(value)) {
+									avs[j] = b.getMetrics().get(domain)
+											.getValues().get(value);
+								}
+							}
+						}
 					}
 				}
 
@@ -440,7 +466,7 @@ public class TexUtils {
 			table.close();
 
 			// write line
-			stats.writeLine();
+			file.writeLine();
 
 			// remove used columns from counter
 			columnsLeft -= amountColumns;
@@ -563,6 +589,13 @@ public class TexUtils {
 			genR.writeLine(TexUtils.section(TexUtils.generalRuntimes));
 			genR.writeLine();
 
+			// check which series has the most batches
+			int max = 0;
+			for (int i = 1; i < batchData.length; i++) {
+				if (batchData[i].length > batchData[max].length)
+					max = i;
+			}
+
 			// for each value
 			for (String v : values) {
 				// add subsection
@@ -592,64 +625,96 @@ public class TexUtils {
 				// values
 				genR.writeCommentBlock("value table of " + v);
 
-				// select description
-				String[] tableDescrArray = TexUtils
-						.selectDescription(seriesNames);
+				// check if combined tables
+				if (config.isMultipleSeriesTables()) {
+					TableMode mode = config.getTableMode();
 
-				// variables for horizontal alignment
-				int currentColumns = 0;
-				int currentTables = 0;
+					// lists of values to be shown in the tables
+					ArrayList<Integer> seriesIndexList = new ArrayList<Integer>();
+					ArrayList<TableFlag> flagList = new ArrayList<TableFlag>();
 
-				// one table for each flag
-				for (TableFlag tf : config.getTableFlags()) {
-					// init table
-					MultiValueTexTable table = new MultiValueTexTable(genR,
-							tableDescrArray, config.getDateFormat(),
-							config.getScaling(), config.getMapping(), tf);
-
-					// check which series has the most batches
-					int max = 0;
-					for (int i = 1; i < batchData.length; i++) {
-						if (batchData[i].length > batchData[max].length)
-							max = i;
-					}
-
-					// add values
-					for (int i = 0; i < batchData[max].length; i++) {
-						long timestamp = batchData[max][i].getTimestamp();
-
-						AggregatedValue[] avs = new AggregatedValue[batchData.length];
-
-						for (int j = 0; j < batchData.length; j++) {
-							if (batchData[j].length > i) {
-								AggregatedBatch b = batchData[j][i];
-								if (b.getGeneralRuntimes().getNames()
-										.contains(v))
-									avs[j] = b.getGeneralRuntimes().get(v);
-								else
-									avs[j] = new AggregatedValue(v,
-											new double[] { 0.0, 0.0, 0.0, 0.0,
-													0.0, 0.0, 0.0, 0.0, 0.0 });
+					// MODE = ALTERNATING SERIES
+					if (mode.equals(TableMode.alternatingSeries)) {
+						// fill lists
+						for (TableFlag tf : config.getTableFlags()) {
+							for (int i = 0; i < batchData.length; i++) {
+								seriesIndexList.add(i);
+								flagList.add(tf);
 							}
 						}
-
-						table.addDataRow(avs, timestamp);
 					}
 
-					// close table
-					table.close();
+					// MODE = ALTERNATING VALUES
+					if (mode.equals(TableMode.alternatingValues)) {
+						for (int i = 0; i < batchData.length; i++) {
+							for (TableFlag tf : config.getTableFlags()) {
+								seriesIndexList.add(i);
+								flagList.add(tf);
 
-					// check for horizontal alignment
-					int t = table.getTableCounter();
-					currentColumns += t * tableDescrArray.length;
-					currentTables += t;
+							}
+						}
+					}
 
-					// if to large, add blankline and reset
-					if ((currentTables + 1) * currentColumns > Config
-							.getInt("LATEX_TABLE_MAX_COLUMNS")) {
-						genR.writeLine();
-						currentColumns = 0;
-						currentTables = 0;
+					// generate tables
+					TexUtils.generateCombinedTables(seriesNames, batchData,
+							genR, v,
+							PlotConfig.customPlotDomainGeneralRuntimes,
+							seriesIndexList, flagList, max, config);
+
+				} else {
+					// else: one table for each flag
+					String[] tableDescrArray = TexUtils
+							.selectDescription(seriesNames);
+
+					// variables for horizontal alignment
+					int currentColumns = 0;
+					int currentTables = 0;
+
+					// one table for each flag
+					for (TableFlag tf : config.getTableFlags()) {
+						// init table
+						MultiValueTexTable table = new MultiValueTexTable(genR,
+								tableDescrArray, config.getDateFormat(),
+								config.getScaling(), config.getMapping(), tf);
+
+						// add values
+						for (int i = 0; i < batchData[max].length; i++) {
+							long timestamp = batchData[max][i].getTimestamp();
+
+							AggregatedValue[] avs = new AggregatedValue[batchData.length];
+
+							for (int j = 0; j < batchData.length; j++) {
+								if (batchData[j].length > i) {
+									AggregatedBatch b = batchData[j][i];
+									if (b.getGeneralRuntimes().getNames()
+											.contains(v))
+										avs[j] = b.getGeneralRuntimes().get(v);
+									else
+										avs[j] = new AggregatedValue(v,
+												new double[] { 0.0, 0.0, 0.0,
+														0.0, 0.0, 0.0, 0.0,
+														0.0, 0.0 });
+								}
+							}
+
+							table.addDataRow(avs, timestamp);
+						}
+
+						// close table
+						table.close();
+
+						// check for horizontal alignment
+						int t = table.getTableCounter();
+						currentColumns += t * tableDescrArray.length;
+						currentTables += t;
+
+						// if to large, add blankline and reset
+						if ((currentTables + 1) * currentColumns > Config
+								.getInt("LATEX_TABLE_MAX_COLUMNS")) {
+							genR.writeLine();
+							currentColumns = 0;
+							currentTables = 0;
+						}
 					}
 				}
 			}
@@ -731,10 +796,10 @@ public class TexUtils {
 								b.getTimestamp());
 					} else {
 						// select values
-						double[] selectedValues = TexUtils.selectValues(b
-								.getGeneralRuntimes().get(v.getName()), config,
-								false);
-
+						double[] selectedValues = TexUtils
+								.formatRuntime(TexUtils.selectValues(b
+										.getGeneralRuntimes().get(v.getName()),
+										config, false));
 						// add row
 						table.addRow(selectedValues, b.getTimestamp());
 					}
@@ -778,6 +843,13 @@ public class TexUtils {
 			}
 		}
 
+		// check which series has the most batches
+		int max = 0;
+		for (int i = 1; i < batchData.length; i++) {
+			if (batchData[i].length > batchData[max].length)
+				max = i;
+		}
+
 		// if no values, do nothing
 		if (values.size() > 0) {
 			metR.writeCommentBlock(TexUtils.metricRuntimes);
@@ -813,62 +885,92 @@ public class TexUtils {
 				// values
 				metR.writeCommentBlock("value table of " + v);
 
-				// select description
-				String[] tableDescrArray = TexUtils
-						.selectDescription(seriesNames);
+				// check if combined tables
+				if (config.isMultipleSeriesTables()) {
+					TableMode mode = config.getTableMode();
 
-				// variables for horizontal alignment
-				int currentColumns = 0;
-				int currentTables = 0;
+					// lists of values to be shown in the tables
+					ArrayList<Integer> seriesIndexList = new ArrayList<Integer>();
+					ArrayList<TableFlag> flagList = new ArrayList<TableFlag>();
 
-				// one table for each flag
-				for (TableFlag tf : config.getTableFlags()) {
-					// init table
-					MultiValueTexTable table = new MultiValueTexTable(metR,
-							tableDescrArray, config.getDateFormat(),
-							config.getScaling(), config.getMapping(), tf);
-
-					// check which series has the most batches
-					int max = 0;
-					for (int i = 1; i < batchData.length; i++) {
-						if (batchData[i].length > batchData[max].length)
-							max = i;
-					}
-
-					// add values
-					for (int i = 0; i < batchData[max].length; i++) {
-						long timestamp = batchData[max][i].getTimestamp();
-
-						AggregatedValue[] avs = new AggregatedValue[batchData.length];
-
-						for (int j = 0; j < batchData.length; j++) {
-							if (batchData[j].length > i) {
-								AggregatedBatch b = batchData[j][i];
-								if (b.getMetricRuntimes().getNames()
-										.contains(v))
-									avs[j] = b.getMetricRuntimes().get(v);
-								else
-									avs[j] = null;
+					// MODE = ALTERNATING SERIES
+					if (mode.equals(TableMode.alternatingSeries)) {
+						// fill lists
+						for (TableFlag tf : config.getTableFlags()) {
+							for (int i = 0; i < batchData.length; i++) {
+								seriesIndexList.add(i);
+								flagList.add(tf);
 							}
 						}
-
-						table.addDataRow(avs, timestamp);
 					}
 
-					// close table
-					table.close();
+					// MODE = ALTERNATING VALUES
+					if (mode.equals(TableMode.alternatingValues)) {
+						for (int i = 0; i < batchData.length; i++) {
+							for (TableFlag tf : config.getTableFlags()) {
+								seriesIndexList.add(i);
+								flagList.add(tf);
 
-					// check for horizontal alignment
-					int t = table.getTableCounter();
-					currentColumns += t * tableDescrArray.length;
-					currentTables += t;
+							}
+						}
+					}
 
-					// if to large, add blankline and reset
-					if ((currentTables + 1) * currentColumns > Config
-							.getInt("LATEX_TABLE_MAX_COLUMNS")) {
-						metR.writeLine();
-						currentColumns = 0;
-						currentTables = 0;
+					// generate tables
+					TexUtils.generateCombinedTables(seriesNames, batchData,
+							metR, v, PlotConfig.customPlotDomainMetricRuntimes,
+							seriesIndexList, flagList, max, config);
+
+				} else {
+					// else: one table for each flag
+					String[] tableDescrArray = TexUtils
+							.selectDescription(seriesNames);
+
+					// variables for horizontal alignment
+					int currentColumns = 0;
+					int currentTables = 0;
+
+					// one table for each flag
+					for (TableFlag tf : config.getTableFlags()) {
+						// init table
+						MultiValueTexTable table = new MultiValueTexTable(metR,
+								tableDescrArray, config.getDateFormat(),
+								config.getScaling(), config.getMapping(), tf);
+
+						// add values
+						for (int i = 0; i < batchData[max].length; i++) {
+							long timestamp = batchData[max][i].getTimestamp();
+
+							AggregatedValue[] avs = new AggregatedValue[batchData.length];
+
+							for (int j = 0; j < batchData.length; j++) {
+								if (batchData[j].length > i) {
+									AggregatedBatch b = batchData[j][i];
+									if (b.getMetricRuntimes().getNames()
+											.contains(v))
+										avs[j] = b.getMetricRuntimes().get(v);
+									else
+										avs[j] = null;
+								}
+							}
+
+							table.addDataRow(avs, timestamp);
+						}
+
+						// close table
+						table.close();
+
+						// check for horizontal alignment
+						int t = table.getTableCounter();
+						currentColumns += t * tableDescrArray.length;
+						currentTables += t;
+
+						// if to large, add blankline and reset
+						if ((currentTables + 1) * currentColumns > Config
+								.getInt("LATEX_TABLE_MAX_COLUMNS")) {
+							metR.writeLine();
+							currentColumns = 0;
+							currentTables = 0;
+						}
 					}
 				}
 			}
@@ -948,9 +1050,10 @@ public class TexUtils {
 								b.getTimestamp());
 					} else {
 						// select values
-						double[] selectedValues = TexUtils.selectValues(b
-								.getMetricRuntimes().get(v.getName()), config,
-								false);
+						double[] selectedValues = TexUtils
+								.formatRuntime(TexUtils.selectValues(b
+										.getMetricRuntimes().get(v.getName()),
+										config, false));
 
 						// add row
 						table.addRow(selectedValues, b.getTimestamp());
@@ -1706,6 +1809,48 @@ public class TexUtils {
 		default:
 			return null;
 		}
+	}
+
+	/**
+	 * Formats the contained double values to runtimes in seconds or
+	 * milliseconds, depending on what is set in the config.
+	 **/
+	public static AggregatedValue formatRuntime(AggregatedValue runtime) {
+		double x = 1;
+		if (Config.get("LATEX_RUNTIME_FORMAT").equals("seconds"))
+			x = 1000 * 1000 * 1000;
+		if (Config.get("LATEX_RUNTIME_FORMAT").equals("milliseconds"))
+			x = 1000 * 1000;
+
+		double[] tempValues = Arrays.copyOf(runtime.getValues(),
+				runtime.getValues().length);
+
+		for (int i = 0; i < tempValues.length; i++) {
+			tempValues[i] = tempValues[i] / x;
+		}
+
+		return new AggregatedValue(runtime.getName(), tempValues);
+	}
+
+	/**
+	 * Formats the contained double value to runtime in seconds or milliseconds,
+	 * depending on what is set in the config.
+	 **/
+	public static double[] formatRuntime(double[] runtimeValues) {
+		double x = 1;
+		if (Config.get("LATEX_RUNTIME_FORMAT").equals("seconds"))
+			x = 1000 * 1000 * 1000;
+		if (Config.get("LATEX_RUNTIME_FORMAT").equals("milliseconds"))
+			x = 1000 * 1000;
+
+		double[] tempValues = Arrays
+				.copyOf(runtimeValues, runtimeValues.length);
+
+		for (int i = 0; i < tempValues.length; i++) {
+			tempValues[i] = tempValues[i] / x;
+		}
+
+		return tempValues;
 	}
 
 }
