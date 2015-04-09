@@ -114,7 +114,7 @@ public class MultiValueTexTable extends TexTable {
 			String value = "";
 
 			if (values[i] == null) {
-				value = "-";
+				value = TexTable.blankChar;
 			} else {
 				double temp = 0.0;
 

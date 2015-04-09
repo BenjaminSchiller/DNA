@@ -125,11 +125,16 @@ public class MultiMultiScalarTexTable extends TexTable {
 	public void addRow(double[] values, double index) throws IOException {
 		String line = "\t" + index + TexTable.tableDelimiter;
 		for (int i = 0; i < values.length; i++) {
-			String value = "" + values[i];
+			String value;
+			if (Double.isNaN(values[i])) {
+				value = TexTable.blankChar;
+			} else {
+				value = "" + values[i];
 
-			// if formatting is on, format
-			if (Config.getBoolean("LATEX_DATA_FORMATTING"))
-				value = MathHelper.format(values[i]);
+				// if formatting is on, format
+				if (Config.getBoolean("LATEX_DATA_FORMATTING"))
+					value = MathHelper.format(values[i]);
+			}
 
 			if (i == values.length - 1)
 				line += value + " " + TexUtils.newline + " " + TexTable.hline;
@@ -144,9 +149,10 @@ public class MultiMultiScalarTexTable extends TexTable {
 		String line = "\t" + index + TexTable.tableDelimiter;
 		for (int i = 0; i < rows; i++) {
 			if (i == rows - 1)
-				line += "-" + " " + TexUtils.newline + " " + TexTable.hline;
+				line += TexTable.blankChar + " " + TexUtils.newline + " "
+						+ TexTable.hline;
 			else
-				line += "-" + TexTable.tableDelimiter;
+				line += TexTable.blankChar + TexTable.tableDelimiter;
 		}
 		this.writeLine(line);
 	}
@@ -157,7 +163,7 @@ public class MultiMultiScalarTexTable extends TexTable {
 		double[] tempValues = new double[values.length];
 		for (int i = 0; i < values.length; i++) {
 			if (values[i] == null) {
-				tempValues[i] = 0.0;
+				tempValues[i] = Double.NaN;
 			} else {
 				switch (this.dataType) {
 				case Average:
@@ -203,7 +209,7 @@ public class MultiMultiScalarTexTable extends TexTable {
 		double[] tempValues = new double[values.length];
 		for (int i = 0; i < values.length; i++) {
 			if (values[i] == null) {
-				tempValues[i] = 0.0;
+				tempValues[i] = Double.NaN;
 			} else {
 				switch (this.dataType) {
 				case Average:

@@ -243,8 +243,8 @@ public class TexFile {
 
 			// generate tables
 			TexUtils.generateCombinedTables(seriesNames, batchData, this,
-					v.getName(), m.getName(),
-					seriesIndexList, flagList, max, config);
+					v.getName(), m.getName(), seriesIndexList, flagList, max,
+					config);
 
 		} else {
 
@@ -690,7 +690,7 @@ public class TexFile {
 			TexConfig config, PlottingConfig pconfig) throws IOException {
 		this.writeLine(TexUtils.subsubsection(n.getName()));
 		this.writeLine(n.getName().replace("_", "\\textunderscore ")
-				+ " is a distribution.");
+				+ " is a nodevaluelist.");
 		this.writeLine();
 
 		// gather fitting plots
