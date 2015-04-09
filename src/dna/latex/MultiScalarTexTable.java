@@ -119,9 +119,10 @@ public class MultiScalarTexTable extends TexTable {
 		String line = "\t" + index + TexTable.tableDelimiter;
 		for (int i = 0; i < rows; i++) {
 			if (i == rows - 1)
-				line += "-" + " " + TexUtils.newline + " " + TexTable.hline;
+				line += TexTable.blankChar + " " + TexUtils.newline + " "
+						+ TexTable.hline;
 			else
-				line += "-" + TexTable.tableDelimiter;
+				line += TexTable.blankChar + TexTable.tableDelimiter;
 		}
 		this.writeLine(line);
 	}
