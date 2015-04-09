@@ -22,10 +22,12 @@ public class MultiValueTexTable extends TexTable {
 		super(parent, headRow, dateFormat, dataType);
 		this.scaling = scaling;
 		this.map = mapping;
-		if (dataType.equals(TableFlag.all))
-			this.dataType = TableFlag.Average;
-		else
-			this.dataType = dataType;
+		if (dataType != null) {
+			if (dataType.equals(TableFlag.all))
+				this.dataType = TableFlag.Average;
+			else
+				this.dataType = dataType;
+		}
 		this.begin(headRow);
 	}
 
@@ -41,7 +43,11 @@ public class MultiValueTexTable extends TexTable {
 		this.parent.writeLine(line);
 		this.addHorizontalLine();
 
-		line = TexUtils.textBf(this.dataType.toString());
+		if (this.dataType == null)
+			line = "";
+		else
+			line = TexUtils.textBf(this.dataType.toString());
+
 		for (int i = 1; i < headRow.length; i++) {
 			line += TexTable.tableDelimiter;
 		}
@@ -68,6 +74,22 @@ public class MultiValueTexTable extends TexTable {
 	/** Adds a data row to the table. Null values will be added as '-'. **/
 	public void addDataRow(AggregatedValue[] values, long timestamp)
 			throws IOException {
+		this.addDataRow(values, timestamp, this.dataType);
+	}
+
+	/** Adds a data row to the table. Null values will be added as '-'. **/
+	public void addDataRow(AggregatedValue[] values, long timestamp,
+			TableFlag dataType) throws IOException {
+		TableFlag[] tempArray = new TableFlag[values.length];
+		for (int i = 0; i < values.length; i++) {
+			tempArray[i] = dataType;
+		}
+		this.addDataRow(values, timestamp, tempArray);
+	}
+
+	/** Adds a data row to the table. Null values will be added as '-'. **/
+	public void addDataRow(AggregatedValue[] values, long timestamp,
+			TableFlag[] dataType) throws IOException {
 		long tTimestamp = timestamp;
 
 		// if mapping, map
@@ -96,7 +118,7 @@ public class MultiValueTexTable extends TexTable {
 			} else {
 				double temp = 0.0;
 
-				switch (this.dataType) {
+				switch (dataType[i]) {
 				case Average:
 					temp = values[i].getAvg();
 					break;
