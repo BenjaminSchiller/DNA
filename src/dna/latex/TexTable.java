@@ -20,6 +20,7 @@ public class TexTable {
 	protected static final String tableNumberSetting = "r";
 	protected static final String tableDelimiter = " & ";
 	protected static final long unsetLong = -1;
+	protected static final String blankChar = "-";
 
 	// table mode enum
 	public static enum TableMode {
@@ -173,11 +174,16 @@ public class TexTable {
 
 		String line = "\t" + tempTimestamp + TexTable.tableDelimiter;
 		for (int i = 0; i < values.length; i++) {
-			String value = "" + values[i];
+			String value;
+			if (Double.isNaN(values[i])) {
+				value = TexTable.blankChar;
+			} else {
+				value = "" + values[i];
 
-			// if formatting is on, format
-			if (Config.getBoolean("LATEX_DATA_FORMATTING"))
-				value = MathHelper.format(values[i]);
+				// if formatting is on, format
+				if (Config.getBoolean("LATEX_DATA_FORMATTING"))
+					value = MathHelper.format(values[i]);
+			}
 
 			if (i == values.length - 1)
 				line += value + " " + TexUtils.newline + " " + TexTable.hline;
@@ -209,9 +215,10 @@ public class TexTable {
 		String line = "\t" + tempTimestamp + TexTable.tableDelimiter;
 		for (int i = 0; i < rows; i++) {
 			if (i == rows - 1)
-				line += "-" + " " + TexUtils.newline + " " + TexTable.hline;
+				line += TexTable.blankChar + " " + TexUtils.newline + " "
+						+ TexTable.hline;
 			else
-				line += "-" + TexTable.tableDelimiter;
+				line += TexTable.blankChar + TexTable.tableDelimiter;
 		}
 		this.writeLine(line);
 	}
