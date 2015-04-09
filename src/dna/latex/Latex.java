@@ -175,11 +175,16 @@ public class Latex {
 	public static void writeTexAndPlotCombined(SeriesData[] s, String dstDir,
 			String filename, TexConfig config, PlottingConfig pconfig)
 			throws IOException, InterruptedException {
-		// PLOT
-		Plotting.plot(s, config.getPlotDir(), pconfig);
+		if (s.length > 1) {
+			// PLOT
+			Plotting.plot(s, config.getPlotDir(), pconfig);
 
-		// TEX
-		Latex.writeTexCombined(s, dstDir, filename, "plots/", config, pconfig);
+			// TEX
+			Latex.writeTexCombined(s, dstDir, filename, "plots/", config,
+					pconfig);
+		} else {
+			Latex.writeTexAndPlot(s, dstDir, filename, config, pconfig);
+		}
 	}
 
 	/**
