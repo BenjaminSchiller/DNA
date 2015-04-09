@@ -21,6 +21,11 @@ public class TexTable {
 	protected static final String tableDelimiter = " & ";
 	protected static final long unsetLong = -1;
 
+	// table mode enum
+	public static enum TableMode {
+		alternatingSeries, alternatingValues
+	};
+
 	// table flags
 	public static enum TableFlag {
 		Average, Min, Max, Median, Var, VarLow, VarUp, ConfLow, ConfUp, all

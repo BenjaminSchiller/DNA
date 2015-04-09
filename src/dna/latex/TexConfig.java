@@ -4,6 +4,7 @@ import java.text.SimpleDateFormat;
 import java.util.HashMap;
 
 import dna.latex.TexTable.TableFlag;
+import dna.latex.TexTable.TableMode;
 import dna.plot.PlottingConfig.PlotFlag;
 import dna.util.Config;
 
@@ -32,6 +33,10 @@ public class TexConfig {
 	private PlotFlag[] plotFlags;
 	private TableFlag[] tableFlags;
 
+	// table settings
+	private boolean multipleSeriesTables;
+	private TableMode tableMode;
+
 	// constructor
 	public TexConfig(String dstDir, String srcDir, String plotDir, long from,
 			long to, long stepsize, PlotFlag[] plotFlags,
@@ -41,6 +46,9 @@ public class TexConfig {
 		this.plotDir = plotDir;
 		this.plotFlags = plotFlags;
 		this.tableFlags = tableFlags;
+
+		this.multipleSeriesTables = false;
+		this.tableMode = TableMode.alternatingValues;
 
 		this.from = from;
 		this.to = to;
@@ -242,6 +250,36 @@ public class TexConfig {
 
 	public boolean isIntervalByIndex() {
 		return this.intervalByIndex;
+	}
+
+	/**
+	 * When set, tables will incorporate multiple values of multiple series.
+	 * 
+	 * Example: |min_s1|min_s2|max_s1|max_s2|avg_s1|avg_s2|
+	 * **/
+	public boolean isMultipleSeriesTables() {
+		return this.multipleSeriesTables;
+	}
+
+	/**
+	 * When set, tables will incorporate multiple values of multiple series.
+	 * 
+	 * Example: |min_s1|min_s2|max_s1|max_s2|avg_s1|avg_s2|
+	 * **/
+	public void setMultipleSeriesTables(boolean multipleSeriesTables) {
+		this.multipleSeriesTables = multipleSeriesTables;
+	}
+
+	public TableMode getTableMode() {
+		return this.tableMode;
+	}
+
+	/**
+	 * Sets the TableMode. Doesnt have any effect if multipleSeriesTables-flag
+	 * is not set.
+	 **/
+	public void setMultipleSeriesTableMode(TableMode tableMode) {
+		this.tableMode = tableMode;
 	}
 
 }
