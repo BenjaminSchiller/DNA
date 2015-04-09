@@ -11,6 +11,7 @@ import dna.io.ZipReader;
 import dna.io.ZipWriter;
 import dna.io.filesystem.Dir;
 import dna.latex.TexTable.TableFlag;
+import dna.latex.TexTable.TableMode;
 import dna.plot.PlotConfig;
 import dna.plot.PlottingConfig;
 import dna.series.aggdata.AggregatedBatch;
@@ -200,71 +201,109 @@ public class TexFile {
 			}
 		}
 
+		// check which series has the most batches
+		int max = 0;
+		for (int i = 1; i < batchData.length; i++) {
+			if (batchData[i].length > batchData[max].length)
+				max = i;
+		}
+
 		// values
 		this.writeCommentBlock("value table of " + v.getName());
 
-		// select description
-		String[] tableDescrArray = TexUtils.selectDescription(seriesNames);
+		// check if combined tables
+		if (config.isMultipleSeriesTables()) {
+			TableMode mode = config.getTableMode();
 
-		// variables for horizontal alignment
-		int currentTables = 0;
-		int currentColumns = 0;
+			// lists of values to be shown in the tables
+			ArrayList<Integer> seriesIndexList = new ArrayList<Integer>();
+			ArrayList<TableFlag> flagList = new ArrayList<TableFlag>();
 
-		for (TableFlag tf : config.getTableFlags()) {
-			// init table
-			MultiValueTexTable table = new MultiValueTexTable(this,
-					tableDescrArray, config.getDateFormat(),
-					config.getScaling(), config.getMapping(), tf);
-
-			// check which series has the most batches
-			int max = 0;
-			for (int i = 1; i < batchData.length; i++) {
-				if (batchData[i].length > batchData[max].length)
-					max = i;
+			// MODE = ALTERNATING SERIES
+			if (mode.equals(TableMode.alternatingSeries)) {
+				// fill lists
+				for (TableFlag tf : config.getTableFlags()) {
+					for (int i = 0; i < batchData.length; i++) {
+						seriesIndexList.add(i);
+						flagList.add(tf);
+					}
+				}
 			}
 
-			// add values
-			for (int i = 0; i < batchData[max].length; i++) {
-				long timestamp = batchData[max][i].getTimestamp();
+			// MODE = ALTERNATING VALUES
+			if (mode.equals(TableMode.alternatingValues)) {
+				for (int i = 0; i < batchData.length; i++) {
+					for (TableFlag tf : config.getTableFlags()) {
+						seriesIndexList.add(i);
+						flagList.add(tf);
 
-				AggregatedValue[] avs = new AggregatedValue[batchData.length];
+					}
+				}
+			}
 
-				// get values, if metric or value not present, insert null
-				for (int j = 0; j < batchData.length; j++) {
-					if (batchData[j].length > i) {
-						AggregatedBatch b = batchData[j][i];
-						if (b.getMetrics().getNames().contains(m.getName())) {
-							if (b.getMetrics().get(m.getName()).getValues()
-									.getNames().contains(v.getName())) {
-								avs[j] = b.getMetrics().get(m.getName())
-										.getValues().get(v.getName());
+			// generate tables
+			TexUtils.generateCombinedTables(seriesNames, batchData, this,
+					v.getName(), m.getName(),
+					seriesIndexList, flagList, max, config);
+
+		} else {
+
+			// select description
+			String[] tableDescrArray = TexUtils.selectDescription(seriesNames);
+
+			// variables for horizontal alignment
+			int currentTables = 0;
+			int currentColumns = 0;
+
+			for (TableFlag tf : config.getTableFlags()) {
+				// init table
+				MultiValueTexTable table = new MultiValueTexTable(this,
+						tableDescrArray, config.getDateFormat(),
+						config.getScaling(), config.getMapping(), tf);
+
+				// add values
+				for (int i = 0; i < batchData[max].length; i++) {
+					long timestamp = batchData[max][i].getTimestamp();
+
+					AggregatedValue[] avs = new AggregatedValue[batchData.length];
+
+					// get values, if metric or value not present, insert null
+					for (int j = 0; j < batchData.length; j++) {
+						if (batchData[j].length > i) {
+							AggregatedBatch b = batchData[j][i];
+							if (b.getMetrics().getNames().contains(m.getName())) {
+								if (b.getMetrics().get(m.getName()).getValues()
+										.getNames().contains(v.getName())) {
+									avs[j] = b.getMetrics().get(m.getName())
+											.getValues().get(v.getName());
+								} else {
+									avs[j] = null;
+								}
 							} else {
 								avs[j] = null;
 							}
-						} else {
-							avs[j] = null;
 						}
 					}
+
+					// add row
+					table.addDataRow(avs, timestamp);
 				}
 
-				// add row
-				table.addDataRow(avs, timestamp);
-			}
+				// close table
+				table.close();
 
-			// close table
-			table.close();
+				// check for horizontal alignment
+				int t = table.getTableCounter();
+				currentColumns += t * tableDescrArray.length;
+				currentTables += t;
 
-			// check for horizontal alignment
-			int t = table.getTableCounter();
-			currentColumns += t * tableDescrArray.length;
-			currentTables += t;
-
-			// if to large, add blankline and reset
-			if ((currentTables + 1) * currentColumns > Config
-					.getInt("LATEX_TABLE_MAX_COLUMNS")) {
-				this.writeLine();
-				currentColumns = 0;
-				currentTables = 0;
+				// if to large, add blankline and reset
+				if ((currentTables + 1) * currentColumns > Config
+						.getInt("LATEX_TABLE_MAX_COLUMNS")) {
+					this.writeLine();
+					currentColumns = 0;
+					currentTables = 0;
+				}
 			}
 		}
 	}
