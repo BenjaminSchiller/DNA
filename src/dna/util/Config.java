@@ -365,16 +365,4 @@ public class Config extends PropertiesHolder {
 			return null;
 		}
 	}
-
-	/** Returns a locale with the given key. **/
-	public static Locale getLocale(String key) {
-		switch (Config.get(key)) {
-		case "GER":
-			return Locale.GERMAN;
-		case "US":
-			return Locale.US;
-		default:
-			return Locale.getDefault();
-		}
-	}
 }
