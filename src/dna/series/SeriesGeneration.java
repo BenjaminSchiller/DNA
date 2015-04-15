@@ -28,8 +28,18 @@ import dna.metrics.algorithms.IRecomputation;
 import dna.series.Series.RandomSeedReset;
 import dna.series.aggdata.AggregatedSeries;
 import dna.series.data.BatchData;
+import dna.series.data.BinnedDistributionDouble;
+import dna.series.data.BinnedDistributionInt;
+import dna.series.data.BinnedDistributionLong;
+import dna.series.data.Distribution;
+import dna.series.data.DistributionDouble;
+import dna.series.data.DistributionInt;
+import dna.series.data.DistributionLong;
+import dna.series.data.MetricData;
+import dna.series.data.NodeValueList;
 import dna.series.data.SeriesData;
 import dna.series.data.Value;
+import dna.series.lists.ValueList;
 import dna.updates.batch.Batch;
 import dna.updates.batch.BatchSanitization;
 import dna.updates.batch.BatchSanitizationStats;
@@ -39,6 +49,7 @@ import dna.updates.update.EdgeWeight;
 import dna.updates.update.NodeAddition;
 import dna.updates.update.NodeRemoval;
 import dna.updates.update.NodeWeight;
+import dna.util.ArrayUtils;
 import dna.util.Config;
 import dna.util.Log;
 import dna.util.Memory;
@@ -459,7 +470,26 @@ public class SeriesGeneration {
 				Log.error("unknown metric type: " + m.getClass());
 			}
 			if (success) {
-				initialData.getMetrics().add(m.getData());
+				// get data
+				MetricData data = m.getData();
+
+				// add extra values for distributions
+				if (Config.getBoolean("GENERATE_VALUES_FROM_DISTRIBUTION")) {
+					for (Distribution d : data.getDistributions().getList()) {
+						SeriesGeneration.addExtraDistributionValuesToList(d,
+								data.getValues());
+					}
+				}
+				// add extra values for nodevaluelists
+				if (Config.getBoolean("GENERATE_VALUES_FROM_NODEVALUELIST")) {
+					for (NodeValueList n : data.getNodeValues().getList()) {
+						SeriesGeneration.addExtraNodeValueListValuesToList(n,
+								data.getValues());
+					}
+				}
+
+				// add metric to batch
+				initialData.getMetrics().add(data);
 			} else {
 				Log.error("could not create initial data for metric "
 						+ m.getDescription());
@@ -671,7 +701,26 @@ public class SeriesGeneration {
 
 		// add metric data
 		for (IMetric m : series.getMetrics()) {
-			batchData.getMetrics().add(m.getData());
+			// get data
+			MetricData data = m.getData();
+
+			// add extra values for distributions
+			if (Config.getBoolean("GENERATE_VALUES_FROM_DISTRIBUTION")) {
+				for (Distribution d : data.getDistributions().getList()) {
+					SeriesGeneration.addExtraDistributionValuesToList(d,
+							data.getValues());
+				}
+			}
+			// add extra values for nodevaluelists
+			if (Config.getBoolean("GENERATE_VALUES_FROM_NODEVALUELIST")) {
+				for (NodeValueList n : data.getNodeValues().getList()) {
+					SeriesGeneration.addExtraNodeValueListValuesToList(n,
+							data.getValues());
+				}
+			}
+
+			// add metric to batch
+			batchData.getMetrics().add(data);
 		}
 
 		return batchData;
@@ -855,6 +904,163 @@ public class SeriesGeneration {
 		}
 
 		return counter;
+	}
+
+	/**
+	 * Generates extra Distribution values i.E. DD_MAX, DD_AVG, and adds them to
+	 * the ValueList.
+	 **/
+	private static void addExtraDistributionValuesToList(Distribution d,
+			ValueList values) {
+		if (d instanceof DistributionDouble) {
+			if (Config.getBoolean("GENERATE_DISTRIBUTION_MIN")) {
+				Value v = new Value(d.getName() + "_MIN",
+						ArrayUtils.min(((DistributionDouble) d)
+								.getDoubleValues()));
+				values.add(v);
+			}
+			if (Config.getBoolean("GENERATE_DISTRIBUTION_MAX")) {
+				Value v = new Value(d.getName() + "_MAX",
+						ArrayUtils.max(((DistributionDouble) d)
+								.getDoubleValues()));
+				values.add(v);
+			}
+			if (Config.getBoolean("GENERATE_DISTRIBUTION_MED")) {
+				Value v = new Value(d.getName() + "_MED",
+						ArrayUtils.med(((DistributionDouble) d)
+								.getDoubleValues()));
+				values.add(v);
+			}
+			if (Config.getBoolean("GENERATE_DISTRIBUTION_AVG")) {
+				Value v = new Value(d.getName() + "_AVG",
+						ArrayUtils.avg(((DistributionDouble) d)
+								.getDoubleValues()));
+				values.add(v);
+			}
+			if (Config.getBoolean("GENERATE_DISTRIBUTION_BINSIZE")) {
+				if (d instanceof BinnedDistributionDouble) {
+					Value v = new Value(d.getName() + "_BINSIZE",
+							((BinnedDistributionDouble) d).getBinSize());
+					values.add(v);
+				}
+			}
+		} else if (d instanceof DistributionLong) {
+			if (Config.getBoolean("GENERATE_DISTRIBUTION_MIN")) {
+				Value v = new Value(d.getName() + "_MIN",
+						ArrayUtils.min(((DistributionLong) d).getLongValues()));
+				values.add(v);
+			}
+			if (Config.getBoolean("GENERATE_DISTRIBUTION_MAX")) {
+				Value v = new Value(d.getName() + "_MAX",
+						ArrayUtils.max(((DistributionLong) d).getLongValues()));
+				values.add(v);
+			}
+			if (Config.getBoolean("GENERATE_DISTRIBUTION_MED")) {
+				Value v = new Value(d.getName() + "_MED",
+						ArrayUtils.med(((DistributionLong) d).getLongValues()));
+				values.add(v);
+			}
+			if (Config.getBoolean("GENERATE_DISTRIBUTION_AVG")) {
+				Value v = new Value(d.getName() + "_AVG",
+						ArrayUtils.avg(((DistributionLong) d).getLongValues()));
+				values.add(v);
+			}
+			if (Config.getBoolean("GENERATE_DISTRIBUTION_DENOMINATOR")) {
+				Value v = new Value(d.getName() + "_DENOMINATOR",
+						((DistributionLong) d).getDenominator());
+				values.add(v);
+			}
+			if (Config.getBoolean("GENERATE_DISTRIBUTION_BINSIZE")) {
+				if (d instanceof BinnedDistributionLong) {
+					Value v = new Value(d.getName() + "_BINSIZE",
+							((BinnedDistributionLong) d).getBinSize());
+					values.add(v);
+				}
+			}
+		} else if (d instanceof DistributionInt) {
+			if (Config.getBoolean("GENERATE_DISTRIBUTION_MIN")) {
+				Value v = new Value(d.getName() + "_MIN",
+						ArrayUtils.min(((DistributionInt) d).getIntValues()));
+				values.add(v);
+			}
+			if (Config.getBoolean("GENERATE_DISTRIBUTION_MAX")) {
+				Value v = new Value(d.getName() + "_MAX",
+						ArrayUtils.max(((DistributionInt) d).getIntValues()));
+				values.add(v);
+			}
+			if (Config.getBoolean("GENERATE_DISTRIBUTION_MED")) {
+				Value v = new Value(d.getName() + "_MED",
+						ArrayUtils.med(((DistributionInt) d).getIntValues()));
+				values.add(v);
+			}
+			if (Config.getBoolean("GENERATE_DISTRIBUTION_AVG")) {
+				Value v = new Value(d.getName() + "_AVG",
+						ArrayUtils.avg(((DistributionInt) d).getIntValues()));
+				values.add(v);
+			}
+			if (Config.getBoolean("GENERATE_DISTRIBUTION_DENOMINATOR")) {
+				Value v = new Value(d.getName() + "_DENOMINATOR",
+						((DistributionInt) d).getDenominator());
+				values.add(v);
+			}
+			if (Config.getBoolean("GENERATE_DISTRIBUTION_BINSIZE")) {
+				if (d instanceof BinnedDistributionInt) {
+					Value v = new Value(d.getName() + "_BINSIZE",
+							((BinnedDistributionInt) d).getBinSize());
+					values.add(v);
+				}
+			}
+		} else {
+			// normal distribution
+			if (Config.getBoolean("GENERATE_DISTRIBUTION_MIN")) {
+				Value v = new Value(d.getName() + "_MIN", ArrayUtils.min(d
+						.getValues()));
+				values.add(v);
+			}
+			if (Config.getBoolean("GENERATE_DISTRIBUTION_MAX")) {
+				Value v = new Value(d.getName() + "_MAX", ArrayUtils.max(d
+						.getValues()));
+				values.add(v);
+			}
+			if (Config.getBoolean("GENERATE_DISTRIBUTION_MED")) {
+				Value v = new Value(d.getName() + "_MED", ArrayUtils.med(d
+						.getValues()));
+				values.add(v);
+			}
+			if (Config.getBoolean("GENERATE_DISTRIBUTION_AVG")) {
+				Value v = new Value(d.getName() + "_AVG", ArrayUtils.avg(d
+						.getValues()));
+				values.add(v);
+			}
+		}
+	}
+
+	/**
+	 * Generates extra NodeValueList values i.E. localCC_MAX, localCC_AVG, and
+	 * adds them to the ValueList.
+	 **/
+	private static void addExtraNodeValueListValuesToList(NodeValueList n,
+			ValueList values) {
+		if (Config.getBoolean("GENERATE_NODEVALUELIST_MIN")) {
+			Value v = new Value(n.getName() + "_MIN", ArrayUtils.min(n
+					.getValues()));
+			values.add(v);
+		}
+		if (Config.getBoolean("GENERATE_NODEVALUELIST_MAX")) {
+			Value v = new Value(n.getName() + "_MAX", ArrayUtils.max(n
+					.getValues()));
+			values.add(v);
+		}
+		if (Config.getBoolean("GENERATE_NODEVALUELIST_MED")) {
+			Value v = new Value(n.getName() + "_MED", ArrayUtils.med(n
+					.getValues()));
+			values.add(v);
+		}
+		if (Config.getBoolean("GENERATE_NODEVALUELIST_AVG")) {
+			Value v = new Value(n.getName() + "_AVG", ArrayUtils.avg(n
+					.getValues()));
+			values.add(v);
+		}
 	}
 
 	// private static int applyUpdates(Series series,
