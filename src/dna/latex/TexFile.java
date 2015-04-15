@@ -127,6 +127,10 @@ public class TexFile {
 			PlottingConfig pconfig) throws IOException {
 		String name = m.getName();
 		this.writeLine(TexUtils.section(name));
+
+		// write description from config
+		if (Config.getMetricDescription(name) != null)
+			this.writeLine(Config.getMetricDescription(name));
 		this.writeLine();
 
 		ArrayList<PlotConfig> addedPlots = new ArrayList<PlotConfig>();
@@ -314,8 +318,14 @@ public class TexFile {
 			ArrayList<PlotConfig> addedPlots, TexConfig config,
 			PlottingConfig pconfig) throws IOException {
 		this.writeLine(TexUtils.subsubsection(v.getName()));
-		this.writeLine(v.getName().replace("_", "\\textunderscore ")
-				+ " is a metric value.");
+
+		// get description from config
+		if (Config.getPropertyDescription(m.getName(), v.getName()) != null)
+			this.writeLine(Config.getPropertyDescription(m.getName(),
+					v.getName()));
+		else
+			this.writeLine(v.getName().replace("_", "\\textunderscore ")
+					+ " is a metric value.");
 		this.writeLine();
 
 		// gather fitting plots
@@ -554,8 +564,14 @@ public class TexFile {
 			ArrayList<PlotConfig> addedPlots, TexConfig config,
 			PlottingConfig pconfig) throws IOException {
 		this.writeLine(TexUtils.subsubsection(d.getName()));
-		this.writeLine(d.getName().replace("_", "\\textunderscore ")
-				+ " is a distribution.");
+
+		// get description from config
+		if (Config.getPropertyDescription(m.getName(), d.getName()) != null)
+			this.writeLine(Config.getPropertyDescription(m.getName(),
+					d.getName()));
+		else
+			this.writeLine(d.getName().replace("_", "\\textunderscore ")
+					+ " is a distribution.");
 		this.writeLine();
 
 		// gather fitting plots
@@ -862,8 +878,14 @@ public class TexFile {
 			ArrayList<PlotConfig> addedPlots, TexConfig config,
 			PlottingConfig pconfig) throws IOException {
 		this.writeLine(TexUtils.subsubsection(n.getName()));
-		this.writeLine(n.getName().replace("_", "\\textunderscore ")
-				+ " is a nodevaluelist.");
+
+		// get description from config
+		if (Config.getPropertyDescription(m.getName(), n.getName()) != null)
+			this.writeLine(Config.getPropertyDescription(m.getName(),
+					n.getName()));
+		else
+			this.writeLine(n.getName().replace("_", "\\textunderscore ")
+					+ " is a nodevaluelist.");
 		this.writeLine();
 
 		// gather fitting plots
