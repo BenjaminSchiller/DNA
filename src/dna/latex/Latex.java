@@ -268,7 +268,7 @@ public class Latex {
 		TexFile file = new TexFile(dstDir, filename);
 
 		// WRITE PREAMBLE
-		file.writePreamble(dstDir);
+		file.writePreamble(dstDir, config);
 
 		// ADD SERIES CHAPTERS
 		file.addSeriesChapter(series, dstDir, plotDir, batches, config,
@@ -391,7 +391,7 @@ public class Latex {
 		TexFile file = new TexFile(dstDir, filename);
 
 		// WRITE PREAMBLE
-		file.writePreamble(dstDir);
+		file.writePreamble(dstDir, config);
 
 		// ADD SERIES CHAPTERS
 		for (int i = 0; i < series.length; i++) {
@@ -467,7 +467,7 @@ public class Latex {
 		TexFile file = new TexFile(dstDir, filename);
 
 		// WRITE PREAMBLE
-		file.writePreamble(dstDir);
+		file.writePreamble(dstDir, config);
 
 		// ADD SERIES CHAPTER
 		file.addSeriesChapter(s, srcDir, dstDir, plotDir, batches, config,

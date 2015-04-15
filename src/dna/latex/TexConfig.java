@@ -37,6 +37,9 @@ public class TexConfig {
 	private boolean multipleSeriesTables;
 	private TableMode tableMode;
 
+	// font
+	private int fontSize;
+
 	// constructor
 	public TexConfig(String dstDir, String srcDir, String plotDir, long from,
 			long to, long stepsize, PlotFlag[] plotFlags,
@@ -54,6 +57,8 @@ public class TexConfig {
 		this.to = to;
 		this.stepsize = stepsize;
 		this.intervalByIndex = false;
+
+		this.fontSize = Config.getInt("LATEX_DEFAULT_FONT_SIZE");
 
 		// if default datetime is set in config, set it here
 		if (Config.get("LATEX_DEFAULT_DATETIME") != null) {
@@ -280,6 +285,15 @@ public class TexConfig {
 	 **/
 	public void setMultipleSeriesTableMode(TableMode tableMode) {
 		this.tableMode = tableMode;
+	}
+
+	/** Sets the used font size in points. **/
+	public void setFontSize(int fontSize) {
+		this.fontSize = fontSize;
+	}
+
+	public int getFontSize() {
+		return this.fontSize;
 	}
 
 }

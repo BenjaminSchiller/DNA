@@ -1593,7 +1593,8 @@ public class TexUtils {
 	}
 
 	/** Creates the default header file. **/
-	public static TexFile generateHeaderFile(String dstDir) throws IOException {
+	public static TexFile generateHeaderFile(String dstDir, TexConfig config)
+			throws IOException {
 		TexFile header = new TexFile(dstDir + Config.get("LATEX_CHAPTERS_DIR")
 				+ Dir.delimiter, TexUtils.headerFilename
 				+ Config.get("SUFFIX_TEX_FILE"));
@@ -1610,7 +1611,7 @@ public class TexUtils {
 		header.writeLine("\twoside=false,%");
 		header.writeLine("\tparskip=half,%");
 		header.writeLine("\tchapterprefix,%");
-		header.writeLine("\tfontsize=12pt,%");
+		header.writeLine("\tfontsize=" + config.getFontSize() + "pt,%");
 		header.writeLine("\tenglish,");
 		header.writeLine("]" + TexUtils.argument("scrreprt"));
 

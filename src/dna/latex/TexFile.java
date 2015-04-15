@@ -990,7 +990,8 @@ public class TexFile {
 
 	// tex methods
 	/** Writes the default latex header to the texfile. **/
-	public void writePreamble(String dstDir) throws IOException {
+	public void writePreamble(String dstDir, TexConfig config)
+			throws IOException {
 		if (open) {
 			// auto gen
 			this.writeCommentBlock("This is an auto-generated tex-file from DNA - dynammic network analyzer.");
@@ -1011,7 +1012,7 @@ public class TexFile {
 			this.writeCommentLine(TexUtils.beginOfDocument);
 
 			// generate and include header
-			this.include(TexUtils.generateHeaderFile(dir));
+			this.include(TexUtils.generateHeaderFile(dir, config));
 
 			this.writeLine(TexUtils.begin("document"));
 			this.writeLine(TexUtils.pagestyle("scrheadings"));
