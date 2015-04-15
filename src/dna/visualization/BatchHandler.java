@@ -17,7 +17,9 @@ import name.pachler.nio.file.StandardWatchEventKind;
 import dna.io.filesystem.Dir;
 import dna.series.aggdata.AggregatedBatch.BatchReadMode;
 import dna.series.data.BatchData;
+import dna.series.data.RunData;
 import dna.series.lists.BatchDataList;
+import dna.util.Config;
 import dna.util.Log;
 
 /**
@@ -30,6 +32,7 @@ public class BatchHandler implements Runnable {
 
 	// class variables
 	private String dir;
+	private int runId;
 	private BatchData currentBatch;
 	private BatchData nextBatch;
 	private BatchDataList batches;
@@ -41,15 +44,20 @@ public class BatchHandler implements Runnable {
 	private boolean timeSlided;
 	private boolean liveDisplay;
 	private boolean batchesZipped;
+	private boolean runsZipped;
 
 	private Thread t;
 
 	private int speed = 500;
 	private int dirTimeout = 120;
 
+	public static enum ZipMode {
+		none, batches, runs
+	};
+
 	// constructors
 	public BatchHandler(String dir, MainDisplay mainFrame, boolean liveDisplay,
-			boolean batchesZipped) {
+			ZipMode zipMode) {
 		this.dir = dir;
 		this.mainFrame = mainFrame;
 		this.batches = new BatchDataList();
@@ -58,7 +66,29 @@ public class BatchHandler implements Runnable {
 		this.isInit = false;
 		this.threadSuspended = false;
 		this.liveDisplay = liveDisplay;
-		this.batchesZipped = batchesZipped;
+
+		this.batchesZipped = false;
+		this.runsZipped = false;
+
+		// switch mode
+		switch (zipMode) {
+		case batches:
+			this.batchesZipped = true;
+			break;
+		case runs:
+			String[] splits = dir.split(Dir.delimiter);
+			this.runId = Dir.getRun(splits[splits.length - 1].replace(
+					Config.get("SUFFIX_ZIP_FILE"), ""));
+			this.runsZipped = true;
+
+			String tempDir = "";
+			for (int i = 0; i < splits.length - 1; i++)
+				tempDir += splits[i] + Dir.delimiter;
+			this.dir = tempDir;
+			break;
+		case none:
+			break;
+		}
 	}
 
 	// get methods
@@ -118,7 +148,12 @@ public class BatchHandler implements Runnable {
 		try {
 			long timestamp = this.getBatches().get(0).getTimestamp();
 			BatchData tempBatch;
-			if (this.batchesZipped)
+
+			if (this.runsZipped) {
+				RunData rd = RunData.readFromSingleFile(this.dir,
+						Dir.delimiter, this.runId, BatchReadMode.readAllValues);
+				tempBatch = rd.getBatches().get(0);
+			} else if (this.batchesZipped)
 				tempBatch = BatchData.readFromSingleFile(this.dir, timestamp,
 						Dir.delimiter, BatchReadMode.readAllValues);
 			else
@@ -135,6 +170,10 @@ public class BatchHandler implements Runnable {
 	// set methods
 	public void setDir(String dir) {
 		this.dir = dir;
+	}
+	
+	public void setRunId(int runId) {
+		this.runId = runId;
 	}
 
 	public void setBatches(BatchDataList batches) {
@@ -154,7 +193,15 @@ public class BatchHandler implements Runnable {
 
 	/** adds new batches from the filesystem to the batches. **/
 	public void updateBatches() throws IOException {
-		BatchDataList tempBatches = BatchDataList.readTimestamps(this.getDir());
+		BatchDataList tempBatches;
+
+		if (this.runsZipped) {
+			RunData rd = RunData.readFromSingleFile(this.dir, Dir.delimiter,
+					this.runId, BatchReadMode.readNoValues);
+			tempBatches = rd.getBatches();
+		} else {
+			tempBatches = BatchDataList.readTimestamps(this.getDir());
+		}
 		if (this.getBatches().size() <= tempBatches.size()) {
 			for (BatchData b : tempBatches.list) {
 				this.getBatches().add(b);
@@ -544,7 +591,11 @@ public class BatchHandler implements Runnable {
 		try {
 			long timestamp = this.getBatches().get(index).getTimestamp();
 			BatchData tempBatch;
-			if (this.batchesZipped)
+			if (this.runsZipped) {
+				RunData rd = RunData.readFromSingleFile(this.dir,
+						Dir.delimiter, this.runId, BatchReadMode.readAllValues);
+				tempBatch = rd.getBatches().get(index);
+			} else if (this.batchesZipped)
 				tempBatch = BatchData.readFromSingleFile(this.dir, timestamp,
 						Dir.delimiter, BatchReadMode.readAllValues);
 			else
@@ -586,7 +637,17 @@ public class BatchHandler implements Runnable {
 		// send best matching batch to mainFrame
 		try {
 			BatchData tempBatch;
-			if (this.batchesZipped)
+			if (this.runsZipped) {
+				RunData rd = RunData.readFromSingleFile(this.dir,
+						Dir.delimiter, this.runId, BatchReadMode.readAllValues);
+				tempBatch = null;
+				for (BatchData b : rd.getBatches().getList()) {
+					if (b.getTimestamp() == bestMatchingTimestamp) {
+						tempBatch = b;
+						break;
+					}
+				}
+			} else if (this.batchesZipped)
 				tempBatch = BatchData.readFromSingleFile(this.getDir(),
 						bestMatchingTimestamp, Dir.delimiter,
 						BatchReadMode.readAllValues);
@@ -641,5 +702,10 @@ public class BatchHandler implements Runnable {
 				return counter;
 		}
 		return counter;
+	}
+
+	/** Returns the id of the current run. Only works with zipped runs. **/
+	public int getRunId() {
+		return this.runId;
 	}
 }

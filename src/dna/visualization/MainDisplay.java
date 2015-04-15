@@ -31,9 +31,11 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.border.EtchedBorder;
 
+import dna.io.filesystem.Dir;
 import dna.series.data.BatchData;
 import dna.util.Config;
 import dna.util.Log;
+import dna.visualization.BatchHandler.ZipMode;
 import dna.visualization.components.LogDisplay;
 import dna.visualization.components.statsdisplay.StatsDisplay;
 import dna.visualization.components.visualizer.MetricVisualizer;
@@ -63,7 +65,8 @@ public class MainDisplay extends JFrame {
 		String dataDir = null;
 		boolean liveFlag = false;
 		boolean playbackFlag = false;
-		boolean zipFlag = false;
+		boolean zipBatchFlag = false;
+		boolean zipRunFlag = false;
 
 		try {
 			for (int i = 0; i < args.length; i++) {
@@ -86,7 +89,10 @@ public class MainDisplay extends JFrame {
 					playbackFlag = true;
 					break;
 				case "-z":
-					zipFlag = true;
+					zipBatchFlag = true;
+					break;
+				case "-zr":
+					zipRunFlag = true;
 					break;
 				}
 			}
@@ -98,6 +104,16 @@ public class MainDisplay extends JFrame {
 
 		if (liveFlag && playbackFlag) {
 			Log.warn("Live display AND playback flag set. Showing -help and exiting.");
+			helpFlag = true;
+		}
+
+		if (liveFlag && zipRunFlag) {
+			Log.warn("Live display AND zipped run flag set. Showing -help and exiting.");
+			helpFlag = true;
+		}
+
+		if (zipBatchFlag && zipRunFlag) {
+			Log.warn("Zipped run flag && zipped batch flag set. Showing -help and exiting.");
 			helpFlag = true;
 		}
 
@@ -117,6 +133,8 @@ public class MainDisplay extends JFrame {
 					+ "Runs the GUI in playback mode");
 			System.out.println("-z" + "\t\t\t"
 					+ "Enables zipped batches support");
+			System.out
+					.println("-zr" + "\t\t\t" + "Enables zipped runs support");
 
 			System.out.println("Example: run vis.jar -c " + '"'
 					+ "config/my_guy.cfg" + '"' + " -d " + '"'
@@ -222,17 +240,23 @@ public class MainDisplay extends JFrame {
 				config.setLiveDisplayMode(liveFlag);
 				MainDisplay.DefaultConfig.setLiveDisplayMode(liveFlag);
 			}
-			if (!zipFlag)
-				zipFlag = config.isBatchesZipped();
+
+			ZipMode zipMode = ZipMode.none;
+			if (!zipBatchFlag && !zipRunFlag)
+				zipMode = config.getZipMode();
+			else if (zipBatchFlag)
+				zipMode = ZipMode.batches;
+			else if (zipRunFlag)
+				zipMode = ZipMode.runs;
 
 			// init main window
 			Log.infoSep();
 			Log.info("Initializing MainDisplay");
-			MainDisplay display = new MainDisplay(liveFlag, config);
+			MainDisplay display = new MainDisplay(liveFlag, zipMode, config);
 
 			// init batch handler, hand over directory and maindisplay
 			display.setBatchHandler(new BatchHandler(dataDir, display,
-					liveFlag, zipFlag));
+					liveFlag, zipMode));
 			display.initBatchHandler();
 
 			if (config.isFullscreen()) {
@@ -281,9 +305,11 @@ public class MainDisplay extends JFrame {
 
 	// live display flag
 	public boolean liveDisplay;
+	public ZipMode zipMode;
 
 	// constructor
-	public MainDisplay(boolean liveDisplay, MainDisplayConfig config) {
+	public MainDisplay(boolean liveDisplay, ZipMode zipMode,
+			MainDisplayConfig config) {
 		// init
 		setTitle(config.getName());
 		setSize(config.getSize());
@@ -294,6 +320,7 @@ public class MainDisplay extends JFrame {
 		this.defaultFontColor = config.getDefaultFontColor();
 		this.dataComponents = new ArrayList<Component>();
 		this.liveDisplay = liveDisplay;
+		this.zipMode = zipMode;
 
 		/*
 		 * LEFT SIDE PANEL
@@ -717,21 +744,51 @@ public class MainDisplay extends JFrame {
 	 */
 	public void initBatchHandler() throws IOException {
 		if (!this.liveDisplay) {
-			File f = new File(this.batchHandler.getDir());
-			if (f.exists() && f.isDirectory()) {
-				this.batchHandler.updateBatches();
-				this.batchHandler.init();
+			File f;
+			if (this.zipMode.equals(ZipMode.runs)) {
+				f = new File(this.batchHandler.getDir() + "run."
+						+ this.batchHandler.getRunId()
+						+ Config.get("SUFFIX_ZIP_FILE"));
+				if (f.exists() && !f.isDirectory()) {
+					this.batchHandler.updateBatches();
+					this.batchHandler.init();
+				} else {
+					Log.info("Zip '"
+							+ f.getPath()
+							+ "' not existing, BatchHandler could not be initialized.");
+				}
 			} else {
-				Log.info("Dir '"
-						+ f.getPath()
-						+ "' not existing, BatchHandler could not be initialized.");
+				f = new File(this.batchHandler.getDir());
+				if (f.exists() && f.isDirectory()) {
+					System.out.println("CASE 2");
+					this.batchHandler.updateBatches();
+					this.batchHandler.init();
+				} else {
+					System.out
+							.println("CASE 3  " + f.exists() + "  "
+									+ f.isDirectory() + "   "
+									+ this.zipMode.toString());
+					Log.info("Dir '"
+							+ f.getPath()
+							+ "' not existing, BatchHandler could not be initialized.");
+				}
 			}
 		}
 	}
 
 	/** sets the batch handlers directory **/
 	public void setBatchHandlerDir(String dir) {
-		this.batchHandler.setDir(dir);
+		if (this.zipMode.equals(ZipMode.runs)) {
+			String[] splits = dir.split(Dir.delimiter);
+			this.batchHandler.setRunId(Dir.getRun(splits[splits.length - 1]
+					.replace(Config.get("SUFFIX_ZIP_FILE"), "")));
+			String tempDir = "";
+			for (int i = 0; i < splits.length - 1; i++)
+				tempDir += splits[i] + Dir.delimiter;
+			this.batchHandler.setDir(tempDir);
+		} else {
+			this.batchHandler.setDir(dir);
+		}
 	}
 
 	/** sets the batch handlers speed **/
