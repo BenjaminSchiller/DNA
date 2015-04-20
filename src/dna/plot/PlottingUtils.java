@@ -490,7 +490,7 @@ public class PlottingUtils {
 					customDefaultSubstitutePlots.add(pc);
 			}
 		}
-		
+
 		if (customValuePlots != null) {
 			for (PlotConfig pc : customValuePlots) {
 				// if only 1 value, add plot to list of substitutes
@@ -4026,6 +4026,10 @@ public class PlottingUtils {
 						}
 					} catch (FileNotFoundException e) {
 						if (zippedBatches) {
+							if (ZipReader.readFileSystem != null) {
+								ZipReader.readFileSystem.close();
+								ZipReader.readFileSystem = null;
+							}
 							String remDir = tempDir
 									+ Config.get("PREFIX_BATCHDATA_DIR")
 									+ timestamp + Config.get("SUFFIX_ZIP_FILE");
@@ -4062,6 +4066,10 @@ public class PlottingUtils {
 						}
 					} catch (FileNotFoundException e) {
 						if (zippedBatches) {
+							if (ZipReader.readFileSystem != null) {
+								ZipReader.readFileSystem.close();
+								ZipReader.readFileSystem = null;
+							}
 							String remDir = tempDir
 									+ Config.get("PREFIX_BATCHDATA_DIR")
 									+ timestamp + Config.get("SUFFIX_ZIP_FILE");
