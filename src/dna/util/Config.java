@@ -345,6 +345,7 @@ public class Config extends PropertiesHolder {
 		return keys;
 	}
 
+	/** Returns a metric description read from config. **/
 	public static String getMetricDescription(String metric) {
 		if (Config.containsKey(metric + "_descr")) {
 			return Config.get(metric + "_descr");
@@ -355,6 +356,7 @@ public class Config extends PropertiesHolder {
 		}
 	}
 
+	/** Returns a property description for the metric-property pair. **/
 	public static String getPropertyDescription(String metric, String property) {
 		if (Config.containsKey(metric + "_" + property + "_descr")) {
 			return Config.get(metric + "_" + property + "_descr");
@@ -362,8 +364,39 @@ public class Config extends PropertiesHolder {
 			return Config.getPropertyDescription(
 					Config.get(metric + "_extends"), property);
 		} else {
+			if (property.endsWith("_MIN"))
+				return Config.getExtraValueDescription(
+						property.replace("_MIN", ""), "_MIN");
+			if (property.endsWith("_MAX"))
+				return Config.getExtraValueDescription(
+						property.replace("_MAX", ""), "_MAX");
+			if (property.endsWith("_MED"))
+				return Config.getExtraValueDescription(
+						property.replace("_MED", ""), "_MED");
+			if (property.endsWith("_AVG"))
+				return Config.getExtraValueDescription(
+						property.replace("_AVG", ""), "_AVG");
+			if (property.endsWith("_BINSIZE"))
+				return Config.getExtraValueDescription(
+						property.replace("_BINSIZE", ""), "_BINSIZE");
+			if (property.endsWith("_DENOMINATOR"))
+				return Config.getExtraValueDescription(
+						property.replace("_DENOMINATOR", ""), "_DENOMINATOR");
 			return null;
 		}
+	}
+
+	/** Retunrs a description for the property + suffix pair. **/
+	public static String getExtraValueDescription(String property, String suffix) {
+		if (Config.containsKey("EXTRA_VALUE" + suffix + "_DESCR")
+				&& Config.containsKey("EXTRA_VALUE_DESCR")) {
+			return Config
+					.get("EXTRA_VALUE_DESCR")
+					.replace("%suffix-descr",
+							Config.get("EXTRA_VALUE" + suffix + "_DESCR"))
+					.replace("%value", property);
+		} else
+			return null;
 	}
 
 	/** Returns a locale with the given key. **/
