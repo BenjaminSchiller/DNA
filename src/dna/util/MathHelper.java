@@ -3,6 +3,11 @@ package dna.util;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 
+import dna.util.expr.Expr;
+import dna.util.expr.Parser;
+import dna.util.expr.SyntaxException;
+import dna.util.expr.Variable;
+
 public class MathHelper {
 	/**
 	 * Parse a String that is known to contain an integer to an integer
@@ -107,5 +112,27 @@ public class MathHelper {
 		}
 
 		return "" + d;
+	}
+	
+	/** Scales the timestamp according to the expression. **/
+	public static long scaleTimestamp(long timestamp, String expression, String variable) {
+		// parse expression
+		Expr expr = null;
+		try {
+			expr = Parser.parse(expression);
+		} catch (SyntaxException e) {
+			// print what went wrong
+			if (Config.getBoolean("CUSTOM_PLOT_EXPLAIN_EXPRESSION_FAILURE"))
+				System.out.println(e.explain());
+			else
+				e.printStackTrace();
+		}
+
+		// define variable
+		Variable v = Variable.make(variable);
+		v.setValue(timestamp);
+
+		// return
+		return (long) expr.value();
 	}
 }

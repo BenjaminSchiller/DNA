@@ -7,10 +7,6 @@ import java.util.HashMap;
 
 import dna.util.Config;
 import dna.util.MathHelper;
-import dna.util.expr.Expr;
-import dna.util.expr.Parser;
-import dna.util.expr.SyntaxException;
-import dna.util.expr.Variable;
 
 /** Represents a table in a tex document. **/
 public class TexTable {
@@ -229,24 +225,8 @@ public class TexTable {
 
 	/** Scales the timestamp according to the expression. **/
 	public static long scaleTimestamp(long timestamp, String expression) {
-		// parse expression
-		Expr expr = null;
-		try {
-			expr = Parser.parse(expression);
-		} catch (SyntaxException e) {
-			// print what went wrong
-			if (Config.getBoolean("CUSTOM_PLOT_EXPLAIN_EXPRESSION_FAILURE"))
-				System.out.println(e.explain());
-			else
-				e.printStackTrace();
-		}
-
-		// define variable
-		Variable v = Variable.make(Config.get("LATEX_SCALING_VARIABLE"));
-		v.setValue(timestamp);
-
-		// return
-		return (long) expr.value();
+		return MathHelper.scaleTimestamp(timestamp, expression,
+				Config.get("LATEX_SCALING_VARIABLE"));
 	}
 
 	/** Returns the horizontal table counter. **/

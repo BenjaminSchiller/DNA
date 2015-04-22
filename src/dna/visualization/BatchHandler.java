@@ -21,6 +21,7 @@ import dna.series.data.RunData;
 import dna.series.lists.BatchDataList;
 import dna.util.Config;
 import dna.util.Log;
+import dna.util.MathHelper;
 
 /**
  * A batchhandler is used to read a run from the filesystem and simulate it by
@@ -171,7 +172,7 @@ public class BatchHandler implements Runnable {
 	public void setDir(String dir) {
 		this.dir = dir;
 	}
-	
+
 	public void setRunId(int runId) {
 		this.runId = runId;
 	}
@@ -707,5 +708,13 @@ public class BatchHandler implements Runnable {
 	/** Returns the id of the current run. Only works with zipped runs. **/
 	public int getRunId() {
 		return this.runId;
+	}
+
+	/** Returns a new batch with a scaled timestamp. Values remain. **/
+	public static BatchData scaleTimestamp(BatchData b, String expression) {
+		return new BatchData(MathHelper.scaleTimestamp(b.getTimestamp(),
+				expression, Config.get("VISUALIZER_SCALING_VARIABLE")),
+				b.getValues(), b.getGeneralRuntimes(), b.getMetricRuntimes(),
+				b.getMetrics());
 	}
 }
