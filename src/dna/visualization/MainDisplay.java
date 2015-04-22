@@ -760,14 +760,9 @@ public class MainDisplay extends JFrame {
 			} else {
 				f = new File(this.batchHandler.getDir());
 				if (f.exists() && f.isDirectory()) {
-					System.out.println("CASE 2");
 					this.batchHandler.updateBatches();
 					this.batchHandler.init();
 				} else {
-					System.out
-							.println("CASE 3  " + f.exists() + "  "
-									+ f.isDirectory() + "   "
-									+ this.zipMode.toString());
 					Log.info("Dir '"
 							+ f.getPath()
 							+ "' not existing, BatchHandler could not be initialized.");
