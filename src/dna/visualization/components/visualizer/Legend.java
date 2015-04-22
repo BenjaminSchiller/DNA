@@ -17,6 +17,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.border.EtchedBorder;
 
+import dna.util.Config;
 import dna.visualization.MainDisplay;
 import dna.visualization.components.BoundsPopupMenuListener;
 import dna.visualization.components.ColorHandler;
@@ -40,6 +41,11 @@ import dna.visualization.config.components.MultiScalarVisualizerConfig;
  */
 @SuppressWarnings("serial")
 public class Legend extends JPanel {
+	// static html commands
+	private static final String HTML_Begin = "<html>";
+	private static final String HTML_End = "</html>";
+	private static final String HTML_NewLine = "<br>";
+
 	// components
 	protected Visualizer parent;
 	private Legend thisLegend;
@@ -111,7 +117,7 @@ public class Legend extends JPanel {
 			Color color = this.colorHandler.getNextColor();
 
 			LegendItem i = new LegendItemValue(this.list, name, color);
-			i.setToolTipText(name);
+			i.setToolTipText(Legend.getToolTipText(name));
 			this.list.add(i);
 			if (this.parent instanceof MetricVisualizer)
 				((MetricVisualizer) this.parent).addTrace(name, color);
@@ -150,7 +156,7 @@ public class Legend extends JPanel {
 			}
 
 			LegendItem i = new LegendItemValue(this.list, name, color);
-			i.setToolTipText(name);
+			i.setToolTipText(Legend.getToolTipText(name));
 			this.list.add(i);
 			if (this.parent instanceof MetricVisualizer)
 				((MetricVisualizer) this.parent).addTrace(name, color);
@@ -199,7 +205,7 @@ public class Legend extends JPanel {
 			Color color = this.colorHandler.getNextColor();
 
 			LegendItem i = new LegendItemDistribution(this.list, name, color);
-			i.setToolTipText(name);
+			i.setToolTipText(Legend.getToolTipText(name));
 
 			this.list.add(i);
 
@@ -305,7 +311,7 @@ public class Legend extends JPanel {
 			Color color = this.colorHandler.getNextColor();
 
 			LegendItem i = new LegendItemNodeValueList(this.list, name, color);
-			i.setToolTipText(name);
+			i.setToolTipText(Legend.getToolTipText(name));
 			this.list.add(i);
 
 			// get default axis orientation
@@ -360,7 +366,7 @@ public class Legend extends JPanel {
 			}
 
 			LegendItem i = new LegendItemNodeValueList(this.list, name, color);
-			i.setToolTipText(name);
+			i.setToolTipText(Legend.getToolTipText(name));
 			this.list.add(i);
 			if (this.parent instanceof MultiScalarVisualizer)
 				((MultiScalarVisualizer) this.parent).addNodeValueListTrace(
@@ -679,4 +685,23 @@ public class Legend extends JPanel {
 		this.lock.setSelected(locked);
 	}
 
+	/**
+	 * Gets a ToolTip-Text for the given value name. If no description to the
+	 * value is available in config it will return the name.
+	 **/
+	public static String getToolTipText(String name) {
+		String tooltip = name;
+
+		// get descr
+		String[] splits = name.split("\\.");
+		String descr = Config.getPropertyDescription(splits[0], splits[1]);
+
+		if (descr != null) {
+			tooltip = Legend.HTML_Begin + descr + Legend.HTML_NewLine
+					+ Legend.HTML_NewLine + tooltip + Legend.HTML_End;
+		}
+
+		// return
+		return tooltip;
+	}
 }
