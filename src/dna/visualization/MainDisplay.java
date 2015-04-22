@@ -649,15 +649,24 @@ public class MainDisplay extends JFrame {
 	 *            BatchData object holding structural information about the data
 	 */
 	public void updateData(BatchData b) {
+		BatchData tempBatch = b;
+
+		// scaling
+		if (MainDisplay.config.getScalingExpression() != null
+				&& !MainDisplay.config.getScalingExpression().equals("none")) {
+			tempBatch = BatchHandler.scaleTimestamp(b,
+					MainDisplay.config.getScalingExpression());
+		}
+
 		for (Component c : this.dataComponents) {
 			if (c instanceof StatsDisplay) {
-				((StatsDisplay) c).updateData(b);
+				((StatsDisplay) c).updateData(tempBatch);
 			}
 			if (c instanceof MetricVisualizer) {
-				((MetricVisualizer) c).updateData(b);
+				((MetricVisualizer) c).updateData(tempBatch);
 			}
 			if (c instanceof MultiScalarVisualizer) {
-				((MultiScalarVisualizer) c).updateData(b);
+				((MultiScalarVisualizer) c).updateData(tempBatch);
 			}
 		}
 	}
@@ -670,20 +679,31 @@ public class MainDisplay extends JFrame {
 	 *            initialization batch
 	 */
 	public void initData(BatchData b) {
+		BatchData tempBatch = b;
+
+		// scaling
+		if (MainDisplay.config.getScalingExpression() != null
+				&& !MainDisplay.config.getScalingExpression().equals("none")) {
+			tempBatch = BatchHandler.scaleTimestamp(b,
+					MainDisplay.config.getScalingExpression());
+		}
+
 		for (Component c : this.dataComponents) {
 			if (c instanceof StatsDisplay) {
 				if (this.liveDisplay)
-					((StatsDisplay) c).initData(b, batchHandler.getDir());
+					((StatsDisplay) c).initData(tempBatch,
+							batchHandler.getDir());
 				else
-					((StatsDisplay) c).initData(b, batchHandler.getDir(),
+					((StatsDisplay) c).initData(tempBatch,
+							batchHandler.getDir(),
 							batchHandler.getMinTimestamp(),
 							batchHandler.getMaxTimestamp());
 			}
 			if (c instanceof MetricVisualizer) {
-				((MetricVisualizer) c).initData(b);
+				((MetricVisualizer) c).initData(tempBatch);
 			}
 			if (c instanceof MultiScalarVisualizer) {
-				((MultiScalarVisualizer) c).initData(b);
+				((MultiScalarVisualizer) c).initData(tempBatch);
 			}
 		}
 	}

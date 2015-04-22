@@ -17,7 +17,8 @@ public class MainDisplayConfig {
 			boolean liveDisplayMode, boolean fullscreen, ZipMode zipMode,
 			String defaultDir, Font defaultFont, Color defaultFontColor,
 			Dimension buttonSize, String logoDir, Dimension logoSize,
-			Dimension visualizerPanelSize, Dimension innerVisualizerPanelSize,
+			String scalingExpression, Dimension visualizerPanelSize,
+			Dimension innerVisualizerPanelSize,
 			StatsDisplayConfig statsDisplayConfig,
 			LogDisplayConfig[] logDisplayConfigs,
 			MetricVisualizerConfig[] metricVisualizerConfigs,
@@ -33,6 +34,7 @@ public class MainDisplayConfig {
 		this.buttonSize = buttonSize;
 		this.logoDir = logoDir;
 		this.logoSize = logoSize;
+		this.scalingExpression = scalingExpression;
 		this.visualizerPanelSize = visualizerPanelSize;
 		this.innerVisualizerPanelSize = innerVisualizerPanelSize;
 		this.statsDisplayConfig = statsDisplayConfig;
@@ -53,6 +55,7 @@ public class MainDisplayConfig {
 	private Dimension buttonSize;
 	private String logoDir;
 	private Dimension logoSize;
+	private String scalingExpression;
 	private Dimension visualizerPanelSize;
 	private Dimension innerVisualizerPanelSize;
 
@@ -128,6 +131,10 @@ public class MainDisplayConfig {
 		return this.logoSize;
 	}
 
+	public String getScalingExpression() {
+		return this.scalingExpression;
+	}
+
 	public Dimension getVisualizerPanelSize() {
 		return this.visualizerPanelSize;
 	}
@@ -168,6 +175,7 @@ public class MainDisplayConfig {
 		Dimension buttonSize;
 		String logoDir;
 		Dimension logoSize;
+		String scalingExpression;
 		Dimension visualizerPanelSize;
 		Dimension innerVisualizerPanelSize;
 
@@ -232,6 +240,7 @@ public class MainDisplayConfig {
 			logoDir = logoObject.getString("Dir");
 			logoSize = new Dimension(logoObject.getInt("Width"),
 					logoObject.getInt("Height"));
+			scalingExpression = o.getString("Scaling");
 			JSONObject visPanelObject = o.getJSONObject("VisualizerPanel");
 			visualizerPanelSize = new Dimension(visPanelObject.getInt("Width"),
 					visPanelObject.getInt("Height"));
@@ -251,6 +260,8 @@ public class MainDisplayConfig {
 			buttonSize = MainDisplay.DefaultConfig.getButtonSize();
 			logoDir = MainDisplay.DefaultConfig.getLogoDir();
 			logoSize = MainDisplay.DefaultConfig.getLogoSize();
+			scalingExpression = MainDisplay.DefaultConfig
+					.getScalingExpression();
 			visualizerPanelSize = MainDisplay.DefaultConfig
 					.getVisualizerPanelSize();
 			innerVisualizerPanelSize = MainDisplay.DefaultConfig
@@ -301,6 +312,11 @@ public class MainDisplayConfig {
 
 		try {
 			defaultDir = o.getString("DefaultDir");
+		} catch (Exception e) {
+		}
+
+		try {
+			scalingExpression = o.getString("Scaling");
 		} catch (Exception e) {
 		}
 
@@ -451,7 +467,7 @@ public class MainDisplayConfig {
 
 		return new MainDisplayConfig(name, size, liveDisplayMode, fullscreen,
 				zipMode, defaultDir, defaultFont, defaultFontColor, buttonSize,
-				logoDir, logoSize, visualizerPanelSize,
+				logoDir, logoSize, scalingExpression, visualizerPanelSize,
 				innerVisualizerPanelSize, statsDisplayConfig,
 				logDisplayConfigs, metricVisualizerConfigs,
 				multiScalarVisualizerConfigs);
