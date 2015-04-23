@@ -751,9 +751,12 @@ public class StatsDisplay extends JPanel implements ChangeListener {
 
 		this.batchesValue.setText("" + 0);
 
-		this.statistics.reset();
-		this.metRuntimes.reset();
-		this.genRuntimes.reset();
+		if (this.statistics != null)
+			this.statistics.reset();
+		if (this.metRuntimes != null)
+			this.metRuntimes.reset();
+		if (this.genRuntimes != null)
+			this.genRuntimes.reset();
 
 		if (!this.liveDisplay) {
 			this.ProgressBar.setValue(0);
