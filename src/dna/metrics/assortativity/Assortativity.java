@@ -54,15 +54,15 @@ public abstract class Assortativity extends Metric implements IMetric {
 	public static final double ACCEPTED_ERROR_FOR_EQUALITY = 1.0E-4;
 
 	/**
-	 * Setting for {@link Parameter} "directedDegreeType".
+	 * Setting for {@link Parameter} "DirectedDegreeType".
 	 */
 	public static enum DirectedDegreeType {
-		IN("in"), OUT("out");
+		IN("In"), OUT("Out");
 
 		private final StringParameter param;
 
 		DirectedDegreeType(String value) {
-			this.param = new StringParameter("directedDegreeType", value);
+			this.param = new StringParameter("DirectedDegreeType", value);
 		}
 
 		public StringParameter StringParameter() {
@@ -71,15 +71,15 @@ public abstract class Assortativity extends Metric implements IMetric {
 	}
 
 	/**
-	 * Setting for {@link Parameter} "edgeWeightType".
+	 * Setting for {@link Parameter} "EdgeWeightType".
 	 */
 	public static enum EdgeWeightType {
-		IGNORE_WEIGHTS("unweighted"), USE_WEIGHTS("weighted");
+		IGNORE_WEIGHTS("Unweighted"), USE_WEIGHTS("Weighted");
 
 		private final StringParameter param;
 
 		EdgeWeightType(String value) {
-			this.param = new StringParameter("edgeWeightType", value);
+			this.param = new StringParameter("EdgeWeightType", value);
 		}
 
 		public StringParameter StringParameter() {
