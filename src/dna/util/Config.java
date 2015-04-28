@@ -410,4 +410,16 @@ public class Config extends PropertiesHolder {
 			return Locale.getDefault();
 		}
 	}
+
+	public static void zipNone() {
+		Config.overwrite("GENERATION_AS_ZIP", "none");
+	}
+
+	public static void zipBatches() {
+		Config.overwrite("GENERATION_AS_ZIP", "batches");
+	}
+
+	public static void zipRuns() {
+		Config.overwrite("GENERATION_AS_ZIP", "runs");
+	}
 }
