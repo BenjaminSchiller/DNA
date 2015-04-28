@@ -1,7 +1,7 @@
 package dna.graph.nodes.zalando;
 
 import dna.graph.datastructures.GraphDataStructure;
-import dna.graph.generators.zalando.EventColumn;
+import dna.graph.generators.zalando.data.EventColumn;
 import dna.graph.nodes.DirectedNode;
 import dna.graph.nodes.UndirectedNode;
 

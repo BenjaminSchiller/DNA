@@ -3,9 +3,9 @@ package dna.updates.generators.zalando;
 import dna.graph.Graph;
 import dna.graph.datastructures.GraphDataStructure;
 import dna.graph.datastructures.zalando.ZalandoGraphDataStructure;
-import dna.graph.generators.zalando.Event;
-import dna.graph.generators.zalando.EventColumn;
-import dna.graph.generators.zalando.EventReader;
+import dna.graph.generators.zalando.data.Event;
+import dna.graph.generators.zalando.data.EventColumn;
+import dna.graph.generators.zalando.parser.EventFilter;
 
 public class ProductsActionsChronologyBatchGenerator extends
 		ZalandoChronologyBatchGenerator {
@@ -23,15 +23,21 @@ public class ProductsActionsChronologyBatchGenerator extends
 	 *            fewer lines.
 	 * @param eventsFilepath
 	 *            The full path of the Zalando log file. Will be passed to
-	 *            {@link EventReader}.
+	 *            {@link Old_EventReader}.
 	 */
 	public ProductsActionsChronologyBatchGenerator(
 			ZalandoGraphDataStructure gds, long timestampInit,
-			int numberOfLinesPerBatch, String eventsFilepath) {
-		super("ProductsActionsChronology", gds, timestampInit, null,
-				numberOfLinesPerBatch, eventsFilepath, new EventColumn[] {
-						EventColumn.FAMILYSKU, EventColumn.AKTION }, false,
-				new EventColumn[] { EventColumn.SESSIONID }, false, true);
+			String filterProperties, int numberOfLinesPerBatch,
+			String pathProducts, boolean isGzippedProducts, String pathLog,
+			boolean isGzippedLog, int omitFirstEvents) {
+		super("ProductsActionsChronology", gds, timestampInit, EventFilter
+				.fromFile(filterProperties)
+		/* new DefaultEventFilter() /* null */, numberOfLinesPerBatch,
+				pathProducts, isGzippedProducts, pathLog, isGzippedLog,
+				new EventColumn[] { EventColumn.PRODUCTFAMILYID,
+						EventColumn.ACTION }, false,
+				new EventColumn[] { EventColumn.SESSION }, false, true,
+				omitFirstEvents);
 	}
 
 	/**
@@ -41,7 +47,8 @@ public class ProductsActionsChronologyBatchGenerator extends
 	 * customers who have done the product actions in that order.
 	 * 
 	 * @param event
-	 *            The {@link Event} for which values the edges should be added.
+	 *            The {@link Old_Event} for which values the edges should be
+	 *            added.
 	 */
 	@Override
 	void addEdgesForColumns(Graph g, Event event) {

@@ -2,7 +2,7 @@ package dna.graph.nodes.zalando;
 
 import java.util.Arrays;
 
-import dna.graph.generators.zalando.EventColumn;
+import dna.graph.generators.zalando.data.EventColumn;
 import dna.graph.nodes.Node;
 import dna.util.Log;
 
@@ -67,7 +67,7 @@ public class ZalandoNode {
 	}
 
 	/**
-	 * Checks whether both of the given nodes are Zalando nodes of equal tyoe.
+	 * Checks whether both of the given nodes are Zalando nodes of equal type.
 	 * 
 	 * @param node1
 	 *            Any {@link Node}. Comparison is only possible if {@code node1}
@@ -93,6 +93,23 @@ public class ZalandoNode {
 		} else {
 			return Arrays.equals(((IZalandoNode) node1).getType(),
 					((IZalandoNode) node2).getType());
+		}
+	}
+
+	/**
+	 * Checks whethe the given node type equals the given type.
+	 * 
+	 * @param node
+	 *            Any {@link Node}.
+	 * @return True if and only if the ndoe is an instance of
+	 *         {@link IZalandoNode} and {@link IZalandoNode#getType()} equals
+	 *         the given type, else false.
+	 */
+	public static boolean nodeIsOfType(Node node, EventColumn[] type) {
+		if (!(node instanceof IZalandoNode)) {
+			return false;
+		} else {
+			return Arrays.equals(((IZalandoNode) node).getType(), type);
 		}
 	}
 

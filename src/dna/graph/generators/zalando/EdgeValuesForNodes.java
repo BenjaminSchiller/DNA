@@ -9,11 +9,11 @@ import dna.graph.nodes.Node;
 import dna.updates.generators.zalando.ZalandoBatchGenerator;
 
 /**
- * Keeps the indices of {@link Node}s sorted by mappings of {@link EventColumn}
+ * Keeps the indices of {@link Node}s sorted by mappings of {@link Old_EventColumn}
  * groups. Used by {@link ZalandoGraphGenerator} and
  * {@link ZalandoBatchGenerator} to add {@link Edge}s between common
  * {@link Node}s. To set the right weight of the {@link Edge}, the number of
- * {@link Event}s where each value of a {@link Node} is seen together with the
+ * {@link Old_Event}s where each value of a {@link Node} is seen together with the
  * appropriate value for {@link Edge} is saved as "value" for these two, too.
  */
 public class EdgeValuesForNodes {
@@ -59,8 +59,8 @@ public class EdgeValuesForNodes {
 	 * @param edgeColumnGroupMapping
 	 *            The mapping of a value of
 	 *            {@link ZalandoGraphGenerator#columnGroupsToCheckForEquality}
-	 *            of an {@link Event}.
-	 * @return All {@link Node} indices which {@link Event}s they where created
+	 *            of an {@link Old_Event}.
+	 * @return All {@link Node} indices which {@link Old_Event}s they where created
 	 *         for have the same mapping of their
 	 *         {@link ZalandoGraphGenerator#columnGroupsToCheckForEquality} as
 	 *         given {@code edgeColumnGroupMapping}.
@@ -82,12 +82,12 @@ public class EdgeValuesForNodes {
 	 * @param edgeColumnGroupMapping
 	 *            The mapping of a value of
 	 *            {@link ZalandoGraphGenerator#columnGroupsToCheckForEquality}
-	 *            of an {@link Event}.
+	 *            of an {@link Old_Event}.
 	 * @param nodeIndexException
 	 *            The returned set of node indices will not contain this node
 	 *            index.
 	 * @return All {@link Node} indices (but not {@code nodeMappingException})
-	 *         which {@link Event}s they where created for have the same mapping
+	 *         which {@link Old_Event}s they where created for have the same mapping
 	 *         of their
 	 *         {@link ZalandoGraphGenerator#columnGroupsToCheckForEquality} as
 	 *         given {@code edgeColumnGroupMapping}.

@@ -2,8 +2,8 @@ package dna.updates.generators.zalando;
 
 import dna.graph.datastructures.GraphDataStructure;
 import dna.graph.datastructures.zalando.ZalandoGraphDataStructure;
-import dna.graph.generators.zalando.EventColumn;
-import dna.graph.generators.zalando.EventReader;
+import dna.graph.generators.zalando.data.EventColumn;
+import dna.graph.generators.zalando.parser.EventFilter;
 
 public class CustomersActionsBatchGenerator extends
 		ZalandoEqualityBatchGenerator {
@@ -21,15 +21,20 @@ public class CustomersActionsBatchGenerator extends
 	 *            fewer lines.
 	 * @param eventsFilepath
 	 *            The full path of the Zalando log file. Will be passed to
-	 *            {@link EventReader}.
+	 *            {@link Old_EventReader}.
 	 */
 	public CustomersActionsBatchGenerator(ZalandoGraphDataStructure gds,
-			long timestampInit, int numberOfLinesPerBatch, String eventsFilepath) {
-		super("CustomersActions", gds, timestampInit, null,
-				numberOfLinesPerBatch, eventsFilepath, new EventColumn[] {
-						EventColumn.PERMANENTCOOKIEID, EventColumn.AKTION },
-				false, new EventColumn[] { EventColumn.FAMILYSKU }, false,
-				false);
+			long timestampInit, String filterProperties,
+			int numberOfLinesPerBatch, String pathProducts,
+			boolean isGzippedProducts, String pathLog, boolean isGzippedLog,
+			int omitFirstEvents) {
+		super("CustomersActions", gds, timestampInit, EventFilter
+				.fromFile(filterProperties)
+		/* new DefaultEventFilter() /* null */, numberOfLinesPerBatch,
+				pathProducts, isGzippedProducts, pathLog, isGzippedLog,
+				new EventColumn[] { EventColumn.USER, EventColumn.ACTION },
+				false, new EventColumn[] { EventColumn.PRODUCTFAMILYID },
+				false, false, omitFirstEvents);
 	}
 
 }
