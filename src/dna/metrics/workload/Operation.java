@@ -20,9 +20,9 @@ public abstract class Operation extends ParameterList {
 		V, E
 	}
 
-	private ListType listType;
+	protected ListType list;
 
-	private int times;
+	protected int times;
 
 	/**
 	 * 
@@ -40,7 +40,7 @@ public abstract class Operation extends ParameterList {
 		super(name, new Parameter[] {
 				new StringParameter("listType", listType.toString()),
 				new IntParameter("times", times) }, parameters);
-		this.listType = listType;
+		this.list = listType;
 		this.times = times;
 	}
 
@@ -52,7 +52,7 @@ public abstract class Operation extends ParameterList {
 	 *            graph
 	 */
 	public void createWorkload(Graph g) {
-		switch (this.listType) {
+		switch (this.list) {
 		case E:
 			for (int i = 0; i < this.times; i++) {
 				this.createWorkloadE(g);
@@ -103,7 +103,7 @@ public abstract class Operation extends ParameterList {
 	 * @return type of the list this operation is executed on
 	 */
 	public ListType getListType() {
-		return listType;
+		return list;
 	}
 
 	/**

@@ -1,9 +1,13 @@
 package dna.metrics.workload.operations;
 
+import java.util.HashSet;
+import java.util.PriorityQueue;
+import java.util.Queue;
+
 import dna.graph.Graph;
+import dna.graph.edges.Edge;
 import dna.graph.nodes.Node;
 import dna.metrics.workload.Operation;
-import dna.util.Log;
 
 /**
  * 
@@ -14,6 +18,8 @@ import dna.util.Log;
  * 
  */
 public class AddSuccess extends Operation {
+
+	private Queue<Edge> newEdges;
 
 	/**
 	 * 
@@ -28,12 +34,26 @@ public class AddSuccess extends Operation {
 
 	@Override
 	public void init(Graph g) {
-
+		if (ListType.E.equals(this.list)) {
+			HashSet<Edge> newEdges = new HashSet<Edge>(this.times);
+			while (newEdges.size() < this.times) {
+				Node src = g.getRandomNode();
+				Node dst = g.getRandomNode();
+				Edge e = g.getGraphDatastructures().newEdgeInstance(src, dst);
+				if (!g.containsEdge(e)) {
+					newEdges.add(e);
+				}
+			}
+			this.newEdges = new PriorityQueue<Edge>();
+			for (Edge e : newEdges) {
+				this.newEdges.add(e);
+			}
+		}
 	}
 
 	@Override
 	protected void createWorkloadE(Graph g) {
-		Log.error("AddSuccess is not implemented for list type E");
+		g.addEdge(this.newEdges.poll());
 	}
 
 	@Override
