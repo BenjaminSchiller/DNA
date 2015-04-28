@@ -36,9 +36,9 @@ public class SessionsCategory4BatchGenerator extends
 				.fromFile(filterProperties)
 		/* new DefaultEventFilter() /* null */, numberOfLinesPerBatch,
 				pathProducts, isGzippedProducts, pathLog, isGzippedLog,
-				new EventColumn[] { EventColumn.USER, EventColumn.SESSION,
+				new EventColumn[] { EventColumn.SESSION,
 						EventColumn.COMMODITYGROUP4 }, true, new EventColumn[] {
-						EventColumn.USER, EventColumn.SESSION,
+						EventColumn.SESSION,
 						EventColumn.COMMODITYGROUP4 }, true, false,
 				omitFirstEvents);
 	}
