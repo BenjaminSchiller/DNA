@@ -11,9 +11,12 @@ import dna.graph.edges.DirectedEdge;
 import dna.graph.edges.DirectedWeightedEdge;
 import dna.graph.edges.UndirectedEdge;
 import dna.graph.edges.UndirectedWeightedEdge;
+import dna.graph.generators.zalando.data.EventColumn;
 import dna.graph.nodes.DirectedNode;
 import dna.graph.nodes.Node;
 import dna.graph.nodes.UndirectedNode;
+import dna.graph.nodes.zalando.UndirectedZalandoNode;
+import dna.graph.nodes.zalando.ZalandoNode;
 import dna.graph.weights.DoubleWeight;
 import dna.graph.weights.IntWeight;
 import dna.graph.weights.Weight;
@@ -44,7 +47,7 @@ import dna.util.parameters.StringParameter;
  */
 public abstract class Matching extends Metric implements IMetric {
 	/**
-	 * Setting for {@link Parameter} "directedDegreeType".
+	 * Setting for {@link Parameter} "DirectedDegreeType".
 	 */
 	public static enum DirectedDegreeType {
 		IN("in"), OUT("out");
@@ -52,7 +55,7 @@ public abstract class Matching extends Metric implements IMetric {
 		private final StringParameter param;
 
 		DirectedDegreeType(String value) {
-			this.param = new StringParameter("directedDegreeType", value);
+			this.param = new StringParameter("DirectedDegreeType", value);
 		}
 
 		public StringParameter StringParameter() {
@@ -61,7 +64,7 @@ public abstract class Matching extends Metric implements IMetric {
 	}
 
 	/**
-	 * Setting for {@link Parameter} "edgeWeightType".
+	 * Setting for {@link Parameter} "EdgeWeightType".
 	 */
 	public static enum EdgeWeightType {
 		IGNORE_WEIGHTS("unweighted"), USE_WEIGHTS("weighted");
@@ -69,7 +72,7 @@ public abstract class Matching extends Metric implements IMetric {
 		private final StringParameter param;
 
 		EdgeWeightType(String value) {
-			this.param = new StringParameter("edgeWeightType", value);
+			this.param = new StringParameter("EdgeWeightType", value);
 		}
 
 		public StringParameter StringParameter() {
@@ -118,6 +121,7 @@ public abstract class Matching extends Metric implements IMetric {
 	 */
 	public Matching(String name) {
 		this(name, DirectedDegreeType.OUT, EdgeWeightType.IGNORE_WEIGHTS);
+		this.type = null;
 	}
 
 	/**
@@ -143,7 +147,20 @@ public abstract class Matching extends Metric implements IMetric {
 
 		this.directedDegreeType = directedDegreeType;
 		this.edgeWeightType = edgeWeightType;
+		this.type = null;
 	}
+
+	public Matching(String name, DirectedDegreeType directedDegreeType,
+			EdgeWeightType edgeWeightType, EventColumn[] type) {
+		super(name, IMetric.MetricType.exact, directedDegreeType
+				.StringParameter(), edgeWeightType.StringParameter());
+
+		this.directedDegreeType = directedDegreeType;
+		this.edgeWeightType = edgeWeightType;
+		this.type = type;
+	}
+
+	protected EventColumn[] type;
 
 	/**
 	 * Static computation of the matching similarity.
@@ -333,24 +350,36 @@ public abstract class Matching extends Metric implements IMetric {
 
 		for (IElement iElement1 : nodesOfGraph) {
 			node1 = (UndirectedNode) iElement1;
+			if (type != null
+					&& node1 instanceof UndirectedZalandoNode
+					&& !ZalandoNode.nodeIsOfType((UndirectedZalandoNode) node1,
+							type)) {
+
+				nodeIndex1++;
+				continue;
+
+			}
 			neighbors1 = this.getNeighborNodesUndirectedWeighted(node1);
 			nodeIndex2 = 0;
 			for (IElement iElement2 : nodesOfGraph) {
-				if (nodeIndex2 < nodeIndex1) {
+				node2 = (UndirectedNode) iElement2;
+				if (nodeIndex2 < nodeIndex1
+						|| (node2 instanceof UndirectedZalandoNode && !ZalandoNode
+								.nodeIsOfType((UndirectedZalandoNode) node2,
+										type))) {
 					// matching is equal to equivalent calculated before
 					// (matching(1,2) = matching(2,1))
 
 					nodeIndex2++;
 					continue;
 				}
-
-				node2 = (UndirectedNode) iElement2;
 				neighbors2 = this.getNeighborNodesUndirectedWeighted(node2);
 
 				// intersection
 				double sum = getMapValueSum(getMatching(neighbors1, neighbors2));
 
 				this.matching.put(node1, node2, sum);
+				if(!(nodeIndex1 == nodeIndex2))
 				this.matchingD.incr(sum);
 
 				nodeIndex2++;
@@ -372,7 +401,7 @@ public abstract class Matching extends Metric implements IMetric {
 	@Override
 	public Distribution[] getDistributions() {
 		this.binnedDistributionEveryNodeToOtherNodes = new BinnedDistributionLong(
-				"BinnedDistributionEveryNodeToOtherNodes", 0.01, new long[] {}, 0);
+				"BinnedMatchingEveryNodeToOtherNodes", 1, new long[] {}, 0);
 
 		for (IElement iterable_element : this.g.getNodes()) {
 
@@ -545,16 +574,16 @@ public abstract class Matching extends Metric implements IMetric {
 
 	@Override
 	public Value[] getValues() {
-		Value v1 = new Value("avarage", this.matchingD.computeAverage());
+		Value v1 = new Value("MatchingAvg", this.matchingD.computeAverage());
 		return new Value[] { v1 };
 	}
 
 	public void init_() {
 		this.matching = new Matrix();
-		this.matchingD = new BinnedDistributionLong("MatchingD", 1,
-				new long[] {}, 0);
+		this.matchingD = new BinnedDistributionLong("BinnedMatching", 1,
+				new long[] {}, 0); 
 		this.binnedDistributionEveryNodeToOtherNodes = new BinnedDistributionLong(
-				"BinnedDistributionEveryNodeToOtherNodes", 1, new long[] {}, 0);
+				"BinnedMatchingEveryNodeToOtherNodes", 1, new long[] {}, 0);
 	}
 
 	@Override
@@ -589,10 +618,10 @@ public abstract class Matching extends Metric implements IMetric {
 
 	public void reset_() {
 		this.matching = new Matrix();
-		this.matchingD = new BinnedDistributionLong("MatchingD", 1,
+		this.matchingD = new BinnedDistributionLong("BinnedMatching", 1,
 				new long[] {}, 0);
 		this.binnedDistributionEveryNodeToOtherNodes = new BinnedDistributionLong(
-				"BinnedDistributionEveryNodeToOtherNodes", 1, new long[] {}, 0);
+				"BinnedMatchingEveryNodeToOtherNodes", 1, new long[] {}, 0);
 	}
 
 	/**

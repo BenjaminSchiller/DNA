@@ -45,7 +45,7 @@ public abstract class Measures extends Metric implements IMetric {
 		private final StringParameter param;
 
 		DirectedDegreeType(String value) {
-			this.param = new StringParameter("directedDegreeType", value);
+			this.param = new StringParameter("DirectedDegreeType", value);
 		}
 
 		public StringParameter StringParameter() {
@@ -62,7 +62,7 @@ public abstract class Measures extends Metric implements IMetric {
 		private final StringParameter param;
 
 		EdgeWeightType(String value) {
-			this.param = new StringParameter("edgeWeightType", value);
+			this.param = new StringParameter("EdgeWeightType", value);
 		}
 
 		public StringParameter StringParameter() {
@@ -495,7 +495,7 @@ public abstract class Measures extends Metric implements IMetric {
 
 	@Override
 	public Value[] getValues() {
-		Value v1 = new Value("avarage",
+		Value v1 = new Value("SimilarityAvg",
 				this.binnedDistribution.computeAverage());
 		return new Value[] { v1 };
 	}

@@ -342,7 +342,7 @@ public abstract class Jaccard extends Measures {
 	@Override
 	public Distribution[] getDistributions() {
 		this.binnedDistributionEveryNodeToOtherNodes = new BinnedDistributionLong(
-				"BinnedDistributionEveryNodeToOtherNodes", 0.01, new long[] {},
+				"BinnedJaccardEveryNodeToOtherNodes", 0.01, new long[] {},
 				0);
 
 		for (IElement iterable_element : this.g.getNodes()) {
@@ -429,9 +429,9 @@ public abstract class Jaccard extends Measures {
 			// directed unweighted
 			this.neighborNodesUnweighted = new HashMap<Node, HashSet<Node>>();
 		this.binnedDistribution = new BinnedDistributionLong(
-				"JaccardDirectedWeightedD", 0.1, new long[] {}, 0);
+				"BinnedJaccard", 0.1, new long[] {}, 0);
 		this.binnedDistributionEveryNodeToOtherNodes = new BinnedDistributionLong(
-				"BinnedDistributionEveryNodeToOtherNodes", 0.01, new long[] {},
+				"BinnedJaccardEveryNodeToOtherNodes", 0.01, new long[] {},
 				0);
 	}
 
@@ -464,9 +464,9 @@ public abstract class Jaccard extends Measures {
 			// undirectedWeighted
 			this.neighborNodesUnweighted = new HashMap<Node, HashSet<Node>>();
 		this.binnedDistribution = new BinnedDistributionLong(
-				"JaccardDirectedWeightedD", 0.1, new long[] {}, 0);
+				"BinnedJaccard", 0.1, new long[] {}, 0);
 		this.binnedDistributionEveryNodeToOtherNodes = new BinnedDistributionLong(
-				"BinnedDistributionEveryNodeToOtherNodes", 0.01, new long[] {},
+				"BinnedJaccardEveryNodeToOtherNodes", 0.01, new long[] {},
 				0);
 	}
 

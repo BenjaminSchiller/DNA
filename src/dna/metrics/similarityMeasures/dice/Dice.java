@@ -319,7 +319,7 @@ public abstract class Dice extends Measures {
 	public Distribution[] getDistributions() {
 
 		this.binnedDistributionEveryNodeToOtherNodes = new BinnedDistributionLong(
-				"BinnedDistributionEveryNodeToOtherNodes", 0.01, new long[] {},
+				"BinnedDiceEveryNodeToOtherNodes", 0.01, new long[] {},
 				0);
 
 		for (IElement iterable_element : this.g.getNodes()) {
@@ -400,9 +400,9 @@ public abstract class Dice extends Measures {
 		this.amountOfNeighbors = new HashMap<Node, Double>();
 		this.matching = new Matrix();
 		this.binnedDistribution = new BinnedDistributionLong(
-				"DiceDirectedWeightedD", 0.01, new long[] {}, 0);
+				"BinnedDice", 0.01, new long[] {}, 0);
 		this.binnedDistributionEveryNodeToOtherNodes = new BinnedDistributionLong(
-				"BinnedDistributionEveryNodeToOtherNodes", 0.01, new long[] {},
+				"BinnedDiceEveryNodeToOtherNodes", 0.01, new long[] {},
 				0);
 	}
 
@@ -420,9 +420,9 @@ public abstract class Dice extends Measures {
 		this.amountOfNeighbors = new HashMap<Node, Double>();
 		this.matching = new Matrix();
 		this.binnedDistribution = new BinnedDistributionLong(
-				"DiceDirectedWeightedD", 0.01, new long[] {}, 0);
+				"BinnedDice", 0.01, new long[] {}, 0);
 		this.binnedDistributionEveryNodeToOtherNodes = new BinnedDistributionLong(
-				"BinnedDistributionEveryNodeToOtherNodes", 0.01, new long[] {},
+				"BinnedDiceEveryNodeToOtherNodes", 0.01, new long[] {},
 				0);
 	}
 
