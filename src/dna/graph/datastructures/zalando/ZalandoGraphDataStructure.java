@@ -6,7 +6,7 @@ import dna.graph.datastructures.DataStructure.ListType;
 import dna.graph.datastructures.GraphDataStructure;
 import dna.graph.datastructures.IDataStructure;
 import dna.graph.edges.Edge;
-import dna.graph.generators.zalando.EventColumn;
+import dna.graph.generators.zalando.data.EventColumn;
 import dna.graph.nodes.Node;
 import dna.graph.nodes.zalando.DirectedZalandoNode;
 import dna.graph.nodes.zalando.UndirectedZalandoNode;

@@ -13,6 +13,10 @@ import dna.graph.edges.DirectedWeightedEdge;
 import dna.graph.edges.Edge;
 import dna.graph.edges.UndirectedWeightedEdge;
 import dna.graph.generators.GraphGenerator;
+import dna.graph.generators.zalando.data.Event;
+import dna.graph.generators.zalando.data.EventColumn;
+import dna.graph.generators.zalando.parser.EventFilter;
+import dna.graph.generators.zalando.parser.EventReader;
 import dna.graph.nodes.Node;
 import dna.graph.nodes.zalando.ZalandoNode;
 import dna.graph.weights.DoubleWeight;
@@ -36,7 +40,7 @@ abstract class ZalandoGraphGenerator extends GraphGenerator {
 	ZalandoGraphDataStructure gds;
 
 	/**
-	 * In {@link #generate()} mapped {@link Event}s. The indices for the
+	 * In {@link #generate()} mapped {@link Old_Event}s. The indices for the
 	 * {@link Node}s of {@link #graph}.
 	 */
 	EventMappings mappings;
@@ -73,6 +77,13 @@ abstract class ZalandoGraphGenerator extends GraphGenerator {
 	// fields for EventReader
 
 	/**
+	 * The path of the file containing all events to read in.
+	 * 
+	 * @see #maxNumberOfEvents
+	 * */
+	String pathProducts;
+	boolean isGzippedProducts;
+	/**
 	 * The maximum number of events (i.e. lines of file) to read in. The actual
 	 * number of lines may be smaller than this value.
 	 * 
@@ -84,7 +95,8 @@ abstract class ZalandoGraphGenerator extends GraphGenerator {
 	 * 
 	 * @see #maxNumberOfEvents
 	 * */
-	String eventsFilepath;
+	String pathLog;
+	boolean isGzippedLog;
 
 	// fields for nodes
 
@@ -103,8 +115,8 @@ abstract class ZalandoGraphGenerator extends GraphGenerator {
 	EventColumn[][] columnGroupsToCheckForEquality;
 	/**
 	 * Contains all indices for {@link Node}s added so far by
-	 * {@link #addNodesForColumns(Event)} to get all {@link Node}s to which an
-	 * edge should be added in {@link #addEdgesForColumns(Event)}.
+	 * {@link #addNodesForColumns(Old_Event)} to get all {@link Node}s to which
+	 * an edge should be added in {@link #addEdgesForColumns(Old_Event)}.
 	 */
 	EdgeValuesForNodes nodesSortedByColumnGroupsToCheckForEquality;
 	/**
@@ -130,8 +142,8 @@ abstract class ZalandoGraphGenerator extends GraphGenerator {
 	 *            The time right before start creating the graph.
 	 * @param eventFilter
 	 *            If this is set to an {@link EventFilter} != {@code null}, all
-	 *            {@link Event}s must pass it in order to be used for graph
-	 *            generation. All {@link Event}s are used if this is
+	 *            {@link Old_Event}s must pass it in order to be used for graph
+	 *            generation. All {@link Old_Event}s are used if this is
 	 *            {@code null}.
 	 * @param maxNumberOfEvents
 	 *            The maximum number of {@code Event}s used for graph
@@ -139,9 +151,9 @@ abstract class ZalandoGraphGenerator extends GraphGenerator {
 	 *            file may have fewer lines.
 	 * @param eventsFilepath
 	 *            The full path of the Zalando log file. Will be passed to
-	 *            {@link EventReader}.
+	 *            {@link Old_EventReader}.
 	 * @param columnsToAddAsNodes
-	 *            The {@link EventColumn}s of an event which values will be
+	 *            The {@link Old_EventColumn}s of an event which values will be
 	 *            represented as nodes in the graph.
 	 * @param oneNodeForEachColumn
 	 *            If this is true, each value of each
@@ -150,7 +162,7 @@ abstract class ZalandoGraphGenerator extends GraphGenerator {
 	 *            all {@code columnsToAddAsNodes} together will be a single node
 	 *            (e.g. <i>Product1|SALE</i>).
 	 * @param columnsToCheckForEquality
-	 *            The {@link EventColumn}s of an event which values will be
+	 *            The {@link Old_EventColumn}s of an event which values will be
 	 *            represented as edges in the graph.
 	 * @param allColumnsMustBeEqual
 	 *            If this is true, all the values of all
@@ -168,7 +180,8 @@ abstract class ZalandoGraphGenerator extends GraphGenerator {
 	 */
 	public ZalandoGraphGenerator(String name, ZalandoGraphDataStructure gds,
 			long timestampInit, EventFilter eventFilter, int maxNumberOfEvents,
-			String eventsFilepath, EventColumn[] columnsToAddAsNodes,
+			String pathProducts, boolean isGzippedProducts, String pathLog,
+			boolean isGzippedLog, EventColumn[] columnsToAddAsNodes,
 			boolean oneNodeForEachColumn,
 			EventColumn[] columnsToCheckForEquality,
 			boolean allColumnsMustBeEqual, boolean absoluteWeights) {
@@ -189,7 +202,10 @@ abstract class ZalandoGraphGenerator extends GraphGenerator {
 		this.timestep = 1;
 
 		this.maxNumberOfEvents = maxNumberOfEvents;
-		this.eventsFilepath = eventsFilepath;
+		this.pathProducts = pathProducts;
+		this.isGzippedProducts = isGzippedProducts;
+		this.pathLog = pathLog;
+		this.isGzippedLog = isGzippedLog;
 
 		this.nodesSortedByColumnGroupsToCheckForEquality = new EdgeValuesForNodes();
 		this.absoluteEdgeWeights = absoluteWeights;
@@ -295,15 +311,15 @@ abstract class ZalandoGraphGenerator extends GraphGenerator {
 	abstract void addEdgesForColumns(Event currentEvent);
 
 	/**
-	 * Adds the {@link Node}s for given {@link Event} to {@link #graph}.
+	 * Adds the {@link Node}s for given {@link Old_Event} to {@link #graph}.
 	 * <p>
 	 * Additionally groups added {@link Node}s into
 	 * {@link #nodesSortedByColumnGroupsToCheckForEquality} for
-	 * {@link #addEdgesForColumns(Event)}.
+	 * {@link #addEdgesForColumns(Old_Event)}.
 	 * </p>
 	 * 
 	 * @param event
-	 *            The {@link Event} which nodes should be added.
+	 *            The {@link Old_Event} which nodes should be added.
 	 */
 	private void addNodesForColumns(Event event) {
 		int globalMappingForEvent;
@@ -471,23 +487,24 @@ abstract class ZalandoGraphGenerator extends GraphGenerator {
 
 	@Override
 	public Graph generate() {
-		final EventReader reader = new EventReader(this.eventsFilepath);
+		final EventReader reader = new EventReader(this.pathProducts,
+				this.isGzippedProducts, this.pathLog, this.isGzippedLog);
 
 		Event currentEvent;
 		for (int currentNumberOfEvents = 0; currentNumberOfEvents < this.maxNumberOfEvents; currentNumberOfEvents++) {
 			if ((currentEvent = reader.readNext()) == null) {
 				// no more events(although maxNumberOfEvents not reached
-				// so far), close reader ...
-				reader.close();
-				// ... and stop
+				// so far), stop
 				break;
 			}
 
 			if (this.eventFilter != null
-					&& !this.eventFilter.passes(currentEvent))
+					&& !this.eventFilter.passes(currentEvent)) {
 				// EventFilter exists and current event is blocked by it, skip
 				// the current event
+				currentNumberOfEvents--;
 				continue;
+			}
 
 			if ((this.numberOfLinesOfOneTimestep >= 1)
 					&& (((currentNumberOfEvents + 1) % this.numberOfLinesOfOneTimestep) == 0))

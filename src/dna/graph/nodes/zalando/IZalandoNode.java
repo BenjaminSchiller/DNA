@@ -1,7 +1,7 @@
 package dna.graph.nodes.zalando;
 
 import dna.graph.generators.GraphGenerator;
-import dna.graph.generators.zalando.EventColumn;
+import dna.graph.generators.zalando.data.EventColumn;
 import dna.updates.generators.BatchGenerator;
 
 /**

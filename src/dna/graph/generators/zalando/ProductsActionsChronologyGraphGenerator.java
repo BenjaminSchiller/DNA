@@ -2,6 +2,8 @@ package dna.graph.generators.zalando;
 
 import dna.graph.datastructures.GraphDataStructure;
 import dna.graph.datastructures.zalando.ZalandoGraphDataStructure;
+import dna.graph.generators.zalando.data.Event;
+import dna.graph.generators.zalando.data.EventColumn;
 
 public class ProductsActionsChronologyGraphGenerator extends
 		ZalandoChronologyGraphGenerator {
@@ -19,15 +21,17 @@ public class ProductsActionsChronologyGraphGenerator extends
 	 *            file may have fewer lines.
 	 * @param eventsFilepath
 	 *            The full path of the Zalando log file. Will be passed to
-	 *            {@link EventReader}.
+	 *            {@link Old_EventReader}.
 	 */
 	public ProductsActionsChronologyGraphGenerator(
 			ZalandoGraphDataStructure gds, long timestampInit,
-			int maxNumberOfEvents, String eventsFilepath) {
+			int maxNumberOfEvents, String pathProducts,
+			boolean isGzippedProducts, String pathLog, boolean isGzippedLog) {
 		super("ProductsActionsChronology", gds, timestampInit, null,
-				maxNumberOfEvents, eventsFilepath, new EventColumn[] {
-						EventColumn.FAMILYSKU, EventColumn.AKTION }, false,
-				new EventColumn[] { EventColumn.SESSIONID }, false, true);
+				maxNumberOfEvents, pathProducts, isGzippedProducts, pathLog,
+				isGzippedLog, new EventColumn[] { EventColumn.PRODUCTFAMILYID,
+						EventColumn.ACTION }, false,
+				new EventColumn[] { EventColumn.USER }, false, true);
 	}
 
 	/**
@@ -37,7 +41,8 @@ public class ProductsActionsChronologyGraphGenerator extends
 	 * customers who have done the product actions in that order.
 	 * 
 	 * @param event
-	 *            The {@link Event} for which values the edges should be added.
+	 *            The {@link Old_Event} for which values the edges should be
+	 *            added.
 	 */
 	@Override
 	void addEdgesForColumns(Event event) {
