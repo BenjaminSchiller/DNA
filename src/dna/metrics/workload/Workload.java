@@ -1,7 +1,6 @@
 package dna.metrics.workload;
 
 import dna.graph.Graph;
-import dna.util.Timer;
 
 /**
  * 
@@ -24,26 +23,33 @@ public class Workload {
 
 	/**
 	 * create the workload for a given graph, i.e., executes each operation (the
-	 * respective number of times) and return the total runtime (without
-	 * initialization time).
+	 * respective number of times) and return the total runtime.
 	 * 
 	 * @param g
 	 *            graph
-	 * @return total runtime of executing the workload
 	 */
-	public long createWorkload(Graph g) {
-		long duration = 0;
+	public void createWorkload(Graph g) {
 		for (Operation o : this.operations) {
-			System.out.println("creating workload: " + o.getName());
-			Timer t = o.createWorkload(g);
-			duration += t.getDutation();
+			o.createWorkload(g);
 		}
-		return duration;
+	}
+
+	/**
+	 * initializes all operations, this must be called before the workload is
+	 * created!
+	 * 
+	 * @param g
+	 *            g
+	 */
+	public void init(Graph g) {
+		for (Operation o : this.operations) {
+			o.init(g);
+		}
 	}
 
 	/**
 	 * 
-	 * @return number of rouns this workflow should be executed consecutively.
+	 * @return number of rounds this workflow should be executed consecutively.
 	 */
 	public int getRounds() {
 		return rounds;

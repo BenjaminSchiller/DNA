@@ -26,7 +26,7 @@ public abstract class RandomElementWorkload extends Operation {
 	}
 
 	@Override
-	protected void init(Graph g) {
+	public void init(Graph g) {
 		for (int i = 0; i < this.nodes.length; i++) {
 			this.nodes[i] = g.getRandomNode();
 		}

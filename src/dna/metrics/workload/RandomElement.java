@@ -9,7 +9,7 @@ public class RandomElement extends Operation {
 	}
 
 	@Override
-	protected void init(Graph g) {
+	public void init(Graph g) {
 	}
 
 	@Override

@@ -1,7 +1,6 @@
 package dna.metrics.workload;
 
 import dna.graph.Graph;
-import dna.util.Timer;
 import dna.util.parameters.IntParameter;
 import dna.util.parameters.Parameter;
 import dna.util.parameters.ParameterList;
@@ -45,17 +44,13 @@ public abstract class Operation extends ParameterList {
 	}
 
 	/**
-	 * generates the respective workload on the pre-defined list. the runtime
-	 * only counts the workload itself, the runtime of the initialization if not
-	 * counted!
+	 * generates the respective workload on the pre-defined list. Before this,
+	 * the initialization must be executed!
 	 * 
 	 * @param g
 	 *            graph
-	 * @return runtime for executing the workload (without the initialization)
 	 */
-	public Timer createWorkload(Graph g) {
-		this.init(g);
-		Timer t = new Timer(null);
+	public void createWorkload(Graph g) {
 		switch (this.listType) {
 		case E:
 			for (int i = 0; i < this.times; i++) {
@@ -70,8 +65,6 @@ public abstract class Operation extends ParameterList {
 		default:
 			break;
 		}
-		t.end();
-		return t;
 	}
 
 	/**
@@ -86,7 +79,7 @@ public abstract class Operation extends ParameterList {
 	 * @param g
 	 *            graph
 	 */
-	protected abstract void init(Graph g);
+	public abstract void init(Graph g);
 
 	/**
 	 * creates the specified workload on the global edge list

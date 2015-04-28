@@ -17,7 +17,7 @@ public class ContainsFailure extends Operation {
 	}
 
 	@Override
-	protected void init(Graph g) {
+	public void init(Graph g) {
 		this.node1 = g.getGraphDatastructures().newNodeInstance(
 				Integer.MAX_VALUE);
 		this.node2 = g.getGraphDatastructures().newNodeInstance(

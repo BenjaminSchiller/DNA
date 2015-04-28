@@ -9,6 +9,7 @@ import dna.series.data.distributions.Distribution;
 import dna.series.data.nodevaluelists.NodeNodeValueList;
 import dna.series.data.nodevaluelists.NodeValueList;
 import dna.updates.batch.Batch;
+import dna.util.Timer;
 
 /**
  * 
@@ -29,7 +30,9 @@ public class WorkloadMetric extends Metric implements IRecomputation {
 
 	private int currentIndex;
 
-	private long duration;
+	private long workloadDuration;
+
+	private long initDuration;
 
 	public WorkloadMetric(Workload... workloads) {
 		super("WorkloadMetric", MetricType.exact);
@@ -47,7 +50,15 @@ public class WorkloadMetric extends Metric implements IRecomputation {
 
 	@Override
 	public boolean recompute() {
-		this.duration = this.workloads[this.currentIndex].createWorkload(g);
+		Timer initTimer = new Timer();
+		this.workloads[this.currentIndex].init(g);
+		initTimer.end();
+		Timer workloadTimer = new Timer();
+		this.workloads[this.currentIndex].createWorkload(g);
+		workloadTimer.end();
+
+		this.initDuration = initTimer.getDutation();
+		this.workloadDuration = workloadTimer.getDutation();
 
 		this.round++;
 		if ((this.round % this.workloads[this.currentIndex].getRounds()) == 0) {
@@ -60,8 +71,11 @@ public class WorkloadMetric extends Metric implements IRecomputation {
 
 	@Override
 	public Value[] getValues() {
-		Value v = new Value("Duration", this.duration);
-		return new Value[] { v };
+		Value workloadDuration = new Value("WorkloadDuration",
+				this.workloadDuration / 1000000000.0);
+		Value initDuration = new Value("InitDuration",
+				this.initDuration / 1000000000.0);
+		return new Value[] { workloadDuration, initDuration };
 	}
 
 	@Override
