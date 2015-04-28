@@ -1,5 +1,6 @@
 package dna.metrics.similarityMeasures.matching;
 
+import dna.graph.generators.zalando.data.EventColumn;
 import dna.metrics.algorithms.IRecomputation;
 
 /**
@@ -30,6 +31,11 @@ public class MatchingR extends Matching implements IRecomputation {
 	public MatchingR(DirectedDegreeType directedDegreeType,
 			EdgeWeightType edgeWeightType) {
 		super("MatchingR", directedDegreeType, edgeWeightType);
+	}
+	
+	public MatchingR(DirectedDegreeType directedDegreeType,
+			EdgeWeightType edgeWeightType,EventColumn[] type) {
+		super("MatchingR", directedDegreeType, edgeWeightType,type);
 	}
 
 	@Override
