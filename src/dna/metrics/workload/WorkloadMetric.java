@@ -17,7 +17,9 @@ import dna.util.Timer;
  * round robin fashion and record the runtime of this execution. a workload is
  * executed for workload.times batches before the next workload is used. after
  * the last workload is executed for workload.times batches, the process starts
- * at the first workload again.
+ * at the first workload again. for each workload, the execution time of the
+ * created workload is recorded as well as the time needed for initialization
+ * (e.g., drawing random elements).
  * 
  * @author benni
  *

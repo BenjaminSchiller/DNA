@@ -4,8 +4,14 @@ import dna.graph.Graph;
 import dna.graph.edges.Edge;
 import dna.graph.nodes.Node;
 import dna.metrics.workload.Operation;
-import dna.metrics.workload.Operation.ListType;
 
+/**
+ * operation for performing failing get operations, i.e., the requested element
+ * is not contained in the list.
+ * 
+ * @author benni
+ *
+ */
 public class GetFailure extends Operation {
 
 	protected Node node1;
@@ -14,6 +20,13 @@ public class GetFailure extends Operation {
 
 	protected Edge edge;
 
+	/**
+	 * 
+	 * @param list
+	 *            list type to perform the operation on
+	 * @param times
+	 *            repetitions of this operation per execution
+	 */
 	public GetFailure(ListType list, int times) {
 		super("GetFailure", list, times);
 	}

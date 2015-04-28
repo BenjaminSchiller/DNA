@@ -11,19 +11,25 @@ import dna.graph.nodes.DirectedNode;
 import dna.graph.nodes.Node;
 import dna.graph.nodes.UndirectedNode;
 import dna.metrics.workload.OperationWithRandomSample;
-import dna.metrics.workload.Operation.ListType;
 import dna.util.Log;
 
 /**
  * 
- * Workload operation that executes a BFS from a random node until all nodes are
- * seen (of this node's connected component).
+ * operation that executes a BFS from a random node until all nodes are seen (of
+ * this node's connected component).
  * 
  * @author benni
  *
  */
 public class BFS extends OperationWithRandomSample {
 
+	/**
+	 * 
+	 * @param times
+	 *            repetitions of this operation per execution
+	 * @param samples
+	 *            samples to draw from V
+	 */
 	public BFS(int times, int samples) {
 		super("BFS", ListType.V, times, samples, 0);
 	}

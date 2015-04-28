@@ -1,15 +1,29 @@
 package dna.metrics.workload.operations;
 
 import dna.graph.Graph;
-import dna.metrics.workload.Operation;
 import dna.metrics.workload.OperationWithRandomSample;
-import dna.metrics.workload.Operation.ListType;
 
+/**
+ * 
+ * operation for executing a contains operation that is successful, i.e., the
+ * requested element exists in the list.
+ * 
+ * @author benni
+ *
+ */
 public class ContainsSuccess extends OperationWithRandomSample {
 
-	public ContainsSuccess(ListType list, int times, int nodeSamples,
-			int edgeSamples) {
-		super("ContainsSuccess", list, times, nodeSamples, edgeSamples);
+	/**
+	 * 
+	 * @param list
+	 *            list type to perform the operation on
+	 * @param times
+	 *            repetitions of this operation per execution
+	 * @param samples
+	 *            samples to draw from the list
+	 */
+	public ContainsSuccess(ListType list, int times, int samples) {
+		super("ContainsSuccess", list, times, samples);
 	}
 
 	@Override

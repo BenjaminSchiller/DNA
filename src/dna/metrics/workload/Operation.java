@@ -9,7 +9,8 @@ import dna.util.parameters.StringParameter;
 /**
  * 
  * an operation generates workload of a specific kind. the workload is created
- * on a specific list type (V or E) and for a specified number of times (times).
+ * on a specific list type (V or E) and for a specified number of repetitions
+ * (times).
  * 
  * @author benni
  *

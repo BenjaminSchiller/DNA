@@ -3,7 +3,6 @@ package dna.metrics.workload.operations;
 import dna.graph.Graph;
 import dna.graph.nodes.Node;
 import dna.metrics.workload.Operation;
-import dna.metrics.workload.Operation.ListType;
 import dna.util.Log;
 
 /**
@@ -16,6 +15,13 @@ import dna.util.Log;
  */
 public class AddSuccess extends Operation {
 
+	/**
+	 * 
+	 * @param list
+	 *            list type to perform the operation on
+	 * @param times
+	 *            repetitions of this operation per execution
+	 */
 	public AddSuccess(ListType list, int times) {
 		super("AddSuccess", list, times);
 	}
@@ -27,7 +33,6 @@ public class AddSuccess extends Operation {
 
 	@Override
 	protected void createWorkloadE(Graph g) {
-		// TODO Auto-generated method stub
 		Log.error("AddSuccess is not implemented for list type E");
 	}
 
