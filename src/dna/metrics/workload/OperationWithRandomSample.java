@@ -5,7 +5,7 @@ import dna.graph.edges.Edge;
 import dna.graph.nodes.Node;
 import dna.util.parameters.IntParameter;
 
-public abstract class RandomElementWorkload extends Operation {
+public abstract class OperationWithRandomSample extends Operation {
 
 	protected Node[] nodes;
 
@@ -15,10 +15,10 @@ public abstract class RandomElementWorkload extends Operation {
 
 	protected int edgesIndex;
 
-	public RandomElementWorkload(String name, ListType list, int times,
+	public OperationWithRandomSample(String name, ListType list, int times,
 			int nodeSamples, int edgeSamples) {
-		super(name, list, times, new IntParameter("nodeSamples", nodeSamples),
-				new IntParameter("edgeSamples", edgeSamples));
+		super(name, list, times, new IntParameter("NodeSamples", nodeSamples),
+				new IntParameter("EdgeSamples", edgeSamples));
 		this.nodes = new Node[nodeSamples];
 		this.nodesIndex = 0;
 		this.edges = new Edge[edgeSamples];

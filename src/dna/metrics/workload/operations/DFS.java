@@ -1,4 +1,4 @@
-package dna.metrics.workload;
+package dna.metrics.workload.operations;
 
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -10,6 +10,8 @@ import dna.graph.edges.UndirectedEdge;
 import dna.graph.nodes.DirectedNode;
 import dna.graph.nodes.Node;
 import dna.graph.nodes.UndirectedNode;
+import dna.metrics.workload.OperationWithRandomSample;
+import dna.metrics.workload.Operation.ListType;
 import dna.util.Log;
 
 /**
@@ -20,7 +22,7 @@ import dna.util.Log;
  * @author benni
  *
  */
-public class DFS extends RandomElementWorkload {
+public class DFS extends OperationWithRandomSample {
 
 	public DFS(int times, int samples) {
 		super("DFS", ListType.V, times, samples, 0);

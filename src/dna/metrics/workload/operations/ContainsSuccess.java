@@ -1,8 +1,11 @@
-package dna.metrics.workload;
+package dna.metrics.workload.operations;
 
 import dna.graph.Graph;
+import dna.metrics.workload.Operation;
+import dna.metrics.workload.OperationWithRandomSample;
+import dna.metrics.workload.Operation.ListType;
 
-public class ContainsSuccess extends RandomElementWorkload {
+public class ContainsSuccess extends OperationWithRandomSample {
 
 	public ContainsSuccess(ListType list, int times, int nodeSamples,
 			int edgeSamples) {

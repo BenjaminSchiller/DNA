@@ -1,7 +1,9 @@
-package dna.metrics.workload;
+package dna.metrics.workload.operations;
 
 import dna.graph.Graph;
 import dna.graph.nodes.Node;
+import dna.metrics.workload.Operation;
+import dna.metrics.workload.Operation.ListType;
 import dna.util.Log;
 
 /**

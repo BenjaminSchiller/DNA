@@ -1,9 +1,11 @@
-package dna.metrics.workload;
+package dna.metrics.workload.operations;
 
 import dna.graph.Graph;
 import dna.graph.IElement;
 import dna.graph.edges.Edge;
 import dna.graph.nodes.Node;
+import dna.metrics.workload.Operation;
+import dna.metrics.workload.Operation.ListType;
 
 public class Iterate extends Operation {
 
