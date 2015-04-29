@@ -1,6 +1,7 @@
 package dna.metrics.workload;
 
 import dna.graph.Graph;
+import dna.util.Log;
 import dna.util.parameters.IntParameter;
 import dna.util.parameters.Parameter;
 import dna.util.parameters.ParameterList;
@@ -17,7 +18,7 @@ import dna.util.parameters.StringParameter;
  */
 public abstract class Operation extends ParameterList {
 	public enum ListType {
-		V, E
+		V, E, IN, OUT, NEIGHBORS, ADJ
 	}
 
 	protected ListType list;
@@ -63,6 +64,29 @@ public abstract class Operation extends ParameterList {
 				this.createWorkloadV(g);
 			}
 			break;
+		case IN:
+			if (!g.isDirected()) {
+				Log.error("workload on IN can only be executed for a directed graph");
+				return;
+			}
+			for (int i = 0; i < this.times; i++) {
+				this.createWorkloadIn(g);
+			}
+			break;
+		case OUT:
+			if (!g.isDirected()) {
+				Log.error("workload on OUT can only be executed for a directed graph");
+				return;
+			}
+			for (int i = 0; i < this.times; i++) {
+				this.createWorkloadOut(g);
+			}
+			break;
+		case ADJ:
+			for (int i = 0; i < this.times; i++) {
+				this.createWorkloadAdj(g);
+			}
+			break;
 		default:
 			break;
 		}
@@ -80,7 +104,9 @@ public abstract class Operation extends ParameterList {
 	 * @param g
 	 *            graph
 	 */
-	public abstract void init(Graph g);
+	public void init(Graph g) {
+		// nothing is done by default, must be overwritten to do something
+	}
 
 	/**
 	 * creates the specified workload on the global edge list
@@ -88,7 +114,10 @@ public abstract class Operation extends ParameterList {
 	 * @param g
 	 *            graph
 	 */
-	protected abstract void createWorkloadE(Graph g);
+	protected void createWorkloadE(Graph g) {
+		Log.error("the operation " + this.getName()
+				+ " does not implement workload for E");
+	}
 
 	/**
 	 * creates the specified workload on the global node list
@@ -96,7 +125,59 @@ public abstract class Operation extends ParameterList {
 	 * @param g
 	 *            graph
 	 */
-	protected abstract void createWorkloadV(Graph g);
+	protected void createWorkloadV(Graph g) {
+		Log.error("the operation " + this.getName()
+				+ " does not implement workload for V");
+	}
+
+	/**
+	 * create the specified workload on the in list (commonly of each node),
+	 * 
+	 * !!! only applicable to directed graphs !!!
+	 * 
+	 * @param g
+	 *            graph
+	 */
+	protected void createWorkloadIn(Graph g) {
+		Log.error("the operation " + this.getName()
+				+ " does not implement workload for IN");
+	}
+
+	/**
+	 * create the specified workload on the out list (commonly of each node),
+	 * 
+	 * !!! only applicable to directed graphs !!!
+	 * 
+	 * @param g
+	 */
+	protected void createWorkloadOut(Graph g) {
+		Log.error("the operation " + this.getName()
+				+ " does not implement workload for OUT");
+	}
+
+	/**
+	 * create the specified workload on the neighbors list (commonly of each
+	 * node),
+	 * 
+	 * !!! only applicable to directed graphs !!!
+	 * 
+	 * @param g
+	 */
+	protected void createWorkloadNeighbors(Graph g) {
+		Log.error("the operation " + this.getName()
+				+ " does not implement workload for NEIGHBORS");
+	}
+
+	/**
+	 * create the specified workload on the adjacecny list (commonly of each
+	 * node), only applicable to directed and undirected graphs
+	 * 
+	 * @param g
+	 */
+	protected void createWorkloadAdj(Graph g) {
+		Log.error("the operation " + this.getName()
+				+ " does not implement workload for ADJ");
+	}
 
 	/**
 	 * 

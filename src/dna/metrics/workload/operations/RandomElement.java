@@ -23,10 +23,6 @@ public class RandomElement extends Operation {
 	}
 
 	@Override
-	public void init(Graph g) {
-	}
-
-	@Override
 	protected void createWorkloadE(Graph g) {
 		g.getRandomEdge();
 	}
