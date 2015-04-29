@@ -913,123 +913,152 @@ public class SeriesGeneration {
 	private static void addExtraDistributionValuesToList(Distribution d,
 			ValueList values) {
 		if (d instanceof DistributionDouble) {
+			double val = 0;
 			if (Config.getBoolean("GENERATE_DISTRIBUTION_MIN")) {
-				Value v = new Value(d.getName() + "_MIN",
-						ArrayUtils.min(((DistributionDouble) d)
-								.getDoubleValues()));
+				if (((DistributionDouble) d).getDoubleValues().length != 0)
+					val = ArrayUtils.min(((DistributionDouble) d)
+							.getDoubleValues());
+				Value v = new Value(d.getName() + "_MIN", val);
 				values.add(v);
 			}
 			if (Config.getBoolean("GENERATE_DISTRIBUTION_MAX")) {
-				Value v = new Value(d.getName() + "_MAX",
-						ArrayUtils.max(((DistributionDouble) d)
-								.getDoubleValues()));
+				if (((DistributionDouble) d).getDoubleValues().length != 0)
+					val = ArrayUtils.max(((DistributionDouble) d)
+							.getDoubleValues());
+				Value v = new Value(d.getName() + "_MAX", val);
 				values.add(v);
 			}
 			if (Config.getBoolean("GENERATE_DISTRIBUTION_MED")) {
-				Value v = new Value(d.getName() + "_MED",
-						ArrayUtils.med(((DistributionDouble) d)
-								.getDoubleValues()));
+				if (((DistributionDouble) d).getDoubleValues().length != 0)
+					val = ArrayUtils.med(((DistributionDouble) d)
+							.getDoubleValues());
+				Value v = new Value(d.getName() + "_MED", val);
 				values.add(v);
 			}
 			if (Config.getBoolean("GENERATE_DISTRIBUTION_AVG")) {
-				Value v = new Value(d.getName() + "_AVG",
-						ArrayUtils.avg(((DistributionDouble) d)
-								.getDoubleValues()));
+				if (((DistributionDouble) d).getDoubleValues().length != 0)
+					val = ArrayUtils.avg(((DistributionDouble) d)
+							.getDoubleValues());
+				Value v = new Value(d.getName() + "_AVG", val);
 				values.add(v);
 			}
 			if (Config.getBoolean("GENERATE_DISTRIBUTION_BINSIZE")) {
+				if (((BinnedDistributionDouble) d).getDoubleValues().length != 0)
+					val = ((BinnedDistributionDouble) d).getBinSize();
 				if (d instanceof BinnedDistributionDouble) {
-					Value v = new Value(d.getName() + "_BINSIZE",
-							((BinnedDistributionDouble) d).getBinSize());
+					Value v = new Value(d.getName() + "_BINSIZE", val);
 					values.add(v);
 				}
 			}
 		} else if (d instanceof DistributionLong) {
+			double val = 0;
 			if (Config.getBoolean("GENERATE_DISTRIBUTION_MIN")) {
-				Value v = new Value(d.getName() + "_MIN",
-						ArrayUtils.min(((DistributionLong) d).getLongValues()));
+				if (((DistributionLong) d).getLongValues().length != 0)
+					val = ArrayUtils
+							.min(((DistributionLong) d).getLongValues());
+				Value v = new Value(d.getName() + "_MIN", val);
 				values.add(v);
 			}
 			if (Config.getBoolean("GENERATE_DISTRIBUTION_MAX")) {
-				Value v = new Value(d.getName() + "_MAX",
-						ArrayUtils.max(((DistributionLong) d).getLongValues()));
+				if (((DistributionLong) d).getLongValues().length != 0)
+					val = ArrayUtils
+							.max(((DistributionLong) d).getLongValues());
+				Value v = new Value(d.getName() + "_MAX", val);
 				values.add(v);
 			}
 			if (Config.getBoolean("GENERATE_DISTRIBUTION_MED")) {
-				Value v = new Value(d.getName() + "_MED",
-						ArrayUtils.med(((DistributionLong) d).getLongValues()));
+				if (((DistributionLong) d).getLongValues().length != 0)
+					val = ArrayUtils
+							.med(((DistributionLong) d).getLongValues());
+				Value v = new Value(d.getName() + "_MED", val);
 				values.add(v);
 			}
 			if (Config.getBoolean("GENERATE_DISTRIBUTION_AVG")) {
-				Value v = new Value(d.getName() + "_AVG",
-						ArrayUtils.avg(((DistributionLong) d).getLongValues()));
+				if (((DistributionLong) d).getLongValues().length != 0)
+					val = ArrayUtils
+							.avg(((DistributionLong) d).getLongValues());
+				Value v = new Value(d.getName() + "_AVG", val);
 				values.add(v);
 			}
 			if (Config.getBoolean("GENERATE_DISTRIBUTION_DENOMINATOR")) {
-				Value v = new Value(d.getName() + "_DENOMINATOR",
-						((DistributionLong) d).getDenominator());
+				if (((DistributionLong) d).getLongValues().length != 0)
+					val = ((DistributionLong) d).getDenominator();
+				Value v = new Value(d.getName() + "_DENOMINATOR", val);
 				values.add(v);
 			}
 			if (Config.getBoolean("GENERATE_DISTRIBUTION_BINSIZE")) {
+				if (((BinnedDistributionLong) d).getLongValues().length != 0)
+					val = ((BinnedDistributionLong) d).getBinSize();
 				if (d instanceof BinnedDistributionLong) {
-					Value v = new Value(d.getName() + "_BINSIZE",
-							((BinnedDistributionLong) d).getBinSize());
+					Value v = new Value(d.getName() + "_BINSIZE", val);
 					values.add(v);
 				}
 			}
 		} else if (d instanceof DistributionInt) {
+			double val = 0;
 			if (Config.getBoolean("GENERATE_DISTRIBUTION_MIN")) {
-				Value v = new Value(d.getName() + "_MIN",
-						ArrayUtils.min(((DistributionInt) d).getIntValues()));
+				if (((DistributionInt) d).getIntValues().length != 0)
+					val = ArrayUtils.min(((DistributionInt) d).getIntValues());
+				Value v = new Value(d.getName() + "_MIN", val);
 				values.add(v);
 			}
 			if (Config.getBoolean("GENERATE_DISTRIBUTION_MAX")) {
-				Value v = new Value(d.getName() + "_MAX",
-						ArrayUtils.max(((DistributionInt) d).getIntValues()));
+				if (((DistributionInt) d).getIntValues().length != 0)
+					val = ArrayUtils.max(((DistributionInt) d).getIntValues());
+				Value v = new Value(d.getName() + "_MAX", val);
 				values.add(v);
 			}
 			if (Config.getBoolean("GENERATE_DISTRIBUTION_MED")) {
-				Value v = new Value(d.getName() + "_MED",
-						ArrayUtils.med(((DistributionInt) d).getIntValues()));
+				if (((DistributionInt) d).getIntValues().length != 0)
+					val = ArrayUtils.med(((DistributionInt) d).getIntValues());
+				Value v = new Value(d.getName() + "_MED", val);
 				values.add(v);
 			}
 			if (Config.getBoolean("GENERATE_DISTRIBUTION_AVG")) {
-				Value v = new Value(d.getName() + "_AVG",
-						ArrayUtils.avg(((DistributionInt) d).getIntValues()));
+				if (((DistributionInt) d).getIntValues().length != 0)
+					val = ArrayUtils.avg(((DistributionInt) d).getIntValues());
+				Value v = new Value(d.getName() + "_AVG", val);
 				values.add(v);
 			}
 			if (Config.getBoolean("GENERATE_DISTRIBUTION_DENOMINATOR")) {
-				Value v = new Value(d.getName() + "_DENOMINATOR",
-						((DistributionInt) d).getDenominator());
+				if (((DistributionInt) d).getIntValues().length != 0)
+					val = ((DistributionInt) d).getDenominator();
+				Value v = new Value(d.getName() + "_DENOMINATOR", val);
 				values.add(v);
 			}
 			if (Config.getBoolean("GENERATE_DISTRIBUTION_BINSIZE")) {
 				if (d instanceof BinnedDistributionInt) {
-					Value v = new Value(d.getName() + "_BINSIZE",
-							((BinnedDistributionInt) d).getBinSize());
+					if (((DistributionInt) d).getIntValues().length != 0)
+						val = ((BinnedDistributionInt) d).getBinSize();
+					Value v = new Value(d.getName() + "_BINSIZE", val);
 					values.add(v);
 				}
 			}
 		} else {
 			// normal distribution
+			double val = 0;
 			if (Config.getBoolean("GENERATE_DISTRIBUTION_MIN")) {
-				Value v = new Value(d.getName() + "_MIN", ArrayUtils.min(d
-						.getValues()));
+				if (d.getValues().length != 0)
+					val = ArrayUtils.min(d.getValues());
+				Value v = new Value(d.getName() + "_MIN", val);
 				values.add(v);
 			}
 			if (Config.getBoolean("GENERATE_DISTRIBUTION_MAX")) {
-				Value v = new Value(d.getName() + "_MAX", ArrayUtils.max(d
-						.getValues()));
+				if (d.getValues().length != 0)
+					val = ArrayUtils.max(d.getValues());
+				Value v = new Value(d.getName() + "_MAX", val);
 				values.add(v);
 			}
 			if (Config.getBoolean("GENERATE_DISTRIBUTION_MED")) {
-				Value v = new Value(d.getName() + "_MED", ArrayUtils.med(d
-						.getValues()));
+				if (d.getValues().length != 0)
+					val = ArrayUtils.med(d.getValues());
+				Value v = new Value(d.getName() + "_MED", val);
 				values.add(v);
 			}
 			if (Config.getBoolean("GENERATE_DISTRIBUTION_AVG")) {
-				Value v = new Value(d.getName() + "_AVG", ArrayUtils.avg(d
-						.getValues()));
+				if (d.getValues().length != 0)
+					val = ArrayUtils.avg(d.getValues());
+				Value v = new Value(d.getName() + "_AVG", val);
 				values.add(v);
 			}
 		}
@@ -1041,24 +1070,29 @@ public class SeriesGeneration {
 	 **/
 	private static void addExtraNodeValueListValuesToList(NodeValueList n,
 			ValueList values) {
+		double val = 0;
 		if (Config.getBoolean("GENERATE_NODEVALUELIST_MIN")) {
-			Value v = new Value(n.getName() + "_MIN", ArrayUtils.min(n
-					.getValues()));
+			if (n.getValues().length != 0)
+				val = ArrayUtils.min(n.getValues());
+			Value v = new Value(n.getName() + "_MIN", val);
 			values.add(v);
 		}
 		if (Config.getBoolean("GENERATE_NODEVALUELIST_MAX")) {
-			Value v = new Value(n.getName() + "_MAX", ArrayUtils.max(n
-					.getValues()));
+			if (n.getValues().length != 0)
+				val = ArrayUtils.max(n.getValues());
+			Value v = new Value(n.getName() + "_MAX", val);
 			values.add(v);
 		}
 		if (Config.getBoolean("GENERATE_NODEVALUELIST_MED")) {
-			Value v = new Value(n.getName() + "_MED", ArrayUtils.med(n
-					.getValues()));
+			if (n.getValues().length != 0)
+				val = ArrayUtils.med(n.getValues());
+			Value v = new Value(n.getName() + "_MED", val);
 			values.add(v);
 		}
 		if (Config.getBoolean("GENERATE_NODEVALUELIST_AVG")) {
-			Value v = new Value(n.getName() + "_AVG", ArrayUtils.avg(n
-					.getValues()));
+			if (n.getValues().length != 0)
+				val = ArrayUtils.avg(n.getValues());
+			Value v = new Value(n.getName() + "_AVG", val);
 			values.add(v);
 		}
 	}
