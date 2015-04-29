@@ -1,7 +1,9 @@
 package dna.metrics.workload.operations;
 
 import dna.graph.Graph;
+import dna.graph.IElement;
 import dna.graph.edges.Edge;
+import dna.graph.nodes.DirectedNode;
 import dna.graph.nodes.Node;
 import dna.metrics.workload.Operation;
 
@@ -50,6 +52,34 @@ public class ContainsFailure extends Operation {
 	@Override
 	protected void createWorkloadV(Graph g) {
 		g.containsNode(this.node1);
+	}
+
+	@Override
+	protected void createWorkloadIn(Graph g) {
+		for (IElement n_ : g.getNodes()) {
+			((DirectedNode) n_).hasEdge(this.edge);
+		}
+	}
+
+	@Override
+	protected void createWorkloadOut(Graph g) {
+		for (IElement n_ : g.getNodes()) {
+			((DirectedNode) n_).hasEdge(this.edge);
+		}
+	}
+
+	@Override
+	protected void createWorkloadNeighbors(Graph g) {
+		for (IElement n_ : g.getNodes()) {
+			((DirectedNode) n_).hasNeighbor((DirectedNode) this.node1);
+		}
+	}
+
+	@Override
+	protected void createWorkloadAdj(Graph g) {
+		for (IElement n_ : g.getNodes()) {
+			((Node) n_).hasEdge(this.edge);
+		}
 	}
 
 }
