@@ -15,7 +15,6 @@ import java.nio.file.StandardOpenOption;
 import java.util.HashMap;
 import java.util.Map;
 
-import dna.io.filesystem.Dir;
 import dna.util.Config;
 import dna.util.Log;
 
@@ -180,5 +179,16 @@ public class ZipWriter extends Writer {
 
 		// create filesystem
 		return getFileSystem(fsFileUri, env);
+	}
+
+	/** Sets the WriteFileSystem. **/
+	public static void setWriteFilesystem(FileSystem fs) throws IOException {
+		ZipWriter.writeFileSystem = fs;
+	}
+
+	/** Closes the current WriteFileSystem and sets it to null afterwards. **/
+	public static void closeWriteFilesystem() throws IOException {
+		ZipWriter.writeFileSystem.close();
+		ZipWriter.writeFileSystem = null;
 	}
 }
