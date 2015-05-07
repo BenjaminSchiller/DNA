@@ -167,16 +167,15 @@ public class BatchData implements IBatch {
 							Config.get("PREFIX_RUNDATA_DIR"), ""));
 
 					// open zip
-					ZipWriter.writeFileSystem = ZipWriter.createRunFileSystem(
-							tempDir, runId);
+					ZipWriter.setWriteFilesystem(ZipWriter.createRunFileSystem(
+							tempDir, runId));
 
 					// write
 					this.write(Dir.getBatchDataDir(Dir.delimiter,
 							this.getTimestamp()));
 
 					// close zip
-					ZipWriter.writeFileSystem.close();
-					ZipWriter.writeFileSystem = null;
+					ZipWriter.closeWriteFilesystem();
 
 					// break from for loop
 					break;
