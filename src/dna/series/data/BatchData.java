@@ -128,13 +128,16 @@ public class BatchData implements IBatch {
 	 * Zipped-Batch will write the zipped batch
 	 * "data/scenario.1/series/run.0/batch.0.zip"
 	 * 
+	 * Zipped-Run will write the batch into the run-zip as
+	 * "data/scenario.1/series/run.0.zip/batch.0".
+	 * 
 	 * @throws IOException
 	 **/
 	public void writeIntelligent(String dir) throws IOException {
+		String tempDir = "";
 		if (Config.get("GENERATION_AS_ZIP").equals("batches")) {
 			// write zip batch
 			String[] splits = dir.split(Dir.delimiter);
-			String tempDir = "";
 
 			// iterate over splits last to first
 			for (int i = splits.length - 1; i >= 0; i--) {
@@ -149,8 +152,37 @@ public class BatchData implements IBatch {
 			}
 
 		} else if (Config.get("GENERATION_AS_ZIP").equals("runs")) {
-			Log.warn("can't write batch." + this.getTimestamp()
-					+ " to zipped run!");
+			// write batch to zipped run
+			String[] splits = dir.split(Dir.delimiter);
+
+			// iterate over splits last to first
+			for (int i = splits.length - 1; i >= 0; i--) {
+				if (splits[i].startsWith(Config.get("PREFIX_RUNDATA_DIR"))) {
+					// build dir string
+					for (int j = 0; j < i; j++)
+						tempDir += splits[j] + Dir.delimiter;
+
+					// parse run id
+					int runId = Integer.parseInt(splits[i].replace(
+							Config.get("PREFIX_RUNDATA_DIR"), ""));
+
+					// open zip
+					ZipWriter.writeFileSystem = ZipWriter.createRunFileSystem(
+							tempDir, runId);
+
+					// write
+					this.write(Dir.getBatchDataDir(Dir.delimiter,
+							this.getTimestamp()));
+
+					// close zip
+					ZipWriter.writeFileSystem.close();
+					ZipWriter.writeFileSystem = null;
+
+					// break from for loop
+					break;
+				}
+			}
+
 		} else {
 			// write normal batch
 			this.write(dir);
