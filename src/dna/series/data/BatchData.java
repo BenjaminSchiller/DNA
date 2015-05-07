@@ -104,6 +104,7 @@ public class BatchData implements IBatch {
 		return this.metrics;
 	}
 
+	/** Writes the batch to the specified location. **/
 	public void write(String dir) throws IOException {
 		Log.debug("writing BatchData for " + this.timestamp + " to " + dir);
 		this.stats.write(dir,
@@ -116,6 +117,19 @@ public class BatchData implements IBatch {
 		this.metrics.write(dir);
 	}
 
+	/**
+	 * Writes the batch to the specified location either as a plain batch
+	 * directory or as a zip file.
+	 * 
+	 * Example: Input-Dir: "data/scenario.1/series/run.0/batch.0/":
+	 * 
+	 * No-Zip will write the batch at "data/scenario.1/series/run.0/batch.0/".
+	 * 
+	 * Zipped-Batch will write the zipped batch
+	 * "data/scenario.1/series/run.0/batch.0.zip"
+	 * 
+	 * @throws IOException
+	 **/
 	public void writeIntelligent(String dir) throws IOException {
 		if (Config.get("GENERATION_AS_ZIP").equals("batches")) {
 			// write zip batch
@@ -356,8 +370,8 @@ public class BatchData implements IBatch {
 	}
 
 	/**
-	 * Reads the batch and its values corresponding to the BatchReadMode while
-	 * also checking if zipped-runs, zipped-batches or nozips are configured.
+	 * Reads the batch and its values in respect to the BatchReadMode while also
+	 * checking if zipped-runs, zipped-batches or nozips are configured.
 	 * 
 	 * Example: Input-Dir: "data/scenario.1/series/run.0/batch.0/":
 	 * 
