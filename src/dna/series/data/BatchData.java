@@ -170,8 +170,6 @@ public class BatchData implements IBatch {
 			// write batch to zipped run
 			String[] splits = dir.split(Dir.delimiter);
 
-			System.out.println(dir);
-
 			// iterate over splits last to first
 			for (int i = splits.length - 1; i >= 0; i--) {
 				if (splits[i].startsWith(Config.get("PREFIX_RUNDATA_DIR"))) {
