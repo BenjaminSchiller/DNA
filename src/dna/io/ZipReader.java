@@ -82,4 +82,15 @@ public class ZipReader extends Reader {
 		return FileSystems.newFileSystem(fsFileUri, env);
 	}
 
+	/** Sets the ReadFileSystem. **/
+	public static void setReadFilesystem(FileSystem fs) throws IOException {
+		ZipReader.readFileSystem = fs;
+	}
+
+	/** Closes the current ReadFileSystem and sets it to null afterwards. **/
+	public static void closeReadFilesystem() throws IOException {
+		ZipReader.readFileSystem.close();
+		ZipReader.readFileSystem = null;
+	}
+
 }
