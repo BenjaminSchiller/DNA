@@ -272,25 +272,8 @@ public class SeriesGeneration {
 			SeriesGeneration.compareMetrics(series);
 		}
 		if (write) {
-			if (!zippedBatches) {
-				String tempDir;
-				if (zippedRuns)
-					tempDir = Dir.getBatchDataDir(Dir.delimiter,
-							initialData.getTimestamp());
-				else
-					tempDir = Dir.getBatchDataDir(series.getDir(), run,
-							initialData.getTimestamp());
-				initialData.write(tempDir);
-			} else {
-				try {
-					initialData.writeSingleFile(
-							Dir.getRunDataDir(series.getDir(), run),
-							initialData.getTimestamp(),
-							Config.get("SUFFIX_ZIP_FILE"), Dir.delimiter);
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-			}
+			initialData.writeIntelligent(Dir.getBatchDataDir(series.getDir(),
+					run, initialData.getTimestamp()));
 		}
 
 		// garbage collection counter
@@ -321,45 +304,19 @@ public class SeriesGeneration {
 			}
 			if (write) {
 				if (batchGenerationTime > 0) {
-					// generation simulation
-					String actualDir;
-					String dirTemp;
+					// craft dirs
+					String actualDir = Dir.getBatchDataDir(series.getDir(),
+							run, batchData.getTimestamp());
+					String tempDir = actualDir.substring(0,
+							actualDir.length() - 1)
+							+ Dir.tempSuffix
+							+ Dir.delimiter;
 
-					if (zippedBatches) {
-						String nonZipDir = Dir.getBatchDataDir(series.getDir(),
-								run, batchData.getTimestamp());
-						actualDir = nonZipDir.substring(0,
-								nonZipDir.length() - 1)
-								+ Config.get("SUFFIX_ZIP_FILE");
-						dirTemp = actualDir + Dir.tempSuffix;
-					} else {
-						actualDir = Dir.getBatchDataDir(series.getDir(), run,
-								batchData.getTimestamp());
-						dirTemp = actualDir
-								.substring(0, actualDir.length() - 1)
-								+ Dir.tempSuffix + Dir.delimiter;
-					}
-
+					// write, for zipped runs use actual dir
 					if (zippedRuns)
-						dirTemp = Dir.getBatchDataDir(Dir.delimiter,
-								batchData.getTimestamp());
-
-					// rename directory
-					File srcDir = new File(dirTemp);
-					File dstDir = new File(actualDir);
-
-					Files.delete(srcDir);
-					Files.delete(dstDir);
-
-					// write
-					if (zippedBatches)
-						batchData.writeSingleFile(
-								Dir.getRunDataDir(series.getDir(), run),
-								batchData.getTimestamp(),
-								Config.get("SUFFIX_ZIP_FILE") + Dir.tempSuffix,
-								Dir.delimiter);
+						batchData.writeIntelligent(actualDir);
 					else
-						batchData.write(dirTemp);
+						batchData.writeIntelligent(tempDir);
 
 					// live display simulation
 					long waitTime = batchGenerationTime
@@ -372,26 +329,28 @@ public class SeriesGeneration {
 						}
 					}
 
-					// rename
-					if (srcDir.exists())
-						srcDir.renameTo(dstDir);
-				} else {
-					// no generation simulation
-					if (zippedBatches)
-						batchData.writeSingleFile(
-								Dir.getRunDataDir(series.getDir(), run),
-								batchData.getTimestamp(),
-								Config.get("SUFFIX_ZIP_FILE"), Dir.delimiter);
-					else {
-						String tempDir;
-						if (zippedRuns)
-							tempDir = Dir.getBatchDataDir(Dir.delimiter,
-									batchData.getTimestamp());
-						else
-							tempDir = Dir.getBatchDataDir(series.getDir(), run,
-									batchData.getTimestamp());
-						batchData.write(tempDir);
+					// adjust dir
+					if (zippedBatches) {
+						actualDir = actualDir.substring(0,
+								actualDir.length() - 1)
+								+ Config.get("SUFFIX_ZIP_FILE");
+						tempDir = actualDir + Dir.tempSuffix;
 					}
+
+					// rename
+					if (!zippedRuns) {
+						File f1 = new File(tempDir);
+						File f2 = new File(actualDir);
+						if (f1.exists()) {
+							if (f2.exists())
+								Files.delete(f2);
+							f1.renameTo(f2);
+						}
+					}
+				} else {
+					// write
+					batchData.writeIntelligent(Dir.getBatchDataDir(
+							series.getDir(), run, batchData.getTimestamp()));
 				}
 			}
 
@@ -400,12 +359,6 @@ public class SeriesGeneration {
 				System.gc();
 				gcCounter++;
 			}
-		}
-
-		// if zipped run, close filesystem
-		if (zippedRuns) {
-			ZipWriter.writeFileSystem.close();
-			ZipWriter.writeFileSystem = null;
 		}
 	}
 
