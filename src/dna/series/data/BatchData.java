@@ -116,6 +116,33 @@ public class BatchData implements IBatch {
 		this.metrics.write(dir);
 	}
 
+	public void writeIntelligent(String dir) throws IOException {
+		if (Config.get("GENERATION_AS_ZIP").equals("batches")) {
+			// write zip batch
+			String[] splits = dir.split(Dir.delimiter);
+			String tempDir = "";
+
+			// iterate over splits last to first
+			for (int i = splits.length - 1; i >= 0; i--) {
+				if (splits[i].startsWith(Config.get("PREFIX_BATCHDATA_DIR"))) {
+					// build dir string
+					for (int j = 0; j < i; j++)
+						tempDir += splits[j] + Dir.delimiter;
+
+					this.writeSingleFile(tempDir, this.getTimestamp(),
+							Config.get("SUFFIX_ZIP_FILE"), Dir.delimiter);
+				}
+			}
+
+		} else if (Config.get("GENERATION_AS_ZIP").equals("runs")) {
+			Log.warn("can't write batch." + this.getTimestamp()
+					+ " to zipped run!");
+		} else {
+			// write normal batch
+			this.write(dir);
+		}
+	}
+
 	/**
 	 * Reads the batch and its values corresponding to the BatchReadMode.
 	 * 
