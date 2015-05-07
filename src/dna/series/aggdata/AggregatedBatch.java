@@ -104,6 +104,16 @@ public class AggregatedBatch implements IBatch {
 		ZipWriter.writeFileSystem = null;
 	}
 
+	/** Writes the whole aggregated batch in a single zip file **/
+	public void writeSingleFile(String fsDir, long timestamp, String suffix,
+			String dir) throws IOException {
+		ZipWriter.writeFileSystem = ZipWriter.createBatchFileSystem(fsDir,
+				suffix, timestamp);
+		this.write(dir);
+		ZipWriter.writeFileSystem.close();
+		ZipWriter.writeFileSystem = null;
+	}
+
 	/**
 	 * Writes the batch to the specified location either as a plain batch
 	 * directory or as a zip file.
@@ -130,7 +140,22 @@ public class AggregatedBatch implements IBatch {
 					for (int j = 0; j < i; j++)
 						tempDir += splits[j] + Dir.delimiter;
 
+					// parse suffix
+					String suffix = "";
+					String[] splits2 = splits[i].split(Config
+							.get("PREFIX_BATCHDATA_DIR"));
+					if (splits2.length == 2) {
+						String s = splits2[1];
+						for (int j = 0; j < s.length(); j++) {
+							boolean isDigit = (s.charAt(j) >= '0' && s
+									.charAt(j) <= '9');
+							if (!isDigit)
+								suffix = s.substring(j, s.length());
+						}
+					}
+
 					this.writeSingleFile(tempDir, this.getTimestamp(),
+							Config.get("SUFFIX_ZIP_FILE") + suffix,
 							Dir.delimiter);
 				}
 			}
@@ -146,13 +171,17 @@ public class AggregatedBatch implements IBatch {
 					for (int j = 0; j < i; j++)
 						tempDir += splits[j] + Dir.delimiter;
 
+					// build relative dir string
+					String relDir = Dir.delimiter;
+					for (int j = i + 1; j < splits.length; j++)
+						relDir += splits[j] + Dir.delimiter;
+
 					// open zip
 					ZipWriter.setWriteFilesystem(ZipWriter
 							.createAggregationFileSystem(tempDir));
 
 					// write
-					this.write(Dir.getBatchDataDir(Dir.delimiter,
-							this.getTimestamp()));
+					this.write(relDir);
 
 					// close zip
 					ZipWriter.closeWriteFilesystem();

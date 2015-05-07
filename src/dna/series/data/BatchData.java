@@ -129,7 +129,7 @@ public class BatchData implements IBatch {
 	 * "data/scenario.1/series/run.0/batch.0.zip"
 	 * 
 	 * Zipped-Run will write the batch into the run-zip as
-	 * "data/scenario.1/series/run.0.zip/batch.0".
+	 * "data/scenario.1/series/run.0.zip/batch.0/".
 	 * 
 	 * @throws IOException
 	 **/
@@ -146,8 +146,23 @@ public class BatchData implements IBatch {
 					for (int j = 0; j < i; j++)
 						tempDir += splits[j] + Dir.delimiter;
 
+					// parse suffix
+					String suffix = "";
+					String[] splits2 = splits[i].split(Config
+							.get("PREFIX_BATCHDATA_DIR"));
+					if (splits2.length == 2) {
+						String s = splits2[1];
+						for (int j = 0; j < s.length(); j++) {
+							boolean isDigit = (s.charAt(j) >= '0' && s
+									.charAt(j) <= '9');
+							if (!isDigit)
+								suffix = s.substring(j, s.length());
+						}
+					}
+
 					this.writeSingleFile(tempDir, this.getTimestamp(),
-							Config.get("SUFFIX_ZIP_FILE"), Dir.delimiter);
+							Config.get("SUFFIX_ZIP_FILE") + suffix,
+							Dir.delimiter);
 				}
 			}
 
@@ -155,12 +170,19 @@ public class BatchData implements IBatch {
 			// write batch to zipped run
 			String[] splits = dir.split(Dir.delimiter);
 
+			System.out.println(dir);
+
 			// iterate over splits last to first
 			for (int i = splits.length - 1; i >= 0; i--) {
 				if (splits[i].startsWith(Config.get("PREFIX_RUNDATA_DIR"))) {
 					// build dir string
 					for (int j = 0; j < i; j++)
 						tempDir += splits[j] + Dir.delimiter;
+
+					// build relative dir string
+					String relDir = Dir.delimiter;
+					for (int j = i + 1; j < splits.length; j++)
+						relDir += splits[j] + Dir.delimiter;
 
 					// parse run id
 					int runId = Integer.parseInt(splits[i].replace(
@@ -171,8 +193,7 @@ public class BatchData implements IBatch {
 							tempDir, runId));
 
 					// write
-					this.write(Dir.getBatchDataDir(Dir.delimiter,
-							this.getTimestamp()));
+					this.write(relDir);
 
 					// close zip
 					ZipWriter.closeWriteFilesystem();
