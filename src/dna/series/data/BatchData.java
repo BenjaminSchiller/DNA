@@ -8,6 +8,7 @@ import dna.io.ZipWriter;
 import dna.io.filesystem.Dir;
 import dna.io.filesystem.Files;
 import dna.plot.PlottingUtils;
+import dna.series.aggdata.AggregatedBatch;
 import dna.series.aggdata.AggregatedBatch.BatchReadMode;
 import dna.series.lists.DistributionList;
 import dna.series.lists.MetricDataList;
@@ -232,6 +233,66 @@ public class BatchData implements IBatch {
 		MetricDataList metrics = MetricDataList.read(dir, batchReadMode);
 		return new BatchData(timestamp, values, generalRuntimes,
 				metricRuntimes, metrics);
+	}
+
+	public static BatchData readBatchValuesIntelligent(String dir,
+			long timestamp, BatchData b) throws IOException {
+		BatchData temp = null;
+		String tempDir = dir;
+		if (Config.get("GENERATION_AS_ZIP").equals("batches")) {
+			// get batch from zip
+			String[] splits = dir.split(Dir.delimiter);
+			tempDir = "";
+
+			// iterate over splits last to first
+			for (int i = splits.length - 1; i >= 0; i--) {
+				if (splits[i].startsWith(Config.get("PREFIX_BATCHDATA_DIR"))) {
+					// build dir string
+					for (int j = 0; j < i; j++)
+						tempDir += splits[j] + Dir.delimiter;
+
+					// read batch from zip
+					temp = BatchData.readBatchValuesFromSingleFile(tempDir,
+							timestamp, Dir.delimiter, b);
+				}
+			}
+		} else if (Config.get("GENERATION_AS_ZIP").equals("runs")) {
+			// get batch from zipped run
+			String[] splits = dir.split(Dir.delimiter);
+			tempDir = "";
+
+			// iterate over splits last to first
+			for (int i = splits.length - 1; i >= 0; i--) {
+				if (splits[i].startsWith(Config.get("PREFIX_RUNDATA_DIR"))) {
+					// build dir string
+					for (int j = 0; j < i; j++)
+						tempDir += splits[j] + Dir.delimiter;
+
+					// read run from zip
+					int runId = Integer.parseInt(splits[i].replace(
+							Config.get("PREFIX_RUNDATA_DIR"), ""));
+
+					// open zip
+					ZipReader.setReadFilesystem(ZipWriter.createRunFileSystem(
+							tempDir, runId));
+
+					// read
+					temp = BatchData.readBatchValues(
+							Dir.getBatchDataDir(Dir.delimiter, timestamp),
+							timestamp, b);
+
+					// close zip
+					ZipReader.closeReadFilesystem();
+
+					// break for loop
+					break;
+				}
+			}
+		} else {
+			// get batch
+			temp = BatchData.readBatchValues(dir, timestamp, b);
+		}
+		return temp;
 	}
 
 	/**
