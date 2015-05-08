@@ -45,7 +45,7 @@ public class RunData {
 	public void write(String dir) throws IOException {
 		Log.debug("writing RunData " + this.run + " in " + dir);
 		for (BatchData d : this.batches.getList()) {
-			d.write(Dir.getBatchDataDir(dir, d.getTimestamp()));
+			d.writeIntelligent(Dir.getBatchDataDir(dir, d.getTimestamp()));
 		}
 	}
 
