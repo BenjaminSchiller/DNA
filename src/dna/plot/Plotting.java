@@ -114,35 +114,16 @@ public class Plotting {
 
 		// gather relevant batches
 		String[] batches;
-
-		if (zippedRuns) {
-			ZipReader.readFileSystem = ZipWriter
-					.createAggregationFileSystem(seriesData[0].getDir());
-			batches = Dir.getBatchesFromTo(Dir.delimiter, plotFrom, plotTo,
-					stepsize, intervalByIndex);
-			ZipReader.readFileSystem.close();
-			ZipReader.readFileSystem = null;
-		} else {
-			batches = Dir.getBatchesFromTo(
-					Dir.getAggregationDataDir(seriesData[0].getDir()),
-					plotFrom, plotTo, stepsize, intervalByIndex);
-		}
+		batches = Dir.getBatchesFromTo(
+				Dir.getAggregationDataDir(seriesData[0].getDir()), plotFrom,
+				plotTo, stepsize, intervalByIndex);
 
 		for (int i = 0; i < seriesData.length; i++) {
-			String tempDir = Dir.getAggregationDataDir(seriesData[i].getDir());
-			if (zippedRuns) {
-				ZipReader.readFileSystem = ZipWriter
-						.createAggregationFileSystem(seriesData[i].getDir());
-				tempDir = Dir.delimiter;
-			}
-			String[] tempBatches = Dir.getBatchesFromTo(tempDir, plotFrom,
-					plotTo, stepsize, intervalByIndex);
+			String[] tempBatches = Dir.getBatchesFromTo(
+					Dir.getAggregationDataDir(seriesData[i].getDir()),
+					plotFrom, plotTo, stepsize, intervalByIndex);
 			if (tempBatches.length > batches.length)
 				batches = tempBatches;
-			if (zippedRuns) {
-				ZipReader.readFileSystem.close();
-				ZipReader.readFileSystem = null;
-			}
 		}
 
 		double timestamps[] = new double[batches.length];
@@ -190,25 +171,12 @@ public class Plotting {
 		// read init batches
 		for (int i = 0; i < seriesData.length; i++) {
 			SeriesData series = seriesData[i];
-			String tempDir = Dir.getAggregationDataDir(series.getDir());
 			long timestamp = series.getAggregation().getBatches()[0]
 					.getTimestamp();
-			if (zippedRuns) {
-				ZipReader.readFileSystem = ZipWriter
-						.createAggregationFileSystem(series.getDir());
-				tempDir = Dir.delimiter;
-			}
-			if (zippedBatches)
-				initBatches[i] = AggregatedBatch.readFromSingleFile(tempDir,
-						timestamp, Dir.delimiter, BatchReadMode.readAllValues);
-			else
-				initBatches[i] = AggregatedBatch.read(
-						Dir.getBatchDataDir(tempDir, timestamp), timestamp,
-						BatchReadMode.readAllValues);
-			if (zippedRuns) {
-				ZipReader.readFileSystem.close();
-				ZipReader.readFileSystem = null;
-			}
+			initBatches[i] = AggregatedBatch.readIntelligent(Dir
+					.getBatchDataDir(
+							Dir.getAggregationDataDir(series.getDir()),
+							timestamp), timestamp, BatchReadMode.readAllValues);
 		}
 
 		// replace wildcards and remove unnecessary plots
@@ -277,41 +245,20 @@ public class Plotting {
 
 		// gather relevant batches
 		String tempDir = Dir.getAggregationDataDir(series.getDir());
-		if (zippedRuns) {
-			ZipReader.readFileSystem = ZipWriter
-					.createAggregationFileSystem(series.getDir());
-			tempDir = Dir.delimiter;
-		}
 		String[] batches = Dir.getBatchesFromTo(tempDir, plotFrom, plotTo,
 				stepsize, intervalByIndex);
 		double timestamps[] = new double[batches.length];
 		for (int i = 0; i < batches.length; i++) {
 			timestamps[i] = Dir.getTimestamp(batches[i]);
 		}
-		if (zippedRuns) {
-			ZipReader.readFileSystem.close();
-			ZipReader.readFileSystem = null;
-		}
 
 		// read single values
 		AggregatedBatch[] batchData = new AggregatedBatch[batches.length];
 		for (int i = 0; i < batches.length; i++) {
 			long timestamp = Dir.getTimestamp(batches[i]);
-			if (zippedRuns)
-				ZipReader.readFileSystem = ZipWriter
-						.createAggregationFileSystem(series.getDir());
-			if (zippedBatches)
-				batchData[i] = AggregatedBatch.readFromSingleFile(tempDir,
-						timestamp, Dir.delimiter,
-						BatchReadMode.readOnlySingleValues);
-			else
-				batchData[i] = AggregatedBatch.read(
-						Dir.getBatchDataDir(tempDir, timestamp), timestamp,
-						BatchReadMode.readOnlySingleValues);
-			if (zippedRuns) {
-				ZipReader.readFileSystem.close();
-				ZipReader.readFileSystem = null;
-			}
+			batchData[i] = AggregatedBatch.readIntelligent(
+					Dir.getBatchDataDir(tempDir, timestamp), timestamp,
+					BatchReadMode.readOnlySingleValues);
 		}
 
 		// list relevant batches

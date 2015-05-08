@@ -63,8 +63,8 @@ public class Files {
 	}
 
 	public static String[] getDistributions(String dir) throws IOException {
-		if (ZipReader.readFileSystem != null) {
-			Path p = ZipReader.readFileSystem.getPath(dir);
+		if (ZipReader.isZipOpen()) {
+			Path p = ZipReader.getPath(dir);
 			ArrayList<String> fileList = new ArrayList<String>();
 			try (DirectoryStream<Path> directoryStream = java.nio.file.Files
 					.newDirectoryStream(p)) {
@@ -85,7 +85,7 @@ public class Files {
 	public static String getDistributionName(String filename) {
 		return filename.replace(Config.get("SUFFIX_DIST"), "");
 	}
-	
+
 	public static String getDistributionBinnedName(String filename) {
 		return filename.replace(Config.get("SUFFIX_DIST_BINNED"), "");
 	}
@@ -130,8 +130,8 @@ public class Files {
 	}
 
 	public static String[] getNodeValueLists(String dir) throws IOException {
-		if (ZipReader.readFileSystem != null) {
-			Path p = ZipReader.readFileSystem.getPath(dir);
+		if (ZipReader.isZipOpen()) {
+			Path p = ZipReader.getPath(dir);
 			ArrayList<String> fileList = new ArrayList<String>();
 			try (DirectoryStream<Path> directoryStream = java.nio.file.Files
 					.newDirectoryStream(p)) {

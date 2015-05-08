@@ -97,11 +97,10 @@ public class AggregatedBatch implements IBatch {
 	/** Writes the whole aggregated batch in a single zip file **/
 	public void writeSingleFile(String fsDir, long timestamp, String suffix,
 			String dir) throws IOException {
-		ZipWriter.writeFileSystem = ZipWriter.createBatchFileSystem(fsDir,
-				suffix, timestamp);
+		ZipWriter.setWriteFilesystem(ZipWriter.createBatchFileSystem(fsDir,
+				suffix, timestamp));
 		this.write(dir);
-		ZipWriter.writeFileSystem.close();
-		ZipWriter.writeFileSystem = null;
+		ZipWriter.closeWriteFilesystem();
 	}
 
 	/**
@@ -214,11 +213,10 @@ public class AggregatedBatch implements IBatch {
 	public static AggregatedBatch readFromSingleFile(String fsDir,
 			long timestamp, String dir, BatchReadMode batchReadMode)
 			throws IOException {
-		ZipReader.readFileSystem = ZipWriter.createBatchFileSystem(fsDir,
-				Config.get("SUFFIX_ZIP_FILE"), timestamp);
+		ZipReader.setReadFilesystem(ZipReader.getBatchFileSystem(fsDir,
+				Config.get("SUFFIX_ZIP_FILE"), timestamp));
 		AggregatedBatch tempBatchData = read(dir, timestamp, batchReadMode);
-		ZipReader.readFileSystem.close();
-		ZipReader.readFileSystem = null;
+		ZipReader.closeReadFilesystem();
 		return tempBatchData;
 	}
 
@@ -272,8 +270,8 @@ public class AggregatedBatch implements IBatch {
 						tempDir += splits[j] + Dir.delimiter;
 
 					// open zip
-					ZipReader.setReadFilesystem(ZipWriter
-							.createAggregationFileSystem(tempDir));
+					ZipReader.setReadFilesystem(ZipReader
+							.getAggregationFileSystem(tempDir));
 
 					// read batch
 					temp = AggregatedBatch.read(

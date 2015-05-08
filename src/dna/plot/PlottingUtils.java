@@ -10,7 +10,6 @@ import java.util.LinkedList;
 import java.util.List;
 
 import dna.io.ZipReader;
-import dna.io.ZipWriter;
 import dna.io.filesystem.Dir;
 import dna.io.filesystem.Files;
 import dna.io.filesystem.PlotFilenames;
@@ -1788,26 +1787,13 @@ public class PlottingUtils {
 		// read data batch by batch and add to plots
 		for (int i = 0; i < batches.length; i++) {
 			if (aggregatedBatches) {
-				AggregatedBatch tempBatch;
 				long timestamp = Dir.getTimestamp(batches[i]);
 
-				if (zippedRuns) {
-					ZipReader.readFileSystem = ZipWriter
-							.createAggregationFileSystem(seriesDir);
-					tempAggrDir = Dir.delimiter;
-				}
-				if (zippedBatches)
-					tempBatch = AggregatedBatch.readFromSingleFile(tempAggrDir,
-							timestamp, Dir.delimiter,
-							BatchReadMode.readOnlyDistAndNvl);
-				else
-					tempBatch = AggregatedBatch.read(
-							Dir.getBatchDataDir(tempAggrDir, timestamp),
-							timestamp, BatchReadMode.readOnlyDistAndNvl);
-				if (zippedRuns) {
-					ZipReader.readFileSystem.close();
-					ZipReader.readFileSystem = null;
-				}
+				// read data
+				AggregatedBatch tempBatch = AggregatedBatch.readIntelligent(
+						Dir.getBatchDataDir(tempAggrDir, timestamp), timestamp,
+						BatchReadMode.readOnlyDistAndNvl);
+
 				// append data to plots
 				for (Plot p : plots) {
 					for (int j = 0; j < p.getDataQuantity(); j++) {
@@ -1818,27 +1804,12 @@ public class PlottingUtils {
 				// free resources
 				tempBatch = null;
 			} else {
-				BatchData tempBatch;
-
 				long timestamp = Dir.getTimestamp(batches[i]);
 
-				if (zippedRuns) {
-					ZipReader.readFileSystem = ZipWriter
-							.createAggregationFileSystem(seriesDir);
-					tempAggrDir = Dir.delimiter;
-				}
-				if (zippedBatches)
-					tempBatch = BatchData.readFromSingleFile(tempAggrDir,
-							timestamp, Dir.delimiter,
-							BatchReadMode.readOnlyDistAndNvl);
-				else
-					tempBatch = BatchData.read(
-							Dir.getBatchDataDir(tempAggrDir, timestamp),
-							timestamp, BatchReadMode.readOnlyDistAndNvl);
-				if (zippedRuns) {
-					ZipReader.readFileSystem.close();
-					ZipReader.readFileSystem = null;
-				}
+				// read data
+				BatchData tempBatch = BatchData.readIntelligent(
+						Dir.getBatchDataDir(tempAggrDir, timestamp), timestamp,
+						BatchReadMode.readOnlyDistAndNvl);
 
 				// append data to plots
 				for (Plot p : plots) {
@@ -3830,49 +3801,16 @@ public class PlottingUtils {
 				IBatch tempBatch;
 
 				if (aggregatedBatches) {
-					String aggrDir = Dir.getAggregationDataDir(seriesData[j]
-							.getDir());
-
-					if (zippedRuns) {
-						ZipReader.readFileSystem = ZipWriter
-								.createAggregationFileSystem(seriesData[j]
-										.getDir());
-						aggrDir = Dir.delimiter;
-					}
-					if (zippedBatches)
-						tempBatch = AggregatedBatch.readFromSingleFile(aggrDir,
-								timestamp, Dir.delimiter,
-								BatchReadMode.readOnlyDistAndNvl);
-					else
-						tempBatch = AggregatedBatch.read(
-								Dir.getBatchDataDir(aggrDir, timestamp),
-								timestamp, BatchReadMode.readOnlyDistAndNvl);
-					if (zippedRuns) {
-						ZipReader.readFileSystem.close();
-						ZipReader.readFileSystem = null;
-					}
+					tempBatch = AggregatedBatch.readIntelligent(Dir
+							.getBatchDataDir(Dir
+									.getAggregationDataDir(seriesData[j]
+											.getDir()), timestamp), timestamp,
+							BatchReadMode.readOnlyDistAndNvl);
 				} else {
-					String aggrDir = Dir.getRunDataDir(seriesData[j].getDir(),
-							indizes[j]);
-
-					if (zippedRuns) {
-						ZipReader.readFileSystem = ZipWriter
-								.createAggregationFileSystem(seriesData[j]
-										.getDir());
-						aggrDir = Dir.delimiter;
-					}
-					if (zippedBatches)
-						tempBatch = BatchData.readFromSingleFile(aggrDir,
-								timestamp, Dir.delimiter,
-								BatchReadMode.readOnlyDistAndNvl);
-					else
-						tempBatch = BatchData.read(
-								Dir.getBatchDataDir(aggrDir, timestamp),
-								timestamp, BatchReadMode.readOnlyDistAndNvl);
-					if (zippedRuns) {
-						ZipReader.readFileSystem.close();
-						ZipReader.readFileSystem = null;
-					}
+					tempBatch = BatchData.readIntelligent(Dir.getBatchDataDir(
+							Dir.getRunDataDir(seriesData[j].getDir(),
+									indizes[j]), timestamp), timestamp,
+							BatchReadMode.readOnlyDistAndNvl);
 				}
 
 				// append data to plots
@@ -4005,31 +3943,12 @@ public class PlottingUtils {
 				for (int j = 0; j < batches.length; j++) {
 					long timestamp = Dir.getTimestamp(batches[j]);
 					try {
-						if (zippedRuns) {
-							ZipReader.readFileSystem = ZipWriter
-									.createAggregationFileSystem(series
-											.getDir());
-							tempDir = Dir.delimiter;
-						}
-						if (zippedBatches)
-							batchData[j] = AggregatedBatch.readFromSingleFile(
-									tempDir, timestamp, Dir.delimiter,
-									BatchReadMode.readOnlySingleValues);
-						else
-							batchData[j] = AggregatedBatch.read(
-									Dir.getBatchDataDir(tempDir, timestamp),
-									timestamp,
-									BatchReadMode.readOnlySingleValues);
-						if (zippedRuns) {
-							ZipReader.readFileSystem.close();
-							ZipReader.readFileSystem = null;
-						}
+						batchData[j] = AggregatedBatch.readIntelligent(
+								Dir.getBatchDataDir(tempDir, timestamp),
+								timestamp, BatchReadMode.readOnlySingleValues);
 					} catch (FileNotFoundException e) {
 						if (zippedBatches) {
-							if (ZipReader.readFileSystem != null) {
-								ZipReader.readFileSystem.close();
-								ZipReader.readFileSystem = null;
-							}
+							ZipReader.closeReadFilesystem();
 							String remDir = tempDir
 									+ Config.get("PREFIX_BATCHDATA_DIR")
 									+ timestamp + Config.get("SUFFIX_ZIP_FILE");
@@ -4045,31 +3964,12 @@ public class PlottingUtils {
 				for (int j = 0; j < batches.length; j++) {
 					long timestamp = Dir.getTimestamp(batches[j]);
 					try {
-						if (zippedRuns) {
-							ZipReader.readFileSystem = ZipWriter
-									.createRunFileSystem(series.getDir(),
-											indizes[i]);
-							tempDir = Dir.delimiter;
-						}
-						if (zippedBatches)
-							batchData[j] = BatchData.readFromSingleFile(
-									tempDir, timestamp, Dir.delimiter,
-									BatchReadMode.readOnlySingleValues);
-						else
-							batchData[j] = BatchData.read(
-									Dir.getBatchDataDir(tempDir, timestamp),
-									timestamp,
-									BatchReadMode.readOnlySingleValues);
-						if (zippedRuns) {
-							ZipReader.readFileSystem.close();
-							ZipReader.readFileSystem = null;
-						}
+						batchData[j] = BatchData.readIntelligent(
+								Dir.getBatchDataDir(tempDir, timestamp),
+								timestamp, BatchReadMode.readOnlySingleValues);
 					} catch (FileNotFoundException e) {
 						if (zippedBatches) {
-							if (ZipReader.readFileSystem != null) {
-								ZipReader.readFileSystem.close();
-								ZipReader.readFileSystem = null;
-							}
+							ZipReader.closeReadFilesystem();
 							String remDir = tempDir
 									+ Config.get("PREFIX_BATCHDATA_DIR")
 									+ timestamp + Config.get("SUFFIX_ZIP_FILE");

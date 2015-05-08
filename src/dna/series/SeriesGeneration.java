@@ -3,7 +3,6 @@ package dna.series;
 import java.io.File;
 import java.io.IOException;
 
-import dna.io.ZipWriter;
 import dna.io.filesystem.Dir;
 import dna.io.filesystem.Files;
 import dna.metrics.IMetric;

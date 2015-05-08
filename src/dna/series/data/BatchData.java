@@ -8,7 +8,6 @@ import dna.io.ZipWriter;
 import dna.io.filesystem.Dir;
 import dna.io.filesystem.Files;
 import dna.plot.PlottingUtils;
-import dna.series.aggdata.AggregatedBatch;
 import dna.series.aggdata.AggregatedBatch.BatchReadMode;
 import dna.series.lists.DistributionList;
 import dna.series.lists.MetricDataList;
@@ -298,7 +297,7 @@ public class BatchData implements IBatch {
 							Config.get("PREFIX_RUNDATA_DIR"), ""));
 
 					// open zip
-					ZipReader.setReadFilesystem(ZipWriter.createRunFileSystem(
+					ZipReader.setReadFilesystem(ZipReader.getRunFileSystem(
 							tempDir, runId));
 
 					// read
@@ -437,32 +436,29 @@ public class BatchData implements IBatch {
 	 */
 	public static BatchData readBatchValuesFromSingleFile(String fsDir,
 			long timestamp, String dir, BatchData structure) throws IOException {
-		ZipReader.readFileSystem = ZipWriter.createBatchFileSystem(fsDir,
-				Config.get("SUFFIX_ZIP_FILE"), timestamp);
+		ZipReader.setReadFilesystem(ZipReader.getBatchFileSystem(fsDir,
+				Config.get("SUFFIX_ZIP_FILE"), timestamp));
 		BatchData tempBatchData = readBatchValues(dir, timestamp, structure);
-		ZipReader.readFileSystem.close();
-		ZipReader.readFileSystem = null;
+		ZipReader.closeReadFilesystem();
 		return tempBatchData;
 	}
 
 	/** Writes the whole batch in a single zip file **/
 	public void writeSingleFile(String fsDir, long timestamp, String suffix,
 			String dir) throws IOException {
-		ZipWriter.writeFileSystem = ZipWriter.createBatchFileSystem(fsDir,
-				suffix, timestamp);
+		ZipWriter.setWriteFilesystem(ZipWriter.createBatchFileSystem(fsDir,
+				suffix, timestamp));
 		this.write(dir);
-		ZipWriter.writeFileSystem.close();
-		ZipWriter.writeFileSystem = null;
+		ZipWriter.closeWriteFilesystem();
 	}
 
 	/** Reads the whole batch from a single zip file **/
 	public static BatchData readFromSingleFile(String fsDir, long timestamp,
 			String dir, BatchReadMode batchReadMode) throws IOException {
-		ZipReader.readFileSystem = ZipWriter.createBatchFileSystem(fsDir,
-				Config.get("SUFFIX_ZIP_FILE"), timestamp);
+		ZipReader.setReadFilesystem(ZipReader.getBatchFileSystem(fsDir,
+				Config.get("SUFFIX_ZIP_FILE"), timestamp));
 		BatchData tempBatchData = read(dir, timestamp, batchReadMode);
-		ZipReader.readFileSystem.close();
-		ZipReader.readFileSystem = null;
+		ZipReader.closeReadFilesystem();
 		return tempBatchData;
 	}
 
