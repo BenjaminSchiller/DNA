@@ -235,6 +235,31 @@ public class BatchData implements IBatch {
 				metricRuntimes, metrics);
 	}
 
+	/**
+	 * Reads the batch and its values while using the structure of the given
+	 * BatchData object. This results in fast read-times especially when using
+	 * zips.
+	 * 
+	 * Example: Input-Dir: "data/scenario.1/series/run.0/batch.0/":
+	 * 
+	 * No-Zip will return the batch at "data/scenario.1/series/run.0/batch.0/".
+	 * 
+	 * Zipped-Batch will read and return the zipped batch
+	 * "data/scenario.1/series/run.0/batch.0.zip"
+	 * 
+	 * Zipped-Run will read the zipped run "data/scenario.1/series/run.0.zip"
+	 * and return batch.0 of run.0.
+	 * 
+	 * @param dir
+	 *            Directory where the batch will be read from
+	 * @param timestamp
+	 *            Timestamp of the batch.
+	 * @param b
+	 *            BatchData object containing a structure which will be used to
+	 *            read the corresponding values
+	 * @return
+	 * @throws IOException
+	 */
 	public static BatchData readBatchValuesIntelligent(String dir,
 			long timestamp, BatchData b) throws IOException {
 		BatchData temp = null;
@@ -492,7 +517,7 @@ public class BatchData implements IBatch {
 	 * "data/scenario.1/series/run.0/batch.0.zip"
 	 * 
 	 * Zipped-Run will read the zipped run "data/scenario.1/series/run.0.zip"
-	 * and return the batch with the given input timestamp.
+	 * and return batch.0 of run.0.
 	 * 
 	 * @throws IOException
 	 **/
