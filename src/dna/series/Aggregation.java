@@ -118,14 +118,6 @@ public class Aggregation {
 		if (runs.size() == 1)
 			return aggregateRun(dir, runs.get(0));
 
-		// zipped flags
-		boolean zippedRuns = false;
-		boolean zippedBatches = false;
-		if (Config.get("GENERATION_AS_ZIP").equals("runs"))
-			zippedRuns = true;
-		if (Config.get("GENERATION_AS_ZIP").equals("batches"))
-			zippedBatches = true;
-
 		long maxTimestamp = 0;
 		int maxAmountBatches = 0;
 		int runId = 0;
