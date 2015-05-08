@@ -95,16 +95,6 @@ public class AggregatedBatch implements IBatch {
 	}
 
 	/** Writes the whole aggregated batch in a single zip file **/
-	public void writeSingleFile(String fsDir, long timestamp, String dir)
-			throws IOException {
-		ZipWriter.writeFileSystem = ZipWriter.createBatchFileSystem(fsDir,
-				Config.get("SUFFIX_ZIP_FILE"), timestamp);
-		this.write(dir);
-		ZipWriter.writeFileSystem.close();
-		ZipWriter.writeFileSystem = null;
-	}
-
-	/** Writes the whole aggregated batch in a single zip file **/
 	public void writeSingleFile(String fsDir, long timestamp, String suffix,
 			String dir) throws IOException {
 		ZipWriter.writeFileSystem = ZipWriter.createBatchFileSystem(fsDir,

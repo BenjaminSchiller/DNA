@@ -252,11 +252,6 @@ public class SeriesGeneration {
 		if (Config.get("GENERATION_AS_ZIP").equals("batches"))
 			zippedBatches = true;
 
-		// if zipped run, establish filesystem now
-		if (zippedRuns)
-			ZipWriter.writeFileSystem = ZipWriter.createRunFileSystem(
-					series.getDir(), run);
-
 		// reset batch generator
 		series.getBatchGenerator().reset();
 
