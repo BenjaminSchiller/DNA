@@ -9,6 +9,7 @@ import java.util.Arrays;
 import java.util.Collections;
 
 import dna.io.ZipReader;
+import dna.io.ZipWriter;
 import dna.io.filter.PrefixFilenameFilter;
 import dna.metrics.IMetric;
 import dna.util.Config;
@@ -75,6 +76,30 @@ public class Dir {
 	public static String getBatchDataDir(String dir, int run, long timestamp) {
 		return Dir.getRunDataDir(dir, run) + Config.get("PREFIX_BATCHDATA_DIR")
 				+ timestamp + Dir.delimiter;
+	}
+
+	public static String[] getBatchesIntelligent(String dir) throws IOException {
+		if (Config.get("GENERATION_AS_ZIP").equals("runs")) {
+			String splits[] = dir.split(Dir.delimiter);
+			String tempDir = "";
+			String fileName = splits[splits.length - 1]
+					+ Config.get("SUFFIX_ZIP_FILE");
+			for (int i = 0; i < splits.length - 1; i++)
+				tempDir += splits[i] + Dir.delimiter;
+
+			if (new File(tempDir + fileName).exists()) {
+				ZipReader.setReadFilesystem(ZipWriter.createFileSystem(
+						tempDir,
+						splits[splits.length - 1]
+								+ Config.get("SUFFIX_ZIP_FILE")));
+				String[] tempBatches = Dir.getBatches(Dir.delimiter);
+				ZipReader.closeReadFilesystem();
+				return tempBatches;
+			}
+		} else {
+			return Dir.getBatches(dir);
+		}
+		return null;
 	}
 
 	public static String[] getBatches(String dir) throws IOException {

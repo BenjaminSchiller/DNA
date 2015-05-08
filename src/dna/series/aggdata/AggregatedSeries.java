@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-import dna.io.ZipReader;
 import dna.io.ZipWriter;
 import dna.io.filesystem.Dir;
 import dna.series.aggdata.AggregatedBatch.BatchReadMode;
@@ -60,16 +59,9 @@ public class AggregatedSeries {
 
 	public static AggregatedSeries read(String dir, String name,
 			BatchReadMode batchReadMode) throws IOException {
-		String[] batches;
-		if (Config.get("GENERATION_AS_ZIP").equals("runs")) {
-			ZipReader.setReadFilesystem(ZipWriter
-					.createAggregationFileSystem(dir));
-			batches = Dir.getBatches(Dir.delimiter);
-			ZipReader.closeReadFilesystem();
-		} else {
-			batches = Dir.getBatches(Dir.getAggregationDataDir(dir));
-		}
-		return read(dir, name, batches, batchReadMode);
+		return read(dir, name,
+				Dir.getBatchesIntelligent(Dir.getAggregationDataDir(dir)),
+				batchReadMode);
 	}
 
 	private static AggregatedSeries read(String dir, String name,
