@@ -38,41 +38,34 @@ public class AggregatedSeries {
 	// IO Methods
 	public void write(String dir) throws IOException {
 		boolean zippedRuns = false;
-		boolean zippedBatches = false;
 		if (Config.get("GENERATION_AS_ZIP").equals("runs")) {
 			zippedRuns = true;
-			ZipWriter.writeFileSystem = ZipWriter
-					.createAggregationFileSystem(dir);
+			ZipWriter.setWriteFilesystem(ZipWriter
+					.createAggregationFileSystem(dir));
 		}
-		if (Config.get("GENERATION_AS_ZIP").equals("batches"))
-			zippedBatches = true;
-		for (int i = 0; i < this.getBatches().length; i++) {
-			long tempTimestamp = this.getBatches()[i].getTimestamp();
-			String tempDir = Dir.getBatchDataDir(dir, tempTimestamp);
-			if (zippedRuns)
-				tempDir = Dir.getBatchDataDir(Dir.delimiter, tempTimestamp);
 
-			if (zippedBatches)
-				this.getBatches()[i].writeSingleFile(dir,
-						this.getBatches()[i].getTimestamp(), Dir.delimiter);
+		for (int i = 0; i < this.getBatches().length; i++) {
+			long timestamp = this.getBatches()[i].getTimestamp();
+			if (zippedRuns)
+				this.getBatches()[i].write(Dir.getBatchDataDir(Dir.delimiter,
+						timestamp));
 			else
-				this.getBatches()[i].write(tempDir);
+				this.getBatches()[i].writeIntelligent(Dir.getBatchDataDir(
+						Dir.getAggregationDataDir(dir), timestamp));
 		}
-		if (zippedRuns) {
-			ZipWriter.writeFileSystem.close();
-			ZipWriter.writeFileSystem = null;
-		}
+
+		if (zippedRuns)
+			ZipWriter.closeWriteFilesystem();
 	}
 
 	public static AggregatedSeries read(String dir, String name,
 			BatchReadMode batchReadMode) throws IOException {
 		String[] batches;
 		if (Config.get("GENERATION_AS_ZIP").equals("runs")) {
-			ZipReader.readFileSystem = ZipWriter
-					.createAggregationFileSystem(dir);
+			ZipReader.setReadFilesystem(ZipWriter
+					.createAggregationFileSystem(dir));
 			batches = Dir.getBatches(Dir.delimiter);
-			ZipReader.readFileSystem.close();
-			ZipReader.readFileSystem = null;
+			ZipReader.closeReadFilesystem();
 		} else {
 			batches = Dir.getBatches(Dir.getAggregationDataDir(dir));
 		}
@@ -81,34 +74,13 @@ public class AggregatedSeries {
 
 	private static AggregatedSeries read(String dir, String name,
 			String[] batches, BatchReadMode batchReadMode) throws IOException {
-		String tempDir = Dir.getAggregationDataDir(dir);
 		AggregatedBatch[] aggBatches = new AggregatedBatch[batches.length];
-
-		boolean zippedRuns = false;
-		boolean zippedBatches = false;
-		if (Config.get("GENERATION_AS_ZIP").equals("runs"))
-			zippedRuns = true;
-		if (Config.get("GENERATION_AS_ZIP").equals("batches"))
-			zippedBatches = true;
 
 		for (int i = 0; i < batches.length; i++) {
 			long timestamp = Dir.getTimestamp(batches[i]);
-			String aggDir = Dir.getAggregationBatchDir(dir, timestamp);
-			if (zippedRuns) {
-				ZipReader.readFileSystem = ZipWriter
-						.createAggregationFileSystem(dir);
-				aggDir = Dir.getBatchDataDir(Dir.delimiter, timestamp);
-			}
-			if (zippedBatches)
-				aggBatches[i] = AggregatedBatch.readFromSingleFile(tempDir,
-						timestamp, Dir.delimiter, batchReadMode);
-			else
-				aggBatches[i] = AggregatedBatch.read(aggDir, timestamp,
-						batchReadMode);
-			if (zippedRuns) {
-				ZipReader.readFileSystem.close();
-				ZipReader.readFileSystem = null;
-			}
+			aggBatches[i] = AggregatedBatch.readIntelligent(
+					Dir.getAggregationBatchDir(dir, timestamp), timestamp,
+					batchReadMode);
 		}
 		return new AggregatedSeries(aggBatches);
 	}
