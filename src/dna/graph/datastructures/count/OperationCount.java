@@ -3,6 +3,7 @@ package dna.graph.datastructures.count;
 import java.io.IOException;
 
 import dna.graph.datastructures.DataStructure.ListType;
+import dna.io.Reader;
 import dna.io.Writer;
 
 /**
@@ -64,6 +65,8 @@ public class OperationCount {
 
 	public String getValues() {
 		StringBuffer buff = new StringBuffer();
+		buff.append("NaN	SIZE	" + listSize + "\n");
+		buff.append("NaN	COUNT	" + listCount + "\n");
 		buff.append("1	INIT	" + INIT + "\n");
 		buff.append("2	ADD	" + ADD + "\n");
 		buff.append("3	RANDOM_ELEMENT	" + RANDOM_ELEMENT + "\n");
@@ -82,6 +85,28 @@ public class OperationCount {
 		Writer w = new Writer(dir, filename);
 		w.write(this.getValues());
 		w.close();
+	}
+
+	public static OperationCount read(String dir, String filename, ListType lt)
+			throws IOException {
+		OperationCount oc = new OperationCount(lt);
+		Reader r = new Reader(dir, filename);
+		String sep = "	";
+		oc.listSize = Integer.parseInt(r.readString().split(sep)[2]);
+		oc.listCount = Integer.parseInt(r.readString().split(sep)[2]);
+		oc.INIT = Integer.parseInt(r.readString().split(sep)[2]);
+		oc.ADD = Integer.parseInt(r.readString().split(sep)[2]);
+		oc.RANDOM_ELEMENT = Integer.parseInt(r.readString().split(sep)[2]);
+		oc.SIZE = Integer.parseInt(r.readString().split(sep)[2]);
+		oc.ITERATE = Integer.parseInt(r.readString().split(sep)[2]);
+		oc.CONTAINS_SUCCESS = Integer.parseInt(r.readString().split(sep)[2]);
+		oc.CONTAINS_FAILURE = Integer.parseInt(r.readString().split(sep)[2]);
+		oc.GET_SUCCESS = Integer.parseInt(r.readString().split(sep)[2]);
+		oc.GET_FAILURE = Integer.parseInt(r.readString().split(sep)[2]);
+		oc.REMOVE_SUCCESS = Integer.parseInt(r.readString().split(sep)[2]);
+		oc.REMOVE_FAILURE = Integer.parseInt(r.readString().split(sep)[2]);
+		r.close();
+		return oc;
 	}
 
 	/**

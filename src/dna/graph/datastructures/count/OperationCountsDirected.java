@@ -50,6 +50,17 @@ public class OperationCountsDirected extends OperationCounts {
 	}
 
 	@Override
+	public void readValues(String dir) throws IOException {
+		V = OperationCount.read(dir, "V" + suffix, ListType.GlobalNodeList);
+		E = OperationCount.read(dir, "E" + suffix, ListType.GlobalEdgeList);
+		in = OperationCount.read(dir, "in" + suffix, ListType.LocalInEdgeList);
+		out = OperationCount.read(dir, "out" + suffix,
+				ListType.LocalOutEdgeList);
+		neighbors = OperationCount.read(dir, "neighbors" + suffix,
+				ListType.LocalNodeList);
+	}
+
+	@Override
 	public void setSizes(Graph g) {
 		int nodes = g.getNodeCount();
 		int edges = g.getEdgeCount();

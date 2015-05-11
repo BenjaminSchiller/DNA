@@ -23,5 +23,7 @@ public abstract class OperationCounts {
 
 	public abstract void writeValues(String dir) throws IOException;
 
+	public abstract void readValues(String dir) throws IOException;
+
 	public abstract void setSizes(Graph g);
 }
