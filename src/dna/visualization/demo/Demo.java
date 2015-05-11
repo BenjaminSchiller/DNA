@@ -37,7 +37,7 @@ import dna.updates.generators.evolvingNetworks.BarabasiAlbertBatch;
 import dna.updates.generators.evolvingNetworks.RandomGrowth;
 import dna.updates.generators.random.RandomBatch;
 import dna.updates.generators.util.BatchRepetition;
-import dna.updates.generators.util.LegacyReadableDirBatchGenerator;
+import dna.updates.generators.util.ReadableDirBatchGenerator;
 
 public class Demo {
 
@@ -114,7 +114,7 @@ public class Demo {
 	}
 
 	public static final int[] B = new int[] { 10, 20, 50, 100, 200, 500, 1000,
-			10000 };
+			10000, 50000 };
 
 	public static final int[] R = new int[] { 1, 2, 5, 10, 20 };
 
@@ -205,9 +205,9 @@ public class Demo {
 		case BARABASI_ALBERT_GROWTH_50_5:
 			return new BarabasiAlbertBatch(50, 5);
 		case DIR:
-			return new LegacyReadableDirBatchGenerator(this.dir.getName(),
+			return new ReadableDirBatchGenerator(this.dir.getName(),
 					this.dir.getAbsolutePath() + "/", new SuffixFilenameFilter(
-							".batch"));
+							".dnab"));
 		default:
 			return null;
 		}
