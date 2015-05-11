@@ -850,7 +850,7 @@ public class Aggregation {
 	 * @param inputData
 	 * @return double array containing the aggregated data
 	 */
-	private static double[] aggregate(long[] inputData) {
+	public static double[] aggregate(long[] inputData) {
 		// aggregated array structure: { avg, min, max, median, variance,
 		// variance-low, variance-up, confidence-low, confidence-up }
 		double avg = ArrayUtils.avg(inputData);
