@@ -15,7 +15,6 @@ import java.nio.file.StandardOpenOption;
 import java.util.HashMap;
 import java.util.Map;
 
-import dna.io.filesystem.Dir;
 import dna.util.Config;
 import dna.util.Log;
 
@@ -29,7 +28,7 @@ import dna.util.Log;
 public class ZipWriter extends Writer {
 
 	private FileSystem zipFile;
-	public static FileSystem writeFileSystem;
+	protected static FileSystem writeFileSystem;
 
 	private static FileSystem getFileSystem(URI uri, Map<String, ?> env)
 			throws IOException {
@@ -180,5 +179,33 @@ public class ZipWriter extends Writer {
 
 		// create filesystem
 		return getFileSystem(fsFileUri, env);
+	}
+
+	/** Sets the WriteFileSystem. **/
+	public static void setWriteFilesystem(FileSystem fs) throws IOException {
+		ZipWriter.writeFileSystem = fs;
+	}
+
+	/** Closes the current WriteFileSystem and sets it to null afterwards. **/
+	public static void closeWriteFilesystem() throws IOException {
+		if (ZipWriter.writeFileSystem != null) {
+			ZipWriter.writeFileSystem.close();
+			ZipWriter.writeFileSystem = null;
+		} else {
+			Log.warn("attempting to close null writeFileSystem");
+		}
+	}
+
+	/** Returns if there is currently a write-filesystem. **/
+	public static boolean isZipOpen() {
+		if (ZipWriter.writeFileSystem != null)
+			return true;
+		else
+			return false;
+	}
+
+	/** Converts the dir to a path inside the current write-filesystem. **/
+	public static Path getPath(String dir) {
+		return ZipWriter.writeFileSystem.getPath(dir);
 	}
 }

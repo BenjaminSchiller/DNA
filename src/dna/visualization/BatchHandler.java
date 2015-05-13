@@ -1,6 +1,7 @@
 package dna.visualization;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
@@ -163,7 +164,11 @@ public class BatchHandler implements Runnable {
 						BatchReadMode.readAllValues);
 			return tempBatch;
 		} catch (IOException e) {
-			e.printStackTrace();
+			if (e instanceof FileNotFoundException)
+				Log.info("File not found at '" + this.dir
+						+ "', BatchHandler could not be initialized.");
+			else
+				e.printStackTrace();
 		}
 		return new BatchData(0);
 	}

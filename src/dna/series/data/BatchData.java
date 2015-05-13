@@ -1,6 +1,7 @@
 package dna.series.data;
 
 import java.io.IOException;
+import java.util.ArrayList;
 
 import dna.io.ZipReader;
 import dna.io.ZipWriter;
@@ -103,6 +104,7 @@ public class BatchData implements IBatch {
 		return this.metrics;
 	}
 
+	/** Writes the batch to the specified location. **/
 	public void write(String dir) throws IOException {
 		Log.debug("writing BatchData for " + this.timestamp + " to " + dir);
 		this.stats.write(dir,
@@ -113,6 +115,96 @@ public class BatchData implements IBatch {
 		this.metricRuntimes.write(dir,
 				Files.getRuntimesFilename(Config.get("BATCH_METRIC_RUNTIMES")));
 		this.metrics.write(dir);
+	}
+
+	/**
+	 * Writes the batch to the specified location either as a plain batch
+	 * directory or as a zip file.
+	 * 
+	 * Example: Input-Dir: "data/scenario.1/series/run.0/batch.0/":
+	 * 
+	 * No-Zip will write the batch at "data/scenario.1/series/run.0/batch.0/".
+	 * 
+	 * Zipped-Batch will write the zipped batch
+	 * "data/scenario.1/series/run.0/batch.0.zip"
+	 * 
+	 * Zipped-Run will write the batch into the run-zip as
+	 * "data/scenario.1/series/run.0.zip/batch.0/".
+	 * 
+	 * @throws IOException
+	 **/
+	public void writeIntelligent(String dir) throws IOException {
+		String tempDir = "";
+		if (Config.get("GENERATION_AS_ZIP").equals("batches")) {
+			// write zip batch
+			String[] splits = dir.split(Dir.delimiter);
+
+			// iterate over splits last to first
+			for (int i = splits.length - 1; i >= 0; i--) {
+				if (splits[i].startsWith(Config.get("PREFIX_BATCHDATA_DIR"))) {
+					// build dir string
+					for (int j = 0; j < i; j++)
+						tempDir += splits[j] + Dir.delimiter;
+
+					// parse suffix
+					String suffix = "";
+					String[] splits2 = splits[i].split(Config
+							.get("PREFIX_BATCHDATA_DIR"));
+					if (splits2.length == 2) {
+						String s = splits2[1];
+						for (int j = 0; j < s.length(); j++) {
+							boolean isDigit = (s.charAt(j) >= '0' && s
+									.charAt(j) <= '9');
+							if (!isDigit)
+								suffix = s.substring(j, s.length());
+						}
+					}
+
+					this.writeSingleFile(tempDir, this.getTimestamp(),
+							Config.get("SUFFIX_ZIP_FILE") + suffix,
+							Dir.delimiter);
+				}
+			}
+
+		} else if (Config.get("GENERATION_AS_ZIP").equals("runs")) {
+			// write batch to zipped run
+			String[] splits = dir.split(Dir.delimiter);
+
+			// iterate over splits last to first
+			for (int i = splits.length - 1; i >= 0; i--) {
+				if (splits[i].startsWith(Config.get("PREFIX_RUNDATA_DIR"))) {
+					// build dir string
+					for (int j = 0; j < i; j++)
+						tempDir += splits[j] + Dir.delimiter;
+
+					// build relative dir string
+					String relDir = Dir.delimiter;
+					for (int j = i + 1; j < splits.length; j++)
+						relDir += splits[j] + Dir.delimiter;
+
+					// parse run id
+					int runId = Integer.parseInt(splits[i].replace(
+							Config.get("PREFIX_RUNDATA_DIR"), ""));
+
+					// open zip
+					ZipWriter.setWriteFilesystem(ZipWriter.createRunFileSystem(
+							tempDir, runId));
+
+					// write
+					this.write(relDir);
+
+					// close zip
+					ZipWriter.closeWriteFilesystem();
+
+					// break from for loop
+					break;
+				}
+			}
+
+		} else {
+			// write normal batch
+			this.write(dir);
+		}
 	}
 
 	/**
@@ -140,6 +232,91 @@ public class BatchData implements IBatch {
 		MetricDataList metrics = MetricDataList.read(dir, batchReadMode);
 		return new BatchData(timestamp, values, generalRuntimes,
 				metricRuntimes, metrics);
+	}
+
+	/**
+	 * Reads the batch and its values while using the structure of the given
+	 * BatchData object. This results in fast read-times especially when using
+	 * zips.
+	 * 
+	 * Example: Input-Dir: "data/scenario.1/series/run.0/batch.0/":
+	 * 
+	 * No-Zip will return the batch at "data/scenario.1/series/run.0/batch.0/".
+	 * 
+	 * Zipped-Batch will read and return the zipped batch
+	 * "data/scenario.1/series/run.0/batch.0.zip"
+	 * 
+	 * Zipped-Run will read the zipped run "data/scenario.1/series/run.0.zip"
+	 * and return batch.0 of run.0.
+	 * 
+	 * @param dir
+	 *            Directory where the batch will be read from
+	 * @param timestamp
+	 *            Timestamp of the batch.
+	 * @param b
+	 *            BatchData object containing a structure which will be used to
+	 *            read the corresponding values
+	 * @return
+	 * @throws IOException
+	 */
+	public static BatchData readBatchValuesIntelligent(String dir,
+			long timestamp, BatchData b) throws IOException {
+		BatchData temp = null;
+		String tempDir = dir;
+		if (Config.get("GENERATION_AS_ZIP").equals("batches")) {
+			// get batch from zip
+			String[] splits = dir.split(Dir.delimiter);
+			tempDir = "";
+
+			// iterate over splits last to first
+			for (int i = splits.length - 1; i >= 0; i--) {
+				if (splits[i].startsWith(Config.get("PREFIX_BATCHDATA_DIR"))) {
+					// build dir string
+					for (int j = 0; j < i; j++)
+						tempDir += splits[j] + Dir.delimiter;
+
+					// read batch from zip
+					temp = BatchData.readBatchValuesFromSingleFile(tempDir,
+							timestamp, Dir.delimiter, b);
+				}
+			}
+		} else if (Config.get("GENERATION_AS_ZIP").equals("runs")) {
+			// get batch from zipped run
+			String[] splits = dir.split(Dir.delimiter);
+			tempDir = "";
+
+			// iterate over splits last to first
+			for (int i = splits.length - 1; i >= 0; i--) {
+				if (splits[i].startsWith(Config.get("PREFIX_RUNDATA_DIR"))) {
+					// build dir string
+					for (int j = 0; j < i; j++)
+						tempDir += splits[j] + Dir.delimiter;
+
+					// read run from zip
+					int runId = Integer.parseInt(splits[i].replace(
+							Config.get("PREFIX_RUNDATA_DIR"), ""));
+
+					// open zip
+					ZipReader.setReadFilesystem(ZipReader.getRunFileSystem(
+							tempDir, runId));
+
+					// read
+					temp = BatchData.readBatchValues(
+							Dir.getBatchDataDir(Dir.delimiter, timestamp),
+							timestamp, b);
+
+					// close zip
+					ZipReader.closeReadFilesystem();
+
+					// break for loop
+					break;
+				}
+			}
+		} else {
+			// get batch
+			temp = BatchData.readBatchValues(dir, timestamp, b);
+		}
+		return temp;
 	}
 
 	/**
@@ -259,32 +436,29 @@ public class BatchData implements IBatch {
 	 */
 	public static BatchData readBatchValuesFromSingleFile(String fsDir,
 			long timestamp, String dir, BatchData structure) throws IOException {
-		ZipReader.readFileSystem = ZipWriter.createBatchFileSystem(
-				fsDir, Config.get("SUFFIX_ZIP_FILE"), timestamp);
+		ZipReader.setReadFilesystem(ZipReader.getBatchFileSystem(fsDir,
+				Config.get("SUFFIX_ZIP_FILE"), timestamp));
 		BatchData tempBatchData = readBatchValues(dir, timestamp, structure);
-		ZipReader.readFileSystem.close();
-		ZipReader.readFileSystem = null;
+		ZipReader.closeReadFilesystem();
 		return tempBatchData;
 	}
 
 	/** Writes the whole batch in a single zip file **/
 	public void writeSingleFile(String fsDir, long timestamp, String suffix,
 			String dir) throws IOException {
-		ZipWriter.writeFileSystem = ZipWriter.createBatchFileSystem(
-				fsDir, suffix, timestamp);
+		ZipWriter.setWriteFilesystem(ZipWriter.createBatchFileSystem(fsDir,
+				suffix, timestamp));
 		this.write(dir);
-		ZipWriter.writeFileSystem.close();
-		ZipWriter.writeFileSystem = null;
+		ZipWriter.closeWriteFilesystem();
 	}
 
 	/** Reads the whole batch from a single zip file **/
 	public static BatchData readFromSingleFile(String fsDir, long timestamp,
 			String dir, BatchReadMode batchReadMode) throws IOException {
-		ZipReader.readFileSystem = ZipWriter.createBatchFileSystem(
-				fsDir, Config.get("SUFFIX_ZIP_FILE"), timestamp);
+		ZipReader.setReadFilesystem(ZipReader.getBatchFileSystem(fsDir,
+				Config.get("SUFFIX_ZIP_FILE"), timestamp));
 		BatchData tempBatchData = read(dir, timestamp, batchReadMode);
-		ZipReader.readFileSystem.close();
-		ZipReader.readFileSystem = null;
+		ZipReader.closeReadFilesystem();
 		return tempBatchData;
 	}
 
@@ -325,6 +499,81 @@ public class BatchData implements IBatch {
 	/** Checks if the batch contains the domain and value. **/
 	public boolean contains(String domain, String value) {
 		return PlottingUtils.isContained(domain, value, this);
+	}
+
+	/**
+	 * Reads the batch and its values in respect to the BatchReadMode while also
+	 * checking if zipped-runs, zipped-batches or nozips are configured.
+	 * 
+	 * Example: Input-Dir: "data/scenario.1/series/run.0/batch.0/":
+	 * 
+	 * No-Zip will return the batch at "data/scenario.1/series/run.0/batch.0/".
+	 * 
+	 * Zipped-Batch will read and return the zipped batch
+	 * "data/scenario.1/series/run.0/batch.0.zip"
+	 * 
+	 * Zipped-Run will read the zipped run "data/scenario.1/series/run.0.zip"
+	 * and return batch.0 of run.0.
+	 * 
+	 * @throws IOException
+	 **/
+	public static BatchData readIntelligent(String dir, long timestamp,
+			BatchReadMode batchReadMode) throws IOException {
+		BatchData temp = null;
+		String tempDir = dir;
+		if (Config.get("GENERATION_AS_ZIP").equals("batches")) {
+			// get batch from zip
+			String[] splits = dir.split(Dir.delimiter);
+			tempDir = "";
+
+			// iterate over splits last to first
+			for (int i = splits.length - 1; i >= 0; i--) {
+				if (splits[i].startsWith(Config.get("PREFIX_BATCHDATA_DIR"))) {
+					// build dir string
+					for (int j = 0; j < i; j++)
+						tempDir += splits[j] + Dir.delimiter;
+
+					// read batch from zip
+					temp = BatchData.readFromSingleFile(tempDir, timestamp,
+							Dir.delimiter, batchReadMode);
+				}
+			}
+		} else if (Config.get("GENERATION_AS_ZIP").equals("runs")) {
+			// get batch from zipped run
+			String[] splits = dir.split(Dir.delimiter);
+			tempDir = "";
+
+			// iterate over splits last to first
+			for (int i = splits.length - 1; i >= 0; i--) {
+				if (splits[i].startsWith(Config.get("PREFIX_RUNDATA_DIR"))) {
+					// build dir string
+					for (int j = 0; j < i; j++)
+						tempDir += splits[j] + Dir.delimiter;
+
+					// read run from zip
+					int runId = Integer.parseInt(splits[i].replace(
+							Config.get("PREFIX_RUNDATA_DIR"), ""));
+					RunData tempRun = RunData.readFromSingleFile(tempDir,
+							Dir.delimiter, runId, batchReadMode);
+
+					// get batch
+					ArrayList<BatchData> batches = tempRun.getBatches()
+							.getList();
+					for (int j = 0; j < batches.size(); j++) {
+						BatchData b = batches.get(j);
+						if (b.getTimestamp() == timestamp) {
+							temp = b;
+							break;
+						}
+					}
+					break;
+				}
+			}
+		} else {
+			// get batch
+			temp = BatchData.read(dir, timestamp, batchReadMode);
+		}
+		return temp;
 	}
 
 }

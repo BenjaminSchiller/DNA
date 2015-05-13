@@ -3,8 +3,6 @@ package dna.latex;
 import java.io.File;
 import java.io.IOException;
 
-import dna.io.ZipReader;
-import dna.io.ZipWriter;
 import dna.io.filesystem.Dir;
 import dna.latex.TexTable.TableFlag;
 import dna.plot.Plotting;
@@ -247,20 +245,11 @@ public class Latex {
 
 		for (int i = 0; i < series.length; i++) {
 			String tempDir = Dir.getAggregationDataDir(series[i].getDir());
-			if (zippedRuns) {
-				ZipReader.readFileSystem = ZipWriter
-						.createAggregationFileSystem(series[i].getDir());
-				tempDir = Dir.delimiter;
-			}
 			batches[i] = Dir.getBatchesFromTo(tempDir, from, to, stepsize,
 					intervalByIndex);
 			timestamps[i] = new double[batches[i].length];
 			for (int j = 0; j < batches[i].length; j++) {
 				timestamps[i][j] = Dir.getTimestamp(batches[i][j]);
-			}
-			if (zippedRuns) {
-				ZipReader.readFileSystem.close();
-				ZipReader.readFileSystem = null;
 			}
 		}
 
@@ -371,20 +360,10 @@ public class Latex {
 
 		// gather relevant batches and timestamps
 		String[][] batches = new String[series.length][];
-
 		for (int i = 0; i < series.length; i++) {
 			String tempDir = Dir.getAggregationDataDir(series[i].getDir());
-			if (zippedRuns) {
-				ZipReader.readFileSystem = ZipWriter
-						.createAggregationFileSystem(series[i].getDir());
-				tempDir = Dir.delimiter;
-			}
 			batches[i] = Dir.getBatchesFromTo(tempDir, from, to, stepsize,
 					intervalByIndex);
-			if (zippedRuns) {
-				ZipReader.readFileSystem.close();
-				ZipReader.readFileSystem = null;
-			}
 		}
 
 		// CREATE TEX FILE
@@ -447,20 +426,11 @@ public class Latex {
 
 		// gather relevant batches
 		String tempDir = Dir.getAggregationDataDir(srcDir);
-		if (zippedRuns) {
-			ZipReader.readFileSystem = ZipWriter
-					.createAggregationFileSystem(srcDir);
-			tempDir = Dir.delimiter;
-		}
 		String[] batches = Dir.getBatchesFromTo(tempDir, from, to, stepsize,
 				intervalByIndex);
 		double timestamps[] = new double[batches.length];
 		for (int i = 0; i < batches.length; i++) {
 			timestamps[i] = Dir.getTimestamp(batches[i]);
-		}
-		if (zippedRuns) {
-			ZipReader.readFileSystem.close();
-			ZipReader.readFileSystem = null;
 		}
 
 		// INIT TEX FILE

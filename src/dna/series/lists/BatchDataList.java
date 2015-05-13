@@ -19,7 +19,8 @@ public class BatchDataList extends SortedList<BatchData> {
 	@Override
 	public void write(String dir) throws IOException {
 		for (BatchData batchData : this.list) {
-			batchData.write(dir);
+			batchData.writeIntelligent(Dir.getBatchDataDir(dir,
+					batchData.getTimestamp()));
 		}
 	}
 
@@ -42,7 +43,7 @@ public class BatchDataList extends SortedList<BatchData> {
 	 * @param dir
 	 *            Directory to be read in
 	 * @return BatchDataList filled with empty batches
-	 * @throws IOException 
+	 * @throws IOException
 	 */
 	public static BatchDataList readTimestamps(String dir) throws IOException {
 		String[] batches = Dir.getBatches(dir);

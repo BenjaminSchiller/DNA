@@ -3,7 +3,6 @@ package dna.series.data;
 import java.io.IOException;
 
 import dna.io.ZipReader;
-import dna.io.ZipWriter;
 import dna.io.filesystem.Dir;
 import dna.series.aggdata.AggregatedBatch.BatchReadMode;
 import dna.series.lists.BatchDataList;
@@ -45,17 +44,16 @@ public class RunData {
 	public void write(String dir) throws IOException {
 		Log.debug("writing RunData " + this.run + " in " + dir);
 		for (BatchData d : this.batches.getList()) {
-			d.write(Dir.getBatchDataDir(dir, d.getTimestamp()));
+			d.writeIntelligent(Dir.getBatchDataDir(dir, d.getTimestamp()));
 		}
 	}
 
 	/** Reads the whole run from a single zip file. **/
 	public static RunData readFromSingleFile(String fsDir, String dir, int run,
 			BatchReadMode batchReadMode) throws IOException {
-		ZipReader.readFileSystem = ZipWriter.createRunFileSystem(fsDir, run);
+		ZipReader.setReadFilesystem(ZipReader.getRunFileSystem(fsDir, run));
 		RunData tempRunData = read(dir, run, batchReadMode);
-		ZipReader.readFileSystem.close();
-		ZipReader.readFileSystem = null;
+		ZipReader.closeReadFilesystem();
 		return tempRunData;
 	}
 
