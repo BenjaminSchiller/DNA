@@ -60,8 +60,8 @@ public class RuntimeMeasurement {
 	@SuppressWarnings("unchecked")
 	public static void main(String[] args) throws Exception {
 		// args = new String[] { "dna.graph.datastructures.DArray",
-		// "dna.graph.edges.DirectedEdge", "10", "10", "1",
-		// "measurements/", "99", "99", "0", "measurements-init/" };
+		// "dna.graph.edges.DirectedEdge", "10", "100", "2",
+		// "measurements/", "20", "20", "4", "measurements-init/", "0" };
 		if (args.length != 11) {
 			System.err.println("11	 arguments required");
 			System.err
@@ -106,7 +106,7 @@ public class RuntimeMeasurement {
 			RuntimeMeasurement m = new RuntimeMeasurement(ds, dt, stepSize,
 					steps, dir);
 			m.execute();
-			m.aggregate(minLineCount);
+			// m.aggregate(minLineCount);
 			System.gc();
 		}
 
@@ -282,9 +282,10 @@ public class RuntimeMeasurement {
 				+ this.dt.getSimpleName() + " (" + this.steps + " x "
 				+ this.stepSize + "): ");
 
-		LinkedList<String> lines_INIT, lines_ADD, lines_RANDOM_ELEMENT, lines_SIZE, lines_ITERATE, lines_CONTAINS_SUCCESS, lines_CONTAINS_FAILURE, lines_GET_SUCCESS, lines_GET_FAILURE, lines_REMOVE_SUCCESS, lines_REMOVE_FAILURE;
+		LinkedList<String> lines_INIT, lines_ADD_SUCCESS, lines_ADD_FAILURE, lines_RANDOM_ELEMENT, lines_SIZE, lines_ITERATE, lines_CONTAINS_SUCCESS, lines_CONTAINS_FAILURE, lines_GET_SUCCESS, lines_GET_FAILURE, lines_REMOVE_SUCCESS, lines_REMOVE_FAILURE;
 		lines_INIT = new LinkedList<String>();
-		lines_ADD = new LinkedList<String>();
+		lines_ADD_SUCCESS = new LinkedList<String>();
+		lines_ADD_FAILURE = new LinkedList<String>();
 		lines_RANDOM_ELEMENT = new LinkedList<String>();
 		lines_SIZE = new LinkedList<String>();
 		lines_ITERATE = new LinkedList<String>();
@@ -317,13 +318,22 @@ public class RuntimeMeasurement {
 
 		for (int i = 0; i < steps; i++) {
 			/**
-			 * ADD
+			 * ADD_SUCCESS
 			 */
-			Timer t_ADD = new Timer();
+			Timer t_ADD_SUCCESS = new Timer();
 			for (int j = 0; j < stepSize; j++) {
 				list.add(nodesToAdd[i * stepSize + j]);
 			}
-			t_ADD.end();
+			t_ADD_SUCCESS.end();
+
+			/**
+			 * ADD_FAILURE
+			 */
+			Timer t_ADD_FAILURE = new Timer();
+			for (int j = 0; j < stepSize; j++) {
+				list.add(nodesToAdd[i * stepSize + j]);
+			}
+			t_ADD_FAILURE.end();
 
 			Node[] existingNodes = new Node[stepSize];
 			for (int j = 0; j < stepSize; j++) {
@@ -402,7 +412,10 @@ public class RuntimeMeasurement {
 			}
 			t_GET_FAILURE.end();
 
-			lines_ADD.add(list.size() + delimiter + t_ADD.getDutation());
+			lines_ADD_SUCCESS.add(list.size() + delimiter
+					+ t_ADD_SUCCESS.getDutation());
+			lines_ADD_FAILURE.add(list.size() + delimiter
+					+ t_ADD_FAILURE.getDutation());
 			lines_RANDOM_ELEMENT.add(list.size() + delimiter
 					+ t_RANDOM_ELEMENT.getDutation());
 			lines_SIZE.add(list.size() + delimiter + t_SIZE.getDutation());
@@ -463,7 +476,8 @@ public class RuntimeMeasurement {
 		}
 
 		this.write(Operation.INIT, lines_INIT, false);
-		this.write(Operation.ADD, lines_ADD, false);
+		this.write(Operation.ADD_SUCCESS, lines_ADD_SUCCESS, false);
+		this.write(Operation.ADD_FAILURE, lines_ADD_FAILURE, false);
 		this.write(Operation.RANDOM_ELEMENT, lines_RANDOM_ELEMENT, false);
 		this.write(Operation.SIZE, lines_SIZE, false);
 		this.write(Operation.ITERATE, lines_ITERATE, false);
@@ -487,9 +501,10 @@ public class RuntimeMeasurement {
 				+ this.dt.getSimpleName() + " (" + this.steps + " x "
 				+ this.stepSize + "): ");
 
-		LinkedList<String> lines_INIT, lines_ADD, lines_RANDOM_ELEMENT, lines_SIZE, lines_ITERATE, lines_CONTAINS_SUCCESS, lines_CONTAINS_FAILURE, lines_GET_SUCCESS, lines_GET_FAILURE, lines_REMOVE_SUCCESS, lines_REMOVE_FAILURE;
+		LinkedList<String> lines_INIT, lines_ADD_SUCCESS, lines_ADD_FAILURE, lines_RANDOM_ELEMENT, lines_SIZE, lines_ITERATE, lines_CONTAINS_SUCCESS, lines_CONTAINS_FAILURE, lines_GET_SUCCESS, lines_GET_FAILURE, lines_REMOVE_SUCCESS, lines_REMOVE_FAILURE;
 		lines_INIT = new LinkedList<String>();
-		lines_ADD = new LinkedList<String>();
+		lines_ADD_SUCCESS = new LinkedList<String>();
+		lines_ADD_FAILURE = new LinkedList<String>();
 		lines_RANDOM_ELEMENT = new LinkedList<String>();
 		lines_SIZE = new LinkedList<String>();
 		lines_ITERATE = new LinkedList<String>();
@@ -522,13 +537,22 @@ public class RuntimeMeasurement {
 
 		for (int i = 0; i < steps; i++) {
 			/**
-			 * ADD
+			 * ADD_SUCCESS
 			 */
-			Timer t_ADD = new Timer();
+			Timer t_ADD_SUCCESS = new Timer();
 			for (int j = 0; j < stepSize; j++) {
 				list.add(edgesToAdd[i * stepSize + j]);
 			}
-			t_ADD.end();
+			t_ADD_SUCCESS.end();
+
+			/**
+			 * ADD_FAILURE
+			 */
+			Timer t_ADD_FAILURE = new Timer();
+			for (int j = 0; j < stepSize; j++) {
+				list.add(edgesToAdd[i * stepSize + j]);
+			}
+			t_ADD_FAILURE.end();
 
 			Edge[] existingEdges = new Edge[stepSize];
 			for (int j = 0; j < stepSize; j++) {
@@ -607,7 +631,10 @@ public class RuntimeMeasurement {
 			}
 			t_GET_FAILURE.end();
 
-			lines_ADD.add(list.size() + delimiter + t_ADD.getDutation());
+			lines_ADD_SUCCESS.add(list.size() + delimiter
+					+ t_ADD_SUCCESS.getDutation());
+			lines_ADD_FAILURE.add(list.size() + delimiter
+					+ t_ADD_FAILURE.getDutation());
 			lines_RANDOM_ELEMENT.add(list.size() + delimiter
 					+ t_RANDOM_ELEMENT.getDutation());
 			lines_SIZE.add(list.size() + delimiter + t_SIZE.getDutation());
@@ -668,7 +695,8 @@ public class RuntimeMeasurement {
 		}
 
 		this.write(Operation.INIT, lines_INIT, false);
-		this.write(Operation.ADD, lines_ADD, false);
+		this.write(Operation.ADD_SUCCESS, lines_ADD_SUCCESS, false);
+		this.write(Operation.ADD_FAILURE, lines_ADD_FAILURE, false);
 		this.write(Operation.RANDOM_ELEMENT, lines_RANDOM_ELEMENT, false);
 		this.write(Operation.SIZE, lines_SIZE, false);
 		this.write(Operation.ITERATE, lines_ITERATE, false);

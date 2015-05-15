@@ -18,7 +18,7 @@ import dna.io.Writer;
 public class OperationCount {
 
 	public static enum Operation {
-		INIT, ADD, RANDOM_ELEMENT, SIZE, ITERATE, CONTAINS_SUCCESS, CONTAINS_FAILURE, GET_SUCCESS, GET_FAILURE, REMOVE_SUCCESS, REMOVE_FAILURE
+		INIT, ADD_SUCCESS, ADD_FAILURE, RANDOM_ELEMENT, SIZE, ITERATE, CONTAINS_SUCCESS, CONTAINS_FAILURE, GET_SUCCESS, GET_FAILURE, REMOVE_SUCCESS, REMOVE_FAILURE
 	}
 
 	public int listSize;
@@ -32,7 +32,8 @@ public class OperationCount {
 
 	// write
 	public int INIT = 0;
-	public int ADD = 0;
+	public int ADD_SUCCESS = 0;
+	public int ADD_FAILURE = 0;
 	public int REMOVE_SUCCESS = 0;
 	public int REMOVE_FAILURE = 0;
 
@@ -50,7 +51,8 @@ public class OperationCount {
 		buff.append("count for " + listCount + " x " + listSize + " lists ("
 				+ this.isWriteOnly() + ")\n");
 		buff.append("  INIT: " + INIT + "\n");
-		buff.append("  ADD: " + ADD + "\n");
+		buff.append("  ADD: " + ADD_SUCCESS + "\n");
+		buff.append("  ADD: " + ADD_FAILURE + "\n");
 		buff.append("  RANDOM_ELEMENT: " + RANDOM_ELEMENT + "\n");
 		buff.append("  SIZE: " + SIZE + "\n");
 		buff.append("  ITERATE: " + ITERATE + "\n");
@@ -68,16 +70,17 @@ public class OperationCount {
 		buff.append("NaN	SIZE	" + listSize + "\n");
 		buff.append("NaN	COUNT	" + listCount + "\n");
 		buff.append("1	INIT	" + INIT + "\n");
-		buff.append("2	ADD	" + ADD + "\n");
-		buff.append("3	RANDOM_ELEMENT	" + RANDOM_ELEMENT + "\n");
-		buff.append("4	SIZE	" + SIZE + "\n");
-		buff.append("5	ITERATE	" + ITERATE + "\n");
-		buff.append("6	CONTAINS_SUCCESS	" + CONTAINS_SUCCESS + "\n");
-		buff.append("7	CONTAINS_FAILURE	" + CONTAINS_FAILURE + "\n");
-		buff.append("8	GET_SUCCESS	" + GET_SUCCESS + "\n");
-		buff.append("9	GET_FAILURE	" + GET_FAILURE + "\n");
-		buff.append("10	REMOVE_SUCCESS	" + REMOVE_SUCCESS + "\n");
-		buff.append("11	REMOVE_FAILURE	" + REMOVE_FAILURE);
+		buff.append("2	ADD	" + ADD_SUCCESS + "\n");
+		buff.append("3	ADD	" + ADD_FAILURE + "\n");
+		buff.append("4	RANDOM_ELEMENT	" + RANDOM_ELEMENT + "\n");
+		buff.append("5	SIZE	" + SIZE + "\n");
+		buff.append("6	ITERATE	" + ITERATE + "\n");
+		buff.append("7	CONTAINS_SUCCESS	" + CONTAINS_SUCCESS + "\n");
+		buff.append("8	CONTAINS_FAILURE	" + CONTAINS_FAILURE + "\n");
+		buff.append("9	GET_SUCCESS	" + GET_SUCCESS + "\n");
+		buff.append("10	GET_FAILURE	" + GET_FAILURE + "\n");
+		buff.append("11	REMOVE_SUCCESS	" + REMOVE_SUCCESS + "\n");
+		buff.append("12	REMOVE_FAILURE	" + REMOVE_FAILURE);
 		return buff.toString();
 	}
 
@@ -95,7 +98,8 @@ public class OperationCount {
 		oc.listSize = Integer.parseInt(r.readString().split(sep)[2]);
 		oc.listCount = Integer.parseInt(r.readString().split(sep)[2]);
 		oc.INIT = Integer.parseInt(r.readString().split(sep)[2]);
-		oc.ADD = Integer.parseInt(r.readString().split(sep)[2]);
+		oc.ADD_SUCCESS = Integer.parseInt(r.readString().split(sep)[2]);
+		oc.ADD_FAILURE = Integer.parseInt(r.readString().split(sep)[2]);
 		oc.RANDOM_ELEMENT = Integer.parseInt(r.readString().split(sep)[2]);
 		oc.SIZE = Integer.parseInt(r.readString().split(sep)[2]);
 		oc.ITERATE = Integer.parseInt(r.readString().split(sep)[2]);

@@ -33,7 +33,8 @@ public class CostEstimation {
 	public static double estimateCosts(CostFunctions c, OperationCount oc) {
 		double cost = 0;
 		cost += c.INIT.getCost(oc.listSize) * oc.INIT;
-		cost += c.ADD.getCost(oc.listSize) * oc.ADD;
+		cost += c.ADD_SUCCESS.getCost(oc.listSize) * oc.ADD_SUCCESS;
+		cost += c.ADD_FAILURE.getCost(oc.listSize) * oc.ADD_FAILURE;
 		cost += c.RANDOM_ELEMENT.getCost(oc.listSize) * oc.RANDOM_ELEMENT;
 		cost += c.SIZE.getCost(oc.listSize) * oc.SIZE;
 		cost += c.ITERATE.getCost(oc.listSize) * oc.ITERATE;
@@ -122,7 +123,7 @@ public class CostEstimation {
 		cost += oc.listCount * to.INIT.getCost(oc.listSize);
 		cost += oc.listCount * from.ITERATE.getCost(oc.listSize);
 		for (int i = 0; i < oc.listSize; i++) {
-			cost += oc.listCount * to.ADD.getCost(i);
+			cost += oc.listCount * to.ADD_SUCCESS.getCost(i);
 		}
 		return cost;
 	}

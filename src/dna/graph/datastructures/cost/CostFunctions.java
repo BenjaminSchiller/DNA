@@ -21,7 +21,8 @@ public class CostFunctions {
 	public Class<? extends IElement> dt = null;
 
 	public CostFunction INIT = null;
-	public CostFunction ADD = null;
+	public CostFunction ADD_SUCCESS = null;
+	public CostFunction ADD_FAILURE = null;
 	public CostFunction RANDOM_ELEMENT = null;
 	public CostFunction SIZE = null;
 	public CostFunction ITERATE = null;
@@ -57,7 +58,10 @@ public class CostFunctions {
 			throws NumberFormatException, IOException {
 		CostFunctions c = new CostFunctions(ds, dt);
 		c.INIT = CostFunction.read(mainDataDir, ds, dt, Operation.INIT);
-		c.ADD = CostFunction.read(mainDataDir, ds, dt, Operation.ADD);
+		c.ADD_SUCCESS = CostFunction.read(mainDataDir, ds, dt,
+				Operation.ADD_SUCCESS);
+		c.ADD_FAILURE = CostFunction.read(mainDataDir, ds, dt,
+				Operation.ADD_FAILURE);
 		c.RANDOM_ELEMENT = CostFunction.read(mainDataDir, ds, dt,
 				Operation.RANDOM_ELEMENT);
 		c.SIZE = CostFunction.read(mainDataDir, ds, dt, Operation.SIZE);
@@ -81,7 +85,8 @@ public class CostFunctions {
 		StringBuffer buff = new StringBuffer();
 		buff.append("costs for " + this.ds.getSimpleName() + "\n");
 		buff.append("  INIT: " + INIT + "\n");
-		buff.append("  ADD: " + ADD + "\n");
+		buff.append("  ADD_SUCCESS: " + ADD_SUCCESS + "\n");
+		buff.append("  ADD_FAILURE: " + ADD_FAILURE + "\n");
 		buff.append("  RANDOM_ELEMENT: " + RANDOM_ELEMENT + "\n");
 		buff.append("  SIZE: " + SIZE + "\n");
 		buff.append("  ITERATE: " + ITERATE + "\n");

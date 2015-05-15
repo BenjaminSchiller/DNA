@@ -43,30 +43,44 @@ public aspect CountingAspects {
 		call(* IDataStructure+.add(..)) &&
 		target(list);
 
-	after(DataStructure list) : add(list) {
-		switch (list.listType) {
-		case GlobalEdgeList:
-			Counting.oc.E.ADD++;
-			break;
-		case GlobalNodeList:
-			Counting.oc.V.ADD++;
-			break;
-		case LocalEdgeList:
-			((OperationCountsUndirected) Counting.oc).adj.ADD++;
-			break;
-		case LocalInEdgeList:
-			((OperationCountsDirected) Counting.oc).in.ADD++;
-			break;
-		case LocalNodeList:
-			((OperationCountsDirected) Counting.oc).neighbors.ADD++;
-			break;
-		case LocalOutEdgeList:
-			((OperationCountsDirected) Counting.oc).out.ADD++;
-			break;
-		default:
-			System.out.println("UNKNOWN ADD");
-			break;
+	boolean around(DataStructure list) : add(list) {
+		boolean res = proceed(list);
+
+		if (res) {
+			if (list.listType.equals(ListType.GlobalEdgeList)) {
+				Counting.oc.E.ADD_SUCCESS++;
+			} else if (list.listType.equals(ListType.GlobalNodeList)) {
+				Counting.oc.V.ADD_SUCCESS++;
+			} else if (list.listType.equals(ListType.LocalEdgeList)) {
+				((OperationCountsUndirected) Counting.oc).adj.ADD_SUCCESS++;
+			} else if (list.listType.equals(ListType.LocalInEdgeList)) {
+				((OperationCountsDirected) Counting.oc).in.ADD_SUCCESS++;
+			} else if (list.listType.equals(ListType.LocalNodeList)) {
+				((OperationCountsDirected) Counting.oc).neighbors.ADD_SUCCESS++;
+			} else if (list.listType.equals(ListType.LocalOutEdgeList)) {
+				((OperationCountsDirected) Counting.oc).out.ADD_SUCCESS++;
+			} else {
+				System.out.println("UNKNOWN ADD_SUCCESS");
+			}
+		} else {
+			if (list.listType.equals(ListType.GlobalEdgeList)) {
+				Counting.oc.E.ADD_FAILURE++;
+			} else if (list.listType.equals(ListType.GlobalNodeList)) {
+				Counting.oc.V.ADD_FAILURE++;
+			} else if (list.listType.equals(ListType.LocalEdgeList)) {
+				((OperationCountsUndirected) Counting.oc).adj.ADD_FAILURE++;
+			} else if (list.listType.equals(ListType.LocalInEdgeList)) {
+				((OperationCountsDirected) Counting.oc).in.ADD_FAILURE++;
+			} else if (list.listType.equals(ListType.LocalNodeList)) {
+				((OperationCountsDirected) Counting.oc).neighbors.ADD_FAILURE++;
+			} else if (list.listType.equals(ListType.LocalOutEdgeList)) {
+				((OperationCountsDirected) Counting.oc).out.ADD_FAILURE++;
+			} else {
+				System.out.println("UNKNOWN ADD_FAILURE");
+			}
 		}
+
+		return res;
 	}
 
 	pointcut init(DataStructure list) : 
