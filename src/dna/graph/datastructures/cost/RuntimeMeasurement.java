@@ -29,6 +29,7 @@ import dna.io.Reader;
 import dna.io.Writer;
 import dna.io.filter.LineCountFilter;
 import dna.io.filter.SuffixFilenameFilter;
+import dna.profiler.Counting;
 import dna.series.Aggregation;
 import dna.series.aggdata.AggregatedValue;
 import dna.util.Config;
@@ -200,6 +201,33 @@ public class RuntimeMeasurement {
 				mainDataDir, ds, dt, o));
 	}
 
+	/**
+	 * 
+	 * writes the given list of results for the specified operation into a file.
+	 * using the invert flag, the lines can be written in reverse order.
+	 * 
+	 * @param o
+	 *            operation
+	 * @param lines
+	 *            ordered list of lines
+	 * @param invert
+	 *            if set true, last line is written first
+	 * @throws IOException
+	 */
+	public void write(Operation o, LinkedList<String> lines, boolean invert)
+			throws IOException {
+		Writer w = nextWriter(dir, ds, dt, o);
+
+		while (!lines.isEmpty()) {
+			if (invert) {
+				w.writeln(lines.pollLast());
+			} else {
+				w.writeln(lines.pollFirst());
+			}
+		}
+		w.close();
+	}
+
 	public static ArrayList<AggregatedValue> read(String mainDataDir,
 			Class<? extends IDataStructure> ds, Class<? extends IElement> dt,
 			Operation o) throws NumberFormatException, IOException {
@@ -221,6 +249,7 @@ public class RuntimeMeasurement {
 	protected Node[] getNodesToAdd() {
 		GraphGenerator gg = new RandomGraph(getGDS(this.dt), (this.steps + 1)
 				* this.stepSize, 0);
+		Counting.init(gg.getGds());
 		Graph g = gg.generate();
 		Node[] nodes = new Node[g.getNodeCount()];
 		int index = 0;
@@ -233,6 +262,7 @@ public class RuntimeMeasurement {
 	protected Edge[] getEdgesToAdd() {
 		GraphGenerator gg = new RandomGraph(getGDS(this.dt), (this.steps + 1)
 				* this.stepSize / 10, (this.steps + 1) * this.stepSize);
+		Counting.init(gg.getGds());
 		Graph g = gg.generate();
 		Edge[] edges = new Edge[g.getEdgeCount()];
 		int index = 0;
@@ -252,10 +282,22 @@ public class RuntimeMeasurement {
 				+ this.dt.getSimpleName() + " (" + this.steps + " x "
 				+ this.stepSize + "): ");
 
+		LinkedList<String> lines_INIT, lines_ADD, lines_RANDOM_ELEMENT, lines_SIZE, lines_ITERATE, lines_CONTAINS_SUCCESS, lines_CONTAINS_FAILURE, lines_GET_SUCCESS, lines_GET_FAILURE, lines_REMOVE_SUCCESS, lines_REMOVE_FAILURE;
+		lines_INIT = new LinkedList<String>();
+		lines_ADD = new LinkedList<String>();
+		lines_RANDOM_ELEMENT = new LinkedList<String>();
+		lines_SIZE = new LinkedList<String>();
+		lines_ITERATE = new LinkedList<String>();
+		lines_CONTAINS_SUCCESS = new LinkedList<String>();
+		lines_CONTAINS_FAILURE = new LinkedList<String>();
+		lines_GET_SUCCESS = new LinkedList<String>();
+		lines_GET_FAILURE = new LinkedList<String>();
+		lines_REMOVE_SUCCESS = new LinkedList<String>();
+		lines_REMOVE_FAILURE = new LinkedList<String>();
+
 		/**
 		 * INIT
 		 */
-		Writer w_INIT = nextWriter(dir, ds, this.dt, Operation.INIT);
 		for (int i = 0; i < steps; i++) {
 			Timer t_INIT = new Timer();
 			for (int j = 0; j < stepSize; j++) {
@@ -264,20 +306,9 @@ public class RuntimeMeasurement {
 				list.init(dt, i * stepSize + j, true);
 			}
 			t_INIT.end();
-			w_INIT.writeln(((i + 1) * stepSize) + delimiter
+			lines_INIT.add(((i + 1) * stepSize) + delimiter
 					+ t_INIT.getDutation());
 		}
-		w_INIT.close();
-
-		Writer w_ADD, w_RANDOM_ELEMENT, w_SIZE, w_ITERATE, w_CONTAINS_SUCCESS, w_CONTAINS_FAILURE, w_GET_SUCCESS, w_GET_FAILURE;
-		w_ADD = nextWriter(dir, ds, dt, Operation.ADD);
-		w_RANDOM_ELEMENT = nextWriter(dir, ds, dt, Operation.RANDOM_ELEMENT);
-		w_SIZE = nextWriter(dir, ds, dt, Operation.SIZE);
-		w_ITERATE = nextWriter(dir, ds, dt, Operation.ITERATE);
-		w_CONTAINS_SUCCESS = nextWriter(dir, ds, dt, Operation.CONTAINS_SUCCESS);
-		w_CONTAINS_FAILURE = nextWriter(dir, ds, dt, Operation.CONTAINS_FAILURE);
-		w_GET_SUCCESS = nextWriter(dir, ds, dt, Operation.GET_SUCCESS);
-		w_GET_FAILURE = nextWriter(dir, ds, dt, Operation.GET_FAILURE);
 
 		Random rand = new Random();
 		Node[] nodesToAdd = this.getNodesToAdd();
@@ -371,30 +402,21 @@ public class RuntimeMeasurement {
 			}
 			t_GET_FAILURE.end();
 
-			w_ADD.writeln(list.size() + delimiter + t_ADD.getDutation());
-			w_RANDOM_ELEMENT.writeln(list.size() + delimiter
+			lines_ADD.add(list.size() + delimiter + t_ADD.getDutation());
+			lines_RANDOM_ELEMENT.add(list.size() + delimiter
 					+ t_RANDOM_ELEMENT.getDutation());
-			w_SIZE.writeln(list.size() + delimiter + t_SIZE.getDutation());
-			w_ITERATE
-					.writeln(list.size() + delimiter + t_ITERATE.getDutation());
-			w_CONTAINS_SUCCESS.writeln(list.size() + delimiter
+			lines_SIZE.add(list.size() + delimiter + t_SIZE.getDutation());
+			lines_ITERATE
+					.add(list.size() + delimiter + t_ITERATE.getDutation());
+			lines_CONTAINS_SUCCESS.add(list.size() + delimiter
 					+ t_CONTAINS_SUCCESS.getDutation());
-			w_CONTAINS_FAILURE.writeln(list.size() + delimiter
+			lines_CONTAINS_FAILURE.add(list.size() + delimiter
 					+ t_CONTAINS_FAILURE.getDutation());
-			w_GET_SUCCESS.writeln(list.size() + delimiter
+			lines_GET_SUCCESS.add(list.size() + delimiter
 					+ t_GET_SUCCESS.getDutation());
-			w_GET_FAILURE.writeln(list.size() + delimiter
+			lines_GET_FAILURE.add(list.size() + delimiter
 					+ t_GET_FAILURE.getDutation());
 		}
-
-		w_ADD.close();
-		w_RANDOM_ELEMENT.close();
-		w_SIZE.close();
-		w_ITERATE.close();
-		w_CONTAINS_SUCCESS.close();
-		w_CONTAINS_FAILURE.close();
-		w_GET_SUCCESS.close();
-		w_GET_FAILURE.close();
 
 		ArrayList<Node> nodes = new ArrayList<Node>(list.size());
 		for (IElement n_ : list) {
@@ -410,9 +432,6 @@ public class RuntimeMeasurement {
 		for (int j = 0; j < stepSize; j++) {
 			nonExistingNodes[j] = nodesToAdd[nodesToAdd.length - 1 - j];
 		}
-
-		LinkedList<String> queue_REMOVE_SUCCESS = new LinkedList<String>();
-		LinkedList<String> queue_REMOVE_FAILURE = new LinkedList<String>();
 
 		for (int i = 0; i < steps; i++) {
 			/**
@@ -437,25 +456,23 @@ public class RuntimeMeasurement {
 				nonExistingNodes[j] = nodesToRemove[i * stepSize + j];
 			}
 
-			queue_REMOVE_SUCCESS.addFirst((list.size() + stepSize) + delimiter
+			lines_REMOVE_SUCCESS.add((list.size() + stepSize) + delimiter
 					+ t_REMOVE_SUCCESS.getDutation());
-			queue_REMOVE_FAILURE.addFirst((list.size() + stepSize) + delimiter
+			lines_REMOVE_FAILURE.add((list.size() + stepSize) + delimiter
 					+ t_REMOVE_FAILURE.getDutation());
 		}
 
-		Writer w_REMOVE_SUCCESS = nextWriter(dir, ds, dt,
-				Operation.REMOVE_SUCCESS);
-		while (!queue_REMOVE_SUCCESS.isEmpty()) {
-			w_REMOVE_SUCCESS.writeln(queue_REMOVE_SUCCESS.poll());
-		}
-		w_REMOVE_SUCCESS.close();
-
-		Writer w_REMOVE_FAILURE = nextWriter(dir, ds, dt,
-				Operation.REMOVE_FAILURE);
-		while (!queue_REMOVE_FAILURE.isEmpty()) {
-			w_REMOVE_FAILURE.writeln(queue_REMOVE_FAILURE.poll());
-		}
-		w_REMOVE_FAILURE.close();
+		this.write(Operation.INIT, lines_INIT, false);
+		this.write(Operation.ADD, lines_ADD, false);
+		this.write(Operation.RANDOM_ELEMENT, lines_RANDOM_ELEMENT, false);
+		this.write(Operation.SIZE, lines_SIZE, false);
+		this.write(Operation.ITERATE, lines_ITERATE, false);
+		this.write(Operation.CONTAINS_SUCCESS, lines_CONTAINS_SUCCESS, false);
+		this.write(Operation.CONTAINS_FAILURE, lines_CONTAINS_FAILURE, false);
+		this.write(Operation.GET_SUCCESS, lines_GET_SUCCESS, false);
+		this.write(Operation.GET_FAILURE, lines_GET_FAILURE, false);
+		this.write(Operation.REMOVE_FAILURE, lines_REMOVE_FAILURE, true);
+		this.write(Operation.REMOVE_SUCCESS, lines_REMOVE_SUCCESS, true);
 
 		t.end();
 		System.out.println(t.toString());
@@ -470,10 +487,22 @@ public class RuntimeMeasurement {
 				+ this.dt.getSimpleName() + " (" + this.steps + " x "
 				+ this.stepSize + "): ");
 
+		LinkedList<String> lines_INIT, lines_ADD, lines_RANDOM_ELEMENT, lines_SIZE, lines_ITERATE, lines_CONTAINS_SUCCESS, lines_CONTAINS_FAILURE, lines_GET_SUCCESS, lines_GET_FAILURE, lines_REMOVE_SUCCESS, lines_REMOVE_FAILURE;
+		lines_INIT = new LinkedList<String>();
+		lines_ADD = new LinkedList<String>();
+		lines_RANDOM_ELEMENT = new LinkedList<String>();
+		lines_SIZE = new LinkedList<String>();
+		lines_ITERATE = new LinkedList<String>();
+		lines_CONTAINS_SUCCESS = new LinkedList<String>();
+		lines_CONTAINS_FAILURE = new LinkedList<String>();
+		lines_GET_SUCCESS = new LinkedList<String>();
+		lines_GET_FAILURE = new LinkedList<String>();
+		lines_REMOVE_SUCCESS = new LinkedList<String>();
+		lines_REMOVE_FAILURE = new LinkedList<String>();
+
 		/**
 		 * INIT
 		 */
-		Writer w_INIT = nextWriter(dir, ds, this.dt, Operation.INIT);
 		for (int i = 0; i < steps; i++) {
 			Timer t_INIT = new Timer();
 			for (int j = 0; j < stepSize; j++) {
@@ -482,20 +511,9 @@ public class RuntimeMeasurement {
 				list.init(dt, i * stepSize + j, true);
 			}
 			t_INIT.end();
-			w_INIT.writeln(((i + 1) * stepSize) + delimiter
+			lines_INIT.add(((i + 1) * stepSize) + delimiter
 					+ t_INIT.getDutation());
 		}
-		w_INIT.close();
-
-		Writer w_ADD, w_RANDOM_ELEMENT, w_SIZE, w_ITERATE, w_CONTAINS_SUCCESS, w_CONTAINS_FAILURE, w_GET_SUCCESS, w_GET_FAILURE;
-		w_ADD = nextWriter(dir, ds, dt, Operation.ADD);
-		w_RANDOM_ELEMENT = nextWriter(dir, ds, dt, Operation.RANDOM_ELEMENT);
-		w_SIZE = nextWriter(dir, ds, dt, Operation.SIZE);
-		w_ITERATE = nextWriter(dir, ds, dt, Operation.ITERATE);
-		w_CONTAINS_SUCCESS = nextWriter(dir, ds, dt, Operation.CONTAINS_SUCCESS);
-		w_CONTAINS_FAILURE = nextWriter(dir, ds, dt, Operation.CONTAINS_FAILURE);
-		w_GET_SUCCESS = nextWriter(dir, ds, dt, Operation.GET_SUCCESS);
-		w_GET_FAILURE = nextWriter(dir, ds, dt, Operation.GET_FAILURE);
 
 		Random rand = new Random();
 		Edge[] edgesToAdd = this.getEdgesToAdd();
@@ -589,30 +607,21 @@ public class RuntimeMeasurement {
 			}
 			t_GET_FAILURE.end();
 
-			w_ADD.writeln(list.size() + delimiter + t_ADD.getDutation());
-			w_RANDOM_ELEMENT.writeln(list.size() + delimiter
+			lines_ADD.add(list.size() + delimiter + t_ADD.getDutation());
+			lines_RANDOM_ELEMENT.add(list.size() + delimiter
 					+ t_RANDOM_ELEMENT.getDutation());
-			w_SIZE.writeln(list.size() + delimiter + t_SIZE.getDutation());
-			w_ITERATE
-					.writeln(list.size() + delimiter + t_ITERATE.getDutation());
-			w_CONTAINS_SUCCESS.writeln(list.size() + delimiter
+			lines_SIZE.add(list.size() + delimiter + t_SIZE.getDutation());
+			lines_ITERATE
+					.add(list.size() + delimiter + t_ITERATE.getDutation());
+			lines_CONTAINS_SUCCESS.add(list.size() + delimiter
 					+ t_CONTAINS_SUCCESS.getDutation());
-			w_CONTAINS_FAILURE.writeln(list.size() + delimiter
+			lines_CONTAINS_FAILURE.add(list.size() + delimiter
 					+ t_CONTAINS_FAILURE.getDutation());
-			w_GET_SUCCESS.writeln(list.size() + delimiter
+			lines_GET_SUCCESS.add(list.size() + delimiter
 					+ t_GET_SUCCESS.getDutation());
-			w_GET_FAILURE.writeln(list.size() + delimiter
+			lines_GET_FAILURE.add(list.size() + delimiter
 					+ t_GET_FAILURE.getDutation());
 		}
-
-		w_ADD.close();
-		w_RANDOM_ELEMENT.close();
-		w_SIZE.close();
-		w_ITERATE.close();
-		w_CONTAINS_SUCCESS.close();
-		w_CONTAINS_FAILURE.close();
-		w_GET_SUCCESS.close();
-		w_GET_FAILURE.close();
 
 		ArrayList<Edge> edges = new ArrayList<Edge>(list.size());
 		for (IElement e_ : list) {
@@ -628,9 +637,6 @@ public class RuntimeMeasurement {
 		for (int j = 0; j < stepSize; j++) {
 			nonExistingEdges[j] = edgesToAdd[edgesToAdd.length - 1 - j];
 		}
-
-		LinkedList<String> queue_REMOVE_SUCCESS = new LinkedList<String>();
-		LinkedList<String> queue_REMOVE_FAILURE = new LinkedList<String>();
 
 		for (int i = 0; i < steps; i++) {
 			/**
@@ -655,25 +661,23 @@ public class RuntimeMeasurement {
 				nonExistingEdges[j] = edgesToRemove[i * stepSize + j];
 			}
 
-			queue_REMOVE_SUCCESS.addFirst((list.size() + stepSize) + delimiter
+			lines_REMOVE_SUCCESS.add((list.size() + stepSize) + delimiter
 					+ t_REMOVE_SUCCESS.getDutation());
-			queue_REMOVE_FAILURE.addFirst((list.size() + stepSize) + delimiter
+			lines_REMOVE_FAILURE.add((list.size() + stepSize) + delimiter
 					+ t_REMOVE_FAILURE.getDutation());
 		}
 
-		Writer w_REMOVE_SUCCESS = nextWriter(dir, ds, dt,
-				Operation.REMOVE_SUCCESS);
-		while (!queue_REMOVE_SUCCESS.isEmpty()) {
-			w_REMOVE_SUCCESS.writeln(queue_REMOVE_SUCCESS.poll());
-		}
-		w_REMOVE_SUCCESS.close();
-
-		Writer w_REMOVE_FAILURE = nextWriter(dir, ds, dt,
-				Operation.REMOVE_FAILURE);
-		while (!queue_REMOVE_FAILURE.isEmpty()) {
-			w_REMOVE_FAILURE.writeln(queue_REMOVE_FAILURE.poll());
-		}
-		w_REMOVE_FAILURE.close();
+		this.write(Operation.INIT, lines_INIT, false);
+		this.write(Operation.ADD, lines_ADD, false);
+		this.write(Operation.RANDOM_ELEMENT, lines_RANDOM_ELEMENT, false);
+		this.write(Operation.SIZE, lines_SIZE, false);
+		this.write(Operation.ITERATE, lines_ITERATE, false);
+		this.write(Operation.CONTAINS_SUCCESS, lines_CONTAINS_SUCCESS, false);
+		this.write(Operation.CONTAINS_FAILURE, lines_CONTAINS_FAILURE, false);
+		this.write(Operation.GET_SUCCESS, lines_GET_SUCCESS, false);
+		this.write(Operation.GET_FAILURE, lines_GET_FAILURE, false);
+		this.write(Operation.REMOVE_FAILURE, lines_REMOVE_FAILURE, true);
+		this.write(Operation.REMOVE_SUCCESS, lines_REMOVE_SUCCESS, true);
 
 		t.end();
 		System.out.println(t.toString());
@@ -702,7 +706,8 @@ public class RuntimeMeasurement {
 			return;
 		}
 
-		System.out.println("aggregating for " + filenames.length + " files");
+		System.out.println("aggregating " + o + " (" + filenames.length
+				+ " files)");
 
 		// runtimes[i] contains runtimes of file[i]
 		long[][] runtimes = new long[filenames.length][];
