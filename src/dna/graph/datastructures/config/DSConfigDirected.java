@@ -48,4 +48,11 @@ public class DSConfigDirected extends DSConfig {
 				ListType.LocalOutEdgeList, this.out, ListType.LocalNodeList,
 				this.neighbors), DirectedNode.class, DirectedEdge.class);
 	}
+
+	@Override
+	public String getStimpleName(String sep) {
+		return V.getSimpleName() + sep + E.getSimpleName() + sep
+				+ in.getSimpleName() + sep + out.getSimpleName() + sep
+				+ neighbors.getSimpleName();
+	}
 }

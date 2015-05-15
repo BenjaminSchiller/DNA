@@ -33,4 +33,10 @@ public class DSConfigUndirected extends DSConfig {
 				this.E, ListType.LocalEdgeList, this.adj),
 				UndirectedNode.class, UndirectedEdge.class);
 	}
+
+	@Override
+	public String getStimpleName(String sep) {
+		return V.getSimpleName() + sep + E.getSimpleName() + sep
+				+ adj.getSimpleName();
+	}
 }

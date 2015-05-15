@@ -16,4 +16,6 @@ public abstract class DSConfig {
 
 	public abstract GraphDataStructure getGDS();
 
+	public abstract String getStimpleName(String sep);
+
 }
