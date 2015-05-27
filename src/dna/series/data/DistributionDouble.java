@@ -12,27 +12,14 @@ import dna.util.Config;
 
 /**
  * Distribution is a class for representing a distribution. Values are stored in
- * a private double array.
- * 
- * @author Rwilmes
- * @date 26.08.2013
+ * a double array.
  */
 public class DistributionDouble extends Distribution {
 
 	// member variables
 	private double[] values;
 
-	// values for comparison
-	private double comparedSum;
-	private double comparedMin;
-	private double comparedMax;
-	private double comparedMed;
-	private double comparedAvg;
-
 	// constructors
-	/**
-	 * Creates a dDistributionDouble with an empty double-array of size zero.
-	 **/
 	public DistributionDouble(String name) {
 		super(name);
 		this.values = new double[0];
@@ -43,24 +30,13 @@ public class DistributionDouble extends Distribution {
 		this.values = values;
 	}
 
-	public DistributionDouble(String name, double[] values, double sum,
-			double min, double max, double med, double avg) {
-		super(name);
-		this.values = values;
-		this.comparedSum = sum;
-		this.comparedMin = min;
-		this.comparedMax = max;
-		this.comparedMed = med;
-		this.comparedAvg = avg;
-	}
-
 	// class methods
 	public String toString() {
 		return "distributionDouble(" + super.getName() + ")";
 	}
 
 	// get methods
-	public double[] getDoubleValues() {
+	public double[] getValues() {
 		return this.values;
 	}
 
@@ -75,26 +51,6 @@ public class DistributionDouble extends Distribution {
 
 	public int getMax() {
 		return values.length - 1;
-	}
-
-	public double getComparedSum() {
-		return this.comparedSum;
-	}
-
-	public double getComparedMin() {
-		return this.comparedMin;
-	}
-
-	public double getComparedMax() {
-		return this.comparedMax;
-	}
-
-	public double getComparedMed() {
-		return this.comparedMed;
-	}
-
-	public double getComparedAvg() {
-		return this.comparedAvg;
 	}
 
 	/**
@@ -211,7 +167,7 @@ public class DistributionDouble extends Distribution {
 	 *         are equal
 	 */
 	public static boolean equals(DistributionDouble d1, DistributionDouble d2) {
-		return ArrayUtils.equals(d1.getDoubleValues(), d2.getDoubleValues());
+		return ArrayUtils.equals(d1.getValues(), d2.getValues());
 	}
 
 }
