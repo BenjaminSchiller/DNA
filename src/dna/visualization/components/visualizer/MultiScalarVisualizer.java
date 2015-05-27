@@ -207,7 +207,7 @@ public class MultiScalarVisualizer extends Visualizer {
 					if (tempDist instanceof DistributionDouble) {
 						double[] tempValues = ((DistributionDouble) b
 								.getMetrics().get(metric).getDistributions()
-								.get(dist)).getDoubleValues();
+								.get(dist)).getValues();
 						SortModeDist tempSortMode = ((LegendItemDistribution) this.legend
 								.getLegendList().getLegendItem(tempName))
 								.getSortMode();
@@ -465,7 +465,7 @@ public class MultiScalarVisualizer extends Visualizer {
 					if (tempDist instanceof DistributionDouble) {
 						double[] tempValues = ((DistributionDouble) this.currentBatch
 								.getMetrics().get(metric).getDistributions()
-								.get(dist)).getDoubleValues();
+								.get(dist)).getValues();
 						SortModeDist tempSortMode = SortModeDist.distribution;
 						if (config.getListConfig() != null) {
 							tempSortMode = config.getListConfig()

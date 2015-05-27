@@ -573,9 +573,9 @@ public class MetricData implements ListItem {
 					&& m2.getDistributions().get(distribution) instanceof DistributionDouble) {
 				// compare DistributionDouble objects
 				double[] values1 = ((DistributionDouble) m1.getDistributions()
-						.get(distribution)).getDoubleValues();
+						.get(distribution)).getValues();
 				double[] values2 = ((DistributionDouble) m2.getDistributions()
-						.get(distribution)).getDoubleValues();
+						.get(distribution)).getValues();
 
 				double[] diffAbs = new double[Math.max(values1.length,
 						values2.length)];

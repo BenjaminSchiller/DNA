@@ -25,13 +25,6 @@ public class DistributionLong extends Distribution {
 	private long[] values;
 	private long denominator;
 
-	// values for comparison
-	private long comparedSum;
-	private long comparedMin;
-	private long comparedMax;
-	private long comparedMed;
-	private double comparedAvg;
-
 	// constructor
 	public DistributionLong(String name, long[] values, long denominator) {
 		super(name);
@@ -43,18 +36,6 @@ public class DistributionLong extends Distribution {
 		super(name);
 		this.values = new long[0];
 		this.denominator = 0;
-	}
-
-	public DistributionLong(String name, long[] values, long denominator,
-			long sum, long min, long max, long med, double avg) {
-		super(name);
-		this.values = values;
-		this.denominator = denominator;
-		this.comparedSum = sum;
-		this.comparedMin = min;
-		this.comparedMax = max;
-		this.comparedMed = med;
-		this.comparedAvg = avg;
 	}
 
 	// class methods
@@ -86,26 +67,6 @@ public class DistributionLong extends Distribution {
 
 	public long getMax() {
 		return (long) values.length - 1;
-	}
-
-	public long getComparedSum() {
-		return this.comparedSum;
-	}
-
-	public long getComparedMin() {
-		return this.comparedMin;
-	}
-
-	public long getComparedMax() {
-		return this.comparedMax;
-	}
-
-	public long getComparedMed() {
-		return this.comparedMed;
-	}
-
-	public double getComparedAvg() {
-		return this.comparedAvg;
 	}
 
 	/**

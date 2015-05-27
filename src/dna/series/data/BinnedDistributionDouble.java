@@ -39,12 +39,6 @@ public class BinnedDistributionDouble extends DistributionDouble {
 		this.binsize = binsize;
 	}
 
-	public BinnedDistributionDouble(String name, double binsize,
-			double[] values, int sum, int min, int max, int med, double avg) {
-		super(name, values, sum, min, max, med, avg);
-		this.binsize = binsize;
-	}
-
 	// class methods
 	public String toString() {
 		return "binnedDistributionDouble(" + super.getName() + ")";
@@ -103,7 +97,7 @@ public class BinnedDistributionDouble extends DistributionDouble {
 	 */
 	public double get(double index) {
 		int mappedIndex = (int) Math.floor((index * (1 / this.binsize)));
-		return (super.getDoubleValues()[mappedIndex]);
+		return (super.getValues()[mappedIndex]);
 	}
 
 	// IO Methods
@@ -116,7 +110,7 @@ public class BinnedDistributionDouble extends DistributionDouble {
 	 *            String representing the desired filename for the Distribution.
 	 */
 	public void write(String dir, String filename) throws IOException {
-		double[] values = this.getDoubleValues();
+		double[] values = this.getValues();
 		if (values == null) {
 			throw new NullPointerException("no values for distribution \""
 					+ this.getName() + "\" set to be written to " + dir);

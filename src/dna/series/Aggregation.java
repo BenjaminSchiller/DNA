@@ -464,8 +464,8 @@ public class Aggregation {
 			int amountValues = 0;
 			for (DistributionDouble d : dists) {
 				if (d != null) {
-					if (d.getDoubleValues().length > amountValues)
-						amountValues = d.getDoubleValues().length;
+					if (d.getValues().length > amountValues)
+						amountValues = d.getValues().length;
 				}
 			}
 
@@ -476,7 +476,7 @@ public class Aggregation {
 				double[] values = new double[dists.length];
 				for (int j = 0; j < dists.length; j++) {
 					try {
-						values[j] = dists[j].getDoubleValues()[i];
+						values[j] = dists[j].getValues()[i];
 					} catch (IndexOutOfBoundsException | NullPointerException e) {
 						values[j] = 0;
 					}
@@ -707,7 +707,7 @@ public class Aggregation {
 
 		for (Distribution d : m.getDistributions().getList()) {
 			if (d instanceof DistributionDouble) {
-				double[] values = ((DistributionDouble) d).getDoubleValues();
+				double[] values = ((DistributionDouble) d).getValues();
 				AggregatedValue[] aggregatedValues = new AggregatedValue[values.length];
 				for (int i = 0; i < values.length; i++) {
 					double value = values[i];

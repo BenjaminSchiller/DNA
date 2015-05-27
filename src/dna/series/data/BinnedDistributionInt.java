@@ -40,12 +40,6 @@ public class BinnedDistributionInt extends DistributionInt {
 		this.binsize = binsize;
 	}
 
-	public BinnedDistributionInt(String name, double binsize, int[] values,
-			int denominator, int sum, int min, int max, int med, double avg) {
-		super(name, values, denominator, sum, min, max, med, avg);
-		this.binsize = binsize;
-	}
-
 	// class methods
 	public String toString() {
 		return "binnedDistributionInt(" + super.getName() + ")";

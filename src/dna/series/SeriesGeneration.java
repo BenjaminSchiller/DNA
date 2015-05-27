@@ -863,25 +863,25 @@ public class SeriesGeneration {
 			if (Config.getBoolean("GENERATE_DISTRIBUTION_MIN")) {
 				Value v = new Value(d.getName() + "_MIN",
 						ArrayUtils.min(((DistributionDouble) d)
-								.getDoubleValues()));
+								.getValues()));
 				values.add(v);
 			}
 			if (Config.getBoolean("GENERATE_DISTRIBUTION_MAX")) {
 				Value v = new Value(d.getName() + "_MAX",
 						ArrayUtils.max(((DistributionDouble) d)
-								.getDoubleValues()));
+								.getValues()));
 				values.add(v);
 			}
 			if (Config.getBoolean("GENERATE_DISTRIBUTION_MED")) {
 				Value v = new Value(d.getName() + "_MED",
 						ArrayUtils.med(((DistributionDouble) d)
-								.getDoubleValues()));
+								.getValues()));
 				values.add(v);
 			}
 			if (Config.getBoolean("GENERATE_DISTRIBUTION_AVG")) {
 				Value v = new Value(d.getName() + "_AVG",
 						ArrayUtils.avg(((DistributionDouble) d)
-								.getDoubleValues()));
+								.getValues()));
 				values.add(v);
 			}
 			if (Config.getBoolean("GENERATE_DISTRIBUTION_BINSIZE")) {

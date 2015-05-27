@@ -390,10 +390,6 @@ public class BatchData implements IBatch {
 								Files.getDistributionLongFilename(d.getName()),
 								d.getName(), true));
 					}
-				} else if (d instanceof Distribution) {
-					mDistributions.add(Distribution.read(mDir,
-							Files.getDistributionFilename(d.getName()),
-							d.getName(), true));
 				} else {
 					Log.error("Failed to read distribution " + d.getName()
 							+ " for metric " + m.getName() + " on dir " + dir);
