@@ -56,15 +56,45 @@ public class MatchingU extends Matching implements IBeforeUpdates,
 	 *            <i>weighted</i> or <i>unweighted</i>, determining whether to
 	 *            use edge weights in weighted graphs or not. Will be ignored
 	 *            for unweighted graphs.
+	 * @param computeDistributionWithoutMatrixDiagonal
+	 *            <i>with_diagonal</i> or <i>without_diagonal</i>, determining
+	 *            whether to use the matrix diagonal to compute the
+	 *            distributions or not.
 	 */
-	public MatchingU(DirectedDegreeType directedDegreeType,
-			EdgeWeightType edgeWeightType) {
-		super("MatchingU", directedDegreeType, edgeWeightType);
+	public MatchingU(
+			DirectedDegreeType directedDegreeType,
+			EdgeWeightType edgeWeightType,
+			ComputeDistributionWithoutMatrixDiagonal computeDistributionWithoutMatrixDiagonal) {
+		super("MatchingU", directedDegreeType, edgeWeightType,
+				computeDistributionWithoutMatrixDiagonal);
 	}
 
-	public MatchingU(DirectedDegreeType directedDegreeType,
-			EdgeWeightType edgeWeightType, EventColumn[] type) {
-		super("MatchingU", directedDegreeType, edgeWeightType, type);
+	/**
+	 * Initializes {@link MatchingU}.
+	 * 
+	 * @param directedDegreeType
+	 *            <i>in</i> or <i>out</i>, determining whether to use in- or
+	 *            outdegree for directed graphs. Will be ignored for undirected
+	 *            graphs.
+	 * @param edgeWeightType
+	 *            <i>weighted</i> or <i>unweighted</i>, determining whether to
+	 *            use edge weights in weighted graphs or not. Will be ignored
+	 *            for unweighted graphs.
+	 * @param type
+	 *            The node types ({@link EventColumn}) for which the matching
+	 *            should be calculated.
+	 * @param computeDistributionWithoutMatrixDiagonal
+	 *            <i>with_diagonal</i> or <i>without_diagonal</i>, determining
+	 *            whether to use the matrix diagonal to compute the
+	 *            distributions or not.
+	 */
+	public MatchingU(
+			DirectedDegreeType directedDegreeType,
+			EdgeWeightType edgeWeightType,
+			EventColumn[] type,
+			ComputeDistributionWithoutMatrixDiagonal computeDistributionWithoutMatrixDiagonal) {
+		super("MatchingU", directedDegreeType, edgeWeightType, type,
+				computeDistributionWithoutMatrixDiagonal);
 	}
 
 	/**
@@ -218,18 +248,33 @@ public class MatchingU extends Matching implements IBeforeUpdates,
 
 	@Override
 	public boolean applyAfterUpdate(NodeAddition na) {
+		Node node;
 		if (type != null && na.getNode() instanceof UndirectedZalandoNode
 				&& ZalandoNode.nodeIsOfType((Node) na.getNode(), type)) {
 			for (IElement iterable_element : this.g.getNodes()) {
-				Node node = (Node) iterable_element;
-				if (!(node.getIndex() == na.getNode().getIndex()))
-					if(ZalandoNode.nodeIsOfType(node, type))
-					this.matchingD.incr(0.0);
+				node = (Node) iterable_element;
+				if (computeDistributionWithoutMatrixDiagonal
+						.equals(ComputeDistributionWithoutMatrixDiagonal.USE_DIAGONAL)) {
+					if (ZalandoNode.nodeIsOfType(node, type))
+						this.matchingD.incr(0.0);
+				} else {
+					if (!(node.getIndex() == na.getNode().getIndex()))
+						if (ZalandoNode.nodeIsOfType(node, type))
+							this.matchingD.incr(0.0);
+				}
 			}
 		} else if (type == null) {
 
-			for (int i = 0; i < this.g.getNodeCount(); i++)
-				this.matchingD.incr(0.0);
+			for (IElement iterable_element : this.g.getNodes()) {
+				node = (Node) iterable_element;
+				if (computeDistributionWithoutMatrixDiagonal
+						.equals(ComputeDistributionWithoutMatrixDiagonal.USE_DIAGONAL)) {
+					this.matchingD.incr(0.0);
+				} else {
+					if (!(node.getIndex() == na.getNode().getIndex()))
+						this.matchingD.incr(0.0);
+				}
+			}
 		}
 		return true;
 	}
@@ -333,7 +378,7 @@ public class MatchingU extends Matching implements IBeforeUpdates,
 								.getNode1()), edgeToRemove.getNode2());
 			}
 		} else {
-			// normaler standartfall ohne Filtern
+			// without filter
 			this.decreaseMatchingWeighted(
 					this.getNeighborNodesUndirectedWeighted(edgeToRemove
 							.getNode1()), edgeToRemove.getNode2());
@@ -397,10 +442,21 @@ public class MatchingU extends Matching implements IBeforeUpdates,
 
 		for (IElement iterable_element : this.g.getNodes()) {
 			Node node = (Node) iterable_element;
-			if (this.matching.get(nodeToRemove, node) == null)
-				this.matchingD.decr(0);
-			else
-				this.matchingD.decr(this.matching.get(nodeToRemove, node));
+			if (computeDistributionWithoutMatrixDiagonal
+					.equals(ComputeDistributionWithoutMatrixDiagonal.USE_DIAGONAL)) {
+				if (this.matching.get(nodeToRemove, node) == null)
+					this.matchingD.decr(0);
+				else
+					this.matchingD.decr(this.matching.get(nodeToRemove, node));
+			} else {
+				if (nodeToRemove.getIndex() != node.getIndex()) {
+					if (this.matching.get(nodeToRemove, node) == null)
+						this.matchingD.decr(0);
+					else
+						this.matchingD.decr(this.matching.get(nodeToRemove,
+								node));
+				}
+			}
 		}
 
 		// remove the results of the removed node calculated so far
@@ -429,10 +485,21 @@ public class MatchingU extends Matching implements IBeforeUpdates,
 
 		for (IElement iterable_element : this.g.getNodes()) {
 			Node node = (Node) iterable_element;
-			if (this.matching.get(nodeToRemove, node) == null)
-				this.matchingD.decr(0.0);
-			else
-				this.matchingD.decr(this.matching.get(nodeToRemove, node));
+			if (computeDistributionWithoutMatrixDiagonal
+					.equals(ComputeDistributionWithoutMatrixDiagonal.USE_DIAGONAL)) {
+				if (this.matching.get(nodeToRemove, node) == null)
+					this.matchingD.decr(0);
+				else
+					this.matchingD.decr(this.matching.get(nodeToRemove, node));
+			} else {
+				if (nodeToRemove.getIndex() != node.getIndex()) {
+					if (this.matching.get(nodeToRemove, node) == null)
+						this.matchingD.decr(0);
+					else
+						this.matchingD.decr(this.matching.get(nodeToRemove,
+								node));
+				}
+			}
 		}
 
 		this.matching.removeRow(nodeToRemove);
@@ -460,10 +527,21 @@ public class MatchingU extends Matching implements IBeforeUpdates,
 
 		for (IElement iterable_element : this.g.getNodes()) {
 			Node node = (Node) iterable_element;
-			if (this.matching.get(nodeToRemove, node) == null)
-				this.matchingD.decr(0);
-			else
-				this.matchingD.decr(this.matching.get(nodeToRemove, node));
+			if (computeDistributionWithoutMatrixDiagonal
+					.equals(ComputeDistributionWithoutMatrixDiagonal.USE_DIAGONAL)) {
+				if (this.matching.get(nodeToRemove, node) == null)
+					this.matchingD.decr(0);
+				else
+					this.matchingD.decr(this.matching.get(nodeToRemove, node));
+			} else {
+				if (nodeToRemove.getIndex() != node.getIndex()) {
+					if (this.matching.get(nodeToRemove, node) == null)
+						this.matchingD.decr(0);
+					else
+						this.matchingD.decr(this.matching.get(nodeToRemove,
+								node));
+				}
+			}
 		}
 		// remove the results of the removed node calculated so far
 		this.matching.removeRow(nodeToRemove);
@@ -487,28 +565,51 @@ public class MatchingU extends Matching implements IBeforeUpdates,
 		this.decreaseMatchingNodeRemoveWeighted(this
 				.getNeighborNodesUndirectedWeighted(nodeToRemove));
 
-		// FILTER
+		// with filter
 		if (type != null) {
 			if (nodeToRemove instanceof UndirectedZalandoNode
 					&& ZalandoNode.nodeIsOfType(nodeToRemove, type)) {
 				for (IElement iterable_element : this.g.getNodes()) {
 					Node node = (Node) iterable_element;
-					if (!(nodeToRemove.getIndex() == node.getIndex()))
+
+					if (computeDistributionWithoutMatrixDiagonal
+							.equals(ComputeDistributionWithoutMatrixDiagonal.USE_DIAGONAL)) {
 						if (this.matching.get(nodeToRemove, node) == null)
 							this.matchingD.decr(0.0);
 						else
 							this.matchingD.decr(this.matching.get(nodeToRemove,
 									node));
+					} else {
+						if (!(nodeToRemove.getIndex() == node.getIndex()))
+							if (this.matching.get(nodeToRemove, node) == null)
+								this.matchingD.decr(0.0);
+							else
+								this.matchingD.decr(this.matching.get(
+										nodeToRemove, node));
+					}
 				}
 			}
-			// NORMALFALL
+			// without filter
 		} else {
 			for (IElement iterable_element : this.g.getNodes()) {
 				Node node = (Node) iterable_element;
-				if (this.matching.get(nodeToRemove, node) == null)
-					this.matchingD.decr(0.0);
-				else
-					this.matchingD.decr(this.matching.get(nodeToRemove, node));
+
+				if (computeDistributionWithoutMatrixDiagonal
+						.equals(ComputeDistributionWithoutMatrixDiagonal.USE_DIAGONAL)) {
+					if (this.matching.get(nodeToRemove, node) == null)
+						this.matchingD.decr(0);
+					else
+						this.matchingD.decr(this.matching.get(nodeToRemove,
+								node));
+				} else {
+					if (nodeToRemove.getIndex() != node.getIndex()) {
+						if (this.matching.get(nodeToRemove, node) == null)
+							this.matchingD.decr(0);
+						else
+							this.matchingD.decr(this.matching.get(nodeToRemove,
+									node));
+					}
+				}
 			}
 
 		}
@@ -683,9 +784,24 @@ public class MatchingU extends Matching implements IBeforeUpdates,
 	 * Decreases the matching between the given nodes by 1.
 	 */
 	private void decreaseMatchingUnweighted(Node node1, Node node2) {
-		this.matchingD.decr(this.matching.get(node1, node2));
-		this.matching.put(node1, node2, this.matching.get(node1, node2) - 1);
-		this.matchingD.incr(this.matching.get(node1, node2));
+
+		if (computeDistributionWithoutMatrixDiagonal
+				.equals(ComputeDistributionWithoutMatrixDiagonal.USE_DIAGONAL)) {
+			this.matchingD.decr(this.matching.get(node1, node2));
+			this.matching
+					.put(node1, node2, this.matching.get(node1, node2) - 1);
+			this.matchingD.incr(this.matching.get(node1, node2));
+		} else {
+			if (node1.getIndex() != node2.getIndex()) {
+				this.matchingD.decr(this.matching.get(node1, node2));
+				this.matching.put(node1, node2,
+						this.matching.get(node1, node2) - 1);
+				this.matchingD.incr(this.matching.get(node1, node2));
+			} else {
+				this.matching.put(node1, node2,
+						this.matching.get(node1, node2) - 1);
+			}
+		}
 	}
 
 	/**
@@ -714,23 +830,51 @@ public class MatchingU extends Matching implements IBeforeUpdates,
 					&& ZalandoNode.nodeIsOfType(node1, type)
 					&& node2 instanceof UndirectedZalandoNode
 					&& ZalandoNode.nodeIsOfType(node2, type))
-				if (!(node1.getIndex() == node2.getIndex()))
+
+				if (computeDistributionWithoutMatrixDiagonal
+						.equals(ComputeDistributionWithoutMatrixDiagonal.USE_DIAGONAL))
 					this.matchingD.decr(this.matching.get(node1, node2));
+				else {
+					if (node1.getIndex() != node2.getIndex())
+						this.matchingD.decr(this.matching.get(node1, node2));
+				}
 
 			double value = this.matching.get(node1, node2)
 					- Math.min(value1, value2);
 			this.matching.put(node1, node2, value);
-			if (!(node1.getIndex() == node2.getIndex()))
+
+			if (computeDistributionWithoutMatrixDiagonal
+					.equals(ComputeDistributionWithoutMatrixDiagonal.USE_DIAGONAL))
 				this.matchingD.incr(this.matching.get(node1, node2));
+			else {
+				if (node1.getIndex() != node2.getIndex())
+					this.matchingD.incr(this.matching.get(node1, node2));
+			}
+
 		} else {
 
-			this.matchingD.decr(this.matching.get(node1, node2));
+			if (computeDistributionWithoutMatrixDiagonal
+					.equals(ComputeDistributionWithoutMatrixDiagonal.USE_DIAGONAL))
+				this.matchingD.decr(this.matching.get(node1, node2));
+			else {
+				if (node1.getIndex() != node2.getIndex())
+					this.matchingD.decr(this.matching.get(node1, node2));
+			}
+
 			double value = this.matching.get(node1, node2)
 					- Math.min(value1, value2);
 			if ((value < 0.0) && (Math.abs(value) <= 1.0E-4))
 				value = 0.0;
 			this.matching.put(node1, node2, value);
-			this.matchingD.incr(this.matching.get(node1, node2));
+
+			if (computeDistributionWithoutMatrixDiagonal
+					.equals(ComputeDistributionWithoutMatrixDiagonal.USE_DIAGONAL))
+				this.matchingD.incr(this.matching.get(node1, node2));
+			else {
+				if (node1.getIndex() != node2.getIndex())
+					this.matchingD.incr(this.matching.get(node1, node2));
+			}
+
 		}
 	}
 
@@ -827,12 +971,29 @@ public class MatchingU extends Matching implements IBeforeUpdates,
 	 */
 	private void increaseMatchingUnweighted(Node node1, Node node2) {
 		Double matchingG = this.matching.get(node1, node2);
-		if (matchingG == null)
-			this.matchingD.decr(0.0);
-		else
-			this.matchingD.decr(matchingG);
+		if (computeDistributionWithoutMatrixDiagonal
+				.equals(ComputeDistributionWithoutMatrixDiagonal.USE_DIAGONAL)) {
+
+			if (matchingG == null)
+				this.matchingD.decr(0.0);
+			else
+				this.matchingD.decr(matchingG);
+		} else {
+			if (node1.getIndex() != node2.getIndex())
+				if (matchingG == null)
+					this.matchingD.decr(0.0);
+				else
+					this.matchingD.decr(matchingG);
+		}
 		this.matching.put(node1, node2, matchingG == null ? 1 : matchingG + 1);
-		this.matchingD.incr(this.matching.get(node1, node2));
+		if (computeDistributionWithoutMatrixDiagonal
+				.equals(ComputeDistributionWithoutMatrixDiagonal.USE_DIAGONAL)) {
+
+			this.matchingD.incr(this.matching.get(node1, node2));
+		} else {
+			if (node1.getIndex() != node2.getIndex())
+				this.matchingD.incr(this.matching.get(node1, node2));
+		}
 	}
 
 	/**
@@ -861,28 +1022,49 @@ public class MatchingU extends Matching implements IBeforeUpdates,
 					&& ZalandoNode.nodeIsOfType(node1, type)
 					&& node2 instanceof UndirectedZalandoNode
 					&& ZalandoNode.nodeIsOfType(node2, type)) {
-				if (!(node1.getIndex() == node2.getIndex()))
+
+				if (computeDistributionWithoutMatrixDiagonal
+						.equals(ComputeDistributionWithoutMatrixDiagonal.USE_DIAGONAL)) {
 					if (matchingG == null)
 						this.matchingD.decr(0.0);
 					else
 						this.matchingD.decr(matchingG);
-
-				// System.err.println("Min " + Math.min(value1, value2));
+				} else {
+					if (node1.getIndex() != node2.getIndex())
+						if (matchingG == null)
+							this.matchingD.decr(0.0);
+						else
+							this.matchingD.decr(matchingG);
+				}
 
 				double value = matchingG == null ? Math.min(value1, value2)
 						: matchingG + Math.min(value1, value2);
 
 				this.matching.put(node1, node2, value);
-				// this.matchingUndirectedWeightedD.incr(this.matchings.get(node1,
-				// node2));
-				if (!(node1.getIndex() == node2.getIndex()))
+
+				if (computeDistributionWithoutMatrixDiagonal
+						.equals(ComputeDistributionWithoutMatrixDiagonal.USE_DIAGONAL)) {
 					this.matchingD.incr(this.matching.get(node1, node2));
+				} else {
+					if (node1.getIndex() != node2.getIndex())
+						this.matchingD.incr(this.matching.get(node1, node2));
+				}
 			}
 		} else {
-			if (matchingG == null)
-				this.matchingD.decr(0.0);
-			else
-				this.matchingD.decr(matchingG);
+
+			if (computeDistributionWithoutMatrixDiagonal
+					.equals(ComputeDistributionWithoutMatrixDiagonal.USE_DIAGONAL)) {
+				if (matchingG == null)
+					this.matchingD.decr(0.0);
+				else
+					this.matchingD.decr(matchingG);
+			} else {
+				if (node1.getIndex() != node2.getIndex())
+					if (matchingG == null)
+						this.matchingD.decr(0.0);
+					else
+						this.matchingD.decr(matchingG);
+			}
 
 			double value = matchingG == null ? Math.min(value1, value2)
 					: matchingG + Math.min(value1, value2);
@@ -890,7 +1072,13 @@ public class MatchingU extends Matching implements IBeforeUpdates,
 				value = 0.0;
 			this.matching.put(node1, node2, value);
 
-			this.matchingD.incr(this.matching.get(node1, node2));
+			if (computeDistributionWithoutMatrixDiagonal
+					.equals(ComputeDistributionWithoutMatrixDiagonal.USE_DIAGONAL)) {
+				this.matchingD.incr(this.matching.get(node1, node2));
+			} else {
+				if (node1.getIndex() != node2.getIndex())
+					this.matchingD.incr(this.matching.get(node1, node2));
+			}
 		}
 	}
 
