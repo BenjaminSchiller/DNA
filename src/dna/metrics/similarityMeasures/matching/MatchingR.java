@@ -27,15 +27,45 @@ public class MatchingR extends Matching implements IRecomputation {
 	 *            <i>weighted</i> or <i>unweighted</i>, determining whether to
 	 *            use edge weights in weighted graphs or not. Will be ignored
 	 *            for unweighted graphs.
+	 * @param computeDistributionWithoutMatrixDiagonal
+	 *            <i>with_diagonal</i> or <i>without_diagonal</i>, determining
+	 *            whether to use the matrix diagonal to compute the
+	 *            distributions or not.
 	 */
-	public MatchingR(DirectedDegreeType directedDegreeType,
-			EdgeWeightType edgeWeightType) {
-		super("MatchingR", directedDegreeType, edgeWeightType);
+	public MatchingR(
+			DirectedDegreeType directedDegreeType,
+			EdgeWeightType edgeWeightType,
+			ComputeDistributionWithoutMatrixDiagonal computeDistributionWithoutMatrixDiagonal) {
+		super("MatchingR", directedDegreeType, edgeWeightType,
+				computeDistributionWithoutMatrixDiagonal);
 	}
-	
-	public MatchingR(DirectedDegreeType directedDegreeType,
-			EdgeWeightType edgeWeightType,EventColumn[] type) {
-		super("MatchingR", directedDegreeType, edgeWeightType,type);
+
+	/**
+	 * Initializes {@link MatchingR}.
+	 * 
+	 * @param directedDegreeType
+	 *            <i>in</i> or <i>out</i>, determining whether to use in- or
+	 *            outdegree for directed graphs. Will be ignored for undirected
+	 *            graphs.
+	 * @param edgeWeightType
+	 *            <i>weighted</i> or <i>unweighted</i>, determining whether to
+	 *            use edge weights in weighted graphs or not. Will be ignored
+	 *            for unweighted graphs.
+	 * @param type
+	 *            The node types ({@link EventColumn}) for which the matching
+	 *            should be calculated.
+	 * @param computeDistributionWithoutMatrixDiagonal
+	 *            <i>with_diagonal</i> or <i>without_diagonal</i>, determining
+	 *            whether to use the matrix diagonal to compute the
+	 *            distributions or not.
+	 */
+	public MatchingR(
+			DirectedDegreeType directedDegreeType,
+			EdgeWeightType edgeWeightType,
+			EventColumn[] type,
+			ComputeDistributionWithoutMatrixDiagonal computeDistributionWithoutMatrixDiagonal) {
+		super("MatchingR", directedDegreeType, edgeWeightType, type,
+				computeDistributionWithoutMatrixDiagonal);
 	}
 
 	@Override
