@@ -18,7 +18,6 @@ import dna.series.aggdata.AggregatedMetric;
 import dna.series.aggdata.AggregatedNodeValueList;
 import dna.series.aggdata.AggregatedValue;
 import dna.series.data.BatchData;
-import dna.series.data.IBatch;
 import dna.series.data.BinnedDistributionDouble;
 import dna.series.data.BinnedDistributionInt;
 import dna.series.data.BinnedDistributionLong;
@@ -26,6 +25,7 @@ import dna.series.data.Distribution;
 import dna.series.data.DistributionDouble;
 import dna.series.data.DistributionInt;
 import dna.series.data.DistributionLong;
+import dna.series.data.IBatch;
 import dna.series.data.MetricData;
 import dna.series.data.NodeValueList;
 import dna.series.data.Value;
@@ -477,8 +477,7 @@ public class Plot {
 							indizes[i] = i * binSize;
 						}
 					} else if (d instanceof BinnedDistributionDouble) {
-						values = ((BinnedDistributionDouble) d)
-								.getValues();
+						values = ((BinnedDistributionDouble) d).getValues();
 						double binSize = ((BinnedDistributionDouble) d)
 								.getBinSize();
 						for (int i = 0; i < values.length; i++) {
@@ -520,17 +519,7 @@ public class Plot {
 							values[i] = longs[i] * 1.0 / denominator;
 							indizes[i] = i;
 						}
-					} else {
-						values = m.getDistributions().get(name).getValues();
-						indizes = new double[values.length];
-						for (int i = 0; i < values.length; i++)
-							indizes[i] = i;
 					}
-
-					// Log.info("values of " + domain + "  " + name);
-					// for (int i = 0; i < values.length; i++) {
-					// System.out.println(i + "    " + values[i]);
-					// }
 
 					if (values == null) {
 						Log.warn("no values found in plot '"
@@ -656,8 +645,7 @@ public class Plot {
 	 * values of multiple series. Data can be read and added sequentially for
 	 * each series.
 	 */
-	public void addDataSequentially(IBatch[] batchData)
-			throws IOException {
+	public void addDataSequentially(IBatch[] batchData) throws IOException {
 		if (batchData instanceof AggregatedBatch[])
 			this.addDataSequentially((AggregatedBatch[]) batchData);
 		if (batchData instanceof BatchData[])

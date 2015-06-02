@@ -862,31 +862,23 @@ public class SeriesGeneration {
 		if (d instanceof DistributionDouble) {
 			double val = 0;
 			if (Config.getBoolean("GENERATE_DISTRIBUTION_MIN")) {
-				if (((DistributionDouble) d).getValues().length != 0)
-					val = ArrayUtils.min(((DistributionDouble) d)
-							.getValues());
-				Value v = new Value(d.getName() + "_MIN", val);
+				Value v = new Value(d.getName() + "_MIN",
+						ArrayUtils.min(((DistributionDouble) d).getValues()));
 				values.add(v);
 			}
 			if (Config.getBoolean("GENERATE_DISTRIBUTION_MAX")) {
-				if (((DistributionDouble) d).getValues().length != 0)
-					val = ArrayUtils.max(((DistributionDouble) d)
-							.getValues());
-				Value v = new Value(d.getName() + "_MAX", val);
+				Value v = new Value(d.getName() + "_MAX",
+						ArrayUtils.max(((DistributionDouble) d).getValues()));
 				values.add(v);
 			}
 			if (Config.getBoolean("GENERATE_DISTRIBUTION_MED")) {
-				if (((DistributionDouble) d).getValues().length != 0)
-					val = ArrayUtils.med(((DistributionDouble) d)
-							.getValues());
-				Value v = new Value(d.getName() + "_MED", val);
+				Value v = new Value(d.getName() + "_MED",
+						ArrayUtils.med(((DistributionDouble) d).getValues()));
 				values.add(v);
 			}
 			if (Config.getBoolean("GENERATE_DISTRIBUTION_AVG")) {
-				if (((DistributionDouble) d).getValues().length != 0)
-					val = ArrayUtils.avg(((DistributionDouble) d)
-							.getValues());
-				Value v = new Value(d.getName() + "_AVG", val);
+				Value v = new Value(d.getName() + "_AVG",
+						ArrayUtils.avg(((DistributionDouble) d).getValues()));
 				values.add(v);
 			}
 			if (Config.getBoolean("GENERATE_DISTRIBUTION_BINSIZE")) {

@@ -581,36 +581,8 @@ public class Aggregation {
 			else
 				return new AggregatedDistribution(refDist.getName(), aValues);
 		} else {
-			// calc 'longest' distribution
-			int amountValues = 0;
-			for (Distribution d : distributions) {
-				if (d != null) {
-					if (d.getValues().length > amountValues)
-						amountValues = d.getValues().length;
-				}
-			}
-
-			AggregatedValue[] aValues = new AggregatedValue[amountValues];
-
-			// iterate over values
-			for (int i = 0; i < amountValues; i++) {
-				double[] values = new double[distributions.length];
-				for (int j = 0; j < distributions.length; j++) {
-					try {
-						values[j] = distributions[j].getValues()[i];
-					} catch (IndexOutOfBoundsException | NullPointerException e) {
-						values[j] = 0;
-					}
-				}
-				double[] aggregatedValues = aggregate(values);
-				double[] temp = new double[aggregatedValues.length + 1];
-				temp[0] = i;
-				for (int j = 0; j < aggregatedValues.length; j++) {
-					temp[j + 1] = aggregatedValues[j];
-				}
-				aValues[i] = new AggregatedValue(refDist.getName(), temp);
-			}
-			return new AggregatedDistribution(refDist.getName(), aValues);
+			// case = refDist is "normal" Distribution, shouldnt happen
+			return null;
 		}
 	}
 
@@ -759,18 +731,6 @@ public class Aggregation {
 				else
 					aDistributions.add(new AggregatedDistribution(d.getName(),
 							aggregatedValues));
-			} else {
-				double[] values = d.getValues();
-				AggregatedValue[] aggregatedValues = new AggregatedValue[values.length];
-				for (int i = 0; i < values.length; i++) {
-					double value = values[i];
-					double[] aValues = new double[] { i, value, value, value,
-							value, 0.0, 0.0, 0.0, value, value };
-					aggregatedValues[i] = new AggregatedValue(d.getName() + i,
-							aValues);
-				}
-				aDistributions.add(new AggregatedDistribution(d.getName(),
-						aggregatedValues));
 			}
 		}
 
