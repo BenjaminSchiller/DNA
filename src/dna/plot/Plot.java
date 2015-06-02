@@ -465,7 +465,7 @@ public class Plot {
 					double[] indizes = null;
 
 					if (d instanceof BinnedDistributionInt) {
-						int[] ints = ((BinnedDistributionInt) d).getIntValues();
+						int[] ints = ((BinnedDistributionInt) d).getValues();
 						int denominator = ((BinnedDistributionInt) d)
 								.getDenominator();
 						double binSize = ((BinnedDistributionInt) d)
@@ -485,7 +485,7 @@ public class Plot {
 						}
 					} else if (d instanceof BinnedDistributionLong) {
 						long[] longs = ((BinnedDistributionLong) d)
-								.getLongValues();
+								.getValues();
 						long denominator = ((BinnedDistributionLong) d)
 								.getDenominator();
 						double binSize = ((BinnedDistributionLong) d)
@@ -497,7 +497,7 @@ public class Plot {
 							indizes[i] = i * binSize;
 						}
 					} else if (d instanceof DistributionInt) {
-						int[] ints = ((DistributionInt) d).getIntValues();
+						int[] ints = ((DistributionInt) d).getValues();
 						int denominator = ((DistributionInt) d)
 								.getDenominator();
 						values = new double[ints.length];
@@ -510,7 +510,7 @@ public class Plot {
 					} else if (d instanceof DistributionDouble) {
 						values = ((DistributionDouble) d).getValues();
 					} else if (d instanceof DistributionLong) {
-						long[] longs = ((DistributionLong) d).getLongValues();
+						long[] longs = ((DistributionLong) d).getValues();
 						long denominator = ((BinnedDistributionLong) d)
 								.getDenominator();
 						values = new double[longs.length];

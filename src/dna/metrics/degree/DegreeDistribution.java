@@ -78,13 +78,13 @@ public abstract class DegreeDistribution extends Metric {
 		}
 		DegreeDistribution dd = (DegreeDistribution) m;
 		boolean equals = true;
-		equals &= ArrayUtils.equals(this.degree.getIntValues(),
-				dd.degree.getIntValues(), this.degree.getName());
+		equals &= ArrayUtils.equals(this.degree.getValues(),
+				dd.degree.getValues(), this.degree.getName());
 		if (this.inDegree != null) {
-			equals &= ArrayUtils.equals(this.inDegree.getIntValues(),
-					dd.inDegree.getIntValues(), this.inDegree.getName());
-			equals &= ArrayUtils.equals(this.outDegree.getIntValues(),
-					dd.outDegree.getIntValues(), this.outDegree.getName());
+			equals &= ArrayUtils.equals(this.inDegree.getValues(),
+					dd.inDegree.getValues(), this.inDegree.getName());
+			equals &= ArrayUtils.equals(this.outDegree.getValues(),
+					dd.outDegree.getValues(), this.outDegree.getName());
 		}
 		return equals;
 	}

@@ -218,7 +218,7 @@ public class MultiScalarVisualizer extends Visualizer {
 					if (tempDist instanceof DistributionInt) {
 						int[] tempValues = ((DistributionInt) b.getMetrics()
 								.get(metric).getDistributions().get(dist))
-								.getIntValues();
+								.getValues();
 						int tempDenominator = ((DistributionInt) b.getMetrics()
 								.get(metric).getDistributions().get(dist))
 								.getDenominator();
@@ -235,7 +235,7 @@ public class MultiScalarVisualizer extends Visualizer {
 					if (tempDist instanceof DistributionLong) {
 						long[] tempValues = ((DistributionLong) b.getMetrics()
 								.get(metric).getDistributions().get(dist))
-								.getLongValues();
+								.getValues();
 						long tempDenominator = ((DistributionLong) b
 								.getMetrics().get(metric).getDistributions()
 								.get(dist)).getDenominator();
@@ -479,7 +479,7 @@ public class MultiScalarVisualizer extends Visualizer {
 					if (tempDist instanceof DistributionInt) {
 						int[] tempValues = ((DistributionInt) this.currentBatch
 								.getMetrics().get(metric).getDistributions()
-								.get(dist)).getIntValues();
+								.get(dist)).getValues();
 						int tempDenominator = ((DistributionInt) this.currentBatch
 								.getMetrics().get(metric).getDistributions()
 								.get(dist)).getDenominator();
@@ -498,7 +498,7 @@ public class MultiScalarVisualizer extends Visualizer {
 					if (tempDist instanceof DistributionLong) {
 						long[] tempValues = ((DistributionLong) this.currentBatch
 								.getMetrics().get(metric).getDistributions()
-								.get(dist)).getLongValues();
+								.get(dist)).getValues();
 						long tempDenominator = ((DistributionLong) this.currentBatch
 								.getMetrics().get(metric).getDistributions()
 								.get(dist)).getDenominator();

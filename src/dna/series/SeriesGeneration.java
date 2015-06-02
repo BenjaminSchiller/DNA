@@ -892,41 +892,33 @@ public class SeriesGeneration {
 		} else if (d instanceof DistributionLong) {
 			double val = 0;
 			if (Config.getBoolean("GENERATE_DISTRIBUTION_MIN")) {
-				if (((DistributionLong) d).getLongValues().length != 0)
-					val = ArrayUtils
-							.min(((DistributionLong) d).getLongValues());
-				Value v = new Value(d.getName() + "_MIN", val);
+				Value v = new Value(d.getName() + "_MIN",
+						ArrayUtils.min(((DistributionLong) d).getValues()));
 				values.add(v);
 			}
 			if (Config.getBoolean("GENERATE_DISTRIBUTION_MAX")) {
-				if (((DistributionLong) d).getLongValues().length != 0)
-					val = ArrayUtils
-							.max(((DistributionLong) d).getLongValues());
-				Value v = new Value(d.getName() + "_MAX", val);
+				Value v = new Value(d.getName() + "_MAX",
+						ArrayUtils.max(((DistributionLong) d).getValues()));
 				values.add(v);
 			}
 			if (Config.getBoolean("GENERATE_DISTRIBUTION_MED")) {
-				if (((DistributionLong) d).getLongValues().length != 0)
-					val = ArrayUtils
-							.med(((DistributionLong) d).getLongValues());
-				Value v = new Value(d.getName() + "_MED", val);
+				Value v = new Value(d.getName() + "_MED",
+						ArrayUtils.med(((DistributionLong) d).getValues()));
 				values.add(v);
 			}
 			if (Config.getBoolean("GENERATE_DISTRIBUTION_AVG")) {
-				if (((DistributionLong) d).getLongValues().length != 0)
-					val = ArrayUtils
-							.avg(((DistributionLong) d).getLongValues());
-				Value v = new Value(d.getName() + "_AVG", val);
+				Value v = new Value(d.getName() + "_AVG",
+						ArrayUtils.avg(((DistributionLong) d).getValues()));
 				values.add(v);
 			}
 			if (Config.getBoolean("GENERATE_DISTRIBUTION_DENOMINATOR")) {
-				if (((DistributionLong) d).getLongValues().length != 0)
+				if (((DistributionLong) d).getValues().length != 0)
 					val = ((DistributionLong) d).getDenominator();
 				Value v = new Value(d.getName() + "_DENOMINATOR", val);
 				values.add(v);
 			}
 			if (Config.getBoolean("GENERATE_DISTRIBUTION_BINSIZE")) {
-				if (((BinnedDistributionLong) d).getLongValues().length != 0)
+				if (((BinnedDistributionLong) d).getValues().length != 0)
 					val = ((BinnedDistributionLong) d).getBinSize();
 				if (d instanceof BinnedDistributionLong) {
 					Value v = new Value(d.getName() + "_BINSIZE", val);
@@ -936,38 +928,34 @@ public class SeriesGeneration {
 		} else if (d instanceof DistributionInt) {
 			double val = 0;
 			if (Config.getBoolean("GENERATE_DISTRIBUTION_MIN")) {
-				if (((DistributionInt) d).getIntValues().length != 0)
-					val = ArrayUtils.min(((DistributionInt) d).getIntValues());
-				Value v = new Value(d.getName() + "_MIN", val);
+				Value v = new Value(d.getName() + "_MIN",
+						ArrayUtils.min(((DistributionInt) d).getValues()));
 				values.add(v);
 			}
 			if (Config.getBoolean("GENERATE_DISTRIBUTION_MAX")) {
-				if (((DistributionInt) d).getIntValues().length != 0)
-					val = ArrayUtils.max(((DistributionInt) d).getIntValues());
-				Value v = new Value(d.getName() + "_MAX", val);
+				Value v = new Value(d.getName() + "_MAX",
+						ArrayUtils.max(((DistributionInt) d).getValues()));
 				values.add(v);
 			}
 			if (Config.getBoolean("GENERATE_DISTRIBUTION_MED")) {
-				if (((DistributionInt) d).getIntValues().length != 0)
-					val = ArrayUtils.med(((DistributionInt) d).getIntValues());
-				Value v = new Value(d.getName() + "_MED", val);
+				Value v = new Value(d.getName() + "_MED",
+						ArrayUtils.med(((DistributionInt) d).getValues()));
 				values.add(v);
 			}
 			if (Config.getBoolean("GENERATE_DISTRIBUTION_AVG")) {
-				if (((DistributionInt) d).getIntValues().length != 0)
-					val = ArrayUtils.avg(((DistributionInt) d).getIntValues());
-				Value v = new Value(d.getName() + "_AVG", val);
+				Value v = new Value(d.getName() + "_AVG",
+						ArrayUtils.avg(((DistributionInt) d).getValues()));
 				values.add(v);
 			}
 			if (Config.getBoolean("GENERATE_DISTRIBUTION_DENOMINATOR")) {
-				if (((DistributionInt) d).getIntValues().length != 0)
+				if (((DistributionInt) d).getValues().length != 0)
 					val = ((DistributionInt) d).getDenominator();
 				Value v = new Value(d.getName() + "_DENOMINATOR", val);
 				values.add(v);
 			}
 			if (Config.getBoolean("GENERATE_DISTRIBUTION_BINSIZE")) {
 				if (d instanceof BinnedDistributionInt) {
-					if (((DistributionInt) d).getIntValues().length != 0)
+					if (((DistributionInt) d).getValues().length != 0)
 						val = ((BinnedDistributionInt) d).getBinSize();
 					Value v = new Value(d.getName() + "_BINSIZE", val);
 					values.add(v);

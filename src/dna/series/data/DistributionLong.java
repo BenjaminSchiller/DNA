@@ -44,7 +44,7 @@ public class DistributionLong extends Distribution {
 	}
 
 	// get methods
-	public long[] getLongValues() {
+	public long[] getValues() {
 		return this.values;
 	}
 
@@ -202,7 +202,7 @@ public class DistributionLong extends Distribution {
 	public static boolean equals(DistributionLong d1, DistributionLong d2) {
 		if (d1.getDenominator() != d2.getDenominator())
 			return false;
-		return ArrayUtils.equals(d1.getLongValues(), d2.getLongValues());
+		return ArrayUtils.equals(d1.getValues(), d2.getValues());
 	}
 
 	public double computeAverage() {

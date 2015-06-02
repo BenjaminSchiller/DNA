@@ -506,8 +506,8 @@ public class Aggregation {
 			int amountValues = 0;
 			for (DistributionInt d : dists) {
 				if (d != null) {
-					if (d.getIntValues().length > amountValues)
-						amountValues = d.getIntValues().length;
+					if (d.getValues().length > amountValues)
+						amountValues = d.getValues().length;
 				}
 			}
 
@@ -518,7 +518,7 @@ public class Aggregation {
 				double[] values = new double[dists.length];
 				for (int j = 0; j < dists.length; j++) {
 					try {
-						values[j] = dists[j].getIntValues()[i] * 1.0
+						values[j] = dists[j].getValues()[i] * 1.0
 								/ dists[j].getDenominator();
 					} catch (IndexOutOfBoundsException | NullPointerException e) {
 						values[j] = 0;
@@ -548,8 +548,8 @@ public class Aggregation {
 			int amountValues = 0;
 			for (DistributionLong d : dists) {
 				if (d != null) {
-					if (d.getLongValues().length > amountValues)
-						amountValues = d.getLongValues().length;
+					if (d.getValues().length > amountValues)
+						amountValues = d.getValues().length;
 				}
 			}
 
@@ -560,7 +560,7 @@ public class Aggregation {
 				double[] values = new double[dists.length];
 				for (int j = 0; j < dists.length; j++) {
 					try {
-						values[j] = dists[j].getLongValues()[i] * 1.0
+						values[j] = dists[j].getValues()[i] * 1.0
 								/ dists[j].getDenominator();
 					} catch (IndexOutOfBoundsException | NullPointerException e) {
 						values[j] = 0;
@@ -696,7 +696,7 @@ public class Aggregation {
 					aDistributions.add(new AggregatedDistribution(d.getName(),
 							aggregatedValues));
 			} else if (d instanceof DistributionInt) {
-				int[] values = ((DistributionInt) d).getIntValues();
+				int[] values = ((DistributionInt) d).getValues();
 				AggregatedValue[] aggregatedValues = new AggregatedValue[values.length];
 				for (int i = 0; i < values.length; i++) {
 					double value = values[i] * 1.0
@@ -714,7 +714,7 @@ public class Aggregation {
 					aDistributions.add(new AggregatedDistribution(d.getName(),
 							aggregatedValues));
 			} else if (d instanceof DistributionLong) {
-				long[] values = ((DistributionLong) d).getLongValues();
+				long[] values = ((DistributionLong) d).getValues();
 				AggregatedValue[] aggregatedValues = new AggregatedValue[values.length];
 				for (int i = 0; i < values.length; i++) {
 					double value = values[i] * 1.0

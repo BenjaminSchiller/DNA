@@ -66,8 +66,8 @@ public abstract class Weights extends MetricOld {
 		if (m == null || !(m instanceof Weights)) {
 			return false;
 		}
-		return ArrayUtils.equals(this.distr.getIntValues(),
-				((Weights) m).distr.getIntValues(), "Weights.Distrbution");
+		return ArrayUtils.equals(this.distr.getValues(),
+				((Weights) m).distr.getValues(), "Weights.Distrbution");
 	}
 
 	protected double getWeight(Weight w) {

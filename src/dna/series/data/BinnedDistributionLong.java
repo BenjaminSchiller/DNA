@@ -98,7 +98,7 @@ public class BinnedDistributionLong extends DistributionLong {
 	 */
 	public long get(double index) {
 		int mappedIndex = (int) Math.floor((index * (1 / this.binsize)));
-		return (super.getLongValues()[mappedIndex]);
+		return (super.getValues()[mappedIndex]);
 	}
 
 	// IO Methods
@@ -111,7 +111,7 @@ public class BinnedDistributionLong extends DistributionLong {
 	 *            String representing the desired filename for the Distribution.
 	 */
 	public void write(String dir, String filename) throws IOException {
-		long[] values = this.getLongValues();
+		long[] values = this.getValues();
 		if (values == null) {
 			throw new NullPointerException("no values for distribution \""
 					+ this.getName() + "\" set to be written to " + dir);
