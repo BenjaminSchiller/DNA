@@ -862,26 +862,22 @@ public class SeriesGeneration {
 		if (d instanceof DistributionDouble) {
 			if (Config.getBoolean("GENERATE_DISTRIBUTION_MIN")) {
 				Value v = new Value(d.getName() + "_MIN",
-						ArrayUtils.min(((DistributionDouble) d)
-								.getValues()));
+						ArrayUtils.min(((DistributionDouble) d).getValues()));
 				values.add(v);
 			}
 			if (Config.getBoolean("GENERATE_DISTRIBUTION_MAX")) {
 				Value v = new Value(d.getName() + "_MAX",
-						ArrayUtils.max(((DistributionDouble) d)
-								.getValues()));
+						ArrayUtils.max(((DistributionDouble) d).getValues()));
 				values.add(v);
 			}
 			if (Config.getBoolean("GENERATE_DISTRIBUTION_MED")) {
 				Value v = new Value(d.getName() + "_MED",
-						ArrayUtils.med(((DistributionDouble) d)
-								.getValues()));
+						ArrayUtils.med(((DistributionDouble) d).getValues()));
 				values.add(v);
 			}
 			if (Config.getBoolean("GENERATE_DISTRIBUTION_AVG")) {
 				Value v = new Value(d.getName() + "_AVG",
-						ArrayUtils.avg(((DistributionDouble) d)
-								.getValues()));
+						ArrayUtils.avg(((DistributionDouble) d).getValues()));
 				values.add(v);
 			}
 			if (Config.getBoolean("GENERATE_DISTRIBUTION_BINSIZE")) {
@@ -956,28 +952,6 @@ public class SeriesGeneration {
 							((BinnedDistributionInt) d).getBinSize());
 					values.add(v);
 				}
-			}
-		} else {
-			// normal distribution
-			if (Config.getBoolean("GENERATE_DISTRIBUTION_MIN")) {
-				Value v = new Value(d.getName() + "_MIN", ArrayUtils.min(d
-						.getValues()));
-				values.add(v);
-			}
-			if (Config.getBoolean("GENERATE_DISTRIBUTION_MAX")) {
-				Value v = new Value(d.getName() + "_MAX", ArrayUtils.max(d
-						.getValues()));
-				values.add(v);
-			}
-			if (Config.getBoolean("GENERATE_DISTRIBUTION_MED")) {
-				Value v = new Value(d.getName() + "_MED", ArrayUtils.med(d
-						.getValues()));
-				values.add(v);
-			}
-			if (Config.getBoolean("GENERATE_DISTRIBUTION_AVG")) {
-				Value v = new Value(d.getName() + "_AVG", ArrayUtils.avg(d
-						.getValues()));
-				values.add(v);
 			}
 		}
 	}
