@@ -6,6 +6,7 @@ import dna.graph.nodes.Node;
 import dna.metrics.IMetric;
 import dna.metrics.Metric;
 import dna.series.data.Distribution;
+import dna.series.data.DistributionDouble;
 import dna.series.data.DistributionInt;
 import dna.series.data.NodeNodeValueList;
 import dna.series.data.NodeValueList;
@@ -78,7 +79,7 @@ public abstract class RichClubConnectivityByDegree extends Metric {
 		for (int i = 0; i < this.edgeCount.length; i++) {
 			v[i] = this.getCoefficient(i);
 		}
-		Distribution d = new Distribution("RichClubConnectivity", v);
+		Distribution d = new DistributionDouble("RichClubConnectivity", v);
 		Distribution edges = new DistributionInt("edges", this.edgeCount, 1);
 		Distribution nodes = new DistributionInt("nodes", this.nodeCount, 1);
 		Distribution size = new DistributionInt("size", this.size, 1);
