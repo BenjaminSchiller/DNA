@@ -44,7 +44,6 @@ public class DistributionDouble extends Distribution {
 		int y = 0;
 		while (values[y] < 0) {
 			y++;
-
 		}
 		return y;
 	}
