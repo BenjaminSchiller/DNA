@@ -10,7 +10,6 @@ import dna.series.lists.ListItem;
 import dna.series.lists.NodeNodeValueListList;
 import dna.series.lists.NodeValueListList;
 import dna.series.lists.ValueList;
-import dna.util.ArrayUtils;
 import dna.util.Config;
 import dna.util.Log;
 
@@ -502,15 +501,10 @@ public class MetricData implements ListItem {
 				// add absolute comparison
 				comparedDistributions.add(new DistributionInt(Files
 						.getDistributionName(distribution) + "_abs", diffAbs,
-						denom1 * denom2, ArrayUtils.sum(diffAbs), ArrayUtils
-								.min(diffAbs), ArrayUtils.max(diffAbs),
-						ArrayUtils.med(diffAbs), ArrayUtils.avg(diffAbs)));
+						denom1 * denom2));
 				// add relative comparison
 				comparedDistributions.add(new DistributionDouble(Files
-						.getDistributionName(distribution) + "_rel", diffRel,
-						ArrayUtils.sum(diffRel), ArrayUtils.min(diffRel),
-						ArrayUtils.max(diffRel), ArrayUtils.med(diffRel),
-						ArrayUtils.avg(diffRel)));
+						.getDistributionName(distribution) + "_rel", diffRel));
 				compared = true;
 			}
 			if (!compared
@@ -554,15 +548,10 @@ public class MetricData implements ListItem {
 				// add absolute comparison
 				comparedDistributions.add(new DistributionLong(Files
 						.getDistributionName(distribution) + "_abs", diffAbs,
-						denom1 * denom2, ArrayUtils.sum(diffAbs), ArrayUtils
-								.min(diffAbs), ArrayUtils.max(diffAbs),
-						ArrayUtils.med(diffAbs), ArrayUtils.avg(diffAbs)));
+						denom1 * denom2));
 				// add relative comparison
 				comparedDistributions.add(new DistributionDouble(Files
-						.getDistributionName(distribution) + "_rel", diffRel,
-						ArrayUtils.sum(diffRel), ArrayUtils.min(diffRel),
-						ArrayUtils.max(diffRel), ArrayUtils.med(diffRel),
-						ArrayUtils.avg(diffRel)));
+						.getDistributionName(distribution) + "_rel", diffRel));
 				compared = true;
 			}
 			if (!compared
@@ -598,60 +587,10 @@ public class MetricData implements ListItem {
 				}
 				// add absolute comparison
 				comparedDistributions.add(new DistributionDouble(Files
-						.getDistributionName(distribution) + "_abs", diffAbs,
-						ArrayUtils.sum(diffAbs), ArrayUtils.min(diffAbs),
-						ArrayUtils.max(diffAbs), ArrayUtils.med(diffAbs),
-						ArrayUtils.avg(diffAbs)));
+						.getDistributionName(distribution) + "_abs", diffAbs));
 				// add relative comparison
 				comparedDistributions.add(new DistributionDouble(Files
-						.getDistributionName(distribution) + "_rel", diffRel,
-						ArrayUtils.sum(diffRel), ArrayUtils.min(diffRel),
-						ArrayUtils.max(diffRel), ArrayUtils.med(diffRel),
-						ArrayUtils.avg(diffRel)));
-				compared = true;
-			}
-			if (!compared) {
-				// compare Distribution objects that are neither
-				// DistributionInt/Long nor DistributionDouble
-				double[] values1 = (m1.getDistributions().get(distribution))
-						.getValues();
-				double[] values2 = (m2.getDistributions().get(distribution))
-						.getValues();
-
-				double[] diffAbs = new double[Math.max(values1.length,
-						values2.length)];
-				double[] diffRel = new double[diffAbs.length];
-
-				for (int i = 0; i < diffAbs.length; i++) {
-					double v1 = 0;
-					double v2 = 0;
-					try {
-						v1 = values1[i];
-					} catch (ArrayIndexOutOfBoundsException e) {
-					}
-					try {
-						v2 = values2[i];
-					} catch (ArrayIndexOutOfBoundsException e) {
-					}
-					diffAbs[i] = v1 - v2;
-
-					if (v2 == 0)
-						diffRel[i] = Double.MAX_VALUE;
-					else
-						diffRel[i] = v1 / v2;
-				}
-				// add absolute comparison
-				comparedDistributions.add(new DistributionDouble(Files
-						.getDistributionName(distribution) + "_abs", diffAbs,
-						ArrayUtils.sum(diffAbs), ArrayUtils.min(diffAbs),
-						ArrayUtils.max(diffAbs), ArrayUtils.med(diffAbs),
-						ArrayUtils.avg(diffAbs)));
-				// add relative comparison
-				comparedDistributions.add(new DistributionDouble(Files
-						.getDistributionName(distribution) + "_rel", diffRel,
-						ArrayUtils.sum(diffRel), ArrayUtils.min(diffRel),
-						ArrayUtils.max(diffRel), ArrayUtils.med(diffRel),
-						ArrayUtils.avg(diffRel)));
+						.getDistributionName(distribution) + "_rel", diffRel));
 				compared = true;
 			}
 		}
