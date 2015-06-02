@@ -28,7 +28,8 @@ public class MetricDataList extends List<MetricData> {
 				suffix = Config.get("SUFFIX_METRIC_HEURISTIC");
 				break;
 			case quality:
-				suffix = "";;
+				suffix = "";
+				;
 				break;
 			default:
 				suffix = "";
@@ -49,5 +50,21 @@ public class MetricDataList extends List<MetricData> {
 					Dir.getMetricName(metric), batchReadMode));
 		}
 		return list;
+	}
+
+	/** Returns the metric from the list with the most similarities to m1. **/
+	public MetricData getBestMatchingComparisonMetric(MetricData m1) {
+		int similarities = 0;
+		MetricData bestMatch = null;
+
+		for (MetricData m2 : this.getList()) {
+			int temp = MetricData.countSimilarities(m1, m2);
+			if (temp > similarities) {
+				similarities = temp;
+				bestMatch = m2;
+			}
+		}
+
+		return bestMatch;
 	}
 }
