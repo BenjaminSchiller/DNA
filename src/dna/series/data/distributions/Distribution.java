@@ -1,4 +1,6 @@
-package dna.series.data;
+package dna.series.data.distributions;
+
+import dna.series.data.Data;
 
 
 /**

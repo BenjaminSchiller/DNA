@@ -16,10 +16,10 @@ import dna.graph.nodes.DirectedNode;
 import dna.graph.nodes.Node;
 import dna.graph.nodes.UndirectedNode;
 import dna.metrics.IMetric;
-import dna.series.data.Distribution;
-import dna.series.data.NodeNodeValueList;
-import dna.series.data.NodeValueList;
 import dna.series.data.Value;
+import dna.series.data.distributions.Distribution;
+import dna.series.data.nodevaluelists.NodeNodeValueList;
+import dna.series.data.nodevaluelists.NodeValueList;
 import dna.updates.batch.Batch;
 
 public abstract class RichClubConnectivitySizeN extends MetricOld {

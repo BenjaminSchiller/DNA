@@ -26,12 +26,12 @@ import javax.swing.border.EtchedBorder;
 import javax.swing.border.TitledBorder;
 
 import dna.series.data.BatchData;
-import dna.series.data.Distribution;
-import dna.series.data.DistributionDouble;
-import dna.series.data.DistributionInt;
-import dna.series.data.DistributionLong;
 import dna.series.data.MetricData;
-import dna.series.data.NodeValueList;
+import dna.series.data.distributions.Distribution;
+import dna.series.data.distributions.DistributionDouble;
+import dna.series.data.distributions.DistributionInt;
+import dna.series.data.distributions.DistributionLong;
+import dna.series.data.nodevaluelists.NodeValueList;
 import dna.util.Log;
 import dna.visualization.MainDisplay;
 import dna.visualization.config.ConfigItem;

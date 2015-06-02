@@ -16,8 +16,8 @@ import dna.graph.nodes.UndirectedNode;
 import dna.metrics.IMetric;
 import dna.metrics.similarityMeasures.Matrix;
 import dna.metrics.similarityMeasures.Measures;
-import dna.series.data.BinnedDistributionLong;
-import dna.series.data.Distribution;
+import dna.series.data.distributions.BinnedDistributionLong;
+import dna.series.data.distributions.Distribution;
 import dna.updates.batch.Batch;
 
 /**

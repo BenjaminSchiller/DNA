@@ -10,7 +10,7 @@ import dna.metrics.algorithms.IAfterER;
 import dna.metrics.algorithms.IBeforeEA;
 import dna.metrics.algorithms.IBeforeNA;
 import dna.metrics.algorithms.IBeforeNR;
-import dna.series.data.NodeValueList;
+import dna.series.data.nodevaluelists.NodeValueList;
 import dna.updates.update.EdgeAddition;
 import dna.updates.update.EdgeRemoval;
 import dna.updates.update.NodeAddition;
