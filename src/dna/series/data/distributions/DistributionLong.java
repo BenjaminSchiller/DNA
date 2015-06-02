@@ -7,6 +7,8 @@ import com.sun.media.sound.InvalidFormatException;
 
 import dna.io.Reader;
 import dna.io.Writer;
+import dna.io.filesystem.Files;
+import dna.series.lists.DistributionList;
 import dna.util.ArrayUtils;
 import dna.util.Config;
 
@@ -210,6 +212,51 @@ public class DistributionLong extends Distribution {
 			avg += i * this.values[i];
 		}
 		return avg / this.denominator;
+	}
+
+	/**
+	 * Compares the two distributions and adds an absolute and a relative
+	 * quality distribution to the distribution-list.
+	 **/
+	public static void compareDistributionsAndAddToList(DistributionList list,
+			DistributionLong d1, DistributionLong d2) {
+		// compare DistributionLong objects
+		long[] values1 = d1.getValues();
+		long[] values2 = d2.getValues();
+		long[] diffAbs = new long[Math.max(values1.length, values2.length)];
+		double[] diffRel = new double[diffAbs.length];
+
+		long denom1 = d1.getDenominator();
+		long denom2 = d2.getDenominator();
+
+		for (int i = 0; i < diffAbs.length; i++) {
+			long v1 = 0;
+			long v2 = 0;
+
+			try {
+				v1 = values1[i] * denom2;
+			} catch (ArrayIndexOutOfBoundsException e) {
+			}
+			try {
+				v2 = values2[i] * denom1;
+			} catch (ArrayIndexOutOfBoundsException e) {
+			}
+
+			diffAbs[i] = v1 - v2;
+
+			if (v2 == 0) {
+				diffRel[i] = Double.MAX_VALUE;
+			} else {
+				diffRel[i] = v1 / v2;
+			}
+		}
+		// add absolute comparison
+		list.add(new DistributionLong(Files.getDistributionName(d1.getName())
+				+ "_abs", diffAbs, denom1 * denom2));
+
+		// add relative comparison
+		list.add(new DistributionDouble(Files.getDistributionName(d1.getName())
+				+ "_rel", diffRel));
 	}
 
 }
