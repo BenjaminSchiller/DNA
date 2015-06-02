@@ -11,6 +11,7 @@ import dna.graph.nodes.DirectedNode;
 import dna.metrics.IMetric;
 import dna.metrics.Metric;
 import dna.series.data.Distribution;
+import dna.series.data.DistributionDouble;
 import dna.series.data.NodeNodeValueList;
 import dna.series.data.NodeValueList;
 import dna.series.data.Value;
@@ -139,7 +140,7 @@ public abstract class StrongConnectivity extends Metric {
 
 	@Override
 	public Distribution[] getDistributions() {
-		Distribution d1 = new Distribution("ComponentsSize",
+		Distribution d1 = new DistributionDouble("ComponentsSize",
 				calculateComponents());
 		return new Distribution[] { d1 };
 	}
