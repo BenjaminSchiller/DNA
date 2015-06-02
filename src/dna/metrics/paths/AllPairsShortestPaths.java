@@ -52,8 +52,8 @@ public abstract class AllPairsShortestPaths extends Metric {
 	@Override
 	public boolean equals(IMetric m) {
 		return this.isComparableTo(m)
-				&& ArrayUtils.equals(this.apsp.getLongValues(),
-						((AllPairsShortestPaths) m).apsp.getLongValues(),
+				&& ArrayUtils.equals(this.apsp.getValues(),
+						((AllPairsShortestPaths) m).apsp.getValues(),
 						"APSP");
 	}
 

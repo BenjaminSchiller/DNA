@@ -101,8 +101,8 @@ public abstract class RootMeanSquareFluctuation extends MetricOld {
 		boolean success = true;
 		success &= ArrayUtils.equals(this.rmsf.getValues(),
 				rmsf.rmsf.getValues(), "RootMeanSquareFluctuation");
-		success &= ArrayUtils.equals(this.rmsfD.getIntValues(),
-				rmsf.rmsfD.getIntValues(),
+		success &= ArrayUtils.equals(this.rmsfD.getValues(),
+				rmsf.rmsfD.getValues(),
 				"RootMeanSquareFluctuation--Distribution");
 		return success;
 	}

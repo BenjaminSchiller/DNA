@@ -76,12 +76,12 @@ public abstract class DegreeDistribution extends MetricOld {
 		boolean success = true;
 		success &= DataUtils.equals(this.nodes, dd.nodes, "DD/" + nodesName);
 		success &= DataUtils.equals(this.edges, dd.edges, "DD/" + edgesName);
-		success &= ArrayUtils.equals(this.degree.getIntValues(),
-				dd.degree.getIntValues(), "DD/" + degreeName);
-		success &= ArrayUtils.equals(this.inDegree.getIntValues(),
-				dd.inDegree.getIntValues(), "DD/" + inDegreeName);
-		success &= ArrayUtils.equals(this.outDegree.getIntValues(),
-				dd.outDegree.getIntValues(), "DD/" + outDegreeName);
+		success &= ArrayUtils.equals(this.degree.getValues(),
+				dd.degree.getValues(), "DD/" + degreeName);
+		success &= ArrayUtils.equals(this.inDegree.getValues(),
+				dd.inDegree.getValues(), "DD/" + inDegreeName);
+		success &= ArrayUtils.equals(this.outDegree.getValues(),
+				dd.outDegree.getValues(), "DD/" + outDegreeName);
 		return success;
 	}
 

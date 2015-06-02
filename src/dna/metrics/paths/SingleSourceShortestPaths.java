@@ -54,8 +54,8 @@ public abstract class SingleSourceShortestPaths extends Metric {
 	@Override
 	public boolean equals(IMetric m) {
 		return this.isComparableTo(m)
-				&& ArrayUtils.equals(this.sssp.getLongValues(),
-						((SingleSourceShortestPaths) m).sssp.getLongValues(),
+				&& ArrayUtils.equals(this.sssp.getValues(),
+						((SingleSourceShortestPaths) m).sssp.getValues(),
 						"SSSP");
 	}
 

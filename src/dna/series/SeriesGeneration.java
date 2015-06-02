@@ -890,22 +890,22 @@ public class SeriesGeneration {
 		} else if (d instanceof DistributionLong) {
 			if (Config.getBoolean("GENERATE_DISTRIBUTION_MIN")) {
 				Value v = new Value(d.getName() + "_MIN",
-						ArrayUtils.min(((DistributionLong) d).getLongValues()));
+						ArrayUtils.min(((DistributionLong) d).getValues()));
 				values.add(v);
 			}
 			if (Config.getBoolean("GENERATE_DISTRIBUTION_MAX")) {
 				Value v = new Value(d.getName() + "_MAX",
-						ArrayUtils.max(((DistributionLong) d).getLongValues()));
+						ArrayUtils.max(((DistributionLong) d).getValues()));
 				values.add(v);
 			}
 			if (Config.getBoolean("GENERATE_DISTRIBUTION_MED")) {
 				Value v = new Value(d.getName() + "_MED",
-						ArrayUtils.med(((DistributionLong) d).getLongValues()));
+						ArrayUtils.med(((DistributionLong) d).getValues()));
 				values.add(v);
 			}
 			if (Config.getBoolean("GENERATE_DISTRIBUTION_AVG")) {
 				Value v = new Value(d.getName() + "_AVG",
-						ArrayUtils.avg(((DistributionLong) d).getLongValues()));
+						ArrayUtils.avg(((DistributionLong) d).getValues()));
 				values.add(v);
 			}
 			if (Config.getBoolean("GENERATE_DISTRIBUTION_DENOMINATOR")) {
@@ -923,22 +923,22 @@ public class SeriesGeneration {
 		} else if (d instanceof DistributionInt) {
 			if (Config.getBoolean("GENERATE_DISTRIBUTION_MIN")) {
 				Value v = new Value(d.getName() + "_MIN",
-						ArrayUtils.min(((DistributionInt) d).getIntValues()));
+						ArrayUtils.min(((DistributionInt) d).getValues()));
 				values.add(v);
 			}
 			if (Config.getBoolean("GENERATE_DISTRIBUTION_MAX")) {
 				Value v = new Value(d.getName() + "_MAX",
-						ArrayUtils.max(((DistributionInt) d).getIntValues()));
+						ArrayUtils.max(((DistributionInt) d).getValues()));
 				values.add(v);
 			}
 			if (Config.getBoolean("GENERATE_DISTRIBUTION_MED")) {
 				Value v = new Value(d.getName() + "_MED",
-						ArrayUtils.med(((DistributionInt) d).getIntValues()));
+						ArrayUtils.med(((DistributionInt) d).getValues()));
 				values.add(v);
 			}
 			if (Config.getBoolean("GENERATE_DISTRIBUTION_AVG")) {
 				Value v = new Value(d.getName() + "_AVG",
-						ArrayUtils.avg(((DistributionInt) d).getIntValues()));
+						ArrayUtils.avg(((DistributionInt) d).getValues()));
 				values.add(v);
 			}
 			if (Config.getBoolean("GENERATE_DISTRIBUTION_DENOMINATOR")) {

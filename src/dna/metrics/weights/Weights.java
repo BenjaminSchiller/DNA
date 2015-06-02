@@ -53,8 +53,8 @@ public abstract class Weights extends Metric {
 		if (m == null || !(m instanceof Weights)) {
 			return false;
 		}
-		return ArrayUtils.equals(this.distr.getIntValues(),
-				((Weights) m).distr.getIntValues(), "Weights.Distribution");
+		return ArrayUtils.equals(this.distr.getValues(),
+				((Weights) m).distr.getValues(), "Weights.Distribution");
 	}
 
 	protected double getWeight(Weight w) {

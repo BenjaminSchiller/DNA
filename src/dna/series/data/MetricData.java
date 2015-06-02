@@ -465,9 +465,9 @@ public class MetricData implements ListItem {
 					&& m2.getDistributions().get(distribution) instanceof DistributionInt) {
 				// compare DistributionInt objects
 				int[] values1 = ((DistributionInt) m1.getDistributions().get(
-						distribution)).getIntValues();
+						distribution)).getValues();
 				int[] values2 = ((DistributionInt) m2.getDistributions().get(
-						distribution)).getIntValues();
+						distribution)).getValues();
 				int[] diffAbs = new int[Math
 						.max(values1.length, values2.length)];
 				double[] diffRel = new double[diffAbs.length];
@@ -512,9 +512,9 @@ public class MetricData implements ListItem {
 					&& m2.getDistributions().get(distribution) instanceof DistributionLong) {
 				// compare DistributionLong objects
 				long[] values1 = ((DistributionLong) m1.getDistributions().get(
-						distribution)).getLongValues();
+						distribution)).getValues();
 				long[] values2 = ((DistributionLong) m2.getDistributions().get(
-						distribution)).getLongValues();
+						distribution)).getValues();
 				long[] diffAbs = new long[Math.max(values1.length,
 						values2.length)];
 				double[] diffRel = new double[diffAbs.length];

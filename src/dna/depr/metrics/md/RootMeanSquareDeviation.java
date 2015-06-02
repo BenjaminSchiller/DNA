@@ -94,8 +94,8 @@ public abstract class RootMeanSquareDeviation extends MetricOld {
 		boolean success = true;
 		success &= DataUtils.equals(this.rmsd, m2.rmsd,
 				"RootMeanSquareDeviation");
-		success &= ArrayUtils.equals(this.distr.getIntValues(),
-				m2.distr.getIntValues(), "DistanceDistribution");
+		success &= ArrayUtils.equals(this.distr.getValues(),
+				m2.distr.getValues(), "DistanceDistribution");
 		return success;
 	}
 

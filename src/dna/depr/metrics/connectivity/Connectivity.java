@@ -222,8 +222,8 @@ public abstract class Connectivity extends MetricOld {
 		Connectivity c = (Connectivity) m;
 		boolean success = true;
 		success &= ArrayUtils.equals(
-				((DistributionInt) this.getDistributions()[0]).getIntValues(),
-				((DistributionInt) c.getDistributions()[0]).getIntValues(),
+				((DistributionInt) this.getDistributions()[0]).getValues(),
+				((DistributionInt) c.getDistributions()[0]).getValues(),
 				"Connectivity.Components");
 		return success;
 	}

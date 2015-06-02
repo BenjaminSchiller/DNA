@@ -44,7 +44,7 @@ public class DistributionInt extends Distribution {
 	}
 
 	// get methods
-	public int[] getIntValues() {
+	public int[] getValues() {
 		return this.values;
 	}
 
@@ -223,7 +223,7 @@ public class DistributionInt extends Distribution {
 	public static boolean equals(DistributionInt d1, DistributionInt d2) {
 		if (d1.getDenominator() != d2.getDenominator())
 			return false;
-		return ArrayUtils.equals(d1.getIntValues(), d2.getIntValues());
+		return ArrayUtils.equals(d1.getValues(), d2.getValues());
 	}
 
 	public double computeAverage() {
