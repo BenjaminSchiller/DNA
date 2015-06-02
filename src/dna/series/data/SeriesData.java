@@ -173,11 +173,9 @@ public class SeriesData {
 				printed = true;
 			}
 
+			// get best matching comparison metric
 			MetricData exact = exacts
 					.getBestMatchingComparisonMetric(heuristic);
-
-			// iterate over exacts
-			long start = System.currentTimeMillis();
 
 			// compare
 			if (MetricData.isComparable(heuristic, exact)) {
@@ -212,9 +210,6 @@ public class SeriesData {
 					}
 				}
 			}
-
-			long diff = System.currentTimeMillis() - start;
-			Log.info("COMPARISON TIME2: " + diff);
 		}
 	}
 
