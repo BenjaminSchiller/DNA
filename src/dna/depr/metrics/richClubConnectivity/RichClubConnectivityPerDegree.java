@@ -15,6 +15,7 @@ import dna.graph.nodes.Node;
 import dna.graph.nodes.UndirectedNode;
 import dna.metrics.IMetric;
 import dna.series.data.Distribution;
+import dna.series.data.DistributionDouble;
 import dna.series.data.NodeNodeValueList;
 import dna.series.data.NodeValueList;
 import dna.series.data.Value;
@@ -188,9 +189,9 @@ public abstract class RichClubConnectivityPerDegree extends MetricOld {
 
 	@Override
 	public Distribution[] getDistributions() {
-		Distribution d1 = new Distribution("rCC#Coefficient",
+		Distribution d1 = new DistributionDouble("rCC#Coefficient",
 				this.calculateRCC());
-		Distribution d2 = new Distribution("rCC#Size",
+		Distribution d2 = new DistributionDouble("rCC#Size",
 				this.makeDistribution1(this.richClubs));
 		return new Distribution[] { d1, d2 };
 	}
