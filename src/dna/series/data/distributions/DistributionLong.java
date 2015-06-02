@@ -1,4 +1,4 @@
-package dna.series.data;
+package dna.series.data.distributions;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -11,83 +11,61 @@ import dna.util.ArrayUtils;
 import dna.util.Config;
 
 /**
- * DistributionInt is an object which represents an distribution by whole
- * numbers and its denominator. Integer data-structures are used. For larger
- * numbers see DistributionLong. Additional values are used for compared
- * distributions.
+ * DistributionLong is an object which represents an distribution by whole
+ * numbers and its denominator. Due to the use of long numbers it provides a way
+ * to represent distributions with large numbers. Additional values are used for
+ * compared distributions.
  * 
  * @author Rwilmes
  * @date 17.06.2013
  */
-public class DistributionInt extends Distribution {
+public class DistributionLong extends Distribution {
 
 	// class variables
-	private int[] values;
-	private int denominator;
+	private long[] values;
+	private long denominator;
 
-	// constructors
-	public DistributionInt(String name, int[] values, int denominator) {
+	// constructor
+	public DistributionLong(String name, long[] values, long denominator) {
 		super(name);
 		this.values = values;
 		this.denominator = denominator;
 	}
 
-	public DistributionInt(String name) {
+	public DistributionLong(String name) {
 		super(name);
-		this.values = new int[0];
+		this.values = new long[0];
 		this.denominator = 0;
 	}
 
 	// class methods
 	public String toString() {
-		return "distributionInt(" + super.getName() + ")";
+		return "distributionLong(" + super.getName() + ")";
 	}
 
 	// get methods
-	public int[] getValues() {
+	public long[] getValues() {
 		return this.values;
 	}
 
-	public int getDenominator() {
+	public long getDenominator() {
 		return this.denominator;
 	}
 
-	public void setDenominator(int denominator) {
+	public void setDenominator(long denominator) {
 		this.denominator = denominator;
 	}
 
-	public void incrDenominator() {
-		this.incrDenominator(1);
-	}
-
-	public void incrDenominator(int count) {
-		this.denominator += count;
-	}
-
-	public void decrDenominator() {
-		this.decrDenominator(1);
-	}
-
-	public void decrDenominator(int count) {
-		this.denominator -= count;
-	}
-
-	public int getMin() {
+	public long getMin() {
 		int y = 0;
-		if (values.length == 0) {
-			return -1;
-		}
-		while (values[y] <= 0) {
+		while (values[y] < 0) {
 			y++;
-			if (y == values.length) {
-				break;
-			}
 		}
-		return y;
+		return (long) y;
 	}
 
-	public int getMax() {
-		return values.length - 1;
+	public long getMax() {
+		return (long) values.length - 1;
 	}
 
 	/**
@@ -123,7 +101,7 @@ public class DistributionInt extends Distribution {
 
 	/**
 	 * Truncates the distribution array by erasing all 0 at the end of it's
-	 * value array. Note: Not affecting denominator.
+	 * value array. Note: Not affecting the denominator!
 	 * 
 	 * @param index
 	 *            Index of the value that will be decremented.
@@ -141,7 +119,7 @@ public class DistributionInt extends Distribution {
 	 * @param value
 	 *            Value the integer will be set to.
 	 */
-	public void set(int index, int value) {
+	public void set(int index, long value) {
 		this.values = ArrayUtils.set(this.values, index, value, 0);
 	}
 
@@ -182,18 +160,18 @@ public class DistributionInt extends Distribution {
 	 *            Boolean. True: values from the file will be read. False: empty
 	 *            Distribution will be created.
 	 */
-	public static DistributionInt read(String dir, String filename,
+	public static DistributionLong read(String dir, String filename,
 			String name, boolean readValues) throws IOException {
 		if (!readValues) {
-			return new DistributionInt(name, null, 0);
+			return new DistributionLong(name, null, 0);
 		}
 		Reader r = Reader.getReader(dir, filename);
-		ArrayList<Integer> list = new ArrayList<Integer>();
+		ArrayList<Long> list = new ArrayList<Long>();
 		String line = null;
 		int index = 0;
 
 		line = r.readString();
-		int denominator = Integer.parseInt(line);
+		long denominator = Long.parseLong(line);
 
 		while ((line = r.readString()) != null) {
 			String[] temp = line.split(Config.get("DISTRIBUTION_DELIMITER"));
@@ -201,26 +179,26 @@ public class DistributionInt extends Distribution {
 				throw new InvalidFormatException("expected index " + index
 						+ " but found " + temp[0] + " @ \"" + line + "\"");
 			}
-			list.add(Integer.parseInt(temp[1]));
+			list.add(Long.parseLong(temp[1]));
 			index++;
 		}
-		int[] values = new int[list.size()];
+		long[] values = new long[list.size()];
 		for (int i = 0; i < list.size(); i++) {
 			values[i] = list.get(i);
 		}
 		r.close();
-		return new DistributionInt(name, values, denominator);
+		return new DistributionLong(name, values, denominator);
 	}
 
 	/**
 	 * @param d1
-	 *            distribution with integer datastructures
+	 *            distribution with long datastructures
 	 * @param d2
-	 *            distribution with integer datastructures to compare equality
+	 *            distribution with long datastructures to compare equality
 	 * @return true if both distributions have the same denominator, amount of
 	 *         values and all values are equal
 	 */
-	public static boolean equals(DistributionInt d1, DistributionInt d2) {
+	public static boolean equals(DistributionLong d1, DistributionLong d2) {
 		if (d1.getDenominator() != d2.getDenominator())
 			return false;
 		return ArrayUtils.equals(d1.getValues(), d2.getValues());

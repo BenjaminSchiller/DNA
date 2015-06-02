@@ -1,4 +1,4 @@
-package dna.series.data;
+package dna.series.data.distributions;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -10,8 +10,8 @@ import dna.io.Writer;
 import dna.util.Config;
 
 /**
- * BinnedDistributionLong is an object which represents a binned-distribution
- * with long values. It accepts doubles as indices, which are mapped on their
+ * BinnedDistributionInt is an object which represents a binned-distribution
+ * with int values. It accepts doubles as indices, which are mapped on their
  * internal indices using the bin-size.
  * 
  * The index mapping works like this: mappedIndex = Math.floor((index/binsize))
@@ -19,30 +19,30 @@ import dna.util.Config;
  * @author Rwilmes
  * @date 07.03.2043
  */
-public class BinnedDistributionLong extends DistributionLong {
+public class BinnedDistributionInt extends DistributionInt {
 
 	// class variables
 	private double binsize;
 
 	// constructors
 	/**
-	 * Creates a BinnedDistributionLong with an empty long-array of size zero
-	 * and a denominator of zero.
+	 * Creates a BinnedDistributionInt with an empty int-array of size zero and
+	 * a denominator of zero.
 	 **/
-	public BinnedDistributionLong(String name, double binsize) {
-		super(name, new long[0], 0);
+	public BinnedDistributionInt(String name, double binsize) {
+		super(name, new int[0], 0);
 		this.binsize = binsize;
 	}
 
-	public BinnedDistributionLong(String name, double binsize, long[] values,
-			long denominator) {
+	public BinnedDistributionInt(String name, double binsize, int[] values,
+			int denominator) {
 		super(name, values, denominator);
 		this.binsize = binsize;
 	}
 
 	// class methods
 	public String toString() {
-		return "binnedDistributionLong(" + super.getName() + ")";
+		return "binnedDistributionInt(" + super.getName() + ")";
 	}
 
 	/** Returns the bin size **/
@@ -83,7 +83,7 @@ public class BinnedDistributionLong extends DistributionLong {
 	 * @param value
 	 *            Value the integer will be set to.
 	 */
-	public void set(double index, long value) {
+	public void set(double index, int value) {
 		int mappedIndex = (int) Math.floor((index * (1 / this.binsize)));
 		super.set(mappedIndex, value);
 	}
@@ -96,7 +96,7 @@ public class BinnedDistributionLong extends DistributionLong {
 	 * @param value
 	 *            Value the integer will be set to.
 	 */
-	public long get(double index) {
+	public int get(double index) {
 		int mappedIndex = (int) Math.floor((index * (1 / this.binsize)));
 		return (super.getValues()[mappedIndex]);
 	}
@@ -111,7 +111,7 @@ public class BinnedDistributionLong extends DistributionLong {
 	 *            String representing the desired filename for the Distribution.
 	 */
 	public void write(String dir, String filename) throws IOException {
-		long[] values = this.getValues();
+		int[] values = this.getValues();
 		if (values == null) {
 			throw new NullPointerException("no values for distribution \""
 					+ this.getName() + "\" set to be written to " + dir);
@@ -140,18 +140,18 @@ public class BinnedDistributionLong extends DistributionLong {
 	 *            Boolean. True: values from the file will be read. False: empty
 	 *            Distribution will be created.
 	 */
-	public static BinnedDistributionLong read(String dir, String filename,
+	public static BinnedDistributionInt read(String dir, String filename,
 			String name, boolean readValues) throws IOException {
 		if (!readValues) {
-			return new BinnedDistributionLong(name, 1, null, 0);
+			return new BinnedDistributionInt(name, 1, null, 0);
 		}
 		Reader r = Reader.getReader(dir, filename);
-		ArrayList<Long> list = new ArrayList<Long>();
+		ArrayList<Integer> list = new ArrayList<Integer>();
 		String line = null;
 		int index = 0;
 
 		line = r.readString();
-		long denominator = Long.parseLong(line);
+		int denominator = Integer.parseInt(line);
 		line = r.readString();
 		double binsize = Double.parseDouble(line);
 
@@ -161,30 +161,30 @@ public class BinnedDistributionLong extends DistributionLong {
 				throw new InvalidFormatException("expected index " + index
 						+ " but found " + temp[0] + " @ \"" + line + "\"");
 			}
-			list.add(Long.parseLong(temp[1]));
+			list.add(Integer.parseInt(temp[1]));
 			index++;
 		}
-		long[] values = new long[list.size()];
+		int[] values = new int[list.size()];
 		for (int i = 0; i < list.size(); i++) {
 			values[i] = list.get(i);
 		}
 		r.close();
-		return new BinnedDistributionLong(name, binsize, values, denominator);
+		return new BinnedDistributionInt(name, binsize, values, denominator);
 	}
 
 	/**
 	 * @param d1
-	 *            binned distribution with long datastructures
+	 *            binned distribution with int datastructures
 	 * @param d2
-	 *            binned distribution with long datastructures to compare
+	 *            binned distribution with int datastructures to compare
 	 *            equality
 	 * @return true if both distributions have the same binsize, denominator,
 	 *         amount of values and all values are equal
 	 */
-	public static boolean equals(BinnedDistributionLong d1,
-			BinnedDistributionLong d2) {
+	public static boolean equals(BinnedDistributionInt d1,
+			BinnedDistributionInt d2) {
 		if (d1.getBinSize() != d2.getBinSize())
 			return false;
-		return DistributionLong.equals(d1, d2);
+		return DistributionInt.equals(d1, d2);
 	}
 }

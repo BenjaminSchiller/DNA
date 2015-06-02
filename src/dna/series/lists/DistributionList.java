@@ -3,13 +3,13 @@ package dna.series.lists;
 import java.io.IOException;
 
 import dna.io.filesystem.Files;
-import dna.series.data.BinnedDistributionDouble;
-import dna.series.data.BinnedDistributionInt;
-import dna.series.data.BinnedDistributionLong;
-import dna.series.data.Distribution;
-import dna.series.data.DistributionDouble;
-import dna.series.data.DistributionInt;
-import dna.series.data.DistributionLong;
+import dna.series.data.distributions.BinnedDistributionDouble;
+import dna.series.data.distributions.BinnedDistributionInt;
+import dna.series.data.distributions.BinnedDistributionLong;
+import dna.series.data.distributions.Distribution;
+import dna.series.data.distributions.DistributionDouble;
+import dna.series.data.distributions.DistributionInt;
+import dna.series.data.distributions.DistributionLong;
 import dna.util.Config;
 import dna.util.Log;
 

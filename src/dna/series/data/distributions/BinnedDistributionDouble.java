@@ -1,4 +1,4 @@
-package dna.series.data;
+package dna.series.data.distributions;
 
 import java.io.IOException;
 import java.util.ArrayList;

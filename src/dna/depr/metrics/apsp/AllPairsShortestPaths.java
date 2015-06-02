@@ -2,11 +2,11 @@ package dna.depr.metrics.apsp;
 
 import dna.depr.metrics.MetricOld;
 import dna.metrics.Metric;
-import dna.series.data.Distribution;
-import dna.series.data.DistributionLong;
-import dna.series.data.NodeNodeValueList;
-import dna.series.data.NodeValueList;
 import dna.series.data.Value;
+import dna.series.data.distributions.Distribution;
+import dna.series.data.distributions.DistributionLong;
+import dna.series.data.nodevaluelists.NodeNodeValueList;
+import dna.series.data.nodevaluelists.NodeValueList;
 import dna.util.ArrayUtils;
 import dna.util.parameters.Parameter;
 
