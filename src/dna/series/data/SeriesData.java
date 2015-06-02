@@ -189,7 +189,7 @@ public class SeriesData {
 					// iterate over batches
 					for (BatchData batch : run.getBatches().getList()) {
 						// read batch
-						BatchData tempBatch = BatchData.read(Dir
+						BatchData tempBatch = BatchData.readIntelligent(Dir
 								.getBatchDataDir(this.dir, run.getRun(),
 										batch.getTimestamp()), batch
 								.getTimestamp(), BatchReadMode.readAllValues);
@@ -205,8 +205,9 @@ public class SeriesData {
 
 						// write
 						if (writeValues)
-							tempBatch.write(Dir.getBatchDataDir(this.dir,
-									run.getRun(), tempBatch.getTimestamp()));
+							tempBatch.writeIntelligent(Dir.getBatchDataDir(
+									this.dir, run.getRun(),
+									tempBatch.getTimestamp()));
 
 					}
 				}
