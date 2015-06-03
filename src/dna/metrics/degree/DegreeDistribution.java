@@ -24,10 +24,6 @@ public abstract class DegreeDistribution extends Metric {
 	public DegreeDistribution(String name, Parameter... p) {
 		super(name, p);
 	}
-	
-	public DegreeDistribution(String name, MetricType type, Parameter... p) {
-		super(name, type, p);
-	}
 
 	@Override
 	public Value[] getValues() {
