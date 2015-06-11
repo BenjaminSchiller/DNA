@@ -62,7 +62,7 @@ public class RuntimeMeasurement {
 		// args = new String[] { "dna.graph.datastructures.DArray",
 		// "dna.graph.edges.DirectedEdge", "10", "100", "2",
 		// "measurements/", "20", "20", "4", "measurements-init/", "0" };
-		if (args.length != 11) {
+		if (args.length != 12) {
 			System.err.println("11	 arguments required");
 			System.err
 					.println("  0  - datastructure class (compl. class name)");
@@ -72,14 +72,15 @@ public class RuntimeMeasurement {
 			System.err.println("  2  - stepSize");
 			System.err.println("  3  - steps");
 			System.err.println("  4  - repetitions");
-			System.err.println("  5  - dir where to store the measurements");
-			System.err.println("  6  - INIT-stepSize");
-			System.err.println("  7  - INIT-steps");
-			System.err.println("  8  - INIT-repetitions");
+			System.err.println("  5  - parallel executions (runtime averaged)");
+			System.err.println("  6  - dir where to store the measurements");
+			System.err.println("  7  - INIT-stepSize");
+			System.err.println("  8  - INIT-steps");
+			System.err.println("  9  - INIT-repetitions");
 			System.err
-					.println("  9  - INIT-dir where to store the measurements");
+					.println("  10  - INIT-dir where to store the measurements");
 			System.err
-					.println("  10 - min line count for aggregation (0 to disable check)");
+					.println("  11 - min line count for aggregation (0 to disable check)");
 			return;
 		}
 		Class<? extends IDataStructure> ds = (Class<? extends IDataStructure>) Class
@@ -89,22 +90,23 @@ public class RuntimeMeasurement {
 		int stepSize = Integer.parseInt(args[2]);
 		int steps = Integer.parseInt(args[3]);
 		int repetitions = Integer.parseInt(args[4]);
-		String dir = args[5];
-		int stepSize_ = Integer.parseInt(args[6]);
-		int steps_ = Integer.parseInt(args[7]);
-		int repetitions_ = Integer.parseInt(args[8]);
-		String dir_ = args[9];
-		int minLineCount = Integer.parseInt(args[10]);
+		int parallel = Integer.parseInt(args[5]);
+		String dir = args[6];
+		int stepSize_ = Integer.parseInt(args[7]);
+		int steps_ = Integer.parseInt(args[8]);
+		int repetitions_ = Integer.parseInt(args[9]);
+		String dir_ = args[10];
+		int minLineCount = Integer.parseInt(args[11]);
 
 		for (int i = 0; i < repetitions_; i++) {
 			RuntimeMeasurement m_ = new RuntimeMeasurement(ds, dt, stepSize_,
-					steps_, dir_);
+					steps_, 1, dir_);
 			m_.execute();
 		}
 
 		for (int i = 0; i < repetitions; i++) {
 			RuntimeMeasurement m = new RuntimeMeasurement(ds, dt, stepSize,
-					steps, dir);
+					steps, parallel, dir);
 			m.execute();
 			// m.aggregate(minLineCount);
 			System.gc();
@@ -114,7 +116,7 @@ public class RuntimeMeasurement {
 			System.out.println("aggregation only for minLineCount = "
 					+ minLineCount);
 			RuntimeMeasurement m = new RuntimeMeasurement(ds, dt, stepSize,
-					steps, dir);
+					steps, 1, dir);
 			m.aggregate(minLineCount);
 		}
 	}
@@ -150,16 +152,18 @@ public class RuntimeMeasurement {
 
 	public int stepSize;
 	public int steps;
+	public int parallel;
 
 	public String dir;
 
 	public RuntimeMeasurement(Class<? extends IDataStructure> dataStructure,
 			Class<? extends IElement> dt, int stepSize, int steps,
-			String mainDataDir) {
+			int parallel, String mainDataDir) {
 		this.ds = dataStructure;
 		this.dt = dt;
 		this.stepSize = stepSize;
 		this.steps = steps;
+		this.parallel = parallel;
 		this.dir = mainDataDir;
 	}
 
@@ -261,7 +265,8 @@ public class RuntimeMeasurement {
 
 	protected Edge[] getEdgesToAdd() {
 		GraphGenerator gg = new RandomGraph(getGDS(this.dt), (this.steps + 1)
-				* this.stepSize / 10, (this.steps + 1) * this.stepSize);
+				* Math.max(this.stepSize / 10, 1), (this.steps + 1)
+				* this.stepSize);
 		Counting.init(gg.getGds());
 		Graph g = gg.generate();
 		Edge[] edges = new Edge[g.getEdgeCount()];
@@ -301,20 +306,29 @@ public class RuntimeMeasurement {
 		 */
 		for (int i = 0; i < steps; i++) {
 			Timer t_INIT = new Timer();
-			for (int j = 0; j < stepSize; j++) {
-				IDataStructure list = ds.getConstructor(ListType.class,
-						ds.getClass()).newInstance(ListType.GlobalNodeList, dt);
-				list.init(dt, i * stepSize + j, true);
+			for (int l = 0; l < this.parallel; l++) {
+				for (int j = 0; j < stepSize; j++) {
+					IDataStructure list = ds.getConstructor(ListType.class,
+							ds.getClass()).newInstance(ListType.GlobalNodeList,
+							dt);
+					list.init(dt, i * stepSize + j, true);
+				}
 			}
 			t_INIT.end();
 			lines_INIT.add(((i + 1) * stepSize) + delimiter
-					+ t_INIT.getDutation());
+					+ t_INIT.getDutation() / parallel);
 		}
 
 		Random rand = new Random();
 		Node[] nodesToAdd = this.getNodesToAdd();
-		IDataStructure list = ds.getConstructor(ListType.class, ds.getClass())
-				.newInstance(ListType.GlobalNodeList, dt);
+		IDataStructure[] lists = new IDataStructure[parallel];
+		for (int l = 0; l < lists.length; l++) {
+			lists[l] = ds.getConstructor(ListType.class, ds.getClass())
+					.newInstance(ListType.GlobalNodeList, dt);
+		}
+		// IDataStructure list = ds.getConstructor(ListType.class,
+		// ds.getClass())
+		// .newInstance(ListType.GlobalNodeList, dt);
 
 		for (int i = 0; i < steps; i++) {
 			/**
@@ -322,7 +336,9 @@ public class RuntimeMeasurement {
 			 */
 			Timer t_ADD_SUCCESS = new Timer();
 			for (int j = 0; j < stepSize; j++) {
-				list.add(nodesToAdd[i * stepSize + j]);
+				for (int l = 0; l < lists.length; l++) {
+					lists[l].add(nodesToAdd[i * stepSize + j]);
+				}
 			}
 			t_ADD_SUCCESS.end();
 
@@ -331,13 +347,15 @@ public class RuntimeMeasurement {
 			 */
 			Timer t_ADD_FAILURE = new Timer();
 			for (int j = 0; j < stepSize; j++) {
-				list.add(nodesToAdd[i * stepSize + j]);
+				for (int l = 0; l < lists.length; l++) {
+					lists[l].add(nodesToAdd[i * stepSize + j]);
+				}
 			}
 			t_ADD_FAILURE.end();
 
 			Node[] existingNodes = new Node[stepSize];
 			for (int j = 0; j < stepSize; j++) {
-				existingNodes[j] = nodesToAdd[rand.nextInt(list.size())];
+				existingNodes[j] = nodesToAdd[rand.nextInt(lists[0].size())];
 			}
 			Node[] nonExistingNodes = new Node[stepSize];
 			for (int j = 0; j < stepSize; j++) {
@@ -349,7 +367,9 @@ public class RuntimeMeasurement {
 			 */
 			Timer t_RANDOM_ELEMENT = new Timer();
 			for (int j = 0; j < stepSize; j++) {
-				((INodeListDatastructureReadable) list).getRandom();
+				for (int l = 0; l < lists.length; l++) {
+					((INodeListDatastructureReadable) lists[l]).getRandom();
+				}
 			}
 			t_RANDOM_ELEMENT.end();
 
@@ -358,7 +378,9 @@ public class RuntimeMeasurement {
 			 */
 			Timer t_SIZE = new Timer();
 			for (int j = 0; j < stepSize; j++) {
-				list.size();
+				for (int l = 0; l < lists.length; l++) {
+					lists[l].size();
+				}
 			}
 			t_SIZE.end();
 
@@ -367,9 +389,11 @@ public class RuntimeMeasurement {
 			 */
 			Timer t_ITERATE = new Timer();
 			for (int j = 0; j < stepSize; j++) {
-				for (IElement n_ : list) {
-					@SuppressWarnings("unused")
-					Node n = (Node) n_;
+				for (int l = 0; l < lists.length; l++) {
+					for (IElement n_ : lists[l]) {
+						@SuppressWarnings("unused")
+						Node n = (Node) n_;
+					}
 				}
 			}
 			t_ITERATE.end();
@@ -379,7 +403,9 @@ public class RuntimeMeasurement {
 			 */
 			Timer t_CONTAINS_SUCCESS = new Timer();
 			for (int j = 0; j < stepSize; j++) {
-				list.contains(existingNodes[j]);
+				for (int l = 0; l < lists.length; l++) {
+					lists[l].contains(existingNodes[j]);
+				}
 			}
 			t_CONTAINS_SUCCESS.end();
 
@@ -388,7 +414,9 @@ public class RuntimeMeasurement {
 			 */
 			Timer t_CONTAINS_FAILURE = new Timer();
 			for (int j = 0; j < stepSize; j++) {
-				list.contains(nonExistingNodes[j]);
+				for (int l = 0; l < lists.length; l++) {
+					lists[l].contains(nonExistingNodes[j]);
+				}
 			}
 			t_CONTAINS_FAILURE.end();
 
@@ -397,8 +425,10 @@ public class RuntimeMeasurement {
 			 */
 			Timer t_GET_SUCCESS = new Timer();
 			for (int j = 0; j < stepSize; j++) {
-				((INodeListDatastructureReadable) list).get(existingNodes[j]
-						.getIndex());
+				for (int l = 0; l < lists.length; l++) {
+					((INodeListDatastructureReadable) lists[l])
+							.get(existingNodes[j].getIndex());
+				}
 			}
 			t_GET_SUCCESS.end();
 
@@ -407,36 +437,39 @@ public class RuntimeMeasurement {
 			 */
 			Timer t_GET_FAILURE = new Timer();
 			for (int j = 0; j < stepSize; j++) {
-				((INodeListDatastructureReadable) list).get(nonExistingNodes[j]
-						.getIndex());
+				for (int l = 0; l < lists.length; l++) {
+					((INodeListDatastructureReadable) lists[l])
+							.get(nonExistingNodes[j].getIndex());
+				}
 			}
 			t_GET_FAILURE.end();
 
-			lines_ADD_SUCCESS.add(list.size() + delimiter
-					+ t_ADD_SUCCESS.getDutation());
-			lines_ADD_FAILURE.add(list.size() + delimiter
-					+ t_ADD_FAILURE.getDutation());
-			lines_RANDOM_ELEMENT.add(list.size() + delimiter
-					+ t_RANDOM_ELEMENT.getDutation());
-			lines_SIZE.add(list.size() + delimiter + t_SIZE.getDutation());
-			lines_ITERATE
-					.add(list.size() + delimiter + t_ITERATE.getDutation());
-			lines_CONTAINS_SUCCESS.add(list.size() + delimiter
-					+ t_CONTAINS_SUCCESS.getDutation());
-			lines_CONTAINS_FAILURE.add(list.size() + delimiter
-					+ t_CONTAINS_FAILURE.getDutation());
-			lines_GET_SUCCESS.add(list.size() + delimiter
-					+ t_GET_SUCCESS.getDutation());
-			lines_GET_FAILURE.add(list.size() + delimiter
-					+ t_GET_FAILURE.getDutation());
+			lines_ADD_SUCCESS.add(lists[0].size() + delimiter
+					+ t_ADD_SUCCESS.getDutation() / parallel);
+			lines_ADD_FAILURE.add(lists[0].size() + delimiter
+					+ t_ADD_FAILURE.getDutation() / parallel);
+			lines_RANDOM_ELEMENT.add(lists[0].size() + delimiter
+					+ t_RANDOM_ELEMENT.getDutation() / parallel);
+			lines_SIZE.add(lists[0].size() + delimiter + t_SIZE.getDutation()
+					/ parallel);
+			lines_ITERATE.add(lists[0].size() + delimiter
+					+ t_ITERATE.getDutation() / parallel);
+			lines_CONTAINS_SUCCESS.add(lists[0].size() + delimiter
+					+ t_CONTAINS_SUCCESS.getDutation() / parallel);
+			lines_CONTAINS_FAILURE.add(lists[0].size() + delimiter
+					+ t_CONTAINS_FAILURE.getDutation() / parallel);
+			lines_GET_SUCCESS.add(lists[0].size() + delimiter
+					+ t_GET_SUCCESS.getDutation() / parallel);
+			lines_GET_FAILURE.add(lists[0].size() + delimiter
+					+ t_GET_FAILURE.getDutation() / parallel);
 		}
 
-		ArrayList<Node> nodes = new ArrayList<Node>(list.size());
-		for (IElement n_ : list) {
+		ArrayList<Node> nodes = new ArrayList<Node>(lists[0].size());
+		for (IElement n_ : lists[0]) {
 			nodes.add((Node) n_);
 		}
 		Collections.shuffle(nodes);
-		Node[] nodesToRemove = new Node[list.size()];
+		Node[] nodesToRemove = new Node[lists[0].size()];
 		for (int i = 0; i < nodes.size(); i++) {
 			nodesToRemove[i] = nodes.get(i);
 		}
@@ -452,7 +485,9 @@ public class RuntimeMeasurement {
 			 */
 			Timer t_REMOVE_FAILURE = new Timer();
 			for (int j = 0; j < stepSize; j++) {
-				list.remove(nonExistingNodes[j]);
+				for (int l = 0; l < lists.length; l++) {
+					lists[l].remove(nonExistingNodes[j]);
+				}
 			}
 			t_REMOVE_FAILURE.end();
 
@@ -461,7 +496,9 @@ public class RuntimeMeasurement {
 			 */
 			Timer t_REMOVE_SUCCESS = new Timer();
 			for (int j = 0; j < stepSize; j++) {
-				list.remove(nodesToRemove[i * stepSize + j]);
+				for (int l = 0; l < lists.length; l++) {
+					lists[l].remove(nodesToRemove[i * stepSize + j]);
+				}
 			}
 			t_REMOVE_SUCCESS.end();
 
@@ -469,10 +506,10 @@ public class RuntimeMeasurement {
 				nonExistingNodes[j] = nodesToRemove[i * stepSize + j];
 			}
 
-			lines_REMOVE_SUCCESS.add((list.size() + stepSize) + delimiter
-					+ t_REMOVE_SUCCESS.getDutation());
-			lines_REMOVE_FAILURE.add((list.size() + stepSize) + delimiter
-					+ t_REMOVE_FAILURE.getDutation());
+			lines_REMOVE_SUCCESS.add((lists[0].size() + stepSize) + delimiter
+					+ t_REMOVE_SUCCESS.getDutation() / parallel);
+			lines_REMOVE_FAILURE.add((lists[0].size() + stepSize) + delimiter
+					+ t_REMOVE_FAILURE.getDutation() / parallel);
 		}
 
 		this.write(Operation.INIT, lines_INIT, false);
@@ -520,20 +557,29 @@ public class RuntimeMeasurement {
 		 */
 		for (int i = 0; i < steps; i++) {
 			Timer t_INIT = new Timer();
-			for (int j = 0; j < stepSize; j++) {
-				IDataStructure list = ds.getConstructor(ListType.class,
-						ds.getClass()).newInstance(ListType.GlobalEdgeList, dt);
-				list.init(dt, i * stepSize + j, true);
+			for (int l = 0; l < this.parallel; l++) {
+				for (int j = 0; j < stepSize; j++) {
+					IDataStructure list = ds.getConstructor(ListType.class,
+							ds.getClass()).newInstance(ListType.GlobalEdgeList,
+							dt);
+					list.init(dt, i * stepSize + j, true);
+				}
 			}
 			t_INIT.end();
 			lines_INIT.add(((i + 1) * stepSize) + delimiter
-					+ t_INIT.getDutation());
+					+ t_INIT.getDutation() / parallel);
 		}
 
 		Random rand = new Random();
 		Edge[] edgesToAdd = this.getEdgesToAdd();
-		IDataStructure list = ds.getConstructor(ListType.class, ds.getClass())
-				.newInstance(ListType.GlobalEdgeList, dt);
+		IDataStructure[] lists = new IDataStructure[this.parallel];
+		for (int l = 0; l < lists.length; l++) {
+			lists[l] = ds.getConstructor(ListType.class, ds.getClass())
+					.newInstance(ListType.GlobalEdgeList, dt);
+		}
+		// IDataStructure list = ds.getConstructor(ListType.class,
+		// ds.getClass())
+		// .newInstance(ListType.GlobalEdgeList, dt);
 
 		for (int i = 0; i < steps; i++) {
 			/**
@@ -541,7 +587,9 @@ public class RuntimeMeasurement {
 			 */
 			Timer t_ADD_SUCCESS = new Timer();
 			for (int j = 0; j < stepSize; j++) {
-				list.add(edgesToAdd[i * stepSize + j]);
+				for (int l = 0; l < lists.length; l++) {
+					lists[l].add(edgesToAdd[i * stepSize + j]);
+				}
 			}
 			t_ADD_SUCCESS.end();
 
@@ -550,13 +598,15 @@ public class RuntimeMeasurement {
 			 */
 			Timer t_ADD_FAILURE = new Timer();
 			for (int j = 0; j < stepSize; j++) {
-				list.add(edgesToAdd[i * stepSize + j]);
+				for (int l = 0; l < lists.length; l++) {
+					lists[l].add(edgesToAdd[i * stepSize + j]);
+				}
 			}
 			t_ADD_FAILURE.end();
 
 			Edge[] existingEdges = new Edge[stepSize];
 			for (int j = 0; j < stepSize; j++) {
-				existingEdges[j] = edgesToAdd[rand.nextInt(list.size())];
+				existingEdges[j] = edgesToAdd[rand.nextInt(lists[0].size())];
 			}
 
 			Edge[] nonExistingEdges = new Edge[stepSize];
@@ -569,7 +619,9 @@ public class RuntimeMeasurement {
 			 */
 			Timer t_RANDOM_ELEMENT = new Timer();
 			for (int j = 0; j < stepSize; j++) {
-				((INodeListDatastructureReadable) list).getRandom();
+				for (int l = 0; l < lists.length; l++) {
+					((INodeListDatastructureReadable) lists[l]).getRandom();
+				}
 			}
 			t_RANDOM_ELEMENT.end();
 
@@ -578,7 +630,9 @@ public class RuntimeMeasurement {
 			 */
 			Timer t_SIZE = new Timer();
 			for (int j = 0; j < stepSize; j++) {
-				list.size();
+				for (int l = 0; l < lists.length; l++) {
+					lists[l].size();
+				}
 			}
 			t_SIZE.end();
 
@@ -587,9 +641,11 @@ public class RuntimeMeasurement {
 			 */
 			Timer t_ITERATE = new Timer();
 			for (int j = 0; j < stepSize; j++) {
-				for (IElement e_ : list) {
-					@SuppressWarnings("unused")
-					Edge e = (Edge) e_;
+				for (int l = 0; l < lists.length; l++) {
+					for (IElement e_ : lists[l]) {
+						@SuppressWarnings("unused")
+						Edge e = (Edge) e_;
+					}
 				}
 			}
 			t_ITERATE.end();
@@ -599,7 +655,9 @@ public class RuntimeMeasurement {
 			 */
 			Timer t_CONTAINS_SUCCESS = new Timer();
 			for (int j = 0; j < stepSize; j++) {
-				list.contains(existingEdges[j]);
+				for (int l = 0; l < lists.length; l++) {
+					lists[l].contains(existingEdges[j]);
+				}
 			}
 			t_CONTAINS_SUCCESS.end();
 
@@ -608,7 +666,9 @@ public class RuntimeMeasurement {
 			 */
 			Timer t_CONTAINS_FAILURE = new Timer();
 			for (int j = 0; j < stepSize; j++) {
-				list.contains(nonExistingEdges[j]);
+				for (int l = 0; l < lists.length; l++) {
+					lists[l].contains(nonExistingEdges[j]);
+				}
 			}
 			t_CONTAINS_FAILURE.end();
 
@@ -617,7 +677,10 @@ public class RuntimeMeasurement {
 			 */
 			Timer t_GET_SUCCESS = new Timer();
 			for (int j = 0; j < stepSize; j++) {
-				((IEdgeListDatastructureReadable) list).get(existingEdges[j]);
+				for (int l = 0; l < lists.length; l++) {
+					((IEdgeListDatastructureReadable) lists[l])
+							.get(existingEdges[j]);
+				}
 			}
 			t_GET_SUCCESS.end();
 
@@ -626,36 +689,39 @@ public class RuntimeMeasurement {
 			 */
 			Timer t_GET_FAILURE = new Timer();
 			for (int j = 0; j < stepSize; j++) {
-				((IEdgeListDatastructureReadable) list)
-						.get(nonExistingEdges[j]);
+				for (int l = 0; l < lists.length; l++) {
+					((IEdgeListDatastructureReadable) lists[l])
+							.get(nonExistingEdges[j]);
+				}
 			}
 			t_GET_FAILURE.end();
 
-			lines_ADD_SUCCESS.add(list.size() + delimiter
-					+ t_ADD_SUCCESS.getDutation());
-			lines_ADD_FAILURE.add(list.size() + delimiter
-					+ t_ADD_FAILURE.getDutation());
-			lines_RANDOM_ELEMENT.add(list.size() + delimiter
-					+ t_RANDOM_ELEMENT.getDutation());
-			lines_SIZE.add(list.size() + delimiter + t_SIZE.getDutation());
-			lines_ITERATE
-					.add(list.size() + delimiter + t_ITERATE.getDutation());
-			lines_CONTAINS_SUCCESS.add(list.size() + delimiter
-					+ t_CONTAINS_SUCCESS.getDutation());
-			lines_CONTAINS_FAILURE.add(list.size() + delimiter
-					+ t_CONTAINS_FAILURE.getDutation());
-			lines_GET_SUCCESS.add(list.size() + delimiter
-					+ t_GET_SUCCESS.getDutation());
-			lines_GET_FAILURE.add(list.size() + delimiter
-					+ t_GET_FAILURE.getDutation());
+			lines_ADD_SUCCESS.add(lists[0].size() + delimiter
+					+ t_ADD_SUCCESS.getDutation() / parallel);
+			lines_ADD_FAILURE.add(lists[0].size() + delimiter
+					+ t_ADD_FAILURE.getDutation() / parallel);
+			lines_RANDOM_ELEMENT.add(lists[0].size() + delimiter
+					+ t_RANDOM_ELEMENT.getDutation() / parallel);
+			lines_SIZE.add(lists[0].size() + delimiter + t_SIZE.getDutation()
+					/ parallel);
+			lines_ITERATE.add(lists[0].size() + delimiter
+					+ t_ITERATE.getDutation() / parallel);
+			lines_CONTAINS_SUCCESS.add(lists[0].size() + delimiter
+					+ t_CONTAINS_SUCCESS.getDutation() / parallel);
+			lines_CONTAINS_FAILURE.add(lists[0].size() + delimiter
+					+ t_CONTAINS_FAILURE.getDutation() / parallel);
+			lines_GET_SUCCESS.add(lists[0].size() + delimiter
+					+ t_GET_SUCCESS.getDutation() / parallel);
+			lines_GET_FAILURE.add(lists[0].size() + delimiter
+					+ t_GET_FAILURE.getDutation() / parallel);
 		}
 
-		ArrayList<Edge> edges = new ArrayList<Edge>(list.size());
-		for (IElement e_ : list) {
+		ArrayList<Edge> edges = new ArrayList<Edge>(lists[0].size());
+		for (IElement e_ : lists[0]) {
 			edges.add((Edge) e_);
 		}
 		Collections.shuffle(edges);
-		Edge[] edgesToRemove = new Edge[list.size()];
+		Edge[] edgesToRemove = new Edge[lists[0].size()];
 		for (int i = 0; i < edges.size(); i++) {
 			edgesToRemove[i] = edges.get(i);
 		}
@@ -671,7 +737,9 @@ public class RuntimeMeasurement {
 			 */
 			Timer t_REMOVE_FAILURE = new Timer();
 			for (int j = 0; j < stepSize; j++) {
-				list.remove(nonExistingEdges[j]);
+				for (int l = 0; l < lists.length; l++) {
+					lists[l].remove(nonExistingEdges[j]);
+				}
 			}
 			t_REMOVE_FAILURE.end();
 
@@ -680,7 +748,9 @@ public class RuntimeMeasurement {
 			 */
 			Timer t_REMOVE_SUCCESS = new Timer();
 			for (int j = 0; j < stepSize; j++) {
-				list.remove(edges.get(i * stepSize + j));
+				for (int l = 0; l < lists.length; l++) {
+					lists[l].remove(edges.get(i * stepSize + j));
+				}
 			}
 			t_REMOVE_SUCCESS.end();
 
@@ -688,10 +758,10 @@ public class RuntimeMeasurement {
 				nonExistingEdges[j] = edgesToRemove[i * stepSize + j];
 			}
 
-			lines_REMOVE_SUCCESS.add((list.size() + stepSize) + delimiter
-					+ t_REMOVE_SUCCESS.getDutation());
-			lines_REMOVE_FAILURE.add((list.size() + stepSize) + delimiter
-					+ t_REMOVE_FAILURE.getDutation());
+			lines_REMOVE_SUCCESS.add((lists[0].size() + stepSize) + delimiter
+					+ t_REMOVE_SUCCESS.getDutation() / parallel);
+			lines_REMOVE_FAILURE.add((lists[0].size() + stepSize) + delimiter
+					+ t_REMOVE_FAILURE.getDutation() / parallel);
 		}
 
 		this.write(Operation.INIT, lines_INIT, false);

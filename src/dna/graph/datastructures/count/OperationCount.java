@@ -21,10 +21,23 @@ public class OperationCount {
 		INIT, ADD_SUCCESS, ADD_FAILURE, RANDOM_ELEMENT, SIZE, ITERATE, CONTAINS_SUCCESS, CONTAINS_FAILURE, GET_SUCCESS, GET_FAILURE, REMOVE_SUCCESS, REMOVE_FAILURE
 	}
 
+	public String name = null;
+
 	public int listSize;
 	public int listCount;
 
 	public ListType lt;
+
+	public OperationCount(ListType lt, int listSize, int listCount, String name) {
+		this(lt, listSize, listCount);
+		this.name = name;
+	}
+
+	public OperationCount(ListType lt, int listSize, int listCount) {
+		this(lt);
+		this.listSize = listSize;
+		this.listCount = listCount;
+	}
 
 	public OperationCount(ListType lt) {
 		this.lt = lt;
@@ -51,8 +64,8 @@ public class OperationCount {
 		buff.append("count for " + listCount + " x " + listSize + " lists ("
 				+ this.isWriteOnly() + ")\n");
 		buff.append("  INIT: " + INIT + "\n");
-		buff.append("  ADD: " + ADD_SUCCESS + "\n");
-		buff.append("  ADD: " + ADD_FAILURE + "\n");
+		buff.append("  ADD_SUCCESS: " + ADD_SUCCESS + "\n");
+		buff.append("  ADD_FAILURE: " + ADD_FAILURE + "\n");
 		buff.append("  RANDOM_ELEMENT: " + RANDOM_ELEMENT + "\n");
 		buff.append("  SIZE: " + SIZE + "\n");
 		buff.append("  ITERATE: " + ITERATE + "\n");
@@ -70,8 +83,8 @@ public class OperationCount {
 		buff.append("NaN	SIZE	" + listSize + "\n");
 		buff.append("NaN	COUNT	" + listCount + "\n");
 		buff.append("1	INIT	" + INIT + "\n");
-		buff.append("2	ADD	" + ADD_SUCCESS + "\n");
-		buff.append("3	ADD	" + ADD_FAILURE + "\n");
+		buff.append("2	ADD_SUCCESS	" + ADD_SUCCESS + "\n");
+		buff.append("3	ADD_FAILURE	" + ADD_FAILURE + "\n");
 		buff.append("4	RANDOM_ELEMENT	" + RANDOM_ELEMENT + "\n");
 		buff.append("5	SIZE	" + SIZE + "\n");
 		buff.append("6	ITERATE	" + ITERATE + "\n");

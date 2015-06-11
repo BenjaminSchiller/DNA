@@ -51,7 +51,8 @@ public class CostFunction {
 		this.runtimes = new double[values.size()];
 		this.stepSize = Integer.parseInt(values.get(0).getName());
 		for (int i = 0; i < values.size(); i++) {
-			this.runtimes[i] = values.get(i).getAvg();
+			// this.runtimes[i] = values.get(i).getAvg();
+			this.runtimes[i] = values.get(i).getMedian();
 		}
 	}
 
