@@ -34,6 +34,10 @@ public class TimestampedGraph extends GraphGenerator {
 
 	private long parameter;
 
+	public TimestampedReader getReader() {
+		return this.reader;
+	}
+
 	/**
 	 * 
 	 * @param reader

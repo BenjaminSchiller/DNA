@@ -32,14 +32,21 @@ public class RandomGraph extends GraphGenerator implements IRandomGenerator {
 		}
 
 		while (graph.getEdgeCount() < this.edgesInit) {
-			int src = Rand.rand.nextInt(graph.getNodeCount());
-			int dst = Rand.rand.nextInt(graph.getNodeCount());
+			Node src = graph.getRandomNode();
+			Node dst = graph.getRandomNode();
 			if (src != dst) {
-				Edge edge = this.gds.newEdgeInstance(graph.getNode(src),
-						graph.getNode(dst));
+				Edge edge = this.gds.newEdgeInstance(src, dst);
 				graph.addEdge(edge);
 				edge.connectToNodes();
 			}
+			// int src = Rand.rand.nextInt(graph.getNodeCount());
+			// int dst = Rand.rand.nextInt(graph.getNodeCount());
+			// if (src != dst) {
+			// Edge edge = this.gds.newEdgeInstance(graph.getNode(src),
+			// graph.getNode(dst));
+			// graph.addEdge(edge);
+			// edge.connectToNodes();
+			// }
 		}
 
 		return graph;
