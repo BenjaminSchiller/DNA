@@ -1,9 +1,9 @@
 package dna.io.filesystem;
 
 import dna.series.Values;
-import dna.series.data.Distribution;
 import dna.series.data.MetricData;
-import dna.series.data.NodeValueList;
+import dna.series.data.distributions.Distribution;
+import dna.series.data.nodevaluelists.NodeValueList;
 import dna.util.Config;
 
 public class PlotFilenames {

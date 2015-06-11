@@ -2,11 +2,11 @@ package dna.metrics.paths;
 
 import dna.metrics.IMetric;
 import dna.metrics.Metric;
-import dna.series.data.Distribution;
-import dna.series.data.DistributionLong;
-import dna.series.data.NodeNodeValueList;
-import dna.series.data.NodeValueList;
 import dna.series.data.Value;
+import dna.series.data.distributions.Distribution;
+import dna.series.data.distributions.DistributionLong;
+import dna.series.data.nodevaluelists.NodeNodeValueList;
+import dna.series.data.nodevaluelists.NodeValueList;
 import dna.util.ArrayUtils;
 
 public abstract class AllPairsShortestPaths extends Metric {
@@ -52,8 +52,8 @@ public abstract class AllPairsShortestPaths extends Metric {
 	@Override
 	public boolean equals(IMetric m) {
 		return this.isComparableTo(m)
-				&& ArrayUtils.equals(this.apsp.getLongValues(),
-						((AllPairsShortestPaths) m).apsp.getLongValues(),
+				&& ArrayUtils.equals(this.apsp.getValues(),
+						((AllPairsShortestPaths) m).apsp.getValues(),
 						"APSP");
 	}
 

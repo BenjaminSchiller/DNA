@@ -9,11 +9,11 @@ import dna.graph.edges.UndirectedEdge;
 import dna.graph.nodes.UndirectedNode;
 import dna.metrics.IMetric;
 import dna.metrics.Metric;
-import dna.series.data.Distribution;
-import dna.series.data.DistributionLong;
-import dna.series.data.NodeNodeValueList;
-import dna.series.data.NodeValueList;
 import dna.series.data.Value;
+import dna.series.data.distributions.Distribution;
+import dna.series.data.distributions.DistributionLong;
+import dna.series.data.nodevaluelists.NodeNodeValueList;
+import dna.series.data.nodevaluelists.NodeValueList;
 import dna.updates.batch.Batch;
 import dna.util.ArrayUtils;
 import dna.util.parameters.Parameter;
@@ -33,12 +33,12 @@ public abstract class UndirectedMotifs extends Metric {
 	@Override
 	public Value[] getValues() {
 		Value m0 = new Value("TOTAL", this.motifs.getDenominator());
-		Value m1 = new Value("UM1", (double) this.motifs.getLongValues()[1]);
-		Value m2 = new Value("UM2", (double) this.motifs.getLongValues()[2]);
-		Value m3 = new Value("UM3", (double) this.motifs.getLongValues()[3]);
-		Value m4 = new Value("UM4", (double) this.motifs.getLongValues()[4]);
-		Value m5 = new Value("UM5", (double) this.motifs.getLongValues()[5]);
-		Value m6 = new Value("UM6", (double) this.motifs.getLongValues()[6]);
+		Value m1 = new Value("UM1", (double) this.motifs.getValues()[1]);
+		Value m2 = new Value("UM2", (double) this.motifs.getValues()[2]);
+		Value m3 = new Value("UM3", (double) this.motifs.getValues()[3]);
+		Value m4 = new Value("UM4", (double) this.motifs.getValues()[4]);
+		Value m5 = new Value("UM5", (double) this.motifs.getValues()[5]);
+		Value m6 = new Value("UM6", (double) this.motifs.getValues()[6]);
 		return new Value[] { m0, m1, m2, m3, m4, m5, m6 };
 	}
 
@@ -69,8 +69,8 @@ public abstract class UndirectedMotifs extends Metric {
 		}
 		UndirectedMotifs um = (UndirectedMotifs) m;
 		boolean success = true;
-		success &= ArrayUtils.equals(this.motifs.getLongValues(),
-				um.motifs.getLongValues(), this.motifs.getName());
+		success &= ArrayUtils.equals(this.motifs.getValues(),
+				um.motifs.getValues(), this.motifs.getName());
 		return success;
 	}
 

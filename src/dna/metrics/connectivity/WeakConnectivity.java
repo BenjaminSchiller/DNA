@@ -10,10 +10,11 @@ import dna.graph.edges.Edge;
 import dna.graph.nodes.Node;
 import dna.metrics.IMetric;
 import dna.metrics.Metric;
-import dna.series.data.Distribution;
-import dna.series.data.NodeNodeValueList;
-import dna.series.data.NodeValueList;
 import dna.series.data.Value;
+import dna.series.data.distributions.Distribution;
+import dna.series.data.distributions.DistributionDouble;
+import dna.series.data.nodevaluelists.NodeNodeValueList;
+import dna.series.data.nodevaluelists.NodeValueList;
 import dna.updates.batch.Batch;
 
 public abstract class WeakConnectivity extends Metric {
@@ -53,7 +54,8 @@ public abstract class WeakConnectivity extends Metric {
 
 	@Override
 	public Distribution[] getDistributions() {
-		Distribution d1 = new Distribution("Components", calculateComponents());
+		Distribution d1 = new DistributionDouble("Components",
+				calculateComponents());
 		return new Distribution[] { d1 };
 	}
 

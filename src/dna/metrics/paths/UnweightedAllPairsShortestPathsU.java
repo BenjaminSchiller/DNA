@@ -19,7 +19,7 @@ import dna.metrics.algorithms.IAfterEA;
 import dna.metrics.algorithms.IAfterER;
 import dna.metrics.algorithms.IAfterNA;
 import dna.metrics.algorithms.IAfterNR;
-import dna.series.data.DistributionLong;
+import dna.series.data.distributions.DistributionLong;
 import dna.updates.update.EdgeAddition;
 import dna.updates.update.EdgeRemoval;
 import dna.updates.update.NodeAddition;

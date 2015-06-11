@@ -3,7 +3,7 @@ package dna.metrics.clustering;
 import dna.graph.Graph;
 import dna.graph.IElement;
 import dna.graph.nodes.DirectedNode;
-import dna.series.data.NodeValueList;
+import dna.series.data.nodevaluelists.NodeValueList;
 import dna.updates.batch.Batch;
 import dna.util.ArrayUtils;
 import dna.util.parameters.Parameter;

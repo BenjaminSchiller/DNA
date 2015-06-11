@@ -13,10 +13,11 @@ import dna.graph.nodes.DirectedNode;
 import dna.graph.nodes.Node;
 import dna.graph.nodes.UndirectedNode;
 import dna.metrics.IMetric;
-import dna.series.data.Distribution;
-import dna.series.data.NodeNodeValueList;
-import dna.series.data.NodeValueList;
 import dna.series.data.Value;
+import dna.series.data.distributions.Distribution;
+import dna.series.data.distributions.DistributionDouble;
+import dna.series.data.nodevaluelists.NodeNodeValueList;
+import dna.series.data.nodevaluelists.NodeValueList;
 import dna.updates.batch.Batch;
 
 public abstract class RichClubConnectivityInterval extends MetricOld {
@@ -104,8 +105,7 @@ public abstract class RichClubConnectivityInterval extends MetricOld {
 			}
 			this.richClubEdges.put(rcCounter, edges);
 			for (IElement ie : temp.get(i).getEdges()) {
-				Node n = ((DirectedEdge) ie).getDifferingNode(temp
-						.get(i));
+				Node n = ((DirectedEdge) ie).getDifferingNode(temp.get(i));
 				if (this.nodesRichClub.containsKey(n)) {
 					edges++;
 				}
@@ -165,8 +165,7 @@ public abstract class RichClubConnectivityInterval extends MetricOld {
 			}
 			this.richClubEdges.put(rcCounter, edges);
 			for (IElement ie : temp.get(i).getEdges()) {
-				Node n = ((UndirectedEdge) ie).getDifferingNode(temp
-						.get(i));
+				Node n = ((UndirectedEdge) ie).getDifferingNode(temp.get(i));
 				if (this.nodesRichClub.containsKey(n)) {
 					edges++;
 				}
@@ -260,7 +259,8 @@ public abstract class RichClubConnectivityInterval extends MetricOld {
 
 	@Override
 	public Distribution[] getDistributions() {
-		Distribution d1 = new Distribution("rCC#Members", this.calculateRCC());
+		Distribution d1 = new DistributionDouble("rCC#Members",
+				this.calculateRCC());
 		return new Distribution[] { d1 };
 	}
 

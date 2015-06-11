@@ -3,13 +3,13 @@ package dna.series.lists;
 import java.io.IOException;
 
 import dna.io.filesystem.Files;
-import dna.series.data.BinnedDistributionDouble;
-import dna.series.data.BinnedDistributionInt;
-import dna.series.data.BinnedDistributionLong;
-import dna.series.data.Distribution;
-import dna.series.data.DistributionDouble;
-import dna.series.data.DistributionInt;
-import dna.series.data.DistributionLong;
+import dna.series.data.distributions.BinnedDistributionDouble;
+import dna.series.data.distributions.BinnedDistributionInt;
+import dna.series.data.distributions.BinnedDistributionLong;
+import dna.series.data.distributions.Distribution;
+import dna.series.data.distributions.DistributionDouble;
+import dna.series.data.distributions.DistributionInt;
+import dna.series.data.distributions.DistributionLong;
 import dna.util.Config;
 import dna.util.Log;
 
@@ -50,25 +50,7 @@ public class DistributionList extends List<Distribution> {
 					((DistributionDouble) d).write(dir,
 							Files.getDistributionDoubleFilename(d.getName()));
 			}
-			if (!(d instanceof DistributionInt)
-					&& !(d instanceof DistributionLong)
-					&& !(d instanceof DistributionDouble))
-				d.write(dir, Files.getDistributionFilename(d.getName()));
 		}
-	}
-
-	public static DistributionList readDiff(String dir, boolean readValues)
-			throws IOException {
-		String[] distributions = Files.getDistributions(dir);
-		if (distributions == null)
-			return new DistributionList(0);
-
-		DistributionList list = new DistributionList(distributions.length);
-		for (String distribution : distributions) {
-			list.add(Distribution.read(dir, distribution,
-					Files.getDistributionName(distribution), readValues));
-		}
-		return list;
 	}
 
 	public static DistributionList read(String dir, boolean readValues)
@@ -101,7 +83,7 @@ public class DistributionList extends List<Distribution> {
 				}
 				if ((Config.get("FILE_NAME_DELIMITER") + temp[temp.length - 1])
 						.equals(Config.get("SUFFIX_DIST"))) {
-					list.add(Distribution.read(dir,
+					list.add(DistributionDouble.read(dir,
 							Files.getDistributionFilename(temp[0]), temp[0],
 							readValues));
 				}

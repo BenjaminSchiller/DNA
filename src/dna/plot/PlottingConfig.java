@@ -70,6 +70,14 @@ public class PlottingConfig {
 		} else {
 			tempFlags = flags;
 		}
+
+		this.customValuePlots = new ArrayList<PlotConfig>();
+		this.customStatisticPlots = new ArrayList<PlotConfig>();
+		this.customRuntimePlots = new ArrayList<PlotConfig>();
+		this.customMetricValuePlots = new ArrayList<PlotConfig>();
+		this.customDistributionPlots = new ArrayList<PlotConfig>();
+		this.customNodeValueListPlots = new ArrayList<PlotConfig>();
+
 		this.plotType = plotType;
 		this.plotStyle = plotStyle;
 		this.plotFrom = timestampFrom;

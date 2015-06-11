@@ -4,11 +4,11 @@ import dna.depr.metrics.MetricOld;
 import dna.graph.nodes.DirectedNode;
 import dna.graph.nodes.UndirectedNode;
 import dna.metrics.Metric;
-import dna.series.data.Distribution;
-import dna.series.data.DistributionInt;
-import dna.series.data.NodeNodeValueList;
-import dna.series.data.NodeValueList;
 import dna.series.data.Value;
+import dna.series.data.distributions.Distribution;
+import dna.series.data.distributions.DistributionInt;
+import dna.series.data.nodevaluelists.NodeNodeValueList;
+import dna.series.data.nodevaluelists.NodeValueList;
 import dna.util.ArrayUtils;
 import dna.util.DataUtils;
 
@@ -76,12 +76,12 @@ public abstract class DegreeDistribution extends MetricOld {
 		boolean success = true;
 		success &= DataUtils.equals(this.nodes, dd.nodes, "DD/" + nodesName);
 		success &= DataUtils.equals(this.edges, dd.edges, "DD/" + edgesName);
-		success &= ArrayUtils.equals(this.degree.getIntValues(),
-				dd.degree.getIntValues(), "DD/" + degreeName);
-		success &= ArrayUtils.equals(this.inDegree.getIntValues(),
-				dd.inDegree.getIntValues(), "DD/" + inDegreeName);
-		success &= ArrayUtils.equals(this.outDegree.getIntValues(),
-				dd.outDegree.getIntValues(), "DD/" + outDegreeName);
+		success &= ArrayUtils.equals(this.degree.getValues(),
+				dd.degree.getValues(), "DD/" + degreeName);
+		success &= ArrayUtils.equals(this.inDegree.getValues(),
+				dd.inDegree.getValues(), "DD/" + inDegreeName);
+		success &= ArrayUtils.equals(this.outDegree.getValues(),
+				dd.outDegree.getValues(), "DD/" + outDegreeName);
 		return success;
 	}
 

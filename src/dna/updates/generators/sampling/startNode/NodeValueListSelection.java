@@ -5,7 +5,7 @@ import java.util.Arrays;
 import dna.graph.Graph;
 import dna.graph.nodes.Node;
 import dna.plot.data.PlotData.NodeValueListOrderBy;
-import dna.series.data.NodeValueList;
+import dna.series.data.nodevaluelists.NodeValueList;
 
 /**
  * Selects a start node based on values of a NodeValueList

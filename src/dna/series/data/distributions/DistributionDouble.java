@@ -1,4 +1,4 @@
-package dna.series.data;
+package dna.series.data.distributions;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -7,32 +7,21 @@ import com.sun.media.sound.InvalidFormatException;
 
 import dna.io.Reader;
 import dna.io.Writer;
+import dna.io.filesystem.Files;
+import dna.series.lists.DistributionList;
 import dna.util.ArrayUtils;
 import dna.util.Config;
 
 /**
  * Distribution is a class for representing a distribution. Values are stored in
- * a private double array.
- * 
- * @author Rwilmes
- * @date 26.08.2013
+ * a double array.
  */
 public class DistributionDouble extends Distribution {
 
 	// member variables
 	private double[] values;
 
-	// values for comparison
-	private double comparedSum;
-	private double comparedMin;
-	private double comparedMax;
-	private double comparedMed;
-	private double comparedAvg;
-
 	// constructors
-	/**
-	 * Creates a dDistributionDouble with an empty double-array of size zero.
-	 **/
 	public DistributionDouble(String name) {
 		super(name);
 		this.values = new double[0];
@@ -43,24 +32,13 @@ public class DistributionDouble extends Distribution {
 		this.values = values;
 	}
 
-	public DistributionDouble(String name, double[] values, double sum,
-			double min, double max, double med, double avg) {
-		super(name);
-		this.values = values;
-		this.comparedSum = sum;
-		this.comparedMin = min;
-		this.comparedMax = max;
-		this.comparedMed = med;
-		this.comparedAvg = avg;
-	}
-
 	// class methods
 	public String toString() {
 		return "distributionDouble(" + super.getName() + ")";
 	}
 
 	// get methods
-	public double[] getDoubleValues() {
+	public double[] getValues() {
 		return this.values;
 	}
 
@@ -68,33 +46,12 @@ public class DistributionDouble extends Distribution {
 		int y = 0;
 		while (values[y] < 0) {
 			y++;
-
 		}
 		return y;
 	}
 
 	public int getMax() {
 		return values.length - 1;
-	}
-
-	public double getComparedSum() {
-		return this.comparedSum;
-	}
-
-	public double getComparedMin() {
-		return this.comparedMin;
-	}
-
-	public double getComparedMax() {
-		return this.comparedMax;
-	}
-
-	public double getComparedMed() {
-		return this.comparedMed;
-	}
-
-	public double getComparedAvg() {
-		return this.comparedAvg;
 	}
 
 	/**
@@ -211,7 +168,47 @@ public class DistributionDouble extends Distribution {
 	 *         are equal
 	 */
 	public static boolean equals(DistributionDouble d1, DistributionDouble d2) {
-		return ArrayUtils.equals(d1.getDoubleValues(), d2.getDoubleValues());
+		return ArrayUtils.equals(d1.getValues(), d2.getValues());
 	}
 
+	/**
+	 * Compares the two distributions and adds an absolute and a relative
+	 * quality distribution to the distribution-list.
+	 **/
+	public static void compareDistributionsAndAddToList(DistributionList list,
+			DistributionDouble d1, DistributionDouble d2) {
+		// compare DistributionDouble objects
+		double[] values1 = d1.getValues();
+		double[] values2 = d2.getValues();
+
+		double[] diffAbs = new double[Math.max(values1.length, values2.length)];
+		double[] diffRel = new double[diffAbs.length];
+
+		for (int i = 0; i < diffAbs.length; i++) {
+			double v1 = 0;
+			double v2 = 0;
+			try {
+				v1 = values1[i];
+			} catch (ArrayIndexOutOfBoundsException e) {
+			}
+			try {
+				v2 = values2[i];
+			} catch (ArrayIndexOutOfBoundsException e) {
+			}
+			diffAbs[i] = v1 - v2;
+
+			if (v2 == 0)
+				diffRel[i] = Double.MAX_VALUE;
+			else
+				diffRel[i] = v1 / v2;
+		}
+
+		// add absolute comparison
+		list.add(new DistributionDouble(Files.getDistributionName(d1.getName())
+				+ "_abs", diffAbs));
+
+		// add relative comparison
+		list.add(new DistributionDouble(Files.getDistributionName(d1.getName())
+				+ "_rel", diffRel));
+	}
 }

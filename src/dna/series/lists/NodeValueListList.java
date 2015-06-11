@@ -3,7 +3,7 @@ package dna.series.lists;
 import java.io.IOException;
 
 import dna.io.filesystem.Files;
-import dna.series.data.NodeValueList;
+import dna.series.data.nodevaluelists.NodeValueList;
 
 /**
  * An NodeValueListList lists NodeValueList objects.
