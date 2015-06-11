@@ -383,15 +383,15 @@ public class ArrayUtils {
 			}
 			return false;
 		}
-		for (int i = 0; i < v1.length; i++) {
-			double accepted_error = 0;
-			try {
-				accepted_error = Config
-						.getDouble("METRIC_COMPARISON_ACCEPTED_ERROR");
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
 
+		double accepted_error = 0;
+		try {
+			accepted_error = Config
+					.getDouble("METRIC_COMPARISON_ACCEPTED_ERROR");
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		for (int i = 0; i < v1.length; i++) {
 			if (Math.abs(v1[i] - v2[i]) > accepted_error) {
 				if (name != null) {
 					Log.warn(name + " - values @ index " + i + " differs: "
@@ -1056,15 +1056,15 @@ public class ArrayUtils {
 			}
 			return false;
 		}
-		for (int i = 0; i < v1.length; i++) {
-			double accepted_error = 0;
-			try {
-				accepted_error = Config
-						.getDouble("METRIC_COMPARISON_ACCEPTED_ERROR");
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
 
+		double accepted_error = 0;
+		try {
+			accepted_error = Config
+					.getDouble("METRIC_COMPARISON_ACCEPTED_ERROR");
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		for (int i = 0; i < v1.length; i++) {
 			if (Math.abs(v1[i] - v2[i]) > accepted_error
 					&& (!Double.isNaN(v1[i]) || !Double.isNaN(v2[i]))) {
 				if (name != null) {
@@ -1108,15 +1108,15 @@ public class ArrayUtils {
 			}
 			return false;
 		}
-		for (int i = 0; i < v1.length; i++) {
-			double accepted_error = 0;
-			try {
-				accepted_error = Config
-						.getDouble("METRIC_COMPARISON_ACCEPTED_ERROR");
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
 
+		double accepted_error = 0;
+		try {
+			accepted_error = Config
+					.getDouble("METRIC_COMPARISON_ACCEPTED_ERROR");
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		for (int i = 0; i < v1.length; i++) {
 			if (Math.abs(v1[i] - v2[i]) > accepted_error) {
 				if (name != null) {
 					Log.warn(name + " - values @ index " + i + " differs: "
