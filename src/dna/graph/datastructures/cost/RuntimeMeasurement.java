@@ -49,8 +49,9 @@ import dna.util.Timer;
  * element addition which would add overhead to the measurements. still, such a
  * measurement could be done with stepSize = 1.
  * 
- * for each measurement, the recorded runtimes are written to a file. then, all
- * measurements are aggregated over all measurements performed so far.
+ * for each measurement, the recorded runtimes are written to a file.
+ * 
+ * to aggregate runtimes of multiple runs, execute it with repetiation = 0.
  * 
  * @author benni
  *

@@ -63,18 +63,30 @@ public class OperationCount {
 		StringBuffer buff = new StringBuffer();
 		buff.append("count for " + listCount + " x " + listSize + " lists ("
 				+ this.isWriteOnly() + ")\n");
-		buff.append("  INIT: " + INIT + "\n");
-		buff.append("  ADD_SUCCESS: " + ADD_SUCCESS + "\n");
-		buff.append("  ADD_FAILURE: " + ADD_FAILURE + "\n");
-		buff.append("  RANDOM_ELEMENT: " + RANDOM_ELEMENT + "\n");
-		buff.append("  SIZE: " + SIZE + "\n");
-		buff.append("  ITERATE: " + ITERATE + "\n");
-		buff.append("  CONTAINS_SUCCESS: " + CONTAINS_SUCCESS + "\n");
-		buff.append("  CONTAINS_FAILURE: " + CONTAINS_FAILURE + "\n");
-		buff.append("  GET_SUCCESS: " + GET_SUCCESS + "\n");
-		buff.append("  GET_FAILURE: " + GET_FAILURE + "\n");
-		buff.append("  REMOVE_SUCCESS: " + REMOVE_SUCCESS + "\n");
-		buff.append("  REMOVE_FAILURE: " + REMOVE_FAILURE + "\n");
+		if (INIT != 0)
+			buff.append("  INIT: " + INIT + "\n");
+		if (ADD_SUCCESS != 0)
+			buff.append("  ADD_SUCCESS: " + ADD_SUCCESS + "\n");
+		if (ADD_FAILURE != 0)
+			buff.append("  ADD_FAILURE: " + ADD_FAILURE + "\n");
+		if (RANDOM_ELEMENT != 0)
+			buff.append("  RANDOM_ELEMENT: " + RANDOM_ELEMENT + "\n");
+		if (SIZE != 0)
+			buff.append("  SIZE: " + SIZE + "\n");
+		if (ITERATE != 0)
+			buff.append("  ITERATE: " + ITERATE + "\n");
+		if (CONTAINS_SUCCESS != 0)
+			buff.append("  CONTAINS_SUCCESS: " + CONTAINS_SUCCESS + "\n");
+		if (CONTAINS_FAILURE != 0)
+			buff.append("  CONTAINS_FAILURE: " + CONTAINS_FAILURE + "\n");
+		if (GET_SUCCESS != 0)
+			buff.append("  GET_SUCCESS: " + GET_SUCCESS + "\n");
+		if (GET_FAILURE != 0)
+			buff.append("  GET_FAILURE: " + GET_FAILURE + "\n");
+		if (REMOVE_SUCCESS != 0)
+			buff.append("  REMOVE_SUCCESS: " + REMOVE_SUCCESS + "\n");
+		if (REMOVE_FAILURE != 0)
+			buff.append("  REMOVE_FAILURE: " + REMOVE_FAILURE + "\n");
 		return buff.toString();
 	}
 
