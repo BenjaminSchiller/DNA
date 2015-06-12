@@ -86,6 +86,56 @@ public class CostFunction {
 		if (size == 0) {
 			return 0;
 		}
+		int index = this.getIndex(size);
+		double fraction = this.getFraction(size);
+		if (fraction > 0) {
+			return this.runtimes[index] + fraction
+					* (this.runtimes[index + 1] - this.runtimes[index]);
+		} else {
+			return this.runtimes[index];
+		}
+	}
+
+	public int getIndex(int size) {
+		if (size <= 100) {
+			return size - 1;
+		} else if (size <= 1000) {
+			return 100 + (int) Math.floor((size - 100) / 10) - 1;
+		} else if (size <= 10000) {
+			return 190 + (int) Math.floor((size - 1000) / 100) - 1;
+		} else if (size <= 100000) {
+			return 280 + (int) Math.floor((size - 10000) / 1000) - 1;
+		} else if (size <= 1000000) {
+			return 370 + (int) Math.floor((size - 100000) / 10000) - 1;
+		} else if (size <= 10000000) {
+			return 460 + (int) Math.floor((size - 1000000) / 100000) - 1;
+		} else {
+			return -1;
+		}
+	}
+
+	public double getFraction(int size) {
+		if (size <= 100) {
+			return (double) 0;
+		} else if (size <= 1000) {
+			return (double) ((size - 100) % 10) / 10;
+		} else if (size <= 10000) {
+			return (double) ((size - 1000) % 100) / 100;
+		} else if (size <= 100000) {
+			return (double) ((size - 10000) % 1000) / 1000;
+		} else if (size <= 1000000) {
+			return (double) ((size - 100000) % 10000) / 10000;
+		} else if (size <= 10000000) {
+			return (double) ((size - 1000000) % 100000) / 100000;
+		} else {
+			return -1;
+		}
+	}
+
+	public double getCostComplete(int size) {
+		if (size == 0) {
+			return 0;
+		}
 		int floor = (int) Math.floor((double) size / stepSize) - 1;
 		int ceil = (int) Math.ceil((double) size / stepSize) - 1;
 		int remainder = size % stepSize;
