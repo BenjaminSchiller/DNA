@@ -1,10 +1,12 @@
 package dna.graph.datastructures.count;
 
 import java.io.IOException;
+import java.util.Random;
 
 import dna.graph.datastructures.DataStructure.ListType;
 import dna.io.Reader;
 import dna.io.Writer;
+import dna.util.ArrayUtils;
 
 /**
  * 
@@ -181,6 +183,84 @@ public class OperationCount {
 		return this.RANDOM_ELEMENT == 0 && this.SIZE == 0 && this.ITERATE == 0
 				&& this.CONTAINS_SUCCESS == 0 && this.CONTAINS_FAILURE == 0
 				&& this.GET_SUCCESS == 0 && this.GET_FAILURE == 0;
+	}
+
+	public static enum AggregationType {
+		MIN, MAX, AVG, FIRST, LAST
+	}
+
+	public static OperationCount add(AggregationType at, OperationCount... ocs) {
+		OperationCount oc = new OperationCount(ocs[0].lt);
+		for (int i = 1; i < ocs.length; i++) {
+			if (!ocs[i].lt.equals(oc.lt)) {
+				throw new IllegalArgumentException(
+						"cannot add lists of different types: " + oc.lt
+								+ " and " + ocs[i].lt);
+			}
+		}
+		int[] size = new int[ocs.length];
+		int[] count = new int[ocs.length];
+		for (int i = 0; i < ocs.length; i++) {
+			size[i] = ocs[i].listSize;
+			count[i] = ocs[i].listCount;
+			oc.INIT += ocs[i].INIT;
+			oc.ADD_SUCCESS += ocs[i].ADD_SUCCESS;
+			oc.ADD_FAILURE += ocs[i].ADD_FAILURE;
+			oc.RANDOM_ELEMENT += ocs[i].RANDOM_ELEMENT;
+			oc.SIZE += ocs[i].SIZE;
+			oc.ITERATE += ocs[i].ITERATE;
+			oc.CONTAINS_SUCCESS += ocs[i].CONTAINS_SUCCESS;
+			oc.CONTAINS_FAILURE += ocs[i].CONTAINS_FAILURE;
+			oc.GET_SUCCESS += ocs[i].GET_SUCCESS;
+			oc.GET_FAILURE += ocs[i].GET_FAILURE;
+			oc.REMOVE_SUCCESS += ocs[i].REMOVE_SUCCESS;
+			oc.REMOVE_FAILURE += ocs[i].REMOVE_FAILURE;
+		}
+		switch (at) {
+		case AVG:
+			oc.listSize = (int) ArrayUtils.avg(size);
+			oc.listCount = (int) ArrayUtils.avg(count);
+			break;
+		case MAX:
+			oc.listSize = ArrayUtils.max(size);
+			oc.listCount = ArrayUtils.max(count);
+			break;
+		case MIN:
+			oc.listSize = ArrayUtils.min(size);
+			oc.listCount = ArrayUtils.min(count);
+			break;
+		case FIRST:
+			oc.listSize = ocs[0].listSize;
+			oc.listCount = ocs[0].listCount;
+			break;
+		case LAST:
+			oc.listSize = ocs[ocs.length - 1].listSize;
+			oc.listCount = ocs[ocs.length - 1].listCount;
+			break;
+		default:
+			break;
+		}
+		return oc;
+	}
+
+	public static OperationCount getRandom(ListType lt) {
+		OperationCount oc = new OperationCount(lt);
+		Random rand = new Random();
+		oc.listSize = rand.nextInt(1000);
+		oc.listCount = rand.nextInt(1000);
+		oc.INIT = rand.nextInt(1000);
+		oc.ADD_SUCCESS = rand.nextInt(1000);
+		oc.ADD_FAILURE = rand.nextInt(1000);
+		oc.RANDOM_ELEMENT = rand.nextInt(1000);
+		oc.SIZE = rand.nextInt(1000);
+		oc.ITERATE = rand.nextInt(1000);
+		oc.CONTAINS_SUCCESS = rand.nextInt(1000);
+		oc.CONTAINS_FAILURE = rand.nextInt(1000);
+		oc.GET_SUCCESS = rand.nextInt(1000);
+		oc.GET_FAILURE = rand.nextInt(1000);
+		oc.REMOVE_SUCCESS = rand.nextInt(1000);
+		oc.REMOVE_FAILURE = rand.nextInt(1000);
+		return oc;
 	}
 
 }

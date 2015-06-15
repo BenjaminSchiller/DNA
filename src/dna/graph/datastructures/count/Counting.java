@@ -1,12 +1,9 @@
-package dna.profiler;
+package dna.graph.datastructures.count;
 
 import java.util.LinkedList;
 
 import dna.graph.Graph;
 import dna.graph.datastructures.GraphDataStructure;
-import dna.graph.datastructures.count.OperationCounts;
-import dna.graph.datastructures.count.OperationCountsDirected;
-import dna.graph.datastructures.count.OperationCountsUndirected;
 import dna.graph.edges.DirectedEdge;
 import dna.graph.edges.UndirectedEdge;
 import dna.util.Log;
@@ -33,6 +30,16 @@ public class Counting {
 
 	public static void setSizes(Graph g) {
 		Counting.oc.setSizes(g);
+	}
+
+	public static void enable() {
+		CountingAspectsXXX.enable();
+		CountingAspects.enable();
+	}
+
+	public static void disable() {
+		CountingAspectsXXX.disable();
+		CountingAspects.disable();
 	}
 
 	public static OperationCounts graphGeneration;

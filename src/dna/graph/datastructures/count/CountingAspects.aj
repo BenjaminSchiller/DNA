@@ -1,4 +1,4 @@
-package dna.profiler;
+package dna.graph.datastructures.count;
 
 import java.io.IOException;
 
@@ -11,29 +11,43 @@ import dna.series.data.BatchData;
 import dna.updates.batch.Batch;
 import dna.updates.generators.BatchGenerator;
 
-public aspect CountsAspects {
+public aspect CountingAspects {
+
+	protected static boolean enabled = true;
+
+	public static void enable() {
+		enabled = true;
+	}
+
+	public static void disable() {
+		enabled = false;
+	}
+
 	pointcut counting_init(Series s, int q, int w, boolean e, boolean r,
-			boolean t, long z) : (
-			args(s, q, w, e, r, t, z) &&
-			call(* SeriesGeneration.generate(Series, int, int, boolean, boolean, boolean, long)));
+			boolean t, long z) : 
+				if(enabled) &&
+				args(s, q, w, e, r, t, z) &&
+				call(* SeriesGeneration.generate(Series, int, int, boolean, boolean, boolean, long));
 
 	before(Series s, int q, int w, boolean e, boolean r, boolean t, long z) : counting_init(s, q, w, e, r, t, z) {
 		Counting.init(s.getGraphGenerator().getGds());
 	}
 
 	pointcut counting_startRun(Series s, int q, int w, boolean e, boolean r,
-			long t) : (
-			args(s, q, w, e, r, t) &&
-			call(* SeriesGeneration.generateRun(Series, int, int, boolean, boolean, long)));
+			long t) :  
+				if(enabled) &&
+				args(s, q, w, e, r, t) &&
+				call(* SeriesGeneration.generateRun(Series, int, int, boolean, boolean, long));
 
 	before(Series s, int q, int w, boolean e, boolean r, long t) : counting_startRun(s, q, w, e, r, t) {
 		Counting.startRun();
 	}
 
-	pointcut counting_graphGeneration(GraphGenerator gg) : (
-			target(gg) &&
-			call(* GraphGenerator.generate()) &&
-			withincode(* SeriesGeneration.computeInitialData(..)));
+	pointcut counting_graphGeneration(GraphGenerator gg) :  
+		if(enabled) &&
+		target(gg) &&
+		call(* GraphGenerator.generate()) &&
+		withincode(* SeriesGeneration.computeInitialData(..));
 
 	Graph around(GraphGenerator gg) : counting_graphGeneration(gg) {
 		Graph g = proceed(gg);
@@ -47,9 +61,10 @@ public aspect CountsAspects {
 		return g;
 	}
 
-	pointcut counting_metricInit(Series s, BatchData bd, Algorithms a) : (
-			args(s, bd, a) &&
-			call(* SeriesGeneration.computeInitialMetrics(Series, BatchData, Algorithms)));
+	pointcut counting_metricInit(Series s, BatchData bd, Algorithms a) :  
+		if(enabled) &&
+		args(s, bd, a) &&
+		call(* SeriesGeneration.computeInitialMetrics(Series, BatchData, Algorithms));
 
 	BatchData around(Series s, BatchData bd, Algorithms a) : counting_metricInit(s, bd, a) {
 		BatchData res = proceed(s, bd, a);
@@ -62,10 +77,11 @@ public aspect CountsAspects {
 		return res;
 	}
 
-	pointcut counting_batchGeneration(Graph g) : (
-			args(g) &&
-			call(* BatchGenerator.generate(Graph)) &&
-			withincode(* SeriesGeneration.computeNextBatch(..)));
+	pointcut counting_batchGeneration(Graph g) :  
+		if(enabled) &&
+		args(g) &&
+		call(* BatchGenerator.generate(Graph)) &&
+		withincode(* SeriesGeneration.computeNextBatch(..));
 
 	Batch around(Graph g) : counting_batchGeneration(g) {
 		Batch res = proceed(g);
@@ -79,9 +95,10 @@ public aspect CountsAspects {
 		return res;
 	}
 
-	pointcut counting_batchApplication(Series s, Algorithms a) : (
-			args(s, a) &&
-			call(* SeriesGeneration.generateNextBatch(Series, Algorithms)));
+	pointcut counting_batchApplication(Series s, Algorithms a) :  
+		if(enabled) &&
+		args(s, a) &&
+		call(* SeriesGeneration.generateNextBatch(Series, Algorithms));
 
 	BatchData around(Series s, Algorithms a) : counting_batchApplication(s, a) {
 		BatchData res = proceed(s, a);
@@ -100,9 +117,10 @@ public aspect CountsAspects {
 	 * a series generation
 	 */
 
-	pointcut counting_graphGenerationSeparateInit(GraphGenerator gg) : (
-			target(gg) &&
-			call(* GraphGenerator.newGraphInstance()));
+	pointcut counting_graphGenerationSeparateInit(GraphGenerator gg) :  
+		if(enabled) &&
+		target(gg) &&
+		call(* GraphGenerator.newGraphInstance());
 
 	before(GraphGenerator gg) : counting_graphGenerationSeparateInit(gg) {
 		if (Counting.oc == null) {

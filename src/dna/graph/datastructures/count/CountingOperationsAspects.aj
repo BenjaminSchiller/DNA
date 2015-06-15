@@ -1,15 +1,24 @@
-package dna.profiler;
+package dna.graph.datastructures.count;
 
 import dna.graph.datastructures.DataStructure;
 import dna.graph.datastructures.DataStructure.ListType;
 import dna.graph.datastructures.IDataStructure;
 import dna.graph.datastructures.IReadable;
-import dna.graph.datastructures.count.OperationCountsDirected;
-import dna.graph.datastructures.count.OperationCountsUndirected;
 
-public aspect CountingAspects {
+public aspect CountingOperationsAspects {
+	
+	protected static boolean enabled = true;
+
+	public static void enable() {
+		enabled = true;
+	}
+
+	public static void disable() {
+		enabled = false;
+	}
 
 	pointcut size(DataStructure list) : 
+		if(enabled) &&
 		call(* IDataStructure+.size()) &&
 		target(list);
 
@@ -40,6 +49,7 @@ public aspect CountingAspects {
 	}
 
 	pointcut add(DataStructure list) : 
+		if(enabled) &&
 		call(* IDataStructure+.add(..)) &&
 		target(list);
 
@@ -84,6 +94,7 @@ public aspect CountingAspects {
 	}
 
 	pointcut init(DataStructure list) : 
+		if(enabled) &&
 		call(* IDataStructure+.init(..)) &&
 		target(list);
 
@@ -117,6 +128,7 @@ public aspect CountingAspects {
 	}
 
 	pointcut iterator(DataStructure list) : 
+		if(enabled) &&
 		call(* DataStructure+.iterator_()) &&
 		target(list);
 
@@ -147,6 +159,7 @@ public aspect CountingAspects {
 	}
 
 	pointcut randomElement(DataStructure list) : 
+		if(enabled) &&
 		call(* IReadable+.getRandom(..)) &&
 		target(list);
 
@@ -177,6 +190,7 @@ public aspect CountingAspects {
 	}
 
 	pointcut contains(DataStructure list) : 
+		if(enabled) &&
 		call(* IDataStructure	+.contains(..)) &&
 		target(list);
 
@@ -221,6 +235,7 @@ public aspect CountingAspects {
 	}
 
 	pointcut getX(DataStructure list) : 
+		if(enabled) &&
 		call(* IDataStructure	+.get(..)) &&
 		target(list);
 
@@ -265,6 +280,7 @@ public aspect CountingAspects {
 	}
 
 	pointcut remove(DataStructure list) : 
+		if(enabled) &&
 		call(* IDataStructure	+.remove(..)) &&
 		target(list);
 
