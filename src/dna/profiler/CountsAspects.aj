@@ -39,7 +39,8 @@ public aspect CountsAspects {
 		Graph g = proceed(gg);
 		Counting.endGraphGeneration(g);
 		try {
-			Counting.graphGeneration.writeValues("stats/graphGeneration/");
+			Counting.graphGeneration.writeValues("stats/",
+					"0-graphGeneration.values");
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -54,7 +55,7 @@ public aspect CountsAspects {
 		BatchData res = proceed(s, bd, a);
 		Counting.endMetricInit(s.getGraph());
 		try {
-			Counting.metricInit.writeValues("stats/metricInit/");
+			Counting.metricInit.writeValues("stats/", "0-metricInit.values");
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -70,8 +71,8 @@ public aspect CountsAspects {
 		Batch res = proceed(g);
 		Counting.endBatchGeneration(g);
 		try {
-			Counting.batchGeneration.getLast().writeValues(
-					"stats/" + res.getTo() + "--batchGeneration/");
+			Counting.batchGeneration.getLast().writeValues("stats/",
+					+res.getTo() + "-batchGeneration.values");
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -86,8 +87,8 @@ public aspect CountsAspects {
 		BatchData res = proceed(s, a);
 		Counting.endBatchApplication(s.getGraph());
 		try {
-			Counting.batchApplication.getLast().writeValues(
-					"stats/" + res.getTimestamp() + "--batchApplication/");
+			Counting.batchApplication.getLast().writeValues("stats/",
+					res.getTimestamp() + "-batchApplication.values");
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

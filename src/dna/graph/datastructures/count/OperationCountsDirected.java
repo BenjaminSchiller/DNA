@@ -4,6 +4,8 @@ import java.io.IOException;
 
 import dna.graph.Graph;
 import dna.graph.datastructures.DataStructure.ListType;
+import dna.io.Reader;
+import dna.io.Writer;
 
 /**
  * 
@@ -29,16 +31,16 @@ public class OperationCountsDirected extends OperationCounts {
 		return buff.toString();
 	}
 
-	@Override
-	public String getValues() {
-		StringBuffer buff = new StringBuffer();
-		buff.append("V\n" + V.getValues() + "\n");
-		buff.append("E\n" + E.getValues() + "\n");
-		buff.append("in\n" + in.getValues() + "\n");
-		buff.append("out\n" + out.getValues() + "\n");
-		buff.append("neighbors\n" + neighbors.getValues());
-		return buff.toString();
-	}
+	// @Override
+	// public String getValues() {
+	// StringBuffer buff = new StringBuffer();
+	// buff.append("V\n" + V.getValues() + "\n");
+	// buff.append("E\n" + E.getValues() + "\n");
+	// buff.append("in\n" + in.getValues() + "\n");
+	// buff.append("out\n" + out.getValues() + "\n");
+	// buff.append("neighbors\n" + neighbors.getValues());
+	// return buff.toString();
+	// }
 
 	@Override
 	public void writeValues(String dir) throws IOException {
@@ -58,6 +60,29 @@ public class OperationCountsDirected extends OperationCounts {
 				ListType.LocalOutEdgeList);
 		neighbors = OperationCount.read(dir, "neighbors" + suffix,
 				ListType.LocalNodeList);
+	}
+
+	@Override
+	public void writeValues(String dir, String filename) throws IOException {
+		Writer w = new Writer(dir, filename);
+		V.writeValues(w, prefixV);
+		E.writeValues(w, prefixE);
+		in.writeValues(w, prefixIn);
+		out.writeValues(w, prefixOut);
+		neighbors.writeValues(w, prefixNeighbors);
+		w.close();
+	}
+
+	@Override
+	public void readValues(String dir, String filename) throws IOException {
+		Reader r = new Reader(dir, filename);
+		V = OperationCount.read(r, prefixV, ListType.GlobalNodeList);
+		E = OperationCount.read(r, prefixE, ListType.GlobalEdgeList);
+		in = OperationCount.read(r, prefixIn, ListType.LocalInEdgeList);
+		out = OperationCount.read(r, prefixOut, ListType.LocalOutEdgeList);
+		neighbors = OperationCount.read(r, prefixNeighbors,
+				ListType.LocalNodeList);
+		r.close();
 	}
 
 	@Override

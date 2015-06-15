@@ -90,28 +90,22 @@ public class OperationCount {
 		return buff.toString();
 	}
 
-	public String getValues() {
-		StringBuffer buff = new StringBuffer();
-		buff.append("NaN	SIZE	" + listSize + "\n");
-		buff.append("NaN	COUNT	" + listCount + "\n");
-		buff.append("1	INIT	" + INIT + "\n");
-		buff.append("2	ADD_SUCCESS	" + ADD_SUCCESS + "\n");
-		buff.append("3	ADD_FAILURE	" + ADD_FAILURE + "\n");
-		buff.append("4	RANDOM_ELEMENT	" + RANDOM_ELEMENT + "\n");
-		buff.append("5	SIZE	" + SIZE + "\n");
-		buff.append("6	ITERATE	" + ITERATE + "\n");
-		buff.append("7	CONTAINS_SUCCESS	" + CONTAINS_SUCCESS + "\n");
-		buff.append("8	CONTAINS_FAILURE	" + CONTAINS_FAILURE + "\n");
-		buff.append("9	GET_SUCCESS	" + GET_SUCCESS + "\n");
-		buff.append("10	GET_FAILURE	" + GET_FAILURE + "\n");
-		buff.append("11	REMOVE_SUCCESS	" + REMOVE_SUCCESS + "\n");
-		buff.append("12	REMOVE_FAILURE	" + REMOVE_FAILURE);
-		return buff.toString();
-	}
-
 	public void writeValues(String dir, String filename) throws IOException {
 		Writer w = new Writer(dir, filename);
-		w.write(this.getValues());
+		w.write("NaN	SIZE	" + listSize + "\n");
+		w.write("NaN	COUNT	" + listCount + "\n");
+		w.write("1	INIT	" + INIT + "\n");
+		w.write("2	ADD_SUCCESS	" + ADD_SUCCESS + "\n");
+		w.write("3	ADD_FAILURE	" + ADD_FAILURE + "\n");
+		w.write("4	RANDOM_ELEMENT	" + RANDOM_ELEMENT + "\n");
+		w.write("5	SIZE	" + SIZE + "\n");
+		w.write("6	ITERATE	" + ITERATE + "\n");
+		w.write("7	CONTAINS_SUCCESS	" + CONTAINS_SUCCESS + "\n");
+		w.write("8	CONTAINS_FAILURE	" + CONTAINS_FAILURE + "\n");
+		w.write("9	GET_SUCCESS	" + GET_SUCCESS + "\n");
+		w.write("10	GET_FAILURE	" + GET_FAILURE + "\n");
+		w.write("11	REMOVE_SUCCESS	" + REMOVE_SUCCESS + "\n");
+		w.write("12	REMOVE_FAILURE	" + REMOVE_FAILURE);
 		w.close();
 	}
 
@@ -135,6 +129,45 @@ public class OperationCount {
 		oc.REMOVE_SUCCESS = Integer.parseInt(r.readString().split(sep)[2]);
 		oc.REMOVE_FAILURE = Integer.parseInt(r.readString().split(sep)[2]);
 		r.close();
+		return oc;
+	}
+
+	public void writeValues(Writer w, String prefix) throws IOException {
+		String sep = "=";
+		w.writeln(prefix + "SIZE" + sep + listSize);
+		w.writeln(prefix + "COUNT" + sep + listCount);
+		w.writeln(prefix + "INIT" + sep + INIT);
+		w.writeln(prefix + "ADD_SUCCESS" + sep + ADD_SUCCESS);
+		w.writeln(prefix + "ADD_FAILURE" + sep + ADD_FAILURE);
+		w.writeln(prefix + "RANDOM_ELEMENT" + sep + RANDOM_ELEMENT);
+		w.writeln(prefix + "SIZE" + sep + SIZE);
+		w.writeln(prefix + "ITERATE" + sep + ITERATE);
+		w.writeln(prefix + "CONTAINS_SUCCESS" + sep + CONTAINS_SUCCESS);
+		w.writeln(prefix + "CONTAINS_FAILURE" + sep + CONTAINS_FAILURE);
+		w.writeln(prefix + "GET_SUCCESS" + sep + GET_SUCCESS);
+		w.writeln(prefix + "GET_FAILURE" + sep + GET_FAILURE);
+		w.writeln(prefix + "REMOVE_SUCCESS" + sep + REMOVE_SUCCESS);
+		w.writeln(prefix + "REMOVE_FAILURE" + sep + REMOVE_FAILURE);
+	}
+
+	public static OperationCount read(Reader r, String prefix, ListType lt)
+			throws IOException {
+		OperationCount oc = new OperationCount(lt);
+		String sep = "=";
+		oc.listSize = Integer.parseInt(r.readString().split(sep)[1]);
+		oc.listCount = Integer.parseInt(r.readString().split(sep)[1]);
+		oc.INIT = Integer.parseInt(r.readString().split(sep)[1]);
+		oc.ADD_SUCCESS = Integer.parseInt(r.readString().split(sep)[1]);
+		oc.ADD_FAILURE = Integer.parseInt(r.readString().split(sep)[1]);
+		oc.RANDOM_ELEMENT = Integer.parseInt(r.readString().split(sep)[1]);
+		oc.SIZE = Integer.parseInt(r.readString().split(sep)[1]);
+		oc.ITERATE = Integer.parseInt(r.readString().split(sep)[1]);
+		oc.CONTAINS_SUCCESS = Integer.parseInt(r.readString().split(sep)[1]);
+		oc.CONTAINS_FAILURE = Integer.parseInt(r.readString().split(sep)[1]);
+		oc.GET_SUCCESS = Integer.parseInt(r.readString().split(sep)[1]);
+		oc.GET_FAILURE = Integer.parseInt(r.readString().split(sep)[1]);
+		oc.REMOVE_SUCCESS = Integer.parseInt(r.readString().split(sep)[1]);
+		oc.REMOVE_FAILURE = Integer.parseInt(r.readString().split(sep)[1]);
 		return oc;
 	}
 

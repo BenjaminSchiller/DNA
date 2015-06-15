@@ -4,6 +4,8 @@ import java.io.IOException;
 
 import dna.graph.Graph;
 import dna.graph.datastructures.DataStructure.ListType;
+import dna.io.Reader;
+import dna.io.Writer;
 
 /**
  * 
@@ -25,14 +27,14 @@ public class OperationCountsUndirected extends OperationCounts {
 		return buff.toString();
 	}
 
-	@Override
-	public String getValues() {
-		StringBuffer buff = new StringBuffer();
-		buff.append("V\n" + V.getValues() + "\n");
-		buff.append("E\n" + E.getValues() + "\n");
-		buff.append("adj\n" + adj.getValues());
-		return buff.toString();
-	}
+	// @Override
+	// public String getValues() {
+	// StringBuffer buff = new StringBuffer();
+	// buff.append("V\n" + V.getValues() + "\n");
+	// buff.append("E\n" + E.getValues() + "\n");
+	// buff.append("adj\n" + adj.getValues());
+	// return buff.toString();
+	// }
 
 	@Override
 	public void writeValues(String dir) throws IOException {
@@ -46,6 +48,24 @@ public class OperationCountsUndirected extends OperationCounts {
 		V = OperationCount.read(dir, "V" + suffix, ListType.GlobalNodeList);
 		E = OperationCount.read(dir, "E" + suffix, ListType.GlobalEdgeList);
 		adj = OperationCount.read(dir, "adj" + suffix, ListType.LocalEdgeList);
+	}
+
+	@Override
+	public void writeValues(String dir, String filename) throws IOException {
+		Writer w = new Writer(dir, filename);
+		V.writeValues(w, prefixV);
+		E.writeValues(w, prefixE);
+		adj.writeValues(w, prefixAdj);
+		w.close();
+	}
+
+	@Override
+	public void readValues(String dir, String filename) throws IOException {
+		Reader r = new Reader(dir, filename);
+		V = OperationCount.read(r, prefixV, ListType.GlobalNodeList);
+		E = OperationCount.read(r, prefixE, ListType.GlobalEdgeList);
+		adj = OperationCount.read(r, prefixAdj, ListType.LocalEdgeList);
+		r.close();
 	}
 
 	@Override
