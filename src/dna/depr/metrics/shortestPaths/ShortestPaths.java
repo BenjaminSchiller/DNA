@@ -2,10 +2,11 @@ package dna.depr.metrics.shortestPaths;
 
 import dna.depr.metrics.MetricOld;
 import dna.metrics.IMetric;
-import dna.series.data.Distribution;
-import dna.series.data.NodeNodeValueList;
-import dna.series.data.NodeValueList;
 import dna.series.data.Value;
+import dna.series.data.distributions.Distribution;
+import dna.series.data.distributions.DistributionDouble;
+import dna.series.data.nodevaluelists.NodeNodeValueList;
+import dna.series.data.nodevaluelists.NodeValueList;
 import dna.util.ArrayUtils;
 import dna.util.DataUtils;
 
@@ -57,7 +58,7 @@ public abstract class ShortestPaths extends MetricOld {
 		for (int i = 0; i < this.spl.length; i++) {
 			v[i] = (double) this.spl[i] / possible;
 		}
-		Distribution spl = new Distribution("spl", v);
+		Distribution spl = new DistributionDouble("spl", v);
 		return new Distribution[] { spl };
 	}
 

@@ -10,11 +10,11 @@ import dna.graph.weights.Int3dWeight;
 import dna.graph.weights.IntWeight;
 import dna.metrics.IMetric;
 import dna.metrics.Metric;
-import dna.series.data.BinnedDistributionInt;
-import dna.series.data.Distribution;
-import dna.series.data.NodeNodeValueList;
-import dna.series.data.NodeValueList;
 import dna.series.data.Value;
+import dna.series.data.distributions.BinnedDistributionInt;
+import dna.series.data.distributions.Distribution;
+import dna.series.data.nodevaluelists.NodeNodeValueList;
+import dna.series.data.nodevaluelists.NodeValueList;
 import dna.updates.batch.Batch;
 import dna.util.ArrayUtils;
 import dna.util.DataUtils;
@@ -81,8 +81,8 @@ public abstract class RootMeanSquareDeviation extends Metric {
 		boolean success = true;
 		success &= DataUtils.equals(this.rmsd, m2.rmsd,
 				"RootMeanSquareDeviation");
-		success &= ArrayUtils.equals(this.distr.getIntValues(),
-				m2.distr.getIntValues(), "DistanceDistribution");
+		success &= ArrayUtils.equals(this.distr.getValues(),
+				m2.distr.getValues(), "DistanceDistribution");
 		return success;
 	}
 

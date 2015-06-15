@@ -794,13 +794,18 @@ public class MainDisplay extends JFrame {
 	/** sets the batch handlers directory **/
 	public void setBatchHandlerDir(String dir) {
 		if (this.zipMode.equals(ZipMode.runs)) {
-			String[] splits = dir.split(Dir.delimiter);
-			this.batchHandler.setRunId(Dir.getRun(splits[splits.length - 1]
-					.replace(Config.get("SUFFIX_ZIP_FILE"), "")));
-			String tempDir = "";
-			for (int i = 0; i < splits.length - 1; i++)
-				tempDir += splits[i] + Dir.delimiter;
-			this.batchHandler.setDir(tempDir);
+			try {
+				String[] splits = dir.split(Dir.delimiter);
+				this.batchHandler.setRunId(Dir.getRun(splits[splits.length - 1]
+						.replace(Config.get("SUFFIX_ZIP_FILE"), "")));
+				String tempDir = "";
+				for (int i = 0; i < splits.length - 1; i++)
+					tempDir += splits[i] + Dir.delimiter;
+				this.batchHandler.setDir(tempDir);
+			} catch (NumberFormatException e) {
+				Log.warn("NumberFormatException on dir '" + dir
+						+ "', no run-zip.");
+			}
 		} else {
 			this.batchHandler.setDir(dir);
 		}

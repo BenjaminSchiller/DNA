@@ -12,10 +12,13 @@ import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 
+import dna.util.Config;
+import dna.util.Log;
+
 public class ZipReader extends Reader {
 
 	private FileSystem zipFile;
-	public static FileSystem readFileSystem;
+	protected static FileSystem readFileSystem;
 
 	public ZipReader(FileSystem fs, String dir, String filename)
 			throws IOException, FileNotFoundException {
@@ -48,16 +51,26 @@ public class ZipReader extends Reader {
 	}
 
 	/** Creates a zip filesystem for a batch in the specified directory. **/
-	public static FileSystem getBatchFileSystem(String fsDir, long timestamp)
-			throws IOException {
+	public static FileSystem getBatchFileSystem(String fsDir, String suffix,
+			long timestamp) throws IOException {
 		return getFileSystem(fsDir,
-				dna.io.filesystem.Files.getBatchFilename(timestamp));
+				dna.io.filesystem.Files.getBatchFilename(timestamp) + suffix);
 	}
 
 	/** Creates a zip filesystem for a run in the specified directory. **/
 	public static FileSystem getRunFileSystem(String fsDir, int run)
 			throws IOException {
 		return getFileSystem(fsDir, dna.io.filesystem.Files.getRunFilename(run));
+	}
+
+	/**
+	 * Creates an aggregation filesystem for an aggregation in the specified
+	 * directory.
+	 **/
+	public static FileSystem getAggregationFileSystem(String fsDir)
+			throws IOException {
+		return getFileSystem(fsDir,
+				Config.get("RUN_AGGREGATION") + Config.get("SUFFIX_ZIP_FILE"));
 	}
 
 	/** Creates a zip filesystem for a specified directory and filename. **/
@@ -80,6 +93,34 @@ public class ZipReader extends Reader {
 
 		// create filesystem
 		return FileSystems.newFileSystem(fsFileUri, env);
+	}
+
+	/** Sets the ReadFileSystem. **/
+	public static void setReadFilesystem(FileSystem fs) throws IOException {
+		ZipReader.readFileSystem = fs;
+	}
+
+	/** Closes the current ReadFileSystem and sets it to null afterwards. **/
+	public static void closeReadFilesystem() throws IOException {
+		if (ZipReader.readFileSystem != null) {
+			ZipReader.readFileSystem.close();
+			ZipReader.readFileSystem = null;
+		} else {
+			Log.warn("attempting to close null readFileSystem");
+		}
+	}
+
+	/** Returns if there is currently a read-filesystem. **/
+	public static boolean isZipOpen() {
+		if (ZipReader.readFileSystem != null)
+			return true;
+		else
+			return false;
+	}
+
+	/** Converts the dir to a path inside the current read-filesystem. **/
+	public static Path getPath(String dir) {
+		return ZipReader.readFileSystem.getPath(dir);
 	}
 
 }

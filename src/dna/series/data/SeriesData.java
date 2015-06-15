@@ -150,10 +150,11 @@ public class SeriesData {
 	 */
 	public void compareMetrics(boolean writeValues) throws IOException,
 			InterruptedException {
-		Log.info("comparing metrics");
+		boolean printed = false;
 		MetricDataList exacts = new MetricDataList();
 		MetricDataList heuristics = new MetricDataList();
 
+		// get exacts and heuristics
 		for (MetricData metric : this.getRuns().get(0).getBatches().get(0)
 				.getMetrics().getList()) {
 			if (metric.getType() != null) {
@@ -163,79 +164,50 @@ public class SeriesData {
 					heuristics.add(metric);
 			}
 		}
-		for (MetricData heuristic : heuristics.getList()) {
-			boolean compared = false;
 
-			int similarities = 0;
-			String bestMatch = "";
-			for (MetricData exactMetric : exacts.getList()) {
-				if (MetricData.countSimilarities(heuristic, exactMetric) > similarities) {
-					similarities = MetricData.countSimilarities(heuristic,
-							exactMetric);
-					bestMatch = exactMetric.getName();
-				}
+		// iterate over heuristics, compare each once
+		for (MetricData heuristic : heuristics.getList()) {
+			// log out
+			if (!printed) {
+				Log.info("comparing metrics");
+				printed = true;
 			}
 
-			for (String exact : exacts.getNames()) {
-				if (!compared && exact.equals(bestMatch)) {
-					Log.info("  => heuristic \"" + heuristic.getName()
-							+ "\" with exact \"" + exacts.get(exact).getName()
-							+ "\"");
-					if (MetricData.isComparable(heuristic, exacts.get(exact))) {
-						for (RunData runZ : this.getRuns()) {
-							int batchCounter = 0;
-							for (BatchData batchZ : runZ.getBatches().getList()) {
-								BatchData tempBatch;
-								boolean singleFile = Config
-										.getBoolean("GENERATION_BATCHES_AS_ZIP");
+			// get best matching comparison metric
+			MetricData exact = exacts
+					.getBestMatchingComparisonMetric(heuristic);
 
-								// read batch
-								if (singleFile)
-									tempBatch = BatchData
-											.readBatchValuesFromSingleFile(Dir
-													.getRunDataDir(this.dir,
-															runZ.getRun()),
-													batchZ.getTimestamp(),
-													Dir.delimiter, batchZ);
-								else
-									tempBatch = BatchData.read(
-											Dir.getBatchDataDir(this.dir,
-													runZ.getRun(),
-													batchZ.getTimestamp()),
-											batchZ.getTimestamp(),
-											BatchReadMode.readAllValues);
+			// compare
+			if (MetricData.isComparable(heuristic, exact)) {
+				Log.info("  => heuristic \"" + heuristic.getName()
+						+ "\" with exact \"" + exact.getName() + "\"");
 
-								// compare metrics
-								MetricData quality = MetricData.compare(
-										tempBatch.getMetrics().get(exact),
-										tempBatch.getMetrics().get(
-												heuristic.getName()));
+				// iterate over runs
+				for (RunData run : this.getRuns()) {
+					// iterate over batches
+					for (BatchData batch : run.getBatches().getList()) {
+						// read batch
+						BatchData tempBatch = BatchData.readIntelligent(Dir
+								.getBatchDataDir(this.dir, run.getRun(),
+										batch.getTimestamp()), batch
+								.getTimestamp(), BatchReadMode.readAllValues);
 
-								// add quality metric to current structure
-								runZ.getBatches().get(batchCounter)
-										.getMetrics().add(quality);
-								tempBatch.getMetrics().add(quality);
+						// compare metrics
+						MetricData quality = MetricData.compare(tempBatch
+								.getMetrics().get(exact.getName()), tempBatch
+								.getMetrics().get(heuristic.getName()));
 
-								// write
-								if (writeValues)
-									if (singleFile)
-										tempBatch.writeSingleFile(Dir
-												.getRunDataDir(this.dir,
-														runZ.getRun()),
-												tempBatch.getTimestamp(),
-												Config.get("SUFFIX_ZIP_FILE"),
-												Dir.delimiter);
-									else
-										tempBatch.write(Dir.getBatchDataDir(
-												this.dir, runZ.getRun(),
-												tempBatch.getTimestamp()));
+						// add quality metric to current structure
+						batch.getMetrics().add(quality);
+						tempBatch.getMetrics().add(quality);
 
-								// increment counter
-								batchCounter++;
-							}
-						}
+						// write
+						if (writeValues)
+							tempBatch.writeIntelligent(Dir.getBatchDataDir(
+									this.dir, run.getRun(),
+									tempBatch.getTimestamp()));
+
 					}
-					compared = true;
 				}
 			}
 		}

@@ -3,7 +3,6 @@ package dna.series;
 import java.io.File;
 import java.io.IOException;
 
-import dna.io.ZipWriter;
 import dna.io.filesystem.Dir;
 import dna.io.filesystem.Files;
 import dna.metrics.IMetric;
@@ -28,17 +27,17 @@ import dna.metrics.algorithms.IRecomputation;
 import dna.series.Series.RandomSeedReset;
 import dna.series.aggdata.AggregatedSeries;
 import dna.series.data.BatchData;
-import dna.series.data.BinnedDistributionDouble;
-import dna.series.data.BinnedDistributionInt;
-import dna.series.data.BinnedDistributionLong;
-import dna.series.data.Distribution;
-import dna.series.data.DistributionDouble;
-import dna.series.data.DistributionInt;
-import dna.series.data.DistributionLong;
 import dna.series.data.MetricData;
-import dna.series.data.NodeValueList;
 import dna.series.data.SeriesData;
 import dna.series.data.Value;
+import dna.series.data.distributions.BinnedDistributionDouble;
+import dna.series.data.distributions.BinnedDistributionInt;
+import dna.series.data.distributions.BinnedDistributionLong;
+import dna.series.data.distributions.Distribution;
+import dna.series.data.distributions.DistributionDouble;
+import dna.series.data.distributions.DistributionInt;
+import dna.series.data.distributions.DistributionLong;
+import dna.series.data.nodevaluelists.NodeValueList;
 import dna.series.lists.ValueList;
 import dna.updates.batch.Batch;
 import dna.updates.batch.BatchSanitization;
@@ -252,11 +251,6 @@ public class SeriesGeneration {
 		if (Config.get("GENERATION_AS_ZIP").equals("batches"))
 			zippedBatches = true;
 
-		// if zipped run, establish filesystem now
-		if (zippedRuns)
-			ZipWriter.writeFileSystem = ZipWriter.createRunFileSystem(
-					series.getDir(), run);
-
 		// reset batch generator
 		series.getBatchGenerator().reset();
 
@@ -272,25 +266,8 @@ public class SeriesGeneration {
 			SeriesGeneration.compareMetrics(series);
 		}
 		if (write) {
-			if (!zippedBatches) {
-				String tempDir;
-				if (zippedRuns)
-					tempDir = Dir.getBatchDataDir(Dir.delimiter,
-							initialData.getTimestamp());
-				else
-					tempDir = Dir.getBatchDataDir(series.getDir(), run,
-							initialData.getTimestamp());
-				initialData.write(tempDir);
-			} else {
-				try {
-					initialData.writeSingleFile(
-							Dir.getRunDataDir(series.getDir(), run),
-							initialData.getTimestamp(),
-							Config.get("SUFFIX_ZIP_FILE"), Dir.delimiter);
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-			}
+			initialData.writeIntelligent(Dir.getBatchDataDir(series.getDir(),
+					run, initialData.getTimestamp()));
 		}
 
 		// garbage collection counter
@@ -321,45 +298,19 @@ public class SeriesGeneration {
 			}
 			if (write) {
 				if (batchGenerationTime > 0) {
-					// generation simulation
-					String actualDir;
-					String dirTemp;
+					// craft dirs
+					String actualDir = Dir.getBatchDataDir(series.getDir(),
+							run, batchData.getTimestamp());
+					String tempDir = actualDir.substring(0,
+							actualDir.length() - 1)
+							+ Dir.tempSuffix
+							+ Dir.delimiter;
 
-					if (zippedBatches) {
-						String nonZipDir = Dir.getBatchDataDir(series.getDir(),
-								run, batchData.getTimestamp());
-						actualDir = nonZipDir.substring(0,
-								nonZipDir.length() - 1)
-								+ Config.get("SUFFIX_ZIP_FILE");
-						dirTemp = actualDir + Dir.tempSuffix;
-					} else {
-						actualDir = Dir.getBatchDataDir(series.getDir(), run,
-								batchData.getTimestamp());
-						dirTemp = actualDir
-								.substring(0, actualDir.length() - 1)
-								+ Dir.tempSuffix + Dir.delimiter;
-					}
-
+					// write, for zipped runs use actual dir
 					if (zippedRuns)
-						dirTemp = Dir.getBatchDataDir(Dir.delimiter,
-								batchData.getTimestamp());
-
-					// rename directory
-					File srcDir = new File(dirTemp);
-					File dstDir = new File(actualDir);
-
-					Files.delete(srcDir);
-					Files.delete(dstDir);
-
-					// write
-					if (zippedBatches)
-						batchData.writeSingleFile(
-								Dir.getRunDataDir(series.getDir(), run),
-								batchData.getTimestamp(),
-								Config.get("SUFFIX_ZIP_FILE") + Dir.tempSuffix,
-								Dir.delimiter);
+						batchData.writeIntelligent(actualDir);
 					else
-						batchData.write(dirTemp);
+						batchData.writeIntelligent(tempDir);
 
 					// live display simulation
 					long waitTime = batchGenerationTime
@@ -372,26 +323,28 @@ public class SeriesGeneration {
 						}
 					}
 
-					// rename
-					if (srcDir.exists())
-						srcDir.renameTo(dstDir);
-				} else {
-					// no generation simulation
-					if (zippedBatches)
-						batchData.writeSingleFile(
-								Dir.getRunDataDir(series.getDir(), run),
-								batchData.getTimestamp(),
-								Config.get("SUFFIX_ZIP_FILE"), Dir.delimiter);
-					else {
-						String tempDir;
-						if (zippedRuns)
-							tempDir = Dir.getBatchDataDir(Dir.delimiter,
-									batchData.getTimestamp());
-						else
-							tempDir = Dir.getBatchDataDir(series.getDir(), run,
-									batchData.getTimestamp());
-						batchData.write(tempDir);
+					// adjust dir
+					if (zippedBatches) {
+						actualDir = actualDir.substring(0,
+								actualDir.length() - 1)
+								+ Config.get("SUFFIX_ZIP_FILE");
+						tempDir = actualDir + Dir.tempSuffix;
 					}
+
+					// rename
+					if (!zippedRuns) {
+						File f1 = new File(tempDir);
+						File f2 = new File(actualDir);
+						if (f1.exists()) {
+							if (f2.exists())
+								Files.delete(f2);
+							f1.renameTo(f2);
+						}
+					}
+				} else {
+					// write
+					batchData.writeIntelligent(Dir.getBatchDataDir(
+							series.getDir(), run, batchData.getTimestamp()));
 				}
 			}
 
@@ -400,12 +353,6 @@ public class SeriesGeneration {
 				System.gc();
 				gcCounter++;
 			}
-		}
-
-		// if zipped run, close filesystem
-		if (zippedRuns) {
-			ZipWriter.writeFileSystem.close();
-			ZipWriter.writeFileSystem = null;
 		}
 	}
 
@@ -915,35 +862,27 @@ public class SeriesGeneration {
 		if (d instanceof DistributionDouble) {
 			double val = 0;
 			if (Config.getBoolean("GENERATE_DISTRIBUTION_MIN")) {
-				if (((DistributionDouble) d).getDoubleValues().length != 0)
-					val = ArrayUtils.min(((DistributionDouble) d)
-							.getDoubleValues());
-				Value v = new Value(d.getName() + "_MIN", val);
+				Value v = new Value(d.getName() + "_MIN",
+						ArrayUtils.min(((DistributionDouble) d).getValues()));
 				values.add(v);
 			}
 			if (Config.getBoolean("GENERATE_DISTRIBUTION_MAX")) {
-				if (((DistributionDouble) d).getDoubleValues().length != 0)
-					val = ArrayUtils.max(((DistributionDouble) d)
-							.getDoubleValues());
-				Value v = new Value(d.getName() + "_MAX", val);
+				Value v = new Value(d.getName() + "_MAX",
+						ArrayUtils.max(((DistributionDouble) d).getValues()));
 				values.add(v);
 			}
 			if (Config.getBoolean("GENERATE_DISTRIBUTION_MED")) {
-				if (((DistributionDouble) d).getDoubleValues().length != 0)
-					val = ArrayUtils.med(((DistributionDouble) d)
-							.getDoubleValues());
-				Value v = new Value(d.getName() + "_MED", val);
+				Value v = new Value(d.getName() + "_MED",
+						ArrayUtils.med(((DistributionDouble) d).getValues()));
 				values.add(v);
 			}
 			if (Config.getBoolean("GENERATE_DISTRIBUTION_AVG")) {
-				if (((DistributionDouble) d).getDoubleValues().length != 0)
-					val = ArrayUtils.avg(((DistributionDouble) d)
-							.getDoubleValues());
-				Value v = new Value(d.getName() + "_AVG", val);
+				Value v = new Value(d.getName() + "_AVG",
+						ArrayUtils.avg(((DistributionDouble) d).getValues()));
 				values.add(v);
 			}
 			if (Config.getBoolean("GENERATE_DISTRIBUTION_BINSIZE")) {
-				if (((BinnedDistributionDouble) d).getDoubleValues().length != 0)
+				if (((BinnedDistributionDouble) d).getValues().length != 0)
 					val = ((BinnedDistributionDouble) d).getBinSize();
 				if (d instanceof BinnedDistributionDouble) {
 					Value v = new Value(d.getName() + "_BINSIZE", val);
@@ -953,41 +892,33 @@ public class SeriesGeneration {
 		} else if (d instanceof DistributionLong) {
 			double val = 0;
 			if (Config.getBoolean("GENERATE_DISTRIBUTION_MIN")) {
-				if (((DistributionLong) d).getLongValues().length != 0)
-					val = ArrayUtils
-							.min(((DistributionLong) d).getLongValues());
-				Value v = new Value(d.getName() + "_MIN", val);
+				Value v = new Value(d.getName() + "_MIN",
+						ArrayUtils.min(((DistributionLong) d).getValues()));
 				values.add(v);
 			}
 			if (Config.getBoolean("GENERATE_DISTRIBUTION_MAX")) {
-				if (((DistributionLong) d).getLongValues().length != 0)
-					val = ArrayUtils
-							.max(((DistributionLong) d).getLongValues());
-				Value v = new Value(d.getName() + "_MAX", val);
+				Value v = new Value(d.getName() + "_MAX",
+						ArrayUtils.max(((DistributionLong) d).getValues()));
 				values.add(v);
 			}
 			if (Config.getBoolean("GENERATE_DISTRIBUTION_MED")) {
-				if (((DistributionLong) d).getLongValues().length != 0)
-					val = ArrayUtils
-							.med(((DistributionLong) d).getLongValues());
-				Value v = new Value(d.getName() + "_MED", val);
+				Value v = new Value(d.getName() + "_MED",
+						ArrayUtils.med(((DistributionLong) d).getValues()));
 				values.add(v);
 			}
 			if (Config.getBoolean("GENERATE_DISTRIBUTION_AVG")) {
-				if (((DistributionLong) d).getLongValues().length != 0)
-					val = ArrayUtils
-							.avg(((DistributionLong) d).getLongValues());
-				Value v = new Value(d.getName() + "_AVG", val);
+				Value v = new Value(d.getName() + "_AVG",
+						ArrayUtils.avg(((DistributionLong) d).getValues()));
 				values.add(v);
 			}
 			if (Config.getBoolean("GENERATE_DISTRIBUTION_DENOMINATOR")) {
-				if (((DistributionLong) d).getLongValues().length != 0)
+				if (((DistributionLong) d).getValues().length != 0)
 					val = ((DistributionLong) d).getDenominator();
 				Value v = new Value(d.getName() + "_DENOMINATOR", val);
 				values.add(v);
 			}
 			if (Config.getBoolean("GENERATE_DISTRIBUTION_BINSIZE")) {
-				if (((BinnedDistributionLong) d).getLongValues().length != 0)
+				if (((BinnedDistributionLong) d).getValues().length != 0)
 					val = ((BinnedDistributionLong) d).getBinSize();
 				if (d instanceof BinnedDistributionLong) {
 					Value v = new Value(d.getName() + "_BINSIZE", val);
@@ -997,69 +928,38 @@ public class SeriesGeneration {
 		} else if (d instanceof DistributionInt) {
 			double val = 0;
 			if (Config.getBoolean("GENERATE_DISTRIBUTION_MIN")) {
-				if (((DistributionInt) d).getIntValues().length != 0)
-					val = ArrayUtils.min(((DistributionInt) d).getIntValues());
-				Value v = new Value(d.getName() + "_MIN", val);
+				Value v = new Value(d.getName() + "_MIN",
+						ArrayUtils.min(((DistributionInt) d).getValues()));
 				values.add(v);
 			}
 			if (Config.getBoolean("GENERATE_DISTRIBUTION_MAX")) {
-				if (((DistributionInt) d).getIntValues().length != 0)
-					val = ArrayUtils.max(((DistributionInt) d).getIntValues());
-				Value v = new Value(d.getName() + "_MAX", val);
+				Value v = new Value(d.getName() + "_MAX",
+						ArrayUtils.max(((DistributionInt) d).getValues()));
 				values.add(v);
 			}
 			if (Config.getBoolean("GENERATE_DISTRIBUTION_MED")) {
-				if (((DistributionInt) d).getIntValues().length != 0)
-					val = ArrayUtils.med(((DistributionInt) d).getIntValues());
-				Value v = new Value(d.getName() + "_MED", val);
+				Value v = new Value(d.getName() + "_MED",
+						ArrayUtils.med(((DistributionInt) d).getValues()));
 				values.add(v);
 			}
 			if (Config.getBoolean("GENERATE_DISTRIBUTION_AVG")) {
-				if (((DistributionInt) d).getIntValues().length != 0)
-					val = ArrayUtils.avg(((DistributionInt) d).getIntValues());
-				Value v = new Value(d.getName() + "_AVG", val);
+				Value v = new Value(d.getName() + "_AVG",
+						ArrayUtils.avg(((DistributionInt) d).getValues()));
 				values.add(v);
 			}
 			if (Config.getBoolean("GENERATE_DISTRIBUTION_DENOMINATOR")) {
-				if (((DistributionInt) d).getIntValues().length != 0)
+				if (((DistributionInt) d).getValues().length != 0)
 					val = ((DistributionInt) d).getDenominator();
 				Value v = new Value(d.getName() + "_DENOMINATOR", val);
 				values.add(v);
 			}
 			if (Config.getBoolean("GENERATE_DISTRIBUTION_BINSIZE")) {
 				if (d instanceof BinnedDistributionInt) {
-					if (((DistributionInt) d).getIntValues().length != 0)
+					if (((DistributionInt) d).getValues().length != 0)
 						val = ((BinnedDistributionInt) d).getBinSize();
 					Value v = new Value(d.getName() + "_BINSIZE", val);
 					values.add(v);
 				}
-			}
-		} else {
-			// normal distribution
-			double val = 0;
-			if (Config.getBoolean("GENERATE_DISTRIBUTION_MIN")) {
-				if (d.getValues().length != 0)
-					val = ArrayUtils.min(d.getValues());
-				Value v = new Value(d.getName() + "_MIN", val);
-				values.add(v);
-			}
-			if (Config.getBoolean("GENERATE_DISTRIBUTION_MAX")) {
-				if (d.getValues().length != 0)
-					val = ArrayUtils.max(d.getValues());
-				Value v = new Value(d.getName() + "_MAX", val);
-				values.add(v);
-			}
-			if (Config.getBoolean("GENERATE_DISTRIBUTION_MED")) {
-				if (d.getValues().length != 0)
-					val = ArrayUtils.med(d.getValues());
-				Value v = new Value(d.getName() + "_MED", val);
-				values.add(v);
-			}
-			if (Config.getBoolean("GENERATE_DISTRIBUTION_AVG")) {
-				if (d.getValues().length != 0)
-					val = ArrayUtils.avg(d.getValues());
-				Value v = new Value(d.getName() + "_AVG", val);
-				values.add(v);
 			}
 		}
 	}

@@ -77,9 +77,35 @@ public class Dir {
 				+ timestamp + Dir.delimiter;
 	}
 
+	public static String[] getBatchesIntelligent(String dir) throws IOException {
+		if (Config.get("GENERATION_AS_ZIP").equals("runs")) {
+			String splits[] = dir.split(Dir.delimiter);
+			String tempDir = "";
+
+			String fileName = splits[splits.length - 1]
+					+ Config.get("SUFFIX_ZIP_FILE");
+			for (int i = 0; i < splits.length - 1; i++)
+				tempDir += splits[i] + Dir.delimiter;
+
+			if (new File(tempDir + fileName).exists()) {
+				ZipReader.setReadFilesystem(ZipReader.getFileSystem(
+						tempDir,
+						splits[splits.length - 1]
+								+ Config.get("SUFFIX_ZIP_FILE")));
+				String[] tempBatches = Dir.getBatches(Dir.delimiter);
+				System.out.println("tempBatches size: " + tempBatches.length);
+				ZipReader.closeReadFilesystem();
+				return tempBatches;
+			}
+		} else {
+			return Dir.getBatches(dir);
+		}
+		return null;
+	}
+
 	public static String[] getBatches(String dir) throws IOException {
-		if (ZipReader.readFileSystem != null) {
-			Path p = ZipReader.readFileSystem.getPath(dir);
+		if (ZipReader.isZipOpen()) {
+			Path p = ZipReader.getPath(dir);
 			ArrayList<String> fileList = new ArrayList<String>();
 			try (DirectoryStream<Path> directoryStream = java.nio.file.Files
 					.newDirectoryStream(p)) {
@@ -127,7 +153,7 @@ public class Dir {
 			long timestampTo, long stepSize, boolean intervalByIndex)
 			throws IOException {
 		// read batches from dir
-		String[] tempBatches = Dir.getBatches(dir);
+		String[] tempBatches = Dir.getBatchesIntelligent(dir);
 
 		// if interval by index
 		if (intervalByIndex) {
@@ -262,8 +288,8 @@ public class Dir {
 	}
 
 	public static String[] getMetrics(String dir) throws IOException {
-		if (ZipReader.readFileSystem != null) {
-			Path p = ZipReader.readFileSystem.getPath(dir);
+		if (ZipReader.isZipOpen()) {
+			Path p = ZipReader.getPath(dir);
 			ArrayList<String> fileList = new ArrayList<String>();
 			try (DirectoryStream<Path> directoryStream = java.nio.file.Files
 					.newDirectoryStream(p)) {

@@ -1,7 +1,7 @@
 package dna.metrics.motifs;
 
 import dna.metrics.motifs.UndirectedMotifs.UndirectedMotifType;
-import dna.series.data.DistributionLong;
+import dna.series.data.distributions.DistributionLong;
 
 public class UndirectedMotifsRuleChange implements UndirectedMotifsRule {
 

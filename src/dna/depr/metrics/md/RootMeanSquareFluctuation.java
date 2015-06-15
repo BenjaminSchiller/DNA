@@ -16,11 +16,11 @@ import dna.graph.weights.IntWeight;
 import dna.graph.weights.Weight;
 import dna.graph.weights.distances.EuclideanDistance;
 import dna.metrics.Metric;
-import dna.series.data.BinnedDistributionInt;
-import dna.series.data.Distribution;
-import dna.series.data.NodeNodeValueList;
-import dna.series.data.NodeValueList;
 import dna.series.data.Value;
+import dna.series.data.distributions.BinnedDistributionInt;
+import dna.series.data.distributions.Distribution;
+import dna.series.data.nodevaluelists.NodeNodeValueList;
+import dna.series.data.nodevaluelists.NodeValueList;
 import dna.updates.batch.Batch;
 import dna.util.ArrayUtils;
 import dna.util.parameters.IntParameter;
@@ -101,8 +101,8 @@ public abstract class RootMeanSquareFluctuation extends MetricOld {
 		boolean success = true;
 		success &= ArrayUtils.equals(this.rmsf.getValues(),
 				rmsf.rmsf.getValues(), "RootMeanSquareFluctuation");
-		success &= ArrayUtils.equals(this.rmsfD.getIntValues(),
-				rmsf.rmsfD.getIntValues(),
+		success &= ArrayUtils.equals(this.rmsfD.getValues(),
+				rmsf.rmsfD.getValues(),
 				"RootMeanSquareFluctuation--Distribution");
 		return success;
 	}

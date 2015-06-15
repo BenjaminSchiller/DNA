@@ -6,11 +6,11 @@ import dna.graph.nodes.DirectedNode;
 import dna.graph.nodes.UndirectedNode;
 import dna.metrics.IMetric;
 import dna.metrics.Metric;
-import dna.series.data.Distribution;
-import dna.series.data.DistributionInt;
-import dna.series.data.NodeNodeValueList;
-import dna.series.data.NodeValueList;
 import dna.series.data.Value;
+import dna.series.data.distributions.Distribution;
+import dna.series.data.distributions.DistributionInt;
+import dna.series.data.nodevaluelists.NodeNodeValueList;
+import dna.series.data.nodevaluelists.NodeValueList;
 import dna.updates.batch.Batch;
 import dna.util.ArrayUtils;
 import dna.util.parameters.Parameter;
@@ -74,13 +74,13 @@ public abstract class DegreeDistribution extends Metric {
 		}
 		DegreeDistribution dd = (DegreeDistribution) m;
 		boolean equals = true;
-		equals &= ArrayUtils.equals(this.degree.getIntValues(),
-				dd.degree.getIntValues(), this.degree.getName());
+		equals &= ArrayUtils.equals(this.degree.getValues(),
+				dd.degree.getValues(), this.degree.getName());
 		if (this.inDegree != null) {
-			equals &= ArrayUtils.equals(this.inDegree.getIntValues(),
-					dd.inDegree.getIntValues(), this.inDegree.getName());
-			equals &= ArrayUtils.equals(this.outDegree.getIntValues(),
-					dd.outDegree.getIntValues(), this.outDegree.getName());
+			equals &= ArrayUtils.equals(this.inDegree.getValues(),
+					dd.inDegree.getValues(), this.inDegree.getName());
+			equals &= ArrayUtils.equals(this.outDegree.getValues(),
+					dd.outDegree.getValues(), this.outDegree.getName());
 		}
 		return equals;
 	}

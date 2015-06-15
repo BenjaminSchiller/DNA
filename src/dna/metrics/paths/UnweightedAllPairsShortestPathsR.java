@@ -3,7 +3,7 @@ package dna.metrics.paths;
 import dna.graph.IElement;
 import dna.graph.nodes.Node;
 import dna.metrics.algorithms.IRecomputation;
-import dna.series.data.DistributionLong;
+import dna.series.data.distributions.DistributionLong;
 
 public class UnweightedAllPairsShortestPathsR extends
 		UnweightedAllPairsShortestPaths implements IRecomputation {

@@ -26,12 +26,12 @@ import javax.swing.border.EtchedBorder;
 import javax.swing.border.TitledBorder;
 
 import dna.series.data.BatchData;
-import dna.series.data.Distribution;
-import dna.series.data.DistributionDouble;
-import dna.series.data.DistributionInt;
-import dna.series.data.DistributionLong;
 import dna.series.data.MetricData;
-import dna.series.data.NodeValueList;
+import dna.series.data.distributions.Distribution;
+import dna.series.data.distributions.DistributionDouble;
+import dna.series.data.distributions.DistributionInt;
+import dna.series.data.distributions.DistributionLong;
+import dna.series.data.nodevaluelists.NodeValueList;
 import dna.util.Log;
 import dna.visualization.MainDisplay;
 import dna.visualization.config.ConfigItem;
@@ -207,7 +207,7 @@ public class MultiScalarVisualizer extends Visualizer {
 					if (tempDist instanceof DistributionDouble) {
 						double[] tempValues = ((DistributionDouble) b
 								.getMetrics().get(metric).getDistributions()
-								.get(dist)).getDoubleValues();
+								.get(dist)).getValues();
 						SortModeDist tempSortMode = ((LegendItemDistribution) this.legend
 								.getLegendList().getLegendItem(tempName))
 								.getSortMode();
@@ -218,7 +218,7 @@ public class MultiScalarVisualizer extends Visualizer {
 					if (tempDist instanceof DistributionInt) {
 						int[] tempValues = ((DistributionInt) b.getMetrics()
 								.get(metric).getDistributions().get(dist))
-								.getIntValues();
+								.getValues();
 						int tempDenominator = ((DistributionInt) b.getMetrics()
 								.get(metric).getDistributions().get(dist))
 								.getDenominator();
@@ -235,7 +235,7 @@ public class MultiScalarVisualizer extends Visualizer {
 					if (tempDist instanceof DistributionLong) {
 						long[] tempValues = ((DistributionLong) b.getMetrics()
 								.get(metric).getDistributions().get(dist))
-								.getLongValues();
+								.getValues();
 						long tempDenominator = ((DistributionLong) b
 								.getMetrics().get(metric).getDistributions()
 								.get(dist)).getDenominator();
@@ -465,7 +465,7 @@ public class MultiScalarVisualizer extends Visualizer {
 					if (tempDist instanceof DistributionDouble) {
 						double[] tempValues = ((DistributionDouble) this.currentBatch
 								.getMetrics().get(metric).getDistributions()
-								.get(dist)).getDoubleValues();
+								.get(dist)).getValues();
 						SortModeDist tempSortMode = SortModeDist.distribution;
 						if (config.getListConfig() != null) {
 							tempSortMode = config.getListConfig()
@@ -479,7 +479,7 @@ public class MultiScalarVisualizer extends Visualizer {
 					if (tempDist instanceof DistributionInt) {
 						int[] tempValues = ((DistributionInt) this.currentBatch
 								.getMetrics().get(metric).getDistributions()
-								.get(dist)).getIntValues();
+								.get(dist)).getValues();
 						int tempDenominator = ((DistributionInt) this.currentBatch
 								.getMetrics().get(metric).getDistributions()
 								.get(dist)).getDenominator();
@@ -498,7 +498,7 @@ public class MultiScalarVisualizer extends Visualizer {
 					if (tempDist instanceof DistributionLong) {
 						long[] tempValues = ((DistributionLong) this.currentBatch
 								.getMetrics().get(metric).getDistributions()
-								.get(dist)).getLongValues();
+								.get(dist)).getValues();
 						long tempDenominator = ((DistributionLong) this.currentBatch
 								.getMetrics().get(metric).getDistributions()
 								.get(dist)).getDenominator();
