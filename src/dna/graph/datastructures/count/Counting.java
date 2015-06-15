@@ -6,6 +6,7 @@ import dna.graph.Graph;
 import dna.graph.datastructures.GraphDataStructure;
 import dna.graph.edges.DirectedEdge;
 import dna.graph.edges.UndirectedEdge;
+import dna.util.Config;
 import dna.util.Log;
 
 public class Counting {
@@ -32,14 +33,18 @@ public class Counting {
 		Counting.oc.setSizes(g);
 	}
 
+	protected static boolean enabled = false;
+
 	public static void enable() {
-		CountingAspectsXXX.enable();
-		CountingAspects.enable();
+		enabled = true;
 	}
 
 	public static void disable() {
-		CountingAspectsXXX.disable();
-		CountingAspects.disable();
+		enabled = false;
+	}
+
+	public static boolean isEnabled() {
+		return enabled;
 	}
 
 	public static OperationCounts graphGeneration;
@@ -47,6 +52,17 @@ public class Counting {
 
 	public static LinkedList<OperationCounts> batchGeneration;
 	public static LinkedList<OperationCounts> batchApplication;
+
+	public static final String suffix = Config.get("SUFFIX_COUNTING");
+
+	public static final String graphGenerationFilename = Config
+			.get("COUNTING_GRAPH_GENERATION") + suffix;
+	public static final String metricInitFilename = Config
+			.get("COUNTING_METRIC_INIT") + suffix;
+	public static final String batchGenerationFilename = Config
+			.get("COUNTING_BATCH_GENERATION") + suffix;
+	public static final String batchApplicationFilename = Config
+			.get("COUNTING_BATCH_APPLICATION") + suffix;
 
 	public static void startRun() {
 		graphGeneration = null;
@@ -59,34 +75,24 @@ public class Counting {
 	public static void endGraphGeneration(Graph g) {
 		graphGeneration = oc;
 		setSizes(g);
-		// System.out.println("endGraphGeneration");
-		// System.out.println(oc);
 		initOC();
 	}
 
 	public static void endMetricInit(Graph g) {
 		metricInit = oc;
 		setSizes(g);
-		// System.out.println("endMetricInit");
-		// System.out.println(oc);
 		initOC();
 	}
 
 	public static void endBatchGeneration(Graph g) {
 		batchGeneration.add(oc);
 		setSizes(g);
-		// System.out.println("endBatchGeneration nr: " +
-		// batchGeneration.size());
-		// System.out.println(oc);
 		initOC();
 	}
 
 	public static void endBatchApplication(Graph g) {
 		batchApplication.add(oc);
 		setSizes(g);
-		// System.out
-		// .println("endBatchApplication nr: " + batchApplication.size());
-		// System.out.println(oc);
 		initOC();
 	}
 }

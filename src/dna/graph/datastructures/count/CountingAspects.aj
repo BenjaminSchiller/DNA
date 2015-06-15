@@ -13,19 +13,9 @@ import dna.updates.generators.BatchGenerator;
 
 public aspect CountingAspects {
 
-	protected static boolean enabled = true;
-
-	public static void enable() {
-		enabled = true;
-	}
-
-	public static void disable() {
-		enabled = false;
-	}
-
 	pointcut counting_init(Series s, int q, int w, boolean e, boolean r,
 			boolean t, long z) : 
-				if(enabled) &&
+				if(Counting.isEnabled()) &&
 				args(s, q, w, e, r, t, z) &&
 				call(* SeriesGeneration.generate(Series, int, int, boolean, boolean, boolean, long));
 
@@ -35,7 +25,7 @@ public aspect CountingAspects {
 
 	pointcut counting_startRun(Series s, int q, int w, boolean e, boolean r,
 			long t) :  
-				if(enabled) &&
+				if(Counting.isEnabled()) &&
 				args(s, q, w, e, r, t) &&
 				call(* SeriesGeneration.generateRun(Series, int, int, boolean, boolean, long));
 
@@ -43,73 +33,86 @@ public aspect CountingAspects {
 		Counting.startRun();
 	}
 
-	pointcut counting_graphGeneration(GraphGenerator gg) :  
-		if(enabled) &&
+	pointcut counting_graphGeneration_NEW(GraphGenerator gg, Series s,
+			Algorithms a) :  
+		if(Counting.isEnabled()) &&
 		target(gg) &&
 		call(* GraphGenerator.generate()) &&
-		withincode(* SeriesGeneration.computeInitialData(..));
+		cflow(call(BatchData SeriesGeneration.computeInitialData(Series, Algorithms)) && args(s,a));
 
-	Graph around(GraphGenerator gg) : counting_graphGeneration(gg) {
-		Graph g = proceed(gg);
+	Graph around(GraphGenerator gg, Series s, Algorithms a) : counting_graphGeneration_NEW(gg, s, a) {
+		Graph g = proceed(gg, s, a);
 		Counting.endGraphGeneration(g);
-		try {
-			Counting.graphGeneration.writeValues("stats/",
-					"0-graphGeneration.values");
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
 		return g;
 	}
 
 	pointcut counting_metricInit(Series s, BatchData bd, Algorithms a) :  
-		if(enabled) &&
+		if(Counting.isEnabled()) &&
 		args(s, bd, a) &&
 		call(* SeriesGeneration.computeInitialMetrics(Series, BatchData, Algorithms));
 
 	BatchData around(Series s, BatchData bd, Algorithms a) : counting_metricInit(s, bd, a) {
 		BatchData res = proceed(s, bd, a);
 		Counting.endMetricInit(s.getGraph());
-		try {
-			Counting.metricInit.writeValues("stats/", "0-metricInit.values");
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
 		return res;
 	}
 
-	pointcut counting_batchGeneration(Graph g) :  
-		if(enabled) &&
+	pointcut counting_batchGeneration(Graph g, Series s, Algorithms a) :  
+		if(Counting.isEnabled()) &&
 		args(g) &&
 		call(* BatchGenerator.generate(Graph)) &&
-		withincode(* SeriesGeneration.computeNextBatch(..));
+		cflow(call(* SeriesGeneration.computeNextBatch(Series, Algorithms)) && args(s, a));
 
-	Batch around(Graph g) : counting_batchGeneration(g) {
-		Batch res = proceed(g);
+	Batch around(Graph g, Series s, Algorithms a) : counting_batchGeneration(g, s, a) {
+		Batch res = proceed(g, s, a);
 		Counting.endBatchGeneration(g);
-		try {
-			Counting.batchGeneration.getLast().writeValues("stats/",
-					+res.getTo() + "-batchGeneration.values");
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
 		return res;
 	}
 
 	pointcut counting_batchApplication(Series s, Algorithms a) :  
-		if(enabled) &&
+		if(Counting.isEnabled()) &&
 		args(s, a) &&
 		call(* SeriesGeneration.generateNextBatch(Series, Algorithms));
 
 	BatchData around(Series s, Algorithms a) : counting_batchApplication(s, a) {
 		BatchData res = proceed(s, a);
 		Counting.endBatchApplication(s.getGraph());
+		return res;
+	}
+
+	/*
+	 * WRITING all operation counts for finished batch
+	 */
+
+	pointcut counting_batchWrite(String dir) :
+		if(Counting.isEnabled()) &&
+		args(dir) &&
+		call(* BatchData.write(String));
+
+	after(String dir) : counting_batchWrite(dir) {
+		System.out.println("WROTE batch to dir: " + dir);
 		try {
-			Counting.batchApplication.getLast().writeValues("stats/",
-					res.getTimestamp() + "-batchApplication.values");
+			if (Counting.batchGeneration.size() == 0) {
+				Counting.graphGeneration.writeValues(dir,
+						Counting.graphGenerationFilename);
+				Counting.metricInit.writeValues(dir,
+						Counting.metricInitFilename);
+				System.out.println("  " + dir
+						+ Counting.graphGenerationFilename);
+				System.out.println("  " + dir + Counting.metricInitFilename);
+			} else {
+				Counting.batchGeneration.getLast().writeValues(dir,
+						Counting.batchGenerationFilename);
+				Counting.batchApplication.getLast().writeValues(dir,
+						Counting.batchApplicationFilename);
+				System.out.println("  " + dir
+						+ Counting.batchGenerationFilename);
+				System.out.println("  " + dir
+						+ Counting.batchApplicationFilename);
+			}
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		return res;
 	}
 
 	/*
@@ -118,7 +121,7 @@ public aspect CountingAspects {
 	 */
 
 	pointcut counting_graphGenerationSeparateInit(GraphGenerator gg) :  
-		if(enabled) &&
+		if(Counting.isEnabled()) &&
 		target(gg) &&
 		call(* GraphGenerator.newGraphInstance());
 

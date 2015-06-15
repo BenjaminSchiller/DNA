@@ -44,27 +44,26 @@ public class OperationCountsDirected extends OperationCounts {
 
 	@Override
 	public void writeValues(String dir) throws IOException {
-		V.writeValues(dir, "V" + suffix);
-		E.writeValues(dir, "E" + suffix);
-		in.writeValues(dir, "in" + suffix);
-		out.writeValues(dir, "out" + suffix);
-		neighbors.writeValues(dir, "neighbors" + suffix);
+		V.writeValues(dir, "V.dat");
+		E.writeValues(dir, "E.dat");
+		in.writeValues(dir, "in.dat");
+		out.writeValues(dir, "out.dat");
+		neighbors.writeValues(dir, "neighbors.dat");
 	}
 
 	@Override
 	public void readValues(String dir) throws IOException {
-		V = OperationCount.read(dir, "V" + suffix, ListType.GlobalNodeList);
-		E = OperationCount.read(dir, "E" + suffix, ListType.GlobalEdgeList);
-		in = OperationCount.read(dir, "in" + suffix, ListType.LocalInEdgeList);
-		out = OperationCount.read(dir, "out" + suffix,
-				ListType.LocalOutEdgeList);
-		neighbors = OperationCount.read(dir, "neighbors" + suffix,
+		V = OperationCount.read(dir, "V.dat", ListType.GlobalNodeList);
+		E = OperationCount.read(dir, "E.dat", ListType.GlobalEdgeList);
+		in = OperationCount.read(dir, "in.dat", ListType.LocalInEdgeList);
+		out = OperationCount.read(dir, "out.dat", ListType.LocalOutEdgeList);
+		neighbors = OperationCount.read(dir, "neighbors.dat",
 				ListType.LocalNodeList);
 	}
 
 	@Override
 	public void writeValues(String dir, String filename) throws IOException {
-		Writer w = new Writer(dir, filename);
+		Writer w = Writer.getWriter(dir, filename);
 		V.writeValues(w, prefixV);
 		E.writeValues(w, prefixE);
 		in.writeValues(w, prefixIn);
@@ -75,7 +74,7 @@ public class OperationCountsDirected extends OperationCounts {
 
 	@Override
 	public void readValues(String dir, String filename) throws IOException {
-		Reader r = new Reader(dir, filename);
+		Reader r = Reader.getReader(dir, filename);
 		V = OperationCount.read(r, prefixV, ListType.GlobalNodeList);
 		E = OperationCount.read(r, prefixE, ListType.GlobalEdgeList);
 		in = OperationCount.read(r, prefixIn, ListType.LocalInEdgeList);

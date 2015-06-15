@@ -4,6 +4,7 @@ import java.io.IOException;
 
 import dna.graph.Graph;
 import dna.graph.datastructures.DataStructure.ListType;
+import dna.util.Config;
 
 /**
  * 
@@ -14,12 +15,18 @@ import dna.graph.datastructures.DataStructure.ListType;
  */
 public abstract class OperationCounts {
 
+	public String name = null;
+
 	public OperationCount V = new OperationCount(ListType.GlobalNodeList);
 	public OperationCount E = new OperationCount(ListType.GlobalEdgeList);
 
-	// public abstract String getValues();
-
-	public static final String suffix = ".dat";
+	public static final String prefixV = Config.get("COUNTING_PREFIX_V");
+	public static final String prefixE = Config.get("COUNTING_PREFIX_E");
+	public static final String prefixIn = Config.get("COUNTING_PREFIX_IN");
+	public static final String prefixOut = Config.get("COUNTING_PREFIX_OUT");
+	public static final String prefixNeighbors = Config
+			.get("COUNTING_PREFIX_NEIGHBORS");
+	public static final String prefixAdj = Config.get("COUNTING_PREFIX_ADJ");
 
 	public abstract void writeValues(String dir) throws IOException;
 
@@ -32,11 +39,4 @@ public abstract class OperationCounts {
 			throws IOException;
 
 	public abstract void setSizes(Graph g);
-
-	public static final String prefixV = "V_";
-	public static final String prefixE = "E_";
-	public static final String prefixIn = "in_";
-	public static final String prefixOut = "out_";
-	public static final String prefixNeighbors = "neighbors_";
-	public static final String prefixAdj = "adj_";
 }

@@ -38,21 +38,21 @@ public class OperationCountsUndirected extends OperationCounts {
 
 	@Override
 	public void writeValues(String dir) throws IOException {
-		V.writeValues(dir, "V" + suffix);
-		E.writeValues(dir, "E" + suffix);
-		adj.writeValues(dir, "adj" + suffix);
+		V.writeValues(dir, "V.dat");
+		E.writeValues(dir, "E.dat");
+		adj.writeValues(dir, "adj.dat");
 	}
 
 	@Override
 	public void readValues(String dir) throws IOException {
-		V = OperationCount.read(dir, "V" + suffix, ListType.GlobalNodeList);
-		E = OperationCount.read(dir, "E" + suffix, ListType.GlobalEdgeList);
-		adj = OperationCount.read(dir, "adj" + suffix, ListType.LocalEdgeList);
+		V = OperationCount.read(dir, "V.dat", ListType.GlobalNodeList);
+		E = OperationCount.read(dir, "E.dat", ListType.GlobalEdgeList);
+		adj = OperationCount.read(dir, "adj.dat", ListType.LocalEdgeList);
 	}
 
 	@Override
 	public void writeValues(String dir, String filename) throws IOException {
-		Writer w = new Writer(dir, filename);
+		Writer w = Writer.getWriter(dir, filename);
 		V.writeValues(w, prefixV);
 		E.writeValues(w, prefixE);
 		adj.writeValues(w, prefixAdj);
@@ -61,7 +61,7 @@ public class OperationCountsUndirected extends OperationCounts {
 
 	@Override
 	public void readValues(String dir, String filename) throws IOException {
-		Reader r = new Reader(dir, filename);
+		Reader r = Reader.getReader(dir, filename);
 		V = OperationCount.read(r, prefixV, ListType.GlobalNodeList);
 		E = OperationCount.read(r, prefixE, ListType.GlobalEdgeList);
 		adj = OperationCount.read(r, prefixAdj, ListType.LocalEdgeList);
