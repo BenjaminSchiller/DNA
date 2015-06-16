@@ -4,6 +4,7 @@ import java.io.IOException;
 
 import dna.graph.Graph;
 import dna.graph.datastructures.DataStructure.ListType;
+import dna.graph.datastructures.count.OperationCount.AggregationType;
 import dna.io.Reader;
 import dna.io.Writer;
 
@@ -100,6 +101,29 @@ public class OperationCountsDirected extends OperationCounts {
 		this.out.listSize = (int) 2.0 * edges / nodes;
 		this.neighbors.listCount = nodes;
 		this.neighbors.listSize = (int) 2.0 * edges / nodes;
+	}
+
+	@Override
+	public OperationCounts add(AggregationType at, OperationCounts... ocs) {
+		OperationCount[] ocs_V = new OperationCount[ocs.length];
+		OperationCount[] ocs_E = new OperationCount[ocs.length];
+		OperationCount[] ocs_in = new OperationCount[ocs.length];
+		OperationCount[] ocs_out = new OperationCount[ocs.length];
+		OperationCount[] ocs_neighbors = new OperationCount[ocs.length];
+		for (int i = 0; i < ocs.length; i++) {
+			ocs_V[i] = ocs[i].V;
+			ocs_E[i] = ocs[i].E;
+			ocs_in[i] = ((OperationCountsDirected) ocs[i]).in;
+			ocs_out[i] = ((OperationCountsDirected) ocs[i]).out;
+			ocs_neighbors[i] = ((OperationCountsDirected) ocs[i]).neighbors;
+		}
+		OperationCountsDirected oc = new OperationCountsDirected();
+		oc.V = OperationCount.add(at, ocs_V);
+		oc.E = OperationCount.add(at, ocs_E);
+		oc.in = OperationCount.add(at, ocs_in);
+		oc.out = OperationCount.add(at, ocs_out);
+		oc.neighbors = OperationCount.add(at, ocs_neighbors);
+		return oc;
 	}
 
 }

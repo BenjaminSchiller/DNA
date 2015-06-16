@@ -4,6 +4,7 @@ import java.io.IOException;
 
 import dna.graph.Graph;
 import dna.graph.datastructures.DataStructure.ListType;
+import dna.graph.datastructures.count.OperationCount.AggregationType;
 import dna.util.Config;
 
 /**
@@ -39,4 +40,6 @@ public abstract class OperationCounts {
 			throws IOException;
 
 	public abstract void setSizes(Graph g);
+	
+	public abstract OperationCounts add(AggregationType at, OperationCounts... ocs);
 }

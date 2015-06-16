@@ -4,6 +4,7 @@ import java.io.IOException;
 
 import dna.graph.Graph;
 import dna.graph.datastructures.DataStructure.ListType;
+import dna.graph.datastructures.count.OperationCount.AggregationType;
 import dna.io.Reader;
 import dna.io.Writer;
 
@@ -80,6 +81,23 @@ public class OperationCountsUndirected extends OperationCounts {
 
 		this.adj.listCount = nodes;
 		this.adj.listSize = (int) 2.0 * edges / nodes;
+	}
+
+	@Override
+	public OperationCounts add(AggregationType at, OperationCounts... ocs) {
+		OperationCount[] ocs_V = new OperationCount[ocs.length];
+		OperationCount[] ocs_E = new OperationCount[ocs.length];
+		OperationCount[] ocs_adj = new OperationCount[ocs.length];
+		for (int i = 0; i < ocs.length; i++) {
+			ocs_V[i] = ocs[i].V;
+			ocs_E[i] = ocs[i].E;
+			ocs_adj[i] = ((OperationCountsUndirected) ocs[i]).adj;
+		}
+		OperationCountsUndirected oc = new OperationCountsUndirected();
+		oc.V = OperationCount.add(at, ocs_V);
+		oc.E = OperationCount.add(at, ocs_E);
+		oc.adj = OperationCount.add(at, ocs_adj);
+		return oc;
 	}
 
 }
