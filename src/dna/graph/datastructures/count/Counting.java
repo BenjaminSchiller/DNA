@@ -1,9 +1,11 @@
 package dna.graph.datastructures.count;
 
 import java.util.LinkedList;
+import java.util.ListIterator;
 
 import dna.graph.Graph;
 import dna.graph.datastructures.GraphDataStructure;
+import dna.graph.datastructures.count.OperationCount.AggregationType;
 import dna.graph.edges.DirectedEdge;
 import dna.graph.edges.UndirectedEdge;
 import dna.util.Config;
@@ -94,5 +96,44 @@ public class Counting {
 		batchApplication.add(oc);
 		setSizes(g);
 		initOC();
+	}
+
+	public static OperationCounts[] getLastRounds(int rounds,
+			LinkedList<OperationCounts> list) {
+		if (list.size() < rounds) {
+			throw new IllegalArgumentException("cannot get last " + rounds
+					+ " rounds from only " + list.size() + " rounds in list");
+		}
+		OperationCounts[] last = new OperationCounts[rounds];
+		ListIterator<OperationCounts> li = list.listIterator(list.size());
+		int index = 0;
+		while (index < rounds) {
+			last[index++] = li.previous();
+		}
+		return last;
+	}
+
+	public static OperationCounts[] getLastRounds(int rounds) {
+		if (batchApplication.size() < rounds) {
+			throw new IllegalArgumentException("cannot get last " + rounds
+					+ " rounds from only " + batchApplication.size()
+					+ " rounds in list");
+		}
+		OperationCounts[] last = new OperationCounts[rounds * 2];
+		ListIterator<OperationCounts> li1 = batchGeneration
+				.listIterator(batchGeneration.size());
+		ListIterator<OperationCounts> li2 = batchApplication
+				.listIterator(batchApplication.size());
+		int index = last.length - 1;
+		while (index > 0) {
+			last[index--] = li2.previous();
+			last[index--] = li1.previous();
+		}
+		return last;
+	}
+
+	public static OperationCounts addLastRounds(int rounds, AggregationType at) {
+		OperationCounts[] ocs = getLastRounds(rounds);
+		return ocs[0].add(at, ocs);
 	}
 }
