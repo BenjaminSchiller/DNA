@@ -39,4 +39,13 @@ public class DSConfigUndirected extends DSConfig {
 		return V.getSimpleName() + sep + E.getSimpleName() + sep
 				+ adj.getSimpleName();
 	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (!(obj instanceof DSConfigUndirected))
+			return false;
+		DSConfigUndirected cfg = (DSConfigUndirected) obj;
+		return this.V.equals(cfg.V) && this.E.equals(cfg.E)
+				&& this.adj.equals(cfg.adj);
+	}
 }

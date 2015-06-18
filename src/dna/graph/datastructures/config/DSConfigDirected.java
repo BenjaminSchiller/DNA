@@ -55,4 +55,14 @@ public class DSConfigDirected extends DSConfig {
 				+ in.getSimpleName() + sep + out.getSimpleName() + sep
 				+ neighbors.getSimpleName();
 	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (!(obj instanceof DSConfigDirected))
+			return false;
+		DSConfigDirected cfg = (DSConfigDirected) obj;
+		return this.V.equals(cfg.V) && this.E.equals(cfg.E)
+				&& this.in.equals(cfg.in) && this.out.equals(cfg.out)
+				&& this.neighbors.equals(cfg.neighbors);
+	}
 }
