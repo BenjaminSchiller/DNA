@@ -1,7 +1,9 @@
-package dna.graph.datastructures.cost;
+package dna.graph.datastructures.recommendation;
 
 import java.util.Comparator;
 
+import dna.graph.datastructures.cost.CostEstimation;
+import dna.graph.datastructures.cost.CostFunctions;
 import dna.graph.datastructures.count.OperationCount;
 import dna.graph.datastructures.count.OperationCounts;
 import dna.util.Log;

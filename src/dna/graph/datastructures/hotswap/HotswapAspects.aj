@@ -1,5 +1,6 @@
 package dna.graph.datastructures.hotswap;
 
+import dna.graph.datastructures.config.DSConfig;
 import dna.graph.datastructures.count.Counting;
 import dna.metrics.algorithms.Algorithms;
 import dna.series.Series;
@@ -12,7 +13,9 @@ public aspect HotswapAspects {
 		call(* SeriesGeneration.generateNextBatch(Series, Algorithms));
 
 	after(Series s, Algorithms a) : counting_batchApplication(s, a) {
-		System.out.println("hotswap end...");
-		Hotswap.check();
+		DSConfig cfg = Hotswap.check(s.getGraph().getGraphDatastructures());
+		if (cfg != null) {
+			Hotswap.execute(s.getGraph(), cfg);
+		}
 	}
 }

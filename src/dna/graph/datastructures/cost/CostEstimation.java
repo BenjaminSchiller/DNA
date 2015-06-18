@@ -127,4 +127,58 @@ public class CostEstimation {
 		}
 		return cost;
 	}
+
+	public static double estimateSwapCosts(DSConfig from, DSConfig to,
+			OperationCounts ocs, CostFunctionsSMap map) {
+		if (ocs instanceof OperationCountsDirected) {
+			return estimateSwapCosts((DSConfigDirected) from,
+					(DSConfigDirected) to, (OperationCountsDirected) ocs, map);
+		} else {
+			return estimateSwapCosts((DSConfigUndirected) from,
+					(DSConfigUndirected) to, (OperationCountsUndirected) ocs,
+					map);
+		}
+	}
+
+	public static double estimateSwapCosts(DSConfigDirected from,
+			DSConfigDirected to, OperationCountsDirected ocs,
+			CostFunctionsSMap map) {
+		double cost = 0;
+
+		if (!from.V.equals(to.V))
+			cost += estimateSwapCosts(map.get(from.V).nodes, ocs.V,
+					map.get(to.V).nodes);
+		if (!from.E.equals(to.E))
+			cost += estimateSwapCosts(map.get(from.E).edges, ocs.E,
+					map.get(to.E).edges);
+		if (!from.in.equals(to.in))
+			cost += estimateSwapCosts(map.get(from.in).edges, ocs.in,
+					map.get(to.in).edges);
+		if (!from.out.equals(to.out))
+			cost += estimateSwapCosts(map.get(from.out).edges, ocs.out,
+					map.get(to.out).edges);
+		if (!from.neighbors.equals(to.neighbors))
+			cost += estimateSwapCosts(map.get(from.neighbors).nodes,
+					ocs.neighbors, map.get(to.neighbors).nodes);
+
+		return cost;
+	}
+
+	public static double estimateSwapCosts(DSConfigUndirected from,
+			DSConfigUndirected to, OperationCountsUndirected ocs,
+			CostFunctionsSMap map) {
+		double cost = 0;
+
+		if (!from.V.equals(to.V))
+			cost += estimateSwapCosts(map.get(from.V).nodes, ocs.V,
+					map.get(to.V).nodes);
+		if (!from.E.equals(to.E))
+			cost += estimateSwapCosts(map.get(from.E).edges, ocs.E,
+					map.get(to.E).edges);
+		if (!from.adj.equals(to.adj))
+			cost += estimateSwapCosts(map.get(from.adj).edges, ocs.adj,
+					map.get(to.adj).edges);
+
+		return cost;
+	}
 }

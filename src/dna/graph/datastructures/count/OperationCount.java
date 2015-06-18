@@ -263,4 +263,9 @@ public class OperationCount {
 		return oc;
 	}
 
+	public boolean isNodes() {
+		return this.lt.equals(ListType.GlobalNodeList)
+				|| this.lt.equals(ListType.LocalNodeList);
+	}
+
 }
