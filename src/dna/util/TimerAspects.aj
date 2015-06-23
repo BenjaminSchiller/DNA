@@ -3,6 +3,8 @@ package dna.util;
 import java.util.HashMap;
 
 import dna.graph.Graph;
+import dna.graph.datastructures.config.DSConfig;
+import dna.graph.datastructures.hotswap.Hotswap;
 import dna.graph.generators.GraphGenerator;
 import dna.graph.generators.IGraphGenerator;
 import dna.metrics.Metric;
@@ -22,7 +24,6 @@ import dna.metrics.algorithms.IBeforeNR;
 import dna.metrics.algorithms.IBeforeNW;
 import dna.metrics.algorithms.IDynamicAlgorithm;
 import dna.metrics.algorithms.IRecomputation;
-import dna.profiler.HotSwap;
 import dna.profiler.Profiler;
 import dna.series.Aggregation;
 import dna.series.Series;
@@ -318,19 +319,33 @@ public aspect TimerAspects {
 		}
 		rt.add(new RunTime(SeriesStats.metricsRuntime, metrics));
 
+		long total = 0;
+		if (this.total != null)
+			total += this.total.getDutation();
+		if (this.recommendation != null)
+			total += this.recommendation.getDutation();
+		if (this.hotswap != null)
+			total += this.hotswap.getDutation();
+
 		// total
 		if (this.total != null) {
-			rt.add(this.total.getRuntime());
-			// TODO add swapping & profiling?!?
+			rt.add(new RunTime(SeriesStats.totalRuntime, total));
 		} else {
 			rt.add(new RunTime(SeriesStats.totalRuntime, 0));
 		}
 
 		// hotSwap
-		if (this.hotSwap != null) {
-			rt.add(this.hotSwap.getRuntime());
+		if (this.hotswap != null) {
+			rt.add(new RunTime(SeriesStats.hotswapRuntime, this.hotswap
+					.getDutation()));
 		} else {
 			rt.add(new RunTime(SeriesStats.hotswapRuntime, 0));
+		}
+		if (this.recommendation != null) {
+			rt.add(new RunTime(SeriesStats.recommendationRuntime,
+					this.recommendation.getDutation()));
+		} else {
+			rt.add(new RunTime(SeriesStats.recommendationRuntime, 0));
 		}
 
 		// profiler
@@ -349,14 +364,16 @@ public aspect TimerAspects {
 		if (this.graphUpdate != null)
 			sum += this.graphUpdate.getDutation();
 		sum += metrics;
-		if (this.hotSwap != null)
-			sum += this.hotSwap.getDutation();
-		if (this.hotSwap != null)
+		if (this.hotswap != null)
+			sum += this.hotswap.getDutation();
+		if (this.recommendation != null)
+			sum += this.recommendation.getDutation();
+		if (this.profiler != null)
 			sum += this.profiler.getDutation();
 		rt.add(new RunTime(SeriesStats.sumRuntime, sum));
 
 		// overhead
-		long overhead = this.total.getDutation() - sum;
+		long overhead = total - sum;
 		rt.add(new RunTime(SeriesStats.overheadRuntime, overhead));
 
 		// reset timers
@@ -364,7 +381,8 @@ public aspect TimerAspects {
 		this.batchGeneration = null;
 		this.graphUpdate = null;
 		this.total = null;
-		this.hotSwap = null;
+		this.hotswap = null;
+		this.recommendation = null;
 		this.profiler = null;
 		this.metricTimers.clear();
 
@@ -399,27 +417,41 @@ public aspect TimerAspects {
 	}
 
 	/**
-	 * HOT SWAP
+	 * HOTSWAP
 	 */
 
-	private Timer hotSwap;
+	private Timer hotswap;
 
-	pointcut hotSwap(): (
-			call(* HotSwap.trySwap(..))
-			);
+	pointcut hotswap() :
+		call(* Hotswap.execute(..));
 
-	void around(): hotSwap() {
-		// System.out.println("HOT SWAP...");
-
-		Timer t = this.hotSwap;
-		if (t == null) {
-			t = new Timer(SeriesStats.hotswapRuntime);
+	boolean around(): hotswap() {
+		if (this.hotswap == null) {
+			this.hotswap = new Timer();
 		}
+		this.hotswap.restart();
+		boolean res = proceed();
+		this.hotswap.end();
+		return res;
+	}
 
-		t.restart();
-		proceed();
-		t.end();
-		this.hotSwap = t;
+	/**
+	 * RECOMMENDATION
+	 */
+
+	private Timer recommendation;
+
+	pointcut recommendation() :
+		call(* Hotswap.recommendConfig(..));
+
+	DSConfig around(): recommendation() {
+		if (this.recommendation == null) {
+			this.recommendation = new Timer();
+		}
+		this.recommendation.restart();
+		DSConfig res = proceed();
+		this.recommendation.end();
+		return res;
 	}
 
 }

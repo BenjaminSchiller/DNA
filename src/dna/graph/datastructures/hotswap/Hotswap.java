@@ -44,6 +44,8 @@ public class Hotswap {
 	public static int amortization = 10000000;
 	public static int batches = 4;
 
+	public static int counter = 0;
+
 	public static Recommendation r = null;
 
 	public static void initRecommendation() {
@@ -69,37 +71,48 @@ public class Hotswap {
 		r = new Recommendation(map);
 	}
 
-	public static DSConfig check(GraphDataStructure gds) {
-		// System.out.println("HOTSWAP CHECK");
-		if (Counting.batchApplication.size() < batches) {
-			// System.out.println("still "
-			// + (batches - Counting.batchApplication.size())
-			// + " rounds to go...");
+	public static OperationCounts getCurrentOperationCounts() {
+		if (batches > Counting.batchApplication.size())
 			return null;
-		}
-		if (r == null) {
+		return Counting.addLastRounds(batches, AggregationType.LAST);
+	}
+
+	public static DSConfig recommendConfig(OperationCounts ocs,
+			GraphDataStructure currentGds) {
+		if (Counting.batchApplication.size() < batches)
+			return null;
+		if (r == null)
 			initRecommendation();
-		}
+		DSConfig current = DSConfig.convert(currentGds);
+		return r.recommendFastestConfig(ocs, batches, amortization, current);
+	}
 
-		DSConfig current = DSConfig.convert(gds);
-		// System.out.println("current:     " + current);
+	public static boolean execute(Graph g, OperationCounts ocs, DSConfig current, DSConfig cfg) {
+		// System.out.println("HOTSWAP - EXECUTE");
+		double costCurrent = CostEstimation.estimateCosts(current, ocs, r.map);
+		double costRecommendation = CostEstimation.estimateCosts(cfg, ocs,
+				r.map);
 
-		// int[] batches_ = new int[] { 1, 2, 3, 4 };
-		// int[] amortization_ = new int[] { 1, 10, 100, 1000 };
-		// for (int batches : batches_) {
-		// System.out.println();
-		// testStatic(batches, current);
-		// for (int amortization : amortization_) {
-		// testDynamic(batches, amortization, current);
+		counter++;
+
+		System.out.println("HOT SWAP (nr " + counter + ") @ "
+				+ (costRecommendation / costCurrent));
+		System.out.println("     " + current);
+		System.out.println("  => " + cfg);
+
+		Counting.disable();
+		DataStructure.disableContainsOnAddition();
+		g.getGraphDatastructures().switchDatastructures(cfg.getGDS(), g);
+		DataStructure.enableContainsOnAddition();
+		Counting.enable();
+
+		// if (current instanceof DSConfigDirected) {
+		// execute(g, (DSConfigDirected) current, (DSConfigDirected) cfg);
+		// } else {
+		// execute(g, (DSConfigUndirected) current, (DSConfigUndirected) cfg);
 		// }
-		// }
 
-		OperationCounts ocs = Counting.addLastRounds(batches,
-				AggregationType.LAST);
-		DSConfig cfg = r.recommendFastestConfig(ocs, batches, amortization,
-				current);
-		// System.out.println("recommended: " + cfg);
-		return cfg;
+		return true;
 	}
 
 	public static void testDynamic(int batches, int amortization,
@@ -125,30 +138,6 @@ public class Hotswap {
 		double costCurrent = CostEstimation.estimateCosts(current, ocs, r.map);
 		System.out.println("static-" + batches + ":    " + cfgD + "\n  @ "
 				+ (cost / costCurrent));
-	}
-
-	public static void execute(Graph g, DSConfig cfg) {
-		// System.out.println("HOTSWAP - EXECUTE");
-		DSConfig current = DSConfig.convert(g.getGraphDatastructures());
-		if (cfg.equals(current)) {
-			// System.out.println("noting to to...");
-			return;
-		}
-
-		System.out.println("HOT SWAP: " + current);
-		System.out.println("       => " + cfg);
-
-		Counting.disable();
-		DataStructure.disableContainsOnAddition();
-		g.getGraphDatastructures().switchDatastructures(cfg.getGDS(), g);
-		DataStructure.enableContainsOnAddition();
-		Counting.enable();
-
-		// if (current instanceof DSConfigDirected) {
-		// execute(g, (DSConfigDirected) current, (DSConfigDirected) cfg);
-		// } else {
-		// execute(g, (DSConfigUndirected) current, (DSConfigUndirected) cfg);
-		// }
 	}
 
 	public static void execute(Graph g, DSConfigDirected current,
