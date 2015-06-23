@@ -26,14 +26,13 @@ import dna.util.Timer;
  */
 public class WorkloadMetric extends Metric implements IRecomputation {
 
-	private Workload[] workloads;
+	public Workload[] workloads;
 
 	private int round;
 
 	private int currentIndex;
 
 	private long workloadDuration;
-
 	private long initDuration;
 
 	public WorkloadMetric(Workload... workloads) {
@@ -52,6 +51,8 @@ public class WorkloadMetric extends Metric implements IRecomputation {
 
 	@Override
 	public boolean recompute() {
+		System.out.println("EXECUTING WORKLOAD: "
+				+ this.workloads[this.currentIndex]);
 		Timer initTimer = new Timer();
 		this.workloads[this.currentIndex].init(g);
 		initTimer.end();

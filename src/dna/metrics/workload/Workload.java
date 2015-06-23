@@ -62,4 +62,16 @@ public class Workload {
 	public Operation[] getOperations() {
 		return operations;
 	}
+
+	public String toString() {
+		StringBuffer buff = new StringBuffer();
+		for (Operation o : this.operations) {
+			if (buff.length() == 0) {
+				buff.append(o.getName());
+			} else {
+				buff.append(" & " + o.getName());
+			}
+		}
+		return buff.toString();
+	}
 }
