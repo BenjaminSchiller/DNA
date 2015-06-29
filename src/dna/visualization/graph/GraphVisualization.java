@@ -1,6 +1,9 @@
 package dna.visualization.graph;
 
 import java.util.HashMap;
+import java.util.concurrent.TimeUnit;
+
+import javax.swing.JFrame;
 
 import org.graphstream.graph.implementations.MultiGraph;
 import org.graphstream.ui.view.Viewer;
@@ -64,6 +67,11 @@ public class GraphVisualization {
 
 		// create viewer and show graph
 		Viewer v = graph.display();
+
+		// set title
+		JFrame f1 = (JFrame) v.getDefaultView().getParent().getParent()
+				.getParent().getParent();
+		f1.setTitle(g.getName());
 
 		// add graph to map
 		map.put(g, graph);
@@ -216,10 +224,10 @@ public class GraphVisualization {
 	/** Wait for specified time in milliseconds. **/
 	protected static void waitTime(long milliseconds) {
 		if (waitTimes_enabled) {
-			long current = System.currentTimeMillis();
-
-			while (System.currentTimeMillis() - current < milliseconds) {
-				// do nothing
+			try {
+				TimeUnit.MILLISECONDS.sleep(milliseconds);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
 			}
 		}
 	}
