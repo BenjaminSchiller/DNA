@@ -87,7 +87,7 @@ public class GraphVisualization {
 	// layouts
 	public static double layouterForce = 1.0;
 	public static boolean useLinLogLayout = false;
-	public static boolean use3dMode = false;
+	public static boolean useLayouter3dMode = false;
 
 	public static void enable() {
 		enabled = true;
@@ -139,9 +139,9 @@ public class GraphVisualization {
 		Viewer v = new Viewer(graph,
 				Viewer.ThreadingModel.GRAPH_IN_ANOTHER_THREAD);
 
-		Layout layouter = new SpringBox(use3dMode);
+		Layout layouter = new SpringBox(useLayouter3dMode);
 		if (useLinLogLayout)
-			layouter = new LinLog(use3dMode);
+			layouter = new LinLog(useLayouter3dMode);
 
 		layouter.setForce(layouterForce);
 		v.enableAutoLayout(layouter);
