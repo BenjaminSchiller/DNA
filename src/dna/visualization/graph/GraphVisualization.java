@@ -20,6 +20,7 @@ public class GraphVisualization {
 	// statics
 	protected static final String weightKey = "dna.weight";
 	protected static final String labelKey = "ui.label";
+	protected static final String directedKey = "dna.directed";
 
 	// graph map
 	protected static HashMap<Graph, org.graphstream.graph.Graph> map = new HashMap<Graph, org.graphstream.graph.Graph>();
@@ -65,6 +66,12 @@ public class GraphVisualization {
 
 		// init graph
 		org.graphstream.graph.Graph graph = new MultiGraph(g.getName());
+
+		// set if directed or undirected
+		if (g.getGraphDatastructures().createsDirected())
+			graph.addAttribute(directedKey, true);
+		else
+			graph.addAttribute(directedKey, false);
 
 		// create viewer and show graph
 		Viewer v = graph.display();
@@ -148,6 +155,9 @@ public class GraphVisualization {
 		// get graph
 		org.graphstream.graph.Graph graph = map.get(g);
 
+		// get directed flag
+		boolean directedEdges = graph.getAttribute(directedKey);
+
 		// get indizes
 		int n1 = e.getN1Index();
 		int n2 = e.getN2Index();
@@ -155,7 +165,7 @@ public class GraphVisualization {
 		// if edge not there, add it
 		if (graph.getNode("" + n1).getEdgeBetween("" + n2) == null) {
 			org.graphstream.graph.Edge edge = graph.addEdge(n1 + "-" + n2, ""
-					+ n1, "" + n2);
+					+ n1, "" + n2, directedEdges);
 
 			// init weight
 			edge.addAttribute(weightKey, 0);
