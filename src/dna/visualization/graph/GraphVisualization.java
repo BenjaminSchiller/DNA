@@ -45,6 +45,10 @@ public class GraphVisualization {
 	// config
 	protected static boolean enabled = false;
 
+	// high quality rendering / anti-aliasing
+	protected static final boolean rendering_hq = false;
+	protected static final boolean rendering_antialias = false;
+
 	public static void enable() {
 		enabled = true;
 	}
@@ -72,6 +76,12 @@ public class GraphVisualization {
 			graph.addAttribute(directedKey, true);
 		else
 			graph.addAttribute(directedKey, false);
+
+		// rendering options
+		if (rendering_hq)
+			graph.addAttribute("ui.quality");
+		if (rendering_antialias)
+			graph.addAttribute("ui.antialias");
 
 		// create viewer and show graph
 		Viewer v = graph.display();
