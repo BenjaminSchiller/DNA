@@ -32,6 +32,10 @@ public class GraphVisualization {
 	public static boolean showNodeWeight = true;
 	public static boolean showEdgeWeights = false;
 
+	// node color
+	public static boolean colorNodesByDegree = true;
+	public static int nodeColorAmplification = 20;
+
 	// wait times
 	public static boolean waitTimes_enabled = true;
 
@@ -123,6 +127,10 @@ public class GraphVisualization {
 				label += "Node " + n.getIndex();
 			node.addAttribute(labelKey, label);
 		}
+
+		// change coloring
+		if (colorNodesByDegree)
+			colorNodeByDegree(node);
 	}
 
 	/** Removes node n from graph g. **/
@@ -191,6 +199,32 @@ public class GraphVisualization {
 			if (showEdgeWeights)
 				edge.addAttribute(labelKey, 0);
 		}
+
+		// change coloring
+		if (colorNodesByDegree) {
+			colorNodeByDegree(graph.getNode("" + n1));
+			colorNodeByDegree(graph.getNode("" + n2));
+		}
+	}
+
+	public static void colorNodeByDegree(org.graphstream.graph.Node n) {
+		int degree = n.getDegree() - 1;
+
+		// calculate color
+		int red = 0;
+		int green = 255;
+		int blue = 0;
+		if (degree >= 0) {
+			int weight = degree * nodeColorAmplification;
+			if (weight > 255)
+				weight = 255;
+
+			red += weight;
+			green -= weight;
+		}
+
+		n.setAttribute("ui.style", "fill-color: rgb(" + red + "," + green + ","
+				+ blue + ");");
 	}
 
 	/** Removes edge e from graph g. **/
@@ -207,6 +241,12 @@ public class GraphVisualization {
 
 		// remove edge
 		graph.removeEdge(graph.getNode("" + n1).getEdgeBetween("" + n2));
+
+		// change coloring
+		if (colorNodesByDegree) {
+			colorNodeByDegree(graph.getNode("" + n1));
+			colorNodeByDegree(graph.getNode("" + n2));
+		}
 	}
 
 	/** Changes edge weight on edge e IN CURRENT GRAPH!!. **/
