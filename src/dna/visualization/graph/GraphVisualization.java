@@ -14,6 +14,7 @@ import dna.graph.nodes.Node;
 import dna.graph.weights.IWeightedEdge;
 import dna.graph.weights.IWeightedNode;
 import dna.graph.weights.Weight;
+import dna.util.Log;
 
 public class GraphVisualization {
 	// statics
@@ -60,7 +61,7 @@ public class GraphVisualization {
 	 */
 	/** Init graph g. **/
 	public static void init(Graph g) {
-		System.out.println("GraphVis - init graph: " + g);
+		Log.info("GraphVis - init graph: " + g);
 
 		// init graph
 		org.graphstream.graph.Graph graph = new MultiGraph(g.getName());
@@ -86,8 +87,6 @@ public class GraphVisualization {
 
 	/** Adds node n to graph g. **/
 	public static void addNode(Graph g, Node n) {
-		System.out.println("GraphVis - addNode: " + n);
-
 		// wait some time
 		waitTime(waitTimeNodeAddition);
 
@@ -104,8 +103,6 @@ public class GraphVisualization {
 
 	/** Removes node n from graph g. **/
 	public static void removeNode(Graph g, Node n) {
-		System.out.println("GraphVis - removeNode: " + n);
-
 		// wait some time
 		waitTime(waitTimeNodeRemoval);
 
@@ -118,8 +115,6 @@ public class GraphVisualization {
 
 	/** Changes node weight on node n IN CURRENT GRAPH!!. **/
 	public static void changeNodeWeight(IWeightedNode n, Weight w) {
-		System.out.println("GraphVis - changeNodeWeight: " + w + " of " + n);
-
 		// wait some time
 		waitTime(waitTimeNodeWeightChange);
 
@@ -147,8 +142,6 @@ public class GraphVisualization {
 
 	/** Adds edge e to graph g. **/
 	public static void addEdge(Graph g, Edge e) {
-		System.out.println("GraphVis - addEdge: " + e);
-
 		// wait some time
 		waitTime(waitTimeEdgeAddition);
 
@@ -175,8 +168,6 @@ public class GraphVisualization {
 
 	/** Removes edge e from graph g. **/
 	public static void removeEdge(Graph g, Edge e) {
-		System.out.println("GraphVis - removeEdge: " + e);
-
 		// wait some time
 		waitTime(waitTimeEdgeRemoval);
 
@@ -193,8 +184,6 @@ public class GraphVisualization {
 
 	/** Changes edge weight on edge e IN CURRENT GRAPH!!. **/
 	public static void changeEdgeWeight(IWeightedEdge e, Weight w) {
-		System.out.println("GraphVis - changeNodeWeight: " + w + " of " + e);
-
 		// wait some time
 		waitTime(waitTimeEdgeWeightChange);
 
