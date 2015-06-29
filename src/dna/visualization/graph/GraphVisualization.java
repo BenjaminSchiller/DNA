@@ -4,11 +4,18 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.File;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.concurrent.TimeUnit;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
+import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -43,6 +50,9 @@ public class GraphVisualization {
 	protected static final String weightKey = "dna.weight";
 	protected static final String labelKey = "ui.label";
 	protected static final String directedKey = "dna.directed";
+	protected static final String screenshotsKey = "ui.screenshot";
+	protected static final String screenshotsDir = "images/";
+	protected static final String screenshotsSuffix = ".png";
 
 	// graph map
 	protected static HashMap<Graph, org.graphstream.graph.Graph> map = new HashMap<Graph, org.graphstream.graph.Graph>();
@@ -102,8 +112,10 @@ public class GraphVisualization {
 	public static void init(Graph g) {
 		Log.info("GraphVis - init graph: " + g);
 
+		final String name = g.getName();
+
 		// init graph
-		org.graphstream.graph.Graph graph = new MultiGraph(g.getName());
+		final org.graphstream.graph.Graph graph = new MultiGraph(g.getName());
 
 		// set if directed or undirected
 		if (g.getGraphDatastructures().createsDirected())
@@ -157,8 +169,8 @@ public class GraphVisualization {
 		currentLabel = text;
 		textPanel.add(text);
 
-		// JPanel dummy = new JPanel();
-		// textPanel.add(dummy);
+		JPanel dummy = new JPanel();
+		textPanel.add(dummy);
 		//
 		// JLabel nodes = new JLabel("N=" + 0 + " ");
 		// nodes.setFont(font);
@@ -167,6 +179,42 @@ public class GraphVisualization {
 		// JLabel edges = new JLabel("E=" + 0);
 		// edges.setFont(font);
 		// textPanel.add(edges);
+
+		// screenshot button
+		JButton screenshot = new JButton("Screenshot");
+		screenshot.setFont(new Font(font.getName(), font.getStyle(), font
+				.getSize() - 3));
+		screenshot
+				.setToolTipText("Captures a screenshot and saves it to '/images/'");
+		textPanel.add(screenshot);
+		screenshot.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				// create dir
+				File f = new File(screenshotsDir);
+				if (!f.exists() && !f.isFile())
+					f.mkdirs();
+
+				// get date format
+				DateFormat df = new SimpleDateFormat("yyyy_MM_dd-HH_mm");
+
+				String filename = name + "-" + df.format(new Date());
+				String path = screenshotsDir + filename;
+
+				// get name
+				File f2 = new File(path + screenshotsSuffix);
+				int id = 0;
+				while (f2.exists()) {
+					id++;
+					f2 = new File(path + "_" + id + screenshotsSuffix);
+				}
+
+				// create screenshot
+				graph.addAttribute(screenshotsKey, f2.getAbsolutePath());
+				Log.info("GraphVis - saving screenshot to '" + f2.getPath()
+						+ "'");
+			}
+		});
 
 		// main panel
 		JPanel mainPanel = new JPanel();
@@ -184,6 +232,7 @@ public class GraphVisualization {
 
 		// set visible
 		mainFrame.setVisible(true);
+		graph.addAttribute("ui.screenshot", "data/screenshot.png");
 	}
 
 	/*
