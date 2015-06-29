@@ -8,11 +8,13 @@ import java.util.HashMap;
 import java.util.concurrent.TimeUnit;
 
 import javax.swing.BorderFactory;
+import javax.swing.BoxLayout;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import org.graphstream.graph.implementations.MultiGraph;
+import org.graphstream.ui.layout.Layout;
 import org.graphstream.ui.layout.springbox.implementations.LinLog;
 import org.graphstream.ui.layout.springbox.implementations.SpringBox;
 import org.graphstream.ui.view.View;
@@ -73,6 +75,7 @@ public class GraphVisualization {
 	public static long waitTimeEdgeWeightChange = 10;
 
 	// layouts
+	public static double defaultLayoutForce = 1.0;
 	public static boolean useLinLogLayout = false;
 	public static boolean use3dMode = false;
 
@@ -124,31 +127,51 @@ public class GraphVisualization {
 		Viewer v = new Viewer(graph,
 				Viewer.ThreadingModel.GRAPH_IN_ANOTHER_THREAD);
 
+		Layout layouter = new SpringBox(use3dMode);
 		if (useLinLogLayout)
-			v.enableAutoLayout(new LinLog(use3dMode));
-		else
-			v.enableAutoLayout(new SpringBox(use3dMode));
+			layouter = new LinLog(use3dMode);
+
+		layouter.setForce(defaultLayoutForce);
+		v.enableAutoLayout(layouter);
 
 		/*
 		 * JAVA SWING STUFF
 		 */
 		// get view
 		View view = v.addDefaultView(false);
+
 		JPanel graphView = (JPanel) view;
+
+		JPanel textPanel = new JPanel();
+		textPanel.setLayout(new BoxLayout(textPanel, BoxLayout.X_AXIS));
+
+		Font font = new Font("Verdana", Font.PLAIN, 14);
 
 		// set text panel
 		JLabel text = new JLabel();
-		text.setFont(new Font("Verdana", Font.PLAIN, 14));
+		text.setFont(font);
 		text.setText("Initialization");
-		text.setBorder(BorderFactory.createLineBorder(Color.GRAY));
+		textPanel.setBorder(BorderFactory.createLineBorder(Color.GRAY));
 		text.setBackground(new Color(230, 230, 230));
 		labelMap.put(g, text);
 		currentLabel = text;
+		textPanel.add(text);
+
+		// JPanel dummy = new JPanel();
+		// textPanel.add(dummy);
+		//
+		// JLabel nodes = new JLabel("N=" + 0 + " ");
+		// nodes.setFont(font);
+		// textPanel.add(nodes);
+		//
+		// JLabel edges = new JLabel("E=" + 0);
+		// edges.setFont(font);
+		// textPanel.add(edges);
 
 		// main panel
 		JPanel mainPanel = new JPanel();
 		mainPanel.setLayout(new BorderLayout());
-		mainPanel.add(text, BorderLayout.PAGE_START);
+		mainPanel.add(textPanel, BorderLayout.PAGE_START);
 		mainPanel.add(graphView, BorderLayout.CENTER);
 
 		// main frame
