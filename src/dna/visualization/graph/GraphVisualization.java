@@ -13,6 +13,8 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import org.graphstream.graph.implementations.MultiGraph;
+import org.graphstream.ui.layout.springbox.implementations.LinLog;
+import org.graphstream.ui.layout.springbox.implementations.SpringBox;
 import org.graphstream.ui.view.View;
 import org.graphstream.ui.view.Viewer;
 
@@ -70,6 +72,10 @@ public class GraphVisualization {
 	public static long waitTimeEdgeRemoval = 20;
 	public static long waitTimeEdgeWeightChange = 10;
 
+	// layouts
+	public static boolean useLinLogLayout = false;
+	public static boolean use3dMode = false;
+
 	public static void enable() {
 		enabled = true;
 	}
@@ -117,7 +123,11 @@ public class GraphVisualization {
 		// create viewer and show graph
 		Viewer v = new Viewer(graph,
 				Viewer.ThreadingModel.GRAPH_IN_ANOTHER_THREAD);
-		v.enableAutoLayout();
+
+		if (useLinLogLayout)
+			v.enableAutoLayout(new LinLog(use3dMode));
+		else
+			v.enableAutoLayout(new SpringBox(use3dMode));
 
 		/*
 		 * JAVA SWING STUFF
