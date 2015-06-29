@@ -1,11 +1,19 @@
 package dna.visualization.graph;
 
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Font;
 import java.util.HashMap;
 import java.util.concurrent.TimeUnit;
 
+import javax.swing.BorderFactory;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
 
 import org.graphstream.graph.implementations.MultiGraph;
+import org.graphstream.ui.view.View;
 import org.graphstream.ui.view.Viewer;
 
 import dna.graph.Graph;
@@ -17,6 +25,16 @@ import dna.graph.weights.Weight;
 import dna.util.Log;
 
 public class GraphVisualization {
+	// config
+	protected static boolean enabled = false;
+
+	// GUI CONFIG
+	protected static final Dimension size = new Dimension(1024, 768);
+
+	// high quality rendering / anti-aliasing
+	protected static final boolean rendering_hq = false;
+	protected static final boolean rendering_antialias = false;
+
 	// statics
 	protected static final String weightKey = "dna.weight";
 	protected static final String labelKey = "ui.label";
@@ -26,11 +44,16 @@ public class GraphVisualization {
 	protected static HashMap<Graph, org.graphstream.graph.Graph> map = new HashMap<Graph, org.graphstream.graph.Graph>();
 	protected static org.graphstream.graph.Graph currentGraph;
 
+	// graph to text-pane map
+	protected static HashMap<Graph, JLabel> labelMap = new HashMap<Graph, JLabel>();
+	protected static JLabel currentLabel;
+
 	// labels
 	public static boolean showNodeIndex = false;
 	public static boolean nodeIndexVerbose = true;
 	public static boolean showNodeWeight = true;
 	public static boolean showEdgeWeights = false;
+	public static boolean showDirectedEdgeArrows = true;
 
 	// node color
 	public static boolean colorNodesByDegree = true;
@@ -47,13 +70,6 @@ public class GraphVisualization {
 	public static long waitTimeEdgeRemoval = 20;
 	public static long waitTimeEdgeWeightChange = 10;
 
-	// config
-	protected static boolean enabled = false;
-
-	// high quality rendering / anti-aliasing
-	protected static final boolean rendering_hq = false;
-	protected static final boolean rendering_antialias = false;
-
 	public static void enable() {
 		enabled = true;
 	}
@@ -64,6 +80,10 @@ public class GraphVisualization {
 
 	public static boolean isEnabled() {
 		return enabled;
+	}
+
+	public static org.graphstream.graph.Graph getCurrentGraph() {
+		return currentGraph;
 	}
 
 	/*
@@ -82,6 +102,12 @@ public class GraphVisualization {
 		else
 			graph.addAttribute(directedKey, false);
 
+		// add graph to map
+		map.put(g, graph);
+
+		// set graph as current graph
+		currentGraph = graph;
+
 		// rendering options
 		if (rendering_hq)
 			graph.addAttribute("ui.quality");
@@ -89,18 +115,42 @@ public class GraphVisualization {
 			graph.addAttribute("ui.antialias");
 
 		// create viewer and show graph
-		Viewer v = graph.display();
+		Viewer v = new Viewer(graph,
+				Viewer.ThreadingModel.GRAPH_IN_ANOTHER_THREAD);
+		v.enableAutoLayout();
 
-		// set title
-		JFrame f1 = (JFrame) v.getDefaultView().getParent().getParent()
-				.getParent().getParent();
-		f1.setTitle(g.getName());
+		/*
+		 * JAVA SWING STUFF
+		 */
+		// get view
+		View view = v.addDefaultView(false);
+		JPanel graphView = (JPanel) view;
 
-		// add graph to map
-		map.put(g, graph);
+		// set text panel
+		JLabel text = new JLabel();
+		text.setFont(new Font("Verdana", Font.PLAIN, 14));
+		text.setText("Initialization");
+		text.setBorder(BorderFactory.createLineBorder(Color.GRAY));
+		text.setBackground(new Color(230, 230, 230));
+		labelMap.put(g, text);
+		currentLabel = text;
 
-		// set graph as current graph
-		currentGraph = graph;
+		// main panel
+		JPanel mainPanel = new JPanel();
+		mainPanel.setLayout(new BorderLayout());
+		mainPanel.add(text, BorderLayout.PAGE_START);
+		mainPanel.add(graphView, BorderLayout.CENTER);
+
+		// main frame
+		JFrame mainFrame = new JFrame("Graph-Vis Mainframe");
+		mainFrame.add(mainPanel);
+		mainFrame.setTitle(g.getName());
+		mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		mainFrame.setSize(size);
+		mainFrame.setLocationRelativeTo(null);
+
+		// set visible
+		mainFrame.setVisible(true);
 	}
 
 	/*
@@ -181,7 +231,8 @@ public class GraphVisualization {
 		org.graphstream.graph.Graph graph = map.get(g);
 
 		// get directed flag
-		boolean directedEdges = graph.getAttribute(directedKey);
+		boolean directedEdges = showDirectedEdgeArrows
+				&& (boolean) graph.getAttribute(directedKey);
 
 		// get indizes
 		int n1 = e.getN1Index();
@@ -286,5 +337,15 @@ public class GraphVisualization {
 				e.printStackTrace();
 			}
 		}
+	}
+
+	/** Sets the description text for the given graph. **/
+	public static void setText(Graph g, String text) {
+		labelMap.get(g).setText(text);
+	}
+
+	/** Sets the description text for the CURRENT GRAPH. **/
+	public static void setText(String text) {
+		currentLabel.setText(text);
 	}
 }
