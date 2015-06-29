@@ -61,6 +61,7 @@ public class GraphVisualization {
 	// graph to text-pane map
 	protected static HashMap<Graph, JLabel> labelMap = new HashMap<Graph, JLabel>();
 	protected static JLabel currentLabel;
+	protected static Layout currentLayouter;
 
 	// labels
 	public static boolean showNodeIndex = false;
@@ -105,6 +106,10 @@ public class GraphVisualization {
 		return currentGraph;
 	}
 
+	public static Layout getCurrentLayouter() {
+		return currentLayouter;
+	}
+
 	/*
 	 * GRAPH
 	 */
@@ -145,6 +150,7 @@ public class GraphVisualization {
 
 		layouter.setForce(layouterForce);
 		v.enableAutoLayout(layouter);
+		currentLayouter = layouter;
 
 		/*
 		 * JAVA SWING STUFF
