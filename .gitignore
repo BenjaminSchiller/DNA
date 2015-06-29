@@ -6,6 +6,7 @@
 /build/config
 
 /data/
+/images/
 /plots/
 /deploy/
 /bin/
