@@ -28,6 +28,7 @@ public class GraphVisualization {
 
 	// labels
 	public static boolean showNodeIndex = false;
+	public static boolean nodeIndexVerbose = true;
 	public static boolean showNodeWeight = true;
 	public static boolean showEdgeWeights = false;
 
@@ -114,8 +115,14 @@ public class GraphVisualization {
 		node.addAttribute(weightKey, 0);
 
 		// set label
-		if (showNodeIndex)
-			node.setAttribute(labelKey, "Node " + n.getIndex());
+		if (showNodeIndex) {
+			String label = "";
+			if (nodeIndexVerbose)
+				label += n.getIndex();
+			else
+				label += "Node " + n.getIndex();
+			node.setAttribute(labelKey, label);
+		}
 	}
 
 	/** Removes node n from graph g. **/
