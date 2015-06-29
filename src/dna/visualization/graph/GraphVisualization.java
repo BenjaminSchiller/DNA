@@ -121,7 +121,7 @@ public class GraphVisualization {
 				label += n.getIndex();
 			else
 				label += "Node " + n.getIndex();
-			node.setAttribute(labelKey, label);
+			node.addAttribute(labelKey, label);
 		}
 	}
 
