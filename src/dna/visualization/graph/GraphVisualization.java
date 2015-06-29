@@ -85,7 +85,7 @@ public class GraphVisualization {
 	public static long waitTimeEdgeWeightChange = 10;
 
 	// layouts
-	public static double defaultLayoutForce = 1.0;
+	public static double layouterForce = 1.0;
 	public static boolean useLinLogLayout = false;
 	public static boolean use3dMode = false;
 
@@ -143,7 +143,7 @@ public class GraphVisualization {
 		if (useLinLogLayout)
 			layouter = new LinLog(use3dMode);
 
-		layouter.setForce(defaultLayoutForce);
+		layouter.setForce(layouterForce);
 		v.enableAutoLayout(layouter);
 
 		/*
