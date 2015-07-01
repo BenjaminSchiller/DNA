@@ -7,6 +7,7 @@ import dna.graph.generators.random.RandomGraph;
 import dna.updates.batch.Batch;
 import dna.updates.generators.BatchGenerator;
 import dna.updates.generators.evolvingNetworks.BarabasiAlbertBatch;
+import dna.util.parameters.IntParameter;
 import dna.util.parameters.Parameter;
 
 public class BarabasiAlbertGraph extends GraphGenerator {
@@ -21,8 +22,12 @@ public class BarabasiAlbertGraph extends GraphGenerator {
 
 	public BarabasiAlbertGraph(GraphDataStructure gds, int startNodes,
 			int startEdges, int nodesToAdd, int edgesPerNode) {
-		super("BarabasiAlbertGraph", new Parameter[0], gds, 0, startNodes
-				+ nodesToAdd, startEdges + nodesToAdd * edgesPerNode);
+		super("BarabasiAlbertGraph", new Parameter[] {
+				new IntParameter("StartNodes", startNodes),
+				new IntParameter("StartEdges", startEdges),
+				new IntParameter("NodesToAdd", nodesToAdd),
+				new IntParameter("edgesPerNode", edgesPerNode) }, gds, 0,
+				startNodes + nodesToAdd, startEdges + nodesToAdd * edgesPerNode);
 		this.startNodes = startNodes;
 		this.startEdges = startEdges;
 		this.nodesToAdd = nodesToAdd;
