@@ -18,6 +18,7 @@ import dna.graph.weights.Weight;
 import dna.util.Config;
 import dna.util.Log;
 
+/** The GraphVisualization class offers methods to visualize graphs used in DNA. **/
 public class GraphVisualization {
 	// statics
 	public static final String weightKey = "dna.weight";

@@ -27,8 +27,8 @@ import dna.util.Config;
 import dna.util.Log;
 
 /**
- * The GraphPanel class is used as a JPanel which contains a graph-visualization
- * panel and a text-panel above this.
+ * The GraphPanel class is used as a JPanel which contains a text-panel and a
+ * graph-visualization panel underneath.
  **/
 public class GraphPanel extends JPanel {
 
