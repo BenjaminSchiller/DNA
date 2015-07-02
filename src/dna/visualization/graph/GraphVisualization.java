@@ -27,6 +27,9 @@ public class GraphVisualization {
 	public static final String screenshotsKey = "ui.screenshot";
 	public static final String qualityKey = "ui.quality";
 	public static final String antialiasKey = "ui.antialias";
+	public static final String colorKey = "dna.color";
+	public static final String sizeKey = "dna.size";
+	public static final String styleKey = "ui.style";
 
 	// GUI CONFIG
 	protected static final Dimension size = new Dimension(
@@ -110,8 +113,9 @@ public class GraphVisualization {
 		}
 
 		// change coloring
-		if (Config.getBoolean("GRAPH_VIS_COLOR_NODES_BY_DEGREE"))
-			colorNodeByDegree(node);
+		if (Config.getBoolean("GRAPH_VIS_COLOR_NODES_BY_DEGREE")
+				|| Config.getBoolean("GRAPH_VIS_SIZE_NODES_BY_DEGREE"))
+			applyNodeStyleByDegree(node);
 	}
 
 	/** Removes node n from graph g. **/
@@ -183,14 +187,25 @@ public class GraphVisualization {
 				edge.addAttribute(labelKey, 0);
 		}
 
-		// change coloring
-		if (Config.getBoolean("GRAPH_VIS_COLOR_NODES_BY_DEGREE")) {
-			colorNodeByDegree(graph.getNode("" + n1));
-			colorNodeByDegree(graph.getNode("" + n2));
-		}
+		// change node styles
+		applyNodeStyleByDegree(graph.getNode("" + n1));
+		applyNodeStyleByDegree(graph.getNode("" + n2));
 	}
 
-	public static void colorNodeByDegree(org.graphstream.graph.Node n) {
+	public static void applyNodeStyleByDegree(org.graphstream.graph.Node n) {
+		// set style stuff
+		if (Config.getBoolean("GRAPH_VIS_COLOR_NODES_BY_DEGREE"))
+			setNodeColorByDegree(n);
+		if (Config.getBoolean("GRAPH_VIS_SIZE_NODES_BY_DEGREE"))
+			setNodeSizeByDegree(n);
+
+		// set style attribute accordingly
+		n.setAttribute(styleKey,
+				n.getAttribute(colorKey) + " " + n.getAttribute(sizeKey));
+	}
+
+	/** Sets the color of the node by its degree. **/
+	protected static void setNodeColorByDegree(org.graphstream.graph.Node n) {
 		int degree = n.getDegree() - 1;
 
 		// calculate color
@@ -207,8 +222,20 @@ public class GraphVisualization {
 			green -= weight;
 		}
 
-		n.setAttribute("ui.style", "fill-color: rgb(" + red + "," + green + ","
+		// set color attribute
+		n.setAttribute(colorKey, "fill-color: rgb(" + red + "," + green + ","
 				+ blue + ");");
+	}
+
+	/** Sets the size of the node by its degree. **/
+	protected static void setNodeSizeByDegree(org.graphstream.graph.Node n) {
+		// calc size
+		int size = Config.getInt("GRAPH_VIS_NODE_DEFAULT_SIZE")
+				+ (int) (n.getDegree() * Config
+						.getDouble("GRAPH_VIS_NODE_GROWTH_PER_DEGREE"));
+
+		// set size attribute
+		n.setAttribute(sizeKey, "size: " + size + "px;");
 	}
 
 	/** Removes edge e from graph g. **/
@@ -227,9 +254,10 @@ public class GraphVisualization {
 		graph.removeEdge(graph.getNode("" + n1).getEdgeBetween("" + n2));
 
 		// change coloring
-		if (Config.getBoolean("GRAPH_VIS_COLOR_NODES_BY_DEGREE")) {
-			colorNodeByDegree(graph.getNode("" + n1));
-			colorNodeByDegree(graph.getNode("" + n2));
+		if (Config.getBoolean("GRAPH_VIS_COLOR_NODES_BY_DEGREE")
+				|| Config.getBoolean("GRAPH_VIS_SIZE_NODES_BY_DEGREE")) {
+			applyNodeStyleByDegree(graph.getNode("" + n1));
+			applyNodeStyleByDegree(graph.getNode("" + n2));
 		}
 	}
 
