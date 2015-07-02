@@ -16,26 +16,25 @@ import dna.graph.nodes.Node;
 import dna.graph.weights.IWeightedEdge;
 import dna.graph.weights.IWeightedNode;
 import dna.graph.weights.Weight;
+import dna.util.Config;
 import dna.util.Log;
 
 public class GraphVisualization {
+	// statics
+	public static final String weightKey = "dna.weight";
+	public static final String labelKey = "ui.label";
+	public static final String directedKey = "dna.directed";
+	public static final String screenshotsKey = "ui.screenshot";
+	public static final String qualityKey = "ui.quality";
+	public static final String antialiasKey = "ui.antialias";
+
 	// config
-	protected static boolean enabled = false;
+//	protected static boolean enabled = Config.getBoolean("GRAPH_VIS_ENABLED");
 
 	// GUI CONFIG
-	protected static final Dimension size = new Dimension(1024, 768);
-
-	// high quality rendering / anti-aliasing
-	protected static final boolean rendering_hq = false;
-	protected static final boolean rendering_antialias = false;
-
-	// statics
-	protected static final String weightKey = "dna.weight";
-	protected static final String labelKey = "ui.label";
-	protected static final String directedKey = "dna.directed";
-	protected static final String screenshotsKey = "ui.screenshot";
-	protected static final String screenshotsDir = "images/";
-	protected static final String screenshotsSuffix = ".png";
+	protected static final Dimension size = new Dimension(
+			Config.getInt("GRAPH_VIS_FRAME_WIDTH"),
+			Config.getInt("GRAPH_VIS_FRAME_HEIGHT"));
 
 	// graph map
 	protected static HashMap<Graph, org.graphstream.graph.Graph> map = new HashMap<Graph, org.graphstream.graph.Graph>();
@@ -46,38 +45,20 @@ public class GraphVisualization {
 	protected static JLabel currentLabel;
 	protected static Layout currentLayouter;
 
-	// labels
-	public static boolean showNodeIndex = false;
-	public static boolean nodeIndexVerbose = true;
-	public static boolean showNodeWeight = true;
-	public static boolean showEdgeWeights = false;
-	public static boolean showDirectedEdgeArrows = true;
-
 	// node color
 	public static boolean colorNodesByDegree = true;
 	public static int nodeColorAmplification = 20;
 
-	// wait times
-	public static boolean waitTimes_enabled = true;
-
-	public static long waitTimeNodeAddition = 20;
-	public static long waitTimeNodeRemoval = 20;
-	public static long waitTimeNodeWeightChange = 10;
-
-	public static long waitTimeEdgeAddition = 20;
-	public static long waitTimeEdgeRemoval = 20;
-	public static long waitTimeEdgeWeightChange = 10;
-
 	public static void enable() {
-		enabled = true;
+		Config.overwrite("GRAPH_VIS_ENABLED", "true");
 	}
 
 	public static void disable() {
-		enabled = false;
+		Config.overwrite("GRAPH_VIS_ENABLED", "false");
 	}
 
 	public static boolean isEnabled() {
-		return enabled;
+		return Config.getBoolean("GRAPH_VIS_ENABLED");
 	}
 
 	public static org.graphstream.graph.Graph getCurrentGraph() {
@@ -113,10 +94,10 @@ public class GraphVisualization {
 		currentGraph = graph;
 
 		// rendering options
-		if (rendering_hq)
-			graph.addAttribute("ui.quality");
-		if (rendering_antialias)
-			graph.addAttribute("ui.antialias");
+		if (Config.getBoolean("GRAPH_VIS_RENDERING_HQ"))
+			graph.addAttribute(GraphVisualization.qualityKey);
+		if (Config.getBoolean("GRAPH_VIS_RENDERING_ANTIALIAS"))
+			graph.addAttribute(GraphVisualization.antialiasKey);
 
 		// main frame
 		JFrame mainFrame = new JFrame("Graph-Vis Mainframe2");
@@ -137,7 +118,7 @@ public class GraphVisualization {
 	/** Adds node n to graph g. **/
 	public static void addNode(Graph g, Node n) {
 		// wait some time
-		waitTime(waitTimeNodeAddition);
+		waitTime(Config.getInt("GRAPH_VIS_WAIT_NODE_ADDITION"));
 
 		// add node to graph
 		org.graphstream.graph.Node node = map.get(g).addNode("" + n.getIndex());
@@ -146,9 +127,9 @@ public class GraphVisualization {
 		node.addAttribute(weightKey, 0);
 
 		// set label
-		if (showNodeIndex) {
+		if (Config.getBoolean("GRAPH_VIS_SHOW_NODE_INDEX")) {
 			String label = "";
-			if (nodeIndexVerbose)
+			if (Config.getBoolean("GRAPH_VIS_SHOW_NODE_INDEX_VERBOSE"))
 				label += n.getIndex();
 			else
 				label += "Node " + n.getIndex();
@@ -163,7 +144,7 @@ public class GraphVisualization {
 	/** Removes node n from graph g. **/
 	public static void removeNode(Graph g, Node n) {
 		// wait some time
-		waitTime(waitTimeNodeRemoval);
+		waitTime(Config.getInt("GRAPH_VIS_WAIT_NODE_REMOVAL"));
 
 		// get graph
 		org.graphstream.graph.Graph graph = map.get(g);
@@ -175,7 +156,7 @@ public class GraphVisualization {
 	/** Changes node weight on node n IN CURRENT GRAPH!!. **/
 	public static void changeNodeWeight(IWeightedNode n, Weight w) {
 		// wait some time
-		waitTime(waitTimeNodeWeightChange);
+		waitTime(Config.getInt("GRAPH_VIS_WAIT_NODE_WEIGHT_CHANGE"));
 
 		// get graph
 		org.graphstream.graph.Graph graph = currentGraph;
@@ -187,7 +168,7 @@ public class GraphVisualization {
 		node.changeAttribute(weightKey, w);
 
 		// show weight
-		if (showEdgeWeights) {
+		if (Config.getBoolean("GRAPH_VIS_SHOW_EDGE_WEIGHTS")) {
 			if (node.hasAttribute(labelKey))
 				node.changeAttribute(labelKey, w.toString());
 			else
@@ -202,13 +183,14 @@ public class GraphVisualization {
 	/** Adds edge e to graph g. **/
 	public static void addEdge(Graph g, Edge e) {
 		// wait some time
-		waitTime(waitTimeEdgeAddition);
+		waitTime(Config.getInt("GRAPH_VIS_WAIT_EDGE_ADDITION"));
 
 		// get graph
 		org.graphstream.graph.Graph graph = map.get(g);
 
 		// get directed flag
-		boolean directedEdges = showDirectedEdgeArrows
+		boolean directedEdges = Config
+				.getBoolean("GRAPH_VIS_SHOW_DIRECTED_EDGE_ARROWS")
 				&& (boolean) graph.getAttribute(directedKey);
 
 		// get indizes
@@ -224,7 +206,7 @@ public class GraphVisualization {
 			edge.addAttribute(weightKey, 0);
 
 			// add label
-			if (showEdgeWeights)
+			if (Config.getBoolean("GRAPH_VIS_SHOW_EDGE_WEIGHTS"))
 				edge.addAttribute(labelKey, 0);
 		}
 
@@ -258,7 +240,7 @@ public class GraphVisualization {
 	/** Removes edge e from graph g. **/
 	public static void removeEdge(Graph g, Edge e) {
 		// wait some time
-		waitTime(waitTimeEdgeRemoval);
+		waitTime(Config.getInt("GRAPH_VIS_WAIT_EDGE_REMOVAL"));
 
 		// get graph
 		org.graphstream.graph.Graph graph = map.get(g);
@@ -280,7 +262,7 @@ public class GraphVisualization {
 	/** Changes edge weight on edge e IN CURRENT GRAPH!!. **/
 	public static void changeEdgeWeight(IWeightedEdge e, Weight w) {
 		// wait some time
-		waitTime(waitTimeEdgeWeightChange);
+		waitTime(Config.getInt("GRAPH_VIS_WAIT_EDGE_WEIGHT_CHANGE"));
 
 		// get graph
 		org.graphstream.graph.Graph graph = currentGraph;
@@ -297,7 +279,7 @@ public class GraphVisualization {
 		edge.changeAttribute(weightKey, w);
 
 		// show weight
-		if (showEdgeWeights) {
+		if (Config.getBoolean("GRAPH_VIS_SHOW_EDGE_WEIGHTS")) {
 			if (edge.hasAttribute(labelKey))
 				edge.changeAttribute(labelKey, w.toString());
 			else
@@ -307,7 +289,7 @@ public class GraphVisualization {
 
 	/** Wait for specified time in milliseconds. **/
 	protected static void waitTime(long milliseconds) {
-		if (waitTimes_enabled) {
+		if (Config.getBoolean("GRAPH_VIS_WAIT_ENABLED")) {
 			try {
 				TimeUnit.MILLISECONDS.sleep(milliseconds);
 			} catch (InterruptedException e) {

@@ -13,7 +13,6 @@ import java.util.Date;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
-import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
@@ -24,41 +23,41 @@ import org.graphstream.ui.layout.springbox.implementations.SpringBox;
 import org.graphstream.ui.view.View;
 import org.graphstream.ui.view.Viewer;
 
+import dna.util.Config;
 import dna.util.Log;
 
+/**
+ * The GraphPanel class is used as a JPanel which contains a graph-visualization
+ * panel and a text-panel above this.
+ **/
 public class GraphPanel extends JPanel {
-
-	// statics
+	// font
 	protected final static Font font = new Font("Verdana", Font.PLAIN, 14);
+
+	// name & graph
+	protected final String name;
+	protected final Graph graph;
 
 	// panels
 	protected final JPanel textPanel;
 	protected final JLabel textLabel;
 	protected final Layout layouter;
-	protected final String name;
 
-	protected static final String screenshotsKey = "ui.screenshot";
-	protected static final String screenshotsDir = "images/";
-	protected static final String screenshotsSuffix = ".png";
-
-	public static double layouterForce = 1.0;
-	public static boolean useLinLogLayout = false;
-	public static boolean useLayouter3dMode = false;
-
+	// constructor
 	public GraphPanel(final Graph graph, final String name) {
-		System.out.println("creating graphpanel! name: '" + name + "'");
 		this.name = name;
+		this.graph = graph;
 
 		// init textpanel
 		this.textPanel = new JPanel();
 		textPanel.setLayout(new BoxLayout(textPanel, BoxLayout.X_AXIS));
 		textPanel.setBorder(BorderFactory.createLineBorder(Color.GRAY));
-		textPanel.setBackground(new Color(230, 230, 230));
 
 		// set text panel
 		textLabel = new JLabel();
 		textLabel.setFont(font);
 		textLabel.setText("Initialization");
+		textLabel.setBackground(new Color(230, 230, 230));
 		textPanel.add(textLabel);
 
 		// dummy panel
@@ -75,6 +74,9 @@ public class GraphPanel extends JPanel {
 		screenshot.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
+				String screenshotsDir = Config.get("GRAPH_VIS_SCREENSHOT_DIR");
+				String screenshotsSuffix = Config
+						.get("GRAPH_VIS_SCREENSHOT_SUFFIX");
 				// create dir
 				File f = new File(screenshotsDir);
 				if (!f.exists() && !f.isFile())
@@ -95,7 +97,8 @@ public class GraphPanel extends JPanel {
 				}
 
 				// create screenshot
-				graph.addAttribute(screenshotsKey, f2.getAbsolutePath());
+				graph.addAttribute(GraphVisualization.screenshotsKey,
+						f2.getAbsolutePath());
 				Log.info("GraphVis - saving screenshot to '" + f2.getPath()
 						+ "'");
 			}
@@ -104,12 +107,12 @@ public class GraphPanel extends JPanel {
 		// create viewer and show graph
 		Viewer v = new Viewer(graph,
 				Viewer.ThreadingModel.GRAPH_IN_ANOTHER_THREAD);
-
+		boolean useLayouter3dMode = Config.getBoolean("GRAPH_VIS_LAYOUT_3D");
 		Layout layouter = new SpringBox(useLayouter3dMode);
-		if (useLinLogLayout)
+		if (Config.getBoolean("GRAPH_VIS_LAYOUT_LINLOG"))
 			layouter = new LinLog(useLayouter3dMode);
 
-		layouter.setForce(layouterForce);
+		layouter.setForce(Config.getDouble("GRAPH_VIS_LAYOUT_FORCE"));
 		v.enableAutoLayout(layouter);
 		this.layouter = layouter;
 
