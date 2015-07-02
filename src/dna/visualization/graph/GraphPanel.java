@@ -31,6 +31,9 @@ import dna.util.Log;
  * panel and a text-panel above this.
  **/
 public class GraphPanel extends JPanel {
+
+	private static final long serialVersionUID = 1L;
+
 	// font
 	protected final static Font font = new Font("Verdana", Font.PLAIN, 14);
 
@@ -107,6 +110,8 @@ public class GraphPanel extends JPanel {
 		// create viewer and show graph
 		Viewer v = new Viewer(graph,
 				Viewer.ThreadingModel.GRAPH_IN_ANOTHER_THREAD);
+
+		// create and configure layouter
 		boolean useLayouter3dMode = Config.getBoolean("GRAPH_VIS_LAYOUT_3D");
 		Layout layouter = new SpringBox(useLayouter3dMode);
 		if (Config.getBoolean("GRAPH_VIS_LAYOUT_LINLOG"))
@@ -124,5 +129,20 @@ public class GraphPanel extends JPanel {
 		this.setLayout(new BorderLayout());
 		this.add(textPanel, BorderLayout.PAGE_START);
 		this.add(graphView, BorderLayout.CENTER);
+	}
+
+	/** Sets the text-label to the input text. **/
+	public void setText(String text) {
+		textLabel.setText(text);
+	}
+
+	/** Returns the embedded graphstream.graph. **/
+	public Graph getGraph() {
+		return this.graph;
+	}
+
+	/** Returns the layouter of the embedded graphstream graph. **/
+	public Layout getLayouter() {
+		return this.layouter;
 	}
 }
