@@ -238,7 +238,6 @@ public class GraphVisualization {
 
 		// set visible
 		mainFrame.setVisible(true);
-		graph.addAttribute("ui.screenshot", "data/screenshot.png");
 	}
 
 	/*
