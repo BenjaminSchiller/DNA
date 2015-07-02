@@ -202,7 +202,7 @@ public class GraphVisualization {
 					f.mkdirs();
 
 				// get date format
-				DateFormat df = new SimpleDateFormat("yyyy_MM_dd-HH_mm");
+				DateFormat df = new SimpleDateFormat("yyyy_MM_dd-HH_mm_ss");
 
 				String filename = name + "-" + df.format(new Date());
 				String path = screenshotsDir + filename;
