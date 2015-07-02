@@ -29,7 +29,8 @@ public class GraphVisualization {
 	public static final String antialiasKey = "ui.antialias";
 
 	// config
-//	protected static boolean enabled = Config.getBoolean("GRAPH_VIS_ENABLED");
+	// protected static boolean enabled =
+	// Config.getBoolean("GRAPH_VIS_ENABLED");
 
 	// GUI CONFIG
 	protected static final Dimension size = new Dimension(
@@ -45,10 +46,6 @@ public class GraphVisualization {
 	protected static JLabel currentLabel;
 	protected static Layout currentLayouter;
 
-	// node color
-	public static boolean colorNodesByDegree = true;
-	public static int nodeColorAmplification = 20;
-
 	public static void enable() {
 		Config.overwrite("GRAPH_VIS_ENABLED", "true");
 	}
@@ -59,14 +56,6 @@ public class GraphVisualization {
 
 	public static boolean isEnabled() {
 		return Config.getBoolean("GRAPH_VIS_ENABLED");
-	}
-
-	public static org.graphstream.graph.Graph getCurrentGraph() {
-		return currentGraph;
-	}
-
-	public static Layout getCurrentLayouter() {
-		return currentLayouter;
 	}
 
 	/*
@@ -137,7 +126,7 @@ public class GraphVisualization {
 		}
 
 		// change coloring
-		if (colorNodesByDegree)
+		if (Config.getBoolean("GRAPH_VIS_COLOR_NODES_BY_DEGREE"))
 			colorNodeByDegree(node);
 	}
 
@@ -211,7 +200,7 @@ public class GraphVisualization {
 		}
 
 		// change coloring
-		if (colorNodesByDegree) {
+		if (Config.getBoolean("GRAPH_VIS_COLOR_NODES_BY_DEGREE")) {
 			colorNodeByDegree(graph.getNode("" + n1));
 			colorNodeByDegree(graph.getNode("" + n2));
 		}
@@ -225,7 +214,8 @@ public class GraphVisualization {
 		int green = 255;
 		int blue = 0;
 		if (degree >= 0) {
-			int weight = degree * nodeColorAmplification;
+			int weight = degree
+					* Config.getInt("GRAPH_VIS_COLOR_AMPLIFICATION");
 			if (weight > 255)
 				weight = 255;
 
@@ -253,7 +243,7 @@ public class GraphVisualization {
 		graph.removeEdge(graph.getNode("" + n1).getEdgeBetween("" + n2));
 
 		// change coloring
-		if (colorNodesByDegree) {
+		if (Config.getBoolean("GRAPH_VIS_COLOR_NODES_BY_DEGREE")) {
 			colorNodeByDegree(graph.getNode("" + n1));
 			colorNodeByDegree(graph.getNode("" + n2));
 		}
