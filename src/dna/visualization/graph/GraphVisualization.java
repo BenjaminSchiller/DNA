@@ -1,31 +1,14 @@
 package dna.visualization.graph;
 
-import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.io.File;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.concurrent.TimeUnit;
 
-import javax.swing.BorderFactory;
-import javax.swing.BoxLayout;
-import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
-import javax.swing.JPanel;
 
 import org.graphstream.graph.implementations.MultiGraph;
 import org.graphstream.ui.layout.Layout;
-import org.graphstream.ui.layout.springbox.implementations.LinLog;
-import org.graphstream.ui.layout.springbox.implementations.SpringBox;
-import org.graphstream.ui.view.View;
-import org.graphstream.ui.view.Viewer;
 
 import dna.graph.Graph;
 import dna.graph.edges.Edge;
@@ -85,11 +68,6 @@ public class GraphVisualization {
 	public static long waitTimeEdgeRemoval = 20;
 	public static long waitTimeEdgeWeightChange = 10;
 
-	// layouts
-	public static double layouterForce = 1.0;
-	public static boolean useLinLogLayout = false;
-	public static boolean useLayouter3dMode = false;
-
 	public static void enable() {
 		enabled = true;
 	}
@@ -140,97 +118,9 @@ public class GraphVisualization {
 		if (rendering_antialias)
 			graph.addAttribute("ui.antialias");
 
-		// create viewer and show graph
-		Viewer v = new Viewer(graph,
-				Viewer.ThreadingModel.GRAPH_IN_ANOTHER_THREAD);
-
-		Layout layouter = new SpringBox(useLayouter3dMode);
-		if (useLinLogLayout)
-			layouter = new LinLog(useLayouter3dMode);
-
-		layouter.setForce(layouterForce);
-		v.enableAutoLayout(layouter);
-		currentLayouter = layouter;
-
-		/*
-		 * JAVA SWING STUFF
-		 */
-		// get view
-		View view = v.addDefaultView(false);
-
-		JPanel graphView = (JPanel) view;
-
-		JPanel textPanel = new JPanel();
-		textPanel.setLayout(new BoxLayout(textPanel, BoxLayout.X_AXIS));
-
-		Font font = new Font("Verdana", Font.PLAIN, 14);
-
-		// set text panel
-		JLabel text = new JLabel();
-		text.setFont(font);
-		text.setText("Initialization");
-		textPanel.setBorder(BorderFactory.createLineBorder(Color.GRAY));
-		text.setBackground(new Color(230, 230, 230));
-		labelMap.put(g, text);
-		currentLabel = text;
-		textPanel.add(text);
-
-		JPanel dummy = new JPanel();
-		textPanel.add(dummy);
-		//
-		// JLabel nodes = new JLabel("N=" + 0 + " ");
-		// nodes.setFont(font);
-		// textPanel.add(nodes);
-		//
-		// JLabel edges = new JLabel("E=" + 0);
-		// edges.setFont(font);
-		// textPanel.add(edges);
-
-		// screenshot button
-		JButton screenshot = new JButton("Screenshot");
-		screenshot.setFont(new Font(font.getName(), font.getStyle(), font
-				.getSize() - 3));
-		screenshot
-				.setToolTipText("Captures a screenshot and saves it to '/images/'");
-		textPanel.add(screenshot);
-		screenshot.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				// create dir
-				File f = new File(screenshotsDir);
-				if (!f.exists() && !f.isFile())
-					f.mkdirs();
-
-				// get date format
-				DateFormat df = new SimpleDateFormat("yyyy_MM_dd-HH_mm_ss");
-
-				String filename = name + "-" + df.format(new Date());
-				String path = screenshotsDir + filename;
-
-				// get name
-				File f2 = new File(path + screenshotsSuffix);
-				int id = 0;
-				while (f2.exists()) {
-					id++;
-					f2 = new File(path + "_" + id + screenshotsSuffix);
-				}
-
-				// create screenshot
-				graph.addAttribute(screenshotsKey, f2.getAbsolutePath());
-				Log.info("GraphVis - saving screenshot to '" + f2.getPath()
-						+ "'");
-			}
-		});
-
-		// main panel
-		JPanel mainPanel = new JPanel();
-		mainPanel.setLayout(new BorderLayout());
-		mainPanel.add(textPanel, BorderLayout.PAGE_START);
-		mainPanel.add(graphView, BorderLayout.CENTER);
-
 		// main frame
-		JFrame mainFrame = new JFrame("Graph-Vis Mainframe");
-		mainFrame.add(mainPanel);
+		JFrame mainFrame = new JFrame("Graph-Vis Mainframe2");
+		mainFrame.add(new GraphPanel(graph, name));
 		mainFrame.setTitle(g.getName());
 		mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		mainFrame.setSize(size);
