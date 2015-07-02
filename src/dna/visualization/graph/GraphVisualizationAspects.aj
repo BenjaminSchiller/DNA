@@ -1,19 +1,19 @@
 package dna.visualization.graph;
 
 import dna.graph.Graph;
+import dna.graph.datastructures.GraphDataStructure;
 import dna.graph.edges.Edge;
-import dna.graph.generators.GraphGenerator;
 import dna.graph.nodes.Node;
 import dna.graph.weights.IWeightedEdge;
 import dna.graph.weights.IWeightedNode;
 import dna.graph.weights.Weight;
 
 public aspect GraphVisualizationAspects {
-	
+
 	/*
 	 * GRAPH
 	 */
-	
+
 	pointcut graphInit() :  
 		if(GraphVisualization.isEnabled()) &&
 		call(* GraphDataStructure.newGraphInstance(String, long, int, int));
@@ -53,7 +53,7 @@ public aspect GraphVisualizationAspects {
 		target(n) &&
 		args(w) &&
 		call(* IWeightedNode.setWeight(Weight));
-	
+
 	before(IWeightedNode n, Weight w) : nodeWeight(n, w) {
 		GraphVisualization.changeNodeWeight(n, w);
 	}
@@ -87,7 +87,7 @@ public aspect GraphVisualizationAspects {
 		target(e) &&
 		args(w) &&
 		call(* IWeightedEdge.setWeight(Weight));
-	
+
 	before(IWeightedEdge e, Weight w) : edgeWeight(e, w) {
 		GraphVisualization.changeEdgeWeight(e, w);
 	}
