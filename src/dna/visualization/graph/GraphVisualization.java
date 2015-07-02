@@ -5,7 +5,6 @@ import java.util.HashMap;
 import java.util.concurrent.TimeUnit;
 
 import javax.swing.JFrame;
-import javax.swing.JLabel;
 
 import org.graphstream.graph.implementations.MultiGraph;
 import org.graphstream.ui.layout.Layout;
@@ -28,35 +27,16 @@ public class GraphVisualization {
 	public static final String qualityKey = "ui.quality";
 	public static final String antialiasKey = "ui.antialias";
 
-	// config
-	// protected static boolean enabled =
-	// Config.getBoolean("GRAPH_VIS_ENABLED");
-
 	// GUI CONFIG
 	protected static final Dimension size = new Dimension(
 			Config.getInt("GRAPH_VIS_FRAME_WIDTH"),
 			Config.getInt("GRAPH_VIS_FRAME_HEIGHT"));
 
 	// graph map
-	protected static HashMap<Graph, org.graphstream.graph.Graph> map = new HashMap<Graph, org.graphstream.graph.Graph>();
-	protected static org.graphstream.graph.Graph currentGraph;
+	protected static HashMap<Graph, GraphPanel> map = new HashMap<Graph, GraphPanel>();
 
-	// graph to text-pane map
-	protected static HashMap<Graph, JLabel> labelMap = new HashMap<Graph, JLabel>();
-	protected static JLabel currentLabel;
-	protected static Layout currentLayouter;
-
-	public static void enable() {
-		Config.overwrite("GRAPH_VIS_ENABLED", "true");
-	}
-
-	public static void disable() {
-		Config.overwrite("GRAPH_VIS_ENABLED", "false");
-	}
-
-	public static boolean isEnabled() {
-		return Config.getBoolean("GRAPH_VIS_ENABLED");
-	}
+	// current GraphPanel
+	protected static GraphPanel currentGraphPanel;
 
 	/*
 	 * GRAPH
@@ -76,12 +56,6 @@ public class GraphVisualization {
 		else
 			graph.addAttribute(directedKey, false);
 
-		// add graph to map
-		map.put(g, graph);
-
-		// set graph as current graph
-		currentGraph = graph;
-
 		// rendering options
 		if (Config.getBoolean("GRAPH_VIS_RENDERING_HQ"))
 			graph.addAttribute(GraphVisualization.qualityKey);
@@ -89,8 +63,10 @@ public class GraphVisualization {
 			graph.addAttribute(GraphVisualization.antialiasKey);
 
 		// main frame
+
+		GraphPanel panel = new GraphPanel(graph, name);
 		JFrame mainFrame = new JFrame("Graph-Vis Mainframe2");
-		mainFrame.add(new GraphPanel(graph, name));
+		mainFrame.add(panel);
 		mainFrame.setTitle(g.getName());
 		mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		mainFrame.setSize(size);
@@ -98,6 +74,12 @@ public class GraphVisualization {
 
 		// set visible
 		mainFrame.setVisible(true);
+
+		// set as current frame
+		currentGraphPanel = panel;
+
+		// add to map
+		map.put(g, panel);
 	}
 
 	/*
@@ -110,7 +92,8 @@ public class GraphVisualization {
 		waitTime(Config.getInt("GRAPH_VIS_WAIT_NODE_ADDITION"));
 
 		// add node to graph
-		org.graphstream.graph.Node node = map.get(g).addNode("" + n.getIndex());
+		org.graphstream.graph.Node node = map.get(g).getGraph()
+				.addNode("" + n.getIndex());
 
 		// init weight
 		node.addAttribute(weightKey, 0);
@@ -136,7 +119,7 @@ public class GraphVisualization {
 		waitTime(Config.getInt("GRAPH_VIS_WAIT_NODE_REMOVAL"));
 
 		// get graph
-		org.graphstream.graph.Graph graph = map.get(g);
+		org.graphstream.graph.Graph graph = map.get(g).getGraph();
 
 		// remove node
 		graph.removeNode("" + n.getIndex());
@@ -148,7 +131,7 @@ public class GraphVisualization {
 		waitTime(Config.getInt("GRAPH_VIS_WAIT_NODE_WEIGHT_CHANGE"));
 
 		// get graph
-		org.graphstream.graph.Graph graph = currentGraph;
+		org.graphstream.graph.Graph graph = currentGraphPanel.getGraph();
 
 		// get node
 		org.graphstream.graph.Node node = graph.getNode("" + n.getIndex());
@@ -175,7 +158,7 @@ public class GraphVisualization {
 		waitTime(Config.getInt("GRAPH_VIS_WAIT_EDGE_ADDITION"));
 
 		// get graph
-		org.graphstream.graph.Graph graph = map.get(g);
+		org.graphstream.graph.Graph graph = map.get(g).getGraph();
 
 		// get directed flag
 		boolean directedEdges = Config
@@ -233,7 +216,7 @@ public class GraphVisualization {
 		waitTime(Config.getInt("GRAPH_VIS_WAIT_EDGE_REMOVAL"));
 
 		// get graph
-		org.graphstream.graph.Graph graph = map.get(g);
+		org.graphstream.graph.Graph graph = map.get(g).getGraph();
 
 		// get indizes
 		int n1 = e.getN1Index();
@@ -255,7 +238,7 @@ public class GraphVisualization {
 		waitTime(Config.getInt("GRAPH_VIS_WAIT_EDGE_WEIGHT_CHANGE"));
 
 		// get graph
-		org.graphstream.graph.Graph graph = currentGraph;
+		org.graphstream.graph.Graph graph = currentGraphPanel.getGraph();
 
 		// get indizes
 		int n1 = e.getN1().getIndex();
@@ -290,11 +273,46 @@ public class GraphVisualization {
 
 	/** Sets the description text for the given graph. **/
 	public static void setText(Graph g, String text) {
-		labelMap.get(g).setText(text);
+		map.get(g).setText(text);
+	}
+
+	/** Returns the GraphPanel belonging to graph g. **/
+	public static GraphPanel getGraphPanel(Graph g) {
+		return GraphVisualization.map.get(g);
+	}
+
+	/** Returns the CURRENT GraphPanel. **/
+	public static GraphPanel getCurrentGraphPanel() {
+		return GraphVisualization.currentGraphPanel;
 	}
 
 	/** Sets the description text for the CURRENT GRAPH. **/
 	public static void setText(String text) {
-		currentLabel.setText(text);
+		currentGraphPanel.setText(text);
+	}
+
+	/** Returns the layouter belonging to graph g. **/
+	public static Layout getLayouter(Graph g) {
+		return GraphVisualization.getGraphPanel(g).getLayouter();
+	}
+
+	/** Returns the CURRENT layouter. **/
+	public static Layout getLayouter() {
+		return GraphVisualization.getCurrentGraphPanel().getLayouter();
+	}
+
+	/** Enable graph visualization. **/
+	public static void enable() {
+		Config.overwrite("GRAPH_VIS_ENABLED", "true");
+	}
+
+	/** Disable graph visualization. **/
+	public static void disable() {
+		Config.overwrite("GRAPH_VIS_ENABLED", "false");
+	}
+
+	/** Checks if graph visualization is enabled. **/
+	public static boolean isEnabled() {
+		return Config.getBoolean("GRAPH_VIS_ENABLED");
 	}
 }
