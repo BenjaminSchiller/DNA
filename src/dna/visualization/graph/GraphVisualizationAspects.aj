@@ -16,7 +16,7 @@ public aspect GraphVisualizationAspects {
 	
 	pointcut graphInit() :  
 		if(GraphVisualization.isEnabled()) &&
-		call(* GraphGenerator.newGraphInstance());
+		call(* GraphDataStructure.newGraphInstance(String, long, int, int));
 
 	Graph around() : graphInit() {
 		Graph g = proceed();
