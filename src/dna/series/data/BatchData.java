@@ -581,4 +581,41 @@ public class BatchData implements IBatch {
 		return temp;
 	}
 
+	/** Returns true if both BatchData objects are equal. **/
+	public static boolean equal(BatchData b1, BatchData b2) {
+		// check amount values
+		if (b1.getGeneralRuntimes().size() != b2.getGeneralRuntimes().size())
+			return false;
+		if (b1.getMetricRuntimes().size() != b2.getMetricRuntimes().size())
+			return false;
+		if (b1.getValues().size() != b2.getValues().size())
+			return false;
+		if (b1.getMetrics().size() != b2.getMetrics().size())
+			return false;
+
+		// compare runtimes
+		for (String runtime : b1.getGeneralRuntimes().getNames()) {
+			if (!b2.getGeneralRuntimes().getNames().contains(runtime))
+				return false;
+		}
+
+		// metric runtimes
+		for (String runtime : b1.getMetricRuntimes().getNames()) {
+			if (!b2.getMetricRuntimes().getNames().contains(runtime))
+				return false;
+		}
+
+		// metrics
+		for (String metric : b1.getMetrics().getNames()) {
+			if (!b2.getMetrics().getNames().contains(metric))
+				return false;
+
+			if (!MetricData.isSameType(b1.getMetrics().get(metric), b2
+					.getMetrics().get(metric)))
+				return false;
+		}
+
+		return true;
+	}
+
 }
