@@ -111,4 +111,24 @@ public class RunData {
 		return true;
 	}
 
+	/** Returns true if both RunData objects are equal. **/
+	public static boolean equal(RunData r1, RunData r2) {
+		// check amount of batches
+
+		System.out.println(r1.getBatches().size() + "\t"
+				+ r2.getBatches().size());
+		if (r1.getBatches().size() != r2.getBatches().size())
+			return false;
+
+		// check if batches are equal
+		for (int i = 0; i < r1.getBatches().size(); i++) {
+			if (!BatchData
+					.equal(r1.getBatches().get(i), r2.getBatches().get(i)))
+				return false;
+		}
+
+		// return true
+		return true;
+	}
+
 }
