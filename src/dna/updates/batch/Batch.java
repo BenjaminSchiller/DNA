@@ -1,11 +1,18 @@
 package dna.updates.batch;
 
-import java.util.HashSet;
+import java.util.Collection;
+import java.util.HashMap;
 
 import com.google.common.collect.Iterables;
 
 import dna.graph.Graph;
 import dna.graph.datastructures.GraphDataStructure;
+import dna.graph.edges.Edge;
+import dna.graph.edges.IEdge;
+import dna.graph.nodes.INode;
+import dna.graph.nodes.Node;
+import dna.graph.weights.IWeightedEdge;
+import dna.graph.weights.IWeightedNode;
 import dna.updates.update.EdgeAddition;
 import dna.updates.update.EdgeRemoval;
 import dna.updates.update.EdgeWeight;
@@ -16,17 +23,17 @@ import dna.updates.update.Update;
 import dna.util.Log;
 
 public class Batch {
-	private HashSet<NodeAddition> nodeAdditions;
+	private HashMap<INode, NodeAddition> nodeAdditions;
 
-	private HashSet<NodeRemoval> nodeRemovals;
+	private HashMap<INode, NodeRemoval> nodeRemovals;
 
-	private HashSet<NodeWeight> nodeWeights;
+	private HashMap<INode, NodeWeight> nodeWeights;
 
-	private HashSet<EdgeAddition> edgeAdditions;
+	private HashMap<IEdge, EdgeAddition> edgeAdditions;
 
-	private HashSet<EdgeRemoval> edgeRemovals;
+	private HashMap<IEdge, EdgeRemoval> edgeRemovals;
 
-	private HashSet<EdgeWeight> edgeWeights;
+	private HashMap<IEdge, EdgeWeight> edgeWeights;
 
 	private Iterable<Update> all;
 
@@ -47,15 +54,16 @@ public class Batch {
 		this.gds = gds;
 		this.from = from;
 		this.to = to;
-		this.nodeAdditions = new HashSet<NodeAddition>(nodeAdditions);
-		this.nodeRemovals = new HashSet<NodeRemoval>(nodeRemovals);
-		this.nodeWeights = new HashSet<NodeWeight>(nodeWeights);
-		this.edgeAdditions = new HashSet<EdgeAddition>(edgeAdditions);
-		this.edgeRemovals = new HashSet<EdgeRemoval>(edgeRemovals);
-		this.edgeWeights = new HashSet<EdgeWeight>(edgeWeights);
+		this.nodeAdditions = new HashMap<INode, NodeAddition>(nodeAdditions);
+		this.nodeRemovals = new HashMap<INode, NodeRemoval>(nodeRemovals);
+		this.nodeWeights = new HashMap<INode, NodeWeight>(nodeWeights);
+		this.edgeAdditions = new HashMap<IEdge, EdgeAddition>(edgeAdditions);
+		this.edgeRemovals = new HashMap<IEdge, EdgeRemoval>(edgeRemovals);
+		this.edgeWeights = new HashMap<IEdge, EdgeWeight>(edgeWeights);
 		this.all = Iterables.unmodifiableIterable(Iterables.concat(
-				this.nodeAdditions, this.nodeRemovals, this.nodeWeights,
-				this.edgeAdditions, this.edgeRemovals, this.edgeWeights));
+				this.nodeAdditions.values(), this.nodeRemovals.values(),
+				this.nodeWeights.values(), this.edgeAdditions.values(),
+				this.edgeRemovals.values(), this.edgeWeights.values()));
 	}
 
 	/*
@@ -71,14 +79,14 @@ public class Batch {
 
 		boolean success = true;
 
-		success &= this.apply(g, this.nodeRemovals);
-		success &= this.apply(g, this.edgeRemovals);
+		success &= this.apply(g, this.nodeRemovals.values());
+		success &= this.apply(g, this.edgeRemovals.values());
 
-		success &= this.apply(g, this.nodeAdditions);
-		success &= this.apply(g, this.edgeAdditions);
+		success &= this.apply(g, this.nodeAdditions.values());
+		success &= this.apply(g, this.edgeAdditions.values());
 
-		success &= this.apply(g, this.nodeWeights);
-		success &= this.apply(g, this.edgeWeights);
+		success &= this.apply(g, this.nodeWeights.values());
+		success &= this.apply(g, this.edgeWeights.values());
 
 		g.setTimestamp(this.to);
 
@@ -110,19 +118,49 @@ public class Batch {
 
 	public boolean add(Update u) {
 		if (u instanceof NodeAddition) {
-			return this.nodeAdditions.add((NodeAddition) u);
+			return this.add((NodeAddition) u);
 		} else if (u instanceof NodeRemoval) {
-			return this.nodeRemovals.add((NodeRemoval) u);
+			return this.add((NodeRemoval) u);
 		} else if (u instanceof NodeWeight) {
-			return this.nodeWeights.add((NodeWeight) u);
+			return this.add((NodeWeight) u);
 		} else if (u instanceof EdgeAddition) {
-			return this.edgeAdditions.add((EdgeAddition) u);
+			return this.add((EdgeAddition) u);
 		} else if (u instanceof EdgeRemoval) {
-			return this.edgeRemovals.add((EdgeRemoval) u);
+			return this.add((EdgeRemoval) u);
 		} else if (u instanceof EdgeWeight) {
-			return this.edgeWeights.add((EdgeWeight) u);
+			return this.add((EdgeWeight) u);
 		}
 		return false;
+	}
+
+	public boolean add(NodeAddition na) {
+		return !this.nodeAdditions.containsKey(na.getNode())
+				&& this.nodeAdditions.put(na.getNode(), na) == null;
+	}
+
+	public boolean add(NodeRemoval nr) {
+		return !this.nodeRemovals.containsKey(nr.getNode())
+				&& this.nodeRemovals.put(nr.getNode(), nr) == null;
+	}
+
+	public boolean add(NodeWeight nw) {
+		return !this.nodeWeights.containsKey(nw.getNode())
+				&& this.nodeWeights.put(nw.getNode(), nw) == null;
+	}
+
+	public boolean add(EdgeAddition ea) {
+		return !this.edgeAdditions.containsKey(ea.getEdge())
+				&& this.edgeAdditions.put(ea.getEdge(), ea) == null;
+	}
+
+	public boolean add(EdgeRemoval er) {
+		return !this.edgeRemovals.containsKey(er.getEdge())
+				&& this.edgeRemovals.put(er.getEdge(), er) == null;
+	}
+
+	public boolean add(EdgeWeight ew) {
+		return !this.edgeWeights.containsKey(ew.getEdge())
+				&& this.edgeWeights.put(ew.getEdge(), ew) == null;
 	}
 
 	public boolean removeAll(Iterable<? extends Update> updates) {
@@ -135,19 +173,67 @@ public class Batch {
 
 	public boolean remove(Update u) {
 		if (u instanceof NodeAddition) {
-			return this.nodeAdditions.remove(u);
+			return this.remove((NodeAddition) u);
 		} else if (u instanceof NodeRemoval) {
-			return this.nodeRemovals.remove(u);
+			return this.remove((NodeRemoval) u);
 		} else if (u instanceof NodeWeight) {
-			return this.nodeWeights.remove(u);
+			return this.remove((NodeWeight) u);
 		} else if (u instanceof EdgeAddition) {
-			return this.edgeAdditions.remove(u);
+			return this.remove((EdgeAddition) u);
 		} else if (u instanceof EdgeRemoval) {
-			return this.edgeRemovals.remove(u);
+			return this.remove((EdgeRemoval) u);
 		} else if (u instanceof EdgeWeight) {
-			return this.edgeWeights.remove(u);
+			return this.remove((EdgeWeight) u);
 		}
 		return false;
+	}
+
+	public boolean remove(NodeAddition na) {
+		return this.nodeAdditions.remove(na.getNode()) != null;
+	}
+
+	public boolean remove(NodeRemoval nr) {
+		return this.nodeRemovals.remove(nr.getNode()) != null;
+	}
+
+	public boolean remove(NodeWeight nw) {
+		return this.nodeWeights.remove(nw.getNode()) != null;
+	}
+
+	public boolean remove(EdgeAddition ea) {
+		return this.edgeAdditions.remove(ea.getEdge()) != null;
+	}
+
+	public boolean remove(EdgeWeight ew) {
+		return this.edgeWeights.remove(ew.getEdge()) != null;
+	}
+
+	/*
+	 * GET SPECIFIC UPDATE
+	 */
+
+	public NodeAddition getNodeAddition(Node n) {
+		return this.nodeAdditions.get(n);
+	}
+
+	public NodeRemoval getNodeRemoval(Node n) {
+		return this.nodeRemovals.get(n);
+	}
+
+	public NodeWeight getNodeWeight(IWeightedNode n) {
+		return this.nodeWeights.get(n);
+	}
+
+	public EdgeAddition getEdgeAddition(Edge e) {
+		return this.edgeAdditions.get(e);
+	}
+
+	public EdgeRemoval getEdgeRemoval(Edge e) {
+		return this.edgeRemovals.get(e);
+	}
+
+	public EdgeWeight getEdgeWeight(IWeightedEdge e) {
+		return this.edgeWeights.get(e);
 	}
 
 	/*
@@ -155,27 +241,27 @@ public class Batch {
 	 */
 
 	public Iterable<NodeAddition> getNodeAdditions() {
-		return nodeAdditions;
+		return nodeAdditions.values();
 	}
 
 	public Iterable<NodeRemoval> getNodeRemovals() {
-		return nodeRemovals;
+		return nodeRemovals.values();
 	}
 
 	public Iterable<NodeWeight> getNodeWeights() {
-		return nodeWeights;
+		return nodeWeights.values();
 	}
 
 	public Iterable<EdgeAddition> getEdgeAdditions() {
-		return edgeAdditions;
+		return edgeAdditions.values();
 	}
 
 	public Iterable<EdgeRemoval> getEdgeRemovals() {
-		return edgeRemovals;
+		return edgeRemovals.values();
 	}
 
 	public Iterable<EdgeWeight> getEdgeWeights() {
-		return edgeWeights;
+		return edgeWeights.values();
 	}
 
 	public Iterable<Update> getAllUpdates() {
@@ -236,28 +322,28 @@ public class Batch {
 	 * EQUALITY
 	 */
 
-	public boolean equals(Object otherO) {
-		if (!(otherO instanceof Batch))
-			return false;
-		Batch other = (Batch) otherO;
-
-		if (this.getSize() != other.getSize())
-			return false;
-
-		Iterable<Update> uOther = other.getAllUpdates();
-		for (Update u : uOther) {
-			if (!this.nodeAdditions.contains(u)
-					&& !this.nodeRemovals.contains(u)
-					&& !this.nodeWeights.contains(u)
-					&& !this.edgeAdditions.contains(u)
-					&& !this.edgeRemovals.contains(u)
-					&& !this.edgeWeights.contains(u)) {
-				return false;
-			}
-		}
-
-		return true;
-	}
+	// public boolean equals(Object otherO) {
+	// if (!(otherO instanceof Batch))
+	// return false;
+	// Batch other = (Batch) otherO;
+	//
+	// if (this.getSize() != other.getSize())
+	// return false;
+	//
+	// Iterable<Update> uOther = other.getAllUpdates();
+	// for (Update u : uOther) {
+	// if (!this.nodeAdditions.contains(u)
+	// && !this.nodeRemovals.contains(u)
+	// && !this.nodeWeights.contains(u)
+	// && !this.edgeAdditions.contains(u)
+	// && !this.edgeRemovals.contains(u)
+	// && !this.edgeWeights.contains(u)) {
+	// return false;
+	// }
+	// }
+	//
+	// return true;
+	// }
 
 	/*
 	 * IO
@@ -274,15 +360,15 @@ public class Batch {
 	}
 
 	public void print() {
-		this.print(this.nodeAdditions, "Node Additions");
-		this.print(this.nodeRemovals, "Node Reovals");
-		this.print(this.nodeWeights, "Node Weights");
-		this.print(this.edgeAdditions, "Edge Additions");
-		this.print(this.edgeRemovals, "Edge Removals");
-		this.print(this.edgeWeights, "Edge Weights");
+		this.print(this.nodeAdditions.values(), "Node Additions");
+		this.print(this.nodeRemovals.values(), "Node Reovals");
+		this.print(this.nodeWeights.values(), "Node Weights");
+		this.print(this.edgeAdditions.values(), "Edge Additions");
+		this.print(this.edgeRemovals.values(), "Edge Removals");
+		this.print(this.edgeWeights.values(), "Edge Weights");
 	}
 
-	private void print(HashSet<? extends Update> updates, String name) {
+	private void print(Collection<? extends Update> updates, String name) {
 		if (updates.size() == 0) {
 			return;
 		}
