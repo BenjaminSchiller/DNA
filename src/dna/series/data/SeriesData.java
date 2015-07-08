@@ -264,4 +264,26 @@ public class SeriesData {
 		}
 		return true;
 	}
+
+	/** Returns true if the SeriesData objects are equal. **/
+	public static boolean equal(SeriesData sd1, SeriesData sd2) {
+		// check amount of runs
+		if (sd1.getRuns().size() != sd2.getRuns().size()) {
+			Log.info(sd1.getName() + " != " + sd2.getName()
+					+ ", different amount of runs");
+			return false;
+		}
+
+		// check if runs are equal
+		for (int i = 0; i < sd1.getRuns().size(); i++) {
+			if (!RunData.equal(sd1.getRuns().get(i), sd2.getRuns().get(i))) {
+				Log.info(sd1.getName() + " != " + sd2.getName()
+						+ ", runs are different");
+				return false;
+			}
+		}
+
+		// return true
+		return true;
+	}
 }
