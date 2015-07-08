@@ -38,6 +38,14 @@ public class IntWeight extends Weight {
 		this.weight = weight;
 	}
 
+	public void increaseWeight(int amount) {
+		this.weight += amount;
+	}
+
+	public void decreaseWeight(int amount) {
+		this.weight -= amount;
+	}
+
 	@Override
 	public String asString() {
 		return Integer.toString(this.weight);
