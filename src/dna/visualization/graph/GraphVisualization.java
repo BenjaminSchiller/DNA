@@ -69,7 +69,7 @@ public class GraphVisualization {
 		// main frame
 
 		GraphPanel panel = new GraphPanel(graph, name);
-		JFrame mainFrame = new JFrame("Graph-Vis Mainframe2");
+		JFrame mainFrame = new JFrame("Graph-Vis Mainframe");
 		mainFrame.add(panel);
 		mainFrame.setTitle(g.getName());
 		mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
