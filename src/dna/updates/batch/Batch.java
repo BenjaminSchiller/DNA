@@ -204,6 +204,10 @@ public class Batch {
 		return this.edgeAdditions.remove(ea.getEdge()) != null;
 	}
 
+	public boolean remove(EdgeRemoval er) {
+		return this.edgeRemovals.remove(er.getEdge()) != null;
+	}
+
 	public boolean remove(EdgeWeight ew) {
 		return this.edgeWeights.remove(ew.getEdge()) != null;
 	}
