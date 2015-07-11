@@ -11,7 +11,9 @@ import org.graphstream.ui.layout.Layout;
 
 import dna.graph.Graph;
 import dna.graph.edges.Edge;
+import dna.graph.nodes.DirectedWeightedNode;
 import dna.graph.nodes.Node;
+import dna.graph.nodes.UndirectedWeightedNode;
 import dna.graph.weights.IWeightedEdge;
 import dna.graph.weights.IWeightedNode;
 import dna.graph.weights.Weight;
@@ -67,7 +69,6 @@ public class GraphVisualization {
 			graph.addAttribute(GraphVisualization.antialiasKey);
 
 		// main frame
-
 		GraphPanel panel = new GraphPanel(graph, name);
 		JFrame mainFrame = new JFrame("Graph-Vis Mainframe");
 		mainFrame.add(panel);
@@ -102,20 +103,53 @@ public class GraphVisualization {
 		// init weight
 		node.addAttribute(weightKey, 0);
 
-		// set label
-		if (Config.getBoolean("GRAPH_VIS_SHOW_NODE_INDEX")) {
-			String label = "";
-			if (Config.getBoolean("GRAPH_VIS_SHOW_NODE_INDEX_VERBOSE"))
-				label += n.getIndex();
-			else
-				label += "Node " + n.getIndex();
-			node.addAttribute(labelKey, label);
+		if (n instanceof DirectedWeightedNode) {
+			Weight w = ((DirectedWeightedNode) n).getWeight();
+			node.changeAttribute(weightKey, w.toString());
+		} else if (n instanceof UndirectedWeightedNode) {
+			Weight w = ((UndirectedWeightedNode) n).getWeight();
+			node.changeAttribute(weightKey, w.toString());
 		}
+
+		// update label
+		updateLabel(node);
 
 		// change coloring
 		if (Config.getBoolean("GRAPH_VIS_COLOR_NODES_BY_DEGREE")
 				|| Config.getBoolean("GRAPH_VIS_SIZE_NODES_BY_DEGREE"))
 			applyNodeStyleByDegree(node);
+	}
+
+	/** Updates the label on node n. **/
+	private static void updateLabel(org.graphstream.graph.Node n) {
+		if (Config.getBoolean("GRAPH_VIS_SHOW_NODE_INDEX")
+				|| Config.getBoolean("GRAPH_VIS_SHOW_NODE_WEIGHTS")) {
+			String label = "";
+			if (Config.getBoolean("GRAPH_VIS_SHOW_NODE_INDEX")) {
+				if (Config.getBoolean("GRAPH_VIS_SHOW_NODE_INDEX_VERBOSE"))
+					label += n.getIndex();
+				else
+					label += "Node " + n.getIndex();
+			}
+			if (Config.getBoolean("GRAPH_VIS_SHOW_NODE_WEIGHTS")) {
+				if (!label.equals(""))
+					label += ", ";
+				if (Config.getBoolean("GRAPH_VIS_SHOW_NODE_WEIGHTS_VERBOSE"))
+					label += n.getAttribute(weightKey);
+				else
+					label += "w=" + n.getAttribute(weightKey);
+			}
+
+			n.addAttribute(labelKey, label);
+		} else {
+			if (n.hasAttribute(labelKey))
+				n.removeAttribute(labelKey);
+		}
+	}
+
+	/** Updates the label on edge e. **/
+	private static void updateLabel(org.graphstream.graph.Edge e) {
+
 	}
 
 	/** Removes node n from graph g. **/
@@ -145,7 +179,7 @@ public class GraphVisualization {
 		node.changeAttribute(weightKey, w);
 
 		// show weight
-		if (Config.getBoolean("GRAPH_VIS_SHOW_EDGE_WEIGHTS")) {
+		if (Config.getBoolean("GRAPH_VIS_SHOW_NODE_WEIGHTS")) {
 			if (node.hasAttribute(labelKey))
 				node.changeAttribute(labelKey, w.toString());
 			else
@@ -263,6 +297,8 @@ public class GraphVisualization {
 
 	/** Changes edge weight on edge e IN CURRENT GRAPH!!. **/
 	public static void changeEdgeWeight(IWeightedEdge e, Weight w) {
+		System.out.println("LOL");
+
 		// wait some time
 		waitTime(Config.getInt("GRAPH_VIS_WAIT_EDGE_WEIGHT_CHANGE"));
 
