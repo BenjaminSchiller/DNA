@@ -163,14 +163,12 @@ public class GraphPanel extends JPanel {
 		Node node = this.graph.addNode("" + n.getIndex());
 
 		// init weight
-		node.addAttribute(GraphVisualization.weightKey, 0);
-
 		if (n instanceof DirectedWeightedNode) {
 			Weight w = ((DirectedWeightedNode) n).getWeight();
-			node.changeAttribute(GraphVisualization.weightKey, w.toString());
+			node.addAttribute(GraphVisualization.weightKey, w.toString());
 		} else if (n instanceof UndirectedWeightedNode) {
 			Weight w = ((UndirectedWeightedNode) n).getWeight();
-			node.changeAttribute(GraphVisualization.weightKey, w.toString());
+			node.addAttribute(GraphVisualization.weightKey, w.toString());
 		}
 
 		// update label
@@ -278,7 +276,7 @@ public class GraphPanel extends JPanel {
 	}
 
 	/** Updates the label on node n. **/
-	private static void updateLabel(org.graphstream.graph.Node n) {
+	private static void updateLabel(Node n) {
 		if (Config.getBoolean("GRAPH_VIS_SHOW_NODE_INDEX")
 				|| Config.getBoolean("GRAPH_VIS_SHOW_NODE_WEIGHTS")) {
 			String label = "";
@@ -306,7 +304,7 @@ public class GraphPanel extends JPanel {
 	}
 
 	/** Updates the label on edge e. **/
-	private static void updateLabel(org.graphstream.graph.Edge e) {
+	private static void updateLabel(Edge e) {
 
 	}
 
@@ -325,7 +323,7 @@ public class GraphPanel extends JPanel {
 	}
 
 	/** Sets the color of the node by its degree. **/
-	private void setNodeColorByDegree(org.graphstream.graph.Node n) {
+	private void setNodeColorByDegree(Node n) {
 		int degree = n.getDegree() - 1;
 
 		// calculate color
@@ -348,7 +346,7 @@ public class GraphPanel extends JPanel {
 	}
 
 	/** Sets the size of the node by its degree. **/
-	private void setNodeSizeByDegree(org.graphstream.graph.Node n) {
+	private void setNodeSizeByDegree(Node n) {
 		// calc size
 		int size = Config.getInt("GRAPH_VIS_NODE_DEFAULT_SIZE")
 				+ (int) (n.getDegree() * Config
