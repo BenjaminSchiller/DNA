@@ -11,9 +11,7 @@ import org.graphstream.ui.layout.Layout;
 
 import dna.graph.Graph;
 import dna.graph.edges.Edge;
-import dna.graph.nodes.DirectedWeightedNode;
 import dna.graph.nodes.Node;
-import dna.graph.nodes.UndirectedWeightedNode;
 import dna.graph.weights.IWeightedEdge;
 import dna.graph.weights.IWeightedNode;
 import dna.graph.weights.Weight;
@@ -96,60 +94,8 @@ public class GraphVisualization {
 		// wait some time
 		waitTime(Config.getInt("GRAPH_VIS_WAIT_NODE_ADDITION"));
 
-		// add node to graph
-		org.graphstream.graph.Node node = map.get(g).getGraph()
-				.addNode("" + n.getIndex());
-
-		// init weight
-		node.addAttribute(weightKey, 0);
-
-		if (n instanceof DirectedWeightedNode) {
-			Weight w = ((DirectedWeightedNode) n).getWeight();
-			node.changeAttribute(weightKey, w.toString());
-		} else if (n instanceof UndirectedWeightedNode) {
-			Weight w = ((UndirectedWeightedNode) n).getWeight();
-			node.changeAttribute(weightKey, w.toString());
-		}
-
-		// update label
-		updateLabel(node);
-
-		// change coloring
-		if (Config.getBoolean("GRAPH_VIS_COLOR_NODES_BY_DEGREE")
-				|| Config.getBoolean("GRAPH_VIS_SIZE_NODES_BY_DEGREE"))
-			applyNodeStyleByDegree(node);
-	}
-
-	/** Updates the label on node n. **/
-	private static void updateLabel(org.graphstream.graph.Node n) {
-		if (Config.getBoolean("GRAPH_VIS_SHOW_NODE_INDEX")
-				|| Config.getBoolean("GRAPH_VIS_SHOW_NODE_WEIGHTS")) {
-			String label = "";
-			if (Config.getBoolean("GRAPH_VIS_SHOW_NODE_INDEX")) {
-				if (Config.getBoolean("GRAPH_VIS_SHOW_NODE_INDEX_VERBOSE"))
-					label += n.getIndex();
-				else
-					label += "Node " + n.getIndex();
-			}
-			if (Config.getBoolean("GRAPH_VIS_SHOW_NODE_WEIGHTS")) {
-				if (!label.equals(""))
-					label += ", ";
-				if (Config.getBoolean("GRAPH_VIS_SHOW_NODE_WEIGHTS_VERBOSE"))
-					label += n.getAttribute(weightKey);
-				else
-					label += "w=" + n.getAttribute(weightKey);
-			}
-
-			n.addAttribute(labelKey, label);
-		} else {
-			if (n.hasAttribute(labelKey))
-				n.removeAttribute(labelKey);
-		}
-	}
-
-	/** Updates the label on edge e. **/
-	private static void updateLabel(org.graphstream.graph.Edge e) {
-
+		// add node
+		map.get(g).addNode(n);
 	}
 
 	/** Removes node n from graph g. **/
@@ -158,10 +104,7 @@ public class GraphVisualization {
 		waitTime(Config.getInt("GRAPH_VIS_WAIT_NODE_REMOVAL"));
 
 		// get graph
-		org.graphstream.graph.Graph graph = map.get(g).getGraph();
-
-		// remove node
-		graph.removeNode("" + n.getIndex());
+		map.get(g).removeNode(n);
 	}
 
 	/** Changes node weight on node n IN CURRENT GRAPH!!. **/
@@ -170,106 +113,16 @@ public class GraphVisualization {
 		waitTime(Config.getInt("GRAPH_VIS_WAIT_NODE_WEIGHT_CHANGE"));
 
 		// get graph
-		org.graphstream.graph.Graph graph = currentGraphPanel.getGraph();
-
-		// get node
-		org.graphstream.graph.Node node = graph.getNode("" + n.getIndex());
-
-		// change weight
-		node.changeAttribute(weightKey, w);
-
-		// show weight
-		if (Config.getBoolean("GRAPH_VIS_SHOW_NODE_WEIGHTS")) {
-			if (node.hasAttribute(labelKey))
-				node.changeAttribute(labelKey, w.toString());
-			else
-				node.addAttribute(labelKey, w.toString());
-		}
+		currentGraphPanel.changeNodeWeight(n, w);
 	}
-
-	/*
-	 * EDGE
-	 */
 
 	/** Adds edge e to graph g. **/
 	public static void addEdge(Graph g, Edge e) {
 		// wait some time
 		waitTime(Config.getInt("GRAPH_VIS_WAIT_EDGE_ADDITION"));
 
-		// get graph
-		org.graphstream.graph.Graph graph = map.get(g).getGraph();
-
-		// get directed flag
-		boolean directedEdges = Config
-				.getBoolean("GRAPH_VIS_SHOW_DIRECTED_EDGE_ARROWS")
-				&& (boolean) graph.getAttribute(directedKey);
-
-		// get indizes
-		int n1 = e.getN1Index();
-		int n2 = e.getN2Index();
-
-		// if edge not there, add it
-		if (graph.getNode("" + n1).getEdgeBetween("" + n2) == null) {
-			org.graphstream.graph.Edge edge = graph.addEdge(n1 + "-" + n2, ""
-					+ n1, "" + n2, directedEdges);
-
-			// init weight
-			edge.addAttribute(weightKey, 0);
-
-			// add label
-			if (Config.getBoolean("GRAPH_VIS_SHOW_EDGE_WEIGHTS"))
-				edge.addAttribute(labelKey, 0);
-		}
-
-		// change node styles
-		applyNodeStyleByDegree(graph.getNode("" + n1));
-		applyNodeStyleByDegree(graph.getNode("" + n2));
-	}
-
-	public static void applyNodeStyleByDegree(org.graphstream.graph.Node n) {
-		// set style stuff
-		if (Config.getBoolean("GRAPH_VIS_COLOR_NODES_BY_DEGREE"))
-			setNodeColorByDegree(n);
-		if (Config.getBoolean("GRAPH_VIS_SIZE_NODES_BY_DEGREE"))
-			setNodeSizeByDegree(n);
-
-		// set style attribute accordingly
-		n.setAttribute(styleKey,
-				n.getAttribute(colorKey) + " " + n.getAttribute(sizeKey));
-	}
-
-	/** Sets the color of the node by its degree. **/
-	protected static void setNodeColorByDegree(org.graphstream.graph.Node n) {
-		int degree = n.getDegree() - 1;
-
-		// calculate color
-		int red = 0;
-		int green = 255;
-		int blue = 0;
-		if (degree >= 0) {
-			int weight = degree
-					* Config.getInt("GRAPH_VIS_COLOR_AMPLIFICATION");
-			if (weight > 255)
-				weight = 255;
-
-			red += weight;
-			green -= weight;
-		}
-
-		// set color attribute
-		n.setAttribute(colorKey, "fill-color: rgb(" + red + "," + green + ","
-				+ blue + ");");
-	}
-
-	/** Sets the size of the node by its degree. **/
-	protected static void setNodeSizeByDegree(org.graphstream.graph.Node n) {
-		// calc size
-		int size = Config.getInt("GRAPH_VIS_NODE_DEFAULT_SIZE")
-				+ (int) (n.getDegree() * Config
-						.getDouble("GRAPH_VIS_NODE_GROWTH_PER_DEGREE"));
-
-		// set size attribute
-		n.setAttribute(sizeKey, "size: " + size + "px;");
+		// add edge
+		map.get(g).addEdge(e);
 	}
 
 	/** Removes edge e from graph g. **/
@@ -278,51 +131,16 @@ public class GraphVisualization {
 		waitTime(Config.getInt("GRAPH_VIS_WAIT_EDGE_REMOVAL"));
 
 		// get graph
-		org.graphstream.graph.Graph graph = map.get(g).getGraph();
-
-		// get indizes
-		int n1 = e.getN1Index();
-		int n2 = e.getN2Index();
-
-		// remove edge
-		graph.removeEdge(graph.getNode("" + n1).getEdgeBetween("" + n2));
-
-		// change coloring
-		if (Config.getBoolean("GRAPH_VIS_COLOR_NODES_BY_DEGREE")
-				|| Config.getBoolean("GRAPH_VIS_SIZE_NODES_BY_DEGREE")) {
-			applyNodeStyleByDegree(graph.getNode("" + n1));
-			applyNodeStyleByDegree(graph.getNode("" + n2));
-		}
+		map.get(g).removeEdge(e);
 	}
 
 	/** Changes edge weight on edge e IN CURRENT GRAPH!!. **/
 	public static void changeEdgeWeight(IWeightedEdge e, Weight w) {
-		System.out.println("LOL");
-
 		// wait some time
 		waitTime(Config.getInt("GRAPH_VIS_WAIT_EDGE_WEIGHT_CHANGE"));
 
 		// get graph
-		org.graphstream.graph.Graph graph = currentGraphPanel.getGraph();
-
-		// get indizes
-		int n1 = e.getN1().getIndex();
-		int n2 = e.getN2().getIndex();
-
-		// get edge
-		org.graphstream.graph.Edge edge = graph.getNode("" + n1)
-				.getEdgeBetween("" + n2);
-
-		// change weight
-		edge.changeAttribute(weightKey, w);
-
-		// show weight
-		if (Config.getBoolean("GRAPH_VIS_SHOW_EDGE_WEIGHTS")) {
-			if (edge.hasAttribute(labelKey))
-				edge.changeAttribute(labelKey, w.toString());
-			else
-				edge.addAttribute(labelKey, w.toString());
-		}
+		currentGraphPanel.changeEdgeWeight(e, w);
 	}
 
 	/** Wait for specified time in milliseconds. **/
