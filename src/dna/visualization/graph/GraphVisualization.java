@@ -116,6 +116,10 @@ public class GraphVisualization {
 		currentGraphPanel.changeNodeWeight(n, w);
 	}
 
+	/*
+	 * EDGE
+	 */
+	
 	/** Adds edge e to graph g. **/
 	public static void addEdge(Graph g, Edge e) {
 		// wait some time
@@ -143,6 +147,10 @@ public class GraphVisualization {
 		currentGraphPanel.changeEdgeWeight(e, w);
 	}
 
+	/*
+	 * MISC
+	 */
+	
 	/** Wait for specified time in milliseconds. **/
 	protected static void waitTime(long milliseconds) {
 		if (Config.getBoolean("GRAPH_VIS_WAIT_ENABLED")) {
