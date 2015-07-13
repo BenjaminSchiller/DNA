@@ -25,6 +25,8 @@ import org.graphstream.ui.layout.springbox.implementations.SpringBox;
 import org.graphstream.ui.view.View;
 import org.graphstream.ui.view.Viewer;
 
+import dna.graph.edges.DirectedWeightedEdge;
+import dna.graph.edges.UndirectedWeightedEdge;
 import dna.graph.nodes.DirectedWeightedNode;
 import dna.graph.nodes.UndirectedWeightedNode;
 import dna.graph.weights.IWeightedEdge;
@@ -224,16 +226,21 @@ public class GraphPanel extends JPanel {
 					directedEdges);
 
 			// init weight
-			edge.addAttribute(GraphVisualization.weightKey, 0);
+			if (e instanceof DirectedWeightedEdge) {
+				Weight w = ((DirectedWeightedEdge) e).getWeight();
+				edge.addAttribute(GraphVisualization.weightKey, w.toString());
+			} else if (e instanceof UndirectedWeightedEdge) {
+				Weight w = ((UndirectedWeightedEdge) e).getWeight();
+				edge.addAttribute(GraphVisualization.weightKey, w.toString());
+			}
 
-			// add label
-			if (Config.getBoolean("GRAPH_VIS_SHOW_EDGE_WEIGHTS"))
-				edge.addAttribute(GraphVisualization.labelKey, 0);
+			// update label
+			updateLabel(edge);
+
+			// change node styles
+			applyNodeStyleByDegree(this.graph.getNode("" + n1));
+			applyNodeStyleByDegree(this.graph.getNode("" + n2));
 		}
-
-		// change node styles
-		applyNodeStyleByDegree(this.graph.getNode("" + n1));
-		applyNodeStyleByDegree(this.graph.getNode("" + n2));
 	}
 
 	/** Removes edge e from graph g. **/
@@ -266,13 +273,8 @@ public class GraphPanel extends JPanel {
 		// change weight
 		edge.changeAttribute(GraphVisualization.weightKey, w);
 
-		// show weight
-		if (Config.getBoolean("GRAPH_VIS_SHOW_EDGE_WEIGHTS")) {
-			if (edge.hasAttribute(GraphVisualization.labelKey))
-				edge.changeAttribute(GraphVisualization.labelKey, w.toString());
-			else
-				edge.addAttribute(GraphVisualization.labelKey, w.toString());
-		}
+		// update label
+		updateLabel(edge);
 	}
 
 	/** Updates the label on node n. **/
@@ -287,13 +289,16 @@ public class GraphPanel extends JPanel {
 					label += "Node " + n.getIndex();
 			}
 			if (Config.getBoolean("GRAPH_VIS_SHOW_NODE_WEIGHTS")) {
-				if (!label.equals(""))
-					label += ", ";
-				if (Config.getBoolean("GRAPH_VIS_SHOW_NODE_WEIGHTS_VERBOSE"))
-					label += n.getAttribute(GraphVisualization.weightKey);
-				else
-					label += "w="
-							+ n.getAttribute(GraphVisualization.weightKey);
+				if (n.getAttribute(GraphVisualization.weightKey) != null) {
+					if (!label.equals(""))
+						label += ", ";
+					if (Config
+							.getBoolean("GRAPH_VIS_SHOW_NODE_WEIGHTS_VERBOSE"))
+						label += n.getAttribute(GraphVisualization.weightKey);
+					else
+						label += "w="
+								+ n.getAttribute(GraphVisualization.weightKey);
+				}
 			}
 
 			n.addAttribute(GraphVisualization.labelKey, label);
@@ -305,7 +310,14 @@ public class GraphPanel extends JPanel {
 
 	/** Updates the label on edge e. **/
 	private static void updateLabel(Edge e) {
-
+		if (Config.getBoolean("GRAPH_VIS_SHOW_EDGE_WEIGHTS")) {
+			if (e.getAttribute(GraphVisualization.weightKey) != null)
+				e.addAttribute(GraphVisualization.labelKey,
+						"" + e.getAttribute(GraphVisualization.weightKey));
+		} else {
+			if (e.hasAttribute(GraphVisualization.labelKey))
+				e.removeAttribute(GraphVisualization.labelKey);
+		}
 	}
 
 	private void applyNodeStyleByDegree(Node n) {
