@@ -12,15 +12,23 @@ import org.graphstream.ui.layout.Layout;
 import dna.graph.Graph;
 import dna.graph.edges.Edge;
 import dna.graph.nodes.Node;
+import dna.graph.weights.Double2dWeight;
+import dna.graph.weights.Double3dWeight;
 import dna.graph.weights.IWeightedEdge;
 import dna.graph.weights.IWeightedNode;
+import dna.graph.weights.Int2dWeight;
+import dna.graph.weights.Int3dWeight;
+import dna.graph.weights.Long2dWeight;
+import dna.graph.weights.Long3dWeight;
 import dna.graph.weights.Weight;
 import dna.util.Config;
 import dna.util.Log;
+import dna.visualization.graph.GraphPanel.PositionMode;
 
 /** The GraphVisualization class offers methods to visualize graphs used in DNA. **/
 public class GraphVisualization {
 	// statics
+	public static final String positionKey = "xyz";
 	public static final String weightKey = "dna.weight";
 	public static final String labelKey = "ui.label";
 	public static final String directedKey = "dna.directed";
@@ -66,8 +74,19 @@ public class GraphVisualization {
 		if (Config.getBoolean("GRAPH_VIS_RENDERING_ANTIALIAS"))
 			graph.addAttribute(GraphVisualization.antialiasKey);
 
+		// check nodeweighttypes for position modes
+		PositionMode mode = PositionMode.auto;
+		Class<? extends Weight> nwt = g.getGraphDatastructures()
+				.getNodeWeightType();
+		if (nwt.equals(Int2dWeight.class) || nwt.equals(Long2dWeight.class)
+				|| nwt.equals(Double2dWeight.class))
+			mode = PositionMode.twoDimension;
+		if (nwt.equals(Int3dWeight.class) || nwt.equals(Long3dWeight.class)
+				|| nwt.equals(Double3dWeight.class))
+			mode = PositionMode.threeDimension;
+
 		// main frame
-		GraphPanel panel = new GraphPanel(graph, name);
+		GraphPanel panel = new GraphPanel(graph, name, mode);
 		JFrame mainFrame = new JFrame("Graph-Vis Mainframe");
 		mainFrame.add(panel);
 		mainFrame.setTitle(g.getName());
@@ -119,7 +138,7 @@ public class GraphVisualization {
 	/*
 	 * EDGE
 	 */
-	
+
 	/** Adds edge e to graph g. **/
 	public static void addEdge(Graph g, Edge e) {
 		// wait some time
@@ -150,7 +169,7 @@ public class GraphVisualization {
 	/*
 	 * MISC
 	 */
-	
+
 	/** Wait for specified time in milliseconds. **/
 	protected static void waitTime(long milliseconds) {
 		if (Config.getBoolean("GRAPH_VIS_WAIT_ENABLED")) {
