@@ -29,8 +29,14 @@ import dna.graph.edges.DirectedWeightedEdge;
 import dna.graph.edges.UndirectedWeightedEdge;
 import dna.graph.nodes.DirectedWeightedNode;
 import dna.graph.nodes.UndirectedWeightedNode;
+import dna.graph.weights.Double2dWeight;
+import dna.graph.weights.Double3dWeight;
 import dna.graph.weights.IWeightedEdge;
 import dna.graph.weights.IWeightedNode;
+import dna.graph.weights.Int2dWeight;
+import dna.graph.weights.Int3dWeight;
+import dna.graph.weights.Long2dWeight;
+import dna.graph.weights.Long3dWeight;
 import dna.graph.weights.Weight;
 import dna.util.Config;
 import dna.util.Log;
@@ -41,6 +47,10 @@ import dna.util.Log;
  **/
 public class GraphPanel extends JPanel {
 
+	public enum PositionMode {
+		twoDimension, threeDimension, auto
+	};
+
 	private static final long serialVersionUID = 1L;
 
 	// font
@@ -49,6 +59,7 @@ public class GraphPanel extends JPanel {
 	// name & graph
 	protected final String name;
 	protected final Graph graph;
+	protected final PositionMode mode;
 
 	// panels
 	protected final JPanel textPanel;
@@ -56,9 +67,10 @@ public class GraphPanel extends JPanel {
 	protected final Layout layouter;
 
 	// constructor
-	public GraphPanel(final Graph graph, final String name) {
+	public GraphPanel(final Graph graph, final String name, PositionMode mode) {
 		this.name = name;
 		this.graph = graph;
+		this.mode = mode;
 
 		// init textpanel
 		this.textPanel = new JPanel();
@@ -119,16 +131,25 @@ public class GraphPanel extends JPanel {
 		// create viewer and show graph
 		Viewer v = new Viewer(graph,
 				Viewer.ThreadingModel.GRAPH_IN_ANOTHER_THREAD);
+		
+		boolean useLayouter3dMode = Config.getBoolean("GRAPH_VIS_LAYOUT_3D");
 
 		// create and configure layouter
-		boolean useLayouter3dMode = Config.getBoolean("GRAPH_VIS_LAYOUT_3D");
-		Layout layouter = new SpringBox(useLayouter3dMode);
-		if (Config.getBoolean("GRAPH_VIS_LAYOUT_LINLOG"))
-			layouter = new LinLog(useLayouter3dMode);
+		if (mode.equals(PositionMode.auto)) {
+			Layout layouter = new SpringBox(useLayouter3dMode);
+			if (Config.getBoolean("GRAPH_VIS_LAYOUT_LINLOG"))
+				layouter = new LinLog(useLayouter3dMode);
 
-		layouter.setForce(Config.getDouble("GRAPH_VIS_LAYOUT_FORCE"));
-		v.enableAutoLayout(layouter);
-		this.layouter = layouter;
+			layouter.setForce(Config.getDouble("GRAPH_VIS_LAYOUT_FORCE"));
+			v.enableAutoLayout(layouter);
+
+			this.layouter = layouter;
+		} else {
+			this.layouter = null;
+			v.disableAutoLayout();
+			Log.info("position mode: " + mode.toString()
+					+ ", auto-layouter disabled");
+		}
 
 		// get view
 		View view = v.addDefaultView(false);
@@ -165,12 +186,26 @@ public class GraphPanel extends JPanel {
 		Node node = this.graph.addNode("" + n.getIndex());
 
 		// init weight
+		Weight w = null;
 		if (n instanceof DirectedWeightedNode) {
-			Weight w = ((DirectedWeightedNode) n).getWeight();
+			w = ((DirectedWeightedNode) n).getWeight();
 			node.addAttribute(GraphVisualization.weightKey, w.toString());
 		} else if (n instanceof UndirectedWeightedNode) {
-			Weight w = ((UndirectedWeightedNode) n).getWeight();
+			w = ((UndirectedWeightedNode) n).getWeight();
 			node.addAttribute(GraphVisualization.weightKey, w.toString());
+		}
+
+		// get and set position
+		if (w != null
+				&& (this.mode.equals(PositionMode.twoDimension) || this.mode
+						.equals(PositionMode.threeDimension))) {
+
+			// get coords from weight
+			float[] coords = getCoordsFromWeight(w);
+
+			// add position to node
+			node.addAttribute(GraphVisualization.positionKey, coords[0],
+					coords[1], coords[2]);
 		}
 
 		// update label
@@ -194,6 +229,19 @@ public class GraphPanel extends JPanel {
 
 		// change weight
 		node.changeAttribute(GraphVisualization.weightKey, w);
+
+		// get and set position
+		if (w != null
+				&& (this.mode.equals(PositionMode.twoDimension) || this.mode
+						.equals(PositionMode.threeDimension))) {
+
+			// get coords from weight
+			float[] coords = getCoordsFromWeight(w);
+
+			// add position to node
+			node.changeAttribute(GraphVisualization.positionKey, coords[0],
+					coords[1], coords[2]);
+		}
 
 		// show weight
 		if (Config.getBoolean("GRAPH_VIS_SHOW_NODE_WEIGHTS")) {
@@ -366,5 +414,44 @@ public class GraphPanel extends JPanel {
 
 		// set size attribute
 		n.setAttribute(GraphVisualization.sizeKey, "size: " + size + "px;");
+	}
+
+	/**
+	 * Gets the coords from the weight, casts it to float and returns it as
+	 * float[] = {x, y, z}
+	 **/
+	protected float[] getCoordsFromWeight(Weight w) {
+		float x = 0;
+		float y = 0;
+		float z = 0;
+		if (w instanceof Int2dWeight) {
+			x = ((Int2dWeight) w).getX();
+			y = ((Int2dWeight) w).getY();
+		}
+		if (w instanceof Int3dWeight) {
+			x = ((Int3dWeight) w).getX();
+			y = ((Int3dWeight) w).getY();
+			z = ((Int3dWeight) w).getZ();
+		}
+		if (w instanceof Long2dWeight) {
+			x = ((Long2dWeight) w).getX();
+			y = ((Long2dWeight) w).getY();
+		}
+		if (w instanceof Long3dWeight) {
+			x = ((Long3dWeight) w).getX();
+			y = ((Long3dWeight) w).getY();
+			z = ((Long3dWeight) w).getZ();
+		}
+		if (w instanceof Double2dWeight) {
+			x = (float) ((Double2dWeight) w).getX();
+			y = (float) ((Double2dWeight) w).getY();
+		}
+		if (w instanceof Double3dWeight) {
+			x = (float) ((Double3dWeight) w).getX();
+			y = (float) ((Double3dWeight) w).getY();
+			z = (float) ((Double3dWeight) w).getZ();
+		}
+
+		return new float[] { x, y, z };
 	}
 }
