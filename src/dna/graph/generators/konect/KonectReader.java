@@ -11,7 +11,7 @@ import dna.io.Reader;
 public class KonectReader {
 
 	public static enum KonectEdgeType {
-		UNWEIGHTED, ADD_REMOVE, MULTI_UNWEIGHTED, MULTI_RATING
+		ADD, ADD_REMOVE, MULTI_UNWEIGHTED, RATING, RATING_ADD_ONE
 	}
 
 	public static enum KonectGraphType {
@@ -19,7 +19,7 @@ public class KonectReader {
 	}
 
 	public static enum KonectBatchType {
-		TIMESTAMP, PROCESSED_EDGES, BATCH_SIZE, EDGE_GROWTH, NODE_GROWTH
+		TIMESTAMP, TIMESTAMPS, PROCESSED_EDGES, BATCH_SIZE, EDGE_GROWTH, NODE_GROWTH
 	}
 
 	public String dir;
