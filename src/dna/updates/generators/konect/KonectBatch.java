@@ -27,17 +27,21 @@ public class KonectBatch extends BatchGenerator {
 	protected KonectReader r;
 
 	protected KonectBatchType batchType;
-	protected int batchParameter;
+	protected String batchParameter;
+
+	public static final String timestampsSeparator = ";";
+	protected int[] timestamps;
+	protected int timestampsIndex;
 
 	protected boolean removeZeroDegreeNodes;
 
 	public KonectBatch(KonectReader r, KonectBatchType batchType,
-			int batchParameter) {
+			String batchParameter) {
 		this(r, batchType, batchParameter, true);
 	}
 
 	public KonectBatch(KonectReader r, KonectBatchType batchType,
-			int batchParameter, boolean removeZeroDegreeNodes) {
+			String batchParameter, boolean removeZeroDegreeNodes) {
 		super("KonectBatch", new StringParameter("Name", r.name),
 				new StringParameter("EdgeType", r.edgeType.toString()),
 				new BooleanParameter("RemoveZeroDegreeNodes",
@@ -46,6 +50,15 @@ public class KonectBatch extends BatchGenerator {
 		this.batchType = batchType;
 		this.batchParameter = batchParameter;
 		this.removeZeroDegreeNodes = removeZeroDegreeNodes;
+
+		if (batchType.equals(KonectBatchType.TIMESTAMPS)) {
+			String[] temp = batchParameter.split(timestampsSeparator);
+			timestamps = new int[temp.length];
+			for (int i = 0; i < temp.length; i++) {
+				timestamps[i] = Integer.parseInt(temp[i]);
+			}
+			timestampsIndex = 0;
+		}
 	}
 
 	@Override
@@ -68,21 +81,30 @@ public class KonectBatch extends BatchGenerator {
 			if (KonectBatchType.TIMESTAMP.equals(this.batchType)) {
 				if (r.peek() != null
 						&& r.peek().timestamp > g.getTimestamp()
-								+ this.batchParameter) {
-					b.setTo(b.getFrom() + this.batchParameter);
+								+ Integer.parseInt(this.batchParameter)) {
+					b.setTo(b.getFrom() + Integer.parseInt(this.batchParameter));
+					break;
+				}
+			} else if (KonectBatchType.TIMESTAMPS.equals(this.batchType)) {
+				if (r.peek() != null
+						&& r.peek().timestamp > timestamps[timestampsIndex]) {
+					b.setTo(timestamps[timestampsIndex]);
+					timestampsIndex++;
 					break;
 				}
 			} else if (KonectBatchType.PROCESSED_EDGES.equals(this.batchType)) {
-				if (processed >= this.batchParameter)
+				if (processed >= Integer.parseInt(this.batchParameter))
 					break;
 			} else if (KonectBatchType.BATCH_SIZE.equals(this.batchType)) {
-				if (b.getSize() >= this.batchParameter)
+				if (b.getSize() >= Integer.parseInt(this.batchParameter))
 					break;
 			} else if (KonectBatchType.EDGE_GROWTH.equals(this.batchType)) {
-				if (b.getEdgeAdditionsCount() - b.getEdgeRemovalsCount() >= this.batchParameter)
+				if (b.getEdgeAdditionsCount() - b.getEdgeRemovalsCount() >= Integer
+						.parseInt(this.batchParameter))
 					break;
 			} else if (KonectBatchType.NODE_GROWTH.equals(this.batchType)) {
-				if (b.getNodeAdditionsCount() - b.getNodeRemovalsCount() >= this.batchParameter)
+				if (b.getNodeAdditionsCount() - b.getNodeRemovalsCount() >= Integer
+						.parseInt(this.batchParameter))
 					break;
 			}
 
@@ -185,9 +207,63 @@ public class KonectBatch extends BatchGenerator {
 				Log.error("invalid weight for MULTI_UNWEIGHTED: " + edge);
 			}
 			break;
-		case MULTI_RATING:
+		case RATING:
+			if (!graph.containsEdge(n1, n2)) {
+				this.processNode(graph, b, n1);
+				this.processNode(graph, b, n2);
+				IWeightedEdge e = (IWeightedEdge) r.gds.newEdgeInstance(n1, n2);
+				((IntWeight) e.getWeight()).setWeight(edge.weight);
+				EdgeAddition ea = b.getEdgeAddition((Edge) e);
+				if (ea == null) {
+					b.add(new EdgeAddition(e));
+				} else {
+					((IntWeight) ((IWeightedEdge) ea.getEdge()))
+							.setWeight(edge.weight);
+				}
+			} else {
+				IWeightedEdge e = (IWeightedEdge) graph.getEdge(n1, n2);
+				EdgeWeight ew = b.getEdgeWeight(e);
+				if (ew == null) {
+					ew = new EdgeWeight(e, new IntWeight(edge.weight));
+					b.add(ew);
+				} else {
+					((IntWeight) ew.getWeight()).setWeight(edge.weight);
+				}
+				if (((IntWeight) ew.getWeight()).getWeight() == ((IntWeight) ((IWeightedEdge) ew
+						.getEdge()).getWeight()).getWeight()) {
+					b.remove(ew);
+				}
+			}
 			break;
-		case UNWEIGHTED:
+		case RATING_ADD_ONE:
+			if (!graph.containsEdge(n1, n2)) {
+				this.processNode(graph, b, n1);
+				this.processNode(graph, b, n2);
+				IWeightedEdge e = (IWeightedEdge) r.gds.newEdgeInstance(n1, n2);
+				((IntWeight) e.getWeight()).setWeight(edge.weight + 1);
+				EdgeAddition ea = b.getEdgeAddition((Edge) e);
+				if (ea == null) {
+					b.add(new EdgeAddition(e));
+				} else {
+					((IntWeight) ((IWeightedEdge) ea.getEdge()))
+							.setWeight(edge.weight + 1);
+				}
+			} else {
+				IWeightedEdge e = (IWeightedEdge) graph.getEdge(n1, n2);
+				EdgeWeight ew = b.getEdgeWeight(e);
+				if (ew == null) {
+					ew = new EdgeWeight(e, new IntWeight(edge.weight + 1));
+					b.add(ew);
+				} else {
+					((IntWeight) ew.getWeight()).setWeight(edge.weight + 1);
+				}
+				if (((IntWeight) ew.getWeight()).getWeight() == ((IntWeight) ((IWeightedEdge) ew
+						.getEdge()).getWeight()).getWeight()) {
+					b.remove(ew);
+				}
+			}
+			break;
+		case ADD:
 			if (edge.weight == 1) {
 				this.processNode(graph, b, n1);
 				this.processNode(graph, b, n2);
@@ -221,6 +297,7 @@ public class KonectBatch extends BatchGenerator {
 
 	@Override
 	public void reset() {
+		timestampsIndex = 0;
 	}
 
 	@Override

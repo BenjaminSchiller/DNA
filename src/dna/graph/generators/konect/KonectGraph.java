@@ -11,7 +11,6 @@ import dna.graph.weights.IWeightedEdge;
 import dna.graph.weights.IntWeight;
 import dna.util.Log;
 import dna.util.parameters.BooleanParameter;
-import dna.util.parameters.IntParameter;
 import dna.util.parameters.Parameter;
 import dna.util.parameters.StringParameter;
 
@@ -20,26 +19,27 @@ public class KonectGraph extends GraphGenerator {
 	protected KonectReader r;
 
 	protected KonectGraphType type;
-	protected int parameter;
+	protected String parameter;
 
 	protected boolean removeZeroDegreeNodes;
 
-	public KonectGraph(KonectReader r, KonectGraphType type, int parameter) {
-		this(r, type, parameter, true);
+	public KonectGraph(KonectReader r, KonectGraphType graphType,
+			String graphParameter) {
+		this(r, graphType, graphParameter, true);
 	}
 
-	public KonectGraph(KonectReader r, KonectGraphType type, int parameter,
-			boolean removeZeroDegreeNodes) {
+	public KonectGraph(KonectReader r, KonectGraphType graphType,
+			String graphParameter, boolean removeZeroDegreeNodes) {
 		super("KonectGraph", new Parameter[] {
 				new StringParameter("Name", r.name),
 				new StringParameter("EdgeType", r.edgeType.toString()),
-				new StringParameter("GraphType", type.toString()),
-				new IntParameter("Parameter", parameter),
+				new StringParameter("GraphType", graphType.toString()),
+				new StringParameter("GraphParameter", graphParameter),
 				new BooleanParameter("RemoveZeroDegreeNodes",
 						removeZeroDegreeNodes) }, r.gds, 0, 100, 1000);
 		this.r = r;
-		this.type = type;
-		this.parameter = parameter;
+		this.type = graphType;
+		this.parameter = graphParameter;
 		this.removeZeroDegreeNodes = removeZeroDegreeNodes;
 	}
 
@@ -51,19 +51,20 @@ public class KonectGraph extends GraphGenerator {
 		while (true) {
 
 			if (KonectGraphType.PROCESSED_EDGES.equals(this.type)) {
-				if (processed >= this.parameter)
+				if (processed >= Integer.parseInt(this.parameter))
 					break;
 			} else if (KonectGraphType.TIMESTAMP.equals(this.type)) {
 				if (this.r.peek() != null
-						&& this.r.peek().timestamp > this.parameter) {
-					g.setTimestamp(this.parameter);
+						&& this.r.peek().timestamp > Integer
+								.parseInt(this.parameter)) {
+					g.setTimestamp(Integer.parseInt(this.parameter));
 					break;
 				}
 			} else if (KonectGraphType.TOTAL_EDGES.equals(this.type)) {
-				if (g.getEdgeCount() >= this.parameter)
+				if (g.getEdgeCount() >= Integer.parseInt(this.parameter))
 					break;
 			} else if (KonectGraphType.TOTAL_NODES.equals(this.type)) {
-				if (g.getNodeCount() >= this.parameter)
+				if (g.getNodeCount() >= Integer.parseInt(this.parameter))
 					break;
 			} else {
 				Log.error("invalid graph type: " + this.type);
@@ -80,7 +81,7 @@ public class KonectGraph extends GraphGenerator {
 		}
 
 		if (KonectGraphType.TIMESTAMP.equals(this.type))
-			g.setTimestamp(this.parameter);
+			g.setTimestamp(Integer.parseInt(this.parameter));
 
 		return g;
 	}
@@ -155,9 +156,33 @@ public class KonectGraph extends GraphGenerator {
 				Log.error("invalid weight for MULTI_UNWEIGHTED: " + edge);
 			}
 			break;
-		case MULTI_RATING:
+		case RATING:
+			if (!g.containsEdge(n1, n2)) {
+				this.addIfNecessary(g, n1);
+				this.addIfNecessary(g, n2);
+				IWeightedEdge e = (IWeightedEdge) gds.newEdgeInstance(n1, n2);
+				((IntWeight) e.getWeight()).setWeight(edge.weight);
+				g.addEdge((Edge) e);
+				e.connectToNodes();
+			} else {
+				IWeightedEdge e = (IWeightedEdge) g.getEdge(n1, n2);
+				((IntWeight) e.getWeight()).setWeight(edge.weight);
+			}
 			break;
-		case UNWEIGHTED:
+		case RATING_ADD_ONE:
+			if (!g.containsEdge(n1, n2)) {
+				this.addIfNecessary(g, n1);
+				this.addIfNecessary(g, n2);
+				IWeightedEdge e = (IWeightedEdge) gds.newEdgeInstance(n1, n2);
+				((IntWeight) e.getWeight()).setWeight(edge.weight + 1);
+				g.addEdge((Edge) e);
+				e.connectToNodes();
+			} else {
+				IWeightedEdge e = (IWeightedEdge) g.getEdge(n1, n2);
+				((IntWeight) e.getWeight()).setWeight(edge.weight + 1);
+			}
+			break;
+		case ADD:
 			if (edge.weight == 1) {
 				this.addIfNecessary(g, n1);
 				this.addIfNecessary(g, n2);
