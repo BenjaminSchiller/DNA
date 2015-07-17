@@ -30,6 +30,12 @@ public class RootMeanSquareDeviationR extends RootMeanSquareDeviation implements
 	}
 
 	@Override
+	public boolean reset() {
+		this.positions = null;
+		return true;
+	}
+
+	@Override
 	public boolean recompute() {
 		this.changes = 0;
 		this.rmsd = 0;
