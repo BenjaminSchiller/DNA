@@ -65,6 +65,32 @@ public class GraphPanel extends JPanel {
 	protected final JPanel textPanel;
 	protected final JLabel textLabel;
 	protected final Layout layouter;
+	public View view;
+
+	// enable 3d projection
+	public static final boolean enable3dProjection = Config
+			.getBoolean("GRAPH_VIS_3D_PROJECTION_ENABLED");
+
+	// scaling matrix
+	protected final double s0x = Config
+			.getDouble("GRAPH_VIS_3D_PROJECTION_S0X");
+	protected final double s0y = Config
+			.getDouble("GRAPH_VIS_3D_PROJECTION_S0Y");
+	protected final double s0z = Config
+			.getDouble("GRAPH_VIS_3D_PROJECTION_S0Z");
+
+	protected final double s1x = Config
+			.getDouble("GRAPH_VIS_3D_PROJECTION_S1X");
+	protected final double s1y = Config
+			.getDouble("GRAPH_VIS_3D_PROJECTION_S1Y");
+	protected final double s1z = Config
+			.getDouble("GRAPH_VIS_3D_PROJECTION_S1Z");
+
+	// offset vector
+	protected final double cx = Config
+			.getDouble("GRAPH_VIS_3D_PROJECTION_OFFSETX");
+	protected final double cy = Config
+			.getDouble("GRAPH_VIS_3D_PROJECTION_OFFSETY");
 
 	// constructor
 	public GraphPanel(final Graph graph, final String name, PositionMode mode) {
@@ -131,11 +157,11 @@ public class GraphPanel extends JPanel {
 		// create viewer and show graph
 		Viewer v = new Viewer(graph,
 				Viewer.ThreadingModel.GRAPH_IN_ANOTHER_THREAD);
-		
+
 		boolean useLayouter3dMode = Config.getBoolean("GRAPH_VIS_LAYOUT_3D");
 
 		// create and configure layouter
-		if (mode.equals(PositionMode.auto)) {
+		if (Config.getBoolean("GRAPH_VIS_AUTO_LAYOUT_ENABLED")) {
 			Layout layouter = new SpringBox(useLayouter3dMode);
 			if (Config.getBoolean("GRAPH_VIS_LAYOUT_LINLOG"))
 				layouter = new LinLog(useLayouter3dMode);
@@ -147,12 +173,11 @@ public class GraphPanel extends JPanel {
 		} else {
 			this.layouter = null;
 			v.disableAutoLayout();
-			Log.info("position mode: " + mode.toString()
-					+ ", auto-layouter disabled");
 		}
 
 		// get view
 		View view = v.addDefaultView(false);
+		this.view = view;
 		JPanel graphView = (JPanel) view;
 
 		// main panel
@@ -285,6 +310,13 @@ public class GraphPanel extends JPanel {
 			// update label
 			updateLabel(edge);
 
+			// set edge size / thickness
+			edge.setAttribute(GraphVisualization.sizeKey,
+					Config.getDouble("GRAPH_VIS_EDGE_DEFAULT_SIZE"));
+			edge.setAttribute(GraphVisualization.styleKey,
+					"size: " + edge.getAttribute(GraphVisualization.sizeKey)
+							+ "px;");
+
 			// change node styles
 			applyNodeStyleByDegree(this.graph.getNode("" + n1));
 			applyNodeStyleByDegree(this.graph.getNode("" + n2));
@@ -375,6 +407,9 @@ public class GraphPanel extends JPanel {
 		if (Config.getBoolean("GRAPH_VIS_SIZE_NODES_BY_DEGREE"))
 			setNodeSizeByDegree(n);
 
+		// System.out.println(n.getAttribute(GraphVisualization.colorKey) + " "
+		// + n.getAttribute(GraphVisualization.sizeKey));
+
 		// set style attribute accordingly
 		n.setAttribute(
 				GraphVisualization.styleKey,
@@ -452,6 +487,23 @@ public class GraphPanel extends JPanel {
 			z = (float) ((Double3dWeight) w).getZ();
 		}
 
-		return new float[] { x, y, z };
+		// if 3d projection is enabled, project coordinates
+		if (enable3dProjection) {
+			double[] projected2DCoordinates = project3DPointToCoordinates(x, y,
+					z);
+			return new float[] { (float) projected2DCoordinates[0],
+					(float) projected2DCoordinates[1], 0 };
+		} else {
+			return new float[] { x, y, z };
+		}
+	}
+
+	/** Projects the (x,y,z)-coordinates to (x,y). **/
+	public double[] project3DPointToCoordinates(double x, double y, double z) {
+		double x2 = s0x * x + s0y * y + s0z * z + cx;
+		double y2 = s1x * x + s1y * y + s1z * z + cy;
+
+		return new double[] { x2, y2 };
+
 	}
 }
