@@ -1,6 +1,7 @@
 package dna.util;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -11,6 +12,11 @@ public class Execute {
 		Execute.exec(cmd, false);
 	}
 
+	public static void exec(String cmd, String dir) throws IOException,
+			InterruptedException {
+		Execute.exec(cmd, true, null, dir);
+	}
+
 	public static void exec(String cmd, boolean printErrors)
 			throws IOException, InterruptedException {
 		Execute.exec(cmd, printErrors, null);
@@ -18,10 +24,16 @@ public class Execute {
 
 	public static void exec(String cmd, boolean printErrors, String[] env)
 			throws IOException, InterruptedException {
+		Execute.exec(cmd, printErrors, env, null);
+	}
+
+	public static void exec(String cmd, boolean printErrors, String[] env,
+			String dir) throws IOException, InterruptedException {
 		if (env == null) {
 			env = new String[0];
 		}
-		Process p = Runtime.getRuntime().exec(cmd, env);
+		Process p = dir == null ? Runtime.getRuntime().exec(cmd, env) : Runtime
+				.getRuntime().exec(cmd, env, new File(dir));
 		if (printErrors) {
 			InputStream stderr = p.getErrorStream();
 			InputStreamReader isr = new InputStreamReader(stderr);
