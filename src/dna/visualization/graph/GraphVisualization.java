@@ -79,11 +79,15 @@ public class GraphVisualization {
 		PositionMode mode = PositionMode.auto;
 		Class<? extends Weight> nwt = g.getGraphDatastructures()
 				.getNodeWeightType();
-		if (nwt.equals(Int2dWeight.class) || nwt.equals(Long2dWeight.class)
-				|| nwt.equals(Double2dWeight.class))
+		if (nwt != null
+				&& (nwt.equals(Int2dWeight.class)
+						|| nwt.equals(Long2dWeight.class) || nwt
+							.equals(Double2dWeight.class)))
 			mode = PositionMode.twoDimension;
-		if (nwt.equals(Int3dWeight.class) || nwt.equals(Long3dWeight.class)
-				|| nwt.equals(Double3dWeight.class))
+		if (nwt != null
+				&& (nwt.equals(Int3dWeight.class)
+						|| nwt.equals(Long3dWeight.class) || nwt
+							.equals(Double3dWeight.class)))
 			mode = PositionMode.threeDimension;
 
 		// main frame
