@@ -666,8 +666,6 @@ public class GraphPanel extends JPanel {
 						+ "px;");
 			}
 
-			System.out.println(n.getAttribute(GraphVisualization.sizeKey));
-
 			// set style attribute accordingly
 			String style = "";
 			if (n.getAttribute(GraphVisualization.colorKey) != null)
