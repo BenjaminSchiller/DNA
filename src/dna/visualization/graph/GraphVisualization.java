@@ -38,6 +38,7 @@ public class GraphVisualization {
 	public static final String colorKey = "dna.color";
 	public static final String sizeKey = "dna.size";
 	public static final String styleKey = "ui.style";
+	public static final String zKey = "dna.z";
 
 	// GUI CONFIG
 	protected static final Dimension size = new Dimension(
