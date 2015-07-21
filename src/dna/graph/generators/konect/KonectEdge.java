@@ -8,7 +8,7 @@ public class KonectEdge implements Comparable<KonectEdge> {
 
 	public int n2;
 
-	public int weight;
+	public double weight;
 
 	public long timestamp;
 
@@ -20,10 +20,14 @@ public class KonectEdge implements Comparable<KonectEdge> {
 	}
 
 	public KonectEdge(String line) {
+		this(line, 0, 1);
+	}
+
+	public KonectEdge(String line, double offset, double factor) {
 		String[] temp = line.split(separator);
 		this.n1 = Integer.parseInt(temp[0]);
 		this.n2 = Integer.parseInt(temp[1]);
-		this.weight = Integer.parseInt(temp[2]);
+		this.weight = (Double.parseDouble(temp[2]) + offset) * factor;
 		this.timestamp = Long.parseLong(temp[3]);
 	}
 

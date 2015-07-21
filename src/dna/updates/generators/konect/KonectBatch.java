@@ -1,7 +1,5 @@
 package dna.updates.generators.konect;
 
-import java.io.IOException;
-
 import dna.graph.Graph;
 import dna.graph.IElement;
 import dna.graph.edges.Edge;
@@ -29,30 +27,22 @@ public class KonectBatch extends BatchGenerator {
 	protected KonectBatchType batchType;
 	protected String batchParameter;
 
-	public static final String timestampsSeparator = ";";
+	public static final String separator = ";";
 	protected int[] timestamps;
 	protected int timestampsIndex;
 
-	protected boolean removeZeroDegreeNodes;
-
 	public KonectBatch(KonectReader r, KonectBatchType batchType,
 			String batchParameter) {
-		this(r, batchType, batchParameter, true);
-	}
-
-	public KonectBatch(KonectReader r, KonectBatchType batchType,
-			String batchParameter, boolean removeZeroDegreeNodes) {
 		super("KonectBatch", new StringParameter("Name", r.name),
 				new StringParameter("EdgeType", r.edgeType.toString()),
 				new BooleanParameter("RemoveZeroDegreeNodes",
-						removeZeroDegreeNodes));
+						r.removeZeroDegreeNodes));
 		this.r = r;
 		this.batchType = batchType;
 		this.batchParameter = batchParameter;
-		this.removeZeroDegreeNodes = removeZeroDegreeNodes;
 
 		if (batchType.equals(KonectBatchType.TIMESTAMPS)) {
-			String[] temp = batchParameter.split(timestampsSeparator);
+			String[] temp = batchParameter.split(separator);
 			timestamps = new int[temp.length];
 			for (int i = 0; i < temp.length; i++) {
 				timestamps[i] = Integer.parseInt(temp[i]);
@@ -67,7 +57,7 @@ public class KonectBatch extends BatchGenerator {
 		Batch b = new Batch(g.getGraphDatastructures(), g.getTimestamp(),
 				g.getTimestamp() + 1);
 
-		if (this.removeZeroDegreeNodes) {
+		if (r.removeZeroDegreeNodes) {
 			for (IElement n_ : g.getNodes()) {
 				Node n = (Node) n_;
 				if (n.getDegree() == 0) {
@@ -108,10 +98,10 @@ public class KonectBatch extends BatchGenerator {
 					break;
 			}
 
-			try {
-				this.process(g, b, r.readEdge());
-			} catch (IOException e) {
-				e.printStackTrace();
+			KonectEdge e = r.readEdge();
+			if (e != null) {
+				this.process(g, b, e);
+			} else {
 				return b;
 			}
 			processed++;
@@ -138,6 +128,19 @@ public class KonectBatch extends BatchGenerator {
 		Node n2 = r.getNode(edge.n2);
 
 		switch (r.edgeType) {
+		case ADD:
+			if (edge.weight == 1) {
+				this.processNode(graph, b, n1);
+				this.processNode(graph, b, n2);
+				Edge e = r.gds.newEdgeInstance(n1, n2);
+				EdgeAddition ea = b.getEdgeAddition(e);
+				if (ea == null) {
+					b.add(new EdgeAddition(e));
+				}
+			} else {
+				Log.error("invalid weight for ADD: " + edge);
+			}
+			break;
 		case ADD_REMOVE:
 			if (edge.weight == -1) {
 				if (!graph.containsEdge(n1, n2)) {
@@ -168,17 +171,29 @@ public class KonectBatch extends BatchGenerator {
 				Log.error("invalid weight for ADD_REMOVE: " + edge);
 			}
 			break;
-		case MULTI_UNWEIGHTED:
+		case MULTI:
+			// System.out.println("processing: " + edge);
 			if (edge.weight == 1) {
 				if (graph.containsEdge(n1, n2)) {
 					IWeightedEdge e = (IWeightedEdge) graph.getEdge(n1, n2);
+					int current = ((IntWeight) e.getWeight()).getWeight();
 					EdgeWeight ew = b.getEdgeWeight(e);
-					if (ew == null) {
-						IntWeight w = new IntWeight(
-								1 + ((IntWeight) e.getWeight()).getWeight());
-						b.add(new EdgeWeight(e, w));
+					EdgeRemoval er = b.getEdgeRemoval((Edge) e);
+					if (ew != null) {
+						if (((IntWeight) ew.getWeight()).getWeight() == current - 1) {
+							b.remove(ew);
+						} else {
+							((IntWeight) ew.getWeight()).increaseWeight(1);
+						}
+					} else if (er != null) {
+						if (current == 1) {
+							b.remove(er);
+						} else {
+							b.remove(er);
+							b.add(new EdgeWeight(e, new IntWeight(1)));
+						}
 					} else {
-						((IntWeight) ew.getWeight()).increaseWeight(1);
+						b.add(new EdgeWeight(e, new IntWeight(current + 1)));
 					}
 				} else {
 					this.processNode(graph, b, n1);
@@ -188,92 +203,82 @@ public class KonectBatch extends BatchGenerator {
 					EdgeAddition ea = b.getEdgeAddition((Edge) e);
 					if (ea == null) {
 						((IntWeight) e.getWeight()).setWeight(1);
-						// System.out.println("adding edge: " + e);
-						// System.out.println("  before: @@@ "
-						// + b.getEdgeAdditions());
-						// System.out.println("  before: --- "
-						// + b.getEdgeAddition((Edge) e));
 						b.add(new EdgeAddition(e));
-						// System.out.println("  after: @@@ "
-						// + b.getEdgeAdditions());
-						// System.out.println("  after: --- "
-						// + b.getEdgeAddition((Edge) e));
 					} else {
 						((IntWeight) ((IWeightedEdge) ea.getEdge()).getWeight())
 								.increaseWeight(1);
 					}
 				}
+			} else if (edge.weight == -1) {
+				if (graph.containsEdge(n1, n2)) {
+					IWeightedEdge e = (IWeightedEdge) graph.getEdge(n1, n2);
+					int current = ((IntWeight) e.getWeight()).getWeight();
+					EdgeWeight ew = b.getEdgeWeight(e);
+					EdgeRemoval er = b.getEdgeRemoval((Edge) e);
+					if (ew != null) {
+						if (current > 1) {
+							((IntWeight) ew.getWeight()).setWeight(current - 1);
+						} else if (current == 1) {
+							b.remove(ew);
+							b.add(new EdgeRemoval(e));
+						} else {
+							Log.error("invalid EW: " + ew);
+						}
+					} else if (er != null) {
+						Log.error("removing edge with invalid weight: " + er);
+					} else {
+						if (current > 1) {
+							b.add(new EdgeWeight(e, new IntWeight(current - 1)));
+						} else if (current == 1) {
+							b.add(new EdgeRemoval(e));
+						} else {
+							Log.error("invalid weight: " + e);
+						}
+					}
+				} else {
+					this.processNode(graph, b, n1);
+					this.processNode(graph, b, n2);
+					IWeightedEdge e = (IWeightedEdge) r.gds.newEdgeInstance(n1,
+							n2);
+					EdgeAddition ea = b.getEdgeAddition((Edge) e);
+					if (ea != null) {
+						((IntWeight) ((IWeightedEdge) ea.getEdge()).getWeight())
+								.decreaseWeight(1);
+					} else {
+						Log.error("cannot decrease weight for non-existing edge: "
+								+ e);
+					}
+				}
 			} else {
-				Log.error("invalid weight for MULTI_UNWEIGHTED: " + edge);
+				Log.error("invalid weight for MULTI: " + edge);
 			}
 			break;
-		case RATING:
+		case WEIGHTED:
 			if (!graph.containsEdge(n1, n2)) {
 				this.processNode(graph, b, n1);
 				this.processNode(graph, b, n2);
 				IWeightedEdge e = (IWeightedEdge) r.gds.newEdgeInstance(n1, n2);
-				((IntWeight) e.getWeight()).setWeight(edge.weight);
+				((IntWeight) e.getWeight()).setWeight((int) edge.weight);
 				EdgeAddition ea = b.getEdgeAddition((Edge) e);
 				if (ea == null) {
 					b.add(new EdgeAddition(e));
 				} else {
 					((IntWeight) ((IWeightedEdge) ea.getEdge()))
-							.setWeight(edge.weight);
+							.setWeight((int) edge.weight);
 				}
 			} else {
 				IWeightedEdge e = (IWeightedEdge) graph.getEdge(n1, n2);
 				EdgeWeight ew = b.getEdgeWeight(e);
 				if (ew == null) {
-					ew = new EdgeWeight(e, new IntWeight(edge.weight));
+					ew = new EdgeWeight(e, new IntWeight((int) edge.weight));
 					b.add(ew);
 				} else {
-					((IntWeight) ew.getWeight()).setWeight(edge.weight);
+					((IntWeight) ew.getWeight()).setWeight((int) edge.weight);
 				}
 				if (((IntWeight) ew.getWeight()).getWeight() == ((IntWeight) ((IWeightedEdge) ew
 						.getEdge()).getWeight()).getWeight()) {
 					b.remove(ew);
 				}
-			}
-			break;
-		case RATING_ADD_ONE:
-			if (!graph.containsEdge(n1, n2)) {
-				this.processNode(graph, b, n1);
-				this.processNode(graph, b, n2);
-				IWeightedEdge e = (IWeightedEdge) r.gds.newEdgeInstance(n1, n2);
-				((IntWeight) e.getWeight()).setWeight(edge.weight + 1);
-				EdgeAddition ea = b.getEdgeAddition((Edge) e);
-				if (ea == null) {
-					b.add(new EdgeAddition(e));
-				} else {
-					((IntWeight) ((IWeightedEdge) ea.getEdge()))
-							.setWeight(edge.weight + 1);
-				}
-			} else {
-				IWeightedEdge e = (IWeightedEdge) graph.getEdge(n1, n2);
-				EdgeWeight ew = b.getEdgeWeight(e);
-				if (ew == null) {
-					ew = new EdgeWeight(e, new IntWeight(edge.weight + 1));
-					b.add(ew);
-				} else {
-					((IntWeight) ew.getWeight()).setWeight(edge.weight + 1);
-				}
-				if (((IntWeight) ew.getWeight()).getWeight() == ((IntWeight) ((IWeightedEdge) ew
-						.getEdge()).getWeight()).getWeight()) {
-					b.remove(ew);
-				}
-			}
-			break;
-		case ADD:
-			if (edge.weight == 1) {
-				this.processNode(graph, b, n1);
-				this.processNode(graph, b, n2);
-				Edge e = r.gds.newEdgeInstance(n1, n2);
-				EdgeAddition ea = b.getEdgeAddition(e);
-				if (ea == null) {
-					b.add(new EdgeAddition(e));
-				}
-			} else {
-				Log.error("invalid weight for UNWEIGHTED: " + edge);
 			}
 			break;
 		default:

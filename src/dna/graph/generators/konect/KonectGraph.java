@@ -18,29 +18,23 @@ public class KonectGraph extends GraphGenerator {
 
 	protected KonectReader r;
 
-	protected KonectGraphType type;
+	protected KonectGraphType graphType;
 	protected String parameter;
 
 	protected boolean removeZeroDegreeNodes;
 
 	public KonectGraph(KonectReader r, KonectGraphType graphType,
 			String graphParameter) {
-		this(r, graphType, graphParameter, true);
-	}
-
-	public KonectGraph(KonectReader r, KonectGraphType graphType,
-			String graphParameter, boolean removeZeroDegreeNodes) {
 		super("KonectGraph", new Parameter[] {
 				new StringParameter("Name", r.name),
 				new StringParameter("EdgeType", r.edgeType.toString()),
 				new StringParameter("GraphType", graphType.toString()),
 				new StringParameter("GraphParameter", graphParameter),
 				new BooleanParameter("RemoveZeroDegreeNodes",
-						removeZeroDegreeNodes) }, r.gds, 0, 100, 1000);
+						r.removeZeroDegreeNodes) }, r.gds, 0, 100, 1000);
 		this.r = r;
-		this.type = graphType;
+		this.graphType = graphType;
 		this.parameter = graphParameter;
-		this.removeZeroDegreeNodes = removeZeroDegreeNodes;
 	}
 
 	@Override
@@ -50,24 +44,24 @@ public class KonectGraph extends GraphGenerator {
 		int processed = 0;
 		while (true) {
 
-			if (KonectGraphType.PROCESSED_EDGES.equals(this.type)) {
+			if (KonectGraphType.PROCESSED_EDGES.equals(this.graphType)) {
 				if (processed >= Integer.parseInt(this.parameter))
 					break;
-			} else if (KonectGraphType.TIMESTAMP.equals(this.type)) {
+			} else if (KonectGraphType.TIMESTAMP.equals(this.graphType)) {
 				if (this.r.peek() != null
 						&& this.r.peek().timestamp > Integer
 								.parseInt(this.parameter)) {
 					g.setTimestamp(Integer.parseInt(this.parameter));
 					break;
 				}
-			} else if (KonectGraphType.TOTAL_EDGES.equals(this.type)) {
+			} else if (KonectGraphType.TOTAL_EDGES.equals(this.graphType)) {
 				if (g.getEdgeCount() >= Integer.parseInt(this.parameter))
 					break;
-			} else if (KonectGraphType.TOTAL_NODES.equals(this.type)) {
+			} else if (KonectGraphType.TOTAL_NODES.equals(this.graphType)) {
 				if (g.getNodeCount() >= Integer.parseInt(this.parameter))
 					break;
 			} else {
-				Log.error("invalid graph type: " + this.type);
+				Log.error("invalid graph type: " + this.graphType);
 				break;
 			}
 
@@ -80,19 +74,14 @@ public class KonectGraph extends GraphGenerator {
 			processed++;
 		}
 
-		if (KonectGraphType.TIMESTAMP.equals(this.type))
+		if (KonectGraphType.TIMESTAMP.equals(this.graphType))
 			g.setTimestamp(Integer.parseInt(this.parameter));
 
 		return g;
 	}
 
 	protected KonectEdge readNextEdge() {
-		try {
-			return this.r.readEdge();
-		} catch (IOException e) {
-			e.printStackTrace();
-			return null;
-		}
+		return this.r.readEdge();
 	}
 
 	protected void addIfNecessary(Graph g, Node n) {
@@ -116,6 +105,17 @@ public class KonectGraph extends GraphGenerator {
 		Node n2 = r.getNode(edge.n2);
 
 		switch (r.edgeType) {
+		case ADD:
+			if (edge.weight == 1) {
+				this.addIfNecessary(g, n1);
+				this.addIfNecessary(g, n2);
+				Edge e = gds.newEdgeInstance(n1, n2);
+				g.addEdge(e);
+				e.connectToNodes();
+			} else {
+				Log.error("invalid weight for ADD: " + edge);
+			}
+			break;
 		case ADD_REMOVE:
 			if (edge.weight == -1) {
 				if (g.containsEdge(n1, n2)) {
@@ -137,7 +137,7 @@ public class KonectGraph extends GraphGenerator {
 				Log.error("invalid weight for ADD_REMOVE: " + edge);
 			}
 			break;
-		case MULTI_UNWEIGHTED:
+		case MULTI:
 			if (edge.weight == 1) {
 				if (g.containsEdge(n1, n2)) {
 					IWeightedEdge e = (IWeightedEdge) g.getEdge(n1, n2);
@@ -152,45 +152,30 @@ public class KonectGraph extends GraphGenerator {
 					g.addEdge((Edge) e);
 					e.connectToNodes();
 				}
+			} else if (edge.weight == -1) {
+				IWeightedEdge e = (IWeightedEdge) g.getEdge(n1, n2);
+				IntWeight w = (IntWeight) e.getWeight();
+				int current = w.getWeight();
+				if (current == 1) {
+					g.removeEdge((Edge) e);
+				} else {
+					w.decreaseWeight(1);
+				}
 			} else {
-				Log.error("invalid weight for MULTI_UNWEIGHTED: " + edge);
+				Log.error("invalid weight for MULTI: " + edge);
 			}
 			break;
-		case RATING:
+		case WEIGHTED:
 			if (!g.containsEdge(n1, n2)) {
 				this.addIfNecessary(g, n1);
 				this.addIfNecessary(g, n2);
 				IWeightedEdge e = (IWeightedEdge) gds.newEdgeInstance(n1, n2);
-				((IntWeight) e.getWeight()).setWeight(edge.weight);
+				((IntWeight) e.getWeight()).setWeight((int) edge.weight);
 				g.addEdge((Edge) e);
 				e.connectToNodes();
 			} else {
 				IWeightedEdge e = (IWeightedEdge) g.getEdge(n1, n2);
-				((IntWeight) e.getWeight()).setWeight(edge.weight);
-			}
-			break;
-		case RATING_ADD_ONE:
-			if (!g.containsEdge(n1, n2)) {
-				this.addIfNecessary(g, n1);
-				this.addIfNecessary(g, n2);
-				IWeightedEdge e = (IWeightedEdge) gds.newEdgeInstance(n1, n2);
-				((IntWeight) e.getWeight()).setWeight(edge.weight + 1);
-				g.addEdge((Edge) e);
-				e.connectToNodes();
-			} else {
-				IWeightedEdge e = (IWeightedEdge) g.getEdge(n1, n2);
-				((IntWeight) e.getWeight()).setWeight(edge.weight + 1);
-			}
-			break;
-		case ADD:
-			if (edge.weight == 1) {
-				this.addIfNecessary(g, n1);
-				this.addIfNecessary(g, n2);
-				Edge e = gds.newEdgeInstance(n1, n2);
-				g.addEdge(e);
-				e.connectToNodes();
-			} else {
-				Log.error("invalid weight for UNWEIGHTED: " + edge);
+				((IntWeight) e.getWeight()).setWeight((int) edge.weight);
 			}
 			break;
 		default:
