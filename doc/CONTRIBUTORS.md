@@ -8,6 +8,7 @@ The following people contributed to the development of DNA (in alphabetical orde
 - **Christoph Schott** (zalando graph and batch generators, metrics)
 - **Jan Wiese** (google+ graph and batch generators, metrics)
 - **René Wilmes** (series aggregation, plotting, visualization)
-- **Marcel Wunderlich** (zalando graoh and batch generators, metrics)
+- **Marcel Wunderlich** (zalando graph and batch generators, metrics)
+- **Maurice Wendt** (street network graph and batch generators)
 - **Tim Grube** (metrics)
 
