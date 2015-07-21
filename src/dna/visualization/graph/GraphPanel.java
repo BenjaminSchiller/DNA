@@ -639,30 +639,34 @@ public class GraphPanel extends JPanel {
 			if (Config.getBoolean("GRAPH_VIS_SIZE_NODES_BY_DEGREE"))
 				setNodeSizeByDegree(n);
 			if (this.enable3dProjection && this.enable3dProjectionNodeSizing) {
-				if (n.hasAttribute(GraphVisualization.sizeKey)) {
+				int defaultSize = Config.getInt("GRAPH_VIS_NODE_DEFAULT_SIZE");
+				if (Config.getBoolean("GRAPH_VIS_SIZE_NODES_BY_DEGREE")
+						&& n.hasAttribute(GraphVisualization.sizeKey)) {
 					String sizeString = n
 							.getAttribute(GraphVisualization.sizeKey);
 					String[] splits = sizeString.split(" ");
-					int size = Integer.parseInt(splits[1].substring(0,
+					defaultSize = Integer.parseInt(splits[1].substring(0,
 							splits[1].length() - 3));
-					float z = n.getAttribute(GraphVisualization.zKey);
-
-					// calc size
-					size = size
-							+ Config.getInt("GRAPH_VIS_3D_PROJECTION_NODE_GROWTH")
-							- (int) Math
-									.floor(z
-											* Config.getDouble("GRAPH_VIS_3D_PROJECTION_NODE_SHRINK_FACTOR"));
-
-					// keep minimum size of 1
-					if (size < 1)
-						size = 1;
-
-					// set size
-					n.setAttribute(GraphVisualization.sizeKey, "size: " + size
-							+ "px;");
 				}
+				float z = n.getAttribute(GraphVisualization.zKey);
+
+				// calc size
+				int size = defaultSize
+						+ Config.getInt("GRAPH_VIS_3D_PROJECTION_NODE_GROWTH")
+						- (int) Math
+								.floor(z
+										* Config.getDouble("GRAPH_VIS_3D_PROJECTION_NODE_SHRINK_FACTOR"));
+
+				// keep minimum size of 1
+				if (size < 1)
+					size = 1;
+
+				// set size
+				n.setAttribute(GraphVisualization.sizeKey, "size: " + size
+						+ "px;");
 			}
+
+			System.out.println(n.getAttribute(GraphVisualization.sizeKey));
 
 			// set style attribute accordingly
 			String style = "";
