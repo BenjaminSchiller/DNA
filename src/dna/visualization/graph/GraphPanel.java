@@ -218,7 +218,6 @@ public class GraphPanel extends JPanel {
 				setZoom(zoom);
 			}
 		});
-
 	}
 
 	/** Sets the zoom. **/
@@ -342,12 +341,8 @@ public class GraphPanel extends JPanel {
 			if (this.enable3dProjection) {
 				double[] projected2DCoordinates = project3DPointToCoordinates(
 						coords[0], coords[1], coords[2]);
-				System.out.println("coords1: " + coords[0] + "\t" + coords[1]
-						+ "\t" + coords[2]);
 				coords = new float[] { (float) projected2DCoordinates[0],
 						(float) projected2DCoordinates[1], 0 };
-				System.out.println("coords2: " + coords[0] + "\t" + coords[1]
-						+ "\t" + coords[2]);
 			}
 
 			// add position to node
@@ -431,12 +426,8 @@ public class GraphPanel extends JPanel {
 			if (this.enable3dProjection) {
 				double[] projected2DCoordinates = project3DPointToCoordinates(
 						coords[0], coords[1], coords[2]);
-				System.out.println("coords1: " + coords[0] + "\t" + coords[1]
-						+ "\t" + coords[2]);
 				coords = new float[] { (float) projected2DCoordinates[0],
 						(float) projected2DCoordinates[1], 0 };
-				System.out.println("coords2: " + coords[0] + "\t" + coords[1]
-						+ "\t" + coords[2]);
 			}
 
 			// add position to node
