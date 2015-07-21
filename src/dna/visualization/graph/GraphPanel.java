@@ -65,32 +65,46 @@ public class GraphPanel extends JPanel {
 	protected final JPanel textPanel;
 	protected final JLabel textLabel;
 	protected final Layout layouter;
-	public View view;
+	protected View view;
 
 	// enable 3d projection
-	public static final boolean enable3dProjection = Config
+	protected boolean enable3dProjection = Config
 			.getBoolean("GRAPH_VIS_3D_PROJECTION_ENABLED");
+	protected boolean useVanishingPoint = Config
+			.getBoolean("GRAPH_VIS_3D_PROJECTION_USE_VANISHING_POINT");
 
 	// scaling matrix
-	protected final double s0x = Config
-			.getDouble("GRAPH_VIS_3D_PROJECTION_S0X");
-	protected final double s0y = Config
-			.getDouble("GRAPH_VIS_3D_PROJECTION_S0Y");
-	protected final double s0z = Config
-			.getDouble("GRAPH_VIS_3D_PROJECTION_S0Z");
+	protected final double s0_x = Config
+			.getDouble("GRAPH_VIS_3D_PROJECTION_S0_X");
+	protected final double s0_y = Config
+			.getDouble("GRAPH_VIS_3D_PROJECTION_S0_Y");
+	protected final double s0_z = Config
+			.getDouble("GRAPH_VIS_3D_PROJECTION_S0_Z");
 
-	protected final double s1x = Config
-			.getDouble("GRAPH_VIS_3D_PROJECTION_S1X");
-	protected final double s1y = Config
-			.getDouble("GRAPH_VIS_3D_PROJECTION_S1Y");
-	protected final double s1z = Config
-			.getDouble("GRAPH_VIS_3D_PROJECTION_S1Z");
+	protected final double s1_x = Config
+			.getDouble("GRAPH_VIS_3D_PROJECTION_S1_X");
+	protected final double s1_y = Config
+			.getDouble("GRAPH_VIS_3D_PROJECTION_S1_Y");
+	protected final double s1_z = Config
+			.getDouble("GRAPH_VIS_3D_PROJECTION_S1_Z");
 
 	// offset vector
-	protected final double cx = Config
-			.getDouble("GRAPH_VIS_3D_PROJECTION_OFFSETX");
-	protected final double cy = Config
-			.getDouble("GRAPH_VIS_3D_PROJECTION_OFFSETY");
+	protected final double offset_x = Config
+			.getDouble("GRAPH_VIS_3D_PROJECTION_OFFSET_X");
+	protected final double offset_y = Config
+			.getDouble("GRAPH_VIS_3D_PROJECTION_OFFSET_Y");
+
+	// vanishing point
+	protected double vp_x = Config.getDouble("GRAPH_VIS_3D_PROJECTION_VP_X");
+	protected double vp_y = Config.getDouble("GRAPH_VIS_3D_PROJECTION_VP_Y");
+	protected double vp_z = Config.getDouble("GRAPH_VIS_3D_PROJECTION_VP_Z");
+
+	protected static double minX = Double.NaN;
+	protected static double maxX = Double.NaN;
+	protected static double minY = Double.NaN;
+	protected static double maxY = Double.NaN;
+	protected static double minZ = Double.NaN;
+	protected static double maxZ = Double.NaN;
 
 	// constructor
 	public GraphPanel(final Graph graph, final String name, PositionMode mode) {
@@ -186,11 +200,6 @@ public class GraphPanel extends JPanel {
 		this.add(graphView, BorderLayout.CENTER);
 	}
 
-	/** Sets the text-label to the input text. **/
-	public void setText(String text) {
-		textLabel.setText(text);
-	}
-
 	/** Returns the embedded graphstream.graph. **/
 	public Graph getGraph() {
 		return this.graph;
@@ -199,6 +208,43 @@ public class GraphPanel extends JPanel {
 	/** Returns the layouter of the embedded graphstream graph. **/
 	public Layout getLayouter() {
 		return this.layouter;
+	}
+
+	/** Returns the vanishing point as {x, y, z}. **/
+	public double[] getVanishingPoint() {
+		return new double[] { this.vp_x, this.vp_y, this.vp_z };
+	}
+
+	/** Sets the vanishing point. **/
+	public void setVanishingPoint(double x, double y, double z) {
+		this.vp_x = x;
+		this.vp_y = y;
+		this.vp_z = z;
+	}
+
+	/** Returns if 3d projection is enabled. **/
+	public boolean is3dProjectionEnabled() {
+		return this.enable3dProjection;
+	}
+
+	/** Returns if vanishing point is used for 3d projection. **/
+	public boolean isVanishingPointUsed() {
+		return this.useVanishingPoint;
+	}
+
+	/** Enables/Disables 3d pojeton. **/
+	public void set3dProjection(boolean enabled) {
+		this.enable3dProjection = enabled;
+	}
+
+	/** Sets if vanishing points will be used for 3d projection. **/
+	public void setVanishingPointUse(boolean enabled) {
+		this.useVanishingPoint = enabled;
+	}
+
+	/** Sets the text-label to the input text. **/
+	public void setText(String text) {
+		textLabel.setText(text);
 	}
 
 	/*
@@ -228,6 +274,21 @@ public class GraphPanel extends JPanel {
 			// get coords from weight
 			float[] coords = getCoordsFromWeight(w);
 
+			// keep record of min/max coordinates
+			statRecord(coords);
+
+			// if 3d projection is enabled, project coordinates
+			if (this.enable3dProjection) {
+				double[] projected2DCoordinates = project3DPointToCoordinates(
+						coords[0], coords[1], coords[2]);
+				System.out.println("coords1: " + coords[0] + "\t" + coords[1]
+						+ "\t" + coords[2]);
+				coords = new float[] { (float) projected2DCoordinates[0],
+						(float) projected2DCoordinates[1], 0 };
+				System.out.println("coords2: " + coords[0] + "\t" + coords[1]
+						+ "\t" + coords[2]);
+			}
+
 			// add position to node
 			node.addAttribute(GraphVisualization.positionKey, coords[0],
 					coords[1], coords[2]);
@@ -240,6 +301,45 @@ public class GraphPanel extends JPanel {
 		if (Config.getBoolean("GRAPH_VIS_COLOR_NODES_BY_DEGREE")
 				|| Config.getBoolean("GRAPH_VIS_SIZE_NODES_BY_DEGREE"))
 			applyNodeStyleByDegree(node);
+	}
+
+	public void statRecord(float[] coords) {
+		if (!Double.isNaN(minX)) {
+			if (coords[0] < minX)
+				minX = coords[0];
+		} else {
+			minX = coords[0];
+		}
+		if (!Double.isNaN(maxX)) {
+			if (coords[0] > maxX)
+				maxX = coords[0];
+		} else {
+			maxX = coords[0];
+		}
+		if (!Double.isNaN(minY)) {
+			if (coords[1] < minY)
+				minY = coords[1];
+		} else {
+			minY = coords[1];
+		}
+		if (!Double.isNaN(maxY)) {
+			if (coords[1] > maxY)
+				maxY = coords[1];
+		} else {
+			maxY = coords[1];
+		}
+		if (!Double.isNaN(minZ)) {
+			if (coords[2] < minZ)
+				minZ = coords[2];
+		} else {
+			minZ = coords[2];
+		}
+		if (!Double.isNaN(maxZ)) {
+			if (coords[2] > maxZ)
+				maxZ = coords[2];
+		} else {
+			maxZ = coords[2];
+		}
 	}
 
 	/** Removes node n from graph g. **/
@@ -262,6 +362,21 @@ public class GraphPanel extends JPanel {
 
 			// get coords from weight
 			float[] coords = getCoordsFromWeight(w);
+
+			// keep record of min/max coordinates
+			statRecord(coords);
+
+			// if 3d projection is enabled, project coordinates
+			if (this.enable3dProjection) {
+				double[] projected2DCoordinates = project3DPointToCoordinates(
+						coords[0], coords[1], coords[2]);
+				System.out.println("coords1: " + coords[0] + "\t" + coords[1]
+						+ "\t" + coords[2]);
+				coords = new float[] { (float) projected2DCoordinates[0],
+						(float) projected2DCoordinates[1], 0 };
+				System.out.println("coords2: " + coords[0] + "\t" + coords[1]
+						+ "\t" + coords[2]);
+			}
 
 			// add position to node
 			node.changeAttribute(GraphVisualization.positionKey, coords[0],
@@ -487,23 +602,33 @@ public class GraphPanel extends JPanel {
 			z = (float) ((Double3dWeight) w).getZ();
 		}
 
-		// if 3d projection is enabled, project coordinates
-		if (enable3dProjection) {
-			double[] projected2DCoordinates = project3DPointToCoordinates(x, y,
-					z);
-			return new float[] { (float) projected2DCoordinates[0],
-					(float) projected2DCoordinates[1], 0 };
-		} else {
-			return new float[] { x, y, z };
-		}
+		return new float[] { x, y, z };
 	}
 
 	/** Projects the (x,y,z)-coordinates to (x,y). **/
 	public double[] project3DPointToCoordinates(double x, double y, double z) {
-		double x2 = s0x * x + s0y * y + s0z * z + cx;
-		double y2 = s1x * x + s1y * y + s1z * z + cy;
+		double x2;
+		double y2;
 
+		// projection using vanishing point
+		if (this.useVanishingPoint) {
+			// calc scaling
+			double scale = z / this.vp_z;
+
+			// use logarithmic scaling
+			if (Config.getBoolean("GRAPH_VIS_3D_PROJECTION_VP_LOGSCALE"))
+				scale = Math.log(scale + 1);
+
+			// calc coordinates
+			x2 = x + scale * (this.vp_x - x);
+			y2 = y + scale * (this.vp_y - y);
+		} else {
+			// ortographic projection
+			x2 = this.s0_x * x + this.s0_y * y + this.s0_z * z + this.offset_x;
+			y2 = this.s1_x * x + this.s1_y * y + this.s1_z * z + this.offset_y;
+		}
+
+		// return
 		return new double[] { x2, y2 };
-
 	}
 }
