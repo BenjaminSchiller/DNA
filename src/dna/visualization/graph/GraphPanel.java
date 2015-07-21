@@ -86,7 +86,8 @@ public class GraphPanel extends JPanel {
 	// enable 3d projection
 	protected boolean enable3dProjection = Config
 			.getBoolean("GRAPH_VIS_3D_PROJECTION_ENABLED");
-	protected boolean enable3dProjectionNodeSizing = true;
+	protected boolean enable3dProjectionNodeSizing = Config
+			.getBoolean("GRAPH_VIS_SIZE_NODES_BY_Z_COORDINATE");
 	protected boolean useVanishingPoint = Config
 			.getBoolean("GRAPH_VIS_3D_PROJECTION_USE_VANISHING_POINT");
 
@@ -646,20 +647,22 @@ public class GraphPanel extends JPanel {
 							splits[1].length() - 3));
 					float z = n.getAttribute(GraphVisualization.zKey);
 
+					// calc size
 					size = size
 							+ Config.getInt("GRAPH_VIS_3D_PROJECTION_NODE_GROWTH")
 							- (int) Math
 									.floor(z
 											* Config.getDouble("GRAPH_VIS_3D_PROJECTION_NODE_SHRINK_FACTOR"));
 
+					// keep minimum size of 1
+					if (size < 1)
+						size = 1;
+
+					// set size
 					n.setAttribute(GraphVisualization.sizeKey, "size: " + size
 							+ "px;");
 				}
 			}
-
-			System.out.println("STYLE:    "
-					+ n.getAttribute(GraphVisualization.colorKey) + " "
-					+ n.getAttribute(GraphVisualization.sizeKey));
 
 			// set style attribute accordingly
 			String style = "";
