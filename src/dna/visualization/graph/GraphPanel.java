@@ -86,6 +86,7 @@ public class GraphPanel extends JPanel {
 	// enable 3d projection
 	protected boolean enable3dProjection = Config
 			.getBoolean("GRAPH_VIS_3D_PROJECTION_ENABLED");
+	protected boolean enable3dProjectionNodeSizing = true;
 	protected boolean useVanishingPoint = Config
 			.getBoolean("GRAPH_VIS_3D_PROJECTION_USE_VANISHING_POINT");
 
@@ -401,6 +402,7 @@ public class GraphPanel extends JPanel {
 			if (this.enable3dProjection) {
 				double[] projected2DCoordinates = project3DPointToCoordinates(
 						coords[0], coords[1], coords[2]);
+				node.addAttribute(GraphVisualization.zKey, coords[2]);
 				coords = new float[] { (float) projected2DCoordinates[0],
 						(float) projected2DCoordinates[1], 0 };
 			}
@@ -414,9 +416,7 @@ public class GraphPanel extends JPanel {
 		updateLabel(node);
 
 		// change coloring
-		if (Config.getBoolean("GRAPH_VIS_COLOR_NODES_BY_DEGREE")
-				|| Config.getBoolean("GRAPH_VIS_SIZE_NODES_BY_DEGREE"))
-			applyNodeStyleByDegree(node);
+		updateNodeStyle(node);
 	}
 
 	public void statRecord(float[] coords) {
@@ -486,6 +486,7 @@ public class GraphPanel extends JPanel {
 			if (this.enable3dProjection) {
 				double[] projected2DCoordinates = project3DPointToCoordinates(
 						coords[0], coords[1], coords[2]);
+				node.addAttribute(GraphVisualization.zKey, coords[2]);
 				coords = new float[] { (float) projected2DCoordinates[0],
 						(float) projected2DCoordinates[1], 0 };
 			}
@@ -502,6 +503,8 @@ public class GraphPanel extends JPanel {
 			else
 				node.addAttribute(GraphVisualization.labelKey, w.toString());
 		}
+
+		updateNodeStyle(node);
 	}
 
 	/*
@@ -545,8 +548,8 @@ public class GraphPanel extends JPanel {
 							+ "px;");
 
 			// change node styles
-			applyNodeStyleByDegree(this.graph.getNode("" + n1));
-			applyNodeStyleByDegree(this.graph.getNode("" + n2));
+			updateNodeStyle(this.graph.getNode("" + n1));
+			updateNodeStyle(this.graph.getNode("" + n2));
 		}
 	}
 
@@ -561,11 +564,8 @@ public class GraphPanel extends JPanel {
 				"" + n2));
 
 		// change coloring
-		if (Config.getBoolean("GRAPH_VIS_COLOR_NODES_BY_DEGREE")
-				|| Config.getBoolean("GRAPH_VIS_SIZE_NODES_BY_DEGREE")) {
-			applyNodeStyleByDegree(graph.getNode("" + n1));
-			applyNodeStyleByDegree(graph.getNode("" + n2));
-		}
+		updateNodeStyle(graph.getNode("" + n1));
+		updateNodeStyle(graph.getNode("" + n2));
 	}
 
 	/** Changes edge weight on edge e IN CURRENT GRAPH!!. **/
@@ -627,21 +627,49 @@ public class GraphPanel extends JPanel {
 		}
 	}
 
-	private void applyNodeStyleByDegree(Node n) {
-		// set style stuff
-		if (Config.getBoolean("GRAPH_VIS_COLOR_NODES_BY_DEGREE"))
-			setNodeColorByDegree(n);
-		if (Config.getBoolean("GRAPH_VIS_SIZE_NODES_BY_DEGREE"))
-			setNodeSizeByDegree(n);
+	/** Updates the node style. **/
+	private void updateNodeStyle(Node n) {
+		if (Config.getBoolean("GRAPH_VIS_COLOR_NODES_BY_DEGREE")
+				|| Config.getBoolean("GRAPH_VIS_SIZE_NODES_BY_DEGREE")
+				|| this.enable3dProjectionNodeSizing) {
+			// set style stuff
+			if (Config.getBoolean("GRAPH_VIS_COLOR_NODES_BY_DEGREE"))
+				setNodeColorByDegree(n);
+			if (Config.getBoolean("GRAPH_VIS_SIZE_NODES_BY_DEGREE"))
+				setNodeSizeByDegree(n);
+			if (this.enable3dProjection && this.enable3dProjectionNodeSizing) {
+				if (n.hasAttribute(GraphVisualization.sizeKey)) {
+					String sizeString = n
+							.getAttribute(GraphVisualization.sizeKey);
+					String[] splits = sizeString.split(" ");
+					int size = Integer.parseInt(splits[1].substring(0,
+							splits[1].length() - 3));
+					float z = n.getAttribute(GraphVisualization.zKey);
 
-		// System.out.println(n.getAttribute(GraphVisualization.colorKey) + " "
-		// + n.getAttribute(GraphVisualization.sizeKey));
+					size = size
+							+ Config.getInt("GRAPH_VIS_3D_PROJECTION_NODE_GROWTH")
+							- (int) Math
+									.floor(z
+											* Config.getDouble("GRAPH_VIS_3D_PROJECTION_NODE_SHRINK_FACTOR"));
 
-		// set style attribute accordingly
-		n.setAttribute(
-				GraphVisualization.styleKey,
-				n.getAttribute(GraphVisualization.colorKey) + " "
-						+ n.getAttribute(GraphVisualization.sizeKey));
+					n.setAttribute(GraphVisualization.sizeKey, "size: " + size
+							+ "px;");
+				}
+			}
+
+			System.out.println("STYLE:    "
+					+ n.getAttribute(GraphVisualization.colorKey) + " "
+					+ n.getAttribute(GraphVisualization.sizeKey));
+
+			// set style attribute accordingly
+			String style = "";
+			if (n.getAttribute(GraphVisualization.colorKey) != null)
+				style += n.getAttribute(GraphVisualization.colorKey);
+			if (n.getAttribute(GraphVisualization.sizeKey) != null)
+				style += " " + n.getAttribute(GraphVisualization.sizeKey);
+
+			n.setAttribute(GraphVisualization.styleKey, style);
+		}
 	}
 
 	/** Sets the color of the node by its degree. **/
