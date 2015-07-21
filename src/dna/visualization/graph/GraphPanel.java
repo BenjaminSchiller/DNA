@@ -3,8 +3,12 @@ package dna.visualization.graph;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Font;
+import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.InputEvent;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseMotionListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 import java.io.File;
@@ -21,6 +25,7 @@ import javax.swing.JPanel;
 import org.graphstream.graph.Edge;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
+import org.graphstream.ui.geom.Point3;
 import org.graphstream.ui.layout.Layout;
 import org.graphstream.ui.layout.springbox.implementations.LinLog;
 import org.graphstream.ui.layout.springbox.implementations.SpringBox;
@@ -70,8 +75,13 @@ public class GraphPanel extends JPanel {
 	protected final Layout layouter;
 	protected View view;
 
-	// zoom speed factor
+	// speed factors
 	protected double zoomSpeedFactor = Config.getDouble("GRAPH_VIS_ZOOM_SPEED");
+	protected double scrollSpeecFactor = Config
+			.getDouble("GRAPH_VIS_SCROLL_SPEED");
+
+	// used for dragging
+	protected Point dragPos;
 
 	// enable 3d projection
 	protected boolean enable3dProjection = Config
@@ -218,6 +228,39 @@ public class GraphPanel extends JPanel {
 				setZoom(zoom);
 			}
 		});
+
+		// add listener for moving in graph
+		graphView.addMouseMotionListener(new MouseMotionListener() {
+
+			@Override
+			public void mouseMoved(MouseEvent arg0) {
+				// update latest cursor position
+				dragPos = arg0.getPoint();
+			}
+
+			@Override
+			public void mouseDragged(MouseEvent arg0) {
+				if ((arg0.getModifiersEx() & InputEvent.CTRL_DOWN_MASK) == InputEvent.CTRL_DOWN_MASK) {
+					Point3 currentCenter = getViewCenter();
+
+					// calc new position
+					double x_new = currentCenter.x
+							+ (dragPos.getX() - arg0.getX())
+							* scrollSpeecFactor * getZoomPercent()
+							* getGraphDimension() / 13;
+					double y_new = currentCenter.y
+							- (dragPos.getY() - arg0.getY())
+							* scrollSpeecFactor * getZoomPercent()
+							* getGraphDimension() / 13;
+
+					// set viewcenter
+					setViewCenter(x_new, y_new, currentCenter.z);
+
+					// update new position
+					dragPos = arg0.getPoint();
+				}
+			}
+		});
 	}
 
 	/** Sets the zoom. **/
@@ -229,6 +272,21 @@ public class GraphPanel extends JPanel {
 	/** Returns the current zoom in percent. **/
 	public double getZoomPercent() {
 		return this.view.getCamera().getViewPercent();
+	}
+
+	/** Returns the current view center. **/
+	public Point3 getViewCenter() {
+		return this.view.getCamera().getViewCenter();
+	}
+
+	/** Sets the view center. **/
+	public void setViewCenter(double x, double y, double z) {
+		this.view.getCamera().setViewCenter(x, y, z);
+	}
+
+	/** Returns the graphs dimension. **/
+	protected double getGraphDimension() {
+		return this.view.getCamera().getGraphDimension();
 	}
 
 	/** Makes a screenshot of the current graph. **/
