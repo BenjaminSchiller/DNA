@@ -114,6 +114,8 @@ public class GraphPanel extends JPanel {
 	protected double vp_x = Config.getDouble("GRAPH_VIS_3D_PROJECTION_VP_X");
 	protected double vp_y = Config.getDouble("GRAPH_VIS_3D_PROJECTION_VP_Y");
 	protected double vp_z = Config.getDouble("GRAPH_VIS_3D_PROJECTION_VP_Z");
+	protected double vp_scalingFactor = Config
+			.getDouble("GRAPH_VIS_3D_PROJECTION_VP_SCALING");
 
 	protected static double minX = Double.NaN;
 	protected static double maxX = Double.NaN;
@@ -723,11 +725,17 @@ public class GraphPanel extends JPanel {
 		// projection using vanishing point
 		if (this.useVanishingPoint) {
 			// calc scaling
-			double scale = z / this.vp_z;
+			double scale = z / this.vp_z * this.vp_scalingFactor;
 
 			// use logarithmic scaling
 			if (Config.getBoolean("GRAPH_VIS_3D_PROJECTION_VP_LOGSCALE"))
 				scale = Math.log(scale + 1);
+
+			// keep boundaries
+			if (scale > 1)
+				scale = 1;
+			if (scale < 0)
+				scale = 0;
 
 			// calc coordinates
 			x2 = x + scale * (this.vp_x - x);
