@@ -170,8 +170,8 @@ public class GraphPanel extends JPanel {
 
 		// main panel
 		this.setLayout(new BorderLayout());
-		this.add(textPanel, BorderLayout.PAGE_START);
 		this.add(graphView, BorderLayout.CENTER);
+		this.add(textPanel, BorderLayout.PAGE_END);
 	}
 
 	/** Makes a screenshot of the current graph. **/
