@@ -138,33 +138,7 @@ public class GraphPanel extends JPanel {
 		screenshot.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				String screenshotsDir = Config.get("GRAPH_VIS_SCREENSHOT_DIR");
-				String screenshotsSuffix = Config
-						.get("GRAPH_VIS_SCREENSHOT_SUFFIX");
-				// create dir
-				File f = new File(screenshotsDir);
-				if (!f.exists() && !f.isFile())
-					f.mkdirs();
-
-				// get date format
-				DateFormat df = new SimpleDateFormat("yyyy_MM_dd-HH_mm_ss");
-
-				String filename = name + "-" + df.format(new Date());
-				String path = screenshotsDir + filename;
-
-				// get name
-				File f2 = new File(path + screenshotsSuffix);
-				int id = 0;
-				while (f2.exists()) {
-					id++;
-					f2 = new File(path + "_" + id + screenshotsSuffix);
-				}
-
-				// create screenshot
-				graph.addAttribute(GraphVisualization.screenshotsKey,
-						f2.getAbsolutePath());
-				Log.info("GraphVis - saving screenshot to '" + f2.getPath()
-						+ "'");
+				makeScreenshot();
 			}
 		});
 
@@ -198,6 +172,35 @@ public class GraphPanel extends JPanel {
 		this.setLayout(new BorderLayout());
 		this.add(textPanel, BorderLayout.PAGE_START);
 		this.add(graphView, BorderLayout.CENTER);
+	}
+
+	/** Makes a screenshot of the current graph. **/
+	public void makeScreenshot() {
+		String screenshotsDir = Config.get("GRAPH_VIS_SCREENSHOT_DIR");
+		String screenshotsSuffix = Config.get("GRAPH_VIS_SCREENSHOT_SUFFIX");
+		// create dir
+		File f = new File(screenshotsDir);
+		if (!f.exists() && !f.isFile())
+			f.mkdirs();
+
+		// get date format
+		DateFormat df = new SimpleDateFormat("yyyy_MM_dd-HH_mm_ss");
+
+		String filename = name + "-" + df.format(new Date());
+		String path = screenshotsDir + filename;
+
+		// get name
+		File f2 = new File(path + screenshotsSuffix);
+		int id = 0;
+		while (f2.exists()) {
+			id++;
+			f2 = new File(path + "_" + id + screenshotsSuffix);
+		}
+
+		// create screenshot
+		graph.addAttribute(GraphVisualization.screenshotsKey,
+				f2.getAbsolutePath());
+		Log.info("GraphVis - saving screenshot to '" + f2.getPath() + "'");
 	}
 
 	/** Returns the embedded graphstream.graph. **/
