@@ -5,6 +5,8 @@ import java.awt.Color;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseWheelEvent;
+import java.awt.event.MouseWheelListener;
 import java.io.File;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -64,8 +66,12 @@ public class GraphPanel extends JPanel {
 	// panels
 	protected final JPanel textPanel;
 	protected final JLabel textLabel;
+	protected final JLabel zoomLabel;
 	protected final Layout layouter;
 	protected View view;
+
+	// zoom speed factor
+	protected double zoomSpeedFactor = Config.getDouble("GRAPH_VIS_ZOOM_SPEED");
 
 	// enable 3d projection
 	protected boolean enable3dProjection = Config
@@ -128,6 +134,13 @@ public class GraphPanel extends JPanel {
 		JPanel dummy = new JPanel();
 		textPanel.add(dummy);
 
+		// zoom label
+		this.zoomLabel = new JLabel();
+		zoomLabel.setFont(font);
+		zoomLabel.setText("100%  ");
+		zoomLabel.setToolTipText("Zoom");
+		textPanel.add(zoomLabel);
+
 		// screenshot button
 		JButton screenshot = new JButton("Screenshot");
 		screenshot.setFont(new Font(font.getName(), font.getStyle(), font
@@ -172,6 +185,51 @@ public class GraphPanel extends JPanel {
 		this.setLayout(new BorderLayout());
 		this.add(graphView, BorderLayout.CENTER);
 		this.add(textPanel, BorderLayout.PAGE_END);
+
+		// zoom
+		graphView.addMouseWheelListener(new MouseWheelListener() {
+
+			@Override
+			public void mouseWheelMoved(MouseWheelEvent arg0) {
+				double currentZoom = getZoomPercent();
+
+				// zoom speed
+				double speed;
+				if (currentZoom < 0.3) {
+					if (currentZoom < 0.1) {
+						if (currentZoom < 0.01)
+							speed = zoomSpeedFactor / 30;
+						else
+							speed = zoomSpeedFactor / 10;
+					} else {
+						speed = zoomSpeedFactor / 3;
+					}
+				} else {
+					speed = zoomSpeedFactor;
+				}
+
+				// calc new zoom amount
+				double zoom = currentZoom
+						+ (arg0.getWheelRotation() * arg0.getScrollAmount() * speed);
+				if (zoom < 0)
+					zoom = 0;
+
+				// set new zoom
+				setZoom(zoom);
+			}
+		});
+
+	}
+
+	/** Sets the zoom. **/
+	public void setZoom(double percent) {
+		this.zoomLabel.setText((int) Math.floor(percent * 100) + "%  ");
+		this.view.getCamera().setViewPercent(percent);
+	}
+
+	/** Returns the current zoom in percent. **/
+	public double getZoomPercent() {
+		return this.view.getCamera().getViewPercent();
 	}
 
 	/** Makes a screenshot of the current graph. **/
