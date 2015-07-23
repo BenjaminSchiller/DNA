@@ -68,6 +68,7 @@ public class Plot {
 	// plot styles
 	private String title;
 	private String datetime;
+	private String timeDataFormat;
 	private boolean plotDateTime;
 	private DistributionPlotType distPlotType;
 	private NodeValueListOrderBy orderBy;
@@ -110,6 +111,8 @@ public class Plot {
 		this.datetime = Config.get(PlotConfig.gnuplotDefaultKeyDateTime);
 		this.plotDateTime = Config
 				.getBoolean(PlotConfig.gnuplotDefaultKeyPlotDateTime);
+		this.timeDataFormat = Config
+				.get(PlotConfig.gnuplotDefaultKeyTimeDataFormat);
 		this.cdfPlot = false;
 
 		// init writer
@@ -166,6 +169,7 @@ public class Plot {
 			this.datetime = config.getDatetime();
 			this.plotDateTime = true;
 		}
+		this.timeDataFormat = config.getTimeDataFormat();
 
 		// sort settings
 		if (config.getDistPlotType() != null) {
@@ -1131,7 +1135,8 @@ public class Plot {
 
 		if (this.plotDateTime) {
 			script.add("set xdata time");
-			script.add("set timefmt " + '"' + this.datetime + '"');
+			script.add("set timefmt " + '"' + this.timeDataFormat + '"');
+			script.add("set format x " + '"' + this.datetime + '"');
 		}
 
 		for (int i = 0; i < this.data.length; i++) {
@@ -1282,7 +1287,7 @@ public class Plot {
 	}
 
 	public String getDateTime() {
-		return datetime;
+		return this.datetime;
 	}
 
 	public void setPlotDateTime(boolean plotDateTime) {
@@ -1290,7 +1295,15 @@ public class Plot {
 	}
 
 	public boolean isPlotDateTime() {
-		return plotDateTime;
+		return this.plotDateTime;
+	}
+
+	public void setTimeDataFormat(String timeDataFormat) {
+		this.timeDataFormat = timeDataFormat;
+	}
+
+	public String getTimeDataFormat() {
+		return this.timeDataFormat;
 	}
 
 	public void setNodeValueListOrder(NodeValueListOrder order) {

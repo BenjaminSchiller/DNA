@@ -1,7 +1,6 @@
 package dna.plot;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 
 import dna.plot.data.PlotData.DistributionPlotType;
 import dna.plot.data.PlotData.NodeValueListOrder;
@@ -42,6 +41,8 @@ public class PlotConfig {
 	public static String customPlotSuffixTitle = "_TITLE";
 
 	public static String customPlotSuffixDatetime = "_DATETIME";
+
+	public static String customPlotSuffixTimeDataFormat = "_TIMEDATAFORMAT";
 
 	public static String customPlotSuffixLogscale = "_LOGSCALE";
 
@@ -103,6 +104,7 @@ public class PlotConfig {
 
 	public static String gnuplotDefaultKeyDateTime = "GNUPLOT_DATETIME";
 	public static String gnuplotDefaultKeyPlotDateTime = "GNUPLOT_PLOTDATETIME";
+	public static String gnuplotDefaultKeyTimeDataFormat = "GNUPLOT_TIMEDATAFORMAT";
 
 	public static String gnuplotDefaultKeyXLabel = "GNUPLOT_XLABEL";
 	public static String gnuplotDefaultKeyYLabel = "GNUPLOT_YLABEL";
@@ -134,6 +136,7 @@ public class PlotConfig {
 	private String yLabel;
 	private String logscale;
 	private String datetime;
+	private String timeDataFormat;
 	private double xOffset;
 	private double yOffset;
 	private String xRange;
@@ -155,12 +158,12 @@ public class PlotConfig {
 	// constructor
 	private PlotConfig(String filename, String title, String key,
 			String xLabel, String yLabel, String logscale, String datetime,
-			double xOffset, double yOffset, String xRange, String yRange,
-			String xTics, String yTics, String xScaling, String yScaling,
-			String plotAsCdf, String[] values, String[] domains,
-			PlotStyle style, DistributionPlotType distPlotType,
-			NodeValueListOrder order, NodeValueListOrderBy orderBy,
-			boolean plotAll, String generalDomain) {
+			String timeDataFormat, double xOffset, double yOffset,
+			String xRange, String yRange, String xTics, String yTics,
+			String xScaling, String yScaling, String plotAsCdf,
+			String[] values, String[] domains, PlotStyle style,
+			DistributionPlotType distPlotType, NodeValueListOrder order,
+			NodeValueListOrderBy orderBy, boolean plotAll, String generalDomain) {
 		this.filename = filename;
 		this.title = title;
 		this.key = key;
@@ -168,6 +171,7 @@ public class PlotConfig {
 		this.yLabel = yLabel;
 		this.logscale = logscale;
 		this.datetime = datetime;
+		this.timeDataFormat = timeDataFormat;
 		this.xOffset = xOffset;
 		this.yOffset = yOffset;
 		this.xRange = xRange;
@@ -246,6 +250,10 @@ public class PlotConfig {
 
 	public String getDatetime() {
 		return datetime;
+	}
+
+	public String getTimeDataFormat() {
+		return timeDataFormat;
 	}
 
 	public double getxOffset() {
@@ -464,6 +472,8 @@ public class PlotConfig {
 			String yLabel = Config.get(PlotConfig.gnuplotDefaultKeyYLabel);
 			String logscale = null;
 			String datetime = null;
+			String timeDataFormat = Config
+					.get(PlotConfig.gnuplotDefaultKeyTimeDataFormat);
 			double xOffset = Config
 					.getDouble(PlotConfig.gnuplotDefaultKeyXOffset);
 			double yOffset = Config
@@ -561,6 +571,12 @@ public class PlotConfig {
 				datetime = Config.get(prefix + s
 						+ PlotConfig.customPlotSuffixDatetime);
 
+			// time data format
+			if (Config.get(prefix + s
+					+ PlotConfig.customPlotSuffixTimeDataFormat) != null)
+				timeDataFormat = Config.get(prefix + s
+						+ PlotConfig.customPlotSuffixTimeDataFormat);
+
 			// ranges
 			if (Config.get(prefix + s + PlotConfig.customPlotSuffixXRange) != null)
 				xRange = Config.get(prefix + s
@@ -635,20 +651,21 @@ public class PlotConfig {
 
 			// Craft PlotConfig and add to configs list
 			plotConfigs.add(new PlotConfig(filename, title, key, xLabel,
-					yLabel, logscale, datetime, xOffset, yOffset, xRange,
-					yRange, xTics, yTics, xScaling, yScaling, plotAsCdf,
-					values, domains, style, distPlotType, order, orderBy,
-					plotAll, generalDomain));
+					yLabel, logscale, datetime, timeDataFormat, xOffset,
+					yOffset, xRange, yRange, xTics, yTics, xScaling, yScaling,
+					plotAsCdf, values, domains, style, distPlotType, order,
+					orderBy, plotAll, generalDomain));
 		}
 		return plotConfigs;
 	}
-	
+
 	/** Generates and returns a dummy PlotConfig. **/
 	public static PlotConfig generateDummyPlotConfig(String filename,
 			String plotAsCdf, DistributionPlotType distPlotType,
 			NodeValueListOrder order, NodeValueListOrderBy orderBy) {
-		return new PlotConfig(filename, "", "", "", "", "", "", 0.0, 0.0, "",
-				"", "", "", "", "", plotAsCdf, new String[0], new String[0],
-				PlotStyle.linespoint, distPlotType, order, orderBy, false, "");
+		return new PlotConfig(filename, "", "", "", "", "", "", "", 0.0, 0.0,
+				"", "", "", "", "", "", plotAsCdf, new String[0],
+				new String[0], PlotStyle.linespoint, distPlotType, order,
+				orderBy, false, "");
 	}
 }
