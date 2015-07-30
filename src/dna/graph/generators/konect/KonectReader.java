@@ -62,7 +62,7 @@ public class KonectReader {
 		this.removeZeroDegreeNodes = removeZeroDegreeNodes;
 
 		if (edgeType.equals(KonectEdgeType.WEIGHTED)
-				&& edgeParameter.length() > 0) {
+				&& edgeParameter.length() > 0 && !edgeParameter.equals("-")) {
 			String[] temp = edgeParameter.split(separator);
 			this.offset = Double.parseDouble(temp[0]);
 			this.factor = Double.parseDouble(temp[1]);
@@ -72,7 +72,7 @@ public class KonectReader {
 		}
 
 		if (edgeType.equals(KonectEdgeType.MULTI) && edgeParameter != null
-				&& edgeParameter.length() > 0) {
+				&& edgeParameter.length() > 0 && !edgeParameter.equals("-")) {
 			this.revert = new ArrayDeque<KonectEdge>();
 			this.durability = Long.parseLong(edgeParameter);
 		} else {
