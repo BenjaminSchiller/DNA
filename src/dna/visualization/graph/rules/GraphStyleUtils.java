@@ -48,10 +48,4 @@ public class GraphStyleUtils {
 		// set style
 		n.setAttribute(GraphVisualization.styleKey, style);
 	}
-
-	/*
-	 * 
-	 * GraphVisualization.colorKey, "fill-color: rgb(" + red + "," + green + ","
-	 * + blue + ");");
-	 */
 }
