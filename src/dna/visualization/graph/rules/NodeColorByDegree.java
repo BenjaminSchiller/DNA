@@ -85,7 +85,6 @@ public class NodeColorByDegree extends GraphStyleRule {
 
 	@Override
 	public String toString() {
-		// TODO Auto-generated method stub
 		return "NodeColorByDegree-Rule: '" + this.name + "'";
 	}
 
