@@ -14,7 +14,6 @@ public class RandomNodeSize extends GraphStyleRule {
 
 	@Override
 	public void onNodeAddition(Node n) {
-		// TODO Auto-generated method stub
 		double size = (10 + Math.floor(Math.random() * 10));
 
 		// setting size
@@ -26,32 +25,22 @@ public class RandomNodeSize extends GraphStyleRule {
 
 	@Override
 	public void onNodeRemoval(Node n) {
-		// TODO Auto-generated method stub
-
 	}
 
 	@Override
 	public void onNodeWeightChange(Node n) {
-		// TODO Auto-generated method stub
-
 	}
 
 	@Override
 	public void onEdgeAddition(Edge e, Node n1, Node n2) {
-		// TODO Auto-generated method stub
-
 	}
 
 	@Override
 	public void onEdgeRemoval(Edge e, Node n1, Node n2) {
-		// TODO Auto-generated method stub
-
 	}
 
 	@Override
 	public void onEdgeWeightChange(Edge e) {
-		// TODO Auto-generated method stub
-
 	}
 
 	@Override
