@@ -11,8 +11,6 @@ import dna.visualization.graph.GraphVisualization;
 /** Simple rule example which colors all nodes on addition with colors. **/
 public class RandomNodeColor extends GraphStyleRule {
 
-	protected String name;
-
 	protected ColorHandler colorHandler;
 
 	public RandomNodeColor(String name) {
@@ -54,7 +52,8 @@ public class RandomNodeColor extends GraphStyleRule {
 	public void onEdgeWeightChange(Edge e) {
 	}
 
+	@Override
 	public String toString() {
-		return "RandomNodeColor-Rule '" + this.name + "'";
+		return "RandomNodeColor-Rule: '" + this.name + "'";
 	}
 }

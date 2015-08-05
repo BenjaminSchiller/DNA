@@ -54,4 +54,9 @@ public class RandomNodeSize extends GraphStyleRule {
 
 	}
 
+	@Override
+	public String toString() {
+		return "RandomNodeSize-Rule: '" + this.name + "'";
+	}
+
 }

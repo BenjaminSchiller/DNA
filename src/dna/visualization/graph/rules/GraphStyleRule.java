@@ -6,6 +6,8 @@ import org.graphstream.graph.Node;
 /** Abstract class for all graph style rules. **/
 public abstract class GraphStyleRule {
 
+	protected String name;
+	
 	public abstract void onNodeAddition(Node n);
 
 	public abstract void onNodeRemoval(Node n);
@@ -17,5 +19,11 @@ public abstract class GraphStyleRule {
 	public abstract void onEdgeRemoval(Edge e, Node n1, Node n2);
 
 	public abstract void onEdgeWeightChange(Edge e);
+	
+	public String getName() {
+		return this.name;
+	}
+	
+	public abstract String toString();
 
 }
