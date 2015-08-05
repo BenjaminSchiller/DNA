@@ -24,6 +24,8 @@ import dna.graph.weights.Weight;
 import dna.util.Config;
 import dna.util.Log;
 import dna.visualization.graph.GraphPanel.PositionMode;
+import dna.visualization.graph.rules.RandomNodeColor;
+import dna.visualization.graph.rules.RandomNodeSize;
 
 /** The GraphVisualization class offers methods to visualize graphs used in DNA. **/
 public class GraphVisualization {
@@ -36,8 +38,11 @@ public class GraphVisualization {
 	public static final String qualityKey = "ui.quality";
 	public static final String antialiasKey = "ui.antialias";
 	public static final String colorKey = "dna.color";
+	public static final String colorKey2 = "dna.color2";
 	public static final String sizeKey = "dna.size";
+	public static final String sizeKey2 = "dna.size2";
 	public static final String styleKey = "ui.style";
+	public static final String updateKey = "dna.update";
 	public static final String zKey = "dna.z";
 
 	// GUI CONFIG
@@ -92,6 +97,8 @@ public class GraphVisualization {
 
 		// main frame
 		GraphPanel panel = new GraphPanel(graph, name, mode);
+		panel.addGraphStyleRule(new RandomNodeColor("RNC-test1"));
+		panel.addGraphStyleRule(new RandomNodeSize("RN-SIZE-1"));
 		JFrame mainFrame = new JFrame("Graph-Vis Mainframe");
 		mainFrame.add(panel);
 		mainFrame.setTitle(g.getName());
