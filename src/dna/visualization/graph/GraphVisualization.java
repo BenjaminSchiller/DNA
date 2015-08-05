@@ -24,8 +24,9 @@ import dna.graph.weights.Weight;
 import dna.util.Config;
 import dna.util.Log;
 import dna.visualization.graph.GraphPanel.PositionMode;
+import dna.visualization.graph.rules.NodeColorByDegree;
+import dna.visualization.graph.rules.NodeSizeBy3dCoordinates;
 import dna.visualization.graph.rules.NodeSizeByDegree;
-import dna.visualization.graph.rules.RandomNodeColor;
 
 /** The GraphVisualization class offers methods to visualize graphs used in DNA. **/
 public class GraphVisualization {
@@ -38,9 +39,9 @@ public class GraphVisualization {
 	public static final String qualityKey = "ui.quality";
 	public static final String antialiasKey = "ui.antialias";
 	public static final String colorKey = "dna.color";
-	public static final String colorKey2 = "dna.color2";
 	public static final String sizeKey = "dna.size";
-	public static final String sizeKey2 = "dna.size2";
+	public static final String defaultSizeKey = "dna.default.size";
+	public static final String growthListKey = "dna.growth.list";
 	public static final String styleKey = "ui.style";
 	public static final String updateKey = "dna.update";
 	public static final String zKey = "dna.z";
@@ -97,9 +98,19 @@ public class GraphVisualization {
 
 		// main frame
 		GraphPanel panel = new GraphPanel(graph, name, mode);
-//		panel.addGraphStyleRule(new RandomNodeColor("RNC-test1"));
-//		panel.addGraphStyleRule(new RandomNodeSize("RN-SIZE-1"));
-		panel.addGraphStyleRule(new NodeSizeByDegree("NODE_SIZE_BY_DEGREE"));
+
+		// add style rules
+		if (Config.getBoolean("GRAPH_VIS_SIZE_NODES_BY_DEGREE"))
+			panel.addGraphStyleRule(new NodeSizeByDegree("NODE_SIZE_BY_DEGREE"));
+		if (Config.getBoolean("GRAPH_VIS_3D_PROJECTION_ENABLED")
+				&& Config.getBoolean("GRAPH_VIS_SIZE_NODES_BY_Z_COORDINATE"))
+			panel.addGraphStyleRule(new NodeSizeBy3dCoordinates(
+					"NODE_SIZE_BY_3D_COORDINATES"));
+		if (Config.getBoolean("GRAPH_VIS_COLOR_NODES_BY_DEGREE"))
+			panel.addGraphStyleRule(new NodeColorByDegree(
+					"NODE_COLOR_BY_DEGREE"));
+
+		// create main frame
 		JFrame mainFrame = new JFrame("Graph-Vis Mainframe");
 		mainFrame.add(panel);
 		mainFrame.setTitle(g.getName());

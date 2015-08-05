@@ -33,7 +33,7 @@ public class RandomNodeColor extends GraphStyleRule {
 	public void onNodeRemoval(Node n) {
 		// free color
 		this.colorHandler.removeColor(((Color) n
-				.getAttribute(GraphVisualization.colorKey2)));
+				.getAttribute(GraphVisualization.colorKey)));
 	}
 
 	@Override
