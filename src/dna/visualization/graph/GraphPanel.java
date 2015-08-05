@@ -49,7 +49,6 @@ import dna.graph.weights.Weight;
 import dna.util.Config;
 import dna.util.Log;
 import dna.visualization.graph.rules.GraphStyleRule;
-import dna.visualization.graph.rules.GraphStyleUtils;
 
 /**
  * The GraphPanel class is used as a JPanel which contains a text-panel and a
@@ -73,6 +72,7 @@ public class GraphPanel extends JPanel {
 
 	// rules
 	protected ArrayList<GraphStyleRule> rules;
+	protected int nextRuleIndex;
 
 	// panels
 	protected final JPanel textPanel;
@@ -143,6 +143,7 @@ public class GraphPanel extends JPanel {
 		this.graph = graph;
 		this.mode = mode;
 		this.rules = rules;
+		this.nextRuleIndex = 0;
 
 		// init textpanel
 		this.textPanel = new JPanel();
@@ -282,6 +283,14 @@ public class GraphPanel extends JPanel {
 	/** Adds a graph style rule. **/
 	public void addGraphStyleRule(GraphStyleRule r) {
 		this.rules.add(r);
+		r.setIndex(this.getNextIndex());
+	}
+
+	/** Returns the next rule index and increments it afterwards. **/
+	protected int getNextIndex() {
+		int temp = this.nextRuleIndex;
+		this.nextRuleIndex++;
+		return temp;
 	}
 
 	/** Sets the graph style rules. **/
@@ -448,6 +457,14 @@ public class GraphPanel extends JPanel {
 	public void addNode(dna.graph.nodes.Node n) {
 		// add node to graph
 		Node node = this.graph.addNode("" + n.getIndex());
+		node.addAttribute(GraphVisualization.sizeKey,
+				Config.getDouble("GRAPH_VIS_NODE_DEFAULT_SIZE"));
+		node.addAttribute(GraphVisualization.defaultSizeKey,
+				Config.getDouble("GRAPH_VIS_NODE_DEFAULT_SIZE"));
+		node.addAttribute(GraphVisualization.colorKey,
+				Config.getColor("GRAPH_VIS_NODE_DEFAULT_COLOR"));
+		node.addAttribute(GraphVisualization.growthListKey,
+				new ArrayList<Double>(0));
 
 		// init weight
 		Weight w = null;
@@ -487,10 +504,7 @@ public class GraphPanel extends JPanel {
 		// update label
 		updateLabel(node);
 
-		// change coloring
-		updateNodeStyle(node);
-
-		// rules
+		// apply style rules
 		for (GraphStyleRule r : rules)
 			r.onNodeAddition(node);
 	}
@@ -544,8 +558,7 @@ public class GraphPanel extends JPanel {
 				node.addAttribute(GraphVisualization.labelKey, w.toString());
 		}
 
-		updateNodeStyle(node);
-
+		// apply style rules
 		for (GraphStyleRule r : rules)
 			r.onNodeWeightChange(node);
 	}
@@ -590,14 +603,10 @@ public class GraphPanel extends JPanel {
 					"size: " + edge.getAttribute(GraphVisualization.sizeKey)
 							+ "px;");
 
-			// change node styles
-			Node node1 = this.graph.getNode("" + n1);
-			Node node2 = this.graph.getNode("" + n2);
-			updateNodeStyle(node1);
-			updateNodeStyle(node2);
-
+			// apply style rules
 			for (GraphStyleRule r : rules)
-				r.onEdgeAddition(edge, node1, node2);
+				r.onEdgeAddition(edge, this.graph.getNode("" + n1),
+						this.graph.getNode("" + n2));
 		}
 	}
 
@@ -611,14 +620,10 @@ public class GraphPanel extends JPanel {
 		Edge edge = this.graph.removeEdge(this.graph.getNode("" + n1)
 				.getEdgeBetween("" + n2));
 
-		// change node styles
-		Node node1 = this.graph.getNode("" + n1);
-		Node node2 = this.graph.getNode("" + n2);
-		updateNodeStyle(node1);
-		updateNodeStyle(node2);
-
+		// apply style rules
 		for (GraphStyleRule r : rules)
-			r.onEdgeRemoval(edge, node1, node2);
+			r.onEdgeRemoval(edge, this.graph.getNode("" + n1),
+					this.graph.getNode("" + n2));
 	}
 
 	/** Changes edge weight on edge e IN CURRENT GRAPH!!. **/
@@ -681,89 +686,6 @@ public class GraphPanel extends JPanel {
 			if (e.hasAttribute(GraphVisualization.labelKey))
 				e.removeAttribute(GraphVisualization.labelKey);
 		}
-	}
-
-	/** Updates the node style. **/
-	private void updateNodeStyle(Node n) {
-		if (Config.getBoolean("GRAPH_VIS_COLOR_NODES_BY_DEGREE")
-				|| Config.getBoolean("GRAPH_VIS_SIZE_NODES_BY_DEGREE")
-				|| this.enable3dProjectionNodeSizing) {
-			// set style stuff
-			if (Config.getBoolean("GRAPH_VIS_COLOR_NODES_BY_DEGREE"))
-				setNodeColorByDegree(n);
-			if (Config.getBoolean("GRAPH_VIS_SIZE_NODES_BY_DEGREE"))
-				setNodeSizeByDegree(n);
-			if (this.enable3dProjection && this.enable3dProjectionNodeSizing) {
-				int defaultSize = Config.getInt("GRAPH_VIS_NODE_DEFAULT_SIZE");
-				if (Config.getBoolean("GRAPH_VIS_SIZE_NODES_BY_DEGREE")
-						&& n.hasAttribute(GraphVisualization.sizeKey)) {
-					String sizeString = n
-							.getAttribute(GraphVisualization.sizeKey);
-					String[] splits = sizeString.split(" ");
-					defaultSize = Integer.parseInt(splits[1].substring(0,
-							splits[1].length() - 3));
-				}
-				float z = n.getAttribute(GraphVisualization.zKey);
-
-				// calc size
-				int size = defaultSize
-						+ Config.getInt("GRAPH_VIS_3D_PROJECTION_NODE_GROWTH")
-						- (int) Math
-								.floor(z
-										* Config.getDouble("GRAPH_VIS_3D_PROJECTION_NODE_SHRINK_FACTOR"));
-
-				// keep minimum size of 1
-				if (size < 1)
-					size = 1;
-
-				// set size
-				n.setAttribute(GraphVisualization.sizeKey, "size: " + size
-						+ "px;");
-			}
-
-			// set style attribute accordingly
-			String style = "";
-			if (n.getAttribute(GraphVisualization.colorKey) != null)
-				style += n.getAttribute(GraphVisualization.colorKey);
-			if (n.getAttribute(GraphVisualization.sizeKey) != null)
-				style += " " + n.getAttribute(GraphVisualization.sizeKey);
-
-			n.setAttribute(GraphVisualization.styleKey, style);
-		}
-	}
-
-	/** Sets the color of the node by its degree. **/
-	private void setNodeColorByDegree(Node n) {
-		int degree = n.getDegree() - 1;
-
-		// calculate color
-		int red = 0;
-		int green = 255;
-		int blue = 0;
-		if (degree >= 0) {
-			int weight = degree
-					* Config.getInt("GRAPH_VIS_COLOR_AMPLIFICATION");
-			if (weight > 255)
-				weight = 255;
-
-			red += weight;
-			green -= weight;
-		}
-
-		// set color attribute
-		n.setAttribute(GraphVisualization.colorKey, "fill-color: rgb(" + red
-				+ "," + green + "," + blue + ");");
-	}
-
-	/** Sets the size of the node by its degree. **/
-	private void setNodeSizeByDegree(Node n) {
-		// calc size
-		int size = Config.getInt("GRAPH_VIS_NODE_DEFAULT_SIZE")
-				+ (int) (n.getDegree() * Config
-						.getDouble("GRAPH_VIS_NODE_GROWTH_PER_DEGREE"));
-
-		// set size attribute
-		n.setAttribute(GraphVisualization.sizeKey, "size: " + size + "px;");
 	}
 
 	/**
