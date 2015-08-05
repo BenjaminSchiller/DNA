@@ -8,8 +8,18 @@ import dna.util.Config;
 /** Sizes the nodes by their degree. **/
 public class NodeSizeByDegree extends GraphStyleRule {
 
+	protected double baseSize;
+	protected double growthFactor;
+
 	public NodeSizeByDegree(String name) {
+		this(name, Config.getInt("GRAPH_VIS_NODE_DEFAULT_SIZE"), Config
+				.getDouble("GRAPH_VIS_NODE_GROWTH_PER_DEGREE"));
+	}
+
+	public NodeSizeByDegree(String name, double baseSize, double growthFactor) {
 		this.name = name;
+		this.baseSize = baseSize;
+		this.growthFactor = growthFactor;
 	}
 
 	@Override
@@ -56,13 +66,12 @@ public class NodeSizeByDegree extends GraphStyleRule {
 
 	/** Calculates the nodes size based on its degree. **/
 	protected double calculateSize(Node n) {
-		return Config.getInt("GRAPH_VIS_NODE_DEFAULT_SIZE")
-				+ (int) (n.getDegree() * Config
-						.getDouble("GRAPH_VIS_NODE_GROWTH_PER_DEGREE"));
+		return this.baseSize + (int) (n.getDegree() * this.growthFactor);
 	}
 
 	@Override
 	public String toString() {
-		return "NodeSizeByDegree-Rule: '" + this.name + "'";
+		return "NodeSizeByDegree-Rule: '" + this.name + "', base-size: "
+				+ this.baseSize + ", growth: " + this.growthFactor;
 	}
 }
