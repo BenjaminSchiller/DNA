@@ -66,7 +66,7 @@ public class NodeSizeByDegree extends GraphStyleRule {
 
 	/** Calculates the nodes size based on its degree. **/
 	protected double calculateSize(Node n) {
-		return this.baseSize + (int) (n.getDegree() * this.growthFactor);
+		return this.baseSize + (n.getDegree() * this.growthFactor);
 	}
 
 	@Override
