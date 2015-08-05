@@ -14,6 +14,7 @@ import java.awt.event.MouseWheelListener;
 import java.io.File;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 
 import javax.swing.BorderFactory;
@@ -47,6 +48,8 @@ import dna.graph.weights.Long3dWeight;
 import dna.graph.weights.Weight;
 import dna.util.Config;
 import dna.util.Log;
+import dna.visualization.graph.rules.GraphStyleRule;
+import dna.visualization.graph.rules.GraphStyleUtils;
 
 /**
  * The GraphPanel class is used as a JPanel which contains a text-panel and a
@@ -67,6 +70,9 @@ public class GraphPanel extends JPanel {
 	protected final String name;
 	protected final Graph graph;
 	protected final PositionMode mode;
+
+	// rules
+	protected ArrayList<GraphStyleRule> rules;
 
 	// panels
 	protected final JPanel textPanel;
@@ -126,11 +132,17 @@ public class GraphPanel extends JPanel {
 	protected static double minZ = Double.NaN;
 	protected static double maxZ = Double.NaN;
 
-	// constructor
+	// constructors
 	public GraphPanel(final Graph graph, final String name, PositionMode mode) {
+		this(graph, name, mode, new ArrayList<GraphStyleRule>(0));
+	}
+
+	public GraphPanel(final Graph graph, final String name, PositionMode mode,
+			ArrayList<GraphStyleRule> rules) {
 		this.name = name;
 		this.graph = graph;
 		this.mode = mode;
+		this.rules = rules;
 
 		// init textpanel
 		this.textPanel = new JPanel();
@@ -267,6 +279,21 @@ public class GraphPanel extends JPanel {
 		});
 	}
 
+	/** Adds a graph style rule. **/
+	public void addGraphStyleRule(GraphStyleRule r) {
+		this.rules.add(r);
+	}
+
+	/** Sets the graph style rules. **/
+	public void setGraphStyleRules(ArrayList<GraphStyleRule> rules) {
+		this.rules = rules;
+	}
+
+	/** Returns the graph style rules. **/
+	public ArrayList<GraphStyleRule> getGraphStyleRules() {
+		return this.rules;
+	}
+
 	/** Sets the zoom. **/
 	public void setZoom(double percent) {
 		this.zoomLabel.setText((int) Math.floor(percent * 100) + "%  ");
@@ -369,6 +396,50 @@ public class GraphPanel extends JPanel {
 		textLabel.setText(text);
 	}
 
+	/** Records the min/max coordinates for each dimension. **/
+	public void statRecord(float[] coords) {
+		if (!Double.isNaN(minX)) {
+			if (coords[0] < minX)
+				minX = coords[0];
+		} else {
+			minX = coords[0];
+		}
+		if (!Double.isNaN(maxX)) {
+			if (coords[0] > maxX)
+				maxX = coords[0];
+		} else {
+			maxX = coords[0];
+		}
+		if (!Double.isNaN(minY)) {
+			if (coords[1] < minY)
+				minY = coords[1];
+		} else {
+			minY = coords[1];
+		}
+		if (!Double.isNaN(maxY)) {
+			if (coords[1] > maxY)
+				maxY = coords[1];
+		} else {
+			maxY = coords[1];
+		}
+		if (!Double.isNaN(minZ)) {
+			if (coords[2] < minZ)
+				minZ = coords[2];
+		} else {
+			minZ = coords[2];
+		}
+		if (!Double.isNaN(maxZ)) {
+			if (coords[2] > maxZ)
+				maxZ = coords[2];
+		} else {
+			maxZ = coords[2];
+		}
+	}
+
+	/*
+	 * GRAPH METHODS
+	 */
+
 	/*
 	 * NODES
 	 */
@@ -418,50 +489,18 @@ public class GraphPanel extends JPanel {
 
 		// change coloring
 		updateNodeStyle(node);
-	}
 
-	public void statRecord(float[] coords) {
-		if (!Double.isNaN(minX)) {
-			if (coords[0] < minX)
-				minX = coords[0];
-		} else {
-			minX = coords[0];
-		}
-		if (!Double.isNaN(maxX)) {
-			if (coords[0] > maxX)
-				maxX = coords[0];
-		} else {
-			maxX = coords[0];
-		}
-		if (!Double.isNaN(minY)) {
-			if (coords[1] < minY)
-				minY = coords[1];
-		} else {
-			minY = coords[1];
-		}
-		if (!Double.isNaN(maxY)) {
-			if (coords[1] > maxY)
-				maxY = coords[1];
-		} else {
-			maxY = coords[1];
-		}
-		if (!Double.isNaN(minZ)) {
-			if (coords[2] < minZ)
-				minZ = coords[2];
-		} else {
-			minZ = coords[2];
-		}
-		if (!Double.isNaN(maxZ)) {
-			if (coords[2] > maxZ)
-				maxZ = coords[2];
-		} else {
-			maxZ = coords[2];
-		}
+		// rules
+		for (GraphStyleRule r : rules)
+			r.onNodeAddition(node);
 	}
 
 	/** Removes node n from graph g. **/
 	public void removeNode(dna.graph.nodes.Node n) {
-		this.graph.removeNode("" + n.getIndex());
+		Node node = this.graph.removeNode("" + n.getIndex());
+
+		for (GraphStyleRule r : rules)
+			r.onNodeRemoval(node);
 	}
 
 	/** Changes node weight on node n IN CURRENT GRAPH!!. **/
@@ -506,6 +545,9 @@ public class GraphPanel extends JPanel {
 		}
 
 		updateNodeStyle(node);
+
+		for (GraphStyleRule r : rules)
+			r.onNodeWeightChange(node);
 	}
 
 	/*
@@ -549,8 +591,13 @@ public class GraphPanel extends JPanel {
 							+ "px;");
 
 			// change node styles
-			updateNodeStyle(this.graph.getNode("" + n1));
-			updateNodeStyle(this.graph.getNode("" + n2));
+			Node node1 = this.graph.getNode("" + n1);
+			Node node2 = this.graph.getNode("" + n2);
+			updateNodeStyle(node1);
+			updateNodeStyle(node2);
+
+			for (GraphStyleRule r : rules)
+				r.onEdgeAddition(edge, node1, node2);
 		}
 	}
 
@@ -561,12 +608,17 @@ public class GraphPanel extends JPanel {
 		int n2 = e.getN2Index();
 
 		// remove edge
-		this.graph.removeEdge(this.graph.getNode("" + n1).getEdgeBetween(
-				"" + n2));
+		Edge edge = this.graph.removeEdge(this.graph.getNode("" + n1)
+				.getEdgeBetween("" + n2));
 
-		// change coloring
-		updateNodeStyle(graph.getNode("" + n1));
-		updateNodeStyle(graph.getNode("" + n2));
+		// change node styles
+		Node node1 = this.graph.getNode("" + n1);
+		Node node2 = this.graph.getNode("" + n2);
+		updateNodeStyle(node1);
+		updateNodeStyle(node2);
+
+		for (GraphStyleRule r : rules)
+			r.onEdgeRemoval(edge, node1, node2);
 	}
 
 	/** Changes edge weight on edge e IN CURRENT GRAPH!!. **/
@@ -583,6 +635,9 @@ public class GraphPanel extends JPanel {
 
 		// update label
 		updateLabel(edge);
+
+		for (GraphStyleRule r : rules)
+			r.onEdgeWeightChange(edge);
 	}
 
 	/** Updates the label on node n. **/
