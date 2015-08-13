@@ -97,7 +97,8 @@ public class GraphVisualization {
 			mode = PositionMode.threeDimension;
 
 		// main frame
-		GraphPanel panel = new GraphPanel(graph, name, mode);
+		JFrame mainFrame = new JFrame("Graph-Vis Mainframe");
+		GraphPanel panel = new GraphPanel(mainFrame, graph, name, mode);
 
 		// add style rules
 		if (Config.getBoolean("GRAPH_VIS_SIZE_NODES_BY_DEGREE"))
@@ -111,7 +112,6 @@ public class GraphVisualization {
 					"NODE_COLOR_BY_DEGREE"));
 
 		// create main frame
-		JFrame mainFrame = new JFrame("Graph-Vis Mainframe");
 		mainFrame.add(panel);
 		mainFrame.setTitle(g.getName());
 		mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
