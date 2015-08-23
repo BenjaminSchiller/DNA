@@ -1,13 +1,10 @@
 package dna.visualization.graph;
 
-import java.awt.AWTException;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Point;
-import java.awt.Rectangle;
-import java.awt.Robot;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.InputEvent;
@@ -15,7 +12,6 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
-import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.text.DateFormat;
@@ -23,7 +19,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 
-import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -56,6 +51,7 @@ import dna.graph.weights.Long3dWeight;
 import dna.graph.weights.Weight;
 import dna.util.Config;
 import dna.util.Log;
+import dna.visualization.VisualizationUtils;
 import dna.visualization.VisualizationUtils.VideoRecorder;
 import dna.visualization.graph.rules.GraphStyleRule;
 
@@ -404,43 +400,9 @@ public class GraphPanel extends JPanel {
 		Log.info("GraphVis - saving screenshot to '" + f2.getPath() + "'");
 	}
 
-	/** Makes a screenshot of the current graph. **/
+	/** Makes a screenshot of the current JFrame. **/
 	public void makeScreenshot() {
-		String dir = Config.get("GRAPH_VIS_SCREENSHOT_DIR");
-		String format = Config.get("GRAPH_VIS_SCREENSHOT_FORMAT");
-		String suffix = "." + format;
-
-		// create dir
-		File f = new File(dir);
-		if (!f.exists() && !f.isFile())
-			f.mkdirs();
-
-		// get date format
-		DateFormat df = new SimpleDateFormat("yyyy_MM_dd-HH_mm_ss");
-
-		String filename = name + "-" + df.format(new Date());
-
-		try {
-			Robot robot = new Robot();
-
-			// get bounds from parentFrame
-			Rectangle captureRect = this.parentFrame.getBounds();
-			BufferedImage screenFullImage = robot
-					.createScreenCapture(captureRect);
-
-			// get name
-			File file = new File(dir + filename + suffix);
-			int id = 0;
-			while (file.exists()) {
-				id++;
-				file = new File(dir + filename + "_" + id + suffix);
-			}
-
-			Log.info("GraphVis - saving screenshot to '" + file.getPath() + "'");
-			ImageIO.write(screenFullImage, format, file);
-		} catch (AWTException | IOException ex) {
-			System.err.println(ex);
-		}
+		VisualizationUtils.captureScreenshot(this.parentFrame);
 	}
 
 	/** Returns the parent frame this GraphPanel is embedded in. **/
