@@ -3,6 +3,7 @@ package dna.visualization.graph;
 import java.awt.AWTException;
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Point;
 import java.awt.Rectangle;
@@ -55,6 +56,7 @@ import dna.graph.weights.Long3dWeight;
 import dna.graph.weights.Weight;
 import dna.util.Config;
 import dna.util.Log;
+import dna.visualization.VisualizationUtils.VideoRecorder;
 import dna.visualization.graph.rules.GraphStyleRule;
 
 /**
@@ -87,6 +89,9 @@ public class GraphPanel extends JPanel {
 	protected final JLabel textLabel;
 	protected final JLabel zoomLabel;
 	protected final Layout layouter;
+	protected final JButton captureButton;
+	protected Color captureButtonFontColor;
+	protected Color captureButtonFontColorRecording = new Color(200, 30, 30);
 	protected View view;
 
 	// speed factors
@@ -96,6 +101,10 @@ public class GraphPanel extends JPanel {
 
 	// used for dragging
 	protected Point dragPos;
+
+	// recording
+	protected boolean recording;
+	protected VideoRecorder videoRecorder;
 
 	// enable 3d projection
 	protected boolean enable3dProjection = Config
@@ -155,6 +164,8 @@ public class GraphPanel extends JPanel {
 		this.rules = rules;
 		this.nextRuleIndex = 0;
 
+		this.recording = false;
+
 		// init textpanel
 		this.textPanel = new JPanel();
 		textPanel.setLayout(new BoxLayout(textPanel, BoxLayout.X_AXIS));
@@ -179,16 +190,40 @@ public class GraphPanel extends JPanel {
 		textPanel.add(zoomLabel);
 
 		// screenshot button
-		JButton screenshot = new JButton("Screenshot");
-		screenshot.setFont(new Font(font.getName(), font.getStyle(), font
+		JButton screenshotButton = new JButton("Screenshot");
+		screenshotButton.setPreferredSize(new Dimension(100, 25));
+		screenshotButton.setFont(new Font(font.getName(), font.getStyle(), font
 				.getSize() - 3));
-		screenshot
-				.setToolTipText("Captures a screenshot and saves it to '/images/'");
-		textPanel.add(screenshot);
-		screenshot.addActionListener(new ActionListener() {
+		screenshotButton
+				.setToolTipText("Captures a screenshot and saves it to '"
+						+ Config.get("GRAPH_VIS_SCREENSHOT_DIR") + "'");
+		textPanel.add(screenshotButton);
+		screenshotButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				makeScreenshot();
+			}
+		});
+
+		this.captureButton = new JButton("Video");
+		captureButton.setPreferredSize(new Dimension(100, 25));
+		captureButton.setFont(new Font(font.getName(), font.getStyle(), font
+				.getSize() - 3));
+		captureButton.setToolTipText("Captures a video and saves it to '"
+				+ Config.get("GRAPH_VIS_VIDEO_DIR") + "'");
+		this.captureButtonFontColor = captureButton.getForeground();
+		textPanel.add(captureButton);
+		captureButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				try {
+					if (!isRecording())
+						makeVideo();
+					else
+						stopVideo();
+				} catch (InterruptedException | IOException e1) {
+					e1.printStackTrace();
+				}
 			}
 		});
 
@@ -406,6 +441,11 @@ public class GraphPanel extends JPanel {
 		} catch (AWTException | IOException ex) {
 			System.err.println(ex);
 		}
+	}
+
+	/** Returns the parent frame this GraphPanel is embedded in. **/
+	public JFrame getParentFrame() {
+		return this.parentFrame;
 	}
 
 	/** Returns the embedded graphstream.graph. **/
@@ -693,6 +733,52 @@ public class GraphPanel extends JPanel {
 
 		for (GraphStyleRule r : rules)
 			r.onEdgeWeightChange(edge);
+	}
+
+	/** Makes a video of the JFrame the panel is embedded in. **/
+	public void makeVideo() throws InterruptedException, IOException {
+		this.recordingStarted();
+		if (this.videoRecorder == null)
+			this.videoRecorder = new VideoRecorder(this, this.parentFrame);
+		else
+			this.videoRecorder.updateDestinationPath();
+
+		this.videoRecorder.start();
+	}
+
+	/** Stops the current video recording prematurely. **/
+	public void stopVideo() {
+		this.videoRecorder.stop();
+	}
+
+	/** Updates the video progress. **/
+	public void updateVideoProgress(double percent) {
+		this.captureButton.setText((int) Math.floor(percent * 100) + "%");
+	}
+
+	/** Updates the video progress. **/
+	public void updateElapsedVideoTime(int seconds) {
+		this.captureButton.setText(seconds + "s");
+	}
+
+	/** Report that the recording has started. **/
+	public void recordingStarted() {
+		this.captureButton.setText("Recording");
+		this.captureButton.setForeground(this.captureButtonFontColorRecording);
+
+		this.recording = true;
+	}
+
+	/** Report that the recording has been stopped. **/
+	public void recordingStopped() {
+		this.captureButton.setText("Video");
+		this.captureButton.setForeground(this.captureButtonFontColor);
+		this.recording = false;
+	}
+
+	/** Returns if the panel is currently being recorded. **/
+	public boolean isRecording() {
+		return this.recording;
 	}
 
 	/** Updates the label on node n. **/
