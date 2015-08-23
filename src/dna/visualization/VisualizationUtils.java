@@ -11,6 +11,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Random;
 
+import javax.imageio.ImageIO;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
@@ -26,28 +27,56 @@ import dna.visualization.graph.GraphPanel;
 
 public class VisualizationUtils {
 
-	/** Captures a screenshot from the given JFrame. **/
-	public static BufferedImage captureScreenshot(JFrame frame) {
+	/** Capture a screenshot of the JFrame. **/
+	public static void captureScreenshot(JFrame srcFrame) {
+		VisualizationUtils.captureScreenshot(srcFrame,
+				Config.get("GRAPH_VIS_SCREENSHOT_DIR"),
+				Config.get("GRAPH_VIS_SCREENSHOT_FORMAT"));
+	}
+
+	/** Capture a screenshot of the JFrame. **/
+	public static void captureScreenshot(JFrame srcFrame, String dstDir) {
+		VisualizationUtils.captureScreenshot(srcFrame, dstDir,
+				Config.get("GRAPH_VIS_SCREENSHOT_FORMAT"));
+	}
+
+	/** Capture a screenshot of the JFrame. **/
+	public static void captureScreenshot(JFrame srcFrame, String dstDir,
+			String format) {
+		String name = srcFrame.getTitle();
+		String suffix = "." + format;
+
+		// create dir
+		File f = new File(dstDir);
+		if (!f.exists() && !f.isFile())
+			f.mkdirs();
+
+		// get date format
+		DateFormat df = new SimpleDateFormat("yyyy_MM_dd-HH_mm_ss");
+
+		String filename = name + "-" + df.format(new Date());
+
 		try {
 			Robot robot = new Robot();
 
 			// get bounds from parentFrame
-			Rectangle captureRect = frame.getBounds();
+			Rectangle captureRect = srcFrame.getBounds();
 			BufferedImage screenFullImage = robot
 					.createScreenCapture(captureRect);
 
-			return screenFullImage;
-		} catch (AWTException ex) {
+			// get name
+			File file = new File(dstDir + filename + suffix);
+			int id = 0;
+			while (file.exists()) {
+				id++;
+				file = new File(dstDir + filename + "_" + id + suffix);
+			}
+
+			Log.info("GraphVis - saving screenshot to '" + file.getPath() + "'");
+			ImageIO.write(screenFullImage, format, file);
+		} catch (AWTException | IOException ex) {
 			System.err.println(ex);
 		}
-
-		return null;
-	}
-
-	public static VideoRecorder captureVideoInNewThread(JFrame srcFrame) {
-		VideoRecorder rec = new VideoRecorder(null, srcFrame);
-		rec.start();
-		return rec;
 	}
 
 	/** Captures a video from the given JFrame. **/
@@ -79,7 +108,7 @@ public class VisualizationUtils {
 
 		for (int i = 0; i < amount; i++) {
 			long start = System.currentTimeMillis();
-			images[i] = VisualizationUtils.captureScreenshot(srcFrame);
+			images[i] = VisualizationUtils.getScreenshot(srcFrame);
 			long diff = System.currentTimeMillis() - start;
 			if (diff < screenshotInterval)
 				Thread.sleep(screenshotInterval - diff);
@@ -176,6 +205,24 @@ public class VisualizationUtils {
 		}
 
 		return file.getPath();
+	}
+
+	/** Captures a screenshot from the given JFrame. **/
+	protected static BufferedImage getScreenshot(JFrame frame) {
+		try {
+			Robot robot = new Robot();
+
+			// get bounds from parentFrame
+			Rectangle captureRect = frame.getBounds();
+			BufferedImage screenFullImage = robot
+					.createScreenCapture(captureRect);
+
+			return screenFullImage;
+		} catch (AWTException ex) {
+			System.err.println(ex);
+		}
+
+		return null;
 	}
 
 	/**
@@ -294,7 +341,7 @@ public class VisualizationUtils {
 			int seconds = 0;
 			for (int i = 0; i < amount; i++) {
 				long start = System.currentTimeMillis();
-				images[i] = VisualizationUtils.captureScreenshot(srcFrame);
+				images[i] = VisualizationUtils.getScreenshot(srcFrame);
 
 				// update progress approx. each second
 				counter++;
