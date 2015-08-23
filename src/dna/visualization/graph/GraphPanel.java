@@ -197,7 +197,7 @@ public class GraphPanel extends JPanel {
 		screenshotButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				makeScreenshot();
+				makeScreenshot(false);
 			}
 		});
 
@@ -401,7 +401,26 @@ public class GraphPanel extends JPanel {
 	}
 
 	/** Makes a screenshot of the current JFrame. **/
-	public void makeScreenshot() {
+	public void makeScreenshot(boolean waitForStabilization) {
+		if (waitForStabilization) {
+			long start = System.currentTimeMillis();
+			long timeout = Config
+					.getInt("GRAPH_VIS_SCREENSHOT_STABILITY_TIMEOUT");
+			double stabilityThreshold = Config
+					.getDouble("GRAPH_VIS_SCREENSHOT_STABILITY_THRESHOLD");
+
+			// while not stable or timeout not reached, wait
+			while ((this.getLayouter().getStabilization() < stabilityThreshold)
+					&& ((System.currentTimeMillis() - start) < timeout)) {
+				try {
+					Thread.sleep(100);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+
+		// capture screenshot
 		VisualizationUtils.captureScreenshot(this.parentFrame);
 	}
 
