@@ -149,11 +149,15 @@ public class VisualizationUtils {
 	/** Renders a video from the given jpeg frames. **/
 	public static void renderVideo(File file, BufferedImage[] frames, int fps,
 			boolean useTechSmithCodec) throws IOException {
-		// MovieWriter out = Registry.getInstance().getWriter(file);
+		// check if directory exists
+		if (!file.getParentFile().exists())
+			file.mkdirs();
+
+		// craft format
 		AVIWriter out = new AVIWriter(file);
+		// MovieWriter out = Registry.getInstance().getWriter(file);
 
 		Object encodingFormat;
-
 		if (useTechSmithCodec)
 			encodingFormat = org.monte.media.VideoFormatKeys.ENCODING_AVI_TECHSMITH_SCREEN_CAPTURE;
 		else
@@ -170,6 +174,7 @@ public class VisualizationUtils {
 				org.monte.media.VideoFormatKeys.DepthKey, 24);
 		int track = out.addTrack(format);
 
+		// write video vile
 		try {
 			out.addTrack(format);
 
@@ -244,6 +249,7 @@ public class VisualizationUtils {
 		/** Run method. **/
 		public void run() {
 			try {
+				// capture video
 				captureVideo(srcFrame, dstPath, timeInSeconds, fps);
 
 				if (this.callingPanel != null) {
@@ -327,6 +333,16 @@ public class VisualizationUtils {
 			}
 		}
 
+		/** Called when the capturing progress starts rendering. **/
+		protected void updateVideoProgressRendering(String text) {
+			if (this.callingPanel != null) {
+				if (this.callingPanel instanceof GraphPanel)
+					((GraphPanel) this.callingPanel).setVideoButtonText(text);
+
+				// add other panels here for progress update broadcasting
+			}
+		}
+
 		/** Captures a video from the given JFrame to the destination-path. **/
 		protected void captureVideo(JFrame srcFrame, String dstPath,
 				int timeInSeconds, int fps) throws InterruptedException,
@@ -336,6 +352,7 @@ public class VisualizationUtils {
 
 			int amount = timeInSeconds * fps;
 
+			// collect images
 			BufferedImage[] images = new BufferedImage[amount];
 			int counter = 0;
 			int seconds = 0;
@@ -359,13 +376,15 @@ public class VisualizationUtils {
 					break;
 			}
 
+			// render video
 			File f = new File(dstPath);
+			updateVideoProgressRendering("rendering");
 			Log.info("rendering video to " + dstPath);
 			VisualizationUtils.renderVideo(f, images);
 			Log.info("video rendering done");
 
+			// free space
 			images = null;
-			System.gc();
 		}
 	}
 
