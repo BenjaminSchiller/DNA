@@ -737,6 +737,11 @@ public class GraphPanel extends JPanel {
 		this.captureButton.setText((int) Math.floor(percent * 100) + "%");
 	}
 
+	/** Updates the text on the video button. **/
+	public void setVideoButtonText(String text) {
+		this.captureButton.setText(text);
+	}
+
 	/** Updates the video progress. **/
 	public void updateElapsedVideoTime(int seconds) {
 		this.captureButton.setText(seconds + "s");
