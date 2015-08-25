@@ -213,7 +213,7 @@ public class VisualizationUtils {
 	}
 
 	/** Captures a screenshot from the given JFrame. **/
-	protected static BufferedImage getScreenshot(JFrame frame) {
+	public static BufferedImage getScreenshot(JFrame frame) {
 		try {
 			Robot robot = new Robot();
 
