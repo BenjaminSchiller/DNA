@@ -1,6 +1,7 @@
 package dna.visualization.graph;
 
 import java.awt.Dimension;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.concurrent.TimeUnit;
 
@@ -126,6 +127,17 @@ public class GraphVisualization {
 
 		// add to map
 		map.put(g, panel);
+
+		// start recording if automatic recording is set
+		if (Config.getBoolean("GRAPH_VIS_VIDEO_AUTO_RECORD")) {
+			if (!panel.isRecording())
+				try {
+					Thread.sleep(100);
+					panel.makeVideo();
+				} catch (InterruptedException | IOException e) {
+					e.printStackTrace();
+				}
+		}
 	}
 
 	/*
