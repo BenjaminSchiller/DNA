@@ -3,6 +3,7 @@ package dna.visualization.graph.rules;
 import org.graphstream.graph.Edge;
 import org.graphstream.graph.Node;
 
+import dna.graph.weights.Weight;
 import dna.util.Config;
 import dna.visualization.graph.GraphVisualization;
 
@@ -25,8 +26,11 @@ public class NodeSizeBy3dCoordinates extends GraphStyleRule {
 
 	@Override
 	public void onNodeAddition(Node n) {
-		// set growth
-		GraphStyleUtils.setGrowth(n, this.index, calculateGrowth(n));
+		// increase size by base growth and reduze by z*shrinkfactor
+		float z = n.getAttribute(GraphVisualization.zKey);
+
+		GraphStyleUtils.increaseSize(n,
+				this.baseGrowth - Math.floor(z * this.shrinkFactor));
 
 		// update style
 		GraphStyleUtils.updateStyle(n);
@@ -37,12 +41,14 @@ public class NodeSizeBy3dCoordinates extends GraphStyleRule {
 	}
 
 	@Override
-	public void onNodeWeightChange(Node n) {
-		// set growth
-		GraphStyleUtils.setGrowth(n, this.index, calculateGrowth(n));
+	public void onNodeWeightChange(Node n, Weight wNew, Weight wOld) {
+		// get z-coords
+		float zNew = GraphVisualization.getCoordsFromWeight(wNew)[2];
+		float zOld = GraphVisualization.getCoordsFromWeight(wOld)[2];
 
-		// update style
-		GraphStyleUtils.updateStyle(n);
+		// calc shrink based on z-diff
+		float zDiff = zNew - zOld;
+		GraphStyleUtils.decreaseSize(n, Math.floor(zDiff * this.shrinkFactor));
 	}
 
 	@Override
@@ -54,18 +60,7 @@ public class NodeSizeBy3dCoordinates extends GraphStyleRule {
 	}
 
 	@Override
-	public void onEdgeWeightChange(Edge e) {
-	}
-
-	/** Calculates the size. **/
-	protected double calculateGrowth(Node n) {
-		float z = n.getAttribute(GraphVisualization.zKey);
-
-		// calc size
-		double growth = this.baseGrowth - Math.floor(z * this.shrinkFactor);
-
-		// return growth
-		return growth;
+	public void onEdgeWeightChange(Edge e, Weight wNew, Weight wOld) {
 	}
 
 	@Override

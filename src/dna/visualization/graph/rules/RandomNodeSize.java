@@ -3,6 +3,8 @@ package dna.visualization.graph.rules;
 import org.graphstream.graph.Edge;
 import org.graphstream.graph.Node;
 
+import dna.graph.weights.Weight;
+
 /** Simple rule example which sets all nodes to a random size (10;20). **/
 public class RandomNodeSize extends GraphStyleRule {
 
@@ -28,7 +30,7 @@ public class RandomNodeSize extends GraphStyleRule {
 	}
 
 	@Override
-	public void onNodeWeightChange(Node n) {
+	public void onNodeWeightChange(Node n, Weight wNew, Weight wOld) {
 	}
 
 	@Override
@@ -40,7 +42,7 @@ public class RandomNodeSize extends GraphStyleRule {
 	}
 
 	@Override
-	public void onEdgeWeightChange(Edge e) {
+	public void onEdgeWeightChange(Edge e, Weight wNew, Weight wOld) {
 	}
 
 	@Override

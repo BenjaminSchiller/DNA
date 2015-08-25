@@ -261,4 +261,43 @@ public class GraphVisualization {
 	public static boolean isEnabled() {
 		return Config.getBoolean("GRAPH_VIS_ENABLED");
 	}
+
+	/**
+	 * Gets the coords from the weight, casts it to float and returns it as
+	 * float[] = {x, y, z}
+	 **/
+	public static float[] getCoordsFromWeight(Weight w) {
+		float x = 0;
+		float y = 0;
+		float z = 0;
+		if (w instanceof Int2dWeight) {
+			x = ((Int2dWeight) w).getX();
+			y = ((Int2dWeight) w).getY();
+		}
+		if (w instanceof Int3dWeight) {
+			x = ((Int3dWeight) w).getX();
+			y = ((Int3dWeight) w).getY();
+			z = ((Int3dWeight) w).getZ();
+		}
+		if (w instanceof Long2dWeight) {
+			x = ((Long2dWeight) w).getX();
+			y = ((Long2dWeight) w).getY();
+		}
+		if (w instanceof Long3dWeight) {
+			x = ((Long3dWeight) w).getX();
+			y = ((Long3dWeight) w).getY();
+			z = ((Long3dWeight) w).getZ();
+		}
+		if (w instanceof Double2dWeight) {
+			x = (float) ((Double2dWeight) w).getX();
+			y = (float) ((Double2dWeight) w).getY();
+		}
+		if (w instanceof Double3dWeight) {
+			x = (float) ((Double3dWeight) w).getX();
+			y = (float) ((Double3dWeight) w).getY();
+			z = (float) ((Double3dWeight) w).getZ();
+		}
+
+		return new float[] { x, y, z };
+	}
 }
