@@ -40,14 +40,8 @@ import dna.graph.edges.DirectedWeightedEdge;
 import dna.graph.edges.UndirectedWeightedEdge;
 import dna.graph.nodes.DirectedWeightedNode;
 import dna.graph.nodes.UndirectedWeightedNode;
-import dna.graph.weights.Double2dWeight;
-import dna.graph.weights.Double3dWeight;
 import dna.graph.weights.IWeightedEdge;
 import dna.graph.weights.IWeightedNode;
-import dna.graph.weights.Int2dWeight;
-import dna.graph.weights.Int3dWeight;
-import dna.graph.weights.Long2dWeight;
-import dna.graph.weights.Long3dWeight;
 import dna.graph.weights.Weight;
 import dna.util.Config;
 import dna.util.Log;
@@ -553,7 +547,7 @@ public class GraphPanel extends JPanel {
 						.equals(PositionMode.threeDimension))) {
 
 			// get coords from weight
-			float[] coords = getCoordsFromWeight(w);
+			float[] coords = GraphVisualization.getCoordsFromWeight(w);
 
 			// keep record of min/max coordinates
 			statRecord(coords);
@@ -593,6 +587,9 @@ public class GraphPanel extends JPanel {
 		// get node
 		Node node = this.graph.getNode("" + n.getIndex());
 
+		// get old weight
+		Weight wOld = node.getAttribute(GraphVisualization.weightKey);
+
 		// change weight
 		node.changeAttribute(GraphVisualization.weightKey, w);
 
@@ -602,7 +599,7 @@ public class GraphPanel extends JPanel {
 						.equals(PositionMode.threeDimension))) {
 
 			// get coords from weight
-			float[] coords = getCoordsFromWeight(w);
+			float[] coords = GraphVisualization.getCoordsFromWeight(w);
 
 			// keep record of min/max coordinates
 			statRecord(coords);
@@ -631,7 +628,7 @@ public class GraphPanel extends JPanel {
 
 		// apply style rules
 		for (GraphStyleRule r : rules)
-			r.onNodeWeightChange(node);
+			r.onNodeWeightChange(node, w, wOld);
 	}
 
 	/*
@@ -706,6 +703,9 @@ public class GraphPanel extends JPanel {
 		// get edge
 		Edge edge = this.graph.getNode("" + n1).getEdgeBetween("" + n2);
 
+		// get old weight
+		Weight wOld = edge.getAttribute(GraphVisualization.weightKey);
+
 		// change weight
 		edge.changeAttribute(GraphVisualization.weightKey, w);
 
@@ -713,7 +713,7 @@ public class GraphPanel extends JPanel {
 		updateLabel(edge);
 
 		for (GraphStyleRule r : rules)
-			r.onEdgeWeightChange(edge);
+			r.onEdgeWeightChange(edge, w, wOld);
 	}
 
 	/** Makes a video of the JFrame the panel is embedded in. **/
@@ -808,45 +808,6 @@ public class GraphPanel extends JPanel {
 			if (e.hasAttribute(GraphVisualization.labelKey))
 				e.removeAttribute(GraphVisualization.labelKey);
 		}
-	}
-
-	/**
-	 * Gets the coords from the weight, casts it to float and returns it as
-	 * float[] = {x, y, z}
-	 **/
-	protected float[] getCoordsFromWeight(Weight w) {
-		float x = 0;
-		float y = 0;
-		float z = 0;
-		if (w instanceof Int2dWeight) {
-			x = ((Int2dWeight) w).getX();
-			y = ((Int2dWeight) w).getY();
-		}
-		if (w instanceof Int3dWeight) {
-			x = ((Int3dWeight) w).getX();
-			y = ((Int3dWeight) w).getY();
-			z = ((Int3dWeight) w).getZ();
-		}
-		if (w instanceof Long2dWeight) {
-			x = ((Long2dWeight) w).getX();
-			y = ((Long2dWeight) w).getY();
-		}
-		if (w instanceof Long3dWeight) {
-			x = ((Long3dWeight) w).getX();
-			y = ((Long3dWeight) w).getY();
-			z = ((Long3dWeight) w).getZ();
-		}
-		if (w instanceof Double2dWeight) {
-			x = (float) ((Double2dWeight) w).getX();
-			y = (float) ((Double2dWeight) w).getY();
-		}
-		if (w instanceof Double3dWeight) {
-			x = (float) ((Double3dWeight) w).getX();
-			y = (float) ((Double3dWeight) w).getY();
-			z = (float) ((Double3dWeight) w).getZ();
-		}
-
-		return new float[] { x, y, z };
 	}
 
 	/** Projects the (x,y,z)-coordinates to (x,y). **/
