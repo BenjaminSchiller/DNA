@@ -23,12 +23,8 @@ public class NodeColorByDegree extends GraphStyleRule {
 
 	@Override
 	public void onNodeAddition(Node n) {
+		// set color
 		GraphStyleUtils.setColor(n, new Color(0, 255, 0));
-		// // set size
-		// GraphStyleUtils.setColor(n, calculateColor(n));
-		//
-		// // update node style
-		GraphStyleUtils.updateStyle(n);
 	}
 
 	@Override
@@ -48,10 +44,6 @@ public class NodeColorByDegree extends GraphStyleRule {
 		// set colors
 		GraphStyleUtils.setColor(n1, adaptColor(c1, this.amplification));
 		GraphStyleUtils.setColor(n2, adaptColor(c2, this.amplification));
-
-		// update node styles
-		GraphStyleUtils.updateStyle(n1);
-		GraphStyleUtils.updateStyle(n2);
 	}
 
 	@Override
@@ -63,10 +55,6 @@ public class NodeColorByDegree extends GraphStyleRule {
 		// set colors
 		GraphStyleUtils.setColor(n1, adaptColor(c1, -this.amplification));
 		GraphStyleUtils.setColor(n2, adaptColor(c2, -this.amplification));
-
-		// update node styles
-		GraphStyleUtils.updateStyle(n1);
-		GraphStyleUtils.updateStyle(n2);
 	}
 
 	@Override
