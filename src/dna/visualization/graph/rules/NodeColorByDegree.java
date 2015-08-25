@@ -23,10 +23,11 @@ public class NodeColorByDegree extends GraphStyleRule {
 
 	@Override
 	public void onNodeAddition(Node n) {
-		// set size
-		GraphStyleUtils.setColor(n, calculateColor(n));
-
-		// update node style
+		GraphStyleUtils.setColor(n, new Color(0, 255, 0));
+		// // set size
+		// GraphStyleUtils.setColor(n, calculateColor(n));
+		//
+		// // update node style
 		GraphStyleUtils.updateStyle(n);
 	}
 
@@ -40,9 +41,13 @@ public class NodeColorByDegree extends GraphStyleRule {
 
 	@Override
 	public void onEdgeAddition(Edge e, Node n1, Node n2) {
-		// set sizes
-		GraphStyleUtils.setColor(n1, calculateColor(n1));
-		GraphStyleUtils.setColor(n2, calculateColor(n2));
+		// get current colors
+		Color c1 = GraphStyleUtils.getColor(n1);
+		Color c2 = GraphStyleUtils.getColor(n2);
+
+		// set colors
+		GraphStyleUtils.setColor(n1, adaptColor(c1, this.amplification));
+		GraphStyleUtils.setColor(n2, adaptColor(c2, this.amplification));
 
 		// update node styles
 		GraphStyleUtils.updateStyle(n1);
@@ -51,9 +56,13 @@ public class NodeColorByDegree extends GraphStyleRule {
 
 	@Override
 	public void onEdgeRemoval(Edge e, Node n1, Node n2) {
-		// set sizes
-		GraphStyleUtils.setColor(n1, calculateColor(n1));
-		GraphStyleUtils.setColor(n2, calculateColor(n2));
+		// get current colors
+		Color c1 = GraphStyleUtils.getColor(n1);
+		Color c2 = GraphStyleUtils.getColor(n2);
+
+		// set colors
+		GraphStyleUtils.setColor(n1, adaptColor(c1, -this.amplification));
+		GraphStyleUtils.setColor(n2, adaptColor(c2, -this.amplification));
 
 		// update node styles
 		GraphStyleUtils.updateStyle(n1);
@@ -64,24 +73,17 @@ public class NodeColorByDegree extends GraphStyleRule {
 	public void onEdgeWeightChange(Edge e, Weight wNew, Weight wOld) {
 	}
 
-	/** Sets the color of the node by its degree. **/
-	protected Color calculateColor(Node n) {
-		int degree = n.getDegree() - 1;
+	/** Calculates a new color based on the amplification parameter. **/
+	protected Color adaptColor(Color c, double amplification) {
+		int red = (int) Math.floor(c.getRed() + this.amplification);
+		red = red < 0 ? 0 : red;
+		red = red > 255 ? 255 : red;
 
-		// calculate color
-		int red = 0;
-		int green = 255;
-		int blue = 0;
-		if (degree >= 0) {
-			int weight = (int) Math.floor(degree * this.amplification);
-			if (weight > 255)
-				weight = 255;
+		int green = (int) Math.floor(c.getGreen() - this.amplification);
+		green = green < 0 ? 0 : green;
+		green = green > 255 ? 255 : green;
 
-			red += weight;
-			green -= weight;
-		}
-
-		return new Color(red, green, blue);
+		return new Color(red, green, c.getBlue());
 	}
 
 	@Override
