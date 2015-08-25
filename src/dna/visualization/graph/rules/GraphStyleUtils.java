@@ -41,6 +41,21 @@ public class GraphStyleUtils {
 		n.setAttribute(GraphVisualization.sizeKey, size);
 	}
 
+	/** Increases the size of the given node by value x. **/
+	public static void increaseSize(Node n, double x) {
+		double size = (double) n.getAttribute(GraphVisualization.sizeKey) + x;
+		if (size < 0)
+			size = 0;
+
+		// set attribute
+		n.setAttribute(GraphVisualization.sizeKey, size);
+	}
+
+	/** Decreases the size of the given node by value x. **/
+	public static void decreaseSize(Node n, double x) {
+		GraphStyleUtils.increaseSize(n, -x);
+	}
+
 	/** Returns the size of the edge. **/
 	public static double getSize(Edge e) {
 		return e.getAttribute(GraphVisualization.sizeKey);
@@ -51,56 +66,17 @@ public class GraphStyleUtils {
 		e.setAttribute(GraphVisualization.sizeKey, size);
 	}
 
-	/** Sets the growth for the given index. **/
-	public static void setGrowth(Node n, int index, double growth) {
-		ArrayList<Double> growthList = n
-				.getAttribute(GraphVisualization.growthListKey);
+	/** Increases the size of the given node by value x. **/
+	public static void increaseSize(Edge e, double x) {
+		double size = (double) e.getAttribute(GraphVisualization.sizeKey) + x;
 
-		// if out of bounds, fill with zeros
-		if (growthList.size() <= index) {
-			for (int i = 0; i < (index - growthList.size() + 1); i++) {
-				growthList.add(0.0);
-			}
-		}
-
-		// set growth
-		growthList.set(index, growth);
+		// set attribute
+		e.setAttribute(GraphVisualization.sizeKey, size);
 	}
 
-	/** Returns the growth list of the given node. **/
-	public static ArrayList<Double> getGrowthList(Node n) {
-		return n.getAttribute(GraphVisualization.growthListKey);
-	}
-
-	/** Returns the growth of the given node at the given index. **/
-	public static double getGrowth(Node n, int index) {
-		return getGrowthList(n).get(index);
-	}
-
-	/** Sets the growth for the given index. **/
-	public static void setGrowth(Edge e, int index, double growth) {
-		ArrayList<Double> growthList = e
-				.getAttribute(GraphVisualization.growthListKey);
-
-		// if out of bounds, fill with zeros
-		if (growthList.size() <= index) {
-			for (int i = 0; i < (index - growthList.size() + 1); i++) {
-				growthList.add(0.0);
-			}
-		}
-
-		// set growth
-		growthList.set(index, growth);
-	}
-
-	/** Returns the growth list of the given edge. **/
-	public static ArrayList<Double> getGrowthList(Edge e) {
-		return e.getAttribute(GraphVisualization.growthListKey);
-	}
-
-	/** Returns the growth of the given edge at the given index. **/
-	public static double getGrowth(Edge e, int index) {
-		return getGrowthList(e).get(index);
+	/** Decreases the size of the given node by value x. **/
+	public static void decreaseSize(Edge e, double x) {
+		GraphStyleUtils.increaseSize(e, -x);
 	}
 
 	/** Updates the nodes style. **/
@@ -110,22 +86,16 @@ public class GraphStyleUtils {
 		if (n.hasAttribute(GraphVisualization.colorKey)) {
 			Color c = n.getAttribute(GraphVisualization.colorKey);
 			style += "fill-color: rgb(" + c.getRed() + "," + c.getGreen() + ","
-					+ c.getBlue() + "); ";
+					+ c.getBlue() + ");";
 		}
 
 		// calc size
-		double size = (double) n
-				.getAttribute(GraphVisualization.defaultSizeKey);
-
-		ArrayList<Double> growthList = n
-				.getAttribute(GraphVisualization.growthListKey);
-		for (double d : growthList)
-			size += d;
+		double size = (double) n.getAttribute(GraphVisualization.sizeKey);
 
 		if (size < 1)
 			size = 1;
 
-		style += "size: " + size + "px; ";
+		style += "size: " + size + "px;";
 
 		// set style
 		n.setAttribute(GraphVisualization.styleKey, style);

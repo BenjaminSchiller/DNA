@@ -3,6 +3,8 @@ package dna.visualization.graph.rules;
 import org.graphstream.graph.Edge;
 import org.graphstream.graph.Node;
 
+import dna.graph.weights.Weight;
+
 /** Abstract class for all graph style rules. **/
 public abstract class GraphStyleRule {
 
@@ -15,13 +17,13 @@ public abstract class GraphStyleRule {
 
 	public abstract void onNodeRemoval(Node n);
 
-	public abstract void onNodeWeightChange(Node n);
+	public abstract void onNodeWeightChange(Node n, Weight wNew, Weight wOld);
 
 	public abstract void onEdgeAddition(Edge e, Node n1, Node n2);
 
 	public abstract void onEdgeRemoval(Edge e, Node n1, Node n2);
 
-	public abstract void onEdgeWeightChange(Edge e);
+	public abstract void onEdgeWeightChange(Edge e, Weight wNew, Weight wOld);
 
 	public String getName() {
 		return this.name;

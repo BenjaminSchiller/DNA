@@ -5,6 +5,7 @@ import java.awt.Color;
 import org.graphstream.graph.Edge;
 import org.graphstream.graph.Node;
 
+import dna.graph.weights.Weight;
 import dna.visualization.components.ColorHandler;
 import dna.visualization.graph.GraphVisualization;
 
@@ -37,7 +38,7 @@ public class RandomNodeColor extends GraphStyleRule {
 	}
 
 	@Override
-	public void onNodeWeightChange(Node n) {
+	public void onNodeWeightChange(Node n, Weight wNew, Weight wOld) {
 	}
 
 	@Override
@@ -49,7 +50,7 @@ public class RandomNodeColor extends GraphStyleRule {
 	}
 
 	@Override
-	public void onEdgeWeightChange(Edge e) {
+	public void onEdgeWeightChange(Edge e, Weight wNew, Weight wOld) {
 	}
 
 	@Override

@@ -3,6 +3,7 @@ package dna.visualization.graph.rules;
 import org.graphstream.graph.Edge;
 import org.graphstream.graph.Node;
 
+import dna.graph.weights.Weight;
 import dna.util.Config;
 
 /** Sizes the nodes by their degree. **/
@@ -21,11 +22,6 @@ public class NodeSizeByDegree extends GraphStyleRule {
 
 	@Override
 	public void onNodeAddition(Node n) {
-		// sets the size-growth given by this rule
-		GraphStyleUtils.setGrowth(n, this.index, calculateGrowth(n));
-
-		// update node style
-		GraphStyleUtils.updateStyle(n);
 	}
 
 	@Override
@@ -33,14 +29,14 @@ public class NodeSizeByDegree extends GraphStyleRule {
 	}
 
 	@Override
-	public void onNodeWeightChange(Node n) {
+	public void onNodeWeightChange(Node n, Weight wNew, Weight wOld) {
 	}
 
 	@Override
 	public void onEdgeAddition(Edge e, Node n1, Node n2) {
-		// set growths
-		GraphStyleUtils.setGrowth(n1, this.index, calculateGrowth(n1));
-		GraphStyleUtils.setGrowth(n2, this.index, calculateGrowth(n2));
+		// increase size
+		GraphStyleUtils.increaseSize(n1, this.growthFactor);
+		GraphStyleUtils.increaseSize(n2, this.growthFactor);
 
 		// update node styles
 		GraphStyleUtils.updateStyle(n1);
@@ -49,9 +45,9 @@ public class NodeSizeByDegree extends GraphStyleRule {
 
 	@Override
 	public void onEdgeRemoval(Edge e, Node n1, Node n2) {
-		// set growths
-		GraphStyleUtils.setGrowth(n1, this.index, calculateGrowth(n1));
-		GraphStyleUtils.setGrowth(n2, this.index, calculateGrowth(n2));
+		// decrease size
+		GraphStyleUtils.decreaseSize(n1, this.growthFactor);
+		GraphStyleUtils.decreaseSize(n2, this.growthFactor);
 
 		// update node styles
 		GraphStyleUtils.updateStyle(n1);
@@ -59,12 +55,7 @@ public class NodeSizeByDegree extends GraphStyleRule {
 	}
 
 	@Override
-	public void onEdgeWeightChange(Edge e) {
-	}
-
-	/** Calculates the nodes size based on its degree. **/
-	protected double calculateGrowth(Node n) {
-		return n.getDegree() * this.growthFactor;
+	public void onEdgeWeightChange(Edge e, Weight wNew, Weight wOld) {
 	}
 
 	@Override
