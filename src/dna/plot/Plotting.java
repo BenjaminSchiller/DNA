@@ -4,8 +4,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 
-import dna.io.ZipReader;
-import dna.io.ZipWriter;
 import dna.io.filesystem.Dir;
 import dna.plot.PlottingConfig.PlotFlag;
 import dna.plot.data.PlotData.DistributionPlotType;
@@ -51,13 +49,35 @@ public class Plotting {
 		Log.info("plotting data from " + seriesData.length + " series to "
 				+ dstDir);
 
+		// check if aggregation exists
+		boolean noAggregation = false;
+		for (SeriesData sd : seriesData) {
+			if (sd.getAggregation() == null) {
+				noAggregation = true;
+				break;
+			}
+		}
+
 		// if more than 1 series, call multiple plot method
-		if (seriesData.length > 1)
-			Plotting.plotFromToMultipleSeries(seriesData, dstDir, config);
+		if (seriesData.length > 1) {
+			if (noAggregation) {
+				Log.warn("no aggregation found, plotting run.0 instead");
+				PlottingRun.plot(seriesData, new int[seriesData.length],
+						dstDir, config);
+			} else {
+				Plotting.plotFromToMultipleSeries(seriesData, dstDir, config);
+			}
+		}
 
 		// if single series, call single plot method
-		if (seriesData.length == 1)
-			Plotting.plotFromToSingleSeries(seriesData[0], dstDir, config);
+		if (seriesData.length == 1) {
+			if (noAggregation) {
+				Log.warn("no aggregation found, plotting runs");
+				PlottingRun.plot(seriesData[0], dstDir, config);
+			} else {
+				Plotting.plotFromToSingleSeries(seriesData[0], dstDir, config);
+			}
+		}
 
 		// if no series, print out warning
 		if (seriesData.length < 1)
@@ -231,12 +251,6 @@ public class Plotting {
 		NodeValueListOrderBy orderBy = config.getNvlOrderBy();
 		DistributionPlotType distPlotType = config.getDistPlotType();
 		String title = series.getName();
-		boolean zippedRuns = false;
-		boolean zippedBatches = false;
-		if (Config.get("GENERATION_AS_ZIP").equals("runs"))
-			zippedRuns = true;
-		if (Config.get("GENERATION_AS_ZIP").equals("batches"))
-			zippedBatches = true;
 		boolean plotDistributions = config.isPlotDistributions();
 		boolean plotNodeValues = config.isPlotNodeValueLists();
 
