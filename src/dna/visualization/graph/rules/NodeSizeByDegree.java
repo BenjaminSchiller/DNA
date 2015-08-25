@@ -37,10 +37,6 @@ public class NodeSizeByDegree extends GraphStyleRule {
 		// increase size
 		GraphStyleUtils.increaseSize(n1, this.growthFactor);
 		GraphStyleUtils.increaseSize(n2, this.growthFactor);
-
-		// update node styles
-		GraphStyleUtils.updateStyle(n1);
-		GraphStyleUtils.updateStyle(n2);
 	}
 
 	@Override
@@ -48,10 +44,6 @@ public class NodeSizeByDegree extends GraphStyleRule {
 		// decrease size
 		GraphStyleUtils.decreaseSize(n1, this.growthFactor);
 		GraphStyleUtils.decreaseSize(n2, this.growthFactor);
-
-		// update node styles
-		GraphStyleUtils.updateStyle(n1);
-		GraphStyleUtils.updateStyle(n2);
 	}
 
 	@Override

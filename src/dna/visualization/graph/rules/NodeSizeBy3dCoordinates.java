@@ -31,9 +31,6 @@ public class NodeSizeBy3dCoordinates extends GraphStyleRule {
 
 		GraphStyleUtils.increaseSize(n,
 				this.baseGrowth - Math.floor(z * this.shrinkFactor));
-
-		// update style
-		GraphStyleUtils.updateStyle(n);
 	}
 
 	@Override
