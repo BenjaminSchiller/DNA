@@ -532,10 +532,10 @@ public class GraphPanel extends JPanel {
 		Weight w = null;
 		if (n instanceof DirectedWeightedNode) {
 			w = ((DirectedWeightedNode) n).getWeight();
-			node.addAttribute(GraphVisualization.weightKey, w.toString());
+			node.addAttribute(GraphVisualization.weightKey, w);
 		} else if (n instanceof UndirectedWeightedNode) {
 			w = ((UndirectedWeightedNode) n).getWeight();
-			node.addAttribute(GraphVisualization.weightKey, w.toString());
+			node.addAttribute(GraphVisualization.weightKey, w);
 		}
 
 		// get and set position
@@ -661,10 +661,10 @@ public class GraphPanel extends JPanel {
 			// init weight
 			if (e instanceof DirectedWeightedEdge) {
 				Weight w = ((DirectedWeightedEdge) e).getWeight();
-				edge.addAttribute(GraphVisualization.weightKey, w.toString());
+				edge.addAttribute(GraphVisualization.weightKey, w);
 			} else if (e instanceof UndirectedWeightedEdge) {
 				Weight w = ((UndirectedWeightedEdge) e).getWeight();
-				edge.addAttribute(GraphVisualization.weightKey, w.toString());
+				edge.addAttribute(GraphVisualization.weightKey, w);
 			}
 
 			// update label
