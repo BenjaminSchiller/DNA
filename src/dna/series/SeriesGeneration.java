@@ -193,7 +193,7 @@ public class SeriesGeneration {
 	 * @throws IOException
 	 * @throws MetricNotApplicableException
 	 */
-	public static void generateRuns(Series series, int from, int to,
+	public static SeriesData generateRuns(Series series, int from, int to,
 			int batches, boolean compare, boolean write,
 			long batchGenerationTime) throws IOException,
 			MetricNotApplicableException {
@@ -203,6 +203,8 @@ public class SeriesGeneration {
 			SeriesGeneration.generateRun(series, from + i, batches, compare,
 					write, batchGenerationTime);
 		}
+
+		return SeriesData.read(series.getDir(), series.getName(), false, false);
 	}
 
 	/**
