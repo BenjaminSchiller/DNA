@@ -41,8 +41,6 @@ public class GraphVisualization {
 	public static final String antialiasKey = "ui.antialias";
 	public static final String colorKey = "dna.color";
 	public static final String sizeKey = "dna.size";
-	public static final String defaultSizeKey = "dna.default.size";
-	public static final String growthListKey = "dna.growth.list";
 	public static final String styleKey = "ui.style";
 	public static final String updateKey = "dna.update";
 	public static final String zKey = "dna.z";

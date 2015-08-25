@@ -1,7 +1,6 @@
 package dna.visualization.graph.rules;
 
 import java.awt.Color;
-import java.util.ArrayList;
 
 import org.graphstream.graph.Edge;
 import org.graphstream.graph.Node;
@@ -91,9 +90,7 @@ public class GraphStyleUtils {
 
 		// calc size
 		double size = (double) n.getAttribute(GraphVisualization.sizeKey);
-
-		if (size < 1)
-			size = 1;
+		size = size < 0 ? 0 : size;
 
 		style += "size: " + size + "px;";
 
@@ -112,16 +109,8 @@ public class GraphStyleUtils {
 		}
 
 		// calc size
-		double size = (double) e
-				.getAttribute(GraphVisualization.defaultSizeKey);
-
-		ArrayList<Double> growthList = e
-				.getAttribute(GraphVisualization.growthListKey);
-		for (double d : growthList)
-			size += d;
-
-		if (size < 1)
-			size = 1;
+		double size = (double) e.getAttribute(GraphVisualization.sizeKey);
+		size = size < 0 ? 0 : size;
 
 		style += "size: " + size + "px; ";
 

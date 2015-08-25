@@ -48,6 +48,7 @@ import dna.util.Log;
 import dna.visualization.VisualizationUtils;
 import dna.visualization.VisualizationUtils.VideoRecorder;
 import dna.visualization.graph.rules.GraphStyleRule;
+import dna.visualization.graph.rules.GraphStyleUtils;
 
 /**
  * The GraphPanel class is used as a JPanel which contains a text-panel and a
@@ -524,12 +525,8 @@ public class GraphPanel extends JPanel {
 		Node node = this.graph.addNode("" + n.getIndex());
 		node.addAttribute(GraphVisualization.sizeKey,
 				Config.getDouble("GRAPH_VIS_NODE_DEFAULT_SIZE"));
-		node.addAttribute(GraphVisualization.defaultSizeKey,
-				Config.getDouble("GRAPH_VIS_NODE_DEFAULT_SIZE"));
 		node.addAttribute(GraphVisualization.colorKey,
 				Config.getColor("GRAPH_VIS_NODE_DEFAULT_COLOR"));
-		node.addAttribute(GraphVisualization.growthListKey,
-				new ArrayList<Double>(0));
 
 		// init weight
 		Weight w = null;
@@ -572,6 +569,9 @@ public class GraphPanel extends JPanel {
 		// apply style rules
 		for (GraphStyleRule r : rules)
 			r.onNodeAddition(node);
+
+		// update style
+		GraphStyleUtils.updateStyle(node);
 	}
 
 	/** Removes node n from graph g. **/
@@ -580,6 +580,9 @@ public class GraphPanel extends JPanel {
 
 		for (GraphStyleRule r : rules)
 			r.onNodeRemoval(node);
+
+		// update style
+		GraphStyleUtils.updateStyle(node);
 	}
 
 	/** Changes node weight on node n IN CURRENT GRAPH!!. **/
@@ -629,6 +632,9 @@ public class GraphPanel extends JPanel {
 		// apply style rules
 		for (GraphStyleRule r : rules)
 			r.onNodeWeightChange(node, w, wOld);
+
+		// update style
+		GraphStyleUtils.updateStyle(node);
 	}
 
 	/*
@@ -672,9 +678,15 @@ public class GraphPanel extends JPanel {
 							+ "px;");
 
 			// apply style rules
+			Node node1 = this.graph.getNode("" + n1);
+			Node node2 = this.graph.getNode("" + n2);
 			for (GraphStyleRule r : rules)
-				r.onEdgeAddition(edge, this.graph.getNode("" + n1),
-						this.graph.getNode("" + n2));
+				r.onEdgeAddition(edge, node1, node2);
+
+			// update styles
+			GraphStyleUtils.updateStyle(edge);
+			GraphStyleUtils.updateStyle(node1);
+			GraphStyleUtils.updateStyle(node2);
 		}
 	}
 
@@ -689,9 +701,14 @@ public class GraphPanel extends JPanel {
 				.getEdgeBetween("" + n2));
 
 		// apply style rules
+		Node node1 = this.graph.getNode("" + n1);
+		Node node2 = this.graph.getNode("" + n2);
 		for (GraphStyleRule r : rules)
-			r.onEdgeRemoval(edge, this.graph.getNode("" + n1),
-					this.graph.getNode("" + n2));
+			r.onEdgeRemoval(edge, node1, node2);
+
+		// update styles
+		GraphStyleUtils.updateStyle(node1);
+		GraphStyleUtils.updateStyle(node2);
 	}
 
 	/** Changes edge weight on edge e IN CURRENT GRAPH!!. **/
@@ -714,6 +731,9 @@ public class GraphPanel extends JPanel {
 
 		for (GraphStyleRule r : rules)
 			r.onEdgeWeightChange(edge, w, wOld);
+
+		// update styles
+		GraphStyleUtils.updateStyle(edge);
 	}
 
 	/** Makes a video of the JFrame the panel is embedded in. **/
