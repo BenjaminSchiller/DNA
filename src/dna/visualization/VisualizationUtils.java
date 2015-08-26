@@ -60,8 +60,11 @@ public class VisualizationUtils {
 		try {
 			Robot robot = new Robot();
 
-			// get bounds from parentFrame
+			// get bounds from component
+			Point pos = c.getLocationOnScreen();
 			Rectangle captureRect = c.getBounds();
+			captureRect.setBounds(pos.x, pos.y, captureRect.width,
+					captureRect.height);
 			BufferedImage screenFullImage = robot
 					.createScreenCapture(captureRect);
 
