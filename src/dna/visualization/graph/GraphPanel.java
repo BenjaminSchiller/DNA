@@ -257,7 +257,7 @@ public class GraphPanel extends JPanel {
 		textPanel.add(recordAreasBox);
 
 		// get record area mode
-		switch (Config.get("GRAPH_VIS_VIDEO_RECORD_AREA")) {
+		switch (Config.get("GRAPH_VIS_DEFAULT_RECORD_AREA")) {
 		case "content":
 			this.setRecordArea(RecordArea.content);
 			recordAreasBox.setSelectedIndex(1);
