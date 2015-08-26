@@ -1,6 +1,8 @@
 package dna.visualization;
 
 import java.awt.AWTException;
+import java.awt.Component;
+import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.Robot;
 import java.awt.image.BufferedImage;
@@ -12,7 +14,6 @@ import java.util.Date;
 import java.util.Random;
 
 import javax.imageio.ImageIO;
-import javax.swing.JFrame;
 import javax.swing.JPanel;
 
 import org.monte.media.Buffer;
@@ -28,22 +29,22 @@ import dna.visualization.graph.GraphPanel;
 public class VisualizationUtils {
 
 	/** Capture a screenshot of the JFrame. **/
-	public static void captureScreenshot(JFrame srcFrame) {
-		VisualizationUtils.captureScreenshot(srcFrame,
+	public static void captureScreenshot(Component c) {
+		VisualizationUtils.captureScreenshot(c,
 				Config.get("GRAPH_VIS_SCREENSHOT_DIR"),
 				Config.get("GRAPH_VIS_SCREENSHOT_FORMAT"));
 	}
 
 	/** Capture a screenshot of the JFrame. **/
-	public static void captureScreenshot(JFrame srcFrame, String dstDir) {
-		VisualizationUtils.captureScreenshot(srcFrame, dstDir,
+	public static void captureScreenshot(Component c, String dstDir) {
+		VisualizationUtils.captureScreenshot(c, dstDir,
 				Config.get("GRAPH_VIS_SCREENSHOT_FORMAT"));
 	}
 
 	/** Capture a screenshot of the JFrame. **/
-	public static void captureScreenshot(JFrame srcFrame, String dstDir,
+	public static void captureScreenshot(Component c, String dstDir,
 			String format) {
-		String name = srcFrame.getTitle();
+		String name = c.getName();
 		String suffix = "." + format;
 
 		// create dir
@@ -60,7 +61,7 @@ public class VisualizationUtils {
 			Robot robot = new Robot();
 
 			// get bounds from parentFrame
-			Rectangle captureRect = srcFrame.getBounds();
+			Rectangle captureRect = c.getBounds();
 			BufferedImage screenFullImage = robot
 					.createScreenCapture(captureRect);
 
@@ -79,27 +80,27 @@ public class VisualizationUtils {
 		}
 	}
 
-	/** Captures a video from the given JFrame. **/
-	public static void captureVideo(JFrame srcFrame)
-			throws InterruptedException, IOException {
-		VisualizationUtils.captureVideo(srcFrame,
-				VisualizationUtils.getVideoPath(srcFrame.getTitle()));
+	/** Captures a video from the given Component. **/
+	public static void captureVideo(Component c) throws InterruptedException,
+			IOException {
+		VisualizationUtils.captureVideo(c,
+				VisualizationUtils.getVideoPath(c.getName()));
 	}
 
-	/** Captures a video from the given JFrame to the destination-path. **/
-	public static void captureVideo(JFrame srcFrame, String dstPath)
+	/** Captures a video from the given Component to the destination-path. **/
+	public static void captureVideo(Component c, String dstPath)
 			throws InterruptedException, IOException {
-		VisualizationUtils.captureVideo(srcFrame, dstPath,
+		VisualizationUtils.captureVideo(c, dstPath,
 				Config.getInt("GRAPH_VIS_VIDEO_MAXIMUM_LENGTH_IN_SECONDS"),
 				Config.getInt("GRAPH_VIS_VIDEO_DEFAULT_FPS"));
 	}
 
-	/** Captures a video from the given JFrame to the destination-path. **/
-	public static void captureVideo(JFrame srcFrame, String dstPath,
+	/** Captures a video from the given Component to the destination-path. **/
+	public static void captureVideo(Component c, String dstPath,
 			int timeInSeconds, int fps) throws InterruptedException,
 			IOException {
-		Log.info("capturing " + timeInSeconds + "s video from '"
-				+ srcFrame.getTitle() + "'");
+		Log.info("capturing " + timeInSeconds + "s video from '" + c.getName()
+				+ "'");
 		long screenshotInterval = (long) Math.floor(1000 / fps);
 
 		int amount = timeInSeconds * fps;
@@ -108,7 +109,7 @@ public class VisualizationUtils {
 
 		for (int i = 0; i < amount; i++) {
 			long start = System.currentTimeMillis();
-			images[i] = VisualizationUtils.getScreenshot(srcFrame);
+			images[i] = VisualizationUtils.getScreenshot(c);
 			long diff = System.currentTimeMillis() - start;
 			if (diff < screenshotInterval)
 				Thread.sleep(screenshotInterval - diff);
@@ -213,12 +214,15 @@ public class VisualizationUtils {
 	}
 
 	/** Captures a screenshot from the given JFrame. **/
-	public static BufferedImage getScreenshot(JFrame frame) {
+	public static BufferedImage getScreenshot(Component c) {
 		try {
 			Robot robot = new Robot();
 
-			// get bounds from parentFrame
-			Rectangle captureRect = frame.getBounds();
+			// get bounds from component
+			Point pos = c.getLocationOnScreen();
+			Rectangle captureRect = c.getBounds();
+			captureRect.setBounds(pos.x, pos.y, captureRect.width,
+					captureRect.height);
 			BufferedImage screenFullImage = robot
 					.createScreenCapture(captureRect);
 
@@ -241,7 +245,7 @@ public class VisualizationUtils {
 
 		protected JPanel callingPanel;
 
-		protected JFrame srcFrame;
+		protected Component srcComponent;
 		protected String dstPath;
 		protected int timeInSeconds;
 		protected int fps;
@@ -250,7 +254,7 @@ public class VisualizationUtils {
 		public void run() {
 			try {
 				// capture video
-				captureVideo(srcFrame, dstPath, timeInSeconds, fps);
+				captureVideo(srcComponent, dstPath, timeInSeconds, fps);
 
 				if (this.callingPanel != null) {
 					if (this.callingPanel instanceof GraphPanel)
@@ -286,26 +290,26 @@ public class VisualizationUtils {
 
 		/** Updates the destination path. **/
 		public void updateDestinationPath() {
-			this.dstPath = VisualizationUtils.getVideoPath(this.srcFrame
-					.getTitle());
+			this.dstPath = VisualizationUtils.getVideoPath(this.srcComponent
+					.getName());
 		}
 
-		public VideoRecorder(JPanel callingPanel, JFrame srcFrame) {
-			this(callingPanel, srcFrame, VisualizationUtils
-					.getVideoPath(srcFrame.getTitle()));
+		public VideoRecorder(JPanel callingPanel, Component srcComponent) {
+			this(callingPanel, srcComponent, VisualizationUtils
+					.getVideoPath(srcComponent.getName()));
 		}
 
-		public VideoRecorder(JPanel callingPanel, JFrame srcFrame,
+		public VideoRecorder(JPanel callingPanel, Component srcComponent,
 				String dstPath) {
-			this(callingPanel, srcFrame, dstPath, Config
+			this(callingPanel, srcComponent, dstPath, Config
 					.getInt("GRAPH_VIS_VIDEO_MAXIMUM_LENGTH_IN_SECONDS"),
 					Config.getInt("GRAPH_VIS_VIDEO_DEFAULT_FPS"));
 		}
 
-		public VideoRecorder(JPanel callingPanel, JFrame srcFrame,
+		public VideoRecorder(JPanel callingPanel, Component srcComponent,
 				String dstPath, int timeInSeconds, int fps) {
 			this.callingPanel = callingPanel;
-			this.srcFrame = srcFrame;
+			this.srcComponent = srcComponent;
 			this.dstPath = dstPath;
 			this.timeInSeconds = timeInSeconds;
 			this.fps = fps;
@@ -344,7 +348,7 @@ public class VisualizationUtils {
 		}
 
 		/** Captures a video from the given JFrame to the destination-path. **/
-		protected void captureVideo(JFrame srcFrame, String dstPath,
+		protected void captureVideo(Component c, String dstPath,
 				int timeInSeconds, int fps) throws InterruptedException,
 				IOException {
 			Log.info("GraphVis - capturing video to '" + dstPath + "'");
@@ -358,7 +362,9 @@ public class VisualizationUtils {
 			int seconds = 0;
 			for (int i = 0; i < amount; i++) {
 				long start = System.currentTimeMillis();
-				images[i] = VisualizationUtils.getScreenshot(srcFrame);
+
+				// take screenshot
+				images[i] = VisualizationUtils.getScreenshot(c);
 
 				// update progress approx. each second
 				counter++;
