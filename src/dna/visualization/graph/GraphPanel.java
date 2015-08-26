@@ -2,6 +2,7 @@ package dna.visualization.graph;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Point;
@@ -67,7 +68,6 @@ public class GraphPanel extends JPanel {
 
 	// name & graph
 	protected final JFrame parentFrame;
-	protected final String name;
 	protected final Graph graph;
 	protected final PositionMode mode;
 
@@ -76,6 +76,7 @@ public class GraphPanel extends JPanel {
 	protected int nextRuleIndex;
 
 	// panels
+	protected final JPanel graphView;
 	protected final JPanel textPanel;
 	protected final JLabel textLabel;
 	protected final JLabel zoomLabel;
@@ -149,7 +150,7 @@ public class GraphPanel extends JPanel {
 	public GraphPanel(JFrame parentFrame, final Graph graph, final String name,
 			PositionMode mode, ArrayList<GraphStyleRule> rules) {
 		this.parentFrame = parentFrame;
-		this.name = name;
+		this.setName(name);
 		this.graph = graph;
 		this.mode = mode;
 		this.rules = rules;
@@ -242,15 +243,16 @@ public class GraphPanel extends JPanel {
 		// get view
 		View view = v.addDefaultView(false);
 		this.view = view;
-		JPanel graphView = (JPanel) view;
+		this.graphView = (JPanel) view;
+		this.graphView.setName(name);
 
 		// main panel
 		this.setLayout(new BorderLayout());
-		this.add(graphView, BorderLayout.CENTER);
+		this.add(this.graphView, BorderLayout.CENTER);
 		this.add(textPanel, BorderLayout.PAGE_END);
 
 		// zoom
-		graphView.addMouseWheelListener(new MouseWheelListener() {
+		this.graphView.addMouseWheelListener(new MouseWheelListener() {
 
 			@Override
 			public void mouseWheelMoved(MouseWheelEvent arg0) {
@@ -283,7 +285,7 @@ public class GraphPanel extends JPanel {
 		});
 
 		// add listener for moving in graph
-		graphView.addMouseMotionListener(new MouseMotionListener() {
+		this.graphView.addMouseMotionListener(new MouseMotionListener() {
 
 			@Override
 			public void mouseMoved(MouseEvent arg0) {
@@ -365,63 +367,14 @@ public class GraphPanel extends JPanel {
 		return this.view.getCamera().getGraphDimension();
 	}
 
-	/** Makes a screenshot of the current graph. **/
-	public void makeScreenshotUsingGraphstream() {
-		String screenshotsDir = Config.get("GRAPH_VIS_SCREENSHOT_DIR");
-		String screenshotsSuffix = "."
-				+ Config.get("GRAPH_VIS_SCREENSHOT_FORMAT");
-		// create dir
-		File f = new File(screenshotsDir);
-		if (!f.exists() && !f.isFile())
-			f.mkdirs();
-
-		// get date format
-		DateFormat df = new SimpleDateFormat("yyyy_MM_dd-HH_mm_ss");
-
-		String filename = name + "-" + df.format(new Date());
-		String path = screenshotsDir + filename;
-
-		// get name
-		File f2 = new File(path + screenshotsSuffix);
-		int id = 0;
-		while (f2.exists()) {
-			id++;
-			f2 = new File(path + "_" + id + screenshotsSuffix);
-		}
-
-		// create screenshot
-		graph.addAttribute(GraphVisualization.screenshotsKey,
-				f2.getAbsolutePath());
-		Log.info("GraphVis - saving screenshot to '" + f2.getPath() + "'");
-	}
-
-	/** Makes a screenshot of the current JFrame. **/
-	public void makeScreenshot(boolean waitForStabilization) {
-		if (waitForStabilization) {
-			long start = System.currentTimeMillis();
-			long timeout = Config
-					.getInt("GRAPH_VIS_SCREENSHOT_STABILITY_TIMEOUT");
-			double stabilityThreshold = Config
-					.getDouble("GRAPH_VIS_SCREENSHOT_STABILITY_THRESHOLD");
-
-			// while not stable or timeout not reached, wait
-			while ((this.getLayouter().getStabilization() < stabilityThreshold)
-					&& ((System.currentTimeMillis() - start) < timeout)) {
-				try {
-					Thread.sleep(100);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
-			}
-		}
-
-		// capture screenshot
-		VisualizationUtils.captureScreenshot(this.parentFrame);
-	}
-
 	/** Returns the parent frame this GraphPanel is embedded in. **/
 	public JFrame getParentFrame() {
 		return this.parentFrame;
+	}
+
+	/** Returns the JPanel containing only the graph-view. **/
+	public JPanel getGraphView() {
+		return this.graphView;
 	}
 
 	/** Returns the embedded graphstream.graph. **/
@@ -736,15 +689,88 @@ public class GraphPanel extends JPanel {
 		GraphStyleUtils.updateStyle(edge);
 	}
 
+	/** Makes a screenshot of the current graph. **/
+	public void makeScreenshotUsingGraphstream() {
+		String screenshotsDir = Config.get("GRAPH_VIS_SCREENSHOT_DIR");
+		String screenshotsSuffix = "."
+				+ Config.get("GRAPH_VIS_SCREENSHOT_FORMAT");
+		// create dir
+		File f = new File(screenshotsDir);
+		if (!f.exists() && !f.isFile())
+			f.mkdirs();
+
+		// get date format
+		DateFormat df = new SimpleDateFormat("yyyy_MM_dd-HH_mm_ss");
+
+		String filename = this.getName() + "-" + df.format(new Date());
+		String path = screenshotsDir + filename;
+
+		// get name
+		File f2 = new File(path + screenshotsSuffix);
+		int id = 0;
+		while (f2.exists()) {
+			id++;
+			f2 = new File(path + "_" + id + screenshotsSuffix);
+		}
+
+		// create screenshot
+		graph.addAttribute(GraphVisualization.screenshotsKey,
+				f2.getAbsolutePath());
+		Log.info("GraphVis - saving screenshot to '" + f2.getPath() + "'");
+	}
+
+	/** Makes a screenshot of the current JFrame. **/
+	public void makeScreenshot(boolean waitForStabilization) {
+		if (waitForStabilization) {
+			long start = System.currentTimeMillis();
+			long timeout = Config
+					.getInt("GRAPH_VIS_SCREENSHOT_STABILITY_TIMEOUT");
+			double stabilityThreshold = Config
+					.getDouble("GRAPH_VIS_SCREENSHOT_STABILITY_THRESHOLD");
+
+			// while not stable or timeout not reached, wait
+			while ((this.getLayouter().getStabilization() < stabilityThreshold)
+					&& ((System.currentTimeMillis() - start) < timeout)) {
+				try {
+					Thread.sleep(100);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+
+		// capture screenshot
+		VisualizationUtils.captureScreenshot(this.getRecordComponent());
+	}
+
 	/** Makes a video of the JFrame the panel is embedded in. **/
 	public void makeVideo() throws InterruptedException, IOException {
 		this.recordingStarted();
-		if (this.videoRecorder == null)
-			this.videoRecorder = new VideoRecorder(this, this.parentFrame);
-		else
+		if (this.videoRecorder == null) {
+			this.videoRecorder = new VideoRecorder(this,
+					this.getRecordComponent());
+		} else
 			this.videoRecorder.updateDestinationPath();
 
 		this.videoRecorder.start();
+	}
+
+	/** Returns the component that should be recorded. **/
+	protected Component getRecordComponent() {
+		Component c;
+		String mode = Config.get("GRAPH_VIS_VIDEO_RECORD_AREA");
+		switch (mode) {
+		case "content":
+			c = this;
+			break;
+		case "graph":
+			c = this.graphView;
+			break;
+		default:
+			c = this.getParentFrame();
+			break;
+		}
+		return c;
 	}
 
 	/** Stops the current video recording prematurely. **/
