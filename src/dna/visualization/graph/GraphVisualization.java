@@ -112,6 +112,7 @@ public class GraphVisualization {
 
 		// create main frame
 		mainFrame.add(panel);
+		mainFrame.setName(name);
 		mainFrame.setTitle(name);
 		mainFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		mainFrame.setSize(size);
