@@ -297,6 +297,11 @@ public class VisualizationUtils {
 					.getName());
 		}
 
+		/** Updates the recording component. **/
+		public void updateSourceComponent(Component srcComponent) {
+			this.srcComponent = srcComponent;
+		}
+
 		public VideoRecorder(JPanel callingPanel, Component srcComponent) {
 			this(callingPanel, srcComponent, VisualizationUtils
 					.getVideoPath(srcComponent.getName()));

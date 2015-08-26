@@ -23,6 +23,7 @@ import java.util.Date;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -61,6 +62,10 @@ public class GraphPanel extends JPanel {
 		twoDimension, threeDimension, auto
 	};
 
+	public enum RecordArea {
+		full, content, graph
+	};
+
 	private static final long serialVersionUID = 1L;
 
 	// font
@@ -82,9 +87,11 @@ public class GraphPanel extends JPanel {
 	protected final JLabel zoomLabel;
 	protected final Layout layouter;
 	protected final JButton captureButton;
+	protected final JButton screenshotButton;
 	protected Color captureButtonFontColor;
 	protected Color captureButtonFontColorRecording = new Color(200, 30, 30);
 	protected View view;
+	protected final JComboBox<String> recordAreasBox;
 
 	// speed factors
 	protected double zoomSpeedFactor = Config.getDouble("GRAPH_VIS_ZOOM_SPEED");
@@ -97,6 +104,7 @@ public class GraphPanel extends JPanel {
 	// recording
 	protected boolean recording;
 	protected VideoRecorder videoRecorder;
+	protected RecordArea recordArea;
 
 	// enable 3d projection
 	protected boolean enable3dProjection = Config
@@ -182,20 +190,21 @@ public class GraphPanel extends JPanel {
 		textPanel.add(zoomLabel);
 
 		// screenshot button
-		JButton screenshotButton = new JButton("Screenshot");
+		this.screenshotButton = new JButton("Screenshot");
 		screenshotButton.setPreferredSize(new Dimension(100, 25));
 		screenshotButton.setFont(new Font(font.getName(), font.getStyle(), font
 				.getSize() - 3));
 		screenshotButton
 				.setToolTipText("Captures a screenshot and saves it to '"
 						+ Config.get("GRAPH_VIS_SCREENSHOT_DIR") + "'");
-		textPanel.add(screenshotButton);
+		screenshotButton.setFocusPainted(false);
 		screenshotButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				makeScreenshot(false);
 			}
 		});
+		textPanel.add(screenshotButton);
 
 		this.captureButton = new JButton("Video");
 		captureButton.setPreferredSize(new Dimension(100, 25));
@@ -203,8 +212,8 @@ public class GraphPanel extends JPanel {
 				.getSize() - 3));
 		captureButton.setToolTipText("Captures a video and saves it to '"
 				+ Config.get("GRAPH_VIS_VIDEO_DIR") + "'");
+		this.captureButton.setFocusPainted(false);
 		this.captureButtonFontColor = captureButton.getForeground();
-		textPanel.add(captureButton);
 		captureButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -218,6 +227,50 @@ public class GraphPanel extends JPanel {
 				}
 			}
 		});
+		textPanel.add(captureButton);
+
+		String[] strings = { "Full", "Content", "Graph" };
+		this.recordAreasBox = new JComboBox<String>(strings);
+		recordAreasBox.setPrototypeDisplayValue("Content");
+		recordAreasBox
+				.setToolTipText("Selects the area that will be captured.");
+		recordAreasBox.setPreferredSize(new Dimension(75, 25));
+		recordAreasBox.setMaximumSize(recordAreasBox.getPreferredSize());
+		recordAreasBox.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				@SuppressWarnings("unchecked")
+				JComboBox<String> box = (JComboBox<String>) e.getSource();
+				switch ((String) box.getSelectedItem()) {
+				case "Content":
+					setRecordArea(RecordArea.content);
+					break;
+				case "Graph":
+					setRecordArea(RecordArea.graph);
+					break;
+				default:
+					setRecordArea(RecordArea.full);
+					break;
+				}
+			}
+		});
+		textPanel.add(recordAreasBox);
+
+		// get record area mode
+		switch (Config.get("GRAPH_VIS_VIDEO_RECORD_AREA")) {
+		case "content":
+			this.setRecordArea(RecordArea.content);
+			recordAreasBox.setSelectedIndex(1);
+			break;
+		case "graph":
+			this.setRecordArea(RecordArea.graph);
+			recordAreasBox.setSelectedIndex(2);
+			break;
+		default:
+			this.setRecordArea(RecordArea.full);
+			recordAreasBox.setSelectedIndex(0);
+			break;
+		}
 
 		// create viewer and show graph
 		Viewer v = new Viewer(graph,
@@ -424,6 +477,16 @@ public class GraphPanel extends JPanel {
 		textLabel.setText(text);
 	}
 
+	/** Returns the record area. **/
+	public RecordArea getRecordArea() {
+		return this.recordArea;
+	}
+
+	/** Sets the record area. **/
+	public void setRecordArea(RecordArea recordArea) {
+		this.recordArea = recordArea;
+	}
+
 	/** Records the min/max coordinates for each dimension. **/
 	public void statRecord(float[] coords) {
 		if (!Double.isNaN(minX)) {
@@ -500,7 +563,7 @@ public class GraphPanel extends JPanel {
 			float[] coords = GraphVisualization.getCoordsFromWeight(w);
 
 			// keep record of min/max coordinates
-			statRecord(coords);
+			// statRecord(coords);
 
 			// if 3d projection is enabled, project coordinates
 			if (this.enable3dProjection) {
@@ -558,7 +621,7 @@ public class GraphPanel extends JPanel {
 			float[] coords = GraphVisualization.getCoordsFromWeight(w);
 
 			// keep record of min/max coordinates
-			statRecord(coords);
+			// statRecord(coords);
 
 			// if 3d projection is enabled, project coordinates
 			if (this.enable3dProjection) {
@@ -749,8 +812,10 @@ public class GraphPanel extends JPanel {
 		if (this.videoRecorder == null) {
 			this.videoRecorder = new VideoRecorder(this,
 					this.getRecordComponent());
-		} else
+		} else {
 			this.videoRecorder.updateDestinationPath();
+			this.videoRecorder.updateSourceComponent(this.getRecordComponent());
+		}
 
 		this.videoRecorder.start();
 	}
@@ -758,16 +823,18 @@ public class GraphPanel extends JPanel {
 	/** Returns the component that should be recorded. **/
 	protected Component getRecordComponent() {
 		Component c;
-		String mode = Config.get("GRAPH_VIS_VIDEO_RECORD_AREA");
-		switch (mode) {
-		case "content":
+		switch (this.recordArea) {
+		case full:
+			c = this.parentFrame;
+			break;
+		case content:
 			c = this;
 			break;
-		case "graph":
+		case graph:
 			c = this.graphView;
 			break;
 		default:
-			c = this.getParentFrame();
+			c = this.parentFrame;
 			break;
 		}
 		return c;
