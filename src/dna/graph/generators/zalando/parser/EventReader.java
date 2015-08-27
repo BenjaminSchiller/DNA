@@ -24,19 +24,6 @@ public class EventReader {
 		this.readerLog = new RawFileReader(pathLog, isGzippedLog);
 	}
 
-	private void readProducts(String path, boolean isGzipped) {
-		final RawFileReader readerProducts = new RawFileReader(path, isGzipped);
-		String line = null;
-		while ((line = readerProducts.readLine()) != null) {
-			try {
-				final Product p = new Product(line);
-				this.products.put(p.getProductID(), p);
-			} catch (Exception e) {
-				Log.warn("Failure while creating Product with line of current data. Line ommitted and jumped to the next.");
-			}
-		}
-	}
-
 	public Event readNext() {
 		final String line = this.readerLog.readLine();
 
@@ -61,6 +48,19 @@ public class EventReader {
 		}
 
 		return null;
+	}
+
+	private void readProducts(String path, boolean isGzipped) {
+		final RawFileReader readerProducts = new RawFileReader(path, isGzipped);
+		String line = null;
+		while ((line = readerProducts.readLine()) != null) {
+			try {
+				final Product p = new Product(line);
+				this.products.put(p.getProductID(), p);
+			} catch (Exception e) {
+				Log.warn("Failure while creating Product with line of current data. Line ommitted and jumped to the next.");
+			}
+		}
 	}
 
 }

@@ -17,7 +17,7 @@ public class UndirectedZalandoNode extends UndirectedNode implements
 			EventColumn[] type) {
 		super(index, gds);
 		this.type = type;
-		
+
 	}
 
 	public UndirectedZalandoNode(String str, GraphDataStructure gds) {
@@ -26,8 +26,8 @@ public class UndirectedZalandoNode extends UndirectedNode implements
 	}
 
 	@Override
-	public String toString() {
-		return super.toString() + " "
+	public String asString() {
+		return Integer.toString(this.index) + " "
 				+ ZalandoNode.eventColumnsArrayToString(this.getType());
 	}
 
@@ -37,8 +37,8 @@ public class UndirectedZalandoNode extends UndirectedNode implements
 	}
 
 	@Override
-	public String asString() {
-		return Integer.toString(this.index) + " "
+	public String toString() {
+		return super.toString() + " "
 				+ ZalandoNode.eventColumnsArrayToString(this.getType());
 	}
 }

@@ -18,6 +18,24 @@ public class LogEntry {
 
 	private int price_reduction;
 
+	public LogEntry(int day_number, int user, String session,
+			int[] product_ids, LogEntryColumn.Actions action, int quantity,
+			int price_reduction) {
+		this.day_number = day_number;
+
+		this.user = user;
+
+		this.session = session;
+
+		this.product_ids = product_ids;
+
+		this.action = action;
+
+		this.quantity = quantity;
+
+		this.price_reduction = price_reduction;
+	}
+
 	/*
 	 * Examples for logDataLines: "d-31 u-1 u-1_5 p-1971499 VIEW - -" and
 	 * "d-31 u-1 u-1_5 p-1444438,p-2060654,p-1865573 RECOPDS - -"
@@ -41,11 +59,11 @@ public class LogEntry {
 		}
 
 		/*
-		 * Previously session was set to
-		 *    this.session = Line.getNumber2(columns[2]);
-		 * But session ids are not globally but only locally (per user) unique.
-		 * So, for globally unique session ids, we use the string without "u-",
-		 * e.g. 174532_12 identifies the 12th session of user 174532.
+		 * Previously session was set to this.session =
+		 * Line.getNumber2(columns[2]); But session ids are not globally but
+		 * only locally (per user) unique. So, for globally unique session ids,
+		 * we use the string without "u-", e.g. 174532_12 identifies the 12th
+		 * session of user 174532.
 		 */
 		this.session = Line.getString2(columns[2]);
 
@@ -61,23 +79,6 @@ public class LogEntry {
 
 		this.price_reduction = columns[6].equals("-") ? -1 : Integer
 				.valueOf(columns[6]);
-	}
-
-	public LogEntry(int day_number, int user, String session, int[] product_ids,
-			LogEntryColumn.Actions action, int quantity, int price_reduction) {
-		this.day_number = day_number;
-
-		this.user = user;
-
-		this.session = session;
-
-		this.product_ids = product_ids;
-
-		this.action = action;
-
-		this.quantity = quantity;
-
-		this.price_reduction = price_reduction;
 	}
 
 	public LogEntryColumn.Actions getAction() {
@@ -110,8 +111,9 @@ public class LogEntry {
 
 	@Override
 	public String toString() {
-		return ("d-" + day_number + "\t" + "u-" + user + "\t" + "u-" + session + "\t" + "p-" + product_ids[0] + "\t" + action
-				+ "\t" + (quantity == -1 ? "-" : quantity) + "\t"
+		return ("d-" + day_number + "\t" + "u-" + user + "\t" + "u-" + session
+				+ "\t" + "p-" + product_ids[0] + "\t" + action + "\t"
+				+ (quantity == -1 ? "-" : quantity) + "\t"
 				+ (price_reduction == -1 ? "-" : price_reduction) + System
 					.lineSeparator());
 	}

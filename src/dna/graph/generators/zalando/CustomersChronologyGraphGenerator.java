@@ -23,20 +23,13 @@ public class CustomersChronologyGraphGenerator extends
 	 *            {@link Old_EventReader}.
 	 */
 	public CustomersChronologyGraphGenerator(ZalandoGraphDataStructure gds,
-			long timestampInit, int maxNumberOfEvents, String pathProducts, boolean isGzippedProducts, String pathLog,
-			boolean isGzippedLog) {
-		super(
-				"CustomersChronology",
-				gds,
-				timestampInit,
-				null,
-				maxNumberOfEvents,
-				pathProducts, isGzippedProducts, pathLog,
-				isGzippedLog,
-				new EventColumn[] { EventColumn.USER },
-				true,
-				new EventColumn[] { EventColumn.PRODUCTFAMILYID, EventColumn.ACTION },
-				true, true);
+			long timestampInit, int maxNumberOfEvents, String pathProducts,
+			boolean isGzippedProducts, String pathLog, boolean isGzippedLog) {
+		super("CustomersChronology", gds, timestampInit, null,
+				maxNumberOfEvents, pathProducts, isGzippedProducts, pathLog,
+				isGzippedLog, new EventColumn[] { EventColumn.USER }, true,
+				new EventColumn[] { EventColumn.PRODUCTFAMILYID,
+						EventColumn.ACTION }, true, true);
 	}
 
 }

@@ -40,14 +40,13 @@ public class Line {
 	public static int getNumber2(String column) {
 		return Integer.valueOf(column.replaceAll("\\w-\\d*_", ""));
 	}
-	
+
 	/**
-	 * Takes any string of type [CHARACTER][MINUS][STRING],
-	 * e.g. "p-6_2" and returns the string "6_2".
+	 * Takes any string of type [CHARACTER][MINUS][STRING], e.g. "p-6_2" and
+	 * returns the string "6_2".
 	 * 
 	 * @param column
-	 *            A string of type
-	 *            [CHARACTER][MINUS][STRING]
+	 *            A string of type [CHARACTER][MINUS][STRING]
 	 * @return The second string in the given string.
 	 */
 	public static String getString2(String column) {

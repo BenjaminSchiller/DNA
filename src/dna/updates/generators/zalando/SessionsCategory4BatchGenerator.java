@@ -38,9 +38,8 @@ public class SessionsCategory4BatchGenerator extends
 				pathProducts, isGzippedProducts, pathLog, isGzippedLog,
 				new EventColumn[] { EventColumn.SESSION,
 						EventColumn.COMMODITYGROUP4 }, true, new EventColumn[] {
-						EventColumn.SESSION,
-						EventColumn.COMMODITYGROUP4 }, true, false,
-				omitFirstEvents);
+						EventColumn.SESSION, EventColumn.COMMODITYGROUP4 },
+				true, false, omitFirstEvents);
 	}
 
 	/**

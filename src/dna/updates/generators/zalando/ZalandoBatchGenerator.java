@@ -161,10 +161,13 @@ public abstract class ZalandoBatchGenerator extends BatchGenerator {
 	 */
 	private Map<Edge, EdgeWeight> edgeWeights;
 
-	// TODO Doku
+	/* for batch-day-mapping */
 	private Map<Long, Long> timestampsAndDays;
 
-	// TODO Doku
+	/**
+	 * Number of events in logs to ignore. Is 0 if all events should be used.
+	 * Refers always to the beginning of logs.
+	 */
 	private int omitFirstEvents;
 
 	/**
@@ -258,11 +261,62 @@ public abstract class ZalandoBatchGenerator extends BatchGenerator {
 		this.edgeWeights = new HashMap<Edge, EdgeWeight>();
 
 		this.timestampsAndDays = new HashMap<Long, Long>();
-		
+
 		this.omitFirstEvents = 0;
 	}
 
-	// TODO Doku
+	/**
+	 * Initializes the {@link ZalandoGraphGenerator}.
+	 * 
+	 * @param name
+	 *            The name of the graph to generate. The final name will be
+	 *            <i>Zalando</i>{@code name}<i>Directed</i> or <i>Zalando</i>
+	 *            {@code name}<i>Undirected</i>, depending on {@code gds}.
+	 * @param gds
+	 *            The {@link GraphDataStructure} of the graph to generate.
+	 * @param timestampInit
+	 *            The time right before start creating the graph.
+	 * @param eventFilter
+	 *            If this is set to an {@link EventFilter} != {@code null}, all
+	 *            {@link Old_Event}s must pass it in order to be used for graph
+	 *            generation. All {@link Old_Event}s are used if this is
+	 *            {@code null}.
+	 * @param numberOfLinesPerBatch
+	 *            The maximum number of {@code Event}s used for each batch. It
+	 *            is the <u>maximum</u> number because the log file may have
+	 *            fewer lines.
+	 * @param eventsFilepath
+	 *            The full path of the Zalando log file. Will be passed to
+	 *            {@link Old_EventReader}.
+	 * @param columnsToAddAsNodes
+	 *            The {@link Old_EventColumn}s of an event which values will be
+	 *            represented as nodes in the graph.
+	 * @param oneNodeForEachColumn
+	 *            If this is true, each value of each
+	 *            {@code columnsToAddAsNodes} will be a single node (e.g.
+	 *            <i>Product1</i>, <i>SALE</i>). If this is false each value of
+	 *            all {@code columnsToAddAsNodes} together will be a single node
+	 *            (e.g. <i>Product1|SALE</i>).
+	 * @param columnsToCheckForEquality
+	 *            The {@link Old_EventColumn}s of an event which values will be
+	 *            represented as edges in the graph.
+	 * @param allColumnsMustBeEqual
+	 *            If this is true, all the values of all
+	 *            {@code columnsToCheckForEquality} must be equal for the nodes
+	 *            of two events to add an edge between those two events. If this
+	 *            is false, at least one value of all
+	 *            {@code columnsToCheckForEquality} must be equal.
+	 * @param absoluteWeights
+	 *            If this is true, the weight of an edge is the number of
+	 *            relations represented by the edge between the two nodes
+	 *            connected by this edge. So it is greater if the two nodes have
+	 *            much in common. If this is false, the weight is the inverse of
+	 *            this number. So two nodes are "close together" if they have
+	 *            much in common.
+	 * @param omitFirstEvents
+	 *            Number of events in logs to ignore. Set to 0 if all events
+	 *            should be used. Refers always to the beginning of logs.
+	 */
 	public ZalandoBatchGenerator(String name, ZalandoGraphDataStructure gds,
 			long timestampInit, EventFilter eventFilter,
 			int numberOfLinesPerBatch, String pathProducts,
@@ -276,7 +330,7 @@ public abstract class ZalandoBatchGenerator extends BatchGenerator {
 				columnsToAddAsNodes, oneNodeForEachColumn,
 				columnsToCheckForEquality, allColumnsMustBeEqual,
 				absoluteWeights);
-		
+
 		this.omitFirstEvents = omitFirstEvents;
 	}
 
@@ -760,7 +814,6 @@ public abstract class ZalandoBatchGenerator extends BatchGenerator {
 				continue;
 			}
 
-			// TODO Doku
 			if ((from + currentNumberOfEvents) <= this.omitFirstEvents - 1) {
 				continue;
 			}
@@ -771,7 +824,6 @@ public abstract class ZalandoBatchGenerator extends BatchGenerator {
 
 			this.addEdgesForColumns(g, currentEvent);
 
-			// TODO Doku
 			this.timestampsAndDays.put(to,
 					Long.valueOf(currentEvent.get(EventColumn.DAYNUMBER)));
 		}
@@ -790,7 +842,9 @@ public abstract class ZalandoBatchGenerator extends BatchGenerator {
 		return b;
 	}
 
-	// TODO Doku
+	/**
+	 * @return {@link #timestampsAndDays}
+	 */
 	public Map<Long, Long> getTimestampsForGeneratedBatches() {
 		return this.timestampsAndDays;
 	}
