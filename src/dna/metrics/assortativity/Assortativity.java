@@ -47,13 +47,6 @@ import dna.util.parameters.StringParameter;
 public abstract class Assortativity extends Metric implements IMetric {
 
 	/**
-	 * To check equality of metrics in {@link #equals(IMetric)}, the
-	 * assortativity coefficient {@link #r} is compared. This value is the
-	 * allowed difference of two values to still accept them as equal.
-	 */
-	public static final double ACCEPTED_ERROR_FOR_EQUALITY = 1.0E-4;
-
-	/**
 	 * Setting for {@link Parameter} "DirectedDegreeType".
 	 */
 	public static enum DirectedDegreeType {
@@ -86,6 +79,13 @@ public abstract class Assortativity extends Metric implements IMetric {
 			return this.param;
 		}
 	}
+
+	/**
+	 * To check equality of metrics in {@link #equals(IMetric)}, the
+	 * assortativity coefficient {@link #r} is compared. This value is the
+	 * allowed difference of two values to still accept them as equal.
+	 */
+	public static final double ACCEPTED_ERROR_FOR_EQUALITY = 1.0E-4;
 
 	/**
 	 * Is either "out" (default) or "in", depending on the {@link Parameter} in
