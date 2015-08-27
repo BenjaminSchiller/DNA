@@ -44,11 +44,6 @@ public class LogEntry {
 
 		final String[] columns = logDataLine.split("\\t");
 
-		// System.out.print(logDataLine + " => " );
-		// for (String c : columns)
-		// System.out.print(c + " |");
-		// System.out.println();
-
 		this.day_number = Line.getNumber1(columns[0]);
 
 		this.user = Line.getNumber1(columns[1]);

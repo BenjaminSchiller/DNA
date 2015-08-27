@@ -1,5 +1,7 @@
 package dna.graph.generators.zalando.data;
 
+import dna.util.Log;
+
 public class Event {
 
 	private Product product;
@@ -9,8 +11,8 @@ public class Event {
 	public Event(Product product, LogEntry logEntry) {
 
 		if (product == null)
-			System.err.println("null product at day "
-					+ logEntry.getDay_number() + " (in logs)");
+			Log.error("null product at day " + logEntry.getDay_number()
+					+ " (in logs)");
 
 		this.product = product;
 		this.logEntry = logEntry;

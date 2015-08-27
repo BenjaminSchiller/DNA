@@ -107,7 +107,6 @@ public abstract class Jaccard extends Measures {
 			return this.computeForUndirectedUnweightedGraph();
 
 		}
-		System.err.println("Fehler!");
 		return false;
 	}
 
