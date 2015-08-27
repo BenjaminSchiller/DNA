@@ -22,7 +22,7 @@ public class HoneyCombGraph extends GraphGenerator {
 
 	public HoneyCombGraph(GraphDataStructure gds, int combsX, int combsY,
 			ClosedType closedType) {
-		super("HoneyCombGraph", new Parameter[] {
+		super(buildName("HoneyCombGraph", gds), new Parameter[] {
 				new IntParameter("CombsX", combsX),
 				new IntParameter("CombsY", combsY),
 				new StringParameter("ClosedType", closedType.toString()) },

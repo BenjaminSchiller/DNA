@@ -13,9 +13,8 @@ public class StarGraph extends GraphGenerator {
 	private int nodes;
 
 	public StarGraph(GraphDataStructure gds, int nodes) {
-		super("StarGraph",
-				new Parameter[] { new IntParameter("Nodes", nodes) }, gds, 0,
-				nodes, nodes - 1);
+		super(buildName("StarGraph", gds), new Parameter[] { new IntParameter(
+				"Nodes", nodes) }, gds, 0, nodes, nodes - 1);
 		this.nodes = nodes;
 	}
 
