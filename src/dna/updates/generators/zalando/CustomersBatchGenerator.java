@@ -23,8 +23,10 @@ public class CustomersBatchGenerator extends ZalandoEqualityBatchGenerator {
 	 *            {@link Old_EventReader}.
 	 */
 	public CustomersBatchGenerator(ZalandoGraphDataStructure gds,
-			long timestampInit, String filterProperties, int numberOfLinesPerBatch, String pathProducts,
-			boolean isGzippedProducts, String pathLog, boolean isGzippedLog, int omitFirstEvents) {
+			long timestampInit, String filterProperties,
+			int numberOfLinesPerBatch, String pathProducts,
+			boolean isGzippedProducts, String pathLog, boolean isGzippedLog,
+			int omitFirstEvents) {
 		super("Customers", gds, timestampInit, EventFilter
 				.fromFile(filterProperties)
 		/* new DefaultEventFilter() /* null */, numberOfLinesPerBatch,

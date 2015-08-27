@@ -80,7 +80,8 @@ public class ZalandoEqualityBatchGenerator extends ZalandoBatchGenerator {
 			boolean isGzippedLog, EventColumn[] columnsToAddAsNodes,
 			boolean oneNodeForEachColumn,
 			EventColumn[] columnsToCheckForEquality,
-			boolean allColumnsMustBeEqual, boolean absoluteWeights, int omitFirstEvents) {
+			boolean allColumnsMustBeEqual, boolean absoluteWeights,
+			int omitFirstEvents) {
 		super(name, gds, timestampInit, eventFilter, numberOfLinesPerBatch,
 				pathProducts, isGzippedProducts, pathLog, isGzippedLog,
 				columnsToAddAsNodes, oneNodeForEachColumn,

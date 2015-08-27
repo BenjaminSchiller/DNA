@@ -16,9 +16,11 @@ public class DefaultEventFilter extends EventFilter {
 		this.addExclusion(EventColumn.ACTION, "WISH");
 		this.addExclusion(EventColumn.ACTION, "DELETE_FROM_CART");
 		this.addExclusion(EventColumn.ACTION, "DELETE_FROM_WISHLIST");
-		
-		this.addExclusion(EventColumn.ACTION, "RECOPDS"); // no user triggered event
-		this.addExclusion(EventColumn.ACTION, "VIEWRECO"); // no user triggered event
+
+		this.addExclusion(EventColumn.ACTION, "RECOPDS"); // no user triggered
+															// event
+		this.addExclusion(EventColumn.ACTION, "VIEWRECO"); // no user triggered
+															// event
 
 		// commodity groups
 

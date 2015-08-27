@@ -16,19 +16,6 @@ public class RawFileWriter {
 	private OutputStreamWriter outputStreamWriter;
 	private BufferedWriter bufferedWriter;
 
-	private void initGzFile(String path) throws IOException {
-		this.fileOutputStream = new FileOutputStream(path);
-		this.gzipOutputStream = new GZIPOutputStream(this.fileOutputStream);
-		this.outputStreamWriter = new OutputStreamWriter(this.gzipOutputStream);
-		this.bufferedWriter = new BufferedWriter(this.outputStreamWriter);
-	}
-
-	private void initFile(String path) throws FileNotFoundException {
-		this.fileOutputStream = new FileOutputStream(path);
-		this.outputStreamWriter = new OutputStreamWriter(this.fileOutputStream);
-		this.bufferedWriter = new BufferedWriter(this.outputStreamWriter);
-	}
-
 	public RawFileWriter(String path, boolean isGzipped) {
 		try {
 			if (isGzipped)
@@ -77,6 +64,19 @@ public class RawFileWriter {
 				Log.warn("Could not close FileOutputStream.");
 			}
 		}
+	}
+
+	private void initFile(String path) throws FileNotFoundException {
+		this.fileOutputStream = new FileOutputStream(path);
+		this.outputStreamWriter = new OutputStreamWriter(this.fileOutputStream);
+		this.bufferedWriter = new BufferedWriter(this.outputStreamWriter);
+	}
+
+	private void initGzFile(String path) throws IOException {
+		this.fileOutputStream = new FileOutputStream(path);
+		this.gzipOutputStream = new GZIPOutputStream(this.fileOutputStream);
+		this.outputStreamWriter = new OutputStreamWriter(this.gzipOutputStream);
+		this.bufferedWriter = new BufferedWriter(this.outputStreamWriter);
 	}
 
 	public String writeLine(String line) {

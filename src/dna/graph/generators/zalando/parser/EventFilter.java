@@ -2,6 +2,7 @@ package dna.graph.generators.zalando.parser;
 
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.Properties;
 
 import dna.graph.generators.zalando.HashSetMap;
@@ -22,8 +23,41 @@ import dna.util.Log;
  */
 public class EventFilter {
 
+	/**
+	 * Creates a filter with permeability and exclusions defined in a properties
+	 * file.
+	 * 
+	 * @param properties
+	 *            File path
+	 * @return An {@link EventFilter} as defined in given file.
+	 */
+	public static EventFilter fromFile(String properties) {
+		Properties p = new Properties();
+		InputStreamReader is;
+		try {
+			is = new InputStreamReader(new FileInputStream(properties), "UTF-8");
+			p.load(is);
+		} catch (IOException e) {
+			Log.error("Failure while loading filter properties. "
+					+ "Returning null (results in usage of unfiltered data).");
+			return null;
+		}
+
+		final boolean permeable = Boolean.valueOf(p.getProperty("permeable"));
+
+		final EventFilter f = new EventFilter(permeable);
+
+		final String[] exclusions = p.getProperty("exclusions").split(";");
+		for (String e : exclusions) {
+			String[] e_ = e.split(",");
+			f.addExclusion(EventColumn.valueOf(e_[0]), e_[1]);
+		}
+
+		return f;
+	}
 	/** If this is true, all {@link Old_Event}s passes this filter by default. */
 	private boolean permeable;
+
 	/**
 	 * All values for the {@link Old_EventColumn}s that possibly annul
 	 * {@link #permeable}.
@@ -47,6 +81,9 @@ public class EventFilter {
 	EventFilter(boolean permeable) {
 		this.permeable = permeable;
 		this.exclusions = new HashSetMap<EventColumn, Object>();
+
+		Log.info("Initialized EventFilter which is"
+				+ (this.permeable ? " " : " not ") + "permeable.");
 	}
 
 	/**
@@ -61,6 +98,10 @@ public class EventFilter {
 	 */
 	void addExclusion(EventColumn eventColumn, Object value) {
 		this.exclusions.add(eventColumn, value);
+
+		Log.info("EventFilter will " + (this.permeable ? "block" : "allow")
+				+ " events with value '" + value + "' in column '"
+				+ eventColumn + "'.");
 	}
 
 	/**
@@ -93,6 +134,18 @@ public class EventFilter {
 				break;
 		}
 
+		// boolean female = Boolean.parseBoolean(event
+		// .get(EventColumn.GENDERFEMALE))
+		// && (!Boolean.parseBoolean(event.get(EventColumn.GENDERMALE)));
+		// boolean male = (!Boolean.parseBoolean(event
+		// .get(EventColumn.GENDERFEMALE)))
+		// && Boolean.parseBoolean(event.get(EventColumn.GENDERMALE));
+		// boolean unisex = Boolean.parseBoolean(event
+		// .get(EventColumn.GENDERFEMALE))
+		// && Boolean.parseBoolean(event.get(EventColumn.GENDERMALE));
+		// if (!(female || unisex))
+		// return false;
+
 		if (this.permeable) {
 			if (exclusionsExist)
 				return !eventCoveredByExclusions;
@@ -118,32 +171,9 @@ public class EventFilter {
 	 */
 	void removeExclusion(EventColumn eventColumn, Object value) {
 		this.exclusions.remove(eventColumn, value, true);
+
+		Log.info("EventFilter will not " + (this.permeable ? "block" : "allow")
+				+ " vents with value '" + value + "' in column '" + eventColumn
+				+ "' anymore.");
 	}
-
-	// TODOD Doku
-	public static EventFilter fromFile(String properties) {
-		Properties p = new Properties();
-		FileInputStream fis;
-		try {
-			fis = new FileInputStream(properties);
-			p.load(fis);
-		} catch (IOException e) {
-			Log.error("Failure while loading filter properties. "
-					+ "Returning null (results in usage of unfiltered data).");
-			return null;
-		}
-
-		final boolean permeable = Boolean.valueOf(p.getProperty("permeable"));
-
-		final EventFilter f = new EventFilter(permeable);
-
-		final String[] exclusions = p.getProperty("exclusions").split(";");
-		for (String e : exclusions) {
-			String[] e_ = e.split(",");
-			f.addExclusion(EventColumn.valueOf(e_[0]), e_[1]);
-		}
-
-		return f;
-	}
-
 }

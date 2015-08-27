@@ -7,10 +7,10 @@ public enum ProductEntryColumn {
 
 	// product identification
 	PRODUCTID, PRODUCTFAMILYID,
-	
+
 	// brand
 	BRAND,
-	
+
 	// visual features
 	COLOR,
 

@@ -26,7 +26,8 @@ public class CustomersChronologyBatchGenerator extends
 	public CustomersChronologyBatchGenerator(ZalandoGraphDataStructure gds,
 			long timestampInit, String filterProperties,
 			int numberOfLinesPerBatch, String pathProducts,
-			boolean isGzippedProducts, String pathLog, boolean isGzippedLog, int omitFirstEvents) {
+			boolean isGzippedProducts, String pathLog, boolean isGzippedLog,
+			int omitFirstEvents) {
 		super("CustomersChronology", gds, timestampInit, EventFilter
 				.fromFile(filterProperties)
 		/* new DefaultEventFilter() /* null */, numberOfLinesPerBatch,

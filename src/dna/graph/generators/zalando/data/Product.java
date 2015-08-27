@@ -28,35 +28,6 @@ public class Product {
 
 	private int priceLevel;
 
-	public Product(String productsDescriptionsLine) {
-		final String[] columns = productsDescriptionsLine.split(";");
-
-		this.productID = Line.getNumber1(columns[0]);
-
-		this.productFamilyID = Line.getNumber1(columns[1]);
-
-		this.brand = Line.getNumber1(columns[2]);
-
-		this.color = columns[3];
-
-		this.commodityGroup1 = columns[4];
-		this.commodityGroup2 = columns[5];
-		this.commodityGroup3 = columns[6];
-		this.commodityGroup4 = columns[7];
-		this.commodityGroup5 = columns[8];
-
-		this.ageGroupAdult = Line.stringToBool(columns[9]);
-		this.ageGroupBaby = Line.stringToBool(columns[10]);
-		this.ageGroupTeen = Line.stringToBool(columns[11]);
-		this.ageGroupKid = Line.stringToBool(columns[12]);
-
-		this.genderMale = Line.stringToBool(columns[13]);
-		this.genderFemale = Line.stringToBool(columns[14]);
-
-		this.priceLevel = columns.length == 16 ? Integer.valueOf(columns[15])
-				: -1;
-	}
-
 	public Product(int productID, int productFamilyID, int brand, String color,
 			String commodityGroup1, String commodityGroup2,
 			String commodityGroup3, String commodityGroup4,
@@ -86,6 +57,35 @@ public class Product {
 		this.genderFemale = genderFemale;
 
 		this.priceLevel = priveLevel;
+	}
+
+	public Product(String productsDescriptionsLine) {
+		final String[] columns = productsDescriptionsLine.split(";");
+
+		this.productID = Line.getNumber1(columns[0]);
+
+		this.productFamilyID = Line.getNumber1(columns[1]);
+
+		this.brand = Line.getNumber1(columns[2]);
+
+		this.color = columns[3];
+
+		this.commodityGroup1 = columns[4];
+		this.commodityGroup2 = columns[5];
+		this.commodityGroup3 = columns[6];
+		this.commodityGroup4 = columns[7];
+		this.commodityGroup5 = columns[8];
+
+		this.ageGroupAdult = Line.stringToBool(columns[9]);
+		this.ageGroupBaby = Line.stringToBool(columns[10]);
+		this.ageGroupTeen = Line.stringToBool(columns[11]);
+		this.ageGroupKid = Line.stringToBool(columns[12]);
+
+		this.genderMale = Line.stringToBool(columns[13]);
+		this.genderFemale = Line.stringToBool(columns[14]);
+
+		this.priceLevel = columns.length == 16 ? Integer.valueOf(columns[15])
+				: -1;
 	}
 
 	public boolean getAgeGroupAdult() {

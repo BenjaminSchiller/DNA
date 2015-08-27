@@ -19,19 +19,6 @@ public class RawFileReader {
 
 	private BufferedReader bufferedReader;
 
-	private void initGzFile(String path) throws IOException {
-		this.fileInputStream = new FileInputStream(path);
-		this.gzipInputStream = new GZIPInputStream(this.fileInputStream);
-		this.inputStreamReader = new InputStreamReader(this.gzipInputStream);
-		this.bufferedReader = new BufferedReader(this.inputStreamReader);
-	}
-
-	private void initFile(String path) throws FileNotFoundException {
-		this.fileInputStream = new FileInputStream(path);
-		this.inputStreamReader = new InputStreamReader(this.fileInputStream);
-		this.bufferedReader = new BufferedReader(this.inputStreamReader);		
-	}
-
 	public RawFileReader(String path, boolean isGzipped) {
 		try {
 			if (isGzipped)
@@ -82,6 +69,19 @@ public class RawFileReader {
 		}
 	}
 
+	private void initFile(String path) throws FileNotFoundException {
+		this.fileInputStream = new FileInputStream(path);
+		this.inputStreamReader = new InputStreamReader(this.fileInputStream);
+		this.bufferedReader = new BufferedReader(this.inputStreamReader);
+	}
+
+	private void initGzFile(String path) throws IOException {
+		this.fileInputStream = new FileInputStream(path);
+		this.gzipInputStream = new GZIPInputStream(this.fileInputStream);
+		this.inputStreamReader = new InputStreamReader(this.gzipInputStream);
+		this.bufferedReader = new BufferedReader(this.inputStreamReader);
+	}
+
 	public String readLine() {
 		if (this.bufferedReader == null) {
 			// reader is closed
@@ -102,7 +102,7 @@ public class RawFileReader {
 			this.close();
 			return null;
 		}
-		
+
 		return line;
 	}
 
