@@ -27,29 +27,6 @@ public class Matrix {
 	}
 
 	public boolean equals(Matrix m, double faultTolerance) {
-		// TODO remove following if-clause
-		if ((!this.values.keySet().containsAll(m.values.keySet()))
-				|| (!m.values.keySet().containsAll(this.values.keySet()))) {
-			int inThisButNotInM = 0;
-			for (Node n : this.values.keySet()) {
-				if (!m.values.keySet().contains(n)) {
-					inThisButNotInM++;
-					if (n.getDegree() > 0)
-						System.err.println("e.g. " + n + " in this.values but not in m.values");
-				}
-			}
-			int inMButNotInThis = 0;
-			for (Node n : m.values.keySet()) {
-				if (!this.values.keySet().contains(n)) {
-					inMButNotInThis++;
-					if (n.getDegree() > 0)
-					System.err.println("e.g. " + n + " in m.values but not in this.values");
-				}
-			}
-//			System.out.println(inThisButNotInM + " nodes in this but not in m");
-//			System.out.println(inMButNotInThis + " nodes in m but not in this");
-		}
-
 		boolean equals;
 		for (Node element1 : this.values.keySet()) {
 			for (Node element2 : this.values.keySet()) {
@@ -70,7 +47,6 @@ public class Matrix {
 			}
 		}
 		return true;
-
 	}
 
 	@Override
