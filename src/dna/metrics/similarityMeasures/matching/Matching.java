@@ -47,6 +47,24 @@ import dna.util.parameters.StringParameter;
  */
 public abstract class Matching extends Metric implements IMetric {
 	/**
+	 * Setting for {@link Parameter} "ComputeDistributionWithoutMatrixDiagonal".
+	 */
+	public static enum ComputeDistributionWithoutMatrixDiagonal {
+		IGNORE_DIAGONAL("without_diagonal"), USE_DIAGONAL("with_diagonal");
+
+		private final StringParameter param;
+
+		ComputeDistributionWithoutMatrixDiagonal(String value) {
+			this.param = new StringParameter(
+					"ComputeDistributionWithoutMatrixDiagonal", value);
+		}
+
+		public StringParameter StringParameter() {
+			return this.param;
+		}
+	}
+
+	/**
 	 * Setting for {@link Parameter} "DirectedDegreeType".
 	 */
 	public static enum DirectedDegreeType {
@@ -81,22 +99,11 @@ public abstract class Matching extends Metric implements IMetric {
 	}
 
 	/**
-	 * Setting for {@link Parameter} "ComputeDistributionWithoutMatrixDiagonal".
+	 * To check equality of metrics in {@link #equals(IMetric)}, the
+	 * assortativity coefficient {@link #r} is compared. This value is the
+	 * allowed difference of two values to still accept them as equal.
 	 */
-	public static enum ComputeDistributionWithoutMatrixDiagonal {
-		IGNORE_DIAGONAL("without_diagonal"), USE_DIAGONAL("with_diagonal");
-
-		private final StringParameter param;
-
-		ComputeDistributionWithoutMatrixDiagonal(String value) {
-			this.param = new StringParameter(
-					"ComputeDistributionWithoutMatrixDiagonal", value);
-		}
-
-		public StringParameter StringParameter() {
-			return this.param;
-		}
-	}
+	public static final double ACCEPTED_ERROR_FOR_EQUALITY = 1.0E-4;
 
 	/**
 	 * Is either "out" (default) or "in", depending on the {@link Parameter} in
@@ -105,13 +112,6 @@ public abstract class Matching extends Metric implements IMetric {
 	 * outdegree and is ignored for undirected graphs.
 	 */
 	DirectedDegreeType directedDegreeType;
-
-	/**
-	 * To check equality of metrics in {@link #equals(IMetric)}, the
-	 * assortativity coefficient {@link #r} is compared. This value is the
-	 * allowed difference of two values to still accept them as equal.
-	 */
-	public static final double ACCEPTED_ERROR_FOR_EQUALITY = 1.0E-4;
 
 	/**
 	 * Is either "unweighted" (default) or "weighted", depending on the
@@ -138,6 +138,12 @@ public abstract class Matching extends Metric implements IMetric {
 	protected BinnedDistributionLong binnedDistributionEveryNodeToOtherNodes;
 
 	protected BinnedDistributionLong matchingD;
+
+	/**
+	 * Contain's the node types ({@link EventColumn}) for which the matching
+	 * should be calculated.
+	 */
+	protected EventColumn[] type;
 
 	/**
 	 * Initializes {@link Matching}. Implicitly sets degree type for directed
@@ -224,12 +230,6 @@ public abstract class Matching extends Metric implements IMetric {
 		this.computeDistributionWithoutMatrixDiagonal = computeDistributionWithoutMatrixDiagonal;
 		this.type = type;
 	}
-
-	/**
-	 * Contain's the node types ({@link EventColumn}) for which the matching
-	 * should be calculated.
-	 */
-	protected EventColumn[] type;
 
 	/**
 	 * Static computation of the matching similarity.
@@ -455,9 +455,10 @@ public abstract class Matching extends Metric implements IMetric {
 			for (IElement iElement2 : nodesOfGraph) {
 				node2 = (UndirectedNode) iElement2;
 				if (nodeIndex2 < nodeIndex1
-						|| (type != null && node2 instanceof UndirectedZalandoNode && !ZalandoNode
-								.nodeIsOfType((UndirectedZalandoNode) node2,
-										type))) {
+						|| (type != null
+								&& node2 instanceof UndirectedZalandoNode && !ZalandoNode
+									.nodeIsOfType(
+											(UndirectedZalandoNode) node2, type))) {
 					// matching is equal to equivalent calculated before
 					// (matching(1,2) = matching(2,1))
 					nodeIndex2++;

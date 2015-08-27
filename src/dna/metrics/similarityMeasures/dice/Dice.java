@@ -319,8 +319,7 @@ public abstract class Dice extends Measures {
 	public Distribution[] getDistributions() {
 
 		this.binnedDistributionEveryNodeToOtherNodes = new BinnedDistributionLong(
-				"BinnedDiceEveryNodeToOtherNodes", 0.01, new long[] {},
-				0);
+				"BinnedDiceEveryNodeToOtherNodes", 0.01, new long[] {}, 0);
 
 		for (IElement iterable_element : this.g.getNodes()) {
 
@@ -399,11 +398,10 @@ public abstract class Dice extends Measures {
 		this.result = new Matrix();
 		this.amountOfNeighbors = new HashMap<Node, Double>();
 		this.matching = new Matrix();
-		this.binnedDistribution = new BinnedDistributionLong(
-				"BinnedDice", 0.01, new long[] {}, 0);
+		this.binnedDistribution = new BinnedDistributionLong("BinnedDice",
+				0.01, new long[] {}, 0);
 		this.binnedDistributionEveryNodeToOtherNodes = new BinnedDistributionLong(
-				"BinnedDiceEveryNodeToOtherNodes", 0.01, new long[] {},
-				0);
+				"BinnedDiceEveryNodeToOtherNodes", 0.01, new long[] {}, 0);
 	}
 
 	@Override
@@ -419,11 +417,10 @@ public abstract class Dice extends Measures {
 		this.result = new Matrix();
 		this.amountOfNeighbors = new HashMap<Node, Double>();
 		this.matching = new Matrix();
-		this.binnedDistribution = new BinnedDistributionLong(
-				"BinnedDice", 0.01, new long[] {}, 0);
+		this.binnedDistribution = new BinnedDistributionLong("BinnedDice",
+				0.01, new long[] {}, 0);
 		this.binnedDistributionEveryNodeToOtherNodes = new BinnedDistributionLong(
-				"BinnedDiceEveryNodeToOtherNodes", 0.01, new long[] {},
-				0);
+				"BinnedDiceEveryNodeToOtherNodes", 0.01, new long[] {}, 0);
 	}
 
 }
