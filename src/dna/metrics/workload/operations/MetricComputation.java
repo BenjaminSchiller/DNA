@@ -1,6 +1,6 @@
 package dna.metrics.workload.operations;
 
-import dna.graph.Graph;
+import dna.graph.IGraph;
 import dna.metrics.algorithms.IRecomputation;
 import dna.metrics.workload.Operation;
 import dna.util.parameters.StringParameter;
@@ -16,7 +16,7 @@ public class MetricComputation extends Operation {
 	}
 
 	@Override
-	protected void createWorkloadV(Graph g) {
+	protected void createWorkloadV(IGraph g) {
 		this.metric.setGraph(g);
 		this.metric.reset();
 		this.metric.recompute();

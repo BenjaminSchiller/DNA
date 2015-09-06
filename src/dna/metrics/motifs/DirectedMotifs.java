@@ -2,8 +2,8 @@ package dna.metrics.motifs;
 
 import java.util.HashSet;
 
-import dna.graph.Graph;
 import dna.graph.IElement;
+import dna.graph.IGraph;
 import dna.graph.edges.DirectedEdge;
 import dna.graph.nodes.DirectedNode;
 import dna.metrics.IMetric;
@@ -80,7 +80,7 @@ public abstract class DirectedMotifs extends Metric {
 	}
 
 	@Override
-	public boolean isApplicable(Graph g) {
+	public boolean isApplicable(IGraph g) {
 		return g.getGraphDatastructures().isNodeType(DirectedNode.class);
 	}
 

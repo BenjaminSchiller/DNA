@@ -1,6 +1,6 @@
 package dna.updates.update;
 
-import dna.graph.Graph;
+import dna.graph.IGraph;
 import dna.graph.datastructures.GraphDataStructure;
 import dna.graph.nodes.INode;
 import dna.graph.nodes.Node;
@@ -16,7 +16,7 @@ public class NodeAddition extends NodeUpdate {
 	}
 
 	@Override
-	public boolean apply_(Graph g) {
+	public boolean apply_(IGraph g) {
 		return g.addNode((Node) this.node);
 	}
 

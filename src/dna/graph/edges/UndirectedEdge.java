@@ -3,7 +3,7 @@ package dna.graph.edges;
 import java.util.HashMap;
 
 import dna.graph.Element;
-import dna.graph.Graph;
+import dna.graph.IGraph;
 import dna.graph.nodes.Node;
 import dna.graph.nodes.UndirectedNode;
 import dna.updates.update.Update;
@@ -35,7 +35,7 @@ public class UndirectedEdge extends Edge {
 	 *            graph this undirected edge is belonging to (required to obtain
 	 *            node object pointers)
 	 */
-	public UndirectedEdge(String s, Graph g) {
+	public UndirectedEdge(String s, IGraph g) {
 		String[] temp = s.contains(UndirectedEdge.separator) ? s
 				.split(UndirectedEdge.separator) : s
 				.split(Update.EdgeSeparator);
@@ -50,7 +50,7 @@ public class UndirectedEdge extends Edge {
 		this.init(node1, node2);
 	}
 
-	public UndirectedEdge(String s, Graph g, HashMap<Integer, Node> addedNodes) {
+	public UndirectedEdge(String s, IGraph g, HashMap<Integer, Node> addedNodes) {
 		String[] temp = s.contains(UndirectedEdge.separator) ? s
 				.split(UndirectedEdge.separator) : s
 				.split(Update.EdgeSeparator);

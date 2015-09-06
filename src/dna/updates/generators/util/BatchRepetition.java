@@ -1,6 +1,6 @@
 package dna.updates.generators.util;
 
-import dna.graph.Graph;
+import dna.graph.IGraph;
 import dna.updates.batch.Batch;
 import dna.updates.generators.BatchGenerator;
 
@@ -36,7 +36,7 @@ public class BatchRepetition extends BatchGenerator {
 	}
 
 	@Override
-	public Batch generate(Graph g) {
+	public Batch generate(IGraph g) {
 		Batch b = this.getNext().generate(g);
 		this.index = (index + 1) % this.total;
 		return b;
@@ -59,7 +59,7 @@ public class BatchRepetition extends BatchGenerator {
 	}
 
 	@Override
-	public boolean isFurtherBatchPossible(Graph g) {
+	public boolean isFurtherBatchPossible(IGraph g) {
 		return this.getNext().isFurtherBatchPossible(g);
 	}
 

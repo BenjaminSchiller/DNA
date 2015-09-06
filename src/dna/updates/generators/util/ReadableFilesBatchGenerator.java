@@ -2,7 +2,7 @@ package dna.updates.generators.util;
 
 import java.io.File;
 
-import dna.graph.Graph;
+import dna.graph.IGraph;
 import dna.io.BatchReader;
 import dna.updates.batch.Batch;
 import dna.updates.generators.BatchGenerator;
@@ -40,11 +40,11 @@ public class ReadableFilesBatchGenerator extends BatchGenerator {
 	}
 
 	@Override
-	public Batch generate(Graph g) {
+	public Batch generate(IGraph g) {
 		return BatchReader.read(this.dir, this.getFilename(g), g);
 	}
 
-	protected String getFilename(Graph g) {
+	protected String getFilename(IGraph g) {
 		switch (this.filenameType) {
 		case CURRENT_TIMESTAMP:
 			return this.prefix + g.getTimestamp() + this.suffix;
@@ -60,7 +60,7 @@ public class ReadableFilesBatchGenerator extends BatchGenerator {
 	}
 
 	@Override
-	public boolean isFurtherBatchPossible(Graph g) {
+	public boolean isFurtherBatchPossible(IGraph g) {
 		return (new File(this.dir + this.getFilename(g))).exists();
 	}
 

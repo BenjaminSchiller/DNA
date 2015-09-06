@@ -1,6 +1,6 @@
 package dna.updates.generators.util;
 
-import dna.graph.Graph;
+import dna.graph.IGraph;
 import dna.graph.datastructures.GraphDataStructure;
 import dna.graph.weights.IWeighted;
 import dna.graph.weights.Weight;
@@ -30,7 +30,7 @@ public class BatchWeights extends BatchGenerator {
 	}
 
 	@Override
-	public Batch generate(Graph g) {
+	public Batch generate(IGraph g) {
 		Batch b = this.bg.generate(g);
 		GraphDataStructure gds = g.getGraphDatastructures();
 
@@ -56,7 +56,7 @@ public class BatchWeights extends BatchGenerator {
 	}
 
 	@Override
-	public boolean isFurtherBatchPossible(Graph g) {
+	public boolean isFurtherBatchPossible(IGraph g) {
 		return this.bg.isFurtherBatchPossible(g);
 	}
 

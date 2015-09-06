@@ -8,7 +8,7 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.Random;
 
-import dna.graph.Graph;
+import dna.graph.IGraph;
 import dna.graph.IElement;
 import dna.graph.datastructures.DataStructure.ListType;
 import dna.graph.datastructures.GDS;
@@ -255,7 +255,7 @@ public class RuntimeMeasurement {
 		GraphGenerator gg = new RandomGraph(getGDS(this.dt), (this.steps + 1)
 				* this.stepSize, 0);
 		Counting.init(gg.getGds());
-		Graph g = gg.generate();
+		IGraph g = gg.generate();
 		Node[] nodes = new Node[g.getNodeCount()];
 		int index = 0;
 		for (IElement n_ : g.getNodes()) {
@@ -269,7 +269,7 @@ public class RuntimeMeasurement {
 				* Math.max(this.stepSize / 10, 1), (this.steps + 1)
 				* this.stepSize);
 		Counting.init(gg.getGds());
-		Graph g = gg.generate();
+		IGraph g = gg.generate();
 		Edge[] edges = new Edge[g.getEdgeCount()];
 		int index = 0;
 		for (IElement e_ : g.getEdges()) {

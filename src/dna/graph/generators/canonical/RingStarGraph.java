@@ -1,6 +1,6 @@
 package dna.graph.generators.canonical;
 
-import dna.graph.Graph;
+import dna.graph.IGraph;
 import dna.graph.datastructures.GraphDataStructure;
 import dna.graph.edges.Edge;
 import dna.graph.generators.GraphGenerator;
@@ -23,8 +23,8 @@ public class RingStarGraph extends GraphGenerator {
 	}
 
 	@Override
-	public Graph generate() {
-		Graph g = this.newGraphInstance();
+	public IGraph generate() {
+		IGraph g = this.newGraphInstance();
 
 		Node center = this.gds.newNodeInstance(0);
 		g.addNode(center);
@@ -43,18 +43,18 @@ public class RingStarGraph extends GraphGenerator {
 		return g;
 	}
 
-	protected void connect(Graph g, Node src, Node dst) {
+	protected void connect(IGraph g, Node src, Node dst) {
 		Edge e = this.gds.newEdgeInstance(src, dst);
 		g.addEdge(e);
 		e.connectToNodes();
 	}
 
-	protected void add(Graph g, Node center, Node n) {
+	protected void add(IGraph g, Node center, Node n) {
 		g.addNode(n);
 		this.connect(g, center, n);
 	}
 
-	protected void add(Graph g, Node center, Node previous, Node n) {
+	protected void add(IGraph g, Node center, Node previous, Node n) {
 		g.addNode(n);
 		this.connect(g, center, n);
 		this.connect(g, previous, n);

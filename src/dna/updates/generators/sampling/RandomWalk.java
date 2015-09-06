@@ -2,7 +2,7 @@ package dna.updates.generators.sampling;
 
 import java.util.ArrayList;
 
-import dna.graph.Graph;
+import dna.graph.IGraph;
 import dna.graph.nodes.Node;
 import dna.updates.generators.sampling.startNode.StartNodeSelectionStrategy;
 import dna.util.Rand;
@@ -36,7 +36,7 @@ public class RandomWalk extends SamplingAlgorithm {
 	 *            the parameters which makes this algorithm unique and which
 	 *            will be added to the name
 	 */
-	public RandomWalk(Graph fullGraph,
+	public RandomWalk(IGraph fullGraph,
 			StartNodeSelectionStrategy startNodeStrategy, int costPerBatch,
 			int resource, SamplingStop stop, WalkingType walkingType) {
 		super("RW", fullGraph, startNodeStrategy, costPerBatch, resource, stop,

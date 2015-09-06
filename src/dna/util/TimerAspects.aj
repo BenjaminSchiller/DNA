@@ -2,7 +2,7 @@ package dna.util;
 
 import java.util.HashMap;
 
-import dna.graph.Graph;
+import dna.graph.IGraph;
 import dna.graph.datastructures.config.DSConfig;
 import dna.graph.datastructures.hotswap.Hotswap;
 import dna.graph.generators.GraphGenerator;
@@ -50,11 +50,11 @@ public aspect TimerAspects {
 			call(* IGraphGenerator+.generate(..))
 			);
 
-	Graph around(GraphGenerator gg) : graphGeneration(gg) {
+	IGraph around(GraphGenerator gg) : graphGeneration(gg) {
 		// System.out.println("GENERATING graph  " + gg.getName());
 
 		Timer t = new Timer(SeriesStats.graphGenerationRuntime);
-		Graph res = proceed(gg);
+		IGraph res = proceed(gg);
 		t.end();
 		this.graphGeneration = t;
 		return res;

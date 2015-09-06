@@ -1,6 +1,6 @@
 package dna.graph.generators.canonical;
 
-import dna.graph.Graph;
+import dna.graph.IGraph;
 import dna.graph.datastructures.GraphDataStructure;
 import dna.graph.edges.Edge;
 import dna.graph.generators.GraphGenerator;
@@ -33,8 +33,8 @@ public class HoneyCombGraph extends GraphGenerator {
 	}
 
 	@Override
-	public Graph generate() {
-		Graph g = this.newGraphInstance();
+	public IGraph generate() {
+		IGraph g = this.newGraphInstance();
 
 		HoneyComb[][] hcs = new HoneyComb[combsX][combsY];
 		for (int x = 0; x < combsX; x++) {
@@ -63,7 +63,7 @@ public class HoneyCombGraph extends GraphGenerator {
 		return g;
 	}
 
-	protected void connect(Graph g, HoneyComb[] row1, HoneyComb[] row2) {
+	protected void connect(IGraph g, HoneyComb[] row1, HoneyComb[] row2) {
 		for (int i = 0; i < row1.length; i++) {
 			Node src = row1[i].bottom;
 			Node dst = row2[i].top;
@@ -73,13 +73,13 @@ public class HoneyCombGraph extends GraphGenerator {
 		}
 	}
 
-	protected void connect(Graph g, HoneyComb hc1, HoneyComb hc2) {
+	protected void connect(IGraph g, HoneyComb hc1, HoneyComb hc2) {
 		Edge e = this.gds.newEdgeInstance(hc1.bottom, hc2.top);
 		g.addEdge(e);
 		e.connectToNodes();
 	}
 
-	protected HoneyComb[] createRow(Graph g, GraphDataStructure gds, int count) {
+	protected HoneyComb[] createRow(IGraph g, GraphDataStructure gds, int count) {
 		HoneyComb[] row = new HoneyComb[count];
 		row[0] = new HoneyComb(g, gds);
 		for (int i = 1; i < row.length; i++) {
@@ -96,7 +96,7 @@ public class HoneyCombGraph extends GraphGenerator {
 		public Node bottomRight;
 		public Node bottom;
 
-		public HoneyComb(Graph g, GraphDataStructure gds) {
+		public HoneyComb(IGraph g, GraphDataStructure gds) {
 			top = addNode(g, gds);
 			topLeft = addNode(g, gds);
 			topRight = addNode(g, gds);
@@ -112,7 +112,7 @@ public class HoneyCombGraph extends GraphGenerator {
 			connect(g, gds, topRight, bottomRight);
 		}
 
-		public HoneyComb(Graph g, GraphDataStructure gds, HoneyComb leftHC) {
+		public HoneyComb(IGraph g, GraphDataStructure gds, HoneyComb leftHC) {
 			top = addNode(g, gds);
 			topLeft = leftHC.topRight;
 			topRight = addNode(g, gds);
@@ -127,13 +127,13 @@ public class HoneyCombGraph extends GraphGenerator {
 			connect(g, gds, topRight, bottomRight);
 		}
 
-		protected static Node addNode(Graph g, GraphDataStructure gds) {
+		protected static Node addNode(IGraph g, GraphDataStructure gds) {
 			Node n = gds.newNodeInstance(g.getNodeCount());
 			g.addNode(n);
 			return n;
 		}
 
-		protected static void connect(Graph g, GraphDataStructure gds,
+		protected static void connect(IGraph g, GraphDataStructure gds,
 				Node src, Node dst) {
 			Edge e = gds.newEdgeInstance(src, dst);
 			g.addEdge(e);

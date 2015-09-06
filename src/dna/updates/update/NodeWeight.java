@@ -1,6 +1,6 @@
 package dna.updates.update;
 
-import dna.graph.Graph;
+import dna.graph.IGraph;
 import dna.graph.weights.IWeightedNode;
 import dna.graph.weights.Weight;
 
@@ -17,7 +17,7 @@ public class NodeWeight extends NodeUpdate {
 		this.weight = weight;
 	}
 
-	public NodeWeight(String str, Graph g) {
+	public NodeWeight(String str, IGraph g) {
 		super(null);
 		String[] temp = str.split(Update.WeightDelimiter);
 		this.node = g.getNode(Integer.parseInt(temp[0]));
@@ -25,7 +25,7 @@ public class NodeWeight extends NodeUpdate {
 	}
 
 	@Override
-	public boolean apply_(Graph g) {
+	public boolean apply_(IGraph g) {
 		((IWeightedNode) this.node).setWeight(this.weight);
 		return true;
 	}

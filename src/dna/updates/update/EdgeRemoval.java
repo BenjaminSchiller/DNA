@@ -1,6 +1,6 @@
 package dna.updates.update;
 
-import dna.graph.Graph;
+import dna.graph.IGraph;
 import dna.graph.datastructures.GraphDataStructure;
 import dna.graph.edges.DirectedEdge;
 import dna.graph.edges.Edge;
@@ -14,19 +14,19 @@ public class EdgeRemoval extends EdgeUpdate {
 		super(edge);
 	}
 
-	public EdgeRemoval(String str, GraphDataStructure gds, Graph g) {
+	public EdgeRemoval(String str, GraphDataStructure gds, IGraph g) {
 		super(
 				g.getEdge(g.getNode(Integer.parseInt(str
 						.split(Update.EdgeSeparator)[0])), g.getNode(Integer
 						.parseInt(str.split(Update.EdgeSeparator)[1]))));
 	}
 
-	public EdgeRemoval(int index1, int index2, GraphDataStructure gds, Graph g) {
+	public EdgeRemoval(int index1, int index2, GraphDataStructure gds, IGraph g) {
 		super(g.getEdge(g.getNode(index1), g.getNode(index2)));
 	}
 
 	@Override
-	public boolean apply_(Graph g) {
+	public boolean apply_(IGraph g) {
 		boolean success = g.removeEdge((Edge) this.edge);
 		success &= this.edge.disconnectFromNodes();
 		return success;

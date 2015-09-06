@@ -3,7 +3,7 @@ package dna.updates.generators.sampling;
 import java.util.ArrayList;
 import java.util.Collections;
 
-import dna.graph.Graph;
+import dna.graph.IGraph;
 import dna.graph.nodes.Node;
 import dna.updates.generators.sampling.SortableNode.SortType;
 import dna.updates.generators.sampling.startNode.StartNodeSelectionStrategy;
@@ -38,7 +38,7 @@ public class GreedyOracle extends SamplingAlgorithm {
 	 *            the parameters which makes this algorithm unique and which
 	 *            will be added to the name
 	 */
-	public GreedyOracle(Graph fullGraph,
+	public GreedyOracle(IGraph fullGraph,
 			StartNodeSelectionStrategy startNodeStrategy, int costPerBatch,
 			int resource, SamplingStop stop, WalkingType walkingType) {
 		super("GO", fullGraph, startNodeStrategy, costPerBatch, resource, stop,

@@ -1,6 +1,6 @@
 package dna.metrics.workload.operations;
 
-import dna.graph.Graph;
+import dna.graph.IGraph;
 import dna.graph.IElement;
 import dna.graph.edges.Edge;
 import dna.graph.nodes.DirectedNode;
@@ -35,7 +35,7 @@ public class ContainsFailure extends Operation {
 	}
 
 	@Override
-	public void init(Graph g) {
+	public void init(IGraph g) {
 		this.node1 = g.getGraphDatastructures().newNodeInstance(
 				Integer.MAX_VALUE);
 		this.node2 = g.getGraphDatastructures().newNodeInstance(
@@ -45,38 +45,38 @@ public class ContainsFailure extends Operation {
 	}
 
 	@Override
-	protected void createWorkloadE(Graph g) {
+	protected void createWorkloadE(IGraph g) {
 		g.containsEdge(this.edge);
 	}
 
 	@Override
-	protected void createWorkloadV(Graph g) {
+	protected void createWorkloadV(IGraph g) {
 		g.containsNode(this.node1);
 	}
 
 	@Override
-	protected void createWorkloadIn(Graph g) {
+	protected void createWorkloadIn(IGraph g) {
 		for (IElement n_ : g.getNodes()) {
 			((DirectedNode) n_).hasEdge(this.edge);
 		}
 	}
 
 	@Override
-	protected void createWorkloadOut(Graph g) {
+	protected void createWorkloadOut(IGraph g) {
 		for (IElement n_ : g.getNodes()) {
 			((DirectedNode) n_).hasEdge(this.edge);
 		}
 	}
 
 	@Override
-	protected void createWorkloadNeighbors(Graph g) {
+	protected void createWorkloadNeighbors(IGraph g) {
 		for (IElement n_ : g.getNodes()) {
 			((DirectedNode) n_).hasNeighbor((DirectedNode) this.node1);
 		}
 	}
 
 	@Override
-	protected void createWorkloadAdj(Graph g) {
+	protected void createWorkloadAdj(IGraph g) {
 		for (IElement n_ : g.getNodes()) {
 			((Node) n_).hasEdge(this.edge);
 		}

@@ -1,6 +1,6 @@
 package dna.graph.generators.util;
 
-import dna.graph.Graph;
+import dna.graph.IGraph;
 import dna.graph.datastructures.GraphDataStructure;
 import dna.graph.generators.GraphGenerator;
 
@@ -15,7 +15,7 @@ public class EmptyGraph extends GraphGenerator {
 	}
 
 	@Override
-	public Graph generate() {
+	public IGraph generate() {
 		return this.newGraphInstance();
 	}
 

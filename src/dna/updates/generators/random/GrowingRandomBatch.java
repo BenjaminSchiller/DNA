@@ -1,6 +1,6 @@
 package dna.updates.generators.random;
 
-import dna.graph.Graph;
+import dna.graph.IGraph;
 import dna.graph.weights.Weight.WeightSelection;
 import dna.updates.batch.Batch;
 import dna.updates.generators.BatchGenerator;
@@ -34,7 +34,7 @@ public class GrowingRandomBatch extends BatchGenerator {
 	}
 
 	@Override
-	public Batch generate(Graph g) {
+	public Batch generate(IGraph g) {
 		Batch b = this.getCurrentBatch().generate(g);
 		this.time++;
 		return b;
@@ -51,7 +51,7 @@ public class GrowingRandomBatch extends BatchGenerator {
 	}
 
 	@Override
-	public boolean isFurtherBatchPossible(Graph g) {
+	public boolean isFurtherBatchPossible(IGraph g) {
 		return this.getCurrentBatch().isFurtherBatchPossible(g);
 	}
 }

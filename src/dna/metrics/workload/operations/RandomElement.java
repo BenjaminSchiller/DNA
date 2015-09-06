@@ -1,6 +1,6 @@
 package dna.metrics.workload.operations;
 
-import dna.graph.Graph;
+import dna.graph.IGraph;
 import dna.metrics.workload.Operation;
 
 /**
@@ -23,12 +23,12 @@ public class RandomElement extends Operation {
 	}
 
 	@Override
-	protected void createWorkloadE(Graph g) {
+	protected void createWorkloadE(IGraph g) {
 		g.getRandomEdge();
 	}
 
 	@Override
-	protected void createWorkloadV(Graph g) {
+	protected void createWorkloadV(IGraph g) {
 		g.getRandomNode();
 	}
 

@@ -6,7 +6,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-import dna.graph.Graph;
+import dna.graph.IGraph;
 import dna.graph.datastructures.GraphDataStructure;
 import dna.graph.datastructures.zalando.ZalandoGraphDataStructure;
 import dna.graph.edges.DirectedWeightedEdge;
@@ -136,7 +136,7 @@ public abstract class ZalandoBatchGenerator extends BatchGenerator {
 	// fields for batches
 
 	/**
-	 * The total number of {@link #generate(Graph)}-calls, e.g. used to set the
+	 * The total number of {@link #generate(IGraph)}-calls, e.g. used to set the
 	 * right timestamp.
 	 */
 	private int numberOfRuns;
@@ -340,7 +340,7 @@ public abstract class ZalandoBatchGenerator extends BatchGenerator {
 	 * this edge already, the weight of this edge is increased by given weight.
 	 * <p>
 	 * Instead of adding the edge directly to the graph, it is added to
-	 * {@link #edgeAdditions} or {@link #edgeWeights}. {@link #generate(Graph)}
+	 * {@link #edgeAdditions} or {@link #edgeWeights}. {@link #generate(IGraph)}
 	 * adds these to the batch to update the graph.
 	 * </p>
 	 * 
@@ -352,7 +352,7 @@ public abstract class ZalandoBatchGenerator extends BatchGenerator {
 	 *            The weight of the edge to add or -if the edge already exists-
 	 *            the weight added to the current weight of the existing edge.
 	 */
-	private void addDirectedEdge(Graph g, Node source, Node target,
+	private void addDirectedEdge(IGraph g, Node source, Node target,
 			double weight) {
 		final Edge edge = g.getGraphDatastructures().newEdgeInstance(source,
 				target);
@@ -392,7 +392,7 @@ public abstract class ZalandoBatchGenerator extends BatchGenerator {
 	 * this edge already, the weight of this edge is increased by given weight.
 	 * <p>
 	 * Instead of adding the edge directly to the graph, it is added to
-	 * {@link #edgeAdditions} or {@link #edgeWeights}. {@link #generate(Graph)}
+	 * {@link #edgeAdditions} or {@link #edgeWeights}. {@link #generate(IGraph)}
 	 * adds these to the batch to update the graph.
 	 * </p>
 	 * 
@@ -404,7 +404,7 @@ public abstract class ZalandoBatchGenerator extends BatchGenerator {
 	 *            The weight of the edge to add or -if the edge already exists-
 	 *            the weight added to the current weight of the existing edge.
 	 */
-	private void addDirectedEdge(Graph g, Node source, Node target, int weight) {
+	private void addDirectedEdge(IGraph g, Node source, Node target, int weight) {
 		final Edge edge = g.getGraphDatastructures().newEdgeInstance(source,
 				target);
 
@@ -445,7 +445,7 @@ public abstract class ZalandoBatchGenerator extends BatchGenerator {
 	 * already, the weight of this edge is increased by given weight.
 	 * <p>
 	 * Instead of adding the edge directly to the graph, it is added to
-	 * {@link #edgeAdditions} or {@link #edgeWeights}. {@link #generate(Graph)}
+	 * {@link #edgeAdditions} or {@link #edgeWeights}. {@link #generate(IGraph)}
 	 * adds these to the batch to update the graph.
 	 * </p>
 	 * 
@@ -459,7 +459,7 @@ public abstract class ZalandoBatchGenerator extends BatchGenerator {
 	 *            Depending on the {@link GraphDataStructure} the weight will be
 	 *            casted to an {@code int} or {@code double} value.
 	 */
-	void addEdge(Graph g, Node source, Node target, Object weight) {
+	void addEdge(IGraph g, Node source, Node target, Object weight) {
 		final Class<? extends Edge> edgeType = g.getGraphDatastructures()
 				.getEdgeType();
 		final Class<? extends Weight> edgeWeightType = g
@@ -483,7 +483,7 @@ public abstract class ZalandoBatchGenerator extends BatchGenerator {
 					Integer.valueOf(weight.toString()));
 	}
 
-	abstract void addEdgesForColumns(Graph g, Event currentEvent);
+	abstract void addEdgesForColumns(IGraph g, Event currentEvent);
 
 	/**
 	 * Adds the {@link Node}s for given {@link Old_Event} to given graph.
@@ -494,14 +494,14 @@ public abstract class ZalandoBatchGenerator extends BatchGenerator {
 	 * </p>
 	 * <p>
 	 * Instead of adding the nodes directly to the graph, they are added to
-	 * {@link #nodeAdditions}. {@link #generate(Graph)} adds these to the batch
+	 * {@link #nodeAdditions}. {@link #generate(IGraph)} adds these to the batch
 	 * to update the graph.
 	 * </p>
 	 * 
 	 * @param event
 	 *            The {@link Old_Event} which nodes should be added.
 	 */
-	private void addNodesForColumns(Graph g, Event event) {
+	private void addNodesForColumns(IGraph g, Event event) {
 		int globalMappingForEvent;
 		Node potentialNewNode;
 		for (EventColumn[] eventColumnGroup : this.columnGroupsToAddAsNodes) {
@@ -531,7 +531,7 @@ public abstract class ZalandoBatchGenerator extends BatchGenerator {
 	/**
 	 * Adds the given {@link EdgeAddition} for given {@link Edge} to the updates
 	 * to do in this batch. The {@link Edge} is then added by
-	 * {@link #generate(Graph)}.
+	 * {@link #generate(IGraph)}.
 	 * 
 	 * @param edge
 	 *            The {@link Edge} to add.
@@ -545,7 +545,7 @@ public abstract class ZalandoBatchGenerator extends BatchGenerator {
 	/**
 	 * Adds the given {@link EdgeWeight} for given {@link Edge} to the updates
 	 * to do in this batch. The {@link Edge} is then updated by
-	 * {@link #generate(Graph)}.
+	 * {@link #generate(IGraph)}.
 	 * 
 	 * @param edge
 	 *            The {@link Edge} to update.
@@ -568,7 +568,7 @@ public abstract class ZalandoBatchGenerator extends BatchGenerator {
 	/**
 	 * Adds the given {@link NodeAddition} for given {@link Node} to the updates
 	 * to do in this batch. The {@link Node} is then added by
-	 * {@link #generate(Graph)}.
+	 * {@link #generate(IGraph)}.
 	 * 
 	 * @param node
 	 *            The {@link Node} to add.
@@ -589,7 +589,7 @@ public abstract class ZalandoBatchGenerator extends BatchGenerator {
 	 * this edge already, the weight of this edge is increased by given weight.
 	 * <p>
 	 * Instead of adding the edge directly to the graph, it is added to
-	 * {@link #edgeAdditions} or {@link #edgeWeights}. {@link #generate(Graph)}
+	 * {@link #edgeAdditions} or {@link #edgeWeights}. {@link #generate(IGraph)}
 	 * adds these to the batch to update the graph.
 	 * </p>
 	 * 
@@ -601,7 +601,7 @@ public abstract class ZalandoBatchGenerator extends BatchGenerator {
 	 *            The weight of the edge to add or -if the edge already exists-
 	 *            the weight added to the current weight of the existing edge.
 	 */
-	private void addUndirectedEdge(Graph g, Node source, Node target,
+	private void addUndirectedEdge(IGraph g, Node source, Node target,
 			double weight) {
 		final Edge edge = g.getGraphDatastructures().newEdgeInstance(source,
 				target);
@@ -641,7 +641,7 @@ public abstract class ZalandoBatchGenerator extends BatchGenerator {
 	 * this edge already, the weight of this edge is increased by given weight.
 	 * <p>
 	 * Instead of adding the edge directly to the graph, it is added to
-	 * {@link #edgeAdditions} or {@link #edgeWeights}. {@link #generate(Graph)}
+	 * {@link #edgeAdditions} or {@link #edgeWeights}. {@link #generate(IGraph)}
 	 * adds these to the batch to update the graph.
 	 * </p>
 	 * 
@@ -653,7 +653,7 @@ public abstract class ZalandoBatchGenerator extends BatchGenerator {
 	 *            The weight of the edge to add or -if the edge already exists-
 	 *            the weight added to the current weight of the existing edge.
 	 */
-	private void addUndirectedEdge(Graph g, Node source, Node target, int weight) {
+	private void addUndirectedEdge(IGraph g, Node source, Node target, int weight) {
 		final Edge edge = g.getGraphDatastructures().newEdgeInstance(source,
 				target);
 
@@ -785,7 +785,7 @@ public abstract class ZalandoBatchGenerator extends BatchGenerator {
 	}
 
 	@Override
-	public Batch generate(Graph g) {
+	public Batch generate(IGraph g) {
 		if (this.numberOfRuns == 0 && g.getNodeCount() > 0)
 			throw new IllegalArgumentException(
 					"To guarantee the correct meaning of the graph, it must be empty before the first generated batch and must only be modifidied by the same batch generator!");
@@ -851,11 +851,11 @@ public abstract class ZalandoBatchGenerator extends BatchGenerator {
 
 	/**
 	 * <b>Note: returns always true!</b> If no further batch is possible,
-	 * because there is no other event to read, {@link #generate(Graph)} returns
+	 * because there is no other event to read, {@link #generate(IGraph)} returns
 	 * an empty batch.
 	 */
 	@Override
-	public boolean isFurtherBatchPossible(Graph g) {
+	public boolean isFurtherBatchPossible(IGraph g) {
 		return true;
 	}
 

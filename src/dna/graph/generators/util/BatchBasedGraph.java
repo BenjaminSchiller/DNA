@@ -1,6 +1,6 @@
 package dna.graph.generators.util;
 
-import dna.graph.Graph;
+import dna.graph.IGraph;
 import dna.graph.datastructures.GraphDataStructure;
 import dna.graph.generators.GraphGenerator;
 import dna.updates.batch.Batch;
@@ -24,8 +24,8 @@ public class BatchBasedGraph extends GraphGenerator {
 	}
 
 	@Override
-	public Graph generate() {
-		Graph g = this.gg.generate();
+	public IGraph generate() {
+		IGraph g = this.gg.generate();
 		for (int i = 0; i < this.times; i++) {
 			if (!this.bg.isFurtherBatchPossible(g)) {
 				break;

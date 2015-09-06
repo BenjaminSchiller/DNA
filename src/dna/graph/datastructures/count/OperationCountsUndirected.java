@@ -2,7 +2,7 @@ package dna.graph.datastructures.count;
 
 import java.io.IOException;
 
-import dna.graph.Graph;
+import dna.graph.IGraph;
 import dna.graph.datastructures.DataStructure.ListType;
 import dna.graph.datastructures.count.OperationCount.AggregationType;
 import dna.io.Reader;
@@ -70,7 +70,7 @@ public class OperationCountsUndirected extends OperationCounts {
 	}
 
 	@Override
-	public void setSizes(Graph g) {
+	public void setSizes(IGraph g) {
 		int nodes = g.getNodeCount();
 		int edges = g.getEdgeCount();
 

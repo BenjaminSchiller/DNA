@@ -1,6 +1,6 @@
 package dna.graph.generators.evolvingNetworks;
 
-import dna.graph.Graph;
+import dna.graph.IGraph;
 import dna.graph.datastructures.GraphDataStructure;
 import dna.graph.generators.GraphGenerator;
 import dna.graph.generators.random.RandomGraph;
@@ -35,12 +35,12 @@ public class BarabasiAlbertGraph extends GraphGenerator {
 	}
 
 	@Override
-	public Graph generate() {
+	public IGraph generate() {
 		GraphGenerator gg = new RandomGraph(this.gds, this.startNodes,
 				this.startEdges);
 		BatchGenerator bg = new BarabasiAlbertBatch(this.nodesToAdd,
 				this.edgesPerNode);
-		Graph g = gg.generate();
+		IGraph g = gg.generate();
 		Batch b = bg.generate(g);
 		b.apply(g);
 		g.setTimestamp(0);

@@ -4,7 +4,7 @@ import java.util.HashSet;
 import java.util.PriorityQueue;
 import java.util.Queue;
 
-import dna.graph.Graph;
+import dna.graph.IGraph;
 import dna.graph.edges.Edge;
 import dna.graph.nodes.Node;
 import dna.metrics.workload.Operation;
@@ -33,7 +33,7 @@ public class AddSuccess extends Operation {
 	}
 
 	@Override
-	public void init(Graph g) {
+	public void init(IGraph g) {
 		if (ListType.E.equals(this.list)) {
 			HashSet<Edge> newEdges = new HashSet<Edge>(this.times);
 			while (newEdges.size() < this.times) {
@@ -52,12 +52,12 @@ public class AddSuccess extends Operation {
 	}
 
 	@Override
-	protected void createWorkloadE(Graph g) {
+	protected void createWorkloadE(IGraph g) {
 		g.addEdge(this.newEdges.poll());
 	}
 
 	@Override
-	protected void createWorkloadV(Graph g) {
+	protected void createWorkloadV(IGraph g) {
 		Node node = g.getGraphDatastructures().newNodeInstance(
 				g.getMaxNodeIndex() + 1);
 		g.addNode(node);

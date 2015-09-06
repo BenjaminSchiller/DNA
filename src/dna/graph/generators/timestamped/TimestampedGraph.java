@@ -2,7 +2,7 @@ package dna.graph.generators.timestamped;
 
 import java.io.IOException;
 
-import dna.graph.Graph;
+import dna.graph.IGraph;
 import dna.graph.datastructures.GraphDataStructure;
 import dna.graph.edges.Edge;
 import dna.graph.generators.GraphGenerator;
@@ -80,14 +80,14 @@ public class TimestampedGraph extends GraphGenerator {
 	}
 
 	@Override
-	public Graph generate() {
+	public IGraph generate() {
 		try {
 			this.reader.read();
 		} catch (IOException e1) {
 			e1.printStackTrace();
 			return null;
 		}
-		Graph g = this.newGraphInstance();
+		IGraph g = this.newGraphInstance();
 		TimestampedEdge e = null;
 		int duplicateEdges = 0;
 		int loops = 0;
@@ -122,7 +122,7 @@ public class TimestampedGraph extends GraphGenerator {
 		return g;
 	}
 
-	private TimestampedEdge next(Graph g) {
+	private TimestampedEdge next(IGraph g) {
 		switch (this.type) {
 		case EDGE_COUNT:
 			if (g.getEdgeCount() >= this.parameter) {

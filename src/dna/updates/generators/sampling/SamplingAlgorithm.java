@@ -5,8 +5,8 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 
-import dna.graph.Graph;
 import dna.graph.IElement;
+import dna.graph.IGraph;
 import dna.graph.datastructures.GraphDataStructure;
 import dna.graph.edges.DirectedEdge;
 import dna.graph.edges.Edge;
@@ -36,7 +36,7 @@ public abstract class SamplingAlgorithm extends BatchGenerator {
 
 	private HashMap<Integer, Node> addedNodes;
 
-	protected Graph fullGraph;
+	protected IGraph fullGraph;
 
 	private StartNodeSelectionStrategy startNodeStartegy;
 
@@ -82,7 +82,7 @@ public abstract class SamplingAlgorithm extends BatchGenerator {
 	 *            the parameters which makes this algorithm unique and which
 	 *            will be added to the name
 	 */
-	public SamplingAlgorithm(String name, Graph fullGraph,
+	public SamplingAlgorithm(String name, IGraph fullGraph,
 			StartNodeSelectionStrategy startNodeStrategy, int costPerBatch,
 			int resource, SamplingStop samplingStop, WalkingType walkingType) {
 		super(name, new Parameter[] {
@@ -127,7 +127,7 @@ public abstract class SamplingAlgorithm extends BatchGenerator {
 	 * @param g
 	 *            the current sample
 	 */
-	public Batch generate(Graph g) {
+	public Batch generate(IGraph g) {
 
 		Batch newBatch = new Batch(g.getGraphDatastructures(),
 				g.getTimestamp(), g.getTimestamp() + 1);
@@ -199,7 +199,7 @@ public abstract class SamplingAlgorithm extends BatchGenerator {
 	 *            added to the batch but are not yet added to the sample
 	 * @return the current batch
 	 */
-	private Batch addNodeAndNeighborsToBatch(Batch batch, Node node, Graph g) {
+	private Batch addNodeAndNeighborsToBatch(Batch batch, Node node, IGraph g) {
 
 		if (noFurtherBatch) {
 			return batch;
@@ -243,7 +243,7 @@ public abstract class SamplingAlgorithm extends BatchGenerator {
 	 * @return a list of node and edge additions
 	 */
 	private List<Update> addNeighbors(Node nodeFromFullGraph, Node newNode,
-			Graph g) {
+			IGraph g) {
 		List<Update> updateList = new ArrayList<Update>();
 
 		// Iterable<IElement> iter = getEdgesFromNode(nodeFromFullGraph);
@@ -295,7 +295,7 @@ public abstract class SamplingAlgorithm extends BatchGenerator {
 	/**
 	 * Returns if the sampling algorithm can walk further through the graph
 	 */
-	public boolean isFurtherBatchPossible(Graph g) {
+	public boolean isFurtherBatchPossible(IGraph g) {
 
 		if (takeResourceIntoAccount && resource <= 0) {
 			return false;

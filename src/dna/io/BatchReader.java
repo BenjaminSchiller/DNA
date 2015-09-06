@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.HashSet;
 
-import dna.graph.Graph;
+import dna.graph.IGraph;
 import dna.graph.edges.Edge;
 import dna.graph.nodes.Node;
 import dna.updates.batch.Batch;
@@ -20,7 +20,7 @@ import dna.updates.update.Update;
  */
 public class BatchReader {
 
-	public static Batch read(String dir, String filename, Graph g) {
+	public static Batch read(String dir, String filename, IGraph g) {
 		Reader reader = null;
 
 		try {
@@ -67,7 +67,7 @@ public class BatchReader {
 		}
 	}
 
-	protected static Update parseLine(String line, Graph g,
+	protected static Update parseLine(String line, IGraph g,
 			HashMap<Integer, Node> addedNodes) {
 		return Update.fromString(g.getGraphDatastructures(), g, line,
 				addedNodes);

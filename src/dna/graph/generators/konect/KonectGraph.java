@@ -1,6 +1,6 @@
 package dna.graph.generators.konect;
 
-import dna.graph.Graph;
+import dna.graph.IGraph;
 import dna.graph.edges.Edge;
 import dna.graph.generators.GraphGenerator;
 import dna.graph.generators.konect.KonectReader.KonectGraphType;
@@ -40,8 +40,8 @@ public class KonectGraph extends GraphGenerator {
 	}
 
 	@Override
-	public Graph generate() {
-		Graph g = this.newGraphInstance();
+	public IGraph generate() {
+		IGraph g = this.newGraphInstance();
 
 		int processed = 0;
 		while (true) {
@@ -86,19 +86,19 @@ public class KonectGraph extends GraphGenerator {
 		return this.r.readEdge();
 	}
 
-	protected void addIfNecessary(Graph g, Node n) {
+	protected void addIfNecessary(IGraph g, Node n) {
 		if (!g.containsNode(n)) {
 			g.addNode(n);
 		}
 	}
 
-	protected void removeIfNecessary(Graph g, Node n) {
+	protected void removeIfNecessary(IGraph g, Node n) {
 		if (this.removeZeroDegreeNodes && n.getDegree() == 0) {
 			g.removeNode(n);
 		}
 	}
 
-	protected void processEdge(Graph g, KonectEdge edge) {
+	protected void processEdge(IGraph g, KonectEdge edge) {
 		if (edge.n1 == edge.n2) {
 			return;
 		}

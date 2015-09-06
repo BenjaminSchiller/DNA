@@ -6,7 +6,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-import dna.graph.Graph;
+import dna.graph.IGraph;
 import dna.graph.datastructures.GraphDataStructure;
 import dna.graph.datastructures.zalando.ZalandoGraphDataStructure;
 import dna.graph.edges.DirectedWeightedEdge;
@@ -49,7 +49,7 @@ abstract class ZalandoGraphGenerator extends GraphGenerator {
 	 * The result of any {@link #generate()} call in any subclass of
 	 * {@linkZalandoGraphGenerator}.
 	 */
-	Graph graph;
+	IGraph graph;
 
 	/**
 	 * If this {@link EventFilter} is not null, only events that passes this
@@ -486,7 +486,7 @@ abstract class ZalandoGraphGenerator extends GraphGenerator {
 	}
 
 	@Override
-	public Graph generate() {
+	public IGraph generate() {
 		final EventReader reader = new EventReader(this.pathProducts,
 				this.isGzippedProducts, this.pathLog, this.isGzippedLog);
 

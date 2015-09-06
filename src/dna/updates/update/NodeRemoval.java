@@ -1,6 +1,6 @@
 package dna.updates.update;
 
-import dna.graph.Graph;
+import dna.graph.IGraph;
 import dna.graph.IElement;
 import dna.graph.edges.DirectedEdge;
 import dna.graph.edges.Edge;
@@ -17,12 +17,12 @@ public class NodeRemoval extends NodeUpdate {
 		super(node);
 	}
 
-	public NodeRemoval(String str, Graph g) {
+	public NodeRemoval(String str, IGraph g) {
 		super(g.getNode(Integer.parseInt(str)));
 	}
 
 	@Override
-	public boolean apply_(Graph g) {
+	public boolean apply_(IGraph g) {
 		boolean success = true;
 		if (this.node instanceof DirectedNode) {
 			DirectedNode node = (DirectedNode) this.node;

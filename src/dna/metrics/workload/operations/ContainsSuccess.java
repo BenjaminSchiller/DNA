@@ -1,6 +1,6 @@
 package dna.metrics.workload.operations;
 
-import dna.graph.Graph;
+import dna.graph.IGraph;
 import dna.metrics.workload.OperationWithRandomSample;
 
 /**
@@ -27,12 +27,12 @@ public class ContainsSuccess extends OperationWithRandomSample {
 	}
 
 	@Override
-	protected void createWorkloadE(Graph g) {
+	protected void createWorkloadE(IGraph g) {
 		g.containsEdge(this.getSampleEdge());
 	}
 
 	@Override
-	protected void createWorkloadV(Graph g) {
+	protected void createWorkloadV(IGraph g) {
 		g.containsNode(this.getSampleNode());
 	}
 

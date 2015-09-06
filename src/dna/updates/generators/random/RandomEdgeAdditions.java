@@ -3,7 +3,7 @@ package dna.updates.generators.random;
 import java.math.BigInteger;
 import java.util.HashSet;
 
-import dna.graph.Graph;
+import dna.graph.IGraph;
 import dna.graph.edges.Edge;
 import dna.graph.nodes.Node;
 import dna.updates.batch.Batch;
@@ -21,7 +21,7 @@ public class RandomEdgeAdditions extends BatchGenerator {
 	}
 
 	@Override
-	public Batch generate(Graph g) {
+	public Batch generate(IGraph g) {
 		Batch b = new Batch(g.getGraphDatastructures(), g.getTimestamp(),
 				g.getTimestamp() + 1, 0, 0, 0, this.count, 0, 0);
 
@@ -69,7 +69,7 @@ public class RandomEdgeAdditions extends BatchGenerator {
 	}
 
 	@Override
-	public boolean isFurtherBatchPossible(Graph g) {
+	public boolean isFurtherBatchPossible(IGraph g) {
 		int oldEdgeCount = g.getEdgeCount();
 		BigInteger maxEdgeCount = g.getMaxEdgeCount();
 		BigInteger absoluteMaximumToInsert = maxEdgeCount.subtract(BigInteger

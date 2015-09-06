@@ -1,6 +1,6 @@
 package dna.updates.generators.sampling.startNode;
 
-import dna.graph.Graph;
+import dna.graph.IGraph;
 import dna.graph.nodes.Node;
 
 /**
@@ -20,12 +20,12 @@ public class RandomSelection extends StartNodeSelectionStrategy {
 	}
 
 	@Override
-	public Node getStartNode(Graph g) {
+	public Node getStartNode(IGraph g) {
 		return g.getRandomNode();
 	}
 
 	@Override
-	public int resourceCost(Graph g) {
+	public int resourceCost(IGraph g) {
 		return 1;
 	}
 

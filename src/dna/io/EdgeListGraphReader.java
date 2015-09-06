@@ -3,14 +3,14 @@ package dna.io;
 import java.io.IOException;
 import java.util.HashMap;
 
-import dna.graph.Graph;
+import dna.graph.IGraph;
 import dna.graph.datastructures.GraphDataStructure;
 import dna.graph.edges.Edge;
 import dna.graph.nodes.Node;
 
 public class EdgeListGraphReader {
 
-	public static Graph read(String dir, String filename, String separator,
+	public static IGraph read(String dir, String filename, String separator,
 			GraphDataStructure gds) throws IOException {
 
 		HashMap<String, Integer> mapping = new HashMap<String, Integer>();
@@ -33,7 +33,7 @@ public class EdgeListGraphReader {
 		}
 		reader.close();
 
-		Graph g = gds.newGraphInstance(filename, 0, nodes, edges);
+		IGraph g = gds.newGraphInstance(filename, 0, nodes, edges);
 		for (int i = 0; i < nodes; i++) {
 			g.addNode(gds.newNodeInstance(i));
 		}

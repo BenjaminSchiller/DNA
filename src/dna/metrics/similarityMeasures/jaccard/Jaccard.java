@@ -6,8 +6,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import dna.graph.Graph;
 import dna.graph.IElement;
+import dna.graph.IGraph;
 import dna.graph.edges.DirectedWeightedEdge;
 import dna.graph.edges.UndirectedWeightedEdge;
 import dna.graph.nodes.DirectedNode;
@@ -438,7 +438,7 @@ public abstract class Jaccard extends Measures {
 	}
 
 	@Override
-	public boolean isApplicable(Graph g) {
+	public boolean isApplicable(IGraph g) {
 		return true;
 	}
 

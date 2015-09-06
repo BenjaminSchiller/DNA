@@ -367,6 +367,9 @@ public class SeriesGeneration {
 				gcCounter++;
 			}
 		}
+		
+		//free all resources of current graph
+		series.getGraph().close();
 	}
 
 	private static boolean compareMetrics(Series series) {

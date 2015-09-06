@@ -5,7 +5,7 @@ import java.util.HashMap;
 
 import com.google.common.collect.Iterables;
 
-import dna.graph.Graph;
+import dna.graph.IGraph;
 import dna.graph.datastructures.GraphDataStructure;
 import dna.graph.edges.Edge;
 import dna.graph.edges.IEdge;
@@ -70,7 +70,7 @@ public class Batch {
 	 * APPLICATION
 	 */
 
-	public boolean apply(Graph g) {
+	public boolean apply(IGraph g) {
 
 		if (this.from != g.getTimestamp()) {
 			throw new IllegalStateException("cannot apply batch "
@@ -93,7 +93,7 @@ public class Batch {
 		return success;
 	}
 
-	private boolean apply(Graph g, Iterable<? extends Update> updates) {
+	private boolean apply(IGraph g, Iterable<? extends Update> updates) {
 		boolean success = true;
 		for (Update u : updates) {
 			if (!u.apply(g)) {

@@ -1,6 +1,6 @@
 package dna.metrics.workload;
 
-import dna.graph.Graph;
+import dna.graph.IGraph;
 import dna.util.Log;
 import dna.util.parameters.IntParameter;
 import dna.util.parameters.Parameter;
@@ -52,7 +52,7 @@ public abstract class Operation extends ParameterList {
 	 * @param g
 	 *            graph
 	 */
-	public void createWorkload(Graph g) {
+	public void createWorkload(IGraph g) {
 		switch (this.list) {
 		case E:
 			for (int i = 0; i < this.times; i++) {
@@ -104,7 +104,7 @@ public abstract class Operation extends ParameterList {
 	 * @param g
 	 *            graph
 	 */
-	public void init(Graph g) {
+	public void init(IGraph g) {
 		// nothing is done by default, must be overwritten to do something
 	}
 
@@ -114,7 +114,7 @@ public abstract class Operation extends ParameterList {
 	 * @param g
 	 *            graph
 	 */
-	protected void createWorkloadE(Graph g) {
+	protected void createWorkloadE(IGraph g) {
 		Log.error("the operation " + this.getName()
 				+ " does not implement workload for E");
 	}
@@ -125,7 +125,7 @@ public abstract class Operation extends ParameterList {
 	 * @param g
 	 *            graph
 	 */
-	protected void createWorkloadV(Graph g) {
+	protected void createWorkloadV(IGraph g) {
 		Log.error("the operation " + this.getName()
 				+ " does not implement workload for V");
 	}
@@ -138,7 +138,7 @@ public abstract class Operation extends ParameterList {
 	 * @param g
 	 *            graph
 	 */
-	protected void createWorkloadIn(Graph g) {
+	protected void createWorkloadIn(IGraph g) {
 		Log.error("the operation " + this.getName()
 				+ " does not implement workload for IN");
 	}
@@ -150,7 +150,7 @@ public abstract class Operation extends ParameterList {
 	 * 
 	 * @param g
 	 */
-	protected void createWorkloadOut(Graph g) {
+	protected void createWorkloadOut(IGraph g) {
 		Log.error("the operation " + this.getName()
 				+ " does not implement workload for OUT");
 	}
@@ -163,7 +163,7 @@ public abstract class Operation extends ParameterList {
 	 * 
 	 * @param g
 	 */
-	protected void createWorkloadNeighbors(Graph g) {
+	protected void createWorkloadNeighbors(IGraph g) {
 		Log.error("the operation " + this.getName()
 				+ " does not implement workload for NEIGHBORS");
 	}
@@ -174,7 +174,7 @@ public abstract class Operation extends ParameterList {
 	 * 
 	 * @param g
 	 */
-	protected void createWorkloadAdj(Graph g) {
+	protected void createWorkloadAdj(IGraph g) {
 		Log.error("the operation " + this.getName()
 				+ " does not implement workload for ADJ");
 	}

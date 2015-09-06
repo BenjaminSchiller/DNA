@@ -3,7 +3,7 @@ package dna.metrics.weights;
 import java.util.HashMap;
 import java.util.LinkedList;
 
-import dna.graph.Graph;
+import dna.graph.IGraph;
 import dna.graph.nodes.Node;
 import dna.graph.weights.IWeightedNode;
 import dna.graph.weights.Weight;
@@ -100,7 +100,7 @@ public abstract class RootMeanSquareFluctuation extends Metric {
 	}
 
 	@Override
-	public boolean isApplicable(Graph g) {
+	public boolean isApplicable(IGraph g) {
 		return g.getGraphDatastructures().isNodeType(IWeightedNode.class)
 				&& g.getGraphDatastructures().isNodeWeightType(
 						DoubleWeight.class, Double2dWeight.class,

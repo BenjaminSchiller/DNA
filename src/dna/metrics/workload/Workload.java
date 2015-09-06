@@ -1,6 +1,6 @@
 package dna.metrics.workload;
 
-import dna.graph.Graph;
+import dna.graph.IGraph;
 
 /**
  * 
@@ -28,7 +28,7 @@ public class Workload {
 	 * @param g
 	 *            graph
 	 */
-	public void createWorkload(Graph g) {
+	public void createWorkload(IGraph g) {
 		for (Operation o : this.operations) {
 			o.createWorkload(g);
 		}
@@ -41,7 +41,7 @@ public class Workload {
 	 * @param g
 	 *            g
 	 */
-	public void init(Graph g) {
+	public void init(IGraph g) {
 		for (Operation o : this.operations) {
 			o.init(g);
 		}

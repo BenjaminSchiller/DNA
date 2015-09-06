@@ -1,6 +1,6 @@
 package dna.updates.generators.util;
 
-import dna.graph.Graph;
+import dna.graph.IGraph;
 import dna.io.LegacyBatchReader;
 import dna.updates.batch.Batch;
 
@@ -13,7 +13,7 @@ public class LegacyReadableFilesBatchGenerator extends
 	}
 
 	@Override
-	public Batch generate(Graph g) {
+	public Batch generate(IGraph g) {
 		return LegacyBatchReader.read(this.dir, this.getFilename(g), g);
 	}
 

@@ -1,7 +1,7 @@
 package dna.updates.generators.konect;
 
-import dna.graph.Graph;
 import dna.graph.IElement;
+import dna.graph.IGraph;
 import dna.graph.edges.Edge;
 import dna.graph.generators.konect.KonectEdge;
 import dna.graph.generators.konect.KonectReader;
@@ -52,7 +52,7 @@ public class KonectBatch extends BatchGenerator {
 	}
 
 	@Override
-	public Batch generate(Graph g) {
+	public Batch generate(IGraph g) {
 
 		Batch b = new Batch(g.getGraphDatastructures(), g.getTimestamp(),
 				g.getTimestamp() + 1);
@@ -118,7 +118,7 @@ public class KonectBatch extends BatchGenerator {
 	 * @param b
 	 * @param edge
 	 */
-	protected void process(Graph graph, Batch b, KonectEdge edge) {
+	protected void process(IGraph graph, Batch b, KonectEdge edge) {
 
 		if (edge.n1 == edge.n2) {
 			return;
@@ -286,7 +286,7 @@ public class KonectBatch extends BatchGenerator {
 		}
 	}
 
-	protected void processNode(Graph g, Batch b, Node n) {
+	protected void processNode(IGraph g, Batch b, Node n) {
 		if (g.containsNode(n)) {
 			NodeRemoval nr = b.getNodeRemoval(n);
 			if (nr != null) {
@@ -306,7 +306,7 @@ public class KonectBatch extends BatchGenerator {
 	}
 
 	@Override
-	public boolean isFurtherBatchPossible(Graph g) {
+	public boolean isFurtherBatchPossible(IGraph g) {
 		return r.peek() != null;
 	}
 

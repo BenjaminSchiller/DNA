@@ -2,7 +2,7 @@ package dna.graph.datastructures.hotswap;
 
 import java.io.IOException;
 
-import dna.graph.Graph;
+import dna.graph.IGraph;
 import dna.graph.datastructures.DArray;
 import dna.graph.datastructures.DArrayList;
 import dna.graph.datastructures.DHashMap;
@@ -87,7 +87,7 @@ public class Hotswap {
 		return r.recommendFastestConfig(ocs, batches, amortization, current);
 	}
 
-	public static boolean execute(Graph g, OperationCounts ocs, DSConfig current, DSConfig cfg) {
+	public static boolean execute(IGraph g, OperationCounts ocs, DSConfig current, DSConfig cfg) {
 		// System.out.println("HOTSWAP - EXECUTE");
 		double costCurrent = CostEstimation.estimateCosts(current, ocs, r.map);
 		double costRecommendation = CostEstimation.estimateCosts(cfg, ocs,
@@ -140,7 +140,7 @@ public class Hotswap {
 				+ (cost / costCurrent));
 	}
 
-	public static void execute(Graph g, DSConfigDirected current,
+	public static void execute(IGraph g, DSConfigDirected current,
 			DSConfigDirected cfg) {
 		System.out.println("HOTSWAP EXECUTE directed");
 		if (!current.V.equals(cfg.V)) {
@@ -160,7 +160,7 @@ public class Hotswap {
 		}
 	}
 
-	public static void execute(Graph g, DSConfigUndirected current,
+	public static void execute(IGraph g, DSConfigUndirected current,
 			DSConfigUndirected cfg) {
 		System.out.println("HOTSWAP EXECUTE undirected");
 		if (!current.V.equals(cfg.V)) {
@@ -174,27 +174,27 @@ public class Hotswap {
 		}
 	}
 
-	protected static void swapV(Graph g, Class<IDataStructure> ds) {
+	protected static void swapV(IGraph g, Class<IDataStructure> ds) {
 
 	}
 
-	protected static void swapE(Graph g, Class<IDataStructure> ds) {
+	protected static void swapE(IGraph g, Class<IDataStructure> ds) {
 
 	}
 
-	protected static void swapAdj(Graph g, Class<IDataStructure> ds) {
+	protected static void swapAdj(IGraph g, Class<IDataStructure> ds) {
 
 	}
 
-	protected static void swapIn(Graph g, Class<IDataStructure> ds) {
+	protected static void swapIn(IGraph g, Class<IDataStructure> ds) {
 
 	}
 
-	protected static void swapOut(Graph g, Class<IDataStructure> ds) {
+	protected static void swapOut(IGraph g, Class<IDataStructure> ds) {
 
 	}
 
-	protected static void swapNeighbors(Graph g, Class<IDataStructure> ds) {
+	protected static void swapNeighbors(IGraph g, Class<IDataStructure> ds) {
 
 	}
 

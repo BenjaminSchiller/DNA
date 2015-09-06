@@ -6,7 +6,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
 
-import dna.graph.Graph;
+import dna.graph.IGraph;
 import dna.graph.nodes.Node;
 import dna.updates.generators.sampling.startNode.StartNodeSelectionStrategy;
 
@@ -41,7 +41,7 @@ public class MaximumObservedDegree extends SamplingAlgorithm {
 	 *            the parameters which makes this algorithm unique and which
 	 *            will be added to the name
 	 */
-	public MaximumObservedDegree(Graph fullGraph,
+	public MaximumObservedDegree(IGraph fullGraph,
 			StartNodeSelectionStrategy startNodeStrategy, int costPerBatch,
 			int resource, SamplingStop stop, WalkingType walkingType) {
 		super("MOD", fullGraph, startNodeStrategy, costPerBatch, resource,

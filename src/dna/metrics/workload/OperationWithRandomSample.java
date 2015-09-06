@@ -1,6 +1,6 @@
 package dna.metrics.workload;
 
-import dna.graph.Graph;
+import dna.graph.IGraph;
 import dna.graph.edges.Edge;
 import dna.graph.nodes.Node;
 import dna.util.parameters.IntParameter;
@@ -69,7 +69,7 @@ public abstract class OperationWithRandomSample extends Operation {
 	}
 
 	@Override
-	public void init(Graph g) {
+	public void init(IGraph g) {
 		for (int i = 0; i < this.nodes.length; i++) {
 			this.nodes[i] = g.getRandomNode();
 		}

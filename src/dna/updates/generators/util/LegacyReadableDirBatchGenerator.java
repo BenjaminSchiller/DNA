@@ -2,7 +2,7 @@ package dna.updates.generators.util;
 
 import java.io.FilenameFilter;
 
-import dna.graph.Graph;
+import dna.graph.IGraph;
 import dna.io.LegacyBatchReader;
 import dna.updates.batch.Batch;
 
@@ -18,7 +18,7 @@ public class LegacyReadableDirBatchGenerator extends ReadableDirBatchGenerator {
 	}
 
 	@Override
-	public Batch generate(Graph g) {
+	public Batch generate(IGraph g) {
 		return LegacyBatchReader.read(dir, this.filenames[this.index++], g);
 	}
 

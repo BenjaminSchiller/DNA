@@ -28,7 +28,7 @@ import dna.util.Log;
  * @author Nico
  * 
  */
-public class Graph {
+public class Graph implements IGraph{
 	public INodeListDatastructure nodes;
 	public IEdgeListDatastructure edges;
 	private String name;

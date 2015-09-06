@@ -1,6 +1,6 @@
 package dna.metrics.workload;
 
-import dna.graph.Graph;
+import dna.graph.IGraph;
 import dna.metrics.IMetric;
 import dna.metrics.Metric;
 import dna.metrics.algorithms.IRecomputation;
@@ -110,7 +110,7 @@ public class WorkloadMetric extends Metric implements IRecomputation {
 	}
 
 	@Override
-	public boolean isApplicable(Graph g) {
+	public boolean isApplicable(IGraph g) {
 		return true;
 	}
 

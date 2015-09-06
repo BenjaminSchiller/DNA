@@ -1,12 +1,12 @@
 package dna.updates.generators;
 
-import dna.graph.Graph;
+import dna.graph.IGraph;
 import dna.updates.batch.Batch;
 
 public interface IBatchGenerator {
-	public Batch generate(Graph g);
+	public Batch generate(IGraph g);
 
 	public void reset();
 
-	public boolean isFurtherBatchPossible(Graph g);
+	public boolean isFurtherBatchPossible(IGraph g);
 }

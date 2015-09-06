@@ -1,6 +1,6 @@
 package dna.updates.generators.zalando;
 
-import dna.graph.Graph;
+import dna.graph.IGraph;
 import dna.graph.datastructures.GraphDataStructure;
 import dna.graph.datastructures.zalando.ZalandoGraphDataStructure;
 import dna.graph.generators.zalando.data.Event;
@@ -51,7 +51,7 @@ public class ProductsActionsChronologyBatchGenerator extends
 	 *            added.
 	 */
 	@Override
-	void addEdgesForColumns(Graph g, Event event) {
+	void addEdgesForColumns(IGraph g, Event event) {
 		int nodeForEventIndex, mappingForColumnGroup;
 		nodeForEventIndex = this.mappings.getMapping(
 				this.columnGroupsToAddAsNodes[0], event);

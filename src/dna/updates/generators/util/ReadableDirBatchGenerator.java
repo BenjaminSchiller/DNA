@@ -6,7 +6,7 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
 
-import dna.graph.Graph;
+import dna.graph.IGraph;
 import dna.io.BatchReader;
 import dna.updates.batch.Batch;
 import dna.updates.generators.BatchGenerator;
@@ -61,7 +61,7 @@ public class ReadableDirBatchGenerator extends BatchGenerator {
 	}
 
 	@Override
-	public Batch generate(Graph g) {
+	public Batch generate(IGraph g) {
 		return BatchReader.read(dir, this.filenames[this.index++], g);
 	}
 
@@ -71,7 +71,7 @@ public class ReadableDirBatchGenerator extends BatchGenerator {
 	}
 
 	@Override
-	public boolean isFurtherBatchPossible(Graph g) {
+	public boolean isFurtherBatchPossible(IGraph g) {
 		return index < this.filenames.length;
 	}
 

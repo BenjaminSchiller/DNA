@@ -1,6 +1,6 @@
 package dna.metrics.paths;
 
-import dna.graph.Graph;
+import dna.graph.IGraph;
 import dna.metrics.IMetric;
 import dna.updates.batch.Batch;
 
@@ -17,7 +17,7 @@ public abstract class UnweightedSingleSourceShortestPaths extends
 	}
 
 	@Override
-	public boolean isApplicable(Graph g) {
+	public boolean isApplicable(IGraph g) {
 		return true;
 	}
 

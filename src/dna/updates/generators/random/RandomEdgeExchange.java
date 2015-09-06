@@ -2,7 +2,7 @@ package dna.updates.generators.random;
 
 import java.util.HashSet;
 
-import dna.graph.Graph;
+import dna.graph.IGraph;
 import dna.graph.edges.DirectedEdge;
 import dna.graph.edges.Edge;
 import dna.graph.edges.UndirectedEdge;
@@ -26,7 +26,7 @@ public class RandomEdgeExchange extends BatchGenerator {
 	}
 
 	@Override
-	public Batch generate(Graph g) {
+	public Batch generate(IGraph g) {
 		Batch b = new Batch(g.getGraphDatastructures(), g.getTimestamp(),
 				g.getTimestamp() + 1);
 
@@ -118,7 +118,7 @@ public class RandomEdgeExchange extends BatchGenerator {
 	}
 
 	@Override
-	public boolean isFurtherBatchPossible(Graph g) {
+	public boolean isFurtherBatchPossible(IGraph g) {
 		return this.edges < g.getEdgeCount() / 2;
 	}
 }

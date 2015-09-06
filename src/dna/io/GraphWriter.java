@@ -2,7 +2,7 @@ package dna.io;
 
 import java.io.IOException;
 
-import dna.graph.Graph;
+import dna.graph.IGraph;
 import dna.graph.IElement;
 
 public class GraphWriter {
@@ -18,7 +18,7 @@ public class GraphWriter {
 	public static final String nodesListKeyword = "List of Nodes";
 	public static final String edgesListKeyword = "List of Edges";
 
-	public static boolean write(Graph g, String dir, String filename) {
+	public static boolean write(IGraph g, String dir, String filename) {
 		Writer writer = null;
 		try {
 			writer = new Writer(dir, filename);

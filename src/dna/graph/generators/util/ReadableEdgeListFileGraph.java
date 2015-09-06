@@ -2,7 +2,7 @@ package dna.graph.generators.util;
 
 import java.io.IOException;
 
-import dna.graph.Graph;
+import dna.graph.IGraph;
 import dna.graph.datastructures.GraphDataStructure;
 import dna.graph.generators.GraphGenerator;
 import dna.io.EdgeListGraphReader;
@@ -28,9 +28,9 @@ public class ReadableEdgeListFileGraph extends GraphGenerator {
 	}
 
 	@Override
-	public Graph generate() {
+	public IGraph generate() {
 		try {
-			Graph g = EdgeListGraphReader.read(this.dir, this.filename,
+			IGraph g = EdgeListGraphReader.read(this.dir, this.filename,
 					this.separator, this.gds);
 			return g;
 		} catch (IOException e) {

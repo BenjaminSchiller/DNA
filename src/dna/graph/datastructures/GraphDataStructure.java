@@ -299,7 +299,7 @@ public class GraphDataStructure implements Cloneable {
 		this.edgeType = edgeType;
 	}
 
-	public Graph newGraphInstance(String name, long timestamp, int nodes,
+	public IGraph newGraphInstance(String name, long timestamp, int nodes,
 			int edges) {
 		this.canGDSCreateProperLists();
 		this.defaultListSizes.put(ListType.GlobalNodeList, nodes);
@@ -522,11 +522,11 @@ public class GraphDataStructure implements Cloneable {
 		}
 	}
 
-	public Edge newEdgeInstance(String str, Graph graph,
+	public Edge newEdgeInstance(String str, IGraph graph,
 			HashMap<Integer, Node> addedNodes) {
 		Constructor<? extends Edge> c;
 		try {
-			c = edgeType.getConstructor(String.class, Graph.class,
+			c = edgeType.getConstructor(String.class, IGraph.class,
 					HashMap.class);
 			return c.newInstance(str, graph, addedNodes);
 		} catch (InvocationTargetException ite) {
@@ -543,10 +543,10 @@ public class GraphDataStructure implements Cloneable {
 		}
 	}
 
-	public Edge newEdgeInstance(String str, Graph graph) {
+	public Edge newEdgeInstance(String str, IGraph graph) {
 		Constructor<? extends Edge> c;
 		try {
-			c = edgeType.getConstructor(String.class, Graph.class);
+			c = edgeType.getConstructor(String.class, IGraph.class);
 			return c.newInstance(str, graph);
 		} catch (InvocationTargetException ite) {
 			RuntimeException rt = new RuntimeException(
@@ -837,7 +837,7 @@ public class GraphDataStructure implements Cloneable {
 	 * @param newGDS
 	 * @param g
 	 */
-	public void switchDatastructures(GraphDataStructure newGDS, Graph g) {
+	public void switchDatastructures(GraphDataStructure newGDS, IGraph g) {
 		if (!this.isReadable(getListClass(ListType.GlobalEdgeList))) {
 			System.err
 					.println("Reject switching data structures, as graph edge list of type "
