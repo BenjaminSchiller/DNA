@@ -65,10 +65,10 @@ public abstract class GraphGenerator extends ParameterList implements
 		if (gds == null) {
 			return name;
 		}
-		if (gds.createsDirected()) {
+		if (gds.createsDirected()/* || gds.createsDirectedGDB()*/) {
 			return "Directed" + name;
 		}
-		if (gds.createsUndirected()) {
+		if (gds.createsUndirected()/* || gds.createsUndirectedGDB()*/) {
 			return "Undirected" + name;
 		}
 		return name;

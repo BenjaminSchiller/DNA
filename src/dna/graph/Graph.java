@@ -5,7 +5,7 @@ import java.util.Iterator;
 
 import com.google.common.collect.Iterables;
 
-import dna.graph.datastructures.DataStructure.ListType;
+import dna.graph.DNAGraphFactory.DNAGraphType;import dna.graph.datastructures.DataStructure.ListType;
 import dna.graph.datastructures.GraphDataStructure;
 import dna.graph.datastructures.IDataStructure;
 import dna.graph.datastructures.IEdgeListDatastructure;
@@ -364,4 +364,14 @@ public class Graph implements IGraph{
 		}
 	}
 
+	@Override
+	public void close() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public DNAGraphType getInstanceType() {		
+		return DNAGraphType.DNA;
+	}	
 }
