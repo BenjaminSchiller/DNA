@@ -44,10 +44,8 @@ public abstract class SamplingAlgorithm extends BatchGenerator {
 	private boolean noFurtherBatch;
 
 	private int costPerBatch;
-	private int graphSize;
 	private int resource;
 	private int initialResource;
-	private int nodeDirection;
 
 	private long timeStamp;
 
@@ -104,22 +102,12 @@ public abstract class SamplingAlgorithm extends BatchGenerator {
 		firstIteration = true;
 		noFurtherBatch = false;
 
-		graphSize = fullGraph.getNodeCount();
-
-		seenNodes = new HashSet<Node>(graphSize);
-		visitedNodes = new HashSet<Node>(graphSize);
+		seenNodes = new HashSet<Node>(fullGraph.getNodeCount());
+		visitedNodes = new HashSet<Node>(fullGraph.getNodeCount());
 
 		addedNodes = new HashMap<Integer, Node>();
 
 		this.samplingStop = samplingStop;
-
-		if (DirectedNode.class.isAssignableFrom(this.fullGraph
-				.getGraphDatastructures().getNodeType())) {
-			nodeDirection = 1;
-		} else {
-			nodeDirection = 0;
-		}
-
 	}
 
 	/**
@@ -312,8 +300,8 @@ public abstract class SamplingAlgorithm extends BatchGenerator {
 	 */
 	public void reset() {
 
-		seenNodes = new HashSet<Node>(graphSize);
-		visitedNodes = new HashSet<Node>(graphSize);
+		seenNodes = new HashSet<Node>(fullGraph.getNodeCount());
+		visitedNodes = new HashSet<Node>(fullGraph.getNodeCount());
 
 		addedNodes = new HashMap<Integer, Node>();
 
@@ -435,7 +423,7 @@ public abstract class SamplingAlgorithm extends BatchGenerator {
 	 *            the node
 	 */
 	protected Iterable<IElement> getEdgesFromNode(Node n) {
-		if (nodeDirection == 1) {
+		if (fullGraph.isDirected()) {
 			return ((DirectedNode) n).getOutgoingEdges();
 		} else {
 			return n.getEdges();
@@ -449,7 +437,7 @@ public abstract class SamplingAlgorithm extends BatchGenerator {
 	 *            the node
 	 */
 	protected int getDegreeFromNode(Node n) {
-		if (nodeDirection == 1) {
+		if (fullGraph.isDirected()) {
 			return ((DirectedNode) n).getOutDegree();
 		} else {
 			return ((UndirectedNode) n).getDegree();
@@ -506,6 +494,10 @@ public abstract class SamplingAlgorithm extends BatchGenerator {
 	 */
 	protected long getTimeStamp() {
 		return timeStamp;
+	}
+
+	public Graph getFullGraph() {
+		return fullGraph;
 	}
 
 }
