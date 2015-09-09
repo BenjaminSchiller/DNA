@@ -49,9 +49,10 @@ public class SnowballSampling extends SamplingAlgorithm {
 	 */
 	public SnowballSampling(Graph fullGraph,
 			StartNodeSelectionStrategy startNodeStrategy, int costPerBatch,
-			int resource, int numberOfNeighborsVisited, SamplingStop stop) {
+			int resource, int numberOfNeighborsVisited, SamplingStop stop,
+			WalkingType walkingType) {
 		super("SS_" + numberOfNeighborsVisited, fullGraph, startNodeStrategy,
-				costPerBatch, resource, stop);
+				costPerBatch, resource, stop, walkingType);
 
 		this.numberOfNeighborsVisited = numberOfNeighborsVisited;
 		nodesInQueue = new HashSet<Node>();

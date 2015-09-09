@@ -49,9 +49,10 @@ public class FrontierSampling extends SamplingAlgorithm {
 	 */
 	public FrontierSampling(Graph fullGraph,
 			StartNodeSelectionStrategy startNodeStrategy, int costPerBatch,
-			int resource, int numberOfWalkers, SamplingStop stop) {
+			int resource, int numberOfWalkers, SamplingStop stop,
+			WalkingType walkingType) {
 		super("FS_" + numberOfWalkers, fullGraph, startNodeStrategy,
-				costPerBatch, resource, stop);
+				costPerBatch, resource, stop, walkingType);
 
 		if (startNodeStrategy.getClass() != RandomSelection.class) {
 			throw new IllegalArgumentException(

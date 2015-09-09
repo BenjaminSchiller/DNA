@@ -55,6 +55,12 @@ public abstract class SamplingAlgorithm extends BatchGenerator {
 
 	private SamplingStop samplingStop;
 
+	public static enum WalkingType {
+		AllEdges, InEdges, OutEdges
+	}
+
+	private WalkingType walkingType;
+
 	/**
 	 * Initializes the sampling algorithm
 	 * 
@@ -77,13 +83,14 @@ public abstract class SamplingAlgorithm extends BatchGenerator {
 	 */
 	public SamplingAlgorithm(String name, Graph fullGraph,
 			StartNodeSelectionStrategy startNodeStrategy, int costPerBatch,
-			int resource, SamplingStop samplingStop) {
+			int resource, SamplingStop samplingStop, WalkingType walkingType) {
 		super(name, new Parameter[] {
 				new StringParameter("start", startNodeStrategy.getClass()
 						.getSimpleName()),
 				new IntParameter("cost", costPerBatch),
 				new IntParameter("resource", resource),
-				new StringParameter("samplingStop", samplingStop.toString()) });
+				new StringParameter("samplingStop", samplingStop.toString()),
+				new StringParameter("walkingType", walkingType.toString()) });
 
 		this.fullGraph = fullGraph;
 		this.costPerBatch = costPerBatch;
@@ -108,6 +115,8 @@ public abstract class SamplingAlgorithm extends BatchGenerator {
 		addedNodes = new HashMap<Integer, Node>();
 
 		this.samplingStop = samplingStop;
+
+		this.walkingType = walkingType;
 	}
 
 	/**

@@ -43,8 +43,9 @@ public class MaximumObservedDegree extends SamplingAlgorithm {
 	 */
 	public MaximumObservedDegree(Graph fullGraph,
 			StartNodeSelectionStrategy startNodeStrategy, int costPerBatch,
-			int resource, SamplingStop stop) {
-		super("MOD", fullGraph, startNodeStrategy, costPerBatch, resource, stop);
+			int resource, SamplingStop stop, WalkingType walkingType) {
+		super("MOD", fullGraph, startNodeStrategy, costPerBatch, resource,
+				stop, walkingType);
 
 		maxNodeID = fullGraph.getMaxNodeIndex() + 1;
 		greyZone = new HashMap<Integer, Double>();

@@ -39,8 +39,9 @@ public class UniformSampling extends SamplingAlgorithm {
 	 */
 	public UniformSampling(Graph fullGraph,
 			StartNodeSelectionStrategy startNodeStrategy, int costPerBatch,
-			int resource, SamplingStop stop) {
-		super("US", fullGraph, startNodeStrategy, costPerBatch, resource, stop);
+			int resource, SamplingStop stop, WalkingType walkingType) {
+		super("US", fullGraph, startNodeStrategy, costPerBatch, resource, stop,
+				walkingType);
 
 		notVisited = makeList(fullGraph.getNodes());
 	}

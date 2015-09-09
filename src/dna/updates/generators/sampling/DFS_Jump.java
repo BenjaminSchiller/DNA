@@ -39,9 +39,9 @@ public class DFS_Jump extends SamplingAlgorithm {
 	 */
 	public DFS_Jump(Graph fullGraph,
 			StartNodeSelectionStrategy startNodeStrategy, int costPerBatch,
-			int resource, SamplingStop stop) {
+			int resource, SamplingStop stop, WalkingType walkingType) {
 		super("DFS_Jump", fullGraph, startNodeStrategy, costPerBatch, resource,
-				stop);
+				stop, walkingType);
 
 		queue = new LinkedList<Node>();
 		nodesInQueue = new HashSet<Node>();
