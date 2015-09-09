@@ -21,9 +21,9 @@ import dna.graph.datastructures.DataStructure.ListType;
 import dna.graph.edges.DirectedEdge;
 import dna.graph.edges.DirectedBlueprintsEdge;
 import dna.graph.edges.DummyDirectedEdge;
-import dna.graph.edges.DummyDirectedGDBEdge;
+import dna.graph.edges.DummyDirectedBlueprintsEdge;
 import dna.graph.edges.DummyUndirectedEdge;
-import dna.graph.edges.DummyUndirectedGDBEdge;
+import dna.graph.edges.DummyUndirectedBlueprintsEdge;
 import dna.graph.edges.Edge;
 import dna.graph.edges.IEdgeDummy;
 import dna.graph.edges.UndirectedEdge;
@@ -621,11 +621,11 @@ public class GraphDataStructure implements Cloneable {
 			if (createsDirected()) {
 				DirectedBlueprintsNode node1 = new DirectedBlueprintsNode(1, this);
 				DirectedBlueprintsNode node2 = new DirectedBlueprintsNode(2, this);
-				edgeDummy = new DummyDirectedGDBEdge(node1, node2);
+				edgeDummy = new DummyDirectedBlueprintsEdge(node1, node2);
 			} else {
 				UndirectedBlueprintsNode node1 = new UndirectedBlueprintsNode(1, this);
 				UndirectedBlueprintsNode node2 = new UndirectedBlueprintsNode(2, this);
-				edgeDummy = new DummyUndirectedGDBEdge(node1, node2);
+				edgeDummy = new DummyUndirectedBlueprintsEdge(node1, node2);
 			}
 		}
 		edgeDummy.setNodes(n1, n2);

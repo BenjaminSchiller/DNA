@@ -2,9 +2,9 @@ package dna.graph.edges;
 
 import dna.graph.nodes.UndirectedBlueprintsNode;
 
-public class DummyUndirectedGDBEdge extends UndirectedBlueprintsEdge implements IEdgeDummy {
+public class DummyUndirectedBlueprintsEdge extends UndirectedBlueprintsEdge implements IEdgeDummy {
 
-	public DummyUndirectedGDBEdge(UndirectedBlueprintsNode src, UndirectedBlueprintsNode dst) {
+	public DummyUndirectedBlueprintsEdge(UndirectedBlueprintsNode src, UndirectedBlueprintsNode dst) {
 		super(src, dst);
 	}
 
