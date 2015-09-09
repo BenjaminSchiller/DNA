@@ -20,6 +20,9 @@ public class EdgeListGraphReader {
 		String line = null;
 		while ((line = reader.readString()) != null) {
 			String[] temp = line.split(separator);
+			if (temp[0].equals(temp[1])) {
+				continue;
+			}
 			if (!mapping.containsKey(temp[0])) {
 				mapping.put(temp[0], nodes++);
 			}
@@ -38,6 +41,9 @@ public class EdgeListGraphReader {
 		reader = new Reader(dir, filename);
 		while ((line = reader.readString()) != null) {
 			String[] temp = line.split(separator);
+			if (temp[0].equals(temp[1])) {
+				continue;
+			}
 			Node src = g.getNode(mapping.get(temp[0]));
 			Node dst = g.getNode(mapping.get(temp[1]));
 			Edge e = gds.newEdgeInstance(src, dst);
