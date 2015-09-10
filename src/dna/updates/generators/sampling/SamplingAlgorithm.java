@@ -8,6 +8,7 @@ import java.util.List;
 import dna.graph.Graph;
 import dna.graph.IElement;
 import dna.graph.datastructures.GraphDataStructure;
+import dna.graph.edges.DirectedEdge;
 import dna.graph.edges.Edge;
 import dna.graph.nodes.DirectedNode;
 import dna.graph.nodes.Node;
@@ -243,10 +244,10 @@ public abstract class SamplingAlgorithm extends BatchGenerator {
 	 */
 	private List<Update> addNeighbors(Node nodeFromFullGraph, Node newNode,
 			Graph g) {
-
 		List<Update> updateList = new ArrayList<Update>();
 
-		Iterable<IElement> iter = getEdgesFromNode(nodeFromFullGraph);
+		// Iterable<IElement> iter = getEdgesFromNode(nodeFromFullGraph);
+		Iterable<IElement> iter = nodeFromFullGraph.getEdges();
 
 		// Iterate over all edges
 		for (IElement e : iter) {
@@ -265,10 +266,20 @@ public abstract class SamplingAlgorithm extends BatchGenerator {
 				} else {
 					dstNode = g.getNode(neighbor.getIndex());
 				}
-				Edge newEdge = gds.newEdgeInstance(newNode, dstNode);
+
+				Edge newEdge = null;
+				if (fullGraph.isDirected()) {
+					if (((DirectedEdge) edge).getDstIndex() == dstNode
+							.getIndex()) {
+						newEdge = gds.newEdgeInstance(newNode, dstNode);
+					} else {
+						newEdge = gds.newEdgeInstance(dstNode, newNode);
+					}
+				} else {
+					newEdge = gds.newEdgeInstance(newNode, dstNode);
+				}
 				updateList.add(new EdgeAddition(newEdge));
 			} else {
-
 				// No -> continue
 				// Is the neighbor in the seen HashSet?
 				if (!seenNodes.contains(neighbor)) {
@@ -348,6 +359,9 @@ public abstract class SamplingAlgorithm extends BatchGenerator {
 	 * @return a list of unvisited nodes
 	 */
 	protected ArrayList<Node> getUnvisitedNeighbors(Node n) {
+		if (true) {
+			return this.getUnvisitedWalkingNeighbors(n);
+		}
 
 		ArrayList<Node> neighbors = new ArrayList<Node>();
 		Iterable<IElement> iter = getEdgesFromNode(n);
@@ -370,6 +384,9 @@ public abstract class SamplingAlgorithm extends BatchGenerator {
 	 * @return a list of unseen nodes
 	 */
 	protected ArrayList<Node> getUnseenNeighbors(Node n) {
+		if (true) {
+			return this.getUnseenWalkingNeighbors(n);
+		}
 
 		ArrayList<Node> neighbors = new ArrayList<Node>();
 		Iterable<IElement> iter = getEdgesFromNode(n);
@@ -392,6 +409,9 @@ public abstract class SamplingAlgorithm extends BatchGenerator {
 	 * @return a list of already visited nodes
 	 */
 	protected ArrayList<Node> getVisitedNeighbors(Node n) {
+		if (true) {
+			return this.getVisitedWalkingNeighbors(n);
+		}
 
 		ArrayList<Node> neighbors = new ArrayList<Node>();
 		Iterable<IElement> iter = getEdgesFromNode(n);
@@ -414,6 +434,10 @@ public abstract class SamplingAlgorithm extends BatchGenerator {
 	 * @return a list of nodes
 	 */
 	protected ArrayList<Node> getAllNeighbors(Node n) {
+		if (true) {
+			return this.getNeighbors(n);
+		}
+
 		ArrayList<Node> neighbors = new ArrayList<Node>();
 		Iterable<IElement> iter = getEdgesFromNode(n);
 
@@ -432,6 +456,10 @@ public abstract class SamplingAlgorithm extends BatchGenerator {
 	 *            the node
 	 */
 	protected Iterable<IElement> getEdgesFromNode(Node n) {
+		if (true) {
+			return this.getWalkingEdges(n);
+		}
+
 		if (fullGraph.isDirected()) {
 			return ((DirectedNode) n).getOutgoingEdges();
 		} else {
@@ -446,6 +474,10 @@ public abstract class SamplingAlgorithm extends BatchGenerator {
 	 *            the node
 	 */
 	protected int getDegreeFromNode(Node n) {
+		if (true) {
+			return this.getWalkingDegree(n);
+		}
+
 		if (fullGraph.isDirected()) {
 			return ((DirectedNode) n).getOutDegree();
 		} else {
@@ -505,8 +537,138 @@ public abstract class SamplingAlgorithm extends BatchGenerator {
 		return timeStamp;
 	}
 
+	/**
+	 * 
+	 * @return full graph from which the sampling is done
+	 */
 	public Graph getFullGraph() {
 		return fullGraph;
+	}
+
+	/*
+	 * edges
+	 */
+
+	protected Iterable<IElement> getEdges(Node n) {
+		return n.getEdges();
+	}
+
+	/*
+	 * walking edges
+	 */
+
+	protected Iterable<IElement> getWalkingEdges(Node n) {
+		switch (walkingType) {
+		case AllEdges:
+			return n.getEdges();
+		case InEdges:
+			return ((DirectedNode) n).getIncomingEdges();
+		case OutEdges:
+			return ((DirectedNode) n).getOutgoingEdges();
+		default:
+			throw new IllegalArgumentException("unknown walking type: "
+					+ walkingType);
+		}
+	}
+
+	/*
+	 * neighbors
+	 */
+
+	protected ArrayList<Node> getNeighbors(Node n) {
+		HashSet<Node> neighbors = new HashSet<Node>();
+		for (IElement e_ : n.getEdges()) {
+			neighbors.add(((Edge) e_).getDifferingNode(n));
+		}
+		return new ArrayList<Node>(neighbors);
+	}
+
+	protected ArrayList<Node> getUnseenNeighbors_(Node n) {
+		ArrayList<Node> unseen = new ArrayList<Node>();
+		for (Node neighbor : getNeighbors(n)) {
+			if (!this.seenNodes.contains(neighbor)) {
+				unseen.add(neighbor);
+			}
+		}
+		return unseen;
+	}
+
+	protected ArrayList<Node> getUnvisitedNeighbors_(Node n) {
+		ArrayList<Node> unvisited = new ArrayList<Node>();
+		for (Node neighbor : getNeighbors(n)) {
+			if (!this.visitedNodes.contains(neighbor)) {
+				unvisited.add(neighbor);
+			}
+		}
+		return unvisited;
+	}
+
+	/*
+	 * walking neighbors
+	 */
+
+	protected ArrayList<Node> getWalkingNeighbors(Node n) {
+		HashSet<Node> neighbors = new HashSet<Node>();
+		for (IElement e_ : getWalkingEdges(n)) {
+			neighbors.add(((Edge) e_).getDifferingNode(n));
+		}
+		return new ArrayList<Node>(neighbors);
+	}
+
+	protected ArrayList<Node> getUnseenWalkingNeighbors(Node n) {
+		ArrayList<Node> unseen = new ArrayList<Node>();
+		for (IElement neighbor : getWalkingNeighbors(n)) {
+			if (!this.seenNodes.contains(neighbor)) {
+				unseen.add((Node) neighbor);
+			}
+		}
+		return unseen;
+	}
+
+	protected ArrayList<Node> getUnvisitedWalkingNeighbors(Node n) {
+		ArrayList<Node> unvisited = new ArrayList<Node>();
+		for (IElement neighbor : getWalkingNeighbors(n)) {
+			if (!this.visitedNodes.contains(neighbor)) {
+				unvisited.add((Node) neighbor);
+			}
+		}
+		return unvisited;
+	}
+
+	protected ArrayList<Node> getVisitedWalkingNeighbors(Node n) {
+		ArrayList<Node> visited = new ArrayList<Node>();
+		for (IElement neighbor : getWalkingNeighbors(n)) {
+			if (this.visitedNodes.contains(neighbor)) {
+				visited.add((Node) neighbor);
+			}
+		}
+		return visited;
+	}
+
+	/*
+	 * degree
+	 */
+
+	protected int getDegree(Node n) {
+		return n.getDegree();
+	}
+
+	/*
+	 * walking degree
+	 */
+
+	protected int getWalkingDegree(Node n) {
+		switch (walkingType) {
+		case AllEdges:
+			return n.getDegree();
+		case InEdges:
+			return ((DirectedNode) n).getInDegree();
+		case OutEdges:
+			return ((DirectedNode) n).getOutDegree();
+		default:
+			throw new IllegalArgumentException("unknown walking type: "
+					+ walkingType);
+		}
 	}
 
 }
