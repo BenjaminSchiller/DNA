@@ -115,6 +115,30 @@ public class ArrayUtils {
 		}
 	}
 
+	public static long[] add(long[] values, int index, long count) {
+		try {
+			values[index] += count;
+			return values;
+		} catch (ArrayIndexOutOfBoundsException e) {
+			long[] valuesNew = new long[index + 1];
+			System.arraycopy(values, 0, valuesNew, 0, values.length);
+			valuesNew[index] = count;
+			return valuesNew;
+		}
+	}
+
+	public static long[] sub(long[] values, int index, long count) {
+		try {
+			values[index] -= count;
+			return values;
+		} catch (ArrayIndexOutOfBoundsException e) {
+			long[] valuesNew = new long[index + 1];
+			System.arraycopy(values, 0, valuesNew, 0, values.length);
+			valuesNew[index] = -count;
+			return valuesNew;
+		}
+	}
+
 	public static double[] set(double[] values, int index, double value,
 			double defaultValue) {
 		try {

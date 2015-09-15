@@ -19,7 +19,7 @@ import dna.util.ArrayUtils;
 
 public class UndirectedClusteringCoefficientU extends
 		UndirectedClusteringCoefficient implements IBeforeNA, IBeforeNR,
-		IBeforeEA, IAfterER {
+		IBeforeEA, IAfterER, Cloneable {
 
 	public UndirectedClusteringCoefficientU() {
 		super("UndirectedClusteringCoefficientU");
@@ -228,6 +228,11 @@ public class UndirectedClusteringCoefficientU extends
 		this.removePotentials(b, b.getDegree());
 
 		return true;
+	}
+
+	@Override
+	public UndirectedClusteringCoefficientU clone() {
+		return new UndirectedClusteringCoefficientU();
 	}
 
 }
