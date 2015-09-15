@@ -14,19 +14,19 @@ import dna.util.parameters.Parameter;
 
 public abstract class ClusteringCoefficient extends Metric {
 
-	protected double globalCC;
+	public double globalCC;
 
-	protected double averageCC;
+	public double averageCC;
 
-	protected NodeValueList localCC;
+	public NodeValueList localCC;
 
-	protected long triangleCount;
+	public long triangleCount;
 
-	protected long potentialCount;
+	public long potentialCount;
 
-	protected LongList nodeTriangleCount;
+	public LongList nodeTriangleCount;
 
-	protected LongList nodePotentialCount;
+	public LongList nodePotentialCount;
 
 	public ClusteringCoefficient(String name, Parameter... p) {
 		super(name, p);

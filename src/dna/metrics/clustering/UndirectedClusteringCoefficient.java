@@ -111,7 +111,7 @@ public abstract class UndirectedClusteringCoefficient extends
 		return true;
 	}
 
-	private void update(int index) {
+	public void update(int index) {
 		this.triangleCount += this.nodeTriangleCount.getValue(index);
 		this.potentialCount += this.nodePotentialCount.getValue(index);
 		if (this.nodePotentialCount.getValue(index) == 0) {
@@ -123,7 +123,7 @@ public abstract class UndirectedClusteringCoefficient extends
 		}
 	}
 
-	private void update() {
+	public void update() {
 		if (this.potentialCount == 0) {
 			this.globalCC = 0;
 		} else {
