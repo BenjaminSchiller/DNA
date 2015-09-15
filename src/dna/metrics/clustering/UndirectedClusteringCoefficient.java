@@ -5,6 +5,7 @@ import dna.graph.IElement;
 import dna.graph.edges.UndirectedEdge;
 import dna.graph.nodes.DirectedNode;
 import dna.graph.nodes.UndirectedNode;
+import dna.series.data.lists.LongList;
 import dna.series.data.nodevaluelists.NodeValueList;
 import dna.updates.batch.Batch;
 import dna.util.ArrayUtils;
@@ -34,10 +35,12 @@ public abstract class UndirectedClusteringCoefficient extends
 				this.g.getMaxNodeIndex() + 1);
 		this.triangleCount = 0;
 		this.potentialCount = 0;
-		this.nodeTriangleCount = ArrayUtils.init(g.getMaxNodeIndex() + 1,
-				Long.MIN_VALUE);
-		this.nodePotentialCount = ArrayUtils.init(g.getMaxNodeIndex() + 1,
-				Long.MIN_VALUE);
+		// this.nodeTriangleCount = ArrayUtils.init(g.getMaxNodeIndex() + 1,
+		// Long.MIN_VALUE);
+		// this.nodePotentialCount = ArrayUtils.init(g.getMaxNodeIndex() + 1,
+		// Long.MIN_VALUE);
+		this.nodePotentialCount = new LongList(g.getMaxNodeIndex() + 1);
+		this.nodeTriangleCount = new LongList(g.getMaxNodeIndex() + 1);
 
 		if (g.isDirected()) {
 			return this.computeDirected();
@@ -51,8 +54,6 @@ public abstract class UndirectedClusteringCoefficient extends
 
 		for (IElement aUncasted : g.getNodes()) {
 			UndirectedNode a = (UndirectedNode) aUncasted;
-			this.nodeTriangleCount[a.getIndex()] = 0;
-			this.nodePotentialCount[a.getIndex()] = 0;
 
 			for (IElement e1Uncasted : a.getEdges()) {
 				UndirectedEdge e1 = (UndirectedEdge) e1Uncasted;
@@ -63,14 +64,14 @@ public abstract class UndirectedClusteringCoefficient extends
 					if (b.equals(c)) {
 						continue;
 					}
-					this.nodePotentialCount[a.getIndex()]++;
+					this.nodePotentialCount.incr(a.getIndex());
 					if (b.hasEdge(b, c)) {
-						this.nodeTriangleCount[a.getIndex()]++;
+						this.nodeTriangleCount.incr(a.getIndex());
 					}
 				}
 			}
-			this.nodeTriangleCount[a.getIndex()] /= 2;
-			this.nodePotentialCount[a.getIndex()] /= 2;
+			this.nodeTriangleCount.div(a.getIndex(), 2);
+			this.nodePotentialCount.div(a.getIndex(), 2);
 
 			this.update(a.getIndex());
 		}
@@ -85,8 +86,6 @@ public abstract class UndirectedClusteringCoefficient extends
 
 		for (IElement aUncasted : g.getNodes()) {
 			DirectedNode a = (DirectedNode) aUncasted;
-			this.nodeTriangleCount[a.getIndex()] = 0;
-			this.nodePotentialCount[a.getIndex()] = 0;
 
 			for (IElement bUncasted : a.getNeighbors()) {
 				DirectedNode b = (DirectedNode) bUncasted;
@@ -95,14 +94,14 @@ public abstract class UndirectedClusteringCoefficient extends
 					if (b.equals(c)) {
 						continue;
 					}
-					this.nodePotentialCount[a.getIndex()]++;
+					this.nodePotentialCount.incr(a.getIndex());
 					if (b.hasNeighbor(c)) {
-						this.nodeTriangleCount[a.getIndex()]++;
+						this.nodeTriangleCount.incr(a.getIndex());
 					}
 				}
 			}
-			this.nodeTriangleCount[a.getIndex()] /= 2;
-			this.nodePotentialCount[a.getIndex()] /= 2;
+			this.nodeTriangleCount.div(a.getIndex(), 2);
+			this.nodePotentialCount.div(a.getIndex(), 2);
 
 			this.update(a.getIndex());
 		}
@@ -113,13 +112,14 @@ public abstract class UndirectedClusteringCoefficient extends
 	}
 
 	private void update(int index) {
-		this.triangleCount += this.nodeTriangleCount[index];
-		this.potentialCount += this.nodePotentialCount[index];
-		if (this.nodePotentialCount[index] == 0) {
+		this.triangleCount += this.nodeTriangleCount.getValue(index);
+		this.potentialCount += this.nodePotentialCount.getValue(index);
+		if (this.nodePotentialCount.getValue(index) == 0) {
 			this.localCC.setValue(index, 0);
 		} else {
-			this.localCC.setValue(index, (double) this.nodeTriangleCount[index]
-					/ (double) this.nodePotentialCount[index]);
+			this.localCC.setValue(index,
+					(double) this.nodeTriangleCount.getValue(index)
+							/ (double) this.nodePotentialCount.getValue(index));
 		}
 	}
 

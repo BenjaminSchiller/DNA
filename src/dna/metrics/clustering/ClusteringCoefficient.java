@@ -5,6 +5,7 @@ import dna.metrics.IMetric;
 import dna.metrics.Metric;
 import dna.series.data.Value;
 import dna.series.data.distributions.Distribution;
+import dna.series.data.lists.LongList;
 import dna.series.data.nodevaluelists.NodeNodeValueList;
 import dna.series.data.nodevaluelists.NodeValueList;
 import dna.util.ArrayUtils;
@@ -23,9 +24,9 @@ public abstract class ClusteringCoefficient extends Metric {
 
 	protected long potentialCount;
 
-	protected long[] nodeTriangleCount;
+	protected LongList nodeTriangleCount;
 
-	protected long[] nodePotentialCount;
+	protected LongList nodePotentialCount;
 
 	public ClusteringCoefficient(String name, Parameter... p) {
 		super(name, p);
@@ -73,43 +74,44 @@ public abstract class ClusteringCoefficient extends Metric {
 				"triangleCount");
 		success &= DataUtils.equals(this.potentialCount, cc.potentialCount,
 				"potentialCount");
-		success &= ArrayUtils.equals(this.nodeTriangleCount,
-				cc.nodeTriangleCount, "nodeTriangleCount");
-		success &= ArrayUtils.equals(this.nodePotentialCount,
-				cc.nodePotentialCount, "nodePotentialCount");
+		success &= ArrayUtils.equals(this.nodeTriangleCount.getValues(),
+				cc.nodeTriangleCount.getValues(), "nodeTriangleCount");
+		success &= ArrayUtils.equals(this.nodePotentialCount.getValues(),
+				cc.nodePotentialCount.getValues(), "nodePotentialCount");
 		return success;
 	}
 
 	protected void addTriangle(Node origin) {
 		this.triangleCount++;
-		this.nodeTriangleCount[origin.getIndex()]++;
+		this.nodeTriangleCount.incr(origin.getIndex());
 		this.updateNode(origin.getIndex());
 	}
 
 	protected void removeTriangle(Node origin) {
 		this.triangleCount--;
-		this.nodeTriangleCount[origin.getIndex()]--;
+		this.nodeTriangleCount.decr(origin.getIndex());
 		this.updateNode(origin.getIndex());
 	}
 
 	protected void addPotentials(Node origin, int count) {
 		this.potentialCount += count;
-		this.nodePotentialCount[origin.getIndex()] += count;
+		this.nodePotentialCount.add(origin.getIndex(), count);
 		this.updateNode(origin.getIndex());
 	}
 
 	protected void removePotentials(Node origin, int count) {
 		this.potentialCount -= count;
-		this.nodePotentialCount[origin.getIndex()] -= count;
+		this.nodePotentialCount.sub(origin.getIndex(), count);
 		this.updateNode(origin.getIndex());
 	}
 
 	protected void updateNode(int index) {
-		if (this.nodePotentialCount[index] == 0) {
+		if (this.nodePotentialCount.getValue(index) == 0) {
 			this.localCC.setValue(index, 0);
 		} else {
-			this.localCC.setValue(index, (double) this.nodeTriangleCount[index]
-					/ this.nodePotentialCount[index]);
+			this.localCC.setValue(index,
+					(double) this.nodeTriangleCount.getValue(index)
+							/ this.nodePotentialCount.getValue(index));
 		}
 		if (this.potentialCount == 0) {
 			this.globalCC = 0;

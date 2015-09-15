@@ -20,7 +20,11 @@ public class LongList {
 	}
 
 	public long getValue(int index) {
-		return this.values[index];
+		try {
+			return this.values[index];
+		} catch (ArrayIndexOutOfBoundsException e) {
+			return Long.MIN_VALUE;
+		}
 	}
 
 	public void setValue(int index, long value) {
@@ -32,6 +36,28 @@ public class LongList {
 			temp[index] = value;
 			this.values = temp;
 		}
+	}
+
+	public long div(int index, long value) {
+		try {
+			this.values[index] /= value;
+		} catch (ArrayIndexOutOfBoundsException e) {
+			long[] temp = new long[index + 1];
+			System.arraycopy(this.values, 0, temp, 0, this.values.length);
+			this.values = temp;
+		}
+		return this.values[index];
+	}
+
+	public long mult(int index, long value) {
+		try {
+			this.values[index] *= value;
+		} catch (ArrayIndexOutOfBoundsException e) {
+			long[] temp = new long[index + 1];
+			System.arraycopy(this.values, 0, temp, 0, this.values.length);
+			this.values = temp;
+		}
+		return this.values[index];
 	}
 
 	public long add(int index, long count) {

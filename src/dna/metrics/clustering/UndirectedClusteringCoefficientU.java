@@ -34,10 +34,12 @@ public class UndirectedClusteringCoefficientU extends
 	public boolean applyBeforeUpdate(NodeAddition na) {
 		Node n = (Node) na.getNode();
 		this.localCC.setValue(n.getIndex(), 0);
-		this.nodePotentialCount = ArrayUtils.set(this.nodePotentialCount,
-				n.getIndex(), 0, Long.MIN_VALUE);
-		this.nodeTriangleCount = ArrayUtils.set(this.nodeTriangleCount,
-				n.getIndex(), 0, Long.MIN_VALUE);
+		// this.nodePotentialCount = ArrayUtils.set(this.nodePotentialCount,
+		// n.getIndex(), 0, Long.MIN_VALUE);
+		// this.nodeTriangleCount = ArrayUtils.set(this.nodeTriangleCount,
+		// n.getIndex(), 0, Long.MIN_VALUE);
+		this.nodePotentialCount.setValue(n.getIndex(), 0);
+		this.nodeTriangleCount.setValue(n.getIndex(), 0);
 		this.averageCC = ArrayUtils.avgIgnoreNaN(this.localCC.getValues());
 
 		return true;
@@ -78,13 +80,14 @@ public class UndirectedClusteringCoefficientU extends
 				* (n.getNeighborCount() - 1) / 2);
 
 		this.localCC.setValue(n.getIndex(), NodeValueList.emptyValue);
-		this.nodePotentialCount[n.getIndex()] = Long.MIN_VALUE;
-		this.nodeTriangleCount[n.getIndex()] = Long.MIN_VALUE;
+		// this.nodePotentialCount[n.getIndex()] = Long.MIN_VALUE;
+		// this.nodeTriangleCount[n.getIndex()] = Long.MIN_VALUE;
 		this.localCC.truncate();
-		this.nodePotentialCount = ArrayUtils.truncate(this.nodePotentialCount,
-				Long.MIN_VALUE);
-		this.nodeTriangleCount = ArrayUtils.truncate(this.nodeTriangleCount,
-				Long.MIN_VALUE);
+		// this.nodePotentialCount =
+		// ArrayUtils.truncate(this.nodePotentialCount,
+		// Long.MIN_VALUE);
+		// this.nodeTriangleCount = ArrayUtils.truncate(this.nodeTriangleCount,
+		// Long.MIN_VALUE);
 
 		this.averageCC = ArrayUtils.avgIgnoreNaN(this.localCC.getValues());
 
@@ -115,13 +118,14 @@ public class UndirectedClusteringCoefficientU extends
 		this.removePotentials(n, n.getDegree() * (n.getDegree() - 1) / 2);
 
 		this.localCC.setValue(n.getIndex(), NodeValueList.emptyValue);
-		this.nodePotentialCount[n.getIndex()] = Long.MIN_VALUE;
-		this.nodeTriangleCount[n.getIndex()] = Long.MIN_VALUE;
+		// this.nodePotentialCount[n.getIndex()] = Long.MIN_VALUE;
+		// this.nodeTriangleCount[n.getIndex()] = Long.MIN_VALUE;
 		this.localCC.truncate();
-		this.nodePotentialCount = ArrayUtils.truncate(this.nodePotentialCount,
-				Long.MIN_VALUE);
-		this.nodeTriangleCount = ArrayUtils.truncate(this.nodeTriangleCount,
-				Long.MIN_VALUE);
+		// this.nodePotentialCount =
+		// ArrayUtils.truncate(this.nodePotentialCount,
+		// Long.MIN_VALUE);
+		// this.nodeTriangleCount = ArrayUtils.truncate(this.nodeTriangleCount,
+		// Long.MIN_VALUE);
 
 		return true;
 	}
