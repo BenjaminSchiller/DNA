@@ -25,25 +25,33 @@ import org.monte.media.math.Rational;
 import dna.util.Config;
 import dna.util.Log;
 import dna.visualization.graph.GraphPanel;
+import dna.visualization.graph.GraphVisualization;
 
 public class VisualizationUtils {
+
+	/** Captures a screenshot of the most current GraphVisualization-Frame. **/
+	public static void captureScreenshot(boolean waitForStabilization) {
+		GraphVisualization.getCurrentGraphPanel().makeScreenshot(
+				waitForStabilization);
+	}
 
 	/** Capture a screenshot of the JFrame. **/
 	public static void captureScreenshot(Component c) {
 		VisualizationUtils.captureScreenshot(c,
-				Config.get("GRAPH_VIS_SCREENSHOT_DIR"),
-				Config.get("GRAPH_VIS_SCREENSHOT_FORMAT"));
-	}
-
-	/** Capture a screenshot of the JFrame. **/
-	public static void captureScreenshot(Component c, String dstDir) {
-		VisualizationUtils.captureScreenshot(c, dstDir,
+				Config.get("GRAPH_VIS_SCREENSHOT_DIR"), null,
 				Config.get("GRAPH_VIS_SCREENSHOT_FORMAT"));
 	}
 
 	/** Capture a screenshot of the JFrame. **/
 	public static void captureScreenshot(Component c, String dstDir,
-			String format) {
+			String filename) {
+		VisualizationUtils.captureScreenshot(c, dstDir, filename,
+				Config.get("GRAPH_VIS_SCREENSHOT_FORMAT"));
+	}
+
+	/** Capture a screenshot of the JFrame. **/
+	public static void captureScreenshot(Component c, String dstDir,
+			String filename, String format) {
 		String name = c.getName();
 		String suffix = "." + format;
 
@@ -55,7 +63,9 @@ public class VisualizationUtils {
 		// get date format
 		DateFormat df = new SimpleDateFormat("yyyy_MM_dd-HH_mm_ss");
 
-		String filename = name + "-" + df.format(new Date());
+		// check filename is set
+		if (filename == null)
+			filename = name + "-" + df.format(new Date());
 
 		try {
 			Robot robot = new Robot();
@@ -83,27 +93,38 @@ public class VisualizationUtils {
 		}
 	}
 
+	/** Captures a video of the most current GraphVisualization-Frame. **/
+	public static void captureVideo() throws InterruptedException, IOException {
+		GraphVisualization.getCurrentGraphPanel().makeVideo();
+	}
+
 	/** Captures a video from the given Component. **/
 	public static void captureVideo(Component c) throws InterruptedException,
 			IOException {
 		VisualizationUtils.captureVideo(c,
-				VisualizationUtils.getVideoPath(c.getName()));
-	}
-
-	/** Captures a video from the given Component to the destination-path. **/
-	public static void captureVideo(Component c, String dstPath)
-			throws InterruptedException, IOException {
-		VisualizationUtils.captureVideo(c, dstPath,
+				VisualizationUtils.getVideoPath(c.getName()), null,
 				Config.getInt("GRAPH_VIS_VIDEO_MAXIMUM_LENGTH_IN_SECONDS"),
 				Config.getInt("GRAPH_VIS_VIDEO_DEFAULT_FPS"));
 	}
 
 	/** Captures a video from the given Component to the destination-path. **/
-	public static void captureVideo(Component c, String dstPath,
-			int timeInSeconds, int fps) throws InterruptedException,
-			IOException {
+	public static void captureVideo(Component c, String dstDir)
+			throws InterruptedException, IOException {
+		VisualizationUtils.captureVideo(c, dstDir, null,
+				Config.getInt("GRAPH_VIS_VIDEO_MAXIMUM_LENGTH_IN_SECONDS"),
+				Config.getInt("GRAPH_VIS_VIDEO_DEFAULT_FPS"));
+	}
+
+	/** Captures a video from the given Component to the destination-path. **/
+	public static void captureVideo(Component c, String dstDir,
+			String filename, int timeInSeconds, int fps)
+			throws InterruptedException, IOException {
 		Log.info("capturing " + timeInSeconds + "s video from '" + c.getName()
 				+ "'");
+		String dstPath = dstDir;
+		if (filename != null)
+			dstPath += filename;
+
 		long screenshotInterval = (long) Math.floor(1000 / fps);
 
 		int amount = timeInSeconds * fps;
@@ -119,7 +140,7 @@ public class VisualizationUtils {
 		}
 
 		File f = new File(dstPath);
-		Log.info("rendering video to " + dstPath);
+		Log.info("rendering video to " + dstDir);
 		VisualizationUtils.renderVideo(f, images);
 		Log.info("video rendering done");
 		images = null;
