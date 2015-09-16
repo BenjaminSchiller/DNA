@@ -93,6 +93,11 @@ public class GraphPanel extends JPanel {
 	protected View view;
 	protected final JComboBox<String> recordAreasBox;
 
+	// stat panel
+	protected final JLabel bgNameLabel;
+	protected final JLabel nodesValue;
+	protected final JLabel edgesValue;
+
 	// speed factors
 	protected double zoomSpeedFactor = Config.getDouble("GRAPH_VIS_ZOOM_SPEED");
 	protected double scrollSpeecFactor = Config
@@ -151,12 +156,14 @@ public class GraphPanel extends JPanel {
 
 	// constructors
 	public GraphPanel(JFrame parentFrame, final Graph graph, final String name,
-			PositionMode mode) {
-		this(parentFrame, graph, name, mode, new ArrayList<GraphStyleRule>(0));
+			final String batchGeneratorName, PositionMode mode) {
+		this(parentFrame, graph, name, batchGeneratorName, mode,
+				new ArrayList<GraphStyleRule>(0));
 	}
 
 	public GraphPanel(JFrame parentFrame, final Graph graph, final String name,
-			PositionMode mode, ArrayList<GraphStyleRule> rules) {
+			final String batchGeneratorName, PositionMode mode,
+			ArrayList<GraphStyleRule> rules) {
 		this.parentFrame = parentFrame;
 		this.setName(name);
 		this.graph = graph;
@@ -166,10 +173,44 @@ public class GraphPanel extends JPanel {
 
 		this.recording = false;
 
+		boolean addStatPanel = true;
+		boolean addTextPanel = true;
+		if (Config.getBoolean("GRAPH_VIS_STAT_PANEL_ENABLED"))
+			addStatPanel = true;
+		if (Config.getBoolean("GRAPH_VIS_TEXT_PANEL_ENABLED"))
+			addTextPanel = true;
+
+		// init statpanel
+		JPanel statPanel = new JPanel();
+		statPanel.setLayout(new BoxLayout(statPanel, BoxLayout.X_AXIS));
+		statPanel.setBorder(BorderFactory.createLineBorder(Color.GRAY));
+
+		// nodes
+		JLabel nodesLabel = new JLabel("Nodes: ");
+		nodesLabel.setFont(font);
+		this.nodesValue = new JLabel("0", JLabel.RIGHT);
+		nodesValue.setFont(font);
+
+		// edges
+		JLabel edgesLabel = new JLabel("Edges: ");
+		edgesLabel.setFont(font);
+		this.edgesValue = new JLabel("0", JLabel.RIGHT);
+		edgesValue.setFont(font);
+
+		// bg
+		JLabel bgLabel = new JLabel("BatchGenerator: ");
+		bgLabel.setFont(font);
+		this.bgNameLabel = new JLabel(batchGeneratorName);
+		bgNameLabel.setFont(font);
+
+		// statPanel.add(edgesLabel);
+		// statPanel.add(edgesValue);
+
 		// init textpanel
 		this.textPanel = new JPanel();
 		textPanel.setLayout(new BoxLayout(textPanel, BoxLayout.X_AXIS));
-		textPanel.setBorder(BorderFactory.createLineBorder(Color.GRAY));
+		if (addTextPanel && !addStatPanel)
+			textPanel.setBorder(BorderFactory.createLineBorder(Color.GRAY));
 
 		// set text panel
 		textLabel = new JLabel();
@@ -302,7 +343,48 @@ public class GraphPanel extends JPanel {
 		// main panel
 		this.setLayout(new BorderLayout());
 		this.add(this.graphView, BorderLayout.CENTER);
-		this.add(textPanel, BorderLayout.PAGE_END);
+
+		// bottom panel contains the stats and text panels
+		JPanel bottomPanel = new JPanel();
+		bottomPanel.setLayout(new BoxLayout(bottomPanel, BoxLayout.Y_AXIS));
+
+		// bg
+		statPanel.add(bgLabel);
+		statPanel.add(bgNameLabel);
+
+		// dummy
+		JPanel statDummy = new JPanel();
+		statDummy.setPreferredSize(new Dimension(100, 25));
+		statPanel.add(statDummy);
+
+		// nodes
+		nodesValue.setPreferredSize(new Dimension(45, 25));
+		statPanel.add(nodesLabel);
+		statPanel.add(nodesValue);
+
+		// dummy2
+		JLabel dummy2 = new JLabel();
+		dummy2.setPreferredSize(new Dimension(15, 25));
+		statPanel.add(dummy2);
+
+		// edges
+		edgesValue.setPreferredSize(new Dimension(45, 25));
+		statPanel.add(edgesLabel);
+		statPanel.add(edgesValue);
+
+		// dummy3
+		JLabel dummy3 = new JLabel();
+		dummy3.setPreferredSize(new Dimension(2, 25));
+		statPanel.add(dummy3);
+
+		// add panels to bottom pannel
+		if (addStatPanel)
+			bottomPanel.add(statPanel);
+		if (addTextPanel)
+			bottomPanel.add(textPanel);
+
+		// add bottom panel to frame
+		this.add(bottomPanel, BorderLayout.PAGE_END);
 
 		// zoom
 		this.graphView.addMouseWheelListener(new MouseWheelListener() {
@@ -477,6 +559,40 @@ public class GraphPanel extends JPanel {
 		textLabel.setText(text);
 	}
 
+	/** Increments the nodes-count label. **/
+	public void incrementNodesCount() {
+		this.nodesValue.setText(""
+				+ (Integer.parseInt(this.nodesValue.getText()) + 1));
+	}
+
+	/** Decrements the nodes-count label. **/
+	public void decrementNodesCount() {
+		this.nodesValue.setText(""
+				+ (Integer.parseInt(this.nodesValue.getText()) - 1));
+	}
+
+	/** Sets the nodes-count label. **/
+	public void setNodesCount(int nodes) {
+		this.nodesValue.setText("" + nodes);
+	}
+
+	/** Increments the edges-count label. **/
+	public void incrementEdgesCount() {
+		this.edgesValue.setText(""
+				+ (Integer.parseInt(this.edgesValue.getText()) + 1));
+	}
+
+	/** Decrements the edges-count label. **/
+	public void decrementEdgesCount() {
+		this.edgesValue.setText(""
+				+ (Integer.parseInt(this.edgesValue.getText()) - 1));
+	}
+
+	/** Sets the eges-count label. **/
+	public void setEdgesCount(int edges) {
+		this.edgesValue.setText("" + edges);
+	}
+
 	/** Returns the record area. **/
 	public RecordArea getRecordArea() {
 		return this.recordArea;
@@ -588,6 +704,9 @@ public class GraphPanel extends JPanel {
 
 		// update style
 		GraphStyleUtils.updateStyle(node);
+
+		// update node count
+		this.incrementNodesCount();
 	}
 
 	/** Removes node n from graph g. **/
@@ -599,6 +718,9 @@ public class GraphPanel extends JPanel {
 
 		// update style
 		GraphStyleUtils.updateStyle(node);
+
+		// update node count
+		this.decrementNodesCount();
 	}
 
 	/** Changes node weight on node n IN CURRENT GRAPH!!. **/
@@ -704,6 +826,9 @@ public class GraphPanel extends JPanel {
 			GraphStyleUtils.updateStyle(node1);
 			GraphStyleUtils.updateStyle(node2);
 		}
+
+		// update edge count
+		this.incrementEdgesCount();
 	}
 
 	/** Removes edge e from graph g. **/
@@ -725,6 +850,9 @@ public class GraphPanel extends JPanel {
 		// update styles
 		GraphStyleUtils.updateStyle(node1);
 		GraphStyleUtils.updateStyle(node2);
+
+		// update edge count
+		this.decrementEdgesCount();
 	}
 
 	/** Changes edge weight on edge e IN CURRENT GRAPH!!. **/
