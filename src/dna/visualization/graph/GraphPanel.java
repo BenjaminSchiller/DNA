@@ -75,6 +75,7 @@ public class GraphPanel extends JPanel {
 	protected final JFrame parentFrame;
 	protected final Graph graph;
 	protected final PositionMode mode;
+	protected final String batchGeneratorName;
 
 	// rules
 	protected ArrayList<GraphStyleRule> rules;
@@ -82,21 +83,21 @@ public class GraphPanel extends JPanel {
 
 	// panels
 	protected final JPanel graphView;
-	protected final JPanel textPanel;
-	protected final JLabel textLabel;
-	protected final JLabel zoomLabel;
+	protected JPanel textPanel;
+	protected JLabel textLabel;
+	protected JLabel zoomLabel;
 	protected final Layout layouter;
-	protected final JButton captureButton;
-	protected final JButton screenshotButton;
+	protected JButton captureButton;
+	protected JButton screenshotButton;
 	protected Color captureButtonFontColor;
 	protected Color captureButtonFontColorRecording = new Color(200, 30, 30);
 	protected View view;
-	protected final JComboBox<String> recordAreasBox;
+	protected JComboBox<String> recordAreasBox;
 
 	// stat panel
-	protected final JLabel bgNameLabel;
-	protected final JLabel nodesValue;
-	protected final JLabel edgesValue;
+	protected JLabel bgNameLabel;
+	protected JLabel nodesValue;
+	protected JLabel edgesValue;
 
 	// speed factors
 	protected double zoomSpeedFactor = Config.getDouble("GRAPH_VIS_ZOOM_SPEED");
@@ -168,18 +169,69 @@ public class GraphPanel extends JPanel {
 		this.setName(name);
 		this.graph = graph;
 		this.mode = mode;
+		this.batchGeneratorName = batchGeneratorName;
 		this.rules = rules;
 		this.nextRuleIndex = 0;
 
 		this.recording = false;
 
-		boolean addStatPanel = true;
-		boolean addTextPanel = true;
-		if (Config.getBoolean("GRAPH_VIS_STAT_PANEL_ENABLED"))
-			addStatPanel = true;
-		if (Config.getBoolean("GRAPH_VIS_TEXT_PANEL_ENABLED"))
-			addTextPanel = true;
+		boolean addStatPanel = Config
+				.getBoolean("GRAPH_VIS_STAT_PANEL_ENABLED");
+		boolean addTextPanel = Config
+				.getBoolean("GRAPH_VIS_TEXT_PANEL_ENABLED");
 
+		// create viewer and show graph
+		Viewer v = new Viewer(graph,
+				Viewer.ThreadingModel.GRAPH_IN_ANOTHER_THREAD);
+
+		boolean useLayouter3dMode = Config.getBoolean("GRAPH_VIS_LAYOUT_3D");
+
+		// create and configure layouter
+		if (Config.getBoolean("GRAPH_VIS_AUTO_LAYOUT_ENABLED")) {
+			Layout layouter = new SpringBox(useLayouter3dMode);
+			if (Config.getBoolean("GRAPH_VIS_LAYOUT_LINLOG"))
+				layouter = new LinLog(useLayouter3dMode);
+
+			layouter.setForce(Config.getDouble("GRAPH_VIS_LAYOUT_FORCE"));
+			v.enableAutoLayout(layouter);
+
+			this.layouter = layouter;
+		} else {
+			this.layouter = null;
+			v.disableAutoLayout();
+		}
+
+		// get view
+		View view = v.addDefaultView(false);
+		this.view = view;
+		this.graphView = (JPanel) view;
+		this.graphView.setName(name);
+
+		// main panel
+		this.setLayout(new BorderLayout());
+		this.add(this.graphView, BorderLayout.CENTER);
+
+		// bottom panel contains the stats and text panels
+		JPanel bottomPanel = new JPanel();
+		bottomPanel.setLayout(new BoxLayout(bottomPanel, BoxLayout.Y_AXIS));
+
+		// add panels to bottom pannel
+		if (addStatPanel)
+			addStatPanel(bottomPanel);
+
+		if (addTextPanel)
+			addTextPanel(bottomPanel, (addStatPanel) ? false : true);
+
+		// add bottom panel to frame
+		this.add(bottomPanel, BorderLayout.PAGE_END);
+
+		// add listeners
+		addZoomListener();
+		addMoveListener();
+	}
+
+	/** Adds the stat-panel. **/
+	protected void addStatPanel(JPanel panel) {
 		// init statpanel
 		JPanel statPanel = new JPanel();
 		statPanel.setLayout(new BoxLayout(statPanel, BoxLayout.X_AXIS));
@@ -200,16 +252,47 @@ public class GraphPanel extends JPanel {
 		// bg
 		JLabel bgLabel = new JLabel("BatchGenerator: ");
 		bgLabel.setFont(font);
-		this.bgNameLabel = new JLabel(batchGeneratorName);
+		this.bgNameLabel = new JLabel(this.batchGeneratorName);
 		bgNameLabel.setFont(font);
 
-		// statPanel.add(edgesLabel);
-		// statPanel.add(edgesValue);
+		// bg
+		statPanel.add(bgLabel);
+		statPanel.add(bgNameLabel);
 
+		// dummy
+		JPanel statDummy = new JPanel();
+		statDummy.setPreferredSize(new Dimension(100, 25));
+		statPanel.add(statDummy);
+
+		// nodes
+		nodesValue.setPreferredSize(new Dimension(45, 25));
+		statPanel.add(nodesLabel);
+		statPanel.add(nodesValue);
+
+		// dummy2
+		JLabel dummy2 = new JLabel();
+		dummy2.setPreferredSize(new Dimension(15, 25));
+		statPanel.add(dummy2);
+
+		// edges
+		edgesValue.setPreferredSize(new Dimension(45, 25));
+		statPanel.add(edgesLabel);
+		statPanel.add(edgesValue);
+
+		// dummy3
+		JLabel dummy3 = new JLabel();
+		dummy3.setPreferredSize(new Dimension(2, 25));
+		statPanel.add(dummy3);
+
+		panel.add(statPanel);
+	}
+
+	/** Adds the text-panel. **/
+	protected void addTextPanel(JPanel panel, boolean border) {
 		// init textpanel
 		this.textPanel = new JPanel();
 		textPanel.setLayout(new BoxLayout(textPanel, BoxLayout.X_AXIS));
-		if (addTextPanel && !addStatPanel)
+		if (border)
 			textPanel.setBorder(BorderFactory.createLineBorder(Color.GRAY));
 
 		// set text panel
@@ -313,80 +396,12 @@ public class GraphPanel extends JPanel {
 			break;
 		}
 
-		// create viewer and show graph
-		Viewer v = new Viewer(graph,
-				Viewer.ThreadingModel.GRAPH_IN_ANOTHER_THREAD);
+		panel.add(textPanel);
 
-		boolean useLayouter3dMode = Config.getBoolean("GRAPH_VIS_LAYOUT_3D");
+	}
 
-		// create and configure layouter
-		if (Config.getBoolean("GRAPH_VIS_AUTO_LAYOUT_ENABLED")) {
-			Layout layouter = new SpringBox(useLayouter3dMode);
-			if (Config.getBoolean("GRAPH_VIS_LAYOUT_LINLOG"))
-				layouter = new LinLog(useLayouter3dMode);
-
-			layouter.setForce(Config.getDouble("GRAPH_VIS_LAYOUT_FORCE"));
-			v.enableAutoLayout(layouter);
-
-			this.layouter = layouter;
-		} else {
-			this.layouter = null;
-			v.disableAutoLayout();
-		}
-
-		// get view
-		View view = v.addDefaultView(false);
-		this.view = view;
-		this.graphView = (JPanel) view;
-		this.graphView.setName(name);
-
-		// main panel
-		this.setLayout(new BorderLayout());
-		this.add(this.graphView, BorderLayout.CENTER);
-
-		// bottom panel contains the stats and text panels
-		JPanel bottomPanel = new JPanel();
-		bottomPanel.setLayout(new BoxLayout(bottomPanel, BoxLayout.Y_AXIS));
-
-		// bg
-		statPanel.add(bgLabel);
-		statPanel.add(bgNameLabel);
-
-		// dummy
-		JPanel statDummy = new JPanel();
-		statDummy.setPreferredSize(new Dimension(100, 25));
-		statPanel.add(statDummy);
-
-		// nodes
-		nodesValue.setPreferredSize(new Dimension(45, 25));
-		statPanel.add(nodesLabel);
-		statPanel.add(nodesValue);
-
-		// dummy2
-		JLabel dummy2 = new JLabel();
-		dummy2.setPreferredSize(new Dimension(15, 25));
-		statPanel.add(dummy2);
-
-		// edges
-		edgesValue.setPreferredSize(new Dimension(45, 25));
-		statPanel.add(edgesLabel);
-		statPanel.add(edgesValue);
-
-		// dummy3
-		JLabel dummy3 = new JLabel();
-		dummy3.setPreferredSize(new Dimension(2, 25));
-		statPanel.add(dummy3);
-
-		// add panels to bottom pannel
-		if (addStatPanel)
-			bottomPanel.add(statPanel);
-		if (addTextPanel)
-			bottomPanel.add(textPanel);
-
-		// add bottom panel to frame
-		this.add(bottomPanel, BorderLayout.PAGE_END);
-
-		// zoom
+	/** Adds the zoom listener. **/
+	protected void addZoomListener() {
 		this.graphView.addMouseWheelListener(new MouseWheelListener() {
 
 			@Override
@@ -418,8 +433,10 @@ public class GraphPanel extends JPanel {
 				setZoom(zoom);
 			}
 		});
+	}
 
-		// add listener for moving in graph
+	/** Adds the listener for moving in graph. **/
+	protected void addMoveListener() {
 		this.graphView.addMouseMotionListener(new MouseMotionListener() {
 
 			@Override
@@ -478,7 +495,8 @@ public class GraphPanel extends JPanel {
 
 	/** Sets the zoom. **/
 	public void setZoom(double percent) {
-		this.zoomLabel.setText((int) Math.floor(percent * 100) + "%  ");
+		if (this.zoomLabel != null)
+			this.zoomLabel.setText((int) Math.floor(percent * 100) + "%  ");
 		this.view.getCamera().setViewPercent(percent);
 	}
 
@@ -556,41 +574,48 @@ public class GraphPanel extends JPanel {
 
 	/** Sets the text-label to the input text. **/
 	public void setText(String text) {
-		textLabel.setText(text);
+		if (this.textLabel != null)
+			textLabel.setText(text);
 	}
 
 	/** Increments the nodes-count label. **/
 	public void incrementNodesCount() {
-		this.nodesValue.setText(""
-				+ (Integer.parseInt(this.nodesValue.getText()) + 1));
+		if (this.nodesValue != null)
+			this.nodesValue.setText(""
+					+ (Integer.parseInt(this.nodesValue.getText()) + 1));
 	}
 
 	/** Decrements the nodes-count label. **/
 	public void decrementNodesCount() {
-		this.nodesValue.setText(""
-				+ (Integer.parseInt(this.nodesValue.getText()) - 1));
+		if (this.nodesValue != null)
+			this.nodesValue.setText(""
+					+ (Integer.parseInt(this.nodesValue.getText()) - 1));
 	}
 
 	/** Sets the nodes-count label. **/
 	public void setNodesCount(int nodes) {
-		this.nodesValue.setText("" + nodes);
+		if (this.nodesValue != null)
+			this.nodesValue.setText("" + nodes);
 	}
 
 	/** Increments the edges-count label. **/
 	public void incrementEdgesCount() {
-		this.edgesValue.setText(""
-				+ (Integer.parseInt(this.edgesValue.getText()) + 1));
+		if (this.edgesValue != null)
+			this.edgesValue.setText(""
+					+ (Integer.parseInt(this.edgesValue.getText()) + 1));
 	}
 
 	/** Decrements the edges-count label. **/
 	public void decrementEdgesCount() {
-		this.edgesValue.setText(""
-				+ (Integer.parseInt(this.edgesValue.getText()) - 1));
+		if (this.edgesValue != null)
+			this.edgesValue.setText(""
+					+ (Integer.parseInt(this.edgesValue.getText()) - 1));
 	}
 
 	/** Sets the eges-count label. **/
 	public void setEdgesCount(int edges) {
-		this.edgesValue.setText("" + edges);
+		if (this.edgesValue != null)
+			this.edgesValue.setText("" + edges);
 	}
 
 	/** Returns the record area. **/
@@ -975,31 +1000,40 @@ public class GraphPanel extends JPanel {
 
 	/** Updates the video progress. **/
 	public void updateVideoProgress(double percent) {
-		this.captureButton.setText((int) Math.floor(percent * 100) + "%");
+		if (this.captureButton != null)
+			this.captureButton.setText((int) Math.floor(percent * 100) + "%");
 	}
 
 	/** Updates the text on the video button. **/
 	public void setVideoButtonText(String text) {
-		this.captureButton.setText(text);
+		if (this.captureButton != null)
+			this.captureButton.setText(text);
 	}
 
 	/** Updates the video progress. **/
 	public void updateElapsedVideoTime(int seconds) {
-		this.captureButton.setText(seconds + "s");
+		if (this.captureButton != null)
+			this.captureButton.setText(seconds + "s");
 	}
 
 	/** Report that the recording has started. **/
 	public void recordingStarted() {
-		this.captureButton.setText("Recording");
-		this.captureButton.setForeground(this.captureButtonFontColorRecording);
+		if (this.captureButton != null) {
+			this.captureButton.setText("Recording");
+			this.captureButton
+					.setForeground(this.captureButtonFontColorRecording);
+		}
 
 		this.recording = true;
 	}
 
 	/** Report that the recording has been stopped. **/
 	public void recordingStopped() {
-		this.captureButton.setText("Video");
-		this.captureButton.setForeground(this.captureButtonFontColor);
+		if (this.captureButton != null) {
+			this.captureButton.setText("Video");
+			this.captureButton.setForeground(this.captureButtonFontColor);
+		}
+
 		this.recording = false;
 	}
 
