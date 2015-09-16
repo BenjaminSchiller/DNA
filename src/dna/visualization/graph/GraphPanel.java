@@ -76,6 +76,7 @@ public class GraphPanel extends JPanel {
 	protected final Graph graph;
 	protected final PositionMode mode;
 	protected final String batchGeneratorName;
+	protected long timestamp;
 
 	// rules
 	protected ArrayList<GraphStyleRule> rules;
@@ -96,8 +97,11 @@ public class GraphPanel extends JPanel {
 
 	// stat panel
 	protected JLabel bgNameLabel;
+	protected JLabel timestampValue;
 	protected JLabel nodesValue;
 	protected JLabel edgesValue;
+	protected SimpleDateFormat dateFormat;
+	public boolean timestampAsDate;
 
 	// speed factors
 	protected double zoomSpeedFactor = Config.getDouble("GRAPH_VIS_ZOOM_SPEED");
@@ -170,6 +174,9 @@ public class GraphPanel extends JPanel {
 		this.graph = graph;
 		this.mode = mode;
 		this.batchGeneratorName = batchGeneratorName;
+		this.timestamp = 0;
+		this.dateFormat = new SimpleDateFormat("hh:mm:ss:SS");
+		this.timestampAsDate = false;
 		this.rules = rules;
 		this.nextRuleIndex = 0;
 
@@ -218,7 +225,6 @@ public class GraphPanel extends JPanel {
 		// add panels to bottom pannel
 		if (addStatPanel)
 			addStatPanel(bottomPanel);
-
 		if (addTextPanel)
 			addTextPanel(bottomPanel, (addStatPanel) ? false : true);
 
@@ -236,6 +242,12 @@ public class GraphPanel extends JPanel {
 		JPanel statPanel = new JPanel();
 		statPanel.setLayout(new BoxLayout(statPanel, BoxLayout.X_AXIS));
 		statPanel.setBorder(BorderFactory.createLineBorder(Color.GRAY));
+
+		// timestamp
+		JLabel timestampLabel = new JLabel("Timestamp: ");
+		timestampLabel.setFont(font);
+		this.timestampValue = new JLabel("0");
+		timestampValue.setFont(font);
 
 		// nodes
 		JLabel nodesLabel = new JLabel("Nodes: ");
@@ -264,25 +276,35 @@ public class GraphPanel extends JPanel {
 		statDummy.setPreferredSize(new Dimension(100, 25));
 		statPanel.add(statDummy);
 
-		// nodes
-		nodesValue.setPreferredSize(new Dimension(45, 25));
-		statPanel.add(nodesLabel);
-		statPanel.add(nodesValue);
+		// timestamp
+		timestampValue.setPreferredSize(new Dimension(95, 25));
+		statPanel.add(timestampLabel);
+		statPanel.add(timestampValue);
 
 		// dummy2
 		JLabel dummy2 = new JLabel();
 		dummy2.setPreferredSize(new Dimension(15, 25));
 		statPanel.add(dummy2);
 
+		// nodes
+		nodesValue.setPreferredSize(new Dimension(45, 25));
+		statPanel.add(nodesLabel);
+		statPanel.add(nodesValue);
+
+		// dummy3
+		JLabel dummy3 = new JLabel();
+		dummy3.setPreferredSize(new Dimension(15, 25));
+		statPanel.add(dummy3);
+
 		// edges
 		edgesValue.setPreferredSize(new Dimension(45, 25));
 		statPanel.add(edgesLabel);
 		statPanel.add(edgesValue);
 
-		// dummy3
-		JLabel dummy3 = new JLabel();
-		dummy3.setPreferredSize(new Dimension(2, 25));
-		statPanel.add(dummy3);
+		// dummy4
+		JLabel dummy4 = new JLabel();
+		dummy4.setPreferredSize(new Dimension(2, 25));
+		statPanel.add(dummy4);
 
 		panel.add(statPanel);
 	}
@@ -576,6 +598,22 @@ public class GraphPanel extends JPanel {
 	public void setText(String text) {
 		if (this.textLabel != null)
 			textLabel.setText(text);
+	}
+
+	/** Updates the timestamp. **/
+	public void setTimestamp(long timestamp) {
+		this.timestamp = timestamp;
+		if (this.timestampValue != null)
+			this.setTimestampLabel(timestamp);
+	}
+
+	/** Updates the timestamp label. **/
+	protected void setTimestampLabel(long timestamp) {
+		if (this.timestampAsDate)
+			this.timestampValue.setText(this.dateFormat.format(new Date(
+					timestamp)));
+		else
+			this.timestampValue.setText("" + timestamp);
 	}
 
 	/** Increments the nodes-count label. **/
