@@ -97,7 +97,7 @@ public class GraphVisualization {
 
 		// main frame
 		JFrame mainFrame = new JFrame("Graph-Vis Mainframe");
-		GraphPanel panel = new GraphPanel(mainFrame, graph, name, mode);
+		GraphPanel panel = new GraphPanel(mainFrame, graph, name, name, mode);
 
 		// add style rules
 		if (Config.getBoolean("GRAPH_VIS_SIZE_NODES_BY_DEGREE"))
