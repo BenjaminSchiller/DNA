@@ -175,8 +175,9 @@ public class GraphPanel extends JPanel {
 		this.mode = mode;
 		this.batchGeneratorName = batchGeneratorName;
 		this.timestamp = 0;
-		this.dateFormat = new SimpleDateFormat("hh:mm:ss:SS");
-		this.timestampAsDate = false;
+		this.dateFormat = new SimpleDateFormat(
+				Config.get("GRAPH_VIS_DATETIME_FORMAT"));
+		this.timestampAsDate = Config.getBoolean("GRAPH_VIS_TIMESTAMP_AS_DATE");
 		this.rules = rules;
 		this.nextRuleIndex = 0;
 
@@ -246,8 +247,9 @@ public class GraphPanel extends JPanel {
 		// timestamp
 		JLabel timestampLabel = new JLabel("Timestamp: ");
 		timestampLabel.setFont(font);
-		this.timestampValue = new JLabel("0");
+		this.timestampValue = new JLabel();
 		timestampValue.setFont(font);
+		this.setTimestampLabel(0);
 
 		// nodes
 		JLabel nodesLabel = new JLabel("Nodes: ");
