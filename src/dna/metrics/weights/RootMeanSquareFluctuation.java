@@ -17,13 +17,14 @@ import dna.graph.weights.distances.EuclideanDistance;
 import dna.metrics.IMetric;
 import dna.metrics.Metric;
 import dna.series.data.Value;
-import dna.series.data.distributions.BinnedDistributionInt;
+import dna.series.data.distributions.BinnedDistributionDouble;
 import dna.series.data.distributions.Distribution;
 import dna.series.data.nodevaluelists.NodeNodeValueList;
 import dna.series.data.nodevaluelists.NodeValueList;
 import dna.updates.batch.Batch;
 import dna.util.ArrayUtils;
 import dna.util.parameters.IntParameter;
+;
 
 /**
  * Root Mean Square Fluctuation of the position changes of nodes. The parameter
@@ -45,7 +46,7 @@ public abstract class RootMeanSquareFluctuation extends Metric {
 
 	protected NodeValueList rmsf;
 
-	protected BinnedDistributionInt rmsfD;
+	protected BinnedDistributionDouble rmsfD;
 
 	protected int steps;
 

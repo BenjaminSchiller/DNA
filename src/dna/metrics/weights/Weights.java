@@ -6,7 +6,7 @@ import dna.graph.weights.Weight;
 import dna.metrics.IMetric;
 import dna.metrics.Metric;
 import dna.series.data.Value;
-import dna.series.data.distributions.BinnedDistributionInt;
+import dna.series.data.distributions.BinnedDistributionDouble;
 import dna.series.data.distributions.Distribution;
 import dna.series.data.nodevaluelists.NodeNodeValueList;
 import dna.series.data.nodevaluelists.NodeValueList;
@@ -17,7 +17,7 @@ public abstract class Weights extends Metric {
 
 	protected double binSize;
 
-	protected BinnedDistributionInt distr;
+	protected BinnedDistributionDouble distr;
 
 	public Weights(String name, double binSize) {
 		super(name, new DoubleParameter("BinSize", binSize));

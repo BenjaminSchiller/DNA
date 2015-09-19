@@ -7,7 +7,7 @@ import dna.graph.IElement;
 import dna.graph.nodes.Node;
 import dna.graph.weights.IWeightedNode;
 import dna.metrics.algorithms.IRecomputation;
-import dna.series.data.distributions.BinnedDistributionInt;
+import dna.series.data.distributions.BinnedDistributionDouble;
 import dna.series.data.nodevaluelists.NodeValueList;
 
 public class RootMeanSquareFluctuationR extends RootMeanSquareFluctuation
@@ -20,7 +20,7 @@ public class RootMeanSquareFluctuationR extends RootMeanSquareFluctuation
 	@Override
 	public boolean recompute() {
 		this.rmsf = new NodeValueList("RootMeanSquareFluctuation", 0);
-		this.rmsfD = new BinnedDistributionInt(
+		this.rmsfD = new BinnedDistributionDouble(
 				"RootMeanSquareFluctuation--Distribution", 0.05);
 
 		if (this.positions == null) {
