@@ -881,14 +881,6 @@ public class SeriesGeneration {
 						ArrayUtils.avg(((DistributionDouble) d).getValues()));
 				values.add(v);
 			}
-			if (Config.getBoolean("GENERATE_DISTRIBUTION_BINSIZE")) {
-				if (((BinnedDistributionDouble) d).getValues().length != 0)
-					val = ((BinnedDistributionDouble) d).getBinSize();
-				if (d instanceof BinnedDistributionDouble) {
-					Value v = new Value(d.getName() + "_BINSIZE", val);
-					values.add(v);
-				}
-			}
 		} else if (d instanceof DistributionLong) {
 			double val = 0;
 			if (Config.getBoolean("GENERATE_DISTRIBUTION_MIN")) {
@@ -957,6 +949,11 @@ public class SeriesGeneration {
 				if (d instanceof BinnedDistributionInt) {
 					if (((DistributionInt) d).getValues().length != 0)
 						val = ((BinnedDistributionInt) d).getBinSize();
+					Value v = new Value(d.getName() + "_BINSIZE", val);
+					values.add(v);
+				} else if (d instanceof BinnedDistributionDouble) {
+					if (((BinnedDistributionDouble) d).getValues().length != 0)
+						val = ((BinnedDistributionDouble) d).getBinSize();
 					Value v = new Value(d.getName() + "_BINSIZE", val);
 					values.add(v);
 				}

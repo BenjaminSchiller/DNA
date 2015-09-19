@@ -11,7 +11,7 @@ import dna.util.Config;
 
 /**
  * BinnedDistributionInt is an object which represents a binned-distribution
- * with int values. It accepts doubles as indices, which are mapped on their
+ * with int values. It accepts ints as indices, which are mapped on their
  * internal indices using the bin-size.
  * 
  * The index mapping works like this: mappedIndex = Math.floor((index/binsize))
@@ -22,19 +22,19 @@ import dna.util.Config;
 public class BinnedDistributionInt extends DistributionInt {
 
 	// class variables
-	private double binsize;
+	private int binsize;
 
 	// constructors
 	/**
 	 * Creates a BinnedDistributionInt with an empty int-array of size zero and
 	 * a denominator of zero.
 	 **/
-	public BinnedDistributionInt(String name, double binsize) {
+	public BinnedDistributionInt(String name, int binsize) {
 		super(name, new int[0], 0);
 		this.binsize = binsize;
 	}
 
-	public BinnedDistributionInt(String name, double binsize, int[] values,
+	public BinnedDistributionInt(String name, int binsize, int[] values,
 			int denominator) {
 		super(name, values, denominator);
 		this.binsize = binsize;
@@ -46,7 +46,7 @@ public class BinnedDistributionInt extends DistributionInt {
 	}
 
 	/** Returns the bin size **/
-	public double getBinSize() {
+	public int getBinSize() {
 		return this.binsize;
 	}
 
@@ -57,7 +57,7 @@ public class BinnedDistributionInt extends DistributionInt {
 	 * @param index
 	 *            Index of the value that will be incremented.
 	 */
-	public void incr(double index) {
+	public void incr(int index) {
 		int mappedIndex = (int) Math.floor((index * (1 / this.binsize)));
 		super.incr(mappedIndex);
 	}
@@ -69,7 +69,7 @@ public class BinnedDistributionInt extends DistributionInt {
 	 * @param index
 	 *            Index of the value that will be decremented.
 	 */
-	public void decr(double index) {
+	public void decr(int index) {
 		int mappedIndex = (int) Math.floor((index * (1 / this.binsize)));
 		super.decr(mappedIndex);
 	}
@@ -83,7 +83,7 @@ public class BinnedDistributionInt extends DistributionInt {
 	 * @param value
 	 *            Value the integer will be set to.
 	 */
-	public void set(double index, int value) {
+	public void set(int index, int value) {
 		int mappedIndex = (int) Math.floor((index * (1 / this.binsize)));
 		super.set(mappedIndex, value);
 	}
@@ -96,7 +96,7 @@ public class BinnedDistributionInt extends DistributionInt {
 	 * @param value
 	 *            Value the integer will be set to.
 	 */
-	public int get(double index) {
+	public int get(int index) {
 		int mappedIndex = (int) Math.floor((index * (1 / this.binsize)));
 		return (super.getValues()[mappedIndex]);
 	}
@@ -153,7 +153,7 @@ public class BinnedDistributionInt extends DistributionInt {
 		line = r.readString();
 		int denominator = Integer.parseInt(line);
 		line = r.readString();
-		double binsize = Double.parseDouble(line);
+		int binsize = Integer.parseInt(line);
 
 		while ((line = r.readString()) != null) {
 			String[] temp = line.split(Config.get("DISTRIBUTION_DELIMITER"));
