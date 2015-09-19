@@ -30,6 +30,9 @@ public class DistributionList extends List<Distribution> {
 							.write(dir, Files
 									.getDistributionBinnedIntFilename(d
 											.getName()));
+				else if (d instanceof BinnedDistributionDouble)
+					((BinnedDistributionDouble) d).write(dir, Files
+							.getDistributionBinnedDoubleFilename(d.getName()));
 				else
 					((DistributionInt) d).write(dir,
 							Files.getDistributionIntFilename(d.getName()));
@@ -43,12 +46,8 @@ public class DistributionList extends List<Distribution> {
 							Files.getDistributionLongFilename(d.getName()));
 			}
 			if (d instanceof DistributionDouble) {
-				if (d instanceof BinnedDistributionDouble)
-					((BinnedDistributionDouble) d).write(dir, Files
-							.getDistributionBinnedDoubleFilename(d.getName()));
-				else
-					((DistributionDouble) d).write(dir,
-							Files.getDistributionDoubleFilename(d.getName()));
+				((DistributionDouble) d).write(dir,
+						Files.getDistributionDoubleFilename(d.getName()));
 			}
 		}
 	}

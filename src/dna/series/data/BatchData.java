@@ -374,21 +374,19 @@ public class BatchData implements IBatch {
 						mDistributions.add(BinnedDistributionInt.read(mDir,
 								Files.getDistributionBinnedIntFilename(d
 										.getName()), d.getName(), true));
+					} else if (d instanceof BinnedDistributionDouble) {
+						mDistributions.add(BinnedDistributionDouble.read(mDir,
+								Files.getDistributionBinnedDoubleFilename(d
+										.getName()), d.getName(), true));
 					} else {
 						mDistributions.add(DistributionInt.read(mDir,
 								Files.getDistributionIntFilename(d.getName()),
 								d.getName(), true));
 					}
 				} else if (d instanceof DistributionDouble) {
-					if (d instanceof BinnedDistributionDouble) {
-						mDistributions.add(BinnedDistributionDouble.read(mDir,
-								Files.getDistributionBinnedDoubleFilename(d
-										.getName()), d.getName(), true));
-					} else {
-						mDistributions.add(DistributionDouble.read(mDir, Files
-								.getDistributionDoubleFilename(d.getName()), d
-								.getName(), true));
-					}
+					mDistributions.add(DistributionDouble.read(mDir,
+							Files.getDistributionDoubleFilename(d.getName()),
+							d.getName(), true));
 				} else if (d instanceof DistributionLong) {
 					if (d instanceof BinnedDistributionLong) {
 						mDistributions.add(BinnedDistributionLong.read(mDir,

@@ -489,12 +489,7 @@ public class Aggregation {
 				}
 				aValues[i] = new AggregatedValue(refDist.getName(), temp);
 			}
-			if (refDist instanceof BinnedDistributionDouble)
-				return new AggregatedBinnedDistribution(refDist.getName(),
-						aValues,
-						((BinnedDistributionDouble) refDist).getBinSize());
-			else
-				return new AggregatedDistribution(refDist.getName(), aValues);
+			return new AggregatedDistribution(refDist.getName(), aValues);
 		} else if (refDist instanceof DistributionInt) {
 			DistributionInt[] dists = new DistributionInt[distributions.length];
 			for (int i = 0; i < distributions.length; i++) {
@@ -535,6 +530,10 @@ public class Aggregation {
 			if (refDist instanceof BinnedDistributionInt)
 				return new AggregatedBinnedDistribution(refDist.getName(),
 						aValues, ((BinnedDistributionInt) refDist).getBinSize());
+			else if (refDist instanceof BinnedDistributionDouble)
+				return new AggregatedBinnedDistribution(refDist.getName(),
+						aValues,
+						((BinnedDistributionDouble) refDist).getBinSize());
 			else
 				return new AggregatedDistribution(refDist.getName(), aValues);
 		} else if (refDist instanceof DistributionLong) {
@@ -688,13 +687,8 @@ public class Aggregation {
 					aggregatedValues[i] = new AggregatedValue(d.getName() + i,
 							aValues);
 				}
-				if (d instanceof BinnedDistributionDouble)
-					aDistributions.add(new AggregatedBinnedDistribution(d
-							.getName(), aggregatedValues,
-							((BinnedDistributionDouble) d).getBinSize()));
-				else
-					aDistributions.add(new AggregatedDistribution(d.getName(),
-							aggregatedValues));
+				aDistributions.add(new AggregatedDistribution(d.getName(),
+						aggregatedValues));
 			} else if (d instanceof DistributionInt) {
 				int[] values = ((DistributionInt) d).getValues();
 				AggregatedValue[] aggregatedValues = new AggregatedValue[values.length];
@@ -710,6 +704,10 @@ public class Aggregation {
 					aDistributions.add(new AggregatedBinnedDistribution(d
 							.getName(), aggregatedValues,
 							((BinnedDistributionInt) d).getBinSize()));
+				else if (d instanceof BinnedDistributionDouble)
+					aDistributions.add(new AggregatedBinnedDistribution(d
+							.getName(), aggregatedValues,
+							((BinnedDistributionDouble) d).getBinSize()));
 				else
 					aDistributions.add(new AggregatedDistribution(d.getName(),
 							aggregatedValues));

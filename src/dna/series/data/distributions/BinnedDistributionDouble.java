@@ -10,8 +10,8 @@ import dna.io.Writer;
 import dna.util.Config;
 
 /**
- * BinnedDistributionLong is an object which represents a binned-distribution
- * with double values. It accepts doubles as indices, which are mapped on their
+ * BinnedDistributionDouble is an object which represents a binned-distribution
+ * with int values. It accepts doubles as indices, which are mapped on their
  * internal indices using the bin-size.
  * 
  * The index mapping works like this: mappedIndex = Math.floor((index/binsize))
@@ -19,23 +19,24 @@ import dna.util.Config;
  * @author Rwilmes
  * @date 07.03.2043
  */
-public class BinnedDistributionDouble extends DistributionDouble {
+public class BinnedDistributionDouble extends DistributionInt {
 
 	// class variables
 	private double binsize;
 
 	// constructors
 	/**
-	 * Creates a BinnedDistributionDouble with an empty double-array of size
-	 * zero.
+	 * Creates a BinnedDistributionDuoble with an empty int-array of size zero
+	 * and a denominator of zero.
 	 **/
 	public BinnedDistributionDouble(String name, double binsize) {
-		super(name, new double[0]);
+		super(name, new int[0], 0);
 		this.binsize = binsize;
 	}
 
-	public BinnedDistributionDouble(String name, double binsize, double[] values) {
-		super(name, values);
+	public BinnedDistributionDouble(String name, double binsize, int[] values,
+			int denominator) {
+		super(name, values, denominator);
 		this.binsize = binsize;
 	}
 
@@ -82,7 +83,7 @@ public class BinnedDistributionDouble extends DistributionDouble {
 	 * @param value
 	 *            Value the integer will be set to.
 	 */
-	public void set(double index, double value) {
+	public void set(double index, int value) {
 		int mappedIndex = (int) Math.floor((index * (1 / this.binsize)));
 		super.set(mappedIndex, value);
 	}
@@ -95,7 +96,7 @@ public class BinnedDistributionDouble extends DistributionDouble {
 	 * @param value
 	 *            Value the integer will be set to.
 	 */
-	public double get(double index) {
+	public int get(double index) {
 		int mappedIndex = (int) Math.floor((index * (1 / this.binsize)));
 		return (super.getValues()[mappedIndex]);
 	}
@@ -110,14 +111,15 @@ public class BinnedDistributionDouble extends DistributionDouble {
 	 *            String representing the desired filename for the Distribution.
 	 */
 	public void write(String dir, String filename) throws IOException {
-		double[] values = this.getValues();
+		int[] values = this.getValues();
 		if (values == null) {
 			throw new NullPointerException("no values for distribution \""
 					+ this.getName() + "\" set to be written to " + dir);
 		}
 		Writer w = Writer.getWriter(dir, filename);
 
-		w.writeln(this.binsize); // write binsize in first line
+		w.writeln(this.getDenominator()); // write denominator in first line
+		w.writeln(this.binsize); // write binsize in second line
 
 		for (int i = 0; i < values.length; i++) {
 			w.writeln(i + Config.get("DISTRIBUTION_DELIMITER") + values[i]);
@@ -141,13 +143,15 @@ public class BinnedDistributionDouble extends DistributionDouble {
 	public static BinnedDistributionDouble read(String dir, String filename,
 			String name, boolean readValues) throws IOException {
 		if (!readValues) {
-			return new BinnedDistributionDouble(name, 1, null);
+			return new BinnedDistributionDouble(name, 1, null, 0);
 		}
 		Reader r = Reader.getReader(dir, filename);
-		ArrayList<Double> list = new ArrayList<Double>();
+		ArrayList<Integer> list = new ArrayList<Integer>();
 		String line = null;
 		int index = 0;
 
+		line = r.readString();
+		int denominator = Integer.parseInt(line);
 		line = r.readString();
 		double binsize = Double.parseDouble(line);
 
@@ -157,22 +161,22 @@ public class BinnedDistributionDouble extends DistributionDouble {
 				throw new InvalidFormatException("expected index " + index
 						+ " but found " + temp[0] + " @ \"" + line + "\"");
 			}
-			list.add(Double.parseDouble(temp[1]));
+			list.add(Integer.parseInt(temp[1]));
 			index++;
 		}
-		double[] values = new double[list.size()];
+		int[] values = new int[list.size()];
 		for (int i = 0; i < list.size(); i++) {
 			values[i] = list.get(i);
 		}
 		r.close();
-		return new BinnedDistributionDouble(name, binsize, values);
+		return new BinnedDistributionDouble(name, binsize, values, denominator);
 	}
 
 	/**
 	 * @param d1
-	 *            binned distribution with double datastructures
+	 *            binned distribution with int datastructures
 	 * @param d2
-	 *            binned distribution with double datastructures to compare
+	 *            binned distribution with int datastructures to compare
 	 *            equality
 	 * @return true if both distributions have the same binsize, denominator,
 	 *         amount of values and all values are equal
@@ -181,6 +185,6 @@ public class BinnedDistributionDouble extends DistributionDouble {
 			BinnedDistributionDouble d2) {
 		if (d1.getBinSize() != d2.getBinSize())
 			return false;
-		return DistributionDouble.equals(d1, d2);
+		return DistributionInt.equals(d1, d2);
 	}
 }

@@ -481,10 +481,15 @@ public class Plot {
 							indizes[i] = i * binSize;
 						}
 					} else if (d instanceof BinnedDistributionDouble) {
-						values = ((BinnedDistributionDouble) d).getValues();
+						int[] ints = ((BinnedDistributionDouble) d).getValues();
+						int denominator = ((BinnedDistributionDouble) d)
+								.getDenominator();
 						double binSize = ((BinnedDistributionDouble) d)
 								.getBinSize();
-						for (int i = 0; i < values.length; i++) {
+						values = new double[ints.length];
+						indizes = new double[ints.length];
+						for (int i = 0; i < ints.length; i++) {
+							values[i] = ints[i] * 1.0 / denominator;
 							indizes[i] = i * binSize;
 						}
 					} else if (d instanceof BinnedDistributionLong) {
@@ -509,7 +514,6 @@ public class Plot {
 							values[i] = ints[i] * 1.0 / denominator;
 							indizes[i] = i;
 						}
-
 					} else if (d instanceof DistributionDouble) {
 						values = ((DistributionDouble) d).getValues();
 					} else if (d instanceof DistributionLong) {
