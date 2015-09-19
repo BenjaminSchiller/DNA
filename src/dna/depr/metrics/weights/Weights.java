@@ -6,7 +6,7 @@ import dna.graph.weights.IntWeight;
 import dna.graph.weights.Weight;
 import dna.metrics.IMetric;
 import dna.series.data.Value;
-import dna.series.data.distributions.BinnedDistributionInt;
+import dna.series.data.distributions.BinnedDistributionDouble;
 import dna.series.data.distributions.Distribution;
 import dna.series.data.nodevaluelists.NodeNodeValueList;
 import dna.series.data.nodevaluelists.NodeValueList;
@@ -17,10 +17,10 @@ public abstract class Weights extends MetricOld {
 
 	protected double binSize;
 
-	protected BinnedDistributionInt distr;
+	protected BinnedDistributionDouble distr;
 
-	public Weights(String name, ApplicationType type, IMetric.MetricType metricType,
-			double binSize) {
+	public Weights(String name, ApplicationType type,
+			IMetric.MetricType metricType, double binSize) {
 		super(name, type, metricType, new DoubleParameter("BinSize", binSize));
 		// super(name, type, metricType);
 		this.binSize = binSize;
@@ -28,13 +28,13 @@ public abstract class Weights extends MetricOld {
 
 	@Override
 	public void init_() {
-		this.distr = new BinnedDistributionInt("WeightsDistribution",
+		this.distr = new BinnedDistributionDouble("WeightsDistribution",
 				this.binSize);
 	}
 
 	@Override
 	public void reset_() {
-		this.distr = new BinnedDistributionInt("WeightsDistribution",
+		this.distr = new BinnedDistributionDouble("WeightsDistribution",
 				this.binSize);
 	}
 

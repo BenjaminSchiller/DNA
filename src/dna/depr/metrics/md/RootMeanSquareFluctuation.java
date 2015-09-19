@@ -17,7 +17,7 @@ import dna.graph.weights.Weight;
 import dna.graph.weights.distances.EuclideanDistance;
 import dna.metrics.Metric;
 import dna.series.data.Value;
-import dna.series.data.distributions.BinnedDistributionInt;
+import dna.series.data.distributions.BinnedDistributionDouble;
 import dna.series.data.distributions.Distribution;
 import dna.series.data.nodevaluelists.NodeNodeValueList;
 import dna.series.data.nodevaluelists.NodeValueList;
@@ -45,7 +45,7 @@ public abstract class RootMeanSquareFluctuation extends MetricOld {
 
 	protected NodeValueList rmsf;
 
-	protected BinnedDistributionInt rmsfD;
+	protected BinnedDistributionDouble rmsfD;
 
 	protected int steps;
 
@@ -58,7 +58,7 @@ public abstract class RootMeanSquareFluctuation extends MetricOld {
 	@Override
 	public void init_() {
 		this.rmsf = new NodeValueList("RootMeanSquareFluctuation", 0);
-		this.rmsfD = new BinnedDistributionInt(
+		this.rmsfD = new BinnedDistributionDouble(
 				"RootMeanSquareFluctuation--Distribution", 0.05);
 	}
 
