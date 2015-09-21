@@ -1,4 +1,4 @@
-package dna.graph.generators.combination;
+package dna.graph.generators.combined;
 
 import java.util.HashMap;
 
@@ -19,7 +19,7 @@ public class CombinedGraph extends GraphGenerator {
 	protected InterconnectionType interconnectionType;
 	protected String interconnectionParameter;
 
-	protected GraphGenerator[] ggs;
+	public GraphGenerator[] ggs;
 
 	public CombinedGraph(String name, InterconnectionType interconnectionType,
 			String interconnectionParameter, GraphGenerator... ggs) {
@@ -33,7 +33,7 @@ public class CombinedGraph extends GraphGenerator {
 	public CombinedGraph(String name, InterconnectionType interconnectionType,
 			String interconnectionParameter, GraphGenerator gg, int count) {
 		super(name, new Parameter[] {}, gg.getGraphDataStructure(), 0, gg
-				.getNodesInit(), gg.getEdgesInit());
+				.getNodesInit() * count, gg.getEdgesInit() * count);
 		this.ggs = new GraphGenerator[count];
 		for (int i = 0; i < this.ggs.length; i++) {
 			this.ggs[i] = gg;

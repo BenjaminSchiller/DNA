@@ -118,14 +118,29 @@ public aspect TimerAspects {
 			call(* IRecomputation+.recompute())
 			);
 
-	Object around(Metric m): metricInit(m) {
-		// System.out.println("INITIALIZATION of metric " + m.getName());
+	public static String firstInitMetric = null;
 
-		Timer t = new Timer(m.getName());
+	Object around(Metric m): metricInit(m) {
+		Timer t = null;
+		if (firstInitMetric == null) {
+			firstInitMetric = m.getName();
+			t = new Timer(m.getName());
+		}
 		Object res = proceed(m);
-		t.end();
-		this.metricTimers.put(m.getName(), t);
+		if (t != null) {
+			t.end();
+			this.metricTimers.put(m.getName(), t);
+			firstInitMetric = null;
+			// System.out
+			// .println("INIT: " + m.getName() + " -> " + t.getRuntime());
+		}
 		return res;
+
+		// Timer t = new Timer(m.getName());
+		// Object res = proceed(m);
+		// t.end();
+		// this.metricTimers.put(m.getName(), t);
+		// return res;
 	}
 
 	// metric recomputation
@@ -134,14 +149,38 @@ public aspect TimerAspects {
 			call(* IRecomputation+.recompute())
 			);
 
-	boolean around(Metric m) : metricRecomputation(m){
-		// System.out.println("RECOMPUTATION of " + m.getName());
+	public static String firstRecomputationMetric = null;
 
-		Timer t = new Timer(m.getName());
+	boolean around(Metric m) : metricRecomputation(m){
+		Timer t = null;
+		if (firstRecomputationMetric == null) {
+			// System.out.println();
+			firstRecomputationMetric = m.getName();
+			t = this.metricTimers.get(m.getName());
+			if (t == null) {
+				t = new Timer(m.getName());
+				// System.out.println("new: " + t.getRuntime());
+				// } else {
+				// System.out.println("old: " + t.getRuntime());
+			}
+			// System.out.println("START: " + m.getName() + " with "
+			// + t.getRuntime());
+			t.restart();
+		}
 		boolean res = proceed(m);
-		t.end();
-		this.metricTimers.put(m.getName(), t);
+		if (t != null) {
+			t.end();
+			this.metricTimers.put(m.getName(), t);
+			firstRecomputationMetric = null;
+//			System.out.println("RECOMP: " + m.getName() + " -> "
+//					+ t.getRuntime());
+		}
 		return res;
+		// Timer t = new Timer(m.getName());
+		// boolean res = proceed(m);
+		// t.end();
+		// this.metricTimers.put(m.getName(), t);
+		// return res;
 	}
 
 	// metric update application
@@ -161,19 +200,39 @@ public aspect TimerAspects {
 			call(* IAfterNW+.applyAfterUpdate(Update+))
 			);
 
-	boolean around(Metric m, Update u) : metricUpdate(m, u){
-		// System.out.println("UPDATE (before / after) " + u + " for "
-		// + m.getName());
+	public static String firstUpdateMetric = null;
 
-		Timer t = this.metricTimers.get(m.getName());
-		if (t == null) {
-			t = new Timer(m.getName());
+	boolean around(Metric m, Update u) : metricUpdate(m, u){
+		Timer t = null;
+		if (firstUpdateMetric == null) {
+			firstUpdateMetric = m.getName();
+			t = this.metricTimers.get(m.getName());
+			if (t == null) {
+				t = new Timer(m.getName());
+				// System.out.println("new-update: " + t.getRuntime());
+			}
+			// System.out.println(firstUpdateMetric
+			// + " - UPDATE (before / after) " + u + " for " + m.getName()
+			// + " @ " + t.getDutation());
+			t.restart();
 		}
-		t.restart();
 		boolean res = proceed(m, u);
-		t.end();
-		this.metricTimers.put(m.getName(), t);
+		if (t != null) {
+			t.end();
+			this.metricTimers.put(m.getName(), t);
+			firstUpdateMetric = null;
+		}
 		return res;
+
+		// Timer t = this.metricTimers.get(m.getName());
+		// if (t == null) {
+		// t = new Timer(m.getName());
+		// }
+		// t.restart();
+		// boolean res = proceed(m, u);
+		// t.end();
+		// this.metricTimers.put(m.getName(), t);
+		// return res;
 	}
 
 	// metric batch application
@@ -189,6 +248,9 @@ public aspect TimerAspects {
 		Timer t = this.metricTimers.get(m.getName());
 		if (t == null) {
 			t = new Timer(m.getName());
+			// System.out.println("new-batch: " + t.getRuntime());
+			// } else {
+			// System.out.println("old-batch: " + t.getRuntime());
 		}
 
 		t.restart();

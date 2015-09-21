@@ -74,10 +74,10 @@ public abstract class ClusteringCoefficient extends Metric {
 				"triangleCount");
 		success &= DataUtils.equals(this.potentialCount, cc.potentialCount,
 				"potentialCount");
-		success &= ArrayUtils.equals(this.nodeTriangleCount.getValues(),
-				cc.nodeTriangleCount.getValues(), "nodeTriangleCount");
-		success &= ArrayUtils.equals(this.nodePotentialCount.getValues(),
-				cc.nodePotentialCount.getValues(), "nodePotentialCount");
+		// success &= ArrayUtils.equals(this.nodeTriangleCount.getValues(),
+		// cc.nodeTriangleCount.getValues(), "nodeTriangleCount");
+		// success &= ArrayUtils.equals(this.nodePotentialCount.getValues(),
+		// cc.nodePotentialCount.getValues(), "nodePotentialCount");
 		return success;
 	}
 
