@@ -19,6 +19,14 @@ public class LongList {
 		return this.values;
 	}
 
+	public long getSum() {
+		long sum = 0;
+		for (long v : values) {
+			sum += v;
+		}
+		return sum;
+	}
+
 	public long getValue(int index) {
 		try {
 			return this.values[index];
