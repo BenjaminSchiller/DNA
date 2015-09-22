@@ -358,6 +358,21 @@ public class GraphPanel extends JPanel {
 		});
 		textPanel.add(screenshotButton);
 
+		this.pauseButton = new JButton("Pause");
+		pauseButton.setPreferredSize(new Dimension(100, 25));
+		pauseButton.setFont(new Font(font.getName(), font.getStyle(), font
+				.getSize() - 3));
+		pauseButton.setToolTipText("Pauses the current video recording.");
+		pauseButton.setFocusPainted(false);
+		pauseButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				toggleVideoPause();
+			}
+		});
+		pauseButton.setVisible(false);
+		textPanel.add(pauseButton);
+
 		this.captureButton = new JButton("Video");
 		captureButton.setPreferredSize(new Dimension(100, 25));
 		captureButton.setFont(new Font(font.getName(), font.getStyle(), font
@@ -380,21 +395,6 @@ public class GraphPanel extends JPanel {
 			}
 		});
 		textPanel.add(captureButton);
-
-		this.pauseButton = new JButton("Pause");
-		pauseButton.setPreferredSize(new Dimension(100, 25));
-		pauseButton.setFont(new Font(font.getName(), font.getStyle(), font
-				.getSize() - 3));
-		pauseButton.setToolTipText("Pauses the current video recording.");
-		pauseButton.setFocusPainted(false);
-		pauseButton.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				toggleVideoPause();
-			}
-		});
-		pauseButton.setVisible(false);
-		textPanel.add(pauseButton);
 
 		String[] strings = { "Full", "Content", "Graph" };
 		this.recordAreasBox = new JComboBox<String>(strings);
