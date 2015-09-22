@@ -95,6 +95,9 @@ public class GraphPanel extends JPanel {
 	protected View view;
 	protected JComboBox<String> recordAreasBox;
 
+	protected JButton pauseButton;
+	protected boolean paused;
+
 	// stat panel
 	protected JLabel bgNameLabel;
 	protected JLabel timestampValue;
@@ -182,6 +185,7 @@ public class GraphPanel extends JPanel {
 		this.nextRuleIndex = 0;
 
 		this.recording = false;
+		this.paused = false;
 
 		boolean addStatPanel = Config
 				.getBoolean("GRAPH_VIS_STAT_PANEL_ENABLED");
@@ -360,7 +364,7 @@ public class GraphPanel extends JPanel {
 				.getSize() - 3));
 		captureButton.setToolTipText("Captures a video and saves it to '"
 				+ Config.get("GRAPH_VIS_VIDEO_DIR") + "'");
-		this.captureButton.setFocusPainted(false);
+		captureButton.setFocusPainted(false);
 		this.captureButtonFontColor = captureButton.getForeground();
 		captureButton.addActionListener(new ActionListener() {
 			@Override
@@ -376,6 +380,21 @@ public class GraphPanel extends JPanel {
 			}
 		});
 		textPanel.add(captureButton);
+
+		this.pauseButton = new JButton("Pause");
+		pauseButton.setPreferredSize(new Dimension(100, 25));
+		pauseButton.setFont(new Font(font.getName(), font.getStyle(), font
+				.getSize() - 3));
+		pauseButton.setToolTipText("Pauses the current video recording.");
+		pauseButton.setFocusPainted(false);
+		pauseButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				togglePause();
+			}
+		});
+		pauseButton.setVisible(false);
+		textPanel.add(pauseButton);
 
 		String[] strings = { "Full", "Content", "Graph" };
 		this.recordAreasBox = new JComboBox<String>(strings);
@@ -1042,6 +1061,51 @@ public class GraphPanel extends JPanel {
 		this.videoRecorder.stop();
 	}
 
+	/** Toggles pause on the current video recording. **/
+	public void togglePause() {
+		if (this.recording) {
+			if (this.paused) {
+				this.videoRecorder.resume();
+				this.paused = false;
+
+				if (this.pauseButton != null)
+					this.pauseButton.setText("Pause");
+			} else {
+				this.videoRecorder.pause();
+				this.paused = true;
+
+				if (this.pauseButton != null)
+					this.pauseButton.setText("Resume");
+			}
+		}
+	}
+
+	/** Pauses the current video recording. **/
+	public void pause() {
+		if (this.recording) {
+			if (!this.paused) {
+				this.videoRecorder.pause();
+				this.paused = true;
+
+				if (this.pauseButton != null)
+					this.pauseButton.setText("Resume");
+			}
+		}
+	}
+
+	/** Resumes the current video recording. **/
+	public void resume() {
+		if (this.recording) {
+			if (this.paused) {
+				this.videoRecorder.resume();
+				this.paused = false;
+
+				if (this.pauseButton != null)
+					this.pauseButton.setText("Pause");
+			}
+		}
+	}
+
 	/** Updates the video progress. **/
 	public void updateVideoProgress(double percent) {
 		if (this.captureButton != null)
@@ -1067,6 +1131,8 @@ public class GraphPanel extends JPanel {
 			this.captureButton
 					.setForeground(this.captureButtonFontColorRecording);
 		}
+		if (this.pauseButton != null)
+			this.pauseButton.setVisible(true);
 
 		this.recording = true;
 	}
@@ -1077,13 +1143,22 @@ public class GraphPanel extends JPanel {
 			this.captureButton.setText("Video");
 			this.captureButton.setForeground(this.captureButtonFontColor);
 		}
-
+		if (this.pauseButton != null) {
+			this.pauseButton.setText("Pause");
+			this.pauseButton.setVisible(false);
+		}
+		this.paused = false;
 		this.recording = false;
 	}
 
 	/** Returns if the panel is currently being recorded. **/
 	public boolean isRecording() {
 		return this.recording;
+	}
+
+	/** Returns if the panels video recording is currently paused. **/
+	public boolean isPaused() {
+		return this.paused;
 	}
 
 	/** Updates the label on node n. **/

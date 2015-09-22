@@ -98,6 +98,21 @@ public class VisualizationUtils {
 		GraphVisualization.getCurrentGraphPanel().makeVideo();
 	}
 
+	/** Stops the video recording on the most current GraphVisualization-Frame. **/
+	public static void stopVideo() throws InterruptedException, IOException {
+		GraphVisualization.getCurrentGraphPanel().stopVideo();
+	}
+
+	/** Pauses the video recording process on the most current GraphVis-Frame. **/
+	public static void pauseVideo() {
+		GraphVisualization.getCurrentGraphPanel().pause();
+	}
+
+	/** Resumes the video recording process on the most current GraphVis-Frame. **/
+	public static void resumeVideo() {
+		GraphVisualization.getCurrentGraphPanel().resume();
+	}
+
 	/** Captures a video from the given Component. **/
 	public static void captureVideo(Component c) throws InterruptedException,
 			IOException {
@@ -266,6 +281,7 @@ public class VisualizationUtils {
 
 		protected Thread t;
 		protected boolean running;
+		protected boolean paused;
 
 		protected JPanel callingPanel;
 
@@ -292,6 +308,7 @@ public class VisualizationUtils {
 
 			// end of run
 			this.running = false;
+			this.paused = false;
 			this.t = null;
 			return;
 		}
@@ -301,6 +318,7 @@ public class VisualizationUtils {
 			if (this.t == null) {
 				Random random = new Random();
 				this.running = true;
+				this.paused = false;
 				this.t = new Thread(this, "VideoRecorder-Thread"
 						+ random.nextFloat());
 				this.t.start();
@@ -310,6 +328,27 @@ public class VisualizationUtils {
 		/** Stops the current recording. **/
 		public void stop() {
 			this.running = false;
+			this.paused = false;
+		}
+
+		/** Pauses the current recording. **/
+		public void pause() {
+			this.paused = true;
+		}
+
+		/** Resumes the current recording. **/
+		public void resume() {
+			this.paused = false;
+		}
+
+		/** Toggles the pause function. **/
+		public void togglePause() {
+			this.paused = !this.paused;
+		}
+
+		/** Sets if paused or not. **/
+		public void setPause(boolean pauseEnabled) {
+			this.paused = pauseEnabled;
 		}
 
 		/** Updates the destination path. **/
@@ -342,6 +381,7 @@ public class VisualizationUtils {
 			this.dstPath = dstPath;
 			this.timeInSeconds = timeInSeconds;
 			this.fps = fps;
+			this.paused = false;
 		}
 
 		/** Update the progress at the calling panel. **/
@@ -390,6 +430,10 @@ public class VisualizationUtils {
 			int counter = 0;
 			int seconds = 0;
 			for (int i = 0; i < amount; i++) {
+				while (this.paused && this.running)
+					Thread.sleep(100);
+				if (!this.running)
+					break;
 				long start = System.currentTimeMillis();
 
 				// take screenshot
@@ -407,6 +451,8 @@ public class VisualizationUtils {
 				if (diff < screenshotInterval)
 					Thread.sleep(screenshotInterval - diff);
 
+				while (this.paused && this.running)
+					Thread.sleep(100);
 				if (!this.running)
 					break;
 			}
