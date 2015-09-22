@@ -119,6 +119,7 @@ public class VisualizationUtils {
 		VisualizationUtils.captureVideo(c,
 				VisualizationUtils.getVideoPath(c.getName()), null,
 				Config.getInt("GRAPH_VIS_VIDEO_MAXIMUM_LENGTH_IN_SECONDS"),
+				Config.getInt("GRAPH_VIS_VIDEO_DEFAULT_RECORDING_FPS"),
 				Config.getInt("GRAPH_VIS_VIDEO_DEFAULT_FPS"));
 	}
 
@@ -127,12 +128,13 @@ public class VisualizationUtils {
 			throws InterruptedException, IOException {
 		VisualizationUtils.captureVideo(c, dstDir, null,
 				Config.getInt("GRAPH_VIS_VIDEO_MAXIMUM_LENGTH_IN_SECONDS"),
+				Config.getInt("GRAPH_VIS_VIDEO_DEFAULT_RECORDING_FPS"),
 				Config.getInt("GRAPH_VIS_VIDEO_DEFAULT_FPS"));
 	}
 
 	/** Captures a video from the given Component to the destination-path. **/
 	public static void captureVideo(Component c, String dstDir,
-			String filename, int timeInSeconds, int fps)
+			String filename, int timeInSeconds, int recordFps, int videoFps)
 			throws InterruptedException, IOException {
 		Log.info("capturing " + timeInSeconds + "s video from '" + c.getName()
 				+ "'");
@@ -140,9 +142,9 @@ public class VisualizationUtils {
 		if (filename != null)
 			dstPath += filename;
 
-		long screenshotInterval = (long) Math.floor(1000 / fps);
+		long screenshotInterval = (long) Math.floor(1000 / recordFps);
 
-		int amount = timeInSeconds * fps;
+		int amount = timeInSeconds * recordFps;
 
 		BufferedImage[] images = new BufferedImage[amount];
 
@@ -156,7 +158,7 @@ public class VisualizationUtils {
 
 		File f = new File(dstPath);
 		Log.info("rendering video to " + dstDir);
-		VisualizationUtils.renderVideo(f, images);
+		VisualizationUtils.renderVideo(f, images, videoFps);
 		Log.info("video rendering done");
 		images = null;
 		System.gc();
@@ -189,6 +191,8 @@ public class VisualizationUtils {
 	/** Renders a video from the given jpeg frames. **/
 	public static void renderVideo(File file, BufferedImage[] frames, int fps,
 			boolean useTechSmithCodec) throws IOException {
+		Log.info("renderin video with " + fps + "  fps");
+
 		// check if directory exists
 		if (!file.getParentFile().exists())
 			file.mkdirs();
@@ -298,7 +302,8 @@ public class VisualizationUtils {
 		protected Component srcComponent;
 		protected String dstPath;
 		protected int timeInSeconds;
-		protected int fps;
+		protected int recordFps;
+		protected int videoFps;
 
 		// constructors
 		public VideoRecorder(Component srcComponent) {
@@ -309,16 +314,18 @@ public class VisualizationUtils {
 		public VideoRecorder(Component srcComponent, String dstPath) {
 			this(srcComponent, dstPath, Config
 					.getInt("GRAPH_VIS_VIDEO_MAXIMUM_LENGTH_IN_SECONDS"),
+					Config.getInt("GRAPH_VIS_VIDEO_DEFAULT_RECORDING_FPS"),
 					Config.getInt("GRAPH_VIS_VIDEO_DEFAULT_FPS"),
 					RecordMode.normal);
 		}
 
 		public VideoRecorder(Component srcComponent, String dstPath,
-				int timeInSeconds, int fps, RecordMode mode) {
+				int timeInSeconds, int recordFps, int videoFps, RecordMode mode) {
 			this.srcComponent = srcComponent;
 			this.dstPath = dstPath;
 			this.timeInSeconds = timeInSeconds;
-			this.fps = fps;
+			this.recordFps = recordFps;
+			this.videoFps = videoFps;
 			this.blocked = false;
 			this.paused = false;
 			this.mode = mode;
@@ -334,7 +341,8 @@ public class VisualizationUtils {
 		public void run() {
 			try {
 				// capture video
-				captureVideo(srcComponent, dstPath, timeInSeconds, fps, mode);
+				captureVideo(srcComponent, dstPath, timeInSeconds, recordFps,
+						videoFps, mode);
 			} catch (InterruptedException | IOException e) {
 				e.printStackTrace();
 			}
@@ -464,8 +472,8 @@ public class VisualizationUtils {
 			this.srcComponent = srcComponent;
 		}
 
-		protected void captureVideo(Component c, String dstPath, int fps)
-				throws InterruptedException, IOException {
+		protected void captureVideoStepByStep(Component c, String dstPath,
+				int videoFps) throws InterruptedException, IOException {
 			// report
 			this.reportVideoStarted();
 			Log.info("GraphVis - capturing video to '" + dstPath + "'");
@@ -494,49 +502,49 @@ public class VisualizationUtils {
 				}
 			}
 
-			// convert list to array
-			BufferedImage[] images = imagesList
-					.toArray(new BufferedImage[imagesList.size()]);
-			imagesList = null;
-
 			// render video
-			this.renderVideo(images, dstPath, fps,
+			this.renderVideo(imagesList, dstPath, videoFps,
 					Config.getBoolean("GRAPH_VIS_VIDEO_USE_TECHSMITH"));
 
 		}
 
 		/** Captures a video from the given JFrame to the destination-path. **/
 		protected void captureVideo(Component c, String dstPath,
-				int timeInSeconds, int fps, RecordMode mode)
+				int timeInSeconds, int recordFps, int videoFps, RecordMode mode)
 				throws InterruptedException, IOException {
 			if (mode.equals(RecordMode.steps)) {
-				captureVideo(c, dstPath, fps);
+				captureVideoStepByStep(c, dstPath, videoFps);
 			} else {
 				// report
 				this.reportVideoStarted();
 
 				Log.info("GraphVis - capturing video to '" + dstPath + "'");
-				long screenshotInterval = (long) Math.floor(1000 / fps);
+				long screenshotInterval = (long) Math.floor(1000 / recordFps);
 
-				int amount = timeInSeconds * fps;
+				int amount = timeInSeconds * recordFps;
 
 				// collect images
-				BufferedImage[] images = new BufferedImage[amount];
+				ArrayList<BufferedImage> imagesList = new ArrayList<BufferedImage>();
 				int counter = 0;
 				int seconds = 0;
 				for (int i = 0; i < amount; i++) {
+					// if paused, pause
 					while (this.paused && this.running)
 						Thread.sleep(100);
+
+					// if stoppped, stop
 					if (!this.running)
 						break;
+
+					// start time
 					long start = System.currentTimeMillis();
 
 					// take screenshot
-					images[i] = VisualizationUtils.getScreenshot(c);
+					imagesList.add(VisualizationUtils.getScreenshot(c));
 
 					// update progress approx. each second
 					counter++;
-					if (counter == fps) {
+					if (counter == recordFps) {
 						this.updateElapsedVideoTime(seconds);
 						counter = 0;
 						seconds++;
@@ -546,25 +554,30 @@ public class VisualizationUtils {
 					if (diff < screenshotInterval)
 						Thread.sleep(screenshotInterval - diff);
 
-					while (this.paused && this.running)
-						Thread.sleep(100);
+					// if stopped, stop
 					if (!this.running)
 						break;
 				}
 
 				// render video
-				this.renderVideo(images, dstPath, fps,
+				this.renderVideo(imagesList, dstPath, videoFps,
 						Config.getBoolean("GRAPH_VIS_VIDEO_USE_TECHSMITH"));
 			}
 		}
 
 		/** Renders the given images to the specified location. **/
-		protected void renderVideo(BufferedImage[] images, String dstPath,
-				int fps, boolean useTechSmith) throws IOException {
+		protected void renderVideo(ArrayList<BufferedImage> imagesList,
+				String dstPath, int videoFps, boolean useTechSmith)
+				throws IOException {
+			// convert list to array
+			BufferedImage[] images = imagesList
+					.toArray(new BufferedImage[imagesList.size()]);
+			imagesList = null;
+
 			File f = new File(dstPath);
 			updateVideoProgressRendering("rendering");
 			Log.info("rendering video to " + dstPath);
-			VisualizationUtils.renderVideo(f, images, fps, useTechSmith);
+			VisualizationUtils.renderVideo(f, images, videoFps, useTechSmith);
 			Log.info("video rendering done");
 
 			// free space
