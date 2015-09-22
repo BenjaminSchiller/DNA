@@ -1031,7 +1031,6 @@ public class GraphPanel extends JPanel {
 			this.videoRecorder.updateDestinationPath();
 			this.videoRecorder.updateSourceComponent(this.getRecordComponent());
 		}
-
 		this.videoRecorder.start();
 	}
 
@@ -1067,7 +1066,6 @@ public class GraphPanel extends JPanel {
 				this.videoRecorder.resume();
 			else
 				this.videoRecorder.pause();
-
 		}
 	}
 
@@ -1137,6 +1135,12 @@ public class GraphPanel extends JPanel {
 	public void updateElapsedVideoTime(int seconds) {
 		if (this.captureButton != null)
 			this.captureButton.setText(seconds + "s");
+	}
+
+	/** Updates the video progress as text. **/
+	public void updateVideoProgressText(String text) {
+		if (this.captureButton != null)
+			this.captureButton.setText(text);
 	}
 
 	/** Report that the recording has started. **/
