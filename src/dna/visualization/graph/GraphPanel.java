@@ -1056,7 +1056,8 @@ public class GraphPanel extends JPanel {
 
 	/** Stops the current video recording prematurely. **/
 	public void stopVideo() {
-		this.videoRecorder.stop();
+		if (this.videoRecorder != null)
+			this.videoRecorder.stop();
 	}
 
 	/** Toggles pause on the current video recording. **/
