@@ -10,11 +10,11 @@ import java.io.File;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Random;
 
 import javax.imageio.ImageIO;
-import javax.swing.JPanel;
 
 import org.monte.media.Buffer;
 import org.monte.media.Format;
@@ -279,11 +279,20 @@ public class VisualizationUtils {
 	 **/
 	public static class VideoRecorder implements Runnable {
 
+		public enum RecordMode {
+			normal, steps
+		}
+
 		protected Thread t;
 		protected boolean running;
 		protected boolean paused;
 
-		protected JPanel callingPanel;
+		protected RecordMode mode;
+		protected int stepsLeft;
+
+		protected RecordMode tempMode;
+
+		protected ArrayList<Component> registeredComponents;
 
 		protected Component srcComponent;
 		protected String dstPath;
@@ -296,12 +305,12 @@ public class VisualizationUtils {
 				// capture video
 				captureVideo(srcComponent, dstPath, timeInSeconds, fps);
 
-				if (this.callingPanel != null) {
-					if (this.callingPanel instanceof GraphPanel)
-						((GraphPanel) this.callingPanel).recordingStopped();
+				// report
+				this.reportVideoStopped();
 
-					// add other panels here for proper termination handling
-				}
+				// if temporary record mode has been set, update
+				this.mode = tempMode != mode ? tempMode : mode;
+
 			} catch (InterruptedException | IOException e) {
 				e.printStackTrace();
 			}
@@ -333,22 +342,54 @@ public class VisualizationUtils {
 
 		/** Pauses the current recording. **/
 		public void pause() {
-			this.paused = true;
+			if (this.running) {
+				this.paused = true;
+
+				// report
+				this.reportVideoPaused();
+			}
 		}
 
 		/** Resumes the current recording. **/
 		public void resume() {
-			this.paused = false;
+			if (this.running) {
+				this.paused = false;
+
+				// report
+				this.reportVideoResumed();
+			}
 		}
 
 		/** Toggles the pause function. **/
 		public void togglePause() {
-			this.paused = !this.paused;
+			if (this.paused)
+				this.resume();
+			else
+				this.pause();
 		}
 
 		/** Sets if paused or not. **/
 		public void setPause(boolean pauseEnabled) {
 			this.paused = pauseEnabled;
+		}
+
+		/** Sets the record mode. Will take effect after recording is inished. **/
+		public void setRecordMode(RecordMode mode) {
+			if (this.running)
+				this.tempMode = mode;
+			else
+				this.mode = mode;
+		}
+
+		/** Returns the record mode. **/
+		public RecordMode getRecordMode() {
+			return this.mode;
+		}
+
+		/** Adds a step to the recording. Only works in steps mode. **/
+		public void addStep() {
+			if (this.mode.equals(RecordMode.steps))
+				this.stepsLeft++;
 		}
 
 		/** Updates the destination path. **/
@@ -362,34 +403,86 @@ public class VisualizationUtils {
 			this.srcComponent = srcComponent;
 		}
 
-		public VideoRecorder(JPanel callingPanel, Component srcComponent) {
-			this(callingPanel, srcComponent, VisualizationUtils
-					.getVideoPath(srcComponent.getName()));
+		public VideoRecorder(Component srcComponent) {
+			this(srcComponent, VisualizationUtils.getVideoPath(srcComponent
+					.getName()));
 		}
 
-		public VideoRecorder(JPanel callingPanel, Component srcComponent,
-				String dstPath) {
-			this(callingPanel, srcComponent, dstPath, Config
+		public VideoRecorder(Component srcComponent, String dstPath) {
+			this(srcComponent, dstPath, Config
 					.getInt("GRAPH_VIS_VIDEO_MAXIMUM_LENGTH_IN_SECONDS"),
-					Config.getInt("GRAPH_VIS_VIDEO_DEFAULT_FPS"));
+					Config.getInt("GRAPH_VIS_VIDEO_DEFAULT_FPS"),
+					RecordMode.normal);
 		}
 
-		public VideoRecorder(JPanel callingPanel, Component srcComponent,
-				String dstPath, int timeInSeconds, int fps) {
-			this.callingPanel = callingPanel;
+		public VideoRecorder(Component srcComponent, String dstPath,
+				int timeInSeconds, int fps, RecordMode mode) {
 			this.srcComponent = srcComponent;
 			this.dstPath = dstPath;
 			this.timeInSeconds = timeInSeconds;
 			this.fps = fps;
 			this.paused = false;
+			this.mode = mode;
+			this.registeredComponents = new ArrayList<Component>();
+		}
+
+		/** Register a new component for status broadcasting. **/
+		public void registerComponent(Component c) {
+			if (!this.registeredComponents.contains(c))
+				this.registeredComponents.add(c);
+		}
+
+		/** Removes the component from the registered components. **/
+		public void unregisterComponent(Component c) {
+			if (this.registeredComponents.contains(c))
+				this.registeredComponents.remove(c);
+		}
+
+		/** Reports video started to all registered components. **/
+		protected void reportVideoStarted() {
+			for (Component c : this.registeredComponents) {
+				if (c instanceof GraphPanel)
+					((GraphPanel) c).reportVideoStarted();
+
+				// add other panels here for proper video handling
+			}
+		}
+
+		/** Reports video stopped to all registered components. **/
+		protected void reportVideoStopped() {
+			for (Component c : this.registeredComponents) {
+				if (c instanceof GraphPanel)
+					((GraphPanel) c).reportVideoStopped();
+
+				// add other panels here for proper video handling
+			}
+		}
+
+		/** Reports video paused to all registered components. **/
+		protected void reportVideoPaused() {
+			for (Component c : this.registeredComponents) {
+				if (c instanceof GraphPanel)
+					((GraphPanel) c).reportVideoPaused();
+
+				// add other panels here for proper pause handling
+			}
+		}
+
+		/** Reports video resumed to all registered components. **/
+		protected void reportVideoResumed() {
+			for (Component c : this.registeredComponents) {
+				if (c instanceof GraphPanel)
+					((GraphPanel) c).reportVideoResumed();
+
+				// add other panels here for proper pause handling
+			}
 		}
 
 		/** Update the progress at the calling panel. **/
 		protected void updateVideoProgress(double percent) {
-			if (this.callingPanel != null) {
-				if (this.callingPanel instanceof GraphPanel)
-					((GraphPanel) this.callingPanel)
-							.updateVideoProgress(percent);
+			for (Component c : this.registeredComponents) {
+				if (c instanceof GraphPanel)
+					((GraphPanel) c).updateVideoProgress(percent);
 
 				// add other panels here for progress update broadcasting
 			}
@@ -397,10 +490,9 @@ public class VisualizationUtils {
 
 		/** Update the elapsed time of the video recording. **/
 		protected void updateElapsedVideoTime(int seconds) {
-			if (this.callingPanel != null) {
-				if (this.callingPanel instanceof GraphPanel)
-					((GraphPanel) this.callingPanel)
-							.updateElapsedVideoTime(seconds);
+			for (Component c : this.registeredComponents) {
+				if (c instanceof GraphPanel)
+					((GraphPanel) c).updateElapsedVideoTime(seconds);
 
 				// add other panels here for progress update broadcasting
 			}
@@ -408,9 +500,9 @@ public class VisualizationUtils {
 
 		/** Called when the capturing progress starts rendering. **/
 		protected void updateVideoProgressRendering(String text) {
-			if (this.callingPanel != null) {
-				if (this.callingPanel instanceof GraphPanel)
-					((GraphPanel) this.callingPanel).setVideoButtonText(text);
+			for (Component c : this.registeredComponents) {
+				if (c instanceof GraphPanel)
+					((GraphPanel) c).setVideoButtonText(text);
 
 				// add other panels here for progress update broadcasting
 			}
@@ -420,6 +512,9 @@ public class VisualizationUtils {
 		protected void captureVideo(Component c, String dstPath,
 				int timeInSeconds, int fps) throws InterruptedException,
 				IOException {
+			// report
+			this.reportVideoStarted();
+
 			Log.info("GraphVis - capturing video to '" + dstPath + "'");
 			long screenshotInterval = (long) Math.floor(1000 / fps);
 
