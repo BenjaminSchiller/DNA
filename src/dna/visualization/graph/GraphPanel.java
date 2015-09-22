@@ -760,6 +760,7 @@ public class GraphPanel extends JPanel {
 					coords[1], coords[2]);
 		}
 
+		// if no z-value has been set, set 0
 		if (!node.hasAttribute(GraphVisualization.zKey))
 			node.setAttribute(GraphVisualization.zKey, 0F);
 
