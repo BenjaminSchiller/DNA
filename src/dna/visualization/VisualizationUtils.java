@@ -22,6 +22,9 @@ import org.monte.media.FormatKeys.MediaType;
 import org.monte.media.avi.AVIWriter;
 import org.monte.media.math.Rational;
 
+import dna.io.filesystem.Dir;
+import dna.io.filesystem.Files;
+import dna.io.filter.SuffixFilenameFilter;
 import dna.util.Config;
 import dna.util.Log;
 import dna.visualization.graph.GraphPanel;
@@ -53,7 +56,7 @@ public class VisualizationUtils {
 	public static void captureScreenshot(Component c, String dstDir,
 			String filename, String format) {
 		String name = c.getName();
-		String suffix = "." + format;
+		String suffix = Config.get("FILE_NAME_DELIMITER") + format;
 
 		// create dir
 		File f = new File(dstDir);
@@ -219,8 +222,6 @@ public class VisualizationUtils {
 	/** Renders a video from the given jpeg frames. **/
 	public static void renderVideo(File file, BufferedImage[] frames, int fps,
 			boolean useTechSmithCodec) throws IOException {
-		Log.info("renderin video with " + fps + "  fps");
-
 		// check if directory exists
 		if (!file.getParentFile().exists())
 			file.mkdirs();
@@ -263,6 +264,68 @@ public class VisualizationUtils {
 		} finally {
 			out.close();
 		}
+	}
+
+	/** Renders a video from the given jpeg frames. **/
+	public static void renderVideoFromDirectory(File file, String dir,
+			String imageFormat, int fps, boolean useTechSmithCodec)
+			throws IOException {
+		// check if directory exists
+		if (!file.getParentFile().exists())
+			file.mkdirs();
+
+		// craft format
+		AVIWriter out = new AVIWriter(file);
+		// MovieWriter out = Registry.getInstance().getWriter(file);
+
+		Object encodingFormat;
+		if (useTechSmithCodec)
+			encodingFormat = org.monte.media.VideoFormatKeys.ENCODING_AVI_TECHSMITH_SCREEN_CAPTURE;
+		else
+			encodingFormat = org.monte.media.VideoFormatKeys.ENCODING_AVI_MJPG;
+
+		// read first image
+		String[] images = VisualizationUtils.getImages(dir, imageFormat);
+		BufferedImage init = ImageIO.read(new File(dir + images[0]));
+
+		Format format = new Format(
+				org.monte.media.VideoFormatKeys.MediaTypeKey, MediaType.VIDEO,
+				org.monte.media.VideoFormatKeys.EncodingKey, encodingFormat,
+				org.monte.media.VideoFormatKeys.FrameRateKey, new Rational(fps,
+						1), org.monte.media.VideoFormatKeys.WidthKey,
+				init.getWidth(), org.monte.media.VideoFormatKeys.HeightKey,
+				init.getHeight(), org.monte.media.VideoFormatKeys.DepthKey, 24);
+		int track = out.addTrack(format);
+
+		// write video vile
+		try {
+			out.addTrack(format);
+
+			Buffer buf = new Buffer();
+			buf.format = new Format(
+					org.monte.media.VideoFormatKeys.DataClassKey,
+					BufferedImage.class);
+			buf.sampleDuration = format.get(
+					org.monte.media.VideoFormatKeys.FrameRateKey).inverse();
+
+			for (int i = 0; i < images.length; i++) {
+				BufferedImage image = ImageIO.read(new File(dir + images[i]));
+				buf.data = image;
+				out.write(track, buf);
+			}
+		} finally {
+			// close output
+			out.close();
+
+			// remove temp dir
+			File tempDir = new File(dir);
+			Files.delete(tempDir);
+		}
+	}
+
+	public static String[] getImages(String dir, String format) {
+		return (new File(dir)).list(new SuffixFilenameFilter(Config
+				.get("FILE_NAME_DELIMITER") + format));
 	}
 
 	/** Returns the video path for the name. **/
@@ -316,6 +379,9 @@ public class VisualizationUtils {
 		}
 
 		protected Thread t;
+		protected int id;
+		protected String tempDir;
+		protected boolean bufferOnFilesystem;
 		protected boolean running;
 		protected boolean blocked;
 		protected boolean paused;
@@ -340,20 +406,25 @@ public class VisualizationUtils {
 		}
 
 		public VideoRecorder(Component srcComponent, String dstPath) {
-			this(srcComponent, dstPath, Config
-					.getInt("GRAPH_VIS_VIDEO_MAXIMUM_LENGTH_IN_SECONDS"),
+			this(
+					srcComponent,
+					dstPath,
+					Config.getInt("GRAPH_VIS_VIDEO_MAXIMUM_LENGTH_IN_SECONDS"),
 					Config.getInt("GRAPH_VIS_VIDEO_DEFAULT_RECORDING_FPS"),
 					Config.getInt("GRAPH_VIS_VIDEO_DEFAULT_FPS"),
+					Config.getBoolean("GRAPH_VIS_VIDEO_BUFFER_IMAGES_ON_FILESYSTEM"),
 					RecordMode.normal);
 		}
 
 		public VideoRecorder(Component srcComponent, String dstPath,
-				int timeInSeconds, int recordFps, int videoFps, RecordMode mode) {
+				int timeInSeconds, int recordFps, int videoFps,
+				boolean bufferOnFilesystem, RecordMode mode) {
 			this.srcComponent = srcComponent;
 			this.dstPath = dstPath;
 			this.timeInSeconds = timeInSeconds;
 			this.recordFps = recordFps;
 			this.videoFps = videoFps;
+			this.bufferOnFilesystem = bufferOnFilesystem;
 			this.blocked = false;
 			this.paused = false;
 			this.mode = mode;
@@ -392,10 +463,10 @@ public class VisualizationUtils {
 		public void start() {
 			if (this.t == null) {
 				Random random = new Random();
+				this.id = Math.abs(random.nextInt());
 				this.running = true;
 				this.paused = false;
-				this.t = new Thread(this, "VideoRecorder-Thread"
-						+ random.nextFloat());
+				this.t = new Thread(this, "VideoRecorder-Thread" + this.id);
 				this.t.start();
 			}
 		}
@@ -500,14 +571,25 @@ public class VisualizationUtils {
 			this.srcComponent = srcComponent;
 		}
 
+		/** Captures the video step by step. **/
 		protected void captureVideoStepByStep(Component c, String dstPath,
 				int videoFps) throws InterruptedException, IOException {
 			// report
 			this.reportVideoStarted();
 			Log.info("GraphVis - capturing video to '" + dstPath + "'");
 
+			// if buffer
+			if (this.bufferOnFilesystem) {
+				// create tempDir
+				this.tempDir = this.createTempDir();
+			}
+
+			DateFormat df = new SimpleDateFormat("yyyy_MM_dd-HH_mm_ss");
+			String format = "png";
+
 			ArrayList<BufferedImage> imagesList = new ArrayList<BufferedImage>();
 			int counter = 0;
+			BufferedImage image;
 			while (this.running) {
 				if (this.paused)
 					Thread.sleep(100);
@@ -517,7 +599,19 @@ public class VisualizationUtils {
 				// if steps left
 				if (this.stepsLeft > 0) {
 					// make screenshot
-					imagesList.add(VisualizationUtils.getScreenshot(c));
+					image = VisualizationUtils.getScreenshot(c);
+
+					// if buffer
+					if (this.bufferOnFilesystem) {
+						// write
+						this.writeImage(image, df, format);
+					} else {
+						// buffer in list
+						imagesList.add(image);
+					}
+
+					// free space
+					image = null;
 
 					// update progress
 					counter++;
@@ -526,14 +620,13 @@ public class VisualizationUtils {
 					stepsLeft--;
 				} else {
 					// sleep shortly
-					Thread.sleep(100);
+					Thread.sleep(50);
 				}
 			}
 
 			// render video
-			this.renderVideo(imagesList, dstPath, videoFps,
+			this.renderVideo(imagesList, format, dstPath, videoFps,
 					Config.getBoolean("GRAPH_VIS_VIDEO_USE_TECHSMITH"));
-
 		}
 
 		/** Captures a video from the given JFrame to the destination-path. **/
@@ -546,16 +639,30 @@ public class VisualizationUtils {
 				// report
 				this.reportVideoStarted();
 
+				// if buffer
+				if (this.bufferOnFilesystem) {
+					// create tempDir
+					this.tempDir = this.createTempDir();
+				}
+
+				DateFormat df = new SimpleDateFormat("yyyy_MM_dd-HH_mm_ss");
+				String format = "png";
+
 				Log.info("GraphVis - capturing video to '" + dstPath + "'");
 				long screenshotInterval = (long) Math.floor(1000 / recordFps);
 
-				int amount = timeInSeconds * recordFps;
+				int maxAmount = timeInSeconds * videoFps;
 
 				// collect images
 				ArrayList<BufferedImage> imagesList = new ArrayList<BufferedImage>();
+				BufferedImage image;
+				int bufferThreshold = 10;
+				int buffered = 0;
 				int counter = 0;
 				int seconds = 0;
-				for (int i = 0; i < amount; i++) {
+				this.updateElapsedVideoTime(0);
+
+				while (this.running) {
 					// if paused, pause
 					while (this.paused && this.running)
 						Thread.sleep(100);
@@ -568,7 +675,30 @@ public class VisualizationUtils {
 					long start = System.currentTimeMillis();
 
 					// take screenshot
-					imagesList.add(VisualizationUtils.getScreenshot(c));
+					image = VisualizationUtils.getScreenshot(c);
+
+					// if buffer
+					if (this.bufferOnFilesystem) {
+						if (buffered >= bufferThreshold) {
+							for (int i = 0; i < buffered; i++) {
+								this.writeImage(imagesList.get(i), df, format);
+							}
+							imagesList.clear();
+							buffered = 0;
+						} else {
+							imagesList.add(image);
+							buffered++;
+						}
+
+						// // write
+						// this.writeImage(image, df, format);
+					} else {
+						// buffer in list
+						imagesList.add(image);
+					}
+
+					// free space
+					image = null;
 
 					// update progress approx. each second
 					counter++;
@@ -578,38 +708,81 @@ public class VisualizationUtils {
 						seconds++;
 					}
 
+					// if max amount of frames reached
+					if (counter >= maxAmount)
+						this.stop();
+
 					long diff = System.currentTimeMillis() - start;
+					// System.out.println(diff + "\t" + screenshotInterval);
 					if (diff < screenshotInterval)
 						Thread.sleep(screenshotInterval - diff);
 
 					// if stopped, stop
-					if (!this.running)
+					if (!this.running) {
+						// write already buffered images
+						if (this.bufferOnFilesystem && buffered > 0) {
+							for (int i = 0; i < buffered; i++) {
+								this.writeImage(imagesList.get(i), df, format);
+							}
+							imagesList.clear();
+						}
 						break;
+					}
 				}
 
 				// render video
-				this.renderVideo(imagesList, dstPath, videoFps,
+				this.renderVideo(imagesList, "png", dstPath, videoFps,
 						Config.getBoolean("GRAPH_VIS_VIDEO_USE_TECHSMITH"));
 			}
 		}
 
 		/** Renders the given images to the specified location. **/
 		protected void renderVideo(ArrayList<BufferedImage> imagesList,
-				String dstPath, int videoFps, boolean useTechSmith)
-				throws IOException {
-			// convert list to array
-			BufferedImage[] images = imagesList
-					.toArray(new BufferedImage[imagesList.size()]);
-			imagesList = null;
-
+				String imageFormat, String dstPath, int videoFps,
+				boolean useTechSmith) throws IOException {
 			File f = new File(dstPath);
 			updateVideoProgressRendering("rendering");
 			Log.info("rendering video to " + dstPath);
-			VisualizationUtils.renderVideo(f, images, videoFps, useTechSmith);
-			Log.info("video rendering done");
 
-			// free space
-			images = null;
+			// if buffer on filesystem
+			if (this.bufferOnFilesystem) {
+				VisualizationUtils.renderVideoFromDirectory(f, this.tempDir,
+						imageFormat, videoFps, useTechSmith);
+			} else {
+				// convert list to array
+				BufferedImage[] images = imagesList
+						.toArray(new BufferedImage[imagesList.size()]);
+				imagesList = null;
+
+				VisualizationUtils.renderVideo(f, images, videoFps,
+						useTechSmith);
+
+				// free space
+				images = null;
+			}
+
+			Log.info("video rendering done");
+		}
+
+		/** Writes the image to the filesystem. **/
+		protected void writeImage(BufferedImage image, DateFormat df,
+				String format) throws IOException {
+			// check filename is set
+			String filename = this.srcComponent.getName() + "-"
+					+ df.format(new Date());
+
+			// get name
+			File file = new File(tempDir + filename
+					+ Config.get("FILE_NAME_DELIMITER") + format);
+			int id = 0;
+			while (file.exists()) {
+				id++;
+				file = new File(tempDir + filename + "_" + id
+						+ Config.get("FILE_NAME_DELIMITER") + format);
+			}
+
+			// write
+			ImageIO.write(image, format, file);
 		}
 
 		/** Register a new component for status broadcasting. **/
@@ -703,6 +876,21 @@ public class VisualizationUtils {
 
 				// add other panels here for progress update broadcasting.
 			}
+		}
+
+		/** Returns the temp-Dir of the video-recorder. **/
+		protected String createTempDir() {
+			DateFormat df = new SimpleDateFormat("yyyy_MM_dd-HH_mm_ss");
+
+			String tempDir = Config.get("GRAPH_VIS_VIDEO_DIR") + this.id
+					+ Config.get("FILE_NAME_DELIMITER") + df.format(new Date())
+					+ Dir.tempSuffix + Dir.delimiter;
+
+			File f = new File(tempDir);
+			if (!f.exists() && !f.isFile())
+				f.mkdirs();
+
+			return tempDir;
 		}
 	}
 
