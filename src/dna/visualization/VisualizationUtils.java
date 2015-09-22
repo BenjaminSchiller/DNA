@@ -285,6 +285,7 @@ public class VisualizationUtils {
 
 		protected Thread t;
 		protected boolean running;
+		protected boolean blocked;
 		protected boolean paused;
 
 		protected RecordMode mode;
@@ -318,6 +319,7 @@ public class VisualizationUtils {
 			this.dstPath = dstPath;
 			this.timeInSeconds = timeInSeconds;
 			this.fps = fps;
+			this.blocked = false;
 			this.paused = false;
 			this.mode = mode;
 			this.tempMode = mode;
@@ -363,9 +365,28 @@ public class VisualizationUtils {
 		}
 
 		/** Stops the current recording. **/
+		public void stop(boolean forced) {
+			if (forced) {
+				this.running = false;
+				this.paused = false;
+			} else {
+				while (this.stepsLeft > 0) {
+					this.blocked = true;
+					try {
+						Thread.sleep(100);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
+				}
+				this.blocked = false;
+				this.running = false;
+				this.paused = false;
+			}
+		}
+
+		/** Stops the current recording. Note: Forces immediate stop. **/
 		public void stop() {
-			this.running = false;
-			this.paused = false;
+			this.stop(true);
 		}
 
 		/** Pauses the current recording. **/
@@ -416,8 +437,15 @@ public class VisualizationUtils {
 
 		/** Adds a step to the recording. Only works in steps mode. **/
 		public void addStep() {
-			if (this.mode.equals(RecordMode.steps))
+			if (this.mode.equals(RecordMode.steps) && !this.blocked)
 				this.stepsLeft++;
+		}
+
+		/** Adds steps to the recording. Only works in steps mode. **/
+		public void addSteps(int steps) {
+			if (this.mode.equals(RecordMode.steps) && !this.blocked) {
+				this.stepsLeft += steps;
+			}
 		}
 
 		/** Returns how many steps are left. **/
@@ -436,55 +464,107 @@ public class VisualizationUtils {
 			this.srcComponent = srcComponent;
 		}
 
+		protected void captureVideo(Component c, String dstPath, int fps)
+				throws InterruptedException, IOException {
+			// report
+			this.reportVideoStarted();
+			Log.info("GraphVis - capturing video to '" + dstPath + "'");
+
+			ArrayList<BufferedImage> imagesList = new ArrayList<BufferedImage>();
+			int counter = 0;
+			while (this.running) {
+				if (this.paused)
+					Thread.sleep(100);
+				if (!this.running)
+					break;
+
+				// if steps left
+				if (this.stepsLeft > 0) {
+					// make screenshot
+					imagesList.add(VisualizationUtils.getScreenshot(c));
+
+					// update progress
+					counter++;
+					this.updateVideoProgressScreenshotsTaken(counter);
+
+					stepsLeft--;
+				} else {
+					// sleep shortly
+					Thread.sleep(100);
+				}
+			}
+
+			// convert list to array
+			BufferedImage[] images = imagesList
+					.toArray(new BufferedImage[imagesList.size()]);
+			imagesList = null;
+
+			// render video
+			this.renderVideo(images, dstPath, fps,
+					Config.getBoolean("GRAPH_VIS_VIDEO_USE_TECHSMITH"));
+
+		}
+
 		/** Captures a video from the given JFrame to the destination-path. **/
 		protected void captureVideo(Component c, String dstPath,
 				int timeInSeconds, int fps, RecordMode mode)
 				throws InterruptedException, IOException {
-			// report
-			this.reportVideoStarted();
+			if (mode.equals(RecordMode.steps)) {
+				captureVideo(c, dstPath, fps);
+			} else {
+				// report
+				this.reportVideoStarted();
 
-			Log.info("GraphVis - capturing video to '" + dstPath + "'");
-			long screenshotInterval = (long) Math.floor(1000 / fps);
+				Log.info("GraphVis - capturing video to '" + dstPath + "'");
+				long screenshotInterval = (long) Math.floor(1000 / fps);
 
-			int amount = timeInSeconds * fps;
+				int amount = timeInSeconds * fps;
 
-			// collect images
-			BufferedImage[] images = new BufferedImage[amount];
-			int counter = 0;
-			int seconds = 0;
-			for (int i = 0; i < amount; i++) {
-				while (this.paused && this.running)
-					Thread.sleep(100);
-				if (!this.running)
-					break;
-				long start = System.currentTimeMillis();
+				// collect images
+				BufferedImage[] images = new BufferedImage[amount];
+				int counter = 0;
+				int seconds = 0;
+				for (int i = 0; i < amount; i++) {
+					while (this.paused && this.running)
+						Thread.sleep(100);
+					if (!this.running)
+						break;
+					long start = System.currentTimeMillis();
 
-				// take screenshot
-				images[i] = VisualizationUtils.getScreenshot(c);
+					// take screenshot
+					images[i] = VisualizationUtils.getScreenshot(c);
 
-				// update progress approx. each second
-				counter++;
-				if (counter == fps) {
-					this.updateElapsedVideoTime(seconds);
-					counter = 0;
-					seconds++;
+					// update progress approx. each second
+					counter++;
+					if (counter == fps) {
+						this.updateElapsedVideoTime(seconds);
+						counter = 0;
+						seconds++;
+					}
+
+					long diff = System.currentTimeMillis() - start;
+					if (diff < screenshotInterval)
+						Thread.sleep(screenshotInterval - diff);
+
+					while (this.paused && this.running)
+						Thread.sleep(100);
+					if (!this.running)
+						break;
 				}
 
-				long diff = System.currentTimeMillis() - start;
-				if (diff < screenshotInterval)
-					Thread.sleep(screenshotInterval - diff);
-
-				while (this.paused && this.running)
-					Thread.sleep(100);
-				if (!this.running)
-					break;
+				// render video
+				this.renderVideo(images, dstPath, fps,
+						Config.getBoolean("GRAPH_VIS_VIDEO_USE_TECHSMITH"));
 			}
+		}
 
-			// render video
+		/** Renders the given images to the specified location. **/
+		protected void renderVideo(BufferedImage[] images, String dstPath,
+				int fps, boolean useTechSmith) throws IOException {
 			File f = new File(dstPath);
 			updateVideoProgressRendering("rendering");
 			Log.info("rendering video to " + dstPath);
-			VisualizationUtils.renderVideo(f, images);
+			VisualizationUtils.renderVideo(f, images, fps, useTechSmith);
 			Log.info("video rendering done");
 
 			// free space
@@ -509,7 +589,7 @@ public class VisualizationUtils {
 				if (c instanceof GraphPanel)
 					((GraphPanel) c).reportVideoStarted();
 
-				// add other panels here for proper video handling
+				// add other panels here for proper video handling.
 			}
 		}
 
@@ -519,7 +599,7 @@ public class VisualizationUtils {
 				if (c instanceof GraphPanel)
 					((GraphPanel) c).reportVideoStopped();
 
-				// add other panels here for proper video handling
+				// add other panels here for proper video handling.
 			}
 		}
 
@@ -529,7 +609,7 @@ public class VisualizationUtils {
 				if (c instanceof GraphPanel)
 					((GraphPanel) c).reportVideoPaused();
 
-				// add other panels here for proper pause handling
+				// add other panels here for proper pause handling.
 			}
 		}
 
@@ -539,17 +619,28 @@ public class VisualizationUtils {
 				if (c instanceof GraphPanel)
 					((GraphPanel) c).reportVideoResumed();
 
-				// add other panels here for proper pause handling
+				// add other panels here for proper pause handling.
 			}
 		}
 
-		/** Update the progress at the calling panel. **/
+		/** Update the progress at the registered components. **/
+		protected void updateVideoProgressScreenshotsTaken(int amount) {
+			for (Component c : this.registeredComponents) {
+				if (c instanceof GraphPanel)
+					((GraphPanel) c).updateVideoProgressText("" + amount);
+
+				// add other panels here for progress update broadcasting.
+			}
+
+		}
+
+		/** Update the progress at the registered components. **/
 		protected void updateVideoProgress(double percent) {
 			for (Component c : this.registeredComponents) {
 				if (c instanceof GraphPanel)
 					((GraphPanel) c).updateVideoProgress(percent);
 
-				// add other panels here for progress update broadcasting
+				// add other panels here for progress update broadcasting.
 			}
 		}
 
@@ -559,7 +650,7 @@ public class VisualizationUtils {
 				if (c instanceof GraphPanel)
 					((GraphPanel) c).updateElapsedVideoTime(seconds);
 
-				// add other panels here for progress update broadcasting
+				// add other panels here for progress update broadcasting.
 			}
 		}
 
@@ -569,7 +660,7 @@ public class VisualizationUtils {
 				if (c instanceof GraphPanel)
 					((GraphPanel) c).setVideoButtonText(text);
 
-				// add other panels here for progress update broadcasting
+				// add other panels here for progress update broadcasting.
 			}
 		}
 	}
