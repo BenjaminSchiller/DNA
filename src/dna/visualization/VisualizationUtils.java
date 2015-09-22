@@ -299,21 +299,49 @@ public class VisualizationUtils {
 		protected int timeInSeconds;
 		protected int fps;
 
+		// constructors
+		public VideoRecorder(Component srcComponent) {
+			this(srcComponent, VisualizationUtils.getVideoPath(srcComponent
+					.getName()));
+		}
+
+		public VideoRecorder(Component srcComponent, String dstPath) {
+			this(srcComponent, dstPath, Config
+					.getInt("GRAPH_VIS_VIDEO_MAXIMUM_LENGTH_IN_SECONDS"),
+					Config.getInt("GRAPH_VIS_VIDEO_DEFAULT_FPS"),
+					RecordMode.normal);
+		}
+
+		public VideoRecorder(Component srcComponent, String dstPath,
+				int timeInSeconds, int fps, RecordMode mode) {
+			this.srcComponent = srcComponent;
+			this.dstPath = dstPath;
+			this.timeInSeconds = timeInSeconds;
+			this.fps = fps;
+			this.paused = false;
+			this.mode = mode;
+			this.tempMode = mode;
+			this.registeredComponents = new ArrayList<Component>();
+		}
+
+		/*
+		 * METHODS
+		 */
+
 		/** Run method. **/
 		public void run() {
 			try {
 				// capture video
-				captureVideo(srcComponent, dstPath, timeInSeconds, fps);
-
-				// report
-				this.reportVideoStopped();
-
-				// if temporary record mode has been set, update
-				this.mode = tempMode != mode ? tempMode : mode;
-
+				captureVideo(srcComponent, dstPath, timeInSeconds, fps, mode);
 			} catch (InterruptedException | IOException e) {
 				e.printStackTrace();
 			}
+
+			// report
+			this.reportVideoStopped();
+
+			// if temporary record mode has been set, update
+			this.mode = tempMode;
 
 			// end of run
 			this.running = false;
@@ -392,6 +420,11 @@ public class VisualizationUtils {
 				this.stepsLeft++;
 		}
 
+		/** Returns how many steps are left. **/
+		public int getStepsLeft() {
+			return this.stepsLeft;
+		}
+
 		/** Updates the destination path. **/
 		public void updateDestinationPath() {
 			this.dstPath = VisualizationUtils.getVideoPath(this.srcComponent
@@ -403,27 +436,59 @@ public class VisualizationUtils {
 			this.srcComponent = srcComponent;
 		}
 
-		public VideoRecorder(Component srcComponent) {
-			this(srcComponent, VisualizationUtils.getVideoPath(srcComponent
-					.getName()));
-		}
+		/** Captures a video from the given JFrame to the destination-path. **/
+		protected void captureVideo(Component c, String dstPath,
+				int timeInSeconds, int fps, RecordMode mode)
+				throws InterruptedException, IOException {
+			// report
+			this.reportVideoStarted();
 
-		public VideoRecorder(Component srcComponent, String dstPath) {
-			this(srcComponent, dstPath, Config
-					.getInt("GRAPH_VIS_VIDEO_MAXIMUM_LENGTH_IN_SECONDS"),
-					Config.getInt("GRAPH_VIS_VIDEO_DEFAULT_FPS"),
-					RecordMode.normal);
-		}
+			Log.info("GraphVis - capturing video to '" + dstPath + "'");
+			long screenshotInterval = (long) Math.floor(1000 / fps);
 
-		public VideoRecorder(Component srcComponent, String dstPath,
-				int timeInSeconds, int fps, RecordMode mode) {
-			this.srcComponent = srcComponent;
-			this.dstPath = dstPath;
-			this.timeInSeconds = timeInSeconds;
-			this.fps = fps;
-			this.paused = false;
-			this.mode = mode;
-			this.registeredComponents = new ArrayList<Component>();
+			int amount = timeInSeconds * fps;
+
+			// collect images
+			BufferedImage[] images = new BufferedImage[amount];
+			int counter = 0;
+			int seconds = 0;
+			for (int i = 0; i < amount; i++) {
+				while (this.paused && this.running)
+					Thread.sleep(100);
+				if (!this.running)
+					break;
+				long start = System.currentTimeMillis();
+
+				// take screenshot
+				images[i] = VisualizationUtils.getScreenshot(c);
+
+				// update progress approx. each second
+				counter++;
+				if (counter == fps) {
+					this.updateElapsedVideoTime(seconds);
+					counter = 0;
+					seconds++;
+				}
+
+				long diff = System.currentTimeMillis() - start;
+				if (diff < screenshotInterval)
+					Thread.sleep(screenshotInterval - diff);
+
+				while (this.paused && this.running)
+					Thread.sleep(100);
+				if (!this.running)
+					break;
+			}
+
+			// render video
+			File f = new File(dstPath);
+			updateVideoProgressRendering("rendering");
+			Log.info("rendering video to " + dstPath);
+			VisualizationUtils.renderVideo(f, images);
+			Log.info("video rendering done");
+
+			// free space
+			images = null;
 		}
 
 		/** Register a new component for status broadcasting. **/
@@ -506,61 +571,6 @@ public class VisualizationUtils {
 
 				// add other panels here for progress update broadcasting
 			}
-		}
-
-		/** Captures a video from the given JFrame to the destination-path. **/
-		protected void captureVideo(Component c, String dstPath,
-				int timeInSeconds, int fps) throws InterruptedException,
-				IOException {
-			// report
-			this.reportVideoStarted();
-
-			Log.info("GraphVis - capturing video to '" + dstPath + "'");
-			long screenshotInterval = (long) Math.floor(1000 / fps);
-
-			int amount = timeInSeconds * fps;
-
-			// collect images
-			BufferedImage[] images = new BufferedImage[amount];
-			int counter = 0;
-			int seconds = 0;
-			for (int i = 0; i < amount; i++) {
-				while (this.paused && this.running)
-					Thread.sleep(100);
-				if (!this.running)
-					break;
-				long start = System.currentTimeMillis();
-
-				// take screenshot
-				images[i] = VisualizationUtils.getScreenshot(c);
-
-				// update progress approx. each second
-				counter++;
-				if (counter == fps) {
-					this.updateElapsedVideoTime(seconds);
-					counter = 0;
-					seconds++;
-				}
-
-				long diff = System.currentTimeMillis() - start;
-				if (diff < screenshotInterval)
-					Thread.sleep(screenshotInterval - diff);
-
-				while (this.paused && this.running)
-					Thread.sleep(100);
-				if (!this.running)
-					break;
-			}
-
-			// render video
-			File f = new File(dstPath);
-			updateVideoProgressRendering("rendering");
-			Log.info("rendering video to " + dstPath);
-			VisualizationUtils.renderVideo(f, images);
-			Log.info("video rendering done");
-
-			// free space
-			images = null;
 		}
 	}
 
