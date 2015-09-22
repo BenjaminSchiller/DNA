@@ -98,6 +98,26 @@ public class VisualizationUtils {
 		GraphVisualization.getCurrentGraphPanel().captureVideo();
 	}
 
+	/** Captures a video of the most current GraphVisualization-Frame. **/
+	public static void captureVideo(int lengthInSeconds)
+			throws InterruptedException, IOException {
+		GraphPanel p = GraphVisualization.getCurrentGraphPanel();
+		VisualizationUtils.captureVideo(p,
+				VisualizationUtils.getVideoPath(p.getName()), null,
+				lengthInSeconds,
+				Config.getInt("GRAPH_VIS_VIDEO_DEFAULT_RECORDING_FPS"),
+				Config.getInt("GRAPH_VIS_VIDEO_DEFAULT_FPS"));
+	}
+
+	/** Captures a video of the most current GraphVisualization-Frame. **/
+	public static void captureVideo(String dstDir, String filename,
+			int lengthInSeconds, int recordFps, int videoFps)
+			throws InterruptedException, IOException {
+		VisualizationUtils.captureVideo(
+				GraphVisualization.getCurrentGraphPanel(), dstDir, filename,
+				lengthInSeconds, recordFps, videoFps);
+	}
+
 	/** Stops the video recording on the most current GraphVisualization-Frame. **/
 	public static void stopVideo() throws InterruptedException, IOException {
 		GraphVisualization.getCurrentGraphPanel().stopVideo();
@@ -134,17 +154,25 @@ public class VisualizationUtils {
 
 	/** Captures a video from the given Component to the destination-path. **/
 	public static void captureVideo(Component c, String dstDir,
-			String filename, int timeInSeconds, int recordFps, int videoFps)
+			int lengthInSeconds) throws InterruptedException, IOException {
+		VisualizationUtils.captureVideo(c, dstDir, null, lengthInSeconds,
+				Config.getInt("GRAPH_VIS_VIDEO_DEFAULT_RECORDING_FPS"),
+				Config.getInt("GRAPH_VIS_VIDEO_DEFAULT_FPS"));
+	}
+
+	/** Captures a video from the given Component to the destination-path. **/
+	public static void captureVideo(Component c, String dstDir,
+			String filename, int lengthInSeconds, int recordFps, int videoFps)
 			throws InterruptedException, IOException {
-		Log.info("capturing " + timeInSeconds + "s video from '" + c.getName()
-				+ "'");
+		Log.info("capturing " + lengthInSeconds + "s video from '"
+				+ c.getName() + "'");
 		String dstPath = dstDir;
 		if (filename != null)
 			dstPath += filename;
 
 		long screenshotInterval = (long) Math.floor(1000 / recordFps);
 
-		int amount = timeInSeconds * recordFps;
+		int amount = lengthInSeconds * videoFps;
 
 		BufferedImage[] images = new BufferedImage[amount];
 
