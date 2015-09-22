@@ -760,6 +760,9 @@ public class GraphPanel extends JPanel {
 					coords[1], coords[2]);
 		}
 
+		if (!node.hasAttribute(GraphVisualization.zKey))
+			node.setAttribute(GraphVisualization.zKey, 0F);
+
 		// update label
 		updateLabel(node);
 
