@@ -31,7 +31,7 @@ public class VisualizationUtils {
 
 	/** Captures a screenshot of the most current GraphVisualization-Frame. **/
 	public static void captureScreenshot(boolean waitForStabilization) {
-		GraphVisualization.getCurrentGraphPanel().makeScreenshot(
+		GraphVisualization.getCurrentGraphPanel().captureScreenshot(
 				waitForStabilization);
 	}
 
@@ -95,7 +95,7 @@ public class VisualizationUtils {
 
 	/** Captures a video of the most current GraphVisualization-Frame. **/
 	public static void captureVideo() throws InterruptedException, IOException {
-		GraphVisualization.getCurrentGraphPanel().makeVideo();
+		GraphVisualization.getCurrentGraphPanel().captureVideo();
 	}
 
 	/** Stops the video recording on the most current GraphVisualization-Frame. **/
@@ -105,12 +105,12 @@ public class VisualizationUtils {
 
 	/** Pauses the video recording process on the most current GraphVis-Frame. **/
 	public static void pauseVideo() {
-		GraphVisualization.getCurrentGraphPanel().pause();
+		GraphVisualization.getCurrentGraphPanel().pauseVideo();
 	}
 
 	/** Resumes the video recording process on the most current GraphVis-Frame. **/
 	public static void resumeVideo() {
-		GraphVisualization.getCurrentGraphPanel().resume();
+		GraphVisualization.getCurrentGraphPanel().resumeVideo();
 	}
 
 	/** Captures a video from the given Component. **/
