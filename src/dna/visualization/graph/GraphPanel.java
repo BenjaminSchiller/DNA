@@ -353,7 +353,7 @@ public class GraphPanel extends JPanel {
 		screenshotButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				makeScreenshot(false);
+				captureScreenshot(false);
 			}
 		});
 		textPanel.add(screenshotButton);
@@ -371,7 +371,7 @@ public class GraphPanel extends JPanel {
 			public void actionPerformed(ActionEvent e) {
 				try {
 					if (!isRecording())
-						makeVideo();
+						captureVideo();
 					else
 						stopVideo();
 				} catch (InterruptedException | IOException e1) {
@@ -390,7 +390,7 @@ public class GraphPanel extends JPanel {
 		pauseButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				togglePause();
+				toggleVideoPause();
 			}
 		});
 		pauseButton.setVisible(false);
@@ -969,7 +969,7 @@ public class GraphPanel extends JPanel {
 	}
 
 	/** Makes a screenshot of the current graph. **/
-	public void makeScreenshotUsingGraphstream() {
+	public void captureScreenshotUsingGraphstream() {
 		String screenshotsDir = Config.get("GRAPH_VIS_SCREENSHOT_DIR");
 		String screenshotsSuffix = "."
 				+ Config.get("GRAPH_VIS_SCREENSHOT_FORMAT");
@@ -999,7 +999,7 @@ public class GraphPanel extends JPanel {
 	}
 
 	/** Makes a screenshot of the current JFrame. **/
-	public void makeScreenshot(boolean waitForStabilization) {
+	public void captureScreenshot(boolean waitForStabilization) {
 		if (waitForStabilization) {
 			long start = System.currentTimeMillis();
 			long timeout = Config
@@ -1023,7 +1023,7 @@ public class GraphPanel extends JPanel {
 	}
 
 	/** Makes a video of the JFrame the panel is embedded in. **/
-	public void makeVideo() throws InterruptedException, IOException {
+	public void captureVideo() throws InterruptedException, IOException {
 		this.recordingStarted();
 		if (this.videoRecorder == null) {
 			this.videoRecorder = new VideoRecorder(this,
@@ -1062,7 +1062,7 @@ public class GraphPanel extends JPanel {
 	}
 
 	/** Toggles pause on the current video recording. **/
-	public void togglePause() {
+	public void toggleVideoPause() {
 		if (this.recording) {
 			if (this.paused) {
 				this.videoRecorder.resume();
@@ -1081,7 +1081,7 @@ public class GraphPanel extends JPanel {
 	}
 
 	/** Pauses the current video recording. **/
-	public void pause() {
+	public void pauseVideo() {
 		if (this.recording) {
 			if (!this.paused) {
 				this.videoRecorder.pause();
@@ -1094,7 +1094,7 @@ public class GraphPanel extends JPanel {
 	}
 
 	/** Resumes the current video recording. **/
-	public void resume() {
+	public void resumeVideo() {
 		if (this.recording) {
 			if (this.paused) {
 				this.videoRecorder.resume();

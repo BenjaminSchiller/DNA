@@ -132,7 +132,7 @@ public class GraphVisualization {
 			if (!panel.isRecording())
 				try {
 					Thread.sleep(100);
-					panel.makeVideo();
+					panel.captureVideo();
 				} catch (InterruptedException | IOException e) {
 					e.printStackTrace();
 				}
