@@ -37,9 +37,9 @@ public class OverlappingPartition extends Partition {
 
 	public static OverlappingPartition getPartition(String name, Graph g,
 			List<Node> nodes, Metric m) {
-		Graph gp = g.getGraphDatastructures()
-				.newGraphInstance(name, g.getTimestamp(), nodes.size(),
-						g.getEdgeCount() / nodes.size());
+		Graph gp = g.getGraphDatastructures().newGraphInstance(name,
+				g.getTimestamp(), nodes.size(),
+				nodes.size() == 0 ? 0 : g.getEdgeCount() / nodes.size());
 		Set<Node> overlap = new HashSet<Node>();
 
 		// add main nodes
