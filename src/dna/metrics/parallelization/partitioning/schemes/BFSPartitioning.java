@@ -10,16 +10,11 @@ import dna.graph.Graph;
 import dna.graph.IElement;
 import dna.graph.edges.Edge;
 import dna.graph.nodes.Node;
-import dna.util.parameters.IntParameter;
 
 public class BFSPartitioning extends PartitioningScheme {
 
-	protected int partitionSize;
-
-	public BFSPartitioning(PartitioningType partitioningType, int partitionSize) {
-		super("BFSPartitioning", partitioningType, new IntParameter(
-				"partitionSize", partitionSize));
-		this.partitionSize = partitionSize;
+	public BFSPartitioning(PartitioningType partitioningType, int partitionCount) {
+		super("BFSPartitioning", partitioningType, partitionCount);
 	}
 
 	@Override
@@ -51,11 +46,14 @@ public class BFSPartitioning extends PartitioningScheme {
 			}
 		}
 
+		int partitionSize = (int) Math.ceil((double) g.getNodeCount()
+				/ (double) this.partitionCount);
+
 		List<List<Node>> partitioning = this.createNewPartitioning();
 		List<Node> current = this.addNewPartition(partitioning);
 
 		for (Node n : orderedNodes) {
-			if (current.size() >= this.partitionSize) {
+			if (current.size() >= partitionSize) {
 				current = this.addNewPartition(partitioning);
 			}
 			current.add(n);

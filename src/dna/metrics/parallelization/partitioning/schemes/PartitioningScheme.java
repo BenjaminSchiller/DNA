@@ -11,36 +11,76 @@ import dna.metrics.parallelization.collation.PartitionedMetric;
 import dna.metrics.parallelization.partitioning.NonOverlappingPartition;
 import dna.metrics.parallelization.partitioning.OverlappingPartition;
 import dna.metrics.parallelization.partitioning.Partition;
+import dna.util.parameters.IntParameter;
 import dna.util.parameters.Parameter;
 import dna.util.parameters.ParameterList;
 import dna.util.parameters.StringParameter;
 
+/**
+ * 
+ * Abstract class for the partitioning of a graph into a given number of
+ * partitions (either overlapping or non-overlapping). Implementations of such a
+ * partitioning are required only to create a partitioning of the set of all
+ * nodes (a list of node lists) while the generation of overlapping or
+ * non-overlapping partition objects is done by components of this super class.
+ * 
+ * The partitioning is initialized once. Then, this class holds the partitions
+ * (as an array) as well as a mapping of nodes to partitions.
+ * 
+ * @author benni
+ *
+ */
 public abstract class PartitioningScheme extends ParameterList {
 
 	protected PartitioningType partitioningType;
+	protected int partitionCount;
 
-	protected Partition[] partitions;
-	protected HashMap<Node, Partition> partitionMap;
+	public Partition[] partitions;
+	public HashMap<Node, Partition> partitionMap;
 
+	/**
+	 * 
+	 * For non-overlapping partitions, each partition only stores the subgraph
+	 * induced by the set of nodes in the partition. For overlapping partitions,
+	 * the neighbors of the partition are also added to the graph as well as all
+	 * edges between them and the initial nodes (and between these neighbors).
+	 * 
+	 * @author benni
+	 *
+	 */
 	public static enum PartitioningType {
 		OVERLAPPING, NON_OVERLAPPING
 	}
 
 	public PartitioningScheme(String name, PartitioningType partitioningType,
-			Parameter... parameters) {
-		super(name, new Parameter[] { new StringParameter("partitioningType",
-				partitioningType.toString()) }, parameters);
+			int partitionCount, Parameter... parameters) {
+		super(name, new Parameter[] {
+				new StringParameter("partitioningType",
+						partitioningType.toString()),
+				new IntParameter("partitionCount", partitionCount) },
+				parameters);
 		this.partitioningType = partitioningType;
+		this.partitionCount = partitionCount;
 	}
 
+	/**
+	 * 
+	 * Initializes a partitioning of the given graph for the specified metric.
+	 * For each partition, the metric is cloned and assigned to the partition.
+	 * 
+	 * @param g
+	 *            graph that should be partitioned
+	 * @param m
+	 *            metric (a clone is assigned to each partition)
+	 */
 	public void init(Graph g, Metric m) {
 		List<List<Node>> p = this.getPartitioning(g);
 		this.partitions = new Partition[p.size()];
 		this.partitionMap = new HashMap<Node, Partition>();
 		int index = 0;
 		for (List<Node> nodes : p) {
-			this.partitions[index] = this
-					.getPartition("p" + index, g, nodes, m);
+			this.partitions[index] = this.createPartition("p" + index, g,
+					nodes, m);
 			if (this.partitions[index].getMetric() instanceof PartitionedMetric) {
 				((PartitionedMetric) this.partitions[index].getMetric())
 						.setPartition(this.partitions[index]);
@@ -52,7 +92,7 @@ public abstract class PartitioningScheme extends ParameterList {
 		}
 	}
 
-	protected Partition getPartition(String name, Graph g, List<Node> nodes,
+	protected Partition createPartition(String name, Graph g, List<Node> nodes,
 			Metric m) {
 		switch (partitioningType) {
 		case NON_OVERLAPPING:

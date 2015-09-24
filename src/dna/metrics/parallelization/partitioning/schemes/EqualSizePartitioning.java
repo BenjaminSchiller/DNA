@@ -4,25 +4,23 @@ import java.util.List;
 
 import dna.graph.Graph;
 import dna.graph.nodes.Node;
-import dna.util.parameters.IntParameter;
 
-public class SizePartitioning extends PartitioningScheme {
+public class EqualSizePartitioning extends PartitioningScheme {
 
-	protected int partitionSize;
-
-	public SizePartitioning(PartitioningType partitioningType, int partitionSize) {
-		super("SizePartitioning", partitioningType, new IntParameter(
-				"partitionSize", partitionSize));
-		this.partitionSize = partitionSize;
+	public EqualSizePartitioning(PartitioningType partitioningType,
+			int partitionCount) {
+		super("EqualSizePartitioning", partitioningType, partitionCount);
 	}
 
 	@Override
 	public List<List<Node>> getPartitioning(Graph g) {
+		int partitionSize = (int) Math.ceil((double) g.getNodeCount()
+				/ (double) this.partitionCount);
 		List<List<Node>> partitioning = this.createNewPartitioning();
 		List<Node> current = this.addNewPartition(partitioning);
 
 		for (int i = 0; i <= g.getMaxNodeIndex(); i++) {
-			if (current.size() >= this.partitionSize) {
+			if (current.size() >= partitionSize) {
 				current = this.addNewPartition(partitioning);
 			}
 			current.add(g.getNode(i));
