@@ -25,6 +25,22 @@ public aspect GraphVisualizationAspects {
 	}
 
 	/*
+	 * TIMESTAMP
+	 */
+
+	pointcut graphTimestamp(Graph g, long newTimestamp) :
+		if(GraphVisualization.isEnabled()) &&
+		target(g) &&
+		args(newTimestamp) &&
+		call(* Graph.setTimestamp(long));
+
+	void around(Graph g, long newTimestamp) : graphTimestamp(g, newTimestamp) {
+		long oldTimestamp = g.getTimestamp();
+		proceed(g, newTimestamp);
+		GraphVisualization.getGraphPanel(g).setTimestamp(newTimestamp);
+	}
+
+	/*
 	 * NODE
 	 */
 
