@@ -8,7 +8,9 @@ import dna.graph.edges.Edge;
 import dna.graph.generators.GraphGenerator;
 import dna.graph.nodes.Node;
 import dna.util.Rand;
+import dna.util.parameters.IntParameter;
 import dna.util.parameters.Parameter;
+import dna.util.parameters.StringParameter;
 
 public class CombinedGraph extends GraphGenerator {
 
@@ -17,29 +19,36 @@ public class CombinedGraph extends GraphGenerator {
 	}
 
 	protected InterconnectionType interconnectionType;
-	protected String interconnectionParameter;
+	protected int edges;
 
 	public GraphGenerator[] ggs;
 
 	public CombinedGraph(String name, InterconnectionType interconnectionType,
-			String interconnectionParameter, GraphGenerator... ggs) {
-		super(name, new Parameter[] {}, ggs[0].getGraphDataStructure(), 0,
-				nodesInit(ggs), edgesInit(ggs));
+			int edges, GraphGenerator... ggs) {
+		super(name, new Parameter[] {
+				new StringParameter("interconnectionType",
+						interconnectionType.toString()),
+				new IntParameter("edges", edges) }, ggs[0]
+				.getGraphDataStructure(), 0, nodesInit(ggs), edgesInit(ggs));
 		this.ggs = ggs;
 		this.interconnectionType = interconnectionType;
-		this.interconnectionParameter = interconnectionParameter;
+		this.edges = edges;
 	}
 
 	public CombinedGraph(String name, InterconnectionType interconnectionType,
-			String interconnectionParameter, GraphGenerator gg, int count) {
-		super(name, new Parameter[] {}, gg.getGraphDataStructure(), 0, gg
-				.getNodesInit() * count, gg.getEdgesInit() * count);
-		this.ggs = new GraphGenerator[count];
+			int edges, int components, GraphGenerator gg) {
+		super(name, new Parameter[] {
+				new StringParameter("interconnectionType",
+						interconnectionType.toString()),
+				new IntParameter("edges", edges) }, gg.getGraphDataStructure(),
+				0, gg.getNodesInit() * components, gg.getEdgesInit()
+						* components);
+		this.ggs = new GraphGenerator[components];
 		for (int i = 0; i < this.ggs.length; i++) {
 			this.ggs[i] = gg;
 		}
 		this.interconnectionType = interconnectionType;
-		this.interconnectionParameter = interconnectionParameter;
+		this.edges = edges;
 	}
 
 	private static int nodesInit(GraphGenerator[] ggs) {
@@ -93,11 +102,10 @@ public class CombinedGraph extends GraphGenerator {
 
 		switch (this.interconnectionType) {
 		case PER_COMPONENT:
-			int edges = Integer.parseInt(this.interconnectionParameter);
 			for (int i = 0; i < components.length; i++) {
 				int added = 0;
 				int otherIndex = getOtherIndex(components, i);
-				while (added < edges) {
+				while (added < this.edges) {
 					Node n1 = map[i].get(components[i].getRandomNode());
 					Node n2 = map[otherIndex].get(components[otherIndex]
 							.getRandomNode());
@@ -111,9 +119,8 @@ public class CombinedGraph extends GraphGenerator {
 			}
 			break;
 		case RANDOM:
-			edges = Integer.parseInt(this.interconnectionParameter);
 			int added = 0;
-			while (added < edges) {
+			while (added < this.edges) {
 				int i = Rand.rand.nextInt(components.length);
 				int otherIndex = getOtherIndex(components, i);
 				Node n1 = map[i].get(components[i].getRandomNode());
