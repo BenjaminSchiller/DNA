@@ -218,7 +218,7 @@ public class ParallelMetric extends Metric implements IRecomputation,
 			return true;
 		}
 		this.nodeAddedTo = this.nodeAssignment.assignNode(
-				this.partitioningScheme.getPartitions(), na);
+				this.partitioningScheme, na, this.currentBatch);
 		boolean success = ((IBeforeNA) this.nodeAddedTo.getMetric())
 				.applyBeforeUpdate(na);
 		if (!(this.metric instanceof IAfterNA)) {
@@ -268,11 +268,13 @@ public class ParallelMetric extends Metric implements IRecomputation,
 		return success;
 	}
 
+	protected Batch currentBatch;
+
 	@Override
 	public boolean applyAfterUpdate(NodeAddition na) {
 		if (!(this.metric instanceof IBeforeNA)) {
 			this.nodeAddedTo = this.nodeAssignment.assignNode(
-					this.partitioningScheme.getPartitions(), na);
+					this.partitioningScheme, na, this.currentBatch);
 		}
 		boolean success = true;
 		success &= this.nodeAddedTo.propagate(na);
@@ -348,6 +350,7 @@ public class ParallelMetric extends Metric implements IRecomputation,
 
 	@Override
 	public boolean applyBeforeBatch(Batch b) {
+		this.currentBatch = b;
 		if ((this.metric instanceof IRecomputation)) {
 			return true;
 		}

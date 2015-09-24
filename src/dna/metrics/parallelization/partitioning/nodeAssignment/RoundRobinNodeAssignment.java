@@ -1,6 +1,8 @@
 package dna.metrics.parallelization.partitioning.nodeAssignment;
 
 import dna.metrics.parallelization.partitioning.Partition;
+import dna.metrics.parallelization.partitioning.schemes.PartitioningScheme;
+import dna.updates.batch.Batch;
 import dna.updates.update.NodeAddition;
 
 public class RoundRobinNodeAssignment extends NodeAssignment {
@@ -12,9 +14,10 @@ public class RoundRobinNodeAssignment extends NodeAssignment {
 	}
 
 	@Override
-	public Partition assignNode(Partition[] partitions, NodeAddition na) {
-		this.index = (this.index + 1) % partitions.length;
-		return partitions[this.index];
+	public Partition assignNode(PartitioningScheme scheme, NodeAddition na,
+			Batch b) {
+		this.index = (this.index + 1) % scheme.partitions.length;
+		return scheme.partitions[this.index];
 	}
 
 }
