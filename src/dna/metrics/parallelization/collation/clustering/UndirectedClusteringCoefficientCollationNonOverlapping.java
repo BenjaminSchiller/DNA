@@ -26,14 +26,6 @@ public class UndirectedClusteringCoefficientCollationNonOverlapping extends
 				g.getMaxNodeIndex() + 1);
 		this.metric.nodePotentialCount = new LongList(g.getMaxNodeIndex() + 1);
 		this.metric.nodeTriangleCount = new LongList(g.getMaxNodeIndex() + 1);
-		for (Partition p : partitions) {
-			UndirectedClusteringCoefficient m = (UndirectedClusteringCoefficient) p
-					.getMetric();
-			for (Node n : p.getNodes()) {
-				this.metric.nodeTriangleCount.setValue(n.getIndex(),
-						m.nodeTriangleCount.getValue(n.getIndex()));
-			}
-		}
 
 		// get triangles from partitions (per node)
 		UndirectedClusteringCoefficient m;
@@ -48,7 +40,7 @@ public class UndirectedClusteringCoefficientCollationNonOverlapping extends
 		// add triangles (per node) for edges between partitions
 		for (Partition p_ : partitions) {
 			NonOverlappingPartition p = (NonOverlappingPartition) p_;
-			for (Edge e : p.getConnections()) {
+			for (Edge e : p.getExternalEdges()) {
 				Node pNode, otherNode;
 				if (p.isResponsibleFor(e.getN1())) {
 					pNode = e.getN1();
