@@ -21,12 +21,10 @@ public class Timer {
 	}
 
 	public void restart() {
-		// this.start = System.currentTimeMillis();
 		this.start = System.nanoTime();
 	}
 
 	public String end() {
-		// this.duration += System.currentTimeMillis() - this.start;
 		this.duration += System.nanoTime() - this.start;
 		return this.toString();
 	}
@@ -37,6 +35,11 @@ public class Timer {
 
 	public long getDutation() {
 		return this.duration;
+	}
+
+	public void reset() {
+		this.duration = 0;
+		this.start = System.nanoTime();
 	}
 
 	public String toString() {
