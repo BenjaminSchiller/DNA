@@ -1,21 +1,11 @@
 package dna.metrics.parallelization;
 
-import java.util.HashMap;
-
 import dna.graph.Graph;
 import dna.metrics.IMetric;
 import dna.metrics.Metric;
 import dna.metrics.algorithms.IAfterBatch;
-import dna.metrics.algorithms.IAfterEA;
-import dna.metrics.algorithms.IAfterER;
-import dna.metrics.algorithms.IAfterNA;
 import dna.metrics.algorithms.IAfterUpdates;
 import dna.metrics.algorithms.IBeforeBatch;
-import dna.metrics.algorithms.IBeforeEA;
-import dna.metrics.algorithms.IBeforeER;
-import dna.metrics.algorithms.IBeforeNA;
-import dna.metrics.algorithms.IBeforeUpdates;
-import dna.metrics.algorithms.IDynamicAlgorithm;
 import dna.metrics.algorithms.IRecomputation;
 import dna.metrics.parallelization.collation.Collation;
 import dna.metrics.parallelization.partitioning.Partition;
@@ -32,10 +22,9 @@ import dna.updates.update.EdgeRemoval;
 import dna.updates.update.NodeAddition;
 import dna.updates.update.NodeRemoval;
 import dna.util.ArrayUtils;
-import dna.util.Timer;
 
-public class ParallelMetric extends Metric implements IRecomputation,
-		IBeforeUpdates, IAfterUpdates, IBeforeBatch, IAfterBatch {
+public class ParallelMetric extends Metric implements IBeforeBatch,
+		IAfterBatch, IAfterUpdates {
 	protected PartitioningScheme partitioningScheme;
 	protected NodeAssignment nodeAssignment;
 	protected Metric metric;
@@ -44,10 +33,6 @@ public class ParallelMetric extends Metric implements IRecomputation,
 	protected Metric[] metrics;
 
 	protected long[] partitionRuntimes;
-	protected long maxRuntime;
-	protected long collationRuntime;
-	protected long totalRuntime;
-	protected long estimatedRuntime;
 
 	public ParallelMetric(String name, PartitioningScheme partitioningScheme,
 			NodeAssignment nodeAssignment, Metric metric, Collation collation) {
@@ -57,19 +42,22 @@ public class ParallelMetric extends Metric implements IRecomputation,
 		this.metric = metric;
 		this.collation = collation;
 		this.collation.setMetric(metric);
-		this.eas = new HashMap<Partition, EdgeAddition>();
-		this.ers = new HashMap<Partition, EdgeRemoval>();
 	}
 
 	@Override
 	public Value[] getValues() {
-		Value runtimeEstimated = new Value("runtimeEstimated",
-				(double) this.estimatedRuntime);
-		Value runtimeMax = new Value("runtimeMax", (double) this.maxRuntime);
+		Value runtimeEstimated = new Value(
+				"runtimeEstimated",
+				(double) (ArrayUtils.max(this.partitionRuntimes) + this.collation
+						.getTimer().getDutation()));
+		Value runtimeMax = new Value("runtimeMax",
+				(double) ArrayUtils.max(this.partitionRuntimes));
 		Value runtimeCollation = new Value("runtimeCollation",
-				(double) this.collationRuntime);
-		Value runtimeTotal = new Value("runtimeTotal",
-				(double) this.totalRuntime);
+				(double) this.collation.getTimer().getDutation());
+		Value runtimeTotal = new Value(
+				"runtimeTotal",
+				(double) (ArrayUtils.sum(this.partitionRuntimes) + this.collation
+						.getTimer().getDutation()));
 		Value[] runtimes = new Value[] { runtimeEstimated, runtimeMax,
 				runtimeCollation, runtimeTotal };
 
@@ -177,126 +165,65 @@ public class ParallelMetric extends Metric implements IRecomputation,
 	public void setGraph(Graph g) {
 		super.setGraph(g);
 		this.partitioningScheme.init(g, this.metric);
-	}
-
-	@Override
-	public boolean recompute() {
-		if (!(this.metric instanceof IRecomputation)) {
-			// System.out.println("not recomputing " + this.metric);
-			return true;
-		}
-		// System.out.println("RECOMPUTE " + this.toString() + " for "
-		// + this.partitioningScheme.getPartitions().length
-		// + " partitions");
-		this.partitionRuntimes = new long[this.partitioningScheme
-				.getPartitions().length];
-		boolean success = true;
-		int index = 0;
-		for (Partition p : this.partitioningScheme.getPartitions()) {
-			p.getTimer().reset();
-			p.getTimer().restart();
-			success &= ((IRecomputation) p.getMetric()).recompute();
-			p.getTimer().end();
-			this.partitionRuntimes[index++] = p.getTimer().getDutation();
-		}
-		Timer t = new Timer();
-		this.collation.getTimer().restart();
-		this.collation.collate(this.g, this.partitioningScheme.getPartitions());
-		this.collation.getTimer().end();
-		t.end();
-		this.collationRuntime = t.getDutation();
-		this.maxRuntime = ArrayUtils.max(this.partitionRuntimes);
-		this.estimatedRuntime = this.collationRuntime
-				+ ArrayUtils.max(this.partitionRuntimes);
-		this.totalRuntime = this.collationRuntime
-				+ ArrayUtils.sum(this.partitionRuntimes);
-		return success;
+		this.partitionRuntimes = new long[this.partitioningScheme.partitions.length];
 	}
 
 	@Override
 	public boolean init() {
-		if (!(this.metric instanceof IDynamicAlgorithm)) {
-			return this.recompute();
+		boolean success = true;
+
+		for (Partition p : this.partitioningScheme.partitions) {
+			p.getTimer().restart();
+			if (metric instanceof IRecomputation) {
+				success &= p.recompute();
+			} else {
+				success &= p.init();
+			}
+			p.getTimer().end();
 		}
 
-		this.partitionRuntimes = new long[this.partitioningScheme
-				.getPartitions().length];
-		boolean success = true;
-		int index = 0;
-		for (Partition p : this.partitioningScheme.getPartitions()) {
-			p.getTimer().reset();
-			success &= ((IDynamicAlgorithm) p.getMetric()).init();
-			p.getTimer().end();
-			this.partitionRuntimes[index++] = p.getTimer().getDutation();
-		}
-		this.collation.getTimer().reset();
-		this.collation.collate(this.g, this.partitioningScheme.getPartitions());
+		this.collation.getTimer().restart();
+		success &= this.collation.collate(this.g,
+				this.partitioningScheme.partitions);
 		this.collation.getTimer().end();
 
-		this.maxRuntime = ArrayUtils.max(this.partitionRuntimes);
-		this.estimatedRuntime = this.collationRuntime
-				+ ArrayUtils.max(this.partitionRuntimes);
-		this.totalRuntime = this.collationRuntime
-				+ ArrayUtils.sum(this.partitionRuntimes);
 		return success;
 	}
 
-	protected Batch currentBatch;
-
-	protected Partition nodeAddedTo = null;
-
-	/*
-	 * BATCH
-	 */
+	protected Batch currentBatch = null;
 
 	@Override
 	public boolean applyBeforeBatch(Batch b) {
 		this.currentBatch = b;
 
-		// reset collation & partition timers
-		this.collation.getTimer().reset();
 		for (Partition p : this.partitioningScheme.partitions) {
 			p.getTimer().reset();
-			// System.out.println(">>> " + p);
 		}
+		this.collation.getTimer().reset();
 
-		if (!(this.metric instanceof IBeforeBatch)) {
-			return true;
-		}
-
-		// apply partition metrics before batch
-		boolean success = true;
-		for (Partition p : this.partitioningScheme.partitions) {
-			throw new IllegalStateException(
-					"parallelization of batch-based application (BEFORE) not implemented yet");
-			// p.getTimer().restart();
-			// success &= ((IBeforeBatch) p.getMetric()).applyBeforeBatch(b);
-			// p.getTimer().end();
-		}
-		return success;
+		return true;
 	}
 
 	@Override
 	public boolean applyAfterBatch(Batch b) {
 		boolean success = true;
 
-		// apply partition metrics after batch
-		if ((this.metric instanceof IAfterBatch)) {
+		if (metric instanceof IRecomputation) {
 			for (Partition p : this.partitioningScheme.partitions) {
-				throw new IllegalStateException(
-						"parallelization of batch-based application (AFTER) not implemented yet");
-				// p.getTimer().restart();
-				// success &= ((IAfterBatch) p.getMetric()).applyAfterBatch(b);
-				// p.getTimer().end();
+				p.getTimer().restart();
+				p.recompute();
+				p.getTimer().end();
 			}
 		}
 
-		// collate results
-		if (!(this.metric instanceof IRecomputation)) {
-			this.collation.getTimer().restart();
-			this.collation.collate(this.g,
-					this.partitioningScheme.getPartitions());
-			this.collation.getTimer().end();
+		this.collation.getTimer().reset();
+		success &= this.collation.collate(this.g,
+				this.partitioningScheme.partitions);
+		this.collation.getTimer().end();
+
+		for (int i = 0; i < this.partitioningScheme.partitions.length; i++) {
+			this.partitionRuntimes[i] = this.partitioningScheme.partitions[i]
+					.getTimer().getDutation();
 		}
 
 		return success;
@@ -307,40 +234,10 @@ public class ParallelMetric extends Metric implements IRecomputation,
 	 */
 
 	@Override
-	public boolean applyBeforeUpdate(NodeAddition na) {
-		// determining partition to add node to
-		this.nodeAddedTo = this.nodeAssignment.assignNode(
-				this.partitioningScheme, na, this.currentBatch);
-
-		if (!(this.metric instanceof IBeforeNA)) {
-			return true;
-		}
-
-		// NA application BEFORE
-		this.nodeAddedTo.getTimer().restart();
-		boolean success = ((IBeforeNA) this.nodeAddedTo.getMetric())
-				.applyBeforeUpdate(na);
-		this.nodeAddedTo.getTimer().end();
-
-		return success;
-	}
-
-	@Override
 	public boolean applyAfterUpdate(NodeAddition na) {
-		// NA propagation
-		boolean success = this.nodeAddedTo.propagate(na);
-
-		if (!(this.metric instanceof IAfterNA)) {
-			return success;
-		}
-
-		// NA applicatin AFTER
-		this.nodeAddedTo.getTimer().restart();
-		success &= ((IAfterNA) this.nodeAddedTo.getMetric())
-				.applyAfterUpdate(na);
-		this.nodeAddedTo.getTimer().end();
-
-		return success;
+		Partition p = this.nodeAssignment.assignNode(this.partitioningScheme,
+				na, this.currentBatch);
+		return p.propagate(na);
 	}
 
 	/*
@@ -348,70 +245,32 @@ public class ParallelMetric extends Metric implements IRecomputation,
 	 */
 
 	@Override
-	public boolean applyBeforeUpdate(NodeRemoval nr) {
-		throw new IllegalStateException("NR not implemented yet");
-	}
-
-	@Override
 	public boolean applyAfterUpdate(NodeRemoval nr) {
-		throw new IllegalStateException("NR not implemented yet");
-	}
-
-	/*
-	 * EA
-	 */
-
-	protected HashMap<Partition, EdgeAddition> eas;
-
-	@Override
-	public boolean applyBeforeUpdate(EdgeAddition ea) {
-		if (!(this.metric instanceof IBeforeEA)) {
-			return true;
-		}
-
-		// EA application BEFORE
 		boolean success = true;
-		for (Partition p : this.partitioningScheme.getPartitions()) {
-			if (p.shouldApply(ea)) {
+		for (Partition p : this.partitioningScheme.partitions) {
+			if (p.shouldPropagate(nr)) {
 				p.getTimer().restart();
-				success &= ((IBeforeEA) p.getMetric()).applyBeforeUpdate(p
-						.getLocalEA(ea));
+				success &= p.propagate(nr);
 				p.getTimer().end();
 			}
 		}
 		return success;
 	}
 
+	/*
+	 * EA
+	 */
+
 	@Override
 	public boolean applyAfterUpdate(EdgeAddition ea) {
 		boolean success = true;
-
-		// EA propagation
-		for (Partition p : this.partitioningScheme.getPartitions()) {
+		for (Partition p : this.partitioningScheme.partitions) {
 			if (p.shouldPropagate(ea)) {
 				p.getTimer().restart();
 				success &= p.propagate(ea);
 				p.getTimer().end();
 			}
 		}
-
-		// EA application AFTER
-		if (this.metric instanceof IAfterEA) {
-			for (Partition p : this.partitioningScheme.getPartitions()) {
-				if (p.shouldApply(ea)) {
-					p.getTimer().restart();
-					success &= ((IAfterEA) p.getMetric()).applyAfterUpdate(p
-							.getLocalEA(ea));
-					p.getTimer().end();
-				}
-			}
-		}
-
-		// clear local EA
-		for (Partition p : this.partitioningScheme.partitions) {
-			p.clearLocalEA();
-		}
-
 		return success;
 	}
 
@@ -419,57 +278,16 @@ public class ParallelMetric extends Metric implements IRecomputation,
 	 * ER
 	 */
 
-	protected HashMap<Partition, EdgeRemoval> ers;
-
-	@Override
-	public boolean applyBeforeUpdate(EdgeRemoval er) {
-		if (!(this.metric instanceof IBeforeER)) {
-			return true;
-		}
-
-		// ER application BEFORE
-		boolean success = true;
-		for (Partition p : this.partitioningScheme.getPartitions()) {
-			if (p.shouldApply(er)) {
-				p.getTimer().restart();
-				success &= ((IBeforeER) p.getMetric()).applyBeforeUpdate(p
-						.getLocalER(er));
-				p.getTimer().end();
-			}
-		}
-		return success;
-	}
-
 	@Override
 	public boolean applyAfterUpdate(EdgeRemoval er) {
 		boolean success = true;
-
-		// ER propagation
-		for (Partition p : this.partitioningScheme.getPartitions()) {
+		for (Partition p : this.partitioningScheme.partitions) {
 			if (p.shouldPropagate(er)) {
 				p.getTimer().restart();
 				success &= p.propagate(er);
 				p.getTimer().end();
 			}
 		}
-
-		// ER application AFTER
-		if (this.metric instanceof IAfterER) {
-			for (Partition p : this.partitioningScheme.getPartitions()) {
-				if (p.shouldApply(er)) {
-					p.getTimer().restart();
-					success &= ((IAfterER) p.getMetric()).applyAfterUpdate(p
-							.getLocalER(er));
-					p.getTimer().end();
-				}
-			}
-		}
-
-		// clear local ER
-		for (Partition p : this.partitioningScheme.partitions) {
-			p.clearLocalER();
-		}
-
 		return success;
 	}
 }

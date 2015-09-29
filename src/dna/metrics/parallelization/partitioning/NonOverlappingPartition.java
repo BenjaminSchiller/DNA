@@ -13,6 +13,8 @@ import dna.metrics.Metric;
 import dna.series.data.Value;
 import dna.updates.update.EdgeAddition;
 import dna.updates.update.EdgeRemoval;
+import dna.updates.update.NodeAddition;
+import dna.updates.update.NodeRemoval;
 
 /**
  * 
@@ -76,30 +78,110 @@ public class NonOverlappingPartition extends Partition {
 	}
 
 	@Override
-	public boolean propagate(EdgeAddition ea) {
-		if (this.g.containsNode(ea.getEdge().getN1())
-				&& this.g.containsNode(ea.getEdge().getN2())) {
-			EdgeAddition ea_ = this.getLocalEA(ea);
-			return ea_.apply(this.g);
-		} else {
-			return this.externalEdges.add((Edge) ea.getEdge());
-		}
-	}
-
-	@Override
-	public boolean propagate(EdgeRemoval er) {
-		if (this.externalEdges.contains(er.getEdge())) {
-			return this.externalEdges.remove(er.getEdge());
-		} else {
-			return this.getLocalER(er).apply(this.g);
-		}
-	}
-
-	@Override
 	protected Value[] getStatistics() {
 		Value externalEdges = new Value("externalEdges",
 				this.externalEdges.size());
 		return new Value[] { externalEdges };
+	}
+
+	/*
+	 * NA
+	 */
+
+	@Override
+	public boolean propagate(NodeAddition globalNA) {
+		Node n = this.g.getGraphDatastructures().newNodeInstance(
+				globalNA.getNode().asString());
+		NodeAddition na = new NodeAddition(n);
+		boolean success = true;
+
+		success &= this.apply(na);
+		success &= this.nodes.add(n);
+		success &= this.nodeSet.add(n);
+
+		return success;
+	}
+
+	/*
+	 * NR
+	 */
+
+	@Override
+	public boolean shouldPropagate(NodeRemoval globalNR) {
+		Node n = (Node) globalNR.getNode();
+		if (this.g.containsNode(n)) {
+			return true;
+		}
+		for (Edge e : this.externalEdges) {
+			if (e.isConnectedTo(n)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	@Override
+	public boolean propagate(NodeRemoval globalNR) {
+		boolean success = true;
+		Node n = (Node) globalNR.getNode();
+
+		if (this.g.containsNode(n)) {
+			n = g.getNode(n.getIndex());
+			NodeRemoval nr = new NodeRemoval(n);
+			success &= this.apply(nr);
+			success &= this.nodes.remove(n);
+			success &= this.nodeSet.remove(n);
+		}
+
+		success &= removeConnectedEdges(this.externalEdges, n);
+
+		return success;
+	}
+
+	/*
+	 * EA
+	 */
+
+	@Override
+	public boolean shouldPropagate(EdgeAddition globalEA) {
+		return this.g.containsNode(globalEA.getEdge().getN1())
+				|| this.g.containsNode(globalEA.getEdge().getN2());
+	}
+
+	@Override
+	public boolean propagate(EdgeAddition globalEA) {
+		if (!this.g.containsNode(globalEA.getEdge().getN1())
+				|| !this.g.containsNode(globalEA.getEdge().getN2())) {
+			return this.externalEdges.add((Edge) globalEA.getEdge());
+		}
+
+		Node n1 = this.g.getNode(globalEA.getEdge().getN1().getIndex());
+		Node n2 = this.g.getNode(globalEA.getEdge().getN2().getIndex());
+		Edge e = this.g.getGraphDatastructures().newEdgeInstance(n1, n2);
+		EdgeAddition ea = new EdgeAddition(e);
+		return this.apply(ea);
+	}
+
+	/*
+	 * ER
+	 */
+
+	@Override
+	public boolean shouldPropagate(EdgeRemoval globalER) {
+		return this.g.containsNode(globalER.getEdge().getN1())
+				|| this.g.containsNode(globalER.getEdge().getN2());
+	}
+
+	@Override
+	public boolean propagate(EdgeRemoval globalER) {
+		if (this.externalEdges.contains(globalER.getEdge())) {
+			return this.externalEdges.remove(globalER.getEdge());
+		}
+
+		Edge e = g.getEdge(globalER.getEdge().getN1(), globalER.getEdge()
+				.getN2());
+		EdgeRemoval er = new EdgeRemoval(e);
+		return this.apply(er);
 	}
 
 }

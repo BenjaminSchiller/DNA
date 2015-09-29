@@ -1,6 +1,7 @@
 package dna.metrics.parallelization.partitioning;
 
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
@@ -8,6 +9,16 @@ import dna.graph.Graph;
 import dna.graph.edges.Edge;
 import dna.graph.nodes.Node;
 import dna.metrics.Metric;
+import dna.metrics.algorithms.IAfterEA;
+import dna.metrics.algorithms.IAfterER;
+import dna.metrics.algorithms.IAfterNA;
+import dna.metrics.algorithms.IAfterNR;
+import dna.metrics.algorithms.IBeforeEA;
+import dna.metrics.algorithms.IBeforeER;
+import dna.metrics.algorithms.IBeforeNA;
+import dna.metrics.algorithms.IBeforeNR;
+import dna.metrics.algorithms.IDynamicAlgorithm;
+import dna.metrics.algorithms.IRecomputation;
 import dna.metrics.clustering.UndirectedClusteringCoefficientR;
 import dna.metrics.clustering.UndirectedClusteringCoefficientU;
 import dna.metrics.parallelization.collation.clustering.PartitionedUndirectedClusteringCoefficientR;
@@ -70,8 +81,7 @@ public abstract class Partition {
 	public Value[] getValues() {
 		Value nodes = new Value("nodes", this.g.getNodeCount());
 		Value edges = new Value("edges", this.g.getEdgeCount());
-		Value duration = new Value("duration",
-				(double) this.t.getDutation() / 1000000.0);
+		Value duration = new Value("duration", (double) this.t.getDutation());
 		Value[] general = new Value[] { nodes, edges, duration };
 
 		Value[] stats = this.getStatistics();
@@ -103,16 +113,66 @@ public abstract class Partition {
 	}
 
 	/*
+	 * HELPERS
+	 */
+
+	protected static boolean removeConnectedEdges(Set<Edge> edges, Node node) {
+		List<Edge> toRemove = new LinkedList<Edge>();
+		for (Edge e : edges) {
+			if (e.isConnectedTo(node)) {
+				toRemove.add(e);
+			}
+		}
+		boolean success = true;
+		for (Edge e : toRemove) {
+			success &= edges.remove(e);
+		}
+		return success;
+	}
+
+	/*
+	 * INIT & RECOMPUTE & RESET
+	 */
+
+	public boolean init() {
+		boolean success = true;
+
+		if (this.m instanceof IDynamicAlgorithm) {
+			success &= ((IDynamicAlgorithm) this.m).init();
+		}
+
+		return success;
+	}
+
+	public boolean recompute() {
+		boolean success = true;
+
+		if (this.m instanceof IRecomputation) {
+			success &= ((IRecomputation) this.m).recompute();
+		}
+
+		return success;
+	}
+
+	public boolean reset() {
+		return this.m.reset();
+	}
+
+	/*
 	 * NA
 	 */
 
-	public boolean propagate(NodeAddition na) {
+	public abstract boolean propagate(NodeAddition globalNA);
+
+	protected boolean apply(NodeAddition na) {
 		boolean success = true;
-		NodeAddition na_ = new NodeAddition(this.g.getGraphDatastructures()
-				.newNodeInstance(na.getNode().asString()));
-		success &= this.nodes.add((Node) na_.getNode());
-		success &= this.nodeSet.add((Node) na_.getNode());
-		success &= na_.apply(this.g);
+		if (m instanceof IBeforeNA) {
+			success &= ((IBeforeNA) m).applyBeforeUpdate(na);
+		}
+		success &= na.apply(g);
+		if (m instanceof IAfterNA) {
+			success &= ((IAfterNA) m).applyAfterUpdate(na);
+		}
 		return success;
 	}
 
@@ -120,11 +180,19 @@ public abstract class Partition {
 	 * NR
 	 */
 
-	public boolean propagate(NodeRemoval nr) {
+	public abstract boolean shouldPropagate(NodeRemoval globalNR);
+
+	public abstract boolean propagate(NodeRemoval globalNR);
+
+	protected boolean apply(NodeRemoval nr) {
 		boolean success = true;
-		success &= this.nodes.remove((Node) nr.getNode());
-		success &= this.nodeSet.remove((Node) nr.getNode());
+		if (this.m instanceof IBeforeNR) {
+			success &= ((IBeforeNR) m).applyBeforeUpdate(nr);
+		}
 		success &= nr.apply(this.g);
+		if (this.m instanceof IAfterNR) {
+			success &= ((IAfterNR) m).applyAfterUpdate(nr);
+		}
 		return success;
 	}
 
@@ -132,97 +200,40 @@ public abstract class Partition {
 	 * EA
 	 */
 
-	public boolean shouldPropagate(EdgeAddition ea) {
-		return this.g.containsNode(ea.getEdge().getN1())
-				|| this.g.containsNode(ea.getEdge().getN2());
-	}
+	public abstract boolean shouldPropagate(EdgeAddition globalEA);
 
-	public boolean shouldApply(EdgeAddition ea) {
-		return this.g.containsNode(ea.getEdge().getN1())
-				&& this.g.containsNode(ea.getEdge().getN2());
-	}
+	public abstract boolean propagate(EdgeAddition globalEA);
 
-	public abstract boolean propagate(EdgeAddition ea);
+	protected boolean apply(EdgeAddition ea) {
+		boolean success = true;
+		if (m instanceof IBeforeEA) {
+			success &= ((IBeforeEA) m).applyBeforeUpdate(ea);
+		}
+		success &= ea.apply(g);
+		if (m instanceof IAfterEA) {
+			success &= ((IAfterEA) m).applyAfterUpdate(ea);
+		}
+		return success;
+	}
 
 	/*
 	 * ER
 	 */
 
-	public boolean shouldPropagate(EdgeRemoval er) {
-		return this.g.containsNode(er.getEdge().getN1())
-				|| this.g.containsNode(er.getEdge().getN2());
-	}
+	public abstract boolean shouldPropagate(EdgeRemoval globalER);
 
-	public boolean shouldApply(EdgeRemoval er) {
-		return this.g.containsNode(er.getEdge().getN1())
-				&& this.g.containsNode(er.getEdge().getN2());
-	}
+	public abstract boolean propagate(EdgeRemoval globalER);
 
-	public abstract boolean propagate(EdgeRemoval er);
-
-	/*
-	 * UPDATES
-	 */
-
-	protected EdgeAddition localEA = null;
-	protected EdgeRemoval localER = null;
-
-	/**
-	 * resets the local updates for EA. this method must be called after an
-	 * update has been fully processed. otherwise, the stored (old) updates are
-	 * returned instead of copying a new one.
-	 */
-	public void clearLocalEA() {
-		this.localEA = null;
-	}
-
-	/**
-	 * resets the local updates for ER. this method must be called after an
-	 * update has been fully processed. otherwise, the stored (old) updates are
-	 * returned instead of copying a new one.
-	 */
-	public void clearLocalER() {
-		this.localER = null;
-	}
-
-	/**
-	 * 
-	 * in case a new one is requested, it is generated for the local graph using
-	 * its nodes and gds. the local update has to be reset after each update.
-	 * 
-	 * @param ea
-	 *            update applied to the global (complete) graph
-	 * @return update for the local graph based on the input update from the
-	 *         global graph
-	 */
-	public EdgeAddition getLocalEA(EdgeAddition ea) {
-		if (localEA != null) {
-			return localEA;
+	protected boolean apply(EdgeRemoval er) {
+		boolean success = true;
+		if (m instanceof IBeforeER) {
+			success &= ((IBeforeER) m).applyBeforeUpdate(er);
 		}
-		Node n1 = this.g.getNode(ea.getEdge().getN1().getIndex());
-		Node n2 = this.g.getNode(ea.getEdge().getN2().getIndex());
-		Edge e = this.g.getGraphDatastructures().newEdgeInstance(n1, n2);
-		localEA = new EdgeAddition(e);
-		return localEA;
-	}
-
-	/**
-	 * 
-	 * in case a new one is requested, it is generated for the local graph using
-	 * its nodes and gds. the local update has to be reset after each update.
-	 * 
-	 * @param er
-	 *            update applied to the global (complete) graph
-	 * @return update for the local graph based on the input update from the
-	 *         global graph
-	 */
-	public EdgeRemoval getLocalER(EdgeRemoval er) {
-		if (localER != null) {
-			return localER;
+		success &= er.apply(g);
+		if (m instanceof IAfterER) {
+			success &= ((IAfterER) m).applyAfterUpdate(er);
 		}
-		Edge e = this.g.getEdge(er.getEdge().getN1(), er.getEdge().getN2());
-		localER = new EdgeRemoval(e);
-		return localER;
+		return success;
 	}
 
 }
