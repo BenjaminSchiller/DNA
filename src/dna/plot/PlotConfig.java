@@ -649,6 +649,13 @@ public class PlotConfig {
 			} catch (NullPointerException e) {
 			}
 
+			if (generalDomain == null
+					&& (Config.get(prefix + s
+							+ PlotConfig.customPlotSuffixDomain) != null)) {
+				generalDomain = Config.get(prefix + s
+						+ PlotConfig.customPlotSuffixDomain);
+			}
+
 			// Craft PlotConfig and add to configs list
 			plotConfigs.add(new PlotConfig(filename, title, key, xLabel,
 					yLabel, logscale, datetime, timeDataFormat, xOffset,
