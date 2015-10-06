@@ -45,7 +45,7 @@ public abstract class Measures extends Metric implements IMetric {
 		private final StringParameter param;
 
 		DirectedDegreeType(String value) {
-			this.param = new StringParameter("directedDegreeType", value);
+			this.param = new StringParameter("DirectedDegreeType", value);
 		}
 
 		public StringParameter StringParameter() {
@@ -62,7 +62,7 @@ public abstract class Measures extends Metric implements IMetric {
 		private final StringParameter param;
 
 		EdgeWeightType(String value) {
-			this.param = new StringParameter("edgeWeightType", value);
+			this.param = new StringParameter("EdgeWeightType", value);
 		}
 
 		public StringParameter StringParameter() {
@@ -71,19 +71,19 @@ public abstract class Measures extends Metric implements IMetric {
 	}
 
 	/**
+	 * To check equality of metrics in {@link #equals(IMetric)}, the similarity
+	 * measure {@link #r} is compared. This value is the allowed difference of
+	 * two values to still accept them as equal.
+	 */
+	public static final double ACCEPTED_ERROR_FOR_EQUALITY = 1.0E-3;
+
+	/**
 	 * Is either "out" (default) or "in", depending on the {@link Parameter} in
 	 * {@link #Measures(String, DirectedDegreeType, EdgeWeightType)}. This value
 	 * determines whether nodes in directed graphs are compared by there in- or
 	 * outdegree and is ignored for undirected graphs.
 	 */
 	protected DirectedDegreeType directedDegreeType;
-
-	/**
-	 * To check equality of metrics in {@link #equals(IMetric)}, the similarity
-	 * measure {@link #r} is compared. This value is the allowed difference of
-	 * two values to still accept them as equal.
-	 */
-	public static final double ACCEPTED_ERROR_FOR_EQUALITY = 1.0E-3;
 
 	/**
 	 * Is either "unweighted" (default) or "weighted", depending on the
@@ -495,7 +495,7 @@ public abstract class Measures extends Metric implements IMetric {
 
 	@Override
 	public Value[] getValues() {
-		Value v1 = new Value("avarage",
+		Value v1 = new Value("SimilarityAvg",
 				this.binnedDistribution.computeAverage());
 		return new Value[] { v1 };
 	}

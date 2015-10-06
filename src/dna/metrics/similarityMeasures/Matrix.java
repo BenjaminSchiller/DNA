@@ -47,7 +47,6 @@ public class Matrix {
 			}
 		}
 		return true;
-
 	}
 
 	@Override
@@ -99,6 +98,14 @@ public class Matrix {
 		double sum = 0.0;
 		for (Node node : this.values.keySet())
 			sum = get(row, node) == null ? sum : sum + get(row, node);
+		return sum;
+	}
+
+	public double getRowSumExceptGivenNode(Node row) {
+		double sum = 0.0;
+		for (Node node : this.values.keySet())
+			sum = get(row, node) == null ? sum : row.equals(node) ? sum : sum
+					+ get(row, node);
 		return sum;
 	}
 

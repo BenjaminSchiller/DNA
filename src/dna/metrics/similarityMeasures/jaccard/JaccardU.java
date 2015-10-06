@@ -298,7 +298,6 @@ public class JaccardU extends Jaccard implements IBeforeUpdates, IAfterUpdates,
 		} else if (UndirectedWeightedEdge.class.isAssignableFrom(this.g
 				.getGraphDatastructures().getEdgeType())) {
 			if (this.edgeWeightType.equals(EdgeWeightType.USE_WEIGHTS)) {
-				System.out.println("Yes im here!UW");
 				return this
 						.applyAfterEdgeAdditionUndirectedWeighted(((UndirectedWeightedEdge) ((EdgeAddition) ea)
 								.getEdge()));

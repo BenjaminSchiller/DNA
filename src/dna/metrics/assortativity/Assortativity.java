@@ -47,45 +47,45 @@ import dna.util.parameters.StringParameter;
 public abstract class Assortativity extends Metric implements IMetric {
 
 	/**
+	 * Setting for {@link Parameter} "DirectedDegreeType".
+	 */
+	public static enum DirectedDegreeType {
+		IN("In"), OUT("Out");
+
+		private final StringParameter param;
+
+		DirectedDegreeType(String value) {
+			this.param = new StringParameter("DirectedDegreeType", value);
+		}
+
+		public StringParameter StringParameter() {
+			return this.param;
+		}
+	}
+
+	/**
+	 * Setting for {@link Parameter} "EdgeWeightType".
+	 */
+	public static enum EdgeWeightType {
+		IGNORE_WEIGHTS("Unweighted"), USE_WEIGHTS("Weighted");
+
+		private final StringParameter param;
+
+		EdgeWeightType(String value) {
+			this.param = new StringParameter("EdgeWeightType", value);
+		}
+
+		public StringParameter StringParameter() {
+			return this.param;
+		}
+	}
+
+	/**
 	 * To check equality of metrics in {@link #equals(IMetric)}, the
 	 * assortativity coefficient {@link #r} is compared. This value is the
 	 * allowed difference of two values to still accept them as equal.
 	 */
 	public static final double ACCEPTED_ERROR_FOR_EQUALITY = 1.0E-4;
-
-	/**
-	 * Setting for {@link Parameter} "directedDegreeType".
-	 */
-	public static enum DirectedDegreeType {
-		IN("in"), OUT("out");
-
-		private final StringParameter param;
-
-		DirectedDegreeType(String value) {
-			this.param = new StringParameter("directedDegreeType", value);
-		}
-
-		public StringParameter StringParameter() {
-			return this.param;
-		}
-	}
-
-	/**
-	 * Setting for {@link Parameter} "edgeWeightType".
-	 */
-	public static enum EdgeWeightType {
-		IGNORE_WEIGHTS("unweighted"), USE_WEIGHTS("weighted");
-
-		private final StringParameter param;
-
-		EdgeWeightType(String value) {
-			this.param = new StringParameter("edgeWeightType", value);
-		}
-
-		public StringParameter StringParameter() {
-			return this.param;
-		}
-	}
 
 	/**
 	 * Is either "out" (default) or "in", depending on the {@link Parameter} in

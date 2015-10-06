@@ -1,34 +1,13 @@
 package dna.graph.generators.zalando;
 
+import dna.graph.generators.zalando.data.Event;
+import dna.graph.generators.zalando.data.EventColumn;
 import dna.util.Log;
 
-/**
- * Maps the string values of {@link Event}s to {@code int}s.
- * 
- * <h1>About EventColumn Groups</h1>
- * <p>
- * {@link EventColumn} groups are explicitly defined via
- * {@link #EventMappings(EventColumn[][])}. {@link #EventMappings()} implicitly
- * creates groups, each containing a single {@link EventColumn}.
- * </p>
- * <p>
- * The value of an {@link EventColumn} group is built by concatenating
- * (<i>"a"</i> + <i>"b"</i> -> <i>"ab"</i>) the value of each
- * {@link EventColumn} in the group.
- * </p>
- * 
- * <h1>About Mappings and Global Mappings</h1>
- * <p>
- * This class uses {@link Mapping}s for each {@link EventColumn} group.
- * Therefore each value of these groups for all {@link Event}s are mapped to
- * unique {@code int}s. The uniqueness holds for all mapped values of
- * all groups.
- * </p>
- */
 public class EventMappings {
 
 	private Mapping<String> mapping;
-	
+
 	private EventColumn[][] eventColumnGroups;
 
 	/**
@@ -44,25 +23,13 @@ public class EventMappings {
 	}
 
 	/**
-	 * Maps the values of each {@link EventColumn} group for given event to an
-	 * <u>unique</u> {@code int} >= 0.
-	 * 
-	 * @param event
-	 *            The {@link Event} to map.
-	 */
-	public void map(Event event) {
-		for (EventColumn[] eventColumnGroup : this.eventColumnGroups)
-			this.mapping.map(this
-					.eventColumnGroupValue(eventColumnGroup, event));
-	}
-
-	/**
-	 * Returns the value of given {@link EventColumn} group for given
-	 * {@link Event} in the format <i>key1=value1,key2=value2,...</i> For
+	 * Returns the value of given {@link Old_EventColumn} group for given
+	 * {@link Old_Event} in the format <i>key1=value1,key2=value2,...</i> For
 	 * instance <i>SKU=ah67,MARKE=jx3sz7</i>
 	 * 
-	 * @return Value of each {@link EventColumn} in given {@link EventColumn}
-	 *         group for given {@link Event} concatenated.
+	 * @return Value of each {@link Old_EventColumn} in given
+	 *         {@link Old_EventColumn} group for given {@link Old_Event}
+	 *         concatenated.
 	 * 
 	 * @see EventMappings_NeuOhnePrefix EventColumn groups
 	 */
@@ -81,25 +48,26 @@ public class EventMappings {
 	}
 
 	/**
-	 * @return The mapped value for given {@link EventColumn} of given
-	 *         {@link Event} or <i>-1</i> if any of the given parameters are not
-	 *         mapped.
+	 * @return The mapped value for given {@link Old_EventColumn} of given
+	 *         {@link Old_Event} or <i>-1</i> if any of the given parameters are
+	 *         not mapped.
 	 * 
-	 * @see EventMappings_NeuOhnePrefix Difference between mappings and global mappings
-	 * @see #map(Event) Mapping of Events
+	 * @see EventMappings_NeuOhnePrefix Difference between mappings and global
+	 *      mappings
+	 * @see #map(Old_Event) Mapping of Events
 	 */
 	public int getMapping(EventColumn eventColumn, Event event) {
 		return this.getMapping(new EventColumn[] { eventColumn }, event);
 	}
 
 	/**
-	 * @return The mapped value for given {@link EventColumn} group of given
-	 *         {@link Event} or <i>-1</i> if any of the given parameters are not
-	 *         mapped.
+	 * @return The mapped value for given {@link Old_EventColumn} group of given
+	 *         {@link Old_Event} or <i>-1</i> if any of the given parameters are
+	 *         not mapped.
 	 * 
-	 * @see EventMappings_NeuOhnePrefix EventColumn groups, Difference between mappings and
-	 *      global mappings
-	 * @see #map(Event) Mapping of Events
+	 * @see EventMappings_NeuOhnePrefix EventColumn groups, Difference between
+	 *      mappings and global mappings
+	 * @see #map(Old_Event) Mapping of Events
 	 */
 	public int getMapping(EventColumn[] eventColumnGroup, Event event) {
 		final int mapping = this.mapping.getMapping(this.eventColumnGroupValue(
@@ -109,6 +77,19 @@ public class EventMappings {
 			return -1;
 		}
 		return mapping;
+	}
+
+	/**
+	 * Maps the values of each {@link Old_EventColumn} group for given event to
+	 * an <u>unique</u> {@code int} >= 0.
+	 * 
+	 * @param event
+	 *            The {@link Old_Event} to map.
+	 */
+	public void map(Event event) {
+		for (EventColumn[] eventColumnGroup : this.eventColumnGroups)
+			this.mapping.map(this
+					.eventColumnGroupValue(eventColumnGroup, event));
 	}
 
 }

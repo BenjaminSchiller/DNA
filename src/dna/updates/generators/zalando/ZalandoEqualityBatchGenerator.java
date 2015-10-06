@@ -4,10 +4,9 @@ import dna.graph.Graph;
 import dna.graph.datastructures.GraphDataStructure;
 import dna.graph.datastructures.zalando.ZalandoGraphDataStructure;
 import dna.graph.edges.Edge;
-import dna.graph.generators.zalando.Event;
-import dna.graph.generators.zalando.EventColumn;
-import dna.graph.generators.zalando.EventFilter;
-import dna.graph.generators.zalando.EventReader;
+import dna.graph.generators.zalando.data.Event;
+import dna.graph.generators.zalando.data.EventColumn;
+import dna.graph.generators.zalando.parser.EventFilter;
 import dna.graph.nodes.Node;
 
 /**
@@ -38,8 +37,8 @@ public class ZalandoEqualityBatchGenerator extends ZalandoBatchGenerator {
 	 *            The time right before start creating the graph.
 	 * @param eventFilter
 	 *            If this is set to an {@link EventFilter} != {@code null}, all
-	 *            {@link Event}s must pass it in order to be used for graph
-	 *            generation. All {@link Event}s are used if this is
+	 *            {@link Old_Event}s must pass it in order to be used for graph
+	 *            generation. All {@link Old_Event}s are used if this is
 	 *            {@code null}.
 	 * @param numberOfLinesPerBatch
 	 *            The maximum number of {@code Event}s used for each batch. It
@@ -47,9 +46,9 @@ public class ZalandoEqualityBatchGenerator extends ZalandoBatchGenerator {
 	 *            fewer lines.
 	 * @param eventsFilepath
 	 *            The full path of the Zalando log file. Will be passed to
-	 *            {@link EventReader}.
+	 *            {@link Old_EventReader}.
 	 * @param columnsToAddAsNodes
-	 *            The {@link EventColumn}s of an event which values will be
+	 *            The {@link Old_EventColumn}s of an event which values will be
 	 *            represented as nodes in the graph.
 	 * @param oneNodeForEachColumn
 	 *            If this is true, each value of each
@@ -58,7 +57,7 @@ public class ZalandoEqualityBatchGenerator extends ZalandoBatchGenerator {
 	 *            all {@code columnsToAddAsNodes} together will be a single node
 	 *            (e.g. <i>Product1|SALE</i>).
 	 * @param columnsToCheckForEquality
-	 *            The {@link EventColumn}s of an event which values will be
+	 *            The {@link Old_EventColumn}s of an event which values will be
 	 *            represented as edges in the graph.
 	 * @param allColumnsMustBeEqual
 	 *            If this is true, all the values of all
@@ -77,14 +76,17 @@ public class ZalandoEqualityBatchGenerator extends ZalandoBatchGenerator {
 	public ZalandoEqualityBatchGenerator(String name,
 			ZalandoGraphDataStructure gds, long timestampInit,
 			EventFilter eventFilter, int numberOfLinesPerBatch,
-			String eventsFilepath, EventColumn[] columnsToAddAsNodes,
+			String pathProducts, boolean isGzippedProducts, String pathLog,
+			boolean isGzippedLog, EventColumn[] columnsToAddAsNodes,
 			boolean oneNodeForEachColumn,
 			EventColumn[] columnsToCheckForEquality,
-			boolean allColumnsMustBeEqual, boolean absoluteWeights) {
+			boolean allColumnsMustBeEqual, boolean absoluteWeights,
+			int omitFirstEvents) {
 		super(name, gds, timestampInit, eventFilter, numberOfLinesPerBatch,
-				eventsFilepath, columnsToAddAsNodes, oneNodeForEachColumn,
+				pathProducts, isGzippedProducts, pathLog, isGzippedLog,
+				columnsToAddAsNodes, oneNodeForEachColumn,
 				columnsToCheckForEquality, allColumnsMustBeEqual,
-				absoluteWeights);
+				absoluteWeights, omitFirstEvents);
 	}
 
 	/**
@@ -116,7 +118,7 @@ public class ZalandoEqualityBatchGenerator extends ZalandoBatchGenerator {
 
 	/**
 	 * Adds an bidirectional {@link Edge} <u>from each {@link Node}</u> for
-	 * given event <u>to all other {@link Node}s</u> of {@link Event}s with
+	 * given event <u>to all other {@link Node}s</u> of {@link Old_Event}s with
 	 * equal values in {@link #columnGroupsToCheckForEquality}. If the given
 	 * graph is directed, two {@link Edges} are added (<i>A->B</i> and
 	 * <i>B->A</i>).
@@ -131,31 +133,30 @@ public class ZalandoEqualityBatchGenerator extends ZalandoBatchGenerator {
 	 * </p>
 	 * 
 	 * @param event
-	 *            The {@link Event} for which values the edges should be added.
+	 *            The {@link Old_Event} for which values the edges should be
+	 *            added.
 	 * 
 	 * @see #addBidirectionalEdge(Node, Node, int)
 	 */
 	@Override
 	void addEdgesForColumns(Graph g, Event event) {
 		int nodeForEventIndex, mappingForColumnGroup;
-		// TODO
-		// final GraphDataStructure gds = g.getGraphDatastructures();
 
 		for (EventColumn[] eventColumnGroup : this.columnGroupsToAddAsNodes) {
-			nodeForEventIndex = this.mappings.getMapping(
-					eventColumnGroup, event);
+			nodeForEventIndex = this.mappings.getMapping(eventColumnGroup,
+					event);
 
 			for (EventColumn[] columnGroup : this.columnGroupsToCheckForEquality) {
-				mappingForColumnGroup = this.mappings.getMapping(
-						columnGroup, event);
+				mappingForColumnGroup = this.mappings.getMapping(columnGroup,
+						event);
 
 				for (int otherNodeIndex : this.nodesSortedByColumnGroupsToCheckForEquality
 						.getNodes(mappingForColumnGroup, nodeForEventIndex)) {
-					
+
 					final Node nodeForEvent = this.nodesAdded
 							.get(nodeForEventIndex);
 					final Node otherNode = this.nodesAdded.get(otherNodeIndex);
-					
+
 					if (this.nodesSortedByColumnGroupsToCheckForEquality
 							.node1ValueLessOrEqualNode2Value(
 									mappingForColumnGroup, nodeForEventIndex,

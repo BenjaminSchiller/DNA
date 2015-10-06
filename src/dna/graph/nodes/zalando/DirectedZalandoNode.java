@@ -1,7 +1,7 @@
 package dna.graph.nodes.zalando;
 
 import dna.graph.datastructures.GraphDataStructure;
-import dna.graph.generators.zalando.EventColumn;
+import dna.graph.generators.zalando.data.EventColumn;
 import dna.graph.nodes.DirectedNode;
 
 /**
@@ -22,8 +22,8 @@ public class DirectedZalandoNode extends DirectedNode implements IZalandoNode {
 	}
 
 	@Override
-	public String toString() {
-		return super.toString() + " "
+	public String asString() {
+		return Integer.toString(this.index) + " "
 				+ ZalandoNode.eventColumnsArrayToString(this.getType());
 	}
 
@@ -33,8 +33,8 @@ public class DirectedZalandoNode extends DirectedNode implements IZalandoNode {
 	}
 
 	@Override
-	public String asString() {
-		return Integer.toString(this.index) + " "
+	public String toString() {
+		return super.toString() + " "
 				+ ZalandoNode.eventColumnsArrayToString(this.getType());
 	}
 }

@@ -12,14 +12,14 @@ import java.util.Set;
  * @param <V>
  *            The values of each {@code HashSet} in the {@code HashMap}.
  */
-class HashSetMap<K, V> {
+public class HashSetMap<K, V> {
 
 	private HashMap<K, HashSet<V>> map;
 
 	/**
 	 * Creates an empty {@link HashSetMap}.
 	 */
-	HashSetMap() {
+	public HashSetMap() {
 		this.map = new HashMap<K, HashSet<V>>();
 	}
 
@@ -34,7 +34,7 @@ class HashSetMap<K, V> {
 	 *            The value which should be added to the set identified by given
 	 *            key.
 	 */
-	void add(K key, V value) {
+	public void add(K key, V value) {
 		if (this.map.containsKey(key))
 			this.map.get(key).add(value);
 		else {
@@ -50,7 +50,7 @@ class HashSetMap<K, V> {
 	 * @return True if the given key is one of the keys in this
 	 *         {@code HashSetMap}, else false.
 	 */
-	boolean containsKey(K key) {
+	public boolean containsKey(K key) {
 		return this.map.containsKey(key);
 	}
 
@@ -62,7 +62,7 @@ class HashSetMap<K, V> {
 	 * @return True if the given key exists and the given value is in it's set,
 	 *         else false.
 	 */
-	boolean containsValueForKey(K key, V value) {
+	public boolean containsValueForKey(K key, V value) {
 		if (this.containsKey(key))
 			return this.get(key).contains(value);
 
@@ -94,6 +94,13 @@ class HashSetMap<K, V> {
 	}
 
 	/**
+	 * @return All keys in this {@link HashSetMap}.
+	 */
+	public Set<K> keys() {
+		return this.map.keySet();
+	}
+
+	/**
 	 * Removes the set for given key. Nothing will happen, if given key is not
 	 * in this {@link HashSetMap}. {@link #containsKey(Object)} will return
 	 * false after this call.
@@ -118,7 +125,7 @@ class HashSetMap<K, V> {
 	 *            If and only if this is true, {@link #remove(Object)} is called
 	 *            after the last value of the set.
 	 */
-	void remove(K key, V value, boolean removeEmptyKey) {
+	public void remove(K key, V value, boolean removeEmptyKey) {
 		if (this.map.containsKey(key)) {
 			this.map.get(key).remove(value);
 
@@ -130,7 +137,7 @@ class HashSetMap<K, V> {
 	/**
 	 * @return The number of sets in the map.
 	 */
-	int size() {
+	public int size() {
 		return this.map.size();
 	}
 

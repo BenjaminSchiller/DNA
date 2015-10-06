@@ -3,9 +3,9 @@ package dna.updates.generators.zalando;
 import dna.graph.Graph;
 import dna.graph.datastructures.GraphDataStructure;
 import dna.graph.datastructures.zalando.ZalandoGraphDataStructure;
-import dna.graph.generators.zalando.Event;
-import dna.graph.generators.zalando.EventColumn;
-import dna.graph.generators.zalando.EventReader;
+import dna.graph.generators.zalando.data.Event;
+import dna.graph.generators.zalando.data.EventColumn;
+import dna.graph.generators.zalando.parser.EventFilter;
 import dna.graph.nodes.Node;
 import dna.graph.nodes.zalando.ZalandoNode;
 
@@ -25,15 +25,21 @@ public class CustomersBrandsBatchGenerator extends
 	 *            fewer lines.
 	 * @param eventsFilepath
 	 *            The full path of the Zalando log file. Will be passed to
-	 *            {@link EventReader}.
+	 *            {@link Old_EventReader}.
 	 */
 	public CustomersBrandsBatchGenerator(ZalandoGraphDataStructure gds,
-			long timestampInit, int numberOfLinesPerBatch, String eventsFilepath) {
-		super("CustomersProducts", gds, timestampInit, null,
-				numberOfLinesPerBatch, eventsFilepath, new EventColumn[] {
-						EventColumn.PERMANENTCOOKIEID, EventColumn.MARKE },
-				true, new EventColumn[] { EventColumn.PERMANENTCOOKIEID,
-						EventColumn.MARKE }, true, false);
+			long timestampInit, String filterProperties,
+			int numberOfLinesPerBatch, String pathProducts,
+			boolean isGzippedProducts, String pathLog, boolean isGzippedLog,
+			int omitFirstEvents) {
+		super("CustomersProducts", gds, timestampInit, EventFilter
+				.fromFile(filterProperties)
+		/* new DefaultEventFilter() /* null */, numberOfLinesPerBatch,
+				pathProducts, isGzippedProducts, pathLog, isGzippedLog,
+				new EventColumn[] { EventColumn.USER, EventColumn.BRAND },
+				true,
+				new EventColumn[] { EventColumn.USER, EventColumn.BRAND },
+				true, false, omitFirstEvents);
 	}
 
 	/**
