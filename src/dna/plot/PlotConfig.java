@@ -420,6 +420,7 @@ public class PlotConfig {
 
 				// check if contains domain
 				split = value.split(PlotConfig.customPlotDomainDelimiter);
+
 				if (split.length > 1) {
 					String domain = "";
 					for (int j = 0; j < split.length - 1; j++) {
@@ -436,7 +437,8 @@ public class PlotConfig {
 					values[i] = split[split.length - 1];
 
 					// check for wildcard
-					if (values[i].equals(PlotConfig.customPlotWildcard))
+					if (values[i].equals(PlotConfig.customPlotWildcard)
+							|| domains[i].equals(PlotConfig.customPlotWildcard))
 						plotAll = true;
 
 					// continue with next value
@@ -513,7 +515,13 @@ public class PlotConfig {
 					// have no domain
 					if (domains[i] == PlotConfig.customPlotDomainExpression) {
 						String expr = values[i];
-						String[] split = expr.split("\\$");
+						String[] sp = expr.split("\\:");
+
+						String xd = sp[0];
+						if (sp.length > 0)
+							xd = sp[1];
+
+						String[] split = xd.split("\\$");
 
 						if (split.length < 2)
 							continue;
@@ -548,7 +556,13 @@ public class PlotConfig {
 								expr2 += "$";
 							}
 						}
-						values[i] = expr2;
+
+						String xd2;
+						if (sp.length > 0)
+							xd2 = sp[0] + ":" + expr2;
+						else
+							xd2 = expr2;
+						values[i] = xd2;
 					}
 				}
 			}
@@ -655,6 +669,10 @@ public class PlotConfig {
 				generalDomain = Config.get(prefix + s
 						+ PlotConfig.customPlotSuffixDomain);
 			}
+
+			if (generalDomain != null
+					&& generalDomain.equals(PlotConfig.customPlotWildcard))
+				plotAll = true;
 
 			// Craft PlotConfig and add to configs list
 			plotConfigs.add(new PlotConfig(filename, title, key, xLabel,

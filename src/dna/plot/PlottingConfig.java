@@ -569,12 +569,14 @@ public class PlottingConfig {
 
 					// if function or no wildcard included, no replacement
 					if (domain.equals(PlotConfig.customPlotDomainFunction)
-							|| !value.contains(wildcard)) {
+							|| (!value.contains(wildcard) && !domain
+									.contains(wildcard))) {
 						vList.add(value);
 						dList.add(domain);
 						continue;
 					}
 
+					// if expression
 					if (domain.equals(PlotConfig.customPlotDomainExpression)) {
 						// case mathematical expression
 						String generalDomain = cfg.getGeneralDomain();
@@ -596,7 +598,6 @@ public class PlottingConfig {
 								vList.add(string);
 								dList.add(domain);
 							}
-
 						} else if (generalDomain
 								.equals(PlotConfig.customPlotDomainGeneralRuntimes)
 								|| generalDomain
@@ -640,6 +641,59 @@ public class PlottingConfig {
 								vList.add(string);
 								dList.add(domain);
 							}
+						} else if (generalDomain
+								.equals(PlotConfig.customPlotWildcard)) {
+							// case domain is wildcard
+							String[] split2 = value.split("\\:");
+							if (split2.length > 2) {
+								continue;
+							}
+							String valueTemp = PlottingUtils
+									.getValueFromExpression(split2[1]);
+
+							// statistics
+							for (String v : stats) {
+								if (v.equals(valueTemp)) {
+									vList.add(PlottingUtils
+											.replaceDomainWildcardInsideExpression(
+													value,
+													PlotConfig.customPlotDomainStatistics));
+									dList.add(PlotConfig.customPlotDomainExpression);
+								}
+							}
+
+							// general runtimes
+							for (String v : genRuntimes) {
+								if (v.equals(valueTemp)) {
+									vList.add(PlottingUtils
+											.replaceDomainWildcardInsideExpression(
+													value,
+													PlotConfig.customPlotDomainGeneralRuntimes));
+									dList.add(PlotConfig.customPlotDomainExpression);
+								}
+							}
+
+							// metric runtimes
+							for (String v : metRuntimes) {
+								if (v.equals(valueTemp)) {
+									vList.add(PlottingUtils
+											.replaceDomainWildcardInsideExpression(
+													value,
+													PlotConfig.customPlotDomainMetricRuntimes));
+									dList.add(PlotConfig.customPlotDomainExpression);
+								}
+							}
+
+							// metric values
+							for (int j = 0; j < metrics.size(); j++) {
+								String metric = metrics.get(j);
+								if (metricValues[j].contains(valueTemp)) {
+									vList.add(PlottingUtils
+											.replaceDomainWildcardInsideExpression(
+													value, metric));
+									dList.add(PlotConfig.customPlotDomainExpression);
+								}
+							}
 						} else {
 							// metric value
 							if (metrics.contains(generalDomain)) {
@@ -660,9 +714,44 @@ public class PlottingConfig {
 								}
 							}
 						}
+					} else if (domain.equals(wildcard)) {
+						// no mathematical expression
+						// case domain is wildcard
+
+						// statistics
+						for (String v : stats) {
+							if (v.equals(value)) {
+								vList.add(v);
+								dList.add(PlotConfig.customPlotDomainStatistics);
+							}
+						}
+
+						// general runtimes
+						for (String v : genRuntimes) {
+							if (v.equals(value)) {
+								vList.add(v);
+								dList.add(PlotConfig.customPlotDomainGeneralRuntimes);
+							}
+						}
+
+						// metric runtimes
+						for (String v : metRuntimes) {
+							if (v.equals(value)) {
+								vList.add(v);
+								dList.add(PlotConfig.customPlotDomainMetricRuntimes);
+							}
+						}
+
+						// metrics
+						for (int j = 0; j < metrics.size(); j++) {
+							String metric = metrics.get(j);
+							if (metricValues[j].contains(value)) {
+								vList.add(value);
+								dList.add(metric);
+							}
+						}
 					} else {
-						// case no mathematical expression, just replace
-						// wildcard
+						// domain is no wildcard, only replace wildcards
 						if (domain
 								.equals(PlotConfig.customPlotDomainStatistics)) {
 							// statistics
@@ -702,9 +791,9 @@ public class PlottingConfig {
 								}
 							}
 						}
-
 					}
 				}
+
 				// set new values and domains
 				cfg.setValues(vList.toArray(new String[0]));
 				cfg.setDomains(dList.toArray(new String[0]));
