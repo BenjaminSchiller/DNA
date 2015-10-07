@@ -85,6 +85,32 @@ public class PlottingUtils {
 		return null;
 	}
 
+	/** Replaces the domain-wildcard inside the expression and returns it. **/
+	public static String replaceDomainWildcardInsideExpression(String expr,
+			String domain) {
+		// split at :
+		String[] split = expr.split("\\:");
+		String temp1 = split[0].replace("$*$", domain);
+
+		// split at $
+		String temp2 = "";
+		String[] split2 = split[1].split("\\$");
+		for (int i = 0; i < split2.length; i++) {
+			if ((i & 1) == 0) {
+				// even
+				temp2 += split2[i];
+			} else {
+				// odd
+				temp2 += "$"
+						+ split2[i].replace(PlotConfig.customPlotWildcard,
+								domain) + "$";
+			}
+		}
+
+		// return
+		return temp1 + ":" + temp2;
+	}
+
 	/**
 	 * Checks if the given value of the given domain is contained in atleast on
 	 * of the given batches. If yes, true is returned.
