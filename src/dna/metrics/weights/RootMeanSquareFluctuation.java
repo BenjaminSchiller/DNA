@@ -24,6 +24,7 @@ import dna.series.data.nodevaluelists.NodeValueList;
 import dna.updates.batch.Batch;
 import dna.util.ArrayUtils;
 import dna.util.parameters.IntParameter;
+
 ;
 
 /**
@@ -52,6 +53,7 @@ public abstract class RootMeanSquareFluctuation extends Metric {
 
 	public RootMeanSquareFluctuation(String name, int steps) {
 		super(name, new IntParameter("steps", steps));
+		this.steps = steps;
 	}
 
 	@Override
