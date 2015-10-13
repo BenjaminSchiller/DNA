@@ -71,6 +71,10 @@ public abstract class PlotData {
 		return this.domain;
 	}
 
+	public String getTitle() {
+		return this.title;
+	}
+
 	public void setSortMode(PlottingSortMode sortMode) {
 		this.sortMode = sortMode;
 	}

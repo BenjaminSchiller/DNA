@@ -4,16 +4,21 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import dna.io.ZipReader;
 import dna.io.filesystem.Dir;
 import dna.io.filesystem.Files;
 import dna.io.filesystem.PlotFilenames;
+import dna.plot.PlottingConfig.ValueSortMode;
 import dna.plot.data.ExpressionData;
+import dna.plot.data.FunctionData;
 import dna.plot.data.PlotData;
 import dna.plot.data.PlotData.DistributionPlotType;
 import dna.plot.data.PlotData.NodeValueListOrder;
@@ -41,6 +46,9 @@ import dna.util.Log;
  * @date 05.11.2014
  */
 public class PlottingUtils {
+
+	// internally used delimiter
+	private static final String PLOTTING_UTILS_DELIMITER = "§§§";
 
 	/** Returns the first value inside the expression. **/
 	public static String getValueFromExpression(String expr) {
@@ -296,7 +304,8 @@ public class PlottingUtils {
 	public static void generateCustomPlots(ArrayList<PlotConfig> plotConfigs,
 			ArrayList<Plot> customPlots, String dstDir,
 			SeriesData[] seriesData, int[] indizes, IBatch[] initBatches,
-			PlotStyle style, PlotType type, HashMap<Long, Long> timestampMap)
+			PlotStyle style, PlotType type, ValueSortMode valueSortMode,
+			String[] valueSortList, HashMap<Long, Long> timestampMap)
 			throws IOException {
 		// check if aggregated batches
 		boolean aggregatedBatches = false;
@@ -407,6 +416,10 @@ public class PlottingUtils {
 				}
 			}
 
+			// sort
+			dataList = PlottingUtils.sortPlotDataList(dataList, valueSortMode,
+					valueSortList);
+
 			// transform datalist to array
 			PlotData[] data = dataList.toArray(new PlotData[0]);
 			String filename = config.getFilename();
@@ -449,6 +462,206 @@ public class PlottingUtils {
 	}
 
 	/**
+	 * Reorders the plot-data array according to the sort-mode and list.
+	 * 
+	 * Returns the sorted array.
+	 **/
+	private static PlotData[] sortPlotDataArray(PlotData[] dataArray,
+			ValueSortMode valueSortMode, String[] valueSortList) {
+		// convert to data list
+		ArrayList<PlotData> dataList = new ArrayList<PlotData>(
+				Arrays.asList(dataArray));
+
+		// sort list
+		dataList = PlottingUtils.sortPlotDataList(dataList, valueSortMode,
+				valueSortList);
+
+		// convert to array and return
+		return dataList.toArray(new PlotData[dataList.size()]);
+	}
+
+	/**
+	 * Reorders the plot-data list according to the sort-mode and list.
+	 * 
+	 * Returns the sorted list.
+	 **/
+	private static ArrayList<PlotData> sortPlotDataList(
+			ArrayList<PlotData> dataList, ValueSortMode valueSortMode,
+			String[] valueSortList) {
+		// if null or sortmode = NONE or dataList empty -> return
+		if (valueSortMode == null || valueSortMode.equals(ValueSortMode.NONE)
+				|| dataList.size() == 0)
+			return dataList;
+
+		// holds the indizes of all values
+		ArrayList<Integer> indexList = new ArrayList<Integer>();
+		for (int i = 0; i < dataList.size(); i++) {
+			indexList.add(i);
+		}
+
+		// will be filled sorted
+		ArrayList<PlotData> sortedList = new ArrayList<PlotData>(
+				dataList.size());
+
+		// different cases
+		if (valueSortMode.equals(ValueSortMode.LIST_FIRST)
+				|| valueSortMode
+						.equals(ValueSortMode.LIST_FIRST_THEN_ALPHABETICAL)) {
+			// search for entries in plotdata list
+			for (String entry : valueSortList) {
+				for (int i = 0; i < dataList.size(); i++) {
+					PlotData d = dataList.get(i);
+					String name = d.getName();
+					if (d instanceof ExpressionData) {
+						name = ((ExpressionData) d).getName().replace("$", "");
+					} else if (d instanceof FunctionData) {
+						name = ((FunctionData) d).getName();
+					}
+
+					// if found, add to list
+					if (name.equals(entry)) {
+						sortedList.add(d);
+						indexList.remove(indexList.indexOf(i));
+					}
+				}
+			}
+
+			// add normal objects last
+			if (valueSortMode
+					.equals(ValueSortMode.LIST_FIRST_THEN_ALPHABETICAL)) {
+				// sort alphabetical
+				Map<String, Integer> map = new HashMap<String, Integer>();
+				ArrayList<String> namesList = new ArrayList<String>();
+				for (int i = 0; i < indexList.size(); i++) {
+					int index = indexList.get(i);
+					PlotData d = dataList.get(index);
+					String name = d.getName();
+					if (d instanceof ExpressionData) {
+						name = ((ExpressionData) d).getName().replace("$", "");
+					} else if (d instanceof FunctionData) {
+						name = ((FunctionData) d).getName();
+					}
+
+					map.put(name + PLOTTING_UTILS_DELIMITER + d.getTitle(),
+							index);
+					namesList.add(name + PLOTTING_UTILS_DELIMITER
+							+ d.getTitle());
+				}
+
+				// sort
+				Collections.sort(namesList);
+
+				// get sorted indizes from map and add data to sorted list
+				for (String name : namesList) {
+					sortedList.add(dataList.get(map.get(name)));
+				}
+			} else {
+				for (int i = 0; i < indexList.size(); i++) {
+					sortedList.add(dataList.get(indexList.get(i)));
+				}
+			}
+
+			// return
+			return sortedList;
+		} else if (valueSortMode.equals(ValueSortMode.LIST_LAST)
+				|| valueSortMode
+						.equals(ValueSortMode.ALPHABETICAL_FIRST_THEN_LIST)) {
+			ArrayList<PlotData> tempList = new ArrayList<PlotData>();
+
+			// search for entries in plotdata list
+			for (String entry : valueSortList) {
+				for (int i = 0; i < dataList.size(); i++) {
+					PlotData d = dataList.get(i);
+					String name = d.getName();
+					if (d instanceof ExpressionData) {
+						name = ((ExpressionData) d).getName().replace("$", "");
+					} else if (d instanceof FunctionData) {
+						name = ((FunctionData) d).getName();
+					}
+
+					if (name.equals(entry)) {
+						tempList.add(d);
+						indexList.remove(indexList.indexOf(i));
+					}
+				}
+			}
+
+			if (valueSortMode
+					.equals(ValueSortMode.ALPHABETICAL_FIRST_THEN_LIST)) {
+				// sort alphabetical
+				Map<String, Integer> map = new HashMap<String, Integer>();
+				ArrayList<String> namesList = new ArrayList<String>();
+				for (int i = 0; i < indexList.size(); i++) {
+					int index = indexList.get(i);
+					PlotData d = dataList.get(index);
+					String name = d.getName();
+					if (d instanceof ExpressionData) {
+						name = ((ExpressionData) d).getName().replace("$", "");
+					} else if (d instanceof FunctionData) {
+						name = ((FunctionData) d).getName();
+					}
+
+					map.put(name + PLOTTING_UTILS_DELIMITER + d.getTitle(),
+							index);
+					namesList.add(name + PLOTTING_UTILS_DELIMITER
+							+ d.getTitle());
+				}
+
+				// sort
+				Collections.sort(namesList);
+
+				// get sorted indizes from map and add data to sorted list
+				for (String name : namesList) {
+					sortedList.add(dataList.get(map.get(name)));
+				}
+			} else {
+				// add normal objects first
+				for (int i = 0; i < indexList.size(); i++) {
+					sortedList.add(dataList.get(indexList.get(i)));
+				}
+			}
+
+			// add list objects last
+			for (int i = 0; i < tempList.size(); i++) {
+				sortedList.add(tempList.get(i));
+			}
+
+			// return
+			return sortedList;
+		} else if (valueSortMode.equals(ValueSortMode.ALPHABETICAL)) {
+			// sort alphabetical
+			Map<String, Integer> map = new HashMap<String, Integer>();
+			ArrayList<String> namesList = new ArrayList<String>();
+			for (int i = 0; i < dataList.size(); i++) {
+				PlotData d = dataList.get(i);
+				String name = d.getName();
+				if (d instanceof ExpressionData) {
+					name = ((ExpressionData) d).getName().replace("$", "");
+				} else if (d instanceof FunctionData) {
+					name = ((FunctionData) d).getName();
+				}
+
+				map.put(name + PLOTTING_UTILS_DELIMITER + d.getTitle(), i);
+				namesList.add(name + PLOTTING_UTILS_DELIMITER + d.getTitle());
+			}
+
+			// sort
+			Collections.sort(namesList);
+
+			// get sorted indizes from map and add data to sorted list
+			for (String name : namesList) {
+				sortedList.add(dataList.get(map.get(name)));
+			}
+
+			// return
+			return sortedList;
+		}
+
+		// default, return without sorting
+		return dataList;
+	}
+
+	/**
 	 * Generates default plots for the given SeriesData objects and adds them to
 	 * the Plot list.
 	 * 
@@ -480,7 +693,8 @@ public class PlottingUtils {
 			ArrayList<Plot> plotList, String dstDir, SeriesData[] seriesData,
 			int[] indizes, IBatch[] initBatches, boolean plotStatistics,
 			boolean plotMetricValues, boolean plotRuntimes, PlotStyle style,
-			PlotType type, ArrayList<PlotConfig> customMetricValuePlots,
+			PlotType type, ValueSortMode valueSortMode, String[] valueSortList,
+			ArrayList<PlotConfig> customMetricValuePlots,
 			ArrayList<PlotConfig> customValuePlots,
 			HashMap<Long, Long> timestampMap) throws IOException {
 		boolean aggregatedBatches = false;
@@ -702,7 +916,8 @@ public class PlottingUtils {
 			Plot p = new Plot(dstDir,
 					PlotFilenames.getRuntimesMultiSeriesGnuplotFile(runtime),
 					PlotFilenames.getRuntimesMultiSeriesGnuplotScript(runtime),
-					runtime, data);
+					runtime, PlottingUtils.sortPlotDataArray(data,
+							valueSortMode, valueSortList));
 
 			// set quantities
 			p.setSeriesDataQuantities(seriesDataQuantities);
@@ -752,7 +967,8 @@ public class PlottingUtils {
 			Plot p = new Plot(dstDir,
 					PlotFilenames.getRuntimesMultiSeriesGnuplotFile(runtime),
 					PlotFilenames.getRuntimesMultiSeriesGnuplotScript(runtime),
-					runtime, data);
+					runtime, PlottingUtils.sortPlotDataArray(data,
+							valueSortMode, valueSortList));
 
 			// set timestamp mapping
 			p.setTimestampMap(timestampMap);
@@ -871,7 +1087,8 @@ public class PlottingUtils {
 			// create plot
 			Plot p = new Plot(dstDir, PlotFilenames.getValuesPlot(value),
 					PlotFilenames.getValuesGnuplotScript(value), plotTitle,
-					valuePlotData);
+					PlottingUtils.sortPlotDataArray(valuePlotData,
+							valueSortMode, valueSortList));
 
 			// set timestamp mapping
 			p.setTimestampMap(timestampMap);
@@ -1011,6 +1228,10 @@ public class PlottingUtils {
 						}
 					}
 				}
+
+				// sort
+				lines = PlottingUtils.sortPlotDataList(lines, valueSortMode,
+						valueSortList);
 
 				// creeate plot
 				PlotData[] data = lines.toArray(new PlotData[0]);
@@ -1793,6 +2014,7 @@ public class PlottingUtils {
 	public static void plotCustomValuePlots(IBatch[] batchData,
 			ArrayList<PlotConfig> customValuePlots, String dstDir,
 			String title, PlotStyle style, PlotType type,
+			ValueSortMode valueSortMode, String[] valueSortList,
 			HashMap<Long, Long> timestampMap) throws IOException,
 			InterruptedException {
 		// check if aggregated batches
@@ -1879,7 +2101,9 @@ public class PlottingUtils {
 				// create plot
 				Plot p = new Plot(dstDir, filename,
 						PlotFilenames.getValuesGnuplotScript(filename), name
-								+ aggAddition, pc, data);
+								+ aggAddition, pc,
+						PlottingUtils.sortPlotDataArray(data, valueSortMode,
+								valueSortList));
 
 				// set timestamp mapping
 				p.setTimestampMap(timestampMap);
@@ -1901,7 +2125,9 @@ public class PlottingUtils {
 				Plot p = new Plot(dstDir,
 						PlotFilenames.getValuesPlotCDF(filename),
 						PlotFilenames.getValuesGnuplotScriptCDF(filename), name
-								+ aggAddition, pc, data);
+								+ aggAddition, pc,
+						PlottingUtils.sortPlotDataArray(data, valueSortMode,
+								valueSortList));
 
 				// set timestamp mapping
 				p.setTimestampMap(timestampMap);
@@ -1925,7 +2151,8 @@ public class PlottingUtils {
 	/** Plot custom runtime plots **/
 	public static void plotCustomRuntimes(IBatch[] batchData,
 			ArrayList<PlotConfig> customPlots, String dstDir, String title,
-			PlotStyle style, PlotType type, HashMap<Long, Long> timestampMap)
+			PlotStyle style, PlotType type, ValueSortMode valueSortMode,
+			String[] valueSortList, HashMap<Long, Long> timestampMap)
 			throws IOException, InterruptedException {
 		Log.infoSep();
 		Log.info("Plotting Custom-Runtime-Plots:");
@@ -2015,7 +2242,9 @@ public class PlottingUtils {
 				// create plot
 				Plot p = new Plot(dstDir, plotFilename,
 						PlotFilenames.getRuntimesGnuplotScript(plotFilename),
-						name + aggAddition, pc, plotData);
+						name + aggAddition, pc,
+						PlottingUtils.sortPlotDataArray(plotData,
+								valueSortMode, valueSortList));
 
 				// set timestamp mapping
 				p.setTimestampMap(timestampMap);
@@ -2038,7 +2267,9 @@ public class PlottingUtils {
 						dstDir,
 						PlotFilenames.getRuntimesPlotFileCDF(plotFilename),
 						PlotFilenames.getRuntimesGnuplotScriptCDF(plotFilename),
-						"CDF of " + name + aggAddition, pc, plotData);
+						"CDF of " + name + aggAddition, pc, PlottingUtils
+								.sortPlotDataArray(plotData, valueSortMode,
+										valueSortList));
 
 				// set timestamp mapping
 				p.setTimestampMap(timestampMap);
@@ -2063,6 +2294,7 @@ public class PlottingUtils {
 	/** Plots metric values **/
 	public static void plotMetricValues(IBatch[] batchData, IBatch initBatch,
 			String dstDir, String title, PlotStyle style, PlotType type,
+			ValueSortMode valueSortMode, String[] valueSortList,
 			ArrayList<PlotConfig> customMetricValuePlots,
 			ArrayList<PlotConfig> customValuePlots,
 			HashMap<Long, Long> timestampMap) throws IOException,
@@ -2167,7 +2399,9 @@ public class PlottingUtils {
 				Plot p = new Plot(dstDir, PlotFilenames.getValuesPlot(metric,
 						value), PlotFilenames.getValuesGnuplotScript(metric,
 						value), value + aggAddition,
-						new PlotData[] { valuePlotData });
+						PlottingUtils.sortPlotDataArray(
+								new PlotData[] { valuePlotData },
+								valueSortMode, valueSortList));
 
 				// set timestamp mapping
 				p.setTimestampMap(timestampMap);
@@ -2238,7 +2472,8 @@ public class PlottingUtils {
 				Plot p = new Plot(dstDir,
 						PlotFilenames.getCombinationPlot(value),
 						PlotFilenames.getCombinationGnuplotScript(value), value
-								+ aggAddition, valuePlotDatas);
+								+ aggAddition, PlottingUtils.sortPlotDataArray(
+								valuePlotDatas, valueSortMode, valueSortList));
 
 				// set timestamp mapping
 				p.setTimestampMap(timestampMap);
@@ -2272,7 +2507,8 @@ public class PlottingUtils {
 			ArrayList<PlotConfig> customNodeValueListPlots,
 			boolean zippedBatches, boolean zippedRuns,
 			DistributionPlotType distPlotType, NodeValueListOrder order,
-			NodeValueListOrderBy orderBy, PlotType type, PlotStyle style)
+			NodeValueListOrderBy orderBy, PlotType type, PlotStyle style,
+			ValueSortMode valueSortMode, String[] valueSortList)
 			throws IOException, InterruptedException {
 		Log.infoSep();
 
@@ -3692,7 +3928,8 @@ public class PlottingUtils {
 			boolean plotCustomValues, ArrayList<PlotConfig> customValuePlots,
 			boolean plotRuntimes, ArrayList<PlotConfig> customRuntimePlots,
 			boolean zippedBatches, boolean zippedRuns, PlotType type,
-			PlotStyle style, HashMap<Long, Long> timestampMap)
+			PlotStyle style, ValueSortMode valueSortMode,
+			String[] valueSortList, HashMap<Long, Long> timestampMap)
 			throws IOException, InterruptedException {
 		boolean aggregatedBatches = false;
 		if (initBatches instanceof AggregatedBatch[])
@@ -3710,7 +3947,7 @@ public class PlottingUtils {
 			// generate plots and add to customPlot List
 			PlottingUtils.generateCustomPlots(customStatisticPlots, plots,
 					dstDir, seriesData, indizes, initBatches, style, type,
-					timestampMap);
+					valueSortMode, valueSortList, timestampMap);
 		}
 
 		// generate custom metric value plots
@@ -3721,7 +3958,7 @@ public class PlottingUtils {
 			// generate plots and add to customPlot List
 			PlottingUtils.generateCustomPlots(customMetricValuePlots, plots,
 					dstDir, seriesData, indizes, initBatches, style, type,
-					timestampMap);
+					valueSortMode, valueSortList, timestampMap);
 		}
 
 		// generate custom value plots
@@ -3730,10 +3967,9 @@ public class PlottingUtils {
 				Log.info("Plotting custom value plots:");
 
 			// generate plots and add to customPlot list
-			PlottingUtils
-					.generateCustomPlots(customValuePlots, plots, dstDir,
-							seriesData, indizes, initBatches, style, type,
-							timestampMap);
+			PlottingUtils.generateCustomPlots(customValuePlots, plots, dstDir,
+					seriesData, indizes, initBatches, style, type,
+					valueSortMode, valueSortList, timestampMap);
 		}
 
 		// generate runtime plots
@@ -3744,15 +3980,17 @@ public class PlottingUtils {
 			// generate plots and add to customPlot List
 			PlottingUtils.generateCustomPlots(customRuntimePlots, plots,
 					dstDir, seriesData, indizes, initBatches, style, type,
-					timestampMap);
+					valueSortMode, valueSortList, timestampMap);
 		}
 
 		// default plots
-		if (Config.getBoolean("DEFAULT_PLOTS_ENABLED"))
+		if (Config.getBoolean("DEFAULT_PLOTS_ENABLED")) {
 			PlottingUtils.generateMultiSeriesDefaultPlots(defaultPlots, dstDir,
 					seriesData, indizes, initBatches, plotStatistics,
-					plotMetricValues, plotRuntimes, style, type,
-					customMetricValuePlots, customValuePlots, timestampMap);
+					plotMetricValues, plotRuntimes, style, type, valueSortMode,
+					valueSortList, customMetricValuePlots, customValuePlots,
+					timestampMap);
+		}
 
 		// write script headers
 		for (Plot p : plots)

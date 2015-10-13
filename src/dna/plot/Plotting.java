@@ -6,6 +6,7 @@ import java.util.ArrayList;
 
 import dna.io.filesystem.Dir;
 import dna.plot.PlottingConfig.PlotFlag;
+import dna.plot.PlottingConfig.ValueSortMode;
 import dna.plot.data.PlotData.DistributionPlotType;
 import dna.plot.data.PlotData.NodeValueListOrder;
 import dna.plot.data.PlotData.NodeValueListOrderBy;
@@ -113,6 +114,8 @@ public class Plotting {
 		boolean intervalByIndex = config.isIntervalByIndex();
 		PlotType type = config.getPlotType();
 		PlotStyle style = config.getPlotStyle();
+		ValueSortMode valueSortMode = config.getValueSortMode();
+		String[] valueSortList = config.getValueSortList();
 		NodeValueListOrder order = config.getNvlOrder();
 		NodeValueListOrderBy orderBy = config.getNvlOrderBy();
 		DistributionPlotType distPlotType = config.getDistPlotType();
@@ -211,7 +214,8 @@ public class Plotting {
 					config.getCustomMetricValuePlots(), plotCustomValues,
 					config.getCustomValuePlots(), plotRuntimes,
 					config.getCustomRuntimePlots(), zippedBatches, zippedRuns,
-					type, style, config.getTimestampMap());
+					type, style, valueSortMode, valueSortList,
+					config.getTimestampMap());
 
 		// plot distribution and nodevaluelist plots
 		if (plotDistributions || plotNodeValues)
@@ -220,7 +224,8 @@ public class Plotting {
 					seriesTimestamps, plotDistributions,
 					config.getCustomDistributionPlots(), plotNodeValues,
 					config.getCustomNodeValueListPlots(), zippedBatches,
-					zippedRuns, distPlotType, order, orderBy, type, style);
+					zippedRuns, distPlotType, order, orderBy, type, style,
+					valueSortMode, valueSortList);
 	}
 
 	/**
@@ -247,6 +252,8 @@ public class Plotting {
 		boolean intervalByIndex = config.isIntervalByIndex();
 		PlotType type = config.getPlotType();
 		PlotStyle style = config.getPlotStyle();
+		ValueSortMode valueSortMode = config.getValueSortMode();
+		String[] valueSortList = config.getValueSortList();
 		NodeValueListOrder order = config.getNvlOrder();
 		NodeValueListOrderBy orderBy = config.getNvlOrderBy();
 		DistributionPlotType distPlotType = config.getDistPlotType();
@@ -301,7 +308,8 @@ public class Plotting {
 					Log.info("Plotting Custom-Statistic-Plots:");
 					PlottingUtils.plotCustomValuePlots(batchData,
 							config.getCustomStatisticPlots(), dstDir, title,
-							style, type, config.getTimestampMap());
+							style, type, valueSortMode, valueSortList,
+							config.getTimestampMap());
 				}
 			}
 		}
@@ -312,7 +320,7 @@ public class Plotting {
 			Log.info("Plotting Custom-Value-Plots:");
 			PlottingUtils.plotCustomValuePlots(batchData,
 					config.getCustomValuePlots(), dstDir, title, style, type,
-					config.getTimestampMap());
+					valueSortMode, valueSortList, config.getTimestampMap());
 		}
 
 		// plot runtimes
@@ -320,13 +328,14 @@ public class Plotting {
 			// plot custom runtimes
 			PlottingUtils.plotCustomRuntimes(batchData,
 					config.getCustomRuntimePlots(), dstDir, title, style, type,
-					config.getTimestampMap());
+					valueSortMode, valueSortList, config.getTimestampMap());
 		}
 
 		// plot metric values
 		if (config.isPlotMetricValues()) {
 			PlottingUtils.plotMetricValues(batchData, initBatch, dstDir, title,
-					style, type, config.getCustomMetricValuePlots(),
+					style, type, valueSortMode, valueSortList,
+					config.getCustomMetricValuePlots(),
 					config.getCustomValuePlots(), config.getTimestampMap());
 
 			// plot custom metric value plots
@@ -336,7 +345,8 @@ public class Plotting {
 					Log.info("Plotting Custom-MetricValue-Plots:");
 					PlottingUtils.plotCustomValuePlots(batchData,
 							config.getCustomMetricValuePlots(), dstDir, title,
-							style, type, config.getTimestampMap());
+							style, type, valueSortMode, valueSortList,
+							config.getTimestampMap());
 				}
 			}
 		}
