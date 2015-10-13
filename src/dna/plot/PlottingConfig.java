@@ -21,9 +21,15 @@ import dna.util.Log;
  * @date 11.05.2014
  */
 public class PlottingConfig {
+	// enumeration for plotflags
 	public static enum PlotFlag {
 		plotAll, plotStatistics, plotRuntimes, plotMetricValues, plotMetricEntirely, plotDistributions, plotNodeValueLists, plotCustomValues, plotSingleScalarValues, plotMultiScalarValues
 	};
+
+	// enumeration for sorting
+	public enum ValueSortMode {
+		NONE, LIST_FIRST, LIST_LAST, LIST_FIRST_THEN_ALPHABETICAL, ALPHABETICAL_FIRST_THEN_LIST, ALPHABETICAL
+	}
 
 	// config
 	private PlotType plotType;
@@ -31,6 +37,9 @@ public class PlottingConfig {
 	private DistributionPlotType distPlotType;
 	private NodeValueListOrder nvlOrder;
 	private NodeValueListOrderBy nvlOrderBy;
+
+	private ValueSortMode valueSortMode;
+	private String[] valueSortList;
 
 	// combined metric runtimes plot
 	private ArrayList<String> generalRuntimes;
@@ -63,7 +72,8 @@ public class PlottingConfig {
 			long timestampFrom, long timestampTo, long stepsize,
 			HashMap<Long, Long> timestampMap,
 			DistributionPlotType distPlotType, NodeValueListOrder nvlOrder,
-			NodeValueListOrderBy nvlOrderBy, PlotFlag... flags) {
+			NodeValueListOrderBy nvlOrderBy, ValueSortMode valueSortMode,
+			String[] valueSortList, PlotFlag... flags) {
 		PlotFlag[] tempFlags;
 		if (flags.length == 0) {
 			Log.warn("Initializing PlottingConfig without flags, enabling ALL plots!");
@@ -87,6 +97,9 @@ public class PlottingConfig {
 		this.distPlotType = distPlotType;
 		this.nvlOrder = nvlOrder;
 		this.nvlOrderBy = nvlOrderBy;
+
+		this.valueSortMode = valueSortMode;
+		this.valueSortList = valueSortList;
 
 		this.generalRuntimes = new ArrayList<String>();
 		this.generalRuntimes.add("total");
@@ -167,6 +180,8 @@ public class PlottingConfig {
 				Config.getDistributionPlotType("GNUPLOT_DEFAULT_DIST_PLOTTYPE"),
 				Config.getNodeValueListOrder("GNUPLOT_DEFAULT_NVL_ORDER"),
 				Config.getNodeValueListOrderBy("GNUPLOT_DEFAULT_NVL_ORDERBY"),
+				Config.getValueSortMode("GNUPLOT_DEFAULT_VALUE_SORT_MODE"),
+				Config.keys("GNUPLOT_DEFAULT_VALUE_SORT_LIST"),
 				PlotFlag.plotAll);
 	}
 
@@ -181,7 +196,8 @@ public class PlottingConfig {
 				Config.getDistributionPlotType("GNUPLOT_DEFAULT_DIST_PLOTTYPE"),
 				Config.getNodeValueListOrder("GNUPLOT_DEFAULT_NVL_ORDER"),
 				Config.getNodeValueListOrderBy("GNUPLOT_DEFAULT_NVL_ORDERBY"),
-				flags);
+				Config.getValueSortMode("GNUPLOT_DEFAULT_VALUE_SORT_MODE"),
+				Config.keys("GNUPLOT_DEFAULT_VALUE_SORT_LIST"), flags);
 	}
 
 	// class methods
@@ -952,6 +968,22 @@ public class PlottingConfig {
 
 	public void setPlotStyle(PlotStyle plotStyle) {
 		this.plotStyle = plotStyle;
+	}
+
+	public ValueSortMode getValueSortMode() {
+		return valueSortMode;
+	}
+
+	public void setValueSortMode(ValueSortMode valueSortMode) {
+		this.valueSortMode = valueSortMode;
+	}
+
+	public String[] getValueSortList() {
+		return valueSortList;
+	}
+
+	public void setValueSortList(String[] valueSortList) {
+		this.valueSortList = valueSortList;
 	}
 
 	public DistributionPlotType getDistPlotType() {
