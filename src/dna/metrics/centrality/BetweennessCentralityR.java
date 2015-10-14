@@ -13,7 +13,7 @@ import dna.graph.nodes.DirectedNode;
 import dna.graph.nodes.Node;
 import dna.graph.nodes.UndirectedNode;
 import dna.metrics.algorithms.IRecomputation;
-import dna.series.data.distributions.BinnedDistributionDouble;
+import dna.series.data.distr2.BinnedDoubleDistr;
 import dna.series.data.nodevaluelists.NodeValueList;
 
 public class BetweennessCentralityR extends BetweennessCentrality implements
@@ -28,7 +28,7 @@ public class BetweennessCentralityR extends BetweennessCentrality implements
 
 		this.bCC = new NodeValueList("BC_Score",
 				new double[this.g.getMaxNodeIndex() + 1]);
-		this.binnedBC = new BinnedDistributionDouble("Normalized-BC", 0.01d);
+		this.binnedBC = new BinnedDoubleDistr("Normalized-BC", 0.01d);
 		this.bCSum = 0d;
 		this.sumShortestPaths = 0;
 

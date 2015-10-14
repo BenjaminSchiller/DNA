@@ -19,7 +19,7 @@ import dna.metrics.algorithms.IAfterEA;
 import dna.metrics.algorithms.IAfterER;
 import dna.metrics.algorithms.IAfterNA;
 import dna.metrics.algorithms.IAfterNR;
-import dna.series.data.distributions.BinnedDistributionDouble;
+import dna.series.data.distr2.BinnedDoubleDistr;
 import dna.series.data.nodevaluelists.NodeValueList;
 import dna.updates.update.EdgeAddition;
 import dna.updates.update.EdgeRemoval;
@@ -48,7 +48,7 @@ public class BetweennessCentralityU extends BetweennessCentrality implements
 	public boolean init() {
 		this.bCC = new NodeValueList("BC_Score",
 				new double[this.g.getMaxNodeIndex() + 1]);
-		this.binnedBC = new BinnedDistributionDouble("Normalized-BC", 0.01d);
+		this.binnedBC = new BinnedDoubleDistr("Normalized-BC", 0.01d);
 		this.bCSum = 0d;
 		this.sumShortestPaths = 0;
 

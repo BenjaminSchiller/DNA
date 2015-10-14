@@ -9,8 +9,8 @@ import dna.graph.nodes.Node;
 import dna.metrics.IMetric;
 import dna.metrics.Metric;
 import dna.series.data.Value;
-import dna.series.data.distributions.BinnedDistributionDouble;
-import dna.series.data.distributions.Distribution;
+import dna.series.data.distr2.BinnedDoubleDistr;
+import dna.series.data.distr2.Distr;
 import dna.series.data.nodevaluelists.NodeNodeValueList;
 import dna.series.data.nodevaluelists.NodeValueList;
 import dna.updates.batch.Batch;
@@ -22,7 +22,7 @@ public abstract class BetweennessCentrality extends Metric implements IMetric {
 	protected NodeValueList bCC;
 	protected double bCSum;
 
-	protected BinnedDistributionDouble binnedBC;
+	protected BinnedDoubleDistr binnedBC;
 	protected int sumShortestPaths;
 
 	public BetweennessCentrality(String name) {
@@ -50,9 +50,9 @@ public abstract class BetweennessCentrality extends Metric implements IMetric {
 	}
 
 	@Override
-	public Distribution[] getDistributions() {
+	public Distr<?, ?>[] getDistributions() {
 		computeBinnedBC();
-		return new Distribution[] { binnedBC };
+		return new Distr<?, ?>[] { binnedBC };
 
 	}
 
