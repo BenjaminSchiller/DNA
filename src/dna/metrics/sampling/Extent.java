@@ -4,7 +4,7 @@ import dna.graph.Graph;
 import dna.metrics.IMetric;
 import dna.metrics.Metric;
 import dna.series.data.Value;
-import dna.series.data.distributions.Distribution;
+import dna.series.data.distr2.Distr;
 import dna.series.data.nodevaluelists.NodeNodeValueList;
 import dna.series.data.nodevaluelists.NodeValueList;
 import dna.updates.batch.Batch;
@@ -43,8 +43,8 @@ public abstract class Extent extends Metric {
 	}
 
 	@Override
-	public Distribution[] getDistributions() {
-		return new Distribution[] {};
+	public Distr<?, ?>[] getDistributions() {
+		return new Distr<?, ?>[] {};
 	}
 
 	@Override
