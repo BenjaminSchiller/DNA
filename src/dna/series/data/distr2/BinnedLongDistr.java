@@ -1,5 +1,6 @@
 package dna.series.data.distr2;
 
+
 public class BinnedLongDistr extends BinnedDistr<Long> {
 
 	public BinnedLongDistr(String name) {
@@ -10,7 +11,8 @@ public class BinnedLongDistr extends BinnedDistr<Long> {
 		super(name, binSize);
 	}
 
-	public BinnedLongDistr(String name, Long binSize, long[] values, long denominator) {
+	public BinnedLongDistr(String name, Long binSize, long[] values,
+			long denominator) {
 		super(name, binSize, values, denominator);
 	}
 
@@ -36,6 +38,11 @@ public class BinnedLongDistr extends BinnedDistr<Long> {
 		} else {
 			return new Long[] { (index - 1) * binSize, index * binSize };
 		}
+	}
+
+	@Override
+	public DistrType getDistrType() {
+		return DistrType.BINNED_LONG;
 	}
 
 	/**

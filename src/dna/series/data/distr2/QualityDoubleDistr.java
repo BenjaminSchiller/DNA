@@ -1,5 +1,6 @@
 package dna.series.data.distr2;
 
+
 public class QualityDoubleDistr extends QualityDistr<Double> {
 
 	public QualityDoubleDistr(String name) {
@@ -20,6 +21,11 @@ public class QualityDoubleDistr extends QualityDistr<Double> {
 
 	public QualityDoubleDistr(String name, String binSize, double[] values) {
 		super(name, Double.parseDouble(binSize), values);
+	}
+
+	@Override
+	public DistrType getDistrType() {
+		return DistrType.QUALITY_DOUBLE;
 	}
 
 }

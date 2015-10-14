@@ -19,7 +19,8 @@ public class BinnedIntDistr extends BinnedDistr<Integer> {
 		super(name, Integer.parseInt(binSize));
 	}
 
-	public BinnedIntDistr(String name, String binSize, long[] values, long denominator) {
+	public BinnedIntDistr(String name, String binSize, long[] values,
+			long denominator) {
 		super(name, Integer.parseInt(binSize), values, denominator);
 	}
 
@@ -36,6 +37,11 @@ public class BinnedIntDistr extends BinnedDistr<Integer> {
 		} else {
 			return new Integer[] { (index - 1) * binSize, index * binSize };
 		}
+	}
+
+	@Override
+	public DistrType getDistrType() {
+		return DistrType.BINNED_INT;
 	}
 
 	/**

@@ -1,5 +1,6 @@
 package dna.series.data.distr2;
 
+
 public class QualityIntDistr extends QualityDistr<Integer> {
 
 	public QualityIntDistr(String name) {
@@ -22,4 +23,8 @@ public class QualityIntDistr extends QualityDistr<Integer> {
 		super(name, Integer.parseInt(binSize), values);
 	}
 
+	@Override
+	public DistrType getDistrType() {
+		return DistrType.QUALITY_INT;
+	}
 }

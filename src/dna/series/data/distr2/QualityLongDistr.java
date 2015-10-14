@@ -22,4 +22,8 @@ public class QualityLongDistr extends QualityDistr<Long> {
 		super(name, Long.parseLong(binSize), values);
 	}
 
+	@Override
+	public DistrType getDistrType() {
+		return DistrType.QUALITY_LONG;
+	}
 }

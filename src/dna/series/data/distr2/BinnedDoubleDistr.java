@@ -38,6 +38,11 @@ public class BinnedDoubleDistr extends BinnedDistr<Double> {
 		}
 	}
 
+	@Override
+	public DistrType getDistrType() {
+		return DistrType.BINNED_DOUBLE;
+	}
+
 	/**
 	 * note that this average is computed with each call of this function. also
 	 * note that this is NOT the correct and actual average of the values used
