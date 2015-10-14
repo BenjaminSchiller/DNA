@@ -13,8 +13,8 @@ import dna.graph.nodes.Node;
 import dna.graph.nodes.UndirectedNode;
 import dna.metrics.Metric;
 import dna.series.data.Value;
-import dna.series.data.distributions.Distribution;
-import dna.series.data.distributions.DistributionInt;
+import dna.series.data.distr.Distr;
+import dna.series.data.distr.IntDistr;
 import dna.series.data.nodevaluelists.NodeNodeValueList;
 import dna.series.data.nodevaluelists.NodeValueList;
 import dna.updates.batch.Batch;
@@ -188,20 +188,20 @@ public abstract class Connectivity extends MetricOld {
 	}
 
 	@Override
-	public Distribution[] getDistributions() {
+	public Distr<?>[] getDistributions() {
 		ConnectedComponent[] c = new ConnectedComponent[this.components.size()];
 		int index = 0;
 		for (ConnectedComponent comp : this.components) {
 			c[index++] = comp;
 		}
 		Arrays.sort(c);
-		int[] v = new int[c.length];
+		long[] v = new long[c.length];
 		for (int i = 0; i < c.length; i++) {
 			v[i] = c[i].getSize();
 		}
-		DistributionInt d = new DistributionInt("Components", v,
-				this.g.getNodeCount());
-		return new Distribution[] { d };
+		IntDistr d = new IntDistr("Components", Long.valueOf(this.g
+				.getNodeCount()), v);
+		return new Distr<?>[] { d };
 	}
 
 	@Override
@@ -221,10 +221,8 @@ public abstract class Connectivity extends MetricOld {
 		}
 		Connectivity c = (Connectivity) m;
 		boolean success = true;
-		success &= ArrayUtils.equals(
-				((DistributionInt) this.getDistributions()[0]).getValues(),
-				((DistributionInt) c.getDistributions()[0]).getValues(),
-				"Connectivity.Components");
+		success &= ArrayUtils.equals(this.getDistributions()[0].getValues(),
+				c.getDistributions()[0].getValues(), "Connectivity.Components");
 		return success;
 	}
 
