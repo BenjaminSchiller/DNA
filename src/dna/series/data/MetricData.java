@@ -5,7 +5,7 @@ import java.io.IOException;
 import dna.io.filesystem.Files;
 import dna.metrics.IMetric;
 import dna.series.aggdata.AggregatedBatch.BatchReadMode;
-import dna.series.data.distr.Distr;
+import dna.series.data.distr2.Distr;
 import dna.series.data.nodevaluelists.NodeNodeValueList;
 import dna.series.data.nodevaluelists.NodeValueList;
 import dna.series.lists.DistributionList;
@@ -66,12 +66,12 @@ public class MetricData implements ListItem {
 	}
 
 	public MetricData(String name, IMetric.MetricType type, Value[] values,
-			Distr<?>[] distributions) {
+			Distr<?, ?>[] distributions) {
 		this(name, type, values.length, distributions.length);
 		for (Value v : values) {
 			this.values.add(v);
 		}
-		for (Distr<?> d : distributions) {
+		for (Distr<?, ?> d : distributions) {
 			this.distributions.add(d);
 		}
 		this.nodevalues = new NodeValueListList();
@@ -79,12 +79,12 @@ public class MetricData implements ListItem {
 	}
 
 	public MetricData(String name, IMetric.MetricType type, Value[] values,
-			Distr<?>[] distributions, NodeValueList[] nodevalues) {
+			Distr<?, ?>[] distributions, NodeValueList[] nodevalues) {
 		this(name, type, values.length, distributions.length, nodevalues.length);
 		for (Value v : values) {
 			this.values.add(v);
 		}
-		for (Distr<?> d : distributions) {
+		for (Distr<?, ?> d : distributions) {
 			this.distributions.add(d);
 		}
 		for (NodeValueList n : nodevalues) {
@@ -94,13 +94,13 @@ public class MetricData implements ListItem {
 	}
 
 	public MetricData(String name, IMetric.MetricType type, Value[] values,
-			Distr<?>[] distributions, NodeValueList[] nodevalues,
+			Distr<?, ?>[] distributions, NodeValueList[] nodevalues,
 			NodeNodeValueList[] nodenodevalues) {
 		this(name, type, values.length, distributions.length, nodevalues.length);
 		for (Value v : values) {
 			this.values.add(v);
 		}
-		for (Distr<?> d : distributions) {
+		for (Distr<?, ?> d : distributions) {
 			this.distributions.add(d);
 		}
 		for (NodeValueList n : nodevalues) {
@@ -495,7 +495,7 @@ public class MetricData implements ListItem {
 	 * quality distribution to the distribution-list.
 	 **/
 	private static void compareDistributionsAndAddToList(DistributionList list,
-			Distr<?> d1, Distr<?> d2) {
+			Distr<?, ?> d1, Distr<?, ?> d2) {
 		// compare
 		if (d1.getDistrType().equals(d2.getDistrType()))
 			Distr.compareDistributionsAndAddToList(list, d1, d2);
