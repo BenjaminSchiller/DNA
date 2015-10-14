@@ -3,17 +3,17 @@ package dna.series.lists;
 import java.io.IOException;
 
 import dna.io.filesystem.Files;
-import dna.series.data.distributions.BinnedDistributionDouble;
-import dna.series.data.distributions.BinnedDistributionInt;
-import dna.series.data.distributions.BinnedDistributionLong;
-import dna.series.data.distributions.Distribution;
-import dna.series.data.distributions.DistributionDouble;
-import dna.series.data.distributions.DistributionInt;
-import dna.series.data.distributions.DistributionLong;
-import dna.util.Config;
-import dna.util.Log;
+import dna.series.data.distr.BinnedDistr;
+import dna.series.data.distr.BinnedDoubleDistr;
+import dna.series.data.distr.BinnedIntDistr;
+import dna.series.data.distr.BinnedLongDistr;
+import dna.series.data.distr.Distr;
+import dna.series.data.distr.Distr.DistrType;
+import dna.series.data.distr.DoubleDistr;
+import dna.series.data.distr.IntDistr;
+import dna.series.data.distr.LongDistr;
 
-public class DistributionList extends List<Distribution> {
+public class DistributionList extends List<Distr<?>> {
 	public DistributionList() {
 		super();
 	}
@@ -23,31 +23,31 @@ public class DistributionList extends List<Distribution> {
 	}
 
 	public void write(String dir) throws IOException {
-		for (Distribution d : this.getList()) {
-			if (d instanceof DistributionInt) {
-				if (d instanceof BinnedDistributionInt)
-					((BinnedDistributionInt) d)
-							.write(dir, Files
-									.getDistributionBinnedIntFilename(d
-											.getName()));
-				else if (d instanceof BinnedDistributionDouble)
-					((BinnedDistributionDouble) d).write(dir, Files
-							.getDistributionBinnedDoubleFilename(d.getName()));
-				else
-					((DistributionInt) d).write(dir,
-							Files.getDistributionIntFilename(d.getName()));
-			}
-			if (d instanceof DistributionLong) {
-				if (d instanceof BinnedDistributionLong)
-					((BinnedDistributionLong) d).write(dir, Files
-							.getDistributionBinnedLongFilename(d.getName()));
-				else
-					((DistributionLong) d).write(dir,
-							Files.getDistributionLongFilename(d.getName()));
-			}
-			if (d instanceof DistributionDouble) {
-				((DistributionDouble) d).write(dir,
-						Files.getDistributionDoubleFilename(d.getName()));
+		for (Distr<?> d : this.getList()) {
+			DistrType type = d.getDistrType();
+			String filename = Files.getDistributionFilename(d.getName(), type);
+			switch (type) {
+			case BINNED_DOUBLE:
+				((BinnedDoubleDistr) d).write(dir, filename);
+				break;
+			case BINNED_INT:
+				((BinnedIntDistr) d).write(dir, filename);
+				break;
+			case BINNED_LONG:
+				((BinnedLongDistr) d).write(dir, filename);
+				break;
+			case DOUBLE:
+				((DoubleDistr) d).write(dir, filename);
+				break;
+			case INT:
+				((IntDistr) d).write(dir, filename);
+				break;
+			case LONG:
+				((LongDistr) d).write(dir, filename);
+				break;
+			default:
+				d.write(dir, filename);
+				break;
 			}
 		}
 	}
@@ -60,55 +60,45 @@ public class DistributionList extends List<Distribution> {
 
 		DistributionList list = new DistributionList(distributions.length);
 
-		for (String distribution : distributions) {
-			String[] temp = distribution.split("\\"
-					+ Config.get("FILE_NAME_DELIMITER"));
-			try {
-				if ((Config.get("FILE_NAME_DELIMITER") + temp[temp.length - 1])
-						.equals(Config.get("SUFFIX_DIST_INT")))
-					list.add(DistributionInt.read(dir,
-							Files.getDistributionIntFilename(temp[0]), temp[0],
-							readValues));
-				if ((Config.get("FILE_NAME_DELIMITER") + temp[temp.length - 1])
-						.equals(Config.get("SUFFIX_DIST_LONG")))
-					list.add(DistributionLong.read(dir,
-							Files.getDistributionLongFilename(temp[0]),
-							temp[0], readValues));
-				if ((Config.get("FILE_NAME_DELIMITER") + temp[temp.length - 1])
-						.equals(Config.get("SUFFIX_DIST_DOUBLE"))) {
-					list.add(DistributionDouble.read(dir,
-							Files.getDistributionDoubleFilename(temp[0]),
-							temp[0], readValues));
-				}
-				if ((Config.get("FILE_NAME_DELIMITER") + temp[temp.length - 1])
-						.equals(Config.get("SUFFIX_DIST"))) {
-					list.add(DistributionDouble.read(dir,
-							Files.getDistributionFilename(temp[0]), temp[0],
-							readValues));
-				}
-				if ((Config.get("FILE_NAME_DELIMITER") + temp[temp.length - 1])
-						.equals(Config.get("SUFFIX_DIST_BINNED_INT"))) {
-					list.add(BinnedDistributionInt.read(dir,
-							Files.getDistributionBinnedIntFilename(temp[0]),
-							temp[0], readValues));
-				}
-				if ((Config.get("FILE_NAME_DELIMITER") + temp[temp.length - 1])
-						.equals(Config.get("SUFFIX_DIST_BINNED_LONG"))) {
-					list.add(BinnedDistributionLong.read(dir,
-							Files.getDistributionBinnedLongFilename(temp[0]),
-							temp[0], readValues));
-				}
-				if ((Config.get("FILE_NAME_DELIMITER") + temp[temp.length - 1])
-						.equals(Config.get("SUFFIX_DIST_BINNED_DOUBLE"))) {
-					list.add(BinnedDistributionDouble.read(dir,
-							Files.getDistributionBinnedDoubleFilename(temp[0]),
-							temp[0], readValues));
-				}
-			} catch (IndexOutOfBoundsException e) {
-				Log.warn("Attempting to read distribution " + distribution
-						+ " at " + dir + " ! No datastructure detected!");
+		for (String dist : distributions) {
+			DistrType type = Files.getDistributionTypeFromFilename(dist);
+			Class<? extends Distr<?>> c;
+			switch (type) {
+			case BINNED_DOUBLE:
+				c = BinnedDoubleDistr.class;
+				break;
+			case BINNED_INT:
+				c = BinnedIntDistr.class;
+				break;
+			case BINNED_LONG:
+				c = BinnedLongDistr.class;
+				break;
+			case DOUBLE:
+				c = DoubleDistr.class;
+				break;
+			case INT:
+				c = IntDistr.class;
+				break;
+			case LONG:
+				c = LongDistr.class;
+				break;
+			default:
+				c = null;
+				break;
+			}
+
+			if (type.equals(DistrType.DOUBLE) || type.equals(DistrType.INT)
+					|| type.equals(DistrType.LONG)) {
+				list.add(Distr.read(dir, dist,
+						Files.getDistributionNameFromFilename(dist, type),
+						readValues, c));
+			} else {
+				list.add(BinnedDistr.read(dir, dist,
+						Files.getDistributionNameFromFilename(dist, type),
+						readValues, c));
 			}
 		}
+
 		return list;
 	}
 }

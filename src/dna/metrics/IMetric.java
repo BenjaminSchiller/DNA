@@ -3,7 +3,7 @@ package dna.metrics;
 import dna.graph.Graph;
 import dna.series.data.MetricData;
 import dna.series.data.Value;
-import dna.series.data.distributions.Distribution;
+import dna.series.data.distr.Distr;
 import dna.series.data.nodevaluelists.NodeNodeValueList;
 import dna.series.data.nodevaluelists.NodeValueList;
 import dna.updates.batch.Batch;
@@ -47,7 +47,7 @@ public interface IMetric {
 	 * 
 	 * @return all the distributions computed by this metric
 	 */
-	public Distribution[] getDistributions();
+	public Distr<?>[] getDistributions();
 
 	/**
 	 * 

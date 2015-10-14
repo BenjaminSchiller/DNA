@@ -9,13 +9,7 @@ import dna.io.filesystem.Dir;
 import dna.io.filesystem.Files;
 import dna.plot.PlottingUtils;
 import dna.series.aggdata.AggregatedBatch.BatchReadMode;
-import dna.series.data.distributions.BinnedDistributionDouble;
-import dna.series.data.distributions.BinnedDistributionInt;
-import dna.series.data.distributions.BinnedDistributionLong;
-import dna.series.data.distributions.Distribution;
-import dna.series.data.distributions.DistributionDouble;
-import dna.series.data.distributions.DistributionInt;
-import dna.series.data.distributions.DistributionLong;
+import dna.series.data.distr.Distr;
 import dna.series.data.nodevaluelists.NodeNodeValueList;
 import dna.series.data.nodevaluelists.NodeValueList;
 import dna.series.lists.DistributionList;
@@ -368,40 +362,14 @@ public class BatchData implements IBatch {
 					.getNodeNodeValues().size());
 
 			// read distributions
-			for (Distribution d : m.getDistributions().getList()) {
-				if (d instanceof DistributionInt) {
-					if (d instanceof BinnedDistributionInt) {
-						mDistributions.add(BinnedDistributionInt.read(mDir,
-								Files.getDistributionBinnedIntFilename(d
-										.getName()), d.getName(), true));
-					} else if (d instanceof BinnedDistributionDouble) {
-						mDistributions.add(BinnedDistributionDouble.read(mDir,
-								Files.getDistributionBinnedDoubleFilename(d
-										.getName()), d.getName(), true));
-					} else {
-						mDistributions.add(DistributionInt.read(mDir,
-								Files.getDistributionIntFilename(d.getName()),
-								d.getName(), true));
-					}
-				} else if (d instanceof DistributionDouble) {
-					mDistributions.add(DistributionDouble.read(mDir,
-							Files.getDistributionDoubleFilename(d.getName()),
-							d.getName(), true));
-				} else if (d instanceof DistributionLong) {
-					if (d instanceof BinnedDistributionLong) {
-						mDistributions.add(BinnedDistributionLong.read(mDir,
-								Files.getDistributionBinnedLongFilename(d
-										.getName()), d.getName(), true));
-					} else {
-						mDistributions.add(DistributionLong.read(mDir,
-								Files.getDistributionLongFilename(d.getName()),
-								d.getName(), true));
-					}
-				} else {
-					Log.error("Failed to read distribution " + d.getName()
-							+ " for metric " + m.getName() + " on dir " + dir);
-				}
+			for (Distr<?> d : m.getDistributions().getList()) {
+				mDistributions.add(Distr.read(
+						mDir,
+						Files.getDistributionFilename(d.getName(),
+								d.getDistrType()), d.getName(), true,
+						d.getClass()));
 			}
+
 			// read nodevaluelists
 			for (NodeValueList nvl : m.getNodeValues().getList()) {
 				mNodevalues.add(NodeValueList.read(mDir,

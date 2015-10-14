@@ -2,20 +2,19 @@ package dna.io.filesystem;
 
 import dna.series.Values;
 import dna.series.data.MetricData;
-import dna.series.data.distributions.Distribution;
+import dna.series.data.distr.Distr;
 import dna.series.data.nodevaluelists.NodeValueList;
 import dna.util.Config;
 
 public class PlotFilenames {
 
-	public static String getDistributionDataFile(MetricData m, Distribution d) {
+	public static String getDistributionDataFile(MetricData m, Distr<?> d) {
 		return Config.get("PREFIX_DIST_DATA_FILE") + m.getName()
 				+ Config.get("PLOT_DELIMITER") + d.getName()
 				+ Config.get("SUFFIX_DATA");
 	}
 
-	public static String getDistributionGnuplotScript(MetricData m,
-			Distribution d) {
+	public static String getDistributionGnuplotScript(MetricData m, Distr<?> d) {
 		return PlotFilenames.getDistributionGnuplotScript(m.getName(),
 				d.getName());
 	}
@@ -48,7 +47,7 @@ public class PlotFilenames {
 				+ Config.get("SUFFIX_GNUPLOT");
 	}
 
-	public static String getDistributionPlot(MetricData m, Distribution d) {
+	public static String getDistributionPlot(MetricData m, Distr d) {
 		return PlotFilenames.getDistributionPlot(m.getName(), d.getName());
 	}
 

@@ -422,4 +422,13 @@ public class Config extends PropertiesHolder {
 	public static void zipRuns() {
 		Config.overwrite("GENERATION_AS_ZIP", "runs");
 	}
+
+	public static boolean[] getExtraValueGenerationFlags() {
+		return new boolean[] { Config.getBoolean("GENERATE_DISTRIBUTION_MIN"),
+				Config.getBoolean("GENERATE_DISTRIBUTION_MAX"),
+				Config.getBoolean("GENERATE_DISTRIBUTION_MED"),
+				Config.getBoolean("GENERATE_DISTRIBUTION_AVG"),
+				Config.getBoolean("GENERATE_DISTRIBUTION_DENOMINATOR"),
+				Config.getBoolean("GENERATE_DISTRIBUTION_BINSIZE") };
+	}
 }
