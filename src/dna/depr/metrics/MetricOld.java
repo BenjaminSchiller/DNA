@@ -4,7 +4,7 @@ import dna.graph.Graph;
 import dna.metrics.Metric;
 import dna.series.data.MetricData;
 import dna.series.data.Value;
-import dna.series.data.distributions.Distribution;
+import dna.series.data.distr.Distr;
 import dna.series.data.nodevaluelists.NodeNodeValueList;
 import dna.series.data.nodevaluelists.NodeValueList;
 import dna.updates.batch.Batch;
@@ -46,16 +46,16 @@ public abstract class MetricOld extends ParameterList {
 		return this.type == ApplicationType.Recomputation;
 	}
 
-	public MetricOld(String name, ApplicationType type, Metric.MetricType metricType,
-			Parameter... p) {
+	public MetricOld(String name, ApplicationType type,
+			Metric.MetricType metricType, Parameter... p) {
 		super(name, p);
 		this.type = type;
 		this.metricType = metricType;
 		this.timestamp = Long.MIN_VALUE;
 	}
 
-	public MetricOld(String name, ApplicationType type, Metric.MetricType metricType,
-			Parameter[] params, Parameter... p) {
+	public MetricOld(String name, ApplicationType type,
+			Metric.MetricType metricType, Parameter[] params, Parameter... p) {
 		super(name, combine(params, p));
 		this.type = type;
 		this.metricType = metricType;
@@ -210,7 +210,7 @@ public abstract class MetricOld extends ParameterList {
 	 * 
 	 * @return all the distributions computed by this metric
 	 */
-	public abstract Distribution[] getDistributions();
+	public abstract Distr<?>[] getDistributions();
 
 	/**
 	 * 
