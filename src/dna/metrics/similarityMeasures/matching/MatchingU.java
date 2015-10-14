@@ -445,13 +445,13 @@ public class MatchingU extends Matching implements IBeforeUpdates,
 			if (computeDistributionWithoutMatrixDiagonal
 					.equals(ComputeDistributionWithoutMatrixDiagonal.USE_DIAGONAL)) {
 				if (this.matching.get(nodeToRemove, node) == null)
-					this.matchingD.decr(0);
+					this.matchingD.decr(0.0);
 				else
 					this.matchingD.decr(this.matching.get(nodeToRemove, node));
 			} else {
 				if (nodeToRemove.getIndex() != node.getIndex()) {
 					if (this.matching.get(nodeToRemove, node) == null)
-						this.matchingD.decr(0);
+						this.matchingD.decr(0.0);
 					else
 						this.matchingD.decr(this.matching.get(nodeToRemove,
 								node));
@@ -488,13 +488,13 @@ public class MatchingU extends Matching implements IBeforeUpdates,
 			if (computeDistributionWithoutMatrixDiagonal
 					.equals(ComputeDistributionWithoutMatrixDiagonal.USE_DIAGONAL)) {
 				if (this.matching.get(nodeToRemove, node) == null)
-					this.matchingD.decr(0);
+					this.matchingD.decr(0.0);
 				else
 					this.matchingD.decr(this.matching.get(nodeToRemove, node));
 			} else {
 				if (nodeToRemove.getIndex() != node.getIndex()) {
 					if (this.matching.get(nodeToRemove, node) == null)
-						this.matchingD.decr(0);
+						this.matchingD.decr(0.0);
 					else
 						this.matchingD.decr(this.matching.get(nodeToRemove,
 								node));
@@ -530,13 +530,13 @@ public class MatchingU extends Matching implements IBeforeUpdates,
 			if (computeDistributionWithoutMatrixDiagonal
 					.equals(ComputeDistributionWithoutMatrixDiagonal.USE_DIAGONAL)) {
 				if (this.matching.get(nodeToRemove, node) == null)
-					this.matchingD.decr(0);
+					this.matchingD.decr(0.0);
 				else
 					this.matchingD.decr(this.matching.get(nodeToRemove, node));
 			} else {
 				if (nodeToRemove.getIndex() != node.getIndex()) {
 					if (this.matching.get(nodeToRemove, node) == null)
-						this.matchingD.decr(0);
+						this.matchingD.decr(0.0);
 					else
 						this.matchingD.decr(this.matching.get(nodeToRemove,
 								node));
@@ -597,14 +597,14 @@ public class MatchingU extends Matching implements IBeforeUpdates,
 				if (computeDistributionWithoutMatrixDiagonal
 						.equals(ComputeDistributionWithoutMatrixDiagonal.USE_DIAGONAL)) {
 					if (this.matching.get(nodeToRemove, node) == null)
-						this.matchingD.decr(0);
+						this.matchingD.decr(0.0);
 					else
 						this.matchingD.decr(this.matching.get(nodeToRemove,
 								node));
 				} else {
 					if (nodeToRemove.getIndex() != node.getIndex()) {
 						if (this.matching.get(nodeToRemove, node) == null)
-							this.matchingD.decr(0);
+							this.matchingD.decr(0.0);
 						else
 							this.matchingD.decr(this.matching.get(nodeToRemove,
 									node));

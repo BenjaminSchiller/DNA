@@ -16,8 +16,8 @@ import dna.graph.nodes.UndirectedNode;
 import dna.metrics.IMetric;
 import dna.metrics.similarityMeasures.Matrix;
 import dna.metrics.similarityMeasures.Measures;
-import dna.series.data.distributions.BinnedDistributionLong;
-import dna.series.data.distributions.Distribution;
+import dna.series.data.distr2.BinnedDoubleDistr;
+import dna.series.data.distr2.Distr;
 import dna.updates.batch.Batch;
 
 /**
@@ -339,8 +339,8 @@ public abstract class Jaccard extends Measures {
 	}
 
 	@Override
-	public Distribution[] getDistributions() {
-		this.binnedDistributionEveryNodeToOtherNodes = new BinnedDistributionLong(
+	public Distr<?, ?>[] getDistributions() {
+		this.binnedDistributionEveryNodeToOtherNodes = new BinnedDoubleDistr(
 				"BinnedJaccardEveryNodeToOtherNodes", 0.01, new long[] {}, 0);
 
 		for (IElement iterable_element : this.g.getNodes()) {
@@ -352,7 +352,7 @@ public abstract class Jaccard extends Measures {
 		this.binnedDistribution.truncate();
 		this.binnedDistributionEveryNodeToOtherNodes.truncate();
 
-		return new Distribution[] { this.binnedDistribution,
+		return new Distr<?, ?>[] { this.binnedDistribution,
 				this.binnedDistributionEveryNodeToOtherNodes };
 	}
 
@@ -426,9 +426,9 @@ public abstract class Jaccard extends Measures {
 		else
 			// directed unweighted
 			this.neighborNodesUnweighted = new HashMap<Node, HashSet<Node>>();
-		this.binnedDistribution = new BinnedDistributionLong("BinnedJaccard",
-				0.1, new long[] {}, 0);
-		this.binnedDistributionEveryNodeToOtherNodes = new BinnedDistributionLong(
+		this.binnedDistribution = new BinnedDoubleDistr("BinnedJaccard", 0.1,
+				new long[] {}, 0);
+		this.binnedDistributionEveryNodeToOtherNodes = new BinnedDoubleDistr(
 				"BinnedJaccardEveryNodeToOtherNodes", 0.01, new long[] {}, 0);
 	}
 
@@ -460,9 +460,9 @@ public abstract class Jaccard extends Measures {
 		else
 			// undirectedWeighted
 			this.neighborNodesUnweighted = new HashMap<Node, HashSet<Node>>();
-		this.binnedDistribution = new BinnedDistributionLong("BinnedJaccard",
-				0.1, new long[] {}, 0);
-		this.binnedDistributionEveryNodeToOtherNodes = new BinnedDistributionLong(
+		this.binnedDistribution = new BinnedDoubleDistr("BinnedJaccard", 0.1,
+				new long[] {}, 0);
+		this.binnedDistributionEveryNodeToOtherNodes = new BinnedDoubleDistr(
 				"BinnedJaccardEveryNodeToOtherNodes", 0.01, new long[] {}, 0);
 	}
 

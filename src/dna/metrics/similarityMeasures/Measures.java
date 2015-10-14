@@ -24,7 +24,7 @@ import dna.metrics.similarityMeasures.dice.Dice;
 import dna.metrics.similarityMeasures.jaccard.Jaccard;
 import dna.metrics.similarityMeasures.overlap.Overlap;
 import dna.series.data.Value;
-import dna.series.data.distributions.BinnedDistributionLong;
+import dna.series.data.distr2.BinnedDoubleDistr;
 import dna.series.data.nodevaluelists.NodeNodeValueList;
 import dna.series.data.nodevaluelists.NodeValueList;
 import dna.updates.batch.Batch;
@@ -99,9 +99,9 @@ public abstract class Measures extends Metric implements IMetric {
 	/** Contains the result for each matching measure */
 	protected Matrix matching;
 	/** Binned Distribution */
-	protected BinnedDistributionLong binnedDistribution;
+	protected BinnedDoubleDistr binnedDistribution;
 	/** Average per Node Distribution */
-	protected BinnedDistributionLong binnedDistributionEveryNodeToOtherNodes;
+	protected BinnedDoubleDistr binnedDistributionEveryNodeToOtherNodes;
 
 	/**
 	 * Initializes {@link Measures}. Implicitly sets degree type for directed

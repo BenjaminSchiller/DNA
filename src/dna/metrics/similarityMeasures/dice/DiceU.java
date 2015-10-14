@@ -416,7 +416,7 @@ public class DiceU extends Dice implements IBeforeUpdates, IAfterUpdates,
 		for (IElement iterable_element : this.g.getNodes()) {
 			Node node = (Node) iterable_element;
 			if (this.result.get(nodeToRemove, node) == null)
-				this.binnedDistribution.decr(0);
+				this.binnedDistribution.decr(0.0);
 			else
 				this.binnedDistribution.decr(this.result
 						.get(nodeToRemove, node));
@@ -463,7 +463,7 @@ public class DiceU extends Dice implements IBeforeUpdates, IAfterUpdates,
 		for (IElement iterable_element : this.g.getNodes()) {
 			Node node = (Node) iterable_element;
 			if (this.result.get(nodeToRemove, node) == null)
-				this.binnedDistribution.decr(0);
+				this.binnedDistribution.decr(0.0);
 			else
 				this.binnedDistribution.decr(this.result
 						.get(nodeToRemove, node));
@@ -510,7 +510,7 @@ public class DiceU extends Dice implements IBeforeUpdates, IAfterUpdates,
 		for (IElement iterable_element : this.g.getNodes()) {
 			Node node = (Node) iterable_element;
 			if (this.matching.get(nodeToRemove, node) == null)
-				this.binnedDistribution.decr(0);
+				this.binnedDistribution.decr(0.0);
 			else
 				this.binnedDistribution.decr(this.result
 						.get(nodeToRemove, node));
@@ -549,7 +549,7 @@ public class DiceU extends Dice implements IBeforeUpdates, IAfterUpdates,
 		for (IElement iterable_element : this.g.getNodes()) {
 			Node node = (Node) iterable_element;
 			if (this.result.get(nodeToRemove, node) == null)
-				this.binnedDistribution.decr(0);
+				this.binnedDistribution.decr(0.0);
 			else
 				this.binnedDistribution.decr(this.result
 						.get(nodeToRemove, node));

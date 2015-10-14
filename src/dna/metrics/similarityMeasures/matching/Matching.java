@@ -23,11 +23,13 @@ import dna.graph.weights.Weight;
 import dna.metrics.IMetric;
 import dna.metrics.Metric;
 import dna.metrics.similarityMeasures.Matrix;
-import dna.series.data.distributions.BinnedDistributionLong;
-import dna.series.data.distributions.Distribution;
+import dna.metrics.similarityMeasures.matching.Matching.DirectedDegreeType;
+import dna.metrics.similarityMeasures.matching.Matching.EdgeWeightType;
+import dna.series.data.Value;
+import dna.series.data.distr2.BinnedDoubleDistr;
+import dna.series.data.distr2.Distr;
 import dna.series.data.nodevaluelists.NodeNodeValueList;
 import dna.series.data.nodevaluelists.NodeValueList;
-import dna.series.data.Value;
 import dna.updates.batch.Batch;
 import dna.util.parameters.Parameter;
 import dna.util.parameters.StringParameter;
@@ -135,9 +137,9 @@ public abstract class Matching extends Metric implements IMetric {
 	protected Matrix matching;
 
 	/** Average per Node Distribution */
-	protected BinnedDistributionLong binnedDistributionEveryNodeToOtherNodes;
+	protected BinnedDoubleDistr binnedDistributionEveryNodeToOtherNodes;
 
-	protected BinnedDistributionLong matchingD;
+	protected BinnedDoubleDistr matchingD;
 
 	/**
 	 * Contain's the node types ({@link EventColumn}) for which the matching
@@ -496,9 +498,9 @@ public abstract class Matching extends Metric implements IMetric {
 	}
 
 	@Override
-	public Distribution[] getDistributions() {
-		this.binnedDistributionEveryNodeToOtherNodes = new BinnedDistributionLong(
-				"BinnedMatchingEveryNodeToOtherNodes", 1, new long[] {}, 0);
+	public Distr<?, ?>[] getDistributions() {
+		this.binnedDistributionEveryNodeToOtherNodes = new BinnedDoubleDistr(
+				"BinnedMatchingEveryNodeToOtherNodes", 1.0, new long[] {}, 0);
 
 		for (IElement iterable_element : this.g.getNodes()) {
 			double index;
@@ -517,7 +519,7 @@ public abstract class Matching extends Metric implements IMetric {
 		this.matchingD.truncate();
 		this.binnedDistributionEveryNodeToOtherNodes.truncate();
 
-		return new Distribution[] { this.matchingD,
+		return new Distr<?, ?>[] { this.matchingD,
 				this.binnedDistributionEveryNodeToOtherNodes };
 	}
 
@@ -686,10 +688,10 @@ public abstract class Matching extends Metric implements IMetric {
 
 	public void init_() {
 		this.matching = new Matrix();
-		this.matchingD = new BinnedDistributionLong("BinnedMatching", 1,
+		this.matchingD = new BinnedDoubleDistr("BinnedMatching", 1.0,
 				new long[] {}, 0);
-		this.binnedDistributionEveryNodeToOtherNodes = new BinnedDistributionLong(
-				"BinnedMatchingEveryNodeToOtherNodes", 1, new long[] {}, 0);
+		this.binnedDistributionEveryNodeToOtherNodes = new BinnedDoubleDistr(
+				"BinnedMatchingEveryNodeToOtherNodes", 1.0, new long[] {}, 0);
 	}
 
 	@Override
@@ -724,10 +726,10 @@ public abstract class Matching extends Metric implements IMetric {
 
 	public void reset_() {
 		this.matching = new Matrix();
-		this.matchingD = new BinnedDistributionLong("BinnedMatching", 1,
+		this.matchingD = new BinnedDoubleDistr("BinnedMatching", 1.0,
 				new long[] {}, 0);
-		this.binnedDistributionEveryNodeToOtherNodes = new BinnedDistributionLong(
-				"BinnedMatchingEveryNodeToOtherNodes", 1, new long[] {}, 0);
+		this.binnedDistributionEveryNodeToOtherNodes = new BinnedDoubleDistr(
+				"BinnedMatchingEveryNodeToOtherNodes", 1.0, new long[] {}, 0);
 	}
 
 	/**

@@ -12,8 +12,8 @@ import dna.graph.nodes.UndirectedNode;
 import dna.metrics.IMetric;
 import dna.metrics.similarityMeasures.Matrix;
 import dna.metrics.similarityMeasures.Measures;
-import dna.series.data.distributions.BinnedDistributionLong;
-import dna.series.data.distributions.Distribution;
+import dna.series.data.distr2.BinnedDoubleDistr;
+import dna.series.data.distr2.Distr;
 
 /**
  * Computes the dice similarity measure for graphs. The dice similarity of two
@@ -316,9 +316,9 @@ public abstract class Dice extends Measures {
 	}
 
 	@Override
-	public Distribution[] getDistributions() {
+	public Distr<?, ?>[] getDistributions() {
 
-		this.binnedDistributionEveryNodeToOtherNodes = new BinnedDistributionLong(
+		this.binnedDistributionEveryNodeToOtherNodes = new BinnedDoubleDistr(
 				"BinnedDiceEveryNodeToOtherNodes", 0.01, new long[] {}, 0);
 
 		for (IElement iterable_element : this.g.getNodes()) {
@@ -330,7 +330,7 @@ public abstract class Dice extends Measures {
 		this.binnedDistribution.truncate();
 		this.binnedDistributionEveryNodeToOtherNodes.truncate();
 
-		return new Distribution[] { this.binnedDistribution,
+		return new Distr<?, ?>[] { this.binnedDistribution,
 				this.binnedDistributionEveryNodeToOtherNodes };
 	}
 
@@ -398,9 +398,9 @@ public abstract class Dice extends Measures {
 		this.result = new Matrix();
 		this.amountOfNeighbors = new HashMap<Node, Double>();
 		this.matching = new Matrix();
-		this.binnedDistribution = new BinnedDistributionLong("BinnedDice",
-				0.01, new long[] {}, 0);
-		this.binnedDistributionEveryNodeToOtherNodes = new BinnedDistributionLong(
+		this.binnedDistribution = new BinnedDoubleDistr("BinnedDice", 0.01,
+				new long[] {}, 0);
+		this.binnedDistributionEveryNodeToOtherNodes = new BinnedDoubleDistr(
 				"BinnedDiceEveryNodeToOtherNodes", 0.01, new long[] {}, 0);
 	}
 
@@ -417,9 +417,9 @@ public abstract class Dice extends Measures {
 		this.result = new Matrix();
 		this.amountOfNeighbors = new HashMap<Node, Double>();
 		this.matching = new Matrix();
-		this.binnedDistribution = new BinnedDistributionLong("BinnedDice",
-				0.01, new long[] {}, 0);
-		this.binnedDistributionEveryNodeToOtherNodes = new BinnedDistributionLong(
+		this.binnedDistribution = new BinnedDoubleDistr("BinnedDice", 0.01,
+				new long[] {}, 0);
+		this.binnedDistributionEveryNodeToOtherNodes = new BinnedDoubleDistr(
 				"BinnedDiceEveryNodeToOtherNodes", 0.01, new long[] {}, 0);
 	}
 
