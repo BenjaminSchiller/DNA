@@ -35,12 +35,6 @@ public class BinnedLongDistr extends BinnedDistr<Long> {
 		}
 	}
 
-	@Override
-	public boolean equals(Object obj) {
-		return obj != null && obj instanceof BinnedLongDistr
-				&& super.equals(obj);
-	}
-
 	/**
 	 * note that this average is computed with each call of this function. also
 	 * note that this is NOT the correct and actual average of the values used

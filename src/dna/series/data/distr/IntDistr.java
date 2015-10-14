@@ -15,9 +15,4 @@ public class IntDistr extends Distr<Integer> {
 		return value;
 	}
 
-	@Override
-	public boolean equals(Object obj) {
-		return obj != null && obj instanceof IntDistr && super.equals(obj);
-	}
-
 }

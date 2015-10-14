@@ -9,6 +9,7 @@ import com.sun.media.sound.InvalidFormatException;
 import dna.io.Reader;
 import dna.io.Writer;
 import dna.util.Config;
+import dna.util.Log;
 
 public abstract class BinnedDistr<T> extends Distr<T> {
 
@@ -137,6 +138,20 @@ public abstract class BinnedDistr<T> extends Distr<T> {
 		return obj != null && obj instanceof BinnedDistr
 				&& ((BinnedDistr) obj).binSize.equals(this.binSize)
 				&& super.equals(obj);
+	}
+
+	@SuppressWarnings("rawtypes")
+	@Override
+	public boolean equalsVerbose(Distr d) {
+		if (!super.equalsVerbose(d)) {
+			return false;
+		}
+		if (!this.binSize.equals(((BinnedDistr) d).binSize)) {
+			Log.warn(this.getName() + " - binSize differs: " + this.binSize
+					+ " != " + ((BinnedDistr) d).binSize);
+			return false;
+		}
+		return true;
 	}
 
 }

@@ -10,6 +10,7 @@ import dna.io.Reader;
 import dna.io.Writer;
 import dna.series.data.Data;
 import dna.util.Config;
+import dna.util.Log;
 
 public abstract class Distr<T> extends Data {
 	protected long denominator;
@@ -272,6 +273,9 @@ public abstract class Distr<T> extends Data {
 		if (obj == null || !(obj instanceof Distr)) {
 			return false;
 		}
+		if (!obj.getClass().equals(this.getClass())) {
+			return false;
+		}
 		Distr d = (Distr) obj;
 		if (!d.getName().equals(this.getName())) {
 			return false;
@@ -290,11 +294,41 @@ public abstract class Distr<T> extends Data {
 		return true;
 	}
 
+	@SuppressWarnings("rawtypes")
+	public boolean equalsVerbose(Distr d) {
+		if (!d.getClass().equals(this.getClass())) {
+			Log.warn("distribution type differs: (" + this.getName() + ") "
+					+ this.getClass().getSimpleName() + " != "
+					+ d.getClass().getSimpleName() + " (" + d.getName() + ")");
+			return false;
+		}
+		if (!d.getName().equals(this.getName())) {
+			Log.warn("name differs: " + this.getName() + " != " + d.getName());
+			return false;
+		}
+		if (d.denominator != this.denominator) {
+			Log.warn(this.getName() + " - denominator differs: "
+					+ this.getDenominator() + " != " + d.getDenominator());
+			return false;
+		}
+		if (d.values.length != this.values.length) {
+			Log.warn(this.getName() + " - length of values differs: "
+					+ this.values.length + " != " + d.values.length);
+			return false;
+		}
+		for (int i = 0; i < this.values.length; i++) {
+			if (d.values[i] != this.values[i]) {
+				Log.warn(this.getName() + " - value differs at index " + i
+						+ ": " + this.values[i] + " != " + d.values[i]);
+				return false;
+			}
+		}
+		return true;
+	}
+
 	// TODO add quality distribution generation
 	/*
 	 * public static void compareDistributionAndAddToList(DistributionList list,
 	 * DistributionInt d1, DistributionInt d2) {
 	 */
-
-	// TODO add verbose equality check with output (now in ArrayUtils...)
 }

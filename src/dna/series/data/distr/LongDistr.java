@@ -15,9 +15,4 @@ public class LongDistr extends Distr<Long> {
 		return (int) (value + 0);
 	}
 
-	@Override
-	public boolean equals(Object obj) {
-		return obj != null && obj instanceof LongDistr && super.equals(obj);
-	}
-
 }

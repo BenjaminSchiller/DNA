@@ -35,12 +35,6 @@ public class BinnedIntDistr extends BinnedDistr<Integer> {
 		}
 	}
 
-	@Override
-	public boolean equals(Object obj) {
-		return obj != null && obj instanceof BinnedIntDistr
-				&& super.equals(obj);
-	}
-
 	/**
 	 * note that this average is computed with each call of this function. also
 	 * note that this is NOT the correct and actual average of the values used

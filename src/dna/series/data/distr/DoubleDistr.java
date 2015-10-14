@@ -15,9 +15,4 @@ public class DoubleDistr extends Distr<Double> {
 		return (int) Math.ceil(value);
 	}
 
-	@Override
-	public boolean equals(Object obj) {
-		return obj != null && obj instanceof DoubleDistr && super.equals(obj);
-	}
-
 }
