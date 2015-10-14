@@ -10,8 +10,8 @@ import dna.graph.edges.DirectedEdge;
 import dna.graph.nodes.DirectedNode;
 import dna.metrics.Metric;
 import dna.series.data.Value;
-import dna.series.data.distributions.Distribution;
-import dna.series.data.distributions.DistributionLong;
+import dna.series.data.distr.Distr;
+import dna.series.data.distr.IntDistr;
 import dna.series.data.nodevaluelists.NodeNodeValueList;
 import dna.series.data.nodevaluelists.NodeValueList;
 import dna.updates.batch.Batch;
@@ -32,7 +32,7 @@ public abstract class DirectedMotifs extends MetricOld {
 		DM01, DM02, DM03, DM04, DM05, DM06, DM07, DM08, DM09, DM10, DM11, DM12, DM13
 	}
 
-	protected DistributionLong motifs;
+	protected IntDistr motifs;
 
 	public static final String motifsName = "directedMotifs";
 
@@ -309,7 +309,7 @@ public abstract class DirectedMotifs extends MetricOld {
 
 	@Override
 	public void init_() {
-		this.motifs = new DistributionLong(motifsName, new long[14], 0);
+		this.motifs = new IntDistr(motifsName, 0, new long[14]);
 	}
 
 	@Override
@@ -351,8 +351,8 @@ public abstract class DirectedMotifs extends MetricOld {
 	}
 
 	@Override
-	public Distribution[] getDistributions() {
-		return new Distribution[] { this.motifs };
+	public Distr<?>[] getDistributions() {
+		return new Distr<?>[] { this.motifs };
 	}
 
 	@Override

@@ -52,11 +52,8 @@ public class DegreeDistributionU extends DegreeDistribution {
 
 			this.nodes++;
 			this.degree.incr(0);
-			this.degree.incrDenominator();
 			this.inDegree.incr(0);
-			this.inDegree.incrDenominator();
 			this.outDegree.incr(0);
-			this.outDegree.incrDenominator();
 
 		} else if (u instanceof NodeRemoval) {
 
@@ -65,11 +62,8 @@ public class DegreeDistributionU extends DegreeDistribution {
 			this.nodes--;
 			this.edges -= n.getDegree();
 			this.degree.decr(n.getDegree());
-			this.degree.decrDenominator();
 			this.inDegree.decr(n.getInDegree());
-			this.inDegree.decrDenominator();
 			this.outDegree.decr(n.getOutDegree());
-			this.outDegree.decrDenominator();
 
 			// change counts for outgoing edges
 			for (IElement outUncasted : n.getOutgoingEdges()) {
@@ -151,9 +145,6 @@ public class DegreeDistributionU extends DegreeDistribution {
 
 			this.nodes++;
 			this.degree.incr(0);
-
-			// UPDATE distributions
-			this.degree.incrDenominator();
 
 			// TRUNCATE
 			this.degree.truncate();

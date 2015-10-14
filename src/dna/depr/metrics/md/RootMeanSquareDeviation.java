@@ -11,8 +11,8 @@ import dna.graph.weights.Int3dWeight;
 import dna.graph.weights.IntWeight;
 import dna.metrics.Metric;
 import dna.series.data.Value;
-import dna.series.data.distributions.BinnedDistributionDouble;
-import dna.series.data.distributions.Distribution;
+import dna.series.data.distr.BinnedDoubleDistr;
+import dna.series.data.distr.Distr;
 import dna.series.data.nodevaluelists.NodeNodeValueList;
 import dna.series.data.nodevaluelists.NodeValueList;
 import dna.updates.batch.Batch;
@@ -38,7 +38,7 @@ public abstract class RootMeanSquareDeviation extends MetricOld {
 
 	protected double rmsd;
 
-	protected BinnedDistributionDouble distr;
+	protected BinnedDoubleDistr distr;
 
 	public RootMeanSquareDeviation(String name, ApplicationType type,
 			Metric.MetricType metricType) {
@@ -46,7 +46,7 @@ public abstract class RootMeanSquareDeviation extends MetricOld {
 	}
 
 	protected void initDistr() {
-		this.distr = new BinnedDistributionDouble("DistanceDistribution", 0.05);
+		this.distr = new BinnedDoubleDistr("DistanceDistribution", 0.05);
 	}
 
 	@Override
@@ -71,8 +71,8 @@ public abstract class RootMeanSquareDeviation extends MetricOld {
 	}
 
 	@Override
-	public Distribution[] getDistributions() {
-		return new Distribution[] { this.distr };
+	public Distr<?>[] getDistributions() {
+		return new Distr<?>[] { this.distr };
 	}
 
 	@Override

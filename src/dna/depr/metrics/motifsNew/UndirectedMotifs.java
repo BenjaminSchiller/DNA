@@ -11,8 +11,8 @@ import dna.graph.edges.UndirectedEdge;
 import dna.graph.nodes.UndirectedNode;
 import dna.metrics.Metric;
 import dna.series.data.Value;
-import dna.series.data.distributions.Distribution;
-import dna.series.data.distributions.DistributionLong;
+import dna.series.data.distr.Distr;
+import dna.series.data.distr.IntDistr;
 import dna.series.data.nodevaluelists.NodeNodeValueList;
 import dna.series.data.nodevaluelists.NodeValueList;
 import dna.updates.batch.Batch;
@@ -24,10 +24,10 @@ public abstract class UndirectedMotifs extends MetricOld {
 		UM1, UM2, UM3, UM4, UM5, UM6
 	};
 
-	protected DistributionLong motifs;
+	protected IntDistr motifs;
 
 	public static final String motifsName = "undirectedMotifs";
-	
+
 	GraphDataStructure gds;
 
 	public UndirectedMotifs(String name, ApplicationType type,
@@ -43,7 +43,8 @@ public abstract class UndirectedMotifs extends MetricOld {
 
 			// 1, 3
 			for (IElement b_ : a.getEdges()) {
-				UndirectedNode b = (UndirectedNode) ((UndirectedEdge) b_).getDifferingNode(a);
+				UndirectedNode b = (UndirectedNode) ((UndirectedEdge) b_)
+						.getDifferingNode(a);
 				for (IElement c_ : a.getEdges()) {
 					UndirectedNode c = (UndirectedNode) ((UndirectedEdge) c_)
 							.getDifferingNode(a);
@@ -122,7 +123,8 @@ public abstract class UndirectedMotifs extends MetricOld {
 		ArrayList<UndirectedNode> unsorted = new ArrayList<UndirectedNode>(
 				n.getDegree());
 		for (IElement e : n.getEdges()) {
-			UndirectedNode neighbor = (UndirectedNode) ((UndirectedEdge) e).getDifferingNode(n);
+			UndirectedNode neighbor = (UndirectedNode) ((UndirectedEdge) e)
+					.getDifferingNode(n);
 			// if (neighbor.getIndex() > n.getIndex()) {
 			unsorted.add(neighbor);
 			// }
@@ -161,7 +163,7 @@ public abstract class UndirectedMotifs extends MetricOld {
 
 	@Override
 	public void init_() {
-		this.motifs = new DistributionLong(motifsName, new long[7], 0);
+		this.motifs = new IntDistr(motifsName, 0, new long[7]);
 	}
 
 	@Override
@@ -188,8 +190,8 @@ public abstract class UndirectedMotifs extends MetricOld {
 	}
 
 	@Override
-	public Distribution[] getDistributions() {
-		return new Distribution[] { this.motifs };
+	public Distr<?>[] getDistributions() {
+		return new Distr<?>[] { this.motifs };
 	}
 
 	@Override

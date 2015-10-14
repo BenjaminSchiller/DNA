@@ -4,7 +4,7 @@ import dna.depr.metrics.MetricOld;
 import dna.graph.Graph;
 import dna.metrics.IMetric;
 import dna.series.data.Value;
-import dna.series.data.distributions.Distribution;
+import dna.series.data.distr.Distr;
 import dna.series.data.nodevaluelists.NodeNodeValueList;
 import dna.series.data.nodevaluelists.NodeValueList;
 import dna.updates.batch.Batch;
@@ -20,8 +20,8 @@ public class MissingBatches extends MetricOld {
 
 	public MissingBatches(MetricOld m, double missProb) {
 		super(m.getName() + "_MISSING_BATCHES", m.getApplicationType(),
-				IMetric.MetricType.heuristic, m.getParameters(), new DoubleParameter(
-						"missProb", missProb));
+				IMetric.MetricType.heuristic, m.getParameters(),
+				new DoubleParameter("missProb", missProb));
 		this.m = m;
 		this.missProb = missProb;
 	}
@@ -73,7 +73,7 @@ public class MissingBatches extends MetricOld {
 	}
 
 	@Override
-	public Distribution[] getDistributions() {
+	public Distr<?>[] getDistributions() {
 		return this.m.getDistributions();
 	}
 

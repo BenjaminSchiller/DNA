@@ -6,8 +6,8 @@ import dna.graph.weights.IntWeight;
 import dna.graph.weights.Weight;
 import dna.metrics.IMetric;
 import dna.series.data.Value;
-import dna.series.data.distributions.BinnedDistributionDouble;
-import dna.series.data.distributions.Distribution;
+import dna.series.data.distr.BinnedDoubleDistr;
+import dna.series.data.distr.Distr;
 import dna.series.data.nodevaluelists.NodeNodeValueList;
 import dna.series.data.nodevaluelists.NodeValueList;
 import dna.util.ArrayUtils;
@@ -17,7 +17,7 @@ public abstract class Weights extends MetricOld {
 
 	protected double binSize;
 
-	protected BinnedDistributionDouble distr;
+	protected BinnedDoubleDistr distr;
 
 	public Weights(String name, ApplicationType type,
 			IMetric.MetricType metricType, double binSize) {
@@ -28,27 +28,25 @@ public abstract class Weights extends MetricOld {
 
 	@Override
 	public void init_() {
-		this.distr = new BinnedDistributionDouble("WeightsDistribution",
-				this.binSize);
+		this.distr = new BinnedDoubleDistr("WeightsDistribution", this.binSize);
 	}
 
 	@Override
 	public void reset_() {
-		this.distr = new BinnedDistributionDouble("WeightsDistribution",
-				this.binSize);
+		this.distr = new BinnedDoubleDistr("WeightsDistribution", this.binSize);
 	}
 
 	@Override
 	public Value[] getValues() {
 		Value avg = new Value("AverageWeight", this.distr.computeAverage());
-		Value max = new Value("MaxWeight", this.distr.getMax());
-		Value min = new Value("MinWeight", this.distr.getMin());
+		Value max = new Value("MaxWeight", this.distr.getMaxNonZeroIndex());
+		Value min = new Value("MinWeight", this.distr.getMinNonZeroIndex());
 		return new Value[] { avg, max, min };
 	}
 
 	@Override
-	public Distribution[] getDistributions() {
-		return new Distribution[] { this.distr };
+	public Distr<?>[] getDistributions() {
+		return new Distr<?>[] { this.distr };
 	}
 
 	@Override
