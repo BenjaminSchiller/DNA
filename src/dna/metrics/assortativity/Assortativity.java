@@ -17,7 +17,7 @@ import dna.metrics.Metric;
 import dna.metrics.algorithms.IDynamicAlgorithm;
 import dna.metrics.algorithms.IRecomputation;
 import dna.series.data.Value;
-import dna.series.data.distributions.Distribution;
+import dna.series.data.distr2.Distr;
 import dna.series.data.nodevaluelists.NodeNodeValueList;
 import dna.series.data.nodevaluelists.NodeValueList;
 import dna.updates.batch.Batch;
@@ -311,8 +311,8 @@ public abstract class Assortativity extends Metric implements IMetric {
 	}
 
 	@Override
-	public Distribution[] getDistributions() {
-		return new Distribution[] {};
+	public Distr<?, ?>[] getDistributions() {
+		return new Distr<?, ?>[] {};
 	}
 
 	@Override
