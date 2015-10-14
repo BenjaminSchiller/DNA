@@ -15,7 +15,7 @@ public class LongDistr extends Distr<Long> {
 		return (int) (value + 0);
 	}
 
-	protected DistrType getDistrType() {
+	public DistrType getDistrType() {
 		return DistrType.LONG;
 	}
 

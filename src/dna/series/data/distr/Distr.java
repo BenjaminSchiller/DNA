@@ -222,7 +222,7 @@ public abstract class Distr<T> extends Data {
 	 */
 	protected abstract int getIndex(T value);
 
-	protected abstract DistrType getDistrType();
+	public abstract DistrType getDistrType();
 
 	public long getDenominator() {
 		return this.denominator;

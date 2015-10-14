@@ -1,6 +1,5 @@
 package dna.series.data.distr;
 
-
 public class BinnedIntDistr extends BinnedDistr<Integer> {
 
 	public BinnedIntDistr(String name) {
@@ -36,7 +35,7 @@ public class BinnedIntDistr extends BinnedDistr<Integer> {
 		}
 	}
 
-	protected DistrType getDistrType() {
+	public DistrType getDistrType() {
 		return DistrType.BINNED_INT;
 	}
 

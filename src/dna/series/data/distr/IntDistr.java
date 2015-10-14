@@ -15,7 +15,7 @@ public class IntDistr extends Distr<Integer> {
 		return value;
 	}
 
-	protected DistrType getDistrType() {
+	public DistrType getDistrType() {
 		return DistrType.INT;
 	}
 

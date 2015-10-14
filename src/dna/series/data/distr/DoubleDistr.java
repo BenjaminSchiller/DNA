@@ -1,6 +1,5 @@
 package dna.series.data.distr;
 
-
 public class DoubleDistr extends Distr<Double> {
 
 	public DoubleDistr(String name) {
@@ -16,7 +15,7 @@ public class DoubleDistr extends Distr<Double> {
 		return (int) Math.ceil(value);
 	}
 
-	protected DistrType getDistrType() {
+	public DistrType getDistrType() {
 		return DistrType.DOUBLE;
 	}
 
