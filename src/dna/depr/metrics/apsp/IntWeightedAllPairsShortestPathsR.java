@@ -70,15 +70,15 @@ public class IntWeightedAllPairsShortestPathsR extends
 							.getOutgoingEdges()) {
 						Node n = ((DirectedEdge) e).getDst();
 						IntWeight w = (IntWeight) ((IWeighted) e).getWeight();
-						this.process(source, current, n, (int) w.getWeight(), dist,
-								previous, visited, Q);
+						this.process(source, current, n, (int) w.getWeight(),
+								dist, previous, visited, Q);
 					}
 				} else if (current instanceof UndirectedNode) {
 					for (IElement e : ((UndirectedNode) current).getEdges()) {
 						Node n = ((UndirectedEdge) e).getDifferingNode(current);
 						IntWeight w = (IntWeight) ((IWeighted) e).getWeight();
-						this.process(source, current, n, (int) w.getWeight(), dist,
-								previous, visited, Q);
+						this.process(source, current, n, (int) w.getWeight(),
+								dist, previous, visited, Q);
 					}
 				}
 			}

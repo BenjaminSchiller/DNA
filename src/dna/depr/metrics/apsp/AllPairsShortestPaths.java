@@ -3,8 +3,8 @@ package dna.depr.metrics.apsp;
 import dna.depr.metrics.MetricOld;
 import dna.metrics.Metric;
 import dna.series.data.Value;
-import dna.series.data.distributions.Distribution;
-import dna.series.data.distributions.DistributionLong;
+import dna.series.data.distr.Distr;
+import dna.series.data.distr.IntDistr;
 import dna.series.data.nodevaluelists.NodeNodeValueList;
 import dna.series.data.nodevaluelists.NodeValueList;
 import dna.util.ArrayUtils;
@@ -12,7 +12,7 @@ import dna.util.parameters.Parameter;
 
 public abstract class AllPairsShortestPaths extends MetricOld {
 
-	protected DistributionLong apsp;
+	protected IntDistr apsp;
 
 	public AllPairsShortestPaths(String name, ApplicationType type,
 			Metric.MetricType metricType, Parameter... p) {
@@ -21,12 +21,12 @@ public abstract class AllPairsShortestPaths extends MetricOld {
 
 	@Override
 	public void init_() {
-		this.apsp = new DistributionLong("APSP");
+		this.apsp = new IntDistr("APSP");
 	}
 
 	@Override
 	public void reset_() {
-		this.apsp = new DistributionLong("APSP");
+		this.apsp = new IntDistr("APSP");
 	}
 
 	@Override
@@ -38,14 +38,14 @@ public abstract class AllPairsShortestPaths extends MetricOld {
 				* (this.g.getNodeCount() - 1));
 		Value v3 = new Value("characteristicPathLength",
 				this.apsp.computeAverage());
-		Value v4 = new Value("diameter", this.apsp.getMax());
+		Value v4 = new Value("diameter", this.apsp.getMaxNonZeroIndex());
 
 		return new Value[] { v1, v2, v3, v4 };
 	}
 
 	@Override
-	public Distribution[] getDistributions() {
-		return new Distribution[] { this.apsp };
+	public Distr<?>[] getDistributions() {
+		return new Distr<?>[] { this.apsp };
 	}
 
 	@Override
@@ -62,8 +62,7 @@ public abstract class AllPairsShortestPaths extends MetricOld {
 	public boolean equals(MetricOld m) {
 		return this.isComparableTo(m)
 				&& ArrayUtils.equals(this.apsp.getValues(),
-						((AllPairsShortestPaths) m).apsp.getValues(),
-						"APSP");
+						((AllPairsShortestPaths) m).apsp.getValues(), "APSP");
 	}
 
 	@Override

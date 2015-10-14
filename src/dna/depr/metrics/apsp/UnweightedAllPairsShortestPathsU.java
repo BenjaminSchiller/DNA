@@ -21,7 +21,8 @@ import dna.updates.update.NodeAddition;
 import dna.updates.update.NodeRemoval;
 import dna.updates.update.Update;
 
-public class UnweightedAllPairsShortestPathsU extends UnweightedAllPairsShortestPaths {
+public class UnweightedAllPairsShortestPathsU extends
+		UnweightedAllPairsShortestPaths {
 
 	// FIXME there seems to be a bug when edges are removed!!!
 
@@ -153,7 +154,9 @@ public class UnweightedAllPairsShortestPathsU extends UnweightedAllPairsShortest
 						continue;
 					}
 				}
-				boolean noPossibleNeighbour = (key >= this.apsp.getMax()+2 && dist > this.apsp.getMax()+2)
+				boolean noPossibleNeighbour = (key >= this.apsp
+						.getMaxNonZeroIndex() + 2 && dist > this.apsp
+						.getMaxNonZeroIndex() + 2)
 						|| (min.isEmpty() && (!uncertain.contains(w) || (key == dist)));
 
 				// no neighbour found
@@ -272,7 +275,7 @@ public class UnweightedAllPairsShortestPathsU extends UnweightedAllPairsShortest
 				for (IElement iEdge : w.getEdges()) {
 					UndirectedEdge edge = (UndirectedEdge) iEdge;
 					Node z = edge.getDifferingNode(w);
-					if ( changed.contains(z)
+					if (changed.contains(z)
 							|| height.get(z) == Integer.MAX_VALUE) {
 						continue;
 					}
@@ -292,7 +295,9 @@ public class UnweightedAllPairsShortestPathsU extends UnweightedAllPairsShortest
 						continue;
 					}
 				}
-				boolean noPossibleNeighbour = (key >= this.apsp.getMax()+2 && dist > this.apsp.getMax()+2)
+				boolean noPossibleNeighbour = (key >= this.apsp
+						.getMaxNonZeroIndex() + 2 && dist > this.apsp
+						.getMaxNonZeroIndex() + 2)
 						|| (min.isEmpty() && (!uncertain.contains(w) || (key == dist)));
 
 				// no neighbour found

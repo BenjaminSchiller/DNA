@@ -105,7 +105,7 @@ public class IntWeightedAllPairsShortestPathsU extends
 				.getEdge();
 		UndirectedNode n1 = e.getNode1();
 		UndirectedNode n2 = e.getNode2();
-		
+
 		IntWeight eWeight = (IntWeight) e.getWeight();
 
 		for (IElement ie : g.getNodes()) {
@@ -124,12 +124,13 @@ public class IntWeightedAllPairsShortestPathsU extends
 			}
 
 			if (!parent.containsKey(dst)
-					|| height.get(src) + (int)eWeight.getWeight() == height.get(dst)) {
+					|| height.get(src) + (int) eWeight.getWeight() == height
+							.get(dst)) {
 				continue;
 			}
 
-			if (height.get(src) + (int)eWeight.getWeight() > height.get(dst)
-					|| height.get(src) + (int)eWeight.getWeight() < 0) {
+			if (height.get(src) + (int) eWeight.getWeight() > height.get(dst)
+					|| height.get(src) + (int) eWeight.getWeight() < 0) {
 				if (parent.get(dst).equals(src)) {
 					undirectedDelete(s, e);
 				}
@@ -154,12 +155,12 @@ public class IntWeightedAllPairsShortestPathsU extends
 			DirectedNode src = e.getSrc();
 			DirectedNode dst = e.getDst();
 
-			if (height.get(src) + (int)eWeight.getWeight() == height.get(dst)) {
+			if (height.get(src) + (int) eWeight.getWeight() == height.get(dst)) {
 				continue;
 			}
 
-			if (height.get(src) + (int)eWeight.getWeight() > height.get(dst)
-					|| height.get(src) + (int)eWeight.getWeight() < 0) {
+			if (height.get(src) + (int) eWeight.getWeight() > height.get(dst)
+					|| height.get(src) + (int) eWeight.getWeight() < 0) {
 				if (parent.containsKey(dst) && parent.get(dst).equals(src)) {
 					directedDelete(s, e);
 				}
@@ -227,16 +228,16 @@ public class IntWeightedAllPairsShortestPathsU extends
 				if (changed.contains(z) || height.get(z) == Integer.MAX_VALUE) {
 					continue;
 				}
-				if (height.get(z) + (int)eWeight.getWeight() < dist) {
+				if (height.get(z) + (int) eWeight.getWeight() < dist) {
 					min.clear();
 					minSettled.clear();
 					min.add(z);
 					if (!uncertain.contains(z))
 						minSettled.add(z);
-					dist = height.get(z) + (int)eWeight.getWeight();
+					dist = height.get(z) + (int) eWeight.getWeight();
 					continue;
 				}
-				if (height.get(z) + (int)eWeight.getWeight() == dist) {
+				if (height.get(z) + (int) eWeight.getWeight() == dist) {
 					min.add(z);
 					if (!uncertain.contains(z))
 						minSettled.add(z);
@@ -272,11 +273,12 @@ public class IntWeightedAllPairsShortestPathsU extends
 
 						DirectedNode z = edge.getDst();
 
-						if (height.get(z) > dist + (int)iEdgeWeight.getWeight()) {
+						if (height.get(z) > dist
+								+ (int) iEdgeWeight.getWeight()) {
 							q.remove(new QueueElement<DirectedNode>(z, dist
-									+ (int)iEdgeWeight.getWeight()));
+									+ (int) iEdgeWeight.getWeight()));
 							q.add(new QueueElement<DirectedNode>(z, dist
-									+ (int)iEdgeWeight.getWeight()));
+									+ (int) iEdgeWeight.getWeight()));
 
 						}
 					}
@@ -323,11 +325,11 @@ public class IntWeightedAllPairsShortestPathsU extends
 
 				DirectedNode z = edge.getDst();
 
-				if (height.get(z) > dist + (int)eWeight.getWeight()) {
+				if (height.get(z) > dist + (int) eWeight.getWeight()) {
 					q.remove(new QueueElement<DirectedNode>(z, dist
-							+ (int)eWeight.getWeight()));
+							+ (int) eWeight.getWeight()));
 					q.add(new QueueElement<DirectedNode>(z, dist
-							+ (int)eWeight.getWeight()));
+							+ (int) eWeight.getWeight()));
 
 				}
 			}
@@ -399,16 +401,16 @@ public class IntWeightedAllPairsShortestPathsU extends
 				if (changed.contains(z) || height.get(z) == Integer.MAX_VALUE) {
 					continue;
 				}
-				if (height.get(z) + (int)eWeight.getWeight() < dist) {
+				if (height.get(z) + (int) eWeight.getWeight() < dist) {
 					min.clear();
 					minSettled.clear();
 					min.add(z);
 					if (!uncertain.contains(z))
 						minSettled.add(z);
-					dist = height.get(z) + (int)eWeight.getWeight();
+					dist = height.get(z) + (int) eWeight.getWeight();
 					continue;
 				}
-				if (height.get(z) + (int)eWeight.getWeight() == dist) {
+				if (height.get(z) + (int) eWeight.getWeight() == dist) {
 					min.add(z);
 					if (!uncertain.contains(z))
 						minSettled.add(z);
@@ -441,11 +443,11 @@ public class IntWeightedAllPairsShortestPathsU extends
 						UndirectedWeightedEdge ed = (UndirectedWeightedEdge) iEdge;
 						IntWeight edWeight = (IntWeight) ed.getWeight();
 						Node z = ed.getDifferingNode(w);
-						if (height.get(z) > dist + (int)edWeight.getWeight()) {
+						if (height.get(z) > dist + (int) edWeight.getWeight()) {
 							q.remove(new QueueElement<Node>(z, dist
-									+ (int)edWeight.getWeight()));
+									+ (int) edWeight.getWeight()));
 							q.add(new QueueElement<Node>(z, dist
-									+ (int)edWeight.getWeight()));
+									+ (int) edWeight.getWeight()));
 						}
 					}
 				} else {
@@ -483,9 +485,11 @@ public class IntWeightedAllPairsShortestPathsU extends
 				UndirectedWeightedEdge ed = (UndirectedWeightedEdge) iEdge;
 				IntWeight edWeight = (IntWeight) ed.getWeight();
 				Node z = ed.getDifferingNode(w);
-				if (height.get(z) > dist + (int)edWeight.getWeight()) {
-					q.remove(new QueueElement<Node>(z, dist + (int)edWeight.getWeight()));
-					q.add(new QueueElement<Node>(z, dist + (int)edWeight.getWeight()));
+				if (height.get(z) > dist + (int) edWeight.getWeight()) {
+					q.remove(new QueueElement<Node>(z, dist
+							+ (int) edWeight.getWeight()));
+					q.add(new QueueElement<Node>(z, dist
+							+ (int) edWeight.getWeight()));
 				}
 			}
 		}
@@ -556,7 +560,7 @@ public class IntWeightedAllPairsShortestPathsU extends
 	private boolean undirectedAdd(UndirectedWeightedEdge e, UndirectedNode s) {
 		HashMap<Node, Node> parent = parents.get(s);
 		HashMap<Node, Integer> height = heights.get(s);
-		
+
 		IntWeight eWeight = (IntWeight) e.getWeight();
 
 		UndirectedNode n1 = e.getNode1();
@@ -567,14 +571,14 @@ public class IntWeightedAllPairsShortestPathsU extends
 			n2 = e.getNode1();
 		}
 
-		if (height.get(n1) + (int)eWeight.getWeight() >= height.get(n2)
-				|| height.get(n1) + (int)eWeight.getWeight() < 0) {
+		if (height.get(n1) + (int) eWeight.getWeight() >= height.get(n2)
+				|| height.get(n1) + (int) eWeight.getWeight() < 0) {
 			return true;
 		}
 		if (height.get(n2) != Integer.MAX_VALUE)
 			apsp.decr(height.get(n2));
-		apsp.incr(height.get(n1) + (int)eWeight.getWeight());
-		height.put(n2, height.get(n1) + (int)eWeight.getWeight());
+		apsp.incr(height.get(n1) + (int) eWeight.getWeight());
+		height.put(n2, height.get(n1) + (int) eWeight.getWeight());
 		parent.put(n2, n1);
 		PriorityQueue<Node> q = new PriorityQueue<>();
 		q.add(n2);
@@ -591,7 +595,7 @@ public class IntWeightedAllPairsShortestPathsU extends
 				Node neighbor = d.getDifferingNode(current);
 				IntWeight dWeight = (IntWeight) d.getWeight();
 
-				int alt = height.get(current) + (int)dWeight.getWeight();
+				int alt = height.get(current) + (int) dWeight.getWeight();
 
 				if (alt < height.get(neighbor)) {
 					if (height.get(neighbor) != Integer.MAX_VALUE)
@@ -628,14 +632,14 @@ public class IntWeightedAllPairsShortestPathsU extends
 
 		DirectedNode src = e.getSrc();
 		DirectedNode dst = e.getDst();
-		if (height.get(src) + (int)eWeight.getWeight() >= height.get(dst)
-				|| height.get(src) + (int)eWeight.getWeight() < 0) {
+		if (height.get(src) + (int) eWeight.getWeight() >= height.get(dst)
+				|| height.get(src) + (int) eWeight.getWeight() < 0) {
 			return true;
 		}
 		if (height.get(dst) != Integer.MAX_VALUE)
 			apsp.decr(height.get(dst));
-		height.put(dst, height.get(src) + (int)eWeight.getWeight());
-		apsp.incr(height.get(src) + (int)eWeight.getWeight());
+		height.put(dst, height.get(src) + (int) eWeight.getWeight());
+		apsp.incr(height.get(src) + (int) eWeight.getWeight());
 		parent.put(dst, src);
 		PriorityQueue<QueueElement<DirectedNode>> q = new PriorityQueue<QueueElement<DirectedNode>>();
 		QueueElement<DirectedNode> queueElement = new QueueElement<DirectedNode>(
@@ -653,8 +657,8 @@ public class IntWeightedAllPairsShortestPathsU extends
 				DirectedWeightedEdge d = (DirectedWeightedEdge) iEdge;
 				DirectedNode neighbor = d.getDst();
 				IntWeight dWeight = (IntWeight) d.getWeight();
-				
-				int alt = height.get(current) + (int)dWeight.getWeight();
+
+				int alt = height.get(current) + (int) dWeight.getWeight();
 
 				if (alt < height.get(neighbor)) {
 					if (height.get(neighbor) != Integer.MAX_VALUE)
@@ -708,7 +712,8 @@ public class IntWeightedAllPairsShortestPathsU extends
 
 						DirectedNode neighbor = d.getDst();
 
-						int alt = height.get(current) + (int)dWeight.getWeight();
+						int alt = height.get(current)
+								+ (int) dWeight.getWeight();
 						if (alt < 0) {
 							continue;
 						}
@@ -741,7 +746,8 @@ public class IntWeightedAllPairsShortestPathsU extends
 
 						Node neighbor = d.getDifferingNode(current);
 
-						int alt = height.get(current) + (int)dWeight.getWeight();
+						int alt = height.get(current)
+								+ (int) dWeight.getWeight();
 						if (alt < 0) {
 							continue;
 						}
