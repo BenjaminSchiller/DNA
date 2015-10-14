@@ -5,7 +5,7 @@ import dna.metrics.IMetric;
 import dna.metrics.Metric;
 import dna.metrics.algorithms.IRecomputation;
 import dna.series.data.Value;
-import dna.series.data.distributions.Distribution;
+import dna.series.data.distr2.Distr;
 import dna.series.data.nodevaluelists.NodeNodeValueList;
 import dna.series.data.nodevaluelists.NodeValueList;
 import dna.updates.batch.Batch;
@@ -22,7 +22,7 @@ import dna.util.Timer;
  * (e.g., drawing random elements).
  * 
  * @author benni
- *
+ * 
  */
 public class WorkloadMetric extends Metric implements IRecomputation {
 
@@ -82,8 +82,8 @@ public class WorkloadMetric extends Metric implements IRecomputation {
 	}
 
 	@Override
-	public Distribution[] getDistributions() {
-		return new Distribution[0];
+	public Distr<?, ?>[] getDistributions() {
+		return new Distr<?, ?>[0];
 	}
 
 	@Override
