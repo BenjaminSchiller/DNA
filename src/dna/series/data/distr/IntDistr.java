@@ -15,4 +15,8 @@ public class IntDistr extends Distr<Integer> {
 		return value;
 	}
 
+	protected DistrType getDistrType() {
+		return DistrType.INT;
+	}
+
 }

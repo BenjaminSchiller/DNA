@@ -1,5 +1,6 @@
 package dna.series.data.distr;
 
+
 public class BinnedIntDistr extends BinnedDistr<Integer> {
 
 	public BinnedIntDistr(String name) {
@@ -33,6 +34,10 @@ public class BinnedIntDistr extends BinnedDistr<Integer> {
 		} else {
 			return new Integer[] { (index - 1) * binSize, index * binSize };
 		}
+	}
+
+	protected DistrType getDistrType() {
+		return DistrType.BINNED_INT;
 	}
 
 	/**

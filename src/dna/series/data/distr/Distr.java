@@ -13,6 +13,10 @@ import dna.util.Config;
 import dna.util.Log;
 
 public abstract class Distr<T> extends Data {
+	public enum DistrType {
+		INT, LONG, DOUBLE, BINNED_INT, BINNED_LONG, BINNED_DOUBLE
+	};
+
 	protected long denominator;
 	protected long[] values;
 
@@ -217,6 +221,8 @@ public abstract class Distr<T> extends Data {
 	 * @return the index this value is mapped to
 	 */
 	protected abstract int getIndex(T value);
+
+	protected abstract DistrType getDistrType();
 
 	public long getDenominator() {
 		return this.denominator;
