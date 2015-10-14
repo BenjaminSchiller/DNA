@@ -3,8 +3,8 @@ package dna.metrics.paths;
 import dna.metrics.IMetric;
 import dna.metrics.Metric;
 import dna.series.data.Value;
-import dna.series.data.distributions.Distribution;
-import dna.series.data.distributions.DistributionLong;
+import dna.series.data.distr2.BinnedIntDistr;
+import dna.series.data.distr2.Distr;
 import dna.series.data.nodevaluelists.NodeNodeValueList;
 import dna.series.data.nodevaluelists.NodeValueList;
 import dna.util.ArrayUtils;
@@ -14,7 +14,7 @@ public abstract class AllPairsShortestPaths extends Metric {
 	// TODO INIT!!!
 	// this.apsp = new DistributionLong("APSP");
 
-	protected DistributionLong apsp;
+	protected BinnedIntDistr apsp;
 
 	public AllPairsShortestPaths(String name) {
 		super(name);
@@ -29,14 +29,14 @@ public abstract class AllPairsShortestPaths extends Metric {
 				* (this.g.getNodeCount() - 1));
 		Value v3 = new Value("characteristicPathLength",
 				this.apsp.computeAverage());
-		Value v4 = new Value("diameter", this.apsp.getMax());
+		Value v4 = new Value("diameter", this.apsp.getMaxNonZeroIndex());
 
 		return new Value[] { v1, v2, v3, v4 };
 	}
 
 	@Override
-	public Distribution[] getDistributions() {
-		return new Distribution[] { this.apsp };
+	public Distr<?, ?>[] getDistributions() {
+		return new Distr<?, ?>[] { this.apsp };
 	}
 
 	@Override
@@ -53,8 +53,7 @@ public abstract class AllPairsShortestPaths extends Metric {
 	public boolean equals(IMetric m) {
 		return this.isComparableTo(m)
 				&& ArrayUtils.equals(this.apsp.getValues(),
-						((AllPairsShortestPaths) m).apsp.getValues(),
-						"APSP");
+						((AllPairsShortestPaths) m).apsp.getValues(), "APSP");
 	}
 
 }

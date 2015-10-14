@@ -19,7 +19,7 @@ import dna.metrics.algorithms.IAfterEA;
 import dna.metrics.algorithms.IAfterER;
 import dna.metrics.algorithms.IAfterNA;
 import dna.metrics.algorithms.IAfterNR;
-import dna.series.data.distributions.DistributionLong;
+import dna.series.data.distr2.BinnedIntDistr;
 import dna.updates.update.EdgeAddition;
 import dna.updates.update.EdgeRemoval;
 import dna.updates.update.NodeAddition;
@@ -39,7 +39,7 @@ public class UnweightedAllPairsShortestPathsU extends
 
 	@Override
 	public boolean init() {
-		this.apsp = new DistributionLong("APSP");
+		this.apsp = new BinnedIntDistr("APSP");
 		this.parents = new HashMap<Node, HashMap<Node, Node>>();
 		this.heights = new HashMap<Node, HashMap<Node, Integer>>();
 		this.sum = 0;
@@ -171,8 +171,9 @@ public class UnweightedAllPairsShortestPathsU extends
 							continue;
 						}
 					}
-					boolean noPossibleNeighbour = (key >= this.apsp.getMax() + 2 && dist > this.apsp
-							.getMax() + 2)
+					boolean noPossibleNeighbour = (key >= this.apsp
+							.getMaxNonZeroIndex() + 2 && dist > this.apsp
+							.getMaxNonZeroIndex() + 2)
 							|| (min.isEmpty() && (!uncertain.contains(w) || (key == dist)));
 
 					// no neighbour found
@@ -308,8 +309,9 @@ public class UnweightedAllPairsShortestPathsU extends
 							continue;
 						}
 					}
-					boolean noPossibleNeighbour = (key >= this.apsp.getMax() + 2 && dist > this.apsp
-							.getMax() + 2)
+					boolean noPossibleNeighbour = (key >= this.apsp
+							.getMaxNonZeroIndex() + 2 && dist > this.apsp
+							.getMaxNonZeroIndex() + 2)
 							|| (min.isEmpty() && (!uncertain.contains(w) || (key == dist)));
 
 					// no neighbour found

@@ -3,7 +3,7 @@ package dna.metrics.paths;
 import dna.graph.IElement;
 import dna.graph.nodes.Node;
 import dna.metrics.algorithms.IRecomputation;
-import dna.series.data.distributions.DistributionLong;
+import dna.series.data.distr2.BinnedIntDistr;
 
 public class UnweightedAllPairsShortestPathsR extends
 		UnweightedAllPairsShortestPaths implements IRecomputation {
@@ -14,7 +14,7 @@ public class UnweightedAllPairsShortestPathsR extends
 
 	@Override
 	public boolean recompute() {
-		this.apsp = new DistributionLong("APSP");
+		this.apsp = new BinnedIntDistr("APSP");
 		for (IElement n_ : this.g.getNodes()) {
 			this.compute((Node) n_);
 		}

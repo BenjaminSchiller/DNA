@@ -20,7 +20,7 @@ import dna.metrics.algorithms.IAfterER;
 import dna.metrics.algorithms.IAfterEW;
 import dna.metrics.algorithms.IAfterNA;
 import dna.metrics.algorithms.IAfterNR;
-import dna.series.data.distributions.DistributionLong;
+import dna.series.data.distr2.BinnedIntDistr;
 import dna.updates.update.EdgeAddition;
 import dna.updates.update.EdgeRemoval;
 import dna.updates.update.EdgeWeight;
@@ -43,7 +43,7 @@ public class IntWeightedAllPairsShortestPathsU extends
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
 	public boolean init() {
-		this.apsp = new DistributionLong("APSP");
+		this.apsp = new BinnedIntDistr("APSP");
 		this.parents = new HashMap<Node, HashMap<Node, Node>>();
 		this.heights = new HashMap<Node, HashMap<Node, Integer>>();
 
