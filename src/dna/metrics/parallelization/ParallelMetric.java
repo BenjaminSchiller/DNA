@@ -12,8 +12,8 @@ import dna.metrics.parallelization.partitioning.Partition;
 import dna.metrics.parallelization.partitioning.nodeAssignment.NodeAssignment;
 import dna.metrics.parallelization.partitioning.schemes.PartitioningScheme;
 import dna.series.data.Value;
-import dna.series.data.distributions.Distribution;
-import dna.series.data.distributions.DistributionInt;
+import dna.series.data.distr2.BinnedIntDistr;
+import dna.series.data.distr2.Distr;
 import dna.series.data.nodevaluelists.NodeNodeValueList;
 import dna.series.data.nodevaluelists.NodeValueList;
 import dna.updates.batch.Batch;
@@ -94,25 +94,25 @@ public class ParallelMetric extends Metric implements IBeforeBatch,
 	}
 
 	@Override
-	public Distribution[] getDistributions() {
+	public Distr<?, ?>[] getDistributions() {
 		Value[][] values = new Value[this.partitioningScheme.partitions.length][];
 		for (int i = 0; i < values.length; i++) {
 			values[i] = this.partitioningScheme.partitions[i].getValues();
 		}
 
-		DistributionInt[] stats = new DistributionInt[values[0].length];
+		BinnedIntDistr[] stats = new BinnedIntDistr[values[0].length];
 		for (int i = 0; i < values[0].length; i++) {
 			String name = values[0][i].getName();
-			int[] v = new int[values.length];
+			long[] v = new long[values.length];
 			for (int j = 0; j < values.length; j++) {
 				v[j] = (int) values[j][i].getValue();
 			}
-			stats[i] = new DistributionInt(name, v, 1);
+			stats[i] = new BinnedIntDistr(name, 1, v, 1);
 		}
 
-		Distribution[] results = this.collation.getDistributions();
+		Distr<?, ?>[] results = this.collation.getDistributions();
 
-		Distribution[] all = new Distribution[stats.length + results.length];
+		Distr<?, ?>[] all = new BinnedIntDistr[stats.length + results.length];
 		System.arraycopy(stats, 0, all, 0, stats.length);
 		System.arraycopy(results, 0, all, stats.length, results.length);
 

@@ -4,7 +4,7 @@ import dna.graph.Graph;
 import dna.metrics.Metric;
 import dna.metrics.parallelization.partitioning.Partition;
 import dna.series.data.Value;
-import dna.series.data.distributions.Distribution;
+import dna.series.data.distr2.Distr;
 import dna.series.data.nodevaluelists.NodeNodeValueList;
 import dna.series.data.nodevaluelists.NodeValueList;
 import dna.util.Timer;
@@ -44,7 +44,7 @@ public abstract class Collation<T extends Metric> extends ParameterList {
 		return values;
 	}
 
-	public Distribution[] getDistributions() {
+	public Distr<?, ?>[] getDistributions() {
 		return this.metric.getDistributions();
 	}
 
