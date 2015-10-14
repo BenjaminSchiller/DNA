@@ -1,7 +1,7 @@
 package dna.metrics.motifs;
 
 import dna.metrics.motifs.DirectedMotifs.DirectedMotifType;
-import dna.series.data.distributions.DistributionLong;
+import dna.series.data.distr2.BinnedIntDistr;
 
 public class DirectedMotifsRuleAdd implements DirectedMotifsRule {
 
@@ -14,7 +14,7 @@ public class DirectedMotifsRuleAdd implements DirectedMotifsRule {
 	}
 
 	@Override
-	public void execute(DistributionLong motifs, boolean add) {
+	public void execute(BinnedIntDistr motifs, boolean add) {
 		if (add) {
 			motifs.incr(this.i);
 		} else {

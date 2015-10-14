@@ -10,8 +10,8 @@ import dna.graph.nodes.UndirectedNode;
 import dna.metrics.IMetric;
 import dna.metrics.Metric;
 import dna.series.data.Value;
-import dna.series.data.distributions.Distribution;
-import dna.series.data.distributions.DistributionLong;
+import dna.series.data.distr2.BinnedIntDistr;
+import dna.series.data.distr2.Distr;
 import dna.series.data.nodevaluelists.NodeNodeValueList;
 import dna.series.data.nodevaluelists.NodeValueList;
 import dna.updates.batch.Batch;
@@ -24,7 +24,7 @@ public abstract class UndirectedMotifs extends Metric {
 		UM1, UM2, UM3, UM4, UM5, UM6
 	};
 
-	protected DistributionLong motifs;
+	protected BinnedIntDistr motifs;
 
 	public UndirectedMotifs(String name, Parameter... p) {
 		super(name, p);
@@ -43,8 +43,8 @@ public abstract class UndirectedMotifs extends Metric {
 	}
 
 	@Override
-	public Distribution[] getDistributions() {
-		return new Distribution[] { this.motifs };
+	public Distr<?, ?>[] getDistributions() {
+		return new Distr<?, ?>[] { this.motifs };
 	}
 
 	@Override
@@ -150,7 +150,7 @@ public abstract class UndirectedMotifs extends Metric {
 	}
 
 	protected boolean compute() {
-		this.motifs = new DistributionLong("UndirectedMotifs", new long[7], 0);
+		this.motifs = new BinnedIntDistr("UndirectedMotifs", 1, new long[7], 0);
 
 		for (IElement a_ : this.g.getNodes()) {
 			UndirectedNode a = (UndirectedNode) a_;

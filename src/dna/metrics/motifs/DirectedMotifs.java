@@ -9,8 +9,8 @@ import dna.graph.nodes.DirectedNode;
 import dna.metrics.IMetric;
 import dna.metrics.Metric;
 import dna.series.data.Value;
-import dna.series.data.distributions.Distribution;
-import dna.series.data.distributions.DistributionLong;
+import dna.series.data.distr2.BinnedIntDistr;
+import dna.series.data.distr2.Distr;
 import dna.series.data.nodevaluelists.NodeNodeValueList;
 import dna.series.data.nodevaluelists.NodeValueList;
 import dna.updates.batch.Batch;
@@ -23,7 +23,7 @@ public abstract class DirectedMotifs extends Metric {
 		DM01, DM02, DM03, DM04, DM05, DM06, DM07, DM08, DM09, DM10, DM11, DM12, DM13
 	}
 
-	protected DistributionLong motifs;
+	protected BinnedIntDistr motifs;
 
 	public DirectedMotifs(String name, Parameter... p) {
 		super(name, p);
@@ -50,8 +50,8 @@ public abstract class DirectedMotifs extends Metric {
 	}
 
 	@Override
-	public Distribution[] getDistributions() {
-		return new Distribution[] { this.motifs };
+	public Distr<?, ?>[] getDistributions() {
+		return new Distr<?, ?>[] { this.motifs };
 	}
 
 	@Override
@@ -92,7 +92,7 @@ public abstract class DirectedMotifs extends Metric {
 	}
 
 	protected boolean compute() {
-		this.motifs = new DistributionLong("DirectedMotifs", new long[14], 0);
+		this.motifs = new BinnedIntDistr("DirectedMotifs", 1, new long[14], 0);
 
 		for (IElement element : this.g.getNodes()) {
 			DirectedNode a = (DirectedNode) element;
