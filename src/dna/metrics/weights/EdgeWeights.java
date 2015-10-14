@@ -7,7 +7,7 @@ import dna.graph.weights.DoubleWeight;
 import dna.graph.weights.IWeightedEdge;
 import dna.graph.weights.IntWeight;
 import dna.metrics.IMetric;
-import dna.series.data.distributions.BinnedDistributionDouble;
+import dna.series.data.distr2.BinnedDoubleDistr;
 import dna.updates.batch.Batch;
 
 public abstract class EdgeWeights extends Weights {
@@ -17,7 +17,7 @@ public abstract class EdgeWeights extends Weights {
 	}
 
 	public boolean compute() {
-		this.distr = new BinnedDistributionDouble("EdgeWeightsDistribution",
+		this.distr = new BinnedDoubleDistr("EdgeWeightsDistribution",
 				this.binSize);
 		for (IElement e : this.g.getEdges()) {
 			this.distr.incr(this.getWeight((IEdge) e));

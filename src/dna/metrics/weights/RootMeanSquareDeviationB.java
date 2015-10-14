@@ -19,7 +19,7 @@ public class RootMeanSquareDeviationB extends RootMeanSquareDeviation implements
 		this.rmsd = 0;
 		this.initDistr();
 		for (int i = 0; i < this.g.getNodeCount(); i++) {
-			this.distr.incr(0);
+			this.distr.incr(0.0);
 		}
 		return true;
 	}
@@ -35,7 +35,7 @@ public class RootMeanSquareDeviationB extends RootMeanSquareDeviation implements
 		int unchangedNodes = nodesAfter - b.getNodeWeightsCount();
 
 		for (int i = 0; i < unchangedNodes; i++) {
-			this.distr.incr(0);
+			this.distr.incr(0.0);
 		}
 		for (NodeWeight u : b.getNodeWeights()) {
 			double dist = EuclideanDistance.dist(

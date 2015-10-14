@@ -46,7 +46,7 @@ public class RootMeanSquareDeviationR extends RootMeanSquareDeviation implements
 				this.updatePosition((Node) n);
 			}
 			for (int i = 0; i < this.g.getNodeCount(); i++) {
-				this.distr.incr(0);
+				this.distr.incr(0.0);
 			}
 		} else {
 			for (IElement n_ : this.g.getNodes()) {
@@ -59,7 +59,7 @@ public class RootMeanSquareDeviationR extends RootMeanSquareDeviation implements
 					this.distr.incr(dist);
 					this.changes++;
 				} else {
-					this.distr.incr(0);
+					this.distr.incr(0.0);
 				}
 				this.updatePosition((Node) n);
 			}
