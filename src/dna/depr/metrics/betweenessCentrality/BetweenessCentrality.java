@@ -12,8 +12,8 @@ import dna.graph.nodes.Node;
 import dna.graph.nodes.UndirectedNode;
 import dna.metrics.IMetric;
 import dna.series.data.Value;
-import dna.series.data.distributions.BinnedDistributionDouble;
-import dna.series.data.distributions.Distribution;
+import dna.series.data.distr2.BinnedDoubleDistr;
+import dna.series.data.distr2.Distr;
 import dna.series.data.nodevaluelists.NodeNodeValueList;
 import dna.series.data.nodevaluelists.NodeValueList;
 import dna.updates.batch.Batch;
@@ -25,7 +25,7 @@ public abstract class BetweenessCentrality extends MetricOld {
 	protected NodeValueList bCC;
 	protected double bCSum;
 
-	protected BinnedDistributionDouble binnedBC;
+	protected BinnedDoubleDistr binnedBC;
 	protected int sumShortestPaths;
 
 	public BetweenessCentrality(String name, ApplicationType type) {
@@ -36,7 +36,7 @@ public abstract class BetweenessCentrality extends MetricOld {
 	public void init_() {
 		this.bCC = new NodeValueList("BC_Score",
 				new double[this.g.getMaxNodeIndex() + 1]);
-		this.binnedBC = new BinnedDistributionDouble("Normalized-BC", 0.01d);
+		this.binnedBC = new BinnedDoubleDistr("Normalized-BC", 0.01d);
 		this.bCSum = 0d;
 		this.sumShortestPaths = 0;
 	}
@@ -105,9 +105,9 @@ public abstract class BetweenessCentrality extends MetricOld {
 	}
 
 	@Override
-	public Distribution[] getDistributions() {
+	public Distr<?, ?>[] getDistributions() {
 		computeBinnedBC();
-		return new Distribution[] { binnedBC };
+		return new Distr<?, ?>[] { binnedBC };
 
 	}
 

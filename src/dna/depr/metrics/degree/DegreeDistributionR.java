@@ -5,7 +5,7 @@ import dna.graph.IElement;
 import dna.graph.nodes.DirectedNode;
 import dna.graph.nodes.UndirectedNode;
 import dna.metrics.IMetric;
-import dna.series.data.distr.IntDistr;
+import dna.series.data.distr2.BinnedIntDistr;
 import dna.updates.batch.Batch;
 import dna.updates.update.Update;
 import dna.util.Log;
@@ -39,12 +39,12 @@ public class DegreeDistributionR extends DegreeDistribution {
 
 	@Override
 	public boolean compute() {
-		this.degree = new IntDistr(degreeName, Long.valueOf(this.g
-				.getNodeCount()), new long[0]);
-		this.inDegree = new IntDistr(inDegreeName, Long.valueOf(this.g
-				.getNodeCount()), new long[0]);
-		this.outDegree = new IntDistr(outDegreeName, Long.valueOf(this.g
-				.getNodeCount()), new long[0]);
+		this.degree = new BinnedIntDistr(degreeName, 1, new long[0],
+				Long.valueOf(this.g.getNodeCount()));
+		this.inDegree = new BinnedIntDistr(inDegreeName, 1, new long[0],
+				Long.valueOf(this.g.getNodeCount()));
+		this.outDegree = new BinnedIntDistr(outDegreeName, 1, new long[0],
+				Long.valueOf(this.g.getNodeCount()));
 		this.nodes = this.g.getNodeCount();
 		this.edges = this.g.getEdgeCount();
 		if (DirectedNode.class.isAssignableFrom(this.g.getGraphDatastructures()

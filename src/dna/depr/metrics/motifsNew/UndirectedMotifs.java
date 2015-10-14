@@ -11,8 +11,8 @@ import dna.graph.edges.UndirectedEdge;
 import dna.graph.nodes.UndirectedNode;
 import dna.metrics.Metric;
 import dna.series.data.Value;
-import dna.series.data.distr.Distr;
-import dna.series.data.distr.IntDistr;
+import dna.series.data.distr2.BinnedIntDistr;
+import dna.series.data.distr2.Distr;
 import dna.series.data.nodevaluelists.NodeNodeValueList;
 import dna.series.data.nodevaluelists.NodeValueList;
 import dna.updates.batch.Batch;
@@ -24,7 +24,7 @@ public abstract class UndirectedMotifs extends MetricOld {
 		UM1, UM2, UM3, UM4, UM5, UM6
 	};
 
-	protected IntDistr motifs;
+	protected BinnedIntDistr motifs;
 
 	public static final String motifsName = "undirectedMotifs";
 
@@ -163,7 +163,7 @@ public abstract class UndirectedMotifs extends MetricOld {
 
 	@Override
 	public void init_() {
-		this.motifs = new IntDistr(motifsName, 0, new long[7]);
+		this.motifs = new BinnedIntDistr(motifsName, 1, new long[7], 0);
 	}
 
 	@Override
@@ -190,8 +190,8 @@ public abstract class UndirectedMotifs extends MetricOld {
 	}
 
 	@Override
-	public Distr<?>[] getDistributions() {
-		return new Distr<?>[] { this.motifs };
+	public Distr<?, ?>[] getDistributions() {
+		return new Distr<?, ?>[] { this.motifs };
 	}
 
 	@Override

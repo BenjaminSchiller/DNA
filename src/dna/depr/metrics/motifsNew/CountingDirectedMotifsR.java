@@ -9,7 +9,7 @@ import dna.graph.edges.DirectedEdge;
 import dna.graph.nodes.DirectedNode;
 import dna.metrics.IMetric;
 import dna.series.data.Value;
-import dna.series.data.distr.Distr;
+import dna.series.data.distr2.Distr;
 import dna.series.data.nodevaluelists.NodeNodeValueList;
 import dna.series.data.nodevaluelists.NodeValueList;
 import dna.updates.batch.Batch;
@@ -150,8 +150,8 @@ public class CountingDirectedMotifsR extends MetricOld {
 	}
 
 	@Override
-	public Distr<?>[] getDistributions() {
-		return new Distr<?>[] {};
+	public Distr<?, ?>[] getDistributions() {
+		return new Distr<?, ?>[] {};
 	}
 
 	@Override

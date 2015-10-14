@@ -5,8 +5,8 @@ import dna.graph.nodes.DirectedNode;
 import dna.graph.nodes.UndirectedNode;
 import dna.metrics.Metric;
 import dna.series.data.Value;
-import dna.series.data.distr.Distr;
-import dna.series.data.distr.IntDistr;
+import dna.series.data.distr2.BinnedIntDistr;
+import dna.series.data.distr2.Distr;
 import dna.series.data.nodevaluelists.NodeNodeValueList;
 import dna.series.data.nodevaluelists.NodeValueList;
 import dna.util.ArrayUtils;
@@ -14,11 +14,11 @@ import dna.util.DataUtils;
 
 public abstract class DegreeDistribution extends MetricOld {
 
-	protected IntDistr degree;
+	protected BinnedIntDistr degree;
 
-	protected IntDistr inDegree;
+	protected BinnedIntDistr inDegree;
 
-	protected IntDistr outDegree;
+	protected BinnedIntDistr outDegree;
 
 	public static final String degreeName = "degreeDistribution";
 
@@ -55,13 +55,14 @@ public abstract class DegreeDistribution extends MetricOld {
 	}
 
 	@Override
-	public Distr<?>[] getDistributions() {
+	public Distr<?, ?>[] getDistributions() {
 		if (DirectedNode.class.isAssignableFrom(this.g.getGraphDatastructures()
 				.getNodeType())) {
-			return new Distr<?>[] { this.degree, this.inDegree, this.outDegree };
+			return new Distr<?, ?>[] { this.degree, this.inDegree,
+					this.outDegree };
 		} else if (UndirectedNode.class.isAssignableFrom(this.g
 				.getGraphDatastructures().getNodeType())) {
-			return new Distr<?>[] { this.degree };
+			return new Distr<?, ?>[] { this.degree };
 		}
 		return null;
 	}
@@ -86,12 +87,12 @@ public abstract class DegreeDistribution extends MetricOld {
 
 	@Override
 	public void init_() {
-		this.degree = new IntDistr(degreeName, Long.valueOf(this.g
-				.getNodeCount()), new long[0]);
-		this.inDegree = new IntDistr(inDegreeName, Long.valueOf(this.g
-				.getNodeCount()), new long[0]);
-		this.outDegree = new IntDistr(outDegreeName, Long.valueOf(this.g
-				.getNodeCount()), new long[0]);
+		this.degree = new BinnedIntDistr(degreeName, 0, new long[0],
+				Long.valueOf(this.g.getNodeCount()));
+		this.inDegree = new BinnedIntDistr(inDegreeName, 0, new long[0],
+				Long.valueOf(this.g.getNodeCount()));
+		this.outDegree = new BinnedIntDistr(outDegreeName, 0, new long[0],
+				Long.valueOf(this.g.getNodeCount()));
 		this.nodes = 0;
 		this.edges = 0;
 	}

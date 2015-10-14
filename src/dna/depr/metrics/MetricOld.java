@@ -4,7 +4,7 @@ import dna.graph.Graph;
 import dna.metrics.Metric;
 import dna.series.data.MetricData;
 import dna.series.data.Value;
-import dna.series.data.distr.Distr;
+import dna.series.data.distr2.Distr;
 import dna.series.data.nodevaluelists.NodeNodeValueList;
 import dna.series.data.nodevaluelists.NodeValueList;
 import dna.updates.batch.Batch;
@@ -210,7 +210,7 @@ public abstract class MetricOld extends ParameterList {
 	 * 
 	 * @return all the distributions computed by this metric
 	 */
-	public abstract Distr<?>[] getDistributions();
+	public abstract Distr<?, ?>[] getDistributions();
 
 	/**
 	 * 

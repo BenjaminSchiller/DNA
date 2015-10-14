@@ -13,8 +13,7 @@ import dna.graph.nodes.Node;
 import dna.graph.nodes.UndirectedNode;
 import dna.metrics.Metric;
 import dna.series.data.Value;
-import dna.series.data.distr.Distr;
-import dna.series.data.distr.IntDistr;
+import dna.series.data.distr2.BinnedIntDistr;
 import dna.series.data.nodevaluelists.NodeNodeValueList;
 import dna.series.data.nodevaluelists.NodeValueList;
 import dna.updates.batch.Batch;
@@ -188,7 +187,7 @@ public abstract class Connectivity extends MetricOld {
 	}
 
 	@Override
-	public Distr<?>[] getDistributions() {
+	public BinnedIntDistr[] getDistributions() {
 		ConnectedComponent[] c = new ConnectedComponent[this.components.size()];
 		int index = 0;
 		for (ConnectedComponent comp : this.components) {
@@ -199,9 +198,9 @@ public abstract class Connectivity extends MetricOld {
 		for (int i = 0; i < c.length; i++) {
 			v[i] = c[i].getSize();
 		}
-		IntDistr d = new IntDistr("Components", Long.valueOf(this.g
-				.getNodeCount()), v);
-		return new Distr<?>[] { d };
+		BinnedIntDistr d = new BinnedIntDistr("Components", 1, v,
+				Long.valueOf(this.g.getNodeCount()));
+		return new BinnedIntDistr[] { d };
 	}
 
 	@Override
