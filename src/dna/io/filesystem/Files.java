@@ -8,7 +8,7 @@ import java.util.ArrayList;
 
 import dna.io.ZipReader;
 import dna.io.filter.SuffixFilenameFilter;
-import dna.series.data.distr.Distr.DistrType;
+import dna.series.data.distr2.Distr.DistrType;
 import dna.util.Config;
 
 public class Files {
@@ -39,12 +39,12 @@ public class Files {
 			return name + Config.get("SUFFIX_DIST_BINNED_INT");
 		case BINNED_LONG:
 			return name + Config.get("SUFFIX_DIST_BINNED_LONG");
-		case DOUBLE:
-			return name + Config.get("SUFFIX_DIST_DOUBLE");
-		case INT:
-			return name + Config.get("SUFFIX_DIST_INT");
-		case LONG:
-			return name + Config.get("SUFFIX_DIST_LONG");
+		case QUALITY_DOUBLE:
+			return name + Config.get("SUFFIX_DIST_QUALITY_DOUBLE");
+		case QUALITY_INT:
+			return name + Config.get("SUFFIX_DIST_QUALITY_INT");
+		case QUALITY_LONG:
+			return name + Config.get("SUFFIX_DIST_QUALITY_LONG");
 		default:
 			return name + Config.get("SUFFIX_DIST");
 		}
@@ -57,12 +57,12 @@ public class Files {
 			return DistrType.BINNED_INT;
 		} else if (name.endsWith(Config.get("SUFFIX_DIST_BINNED_LONG"))) {
 			return DistrType.BINNED_LONG;
-		} else if (name.endsWith(Config.get("SUFFIX_DIST_DOUBLE"))) {
-			return DistrType.DOUBLE;
-		} else if (name.endsWith(Config.get("SUFFIX_DIST_INT"))) {
-			return DistrType.INT;
-		} else if (name.endsWith(Config.get("SUFFIX_DIST_LONG"))) {
-			return DistrType.BINNED_LONG;
+		} else if (name.endsWith(Config.get("SUFFIX_DIST_QUALITY_DOUBLE"))) {
+			return DistrType.QUALITY_DOUBLE;
+		} else if (name.endsWith(Config.get("SUFFIX_DIST_QUALITY_INT"))) {
+			return DistrType.QUALITY_INT;
+		} else if (name.endsWith(Config.get("SUFFIX_DIST_QUALITY_LONG"))) {
+			return DistrType.QUALITY_LONG;
 		}
 		return null;
 	}
@@ -129,14 +129,15 @@ public class Files {
 			return filename.replace(Config.get("SUFFIX_DIST_BINNED_INT"), "");
 		case BINNED_LONG:
 			return filename.replace(Config.get("SUFFIX_DIST_BINNED_LONG"), "");
-		case DOUBLE:
-			return filename.replace(Config.get("SUFFIX_DIST_DOUBLE"), "");
-		case INT:
-			return filename.replace(Config.get("SUFFIX_DIST_INT"), "");
-		case LONG:
-			return filename.replace(Config.get("SUFFIX_DIST_LONG"), "");
+		case QUALITY_DOUBLE:
+			return filename.replace(Config.get("SUFFIX_DIST_QUALITY_DOUBLE"),
+					"");
+		case QUALITY_INT:
+			return filename.replace(Config.get("SUFFIX_DIST_QUALITY_INT"), "");
+		case QUALITY_LONG:
+			return filename.replace(Config.get("SUFFIX_DIST_QUALITY_LONG"), "");
 		default:
-			return filename.replace(Config.get("SUFFIX_DIST"), "");
+			return null;
 		}
 	}
 
