@@ -7,8 +7,8 @@ import dna.graph.nodes.UndirectedNode;
 import dna.metrics.IMetric;
 import dna.metrics.Metric;
 import dna.series.data.Value;
-import dna.series.data.distributions.Distribution;
-import dna.series.data.distributions.DistributionInt;
+import dna.series.data.distr2.BinnedIntDistr;
+import dna.series.data.distr2.Distr;
 import dna.series.data.nodevaluelists.NodeNodeValueList;
 import dna.series.data.nodevaluelists.NodeValueList;
 import dna.updates.batch.Batch;
@@ -17,9 +17,9 @@ import dna.util.parameters.Parameter;
 
 public abstract class DegreeDistribution extends Metric {
 
-	protected DistributionInt degree;
-	protected DistributionInt inDegree;
-	protected DistributionInt outDegree;
+	protected BinnedIntDistr degree;
+	protected BinnedIntDistr inDegree;
+	protected BinnedIntDistr outDegree;
 
 	public DegreeDistribution(String name, Parameter... p) {
 		super(name, p);
@@ -28,27 +28,31 @@ public abstract class DegreeDistribution extends Metric {
 	@Override
 	public Value[] getValues() {
 		if (this.g.isDirected()) {
-			Value minIn = new Value("InDegreeMin", this.inDegree.getMin());
-			Value maxIn = new Value("InDegreeMax", this.inDegree.getMax());
-			Value minOut = new Value("OutDegreeMin", this.outDegree.getMin());
-			Value maxOut = new Value("OutDegreeMax", this.outDegree.getMax());
-			Value min = new Value("DegreeMin", this.degree.getMin());
-			Value max = new Value("DegreeMax", this.degree.getMax());
+			Value minIn = new Value("InDegreeMin",
+					this.inDegree.getMinNonZeroIndex());
+			Value maxIn = new Value("InDegreeMax",
+					this.inDegree.getMaxNonZeroIndex());
+			Value minOut = new Value("OutDegreeMin",
+					this.outDegree.getMinNonZeroIndex());
+			Value maxOut = new Value("OutDegreeMax",
+					this.outDegree.getMaxNonZeroIndex());
+			Value min = new Value("DegreeMin", this.degree.getMinNonZeroIndex());
+			Value max = new Value("DegreeMax", this.degree.getMaxNonZeroIndex());
 			return new Value[] { minIn, maxIn, minOut, maxOut, min, max };
 		} else {
-			Value min = new Value("DegreeMin", this.degree.getMin());
-			Value max = new Value("DegreeMax", this.degree.getMax());
+			Value min = new Value("DegreeMin", this.degree.getMinNonZeroIndex());
+			Value max = new Value("DegreeMax", this.degree.getMaxNonZeroIndex());
 			return new Value[] { min, max };
 		}
 	}
 
 	@Override
-	public Distribution[] getDistributions() {
+	public Distr<?, ?>[] getDistributions() {
 		if (this.g.isDirected()) {
-			return new Distribution[] { this.degree, this.inDegree,
+			return new Distr<?, ?>[] { this.degree, this.inDegree,
 					this.outDegree };
 		} else {
-			return new Distribution[] { this.degree };
+			return new Distr<?, ?>[] { this.degree };
 		}
 	}
 
@@ -97,9 +101,9 @@ public abstract class DegreeDistribution extends Metric {
 
 	protected boolean compute() {
 		if (this.g.isDirected()) {
-			this.degree = new DistributionInt("DegreeDistribution");
-			this.inDegree = new DistributionInt("InDegreeDistribution");
-			this.outDegree = new DistributionInt("OutDegreeDistribution");
+			this.degree = new BinnedIntDistr("DegreeDistribution");
+			this.inDegree = new BinnedIntDistr("InDegreeDistribution");
+			this.outDegree = new BinnedIntDistr("OutDegreeDistribution");
 			for (IElement n_ : this.g.getNodes()) {
 				DirectedNode n = (DirectedNode) n_;
 				this.degree.incr(n.getDegree());
@@ -107,7 +111,7 @@ public abstract class DegreeDistribution extends Metric {
 				this.outDegree.incr(n.getOutDegree());
 			}
 		} else {
-			this.degree = new DistributionInt("DegreeDistribution");
+			this.degree = new BinnedIntDistr("DegreeDistribution");
 			this.inDegree = null;
 			this.outDegree = null;
 			for (IElement n_ : this.g.getNodes()) {
