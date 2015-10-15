@@ -3781,7 +3781,8 @@ public class PlottingUtils {
 								timestamp, BatchReadMode.readOnlySingleValues);
 					} catch (FileNotFoundException e) {
 						if (zippedBatches || zippedRuns) {
-							ZipReader.closeReadFilesystem();
+							if (ZipReader.isZipOpen())
+								ZipReader.closeReadFilesystem();
 							String remDir = tempDir
 									+ Config.get("PREFIX_BATCHDATA_DIR")
 									+ timestamp + Config.get("SUFFIX_ZIP_FILE");
