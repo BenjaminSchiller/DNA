@@ -39,10 +39,9 @@ import dna.graph.weights.DoubleWeight;
 import dna.graph.weights.IntWeight;
 import dna.graph.weights.Weight.WeightSelection;
 import dna.metrics.IMetric;
-import dna.metrics.IMetric.MetricType;
 import dna.profiler.Profiler;
 import dna.series.data.Value;
-import dna.series.data.distributions.Distribution;
+import dna.series.data.distr2.Distr;
 import dna.series.data.nodevaluelists.NodeNodeValueList;
 import dna.series.data.nodevaluelists.NodeValueList;
 import dna.updates.batch.Batch;
@@ -333,14 +332,14 @@ public class ProfilerTest {
 		assertEquals(2, Profiler.getMeanSize(ListType.GlobalNodeList), 0.1);
 
 		if (graph.isDirected()) {
-			assertEquals(2, Profiler.getMeanSize(ListType.GlobalEdgeList), 0.1);			
+			assertEquals(2, Profiler.getMeanSize(ListType.GlobalEdgeList), 0.1);
 			assertEquals(1, Profiler.getMeanSize(ListType.LocalNodeList), 0.1);
 			assertEquals(0, Profiler.getMeanSize(ListType.LocalEdgeList), 0.1);
 			assertEquals(1, Profiler.getMeanSize(ListType.LocalInEdgeList), 0.1);
 			assertEquals(1, Profiler.getMeanSize(ListType.LocalOutEdgeList),
 					0.1);
 		} else {
-			assertEquals(1, Profiler.getMeanSize(ListType.GlobalEdgeList), 0.1);			
+			assertEquals(1, Profiler.getMeanSize(ListType.GlobalEdgeList), 0.1);
 			assertEquals(0, Profiler.getMeanSize(ListType.LocalNodeList), 0.1);
 			assertEquals(1, Profiler.getMeanSize(ListType.LocalEdgeList), 0.1);
 			assertEquals(0, Profiler.getMeanSize(ListType.LocalInEdgeList), 0.1);
@@ -450,7 +449,7 @@ public class ProfilerTest {
 		}
 
 		@Override
-		public Distribution[] getDistributions() {
+		public Distr<?, ?>[] getDistributions() {
 			return null;
 		}
 
