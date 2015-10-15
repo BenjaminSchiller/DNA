@@ -1,5 +1,6 @@
 package dna.metrics.parallelization.partitioning;
 
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -47,7 +48,23 @@ public class NonOverlappingPartition extends Partition {
 				+ externalEdges.size();
 	}
 
-	public static NonOverlappingPartition getPartition(String name, Graph g,
+	public static NonOverlappingPartition[] getPartitions(Graph g,
+			List<List<Node>> nodesList, Metric m,
+			HashMap<Node, Partition> partitionMap) {
+		NonOverlappingPartition[] p = new NonOverlappingPartition[nodesList
+				.size()];
+		int index = 0;
+		for (List<Node> nodes : nodesList) {
+			p[index] = getPartition(getName(index), g, nodes, m);
+			for (Node node : nodes) {
+				partitionMap.put(node, p[index]);
+			}
+			index++;
+		}
+		return p;
+	}
+
+	protected static NonOverlappingPartition getPartition(String name, Graph g,
 			List<Node> nodes, Metric m) {
 		Graph gp = g.getGraphDatastructures().newGraphInstance(name,
 				g.getTimestamp(), nodes.size(),

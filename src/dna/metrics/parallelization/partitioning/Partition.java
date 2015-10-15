@@ -57,7 +57,14 @@ public abstract class Partition {
 		return this.t;
 	}
 
+	public Partition() {
+	}
+
 	public Partition(Graph g, List<Node> nodes, Metric m) {
+		this.init(g, nodes, m);
+	}
+
+	public void init(Graph g, List<Node> nodes, Metric m) {
 		this.g = g;
 		this.nodes = nodes;
 		this.m = m;
@@ -115,6 +122,10 @@ public abstract class Partition {
 	/*
 	 * HELPERS
 	 */
+
+	protected static String getName(int index) {
+		return "p" + index;
+	}
 
 	protected static boolean removeConnectedEdges(Set<Edge> edges, Node node) {
 		List<Edge> toRemove = new LinkedList<Edge>();
