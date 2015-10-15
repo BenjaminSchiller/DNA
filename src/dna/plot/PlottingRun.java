@@ -4,8 +4,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 
-import dna.io.ZipReader;
-import dna.io.ZipWriter;
 import dna.io.filesystem.Dir;
 import dna.plot.PlottingConfig.PlotFlag;
 import dna.plot.data.PlotData.DistributionPlotType;
