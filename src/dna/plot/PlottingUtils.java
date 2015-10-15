@@ -30,13 +30,7 @@ import dna.series.data.BatchData;
 import dna.series.data.IBatch;
 import dna.series.data.MetricData;
 import dna.series.data.SeriesData;
-import dna.series.data.distributions.BinnedDistributionDouble;
-import dna.series.data.distributions.BinnedDistributionInt;
-import dna.series.data.distributions.BinnedDistributionLong;
-import dna.series.data.distributions.Distribution;
-import dna.series.data.distributions.DistributionDouble;
-import dna.series.data.distributions.DistributionInt;
-import dna.series.data.distributions.DistributionLong;
+import dna.series.data.distr2.Distr;
 import dna.util.Config;
 import dna.util.Log;
 
@@ -1141,42 +1135,18 @@ public class PlottingUtils {
 						AggregatedDistribution d = ((AggregatedBatch) initBatch)
 								.getMetrics().get(metric).getDistributions()
 								.get(distribution);
-						if (d instanceof AggregatedBinnedDistribution) {
+						if (d instanceof AggregatedBinnedDistribution)
 							distFilename = Files
 									.getDistributionBinnedFilename(d.getName());
-						} else {
+						else
 							distFilename = Files.getDistributionFilename(d
 									.getName());
-						}
 					} else {
-						Distribution d = ((BatchData) initBatch).getMetrics()
+						Distr<?, ?> d = ((BatchData) initBatch).getMetrics()
 								.get(metric).getDistributions()
 								.get(distribution);
-						if (d instanceof BinnedDistributionInt) {
-							distFilename = Files
-									.getDistributionBinnedIntFilename(d
-											.getName());
-						} else if (d instanceof BinnedDistributionLong) {
-							distFilename = Files
-									.getDistributionBinnedLongFilename(d
-											.getName());
-						} else if (d instanceof BinnedDistributionDouble) {
-							distFilename = Files
-									.getDistributionBinnedDoubleFilename(d
-											.getName());
-						} else if (d instanceof DistributionInt) {
-							distFilename = Files.getDistributionIntFilename(d
-									.getName());
-						} else if (d instanceof DistributionLong) {
-							distFilename = Files.getDistributionLongFilename(d
-									.getName());
-						} else if (d instanceof DistributionDouble) {
-							distFilename = Files
-									.getDistributionDoubleFilename(d.getName());
-						} else {
-							distFilename = Files.getDistributionFilename(d
-									.getName());
-						}
+						distFilename = Files.getDistributionFilename(
+								d.getName(), d.getDistrType());
 					}
 
 					// check what to plot
@@ -1480,46 +1450,18 @@ public class PlottingUtils {
 							if (aggregatedBatches) {
 								if (((AggregatedBatch) initBatch).getMetrics()
 										.get(domains[j]).getDistributions()
-										.get(values[j]) instanceof AggregatedBinnedDistribution) {
+										.get(values[j]) instanceof AggregatedBinnedDistribution)
 									distFilename = Files
 											.getDistributionBinnedFilename(values[j]);
-								} else {
+								else
 									distFilename = Files
 											.getDistributionFilename(values[j]);
-								}
 							} else {
-								Distribution d = ((BatchData) initBatch)
+								Distr<?, ?> d = ((BatchData) initBatch)
 										.getMetrics().get(domains[j])
 										.getDistributions().get(values[j]);
-								if (d instanceof BinnedDistributionInt) {
-									distFilename = Files
-											.getDistributionBinnedIntFilename(d
-													.getName());
-								} else if (d instanceof BinnedDistributionLong) {
-									distFilename = Files
-											.getDistributionBinnedLongFilename(d
-													.getName());
-								} else if (d instanceof BinnedDistributionDouble) {
-									distFilename = Files
-											.getDistributionBinnedDoubleFilename(d
-													.getName());
-								} else if (d instanceof DistributionInt) {
-									distFilename = Files
-											.getDistributionIntFilename(d
-													.getName());
-								} else if (d instanceof DistributionLong) {
-									distFilename = Files
-											.getDistributionLongFilename(d
-													.getName());
-								} else if (d instanceof DistributionDouble) {
-									distFilename = Files
-											.getDistributionDoubleFilename(d
-													.getName());
-								} else {
-									distFilename = Files
-											.getDistributionFilename(d
-													.getName());
-								}
+								distFilename = Files.getDistributionFilename(
+										d.getName(), d.getDistrType());
 							}
 
 							if (plotDist) {
@@ -2473,46 +2415,20 @@ public class PlottingUtils {
 									if (aggregatedBatches) {
 										if (((AggregatedBatch) initBatches[j])
 												.getMetrics().get(domain)
-												.getDistributions().get(value) instanceof AggregatedBinnedDistribution) {
+												.getDistributions().get(value) instanceof AggregatedBinnedDistribution)
 											distFilename = Files
 													.getDistributionBinnedFilename(value);
-										} else {
+										else
 											distFilename = Files
 													.getDistributionFilename(value);
-										}
 									} else {
-										Distribution d = ((BatchData) initBatches[j])
+										Distr<?, ?> d = ((BatchData) initBatches[j])
 												.getMetrics().get(domain)
 												.getDistributions().get(value);
-										if (d instanceof BinnedDistributionInt) {
-											distFilename = Files
-													.getDistributionBinnedIntFilename(d
-															.getName());
-										} else if (d instanceof BinnedDistributionLong) {
-											distFilename = Files
-													.getDistributionBinnedLongFilename(d
-															.getName());
-										} else if (d instanceof BinnedDistributionDouble) {
-											distFilename = Files
-													.getDistributionBinnedDoubleFilename(d
-															.getName());
-										} else if (d instanceof DistributionInt) {
-											distFilename = Files
-													.getDistributionIntFilename(d
-															.getName());
-										} else if (d instanceof DistributionLong) {
-											distFilename = Files
-													.getDistributionLongFilename(d
-															.getName());
-										} else if (d instanceof DistributionDouble) {
-											distFilename = Files
-													.getDistributionDoubleFilename(d
-															.getName());
-										} else {
-											distFilename = Files
-													.getDistributionFilename(d
-															.getName());
-										}
+										distFilename = Files
+												.getDistributionFilename(
+														d.getName(),
+														d.getDistrType());
 									}
 
 									String runAddition = "";
@@ -3004,46 +2920,20 @@ public class PlottingUtils {
 								if (aggregatedBatches) {
 									if (((AggregatedBatch) initBatch)
 											.getMetrics().get(d)
-											.getDistributions().get(dist) instanceof AggregatedBinnedDistribution) {
+											.getDistributions().get(dist) instanceof AggregatedBinnedDistribution)
 										distFilename = Files
 												.getDistributionBinnedFilename(dist);
-									} else {
+									else
 										distFilename = Files
 												.getDistributionFilename(dist);
-									}
 								} else {
-									Distribution di = ((BatchData) initBatch)
+									Distr<?, ?> di = ((BatchData) initBatch)
 											.getMetrics().get(d)
 											.getDistributions().get(dist);
-									if (di instanceof BinnedDistributionInt) {
-										distFilename = Files
-												.getDistributionBinnedIntFilename(di
-														.getName());
-									} else if (di instanceof BinnedDistributionLong) {
-										distFilename = Files
-												.getDistributionBinnedLongFilename(di
-														.getName());
-									} else if (di instanceof BinnedDistributionDouble) {
-										distFilename = Files
-												.getDistributionBinnedDoubleFilename(di
-														.getName());
-									} else if (di instanceof DistributionInt) {
-										distFilename = Files
-												.getDistributionIntFilename(di
-														.getName());
-									} else if (di instanceof DistributionLong) {
-										distFilename = Files
-												.getDistributionLongFilename(di
-														.getName());
-									} else if (di instanceof DistributionDouble) {
-										distFilename = Files
-												.getDistributionDoubleFilename(di
-														.getName());
-									} else {
-										distFilename = Files
-												.getDistributionFilename(di
-														.getName());
-									}
+									distFilename = Files
+											.getDistributionFilename(
+													di.getName(),
+													di.getDistrType());
 								}
 
 								// create "line" in plot for each batch
@@ -3457,46 +3347,18 @@ public class PlottingUtils {
 							if (aggregatedBatches) {
 								if (((AggregatedBatch) initBatches[i])
 										.getMetrics().get(metric)
-										.getDistributions().get(dist) instanceof AggregatedBinnedDistribution) {
+										.getDistributions().get(dist) instanceof AggregatedBinnedDistribution)
 									distFilename = Files
 											.getDistributionBinnedFilename(dist);
-								} else {
+								else
 									distFilename = Files
 											.getDistributionFilename(dist);
-								}
 							} else {
-								Distribution d = ((BatchData) initBatches[i])
+								Distr<?, ?> d = ((BatchData) initBatches[i])
 										.getMetrics().get(metric)
 										.getDistributions().get(dist);
-								if (d instanceof BinnedDistributionInt) {
-									distFilename = Files
-											.getDistributionBinnedIntFilename(d
-													.getName());
-								} else if (d instanceof BinnedDistributionLong) {
-									distFilename = Files
-											.getDistributionBinnedLongFilename(d
-													.getName());
-								} else if (d instanceof BinnedDistributionDouble) {
-									distFilename = Files
-											.getDistributionBinnedDoubleFilename(d
-													.getName());
-								} else if (d instanceof DistributionInt) {
-									distFilename = Files
-											.getDistributionIntFilename(d
-													.getName());
-								} else if (d instanceof DistributionLong) {
-									distFilename = Files
-											.getDistributionLongFilename(d
-													.getName());
-								} else if (d instanceof DistributionDouble) {
-									distFilename = Files
-											.getDistributionDoubleFilename(d
-													.getName());
-								} else {
-									distFilename = Files
-											.getDistributionFilename(d
-													.getName());
-								}
+								distFilename = Files.getDistributionFilename(
+										d.getName(), d.getDistrType());
 							}
 
 							// set data quantity
