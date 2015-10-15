@@ -21,13 +21,13 @@ import dna.series.data.BatchData;
 import dna.series.data.IBatch;
 import dna.series.data.MetricData;
 import dna.series.data.Value;
-import dna.series.data.distributions.BinnedDistributionDouble;
-import dna.series.data.distributions.BinnedDistributionInt;
-import dna.series.data.distributions.BinnedDistributionLong;
-import dna.series.data.distributions.Distribution;
-import dna.series.data.distributions.DistributionDouble;
-import dna.series.data.distributions.DistributionInt;
-import dna.series.data.distributions.DistributionLong;
+import dna.series.data.distr2.BinnedDistr;
+import dna.series.data.distr2.BinnedDoubleDistr;
+import dna.series.data.distr2.BinnedIntDistr;
+import dna.series.data.distr2.BinnedLongDistr;
+import dna.series.data.distr2.Distr;
+import dna.series.data.distr2.Distr.DistrType;
+import dna.series.data.distr2.QualityDistr;
 import dna.series.data.nodevaluelists.NodeValueList;
 import dna.util.Config;
 import dna.util.Execute;
@@ -464,66 +464,48 @@ public class Plot {
 			if (batch.getMetrics().getNames().contains(domain)) {
 				MetricData m = batch.getMetrics().get(domain);
 				if (m.getDistributions().getNames().contains(name)) {
-					Distribution d = m.getDistributions().get(name);
+					Distr<?, ?> d = m.getDistributions().get(name);
+					DistrType type = d.getDistrType();
 					double[] values = null;
 					double[] indizes = null;
 
-					if (d instanceof BinnedDistributionInt) {
-						int[] ints = ((BinnedDistributionInt) d).getValues();
-						int denominator = ((BinnedDistributionInt) d)
+					if (type.equals(DistrType.BINNED_DOUBLE)
+							|| type.equals(DistrType.BINNED_INT)
+							|| type.equals(DistrType.BINNED_LONG)) {
+						long[] tempValues = ((BinnedDistr<?>) d).getValues();
+						long denominator = ((BinnedDistr<?>) d)
 								.getDenominator();
-						double binSize = ((BinnedDistributionInt) d)
-								.getBinSize();
-						values = new double[ints.length];
-						indizes = new double[ints.length];
-						for (int i = 0; i < ints.length; i++) {
-							values[i] = ints[i] * 1.0 / denominator;
+						double binSize;
+
+						switch (type) {
+						case BINNED_DOUBLE:
+							binSize = ((BinnedDoubleDistr) d).getBinSize();
+							break;
+						case BINNED_INT:
+							binSize = ((BinnedIntDistr) d).getBinSize();
+							break;
+						case BINNED_LONG:
+							binSize = ((BinnedLongDistr) d).getBinSize();
+							break;
+						default:
+							binSize = 0;
+							break;
+						}
+						values = new double[tempValues.length];
+						indizes = new double[tempValues.length];
+
+						for (int i = 0; i < tempValues.length; i++) {
+							values[i] = tempValues[i] * 1.0 / denominator;
 							indizes[i] = i * binSize;
 						}
-					} else if (d instanceof BinnedDistributionDouble) {
-						int[] ints = ((BinnedDistributionDouble) d).getValues();
-						int denominator = ((BinnedDistributionDouble) d)
-								.getDenominator();
-						double binSize = ((BinnedDistributionDouble) d)
-								.getBinSize();
-						values = new double[ints.length];
-						indizes = new double[ints.length];
-						for (int i = 0; i < ints.length; i++) {
-							values[i] = ints[i] * 1.0 / denominator;
-							indizes[i] = i * binSize;
-						}
-					} else if (d instanceof BinnedDistributionLong) {
-						long[] longs = ((BinnedDistributionLong) d).getValues();
-						long denominator = ((BinnedDistributionLong) d)
-								.getDenominator();
-						double binSize = ((BinnedDistributionLong) d)
-								.getBinSize();
-						values = new double[longs.length];
-						indizes = new double[longs.length];
-						for (int i = 0; i < longs.length; i++) {
-							values[i] = longs[i] * 1.0 / denominator;
-							indizes[i] = i * binSize;
-						}
-					} else if (d instanceof DistributionInt) {
-						int[] ints = ((DistributionInt) d).getValues();
-						int denominator = ((DistributionInt) d)
-								.getDenominator();
-						values = new double[ints.length];
-						indizes = new double[ints.length];
-						for (int i = 0; i < ints.length; i++) {
-							values[i] = ints[i] * 1.0 / denominator;
-							indizes[i] = i;
-						}
-					} else if (d instanceof DistributionDouble) {
-						values = ((DistributionDouble) d).getValues();
-					} else if (d instanceof DistributionLong) {
-						long[] longs = ((DistributionLong) d).getValues();
-						long denominator = ((DistributionLong) d)
-								.getDenominator();
-						values = new double[longs.length];
-						indizes = new double[longs.length];
-						for (int i = 0; i < longs.length; i++) {
-							values[i] = longs[i] * 1.0 / denominator;
+					} else if (type.equals(DistrType.QUALITY_DOUBLE)
+							|| type.equals(DistrType.QUALITY_INT)
+							|| type.equals(DistrType.QUALITY_LONG)) {
+						double[] tempValues = ((QualityDistr<?>) d).getValues();
+						values = new double[tempValues.length];
+						indizes = new double[tempValues.length];
+						for (int i = 0; i < tempValues.length; i++) {
+							values[i] = tempValues[i];
 							indizes[i] = i;
 						}
 					}
