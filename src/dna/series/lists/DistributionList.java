@@ -3,13 +3,11 @@ package dna.series.lists;
 import java.io.IOException;
 
 import dna.io.filesystem.Files;
-import dna.series.data.distr2.BinnedDistr;
 import dna.series.data.distr2.BinnedDoubleDistr;
 import dna.series.data.distr2.BinnedIntDistr;
 import dna.series.data.distr2.BinnedLongDistr;
 import dna.series.data.distr2.Distr;
 import dna.series.data.distr2.Distr.DistrType;
-import dna.series.data.distr2.QualityDistr;
 import dna.series.data.distr2.QualityDoubleDistr;
 import dna.series.data.distr2.QualityIntDistr;
 import dna.series.data.distr2.QualityLongDistr;
@@ -61,44 +59,10 @@ public class DistributionList extends List<Distr<?, ?>> {
 
 		DistributionList list = new DistributionList(distributions.length);
 
-		for (String dist : distributions) {
-			DistrType type = Files.getDistributionTypeFromFilename(dist);
-			String name = Files.getDistributionNameFromFilename(dist, type);
-			Distr<?, ?> readDistribution;
-
-			switch (type) {
-			case BINNED_DOUBLE:
-				readDistribution = BinnedDistr.read(dir, dist, name,
-						readValues, BinnedDoubleDistr.class);
-				break;
-			case BINNED_INT:
-				readDistribution = BinnedDistr.read(dir, dist, name,
-						readValues, BinnedIntDistr.class);
-				break;
-			case BINNED_LONG:
-				readDistribution = BinnedDistr.read(dir, dist, name,
-						readValues, BinnedLongDistr.class);
-				break;
-			case QUALITY_DOUBLE:
-				readDistribution = QualityDistr.read(dir, dist, name,
-						readValues, QualityDoubleDistr.class);
-				break;
-			case QUALITY_INT:
-				readDistribution = QualityDistr.read(dir, dist, name,
-						readValues, QualityIntDistr.class);
-				break;
-			case QUALITY_LONG:
-				readDistribution = QualityDistr.read(dir, dist, name,
-						readValues, QualityLongDistr.class);
-				break;
-			default:
-				readDistribution = null;
-				break;
-			}
-
-			list.add(readDistribution);
-		}
+		for (String dist : distributions)
+			list.add(Distr.read(dir, dist, readValues));
 
 		return list;
 	}
+
 }
