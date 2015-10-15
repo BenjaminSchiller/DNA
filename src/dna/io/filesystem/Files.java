@@ -34,11 +34,11 @@ public class Files {
 	public static String getDistributionFilename(String name, DistrType type) {
 		switch (type) {
 		case BINNED_DOUBLE:
-			return name + Config.get("SUFFIX_DIST_BINNED_DOUBLE");
+			return name + Config.get("SUFFIX_DIST_DOUBLE");
 		case BINNED_INT:
-			return name + Config.get("SUFFIX_DIST_BINNED_INT");
+			return name + Config.get("SUFFIX_DIST_INT");
 		case BINNED_LONG:
-			return name + Config.get("SUFFIX_DIST_BINNED_LONG");
+			return name + Config.get("SUFFIX_DIST_LONG");
 		case QUALITY_DOUBLE:
 			return name + Config.get("SUFFIX_DIST_QUALITY_DOUBLE");
 		case QUALITY_INT:
@@ -69,6 +69,14 @@ public class Files {
 
 	public static String getDistributionFilename(String name) {
 		return name + Config.get("SUFFIX_DIST");
+	}
+
+	public static String getAggregatedDistributionFilename(String name) {
+		return name + Config.get("SUFFIX_DIST_AGGR");
+	}
+
+	public static String getAggregatedBinnedDistributionFilename(String name) {
+		return name + Config.get("SUFFIX_DIST_AGGR_BINNED");
 	}
 
 	public static String getDistributionBinnedFilename(String name) {

@@ -5,7 +5,6 @@ import java.io.IOException;
 import dna.io.filesystem.Files;
 import dna.series.lists.List;
 import dna.util.Config;
-import dna.util.Log;
 
 /**
  * An AggregatedDistributionList lists AggregatedDistribution objects.
@@ -28,11 +27,11 @@ public class AggregatedDistributionList extends List<AggregatedDistribution> {
 	public void write(String dir) throws IOException {
 		for (AggregatedDistribution n : this.getList()) {
 			if (n instanceof AggregatedBinnedDistribution)
-				((AggregatedBinnedDistribution) n).write(dir,
-						Files.getDistributionBinnedFilename(n.getName()));
+				((AggregatedBinnedDistribution) n).write(dir, Files
+						.getAggregatedBinnedDistributionFilename(n.getName()));
 			else
 				AggregatedData.write(n, dir,
-						Files.getDistributionFilename(n.getName()));
+						Files.getAggregatedDistributionFilename(n.getName()));
 		}
 	}
 
@@ -47,24 +46,15 @@ public class AggregatedDistributionList extends List<AggregatedDistribution> {
 		for (String distribution : distributions) {
 			String[] temp = distribution.split("\\"
 					+ Config.get("FILE_NAME_DELIMITER"));
-			try {
-				if ((Config.get("FILE_NAME_DELIMITER") + temp[temp.length - 1])
-						.equals(Config.get("SUFFIX_DIST"))) {
-					list.add(AggregatedDistribution
-							.read(dir, distribution,
-									Files.getDistributionName(distribution),
-									readValues));
-				}
-				if ((Config.get("FILE_NAME_DELIMITER") + temp[temp.length - 1])
-						.equals(Config.get("SUFFIX_DIST_BINNED"))) {
-					list.add(AggregatedBinnedDistribution.read(dir,
-							distribution,
-							Files.getDistributionBinnedName(distribution),
-							readValues));
-				}
-			} catch (IndexOutOfBoundsException e) {
-				Log.warn("Attempting to read distribution " + distribution
-						+ " at " + dir + " ! No datastructure detected!");
+
+			if (distribution.endsWith(Config.get("SUFFIX_DIST_AGGR"))) {
+				list.add(AggregatedDistribution.read(dir, distribution,
+						Files.getDistributionName(distribution), readValues));
+			} else if (distribution.endsWith(Config
+					.get("SUFFIX_DIST_AGGR_BINNED"))) {
+				list.add(AggregatedBinnedDistribution.read(dir, distribution,
+						Files.getDistributionBinnedName(distribution),
+						readValues));
 			}
 		}
 		return list;
