@@ -44,9 +44,6 @@ public class AggregatedDistributionList extends List<AggregatedDistribution> {
 		AggregatedDistributionList list = new AggregatedDistributionList(
 				distributions.length);
 		for (String distribution : distributions) {
-			String[] temp = distribution.split("\\"
-					+ Config.get("FILE_NAME_DELIMITER"));
-
 			if (distribution.endsWith(Config.get("SUFFIX_DIST_AGGR"))) {
 				list.add(AggregatedDistribution.read(dir, distribution,
 						Files.getDistributionName(distribution), readValues));
