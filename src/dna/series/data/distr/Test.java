@@ -1,4 +1,4 @@
-package dna.series.data.distr2;
+package dna.series.data.distr;
 
 public class Test {
 

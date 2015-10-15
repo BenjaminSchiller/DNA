@@ -12,8 +12,8 @@ import dna.series.aggdata.AggregatedBatch;
 import dna.series.aggdata.AggregatedBinnedDistribution;
 import dna.series.data.BatchData;
 import dna.series.data.IBatch;
-import dna.series.data.distr2.Distr;
-import dna.series.data.distr2.Distr.DistrType;
+import dna.series.data.distr.Distr;
+import dna.series.data.distr.Distr.DistrType;
 import dna.util.Config;
 
 public class Files {

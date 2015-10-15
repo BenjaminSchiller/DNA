@@ -7,7 +7,7 @@ import dna.graph.weights.DoubleWeight;
 import dna.graph.weights.IWeightedEdge;
 import dna.graph.weights.IntWeight;
 import dna.metrics.IMetric;
-import dna.series.data.distr2.BinnedDoubleDistr;
+import dna.series.data.distr.BinnedDoubleDistr;
 import dna.updates.batch.Batch;
 
 public abstract class EdgeWeights extends Weights {

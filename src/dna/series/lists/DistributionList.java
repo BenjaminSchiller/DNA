@@ -3,14 +3,14 @@ package dna.series.lists;
 import java.io.IOException;
 
 import dna.io.filesystem.Files;
-import dna.series.data.distr2.BinnedDoubleDistr;
-import dna.series.data.distr2.BinnedIntDistr;
-import dna.series.data.distr2.BinnedLongDistr;
-import dna.series.data.distr2.Distr;
-import dna.series.data.distr2.Distr.DistrType;
-import dna.series.data.distr2.QualityDoubleDistr;
-import dna.series.data.distr2.QualityIntDistr;
-import dna.series.data.distr2.QualityLongDistr;
+import dna.series.data.distr.BinnedDoubleDistr;
+import dna.series.data.distr.BinnedIntDistr;
+import dna.series.data.distr.BinnedLongDistr;
+import dna.series.data.distr.Distr;
+import dna.series.data.distr.QualityDoubleDistr;
+import dna.series.data.distr.QualityIntDistr;
+import dna.series.data.distr.QualityLongDistr;
+import dna.series.data.distr.Distr.DistrType;
 
 public class DistributionList extends List<Distr<?, ?>> {
 	public DistributionList() {

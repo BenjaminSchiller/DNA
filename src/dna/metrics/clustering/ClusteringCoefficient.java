@@ -4,7 +4,7 @@ import dna.graph.nodes.Node;
 import dna.metrics.IMetric;
 import dna.metrics.Metric;
 import dna.series.data.Value;
-import dna.series.data.distr2.Distr;
+import dna.series.data.distr.Distr;
 import dna.series.data.lists.LongList;
 import dna.series.data.nodevaluelists.NodeNodeValueList;
 import dna.series.data.nodevaluelists.NodeValueList;

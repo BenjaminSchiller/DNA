@@ -30,7 +30,7 @@ import dna.series.data.BatchData;
 import dna.series.data.IBatch;
 import dna.series.data.MetricData;
 import dna.series.data.SeriesData;
-import dna.series.data.distr2.Distr;
+import dna.series.data.distr.Distr;
 import dna.util.Config;
 import dna.util.Log;
 

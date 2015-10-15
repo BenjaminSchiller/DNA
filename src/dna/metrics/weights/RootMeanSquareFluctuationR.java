@@ -7,7 +7,7 @@ import dna.graph.IElement;
 import dna.graph.nodes.Node;
 import dna.graph.weights.IWeightedNode;
 import dna.metrics.algorithms.IRecomputation;
-import dna.series.data.distr2.BinnedDoubleDistr;
+import dna.series.data.distr.BinnedDoubleDistr;
 import dna.series.data.nodevaluelists.NodeValueList;
 
 public class RootMeanSquareFluctuationR extends RootMeanSquareFluctuation

@@ -5,7 +5,7 @@ import java.io.IOException;
 import dna.io.filesystem.Files;
 import dna.metrics.IMetric;
 import dna.series.aggdata.AggregatedBatch.BatchReadMode;
-import dna.series.data.distr2.Distr;
+import dna.series.data.distr.Distr;
 import dna.series.data.nodevaluelists.NodeNodeValueList;
 import dna.series.data.nodevaluelists.NodeValueList;
 import dna.series.lists.DistributionList;

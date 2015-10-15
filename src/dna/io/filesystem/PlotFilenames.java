@@ -2,7 +2,7 @@ package dna.io.filesystem;
 
 import dna.series.Values;
 import dna.series.data.MetricData;
-import dna.series.data.distr2.Distr;
+import dna.series.data.distr.Distr;
 import dna.series.data.nodevaluelists.NodeValueList;
 import dna.util.Config;
 

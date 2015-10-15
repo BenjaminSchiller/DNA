@@ -13,7 +13,7 @@ import dna.graph.nodes.DirectedNode;
 import dna.graph.nodes.Node;
 import dna.graph.nodes.UndirectedNode;
 import dna.metrics.algorithms.IRecomputation;
-import dna.series.data.distr2.BinnedDoubleDistr;
+import dna.series.data.distr.BinnedDoubleDistr;
 import dna.series.data.nodevaluelists.NodeValueList;
 
 public class BetweennessCentralityR extends BetweennessCentrality implements

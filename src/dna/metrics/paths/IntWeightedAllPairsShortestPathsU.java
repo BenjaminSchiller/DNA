@@ -20,7 +20,7 @@ import dna.metrics.algorithms.IAfterER;
 import dna.metrics.algorithms.IAfterEW;
 import dna.metrics.algorithms.IAfterNA;
 import dna.metrics.algorithms.IAfterNR;
-import dna.series.data.distr2.BinnedIntDistr;
+import dna.series.data.distr.BinnedIntDistr;
 import dna.updates.update.EdgeAddition;
 import dna.updates.update.EdgeRemoval;
 import dna.updates.update.EdgeWeight;

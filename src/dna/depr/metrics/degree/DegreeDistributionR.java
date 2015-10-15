@@ -5,7 +5,7 @@ import dna.graph.IElement;
 import dna.graph.nodes.DirectedNode;
 import dna.graph.nodes.UndirectedNode;
 import dna.metrics.IMetric;
-import dna.series.data.distr2.BinnedIntDistr;
+import dna.series.data.distr.BinnedIntDistr;
 import dna.updates.batch.Batch;
 import dna.updates.update.Update;
 import dna.util.Log;

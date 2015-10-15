@@ -13,7 +13,7 @@ import dna.graph.nodes.Node;
 import dna.graph.nodes.UndirectedNode;
 import dna.metrics.Metric;
 import dna.series.data.Value;
-import dna.series.data.distr2.BinnedIntDistr;
+import dna.series.data.distr.BinnedIntDistr;
 import dna.series.data.nodevaluelists.NodeNodeValueList;
 import dna.series.data.nodevaluelists.NodeValueList;
 import dna.updates.batch.Batch;

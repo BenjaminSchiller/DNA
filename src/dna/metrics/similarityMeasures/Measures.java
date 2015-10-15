@@ -24,7 +24,7 @@ import dna.metrics.similarityMeasures.dice.Dice;
 import dna.metrics.similarityMeasures.jaccard.Jaccard;
 import dna.metrics.similarityMeasures.overlap.Overlap;
 import dna.series.data.Value;
-import dna.series.data.distr2.BinnedDoubleDistr;
+import dna.series.data.distr.BinnedDoubleDistr;
 import dna.series.data.nodevaluelists.NodeNodeValueList;
 import dna.series.data.nodevaluelists.NodeValueList;
 import dna.updates.batch.Batch;

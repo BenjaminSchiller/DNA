@@ -19,7 +19,7 @@ import dna.metrics.algorithms.IAfterEA;
 import dna.metrics.algorithms.IAfterER;
 import dna.metrics.algorithms.IAfterNA;
 import dna.metrics.algorithms.IAfterNR;
-import dna.series.data.distr2.BinnedDoubleDistr;
+import dna.series.data.distr.BinnedDoubleDistr;
 import dna.series.data.nodevaluelists.NodeValueList;
 import dna.updates.update.EdgeAddition;
 import dna.updates.update.EdgeRemoval;

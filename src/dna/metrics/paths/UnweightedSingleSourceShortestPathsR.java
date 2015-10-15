@@ -9,7 +9,7 @@ import dna.graph.nodes.DirectedNode;
 import dna.graph.nodes.Node;
 import dna.graph.nodes.UndirectedNode;
 import dna.metrics.algorithms.IRecomputation;
-import dna.series.data.distr2.BinnedIntDistr;
+import dna.series.data.distr.BinnedIntDistr;
 
 public class UnweightedSingleSourceShortestPathsR extends
 		UnweightedSingleSourceShortestPaths implements IRecomputation {

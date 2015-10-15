@@ -12,7 +12,7 @@ import dna.graph.nodes.UndirectedNode;
 import dna.graph.weights.IWeighted;
 import dna.graph.weights.IntWeight;
 import dna.metrics.algorithms.IRecomputation;
-import dna.series.data.distr2.BinnedIntDistr;
+import dna.series.data.distr.BinnedIntDistr;
 
 public class IntWeightedAllPairsShortestPathsR extends
 		IntWeightedAllPairsShortestPaths implements IRecomputation {

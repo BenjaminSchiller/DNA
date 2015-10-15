@@ -12,8 +12,8 @@ import dna.graph.nodes.UndirectedNode;
 import dna.metrics.IMetric;
 import dna.metrics.similarityMeasures.Matrix;
 import dna.metrics.similarityMeasures.Measures;
-import dna.series.data.distr2.BinnedDoubleDistr;
-import dna.series.data.distr2.Distr;
+import dna.series.data.distr.BinnedDoubleDistr;
+import dna.series.data.distr.Distr;
 
 /**
  * Computes the dice similarity measure for graphs. The dice similarity of two
