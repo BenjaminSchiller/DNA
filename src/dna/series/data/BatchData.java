@@ -9,7 +9,9 @@ import dna.io.filesystem.Dir;
 import dna.io.filesystem.Files;
 import dna.plot.PlottingUtils;
 import dna.series.aggdata.AggregatedBatch.BatchReadMode;
-import dna.series.data.distr.Distr;
+import dna.series.data.distr2.BinnedDistr;
+import dna.series.data.distr2.Distr;
+import dna.series.data.distr2.Distr.DistrType;
 import dna.series.data.nodevaluelists.NodeNodeValueList;
 import dna.series.data.nodevaluelists.NodeValueList;
 import dna.series.lists.DistributionList;
@@ -362,12 +364,26 @@ public class BatchData implements IBatch {
 					.getNodeNodeValues().size());
 
 			// read distributions
-			for (Distr<?> d : m.getDistributions().getList()) {
+			for (Distr<?, ?> d : m.getDistributions().getList()) {
+				if (d.getDistrType().equals(DistrType.BINNED_DOUBLE)
+						|| d.getDistrType().equals(DistrType.BINNED_INT)
+						|| d.getDistrType().equals(DistrType.BINNED_LONG)) {
+					mDistributions.add(BinnedDistr.read(
+							mDir,
+							Files.getDistributionFilename(d.getName(),
+									d.getDistrType()), d.getName(), true,
+							((BinnedDistr<?>) d).getClass()));
+				}
+				if (d.getDistrType().equals(DistrType.QUALITY_DOUBLE)
+						|| d.getDistrType().equals(DistrType.QUALITY_INT)
+						|| d.getDistrType().equals(DistrType.QUALITY_LONG)) {
+
+				}
 				mDistributions.add(Distr.read(
 						mDir,
 						Files.getDistributionFilename(d.getName(),
-								d.getDistrType()), d.getName(), true,
-						d.getClass()));
+								d.getDistrType()), d.getName(),
+						d.getDistrType(), true));
 			}
 
 			// read nodevaluelists
