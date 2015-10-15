@@ -5,15 +5,23 @@ import java.io.FilenameFilter;
 
 public class SuffixFilenameFilter implements FilenameFilter {
 
-	private String suffix;
+	private String[] suffices;
 
 	public SuffixFilenameFilter(String suffix) {
-		this.suffix = suffix;
+		this.suffices = new String[] { suffix };
+	}
+
+	public SuffixFilenameFilter(String[] suffices) {
+		this.suffices = suffices;
 	}
 
 	@Override
 	public boolean accept(File dir, String name) {
-		return name.endsWith(this.suffix);
+		for (String suffix : this.suffices) {
+			if (name.endsWith(suffix))
+				return true;
+		}
+		return false;
 	}
 
 }
