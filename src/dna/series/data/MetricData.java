@@ -4,6 +4,7 @@ import java.io.IOException;
 
 import dna.io.filesystem.Files;
 import dna.metrics.IMetric;
+import dna.metrics.IMetric.MetricType;
 import dna.series.aggdata.AggregatedBatch.BatchReadMode;
 import dna.series.data.distr.Distr;
 import dna.series.data.nodevaluelists.NodeNodeValueList;
@@ -345,13 +346,15 @@ public class MetricData implements ListItem {
 	 * @date 03.08.2013
 	 */
 	public static boolean isComparable(MetricData m1, MetricData m2) {
-		if (m1.getType().equals("exact") && !m2.getType().equals("heuristic")) {
+		if (m1.getType().equals(MetricType.exact)
+				&& !m2.getType().equals(MetricType.heuristic)) {
 			Log.warn("Metrics " + m1.getName() + " & " + m2.getName()
 					+ " can't be compared. Type failure");
 			return false;
 		}
 
-		if (m2.getType().equals("exact") && !m1.getType().equals("heuristic")) {
+		if (m2.getType().equals(MetricType.exact)
+				&& !m1.getType().equals(MetricType.heuristic)) {
 			Log.warn("Metrics " + m1.getName() + " & " + m2.getName()
 					+ " can't be compared. Type failure");
 			return false;
@@ -468,6 +471,8 @@ public class MetricData implements ListItem {
 		}
 
 		// TODO: compare nodenodevaluelists
+
+		// return
 		return new MetricData(m2.getName()
 				+ Config.get("SUFFIX_METRIC_QUALITY"),
 				IMetric.MetricType.quality, comparedValues,
@@ -543,22 +548,22 @@ public class MetricData implements ListItem {
 
 		// count similarities
 		for (String value : m1.getValues().getNames()) {
-			if (m2.getValues().get(value) != null) {
+			if (m2.getValues().getNames().contains(value)) {
 				similarities++;
 			}
 		}
 		for (String distribution : m1.getDistributions().getNames()) {
-			if (m2.getDistributions().get(distribution) != null) {
+			if (m2.getDistributions().getNames().contains(distribution)) {
 				similarities++;
 			}
 		}
 		for (String nodevalue : m1.getNodeValues().getNames()) {
-			if (m2.getNodeValues().get(nodevalue) != null) {
+			if (m2.getNodeValues().getNames().contains(nodevalue)) {
 				similarities++;
 			}
 		}
 		for (String nodenodevalue : m1.getNodeNodeValues().getNames()) {
-			if (m2.getNodeNodeValues().get(nodenodevalue) != null) {
+			if (m2.getNodeNodeValues().getNames().contains(nodenodevalue)) {
 				similarities++;
 			}
 		}

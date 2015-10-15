@@ -154,9 +154,16 @@ public class SeriesData {
 		MetricDataList exacts = new MetricDataList();
 		MetricDataList heuristics = new MetricDataList();
 
+		// read init batch
+		RunData tempRun = this.getRuns().get(0);
+		BatchData initBatch = BatchData.readIntelligent(
+				Dir.getBatchDataDir(this.dir, tempRun.getRun(), tempRun
+						.getBatches().get(0).getTimestamp()), tempRun
+						.getBatches().get(0).getTimestamp(),
+				BatchReadMode.readAllValues);
+
 		// get exacts and heuristics
-		for (MetricData metric : this.getRuns().get(0).getBatches().get(0)
-				.getMetrics().getList()) {
+		for (MetricData metric : initBatch.getMetrics().getList()) {
 			if (metric.getType() != null) {
 				if (metric.getType().equals(IMetric.MetricType.exact))
 					exacts.add(metric);
