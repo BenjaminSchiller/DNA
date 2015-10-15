@@ -275,7 +275,7 @@ public abstract class BinnedDistr<T> extends Distr<T, long[]> {
 		if (!d.getName().equals(this.getName())) {
 			return false;
 		}
-		if (d.binSize.equals(this.binSize)) {
+		if (!d.binSize.equals(this.binSize)) {
 			return false;
 		}
 		if (d.denominator != this.denominator) {
@@ -304,7 +304,7 @@ public abstract class BinnedDistr<T> extends Distr<T, long[]> {
 			Log.warn("name differs: " + this.getName() + " != " + d.getName());
 			return false;
 		}
-		if (d.binSize.equals(this.binSize)) {
+		if (!d.binSize.equals(this.binSize)) {
 			Log.warn(this.getName() + " - binSize differs: "
 					+ this.getBinSize() + " != " + d.getBinSize());
 			return false;
