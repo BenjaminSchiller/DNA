@@ -4,7 +4,6 @@ import java.io.IOException;
 
 import dna.io.filesystem.Files;
 import dna.series.data.Data;
-import dna.series.lists.DistributionList;
 
 public abstract class Distr<T, V> extends Data {
 	public enum DistrType {
@@ -82,61 +81,4 @@ public abstract class Distr<T, V> extends Data {
 				Files.getDistributionNameFromFilename(filename, type), type,
 				readValues);
 	}
-
-	/**
-	 * Compares the two distributions and adds an absolute and a relative
-	 * quality distribution to the distribution-list.
-	 **/
-	public static void compareDistributionsAndAddToList(DistributionList list,
-			Distr<?, ?> d1, Distr<?, ?> d2) {
-		// TODO: FILL WITH CODE
-	}
-
-	/**
-	 * Compares the two distributions and adds an absolute and a relative
-	 * quality distribution to the distribution-list.
-	 **/
-	// public static void compareDistributionsAndAddToList(DistributionList
-	// list,
-	// Distr<?> d1, Distr<?> d2) {
-	// // compare DistributionDouble objects
-	// long[] values1 = d1.getValues();
-	// long[] values2 = d2.getValues();
-	//
-	// long[] diffAbs = new long[Math.max(values1.length, values2.length)];
-	// long diffAbsDenom = 0;
-	// // long[] diffRel = new long[diffAbs.length];
-	//
-	// for (int i = 0; i < diffAbs.length; i++) {
-	// long v1 = 0;
-	// long v2 = 0;
-	// try {
-	// v1 = values1[i];
-	// } catch (ArrayIndexOutOfBoundsException e) {
-	// }
-	// try {
-	// v2 = values2[i];
-	// } catch (ArrayIndexOutOfBoundsException e) {
-	// }
-	// diffAbs[i] = v1 - v2;
-	// diffAbsDenom += v1;
-	//
-	// // TODO: RELATIVE QUALITY DISTRIBUTION
-	// // if (v2 == 0)
-	// // diffRel[i] = Double.MAX_VALUE;
-	// // else
-	// // diffRel[i] = v1 / v2;
-	// }
-	//
-	// // add absolute comparison
-	// list.add(new LongDistr(
-	// Files.getDistributionName(d1.getName()) + "_abs", diffAbsDenom,
-	// diffAbs));
-	//
-	// // TODO: RELATIVE QUALITY DISTRIBUTION
-	// // add relative comparison
-	// // list.add(new
-	// // DistributionDouble(Files.getDistributionName(d1.getName())
-	// // + "_rel", diffRel));
-	// }
 }

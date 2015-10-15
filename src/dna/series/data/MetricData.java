@@ -6,7 +6,9 @@ import dna.io.filesystem.Files;
 import dna.metrics.IMetric;
 import dna.metrics.IMetric.MetricType;
 import dna.series.aggdata.AggregatedBatch.BatchReadMode;
+import dna.series.data.distr.BinnedDistr;
 import dna.series.data.distr.Distr;
+import dna.series.data.distr.Distr.DistrType;
 import dna.series.data.nodevaluelists.NodeNodeValueList;
 import dna.series.data.nodevaluelists.NodeValueList;
 import dna.series.lists.DistributionList;
@@ -502,8 +504,12 @@ public class MetricData implements ListItem {
 	private static void compareDistributionsAndAddToList(DistributionList list,
 			Distr<?, ?> d1, Distr<?, ?> d2) {
 		// compare
-		if (d1.getDistrType().equals(d2.getDistrType()))
-			Distr.compareDistributionsAndAddToList(list, d1, d2);
+		if (d1.getDistrType().equals(d2.getDistrType())
+				&& (d1.getDistrType().equals(DistrType.BINNED_DOUBLE)
+						|| d1.getDistrType().equals(DistrType.BINNED_INT) || d1
+						.getDistrType().equals(DistrType.BINNED_LONG)))
+			BinnedDistr.compareDistributionsAndAddToList(list, (BinnedDistr<?>) d1,
+					(BinnedDistr<?>) d2);
 	}
 
 	/** Compares two nodevaluelists and returns a quality nodevaluelists. **/

@@ -90,7 +90,6 @@ public class SeriesGeneration {
 			boolean compare, boolean aggregate, boolean write,
 			long batchGenerationTime) throws AggregationException, IOException,
 			MetricNotApplicableException {
-		compare = true;
 		Log.infoSep();
 		Log.info("generating series");
 		Log.infoSep();

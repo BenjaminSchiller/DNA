@@ -8,6 +8,7 @@ import com.sun.media.sound.InvalidFormatException;
 
 import dna.io.Reader;
 import dna.io.Writer;
+import dna.series.lists.DistributionList;
 import dna.util.Config;
 import dna.util.Log;
 
@@ -329,4 +330,64 @@ public abstract class BinnedDistr<T> extends Distr<T, long[]> {
 		return true;
 	}
 
+	/**
+	 * Compares the two distributions and adds an absolute and a relative
+	 * quality distribution to the distribution-list.
+	 **/
+	public static void compareDistributionsAndAddToList(DistributionList list,
+			BinnedDistr<?> d1, BinnedDistr<?> d2) {
+		if (!d1.getBinSize().equals(d2.getBinSize()))
+			return;
+
+		long[] values1 = d1.getValues();
+		long[] values2 = d2.getValues();
+
+		double[] diffAbs = new double[Math.max(values1.length, values2.length)];
+		double[] diffRel = new double[diffAbs.length];
+
+		long denom1 = d1.getDenominator();
+		long denom2 = d2.getDenominator();
+
+		// calc differences
+		for (int i = 0; i < diffAbs.length; i++) {
+			double v1 = 0;
+			double v2 = 0;
+			try {
+				v1 = values1[i] * 1.0 / denom1;
+			} catch (ArrayIndexOutOfBoundsException e) {
+			}
+			try {
+				v2 = values2[i] * 1.0 / denom2;
+			} catch (ArrayIndexOutOfBoundsException e) {
+			}
+
+			diffAbs[i] = v1 - v2;
+
+			if (v2 == 0)
+				diffRel[i] = Double.MAX_VALUE;
+			else
+				diffRel[i] = v1 / v2;
+		}
+
+		switch (d1.getDistrType()) {
+		case BINNED_DOUBLE:
+			list.add(new QualityDoubleDistr(d1.getName() + "_abs",
+					((BinnedDoubleDistr) d1).getBinSize(), diffAbs));
+			list.add(new QualityDoubleDistr(d1.getName() + "_rel",
+					((BinnedDoubleDistr) d1).getBinSize(), diffRel));
+			break;
+		case BINNED_INT:
+			list.add(new QualityIntDistr(d1.getName() + "_abs",
+					((BinnedIntDistr) d1).getBinSize(), diffAbs));
+			list.add(new QualityIntDistr(d1.getName() + "_rel",
+					((BinnedIntDistr) d1).getBinSize(), diffRel));
+			break;
+		case BINNED_LONG:
+			list.add(new QualityLongDistr(d1.getName() + "_abs",
+					((BinnedLongDistr) d1).getBinSize(), diffAbs));
+			list.add(new QualityLongDistr(d1.getName() + "_rel",
+					((BinnedLongDistr) d1).getBinSize(), diffRel));
+			break;
+		}
+	}
 }

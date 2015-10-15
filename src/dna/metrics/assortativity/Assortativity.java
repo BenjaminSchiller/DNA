@@ -17,6 +17,7 @@ import dna.metrics.Metric;
 import dna.metrics.algorithms.IDynamicAlgorithm;
 import dna.metrics.algorithms.IRecomputation;
 import dna.series.data.Value;
+import dna.series.data.distr.BinnedDoubleDistr;
 import dna.series.data.distr.Distr;
 import dna.series.data.nodevaluelists.NodeNodeValueList;
 import dna.series.data.nodevaluelists.NodeValueList;
@@ -312,7 +313,7 @@ public abstract class Assortativity extends Metric implements IMetric {
 
 	@Override
 	public Distr<?, ?>[] getDistributions() {
-		return new Distr<?, ?>[] {};
+		return new Distr<?, ?>[] { new BinnedDoubleDistr("test-exact", 0.5, new long[] {0, 1, 2}, 3)};
 	}
 
 	@Override

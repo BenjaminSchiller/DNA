@@ -19,7 +19,8 @@ import dna.metrics.algorithms.IRecomputation;
 import dna.metrics.assortativity.AssortativityH.DirectedDegreeType;
 import dna.metrics.assortativity.AssortativityH.EdgeWeightType;
 import dna.series.data.Value;
-import dna.series.data.distributions.Distribution;
+import dna.series.data.distr.BinnedDoubleDistr;
+import dna.series.data.distr.Distr;
 import dna.series.data.nodevaluelists.NodeNodeValueList;
 import dna.series.data.nodevaluelists.NodeValueList;
 import dna.updates.batch.Batch;
@@ -313,8 +314,8 @@ public abstract class AssortativityH extends Metric implements IMetric {
 	}
 
 	@Override
-	public Distribution[] getDistributions() {
-		return new Distribution[] {};
+	public Distr<?, ?>[] getDistributions() {
+		return new Distr<?, ?>[] { new BinnedDoubleDistr("test-exact",0.5, new long[] {2, 3, 4}, 9)};
 	}
 
 	@Override
