@@ -2,7 +2,9 @@ package dna.series.data.distr2;
 
 import java.io.IOException;
 
+import dna.io.filesystem.Files;
 import dna.series.data.Data;
+import dna.series.lists.DistributionList;
 
 public abstract class Distr<T, V> extends Data {
 	public enum DistrType {
@@ -46,6 +48,49 @@ public abstract class Distr<T, V> extends Data {
 
 	/** Returns the distribution type. **/
 	public abstract DistrType getDistrType();
+
+	public static Distr<?, ?> read(String dir, String filename, String name,
+			DistrType type, boolean readValues) throws IOException {
+		switch (type) {
+		case BINNED_DOUBLE:
+			return BinnedDistr.read(dir, filename, name, readValues,
+					BinnedDoubleDistr.class);
+		case BINNED_INT:
+			return BinnedDistr.read(dir, filename, name, readValues,
+					BinnedIntDistr.class);
+		case BINNED_LONG:
+			return BinnedDistr.read(dir, filename, name, readValues,
+					BinnedLongDistr.class);
+		case QUALITY_DOUBLE:
+			return QualityDistr.read(dir, filename, name, readValues,
+					QualityDoubleDistr.class);
+		case QUALITY_INT:
+			return QualityDistr.read(dir, filename, name, readValues,
+					QualityIntDistr.class);
+		case QUALITY_LONG:
+			return QualityDistr.read(dir, filename, name, readValues,
+					QualityLongDistr.class);
+		default:
+			return null;
+		}
+	}
+
+	public static Distr<?, ?> read(String dir, String filename,
+			boolean readValues) throws IOException {
+		DistrType type = Files.getDistributionTypeFromFilename(filename);
+		return read(dir, filename,
+				Files.getDistributionNameFromFilename(filename, type), type,
+				readValues);
+	}
+
+	/**
+	 * Compares the two distributions and adds an absolute and a relative
+	 * quality distribution to the distribution-list.
+	 **/
+	public static void compareDistributionsAndAddToList(DistributionList list,
+			Distr<?, ?> d1, Distr<?, ?> d2) {
+		// TODO: FILL WITH CODE
+	}
 
 	/**
 	 * Compares the two distributions and adds an absolute and a relative
