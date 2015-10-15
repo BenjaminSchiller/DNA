@@ -1137,7 +1137,7 @@ public class PlottingUtils {
 								.get(distribution);
 						if (d instanceof AggregatedBinnedDistribution)
 							distFilename = Files
-									.getAggregatedDistributionFilename(d
+									.getAggregatedBinnedDistributionFilename(d
 											.getName());
 						else
 							distFilename = Files
