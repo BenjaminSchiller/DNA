@@ -22,13 +22,15 @@ import dna.series.data.RunData;
 import dna.series.data.RunTime;
 import dna.series.data.SeriesData;
 import dna.series.data.Value;
-import dna.series.data.distributions.BinnedDistributionDouble;
-import dna.series.data.distributions.BinnedDistributionInt;
-import dna.series.data.distributions.BinnedDistributionLong;
-import dna.series.data.distributions.Distribution;
-import dna.series.data.distributions.DistributionDouble;
-import dna.series.data.distributions.DistributionInt;
-import dna.series.data.distributions.DistributionLong;
+import dna.series.data.distr2.BinnedDistr;
+import dna.series.data.distr2.BinnedDoubleDistr;
+import dna.series.data.distr2.BinnedIntDistr;
+import dna.series.data.distr2.BinnedLongDistr;
+import dna.series.data.distr2.Distr;
+import dna.series.data.distr2.QualityDistr;
+import dna.series.data.distr2.QualityDoubleDistr;
+import dna.series.data.distr2.QualityIntDistr;
+import dna.series.data.distr2.QualityLongDistr;
 import dna.series.data.nodevaluelists.NodeValueList;
 import dna.util.ArrayUtils;
 import dna.util.Config;
@@ -397,10 +399,10 @@ public class Aggregation {
 			}
 
 			// iterate over distributions
-			for (Distribution d : refMetric.getDistributions().getList()) {
+			for (Distr<?, ?> d : refMetric.getDistributions().getList()) {
 				// fill distributions array (keep null if run doesnt support
 				// batch -> timestamp == -1)
-				Distribution[] distributions = new Distribution[batches.size()];
+				Distr<?, ?>[] distributions = new Distr<?, ?>[batches.size()];
 				for (int i = 0; i < batches.size(); i++) {
 					if (batches.get(i).getTimestamp() != -1)
 						distributions[i] = batches.get(i).getMetrics()
@@ -442,147 +444,163 @@ public class Aggregation {
 	 * @return Aggregated distribution
 	 */
 	private static AggregatedDistribution aggregateDistributions(
-			Distribution[] distributions) {
+			Distr<?, ?>[] distributions) {
 		// get reference distribution which contains data
-		Distribution refDist = null;
-		for (Distribution d : distributions) {
+		Distr<?, ?> refDist = null;
+		for (Distr<?, ?> d : distributions) {
 			if (d != null) {
 				refDist = d;
 				break;
 			}
 		}
 
-		// check which type of distribution is to be aggregated
-		if (refDist instanceof DistributionDouble) {
-			DistributionDouble[] dists = new DistributionDouble[distributions.length];
-			for (int i = 0; i < distributions.length; i++) {
-				if (distributions[i] != null)
-					dists[i] = ((DistributionDouble) distributions[i]);
-			}
-
-			// calc 'longest' distribution
-			int amountValues = 0;
-			for (DistributionDouble d : dists) {
-				if (d != null) {
-					if (d.getValues().length > amountValues)
-						amountValues = d.getValues().length;
-				}
-			}
-
-			AggregatedValue[] aValues = new AggregatedValue[amountValues];
-
-			// iterate over values
-			for (int i = 0; i < amountValues; i++) {
-				double[] values = new double[dists.length];
-				for (int j = 0; j < dists.length; j++) {
-					try {
-						values[j] = dists[j].getValues()[i];
-					} catch (IndexOutOfBoundsException | NullPointerException e) {
-						values[j] = 0;
-					}
-				}
-				double[] aggregatedValues = aggregate(values);
-				double[] temp = new double[aggregatedValues.length + 1];
-				temp[0] = i;
-				for (int j = 0; j < aggregatedValues.length; j++) {
-					temp[j + 1] = aggregatedValues[j];
-				}
-				aValues[i] = new AggregatedValue(refDist.getName(), temp);
-			}
-			return new AggregatedDistribution(refDist.getName(), aValues);
-		} else if (refDist instanceof DistributionInt) {
-			DistributionInt[] dists = new DistributionInt[distributions.length];
-			for (int i = 0; i < distributions.length; i++) {
-				if (distributions[i] != null)
-					dists[i] = ((DistributionInt) distributions[i]);
-			}
-
-			// calc 'longest' distribution
-			int amountValues = 0;
-			for (DistributionInt d : dists) {
-				if (d != null) {
-					if (d.getValues().length > amountValues)
-						amountValues = d.getValues().length;
-				}
-			}
-
-			AggregatedValue[] aValues = new AggregatedValue[amountValues];
-
-			// iterate over values
-			for (int i = 0; i < amountValues; i++) {
-				double[] values = new double[dists.length];
-				for (int j = 0; j < dists.length; j++) {
-					try {
-						values[j] = dists[j].getValues()[i] * 1.0
-								/ dists[j].getDenominator();
-					} catch (IndexOutOfBoundsException | NullPointerException e) {
-						values[j] = 0;
-					}
-				}
-				double[] aggregatedValues = aggregate(values);
-				double[] temp = new double[aggregatedValues.length + 1];
-				temp[0] = i;
-				for (int j = 0; j < aggregatedValues.length; j++) {
-					temp[j + 1] = aggregatedValues[j];
-				}
-				aValues[i] = new AggregatedValue(refDist.getName(), temp);
-			}
-			if (refDist instanceof BinnedDistributionInt)
-				return new AggregatedBinnedDistribution(refDist.getName(),
-						aValues, ((BinnedDistributionInt) refDist).getBinSize());
-			else if (refDist instanceof BinnedDistributionDouble)
-				return new AggregatedBinnedDistribution(refDist.getName(),
-						aValues,
-						((BinnedDistributionDouble) refDist).getBinSize());
-			else
-				return new AggregatedDistribution(refDist.getName(), aValues);
-		} else if (refDist instanceof DistributionLong) {
-			DistributionLong[] dists = new DistributionLong[distributions.length];
-			for (int i = 0; i < distributions.length; i++) {
-				if (distributions[i] != null)
-					dists[i] = ((DistributionLong) distributions[i]);
-			}
-
-			// calc 'longest' distribution
-			int amountValues = 0;
-			for (DistributionLong d : dists) {
-				if (d != null) {
-					if (d.getValues().length > amountValues)
-						amountValues = d.getValues().length;
-				}
-			}
-
-			AggregatedValue[] aValues = new AggregatedValue[amountValues];
-
-			// iterate over values
-			for (int i = 0; i < amountValues; i++) {
-				double[] values = new double[dists.length];
-				for (int j = 0; j < dists.length; j++) {
-					try {
-						values[j] = dists[j].getValues()[i] * 1.0
-								/ dists[j].getDenominator();
-					} catch (IndexOutOfBoundsException | NullPointerException e) {
-						values[j] = 0;
-					}
-				}
-				double[] aggregatedValues = aggregate(values);
-				double[] temp = new double[aggregatedValues.length + 1];
-				temp[0] = i;
-				for (int j = 0; j < aggregatedValues.length; j++) {
-					temp[j + 1] = aggregatedValues[j];
-				}
-				aValues[i] = new AggregatedValue(refDist.getName(), temp);
-			}
-			if (refDist instanceof BinnedDistributionLong)
-				return new AggregatedBinnedDistribution(refDist.getName(),
-						aValues,
-						((BinnedDistributionLong) refDist).getBinSize());
-			else
-				return new AggregatedDistribution(refDist.getName(), aValues);
-		} else {
-			// case = refDist is "normal" Distribution, shouldnt happen
+		// switch on different types
+		switch (refDist.getDistrType()) {
+		case BINNED_DOUBLE:
+			return aggregateBinnedDistributions(distributions);
+		case BINNED_INT:
+			return aggregateBinnedDistributions(distributions);
+		case BINNED_LONG:
+			return aggregateBinnedDistributions(distributions);
+		case QUALITY_DOUBLE:
+			return aggregateQualityDistributions(distributions);
+		case QUALITY_INT:
+			return aggregateQualityDistributions(distributions);
+		case QUALITY_LONG:
+			return aggregateQualityDistributions(distributions);
+		default:
+			Log.warn("Wrong distribution type in aggregation! Returning null.");
 			return null;
 		}
+	}
+
+	/** Aggregates over binned distributions. **/
+	private static AggregatedBinnedDistribution aggregateBinnedDistributions(
+			Distr<?, ?>[] dists) {
+		BinnedDistr<?>[] distributions = new BinnedDistr<?>[dists.length];
+		for (int i = 0; i < dists.length; i++) {
+			distributions[i] = (BinnedDistr<?>) dists[i];
+		}
+		return aggregateBinnedDistributions(distributions);
+	}
+
+	/** Aggregates over binned distributions. **/
+	public static AggregatedBinnedDistribution aggregateBinnedDistributions(
+			BinnedDistr<?>[] dists) {
+		// get ref-distribution from array
+		BinnedDistr<?> refDist = null;
+		for (BinnedDistr<?> d : dists) {
+			if (d != null) {
+				refDist = d;
+				break;
+			}
+		}
+
+		// calc 'longest' distribution
+		int amountValues = 0;
+		for (BinnedDistr<?> d : dists) {
+			if (d != null) {
+				if (d.getValues().length > amountValues)
+					amountValues = d.getValues().length;
+			}
+		}
+
+		// array that will be filled with aggregated values
+		AggregatedValue[] aValues = new AggregatedValue[amountValues];
+
+		// iterate over values
+		for (int i = 0; i < amountValues; i++) {
+			double[] values = new double[dists.length];
+			for (int j = 0; j < dists.length; j++) {
+				try {
+					values[j] = dists[j].getValues()[i] * 1.0
+							/ dists[j].getDenominator();
+				} catch (IndexOutOfBoundsException | NullPointerException e) {
+					values[j] = 0;
+				}
+			}
+			double[] aggregatedValues = aggregate(values);
+			double[] temp = new double[aggregatedValues.length + 1];
+			temp[0] = i;
+			for (int j = 0; j < aggregatedValues.length; j++) {
+				temp[j + 1] = aggregatedValues[j];
+			}
+			aValues[i] = new AggregatedValue(refDist.getName(), temp);
+		}
+
+		// return proper distribution
+		switch (refDist.getDistrType()) {
+		case BINNED_DOUBLE:
+			return new AggregatedBinnedDistribution(refDist.getName(), aValues,
+					((BinnedDoubleDistr) refDist).getBinSize());
+		case BINNED_INT:
+			return new AggregatedBinnedDistribution(refDist.getName(), aValues,
+					((BinnedIntDistr) refDist).getBinSize());
+		case BINNED_LONG:
+			return new AggregatedBinnedDistribution(refDist.getName(), aValues,
+					((BinnedLongDistr) refDist).getBinSize());
+		default:
+			Log.warn("Wrong distribution type in aggregation! Returning null.");
+			return null;
+		}
+	}
+
+	/** Aggregates over quality distributions. **/
+	private static AggregatedDistribution aggregateQualityDistributions(
+			Distr<?, ?>[] dists) {
+		// cast to quality-distributions
+		QualityDistr<?>[] distributions = new QualityDistr<?>[dists.length];
+		for (int i = 0; i < dists.length; i++) {
+			distributions[i] = (QualityDistr<?>) dists[i];
+		}
+		return aggregateQualityDistributions(distributions);
+	}
+
+	/** Aggregates over quality distributions. **/
+	public static AggregatedDistribution aggregateQualityDistributions(
+			QualityDistr<?>[] dists) {
+		// get ref-distribution from array
+		QualityDistr<?> refDist = null;
+		for (QualityDistr<?> d : dists) {
+			if (d != null) {
+				refDist = d;
+				break;
+			}
+		}
+
+		// calc 'longest' distribution
+		int amountValues = 0;
+		for (QualityDistr<?> d : dists) {
+			if (d != null) {
+				if (d.getValues().length > amountValues)
+					amountValues = d.getValues().length;
+			}
+		}
+
+		// array that will be filled with aggregated values
+		AggregatedValue[] aValues = new AggregatedValue[amountValues];
+
+		// iterate over values
+		for (int i = 0; i < amountValues; i++) {
+			double[] values = new double[dists.length];
+			for (int j = 0; j < dists.length; j++) {
+				try {
+					values[j] = dists[j].getValues()[i];
+				} catch (IndexOutOfBoundsException | NullPointerException e) {
+					values[j] = 0;
+				}
+			}
+			double[] aggregatedValues = aggregate(values);
+			double[] temp = new double[aggregatedValues.length + 1];
+			temp[0] = i;
+			for (int j = 0; j < aggregatedValues.length; j++) {
+				temp[j + 1] = aggregatedValues[j];
+			}
+			aValues[i] = new AggregatedValue(refDist.getName(), temp);
+		}
+
+		// return
+		return new AggregatedDistribution(refDist.getName(), aValues);
 	}
 
 	/**
@@ -676,84 +694,99 @@ public class Aggregation {
 		AggregatedDistributionList aDistributions = new AggregatedDistributionList(
 				m.getDistributions().size());
 
-		for (Distribution d : m.getDistributions().getList()) {
-			if (d instanceof DistributionDouble) {
-				double[] values = ((DistributionDouble) d).getValues();
-				AggregatedValue[] aggregatedValues = new AggregatedValue[values.length];
-				for (int i = 0; i < values.length; i++) {
-					double value = values[i];
-					double[] aValues = new double[] { i, value, value, value,
-							value, 0.0, 0.0, 0.0, value, value };
-					aggregatedValues[i] = new AggregatedValue(d.getName() + i,
-							aValues);
-				}
-				aDistributions.add(new AggregatedDistribution(d.getName(),
-						aggregatedValues));
-			} else if (d instanceof DistributionInt) {
-				int[] values = ((DistributionInt) d).getValues();
-				AggregatedValue[] aggregatedValues = new AggregatedValue[values.length];
-				for (int i = 0; i < values.length; i++) {
-					double value = values[i] * 1.0
-							/ ((DistributionInt) d).getDenominator();
-					double[] aValues = new double[] { i, value, value, value,
-							value, 0.0, 0.0, 0.0, value, value };
-					aggregatedValues[i] = new AggregatedValue(d.getName() + i,
-							aValues);
-				}
-				if (d instanceof BinnedDistributionInt)
-					aDistributions.add(new AggregatedBinnedDistribution(d
-							.getName(), aggregatedValues,
-							((BinnedDistributionInt) d).getBinSize()));
-				else if (d instanceof BinnedDistributionDouble)
-					aDistributions.add(new AggregatedBinnedDistribution(d
-							.getName(), aggregatedValues,
-							((BinnedDistributionDouble) d).getBinSize()));
-				else
-					aDistributions.add(new AggregatedDistribution(d.getName(),
-							aggregatedValues));
-			} else if (d instanceof DistributionLong) {
-				long[] values = ((DistributionLong) d).getValues();
-				AggregatedValue[] aggregatedValues = new AggregatedValue[values.length];
-				for (int i = 0; i < values.length; i++) {
-					double value = values[i] * 1.0
-							/ ((DistributionLong) d).getDenominator();
-					double[] aValues = new double[] { i, value, value, value,
-							value, 0.0, 0.0, 0.0, value, value };
-					aggregatedValues[i] = new AggregatedValue(d.getName() + i,
-							aValues);
-				}
-				if (d instanceof BinnedDistributionLong)
-					aDistributions.add(new AggregatedBinnedDistribution(d
-							.getName(), aggregatedValues,
-							((BinnedDistributionLong) d).getBinSize()));
-				else
-					aDistributions.add(new AggregatedDistribution(d.getName(),
-							aggregatedValues));
-			}
-		}
+		// aggregate
+		for (Distr<?, ?> d : m.getDistributions().getList())
+			aDistributions.add(aggregateDistribution(d));
 
 		// NODEVALUELISTS
 		AggregatedNodeValueListList aNodeValueLists = new AggregatedNodeValueListList(
 				m.getNodeValues().size());
 
-		for (NodeValueList n : m.getNodeValues().getList()) {
-			double[] values = n.getValues();
-			AggregatedValue[] aggregatedValues = new AggregatedValue[values.length];
-			for (int i = 0; i < values.length; i++) {
-				double value = values[i];
-				double[] aValues = new double[] { i, value, value, value,
-						value, 0.0, 0.0, 0.0, value, value };
-				aggregatedValues[i] = new AggregatedValue(n.getName() + i,
-						aValues);
-			}
-			aNodeValueLists.add(new AggregatedNodeValueList(n.getName(),
-					aggregatedValues));
-		}
+		// aggregate
+		for (NodeValueList n : m.getNodeValues().getList())
+			aNodeValueLists.add(aggregateNodeValueList(n));
 
 		// TODO: AGGREGATE NODENODEVALUELISTS
 
 		return new AggregatedMetric(m.getName(), aValuesList, aDistributions,
 				aNodeValueLists);
+	}
+
+	/** Aggregates over a single node value list **/
+	public static AggregatedNodeValueList aggregateNodeValueList(NodeValueList n) {
+		double[] values = n.getValues();
+		AggregatedValue[] aggregatedValues = new AggregatedValue[values.length];
+		for (int i = 0; i < values.length; i++) {
+			double value = values[i];
+			double[] aValues = new double[] { i, value, value, value, value,
+					0.0, 0.0, 0.0, value, value };
+			aggregatedValues[i] = new AggregatedValue(n.getName() + i, aValues);
+		}
+
+		return new AggregatedNodeValueList(n.getName(), aggregatedValues);
+	}
+
+	/** Aggregates over a single distribution. **/
+	public static AggregatedDistribution aggregateDistribution(Distr<?, ?> d) {
+		switch (d.getDistrType()) {
+		case BINNED_DOUBLE:
+			return aggregateBinnedDistr((BinnedDoubleDistr) d);
+		case BINNED_INT:
+			return aggregateBinnedDistr((BinnedIntDistr) d);
+		case BINNED_LONG:
+			return aggregateBinnedDistr((BinnedLongDistr) d);
+		case QUALITY_DOUBLE:
+			return aggregatedQualityDistr((QualityDoubleDistr) d);
+		case QUALITY_INT:
+			return aggregatedQualityDistr((QualityIntDistr) d);
+		case QUALITY_LONG:
+			return aggregatedQualityDistr((QualityLongDistr) d);
+		default:
+			Log.warn("Wrong distribution type in aggregation! Returning null.");
+			return null;
+		}
+	}
+
+	/** Aggregates over a single binned-distribution. **/
+	private static AggregatedBinnedDistribution aggregateBinnedDistr(
+			BinnedDistr<?> d) {
+		long[] values = d.getValues();
+		AggregatedValue[] aggregatedValues = new AggregatedValue[values.length];
+		for (int i = 0; i < values.length; i++) {
+			double value = values[i] * 1.0 / d.getDenominator();
+			double[] aValues = new double[] { i, value, value, value, value,
+					0.0, 0.0, 0.0, value, value };
+			aggregatedValues[i] = new AggregatedValue(d.getName() + i, aValues);
+		}
+
+		switch (d.getDistrType()) {
+		case BINNED_DOUBLE:
+			return new AggregatedBinnedDistribution(d.getName(),
+					aggregatedValues, ((BinnedDoubleDistr) d).getBinSize());
+		case BINNED_INT:
+			return new AggregatedBinnedDistribution(d.getName(),
+					aggregatedValues, ((BinnedIntDistr) d).getBinSize());
+		case BINNED_LONG:
+			return new AggregatedBinnedDistribution(d.getName(),
+					aggregatedValues, ((BinnedLongDistr) d).getBinSize());
+		default:
+			Log.warn("Wrong distribution type in aggregation! Returning null.");
+			return null;
+		}
+	}
+
+	/** Aggregates over a single quality-distribution. **/
+	private static AggregatedDistribution aggregatedQualityDistr(
+			QualityDistr<?> d) {
+		double[] values = d.getValues();
+		AggregatedValue[] aggregatedValues = new AggregatedValue[values.length];
+		for (int i = 0; i < values.length; i++) {
+			double value = values[i];
+			double[] aValues = new double[] { i, value, value, value, value,
+					0.0, 0.0, 0.0, value, value };
+			aggregatedValues[i] = new AggregatedValue(d.getName() + i, aValues);
+		}
+		return new AggregatedDistribution(d.getName(), aggregatedValues);
 	}
 
 	/**
