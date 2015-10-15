@@ -46,11 +46,14 @@ public class AggregatedDistributionList extends List<AggregatedDistribution> {
 		for (String distribution : distributions) {
 			if (distribution.endsWith(Config.get("SUFFIX_DIST_AGGR"))) {
 				list.add(AggregatedDistribution.read(dir, distribution,
-						Files.getDistributionName(distribution), readValues));
+						Files.getAggregatedDistributionName(distribution),
+						readValues));
 			} else if (distribution.endsWith(Config
 					.get("SUFFIX_DIST_AGGR_BINNED"))) {
-				list.add(AggregatedBinnedDistribution.read(dir, distribution,
-						Files.getDistributionBinnedName(distribution),
+				list.add(AggregatedBinnedDistribution.read(
+						dir,
+						distribution,
+						Files.getAggregatedBinnedDistributionName(distribution),
 						readValues));
 			}
 		}

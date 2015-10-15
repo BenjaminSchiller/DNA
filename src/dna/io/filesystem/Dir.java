@@ -93,7 +93,6 @@ public class Dir {
 						splits[splits.length - 1]
 								+ Config.get("SUFFIX_ZIP_FILE")));
 				String[] tempBatches = Dir.getBatches(Dir.delimiter);
-				// System.out.println("tempBatches size: " + tempBatches.length);
 				ZipReader.closeReadFilesystem();
 				return tempBatches;
 			}

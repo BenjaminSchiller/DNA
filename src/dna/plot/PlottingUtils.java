@@ -1137,10 +1137,12 @@ public class PlottingUtils {
 								.get(distribution);
 						if (d instanceof AggregatedBinnedDistribution)
 							distFilename = Files
-									.getDistributionBinnedFilename(d.getName());
+									.getAggregatedDistributionFilename(d
+											.getName());
 						else
-							distFilename = Files.getDistributionFilename(d
-									.getName());
+							distFilename = Files
+									.getAggregatedDistributionFilename(d
+											.getName());
 					} else {
 						Distr<?, ?> d = ((BatchData) initBatch).getMetrics()
 								.get(metric).getDistributions()
@@ -1446,23 +1448,10 @@ public class PlottingUtils {
 					for (int i = 0; i < batches.length; i++) {
 						for (int j = 0; j < valuesCount; j++) {
 							// get dist filename
-							String distFilename;
-							if (aggregatedBatches) {
-								if (((AggregatedBatch) initBatch).getMetrics()
-										.get(domains[j]).getDistributions()
-										.get(values[j]) instanceof AggregatedBinnedDistribution)
-									distFilename = Files
-											.getDistributionBinnedFilename(values[j]);
-								else
-									distFilename = Files
-											.getDistributionFilename(values[j]);
-							} else {
-								Distr<?, ?> d = ((BatchData) initBatch)
-										.getMetrics().get(domains[j])
-										.getDistributions().get(values[j]);
-								distFilename = Files.getDistributionFilename(
-										d.getName(), d.getDistrType());
-							}
+							String distFilename = Files
+									.getDistributionFilename(initBatch,
+											domains[j], values[j],
+											aggregatedBatches);
 
 							if (plotDist) {
 								PlotData pd = PlotData
@@ -2411,25 +2400,10 @@ public class PlottingUtils {
 
 								if (distributionNames.contains(value)) {
 									// get dist filename
-									String distFilename;
-									if (aggregatedBatches) {
-										if (((AggregatedBatch) initBatches[j])
-												.getMetrics().get(domain)
-												.getDistributions().get(value) instanceof AggregatedBinnedDistribution)
-											distFilename = Files
-													.getDistributionBinnedFilename(value);
-										else
-											distFilename = Files
-													.getDistributionFilename(value);
-									} else {
-										Distr<?, ?> d = ((BatchData) initBatches[j])
-												.getMetrics().get(domain)
-												.getDistributions().get(value);
-										distFilename = Files
-												.getDistributionFilename(
-														d.getName(),
-														d.getDistrType());
-									}
+									String distFilename = Files
+											.getDistributionFilename(
+													initBatches[j], domain,
+													value, aggregatedBatches);
 
 									String runAddition = "";
 									if (!aggregatedBatches)
@@ -2916,25 +2890,10 @@ public class PlottingUtils {
 										.getNames();
 							if (distributionNames.contains(dist)) {
 								// get dist filename
-								String distFilename;
-								if (aggregatedBatches) {
-									if (((AggregatedBatch) initBatch)
-											.getMetrics().get(d)
-											.getDistributions().get(dist) instanceof AggregatedBinnedDistribution)
-										distFilename = Files
-												.getDistributionBinnedFilename(dist);
-									else
-										distFilename = Files
-												.getDistributionFilename(dist);
-								} else {
-									Distr<?, ?> di = ((BatchData) initBatch)
-											.getMetrics().get(d)
-											.getDistributions().get(dist);
-									distFilename = Files
-											.getDistributionFilename(
-													di.getName(),
-													di.getDistrType());
-								}
+								String distFilename = Files
+										.getDistributionFilename(
+												initBatches[j], d, dist,
+												aggregatedBatches);
 
 								// create "line" in plot for each batch
 								if (plotDist) {
@@ -3343,23 +3302,9 @@ public class PlottingUtils {
 						// iterate over distributions
 						if (distributionNames.contains(dist)) {
 							// get filename
-							String distFilename;
-							if (aggregatedBatches) {
-								if (((AggregatedBatch) initBatches[i])
-										.getMetrics().get(metric)
-										.getDistributions().get(dist) instanceof AggregatedBinnedDistribution)
-									distFilename = Files
-											.getDistributionBinnedFilename(dist);
-								else
-									distFilename = Files
-											.getDistributionFilename(dist);
-							} else {
-								Distr<?, ?> d = ((BatchData) initBatches[i])
-										.getMetrics().get(metric)
-										.getDistributions().get(dist);
-								distFilename = Files.getDistributionFilename(
-										d.getName(), d.getDistrType());
-							}
+							String distFilename = Files
+									.getDistributionFilename(initBatches[i],
+											metric, dist, aggregatedBatches);
 
 							// set data quantity
 							seriesDataQuantities[i] = 1;
