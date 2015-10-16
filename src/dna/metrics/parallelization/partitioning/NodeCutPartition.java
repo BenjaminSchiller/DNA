@@ -18,6 +18,24 @@ import dna.updates.update.NodeAddition;
 import dna.updates.update.NodeRemoval;
 import dna.util.Rand;
 
+/**
+ * This class extends the basic Partition class and implements a NodeCut
+ * partitioning type. For a given list of nodes, the subgraph induced by these
+ * nodes is created (same as the non-overlapping partition). In addition, each
+ * edge between partitions is assigned to one of them (uniformly at random). A
+ * copy of the vertex residing in the other partition is also added to the
+ * graph.
+ * 
+ * In addition to that subgraph, the set of external nodes and edges is
+ * maintained, i.e., the nodes and edges (contained in the graph) that connect
+ * the graph to another partition.
+ * 
+ * Here, each node is replicated in at least one partition while each edge is
+ * replicated by exactly one partition.
+ * 
+ * @author benni
+ *
+ */
 public class NodeCutPartition extends Partition {
 
 	protected Set<Node> cutNodes;
@@ -49,6 +67,7 @@ public class NodeCutPartition extends Partition {
 			HashMap<Node, Partition> partitionMap) {
 		NodeCutPartition[] p = new NodeCutPartition[nodesList.size()];
 		HashMap<Partition, Set<Edge>> globalCuts = new HashMap<Partition, Set<Edge>>();
+		HashSet<Edge> processed = new HashSet<Edge>();
 		int index = 0;
 		for (List<Node> nodes : nodesList) {
 			p[index] = new NodeCutPartition();
@@ -60,12 +79,16 @@ public class NodeCutPartition extends Partition {
 		}
 		for (IElement e_ : g.getEdges()) {
 			Edge e = (Edge) e_;
+			if (processed.contains(e)) {
+				continue;
+			}
 			if (partitionMap.get(e.getN1()) != partitionMap.get(e.getN2())) {
 				if (Rand.rand.nextDouble() <= 0.5) {
 					globalCuts.get(partitionMap.get(e.getN1())).add(e);
 				} else {
 					globalCuts.get(partitionMap.get(e.getN2())).add(e);
 				}
+				processed.add(e);
 			}
 		}
 
@@ -104,32 +127,26 @@ public class NodeCutPartition extends Partition {
 			for (IElement e_ : n.getEdges()) {
 				Edge e = (Edge) e_;
 				if (nodeSet.contains(e.getN1()) && nodeSet.contains(e.getN2())) {
-					Edge newEdge = gds.newEdgeInstance(e_.asString(), gp);
-					gp.addEdge(newEdge);
-					newEdge.connectToNodes();
-				} else if (globalCut.contains(e)) {
-					Node internal, external;
-					if (nodeSet.contains(e.getN1())) {
-						internal = e.getN1();
-						external = e.getN2();
-					} else {
-						internal = e.getN2();
-						external = e.getN1();
+					if (!gp.containsEdge(e)) {
+						Edge newEdge = gds.newEdgeInstance(e_.asString(), gp);
+						gp.addEdge(newEdge);
+						newEdge.connectToNodes();
 					}
-					if (!gp.containsNode(external)) {
-						external = gds.newNodeInstance(external.asString());
-						gp.addNode(external);
-						cutNodes.add(external);
-					} else {
-						external = gp.getNode(external.getIndex());
-					}
-					Edge newEdge = gds.newEdgeInstance(e.asString(), gp);
-					gp.addEdge(newEdge);
-					newEdge.connectToNodes();
-					globalCut.remove(e);
-					cutEdges.add(newEdge);
 				}
 			}
+		}
+
+		for (Edge e : globalCut) {
+			Node external = nodeSet.contains(e.getN1()) ? e.getN2() : e.getN1();
+			if (!gp.containsNode(external)) {
+				Node newNode = gds.newNodeInstance(external.asString());
+				gp.addNode(newNode);
+				cutNodes.add(newNode);
+			}
+			Edge newEdge = gds.newEdgeInstance(e.asString(), gp);
+			gp.addEdge(newEdge);
+			newEdge.connectToNodes();
+			cutEdges.add(newEdge);
 		}
 
 		p.init(gp, nodes, m, cutNodes, cutEdges);

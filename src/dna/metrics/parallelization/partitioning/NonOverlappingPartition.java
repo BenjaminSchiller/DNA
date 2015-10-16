@@ -26,6 +26,9 @@ import dna.updates.update.NodeRemoval;
  * In addition to that subgraph, the set of external edges is maintained, i.e.,
  * the edges between the given nodes and nodes in other partitions.
  * 
+ * Here, each node is replicated once on some partition and edges are either
+ * replicated once in a partition of not at all (external edges).
+ * 
  * @author benni
  *
  */
@@ -82,9 +85,11 @@ public class NonOverlappingPartition extends Partition {
 			for (IElement e_ : n.getEdges()) {
 				Edge e = (Edge) e_;
 				if (gp.containsNode(e.getN1()) && gp.containsNode(e.getN2())) {
-					Edge newEdge = gds.newEdgeInstance(e_.asString(), gp);
-					gp.addEdge(newEdge);
-					newEdge.connectToNodes();
+					if (!gp.containsEdge(e)) {
+						Edge newEdge = gds.newEdgeInstance(e_.asString(), gp);
+						gp.addEdge(newEdge);
+						newEdge.connectToNodes();
+					}
 				} else {
 					externalEdges.add(e);
 				}

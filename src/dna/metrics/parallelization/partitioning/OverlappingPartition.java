@@ -27,6 +27,9 @@ import dna.updates.update.NodeRemoval;
  * nodes (the 1-hop neighbors of the initial nodes) as well as the auxiliary
  * edges (edges to and between the 1-hop neighbors).
  * 
+ * Here, nodes as well as edges are replicated at least once on some partition
+ * but can be present in each (!) partition.
+ * 
  * @author benni
  *
  */
@@ -112,10 +115,13 @@ public class OverlappingPartition extends Partition {
 					Edge e = (Edge) e__;
 					if (!gp.containsEdge(e) && gp.containsNode(e.getN1())
 							&& gp.containsNode(e.getN2())) {
-						Edge newEdge = gds.newEdgeInstance(e.asString(), gp);
-						gp.addEdge(newEdge);
-						newEdge.connectToNodes();
-						auxiliaryEdges.add(newEdge);
+						if (!gp.containsEdge(e)) {
+							Edge newEdge = gds
+									.newEdgeInstance(e.asString(), gp);
+							gp.addEdge(newEdge);
+							newEdge.connectToNodes();
+							auxiliaryEdges.add(newEdge);
+						}
 					}
 				}
 			}
