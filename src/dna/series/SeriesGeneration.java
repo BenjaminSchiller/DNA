@@ -201,8 +201,21 @@ public class SeriesGeneration {
 			SeriesGeneration.generateRun(series, from + i, batches, compare,
 					write, batchGenerationTime);
 		}
-
-		return SeriesData.read(series.getDir(), series.getName(), false, false);
+		
+		// read structure
+		SeriesData sd = SeriesData.read(series.getDir(), series.getName(), false, false);
+		
+		// compare metrics
+		if (compare) {
+			try {
+				sd.compareMetrics(true);
+			} catch (InterruptedException e) {
+				Log.warn("Error on comparing metrics");
+			}
+		}
+		
+		// return
+		return sd;
 	}
 
 	/**
