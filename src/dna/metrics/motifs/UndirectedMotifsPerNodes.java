@@ -17,7 +17,6 @@ import dna.series.data.distr.Distr;
 import dna.series.data.nodevaluelists.NodeNodeValueList;
 import dna.series.data.nodevaluelists.NodeValueList;
 import dna.updates.batch.Batch;
-import dna.util.ArrayUtils;
 import dna.util.parameters.IntParameter;
 import dna.util.parameters.Parameter;
 
@@ -99,8 +98,7 @@ public abstract class UndirectedMotifsPerNodes extends Metric {
 		}
 		UndirectedMotifsPerNodes um = (UndirectedMotifsPerNodes) m;
 		boolean success = true;
-		success &= ArrayUtils.equals(this.motifs.getValues(),
-				um.motifs.getValues(), this.motifs.getName());
+		success &= this.motifs.equalsVerbose(um.motifs);
 		return success;
 	}
 

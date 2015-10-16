@@ -10,7 +10,6 @@ import dna.series.data.distr.BinnedDoubleDistr;
 import dna.series.data.distr.Distr;
 import dna.series.data.nodevaluelists.NodeNodeValueList;
 import dna.series.data.nodevaluelists.NodeValueList;
-import dna.util.ArrayUtils;
 import dna.util.parameters.DoubleParameter;
 
 public abstract class Weights extends Metric {
@@ -55,8 +54,7 @@ public abstract class Weights extends Metric {
 		if (m == null || !(m instanceof Weights)) {
 			return false;
 		}
-		return ArrayUtils.equals(this.distr.getValues(),
-				((Weights) m).distr.getValues(), "Weights.Distribution");
+		return this.distr.equalsVerbose(((Weights) m).distr);
 	}
 
 	protected double getWeight(Weight w) {

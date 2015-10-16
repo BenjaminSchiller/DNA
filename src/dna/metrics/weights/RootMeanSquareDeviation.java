@@ -16,7 +16,6 @@ import dna.series.data.distr.Distr;
 import dna.series.data.nodevaluelists.NodeNodeValueList;
 import dna.series.data.nodevaluelists.NodeValueList;
 import dna.updates.batch.Batch;
-import dna.util.ArrayUtils;
 import dna.util.DataUtils;
 import dna.util.parameters.Parameter;
 
@@ -81,8 +80,7 @@ public abstract class RootMeanSquareDeviation extends Metric {
 		boolean success = true;
 		success &= DataUtils.equals(this.rmsd, m2.rmsd,
 				"RootMeanSquareDeviation");
-		success &= ArrayUtils.equals(this.distr.getValues(),
-				m2.distr.getValues(), "DistanceDistribution");
+		success &= this.distr.equalsVerbose(m2.distr);
 		return success;
 	}
 

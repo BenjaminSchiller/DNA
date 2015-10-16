@@ -7,7 +7,6 @@ import dna.series.data.distr.BinnedIntDistr;
 import dna.series.data.distr.Distr;
 import dna.series.data.nodevaluelists.NodeNodeValueList;
 import dna.series.data.nodevaluelists.NodeValueList;
-import dna.util.ArrayUtils;
 
 public abstract class AllPairsShortestPaths extends Metric {
 
@@ -52,8 +51,7 @@ public abstract class AllPairsShortestPaths extends Metric {
 	@Override
 	public boolean equals(IMetric m) {
 		return this.isComparableTo(m)
-				&& ArrayUtils.equals(this.apsp.getValues(),
-						((AllPairsShortestPaths) m).apsp.getValues(), "APSP");
+				&& this.apsp.equalsVerbose(((AllPairsShortestPaths) m).apsp);
 	}
 
 }

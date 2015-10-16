@@ -14,7 +14,6 @@ import dna.series.data.distr.Distr;
 import dna.series.data.nodevaluelists.NodeNodeValueList;
 import dna.series.data.nodevaluelists.NodeValueList;
 import dna.updates.batch.Batch;
-import dna.util.ArrayUtils;
 import dna.util.parameters.Parameter;
 
 public abstract class DirectedMotifs extends Metric {
@@ -76,8 +75,7 @@ public abstract class DirectedMotifs extends Metric {
 		}
 		DirectedMotifs dm = (DirectedMotifs) m;
 		boolean success = true;
-		success &= ArrayUtils.equals(this.motifs.getValues(),
-				dm.motifs.getValues(), this.motifs.getName());
+		success &= this.motifs.equalsVerbose(dm.motifs);
 		return success;
 	}
 

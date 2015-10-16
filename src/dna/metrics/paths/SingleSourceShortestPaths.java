@@ -7,7 +7,6 @@ import dna.series.data.distr.BinnedIntDistr;
 import dna.series.data.distr.Distr;
 import dna.series.data.nodevaluelists.NodeNodeValueList;
 import dna.series.data.nodevaluelists.NodeValueList;
-import dna.util.ArrayUtils;
 import dna.util.parameters.IntParameter;
 import dna.util.parameters.Parameter;
 
@@ -54,9 +53,8 @@ public abstract class SingleSourceShortestPaths extends Metric {
 	@Override
 	public boolean equals(IMetric m) {
 		return this.isComparableTo(m)
-				&& ArrayUtils.equals(this.sssp.getValues(),
-						((SingleSourceShortestPaths) m).sssp.getValues(),
-						"SSSP");
+				&& this.sssp
+						.equalsVerbose(((SingleSourceShortestPaths) m).sssp);
 	}
 
 }
