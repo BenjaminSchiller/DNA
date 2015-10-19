@@ -7,8 +7,8 @@ package dna.plot.data;
 public class FunctionData extends PlotData {
 
 	public FunctionData(String functionName, String formular, PlotStyle style,
-			String title) {
-		super(functionName, formular, style, title);
+			String title, String source) {
+		super(functionName, formular, style, title, source);
 	}
 
 	@Override
