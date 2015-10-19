@@ -358,7 +358,7 @@ public class PlottingUtils {
 					dataList.add(PlotData.get(functionSplit[0].trim(),
 							functionSplit[1].trim(), style, domain
 									+ PlotConfig.customPlotDomainDelimiter
-									+ value, PlotType.function));
+									+ value, PlotType.function, null));
 					// if not function, iterate over series
 				} else {
 					// iterate over series
@@ -401,14 +401,15 @@ public class PlottingUtils {
 												+ " ("
 												+ seriesData[j].getName()
 												+ runAddition + ")", config
-												.getGeneralDomain()));
+												.getGeneralDomain(),
+										seriesData[j].getDir()));
 								seriesDataQuantities[j]++;
 							}
 						} else {
 							// check if series contains value
 							if (initBatches[j].contains(domain, value)) {
 								dataList.add(PlotData.get(value, domain, style,
-										title, type));
+										title, type, seriesData[j].getDir()));
 								seriesDataQuantities[j]++;
 							}
 						}
@@ -903,7 +904,8 @@ public class PlottingUtils {
 						runAddition = " @ run." + indizes[j];
 					data[index] = PlotData.get(runtime,
 							PlotConfig.customPlotDomainGeneralRuntimes, style,
-							seriesData[j].getName() + runAddition, type);
+							seriesData[j].getName() + runAddition, type,
+							seriesData[j].getDir());
 					seriesDataQuantities[j]++;
 					index++;
 				}
@@ -954,7 +956,8 @@ public class PlottingUtils {
 						runAddition = " @ run." + indizes[j];
 					data[index] = PlotData.get(runtime,
 							PlotConfig.customPlotDomainMetricRuntimes, style,
-							seriesData[j].getName() + runAddition, type);
+							seriesData[j].getName() + runAddition, type,
+							seriesData[j].getDir());
 					seriesDataQuantities[j]++;
 					index++;
 				}
@@ -1033,7 +1036,8 @@ public class PlottingUtils {
 					if (d.equals(PlotConfig.customPlotDomainStatistics)) {
 						if (valueNames.contains(value)) {
 							valuePlotData[index] = PlotData.get(value, d,
-									style, lineTitle, type);
+									style, lineTitle, type,
+									seriesData[j].getDir());
 							seriesDataQuantities[j]++;
 							index++;
 						}
@@ -1060,7 +1064,8 @@ public class PlottingUtils {
 									.getMetrics().get(d).getValues().getNames();
 						if (metricValueNames.contains(value)) {
 							valuePlotData[index] = PlotData.get(value, d,
-									style, lineTitle, type);
+									style, lineTitle, type,
+									seriesData[j].getDir());
 							seriesDataQuantities[j]++;
 							index++;
 						}
@@ -1219,10 +1224,9 @@ public class PlottingUtils {
 							if (!aggregatedBatches)
 								runAddition = " @ run." + indizes[i];
 							// create "line"
-							PlotData data = PlotData
-									.get(value, metric, style,
-											seriesData[i].getName()
-													+ runAddition, type);
+							PlotData data = PlotData.get(value, metric, style,
+									seriesData[i].getName() + runAddition,
+									type, seriesData[i].getDir());
 							lines.add(data);
 							seriesDataQuantities[i]++;
 						}
@@ -1255,8 +1259,8 @@ public class PlottingUtils {
 	/** Plots Distributions and NodeValueLists **/
 	public static void plotDistributionsAndNodeValues(
 			boolean plotDistributions, boolean plotNodeValues,
-			IBatch initBatch, String[] batches, double[] timestamps,
-			ArrayList<PlotConfig> customDistributionPlots,
+			IBatch initBatch, String source, String[] batches,
+			double[] timestamps, ArrayList<PlotConfig> customDistributionPlots,
 			ArrayList<PlotConfig> customNodeValueListPlots, String seriesDir,
 			String aggrDir, String dstDir, String title, PlotStyle style,
 			PlotType type, DistributionPlotType distPlotType,
@@ -1393,7 +1397,8 @@ public class PlottingUtils {
 						PlotData[] dPlotData = new PlotData[batches.length];
 						for (int i = 0; i < batches.length; i++) {
 							dPlotData[i] = PlotData.get(distribution, metric,
-									style, title + " @ " + timestamps[i], type);
+									style, title + " @ " + timestamps[i], type,
+									source);
 							if (!Config.getBoolean("GNUPLOT_DATA_IN_SCRIPT")
 									&& !zippedBatches && !zippedRuns) {
 								if (aggregatedBatches) {
@@ -1443,7 +1448,7 @@ public class PlottingUtils {
 						for (int i = 0; i < batches.length; i++) {
 							PlotData cdfPlotData = PlotData.get(distribution,
 									metric, style, title + " @ "
-											+ timestamps[i], type);
+											+ timestamps[i], type, source);
 							cdfPlotData.setPlotAsCdf(true);
 							if (!Config.getBoolean("GNUPLOT_DATA_IN_SCRIPT")
 									&& !zippedBatches && !zippedRuns) {
@@ -1537,7 +1542,8 @@ public class PlottingUtils {
 					PlotData[] nPlotData = new PlotData[batches.length];
 					for (int i = 0; i < batches.length; i++) {
 						PlotData plotData = PlotData.get(nodevaluelist, metric,
-								style, title + " @ " + timestamps[i], type);
+								style, title + " @ " + timestamps[i], type,
+								source);
 						if (!Config.getBoolean("GNUPLOT_DATA_IN_SCRIPT")
 								&& !zippedBatches && !zippedRuns) {
 							if (aggregatedBatches) {
@@ -1682,7 +1688,8 @@ public class PlottingUtils {
 												domains[j]
 														+ PlotConfig.customPlotDomainDelimiter
 														+ values[j] + " @ "
-														+ timestamps[i], type);
+														+ timestamps[i], type,
+												source);
 								if (!Config
 										.getBoolean("GNUPLOT_DATA_IN_SCRIPT")
 										&& !zippedBatches && !zippedRuns) {
@@ -1720,7 +1727,8 @@ public class PlottingUtils {
 												domains[j]
 														+ PlotConfig.customPlotDomainDelimiter
 														+ values[j] + " @ "
-														+ timestamps[i], type);
+														+ timestamps[i], type,
+												source);
 								if (!Config
 										.getBoolean("GNUPLOT_DATA_IN_SCRIPT")
 										&& !zippedBatches && !zippedRuns) {
@@ -1766,11 +1774,11 @@ public class PlottingUtils {
 						if (plotDist)
 							data[offset + i] = PlotData.get(functionSplit[0],
 									functionSplit[1], style, title,
-									PlotType.function);
+									PlotType.function, null);
 						if (plotCdf)
 							dataCdf[offset + i] = PlotData.get(
 									functionSplit[0], functionSplit[1], style,
-									title, PlotType.function);
+									title, PlotType.function, null);
 					}
 
 					// get filename
@@ -1884,7 +1892,8 @@ public class PlottingUtils {
 											domains[j]
 													+ PlotConfig.customPlotDomainDelimiter
 													+ values[j] + " @ "
-													+ timestamps[i], type);
+													+ timestamps[i], type,
+											source);
 							if (!Config.getBoolean("GNUPLOT_DATA_IN_SCRIPT")
 									&& !zippedBatches && !zippedRuns) {
 								if (aggregatedBatches) {
@@ -1926,7 +1935,7 @@ public class PlottingUtils {
 						}
 						data[offset + i] = PlotData.get(functionSplit[0],
 								functionSplit[1], style, title,
-								PlotType.function);
+								PlotType.function, null);
 					}
 
 					// get filename
@@ -2011,7 +2020,7 @@ public class PlottingUtils {
 	}
 
 	/** Plots custom value plots **/
-	public static void plotCustomValuePlots(IBatch[] batchData,
+	public static void plotCustomValuePlots(IBatch[] batchData, String source,
 			ArrayList<PlotConfig> customValuePlots, String dstDir,
 			String title, PlotStyle style, PlotType type,
 			ValueSortMode valueSortMode, String[] valueSortList,
@@ -2068,7 +2077,7 @@ public class PlottingUtils {
 					data[j] = PlotData.get(functionSplit[0].trim(),
 							functionSplit[1].trim(), style, domain
 									+ PlotConfig.customPlotDomainDelimiter
-									+ value, PlotType.function);
+									+ value, PlotType.function, null);
 				} else if (domain.equals(PlotConfig.customPlotDomainExpression)) {
 					// if expression
 					String[] expressionSplit = value.split(":");
@@ -2084,9 +2093,10 @@ public class PlottingUtils {
 						exprName = expressionSplit[0];
 					data[j] = new ExpressionData(exprName, expressionSplit[1],
 							style, exprName.replace("$", ""),
-							pc.getGeneralDomain());
+							pc.getGeneralDomain(), source);
 				} else {
-					data[j] = PlotData.get(value, domain, style, value, type);
+					data[j] = PlotData.get(value, domain, style, value, type,
+							source);
 				}
 			}
 
@@ -2149,7 +2159,7 @@ public class PlottingUtils {
 	}
 
 	/** Plot custom runtime plots **/
-	public static void plotCustomRuntimes(IBatch[] batchData,
+	public static void plotCustomRuntimes(IBatch[] batchData, String source,
 			ArrayList<PlotConfig> customPlots, String dstDir, String title,
 			PlotStyle style, PlotType type, ValueSortMode valueSortMode,
 			String[] valueSortList, HashMap<Long, Long> timestampMap)
@@ -2214,7 +2224,7 @@ public class PlottingUtils {
 					plotData[i] = PlotData.get(functionSplit[0].trim(),
 							functionSplit[1].trim(), style, domain
 									+ PlotConfig.customPlotDomainDelimiter
-									+ value, PlotType.function);
+									+ value, PlotType.function, null);
 				} else if (domain.equals(PlotConfig.customPlotDomainExpression)) {
 					// if expression
 					String[] expressionSplit = value.split(":");
@@ -2230,10 +2240,11 @@ public class PlottingUtils {
 						exprName = expressionSplit[0];
 					plotData[i] = new ExpressionData(exprName,
 							expressionSplit[1], style,
-							exprName.replace("$", ""), pc.getGeneralDomain());
+							exprName.replace("$", ""), pc.getGeneralDomain(),
+							source);
 				} else {
 					plotData[i] = PlotData.get(value, domain, style, value,
-							type);
+							type, source);
 				}
 			}
 
@@ -2292,9 +2303,9 @@ public class PlottingUtils {
 	}
 
 	/** Plots metric values **/
-	public static void plotMetricValues(IBatch[] batchData, IBatch initBatch,
-			String dstDir, String title, PlotStyle style, PlotType type,
-			ValueSortMode valueSortMode, String[] valueSortList,
+	public static void plotMetricValues(IBatch[] batchData, String source,
+			IBatch initBatch, String dstDir, String title, PlotStyle style,
+			PlotType type, ValueSortMode valueSortMode, String[] valueSortList,
 			ArrayList<PlotConfig> customMetricValuePlots,
 			ArrayList<PlotConfig> customValuePlots,
 			HashMap<Long, Long> timestampMap) throws IOException,
@@ -2393,7 +2404,7 @@ public class PlottingUtils {
 
 				// get plot data
 				PlotData valuePlotData = PlotData.get(value, metric, style,
-						metric, type);
+						metric, type, source);
 
 				// create plot
 				Plot p = new Plot(dstDir, PlotFilenames.getValuesPlot(metric,
@@ -2465,7 +2476,7 @@ public class PlottingUtils {
 				for (int j = 0; j < metricsList.size(); j++) {
 					String metric = metricsList.get(j);
 					valuePlotDatas[j] = PlotData.get(value, metric, style,
-							metric, type);
+							metric, type, source);
 				}
 
 				// create plot
@@ -2661,7 +2672,8 @@ public class PlottingUtils {
 
 									if (plotDist) {
 										PlotData data = PlotData.get(value,
-												domain, style, title, type);
+												domain, style, title, type,
+												seriesData[j].getDir());
 										if (!Config
 												.getBoolean("GNUPLOT_DATA_IN_SCRIPT")
 												&& !zippedBatches
@@ -2695,7 +2707,8 @@ public class PlottingUtils {
 									}
 									if (plotCdf) {
 										PlotData data = PlotData.get(value,
-												domain, style, title, type);
+												domain, style, title, type,
+												seriesData[j].getDir());
 										data.setPlotAsCdf(true);
 										if (!Config
 												.getBoolean("GNUPLOT_DATA_IN_SCRIPT")
@@ -2877,7 +2890,8 @@ public class PlottingUtils {
 
 									// add data to list
 									PlotData line = PlotData.get(value, domain,
-											style, title, type);
+											style, title, type,
+											seriesData[j].getDir());
 									if (!Config
 											.getBoolean("GNUPLOT_DATA_IN_SCRIPT")
 											&& !zippedBatches && !zippedRuns) {
@@ -3135,7 +3149,8 @@ public class PlottingUtils {
 								if (plotDist) {
 									PlotData line = PlotData.get(dist, d,
 											style, lineTitle + " @ "
-													+ timestamps[j], type);
+													+ timestamps[j], type,
+											seriesData[k].getDir());
 									if (!Config
 											.getBoolean("GNUPLOT_DATA_IN_SCRIPT")
 											&& !zippedBatches && !zippedRuns) {
@@ -3169,7 +3184,8 @@ public class PlottingUtils {
 								if (plotCdf) {
 									PlotData cdfPlotData = PlotData.get(dist,
 											d, style, lineTitle + " @ "
-													+ timestamps[j], type);
+													+ timestamps[j], type,
+											seriesData[k].getDir());
 									cdfPlotData.setPlotAsCdf(true);
 									if (!Config
 											.getBoolean("GNUPLOT_DATA_IN_SCRIPT")
@@ -3348,9 +3364,9 @@ public class PlottingUtils {
 
 							if (nodevaluelistNames.contains(nvl)) {
 								// create "line" in plot for each batch
-								PlotData line = PlotData
-										.get(nvl, d, style, lineTitle + " @ "
-												+ timestamps[j], type);
+								PlotData line = PlotData.get(nvl, d, style,
+										lineTitle + " @ " + timestamps[j],
+										type, seriesData[k].getDir());
 								if (!Config
 										.getBoolean("GNUPLOT_DATA_IN_SCRIPT")
 										&& !zippedBatches && !zippedRuns) {
@@ -3558,7 +3574,8 @@ public class PlottingUtils {
 
 								if (plotDist) {
 									PlotData data = PlotData.get(dist, metric,
-											style, title, type);
+											style, title, type,
+											seriesData[i].getDir());
 									if (!Config
 											.getBoolean("GNUPLOT_DATA_IN_SCRIPT")
 											&& !zippedBatches && !zippedRuns) {
@@ -3590,7 +3607,8 @@ public class PlottingUtils {
 								}
 								if (plotCdf) {
 									PlotData data = PlotData.get(dist, metric,
-											style, title, type);
+											style, title, type,
+											seriesData[i].getDir());
 									data.setPlotAsCdf(true);
 									if (!Config
 											.getBoolean("GNUPLOT_DATA_IN_SCRIPT")
@@ -3797,7 +3815,8 @@ public class PlottingUtils {
 										+ runAddition + " @ " + timestamp;
 
 								PlotData data = PlotData.get(nvl, metric,
-										style, title, type);
+										style, title, type,
+										seriesData[i].getDir());
 								if (!Config
 										.getBoolean("GNUPLOT_DATA_IN_SCRIPT")
 										&& !zippedBatches && !zippedRuns) {
@@ -3998,6 +4017,60 @@ public class PlottingUtils {
 		for (Plot p : defaultPlots)
 			p.writeScriptHeader();
 
+		// iterate over batches
+		for (int i = 0; i < batches.length; i++) {
+			System.out.println("BATCH." + i + "\ttimestamp: " + timestamps[i]
+					+ "\t* " + batches[i]);
+			long timestamp = Dir.getTimestamp(batches[i]);
+
+			IBatch[] batchData = new IBatch[seriesData.length];
+
+			// read batches for each series
+			for (int j = 0; j < seriesData.length; j++) {
+				SeriesData series = seriesData[j];
+				String tempDir = "";
+
+				// read
+				try {
+					if (aggregatedBatches) {
+						tempDir = Dir.getAggregationDataDir(series.getDir());
+						batchData[j] = AggregatedBatch.readIntelligent(
+								Dir.getBatchDataDir(tempDir, timestamp),
+								timestamp, BatchReadMode.readOnlySingleValues);
+					} else {
+						tempDir = Dir
+								.getRunDataDir(series.getDir(), indizes[j]);
+						batchData[j] = BatchData.readIntelligent(
+								Dir.getBatchDataDir(tempDir, timestamp),
+								timestamp, BatchReadMode.readOnlySingleValues);
+					}
+				} catch (FileNotFoundException e) {
+					if (zippedBatches || zippedRuns) {
+						if (ZipReader.isZipOpen())
+							ZipReader.closeReadFilesystem();
+						String remDir = tempDir
+								+ Config.get("PREFIX_BATCHDATA_DIR")
+								+ timestamp + Config.get("SUFFIX_ZIP_FILE");
+						Log.debug("removing unnecessary zipfile: " + remDir);
+						Files.delete(new File(remDir));
+					}
+
+					batchData[j] = null;
+				}
+			}
+
+			// feed data to plots
+
+			// add data to custom plots
+			for (Plot p : plots) {
+				// check how often the series is used in the plot
+				for (int j = 0; j < p.getSeriesDataQuantity(i); j++) {
+					// add data to plot
+					p.addDataSequentially(batchData);
+				}
+			}
+		}
+
 		// add data to plots
 		for (int i = 0; i < seriesData.length; i++) {
 			SeriesData series = seriesData[i];
@@ -4018,6 +4091,7 @@ public class PlottingUtils {
 								Dir.getBatchDataDir(tempDir, timestamp),
 								timestamp, BatchReadMode.readOnlySingleValues);
 					} catch (FileNotFoundException e) {
+						// error handling
 						if (zippedBatches || zippedRuns) {
 							if (ZipReader.isZipOpen())
 								ZipReader.closeReadFilesystem();
@@ -4027,7 +4101,6 @@ public class PlottingUtils {
 							Log.debug("removing unnecessary zipfile: " + remDir);
 							Files.delete(new File(remDir));
 						}
-
 						batchData[j] = null;
 					}
 				}
