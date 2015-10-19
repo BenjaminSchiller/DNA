@@ -6,8 +6,9 @@ package dna.plot.data;
  */
 public class AverageData extends PlotData {
 
-	public AverageData(String data, String domain, PlotStyle style, String title) {
-		super(data, domain, style, title);
+	public AverageData(String data, String domain, PlotStyle style,
+			String title, String source) {
+		super(data, domain, style, title, source);
 	}
 
 	@Override

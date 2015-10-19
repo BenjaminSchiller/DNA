@@ -13,8 +13,8 @@ public class ExpressionData extends PlotData {
 	private String[] domains;
 
 	public ExpressionData(String exprName, String formular, PlotStyle style,
-			String title, String generalDomain) {
-		super(exprName, formular, style, title);
+			String title, String generalDomain, String source) {
+		super(exprName, formular, style, title, source);
 
 		// parse variables form formular
 		String[] split = formular.split("\\$");

@@ -7,8 +7,8 @@ package dna.plot.data;
 public class ConfidenceData2 extends PlotData {
 
 	public ConfidenceData2(String data, String domain, PlotStyle style,
-			String title) {
-		super(data, domain, style, title);
+			String title, String source) {
+		super(data, domain, style, title, source);
 	}
 
 	@Override
