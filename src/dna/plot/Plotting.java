@@ -307,9 +307,9 @@ public class Plotting {
 					Log.infoSep();
 					Log.info("Plotting Custom-Statistic-Plots:");
 					PlottingUtils.plotCustomValuePlots(batchData,
-							config.getCustomStatisticPlots(), dstDir, title,
-							style, type, valueSortMode, valueSortList,
-							config.getTimestampMap());
+							series.getDir(), config.getCustomStatisticPlots(),
+							dstDir, title, style, type, valueSortMode,
+							valueSortList, config.getTimestampMap());
 				}
 			}
 		}
@@ -318,7 +318,7 @@ public class Plotting {
 		if (config.isPlotCustomValues()) {
 			Log.infoSep();
 			Log.info("Plotting Custom-Value-Plots:");
-			PlottingUtils.plotCustomValuePlots(batchData,
+			PlottingUtils.plotCustomValuePlots(batchData, series.getDir(),
 					config.getCustomValuePlots(), dstDir, title, style, type,
 					valueSortMode, valueSortList, config.getTimestampMap());
 		}
@@ -326,16 +326,16 @@ public class Plotting {
 		// plot runtimes
 		if (config.isPlotRuntimes()) {
 			// plot custom runtimes
-			PlottingUtils.plotCustomRuntimes(batchData,
+			PlottingUtils.plotCustomRuntimes(batchData, series.getDir(),
 					config.getCustomRuntimePlots(), dstDir, title, style, type,
 					valueSortMode, valueSortList, config.getTimestampMap());
 		}
 
 		// plot metric values
 		if (config.isPlotMetricValues()) {
-			PlottingUtils.plotMetricValues(batchData, initBatch, dstDir, title,
-					style, type, valueSortMode, valueSortList,
-					config.getCustomMetricValuePlots(),
+			PlottingUtils.plotMetricValues(batchData, series.getDir(),
+					initBatch, dstDir, title, style, type, valueSortMode,
+					valueSortList, config.getCustomMetricValuePlots(),
 					config.getCustomValuePlots(), config.getTimestampMap());
 
 			// plot custom metric value plots
@@ -344,6 +344,7 @@ public class Plotting {
 					Log.infoSep();
 					Log.info("Plotting Custom-MetricValue-Plots:");
 					PlottingUtils.plotCustomValuePlots(batchData,
+							series.getDir(),
 							config.getCustomMetricValuePlots(), dstDir, title,
 							style, type, valueSortMode, valueSortList,
 							config.getTimestampMap());
@@ -374,8 +375,8 @@ public class Plotting {
 		// plot distributions
 		if (plotDistributions || plotNodeValues)
 			PlottingUtils.plotDistributionsAndNodeValues(plotDistributions,
-					plotNodeValues, initBatch, batches, timestamps,
-					config.getCustomDistributionPlots(),
+					plotNodeValues, initBatch, series.getDir(), batches,
+					timestamps, config.getCustomDistributionPlots(),
 					config.getCustomNodeValueListPlots(), series.getDir(),
 					tempDir, dstDir, title, style, type, distPlotType, order,
 					orderBy);
