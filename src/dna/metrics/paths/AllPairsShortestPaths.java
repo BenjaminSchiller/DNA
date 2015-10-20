@@ -3,21 +3,28 @@ package dna.metrics.paths;
 import dna.metrics.IMetric;
 import dna.metrics.Metric;
 import dna.series.data.Value;
-import dna.series.data.distr.BinnedIntDistr;
+import dna.series.data.distr.BinnedDistr;
 import dna.series.data.distr.Distr;
 import dna.series.data.nodevaluelists.NodeNodeValueList;
 import dna.series.data.nodevaluelists.NodeValueList;
+import dna.util.parameters.Parameter;
 
 public abstract class AllPairsShortestPaths extends Metric {
 
 	// TODO INIT!!!
 	// this.apsp = new DistributionLong("APSP");
 
-	protected BinnedIntDistr apsp;
+	protected BinnedDistr apsp;
 
 	public AllPairsShortestPaths(String name) {
 		super(name);
 	}
+
+	public AllPairsShortestPaths(String name, Parameter... p) {
+		super(name, p);
+	}
+
+	protected abstract double getCharacteristicPathLength();
 
 	@Override
 	public Value[] getValues() {
@@ -27,7 +34,7 @@ public abstract class AllPairsShortestPaths extends Metric {
 		Value v2 = new Value("possiblePaths", this.g.getNodeCount()
 				* (this.g.getNodeCount() - 1));
 		Value v3 = new Value("characteristicPathLength",
-				this.apsp.computeAverage());
+				this.getCharacteristicPathLength());
 		Value v4 = new Value("diameter", this.apsp.getMaxNonZeroIndex());
 
 		return new Value[] { v1, v2, v3, v4 };

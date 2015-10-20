@@ -30,4 +30,9 @@ public abstract class IntWeightedAllPairsShortestPaths extends
 				&& b.getGraphDatastructures().isEdgeWeightType(IntWeight.class);
 	}
 
+	@Override
+	public double getCharacteristicPathLength() {
+		return this.apsp.computeAverage();
+	}
+
 }

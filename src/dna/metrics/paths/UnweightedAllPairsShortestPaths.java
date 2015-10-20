@@ -34,6 +34,11 @@ public abstract class UnweightedAllPairsShortestPaths extends
 		return true;
 	}
 
+	@Override
+	public double getCharacteristicPathLength() {
+		return this.apsp.computeAverage();
+	}
+
 	protected void compute(Node n) {
 		boolean[] seen = new boolean[this.g.getMaxNodeIndex() + 1];
 		int[] dist = new int[this.g.getMaxNodeIndex() + 1];

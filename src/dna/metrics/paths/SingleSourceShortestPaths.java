@@ -22,6 +22,8 @@ public abstract class SingleSourceShortestPaths extends Metric {
 		this.sourceIndex = sourceIndex;
 	}
 
+	protected abstract double getCharacteristicPathLength();
+
 	@Override
 	public Value[] getValues() {
 		this.sssp.truncate();
@@ -29,7 +31,7 @@ public abstract class SingleSourceShortestPaths extends Metric {
 		Value v1 = new Value("existingPaths", this.sssp.getDenominator());
 		Value v2 = new Value("possiblePaths", this.g.getNodeCount() - 1);
 		Value v3 = new Value("characteristicPathLength",
-				this.sssp.computeAverage());
+				this.getCharacteristicPathLength());
 		Value v4 = new Value("diameter", this.sssp.getMaxNonZeroIndex());
 
 		return new Value[] { v1, v2, v3, v4 };

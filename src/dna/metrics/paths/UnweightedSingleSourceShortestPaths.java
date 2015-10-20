@@ -4,7 +4,7 @@ import dna.graph.Graph;
 import dna.metrics.IMetric;
 import dna.updates.batch.Batch;
 
-public class UnweightedSingleSourceShortestPaths extends
+public abstract class UnweightedSingleSourceShortestPaths extends
 		SingleSourceShortestPaths {
 
 	public UnweightedSingleSourceShortestPaths(String name, int sourceIndex) {
@@ -24,6 +24,11 @@ public class UnweightedSingleSourceShortestPaths extends
 	@Override
 	public boolean isApplicable(Batch b) {
 		return true;
+	}
+
+	@Override
+	protected double getCharacteristicPathLength() {
+		return this.sssp.computeAverage();
 	}
 
 }
