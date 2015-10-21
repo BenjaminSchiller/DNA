@@ -38,6 +38,13 @@ public class VisualizationUtils {
 				waitForStabilization);
 	}
 
+	/** Captures a screenshot of the most current GraphVisualization-Frame. **/
+	public static void captureScreenshot(boolean waitForStabilization,
+			String dstDir, String filename) {
+		GraphVisualization.getCurrentGraphPanel().captureScreenshot(
+				waitForStabilization, dstDir, filename);
+	}
+
 	/** Capture a screenshot of the JFrame. **/
 	public static void captureScreenshot(Component c) {
 		VisualizationUtils.captureScreenshot(c,
