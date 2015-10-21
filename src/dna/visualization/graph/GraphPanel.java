@@ -1000,6 +1000,13 @@ public class GraphPanel extends JPanel {
 
 	/** Makes a screenshot of the current JFrame. **/
 	public void captureScreenshot(boolean waitForStabilization) {
+		this.captureScreenshot(waitForStabilization,
+				Config.get("GRAPH_VIS_SCREENSHOT_DIR"), null);
+	}
+
+	/** Makes a screenshot of the current JFrame. **/
+	public void captureScreenshot(boolean waitForStabilization, String dstDir,
+			String filename) {
 		if (waitForStabilization) {
 			long start = System.currentTimeMillis();
 			long timeout = Config
@@ -1019,7 +1026,8 @@ public class GraphPanel extends JPanel {
 		}
 
 		// capture screenshot
-		VisualizationUtils.captureScreenshot(this.getRecordComponent());
+		VisualizationUtils.captureScreenshot(this.getRecordComponent(), dstDir,
+				filename);
 	}
 
 	/** Makes a video of the JFrame the panel is embedded in. **/
