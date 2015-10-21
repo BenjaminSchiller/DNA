@@ -171,33 +171,33 @@ public class PlottingConfig {
 
 	public PlottingConfig(long timestampFrom, long timestampTo, long stepsize) {
 		this(
-				Config.getPlotType("GNUPLOT_DEFAULT_PLOTTYPE"),
-				Config.getPlotStyle("GNUPLOT_DEFAULT_PLOTSTYLE"),
+				Config.getPlotType(PlotConfig.gnuplotDefaultKeyPlotType),
+				Config.getPlotStyle(PlotConfig.gnuplotDefaultKeyPlotStyle),
 				timestampFrom,
 				timestampTo,
 				stepsize,
 				null,
-				Config.getDistributionPlotType("GNUPLOT_DEFAULT_DIST_PLOTTYPE"),
-				Config.getNodeValueListOrder("GNUPLOT_DEFAULT_NVL_ORDER"),
-				Config.getNodeValueListOrderBy("GNUPLOT_DEFAULT_NVL_ORDERBY"),
-				Config.getValueSortMode("GNUPLOT_DEFAULT_VALUE_SORT_MODE"),
-				Config.keys("GNUPLOT_DEFAULT_VALUE_SORT_LIST"),
+				Config.getDistributionPlotType(PlotConfig.gnuplotDefaultKeyDistPlotType),
+				Config.getNodeValueListOrder(PlotConfig.gnuplotDefaultKeyNodeValueListOrder),
+				Config.getNodeValueListOrderBy(PlotConfig.gnuplotDefaultKeyNodeValueListOrderBy),
+				Config.getValueSortMode(PlotConfig.gnuplotDefaultKeyValueSortMode),
+				Config.keys(PlotConfig.gnuplotDefaultKeyValueSortList),
 				PlotFlag.plotAll);
 	}
 
 	public PlottingConfig(PlotFlag... flags) {
 		this(
-				Config.getPlotType("GNUPLOT_DEFAULT_PLOTTYPE"),
-				Config.getPlotStyle("GNUPLOT_DEFAULT_PLOTSTYLE"),
+				Config.getPlotType(PlotConfig.gnuplotDefaultKeyPlotType),
+				Config.getPlotStyle(PlotConfig.gnuplotDefaultKeyPlotStyle),
 				0,
 				Long.MAX_VALUE,
 				1,
 				null,
-				Config.getDistributionPlotType("GNUPLOT_DEFAULT_DIST_PLOTTYPE"),
-				Config.getNodeValueListOrder("GNUPLOT_DEFAULT_NVL_ORDER"),
-				Config.getNodeValueListOrderBy("GNUPLOT_DEFAULT_NVL_ORDERBY"),
-				Config.getValueSortMode("GNUPLOT_DEFAULT_VALUE_SORT_MODE"),
-				Config.keys("GNUPLOT_DEFAULT_VALUE_SORT_LIST"), flags);
+				Config.getDistributionPlotType(PlotConfig.gnuplotDefaultKeyDistPlotType),
+				Config.getNodeValueListOrder(PlotConfig.gnuplotDefaultKeyNodeValueListOrder),
+				Config.getNodeValueListOrderBy(PlotConfig.gnuplotDefaultKeyNodeValueListOrderBy),
+				Config.getValueSortMode(PlotConfig.gnuplotDefaultKeyValueSortMode),
+				Config.keys(PlotConfig.gnuplotDefaultKeyValueSortList), flags);
 	}
 
 	// class methods

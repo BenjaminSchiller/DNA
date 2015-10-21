@@ -123,10 +123,16 @@ public class PlotConfig {
 	public static String gnuplotDefaultXScaling = "GNUPLOT_XSCALING";
 	public static String gnuplotDefaultYScaling = "GNUPLOT_YSCALING";
 
+	public static String gnuplotDefaultKeyPlotType = "GNUPLOT_DEFAULT_PLOTTYPE";
+	public static String gnuplotDefaultKeyPlotStyle = "GNUPLOT_DEFAULT_PLOTSTYLE";
+
 	public static String gnuplotDefaultKeyDistPlotType = "GNUPLOT_DEFAULT_DIST_PLOTTYPE";
 
 	public static String gnuplotDefaultKeyNodeValueListOrder = "GNUPLOT_DEFAULT_NVL_ORDER";
 	public static String gnuplotDefaultKeyNodeValueListOrderBy = "GNUPLOT_DEFAULT_NVL_ORDERBY";
+
+	public static String gnuplotDefaultKeyValueSortMode = "GNUPLOT_DEFAULT_VALUE_SORT_MODE";
+	public static String gnuplotDefaultKeyValueSortList = "GNUPLOT_DEFAULT_VALUE_SORT_LIST";
 
 	public static double[] gnuplotZeroLineNoIndex = new double[] { 0, 0, 0, 0,
 			0, 0, 0, 0, 0 };
