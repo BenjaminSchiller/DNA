@@ -1025,6 +1025,9 @@ public class GraphPanel extends JPanel {
 			}
 		}
 
+		// bring to front
+		this.parentFrame.toFront();
+		
 		// capture screenshot
 		VisualizationUtils.captureScreenshot(this.getRecordComponent(), dstDir,
 				filename);
