@@ -1001,12 +1001,20 @@ public class GraphPanel extends JPanel {
 	/** Makes a screenshot of the current JFrame. **/
 	public void captureScreenshot(boolean waitForStabilization) {
 		this.captureScreenshot(waitForStabilization,
-				Config.get("GRAPH_VIS_SCREENSHOT_DIR"), null);
+				Config.get("GRAPH_VIS_SCREENSHOT_DIR"), null,
+				Config.getInt("GRAPH_VIS_SCREENSHOT_FOREGROUND_DELAY"));
 	}
 
 	/** Makes a screenshot of the current JFrame. **/
 	public void captureScreenshot(boolean waitForStabilization, String dstDir,
 			String filename) {
+		this.captureScreenshot(waitForStabilization, dstDir, filename,
+				Config.getInt("GRAPH_VIS_SCREENSHOT_FOREGROUND_DELAY"));
+	}
+
+	/** Makes a screenshot of the current JFrame. **/
+	public void captureScreenshot(boolean waitForStabilization, String dstDir,
+			String filename, long screenshotDelay) {
 		if (waitForStabilization) {
 			long start = System.currentTimeMillis();
 			long timeout = Config
@@ -1027,7 +1035,13 @@ public class GraphPanel extends JPanel {
 
 		// bring to front
 		this.parentFrame.toFront();
-		
+
+		try {
+			Thread.sleep(screenshotDelay);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+
 		// capture screenshot
 		VisualizationUtils.captureScreenshot(this.getRecordComponent(), dstDir,
 				filename);
