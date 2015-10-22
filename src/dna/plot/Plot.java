@@ -6,6 +6,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import dna.io.Writer;
+import dna.plot.PlottingConfig.ValueSortMode;
 import dna.plot.data.ExpressionData;
 import dna.plot.data.FunctionData;
 import dna.plot.data.PlotData;
@@ -26,8 +27,8 @@ import dna.series.data.distr.BinnedDoubleDistr;
 import dna.series.data.distr.BinnedIntDistr;
 import dna.series.data.distr.BinnedLongDistr;
 import dna.series.data.distr.Distr;
-import dna.series.data.distr.QualityDistr;
 import dna.series.data.distr.Distr.DistrType;
+import dna.series.data.distr.QualityDistr;
 import dna.series.data.nodevaluelists.NodeValueList;
 import dna.util.Config;
 import dna.util.Execute;
@@ -49,6 +50,7 @@ public class Plot {
 
 	// plot data
 	private PlotData[] data;
+	private int[] dataIndizes;
 
 	// writer
 	private String dir;
@@ -76,6 +78,8 @@ public class Plot {
 	private boolean cdfPlot;
 	private String key;
 	private HashMap<Long, Long> timestampMap;
+	private ValueSortMode sortMode;
+	private String[] valueSortList;
 
 	/**
 	 * Creates a plot object which will be written to a gnuplot script file.
@@ -102,6 +106,9 @@ public class Plot {
 		this.scriptFilename = scriptFilename;
 		this.title = title;
 		this.data = data;
+		this.dataIndizes = new int[data.length];
+		for (int i = 0; i < dataIndizes.length; i++)
+			dataIndizes[i] = i;
 
 		// load default values
 		this.sortOrder = Config
@@ -113,6 +120,10 @@ public class Plot {
 				.getBoolean(PlotConfig.gnuplotDefaultKeyPlotDateTime);
 		this.timeDataFormat = Config
 				.get(PlotConfig.gnuplotDefaultKeyTimeDataFormat);
+		this.sortMode = Config
+				.getValueSortMode(PlotConfig.gnuplotDefaultKeyValueSortMode);
+		this.valueSortList = Config
+				.keys(PlotConfig.gnuplotDefaultKeyValueSortList);
 		this.cdfPlot = false;
 
 		// init writer
@@ -1354,5 +1365,28 @@ public class Plot {
 
 	public void setTimestampMap(HashMap<Long, Long> timestampMap) {
 		this.timestampMap = timestampMap;
+	}
+
+	public void setValueSortMode(ValueSortMode sortMode) {
+		this.sortMode = sortMode;
+	}
+
+	public ValueSortMode getValueSortMode() {
+		return this.sortMode;
+	}
+
+	public void setValueSortList(String[] valueSortList) {
+		this.valueSortList = valueSortList;
+	}
+
+	public String[] getValueSortList() {
+		return this.valueSortList;
+	}
+
+	/**
+	 * Sorts the data according to the internal ValueSortMode and ValueSortList.
+	 **/
+	public void sortData() {
+
 	}
 }
