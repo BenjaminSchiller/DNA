@@ -33,7 +33,6 @@ import dna.series.data.distr.Distr;
 import dna.series.data.distr.Distr.DistrType;
 import dna.series.data.distr.QualityDistr;
 import dna.series.data.nodevaluelists.NodeValueList;
-import dna.util.ArrayUtils;
 import dna.util.Config;
 import dna.util.Execute;
 import dna.util.Log;
@@ -54,7 +53,7 @@ public class Plot {
 
 	// plot data
 	private PlotData[] data;
-	private int[] dataIndizes;
+	private ArrayList<Integer> dataIndizes;
 
 	// sorting
 	private boolean sorted;
@@ -114,9 +113,9 @@ public class Plot {
 		this.scriptFilename = scriptFilename;
 		this.title = title;
 		this.data = data;
-		this.dataIndizes = new int[data.length];
-		for (int i = 0; i < dataIndizes.length; i++) {
-			dataIndizes[i] = i;
+		this.dataIndizes = new ArrayList<Integer>(data.length);
+		for (int i = 0; i < data.length; i++) {
+			dataIndizes.add(i);
 		}
 		this.sorted = false;
 
@@ -289,10 +288,19 @@ public class Plot {
 	/** Appends the buffered data. Only used when legend is being sorted. **/
 	private void appendBufferedData() throws IOException {
 		for (int i = 0; i < this.data.length; i++) {
+			int mappedIndex = this.dataIndizes.get(i);
+			int offset = 0;
+			// count amount of function datas before as negative offset
+			for (int j = 0; j <= mappedIndex; j++) {
+				if (this.data[j] instanceof FunctionData)
+					offset++;
+			}
+
 			if (this.data[i] instanceof FunctionData) {
 				// do nothing
 			} else {
-				this.fileWriter.writeln(this.bufferedData[this.dataIndizes[i]]);
+				this.fileWriter
+						.writeln(this.bufferedData[mappedIndex - offset]);
 				this.appendEOF();
 			}
 		}
@@ -1237,8 +1245,7 @@ public class Plot {
 
 				// if sorted buffer legend lines
 				if (this.sorted) {
-					int mappedIndex = ArrayUtils
-							.getIndexOf(this.dataIndizes, i);
+					int mappedIndex = this.dataIndizes.indexOf(i);
 					String temp = this.data[i].getEntry(mappedIndex + 1,
 							Config.getInt("GNUPLOT_LW"),
 							Config.getDouble("GNUPLOT_XOFFSET") * mappedIndex,
@@ -1254,10 +1261,12 @@ public class Plot {
 				}
 
 				// get line
-				line = this.data[i].getEntry(i + 1,
+
+				int index = this.sorted ? this.dataIndizes.indexOf(i) : i;
+				line = this.data[i].getEntry(index + 1,
 						Config.getInt("GNUPLOT_LW"),
-						Config.getDouble("GNUPLOT_XOFFSET") * i,
-						Config.getDouble("GNUPLOT_YOFFSET") * i,
+						Config.getDouble("GNUPLOT_XOFFSET") * index,
+						Config.getDouble("GNUPLOT_YOFFSET") * index,
 						Config.get("GNUPLOT_XSCALING"),
 						Config.get("GNUPLOT_YSCALING"), this.distPlotType,
 						this.sorted);
@@ -1265,7 +1274,7 @@ public class Plot {
 				if (i == 0) {
 					line = "plot " + line;
 				}
-				if (sorted || i < this.data.length - 1) {
+				if (this.sorted || i < this.data.length - 1) {
 					line = line + " , \\";
 				}
 				script.add(line);
@@ -1309,8 +1318,7 @@ public class Plot {
 
 				// if sorted buffer legend lines
 				if (this.sorted) {
-					int mappedIndex = ArrayUtils
-							.getIndexOf(this.dataIndizes, i);
+					int mappedIndex = this.dataIndizes.indexOf(i);
 					String temp = this.data[i].getEntry(mappedIndex + 1,
 							Config.getInt("GNUPLOT_LW"),
 							this.config.getxOffset() * mappedIndex,
@@ -1326,9 +1334,10 @@ public class Plot {
 				}
 
 				// get line
-				line = this.data[i].getEntry(i + 1,
+				int index = this.sorted ? this.dataIndizes.indexOf(i) : i;
+				line = this.data[i].getEntry(index + 1,
 						Config.getInt("GNUPLOT_LW"), this.config.getxOffset()
-								* i, this.config.getyOffset() * i,
+								* index, this.config.getyOffset() * index,
 						this.config.getxScaling(), this.config.getyScaling(),
 						type, this.config.getStyle(), this.sorted);
 				line = line.replace("filledcurves", "filledcurves y1=0");
@@ -1344,8 +1353,8 @@ public class Plot {
 
 		// if sorted, add legend descriptions
 		if (this.sorted) {
-			for (int i = 0; i < this.dataIndizes.length; i++) {
-				script.add(buff.get(dataIndizes[i]));
+			for (int i = 0; i < this.dataIndizes.size(); i++) {
+				script.add(buff.get(dataIndizes.get(i)));
 			}
 		}
 
@@ -1659,15 +1668,16 @@ public class Plot {
 
 		// copy sorted indizes
 		for (int i = 0; i < sortedIndizesList.size(); i++) {
-			this.dataIndizes[i] = sortedIndizesList.get(i);
+			this.dataIndizes.set(i, sortedIndizesList.get(i));
 
 			// updated sorted flag
-			if (!this.sorted && this.dataIndizes[i] != i)
+			if (!this.sorted && this.dataIndizes.get(i) != i)
 				this.sorted = true;
 		}
 
 		// init buffer array-list
 		if (this.sorted)
-			this.bufferedData = new String[this.data.length];
+			this.bufferedData = new String[this.data.length
+					- this.functionQuantity];
 	}
 }
