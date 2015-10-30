@@ -343,75 +343,54 @@ public class PlottingUtils {
 			ArrayList<PlotData> dataList = new ArrayList<PlotData>();
 
 			// iterate over values
-			for (int k = 0; k < values.length; k++) {
-				String value = values[k];
-				String domain = domains[k];
+			for (int j = 0; j < seriesData.length; j++) {
+				for (int k = 0; k < values.length; k++) {
+					String value = values[k];
+					String domain = domains[k];
+					String title = value + " (" + seriesData[j].getName();
+					if (!aggregatedBatches)
+						title += " @ run." + indizes[j];
+					title += ")";
 
-				// if function, add it only once
-				if (domain.equals(PlotConfig.customPlotDomainFunction)) {
-					// if function
-					String[] functionSplit = value.split("=");
-					if (functionSplit.length != 2) {
-						Log.warn("wrong function syntax for '" + value + "'");
-						continue;
-					}
-					dataList.add(PlotData.get(functionSplit[0].trim(),
-							functionSplit[1].trim(), style, domain
-									+ PlotConfig.customPlotDomainDelimiter
-									+ value, PlotType.function, null));
-					// if not function, iterate over series
-				} else {
-					// iterate over series
-					for (int j = 0; j < seriesData.length; j++) {
-						String title = value + " (" + seriesData[j].getName();
-						if (!aggregatedBatches)
-							title += " @ run." + indizes[j];
-						title += ")";
+					// iterate over values to be plotted
+					if (domain.equals(PlotConfig.customPlotDomainExpression)) {
+						// if expression
+						String[] expressionSplit = value.split(":");
+						if (expressionSplit.length != 2) {
+							Log.warn("wrong expression syntax for '" + value
+									+ "'");
+							continue;
+						}
+						// parse name
+						String exprName;
+						if (expressionSplit[0].equals(""))
+							exprName = expressionSplit[1];
+						else
+							exprName = expressionSplit[0];
 
-						// iterate over values to be plotted
-						if (domain
-								.equals(PlotConfig.customPlotDomainExpression)) {
-							// if expression
-							String[] expressionSplit = value.split(":");
-							if (expressionSplit.length != 2) {
-								Log.warn("wrong expression syntax for '"
-										+ value + "'");
-								continue;
-							}
-							// parse name
-							String exprName;
-							if (expressionSplit[0].equals(""))
-								exprName = expressionSplit[1];
-							else
-								exprName = expressionSplit[0];
-
-							if (initBatches[j]
-									.contains(
-											PlottingUtils.getDomainFromExpression(
-													value,
-													config.getGeneralDomain()),
-											PlottingUtils
-													.getValueFromExpression(value))) {
-								String runAddition = "";
-								if (!aggregatedBatches)
-									runAddition = " @ run." + indizes[j];
-								dataList.add(new ExpressionData(exprName,
-										expressionSplit[1], style, exprName
-												.replace("$", "")
-												+ " ("
-												+ seriesData[j].getName()
-												+ runAddition + ")", config
-												.getGeneralDomain(),
-										seriesData[j].getDir()));
-								seriesDataQuantities[j]++;
-							}
-						} else {
-							// check if series contains value
-							if (initBatches[j].contains(domain, value)) {
-								dataList.add(PlotData.get(value, domain, style,
-										title, type, seriesData[j].getDir()));
-								seriesDataQuantities[j]++;
-							}
+						if (initBatches[j].contains(PlottingUtils
+								.getDomainFromExpression(value,
+										config.getGeneralDomain()),
+								PlottingUtils.getValueFromExpression(value))) {
+							String runAddition = "";
+							if (!aggregatedBatches)
+								runAddition = " @ run." + indizes[j];
+							dataList.add(new ExpressionData(exprName,
+									expressionSplit[1], style, exprName
+											.replace("$", "")
+											+ " ("
+											+ seriesData[j].getName()
+											+ runAddition + ")", config
+											.getGeneralDomain(), seriesData[j]
+											.getDir()));
+							seriesDataQuantities[j]++;
+						}
+					} else {
+						// check if series contains value
+						if (initBatches[j].contains(domain, value)) {
+							dataList.add(PlotData.get(value, domain, style,
+									title, type, seriesData[j].getDir()));
+							seriesDataQuantities[j]++;
 						}
 					}
 				}
@@ -4018,58 +3997,67 @@ public class PlottingUtils {
 			p.writeScriptHeader();
 
 		// iterate over batches
-		for (int i = 0; i < batches.length; i++) {
-			System.out.println("BATCH." + i + "\ttimestamp: " + timestamps[i]
-					+ "\t* " + batches[i]);
-			long timestamp = Dir.getTimestamp(batches[i]);
 
-			IBatch[] batchData = new IBatch[seriesData.length];
-
-			// read batches for each series
-			for (int j = 0; j < seriesData.length; j++) {
-				SeriesData series = seriesData[j];
-				String tempDir = "";
-
-				// read
-				try {
-					if (aggregatedBatches) {
-						tempDir = Dir.getAggregationDataDir(series.getDir());
-						batchData[j] = AggregatedBatch.readIntelligent(
-								Dir.getBatchDataDir(tempDir, timestamp),
-								timestamp, BatchReadMode.readOnlySingleValues);
-					} else {
-						tempDir = Dir
-								.getRunDataDir(series.getDir(), indizes[j]);
-						batchData[j] = BatchData.readIntelligent(
-								Dir.getBatchDataDir(tempDir, timestamp),
-								timestamp, BatchReadMode.readOnlySingleValues);
-					}
-				} catch (FileNotFoundException e) {
-					if (zippedBatches || zippedRuns) {
-						if (ZipReader.isZipOpen())
-							ZipReader.closeReadFilesystem();
-						String remDir = tempDir
-								+ Config.get("PREFIX_BATCHDATA_DIR")
-								+ timestamp + Config.get("SUFFIX_ZIP_FILE");
-						Log.debug("removing unnecessary zipfile: " + remDir);
-						Files.delete(new File(remDir));
-					}
-
-					batchData[j] = null;
-				}
-			}
-
-			// feed data to plots
-
-			// add data to custom plots
-			for (Plot p : plots) {
-				// check how often the series is used in the plot
-				for (int j = 0; j < p.getSeriesDataQuantity(i); j++) {
-					// add data to plot
-					p.addDataSequentially(batchData);
-				}
-			}
-		}
+		// for(int i = 0; i< seriesData.length; i++) {
+		//
+		// }
+		//
+		//
+		//
+		//
+		// for (int i = 0; i < batches.length; i++) {
+		// System.out.println("BATCH." + i + "\ttimestamp: " + timestamps[i]
+		// + "\t* " + batches[i]);
+		// long timestamp = Dir.getTimestamp(batches[i]);
+		//
+		// IBatch[] batchData = new IBatch[seriesData.length];
+		//
+		// // read batches for each series
+		// for (int j = 0; j < seriesData.length; j++) {
+		// SeriesData series = seriesData[j];
+		// String tempDir = "";
+		//
+		// // read
+		// try {
+		// if (aggregatedBatches) {
+		// tempDir = Dir.getAggregationDataDir(series.getDir());
+		// batchData[j] = AggregatedBatch.readIntelligent(
+		// Dir.getBatchDataDir(tempDir, timestamp),
+		// timestamp, BatchReadMode.readOnlySingleValues);
+		// } else {
+		// tempDir = Dir
+		// .getRunDataDir(series.getDir(), indizes[j]);
+		// batchData[j] = BatchData.readIntelligent(
+		// Dir.getBatchDataDir(tempDir, timestamp),
+		// timestamp, BatchReadMode.readOnlySingleValues);
+		// }
+		// } catch (FileNotFoundException e) {
+		// if (zippedBatches || zippedRuns) {
+		// if (ZipReader.isZipOpen())
+		// ZipReader.closeReadFilesystem();
+		// String remDir = tempDir
+		// + Config.get("PREFIX_BATCHDATA_DIR")
+		// + timestamp + Config.get("SUFFIX_ZIP_FILE");
+		// Log.debug("removing unnecessary zipfile: " + remDir);
+		// Files.delete(new File(remDir));
+		// }
+		//
+		// batchData[j] = null;
+		// }
+		// }
+		//
+		// // feed data to plots
+		//
+		// // add data to custom plots
+		// for (Plot p : plots) {
+		// System.out.println("DEBUG: i: " + i + "\t" + p.getKey());
+		// // check how often the series is used in the plot
+		// for (int j = 0; j < p.getSeriesDataQuantity(i); j++) {
+		// // add data to plot
+		// p.addDataSequentially(batchData);
+		// }
+		// }
+		// }
 
 		// add data to plots
 		for (int i = 0; i < seriesData.length; i++) {
