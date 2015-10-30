@@ -18,7 +18,7 @@ public class ConfidenceData2 extends PlotData {
 
 	@Override
 	public String getEntry(int lt, int lw, double offsetX, double offsetY,
-			String scalingX, String scalingY) {
+			String scalingX, String scalingY, boolean noTitle) {
 		StringBuffer buff = new StringBuffer();
 		// 2 avg
 		// 3 min
@@ -70,8 +70,10 @@ public class ConfidenceData2 extends PlotData {
 		buff.append(dataLoc + " using " + x + ":" + box_min + ":" + whisker_min
 				+ ":" + whisker_high + ":" + box_high + " with candlesticks");
 		buff.append(" lt " + lt + " lw " + lw);
-		buff.append(title == null ? " notitle" : " title \"" + this.title
-				+ "\"");
+		if (noTitle || title == null)
+			buff.append(" notitle");
+		else
+			buff.append(" title \"" + this.title + "\"");
 		buff.append(" whiskerbars, \\\n");
 		// buff.append(dataLoc + " using " + x + ":" + median + ":" + median +
 		// ":"
@@ -85,21 +87,24 @@ public class ConfidenceData2 extends PlotData {
 
 	@Override
 	public String getEntry(int lt, int lw, double offsetX, double offsetY,
-			String scalingX, String scalingY, DistributionPlotType distPlotType) {
-		return this.getEntry(lt, lw, offsetX, offsetY, scalingX, scalingY);
+			String scalingX, String scalingY,
+			DistributionPlotType distPlotType, boolean noTitle) {
+		return this.getEntry(lt, lw, offsetX, offsetY, scalingX, scalingY,
+				noTitle);
 	}
 
 	@Override
 	public String getEntry(int lt, int lw, double offsetX, double offsetY,
 			String scalingX, String scalingY,
-			DistributionPlotType distPlotType, PlotStyle style) {
+			DistributionPlotType distPlotType, PlotStyle style, boolean noTitle) {
 		return this.getEntry(lt, lw, offsetX, offsetY, scalingX, scalingY,
-				style);
+				noTitle);
 	}
 
 	@Override
 	public String getEntry(int lt, int lw, double offsetX, double offsetY,
-			String scalingX, String scalingY, PlotStyle style) {
-		return this.getEntry(lt, lw, offsetX, offsetY, scalingX, scalingY);
+			String scalingX, String scalingY, PlotStyle style, boolean noTitle) {
+		return this.getEntry(lt, lw, offsetX, offsetY, scalingX, scalingY,
+				noTitle);
 	}
 }

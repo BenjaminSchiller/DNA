@@ -18,28 +18,30 @@ public class VarianceData extends PlotData {
 
 	@Override
 	public String getEntry(int lt, int lw, double offsetX, double offsetY,
-			String scalingX, String scalingY) {
+			String scalingX, String scalingY, boolean noTitleg) {
 		return this.getEntry(lt, lw, offsetX, offsetY, scalingX, scalingY,
-				this.style);
-	}
-
-	@Override
-	public String getEntry(int lt, int lw, double offsetX, double offsetY,
-			String scalingX, String scalingY, DistributionPlotType distPlotType) {
-		return this.getEntry(lt, lw, offsetX, offsetY, scalingX, scalingY);
+				this.style, noTitleg);
 	}
 
 	@Override
 	public String getEntry(int lt, int lw, double offsetX, double offsetY,
 			String scalingX, String scalingY,
-			DistributionPlotType distPlotType, PlotStyle style) {
+			DistributionPlotType distPlotType, boolean noTitle) {
 		return this.getEntry(lt, lw, offsetX, offsetY, scalingX, scalingY,
-				style);
+				noTitle);
 	}
 
 	@Override
 	public String getEntry(int lt, int lw, double offsetX, double offsetY,
-			String scalingX, String scalingY, PlotStyle style) {
+			String scalingX, String scalingY,
+			DistributionPlotType distPlotType, PlotStyle style, boolean noTitle) {
+		return this.getEntry(lt, lw, offsetX, offsetY, scalingX, scalingY,
+				style, noTitle);
+	}
+
+	@Override
+	public String getEntry(int lt, int lw, double offsetX, double offsetY,
+			String scalingX, String scalingY, PlotStyle style, boolean noTitle) {
 		// plot style
 		PlotStyle styleTemp;
 		if (style == null)
@@ -82,8 +84,10 @@ public class VarianceData extends PlotData {
 				+ offsetY + "):(" + yvarlow + offsetY + "):(" + yvarhigh
 				+ offsetY + ") with " + styleTemp);
 		buff.append(" lt " + lt + " lw " + lw);
-		buff.append(title == null ? " notitle" : " title \"" + this.title
-				+ "\"");
+		if (noTitle || title == null)
+			buff.append(" notitle");
+		else
+			buff.append(" title \"" + this.title + "\"");
 		return buff.toString();
 	}
 }
