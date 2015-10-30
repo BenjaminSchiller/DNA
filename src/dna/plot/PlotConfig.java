@@ -681,8 +681,10 @@ public class PlotConfig {
 
 			// value sort list
 			try {
-				valueSortList = Config.keys(prefix + s
+				String[] temp = Config.keys(prefix + s
 						+ PlotConfig.customPlotValueSortList);
+				if (temp != null && temp.length > 0)
+					valueSortList = temp;
 			} catch (NullPointerException e) {
 			}
 
