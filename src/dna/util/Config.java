@@ -257,10 +257,10 @@ public class Config extends PropertiesHolder {
 			return ValueSortMode.LIST_FIRST;
 		case ("LIST_LAST"):
 			return ValueSortMode.LIST_LAST;
-		case ("LIST_FIRST_THEN_ALPHABETICAL"):
-			return ValueSortMode.LIST_FIRST_THEN_ALPHABETICAL;
-		case ("ALPHABETICAL_FIRST_THEN_LIST"):
-			return ValueSortMode.ALPHABETICAL_FIRST_THEN_LIST;
+		case ("ALPHABETICAL_LIST_FIRST"):
+			return ValueSortMode.ALPHABETICAL_LIST_FIRST;
+		case ("ALPHABETICAL_LIST_LAST"):
+			return ValueSortMode.ALPHABETICAL_LIST_LAST;
 		case ("ALPHABETICAL"):
 			return ValueSortMode.ALPHABETICAL;
 		default:
