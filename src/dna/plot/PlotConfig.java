@@ -511,8 +511,10 @@ public class PlotConfig {
 			String xScaling = Config.get(PlotConfig.gnuplotDefaultXScaling);
 			String yScaling = Config.get(PlotConfig.gnuplotDefaultYScaling);
 			PlotStyle style = null;
-			ValueSortMode valueSortMode = ValueSortMode.NONE;
-			String[] valueSortList = new String[0];
+			ValueSortMode valueSortMode = Config
+					.getValueSortMode(PlotConfig.gnuplotDefaultKeyValueSortMode);
+			String[] valueSortList = Config
+					.keys(PlotConfig.gnuplotDefaultKeyValueSortList);
 			DistributionPlotType distPlotType = Config
 					.getDistributionPlotType(PlotConfig.gnuplotDefaultKeyDistPlotType);
 			NodeValueListOrder order = Config
