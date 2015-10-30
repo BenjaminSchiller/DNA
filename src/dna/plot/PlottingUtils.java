@@ -415,6 +415,9 @@ public class PlottingUtils {
 
 				// set series data quantities
 				p.setSeriesDataQuantities(seriesDataQuantities);
+				
+				// sort
+				p.sortData();
 
 				// add to plot list
 				customPlots.add(p);
@@ -486,7 +489,7 @@ public class PlottingUtils {
 		// different cases
 		if (valueSortMode.equals(ValueSortMode.LIST_FIRST)
 				|| valueSortMode
-						.equals(ValueSortMode.LIST_FIRST_THEN_ALPHABETICAL)) {
+						.equals(ValueSortMode.ALPHABETICAL_LIST_FIRST)) {
 			// search for entries in plotdata list
 			for (String entry : valueSortList) {
 				for (int i = 0; i < dataList.size(); i++) {
@@ -508,7 +511,7 @@ public class PlottingUtils {
 
 			// add normal objects last
 			if (valueSortMode
-					.equals(ValueSortMode.LIST_FIRST_THEN_ALPHABETICAL)) {
+					.equals(ValueSortMode.ALPHABETICAL_LIST_FIRST)) {
 				// sort alphabetical
 				Map<String, Integer> map = new HashMap<String, Integer>();
 				ArrayList<String> namesList = new ArrayList<String>();
@@ -545,7 +548,7 @@ public class PlottingUtils {
 			return sortedList;
 		} else if (valueSortMode.equals(ValueSortMode.LIST_LAST)
 				|| valueSortMode
-						.equals(ValueSortMode.ALPHABETICAL_FIRST_THEN_LIST)) {
+						.equals(ValueSortMode.ALPHABETICAL_LIST_LAST)) {
 			ArrayList<PlotData> tempList = new ArrayList<PlotData>();
 
 			// search for entries in plotdata list
@@ -567,7 +570,7 @@ public class PlottingUtils {
 			}
 
 			if (valueSortMode
-					.equals(ValueSortMode.ALPHABETICAL_FIRST_THEN_LIST)) {
+					.equals(ValueSortMode.ALPHABETICAL_LIST_LAST)) {
 				// sort alphabetical
 				Map<String, Integer> map = new HashMap<String, Integer>();
 				ArrayList<String> namesList = new ArrayList<String>();
