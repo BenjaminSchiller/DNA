@@ -19,28 +19,30 @@ public class FunctionData extends PlotData {
 
 	@Override
 	public String getEntry(int lt, int lw, double offsetX, double offsetY,
-			String scalingX, String scalingY) {
+			String scalingX, String scalingY, boolean noTitle) {
 		return this.getEntry(lt, lw, offsetX, offsetY, scalingX, scalingY,
-				this.style);
-	}
-
-	@Override
-	public String getEntry(int lt, int lw, double offsetX, double offsetY,
-			String scalingX, String scalingY, DistributionPlotType distPlotType) {
-		return this.getEntry(lt, lw, offsetX, offsetY, scalingX, scalingY);
+				this.style, noTitle);
 	}
 
 	@Override
 	public String getEntry(int lt, int lw, double offsetX, double offsetY,
 			String scalingX, String scalingY,
-			DistributionPlotType distPlotType, PlotStyle style) {
+			DistributionPlotType distPlotType, boolean noTitle) {
 		return this.getEntry(lt, lw, offsetX, offsetY, scalingX, scalingY,
-				style);
+				noTitle);
 	}
 
 	@Override
 	public String getEntry(int lt, int lw, double offsetX, double offsetY,
-			String scalingX, String scalingY, PlotStyle style) {
+			String scalingX, String scalingY,
+			DistributionPlotType distPlotType, PlotStyle style, boolean noTitle) {
+		return this.getEntry(lt, lw, offsetX, offsetY, scalingX, scalingY,
+				style, noTitle);
+	}
+
+	@Override
+	public String getEntry(int lt, int lw, double offsetX, double offsetY,
+			String scalingX, String scalingY, PlotStyle style, boolean noTitle) {
 		// plot style
 		PlotStyle styleTemp;
 		if (style == null)
@@ -52,7 +54,8 @@ public class FunctionData extends PlotData {
 		StringBuffer buff = new StringBuffer();
 		buff.append(this.data + " with " + styleTemp);
 		buff.append(" lt " + lt + " lw " + lw);
-		buff.append(" title \"" + this.getLine() + "\"");
+		buff.append(noTitle ? " notitle" : " title \"" + this.getLine() + "\"");
+
 		return buff.toString();
 	}
 

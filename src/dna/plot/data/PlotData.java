@@ -121,18 +121,19 @@ public abstract class PlotData {
 	}
 
 	public abstract String getEntry(int lt, int lw, double offsetX,
-			double offsetY, String scalingX, String scalingY);
+			double offsetY, String scalingX, String scalingY, boolean noTitle);
 
 	public abstract String getEntry(int lt, int lw, double offsetX,
-			double offsetY, String scalingX, String scalingY, PlotStyle style);
-
-	public abstract String getEntry(int lt, int lw, double offsetX,
-			double offsetY, String scalingX, String scalingY,
-			DistributionPlotType distPotType);
+			double offsetY, String scalingX, String scalingY, PlotStyle style,
+			boolean noTitle);
 
 	public abstract String getEntry(int lt, int lw, double offsetX,
 			double offsetY, String scalingX, String scalingY,
-			DistributionPlotType distPotType, PlotStyle style);
+			DistributionPlotType distPotType, boolean noTitle);
+
+	public abstract String getEntry(int lt, int lw, double offsetX,
+			double offsetY, String scalingX, String scalingY,
+			DistributionPlotType distPotType, PlotStyle style, boolean noTitle);
 
 	public static PlotData get(String data, String domain, PlotStyle style,
 			String title, PlotType type, String source) {
