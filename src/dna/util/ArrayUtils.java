@@ -1193,13 +1193,4 @@ public class ArrayUtils {
 		}
 		return array;
 	}
-
-	/** Returns the index of the first occurence of the entry. **/
-	public static int getIndexOf(int[] array, int entry) {
-		for (int i = 0; i < array.length; i++) {
-			if (array[i] == entry)
-				return i;
-		}
-		return -1;
-	}
 }
