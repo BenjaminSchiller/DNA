@@ -1389,6 +1389,20 @@ public class Plot {
 		return this.valueSortList;
 	}
 
+	/** Sorts the data according to the plot-config. **/
+	public void sortData(PlotConfig config) {
+		this.setValueSortMode(config.getValueSortMode());
+		this.setValueSortList(config.getValueSortList());
+		sortData();
+	}
+
+	/** Sorts the data according to the parameters. **/
+	public void sortData(ValueSortMode valueSortMode, String[] valueSortList) {
+		this.setValueSortMode(valueSortMode);
+		this.setValueSortList(valueSortList);
+		sortData();
+	}
+
 	/**
 	 * Sorts the data according to the internal ValueSortMode and ValueSortList.
 	 **/
