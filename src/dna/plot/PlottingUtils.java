@@ -430,6 +430,9 @@ public class PlottingUtils {
 				// set series data quantities
 				p.setSeriesDataQuantities(seriesDataQuantities);
 
+				// sort
+				p.sortData(config);
+
 				// add to plot list
 				customPlots.add(p);
 			}
