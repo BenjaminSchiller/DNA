@@ -135,8 +135,10 @@ public class ExpressionData extends PlotData {
 				buff.append(dataLoc + " using (" + xpoint + offsetX + "):("
 						+ ypoint + offsetY + ") with " + styleTemp);
 			buff.append(" lt " + lt + " lw " + lw);
-			buff.append(title == null ? " notitle" : " title \"" + this.title
-					+ "\"");
+			if (noTitle || title == null)
+				buff.append(" notitle");
+			else
+				buff.append(" title \"" + this.title + "\"");
 		}
 		return buff.toString();
 	}
