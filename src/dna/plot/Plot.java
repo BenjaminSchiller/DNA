@@ -1,9 +1,12 @@
 package dna.plot;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import dna.io.Writer;
 import dna.plot.PlottingConfig.ValueSortMode;
@@ -51,6 +54,8 @@ public class Plot {
 	// plot data
 	private PlotData[] data;
 	private int[] dataIndizes;
+
+	private boolean sorted;
 
 	// writer
 	private String dir;
@@ -109,6 +114,7 @@ public class Plot {
 		this.dataIndizes = new int[data.length];
 		for (int i = 0; i < dataIndizes.length; i++)
 			dataIndizes[i] = i;
+		this.sorted = false;
 
 		// load default values
 		this.sortOrder = Config
@@ -1387,6 +1393,163 @@ public class Plot {
 	 * Sorts the data according to the internal ValueSortMode and ValueSortList.
 	 **/
 	public void sortData() {
+		// if null or sortmode = NONE or data empty -> return
+		if (this.sortMode == null || this.sortMode.equals(ValueSortMode.NONE)
+				|| this.valueSortList.length == 0)
+			return;
 
+		ValueSortMode mode = this.sortMode;
+		String unqiue_delimiter = "§§§";
+
+		// holds the indizes of all values
+		ArrayList<Integer> indexList = new ArrayList<Integer>();
+		for (int i = 0; i < data.length; i++) {
+			indexList.add(i);
+		}
+
+		// will be filled with sorted indizes
+		ArrayList<Integer> sortedIndizesList = new ArrayList<Integer>(
+				data.length);
+
+		// different cases
+		if (mode.equals(ValueSortMode.LIST_FIRST)
+				|| mode.equals(ValueSortMode.ALPHABETICAL_LIST_LAST)) {
+			// search for entries in plotdata list
+			for (String entry : valueSortList) {
+				for (int i = 0; i < data.length; i++) {
+					PlotData d = data[i];
+					String name = d.getName();
+					if (d instanceof ExpressionData) {
+						name = ((ExpressionData) d).getName().replace("$", "");
+					} else if (d instanceof FunctionData) {
+						name = ((FunctionData) d).getName();
+					}
+
+					// if found, add to list
+					if (name.equals(entry)) {
+						int index = indexList.indexOf(i);
+						sortedIndizesList.add(index);
+						indexList.remove(index);
+					}
+				}
+			}
+
+			// add normal objects last
+			if (mode.equals(ValueSortMode.ALPHABETICAL_LIST_FIRST)) {
+				// sort alphabetical
+				Map<String, Integer> map = new HashMap<String, Integer>();
+				ArrayList<String> namesList = new ArrayList<String>();
+				for (int i = 0; i < indexList.size(); i++) {
+					int index = indexList.get(i);
+					PlotData d = data[index];
+					String name = d.getName();
+					if (d instanceof ExpressionData) {
+						name = ((ExpressionData) d).getName().replace("$", "");
+					} else if (d instanceof FunctionData) {
+						name = ((FunctionData) d).getName();
+					}
+
+					map.put(name + unqiue_delimiter + d.getTitle(), index);
+					namesList.add(name + unqiue_delimiter + d.getTitle());
+				}
+
+				// sort
+				Collections.sort(namesList);
+
+				// get sorted indizes from map and add data to sorted list
+				for (String name : namesList) {
+					sortedIndizesList.add(map.get(name));
+				}
+			} else {
+				for (int i = 0; i < indexList.size(); i++)
+					sortedIndizesList.add(indexList.get(i));
+			}
+		} else if (mode.equals(ValueSortMode.LIST_LAST)
+				|| mode.equals(ValueSortMode.ALPHABETICAL_LIST_LAST)) {
+			ArrayList<Integer> tempList = new ArrayList<Integer>();
+
+			// search for entries in plotdata list
+			for (String entry : valueSortList) {
+				for (int i = 0; i < data.length; i++) {
+					PlotData d = data[i];
+					String name = d.getName();
+					if (d instanceof ExpressionData) {
+						name = ((ExpressionData) d).getName().replace("$", "");
+					} else if (d instanceof FunctionData) {
+						name = ((FunctionData) d).getName();
+					}
+
+					if (name.equals(entry)) {
+						int index = indexList.indexOf(i);
+						tempList.add(index);
+						indexList.remove(index);
+					}
+				}
+			}
+
+			if (mode.equals(ValueSortMode.ALPHABETICAL_LIST_LAST)) {
+				// sort alphabetical
+				Map<String, Integer> map = new HashMap<String, Integer>();
+				ArrayList<String> namesList = new ArrayList<String>();
+				for (int i = 0; i < indexList.size(); i++) {
+					int index = indexList.get(i);
+					PlotData d = data[index];
+					String name = d.getName();
+					if (d instanceof ExpressionData) {
+						name = ((ExpressionData) d).getName().replace("$", "");
+					} else if (d instanceof FunctionData) {
+						name = ((FunctionData) d).getName();
+					}
+
+					map.put(name + unqiue_delimiter + d.getTitle(), index);
+					namesList.add(name + unqiue_delimiter + d.getTitle());
+				}
+
+				// sort
+				Collections.sort(namesList);
+
+				// get sorted indizes from map and add data to sorted list
+				for (String name : namesList) {
+					sortedIndizesList.add(map.get(name));
+				}
+			} else {
+				// add normal objects first
+				for (int i = 0; i < indexList.size(); i++) {
+					sortedIndizesList.add(indexList.get(i));
+				}
+			}
+
+			// add list objects last
+			for (int i = 0; i < tempList.size(); i++)
+				sortedIndizesList.add(tempList.get(i));
+
+		} else if (mode.equals(ValueSortMode.ALPHABETICAL)) {
+			// sort alphabetical
+			Map<String, Integer> map = new HashMap<String, Integer>();
+			ArrayList<String> namesList = new ArrayList<String>();
+			for (int i = 0; i < data.length; i++) {
+				PlotData d = data[i];
+				String name = d.getName();
+				if (d instanceof ExpressionData) {
+					name = ((ExpressionData) d).getName().replace("$", "");
+				} else if (d instanceof FunctionData) {
+					name = ((FunctionData) d).getName();
+				}
+
+				map.put(name + unqiue_delimiter + d.getTitle(), i);
+				namesList.add(name + unqiue_delimiter + d.getTitle());
+			}
+
+			// sort
+			Collections.sort(namesList);
+
+			// get sorted indizes from map and add data to sorted list
+			for (String name : namesList)
+				sortedIndizesList.add(map.get(name));
+		}
+
+		// copy sorted indizes
+		for (int i = 0; i < sortedIndizesList.size(); i++)
+			this.dataIndizes[i] = sortedIndizesList.get(i);
 	}
 }
