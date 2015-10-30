@@ -33,6 +33,7 @@ import dna.series.data.distr.Distr;
 import dna.series.data.distr.Distr.DistrType;
 import dna.series.data.distr.QualityDistr;
 import dna.series.data.nodevaluelists.NodeValueList;
+import dna.util.ArrayUtils;
 import dna.util.Config;
 import dna.util.Execute;
 import dna.util.Log;
@@ -55,7 +56,9 @@ public class Plot {
 	private PlotData[] data;
 	private int[] dataIndizes;
 
+	// sorting
 	private boolean sorted;
+	private String[] bufferedData;
 
 	// writer
 	private String dir;
@@ -112,8 +115,9 @@ public class Plot {
 		this.title = title;
 		this.data = data;
 		this.dataIndizes = new int[data.length];
-		for (int i = 0; i < dataIndizes.length; i++)
+		for (int i = 0; i < dataIndizes.length; i++) {
 			dataIndizes[i] = i;
+		}
 		this.sorted = false;
 
 		// load default values
@@ -267,7 +271,31 @@ public class Plot {
 			else
 				temp += Config.get("PLOTDATA_DELIMITER") + values[k];
 		}
+
+		// write line
 		w.writeln(temp);
+
+		// if sorted, buffer data
+		if (this.sorted)
+			bufferData(temp);
+	}
+
+	/** Buffers the data line. **/
+	private void bufferData(String dataLine) {
+		if (this.bufferedData[this.dataWriteCounter] == null)
+			this.bufferedData[this.dataWriteCounter] = dataLine;
+	}
+
+	/** Appends the buffered data. Only used when legend is being sorted. **/
+	private void appendBufferedData() throws IOException {
+		for (int i = 0; i < this.data.length; i++) {
+			if (this.data[i] instanceof FunctionData) {
+				// do nothing
+			} else {
+				this.fileWriter.writeln(this.bufferedData[this.dataIndizes[i]]);
+				this.appendEOF();
+			}
+		}
 	}
 
 	private void appendData(AggregatedValue value, double timestamp)
@@ -282,7 +310,13 @@ public class Plot {
 	private void appendData(double value, String timestamp) throws IOException {
 		Writer w = this.fileWriter;
 		String temp = "" + timestamp + Config.get("PLOTDATA_DELIMITER") + value;
+
+		// write line
 		w.writeln(temp);
+
+		// if sorted, buffer data
+		if (this.sorted)
+			bufferData(temp);
 	}
 
 	private void appendEOF() throws IOException {
@@ -1111,6 +1145,11 @@ public class Plot {
 			Log.warn("Unexpected number of plotdata written to file "
 					+ this.dir + this.scriptFilename + ". Expected: "
 					+ this.data.length + "  Written: " + this.dataWriteCounter);
+
+		// if sorted, append buffered data
+		if (this.sorted)
+			appendBufferedData();
+
 		this.fileWriter.close();
 		this.fileWriter = null;
 	}
@@ -1149,6 +1188,8 @@ public class Plot {
 		}
 		script.add("set style " + Config.get("GNUPLOT_STYLE"));
 		script.add("set boxwidth " + Config.get("GNUPLOT_BOXWIDTH"));
+
+		ArrayList<String> buff = new ArrayList<String>();
 
 		// if no config is present
 		if (this.config == null) {
@@ -1194,6 +1235,24 @@ public class Plot {
 					}
 				}
 
+				// if sorted buffer legend lines
+				if (this.sorted) {
+					int mappedIndex = ArrayUtils
+							.getIndexOf(this.dataIndizes, i);
+					String temp = this.data[i].getEntry(mappedIndex + 1,
+							Config.getInt("GNUPLOT_LW"),
+							Config.getDouble("GNUPLOT_XOFFSET") * mappedIndex,
+							Config.getDouble("GNUPLOT_YOFFSET") * mappedIndex,
+							Config.get("GNUPLOT_XSCALING"),
+							Config.get("GNUPLOT_YSCALING"), this.distPlotType,
+							false);
+					temp = temp.replace("filledcurves", "filledcurves y1=0");
+					if (mappedIndex < this.data.length - 1) {
+						temp = temp + " , \\";
+					}
+					buff.add(temp);
+				}
+
 				// get line
 				line = this.data[i].getEntry(i + 1,
 						Config.getInt("GNUPLOT_LW"),
@@ -1201,12 +1260,12 @@ public class Plot {
 						Config.getDouble("GNUPLOT_YOFFSET") * i,
 						Config.get("GNUPLOT_XSCALING"),
 						Config.get("GNUPLOT_YSCALING"), this.distPlotType,
-						false);
+						this.sorted);
 				line = line.replace("filledcurves", "filledcurves y1=0");
 				if (i == 0) {
 					line = "plot " + line;
 				}
-				if (i < this.data.length - 1) {
+				if (sorted || i < this.data.length - 1) {
 					line = line + " , \\";
 				}
 				script.add(line);
@@ -1248,22 +1307,49 @@ public class Plot {
 						type = DistributionPlotType.distOnly;
 				}
 
+				// if sorted buffer legend lines
+				if (this.sorted) {
+					int mappedIndex = ArrayUtils
+							.getIndexOf(this.dataIndizes, i);
+					String temp = this.data[i].getEntry(mappedIndex + 1,
+							Config.getInt("GNUPLOT_LW"),
+							this.config.getxOffset() * mappedIndex,
+							this.config.getyOffset() * mappedIndex,
+							this.config.getxScaling(),
+							this.config.getyScaling(), type,
+							this.config.getStyle(), false);
+					temp = temp.replace("filledcurves", "filledcurves y1=0");
+					if (mappedIndex < this.data.length - 1) {
+						temp = temp + " , \\";
+					}
+					buff.add(temp);
+				}
+
 				// get line
 				line = this.data[i].getEntry(i + 1,
 						Config.getInt("GNUPLOT_LW"), this.config.getxOffset()
 								* i, this.config.getyOffset() * i,
 						this.config.getxScaling(), this.config.getyScaling(),
-						type, this.config.getStyle(), false);
+						type, this.config.getStyle(), this.sorted);
 				line = line.replace("filledcurves", "filledcurves y1=0");
 				if (i == 0) {
 					line = "plot " + line;
 				}
-				if (i < this.data.length - 1) {
+				if (sorted || i < this.data.length - 1) {
 					line = line + " , \\";
 				}
 				script.add(line);
 			}
 		}
+
+		// if sorted, add legend descriptions
+		if (this.sorted) {
+			for (int i = 0; i < this.dataIndizes.length; i++) {
+				script.add(buff.get(dataIndizes[i]));
+			}
+		}
+
+		// return
 		return script;
 	}
 
@@ -1428,7 +1514,7 @@ public class Plot {
 
 		// different cases
 		if (mode.equals(ValueSortMode.LIST_FIRST)
-				|| mode.equals(ValueSortMode.ALPHABETICAL_LIST_LAST)) {
+				|| mode.equals(ValueSortMode.ALPHABETICAL_LIST_FIRST)) {
 			// search for entries in plotdata list
 			for (String entry : valueSortList) {
 				for (int i = 0; i < data.length; i++) {
@@ -1444,9 +1530,13 @@ public class Plot {
 					if (name.equals(entry)) {
 						int index = indexList.indexOf(i);
 						sortedIndizesList.add(index);
-						indexList.remove(index);
 					}
 				}
+			}
+
+			// remove already detected list objects
+			for (Integer i : sortedIndizesList) {
+				indexList.remove(i);
 			}
 
 			// add normal objects last
@@ -1497,9 +1587,13 @@ public class Plot {
 					if (name.equals(entry)) {
 						int index = indexList.indexOf(i);
 						tempList.add(index);
-						indexList.remove(index);
 					}
 				}
+			}
+
+			// remove already detected list objects
+			for (Integer i : tempList) {
+				indexList.remove(i);
 			}
 
 			if (mode.equals(ValueSortMode.ALPHABETICAL_LIST_LAST)) {
@@ -1571,5 +1665,9 @@ public class Plot {
 			if (!this.sorted && this.dataIndizes[i] != i)
 				this.sorted = true;
 		}
+
+		// init buffer array-list
+		if (this.sorted)
+			this.bufferedData = new String[this.data.length];
 	}
 }
