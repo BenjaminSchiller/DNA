@@ -1200,7 +1200,8 @@ public class Plot {
 						Config.getDouble("GNUPLOT_XOFFSET") * i,
 						Config.getDouble("GNUPLOT_YOFFSET") * i,
 						Config.get("GNUPLOT_XSCALING"),
-						Config.get("GNUPLOT_YSCALING"), this.distPlotType);
+						Config.get("GNUPLOT_YSCALING"), this.distPlotType,
+						false);
 				line = line.replace("filledcurves", "filledcurves y1=0");
 				if (i == 0) {
 					line = "plot " + line;
@@ -1252,7 +1253,7 @@ public class Plot {
 						Config.getInt("GNUPLOT_LW"), this.config.getxOffset()
 								* i, this.config.getyOffset() * i,
 						this.config.getxScaling(), this.config.getyScaling(),
-						type, this.config.getStyle());
+						type, this.config.getStyle(), false);
 				line = line.replace("filledcurves", "filledcurves y1=0");
 				if (i == 0) {
 					line = "plot " + line;
@@ -1409,7 +1410,7 @@ public class Plot {
 	public void sortData() {
 		// if null or sortmode = NONE or data empty -> return
 		if (this.sortMode == null || this.sortMode.equals(ValueSortMode.NONE)
-				|| this.valueSortList.length == 0)
+				|| this.data.length == 0)
 			return;
 
 		ValueSortMode mode = this.sortMode;
@@ -1563,7 +1564,12 @@ public class Plot {
 		}
 
 		// copy sorted indizes
-		for (int i = 0; i < sortedIndizesList.size(); i++)
+		for (int i = 0; i < sortedIndizesList.size(); i++) {
 			this.dataIndizes[i] = sortedIndizesList.get(i);
+
+			// updated sorted flag
+			if (!this.sorted && this.dataIndizes[i] != i)
+				this.sorted = true;
+		}
 	}
 }
