@@ -35,8 +35,10 @@ public class Graph {
 	public Graph(String name, long timestamp, GraphDataStructure gds) {
 		this.name = name;
 		this.timestamp = timestamp;
-		this.nodes = (INodeListDatastructure) gds.newList(ListType.GlobalNodeList);
-		this.edges = (IEdgeListDatastructure) gds.newList(ListType.GlobalEdgeList);
+		this.nodes = (INodeListDatastructure) gds
+				.newList(ListType.GlobalNodeList);
+		this.edges = (IEdgeListDatastructure) gds
+				.newList(ListType.GlobalEdgeList);
 		this.gds = gds;
 	}
 
@@ -110,9 +112,10 @@ public class Graph {
 	}
 
 	public boolean addEdge(Edge e) {
-		return this.containsNodes(e) && edges.add(e);
+		return edges.add(e);
+		// return this.containsNodes(e) && edges.add(e);
 	}
-	
+
 	public boolean containsEdge(Node n1, Node n2) {
 		return containsEdge(gds.getDummyEdge(n1, n2));
 	}
@@ -142,13 +145,15 @@ public class Graph {
 	/**
 	 * Get an edge by its attached nodes
 	 * 
-	 * @param Node n1, Node n2
+	 * @param Node
+	 *            n1, Node n2
 	 */
 	public Edge getEdge(Node n1, Node n2) {
 		if (!gds.isReadable(edges))
 			throw new RuntimeException("This is not a readable graph");
-		return ((IEdgeListDatastructureReadable) edges).get(gds.getDummyEdge(n1, n2));
-	}	
+		return ((IEdgeListDatastructureReadable) edges).get(gds.getDummyEdge(
+				n1, n2));
+	}
 
 	/**
 	 * Retrieve a random edge
@@ -325,23 +330,26 @@ public class Graph {
 			System.out.println("  " + iterator.next());
 		}
 	}
-	
-	public void switchDataStructure(ListType type, Class<? extends IDataStructure> newDatastructureType) {
+
+	public void switchDataStructure(ListType type,
+			Class<? extends IDataStructure> newDatastructureType) {
 		IDataStructure newDatastructure;
-		switch(type) {
+		switch (type) {
 		case GlobalEdgeList:
 			newDatastructure = gds.newList(type, newDatastructureType);
-			this.edges = (IEdgeListDatastructure) ((IEdgeListDatastructureReadable)this.edges).switchTo(newDatastructure);
+			this.edges = (IEdgeListDatastructure) ((IEdgeListDatastructureReadable) this.edges)
+					.switchTo(newDatastructure);
 			break;
 		case GlobalNodeList:
 			newDatastructure = gds.newList(type, newDatastructureType);
-			this.nodes = (INodeListDatastructure) ((INodeListDatastructureReadable)this.nodes).switchTo(newDatastructure);
+			this.nodes = (INodeListDatastructure) ((INodeListDatastructureReadable) this.nodes)
+					.switchTo(newDatastructure);
 			break;
 		case LocalEdgeList:
 		case LocalInEdgeList:
 		case LocalOutEdgeList:
 		case LocalNodeList:
-			for ( IElement n: this.getNodes()) {
+			for (IElement n : this.getNodes()) {
 				newDatastructure = gds.newList(type, newDatastructureType);
 				((Node) n).switchDataStructure(type, newDatastructure);
 			}
