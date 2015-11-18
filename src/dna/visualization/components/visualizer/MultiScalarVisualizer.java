@@ -60,8 +60,6 @@ public class MultiScalarVisualizer extends Visualizer {
 	// saved values
 	private HashMap<String, Long> longDenominators;
 	private HashMap<String, long[]> longValues;
-	private HashMap<String, Integer> intDenominators;
-	private HashMap<String, int[]> intValues;
 	private HashMap<String, double[]> doubleValues;
 
 	// config
@@ -88,9 +86,6 @@ public class MultiScalarVisualizer extends Visualizer {
 
 		this.longDenominators = new HashMap<String, Long>();
 		this.longValues = new HashMap<String, long[]>();
-
-		this.intDenominators = new HashMap<String, Integer>();
-		this.intValues = new HashMap<String, int[]>();
 
 		this.doubleValues = new HashMap<String, double[]>();
 
@@ -591,10 +586,6 @@ public class MultiScalarVisualizer extends Visualizer {
 			this.longValues.remove(name);
 		if (this.longDenominators.containsKey(name))
 			this.longDenominators.remove(name);
-		if (this.intValues.containsKey(name))
-			this.intValues.remove(name);
-		if (this.intDenominators.containsKey(name))
-			this.intDenominators.remove(name);
 		if (this.doubleValues.containsKey(name))
 			this.doubleValues.remove(name);
 
@@ -836,9 +827,6 @@ public class MultiScalarVisualizer extends Visualizer {
 			if (this.doubleValues.containsKey(name)) {
 				this.addDistributionPoints(name, this.doubleValues.get(name),
 						s, offsetX);
-			} else if (this.intValues.containsKey(name)) {
-				this.addDistributionPoints(name, this.intValues.get(name),
-						this.intDenominators.get(name), s, offsetX);
 			} else if (this.longValues.containsKey(name)) {
 				this.addDistributionPoints(name, this.longValues.get(name),
 						this.longDenominators.get(name), s, offsetX);
