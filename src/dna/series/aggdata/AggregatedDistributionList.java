@@ -37,6 +37,12 @@ public class AggregatedDistributionList extends List<AggregatedDistribution> {
 
 	public static AggregatedDistributionList read(String dir, boolean readValues)
 			throws IOException {
+		return read(dir, readValues,
+				Config.getBoolean("READ_LEGACY_DISTRIBUTIONS"));
+	}
+
+	public static AggregatedDistributionList read(String dir,
+			boolean readValues, boolean readLegacy) throws IOException {
 		String[] distributions = Files.getDistributions(dir);
 		if (distributions == null)
 			return new AggregatedDistributionList(0);
@@ -44,12 +50,16 @@ public class AggregatedDistributionList extends List<AggregatedDistribution> {
 		AggregatedDistributionList list = new AggregatedDistributionList(
 				distributions.length);
 		for (String distribution : distributions) {
-			if (distribution.endsWith(Config.get("SUFFIX_DIST_AGGR"))) {
+			if (distribution.endsWith(Config.get("SUFFIX_DIST_AGGR"))
+					|| (readLegacy && distribution.endsWith(Config
+							.get("LEGACY_SUFFIX_DIST")))) {
 				list.add(AggregatedDistribution.read(dir, distribution,
 						Files.getAggregatedDistributionName(distribution),
 						readValues));
 			} else if (distribution.endsWith(Config
-					.get("SUFFIX_DIST_AGGR_BINNED"))) {
+					.get("SUFFIX_DIST_AGGR_BINNED"))
+					|| (readLegacy && distribution.endsWith(Config
+							.get("LEGACY_SUFFIX_DIST_BINNED")))) {
 				list.add(AggregatedBinnedDistribution.read(
 						dir,
 						distribution,

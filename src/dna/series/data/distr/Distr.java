@@ -2,8 +2,10 @@ package dna.series.data.distr;
 
 import java.io.IOException;
 
+import dna.io.LegacyDistributionReader;
 import dna.io.filesystem.Files;
 import dna.series.data.Data;
+import dna.util.Config;
 
 public abstract class Distr<T, V> extends Data {
 	public enum DistrType {
@@ -75,10 +77,22 @@ public abstract class Distr<T, V> extends Data {
 	}
 
 	public static Distr<?, ?> read(String dir, String filename,
+			boolean readValues, boolean readLegacyDistributions)
+			throws IOException {
+		if (readLegacyDistributions
+				&& Files.endsWithLegacyDistributionSuffix(filename)) {
+			return LegacyDistributionReader.read(dir, filename, readValues);
+		} else {
+			DistrType type = Files.getDistributionTypeFromFilename(filename);
+			return read(dir, filename,
+					Files.getDistributionNameFromFilename(filename, type),
+					type, readValues);
+		}
+	}
+
+	public static Distr<?, ?> read(String dir, String filename,
 			boolean readValues) throws IOException {
-		DistrType type = Files.getDistributionTypeFromFilename(filename);
-		return read(dir, filename,
-				Files.getDistributionNameFromFilename(filename, type), type,
-				readValues);
+		return read(dir, filename, readValues,
+				Config.getBoolean("READ_LEGACY_DISTRIBUTIONS"));
 	}
 }
