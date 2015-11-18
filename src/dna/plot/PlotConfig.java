@@ -131,8 +131,8 @@ public class PlotConfig {
 	public static String gnuplotDefaultKeyNodeValueListOrder = "GNUPLOT_DEFAULT_NVL_ORDER";
 	public static String gnuplotDefaultKeyNodeValueListOrderBy = "GNUPLOT_DEFAULT_NVL_ORDERBY";
 
-	public static String gnuplotDefaultKeyValueSortMode = "GNUPLOT_DEFAULT_VALUE_SORT_MODE";
-	public static String gnuplotDefaultKeyValueSortList = "GNUPLOT_DEFAULT_VALUE_SORT_LIST";
+	public static String gnuplotDefaultKeyValueSortMode = "GNUPLOT_DEFAULT_VALUE_SORTMODE";
+	public static String gnuplotDefaultKeyValueSortList = "GNUPLOT_DEFAULT_VALUE_SORTLIST";
 
 	public static double[] gnuplotZeroLineNoIndex = new double[] { 0, 0, 0, 0,
 			0, 0, 0, 0, 0 };
