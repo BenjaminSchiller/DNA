@@ -304,35 +304,6 @@ public class MultiScalarVisualizer extends Visualizer {
 	}
 
 	/** adds points sorted and normalized by dividing through denominator **/
-	private void addDistributionPoints(String name, int[] values,
-			int denominator, SortModeDist sort, double offsetX) {
-		ITrace2D tempTrace = this.traces.get(name);
-		int[] tempValues = new int[values.length];
-
-		switch (sort) {
-		case cdf:
-			double sum = 0;
-			System.arraycopy(values, 0, tempValues, 0, values.length);
-			for (int i = 0; i < values.length; i++) {
-				sum += (1.0 * tempValues[i]) / denominator;
-				tempTrace.addPoint(i + offsetX, sum);
-			}
-			break;
-		case distribution:
-			for (int i = 0; i < values.length; i++) {
-				tempTrace
-						.addPoint(i + offsetX, (1.0 * values[i]) / denominator);
-			}
-			break;
-		}
-
-		if (values.length - 1 > this.maxShownTimestamp)
-			this.maxShownTimestamp = values.length - 1;
-		if (values.length - 1 > this.maxTimestamp)
-			this.maxTimestamp = values.length - 1;
-	}
-
-	/** adds points sorted and normalized by dividing through denominator **/
 	private void addDistributionPoints(String name, double[] values,
 			double binsize, SortModeDist sort, double offsetX) {
 		ITrace2D tempTrace = this.traces.get(name);
