@@ -401,7 +401,7 @@ public class GraphPanel extends JPanel {
 		recordAreasBox.setPrototypeDisplayValue("Content");
 		recordAreasBox
 				.setToolTipText("Selects the area that will be captured.");
-		recordAreasBox.setPreferredSize(new Dimension(75, 25));
+		recordAreasBox.setPreferredSize(new Dimension(90, 25));
 		recordAreasBox.setMaximumSize(recordAreasBox.getPreferredSize());
 		recordAreasBox.addActionListener(new ActionListener() {
 			@Override
