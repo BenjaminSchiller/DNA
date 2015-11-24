@@ -475,6 +475,8 @@ public class GraphPanel extends JPanel {
 						+ (arg0.getWheelRotation() * arg0.getScrollAmount() * speed);
 				if (zoom < 0)
 					zoom = 0;
+				if (Math.abs(1 - zoom) < 0.04)
+					zoom = 1;
 
 				// set new zoom
 				setZoom(zoom);
