@@ -10,6 +10,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.InputEvent;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
@@ -37,6 +38,7 @@ import org.graphstream.ui.layout.springbox.implementations.LinLog;
 import org.graphstream.ui.layout.springbox.implementations.SpringBox;
 import org.graphstream.ui.view.View;
 import org.graphstream.ui.view.Viewer;
+import org.graphstream.ui.view.util.DefaultMouseManager;
 
 import dna.graph.edges.DirectedWeightedEdge;
 import dna.graph.edges.UndirectedWeightedEdge;
@@ -51,6 +53,7 @@ import dna.visualization.VisualizationUtils;
 import dna.visualization.VisualizationUtils.VideoRecorder;
 import dna.visualization.graph.rules.GraphStyleRule;
 import dna.visualization.graph.rules.GraphStyleUtils;
+import dna.visualization.graph.util.GraphVisMouseManager;
 
 /**
  * The GraphPanel class is used as a JPanel which contains a text-panel and a
@@ -239,6 +242,7 @@ public class GraphPanel extends JPanel {
 		// add listeners
 		addZoomListener();
 		addMoveListener();
+		changeMouseManager();
 	}
 
 	/** Adds the stat-panel. **/
@@ -490,7 +494,7 @@ public class GraphPanel extends JPanel {
 
 			@Override
 			public void mouseDragged(MouseEvent arg0) {
-				if ((arg0.getModifiersEx() & InputEvent.CTRL_DOWN_MASK) == InputEvent.CTRL_DOWN_MASK) {
+				if ((arg0.getModifiersEx() & InputEvent.BUTTON3_DOWN_MASK) == InputEvent.BUTTON3_DOWN_MASK) {
 					Point3 currentCenter = getViewCenter();
 
 					// calc new position
@@ -511,6 +515,25 @@ public class GraphPanel extends JPanel {
 				}
 			}
 		});
+	}
+
+	/**
+	 * Removes the default mouse manager and replaces it with a
+	 * GraphVisMouseManager.
+	 **/
+	protected void changeMouseManager() {
+		JPanel view = this.getGraphView();
+		MouseListener[] mouseListeners = view.getMouseListeners();
+
+		// release current mouse listeners
+		for (MouseListener ml : mouseListeners)
+			((DefaultMouseManager) ml).release();
+
+		// init graphvis mouse manager
+		GraphVisMouseManager graphVisMouseManager = new GraphVisMouseManager();
+
+		// add new mouse manager
+		((View) view).setMouseManager(graphVisMouseManager);
 	}
 
 	/** Adds a graph style rule. **/
