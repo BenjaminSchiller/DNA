@@ -152,8 +152,8 @@ public class GraphDatabaseWorkloadTester {
 						graphType.toString());
 				sd[i] = s.generate(runs, batches);
 
-				Plotting.plot(sd[i], plots + (i % seriesRuns) + delimiter + this.testGds.toString() + delimiter,
-						PlotFlag.plotRuntimes, PlotFlag.plotStatistics);
+//				Plotting.plot(sd[i], plots + (i % seriesRuns) + delimiter + this.testGds.toString() + delimiter,
+//						PlotFlag.plotRuntimes, PlotFlag.plotStatistics);
 			}
 			count++;
 		}

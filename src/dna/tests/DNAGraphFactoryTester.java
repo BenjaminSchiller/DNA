@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
@@ -75,9 +74,6 @@ public class DNAGraphFactoryTester {
 	@Test
 	public void createGraph_Fail() throws RuntimeException {
 		Config.overwrite("GRAPHTYPE", chosenGDB.toString());
-
-		expectedException.expect(RuntimeException.class);
-		expectedException.expectMessage("The chosen graph type and the node type for the graph datastructure are incompatible.");
 		
 		try {
 
