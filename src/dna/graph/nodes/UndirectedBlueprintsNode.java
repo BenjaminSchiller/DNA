@@ -25,14 +25,13 @@ import dna.util.MathHelper;
 public class UndirectedBlueprintsNode extends UndirectedNode implements
 		IGDBNode<Vertex> {
 	
+	private Object gdbNodeId;
+	
 	/** The gds. */
 	protected GraphDataStructure gds;
-	
+
 	/** The graph. */
 	protected BlueprintsGraph graph;
-
-	/** The vertex. */
-	protected Vertex vertex;
 
 	/**
 	 * Instantiates a new undirected blueprints node.
@@ -63,13 +62,13 @@ public class UndirectedBlueprintsNode extends UndirectedNode implements
 	 *
 	 * @param i the i
 	 * @param gds the gds
-	 * @param vertex the vertex
+	 * @param getGDBNode() the getGDBNode()
 	 * @param graph the graph
 	 */
 	public UndirectedBlueprintsNode(Integer i, GraphDataStructure gds,
-			Vertex vertex, IGraph graph) {
+			Object gdbNodeId, IGraph graph) {
 		super(i, gds);
-		this.setGDBNode(vertex);
+		this.setGDBNodeId(gdbNodeId);
 		this.setIndex(i);
 		this.setGraph(graph);
 	}
@@ -126,7 +125,7 @@ public class UndirectedBlueprintsNode extends UndirectedNode implements
 	@Override
 	public Iterable<IElement> getEdges() {
 		Collection<Edge> result = new ArrayList<Edge>();
-		for (com.tinkerpop.blueprints.Edge e : vertex.getEdges(Direction.BOTH,
+		for (com.tinkerpop.blueprints.Edge e : getGDBNode().getEdges(Direction.BOTH,
 				"IGDBEdge")) {
 			Edge edge = this.graph.getEdge(e);
 
@@ -144,7 +143,15 @@ public class UndirectedBlueprintsNode extends UndirectedNode implements
 	 */
 	@Override
 	public Vertex getGDBNode() {
-		return this.vertex;
+		if (this.graph == null || this.gdbNodeId == null)
+			return null;
+		else
+			return this.graph.getGDBNode(this.gdbNodeId);
+	}
+
+	@Override
+	public Object getGDBNodeId() {
+		return this.gdbNodeId;
 	}
 
 	/*
@@ -162,9 +169,9 @@ public class UndirectedBlueprintsNode extends UndirectedNode implements
 	 */
 	@Override
 	public int getIndex() {
-		if (vertex == null)
+		if (this.getGDBNode() == null)
 			return this.index;
-		Integer idx = (Integer) this.vertex.getProperty("index");
+		Integer idx = (Integer) this.getGDBNode().getProperty("index");
 		if (idx == null)
 			this.setIndex(this.index);
 		return this.index;
@@ -202,14 +209,9 @@ public class UndirectedBlueprintsNode extends UndirectedNode implements
 		return this.graph.removeEdge(e);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see dna.graph.nodes.IGDBNode#setVertex(com.tinkerpop.blueprints.Vertex)
-	 */
 	@Override
-	public void setGDBNode(Vertex vertex) {
-		this.vertex = vertex;
+	public void setGDBNodeId(Object gdbNodeId) {
+		this.gdbNodeId = gdbNodeId;		
 	}
 
 	/*
@@ -227,16 +229,16 @@ public class UndirectedBlueprintsNode extends UndirectedNode implements
 							+ BlueprintsGraph.class + "but was "
 							+ graph.getClass());
 	}
-
+	
 	/* (non-Javadoc)
 	 * @see dna.graph.nodes.Node#setIndex(int)
 	 */
 	@Override
 	public void setIndex(int index) {
 		this.index = index;
-		if (vertex == null)
+		if (this.getGDBNode() == null)
 			return;
-		this.vertex.setProperty("index", index);
+		this.getGDBNode().setProperty("index", index);
 	}
 
 	/* (non-Javadoc)
@@ -247,7 +249,7 @@ public class UndirectedBlueprintsNode extends UndirectedNode implements
 			IDataStructure newDatastructure) {
 		Log.info("Switch datastructure is not available for " + UndirectedBlueprintsNode.class);
 	}
-	
+
 	public String toString() {
 		return "" + this.getIndex() + " (" + this.getDegree() + ")";
 	}

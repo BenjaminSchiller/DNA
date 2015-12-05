@@ -1,7 +1,5 @@
 package dna.graph.nodes;
 
-import com.tinkerpop.blueprints.Vertex;
-
 import dna.graph.IGraph;
 import dna.graph.datastructures.GraphDataStructure;
 import dna.graph.weights.IWeightedNode;
@@ -58,9 +56,9 @@ public class DirectedWeightedBlueprintsNode extends DirectedBlueprintsNode imple
 	 * @param gds the gds
 	 * @param vertex the vertex
 	 */
-	public DirectedWeightedBlueprintsNode(int i, GraphDataStructure gds, Vertex vertex) {
+	public DirectedWeightedBlueprintsNode(int i, GraphDataStructure gds, Object gdbNodeId) {
 		this(i, gds);
-		this.setGDBNode(vertex);
+		this.setGDBNodeId(gdbNodeId);
 	}
 
 	/**
@@ -113,10 +111,8 @@ public class DirectedWeightedBlueprintsNode extends DirectedBlueprintsNode imple
 	 * @param graph the graph
 	 */
 	public DirectedWeightedBlueprintsNode(int i, GraphDataStructure gds,
-			Vertex vertex, IGraph graph) {
-		this(i, gds);
-		this.setGDBNode(vertex);
-		this.setGraph(graph);
+			Object gdbNodeId, IGraph graph) {
+		super(i, gds, gdbNodeId, graph);
 	}
 
 	/**
@@ -129,11 +125,9 @@ public class DirectedWeightedBlueprintsNode extends DirectedBlueprintsNode imple
 	 * @param graph the graph
 	 */
 	public DirectedWeightedBlueprintsNode(int i, Weight weight,
-			GraphDataStructure gds, Vertex vertex, IGraph graph) {
-		this(i, gds);
-		this.setGDBNode(vertex);
+			GraphDataStructure gds, Object gdbNodeId, IGraph graph) {
+		this(i, gds, gdbNodeId, graph);
 		this.setWeight(weight);
-		this.setGraph(graph);
 	}
 
 	@Override
@@ -151,9 +145,9 @@ public class DirectedWeightedBlueprintsNode extends DirectedBlueprintsNode imple
 	 */
 	@Override
 	public Weight getWeight() {
-		if (vertex == null) return this.weight;
+		if (this.getGDBNode() == null) return this.weight;
 		
-		if (this.vertex.getProperty("weight") == null)
+		if (this.getGDBNode().getProperty("weight") == null)
 			this.setWeight(this.weight);
 		return this.weight;
 	}
@@ -164,8 +158,8 @@ public class DirectedWeightedBlueprintsNode extends DirectedBlueprintsNode imple
 	@Override
 	public void setWeight(Weight weight) {
 		this.weight = weight;
-		if (vertex == null) return;
-		this.vertex.setProperty("weight", weight.asString());
+		if (this.getGDBNode() == null) return;
+		this.getGDBNode().setProperty("weight", weight.asString());
 	}
 
 	/* (non-Javadoc)

@@ -1,7 +1,5 @@
 package dna.graph.nodes;
 
-import com.tinkerpop.blueprints.Vertex;
-
 import dna.graph.IGraph;
 import dna.graph.datastructures.GraphDataStructure;
 import dna.graph.weights.IWeightedNode;
@@ -99,8 +97,8 @@ public class UndirectedWeightedBlueprintsNode extends UndirectedBlueprintsNode i
 	 * @param graph the graph
 	 */
 	public UndirectedWeightedBlueprintsNode(int i, GraphDataStructure gds,
-			Vertex vertex, IGraph graph) {
-		super(i, gds, vertex, graph);		
+			Object gdbNodeId, IGraph graph) {
+		super(i, gds, gdbNodeId, graph);		
 	}
 
 	/**
@@ -113,8 +111,8 @@ public class UndirectedWeightedBlueprintsNode extends UndirectedBlueprintsNode i
 	 * @param graph the graph
 	 */
 	public UndirectedWeightedBlueprintsNode(int i, Weight weight,
-			GraphDataStructure gds, Vertex vertex, IGraph graph) {
-		this(i, gds, vertex, graph);
+			GraphDataStructure gds, Object gdbNodeId, IGraph graph) {
+		this(i, gds, gdbNodeId, graph);
 		this.setWeight(weight);		
 	}
 
@@ -123,10 +121,10 @@ public class UndirectedWeightedBlueprintsNode extends UndirectedBlueprintsNode i
 	 */
 	@Override
 	public Weight getWeight() {
-		if (vertex == null)
+		if (this.getGDBNode() == null)
 			return this.weight;
 
-		String weight = this.vertex.getProperty("weight");
+		String weight = this.getGDBNode().getProperty("weight");
 		if (weight == null)
 			this.setWeight(this.weight);
 		return this.weight;
@@ -138,9 +136,9 @@ public class UndirectedWeightedBlueprintsNode extends UndirectedBlueprintsNode i
 	@Override
 	public void setWeight(Weight weight) {
 		this.weight = weight;
-		if (vertex == null)
+		if (this.getGDBNode() == null)
 			return;
-		this.vertex.setProperty("weight", weight.asString());
+		this.getGDBNode().setProperty("weight", weight.asString());
 	}
 
 	/* (non-Javadoc)

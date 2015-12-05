@@ -65,9 +65,9 @@ public class DirectedWeightedBlueprintsEdge extends DirectedBlueprintsEdge imple
 	 * @param e the e
 	 */
 	public DirectedWeightedBlueprintsEdge(DirectedBlueprintsNode src, DirectedBlueprintsNode dst,
-			Weight weight, com.tinkerpop.blueprints.Edge e) {
+			Weight weight, Object gdbEdgeId) {
 		super(src, dst);
-		this.setGDBEdge(e);
+		this.setGDBEdgeId(gdbEdgeId);
 		this.setWeight(weight);
 	}
 
@@ -76,10 +76,10 @@ public class DirectedWeightedBlueprintsEdge extends DirectedBlueprintsEdge imple
 	 */
 	@Override
 	public Weight getWeight() {
-		if (edge == null)
+		if (this.getGDBEdge() == null)
 			return this.weight;
 
-		String weight = this.edge.getProperty("weight");
+		String weight = this.getGDBEdge().getProperty("weight");
 		if (weight == null)
 			this.setWeight(this.weight);
 		return this.weight;
@@ -91,9 +91,9 @@ public class DirectedWeightedBlueprintsEdge extends DirectedBlueprintsEdge imple
 	@Override
 	public void setWeight(Weight weight) {
 		this.weight = weight;
-		if (edge == null)
+		if (this.getGDBEdge() == null)
 			return;
-		this.edge.setProperty("weight", weight.asString());
+		this.getGDBEdge().setProperty("weight", weight.asString());
 	}
 
 	/* (non-Javadoc)

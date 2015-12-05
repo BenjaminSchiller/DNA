@@ -8,6 +8,7 @@ import dna.graph.edges.UndirectedEdge;
 import dna.graph.nodes.Node;
 import dna.graph.nodes.UndirectedBlueprintsNode;
 import dna.graph.nodes.UndirectedNode;
+import dna.graph.BlueprintsGraph;
 import dna.graph.IGraph;
 import dna.updates.update.Update;
 import dna.util.MathHelper;
@@ -19,8 +20,36 @@ import dna.util.MathHelper;
  */
 public class UndirectedBlueprintsEdge extends UndirectedEdge implements IGDBEdge<Edge> {
 	
-	/** The edge. */
-	protected Edge edge;
+	/** The edge identifier. */
+	protected Object gdbEdgeId;
+	
+	/** The graph. */
+	protected BlueprintsGraph graph;
+
+	/**
+	 * Instantiates a new undirected blueprints edge.
+	 *
+	 * @param s            String representation of an undirected edge
+	 * @param g            graph this undirected edge is belonging to (required to obtain
+	 *            node object pointers)
+	 */
+	public UndirectedBlueprintsEdge(String s, IGraph g) {
+		super((UndirectedNode) getNodeFromStr(0, s, g),
+				(UndirectedNode) getNodeFromStr(1, s, g));
+	}
+
+	/**
+	 * Instantiates a new undirected blueprints edge.
+	 *
+	 * @param s the s
+	 * @param g the g
+	 * @param addedNodes the added nodes
+	 */
+	public UndirectedBlueprintsEdge(String s, IGraph g,
+			HashMap<Integer, Node> addedNodes) {
+		super((UndirectedNode) getNodeFromStr(0, s, g, addedNodes),
+				(UndirectedNode) getNodeFromStr(1, s, g, addedNodes));		
+	}
 
 	/**
 	 * 
@@ -39,13 +68,14 @@ public class UndirectedBlueprintsEdge extends UndirectedEdge implements IGDBEdge
 	/**
 	 * Instantiates a new undirected blueprints edge.
 	 *
-	 * @param s            String representation of an undirected edge
-	 * @param g            graph this undirected edge is belonging to (required to obtain
-	 *            node object pointers)
+	 * @param src the src
+	 * @param dst the dst
+	 * @param e the e
 	 */
-	public UndirectedBlueprintsEdge(String s, IGraph g) {
-		super((UndirectedNode) getNodeFromStr(0, s, g),
-				(UndirectedNode) getNodeFromStr(1, s, g));
+	public UndirectedBlueprintsEdge(UndirectedBlueprintsNode src, UndirectedBlueprintsNode dst,
+			Object gdbEdgeId) {
+		super(src, dst);
+		this.setGDBEdgeId(gdbEdgeId);
 	}
 
 	/**
@@ -71,19 +101,6 @@ public class UndirectedBlueprintsEdge extends UndirectedEdge implements IGDBEdge
 		}
 
 		return (UndirectedBlueprintsNode) g.getNode(MathHelper.parseInt(temp[index]));
-	}
-
-	/**
-	 * Instantiates a new undirected blueprints edge.
-	 *
-	 * @param s the s
-	 * @param g the g
-	 * @param addedNodes the added nodes
-	 */
-	public UndirectedBlueprintsEdge(String s, IGraph g,
-			HashMap<Integer, Node> addedNodes) {
-		super((UndirectedNode) getNodeFromStr(0, s, g, addedNodes),
-				(UndirectedNode) getNodeFromStr(1, s, g, addedNodes));		
 	}
 
 	/**
@@ -118,27 +135,26 @@ public class UndirectedBlueprintsEdge extends UndirectedEdge implements IGDBEdge
 		}		
 	}
 
-	/**
-	 * Instantiates a new undirected blueprints edge.
-	 *
-	 * @param src the src
-	 * @param dst the dst
-	 * @param e the e
-	 */
-	public UndirectedBlueprintsEdge(UndirectedBlueprintsNode src, UndirectedBlueprintsNode dst,
-			com.tinkerpop.blueprints.Edge e) {
-		super(src, dst);
-		this.setGDBEdge(e);
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see dna.graph.edges.IGDBEdge#setEdge(com.tinkerpop.blueprints.Edge)
+	/* (non-Javadoc)
+	 * @see dna.graph.edges.UndirectedEdge#connectToNodes()
 	 */
 	@Override
-	public void setGDBEdge(Edge edge) {
-		this.edge = edge;
+	public boolean connectToNodes() {
+		if (this.getNode1().hasEdge(this) && this.getNode2().hasEdge(this))
+			return true;
+		
+		return false;
+	}
+
+	/* (non-Javadoc)
+	 * @see dna.graph.edges.UndirectedEdge#disconnectFromNodes()
+	 */
+	@Override
+	public boolean disconnectFromNodes() {
+		if (!this.getNode1().hasEdge(this) && !this.getNode2().hasEdge(this))
+			return true;
+		
+		return false;
 	}
 
 	/*
@@ -148,7 +164,20 @@ public class UndirectedBlueprintsEdge extends UndirectedEdge implements IGDBEdge
 	 */
 	@Override
 	public Edge getGDBEdge() {
-		return this.edge;
+		if (this.graph == null || this.gdbEdgeId == null)
+			return null;
+		else
+			return this.graph.getGDBEdge(this.gdbEdgeId);
+	}
+
+	@Override
+	public Object getGDBEdgeId() {
+		return this.gdbEdgeId;
+	}
+
+	@Override
+	public IGraph getGraph() {
+		return this.graph;
 	}
 
 	/**
@@ -170,34 +199,20 @@ public class UndirectedBlueprintsEdge extends UndirectedEdge implements IGDBEdge
 		return (UndirectedBlueprintsNode) this.getN2();
 	}
 
-	/* (non-Javadoc)
-	 * @see dna.graph.edges.UndirectedEdge#connectToNodes()
-	 */
 	@Override
-	public boolean connectToNodes() {
-		if (this.getNode1().hasEdge(this) && this.getNode2().hasEdge(this))
-			return true;
-
-//		boolean added = this.getNode1().addEdge(this);
-//		return added;
-		
-		return false;
+	public void setGDBEdgeId(Object gdbEdgeId) {
+		this.gdbEdgeId = gdbEdgeId;
 	}
 
-	/* (non-Javadoc)
-	 * @see dna.graph.edges.UndirectedEdge#disconnectFromNodes()
-	 */
 	@Override
-	public boolean disconnectFromNodes() {
-		if (!this.getNode1().hasEdge(this) && !this.getNode2().hasEdge(this))
-			return true;
-
-//		boolean removed = this.getNode1().removeEdge(this);
-//		return removed;
-		
-		return false;
+	public void setGraph(IGraph graph) {
+		if (graph instanceof BlueprintsGraph)
+			this.graph = (BlueprintsGraph) graph;
+		else
+			throw new RuntimeException("The parameter 'graph' must be an instance of " + BlueprintsGraph.class 
+					+ "but was " + graph.getClass());
 	}
-	
+
 	@Override
 	public String toString()
 	{

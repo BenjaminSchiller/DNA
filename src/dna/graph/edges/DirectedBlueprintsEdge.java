@@ -4,6 +4,7 @@ import java.util.HashMap;
 
 import com.tinkerpop.blueprints.Edge;
 
+import dna.graph.BlueprintsGraph;
 import dna.graph.IGraph;
 import dna.graph.nodes.DirectedNode;
 import dna.graph.nodes.DirectedBlueprintsNode;
@@ -17,57 +18,67 @@ import dna.util.MathHelper;
  */
 public class DirectedBlueprintsEdge extends DirectedEdge implements IGDBEdge<Edge> {
 	
-	/** The edge. */
-	protected Edge edge;
+	/** The edge identifier. */
+	protected Object gdbEdgeId;
+	
+	/** The graph. */
+	protected BlueprintsGraph graph;
 
 	/**
 	 * Instantiates a new directed blueprints edge.
 	 *
-	 * @param src the src
-	 * @param dst the dst
+	 * @param src the source node
+	 * @param dst the destination node
 	 */
 	public DirectedBlueprintsEdge(DirectedBlueprintsNode src, DirectedBlueprintsNode dst) {
 		super(src, dst);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see dna.graph.edges.IGDBEdge#setEdge(com.tinkerpop.blueprints.Edge)
+	/**
+	 * Instantiates a new directed blueprints edge.
+	 *
+	 * @param src the source node
+	 * @param dst the destination node
+	 * @param e the graph database edge
 	 */
-	@Override
-	public void setGDBEdge(Edge edge) {
-		this.edge = edge;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see dna.graph.edges.IGDBEdge#getEdge()
-	 */
-	@Override
-	public Edge getGDBEdge() {
-		return this.edge;
+	public DirectedBlueprintsEdge(DirectedBlueprintsNode src, DirectedBlueprintsNode dst,
+			Object gdbEdgeId) {
+		super(src, dst);
+		this.setGDBEdgeId(this.gdbEdgeId);
 	}
 
 	/**
 	 * Instantiates a new directed blueprints edge.
 	 *
-	 * @param s the s
-	 * @param g the g
+	 * @param s the string
+	 * @param g the graph
 	 */
 	public DirectedBlueprintsEdge(String s, IGraph g) {
 		super((DirectedNode) getNodeFromStr(0, s, g),
-				(DirectedNode) getNodeFromStr(1, s, g));		
+				(DirectedNode) getNodeFromStr(1, s, g));
+		this.setGraph(g);
 	}
 	
 	/**
-	 * Gets the node from str.
+	 * Instantiates a new directed blueprints edge.
+	 *
+	 * @param s the string
+	 * @param g the graph
+	 * @param addedNodes the added nodes
+	 */
+	public DirectedBlueprintsEdge(String s, IGraph g, HashMap<Integer, Node> addedNodes) {
+		super((DirectedNode) getNodeFromStr(0, s, g, addedNodes)
+				, (DirectedNode) getNodeFromStr(1, s, g, addedNodes));
+		this.setGraph(g);
+	}	
+
+	/**
+	 * Gets the node from the string.
 	 *
 	 * @param index the index
-	 * @param s the s
-	 * @param g the g
-	 * @return the node from str
+	 * @param s the string
+	 * @param g the graph
+	 * @return the node from the string
 	 */
 	private static Node getNodeFromStr(int index, String s, IGraph g) {
 		if (index < 0 || index > 1) {
@@ -82,26 +93,14 @@ public class DirectedBlueprintsEdge extends DirectedEdge implements IGDBEdge<Edg
 		}		
 		return (DirectedBlueprintsNode) g.getNode(MathHelper
 				.parseInt(temp[index]));		
-	}	
-
-	/**
-	 * Instantiates a new directed blueprints edge.
-	 *
-	 * @param s the s
-	 * @param g the g
-	 * @param addedNodes the added nodes
-	 */
-	public DirectedBlueprintsEdge(String s, IGraph g, HashMap<Integer, Node> addedNodes) {
-		super((DirectedNode) getNodeFromStr(0, s, g, addedNodes)
-				, (DirectedNode) getNodeFromStr(1, s, g, addedNodes));
 	}
 
 	/**
 	 * Gets the node from str.
 	 *
 	 * @param index the index
-	 * @param s the s
-	 * @param g the g
+	 * @param s the string
+	 * @param g the graph
 	 * @param addedNodes the added nodes
 	 * @return the node from str
 	 */
@@ -126,36 +125,6 @@ public class DirectedBlueprintsEdge extends DirectedEdge implements IGDBEdge<Edg
 		}
 	}
 
-	/**
-	 * Instantiates a new directed blueprints edge.
-	 *
-	 * @param src the src
-	 * @param dst the dst
-	 * @param e the e
-	 */
-	public DirectedBlueprintsEdge(DirectedBlueprintsNode src, DirectedBlueprintsNode dst,
-			com.tinkerpop.blueprints.Edge e) {
-		super(src, dst);
-		this.setGDBEdge(e);
-	}
-
-	/* (non-Javadoc)
-	 * @see dna.graph.edges.DirectedEdge#getSrc()
-	 */
-	//
-	@Override
-	public DirectedBlueprintsNode getSrc() {
-		return (DirectedBlueprintsNode) getN1();
-	}
-
-	/* (non-Javadoc)
-	 * @see dna.graph.edges.DirectedEdge#getDst()
-	 */
-	@Override
-	public DirectedBlueprintsNode getDst() {
-		return (DirectedBlueprintsNode) getN2();
-	}
-
 	/* (non-Javadoc)
 	 * @see dna.graph.edges.DirectedEdge#connectToNodes()
 	 */
@@ -164,8 +133,6 @@ public class DirectedBlueprintsEdge extends DirectedEdge implements IGDBEdge<Edg
 		if (this.getSrc().hasEdge(this) && this.getDst().hasEdge(this))
 			return true;
 		
-//		boolean added = this.getSrc().addEdge(this);
-//		return added;
 		return false;
 	}
 
@@ -177,11 +144,63 @@ public class DirectedBlueprintsEdge extends DirectedEdge implements IGDBEdge<Edg
 		if (!this.getSrc().hasEdge(this) && !this.getDst().hasEdge(this))
 			return true;
 
-//		boolean removed = this.getSrc().removeEdge(this);
-//		return removed;
 		return false;
 	}
+
+	/* (non-Javadoc)
+	 * @see dna.graph.edges.DirectedEdge#getDst()
+	 */
+	@Override
+	public DirectedBlueprintsNode getDst() {
+		return (DirectedBlueprintsNode) getN2();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see dna.graph.edges.IGDBEdge#getEdge()
+	 */
+	@Override
+	public Edge getGDBEdge() {
+		if (this.graph == null || this.gdbEdgeId == null)
+			return null;
+		else
+			return this.graph.getGDBEdge(this.gdbEdgeId);
+	}
+
+	@Override
+	public Object getGDBEdgeId() {
+		return this.gdbEdgeId;
+	}
 	
+	@Override
+	public IGraph getGraph() {
+		return this.graph;
+	}
+
+	/* (non-Javadoc)
+	 * @see dna.graph.edges.DirectedEdge#getSrc()
+	 */
+	//
+	@Override
+	public DirectedBlueprintsNode getSrc() {
+		return (DirectedBlueprintsNode) getN1();
+	}
+
+	@Override
+	public void setGDBEdgeId(Object gdbEdgeId) {
+		this.gdbEdgeId = gdbEdgeId;
+	}
+
+	@Override
+	public void setGraph(IGraph graph) {
+		if (graph instanceof BlueprintsGraph)
+			this.graph = (BlueprintsGraph) graph;
+		else
+			throw new RuntimeException("The parameter 'graph' must be an instance of " + BlueprintsGraph.class 
+					+ "but was " + graph.getClass());
+	}
+
 	@Override
 	public String toString()
 	{

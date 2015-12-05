@@ -1,9 +1,6 @@
 package dna.graph;
 
 import java.math.BigInteger;
-import java.util.Collection;
-
-import org.apache.commons.lang.NotImplementedException;
 
 import dna.graph.DNAGraphFactory.DNAGraphType;
 import dna.graph.datastructures.GraphDataStructure;

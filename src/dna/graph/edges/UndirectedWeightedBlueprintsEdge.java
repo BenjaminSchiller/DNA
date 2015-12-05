@@ -67,8 +67,8 @@ public class UndirectedWeightedBlueprintsEdge extends UndirectedBlueprintsEdge i
 	 * @param e the e
 	 */
 	public UndirectedWeightedBlueprintsEdge(UndirectedBlueprintsNode src, UndirectedBlueprintsNode dst,
-			Weight weight, com.tinkerpop.blueprints.Edge e) {
-		super(src, dst, e);		
+			Weight weight, Object gdbEdgeId) {
+		super(src, dst, gdbEdgeId);		
 		this.setWeight(weight);
 	}
 	
@@ -78,10 +78,10 @@ public class UndirectedWeightedBlueprintsEdge extends UndirectedBlueprintsEdge i
 	 */
 	@Override
 	public Weight getWeight() {
-		if (edge == null)
+		if (this.getGDBEdge() == null)
 			return this.weight;
 
-		String weight = this.edge.getProperty("weight");
+		String weight = this.getGDBEdge().getProperty("weight");
 		if (weight == null)
 			this.setWeight(this.weight);
 		return this.weight;
@@ -93,9 +93,9 @@ public class UndirectedWeightedBlueprintsEdge extends UndirectedBlueprintsEdge i
 	@Override
 	public void setWeight(Weight weight) {
 		this.weight = weight;
-		if (edge == null)
+		if (this.getGDBEdge() == null)
 			return;
-		this.edge.setProperty("weight", weight.asString());
+		this.getGDBEdge().setProperty("weight", weight.asString());
 	}
 
 	/* (non-Javadoc)

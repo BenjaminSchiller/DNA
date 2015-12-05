@@ -1,27 +1,23 @@
 package dna.graph;
 
-import com.tinkerpop.blueprints.Graph;
-
 /**
  * The Interface IGDBGraph.
  * 
  * @author Matthias
  */
-public interface IGDBGraph {
+public interface IGDBGraph<G> {
+	
+	/**
+	 * Commit.
+	 */
+	public abstract void commit();
 	
 	/**
 	 * Gets the graph database instance.
 	 *
 	 * @return the graph database instance
 	 */
-	public abstract Graph getGraphDatabaseInstance();
-	
-	/**
-	 * Sets the graph database instance.
-	 *
-	 * @param graph the new graph database instance
-	 */
-	public abstract void setGraphDatabaseInstance(Graph graph);
+	public abstract G getGraphDatabaseInstance();
 	
 	/**
 	 * Gets the graph database type.
@@ -31,14 +27,16 @@ public interface IGDBGraph {
 	public abstract DNAGraphFactory.DNAGraphType getGraphDatabaseType();
 	
 	/**
+	 * Sets the graph database instance.
+	 *
+	 * @param graph the new graph database instance
+	 */
+	public abstract void setGraphDatabaseInstance(G graph);
+	
+	/**
 	 * Sets the graph database type.
 	 *
 	 * @param gdb the new graph database type
 	 */
 	public abstract void setGraphDatabaseType(DNAGraphFactory.DNAGraphType gdb);
-	
-	/**
-	 * Commit.
-	 */
-	public abstract void commit();
 }

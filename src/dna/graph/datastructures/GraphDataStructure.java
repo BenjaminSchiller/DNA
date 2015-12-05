@@ -30,11 +30,9 @@ import dna.graph.edges.UndirectedEdge;
 import dna.graph.edges.UndirectedBlueprintsEdge;
 import dna.graph.nodes.DirectedBlueprintsNode;
 import dna.graph.nodes.DirectedNode;
-import dna.graph.nodes.DirectedWeightedBlueprintsNode;
 import dna.graph.nodes.Node;
 import dna.graph.nodes.UndirectedBlueprintsNode;
 import dna.graph.nodes.UndirectedNode;
-import dna.graph.nodes.UndirectedWeightedBlueprintsNode;
 import dna.graph.weights.IWeighted;
 import dna.graph.weights.Weight;
 import dna.graph.weights.Weight.WeightSelection;
@@ -315,6 +313,8 @@ public class GraphDataStructure implements Cloneable {
 
 	public IGraph newGraphInstance(String name, long timestamp, int nodes,
 			int edges) {
+		setCurrent(this);
+		
 		if (this.usesGraphDatabase())
 			return DNAGraphFactory.newGraphinstance(DNAGraphType.CONFIG, name, timestamp, this);
 		

@@ -53,7 +53,7 @@ import dna.util.Rand;
  * 
  */
 
-public class BlueprintsGraph implements IGraph, IGDBGraph {
+public class BlueprintsGraph implements IGraph, IGDBGraph<Graph> {
 
 	private boolean clearWorkSpaceOnClose;
 	/** The edge count. */
@@ -82,10 +82,6 @@ public class BlueprintsGraph implements IGraph, IGDBGraph {
 
 	/** The nodes. */
 	private HashMap<Object, IElement> nodes = null;
-
-	private HashMap<Integer, Object> nodeIdMatch = null;
-
-	private HashMap<String, Object> edgeIdMatch = null;
 
 	private int operationsPerCommit;
 
@@ -273,17 +269,17 @@ public class BlueprintsGraph implements IGraph, IGDBGraph {
 			this.edgeCount++;
 
 			if (e instanceof DirectedBlueprintsEdge)
-				((DirectedBlueprintsEdge) e).setGDBEdge(edge);
+				((DirectedBlueprintsEdge) e).setGDBEdgeId(edge.getId());
 			else if (e instanceof UndirectedBlueprintsEdge)
-				((UndirectedBlueprintsEdge) e).setGDBEdge(edge);
+				((UndirectedBlueprintsEdge) e).setGDBEdgeId(edge.getId());
+
+			((IGDBEdge<?>) e).setGraph(this);
 
 			edge.setProperty("directed", this.isDirected());
 
 			if (e instanceof IWeightedEdge) {
 				edge.setProperty("weight", ((IWeighted) e).getWeight().asString());
 			}
-			
-			edgeIdMatch.put(e.getN1Index()+"|"+e.getN2Index(), edge.getId());
 
 			if (this.graphType.supportsObjectAsProperty()) {
 				edge.setProperty("edge", e);
@@ -330,9 +326,9 @@ public class BlueprintsGraph implements IGraph, IGDBGraph {
 			}
 
 			if (n instanceof DirectedBlueprintsNode) {
-				((DirectedBlueprintsNode) n).setGDBNode(vertex);
+				((DirectedBlueprintsNode) n).setGDBNodeId(vertex.getId());
 			} else if (n instanceof UndirectedBlueprintsNode) {
-				((UndirectedBlueprintsNode) n).setGDBNode(vertex);
+				((UndirectedBlueprintsNode) n).setGDBNodeId(vertex.getId());
 			}
 
 			((IGDBNode<?>) n).setGraph(this);
@@ -343,8 +339,6 @@ public class BlueprintsGraph implements IGraph, IGDBGraph {
 			if (n instanceof IWeightedNode) {
 				vertex.setProperty("weight", ((IWeighted) n).getWeight().asString());
 			}
-
-			nodeIdMatch.put(n.getIndex(), vertex.getId());
 
 			if (this.graphType.supportsObjectAsProperty()) {
 				vertex.setProperty("node", n);
@@ -637,17 +631,17 @@ public class BlueprintsGraph implements IGraph, IGDBGraph {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see dna.graph.IGraph#getEdge(dna.graph.nodes.Node, dna.graph.nodes.Node)
 	 */
 	@Override
 	public Edge getEdge(Node n1, Node n2) {
-		Iterable<com.tinkerpop.blueprints.Edge> edges = this.graph.getEdges();
+		Iterable<com.tinkerpop.blueprints.Edge> gdbEdges = this.graph.getEdges();
 		Vertex src = null;
 		Vertex dst = null;
 
 		try {
-			for (com.tinkerpop.blueprints.Edge e : edges) {
+			for (com.tinkerpop.blueprints.Edge e : gdbEdges) {
 				src = e.getVertex(Direction.OUT);
 				dst = e.getVertex(Direction.IN);
 
@@ -660,7 +654,7 @@ public class BlueprintsGraph implements IGraph, IGDBGraph {
 
 			return null;
 		} finally {
-			edges = null;
+			gdbEdges = null;
 			src = null;
 			dst = null;
 		}
@@ -710,12 +704,12 @@ public class BlueprintsGraph implements IGraph, IGDBGraph {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see dna.graph.IGraph#getEdges()
 	 */
 	@Override
 	public Iterable<IElement> getEdges() {
-		if (edges != null) {
+		if (!this.graphType.supportsObjectAsProperty()) {
 			return edges.values();
 		}
 
@@ -725,6 +719,32 @@ public class BlueprintsGraph implements IGraph, IGDBGraph {
 				return getEdge(input);
 			}
 		});
+	}
+
+	/**
+	 * Returns the graph database edge associated with the given id.
+	 *
+	 * @param gbdEdgeId the graph database edge id
+	 * @return the graph database edge
+	 */
+	public com.tinkerpop.blueprints.Edge getGDBEdge(Object gdbEdgeId) {
+		if (this.graph == null || gdbEdgeId == null)
+			return null;
+		else
+			return this.graph.getEdge(gdbEdgeId);
+	}
+
+	/**
+	 * Returns the graph database node associated with the given id.
+	 *
+	 * @param gdbNodeId the graph database node id
+	 * @return the graph database node
+	 */
+	public Vertex getGDBNode(Object gdbNodeId) {
+		if (this.graph == null || gdbNodeId == null)
+			return null;
+		else
+			return this.graph.getVertex(gdbNodeId);
 	}
 
 	/*
@@ -814,21 +834,12 @@ public class BlueprintsGraph implements IGraph, IGDBGraph {
 	 */
 	@Override
 	public Node getNode(int index) {
-		// Iterable<Vertex> vertices = this.graph.getVertices("index", index);
-		try {
-			Vertex v = this.graph.getVertex(nodeIdMatch.get(index));
+		Iterable<Vertex> vertices = this.graph.getVertices("index", index);
 
-			if (v != null) {
-				return getNode(v);
-			}
-			// for (Vertex v : vertices) {
-			// return getNode(v);
-			// }
-			//
-			return null;
-		} finally {
-			// vertices = null;
-		}
+		//at most one Vertex should be included
+		Vertex v = Iterables.getFirst(vertices, null);
+
+		return v == null ? null : getNode(v);
 	}
 
 	/**
@@ -898,18 +909,17 @@ public class BlueprintsGraph implements IGraph, IGDBGraph {
 		if (getEdgeCount() <= 0)
 			return null;
 
-		Object edgeId = Iterables.get(edgeIdMatch.values(), Rand.rand.nextInt(edgeIdMatch.size()));
-		while (edgeId == null) {
-			edgeId = nodeIdMatch.get(Rand.rand.nextInt(getMaxNodeIndex() + 1));
-		}
 		if (this.graphType.supportsObjectAsProperty()) {
-			return getEdge(this.graph.getEdge(edgeId));
-		} else {
-			return (Edge) edges.get(edgeId);
-		}
+			Iterable<com.tinkerpop.blueprints.Edge> gdbEdges = this.graph.getEdges();
 
-		// return (Edge) Iterables.get(this.getEdges(),
-		// Rand.rand.nextInt(getEdgeCount()));
+			com.tinkerpop.blueprints.Edge edge = Iterables.get(gdbEdges, Rand.rand.nextInt(Iterables.size(gdbEdges)));
+			while (edge == null) {
+				edge = Iterables.get(gdbEdges, Rand.rand.nextInt(Iterables.size(gdbEdges)));
+			}
+			return getEdge(edge);
+		} else {
+			return (Edge) Iterables.get(edges.values(), Rand.rand.nextInt(edges.size()));
+		}
 	}
 
 	/*
@@ -922,25 +932,16 @@ public class BlueprintsGraph implements IGraph, IGDBGraph {
 		if (getNodeCount() <= 0)
 			return null;
 
-		// if (this.graphType.supportsObjectAsProperty()) {
-		// Object vertexId = nodeIdMatch.get(Rand.rand.nextInt(getMaxNodeIndex()
-		// + 1));
-		// while (vertexId == null) {
-		// vertexId = nodeIdMatch.get(Rand.rand.nextInt(getMaxNodeIndex() + 1));
-		// }
-		// return getNode(this.graph.getVertex(vertexId));
-		// } else {
-		// return (Node) Iterables.get(getNodes(),
-		// Rand.rand.nextInt(getNodeCount()));
-		// }
-		Object vertexId = nodeIdMatch.get(Rand.rand.nextInt(getMaxNodeIndex() + 1));
-		while (vertexId == null) {
-			vertexId = nodeIdMatch.get(Rand.rand.nextInt(getMaxNodeIndex() + 1));
-		}
 		if (this.graphType.supportsObjectAsProperty()) {
-			return getNode(this.graph.getVertex(vertexId));
+			Iterable<Vertex> gdbVertices = this.graph.getVertices();
+
+			Vertex vertex = Iterables.get(gdbVertices, Rand.rand.nextInt(Iterables.size(gdbVertices)));
+			while (vertex == null) {
+				vertex = Iterables.get(gdbVertices, Rand.rand.nextInt(Iterables.size(gdbVertices)));
+			}
+			return getNode(vertex);
 		} else {
-			return (Node) nodes.get(vertexId);
+			return (Node) Iterables.get(nodes.values(), Rand.rand.nextInt(nodes.size()));
 		}
 	}
 
@@ -1051,7 +1052,6 @@ public class BlueprintsGraph implements IGraph, IGDBGraph {
 
 		this.graph.removeEdge(edge);
 
-		edgeIdMatch.remove(e.getN1Index()+"|"+e.getN2Index());
 		if (!this.graphType.supportsObjectAsProperty()) {
 			edges.remove(edge.getId());
 		}
@@ -1061,7 +1061,7 @@ public class BlueprintsGraph implements IGraph, IGDBGraph {
 		}
 
 		if (this.graph.getEdge(edge.getId()) == null) {
-			((IGDBEdge<?>) e).setGDBEdge(null);
+			((IGDBEdge<?>) e).setGDBEdgeId(null);
 			this.edgeCount--;
 			return true;
 		}
@@ -1092,9 +1092,8 @@ public class BlueprintsGraph implements IGraph, IGDBGraph {
 		}
 
 		if (this.graph.getVertex(v.getId()) == null) {
-			((IGDBNode<?>) n).setGDBNode(null);
+			((IGDBNode<?>) n).setGDBNodeId(null);
 
-			nodeIdMatch.remove(n.getIndex());
 			if (!this.graphType.supportsObjectAsProperty()) {
 				nodes.remove(v.getId());
 			}

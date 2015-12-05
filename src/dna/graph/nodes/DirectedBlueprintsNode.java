@@ -25,17 +25,16 @@ import dna.util.MathHelper;
  */
 public class DirectedBlueprintsNode extends DirectedNode implements IGDBNode<Vertex> {
 
+	private Object gdbNodeId;
+	
 	/** The gds. */
 	protected GraphDataStructure gds;
 	
 	/** The graph. */
 	protected BlueprintsGraph graph;
-	
+
 	/** The index. */
 	private int index;
-
-	/** The vertex. */
-	protected Vertex vertex;
 
 	/**
 	 * Instantiates a new directed blueprints node.
@@ -69,10 +68,10 @@ public class DirectedBlueprintsNode extends DirectedNode implements IGDBNode<Ver
 	 * @param vertex the vertex
 	 * @param graph the graph
 	 */
-	public DirectedBlueprintsNode(int i, GraphDataStructure gds, Vertex vertex,
+	public DirectedBlueprintsNode(int i, GraphDataStructure gds, Object gdbNodeId,
 			IGraph graph) {
 		super(i, gds);
-		this.setGDBNode(vertex);
+		this.setGDBNodeId(gdbNodeId);
 		this.setIndex(i);
 		this.setGraph(graph);
 	}
@@ -118,7 +117,7 @@ public class DirectedBlueprintsNode extends DirectedNode implements IGDBNode<Ver
 	 * @see dna.graph.nodes.DirectedNode#getEdges()
 	 */
 	@Override
-	public Iterable<IElement> getEdges() {		Collection<Edge> result = new ArrayList<Edge>();		Edge edge = null;		for	(com.tinkerpop.blueprints.Edge e : vertex.getEdges(Direction.BOTH, "IGDBEdge"))		{			edge = this.graph.getEdge(e);						if (!result.contains((Edge)edge))										result.add((Edge)edge);					}				return new ArrayList<IElement>(result);
+	public Iterable<IElement> getEdges() {		Collection<Edge> result = new ArrayList<Edge>();		Edge edge = null;		for	(com.tinkerpop.blueprints.Edge e : this.getGDBNode().getEdges(Direction.BOTH, "IGDBEdge"))		{			edge = this.graph.getEdge(e);						if (!result.contains((Edge)edge))										result.add((Edge)edge);					}				return new ArrayList<IElement>(result);
 	}
 
 	/*
@@ -128,7 +127,15 @@ public class DirectedBlueprintsNode extends DirectedNode implements IGDBNode<Ver
 	 */
 	@Override
 	public Vertex getGDBNode() {
-		return this.vertex;
+		if (this.graph == null || this.gdbNodeId == null)
+			return null;
+		else
+			return this.graph.getGDBNode(this.gdbNodeId);
+	}
+
+	@Override
+	public Object getGDBNodeId() {
+		return this.gdbNodeId;
 	}
 
 	/*
@@ -160,9 +167,9 @@ public class DirectedBlueprintsNode extends DirectedNode implements IGDBNode<Ver
 	 */
 	@Override
 	public int getIndex() {
-		if (vertex == null)
+		if (this.getGDBNode() == null)
 			return this.index;
-		Integer idx = (Integer) this.vertex.getProperty("index");
+		Integer idx = (Integer) this.getGDBNode().getProperty("index");
 		if (idx == null)
 			this.setIndex(this.index);
 		return this.index;
@@ -175,14 +182,14 @@ public class DirectedBlueprintsNode extends DirectedNode implements IGDBNode<Ver
 	public int getNeighborCount() {
 		return this.neighbors().size();
 	}
-
+	
 	/* (non-Javadoc)
 	 * @see dna.graph.nodes.DirectedNode#getNeighbors()
 	 */
 	@Override
 	public Iterable<IElement> getNeighbors() {		return this.neighbors();
 	}
-	
+
 	/* (non-Javadoc)
 	 * @see dna.graph.nodes.DirectedNode#getOutDegree()
 	 */
@@ -234,10 +241,10 @@ public class DirectedBlueprintsNode extends DirectedNode implements IGDBNode<Ver
 	 */
 	protected Collection<IElement> in() {
 		Collection<IElement> result = new ArrayList<IElement>();
-		Iterable<com.tinkerpop.blueprints.Edge> edges = vertex.getEdges(Direction.IN, "IGDBEdge");
+		Iterable<com.tinkerpop.blueprints.Edge> edges = this.getGDBNode().getEdges(Direction.IN, "IGDBEdge");
 		
 		try{
-		if (vertex != null) {
+		if (this.getGDBNode() != null) {
 			for (com.tinkerpop.blueprints.Edge e : edges) {
 				
 				result.add((Edge) this.graph.getEdge(e));
@@ -287,10 +294,10 @@ public class DirectedBlueprintsNode extends DirectedNode implements IGDBNode<Ver
 	 */
 	protected Collection<IElement> out() {
 		Collection<IElement> result = new ArrayList<IElement>();
-		Iterable<com.tinkerpop.blueprints.Edge> edges = vertex.getEdges(Direction.OUT, "IGDBEdge");
+		Iterable<com.tinkerpop.blueprints.Edge> edges = this.getGDBNode().getEdges(Direction.OUT, "IGDBEdge");
 		
 		try{
-		if (vertex != null) {
+		if (this.getGDBNode() != null) {
 			for (com.tinkerpop.blueprints.Edge e : edges) {
 				
 				result.add((Edge) this.graph.getEdge(e));
@@ -316,14 +323,9 @@ public class DirectedBlueprintsNode extends DirectedNode implements IGDBNode<Ver
 		return this.graph.removeEdge(e);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see dna.graph.nodes.IGDBNode#setVertex(com.tinkerpop.blueprints.Vertex)
-	 */
 	@Override
-	public void setGDBNode(Vertex vertex) {
-		this.vertex = vertex;
+	public void setGDBNodeId(Object gdbNodeId) {
+		this.gdbNodeId = gdbNodeId;	
 	}
 
 	/*
@@ -346,9 +348,9 @@ public class DirectedBlueprintsNode extends DirectedNode implements IGDBNode<Ver
 	@Override
 	public void setIndex(int index) {
 		this.index = index;
-		if (vertex == null)
+		if (this.getGDBNode() == null)
 			return;
-		this.vertex.setProperty("index", index);
+		this.getGDBNode().setProperty("index", index);
 	}
 
 	/* (non-Javadoc)
