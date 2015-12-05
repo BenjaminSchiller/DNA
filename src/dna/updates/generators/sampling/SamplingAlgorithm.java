@@ -541,7 +541,7 @@ public abstract class SamplingAlgorithm extends BatchGenerator {
 	 * 
 	 * @return full graph from which the sampling is done
 	 */
-	public Graph getFullGraph() {
+	public IGraph getFullGraph() {
 		return fullGraph;
 	}
 

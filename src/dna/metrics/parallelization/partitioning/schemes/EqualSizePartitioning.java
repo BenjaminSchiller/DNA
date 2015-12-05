@@ -2,7 +2,7 @@ package dna.metrics.parallelization.partitioning.schemes;
 
 import java.util.List;
 
-import dna.graph.Graph;
+import dna.graph.IGraph;
 import dna.graph.nodes.Node;
 
 public class EqualSizePartitioning extends PartitioningScheme {
@@ -13,7 +13,7 @@ public class EqualSizePartitioning extends PartitioningScheme {
 	}
 
 	@Override
-	public List<List<Node>> getPartitioning(Graph g) {
+	public List<List<Node>> getPartitioning(IGraph g) {
 		int partitionSize = (int) Math.ceil((double) g.getNodeCount()
 				/ (double) this.partitionCount);
 		List<List<Node>> partitioning = this.createNewPartitioning();

@@ -1,6 +1,6 @@
 package dna.metrics.parallelization;
 
-import dna.graph.Graph;
+import dna.graph.IGraph;
 import dna.metrics.IMetric;
 import dna.metrics.Metric;
 import dna.metrics.algorithms.IAfterBatch;
@@ -152,7 +152,7 @@ public class ParallelMetric extends Metric implements IBeforeBatch,
 	}
 
 	@Override
-	public boolean isApplicable(Graph g) {
+	public boolean isApplicable(IGraph g) {
 		return this.metric.isApplicable(g);
 	}
 
@@ -162,7 +162,7 @@ public class ParallelMetric extends Metric implements IBeforeBatch,
 	}
 
 	@Override
-	public void setGraph(Graph g) {
+	public void setGraph(IGraph g) {
 		super.setGraph(g);
 		this.partitioningScheme.init(g, this.metric);
 		this.partitionRuntimes = new long[this.partitioningScheme.partitions.length];

@@ -2,7 +2,7 @@ package dna.updates.generators.combined;
 
 import java.util.HashSet;
 
-import dna.graph.Graph;
+import dna.graph.IGraph;
 import dna.graph.datastructures.GraphDataStructure;
 import dna.graph.edges.Edge;
 import dna.graph.generators.GraphGenerator;
@@ -30,7 +30,7 @@ public class CombinedGraphBatch extends BatchGenerator {
 	}
 
 	@Override
-	public Batch generate(Graph g) {
+	public Batch generate(IGraph g) {
 		GraphDataStructure gds = g.getGraphDatastructures();
 		Batch b = new Batch(gds, g.getTimestamp(), g.getTimestamp() + 1);
 		HashSet<Edge> edges = new HashSet<Edge>();
@@ -99,7 +99,7 @@ public class CombinedGraphBatch extends BatchGenerator {
 	}
 
 	@Override
-	public boolean isFurtherBatchPossible(Graph g) {
+	public boolean isFurtherBatchPossible(IGraph g) {
 		return true;
 	}
 

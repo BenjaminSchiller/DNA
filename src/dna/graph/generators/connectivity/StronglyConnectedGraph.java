@@ -5,7 +5,7 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Set;
 
-import dna.graph.Graph;
+import dna.graph.IGraph;
 import dna.graph.IElement;
 import dna.graph.edges.DirectedEdge;
 import dna.graph.generators.GraphGenerator;
@@ -20,7 +20,7 @@ public class StronglyConnectedGraph extends ConnectedGraph {
 	}
 
 	@Override
-	protected Set<Node> getNodesToExclude(Graph g) {
+	protected Set<Node> getNodesToExclude(IGraph g) {
 		HashSet<Node> processed = new HashSet<Node>();
 		ArrayList<HashSet<Node>> components = new ArrayList<HashSet<Node>>();
 

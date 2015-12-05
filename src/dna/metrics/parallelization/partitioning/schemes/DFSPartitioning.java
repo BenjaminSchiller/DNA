@@ -5,7 +5,7 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 
-import dna.graph.Graph;
+import dna.graph.IGraph;
 import dna.graph.IElement;
 import dna.graph.edges.Edge;
 import dna.graph.nodes.Node;
@@ -17,7 +17,7 @@ public class DFSPartitioning extends PartitioningScheme {
 	}
 
 	@Override
-	public List<List<Node>> getPartitioning(Graph g) {
+	public List<List<Node>> getPartitioning(IGraph g) {
 
 		// int costPerBatch = (int) Math.ceil((double) g.getNodeCount()
 		// / (double) this.partitionCount);

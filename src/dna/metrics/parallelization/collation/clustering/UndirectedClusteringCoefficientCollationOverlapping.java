@@ -1,6 +1,6 @@
 package dna.metrics.parallelization.collation.clustering;
 
-import dna.graph.Graph;
+import dna.graph.IGraph;
 import dna.graph.nodes.Node;
 import dna.metrics.Metric;
 import dna.metrics.clustering.UndirectedClusteringCoefficient;
@@ -17,7 +17,7 @@ public class UndirectedClusteringCoefficientCollationOverlapping extends
 	}
 
 	@Override
-	public boolean collate(Graph g, Partition[] partitions) {
+	public boolean collate(IGraph g, Partition[] partitions) {
 		this.metric.triangleCount = 0;
 		this.metric.triangleCount = 0;
 		this.metric.potentialCount = 0;

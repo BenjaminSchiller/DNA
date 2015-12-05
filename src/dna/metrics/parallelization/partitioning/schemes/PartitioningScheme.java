@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import dna.graph.Graph;
+import dna.graph.IGraph;
 import dna.graph.nodes.Node;
 import dna.metrics.Metric;
 import dna.metrics.parallelization.collation.PartitionedMetric;
@@ -74,7 +74,7 @@ public abstract class PartitioningScheme extends ParameterList {
 	 * @param m
 	 *            metric (a clone is assigned to each partition)
 	 */
-	public void init(Graph g, Metric m) {
+	public void init(IGraph g, Metric m) {
 		List<List<Node>> p = this.getPartitioning(g);
 		this.partitionMap = new HashMap<Node, Partition>();
 		// this.partitions = new Partition[p.size()];
@@ -123,21 +123,7 @@ public abstract class PartitioningScheme extends ParameterList {
 		}
 	}
 
-	// protected Partition createPartition(String name, Graph g, List<Node>
-	// nodes,
-	// Metric m) {
-	// switch (partitioningType) {
-	// case NON_OVERLAPPING:
-	// return NonOverlappingPartition.getPartition(name, g, nodes, m);
-	// case OVERLAPPING:
-	// return OverlappingPartition.getPartition(name, g, nodes, m);
-	// default:
-	// throw new IllegalArgumentException("unknown partitioning type: "
-	// + partitioningType);
-	// }
-	// }
-
-	public abstract List<List<Node>> getPartitioning(Graph g);
+	public abstract List<List<Node>> getPartitioning(IGraph g);
 
 	public PartitioningType getPartitioningType() {
 		return this.partitioningType;

@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
-import dna.graph.Graph;
+import dna.graph.IGraph;
 import dna.graph.IElement;
 import dna.graph.nodes.Node;
 import dna.util.Rand;
@@ -17,7 +17,7 @@ public class RandomPartitioning extends PartitioningScheme {
 	}
 
 	@Override
-	public List<List<Node>> getPartitioning(Graph g) {
+	public List<List<Node>> getPartitioning(IGraph g) {
 		ArrayList<List<Node>> partitioning = new ArrayList<List<Node>>(
 				this.partitionCount);
 

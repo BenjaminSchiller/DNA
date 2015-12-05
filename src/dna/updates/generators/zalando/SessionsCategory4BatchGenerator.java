@@ -50,14 +50,7 @@ public class SessionsCategory4BatchGenerator extends
 	 * category4.</b>
 	 */
 	@Override
-<<<<<<< 60e38905d5a6c81ea7efc562f9f6d8a268f4e484
-	void addEdgesForColumns(Graph g, Event event) {
-
-=======
 	void addEdgesForColumns(IGraph g, Event event) {
-		
-		
->>>>>>> refactoring for interface 'IGraph'
 		int nodeForEventIndex, mappingForColumnGroup;
 		nodeForEventIndex = this.mappings.getMapping(
 				this.columnGroupsToAddAsNodes[0], event);
