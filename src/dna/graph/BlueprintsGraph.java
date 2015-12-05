@@ -48,14 +48,16 @@ import dna.util.Rand;
 /**
  * Wrapper class for graph databases that implement the tinkerpop blueprints
  * interface com.tinkerpop.blueprints.Graph.
- * 
+ *
  * @author Matthias
- * 
+ *
  */
 
 public class BlueprintsGraph implements IGraph, IGDBGraph<Graph> {
 
+	/**  clear workspace for persistent graphs on close. */
 	private boolean clearWorkSpaceOnClose;
+
 	/** The edge count. */
 	private int edgeCount;
 
@@ -83,29 +85,33 @@ public class BlueprintsGraph implements IGraph, IGDBGraph<Graph> {
 	/** The nodes. */
 	private HashMap<Object, IElement> nodes = null;
 
+	/** The operations per commit. */
 	private int operationsPerCommit;
 
+	/** The operations since last commit. */
 	private int operationsSinceLastCommit;
 
 	/** The timestamp. */
 	private long timestamp;
 
+	/** The workspace dir. */
 	private String workspaceDir = null;
 
 	/**
 	 * Instantiates a new blueprints graph.
 	 *
 	 * @param name
-	 *            the name
+	 *            the name of the graph
 	 * @param timestamp
-	 *            the timestamp
+	 *            the timestamp for the graph
 	 * @param gds
-	 *            the gds
+	 *            the graph data structure
 	 * @param graphType
 	 *            the graph database type<br>
 	 *            supported are:
 	 *            <ul>
-	 *            <li>BITSY</li>
+	 *            <li>BITSY_DURABLE</li>
+	 *            <li>BITSY_NON_DURABLE</li>
 	 *            <li>NEO4J2</li>
 	 *            <li>ORIENTDBNOTX</li>
 	 *            <li>TINKERGRAPH</li>
@@ -113,42 +119,55 @@ public class BlueprintsGraph implements IGraph, IGDBGraph<Graph> {
 	 */
 	public BlueprintsGraph(String name, long timestamp, GraphDataStructure gds,
 			DNAGraphFactory.DNAGraphType graphType) {
-		this.init(name, timestamp, gds, graphType, 1, false, null);
+		this.init(name, timestamp, gds, graphType, 1, true, null);
 		this.graph = BlueprintsGraph.getGDB(this.graphType, name, "");
 	}
 
+	/**
+	 * Instantiates a new blueprints graph.
+	 *
+	 * @param name
+	 *            the name of the graph
+	 * @param timestamp
+	 *            the timestamp for the graph
+	 * @param gds
+	 *            the graphdatastructure
+	 * @param graphType
+	 *            the graph database type<br>
+	 *            supported are:
+	 *            <ul>
+	 *            <li>BITSY_DURABLE</li>
+	 *            <li>BITSY_NON_DURABLE</li>
+	 *            <li>NEO4J2</li>
+	 *            <li>ORIENTDBNOTX</li>
+	 *            <li>TINKERGRAPH</li>
+	 *            </ul>
+	 * @param operationsPerCommit
+	 * 			  defines how many operations are executed
+	 * 			  till a commit will be executed
+	 * 			  <ul>
+	 *            <li>X < 0:no commit</li>
+	 *            <li>X = 0:commit on close</li>
+	 *            <li>X > 0:commit every X operations</li>
+	 *            </ul>
+	 * @param clearWorkSpace the clear work space
+	 * 			  clear workspace after close of grapph,
+	 * 			  applies only for BITSY_DURABLE and NEO4J2
+	 * @param workspace
+	 * 			  the workspace directoy
+	 */
 	public BlueprintsGraph(String name, long timestamp, GraphDataStructure gds, DNAGraphFactory.DNAGraphType graphType,
 			int operationsPerCommit, boolean clearWorkSpace, String workspace) {
 		this.init(name, timestamp, gds, graphType, operationsPerCommit, clearWorkSpace, workspace);
 		this.graph = BlueprintsGraph.getGDB(this.graphType, name, workspace);
 	}
 
-	private void init(String name, long timestamp, GraphDataStructure gds, DNAGraphType graphType,
-			int operationsPerCommit, boolean clearWorkSpaceOnClose, String workspace) {
-		this.name = name;
-		this.timestamp = timestamp;
-		this.gds = gds;
-		this.graphType = graphType;
-		this.maxNodeIndex = -1;
-		this.nodeCount = 0;
-		this.edgeCount = 0;
-		if (!this.graphType.supportsObjectAsProperty()) {
-			// Vertex.getId() --> Node
-			nodes = new HashMap<Object, IElement>();
-			// Edge.getId() --> Node
-			edges = new HashMap<Object, IElement>();
-		}
-		// Node.getIndex() --> vertex.getId()
-		nodeIdMatch = new HashMap<Integer, Object>();
-		// edge.toString() --> edge.getId()
-		edgeIdMatch = new HashMap<String, Object>();
-
-		this.operationsPerCommit = operationsPerCommit;
-		this.operationsSinceLastCommit = 0;
-		this.clearWorkSpaceOnClose = clearWorkSpaceOnClose;
-		this.workspaceDir = workspace;
-	}
-
+	/**
+	 * Returns the blueprints graph database describe with the .
+	 *
+	 * @param conf the configuration file
+	 * @return the blueprints graph database
+	 */
 	public static Graph getGDB(Configuration conf) {
 		return GraphFactory.open(conf);
 	}
@@ -156,16 +175,18 @@ public class BlueprintsGraph implements IGraph, IGDBGraph<Graph> {
 	/**
 	 * Returns a new instance of a graph database which was given by the
 	 * parameter 'graphType'.
-	 * 
-	 * @param graphType
-	 *            the graph database type<br>
+	 *
+	 * @param graphType            the graph database type<br>
 	 *            supported are:
 	 *            <ul>
-	 *            <li>BITSY</li>
+	 *            <li>BITSY_DURABLE</li>
+	 *            <li>BITSY_NON_DURABLE</li>
 	 *            <li>NEO4J2</li>
 	 *            <li>ORIENTDBNOTX</li>
 	 *            <li>TINKERGRAPH</li>
 	 *            </ul>
+	 * @param name the name
+	 * @param workspace the workspace
 	 * @return a new instance of the {@link Graph}
 	 */
 	public static Graph getGDB(DNAGraphType graphType, String name, String workspace) {
@@ -197,7 +218,6 @@ public class BlueprintsGraph implements IGraph, IGDBGraph<Graph> {
 			conf.setProperty("blueprints.graph", "com.tinkerpop.blueprints.impls.orient.OrientGraphNoTx");
 			conf.setProperty("blueprints.orientdb.url",
 					"memory:" + name + new Timestamp(System.currentTimeMillis()).toString());
-			conf.setProperty("storage.keepOpen", false);
 			break;
 		case TINKERGRAPH:
 			conf.setProperty("blueprints.graph", "com.tinkerpop.blueprints.impls.tg.TinkerGraph");
@@ -231,6 +251,11 @@ public class BlueprintsGraph implements IGraph, IGDBGraph<Graph> {
 		return null;
 	}
 
+	/**
+	 * Supported dna graph types.
+	 *
+	 * @return the collection
+	 */
 	public static Collection<DNAGraphType> supportedDNAGraphTypes() {
 		List<DNAGraphType> result = new ArrayList<DNAGraphType>();
 		result.add(DNAGraphType.BITSY_DURABLE);
@@ -244,7 +269,7 @@ public class BlueprintsGraph implements IGraph, IGDBGraph<Graph> {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see dna.graph.IGraph#addEdge(dna.graph.edges.Edge)
 	 */
 	@Override
@@ -299,7 +324,7 @@ public class BlueprintsGraph implements IGraph, IGDBGraph<Graph> {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see dna.graph.IGraph#addNode(dna.graph.nodes.Node)
 	 */
 	@Override
@@ -356,8 +381,8 @@ public class BlueprintsGraph implements IGraph, IGDBGraph<Graph> {
 	}
 
 	/**
-	 * Defines whether or not the workspace should be cleared. [Default: true]
-	 * 
+	 * Defines whether or not the workspace should be cleared.
+	 *
 	 * @return the clearWorkSpaceOnClose
 	 */
 	public boolean clearWorkSpaceOnClose() {
@@ -366,7 +391,7 @@ public class BlueprintsGraph implements IGraph, IGDBGraph<Graph> {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see dna.graph.IGraph#close()
 	 */
 	public void close() {
@@ -405,7 +430,7 @@ public class BlueprintsGraph implements IGraph, IGDBGraph<Graph> {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see dna.graph.IGDBGraph#commit()
 	 */
 	@Override
@@ -431,7 +456,7 @@ public class BlueprintsGraph implements IGraph, IGDBGraph<Graph> {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see dna.graph.IGraph#containsEdge(dna.graph.edges.Edge)
 	 */
 	@Override
@@ -444,40 +469,17 @@ public class BlueprintsGraph implements IGraph, IGDBGraph<Graph> {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see dna.graph.IGraph#containsEdge(int, int)
 	 */
 	@Override
 	public boolean containsEdge(int n1, int n2) {
-		// int ind1 = n1 < n2 ? n1 : n2;
-		// int ind2 = n1 < n2 ? n2 : n1;
-		//
-		// Vertex v1 = null;
-		// Vertex v2 = null;
-		//
-		// // find vertices
-		// for (Vertex v : this.graph.getVertices("index", ind1)) {
-		// if (v1 == null) {
-		// v1 = v;
-		// // there should be only one vertex with this index
-		// break;
-		// }
-		// }
-		//
-		// for (Vertex v : this.graph.getVertices("index", ind2)) {
-		// if (v2 == null) {
-		// v2 = v;
-		// // there should be only one vertex with this index
-		// break;
-		// }
-		// }
-
 		return containsEdge(getNode(n1), getNode(n2));
 	}
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see dna.graph.IGraph#containsEdge(dna.graph.nodes.Node,
 	 * dna.graph.nodes.Node)
 	 */
@@ -493,10 +495,8 @@ public class BlueprintsGraph implements IGraph, IGDBGraph<Graph> {
 	/**
 	 * Contains edge.
 	 *
-	 * @param v1
-	 *            the v1
-	 * @param v2
-	 *            the v2
+	 * @param v1 vertex 1
+	 * @param v2 vertex 2
 	 * @return true, if successful
 	 */
 	private boolean containsEdge(Vertex v1, Vertex v2) {
@@ -508,7 +508,7 @@ public class BlueprintsGraph implements IGraph, IGDBGraph<Graph> {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see dna.graph.IGraph#containsNode(dna.graph.nodes.Node)
 	 */
 	@Override
@@ -523,7 +523,7 @@ public class BlueprintsGraph implements IGraph, IGDBGraph<Graph> {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see dna.graph.IGraph#containsNodes(dna.graph.edges.Edge)
 	 */
 	@Override
@@ -541,6 +541,9 @@ public class BlueprintsGraph implements IGraph, IGDBGraph<Graph> {
 		return false;
 	}
 
+	/* (non-Javadoc)
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
 	@Override
 	public boolean equals(Object obj) {
 		Log.debug("Running equality check for graphs");
@@ -598,7 +601,7 @@ public class BlueprintsGraph implements IGraph, IGDBGraph<Graph> {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see java.lang.Object#finalize()
 	 */
 	@Override
@@ -663,10 +666,8 @@ public class BlueprintsGraph implements IGraph, IGDBGraph<Graph> {
 	/**
 	 * Gets the edge.
 	 *
-	 * @param v1
-	 *            the v1
-	 * @param v2
-	 *            the v2
+	 * @param v1 the first node
+	 * @param v2 the second node
 	 * @return the edge
 	 */
 	private Edge getEdge(Vertex v1, Vertex v2) {
@@ -685,7 +686,7 @@ public class BlueprintsGraph implements IGraph, IGDBGraph<Graph> {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see dna.graph.IGraph#getEdgeCount()
 	 */
 	@Override
@@ -749,7 +750,7 @@ public class BlueprintsGraph implements IGraph, IGDBGraph<Graph> {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see dna.graph.IGDBGraph#getGraphDatabaseInstance()
 	 */
 	@Override
@@ -759,7 +760,7 @@ public class BlueprintsGraph implements IGraph, IGDBGraph<Graph> {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see dna.graph.IGDBGraph#getGraphDatabaseType()
 	 */
 	@Override
@@ -769,7 +770,7 @@ public class BlueprintsGraph implements IGraph, IGDBGraph<Graph> {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see dna.graph.IGraph#getGraphDatastructures()
 	 */
 	@Override
@@ -779,7 +780,17 @@ public class BlueprintsGraph implements IGraph, IGDBGraph<Graph> {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
+	 * @see dna.graph.IGraph#getType()
+	 */
+	@Override
+	public DNAGraphType getInstanceType() {
+		return this.graphType;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 *
 	 * @see dna.graph.IGraph#getMaxEdgeCount()
 	 */
 	@Override
@@ -796,7 +807,7 @@ public class BlueprintsGraph implements IGraph, IGDBGraph<Graph> {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see dna.graph.IGraph#getMaxNodeIndex()
 	 */
 	@Override
@@ -819,7 +830,7 @@ public class BlueprintsGraph implements IGraph, IGDBGraph<Graph> {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see dna.graph.IGraph#getName()
 	 */
 	@Override
@@ -829,7 +840,7 @@ public class BlueprintsGraph implements IGraph, IGDBGraph<Graph> {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see dna.graph.IGraph#getNode(int)
 	 */
 	@Override
@@ -843,11 +854,10 @@ public class BlueprintsGraph implements IGraph, IGDBGraph<Graph> {
 	}
 
 	/**
-	 * Gets the edge.
+	 * Returns the node associated with the vertex.
 	 *
-	 * @param e
-	 *            the e
-	 * @return the edge
+	 * @param v vertex
+	 * @return the node
 	 */
 	public Node getNode(Vertex v) {
 		if (v != null) {
@@ -863,7 +873,7 @@ public class BlueprintsGraph implements IGraph, IGDBGraph<Graph> {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see dna.graph.IGraph#getNodeCount()
 	 */
 	@Override
@@ -872,9 +882,9 @@ public class BlueprintsGraph implements IGraph, IGDBGraph<Graph> {
 	}
 
 	/**
-	 * Gets the node count from db.
+	 * Gets the node count from database.
 	 *
-	 * @return the node count from db
+	 * @return the node count from database
 	 */
 	public int getNodeCountFromDB() {
 		return Iterables.size(this.graph.getVertices());
@@ -882,7 +892,7 @@ public class BlueprintsGraph implements IGraph, IGDBGraph<Graph> {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see dna.graph.IGraph#getNodes()
 	 */
 	@Override
@@ -901,7 +911,7 @@ public class BlueprintsGraph implements IGraph, IGDBGraph<Graph> {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see dna.graph.IGraph#getRandomEdge()
 	 */
 	@Override
@@ -924,7 +934,7 @@ public class BlueprintsGraph implements IGraph, IGDBGraph<Graph> {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see dna.graph.IGraph#getRandomNode()
 	 */
 	@Override
@@ -947,7 +957,7 @@ public class BlueprintsGraph implements IGraph, IGDBGraph<Graph> {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see dna.graph.IGraph#getTimestamp()
 	 */
 	@Override
@@ -955,26 +965,65 @@ public class BlueprintsGraph implements IGraph, IGDBGraph<Graph> {
 		return this.timestamp;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see dna.graph.IGraph#getType()
-	 */
-	@Override
-	public DNAGraphType getInstanceType() {
-		return this.graphType;
-	}
-
 	/**
+	 * Gets the workspace dir.
+	 *
 	 * @return the workspace
 	 */
 	public String getWorkspaceDir() {
 		return workspaceDir;
 	}
 
+	/**
+	 * Initialize all necessary variables.
+	 *
+	 * @param name            the name of the graph
+	 * @param timestamp            the timestamp for the graph
+	 * @param gds            the graphdatastructure
+	 * @param graphType            the graph database type<br>
+	 *            supported are:
+	 *            <ul>
+	 *            <li>BITSY_DURABLE</li>
+	 *            <li>BITSY_NON_DURABLE</li>
+	 *            <li>NEO4J2</li>
+	 *            <li>ORIENTDBNOTX</li>
+	 *            <li>TINKERGRAPH</li>
+	 *            </ul>
+	 * @param operationsPerCommit 			  defines how many operations are executed
+	 * 			  till a commit will be executed
+	 * 			  <ul>
+	 *            <li>X < 0:no commit</li>
+	 *            <li>X = 0:commit on close</li>
+	 *            <li>X > 0:commit every X operations</li>
+	 *            </ul>
+	 * @param clearWorkSpaceOnClose the clear work space on close
+	 * @param workspace 			  the workspace directoy
+	 */
+	private void init(String name, long timestamp, GraphDataStructure gds, DNAGraphType graphType,
+			int operationsPerCommit, boolean clearWorkSpaceOnClose, String workspace) {
+		this.name = name;
+		this.timestamp = timestamp;
+		this.gds = gds;
+		this.graphType = graphType;
+		this.maxNodeIndex = -1;
+		this.nodeCount = 0;
+		this.edgeCount = 0;
+		if (!this.graphType.supportsObjectAsProperty()) {
+			// Vertex.getId() --> Node
+			nodes = new HashMap<Object,IElement>();
+			// Edge.getId() --> Node
+			edges = new HashMap<Object,IElement>();
+		}
+
+		this.operationsPerCommit = operationsPerCommit;
+		this.operationsSinceLastCommit = 0;
+		this.clearWorkSpaceOnClose = clearWorkSpaceOnClose;
+		this.workspaceDir = workspace;
+	}
+
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see dna.graph.IGraph#isDirected()
 	 */
 	@Override
@@ -984,7 +1033,7 @@ public class BlueprintsGraph implements IGraph, IGDBGraph<Graph> {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see dna.graph.IGraph#print()
 	 */
 	@Override
@@ -997,7 +1046,7 @@ public class BlueprintsGraph implements IGraph, IGDBGraph<Graph> {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see dna.graph.IGraph#printAll()
 	 */
 	@Override
@@ -1009,7 +1058,7 @@ public class BlueprintsGraph implements IGraph, IGDBGraph<Graph> {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see dna.graph.IGraph#printE()
 	 */
 	@Override
@@ -1023,7 +1072,7 @@ public class BlueprintsGraph implements IGraph, IGDBGraph<Graph> {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see dna.graph.IGraph#printV()
 	 */
 	@Override
@@ -1037,7 +1086,7 @@ public class BlueprintsGraph implements IGraph, IGDBGraph<Graph> {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see dna.graph.IGraph#removeEdge(dna.graph.edges.Edge)
 	 */
 	@Override
@@ -1071,7 +1120,7 @@ public class BlueprintsGraph implements IGraph, IGDBGraph<Graph> {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see dna.graph.IGraph#removeNode(dna.graph.nodes.Node)
 	 */
 	@Override
@@ -1110,8 +1159,9 @@ public class BlueprintsGraph implements IGraph, IGDBGraph<Graph> {
 	}
 
 	/**
-	 * @param clearWorkSpaceOnClose
-	 *            the clearWorkSpaceOnClose to set
+	 * Sets the clear work space on close.
+	 *
+	 * @param clearWorkSpaceOnClose            the clearWorkSpaceOnClose to set
 	 */
 	public void setClearWorkSpaceOnClose(boolean clearWorkSpaceOnClose) {
 		this.clearWorkSpaceOnClose = clearWorkSpaceOnClose;
@@ -1119,12 +1169,12 @@ public class BlueprintsGraph implements IGraph, IGDBGraph<Graph> {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see
 	 * dna.graph.IGDBGraph#setGraphDatabaseInstance(com.tinkerpop.blueprints.
 	 * Graph)
 	 */
-	/* 
+	/*
 	 */
 	@Override
 	public void setGraphDatabaseInstance(Graph graph) {
@@ -1137,7 +1187,7 @@ public class BlueprintsGraph implements IGraph, IGDBGraph<Graph> {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see dna.graph.IGDBGraph#setGraphDatabaseType(dna.graph.DNAGraphFactory.
 	 * DNAGraphType)
 	 */
@@ -1152,7 +1202,7 @@ public class BlueprintsGraph implements IGraph, IGDBGraph<Graph> {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see dna.graph.IGraph#setName(java.lang.String)
 	 */
 	@Override
@@ -1162,7 +1212,7 @@ public class BlueprintsGraph implements IGraph, IGDBGraph<Graph> {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see dna.graph.IGraph#setTimestamp(long)
 	 */
 	@Override
@@ -1172,13 +1222,12 @@ public class BlueprintsGraph implements IGraph, IGDBGraph<Graph> {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see dna.graph.IGraph#switchDataStructure(dna.graph.datastructures.
 	 * DataStructure.ListType, java.lang.Class)
 	 */
 	@Override
 	public void switchDataStructure(ListType type, Class<? extends IDataStructure> newDatastructureType) {
-		// TODO Auto-generated method stub
-
+		Log.warn("Switching datastructure is not possible for " + this.getClass().getName());
 	}
 }

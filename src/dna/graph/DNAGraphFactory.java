@@ -3,8 +3,14 @@ package dna.graph;
 import dna.graph.datastructures.GraphDataStructure;
 import dna.util.Config;
 
+/**
+ * A factory for creating DNAGraph objects.
+ */
 public class DNAGraphFactory {
-
+	
+	/**
+	 * The Enum DNAGraphType.
+	 */
 	public enum DNAGraphType {
 		
 		/** The bitsy graph databse (durable, stores data on disk). */
@@ -15,25 +21,50 @@ public class DNAGraphFactory {
 		
 		/** Read graph database from the config file. */
 		CONFIG("Read graph properties from config file", true),
+		
+		/** The standard DNA graph type. */
 		DNA("The standard DNA Graph", false), 
+		
+		/** The Neo4J2 graph database. */
 		NEO4J2("Neo4j graph database", false), 
+		
+		/** The OrientDB graph database with no transaction. */
 		ORIENTDBNOTX("OrientDB graph database without transactions", false), 
 		
 		/** The Tinkergraph graph database (reference implementation from Tinkerpop Blueprints). */
 		TINKERGRAPH("Tinkergraph graph database", false);
 
+		/** The description. */
 		private final String description;		
+		
+		/** The supports object as property. */
 		private final Boolean supportsObjectAsProperty;
 
+		/**
+		 * Instantiates a new DNA graph type.
+		 *
+		 * @param description the description
+		 * @param supportsObjectAsProperty the supports object as property
+		 */
 		private DNAGraphType(String description, Boolean supportsObjectAsProperty) {
 			this.description = description;
 			this.supportsObjectAsProperty = supportsObjectAsProperty;
 		}
 
+		/**
+		 * Gets the description.
+		 *
+		 * @return the description
+		 */
 		public String getDescription() {
 			return this.description;
 		}
 		
+		/**
+		 * Supports object as property.
+		 *
+		 * @return true, if database supports java objects as properties 
+		 */
 		public Boolean supportsObjectAsProperty() {
 			return this.supportsObjectAsProperty;
 		}
@@ -63,6 +94,15 @@ public class DNAGraphFactory {
 				|| !(graphType == DNAGraphType.DNA) && gds.usesGraphDatabase();
 	}
 
+	/**
+	 * Creates a new graph instance of the given type with specified parameters.
+	 *
+	 * @param graphType the graph type
+	 * @param name the name
+	 * @param timestamp the timestamp
+	 * @param gds the graph data structure 
+	 * @return a new graph instance
+	 */
 	public static IGraph newGraphinstance(DNAGraphType graphType,
 			String name, long timestamp, GraphDataStructure gds) {
 		if (!DNAGraphFactory.areCombatible(graphType, gds)) {
@@ -90,9 +130,21 @@ public class DNAGraphFactory {
 		}
 	}
 
+	/**
+	 * Creates a new graph instance of the given type with specified parameters.
+	 *
+	 * @param graphType the graph type
+	 * @param name the name
+	 * @param timestamp the timestamp
+	 * @param gds the graph data structure
+	 * @param operationsPerCommit defines the number of operations until a commit will be executed
+	 * @param clearWorkSpace defines whether the work space should be cleared on close or not
+	 * @param workSpace the path to the working directory
+	 * @return a new graph instance
+	 */
 	public static IGraph newGraphinstance(DNAGraphType graphType,
-			String name, long timestamp, GraphDataStructure gds, int nodeSize,
-			int edgeSize) {
+			String name, long timestamp, GraphDataStructure gds, 
+			int operationsPerCommit, boolean clearWorkSpace, String workSpace) {
 		if (!DNAGraphFactory.areCombatible(graphType, gds)) {
 			throw new RuntimeException("The chosen graph type and the node type for the graph datastructure are incompatible.");
 		}
@@ -118,6 +170,17 @@ public class DNAGraphFactory {
 		}
 	}
 	
+	/**
+	 * Creates a new graph instance of the given type with specified parameters.
+	 *
+	 * @param graphType the graph type
+	 * @param name the name
+	 * @param timestamp the timestamp
+	 * @param gds the graph data structure 
+	 * @param nodeSize the number of nodes
+	 * @param edgeSize the number of edges
+	 * @return a new graph instance
+	 */
 	public static IGraph newGraphinstance(DNAGraphType graphType,
 			String name, long timestamp, GraphDataStructure gds, int nodeSize,
 			int edgeSize) {
