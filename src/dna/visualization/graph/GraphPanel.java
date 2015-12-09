@@ -36,6 +36,7 @@ import org.graphstream.ui.geom.Point3;
 import org.graphstream.ui.layout.Layout;
 import org.graphstream.ui.layout.springbox.implementations.LinLog;
 import org.graphstream.ui.layout.springbox.implementations.SpringBox;
+import org.graphstream.ui.spriteManager.SpriteManager;
 import org.graphstream.ui.view.View;
 import org.graphstream.ui.view.Viewer;
 import org.graphstream.ui.view.util.DefaultMouseManager;
@@ -80,6 +81,9 @@ public class GraphPanel extends JPanel {
 	protected final PositionMode mode;
 	protected final String batchGeneratorName;
 	protected long timestamp;
+
+	protected boolean tooltips;
+	protected SpriteManager spriteManager;
 
 	// rules
 	protected ArrayList<GraphStyleRule> rules;
@@ -189,6 +193,12 @@ public class GraphPanel extends JPanel {
 
 		this.recording = false;
 		this.paused = false;
+		this.tooltips = false;
+
+		if (Config.getBoolean("GRAPH_VIS_TOOLTIPS_ENABLED")) {
+			this.spriteManager = new SpriteManager(graph);
+			this.tooltips = true;
+		}
 
 		boolean addStatPanel = Config
 				.getBoolean("GRAPH_VIS_STAT_PANEL_ENABLED");
@@ -532,7 +542,8 @@ public class GraphPanel extends JPanel {
 			((DefaultMouseManager) ml).release();
 
 		// init graphvis mouse manager
-		GraphVisMouseManager graphVisMouseManager = new GraphVisMouseManager();
+		GraphVisMouseManager graphVisMouseManager = new GraphVisMouseManager(
+				this);
 
 		// add new mouse manager
 		((View) view).setMouseManager(graphVisMouseManager);
@@ -1306,5 +1317,15 @@ public class GraphPanel extends JPanel {
 
 		// return
 		return new double[] { x2, y2 };
+	}
+
+	/** Returns the sprite manager. **/
+	public SpriteManager getSpriteManager() {
+		return this.spriteManager;
+	}
+
+	/** Returns if tooltips are enabled. **/
+	public boolean isToolTipsEnabled() {
+		return this.tooltips;
 	}
 }
