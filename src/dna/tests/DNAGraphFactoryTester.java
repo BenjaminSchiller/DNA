@@ -48,10 +48,10 @@ public class DNAGraphFactoryTester {
 	public void createGraph_Success() {
 		IGraph graph = null;
 
-		Config.overwrite("GRAPHTYPE", chosenGDB.toString());
+		Config.overwrite("GF_GRAPHTYPE", chosenGDB.toString());
 
 		if (chosenGDB == DNAGraphType.DNA) {
-			graph = DNAGraphFactory.newGraphinstance(chosenGDB,
+			graph = DNAGraphFactory.newGraphInstance(chosenGDB,
 					chosenGDB.toString(), 0, GDS.directed());
 			assertNotEquals(graph, null);
 			assertTrue(graph instanceof Graph);
@@ -60,12 +60,12 @@ public class DNAGraphFactoryTester {
 				|| chosenGDB == DNAGraphType.NEO4J2
 				|| chosenGDB == DNAGraphType.ORIENTDBNOTX
 				|| chosenGDB == DNAGraphType.TINKERGRAPH) {
-			graph = DNAGraphFactory.newGraphinstance(chosenGDB,
+			graph = DNAGraphFactory.newGraphInstance(chosenGDB,
 					chosenGDB.toString(), 0, GDS.directedGDB());
 			assertNotEquals(graph, null);
 			assertTrue(graph instanceof BlueprintsGraph);
 			assertTrue(graph instanceof IGDBGraph);
-			assertEquals(((IGDBGraph) graph).getGraphDatabaseType(), chosenGDB);
+			assertEquals(((IGDBGraph<?>) graph).getGraphDatabaseType(), chosenGDB);
 		}
 
 		assertEquals(graph.getInstanceType(), this.chosenGDB);
@@ -73,19 +73,19 @@ public class DNAGraphFactoryTester {
 
 	@Test
 	public void createGraph_Fail() throws RuntimeException {
-		Config.overwrite("GRAPHTYPE", chosenGDB.toString());
-		
+		Config.overwrite("GF_GRAPHTYPE", chosenGDB.toString());
+
 		try {
 
 			if (chosenGDB == DNAGraphType.DNA) {
-				DNAGraphFactory.newGraphinstance(chosenGDB,
+				DNAGraphFactory.newGraphInstance(chosenGDB,
 						chosenGDB.toString(), 0, GDS.directedGDB());
 			} else if (chosenGDB == DNAGraphType.BITSY_DURABLE
 					|| chosenGDB == DNAGraphType.BITSY_NON_DURABLE
 					|| chosenGDB == DNAGraphType.NEO4J2
 					|| chosenGDB == DNAGraphType.ORIENTDBNOTX
 					|| chosenGDB == DNAGraphType.TINKERGRAPH) {
-				DNAGraphFactory.newGraphinstance(chosenGDB,
+				DNAGraphFactory.newGraphInstance(chosenGDB,
 						chosenGDB.toString(), 0, GDS.directed());
 			}
 		} catch (Exception e) {

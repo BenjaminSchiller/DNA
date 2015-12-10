@@ -13,8 +13,6 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
-import com.sun.jna.platform.win32.WinUser.BLENDFUNCTION;
-
 import dna.graph.BlueprintsGraph;
 import dna.graph.DNAGraphFactory;
 import dna.graph.Graph;
@@ -28,7 +26,6 @@ import dna.graph.generators.canonical.RingGraph;
 import dna.graph.generators.canonical.RingStarGraph;
 import dna.graph.generators.canonical.StarGraph;
 import dna.graph.generators.random.RandomGraph;
-import dna.graph.nodes.DirectedBlueprintsNode;
 import dna.graph.nodes.Node;
 import dna.graph.weights.DoubleWeight;
 import dna.graph.weights.IWeighted;
@@ -47,9 +44,9 @@ public class GraphDatabaseTester {
 	private DNAGraphFactory.DNAGraphType chosenGDB;
 
 	private enum TestGDS {
-		DIRECTEDGDB(), DIRECTEDVGDB(), DIRECTEDEGDB(), DIRECTEDVEGDB(), 
+		DIRECTEDGDB(), DIRECTEDVGDB(), DIRECTEDEGDB(), DIRECTEDVEGDB(),
 		UNDIRECTEDGDB(), UNDIRECTEDVGDB(), UNDIRECTEDEGDB(), UNDIRECTEDVEGDB();
-		
+
 		public GraphDataStructure getGDS()
 		{
 			switch(this)
@@ -75,14 +72,14 @@ public class GraphDatabaseTester {
 			case UNDIRECTEDVGDB:
 				return GDS.undirectedVGDB(DoubleWeight.class, WeightSelection.RandTrim1);
 			default:
-				return null;			
+				return null;
 			}
 		}
 	}
 
 	@Parameters(name = "{index}: Test graph database {0} with {1}")
 	public static ArrayList<Object> data() {
-		ArrayList<Object> result = new ArrayList<>();	
+		ArrayList<Object> result = new ArrayList<>();
 		for (DNAGraphType graph : DNAGraphType.values()) {
 			if (graph == DNAGraphType.DNA || graph == DNAGraphType.CONFIG)
 				continue;
@@ -102,9 +99,9 @@ public class GraphDatabaseTester {
 
 	@Before
 	public void setUp() {
-		this.graph = this.gds.newGraphDBInstanceOfType(
+		this.graph = this.gds.newGraphInstanceOfType(
 				this.chosenGDB.toString(), 0, this.chosenGDB, 1000, true,
-				SystemUtils.getJavaIoTmpDir().getAbsolutePath() + IOUtils.getPathForOS("/GDB/" + Rand.rand.nextInt() + "/"));
+				SystemUtils.getJavaIoTmpDir().getAbsolutePath() + IOUtils.getPathForOS("/GDB/" + Rand.rand.nextInt() + "/"), false);
 	}
 
 	@After
@@ -157,9 +154,9 @@ public class GraphDatabaseTester {
 			e = gds.newEdgeInstance(n1, n2);
 		}
 		graph.addEdge(e);
-		
+
 		Edge e2 = graph.getEdge(n1,n2);
-		
+
 		assertEquals(e, e2);
 
 		assertTrue(n1.hasEdge(e));
@@ -186,7 +183,7 @@ public class GraphDatabaseTester {
 		}
 
 		Edge e = gds.newEdgeInstance(edgeString, graph);
-		
+
 		graph.addEdge(e);
 		n1.addEdge(e);
 		n2.addEdge(e);
@@ -231,18 +228,18 @@ public class GraphDatabaseTester {
 	@Test
 	public void graphEqualityForBasics() {
 		long timestamp = 1L;
-		
-		IGraph g1 = new BlueprintsGraph("N", timestamp, this.gds, this.chosenGDB, 1000, true, IOUtils.getPathForOS("data/GDB/1/"));
-		IGraph g2 = new BlueprintsGraph("N", timestamp, this.gds, this.chosenGDB, 1000, true, IOUtils.getPathForOS("data/GDB/2/"));
-		IGraph g3 = new BlueprintsGraph("N", timestamp + 1, this.gds, this.chosenGDB, 1000, true, IOUtils.getPathForOS("data/GDB/3/"));
-		IGraph g4 = new BlueprintsGraph("O", timestamp, this.gds, this.chosenGDB, 1000, true, IOUtils.getPathForOS("data/GDB/4/"));		
+
+		IGraph g1 = new BlueprintsGraph("N", timestamp, this.gds, this.chosenGDB, 1000, true, IOUtils.getPathForOS("data/GDB/1/"), false);
+		IGraph g2 = new BlueprintsGraph("N", timestamp, this.gds, this.chosenGDB, 1000, true, IOUtils.getPathForOS("data/GDB/2/"), false);
+		IGraph g3 = new BlueprintsGraph("N", timestamp + 1, this.gds, this.chosenGDB, 1000, true, IOUtils.getPathForOS("data/GDB/3/"), false);
+		IGraph g4 = new BlueprintsGraph("O", timestamp, this.gds, this.chosenGDB, 1000, true, IOUtils.getPathForOS("data/GDB/4/"), false);
 		assertEquals(g1, g2);
 		assertNotEquals(g1, g3);
 		assertNotEquals(g2, g3);
 		assertNotEquals(g1, g4);
 		assertNotEquals(g2, g4);
 		assertNotEquals(g3, g4);
-		
+
 		g1.close();
 		g2.close();
 		g3.close();
@@ -253,8 +250,8 @@ public class GraphDatabaseTester {
 	public void graphEqualityForNodes() {
 		long timestamp = 1L;
 
-		IGraph g1 = new BlueprintsGraph("N", timestamp, this.gds, this.chosenGDB, 1000, true, IOUtils.getPathForOS("data/GDB/1/"));
-		IGraph g2 = new BlueprintsGraph("N", timestamp, this.gds, this.chosenGDB, 1000, true, IOUtils.getPathForOS("data/GDB/2/"));
+		IGraph g1 = new BlueprintsGraph("N", timestamp, this.gds, this.chosenGDB, 1000, true, IOUtils.getPathForOS("data/GDB/1/"), false);
+		IGraph g2 = new BlueprintsGraph("N", timestamp, this.gds, this.chosenGDB, 1000, true, IOUtils.getPathForOS("data/GDB/2/"), false);
 
 		Node g1n1 = this.gds.newNodeInstance(42);
 		Node g1n2 = this.gds.newNodeInstance(23);
@@ -285,23 +282,23 @@ public class GraphDatabaseTester {
 
 		assertTrue(g2.removeNode(g2n1));
 		assertEquals(g1, g2);
-		
+
 		g1.close();
 		g2.close();
 	}
-	
+
 	@Test
 	public void graphGenerator()
 	{
 		IGraph graph;
-		
+
 		int n = 10;
 		int e = (n * (n-1));
 		if (gds.createsUndirected())
 		{
 			e = e /2;
 		}
-		
+
 		//Random
 		RandomGraph random = new RandomGraph(gds, n, e);
 		graph = random.generate();
@@ -318,7 +315,7 @@ public class GraphDatabaseTester {
 		assertEquals(graph.getEdgeCount(), (n - 1));
 		assertEquals(((BlueprintsGraph)graph).getEdgeCountFromDB(), (n - 1));
 		graph.close();
-		
+
 		RingGraph ring = new RingGraph(gds, n);
 		graph = ring.generate();
 		assertEquals(graph.getNodeCount(), n);
@@ -326,7 +323,7 @@ public class GraphDatabaseTester {
 		assertEquals(graph.getEdgeCount(), n);
 		assertEquals(((BlueprintsGraph)graph).getEdgeCountFromDB(), n);
 		graph.close();
-		
+
 		RingStarGraph ringstar =  new RingStarGraph(gds, n);
 		graph = ringstar.generate();
 		assertEquals(graph.getNodeCount(), n);
@@ -334,15 +331,15 @@ public class GraphDatabaseTester {
 		assertEquals(graph.getEdgeCount(), ((2 * n ) - 2));
 		assertEquals(((BlueprintsGraph)graph).getEdgeCountFromDB(), ((2 * n ) - 2));
 		graph.close();
-		
+
 		CliqueGraph clique = new CliqueGraph(gds, n);
 		graph = clique.generate();
 		assertEquals(graph.getNodeCount(), n);
 		assertEquals(((BlueprintsGraph)graph).getNodeCountFromDB(), n);
 		graph.close();
-		
-		
-		
-		
+
+
+
+
 	}
 }

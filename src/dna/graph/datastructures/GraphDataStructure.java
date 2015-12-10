@@ -316,7 +316,8 @@ public class GraphDataStructure implements Cloneable {
 		setCurrent(this);
 		
 		if (this.usesGraphDatabase())
-			return DNAGraphFactory.newGraphinstance(DNAGraphType.CONFIG, name, timestamp, this);
+			return DNAGraphFactory.newGraphInstance(DNAGraphType.CONFIG, name, timestamp, 
+					this, nodes, edges);
 		
 		this.canGDSCreateProperLists();
 		this.defaultListSizes.put(ListType.GlobalNodeList, nodes);
@@ -335,18 +336,28 @@ public class GraphDataStructure implements Cloneable {
 
 		setCurrent(this);
 		
-		return DNAGraphFactory.newGraphinstance(DNAGraphType.DNA, name, timestamp, this, nodes, edges);
+		return DNAGraphFactory.newGraphInstance(DNAGraphType.DNA, name, timestamp, this, nodes, edges);
 	}
 	
-	public IGraph newGraphDBInstanceOfType(String name, long timestamp, DNAGraphType type) {
+	public IGraph newGraphInstanceOfType(String name, long timestamp, DNAGraphType type) {
 		setCurrent(this);
-		return DNAGraphFactory.newGraphinstance(type, name, timestamp, this);		
+		return DNAGraphFactory.newGraphInstance(type, name, timestamp, this);		
 	}
 	
-	public IGraph newGraphDBInstanceOfType(String name, long timestamp, DNAGraphType type, 
-			int operationsPerCommit, boolean clearWorkSpace, String workspaceDir) {
+	public IGraph newGraphInstanceOfType(String name, long timestamp, DNAGraphType type, 
+			int operationsPerCommit, boolean clearWorkSpace, String workspaceDir, 
+			boolean storeDNAElementsInGDB) {
 		setCurrent(this);
-		return DNAGraphFactory.newGraphinstance(type, name, timestamp, this, operationsPerCommit, clearWorkSpace, workspaceDir);		
+		return DNAGraphFactory.newGraphInstance(type, name, timestamp, this, operationsPerCommit,
+				clearWorkSpace, workspaceDir, storeDNAElementsInGDB);		
+	}
+	
+	public IGraph newGraphInstanceOfType(String name, long timestamp, int nodes, int edges,
+			DNAGraphType type, int operationsPerCommit, boolean clearWorkSpace, String workspaceDir , 
+			boolean storeDNAElementsInGDB) {
+		setCurrent(this);
+		return DNAGraphFactory.newGraphInstance(type, name, timestamp, this, nodes, edges, operationsPerCommit,
+				clearWorkSpace, workspaceDir, storeDNAElementsInGDB);		
 	}
 		
 	private int getStartingSize(ListType lt) {

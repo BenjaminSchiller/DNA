@@ -85,6 +85,8 @@ public class BlueprintsGraph implements IGraph, IGDBGraph<Graph> {
 	/** The nodes. */
 	private HashMap<Object, IElement> nodes = null;
 
+	private Boolean storeDNAElementsInGDB = false;
+
 	/** The operations per commit. */
 	private int operationsPerCommit;
 
@@ -100,12 +102,9 @@ public class BlueprintsGraph implements IGraph, IGDBGraph<Graph> {
 	/**
 	 * Instantiates a new blueprints graph.
 	 *
-	 * @param name
-	 *            the name of the graph
-	 * @param timestamp
-	 *            the timestamp for the graph
-	 * @param gds
-	 *            the graph data structure
+	 * @param name the name of the graph
+	 * @param timestamp the timestamp for the graph
+	 * @param gds the graph data structure
 	 * @param graphType
 	 *            the graph database type<br>
 	 *            supported are:
@@ -119,21 +118,16 @@ public class BlueprintsGraph implements IGraph, IGDBGraph<Graph> {
 	 */
 	public BlueprintsGraph(String name, long timestamp, GraphDataStructure gds,
 			DNAGraphFactory.DNAGraphType graphType) {
-		this.init(name, timestamp, gds, graphType, 1, true, null);
-		this.graph = BlueprintsGraph.getGDB(this.graphType, name, "");
+		this.init(name, timestamp, gds, 0, 0, graphType, 0, true, null, false);
 	}
 
 	/**
 	 * Instantiates a new blueprints graph.
 	 *
-	 * @param name
-	 *            the name of the graph
-	 * @param timestamp
-	 *            the timestamp for the graph
-	 * @param gds
-	 *            the graphdatastructure
-	 * @param graphType
-	 *            the graph database type<br>
+	 * @param name the name of the graph
+	 * @param timestamp the timestamp for the graph
+	 * @param gds the graphdatastructure
+	 * @param graphType the graph database type<br>
 	 *            supported are:
 	 *            <ul>
 	 *            <li>BITSY_DURABLE</li>
@@ -142,24 +136,129 @@ public class BlueprintsGraph implements IGraph, IGDBGraph<Graph> {
 	 *            <li>ORIENTDBNOTX</li>
 	 *            <li>TINKERGRAPH</li>
 	 *            </ul>
-	 * @param operationsPerCommit
-	 * 			  defines how many operations are executed
+	 * @param storeDNAElementsInGDB defines whether DNA elements (nodes, edges) should be stored in the
+	 * 			  graph database or not, if possible<br>
+	 * 			  applies only for:
+	 * 			  <ul>
+	 *            <li>BITSY_NON_DURABLE</li>
+	 *            <li>TINKERGRAPH</li>
+	 *            </ul>
+	 */
+	public BlueprintsGraph(String name, long timestamp, GraphDataStructure gds, DNAGraphFactory.DNAGraphType graphType,
+			Boolean storeDNAElementsInGDB) {
+		this.init(name, timestamp, gds, 0, 0, graphType, 0, false, "", storeDNAElementsInGDB);
+	}
+
+
+	/**
+	 * Instantiates a new blueprints graph.
+	 *
+	 * @param graphType the graph database type<br>
+	 *            supported are:
+	 *            <ul>
+	 *            <li>BITSY_DURABLE</li>
+	 *            <li>BITSY_NON_DURABLE</li>
+	 *            <li>NEO4J2</li>
+	 *            <li>ORIENTDBNOTX</li>
+	 *            <li>TINKERGRAPH</li>
+	 *            </ul>
+	 * @param name the name of the graph
+	 * @param timestamp the timestamp for the graph
+	 * @param gds the graphdatastructure
+	 * @param operationsPerCommit defines how many operations are executed
 	 * 			  till a commit will be executed
 	 * 			  <ul>
 	 *            <li>X < 0:no commit</li>
 	 *            <li>X = 0:commit on close</li>
 	 *            <li>X > 0:commit every X operations</li>
 	 *            </ul>
-	 * @param clearWorkSpace the clear work space
-	 * 			  clear workspace after close of grapph,
-	 * 			  applies only for BITSY_DURABLE and NEO4J2
-	 * @param workspace
-	 * 			  the workspace directoy
+	 * @param clearWorkSpace clear workspace after the graph was closed
+	 * 			  applies only for :
+	 * 			  <ul>
+	 *            <li>BITSY_DURABLE</li>
+	 *            <li>NEO4J2</li>
+	 *            </ul>
+	 * @param workspace the workspace directoy
+	 * @param storeDNAElementsInGDB defines whether DNA elements (nodes, edges) should be stored in the
+	 * 			  graph database or not, if possible<br>
+	 * 			  applies only for:
+	 * 			  <ul>
+	 *            <li>BITSY_NON_DURABLE</li>
+	 *            <li>TINKERGRAPH</li>
+	 *            </ul>
 	 */
-	public BlueprintsGraph(String name, long timestamp, GraphDataStructure gds, DNAGraphFactory.DNAGraphType graphType,
-			int operationsPerCommit, boolean clearWorkSpace, String workspace) {
-		this.init(name, timestamp, gds, graphType, operationsPerCommit, clearWorkSpace, workspace);
-		this.graph = BlueprintsGraph.getGDB(this.graphType, name, workspace);
+	public BlueprintsGraph(String name, long timestamp, GraphDataStructure gds,
+			DNAGraphFactory.DNAGraphType graphType, int operationsPerCommit,
+			boolean clearWorkSpace, String workspace, Boolean storeDNAElementsInGDB) {
+		this.init(name, timestamp, gds, 0, 0, graphType, operationsPerCommit, clearWorkSpace, workspace, storeDNAElementsInGDB);
+	}
+
+	/**
+	 * Instantiates a new blueprints graph.
+	 *
+	 * @param graphType the graph database type<br>
+	 *            supported are:
+	 *            <ul>
+	 *            <li>BITSY_DURABLE</li>
+	 *            <li>BITSY_NON_DURABLE</li>
+	 *            <li>NEO4J2</li>
+	 *            <li>ORIENTDBNOTX</li>
+	 *            <li>TINKERGRAPH</li>
+	 *            </ul>
+	 * @param name the name of the graph
+	 * @param timestamp the timestamp for the graph
+	 * @param gds the graphdatastructure
+	 * @param nodeSize the number of nodes
+	 * @param edgeSize the number of edges
+	 * @param operationsPerCommit defines how many operations are executed
+	 * 			  till a commit will be executed
+	 * 			  <ul>
+	 *            <li>X < 0:no commit</li>
+	 *            <li>X = 0:commit on close</li>
+	 *            <li>X > 0:commit every X operations</li>
+	 *            </ul>
+	 * @param clearWorkSpace clear workspace after the graph was closed
+	 * 			  applies only for :
+	 * 			  <ul>
+	 *            <li>BITSY_DURABLE</li>
+	 *            <li>NEO4J2</li>
+	 *            </ul>
+	 * @param workspace the workspace directoy
+	 * @param storeDNAElementsInGDB defines whether DNA elements (nodes, edges) should be stored in the
+	 * 			  graph database or not, if possible<br>
+	 * 			  applies only for:
+	 * 			  <ul>
+	 *            <li>BITSY_NON_DURABLE</li>
+	 *            <li>TINKERGRAPH</li>
+	 *            </ul>
+	 */
+	public BlueprintsGraph(String name, long timestamp, GraphDataStructure gds, int nodeSize, int edgeSize,
+			DNAGraphFactory.DNAGraphType graphType, int operationsPerCommit, boolean clearWorkSpace,
+			String workspace, Boolean storeDNAElementsInGDB) {
+		this.init(name, timestamp, gds, nodeSize, edgeSize, graphType, operationsPerCommit, clearWorkSpace, workspace, storeDNAElementsInGDB);
+	}
+
+	/**
+	 * Instantiates a new blueprints graph.
+	 *
+	 * @param graphType the graph database type<br>
+	 *            supported are:
+	 *            <ul>
+	 *            <li>BITSY_DURABLE</li>
+	 *            <li>BITSY_NON_DURABLE</li>
+	 *            <li>NEO4J2</li>
+	 *            <li>ORIENTDBNOTX</li>
+	 *            <li>TINKERGRAPH</li>
+	 *            </ul>
+	 * @param name the name of the graph
+	 * @param timestamp the timestamp for the graph
+	 * @param gds the graphdatastructure
+	 * @param nodeSize the number of nodes
+	 * @param edgeSize the number of edges
+	 */
+	public BlueprintsGraph(DNAGraphType graphType, String name, long timestamp, GraphDataStructure gds,
+			int nodeSize, int edgeSize) {
+		this.init(name, timestamp, gds, nodeSize, edgeSize, graphType, 0, false, "", false);
 	}
 
 	/**
@@ -306,7 +405,7 @@ public class BlueprintsGraph implements IGraph, IGDBGraph<Graph> {
 				edge.setProperty("weight", ((IWeighted) e).getWeight().asString());
 			}
 
-			if (this.graphType.supportsObjectAsProperty()) {
+			if (this.storeInGDB()) {
 				edge.setProperty("edge", e);
 			} else {
 				edges.put(edge.getId(), e);
@@ -365,7 +464,7 @@ public class BlueprintsGraph implements IGraph, IGDBGraph<Graph> {
 				vertex.setProperty("weight", ((IWeighted) n).getWeight().asString());
 			}
 
-			if (this.graphType.supportsObjectAsProperty()) {
+			if (this.storeInGDB()) {
 				vertex.setProperty("node", n);
 			} else {
 				nodes.put(vertex.getId(), n);
@@ -622,7 +721,7 @@ public class BlueprintsGraph implements IGraph, IGDBGraph<Graph> {
 	 */
 	public Edge getEdge(com.tinkerpop.blueprints.Edge e) {
 		if (e != null) {
-			if (this.graphType.supportsObjectAsProperty()) {
+			if (this.storeInGDB()) {
 				return e.getProperty("edge");
 			} else {
 				return (Edge) edges.get(e.getId());
@@ -710,7 +809,7 @@ public class BlueprintsGraph implements IGraph, IGDBGraph<Graph> {
 	 */
 	@Override
 	public Iterable<IElement> getEdges() {
-		if (!this.graphType.supportsObjectAsProperty()) {
+		if (!this.storeInGDB()) {
 			return edges.values();
 		}
 
@@ -861,7 +960,7 @@ public class BlueprintsGraph implements IGraph, IGDBGraph<Graph> {
 	 */
 	public Node getNode(Vertex v) {
 		if (v != null) {
-			if (this.graphType.supportsObjectAsProperty()) {
+			if (this.storeInGDB()) {
 				return v.getProperty("node");
 			} else {
 				return (Node) nodes.get(v.getId());
@@ -897,7 +996,7 @@ public class BlueprintsGraph implements IGraph, IGDBGraph<Graph> {
 	 */
 	@Override
 	public Iterable<IElement> getNodes() {
-		if (!this.graphType.supportsObjectAsProperty()) {
+		if (!this.storeInGDB()) {
 			return nodes.values();
 		}
 
@@ -919,7 +1018,7 @@ public class BlueprintsGraph implements IGraph, IGDBGraph<Graph> {
 		if (getEdgeCount() <= 0)
 			return null;
 
-		if (this.graphType.supportsObjectAsProperty()) {
+		if (this.storeInGDB()) {
 			Iterable<com.tinkerpop.blueprints.Edge> gdbEdges = this.graph.getEdges();
 
 			com.tinkerpop.blueprints.Edge edge = Iterables.get(gdbEdges, Rand.rand.nextInt(Iterables.size(gdbEdges)));
@@ -942,7 +1041,7 @@ public class BlueprintsGraph implements IGraph, IGDBGraph<Graph> {
 		if (getNodeCount() <= 0)
 			return null;
 
-		if (this.graphType.supportsObjectAsProperty()) {
+		if (this.storeInGDB()) {
 			Iterable<Vertex> gdbVertices = this.graph.getVertices();
 
 			Vertex vertex = Iterables.get(gdbVertices, Rand.rand.nextInt(Iterables.size(gdbVertices)));
@@ -977,10 +1076,10 @@ public class BlueprintsGraph implements IGraph, IGDBGraph<Graph> {
 	/**
 	 * Initialize all necessary variables.
 	 *
-	 * @param name            the name of the graph
-	 * @param timestamp            the timestamp for the graph
-	 * @param gds            the graphdatastructure
-	 * @param graphType            the graph database type<br>
+	 * @param name the name of the graph
+	 * @param timestamp the timestamp for the graph
+	 * @param gds the graphdatastructure
+	 * @param graphType the graph database type<br>
 	 *            supported are:
 	 *            <ul>
 	 *            <li>BITSY_DURABLE</li>
@@ -997,10 +1096,11 @@ public class BlueprintsGraph implements IGraph, IGDBGraph<Graph> {
 	 *            <li>X > 0:commit every X operations</li>
 	 *            </ul>
 	 * @param clearWorkSpaceOnClose the clear work space on close
-	 * @param workspace 			  the workspace directoy
+	 * @param workspace the workspace directoy
 	 */
-	private void init(String name, long timestamp, GraphDataStructure gds, DNAGraphType graphType,
-			int operationsPerCommit, boolean clearWorkSpaceOnClose, String workspace) {
+	private void init(String name, long timestamp, GraphDataStructure gds, int nodeSize, int edgeSize,
+			DNAGraphType graphType, int operationsPerCommit, boolean clearWorkSpaceOnClose,
+			String workspace, Boolean storeDNAElementsInGDB) {
 		this.name = name;
 		this.timestamp = timestamp;
 		this.gds = gds;
@@ -1008,17 +1108,23 @@ public class BlueprintsGraph implements IGraph, IGDBGraph<Graph> {
 		this.maxNodeIndex = -1;
 		this.nodeCount = 0;
 		this.edgeCount = 0;
-		if (!this.graphType.supportsObjectAsProperty()) {
-			// Vertex.getId() --> Node
-			nodes = new HashMap<Object,IElement>();
-			// Edge.getId() --> Node
-			edges = new HashMap<Object,IElement>();
-		}
-
 		this.operationsPerCommit = operationsPerCommit;
 		this.operationsSinceLastCommit = 0;
+		this.storeDNAElementsInGDB = storeDNAElementsInGDB;
 		this.clearWorkSpaceOnClose = clearWorkSpaceOnClose;
 		this.workspaceDir = workspace;
+		if (!this.storeInGDB()) {
+			// Vertex.getId() --> Node
+			nodes = new HashMap<Object,IElement>(nodeSize <= 0 ? 16 : nodeSize);
+			// Edge.getId() --> Edge
+			edges = new HashMap<Object,IElement>(edgeSize <= 0 ? 16 : edgeSize);
+		}
+		this.graph = BlueprintsGraph.getGDB(this.graphType, name, workspace);
+	}
+
+	private boolean storeInGDB()
+	{
+		return this.graphType.supportsObjectAsProperty() && storeDNAElementsInGDB;
 	}
 
 	/*
@@ -1101,7 +1207,7 @@ public class BlueprintsGraph implements IGraph, IGDBGraph<Graph> {
 
 		this.graph.removeEdge(edge);
 
-		if (!this.graphType.supportsObjectAsProperty()) {
+		if (!this.storeInGDB()) {
 			edges.remove(edge.getId());
 		}
 
@@ -1143,7 +1249,7 @@ public class BlueprintsGraph implements IGraph, IGDBGraph<Graph> {
 		if (this.graph.getVertex(v.getId()) == null) {
 			((IGDBNode<?>) n).setGDBNodeId(null);
 
-			if (!this.graphType.supportsObjectAsProperty()) {
+			if (!this.storeInGDB()) {
 				nodes.remove(v.getId());
 			}
 

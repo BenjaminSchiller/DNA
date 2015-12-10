@@ -32,10 +32,7 @@ import dna.metrics.similarityMeasures.jaccard.JaccardR;
 import dna.metrics.workload.Workload;
 import dna.metrics.workload.Operation;
 import dna.metrics.workload.WorkloadMetric;
-import dna.metrics.workload.operations.Iterate;
 import dna.metrics.workload.operations.MetricComputation;
-import dna.plot.Plotting;
-import dna.plot.PlottingConfig.PlotFlag;
 import dna.series.Series;
 import dna.series.data.SeriesData;
 import dna.updates.generators.BatchGenerator;
@@ -47,7 +44,6 @@ import dna.util.IOUtils;
 public class GraphDatabaseWorkloadTester {
 
 	private String delimiter = "//";
-	// private GraphDataStructure gds;
 	private TestGDS testGds;
 
 	private enum TestGDS {
@@ -130,11 +126,10 @@ public class GraphDatabaseWorkloadTester {
 		for (DNAGraphType graphType : DNAGraphType.values()) {
 			if (graphType == DNAGraphType.CONFIG)
 				continue;
-			Config.overwrite("GRAPHTYPE", graphType.toString());
-			Config.overwrite("OPERATIONS_PER_COMMIT", "1000");
+			Config.overwrite("GF_GRAPHTYPE", graphType.toString());
+			Config.overwrite("GF_GDB_OPERATIONS_PER_COMMIT", "1000");
 
 			String data = "data" + delimiter + graphType.toString() + delimiter;
-			 String plots = "plots" + delimiter + graphType.toString() + delimiter;
 			int runs = 1;
 
 			int roundsPerWorkload = 1;
@@ -151,9 +146,6 @@ public class GraphDatabaseWorkloadTester {
 						data + (i % seriesRuns) + delimiter + this.testGds.toString() + delimiter,
 						graphType.toString());
 				sd[i] = s.generate(runs, batches);
-
-//				Plotting.plot(sd[i], plots + (i % seriesRuns) + delimiter + this.testGds.toString() + delimiter,
-//						PlotFlag.plotRuntimes, PlotFlag.plotStatistics);
 			}
 			count++;
 		}
@@ -169,51 +161,12 @@ public class GraphDatabaseWorkloadTester {
 			}
 			count++;
 		}
-		//
-		// plots = IOUtils.getPathForOS("data\\\\all\\\\" + graphType.toString()
-		// + delimiter);
-		//// IOUtils.removeRecursive(plots, 0, 10);
-		// Plotting.plot(sd, plots, PlotFlag.plotMetricValues,
-		// PlotFlag.plotStatistics, PlotFlag.plotRuntimes);
-		// Execute.exec("open " + plots);
 	}
 
 	public static WorkloadMetric getWorkloads(int roundsPerWorkload) {
 		int k = 1000;
 
 		LinkedList<Operation> op = new LinkedList<Operation>();
-//		// iterating
-//		op.add(new Iterate(ListType.V, 1 * k));
-//		op.add(new Iterate(ListType.E, 1 * k));
-//		op.add(new Iterate(ListType.IN, 1 * k));
-//		op.add(new Iterate(ListType.OUT, 1 * k));
-//		op.add(new Iterate(ListType.NEIGHBORS, 1 * k));
-//		op.add(new Iterate(ListType.ADJ, 1000));
-//
-//		// contains fail
-//		op.add(new ContainsFailure(ListType.V, 10 * k));
-//		op.add(new ContainsFailure(ListType.E, 10 * k));
-//		op.add(new ContainsFailure(ListType.IN, 10 * k));
-//		op.add(new ContainsFailure(ListType.OUT, 10 * k));
-//		op.add(new ContainsFailure(ListType.NEIGHBORS, 10 * k));
-//		op.add(new ContainsFailure(ListType.ADJ, 10 * k));
-//
-//		// contains
-//		op.add(new ContainsSuccess(ListType.E, 10 * k, 100));
-//		op.add(new ContainsFailure(ListType.E, 10 * k));
-//
-//		// random
-//		op.add(new RandomElement(ListType.V, 30 * k));
-//		op.add(new RandomElement(ListType.E, 10 * k));
-//
-//		// walking
-//		op.add(new BFS(1 * k, 20));
-//		op.add(new DFS(1 * k, 20));
-//
-//		// // add success
-//		op.add(new AddSuccess(ListType.V, 1 * k));
-//		op.add(new AddSuccess(ListType.E, 1000));
-
 		// metrics
 		 op.add(new MetricComputation(2 * k, new DegreeDistributionR()));
 		 op.add(new MetricComputation(1, new DirectedMotifsR()));
