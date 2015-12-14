@@ -1,5 +1,6 @@
 package dna.visualization.graph.util;
 
+import java.awt.event.InputEvent;
 import java.awt.event.MouseEvent;
 
 import org.graphstream.ui.graphicGraph.GraphicNode;
@@ -54,6 +55,10 @@ public class GraphVisMouseManager extends DefaultMouseManager {
 		if (curElement != null && !(curElement instanceof GraphicSprite)) {
 			elementMoving(curElement, event);
 		} else {
+			// if dragged with right mouse down -> dont grow selection
+			if ((event.getModifiersEx() & InputEvent.BUTTON3_DOWN_MASK) == InputEvent.BUTTON3_DOWN_MASK)
+				return;
+
 			view.selectionGrowsAt(event.getX(), event.getY());
 		}
 	}
