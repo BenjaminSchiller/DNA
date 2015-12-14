@@ -52,8 +52,9 @@ public class GraphVisMouseManager extends DefaultMouseManager {
 
 	@Override
 	public void mouseDragged(MouseEvent event) {
-		if (curElement != null && !(curElement instanceof GraphicSprite)) {
-			elementMoving(curElement, event);
+		if (curElement != null) {
+			if (!(curElement instanceof GraphicSprite))
+				elementMoving(curElement, event);
 		} else {
 			// if dragged with right mouse down -> dont grow selection
 			if ((event.getModifiersEx() & InputEvent.BUTTON3_DOWN_MASK) == InputEvent.BUTTON3_DOWN_MASK)
