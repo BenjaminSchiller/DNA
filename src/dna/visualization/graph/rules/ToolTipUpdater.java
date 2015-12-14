@@ -7,7 +7,7 @@ import org.graphstream.ui.spriteManager.SpriteManager;
 
 import dna.graph.weights.Weight;
 import dna.visualization.graph.GraphVisualization;
-import dna.visualization.graph.util.GraphVisToolTip;
+import dna.visualization.graph.ToolTip.GraphVisToolTip;
 
 public class ToolTipUpdater extends GraphStyleRule {
 
