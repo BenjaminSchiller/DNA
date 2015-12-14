@@ -15,7 +15,7 @@ public class GraphVisToolTip extends Sprite {
 	public static final String default_style = "" + "shape:rounded-box; "
 			+ "size:100px,30px; " + "fill-mode:plain; "
 			+ "fill-color: rgba(220,220,220, 150); " + "stroke-mode:dots; "
-			+ "stroke-color: rgb(40, 40, 40); " + "text-alignment:justify;";
+			+ "stroke-color: rgb(40, 40, 40); " + "text-alignment:center;";
 
 	public void setDefaultStyle() {
 		this.setAttribute(GraphVisualization.styleKey, default_style);
