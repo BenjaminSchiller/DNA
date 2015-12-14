@@ -9,6 +9,7 @@ import org.graphstream.ui.spriteManager.SpriteManager;
 import org.graphstream.ui.view.util.DefaultMouseManager;
 
 import dna.visualization.graph.GraphPanel;
+import dna.visualization.graph.ToolTip.GraphVisToolTip;
 
 public class GraphVisMouseManager extends DefaultMouseManager {
 

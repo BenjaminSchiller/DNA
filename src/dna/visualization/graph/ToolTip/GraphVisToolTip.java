@@ -1,4 +1,4 @@
-package dna.visualization.graph.util;
+package dna.visualization.graph.ToolTip;
 
 import org.graphstream.ui.graphicGraph.stylesheet.StyleConstants.Units;
 import org.graphstream.ui.spriteManager.Sprite;
@@ -6,6 +6,7 @@ import org.graphstream.ui.spriteManager.Sprite;
 import dna.visualization.graph.GraphVisualization;
 
 public class GraphVisToolTip extends Sprite {
+
 
 	// keys
 	public static final String spriteSuffixNodeId = "SPRITE1_";
