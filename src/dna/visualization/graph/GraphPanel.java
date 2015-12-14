@@ -79,7 +79,7 @@ public class GraphPanel extends JPanel {
 	protected final JFrame parentFrame;
 	protected final Graph graph;
 	protected final PositionMode mode;
-	protected final String batchGeneratorName;
+	protected final String graphGeneratorName;
 	protected long timestamp;
 
 	protected boolean tooltips;
@@ -171,19 +171,19 @@ public class GraphPanel extends JPanel {
 
 	// constructors
 	public GraphPanel(JFrame parentFrame, final Graph graph, final String name,
-			final String batchGeneratorName, PositionMode mode) {
-		this(parentFrame, graph, name, batchGeneratorName, mode,
+			final String graphGeneratorName, PositionMode mode) {
+		this(parentFrame, graph, name, graphGeneratorName, mode,
 				new ArrayList<GraphStyleRule>(0));
 	}
 
 	public GraphPanel(JFrame parentFrame, final Graph graph, final String name,
-			final String batchGeneratorName, PositionMode mode,
+			final String graphGeneratorName, PositionMode mode,
 			ArrayList<GraphStyleRule> rules) {
 		this.parentFrame = parentFrame;
 		this.setName(name);
 		this.graph = graph;
 		this.mode = mode;
-		this.batchGeneratorName = batchGeneratorName;
+		this.graphGeneratorName = graphGeneratorName;
 		this.timestamp = 0;
 		this.dateFormat = new SimpleDateFormat(
 				Config.get("GRAPH_VIS_DATETIME_FORMAT"));
@@ -282,9 +282,9 @@ public class GraphPanel extends JPanel {
 		edgesValue.setFont(font);
 
 		// bg
-		JLabel bgLabel = new JLabel("BatchGenerator: ");
+		JLabel bgLabel = new JLabel("GraphGenerator: ");
 		bgLabel.setFont(font);
-		this.bgNameLabel = new JLabel(this.batchGeneratorName);
+		this.bgNameLabel = new JLabel(this.graphGeneratorName);
 		bgNameLabel.setFont(font);
 
 		// bg
