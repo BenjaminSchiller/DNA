@@ -1,4 +1,4 @@
-package dna.visualization.graph.ToolTip;
+package dna.visualization.graph.toolTip;
 
 import org.graphstream.ui.graphicGraph.stylesheet.StyleConstants.Units;
 import org.graphstream.ui.spriteManager.Sprite;
