@@ -28,7 +28,6 @@ import dna.visualization.graph.GraphPanel.PositionMode;
 import dna.visualization.graph.rules.NodeColorByDegree;
 import dna.visualization.graph.rules.NodeSizeBy3dCoordinates;
 import dna.visualization.graph.rules.NodeSizeByDegree;
-import dna.visualization.graph.rules.RandomNodeSize;
 import dna.visualization.graph.rules.ToolTipUpdater;
 
 /** The GraphVisualization class offers methods to visualize graphs used in DNA. **/
@@ -123,8 +122,6 @@ public class GraphVisualization {
 		if (Config.getBoolean("GRAPH_VIS_TOOLTIPS_ENABLED"))
 			panel.addGraphStyleRule(new ToolTipUpdater(panel.getSpriteManager()));
 
-		panel.addGraphStyleRule(new RandomNodeSize("rns"));
-		
 		// create main frame
 		mainFrame.add(panel);
 		mainFrame.setName(name);
