@@ -6,8 +6,8 @@ import org.graphstream.ui.spriteManager.Sprite;
 import org.graphstream.ui.spriteManager.SpriteManager;
 
 import dna.graph.weights.Weight;
-import dna.visualization.graph.GraphVisualization;
-import dna.visualization.graph.ToolTip.GraphVisToolTip;
+import dna.visualization.graph.ToolTip.InfoLabel;
+import dna.visualization.graph.ToolTip.ToolTip;
 
 public class ToolTipUpdater extends GraphStyleRule {
 
@@ -25,14 +25,19 @@ public class ToolTipUpdater extends GraphStyleRule {
 	@Override
 	public void onNodeRemoval(Node n) {
 		String nodeId = n.getId();
-		if (spriteManager
-				.hasSprite(GraphVisToolTip.spriteSuffixNodeId + nodeId))
-			spriteManager.removeSprite(GraphVisToolTip.spriteSuffixNodeId
+		if (spriteManager.hasSprite(ToolTip.spriteSuffixNodeId + nodeId))
+			spriteManager.removeSprite(ToolTip.spriteSuffixNodeId + nodeId);
+
+		if (spriteManager.hasSprite(ToolTip.spriteSuffixDegree + nodeId))
+			spriteManager.removeSprite(ToolTip.spriteSuffixDegree + nodeId);
+
+		if (spriteManager.hasSprite(ToolTip.spriteSuffixButtonFreeze + nodeId))
+			spriteManager.removeSprite(ToolTip.spriteSuffixButtonFreeze
 					+ nodeId);
 
-		if (spriteManager
-				.hasSprite(GraphVisToolTip.spriteSuffixDegree + nodeId))
-			spriteManager.removeSprite(GraphVisToolTip.spriteSuffixDegree
+		if (spriteManager.hasSprite(ToolTip.spriteSuffixButtonHighlight
+				+ nodeId))
+			spriteManager.removeSprite(ToolTip.spriteSuffixButtonHighlight
 					+ nodeId);
 	}
 
@@ -45,21 +50,15 @@ public class ToolTipUpdater extends GraphStyleRule {
 	public void onEdgeAddition(Edge e, Node n1, Node n2) {
 		String nodeId1 = n1.getId();
 		String nodeId2 = n2.getId();
-		if (spriteManager.hasSprite(GraphVisToolTip.spriteSuffixDegree
-				+ nodeId1)) {
-			Sprite sprite = spriteManager
-					.getSprite(GraphVisToolTip.spriteSuffixDegree + nodeId1);
-			if (sprite.hasAttribute(GraphVisualization.labelKey))
-				GraphVisToolTip.incrementValue(sprite);
-
+		if (spriteManager.hasSprite(ToolTip.spriteSuffixDegree + nodeId1)) {
+			Sprite sprite = spriteManager.getSprite(ToolTip.spriteSuffixDegree
+					+ nodeId1);
+			InfoLabel.getFromSprite(sprite).increment();
 		}
-		if (spriteManager.hasSprite(GraphVisToolTip.spriteSuffixDegree
-				+ nodeId2)) {
-			Sprite sprite = spriteManager
-					.getSprite(GraphVisToolTip.spriteSuffixDegree + nodeId2);
-			if (sprite.hasAttribute(GraphVisualization.labelKey))
-				GraphVisToolTip.incrementValue(sprite);
-
+		if (spriteManager.hasSprite(ToolTip.spriteSuffixDegree + nodeId2)) {
+			Sprite sprite = spriteManager.getSprite(ToolTip.spriteSuffixDegree
+					+ nodeId2);
+			InfoLabel.getFromSprite(sprite).increment();
 		}
 	}
 
@@ -67,21 +66,15 @@ public class ToolTipUpdater extends GraphStyleRule {
 	public void onEdgeRemoval(Edge e, Node n1, Node n2) {
 		String nodeId1 = n1.getId();
 		String nodeId2 = n2.getId();
-		if (spriteManager.hasSprite(GraphVisToolTip.spriteSuffixDegree
-				+ nodeId1)) {
-			Sprite sprite = spriteManager
-					.getSprite(GraphVisToolTip.spriteSuffixDegree + nodeId1);
-			if (sprite.hasAttribute(GraphVisualization.labelKey))
-				GraphVisToolTip.decrementValue(sprite);
-
+		if (spriteManager.hasSprite(ToolTip.spriteSuffixDegree + nodeId1)) {
+			Sprite sprite = spriteManager.getSprite(ToolTip.spriteSuffixDegree
+					+ nodeId1);
+			InfoLabel.getFromSprite(sprite).decrement();
 		}
-		if (spriteManager.hasSprite(GraphVisToolTip.spriteSuffixDegree
-				+ nodeId2)) {
-			Sprite sprite = spriteManager
-					.getSprite(GraphVisToolTip.spriteSuffixDegree + nodeId2);
-			if (sprite.hasAttribute(GraphVisualization.labelKey))
-				GraphVisToolTip.decrementValue(sprite);
-
+		if (spriteManager.hasSprite(ToolTip.spriteSuffixDegree + nodeId2)) {
+			Sprite sprite = spriteManager.getSprite(ToolTip.spriteSuffixDegree
+					+ nodeId2);
+			InfoLabel.getFromSprite(sprite).decrement();
 		}
 	}
 
