@@ -10,11 +10,11 @@ import org.graphstream.ui.spriteManager.SpriteManager;
 import org.graphstream.ui.view.util.DefaultMouseManager;
 
 import dna.visualization.graph.GraphPanel;
-import dna.visualization.graph.ToolTip.FreezeButton;
-import dna.visualization.graph.ToolTip.HighlightButton;
-import dna.visualization.graph.ToolTip.InfoLabel;
-import dna.visualization.graph.ToolTip.InfoLabel.LabelValueType;
-import dna.visualization.graph.ToolTip.ToolTip;
+import dna.visualization.graph.toolTip.FreezeButton;
+import dna.visualization.graph.toolTip.HighlightButton;
+import dna.visualization.graph.toolTip.InfoLabel;
+import dna.visualization.graph.toolTip.InfoLabel.LabelValueType;
+import dna.visualization.graph.toolTip.ToolTip;
 
 public class GraphVisMouseManager extends DefaultMouseManager {
 
@@ -146,7 +146,7 @@ public class GraphVisMouseManager extends DefaultMouseManager {
 
 				if (sm.hasSprite(spriteId3))
 					sm.removeSprite((spriteId3));
-				
+
 				if (sm.hasSprite(spriteId4))
 					sm.removeSprite(spriteId4);
 			} else {
