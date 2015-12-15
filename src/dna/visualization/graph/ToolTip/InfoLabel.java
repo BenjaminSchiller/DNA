@@ -2,12 +2,14 @@ package dna.visualization.graph.ToolTip;
 
 import org.graphstream.ui.spriteManager.Sprite;
 
+import dna.visualization.graph.GraphVisualization;
+
 public class InfoLabel extends ToolTip {
 
 	protected static final String LabelValueKey = "dna.label.value";
 	protected static final String LabelValueTypeKey = "dna.label.valueType";
 
-	protected enum LabelValueType {
+	public enum LabelValueType {
 		DOUBLE, INT, LONG
 	}
 
@@ -15,20 +17,30 @@ public class InfoLabel extends ToolTip {
 	protected LabelValueType valueType;
 
 	// constructor
-	public InfoLabel(Sprite s, LabelValueType valueType) {
-		this.s = s;
-		this.valueType = valueType;
-	}
-
 	public InfoLabel(Sprite s, String name, LabelValueType valueType) {
 		this.s = s;
 		this.setName(name);
 		this.valueType = valueType;
+		this.s.setAttribute(LabelValueTypeKey, valueType);
+		this.s.setAttribute(ToolTip.GraphVisToolTipTypeKey, ToolTipType.INFO);
+	}
+
+	public InfoLabel(Sprite s, String name, LabelValueType valueType,
+			String value) {
+		this(s, name, valueType);
+		this.setValue(value);
 	}
 
 	// methods
 	public void setValue(String value) {
 		this.s.setAttribute(LabelValueKey, value);
+		this.updateLabel();
+	}
+
+	/** Updates the label based on the stored name and value. **/
+	public void updateLabel() {
+		this.s.setAttribute(GraphVisualization.labelKey, this.getName() + ": "
+				+ this.getValue());
 	}
 
 	public String getValue() {
@@ -55,6 +67,8 @@ public class InfoLabel extends ToolTip {
 			this.setValue("" + (l + steps));
 			break;
 		}
+
+		this.updateLabel();
 	}
 
 	public void decrement() {
@@ -71,7 +85,8 @@ public class InfoLabel extends ToolTip {
 
 	// static methods
 	public static InfoLabel getFromSprite(Sprite s) {
-		return new InfoLabel(s, getValueTypeFromSprite(s));
+		return new InfoLabel(s, s.getAttribute(GraphVisToolTipNameKey,
+				String.class), getValueTypeFromSprite(s));
 	}
 
 	public static Number getValueFromSprite(Sprite s) {
