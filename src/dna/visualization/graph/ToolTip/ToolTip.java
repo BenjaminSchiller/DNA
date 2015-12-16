@@ -25,7 +25,7 @@ public abstract class ToolTip {
 
 	/** ToolTipType used to identify different ToolTip implementations. **/
 	public enum ToolTipType {
-		BUTTON_FREEZE, BUTTON_HIGHLIGHT, INFO
+		BUTTON_FREEZE, BUTTON_HIGHLIGHT, INFO, NONE
 	}
 
 	public static final String GraphVisToolTipTypeKey = "dna.ttt";
@@ -41,6 +41,11 @@ public abstract class ToolTip {
 
 	/** Returns the objects ToolTipType. **/
 	public abstract ToolTipType getType();
+
+	/** Sets the ToolTipType on the Sprite. **/
+	protected void setType() {
+		this.s.setAttribute(ToolTip.GraphVisToolTipTypeKey, getType());
+	}
 
 	/** Sprite the ToolTip is wrapped around. **/
 	protected Sprite s;
@@ -99,6 +104,9 @@ public abstract class ToolTip {
 	 * add more ToolTipTypes.
 	 **/
 	public static ToolTipType getToolTipTypeFromSprite(Sprite s) {
+		if (!s.hasAttribute(GraphVisToolTipTypeKey))
+			return ToolTipType.NONE;
+
 		return s.getAttribute(GraphVisToolTipTypeKey, ToolTipType.class);
 	}
 

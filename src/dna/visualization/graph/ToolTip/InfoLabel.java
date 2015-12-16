@@ -36,7 +36,8 @@ public class InfoLabel extends ToolTip {
 	public InfoLabel(Sprite s, String name, LabelValueType valueType,
 			String value) {
 		this.s = s;
-		this.setName(name);
+		setName(name);
+		setType();
 		this.valueType = valueType;
 
 		// store value type
@@ -44,6 +45,9 @@ public class InfoLabel extends ToolTip {
 
 		// set value
 		setValue(value);
+
+		// store on sprite
+		storeThisOnSprite();
 	}
 
 	/** InfoLabel constructor. **/
