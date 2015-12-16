@@ -15,6 +15,7 @@ import dna.visualization.graph.toolTip.HighlightButton;
 import dna.visualization.graph.toolTip.InfoLabel;
 import dna.visualization.graph.toolTip.InfoLabel.LabelValueType;
 import dna.visualization.graph.toolTip.ToolTip;
+import dna.visualization.graph.toolTipManager.ToolTipManager;
 
 /**
  * The GraphVisMouseManager extends the GraphStream DefaultMouseManager. It
@@ -151,55 +152,65 @@ public class GraphVisMouseManager extends DefaultMouseManager {
 	protected void mouseRightClickNode(GraphicNode node) {
 		if (this.panel.isToolTipsEnabled()) {
 			SpriteManager sm = this.panel.getSpriteManager();
-			String nodeId = node.getId();
-			String spriteId = ToolTip.spriteSuffixNodeId + nodeId;
-			String spriteId2 = ToolTip.spriteSuffixDegree + nodeId;
-			String spriteId3 = ToolTip.spriteSuffixButtonFreeze + nodeId;
-			String spriteId4 = ToolTip.spriteSuffixButtonHighlight + nodeId;
+			ToolTipManager ttm = this.panel.getToolTipManager();
 
-			if (sm.hasSprite(spriteId) || sm.hasSprite(spriteId2)
-					|| sm.hasSprite(spriteId3) || sm.hasSprite(spriteId4)) {
-				if (sm.hasSprite(spriteId))
-					sm.removeSprite(spriteId);
+			ttm.onMouseRightClick(node);
+			
+			
+			if (false) {
 
-				if (sm.hasSprite(spriteId2))
-					sm.removeSprite(spriteId2);
+				String nodeId = node.getId();
+				String spriteId = ToolTip.spriteSuffixNodeId + nodeId;
+				String spriteId2 = ToolTip.spriteSuffixDegree + nodeId;
+				String spriteId3 = ToolTip.spriteSuffixButtonFreeze + nodeId;
+				String spriteId4 = ToolTip.spriteSuffixButtonHighlight + nodeId;
 
-				if (sm.hasSprite(spriteId3))
-					sm.removeSprite((spriteId3));
+				if (sm.hasSprite(spriteId) || sm.hasSprite(spriteId2)
+						|| sm.hasSprite(spriteId3) || sm.hasSprite(spriteId4)) {
+					if (sm.hasSprite(spriteId))
+						sm.removeSprite(spriteId);
 
-				if (sm.hasSprite(spriteId4))
-					sm.removeSprite(spriteId4);
-			} else {
-				// add tooltips
+					if (sm.hasSprite(spriteId2))
+						sm.removeSprite(spriteId2);
 
-				int pos = 40;
+					if (sm.hasSprite(spriteId3))
+						sm.removeSprite((spriteId3));
 
-				Sprite sp1 = sm.addSprite(spriteId);
-				InfoLabel il1 = new InfoLabel(sp1, "Node", LabelValueType.INT);
-				il1.setDefaultStyle();
-				il1.attachToNode(nodeId);
-				il1.setValue(nodeId);
+					if (sm.hasSprite(spriteId4))
+						sm.removeSprite(spriteId4);
+				} else {
+					// add tooltips
 
-				il1.setPosition(pos, 270);
-				pos += 30;
+					int pos = 40;
 
-				Sprite sp2 = sm.addSprite(spriteId2);
-				InfoLabel il2 = new InfoLabel(sp2, "Degree", LabelValueType.INT);
-				il2.setDefaultStyle();
-				il2.attachToNode(nodeId);
-				il2.setValue("" + node.getDegree());
-				il2.setPosition(pos, 270);
-				pos += 30;
+					Sprite sp1 = sm.addSprite(spriteId);
+					InfoLabel il1 = new InfoLabel(sp1, "Node", nodeId,
+							LabelValueType.INT, nodeId);
+					// il1.setDefaultStyle();
+					// il1.attachToNode(nodeId);
+					// il1.setValue(nodeId);
 
-				Sprite sp3 = sm.addSprite(spriteId3);
-				FreezeButton b3 = new FreezeButton(sp3, "Freeze", nodeId);
-				b3.setPosition(pos, 270);
-				pos += 30;
-				Sprite sp4 = sm.addSprite(spriteId4);
-				HighlightButton b4 = new HighlightButton(sp4, "Highlight",
-						nodeId);
-				b4.setPosition(pos, 270);
+					il1.setPosition(pos, 270);
+					pos += 30;
+
+					Sprite sp2 = sm.addSprite(spriteId2);
+					InfoLabel il2 = new InfoLabel(sp2, "Degree", nodeId,
+							LabelValueType.INT, "" + node.getDegree());
+					// il2.setDefaultStyle();
+					// il2.attachToNode(nodeId);
+					// il2.setValue("" + node.getDegree());
+					il2.setPosition(pos, 270);
+					pos += 30;
+
+					Sprite sp3 = sm.addSprite(spriteId3);
+					FreezeButton b3 = new FreezeButton(sp3, "Freeze", nodeId);
+					b3.setPosition(pos, 270);
+					pos += 30;
+					Sprite sp4 = sm.addSprite(spriteId4);
+					HighlightButton b4 = new HighlightButton(sp4, "Highlight",
+							nodeId);
+					b4.setPosition(pos, 270);
+				}
 			}
 		}
 	}
