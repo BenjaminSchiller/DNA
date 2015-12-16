@@ -43,11 +43,6 @@ public abstract class Button extends ToolTip {
 	/** Returns the ToolTipType. Override to return a specific type. **/
 	public abstract ToolTipType getType();
 
-	/** Sets the ToolTipType on the Sprite. **/
-	protected void setType() {
-		this.s.setAttribute(ToolTip.GraphVisToolTipTypeKey, getType());
-	}
-
 	/** Returns the default label. **/
 	protected abstract String getDefaultLabel();
 
