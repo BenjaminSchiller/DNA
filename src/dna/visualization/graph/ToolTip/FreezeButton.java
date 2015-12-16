@@ -5,13 +5,24 @@ import org.graphstream.ui.spriteManager.Sprite;
 
 import dna.visualization.graph.GraphVisualization;
 
+/**
+ * Button implementation used to freeze a node. This is done via
+ * setting/removing the freeze-key on the node the button is attached to.
+ * 
+ * @author Rwilmes
+ * @date 15.12.2015
+ */
 public class FreezeButton extends Button {
 
 	// labels
 	private static final String defaultLabel = "Freeze";
 	private static final String pressedLabel = "Unfreeze";
 
-	// constructor
+	/**
+	 * FreezeButton constructor. This constructor is called each time the
+	 * underlying Sprite is clicked. The init-flag should only be set on actual
+	 * first-time initializations.
+	 **/
 	public FreezeButton(Sprite s, String name, String attachementId,
 			boolean init) {
 		super(s, name, attachementId);
@@ -31,11 +42,12 @@ public class FreezeButton extends Button {
 		this(s, name, attachementId, true);
 	}
 
-	// methods
+	@Override
 	public ToolTipType getType() {
 		return ToolTipType.BUTTON_FREEZE;
 	}
 
+	/** Returns this Button from a sprite. **/
 	public static FreezeButton getFromSprite(Sprite s) {
 		return new FreezeButton(s, s.getAttribute(
 				ToolTip.GraphVisToolTipNameKey, String.class), s
