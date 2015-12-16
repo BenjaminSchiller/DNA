@@ -2,6 +2,7 @@ package dna.plot;
 
 import java.util.ArrayList;
 
+import dna.plot.PlottingConfig.ValueSortMode;
 import dna.plot.data.PlotData.DistributionPlotType;
 import dna.plot.data.PlotData.NodeValueListOrder;
 import dna.plot.data.PlotData.NodeValueListOrderBy;
@@ -74,6 +75,10 @@ public class PlotConfig {
 
 	public static String customPlotSuffixPlotStyle = "_STYLE";
 
+	public static String customPlotValueSortMode = "_SORTMODE";
+
+	public static String customPlotValueSortList = "_SORTLIST";
+
 	public static String customPlotSuffixKey = "_KEY";
 
 	public static String customPlotSuffixDomain = "_DOMAIN";
@@ -118,10 +123,16 @@ public class PlotConfig {
 	public static String gnuplotDefaultXScaling = "GNUPLOT_XSCALING";
 	public static String gnuplotDefaultYScaling = "GNUPLOT_YSCALING";
 
+	public static String gnuplotDefaultKeyPlotType = "GNUPLOT_DEFAULT_PLOTTYPE";
+	public static String gnuplotDefaultKeyPlotStyle = "GNUPLOT_DEFAULT_PLOTSTYLE";
+
 	public static String gnuplotDefaultKeyDistPlotType = "GNUPLOT_DEFAULT_DIST_PLOTTYPE";
 
 	public static String gnuplotDefaultKeyNodeValueListOrder = "GNUPLOT_DEFAULT_NVL_ORDER";
 	public static String gnuplotDefaultKeyNodeValueListOrderBy = "GNUPLOT_DEFAULT_NVL_ORDERBY";
+
+	public static String gnuplotDefaultKeyValueSortMode = "GNUPLOT_DEFAULT_VALUE_SORTMODE";
+	public static String gnuplotDefaultKeyValueSortList = "GNUPLOT_DEFAULT_VALUE_SORTLIST";
 
 	public static double[] gnuplotZeroLineNoIndex = new double[] { 0, 0, 0, 0,
 			0, 0, 0, 0, 0 };
@@ -149,6 +160,8 @@ public class PlotConfig {
 	private String[] values;
 	private String[] domains;
 	private PlotStyle style;
+	private ValueSortMode valueSortMode;
+	private String[] valueSortList;
 	private DistributionPlotType distPlotType;
 	private NodeValueListOrder order;
 	private NodeValueListOrderBy orderBy;
@@ -162,6 +175,7 @@ public class PlotConfig {
 			String xRange, String yRange, String xTics, String yTics,
 			String xScaling, String yScaling, String plotAsCdf,
 			String[] values, String[] domains, PlotStyle style,
+			ValueSortMode valueSortMode, String[] valueSortList,
 			DistributionPlotType distPlotType, NodeValueListOrder order,
 			NodeValueListOrderBy orderBy, boolean plotAll, String generalDomain) {
 		this.filename = filename;
@@ -184,6 +198,8 @@ public class PlotConfig {
 		this.values = values;
 		this.domains = domains;
 		this.style = style;
+		this.valueSortMode = valueSortMode;
+		this.valueSortList = valueSortList;
 		this.distPlotType = distPlotType;
 		this.order = order;
 		this.orderBy = orderBy;
@@ -206,6 +222,14 @@ public class PlotConfig {
 
 	public PlotStyle getStyle() {
 		return style;
+	}
+
+	public ValueSortMode getValueSortMode() {
+		return valueSortMode;
+	}
+
+	public String[] getValueSortList() {
+		return valueSortList;
 	}
 
 	public DistributionPlotType getDistPlotType() {
@@ -487,6 +511,10 @@ public class PlotConfig {
 			String xScaling = Config.get(PlotConfig.gnuplotDefaultXScaling);
 			String yScaling = Config.get(PlotConfig.gnuplotDefaultYScaling);
 			PlotStyle style = null;
+			ValueSortMode valueSortMode = Config
+					.getValueSortMode(PlotConfig.gnuplotDefaultKeyValueSortMode);
+			String[] valueSortList = Config
+					.keys(PlotConfig.gnuplotDefaultKeyValueSortList);
 			DistributionPlotType distPlotType = Config
 					.getDistributionPlotType(PlotConfig.gnuplotDefaultKeyDistPlotType);
 			NodeValueListOrder order = Config
@@ -644,6 +672,22 @@ public class PlotConfig {
 			} catch (NullPointerException e) {
 			}
 
+			// value sort mode
+			try {
+				valueSortMode = Config.getValueSortMode(prefix + s
+						+ PlotConfig.customPlotValueSortMode);
+			} catch (NullPointerException e) {
+			}
+
+			// value sort list
+			try {
+				String[] temp = Config.keys(prefix + s
+						+ PlotConfig.customPlotValueSortList);
+				if (temp != null && temp.length > 0)
+					valueSortList = temp;
+			} catch (NullPointerException e) {
+			}
+
 			// dist plot type
 			try {
 				distPlotType = Config.getDistributionPlotType(prefix + s
@@ -678,8 +722,9 @@ public class PlotConfig {
 			plotConfigs.add(new PlotConfig(filename, title, key, xLabel,
 					yLabel, logscale, datetime, timeDataFormat, xOffset,
 					yOffset, xRange, yRange, xTics, yTics, xScaling, yScaling,
-					plotAsCdf, values, domains, style, distPlotType, order,
-					orderBy, plotAll, generalDomain));
+					plotAsCdf, values, domains, style, valueSortMode,
+					valueSortList, distPlotType, order, orderBy, plotAll,
+					generalDomain));
 		}
 		return plotConfigs;
 	}
@@ -690,7 +735,7 @@ public class PlotConfig {
 			NodeValueListOrder order, NodeValueListOrderBy orderBy) {
 		return new PlotConfig(filename, "", "", "", "", "", "", "", 0.0, 0.0,
 				"", "", "", "", "", "", plotAsCdf, new String[0],
-				new String[0], PlotStyle.linespoint, distPlotType, order,
-				orderBy, false, "");
+				new String[0], PlotStyle.linespoint, null, null, distPlotType,
+				order, orderBy, false, "");
 	}
 }

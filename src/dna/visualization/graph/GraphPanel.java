@@ -10,6 +10,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.InputEvent;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
@@ -35,8 +36,10 @@ import org.graphstream.ui.geom.Point3;
 import org.graphstream.ui.layout.Layout;
 import org.graphstream.ui.layout.springbox.implementations.LinLog;
 import org.graphstream.ui.layout.springbox.implementations.SpringBox;
+import org.graphstream.ui.spriteManager.SpriteManager;
 import org.graphstream.ui.view.View;
 import org.graphstream.ui.view.Viewer;
+import org.graphstream.ui.view.util.DefaultMouseManager;
 
 import dna.graph.edges.DirectedWeightedEdge;
 import dna.graph.edges.UndirectedWeightedEdge;
@@ -51,6 +54,8 @@ import dna.visualization.VisualizationUtils;
 import dna.visualization.VisualizationUtils.VideoRecorder;
 import dna.visualization.graph.rules.GraphStyleRule;
 import dna.visualization.graph.rules.GraphStyleUtils;
+import dna.visualization.graph.toolTipManager.ToolTipManager;
+import dna.visualization.graph.util.GraphVisMouseManager;
 
 /**
  * The GraphPanel class is used as a JPanel which contains a text-panel and a
@@ -75,8 +80,11 @@ public class GraphPanel extends JPanel {
 	protected final JFrame parentFrame;
 	protected final Graph graph;
 	protected final PositionMode mode;
-	protected final String batchGeneratorName;
+	protected final String graphGeneratorName;
 	protected long timestamp;
+
+	protected boolean tooltips;
+	protected SpriteManager spriteManager;
 
 	// rules
 	protected ArrayList<GraphStyleRule> rules;
@@ -113,6 +121,9 @@ public class GraphPanel extends JPanel {
 
 	// used for dragging
 	protected Point dragPos;
+
+	// tool-tip management
+	protected ToolTipManager toolTipManager;
 
 	// recording
 	protected boolean recording;
@@ -164,19 +175,19 @@ public class GraphPanel extends JPanel {
 
 	// constructors
 	public GraphPanel(JFrame parentFrame, final Graph graph, final String name,
-			final String batchGeneratorName, PositionMode mode) {
-		this(parentFrame, graph, name, batchGeneratorName, mode,
+			final String graphGeneratorName, PositionMode mode) {
+		this(parentFrame, graph, name, graphGeneratorName, mode,
 				new ArrayList<GraphStyleRule>(0));
 	}
 
 	public GraphPanel(JFrame parentFrame, final Graph graph, final String name,
-			final String batchGeneratorName, PositionMode mode,
+			final String graphGeneratorName, PositionMode mode,
 			ArrayList<GraphStyleRule> rules) {
 		this.parentFrame = parentFrame;
 		this.setName(name);
 		this.graph = graph;
 		this.mode = mode;
-		this.batchGeneratorName = batchGeneratorName;
+		this.graphGeneratorName = graphGeneratorName;
 		this.timestamp = 0;
 		this.dateFormat = new SimpleDateFormat(
 				Config.get("GRAPH_VIS_DATETIME_FORMAT"));
@@ -186,6 +197,12 @@ public class GraphPanel extends JPanel {
 
 		this.recording = false;
 		this.paused = false;
+		this.tooltips = false;
+
+		if (Config.getBoolean("GRAPH_VIS_TOOLTIPS_ENABLED")) {
+			this.spriteManager = new SpriteManager(graph);
+			this.tooltips = true;
+		}
 
 		boolean addStatPanel = Config
 				.getBoolean("GRAPH_VIS_STAT_PANEL_ENABLED");
@@ -239,6 +256,7 @@ public class GraphPanel extends JPanel {
 		// add listeners
 		addZoomListener();
 		addMoveListener();
+		changeMouseManager();
 	}
 
 	/** Adds the stat-panel. **/
@@ -268,9 +286,9 @@ public class GraphPanel extends JPanel {
 		edgesValue.setFont(font);
 
 		// bg
-		JLabel bgLabel = new JLabel("BatchGenerator: ");
+		JLabel bgLabel = new JLabel("GraphGenerator: ");
 		bgLabel.setFont(font);
-		this.bgNameLabel = new JLabel(this.batchGeneratorName);
+		this.bgNameLabel = new JLabel(this.graphGeneratorName);
 		bgNameLabel.setFont(font);
 
 		// bg
@@ -401,7 +419,7 @@ public class GraphPanel extends JPanel {
 		recordAreasBox.setPrototypeDisplayValue("Content");
 		recordAreasBox
 				.setToolTipText("Selects the area that will be captured.");
-		recordAreasBox.setPreferredSize(new Dimension(75, 25));
+		recordAreasBox.setPreferredSize(new Dimension(90, 25));
 		recordAreasBox.setMaximumSize(recordAreasBox.getPreferredSize());
 		recordAreasBox.addActionListener(new ActionListener() {
 			@Override
@@ -471,6 +489,8 @@ public class GraphPanel extends JPanel {
 						+ (arg0.getWheelRotation() * arg0.getScrollAmount() * speed);
 				if (zoom < 0)
 					zoom = 0;
+				if (Math.abs(1 - zoom) < 0.04)
+					zoom = 1;
 
 				// set new zoom
 				setZoom(zoom);
@@ -490,7 +510,7 @@ public class GraphPanel extends JPanel {
 
 			@Override
 			public void mouseDragged(MouseEvent arg0) {
-				if ((arg0.getModifiersEx() & InputEvent.CTRL_DOWN_MASK) == InputEvent.CTRL_DOWN_MASK) {
+				if ((arg0.getModifiersEx() & InputEvent.BUTTON3_DOWN_MASK) == InputEvent.BUTTON3_DOWN_MASK) {
 					Point3 currentCenter = getViewCenter();
 
 					// calc new position
@@ -513,10 +533,37 @@ public class GraphPanel extends JPanel {
 		});
 	}
 
+	/**
+	 * Removes the default mouse manager and replaces it with a
+	 * GraphVisMouseManager.
+	 **/
+	protected void changeMouseManager() {
+		JPanel view = this.getGraphView();
+		MouseListener[] mouseListeners = view.getMouseListeners();
+
+		// release current mouse listeners
+		for (MouseListener ml : mouseListeners)
+			((DefaultMouseManager) ml).release();
+
+		// init graphvis mouse manager
+		GraphVisMouseManager graphVisMouseManager = new GraphVisMouseManager(
+				this);
+
+		// add new mouse manager
+		((View) view).setMouseManager(graphVisMouseManager);
+	}
+
 	/** Adds a graph style rule. **/
 	public void addGraphStyleRule(GraphStyleRule r) {
 		this.rules.add(r);
 		r.setIndex(this.getNextIndex());
+	}
+
+	/** Adds a ToolTipManager. **/
+	public void addToolTipManager(ToolTipManager ttm) {
+		this.rules.add(ttm);
+		this.toolTipManager = ttm;
+		ttm.setIndex(this.getNextIndex());
 	}
 
 	/** Returns the next rule index and increments it afterwards. **/
@@ -1282,4 +1329,20 @@ public class GraphPanel extends JPanel {
 		// return
 		return new double[] { x2, y2 };
 	}
+
+	/** Returns the sprite manager. **/
+	public SpriteManager getSpriteManager() {
+		return this.spriteManager;
+	}
+
+	/** Returns the tooltip manager. **/
+	public ToolTipManager getToolTipManager() {
+		return this.toolTipManager;
+	}
+
+	/** Returns if tooltips are enabled. **/
+	public boolean isToolTipsEnabled() {
+		return this.tooltips;
+	}
+
 }

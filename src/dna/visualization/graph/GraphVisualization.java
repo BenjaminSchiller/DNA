@@ -28,6 +28,7 @@ import dna.visualization.graph.GraphPanel.PositionMode;
 import dna.visualization.graph.rules.NodeColorByDegree;
 import dna.visualization.graph.rules.NodeSizeBy3dCoordinates;
 import dna.visualization.graph.rules.NodeSizeByDegree;
+import dna.visualization.graph.toolTipManager.DefaultToolTipManager;
 
 /** The GraphVisualization class offers methods to visualize graphs used in DNA. **/
 public class GraphVisualization {
@@ -44,6 +45,7 @@ public class GraphVisualization {
 	public static final String styleKey = "ui.style";
 	public static final String updateKey = "dna.update";
 	public static final String zKey = "dna.z";
+	public static final String frozenKey = "layout.frozen";
 
 	// GUI CONFIG
 	protected static final Dimension size = new Dimension(
@@ -55,12 +57,20 @@ public class GraphVisualization {
 
 	// current GraphPanel
 	protected static GraphPanel currentGraphPanel;
+	protected static boolean init = false;
 
 	/*
 	 * GRAPH
 	 */
 	/** Init graph g. **/
 	public static void init(Graph g) {
+		if (!init) {
+			// init sophisticated renderer
+			System.setProperty("org.graphstream.ui.renderer",
+					"org.graphstream.ui.j2dviewer.J2DGraphRenderer");
+			init = true;
+		}
+
 		Log.info("GraphVis - init graph: " + g);
 
 		final String name = g.getName();
@@ -109,6 +119,10 @@ public class GraphVisualization {
 		if (Config.getBoolean("GRAPH_VIS_COLOR_NODES_BY_DEGREE"))
 			panel.addGraphStyleRule(new NodeColorByDegree(
 					"NODE_COLOR_BY_DEGREE"));
+		if (Config.getBoolean("GRAPH_VIS_TOOLTIPS_ENABLED"))
+			panel.addToolTipManager(new DefaultToolTipManager(panel));
+		// panel.addGraphStyleRule(new
+		// ToolTipUpdater(panel.getSpriteManager()));
 
 		// create main frame
 		mainFrame.add(panel);

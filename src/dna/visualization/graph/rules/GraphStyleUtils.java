@@ -3,69 +3,49 @@ package dna.visualization.graph.rules;
 import java.awt.Color;
 
 import org.graphstream.graph.Edge;
-import org.graphstream.graph.Node;
+import org.graphstream.graph.Element;
 
 import dna.visualization.graph.GraphVisualization;
 
 /** Utility class for graph style rules. **/
 public class GraphStyleUtils {
 
-	/** Returns the color of the node. **/
-	public static Color getColor(Node n) {
-		return n.getAttribute(GraphVisualization.colorKey);
-	}
-
-	/** Sets the node to a given color. **/
-	public static void setColor(Node n, Color c) {
-		n.setAttribute(GraphVisualization.colorKey, c);
-	}
-
-	/** Returns the color of the edge. **/
-	public static Color getColor(Edge e) {
+	/** Returns the color of the element. **/
+	public static Color getColor(Element e) {
 		return e.getAttribute(GraphVisualization.colorKey);
 	}
 
-	/** Sets the edge to a given color. **/
-	public static void setColor(Edge e, Color c) {
+	/** Sets the element to a given color. **/
+	public static void setColor(Element e, Color c) {
 		e.setAttribute(GraphVisualization.colorKey, c);
 	}
 
-	/** Returns the size of the node. **/
-	public static double getSize(Node n) {
-		return n.getAttribute(GraphVisualization.sizeKey);
+	/** Returns the size of the element. **/
+	public static double getSize(Element e) {
+		return e.getAttribute(GraphVisualization.sizeKey);
 	}
 
-	/** Sets the node to a given size. **/
-	public static void setSize(Node n, double size) {
-		n.setAttribute(GraphVisualization.sizeKey, size);
+	/** Sets the element to a given size. **/
+	public static void setSize(Element e, double size) {
+		e.setAttribute(GraphVisualization.sizeKey, size);
 	}
 
-	/** Increases the size of the given node by value x. **/
-	public static void increaseSize(Node n, double x) {
-		double size = (double) n.getAttribute(GraphVisualization.sizeKey) + x;
+	/** Increases the size of the given element by value x. **/
+	public static void increaseSize(Element e, double x) {
+		double size = (double) e.getAttribute(GraphVisualization.sizeKey) + x;
 		if (size < 0)
 			size = 0;
 
 		// set attribute
-		n.setAttribute(GraphVisualization.sizeKey, size);
-	}
-
-	/** Decreases the size of the given node by value x. **/
-	public static void decreaseSize(Node n, double x) {
-		GraphStyleUtils.increaseSize(n, -x);
-	}
-
-	/** Returns the size of the edge. **/
-	public static double getSize(Edge e) {
-		return e.getAttribute(GraphVisualization.sizeKey);
-	}
-
-	/** Sets the edge to a given size. **/
-	public static void setSize(Edge e, double size) {
 		e.setAttribute(GraphVisualization.sizeKey, size);
 	}
 
-	/** Increases the size of the given node by value x. **/
+	/** Decreases the size of the given element by value x. **/
+	public static void decreaseSize(Element e, double x) {
+		GraphStyleUtils.increaseSize(e, -x);
+	}
+
+	/** Increases the size of the given element by value x. **/
 	public static void increaseSize(Edge e, double x) {
 		double size = (double) e.getAttribute(GraphVisualization.sizeKey) + x;
 
@@ -73,46 +53,21 @@ public class GraphStyleUtils {
 		e.setAttribute(GraphVisualization.sizeKey, size);
 	}
 
-	/** Decreases the size of the given node by value x. **/
-	public static void decreaseSize(Edge e, double x) {
-		GraphStyleUtils.increaseSize(e, -x);
-	}
-
-	/** Updates the nodes style. **/
-	public static void updateStyle(Node n) {
-		String style = "";
-		// add color
-		if (n.hasAttribute(GraphVisualization.colorKey)) {
-			Color c = n.getAttribute(GraphVisualization.colorKey);
-			style += "fill-color: rgb(" + c.getRed() + "," + c.getGreen() + ","
-					+ c.getBlue() + ");";
-		}
-
-		// calc size
-		double size = (double) n.getAttribute(GraphVisualization.sizeKey);
-		size = size < 0 ? 0 : size;
-
-		style += "size: " + size + "px;";
-
-		// set style
-		n.setAttribute(GraphVisualization.styleKey, style);
-	}
-
-	/** Updates the nodes style. **/
-	public static void updateStyle(Edge e) {
+	/** Updates the elements style. **/
+	public static void updateStyle(Element e) {
 		String style = "";
 		// add color
 		if (e.hasAttribute(GraphVisualization.colorKey)) {
 			Color c = e.getAttribute(GraphVisualization.colorKey);
 			style += "fill-color: rgb(" + c.getRed() + "," + c.getGreen() + ","
-					+ c.getBlue() + "); ";
+					+ c.getBlue() + ");";
 		}
 
 		// calc size
 		double size = (double) e.getAttribute(GraphVisualization.sizeKey);
 		size = size < 0 ? 0 : size;
 
-		style += "size: " + size + "px; ";
+		style += "size: " + size + "px;";
 
 		// set style
 		e.setAttribute(GraphVisualization.styleKey, style);

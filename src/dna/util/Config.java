@@ -13,6 +13,7 @@ import java.util.Locale;
 import java.util.Properties;
 import java.util.Vector;
 
+import dna.plot.PlottingConfig.ValueSortMode;
 import dna.plot.data.PlotData.DistributionPlotType;
 import dna.plot.data.PlotData.NodeValueListOrder;
 import dna.plot.data.PlotData.NodeValueListOrderBy;
@@ -246,6 +247,25 @@ public class Config extends PropertiesHolder {
 			return null;
 		}
 		return PlotStyle.valueOf(Config.get(key));
+	}
+
+	public static ValueSortMode getValueSortMode(String key) {
+		switch (Config.get(key)) {
+		case ("NONE"):
+			return ValueSortMode.NONE;
+		case ("LIST_FIRST"):
+			return ValueSortMode.LIST_FIRST;
+		case ("LIST_LAST"):
+			return ValueSortMode.LIST_LAST;
+		case ("ALPHABETICAL_LIST_FIRST"):
+			return ValueSortMode.ALPHABETICAL_LIST_FIRST;
+		case ("ALPHABETICAL_LIST_LAST"):
+			return ValueSortMode.ALPHABETICAL_LIST_LAST;
+		case ("ALPHABETICAL"):
+			return ValueSortMode.ALPHABETICAL;
+		default:
+			return ValueSortMode.NONE;
+		}
 	}
 
 	public static void appendToList(String key, String value) {

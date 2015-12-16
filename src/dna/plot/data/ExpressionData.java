@@ -13,8 +13,8 @@ public class ExpressionData extends PlotData {
 	private String[] domains;
 
 	public ExpressionData(String exprName, String formular, PlotStyle style,
-			String title, String generalDomain) {
-		super(exprName, formular, style, title);
+			String title, String generalDomain, String source) {
+		super(exprName, formular, style, title, source);
 
 		// parse variables form formular
 		String[] split = formular.split("\\$");
@@ -52,21 +52,23 @@ public class ExpressionData extends PlotData {
 
 	@Override
 	public String getEntry(int lt, int lw, double offsetX, double offsetY,
-			String scalingX, String scalingY) {
+			String scalingX, String scalingY, boolean noTitle) {
 		return this.getEntry(lt, lw, offsetX, offsetY, scalingX, scalingY,
-				this.style);
+				this.style, noTitle);
 	}
 
 	@Override
 	public String getEntry(int lt, int lw, double offsetX, double offsetY,
-			String scalingX, String scalingY, DistributionPlotType distPlotType) {
-		return this.getEntry(lt, lw, offsetX, offsetY, scalingX, scalingY);
+			String scalingX, String scalingY,
+			DistributionPlotType distPlotType, boolean noTitle) {
+		return this.getEntry(lt, lw, offsetX, offsetY, scalingX, scalingY,
+				noTitle);
 	}
 
 	@Override
 	public String getEntry(int lt, int lw, double offsetX, double offsetY,
 			String scalingX, String scalingY, DistributionPlotType type,
-			PlotStyle style) {
+			PlotStyle style, boolean noTitle) {
 		// plot style
 		PlotStyle styleTemp;
 		DistributionPlotType distPlotType;
@@ -115,8 +117,10 @@ public class ExpressionData extends PlotData {
 					+ whisker_min + ":" + whisker_high + ":" + box_high
 					+ " with candlesticks");
 			buff.append(" lt " + lt + " lw " + lw);
-			buff.append(title == null ? " notitle" : " title \"" + this.title
-					+ "\"");
+			if (noTitle || title == null)
+				buff.append(" notitle");
+			else
+				buff.append(" title \"" + this.title + "\"");
 			// buff.append(" whiskerbars, \\\n");
 			// buff.append(dataLoc + " using " + x + ":" + median + ":" + median
 			// + ":" + median + ":" + median + " with candlesticks");
@@ -131,15 +135,17 @@ public class ExpressionData extends PlotData {
 				buff.append(dataLoc + " using (" + xpoint + offsetX + "):("
 						+ ypoint + offsetY + ") with " + styleTemp);
 			buff.append(" lt " + lt + " lw " + lw);
-			buff.append(title == null ? " notitle" : " title \"" + this.title
-					+ "\"");
+			if (noTitle || title == null)
+				buff.append(" notitle");
+			else
+				buff.append(" title \"" + this.title + "\"");
 		}
 		return buff.toString();
 	}
 
 	@Override
 	public String getEntry(int lt, int lw, double offsetX, double offsetY,
-			String scalingX, String scalingY, PlotStyle style) {
+			String scalingX, String scalingY, PlotStyle style, boolean noTitle) {
 		// plot style
 		PlotStyle styleTemp;
 		if (style == null)
@@ -167,8 +173,10 @@ public class ExpressionData extends PlotData {
 		buff.append(dataLoc + " using (" + xpoint + offsetX + "):(" + ypoint
 				+ offsetY + ") with " + styleTemp);
 		buff.append(" lt " + lt + " lw " + lw);
-		buff.append(title == null ? " notitle" : " title \"" + this.title
-				+ "\"");
+		if (noTitle || title == null)
+			buff.append(" notitle");
+		else
+			buff.append(" title \"" + this.title + "\"");
 		return buff.toString();
 	}
 

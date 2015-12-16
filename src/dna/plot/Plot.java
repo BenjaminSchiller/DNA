@@ -1,11 +1,15 @@
 package dna.plot;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import dna.io.Writer;
+import dna.plot.PlottingConfig.ValueSortMode;
 import dna.plot.data.ExpressionData;
 import dna.plot.data.FunctionData;
 import dna.plot.data.PlotData;
@@ -26,8 +30,8 @@ import dna.series.data.distr.BinnedDoubleDistr;
 import dna.series.data.distr.BinnedIntDistr;
 import dna.series.data.distr.BinnedLongDistr;
 import dna.series.data.distr.Distr;
-import dna.series.data.distr.QualityDistr;
 import dna.series.data.distr.Distr.DistrType;
+import dna.series.data.distr.QualityDistr;
 import dna.series.data.nodevaluelists.NodeValueList;
 import dna.util.Config;
 import dna.util.Execute;
@@ -49,6 +53,11 @@ public class Plot {
 
 	// plot data
 	private PlotData[] data;
+	private ArrayList<Integer> dataIndizes;
+
+	// sorting
+	private boolean sorted;
+	private String[] bufferedData;
 
 	// writer
 	private String dir;
@@ -76,6 +85,8 @@ public class Plot {
 	private boolean cdfPlot;
 	private String key;
 	private HashMap<Long, Long> timestampMap;
+	private ValueSortMode sortMode;
+	private String[] valueSortList;
 
 	/**
 	 * Creates a plot object which will be written to a gnuplot script file.
@@ -102,6 +113,11 @@ public class Plot {
 		this.scriptFilename = scriptFilename;
 		this.title = title;
 		this.data = data;
+		this.dataIndizes = new ArrayList<Integer>(data.length);
+		for (int i = 0; i < data.length; i++) {
+			dataIndizes.add(i);
+		}
+		this.sorted = false;
 
 		// load default values
 		this.sortOrder = Config
@@ -113,6 +129,10 @@ public class Plot {
 				.getBoolean(PlotConfig.gnuplotDefaultKeyPlotDateTime);
 		this.timeDataFormat = Config
 				.get(PlotConfig.gnuplotDefaultKeyTimeDataFormat);
+		this.sortMode = Config
+				.getValueSortMode(PlotConfig.gnuplotDefaultKeyValueSortMode);
+		this.valueSortList = Config
+				.keys(PlotConfig.gnuplotDefaultKeyValueSortList);
 		this.cdfPlot = false;
 
 		// init writer
@@ -250,7 +270,40 @@ public class Plot {
 			else
 				temp += Config.get("PLOTDATA_DELIMITER") + values[k];
 		}
+
+		// write line
 		w.writeln(temp);
+
+		// if sorted, buffer data
+		if (this.sorted)
+			bufferData(temp);
+	}
+
+	/** Buffers the data line. **/
+	private void bufferData(String dataLine) {
+		if (this.bufferedData[this.dataWriteCounter] == null)
+			this.bufferedData[this.dataWriteCounter] = dataLine;
+	}
+
+	/** Appends the buffered data. Only used when legend is being sorted. **/
+	private void appendBufferedData() throws IOException {
+		for (int i = 0; i < this.data.length; i++) {
+			int mappedIndex = this.dataIndizes.get(i);
+			int offset = 0;
+			// count amount of function datas before as negative offset
+			for (int j = 0; j <= mappedIndex; j++) {
+				if (this.data[j] instanceof FunctionData)
+					offset++;
+			}
+
+			if (this.data[i] instanceof FunctionData) {
+				// do nothing
+			} else {
+				this.fileWriter
+						.writeln(this.bufferedData[mappedIndex - offset]);
+				this.appendEOF();
+			}
+		}
 	}
 
 	private void appendData(AggregatedValue value, double timestamp)
@@ -265,7 +318,13 @@ public class Plot {
 	private void appendData(double value, String timestamp) throws IOException {
 		Writer w = this.fileWriter;
 		String temp = "" + timestamp + Config.get("PLOTDATA_DELIMITER") + value;
+
+		// write line
 		w.writeln(temp);
+
+		// if sorted, buffer data
+		if (this.sorted)
+			bufferData(temp);
 	}
 
 	private void appendEOF() throws IOException {
@@ -1094,6 +1153,11 @@ public class Plot {
 			Log.warn("Unexpected number of plotdata written to file "
 					+ this.dir + this.scriptFilename + ". Expected: "
 					+ this.data.length + "  Written: " + this.dataWriteCounter);
+
+		// if sorted, append buffered data
+		if (this.sorted)
+			appendBufferedData();
+
 		this.fileWriter.close();
 		this.fileWriter = null;
 	}
@@ -1132,6 +1196,8 @@ public class Plot {
 		}
 		script.add("set style " + Config.get("GNUPLOT_STYLE"));
 		script.add("set boxwidth " + Config.get("GNUPLOT_BOXWIDTH"));
+
+		ArrayList<String> buff = new ArrayList<String>();
 
 		// if no config is present
 		if (this.config == null) {
@@ -1177,18 +1243,38 @@ public class Plot {
 					}
 				}
 
+				// if sorted buffer legend lines
+				if (this.sorted) {
+					int mappedIndex = this.dataIndizes.indexOf(i);
+					String temp = this.data[i].getEntry(mappedIndex + 1,
+							Config.getInt("GNUPLOT_LW"),
+							Config.getDouble("GNUPLOT_XOFFSET") * mappedIndex,
+							Config.getDouble("GNUPLOT_YOFFSET") * mappedIndex,
+							Config.get("GNUPLOT_XSCALING"),
+							Config.get("GNUPLOT_YSCALING"), this.distPlotType,
+							false);
+					temp = temp.replace("filledcurves", "filledcurves y1=0");
+					if (mappedIndex < this.data.length - 1) {
+						temp = temp + " , \\";
+					}
+					buff.add(temp);
+				}
+
 				// get line
-				line = this.data[i].getEntry(i + 1,
+
+				int index = this.sorted ? this.dataIndizes.indexOf(i) : i;
+				line = this.data[i].getEntry(index + 1,
 						Config.getInt("GNUPLOT_LW"),
-						Config.getDouble("GNUPLOT_XOFFSET") * i,
-						Config.getDouble("GNUPLOT_YOFFSET") * i,
+						Config.getDouble("GNUPLOT_XOFFSET") * index,
+						Config.getDouble("GNUPLOT_YOFFSET") * index,
 						Config.get("GNUPLOT_XSCALING"),
-						Config.get("GNUPLOT_YSCALING"), this.distPlotType);
+						Config.get("GNUPLOT_YSCALING"), this.distPlotType,
+						this.sorted);
 				line = line.replace("filledcurves", "filledcurves y1=0");
 				if (i == 0) {
 					line = "plot " + line;
 				}
-				if (i < this.data.length - 1) {
+				if (this.sorted || i < this.data.length - 1) {
 					line = line + " , \\";
 				}
 				script.add(line);
@@ -1230,22 +1316,49 @@ public class Plot {
 						type = DistributionPlotType.distOnly;
 				}
 
+				// if sorted buffer legend lines
+				if (this.sorted) {
+					int mappedIndex = this.dataIndizes.indexOf(i);
+					String temp = this.data[i].getEntry(mappedIndex + 1,
+							Config.getInt("GNUPLOT_LW"),
+							this.config.getxOffset() * mappedIndex,
+							this.config.getyOffset() * mappedIndex,
+							this.config.getxScaling(),
+							this.config.getyScaling(), type,
+							this.config.getStyle(), false);
+					temp = temp.replace("filledcurves", "filledcurves y1=0");
+					if (mappedIndex < this.data.length - 1) {
+						temp = temp + " , \\";
+					}
+					buff.add(temp);
+				}
+
 				// get line
-				line = this.data[i].getEntry(i + 1,
+				int index = this.sorted ? this.dataIndizes.indexOf(i) : i;
+				line = this.data[i].getEntry(index + 1,
 						Config.getInt("GNUPLOT_LW"), this.config.getxOffset()
-								* i, this.config.getyOffset() * i,
+								* index, this.config.getyOffset() * index,
 						this.config.getxScaling(), this.config.getyScaling(),
-						type, this.config.getStyle());
+						type, this.config.getStyle(), this.sorted);
 				line = line.replace("filledcurves", "filledcurves y1=0");
 				if (i == 0) {
 					line = "plot " + line;
 				}
-				if (i < this.data.length - 1) {
+				if (sorted || i < this.data.length - 1) {
 					line = line + " , \\";
 				}
 				script.add(line);
 			}
 		}
+
+		// if sorted, add legend descriptions
+		if (this.sorted) {
+			for (int i = 0; i < this.dataIndizes.size(); i++) {
+				script.add(buff.get(dataIndizes.get(i)));
+			}
+		}
+
+		// return
 		return script;
 	}
 
@@ -1354,5 +1467,217 @@ public class Plot {
 
 	public void setTimestampMap(HashMap<Long, Long> timestampMap) {
 		this.timestampMap = timestampMap;
+	}
+
+	public void setValueSortMode(ValueSortMode sortMode) {
+		this.sortMode = sortMode;
+	}
+
+	public ValueSortMode getValueSortMode() {
+		return this.sortMode;
+	}
+
+	public void setValueSortList(String[] valueSortList) {
+		this.valueSortList = valueSortList;
+	}
+
+	public String[] getValueSortList() {
+		return this.valueSortList;
+	}
+
+	/** Sorts the data according to the plot-config. **/
+	public void sortData(PlotConfig config) {
+		this.setValueSortMode(config.getValueSortMode());
+		this.setValueSortList(config.getValueSortList());
+		sortData();
+	}
+
+	/** Sorts the data according to the parameters. **/
+	public void sortData(ValueSortMode valueSortMode, String[] valueSortList) {
+		this.setValueSortMode(valueSortMode);
+		this.setValueSortList(valueSortList);
+		sortData();
+	}
+
+	/**
+	 * Sorts the data according to the internal ValueSortMode and ValueSortList.
+	 **/
+	public void sortData() {
+		// if null or sortmode = NONE or data empty -> return
+		if (this.sortMode == null || this.sortMode.equals(ValueSortMode.NONE)
+				|| this.data.length == 0)
+			return;
+
+		ValueSortMode mode = this.sortMode;
+		String unqiue_delimiter = "§§§";
+
+		// holds the indizes of all values
+		ArrayList<Integer> indexList = new ArrayList<Integer>();
+		for (int i = 0; i < data.length; i++) {
+			indexList.add(i);
+		}
+
+		// will be filled with sorted indizes
+		ArrayList<Integer> sortedIndizesList = new ArrayList<Integer>(
+				data.length);
+
+		// different cases
+		if (mode.equals(ValueSortMode.LIST_FIRST)
+				|| mode.equals(ValueSortMode.ALPHABETICAL_LIST_FIRST)) {
+			// search for entries in plotdata list
+			for (String entry : valueSortList) {
+				for (int i = 0; i < data.length; i++) {
+					PlotData d = data[i];
+					String name = d.getName();
+					if (d instanceof ExpressionData) {
+						name = ((ExpressionData) d).getName().replace("$", "");
+					} else if (d instanceof FunctionData) {
+						name = ((FunctionData) d).getName();
+					}
+
+					// if found, add to list
+					if (name.equals(entry)) {
+						int index = indexList.indexOf(i);
+						sortedIndizesList.add(index);
+					}
+				}
+			}
+
+			// remove already detected list objects
+			for (Integer i : sortedIndizesList) {
+				indexList.remove(i);
+			}
+
+			// add normal objects last
+			if (mode.equals(ValueSortMode.ALPHABETICAL_LIST_FIRST)) {
+				// sort alphabetical
+				Map<String, Integer> map = new HashMap<String, Integer>();
+				ArrayList<String> namesList = new ArrayList<String>();
+				for (int i = 0; i < indexList.size(); i++) {
+					int index = indexList.get(i);
+					PlotData d = data[index];
+					String name = d.getName();
+					if (d instanceof ExpressionData) {
+						name = ((ExpressionData) d).getName().replace("$", "");
+					} else if (d instanceof FunctionData) {
+						name = ((FunctionData) d).getName();
+					}
+
+					map.put(name + unqiue_delimiter + d.getTitle(), index);
+					namesList.add(name + unqiue_delimiter + d.getTitle());
+				}
+
+				// sort
+				Collections.sort(namesList);
+
+				// get sorted indizes from map and add data to sorted list
+				for (String name : namesList) {
+					sortedIndizesList.add(map.get(name));
+				}
+			} else {
+				for (int i = 0; i < indexList.size(); i++)
+					sortedIndizesList.add(indexList.get(i));
+			}
+		} else if (mode.equals(ValueSortMode.LIST_LAST)
+				|| mode.equals(ValueSortMode.ALPHABETICAL_LIST_LAST)) {
+			ArrayList<Integer> tempList = new ArrayList<Integer>();
+
+			// search for entries in plotdata list
+			for (String entry : valueSortList) {
+				for (int i = 0; i < data.length; i++) {
+					PlotData d = data[i];
+					String name = d.getName();
+					if (d instanceof ExpressionData) {
+						name = ((ExpressionData) d).getName().replace("$", "");
+					} else if (d instanceof FunctionData) {
+						name = ((FunctionData) d).getName();
+					}
+
+					if (name.equals(entry)) {
+						int index = indexList.indexOf(i);
+						tempList.add(index);
+					}
+				}
+			}
+
+			// remove already detected list objects
+			for (Integer i : tempList) {
+				indexList.remove(i);
+			}
+
+			if (mode.equals(ValueSortMode.ALPHABETICAL_LIST_LAST)) {
+				// sort alphabetical
+				Map<String, Integer> map = new HashMap<String, Integer>();
+				ArrayList<String> namesList = new ArrayList<String>();
+				for (int i = 0; i < indexList.size(); i++) {
+					int index = indexList.get(i);
+					PlotData d = data[index];
+					String name = d.getName();
+					if (d instanceof ExpressionData) {
+						name = ((ExpressionData) d).getName().replace("$", "");
+					} else if (d instanceof FunctionData) {
+						name = ((FunctionData) d).getName();
+					}
+
+					map.put(name + unqiue_delimiter + d.getTitle(), index);
+					namesList.add(name + unqiue_delimiter + d.getTitle());
+				}
+
+				// sort
+				Collections.sort(namesList);
+
+				// get sorted indizes from map and add data to sorted list
+				for (String name : namesList) {
+					sortedIndizesList.add(map.get(name));
+				}
+			} else {
+				// add normal objects first
+				for (int i = 0; i < indexList.size(); i++) {
+					sortedIndizesList.add(indexList.get(i));
+				}
+			}
+
+			// add list objects last
+			for (int i = 0; i < tempList.size(); i++)
+				sortedIndizesList.add(tempList.get(i));
+
+		} else if (mode.equals(ValueSortMode.ALPHABETICAL)) {
+			// sort alphabetical
+			Map<String, Integer> map = new HashMap<String, Integer>();
+			ArrayList<String> namesList = new ArrayList<String>();
+			for (int i = 0; i < data.length; i++) {
+				PlotData d = data[i];
+				String name = d.getName();
+				if (d instanceof ExpressionData) {
+					name = ((ExpressionData) d).getName().replace("$", "");
+				} else if (d instanceof FunctionData) {
+					name = ((FunctionData) d).getName();
+				}
+
+				map.put(name + unqiue_delimiter + d.getTitle(), i);
+				namesList.add(name + unqiue_delimiter + d.getTitle());
+			}
+
+			// sort
+			Collections.sort(namesList);
+
+			// get sorted indizes from map and add data to sorted list
+			for (String name : namesList)
+				sortedIndizesList.add(map.get(name));
+		}
+
+		// copy sorted indizes
+		for (int i = 0; i < sortedIndizesList.size(); i++) {
+			this.dataIndizes.set(i, sortedIndizesList.get(i));
+
+			// updated sorted flag
+			if (!this.sorted && this.dataIndizes.get(i) != i)
+				this.sorted = true;
+		}
+
+		// init buffer array-list
+		if (this.sorted)
+			this.bufferedData = new String[this.data.length
+					- this.functionQuantity];
 	}
 }

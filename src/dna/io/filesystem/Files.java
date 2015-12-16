@@ -6,6 +6,7 @@ import java.nio.file.DirectoryStream;
 import java.nio.file.Path;
 import java.util.ArrayList;
 
+import dna.io.LegacyDistributionReader.LegacyDistributionType;
 import dna.io.ZipReader;
 import dna.io.filter.SuffixFilenameFilter;
 import dna.series.aggdata.AggregatedBatch;
@@ -96,6 +97,12 @@ public class Files {
 	}
 
 	public static String[] getDistributions(String dir) throws IOException {
+		return getDistributions(dir,
+				Config.getBoolean("READ_LEGACY_DISTRIBUTIONS"));
+	}
+
+	public static String[] getDistributions(String dir, boolean supportLegacy)
+			throws IOException {
 		if (ZipReader.isZipOpen()) {
 			Path p = ZipReader.getPath(dir);
 			ArrayList<String> fileList = new ArrayList<String>();
@@ -103,7 +110,7 @@ public class Files {
 					.newDirectoryStream(p)) {
 				for (Path file : directoryStream) {
 					if (Files.endsWithDistributionSuffix(file.getFileName()
-							.toString())) {
+							.toString(), supportLegacy)) {
 						fileList.add(file.getFileName().toString());
 					}
 				}
@@ -111,7 +118,7 @@ public class Files {
 			return (String[]) fileList.toArray(new String[0]);
 		} else {
 			return (new File(dir)).list(new SuffixFilenameFilter(Files
-					.getDistributionSuffixes()));
+					.getDistributionSuffixes(supportLegacy)));
 		}
 	}
 
@@ -131,6 +138,32 @@ public class Files {
 			return filename.replace(Config.get("SUFFIX_DIST_QUALITY_INT"), "");
 		case QUALITY_LONG:
 			return filename.replace(Config.get("SUFFIX_DIST_QUALITY_LONG"), "");
+		default:
+			return null;
+		}
+	}
+
+	public static String getDistributionNameFromFilename(String filename,
+			LegacyDistributionType type) {
+		switch (type) {
+		case BINNED_DOUBLE:
+			return filename.replace(
+					Config.get("LEGACY_SUFFIX_DIST_BINNED_DOUBLE"), "");
+		case BINNED_INT:
+			return filename.replace(
+					Config.get("LEGACY_SUFFIX_DIST_BINNED_INT"), "");
+		case BINNED_LONG:
+			return filename.replace(
+					Config.get("LEGACY_SUFFIX_DIST_BINNED_LONG"), "");
+		case DIST:
+			return filename.replace(Config.get("LEGACY_SUFFIX_DIST"), "");
+		case DOUBLE:
+			return filename
+					.replace(Config.get("LEGACY_SUFFIX_DIST_DOUBLE"), "");
+		case INT:
+			return filename.replace(Config.get("LEGACY_SUFFIX_DIST_INT"), "");
+		case LONG:
+			return filename.replace(Config.get("LEGACY_SUFFIX_DIST_LONG"), "");
 		default:
 			return null;
 		}
@@ -256,7 +289,8 @@ public class Files {
 	}
 
 	public static boolean endsWithDistributionSuffix(String name) {
-		return Files.endsWithDistributionSuffix(name, false);
+		return Files.endsWithDistributionSuffix(name,
+				Config.getBoolean("READ_LEGACY_DISTRIBUTIONS"));
 	}
 
 	public static boolean endsWithDistributionSuffix(String name,
@@ -283,6 +317,24 @@ public class Files {
 		return false;
 	}
 
+	public static String[] getDistributionSuffixes(boolean includeLegacy) {
+		if (!includeLegacy)
+			return getDistributionSuffixes();
+
+		String[] regularSuffixes = getDistributionSuffixes();
+		String[] legacySuffixes = getLegacyDistributionSuffixes();
+
+		int regLength = regularSuffixes.length;
+		int legLength = legacySuffixes.length;
+
+		String[] allSuffixes = new String[regLength + legLength];
+
+		System.arraycopy(regularSuffixes, 0, allSuffixes, 0, regLength);
+		System.arraycopy(legacySuffixes, 0, allSuffixes, regLength, legLength);
+
+		return allSuffixes;
+	}
+
 	public static String[] getDistributionSuffixes() {
 		return new String[] { Config.get("SUFFIX_DIST_DOUBLE"),
 				Config.get("SUFFIX_DIST_INT"), Config.get("SUFFIX_DIST_LONG"),
@@ -294,14 +346,14 @@ public class Files {
 	}
 
 	public static String[] getLegacyDistributionSuffixes() {
-		return new String[] { Config.get("LEGACY_SUFFIX_DIST"),
-				Config.get("LEGACY_SUFFIX_DIST_BINNED"),
-				Config.get("LEGACY_SUFFIX_DIST_INT"),
+		return new String[] { Config.get("LEGACY_SUFFIX_DIST_INT"),
 				Config.get("LEGACY_SUFFIX_DIST_LONG"),
 				Config.get("LEGACY_SUFFIX_DIST_DOUBLE"),
 				Config.get("LEGACY_SUFFIX_DIST_BINNED_INT"),
 				Config.get("LEGACY_SUFFIX_DIST_BINNED_LONG"),
-				Config.get("LEGACY_SUFFIX_DIST_BINNED_DOUBLE") };
+				Config.get("LEGACY_SUFFIX_DIST_BINNED_DOUBLE"),
+				Config.get("LEGACY_SUFFIX_DIST"),
+				Config.get("LEGACY_SUFFIX_DIST_BINNED") };
 	}
 
 }
