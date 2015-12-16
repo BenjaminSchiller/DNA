@@ -30,10 +30,6 @@ public abstract class InfoLabel extends ToolTip {
 		DOUBLE, INT, LONG
 	}
 
-	public InfoLabel() {
-
-	}
-
 	/** Type of the value that is stored. **/
 	private LabelValueType valueType;
 

@@ -15,10 +15,6 @@ import dna.visualization.graph.toolTip.ToolTip;
  */
 public abstract class Button extends ToolTip {
 
-	public Button() {
-
-	}
-
 	/**
 	 * The constructor.
 	 * 
