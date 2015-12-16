@@ -6,9 +6,8 @@ import dna.graph.nodes.Node;
 import dna.metrics.IMetric;
 import dna.metrics.Metric;
 import dna.series.data.Value;
-import dna.series.data.distributions.Distribution;
-import dna.series.data.distributions.DistributionDouble;
-import dna.series.data.distributions.DistributionInt;
+import dna.series.data.distr.BinnedIntDistr;
+import dna.series.data.distr.Distr;
 import dna.series.data.nodevaluelists.NodeNodeValueList;
 import dna.series.data.nodevaluelists.NodeValueList;
 import dna.updates.batch.Batch;
@@ -17,9 +16,9 @@ import dna.util.parameters.Parameter;
 
 public abstract class RichClubConnectivityByDegree extends Metric {
 
-	protected int[] edgeCount;
-	protected int[] nodeCount;
-	protected int[] size;
+	protected long[] edgeCount;
+	protected long[] nodeCount;
+	protected long[] size;
 
 	public RichClubConnectivityByDegree(String name, Parameter... p) {
 		super(name, p);
@@ -74,16 +73,20 @@ public abstract class RichClubConnectivityByDegree extends Metric {
 	}
 
 	@Override
-	public Distribution[] getDistributions() {
-		double[] v = new double[this.edgeCount.length];
-		for (int i = 0; i < this.edgeCount.length; i++) {
-			v[i] = this.getCoefficient(i);
-		}
-		Distribution d = new DistributionDouble("RichClubConnectivity", v);
-		Distribution edges = new DistributionInt("edges", this.edgeCount, 1);
-		Distribution nodes = new DistributionInt("nodes", this.nodeCount, 1);
-		Distribution size = new DistributionInt("size", this.size, 1);
-		return new Distribution[] { d, edges, nodes, size };
+	public Distr<?, ?>[] getDistributions() {
+		// TODO fix RCC (adapt to new Distr!!!
+		// double[] v = new double[this.edgeCount.length];
+		// for (int i = 0; i < this.edgeCount.length; i++) {
+		// v[i] = this.getCoefficient(i);
+		// }
+		// Distribution d = new DistributionDouble("RichClubConnectivity", v);
+		BinnedIntDistr rcc = new BinnedIntDistr("RichClubConnectivity");
+		BinnedIntDistr edges = new BinnedIntDistr("edgeCount", 1,
+				this.edgeCount, 1);
+		BinnedIntDistr nodes = new BinnedIntDistr("nodeCount", 1,
+				this.nodeCount, 1);
+		BinnedIntDistr size = new BinnedIntDistr("size", 1, this.size, 1);
+		return new Distr<?, ?>[] { rcc, edges, nodes, size };
 	}
 
 	@Override
@@ -140,9 +143,9 @@ public abstract class RichClubConnectivityByDegree extends Metric {
 	}
 
 	protected void fill(DegreeRichClubs rcs) {
-		this.edgeCount = new int[rcs.clubs.size()];
-		this.nodeCount = new int[rcs.clubs.size()];
-		this.size = new int[rcs.clubs.size()];
+		this.edgeCount = new long[rcs.clubs.size()];
+		this.nodeCount = new long[rcs.clubs.size()];
+		this.size = new long[rcs.clubs.size()];
 
 		for (DegreeRichClub rc : rcs.clubs.values()) {
 			this.edgeCount[rc.degree] = rc.edgeCount;
