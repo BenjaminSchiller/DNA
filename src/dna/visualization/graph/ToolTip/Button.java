@@ -28,7 +28,11 @@ public abstract class Button extends ToolTip {
 	public Button(Sprite s, String name, String attachementId) {
 		this.s = s;
 		setName(name);
+		setType();
 		attachToNode(attachementId);
+
+		// store on sprite
+		storeThisOnSprite();
 	}
 
 	/** Sets the label of the Button. **/
@@ -38,6 +42,11 @@ public abstract class Button extends ToolTip {
 
 	/** Returns the ToolTipType. Override to return a specific type. **/
 	public abstract ToolTipType getType();
+
+	/** Sets the ToolTipType on the Sprite. **/
+	protected void setType() {
+		this.s.setAttribute(ToolTip.GraphVisToolTipTypeKey, getType());
+	}
 
 	/** Returns the default label. **/
 	protected abstract String getDefaultLabel();

@@ -30,29 +30,26 @@ public class HighlightButton extends Button {
 	private double growth;
 	private final int maxLevel = 3;
 
-	/**
-	 * HighlightButton constructor. This constructor is called each time the
-	 * underlying Sprite is clicked. The init-flag should only be set on actual
-	 * first-time initializations.
-	 **/
+	/** HighlightButton constructor. **/
 	public HighlightButton(Sprite s, String name, String attachementId,
-			double growth, boolean init) {
+			double growth) {
 		super(s, name, attachementId);
 		this.growth = growth;
-		this.s.setAttribute(ToolTip.GraphVisToolTipTypeKey,
-				ToolTipType.BUTTON_HIGHLIGHT);
 
+		// check if node is already highlighted -> get level
 		int level = 0;
 		if (s.attached()) {
 			Element e = s.getAttachment();
 			if (e.hasAttribute(highlightButtonKey))
 				level = e.getAttribute(highlightButtonKey, Integer.class);
 		}
+		// set style according to level
 		setStyleByLevel(level);
 	}
 
+	/** Constructor using default-growth. **/
 	public HighlightButton(Sprite s, String name, String attachementId) {
-		this(s, name, attachementId, defaultGrowth, true);
+		this(s, name, attachementId, defaultGrowth);
 	}
 
 	@Override
@@ -62,9 +59,7 @@ public class HighlightButton extends Button {
 
 	/** Returns this Button from a sprite. **/
 	public static HighlightButton getFromSprite(Sprite s) {
-		return new HighlightButton(s, s.getAttribute(
-				ToolTip.GraphVisToolTipNameKey, String.class), s
-				.getAttachment().getId(), defaultGrowth, false);
+		return (HighlightButton) ToolTip.getToolTipFromSprite(s);
 	}
 
 	@Override

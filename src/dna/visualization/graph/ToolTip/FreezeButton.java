@@ -18,28 +18,16 @@ public class FreezeButton extends Button {
 	private static final String defaultLabel = "Freeze";
 	private static final String pressedLabel = "Unfreeze";
 
-	/**
-	 * FreezeButton constructor. This constructor is called each time the
-	 * underlying Sprite is clicked. The init-flag should only be set on actual
-	 * first-time initializations.
-	 **/
-	public FreezeButton(Sprite s, String name, String attachementId,
-			boolean init) {
-		super(s, name, attachementId);
-		this.s.setAttribute(ToolTip.GraphVisToolTipTypeKey,
-				ToolTipType.BUTTON_FREEZE);
-
-		if (init) {
-			Element e = s.getAttachment();
-			if (e.hasAttribute(GraphVisualization.frozenKey))
-				setPressedStyle();
-			else
-				setDefaultStyle();
-		}
-	}
-
+	/** FreezeButton constructor. **/
 	public FreezeButton(Sprite s, String name, String attachementId) {
-		this(s, name, attachementId, true);
+		super(s, name, attachementId);
+
+		// if node is frozen -> use pressed style
+		Element e = s.getAttachment();
+		if (e.hasAttribute(GraphVisualization.frozenKey))
+			setPressedStyle();
+		else
+			setDefaultStyle();
 	}
 
 	@Override
@@ -49,9 +37,7 @@ public class FreezeButton extends Button {
 
 	/** Returns this Button from a sprite. **/
 	public static FreezeButton getFromSprite(Sprite s) {
-		return new FreezeButton(s, s.getAttribute(
-				ToolTip.GraphVisToolTipNameKey, String.class), s
-				.getAttachment().getId(), false);
+		return (FreezeButton) ToolTip.getToolTipFromSprite(s);
 	}
 
 	@Override
