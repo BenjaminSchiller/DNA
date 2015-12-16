@@ -151,18 +151,18 @@ public class GraphVisMouseManager extends DefaultMouseManager {
 					sm.removeSprite(spriteId4);
 			} else {
 				// add tooltips
-				
+
 				int pos = 40;
-				
+
 				Sprite sp1 = sm.addSprite(spriteId);
 				InfoLabel il1 = new InfoLabel(sp1, "Node", LabelValueType.INT);
 				il1.setDefaultStyle();
 				il1.attachToNode(nodeId);
 				il1.setValue(nodeId);
-				
+
 				il1.setPosition(pos, 270);
 				pos += 30;
-				
+
 				Sprite sp2 = sm.addSprite(spriteId2);
 				InfoLabel il2 = new InfoLabel(sp2, "Degree", LabelValueType.INT);
 				il2.setDefaultStyle();
@@ -170,7 +170,7 @@ public class GraphVisMouseManager extends DefaultMouseManager {
 				il2.setValue("" + node.getDegree());
 				il2.setPosition(pos, 270);
 				pos += 30;
-				
+
 				Sprite sp3 = sm.addSprite(spriteId3);
 				FreezeButton b3 = new FreezeButton(sp3, "Freeze", nodeId);
 				b3.setPosition(pos, 270);
