@@ -7,7 +7,6 @@ import java.util.LinkedList;
 import java.util.PriorityQueue;
 import java.util.Queue;
 
-import dna.depr.metrics.apsp.QueueElement;
 import dna.graph.IElement;
 import dna.graph.edges.DirectedEdge;
 import dna.graph.edges.Edge;
