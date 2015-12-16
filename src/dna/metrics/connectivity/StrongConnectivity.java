@@ -11,8 +11,8 @@ import dna.graph.nodes.DirectedNode;
 import dna.metrics.IMetric;
 import dna.metrics.Metric;
 import dna.series.data.Value;
-import dna.series.data.distributions.Distribution;
-import dna.series.data.distributions.DistributionDouble;
+import dna.series.data.distr.BinnedIntDistr;
+import dna.series.data.distr.Distr;
 import dna.series.data.nodevaluelists.NodeNodeValueList;
 import dna.series.data.nodevaluelists.NodeValueList;
 import dna.updates.batch.Batch;
@@ -139,20 +139,27 @@ public abstract class StrongConnectivity extends Metric {
 	}
 
 	@Override
-	public Distribution[] getDistributions() {
-		Distribution d1 = new DistributionDouble("ComponentsSize",
-				calculateComponents());
-		return new Distribution[] { d1 };
+	public Distr<?, ?>[] getDistributions() {
+		return new Distr<?, ?>[] { this.calculateComponents() };
 	}
 
-	private double[] calculateComponents() {
-		double[] components = new double[dag.size()];
-		int count = 0;
-		for (int s : dag.keySet()) {
-			components[count] = this.dag.get(s).getSize();
-			count++;
+	// private double[] calculateComponents() {
+	// double[] components = new double[dag.size()];
+	// int count = 0;
+	// for (int s : dag.keySet()) {
+	// components[count] = this.dag.get(s).getSize();
+	// count++;
+	// }
+	// return components;
+	// }
+
+	private BinnedIntDistr calculateComponents() {
+		BinnedIntDistr distr = new BinnedIntDistr("Components");
+		int index = 0;
+		for (StrongComponent c : dag.values()) {
+			distr.incr(index++, c.getSize());
 		}
-		return components;
+		return distr;
 	}
 
 	@Override

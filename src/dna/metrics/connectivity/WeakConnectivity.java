@@ -11,8 +11,8 @@ import dna.graph.nodes.Node;
 import dna.metrics.IMetric;
 import dna.metrics.Metric;
 import dna.series.data.Value;
-import dna.series.data.distributions.Distribution;
-import dna.series.data.distributions.DistributionDouble;
+import dna.series.data.distr.BinnedIntDistr;
+import dna.series.data.distr.Distr;
 import dna.series.data.nodevaluelists.NodeNodeValueList;
 import dna.series.data.nodevaluelists.NodeValueList;
 import dna.updates.batch.Batch;
@@ -53,10 +53,8 @@ public abstract class WeakConnectivity extends Metric {
 	}
 
 	@Override
-	public Distribution[] getDistributions() {
-		Distribution d1 = new DistributionDouble("Components",
-				calculateComponents());
-		return new Distribution[] { d1 };
+	public Distr<?, ?>[] getDistributions() {
+		return new Distr[] { this.calculateComponents() };
 	}
 
 	@Override
@@ -69,14 +67,23 @@ public abstract class WeakConnectivity extends Metric {
 		return new NodeNodeValueList[] {};
 	}
 
-	private double[] calculateComponents() {
-		double[] sumComp = new double[componentList.size()];
-		int counter = 0;
+	// private double[] calculateComponents() {
+	// double[] sumComp = new double[componentList.size()];
+	// int counter = 0;
+	// for (WeakComponent n : componentList.values()) {
+	// sumComp[counter] = n.getSize();
+	// counter++;
+	// }
+	// return sumComp;
+	// }
+
+	private BinnedIntDistr calculateComponents() {
+		BinnedIntDistr distr = new BinnedIntDistr("Components");
+		int index = 0;
 		for (WeakComponent n : componentList.values()) {
-			sumComp[counter] = n.getSize();
-			counter++;
+			distr.incr(index++, n.getSize());
 		}
-		return sumComp;
+		return distr;
 	}
 
 	@Override
