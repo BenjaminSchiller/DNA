@@ -38,7 +38,7 @@ public class ToolTipManager extends GraphStyleRule {
 	// class fields
 	private String name;
 	private ArrayList<String> toolTipsNames;
-	private ArrayList<Class<? extends ToolTip>> toolTipsTypes;
+	private ArrayList<ToolTipType> toolTipsTypes;
 
 	// configuration
 	private int distance;
@@ -55,13 +55,13 @@ public class ToolTipManager extends GraphStyleRule {
 		this.offset = offset;
 		this.angle = angle;
 		this.toolTipsNames = new ArrayList<String>();
-		this.toolTipsTypes = new ArrayList<Class<? extends ToolTip>>();
+		this.toolTipsTypes = new ArrayList<ToolTipType>();
 	}
 
 	/** Adds a tooltip of the given name and type to the manager. **/
-	public void addToolTip(String name, Class<? extends ToolTip> c) {
+	public void addToolTip(String name, ToolTipType type) {
 		this.toolTipsNames.add(name);
-		this.toolTipsTypes.add(c);
+		this.toolTipsTypes.add(type);
 	}
 
 	/** Removes the tooltip from the manager. **/
@@ -80,20 +80,25 @@ public class ToolTipManager extends GraphStyleRule {
 		return this.name;
 	}
 
+	/** Returns if the node has ToolTips shown at the moment. **/
 	protected static boolean isToolTipsActive(Node node) {
 		return node.hasAttribute(ToolTip.GraphVisToolTipActiveKey);
 	}
 
+	/** Sets ToolTips shown flag. **/
 	protected static void setToolTipsActive(Node node) {
 		node.setAttribute(ToolTip.GraphVisToolTipActiveKey);
 	}
 
+	/** Removes ToolTips shown flag. **/
 	protected static void setToolTipsInactive(Node node) {
 		node.removeAttribute(ToolTip.GraphVisToolTipActiveKey);
 	}
 
-	protected static String getToolTipId(String name, String nodeId) {
-		return name + "_" + nodeId;
+	/** Returns the ToolTip id based on the parameters. **/
+	protected static String getToolTipId(String name, ToolTipType type,
+			String nodeId) {
+		return type + "_" + name + "_" + nodeId;
 	}
 
 	/** Gathers all ToolTips on the given node. **/
@@ -101,7 +106,7 @@ public class ToolTipManager extends GraphStyleRule {
 		ArrayList<ToolTip> list = new ArrayList<ToolTip>();
 		for (int i = 0; i < this.toolTipsTypes.size(); i++) {
 			String toolTipId = getToolTipId(this.toolTipsNames.get(i),
-					node.getId());
+					this.toolTipsTypes.get(i), node.getId());
 			if (sm.hasSprite(toolTipId))
 				list.add(ToolTip.getFromSprite(sm.getSprite(toolTipId)));
 		}
@@ -113,7 +118,7 @@ public class ToolTipManager extends GraphStyleRule {
 	protected void hideAllToolTips(Node node) {
 		for (int i = 0; i < this.toolTipsTypes.size(); i++) {
 			String toolTipId = getToolTipId(this.toolTipsNames.get(i),
-					node.getId());
+					this.toolTipsTypes.get(i), node.getId());
 			if (sm.hasSprite(toolTipId))
 				sm.removeSprite(toolTipId);
 		}
@@ -122,48 +127,51 @@ public class ToolTipManager extends GraphStyleRule {
 		setToolTipsInactive(node);
 	}
 
+	/**
+	 * Initializes a ToolTip.
+	 * 
+	 * <p>
+	 * 
+	 * Note: Integrate new ToolTip implementations in this method, else they
+	 * wont be rendered.
+	 */
+	protected void initToolTip(String name, ToolTipType ttt, Node node,
+			int offset) {
+		String nodeId = node.getId();
+		ToolTip tt = null;
+
+		// craft sprite
+		String ttId = getToolTipId(name, ttt, nodeId);
+		Sprite sprite = sm.addSprite(ttId);
+
+		// switch on type
+		switch (ttt) {
+		case BUTTON_FREEZE:
+			tt = new FreezeButton(sprite, name, nodeId);
+			break;
+		case BUTTON_HIGHLIGHT:
+			tt = new HighlightButton(sprite, name, nodeId);
+			break;
+		case INFO_NODE_DEGREE:
+			tt = new NodeDegreeLabel(sprite, name, node);
+			break;
+		case INFO_NODE_ID:
+			tt = new NodeIdLabel(sprite, name, nodeId);
+			break;
+		case NONE:
+			sm.removeSprite(ttId);
+			break;
+		}
+
+		tt.setPosition(distance + offset, angle);
+	}
+
 	/** Shows all ToolTips on the given node. **/
 	protected void showAllToolTips(Node node) {
-		String nodeId = node.getId();
-
 		// iterate over all set tooltips
 		for (int i = 0; i < this.toolTipsTypes.size(); i++) {
-			String name = this.toolTipsNames.get(i);
-
-			Class<? extends ToolTip> ttt = this.toolTipsTypes.get(i);
-			ToolTip tt = null;
-
-			// new instance to get type
-			try {
-				tt = ttt.newInstance();
-			} catch (InstantiationException | IllegalAccessException e) {
-				e.printStackTrace();
-			}
-
-			// craft sprite
-			String ttId = getToolTipId(name, nodeId);
-			Sprite sprite = sm.addSprite(ttId);
-
-			// switch on type
-			switch (tt.getType()) {
-			case BUTTON_FREEZE:
-				tt = new FreezeButton(sprite, name, nodeId);
-				break;
-			case BUTTON_HIGHLIGHT:
-				tt = new HighlightButton(sprite, name, nodeId);
-				break;
-			case INFO_NODE_DEGREE:
-				tt = new NodeDegreeLabel(sprite, name, node);
-				break;
-			case INFO_NODE_ID:
-				tt = new NodeIdLabel(sprite, name, nodeId);
-				break;
-			case NONE:
-				sm.removeSprite(ttId);
-				break;
-			}
-
-			tt.setPosition(distance + i * offset, angle);
+			initToolTip(this.toolTipsNames.get(i), this.toolTipsTypes.get(i),
+					node, i * offset);
 		}
 
 		// set tooltips-active flag

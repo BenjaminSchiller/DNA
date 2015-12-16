@@ -9,10 +9,7 @@ import dna.graph.weights.Weight;
 /** The NodeDegreeLabel shows the Degree of the Node it is attached to. **/
 public class NodeDegreeLabel extends InfoLabel {
 
-	public NodeDegreeLabel() {
-
-	}
-
+	// constructor
 	public NodeDegreeLabel(Sprite s, String name, Node node) {
 		super(s, name, node.getId(), LabelValueType.INT, "" + node.getDegree());
 	}

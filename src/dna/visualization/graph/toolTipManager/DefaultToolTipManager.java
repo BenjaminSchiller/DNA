@@ -1,6 +1,7 @@
 package dna.visualization.graph.toolTipManager;
 
 import dna.visualization.graph.GraphPanel;
+import dna.visualization.graph.toolTip.ToolTip.ToolTipType;
 import dna.visualization.graph.toolTip.button.FreezeButton;
 import dna.visualization.graph.toolTip.button.HighlightButton;
 import dna.visualization.graph.toolTip.infoLabel.NodeDegreeLabel;
@@ -24,10 +25,10 @@ public class DefaultToolTipManager extends ToolTipManager {
 				distance, offset, angle);
 
 		// add additional tooltips here
-		addToolTip("Node", NodeIdLabel.class);
-		addToolTip("Degree", NodeDegreeLabel.class);
-		addToolTip("Freeze", FreezeButton.class);
-		addToolTip("Highlight", HighlightButton.class);
+		addToolTip("Node", ToolTipType.INFO_NODE_ID);
+		addToolTip("Degree", ToolTipType.INFO_NODE_DEGREE);
+		addToolTip("Freeze", ToolTipType.BUTTON_FREEZE);
+		addToolTip("Highlight", ToolTipType.BUTTON_HIGHLIGHT);
 	}
 
 }

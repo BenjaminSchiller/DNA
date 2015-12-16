@@ -34,10 +34,6 @@ public class HighlightButton extends Button {
 	private double growth;
 	private final int maxLevel = 3;
 
-	public HighlightButton() {
-
-	}
-
 	/** HighlightButton constructor. **/
 	public HighlightButton(Sprite s, String name, String attachementId,
 			double growth) {
