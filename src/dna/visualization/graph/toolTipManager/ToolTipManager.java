@@ -8,13 +8,15 @@ import org.graphstream.ui.graphicGraph.GraphicNode;
 import org.graphstream.ui.spriteManager.Sprite;
 import org.graphstream.ui.spriteManager.SpriteManager;
 
+import dna.graph.weights.Weight;
 import dna.visualization.graph.GraphPanel;
-import dna.visualization.graph.toolTip.FreezeButton;
-import dna.visualization.graph.toolTip.HighlightButton;
-import dna.visualization.graph.toolTip.InfoLabel;
-import dna.visualization.graph.toolTip.InfoLabel.LabelValueType;
+import dna.visualization.graph.rules.GraphStyleRule;
 import dna.visualization.graph.toolTip.ToolTip;
 import dna.visualization.graph.toolTip.ToolTip.ToolTipType;
+import dna.visualization.graph.toolTip.button.FreezeButton;
+import dna.visualization.graph.toolTip.button.HighlightButton;
+import dna.visualization.graph.toolTip.infoLabel.NodeDegreeLabel;
+import dna.visualization.graph.toolTip.infoLabel.NodeIdLabel;
 
 /**
  * The ToolTipManager handles the ToolTips used in the GraphVisualization.
@@ -27,12 +29,13 @@ import dna.visualization.graph.toolTip.ToolTip.ToolTipType;
  * @author Rwilmes
  * @date 16.12.2015
  */
-public class ToolTipManager {
+public class ToolTipManager extends GraphStyleRule {
 
+	// registered components
 	private GraphPanel panel;
-
 	private SpriteManager sm;
 
+	// class fields
 	private String name;
 	private ArrayList<String> toolTipsNames;
 	private ArrayList<ToolTipType> toolTipsTypes;
@@ -77,14 +80,81 @@ public class ToolTipManager {
 		return this.name;
 	}
 
-	/** Called when a node is getting removed. **/
-	public void onNodeRemoval(Node node) {
-
+	protected static boolean isToolTipsActive(Node node) {
+		return node.hasAttribute(ToolTip.GraphVisToolTipActiveKey);
 	}
 
-	/** Called when an edge is getting removed. **/
-	public void onEdgeRemoval(Edge e, Node n1, Node n2) {
+	protected static void setToolTipsActive(Node node) {
+		node.setAttribute(ToolTip.GraphVisToolTipActiveKey);
+	}
 
+	protected static void setToolTipsInactive(Node node) {
+		node.removeAttribute(ToolTip.GraphVisToolTipActiveKey);
+	}
+
+	/** Gathers all ToolTips on the given node. **/
+	protected ArrayList<ToolTip> getAllToolTips(Node node) {
+		ArrayList<ToolTip> list = new ArrayList<ToolTip>();
+		for (int i = 0; i < this.toolTipsTypes.size(); i++) {
+			String toolTipId = this.toolTipsTypes.get(i).toString() + "_"
+					+ this.toolTipsNames.get(i) + "_" + node.getId();
+			if (sm.hasSprite(toolTipId))
+				list.add(ToolTip.getFromSprite(sm.getSprite(toolTipId)));
+		}
+
+		return list;
+	}
+
+	/** Hides all ToolTips from the given node. **/
+	protected void hideAllToolTips(Node node) {
+		for (int i = 0; i < this.toolTipsTypes.size(); i++) {
+			String toolTipId = this.toolTipsTypes.get(i).toString() + "_"
+					+ this.toolTipsNames.get(i) + "_" + node.getId();
+			if (sm.hasSprite(toolTipId))
+				sm.removeSprite(toolTipId);
+		}
+
+		// remove flag
+		setToolTipsInactive(node);
+	}
+
+	/** Shows all ToolTips on the given node. **/
+	protected void showAllToolTips(Node node) {
+		String nodeId = node.getId();
+
+		// iterate over all set tooltips
+		for (int i = 0; i < this.toolTipsTypes.size(); i++) {
+			String name = this.toolTipsNames.get(i);
+			ToolTipType ttt = this.toolTipsTypes.get(i);
+			String ttId = ttt.toString() + "_" + name + "_" + nodeId;
+
+			Sprite sprite = sm.addSprite(ttId);
+			ToolTip tt = null;
+
+			// switch on type
+			switch (ttt) {
+			case BUTTON_FREEZE:
+				tt = new FreezeButton(sprite, name, nodeId);
+				break;
+			case BUTTON_HIGHLIGHT:
+				tt = new HighlightButton(sprite, name, nodeId);
+				break;
+			case INFO_NODE_DEGREE:
+				tt = new NodeDegreeLabel(sprite, name, node);
+				break;
+			case INFO_NODE_ID:
+				tt = new NodeIdLabel(sprite, name, nodeId);
+				break;
+			case NONE:
+				sm.removeSprite(ttId);
+				break;
+			}
+
+			tt.setPosition(distance + i * offset, angle);
+		}
+
+		// set tooltips-active flag
+		setToolTipsActive(node);
 	}
 
 	/** Called when a right-click on a node occurs. **/
@@ -94,49 +164,59 @@ public class ToolTipManager {
 
 		String nodeId = graphicNode.getId();
 		Node node = this.panel.getGraph().getNode(nodeId);
-		boolean toolTipsActive = node
-				.hasAttribute(ToolTip.GraphVisToolTipActiveKey);
+		boolean toolTipsActive = isToolTipsActive(node);
 
 		if (toolTipsActive) {
 			// if active -> remove
-			for (int i = 0; i < this.toolTipsTypes.size(); i++) {
-				String toolTipId = this.toolTipsNames.get(i) + nodeId;
-				if (sm.hasSprite(toolTipId))
-					sm.removeSprite(toolTipId);
-			}
-
-			// remove flag
-			node.removeAttribute(ToolTip.GraphVisToolTipActiveKey);
+			hideAllToolTips(node);
 		} else {
 			// if not active -> create
-			for (int i = 0; i < this.toolTipsTypes.size(); i++) {
-				String name = this.toolTipsNames.get(i);
-				String ttId = name + nodeId;
-				ToolTipType ttt = this.toolTipsTypes.get(i);
-
-				Sprite sprite = sm.addSprite(ttId);
-				ToolTip tt = null;
-				switch (ttt) {
-				case BUTTON_FREEZE:
-					tt = new FreezeButton(sprite, name, nodeId);
-					break;
-				case BUTTON_HIGHLIGHT:
-					tt = new HighlightButton(sprite, name, nodeId);
-					break;
-				case INFO:
-					tt = new InfoLabel(sprite, name, nodeId,
-							LabelValueType.INT, "" + 0);
-					break;
-				case NONE:
-					sm.removeSprite(ttId);
-					break;
-				}
-
-				tt.setPosition(distance + i * offset, angle);
-			}
-
-			// set tooltips-active flag
-			node.addAttribute(ToolTip.GraphVisToolTipActiveKey);
+			showAllToolTips(node);
 		}
+	}
+
+	/** Called when a node is being added. **/
+	public void onNodeAddition(Node n) {
+		// DO NOTHING
+	}
+
+	/** Called when a node is being removed. **/
+	public void onNodeRemoval(Node node) {
+		if (isToolTipsActive(node))
+			hideAllToolTips(node);
+	}
+
+	/** Called when a node weight changes. **/
+	public void onNodeWeightChange(Node n, Weight wNew, Weight wOld) {
+		for (ToolTip tt : getAllToolTips(n))
+			tt.onNodeWeightChange(n, wNew, wOld);
+	}
+
+	/** Called when an edge is being added. **/
+	public void onEdgeAddition(Edge e, Node n1, Node n2) {
+		for (ToolTip tt : getAllToolTips(n1))
+			tt.onEdgeAddition(e, n1, n2);
+
+		for (ToolTip tt : getAllToolTips(n2))
+			tt.onEdgeAddition(e, n1, n2);
+	}
+
+	/** Called when an edge is being removed. **/
+	public void onEdgeRemoval(Edge e, Node n1, Node n2) {
+		for (ToolTip tt : getAllToolTips(n1))
+			tt.onEdgeRemoval(e, n1, n2);
+
+		for (ToolTip tt : getAllToolTips(n2))
+			tt.onEdgeRemoval(e, n1, n2);
+	}
+
+	/** Called when an edge weight changes. **/
+	public void onEdgeWeightChange(Edge e, Weight wNew, Weight wOld) {
+		// DO NOTHING
+	}
+
+	@Override
+	public String toString() {
+		return "ToolTipManager: '" + this.name + "'";
 	}
 }

@@ -1,9 +1,13 @@
-package dna.visualization.graph.toolTip;
+package dna.visualization.graph.toolTip.button;
 
+import org.graphstream.graph.Edge;
 import org.graphstream.graph.Element;
+import org.graphstream.graph.Node;
 import org.graphstream.ui.spriteManager.Sprite;
 
+import dna.graph.weights.Weight;
 import dna.visualization.graph.GraphVisualization;
+import dna.visualization.graph.toolTip.ToolTip;
 
 /**
  * Button implementation used to freeze a node. This is done via
@@ -77,6 +81,21 @@ public class FreezeButton extends Button {
 	@Override
 	protected String getPressedLabel() {
 		return FreezeButton.pressedLabel;
+	}
+
+	@Override
+	public void onNodeWeightChange(Node n, Weight wNew, Weight wOld) {
+		// DO NOTHING
+	}
+
+	@Override
+	public void onEdgeAddition(Edge e, Node n1, Node n2) {
+		// DO NOTHING
+	}
+
+	@Override
+	public void onEdgeRemoval(Edge e, Node n1, Node n2) {
+		// DO NOTHING
 	}
 
 }

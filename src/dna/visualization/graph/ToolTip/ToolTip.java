@@ -1,9 +1,16 @@
 package dna.visualization.graph.toolTip;
 
+import org.graphstream.graph.Edge;
+import org.graphstream.graph.Node;
 import org.graphstream.ui.graphicGraph.stylesheet.StyleConstants.Units;
 import org.graphstream.ui.spriteManager.Sprite;
 
+import dna.graph.weights.Weight;
 import dna.visualization.graph.GraphVisualization;
+import dna.visualization.graph.toolTip.button.FreezeButton;
+import dna.visualization.graph.toolTip.button.HighlightButton;
+import dna.visualization.graph.toolTip.infoLabel.NodeDegreeLabel;
+import dna.visualization.graph.toolTip.infoLabel.NodeIdLabel;
 
 /**
  * ToolTip is a wrapper class for the GraphStream Sprite class. Sprites are
@@ -25,7 +32,7 @@ public abstract class ToolTip {
 
 	/** ToolTipType used to identify different ToolTip implementations. **/
 	public enum ToolTipType {
-		BUTTON_FREEZE, BUTTON_HIGHLIGHT, INFO, NONE
+		BUTTON_FREEZE, BUTTON_HIGHLIGHT, INFO_NODE_ID, INFO_NODE_DEGREE, NONE
 	}
 
 	public static final String GraphVisToolTipTypeKey = "dna.ttt";
@@ -92,8 +99,10 @@ public abstract class ToolTip {
 				return FreezeButton.getFromSprite(s);
 			case BUTTON_HIGHLIGHT:
 				return HighlightButton.getFromSprite(s);
-			case INFO:
-				return InfoLabel.getFromSprite(s);
+			case INFO_NODE_DEGREE:
+				return NodeDegreeLabel.getFromSprite(s);
+			case INFO_NODE_ID:
+				return NodeIdLabel.getFromSprite(s);
 			}
 		}
 
@@ -130,5 +139,14 @@ public abstract class ToolTip {
 
 		return null;
 	}
+
+	/*
+	 * METHODS FOR DYNAMIC EVENTS IN GRAPH
+	 */
+	public abstract void onNodeWeightChange(Node n, Weight wNew, Weight wOld);
+
+	public abstract void onEdgeAddition(Edge e, Node n1, Node n2);
+
+	public abstract void onEdgeRemoval(Edge e, Node n1, Node n2);
 
 }
