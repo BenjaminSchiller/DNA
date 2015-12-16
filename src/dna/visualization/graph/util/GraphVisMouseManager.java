@@ -16,15 +16,32 @@ import dna.visualization.graph.toolTip.InfoLabel;
 import dna.visualization.graph.toolTip.InfoLabel.LabelValueType;
 import dna.visualization.graph.toolTip.ToolTip;
 
+/**
+ * The GraphVisMouseManager extends the GraphStream DefaultMouseManager. It
+ * overrides several methods to adapt to the special needs we have in the DNA
+ * GraphVisualization environment.
+ * 
+ * <p>
+ * 
+ * Note: The GraphVisMouseManager only defines interactions with GraphStream
+ * objects like Nodes, Edges and Sprites. The moving & zooming logic is defined
+ * inside the GraphPanel initialization.
+ * 
+ * @author Rwilmes
+ * @date 15.12.2015
+ */
 public class GraphVisMouseManager extends DefaultMouseManager {
 
+	// the GraphPanel using this manager
 	protected GraphPanel panel;
 
+	/** Constructor. **/
 	public GraphVisMouseManager(GraphPanel panel) {
 		super();
 		this.panel = panel;
 	}
 
+	/** Called when a mouse-click happens somewhere in the GraphStream area. **/
 	@Override
 	public void mousePressed(MouseEvent event) {
 		curElement = view.findNodeOrSpriteAt(event.getX(), event.getY());
@@ -70,6 +87,10 @@ public class GraphVisMouseManager extends DefaultMouseManager {
 		}
 	}
 
+	/**
+	 * Called when a mouse-button is pressed continuously while the mouse is
+	 * being dragged.
+	 **/
 	@Override
 	public void mouseDragged(MouseEvent event) {
 		if (curElement != null) {

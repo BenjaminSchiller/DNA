@@ -5,8 +5,25 @@ import org.graphstream.ui.spriteManager.Sprite;
 
 import dna.visualization.graph.GraphVisualization;
 
+/**
+ * ToolTip is a wrapper class for the GraphStream Sprite class. Sprites are
+ * objects inside the GraphStream graph that can be used to display information
+ * and data. ToolTip introduces several methods that make the handling of
+ * sprites more enjoyable.
+ * 
+ * <p>
+ * 
+ * Note that each ToolTip will uniquely identify one Sprite. Due to the nature
+ * of Sprite handling in GraphStream this requires to save some data on each
+ * Sprite: The ToolTipType and the ToolTips name. Therefore each implementation
+ * of ToolTip should be represented by its own unique ToolTipType.
+ * 
+ * @author Rwilmes
+ * @date 15.12.2015
+ */
 public abstract class ToolTip {
 
+	/** ToolTipType used to identify different ToolTip implementations. **/
 	public enum ToolTipType {
 		BUTTON_FREEZE, BUTTON_HIGHLIGHT, INFO
 	}
@@ -20,14 +37,18 @@ public abstract class ToolTip {
 	public static final String spriteSuffixButtonHighlight = "TT_BUTTON_HIGHLIGHT_";
 	public static final String spriteSuffixButton = "TT_BUTTON_";
 
+	/** Returns the objects ToolTipType. **/
 	public abstract ToolTipType getType();
 
+	/** Sprite the ToolTip is wrapped around. **/
 	protected Sprite s;
 
+	/** Sets the name of the ToolTip onto the Sprite. **/
 	protected void setName(String name) {
 		this.s.setAttribute(GraphVisToolTipNameKey, name);
 	}
 
+	/** Returns the ToolTips name from the Sprite. **/
 	public String getName() {
 		return this.s.getAttribute(GraphVisToolTipNameKey);
 	}
@@ -45,7 +66,10 @@ public abstract class ToolTip {
 		this.s.attachToNode(nodeId);
 	}
 
-	// static methods
+	/**
+	 * Returns a ToolTip object from a Sprite s. Used to identify which ToolTip
+	 * belongs to a specific sprite.
+	 **/
 	public static ToolTip getFromSprite(Sprite s) {
 		ToolTipType ttt = getToolTipTypeFromSprite(s);
 		if (ttt != null) {
@@ -63,16 +87,21 @@ public abstract class ToolTip {
 		return null;
 	}
 
+	/**
+	 * Returns the ToolTipType from a Sprite s. For more ToolTip implementations
+	 * add more ToolTipTypes.
+	 **/
 	public static ToolTipType getToolTipTypeFromSprite(Sprite s) {
 		return s.getAttribute(GraphVisToolTipTypeKey, ToolTipType.class);
 	}
 
-	// default style
+	/** Default style of a tool-tip. **/
 	public static final String default_style = "" + "shape:rounded-box; "
 			+ "size:100px,30px; " + "fill-mode:plain; "
 			+ "fill-color: rgba(220,220,220, 150); " + "stroke-mode:dots; "
 			+ "stroke-color: rgb(40, 40, 40); " + "text-alignment:center;";
 
+	/** Sets the default style. **/
 	public void setDefaultStyle() {
 		this.s.setAttribute(GraphVisualization.styleKey, default_style);
 	}

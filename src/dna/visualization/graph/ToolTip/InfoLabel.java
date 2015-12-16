@@ -4,19 +4,35 @@ import org.graphstream.ui.spriteManager.Sprite;
 
 import dna.visualization.graph.GraphVisualization;
 
+/**
+ * InfoLabel extends ToolTip and is therefore a wrapper for a GraphStream
+ * Sprite. It is a basic bubble-like ToolTip which stores one value and displays
+ * it with a String of the form
+ * 
+ * <p>
+ * 
+ * $VALUE_NAME$: $VALUE$
+ * 
+ * <p>
+ * 
+ * On initialization one can choose to either store a Double, Long or Int value.
+ * However, all values handed over has to be in form of a parse-able String. In
+ * addition it offers basic increment and decrement operations on the value.
+ **/
 public class InfoLabel extends ToolTip {
 
 	protected static final String LabelValueKey = "dna.label.value";
 	protected static final String LabelValueTypeKey = "dna.label.valueType";
 
+	/** Different types that can be stored. **/
 	public enum LabelValueType {
 		DOUBLE, INT, LONG
 	}
 
-	// class variables
-	protected LabelValueType valueType;
+	/** Type of the value that is stored. **/
+	private LabelValueType valueType;
 
-	// constructor
+	/** Constructor. **/
 	public InfoLabel(Sprite s, String name, LabelValueType valueType) {
 		this.s = s;
 		this.setName(name);
@@ -31,7 +47,7 @@ public class InfoLabel extends ToolTip {
 		this.setValue(value);
 	}
 
-	// methods
+	/** Used to set a value. **/
 	public void setValue(String value) {
 		this.s.setAttribute(LabelValueKey, value);
 		this.updateLabel();
@@ -43,14 +59,17 @@ public class InfoLabel extends ToolTip {
 				+ this.getValue());
 	}
 
+	/** Returns the stored value. **/
 	public String getValue() {
 		return this.s.getAttribute(LabelValueKey);
 	}
 
+	/** Increments the value. **/
 	public void increment() {
 		this.increment(1);
 	}
 
+	/** Increments the value by steps. **/
 	public void increment(int steps) {
 		String value = this.s.getAttribute(LabelValueKey);
 		switch (valueType) {
@@ -71,39 +90,28 @@ public class InfoLabel extends ToolTip {
 		this.updateLabel();
 	}
 
+	/** Decrements the value. **/
 	public void decrement() {
 		this.increment(-1);
 	}
 
+	/** Decrements the value by steps. **/
 	public void decrement(int steps) {
 		this.increment(-steps);
 	}
 
+	@Override
 	public ToolTipType getType() {
 		return ToolTipType.INFO;
 	}
 
-	// static methods
+	/** Returns a InfoLabel from a sprite. **/
 	public static InfoLabel getFromSprite(Sprite s) {
 		return new InfoLabel(s, s.getAttribute(GraphVisToolTipNameKey,
 				String.class), getValueTypeFromSprite(s));
 	}
 
-	public static Number getValueFromSprite(Sprite s) {
-		LabelValueType type = s.getAttribute(LabelValueTypeKey,
-				LabelValueType.class);
-		switch (type) {
-		case DOUBLE:
-			return s.getAttribute(LabelValueKey, Double.class);
-		case INT:
-			return s.getAttribute(LabelValueKey, Integer.class);
-		case LONG:
-			s.getAttribute(LabelValueKey, Long.class);
-		default:
-			return null;
-		}
-	}
-
+	/** Returns the ValueType from a sprite. **/
 	public static LabelValueType getValueTypeFromSprite(Sprite s) {
 		return (s.getAttribute(LabelValueTypeKey, LabelValueType.class));
 	}

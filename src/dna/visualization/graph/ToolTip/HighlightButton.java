@@ -5,6 +5,19 @@ import org.graphstream.ui.spriteManager.Sprite;
 
 import dna.visualization.graph.rules.GraphStyleUtils;
 
+/**
+ * The HighlightButton is a more elaborate Button implementation. It can be
+ * clicked multiple times to increase (left-click) or even decrease
+ * (right-click) the size of the node it is attached to.
+ * 
+ * <p>
+ * 
+ * In order to maintain, store and retrieve the different states, an Integer is
+ * saved on the node to reflect the current level of highlighting.
+ * 
+ * @author Rwilmes
+ * @date 16.12.2015
+ */
 public class HighlightButton extends Button {
 
 	private static final String highlightButtonKey = "tt.button.highlight";
@@ -17,7 +30,11 @@ public class HighlightButton extends Button {
 	private double growth;
 	private final int maxLevel = 3;
 
-	// constructor
+	/**
+	 * HighlightButton constructor. This constructor is called each time the
+	 * underlying Sprite is clicked. The init-flag should only be set on actual
+	 * first-time initializations.
+	 **/
 	public HighlightButton(Sprite s, String name, String attachementId,
 			double growth, boolean init) {
 		super(s, name, attachementId);
@@ -43,6 +60,7 @@ public class HighlightButton extends Button {
 		return ToolTipType.BUTTON_HIGHLIGHT;
 	}
 
+	/** Returns this Button from a sprite. **/
 	public static HighlightButton getFromSprite(Sprite s) {
 		return new HighlightButton(s, s.getAttribute(
 				ToolTip.GraphVisToolTipNameKey, String.class), s
