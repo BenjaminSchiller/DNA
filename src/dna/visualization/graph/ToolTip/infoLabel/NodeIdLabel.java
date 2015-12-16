@@ -9,6 +9,10 @@ import dna.graph.weights.Weight;
 /** The NodeIdLabel displays the NodeId of the Node it is attached to. **/
 public class NodeIdLabel extends InfoLabel {
 
+	public NodeIdLabel() {
+
+	}
+
 	public NodeIdLabel(Sprite s, String name, String attachementId) {
 		super(s, name, attachementId, LabelValueType.INT, attachementId);
 	}

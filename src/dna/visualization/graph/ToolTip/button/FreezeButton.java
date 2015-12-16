@@ -22,6 +22,10 @@ public class FreezeButton extends Button {
 	private static final String defaultLabel = "Freeze";
 	private static final String pressedLabel = "Unfreeze";
 
+	public FreezeButton() {
+
+	}
+
 	/** FreezeButton constructor. **/
 	public FreezeButton(Sprite s, String name, String attachementId) {
 		super(s, name, attachementId);

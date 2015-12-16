@@ -25,6 +25,11 @@ import dna.visualization.graph.toolTip.infoLabel.NodeIdLabel;
  * Sprite: The ToolTipType and the ToolTips name. Therefore each implementation
  * of ToolTip should be represented by its own unique ToolTipType.
  * 
+ * <p>
+ * 
+ * Also note, that each implementation of ToolTip needs to have a nullary
+ * constructor in order to get dynamically instantiated by the ToolTipManager.
+ * 
  * @author Rwilmes
  * @date 15.12.2015
  */
@@ -33,6 +38,10 @@ public abstract class ToolTip {
 	/** ToolTipType used to identify different ToolTip implementations. **/
 	public enum ToolTipType {
 		BUTTON_FREEZE, BUTTON_HIGHLIGHT, INFO_NODE_ID, INFO_NODE_DEGREE, NONE
+	}
+
+	public ToolTip() {
+
 	}
 
 	public static final String GraphVisToolTipTypeKey = "dna.ttt";
