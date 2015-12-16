@@ -1,8 +1,9 @@
-package dna.visualization.graph.toolTip;
+package dna.visualization.graph.toolTip.infoLabel;
 
 import org.graphstream.ui.spriteManager.Sprite;
 
 import dna.visualization.graph.GraphVisualization;
+import dna.visualization.graph.toolTip.ToolTip;
 
 /**
  * InfoLabel extends ToolTip and is therefore a wrapper for a GraphStream
@@ -19,7 +20,7 @@ import dna.visualization.graph.GraphVisualization;
  * However, all values handed over has to be in form of a parse-able String. In
  * addition it offers basic increment and decrement operations on the value.
  **/
-public class InfoLabel extends ToolTip {
+public abstract class InfoLabel extends ToolTip {
 
 	protected static final String LabelValueKey = "dna.label.value";
 	protected static final String LabelValueTypeKey = "dna.label.valueType";
@@ -107,11 +108,6 @@ public class InfoLabel extends ToolTip {
 	/** Decrements the value by steps. **/
 	public void decrement(int steps) {
 		this.increment(-steps);
-	}
-
-	@Override
-	public ToolTipType getType() {
-		return ToolTipType.INFO;
 	}
 
 	/** Returns a InfoLabel from a sprite. **/

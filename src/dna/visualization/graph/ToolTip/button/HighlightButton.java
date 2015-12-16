@@ -1,9 +1,13 @@
-package dna.visualization.graph.toolTip;
+package dna.visualization.graph.toolTip.button;
 
+import org.graphstream.graph.Edge;
 import org.graphstream.graph.Element;
+import org.graphstream.graph.Node;
 import org.graphstream.ui.spriteManager.Sprite;
 
+import dna.graph.weights.Weight;
 import dna.visualization.graph.rules.GraphStyleUtils;
+import dna.visualization.graph.toolTip.ToolTip;
 
 /**
  * The HighlightButton is a more elaborate Button implementation. It can be
@@ -161,6 +165,21 @@ public class HighlightButton extends Button {
 	@Override
 	protected String getPressedLabel() {
 		return pressedLabel;
+	}
+
+	@Override
+	public void onNodeWeightChange(Node n, Weight wNew, Weight wOld) {
+		// DO NOTHING
+	}
+
+	@Override
+	public void onEdgeAddition(Edge e, Node n1, Node n2) {
+		// DO NOTHING
+	}
+
+	@Override
+	public void onEdgeRemoval(Edge e, Node n1, Node n2) {
+		// DO NOTHING
 	}
 
 }

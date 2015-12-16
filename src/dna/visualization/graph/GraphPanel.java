@@ -54,7 +54,6 @@ import dna.visualization.VisualizationUtils;
 import dna.visualization.VisualizationUtils.VideoRecorder;
 import dna.visualization.graph.rules.GraphStyleRule;
 import dna.visualization.graph.rules.GraphStyleUtils;
-import dna.visualization.graph.toolTipManager.DefaultToolTipManager;
 import dna.visualization.graph.toolTipManager.ToolTipManager;
 import dna.visualization.graph.util.GraphVisMouseManager;
 
@@ -203,8 +202,6 @@ public class GraphPanel extends JPanel {
 		if (Config.getBoolean("GRAPH_VIS_TOOLTIPS_ENABLED")) {
 			this.spriteManager = new SpriteManager(graph);
 			this.tooltips = true;
-			this.toolTipManager = new DefaultToolTipManager(name
-					+ ".DefaultToolTipManager", this.spriteManager, this);
 		}
 
 		boolean addStatPanel = Config
@@ -560,6 +557,13 @@ public class GraphPanel extends JPanel {
 	public void addGraphStyleRule(GraphStyleRule r) {
 		this.rules.add(r);
 		r.setIndex(this.getNextIndex());
+	}
+
+	/** Adds a ToolTipManager. **/
+	public void addToolTipManager(ToolTipManager ttm) {
+		this.rules.add(ttm);
+		this.toolTipManager = ttm;
+		ttm.setIndex(this.getNextIndex());
 	}
 
 	/** Returns the next rule index and increments it afterwards. **/

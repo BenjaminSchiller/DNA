@@ -1,7 +1,5 @@
 package dna.visualization.graph.toolTipManager;
 
-import org.graphstream.ui.spriteManager.SpriteManager;
-
 import dna.visualization.graph.GraphPanel;
 import dna.visualization.graph.toolTip.ToolTip.ToolTipType;
 
@@ -18,12 +16,13 @@ public class DefaultToolTipManager extends ToolTipManager {
 	private static double angle = 270;
 
 	// constructor
-	public DefaultToolTipManager(String name, SpriteManager sm, GraphPanel panel) {
-		super(name, sm, panel, distance, offset, angle);
+	public DefaultToolTipManager(GraphPanel panel) {
+		super("DefaultToolTipManager", panel.getSpriteManager(), panel,
+				distance, offset, angle);
 
 		// add additional tooltips here
-		this.addToolTip("Node", ToolTipType.INFO);
-		this.addToolTip("Degree", ToolTipType.INFO);
+		this.addToolTip("Node", ToolTipType.INFO_NODE_ID);
+		this.addToolTip("Degree", ToolTipType.INFO_NODE_DEGREE);
 		this.addToolTip("Freeze", ToolTipType.BUTTON_FREEZE);
 		this.addToolTip("Highlight", ToolTipType.BUTTON_HIGHLIGHT);
 	}
