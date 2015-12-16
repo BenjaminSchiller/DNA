@@ -31,6 +31,8 @@ public abstract class ToolTip {
 	public static final String GraphVisToolTipTypeKey = "dna.ttt";
 	public static final String GraphVisToolTipNameKey = "dna.tt.name";
 
+	public static final String GraphVisToolTipActiveKey = "dna.tt.active";
+
 	public static final String GraphVisToolTipStorageKey = "dna.tooltip.storage";
 
 	public static final String spriteSuffixNodeId = "SPRITE1_";

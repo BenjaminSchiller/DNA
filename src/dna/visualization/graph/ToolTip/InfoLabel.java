@@ -33,12 +33,18 @@ public class InfoLabel extends ToolTip {
 	private LabelValueType valueType;
 
 	/** InfoLabel constructor. **/
-	public InfoLabel(Sprite s, String name, LabelValueType valueType,
-			String value) {
+	public InfoLabel(Sprite s, String name, String attachementId,
+			LabelValueType valueType, String value) {
 		this.s = s;
 		setName(name);
 		setType();
 		this.valueType = valueType;
+
+		// set default style
+		setDefaultStyle();
+
+		// attach
+		attachToNode(attachementId);
 
 		// store value type
 		this.s.setAttribute(LabelValueTypeKey, valueType);
@@ -48,11 +54,6 @@ public class InfoLabel extends ToolTip {
 
 		// store on sprite
 		storeThisOnSprite();
-	}
-
-	/** InfoLabel constructor. **/
-	public InfoLabel(Sprite s, String name, LabelValueType valueType) {
-		this(s, name, valueType, "" + 0);
 	}
 
 	/** Used to set a value. **/

@@ -11,7 +11,7 @@ import dna.visualization.graph.toolTip.ToolTip;
 
 public class ToolTipUpdater extends GraphStyleRule {
 
-	protected SpriteManager spriteManager;
+	private SpriteManager spriteManager;
 
 	public ToolTipUpdater(SpriteManager spriteManager) {
 		this.spriteManager = spriteManager;
