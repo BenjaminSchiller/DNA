@@ -32,19 +32,23 @@ public class InfoLabel extends ToolTip {
 	/** Type of the value that is stored. **/
 	private LabelValueType valueType;
 
-	/** Constructor. **/
-	public InfoLabel(Sprite s, String name, LabelValueType valueType) {
+	/** InfoLabel constructor. **/
+	public InfoLabel(Sprite s, String name, LabelValueType valueType,
+			String value) {
 		this.s = s;
 		this.setName(name);
 		this.valueType = valueType;
+
+		// store value type
 		this.s.setAttribute(LabelValueTypeKey, valueType);
-		this.s.setAttribute(ToolTip.GraphVisToolTipTypeKey, ToolTipType.INFO);
+
+		// set value
+		setValue(value);
 	}
 
-	public InfoLabel(Sprite s, String name, LabelValueType valueType,
-			String value) {
-		this(s, name, valueType);
-		this.setValue(value);
+	/** InfoLabel constructor. **/
+	public InfoLabel(Sprite s, String name, LabelValueType valueType) {
+		this(s, name, valueType, "" + 0);
 	}
 
 	/** Used to set a value. **/
@@ -107,8 +111,7 @@ public class InfoLabel extends ToolTip {
 
 	/** Returns a InfoLabel from a sprite. **/
 	public static InfoLabel getFromSprite(Sprite s) {
-		return new InfoLabel(s, s.getAttribute(GraphVisToolTipNameKey,
-				String.class), getValueTypeFromSprite(s));
+		return (InfoLabel) ToolTip.getToolTipFromSprite(s);
 	}
 
 	/** Returns the ValueType from a sprite. **/

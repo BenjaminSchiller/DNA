@@ -31,6 +31,8 @@ public abstract class ToolTip {
 	public static final String GraphVisToolTipTypeKey = "dna.ttt";
 	public static final String GraphVisToolTipNameKey = "dna.tt.name";
 
+	public static final String GraphVisToolTipStorageKey = "dna.tooltip.storage";
+
 	public static final String spriteSuffixNodeId = "SPRITE1_";
 	public static final String spriteSuffixDegree = "SPRITE2_";
 	public static final String spriteSuffixButtonFreeze = "TT_BUTTON_FREEZE_";
@@ -46,6 +48,11 @@ public abstract class ToolTip {
 	/** Sets the name of the ToolTip onto the Sprite. **/
 	protected void setName(String name) {
 		this.s.setAttribute(GraphVisToolTipNameKey, name);
+	}
+
+	/** Stores the ToolTip object on the Sprite. **/
+	public void storeThisOnSprite() {
+		this.s.setAttribute(GraphVisToolTipStorageKey, this);
 	}
 
 	/** Returns the ToolTips name from the Sprite. **/
@@ -104,6 +111,14 @@ public abstract class ToolTip {
 	/** Sets the default style. **/
 	public void setDefaultStyle() {
 		this.s.setAttribute(GraphVisualization.styleKey, default_style);
+	}
+
+	/** Retrieves the stored ToolTip from a Sprite. **/
+	public static final ToolTip getToolTipFromSprite(Sprite s) {
+		if (s.hasAttribute(GraphVisToolTipStorageKey))
+			return s.getAttribute(GraphVisToolTipStorageKey, ToolTip.class);
+
+		return null;
 	}
 
 }
