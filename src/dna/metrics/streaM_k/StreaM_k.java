@@ -3,8 +3,8 @@ package dna.metrics.streaM_k;
 import java.io.IOException;
 import java.util.HashSet;
 
-import dna.graph.Graph;
 import dna.graph.IElement;
+import dna.graph.IGraph;
 import dna.graph.edges.Edge;
 import dna.graph.nodes.Node;
 import dna.metrics.IMetric;
@@ -102,7 +102,7 @@ public class StreaM_k extends Metric implements IDynamicAlgorithm, IBeforeEA,
 	}
 
 	@Override
-	public boolean isApplicable(Graph g) {
+	public boolean isApplicable(IGraph g) {
 		return !g.isDirected();
 	}
 
@@ -156,7 +156,7 @@ public class StreaM_k extends Metric implements IDynamicAlgorithm, IBeforeEA,
 		this.motifs = new BinnedIntDistr("motifs", 1,
 				new long[this.umm.getMotifsCount() + 1], 0);
 
-		Graph original = this.g;
+		IGraph original = this.g;
 
 		this.g = this.g.getGraphDatastructures().newGraphInstance("temp", 0,
 				this.g.getNodeCount(), this.g.getEdgeCount());

@@ -1,12 +1,12 @@
 package dna.metrics.streaM_k.grouping;
 
-import dna.graph.Graph;
+import dna.graph.IGraph;
 import dna.graph.nodes.Node;
 
 public class GroupingV4 extends GroupingV3 {
 
 	@Override
-	public String getKey(Graph g, Node a, Node b, String group) {
+	public String getKey(IGraph g, Node a, Node b, String group) {
 		String[] temp = group.split(";");
 
 		Node c = g.getNode(Integer.parseInt(temp[0]));
@@ -19,7 +19,7 @@ public class GroupingV4 extends GroupingV3 {
 	}
 
 	@Override
-	public int[] getKeys(Graph g, Node a, Node b, String group) {
+	public int[] getKeys(IGraph g, Node a, Node b, String group) {
 		int key0 = 0;
 		int key1 = 2;
 

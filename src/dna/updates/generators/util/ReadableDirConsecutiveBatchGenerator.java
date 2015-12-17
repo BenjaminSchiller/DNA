@@ -2,7 +2,7 @@ package dna.updates.generators.util;
 
 import java.io.File;
 
-import dna.graph.Graph;
+import dna.graph.IGraph;
 import dna.io.BatchReader;
 import dna.updates.batch.Batch;
 import dna.updates.generators.BatchGenerator;
@@ -20,7 +20,7 @@ public class ReadableDirConsecutiveBatchGenerator extends BatchGenerator {
 	}
 
 	@Override
-	public Batch generate(Graph g) {
+	public Batch generate(IGraph g) {
 		return BatchReader.read(this.dir, (g.getTimestamp() + 1) + suffix, g);
 	}
 
@@ -29,7 +29,7 @@ public class ReadableDirConsecutiveBatchGenerator extends BatchGenerator {
 	}
 
 	@Override
-	public boolean isFurtherBatchPossible(Graph g) {
+	public boolean isFurtherBatchPossible(IGraph g) {
 		return ((new File(dir + (g.getTimestamp() + 1) + this.suffix)))
 				.exists();
 	}

@@ -1,7 +1,7 @@
 package dna.metrics.clustering.local;
 
-import dna.graph.Graph;
 import dna.graph.IElement;
+import dna.graph.IGraph;
 import dna.graph.nodes.DirectedNode;
 import dna.metrics.IMetric;
 import dna.updates.batch.Batch;
@@ -50,7 +50,7 @@ public abstract class DirectedLocalClusteringCoefficient extends
 	}
 
 	@Override
-	public boolean isApplicable(Graph g) {
+	public boolean isApplicable(IGraph g) {
 		return g.getGraphDatastructures().isNodeType(DirectedNode.class);
 	}
 

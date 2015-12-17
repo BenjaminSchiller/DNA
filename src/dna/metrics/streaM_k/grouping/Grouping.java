@@ -3,19 +3,19 @@ package dna.metrics.streaM_k.grouping;
 import java.util.Arrays;
 import java.util.HashSet;
 
-import dna.graph.Graph;
+import dna.graph.IGraph;
 import dna.graph.edges.Edge;
 import dna.graph.nodes.Node;
 
 public abstract class Grouping {
 
-	public int[] getKeys(Graph g, Node n1, Node n2, String group) {
+	public int[] getKeys(IGraph g, Node n1, Node n2, String group) {
 		int key0 = Integer.parseInt('0' + this.getKey(g, n1, n2, group), 2);
 		int key1 = Integer.parseInt('1' + this.getKey(g, n1, n2, group), 2);
 		return new int[] { key0, key1 };
 	}
 
-	protected String getKey(Graph g, Node n1, Node n2, String group) {
+	protected String getKey(IGraph g, Node n1, Node n2, String group) {
 		String[] temp = group.split(";");
 		Node[] nodes = new Node[temp.length + 2];
 		nodes[0] = n1;
@@ -66,7 +66,7 @@ public abstract class Grouping {
 		set.add(buff.toString());
 	}
 
-	public HashSet<String> getGroups(Graph g, int nodes, Edge e) {
+	public HashSet<String> getGroups(IGraph g, int nodes, Edge e) {
 		if (nodes == 3) {
 			return getGroups3(e);
 		} else if (nodes == 4) {

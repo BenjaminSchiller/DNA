@@ -1,6 +1,6 @@
 package dna.metrics.streaM_k;
 
-import dna.graph.Graph;
+import dna.graph.IGraph;
 import dna.metrics.IMetric;
 import dna.metrics.Metric;
 import dna.series.data.Value;
@@ -65,7 +65,7 @@ public abstract class AdjacencyMatrix_k extends Metric {
 	}
 
 	@Override
-	public boolean isApplicable(Graph g) {
+	public boolean isApplicable(IGraph g) {
 		return !g.isDirected();
 	}
 

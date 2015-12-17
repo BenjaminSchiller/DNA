@@ -3,8 +3,8 @@ package dna.metrics.streaM_k;
 import java.io.IOException;
 import java.util.HashSet;
 
-import dna.graph.Graph;
 import dna.graph.IElement;
+import dna.graph.IGraph;
 import dna.graph.edges.Edge;
 import dna.graph.nodes.Node;
 import dna.metrics.algorithms.IAfterER;
@@ -90,7 +90,7 @@ public class StreaM_k2 extends StreaM_k implements IDynamicAlgorithm,
 		// return true;
 		// }
 
-		Graph original = this.g;
+		IGraph original = this.g;
 
 		this.g = this.g.getGraphDatastructures().newGraphInstance("temp", 0,
 				this.g.getNodeCount(), this.g.getEdgeCount());
