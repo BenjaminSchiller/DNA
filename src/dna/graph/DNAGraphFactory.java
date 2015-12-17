@@ -126,7 +126,10 @@ public class DNAGraphFactory {
 		switch (graphType) {
 		case CONFIG:
 			readValuesFromConfig();
-
+			if (DNAGraphType.CONFIG.equals(type)){
+				throw new RuntimeException(
+						"It is prohibited to specify 'CONFIG' as graph type in the configuration file.");
+			}
 			return newGraphInstance(type, name, timestamp, gds, 0, 0, operationsPerCommit, clearWorkSpace, workspace,
 					storeDNAElementsInGDB);
 		case DNA:
@@ -167,7 +170,9 @@ public class DNAGraphFactory {
 		switch (graphType) {
 		case CONFIG:
 			readValuesFromConfig();
-
+			if (DNAGraphType.CONFIG.equals(type)){
+				throw new RuntimeException("It is prohibited to specify 'CONFIG' as graph type in the configuration file.");
+			}
 			return newGraphInstance(type, name, timestamp, gds, operationsPerCommit, clearWorkSpace,
 					workSpace, storeDNAElementsInGDB);
 		case DNA:
@@ -216,7 +221,10 @@ public class DNAGraphFactory {
 		switch (graphType) {
 		case CONFIG:
 			readValuesFromConfig();
-
+			if (DNAGraphType.CONFIG.equals(type)){
+				throw new RuntimeException(
+						"It is prohibited to specify 'CONFIG' as graph type in the configuration file.");
+			}
 			return newGraphInstance(type, name, timestamp, gds, nodeSize, edgeSize, operationsPerCommit, clearWorkSpace,
 					workSpace, storeDNAElementsInGDB);
 		case DNA:
@@ -260,7 +268,10 @@ public class DNAGraphFactory {
 		switch (graphType) {
 		case CONFIG:
 			readValuesFromConfig();
-
+			if (DNAGraphType.CONFIG.equals(type)){
+				throw new RuntimeException(
+						"It is prohibited to specify 'CONFIG' as graph type in the configuration file.");
+			}
 			return newGraphInstance(type, name, timestamp, gds, nodeSize, edgeSize, operationsPerCommit, clearWorkSpace,
 					workspace, storeDNAElementsInGDB);
 		case DNA:
