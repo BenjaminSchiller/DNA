@@ -311,8 +311,25 @@ public class MainDisplay extends JFrame {
 	public ZipMode zipMode;
 
 	// constructor
+
+	public MainDisplay() {
+		this(MainDisplay.getDefaultConfig());
+	}
+
+	public MainDisplay(String configPath) {
+		this(MainDisplayConfig.getConfig(configPath));
+	}
+
+	public MainDisplay(MainDisplayConfig cfg) {
+		this(cfg.isLiveDisplayMode(), cfg.getZipMode(), cfg);
+	}
+
 	public MainDisplay(boolean liveDisplay, ZipMode zipMode) {
 		this(liveDisplay, zipMode, MainDisplay.getDefaultConfig());
+	}
+
+	public MainDisplay(boolean liveDisplay, ZipMode zipMode, String configPath) {
+		this(liveDisplay, zipMode, MainDisplayConfig.getConfig(configPath));
 	}
 
 	public MainDisplay(boolean liveDisplay, ZipMode zipMode,
