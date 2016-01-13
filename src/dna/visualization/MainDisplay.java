@@ -140,8 +140,6 @@ public class MainDisplay extends JFrame {
 					+ "config/my_guy.cfg" + '"' + " -d " + '"'
 					+ "data/scenario1337/run.42/" + '"' + " -l -z");
 		} else {
-			String defaultConfigPath = "config/gui_default.cfg";
-
 			if (!configFlag)
 				configPath = defaultConfigPath;
 
@@ -299,15 +297,24 @@ public class MainDisplay extends JFrame {
 	private Color defaultFontColor;
 
 	// config
-	public static MainDisplayConfig config;
-	public static MainDisplayConfig DefaultConfig;
+	public static MainDisplayConfig config = MainDisplay.getDefaultConfig();
+	public static MainDisplayConfig DefaultConfig = MainDisplay
+			.getDefaultConfig();
 	public static boolean runFromJar;
+
+	public static final String defaultConfigPath = "config/gui_default.cfg";
+	public static final String minConfigPath = "config/gui_min.cfg";
+	public static final String displayConfigPath = "config/displayConfig.cfg";
 
 	// live display flag
 	public boolean liveDisplay;
 	public ZipMode zipMode;
 
 	// constructor
+	public MainDisplay(boolean liveDisplay, ZipMode zipMode) {
+		this(liveDisplay, zipMode, MainDisplay.getDefaultConfig());
+	}
+
 	public MainDisplay(boolean liveDisplay, ZipMode zipMode,
 			MainDisplayConfig config) {
 		// init
@@ -930,5 +937,17 @@ public class MainDisplay extends JFrame {
 				((Visualizer) c).setLockedByMainDisplay(locked);
 			}
 		}
+	}
+
+	public static MainDisplayConfig getDefaultConfig() {
+		return MainDisplayConfig.getConfig(MainDisplay.defaultConfigPath);
+	}
+
+	public static MainDisplayConfig getMinConfig() {
+		return MainDisplayConfig.getConfig(MainDisplay.minConfigPath);
+	}
+
+	public static MainDisplayConfig getDisplayConfig() {
+		return MainDisplayConfig.getConfig(MainDisplay.displayConfigPath);
 	}
 }

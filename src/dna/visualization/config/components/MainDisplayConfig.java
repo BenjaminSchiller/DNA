@@ -3,12 +3,16 @@ package dna.visualization.config.components;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 
 import dna.visualization.BatchHandler.ZipMode;
 import dna.visualization.MainDisplay;
 import dna.visualization.config.JSON.JSONObject;
+import dna.visualization.config.JSON.JSONTokener;
 
 public class MainDisplayConfig {
 
@@ -471,5 +475,21 @@ public class MainDisplayConfig {
 				innerVisualizerPanelSize, statsDisplayConfig,
 				logDisplayConfigs, metricVisualizerConfigs,
 				multiScalarVisualizerConfigs);
+	}
+
+	public static MainDisplayConfig getConfig(String path) {
+		InputStream is = null;
+		try {
+			is = new FileInputStream(path);
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		}
+
+		JSONTokener tk = new JSONTokener(is);
+		JSONObject jsonConfig = new JSONObject(tk);
+
+		return MainDisplayConfig
+				.createMainDisplayConfigFromJSONObject(jsonConfig
+						.getJSONObject("MainDisplayConfig"));
 	}
 }
