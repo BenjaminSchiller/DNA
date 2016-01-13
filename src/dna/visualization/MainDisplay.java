@@ -673,6 +673,7 @@ public class MainDisplay extends JFrame {
 			e1.printStackTrace();
 		}
 
+		this.setVisible(true);
 		this.validate();
 	}
 
