@@ -59,6 +59,18 @@ public class VisualizationUtils {
 				Config.get("GRAPH_VIS_SCREENSHOT_FORMAT"));
 	}
 
+	/** Captures a screenshot after some milliseconds. **/
+	public static void captureScreenshotInMilliseconds(Component c,
+			String dstDir, String filename, long millis) {
+		try {
+			Thread.sleep(millis);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		VisualizationUtils.captureScreenshot(c, dstDir, filename,
+				Config.get("GRAPH_VIS_SCREENSHOT_FORMAT"));
+	}
+
 	/** Capture a screenshot of the JFrame. **/
 	public static void captureScreenshot(Component c, String dstDir,
 			String filename, String format) {
