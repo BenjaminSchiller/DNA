@@ -252,11 +252,6 @@ public class MainDisplay extends JFrame {
 			Log.info("Initializing MainDisplay");
 			MainDisplay display = new MainDisplay(liveFlag, zipMode, config);
 
-			// init batch handler, hand over directory and maindisplay
-			// display.setBatchHandler(new BatchHandler(dataDir, display,
-			// liveFlag, zipMode));
-			// display.initBatchHandler();
-
 			if (config.isFullscreen()) {
 				display.setExtendedState(display.getExtendedState()
 						| JFrame.MAXIMIZED_BOTH);
