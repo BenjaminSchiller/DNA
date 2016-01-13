@@ -477,6 +477,7 @@ public class MainDisplayConfig {
 				multiScalarVisualizerConfigs);
 	}
 
+	/** Reads a MainDisplayConfig from the given path. **/
 	public static MainDisplayConfig getConfig(String path) {
 		InputStream is = null;
 		try {
@@ -491,5 +492,15 @@ public class MainDisplayConfig {
 		return MainDisplayConfig
 				.createMainDisplayConfigFromJSONObject(jsonConfig
 						.getJSONObject("MainDisplayConfig"));
+	}
+
+	/**
+	 * Reads a MainDisplayConfig from the given path but replaces the default
+	 * data dir.
+	 **/
+	public static MainDisplayConfig getConfig(String path, String dataDir) {
+		MainDisplayConfig cfg = MainDisplayConfig.getConfig(path);
+		cfg.setDefaultDir(dataDir);
+		return cfg;
 	}
 }

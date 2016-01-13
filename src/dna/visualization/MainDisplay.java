@@ -320,6 +320,10 @@ public class MainDisplay extends JFrame {
 		this(MainDisplayConfig.getConfig(configPath));
 	}
 
+	public MainDisplay(String configPath, String dataDir) {
+		this(MainDisplayConfig.getConfig(configPath, dataDir));
+	}
+
 	public MainDisplay(MainDisplayConfig cfg) {
 		this(cfg.isLiveDisplayMode(), cfg.getZipMode(), cfg);
 	}
