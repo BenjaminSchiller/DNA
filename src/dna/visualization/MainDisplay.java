@@ -329,6 +329,12 @@ public class MainDisplay extends JFrame {
 		this.liveDisplay = liveDisplay;
 		this.zipMode = zipMode;
 
+		try {
+			createBatchHandler();
+		} catch (IOException e1) {
+			e1.printStackTrace();
+		}
+
 		/*
 		 * LEFT SIDE PANEL
 		 */
@@ -796,6 +802,19 @@ public class MainDisplay extends JFrame {
 				}
 			}
 		}
+	}
+
+	/** Creates and inits a new BatchHandler. **/
+	public void createBatchHandler() throws IOException {
+		createBatchHandler(this.config.getDefaultDir(), this, this.liveDisplay,
+				this.zipMode);
+	}
+
+	protected void createBatchHandler(String dataDir, MainDisplay display,
+			boolean liveFlag, ZipMode zipMode) throws IOException {
+		display.setBatchHandler(new BatchHandler(dataDir, display, liveFlag,
+				zipMode));
+		display.initBatchHandler();
 	}
 
 	/** sets the batch handlers directory **/
