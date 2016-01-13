@@ -253,9 +253,9 @@ public class MainDisplay extends JFrame {
 			MainDisplay display = new MainDisplay(liveFlag, zipMode, config);
 
 			// init batch handler, hand over directory and maindisplay
-			display.setBatchHandler(new BatchHandler(dataDir, display,
-					liveFlag, zipMode));
-			display.initBatchHandler();
+			// display.setBatchHandler(new BatchHandler(dataDir, display,
+			// liveFlag, zipMode));
+			// display.initBatchHandler();
 
 			if (config.isFullscreen()) {
 				display.setExtendedState(display.getExtendedState()
@@ -328,12 +328,6 @@ public class MainDisplay extends JFrame {
 		this.dataComponents = new ArrayList<Component>();
 		this.liveDisplay = liveDisplay;
 		this.zipMode = zipMode;
-
-		try {
-			createBatchHandler();
-		} catch (IOException e1) {
-			e1.printStackTrace();
-		}
 
 		/*
 		 * LEFT SIDE PANEL
@@ -650,6 +644,14 @@ public class MainDisplay extends JFrame {
 		this.setLayout(new BoxLayout(this.getContentPane(), BoxLayout.X_AXIS));
 		this.getContentPane().add(this.leftSidePanel);
 		this.getContentPane().add(dataScrollPanel);
+
+		// create batchhandler
+		try {
+			createBatchHandler(config);
+		} catch (IOException e1) {
+			e1.printStackTrace();
+		}
+
 		this.validate();
 	}
 
@@ -805,13 +807,16 @@ public class MainDisplay extends JFrame {
 	}
 
 	/** Creates and inits a new BatchHandler. **/
-	public void createBatchHandler() throws IOException {
-		createBatchHandler(this.config.getDefaultDir(), this, this.liveDisplay,
+	protected void createBatchHandler(MainDisplayConfig config)
+			throws IOException {
+		createBatchHandler(config.getDefaultDir(), this, liveDisplay,
 				this.zipMode);
 	}
 
 	protected void createBatchHandler(String dataDir, MainDisplay display,
 			boolean liveFlag, ZipMode zipMode) throws IOException {
+		System.out.println("creating batchhandler at " + dataDir + "\t"
+				+ display + "\t" + liveFlag + "\t" + zipMode);
 		display.setBatchHandler(new BatchHandler(dataDir, display, liveFlag,
 				zipMode));
 		display.initBatchHandler();
