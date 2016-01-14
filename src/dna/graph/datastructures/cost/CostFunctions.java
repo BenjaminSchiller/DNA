@@ -57,27 +57,47 @@ public class CostFunctions {
 			Class<? extends IDataStructure> ds, Class<? extends IElement> dt)
 			throws NumberFormatException, IOException {
 		CostFunctions c = new CostFunctions(ds, dt);
-		c.INIT = CostFunction.read(mainDataDir, ds, dt, Operation.INIT);
-		c.ADD_SUCCESS = CostFunction.read(mainDataDir, ds, dt,
-				Operation.ADD_SUCCESS);
-		c.ADD_FAILURE = CostFunction.read(mainDataDir, ds, dt,
-				Operation.ADD_FAILURE);
-		c.RANDOM_ELEMENT = CostFunction.read(mainDataDir, ds, dt,
+		c.INIT = new CostFunctionFitted(ds, dt, Operation.INIT);
+
+		c.ADD_SUCCESS = new CostFunctionFitted(ds, dt, Operation.ADD_SUCCESS);
+		c.ADD_FAILURE = new CostFunctionFitted(ds, dt, Operation.ADD_FAILURE);
+		c.RANDOM_ELEMENT = new CostFunctionFitted(ds, dt,
 				Operation.RANDOM_ELEMENT);
-		c.SIZE = CostFunction.read(mainDataDir, ds, dt, Operation.SIZE);
-		c.ITERATE = CostFunction.read(mainDataDir, ds, dt, Operation.ITERATE);
-		c.CONTAINS_SUCCESS = CostFunction.read(mainDataDir, ds, dt,
+		c.SIZE = new CostFunctionFitted(ds, dt, Operation.SIZE);
+		c.ITERATE = new CostFunctionFitted(ds, dt, Operation.ITERATE);
+		c.CONTAINS_SUCCESS = new CostFunctionFitted(ds, dt,
 				Operation.CONTAINS_SUCCESS);
-		c.CONTAINS_FAILURE = CostFunction.read(mainDataDir, ds, dt,
+		c.CONTAINS_FAILURE = new CostFunctionFitted(ds, dt,
 				Operation.CONTAINS_FAILURE);
-		c.GET_SUCCESS = CostFunction.read(mainDataDir, ds, dt,
-				Operation.GET_SUCCESS);
-		c.GET_FAILURE = CostFunction.read(mainDataDir, ds, dt,
-				Operation.GET_FAILURE);
-		c.REMOVE_SUCCESS = CostFunction.read(mainDataDir, ds, dt,
+		c.GET_SUCCESS = new CostFunctionFitted(ds, dt, Operation.GET_SUCCESS);
+		c.GET_FAILURE = new CostFunctionFitted(ds, dt, Operation.GET_FAILURE);
+		c.REMOVE_SUCCESS = new CostFunctionFitted(ds, dt,
 				Operation.REMOVE_SUCCESS);
-		c.REMOVE_FAILURE = CostFunction.read(mainDataDir, ds, dt,
+		c.REMOVE_FAILURE = new CostFunctionFitted(ds, dt,
 				Operation.REMOVE_FAILURE);
+
+		// c.INIT = CostFunction.read(mainDataDir, ds, dt, Operation.INIT);
+		// c.ADD_SUCCESS = CostFunction.read(mainDataDir, ds, dt,
+		// Operation.ADD_SUCCESS);
+		// c.ADD_FAILURE = CostFunction.read(mainDataDir, ds, dt,
+		// Operation.ADD_FAILURE);
+		// c.RANDOM_ELEMENT = CostFunction.read(mainDataDir, ds, dt,
+		// Operation.RANDOM_ELEMENT);
+		// c.SIZE = CostFunction.read(mainDataDir, ds, dt, Operation.SIZE);
+		// c.ITERATE = CostFunction.read(mainDataDir, ds, dt,
+		// Operation.ITERATE);
+		// c.CONTAINS_SUCCESS = CostFunction.read(mainDataDir, ds, dt,
+		// Operation.CONTAINS_SUCCESS);
+		// c.CONTAINS_FAILURE = CostFunction.read(mainDataDir, ds, dt,
+		// Operation.CONTAINS_FAILURE);
+		// c.GET_SUCCESS = CostFunction.read(mainDataDir, ds, dt,
+		// Operation.GET_SUCCESS);
+		// c.GET_FAILURE = CostFunction.read(mainDataDir, ds, dt,
+		// Operation.GET_FAILURE);
+		// c.REMOVE_SUCCESS = CostFunction.read(mainDataDir, ds, dt,
+		// Operation.REMOVE_SUCCESS);
+		// c.REMOVE_FAILURE = CostFunction.read(mainDataDir, ds, dt,
+		// Operation.REMOVE_FAILURE);
 		return c;
 	}
 
