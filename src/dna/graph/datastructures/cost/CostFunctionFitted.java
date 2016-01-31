@@ -21,7 +21,8 @@ public class CostFunctionFitted extends CostFunction {
 	}
 
 	public static FitType defaultFitType = FitType.AvgSD;
-	public static int[] defaultSizes = new int[] { 100, 1000 };
+	public static int[] defaultSizes = new int[] { 100, 1000, 10000, 50000,
+			100000 };
 
 	private FitType ft;
 	private DataType dt;
@@ -63,18 +64,22 @@ public class CostFunctionFitted extends CostFunction {
 			if (Config.containsKey(key)) {
 				this.functions[i] = Config.get(key);
 				if (this.functions[i].equals("")) {
+					// System.out.println("null: " + i + " @ " + this.sizes[i]);
 					this.functions[i] = null;
 				} else {
 					count++;
 				}
 			} else {
 				this.functions[i] = null;
+				System.out.println("not found: " + i + " @ " + this.sizes[i]);
 			}
 		}
 		if (count == 0) {
 			this.sizes = new int[] { 1 };
 			this.functions = new String[] { Integer.toString(Integer.MAX_VALUE) };
 		} else if (count < this.functions.length - 1) {
+			// System.out.println("shrinking to " + count + " entries: "
+			// + this.toString());
 			int[] tempSizes = new int[count];
 			String[] tempFunctions = new String[count];
 			int index = 0;
@@ -88,16 +93,29 @@ public class CostFunctionFitted extends CostFunction {
 			this.sizes = tempSizes;
 			this.functions = tempFunctions;
 		}
+		// System.out.println(sizes.length + " => " + this.sizes.length);
+	}
+
+	public String toString() {
+		return this.ds.getSimpleName() + "-" + this.dt + "-" + this.op;
 	}
 
 	@Override
 	public double getCost(int listSize) {
+		// System.out.println(this.toString() + " for " + listSize);
 		for (int i = 0; i < this.sizes.length - 1; i++) {
 			if (listSize <= this.sizes[i]) {
-				return this.evalFunction(i, listSize);
+				double v = this.evalFunction(i, listSize);
+				// System.out.println("  => " + v + " @ " + i);
+				return v;
 			}
 		}
-		return this.evalFunction(this.functions.length - 1, listSize);
+		double v = this.evalFunction(this.functions.length - 1, listSize);
+		// System.out.println("  => " + v + " @ last: " + (functions.length - 1)
+		// + " vs. " + (sizes.length - 1) + " with "
+		// + this.sizes[functions.length - 1] + " using "
+		// + this.functions[this.functions.length - 1]);
+		return v;
 	}
 
 	private double evalFunction(int index, int listSize) {
