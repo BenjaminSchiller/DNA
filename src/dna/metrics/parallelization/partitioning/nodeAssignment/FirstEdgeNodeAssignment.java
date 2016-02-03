@@ -10,7 +10,7 @@ import dna.util.Rand;
 
 public class FirstEdgeNodeAssignment extends NodeAssignment {
 
-	public FirstEdgeNodeAssignment(String name) {
+	public FirstEdgeNodeAssignment() {
 		super("FirstEdgeNodeAssignment");
 	}
 
