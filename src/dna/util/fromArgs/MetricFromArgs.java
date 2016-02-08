@@ -14,6 +14,7 @@ import dna.metrics.degree.DegreeDistributionR;
 import dna.metrics.degree.DegreeDistributionU;
 import dna.metrics.motifs.UndirectedMotifsR;
 import dna.metrics.motifs.UndirectedMotifsU;
+import dna.metrics.parallelization.collation.clustering.PartitionedUndirectedClusteringCoefficientR;
 import dna.metrics.paths.UnweightedAllPairsShortestPathsR;
 import dna.metrics.paths.UnweightedAllPairsShortestPathsU;
 import dna.metrics.richClub.RichClubConnectivityByDegreeR;
@@ -21,7 +22,7 @@ import dna.metrics.richClub.RichClubConnectivityByDegreeU;
 
 public class MetricFromArgs {
 	public static enum MetricType {
-		DegreeDistributionR, DegreeDistributionU, UndirectedClusteringCoefficientR, UndirectedClusteringCoefficientU, UnweightedAllPairsShortestPathsR, UnweightedAllPairsShortestPathsU, WeakConnectivityR, WeakConnectivityU, WeakConnectivityB, UndirectedMotifsR, UndirectedMotifsU, AssortativityR, AssortativityU, BetweennessCentralityR, BetweennessCentralityU, RichClubConnectivityByDegreeR, RichClubConnectivityByDegreeU
+		DegreeDistributionR, DegreeDistributionU, UndirectedClusteringCoefficientR, UndirectedClusteringCoefficientU, PartitionedUndirectedClusteringCoefficientR, UnweightedAllPairsShortestPathsR, UnweightedAllPairsShortestPathsU, WeakConnectivityR, WeakConnectivityU, WeakConnectivityB, UndirectedMotifsR, UndirectedMotifsU, AssortativityR, AssortativityU, BetweennessCentralityR, BetweennessCentralityU, RichClubConnectivityByDegreeR, RichClubConnectivityByDegreeU
 	}
 
 	public static Metric parse(MetricType metricType, String... args) {
@@ -34,6 +35,8 @@ public class MetricFromArgs {
 			return new UndirectedClusteringCoefficientR();
 		case UndirectedClusteringCoefficientU:
 			return new UndirectedClusteringCoefficientU();
+		case PartitionedUndirectedClusteringCoefficientR:
+			return new PartitionedUndirectedClusteringCoefficientR();
 		case UnweightedAllPairsShortestPathsR:
 			return new UnweightedAllPairsShortestPathsR();
 		case UnweightedAllPairsShortestPathsU:
