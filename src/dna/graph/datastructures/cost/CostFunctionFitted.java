@@ -17,7 +17,7 @@ public class CostFunctionFitted extends CostFunction {
 	}
 
 	public static enum FitType {
-		Avg, Med, AvgSD, MedSD
+		Avg, Med, AvgSD, MedSD, Avg_py, Med_py, AvgSD_py, MedSD_py
 	}
 
 	public static FitType defaultFitType = FitType.AvgSD;
@@ -71,7 +71,8 @@ public class CostFunctionFitted extends CostFunction {
 				}
 			} else {
 				this.functions[i] = null;
-				System.out.println("not found: " + i + " @ " + this.sizes[i]);
+				// System.out.println("not found: " + i + " @ " +
+				// this.sizes[i]);
 			}
 		}
 		if (count == 0) {
@@ -119,18 +120,20 @@ public class CostFunctionFitted extends CostFunction {
 	}
 
 	private double evalFunction(int index, int listSize) {
-		try {
-			return Math.max(eval(this.functions[index], listSize), 0);
-		} catch (ScriptException e) {
-			e.printStackTrace();
-			return -1;
-		}
+		return Math.max(eval(this.functions[index], listSize), 0);
+		// try {
+		// return Math.max(eval(this.functions[index], listSize), 0);
+		// } catch (ScriptException e) {
+		// e.printStackTrace();
+		// return -1;
+		// }
 	}
 
 	private static ScriptEngine engine = (new ScriptEngineManager())
 			.getEngineByName("js");
 
-	public static double eval(String expr, double x) throws ScriptException {
+	public static double eval(String expr, double x) {
+		String original = expr;
 		if (expr.contains("log(x)")) {
 			expr = expr.replace("log(x)", Double.toString(Math.log(x)));
 		}
@@ -140,6 +143,14 @@ public class CostFunctionFitted extends CostFunction {
 		if (expr.contains("x")) {
 			expr = expr.replace("x", Double.toString(x));
 		}
-		return (double) engine.eval(expr);
+		try {
+			return (double) engine.eval(expr);
+		} catch (ScriptException e) {
+			System.out.println("\n\nORIGINAL: " + original + "\n\n");
+			System.out.println("\n\nEXPR: " + expr + "\n\n");
+			e.printStackTrace();
+//			System.exit(0);
+			return 0;
+		}
 	}
 }
