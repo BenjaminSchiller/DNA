@@ -13,10 +13,11 @@ import dna.graph.generators.canonical.StarGraph;
 import dna.graph.generators.evolvingNetworks.BarabasiAlbertGraph;
 import dna.graph.generators.evolvingNetworks.PositiveFeedbackPreferenceGraph;
 import dna.graph.generators.random.RandomGraph;
+import dna.graph.generators.util.ReadableEdgeListFileGraph;
 
 public class GraphGeneratorFromArgs {
 	public static enum GraphType {
-		Clique, Grid2d, Grid3d, HoneyComb, Ring, RingStar, Star, Random, BarabasiAlbert, PositiveFeedbackPreference
+		Clique, Grid2d, Grid3d, HoneyComb, Ring, RingStar, Star, Random, BarabasiAlbert, PositiveFeedbackPreference, ReadableEdgeListFileGraph
 	}
 
 	public static GraphGenerator parse(GraphDataStructure gds,
@@ -51,6 +52,8 @@ public class GraphGeneratorFromArgs {
 			return new PositiveFeedbackPreferenceGraph(gds,
 					Integer.parseInt(args[0]), Integer.parseInt(args[1]),
 					Integer.parseInt(args[2]));
+		case ReadableEdgeListFileGraph:
+			return new ReadableEdgeListFileGraph(args[0], args[1], args[2], gds);
 		default:
 			throw new IllegalArgumentException("unknown graph type: "
 					+ graphType);
