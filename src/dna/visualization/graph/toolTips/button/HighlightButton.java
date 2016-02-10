@@ -1,4 +1,4 @@
-package dna.visualization.graph.toolTip.button;
+package dna.visualization.graph.toolTips.button;
 
 import org.graphstream.graph.Edge;
 import org.graphstream.graph.Element;
@@ -7,7 +7,7 @@ import org.graphstream.ui.spriteManager.Sprite;
 
 import dna.graph.weights.Weight;
 import dna.visualization.graph.rules.GraphStyleUtils;
-import dna.visualization.graph.toolTip.ToolTip;
+import dna.visualization.graph.toolTips.ToolTip;
 
 /**
  * The HighlightButton is a more elaborate Button implementation. It can be

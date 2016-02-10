@@ -1,4 +1,4 @@
-package dna.visualization.graph.toolTip.infoLabel;
+package dna.visualization.graph.toolTips.infoLabel;
 
 import org.graphstream.graph.Edge;
 import org.graphstream.graph.Node;
@@ -6,17 +6,17 @@ import org.graphstream.ui.spriteManager.Sprite;
 
 import dna.graph.weights.Weight;
 
-/** The NodeIdLabel displays the NodeId of the Node it is attached to. **/
-public class NodeIdLabel extends InfoLabel {
+/** The NodeDegreeLabel shows the Degree of the Node it is attached to. **/
+public class NodeDegreeLabel extends InfoLabel {
 
 	// constructor
-	public NodeIdLabel(Sprite s, String name, String attachementId) {
-		super(s, name, attachementId, LabelValueType.INT, attachementId);
+	public NodeDegreeLabel(Sprite s, String name, Node node) {
+		super(s, name, node.getId(), LabelValueType.INT, "" + node.getDegree());
 	}
 
 	@Override
 	public ToolTipType getType() {
-		return ToolTipType.INFO_NODE_ID;
+		return ToolTipType.INFO_NODE_DEGREE;
 	}
 
 	@Override
@@ -26,11 +26,12 @@ public class NodeIdLabel extends InfoLabel {
 
 	@Override
 	public void onEdgeAddition(Edge e, Node n1, Node n2) {
-		// DO NOTHING
+		increment();
 	}
 
 	@Override
 	public void onEdgeRemoval(Edge e, Node n1, Node n2) {
-		// DO NOTHING
+		decrement();
 	}
+
 }

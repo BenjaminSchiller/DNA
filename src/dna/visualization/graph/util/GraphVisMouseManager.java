@@ -9,9 +9,9 @@ import org.graphstream.ui.spriteManager.SpriteManager;
 import org.graphstream.ui.view.util.DefaultMouseManager;
 
 import dna.visualization.graph.GraphPanel;
-import dna.visualization.graph.toolTip.ToolTip;
-import dna.visualization.graph.toolTip.button.FreezeButton;
-import dna.visualization.graph.toolTip.button.HighlightButton;
+import dna.visualization.graph.toolTips.ToolTip;
+import dna.visualization.graph.toolTips.button.FreezeButton;
+import dna.visualization.graph.toolTips.button.HighlightButton;
 
 /**
  * The GraphVisMouseManager extends the GraphStream DefaultMouseManager. It

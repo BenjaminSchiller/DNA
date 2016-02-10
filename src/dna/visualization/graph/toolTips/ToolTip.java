@@ -1,4 +1,4 @@
-package dna.visualization.graph.toolTip;
+package dna.visualization.graph.toolTips;
 
 import org.graphstream.graph.Edge;
 import org.graphstream.graph.Node;
@@ -7,10 +7,10 @@ import org.graphstream.ui.spriteManager.Sprite;
 
 import dna.graph.weights.Weight;
 import dna.visualization.graph.GraphVisualization;
-import dna.visualization.graph.toolTip.button.FreezeButton;
-import dna.visualization.graph.toolTip.button.HighlightButton;
-import dna.visualization.graph.toolTip.infoLabel.NodeDegreeLabel;
-import dna.visualization.graph.toolTip.infoLabel.NodeIdLabel;
+import dna.visualization.graph.toolTips.button.FreezeButton;
+import dna.visualization.graph.toolTips.button.HighlightButton;
+import dna.visualization.graph.toolTips.infoLabel.NodeDegreeLabel;
+import dna.visualization.graph.toolTips.infoLabel.NodeIdLabel;
 
 /**
  * ToolTip is a wrapper class for the GraphStream Sprite class. Sprites are
