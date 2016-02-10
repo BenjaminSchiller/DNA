@@ -260,6 +260,26 @@ public class GraphVisualization {
 		return GraphVisualization.getCurrentGraphPanel().getLayouter();
 	}
 
+	/**
+	 * Returns the stabilization of the layouter belonging to the graph g. <br>
+	 * 
+	 * Returned values will be between 0.0 and 1.0, where 0.0 is unstable and
+	 * 1.0 means its completely stabilized and not moving.
+	 **/
+	public static double getStabilization(Graph g) {
+		return GraphVisualization.getGraphPanel(g).getStabilization();
+	}
+
+	/**
+	 * Returns the stabilization of the CURRENT layouter. <br>
+	 * 
+	 * Returned values will be between 0.0 and 1.0, where 0.0 is unstable and
+	 * 1.0 means its completely stabilized and not moving.
+	 **/
+	public static double getStabilization() {
+		return GraphVisualization.getCurrentGraphPanel().getStabilization();
+	}
+
 	/** Enable graph visualization. **/
 	public static void enable() {
 		Config.overwrite("GRAPH_VIS_ENABLED", "true");

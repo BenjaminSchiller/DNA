@@ -1345,4 +1345,14 @@ public class GraphPanel extends JPanel {
 		return this.tooltips;
 	}
 
+	/**
+	 * Returns the stabilization of the layouter. <br>
+	 * 
+	 * Returned values will be between 0.0 and 1.0, where 0.0 is unstable and
+	 * 1.0 means its completely stabilized and not moving.
+	 **/
+	public double getStabilization() {
+		return this.layouter.getStabilization();
+	}
+
 }
