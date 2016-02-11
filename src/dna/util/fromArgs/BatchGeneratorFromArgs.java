@@ -1,5 +1,8 @@
 package dna.util.fromArgs;
 
+import dna.graph.generators.GraphGenerator;
+import dna.graph.generators.timestamped.TimestampedGraph;
+import dna.graph.generators.timestamped.TimestampedReader;
 import dna.graph.weights.Weight.WeightSelection;
 import dna.updates.generators.BatchGenerator;
 import dna.updates.generators.evolvingNetworks.BarabasiAlbertBatch;
@@ -8,13 +11,16 @@ import dna.updates.generators.evolvingNetworks.RandomGrowth;
 import dna.updates.generators.evolvingNetworks.RandomScalingBatch;
 import dna.updates.generators.random.RandomBatch;
 import dna.updates.generators.random.RandomEdgeExchange;
+import dna.updates.generators.timestamped.TimestampedBatch;
+import dna.updates.generators.timestamped.TimestampedBatch.TimestampedBatchType;
 
 public class BatchGeneratorFromArgs {
 	public static enum BatchType {
-		BarabasiAlbert, PositiveFeedbackPreference, RandomGrowth, RandomScaling, Random, RandomW, RandomEdgeExchange
+		BarabasiAlbert, PositiveFeedbackPreference, RandomGrowth, RandomScaling, Random, RandomW, RandomEdgeExchange, Timestamped
 	}
 
-	public static BatchGenerator parse(BatchType batchType, String... args) {
+	public static BatchGenerator parse(GraphGenerator gg, BatchType batchType,
+			String... args) {
 		switch (batchType) {
 		case BarabasiAlbert:
 			return new BarabasiAlbertBatch(Integer.parseInt(args[0]),
@@ -55,6 +61,17 @@ public class BatchGeneratorFromArgs {
 		case RandomEdgeExchange:
 			return new RandomEdgeExchange(Integer.parseInt(args[0]),
 					Integer.parseInt(args[1]));
+		case Timestamped:
+			TimestampedReader reader = ((TimestampedGraph) gg).getReader();
+			if (args.length == 2) {
+				return new TimestampedBatch(reader,
+						TimestampedBatchType.valueOf(args[0]),
+						Long.parseLong(args[1]));
+			} else {
+				return new TimestampedBatch(reader,
+						TimestampedBatchType.valueOf(args[0]),
+						Long.parseLong(args[1]), Long.parseLong(args[2]));
+			}
 		default:
 			throw new IllegalArgumentException("unknown batch type: "
 					+ batchType);

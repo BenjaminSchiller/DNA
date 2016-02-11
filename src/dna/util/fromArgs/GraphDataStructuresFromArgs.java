@@ -38,8 +38,8 @@ public class GraphDataStructuresFromArgs {
 		case DirectedE:
 			return new GraphDataStructure(listTypes, DirectedNode.class,
 					DirectedWeightedEdge.class, null, null,
-					WeightFromArgs.parse(args[1]),
-					WeightSelection.valueOf(args[2]));
+					WeightFromArgs.parse(args[0]),
+					WeightSelection.valueOf(args[1]));
 		case DirectedV:
 			return new GraphDataStructure(listTypes,
 					DirectedWeightedNode.class, DirectedEdge.class,

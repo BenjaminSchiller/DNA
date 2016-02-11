@@ -1,5 +1,7 @@
 package dna.util.fromArgs;
 
+import java.io.IOException;
+
 import dna.graph.datastructures.GraphDataStructure;
 import dna.graph.generators.GraphGenerator;
 import dna.graph.generators.canonical.CliqueGraph;
@@ -13,11 +15,14 @@ import dna.graph.generators.canonical.StarGraph;
 import dna.graph.generators.evolvingNetworks.BarabasiAlbertGraph;
 import dna.graph.generators.evolvingNetworks.PositiveFeedbackPreferenceGraph;
 import dna.graph.generators.random.RandomGraph;
+import dna.graph.generators.timestamped.TimestampedGraph;
+import dna.graph.generators.timestamped.TimestampedGraph.TimestampedGraphType;
+import dna.graph.generators.timestamped.TimestampedReader;
 import dna.graph.generators.util.ReadableEdgeListFileGraph;
 
 public class GraphGeneratorFromArgs {
 	public static enum GraphType {
-		Clique, Grid2d, Grid3d, HoneyComb, Ring, RingStar, Star, Random, BarabasiAlbert, PositiveFeedbackPreference, ReadableEdgeListFileGraph
+		Clique, Grid2d, Grid3d, HoneyComb, Ring, RingStar, Star, Random, BarabasiAlbert, PositiveFeedbackPreference, ReadableEdgeListFileGraph, Timestamped
 	}
 
 	public static GraphGenerator parse(GraphDataStructure gds,
@@ -54,6 +59,44 @@ public class GraphGeneratorFromArgs {
 					Integer.parseInt(args[2]));
 		case ReadableEdgeListFileGraph:
 			return new ReadableEdgeListFileGraph(args[0], args[1], args[2], gds);
+		case Timestamped:
+			if (args.length == 5) {
+				String dir = args[0];
+				String filename = args[1];
+				String name = args[2];
+				TimestampedReader reader;
+				try {
+					reader = new TimestampedReader(dir, filename, name);
+				} catch (IOException e) {
+					e.printStackTrace();
+					reader = null;
+				}
+				return new TimestampedGraph(reader, gds,
+						TimestampedGraphType.valueOf(args[3]),
+						Long.parseLong(args[4]));
+			} else if (args.length == 6) {
+				String dir = args[0];
+				String filename = args[1];
+				String name = args[2];
+				boolean remapIndex = Boolean.parseBoolean(args[3]);
+				TimestampedReader reader = new TimestampedReader(dir, filename,
+						name, remapIndex);
+				return new TimestampedGraph(reader, gds,
+						TimestampedGraphType.valueOf(args[4]),
+						Long.parseLong(args[5]));
+			} else {
+				String dir = args[0];
+				String filename = args[1];
+				String name = args[2];
+				boolean remapIndex = Boolean.parseBoolean(args[3]);
+				String separator = args[4];
+				String commentPrefix = args[5];
+				TimestampedReader reader = new TimestampedReader(dir, filename,
+						name, remapIndex, separator, commentPrefix);
+				return new TimestampedGraph(reader, gds,
+						TimestampedGraphType.valueOf(args[6]),
+						Long.parseLong(args[7]));
+			}
 		default:
 			throw new IllegalArgumentException("unknown graph type: "
 					+ graphType);

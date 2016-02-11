@@ -317,10 +317,10 @@ public class Config extends PropertiesHolder {
 		properties = null;
 		overwrite = null;
 
-		if (!(new File(defaultConfigFolder)).exists()) {
-			throw new IllegalStateException("could not load config from '"
-					+ defaultConfigFolder + "'");
-		}
+		// if (!(new File(defaultConfigFolder)).exists()) {
+		// throw new IllegalStateException("could not load config from '"
+		// + defaultConfigFolder + "'");
+		// }
 
 		Vector<File> folders = new Vector<File>();
 		folders.add(new File(defaultConfigFolder));
