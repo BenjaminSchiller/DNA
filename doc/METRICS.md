@@ -67,6 +67,7 @@ Some algorithms only consider updates before xor after their application while o
 
 
 
+
 Implementation: Metrics
 ---------------------
 In DNA, a metric (as a collection of graph-theoretic measures) must implement the interface *dna.metric.IMetric*.
@@ -105,6 +106,27 @@ There also exist two interfaces that describe the application before / after bat
 
 - *dna.metrics.algorithms.IBeforeBatch* `public boolean applyBeforeBatch(Batch b);`
 - *dna.metrics.algorithms.IAfterBatch* `public boolean applyAfterBatch(Batch b);`
+
+
+
+
+Heuristics vs. Exact Metrics
+---------------------
+
+When implementing a metric, it must be assigned a MetricType (defined in `dna.metrics.IMetric.MetricType`) which can be either `exact` or `heuristic`.
+
+An exact metric is assumed to compute the exect and correct values for the metric while a heuristic is assumed to apply an approximate computation approach which can result in an exact value but might not.
+Assume the correct value of some property to be *12.332516*, then an exact metric is assumed to actually output *12.332516* (except for rounding-based imprecisions).
+In contrast, a heuristics could also return *12*, *11.24*, or *15*, always depending on the applied heuristic and the properties of the dynamic graph that is analyzed.
+
+When computing two exact metrics / algorithms that are comparable (they compute the same metric) at the same time (i.e., in the same series), their results are automatically compared after each batch and errors and warning are output in case their values do not match.
+This is helpful when developing new algorithms, e.g., for automatically comparing the results of a well-known (assumed to be correct) snapshot-based algorithm with a newly developed stream-based algorithm.
+
+When computing an exact and a heuristic version of the same metric, their values are still compared but no error output in case they differ as this is assumed to happen.
+In that case, the quality of the heuristic is computed relative to the results of the exact algorithm.
+For example: assume the correct value to be *2.0* and the approximation to be *1.8*, then the quality of that value is computed as *1.8/2.0 = 0.9* or 90%.
+These qualities are stores in a separate metric of MetricType `quality` and can be plotted to show the quality of a heuristic over time.
+
 
 
 
