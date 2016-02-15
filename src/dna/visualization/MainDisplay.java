@@ -143,11 +143,11 @@ public class MainDisplay extends JFrame {
 			if (!configFlag)
 				configPath = defaultConfigPath;
 
-			runFromJar = false;
+			// boolean runFromJar = false;
 			Path pPath = Paths.get(Config.class.getProtectionDomain()
 					.getCodeSource().getLocation().toURI());
-			if (pPath.getFileName().toString().endsWith(".jar"))
-				runFromJar = true;
+			// if (pPath.getFileName().toString().endsWith(".jar"))
+			// runFromJar = true;
 
 			try {
 				InputStream is;
@@ -292,10 +292,10 @@ public class MainDisplay extends JFrame {
 	private Color defaultFontColor;
 
 	// config
+	public static boolean runFromJar = MainDisplay.isRunFromJar();
 	public static MainDisplayConfig config = MainDisplay.getDefaultConfig();
 	public static MainDisplayConfig DefaultConfig = MainDisplay
 			.getDefaultConfig();
-	public static boolean runFromJar;
 
 	public static final String defaultConfigPath = "config/gui_default.cfg";
 	public static final String minConfigPath = "config/gui_min.cfg";
@@ -981,14 +981,30 @@ public class MainDisplay extends JFrame {
 	}
 
 	public static MainDisplayConfig getDefaultConfig() {
-		return MainDisplayConfig.getConfig(MainDisplay.defaultConfigPath);
+		return MainDisplayConfig.getConfig(MainDisplay.defaultConfigPath,
+				runFromJar);
 	}
 
 	public static MainDisplayConfig getMinConfig() {
-		return MainDisplayConfig.getConfig(MainDisplay.minConfigPath);
+		return MainDisplayConfig.getConfig(MainDisplay.minConfigPath,
+				runFromJar);
 	}
 
 	public static MainDisplayConfig getDisplayConfig() {
-		return MainDisplayConfig.getConfig(MainDisplay.displayConfigPath);
+		return MainDisplayConfig.getConfig(MainDisplay.displayConfigPath,
+				runFromJar);
+	}
+
+	public static boolean isRunFromJar() {
+		try {
+			Path pPath = Paths.get(Config.class.getProtectionDomain()
+					.getCodeSource().getLocation().toURI());
+			if (pPath.getFileName().toString().endsWith(".jar"))
+				return true;
+		} catch (URISyntaxException e) {
+			e.printStackTrace();
+		}
+
+		return false;
 	}
 }
