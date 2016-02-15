@@ -292,7 +292,7 @@ public class MainDisplay extends JFrame {
 	private Color defaultFontColor;
 
 	// config
-	public static boolean runFromJar = MainDisplay.isRunFromJar();
+	public static boolean runFromJar = Config.isRunFromJar();
 	public static MainDisplayConfig config = MainDisplay.getDefaultConfig();
 	public static MainDisplayConfig DefaultConfig = MainDisplay
 			.getDefaultConfig();
@@ -993,16 +993,4 @@ public class MainDisplay extends JFrame {
 				runFromJar);
 	}
 
-	public static boolean isRunFromJar() {
-		try {
-			Path pPath = Paths.get(Config.class.getProtectionDomain()
-					.getCodeSource().getLocation().toURI());
-			if (pPath.getFileName().toString().endsWith(".jar"))
-				return true;
-		} catch (URISyntaxException e) {
-			e.printStackTrace();
-		}
-
-		return false;
-	}
 }
