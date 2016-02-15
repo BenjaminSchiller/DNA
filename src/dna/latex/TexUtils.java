@@ -1776,10 +1776,10 @@ public class TexUtils {
 	/** Copies the logo the titlepage-logo. **/
 	public static void copyLogo(String dstDir) throws IOException {
 		InputStream is = null;
-
+		JarFile x = null;
 		if (Config.isRunFromJar()) {
 			Path pPath;
-			JarFile x = null;
+
 			try {
 				pPath = Paths.get(Config.class.getProtectionDomain()
 						.getCodeSource().getLocation().toURI());
@@ -1789,11 +1789,7 @@ public class TexUtils {
 						+ Config.get("LATEX_LOGO_SUFFIX")));
 			} catch (URISyntaxException e) {
 				e.printStackTrace();
-			} finally {
-				if (x != null)
-					x.close();
 			}
-
 		} else {
 			is = new FileInputStream(Config.get("LATEX_LOGO_SRC_DIR")
 					+ Config.get("LATEX_LOGO_FILENAME")
@@ -1817,6 +1813,8 @@ public class TexUtils {
 			is.close();
 		if (os != null)
 			os.close();
+		if (x != null)
+			x.close();
 	}
 
 	/** Returns an abbreviation of the flag as string. **/
