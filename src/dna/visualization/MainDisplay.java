@@ -832,8 +832,6 @@ public class MainDisplay extends JFrame {
 
 	protected void createBatchHandler(String dataDir, MainDisplay display,
 			boolean liveFlag, ZipMode zipMode) throws IOException {
-		System.out.println("creating batchhandler at " + dataDir + "\t"
-				+ display + "\t" + liveFlag + "\t" + zipMode);
 		display.setBatchHandler(new BatchHandler(dataDir, display, liveFlag,
 				zipMode));
 		display.initBatchHandler();
