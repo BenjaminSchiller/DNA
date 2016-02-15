@@ -24,7 +24,6 @@ import dna.metrics.algorithms.IBeforeNR;
 import dna.metrics.algorithms.IBeforeNW;
 import dna.metrics.algorithms.IDynamicAlgorithm;
 import dna.metrics.algorithms.IRecomputation;
-import dna.profiler.Profiler;
 import dna.series.Aggregation;
 import dna.series.Series;
 import dna.series.SeriesGeneration;

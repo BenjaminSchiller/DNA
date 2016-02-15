@@ -5,7 +5,6 @@ import java.util.Iterator;
 import dna.graph.IElement;
 import dna.graph.edges.Edge;
 import dna.graph.nodes.Node;
-import dna.profiler.datatypes.complexity.ComplexityType.Base;
 
 /**
  * Base class for storing IElements
@@ -14,6 +13,24 @@ import dna.profiler.datatypes.complexity.ComplexityType.Base;
  * 
  */
 public abstract class DataStructure implements IDataStructure {
+	public enum Base {
+		Degree, NodeSize, EdgeSize;
+
+		@Override
+		public String toString() {
+			switch (this) {
+			case Degree:
+				return "d";
+			case EdgeSize:
+				return "E";
+			case NodeSize:
+				return "N";
+			default:
+				return "";
+			}
+		}
+	}
+
 	public enum AccessType {
 		Init(true), Add(true), ContainsSuccess(false), ContainsFailure(false), GetSuccess(
 				false), GetFailure(false), Random(false), RemoveSuccess(true), RemoveFailure(

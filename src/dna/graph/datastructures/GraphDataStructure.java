@@ -11,7 +11,6 @@ import java.util.Map.Entry;
 import dna.graph.ClassPointers;
 import dna.graph.Graph;
 import dna.graph.IElement;
-import dna.graph.datastructures.DataStructure.AccessType;
 import dna.graph.datastructures.DataStructure.ListType;
 import dna.graph.edges.DirectedEdge;
 import dna.graph.edges.DummyDirectedEdge;
@@ -25,10 +24,6 @@ import dna.graph.nodes.UndirectedNode;
 import dna.graph.weights.IWeighted;
 import dna.graph.weights.Weight;
 import dna.graph.weights.Weight.WeightSelection;
-import dna.profiler.ProfilerMeasurementData;
-import dna.profiler.ProfilerMeasurementData.ProfilerDataType;
-import dna.profiler.datatypes.ComparableEntry;
-import dna.profiler.datatypes.complexity.ComplexityType.Base;
 import dna.util.Config;
 
 /**
@@ -878,20 +873,20 @@ public class GraphDataStructure implements Cloneable {
 		}
 	}
 
-	private ComparableEntry getCostData(Class<? extends IDataStructure> ds,
-			Class<? extends IElement> dt, ProfilerDataType pdt, AccessType at,
-			Base b) {
-		return ProfilerMeasurementData.get(pdt, ds.getSimpleName(), at,
-				dt.getSimpleName(), b);
-	}
-
-	public ComparableEntry getCostData(ListType lt, AccessType at,
-			ProfilerDataType pdt) {
-		Class<? extends IDataStructure> listClass = getListClass(lt);
-		Class<? extends IElement> storedElement = lt.getStoredClass();
-		Base baseType = lt.getBase();
-		return getCostData(listClass, storedElement, pdt, at, baseType);
-	}
+	// private ComparableEntry getCostData(Class<? extends IDataStructure> ds,
+	// Class<? extends IElement> dt, ProfilerDataType pdt, AccessType at,
+	// Base b) {
+	// return ProfilerMeasurementData.get(pdt, ds.getSimpleName(), at,
+	// dt.getSimpleName(), b);
+	// }
+	//
+	// public ComparableEntry getCostData(ListType lt, AccessType at,
+	// ProfilerDataType pdt) {
+	// Class<? extends IDataStructure> listClass = getListClass(lt);
+	// Class<? extends IElement> storedElement = lt.getStoredClass();
+	// Base baseType = lt.getBase();
+	// return getCostData(listClass, storedElement, pdt, at, baseType);
+	// }
 
 	public static EnumMap<ListType, Class<? extends IDataStructure>> getList(
 			ListType l1, Class<? extends IDataStructure> c1) {
