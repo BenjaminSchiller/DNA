@@ -5,10 +5,16 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Field;
+import java.net.URISyntaxException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.jar.JarFile;
 
+import dna.util.Config;
 import dna.visualization.BatchHandler.ZipMode;
 import dna.visualization.MainDisplay;
 import dna.visualization.config.JSON.JSONObject;
@@ -479,19 +485,53 @@ public class MainDisplayConfig {
 
 	/** Reads a MainDisplayConfig from the given path. **/
 	public static MainDisplayConfig getConfig(String path) {
+		return MainDisplayConfig.getConfig(path, false);
+	}
+
+	/** Reads a MainDisplayConfig from the given path. **/
+	public static MainDisplayConfig getConfig(String path, boolean fromJar) {
 		InputStream is = null;
-		try {
-			is = new FileInputStream(path);
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
+		JarFile x = null;
+
+		if (fromJar) {
+			try {
+				Path pPath = Paths.get(Config.class.getProtectionDomain()
+						.getCodeSource().getLocation().toURI());
+				String[] splits = path.split("/");
+				x = new JarFile(pPath.toFile(), false);
+				is = x.getInputStream(x.getEntry(splits[splits.length - 1]));
+			} catch (URISyntaxException | IOException e) {
+				e.printStackTrace();
+			}
+		} else {
+			try {
+				is = new FileInputStream(path);
+			} catch (FileNotFoundException e) {
+				e.printStackTrace();
+			}
 		}
 
 		JSONTokener tk = new JSONTokener(is);
 		JSONObject jsonConfig = new JSONObject(tk);
-
-		return MainDisplayConfig
+		MainDisplayConfig config = MainDisplayConfig
 				.createMainDisplayConfigFromJSONObject(jsonConfig
 						.getJSONObject("MainDisplayConfig"));
+
+		// close jar-file if necessary
+		if (x != null) {
+			try {
+				x.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+
+		return config;
+	}
+
+	/** Reads a MainDisplayConfig from the given path inside the jar. **/
+	public static MainDisplayConfig getConfigFromJar(String path) {
+		return MainDisplayConfig.getConfig(path, true);
 	}
 
 	/**
