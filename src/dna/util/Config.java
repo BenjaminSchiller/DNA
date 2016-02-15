@@ -339,6 +339,20 @@ public class Config extends PropertiesHolder {
 		loadFromProperties(initFromFolders(folders));
 	}
 
+	/** Returns if the current program is run from jar or binary. **/
+	public static boolean isRunFromJar() {
+		try {
+			Path pPath = Paths.get(Config.class.getProtectionDomain()
+					.getCodeSource().getLocation().toURI());
+			if (pPath.getFileName().toString().endsWith(".jar"))
+				return true;
+		} catch (URISyntaxException e) {
+			e.printStackTrace();
+		}
+
+		return false;
+	}
+
 	public static boolean containsKey(String key) {
 		if (properties == null) {
 			try {
