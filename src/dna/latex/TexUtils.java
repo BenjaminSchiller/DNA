@@ -1,12 +1,16 @@
 package dna.latex;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
-import java.nio.file.Files;
+import java.io.InputStream;
+import java.net.URISyntaxException;
 import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.jar.JarFile;
 
 import dna.io.filesystem.Dir;
 import dna.latex.TexTable.TableFlag;
@@ -1771,16 +1775,48 @@ public class TexUtils {
 
 	/** Copies the logo the titlepage-logo. **/
 	public static void copyLogo(String dstDir) throws IOException {
-		File src = new File(Config.get("LATEX_LOGO_SRC_DIR")
-				+ Config.get("LATEX_LOGO_FILENAME")
-				+ Config.get("LATEX_LOGO_SUFFIX"));
-		File dst = new File(dstDir + Config.get("LATEX_IMAGES_DIR")
-				+ Dir.delimiter + TexUtils.logoFilename + TexUtils.logoSuffix);
-		dst.mkdirs();
-		Path p1 = src.toPath();
-		Path p2 = dst.toPath();
+		InputStream is = null;
 
-		Files.copy(p1, p2, StandardCopyOption.REPLACE_EXISTING);
+		if (Config.isRunFromJar()) {
+			Path pPath;
+			JarFile x = null;
+			try {
+				pPath = Paths.get(Config.class.getProtectionDomain()
+						.getCodeSource().getLocation().toURI());
+				x = new JarFile(pPath.toFile(), false);
+				is = x.getInputStream(x.getEntry(Config
+						.get("LATEX_LOGO_FILENAME")
+						+ Config.get("LATEX_LOGO_SUFFIX")));
+			} catch (URISyntaxException e) {
+				e.printStackTrace();
+			} finally {
+				if (x != null)
+					x.close();
+			}
+
+		} else {
+			is = new FileInputStream(Config.get("LATEX_LOGO_SRC_DIR")
+					+ Config.get("LATEX_LOGO_FILENAME")
+					+ Config.get("LATEX_LOGO_SUFFIX"));
+		}
+
+		File dst = new File(dstDir + Config.get("LATEX_IMAGES_DIR")
+				+ Dir.delimiter);
+		dst.mkdirs();
+		FileOutputStream os = new FileOutputStream(new File(dstDir
+				+ Config.get("LATEX_IMAGES_DIR") + Dir.delimiter
+				+ TexUtils.logoFilename + TexUtils.logoSuffix));
+
+		int read = 0;
+		byte[] bytes = new byte[1024];
+
+		while ((read = is.read(bytes)) != -1) {
+			os.write(bytes, 0, read);
+		}
+		if (is != null)
+			is.close();
+		if (os != null)
+			os.close();
 	}
 
 	/** Returns an abbreviation of the flag as string. **/
