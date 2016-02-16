@@ -2,9 +2,11 @@ package dna.labels;
 
 import java.util.ArrayList;
 
+import dna.graph.Graph;
 import dna.metrics.IMetric;
 import dna.series.data.BatchData;
 import dna.series.data.MetricData;
+import dna.updates.batch.Batch;
 
 /**
  * Simple implementation of a labeller. Checks the max-degree in the graph and
@@ -22,7 +24,8 @@ public class EasyDegreeLabeller extends Labeller {
 	}
 
 	@Override
-	public ArrayList<Label> computeLabels(BatchData batchData, IMetric[] metrics) {
+	public ArrayList<Label> computeLabels(Graph g, Batch batch,
+			BatchData batchData, IMetric[] metrics) {
 		// init list of labels
 		ArrayList<Label> labels = new ArrayList<Label>();
 
