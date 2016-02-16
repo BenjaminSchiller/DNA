@@ -4,7 +4,7 @@ import java.io.IOException;
 
 import dna.graph.Graph;
 import dna.graph.generators.GraphGenerator;
-import dna.labels.Labeller;
+import dna.labels.labeller.Labeller;
 import dna.metrics.IMetric;
 import dna.metrics.MetricNotApplicableException;
 import dna.series.aggdata.AggregatedBatch.BatchReadMode;
