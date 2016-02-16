@@ -528,7 +528,7 @@ public class MainDisplayConfig {
 						+ "-> ' not found. Attempting to read from .jar");
 				try {
 					jar = IOUtils.getJarFile();
-					is = IOUtils.getInputStreamFromJar(jar, path);
+					is = IOUtils.getInputStreamFromJar(jar, path, true);
 				} catch (URISyntaxException | IOException e) {
 					e.printStackTrace();
 				}

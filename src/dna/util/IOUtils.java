@@ -38,14 +38,39 @@ public class IOUtils {
 
 	/**
 	 * Returns an InputStream to the file at the given path inside the given
-	 * jar.
+	 * JarFile.
 	 **/
 	public static InputStream getInputStreamFromJar(JarFile jar, String path)
 			throws IOException {
+		return IOUtils.getInputStreamFromJar(jar, path, false);
+	}
+
+	/**
+	 * Returns an InputStream to the file at the given path inside the given
+	 * JarFile. <br>
+	 * <br>
+	 * 
+	 * <b>Example:</b><br>
+	 * path = 'config/vis/test.cfg'<br>
+	 * <br>
+	 * 
+	 * If the prune-flag is set, the method will first consider<br>
+	 * - 'config/vis/test.cfg'<br>
+	 * and then<br>
+	 * - 'vis/test.cfg'<br>
+	 * 
+	 * If it is not set it will only consider the first case.<br>
+	 * 
+	 **/
+	public static InputStream getInputStreamFromJar(JarFile jar, String path,
+			boolean pruneFirstDir) throws IOException {
 		// check if entry at path exists, if yes return input stream
 		JarEntry entry = jar.getJarEntry(path);
 		if (entry != null)
 			return jar.getInputStream(entry);
+
+		if (!pruneFirstDir)
+			return null;
 
 		// if not, build relative path with first directory missing
 		String[] splits = path.split("/");
@@ -87,7 +112,7 @@ public class IOUtils {
 	}
 
 	/**
-	 * Instanciates a new JarFile object pointing at the current jar file. <br>
+	 * Instantiates a new JarFile object pointing at the current jar file. <br>
 	 * 
 	 * Note: DO NOT FORGET to close the JarFile after use to prevent data leaks.
 	 **/
