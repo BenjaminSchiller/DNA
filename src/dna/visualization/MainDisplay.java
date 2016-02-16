@@ -9,7 +9,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URISyntaxException;
@@ -41,9 +40,6 @@ import dna.visualization.components.statsdisplay.StatsDisplay;
 import dna.visualization.components.visualizer.MetricVisualizer;
 import dna.visualization.components.visualizer.MultiScalarVisualizer;
 import dna.visualization.components.visualizer.Visualizer;
-import dna.visualization.config.JSON.JSONException;
-import dna.visualization.config.JSON.JSONObject;
-import dna.visualization.config.JSON.JSONTokener;
 import dna.visualization.config.components.LogDisplayConfig;
 import dna.visualization.config.components.MainDisplayConfig;
 import dna.visualization.config.components.MetricVisualizerConfig;
@@ -124,6 +120,17 @@ public class MainDisplay extends JFrame {
 			System.out.println("Parameter" + "\t\t" + "Function");
 			System.out.println("-c <config-path>" + "\t"
 					+ "Uses the specified file as main display configuration");
+			System.out.println("-c <config-path>" + "\t"
+					+ "Uses the specified file as main display configuration");
+			System.out
+					.println("\t\t\t"
+							+ "Note: It will first check the path on the actual filesystem");
+			System.out
+					.println("\t\t\t"
+							+ "then inside the jar. If it is not present, it will use the default-cfg,");
+			System.out
+					.println("\t\t\t"
+							+ "again first the one from the filesystem, then from the jar.");
 			System.out.println("-d <data-dir>" + "\t\t"
 					+ "Specifies the data-dir as default dir");
 			System.out.println("-h" + "\t\t\t" + "Displays this help message");
@@ -140,85 +147,14 @@ public class MainDisplay extends JFrame {
 					+ "config/my_guy.cfg" + '"' + " -d " + '"'
 					+ "data/scenario1337/run.42/" + '"' + " -l -z");
 		} else {
-			if (!configFlag)
-				configPath = defaultConfigPath;
-
-			// boolean runFromJar = false;
-			Path pPath = Paths.get(Config.class.getProtectionDomain()
-					.getCodeSource().getLocation().toURI());
-			// if (pPath.getFileName().toString().endsWith(".jar"))
-			// runFromJar = true;
-
-			try {
-				InputStream is;
-				JSONTokener tk;
-				JSONObject jsonConfig;
-				JarFile x = null;
-
-				// read default config
-				if (runFromJar) {
-					String[] splits = defaultConfigPath.split("/");
-					x = new JarFile(pPath.toFile(), false);
-					Log.info("Loading default config from inside .jar-file: '"
-							+ splits[splits.length - 1] + "'");
-					is = IOUtils.getInputStreamFromJar(x, defaultConfigPath);
-				} else {
-					Log.info("Loading default config from '"
-							+ defaultConfigPath + "'");
-					is = new FileInputStream(defaultConfigPath);
-				}
-				tk = new JSONTokener(is);
-				jsonConfig = new JSONObject(tk);
-				MainDisplay.DefaultConfig = MainDisplayConfig
-						.createMainDisplayConfigFromJSONObject(jsonConfig
-								.getJSONObject("MainDisplayConfig"));
-
-				// free resources
-				is.close();
-				if (x != null)
-					x.close();
-				x = null;
-				is = null;
-				tk = null;
-				jsonConfig = null;
-
-				// read main display config
-				Log.info("Loading config from '" + configPath + "'");
-				File configFile = new File(configPath);
-				if (configFile.exists()) {
-					is = new FileInputStream(configPath);
-				} else {
-					if (runFromJar) {
-						Log.info("'" + configPath
-								+ "' not found. Checking .jar");
-						x = new JarFile(pPath.toFile(), false);
-						is = IOUtils.getInputStreamFromJar(x, configPath);
-					} else {
-						Log.info("'" + configPath
-								+ "' not found. Using default config.");
-					}
-				}
-
-				// if inputstream present, read new file
-				if (is != null) {
-					tk = new JSONTokener(is);
-					jsonConfig = new JSONObject(tk);
-					config = MainDisplayConfig
-							.createMainDisplayConfigFromJSONObject(jsonConfig
-									.getJSONObject("MainDisplayConfig"));
-					is.close();
-					is = null;
-				}
-
-				// free resources
-				if (x != null)
-					x.close();
-				x = null;
-				tk = null;
-				jsonConfig = null;
-			} catch (JSONException | IOException e) {
-				e.printStackTrace();
+			MainDisplayConfig customConfig = MainDisplay.DefaultConfig;
+			if (configFlag) {
+				MainDisplayConfig tempConfig = MainDisplayConfig
+						.readConfig(configPath);
+				if (tempConfig != null)
+					customConfig = tempConfig;
 			}
+			MainDisplay.config = customConfig;
 
 			// use cmd line parameters
 			if (!dataFlag)
@@ -293,10 +229,11 @@ public class MainDisplay extends JFrame {
 
 	// config
 	public static boolean runFromJar = IOUtils.isRunFromJar();
-	public static MainDisplayConfig config = MainDisplay.getDefaultConfig();
-	public static MainDisplayConfig DefaultConfig = MainDisplay
+	public static MainDisplayConfig config;
+	public static MainDisplayConfig DefaultConfig = MainDisplayConfig
 			.getDefaultConfig();
 
+	// static paths
 	public static final String defaultConfigPath = "config/gui_default.cfg";
 	public static final String minConfigPath = "config/gui_min.cfg";
 	public static final String displayConfigPath = "config/displayConfig.cfg";
@@ -308,15 +245,11 @@ public class MainDisplay extends JFrame {
 	// constructor
 
 	public MainDisplay() {
-		this(MainDisplay.getDefaultConfig());
+		this(MainDisplayConfig.getDefaultConfig());
 	}
 
 	public MainDisplay(String configPath) {
-		this(MainDisplayConfig.getConfig(configPath));
-	}
-
-	public MainDisplay(String configPath, String dataDir) {
-		this(MainDisplayConfig.getConfig(configPath, dataDir));
+		this(MainDisplayConfig.readConfig(configPath));
 	}
 
 	public MainDisplay(MainDisplayConfig cfg) {
@@ -324,11 +257,11 @@ public class MainDisplay extends JFrame {
 	}
 
 	public MainDisplay(boolean liveDisplay, ZipMode zipMode) {
-		this(liveDisplay, zipMode, MainDisplay.getDefaultConfig());
+		this(liveDisplay, zipMode, MainDisplayConfig.getDefaultConfig());
 	}
 
 	public MainDisplay(boolean liveDisplay, ZipMode zipMode, String configPath) {
-		this(liveDisplay, zipMode, MainDisplayConfig.getConfig(configPath));
+		this(liveDisplay, zipMode, MainDisplayConfig.readConfig(configPath));
 	}
 
 	public MainDisplay(boolean liveDisplay, ZipMode zipMode,
@@ -684,10 +617,10 @@ public class MainDisplay extends JFrame {
 		BatchData tempBatch = b;
 
 		// scaling
-		if (MainDisplay.config.getScalingExpression() != null
-				&& !MainDisplay.config.getScalingExpression().equals("none")) {
+		if (this.config.getScalingExpression() != null
+				&& !this.config.getScalingExpression().equals("none")) {
 			tempBatch = BatchHandler.scaleTimestamp(b,
-					MainDisplay.config.getScalingExpression());
+					this.config.getScalingExpression());
 		}
 
 		for (Component c : this.dataComponents) {
@@ -977,20 +910,4 @@ public class MainDisplay extends JFrame {
 			}
 		}
 	}
-
-	public static MainDisplayConfig getDefaultConfig() {
-		return MainDisplayConfig.getConfig(MainDisplay.defaultConfigPath,
-				runFromJar);
-	}
-
-	public static MainDisplayConfig getMinConfig() {
-		return MainDisplayConfig.getConfig(MainDisplay.minConfigPath,
-				runFromJar);
-	}
-
-	public static MainDisplayConfig getDisplayConfig() {
-		return MainDisplayConfig.getConfig(MainDisplay.displayConfigPath,
-				runFromJar);
-	}
-
 }

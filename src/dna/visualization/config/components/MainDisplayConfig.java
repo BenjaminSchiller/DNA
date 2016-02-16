@@ -3,19 +3,18 @@ package dna.visualization.config.components;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.net.URISyntaxException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.jar.JarFile;
 
-import dna.util.Config;
 import dna.util.IOUtils;
+import dna.util.Log;
 import dna.visualization.BatchHandler.ZipMode;
 import dna.visualization.MainDisplay;
 import dna.visualization.config.JSON.JSONObject;
@@ -168,6 +167,25 @@ public class MainDisplayConfig {
 
 	public MultiScalarVisualizerConfig[] getMultiScalarVisualizerConfigs() {
 		return this.multiScalarVisualizerConfigs;
+	}
+
+	/*
+	 * STATIC METHODS
+	 */
+
+	/** Reads and returns the default config. **/
+	public static MainDisplayConfig getDefaultConfig() {
+		return MainDisplayConfig.readConfig(MainDisplay.defaultConfigPath);
+	}
+
+	/** Reads and returns the min config. **/
+	public static MainDisplayConfig getMinConfig() {
+		return MainDisplayConfig.readConfig(MainDisplay.minConfigPath);
+	}
+
+	/** Reads and returns the display config. **/
+	public static MainDisplayConfig getDisplayConfig() {
+		return MainDisplayConfig.readConfig(MainDisplay.displayConfigPath);
 	}
 
 	/** Creates a main display config object from a given json object. **/
@@ -484,64 +502,65 @@ public class MainDisplayConfig {
 				multiScalarVisualizerConfigs);
 	}
 
-	/** Reads a MainDisplayConfig from the given path. **/
-	public static MainDisplayConfig getConfig(String path) {
-		return MainDisplayConfig.getConfig(path, false);
-	}
-
-	/** Reads a MainDisplayConfig from the given path. **/
-	public static MainDisplayConfig getConfig(String path, boolean fromJar) {
+	/**
+	 * Reads a MainDisplayConfig from the given path. <br>
+	 * 
+	 * Note: First checks the actual filesystem, then inside .jar (if run from a
+	 * jar). Returns null if no proper config is found at the location.
+	 **/
+	public static MainDisplayConfig readConfig(String path) {
+		Log.info("Reading MainDisplay-config: '" + path + "'");
+		MainDisplayConfig config = null;
 		InputStream is = null;
-		JarFile x = null;
+		JarFile jar = null;
 
-		if (fromJar) {
-			try {
-				Path pPath = Paths.get(Config.class.getProtectionDomain()
-						.getCodeSource().getLocation().toURI());
-				String[] splits = path.split("/");
-				x = new JarFile(pPath.toFile(), false);
-				is = IOUtils.getInputStreamFromJar(x, path);
-			} catch (URISyntaxException | IOException e) {
-				e.printStackTrace();
-			}
-		} else {
+		File file = new File(path);
+
+		if (file.exists()) {
 			try {
 				is = new FileInputStream(path);
 			} catch (FileNotFoundException e) {
 				e.printStackTrace();
 			}
-		}
-
-		JSONTokener tk = new JSONTokener(is);
-		JSONObject jsonConfig = new JSONObject(tk);
-		MainDisplayConfig config = MainDisplayConfig
-				.createMainDisplayConfigFromJSONObject(jsonConfig
-						.getJSONObject("MainDisplayConfig"));
-
-		// close jar-file if necessary
-		if (x != null) {
-			try {
-				x.close();
-			} catch (IOException e) {
-				e.printStackTrace();
+		} else {
+			if (IOUtils.isRunFromJar()) {
+				Log.info("'" + path
+						+ "-> ' not found. Attempting to read from .jar");
+				try {
+					jar = IOUtils.getJarFile();
+					is = IOUtils.getInputStreamFromJar(jar, path);
+				} catch (URISyntaxException | IOException e) {
+					e.printStackTrace();
+				}
+			} else {
+				Log.info("\t-> '" + path + "' not found!");
 			}
 		}
 
+		if (is != null) {
+			JSONTokener tk = new JSONTokener(is);
+			JSONObject jsonConfig = new JSONObject(tk);
+			config = MainDisplayConfig
+					.createMainDisplayConfigFromJSONObject(jsonConfig
+							.getJSONObject("MainDisplayConfig"));
+
+			try {
+				is.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			is = null;
+		}
+
+		if (jar != null) {
+			try {
+				jar.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			jar = null;
+		}
+
 		return config;
-	}
-
-	/** Reads a MainDisplayConfig from the given path inside the jar. **/
-	public static MainDisplayConfig getConfigFromJar(String path) {
-		return MainDisplayConfig.getConfig(path, true);
-	}
-
-	/**
-	 * Reads a MainDisplayConfig from the given path but replaces the default
-	 * data dir.
-	 **/
-	public static MainDisplayConfig getConfig(String path, String dataDir) {
-		MainDisplayConfig cfg = MainDisplayConfig.getConfig(path);
-		cfg.setDefaultDir(dataDir);
-		return cfg;
 	}
 }

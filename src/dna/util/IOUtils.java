@@ -86,4 +86,12 @@ public class IOUtils {
 		return false;
 	}
 
+	/** Instanciates a new JarFile object pointing at the current jar file. **/
+	public static JarFile getJarFile() throws URISyntaxException, IOException {
+		Path p = Paths.get(Config.class.getProtectionDomain().getCodeSource()
+				.getLocation().toURI());
+
+		return new JarFile(p.toFile(), false);
+	}
+
 }
