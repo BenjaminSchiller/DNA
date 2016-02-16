@@ -1,8 +1,9 @@
-package dna.labels;
+package dna.labels.labeller;
 
 import java.util.ArrayList;
 
 import dna.graph.Graph;
+import dna.labels.Label;
 import dna.metrics.IMetric;
 import dna.series.data.BatchData;
 import dna.updates.batch.Batch;

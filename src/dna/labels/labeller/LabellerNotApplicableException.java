@@ -1,4 +1,4 @@
-package dna.labels;
+package dna.labels.labeller;
 
 import dna.series.Series;
 import dna.updates.batch.Batch;
