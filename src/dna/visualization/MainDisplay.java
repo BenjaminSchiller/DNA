@@ -16,7 +16,6 @@ import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
 import javax.imageio.ImageIO;
@@ -34,6 +33,7 @@ import javax.swing.border.EtchedBorder;
 import dna.io.filesystem.Dir;
 import dna.series.data.BatchData;
 import dna.util.Config;
+import dna.util.IOUtils;
 import dna.util.Log;
 import dna.visualization.BatchHandler.ZipMode;
 import dna.visualization.components.LogDisplay;
@@ -161,7 +161,7 @@ public class MainDisplay extends JFrame {
 					x = new JarFile(pPath.toFile(), false);
 					Log.info("Loading default config from inside .jar-file: '"
 							+ splits[splits.length - 1] + "'");
-					is = x.getInputStream(x.getEntry(splits[splits.length - 1]));
+					is = IOUtils.getInputStreamFromJar(x, defaultConfigPath);
 				} else {
 					Log.info("Loading default config from '"
 							+ defaultConfigPath + "'");
@@ -183,34 +183,34 @@ public class MainDisplay extends JFrame {
 				jsonConfig = null;
 
 				// read main display config
-				if (runFromJar) {
-					String[] splits = configPath.split("/");
-					x = new JarFile(pPath.toFile(), false);
-					Log.info("Loading config from inside .jar-file: '"
-							+ splits[splits.length - 1] + "'");
-					JarEntry entry = x.getJarEntry(splits[splits.length - 1]);
-					if (entry == null) {
-						Log.info("Config '" + splits[splits.length - 1]
-								+ "' was not found in .jar-file. Checking '"
-								+ configPath + "'");
-						is = new FileInputStream(configPath);
-					} else {
-						is = x.getInputStream(x
-								.getEntry(splits[splits.length - 1]));
-					}
-				} else {
-					Log.info("Loading config from '" + configPath + "'");
+				Log.info("Loading config from '" + configPath + "'");
+				File configFile = new File(configPath);
+				if (configFile.exists()) {
 					is = new FileInputStream(configPath);
+				} else {
+					if (runFromJar) {
+						Log.info("'" + configPath
+								+ "' not found. Checking .jar");
+						x = new JarFile(pPath.toFile(), false);
+						is = IOUtils.getInputStreamFromJar(x, configPath);
+					} else {
+						Log.info("'" + configPath
+								+ "' not found. Using default config.");
+					}
 				}
-				tk = new JSONTokener(is);
-				jsonConfig = new JSONObject(tk);
-				config = MainDisplayConfig
-						.createMainDisplayConfigFromJSONObject(jsonConfig
-								.getJSONObject("MainDisplayConfig"));
+
+				// if inputstream present, read new file
+				if (is != null) {
+					tk = new JSONTokener(is);
+					jsonConfig = new JSONObject(tk);
+					config = MainDisplayConfig
+							.createMainDisplayConfigFromJSONObject(jsonConfig
+									.getJSONObject("MainDisplayConfig"));
+					is.close();
+					is = null;
+				}
 
 				// free resources
-				is.close();
-				is = null;
 				if (x != null)
 					x.close();
 				x = null;

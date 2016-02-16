@@ -2,7 +2,11 @@ package dna.util;
 
 import java.io.File;
 import java.io.FilenameFilter;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Arrays;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
 
 public class IOUtils {
 	/**
@@ -27,6 +31,42 @@ public class IOUtils {
 		}
 		Arrays.sort(filenames);
 		return filenames;
+	}
+
+	/**
+	 * Returns an InputStream to the file at the given path inside the given
+	 * jar.
+	 **/
+	public static InputStream getInputStreamFromJar(JarFile jar, String path)
+			throws IOException {
+		// check if entry at path exists, if yes return input stream
+		JarEntry entry = jar.getJarEntry(path);
+		if (entry != null)
+			return jar.getInputStream(entry);
+
+		// if not, build relative path with first directory missing
+		String[] splits = path.split("/");
+		String relativePath = "";
+
+		if (splits.length == 1)
+			relativePath = splits[0];
+		else {
+			// build relative path: skip first entry -> start with i = 1
+			for (int i = 1; i < splits.length; i++) {
+				relativePath += splits[i];
+				if (i < splits.length - 1)
+					relativePath += "/";
+			}
+		}
+
+		entry = jar.getJarEntry(relativePath);
+		if (entry != null)
+			return jar.getInputStream(jar.getJarEntry(relativePath));
+		else {
+			Log.warn("no file inside .jar found at " + path + " or "
+					+ relativePath);
+			return null;
+		}
 	}
 
 }
