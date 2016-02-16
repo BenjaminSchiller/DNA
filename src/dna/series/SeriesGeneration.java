@@ -702,7 +702,7 @@ public class SeriesGeneration {
 
 		// compute labels
 		for (Labeller labeller : series.getLabeller()) {
-			for (Label l : labeller.compute(batchData, series.getMetrics())) {
+			for (Label l : labeller.computeLabels(batchData, series.getMetrics())) {
 				batchData.getLabels().add(l);
 			}
 		}

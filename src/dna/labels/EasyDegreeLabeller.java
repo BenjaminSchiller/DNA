@@ -22,7 +22,7 @@ public class EasyDegreeLabeller extends Labeller {
 	}
 
 	@Override
-	public ArrayList<Label> compute(BatchData batchData, IMetric[] metrics) {
+	public ArrayList<Label> computeLabels(BatchData batchData, IMetric[] metrics) {
 		// init list of labels
 		ArrayList<Label> labels = new ArrayList<Label>();
 
@@ -62,7 +62,7 @@ public class EasyDegreeLabeller extends Labeller {
 	}
 
 	@Override
-	public MetricRequirement getMetricRequirement() {
+	public MetricRequirement getRequirementStrategy() {
 		return MetricRequirement.ATLEAST_ONE;
 	}
 
