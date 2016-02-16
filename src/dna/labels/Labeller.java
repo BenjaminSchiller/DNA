@@ -2,8 +2,10 @@ package dna.labels;
 
 import java.util.ArrayList;
 
+import dna.graph.Graph;
 import dna.metrics.IMetric;
 import dna.series.data.BatchData;
+import dna.updates.batch.Batch;
 
 /**
  * Labeller are used to compute labels.
@@ -67,8 +69,8 @@ public abstract class Labeller {
 		}
 	}
 
-	public abstract ArrayList<Label> computeLabels(BatchData batchData,
-			IMetric[] metrics);
+	public abstract ArrayList<Label> computeLabels(Graph g, Batch batch,
+			BatchData batchData, IMetric[] metrics);
 
 	public abstract String[] getRequiredMetrics();
 

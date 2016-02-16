@@ -540,11 +540,8 @@ public class SeriesGeneration {
 
 	}
 
-	private static BatchData computeNextBatch(Series series,
+	private static BatchData computeNextBatch(Batch b, Series series,
 			Algorithms algorithms) throws MetricNotApplicableException {
-		Batch b = series.getBatchGenerator().generate(series.getGraph());
-		Log.info("    " + b.toString());
-
 		// check applicability to batch
 		for (IMetric m : series.getMetrics()) {
 			if (!m.isApplicable(b)) {
@@ -627,8 +624,12 @@ public class SeriesGeneration {
 
 	public static BatchData generateNextBatch(Series series,
 			Algorithms algorithms) throws MetricNotApplicableException {
+		// generate next batch
+		Batch b = series.getBatchGenerator().generate(series.getGraph());
+		Log.info("    " + b.toString());
 
-		BatchData batchData = computeNextBatch(series, algorithms);
+		// compute next batchdata
+		BatchData batchData = computeNextBatch(b, series, algorithms);
 
 		// add values
 		batchData.getValues().add(
@@ -713,7 +714,8 @@ public class SeriesGeneration {
 
 		// compute labels
 		for (Labeller labeller : series.getLabeller()) {
-			for (Label l : labeller.computeLabels(batchData, series.getMetrics())) {
+			for (Label l : labeller.computeLabels(series.getGraph(), b,
+					batchData, series.getMetrics())) {
 				batchData.getLabels().add(l);
 			}
 		}
