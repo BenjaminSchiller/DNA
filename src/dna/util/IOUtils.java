@@ -116,7 +116,8 @@ public class IOUtils {
 	 * 
 	 * Note: DO NOT FORGET to close the JarFile after use to prevent data leaks.
 	 **/
-	public static JarFile getJarFile() throws URISyntaxException, IOException {
+	public static JarFile getExecutionJarFile() throws URISyntaxException,
+			IOException {
 		Path p = Paths.get(Config.class.getProtectionDomain().getCodeSource()
 				.getLocation().toURI());
 
