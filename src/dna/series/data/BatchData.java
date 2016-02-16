@@ -7,6 +7,7 @@ import dna.io.ZipReader;
 import dna.io.ZipWriter;
 import dna.io.filesystem.Dir;
 import dna.io.filesystem.Files;
+import dna.labels.LabelList;
 import dna.plot.PlottingUtils;
 import dna.series.aggdata.AggregatedBatch.BatchReadMode;
 import dna.series.data.distr.BinnedDistr;
@@ -33,6 +34,7 @@ public class BatchData implements IBatch {
 		this.generalRuntimes = new RunTimeList();
 		this.metricRuntimes = new RunTimeList();
 		this.metrics = new MetricDataList();
+		this.labels = new LabelList();
 	}
 
 	public BatchData(Batch b, BatchSanitizationStats sanitizationStats,
@@ -51,16 +53,25 @@ public class BatchData implements IBatch {
 		this.generalRuntimes = new RunTimeList(sizeGeneralRuntimes);
 		this.metricRuntimes = new RunTimeList(sizeMetricRuntimes);
 		this.metrics = new MetricDataList(sizeMetrics);
+		this.labels = new LabelList();
 	}
 
 	public BatchData(long timestamp, ValueList values,
 			RunTimeList generalRuntimes, RunTimeList metricRuntimes,
 			MetricDataList metrics) {
+		this(timestamp, values, generalRuntimes, metricRuntimes, metrics,
+				new LabelList());
+	}
+
+	public BatchData(long timestamp, ValueList values,
+			RunTimeList generalRuntimes, RunTimeList metricRuntimes,
+			MetricDataList metrics, LabelList labels) {
 		this.timestamp = timestamp;
 		this.stats = values;
 		this.generalRuntimes = generalRuntimes;
 		this.metricRuntimes = metricRuntimes;
 		this.metrics = metrics;
+		this.labels = labels;
 	}
 
 	private Batch batch;
@@ -109,6 +120,12 @@ public class BatchData implements IBatch {
 		return this.metrics;
 	}
 
+	private LabelList labels;
+
+	public LabelList getLabels() {
+		return this.labels;
+	}
+
 	/** Writes the batch to the specified location. **/
 	public void write(String dir) throws IOException {
 		Log.debug("writing BatchData for " + this.timestamp + " to " + dir);
@@ -119,6 +136,8 @@ public class BatchData implements IBatch {
 						.get("BATCH_GENERAL_RUNTIMES")));
 		this.metricRuntimes.write(dir,
 				Files.getRuntimesFilename(Config.get("BATCH_METRIC_RUNTIMES")));
+		this.labels.write(dir,
+				Files.getLabelsFilename(Config.get("BATCH_LABELS")));
 		this.metrics.write(dir);
 	}
 
@@ -234,9 +253,12 @@ public class BatchData implements IBatch {
 		RunTimeList metricRuntimes = RunTimeList.read(dir,
 				Files.getRuntimesFilename(Config.get("BATCH_METRIC_RUNTIMES")),
 				readValues);
+		LabelList labels = LabelList
+				.read(dir, Files.getLabelsFilename(Config.get("BATCH_LABELS")),
+						readValues);
 		MetricDataList metrics = MetricDataList.read(dir, batchReadMode);
 		return new BatchData(timestamp, values, generalRuntimes,
-				metricRuntimes, metrics);
+				metricRuntimes, metrics, labels);
 	}
 
 	/**

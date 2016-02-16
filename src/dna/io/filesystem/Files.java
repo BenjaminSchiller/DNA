@@ -210,6 +210,13 @@ public class Files {
 	}
 
 	/*
+	 * LABELS
+	 */
+	public static String getLabelsFilename(String name) {
+		return name + Config.get("SUFFIX_LABEL");
+	}
+
+	/*
 	 * NODEVALUELISTS
 	 */
 	public static String getNodeValueListFilename(String name) {
