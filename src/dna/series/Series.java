@@ -4,6 +4,7 @@ import java.io.IOException;
 
 import dna.graph.Graph;
 import dna.graph.generators.GraphGenerator;
+import dna.labels.Labeller;
 import dna.metrics.IMetric;
 import dna.metrics.MetricNotApplicableException;
 import dna.series.aggdata.AggregatedBatch.BatchReadMode;
@@ -27,12 +28,18 @@ public class Series {
 	};
 
 	public Series(GraphGenerator gg, BatchGenerator bg, IMetric[] metrics,
-			String dir, String name) {
+			Labeller[] labeller, String dir, String name) {
 		this.graphGenerator = gg;
 		this.batchGenerator = bg;
 		this.metrics = metrics;
+		this.labeller = (labeller == null) ? new Labeller[0] : labeller;
 		this.dir = dir;
 		this.name = name;
+	}
+
+	public Series(GraphGenerator gg, BatchGenerator bg, IMetric[] metrics,
+			String dir, String name) {
+		this(gg, bg, metrics, new Labeller[0], dir, name);
 	}
 
 	public static SeriesData get(String dir, String name)
@@ -98,6 +105,8 @@ public class Series {
 
 	private IMetric[] metrics;
 
+	private Labeller[] labeller;
+
 	private String dir;
 
 	private Graph graph;
@@ -114,6 +123,10 @@ public class Series {
 
 	public IMetric[] getMetrics() {
 		return this.metrics;
+	}
+
+	public Labeller[] getLabeller() {
+		return this.labeller;
 	}
 
 	public String getDir() {

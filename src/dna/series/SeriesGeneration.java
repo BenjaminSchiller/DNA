@@ -5,6 +5,9 @@ import java.io.IOException;
 
 import dna.io.filesystem.Dir;
 import dna.io.filesystem.Files;
+import dna.labels.Label;
+import dna.labels.Labeller;
+import dna.labels.LabellerNotApplicableException;
 import dna.metrics.IMetric;
 import dna.metrics.MetricNotApplicableException;
 import dna.metrics.algorithms.Algorithms;
@@ -275,6 +278,17 @@ public class SeriesGeneration {
 		// reset rand per batch
 		if (series.getRandomSeedReset() == RandomSeedReset.eachBatch) {
 			series.resetRand();
+		}
+
+		// check if labellers applicable
+		for (Labeller l : series.getLabeller()) {
+			if (!l.isApplicable(series.getMetrics()))
+				try {
+					throw new LabellerNotApplicableException(l, series);
+				} catch (LabellerNotApplicableException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 		}
 
 		// generate initial data
@@ -695,6 +709,13 @@ public class SeriesGeneration {
 
 			// add metric to batch
 			batchData.getMetrics().add(data);
+		}
+
+		// compute labels
+		for (Labeller labeller : series.getLabeller()) {
+			for (Label l : labeller.compute(batchData, series.getMetrics())) {
+				batchData.getLabels().add(l);
+			}
 		}
 
 		return batchData;
