@@ -24,6 +24,7 @@ import dna.series.aggdata.AggregatedMetric;
 import dna.series.aggdata.AggregatedValue;
 import dna.series.data.SeriesData;
 import dna.util.Config;
+import dna.util.IOUtils;
 
 /**
  * Utility class for tex.
@@ -1777,16 +1778,17 @@ public class TexUtils {
 	public static void copyLogo(String dstDir) throws IOException {
 		InputStream is = null;
 		JarFile x = null;
-		if (Config.isRunFromJar()) {
+		if (IOUtils.isRunFromJar()) {
 			Path pPath;
 
 			try {
 				pPath = Paths.get(Config.class.getProtectionDomain()
 						.getCodeSource().getLocation().toURI());
 				x = new JarFile(pPath.toFile(), false);
-				is = x.getInputStream(x.getEntry(Config
-						.get("LATEX_LOGO_FILENAME")
-						+ Config.get("LATEX_LOGO_SUFFIX")));
+				is = IOUtils.getInputStreamFromJar(
+						x,
+						Config.get("LATEX_LOGO_FILENAME")
+								+ Config.get("LATEX_LOGO_SUFFIX"));
 			} catch (URISyntaxException e) {
 				e.printStackTrace();
 			}

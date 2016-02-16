@@ -4,6 +4,9 @@ import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URISyntaxException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
@@ -67,6 +70,20 @@ public class IOUtils {
 					+ relativePath);
 			return null;
 		}
+	}
+
+	/** Returns if the current program is run from jar or binary. **/
+	public static boolean isRunFromJar() {
+		try {
+			Path pPath = Paths.get(Config.class.getProtectionDomain()
+					.getCodeSource().getLocation().toURI());
+			if (pPath.getFileName().toString().endsWith(".jar"))
+				return true;
+		} catch (URISyntaxException e) {
+			e.printStackTrace();
+		}
+
+		return false;
 	}
 
 }

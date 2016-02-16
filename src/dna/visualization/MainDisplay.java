@@ -292,7 +292,7 @@ public class MainDisplay extends JFrame {
 	private Color defaultFontColor;
 
 	// config
-	public static boolean runFromJar = Config.isRunFromJar();
+	public static boolean runFromJar = IOUtils.isRunFromJar();
 	public static MainDisplayConfig config = MainDisplay.getDefaultConfig();
 	public static MainDisplayConfig DefaultConfig = MainDisplay
 			.getDefaultConfig();

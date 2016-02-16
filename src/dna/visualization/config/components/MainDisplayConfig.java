@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.jar.JarFile;
 
 import dna.util.Config;
+import dna.util.IOUtils;
 import dna.visualization.BatchHandler.ZipMode;
 import dna.visualization.MainDisplay;
 import dna.visualization.config.JSON.JSONObject;
@@ -499,7 +500,7 @@ public class MainDisplayConfig {
 						.getCodeSource().getLocation().toURI());
 				String[] splits = path.split("/");
 				x = new JarFile(pPath.toFile(), false);
-				is = x.getInputStream(x.getEntry(splits[splits.length - 1]));
+				is = IOUtils.getInputStreamFromJar(x, path);
 			} catch (URISyntaxException | IOException e) {
 				e.printStackTrace();
 			}
