@@ -278,7 +278,8 @@ public class SeriesGeneration {
 
 		// check if labellers applicable
 		for (Labeler l : series.getLabeller()) {
-			if (!l.isApplicable(series.getMetrics()))
+			if (!l.isApplicable(series.getGraphGenerator(),
+					series.getBatchGenerator(), series.getMetrics()))
 				try {
 					throw new LabelerNotApplicableException(l, series);
 				} catch (LabelerNotApplicableException e) {

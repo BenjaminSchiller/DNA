@@ -3,12 +3,13 @@ package dna.labels.labeler;
 import java.util.ArrayList;
 
 import dna.graph.Graph;
+import dna.graph.generators.GraphGenerator;
 import dna.labels.Label;
-import dna.labels.labeler.Labeler.MetricRequirement;
 import dna.metrics.IMetric;
 import dna.series.data.BatchData;
 import dna.series.data.MetricData;
 import dna.updates.batch.Batch;
+import dna.updates.generators.BatchGenerator;
 
 /**
  * Simple implementation of a labeller. Checks the max-degree in the graph and
@@ -62,13 +63,9 @@ public class EasyDegreeLabeler extends Labeler {
 	}
 
 	@Override
-	public String[] getRequiredMetrics() {
-		return new String[] { "DegreeDistributionR", "DegreeDistributionU" };
-	}
-
-	@Override
-	public MetricRequirement getRequirementStrategy() {
-		return MetricRequirement.ATLEAST_ONE;
+	public boolean isApplicable(GraphGenerator gg, BatchGenerator bg,
+			IMetric[] metrics) {
+		return false;
 	}
 
 }
