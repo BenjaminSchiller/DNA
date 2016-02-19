@@ -1,4 +1,4 @@
-package dna.labels.labeller;
+package dna.labels.labeler;
 
 import java.util.ArrayList;
 
@@ -14,7 +14,7 @@ import dna.updates.batch.Batch;
  * @author Rwilmes
  * 
  */
-public abstract class Labeller {
+public abstract class Labeler {
 
 	public static enum MetricRequirement {
 		ALL, ATLEAST_ONE
@@ -22,7 +22,7 @@ public abstract class Labeller {
 
 	private String name;
 
-	public Labeller(String name) {
+	public Labeler(String name) {
 		this.name = name;
 	}
 
