@@ -6,8 +6,8 @@ import java.io.IOException;
 import dna.io.filesystem.Dir;
 import dna.io.filesystem.Files;
 import dna.labels.Label;
-import dna.labels.labeller.Labeller;
-import dna.labels.labeller.LabellerNotApplicableException;
+import dna.labels.labeler.Labeler;
+import dna.labels.labeler.LabelerNotApplicableException;
 import dna.metrics.IMetric;
 import dna.metrics.MetricNotApplicableException;
 import dna.metrics.algorithms.Algorithms;
@@ -277,11 +277,11 @@ public class SeriesGeneration {
 		}
 
 		// check if labellers applicable
-		for (Labeller l : series.getLabeller()) {
+		for (Labeler l : series.getLabeller()) {
 			if (!l.isApplicable(series.getMetrics()))
 				try {
-					throw new LabellerNotApplicableException(l, series);
-				} catch (LabellerNotApplicableException e) {
+					throw new LabelerNotApplicableException(l, series);
+				} catch (LabelerNotApplicableException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
@@ -702,7 +702,7 @@ public class SeriesGeneration {
 		}
 
 		// compute labels
-		for (Labeller labeller : series.getLabeller()) {
+		for (Labeler labeller : series.getLabeller()) {
 			for (Label l : labeller.computeLabels(series.getGraph(), b,
 					batchData, series.getMetrics())) {
 				batchData.getLabels().add(l);

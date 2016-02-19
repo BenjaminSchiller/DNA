@@ -1,10 +1,10 @@
-package dna.labels.labeller;
+package dna.labels.labeler;
 
 import java.util.ArrayList;
 
 import dna.graph.Graph;
 import dna.labels.Label;
-import dna.labels.labeller.Labeller.MetricRequirement;
+import dna.labels.labeler.Labeler.MetricRequirement;
 import dna.metrics.IMetric;
 import dna.series.data.BatchData;
 import dna.series.data.MetricData;
@@ -17,11 +17,11 @@ import dna.updates.batch.Batch;
  * @author Rwilmes
  * 
  */
-public class EasyDegreeLabeller extends Labeller {
+public class EasyDegreeLabeler extends Labeler {
 
 	protected static String name = "easy-degree-labeller";
 
-	public EasyDegreeLabeller() {
+	public EasyDegreeLabeler() {
 		super(name);
 	}
 
