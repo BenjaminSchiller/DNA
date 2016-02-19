@@ -23,7 +23,7 @@ import dna.util.Log;
  */
 public class EasyDegreeLabeler extends Labeler {
 
-	protected static String name = "easy-degree-labeller";
+	private static String name = "easy-degree-labeller";
 
 	public EasyDegreeLabeler() {
 		super(name);

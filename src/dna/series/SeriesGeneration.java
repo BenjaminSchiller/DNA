@@ -321,6 +321,14 @@ public class SeriesGeneration {
 			BatchData batchData = SeriesGeneration.generateNextBatch(series,
 					algorithms);
 
+			// compute labels
+			for (Labeler labeller : series.getLabeller()) {
+				for (Label l : labeller.computeLabels(series.getGraph(), null,
+						batchData, series.getMetrics())) {
+					batchData.getLabels().add(l);
+				}
+			}
+
 			if (compare) {
 				SeriesGeneration.compareMetrics(series);
 			}
@@ -699,14 +707,6 @@ public class SeriesGeneration {
 
 			// add metric to batch
 			batchData.getMetrics().add(data);
-		}
-
-		// compute labels
-		for (Labeler labeller : series.getLabeller()) {
-			for (Label l : labeller.computeLabels(series.getGraph(), b,
-					batchData, series.getMetrics())) {
-				batchData.getLabels().add(l);
-			}
 		}
 
 		return batchData;
