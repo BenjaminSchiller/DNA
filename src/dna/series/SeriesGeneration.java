@@ -59,7 +59,7 @@ public class SeriesGeneration {
 
 	public static SeriesData generate(Series series, int runs, int batches)
 			throws AggregationException, IOException,
-			MetricNotApplicableException {
+			MetricNotApplicableException, LabelerNotApplicableException {
 		return SeriesGeneration.generate(series, runs, batches, true, true,
 				true, 0);
 	}
@@ -88,11 +88,12 @@ public class SeriesGeneration {
 	 * @throws AggregationException
 	 * @throws IOException
 	 * @throws MetricNotApplicableException
+	 * @throws LabelerNotApplicableException
 	 */
 	public static SeriesData generate(Series series, int runs, int batches,
 			boolean compare, boolean aggregate, boolean write,
 			long batchGenerationTime) throws AggregationException, IOException,
-			MetricNotApplicableException {
+			MetricNotApplicableException, LabelerNotApplicableException {
 		Log.infoSep();
 		Log.info("generating series");
 		Log.infoSep();
@@ -193,11 +194,12 @@ public class SeriesGeneration {
 	 * @return RunDataList object containing the generated runs
 	 * @throws IOException
 	 * @throws MetricNotApplicableException
+	 * @throws LabelerNotApplicableException
 	 */
 	public static SeriesData generateRuns(Series series, int from, int to,
 			int batches, boolean compare, boolean write,
 			long batchGenerationTime) throws IOException,
-			MetricNotApplicableException {
+			MetricNotApplicableException, LabelerNotApplicableException {
 		int runs = to - from;
 
 		for (int i = 0; i <= runs; i++) {
@@ -243,10 +245,12 @@ public class SeriesGeneration {
 	 * @return RunData object representing the generated run
 	 * @throws IOException
 	 * @throws MetricNotApplicableException
+	 * @throws LabelerNotApplicableException
 	 */
 	public static void generateRun(Series series, int run, int batches,
 			boolean compare, boolean write, long batchGenerationTime)
-			throws IOException, MetricNotApplicableException {
+			throws IOException, MetricNotApplicableException,
+			LabelerNotApplicableException {
 
 		/*
 		 * compile lists of different algorithm types
@@ -280,12 +284,7 @@ public class SeriesGeneration {
 		for (Labeler l : series.getLabeller()) {
 			if (!l.isApplicable(series.getGraphGenerator(),
 					series.getBatchGenerator(), series.getMetrics()))
-				try {
-					throw new LabelerNotApplicableException(l, series);
-				} catch (LabelerNotApplicableException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
+				throw new LabelerNotApplicableException(l, series);
 		}
 
 		// generate initial data
