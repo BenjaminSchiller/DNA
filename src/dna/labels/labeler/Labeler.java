@@ -11,16 +11,12 @@ import dna.updates.batch.Batch;
 import dna.updates.generators.BatchGenerator;
 
 /**
- * Labeller are used to compute labels.
+ * Labeler are used to compute labels.
  * 
  * @author Rwilmes
  * 
  */
 public abstract class Labeler {
-
-	public static enum MetricRequirement {
-		ALL, ATLEAST_ONE
-	}
 
 	private String name;
 
@@ -36,6 +32,33 @@ public abstract class Labeler {
 	public abstract boolean isApplicable(GraphGenerator gg, BatchGenerator bg,
 			IMetric[] metrics);
 
+	/** Computes and returns a list of labels. **/
 	public abstract ArrayList<Label> computeLabels(Graph g, Batch batch,
 			BatchData batchData, IMetric[] metrics);
+
+	public static IMetric getMetric(IMetric[] metrics,
+			Class<? extends IMetric> mo) {
+		for (IMetric m : metrics) {
+			if (m.equals(mo))
+				return m;
+		}
+		return null;
+	}
+
+	/**
+	 * Returns the first metric, which is a subclass of the given class(es).
+	 * Returns null if no matching metric is present.
+	 **/
+	@SafeVarargs
+	public static IMetric getMetric(IMetric[] metrics,
+			Class<? extends IMetric>... classes) {
+		for (IMetric m : metrics) {
+			for (Class<? extends IMetric> mClass : classes) {
+				if (m.getClass().equals(mClass)) {
+					return m;
+				}
+			}
+		}
+		return null;
+	}
 }
