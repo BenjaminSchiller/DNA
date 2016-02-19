@@ -1,6 +1,7 @@
 package dna.labels;
 
 import dna.series.lists.ListItem;
+import dna.util.Config;
 
 /**
  * Labels are used to label batches.
@@ -34,6 +35,7 @@ public class Label implements ListItem {
 	}
 
 	public String toString() {
-		return this.name + "_" + this.type + "=" + this.value;
+		return this.name + Config.get("LABEL_NAME_TYPE_SEPARATOR") + this.type
+				+ "=" + this.value;
 	}
 }
