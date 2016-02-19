@@ -71,7 +71,7 @@ public class EasyDegreeLabeler extends Labeler {
 		IMetric degreeMetric = Labeler.getMetric(metrics,
 				DegreeDistributionR.class, DegreeDistributionU.class);
 		if (degreeMetric == null) {
-			Log.warn(this.name + ":  o DegreeDistribution found!");
+			Log.warn(getName() + ": No DegreeDistribution found!");
 			return false;
 		}
 		return true;

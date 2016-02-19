@@ -17,7 +17,7 @@ import dna.updates.generators.BatchGenerator;
  * 
  */
 public abstract class Labeler {
-
+	
 	private String name;
 
 	public Labeler(String name) {
@@ -28,7 +28,14 @@ public abstract class Labeler {
 		return this.name;
 	}
 
-	/** Returns if a labeller is applicable/computable given the metrics. **/
+	/**
+	 * Returns if a labeller is applicable/computable given the GraphGenerator,
+	 * BatchGenerator and metrics.<br>
+	 * <br>
+	 * 
+	 * <b>Note:</b> Each Labeler shall add some kind of log-warning that is
+	 * printed if it is not applicable and why.
+	 **/
 	public abstract boolean isApplicable(GraphGenerator gg, BatchGenerator bg,
 			IMetric[] metrics);
 
