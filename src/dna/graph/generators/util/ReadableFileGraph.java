@@ -31,7 +31,7 @@ public class ReadableFileGraph extends GraphGenerator {
 	 * @throws IOException
 	 */
 	public ReadableFileGraph(String dir, String filename) throws IOException {
-		this(dir, filename, null);
+		this(dir, filename, GraphReader.readGDS(dir, filename));
 	}
 
 	/**

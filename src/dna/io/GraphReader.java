@@ -5,7 +5,6 @@ import java.io.IOException;
 import dna.graph.Graph;
 import dna.graph.datastructures.GraphDataStructure;
 import dna.graph.edges.Edge;
-import dna.util.Config;
 
 public class GraphReader {
 
@@ -65,6 +64,22 @@ public class GraphReader {
 
 		reader.close();
 		return name;
+	}
+
+	public static GraphDataStructure readGDS(String dir, String filename)
+			throws IOException {
+		Reader reader = new Reader(dir, filename);
+
+		reader.readKeyword(GraphWriter.nameKeyword);
+		String name = reader.readString();
+
+		reader.readKeyword(GraphWriter.datastructuresKeyword);
+		String gdsString = reader.readString();
+
+		GraphDataStructure gds = new GraphDataStructure(gdsString);
+
+		reader.close();
+		return gds;
 	}
 
 }
