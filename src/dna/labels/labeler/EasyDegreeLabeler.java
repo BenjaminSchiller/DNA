@@ -6,10 +6,13 @@ import dna.graph.Graph;
 import dna.graph.generators.GraphGenerator;
 import dna.labels.Label;
 import dna.metrics.IMetric;
+import dna.metrics.degree.DegreeDistributionR;
+import dna.metrics.degree.DegreeDistributionU;
 import dna.series.data.BatchData;
 import dna.series.data.MetricData;
 import dna.updates.batch.Batch;
 import dna.updates.generators.BatchGenerator;
+import dna.util.Log;
 
 /**
  * Simple implementation of a labeller. Checks the max-degree in the graph and
@@ -65,7 +68,13 @@ public class EasyDegreeLabeler extends Labeler {
 	@Override
 	public boolean isApplicable(GraphGenerator gg, BatchGenerator bg,
 			IMetric[] metrics) {
-		return false;
+		IMetric degreeMetric = Labeler.getMetric(metrics,
+				DegreeDistributionR.class, DegreeDistributionU.class);
+		if (degreeMetric == null) {
+			Log.warn(this.name + ":  o DegreeDistribution found!");
+			return false;
+		}
+		return true;
 	}
 
 }
