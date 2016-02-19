@@ -17,7 +17,7 @@ import dna.updates.generators.BatchGenerator;
  * 
  */
 public abstract class Labeler {
-	
+
 	private String name;
 
 	public Labeler(String name) {
@@ -43,18 +43,9 @@ public abstract class Labeler {
 	public abstract ArrayList<Label> computeLabels(Graph g, Batch batch,
 			BatchData batchData, IMetric[] metrics);
 
-	public static IMetric getMetric(IMetric[] metrics,
-			Class<? extends IMetric> mo) {
-		for (IMetric m : metrics) {
-			if (m.equals(mo))
-				return m;
-		}
-		return null;
-	}
-
 	/**
-	 * Returns the first metric, which is a subclass of the given class(es).
-	 * Returns null if no matching metric is present.
+	 * Returns the first metric found, which is a subclass of one of the given
+	 * classes. Returns null if no matching metric is present.
 	 **/
 	@SafeVarargs
 	public static IMetric getMetric(IMetric[] metrics,
@@ -62,6 +53,21 @@ public abstract class Labeler {
 		for (IMetric m : metrics) {
 			for (Class<? extends IMetric> mClass : classes) {
 				if (m.getClass().equals(mClass)) {
+					return m;
+				}
+			}
+		}
+		return null;
+	}
+
+	/**
+	 * Returns the first metric found, which matches one of the given
+	 * metric-names. Returns null if none is found.
+	 **/
+	public static IMetric getMetric(IMetric[] metrics, String... metricNames) {
+		for (IMetric m : metrics) {
+			for (String name : metricNames) {
+				if (m.getName().equals(name)) {
 					return m;
 				}
 			}
