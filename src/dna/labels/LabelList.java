@@ -1,5 +1,6 @@
 package dna.labels;
 
+import java.io.File;
 import java.io.IOException;
 
 import dna.io.Reader;
@@ -31,9 +32,31 @@ public class LabelList extends List<Label> {
 		w.close();
 	}
 
+	/**
+	 * Reads a LabelList from the given dir and name. <br>
+	 * 
+	 * If it doesnt exist it will return an empty LabelList.
+	 */
 	public static LabelList read(String dir, String name, boolean readValues)
 			throws IOException {
-		if (!readValues)
+		return LabelList.read(dir, name, readValues, true);
+	}
+
+	/**
+	 * Reads a LabelList from the given dir and name. <br>
+	 * 
+	 * If the checkIfExists-flag is set it will first make a check on the
+	 * specified dir and name. If it doesnt exist an empty LabelList will be
+	 * returned. <br>
+	 * <br>
+	 * 
+	 * This functionality has been added to support legacy batches which dont
+	 * happen to have a label-list.
+	 */
+	public static LabelList read(String dir, String name, boolean readValues,
+			boolean checkIfExists) throws IOException {
+		File f = new File(dir + name);
+		if (!readValues || (checkIfExists && !f.exists()))
 			return new LabelList();
 		LabelList list = new LabelList();
 		Reader r = Reader.getReader(dir, name);
