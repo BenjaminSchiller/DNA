@@ -20,8 +20,8 @@ public class PlotLabel {
 	private int tag;
 	private String text;
 
-	private double posX;
-	private double posY;
+	private String posX;
+	private String posY;
 	private double offset;
 
 	private Orientation orientation;
@@ -38,27 +38,27 @@ public class PlotLabel {
 	private String colorSpec;
 	private String pointStyle;
 
-	public PlotLabel(String text, double posX) {
-		this(text, posX, 0);
+	public PlotLabel(String text, String posX) {
+		this(text, posX, null);
 	}
 
-	public PlotLabel(String text, double posX, Orientation orientation,
-			String pointStyle) {
-		this(text, posX, 0, orientation, false, 0, 0, pointStyle);
+	public PlotLabel(String text, String posX, String posY,
+			Orientation orientation, String pointStyle) {
+		this(text, posX, posY, orientation, false, 0, 0, pointStyle);
 	}
 
-	public PlotLabel(String text, double posX, double posY) {
+	public PlotLabel(String text, String posX, String posY) {
 		this(text, posX, posY, null, false, 0, 0, null);
 	}
 
-	public PlotLabel(String text, double posX, double posY,
+	public PlotLabel(String text, String posX, String posY,
 			Orientation orientation, boolean rotate, double rotation,
 			double offset, String pointStyle) {
 		this(-1, text, posX, posY, orientation, rotate, rotation, null, 0,
 				false, false, null, pointStyle, 0);
 	}
 
-	public PlotLabel(Integer tag, String text, double posX, double posY,
+	public PlotLabel(Integer tag, String text, String posX, String posY,
 			Orientation orientation, boolean rotate, double rotationDegree,
 			String fontName, double fontSize, boolean noenhanced,
 			boolean foreground, String textColor, String pointStyle,
@@ -88,7 +88,15 @@ public class PlotLabel {
 			buff += " " + tag;
 
 		buff += " " + '"' + text + '"';
-		buff += " " + "at" + " " + posX + "," + posY;
+
+		if (posX != null) {
+			buff += " " + "at" + " " + posX;
+			if (posY != null)
+				buff += "," + posY;
+		} else {
+			if (posY != null)
+				buff += " " + "0," + posY;
+		}
 
 		if (orientation != null)
 			buff += " " + orientation.toString();
@@ -122,6 +130,7 @@ public class PlotLabel {
 	/** Crafts a PlotLabel based on the given Label. **/
 	public static PlotLabel generatePlotLabel(double timestamp, Label label) {
 		return new PlotLabel(timestamp + ":" + label.getType() + "="
-				+ label.getValue(), timestamp, Orientation.left, "pt 5");
+				+ label.getValue(), "" + timestamp, "graph 0.95",
+				Orientation.left, "pt 1");
 	}
 }
