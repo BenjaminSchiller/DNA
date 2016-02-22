@@ -140,7 +140,7 @@ public class SeriesGeneration {
 				series.resetRand();
 			}
 
-			// generate runW
+			// generate run
 			SeriesGeneration.generateRun(series, r, batches, compare, write,
 					batchGenerationTime);
 		}
@@ -281,7 +281,7 @@ public class SeriesGeneration {
 		}
 
 		// check if labellers applicable
-		for (Labeler l : series.getLabeller()) {
+		for (Labeler l : series.getLabeler()) {
 			if (!l.isApplicable(series.getGraphGenerator(),
 					series.getBatchGenerator(), series.getMetrics()))
 				throw new LabelerNotApplicableException(l, series);
@@ -290,6 +290,15 @@ public class SeriesGeneration {
 		// generate initial data
 		BatchData initialData = SeriesGeneration.generateInitialData(series,
 				algorithms);
+
+		// compute labels
+		for (Labeler labeller : series.getLabeler()) {
+			for (Label l : labeller.computeLabels(series.getGraph(), null,
+					initialData, series.getMetrics())) {
+				initialData.getLabels().add(l);
+			}
+		}
+
 		if (compare) {
 			SeriesGeneration.compareMetrics(series);
 		}
@@ -322,8 +331,8 @@ public class SeriesGeneration {
 					algorithms);
 
 			// compute labels
-			for (Labeler labeller : series.getLabeller()) {
-				for (Label l : labeller.computeLabels(series.getGraph(), null,
+			for (Labeler labeler : series.getLabeler()) {
+				for (Label l : labeler.computeLabels(series.getGraph(), null,
 						batchData, series.getMetrics())) {
 					batchData.getLabels().add(l);
 				}
@@ -533,8 +542,8 @@ public class SeriesGeneration {
 				new Value(SeriesStats.nodes, series.getGraph().getNodeCount()));
 		initialData.getValues().add(
 				new Value(SeriesStats.edges, series.getGraph().getEdgeCount()));
-		return initialData;
 
+		return initialData;
 	}
 
 	private static BatchData computeNextBatch(Batch b, Series series,
