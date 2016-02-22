@@ -355,6 +355,9 @@ public class VisualizationUtils {
 		DateFormat df = new SimpleDateFormat("yyyy_MM_dd-HH_mm_ss");
 		String filename = name + "-" + df.format(new Date());
 
+		if (!Config.get("GRAPH_VIS_VIDEO_FILENAME").equals("null"))
+			return dir + Config.get("GRAPH_VIS_VIDEO_FILENAME") + suffix;
+
 		// get name
 		File file = new File(dir + filename + suffix);
 		int id = 0;
