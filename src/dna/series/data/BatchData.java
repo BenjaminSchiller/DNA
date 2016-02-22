@@ -512,17 +512,22 @@ public class BatchData implements IBatch {
 
 	/**
 	 * Reads the batch and its values in respect to the BatchReadMode while also
-	 * checking if zipped-runs, zipped-batches or nozips are configured.
+	 * checking if zipped-runs, zipped-batches or nozips are configured.<br>
+	 * <br>
 	 * 
-	 * Example: Input-Dir: "data/scenario.1/series/run.0/batch.0/":
+	 * <b>Example:</b> Input-Dir: "data/scenario.1/series/run.0/batch.0/":<br>
+	 * <br>
 	 * 
-	 * No-Zip will return the batch at "data/scenario.1/series/run.0/batch.0/".
+	 * - <b>No-Zip</b> will return the batch at
+	 * "data/scenario.1/series/run.0/batch.0/".<br>
+	 * <br>
 	 * 
-	 * Zipped-Batch will read and return the zipped batch
-	 * "data/scenario.1/series/run.0/batch.0.zip"
+	 * - <b>Zipped-Batch</b> will read and return the zipped batch
+	 * "data/scenario.1/series/run.0/batch.0.zip"<br>
+	 * <br>
 	 * 
-	 * Zipped-Run will read the zipped run "data/scenario.1/series/run.0.zip"
-	 * and return batch.0 of run.0.
+	 * - <b>Zipped-Run</b> will read the zipped run
+	 * "data/scenario.1/series/run.0.zip" and return batch.0 of run.0.
 	 * 
 	 * @throws IOException
 	 **/
