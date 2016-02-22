@@ -9,6 +9,8 @@ import java.util.List;
 import java.util.Map;
 
 import dna.io.Writer;
+import dna.labels.Label;
+import dna.labels.LabelList;
 import dna.plot.PlottingConfig.ValueSortMode;
 import dna.plot.data.ExpressionData;
 import dna.plot.data.FunctionData;
@@ -54,6 +56,10 @@ public class Plot {
 	// plot data
 	private PlotData[] data;
 	private ArrayList<Integer> dataIndizes;
+
+	// labels
+	private boolean plotLabelsFlag;
+	private ArrayList<PlotLabel> plotLabels;
 
 	// sorting
 	private boolean sorted;
@@ -117,6 +123,7 @@ public class Plot {
 		for (int i = 0; i < data.length; i++) {
 			dataIndizes.add(i);
 		}
+		this.plotLabels = new ArrayList<PlotLabel>();
 		this.sorted = false;
 
 		// load default values
@@ -133,6 +140,8 @@ public class Plot {
 				.getValueSortMode(PlotConfig.gnuplotDefaultKeyValueSortMode);
 		this.valueSortList = Config
 				.keys(PlotConfig.gnuplotDefaultKeyValueSortList);
+		this.plotLabelsFlag = Config
+				.getBoolean(PlotConfig.gnuplotDefaultKeyPlotLabels);
 		this.cdfPlot = false;
 
 		// init writer
@@ -183,6 +192,9 @@ public class Plot {
 		if (config.getTitle() != null) {
 			this.title = config.getTitle();
 		}
+
+		// plot labels
+		this.plotLabelsFlag = config.isPlotLabels();
 
 		// datetime
 		if (config.getDatetime() != null) {
@@ -1197,6 +1209,13 @@ public class Plot {
 		script.add("set style " + Config.get("GNUPLOT_STYLE"));
 		script.add("set boxwidth " + Config.get("GNUPLOT_BOXWIDTH"));
 
+		// add labels
+		if (this.plotLabelsFlag) {
+			for (PlotLabel label : this.plotLabels) {
+				script.add(label.getLine());
+			}
+		}
+
 		ArrayList<String> buff = new ArrayList<String>();
 
 		// if no config is present
@@ -1405,6 +1424,18 @@ public class Plot {
 		return this.timeDataFormat;
 	}
 
+	public void setPlotLabels(ArrayList<PlotLabel> labels) {
+		this.plotLabels = labels;
+	}
+
+	public void addPlotLabel(PlotLabel label) {
+		this.plotLabels.add(label);
+	}
+
+	public ArrayList<PlotLabel> getPlotLabels() {
+		return this.plotLabels;
+	}
+
 	public void setNodeValueListOrder(NodeValueListOrder order) {
 		this.sortOrder = order;
 	}
@@ -1443,6 +1474,10 @@ public class Plot {
 
 	public void setErrorPrinted(boolean errorPrinted) {
 		this.errorPrinted = errorPrinted;
+	}
+
+	public boolean isPlotLabels() {
+		return this.plotLabelsFlag;
 	}
 
 	public boolean isCdfPlot() {
@@ -1679,5 +1714,37 @@ public class Plot {
 		if (this.sorted)
 			this.bufferedData = new String[this.data.length
 					- this.functionQuantity];
+	}
+
+	/** Adds data to the plot **/
+	public void addPlotLabels(IBatch[] batchData) throws IOException {
+		if (batchData[0] instanceof BatchData)
+			this.addPlotLabels((BatchData[]) batchData);
+
+		// no labels in aggregated batches yet
+
+		// else
+		// this.addPlotLabels((AggregatedBatch[]) batchData);
+	}
+
+	/** Adds plot-labels to the plot. **/
+	public void addPlotLabels(BatchData[] batchData) {
+		for (BatchData batch : batchData) {
+			double timestamp = batch.getTimestamp();
+
+			// map timestamps
+			if (this.getTimestampMap() != null) {
+				if (this.getTimestampMap().containsKey(batch.getTimestamp())) {
+					timestamp = (double) this.getTimestampMap().get(
+							batch.getTimestamp());
+				}
+			}
+
+			// generate and ad plot labels
+			LabelList llist = batch.getLabels();
+			for (Label l : llist.getList()) {
+				this.addPlotLabel(PlotLabel.generatePlotLabel(timestamp, l));
+			}
+		}
 	}
 }

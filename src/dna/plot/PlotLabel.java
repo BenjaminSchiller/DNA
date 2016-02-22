@@ -1,5 +1,7 @@
 package dna.plot;
 
+import dna.labels.Label;
+
 /**
  * Wrapper-class for the labels one can set in gnuplot via set label.<br>
  * <br>
@@ -40,15 +42,20 @@ public class PlotLabel {
 		this(text, posX, 0);
 	}
 
+	public PlotLabel(String text, double posX, Orientation orientation,
+			String pointStyle) {
+		this(text, posX, 0, orientation, false, 0, 0, pointStyle);
+	}
+
 	public PlotLabel(String text, double posX, double posY) {
-		this(text, posX, posY, null, false, 0, 0);
+		this(text, posX, posY, null, false, 0, 0, null);
 	}
 
 	public PlotLabel(String text, double posX, double posY,
 			Orientation orientation, boolean rotate, double rotation,
-			double offset) {
+			double offset, String pointStyle) {
 		this(-1, text, posX, posY, orientation, rotate, rotation, null, 0,
-				false, false, null, null, 0);
+				false, false, null, pointStyle, 0);
 	}
 
 	public PlotLabel(Integer tag, String text, double posX, double posY,
@@ -74,6 +81,7 @@ public class PlotLabel {
 		this.pointStyle = pointStyle;
 	}
 
+	/** Returns the gnuplot-script line adding this PlotLabel. **/
 	public String getLine() {
 		String buff = "set label";
 		if (tag >= 0)
@@ -109,5 +117,11 @@ public class PlotLabel {
 		if (offset > 0)
 			buff += " " + "offset" + " " + offset;
 		return buff;
+	}
+
+	/** Crafts a PlotLabel based on the given Label. **/
+	public static PlotLabel generatePlotLabel(double timestamp, Label label) {
+		return new PlotLabel(timestamp + ":" + label.getType() + "="
+				+ label.getValue(), timestamp, Orientation.left, "pt 5");
 	}
 }

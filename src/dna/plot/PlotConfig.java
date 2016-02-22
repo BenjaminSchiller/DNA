@@ -51,6 +51,8 @@ public class PlotConfig {
 
 	public static String customPlotSuffixYLabel = "_YLABEL";
 
+	public static String customPlotSuffixPlotLabels = "_LABELS";
+
 	public static String customPlotSuffixXOffset = "_XOFFSET";
 
 	public static String customPlotSuffixYOffset = "_YOFFSET";
@@ -126,6 +128,8 @@ public class PlotConfig {
 	public static String gnuplotDefaultKeyPlotType = "GNUPLOT_DEFAULT_PLOTTYPE";
 	public static String gnuplotDefaultKeyPlotStyle = "GNUPLOT_DEFAULT_PLOTSTYLE";
 
+	public static String gnuplotDefaultKeyPlotLabels = "GNUPLOT_DEFAULT_PLOT_LABELS";
+
 	public static String gnuplotDefaultKeyDistPlotType = "GNUPLOT_DEFAULT_DIST_PLOTTYPE";
 
 	public static String gnuplotDefaultKeyNodeValueListOrder = "GNUPLOT_DEFAULT_NVL_ORDER";
@@ -165,6 +169,7 @@ public class PlotConfig {
 	private DistributionPlotType distPlotType;
 	private NodeValueListOrder order;
 	private NodeValueListOrderBy orderBy;
+	private boolean plotLabels;
 	private boolean plotAll;
 	private String generalDomain;
 
@@ -177,7 +182,8 @@ public class PlotConfig {
 			String[] values, String[] domains, PlotStyle style,
 			ValueSortMode valueSortMode, String[] valueSortList,
 			DistributionPlotType distPlotType, NodeValueListOrder order,
-			NodeValueListOrderBy orderBy, boolean plotAll, String generalDomain) {
+			NodeValueListOrderBy orderBy, boolean plotLabels, boolean plotAll,
+			String generalDomain) {
 		this.filename = filename;
 		this.title = title;
 		this.key = key;
@@ -203,6 +209,7 @@ public class PlotConfig {
 		this.distPlotType = distPlotType;
 		this.order = order;
 		this.orderBy = orderBy;
+		this.plotLabels = plotLabels;
 		this.plotAll = plotAll;
 		this.generalDomain = generalDomain;
 	}
@@ -242,6 +249,10 @@ public class PlotConfig {
 
 	public NodeValueListOrderBy getOrderBy() {
 		return orderBy;
+	}
+
+	public boolean isPlotLabels() {
+		return plotLabels;
 	}
 
 	public boolean isPlotAll() {
@@ -511,6 +522,8 @@ public class PlotConfig {
 			String xScaling = Config.get(PlotConfig.gnuplotDefaultXScaling);
 			String yScaling = Config.get(PlotConfig.gnuplotDefaultYScaling);
 			PlotStyle style = null;
+			boolean plotLabels = Config
+					.getBoolean(PlotConfig.gnuplotDefaultKeyPlotLabels);
 			ValueSortMode valueSortMode = Config
 					.getValueSortMode(PlotConfig.gnuplotDefaultKeyValueSortMode);
 			String[] valueSortList = Config
@@ -595,13 +608,18 @@ public class PlotConfig {
 				}
 			}
 
-			// labels
+			// x-y-labels
 			if (Config.get(prefix + s + PlotConfig.customPlotSuffixXLabel) != null)
 				xLabel = Config.get(prefix + s
 						+ PlotConfig.customPlotSuffixXLabel);
 			if (Config.get(prefix + s + PlotConfig.customPlotSuffixYLabel) != null)
 				yLabel = Config.get(prefix + s
 						+ PlotConfig.customPlotSuffixYLabel);
+
+			// plot-labels
+			if (Config.get(prefix + s + PlotConfig.customPlotSuffixPlotLabels) != null)
+				plotLabels = Config.getBoolean(prefix + s
+						+ PlotConfig.customPlotSuffixPlotLabels);
 
 			// logscale
 			if (Config.get(prefix + s + PlotConfig.customPlotSuffixLogscale) != null)
@@ -723,8 +741,8 @@ public class PlotConfig {
 					yLabel, logscale, datetime, timeDataFormat, xOffset,
 					yOffset, xRange, yRange, xTics, yTics, xScaling, yScaling,
 					plotAsCdf, values, domains, style, valueSortMode,
-					valueSortList, distPlotType, order, orderBy, plotAll,
-					generalDomain));
+					valueSortList, distPlotType, order, orderBy, plotLabels,
+					plotAll, generalDomain));
 		}
 		return plotConfigs;
 	}
@@ -736,6 +754,6 @@ public class PlotConfig {
 		return new PlotConfig(filename, "", "", "", "", "", "", "", 0.0, 0.0,
 				"", "", "", "", "", "", plotAsCdf, new String[0],
 				new String[0], PlotStyle.linespoint, null, null, distPlotType,
-				order, orderBy, false, "");
+				order, orderBy, false, false, "");
 	}
 }
