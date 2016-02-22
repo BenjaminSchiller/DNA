@@ -24,6 +24,22 @@ public class MetricFromArgs {
 		DegreeDistributionR, DegreeDistributionU, UndirectedClusteringCoefficientR, UndirectedClusteringCoefficientU, PartitionedUndirectedClusteringCoefficientR, UnweightedAllPairsShortestPathsR, UnweightedAllPairsShortestPathsU, WeakConnectivityR, WeakConnectivityU, WeakConnectivityB, UndirectedMotifsR, UndirectedMotifsU, AssortativityR, AssortativityU, BetweennessCentralityR, BetweennessCentralityU, RichClubConnectivityByDegreeR, RichClubConnectivityByDegreeU
 	}
 
+	public static Metric[] parse(String[] metricTypes) {
+		MetricType[] types = new MetricType[metricTypes.length];
+		for (int i = 0; i < types.length; i++) {
+			types[i] = MetricType.valueOf(metricTypes[i]);
+		}
+		return parse(types);
+	}
+
+	public static Metric[] parse(MetricType[] metricTypes) {
+		Metric[] metrics = new Metric[metricTypes.length];
+		for (int i = 0; i < metrics.length; i++) {
+			metrics[i] = parse(metricTypes[i]);
+		}
+		return metrics;
+	}
+
 	public static Metric parse(MetricType metricType, String... args) {
 		return parse(new String[0], metricType, args);
 	}
