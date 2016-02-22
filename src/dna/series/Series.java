@@ -29,11 +29,11 @@ public class Series {
 	};
 
 	public Series(GraphGenerator gg, BatchGenerator bg, IMetric[] metrics,
-			Labeler[] labeller, String dir, String name) {
+			Labeler[] labeler, String dir, String name) {
 		this.graphGenerator = gg;
 		this.batchGenerator = bg;
 		this.metrics = metrics;
-		this.labeller = (labeller == null) ? new Labeler[0] : labeller;
+		this.labeler = (labeler == null) ? new Labeler[0] : labeler;
 		this.dir = dir;
 		this.name = name;
 	}
@@ -108,7 +108,7 @@ public class Series {
 
 	private IMetric[] metrics;
 
-	private Labeler[] labeller;
+	private Labeler[] labeler;
 
 	private String dir;
 
@@ -128,8 +128,8 @@ public class Series {
 		return this.metrics;
 	}
 
-	public Labeler[] getLabeller() {
-		return this.labeller;
+	public Labeler[] getLabeler() {
+		return this.labeler;
 	}
 
 	public String getDir() {
