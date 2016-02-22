@@ -1,11 +1,12 @@
 package dna.labels;
 
-import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 
 import dna.io.Reader;
 import dna.io.Writer;
 import dna.series.lists.List;
+import dna.util.Config;
 
 /**
  * A list of labels.
@@ -55,16 +56,22 @@ public class LabelList extends List<Label> {
 	 */
 	public static LabelList read(String dir, String name, boolean readValues,
 			boolean checkIfExists) throws IOException {
-		File f = new File(dir + name);
-		if (!readValues || (checkIfExists && !f.exists()))
-			return new LabelList();
 		LabelList list = new LabelList();
-		Reader r = Reader.getReader(dir, name);
+		if (!readValues)
+			return list;
+
+		Reader r = null;
+		try {
+			r = Reader.getReader(dir, name);
+		} catch (FileNotFoundException e) {
+			return list;
+		}
 
 		String line = null;
 		while ((line = r.readString()) != null) {
 			String[] temp = line.split("=");
-			String[] temp2 = temp[0].split("_");
+			String[] temp2 = temp[0].split(Config
+					.get("LABEL_NAME_TYPE_SEPARATOR"));
 			list.add(new Label(temp2[0], temp2[1], temp[1]));
 		}
 		r.close();
