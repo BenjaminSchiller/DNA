@@ -1901,6 +1901,10 @@ public class PlottingUtils {
 				// sort
 				p.sortData(pc);
 
+				// add plot labels
+				if (p.isPlotLabels())
+					p.addPlotLabels(batchData);
+
 				// write script header
 				p.writeScriptHeader();
 
@@ -1928,6 +1932,10 @@ public class PlottingUtils {
 
 				// sort
 				p.sortData(pc);
+
+				// add plot labels
+				if (p.isPlotLabels())
+					p.addPlotLabels(batchData);
 
 				// write script header
 				p.writeScriptHeader();
@@ -2045,6 +2053,10 @@ public class PlottingUtils {
 				// set timestamp mapping
 				p.setTimestampMap(timestampMap);
 
+				// add plot labels
+				if (p.isPlotLabels())
+					p.addPlotLabels(batchData);
+
 				// write script header
 				p.writeScriptHeader();
 
@@ -2073,6 +2085,10 @@ public class PlottingUtils {
 
 				// sort
 				p.sortData(pc);
+
+				// add plot labels
+				if (p.isPlotLabels())
+					p.addPlotLabels(batchData);
 
 				// write script header
 				p.writeScriptHeader();
@@ -2284,6 +2300,10 @@ public class PlottingUtils {
 		}
 
 		for (Plot p : plots) {
+			// add plot labels
+			if (p.isPlotLabels())
+				p.addPlotLabels(batchData);
+
 			// write header
 			p.writeScriptHeader();
 
