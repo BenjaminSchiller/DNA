@@ -42,7 +42,7 @@ public class MetricRuntimeIntersectionLabeler extends Labeler {
 		super(name);
 		this.metricA = metricA;
 		this.metricB = metricB;
-		this.label = metricA + "-surpassed-" + metricB;
+		this.label = "A>B";
 	}
 
 	@Override
