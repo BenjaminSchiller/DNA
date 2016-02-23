@@ -1,5 +1,6 @@
 package dna.util.fromArgs;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 
 import dna.graph.datastructures.GraphDataStructure;
@@ -14,6 +15,10 @@ import dna.graph.generators.canonical.RingStarGraph;
 import dna.graph.generators.canonical.StarGraph;
 import dna.graph.generators.evolvingNetworks.BarabasiAlbertGraph;
 import dna.graph.generators.evolvingNetworks.PositiveFeedbackPreferenceGraph;
+import dna.graph.generators.konect.KonectGraph;
+import dna.graph.generators.konect.KonectReader;
+import dna.graph.generators.konect.KonectReader.KonectEdgeType;
+import dna.graph.generators.konect.KonectReader.KonectGraphType;
 import dna.graph.generators.random.RandomGraph;
 import dna.graph.generators.timestamped.TimestampedGraph;
 import dna.graph.generators.timestamped.TimestampedGraph.TimestampedGraphType;
@@ -22,7 +27,7 @@ import dna.graph.generators.util.ReadableEdgeListFileGraph;
 
 public class GraphGeneratorFromArgs {
 	public static enum GraphType {
-		Clique, Grid2d, Grid3d, HoneyComb, Ring, RingStar, Star, Random, BarabasiAlbert, PositiveFeedbackPreference, ReadableEdgeListFileGraph, Timestamped
+		Clique, Grid2d, Grid3d, HoneyComb, Ring, RingStar, Star, Random, BarabasiAlbert, PositiveFeedbackPreference, ReadableEdgeListFileGraph, Timestamped, Konect
 	}
 
 	public static GraphGenerator parse(GraphDataStructure gds,
@@ -96,6 +101,15 @@ public class GraphGeneratorFromArgs {
 				return new TimestampedGraph(reader, gds,
 						TimestampedGraphType.valueOf(args[6]),
 						Long.parseLong(args[7]));
+			}
+		case Konect:
+			try {
+				return new KonectGraph(new KonectReader(args[0], args[1],
+						args[2], gds, KonectEdgeType.valueOf(args[3]), args[4],
+						Boolean.parseBoolean(args[5])),
+						KonectGraphType.valueOf(args[6]), args[7]);
+			} catch (FileNotFoundException e) {
+				e.printStackTrace();
 			}
 		default:
 			throw new IllegalArgumentException("unknown graph type: "

@@ -1,7 +1,5 @@
 package dna.graph.generators.konect;
 
-import java.io.IOException;
-
 import dna.graph.Graph;
 import dna.graph.edges.Edge;
 import dna.graph.generators.GraphGenerator;
@@ -17,6 +15,10 @@ import dna.util.parameters.StringParameter;
 public class KonectGraph extends GraphGenerator {
 
 	protected KonectReader r;
+
+	public KonectReader getReader() {
+		return this.r;
+	}
 
 	protected KonectGraphType graphType;
 	protected String parameter;
