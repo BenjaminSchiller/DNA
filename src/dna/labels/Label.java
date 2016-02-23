@@ -15,6 +15,10 @@ public class Label implements ListItem {
 	private String type;
 	private String value;
 
+	public Label(String name) {
+		this(name, null, null);
+	}
+
 	public Label(String name, String type, String value) {
 		this.name = name;
 		this.type = type;
