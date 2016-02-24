@@ -174,7 +174,7 @@ public class PlotConfig {
 	private String generalDomain;
 
 	// constructor
-	private PlotConfig(String filename, String title, String key,
+	public PlotConfig(String filename, String title, String key,
 			String xLabel, String yLabel, String logscale, String datetime,
 			String timeDataFormat, double xOffset, double yOffset,
 			String xRange, String yRange, String xTics, String yTics,
