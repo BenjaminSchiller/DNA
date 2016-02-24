@@ -7,9 +7,16 @@ import java.util.Date;
 
 import dna.io.Writer;
 import dna.io.filesystem.Dir;
+import dna.plot.Plot;
+import dna.plot.PlotConfig;
+import dna.plot.data.PlotData;
+import dna.plot.data.PlotData.PlotStyle;
+import dna.plot.data.PlotData.PlotType;
 import dna.series.aggdata.AggregatedBatch.BatchReadMode;
 import dna.series.data.BatchData;
 import dna.series.data.SeriesData;
+import dna.util.Config;
+import dna.util.Log;
 
 public class LabelUtils {
 
@@ -18,9 +25,10 @@ public class LabelUtils {
 	 * batches which contain one of the specified labels.
 	 **/
 	public static ArrayList<BatchData> collectLabels(SeriesData sd, int runId,
-			Label... labelFilter) throws IOException {
+			boolean pruneUnlabeledBatches, Label... labelFilter)
+			throws IOException {
 		return LabelUtils.collectLabels(sd, runId, new Label[0], new int[0],
-				new int[0], labelFilter);
+				new int[0], pruneUnlabeledBatches, labelFilter);
 	}
 
 	/**
@@ -31,10 +39,11 @@ public class LabelUtils {
 	 * Also adds the given label to all batches in the interval (from;to).
 	 **/
 	public static ArrayList<BatchData> collectLabels(SeriesData sd, int runId,
-			Label labelToAdd, int from, int to, Label... labelFilter)
-			throws IOException {
+			Label labelToAdd, int from, int to, boolean pruneUnlabeledBatches,
+			Label... labelFilter) throws IOException {
 		return LabelUtils.collectLabels(sd, runId, new Label[] { labelToAdd },
-				new int[] { from }, new int[] { to }, labelFilter);
+				new int[] { from }, new int[] { to }, pruneUnlabeledBatches,
+				labelFilter);
 	}
 
 	/**
@@ -49,7 +58,8 @@ public class LabelUtils {
 	 * Label <b>i</b> will be added to all batches between from[i] and to[i].
 	 **/
 	public static ArrayList<BatchData> collectLabels(SeriesData sd, int runId,
-			Label[] labelsToAdd, int[] from, int[] to, Label... labelFilter)
+			Label[] labelsToAdd, int[] from, int[] to,
+			boolean pruneUnlabeledBatches, Label... labelFilter)
 			throws IOException {
 		String seriesDir = sd.getDir();
 		ArrayList<BatchData> batchList = new ArrayList<BatchData>();
@@ -95,7 +105,12 @@ public class LabelUtils {
 							null, list);
 					batchList.add(b);
 				}
+			} else {
+				if (!pruneUnlabeledBatches)
+					batchList.add(new BatchData(timestamp, null, null, null,
+							null, new LabelList()));
 			}
+
 		}
 
 		return batchList;
@@ -196,5 +211,162 @@ public class LabelUtils {
 		}
 
 		return batches;
+	}
+
+	/** Generates a 0-1-label-plot with the given batches. **/
+	public static void zeroOneLabelPlot(String dir, String filename,
+			String title, ArrayList<BatchData> batches, Label[] labels)
+			throws IOException, InterruptedException {
+		String[] values = new String[labels.length];
+		String[] domains = new String[labels.length];
+		String yTics = "(";
+
+		PlotData[] data = new PlotData[labels.length];
+		for (int i = 0; i < labels.length; i++) {
+			values[i] = labels[i].getName();
+			domains[i] = "labels";
+			data[i] = PlotData.get(labels[i].getName(), "labels",
+					PlotStyle.linespoint, labels[i].getName(),
+					PlotType.average, "");
+
+			// calc ytics
+			yTics += '"' + "0" + '"' + " " + (i * 2) + "," + '"' + "1" + '"'
+					+ " " + ((i * 2) + 1);
+			if (i != labels.length - 1)
+				yTics += ",";
+		}
+		yTics += ")";
+
+		// craft plotconfig
+		PlotConfig pcfg = new PlotConfig(
+				filename,
+				title,
+				null,
+				"null",
+				"null",
+				null,
+				"%H:%M",
+				"%s",
+				0,
+				0,
+				"null",
+				"null",
+				null,
+				yTics,
+				"null",
+				"null",
+				"false",
+				values,
+				domains,
+				PlotStyle.linespoint,
+				Config.getValueSortMode(PlotConfig.gnuplotDefaultKeyValueSortMode),
+				Config.keys(PlotConfig.gnuplotDefaultKeyValueSortList),
+				Config.getDistributionPlotType(PlotConfig.gnuplotDefaultKeyDistPlotType),
+				Config.getNodeValueListOrder(PlotConfig.gnuplotDefaultKeyNodeValueListOrder),
+				Config.getNodeValueListOrderBy(PlotConfig.gnuplotDefaultKeyNodeValueListOrderBy),
+				false, false, null);
+
+		// init plot
+		Plot p = new Plot(dir, filename, Config.get("PREFIX_GNUPLOT_SCRIPT")
+				+ filename + Config.get("SUFFIX_GNUPLOT"), title, pcfg, data);
+
+		// write header
+		p.writeScriptHeader();
+
+		// add data
+		int offset = 0;
+		for (int i = 0; i < labels.length; i++) {
+			addLabelDataToPlot(p, batches, labels[i], offset);
+			offset += 2;
+		}
+
+		// close
+		p.close();
+
+		// exec
+		p.execute();
+	}
+
+	/** Adds the label-data to the plot. **/
+	public static void addLabelDataToPlot(Plot p, ArrayList<BatchData> batches,
+			Label label, int offset) throws IOException {
+		double[] values = new double[batches.size()];
+		double[] timestamps = new double[batches.size()];
+
+		for (int i = 0; i < batches.size(); i++) {
+			BatchData b = batches.get(i);
+			timestamps[i] = b.getTimestamp();
+
+			if (b.getLabels().get(label.getName()) != null)
+				values[i] = (1 + offset);
+			else
+				values[i] = offset;
+		}
+
+		p.appendData(values, timestamps);
+	}
+
+	/** Writes and plots labels of the given series. **/
+	public static void writeAndPlotLabels(SeriesData sd,
+			Label[] labelsToFilter, Label labelToAdd, int labelToAddFrom,
+			int labelToAddTo, int timestampOffset, boolean pruneUnlabeledBatches)
+			throws IOException, InterruptedException {
+		writeAndPlotLabels(sd, labelsToFilter, new Label[] { labelToAdd },
+				new int[] { labelToAddFrom }, new int[] { labelToAddTo },
+				timestampOffset, pruneUnlabeledBatches);
+	}
+
+	/** Writes and plots labels of the given series. **/
+	public static void writeAndPlotLabels(SeriesData sd,
+			Label[] labelsToFilter, Label[] labelsToAdd, int[] labels,
+			int[] labelsToAddTo, int timestampOffset,
+			boolean pruneUnlabeledBatches) throws IOException,
+			InterruptedException {
+		writeAndPlotLabels(sd, 0, labelsToFilter, labelsToAdd, labels,
+				labelsToAddTo, timestampOffset, pruneUnlabeledBatches);
+	}
+
+	/**
+	 * Writes and plots labels of the given series.
+	 * 
+	 * @param sd
+	 *            Series to be plotted.
+	 * @param runId
+	 *            Run of the series.
+	 * @param labels
+	 *            Labels to be filtered. Note: Must also contain ALL labels to
+	 *            be contained in the plots, also the ones to be added.
+	 * @param labelsToAdd
+	 *            Labels to be added to the data before plotting.
+	 * @param labelsToAddFrom
+	 *            Starting timestamp of the labels.
+	 * @param labelsToAddTo
+	 *            End timestamp of the labels.
+	 * @param timestampOffset
+	 *            Timestamp offset for the plots.
+	 * @param pruneUnlabeledBatches
+	 *            If set, batches which dont contain one of the labels will be
+	 *            discarded.
+	 * @throws IOException
+	 * @throws InterruptedException
+	 */
+	public static void writeAndPlotLabels(SeriesData sd, int runId,
+			Label[] labels, Label[] labelsToAdd, int[] labelsToAddFrom,
+			int[] labelsToAddTo, int timestampOffset,
+			boolean pruneUnlabeledBatches) throws IOException,
+			InterruptedException {
+		Log.info("collecting labels");
+		ArrayList<BatchData> batchList = LabelUtils.collectLabels(sd, runId,
+				labelsToAdd, labelsToAddFrom, labelsToAddTo,
+				pruneUnlabeledBatches, labels);
+
+		Log.info("writing labels");
+		LabelUtils.writeLabelsToList(sd.getDir(),
+				sd.getName() + "_labels.list", batchList, null,
+				timestampOffset, false, labels);
+
+		Log.info("plotting");
+		LabelUtils.zeroOneLabelPlot(sd.getDir(), sd.getName() + "_labels",
+				sd.getName() + " labels", batchList, labels);
 	}
 }
