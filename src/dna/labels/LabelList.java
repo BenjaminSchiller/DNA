@@ -25,12 +25,15 @@ public class LabelList extends List<Label> {
 	}
 
 	public void write(String dir, String filename) throws IOException {
-		Writer w = Writer.getWriter(dir, filename);
+		// only create file when label-list not empty
+		if (!this.getList().isEmpty()) {
+			Writer w = Writer.getWriter(dir, filename);
 
-		for (Label l : this.getList()) {
-			w.writeln(l.toString());
+			for (Label l : this.getList()) {
+				w.writeln(l.toString());
+			}
+			w.close();
 		}
-		w.close();
 	}
 
 	/**
