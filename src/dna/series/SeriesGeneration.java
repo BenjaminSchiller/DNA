@@ -3,9 +3,11 @@ package dna.series;
 import java.io.File;
 import java.io.IOException;
 
+import dna.io.Writer;
 import dna.io.filesystem.Dir;
 import dna.io.filesystem.Files;
 import dna.labels.Label;
+import dna.labels.LabelList;
 import dna.labels.labeler.Labeler;
 import dna.labels.labeler.LabelerNotApplicableException;
 import dna.metrics.IMetric;
@@ -296,11 +298,20 @@ public class SeriesGeneration {
 				algorithms);
 
 		// compute labels
+		LabelList labelList = initialData.getLabels();
 		for (Labeler labeller : series.getLabeler()) {
 			for (Label l : labeller.computeLabels(series.getGraph(), null,
 					initialData, series.getMetrics())) {
-				initialData.getLabels().add(l);
+				labelList.add(l);
 			}
+		}
+
+		// write labels to series-labelfile
+		Writer labelListWriter = null;
+		if (write && Config.getBoolean("GENERATION_WRITE_SERIES_LABEL_LIST")) {
+			labelListWriter = new Writer(series.getDir(),
+					Files.getLabelsListFilename(run));
+			appendLabels(labelListWriter, initialData);
 		}
 
 		if (compare) {
@@ -343,6 +354,11 @@ public class SeriesGeneration {
 					batchData.getLabels().add(l);
 				}
 			}
+
+			// write labels to series-labelfile
+			if (write
+					&& Config.getBoolean("GENERATION_WRITE_SERIES_LABEL_LIST"))
+				appendLabels(labelListWriter, batchData);
 
 			if (compare) {
 				SeriesGeneration.compareMetrics(series);
@@ -408,6 +424,10 @@ public class SeriesGeneration {
 			}
 		}
 
+		// finally close labellistwriter
+		if (labelListWriter != null)
+			labelListWriter.close();
+		
 		// return structure run without data
 		return new RunData(run, structureBatches);
 	}
@@ -987,6 +1007,15 @@ public class SeriesGeneration {
 			Value v = new Value(n.getName() + "_AVG", val);
 			values.add(v);
 		}
+	}
+
+	/** Appends the labels from the given batch to the specified file. **/
+	private static void appendLabels(Writer w, BatchData batch)
+			throws IOException {
+		String delimiter = Config.get("DATA_DELIMITER");
+		for (Label l : batch.getLabels().getList())
+			w.writeln(Files.getBatchFilename(batch.getTimestamp()) + delimiter
+					+ l.toString());
 	}
 
 	// private static int applyUpdates(Series series,
