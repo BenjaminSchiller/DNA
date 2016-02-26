@@ -14,7 +14,7 @@ import dna.labels.Label;
 public class PlotLabel {
 
 	public enum Orientation {
-		left, center, middle
+		left, center, right
 	}
 
 	private int tag;
@@ -128,9 +128,18 @@ public class PlotLabel {
 	}
 
 	/** Crafts a PlotLabel based on the given Label. **/
-	public static PlotLabel generatePlotLabel(double timestamp, Label label) {
-		return new PlotLabel(timestamp + ":" + label.getType() + "="
-				+ label.getValue(), "" + timestamp, "graph 0.95",
-				Orientation.left, "pt 1");
+	public static PlotLabel generatePlotLabel(double timestamp, Label label,
+			int id) {
+		double position = 0.95 - (0.05 * id);
+		return new PlotLabel("", "" + timestamp, "graph " + position,
+				Orientation.right, "pt 2");
+	}
+
+	/** Crafts the first PlotLabel based on the given Label. **/
+	public static PlotLabel generateFirstPlotLabel(double timestamp,
+			Label label, int id) {
+		double position = 0.95 - (0.05 * id);
+		return new PlotLabel(label.getName() + ":" + label.getType() + " ", ""
+				+ timestamp, "graph " + position, Orientation.right, "pt 2");
 	}
 }

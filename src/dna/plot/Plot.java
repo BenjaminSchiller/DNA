@@ -60,6 +60,7 @@ public class Plot {
 	// labels
 	private boolean plotLabelsFlag;
 	private ArrayList<PlotLabel> plotLabels;
+	private ArrayList<String> plottedLabels;
 
 	// sorting
 	private boolean sorted;
@@ -195,6 +196,8 @@ public class Plot {
 
 		// plot labels
 		this.plotLabelsFlag = config.isPlotLabels();
+		if (this.plotLabelsFlag)
+			this.plottedLabels = new ArrayList<String>();
 
 		// datetime
 		if (config.getDatetime() != null) {
@@ -1746,7 +1749,17 @@ public class Plot {
 			// generate and ad plot labels
 			LabelList llist = batch.getLabels();
 			for (Label l : llist.getList()) {
-				this.addPlotLabel(PlotLabel.generatePlotLabel(timestamp, l));
+				PlotLabel plotLabel;
+				String identifier = l.getName() + ":" + l.getType();
+				if (plottedLabels.contains(identifier)) {
+					plotLabel = PlotLabel.generatePlotLabel(timestamp, l,
+							plottedLabels.indexOf(identifier));
+				} else {
+					plottedLabels.add(l.getName() + ":" + l.getType());
+					plotLabel = PlotLabel.generateFirstPlotLabel(timestamp, l,
+							plottedLabels.indexOf(identifier));
+				}
+				this.addPlotLabel(plotLabel);
 			}
 		}
 	}
