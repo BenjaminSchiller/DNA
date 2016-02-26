@@ -24,7 +24,7 @@ public class AlwaysLabeler extends Labeler {
 
 	private static String name = "AlwaysLabeler";
 
-	private static Label alwaysLabel = new Label("always", "label", "1");
+	private static Label alwaysLabel = new Label(name, "label", "1");
 
 	public AlwaysLabeler() {
 		super(name);

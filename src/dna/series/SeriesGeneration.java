@@ -356,8 +356,7 @@ public class SeriesGeneration {
 			}
 
 			// write labels to series-labelfile
-			if (write
-					&& Config.getBoolean("GENERATION_WRITE_RUN_LABEL_LISTS"))
+			if (write && Config.getBoolean("GENERATION_WRITE_RUN_LABEL_LISTS"))
 				appendLabels(labelListWriter, batchData);
 
 			if (compare) {
