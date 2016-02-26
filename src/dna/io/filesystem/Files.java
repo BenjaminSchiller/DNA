@@ -218,7 +218,8 @@ public class Files {
 
 	public static String getLabelsListFilename(int run) {
 		return Config.get("BATCH_LABELS") + Config.get("FILE_NAME_DELIMITER")
-				+ Files.getRunFilename(run) + Config.get("SUFFIX_LABEL");
+				+ Config.get("PREFIX_RUNDATA_DIR") + run
+				+ Config.get("SUFFIX_LABEL");
 	}
 
 	/*
