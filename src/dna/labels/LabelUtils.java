@@ -169,10 +169,11 @@ public class LabelUtils {
 			}
 
 			for (Label l : labels) {
-				if (bd.getLabels().get(l.getName()) != null) {
+				if (bd.getLabels().get(l.getName(), l.getType()) != null) {
 					if (writeLabel)
 						line += "\t"
-								+ bd.getLabels().get(l.getName()).toString();
+								+ bd.getLabels().get(l.getName(), l.getType())
+										.toString();
 					else
 						line += "\t" + "1";
 				} else {
@@ -297,7 +298,7 @@ public class LabelUtils {
 			BatchData b = batches.get(i);
 			timestamps[i] = b.getTimestamp();
 
-			if (b.getLabels().get(label.getName()) != null)
+			if (b.getLabels().get(label.getName(), label.getType()) != null)
 				values[i] = (1 + offset);
 			else
 				values[i] = offset;

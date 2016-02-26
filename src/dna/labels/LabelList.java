@@ -2,28 +2,57 @@ package dna.labels;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.Collection;
+import java.util.HashMap;
 
 import dna.io.Reader;
 import dna.io.Writer;
-import dna.series.lists.List;
 import dna.util.Config;
 
 /**
- * A list of labels.
+ * A list of labels.<br>
+ * <br>
+ * 
+ * <b>Note:</b> Labels are identified by their name & type.
  * 
  * @author Rwilmes
  * 
  */
-public class LabelList extends List<Label> {
+public class LabelList {
 
 	public LabelList() {
-		super();
+		this.map = new HashMap<String, Label>();
 	}
 
 	public LabelList(int size) {
-		super(size);
+		this.map = new HashMap<String, Label>(size);
 	}
 
+	protected HashMap<String, Label> map;
+
+	public Collection<String> getNames() {
+		return this.map.keySet();
+	}
+
+	public Collection<Label> getList() {
+		return this.map.values();
+	}
+
+	public int size() {
+		return this.map.size();
+	}
+
+	public Label get(String name, String type) {
+		return this.map.get(name + Config.get("LABEL_NAME_TYPE_SAPARATOR")
+				+ type);
+	}
+
+	public void add(Label item) {
+		this.map.put(item.getName() + Config.get("LABEL_NAME_TYPE_SAPARATOR")
+				+ item.getType(), item);
+	}
+
+	/** Writes the LabelList to the given dir and file. **/
 	public void write(String dir, String filename) throws IOException {
 		// only create file when label-list not empty
 		if (!this.getList().isEmpty()) {
