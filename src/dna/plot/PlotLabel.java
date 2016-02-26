@@ -1,6 +1,7 @@
 package dna.plot;
 
 import dna.labels.Label;
+import dna.util.Config;
 
 /**
  * Wrapper-class for the labels one can set in gnuplot via set label.<br>
@@ -13,10 +14,18 @@ import dna.labels.Label;
  */
 public class PlotLabel {
 
+	/** Statics **/
+	public static final String LABEL_NAME_PLACEHOLDER = "$label_name$";
+	public static final String LABEL_TYPE_PLACEHOLDER = "$label_type$";
+	public static final String LABEL_VALUE_PLACEHOLDER = "$label_value$";
+
+	public static final String gnuplotDefaultKeyPlotLabelText = "GNUPLOT_DEFAULT_PLOT_LABEL_TEXT";
+
 	public enum Orientation {
 		left, center, right
 	}
 
+	/** Class stuff **/
 	private int tag;
 	private String text;
 
@@ -139,7 +148,15 @@ public class PlotLabel {
 	public static PlotLabel generateFirstPlotLabel(double timestamp,
 			Label label, int id) {
 		double position = 0.95 - (0.05 * id);
-		return new PlotLabel(label.getName() + ":" + label.getType() + " ", ""
-				+ timestamp, "graph " + position, Orientation.right, "pt 2");
+		return new PlotLabel(getPlotLabelText(label), "" + timestamp, "graph "
+				+ position, Orientation.right, "pt 2");
+	}
+
+	/** Generates the plot-label text. **/
+	public static String getPlotLabelText(Label l) {
+		return Config.get(gnuplotDefaultKeyPlotLabelText)
+				.replace(LABEL_NAME_PLACEHOLDER, l.getName())
+				.replace(LABEL_TYPE_PLACEHOLDER, l.getType())
+				.replace(LABEL_VALUE_PLACEHOLDER, l.getValue());
 	}
 }
