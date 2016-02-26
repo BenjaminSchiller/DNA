@@ -147,7 +147,7 @@ public class PlotLabel {
 	/** Crafts the first PlotLabel based on the given Label. **/
 	public static PlotLabel generateFirstPlotLabel(double timestamp,
 			Label label, int id) {
-		double position = 0.95 - (0.05 * id);
+		double position = 0.97 - (0.03 * id);
 		return new PlotLabel(getPlotLabelText(label), "" + timestamp, "graph "
 				+ position, Orientation.right, "pt 2");
 	}
