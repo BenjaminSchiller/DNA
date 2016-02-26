@@ -216,6 +216,11 @@ public class Files {
 		return name + Config.get("SUFFIX_LABEL");
 	}
 
+	public static String getLabelsListFilename(int run) {
+		return Config.get("BATCH_LABELS") + Config.get("FILE_NAME_DELIMITER")
+				+ Files.getRunFilename(run) + Config.get("SUFFIX_LABEL");
+	}
+
 	/*
 	 * NODEVALUELISTS
 	 */
