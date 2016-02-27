@@ -117,12 +117,23 @@ public class DirectedBlueprintsNode extends DirectedNode implements IGDBNode<Ver
 	 * @see dna.graph.nodes.DirectedNode#getEdges()
 	 */
 	@Override
-	public Iterable<IElement> getEdges() {		Collection<Edge> result = new ArrayList<Edge>();		Edge edge = null;		for	(com.tinkerpop.blueprints.Edge e : this.getGDBNode().getEdges(Direction.BOTH, "IGDBEdge"))		{			edge = this.graph.getEdge(e);						if (!result.contains((Edge)edge))										result.add((Edge)edge);					}				return new ArrayList<IElement>(result);
+	public Iterable<IElement> getEdges() {
+		Collection<Edge> result = new ArrayList<Edge>();
+		Edge edge = null;
+		for	(com.tinkerpop.blueprints.Edge e : this.getGDBNode().getEdges(Direction.BOTH, "IGDBEdge"))
+		{
+			edge = this.graph.getEdge(e);
+
+			if (!result.contains(edge))
+				result.add(edge);
+		}
+
+		return new ArrayList<IElement>(result);
 	}
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see dna.graph.nodes.IGDBNode#getVertex()
 	 */
 	@Override
@@ -152,14 +163,16 @@ public class DirectedBlueprintsNode extends DirectedNode implements IGDBNode<Ver
 	 * @see dna.graph.nodes.DirectedNode#getIncomingEdges()
 	 */
 	@Override
-	public Iterable<IElement> getIncomingEdges() {		return this.in();
+	public Iterable<IElement> getIncomingEdges() {
+		return this.in();
 	}
 
 	/* (non-Javadoc)
 	 * @see dna.graph.nodes.DirectedNode#getInDegree()
 	 */
 	@Override
-	public int getInDegree() {		return this.in().size();
+	public int getInDegree() {
+		return this.in().size();
 	}
 
 	/* (non-Javadoc)
@@ -182,26 +195,29 @@ public class DirectedBlueprintsNode extends DirectedNode implements IGDBNode<Ver
 	public int getNeighborCount() {
 		return this.neighbors().size();
 	}
-	
+
 	/* (non-Javadoc)
 	 * @see dna.graph.nodes.DirectedNode#getNeighbors()
 	 */
 	@Override
-	public Iterable<IElement> getNeighbors() {		return this.neighbors();
+	public Iterable<IElement> getNeighbors() {
+		return this.neighbors();
 	}
 
 	/* (non-Javadoc)
 	 * @see dna.graph.nodes.DirectedNode#getOutDegree()
 	 */
 	@Override
-	public int getOutDegree() {		return this.out().size();
+	public int getOutDegree() {
+		return this.out().size();
 	}
 
 	/* (non-Javadoc)
 	 * @see dna.graph.nodes.DirectedNode#getOutgoingEdges()
 	 */
 	@Override
-	public Iterable<IElement> getOutgoingEdges() {		return this.out();
+	public Iterable<IElement> getOutgoingEdges() {
+		return this.out();
 	}
 
 	/* (non-Javadoc)
@@ -242,12 +258,12 @@ public class DirectedBlueprintsNode extends DirectedNode implements IGDBNode<Ver
 	protected Collection<IElement> in() {
 		Collection<IElement> result = new ArrayList<IElement>();
 		Iterable<com.tinkerpop.blueprints.Edge> edges = this.getGDBNode().getEdges(Direction.IN, "IGDBEdge");
-		
+
 		try{
 		if (this.getGDBNode() != null) {
 			for (com.tinkerpop.blueprints.Edge e : edges) {
-				
-				result.add((Edge) this.graph.getEdge(e));
+
+				result.add(this.graph.getEdge(e));
 			}
 		}
 		return result;
@@ -294,16 +310,27 @@ public class DirectedBlueprintsNode extends DirectedNode implements IGDBNode<Ver
 	 */
 	protected Collection<IElement> out() {
 		Collection<IElement> result = new ArrayList<IElement>();
-		Iterable<com.tinkerpop.blueprints.Edge> edges = this.getGDBNode().getEdges(Direction.OUT, "IGDBEdge");
-		
+		Iterable<com.tinkerpop.blueprints.Edge> edges = null;
+		try {
+			edges = this.getGDBNode().getEdges(Direction.OUT, "IGDBEdge");
+		} catch (Exception e1) {
+			System.out.println(this.toString());
+			e1.printStackTrace();
+		}
+
 		try{
 		if (this.getGDBNode() != null) {
 			for (com.tinkerpop.blueprints.Edge e : edges) {
-				
-				result.add((Edge) this.graph.getEdge(e));
+
+				result.add(this.graph.getEdge(e));
 			}
 		}
 		return result;
+		}
+		catch(Exception ex) {
+			System.out.println(this.toString());
+			ex.printStackTrace();
+			return null;
 		}
 		finally{
 			result = null;

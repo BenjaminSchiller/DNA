@@ -493,6 +493,7 @@ public class BlueprintsGraph implements IGraph, IGDBGraph<Graph> {
 	 *
 	 * @see dna.graph.IGraph#close()
 	 */
+	@Override
 	public void close() {
 		if (this.graph != null) {
 			if (operationsPerCommit >= 0)
