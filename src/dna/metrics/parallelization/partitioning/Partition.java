@@ -57,15 +57,14 @@ public abstract class Partition {
 		return this.t;
 	}
 
-	public Partition(IGraph g, List<Node> nodes, Metric m) {
 	public Partition() {
 	}
 
-	public Partition(Graph g, List<Node> nodes, Metric m) {
+	public Partition(IGraph g, List<Node> nodes, Metric m) {
 		this.init(g, nodes, m);
 	}
 
-	public void init(Graph g, List<Node> nodes, Metric m) {
+	public void init(IGraph g, List<Node> nodes, Metric m) {
 		this.g = g;
 		this.nodes = nodes;
 		this.m = m;

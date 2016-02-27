@@ -5,8 +5,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import dna.graph.IGraph;
 import dna.graph.IElement;
+import dna.graph.IGraph;
 import dna.graph.datastructures.GraphDataStructure;
 import dna.graph.edges.Edge;
 import dna.graph.nodes.Node;
@@ -53,12 +53,13 @@ public class OverlappingPartition extends Partition {
 		return this.auxiliaryNodes.add(n);
 	}
 
+	@Override
 	public String toString() {
 		return "OverlappingPartition: " + g.toString() + " @ "
 				+ auxiliaryNodes.size() + " / " + auxiliaryEdges.size();
 	}
 
-	public static OverlappingPartition getPartition(String name, IGraph g,
+	public static OverlappingPartition[] getPartitions(IGraph g,
 			List<List<Node>> nodesList, Metric m,
 			HashMap<Node, Partition> partitionMap) {
 		OverlappingPartition[] p = new OverlappingPartition[nodesList.size()];

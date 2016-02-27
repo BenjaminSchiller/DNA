@@ -5,8 +5,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import dna.graph.IGraph;
 import dna.graph.IElement;
+import dna.graph.IGraph;
 import dna.graph.datastructures.GraphDataStructure;
 import dna.graph.edges.Edge;
 import dna.graph.nodes.Node;
@@ -46,12 +46,13 @@ public class NonOverlappingPartition extends Partition {
 		this.externalEdges = connections;
 	}
 
+	@Override
 	public String toString() {
 		return "NonOverlappingPartition: " + g.toString() + " @ "
 				+ externalEdges.size();
 	}
 
-	public static NonOverlappingPartition getPartition(String name, IGraph g,
+	public static NonOverlappingPartition[] getPartitions(IGraph g,
 			List<List<Node>> nodesList, Metric m,
 			HashMap<Node, Partition> partitionMap) {
 		NonOverlappingPartition[] p = new NonOverlappingPartition[nodesList
