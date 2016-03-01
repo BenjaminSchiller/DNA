@@ -41,7 +41,9 @@ public abstract class ClusteringCoefficient extends Metric {
 	public Value[] getValues() {
 		Value globalCC = new Value("globalCC", this.globalCC);
 		Value averageCC = new Value("averageCC", this.averageCC);
-		return new Value[] { globalCC, averageCC };
+		Value triangleCount = new Value("triangleCount", this.triangleCount);
+		Value potentialCount = new Value("potentialCount", this.potentialCount);
+		return new Value[] { globalCC, averageCC, triangleCount, potentialCount };
 	}
 
 	@Override
@@ -51,7 +53,13 @@ public abstract class ClusteringCoefficient extends Metric {
 
 	@Override
 	public NodeValueList[] getNodeValueLists() {
-		return new NodeValueList[] { this.localCC };
+		NodeValueList nodeTriangleCount = new NodeValueList(
+				"nodeTriangleCount", this.nodeTriangleCount.getValues());
+		NodeValueList nodePotentialCount = new NodeValueList(
+				"nodePotentialCount", this.nodePotentialCount.getValues());
+		return new NodeValueList[] { this.localCC, nodeTriangleCount,
+				nodePotentialCount };
+		// return new NodeValueList[] { this.localCC };
 	}
 
 	@Override

@@ -1,26 +1,66 @@
 package dna.parallel.collation.clustering;
 
-import dna.metrics.IMetric.MetricType;
+import java.util.Set;
+
+import dna.graph.nodes.Node;
 import dna.metrics.clustering.UndirectedClusteringCoefficient;
 import dna.metrics.clustering.UndirectedClusteringCoefficientR;
 import dna.parallel.collation.Collation;
+import dna.parallel.collation.CollationData;
 import dna.parallel.partition.OverlappingPartition;
-import dna.series.data.BatchData;
+import dna.parallel.partition.Partition.PartitionType;
+import dna.parallel.util.Sleeper;
+import dna.series.data.MetricData;
+import dna.series.data.lists.LongList;
+import dna.series.data.nodevaluelists.NodeValueList;
+import dna.util.ArrayUtils;
 
 public class UndirectedClusteringCoefficientOverlappingCollation extends
 		Collation<UndirectedClusteringCoefficient, OverlappingPartition> {
 
-	public UndirectedClusteringCoefficientOverlappingCollation(String dir,
-			int partitionCount, int run) {
+	public UndirectedClusteringCoefficientOverlappingCollation(String auxDir,
+			String inputDir, int partitionCount, int run, Sleeper sleeper) {
 		super("UndirectedClusteringCoefficientOverlappingCollation",
-				MetricType.exact, new UndirectedClusteringCoefficientR(), dir,
-				partitionCount, run);
+				MetricType.exact, PartitionType.Overlapping,
+				new UndirectedClusteringCoefficientR(), auxDir, inputDir,
+				partitionCount, run, sleeper, new String[] {
+						"UndirectedClusteringCoefficientR",
+						"UndirectedClusteringCoefficientU" });
 	}
 
 	@Override
-	public boolean collate(BatchData[] bd) {
-		// TODO Auto-generated method stub
-		return false;
+	public boolean collate(CollationData cd) {
+		UndirectedClusteringCoefficientR m = (UndirectedClusteringCoefficientR) this.m;
+
+		m.nodePotentialCount = new LongList(0);
+		m.nodeTriangleCount = new LongList(0);
+
+		m.triangleCount = 0;
+		m.potentialCount = 0;
+		m.localCC = new NodeValueList("localCC", 0);
+		int i = 0;
+		for (MetricData md : this.getSources(cd)) {
+			for (Node n : (Set<Node>) cd.aux.nodesOfPartitions[i]) {
+				m.localCC.setValue(n.getIndex(),
+						md.getNodeValues().get("localCC")
+								.getValue(n.getIndex()));
+				long p = (long) md.getNodeValues().get("nodePotentialCount")
+						.getValue(n.getIndex());
+				long t = (long) md.getNodeValues().get("nodeTriangleCount")
+						.getValue(n.getIndex());
+				m.nodePotentialCount.setValue(n.getIndex(), p);
+				m.nodeTriangleCount.setValue(n.getIndex(), t);
+				m.triangleCount += t;
+				m.potentialCount += p;
+			}
+			i++;
+		}
+		m.globalCC = 1.0 * m.triangleCount / m.potentialCount;
+		m.averageCC = ArrayUtils.avgIgnoreNaN(m.localCC.getValues());
+
+		System.out.println("collated " + this.getName());
+
+		return true;
 	}
 
 }

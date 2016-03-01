@@ -1,32 +1,36 @@
 package dna.parallel.collation.clustering;
 
+import java.util.Set;
+
+import dna.graph.nodes.Node;
 import dna.metrics.clustering.UndirectedClusteringCoefficient;
 import dna.metrics.clustering.UndirectedClusteringCoefficientR;
 import dna.parallel.collation.Collation;
+import dna.parallel.collation.CollationData;
 import dna.parallel.partition.NonOverlappingPartition;
-import dna.series.data.BatchData;
+import dna.parallel.partition.Partition.PartitionType;
+import dna.parallel.util.Sleeper;
+import dna.series.data.MetricData;
+import dna.series.data.lists.LongList;
 import dna.series.data.nodevaluelists.NodeValueList;
+import dna.util.ArrayUtils;
 
 public class UndirectedClusteringCoefficientNonOverlappingCollation extends
 		Collation<UndirectedClusteringCoefficient, NonOverlappingPartition> {
 
-	public UndirectedClusteringCoefficientNonOverlappingCollation(String dir,
-			int partitionCount, int run) {
+	public UndirectedClusteringCoefficientNonOverlappingCollation(
+			String auxDir, String inputDir, int partitionCount, int run,
+			Sleeper sleeper) {
 		super("UndirectedClusteringCoefficientNonOverlappingCollation",
-				MetricType.exact, new UndirectedClusteringCoefficientR(), dir,
-				partitionCount, run);
+				MetricType.exact, PartitionType.NonOverlapping,
+				new UndirectedClusteringCoefficientR(), auxDir, inputDir,
+				partitionCount, run, sleeper, new String[] {
+						"UndirectedClusteringCoefficientR",
+						"UndirectedClusteringCoefficientU" });
 	}
 
 	@Override
-	public boolean collate(BatchData[] bd) {
-		System.out.println("collation: " + this.g.getTimestamp());
-		UndirectedClusteringCoefficientR m = (UndirectedClusteringCoefficientR) this.m;
-		m.averageCC = 0.1;
-		m.globalCC = 0.2;
-		m.localCC = new NodeValueList("localCC", this.g.getMaxNodeIndex() + 1);
-		m.triangleCount = 0;
-		m.potentialCount = 0;
-		return true;
+	public boolean collate(CollationData cd) {
+		return false;
 	}
-
 }

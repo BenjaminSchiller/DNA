@@ -42,6 +42,13 @@ public class NodeValueList extends Data {
 		this.values = values;
 	}
 
+	public NodeValueList(String name, long[] values) {
+		this(name, values.length);
+		for (int i = 0; i < values.length; i++) {
+			this.values[i] = values[i];
+		}
+	}
+
 	// get methods
 	public double[] getValues() {
 		return this.values;
@@ -113,7 +120,7 @@ public class NodeValueList extends Data {
 	public static NodeValueList read(String dir, String filename, String name,
 			boolean readValues) throws IOException {
 		if (!readValues) {
-			return new NodeValueList(name, null);
+			return new NodeValueList(name, 0);
 		}
 
 		Reader r = Reader.getReader(dir, filename);

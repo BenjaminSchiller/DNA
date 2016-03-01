@@ -3,21 +3,25 @@ package dna.parallel.collation.clustering;
 import dna.metrics.clustering.UndirectedClusteringCoefficient;
 import dna.metrics.clustering.UndirectedClusteringCoefficientR;
 import dna.parallel.collation.Collation;
+import dna.parallel.collation.CollationData;
 import dna.parallel.partition.NodeCutPartition;
-import dna.series.data.BatchData;
+import dna.parallel.partition.Partition.PartitionType;
+import dna.parallel.util.Sleeper;
 
 public class UndirectedClusteringCoefficientNodeCutCollation extends
 		Collation<UndirectedClusteringCoefficient, NodeCutPartition> {
 
-	public UndirectedClusteringCoefficientNodeCutCollation(String dir,
-			int partitionCount, int run) {
+	public UndirectedClusteringCoefficientNodeCutCollation(String auxDir,
+			String inputDir, int partitionCount, int run, Sleeper sleeper) {
 		super("ClusteringCoefficientNodeCutCollation", MetricType.exact,
-				new UndirectedClusteringCoefficientR(), dir, partitionCount,
-				run);
+				PartitionType.NodeCut, new UndirectedClusteringCoefficientR(),
+				auxDir, inputDir, partitionCount, run, sleeper, new String[] {
+						"UndirectedClusteringCoefficientR",
+						"UndirectedClusteringCoefficientU" });
 	}
 
 	@Override
-	public boolean collate(BatchData[] bd) {
+	public boolean collate(CollationData cd) {
 		// TODO Auto-generated method stub
 		return false;
 	}
