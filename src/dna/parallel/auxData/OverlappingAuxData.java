@@ -1,46 +1,95 @@
 package dna.parallel.auxData;
 
+import java.io.IOException;
 import java.util.Set;
 
-import dna.graph.edges.Edge;
+import dna.graph.datastructures.GraphDataStructure;
 import dna.graph.nodes.Node;
+import dna.io.Reader;
+import dna.io.Writer;
 import dna.parallel.partition.OverlappingPartition;
+import dna.parallel.partition.Partition.PartitionType;
 
 public class OverlappingAuxData extends AuxData<OverlappingPartition> {
-	protected Set<Node> nodes;
-	protected Set<Edge> edges;
+	public Set<Node>[] neighborsOfPartitions;
 
-	public OverlappingAuxData(Set<Node> nodes, Set<Edge> edges) {
-		this.nodes = nodes;
-		this.edges = edges;
+	public OverlappingAuxData(GraphDataStructure gds,
+			Set<Node>[] nodesOfPartitions, Set<Node>[] neighborsOfPartitions) {
+		super(PartitionType.Overlapping, gds, nodesOfPartitions);
+		this.neighborsOfPartitions = neighborsOfPartitions;
 	}
 
-	public Set<Node> getNodes() {
-		return this.nodes;
+	public OverlappingAuxData(GraphDataStructure gds, int partitionCount) {
+		super(PartitionType.Overlapping, gds, partitionCount);
+		this.neighborsOfPartitions = getInitialNodes(partitionCount);
 	}
 
-	public boolean addNode(Node n) {
-		return this.nodes.add(n);
-	}
-
-	public boolean removeNode(Node n) {
-		return this.nodes.remove(n);
-	}
-
-	public Set<Edge> getEdges() {
-		return this.edges;
-	}
-
-	public boolean addEdge(Edge e) {
-		return this.edges.add(e);
-	}
-
-	public boolean remobeEdge(Edge e) {
-		return this.edges.remove(e);
+	public int getDuplicateCount() {
+		int sum = 0;
+		for (Set<Node> s : this.neighborsOfPartitions) {
+			sum += s.size();
+		}
+		return sum;
 	}
 
 	public String toString() {
-		return "NonOverlappingAuxData: " + this.nodes.size() + " nodes, "
-				+ this.edges.size() + " edges";
+		return "Overlapping: " + this.getDuplicateCount() + " duplicates in "
+				+ this.getPartitionCount() + " partitions with "
+				+ this.getNodeCount() + " nodes";
+	}
+
+	@Override
+	public void write(String dir, String filename) {
+		try {
+			Writer w = new Writer(dir, filename);
+			for (int i = 0; i < this.nodesOfPartitions.length; i++) {
+
+				w.writeln(i + sep0
+						+ this.getNodesString(this.nodesOfPartitions[i]) + sep0
+						+ this.getNodesString(this.neighborsOfPartitions[i]));
+			}
+			w.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	public static OverlappingAuxData read(GraphDataStructure gds,
+			int partitionCount, String dir, String filename) throws IOException {
+		Reader r = new Reader(dir, filename);
+		OverlappingAuxData aux = new OverlappingAuxData(gds, partitionCount);
+		for (int i = 0; i < partitionCount; i++) {
+			String line = r.readString();
+			String[] temp = line.split(sep0, 100);
+			aux.nodesOfPartitions[i] = aux.getNodes(temp[1]);
+			aux.neighborsOfPartitions[i] = aux.getNodes(temp[2]);
+		}
+		r.close();
+		return aux;
+	}
+
+	@Override
+	public void add(AuxData<OverlappingPartition> add_) {
+		OverlappingAuxData add = (OverlappingAuxData) add_;
+		for (int i = 0; i < this.nodesOfPartitions.length; i++) {
+			this.nodesOfPartitions[i].addAll(add.nodesOfPartitions[i]);
+			for (Node n : add.nodesOfPartitions[i]) {
+				this.mapping.put(n, i);
+			}
+			this.neighborsOfPartitions[i].addAll(add.neighborsOfPartitions[i]);
+		}
+	}
+
+	@Override
+	public void remove(AuxData<OverlappingPartition> remove_) {
+		OverlappingAuxData remove = (OverlappingAuxData) remove_;
+		for (int i = 0; i < this.nodesOfPartitions.length; i++) {
+			this.nodesOfPartitions[i].removeAll(remove.nodesOfPartitions[i]);
+			for (Node n : remove.nodesOfPartitions[i]) {
+				this.mapping.remove(n);
+			}
+			this.neighborsOfPartitions[i]
+					.removeAll(remove.neighborsOfPartitions[i]);
+		}
 	}
 }
