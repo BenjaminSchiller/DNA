@@ -1,64 +1,201 @@
 package dna.parallel.collation;
 
-import java.io.IOException;
+import java.io.File;
+import java.util.ArrayList;
 
 import dna.graph.Graph;
 import dna.metrics.IMetric;
 import dna.metrics.Metric;
 import dna.metrics.algorithms.IRecomputation;
+import dna.parallel.auxData.AuxData;
+import dna.parallel.auxData.AuxData.AuxWriteType;
 import dna.parallel.partition.Partition;
+import dna.parallel.partition.Partition.PartitionType;
+import dna.parallel.util.Sleeper;
 import dna.series.aggdata.AggregatedBatch.BatchReadMode;
 import dna.series.data.BatchData;
+import dna.series.data.MetricData;
 import dna.series.data.Value;
 import dna.series.data.distr.Distr;
 import dna.series.data.nodevaluelists.NodeNodeValueList;
 import dna.series.data.nodevaluelists.NodeValueList;
 import dna.updates.batch.Batch;
+import dna.util.Config;
 import dna.util.parameters.Parameter;
 
 public abstract class Collation<M extends Metric, T extends Partition> extends
 		Metric implements IRecomputation {
 
+	public static final String partitionKeyword = "PARTITION";
+
+	public PartitionType partitionType;
 	public Metric m;
-	public String dir;
+	public String auxDir;
+	public String inputDir;
 	public int partitionCount;
 	public int run;
 
+	protected Sleeper sleeper;
+
+	protected String[] sourceMetrics;
+
 	public Collation(String name, MetricType metricType, Parameter[] p,
-			Metric m, String dir, int partitionCount, int run) {
+			PartitionType partitionType, Metric m, String auxDir,
+			String inputDir, int partitionCount, int run, Sleeper sleeper,
+			String[] sourceMetrics) {
 		super(name, metricType, p);
+		this.partitionType = partitionType;
 		this.m = m;
-		this.dir = dir;
+		this.auxDir = auxDir;
+		this.inputDir = inputDir;
 		this.partitionCount = partitionCount;
 		this.run = run;
+		this.sleeper = sleeper;
+		this.sourceMetrics = sourceMetrics;
 	}
 
-	public Collation(String name, MetricType metricType, Metric m, String dir,
-			int partitionCount, int run) {
-		this(name, metricType, new Parameter[0], m, dir, partitionCount, run);
+	public Collation(String name, MetricType metricType,
+			PartitionType partitionType, Metric m, String auxDir,
+			String inputDir, int partitionCount, int run, Sleeper sleeper,
+			String[] sourceMetrics) {
+		this(name, metricType, new Parameter[0], partitionType, m, auxDir,
+				inputDir, partitionCount, run, sleeper, sourceMetrics);
 	}
 
 	@Override
 	public boolean recompute() {
-		try {
-			return this.collate(this.readWorkerData());
-		} catch (IOException e) {
-			e.printStackTrace();
-			return false;
-		}
+		return this.collate(this.readCollationData());
 	}
 
-	protected BatchData[] readWorkerData() throws IOException {
+	@SuppressWarnings("rawtypes")
+	protected AuxData aux = null;
+
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	protected CollationData readCollationData() {
+		System.out.println("\n\nREADING WORKER DATA....");
+		this.sleeper.reset();
 		BatchData[] bd = new BatchData[this.partitionCount];
-		for (int i = 0; i < bd.length; i++) {
-			bd[i] = BatchData.readIntelligent(dir + "worker" + i + "/run."
-					+ run + "/batch." + this.g.getTimestamp() + "/",
-					this.g.getTimestamp(), BatchReadMode.readAllValues);
+		AuxData aux = null;
+		while (!this.sleeper.isTimedOut()) {
+			boolean missing = false;
+			for (int i = 0; i < bd.length; i++) {
+				if (bd[i] != null) {
+					continue;
+				}
+				try {
+					String batchDir = inputDir
+							.replace(partitionKeyword, "" + i)
+							+ "run."
+							+ run
+							+ "/batch." + this.g.getTimestamp() + "/";
+					String batchZip = inputDir
+							.replace(partitionKeyword, "" + i)
+							+ "run."
+							+ run
+							+ "/batch." + this.g.getTimestamp() + ".zip";
+
+					if (Config.get("GENERATION_AS_ZIP").equals("batches")
+							&& (new File(batchZip)).exists()) {
+						bd[i] = BatchData.readIntelligent(batchDir,
+								this.g.getTimestamp(),
+								BatchReadMode.readAllValues);
+						System.out.println("read " + this.g.getTimestamp()
+								+ " for worker " + i + " as zip");
+					} else if (Config.get("GENERATION_AS_ZIP").equals("none")
+							&& (new File(batchDir)).exists()) {
+						bd[i] = BatchData.read(batchDir, this.g.getTimestamp(),
+								BatchReadMode.readAllValues);
+						// bd[i] = BatchData.readIntelligent(
+						// inputDir.replace(partitionKeyword, "" + i)
+						// + "run." + run + "/batch."
+						// + this.g.getTimestamp() + "/",
+						// this.g.getTimestamp(),
+						// BatchReadMode.readAllValues);
+						System.out.println("read " + this.g.getTimestamp()
+								+ " for worker " + i + " as dir");
+					} else {
+						missing = true;
+						bd[i] = null;
+						System.out.println("not existing @ "
+								+ Config.get("GENERATION_AS_ZIP") + " zip: "
+								+ (new File(batchZip)).exists() + " dir: "
+								+ (new File(batchDir)).exists());
+						System.out.println(batchZip + " ----- " + batchDir);
+					}
+				} catch (Exception e) {
+					missing = true;
+					bd[i] = null;
+					System.out.println("exception...");
+					e.printStackTrace();
+				}
+			}
+			if (aux == null) {
+				try {
+					if (this.aux == null) {
+						this.aux = AuxData.read(
+								g.getGraphDatastructures(),
+								this.partitionCount,
+								auxDir,
+								g.getTimestamp()
+										+ AuxData.getSuffix(partitionType,
+												AuxWriteType.Init));
+						aux = this.aux;
+						System.out.println("read aux from "
+								+ auxDir
+								+ g.getTimestamp()
+								+ AuxData.getSuffix(partitionType,
+										AuxWriteType.Init));
+					} else {
+						AuxData auxAdd = AuxData.read(
+								g.getGraphDatastructures(),
+								this.partitionCount,
+								auxDir,
+								g.getTimestamp()
+										+ AuxData.getSuffix(partitionType,
+												AuxWriteType.Add));
+						AuxData auxRemove = AuxData.read(
+								g.getGraphDatastructures(),
+								this.partitionCount,
+								auxDir,
+								g.getTimestamp()
+										+ AuxData.getSuffix(partitionType,
+												AuxWriteType.Remove));
+						this.aux.add(auxAdd);
+						this.aux.remove(auxRemove);
+						aux = this.aux;
+						System.out.println("read aux add/remove from " + auxDir
+								+ g.getTimestamp());
+					}
+				} catch (Exception e) {
+					missing = true;
+					aux = null;
+					System.out.println("aux reading exception:");
+					// e.printStackTrace();
+				}
+			}
+			if (!missing) {
+				return new CollationData(bd, aux);
+			}
+			this.sleeper.sleep();
 		}
-		return bd;
+		throw new IllegalStateException(
+				"could not read (all) worker data from " + inputDir);
 	}
 
-	public abstract boolean collate(BatchData[] bd);
+	protected Iterable<MetricData> getSources(CollationData cd) {
+		ArrayList<MetricData> mds = new ArrayList<MetricData>(cd.bd.length);
+		for (BatchData bd : cd.bd) {
+			for (String name : this.sourceMetrics) {
+				if (bd.getMetrics().getNames().contains(name)) {
+					mds.add(bd.getMetrics().get(name));
+					break;
+				}
+			}
+		}
+		return mds;
+	}
+
+	public abstract boolean collate(CollationData cd);
 
 	@Override
 	public Value[] getValues() {

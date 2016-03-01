@@ -43,7 +43,7 @@ public class NodeCutPartition extends Partition {
 		// }
 		// }
 
-		NodeCutAuxData auxData = new NodeCutAuxData();
+		NodeCutAuxData auxData = new NodeCutAuxData(g.getGraphDatastructures());
 
 		return new AllPartitions<NodeCutPartition, NodeCutAuxData>(name,
 				partitionType, g, partitions, auxData, mapping);

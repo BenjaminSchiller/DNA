@@ -3,6 +3,7 @@ package dna.parallel.collation;
 import dna.parallel.collation.clustering.UndirectedClusteringCoefficientNodeCutCollation;
 import dna.parallel.collation.clustering.UndirectedClusteringCoefficientNonOverlappingCollation;
 import dna.parallel.collation.clustering.UndirectedClusteringCoefficientOverlappingCollation;
+import dna.parallel.util.Sleeper;
 
 public class CollationFromArgs {
 	public static enum CollationType {
@@ -10,18 +11,19 @@ public class CollationFromArgs {
 	}
 
 	@SuppressWarnings("rawtypes")
-	public static Collation parse(CollationType collationType, String dir,
-			int partitionCount, int run, String... args) {
+	public static Collation parse(CollationType collationType, String auxDir,
+			String inputDir, int partitionCount, int run, Sleeper sleeper,
+			String... args) {
 		switch (collationType) {
 		case UndirectedClusteringCoefficientNodeCut:
-			return new UndirectedClusteringCoefficientNodeCutCollation(dir,
-					partitionCount, run);
+			return new UndirectedClusteringCoefficientNodeCutCollation(auxDir,
+					inputDir, partitionCount, run, sleeper);
 		case UndirectedClusteringCoefficientNonOverlapping:
 			return new UndirectedClusteringCoefficientNonOverlappingCollation(
-					dir, partitionCount, run);
+					auxDir, inputDir, partitionCount, run, sleeper);
 		case UndirectedClusteringCoefficientOverlapping:
-			return new UndirectedClusteringCoefficientOverlappingCollation(dir,
-					partitionCount, run);
+			return new UndirectedClusteringCoefficientOverlappingCollation(
+					auxDir, inputDir, partitionCount, run, sleeper);
 		default:
 			throw new IllegalArgumentException("invalid collation type: "
 					+ collationType);

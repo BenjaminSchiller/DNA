@@ -14,7 +14,8 @@ public class AllPartitions<T extends Partition, D extends AuxData<T>> extends
 	public Graph g;
 	public T[] partitions;
 	public D auxData;
-	public HashMap<Node, Integer> mapping;
+
+	// public HashMap<Node, Integer> mapping;
 
 	public AllPartitions(String name, PartitionType partitionType, Graph g,
 			T[] partitions, D auxData, HashMap<Node, Integer> mapping) {
@@ -23,18 +24,47 @@ public class AllPartitions<T extends Partition, D extends AuxData<T>> extends
 		this.g = g;
 		this.partitions = partitions;
 		this.auxData = auxData;
-		this.mapping = mapping;
+		// this.mapping = mapping;
 	}
 
-	public int getPartitionIndex(Node n) {
-		return this.mapping.get(n);
-	}
-
-	public T getPartition(Node n) {
-		return this.partitions[this.mapping.get(n)];
-	}
+	// public int getPartitionIndex(Node n) {
+	// System.out.println(n);
+	// System.out.println(this.mapping);
+	// System.out.println(this.mapping.get(n));
+	// return this.mapping.get(n);
+	// }
+	//
+	// public T getPartition(Node n) {
+	// return this.partitions[this.mapping.get(n)];
+	// }
 
 	public T getPartition(int index) {
 		return this.partitions[index];
+	}
+
+	public int getPartitionCount() {
+		return this.partitions.length;
+	}
+
+	public int getNodeSum() {
+		int sum = 0;
+		for (T p : partitions) {
+			sum += p.g.getNodeCount();
+		}
+		return sum;
+	}
+
+	public int getEdgeSum() {
+		int sum = 0;
+		for (T p : partitions) {
+			sum += p.g.getEdgeCount();
+		}
+		return sum;
+	}
+
+	public String toString() {
+		return partitionType + " (" + g.getNodeCount() + "/" + g.getEdgeCount()
+				+ ") with " + partitions.length + " partitions ("
+				+ this.getNodeSum() + "/" + this.getEdgeSum() + ")";
 	}
 }

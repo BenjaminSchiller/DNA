@@ -10,9 +10,12 @@ import dna.graph.IElement;
 import dna.graph.edges.Edge;
 import dna.graph.nodes.Node;
 import dna.parallel.auxData.NonOverlappingAuxData;
+import dna.parallel.nodeAssignment.NodeAssignment;
 import dna.updates.batch.Batch;
+import dna.updates.batch.BatchSanitization;
 import dna.updates.update.EdgeAddition;
 import dna.updates.update.EdgeRemoval;
+import dna.updates.update.NodeAddition;
 import dna.updates.update.NodeRemoval;
 
 public class NonOverlappingPartition extends Partition {
@@ -23,7 +26,8 @@ public class NonOverlappingPartition extends Partition {
 	}
 
 	public static AllPartitions<NonOverlappingPartition, NonOverlappingAuxData> partition(
-			String name, PartitionType partitionType, Graph g, List<Node>[] nodess) {
+			String name, PartitionType partitionType, Graph g,
+			List<Node>[] nodess) {
 		Graph[] graphs = getInitialGraphs(g, nodess);
 		NonOverlappingPartition[] partitions = new NonOverlappingPartition[nodess.length];
 		HashMap<Node, Integer> mapping = new HashMap<Node, Integer>();
@@ -34,21 +38,31 @@ public class NonOverlappingPartition extends Partition {
 			}
 		}
 
-		Set<Edge> externalEdges = new HashSet<Edge>();
+		Set<Edge> edgesBetweenPartitions = new HashSet<Edge>();
 
 		for (IElement e_ : g.getEdges()) {
 			Edge e = (Edge) e_;
 			NonOverlappingPartition p1 = partitions[mapping.get(e.getN1())];
 			NonOverlappingPartition p2 = partitions[mapping.get(e.getN2())];
 			if (p1 == p2) {
-				p1.g.addEdge(p1.g.getGraphDatastructures().newEdgeInstance(
-						e.asString(), p1.g));
+				Edge newEdge = p1.g.getGraphDatastructures().newEdgeInstance(
+						e.asString(), p1.g);
+				p1.g.addEdge(newEdge);
+				newEdge.connectToNodes();
 			} else {
-				externalEdges.add(e);
+				edgesBetweenPartitions.add(e);
 			}
 		}
 
-		NonOverlappingAuxData auxData = new NonOverlappingAuxData(externalEdges);
+		@SuppressWarnings("unchecked")
+		Set<Node>[] nodesOfPartitions = new HashSet[nodess.length];
+		for (int i = 0; i < nodesOfPartitions.length; i++) {
+			nodesOfPartitions[i] = new HashSet<Node>(nodess[i]);
+		}
+
+		NonOverlappingAuxData auxData = new NonOverlappingAuxData(
+				g.getGraphDatastructures(), nodesOfPartitions,
+				edgesBetweenPartitions);
 
 		return new AllPartitions<NonOverlappingPartition, NonOverlappingAuxData>(
 				name, partitionType, g, partitions, auxData, mapping);
@@ -56,35 +70,67 @@ public class NonOverlappingPartition extends Partition {
 
 	public static AllChanges split(
 			AllPartitions<NonOverlappingPartition, NonOverlappingAuxData> all,
-			Batch b) {
+			Batch b, NodeAssignment nodeAssignment) {
 		Batch[] batches = getEmptyBatches(b, all.partitions.length);
+		NonOverlappingAuxData auxAdd = new NonOverlappingAuxData(
+				b.getGraphDatastructures(), all.getPartitionCount());
+		NonOverlappingAuxData auxRemove = new NonOverlappingAuxData(
+				b.getGraphDatastructures(), all.getPartitionCount());
 
-		// TODO add new nodes
+		/**
+		 * NA
+		 */
+		for (NodeAddition na : b.getNodeAdditions()) {
+			int p = nodeAssignment.assignNode(all, b, na);
+			batches[p].add(na);
+			auxAdd.nodesOfPartitions[p].add((Node) na.getNode());
+			// TODO handle node addition for other updates also!!!
+		}
+
+		/**
+		 * EA
+		 */
 		for (EdgeAddition ea : b.getEdgeAdditions()) {
-			int p1 = all.getPartitionIndex(ea.getEdge().getN1());
-			int p2 = all.getPartitionIndex(ea.getEdge().getN2());
+			int p1 = all.auxData.getPartitionIndex(ea.getEdge().getN1());
+			int p2 = all.auxData.getPartitionIndex(ea.getEdge().getN2());
 			if (p1 == p2) {
 				batches[p1].add(ea);
 			} else {
-
+				auxAdd.edgesBetweenPartitions.add((Edge) ea.getEdge());
 			}
 		}
+
+		/**
+		 * ER
+		 */
 		for (EdgeRemoval er : b.getEdgeRemovals()) {
-			int p1 = all.getPartitionIndex(er.getEdge().getN1());
-			int p2 = all.getPartitionIndex(er.getEdge().getN2());
+			int p1 = all.auxData.getPartitionIndex(er.getEdge().getN1());
+			int p2 = all.auxData.getPartitionIndex(er.getEdge().getN2());
 			if (p1 == p2) {
 				batches[p1].add(er);
 			} else {
-
+				auxRemove.edgesBetweenPartitions.add((Edge) er.getEdge());
 			}
 		}
+
+		/**
+		 * NR
+		 */
 		for (NodeRemoval nr : b.getNodeRemovals()) {
-			int p = all.getPartitionIndex((Node) nr.getNode());
+			int p = all.auxData.getPartitionIndex((Node) nr.getNode());
 			batches[p].add(nr);
 			// TODO also remove external edges
+			auxRemove.nodesOfPartitions[p].add((Node) nr.getNode());
+			for (IElement e : nr.getNode().getEdges()) {
+				auxRemove.edgesBetweenPartitions.add((Edge) e);
+			}
 		}
 
-		return new AllChanges(b, batches);
+		for (int i = 0; i < batches.length; i++) {
+			BatchSanitization.sanitize(batches[i]);
+		}
+
+		return new AllChanges(b, batches, auxAdd, auxRemove);
 	}
 
 }
