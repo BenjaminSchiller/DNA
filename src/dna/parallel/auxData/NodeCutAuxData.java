@@ -4,6 +4,13 @@ import dna.graph.datastructures.GraphDataStructure;
 import dna.parallel.partition.NodeCutPartition;
 import dna.parallel.partition.Partition.PartitionType;
 
+/**
+ * 
+ * This extension of AuxData hols the axiliary data for node-cut partitions.
+ * 
+ * @author benni
+ *
+ */
 public class NodeCutAuxData extends AuxData<NodeCutPartition> {
 	public NodeCutAuxData(GraphDataStructure gds) {
 		super(PartitionType.NodeCut, gds, null);

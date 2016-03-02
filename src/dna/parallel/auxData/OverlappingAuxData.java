@@ -10,6 +10,15 @@ import dna.io.Writer;
 import dna.parallel.partition.OverlappingPartition;
 import dna.parallel.partition.Partition.PartitionType;
 
+/**
+ * 
+ * This extension of AuxData holds the auxiliary data for overlapping
+ * partitions. For each partition, it adds a set of neighbors which are
+ * contained in the overlap.
+ * 
+ * @author benni
+ *
+ */
 public class OverlappingAuxData extends AuxData<OverlappingPartition> {
 	public Set<Node>[] neighborsOfPartitions;
 

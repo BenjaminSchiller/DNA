@@ -11,6 +11,18 @@ import dna.graph.nodes.Node;
 import dna.parallel.partition.Partition;
 import dna.parallel.partition.Partition.PartitionType;
 
+/**
+ * 
+ * This class holds the auxiliary data which is produced during partitioning.
+ * This abstract version holds a list of all nots assigned to each partition.
+ * Addition data that is required for the collation is added by the respective
+ * sub-classes of AuxData.
+ * 
+ * @author benni
+ *
+ * @param <T>
+ *            partition type
+ */
 public abstract class AuxData<T extends Partition> {
 
 	public static enum AuxWriteType {

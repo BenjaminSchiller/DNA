@@ -12,6 +12,15 @@ import dna.io.Writer;
 import dna.parallel.partition.NonOverlappingPartition;
 import dna.parallel.partition.Partition.PartitionType;
 
+/**
+ * 
+ * This extension of AuxData holds the auxiliary data for non-overlapping
+ * partitions. It adds a single set of all edges between partitions which are
+ * not parts of the partitions.
+ * 
+ * @author benni
+ *
+ */
 public class NonOverlappingAuxData extends AuxData<NonOverlappingPartition> {
 
 	public Set<Edge> edgesBetweenPartitions;

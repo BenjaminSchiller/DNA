@@ -23,6 +23,33 @@ import dna.updates.batch.Batch;
 import dna.util.Config;
 import dna.util.parameters.Parameter;
 
+/**
+ * 
+ * This abstract class provides the basic means to collate the results computed
+ * by multiple workers on a partitioned graph. It is an extension of the
+ * abstract Metric class and thereby allow to output and compare the results as
+ * for any regular metric.
+ * 
+ * Internally, this is achieved by providing an instance of a metric which holds
+ * all the required values, distributions, nodeValueLists, and
+ * nodeNodeValueLists. This "internal" metric is also used from comparisson and
+ * applicability checks.
+ * 
+ * When the computation method of the metric is called, the collation is
+ * started. For this, the required data (aux and batch data) are read from the
+ * filesystem. In case the required files are not present yet, the collation
+ * waits using the provided sleeper instance and aborts in case the timer runs
+ * out.
+ * 
+ * An implementation of a collation only has to overwrite the collate(...)
+ * method which gets the collation data and should writes all results to the
+ * internal metric.
+ * 
+ * @author benni
+ *
+ * @param <M>
+ * @param <T>
+ */
 public abstract class Collation<M extends Metric, T extends Partition> extends
 		Metric implements IRecomputation {
 
