@@ -24,12 +24,12 @@ public class OverlappingAuxData extends AuxData<OverlappingPartition> {
 
 	public OverlappingAuxData(GraphDataStructure gds,
 			Set<Node>[] nodesOfPartitions, Set<Node>[] neighborsOfPartitions) {
-		super(PartitionType.Overlapping, gds, nodesOfPartitions);
+		super(PartitionType.OVERLAPPING, gds, nodesOfPartitions);
 		this.neighborsOfPartitions = neighborsOfPartitions;
 	}
 
 	public OverlappingAuxData(GraphDataStructure gds, int partitionCount) {
-		super(PartitionType.Overlapping, gds, partitionCount);
+		super(PartitionType.OVERLAPPING, gds, partitionCount);
 		this.neighborsOfPartitions = getInitialNodes(partitionCount);
 	}
 

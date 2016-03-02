@@ -1,7 +1,7 @@
 package dna.parallel.collation;
 
 import dna.parallel.collation.clustering.UndirectedClusteringCoefficientNodeCutCollation;
-import dna.parallel.collation.clustering.UndirectedClusteringCoefficientNonOverlappingCollation;
+import dna.parallel.collation.clustering.UndirectedClusteringCoefficientSeparatedCollation;
 import dna.parallel.collation.clustering.UndirectedClusteringCoefficientOverlappingCollation;
 import dna.parallel.util.Sleeper;
 
@@ -18,7 +18,7 @@ import dna.parallel.util.Sleeper;
  */
 public class CollationFromArgs {
 	public static enum CollationType {
-		UndirectedClusteringCoefficientNodeCut, UndirectedClusteringCoefficientNonOverlapping, UndirectedClusteringCoefficientOverlapping
+		UndirectedClusteringCoefficientNodeCut, UndirectedClusteringCoefficientSeparated, UndirectedClusteringCoefficientOverlapping
 	}
 
 	/**
@@ -50,8 +50,8 @@ public class CollationFromArgs {
 		case UndirectedClusteringCoefficientNodeCut:
 			return new UndirectedClusteringCoefficientNodeCutCollation(auxDir,
 					inputDir, partitionCount, run, sleeper);
-		case UndirectedClusteringCoefficientNonOverlapping:
-			return new UndirectedClusteringCoefficientNonOverlappingCollation(
+		case UndirectedClusteringCoefficientSeparated:
+			return new UndirectedClusteringCoefficientSeparatedCollation(
 					auxDir, inputDir, partitionCount, run, sleeper);
 		case UndirectedClusteringCoefficientOverlapping:
 			return new UndirectedClusteringCoefficientOverlappingCollation(

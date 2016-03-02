@@ -9,7 +9,7 @@ import dna.graph.Graph;
 import dna.graph.IElement;
 import dna.graph.edges.Edge;
 import dna.graph.nodes.Node;
-import dna.parallel.auxData.NonOverlappingAuxData;
+import dna.parallel.auxData.SeparatedAuxData;
 import dna.parallel.nodeAssignment.NodeAssignment;
 import dna.updates.batch.Batch;
 import dna.updates.batch.BatchSanitization;
@@ -18,39 +18,39 @@ import dna.updates.update.EdgeRemoval;
 import dna.updates.update.NodeAddition;
 import dna.updates.update.NodeRemoval;
 
-public class NonOverlappingPartition extends Partition {
+public class SeparatedPartition extends Partition {
 
-	public NonOverlappingPartition(Graph g) {
+	public SeparatedPartition(Graph g) {
 		super(g);
 		// TODO Auto-generated constructor stub
 	}
 
-	public static AllPartitions<NonOverlappingPartition, NonOverlappingAuxData> partition(
+	public static AllPartitions<SeparatedPartition, SeparatedAuxData> partition(
 			String name, PartitionType partitionType, Graph g,
 			List<Node>[] nodess) {
 		Graph[] graphs = getInitialGraphs(g, nodess);
-		NonOverlappingPartition[] partitions = new NonOverlappingPartition[nodess.length];
+		SeparatedPartition[] partitions = new SeparatedPartition[nodess.length];
 		HashMap<Node, Integer> mapping = new HashMap<Node, Integer>();
 		for (int i = 0; i < graphs.length; i++) {
-			partitions[i] = new NonOverlappingPartition(graphs[i]);
+			partitions[i] = new SeparatedPartition(graphs[i]);
 			for (Node n : nodess[i]) {
 				mapping.put(n, i);
 			}
 		}
 
-		Set<Edge> edgesBetweenPartitions = new HashSet<Edge>();
+		Set<Edge> edges = new HashSet<Edge>();
 
 		for (IElement e_ : g.getEdges()) {
 			Edge e = (Edge) e_;
-			NonOverlappingPartition p1 = partitions[mapping.get(e.getN1())];
-			NonOverlappingPartition p2 = partitions[mapping.get(e.getN2())];
+			SeparatedPartition p1 = partitions[mapping.get(e.getN1())];
+			SeparatedPartition p2 = partitions[mapping.get(e.getN2())];
 			if (p1 == p2) {
 				Edge newEdge = p1.g.getGraphDatastructures().newEdgeInstance(
 						e.asString(), p1.g);
 				p1.g.addEdge(newEdge);
 				newEdge.connectToNodes();
 			} else {
-				edgesBetweenPartitions.add(e);
+				edges.add(e);
 			}
 		}
 
@@ -60,21 +60,21 @@ public class NonOverlappingPartition extends Partition {
 			nodesOfPartitions[i] = new HashSet<Node>(nodess[i]);
 		}
 
-		NonOverlappingAuxData auxData = new NonOverlappingAuxData(
+		SeparatedAuxData auxData = new SeparatedAuxData(
 				g.getGraphDatastructures(), nodesOfPartitions,
-				edgesBetweenPartitions);
+				edges);
 
-		return new AllPartitions<NonOverlappingPartition, NonOverlappingAuxData>(
+		return new AllPartitions<SeparatedPartition, SeparatedAuxData>(
 				name, partitionType, g, partitions, auxData, mapping);
 	}
 
 	public static AllChanges split(
-			AllPartitions<NonOverlappingPartition, NonOverlappingAuxData> all,
+			AllPartitions<SeparatedPartition, SeparatedAuxData> all,
 			Batch b, NodeAssignment nodeAssignment) {
 		Batch[] batches = getEmptyBatches(b, all.partitions.length);
-		NonOverlappingAuxData auxAdd = new NonOverlappingAuxData(
+		SeparatedAuxData auxAdd = new SeparatedAuxData(
 				b.getGraphDatastructures(), all.getPartitionCount());
-		NonOverlappingAuxData auxRemove = new NonOverlappingAuxData(
+		SeparatedAuxData auxRemove = new SeparatedAuxData(
 				b.getGraphDatastructures(), all.getPartitionCount());
 
 		/**
@@ -96,7 +96,7 @@ public class NonOverlappingPartition extends Partition {
 			if (p1 == p2) {
 				batches[p1].add(ea);
 			} else {
-				auxAdd.edgesBetweenPartitions.add((Edge) ea.getEdge());
+				auxAdd.bridges.add((Edge) ea.getEdge());
 			}
 		}
 
@@ -109,7 +109,7 @@ public class NonOverlappingPartition extends Partition {
 			if (p1 == p2) {
 				batches[p1].add(er);
 			} else {
-				auxRemove.edgesBetweenPartitions.add((Edge) er.getEdge());
+				auxRemove.bridges.add((Edge) er.getEdge());
 			}
 		}
 
@@ -122,7 +122,7 @@ public class NonOverlappingPartition extends Partition {
 			// TODO also remove external edges
 			auxRemove.nodesOfPartitions[p].add((Node) nr.getNode());
 			for (IElement e : nr.getNode().getEdges()) {
-				auxRemove.edgesBetweenPartitions.add((Edge) e);
+				auxRemove.bridges.add((Edge) e);
 			}
 		}
 

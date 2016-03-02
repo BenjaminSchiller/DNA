@@ -21,7 +21,7 @@ public class UndirectedClusteringCoefficientOverlappingCollation extends
 	public UndirectedClusteringCoefficientOverlappingCollation(String auxDir,
 			String inputDir, int partitionCount, int run, Sleeper sleeper) {
 		super("UndirectedClusteringCoefficientOverlappingCollation",
-				MetricType.exact, PartitionType.Overlapping,
+				MetricType.exact, PartitionType.OVERLAPPING,
 				new UndirectedClusteringCoefficientR(), auxDir, inputDir,
 				partitionCount, run, sleeper, new String[] {
 						"UndirectedClusteringCoefficientR",

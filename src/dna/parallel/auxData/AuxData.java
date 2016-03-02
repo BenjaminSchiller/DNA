@@ -91,10 +91,10 @@ public abstract class AuxData<T extends Partition> {
 		switch (partitionType) {
 		case NodeCut:
 			return NodeCutAuxData.read(gds, partitionCount, dir, filename);
-		case NonOverlapping:
-			return NonOverlappingAuxData.read(gds, partitionCount, dir,
+		case SEPARATED:
+			return SeparatedAuxData.read(gds, partitionCount, dir,
 					filename);
-		case Overlapping:
+		case OVERLAPPING:
 			return OverlappingAuxData.read(gds, partitionCount, dir, filename);
 		default:
 			throw new IllegalArgumentException("unknown partition type: "

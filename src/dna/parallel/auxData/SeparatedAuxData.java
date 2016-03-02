@@ -9,8 +9,8 @@ import dna.graph.edges.Edge;
 import dna.graph.nodes.Node;
 import dna.io.Reader;
 import dna.io.Writer;
-import dna.parallel.partition.NonOverlappingPartition;
 import dna.parallel.partition.Partition.PartitionType;
+import dna.parallel.partition.SeparatedPartition;
 
 /**
  * 
@@ -21,29 +21,29 @@ import dna.parallel.partition.Partition.PartitionType;
  * @author benni
  *
  */
-public class NonOverlappingAuxData extends AuxData<NonOverlappingPartition> {
+public class SeparatedAuxData extends AuxData<SeparatedPartition> {
 
-	public Set<Edge> edgesBetweenPartitions;
+	public Set<Edge> bridges;
 
-	public NonOverlappingAuxData(GraphDataStructure gds,
-			Set<Node>[] nodesOfPartitions, Set<Edge> edgesBetweenPartitions) {
-		super(PartitionType.NonOverlapping, gds, nodesOfPartitions);
-		this.edgesBetweenPartitions = edgesBetweenPartitions;
+	public SeparatedAuxData(GraphDataStructure gds,
+			Set<Node>[] nodesOfPartitions, Set<Edge> bridges) {
+		super(PartitionType.SEPARATED, gds, nodesOfPartitions);
+		this.bridges = bridges;
 	}
 
-	public NonOverlappingAuxData(GraphDataStructure gds, int partitionCount) {
-		super(PartitionType.NonOverlapping, gds, partitionCount);
-		this.edgesBetweenPartitions = new HashSet<Edge>();
+	public SeparatedAuxData(GraphDataStructure gds, int partitionCount) {
+		super(PartitionType.SEPARATED, gds, partitionCount);
+		this.bridges = new HashSet<Edge>();
 	}
 
 	public int getEdgeCount() {
-		return this.edgesBetweenPartitions.size();
+		return this.bridges.size();
 	}
 
 	public String toString() {
-		return "NonOverlapping: " + this.edgesBetweenPartitions.size()
-				+ " edges between " + this.getPartitionCount()
-				+ " partitions with " + this.getNodeCount() + " nodes";
+		return "Separated: " + this.bridges.size() + " edges between "
+				+ this.getPartitionCount() + " partitions with "
+				+ this.getNodeCount() + " nodes";
 	}
 
 	@Override
@@ -54,49 +54,48 @@ public class NonOverlappingAuxData extends AuxData<NonOverlappingPartition> {
 				w.writeln(i + sep0
 						+ this.getNodesString(this.nodesOfPartitions[i]));
 			}
-			w.writeln(this.getEdgesString(this.edgesBetweenPartitions));
+			w.writeln(this.getEdgesString(this.bridges));
 			w.close();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
 
-	public static NonOverlappingAuxData read(GraphDataStructure gds,
+	public static SeparatedAuxData read(GraphDataStructure gds,
 			int partitionCount, String dir, String filename) throws IOException {
 		Reader r = new Reader(dir, filename);
-		NonOverlappingAuxData aux = new NonOverlappingAuxData(gds,
-				partitionCount);
+		SeparatedAuxData aux = new SeparatedAuxData(gds, partitionCount);
 		for (int i = 0; i < partitionCount; i++) {
 			String line = r.readString();
 			String[] temp = line.split(sep0, 100);
 			aux.nodesOfPartitions[i] = aux.getNodes(temp[1]);
 		}
-		aux.edgesBetweenPartitions = aux.getEdges(r.readString());
+		aux.bridges = aux.getEdges(r.readString());
 		r.close();
 		return aux;
 	}
 
 	@Override
-	public void add(AuxData<NonOverlappingPartition> add_) {
-		NonOverlappingAuxData add = (NonOverlappingAuxData) add_;
+	public void add(AuxData<SeparatedPartition> add_) {
+		SeparatedAuxData add = (SeparatedAuxData) add_;
 		for (int i = 0; i < this.nodesOfPartitions.length; i++) {
 			this.nodesOfPartitions[i].addAll(add.nodesOfPartitions[i]);
 			for (Node n : add.nodesOfPartitions[i]) {
 				this.mapping.put(n, i);
 			}
 		}
-		this.edgesBetweenPartitions.addAll(add.edgesBetweenPartitions);
+		this.bridges.addAll(add.bridges);
 	}
 
 	@Override
-	public void remove(AuxData<NonOverlappingPartition> remove_) {
-		NonOverlappingAuxData remove = (NonOverlappingAuxData) remove_;
+	public void remove(AuxData<SeparatedPartition> remove_) {
+		SeparatedAuxData remove = (SeparatedAuxData) remove_;
 		for (int i = 0; i < this.nodesOfPartitions.length; i++) {
 			this.nodesOfPartitions[i].removeAll(remove.nodesOfPartitions[i]);
 			for (Node n : remove.nodesOfPartitions[i]) {
 				this.mapping.remove(n);
 			}
 		}
-		this.edgesBetweenPartitions.removeAll(remove.edgesBetweenPartitions);
+		this.bridges.removeAll(remove.bridges);
 	}
 }

@@ -7,7 +7,7 @@ import dna.graph.Graph;
 import dna.graph.nodes.Node;
 import dna.parallel.partition.AllPartitions;
 import dna.parallel.partition.NodeCutPartition;
-import dna.parallel.partition.NonOverlappingPartition;
+import dna.parallel.partition.SeparatedPartition;
 import dna.parallel.partition.OverlappingPartition;
 import dna.parallel.partition.Partition.PartitionType;
 import dna.util.parameters.Parameter;
@@ -29,13 +29,13 @@ public abstract class Partitioning extends ParameterList {
 			return NodeCutPartition
 					.partition(this.getName(), PartitionType.NodeCut, g,
 							this.partition(g, partitionCount));
-		case NonOverlapping:
-			return NonOverlappingPartition.partition(this.getName(),
-					PartitionType.NonOverlapping, g,
+		case SEPARATED:
+			return SeparatedPartition.partition(this.getName(),
+					PartitionType.SEPARATED, g,
 					this.partition(g, partitionCount));
-		case Overlapping:
+		case OVERLAPPING:
 			return OverlappingPartition.partition(this.getName(),
-					PartitionType.Overlapping, g,
+					PartitionType.OVERLAPPING, g,
 					this.partition(g, partitionCount));
 		default:
 			throw new IllegalArgumentException("unknown partition type: "

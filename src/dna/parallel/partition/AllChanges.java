@@ -1,7 +1,7 @@
 package dna.parallel.partition;
 
 import dna.parallel.auxData.AuxData;
-import dna.parallel.auxData.NonOverlappingAuxData;
+import dna.parallel.auxData.SeparatedAuxData;
 import dna.parallel.auxData.OverlappingAuxData;
 import dna.parallel.nodeAssignment.NodeAssignment;
 import dna.updates.batch.Batch;
@@ -29,11 +29,11 @@ public class AllChanges {
 		switch (all.partitionType) {
 		case NodeCut:
 			return null;
-		case NonOverlapping:
-			return NonOverlappingPartition
-					.split((AllPartitions<NonOverlappingPartition, NonOverlappingAuxData>) all,
+		case SEPARATED:
+			return SeparatedPartition
+					.split((AllPartitions<SeparatedPartition, SeparatedAuxData>) all,
 							b, nodeAssignment);
-		case Overlapping:
+		case OVERLAPPING:
 			return OverlappingPartition
 					.split((AllPartitions<OverlappingPartition, OverlappingAuxData>) all,
 							b, nodeAssignment);
