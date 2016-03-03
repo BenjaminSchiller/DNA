@@ -1,6 +1,9 @@
-package dna.visualization.graph.rules;
+package dna.visualization.graph.rules.nodes;
 
 import org.graphstream.graph.Node;
+
+import dna.visualization.graph.rules.GraphStyleRule;
+import dna.visualization.graph.rules.GraphStyleUtils;
 
 /**
  * Simple rule which adds the index of a node to the label.
