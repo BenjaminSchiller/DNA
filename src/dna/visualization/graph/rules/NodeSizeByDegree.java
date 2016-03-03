@@ -3,7 +3,6 @@ package dna.visualization.graph.rules;
 import org.graphstream.graph.Edge;
 import org.graphstream.graph.Node;
 
-import dna.graph.weights.Weight;
 import dna.util.Config;
 import dna.util.parameters.DoubleParameter;
 import dna.util.parameters.Parameter;
@@ -34,18 +33,6 @@ public class NodeSizeByDegree extends GraphStyleRule {
 	}
 
 	@Override
-	public void onNodeAddition(Node n) {
-	}
-
-	@Override
-	public void onNodeRemoval(Node n) {
-	}
-
-	@Override
-	public void onNodeWeightChange(Node n, Weight wNew, Weight wOld) {
-	}
-
-	@Override
 	public void onEdgeAddition(Edge e, Node n1, Node n2) {
 		// increase size
 		GraphStyleUtils.increaseSize(n1, this.growthFactor);
@@ -57,10 +44,6 @@ public class NodeSizeByDegree extends GraphStyleRule {
 		// decrease size
 		GraphStyleUtils.decreaseSize(n1, this.growthFactor);
 		GraphStyleUtils.decreaseSize(n2, this.growthFactor);
-	}
-
-	@Override
-	public void onEdgeWeightChange(Edge e, Weight wNew, Weight wOld) {
 	}
 
 	@Override
