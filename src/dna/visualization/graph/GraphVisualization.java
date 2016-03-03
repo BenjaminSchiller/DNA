@@ -121,7 +121,6 @@ public class GraphVisualization {
 		if (Config.getBoolean("GRAPH_VIS_SHOW_NODE_WEIGHTS"))
 			panel.addGraphStyleRule(new NodeWeightLabel(Config
 					.get("GRAPH_VIS_SHOW_NODE_WEIGHTS_LABEL")));
-
 		if (Config.getBoolean("GRAPH_VIS_SHOW_EDGE_WEIGHTS")) {
 			panel.addGraphStyleRule(new EdgeWeightLabel(Config
 					.get("GRAPH_VIS_SHOW_EDGE_WEIGHTS_LABEL")));

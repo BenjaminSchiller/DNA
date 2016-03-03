@@ -904,14 +904,6 @@ public class GraphPanel extends JPanel {
 					coords[1], coords[2]);
 		}
 
-		// show weight
-		if (Config.getBoolean("GRAPH_VIS_SHOW_NODE_WEIGHTS")) {
-			if (node.hasAttribute(GraphVisualization.labelKey))
-				GraphStyleUtils.setLabel(node, w.toString());
-			else
-				GraphStyleUtils.setLabel(node, w.toString());
-		}
-
 		// apply style rules
 		for (GraphStyleRule r : rules)
 			if (isRuleEnabled(r))
