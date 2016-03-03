@@ -113,8 +113,13 @@ public class GraphVisualization {
 		GraphPanel panel = new GraphPanel(mainFrame, graph, name, name, mode);
 
 		// add style rules
-		if (Config.getBoolean("GRAPH_VIS_SHOW_NODE_INDEX"))
-			panel.addGraphStyleRule(new NodeIndexLabel());
+		if (Config.getBoolean("GRAPH_VIS_SHOW_NODE_INDEX")) {
+			if (Config.getBoolean("GRAPH_VIS_SHOW_NODE_INDEX_VERBOSE"))
+				panel.addGraphStyleRule(new NodeIndexLabel("Node "
+						+ NodeIndexLabel.indexReplacement));
+			else
+				panel.addGraphStyleRule(new NodeIndexLabel());
+		}
 		if (Config.getBoolean("GRAPH_VIS_SHOW_NODE_WEIGHTS"))
 			panel.addGraphStyleRule(new NodeWeightLabel());
 		if (Config.getBoolean("GRAPH_VIS_SHOW_EDGE_WEIGHTS"))
