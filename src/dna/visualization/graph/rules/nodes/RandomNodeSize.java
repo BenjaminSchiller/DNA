@@ -2,6 +2,7 @@ package dna.visualization.graph.rules.nodes;
 
 import org.graphstream.graph.Node;
 
+import dna.graph.weights.Weight;
 import dna.visualization.graph.rules.GraphStyleRule;
 import dna.visualization.graph.rules.GraphStyleUtils;
 
@@ -15,7 +16,7 @@ public class RandomNodeSize extends GraphStyleRule {
 	}
 
 	@Override
-	public void onNodeAddition(Node n) {
+	public void onNodeAddition(Node n, Weight w) {
 		double size = (10 + Math.floor(Math.random() * 10));
 
 		// setting size

@@ -4,6 +4,7 @@ import java.awt.Color;
 
 import org.graphstream.graph.Node;
 
+import dna.graph.weights.Weight;
 import dna.visualization.components.ColorHandler;
 import dna.visualization.graph.GraphVisualization;
 import dna.visualization.graph.rules.GraphStyleRule;
@@ -22,7 +23,7 @@ public class RandomNodeColor extends GraphStyleRule {
 	}
 
 	@Override
-	public void onNodeAddition(Node n) {
+	public void onNodeAddition(Node n, Weight w) {
 		// set color
 		GraphStyleUtils.setColor(n, this.colorHandler.getNextColor());
 	}
