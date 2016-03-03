@@ -1,9 +1,11 @@
-package dna.visualization.graph.rules;
+package dna.visualization.graph.rules.nodes;
 
 import org.graphstream.graph.Node;
 
 import dna.graph.weights.Weight;
 import dna.util.parameters.Parameter;
+import dna.visualization.graph.rules.GraphStyleRule;
+import dna.visualization.graph.rules.GraphStyleUtils;
 
 /** Simple rule example which sets all added nodes to a random size (10;20). **/
 public class RandomNodeSize extends GraphStyleRule {

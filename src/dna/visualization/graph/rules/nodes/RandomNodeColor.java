@@ -1,4 +1,4 @@
-package dna.visualization.graph.rules;
+package dna.visualization.graph.rules.nodes;
 
 import java.awt.Color;
 
@@ -8,6 +8,8 @@ import dna.graph.weights.Weight;
 import dna.util.parameters.Parameter;
 import dna.visualization.components.ColorHandler;
 import dna.visualization.graph.GraphVisualization;
+import dna.visualization.graph.rules.GraphStyleRule;
+import dna.visualization.graph.rules.GraphStyleUtils;
 
 /** Simple rule example which colors all nodes on addition with colors. **/
 public class RandomNodeColor extends GraphStyleRule {

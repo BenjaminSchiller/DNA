@@ -1,4 +1,4 @@
-package dna.visualization.graph.rules;
+package dna.visualization.graph.rules.nodes;
 
 import org.graphstream.graph.Edge;
 import org.graphstream.graph.Node;
@@ -6,6 +6,8 @@ import org.graphstream.graph.Node;
 import dna.util.Config;
 import dna.util.parameters.DoubleParameter;
 import dna.util.parameters.Parameter;
+import dna.visualization.graph.rules.GraphStyleRule;
+import dna.visualization.graph.rules.GraphStyleUtils;
 
 /** Sizes the nodes by their degree. **/
 public class NodeSizeByDegree extends GraphStyleRule {
