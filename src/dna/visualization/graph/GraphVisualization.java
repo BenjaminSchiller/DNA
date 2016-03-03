@@ -117,13 +117,13 @@ public class GraphVisualization {
 		// add style rules
 		if (Config.getBoolean("GRAPH_VIS_SHOW_NODE_INDEX"))
 			panel.addGraphStyleRule(new NodeIndexLabel(Config
-					.get("GRAPH_VIS_SHOW_NODE_INDEX_LABEL")));
+					.get("GRAPH_VIS_NODE_INDEX_LABEL")));
 		if (Config.getBoolean("GRAPH_VIS_SHOW_NODE_WEIGHTS"))
 			panel.addGraphStyleRule(new NodeWeightLabel(Config
-					.get("GRAPH_VIS_SHOW_NODE_WEIGHTS_LABEL")));
+					.get("GRAPH_VIS_NODE_WEIGHTS_LABEL")));
 		if (Config.getBoolean("GRAPH_VIS_SHOW_EDGE_WEIGHTS")) {
 			panel.addGraphStyleRule(new EdgeWeightLabel(Config
-					.get("GRAPH_VIS_SHOW_EDGE_WEIGHTS_LABEL")));
+					.get("GRAPH_VIS_EDGE_WEIGHTS_LABEL")));
 		}
 		if (Config.getBoolean("GRAPH_VIS_SIZE_NODES_BY_DEGREE"))
 			panel.addGraphStyleRule(new NodeSizeByDegree("NODE_SIZE_BY_DEGREE"));
