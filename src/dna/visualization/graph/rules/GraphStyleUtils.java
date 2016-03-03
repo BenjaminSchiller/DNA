@@ -72,4 +72,22 @@ public class GraphStyleUtils {
 		// set style
 		e.setAttribute(GraphVisualization.styleKey, style);
 	}
+
+	/** Sets the label of the element. **/
+	public static void setLabel(Element e, String text) {
+		e.addAttribute(GraphVisualization.labelKey, text);
+	}
+
+	/** Returns the label of the element. **/
+	public static String getLabel(Element e) {
+		return e.getAttribute(GraphVisualization.labelKey);
+	}
+
+	/** Appends the text to the current label. **/
+	public static void appendToLabel(Element e, String text) {
+		if (e.hasAttribute(GraphVisualization.labelKey))
+			setLabel(e, getLabel(e) + text);
+		else
+			setLabel(e, text);
+	}
 }
