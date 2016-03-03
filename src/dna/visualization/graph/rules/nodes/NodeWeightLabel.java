@@ -35,7 +35,7 @@ public class NodeWeightLabel extends GraphStyleRule {
 	public void onNodeAddition(Node n, Weight w) {
 		if (w != null) {
 			if (GraphStyleUtils.getLabel(n) == null)
-				GraphStyleUtils.appendToLabel(n, craftLabel(w.asString()));
+				GraphStyleUtils.setLabel(n, craftLabel(w.asString()));
 			else
 				GraphStyleUtils.appendToLabel(n, ", "
 						+ craftLabel(w.asString()));
