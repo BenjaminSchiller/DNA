@@ -115,17 +115,17 @@ public class GraphVisualization {
 				GraphPanelConfig.getDefaultConfig());
 
 		// add style rules
-		if (Config.getBoolean("GRAPH_VIS_SHOW_NODE_INDEX")) {
-			if (Config.getBoolean("GRAPH_VIS_SHOW_NODE_INDEX_VERBOSE"))
-				panel.addGraphStyleRule(new NodeIndexLabel("Node "
-						+ NodeIndexLabel.indexReplacement));
-			else
-				panel.addGraphStyleRule(new NodeIndexLabel());
-		}
+		if (Config.getBoolean("GRAPH_VIS_SHOW_NODE_INDEX"))
+			panel.addGraphStyleRule(new NodeIndexLabel(Config
+					.get("GRAPH_VIS_SHOW_NODE_INDEX_LABEL")));
 		if (Config.getBoolean("GRAPH_VIS_SHOW_NODE_WEIGHTS"))
-			panel.addGraphStyleRule(new NodeWeightLabel());
-		if (Config.getBoolean("GRAPH_VIS_SHOW_EDGE_WEIGHTS"))
-			panel.addGraphStyleRule(new EdgeWeightLabel());
+			panel.addGraphStyleRule(new NodeWeightLabel(Config
+					.get("GRAPH_VIS_SHOW_NODE_WEIGHTS_LABEL")));
+
+		if (Config.getBoolean("GRAPH_VIS_SHOW_EDGE_WEIGHTS")) {
+			panel.addGraphStyleRule(new EdgeWeightLabel(Config
+					.get("GRAPH_VIS_SHOW_EDGE_WEIGHTS_LABEL")));
+		}
 		if (Config.getBoolean("GRAPH_VIS_SIZE_NODES_BY_DEGREE"))
 			panel.addGraphStyleRule(new NodeSizeByDegree("NODE_SIZE_BY_DEGREE"));
 		if (Config.getBoolean("GRAPH_VIS_3D_PROJECTION_ENABLED")
