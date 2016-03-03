@@ -2,10 +2,8 @@ package dna.visualization.graph.rules;
 
 import java.awt.Color;
 
-import org.graphstream.graph.Edge;
 import org.graphstream.graph.Node;
 
-import dna.graph.weights.Weight;
 import dna.visualization.components.ColorHandler;
 import dna.visualization.graph.GraphVisualization;
 
@@ -32,22 +30,6 @@ public class RandomNodeColor extends GraphStyleRule {
 		// free color
 		this.colorHandler.removeColor(((Color) n
 				.getAttribute(GraphVisualization.colorKey)));
-	}
-
-	@Override
-	public void onNodeWeightChange(Node n, Weight wNew, Weight wOld) {
-	}
-
-	@Override
-	public void onEdgeAddition(Edge e, Node n1, Node n2) {
-	}
-
-	@Override
-	public void onEdgeRemoval(Edge e, Node n1, Node n2) {
-	}
-
-	@Override
-	public void onEdgeWeightChange(Edge e, Weight wNew, Weight wOld) {
 	}
 
 	@Override

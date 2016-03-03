@@ -26,6 +26,7 @@ import dna.util.Config;
 import dna.util.Log;
 import dna.visualization.graph.GraphPanel.PositionMode;
 import dna.visualization.graph.rules.NodeColorByDegree;
+import dna.visualization.graph.rules.NodeIndexLabel;
 import dna.visualization.graph.rules.NodeSizeBy3dCoordinates;
 import dna.visualization.graph.rules.NodeSizeByDegree;
 import dna.visualization.graph.toolTipManager.DefaultToolTipManager;
@@ -119,8 +120,10 @@ public class GraphVisualization {
 		if (Config.getBoolean("GRAPH_VIS_COLOR_NODES_BY_DEGREE"))
 			panel.addGraphStyleRule(new NodeColorByDegree(
 					"NODE_COLOR_BY_DEGREE"));
+		panel.addGraphStyleRule(new NodeIndexLabel());
 		if (Config.getBoolean("GRAPH_VIS_TOOLTIPS_ENABLED"))
 			panel.addToolTipManager(new DefaultToolTipManager(panel));
+		
 		// panel.addGraphStyleRule(new
 		// ToolTipUpdater(panel.getSpriteManager()));
 
