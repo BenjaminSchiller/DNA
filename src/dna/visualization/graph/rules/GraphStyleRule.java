@@ -19,17 +19,29 @@ public abstract class GraphStyleRule {
 	// used for rule application order
 	protected int index;
 
-	public abstract void onNodeAddition(Node n);
+	public void onNodeAddition(Node n) {
 
-	public abstract void onNodeRemoval(Node n);
+	}
 
-	public abstract void onNodeWeightChange(Node n, Weight wNew, Weight wOld);
+	public void onNodeRemoval(Node n) {
 
-	public abstract void onEdgeAddition(Edge e, Node n1, Node n2);
+	}
 
-	public abstract void onEdgeRemoval(Edge e, Node n1, Node n2);
+	public void onNodeWeightChange(Node n, Weight wNew, Weight wOld) {
 
-	public abstract void onEdgeWeightChange(Edge e, Weight wNew, Weight wOld);
+	}
+
+	public void onEdgeAddition(Edge e, Node n1, Node n2) {
+
+	}
+
+	public void onEdgeRemoval(Edge e, Node n1, Node n2) {
+
+	}
+
+	public void onEdgeWeightChange(Edge e, Weight wNew, Weight wOld) {
+
+	}
 
 	public String getName() {
 		return this.name;

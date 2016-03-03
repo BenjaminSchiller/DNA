@@ -1,6 +1,5 @@
 package dna.visualization.graph.rules;
 
-import org.graphstream.graph.Edge;
 import org.graphstream.graph.Node;
 
 import dna.graph.weights.Weight;
@@ -25,26 +24,6 @@ public class RandomNodeSize extends GraphStyleRule {
 
 		// setting size
 		GraphStyleUtils.setSize(n, size);
-	}
-
-	@Override
-	public void onNodeRemoval(Node n) {
-	}
-
-	@Override
-	public void onNodeWeightChange(Node n, Weight wNew, Weight wOld) {
-	}
-
-	@Override
-	public void onEdgeAddition(Edge e, Node n1, Node n2) {
-	}
-
-	@Override
-	public void onEdgeRemoval(Edge e, Node n1, Node n2) {
-	}
-
-	@Override
-	public void onEdgeWeightChange(Edge e, Weight wNew, Weight wOld) {
 	}
 
 	@Override

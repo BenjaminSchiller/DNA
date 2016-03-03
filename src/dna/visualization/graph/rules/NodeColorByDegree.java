@@ -5,7 +5,6 @@ import java.awt.Color;
 import org.graphstream.graph.Edge;
 import org.graphstream.graph.Node;
 
-import dna.graph.weights.Weight;
 import dna.util.Config;
 import dna.util.parameters.DoubleParameter;
 import dna.util.parameters.Parameter;
@@ -41,14 +40,6 @@ public class NodeColorByDegree extends GraphStyleRule {
 	}
 
 	@Override
-	public void onNodeRemoval(Node n) {
-	}
-
-	@Override
-	public void onNodeWeightChange(Node n, Weight wNew, Weight wOld) {
-	}
-
-	@Override
 	public void onEdgeAddition(Edge e, Node n1, Node n2) {
 		// get current colors
 		Color c1 = GraphStyleUtils.getColor(n1);
@@ -68,10 +59,6 @@ public class NodeColorByDegree extends GraphStyleRule {
 		// set colors
 		GraphStyleUtils.setColor(n1, adaptColor(c1, -this.amplification));
 		GraphStyleUtils.setColor(n2, adaptColor(c2, -this.amplification));
-	}
-
-	@Override
-	public void onEdgeWeightChange(Edge e, Weight wNew, Weight wOld) {
 	}
 
 	/** Calculates a new color based on the amplification parameter. **/
