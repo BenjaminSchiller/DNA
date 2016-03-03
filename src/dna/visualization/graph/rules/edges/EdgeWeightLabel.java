@@ -61,7 +61,7 @@ public class EdgeWeightLabel extends GraphStyleRule {
 
 	@Override
 	public String toString() {
-		return "EdgeWeightLabel-Rule";
+		return "EdgeWeightLabel-Rule: '" + this.label + "'";
 	}
 
 	protected String craftLabel(String weight) {

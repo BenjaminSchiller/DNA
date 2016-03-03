@@ -60,7 +60,7 @@ public class NodeWeightLabel extends GraphStyleRule {
 
 	@Override
 	public String toString() {
-		return "NodeWeightLabel-Rule";
+		return "NodeWeightLabel-Rule: '" + this.label + "'";
 	}
 
 	protected String craftLabel(String weight) {
