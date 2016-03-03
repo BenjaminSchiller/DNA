@@ -5,6 +5,7 @@ import java.awt.Color;
 import org.graphstream.graph.Edge;
 import org.graphstream.graph.Node;
 
+import dna.graph.weights.Weight;
 import dna.util.Config;
 import dna.util.parameters.DoubleParameter;
 import dna.util.parameters.Parameter;
@@ -36,13 +37,13 @@ public class NodeColorByDegree extends GraphStyleRule {
 	}
 
 	@Override
-	public void onNodeAddition(Node n) {
+	public void onNodeAddition(Node n, Weight w) {
 		// set color
 		GraphStyleUtils.setColor(n, new Color(0, 255, 0));
 	}
 
 	@Override
-	public void onEdgeAddition(Edge e, Node n1, Node n2) {
+	public void onEdgeAddition(Edge e, Weight w, Node n1, Node n2) {
 		// get current colors
 		Color c1 = GraphStyleUtils.getColor(n1);
 		Color c2 = GraphStyleUtils.getColor(n2);

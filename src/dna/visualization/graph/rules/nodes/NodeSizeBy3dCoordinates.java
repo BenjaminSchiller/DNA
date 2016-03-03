@@ -46,7 +46,7 @@ public class NodeSizeBy3dCoordinates extends GraphStyleRule {
 	}
 
 	@Override
-	public void onNodeAddition(Node n) {
+	public void onNodeAddition(Node n, Weight w) {
 		// increase size by base growth and reduze by z*shrinkfactor
 		float z = n.getAttribute(GraphVisualization.zKey);
 

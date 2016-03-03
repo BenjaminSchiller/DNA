@@ -19,7 +19,7 @@ public abstract class GraphStyleRule {
 	// used for rule application order
 	protected int index;
 
-	public void onNodeAddition(Node n) {
+	public void onNodeAddition(Node n, Weight w) {
 
 	}
 
@@ -31,7 +31,7 @@ public abstract class GraphStyleRule {
 
 	}
 
-	public void onEdgeAddition(Edge e, Node n1, Node n2) {
+	public void onEdgeAddition(Edge e, Weight w, Node n1, Node n2) {
 
 	}
 

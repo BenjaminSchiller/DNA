@@ -3,6 +3,7 @@ package dna.visualization.graph.rules.nodes;
 import org.graphstream.graph.Edge;
 import org.graphstream.graph.Node;
 
+import dna.graph.weights.Weight;
 import dna.util.Config;
 import dna.util.parameters.DoubleParameter;
 import dna.util.parameters.Parameter;
@@ -35,7 +36,7 @@ public class NodeSizeByDegree extends GraphStyleRule {
 	}
 
 	@Override
-	public void onEdgeAddition(Edge e, Node n1, Node n2) {
+	public void onEdgeAddition(Edge e, Weight w, Node n1, Node n2) {
 		// increase size
 		GraphStyleUtils.increaseSize(n1, this.growthFactor);
 		GraphStyleUtils.increaseSize(n2, this.growthFactor);

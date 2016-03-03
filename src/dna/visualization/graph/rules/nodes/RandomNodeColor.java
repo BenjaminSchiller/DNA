@@ -28,7 +28,7 @@ public class RandomNodeColor extends GraphStyleRule {
 	}
 
 	@Override
-	public void onNodeAddition(Node n) {
+	public void onNodeAddition(Node n, Weight w) {
 		// set color
 		GraphStyleUtils.setColor(n, this.colorHandler.getNextColor());
 	}

@@ -3,7 +3,6 @@ package dna.visualization.graph.rules.nodes;
 import org.graphstream.graph.Node;
 
 import dna.graph.weights.Weight;
-import dna.visualization.graph.GraphVisualization;
 import dna.visualization.graph.rules.GraphStyleRule;
 import dna.visualization.graph.rules.GraphStyleUtils;
 
@@ -33,10 +32,8 @@ public class NodeWeightLabel extends GraphStyleRule {
 	}
 
 	@Override
-	public void onNodeAddition(Node n) {
-		if (n.hasAttribute(GraphVisualization.weightKey)) {
-			Weight w = n.getAttribute(GraphVisualization.weightKey);
-
+	public void onNodeAddition(Node n, Weight w) {
+		if (w != null) {
 			if (GraphStyleUtils.getLabel(n) == null)
 				GraphStyleUtils.appendToLabel(n, craftLabel(w.asString()));
 			else

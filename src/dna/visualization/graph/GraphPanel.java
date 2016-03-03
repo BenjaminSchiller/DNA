@@ -844,7 +844,7 @@ public class GraphPanel extends JPanel {
 		// apply style rules
 		for (GraphStyleRule r : rules)
 			if (isRuleEnabled(r))
-				r.onNodeAddition(node);
+				r.onNodeAddition(node, w);
 
 		// update style
 		GraphStyleUtils.updateStyle(node);
@@ -943,9 +943,10 @@ public class GraphPanel extends JPanel {
 					directedEdges);
 
 			// init weight
+			Weight w = null;
 			if (e instanceof IWeightedEdge) {
-				edge.addAttribute(GraphVisualization.weightKey,
-						((IWeightedEdge) e).getWeight());
+				w = ((IWeightedEdge) e).getWeight();
+				edge.addAttribute(GraphVisualization.weightKey, w);
 			}
 
 			// set edge size / thickness
@@ -960,7 +961,7 @@ public class GraphPanel extends JPanel {
 			Node node2 = this.graph.getNode("" + n2);
 			for (GraphStyleRule r : rules)
 				if (isRuleEnabled(r))
-					r.onEdgeAddition(edge, node1, node2);
+					r.onEdgeAddition(edge, w, node1, node2);
 
 			// update styles
 			GraphStyleUtils.updateStyle(edge);

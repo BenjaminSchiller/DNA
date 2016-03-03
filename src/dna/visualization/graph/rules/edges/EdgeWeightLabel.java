@@ -4,7 +4,6 @@ import org.graphstream.graph.Edge;
 import org.graphstream.graph.Node;
 
 import dna.graph.weights.Weight;
-import dna.visualization.graph.GraphVisualization;
 import dna.visualization.graph.rules.GraphStyleRule;
 import dna.visualization.graph.rules.GraphStyleUtils;
 
@@ -34,10 +33,8 @@ public class EdgeWeightLabel extends GraphStyleRule {
 	}
 
 	@Override
-	public void onEdgeAddition(Edge e, Node n1, Node n2) {
-		if (e.hasAttribute(GraphVisualization.weightKey)) {
-			Weight w = e.getAttribute(GraphVisualization.weightKey);
-
+	public void onEdgeAddition(Edge e, Weight w, Node n1, Node n2) {
+		if (w != null) {
 			if (GraphStyleUtils.getLabel(e) == null)
 				GraphStyleUtils.setLabel(e, craftLabel(w.asString()));
 			else
