@@ -13,9 +13,21 @@ import dna.visualization.graph.rules.GraphStyleUtils;
  */
 public class NodeIndexLabel extends GraphStyleRule {
 
+	public static final String indexReplacement = "$index$";
+
+	protected String label;
+
+	public NodeIndexLabel() {
+		this(indexReplacement);
+	}
+
+	public NodeIndexLabel(String label) {
+		this.label = label;
+	}
+
 	@Override
 	public void onNodeAddition(Node n) {
-		GraphStyleUtils.appendToLabel(n, "" + n.getIndex());
+		GraphStyleUtils.appendToLabel(n, craftLabel(n.getIndex()));
 	}
 
 	@Override
@@ -23,4 +35,7 @@ public class NodeIndexLabel extends GraphStyleRule {
 		return "NodeIndexLabel-Rule";
 	}
 
+	protected String craftLabel(int index) {
+		return this.label.replace(indexReplacement, "" + index);
+	}
 }
