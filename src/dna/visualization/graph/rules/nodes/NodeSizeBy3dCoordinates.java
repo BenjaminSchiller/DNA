@@ -1,6 +1,5 @@
 package dna.visualization.graph.rules.nodes;
 
-import org.graphstream.graph.Edge;
 import org.graphstream.graph.Node;
 
 import dna.graph.weights.Weight;
@@ -56,10 +55,6 @@ public class NodeSizeBy3dCoordinates extends GraphStyleRule {
 	}
 
 	@Override
-	public void onNodeRemoval(Node n) {
-	}
-
-	@Override
 	public void onNodeWeightChange(Node n, Weight wNew, Weight wOld) {
 		// get z-coords
 		float zNew = GraphVisualization.getCoordsFromWeight(wNew)[2];
@@ -68,18 +63,6 @@ public class NodeSizeBy3dCoordinates extends GraphStyleRule {
 		// calc shrink based on z-diff
 		float zDiff = zNew - zOld;
 		GraphStyleUtils.decreaseSize(n, Math.floor(zDiff * this.shrinkFactor));
-	}
-
-	@Override
-	public void onEdgeAddition(Edge e, Node n1, Node n2) {
-	}
-
-	@Override
-	public void onEdgeRemoval(Edge e, Node n1, Node n2) {
-	}
-
-	@Override
-	public void onEdgeWeightChange(Edge e, Weight wNew, Weight wOld) {
 	}
 
 	@Override
