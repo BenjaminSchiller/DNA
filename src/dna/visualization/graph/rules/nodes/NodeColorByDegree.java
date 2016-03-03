@@ -1,4 +1,4 @@
-package dna.visualization.graph.rules;
+package dna.visualization.graph.rules.nodes;
 
 import java.awt.Color;
 
@@ -6,6 +6,8 @@ import org.graphstream.graph.Edge;
 import org.graphstream.graph.Node;
 
 import dna.util.Config;
+import dna.visualization.graph.rules.GraphStyleRule;
+import dna.visualization.graph.rules.GraphStyleUtils;
 
 public class NodeColorByDegree extends GraphStyleRule {
 

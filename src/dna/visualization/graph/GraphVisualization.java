@@ -25,12 +25,12 @@ import dna.graph.weights.Weight;
 import dna.util.Config;
 import dna.util.Log;
 import dna.visualization.graph.GraphPanel.PositionMode;
-import dna.visualization.graph.rules.EdgeWeightLabel;
-import dna.visualization.graph.rules.NodeColorByDegree;
-import dna.visualization.graph.rules.NodeIndexLabel;
-import dna.visualization.graph.rules.NodeSizeBy3dCoordinates;
-import dna.visualization.graph.rules.NodeSizeByDegree;
-import dna.visualization.graph.rules.NodeWeightLabel;
+import dna.visualization.graph.rules.edges.EdgeWeightLabel;
+import dna.visualization.graph.rules.nodes.NodeColorByDegree;
+import dna.visualization.graph.rules.nodes.NodeIndexLabel;
+import dna.visualization.graph.rules.nodes.NodeSizeBy3dCoordinates;
+import dna.visualization.graph.rules.nodes.NodeSizeByDegree;
+import dna.visualization.graph.rules.nodes.NodeWeightLabel;
 import dna.visualization.graph.toolTipManager.DefaultToolTipManager;
 
 /** The GraphVisualization class offers methods to visualize graphs used in DNA. **/

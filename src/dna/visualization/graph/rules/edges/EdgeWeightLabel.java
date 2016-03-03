@@ -1,10 +1,12 @@
-package dna.visualization.graph.rules;
+package dna.visualization.graph.rules.edges;
 
 import org.graphstream.graph.Edge;
 import org.graphstream.graph.Node;
 
 import dna.graph.weights.Weight;
 import dna.visualization.graph.GraphVisualization;
+import dna.visualization.graph.rules.GraphStyleRule;
+import dna.visualization.graph.rules.GraphStyleUtils;
 
 /**
  * A simple rule which adds the edge-weight to the label of an edge.<br>
