@@ -139,17 +139,19 @@ public class PlotLabel {
 	/** Crafts a PlotLabel based on the given Label. **/
 	public static PlotLabel generatePlotLabel(double timestamp, Label label,
 			int id) {
-		double position = 0.95 - (0.05 * id);
-		return new PlotLabel("", "" + timestamp, "graph " + position,
-				Orientation.right, "pt 2");
+		return new PlotLabel("", "" + timestamp, "graph "
+				+ calculatePosition(id), Orientation.right, "pt 2");
 	}
 
 	/** Crafts the first PlotLabel based on the given Label. **/
 	public static PlotLabel generateFirstPlotLabel(double timestamp,
 			Label label, int id) {
-		double position = 0.97 - (0.03 * id);
 		return new PlotLabel(getPlotLabelText(label), "" + timestamp, "graph "
-				+ position, Orientation.right, "pt 2");
+				+ calculatePosition(id), Orientation.right, "pt 2");
+	}
+
+	public static double calculatePosition(int id) {
+		return 0.97 - (0.03 * id);
 	}
 
 	/** Generates the plot-label text. **/
