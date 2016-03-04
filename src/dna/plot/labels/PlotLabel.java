@@ -1,4 +1,4 @@
-package dna.plot;
+package dna.plot.labels;
 
 import dna.labels.Label;
 import dna.util.Config;
