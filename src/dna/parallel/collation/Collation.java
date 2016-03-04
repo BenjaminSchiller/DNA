@@ -65,11 +65,15 @@ public abstract class Collation<M extends Metric, T extends Partition> extends
 	protected Sleeper sleeper;
 
 	protected String[] sourceMetrics;
+	protected String[] values;
+	protected String[] distributions;
+	protected String[] nodeValueLists;
 
 	public Collation(String name, MetricType metricType, Parameter[] p,
 			PartitionType partitionType, Metric m, String auxDir,
 			String inputDir, int partitionCount, int run, Sleeper sleeper,
-			String[] sourceMetrics) {
+			String[] sourceMetrics, String[] values, String[] distributions,
+			String[] nodeValueLists) {
 		super(name, metricType, p);
 		this.partitionType = partitionType;
 		this.m = m;
@@ -79,14 +83,19 @@ public abstract class Collation<M extends Metric, T extends Partition> extends
 		this.run = run;
 		this.sleeper = sleeper;
 		this.sourceMetrics = sourceMetrics;
+		this.values = values;
+		this.distributions = distributions;
+		this.nodeValueLists = nodeValueLists;
 	}
 
 	public Collation(String name, MetricType metricType,
 			PartitionType partitionType, Metric m, String auxDir,
 			String inputDir, int partitionCount, int run, Sleeper sleeper,
-			String[] sourceMetrics) {
+			String[] sourceMetrics, String[] values, String[] distributions,
+			String[] nodeValueLists) {
 		this(name, metricType, new Parameter[0], partitionType, m, auxDir,
-				inputDir, partitionCount, run, sleeper, sourceMetrics);
+				inputDir, partitionCount, run, sleeper, sourceMetrics, values,
+				distributions, nodeValueLists);
 	}
 
 	@Override
@@ -123,6 +132,7 @@ public abstract class Collation<M extends Metric, T extends Partition> extends
 
 					if (Config.get("GENERATION_AS_ZIP").equals("batches")
 							&& (new File(batchZip)).exists()) {
+						Thread.sleep(100);
 						bd[i] = BatchData.readIntelligent(batchDir,
 								this.g.getTimestamp(),
 								BatchReadMode.readAllValues);
@@ -130,6 +140,7 @@ public abstract class Collation<M extends Metric, T extends Partition> extends
 								+ " for worker " + i + " as zip");
 					} else if (Config.get("GENERATION_AS_ZIP").equals("none")
 							&& (new File(batchDir)).exists()) {
+						// Thread.sleep(100);
 						bd[i] = BatchData.read(batchDir, this.g.getTimestamp(),
 								BatchReadMode.readAllValues);
 						// bd[i] = BatchData.readIntelligent(
@@ -149,11 +160,17 @@ public abstract class Collation<M extends Metric, T extends Partition> extends
 								+ (new File(batchDir)).exists());
 						System.out.println(batchZip + " ----- " + batchDir);
 					}
+					if (!this.continsAllData(bd[i])) {
+						missing = true;
+						bd[i] = null;
+						System.out
+								.println("not all data contained in batch so far");
+					}
 				} catch (Exception e) {
 					missing = true;
 					bd[i] = null;
-					System.out.println("exception...");
-					e.printStackTrace();
+					// System.out.println("exception...");
+					// e.printStackTrace();
 				}
 			}
 			if (aux == null) {
@@ -220,6 +237,45 @@ public abstract class Collation<M extends Metric, T extends Partition> extends
 			}
 		}
 		return mds;
+	}
+
+	protected MetricData getSource(BatchData bd) {
+		for (String name : this.sourceMetrics) {
+			if (bd.getMetrics().getNames().contains(name)) {
+				return bd.getMetrics().get(name);
+			}
+		}
+		return null;
+	}
+
+	protected boolean continsAllData(BatchData bd) {
+		MetricData md = getSource(bd);
+		if (md == null) {
+			System.out.println("NOT CONTAINED: " + md);
+			return false;
+		}
+		for (String v : this.values) {
+			if (md.getValues().get(v) == null) {
+				System.out.println("NOT CONTAINED: " + v + " => "
+						+ md.getValues().getNames());
+				return false;
+			}
+		}
+		for (String d : this.distributions) {
+			if (md.getDistributions().get(d) == null) {
+				System.out.println("NOT CONTAINED: " + d + " => "
+						+ md.getDistributions().getNames());
+				return false;
+			}
+		}
+		for (String nvl : this.nodeValueLists) {
+			if (md.getNodeValues().get(nvl) == null) {
+				System.out.println("NOT CONTAINED: " + nvl + " => "
+						+ md.getNodeValues().getNames());
+				return false;
+			}
+		}
+		return true;
 	}
 
 	public abstract boolean collate(CollationData cd);

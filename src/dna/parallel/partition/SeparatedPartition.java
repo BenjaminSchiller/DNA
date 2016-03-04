@@ -61,69 +61,36 @@ public class SeparatedPartition extends Partition {
 		}
 
 		SeparatedAuxData auxData = new SeparatedAuxData(
-				g.getGraphDatastructures(), nodesOfPartitions,
-				edges);
+				g.getGraphDatastructures(), nodesOfPartitions, edges);
 
-		return new AllPartitions<SeparatedPartition, SeparatedAuxData>(
-				name, partitionType, g, partitions, auxData, mapping);
+		return new AllPartitions<SeparatedPartition, SeparatedAuxData>(name,
+				partitionType, g, partitions, auxData, mapping);
 	}
 
 	public static AllChanges split(
-			AllPartitions<SeparatedPartition, SeparatedAuxData> all,
-			Batch b, NodeAssignment nodeAssignment) {
+			AllPartitions<SeparatedPartition, SeparatedAuxData> all, Batch b,
+			NodeAssignment nodeAssignment) {
 		Batch[] batches = getEmptyBatches(b, all.partitions.length);
 		SeparatedAuxData auxAdd = new SeparatedAuxData(
 				b.getGraphDatastructures(), all.getPartitionCount());
 		SeparatedAuxData auxRemove = new SeparatedAuxData(
 				b.getGraphDatastructures(), all.getPartitionCount());
 
-		/**
-		 * NA
-		 */
+		// NA
 		for (NodeAddition na : b.getNodeAdditions()) {
-			int p = nodeAssignment.assignNode(all, b, na);
-			batches[p].add(na);
-			auxAdd.nodesOfPartitions[p].add((Node) na.getNode());
-			// TODO handle node addition for other updates also!!!
+			process(all, b, batches, auxAdd, auxRemove, na, nodeAssignment);
 		}
-
-		/**
-		 * EA
-		 */
+		// EA
 		for (EdgeAddition ea : b.getEdgeAdditions()) {
-			int p1 = all.auxData.getPartitionIndex(ea.getEdge().getN1());
-			int p2 = all.auxData.getPartitionIndex(ea.getEdge().getN2());
-			if (p1 == p2) {
-				batches[p1].add(ea);
-			} else {
-				auxAdd.bridges.add((Edge) ea.getEdge());
-			}
+			process(all, b, batches, auxAdd, auxRemove, ea);
 		}
-
-		/**
-		 * ER
-		 */
+		// ER
 		for (EdgeRemoval er : b.getEdgeRemovals()) {
-			int p1 = all.auxData.getPartitionIndex(er.getEdge().getN1());
-			int p2 = all.auxData.getPartitionIndex(er.getEdge().getN2());
-			if (p1 == p2) {
-				batches[p1].add(er);
-			} else {
-				auxRemove.bridges.add((Edge) er.getEdge());
-			}
+			process(all, b, batches, auxAdd, auxRemove, er);
 		}
-
-		/**
-		 * NR
-		 */
+		// NR
 		for (NodeRemoval nr : b.getNodeRemovals()) {
-			int p = all.auxData.getPartitionIndex((Node) nr.getNode());
-			batches[p].add(nr);
-			// TODO also remove external edges
-			auxRemove.nodesOfPartitions[p].add((Node) nr.getNode());
-			for (IElement e : nr.getNode().getEdges()) {
-				auxRemove.bridges.add((Edge) e);
-			}
+			process(all, b, batches, auxAdd, auxRemove, nr);
 		}
 
 		for (int i = 0; i < batches.length; i++) {
@@ -131,6 +98,97 @@ public class SeparatedPartition extends Partition {
 		}
 
 		return new AllChanges(b, batches, auxAdd, auxRemove);
+	}
+
+	protected static void process(
+			AllPartitions<SeparatedPartition, SeparatedAuxData> all, Batch b,
+			Batch[] batches, SeparatedAuxData auxAdd,
+			SeparatedAuxData auxRemove, NodeAddition na,
+			NodeAssignment nodeAssignment) {
+		Node n = (Node) na.getNode();
+
+		/**
+		 * determine new partition to assign node to
+		 */
+		int p = nodeAssignment.assignNode(all, b, na);
+
+		/**
+		 * add node to batch and auxAdd for new partition
+		 */
+		batches[p].add(na);
+		auxAdd.addNode(p, n);
+	}
+
+	protected static void process(
+			AllPartitions<SeparatedPartition, SeparatedAuxData> all, Batch b,
+			Batch[] batches, SeparatedAuxData auxAdd,
+			SeparatedAuxData auxRemove, NodeRemoval nr) {
+		Node n = (Node) nr.getNode();
+
+		/**
+		 * remove node from current partition
+		 */
+		int p = all.auxData.getPartitionIndex(n);
+		if (p == -1)
+			p = auxAdd.getPartitionIndex(n);
+		batches[p].add(nr);
+		auxRemove.addNode(p, n);
+
+		/**
+		 * remove all edges of node which are bridges
+		 */
+		for (IElement e_ : n.getEdges()) {
+			Edge e = (Edge) e_;
+			if (all.auxData.bridges.contains(e)) {
+				auxRemove.bridges.add(e);
+			}
+		}
+	}
+
+	protected static void process(
+			AllPartitions<SeparatedPartition, SeparatedAuxData> all, Batch b,
+			Batch[] batches, SeparatedAuxData auxAdd,
+			SeparatedAuxData auxRemove, EdgeAddition ea) {
+		Edge e = (Edge) ea.getEdge();
+		Node n1 = e.getN1();
+		Node n2 = e.getN2();
+		int p1 = all.auxData.getPartitionIndex(n1);
+		int p2 = all.auxData.getPartitionIndex(n2);
+
+		if (p1 == p2) {
+			/**
+			 * add edge to partition in case it is internal
+			 */
+			batches[p1].add(ea);
+		} else {
+			/**
+			 * remove edge from bridges in case it is external
+			 */
+			auxAdd.bridges.add((Edge) ea.getEdge());
+		}
+	}
+
+	protected static void process(
+			AllPartitions<SeparatedPartition, SeparatedAuxData> all, Batch b,
+			Batch[] batches, SeparatedAuxData auxAdd,
+			SeparatedAuxData auxRemove, EdgeRemoval er) {
+		Edge e = (Edge) er.getEdge();
+		Node n1 = e.getN1();
+		Node n2 = e.getN2();
+		int p1 = all.auxData.getPartitionIndex(n1);
+		int p2 = all.auxData.getPartitionIndex(n2);
+
+		if (p1 == p2) {
+			/**
+			 * remove edge from partition in case it is internal
+			 */
+			batches[p1].add(er);
+		} else {
+			/**
+			 * remove edge from bridges in case it is external
+			 */
+			auxRemove.bridges.add((Edge) er.getEdge());
+		}
 	}
 
 }

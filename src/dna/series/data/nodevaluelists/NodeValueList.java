@@ -67,7 +67,8 @@ public class NodeValueList extends Data {
 		try {
 			return this.values[index];
 		} catch (ArrayIndexOutOfBoundsException e) {
-			Log.error("AggregatedNodeValueList IndexOutOfBoundsException");
+			Log.error("AggregatedNodeValueList IndexOutOfBoundsException for "
+					+ this.getName());
 		}
 		return 0;
 	}

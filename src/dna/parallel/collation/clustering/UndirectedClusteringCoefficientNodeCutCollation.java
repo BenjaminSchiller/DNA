@@ -17,7 +17,8 @@ public class UndirectedClusteringCoefficientNodeCutCollation extends
 				PartitionType.NodeCut, new UndirectedClusteringCoefficientR(),
 				auxDir, inputDir, partitionCount, run, sleeper, new String[] {
 						"UndirectedClusteringCoefficientR",
-						"UndirectedClusteringCoefficientU" });
+						"UndirectedClusteringCoefficientU" }, new String[0],
+				new String[0], new String[0]);
 	}
 
 	@Override

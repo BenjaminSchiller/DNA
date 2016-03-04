@@ -29,11 +29,11 @@ public class AllChanges {
 		switch (all.partitionType) {
 		case NodeCut:
 			return null;
-		case SEPARATED:
+		case Separated:
 			return SeparatedPartition
 					.split((AllPartitions<SeparatedPartition, SeparatedAuxData>) all,
 							b, nodeAssignment);
-		case OVERLAPPING:
+		case Overlapping:
 			return OverlappingPartition
 					.split((AllPartitions<OverlappingPartition, OverlappingAuxData>) all,
 							b, nodeAssignment);

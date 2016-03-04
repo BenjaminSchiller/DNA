@@ -29,13 +29,13 @@ public abstract class Partitioning extends ParameterList {
 			return NodeCutPartition
 					.partition(this.getName(), PartitionType.NodeCut, g,
 							this.partition(g, partitionCount));
-		case SEPARATED:
+		case Separated:
 			return SeparatedPartition.partition(this.getName(),
-					PartitionType.SEPARATED, g,
+					PartitionType.Separated, g,
 					this.partition(g, partitionCount));
-		case OVERLAPPING:
+		case Overlapping:
 			return OverlappingPartition.partition(this.getName(),
-					PartitionType.OVERLAPPING, g,
+					PartitionType.Overlapping, g,
 					this.partition(g, partitionCount));
 		default:
 			throw new IllegalArgumentException("unknown partition type: "

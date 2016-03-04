@@ -27,12 +27,12 @@ public class SeparatedAuxData extends AuxData<SeparatedPartition> {
 
 	public SeparatedAuxData(GraphDataStructure gds,
 			Set<Node>[] nodesOfPartitions, Set<Edge> bridges) {
-		super(PartitionType.SEPARATED, gds, nodesOfPartitions);
+		super(PartitionType.Separated, gds, nodesOfPartitions);
 		this.bridges = bridges;
 	}
 
 	public SeparatedAuxData(GraphDataStructure gds, int partitionCount) {
-		super(PartitionType.SEPARATED, gds, partitionCount);
+		super(PartitionType.Separated, gds, partitionCount);
 		this.bridges = new HashSet<Edge>();
 	}
 
@@ -50,9 +50,8 @@ public class SeparatedAuxData extends AuxData<SeparatedPartition> {
 	public void write(String dir, String filename) {
 		try {
 			Writer w = new Writer(dir, filename);
-			for (int i = 0; i < this.nodesOfPartitions.length; i++) {
-				w.writeln(i + sep0
-						+ this.getNodesString(this.nodesOfPartitions[i]));
+			for (int i = 0; i < this.nodes.length; i++) {
+				w.writeln(i + sep0 + this.getNodesString(this.nodes[i]));
 			}
 			w.writeln(this.getEdgesString(this.bridges));
 			w.close();
@@ -68,7 +67,7 @@ public class SeparatedAuxData extends AuxData<SeparatedPartition> {
 		for (int i = 0; i < partitionCount; i++) {
 			String line = r.readString();
 			String[] temp = line.split(sep0, 100);
-			aux.nodesOfPartitions[i] = aux.getNodes(temp[1]);
+			aux.nodes[i] = aux.getNodes(temp[1]);
 		}
 		aux.bridges = aux.getEdges(r.readString());
 		r.close();
@@ -78,9 +77,9 @@ public class SeparatedAuxData extends AuxData<SeparatedPartition> {
 	@Override
 	public void add(AuxData<SeparatedPartition> add_) {
 		SeparatedAuxData add = (SeparatedAuxData) add_;
-		for (int i = 0; i < this.nodesOfPartitions.length; i++) {
-			this.nodesOfPartitions[i].addAll(add.nodesOfPartitions[i]);
-			for (Node n : add.nodesOfPartitions[i]) {
+		for (int i = 0; i < this.nodes.length; i++) {
+			this.nodes[i].addAll(add.nodes[i]);
+			for (Node n : add.nodes[i]) {
 				this.mapping.put(n, i);
 			}
 		}
@@ -90,9 +89,9 @@ public class SeparatedAuxData extends AuxData<SeparatedPartition> {
 	@Override
 	public void remove(AuxData<SeparatedPartition> remove_) {
 		SeparatedAuxData remove = (SeparatedAuxData) remove_;
-		for (int i = 0; i < this.nodesOfPartitions.length; i++) {
-			this.nodesOfPartitions[i].removeAll(remove.nodesOfPartitions[i]);
-			for (Node n : remove.nodesOfPartitions[i]) {
+		for (int i = 0; i < this.nodes.length; i++) {
+			this.nodes[i].removeAll(remove.nodes[i]);
+			for (Node n : remove.nodes[i]) {
 				this.mapping.remove(n);
 			}
 		}

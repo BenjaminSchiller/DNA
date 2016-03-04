@@ -31,17 +31,17 @@ public abstract class AuxData<T extends Partition> {
 
 	public PartitionType partitionType;
 	public GraphDataStructure gds;
-	public Set<Node>[] nodesOfPartitions;
+	public Set<Node>[] nodes;
 	public HashMap<Node, Integer> mapping;
 
 	public AuxData(PartitionType partitionType, GraphDataStructure gds,
-			Set<Node>[] nodesOfPartitions) {
+			Set<Node>[] nodes) {
 		this.partitionType = partitionType;
 		this.gds = gds;
-		this.nodesOfPartitions = nodesOfPartitions;
+		this.nodes = nodes;
 		this.mapping = new HashMap<Node, Integer>();
-		for (int i = 0; i < nodesOfPartitions.length; i++) {
-			for (Node n : nodesOfPartitions[i]) {
+		for (int i = 0; i < nodes.length; i++) {
+			for (Node n : nodes[i]) {
 				this.mapping.put(n, i);
 			}
 		}
@@ -62,12 +62,12 @@ public abstract class AuxData<T extends Partition> {
 	}
 
 	public int getPartitionCount() {
-		return this.nodesOfPartitions.length;
+		return this.nodes.length;
 	}
 
 	public int getNodeCount() {
 		int sum = 0;
-		for (Set<Node> s : this.nodesOfPartitions) {
+		for (Set<Node> s : this.nodes) {
 			sum += s.size();
 		}
 		return sum;
@@ -91,10 +91,9 @@ public abstract class AuxData<T extends Partition> {
 		switch (partitionType) {
 		case NodeCut:
 			return NodeCutAuxData.read(gds, partitionCount, dir, filename);
-		case SEPARATED:
-			return SeparatedAuxData.read(gds, partitionCount, dir,
-					filename);
-		case OVERLAPPING:
+		case Separated:
+			return SeparatedAuxData.read(gds, partitionCount, dir, filename);
+		case Overlapping:
 			return OverlappingAuxData.read(gds, partitionCount, dir, filename);
 		default:
 			throw new IllegalArgumentException("unknown partition type: "
@@ -155,7 +154,31 @@ public abstract class AuxData<T extends Partition> {
 		return edges;
 	}
 
+	/**
+	 * 
+	 * In case the node is not (yet) assigned to a partition, -1 is returned.
+	 * 
+	 * @param n
+	 * @return index of the partition this node is assigned to
+	 */
 	public int getPartitionIndex(Node n) {
-		return this.mapping.get(n);
+		if (mapping.containsKey(n)) {
+			return mapping.get(n);
+		} else {
+			return -1;
+		}
+	}
+
+	/**
+	 * adds the node to the partition specified by the index p
+	 * 
+	 * @param p
+	 *            index of the partition
+	 * @param n
+	 *            node
+	 */
+	public void addNode(int p, Node n) {
+		this.nodes[p].add(n);
+		this.mapping.put(n, p);
 	}
 }

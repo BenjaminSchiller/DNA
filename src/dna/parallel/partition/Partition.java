@@ -9,7 +9,7 @@ import dna.updates.batch.Batch;
 public abstract class Partition {
 
 	public static enum PartitionType {
-		NodeCut, SEPARATED, OVERLAPPING
+		NodeCut, Separated, Overlapping
 	}
 
 	public Graph g;

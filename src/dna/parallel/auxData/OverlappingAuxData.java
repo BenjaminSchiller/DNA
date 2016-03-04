@@ -20,22 +20,30 @@ import dna.parallel.partition.Partition.PartitionType;
  *
  */
 public class OverlappingAuxData extends AuxData<OverlappingPartition> {
-	public Set<Node>[] neighborsOfPartitions;
+	public Set<Node>[] neighbors;
+
+	public boolean addNeighbor(int index, Node n) {
+		return this.neighbors[index].add(n);
+	}
+
+	public boolean hasNeighbor(int index, Node n) {
+		return this.neighbors[index].contains(n);
+	}
 
 	public OverlappingAuxData(GraphDataStructure gds,
-			Set<Node>[] nodesOfPartitions, Set<Node>[] neighborsOfPartitions) {
-		super(PartitionType.OVERLAPPING, gds, nodesOfPartitions);
-		this.neighborsOfPartitions = neighborsOfPartitions;
+			Set<Node>[] nodesOfPartitions, Set<Node>[] neighbors) {
+		super(PartitionType.Overlapping, gds, nodesOfPartitions);
+		this.neighbors = neighbors;
 	}
 
 	public OverlappingAuxData(GraphDataStructure gds, int partitionCount) {
-		super(PartitionType.OVERLAPPING, gds, partitionCount);
-		this.neighborsOfPartitions = getInitialNodes(partitionCount);
+		super(PartitionType.Overlapping, gds, partitionCount);
+		this.neighbors = getInitialNodes(partitionCount);
 	}
 
 	public int getDuplicateCount() {
 		int sum = 0;
-		for (Set<Node> s : this.neighborsOfPartitions) {
+		for (Set<Node> s : this.neighbors) {
 			sum += s.size();
 		}
 		return sum;
@@ -51,11 +59,10 @@ public class OverlappingAuxData extends AuxData<OverlappingPartition> {
 	public void write(String dir, String filename) {
 		try {
 			Writer w = new Writer(dir, filename);
-			for (int i = 0; i < this.nodesOfPartitions.length; i++) {
+			for (int i = 0; i < this.nodes.length; i++) {
 
-				w.writeln(i + sep0
-						+ this.getNodesString(this.nodesOfPartitions[i]) + sep0
-						+ this.getNodesString(this.neighborsOfPartitions[i]));
+				w.writeln(i + sep0 + this.getNodesString(this.nodes[i]) + sep0
+						+ this.getNodesString(this.neighbors[i]));
 			}
 			w.close();
 		} catch (IOException e) {
@@ -70,8 +77,11 @@ public class OverlappingAuxData extends AuxData<OverlappingPartition> {
 		for (int i = 0; i < partitionCount; i++) {
 			String line = r.readString();
 			String[] temp = line.split(sep0, 100);
-			aux.nodesOfPartitions[i] = aux.getNodes(temp[1]);
-			aux.neighborsOfPartitions[i] = aux.getNodes(temp[2]);
+			aux.nodes[i] = aux.getNodes(temp[1]);
+			aux.neighbors[i] = aux.getNodes(temp[2]);
+			for (Node n : aux.nodes[i]) {
+				aux.mapping.put(n, i);
+			}
 		}
 		r.close();
 		return aux;
@@ -80,25 +90,24 @@ public class OverlappingAuxData extends AuxData<OverlappingPartition> {
 	@Override
 	public void add(AuxData<OverlappingPartition> add_) {
 		OverlappingAuxData add = (OverlappingAuxData) add_;
-		for (int i = 0; i < this.nodesOfPartitions.length; i++) {
-			this.nodesOfPartitions[i].addAll(add.nodesOfPartitions[i]);
-			for (Node n : add.nodesOfPartitions[i]) {
+		for (int i = 0; i < this.nodes.length; i++) {
+			this.nodes[i].addAll(add.nodes[i]);
+			for (Node n : add.nodes[i]) {
 				this.mapping.put(n, i);
 			}
-			this.neighborsOfPartitions[i].addAll(add.neighborsOfPartitions[i]);
+			this.neighbors[i].addAll(add.neighbors[i]);
 		}
 	}
 
 	@Override
 	public void remove(AuxData<OverlappingPartition> remove_) {
 		OverlappingAuxData remove = (OverlappingAuxData) remove_;
-		for (int i = 0; i < this.nodesOfPartitions.length; i++) {
-			this.nodesOfPartitions[i].removeAll(remove.nodesOfPartitions[i]);
-			for (Node n : remove.nodesOfPartitions[i]) {
+		for (int i = 0; i < this.nodes.length; i++) {
+			this.nodes[i].removeAll(remove.nodes[i]);
+			for (Node n : remove.nodes[i]) {
 				this.mapping.remove(n);
 			}
-			this.neighborsOfPartitions[i]
-					.removeAll(remove.neighborsOfPartitions[i]);
+			this.neighbors[i].removeAll(remove.neighbors[i]);
 		}
 	}
 }

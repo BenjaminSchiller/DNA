@@ -21,11 +21,13 @@ public class UndirectedClusteringCoefficientOverlappingCollation extends
 	public UndirectedClusteringCoefficientOverlappingCollation(String auxDir,
 			String inputDir, int partitionCount, int run, Sleeper sleeper) {
 		super("UndirectedClusteringCoefficientOverlappingCollation",
-				MetricType.exact, PartitionType.OVERLAPPING,
+				MetricType.exact, PartitionType.Overlapping,
 				new UndirectedClusteringCoefficientR(), auxDir, inputDir,
 				partitionCount, run, sleeper, new String[] {
 						"UndirectedClusteringCoefficientR",
-						"UndirectedClusteringCoefficientU" });
+						"UndirectedClusteringCoefficientU" }, new String[0],
+				new String[0], new String[] { "nodePotentialCount",
+						"nodeTriangleCount" });
 	}
 
 	@Override
@@ -40,7 +42,20 @@ public class UndirectedClusteringCoefficientOverlappingCollation extends
 		m.localCC = new NodeValueList("localCC", 0);
 		int i = 0;
 		for (MetricData md : this.getSources(cd)) {
-			for (Node n : (Set<Node>) cd.aux.nodesOfPartitions[i]) {
+			for (Node n : (Set<Node>) cd.aux.nodes[i]) {
+				// System.out.println(i + ": " + n);
+				// System.out.println(md.getNodeValues().getNames());
+				// System.out.println("  "
+				// + md.getNodeValues().get("nodePotentialCount"));
+				// System.out.println("  "
+				// + md.getNodeValues().get("nodeTriangleCount"));
+				// System.out.println("  "
+				// + md.getNodeValues().get("nodePotentialCount")
+				// .getValue(n.getIndex()));
+				// System.out.println("  "
+				// + md.getNodeValues().get("nodeTriangleCount")
+				// .getValue(n.getIndex()));
+
 				m.localCC.setValue(n.getIndex(),
 						md.getNodeValues().get("localCC")
 								.getValue(n.getIndex()));
