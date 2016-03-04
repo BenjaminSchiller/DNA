@@ -24,8 +24,12 @@ public class PlotLabel {
 
 	public static final String gnuplotDefaultKeyPlotLabelText = "GNUPLOT_DEFAULT_PLOT_LABEL_TEXT";
 
-	public static final double idOffset = 0.03;
-	public static final double startPosition = 0.97;
+	public static final double idOffset = Config
+			.getDouble("GNUPLOT_LABEL_Y_OFFSET");
+	public static final double startPosition = Config
+			.getDouble("GNUPLOT_LABEL_Y_OFFSET_START");
+	public static final int lineTypeOffset = Config
+			.getInt("GNUPLOT_LABEL_COLOR_OFFSET");
 
 	public enum Orientation {
 		left, center, right
@@ -146,14 +150,22 @@ public class PlotLabel {
 	public static PlotLabel generatePlotLabel(double timestamp, Label label,
 			int id) {
 		return new PlotLabel("", "" + timestamp, "graph "
-				+ calculatePosition(id), Orientation.right, "pt 2");
+				+ calculatePosition(id), Orientation.right, "lt "
+				+ (id + lineTypeOffset) + " pt 2");
 	}
 
 	/** Crafts the first PlotLabel based on the given Label. **/
 	public static PlotLabel generateFirstPlotLabel(double timestamp,
 			Label label, int id) {
+		return generateFirstPlotLabel(timestamp, label, id, "" + 2);
+	}
+
+	/** Crafts the first PlotLabel based on the given Label. **/
+	public static PlotLabel generateFirstPlotLabel(double timestamp,
+			Label label, int id, String pointType) {
 		return new PlotLabel(getPlotLabelText(label), "" + timestamp, "graph "
-				+ calculatePosition(id), Orientation.right, "pt 2");
+				+ calculatePosition(id), Orientation.right, "lt "
+				+ (id + lineTypeOffset) + " pt " + pointType);
 	}
 
 	/** Calculates the relative position of the label. **/
