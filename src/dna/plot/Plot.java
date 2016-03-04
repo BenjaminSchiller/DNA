@@ -19,6 +19,7 @@ import dna.plot.data.PlotData.DistributionPlotType;
 import dna.plot.data.PlotData.NodeValueListOrder;
 import dna.plot.data.PlotData.NodeValueListOrderBy;
 import dna.plot.data.PlotData.PlotDataLocation;
+import dna.plot.labels.PlotArrow;
 import dna.plot.labels.PlotLabel;
 import dna.series.aggdata.AggregatedBatch;
 import dna.series.aggdata.AggregatedMetric;
@@ -61,6 +62,8 @@ public class Plot {
 	// labels
 	private boolean plotLabelsFlag;
 	private ArrayList<PlotLabel> plotLabels;
+	private ArrayList<PlotArrow> plotArrows;
+	private ArrayList<String> plotArrowStyles;
 	private ArrayList<String> plottedLabels;
 
 	// sorting
@@ -126,6 +129,8 @@ public class Plot {
 			dataIndizes.add(i);
 		}
 		this.plotLabels = new ArrayList<PlotLabel>();
+		this.plotArrows = new ArrayList<PlotArrow>();
+		this.plotArrowStyles = new ArrayList<String>();
 		this.sorted = false;
 
 		// load default values
@@ -1246,6 +1251,10 @@ public class Plot {
 				script.add("set yrange " + Config.get("GNUPLOT_YRANGE"));
 			}
 			if (this.plotLabelsFlag) {
+				for (String arrowStyle : this.plotArrowStyles)
+					script.add(arrowStyle);
+				for (PlotArrow arrow : this.plotArrows)
+					script.add(arrow.getLine());
 				for (PlotLabel label : this.plotLabels) {
 					script.add(label.getLine());
 				}
@@ -1326,6 +1335,10 @@ public class Plot {
 							+ Config.get(PlotConfig.gnuplotDefaultKeyKey));
 			}
 			if (this.plotLabelsFlag) {
+				for (String arrowStyle : this.plotArrowStyles)
+					script.add(arrowStyle);
+				for (PlotArrow arrow : this.plotArrows)
+					script.add(arrow.getLine());
 				for (PlotLabel label : this.plotLabels) {
 					script.add(label.getLine());
 				}
@@ -1441,6 +1454,30 @@ public class Plot {
 
 	public ArrayList<PlotLabel> getPlotLabels() {
 		return this.plotLabels;
+	}
+
+	public void setPlotArrows(ArrayList<PlotArrow> arrows) {
+		this.plotArrows = arrows;
+	}
+
+	public void addPlotArrow(PlotArrow arrow) {
+		this.plotArrows.add(arrow);
+	}
+
+	public ArrayList<PlotArrow> getPlotArrows() {
+		return this.plotArrows;
+	}
+
+	public void setPlotArrowStyles(ArrayList<String> arrowStyles) {
+		this.plotArrowStyles = arrowStyles;
+	}
+
+	public void addPlotArrowStyle(String arrowStyle) {
+		this.plotArrowStyles.add(arrowStyle);
+	}
+
+	public ArrayList<String> getPlotArrowStyles() {
+		return this.plotArrowStyles;
 	}
 
 	public void setNodeValueListOrder(NodeValueListOrder order) {
@@ -1735,7 +1772,7 @@ public class Plot {
 	}
 
 	/** Adds plot-labels to the plot. **/
-	public void addPlotLabels(BatchData[] batchData) {
+	public void addPlotLabelsWithoutArrows(BatchData[] batchData) {
 		for (BatchData batch : batchData) {
 			double timestamp = batch.getTimestamp();
 
@@ -1747,7 +1784,7 @@ public class Plot {
 				}
 			}
 
-			// generate and ad plot labels
+			// generate and add plot labels
 			LabelList llist = batch.getLabels();
 			for (Label l : llist.getList()) {
 				PlotLabel plotLabel;
@@ -1756,11 +1793,105 @@ public class Plot {
 					plotLabel = PlotLabel.generatePlotLabel(timestamp, l,
 							plottedLabels.indexOf(identifier));
 				} else {
-					plottedLabels.add(l.getName() + ":" + l.getType());
+					plottedLabels.add(identifier);
 					plotLabel = PlotLabel.generateFirstPlotLabel(timestamp, l,
 							plottedLabels.indexOf(identifier));
 				}
 				this.addPlotLabel(plotLabel);
+			}
+		}
+	}
+
+	/** Adds plot-labels to the plot. **/
+	public void addPlotLabels(BatchData[] batchData) {
+		if (Config.getBoolean("GNUPLOT_PLOT_LABEL_INTERVALS_AS_ARROWS")) {
+			addPlotLabelsWithArrows(batchData);
+		} else {
+			addPlotLabelsWithoutArrows(batchData);
+		}
+	}
+
+	/** Adds plot-labels to the plot. **/
+	public void addPlotLabelsWithArrows(BatchData[] batchData) {
+		boolean arrowStyleAdded = false;
+		int arrowStyleId = 1;
+
+		ArrayList<Integer> intervalStart = new ArrayList<Integer>();
+		ArrayList<Integer> intervalEnd = new ArrayList<Integer>();
+
+		for (int i = 0; i < batchData.length; i++) {
+			BatchData batch = batchData[i];
+			double timestamp = batch.getTimestamp();
+
+			// get next batch
+			BatchData nextBatch = null;
+			if (i < (batchData.length - 1))
+				nextBatch = batchData[i + 1];
+
+			// iterate over labels
+			LabelList llist = batch.getLabels();
+
+			// check first for new labels
+			for (Label l : llist.getList()) {
+				String identifier = l.getName() + ":" + l.getType();
+				if (!plottedLabels.contains(identifier)) {
+					plottedLabels.add(identifier);
+					this.addPlotLabel(PlotLabel.generateFirstPlotLabel(
+							timestamp, l, plottedLabels.indexOf(identifier),
+							"0"));
+					intervalStart.add(plottedLabels.indexOf(identifier), i);
+					intervalEnd.add(plottedLabels.indexOf(identifier), i);
+				}
+			}
+
+			// iterate over labels
+			for (Label l : llist.getList()) {
+				// get index of label
+				String identifier = l.getName() + ":" + l.getType();
+				int index = plottedLabels.indexOf(identifier);
+
+				if (intervalStart.get(index) == -1) {
+					intervalStart.set(index, i);
+					intervalEnd.set(index, i);
+				}
+
+				boolean labelInNextBatch = false;
+				if (nextBatch != null) {
+					LabelList nextLabelList = nextBatch.getLabels();
+					for (Label nl : nextLabelList.getList()) {
+						String nId = nl.getName() + ":" + nl.getType();
+						if (nId.equals(identifier)) {
+							intervalEnd.set(index, i + 1);
+							labelInNextBatch = true;
+						}
+					}
+				}
+
+				if (!labelInNextBatch) {
+					int start = intervalStart.get(index);
+					int end = intervalEnd.get(index);
+
+					if (start == end) {
+						// add point
+						this.addPlotLabel(PlotLabel.generatePlotLabel(
+								timestamp, l, index));
+					} else {
+						if (!arrowStyleAdded) {
+							String arrowStyle = PlotArrow
+									.getIntervalArrowStyle(arrowStyleId);
+							this.addPlotArrowStyle(arrowStyle);
+							arrowStyleAdded = true;
+						}
+
+						// add arrow
+						PlotArrow a = PlotArrow.getPlotArrowInterval(index,
+								arrowStyleId, start, end);
+						this.addPlotArrow(a);
+					}
+
+					intervalStart.set(index, -1);
+					intervalEnd.set(index, -1);
+				}
 			}
 		}
 	}

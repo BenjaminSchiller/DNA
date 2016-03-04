@@ -120,7 +120,8 @@ public class PlotArrow {
 
 		// return
 		return new PlotArrow(-1, posFrom, posTo, false, arrowStyleId, null,
-				0.0, 0.0, 0.0, null, false, "" + (id + 1), null, null);
+				0.0, 0.0, 0.0, null, false, ""
+						+ (id + PlotLabel.lineTypeOffset), null, null);
 	}
 
 	/** Returns the interval-arrow-style command with the given id. **/
