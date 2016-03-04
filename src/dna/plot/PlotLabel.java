@@ -21,6 +21,9 @@ public class PlotLabel {
 
 	public static final String gnuplotDefaultKeyPlotLabelText = "GNUPLOT_DEFAULT_PLOT_LABEL_TEXT";
 
+	public static final double idOffset = 0.03;
+	public static final double startPosition = 0.97;
+
 	public enum Orientation {
 		left, center, right
 	}
@@ -150,8 +153,9 @@ public class PlotLabel {
 				+ calculatePosition(id), Orientation.right, "pt 2");
 	}
 
+	/** Calculates the relative position of the label. **/
 	public static double calculatePosition(int id) {
-		return 0.97 - (0.03 * id);
+		return startPosition - (id * idOffset);
 	}
 
 	/** Generates the plot-label text. **/
@@ -161,4 +165,5 @@ public class PlotLabel {
 				.replace(LABEL_TYPE_PLACEHOLDER, l.getType())
 				.replace(LABEL_VALUE_PLACEHOLDER, l.getValue());
 	}
+
 }
