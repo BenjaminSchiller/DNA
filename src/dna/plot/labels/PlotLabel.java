@@ -7,6 +7,9 @@ import dna.util.Config;
  * Wrapper-class for the labels one can set in gnuplot via set label.<br>
  * <br>
  * 
+ * Check the gnuplot documentation for more details.<br>
+ * <br>
+ * 
  * The getLine()-method will return the line to be added to the gnuplot script.
  * 
  * @author Rwilmes
