@@ -70,7 +70,7 @@ public class PlotLabel {
 				false, false, null, pointStyle, 0);
 	}
 
-	public PlotLabel(Integer tag, String text, String posX, String posY,
+	public PlotLabel(int tag, String text, String posX, String posY,
 			Orientation orientation, boolean rotate, double rotationDegree,
 			String fontName, double fontSize, boolean noenhanced,
 			boolean foreground, String textColor, String pointStyle,
