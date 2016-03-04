@@ -108,7 +108,6 @@ public abstract class Collation<M extends Metric, T extends Partition> extends
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	protected CollationData readCollationData() {
-		System.out.println("\n\nREADING WORKER DATA....");
 		this.sleeper.reset();
 		BatchData[] bd = new BatchData[this.partitionCount];
 		AuxData aux = null;

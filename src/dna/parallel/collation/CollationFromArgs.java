@@ -1,8 +1,9 @@
 package dna.parallel.collation;
 
+import dna.parallel.collation.clustering.UndirectedClusteringCoefficientCompleteCollation;
 import dna.parallel.collation.clustering.UndirectedClusteringCoefficientNodeCutCollation;
-import dna.parallel.collation.clustering.UndirectedClusteringCoefficientSeparatedCollation;
 import dna.parallel.collation.clustering.UndirectedClusteringCoefficientOverlappingCollation;
+import dna.parallel.collation.clustering.UndirectedClusteringCoefficientSeparatedCollation;
 import dna.parallel.util.Sleeper;
 
 /**
@@ -18,7 +19,7 @@ import dna.parallel.util.Sleeper;
  */
 public class CollationFromArgs {
 	public static enum CollationType {
-		UndirectedClusteringCoefficientNodeCut, UndirectedClusteringCoefficientSeparated, UndirectedClusteringCoefficientOverlapping
+		UndirectedClusteringCoefficientNodeCut, UndirectedClusteringCoefficientSeparated, UndirectedClusteringCoefficientOverlapping, UndirectedClusteringCoefficientComplete
 	}
 
 	/**
@@ -56,6 +57,9 @@ public class CollationFromArgs {
 		case UndirectedClusteringCoefficientOverlapping:
 			return new UndirectedClusteringCoefficientOverlappingCollation(
 					auxDir, inputDir, partitionCount, run, sleeper);
+		case UndirectedClusteringCoefficientComplete:
+			return new UndirectedClusteringCoefficientCompleteCollation(auxDir,
+					inputDir, partitionCount, run, sleeper);
 		default:
 			throw new IllegalArgumentException("invalid collation type: "
 					+ collationType);

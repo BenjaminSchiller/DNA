@@ -27,17 +27,6 @@ public class AllPartitions<T extends Partition, D extends AuxData<T>> extends
 		// this.mapping = mapping;
 	}
 
-	// public int getPartitionIndex(Node n) {
-	// System.out.println(n);
-	// System.out.println(this.mapping);
-	// System.out.println(this.mapping.get(n));
-	// return this.mapping.get(n);
-	// }
-	//
-	// public T getPartition(Node n) {
-	// return this.partitions[this.mapping.get(n)];
-	// }
-
 	public T getPartition(int index) {
 		return this.partitions[index];
 	}

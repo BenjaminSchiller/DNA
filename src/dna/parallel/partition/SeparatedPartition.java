@@ -26,8 +26,7 @@ public class SeparatedPartition extends Partition {
 	}
 
 	public static AllPartitions<SeparatedPartition, SeparatedAuxData> partition(
-			String name, PartitionType partitionType, Graph g,
-			List<Node>[] nodess) {
+			String name, Graph g, List<Node>[] nodess) {
 		Graph[] graphs = getInitialGraphs(g, nodess);
 		SeparatedPartition[] partitions = new SeparatedPartition[nodess.length];
 		HashMap<Node, Integer> mapping = new HashMap<Node, Integer>();
@@ -64,7 +63,7 @@ public class SeparatedPartition extends Partition {
 				g.getGraphDatastructures(), nodesOfPartitions, edges);
 
 		return new AllPartitions<SeparatedPartition, SeparatedAuxData>(name,
-				partitionType, g, partitions, auxData, mapping);
+				PartitionType.Separated, g, partitions, auxData, mapping);
 	}
 
 	public static AllChanges split(

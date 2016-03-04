@@ -15,8 +15,7 @@ public class NodeCutPartition extends Partition {
 	}
 
 	public static AllPartitions<NodeCutPartition, NodeCutAuxData> partition(
-			String name, PartitionType partitionType, Graph g,
-			List<Node>[] nodess) {
+			String name, Graph g, List<Node>[] nodess) {
 		Graph[] graphs = getInitialGraphs(g, nodess);
 		NodeCutPartition[] partitions = new NodeCutPartition[nodess.length];
 		HashMap<Node, Integer> mapping = new HashMap<Node, Integer>();
@@ -46,7 +45,7 @@ public class NodeCutPartition extends Partition {
 		NodeCutAuxData auxData = new NodeCutAuxData(g.getGraphDatastructures());
 
 		return new AllPartitions<NodeCutPartition, NodeCutAuxData>(name,
-				partitionType, g, partitions, auxData, mapping);
+				PartitionType.NodeCut, g, partitions, auxData, mapping);
 	}
 
 }

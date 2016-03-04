@@ -33,8 +33,7 @@ public class OverlappingPartition extends Partition {
 	 */
 
 	public static AllPartitions<OverlappingPartition, OverlappingAuxData> partition(
-			String name, PartitionType partitionType, Graph g,
-			List<Node>[] nodess) {
+			String name, Graph g, List<Node>[] nodess) {
 		Graph[] graphs = getInitialGraphs(g, nodess);
 		OverlappingPartition[] partitions = new OverlappingPartition[nodess.length];
 		HashMap<Node, Integer> mapping = new HashMap<Node, Integer>();
@@ -95,7 +94,8 @@ public class OverlappingPartition extends Partition {
 				g.getGraphDatastructures(), nodes, neighbors);
 
 		return new AllPartitions<OverlappingPartition, OverlappingAuxData>(
-				name, partitionType, g, partitions, auxData, mapping);
+				name, PartitionType.Overlapping, g, partitions, auxData,
+				mapping);
 	}
 
 	/**

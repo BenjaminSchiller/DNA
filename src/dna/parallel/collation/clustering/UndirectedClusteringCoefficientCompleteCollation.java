@@ -7,7 +7,7 @@ import dna.metrics.clustering.UndirectedClusteringCoefficient;
 import dna.metrics.clustering.UndirectedClusteringCoefficientR;
 import dna.parallel.collation.Collation;
 import dna.parallel.collation.CollationData;
-import dna.parallel.partition.OverlappingPartition;
+import dna.parallel.partition.CompletePartition;
 import dna.parallel.partition.Partition.PartitionType;
 import dna.parallel.util.Sleeper;
 import dna.series.data.MetricData;
@@ -15,13 +15,13 @@ import dna.series.data.lists.LongList;
 import dna.series.data.nodevaluelists.NodeValueList;
 import dna.util.ArrayUtils;
 
-public class UndirectedClusteringCoefficientOverlappingCollation extends
-		Collation<UndirectedClusteringCoefficient, OverlappingPartition> {
+public class UndirectedClusteringCoefficientCompleteCollation extends
+		Collation<UndirectedClusteringCoefficient, CompletePartition> {
 
-	public UndirectedClusteringCoefficientOverlappingCollation(String auxDir,
+	public UndirectedClusteringCoefficientCompleteCollation(String auxDir,
 			String inputDir, int partitionCount, int run, Sleeper sleeper) {
-		super("UndirectedClusteringCoefficientOverlappingCollation",
-				MetricType.exact, PartitionType.Overlapping,
+		super("UndirectedClusteringCoefficientCompleteCollation",
+				MetricType.exact, PartitionType.Complete,
 				new UndirectedClusteringCoefficientR(), auxDir, inputDir,
 				partitionCount, run, sleeper, new String[] {
 						"UndirectedClusteringCoefficientR",
@@ -42,6 +42,7 @@ public class UndirectedClusteringCoefficientOverlappingCollation extends
 		m.localCC = new NodeValueList("localCC", 0);
 		int i = 0;
 		for (MetricData md : this.getSources(cd)) {
+			System.out.println(i + ": " + md);
 			for (Node n : (Set<Node>) cd.aux.nodes[i]) {
 				m.localCC.setValue(n.getIndex(),
 						md.getNodeValues().get("localCC")

@@ -6,6 +6,7 @@ import java.util.List;
 import dna.graph.Graph;
 import dna.graph.nodes.Node;
 import dna.parallel.partition.AllPartitions;
+import dna.parallel.partition.CompletePartition;
 import dna.parallel.partition.NodeCutPartition;
 import dna.parallel.partition.SeparatedPartition;
 import dna.parallel.partition.OverlappingPartition;
@@ -26,16 +27,16 @@ public abstract class Partitioning extends ParameterList {
 			int partitionCount) {
 		switch (partitionType) {
 		case NodeCut:
-			return NodeCutPartition
-					.partition(this.getName(), PartitionType.NodeCut, g,
-							this.partition(g, partitionCount));
+			return NodeCutPartition.partition(this.getName(), g,
+					this.partition(g, partitionCount));
 		case Separated:
-			return SeparatedPartition.partition(this.getName(),
-					PartitionType.Separated, g,
+			return SeparatedPartition.partition(this.getName(), g,
 					this.partition(g, partitionCount));
 		case Overlapping:
-			return OverlappingPartition.partition(this.getName(),
-					PartitionType.Overlapping, g,
+			return OverlappingPartition.partition(this.getName(), g,
+					this.partition(g, partitionCount));
+		case Complete:
+			return CompletePartition.partition(this.getName(), g,
 					this.partition(g, partitionCount));
 		default:
 			throw new IllegalArgumentException("unknown partition type: "

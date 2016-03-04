@@ -1,8 +1,9 @@
 package dna.parallel.partition;
 
 import dna.parallel.auxData.AuxData;
-import dna.parallel.auxData.SeparatedAuxData;
+import dna.parallel.auxData.CompleteAuxData;
 import dna.parallel.auxData.OverlappingAuxData;
+import dna.parallel.auxData.SeparatedAuxData;
 import dna.parallel.nodeAssignment.NodeAssignment;
 import dna.updates.batch.Batch;
 
@@ -30,13 +31,17 @@ public class AllChanges {
 		case NodeCut:
 			return null;
 		case Separated:
-			return SeparatedPartition
-					.split((AllPartitions<SeparatedPartition, SeparatedAuxData>) all,
-							b, nodeAssignment);
+			return SeparatedPartition.split(
+					(AllPartitions<SeparatedPartition, SeparatedAuxData>) all,
+					b, nodeAssignment);
 		case Overlapping:
 			return OverlappingPartition
 					.split((AllPartitions<OverlappingPartition, OverlappingAuxData>) all,
 							b, nodeAssignment);
+		case Complete:
+			return CompletePartition.split(
+					(AllPartitions<CompletePartition, CompleteAuxData>) all, b,
+					nodeAssignment);
 		default:
 			throw new IllegalArgumentException("unknown partition type: "
 					+ all.partitionType);

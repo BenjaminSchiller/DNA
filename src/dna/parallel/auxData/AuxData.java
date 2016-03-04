@@ -95,6 +95,8 @@ public abstract class AuxData<T extends Partition> {
 			return SeparatedAuxData.read(gds, partitionCount, dir, filename);
 		case Overlapping:
 			return OverlappingAuxData.read(gds, partitionCount, dir, filename);
+		case Complete:
+			return CompleteAuxData.read(gds, partitionCount, dir, filename);
 		default:
 			throw new IllegalArgumentException("unknown partition type: "
 					+ partitionType);
