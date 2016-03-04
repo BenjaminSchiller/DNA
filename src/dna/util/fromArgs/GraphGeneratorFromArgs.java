@@ -23,11 +23,12 @@ import dna.graph.generators.random.RandomGraph;
 import dna.graph.generators.timestamped.TimestampedGraph;
 import dna.graph.generators.timestamped.TimestampedGraph.TimestampedGraphType;
 import dna.graph.generators.timestamped.TimestampedReader;
+import dna.graph.generators.util.EmptyGraph;
 import dna.graph.generators.util.ReadableEdgeListFileGraph;
 
 public class GraphGeneratorFromArgs {
 	public static enum GraphType {
-		Clique, Grid2d, Grid3d, HoneyComb, Ring, RingStar, Star, Random, BarabasiAlbert, PositiveFeedbackPreference, ReadableEdgeListFileGraph, Timestamped, Konect
+		Empty, Clique, Grid2d, Grid3d, HoneyComb, Ring, RingStar, Star, Random, BarabasiAlbert, PositiveFeedbackPreference, ReadableEdgeListFileGraph, Timestamped, Konect
 	}
 
 	public static GraphGenerator parse(GraphDataStructure gds,
@@ -111,6 +112,8 @@ public class GraphGeneratorFromArgs {
 			} catch (FileNotFoundException e) {
 				e.printStackTrace();
 			}
+		case Empty:
+			return new EmptyGraph(gds);
 		default:
 			throw new IllegalArgumentException("unknown graph type: "
 					+ graphType);
