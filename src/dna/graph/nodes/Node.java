@@ -4,6 +4,7 @@ import dna.graph.Element;
 import dna.graph.datastructures.GraphDataStructure;
 import dna.graph.datastructures.IDataStructure;
 import dna.graph.datastructures.DataStructure.ListType;
+import dna.graph.weights.Weight;
 import dna.util.MathHelper;
 
 public abstract class Node extends Element implements INode {
@@ -61,4 +62,20 @@ public abstract class Node extends Element implements INode {
 
 	public abstract void switchDataStructure(ListType type,
 			IDataStructure newDatastructure);
+
+	public static int getIndex(String str) {
+		if (str.contains(Weight.WeightDelimiter)) {
+			return Integer.parseInt(str.split(Weight.WeightDelimiter)[0]);
+		} else {
+			return Integer.parseInt(str);
+		}
+	}
+
+	public static String getWeightString(String str) {
+		if (str.contains(Weight.WeightDelimiter)) {
+			return str.split(Weight.WeightDelimiter, -1)[1];
+		} else {
+			return "";
+		}
+	}
 }

@@ -18,8 +18,11 @@ public class DirectedWeightedNode extends DirectedNode implements IWeightedNode 
 	}
 
 	public DirectedWeightedNode(String str, GraphDataStructure gds) {
-		super(str.split(Weight.WeightDelimiter)[0], gds);
-		this.weight = gds.newNodeWeight(str.split(Weight.WeightDelimiter)[1]);
+		super(getIndex(str), gds);
+		this.weight = gds.newNodeWeight(getWeightString(str));
+		// super(str.split(Weight.WeightDelimiter)[0], gds);
+		// this.weight =
+		// gds.newNodeWeight(str.split(Weight.WeightDelimiter)[1]);
 	}
 
 	@Override
