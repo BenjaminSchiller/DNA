@@ -32,6 +32,11 @@ public abstract class ClusteringCoefficient extends Metric {
 		super(name, MetricType.exact, p);
 	}
 
+	public ClusteringCoefficient(String name, String[] nodeTypes,
+			Parameter... p) {
+		super(name, MetricType.exact, nodeTypes, p);
+	}
+
 	@Override
 	public Value[] getValues() {
 		Value globalCC = new Value("globalCC", this.globalCC);

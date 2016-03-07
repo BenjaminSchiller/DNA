@@ -23,6 +23,10 @@ public class DirectedClusteringCoefficientU extends
 		super("DirectedClusteringCoefficientU");
 	}
 
+	public DirectedClusteringCoefficientU(String[] nodeTypes) {
+		super("DirectedClusteringCoefficientU", nodeTypes);
+	}
+
 	@Override
 	public boolean init() {
 		return this.compute();

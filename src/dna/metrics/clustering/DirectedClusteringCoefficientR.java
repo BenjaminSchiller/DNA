@@ -9,6 +9,10 @@ public class DirectedClusteringCoefficientR extends
 		super("DirectedClusteringCoefficientR");
 	}
 
+	public DirectedClusteringCoefficientR(String[] nodeTypes) {
+		super("DirectedClusteringCoefficientR", nodeTypes);
+	}
+
 	@Override
 	public boolean recompute() {
 		return this.compute();

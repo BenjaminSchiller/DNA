@@ -16,6 +16,11 @@ public abstract class DirectedClusteringCoefficient extends
 		super(name, p);
 	}
 
+	public DirectedClusteringCoefficient(String name, String[] nodeTypes,
+			Parameter... p) {
+		super(name, nodeTypes, p);
+	}
+
 	@Override
 	public boolean isApplicable(Graph g) {
 		return g.getGraphDatastructures().isNodeType(DirectedNode.class);

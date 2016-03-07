@@ -18,6 +18,11 @@ public abstract class UndirectedClusteringCoefficient extends
 		super(name, p);
 	}
 
+	public UndirectedClusteringCoefficient(String name, String[] nodeTypes,
+			Parameter... p) {
+		super(name, nodeTypes, p);
+	}
+
 	@Override
 	public boolean isApplicable(Graph g) {
 		return true;

@@ -9,6 +9,10 @@ public class UndirectedClusteringCoefficientR extends
 		super("UndirectedClusteringCoefficientR");
 	}
 
+	public UndirectedClusteringCoefficientR(String[] nodeTypes) {
+		super("UndirectedClusteringCoefficientR", nodeTypes);
+	}
+
 	@Override
 	public boolean recompute() {
 		return this.compute();
