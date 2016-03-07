@@ -42,7 +42,8 @@ public class Sleeper {
 	 */
 	public void sleep() {
 		try {
-			System.out.println("sleeping: " + this.millis);
+			System.out.println("SLEEPER: sleeping: " + this.millis + "."
+					+ this.nanos + " ms");
 			Thread.sleep(this.millis, this.nanos);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
@@ -55,7 +56,6 @@ public class Sleeper {
 	 *         greater than timeoutAfter.
 	 */
 	public boolean isTimedOut() {
-		System.out.println("checking");
 		return (System.currentTimeMillis() - this.start) > this.timeoutAfter;
 	}
 
@@ -64,7 +64,6 @@ public class Sleeper {
 	 */
 	public void reset() {
 		this.start = System.currentTimeMillis();
-		System.out.println("reset: " + this.start);
 	}
 
 }

@@ -100,6 +100,7 @@ public abstract class Collation<M extends Metric, T extends Partition> extends
 
 	@Override
 	public boolean recompute() {
+		System.out.println("collating " + this.getName());
 		return this.collate(this.readCollationData());
 	}
 
@@ -136,40 +137,29 @@ public abstract class Collation<M extends Metric, T extends Partition> extends
 								this.g.getTimestamp(),
 								BatchReadMode.readAllValues);
 						System.out.println("read " + this.g.getTimestamp()
-								+ " for worker " + i + " as zip");
+								+ " for worker " + i + " (as zip)");
 					} else if (Config.get("GENERATION_AS_ZIP").equals("none")
 							&& (new File(batchDir)).exists()) {
 						// Thread.sleep(100);
 						bd[i] = BatchData.read(batchDir, this.g.getTimestamp(),
 								BatchReadMode.readAllValues);
-						// bd[i] = BatchData.readIntelligent(
-						// inputDir.replace(partitionKeyword, "" + i)
-						// + "run." + run + "/batch."
-						// + this.g.getTimestamp() + "/",
-						// this.g.getTimestamp(),
-						// BatchReadMode.readAllValues);
 						System.out.println("read " + this.g.getTimestamp()
-								+ " for worker " + i + " as dir");
+								+ " for worker " + i + " (as dir)");
 					} else {
 						missing = true;
 						bd[i] = null;
-						System.out.println("not existing @ "
-								+ Config.get("GENERATION_AS_ZIP") + " zip: "
-								+ (new File(batchZip)).exists() + " dir: "
-								+ (new File(batchDir)).exists());
-						System.out.println(batchZip + " ----- " + batchDir);
+						System.out.println("could not read "
+								+ this.g.getTimestamp() + " for worker " + i);
 					}
 					if (!this.continsAllData(bd[i])) {
 						missing = true;
 						bd[i] = null;
-						System.out
-								.println("not all data contained in batch so far");
+						System.out.println("could not read all data yet");
 					}
 				} catch (Exception e) {
 					missing = true;
 					bd[i] = null;
-					// System.out.println("exception...");
-					// e.printStackTrace();
+					System.out.println("could not read all data yet");
 				}
 			}
 			if (aux == null) {
@@ -250,26 +240,26 @@ public abstract class Collation<M extends Metric, T extends Partition> extends
 	protected boolean continsAllData(BatchData bd) {
 		MetricData md = getSource(bd);
 		if (md == null) {
-			System.out.println("NOT CONTAINED: " + md);
+			System.out.println("metricData not found");
 			return false;
 		}
 		for (String v : this.values) {
 			if (md.getValues().get(v) == null) {
-				System.out.println("NOT CONTAINED: " + v + " => "
+				System.out.println("value " + v + " not found in "
 						+ md.getValues().getNames());
 				return false;
 			}
 		}
 		for (String d : this.distributions) {
 			if (md.getDistributions().get(d) == null) {
-				System.out.println("NOT CONTAINED: " + d + " => "
+				System.out.println("distribution " + d + " not found in "
 						+ md.getDistributions().getNames());
 				return false;
 			}
 		}
 		for (String nvl : this.nodeValueLists) {
 			if (md.getNodeValues().get(nvl) == null) {
-				System.out.println("NOT CONTAINED: " + nvl + " => "
+				System.out.println("nodeValueList " + nvl + " not found in "
 						+ md.getNodeValues().getNames());
 				return false;
 			}

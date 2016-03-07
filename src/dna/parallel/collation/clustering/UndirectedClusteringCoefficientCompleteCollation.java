@@ -61,8 +61,6 @@ public class UndirectedClusteringCoefficientCompleteCollation extends
 		m.globalCC = 1.0 * m.triangleCount / m.potentialCount;
 		m.averageCC = ArrayUtils.avgIgnoreNaN(m.localCC.getValues());
 
-		System.out.println("collated " + this.getName());
-
 		return true;
 	}
 

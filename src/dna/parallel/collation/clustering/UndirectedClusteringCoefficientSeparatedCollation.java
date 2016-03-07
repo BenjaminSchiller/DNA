@@ -32,7 +32,7 @@ public class UndirectedClusteringCoefficientSeparatedCollation extends
 	@Override
 	public boolean collate(CollationData cd) {
 		// TODO this is definitely false!!!!
-		
+
 		UndirectedClusteringCoefficientR m = (UndirectedClusteringCoefficientR) this.m;
 
 		m.nodePotentialCount = new LongList(0);
@@ -60,8 +60,6 @@ public class UndirectedClusteringCoefficientSeparatedCollation extends
 		}
 		m.globalCC = 1.0 * m.triangleCount / m.potentialCount;
 		m.averageCC = ArrayUtils.avgIgnoreNaN(m.localCC.getValues());
-
-		System.out.println("collated " + this.getName());
 
 		return true;
 	}
