@@ -8,7 +8,7 @@ import dna.graph.generators.konect.KonectReader;
 import dna.graph.generators.konect.KonectReader.KonectBatchType;
 import dna.graph.nodes.Node;
 import dna.graph.weights.IWeightedEdge;
-import dna.graph.weights.IntWeight;
+import dna.graph.weights.intW.IntWeight;
 import dna.updates.batch.Batch;
 import dna.updates.generators.BatchGenerator;
 import dna.updates.update.EdgeAddition;

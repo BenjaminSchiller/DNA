@@ -1,4 +1,7 @@
-package dna.graph.weights;
+package dna.graph.weights.intW;
+
+import dna.graph.weights.Weight;
+import dna.graph.weights.Weight.WeightSelection;
 
 /**
  * 

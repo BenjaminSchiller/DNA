@@ -1,15 +1,15 @@
 package dna.util.fromArgs;
 
-import dna.graph.weights.Double2dWeight;
-import dna.graph.weights.Double3dWeight;
-import dna.graph.weights.DoubleWeight;
-import dna.graph.weights.Int2dWeight;
-import dna.graph.weights.Int3dWeight;
-import dna.graph.weights.IntWeight;
-import dna.graph.weights.Long2dWeight;
-import dna.graph.weights.Long3dWeight;
-import dna.graph.weights.LongWeight;
 import dna.graph.weights.Weight;
+import dna.graph.weights.doubleW.Double2dWeight;
+import dna.graph.weights.doubleW.Double3dWeight;
+import dna.graph.weights.doubleW.DoubleWeight;
+import dna.graph.weights.intW.Int2dWeight;
+import dna.graph.weights.intW.Int3dWeight;
+import dna.graph.weights.intW.IntWeight;
+import dna.graph.weights.longW.Long2dWeight;
+import dna.graph.weights.longW.Long3dWeight;
+import dna.graph.weights.longW.LongWeight;
 
 public class WeightFromArgs {
 	public static enum WeightType {

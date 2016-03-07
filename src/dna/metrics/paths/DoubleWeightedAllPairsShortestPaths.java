@@ -1,8 +1,8 @@
 package dna.metrics.paths;
 
 import dna.graph.Graph;
-import dna.graph.weights.DoubleWeight;
 import dna.graph.weights.IWeightedEdge;
+import dna.graph.weights.doubleW.DoubleWeight;
 import dna.metrics.IMetric;
 import dna.updates.batch.Batch;
 import dna.util.parameters.Parameter;

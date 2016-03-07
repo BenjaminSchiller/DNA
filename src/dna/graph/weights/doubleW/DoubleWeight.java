@@ -1,5 +1,7 @@
-package dna.graph.weights;
+package dna.graph.weights.doubleW;
 
+import dna.graph.weights.Weight;
+import dna.graph.weights.Weight.WeightSelection;
 import dna.util.Log;
 import dna.util.Rand;
 

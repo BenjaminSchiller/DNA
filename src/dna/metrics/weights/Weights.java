@@ -1,8 +1,8 @@
 package dna.metrics.weights;
 
-import dna.graph.weights.DoubleWeight;
-import dna.graph.weights.IntWeight;
 import dna.graph.weights.Weight;
+import dna.graph.weights.doubleW.DoubleWeight;
+import dna.graph.weights.intW.IntWeight;
 import dna.metrics.IMetric;
 import dna.metrics.Metric;
 import dna.series.data.Value;

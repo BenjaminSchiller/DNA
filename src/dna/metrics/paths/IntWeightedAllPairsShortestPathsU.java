@@ -14,7 +14,7 @@ import dna.graph.edges.UndirectedWeightedEdge;
 import dna.graph.nodes.DirectedNode;
 import dna.graph.nodes.Node;
 import dna.graph.nodes.UndirectedNode;
-import dna.graph.weights.IntWeight;
+import dna.graph.weights.intW.IntWeight;
 import dna.metrics.algorithms.IAfterEA;
 import dna.metrics.algorithms.IAfterER;
 import dna.metrics.algorithms.IAfterEW;

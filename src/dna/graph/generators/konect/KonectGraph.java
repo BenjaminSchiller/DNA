@@ -6,7 +6,7 @@ import dna.graph.generators.GraphGenerator;
 import dna.graph.generators.konect.KonectReader.KonectGraphType;
 import dna.graph.nodes.Node;
 import dna.graph.weights.IWeightedEdge;
-import dna.graph.weights.IntWeight;
+import dna.graph.weights.intW.IntWeight;
 import dna.util.Log;
 import dna.util.parameters.BooleanParameter;
 import dna.util.parameters.Parameter;

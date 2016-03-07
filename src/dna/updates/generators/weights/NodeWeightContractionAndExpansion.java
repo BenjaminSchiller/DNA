@@ -2,11 +2,11 @@ package dna.updates.generators.weights;
 
 import dna.graph.Graph;
 import dna.graph.IElement;
-import dna.graph.weights.Double2dWeight;
-import dna.graph.weights.Double3dWeight;
-import dna.graph.weights.DoubleWeight;
 import dna.graph.weights.IWeightedNode;
 import dna.graph.weights.Weight;
+import dna.graph.weights.doubleW.Double2dWeight;
+import dna.graph.weights.doubleW.Double3dWeight;
+import dna.graph.weights.doubleW.DoubleWeight;
 import dna.updates.batch.Batch;
 import dna.updates.generators.BatchGenerator;
 import dna.updates.update.NodeWeight;

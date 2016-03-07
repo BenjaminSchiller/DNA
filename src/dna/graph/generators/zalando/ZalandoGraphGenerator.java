@@ -19,9 +19,9 @@ import dna.graph.generators.zalando.parser.EventFilter;
 import dna.graph.generators.zalando.parser.EventReader;
 import dna.graph.nodes.Node;
 import dna.graph.nodes.zalando.ZalandoNode;
-import dna.graph.weights.DoubleWeight;
-import dna.graph.weights.IntWeight;
 import dna.graph.weights.Weight;
+import dna.graph.weights.doubleW.DoubleWeight;
+import dna.graph.weights.intW.IntWeight;
 
 /**
  * The most general version of a {@link GraphGenerator} for Zalando log files.

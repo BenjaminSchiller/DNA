@@ -6,9 +6,9 @@ import dna.graph.edges.DirectedWeightedEdge;
 import dna.graph.edges.UndirectedWeightedEdge;
 import dna.graph.nodes.zalando.DirectedZalandoNode;
 import dna.graph.nodes.zalando.UndirectedZalandoNode;
-import dna.graph.weights.DoubleWeight;
-import dna.graph.weights.IntWeight;
 import dna.graph.weights.Weight.WeightSelection;
+import dna.graph.weights.doubleW.DoubleWeight;
+import dna.graph.weights.intW.IntWeight;
 
 public class DefaultZalandoGraphDataStructures {
 

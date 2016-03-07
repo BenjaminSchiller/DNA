@@ -10,7 +10,7 @@ import dna.graph.nodes.DirectedNode;
 import dna.graph.nodes.Node;
 import dna.graph.nodes.UndirectedNode;
 import dna.graph.weights.IWeighted;
-import dna.graph.weights.IntWeight;
+import dna.graph.weights.intW.IntWeight;
 import dna.metrics.algorithms.IRecomputation;
 import dna.series.data.distr.BinnedIntDistr;
 

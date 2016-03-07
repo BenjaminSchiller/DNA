@@ -2,7 +2,7 @@ package dna.metrics.paths;
 
 import dna.graph.Graph;
 import dna.graph.weights.IWeightedEdge;
-import dna.graph.weights.IntWeight;
+import dna.graph.weights.intW.IntWeight;
 import dna.metrics.IMetric;
 import dna.updates.batch.Batch;
 
