@@ -376,7 +376,7 @@ public class OverlappingPartition extends Partition {
 		for (int p : getNeighboringPartitions(all, auxAdd, auxRemove, n1, n2)) {
 			add(all.g, batches, p, er, "ER4", er);
 			decr(degree[p], n1, n2);
-			if (degree[p].get(n1) <= 0 || degree[p].get(n2) <= 0) {
+			if (degree[p].get(n1) <= 0 && degree[p].get(n2) <= 0) {
 				throw new IllegalStateException(
 						"cannot have only a single edge between neighbors");
 			}
@@ -402,11 +402,13 @@ public class OverlappingPartition extends Partition {
 			// TODO: degree might be > 0 only because of other neighbor
 			if (degree[p1].get(n2) <= 0) {
 				add(all.g, batches, p1, new NodeRemoval(n2), "ER5", er);
+				auxRemove.addNeighbor(p1, n2);
 			}
 
 			// TODO: degree might be > 0 only because of other neighbor
 			if (degree[p2].get(n1) <= 0) {
 				add(all.g, batches, p2, new NodeRemoval(n1), "ER6", er);
+				auxRemove.addNeighbor(p2, n1);
 			}
 		}
 	}
