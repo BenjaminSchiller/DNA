@@ -3,6 +3,8 @@ package dna.graph;
 import java.math.BigInteger;
 import java.util.Iterator;
 
+import com.google.common.collect.Iterables;
+
 import dna.graph.datastructures.DataStructure.ListType;
 import dna.graph.datastructures.GraphDataStructure;
 import dna.graph.datastructures.IDataStructure;
@@ -14,6 +16,7 @@ import dna.graph.edges.DirectedEdge;
 import dna.graph.edges.Edge;
 import dna.graph.edges.UndirectedEdge;
 import dna.graph.nodes.Node;
+import dna.graph.weights.NodeTypeFilter;
 import dna.util.Log;
 
 /**
@@ -87,6 +90,11 @@ public class Graph {
 		if (!gds.isReadable(nodes))
 			throw new RuntimeException("This is not a readable graph");
 		return (INodeListDatastructureReadable) nodes;
+	}
+
+	public Iterable<IElement> getNodes(String type) {
+		NodeTypeFilter filter = new NodeTypeFilter(type);
+		return Iterables.filter((Iterable<IElement>) nodes, filter);
 	}
 
 	public boolean removeNode(Node n) {
