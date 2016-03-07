@@ -114,7 +114,9 @@ public class SeparatedPartition extends Partition {
 		/**
 		 * add node to batch and auxAdd for new partition
 		 */
-		batches[p].add(na);
+		Node newNode = all.partitions[p].g.getGraphDatastructures()
+				.newNodeInstance(n.getIndex() + "@" + Partition.mainNodeType);
+		batches[p].add(new NodeAddition(newNode));
 		auxAdd.addNode(p, n);
 	}
 
@@ -151,8 +153,8 @@ public class SeparatedPartition extends Partition {
 		Edge e = (Edge) ea.getEdge();
 		Node n1 = e.getN1();
 		Node n2 = e.getN2();
-		int p1 = all.auxData.getPartitionIndex(n1);
-		int p2 = all.auxData.getPartitionIndex(n2);
+		int p1 = getPartitionIndex(all, auxAdd, n1);
+		int p2 = getPartitionIndex(all, auxAdd, n2);
 
 		if (p1 == p2) {
 			/**
@@ -174,8 +176,8 @@ public class SeparatedPartition extends Partition {
 		Edge e = (Edge) er.getEdge();
 		Node n1 = e.getN1();
 		Node n2 = e.getN2();
-		int p1 = all.auxData.getPartitionIndex(n1);
-		int p2 = all.auxData.getPartitionIndex(n2);
+		int p1 = getPartitionIndex(all, auxAdd, n1);
+		int p2 = getPartitionIndex(all, auxAdd, n2);
 
 		if (p1 == p2) {
 			/**
@@ -187,6 +189,21 @@ public class SeparatedPartition extends Partition {
 			 * remove edge from bridges in case it is external
 			 */
 			auxRemove.bridges.add((Edge) er.getEdge());
+		}
+	}
+
+	/*
+	 * HELPERS
+	 */
+
+	protected static int getPartitionIndex(
+			AllPartitions<SeparatedPartition, SeparatedAuxData> all,
+			SeparatedAuxData auxAdd, Node n) {
+		int p = all.auxData.getPartitionIndex(n);
+		if (p != -1) {
+			return p;
+		} else {
+			return auxAdd.getPartitionIndex(n);
 		}
 	}
 
