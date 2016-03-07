@@ -1,5 +1,7 @@
 package dna.plot.labels;
 
+import dna.util.Config;
+
 /**
  * Wrapper-class for the arrows one can set in gnuplot via set arrow.<br>
  * <br>
@@ -115,12 +117,21 @@ public class PlotArrow {
 		double position = PlotLabel.calculatePosition(id);
 
 		// craft position strings
-		String posFrom = from + ",graph " + position;
-		String posTo = to + ",graph " + position;
+		String posFrom;
+		String posTo;
+
+		if (Config.getBoolean("GNUPLOT_LABEL_BIG_TIMESTAMPS")) {
+			posFrom = '"' + "" + from + '"' + ",graph " + position;
+			posTo = '"' + "" + to + '"' + ",graph " + position;
+		} else {
+			posFrom = from + ",graph " + position;
+			posTo = to + ",graph " + position;
+		}
 
 		// return
 		return new PlotArrow(-1, posFrom, posTo, false, arrowStyleId, null,
-				0.0, 0.0, 0.0, null, false, ""
+				0.0, 0.0, 0.0, null,
+				Config.getBoolean("GNUPLOT_LABEL_RENDER_FOREGROUND"), ""
 						+ (id + PlotLabel.lineTypeOffset), null, null);
 	}
 
