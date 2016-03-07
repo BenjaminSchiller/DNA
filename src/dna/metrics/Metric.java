@@ -4,12 +4,14 @@ import com.google.common.collect.Iterables;
 
 import dna.graph.Graph;
 import dna.graph.IElement;
+import dna.graph.nodes.Node;
 import dna.graph.weights.ITypedWeight;
 import dna.graph.weights.IWeightedNode;
 import dna.graph.weights.NodeTypeFilter;
 import dna.series.data.MetricData;
 import dna.util.parameters.Parameter;
 import dna.util.parameters.ParameterList;
+import dna.util.parameters.StringParameter;
 
 public abstract class Metric extends ParameterList implements IMetric {
 
@@ -21,15 +23,25 @@ public abstract class Metric extends ParameterList implements IMetric {
 		super(name, p);
 		this.metricType = metricType;
 		this.nodeTypes = nodeTypes;
-		if (this.nodeTypes.length > 0
-				&& this.g.getGraphDatastructures().isNodeType(
-						IWeightedNode.class)
-				&& this.g.getGraphDatastructures().isNodeWeightType(
-						ITypedWeight.class)) {
-			this.nodeTypeFilter = new NodeTypeFilter(this.nodeTypes);
-		} else {
-			this.nodeTypeFilter = null;
+		this.nodeTypeFilter = null;
+	}
+
+	protected static Parameter[] append(Parameter[] p, String[] nodeTypes) {
+		if (nodeTypes.length == 0) {
+			return p;
 		}
+		Parameter[] p_ = new Parameter[p.length + 1];
+		System.arraycopy(p, 0, p_, 1, p.length);
+		StringBuffer buff = new StringBuffer();
+		for (String nt : nodeTypes) {
+			if (buff.length() > 0) {
+				buff.append("_" + nt);
+			} else {
+				buff.append(nt);
+			}
+		}
+		p_[0] = new StringParameter("nodeTypes", buff.toString());
+		return p_;
 	}
 
 	public Metric(String name, IMetric.MetricType metricType, Parameter... p) {
@@ -41,6 +53,14 @@ public abstract class Metric extends ParameterList implements IMetric {
 			return Iterables.filter(this.g.getNodes(), this.nodeTypeFilter);
 		} else {
 			return this.g.getNodes();
+		}
+	}
+
+	protected boolean isNodeOfAssignedType(Node n) {
+		if (this.nodeTypeFilter == null) {
+			return true;
+		} else {
+			return this.nodeTypeFilter.isNodeOfAssignedType(n);
 		}
 	}
 
@@ -68,6 +88,13 @@ public abstract class Metric extends ParameterList implements IMetric {
 
 	public void setGraph(Graph g) {
 		this.g = g;
+		if (this.nodeTypes.length > 0
+				&& this.g.getGraphDatastructures().isNodeType(
+						IWeightedNode.class)
+				&& this.g.getGraphDatastructures().isNodeWeightType(
+						ITypedWeight.class)) {
+			this.nodeTypeFilter = new NodeTypeFilter(this.nodeTypes);
+		}
 	}
 
 	protected IMetric.MetricType metricType;

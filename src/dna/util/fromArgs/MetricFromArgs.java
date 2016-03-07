@@ -14,7 +14,6 @@ import dna.metrics.degree.DegreeDistributionR;
 import dna.metrics.degree.DegreeDistributionU;
 import dna.metrics.motifs.UndirectedMotifsR;
 import dna.metrics.motifs.UndirectedMotifsU;
-import dna.metrics.parallelization.collation.clustering.PartitionedUndirectedClusteringCoefficientR;
 import dna.metrics.paths.UnweightedAllPairsShortestPathsR;
 import dna.metrics.paths.UnweightedAllPairsShortestPathsU;
 import dna.metrics.richClub.RichClubConnectivityByDegreeR;
@@ -26,17 +25,20 @@ public class MetricFromArgs {
 	}
 
 	public static Metric parse(MetricType metricType, String... args) {
+		return parse(new String[0], metricType, args);
+	}
+
+	public static Metric parse(String[] nodeTypes, MetricType metricType,
+			String... args) {
 		switch (metricType) {
 		case DegreeDistributionR:
 			return new DegreeDistributionR();
 		case DegreeDistributionU:
 			return new DegreeDistributionU();
 		case UndirectedClusteringCoefficientR:
-			return new UndirectedClusteringCoefficientR();
+			return new UndirectedClusteringCoefficientR(nodeTypes);
 		case UndirectedClusteringCoefficientU:
-			return new UndirectedClusteringCoefficientU();
-		case PartitionedUndirectedClusteringCoefficientR:
-			return new PartitionedUndirectedClusteringCoefficientR();
+			return new UndirectedClusteringCoefficientU(nodeTypes);
 		case UnweightedAllPairsShortestPathsR:
 			return new UnweightedAllPairsShortestPathsR();
 		case UnweightedAllPairsShortestPathsU:
