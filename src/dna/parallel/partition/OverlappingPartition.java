@@ -228,7 +228,9 @@ public class OverlappingPartition extends Partition {
 		/**
 		 * add node to batch and auxAdd for new partition
 		 */
-		add(all.g, batches, p, na, "NA1", na);
+		Node newNode = all.partitions[p].g.getGraphDatastructures()
+				.newNodeInstance(n.getIndex() + "@" + Partition.mainNodeType);
+		add(all.g, batches, p, new NodeAddition(newNode), "NA1", na);
 		auxAdd.addNode(p, n);
 	}
 

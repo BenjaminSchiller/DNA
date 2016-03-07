@@ -8,6 +8,8 @@ import dna.updates.batch.Batch;
 
 public abstract class Partition {
 
+	public static final String mainNodeType = "compute";
+
 	public static enum PartitionType {
 		NodeCut, Separated, Overlapping, Complete
 	}
@@ -25,7 +27,7 @@ public abstract class Partition {
 		for (Node n : nodes) {
 			// TODO not handling weighted nodes yet!
 			g_.addNode(g_.getGraphDatastructures().newNodeInstance(
-					n.getIndex() + "@compute"));
+					n.getIndex() + "@" + mainNodeType));
 		}
 		return g_;
 	}
