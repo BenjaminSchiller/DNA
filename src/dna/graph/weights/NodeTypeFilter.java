@@ -19,11 +19,14 @@ public class NodeTypeFilter implements Predicate<IElement> {
 		}
 	}
 
-	@Override
-	public boolean apply(IElement n_) {
-		Node n = (Node) n_;
+	public boolean isNodeOfAssignedType(Node n) {
 		return this.types.contains(((ITypedWeight) ((IWeightedNode) n)
 				.getWeight()).getType());
+	}
+
+	@Override
+	public boolean apply(IElement n) {
+		return this.isNodeOfAssignedType((Node) n);
 	}
 
 }
