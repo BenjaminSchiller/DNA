@@ -34,7 +34,7 @@ public abstract class UndirectedMotifsPerNodes extends Metric {
 	protected HashSet<String> motifsFound;
 
 	public UndirectedMotifsPerNodes(String name, int... nodeIndexes) {
-		super(name, getParameters(nodeIndexes));
+		super(name, MetricType.exact, getParameters(nodeIndexes));
 		this.nodeIndexes = nodeIndexes;
 		this.nodes = null;
 	}

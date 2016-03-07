@@ -29,7 +29,7 @@ public abstract class ClusteringCoefficient extends Metric {
 	public LongList nodePotentialCount;
 
 	public ClusteringCoefficient(String name, Parameter... p) {
-		super(name, p);
+		super(name, MetricType.exact, p);
 	}
 
 	@Override

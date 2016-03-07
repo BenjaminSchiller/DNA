@@ -26,7 +26,7 @@ public abstract class BetweennessCentrality extends Metric implements IMetric {
 	protected int sumShortestPaths;
 
 	public BetweennessCentrality(String name) {
-		super(name);
+		super(name, MetricType.exact);
 	}
 
 	// private double getMedian() {

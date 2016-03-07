@@ -17,11 +17,11 @@ public abstract class AllPairsShortestPaths extends Metric {
 	protected BinnedDistr apsp;
 
 	public AllPairsShortestPaths(String name) {
-		super(name);
+		super(name, MetricType.exact);
 	}
 
 	public AllPairsShortestPaths(String name, Parameter... p) {
-		super(name, p);
+		super(name, MetricType.exact, p);
 	}
 
 	protected abstract double getCharacteristicPathLength();

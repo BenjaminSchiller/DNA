@@ -17,8 +17,8 @@ public abstract class SingleSourceShortestPaths extends Metric {
 	protected BinnedIntDistr sssp;
 
 	public SingleSourceShortestPaths(String name, int sourceIndex) {
-		super(name, new Parameter[] { new IntParameter("SourceIndex",
-				sourceIndex) });
+		super(name, MetricType.exact, new Parameter[] { new IntParameter(
+				"SourceIndex", sourceIndex) });
 		this.sourceIndex = sourceIndex;
 	}
 

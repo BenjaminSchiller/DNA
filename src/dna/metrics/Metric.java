@@ -7,24 +7,8 @@ import dna.util.parameters.ParameterList;
 
 public abstract class Metric extends ParameterList implements IMetric {
 
-	public Metric(String name, Parameter... p) {
-		super(name, p);
-		this.metricType = MetricType.exact;
-	}
-
-	public Metric(String name, Parameter[] params, Parameter... p) {
-		super(name, combine(params, p));
-		this.metricType = MetricType.exact;
-	}
-
 	public Metric(String name, IMetric.MetricType metricType, Parameter... p) {
 		super(name, p);
-		this.metricType = metricType;
-	}
-
-	public Metric(String name, IMetric.MetricType metricType,
-			Parameter[] params, Parameter... p) {
-		super(name, combine(params, p));
 		this.metricType = metricType;
 	}
 

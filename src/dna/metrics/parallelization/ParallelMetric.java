@@ -36,7 +36,7 @@ public class ParallelMetric extends Metric implements IBeforeBatch,
 
 	public ParallelMetric(String name, PartitioningScheme partitioningScheme,
 			NodeAssignment nodeAssignment, Metric metric, Collation collation) {
-		super(name);
+		super(name, MetricType.exact);
 		this.partitioningScheme = partitioningScheme;
 		this.nodeAssignment = nodeAssignment;
 		this.metric = metric;

@@ -37,7 +37,7 @@ public abstract class SamplingModularity extends Metric {
 	// the sample and the original graph
 
 	public SamplingModularity(String name, Graph graph) {
-		super(name);
+		super(name, MetricType.exact);
 		this.graph = graph;
 		if (DirectedNode.class.isAssignableFrom(this.graph
 				.getGraphDatastructures().getNodeType())) {

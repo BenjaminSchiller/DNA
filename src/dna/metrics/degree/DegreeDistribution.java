@@ -21,7 +21,7 @@ public abstract class DegreeDistribution extends Metric {
 	protected BinnedIntDistr outDegree;
 
 	public DegreeDistribution(String name, Parameter... p) {
-		super(name, p);
+		super(name, MetricType.exact, p);
 	}
 
 	@Override

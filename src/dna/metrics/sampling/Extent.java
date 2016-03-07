@@ -28,7 +28,7 @@ public abstract class Extent extends Metric {
 	private int visitedAndSeenNodes;
 
 	public Extent(String name, SamplingAlgorithm algorithm) {
-		super(name);
+		super(name, MetricType.exact);
 		this.algorithm = algorithm;
 	}
 

@@ -26,7 +26,7 @@ public abstract class UndirectedMotifs extends Metric {
 	protected BinnedIntDistr motifs;
 
 	public UndirectedMotifs(String name, Parameter... p) {
-		super(name, p);
+		super(name, MetricType.exact, p);
 	}
 
 	@Override

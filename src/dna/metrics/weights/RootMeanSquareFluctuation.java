@@ -52,7 +52,7 @@ public abstract class RootMeanSquareFluctuation extends Metric {
 	protected int steps;
 
 	public RootMeanSquareFluctuation(String name, int steps) {
-		super(name, new IntParameter("steps", steps));
+		super(name, MetricType.exact, new IntParameter("steps", steps));
 		this.steps = steps;
 	}
 

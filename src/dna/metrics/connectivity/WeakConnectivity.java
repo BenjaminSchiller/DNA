@@ -27,7 +27,7 @@ public abstract class WeakConnectivity extends Metric {
 	protected int counter;
 
 	public WeakConnectivity(String name) {
-		super(name);
+		super(name, MetricType.exact);
 	}
 
 	@Override

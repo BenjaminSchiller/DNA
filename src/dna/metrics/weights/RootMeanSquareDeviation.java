@@ -41,7 +41,7 @@ public abstract class RootMeanSquareDeviation extends Metric {
 	protected BinnedDoubleDistr distr;
 
 	public RootMeanSquareDeviation(String name, Parameter... p) {
-		super(name, p);
+		super(name, MetricType.exact, p);
 	}
 
 	@Override

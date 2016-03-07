@@ -21,7 +21,7 @@ public abstract class RichClubConnectivityByDegree extends Metric {
 	protected long[] size;
 
 	public RichClubConnectivityByDegree(String name, Parameter... p) {
-		super(name, p);
+		super(name, MetricType.exact, p);
 	}
 
 	@Override

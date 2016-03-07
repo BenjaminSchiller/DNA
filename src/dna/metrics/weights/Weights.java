@@ -19,7 +19,7 @@ public abstract class Weights extends Metric {
 	protected BinnedDoubleDistr distr;
 
 	public Weights(String name, double binSize) {
-		super(name, new DoubleParameter("BinSize", binSize));
+		super(name, MetricType.exact, new DoubleParameter("BinSize", binSize));
 		this.binSize = binSize;
 	}
 
