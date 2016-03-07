@@ -57,7 +57,8 @@ public abstract class UndirectedClusteringCoefficient extends
 
 	protected boolean computeUndirected() {
 
-		for (IElement aUncasted : g.getNodes()) {
+		// for (IElement aUncasted : g.getNodes()) {
+		for (IElement aUncasted : this.getNodesOfAssignedTypes()) {
 			UndirectedNode a = (UndirectedNode) aUncasted;
 
 			for (IElement e1Uncasted : a.getEdges()) {
@@ -89,7 +90,8 @@ public abstract class UndirectedClusteringCoefficient extends
 
 	protected boolean computeDirected() {
 
-		for (IElement aUncasted : g.getNodes()) {
+		// for (IElement aUncasted : g.getNodes()) {
+		for (IElement aUncasted : this.getNodesOfAssignedTypes()) {
 			DirectedNode a = (DirectedNode) aUncasted;
 
 			for (IElement bUncasted : a.getNeighbors()) {

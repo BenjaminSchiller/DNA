@@ -24,6 +24,10 @@ public abstract class DegreeDistribution extends Metric {
 		super(name, MetricType.exact, p);
 	}
 
+	public DegreeDistribution(String name, String[] nodeTypes, Parameter... p) {
+		super(name, MetricType.exact, nodeTypes, p);
+	}
+
 	@Override
 	public Value[] getValues() {
 		if (this.g.isDirected()) {
@@ -100,7 +104,7 @@ public abstract class DegreeDistribution extends Metric {
 			this.degree = new BinnedIntDistr("DegreeDistribution");
 			this.inDegree = new BinnedIntDistr("InDegreeDistribution");
 			this.outDegree = new BinnedIntDistr("OutDegreeDistribution");
-			for (IElement n_ : this.g.getNodes()) {
+			for (IElement n_ : this.getNodesOfAssignedTypes()) {
 				DirectedNode n = (DirectedNode) n_;
 				this.degree.incr(n.getDegree());
 				this.inDegree.incr(n.getInDegree());
@@ -110,7 +114,7 @@ public abstract class DegreeDistribution extends Metric {
 			this.degree = new BinnedIntDistr("DegreeDistribution");
 			this.inDegree = null;
 			this.outDegree = null;
-			for (IElement n_ : this.g.getNodes()) {
+			for (IElement n_ : this.getNodesOfAssignedTypes()) {
 				UndirectedNode n = (UndirectedNode) n_;
 				this.degree.incr(n.getDegree());
 			}
