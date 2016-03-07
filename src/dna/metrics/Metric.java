@@ -1,15 +1,47 @@
 package dna.metrics;
 
+import com.google.common.collect.Iterables;
+
 import dna.graph.Graph;
+import dna.graph.IElement;
+import dna.graph.weights.ITypedWeight;
+import dna.graph.weights.IWeightedNode;
+import dna.graph.weights.NodeTypeFilter;
 import dna.series.data.MetricData;
 import dna.util.parameters.Parameter;
 import dna.util.parameters.ParameterList;
 
 public abstract class Metric extends ParameterList implements IMetric {
 
-	public Metric(String name, IMetric.MetricType metricType, Parameter... p) {
+	protected String[] nodeTypes;
+	protected NodeTypeFilter nodeTypeFilter;
+
+	public Metric(String name, IMetric.MetricType metricType,
+			String[] nodeTypes, Parameter... p) {
 		super(name, p);
 		this.metricType = metricType;
+		this.nodeTypes = nodeTypes;
+		if (this.nodeTypes.length > 0
+				&& this.g.getGraphDatastructures().isNodeType(
+						IWeightedNode.class)
+				&& this.g.getGraphDatastructures().isNodeWeightType(
+						ITypedWeight.class)) {
+			this.nodeTypeFilter = new NodeTypeFilter(this.nodeTypes);
+		} else {
+			this.nodeTypeFilter = null;
+		}
+	}
+
+	public Metric(String name, IMetric.MetricType metricType, Parameter... p) {
+		this(name, metricType, new String[0], p);
+	}
+
+	protected Iterable<IElement> getNodesOfAssignedTypes() {
+		if (this.nodeTypeFilter != null) {
+			return Iterables.filter(this.g.getNodes(), this.nodeTypeFilter);
+		} else {
+			return this.g.getNodes();
+		}
 	}
 
 	protected static Parameter[] combine(Parameter[] p1, Parameter[] p2) {

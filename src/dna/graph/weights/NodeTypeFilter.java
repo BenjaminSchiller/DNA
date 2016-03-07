@@ -22,10 +22,8 @@ public class NodeTypeFilter implements Predicate<IElement> {
 	@Override
 	public boolean apply(IElement n_) {
 		Node n = (Node) n_;
-		return n instanceof IWeightedNode
-				&& ((IWeightedNode) n).getWeight() instanceof ITypedWeight
-				&& this.types.contains(((ITypedWeight) ((IWeightedNode) n)
-						.getWeight()).getType());
+		return this.types.contains(((ITypedWeight) ((IWeightedNode) n)
+				.getWeight()).getType());
 	}
 
 }
