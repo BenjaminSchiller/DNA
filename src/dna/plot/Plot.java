@@ -131,6 +131,7 @@ public class Plot {
 		this.plotLabels = new ArrayList<PlotLabel>();
 		this.plotArrows = new ArrayList<PlotArrow>();
 		this.plotArrowStyles = new ArrayList<String>();
+		this.plottedLabels = new ArrayList<String>();
 		this.sorted = false;
 
 		// load default values
@@ -199,11 +200,6 @@ public class Plot {
 		if (config.getTitle() != null) {
 			this.title = config.getTitle();
 		}
-
-		// plot labels
-		this.plotLabelsFlag = config.isPlotLabels();
-		if (this.plotLabelsFlag)
-			this.plottedLabels = new ArrayList<String>();
 
 		// datetime
 		if (config.getDatetime() != null) {
@@ -1816,12 +1812,20 @@ public class Plot {
 		boolean arrowStyleAdded = false;
 		int arrowStyleId = 1;
 
-		ArrayList<Integer> intervalStart = new ArrayList<Integer>();
-		ArrayList<Integer> intervalEnd = new ArrayList<Integer>();
+		ArrayList<Double> intervalStart = new ArrayList<Double>();
+		ArrayList<Double> intervalEnd = new ArrayList<Double>();
 
 		for (int i = 0; i < batchData.length; i++) {
 			BatchData batch = batchData[i];
 			double timestamp = batch.getTimestamp();
+
+			// map timestamps
+			if (this.getTimestampMap() != null) {
+				if (this.getTimestampMap().containsKey(batch.getTimestamp())) {
+					timestamp = (double) this.getTimestampMap().get(
+							batch.getTimestamp());
+				}
+			}
 
 			// get next batch
 			BatchData nextBatch = null;
@@ -1839,8 +1843,10 @@ public class Plot {
 					this.addPlotLabel(PlotLabel.generateFirstPlotLabel(
 							timestamp, l, plottedLabels.indexOf(identifier),
 							"0"));
-					intervalStart.add(plottedLabels.indexOf(identifier), i);
-					intervalEnd.add(plottedLabels.indexOf(identifier), i);
+					intervalStart.add(plottedLabels.indexOf(identifier),
+							timestamp);
+					intervalEnd.add(plottedLabels.indexOf(identifier),
+							timestamp);
 				}
 			}
 
@@ -1851,25 +1857,35 @@ public class Plot {
 				int index = plottedLabels.indexOf(identifier);
 
 				if (intervalStart.get(index) == -1) {
-					intervalStart.set(index, i);
-					intervalEnd.set(index, i);
+					intervalStart.set(index, timestamp);
+					intervalEnd.set(index, timestamp);
 				}
 
 				boolean labelInNextBatch = false;
 				if (nextBatch != null) {
+					double nextTimestamp = nextBatch.getTimestamp();
+					// map timestamps
+					if (this.getTimestampMap() != null) {
+						if (this.getTimestampMap().containsKey(
+								nextBatch.getTimestamp())) {
+							nextTimestamp = (double) this.getTimestampMap()
+									.get(nextBatch.getTimestamp());
+						}
+					}
+
 					LabelList nextLabelList = nextBatch.getLabels();
 					for (Label nl : nextLabelList.getList()) {
 						String nId = nl.getName() + ":" + nl.getType();
 						if (nId.equals(identifier)) {
-							intervalEnd.set(index, i + 1);
+							intervalEnd.set(index, nextTimestamp);
 							labelInNextBatch = true;
 						}
 					}
 				}
 
 				if (!labelInNextBatch) {
-					int start = intervalStart.get(index);
-					int end = intervalEnd.get(index);
+					double start = intervalStart.get(index);
+					double end = intervalEnd.get(index);
 
 					if (start == end) {
 						// add point
@@ -1889,8 +1905,8 @@ public class Plot {
 						this.addPlotArrow(a);
 					}
 
-					intervalStart.set(index, -1);
-					intervalEnd.set(index, -1);
+					intervalStart.set(index, -1.0);
+					intervalEnd.set(index, -1.0);
 				}
 			}
 		}

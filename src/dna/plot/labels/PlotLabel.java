@@ -74,7 +74,8 @@ public class PlotLabel {
 			Orientation orientation, boolean rotate, double rotation,
 			double offset, String pointStyle) {
 		this(-1, text, posX, posY, orientation, rotate, rotation, null, 0,
-				false, false, null, pointStyle, 0);
+				false, Config.getBoolean("GNUPLOT_LABEL_RENDER_FOREGROUND"),
+				null, pointStyle, 0);
 	}
 
 	public PlotLabel(int tag, String text, String posX, String posY,
@@ -149,7 +150,14 @@ public class PlotLabel {
 	/** Crafts a PlotLabel based on the given Label. **/
 	public static PlotLabel generatePlotLabel(double timestamp, Label label,
 			int id) {
-		return new PlotLabel("", "" + timestamp, "graph "
+		String timestampString;
+		if (Config.getBoolean("GNUPLOT_LABEL_BIG_TIMESTAMPS")) {
+			timestampString = '"' + "" + timestamp + '"';
+		} else {
+			timestampString = "" + timestamp;
+		}
+
+		return new PlotLabel("", timestampString, "graph "
 				+ calculatePosition(id), Orientation.right, "lt "
 				+ (id + lineTypeOffset) + " pt 2");
 	}
@@ -163,7 +171,14 @@ public class PlotLabel {
 	/** Crafts the first PlotLabel based on the given Label. **/
 	public static PlotLabel generateFirstPlotLabel(double timestamp,
 			Label label, int id, String pointType) {
-		return new PlotLabel(getPlotLabelText(label), "" + timestamp, "graph "
+		String timestampString;
+		if (Config.getBoolean("GNUPLOT_LABEL_BIG_TIMESTAMPS")) {
+			timestampString = '"' + "" + timestamp + '"';
+		} else {
+			timestampString = "" + timestamp;
+		}
+
+		return new PlotLabel(getPlotLabelText(label), timestampString, "graph "
 				+ calculatePosition(id), Orientation.right, "lt "
 				+ (id + lineTypeOffset) + " pt " + pointType);
 	}
