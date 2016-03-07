@@ -23,8 +23,9 @@ public abstract class Partition {
 		Graph g_ = g.getGraphDatastructures().newGraphInstance(name,
 				g.getTimestamp(), nodes.size(), 0);
 		for (Node n : nodes) {
-			g_.addNode(g_.getGraphDatastructures()
-					.newNodeInstance(n.asString()));
+			// TODO not handling weighted nodes yet!
+			g_.addNode(g_.getGraphDatastructures().newNodeInstance(
+					n.getIndex() + "@compute"));
 		}
 		return g_;
 	}
