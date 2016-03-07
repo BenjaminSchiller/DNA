@@ -32,15 +32,15 @@ public class MetricFromArgs {
 			String... args) {
 		switch (metricType) {
 		case DegreeDistributionR:
-			return new DegreeDistributionR();
+			return new DegreeDistributionR(nodeTypes);
 		case DegreeDistributionU:
 			return new DegreeDistributionU();
 		case UndirectedClusteringCoefficientR:
 			return new UndirectedClusteringCoefficientR(nodeTypes);
 		case UndirectedClusteringCoefficientU:
-			return new UndirectedClusteringCoefficientU(nodeTypes);
+			return new UndirectedClusteringCoefficientU();
 		case UnweightedAllPairsShortestPathsR:
-			return new UnweightedAllPairsShortestPathsR();
+			return new UnweightedAllPairsShortestPathsR(nodeTypes);
 		case UnweightedAllPairsShortestPathsU:
 			return new UnweightedAllPairsShortestPathsU();
 		case WeakConnectivityB:

@@ -12,10 +12,14 @@ public class UnweightedAllPairsShortestPathsR extends
 		super("UnweightedAllPairsShortestPathsR");
 	}
 
+	public UnweightedAllPairsShortestPathsR(String[] nodeTypes) {
+		super("UnweightedAllPairsShortestPathsR", nodeTypes);
+	}
+
 	@Override
 	public boolean recompute() {
 		this.apsp = new BinnedIntDistr("APSP");
-		for (IElement n_ : this.g.getNodes()) {
+		for (IElement n_ : this.getNodesOfAssignedTypes()) {
 			this.compute((Node) n_);
 		}
 		return true;

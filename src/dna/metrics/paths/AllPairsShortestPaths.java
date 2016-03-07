@@ -20,6 +20,10 @@ public abstract class AllPairsShortestPaths extends Metric {
 		super(name, MetricType.exact);
 	}
 
+	public AllPairsShortestPaths(String name, String[] nodeTypes) {
+		super(name, MetricType.exact, nodeTypes);
+	}
+
 	public AllPairsShortestPaths(String name, Parameter... p) {
 		super(name, MetricType.exact, p);
 	}

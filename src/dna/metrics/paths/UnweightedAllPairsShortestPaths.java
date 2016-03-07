@@ -19,6 +19,10 @@ public abstract class UnweightedAllPairsShortestPaths extends
 		super(name);
 	}
 
+	public UnweightedAllPairsShortestPaths(String name, String[] nodeTypes) {
+		super(name, nodeTypes);
+	}
+
 	@Override
 	public boolean isComparableTo(IMetric m) {
 		return m != null && m instanceof UnweightedAllPairsShortestPaths;
