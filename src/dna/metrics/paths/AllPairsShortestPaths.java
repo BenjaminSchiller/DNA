@@ -14,7 +14,7 @@ public abstract class AllPairsShortestPaths extends Metric {
 	// TODO INIT!!!
 	// this.apsp = new DistributionLong("APSP");
 
-	protected BinnedDistr apsp;
+	public BinnedDistr apsp;
 
 	public AllPairsShortestPaths(String name) {
 		super(name, MetricType.exact);
@@ -35,8 +35,9 @@ public abstract class AllPairsShortestPaths extends Metric {
 		this.apsp.truncate();
 
 		Value v1 = new Value("existingPaths", this.apsp.getDenominator());
-		Value v2 = new Value("possiblePaths", this.g.getNodeCount()
-				* (this.g.getNodeCount() - 1));
+		// Value v2 = new Value("possiblePaths", this.g.getNodeCount()
+		// * (this.g.getNodeCount() - 1));
+		Value v2 = new Value("possiblePaths", 1);
 		Value v3 = new Value("characteristicPathLength",
 				this.getCharacteristicPathLength());
 		Value v4 = new Value("diameter", this.apsp.getMaxNonZeroIndex());
