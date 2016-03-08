@@ -137,7 +137,7 @@ public class LabelStat {
 				+ "t-n" + "\t" + "f-n" + "\t" + "c-n" + "\t" + "#p" + "\t"
 				+ "t-p" + "\t" + "f-p" + "\t" + "c-p");
 	}
-	
+
 	public void printAll(boolean info) {
 		if (info)
 			printInfoLine();
@@ -157,7 +157,17 @@ public class LabelStat {
 	public void printRates() {
 		System.out.println(getIdentifier() + "\t"
 				+ getFlooredRateNegatives(getFalseNegatives()) + "\t"
-				+ getFlooredRatePositives(getFalsePositives()));
+				+ getFlooredRatePositives(getFalsePositives()) + "\t"
+				+ getFlooredRatePositives(getCondPositives()));
+	}
+
+	public void printAllRates() {
+		System.out.println(getIdentifier() + "\t"
+				+ getFlooredRateNegatives(getTrueNegatives()) + "\t"
+				+ getFlooredRateNegatives(getFalseNegatives()) + "\t"
+				+ getFlooredRatePositives(getTruePositives()) + "\t"
+				+ getFlooredRatePositives(getFalsePositives()) + "\t"
+				+ getFlooredRatePositives(getCondPositives()));
 	}
 
 	protected void printRatesTotal() {
