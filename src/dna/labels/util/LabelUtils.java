@@ -43,14 +43,25 @@ public class LabelUtils {
 			}
 		}
 
+		long lastTimeKeyOccured = -1;
+
 		// iterate over batches
 		for (BatchData batch : list) {
+			long timestamp = batch.getTimestamp();
 			LabelList ll = batch.getLabels();
 			boolean keyLabelPresent = false;
+			boolean timeConditionMet = false;
 			for (Label l : ll.getList()) {
 				if (l.getName().equals(keyLabel.getName())
 						&& l.getType().equals(keyLabel.getType()))
 					keyLabelPresent = true;
+			}
+
+			if (keyLabelPresent) {
+				lastTimeKeyOccured = timestamp;
+			} else {
+				if (timestamp <= (lastTimeKeyOccured + conditionLifeTime))
+					timeConditionMet = true;
 			}
 
 			// iterate over labels
@@ -68,7 +79,11 @@ public class LabelUtils {
 					if (keyLabelPresent) {
 						ls.incrTruePositives();
 					} else {
-						ls.incrFalsePositives();
+						if (timeConditionMet) {
+							ls.incrCondPositives();
+						} else {
+							ls.incrFalsePositives();
+						}
 					}
 				} else {
 					if (keyLabelPresent) {
