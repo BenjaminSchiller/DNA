@@ -40,6 +40,6 @@ public class Label implements ListItem {
 
 	public String toString() {
 		return this.name + Config.get("LABEL_NAME_TYPE_SEPARATOR") + this.type
-				+ "=" + this.value;
+				+ Config.get("LABEL_VALUE_SEPARATOR") + this.value;
 	}
 }

@@ -101,7 +101,7 @@ public class LabelList {
 
 		String line = null;
 		while ((line = r.readString()) != null) {
-			String[] temp = line.split("=");
+			String[] temp = line.split("\\" + Config.get("LABEL_VALUE_SEPARATOR"));
 			String[] temp2 = temp[0].split(Config
 					.get("LABEL_NAME_TYPE_SEPARATOR"));
 			list.add(new Label(temp2[0], temp2[1], temp[1]));
