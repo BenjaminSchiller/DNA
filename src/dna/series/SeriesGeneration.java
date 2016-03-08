@@ -3,8 +3,13 @@ package dna.series;
 import java.io.File;
 import java.io.IOException;
 
+import dna.io.Writer;
 import dna.io.filesystem.Dir;
 import dna.io.filesystem.Files;
+import dna.labels.Label;
+import dna.labels.LabelList;
+import dna.labels.labeler.Labeler;
+import dna.labels.labeler.LabelerNotApplicableException;
 import dna.metrics.IMetric;
 import dna.metrics.MetricNotApplicableException;
 import dna.metrics.algorithms.Algorithms;
@@ -56,7 +61,7 @@ public class SeriesGeneration {
 
 	public static SeriesData generate(Series series, int runs, int batches)
 			throws AggregationException, IOException,
-			MetricNotApplicableException {
+			MetricNotApplicableException, LabelerNotApplicableException {
 		return SeriesGeneration.generate(series, runs, batches, true, true,
 				true, 0);
 	}
@@ -85,11 +90,12 @@ public class SeriesGeneration {
 	 * @throws AggregationException
 	 * @throws IOException
 	 * @throws MetricNotApplicableException
+	 * @throws LabelerNotApplicableException
 	 */
 	public static SeriesData generate(Series series, int runs, int batches,
 			boolean compare, boolean aggregate, boolean write,
 			long batchGenerationTime) throws AggregationException, IOException,
-			MetricNotApplicableException {
+			MetricNotApplicableException, LabelerNotApplicableException {
 		Log.infoSep();
 		Log.info("generating series");
 		Log.infoSep();
@@ -136,7 +142,7 @@ public class SeriesGeneration {
 				series.resetRand();
 			}
 
-			// generate runW
+			// generate run
 			SeriesGeneration.generateRun(series, r, batches, compare, write,
 					batchGenerationTime);
 		}
@@ -190,21 +196,23 @@ public class SeriesGeneration {
 	 * @return RunDataList object containing the generated runs
 	 * @throws IOException
 	 * @throws MetricNotApplicableException
+	 * @throws LabelerNotApplicableException
 	 */
 	public static SeriesData generateRuns(Series series, int from, int to,
 			int batches, boolean compare, boolean write,
 			long batchGenerationTime) throws IOException,
-			MetricNotApplicableException {
+			MetricNotApplicableException, LabelerNotApplicableException {
 		int runs = to - from;
 
 		for (int i = 0; i <= runs; i++) {
 			SeriesGeneration.generateRun(series, from + i, batches, compare,
 					write, batchGenerationTime);
 		}
-		
+
 		// read structure
-		SeriesData sd = SeriesData.read(series.getDir(), series.getName(), false, false);
-		
+		SeriesData sd = SeriesData.read(series.getDir(), series.getName(),
+				false, false);
+
 		// compare metrics
 		if (compare) {
 			try {
@@ -213,7 +221,7 @@ public class SeriesGeneration {
 				Log.warn("Error on comparing metrics");
 			}
 		}
-		
+
 		// return
 		return sd;
 	}
@@ -239,10 +247,12 @@ public class SeriesGeneration {
 	 * @return RunData object representing the generated run
 	 * @throws IOException
 	 * @throws MetricNotApplicableException
+	 * @throws LabelerNotApplicableException
 	 */
 	public static void generateRun(Series series, int run, int batches,
 			boolean compare, boolean write, long batchGenerationTime)
-			throws IOException, MetricNotApplicableException {
+			throws IOException, MetricNotApplicableException,
+			LabelerNotApplicableException {
 
 		/*
 		 * compile lists of different algorithm types
@@ -272,9 +282,34 @@ public class SeriesGeneration {
 			series.resetRand();
 		}
 
+		// check if labellers applicable
+		for (Labeler l : series.getLabeler()) {
+			if (!l.isApplicable(series.getGraphGenerator(),
+					series.getBatchGenerator(), series.getMetrics()))
+				throw new LabelerNotApplicableException(l, series);
+		}
+
 		// generate initial data
 		BatchData initialData = SeriesGeneration.generateInitialData(series,
 				algorithms);
+
+		// compute labels
+		LabelList labelList = initialData.getLabels();
+		for (Labeler labeller : series.getLabeler()) {
+			for (Label l : labeller.computeLabels(series.getGraph(), null,
+					initialData, series.getMetrics())) {
+				labelList.add(l);
+			}
+		}
+
+		// write labels to series-labelfile
+		Writer labelListWriter = null;
+		if (write && Config.getBoolean("GENERATION_WRITE_RUN_LABEL_LISTS")) {
+			labelListWriter = new Writer(series.getDir(),
+					Files.getLabelsListFilename(run));
+			appendLabels(labelListWriter, initialData);
+		}
+
 		if (compare) {
 			SeriesGeneration.compareMetrics(series);
 		}
@@ -305,6 +340,18 @@ public class SeriesGeneration {
 
 			BatchData batchData = SeriesGeneration.generateNextBatch(series,
 					algorithms);
+
+			// compute labels
+			for (Labeler labeler : series.getLabeler()) {
+				for (Label l : labeler.computeLabels(series.getGraph(), null,
+						batchData, series.getMetrics())) {
+					batchData.getLabels().add(l);
+				}
+			}
+
+			// write labels to series-labelfile
+			if (write && Config.getBoolean("GENERATION_WRITE_RUN_LABEL_LISTS"))
+				appendLabels(labelListWriter, batchData);
 
 			if (compare) {
 				SeriesGeneration.compareMetrics(series);
@@ -367,6 +414,10 @@ public class SeriesGeneration {
 				gcCounter++;
 			}
 		}
+
+		// finally close labellistwriter
+		if (labelListWriter != null)
+			labelListWriter.close();
 	}
 
 	private static boolean compareMetrics(Series series) {
@@ -510,15 +561,12 @@ public class SeriesGeneration {
 				new Value(SeriesStats.nodes, series.getGraph().getNodeCount()));
 		initialData.getValues().add(
 				new Value(SeriesStats.edges, series.getGraph().getEdgeCount()));
-		return initialData;
 
+		return initialData;
 	}
 
-	private static BatchData computeNextBatch(Series series,
+	private static BatchData computeNextBatch(Batch b, Series series,
 			Algorithms algorithms) throws MetricNotApplicableException {
-		Batch b = series.getBatchGenerator().generate(series.getGraph());
-		Log.info("    " + b.toString());
-
 		// check applicability to batch
 		for (IMetric m : series.getMetrics()) {
 			if (!m.isApplicable(b)) {
@@ -601,8 +649,12 @@ public class SeriesGeneration {
 
 	public static BatchData generateNextBatch(Series series,
 			Algorithms algorithms) throws MetricNotApplicableException {
+		// generate next batch
+		Batch b = series.getBatchGenerator().generate(series.getGraph());
+		Log.info("    " + b.toString());
 
-		BatchData batchData = computeNextBatch(series, algorithms);
+		// compute next batchdata
+		BatchData batchData = computeNextBatch(b, series, algorithms);
 
 		// add values
 		batchData.getValues().add(
@@ -943,6 +995,15 @@ public class SeriesGeneration {
 			Value v = new Value(n.getName() + "_AVG", val);
 			values.add(v);
 		}
+	}
+
+	/** Appends the labels from the given batch to the specified file. **/
+	private static void appendLabels(Writer w, BatchData batch)
+			throws IOException {
+		String delimiter = Config.get("DATA_DELIMITER");
+		for (Label l : batch.getLabels().getList())
+			w.writeln(Files.getBatchFilename(batch.getTimestamp()) + delimiter
+					+ l.toString());
 	}
 
 	// private static int applyUpdates(Series series,

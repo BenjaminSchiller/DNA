@@ -2,6 +2,7 @@ package dna.plot;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -9,6 +10,8 @@ import java.util.List;
 import java.util.Map;
 
 import dna.io.Writer;
+import dna.labels.Label;
+import dna.labels.LabelList;
 import dna.plot.PlottingConfig.ValueSortMode;
 import dna.plot.data.ExpressionData;
 import dna.plot.data.FunctionData;
@@ -17,6 +20,8 @@ import dna.plot.data.PlotData.DistributionPlotType;
 import dna.plot.data.PlotData.NodeValueListOrder;
 import dna.plot.data.PlotData.NodeValueListOrderBy;
 import dna.plot.data.PlotData.PlotDataLocation;
+import dna.plot.labels.PlotArrow;
+import dna.plot.labels.PlotLabel;
 import dna.series.aggdata.AggregatedBatch;
 import dna.series.aggdata.AggregatedMetric;
 import dna.series.aggdata.AggregatedNodeValueList;
@@ -54,6 +59,13 @@ public class Plot {
 	// plot data
 	private PlotData[] data;
 	private ArrayList<Integer> dataIndizes;
+
+	// labels
+	private boolean plotLabelsFlag;
+	private ArrayList<PlotLabel> plotLabels;
+	private ArrayList<PlotArrow> plotArrows;
+	private ArrayList<String> plotArrowStyles;
+	private ArrayList<String> plottedLabels;
 
 	// sorting
 	private boolean sorted;
@@ -117,6 +129,10 @@ public class Plot {
 		for (int i = 0; i < data.length; i++) {
 			dataIndizes.add(i);
 		}
+		this.plotLabels = new ArrayList<PlotLabel>();
+		this.plotArrows = new ArrayList<PlotArrow>();
+		this.plotArrowStyles = new ArrayList<String>();
+		this.plottedLabels = new ArrayList<String>();
 		this.sorted = false;
 
 		// load default values
@@ -133,6 +149,8 @@ public class Plot {
 				.getValueSortMode(PlotConfig.gnuplotDefaultKeyValueSortMode);
 		this.valueSortList = Config
 				.keys(PlotConfig.gnuplotDefaultKeyValueSortList);
+		this.plotLabelsFlag = Config
+				.getBoolean(PlotConfig.gnuplotDefaultKeyPlotLabels);
 		this.cdfPlot = false;
 
 		// init writer
@@ -1229,6 +1247,15 @@ public class Plot {
 			if (!Config.get("GNUPLOT_YRANGE").equals("null")) {
 				script.add("set yrange " + Config.get("GNUPLOT_YRANGE"));
 			}
+			if (this.plotLabelsFlag) {
+				for (String arrowStyle : this.plotArrowStyles)
+					script.add(arrowStyle);
+				for (PlotArrow arrow : this.plotArrows)
+					script.add(arrow.getLine());
+				for (PlotLabel label : this.plotLabels) {
+					script.add(label.getLine());
+				}
+			}
 			for (int i = 0; i < this.data.length; i++) {
 				String line = "";
 
@@ -1303,6 +1330,15 @@ public class Plot {
 				else
 					script.add("set key "
 							+ Config.get(PlotConfig.gnuplotDefaultKeyKey));
+			}
+			if (this.plotLabelsFlag) {
+				for (String arrowStyle : this.plotArrowStyles)
+					script.add(arrowStyle);
+				for (PlotArrow arrow : this.plotArrows)
+					script.add(arrow.getLine());
+				for (PlotLabel label : this.plotLabels) {
+					script.add(label.getLine());
+				}
 			}
 			for (int i = 0; i < this.data.length; i++) {
 				String line = "";
@@ -1405,6 +1441,42 @@ public class Plot {
 		return this.timeDataFormat;
 	}
 
+	public void setPlotLabels(ArrayList<PlotLabel> labels) {
+		this.plotLabels = labels;
+	}
+
+	public void addPlotLabel(PlotLabel label) {
+		this.plotLabels.add(label);
+	}
+
+	public ArrayList<PlotLabel> getPlotLabels() {
+		return this.plotLabels;
+	}
+
+	public void setPlotArrows(ArrayList<PlotArrow> arrows) {
+		this.plotArrows = arrows;
+	}
+
+	public void addPlotArrow(PlotArrow arrow) {
+		this.plotArrows.add(arrow);
+	}
+
+	public ArrayList<PlotArrow> getPlotArrows() {
+		return this.plotArrows;
+	}
+
+	public void setPlotArrowStyles(ArrayList<String> arrowStyles) {
+		this.plotArrowStyles = arrowStyles;
+	}
+
+	public void addPlotArrowStyle(String arrowStyle) {
+		this.plotArrowStyles.add(arrowStyle);
+	}
+
+	public ArrayList<String> getPlotArrowStyles() {
+		return this.plotArrowStyles;
+	}
+
 	public void setNodeValueListOrder(NodeValueListOrder order) {
 		this.sortOrder = order;
 	}
@@ -1443,6 +1515,10 @@ public class Plot {
 
 	public void setErrorPrinted(boolean errorPrinted) {
 		this.errorPrinted = errorPrinted;
+	}
+
+	public boolean isPlotLabels() {
+		return this.plotLabelsFlag;
 	}
 
 	public boolean isCdfPlot() {
@@ -1679,5 +1755,182 @@ public class Plot {
 		if (this.sorted)
 			this.bufferedData = new String[this.data.length
 					- this.functionQuantity];
+	}
+
+	/** Adds data to the plot **/
+	public void addPlotLabels(IBatch[] batchData) throws IOException {
+		if (batchData[0] instanceof BatchData)
+			this.addPlotLabels((BatchData[]) batchData);
+
+		// no labels in aggregated batches yet
+
+		// else
+		// this.addPlotLabels((AggregatedBatch[]) batchData);
+	}
+
+	/** Adds plot-labels to the plot. **/
+	public void addPlotLabelsWithoutArrows(BatchData[] batchData) {
+		String[] filteredLabelsArray = Config.keys("GNUPLOT_LABEL_FILTER_LIST");
+		List<String> filteredLabels = Arrays.asList(filteredLabelsArray);
+
+		for (BatchData batch : batchData) {
+			double timestamp = batch.getTimestamp();
+
+			// map timestamps
+			if (this.getTimestampMap() != null) {
+				if (this.getTimestampMap().containsKey(batch.getTimestamp())) {
+					timestamp = (double) this.getTimestampMap().get(
+							batch.getTimestamp());
+				}
+			}
+
+			// generate and add plot labels
+			LabelList llist = batch.getLabels();
+			for (Label l : llist.getList()) {
+				PlotLabel plotLabel;
+				String identifier = l.getName() + ":" + l.getType();
+
+				// if supposed to filter -> filter
+				if (filteredLabels.contains(identifier))
+					continue;
+
+				if (plottedLabels.contains(identifier)) {
+					plotLabel = PlotLabel.generatePlotLabel(timestamp, l,
+							plottedLabels.indexOf(identifier));
+				} else {
+					plottedLabels.add(identifier);
+					plotLabel = PlotLabel.generateFirstPlotLabel(timestamp, l,
+							plottedLabels.indexOf(identifier));
+				}
+				this.addPlotLabel(plotLabel);
+			}
+		}
+	}
+
+	/** Adds plot-labels to the plot. **/
+	public void addPlotLabels(BatchData[] batchData) {
+		if (Config.getBoolean("GNUPLOT_PLOT_LABEL_INTERVALS_AS_ARROWS")) {
+			addPlotLabelsWithArrows(batchData);
+		} else {
+			addPlotLabelsWithoutArrows(batchData);
+		}
+	}
+
+	/** Adds plot-labels to the plot. **/
+	public void addPlotLabelsWithArrows(BatchData[] batchData) {
+		boolean arrowStyleAdded = false;
+		int arrowStyleId = 1;
+
+		ArrayList<Double> intervalStart = new ArrayList<Double>();
+		ArrayList<Double> intervalEnd = new ArrayList<Double>();
+
+		String[] filteredLabelsArray = Config.keys("GNUPLOT_LABEL_FILTER_LIST");
+		List<String> filteredLabels = Arrays.asList(filteredLabelsArray);
+
+		for (int i = 0; i < batchData.length; i++) {
+			BatchData batch = batchData[i];
+			double timestamp = batch.getTimestamp();
+
+			// map timestamps
+			if (this.getTimestampMap() != null) {
+				if (this.getTimestampMap().containsKey(batch.getTimestamp())) {
+					timestamp = (double) this.getTimestampMap().get(
+							batch.getTimestamp());
+				}
+			}
+
+			// get next batch
+			BatchData nextBatch = null;
+			if (i < (batchData.length - 1))
+				nextBatch = batchData[i + 1];
+
+			// iterate over labels
+			LabelList llist = batch.getLabels();
+
+			// check first for new labels
+			for (Label l : llist.getList()) {
+				String identifier = l.getName() + ":" + l.getType();
+
+				// if supposed to filter -> filter
+				if (filteredLabels.contains(identifier))
+					continue;
+
+				if (!plottedLabels.contains(identifier)) {
+					plottedLabels.add(identifier);
+					this.addPlotLabel(PlotLabel.generateFirstPlotLabel(
+							timestamp, l, plottedLabels.indexOf(identifier),
+							"0"));
+					intervalStart.add(plottedLabels.indexOf(identifier),
+							timestamp);
+					intervalEnd.add(plottedLabels.indexOf(identifier),
+							timestamp);
+				}
+			}
+
+			// iterate over labels
+			for (Label l : llist.getList()) {
+				// get index of label
+				String identifier = l.getName() + ":" + l.getType();
+
+				// if supposed to filter -> filter
+				if (filteredLabels.contains(identifier))
+					continue;
+
+				int index = plottedLabels.indexOf(identifier);
+
+				if (intervalStart.get(index) == -1) {
+					intervalStart.set(index, timestamp);
+					intervalEnd.set(index, timestamp);
+				}
+
+				boolean labelInNextBatch = false;
+				if (nextBatch != null) {
+					double nextTimestamp = nextBatch.getTimestamp();
+					// map timestamps
+					if (this.getTimestampMap() != null) {
+						if (this.getTimestampMap().containsKey(
+								nextBatch.getTimestamp())) {
+							nextTimestamp = (double) this.getTimestampMap()
+									.get(nextBatch.getTimestamp());
+						}
+					}
+
+					LabelList nextLabelList = nextBatch.getLabels();
+					for (Label nl : nextLabelList.getList()) {
+						String nId = nl.getName() + ":" + nl.getType();
+						if (nId.equals(identifier)) {
+							intervalEnd.set(index, nextTimestamp);
+							labelInNextBatch = true;
+						}
+					}
+				}
+
+				if (!labelInNextBatch) {
+					double start = intervalStart.get(index);
+					double end = intervalEnd.get(index);
+
+					if (start == end) {
+						// add point
+						this.addPlotLabel(PlotLabel.generatePlotLabel(
+								timestamp, l, index));
+					} else {
+						if (!arrowStyleAdded) {
+							String arrowStyle = PlotArrow
+									.getIntervalArrowStyle(arrowStyleId);
+							this.addPlotArrowStyle(arrowStyle);
+							arrowStyleAdded = true;
+						}
+
+						// add arrow
+						PlotArrow a = PlotArrow.getPlotArrowInterval(index,
+								arrowStyleId, start, end);
+						this.addPlotArrow(a);
+					}
+
+					intervalStart.set(index, -1.0);
+					intervalEnd.set(index, -1.0);
+				}
+			}
+		}
 	}
 }

@@ -210,6 +210,19 @@ public class Files {
 	}
 
 	/*
+	 * LABELS
+	 */
+	public static String getLabelsFilename(String name) {
+		return name + Config.get("SUFFIX_LABEL");
+	}
+
+	public static String getLabelsListFilename(int run) {
+		return Config.get("BATCH_LABELS") + Config.get("FILE_NAME_DELIMITER")
+				+ Config.get("PREFIX_RUNDATA_DIR") + run
+				+ Config.get("SUFFIX_LABEL");
+	}
+
+	/*
 	 * NODEVALUELISTS
 	 */
 	public static String getNodeValueListFilename(String name) {

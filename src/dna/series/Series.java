@@ -4,6 +4,8 @@ import java.io.IOException;
 
 import dna.graph.Graph;
 import dna.graph.generators.GraphGenerator;
+import dna.labels.labeler.Labeler;
+import dna.labels.labeler.LabelerNotApplicableException;
 import dna.metrics.IMetric;
 import dna.metrics.MetricNotApplicableException;
 import dna.series.aggdata.AggregatedBatch.BatchReadMode;
@@ -27,12 +29,18 @@ public class Series {
 	};
 
 	public Series(GraphGenerator gg, BatchGenerator bg, IMetric[] metrics,
-			String dir, String name) {
+			Labeler[] labeler, String dir, String name) {
 		this.graphGenerator = gg;
 		this.batchGenerator = bg;
 		this.metrics = metrics;
+		this.labeler = (labeler == null) ? new Labeler[0] : labeler;
 		this.dir = dir;
 		this.name = name;
+	}
+
+	public Series(GraphGenerator gg, BatchGenerator bg, IMetric[] metrics,
+			String dir, String name) {
+		this(gg, bg, metrics, new Labeler[0], dir, name);
 	}
 
 	public static SeriesData get(String dir, String name)
@@ -55,19 +63,19 @@ public class Series {
 
 	public SeriesData generate(int runs, int batches)
 			throws AggregationException, IOException,
-			MetricNotApplicableException {
+			MetricNotApplicableException, LabelerNotApplicableException {
 		return this.generate(runs, batches, true, true, true, 0);
 	}
 
 	public SeriesData generate(int runs, int batches, boolean aggregate)
 			throws AggregationException, IOException,
-			MetricNotApplicableException {
+			MetricNotApplicableException, LabelerNotApplicableException {
 		return this.generate(runs, batches, true, aggregate, true, 0);
 	}
 
 	public SeriesData generate(int runs, int batches, long batchGenerationTime)
 			throws AggregationException, IOException,
-			MetricNotApplicableException {
+			MetricNotApplicableException, LabelerNotApplicableException {
 		return this.generate(runs, batches, true, true, true,
 				batchGenerationTime);
 	}
@@ -75,19 +83,21 @@ public class Series {
 	public SeriesData generate(int runs, int batches, boolean compare,
 			boolean aggregate, boolean write, long batchGenerationTime)
 			throws AggregationException, IOException,
-			MetricNotApplicableException {
+			MetricNotApplicableException, LabelerNotApplicableException {
 		return SeriesGeneration.generate(this, runs, batches, compare,
 				aggregate, write, batchGenerationTime);
 	}
 
 	public SeriesData generateRuns(int from, int to, int batches)
-			throws IOException, MetricNotApplicableException {
+			throws IOException, MetricNotApplicableException,
+			LabelerNotApplicableException {
 		return this.generateRuns(from, to, batches, true, true, 0);
 	}
 
 	public SeriesData generateRuns(int from, int to, int batches,
 			boolean compare, boolean write, long batchGenerationTime)
-			throws IOException, MetricNotApplicableException {
+			throws IOException, MetricNotApplicableException,
+			LabelerNotApplicableException {
 		return SeriesGeneration.generateRuns(this, from, to, batches, compare,
 				write, batchGenerationTime);
 	}
@@ -97,6 +107,8 @@ public class Series {
 	private BatchGenerator batchGenerator;
 
 	private IMetric[] metrics;
+
+	private Labeler[] labeler;
 
 	private String dir;
 
@@ -114,6 +126,10 @@ public class Series {
 
 	public IMetric[] getMetrics() {
 		return this.metrics;
+	}
+
+	public Labeler[] getLabeler() {
+		return this.labeler;
 	}
 
 	public String getDir() {
