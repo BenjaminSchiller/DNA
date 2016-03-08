@@ -27,7 +27,9 @@ public class LabelUtils {
 	 * <b>Note:</b> KeyLabel of format: $label_name$:$label_type$
 	 */
 	public static HashMap<String, LabelStat> analyzeLabelList(String dir,
-			String filename, int conditionLifeTime, Label keyLabel)
+			String filename, long conditionLifeTime,
+			boolean considerConditionedNegatives,
+			boolean considerConditionedPositives, Label keyLabel)
 			throws IOException {
 		ArrayList<BatchData> list = readBatchLabelsFromList(dir, filename);
 
@@ -79,7 +81,7 @@ public class LabelUtils {
 					if (keyLabelPresent) {
 						ls.incrTruePositives();
 					} else {
-						if (timeConditionMet) {
+						if (considerConditionedPositives && timeConditionMet) {
 							ls.incrCondPositives();
 						} else {
 							ls.incrFalsePositives();
@@ -89,7 +91,11 @@ public class LabelUtils {
 					if (keyLabelPresent) {
 						ls.incrFalseNegatives();
 					} else {
-						ls.incrTrueNegatives();
+						if (considerConditionedNegatives && timeConditionMet) {
+							ls.incrCondNegatives();
+						} else {
+							ls.incrTrueNegatives();
+						}
 					}
 				}
 
@@ -142,6 +148,23 @@ public class LabelUtils {
 
 		r.close();
 		return batchList;
+	}
+
+	public static HashMap<String, LabelStat> analyzeAndPrint(String dir,
+			String filename, long conditionTime,
+			boolean considerConditionedNegatives,
+			boolean considerConditionedPositives, Label keyLabel)
+			throws IOException {
+		HashMap<String, LabelStat> map = LabelUtils.analyzeLabelList(dir,
+				filename, conditionTime, considerConditionedNegatives,
+				considerConditionedPositives, keyLabel);
+
+		System.out.println("\t\t\t" + "t-n" + "\t" + "f-n" + "\t" + "c-n"
+				+ "\t" + "t-p" + "\t" + "f-p" + "\t" + "c-p");
+		for (String label : map.keySet())
+			map.get(label).printAllRates();
+
+		return map;
 	}
 
 }
