@@ -132,7 +132,15 @@ public class LabelStat {
 		return Math.floor(100.0 * value / this.positives) / 100;
 	}
 
-	public void printAll() {
+	public static void printInfoLine() {
+		System.out.println("Name" + "\t\t\t" + "total" + "\t" + "#n" + "\t"
+				+ "t-n" + "\t" + "f-n" + "\t" + "c-n" + "\t" + "#p" + "\t"
+				+ "t-p" + "\t" + "f-p" + "\t" + "c-p");
+	}
+	
+	public void printAll(boolean info) {
+		if (info)
+			printInfoLine();
 		print();
 		printRatesTotal();
 		printRatesNegativesPositives();
@@ -144,6 +152,12 @@ public class LabelStat {
 				+ getFalseNegatives() + "\t" + getCondNegatives() + "\tp="
 				+ getPositives() + "\t" + getTruePositives() + "\t"
 				+ getFalsePositives() + "\t" + getCondPositives());
+	}
+
+	public void printRates() {
+		System.out.println(getIdentifier() + "\t"
+				+ getFlooredRateNegatives(getFalseNegatives()) + "\t"
+				+ getFlooredRatePositives(getFalsePositives()));
 	}
 
 	protected void printRatesTotal() {

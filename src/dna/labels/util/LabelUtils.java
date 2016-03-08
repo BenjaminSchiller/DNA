@@ -6,8 +6,10 @@ import java.util.HashMap;
 
 import dna.io.Reader;
 import dna.io.filesystem.Dir;
+import dna.labels.Label;
+import dna.labels.LabelList;
+import dna.series.data.BatchData;
 import dna.util.Config;
-import dna.util.Log;
 
 /**
  * Utility class for DNA labeling.
@@ -17,38 +19,52 @@ import dna.util.Log;
  */
 public class LabelUtils {
 
-	/** Note: keyLabel of format: $label_name$:$label_type$ **/
+	/**
+	 * Analyzes a label-list and compares all labels with the key-label. Then
+	 * returns a HashMap mapping label-identifiers -> LabelStat objects.<br>
+	 * <br>
+	 * 
+	 * <b>Note:</b> KeyLabel of format: $label_name$:$label_type$
+	 */
 	public static HashMap<String, LabelStat> analyzeLabelList(String dir,
-			String filename, int conditionLifeTime, String keyLabel)
+			String filename, int conditionLifeTime, Label keyLabel)
 			throws IOException {
-
-		ArrayList<ArrayList<String>> list = readBatchLabelsFromList(dir,
-				filename);
+		ArrayList<BatchData> list = readBatchLabelsFromList(dir, filename);
 
 		// mapping label-identifiers to labelstat objects
 		HashMap<String, LabelStat> map = new HashMap<String, LabelStat>();
 
-		Log.infoSep();
-		// iterate over batches
-		for (ArrayList<String> ll : list) {
-			boolean keyLabelPresent = ll.contains(keyLabel);
-
-			// make sure all labels have a labelstat in the map
-			for (String l : ll) {
-				if (!map.containsKey(l))
-					map.put(l, new LabelStat(l));
+		// iterate over all batches and gather labels
+		for (BatchData batch : list) {
+			for (Label l : batch.getLabels().getList()) {
+				String identifier = l.getName() + ":" + l.getType();
+				if (!map.containsKey(identifier))
+					map.put(identifier, new LabelStat(identifier));
 			}
 		}
 
 		// iterate over batches
-		for (ArrayList<String> ll : list) {
-			boolean keyLabelPresent = ll.contains(keyLabel);
+		for (BatchData batch : list) {
+			LabelList ll = batch.getLabels();
+			boolean keyLabelPresent = false;
+			for (Label l : ll.getList()) {
+				if (l.getName().equals(keyLabel.getName())
+						&& l.getType().equals(keyLabel.getType()))
+					keyLabelPresent = true;
+			}
 
 			// iterate over labels
-			for (String l : map.keySet()) {
-				LabelStat ls = map.get(l);
+			for (String identifier : map.keySet()) {
+				LabelStat ls = map.get(identifier);
 
-				if (ll.contains(l)) {
+				boolean labelContained = false;
+				for (Label l : ll.getList()) {
+					if (identifier.equals(l.getName() + ":" + l.getType())) {
+						labelContained = true;
+					}
+				}
+
+				if (labelContained) {
 					if (keyLabelPresent) {
 						ls.incrTruePositives();
 					} else {
@@ -62,46 +78,55 @@ public class LabelUtils {
 					}
 				}
 
-				map.put(l, ls);
+				map.put(identifier, ls);
 			}
+
 		}
 
 		return map;
 	}
 
-	/** Reads a batch-list and returns a list of a list of label-identifiers. **/
-	public static ArrayList<ArrayList<String>> readBatchLabelsFromList(
-			String dir, String filename) throws IOException {
+	/**
+	 * Reads a batch-list and returns a list of BatchData objects containing
+	 * labels.
+	 **/
+	public static ArrayList<BatchData> readBatchLabelsFromList(String dir,
+			String filename) throws IOException {
+		String delimiter = Config.get("DATA_DELIMITER");
+		String valueSeparator = Config.get("LABEL_VALUE_SEPARATOR");
+		String nameTypeSeparator = Config.get("LABEL_NAME_TYPE_SEPARATOR");
+
+		ArrayList<BatchData> batchList = new ArrayList<BatchData>();
+		ArrayList<Long> timestampList = new ArrayList<Long>();
+
+		// read all lines
 		Reader r = new Reader(dir, filename);
 		String line;
-
-		String delimiter = Config.get("DATA_DELIMITER");
-
-		ArrayList<String> labels = null;
-		ArrayList<ArrayList<String>> list = new ArrayList<ArrayList<String>>();
-
-		long currentTimestamp = -1;
 		while ((line = r.readString()) != null) {
 			String[] splits = line.split(delimiter);
 			long timestamp = Dir.getTimestamp(splits[0]);
-			String labelIdentifier = splits[1].split("\\"
-					+ Config.get("LABEL_VALUE_SEPARATOR"))[0];
 
-			if (timestamp != currentTimestamp) {
-				if (labels != null) {
-					list.add(new ArrayList<String>(labels));
-				}
-				currentTimestamp = timestamp;
-				labels = new ArrayList<String>();
+			BatchData batch;
+
+			if (!timestampList.contains(timestamp)) {
+				batch = new BatchData(timestamp);
+				batchList.add(batch);
+				timestampList.add(timestamp);
+			} else {
+				batch = batchList.get(timestampList.indexOf(timestamp));
 			}
 
-			labels.add(labelIdentifier);
+			String[] valueSplit = splits[1].split("\\" + valueSeparator);
+			String[] nameTypeSplit = valueSplit[0].split("\\"
+					+ nameTypeSeparator);
+
+			batch.getLabels()
+					.add(new Label(nameTypeSplit[0], nameTypeSplit[1],
+							valueSplit[1]));
 		}
 
-		if (labels.size() > 0)
-			list.add(labels);
-
-		return list;
+		r.close();
+		return batchList;
 	}
 
 }
