@@ -165,6 +165,7 @@ public class LabelStat {
 		System.out.println(getIdentifier() + "\t"
 				+ getFlooredRateNegatives(getTrueNegatives()) + "\t"
 				+ getFlooredRateNegatives(getFalseNegatives()) + "\t"
+				+ getFlooredRateNegatives(getCondNegatives()) + "\t"
 				+ getFlooredRatePositives(getTruePositives()) + "\t"
 				+ getFlooredRatePositives(getFalsePositives()) + "\t"
 				+ getFlooredRatePositives(getCondPositives()));
