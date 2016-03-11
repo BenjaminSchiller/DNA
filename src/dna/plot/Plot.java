@@ -62,6 +62,7 @@ public class Plot {
 
 	// labels
 	private boolean plotLabelsFlag;
+	private double marginBottom;
 	private ArrayList<PlotLabel> plotLabels;
 	private ArrayList<PlotArrow> plotArrows;
 	private ArrayList<String> plotArrowStyles;
@@ -133,6 +134,7 @@ public class Plot {
 		this.plotArrows = new ArrayList<PlotArrow>();
 		this.plotArrowStyles = new ArrayList<String>();
 		this.plottedLabels = new ArrayList<String>();
+		this.marginBottom = 0;
 		this.sorted = false;
 
 		// load default values
@@ -1215,6 +1217,9 @@ public class Plot {
 		script.add("set style " + Config.get("GNUPLOT_STYLE"));
 		script.add("set boxwidth " + Config.get("GNUPLOT_BOXWIDTH"));
 
+		if (this.marginBottom > 0)
+			script.add("set bmargin " + this.marginBottom);
+
 		ArrayList<String> buff = new ArrayList<String>();
 
 		// if no config is present
@@ -1936,5 +1941,15 @@ public class Plot {
 				}
 			}
 		}
+
+		// if labels beneath graph -> extend bottom margin
+		if (!labelInGraph && this.plottedLabels.size() > 0)
+			this.marginBottom = calculateMarginBottom(this.plottedLabels.size());
 	}
+
+	/** Calculates the bottom margin based on the amoutn of labels. **/
+	protected double calculateMarginBottom(int amountLabels) {
+		return 3 + (1.0 * (amountLabels + 1) / 3);
+	}
+
 }
