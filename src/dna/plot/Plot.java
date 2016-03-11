@@ -1773,6 +1773,8 @@ public class Plot {
 		String[] filteredLabelsArray = Config.keys("GNUPLOT_LABEL_FILTER_LIST");
 		List<String> filteredLabels = Arrays.asList(filteredLabelsArray);
 
+		boolean labelInGraph = Config.getBoolean("GNUPLOT_LABEL_IN_GRAPH");
+
 		for (BatchData batch : batchData) {
 			double timestamp = batch.getTimestamp();
 
@@ -1796,11 +1798,11 @@ public class Plot {
 
 				if (plottedLabels.contains(identifier)) {
 					plotLabel = PlotLabel.generatePlotLabel(timestamp, l,
-							plottedLabels.indexOf(identifier));
+							plottedLabels.indexOf(identifier), labelInGraph);
 				} else {
 					plottedLabels.add(identifier);
 					plotLabel = PlotLabel.generateFirstPlotLabel(timestamp, l,
-							plottedLabels.indexOf(identifier));
+							plottedLabels.indexOf(identifier), labelInGraph);
 				}
 				this.addPlotLabel(plotLabel);
 			}
@@ -1826,6 +1828,8 @@ public class Plot {
 
 		String[] filteredLabelsArray = Config.keys("GNUPLOT_LABEL_FILTER_LIST");
 		List<String> filteredLabels = Arrays.asList(filteredLabelsArray);
+
+		boolean labelInGraph = Config.getBoolean("GNUPLOT_LABEL_IN_GRAPH");
 
 		for (int i = 0; i < batchData.length; i++) {
 			BatchData batch = batchData[i];
@@ -1859,7 +1863,7 @@ public class Plot {
 					plottedLabels.add(identifier);
 					this.addPlotLabel(PlotLabel.generateFirstPlotLabel(
 							timestamp, l, plottedLabels.indexOf(identifier),
-							"0"));
+							"0", labelInGraph));
 					intervalStart.add(plottedLabels.indexOf(identifier),
 							timestamp);
 					intervalEnd.add(plottedLabels.indexOf(identifier),
@@ -1912,7 +1916,7 @@ public class Plot {
 					if (start == end) {
 						// add point
 						this.addPlotLabel(PlotLabel.generatePlotLabel(
-								timestamp, l, index));
+								timestamp, l, index, labelInGraph));
 					} else {
 						if (!arrowStyleAdded) {
 							String arrowStyle = PlotArrow
@@ -1923,7 +1927,7 @@ public class Plot {
 
 						// add arrow
 						PlotArrow a = PlotArrow.getPlotArrowInterval(index,
-								arrowStyleId, start, end);
+								arrowStyleId, start, end, labelInGraph);
 						this.addPlotArrow(a);
 					}
 

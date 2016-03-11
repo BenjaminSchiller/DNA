@@ -28,6 +28,7 @@ public class PlotLabel {
 			.getDouble("GNUPLOT_LABEL_Y_OFFSET");
 	public static final double startPosition = Config
 			.getDouble("GNUPLOT_LABEL_Y_OFFSET_START");
+	public static final double startPositionBeneath = -0.1;
 	public static final int lineTypeOffset = Config
 			.getInt("GNUPLOT_LABEL_COLOR_OFFSET");
 
@@ -149,7 +150,7 @@ public class PlotLabel {
 
 	/** Crafts a PlotLabel based on the given Label. **/
 	public static PlotLabel generatePlotLabel(double timestamp, Label label,
-			int id) {
+			int id, boolean inGraph) {
 		String timestampString;
 		if (Config.getBoolean("GNUPLOT_LABEL_BIG_TIMESTAMPS")) {
 			timestampString = '"' + "" + timestamp + '"';
@@ -158,19 +159,19 @@ public class PlotLabel {
 		}
 
 		return new PlotLabel("", timestampString, "graph "
-				+ calculatePosition(id), Orientation.right, "lt "
+				+ calculatePosition(id, inGraph), Orientation.right, "lt "
 				+ (id + lineTypeOffset) + " pt 2");
 	}
 
 	/** Crafts the first PlotLabel based on the given Label. **/
 	public static PlotLabel generateFirstPlotLabel(double timestamp,
-			Label label, int id) {
-		return generateFirstPlotLabel(timestamp, label, id, "" + 2);
+			Label label, int id, boolean inGraph) {
+		return generateFirstPlotLabel(timestamp, label, id, "" + 2, inGraph);
 	}
 
 	/** Crafts the first PlotLabel based on the given Label. **/
 	public static PlotLabel generateFirstPlotLabel(double timestamp,
-			Label label, int id, String pointType) {
+			Label label, int id, String pointType, boolean inGraph) {
 		String timestampString;
 		if (Config.getBoolean("GNUPLOT_LABEL_BIG_TIMESTAMPS")) {
 			timestampString = '"' + "" + timestamp + '"';
@@ -179,13 +180,16 @@ public class PlotLabel {
 		}
 
 		return new PlotLabel(getPlotLabelText(label), timestampString, "graph "
-				+ calculatePosition(id), Orientation.right, "lt "
+				+ calculatePosition(id, inGraph), Orientation.right, "lt "
 				+ (id + lineTypeOffset) + " pt " + pointType);
 	}
 
 	/** Calculates the relative position of the label. **/
-	public static double calculatePosition(int id) {
-		return startPosition - (id * idOffset);
+	public static double calculatePosition(int id, boolean inGraph) {
+		if (inGraph)
+			return startPosition - (id * idOffset);
+		else
+			return startPositionBeneath - (id * idOffset);
 	}
 
 	/** Generates the plot-label text. **/
