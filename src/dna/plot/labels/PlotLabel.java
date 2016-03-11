@@ -151,7 +151,7 @@ public class PlotLabel {
 
 	/** Crafts a PlotLabel based on the given Label. **/
 	public static PlotLabel generatePlotLabel(double timestamp, Label label,
-			int id, boolean inGraph) {
+			int id, boolean beneathGraph) {
 		String timestampString;
 		if (Config.getBoolean("GNUPLOT_LABEL_BIG_TIMESTAMPS")) {
 			timestampString = '"' + "" + timestamp + '"';
@@ -160,7 +160,7 @@ public class PlotLabel {
 		}
 
 		return new PlotLabel("", timestampString, "graph "
-				+ calculatePosition(id, inGraph), Orientation.right, "lt "
+				+ calculatePosition(id, beneathGraph), Orientation.right, "lt "
 				+ (id + lineTypeOffset) + " pt 2");
 	}
 
@@ -172,7 +172,7 @@ public class PlotLabel {
 
 	/** Crafts the first PlotLabel based on the given Label. **/
 	public static PlotLabel generateFirstPlotLabel(double timestamp,
-			Label label, int id, String pointType, boolean inGraph) {
+			Label label, int id, String pointType, boolean beneathGraph) {
 		String timestampString;
 		if (Config.getBoolean("GNUPLOT_LABEL_BIG_TIMESTAMPS")) {
 			timestampString = '"' + "" + timestamp + '"';
@@ -181,16 +181,16 @@ public class PlotLabel {
 		}
 
 		return new PlotLabel(getPlotLabelText(label), timestampString, "graph "
-				+ calculatePosition(id, inGraph), Orientation.right, "lt "
+				+ calculatePosition(id, beneathGraph), Orientation.right, "lt "
 				+ (id + lineTypeOffset) + " pt " + pointType);
 	}
 
 	/** Calculates the relative position of the label. **/
-	public static double calculatePosition(int id, boolean inGraph) {
-		if (inGraph)
-			return startPosition - (id * idOffset);
-		else
+	public static double calculatePosition(int id, boolean beneathGraph) {
+		if (beneathGraph)
 			return startPositionBeneath - (id * idOffset);
+		else
+			return startPosition - (id * idOffset);
 	}
 
 	/** Generates the plot-label text. **/
