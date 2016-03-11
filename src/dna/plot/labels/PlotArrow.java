@@ -112,9 +112,9 @@ public class PlotArrow {
 
 	/** Returns the arrow command with the given parameters. **/
 	public static PlotArrow getPlotArrowInterval(int id, int arrowStyleId,
-			double from, double to, boolean inGraph) {
+			double from, double to, boolean beneathGraph) {
 		// calculates the y-position of the arrow
-		double position = PlotLabel.calculatePosition(id, inGraph);
+		double position = PlotLabel.calculatePosition(id, beneathGraph);
 
 		// craft position strings
 		String posFrom;
