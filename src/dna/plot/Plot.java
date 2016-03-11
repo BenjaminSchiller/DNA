@@ -1947,9 +1947,13 @@ public class Plot {
 			this.marginBottom = calculateMarginBottom(this.plottedLabels.size());
 	}
 
-	/** Calculates the bottom margin based on the amoutn of labels. **/
+	/** Calculates the bottom margin based on the amount of labels. **/
 	protected double calculateMarginBottom(int amountLabels) {
-		return 3 + (1.0 * (amountLabels + 1) / 3);
+		if (amountLabels == 3)
+			return 4.5;
+		if (amountLabels > 8)
+			return 8 + ((amountLabels - 8) * 1.0 / 3.0);
+		return 3 + ((amountLabels - 1) * 2.0 / 3.0);
 	}
 
 }
