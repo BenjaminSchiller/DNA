@@ -28,7 +28,8 @@ public class PlotLabel {
 			.getDouble("GNUPLOT_LABEL_Y_OFFSET");
 	public static final double startPosition = Config
 			.getDouble("GNUPLOT_LABEL_Y_OFFSET_START");
-	public static final double startPositionBeneath = -0.1;
+	public static final double startPositionBeneath = Config
+			.getDouble("GNUPLOT_LABEL_Y_OFFSET_START_BENEATH");
 	public static final int lineTypeOffset = Config
 			.getInt("GNUPLOT_LABEL_COLOR_OFFSET");
 
