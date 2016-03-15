@@ -5,6 +5,7 @@ import java.awt.Component;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
@@ -441,8 +442,6 @@ public class MainDisplay extends JFrame {
 		this.logoPanel
 				.setLayout(new BoxLayout(this.logoPanel, BoxLayout.X_AXIS));
 
-		this.logoPanel.setBorder(BorderFactory
-				.createEtchedBorder((EtchedBorder.LOWERED)));
 		BufferedImage image = null;
 		JarFile x = null;
 		InputStream is = null;
@@ -461,10 +460,18 @@ public class MainDisplay extends JFrame {
 			e.printStackTrace();
 		}
 
-		JLabel logoLabel = new JLabel(new ImageIcon(image));
+		// rescale image
+		Image newimg = image.getScaledInstance(
+				(int) Math.floor(config.getLogoSize().getWidth()),
+				(int) Math.floor(config.getLogoSize().getHeight()),
+				java.awt.Image.SCALE_SMOOTH);
+
+		JLabel logoLabel = new JLabel(new ImageIcon(newimg));
 		this.logoPanel.setLayout(new GridBagLayout());
-		this.logoPanel.setPreferredSize(config.getLogoSize());
+		// this.logoPanel.setPreferredSize(config.getLogoSize());
 		this.logoPanel.add(logoLabel);
+		this.logoPanel.setBorder(BorderFactory
+				.createEtchedBorder((EtchedBorder.LOWERED)));
 
 		// free resources
 		try {
