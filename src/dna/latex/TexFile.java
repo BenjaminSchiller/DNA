@@ -997,10 +997,29 @@ public class TexFile {
 	}
 
 	public void include(TexFile chapter) throws IOException {
-		this.include(Config.get("LATEX_CHAPTERS_DIR")
+		String tempString = Config.get("LATEX_CHAPTERS_DIR")
 				+ Dir.delimiter
 				+ chapter.getFilename().replaceAll(
-						Config.get("SUFFIX_TEX_FILE"), ""));
+						Config.get("SUFFIX_TEX_FILE"), "");
+		String includeString = "";
+
+		// replace spaces
+		if (tempString.contains(" ")) {
+			String[] split = tempString.split(" ");
+
+			for (int i = 0; i < split.length; i++) {
+				if (i > 0) {
+					includeString += "\\" + "space ";
+				}
+				includeString += split[i];
+			}
+
+			includeString = '"' + includeString + '"';
+		} else
+			includeString = tempString;
+
+		// include
+		this.include(includeString);
 	}
 
 	public void include(String chapter) throws IOException {
