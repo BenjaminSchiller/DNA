@@ -3,6 +3,7 @@ package dna.parallel.collation;
 import dna.parallel.collation.clustering.UndirectedClusteringCoefficientCompleteCollation;
 import dna.parallel.collation.clustering.UndirectedClusteringCoefficientOverlappingCollation;
 import dna.parallel.collation.clustering.UndirectedClusteringCoefficientSeparatedCollation;
+import dna.parallel.collation.connectivity.WCSimpleSeparatedCollation;
 import dna.parallel.collation.paths.UnweightedAllPairsShortestPathsCompleteCollation;
 import dna.parallel.collation.paths.UnweightedAllPairsShortestPathsOverlappingCollation;
 import dna.parallel.collation.paths.UnweightedAllPairsShortestPathsSeparatedCollation;
@@ -21,7 +22,7 @@ import dna.parallel.util.Sleeper;
  */
 public class CollationFromArgs {
 	public static enum CollationType {
-		UndirectedClusteringCoefficientSeparated, UndirectedClusteringCoefficientOverlapping, UndirectedClusteringCoefficientComplete, UnweightedAllPairsShortestPathsSeparated, UnweightedAllPairsShortestPathsOverlapping, UnweightedAllPairsShortestPathsComplete
+		UndirectedClusteringCoefficientSeparated, UndirectedClusteringCoefficientOverlapping, UndirectedClusteringCoefficientComplete, UnweightedAllPairsShortestPathsSeparated, UnweightedAllPairsShortestPathsOverlapping, UnweightedAllPairsShortestPathsComplete, WCSimpleSeparated
 	}
 
 	/**
@@ -60,14 +61,17 @@ public class CollationFromArgs {
 			return new UndirectedClusteringCoefficientCompleteCollation(auxDir,
 					inputDir, partitionCount, run, sleeper);
 		case UnweightedAllPairsShortestPathsComplete:
-			return new UnweightedAllPairsShortestPathsCompleteCollation(
-					auxDir, inputDir, partitionCount, run, sleeper);
+			return new UnweightedAllPairsShortestPathsCompleteCollation(auxDir,
+					inputDir, partitionCount, run, sleeper);
 		case UnweightedAllPairsShortestPathsOverlapping:
-			return new UnweightedAllPairsShortestPathsOverlappingCollation(auxDir,
-					inputDir, partitionCount, run, sleeper);
+			return new UnweightedAllPairsShortestPathsOverlappingCollation(
+					auxDir, inputDir, partitionCount, run, sleeper);
 		case UnweightedAllPairsShortestPathsSeparated:
-			return new UnweightedAllPairsShortestPathsSeparatedCollation(auxDir,
-					inputDir, partitionCount, run, sleeper);
+			return new UnweightedAllPairsShortestPathsSeparatedCollation(
+					auxDir, inputDir, partitionCount, run, sleeper);
+		case WCSimpleSeparated:
+			return new WCSimpleSeparatedCollation(auxDir, inputDir,
+					partitionCount, run, sleeper);
 		default:
 			throw new IllegalArgumentException("invalid collation type: "
 					+ collationType);

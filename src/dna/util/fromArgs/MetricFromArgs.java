@@ -7,6 +7,7 @@ import dna.metrics.centrality.BetweennessCentralityR;
 import dna.metrics.centrality.BetweennessCentralityU;
 import dna.metrics.clustering.UndirectedClusteringCoefficientR;
 import dna.metrics.clustering.UndirectedClusteringCoefficientU;
+import dna.metrics.connectivity.WCSimpleR;
 import dna.metrics.connectivity.WeakConnectivityB;
 import dna.metrics.connectivity.WeakConnectivityR;
 import dna.metrics.connectivity.WeakConnectivityU;
@@ -21,7 +22,7 @@ import dna.metrics.richClub.RichClubConnectivityByDegreeU;
 
 public class MetricFromArgs {
 	public static enum MetricType {
-		DegreeDistributionR, DegreeDistributionU, UndirectedClusteringCoefficientR, UndirectedClusteringCoefficientU, PartitionedUndirectedClusteringCoefficientR, UnweightedAllPairsShortestPathsR, UnweightedAllPairsShortestPathsU, WeakConnectivityR, WeakConnectivityU, WeakConnectivityB, UndirectedMotifsR, UndirectedMotifsU, AssortativityR, AssortativityU, BetweennessCentralityR, BetweennessCentralityU, RichClubConnectivityByDegreeR, RichClubConnectivityByDegreeU
+		DegreeDistributionR, DegreeDistributionU, UndirectedClusteringCoefficientR, UndirectedClusteringCoefficientU, PartitionedUndirectedClusteringCoefficientR, UnweightedAllPairsShortestPathsR, UnweightedAllPairsShortestPathsU, WeakConnectivityR, WeakConnectivityU, WeakConnectivityB, UndirectedMotifsR, UndirectedMotifsU, AssortativityR, AssortativityU, BetweennessCentralityR, BetweennessCentralityU, RichClubConnectivityByDegreeR, RichClubConnectivityByDegreeU, WCSimpleR
 	}
 
 	public static Metric[] parse(String[] metricTypes) {
@@ -81,6 +82,9 @@ public class MetricFromArgs {
 			return new RichClubConnectivityByDegreeR();
 		case RichClubConnectivityByDegreeU:
 			return new RichClubConnectivityByDegreeU();
+		case PartitionedUndirectedClusteringCoefficientR:
+		case WCSimpleR:
+			return new WCSimpleR();
 		default:
 			throw new IllegalArgumentException("unknown metric type: "
 					+ metricType);
