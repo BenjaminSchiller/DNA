@@ -132,7 +132,9 @@ public abstract class Collation<M extends Metric, T extends Partition> extends
 
 					if (Config.get("GENERATION_AS_ZIP").equals("batches")
 							&& (new File(batchZip)).exists()) {
-						Thread.sleep(100);
+						// Thread.sleep(100);
+						// System.out.println("readING " + this.g.getTimestamp()
+						// 		+ " for worker " + i + " (as zip)");
 						bd[i] = BatchData.readIntelligent(batchDir,
 								this.g.getTimestamp(),
 								BatchReadMode.readAllValues);
@@ -141,6 +143,8 @@ public abstract class Collation<M extends Metric, T extends Partition> extends
 					} else if (Config.get("GENERATION_AS_ZIP").equals("none")
 							&& (new File(batchDir)).exists()) {
 						// Thread.sleep(100);
+						// System.out.println("readING " + this.g.getTimestamp()
+						// 		+ " for worker " + i + " (as dir)");
 						bd[i] = BatchData.read(batchDir, this.g.getTimestamp(),
 								BatchReadMode.readAllValues);
 						System.out.println("read " + this.g.getTimestamp()
@@ -154,12 +158,15 @@ public abstract class Collation<M extends Metric, T extends Partition> extends
 					if (!this.continsAllData(bd[i])) {
 						missing = true;
 						bd[i] = null;
-						System.out.println("could not read all data yet");
+						System.out.println("could not read all data yet for "
+								+ i);
 					}
 				} catch (Exception e) {
 					missing = true;
 					bd[i] = null;
-					System.out.println("could not read all data yet");
+					System.out.println("could not read all data yet for " + i
+							+ " (some exception)");
+					e.printStackTrace();
 				}
 			}
 			if (aux == null) {
