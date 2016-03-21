@@ -3,20 +3,20 @@ package dna.parallel.partition;
 import java.util.HashMap;
 import java.util.List;
 
-import dna.graph.Graph;
+import dna.graph.IGraph;
 import dna.graph.nodes.Node;
 import dna.parallel.auxData.NodeCutAuxData;
 
 public class NodeCutPartition extends Partition {
 
-	public NodeCutPartition(Graph g) {
+	public NodeCutPartition(IGraph g) {
 		super(g);
 		// TODO Auto-generated constructor stub
 	}
 
 	public static AllPartitions<NodeCutPartition, NodeCutAuxData> partition(
-			String name, Graph g, List<Node>[] nodess) {
-		Graph[] graphs = getInitialGraphs(g, nodess);
+			String name, IGraph g, List<Node>[] nodess) {
+		IGraph[] graphs = getInitialGraphs(g, nodess);
 		NodeCutPartition[] partitions = new NodeCutPartition[nodess.length];
 		HashMap<Node, Integer> mapping = new HashMap<Node, Integer>();
 		for (int i = 0; i < graphs.length; i++) {

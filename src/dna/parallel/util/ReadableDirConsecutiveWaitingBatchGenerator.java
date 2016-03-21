@@ -2,7 +2,7 @@ package dna.parallel.util;
 
 import java.io.File;
 
-import dna.graph.Graph;
+import dna.graph.IGraph;
 import dna.io.BatchReader;
 import dna.updates.batch.Batch;
 import dna.updates.generators.BatchGenerator;
@@ -23,7 +23,7 @@ public class ReadableDirConsecutiveWaitingBatchGenerator extends BatchGenerator 
 	}
 
 	@Override
-	public Batch generate(Graph g) {
+	public Batch generate(IGraph g) {
 		this.sleeper.reset();
 		String filename = (g.getTimestamp() + 1) + this.suffix;
 		while (!this.sleeper.isTimedOut()) {
@@ -42,7 +42,7 @@ public class ReadableDirConsecutiveWaitingBatchGenerator extends BatchGenerator 
 	}
 
 	@Override
-	public boolean isFurtherBatchPossible(Graph g) {
+	public boolean isFurtherBatchPossible(IGraph g) {
 		return true;
 	}
 }

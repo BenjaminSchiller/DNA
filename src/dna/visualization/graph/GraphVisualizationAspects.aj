@@ -1,6 +1,6 @@
 package dna.visualization.graph;
 
-import dna.graph.Graph;
+import dna.graph.IGraph;
 import dna.graph.datastructures.GraphDataStructure;
 import dna.graph.edges.Edge;
 import dna.graph.nodes.Node;
@@ -18,8 +18,8 @@ public aspect GraphVisualizationAspects {
 		if(GraphVisualization.isEnabled()) &&
 		call(* GraphDataStructure.newGraphInstance(String, long, int, int));
 
-	Graph around() : graphInit() {
-		Graph g = proceed();
+	IGraph around() : graphInit() {
+		IGraph g = proceed();
 		GraphVisualization.init(g);
 		return g;
 	}
@@ -28,13 +28,13 @@ public aspect GraphVisualizationAspects {
 	 * TIMESTAMP
 	 */
 
-	pointcut graphTimestamp(Graph g, long newTimestamp) :
+	pointcut graphTimestamp(IGraph g, long newTimestamp) :
 		if(GraphVisualization.isEnabled()) &&
 		target(g) &&
 		args(newTimestamp) &&
-		call(* Graph.setTimestamp(long));
+		call(* IGraph.setTimestamp(long));
 
-	void around(Graph g, long newTimestamp) : graphTimestamp(g, newTimestamp) {
+	void around(IGraph g, long newTimestamp) : graphTimestamp(g, newTimestamp) {
 		long oldTimestamp = g.getTimestamp();
 		proceed(g, newTimestamp);
 		GraphVisualization.getGraphPanel(g).setTimestamp(newTimestamp);
@@ -44,23 +44,23 @@ public aspect GraphVisualizationAspects {
 	 * NODE
 	 */
 
-	pointcut nodeAddition(Graph g, Node n) :
+	pointcut nodeAddition(IGraph g, Node n) :
 		if(GraphVisualization.isEnabled()) &&
 		target(g) &&
 		args(n) &&
-		call(* Graph.addNode(Node));
+		call(* IGraph.addNode(Node));
 
-	after(Graph g, Node n) : nodeAddition(g, n) {
+	after(IGraph g, Node n) : nodeAddition(g, n) {
 		GraphVisualization.addNode(g, n);
 	}
 
-	pointcut nodeRemoval(Graph g, Node n) :
+	pointcut nodeRemoval(IGraph g, Node n) :
 		if(GraphVisualization.isEnabled()) &&
 		target(g) &&
 		args(n) &&
-		call(* Graph.removeNode(Node));
+		call(* IGraph.removeNode(Node));
 
-	after(Graph g, Node n) : nodeRemoval(g, n) {
+	after(IGraph g, Node n) : nodeRemoval(g, n) {
 		GraphVisualization.removeNode(g, n);
 	}
 
@@ -78,23 +78,23 @@ public aspect GraphVisualizationAspects {
 	 * EDGE
 	 */
 
-	pointcut edgeAddition(Graph g, Edge e) :
+	pointcut edgeAddition(IGraph g, Edge e) :
 		if(GraphVisualization.isEnabled()) &&
 		target(g) &&
 		args(e) &&
-		call(* Graph.addEdge(Edge));
+		call(* IGraph.addEdge(Edge));
 
-	after(Graph g, Edge e) : edgeAddition(g, e) {
+	after(IGraph g, Edge e) : edgeAddition(g, e) {
 		GraphVisualization.addEdge(g, e);
 	}
 
-	pointcut edgeRemoval(Graph g, Edge e) :
+	pointcut edgeRemoval(IGraph g, Edge e) :
 		if(GraphVisualization.isEnabled()) &&
 		target(g) &&
 		args(e) &&
-		call(* Graph.removeEdge(Edge));
+		call(* IGraph.removeEdge(Edge));
 
-	after(Graph g, Edge e) : edgeRemoval(g, e) {
+	after(IGraph g, Edge e) : edgeRemoval(g, e) {
 		GraphVisualization.removeEdge(g, e);
 	}
 

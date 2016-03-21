@@ -2,7 +2,7 @@ package dna.parallel.partition;
 
 import java.util.List;
 
-import dna.graph.Graph;
+import dna.graph.IGraph;
 import dna.graph.nodes.Node;
 import dna.updates.batch.Batch;
 
@@ -14,15 +14,15 @@ public abstract class Partition {
 		NodeCut, Separated, Overlapping, Complete
 	}
 
-	public Graph g;
+	public IGraph g;
 
-	public Partition(Graph g) {
+	public Partition(IGraph g) {
 		this.g = g;
 	}
 
-	protected static Graph getInitialGraph(Graph g, List<Node> nodes,
+	protected static IGraph getInitialGraph(IGraph g, List<Node> nodes,
 			String name) {
-		Graph g_ = g.getGraphDatastructures().newGraphInstance(name,
+		IGraph g_ = g.getGraphDatastructures().newGraphInstance(name,
 				g.getTimestamp(), nodes.size(), 0);
 		for (Node n : nodes) {
 			// TODO not handling weighted nodes yet!
@@ -32,8 +32,8 @@ public abstract class Partition {
 		return g_;
 	}
 
-	protected static Graph[] getInitialGraphs(Graph g, List<Node>[] nodess) {
-		Graph[] graphs = new Graph[nodess.length];
+	protected static IGraph[] getInitialGraphs(IGraph g, List<Node>[] nodess) {
+		IGraph[] graphs = new IGraph[nodess.length];
 		for (int i = 0; i < graphs.length; i++) {
 			graphs[i] = getInitialGraph(g, nodess[i], "partition" + i);
 		}

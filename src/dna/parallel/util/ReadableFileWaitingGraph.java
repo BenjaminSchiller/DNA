@@ -3,7 +3,7 @@ package dna.parallel.util;
 import java.io.File;
 import java.io.IOException;
 
-import dna.graph.Graph;
+import dna.graph.IGraph;
 import dna.graph.datastructures.GraphDataStructure;
 import dna.graph.generators.GraphGenerator;
 import dna.io.GraphReader;
@@ -60,7 +60,7 @@ public class ReadableFileWaitingGraph extends GraphGenerator {
 	}
 
 	@Override
-	public Graph generate() {
+	public IGraph generate() {
 		this.sleeper.reset();
 		while (!this.sleeper.isTimedOut()) {
 			if (!(new File(this.dir + this.filename)).exists()) {
