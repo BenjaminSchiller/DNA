@@ -7,7 +7,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map.Entry;
 
-import dna.graph.Graph;
+import dna.graph.IGraph;
 import dna.graph.IElement;
 import dna.graph.edges.Edge;
 import dna.graph.nodes.Node;
@@ -57,7 +57,7 @@ public class LPAPartitioning extends PartitioningScheme {
 	}
 
 	@Override
-	public List<List<Node>> getPartitioning(Graph g) {
+	public List<List<Node>> getPartitioning(IGraph g) {
 		currentLabels = new int[g.getMaxNodeIndex() + 1];
 		newLabels = new int[g.getMaxNodeIndex() + 1];
 		for (int i = 0; i < currentLabels.length; i++) {
@@ -136,7 +136,7 @@ public class LPAPartitioning extends PartitioningScheme {
 		return partitions;
 	}
 
-	protected void nextRound(Graph g) {
+	protected void nextRound(IGraph g) {
 		changes = 0;
 		for (IElement n_ : g.getNodes()) {
 			changes += this.computeLabel(g, (Node) n_) ? 1 : 0;
@@ -145,7 +145,7 @@ public class LPAPartitioning extends PartitioningScheme {
 		newLabels = new int[g.getMaxNodeIndex() + 1];
 	}
 
-	protected boolean computeLabel(Graph g, Node n) {
+	protected boolean computeLabel(IGraph g, Node n) {
 		if (n.getDegree() == 0) {
 			newLabels[n.getIndex()] = currentLabels[n.getIndex()];
 			return false;

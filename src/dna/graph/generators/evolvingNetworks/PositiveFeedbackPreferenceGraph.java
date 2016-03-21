@@ -1,6 +1,6 @@
 package dna.graph.generators.evolvingNetworks;
 
-import dna.graph.Graph;
+import dna.graph.IGraph;
 import dna.graph.datastructures.GraphDataStructure;
 import dna.graph.generators.GraphGenerator;
 import dna.graph.generators.random.RandomGraph;
@@ -35,11 +35,11 @@ public class PositiveFeedbackPreferenceGraph extends GraphGenerator {
 	}
 
 	@Override
-	public Graph generate() {
+	public IGraph generate() {
 		GraphGenerator gg = new RandomGraph(this.gds, this.startNodes,
 				this.startEdges);
 		
-		Graph g = gg.generate();
+		IGraph g = gg.generate();
 		
 		
 		if(this.nodesToAdd>0){

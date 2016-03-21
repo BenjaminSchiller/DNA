@@ -9,17 +9,25 @@ import java.util.HashMap;
 import java.util.Map.Entry;
 
 import dna.graph.ClassPointers;
-import dna.graph.Graph;
+import dna.graph.DNAGraphFactory;
+import dna.graph.DNAGraphFactory.DNAGraphType;
 import dna.graph.IElement;
+import dna.graph.IGraph;
 import dna.graph.datastructures.DataStructure.ListType;
+import dna.graph.edges.DirectedBlueprintsEdge;
 import dna.graph.edges.DirectedEdge;
+import dna.graph.edges.DummyDirectedBlueprintsEdge;
 import dna.graph.edges.DummyDirectedEdge;
+import dna.graph.edges.DummyUndirectedBlueprintsEdge;
 import dna.graph.edges.DummyUndirectedEdge;
 import dna.graph.edges.Edge;
 import dna.graph.edges.IEdgeDummy;
+import dna.graph.edges.UndirectedBlueprintsEdge;
 import dna.graph.edges.UndirectedEdge;
+import dna.graph.nodes.DirectedBlueprintsNode;
 import dna.graph.nodes.DirectedNode;
 import dna.graph.nodes.Node;
+import dna.graph.nodes.UndirectedBlueprintsNode;
 import dna.graph.nodes.UndirectedNode;
 import dna.graph.weights.IWeighted;
 import dna.graph.weights.Weight;
@@ -299,8 +307,14 @@ public class GraphDataStructure implements Cloneable {
 		this.edgeType = edgeType;
 	}
 
-	public Graph newGraphInstance(String name, long timestamp, int nodes,
+	public IGraph newGraphInstance(String name, long timestamp, int nodes,
 			int edges) {
+		setCurrent(this);
+		
+		if (this.usesGraphDatabase())
+			return DNAGraphFactory.newGraphInstance(DNAGraphType.CONFIG, name, timestamp, 
+					this, nodes, edges);
+		
 		this.canGDSCreateProperLists();
 		this.defaultListSizes.put(ListType.GlobalNodeList, nodes);
 		this.defaultListSizes.put(ListType.GlobalEdgeList, edges);
@@ -317,10 +331,31 @@ public class GraphDataStructure implements Cloneable {
 		}
 
 		setCurrent(this);
-
-		return new Graph(name, timestamp, this, nodes, edges);
+		
+		return DNAGraphFactory.newGraphInstance(DNAGraphType.DNA, name, timestamp, this, nodes, edges);
 	}
-
+	
+	public IGraph newGraphInstanceOfType(String name, long timestamp, DNAGraphType type) {
+		setCurrent(this);
+		return DNAGraphFactory.newGraphInstance(type, name, timestamp, this);		
+	}
+	
+	public IGraph newGraphInstanceOfType(String name, long timestamp, DNAGraphType type, 
+			int operationsPerCommit, boolean clearWorkSpace, String workspaceDir, 
+			boolean storeDNAElementsInGDB) {
+		setCurrent(this);
+		return DNAGraphFactory.newGraphInstance(type, name, timestamp, this, operationsPerCommit,
+				clearWorkSpace, workspaceDir, storeDNAElementsInGDB);		
+	}
+	
+	public IGraph newGraphInstanceOfType(String name, long timestamp, int nodes, int edges,
+			DNAGraphType type, int operationsPerCommit, boolean clearWorkSpace, String workspaceDir , 
+			boolean storeDNAElementsInGDB) {
+		setCurrent(this);
+		return DNAGraphFactory.newGraphInstance(type, name, timestamp, this, nodes, edges, operationsPerCommit,
+				clearWorkSpace, workspaceDir, storeDNAElementsInGDB);		
+	}
+		
 	private int getStartingSize(ListType lt) {
 		if (overrideDefaultListSizes.containsKey(lt)) {
 			return overrideDefaultListSizes.get(lt);
@@ -522,11 +557,11 @@ public class GraphDataStructure implements Cloneable {
 		}
 	}
 
-	public Edge newEdgeInstance(String str, Graph graph,
+	public Edge newEdgeInstance(String str, IGraph graph,
 			HashMap<Integer, Node> addedNodes) {
 		Constructor<? extends Edge> c;
 		try {
-			c = edgeType.getConstructor(String.class, Graph.class,
+			c = edgeType.getConstructor(String.class, IGraph.class,
 					HashMap.class);
 			return c.newInstance(str, graph, addedNodes);
 		} catch (InvocationTargetException ite) {
@@ -543,10 +578,10 @@ public class GraphDataStructure implements Cloneable {
 		}
 	}
 
-	public Edge newEdgeInstance(String str, Graph graph) {
+	public Edge newEdgeInstance(String str, IGraph graph) {
 		Constructor<? extends Edge> c;
 		try {
-			c = edgeType.getConstructor(String.class, Graph.class);
+			c = edgeType.getConstructor(String.class, IGraph.class);
 			return c.newInstance(str, graph);
 		} catch (InvocationTargetException ite) {
 			RuntimeException rt = new RuntimeException(
@@ -563,7 +598,13 @@ public class GraphDataStructure implements Cloneable {
 	}
 
 	public Edge getDummyEdge(Node n1, Node n2) {
-		return getDummyEdge(n1.getIndex(), n2.getIndex());
+		if ((n1.getClass().equals(DirectedBlueprintsNode.class) && n2.getClass().equals(DirectedBlueprintsNode.class))
+			|| (n1.getClass().equals(UndirectedBlueprintsNode.class) && n2.getClass().equals(UndirectedBlueprintsNode.class)))
+		{
+			return getDummyGDBEdge(n1.getIndex(), n2.getIndex());
+		}
+		else
+			return getDummyEdge(n1.getIndex(), n2.getIndex());
 	}
 
 	public Edge getDummyEdge(int n1, int n2) {
@@ -576,6 +617,22 @@ public class GraphDataStructure implements Cloneable {
 				UndirectedNode node1 = new UndirectedNode(1, this);
 				UndirectedNode node2 = new UndirectedNode(2, this);
 				edgeDummy = new DummyUndirectedEdge(node1, node2);
+			}
+		}
+		edgeDummy.setNodes(n1, n2);
+		return (Edge) edgeDummy;
+	}
+	
+	public Edge getDummyGDBEdge(int n1, int n2) {
+		if (edgeDummy == null) {
+			if (createsDirected()) {
+				DirectedBlueprintsNode node1 = new DirectedBlueprintsNode(1, this);
+				DirectedBlueprintsNode node2 = new DirectedBlueprintsNode(2, this);
+				edgeDummy = new DummyDirectedBlueprintsEdge(node1, node2);
+			} else {
+				UndirectedBlueprintsNode node1 = new UndirectedBlueprintsNode(1, this);
+				UndirectedBlueprintsNode node2 = new UndirectedBlueprintsNode(2, this);
+				edgeDummy = new DummyUndirectedBlueprintsEdge(node1, node2);
 			}
 		}
 		edgeDummy.setNodes(n1, n2);
@@ -742,12 +799,20 @@ public class GraphDataStructure implements Cloneable {
 		return IWeighted.class.isAssignableFrom(edgeType);
 	}
 
-	public boolean createsDirected() {
-		return DirectedEdge.class.isAssignableFrom(edgeType);
+	public boolean usesGraphDatabase()
+	{
+		return DirectedBlueprintsNode.class.isAssignableFrom(nodeType)
+				|| UndirectedBlueprintsNode.class.isAssignableFrom(nodeType);
 	}
-
+	
+	public boolean createsDirected() {
+		return DirectedEdge.class.isAssignableFrom(edgeType)
+				|| DirectedBlueprintsEdge.class.isAssignableFrom(edgeType);
+	}
+	
 	public boolean createsUndirected() {
-		return UndirectedEdge.class.isAssignableFrom(edgeType);
+		return UndirectedEdge.class.isAssignableFrom(edgeType)
+				|| UndirectedBlueprintsEdge.class.isAssignableFrom(edgeType);
 	}
 
 	public EnumMap<ListType, Class<? extends IDataStructure>> getStorageDataStructures() {
@@ -837,7 +902,7 @@ public class GraphDataStructure implements Cloneable {
 	 * @param newGDS
 	 * @param g
 	 */
-	public void switchDatastructures(GraphDataStructure newGDS, Graph g) {
+	public void switchDatastructures(GraphDataStructure newGDS, IGraph g) {
 		if (!this.isReadable(getListClass(ListType.GlobalEdgeList))) {
 			System.err
 					.println("Reject switching data structures, as graph edge list of type "

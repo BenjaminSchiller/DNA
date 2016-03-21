@@ -1,6 +1,6 @@
 package dna.metrics.degree;
 
-import dna.graph.Graph;
+import dna.graph.IGraph;
 import dna.graph.IElement;
 import dna.graph.nodes.DirectedNode;
 import dna.graph.nodes.UndirectedNode;
@@ -90,7 +90,7 @@ public abstract class DegreeDistribution extends Metric {
 	}
 
 	@Override
-	public boolean isApplicable(Graph g) {
+	public boolean isApplicable(IGraph g) {
 		return true;
 	}
 

@@ -5,8 +5,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import dna.graph.Graph;
 import dna.graph.IElement;
+import dna.graph.IGraph;
 import dna.graph.edges.Edge;
 import dna.graph.nodes.Node;
 import dna.parallel.auxData.SeparatedAuxData;
@@ -20,14 +20,14 @@ import dna.updates.update.NodeRemoval;
 
 public class SeparatedPartition extends Partition {
 
-	public SeparatedPartition(Graph g) {
+	public SeparatedPartition(IGraph g) {
 		super(g);
 		// TODO Auto-generated constructor stub
 	}
 
 	public static AllPartitions<SeparatedPartition, SeparatedAuxData> partition(
-			String name, Graph g, List<Node>[] nodess) {
-		Graph[] graphs = getInitialGraphs(g, nodess);
+			String name, IGraph g, List<Node>[] nodess) {
+		IGraph[] graphs = getInitialGraphs(g, nodess);
 		SeparatedPartition[] partitions = new SeparatedPartition[nodess.length];
 		HashMap<Node, Integer> mapping = new HashMap<Node, Integer>();
 		for (int i = 0; i < graphs.length; i++) {

@@ -1,6 +1,6 @@
 package dna.metrics.workload.operations;
 
-import dna.graph.Graph;
+import dna.graph.IGraph;
 import dna.graph.IElement;
 import dna.graph.edges.DirectedEdge;
 import dna.graph.edges.Edge;
@@ -29,7 +29,7 @@ public class Iterate extends Operation {
 
 	@SuppressWarnings("unused")
 	@Override
-	protected void createWorkloadE(Graph g) {
+	protected void createWorkloadE(IGraph g) {
 		Edge edge = null;
 		for (IElement e : g.getEdges()) {
 			edge = (Edge) e;
@@ -38,7 +38,7 @@ public class Iterate extends Operation {
 
 	@SuppressWarnings("unused")
 	@Override
-	protected void createWorkloadV(Graph g) {
+	protected void createWorkloadV(IGraph g) {
 		Node node = null;
 		for (IElement n : g.getNodes()) {
 			node = (Node) n;
@@ -47,7 +47,7 @@ public class Iterate extends Operation {
 
 	@SuppressWarnings("unused")
 	@Override
-	protected void createWorkloadIn(Graph g) {
+	protected void createWorkloadIn(IGraph g) {
 		DirectedEdge edge = null;
 		for (IElement n_ : g.getNodes()) {
 			for (IElement e_ : ((DirectedNode) n_).getIncomingEdges()) {
@@ -58,7 +58,7 @@ public class Iterate extends Operation {
 
 	@SuppressWarnings("unused")
 	@Override
-	protected void createWorkloadOut(Graph g) {
+	protected void createWorkloadOut(IGraph g) {
 		DirectedEdge edge = null;
 		for (IElement n_ : g.getNodes()) {
 			for (IElement e_ : ((DirectedNode) n_).getOutgoingEdges()) {
@@ -69,7 +69,7 @@ public class Iterate extends Operation {
 
 	@SuppressWarnings("unused")
 	@Override
-	protected void createWorkloadNeighbors(Graph g) {
+	protected void createWorkloadNeighbors(IGraph g) {
 		DirectedNode node = null;
 		for (IElement n_ : g.getNodes()) {
 			for (IElement nn_ : ((DirectedNode) n_).getNeighbors()) {
@@ -80,7 +80,7 @@ public class Iterate extends Operation {
 
 	@SuppressWarnings("unused")
 	@Override
-	protected void createWorkloadAdj(Graph g) {
+	protected void createWorkloadAdj(IGraph g) {
 		Edge edge = null;
 		for (IElement n_ : g.getNodes()) {
 			for (IElement e_ : ((Node) n_).getEdges()) {

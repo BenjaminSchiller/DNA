@@ -1,6 +1,6 @@
 package dna.updates.generators.util;
 
-import dna.graph.Graph;
+import dna.graph.IGraph;
 import dna.updates.batch.Batch;
 import dna.updates.generators.BatchGenerator;
 
@@ -11,7 +11,7 @@ public class EmptyBatch extends BatchGenerator {
 	}
 
 	@Override
-	public Batch generate(Graph g) {
+	public Batch generate(IGraph g) {
 		return new Batch(g.getGraphDatastructures(), g.getTimestamp(),
 				g.getTimestamp() + 1);
 	}
@@ -21,7 +21,7 @@ public class EmptyBatch extends BatchGenerator {
 	}
 
 	@Override
-	public boolean isFurtherBatchPossible(Graph g) {
+	public boolean isFurtherBatchPossible(IGraph g) {
 		return true;
 	}
 

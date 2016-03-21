@@ -1,7 +1,7 @@
 package dna.metrics.sampling;
 
-import dna.graph.Graph;
 import dna.graph.IElement;
+import dna.graph.IGraph;
 import dna.graph.nodes.DirectedNode;
 import dna.graph.nodes.Node;
 import dna.graph.nodes.UndirectedNode;
@@ -27,7 +27,7 @@ import dna.util.DataUtils;
 public abstract class SamplingModularity extends Metric {
 
 	private boolean directed;
-	private Graph graph;
+	private IGraph graph;
 	protected int edgesInSample;
 	protected int edgesInGraph;
 	// Sum of the degree that the nodes of the sample have in the original graph
@@ -36,7 +36,7 @@ public abstract class SamplingModularity extends Metric {
 	// degreeSum - 2x edgesInGraph computes the degree amount of edges between
 	// the sample and the original graph
 
-	public SamplingModularity(String name, Graph graph) {
+	public SamplingModularity(String name, IGraph graph) {
 		super(name, MetricType.exact);
 		this.graph = graph;
 		if (DirectedNode.class.isAssignableFrom(this.graph
@@ -93,7 +93,7 @@ public abstract class SamplingModularity extends Metric {
 	}
 
 	@Override
-	public boolean isApplicable(Graph g) {
+	public boolean isApplicable(IGraph g) {
 		return true;
 	}
 

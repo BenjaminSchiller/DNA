@@ -1,6 +1,6 @@
 package dna.metrics.workload.operations;
 
-import dna.graph.Graph;
+import dna.graph.IGraph;
 import dna.graph.edges.Edge;
 import dna.metrics.workload.OperationWithRandomSample;
 
@@ -27,13 +27,13 @@ public class GetSuccess extends OperationWithRandomSample {
 	}
 
 	@Override
-	protected void createWorkloadE(Graph g) {
+	protected void createWorkloadE(IGraph g) {
 		Edge e = this.getSampleEdge();
 		g.getEdge(e.getN1(), e.getN2());
 	}
 
 	@Override
-	protected void createWorkloadV(Graph g) {
+	protected void createWorkloadV(IGraph g) {
 		g.getNode(this.getSampleNode().getIndex());
 	}
 

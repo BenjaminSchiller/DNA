@@ -3,7 +3,7 @@ package dna.updates.generators.sampling;
 import java.util.Iterator;
 import java.util.LinkedList;
 
-import dna.graph.Graph;
+import dna.graph.IGraph;
 import dna.graph.IElement;
 import dna.graph.nodes.Node;
 import dna.updates.generators.sampling.startNode.StartNodeSelectionStrategy;
@@ -37,7 +37,7 @@ public class UniformSampling extends SamplingAlgorithm {
 	 *            the parameters which makes this algorithm unique and which
 	 *            will be added to the name
 	 */
-	public UniformSampling(Graph fullGraph,
+	public UniformSampling(IGraph fullGraph,
 			StartNodeSelectionStrategy startNodeStrategy, int costPerBatch,
 			int resource, SamplingStop stop, WalkingType walkingType) {
 		super("US", fullGraph, startNodeStrategy, costPerBatch, resource, stop,

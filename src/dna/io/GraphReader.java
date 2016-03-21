@@ -2,18 +2,18 @@ package dna.io;
 
 import java.io.IOException;
 
-import dna.graph.Graph;
+import dna.graph.IGraph;
 import dna.graph.datastructures.GraphDataStructure;
 import dna.graph.edges.Edge;
 
 public class GraphReader {
 
-	public static Graph read(String dir, String filename)
+	public static IGraph read(String dir, String filename)
 			throws ClassNotFoundException, IOException {
 		return read(dir, filename, null);
 	}
 
-	public static Graph read(String dir, String filename, GraphDataStructure ds)
+	public static IGraph read(String dir, String filename, GraphDataStructure ds)
 			throws IOException {
 		Reader reader = new Reader(dir, filename);
 
@@ -36,7 +36,7 @@ public class GraphReader {
 		reader.readKeyword(GraphWriter.timestampKeyword);
 		long timestamp = reader.readLong();
 
-		Graph g = ds.newGraphInstance(name, timestamp, nodes, edges);
+		IGraph g = ds.newGraphInstance(name, timestamp, nodes, edges);
 
 		reader.readKeyword(GraphWriter.nodesListKeyword);
 		String line = null;

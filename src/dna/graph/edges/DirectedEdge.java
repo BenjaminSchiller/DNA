@@ -3,7 +3,7 @@ package dna.graph.edges;
 import java.util.HashMap;
 
 import dna.graph.Element;
-import dna.graph.Graph;
+import dna.graph.IGraph;
 import dna.graph.nodes.DirectedNode;
 import dna.graph.nodes.Node;
 import dna.util.MathHelper;
@@ -16,7 +16,7 @@ public class DirectedEdge extends Edge {
 		init(src, dst);
 	}
 
-	public DirectedEdge(String s, Graph g) {
+	public DirectedEdge(String s, IGraph g) {
 		String[] temp = s.split(DirectedEdge.separator);
 		if (temp.length != 2) {
 			throw new IllegalArgumentException("Cannot parse " + s
@@ -29,7 +29,7 @@ public class DirectedEdge extends Edge {
 		init(src, dst);
 	}
 
-	public DirectedEdge(String s, Graph g, HashMap<Integer, Node> addedNodes) {
+	public DirectedEdge(String s, IGraph g, HashMap<Integer, Node> addedNodes) {
 		String[] temp = s.split(DirectedEdge.separator);
 		if (temp.length != 2) {
 			throw new IllegalArgumentException("Cannot parse " + s

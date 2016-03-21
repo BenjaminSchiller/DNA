@@ -2,15 +2,15 @@ package dna.metrics.streaM_k.grouping;
 
 import java.util.HashSet;
 
-import dna.graph.Graph;
 import dna.graph.IElement;
+import dna.graph.IGraph;
 import dna.graph.edges.Edge;
 import dna.graph.nodes.Node;
 
 public class GroupingV3 extends GroupingV1 {
 
 	@Override
-	protected String getKey(Graph g, Node a, Node b, String group) {
+	protected String getKey(IGraph g, Node a, Node b, String group) {
 		String[] temp = group.split(";");
 
 		Node c = g.getNode(Integer.parseInt(temp[0]));

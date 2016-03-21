@@ -1,6 +1,6 @@
 package dna.metrics.paths;
 
-import dna.graph.Graph;
+import dna.graph.IGraph;
 import dna.graph.weights.IWeightedEdge;
 import dna.graph.weights.doubleW.DoubleWeight;
 import dna.metrics.IMetric;
@@ -22,7 +22,7 @@ public abstract class DoubleWeightedAllPairsShortestPaths extends
 	}
 
 	@Override
-	public boolean isApplicable(Graph g) {
+	public boolean isApplicable(IGraph g) {
 		return g.getGraphDatastructures().isEdgeType(IWeightedEdge.class)
 				&& g.getGraphDatastructures().isEdgeWeightType(
 						DoubleWeight.class);

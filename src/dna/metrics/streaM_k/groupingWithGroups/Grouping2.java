@@ -1,11 +1,8 @@
 package dna.metrics.streaM_k.groupingWithGroups;
 
-import java.util.Arrays;
 import java.util.HashSet;
 
-import dna.graph.Graph;
 import dna.graph.edges.Edge;
-import dna.graph.nodes.Node;
 
 public abstract class Grouping2 {
 

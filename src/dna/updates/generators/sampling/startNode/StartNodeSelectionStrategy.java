@@ -2,7 +2,7 @@ package dna.updates.generators.sampling.startNode;
 
 import java.util.ArrayList;
 
-import dna.graph.Graph;
+import dna.graph.IGraph;
 import dna.graph.IElement;
 import dna.graph.edges.Edge;
 import dna.graph.nodes.DirectedNode;
@@ -29,12 +29,12 @@ public abstract class StartNodeSelectionStrategy {
 	/**
 	 * Returns a start node based on the specific node selection strategy
 	 */
-	public abstract Node getStartNode(Graph g);
+	public abstract Node getStartNode(IGraph g);
 
 	/**
 	 * Returns the resource costs for the specific strategy
 	 */
-	public abstract int resourceCost(Graph g);
+	public abstract int resourceCost(IGraph g);
 
 	/**
 	 * Returns a list of all neighbors of node n

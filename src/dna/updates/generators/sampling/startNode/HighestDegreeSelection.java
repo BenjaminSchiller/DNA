@@ -1,6 +1,6 @@
 package dna.updates.generators.sampling.startNode;
 
-import dna.graph.Graph;
+import dna.graph.IGraph;
 import dna.graph.IElement;
 import dna.graph.nodes.Node;
 
@@ -22,7 +22,7 @@ public class HighestDegreeSelection extends StartNodeSelectionStrategy {
 	}
 
 	@Override
-	public Node getStartNode(Graph g) {
+	public Node getStartNode(IGraph g) {
 		Node startNode = null;
 		int maxDegree = 0;
 
@@ -39,7 +39,7 @@ public class HighestDegreeSelection extends StartNodeSelectionStrategy {
 	}
 
 	@Override
-	public int resourceCost(Graph g) {
+	public int resourceCost(IGraph g) {
 		return g.getNodeCount();
 	}
 

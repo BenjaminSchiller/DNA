@@ -1,6 +1,6 @@
 package dna.metrics.parallelization.collation;
 
-import dna.graph.Graph;
+import dna.graph.IGraph;
 import dna.metrics.Metric;
 import dna.metrics.parallelization.partitioning.Partition;
 import dna.series.data.Value;
@@ -56,7 +56,7 @@ public abstract class Collation<T extends Metric> extends ParameterList {
 		return this.metric.getNodeNodeValueLists();
 	}
 
-	public abstract boolean collate(Graph g, Partition[] partitions);
+	public abstract boolean collate(IGraph g, Partition[] partitions);
 
 	public abstract boolean isCollatable(Metric m);
 

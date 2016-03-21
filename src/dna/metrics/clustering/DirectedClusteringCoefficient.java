@@ -1,7 +1,7 @@
 package dna.metrics.clustering;
 
-import dna.graph.Graph;
 import dna.graph.IElement;
+import dna.graph.IGraph;
 import dna.graph.nodes.DirectedNode;
 import dna.series.data.lists.LongList;
 import dna.series.data.nodevaluelists.NodeValueList;
@@ -22,7 +22,7 @@ public abstract class DirectedClusteringCoefficient extends
 	}
 
 	@Override
-	public boolean isApplicable(Graph g) {
+	public boolean isApplicable(IGraph g) {
 		return g.getGraphDatastructures().isNodeType(DirectedNode.class);
 	}
 

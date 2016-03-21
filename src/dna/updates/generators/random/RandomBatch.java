@@ -2,7 +2,7 @@ package dna.updates.generators.random;
 
 import java.util.ArrayList;
 
-import dna.graph.Graph;
+import dna.graph.IGraph;
 import dna.graph.weights.Weight.WeightSelection;
 import dna.updates.batch.Batch;
 import dna.updates.generators.BatchGenerator;
@@ -86,7 +86,7 @@ public class RandomBatch extends BatchGenerator {
 	}
 
 	@Override
-	public Batch generate(Graph g) {
+	public Batch generate(IGraph g) {
 		Batch b = new Batch(g.getGraphDatastructures(), g.getTimestamp(),
 				g.getTimestamp() + 1, this.na, this.nr, this.nw, this.ea,
 				this.er, this.ew);
@@ -103,7 +103,7 @@ public class RandomBatch extends BatchGenerator {
 	}
 
 	@Override
-	public boolean isFurtherBatchPossible(Graph g) {
+	public boolean isFurtherBatchPossible(IGraph g) {
 		for (BatchGenerator bg : this.bgs) {
 			if (bg.isFurtherBatchPossible(g)) {
 				return true;

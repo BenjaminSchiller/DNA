@@ -2,7 +2,7 @@ package dna.updates.update;
 
 import java.util.HashMap;
 
-import dna.graph.Graph;
+import dna.graph.IGraph;
 import dna.graph.datastructures.GraphDataStructure;
 import dna.graph.edges.Edge;
 import dna.graph.edges.IEdge;
@@ -15,13 +15,13 @@ public class EdgeAddition extends EdgeUpdate {
 		super(edge);
 	}
 
-	public EdgeAddition(String str, GraphDataStructure gds, Graph g,
+	public EdgeAddition(String str, GraphDataStructure gds, IGraph g,
 			HashMap<Integer, Node> addedNodes) {
 		super(gds.newEdgeInstance(str, g, addedNodes));
 	}
 
 	@Override
-	public boolean apply_(Graph g) {
+	public boolean apply_(IGraph g) {
 		if (!g.addEdge((Edge) this.edge)) {
 			Log.error("could not add edge " + this.edge);
 			if (g.containsEdge((Edge) this.edge)) {

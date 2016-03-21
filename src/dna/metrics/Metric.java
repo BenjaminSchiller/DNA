@@ -2,8 +2,8 @@ package dna.metrics;
 
 import com.google.common.collect.Iterables;
 
-import dna.graph.Graph;
 import dna.graph.IElement;
+import dna.graph.IGraph;
 import dna.graph.nodes.Node;
 import dna.graph.weights.ITypedWeight;
 import dna.graph.weights.IWeightedNode;
@@ -80,13 +80,13 @@ public abstract class Metric extends ParameterList implements IMetric {
 		return p;
 	}
 
-	protected Graph g;
+	protected IGraph g;
 
-	public Graph getGraph() {
+	public IGraph getGraph() {
 		return this.g;
 	}
 
-	public void setGraph(Graph g) {
+	public void setGraph(IGraph g) {
 		this.g = g;
 		if (this.nodeTypes.length > 0
 				&& this.g.getGraphDatastructures().isNodeType(

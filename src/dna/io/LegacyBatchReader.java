@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.HashSet;
 
-import dna.graph.Graph;
+import dna.graph.IGraph;
 import dna.graph.edges.Edge;
 import dna.graph.nodes.Node;
 import dna.graph.weights.IWeightedEdge;
@@ -37,7 +37,7 @@ public class LegacyBatchReader extends BatchReader {
 
 	public static final String weightDelimiter = "--";
 
-	public static Batch read(String dir, String filename, Graph g) {
+	public static Batch read(String dir, String filename, IGraph g) {
 		Reader reader = null;
 
 		try {
@@ -84,7 +84,7 @@ public class LegacyBatchReader extends BatchReader {
 		}
 	}
 
-	protected static Update parseLine(String line, Graph g,
+	protected static Update parseLine(String line, IGraph g,
 			HashMap<Integer, Node> addedNodes) {
 		String[] temp = line.split(LegacyBatchReader.typeDelimiter);
 		LegacyUpdateType type = LegacyUpdateType.valueOf(temp[0]);

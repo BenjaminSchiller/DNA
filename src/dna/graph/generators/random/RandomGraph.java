@@ -1,6 +1,6 @@
 package dna.graph.generators.random;
 
-import dna.graph.Graph;
+import dna.graph.IGraph;
 import dna.graph.datastructures.GraphDataStructure;
 import dna.graph.edges.Edge;
 import dna.graph.generators.GraphGenerator;
@@ -23,8 +23,8 @@ public class RandomGraph extends GraphGenerator implements IRandomGenerator {
 	}
 
 	@Override
-	public Graph generate() {
-		Graph graph = this.newGraphInstance();
+	public IGraph generate() {
+		IGraph graph = this.newGraphInstance();
 
 		for (int i = 0; i < this.nodesInit; i++) {
 			Node node = this.gds.newNodeInstance(i);

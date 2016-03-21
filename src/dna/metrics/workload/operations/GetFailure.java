@@ -1,6 +1,6 @@
 package dna.metrics.workload.operations;
 
-import dna.graph.Graph;
+import dna.graph.IGraph;
 import dna.graph.edges.Edge;
 import dna.graph.nodes.Node;
 import dna.metrics.workload.Operation;
@@ -32,7 +32,7 @@ public class GetFailure extends Operation {
 	}
 
 	@Override
-	public void init(Graph g) {
+	public void init(IGraph g) {
 		this.node1 = g.getGraphDatastructures().newNodeInstance(
 				Integer.MAX_VALUE);
 		this.node2 = g.getGraphDatastructures().newNodeInstance(
@@ -42,12 +42,12 @@ public class GetFailure extends Operation {
 	}
 
 	@Override
-	protected void createWorkloadE(Graph g) {
+	protected void createWorkloadE(IGraph g) {
 		g.getEdge(this.node1, this.node2);
 	}
 
 	@Override
-	protected void createWorkloadV(Graph g) {
+	protected void createWorkloadV(IGraph g) {
 		g.getNode(this.node1.getIndex());
 	}
 

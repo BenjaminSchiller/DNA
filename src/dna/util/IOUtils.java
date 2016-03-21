@@ -123,5 +123,97 @@ public class IOUtils {
 
 		return new JarFile(p.toFile(), false);
 	}
+	
+	/**
+	 * Removes root directory and the files and directories under the given
+	 * path recursively. If the path represents a file the file will
+	 * be deleted.
+	 *
+	 * @param path the root dir or the file 
+	 * @return true, if successful
+	 */
+	public static boolean removeRecursive(String path) {
+		return IOUtils.removeRecursive(path, 0, 0, Integer.MAX_VALUE);
+	}
+	
+	/**
+	 * Removes root directory and the files and directories under the given
+	 * path recursively till the maximum depth. If the path represents a file 
+	 * the file will be deleted.
+	 *
+	 * @param path the root dir or the file
+	 * @param maximumDepth the maximum depth
+	 * @return true, if successful<br>
+	 * false, if the maximum depth was reached and there are still files
+	 * or subdirectories
+	 */
+	public static boolean removeRecursive(String path, int maximumDepth) {
+		return IOUtils.removeRecursive(path, 0, 0, maximumDepth);
+	}
 
+	/**
+	 * Removes the files and directories under the given path recursively 
+	 * starting at <i>startDepth</i> till the <i>endDepth</i> is reached. If the path represents a file 
+	 * the file will be deleted.
+	 *
+	 * @param path the root dir or the file
+	 * @param startDepth the start depth
+	 * @param endDepth the end depth
+	 * @return true, if successful<br>
+	 * false, if the end depth was reached and there are still files
+	 * or subdirectories
+	 */
+	public static boolean removeRecursive(String path, int startDepth, int endDepth) {
+		return IOUtils.removeRecursive(path, startDepth, 0, endDepth);
+	}	
+	
+	/**
+	 * Removes the recursive.
+	 *
+	 * @param path the root dir
+	 * @param startDepth the start depth
+	 * @param currentDepth the current depth
+	 * @param endDepth the end depth
+	 * @return true, if successful
+	 */
+	private static boolean removeRecursive(String path, int startDepth, int currentDepth, int endDepth) {
+		boolean result = true;
+		File root = new File(path);			
+		
+		if (!root.exists()) return false;			
+		
+		if (root.isDirectory()) {
+			for (File f: root.listFiles()) {				
+				if (f.isFile() && startDepth <= currentDepth){
+					f.delete();						
+					result = result && !f.exists();					
+					if (!result) return false;
+				} else {
+					if (endDepth >= currentDepth) {							
+						result = result && removeRecursive(f.getAbsolutePath(), startDepth, currentDepth + 1 , endDepth);
+						if (!result) return false;
+					}
+				}
+			}
+		}		
+		
+		if (startDepth <= currentDepth) {
+			root.delete();
+			result = result && !root.exists();
+		}
+		
+		return result;
+	}
+	
+	public static String getPathForOS(String path){
+		if (OsCheck.isWindows()) {
+			return path.replaceAll("((?<!\\\\)\\\\(?!\\\\))|(\\/)", "\\\\\\\\");
+		} else {
+			return path.replaceAll("([\\\\]+)", "/");
+		}
+	}
+	
+	public static String getPathDelimiterForOS(){		
+		return File.separator;
+	}
 }

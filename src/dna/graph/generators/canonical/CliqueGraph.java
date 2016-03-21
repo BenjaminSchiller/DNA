@@ -1,6 +1,6 @@
 package dna.graph.generators.canonical;
 
-import dna.graph.Graph;
+import dna.graph.IGraph;
 import dna.graph.datastructures.GraphDataStructure;
 import dna.graph.edges.Edge;
 import dna.graph.generators.GraphGenerator;
@@ -26,8 +26,8 @@ public class CliqueGraph extends GraphGenerator {
 	}
 
 	@Override
-	public Graph generate() {
-		Graph g = gds.newGraphInstance(this.getName(), this.timestampInit,
+	public IGraph generate() {
+		IGraph g = gds.newGraphInstance(this.getName(), this.timestampInit,
 				nodesInit, edgesInit);
 
 		for (int i = 0; i < this.nodesInit; i++) {

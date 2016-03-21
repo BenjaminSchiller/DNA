@@ -5,8 +5,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import dna.graph.Graph;
 import dna.graph.IElement;
+import dna.graph.IGraph;
 import dna.graph.datastructures.GraphDataStructure;
 import dna.graph.edges.Edge;
 import dna.graph.nodes.Node;
@@ -40,18 +40,19 @@ public class NonOverlappingPartition extends Partition {
 		return externalEdges;
 	}
 
-	public NonOverlappingPartition(Graph g, List<Node> nodes, Metric m,
+	public NonOverlappingPartition(IGraph g, List<Node> nodes, Metric m,
 			Set<Edge> connections) {
 		super(g, nodes, m);
 		this.externalEdges = connections;
 	}
 
+	@Override
 	public String toString() {
 		return "NonOverlappingPartition: " + g.toString() + " @ "
 				+ externalEdges.size();
 	}
 
-	public static NonOverlappingPartition[] getPartitions(Graph g,
+	public static NonOverlappingPartition[] getPartitions(IGraph g,
 			List<List<Node>> nodesList, Metric m,
 			HashMap<Node, Partition> partitionMap) {
 		NonOverlappingPartition[] p = new NonOverlappingPartition[nodesList
@@ -67,9 +68,9 @@ public class NonOverlappingPartition extends Partition {
 		return p;
 	}
 
-	protected static NonOverlappingPartition getPartition(String name, Graph g,
+	protected static NonOverlappingPartition getPartition(String name, IGraph g,
 			List<Node> nodes, Metric m) {
-		Graph gp = g.getGraphDatastructures().newGraphInstance(name,
+		IGraph gp = g.getGraphDatastructures().newGraphInstance(name,
 				g.getTimestamp(), nodes.size(),
 				nodes.size() == 0 ? 0 : g.getEdgeCount() / nodes.size());
 		GraphDataStructure gds = gp.getGraphDatastructures();

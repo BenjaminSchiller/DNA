@@ -3,8 +3,8 @@ package dna.metrics.motifs;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-import dna.graph.Graph;
 import dna.graph.IElement;
+import dna.graph.IGraph;
 import dna.graph.edges.UndirectedEdge;
 import dna.graph.nodes.UndirectedNode;
 import dna.metrics.IMetric;
@@ -73,7 +73,7 @@ public abstract class UndirectedMotifs extends Metric {
 	}
 
 	@Override
-	public boolean isApplicable(Graph g) {
+	public boolean isApplicable(IGraph g) {
 		return g.getGraphDatastructures().isNodeType(UndirectedNode.class);
 	}
 

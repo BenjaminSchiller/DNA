@@ -1,6 +1,6 @@
 package dna.updates.generators.evolvingNetworks;
 
-import dna.graph.Graph;
+import dna.graph.IGraph;
 import dna.updates.batch.Batch;
 import dna.updates.generators.BatchGenerator;
 import dna.updates.generators.random.RandomBatch;
@@ -25,7 +25,7 @@ public class RandomScalingBatch extends BatchGenerator {
 	}
 
 	@Override
-	public Batch generate(Graph g) {
+	public Batch generate(IGraph g) {
 		Batch b = this.getCurrentBatch(g).generate(g);
 		return b;
 	}
@@ -34,7 +34,7 @@ public class RandomScalingBatch extends BatchGenerator {
 	public void reset() {
 	}
 
-	private RandomBatch getCurrentBatch(Graph g) {
+	private RandomBatch getCurrentBatch(IGraph g) {
 		int nodes = g.getNodeCount();
 		int edges = g.getEdgeCount();
 
@@ -45,7 +45,7 @@ public class RandomScalingBatch extends BatchGenerator {
 	}
 
 	@Override
-	public boolean isFurtherBatchPossible(Graph g) {
+	public boolean isFurtherBatchPossible(IGraph g) {
 		return this.getCurrentBatch(g).isFurtherBatchPossible(g);
 	}
 }

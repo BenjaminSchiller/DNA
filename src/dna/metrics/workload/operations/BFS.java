@@ -3,7 +3,7 @@ package dna.metrics.workload.operations;
 import java.util.HashSet;
 import java.util.LinkedList;
 
-import dna.graph.Graph;
+import dna.graph.IGraph;
 import dna.graph.IElement;
 import dna.graph.edges.DirectedEdge;
 import dna.graph.edges.UndirectedEdge;
@@ -35,12 +35,12 @@ public class BFS extends OperationWithRandomSample {
 	}
 
 	@Override
-	protected void createWorkloadE(Graph g) {
+	protected void createWorkloadE(IGraph g) {
 		Log.error("BFSWorkload is not implemented for list type E");
 	}
 
 	@Override
-	protected void createWorkloadV(Graph g) {
+	protected void createWorkloadV(IGraph g) {
 		HashSet<Node> seen = new HashSet<Node>();
 		Node start = this.getSampleNode();
 		seen.add(start);

@@ -1,6 +1,6 @@
 package dna.metrics;
 
-import dna.graph.Graph;
+import dna.graph.IGraph;
 import dna.series.data.MetricData;
 import dna.series.data.Value;
 import dna.series.data.distr.Distr;
@@ -14,9 +14,9 @@ public interface IMetric {
 		exact, heuristic, quality, unknown
 	}
 
-	public Graph getGraph();
+	public IGraph getGraph();
 
-	public void setGraph(Graph g);
+	public void setGraph(IGraph g);
 
 	public MetricData getData();
 
@@ -85,7 +85,7 @@ public interface IMetric {
 	 *            graph to check for applicability
 	 * @return true, if the metric can be applied to the given graph
 	 */
-	public boolean isApplicable(Graph g);
+	public boolean isApplicable(IGraph g);
 
 	/**
 	 * 

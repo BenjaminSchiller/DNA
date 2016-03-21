@@ -1,6 +1,6 @@
 package dna.metrics.sampling;
 
-import dna.graph.Graph;
+import dna.graph.IGraph;
 import dna.metrics.IMetric;
 import dna.metrics.Metric;
 import dna.series.data.Value;
@@ -80,7 +80,7 @@ public abstract class Extent extends Metric {
 	}
 
 	@Override
-	public boolean isApplicable(Graph g) {
+	public boolean isApplicable(IGraph g) {
 		return true;
 	}
 

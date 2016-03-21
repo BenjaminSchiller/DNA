@@ -2,7 +2,7 @@ package dna.graph.generators.connectivity;
 
 import java.util.Set;
 
-import dna.graph.Graph;
+import dna.graph.IGraph;
 import dna.graph.IElement;
 import dna.graph.edges.Edge;
 import dna.graph.generators.GraphGenerator;
@@ -20,8 +20,8 @@ public abstract class ConnectedGraph extends GraphGenerator {
 	}
 
 	@Override
-	public Graph generate() {
-		Graph g = this.gg.generate();
+	public IGraph generate() {
+		IGraph g = this.gg.generate();
 		Set<Node> exclude = this.getNodesToExclude(g);
 		for (Node n : exclude) {
 			g.removeNode(n);
@@ -38,6 +38,6 @@ public abstract class ConnectedGraph extends GraphGenerator {
 		return g;
 	}
 
-	protected abstract Set<Node> getNodesToExclude(Graph g);
+	protected abstract Set<Node> getNodesToExclude(IGraph g);
 
 }

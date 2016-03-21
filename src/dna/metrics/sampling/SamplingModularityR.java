@@ -1,6 +1,6 @@
 package dna.metrics.sampling;
 
-import dna.graph.Graph;
+import dna.graph.IGraph;
 import dna.metrics.algorithms.IRecomputation;
 
 /**
@@ -16,7 +16,7 @@ import dna.metrics.algorithms.IRecomputation;
 public class SamplingModularityR extends SamplingModularity implements
 		IRecomputation {
 
-	public SamplingModularityR(Graph graph) {
+	public SamplingModularityR(IGraph graph) {
 		super("SamplingModularityR", graph);
 	}
 

@@ -2,7 +2,7 @@ package dna.graph.generators.util;
 
 import java.io.IOException;
 
-import dna.graph.Graph;
+import dna.graph.IGraph;
 import dna.graph.datastructures.GraphDataStructure;
 import dna.graph.generators.GraphGenerator;
 import dna.io.GraphReader;
@@ -52,7 +52,7 @@ public class ReadableFileGraph extends GraphGenerator {
 	}
 
 	@Override
-	public Graph generate() {
+	public IGraph generate() {
 		try {
 			if (this.gds == null) {
 				return GraphReader.read(this.dir, this.filename);

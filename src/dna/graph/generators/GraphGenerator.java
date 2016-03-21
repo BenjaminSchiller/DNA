@@ -1,6 +1,6 @@
 package dna.graph.generators;
 
-import dna.graph.Graph;
+import dna.graph.IGraph;
 import dna.graph.datastructures.GraphDataStructure;
 import dna.util.parameters.Parameter;
 import dna.util.parameters.ParameterList;
@@ -50,8 +50,8 @@ public abstract class GraphGenerator extends ParameterList implements
 		}
 
 	}
-
-	public Graph newGraphInstance() {
+	
+	public IGraph newGraphInstance() {
 		GraphDataStructure newGDS = gds.clone();
 		return newGDS.newGraphInstance(this.getName(), this.timestampInit,
 				this.nodesInit, this.edgesInit);
@@ -65,10 +65,10 @@ public abstract class GraphGenerator extends ParameterList implements
 		if (gds == null) {
 			return name;
 		}
-		if (gds.createsDirected()) {
+		if (gds.createsDirected()/* || gds.createsDirectedGDB()*/) {
 			return "Directed" + name;
 		}
-		if (gds.createsUndirected()) {
+		if (gds.createsUndirected()/* || gds.createsUndirectedGDB()*/) {
 			return "Undirected" + name;
 		}
 		return name;

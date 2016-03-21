@@ -5,8 +5,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import dna.graph.Graph;
 import dna.graph.IElement;
+import dna.graph.IGraph;
 import dna.graph.datastructures.GraphDataStructure;
 import dna.graph.edges.Edge;
 import dna.graph.nodes.Node;
@@ -50,19 +50,20 @@ public class NodeCutPartition extends Partition {
 		super();
 	}
 
-	public void init(Graph g, List<Node> nodes, Metric m, Set<Node> cutNodes,
+	public void init(IGraph g, List<Node> nodes, Metric m, Set<Node> cutNodes,
 			Set<Edge> cutEdges) {
 		super.init(g, nodes, m);
 		this.cutNodes = cutNodes;
 		this.cutEdges = cutEdges;
 	}
 
+	@Override
 	public String toString() {
 		return "NodeCutPartition: " + g.toString() + " @ " + cutNodes.size()
 				+ " / " + cutEdges.size();
 	}
 
-	public static NodeCutPartition[] getPartitions(Graph g,
+	public static NodeCutPartition[] getPartitions(IGraph g,
 			List<List<Node>> nodesList, Metric m,
 			HashMap<Node, Partition> partitionMap) {
 		NodeCutPartition[] p = new NodeCutPartition[nodesList.size()];
@@ -102,9 +103,9 @@ public class NodeCutPartition extends Partition {
 		return p;
 	}
 
-	protected static void fill(NodeCutPartition p, String name, Graph g,
+	protected static void fill(NodeCutPartition p, String name, IGraph g,
 			List<Node> nodes, Metric m, Set<Edge> globalCut) {
-		Graph gp = g.getGraphDatastructures().newGraphInstance(name,
+		IGraph gp = g.getGraphDatastructures().newGraphInstance(name,
 				g.getTimestamp(), nodes.size(),
 				nodes.size() == 0 ? 0 : g.getEdgeCount() / nodes.size());
 		GraphDataStructure gds = gp.getGraphDatastructures();

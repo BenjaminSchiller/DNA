@@ -1,7 +1,7 @@
 package dna.updates.generators.weights;
 
-import dna.graph.Graph;
 import dna.graph.IElement;
+import dna.graph.IGraph;
 import dna.graph.weights.IWeightedNode;
 import dna.graph.weights.Weight;
 import dna.graph.weights.doubleW.Double2dWeight;
@@ -38,7 +38,7 @@ public class NodeWeightContractionAndExpansion extends BatchGenerator {
 	}
 
 	@Override
-	public Batch generate(Graph g) {
+	public Batch generate(IGraph g) {
 		double factor;
 		if (this.step < this.contractionSteps) {
 			factor = this.contraction;
@@ -78,7 +78,7 @@ public class NodeWeightContractionAndExpansion extends BatchGenerator {
 	}
 
 	@Override
-	public boolean isFurtherBatchPossible(Graph g) {
+	public boolean isFurtherBatchPossible(IGraph g) {
 		return g.getGraphDatastructures().isNodeType(IWeightedNode.class)
 				&& g.getGraphDatastructures().isNodeWeightType(
 						DoubleWeight.class, Double2dWeight.class,

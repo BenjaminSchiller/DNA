@@ -1,7 +1,7 @@
 package dna.metrics.richClub;
 
-import dna.graph.Graph;
 import dna.graph.IElement;
+import dna.graph.IGraph;
 import dna.graph.nodes.Node;
 import dna.metrics.IMetric;
 import dna.metrics.Metric;
@@ -119,7 +119,7 @@ public abstract class RichClubConnectivityByDegree extends Metric {
 	}
 
 	@Override
-	public boolean isApplicable(Graph g) {
+	public boolean isApplicable(IGraph g) {
 		return true;
 	}
 

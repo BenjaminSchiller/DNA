@@ -2,7 +2,7 @@ package dna.updates.generators.sampling.startNode;
 
 import java.util.ArrayList;
 
-import dna.graph.Graph;
+import dna.graph.IGraph;
 import dna.graph.nodes.Node;
 import dna.util.Rand;
 
@@ -38,7 +38,7 @@ public class HighestRandomDegreeSumSelection extends StartNodeSelectionStrategy 
 	}
 
 	@Override
-	public Node getStartNode(Graph g) {
+	public Node getStartNode(IGraph g) {
 
 		int maxDegreeSum = 0;
 
@@ -76,7 +76,7 @@ public class HighestRandomDegreeSumSelection extends StartNodeSelectionStrategy 
 	}
 
 	@Override
-	public int resourceCost(Graph g) {
+	public int resourceCost(IGraph g) {
 		return n * m;
 	}
 

@@ -5,8 +5,8 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 
-import dna.graph.Graph;
 import dna.graph.IElement;
+import dna.graph.IGraph;
 import dna.graph.edges.Edge;
 import dna.graph.nodes.Node;
 
@@ -17,7 +17,7 @@ public class DFSPartitioning extends Partitioning {
 	}
 
 	@Override
-	protected List<Node>[] partition(Graph g, int partitionCount) {
+	protected List<Node>[] partition(IGraph g, int partitionCount) {
 		List<Node> sorted = new ArrayList<Node>(g.getNodeCount());
 		HashSet<Node> seen = new HashSet<Node>(g.getNodeCount());
 

@@ -6,8 +6,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import dna.graph.Graph;
 import dna.graph.IElement;
+import dna.graph.IGraph;
 import dna.graph.edges.Edge;
 import dna.graph.edges.IEdge;
 import dna.graph.nodes.Node;
@@ -23,7 +23,7 @@ import dna.updates.update.Update;
 
 public class OverlappingPartition extends Partition {
 
-	public OverlappingPartition(Graph g) {
+	public OverlappingPartition(IGraph g) {
 		super(g);
 		// TODO Auto-generated constructor stub
 	}
@@ -33,8 +33,8 @@ public class OverlappingPartition extends Partition {
 	 */
 
 	public static AllPartitions<OverlappingPartition, OverlappingAuxData> partition(
-			String name, Graph g, List<Node>[] nodess) {
-		Graph[] graphs = getInitialGraphs(g, nodess);
+			String name, IGraph g, List<Node>[] nodess) {
+		IGraph[] graphs = getInitialGraphs(g, nodess);
 		OverlappingPartition[] partitions = new OverlappingPartition[nodess.length];
 		HashMap<Node, Integer> mapping = new HashMap<Node, Integer>();
 		for (int i = 0; i < graphs.length; i++) {
@@ -608,7 +608,7 @@ public class OverlappingPartition extends Partition {
 	 *            update which is currently processed and results in this
 	 *            addition (log only)
 	 */
-	public static void add(Graph g, Batch[] batches, int index, Update u,
+	public static void add(IGraph g, Batch[] batches, int index, Update u,
 			String name, Update current) {
 		if (u instanceof EdgeRemoval) {
 			EdgeAddition addition = batches[index]

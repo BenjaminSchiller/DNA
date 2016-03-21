@@ -2,7 +2,7 @@ package dna.graph.datastructures.count;
 
 import java.io.IOException;
 
-import dna.graph.Graph;
+import dna.graph.IGraph;
 import dna.graph.datastructures.DataStructure.ListType;
 import dna.graph.datastructures.count.OperationCount.AggregationType;
 import dna.util.Config;
@@ -39,7 +39,7 @@ public abstract class OperationCounts {
 	public abstract void readValues(String dir, String filename)
 			throws IOException;
 
-	public abstract void setSizes(Graph g);
+	public abstract void setSizes(IGraph g);
 	
 	public abstract OperationCounts add(AggregationType at, OperationCounts... ocs);
 }

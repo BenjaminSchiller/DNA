@@ -2,7 +2,7 @@ package dna.updates.update;
 
 import java.util.HashMap;
 
-import dna.graph.Graph;
+import dna.graph.IGraph;
 import dna.graph.datastructures.GraphDataStructure;
 import dna.graph.nodes.Node;
 
@@ -23,11 +23,11 @@ public abstract class Update {
 	// EDGE_WEIGHT
 	// };
 
-	public boolean apply(Graph g) {
+	public boolean apply(IGraph g) {
 		return this.apply_(g);
 	}
 
-	public abstract boolean apply_(Graph g);
+	public abstract boolean apply_(IGraph g);
 
 	public abstract UpdateType getType();
 
@@ -59,7 +59,7 @@ public abstract class Update {
 		return u.asString().equals(this.asString());
 	}
 
-	public static Update fromString(GraphDataStructure gds, Graph g,
+	public static Update fromString(GraphDataStructure gds, IGraph g,
 			String str, HashMap<Integer, Node> addedNodes) {
 		String[] temp = str.split(Update.TypeDelimiter);
 		UpdateType t = UpdateType.valueOf(temp[0]);

@@ -2,7 +2,7 @@ package dna.graph.edges;
 
 import java.util.HashMap;
 
-import dna.graph.Graph;
+import dna.graph.IGraph;
 import dna.graph.nodes.Node;
 import dna.graph.nodes.UndirectedNode;
 import dna.graph.weights.IWeightedEdge;
@@ -19,13 +19,13 @@ public class UndirectedWeightedEdge extends UndirectedEdge implements
 		this.weight = weight;
 	}
 
-	public UndirectedWeightedEdge(String s, Graph g) {
+	public UndirectedWeightedEdge(String s, IGraph g) {
 		super(s.split(Weight.WeightDelimiter)[0], g);
 		this.weight = g.getGraphDatastructures().newEdgeWeight(
 				s.split(Weight.WeightDelimiter)[1]);
 	}
 
-	public UndirectedWeightedEdge(String s, Graph g,
+	public UndirectedWeightedEdge(String s, IGraph g,
 			HashMap<Integer, Node> addedNodes) {
 		super(s.split(Weight.WeightDelimiter)[0], g, addedNodes);
 		this.weight = g.getGraphDatastructures().newEdgeWeight(

@@ -2,8 +2,8 @@ package dna.updates.generators.evolvingNetworks;
 
 import java.util.HashSet;
 
-import dna.graph.Graph;
 import dna.graph.IElement;
+import dna.graph.IGraph;
 import dna.graph.edges.Edge;
 import dna.graph.nodes.Node;
 import dna.updates.batch.Batch;
@@ -27,7 +27,7 @@ public class RandomGrowth extends BatchGenerator {
 	}
 
 	@Override
-	public Batch generate(Graph g) {
+	public Batch generate(IGraph g) {
 		Batch b = new Batch(g.getGraphDatastructures(), g.getTimestamp(),
 				g.getTimestamp() + 1, this.nodes, 0, 0, this.nodes
 						* this.edgesPerNode, 0, 0);
@@ -78,7 +78,7 @@ public class RandomGrowth extends BatchGenerator {
 	}
 
 	@Override
-	public boolean isFurtherBatchPossible(Graph g) {
+	public boolean isFurtherBatchPossible(IGraph g) {
 		return g.getNodeCount() >= this.edgesPerNode;
 	}
 

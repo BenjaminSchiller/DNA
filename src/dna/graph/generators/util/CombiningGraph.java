@@ -2,17 +2,17 @@ package dna.graph.generators.util;
 
 import java.util.HashMap;
 
-import dna.graph.Graph;
 import dna.graph.IElement;
+import dna.graph.IGraph;
 import dna.graph.datastructures.GraphDataStructure;
 import dna.graph.edges.Edge;
 import dna.graph.nodes.Node;
 import dna.metrics.parallelization.partitioning.Partition;
 
 public class CombiningGraph {
-	public static Graph combine(GraphDataStructure gds, String name,
+	public static IGraph combine(GraphDataStructure gds, String name,
 			Partition[] partitions) {
-		Graph[] graphs = new Graph[partitions.length];
+		IGraph[] graphs = new IGraph[partitions.length];
 		for (int i = 0; i < partitions.length; i++) {
 			graphs[i] = partitions[i].getGraph();
 		}
@@ -27,16 +27,16 @@ public class CombiningGraph {
 	// return combine(gds, name, graphs);
 	// }
 
-	public static Graph combine(GraphDataStructure gds, String name,
-			Graph... graphs) {
+	public static IGraph combine(GraphDataStructure gds, String name,
+			IGraph... graphs) {
 		int nodes = 0;
 		int edges = 0;
-		for (Graph graph : graphs) {
+		for (IGraph graph : graphs) {
 			nodes += graph.getNodeCount();
 			edges += graph.getEdgeCount();
 		}
 
-		Graph g = gds.newGraphInstance(name, 0, nodes, edges);
+		IGraph g = gds.newGraphInstance(name, 0, nodes, edges);
 
 		int index = 0;
 		HashMap<Node, Node>[] map = new HashMap[graphs.length];

@@ -2,7 +2,7 @@ package dna.updates.generators.evolvingNetworks;
 
 import java.util.HashSet;
 
-import dna.graph.Graph;
+import dna.graph.IGraph;
 import dna.graph.IElement;
 import dna.graph.nodes.DirectedNode;
 import dna.graph.nodes.Node;
@@ -28,7 +28,7 @@ public class BarabasiAlbertBatch extends BatchGenerator {
 	}
 
 	@Override
-	public Batch generate(Graph g) {
+	public Batch generate(IGraph g) {
 		Batch b = new Batch(g.getGraphDatastructures(), g.getTimestamp(),
 				g.getTimestamp() + 1, this.nodes, 0, 0, this.nodes * this.m, 0,
 				0);
@@ -114,10 +114,11 @@ public class BarabasiAlbertBatch extends BatchGenerator {
 
 	@Override
 	public void reset() {
+	
 	}
 
 	@Override
-	public boolean isFurtherBatchPossible(Graph g) {
+	public boolean isFurtherBatchPossible(IGraph g) {
 		return g.getNodeCount() >= this.m;
 	}
 

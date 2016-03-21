@@ -5,7 +5,7 @@ import java.util.HashMap;
 
 import com.sun.media.sound.InvalidFormatException;
 
-import dna.graph.Graph;
+import dna.graph.IGraph;
 import dna.graph.datastructures.DArray;
 import dna.graph.datastructures.DArrayList;
 import dna.graph.datastructures.DLinkedHashMultimap;
@@ -51,7 +51,7 @@ public class SNAPGraphReader {
 	 * @throws IOException
 	 *             in case the file does not exist
 	 */
-	public static Graph read(String dir, String filename) throws IOException {
+	public static IGraph read(String dir, String filename) throws IOException {
 		return read(dir, filename, null);
 	}
 
@@ -67,7 +67,7 @@ public class SNAPGraphReader {
 	 * @throws IOException
 	 *             in case the file does not exist
 	 */
-	public static Graph readUndirected(String dir, String filename)
+	public static IGraph readUndirected(String dir, String filename)
 			throws IOException {
 		return read(dir, filename, undirectedGDSSetup);
 	}
@@ -86,7 +86,7 @@ public class SNAPGraphReader {
 	 * @throws IOException
 	 *             in case the file does not exist
 	 */
-	public static Graph read(String dir, String filename, GraphDataStructure ds)
+	public static IGraph read(String dir, String filename, GraphDataStructure ds)
 			throws IOException {
 
 		HashMap<Integer, Integer> map = new HashMap<Integer, Integer>();
@@ -140,7 +140,7 @@ public class SNAPGraphReader {
 		int edgeCount = Integer.parseInt(nodeAndEdgeCount);
 
 		// Creates the graph
-		Graph g = ds.newGraphInstance(name, 0, nodeCount, edgeCount);
+		IGraph g = ds.newGraphInstance(name, 0, nodeCount, edgeCount);
 
 		// Reads and adds the edges
 		String line = reader.readString();

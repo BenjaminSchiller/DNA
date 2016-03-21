@@ -1,6 +1,6 @@
 package dna.updates.generators.util;
 
-import dna.graph.Graph;
+import dna.graph.IGraph;
 import dna.updates.batch.Batch;
 import dna.updates.generators.BatchGenerator;
 import dna.util.ArrayUtils;
@@ -20,7 +20,7 @@ public class Timestamped extends BatchGenerator {
 	}
 
 	@Override
-	public Batch generate(Graph g) {
+	public Batch generate(IGraph g) {
 		Batch b = this.bg.generate(g);
 		b.setTo(b.getFrom() + this.add);
 		return b;
@@ -31,7 +31,7 @@ public class Timestamped extends BatchGenerator {
 	}
 
 	@Override
-	public boolean isFurtherBatchPossible(Graph g) {
+	public boolean isFurtherBatchPossible(IGraph g) {
 		return this.bg.isFurtherBatchPossible(g);
 	}
 

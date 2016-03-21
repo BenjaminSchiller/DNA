@@ -1,6 +1,6 @@
 package dna.updates.generators.zalando;
 
-import dna.graph.Graph;
+import dna.graph.IGraph;
 import dna.graph.datastructures.GraphDataStructure;
 import dna.graph.datastructures.zalando.ZalandoGraphDataStructure;
 import dna.graph.edges.Edge;
@@ -94,7 +94,7 @@ public class ZalandoChronologyBatchGenerator extends ZalandoBatchGenerator {
 	 * </p>
 	 * <p>
 	 * The edge is not added to the graph directly, it is added to
-	 * {@link #edgeAdditions} or {@link #edgeWeights}. {@link #generate(Graph)}
+	 * {@link #edgeAdditions} or {@link #edgeWeights}. {@link #generate(IGraph)}
 	 * adds these to the batch to update the graph.
 	 * </p>
 	 * 
@@ -105,7 +105,9 @@ public class ZalandoChronologyBatchGenerator extends ZalandoBatchGenerator {
 	 * @see #addEdge(Node, Node, Object)
 	 */
 	@Override
-	void addEdgesForColumns(Graph g, Event event) {
+	void addEdgesForColumns(IGraph g, Event event) {
+		// TODO
+//		final GraphDataStructure gds = g.getGraphDatastructures();
 		int nodeForEventIndex, mappingForColumnGroup;
 		for (EventColumn[] eventColumnGroup : this.columnGroupsToAddAsNodes) {
 			nodeForEventIndex = this.mappings.getMapping(eventColumnGroup,

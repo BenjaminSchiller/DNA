@@ -3,14 +3,14 @@ package dna.parallel.partitioning;
 import java.util.ArrayList;
 import java.util.List;
 
-import dna.graph.Graph;
+import dna.graph.IGraph;
 import dna.graph.nodes.Node;
 import dna.parallel.partition.AllPartitions;
 import dna.parallel.partition.CompletePartition;
 import dna.parallel.partition.NodeCutPartition;
-import dna.parallel.partition.SeparatedPartition;
 import dna.parallel.partition.OverlappingPartition;
 import dna.parallel.partition.Partition.PartitionType;
+import dna.parallel.partition.SeparatedPartition;
 import dna.util.parameters.Parameter;
 import dna.util.parameters.ParameterList;
 
@@ -20,10 +20,10 @@ public abstract class Partitioning extends ParameterList {
 		super(name, parameters);
 	}
 
-	protected abstract List<Node>[] partition(Graph g, int partitionCount);
+	protected abstract List<Node>[] partition(IGraph g, int partitionCount);
 
 	@SuppressWarnings("rawtypes")
-	public AllPartitions getPartition(PartitionType partitionType, Graph g,
+	public AllPartitions getPartition(PartitionType partitionType, IGraph g,
 			int partitionCount) {
 		switch (partitionType) {
 		case NodeCut:
@@ -45,7 +45,7 @@ public abstract class Partitioning extends ParameterList {
 	}
 
 	@SuppressWarnings("unchecked")
-	protected List<Node>[] getInitialList(Graph g, int partitionCount) {
+	protected List<Node>[] getInitialList(IGraph g, int partitionCount) {
 		List<Node>[] p = (List<Node>[]) new ArrayList[partitionCount];
 		for (int i = 0; i < p.length; i++) {
 			p[i] = new ArrayList<Node>(1 + g.getNodeCount() / partitionCount);
@@ -53,7 +53,7 @@ public abstract class Partitioning extends ParameterList {
 		return p;
 	}
 
-	protected List<Node>[] split(Graph g, List<Node> sorted, int partitionCount) {
+	protected List<Node>[] split(IGraph g, List<Node> sorted, int partitionCount) {
 		int partitionSize = (int) Math.ceil(1.0 * g.getNodeCount()
 				/ partitionCount);
 		List<Node>[] partitioning = getInitialList(g, partitionCount);

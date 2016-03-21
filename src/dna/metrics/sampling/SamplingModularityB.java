@@ -1,6 +1,6 @@
 package dna.metrics.sampling;
 
-import dna.graph.Graph;
+import dna.graph.IGraph;
 import dna.graph.nodes.Node;
 import dna.metrics.algorithms.IAfterBatch;
 import dna.updates.batch.Batch;
@@ -19,7 +19,7 @@ import dna.updates.update.NodeAddition;
 public class SamplingModularityB extends SamplingModularity implements
 		IAfterBatch {
 
-	public SamplingModularityB(Graph graph) {
+	public SamplingModularityB(IGraph graph) {
 		super("SamplingModularityB", graph);
 	}
 

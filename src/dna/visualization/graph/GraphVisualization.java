@@ -10,7 +10,7 @@ import javax.swing.JFrame;
 import org.graphstream.graph.implementations.MultiGraph;
 import org.graphstream.ui.layout.Layout;
 
-import dna.graph.Graph;
+import dna.graph.IGraph;
 import dna.graph.edges.Edge;
 import dna.graph.nodes.Node;
 import dna.graph.weights.IWeightedEdge;
@@ -53,7 +53,7 @@ public class GraphVisualization {
 			Config.getInt("GRAPH_VIS_FRAME_HEIGHT"));
 
 	// graph map
-	protected static HashMap<Graph, GraphPanel> map = new HashMap<Graph, GraphPanel>();
+	protected static HashMap<IGraph, GraphPanel> map = new HashMap<IGraph, GraphPanel>();
 
 	// current GraphPanel
 	protected static GraphPanel currentGraphPanel;
@@ -63,7 +63,7 @@ public class GraphVisualization {
 	 * GRAPH
 	 */
 	/** Init graph g. **/
-	public static void init(Graph g) {
+	public static void init(IGraph g) {
 		if (!init) {
 			// init sophisticated renderer
 			System.setProperty("org.graphstream.ui.renderer",
@@ -158,7 +158,7 @@ public class GraphVisualization {
 	 */
 
 	/** Adds node n to graph g. **/
-	public static void addNode(Graph g, Node n) {
+	public static void addNode(IGraph g, Node n) {
 		// wait some time
 		waitTime(Config.getInt("GRAPH_VIS_WAIT_NODE_ADDITION"));
 
@@ -167,7 +167,7 @@ public class GraphVisualization {
 	}
 
 	/** Removes node n from graph g. **/
-	public static void removeNode(Graph g, Node n) {
+	public static void removeNode(IGraph g, Node n) {
 		// wait some time
 		waitTime(Config.getInt("GRAPH_VIS_WAIT_NODE_REMOVAL"));
 
@@ -189,7 +189,7 @@ public class GraphVisualization {
 	 */
 
 	/** Adds edge e to graph g. **/
-	public static void addEdge(Graph g, Edge e) {
+	public static void addEdge(IGraph g, Edge e) {
 		// wait some time
 		waitTime(Config.getInt("GRAPH_VIS_WAIT_EDGE_ADDITION"));
 
@@ -198,7 +198,7 @@ public class GraphVisualization {
 	}
 
 	/** Removes edge e from graph g. **/
-	public static void removeEdge(Graph g, Edge e) {
+	public static void removeEdge(IGraph g, Edge e) {
 		// wait some time
 		waitTime(Config.getInt("GRAPH_VIS_WAIT_EDGE_REMOVAL"));
 
@@ -231,12 +231,12 @@ public class GraphVisualization {
 	}
 
 	/** Sets the description text for the given graph. **/
-	public static void setText(Graph g, String text) {
+	public static void setText(IGraph g, String text) {
 		map.get(g).setText(text);
 	}
 
 	/** Returns the GraphPanel belonging to graph g. **/
-	public static GraphPanel getGraphPanel(Graph g) {
+	public static GraphPanel getGraphPanel(IGraph g) {
 		return GraphVisualization.map.get(g);
 	}
 
@@ -251,7 +251,7 @@ public class GraphVisualization {
 	}
 
 	/** Returns the layouter belonging to graph g. **/
-	public static Layout getLayouter(Graph g) {
+	public static Layout getLayouter(IGraph g) {
 		return GraphVisualization.getGraphPanel(g).getLayouter();
 	}
 
@@ -266,7 +266,7 @@ public class GraphVisualization {
 	 * Returned values will be between 0.0 and 1.0, where 0.0 is unstable and
 	 * 1.0 means its completely stabilized and not moving.
 	 **/
-	public static double getStabilization(Graph g) {
+	public static double getStabilization(IGraph g) {
 		return GraphVisualization.getGraphPanel(g).getStabilization();
 	}
 

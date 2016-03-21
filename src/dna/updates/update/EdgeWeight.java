@@ -1,6 +1,6 @@
 package dna.updates.update;
 
-import dna.graph.Graph;
+import dna.graph.IGraph;
 import dna.graph.datastructures.GraphDataStructure;
 import dna.graph.edges.DirectedEdge;
 import dna.graph.edges.IEdge;
@@ -22,7 +22,7 @@ public class EdgeWeight extends EdgeUpdate {
 		this.weight = weight;
 	}
 
-	public EdgeWeight(String str, GraphDataStructure gds, Graph g) {
+	public EdgeWeight(String str, GraphDataStructure gds, IGraph g) {
 		super(null);
 		String[] temp1 = str.split(Update.WeightDelimiter);
 		String[] temp2 = temp1[0].split(Update.EdgeSeparator);
@@ -33,7 +33,7 @@ public class EdgeWeight extends EdgeUpdate {
 	}
 
 	@Override
-	public boolean apply_(Graph g) {
+	public boolean apply_(IGraph g) {
 		((IWeightedEdge) this.edge).setWeight(this.weight);
 		return g.getEdge(this.edge.getN1(), this.edge.getN2()) == this.edge;
 	}

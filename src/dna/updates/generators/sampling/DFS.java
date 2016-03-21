@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedList;
 
-import dna.graph.Graph;
+import dna.graph.IGraph;
 import dna.graph.nodes.Node;
 import dna.updates.generators.sampling.startNode.StartNodeSelectionStrategy;
 
@@ -37,7 +37,7 @@ public class DFS extends SamplingAlgorithm {
 	 *            the parameters which makes this algorithm unique and which
 	 *            will be added to the name
 	 */
-	public DFS(Graph fullGraph, StartNodeSelectionStrategy startNodeStrategy,
+	public DFS(IGraph fullGraph, StartNodeSelectionStrategy startNodeStrategy,
 			int costPerBatch, int resource, SamplingStop stop,
 			WalkingType walkingType) {
 		super("DFS", fullGraph, startNodeStrategy, costPerBatch, resource,

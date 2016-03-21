@@ -3,7 +3,7 @@ package dna.graph.datastructures.count;
 import java.util.LinkedList;
 import java.util.ListIterator;
 
-import dna.graph.Graph;
+import dna.graph.IGraph;
 import dna.graph.datastructures.GraphDataStructure;
 import dna.graph.datastructures.count.OperationCount.AggregationType;
 import dna.graph.edges.DirectedEdge;
@@ -31,7 +31,7 @@ public class Counting {
 		}
 	}
 
-	public static void setSizes(Graph g) {
+	public static void setSizes(IGraph g) {
 		Counting.oc.setSizes(g);
 	}
 
@@ -74,25 +74,25 @@ public class Counting {
 		initOC();
 	}
 
-	public static void endGraphGeneration(Graph g) {
+	public static void endGraphGeneration(IGraph g) {
 		graphGeneration = oc;
 		setSizes(g);
 		initOC();
 	}
 
-	public static void endMetricInit(Graph g) {
+	public static void endMetricInit(IGraph g) {
 		metricInit = oc;
 		setSizes(g);
 		initOC();
 	}
 
-	public static void endBatchGeneration(Graph g) {
+	public static void endBatchGeneration(IGraph g) {
 		batchGeneration.add(oc);
 		setSizes(g);
 		initOC();
 	}
 
-	public static void endBatchApplication(Graph g) {
+	public static void endBatchApplication(IGraph g) {
 		batchApplication.add(oc);
 		setSizes(g);
 		initOC();

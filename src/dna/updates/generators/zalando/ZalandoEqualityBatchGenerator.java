@@ -1,6 +1,6 @@
 package dna.updates.generators.zalando;
 
-import dna.graph.Graph;
+import dna.graph.IGraph;
 import dna.graph.datastructures.GraphDataStructure;
 import dna.graph.datastructures.zalando.ZalandoGraphDataStructure;
 import dna.graph.edges.Edge;
@@ -95,7 +95,7 @@ public class ZalandoEqualityBatchGenerator extends ZalandoBatchGenerator {
 	 * source node, too.
 	 * <p>
 	 * The edge is not added to the graph directly, it is added to
-	 * {@link #edgeAdditions} or {@link #edgeWeights}. {@link #generate(Graph)}
+	 * {@link #edgeAdditions} or {@link #edgeWeights}. {@link #generate(IGraph)}
 	 * adds these to the batch to update the graph.
 	 * </p>
 	 * 
@@ -109,7 +109,7 @@ public class ZalandoEqualityBatchGenerator extends ZalandoBatchGenerator {
 	 * 
 	 * @see #addEdge(Node, Node, int)
 	 */
-	void addBidirectionalEdge(Graph g, Node node1, Node node2, Object weight) {
+	void addBidirectionalEdge(IGraph g, Node node1, Node node2, Object weight) {
 		this.addEdge(g, node1, node2, weight);
 
 		if (g.isDirected())
@@ -128,7 +128,7 @@ public class ZalandoEqualityBatchGenerator extends ZalandoBatchGenerator {
 	 * </p>
 	 * <p>
 	 * The edge is not added to the graph directly, it is added to
-	 * {@link #edgeAdditions} or {@link #edgeWeights}. {@link #generate(Graph)}
+	 * {@link #edgeAdditions} or {@link #edgeWeights}. {@link #generate(IGraph)}
 	 * adds these to the batch to update the graph.
 	 * </p>
 	 * 
@@ -139,7 +139,7 @@ public class ZalandoEqualityBatchGenerator extends ZalandoBatchGenerator {
 	 * @see #addBidirectionalEdge(Node, Node, int)
 	 */
 	@Override
-	void addEdgesForColumns(Graph g, Event event) {
+	void addEdgesForColumns(IGraph g, Event event) {
 		int nodeForEventIndex, mappingForColumnGroup;
 
 		for (EventColumn[] eventColumnGroup : this.columnGroupsToAddAsNodes) {

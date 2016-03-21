@@ -5,7 +5,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
-import dna.graph.Graph;
+import dna.graph.IGraph;
 import dna.graph.edges.Edge;
 import dna.graph.nodes.Node;
 import dna.metrics.Metric;
@@ -44,7 +44,7 @@ import dna.util.Timer;
  */
 public abstract class Partition {
 
-	protected Graph g;
+	protected IGraph g;
 
 	protected List<Node> nodes;
 	protected Set<Node> nodeSet;
@@ -60,11 +60,11 @@ public abstract class Partition {
 	public Partition() {
 	}
 
-	public Partition(Graph g, List<Node> nodes, Metric m) {
+	public Partition(IGraph g, List<Node> nodes, Metric m) {
 		this.init(g, nodes, m);
 	}
 
-	public void init(Graph g, List<Node> nodes, Metric m) {
+	public void init(IGraph g, List<Node> nodes, Metric m) {
 		this.g = g;
 		this.nodes = nodes;
 		this.m = m;
@@ -73,7 +73,7 @@ public abstract class Partition {
 		this.t = new Timer();
 	}
 
-	public Graph getGraph() {
+	public IGraph getGraph() {
 		return this.g;
 	}
 

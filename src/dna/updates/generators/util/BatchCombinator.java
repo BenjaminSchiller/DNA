@@ -1,6 +1,6 @@
 package dna.updates.generators.util;
 
-import dna.graph.Graph;
+import dna.graph.IGraph;
 import dna.updates.batch.Batch;
 import dna.updates.generators.BatchGenerator;
 
@@ -14,7 +14,7 @@ public class BatchCombinator extends BatchGenerator {
 	}
 
 	@Override
-	public Batch generate(Graph g) {
+	public Batch generate(IGraph g) {
 		int addN = 0;
 		int remN = 0;
 		int weightN = 0;
@@ -49,7 +49,7 @@ public class BatchCombinator extends BatchGenerator {
 	}
 
 	@Override
-	public boolean isFurtherBatchPossible(Graph g) {
+	public boolean isFurtherBatchPossible(IGraph g) {
 		for (BatchGenerator bg : this.bgs) {
 			if (bg.isFurtherBatchPossible(g)) {
 				return true;

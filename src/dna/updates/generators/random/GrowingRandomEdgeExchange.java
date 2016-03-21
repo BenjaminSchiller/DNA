@@ -1,6 +1,6 @@
 package dna.updates.generators.random;
 
-import dna.graph.Graph;
+import dna.graph.IGraph;
 import dna.updates.batch.Batch;
 import dna.updates.generators.BatchGenerator;
 import dna.util.parameters.IntParameter;
@@ -22,7 +22,7 @@ public class GrowingRandomEdgeExchange extends BatchGenerator {
 	}
 
 	@Override
-	public Batch generate(Graph g) {
+	public Batch generate(IGraph g) {
 		Batch b = this.getCurrentBatch().generate(g);
 		this.time++;
 		return b;
@@ -38,7 +38,7 @@ public class GrowingRandomEdgeExchange extends BatchGenerator {
 	}
 
 	@Override
-	public boolean isFurtherBatchPossible(Graph g) {
+	public boolean isFurtherBatchPossible(IGraph g) {
 		return this.getCurrentBatch().isFurtherBatchPossible(g);
 	}
 

@@ -2,7 +2,7 @@ package dna.parallel.partitioning;
 
 import java.util.List;
 
-import dna.graph.Graph;
+import dna.graph.IGraph;
 import dna.graph.nodes.Node;
 
 public class LPAPartitioning extends Partitioning {
@@ -12,7 +12,7 @@ public class LPAPartitioning extends Partitioning {
 	}
 
 	@Override
-	protected List<Node>[] partition(Graph g, int partitionCount) {
+	protected List<Node>[] partition(IGraph g, int partitionCount) {
 		// TODO Auto-generated method stub
 		return null;
 	}

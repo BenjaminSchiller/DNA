@@ -2,7 +2,7 @@ package dna.graph.generators.combined;
 
 import java.util.HashMap;
 
-import dna.graph.Graph;
+import dna.graph.IGraph;
 import dna.graph.IElement;
 import dna.graph.edges.Edge;
 import dna.graph.generators.GraphGenerator;
@@ -69,14 +69,14 @@ public class CombinedGraph extends GraphGenerator {
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public Graph generate() {
+	public IGraph generate() {
 		if (this.ggs.length == 1) {
 			return this.ggs[0].generate();
 		}
 
-		Graph g = this.newGraphInstance();
+		IGraph g = this.newGraphInstance();
 
-		Graph[] components = new Graph[this.ggs.length];
+		IGraph[] components = new IGraph[this.ggs.length];
 		for (int i = 0; i < this.ggs.length; i++) {
 			components[i] = this.ggs[i].generate();
 		}
@@ -141,7 +141,7 @@ public class CombinedGraph extends GraphGenerator {
 		return g;
 	}
 
-	private static int getOtherIndex(Graph[] components, int current) {
+	private static int getOtherIndex(IGraph[] components, int current) {
 		int rand = Rand.rand.nextInt(components.length);
 		return rand >= current ? (rand + 1) % components.length : rand;
 	}

@@ -2,7 +2,7 @@ package dna.graph.datastructures.count;
 
 import java.io.IOException;
 
-import dna.graph.Graph;
+import dna.graph.IGraph;
 import dna.graph.generators.GraphGenerator;
 import dna.metrics.algorithms.Algorithms;
 import dna.series.Series;
@@ -38,8 +38,8 @@ public aspect CountingAspects {
 		call(* GraphGenerator.generate()) &&
 		cflow(call(BatchData SeriesGeneration.computeInitialData(Series, Algorithms)) && args(s,a));
 
-	Graph around(GraphGenerator gg, Series s, Algorithms a) : graphGeneration_NEW(gg, s, a) {
-		Graph g = proceed(gg, s, a);
+	IGraph around(GraphGenerator gg, Series s, Algorithms a) : graphGeneration_NEW(gg, s, a) {
+		IGraph g = proceed(gg, s, a);
 		Counting.endGraphGeneration(g);
 		return g;
 	}
@@ -55,13 +55,13 @@ public aspect CountingAspects {
 		return res;
 	}
 
-	pointcut batchGeneration(Graph g, Series s, Algorithms a) :  
+	pointcut batchGeneration(IGraph g, Series s, Algorithms a) :  
 		if(Counting.isEnabled()) &&
 		args(g) &&
 		call(* BatchGenerator.generate(Graph)) &&
 		cflow(call(* SeriesGeneration.computeNextBatch(Series, Algorithms)) && args(s, a));
 
-	Batch around(Graph g, Series s, Algorithms a) : batchGeneration(g, s, a) {
+	Batch around(IGraph g, Series s, Algorithms a) : batchGeneration(g, s, a) {
 		Batch res = proceed(g, s, a);
 		Counting.endBatchGeneration(g);
 		return res;

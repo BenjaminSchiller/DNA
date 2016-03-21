@@ -2,7 +2,7 @@ package dna.series;
 
 import java.io.IOException;
 
-import dna.graph.Graph;
+import dna.graph.IGraph;
 import dna.graph.generators.GraphGenerator;
 import dna.metrics.IMetric;
 import dna.metrics.MetricNotApplicableException;
@@ -100,7 +100,7 @@ public class Series {
 
 	private String dir;
 
-	private Graph graph;
+	private IGraph graph;
 
 	private String name;
 
@@ -120,11 +120,11 @@ public class Series {
 		return this.dir;
 	}
 
-	public Graph getGraph() {
+	public IGraph getGraph() {
 		return this.graph;
 	}
 
-	public void setGraph(Graph graph) {
+	public void setGraph(IGraph graph) {
 		this.graph = graph;
 	}
 

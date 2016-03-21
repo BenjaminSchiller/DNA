@@ -1,7 +1,7 @@
 package dna.metrics.assortativity;
 
-import dna.graph.Graph;
 import dna.graph.IElement;
+import dna.graph.IGraph;
 import dna.graph.edges.DirectedEdge;
 import dna.graph.edges.DirectedWeightedEdge;
 import dna.graph.edges.UndirectedEdge;
@@ -350,7 +350,7 @@ public abstract class Assortativity extends Metric implements IMetric {
 	}
 
 	@Override
-	public boolean isApplicable(Graph g) {
+	public boolean isApplicable(IGraph g) {
 		return true;
 	}
 

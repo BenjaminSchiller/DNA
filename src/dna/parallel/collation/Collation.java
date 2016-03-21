@@ -3,7 +3,7 @@ package dna.parallel.collation;
 import java.io.File;
 import java.util.ArrayList;
 
-import dna.graph.Graph;
+import dna.graph.IGraph;
 import dna.metrics.IMetric;
 import dna.metrics.Metric;
 import dna.metrics.algorithms.IRecomputation;
@@ -310,7 +310,7 @@ public abstract class Collation<M extends Metric, T extends Partition> extends
 	}
 
 	@Override
-	public boolean isApplicable(Graph g) {
+	public boolean isApplicable(IGraph g) {
 		return this.m.isApplicable(g);
 	}
 

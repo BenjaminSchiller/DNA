@@ -4,7 +4,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Random;
 
-import dna.graph.Graph;
+import dna.graph.IGraph;
 import dna.graph.IElement;
 import dna.graph.nodes.DirectedNode;
 import dna.graph.nodes.Node;
@@ -74,7 +74,7 @@ public class PositiveFeedbackPreferenceBatch extends BatchGenerator {
 	}
 
 	@Override
-	public Batch generate(Graph g) {
+	public Batch generate(IGraph g) {
 		Batch b = new Batch(g.getGraphDatastructures(), g.getTimestamp(),
 				g.getTimestamp() + 1, this.nodes, 0, 0, this.nodes, 0,
 				0);
@@ -84,7 +84,7 @@ public class PositiveFeedbackPreferenceBatch extends BatchGenerator {
 		return b;
 	}
 
-	private void growGraph(Graph g, Batch b) {
+	private void growGraph(IGraph g, Batch b) {
 		// new nodes can be targets for later nodes
 		Node[] newNodes = new Node[this.nodes];
 		int[] newDegrees = new int[this.nodes];
@@ -207,7 +207,7 @@ public class PositiveFeedbackPreferenceBatch extends BatchGenerator {
 	 * Iterate over all nodes and calculate a valid one.
 	 * Probability formula is given by the paper:
 	 * 
-	 * @param g	Graph to retrieve the old nodes
+	 * @param g	IGraph to retrieve the old nodes
 	 * @param oldDegrees	degrees of the old nodes
 	 * @param newNodes		array with new nodes
 	 * @param newDegrees	degrees of the new nodes
@@ -217,7 +217,7 @@ public class PositiveFeedbackPreferenceBatch extends BatchGenerator {
 	 * @param srcNode		source node of this edge
 	 * @return				destination node
 	 */
-	private Node getNPPNode(Graph g, int[] oldDegrees, Node[] newNodes, int[] newDegrees, int maxOldId, int maxId,
+	private Node getNPPNode(IGraph g, int[] oldDegrees, Node[] newNodes, int[] newDegrees, int maxOldId, int maxId,
 			int ignoreNode, int srcNode) {
 		
 		int npp = -1;		
@@ -300,7 +300,7 @@ public class PositiveFeedbackPreferenceBatch extends BatchGenerator {
 	 * @param g	current graph
 	 * @return	array of node-degrees
 	 */
-	private int[] collectOldDegrees(Graph g) {
+	private int[] collectOldDegrees(IGraph g) {
 		int[] oldDegrees = new int[g.getNodeCount()];
 		for(IElement n : g.getNodes()){
 			Node node = (Node) n;
@@ -318,7 +318,7 @@ public class PositiveFeedbackPreferenceBatch extends BatchGenerator {
 	}
 
 	@Override
-	public boolean isFurtherBatchPossible(Graph g) {
+	public boolean isFurtherBatchPossible(IGraph g) {
 		return true;
 	}
 

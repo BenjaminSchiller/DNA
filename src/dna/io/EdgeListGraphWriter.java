@@ -2,7 +2,7 @@ package dna.io;
 
 import java.io.IOException;
 
-import dna.graph.Graph;
+import dna.graph.IGraph;
 import dna.graph.IElement;
 import dna.graph.edges.DirectedEdge;
 import dna.graph.edges.UndirectedEdge;
@@ -13,7 +13,7 @@ public class EdgeListGraphWriter {
 		NONE, N, NM
 	}
 
-	public static boolean write(Graph g, String dir, String filename,
+	public static boolean write(IGraph g, String dir, String filename,
 			String separator, InfoType info, boolean addInverseEdge,
 			boolean incIndex, String prefix, String suffix) {
 		Writer writer = null;

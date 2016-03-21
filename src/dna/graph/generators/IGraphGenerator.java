@@ -1,6 +1,6 @@
 package dna.graph.generators;
 
-import dna.graph.Graph;
+import dna.graph.IGraph;
 
 public interface IGraphGenerator {
 	/**
@@ -8,7 +8,7 @@ public interface IGraphGenerator {
 	 * 
 	 * @return
 	 */
-	public Graph generate();
+	public IGraph generate();
 	
 	public String getName();
 

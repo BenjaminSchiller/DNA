@@ -1,6 +1,6 @@
 package dna.metrics.weights;
 
-import dna.graph.Graph;
+import dna.graph.IGraph;
 import dna.graph.weights.IWeightedNode;
 import dna.graph.weights.doubleW.Double2dWeight;
 import dna.graph.weights.doubleW.Double3dWeight;
@@ -85,7 +85,7 @@ public abstract class RootMeanSquareDeviation extends Metric {
 	}
 
 	@Override
-	public boolean isApplicable(Graph g) {
+	public boolean isApplicable(IGraph g) {
 		return g.getGraphDatastructures().isNodeType(IWeightedNode.class)
 				&& g.getGraphDatastructures().isNodeWeightType(
 						DoubleWeight.class, Double2dWeight.class,

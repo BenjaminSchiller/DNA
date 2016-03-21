@@ -3,7 +3,7 @@ package dna.updates.generators.sampling;
 import java.util.LinkedList;
 import java.util.List;
 
-import dna.graph.Graph;
+import dna.graph.IGraph;
 import dna.graph.nodes.Node;
 import dna.updates.generators.sampling.startNode.StartNodeSelectionStrategy;
 import dna.util.Rand;
@@ -40,7 +40,7 @@ public class ForestFire extends SamplingAlgorithm {
 	 *            the parameters which makes this algorithm unique and which
 	 *            will be added to the name
 	 */
-	public ForestFire(Graph fullGraph,
+	public ForestFire(IGraph fullGraph,
 			StartNodeSelectionStrategy startNodeStrategy, int costPerBatch,
 			int resource, double probability, SamplingStop stop,
 			WalkingType walkingType) throws Exception {

@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 
-import dna.graph.Graph;
+import dna.graph.IGraph;
 import dna.graph.nodes.Node;
 import dna.updates.generators.sampling.startNode.StartNodeSelectionStrategy;
 import dna.util.Rand;
@@ -41,7 +41,7 @@ public class RandomWalkNR_Jump extends SamplingAlgorithm {
 	 *            the parameters which makes this algorithm unique and which
 	 *            will be added to the name
 	 */
-	public RandomWalkNR_Jump(Graph fullGraph,
+	public RandomWalkNR_Jump(IGraph fullGraph,
 			StartNodeSelectionStrategy startNodeStrategy, int costPerBatch,
 			int resource, SamplingStop stop, WalkingType walkingType) {
 		super("RWnr_Jump", fullGraph, startNodeStrategy, costPerBatch,

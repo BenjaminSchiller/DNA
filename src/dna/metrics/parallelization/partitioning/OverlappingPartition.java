@@ -5,8 +5,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import dna.graph.Graph;
 import dna.graph.IElement;
+import dna.graph.IGraph;
 import dna.graph.datastructures.GraphDataStructure;
 import dna.graph.edges.Edge;
 import dna.graph.nodes.Node;
@@ -42,7 +42,7 @@ public class OverlappingPartition extends Partition {
 		return this.auxiliaryNodes;
 	}
 
-	public OverlappingPartition(Graph g, List<Node> nodes, Metric m,
+	public OverlappingPartition(IGraph g, List<Node> nodes, Metric m,
 			Set<Node> auxiliaryNodes, Set<Edge> auxiliaryEdges) {
 		super(g, nodes, m);
 		this.auxiliaryNodes = auxiliaryNodes;
@@ -53,12 +53,13 @@ public class OverlappingPartition extends Partition {
 		return this.auxiliaryNodes.add(n);
 	}
 
+	@Override
 	public String toString() {
 		return "OverlappingPartition: " + g.toString() + " @ "
 				+ auxiliaryNodes.size() + " / " + auxiliaryEdges.size();
 	}
 
-	public static OverlappingPartition[] getPartitions(Graph g,
+	public static OverlappingPartition[] getPartitions(IGraph g,
 			List<List<Node>> nodesList, Metric m,
 			HashMap<Node, Partition> partitionMap) {
 		OverlappingPartition[] p = new OverlappingPartition[nodesList.size()];
@@ -73,9 +74,9 @@ public class OverlappingPartition extends Partition {
 		return p;
 	}
 
-	protected static OverlappingPartition getPartition(String name, Graph g,
+	protected static OverlappingPartition getPartition(String name, IGraph g,
 			List<Node> nodes, Metric m) {
-		Graph gp = g.getGraphDatastructures().newGraphInstance(name,
+		IGraph gp = g.getGraphDatastructures().newGraphInstance(name,
 				g.getTimestamp(), nodes.size(),
 				nodes.size() == 0 ? 0 : g.getEdgeCount() / nodes.size());
 		GraphDataStructure gds = gp.getGraphDatastructures();

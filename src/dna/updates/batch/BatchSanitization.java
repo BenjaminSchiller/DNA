@@ -3,8 +3,10 @@ package dna.updates.batch;
 import java.util.HashSet;
 
 import dna.graph.edges.DirectedEdge;
+import dna.graph.edges.DirectedBlueprintsEdge;
 import dna.graph.edges.Edge;
 import dna.graph.edges.UndirectedEdge;
+import dna.graph.edges.UndirectedBlueprintsEdge;
 import dna.graph.nodes.Node;
 import dna.updates.update.EdgeAddition;
 import dna.updates.update.EdgeRemoval;
@@ -114,6 +116,12 @@ public class BatchSanitization {
 		} else if (e instanceof UndirectedEdge) {
 			return new Node[] { ((UndirectedEdge) e).getNode1(),
 					((UndirectedEdge) e).getNode2() };
+		}else if (e instanceof DirectedBlueprintsEdge) {
+			return new Node[] { ((DirectedBlueprintsEdge) e).getSrc(),
+					((DirectedBlueprintsEdge) e).getDst() };
+		} else if (e instanceof UndirectedBlueprintsEdge) {
+			return new Node[] { ((UndirectedBlueprintsEdge) e).getNode1(),
+					((UndirectedBlueprintsEdge) e).getNode2() };
 		} else {
 			Log.error("edge type '" + e.getClass().getCanonicalName()
 					+ "' not supported in batch sanitization");

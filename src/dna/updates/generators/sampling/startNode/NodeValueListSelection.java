@@ -2,7 +2,7 @@ package dna.updates.generators.sampling.startNode;
 
 import java.util.Arrays;
 
-import dna.graph.Graph;
+import dna.graph.IGraph;
 import dna.graph.nodes.Node;
 import dna.plot.data.PlotData.NodeValueListOrderBy;
 import dna.series.data.nodevaluelists.NodeValueList;
@@ -41,7 +41,7 @@ public class NodeValueListSelection extends StartNodeSelectionStrategy {
 	}
 
 	@Override
-	public Node getStartNode(Graph g) {
+	public Node getStartNode(IGraph g) {
 		if (nvlOrder == NodeValueListOrderBy.median) {
 			return selectMedian(g);
 		} else if (nvlOrder == NodeValueListOrderBy.maximum) {
@@ -52,14 +52,14 @@ public class NodeValueListSelection extends StartNodeSelectionStrategy {
 	}
 
 	@Override
-	public int resourceCost(Graph g) {
+	public int resourceCost(IGraph g) {
 		return nvl.length;
 	}
 
 	/**
 	 * Selects the node with the median value of the NodeValueList
 	 */
-	private Node selectMedian(Graph g) {
+	private Node selectMedian(IGraph g) {
 		int index = 0;
 		double[] tempArr = new double[nvl.length];
 		for (int i = 0; i < nvl.length; i++) {
@@ -81,7 +81,7 @@ public class NodeValueListSelection extends StartNodeSelectionStrategy {
 	/**
 	 * Selects the node with the maximal value of the NodeValueList
 	 */
-	private Node selectMaximum(Graph g) {
+	private Node selectMaximum(IGraph g) {
 		double tempVal = Double.MIN_VALUE;
 		int index = 0;
 		for (int i = 0; i < nvl.length; i++) {
@@ -96,7 +96,7 @@ public class NodeValueListSelection extends StartNodeSelectionStrategy {
 	/**
 	 * Selects the node with the minimal value of the NodeValueList
 	 */
-	private Node selectMinimum(Graph g) {
+	private Node selectMinimum(IGraph g) {
 		double tempVal = Double.MAX_VALUE;
 		int index = 0;
 		for (int i = 0; i < nvl.length; i++) {

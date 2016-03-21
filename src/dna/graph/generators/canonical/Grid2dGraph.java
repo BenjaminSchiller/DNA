@@ -1,6 +1,6 @@
 package dna.graph.generators.canonical;
 
-import dna.graph.Graph;
+import dna.graph.IGraph;
 import dna.graph.datastructures.GraphDataStructure;
 import dna.graph.edges.Edge;
 import dna.graph.generators.GraphGenerator;
@@ -29,8 +29,8 @@ public class Grid2dGraph extends GraphGenerator {
 	}
 
 	@Override
-	public Graph generate() {
-		Graph g = this.newGraphInstance();
+	public IGraph generate() {
+		IGraph g = this.newGraphInstance();
 
 		Node[][] nodes = new Node[this.x][this.y];
 		int index = 0;
@@ -59,7 +59,7 @@ public class Grid2dGraph extends GraphGenerator {
 		return g;
 	}
 
-	protected void connect(Graph g, Node src, Node dst) {
+	protected void connect(IGraph g, Node src, Node dst) {
 		Edge e = this.gds.newEdgeInstance(src, dst);
 		g.addEdge(e);
 		e.connectToNodes();
