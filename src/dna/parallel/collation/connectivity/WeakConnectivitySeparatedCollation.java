@@ -1,7 +1,7 @@
 package dna.parallel.collation.connectivity;
 
-import dna.metrics.clustering.UndirectedClusteringCoefficientR;
 import dna.metrics.connectivity.WeakConnectivity;
+import dna.metrics.connectivity.WeakConnectivityR;
 import dna.parallel.collation.Collation;
 import dna.parallel.collation.CollationData;
 import dna.parallel.partition.Partition.PartitionType;
@@ -14,9 +14,8 @@ public class WeakConnectivitySeparatedCollation extends
 	public WeakConnectivitySeparatedCollation(String auxDir, String inputDir,
 			int partitionCount, int run, Sleeper sleeper) {
 		super("WeakConnectivitySeparatedCollation", MetricType.exact,
-				PartitionType.Separated,
-				new UndirectedClusteringCoefficientR(), auxDir, inputDir,
-				partitionCount, run, sleeper, new String[] {
+				PartitionType.Separated, new WeakConnectivityR(), auxDir,
+				inputDir, partitionCount, run, sleeper, new String[] {
 						"WeakConnectivityB", "WeakConnectivityR",
 						"WeakConnectivityU" }, new String[0], new String[0],
 				new String[] {});

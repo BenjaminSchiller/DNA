@@ -32,8 +32,6 @@ public class UndirectedClusteringCoefficientCompleteCollation extends
 
 	@Override
 	public boolean collate(CollationData cd) {
-		UndirectedClusteringCoefficientR m = (UndirectedClusteringCoefficientR) this.m;
-
 		m.nodePotentialCount = new LongList(0);
 		m.nodeTriangleCount = new LongList(0);
 

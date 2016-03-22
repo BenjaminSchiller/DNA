@@ -56,7 +56,7 @@ public abstract class Collation<M extends Metric, T extends Partition> extends
 	public static final String partitionKeyword = "PARTITION";
 
 	public PartitionType partitionType;
-	public Metric m;
+	public M m;
 	public String auxDir;
 	public String inputDir;
 	public int partitionCount;
@@ -70,8 +70,8 @@ public abstract class Collation<M extends Metric, T extends Partition> extends
 	protected String[] nodeValueLists;
 
 	public Collation(String name, MetricType metricType, Parameter[] p,
-			PartitionType partitionType, Metric m, String auxDir,
-			String inputDir, int partitionCount, int run, Sleeper sleeper,
+			PartitionType partitionType, M m, String auxDir, String inputDir,
+			int partitionCount, int run, Sleeper sleeper,
 			String[] sourceMetrics, String[] values, String[] distributions,
 			String[] nodeValueLists) {
 		super(name, metricType, p);
@@ -89,8 +89,8 @@ public abstract class Collation<M extends Metric, T extends Partition> extends
 	}
 
 	public Collation(String name, MetricType metricType,
-			PartitionType partitionType, Metric m, String auxDir,
-			String inputDir, int partitionCount, int run, Sleeper sleeper,
+			PartitionType partitionType, M m, String auxDir, String inputDir,
+			int partitionCount, int run, Sleeper sleeper,
 			String[] sourceMetrics, String[] values, String[] distributions,
 			String[] nodeValueLists) {
 		this(name, metricType, new Parameter[0], partitionType, m, auxDir,
@@ -134,7 +134,7 @@ public abstract class Collation<M extends Metric, T extends Partition> extends
 							&& (new File(batchZip)).exists()) {
 						// Thread.sleep(100);
 						// System.out.println("readING " + this.g.getTimestamp()
-						// 		+ " for worker " + i + " (as zip)");
+						// + " for worker " + i + " (as zip)");
 						bd[i] = BatchData.readIntelligent(batchDir,
 								this.g.getTimestamp(),
 								BatchReadMode.readAllValues);
@@ -144,7 +144,7 @@ public abstract class Collation<M extends Metric, T extends Partition> extends
 							&& (new File(batchDir)).exists()) {
 						// Thread.sleep(100);
 						// System.out.println("readING " + this.g.getTimestamp()
-						// 		+ " for worker " + i + " (as dir)");
+						// + " for worker " + i + " (as dir)");
 						bd[i] = BatchData.read(batchDir, this.g.getTimestamp(),
 								BatchReadMode.readAllValues);
 						System.out.println("read " + this.g.getTimestamp()

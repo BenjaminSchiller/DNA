@@ -33,8 +33,6 @@ public class UndirectedClusteringCoefficientSeparatedCollation extends
 	public boolean collate(CollationData cd) {
 		// TODO this is definitely false!!!!
 
-		UndirectedClusteringCoefficientR m = (UndirectedClusteringCoefficientR) this.m;
-
 		m.nodePotentialCount = new LongList(0);
 		m.nodeTriangleCount = new LongList(0);
 

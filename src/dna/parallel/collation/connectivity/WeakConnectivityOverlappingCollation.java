@@ -1,7 +1,7 @@
 package dna.parallel.collation.connectivity;
 
-import dna.metrics.clustering.UndirectedClusteringCoefficientR;
 import dna.metrics.connectivity.WeakConnectivity;
+import dna.metrics.connectivity.WeakConnectivityR;
 import dna.parallel.collation.Collation;
 import dna.parallel.collation.CollationData;
 import dna.parallel.partition.OverlappingPartition;
@@ -14,9 +14,8 @@ public class WeakConnectivityOverlappingCollation extends
 	public WeakConnectivityOverlappingCollation(String auxDir, String inputDir,
 			int partitionCount, int run, Sleeper sleeper) {
 		super("WeakConnectivityOverlappingCollation", MetricType.exact,
-				PartitionType.Overlapping,
-				new UndirectedClusteringCoefficientR(), auxDir, inputDir,
-				partitionCount, run, sleeper, new String[] {
+				PartitionType.Overlapping, new WeakConnectivityR(), auxDir,
+				inputDir, partitionCount, run, sleeper, new String[] {
 						"WeakConnectivityB", "WeakConnectivityR",
 						"WeakConnectivityU" }, new String[0], new String[0],
 				new String[] {});

@@ -1,6 +1,5 @@
 package dna.parallel.collation.paths;
 
-import dna.metrics.paths.AllPairsShortestPaths;
 import dna.metrics.paths.UnweightedAllPairsShortestPaths;
 import dna.metrics.paths.UnweightedAllPairsShortestPathsR;
 import dna.parallel.collation.Collation;
@@ -27,7 +26,6 @@ public class UnweightedAllPairsShortestPathsCompleteCollation extends
 
 	@Override
 	public boolean collate(CollationData cd) {
-		AllPairsShortestPaths m = (AllPairsShortestPaths) this.m;
 		m.apsp = new BinnedIntDistr("APSP");
 
 		for (MetricData md : this.getSources(cd)) {
