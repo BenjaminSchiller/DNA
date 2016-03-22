@@ -36,6 +36,10 @@ public class UnweightedAllPairsShortestPathsU extends
 		super("UnweightedAllPairsShortestPathsU");
 	}
 
+	public UnweightedAllPairsShortestPathsU(String[] nodeTypes) {
+		super("UnweightedAllPairsShortestPathsU", nodeTypes);
+	}
+
 	@Override
 	public boolean init() {
 		this.apsp = new BinnedIntDistr("APSP");
@@ -43,7 +47,7 @@ public class UnweightedAllPairsShortestPathsU extends
 		this.heights = new HashMap<Node, HashMap<Node, Integer>>();
 		this.sum = 0;
 
-		for (IElement n : g.getNodes()) {
+		for (IElement n : this.getNodesOfAssignedTypes()) {
 			buildTrees((Node) n);
 		}
 
@@ -113,7 +117,7 @@ public class UnweightedAllPairsShortestPathsU extends
 			DirectedNode dst = e.getDst();
 
 			// check all trees if the deleted edge is in the tree
-			for (IElement ie : g.getNodes()) {
+			for (IElement ie : this.getNodesOfAssignedTypes()) {
 				DirectedNode r = (DirectedNode) ie;
 				HashMap<Node, Node> parent = this.parents.get(r);
 				HashMap<Node, Integer> height = this.heights.get(r);
@@ -240,7 +244,7 @@ public class UnweightedAllPairsShortestPathsU extends
 			Node n2 = e.getNode2();
 
 			// check all trees if the deleted edge is in the tree
-			for (IElement ie : g.getNodes()) {
+			for (IElement ie : this.getNodesOfAssignedTypes()) {
 				Node r = (Node) ie;
 				HashMap<Node, Node> parent = this.parents.get(r);
 				HashMap<Node, Integer> height = this.heights.get(r);
@@ -383,7 +387,7 @@ public class UnweightedAllPairsShortestPathsU extends
 			DirectedNode src = e.getSrc();
 			DirectedNode dst = e.getDst();
 
-			for (IElement ie : g.getNodes()) {
+			for (IElement ie : this.getNodesOfAssignedTypes()) {
 				DirectedNode s = (DirectedNode) ie;
 				HashMap<Node, Node> parent = this.parents.get(s);
 				HashMap<Node, Integer> height = this.heights.get(s);
@@ -403,7 +407,7 @@ public class UnweightedAllPairsShortestPathsU extends
 			UndirectedNode n1 = e.getNode1();
 			UndirectedNode n2 = e.getNode2();
 
-			for (IElement ie : g.getNodes()) {
+			for (IElement ie : this.getNodesOfAssignedTypes()) {
 				Node s = (Node) ie;
 				HashMap<Node, Node> parent = this.parents.get(s);
 				HashMap<Node, Integer> height = this.heights.get(s);
@@ -488,7 +492,7 @@ public class UnweightedAllPairsShortestPathsU extends
 		g.removeNode(n);
 		this.heights.remove(n);
 		this.parents.remove(n);
-		for (IElement ie : this.g.getNodes()) {
+		for (IElement ie : this.getNodesOfAssignedTypes()) {
 			Node r = (Node) ie;
 			this.heights.get(r).remove(n);
 			this.parents.get(r).remove(n);
@@ -503,7 +507,7 @@ public class UnweightedAllPairsShortestPathsU extends
 		this.parents.put(n, new HashMap<Node, Node>());
 		this.heights.put(n, new HashMap<Node, Integer>());
 
-		for (IElement ie : this.g.getNodes()) {
+		for (IElement ie : this.getNodesOfAssignedTypes()) {
 			Node r = (Node) ie;
 
 			if (r != n) {

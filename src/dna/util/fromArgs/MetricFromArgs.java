@@ -60,7 +60,7 @@ public class MetricFromArgs {
 		case UnweightedAllPairsShortestPathsR:
 			return new UnweightedAllPairsShortestPathsR(nodeTypes);
 		case UnweightedAllPairsShortestPathsU:
-			return new UnweightedAllPairsShortestPathsU();
+			return new UnweightedAllPairsShortestPathsU(nodeTypes);
 		case WeakConnectivityB:
 			return new WeakConnectivityB();
 		case WeakConnectivityR:

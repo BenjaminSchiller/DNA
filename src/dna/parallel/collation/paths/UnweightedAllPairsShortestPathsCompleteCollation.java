@@ -12,6 +12,8 @@ import dna.series.data.distr.BinnedIntDistr;
 
 public class UnweightedAllPairsShortestPathsCompleteCollation extends
 		Collation<UnweightedAllPairsShortestPaths, CompletePartition> {
+	
+	// TODO existing paths and possible paths are wrong...
 
 	public UnweightedAllPairsShortestPathsCompleteCollation(String auxDir,
 			String inputDir, int partitionCount, int run, Sleeper sleeper) {
