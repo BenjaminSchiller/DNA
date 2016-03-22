@@ -16,9 +16,9 @@ import dna.util.parameters.Parameter;
 
 public abstract class DegreeDistribution extends Metric {
 
-	protected BinnedIntDistr degree;
-	protected BinnedIntDistr inDegree;
-	protected BinnedIntDistr outDegree;
+	public BinnedIntDistr degree;
+	public BinnedIntDistr inDegree;
+	public BinnedIntDistr outDegree;
 
 	public DegreeDistribution(String name, Parameter... p) {
 		super(name, MetricType.exact, p);
@@ -30,7 +30,7 @@ public abstract class DegreeDistribution extends Metric {
 
 	@Override
 	public Value[] getValues() {
-		if (this.g.isDirected()) {
+		if (this.inDegree != null && this.outDegree != null) {
 			Value minIn = new Value("InDegreeMin",
 					this.inDegree.getMinNonZeroIndex());
 			Value maxIn = new Value("InDegreeMax",
@@ -51,7 +51,7 @@ public abstract class DegreeDistribution extends Metric {
 
 	@Override
 	public Distr<?, ?>[] getDistributions() {
-		if (this.g.isDirected()) {
+		if (this.inDegree != null && this.outDegree != null) {
 			return new Distr<?, ?>[] { this.degree, this.inDegree,
 					this.outDegree };
 		} else {

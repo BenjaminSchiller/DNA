@@ -52,7 +52,7 @@ public class MetricFromArgs {
 		case DegreeDistributionR:
 			return new DegreeDistributionR(nodeTypes);
 		case DegreeDistributionU:
-			return new DegreeDistributionU();
+			return new DegreeDistributionU(nodeTypes);
 		case UndirectedClusteringCoefficientR:
 			return new UndirectedClusteringCoefficientR(nodeTypes);
 		case UndirectedClusteringCoefficientU:
