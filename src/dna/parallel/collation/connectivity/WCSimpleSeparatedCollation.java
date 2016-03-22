@@ -23,14 +23,14 @@ public class WCSimpleSeparatedCollation extends
 			int partitionCount, int run, Sleeper sleeper) {
 		super("WCSimpleSeparatedCollation", MetricType.exact,
 				PartitionType.Separated, new WCSimpleR(), auxDir, inputDir,
-				partitionCount, run, sleeper, new String[] { "WCSimpleR" },
-				new String[0], new String[0], new String[] { "ids" });
+				partitionCount, run, sleeper, new String[] { "WCSimpleR",
+						"WCSimpleU" }, new String[0], new String[0],
+				new String[] { "ids" });
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
 	public boolean collate(CollationData cd) {
-		WCSimpleR m = (WCSimpleR) this.m;
 		m.components = new ArrayList<WCComponent>();
 		HashMap<Node, WCComponent> mapping = new HashMap<Node, WCComponent>();
 
@@ -46,13 +46,13 @@ public class WCSimpleSeparatedCollation extends
 				int index = (int) ids.getValue(n.getIndex());
 				WCComponent c = null;
 				if (!compMap.containsKey(index)) {
-					c = new WCComponent(index);
+					c = new WCComponent();
 					m.components.add(c);
 					compMap.put(index, c);
 				} else {
 					c = compMap.get(index);
 				}
-				c.nodes.add(n);
+				c.addNode(n);
 				mapping.put(n, c);
 			}
 			p++;
@@ -67,8 +67,10 @@ public class WCSimpleSeparatedCollation extends
 			if (c1 == c2) {
 				continue;
 			}
-			c1.nodes.addAll(c2.nodes);
-			for (Node n : c2.nodes) {
+			c1.addNodes(c2.getNodes());
+			c1.addEdges(c2.getEdges());
+			c1.addEdge(e);
+			for (Node n : c2.getNodes()) {
 				mapping.put(n, c1);
 			}
 			m.components.remove(c2);
