@@ -43,6 +43,10 @@ public class BetweennessCentralityU extends BetweennessCentrality implements
 		super("BetweennessCentralityU");
 	}
 
+	public BetweennessCentralityU(String[] nodeTypes) {
+		super("BetweennessCentralityU", nodeTypes);
+	}
+
 	@SuppressWarnings("unchecked")
 	@Override
 	public boolean init() {
@@ -74,7 +78,7 @@ public class BetweennessCentralityU extends BetweennessCentrality implements
 		Queue<Node> q = new LinkedList<Node>();
 		Stack<Node> s = new Stack<Node>();
 
-		for (IElement ie : g.getNodes()) {
+		for (IElement ie : this.getNodesOfAssignedTypes()) {
 			Node n = (Node) ie;
 			// stage ONE
 			s.clear();
@@ -185,7 +189,7 @@ public class BetweennessCentralityU extends BetweennessCentrality implements
 			DirectedNode src = e.getSrc();
 			DirectedNode dst = e.getDst();
 
-			for (IElement iE : g.getNodes()) {
+			for (IElement iE : this.getNodesOfAssignedTypes()) {
 				DirectedNode root = (DirectedNode) iE;
 
 				HashMap<Node, Integer> d = distances.get(root);
@@ -212,7 +216,7 @@ public class BetweennessCentralityU extends BetweennessCentrality implements
 			Node n1 = e.getNode1();
 			Node n2 = e.getNode2();
 
-			for (IElement iE : g.getNodes()) {
+			for (IElement iE : this.getNodesOfAssignedTypes()) {
 				UndirectedNode root = (UndirectedNode) iE;
 
 				HashMap<Node, Integer> d = distances.get(root);
@@ -616,7 +620,7 @@ public class BetweennessCentralityU extends BetweennessCentrality implements
 			DirectedNode src = e.getSrc();
 			DirectedNode dst = e.getDst();
 
-			for (IElement iE : g.getNodes()) {
+			for (IElement iE : this.getNodesOfAssignedTypes()) {
 				DirectedNode root = (DirectedNode) iE;
 				HashMap<Node, Integer> d = this.distances.get(root);
 
@@ -659,7 +663,7 @@ public class BetweennessCentralityU extends BetweennessCentrality implements
 			UndirectedEdge e = (UndirectedEdge) ea.getEdge();
 			Node n1 = e.getNode1();
 			Node n2 = e.getNode2();
-			for (IElement iE : g.getNodes()) {
+			for (IElement iE : this.getNodesOfAssignedTypes()) {
 				UndirectedNode root = (UndirectedNode) iE;
 
 				HashMap<Node, Integer> d = distances.get(root);
@@ -1238,7 +1242,7 @@ public class BetweennessCentralityU extends BetweennessCentrality implements
 		HashMap<Node, Integer> d = new HashMap<Node, Integer>();
 		HashMap<Node, Double> sums = new HashMap<Node, Double>();
 
-		for (IElement ieE : g.getNodes()) {
+		for (IElement ieE : this.getNodesOfAssignedTypes()) {
 			Node t = (Node) ieE;
 			if (t == node) {
 				d.put(t, 0);

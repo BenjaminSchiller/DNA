@@ -76,9 +76,9 @@ public class MetricFromArgs {
 		case AssortativityU:
 			return new AssortativityU();
 		case BetweennessCentralityR:
-			return new BetweennessCentralityR();
+			return new BetweennessCentralityR(nodeTypes);
 		case BetweennessCentralityU:
-			return new BetweennessCentralityU();
+			return new BetweennessCentralityU(nodeTypes);
 		case RichClubConnectivityByDegreeR:
 			return new RichClubConnectivityByDegreeR();
 		case RichClubConnectivityByDegreeU:

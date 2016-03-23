@@ -23,6 +23,10 @@ public class BetweennessCentralityR extends BetweennessCentrality implements
 		super("BetweennessCentralityR");
 	}
 
+	public BetweennessCentralityR(String[] nodeTypes) {
+		super("BetweennessCentralityR", nodeTypes);
+	}
+
 	@Override
 	public boolean recompute() {
 
@@ -35,7 +39,7 @@ public class BetweennessCentralityR extends BetweennessCentrality implements
 		Queue<Node> q = new LinkedList<Node>();
 		Stack<Node> s = new Stack<Node>();
 
-		for (IElement ie : g.getNodes()) {
+		for (IElement ie : this.getNodesOfAssignedTypes()) {
 			Node n = (Node) ie;
 			// stage ONE
 			s.clear();

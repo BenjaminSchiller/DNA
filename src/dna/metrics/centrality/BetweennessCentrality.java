@@ -4,7 +4,6 @@ import java.util.HashMap;
 import java.util.Map.Entry;
 
 import dna.graph.Graph;
-import dna.graph.IElement;
 import dna.graph.nodes.Node;
 import dna.metrics.IMetric;
 import dna.metrics.Metric;
@@ -14,19 +13,25 @@ import dna.series.data.distr.Distr;
 import dna.series.data.nodevaluelists.NodeNodeValueList;
 import dna.series.data.nodevaluelists.NodeValueList;
 import dna.updates.batch.Batch;
+import dna.util.ArrayUtils;
+import dna.util.DataUtils;
 
 public abstract class BetweennessCentrality extends Metric implements IMetric {
 
 	// protected HashMap<Node, Double> bC;
 
-	protected NodeValueList bCC;
-	protected double bCSum;
+	public NodeValueList bCC;
+	public double bCSum;
 
-	protected BinnedDoubleDistr binnedBC;
-	protected int sumShortestPaths;
+	public BinnedDoubleDistr binnedBC;
+	public int sumShortestPaths;
 
 	public BetweennessCentrality(String name) {
 		super(name, MetricType.exact);
+	}
+
+	public BetweennessCentrality(String name, String[] nodeTypes) {
+		super(name, MetricType.exact, nodeTypes);
 	}
 
 	// private double getMedian() {
@@ -45,8 +50,10 @@ public abstract class BetweennessCentrality extends Metric implements IMetric {
 	@Override
 	public Value[] getValues() {
 		// Value v1 = new Value("median", getMedian());
-		Value v2 = new Value("avg_bc", bCSum / (double) g.getNodeCount());
-		return new Value[] { v2 };
+		// Value v2 = new Value("avg_bc", bCSum / (double) g.getNodeCount());
+		Value v3 = new Value("bCSum", bCSum);
+		Value v4 = new Value("sumShortestPaths", sumShortestPaths);
+		return new Value[] { v3, v4 };
 	}
 
 	@Override
@@ -79,31 +86,13 @@ public abstract class BetweennessCentrality extends Metric implements IMetric {
 		}
 		boolean success = true;
 		BetweennessCentrality bc = (BetweennessCentrality) m;
-
-		/*
-		 * detailed comparison is no longer possible -> only saved in update
-		 * variant
-		 */
-
-		for (IElement ie : g.getNodes()) {
-			Node n = (Node) ie;
-			if (Math.abs(this.bCC.getValue(n.getIndex())
-					- bc.bCC.getValue(n.getIndex())) > 0.0001) {
-				System.out.println("diff at Node n " + n + " expected Score "
-						+ this.bCC.getValue(n.getIndex()) + " is "
-						+ bc.bCC.getValue(n.getIndex()));
-				success = false;
-			}
-
+		success &= ArrayUtils
+				.equals(bCC.getValues(), bc.bCC.getValues(), "bCC");
+		success &= DataUtils.equals(sumShortestPaths, bc.sumShortestPaths,
+				"sumShortestPaths");
+		if (Math.abs(bc.bCSum - bCSum) > 0.00001) {
+			success &= DataUtils.equals(bCSum, bc.bCSum, "bCSum");
 		}
-
-		if (sumShortestPaths != bc.getSumShortestPaths()) {
-			success = false;
-			System.out.println("diff at sum of shortest paths: "
-					+ sumShortestPaths + " is expected. Result is: "
-					+ bc.getSumShortestPaths());
-		}
-
 		return success;
 	}
 
