@@ -72,9 +72,9 @@ public class MetricFromArgs {
 		case UndirectedMotifsU:
 			return new UndirectedMotifsU();
 		case AssortativityR:
-			return new AssortativityR();
+			return new AssortativityR(nodeTypes);
 		case AssortativityU:
-			return new AssortativityU();
+			return new AssortativityU(nodeTypes);
 		case BetweennessCentralityR:
 			return new BetweennessCentralityR(nodeTypes);
 		case BetweennessCentralityU:

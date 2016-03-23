@@ -4,6 +4,7 @@ import dna.graph.Graph;
 import dna.graph.IElement;
 import dna.graph.edges.DirectedEdge;
 import dna.graph.edges.DirectedWeightedEdge;
+import dna.graph.edges.Edge;
 import dna.graph.edges.UndirectedEdge;
 import dna.graph.edges.UndirectedWeightedEdge;
 import dna.graph.nodes.DirectedNode;
@@ -106,18 +107,18 @@ public abstract class Assortativity extends Metric implements IMetric {
 	EdgeWeightType edgeWeightType;
 
 	/** The sum of all edge weights in the graph. */
-	double totalEdgeWeight;
+	public double totalEdgeWeight;
 
 	// For each edge between node u,v:
 	// sum of {edgeWeight(u,v) * [weightedDegree(u) * weightedDegree(v)]}
-	double sum1;
+	public double sum1;
 	// sum of {edgeWeight(u,v) * [weightedDegree(u) + weightedDegree(v)]}
-	double sum2;
+	public double sum2;
 	// sum of {edgeWeight(u,v) * [weightedDegree(u)^2 + weightedDegree(v)^2]}
-	double sum3;
+	public double sum3;
 
 	/** The assortativity value, normally abbreviated with r. */
-	double r;
+	public double r;
 
 	/**
 	 * Initializes {@link Assortativity}. Implicitly sets degree type for
@@ -130,6 +131,22 @@ public abstract class Assortativity extends Metric implements IMetric {
 	 */
 	public Assortativity(String name) {
 		this(name, DirectedDegreeType.OUT, EdgeWeightType.IGNORE_WEIGHTS);
+	}
+
+	/**
+	 * Initializes {@link Assortativity}. Implicitly sets degree type for
+	 * directed graphs to outdegree and ignores edge weights (if any).
+	 * 
+	 * @param name
+	 *            The name of the metric, e.g. <i>AssortativityWeightedR</i> for
+	 *            the Assortativity Recomputation and
+	 *            <i>AssortativityWeightedU</i> for the Assortativity Updates.
+	 * @param nodeTypes
+	 *            types of nodes that should be processed
+	 */
+	public Assortativity(String name, String[] nodeTypes) {
+		this(name, DirectedDegreeType.OUT, EdgeWeightType.IGNORE_WEIGHTS,
+				nodeTypes);
 	}
 
 	/**
@@ -151,6 +168,33 @@ public abstract class Assortativity extends Metric implements IMetric {
 	public Assortativity(String name, DirectedDegreeType directedDegreeType,
 			EdgeWeightType edgeWeightType) {
 		super(name, IMetric.MetricType.exact, directedDegreeType
+				.StringParameter(), edgeWeightType.StringParameter());
+
+		this.directedDegreeType = directedDegreeType;
+		this.edgeWeightType = edgeWeightType;
+	}
+
+	/**
+	 * Initializes {@link Assortativity}.
+	 * 
+	 * @param name
+	 *            The name of the metric, e.g. <i>AssortativityWeightedR</i> for
+	 *            the Assortativity Recomputation and
+	 *            <i>AssortativityWeightedU</i> for the Assortativity Updates.
+	 * @param directedDegreeType
+	 *            <i>in</i> or <i>out</i>, determining whether to use in- or
+	 *            outdegree for directed graphs. Will be ignored for undirected
+	 *            graphs.
+	 * @param edgeWeightType
+	 *            <i>weighted</i> or <i>unweighted</i>, determining whether to
+	 *            use edge weights in weighted graphs or not. Will be ignored
+	 *            for unweighted graphs.
+	 * @param nodeTypes
+	 *            types of nodes that should be processed
+	 */
+	public Assortativity(String name, DirectedDegreeType directedDegreeType,
+			EdgeWeightType edgeWeightType, String[] nodeTypes) {
+		super(name, IMetric.MetricType.exact, nodeTypes, directedDegreeType
 				.StringParameter(), edgeWeightType.StringParameter());
 
 		this.directedDegreeType = directedDegreeType;
@@ -208,8 +252,12 @@ public abstract class Assortativity extends Metric implements IMetric {
 	private boolean computeForDirectedUnweightedGraph() {
 		DirectedEdge edge;
 		int srcNodeDegree = 0, dstNodeDegree = 0;
+		this.totalEdgeWeight = 0;
 		for (IElement iElement : this.g.getEdges()) {
 			edge = (DirectedEdge) iElement;
+			if (!this.shouldEdgeBeProcessed(edge)) {
+				continue;
+			}
 			if (this.directedDegreeType.equals(DirectedDegreeType.OUT)) {
 				srcNodeDegree = edge.getSrc().getOutDegree();
 				dstNodeDegree = edge.getDst().getOutDegree();
@@ -219,9 +267,10 @@ public abstract class Assortativity extends Metric implements IMetric {
 			}
 
 			this.increaseSum123(srcNodeDegree, dstNodeDegree);
+			this.totalEdgeWeight++;
 		}
 
-		this.totalEdgeWeight = this.g.getEdgeCount();
+		// this.totalEdgeWeight = this.g.getEdgeCount();
 
 		this.setR();
 
@@ -237,6 +286,9 @@ public abstract class Assortativity extends Metric implements IMetric {
 		double edgeWeight;
 		for (IElement iElement : this.g.getEdges()) {
 			edge = (DirectedWeightedEdge) iElement;
+			if (!this.shouldEdgeBeProcessed(edge)) {
+				continue;
+			}
 
 			edgeWeight = this.weight(edge.getWeight());
 			this.totalEdgeWeight += edgeWeight;
@@ -256,14 +308,19 @@ public abstract class Assortativity extends Metric implements IMetric {
 	 */
 	private boolean computeForUndirectedUnweightedGraph() {
 		UndirectedEdge edge;
+		this.totalEdgeWeight = 0;
 		for (IElement iElement : this.g.getEdges()) {
 			edge = (UndirectedEdge) iElement;
+			if (!this.shouldEdgeBeProcessed(edge)) {
+				continue;
+			}
 
 			this.increaseSum123(edge.getNode1().getDegree(), edge.getNode2()
 					.getDegree());
+			this.totalEdgeWeight++;
 		}
 
-		this.totalEdgeWeight = this.g.getEdgeCount();
+		// this.totalEdgeWeight = this.g.getEdgeCount();
 
 		this.setR();
 
@@ -279,6 +336,9 @@ public abstract class Assortativity extends Metric implements IMetric {
 		double edgeWeight;
 		for (IElement iElement : this.g.getEdges()) {
 			edge = (UndirectedWeightedEdge) iElement;
+			if (!this.shouldEdgeBeProcessed(edge)) {
+				continue;
+			}
 
 			edgeWeight = this.weight(edge.getWeight());
 			this.totalEdgeWeight += edgeWeight;
@@ -313,7 +373,8 @@ public abstract class Assortativity extends Metric implements IMetric {
 
 	@Override
 	public Distr<?, ?>[] getDistributions() {
-		return new Distr<?, ?>[] { new BinnedDoubleDistr("test-exact", 0.5, new long[] {0, 1, 2}, 3)};
+		return new Distr<?, ?>[] { new BinnedDoubleDistr("test-exact", 0.5,
+				new long[] { 0, 1, 2 }, 3) };
 	}
 
 	@Override
@@ -328,7 +389,12 @@ public abstract class Assortativity extends Metric implements IMetric {
 
 	@Override
 	public Value[] getValues() {
-		return new Value[] { new Value("AssortativityCoefficient", this.r) };
+		Value v1 = new Value("AssortativityCoefficient", this.r);
+		Value v2 = new Value("totalEdgeWeight", this.totalEdgeWeight);
+		Value v3 = new Value("sum1", this.sum1);
+		Value v4 = new Value("sum2", this.sum2);
+		Value v5 = new Value("sum3", this.sum3);
+		return new Value[] { v1, v2, v3, v4, v5 };
 	}
 
 	void increaseSum123(double srcNodeDegree, double dstNodeDegree) {
@@ -368,7 +434,7 @@ public abstract class Assortativity extends Metric implements IMetric {
 	 * Computes {@link #r} based upon {@link #totalEdgeWeight} and {@link #sum1}
 	 * , {@link #sum2}, {@link #sum3}.
 	 */
-	void setR() {
+	public void setR() {
 		// For unweighted graphs the total edge weight is set to the number of
 		// edges (i.e. every egde is weighted with 1)
 
@@ -437,6 +503,10 @@ public abstract class Assortativity extends Metric implements IMetric {
 		}
 
 		return weightedDegree;
+	}
+
+	protected boolean shouldEdgeBeProcessed(Edge e) {
+		return !this.areNodesTyped() || this.isNodeOfAssignedType(e.getN1());
 	}
 
 }

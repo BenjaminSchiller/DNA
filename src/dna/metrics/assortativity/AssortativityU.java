@@ -8,6 +8,7 @@ import dna.graph.IElement;
 import dna.graph.datastructures.GraphDataStructure;
 import dna.graph.edges.DirectedEdge;
 import dna.graph.edges.DirectedWeightedEdge;
+import dna.graph.edges.Edge;
 import dna.graph.edges.UndirectedEdge;
 import dna.graph.edges.UndirectedWeightedEdge;
 import dna.graph.nodes.DirectedNode;
@@ -29,6 +30,8 @@ import dna.util.Log;
 public class AssortativityU extends Assortativity implements
 		IBeforeUpdatesWeighted {
 
+	// TODO node types are not incorporated for node removal of weighted edges!
+
 	/** Stores the weighted degree of each node. */
 	private HashMap<Node, Double> weightedDegrees;
 
@@ -38,6 +41,10 @@ public class AssortativityU extends Assortativity implements
 	 */
 	public AssortativityU() {
 		super("AssortativityU");
+	}
+
+	public AssortativityU(String[] nodeTypes) {
+		super("AssortativityU", nodeTypes);
 	}
 
 	/**
@@ -57,6 +64,11 @@ public class AssortativityU extends Assortativity implements
 		super("AssortativityU", directedDegreeType, edgeWeightType);
 	}
 
+	public AssortativityU(DirectedDegreeType directedDegreeType,
+			EdgeWeightType edgeWeightType, String[] nodeTypes) {
+		super("AssortativityU", directedDegreeType, edgeWeightType, nodeTypes);
+	}
+
 	private double _addAgain(double addAgain,
 			DirectedWeightedEdge edge_NodeNeighbor_OtherNodeNeighbor,
 			DirectedWeightedEdge edge_Node_NodeNeighbor,
@@ -70,6 +82,9 @@ public class AssortativityU extends Assortativity implements
 
 	@Override
 	public boolean applyBeforeUpdate(EdgeAddition ea) {
+		if (!this.shouldEdgeBeProcessed((Edge) ea.getEdge())) {
+			return true;
+		}
 		if (DirectedWeightedEdge.class.isAssignableFrom(this.g
 				.getGraphDatastructures().getEdgeType())) {
 
@@ -116,6 +131,9 @@ public class AssortativityU extends Assortativity implements
 
 	@Override
 	public boolean applyBeforeUpdate(EdgeRemoval er) {
+		if (!this.shouldEdgeBeProcessed((Edge) er.getEdge())) {
+			return true;
+		}
 		if (DirectedWeightedEdge.class.isAssignableFrom(this.g
 				.getGraphDatastructures().getEdgeType())) {
 
@@ -161,6 +179,9 @@ public class AssortativityU extends Assortativity implements
 
 	@Override
 	public boolean applyBeforeUpdate(EdgeWeight ew) {
+		if (!this.shouldEdgeBeProcessed((Edge) ew.getEdge())) {
+			return true;
+		}
 		if (DirectedWeightedEdge.class.isAssignableFrom(this.g
 				.getGraphDatastructures().getEdgeType())) {
 			return this.updateForEdgeWeight(
@@ -579,18 +600,25 @@ public class AssortativityU extends Assortativity implements
 			// directed graph
 
 			for (Node otherNode : nodes) {
-				if (this.g.containsEdge(gds.newEdgeInstance(node, otherNode)))
+				Edge out = gds.newEdgeInstance(node, otherNode);
+				if (this.shouldEdgeBeProcessed(out) && this.g.containsEdge(out)) {
 					connectedNodes++;
-				if (this.g.containsEdge(gds.newEdgeInstance(otherNode, node)))
+				}
+				Edge in = gds.newEdgeInstance(otherNode, node);
+				if (this.shouldEdgeBeProcessed(in) && this.g.containsEdge(in)) {
 					connectedNodes++;
+				}
 			}
 
 		} else {
 			// undirected graph
 
-			for (Node otherNode : nodes)
-				if (this.g.containsEdge(gds.newEdgeInstance(node, otherNode)))
+			for (Node otherNode : nodes) {
+				Edge e = gds.newEdgeInstance(node, otherNode);
+				if (this.shouldEdgeBeProcessed(e) && this.g.containsEdge(e)) {
 					connectedNodes++;
+				}
+			}
 		}
 
 		return connectedNodes;
@@ -708,7 +736,8 @@ public class AssortativityU extends Assortativity implements
 			}
 		}
 
-		this.totalEdgeWeight = this.g.getEdgeCount() + 1;
+		// this.totalEdgeWeight = this.g.getEdgeCount() + 1;
+		this.totalEdgeWeight++;
 		this.setR();
 
 		return true;
@@ -778,7 +807,8 @@ public class AssortativityU extends Assortativity implements
 		this.increaseSum123AtNodeForAllEdges(edge, node1, node1Degree);
 		this.increaseSum123AtNodeForAllEdges(edge, node2, node2Degree);
 
-		this.totalEdgeWeight = this.g.getEdgeCount() + 1;
+		// this.totalEdgeWeight = this.g.getEdgeCount() + 1;
+		this.totalEdgeWeight++;
 		this.setR();
 
 		return true;
@@ -870,7 +900,8 @@ public class AssortativityU extends Assortativity implements
 			}
 		}
 
-		this.totalEdgeWeight = this.g.getEdgeCount() - 1;
+		// this.totalEdgeWeight = this.g.getEdgeCount() - 1;
+		this.totalEdgeWeight--;
 		this.setR();
 
 		return true;
@@ -932,7 +963,8 @@ public class AssortativityU extends Assortativity implements
 		this.decreaseSum123AtNodeForAllEdges(edge, node1, node1Degree);
 		this.decreaseSum123AtNodeForAllEdges(edge, node2, node2Degree);
 
-		this.totalEdgeWeight = this.g.getEdgeCount() - 1;
+		// this.totalEdgeWeight = this.g.getEdgeCount() - 1;
+		this.totalEdgeWeight--;
 		this.setR();
 
 		return true;
@@ -1117,7 +1149,10 @@ public class AssortativityU extends Assortativity implements
 				otherNode1Degree = otherNode1.getInDegree();
 			}
 
-			this.decreaseSum123(nodeDegree, otherNode1Degree);
+			if (this.shouldEdgeBeProcessed(edge)) {
+				this.decreaseSum123(nodeDegree, otherNode1Degree);
+				totalEdgeWeight--;
+			}
 
 			if ((this.directedDegreeType.equals(DirectedDegreeType.OUT) && edge
 					.getDst().equals(node))
@@ -1129,6 +1164,9 @@ public class AssortativityU extends Assortativity implements
 				nodeNeighbors.add(otherNode1);
 
 				for (IElement iElement2 : otherNode1.getEdges()) {
+					if (this.shouldEdgeBeProcessed((Edge) iElement2)) {
+						continue;
+					}
 					otherNode2 = (DirectedNode) ((DirectedEdge) iElement2)
 							.getDifferingNode(otherNode1);
 
@@ -1150,7 +1188,7 @@ public class AssortativityU extends Assortativity implements
 			}
 		}
 
-		this.totalEdgeWeight = this.g.getEdgeCount() - node.getDegree();
+		// this.totalEdgeWeight = this.g.getEdgeCount() - node.getDegree();
 		this.setR();
 
 		return true;
@@ -1179,9 +1217,15 @@ public class AssortativityU extends Assortativity implements
 
 			otherNode1Degree = otherNode1.getDegree();
 
-			this.decreaseSum123(nodeDegree, otherNode1Degree);
+			if (this.shouldEdgeBeProcessed((Edge) iElement1)) {
+				this.decreaseSum123(nodeDegree, otherNode1Degree);
+				this.totalEdgeWeight--;
+			}
 
 			for (IElement iElement2 : otherNode1.getEdges()) {
+				if (!this.shouldEdgeBeProcessed((Edge) iElement2)) {
+					continue;
+				}
 				otherNode2 = (UndirectedNode) ((UndirectedEdge) iElement2)
 						.getDifferingNode(otherNode1);
 
@@ -1198,7 +1242,7 @@ public class AssortativityU extends Assortativity implements
 					nodeNeighbors);
 		}
 
-		this.totalEdgeWeight = this.g.getEdgeCount() - nodeDegree;
+		// this.totalEdgeWeight = this.g.getEdgeCount() - nodeDegree;
 		this.setR();
 
 		return true;

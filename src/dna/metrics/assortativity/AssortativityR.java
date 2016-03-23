@@ -15,6 +15,10 @@ public class AssortativityR extends Assortativity implements IRecomputation {
 		super("AssortativityR");
 	}
 
+	public AssortativityR(String[] nodeTypes) {
+		super("AssortativityR", nodeTypes);
+	}
+
 	/**
 	 * Initializes {@link AssortativityR}.
 	 * 
@@ -30,6 +34,11 @@ public class AssortativityR extends Assortativity implements IRecomputation {
 	public AssortativityR(DirectedDegreeType directedDegreeType,
 			EdgeWeightType edgeWeightType) {
 		super("AssortativityR", directedDegreeType, edgeWeightType);
+	}
+
+	public AssortativityR(DirectedDegreeType directedDegreeType,
+			EdgeWeightType edgeWeightType, String[] nodeTypes) {
+		super("AssortativityR", directedDegreeType, edgeWeightType, nodeTypes);
 	}
 
 	@Override

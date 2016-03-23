@@ -64,6 +64,10 @@ public abstract class Metric extends ParameterList implements IMetric {
 		}
 	}
 
+	protected boolean areNodesTyped() {
+		return this.nodeTypes.length > 0;
+	}
+
 	protected static Parameter[] combine(Parameter[] p1, Parameter[] p2) {
 		if (p2.length == 0) {
 			return p1;

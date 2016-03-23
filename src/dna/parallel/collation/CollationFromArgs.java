@@ -1,5 +1,6 @@
 package dna.parallel.collation;
 
+import dna.parallel.collation.assortativity.AssortativityCompleteCollation;
 import dna.parallel.collation.centrality.BetweennessCentralityCompleteCollation;
 import dna.parallel.collation.clustering.UndirectedClusteringCoefficientCompleteCollation;
 import dna.parallel.collation.clustering.UndirectedClusteringCoefficientOverlappingCollation;
@@ -24,7 +25,7 @@ import dna.parallel.util.Sleeper;
  */
 public class CollationFromArgs {
 	public static enum CollationType {
-		BetweennessCentralityComplete, DegreeDistributionOverlapping, UndirectedClusteringCoefficientSeparated, UndirectedClusteringCoefficientOverlapping, UndirectedClusteringCoefficientComplete, UnweightedAllPairsShortestPathsSeparated, UnweightedAllPairsShortestPathsOverlapping, UnweightedAllPairsShortestPathsComplete, WCSimpleSeparated
+		AssortativityComplete, BetweennessCentralityComplete, DegreeDistributionOverlapping, UndirectedClusteringCoefficientSeparated, UndirectedClusteringCoefficientOverlapping, UndirectedClusteringCoefficientComplete, UnweightedAllPairsShortestPathsSeparated, UnweightedAllPairsShortestPathsOverlapping, UnweightedAllPairsShortestPathsComplete, WCSimpleSeparated
 	}
 
 	/**
@@ -79,6 +80,9 @@ public class CollationFromArgs {
 					partitionCount, run, sleeper);
 		case BetweennessCentralityComplete:
 			return new BetweennessCentralityCompleteCollation(auxDir, inputDir,
+					partitionCount, run, sleeper);
+		case AssortativityComplete:
+			return new AssortativityCompleteCollation(auxDir, inputDir,
 					partitionCount, run, sleeper);
 		default:
 			throw new IllegalArgumentException("invalid collation type: "
