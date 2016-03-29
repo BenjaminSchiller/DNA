@@ -43,15 +43,16 @@ public class GraphPanelConfig {
 
 	/** Creates a main display config object from a given json object. **/
 	public static GraphPanelConfig getFromJSONObject(JSONObject o) {
-		System.out.println("graphPanelConfig: " + o);
 		RulesConfig rules = null;
 
-		for (String s : JSONObject.getNames(o)) {
-			switch (s) {
-			case "RulesConfig":
-				rules = RulesConfig.getFromJSONObject(o
-						.getJSONObject("RulesConfig"));
-				break;
+		if (JSONObject.getNames(o) != null) {
+			for (String s : JSONObject.getNames(o)) {
+				switch (s) {
+				case "RulesConfig":
+					rules = RulesConfig.getFromJSONObject(o
+							.getJSONObject("RulesConfig"));
+					break;
+				}
 			}
 		}
 
