@@ -95,24 +95,36 @@ public abstract class ClusteringCoefficient extends Metric {
 	}
 
 	protected void addTriangle(Node origin) {
+		if (!this.isNodeOfAssignedType(origin)) {
+			return;
+		}
 		this.triangleCount++;
 		this.nodeTriangleCount.incr(origin.getIndex());
 		this.updateNode(origin.getIndex());
 	}
 
 	protected void removeTriangle(Node origin) {
+		if (!this.isNodeOfAssignedType(origin)) {
+			return;
+		}
 		this.triangleCount--;
 		this.nodeTriangleCount.decr(origin.getIndex());
 		this.updateNode(origin.getIndex());
 	}
 
 	protected void addPotentials(Node origin, int count) {
+		if (!this.isNodeOfAssignedType(origin)) {
+			return;
+		}
 		this.potentialCount += count;
 		this.nodePotentialCount.add(origin.getIndex(), count);
 		this.updateNode(origin.getIndex());
 	}
 
 	protected void removePotentials(Node origin, int count) {
+		if (!this.isNodeOfAssignedType(origin)) {
+			return;
+		}
 		this.potentialCount -= count;
 		this.nodePotentialCount.sub(origin.getIndex(), count);
 		this.updateNode(origin.getIndex());
