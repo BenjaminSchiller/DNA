@@ -92,32 +92,35 @@ public class GraphStyleRuleConfig {
 
 		ArrayList<Parameter> paramsList = new ArrayList<Parameter>();
 
-		for (int i = 0; i < keys.length; i++) {
-			String k = keys[i];
+		if (keys != null) {
+			for (int i = 0; i < keys.length; i++) {
+				String k = keys[i];
 
-			// switch on key, detect default config fields like Name, Enabled,
-			// Hidden
-			switch (k) {
-			case "Name":
-				name = o.getString(k);
-				break;
-			case "Enabled":
-				enabled = o.getBoolean(k);
-				break;
-			case "Hidden":
-				hidden = o.getBoolean(k);
-				break;
-			default:
-				if (o.get(k) instanceof JSONArray) {
-					JSONArray array = o.getJSONArray(k);
-					for (int j = 0; j < array.length(); j++) {
+				// switch on key, detect default config fields like Name,
+				// Enabled,
+				// Hidden
+				switch (k) {
+				case "Name":
+					name = o.getString(k);
+					break;
+				case "Enabled":
+					enabled = o.getBoolean(k);
+					break;
+				case "Hidden":
+					hidden = o.getBoolean(k);
+					break;
+				default:
+					if (o.get(k) instanceof JSONArray) {
+						JSONArray array = o.getJSONArray(k);
+						for (int j = 0; j < array.length(); j++) {
+							paramsList.add(GraphStyleRuleConfig
+									.getParameterFromObject(k + "_" + j,
+											array.get(j)));
+						}
+					} else {
 						paramsList.add(GraphStyleRuleConfig
-								.getParameterFromObject(k + "_" + j,
-										array.get(j)));
+								.getParameterFromObject(k, o.get(k)));
 					}
-				} else {
-					paramsList.add(GraphStyleRuleConfig.getParameterFromObject(
-							k, o.get(k)));
 				}
 			}
 		}
