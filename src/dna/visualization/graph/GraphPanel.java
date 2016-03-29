@@ -187,6 +187,13 @@ public class GraphPanel extends JPanel {
 
 	public GraphPanel(JFrame parentFrame, final Graph graph, final String name,
 			final String graphGeneratorName, PositionMode mode,
+			GraphPanelConfig config) {
+		this(parentFrame, graph, name, graphGeneratorName, mode,
+				new ArrayList<GraphStyleRule>(0), config);
+	}
+
+	public GraphPanel(JFrame parentFrame, final Graph graph, final String name,
+			final String graphGeneratorName, PositionMode mode,
 			ArrayList<GraphStyleRule> rules, GraphPanelConfig config) {
 		this.parentFrame = parentFrame;
 		this.setName(name);
@@ -271,7 +278,12 @@ public class GraphPanel extends JPanel {
 	}
 
 	protected void addGraphStyleRules(ArrayList<GraphStyleRuleConfig> rules) {
-		//TODO!
+		for (GraphStyleRuleConfig rCfg : rules) {
+			GraphStyleRule rule = GraphStyleRule.getRule(rCfg);
+
+			if (rule != null)
+				addGraphStyleRule(rule);
+		}
 	}
 
 	/** Adds the stat-panel. **/

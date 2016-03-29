@@ -1,9 +1,15 @@
 package dna.visualization.graph.rules;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+
 import org.graphstream.graph.Edge;
 import org.graphstream.graph.Node;
 
 import dna.graph.weights.Weight;
+import dna.util.Log;
+import dna.util.parameters.Parameter;
+import dna.visualization.config.graph.rules.GraphStyleRuleConfig;
 
 /** Abstract class for all graph style rules. **/
 public abstract class GraphStyleRule {
@@ -39,4 +45,25 @@ public abstract class GraphStyleRule {
 
 	public abstract String toString();
 
+	/** Returns a new GraphStyleRule instance based on the config. **/
+	public static GraphStyleRule getRule(GraphStyleRuleConfig config) {
+		GraphStyleRule rule = null;
+
+		try {
+			Class<?> cl = Class.forName(config.getKey());
+			Constructor<?> cons = cl.getConstructor(String.class,
+					Parameter[].class);
+			rule = (GraphStyleRule) cons.newInstance(config.getName(),
+					config.getParams());
+		} catch (ClassNotFoundException | NoSuchMethodException
+				| SecurityException | InstantiationException
+				| IllegalAccessException | IllegalArgumentException
+				| InvocationTargetException e) {
+			Log.error("problem when instantiating GraphStyleRule: "
+					+ config.getKey());
+			e.printStackTrace();
+		}
+
+		return rule;
+	}
 }
