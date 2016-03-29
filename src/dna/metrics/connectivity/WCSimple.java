@@ -32,7 +32,8 @@ public class WCSimple extends Metric {
 	@Override
 	public Value[] getValues() {
 		Value components = new Value("count", this.components.size());
-		Value max = new Value("max", this.components.get(0).size());
+		Value max = new Value("max",
+				this.components.size() > 0 ? this.components.get(0).size() : 0);
 		return new Value[] { components, max };
 	}
 
