@@ -166,7 +166,7 @@ public abstract class Collation<M extends Metric, T extends Partition> extends
 					bd[i] = null;
 					System.out.println("could not read all data yet for " + i
 							+ " (some exception)");
-					e.printStackTrace();
+					e.printStackTrace(System.out);
 				}
 			}
 			if (aux == null) {
@@ -236,6 +236,10 @@ public abstract class Collation<M extends Metric, T extends Partition> extends
 	}
 
 	protected MetricData getSource(BatchData bd) {
+		if (bd == null || bd.getMetrics() == null
+				|| bd.getMetrics().getNames() == null) {
+			return null;
+		}
 		for (String name : this.sourceMetrics) {
 			if (bd.getMetrics().getNames().contains(name)) {
 				return bd.getMetrics().get(name);
