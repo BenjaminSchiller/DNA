@@ -507,14 +507,20 @@ public class UnweightedAllPairsShortestPathsU extends
 		this.parents.put(n, new HashMap<Node, Node>());
 		this.heights.put(n, new HashMap<Node, Integer>());
 
-		for (IElement ie : this.getNodesOfAssignedTypes()) {
+		for (IElement ie : g.getNodes()) {
 			Node r = (Node) ie;
 
 			if (r != n) {
-				this.heights.get(r).put(n, Integer.MAX_VALUE);
-				this.heights.get(n).put(r, Integer.MAX_VALUE);
+				if (this.isNodeOfAssignedType(r)) {
+					this.heights.get(r).put(n, Integer.MAX_VALUE);
+				}
+				if (this.isNodeOfAssignedType(n)) {
+					this.heights.get(n).put(r, Integer.MAX_VALUE);
+				}
 			} else {
-				this.heights.get(r).put(n, 0);
+				if (this.isNodeOfAssignedType(r)) {
+					this.heights.get(r).put(n, 0);
+				}
 			}
 
 		}
