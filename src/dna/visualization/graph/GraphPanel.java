@@ -52,6 +52,8 @@ import dna.util.Config;
 import dna.util.Log;
 import dna.visualization.VisualizationUtils;
 import dna.visualization.VisualizationUtils.VideoRecorder;
+import dna.visualization.config.graph.GraphPanelConfig;
+import dna.visualization.config.graph.rules.GraphStyleRuleConfig;
 import dna.visualization.graph.rules.GraphStyleRule;
 import dna.visualization.graph.rules.GraphStyleUtils;
 import dna.visualization.graph.toolTipManager.ToolTipManager;
@@ -179,12 +181,13 @@ public class GraphPanel extends JPanel {
 	public GraphPanel(JFrame parentFrame, final Graph graph, final String name,
 			final String graphGeneratorName, PositionMode mode) {
 		this(parentFrame, graph, name, graphGeneratorName, mode,
-				new ArrayList<GraphStyleRule>(0));
+				new ArrayList<GraphStyleRule>(0), GraphPanelConfig
+						.getDefaultConfig());
 	}
 
 	public GraphPanel(JFrame parentFrame, final Graph graph, final String name,
 			final String graphGeneratorName, PositionMode mode,
-			ArrayList<GraphStyleRule> rules) {
+			ArrayList<GraphStyleRule> rules, GraphPanelConfig config) {
 		this.parentFrame = parentFrame;
 		this.setName(name);
 		this.graph = graph;
@@ -262,6 +265,13 @@ public class GraphPanel extends JPanel {
 		addZoomListener();
 		addMoveListener();
 		changeMouseManager();
+
+		// add rules
+		addGraphStyleRules(config.getRules().getRules());
+	}
+
+	protected void addGraphStyleRules(ArrayList<GraphStyleRuleConfig> rules) {
+		//TODO!
 	}
 
 	/** Adds the stat-panel. **/
