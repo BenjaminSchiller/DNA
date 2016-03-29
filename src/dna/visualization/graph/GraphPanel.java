@@ -41,10 +41,6 @@ import org.graphstream.ui.view.View;
 import org.graphstream.ui.view.Viewer;
 import org.graphstream.ui.view.util.DefaultMouseManager;
 
-import dna.graph.edges.DirectedWeightedEdge;
-import dna.graph.edges.UndirectedWeightedEdge;
-import dna.graph.nodes.DirectedWeightedNode;
-import dna.graph.nodes.UndirectedWeightedNode;
 import dna.graph.weights.IWeightedEdge;
 import dna.graph.weights.IWeightedNode;
 import dna.graph.weights.Weight;
@@ -793,11 +789,8 @@ public class GraphPanel extends JPanel {
 
 		// init weight
 		Weight w = null;
-		if (n instanceof DirectedWeightedNode) {
-			w = ((DirectedWeightedNode) n).getWeight();
-			node.addAttribute(GraphVisualization.weightKey, w);
-		} else if (n instanceof UndirectedWeightedNode) {
-			w = ((UndirectedWeightedNode) n).getWeight();
+		if (n instanceof IWeightedNode) {
+			w = ((IWeightedNode) n).getWeight();
 			node.addAttribute(GraphVisualization.weightKey, w);
 		}
 
@@ -830,12 +823,9 @@ public class GraphPanel extends JPanel {
 		if (!node.hasAttribute(GraphVisualization.zKey))
 			node.setAttribute(GraphVisualization.zKey, 0F);
 
-		// update label
-		updateLabel(node);
-
 		// apply style rules
 		for (GraphStyleRule r : rules)
-			r.onNodeAddition(node);
+			r.onNodeAddition(node, w);
 
 		// update style
 		GraphStyleUtils.updateStyle(node);
@@ -894,14 +884,6 @@ public class GraphPanel extends JPanel {
 					coords[1], coords[2]);
 		}
 
-		// show weight
-		if (Config.getBoolean("GRAPH_VIS_SHOW_NODE_WEIGHTS")) {
-			if (node.hasAttribute(GraphVisualization.labelKey))
-				node.changeAttribute(GraphVisualization.labelKey, w.toString());
-			else
-				node.addAttribute(GraphVisualization.labelKey, w.toString());
-		}
-
 		// apply style rules
 		for (GraphStyleRule r : rules)
 			r.onNodeWeightChange(node, w, wOld);
@@ -932,16 +914,11 @@ public class GraphPanel extends JPanel {
 					directedEdges);
 
 			// init weight
-			if (e instanceof DirectedWeightedEdge) {
-				Weight w = ((DirectedWeightedEdge) e).getWeight();
-				edge.addAttribute(GraphVisualization.weightKey, w);
-			} else if (e instanceof UndirectedWeightedEdge) {
-				Weight w = ((UndirectedWeightedEdge) e).getWeight();
+			Weight w = null;
+			if (e instanceof IWeightedEdge) {
+				w = ((IWeightedEdge) e).getWeight();
 				edge.addAttribute(GraphVisualization.weightKey, w);
 			}
-
-			// update label
-			updateLabel(edge);
 
 			// set edge size / thickness
 			edge.setAttribute(GraphVisualization.sizeKey,
@@ -954,7 +931,7 @@ public class GraphPanel extends JPanel {
 			Node node1 = this.graph.getNode("" + n1);
 			Node node2 = this.graph.getNode("" + n2);
 			for (GraphStyleRule r : rules)
-				r.onEdgeAddition(edge, node1, node2);
+				r.onEdgeAddition(edge, w, node1, node2);
 
 			// update styles
 			GraphStyleUtils.updateStyle(edge);
@@ -1004,9 +981,6 @@ public class GraphPanel extends JPanel {
 
 		// change weight
 		edge.changeAttribute(GraphVisualization.weightKey, w);
-
-		// update label
-		updateLabel(edge);
 
 		for (GraphStyleRule r : rules)
 			r.onEdgeWeightChange(edge, w, wOld);
@@ -1252,49 +1226,6 @@ public class GraphPanel extends JPanel {
 	/** Returns if the panels video recording is currently paused. **/
 	public boolean isPaused() {
 		return this.paused;
-	}
-
-	/** Updates the label on node n. **/
-	private static void updateLabel(Node n) {
-		if (Config.getBoolean("GRAPH_VIS_SHOW_NODE_INDEX")
-				|| Config.getBoolean("GRAPH_VIS_SHOW_NODE_WEIGHTS")) {
-			String label = "";
-			if (Config.getBoolean("GRAPH_VIS_SHOW_NODE_INDEX")) {
-				if (Config.getBoolean("GRAPH_VIS_SHOW_NODE_INDEX_VERBOSE"))
-					label += n.getIndex();
-				else
-					label += "Node " + n.getIndex();
-			}
-			if (Config.getBoolean("GRAPH_VIS_SHOW_NODE_WEIGHTS")) {
-				if (n.getAttribute(GraphVisualization.weightKey) != null) {
-					if (!label.equals(""))
-						label += ", ";
-					if (Config
-							.getBoolean("GRAPH_VIS_SHOW_NODE_WEIGHTS_VERBOSE"))
-						label += n.getAttribute(GraphVisualization.weightKey);
-					else
-						label += "w="
-								+ n.getAttribute(GraphVisualization.weightKey);
-				}
-			}
-
-			n.addAttribute(GraphVisualization.labelKey, label);
-		} else {
-			if (n.hasAttribute(GraphVisualization.labelKey))
-				n.removeAttribute(GraphVisualization.labelKey);
-		}
-	}
-
-	/** Updates the label on edge e. **/
-	private static void updateLabel(Edge e) {
-		if (Config.getBoolean("GRAPH_VIS_SHOW_EDGE_WEIGHTS")) {
-			if (e.getAttribute(GraphVisualization.weightKey) != null)
-				e.addAttribute(GraphVisualization.labelKey,
-						"" + e.getAttribute(GraphVisualization.weightKey));
-		} else {
-			if (e.hasAttribute(GraphVisualization.labelKey))
-				e.removeAttribute(GraphVisualization.labelKey);
-		}
 	}
 
 	/** Projects the (x,y,z)-coordinates to (x,y). **/

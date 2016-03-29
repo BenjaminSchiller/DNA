@@ -25,9 +25,12 @@ import dna.graph.weights.longW.Long3dWeight;
 import dna.util.Config;
 import dna.util.Log;
 import dna.visualization.graph.GraphPanel.PositionMode;
-import dna.visualization.graph.rules.NodeColorByDegree;
-import dna.visualization.graph.rules.NodeSizeBy3dCoordinates;
-import dna.visualization.graph.rules.NodeSizeByDegree;
+import dna.visualization.graph.rules.edges.EdgeWeightLabel;
+import dna.visualization.graph.rules.nodes.NodeColorByDegree;
+import dna.visualization.graph.rules.nodes.NodeIndexLabel;
+import dna.visualization.graph.rules.nodes.NodeSizeBy3dCoordinates;
+import dna.visualization.graph.rules.nodes.NodeSizeByDegree;
+import dna.visualization.graph.rules.nodes.NodeWeightLabel;
 import dna.visualization.graph.toolTipManager.DefaultToolTipManager;
 
 /** The GraphVisualization class offers methods to visualize graphs used in DNA. **/
@@ -110,6 +113,16 @@ public class GraphVisualization {
 		GraphPanel panel = new GraphPanel(mainFrame, graph, name, name, mode);
 
 		// add style rules
+		if (Config.getBoolean("GRAPH_VIS_SHOW_NODE_INDEX"))
+			panel.addGraphStyleRule(new NodeIndexLabel(Config
+					.get("GRAPH_VIS_NODE_INDEX_LABEL")));
+		if (Config.getBoolean("GRAPH_VIS_SHOW_NODE_WEIGHTS"))
+			panel.addGraphStyleRule(new NodeWeightLabel(Config
+					.get("GRAPH_VIS_NODE_WEIGHTS_LABEL")));
+		if (Config.getBoolean("GRAPH_VIS_SHOW_EDGE_WEIGHTS")) {
+			panel.addGraphStyleRule(new EdgeWeightLabel(Config
+					.get("GRAPH_VIS_EDGE_WEIGHTS_LABEL")));
+		}
 		if (Config.getBoolean("GRAPH_VIS_SIZE_NODES_BY_DEGREE"))
 			panel.addGraphStyleRule(new NodeSizeByDegree("NODE_SIZE_BY_DEGREE"));
 		if (Config.getBoolean("GRAPH_VIS_3D_PROJECTION_ENABLED")
@@ -121,6 +134,7 @@ public class GraphVisualization {
 					"NODE_COLOR_BY_DEGREE"));
 		if (Config.getBoolean("GRAPH_VIS_TOOLTIPS_ENABLED"))
 			panel.addToolTipManager(new DefaultToolTipManager(panel));
+
 		// panel.addGraphStyleRule(new
 		// ToolTipUpdater(panel.getSpriteManager()));
 

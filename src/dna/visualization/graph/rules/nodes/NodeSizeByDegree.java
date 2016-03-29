@@ -1,10 +1,12 @@
-package dna.visualization.graph.rules;
+package dna.visualization.graph.rules.nodes;
 
 import org.graphstream.graph.Edge;
 import org.graphstream.graph.Node;
 
 import dna.graph.weights.Weight;
 import dna.util.Config;
+import dna.visualization.graph.rules.GraphStyleRule;
+import dna.visualization.graph.rules.GraphStyleUtils;
 
 /** Sizes the nodes by their degree. **/
 public class NodeSizeByDegree extends GraphStyleRule {
@@ -21,19 +23,7 @@ public class NodeSizeByDegree extends GraphStyleRule {
 	}
 
 	@Override
-	public void onNodeAddition(Node n) {
-	}
-
-	@Override
-	public void onNodeRemoval(Node n) {
-	}
-
-	@Override
-	public void onNodeWeightChange(Node n, Weight wNew, Weight wOld) {
-	}
-
-	@Override
-	public void onEdgeAddition(Edge e, Node n1, Node n2) {
+	public void onEdgeAddition(Edge e, Weight w, Node n1, Node n2) {
 		// increase size
 		GraphStyleUtils.increaseSize(n1, this.growthFactor);
 		GraphStyleUtils.increaseSize(n2, this.growthFactor);
@@ -44,10 +34,6 @@ public class NodeSizeByDegree extends GraphStyleRule {
 		// decrease size
 		GraphStyleUtils.decreaseSize(n1, this.growthFactor);
 		GraphStyleUtils.decreaseSize(n2, this.growthFactor);
-	}
-
-	@Override
-	public void onEdgeWeightChange(Edge e, Weight wNew, Weight wOld) {
 	}
 
 	@Override

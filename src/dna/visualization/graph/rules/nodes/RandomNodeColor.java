@@ -1,13 +1,14 @@
-package dna.visualization.graph.rules;
+package dna.visualization.graph.rules.nodes;
 
 import java.awt.Color;
 
-import org.graphstream.graph.Edge;
 import org.graphstream.graph.Node;
 
 import dna.graph.weights.Weight;
 import dna.visualization.components.ColorHandler;
 import dna.visualization.graph.GraphVisualization;
+import dna.visualization.graph.rules.GraphStyleRule;
+import dna.visualization.graph.rules.GraphStyleUtils;
 
 /** Simple rule example which colors all nodes on addition with colors. **/
 public class RandomNodeColor extends GraphStyleRule {
@@ -22,7 +23,7 @@ public class RandomNodeColor extends GraphStyleRule {
 	}
 
 	@Override
-	public void onNodeAddition(Node n) {
+	public void onNodeAddition(Node n, Weight w) {
 		// set color
 		GraphStyleUtils.setColor(n, this.colorHandler.getNextColor());
 	}
@@ -32,22 +33,6 @@ public class RandomNodeColor extends GraphStyleRule {
 		// free color
 		this.colorHandler.removeColor(((Color) n
 				.getAttribute(GraphVisualization.colorKey)));
-	}
-
-	@Override
-	public void onNodeWeightChange(Node n, Weight wNew, Weight wOld) {
-	}
-
-	@Override
-	public void onEdgeAddition(Edge e, Node n1, Node n2) {
-	}
-
-	@Override
-	public void onEdgeRemoval(Edge e, Node n1, Node n2) {
-	}
-
-	@Override
-	public void onEdgeWeightChange(Edge e, Weight wNew, Weight wOld) {
 	}
 
 	@Override

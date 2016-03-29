@@ -1,4 +1,4 @@
-package dna.visualization.graph.rules;
+package dna.visualization.graph.rules.nodes;
 
 import java.awt.Color;
 
@@ -7,6 +7,8 @@ import org.graphstream.graph.Node;
 
 import dna.graph.weights.Weight;
 import dna.util.Config;
+import dna.visualization.graph.rules.GraphStyleRule;
+import dna.visualization.graph.rules.GraphStyleUtils;
 
 public class NodeColorByDegree extends GraphStyleRule {
 
@@ -22,21 +24,13 @@ public class NodeColorByDegree extends GraphStyleRule {
 	}
 
 	@Override
-	public void onNodeAddition(Node n) {
+	public void onNodeAddition(Node n, Weight w) {
 		// set color
 		GraphStyleUtils.setColor(n, new Color(0, 255, 0));
 	}
 
 	@Override
-	public void onNodeRemoval(Node n) {
-	}
-
-	@Override
-	public void onNodeWeightChange(Node n, Weight wNew, Weight wOld) {
-	}
-
-	@Override
-	public void onEdgeAddition(Edge e, Node n1, Node n2) {
+	public void onEdgeAddition(Edge e, Weight w, Node n1, Node n2) {
 		// get current colors
 		Color c1 = GraphStyleUtils.getColor(n1);
 		Color c2 = GraphStyleUtils.getColor(n2);
@@ -55,10 +49,6 @@ public class NodeColorByDegree extends GraphStyleRule {
 		// set colors
 		GraphStyleUtils.setColor(n1, adaptColor(c1, -this.amplification));
 		GraphStyleUtils.setColor(n2, adaptColor(c2, -this.amplification));
-	}
-
-	@Override
-	public void onEdgeWeightChange(Edge e, Weight wNew, Weight wOld) {
 	}
 
 	/** Calculates a new color based on the amplification parameter. **/
