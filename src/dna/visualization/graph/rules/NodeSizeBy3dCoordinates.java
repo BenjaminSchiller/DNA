@@ -5,6 +5,8 @@ import org.graphstream.graph.Node;
 
 import dna.graph.weights.Weight;
 import dna.util.Config;
+import dna.util.parameters.DoubleParameter;
+import dna.util.parameters.Parameter;
 import dna.visualization.graph.GraphVisualization;
 
 public class NodeSizeBy3dCoordinates extends GraphStyleRule {
@@ -13,15 +15,33 @@ public class NodeSizeBy3dCoordinates extends GraphStyleRule {
 	protected double shrinkFactor;
 
 	public NodeSizeBy3dCoordinates(String name) {
-		this(name, Config.getDouble("GRAPH_VIS_3D_PROJECTION_NODE_GROWTH"),
-				Config.getDouble("GRAPH_VIS_3D_PROJECTION_NODE_SHRINK_FACTOR"));
+		this(name, new Parameter[0]);
 	}
 
 	public NodeSizeBy3dCoordinates(String name, double growthFactor,
 			double shrinkFactor) {
+		this(name, new Parameter[] {
+				new DoubleParameter("baseGrowth", growthFactor),
+				new DoubleParameter("shrinkFactor", shrinkFactor) });
+	}
+
+	public NodeSizeBy3dCoordinates(String name, Parameter[] params) {
 		this.name = name;
-		this.baseGrowth = growthFactor;
-		this.shrinkFactor = shrinkFactor;
+		this.baseGrowth = Config
+				.getDouble("GRAPH_VIS_3D_PROJECTION_NODE_GROWTH");
+		this.shrinkFactor = Config
+				.getDouble("GRAPH_VIS_3D_PROJECTION_NODE_SHRINK_FACTOR");
+
+		for (Parameter p : params) {
+			switch (p.getName().toLowerCase()) {
+			case "basegrowth":
+				this.baseGrowth = Double.parseDouble(p.getValue());
+				break;
+			case "shrinkfactor":
+				this.shrinkFactor = Double.parseDouble(p.getValue());
+				break;
+			}
+		}
 	}
 
 	@Override

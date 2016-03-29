@@ -4,6 +4,7 @@ import org.graphstream.graph.Edge;
 import org.graphstream.graph.Node;
 
 import dna.graph.weights.Weight;
+import dna.util.parameters.Parameter;
 
 /** Simple rule example which sets all added nodes to a random size (10;20). **/
 public class RandomNodeSize extends GraphStyleRule {
@@ -11,6 +12,10 @@ public class RandomNodeSize extends GraphStyleRule {
 	protected String name;
 
 	public RandomNodeSize(String name) {
+		this(name, new Parameter[0]);
+	}
+
+	public RandomNodeSize(String name, Parameter[] params) {
 		this.name = name;
 	}
 

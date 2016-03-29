@@ -90,6 +90,7 @@ public class GraphPanel extends JPanel {
 
 	// rules
 	protected ArrayList<GraphStyleRule> rules;
+	protected ArrayList<Boolean> rulesFlags;
 	protected int nextRuleIndex;
 
 	// panels
@@ -179,20 +180,12 @@ public class GraphPanel extends JPanel {
 	public GraphPanel(JFrame parentFrame, final Graph graph, final String name,
 			final String graphGeneratorName, PositionMode mode) {
 		this(parentFrame, graph, name, graphGeneratorName, mode,
-				new ArrayList<GraphStyleRule>(0), GraphPanelConfig
-						.getDefaultConfig());
+				GraphPanelConfig.getDefaultConfig());
 	}
 
 	public GraphPanel(JFrame parentFrame, final Graph graph, final String name,
 			final String graphGeneratorName, PositionMode mode,
 			GraphPanelConfig config) {
-		this(parentFrame, graph, name, graphGeneratorName, mode,
-				new ArrayList<GraphStyleRule>(0), config);
-	}
-
-	public GraphPanel(JFrame parentFrame, final Graph graph, final String name,
-			final String graphGeneratorName, PositionMode mode,
-			ArrayList<GraphStyleRule> rules, GraphPanelConfig config) {
 		this.parentFrame = parentFrame;
 		this.setName(name);
 		this.graph = graph;
@@ -202,7 +195,8 @@ public class GraphPanel extends JPanel {
 		this.dateFormat = new SimpleDateFormat(
 				Config.get("GRAPH_VIS_DATETIME_FORMAT"));
 		this.timestampAsDate = Config.getBoolean("GRAPH_VIS_TIMESTAMP_AS_DATE");
-		this.rules = rules;
+		this.rules = new ArrayList<GraphStyleRule>();
+		this.rulesFlags = new ArrayList<Boolean>();
 		this.nextRuleIndex = 0;
 
 		this.recording = false;
@@ -277,7 +271,7 @@ public class GraphPanel extends JPanel {
 			GraphStyleRule rule = GraphStyleRule.getRule(rCfg);
 
 			if (rule != null)
-				addGraphStyleRule(rule);
+				addGraphStyleRule(rule, rCfg.isEnabled());
 		}
 	}
 
@@ -576,14 +570,16 @@ public class GraphPanel extends JPanel {
 	}
 
 	/** Adds a graph style rule. **/
-	public void addGraphStyleRule(GraphStyleRule r) {
+	public void addGraphStyleRule(GraphStyleRule r, boolean enabled) {
 		this.rules.add(r);
+		this.rulesFlags.add(enabled);
 		r.setIndex(this.getNextIndex());
 	}
 
 	/** Adds a ToolTipManager. **/
 	public void addToolTipManager(ToolTipManager ttm) {
 		this.rules.add(ttm);
+		this.rulesFlags.add(true);
 		this.toolTipManager = ttm;
 		ttm.setIndex(this.getNextIndex());
 	}
@@ -595,14 +591,14 @@ public class GraphPanel extends JPanel {
 		return temp;
 	}
 
-	/** Sets the graph style rules. **/
-	public void setGraphStyleRules(ArrayList<GraphStyleRule> rules) {
-		this.rules = rules;
-	}
-
 	/** Returns the graph style rules. **/
 	public ArrayList<GraphStyleRule> getGraphStyleRules() {
 		return this.rules;
+	}
+
+	/** Returns the enabled flags of rules. **/
+	public ArrayList<Boolean> getGraphStyleRulesFlags() {
+		return this.rulesFlags;
 	}
 
 	/** Sets the zoom. **/
@@ -857,7 +853,8 @@ public class GraphPanel extends JPanel {
 
 		// apply style rules
 		for (GraphStyleRule r : rules)
-			r.onNodeAddition(node);
+			if (isRuleEnabled(r))
+				r.onNodeAddition(node);
 
 		// update style
 		GraphStyleUtils.updateStyle(node);
@@ -871,7 +868,8 @@ public class GraphPanel extends JPanel {
 		Node node = this.graph.removeNode("" + n.getIndex());
 
 		for (GraphStyleRule r : rules)
-			r.onNodeRemoval(node);
+			if (isRuleEnabled(r))
+				r.onNodeRemoval(node);
 
 		// update style
 		GraphStyleUtils.updateStyle(node);
@@ -926,7 +924,8 @@ public class GraphPanel extends JPanel {
 
 		// apply style rules
 		for (GraphStyleRule r : rules)
-			r.onNodeWeightChange(node, w, wOld);
+			if (isRuleEnabled(r))
+				r.onNodeWeightChange(node, w, wOld);
 
 		// update style
 		GraphStyleUtils.updateStyle(node);
@@ -976,7 +975,8 @@ public class GraphPanel extends JPanel {
 			Node node1 = this.graph.getNode("" + n1);
 			Node node2 = this.graph.getNode("" + n2);
 			for (GraphStyleRule r : rules)
-				r.onEdgeAddition(edge, node1, node2);
+				if (isRuleEnabled(r))
+					r.onEdgeAddition(edge, node1, node2);
 
 			// update styles
 			GraphStyleUtils.updateStyle(edge);
@@ -986,6 +986,10 @@ public class GraphPanel extends JPanel {
 
 		// update edge count
 		this.incrementEdgesCount();
+	}
+
+	public boolean isRuleEnabled(GraphStyleRule r) {
+		return this.rulesFlags.get(this.rules.indexOf(r));
 	}
 
 	/** Removes edge e from graph g. **/
@@ -1002,7 +1006,8 @@ public class GraphPanel extends JPanel {
 		Node node1 = this.graph.getNode("" + n1);
 		Node node2 = this.graph.getNode("" + n2);
 		for (GraphStyleRule r : rules)
-			r.onEdgeRemoval(edge, node1, node2);
+			if (isRuleEnabled(r))
+				r.onEdgeRemoval(edge, node1, node2);
 
 		// update styles
 		GraphStyleUtils.updateStyle(node1);
@@ -1031,7 +1036,8 @@ public class GraphPanel extends JPanel {
 		updateLabel(edge);
 
 		for (GraphStyleRule r : rules)
-			r.onEdgeWeightChange(edge, w, wOld);
+			if (isRuleEnabled(r))
+				r.onEdgeWeightChange(edge, w, wOld);
 
 		// update styles
 		GraphStyleUtils.updateStyle(edge);

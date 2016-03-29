@@ -5,6 +5,8 @@ import org.graphstream.graph.Node;
 
 import dna.graph.weights.Weight;
 import dna.util.Config;
+import dna.util.parameters.DoubleParameter;
+import dna.util.parameters.Parameter;
 
 /** Sizes the nodes by their degree. **/
 public class NodeSizeByDegree extends GraphStyleRule {
@@ -12,12 +14,23 @@ public class NodeSizeByDegree extends GraphStyleRule {
 	protected double growthFactor;
 
 	public NodeSizeByDegree(String name) {
-		this(name, Config.getDouble("GRAPH_VIS_NODE_GROWTH_PER_DEGREE"));
+		this(name, new Parameter[0]);
 	}
 
 	public NodeSizeByDegree(String name, double growthFactor) {
+		this(name,
+				new Parameter[] { new DoubleParameter("growth", growthFactor) });
+	}
+
+	public NodeSizeByDegree(String name, Parameter[] params) {
 		this.name = name;
-		this.growthFactor = growthFactor;
+		this.growthFactor = Config
+				.getDouble("GRAPH_VIS_NODE_GROWTH_PER_DEGREE");
+
+		for (Parameter p : params) {
+			if (p.getName().toLowerCase().equals("growth"))
+				this.growthFactor = Double.parseDouble(p.getValue());
+		}
 	}
 
 	@Override

@@ -24,10 +24,8 @@ import dna.graph.weights.longW.Long2dWeight;
 import dna.graph.weights.longW.Long3dWeight;
 import dna.util.Config;
 import dna.util.Log;
+import dna.visualization.config.graph.GraphPanelConfig;
 import dna.visualization.graph.GraphPanel.PositionMode;
-import dna.visualization.graph.rules.NodeColorByDegree;
-import dna.visualization.graph.rules.NodeSizeBy3dCoordinates;
-import dna.visualization.graph.rules.NodeSizeByDegree;
 import dna.visualization.graph.toolTipManager.DefaultToolTipManager;
 
 /** The GraphVisualization class offers methods to visualize graphs used in DNA. **/
@@ -107,22 +105,12 @@ public class GraphVisualization {
 
 		// main frame
 		JFrame mainFrame = new JFrame("Graph-Vis Mainframe");
-		GraphPanel panel = new GraphPanel(mainFrame, graph, name, name, mode);
+		GraphPanel panel = new GraphPanel(mainFrame, graph, name, name, mode,
+				GraphPanelConfig.getDefaultConfig());
 
 		// add style rules
-		if (Config.getBoolean("GRAPH_VIS_SIZE_NODES_BY_DEGREE"))
-			panel.addGraphStyleRule(new NodeSizeByDegree("NODE_SIZE_BY_DEGREE"));
-		if (Config.getBoolean("GRAPH_VIS_3D_PROJECTION_ENABLED")
-				&& Config.getBoolean("GRAPH_VIS_SIZE_NODES_BY_Z_COORDINATE"))
-			panel.addGraphStyleRule(new NodeSizeBy3dCoordinates(
-					"NODE_SIZE_BY_3D_COORDINATES"));
-		if (Config.getBoolean("GRAPH_VIS_COLOR_NODES_BY_DEGREE"))
-			panel.addGraphStyleRule(new NodeColorByDegree(
-					"NODE_COLOR_BY_DEGREE"));
 		if (Config.getBoolean("GRAPH_VIS_TOOLTIPS_ENABLED"))
 			panel.addToolTipManager(new DefaultToolTipManager(panel));
-		// panel.addGraphStyleRule(new
-		// ToolTipUpdater(panel.getSpriteManager()));
 
 		// create main frame
 		mainFrame.add(panel);
