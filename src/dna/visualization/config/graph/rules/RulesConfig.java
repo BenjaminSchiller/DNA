@@ -35,12 +35,14 @@ public class RulesConfig {
 	}
 
 	public static RulesConfig getFromJSONObject(JSONObject o) {
-		System.out.println("rulesConfig: " + o);
 		ArrayList<GraphStyleRuleConfig> rules = new ArrayList<GraphStyleRuleConfig>();
-		for (String s : JSONObject.getNames(o)) {
-			GraphStyleRuleConfig rCfg = GraphStyleRuleConfig.getFromJSONObject(
-					s, o.getJSONObject(s));
-			rules.add(rCfg);
+
+		if (JSONObject.getNames(o) != null) {
+			for (String s : JSONObject.getNames(o)) {
+				GraphStyleRuleConfig rCfg = GraphStyleRuleConfig
+						.getFromJSONObject(s, o.getJSONObject(s));
+				rules.add(rCfg);
+			}
 		}
 
 		return new RulesConfig(rules);
