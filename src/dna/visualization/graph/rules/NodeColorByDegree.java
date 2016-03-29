@@ -7,18 +7,31 @@ import org.graphstream.graph.Node;
 
 import dna.graph.weights.Weight;
 import dna.util.Config;
+import dna.util.parameters.DoubleParameter;
+import dna.util.parameters.Parameter;
 
 public class NodeColorByDegree extends GraphStyleRule {
 
 	protected double amplification;
 
 	public NodeColorByDegree(String name) {
-		this(name, Config.getDouble("GRAPH_VIS_COLOR_AMPLIFICATION"));
+		this(name, new Parameter[0]);
 	}
 
 	public NodeColorByDegree(String name, double amplification) {
+		this(name, new Parameter[] { new DoubleParameter("amplification",
+				amplification) });
+	}
+
+	public NodeColorByDegree(String name, Parameter[] params) {
 		this.name = name;
-		this.amplification = amplification;
+		this.amplification = Config.getDouble("GRAPH_VIS_COLOR_AMPLIFICATION");
+
+		for (Parameter p : params) {
+			if (p.getName().toLowerCase().equals("amplification")) {
+				this.amplification = Double.parseDouble(p.getValue());
+			}
+		}
 	}
 
 	@Override

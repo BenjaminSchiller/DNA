@@ -33,6 +33,9 @@ public class GraphStyleRuleConfig {
 	protected String name;
 	protected Parameter[] params;
 
+	protected boolean enabled;
+	protected boolean hidden;
+
 	public GraphStyleRuleConfig(String key, Parameter[] params) {
 		this(key, null, Config
 				.getBoolean("GRAPH_VIS_RULE_CONFIG_DEFAULT_ENABLED"), Config
@@ -44,16 +47,8 @@ public class GraphStyleRuleConfig {
 		this.key = key;
 		this.name = (name == null) ? key : name;
 		this.params = (params == null) ? new Parameter[0] : params;
-
-		System.out.println("INIT NEW GRAPHSTYLERULECONFIG");
-		System.out.println("\tkey: " + key);
-		System.out.println("\tname: " + this.name);
-		System.out.println("\tenabled: " + enabled);
-		System.out.println("\thidden: " + hidden);
-		System.out.println("\tparams: " + params.length);
-		for (Parameter p : params)
-			System.out.println("\t\t" + p);
-
+		this.enabled = enabled;
+		this.hidden = hidden;
 	}
 
 	public String getKey() {
@@ -66,6 +61,14 @@ public class GraphStyleRuleConfig {
 
 	public Parameter[] getParams() {
 		return params;
+	}
+
+	public boolean isEnabled() {
+		return enabled;
+	}
+
+	public boolean isHidden() {
+		return hidden;
 	}
 
 	public void read(String dir, String filename) {

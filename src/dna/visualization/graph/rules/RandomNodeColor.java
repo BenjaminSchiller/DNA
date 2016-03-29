@@ -6,6 +6,7 @@ import org.graphstream.graph.Edge;
 import org.graphstream.graph.Node;
 
 import dna.graph.weights.Weight;
+import dna.util.parameters.Parameter;
 import dna.visualization.components.ColorHandler;
 import dna.visualization.graph.GraphVisualization;
 
@@ -15,6 +16,10 @@ public class RandomNodeColor extends GraphStyleRule {
 	protected ColorHandler colorHandler;
 
 	public RandomNodeColor(String name) {
+		this(name, new Parameter[0]);
+	}
+
+	public RandomNodeColor(String name, Parameter[] params) {
 		this.name = name;
 
 		// init color handler
