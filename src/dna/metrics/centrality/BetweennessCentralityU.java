@@ -1242,7 +1242,7 @@ public class BetweennessCentralityU extends BetweennessCentrality implements
 		HashMap<Node, Integer> d = new HashMap<Node, Integer>();
 		HashMap<Node, Double> sums = new HashMap<Node, Double>();
 
-		for (IElement ieE : this.getNodesOfAssignedTypes()) {
+		for (IElement ieE : this.g.getNodes()) {
 			Node t = (Node) ieE;
 			if (t == node) {
 				d.put(t, 0);
@@ -1250,10 +1250,12 @@ public class BetweennessCentralityU extends BetweennessCentrality implements
 			} else {
 				spc.put(t, 0);
 				d.put(t, Integer.MAX_VALUE);
-				this.spcs.get(t).put(node, 0);
-				this.distances.get(t).put(node, Integer.MAX_VALUE);
-				this.accSums.get(t).put(node, 0d);
-				this.parents.get(t).put(node, new HashSet<Node>());
+				if (this.isNodeOfAssignedType(t)) {
+					this.spcs.get(t).put(node, 0);
+					this.distances.get(t).put(node, Integer.MAX_VALUE);
+					this.accSums.get(t).put(node, 0d);
+					this.parents.get(t).put(node, new HashSet<Node>());
+				}
 			}
 			sums.put(t, 0d);
 			p.put(t, new HashSet<Node>());
