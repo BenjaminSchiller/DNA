@@ -3,6 +3,8 @@ package dna.visualization.graph.rules.nodes;
 import org.graphstream.graph.Node;
 
 import dna.graph.weights.Weight;
+import dna.util.parameters.Parameter;
+import dna.util.parameters.StringParameter;
 import dna.visualization.graph.rules.GraphStyleRule;
 import dna.visualization.graph.rules.GraphStyleUtils;
 
@@ -23,12 +25,23 @@ public class NodeWeightLabel extends GraphStyleRule {
 
 	protected String label;
 
-	public NodeWeightLabel() {
-		this("w=" + weightReplacement);
+	public NodeWeightLabel(String name) {
+		this(name, new Parameter[0]);
 	}
 
-	public NodeWeightLabel(String label) {
-		this.label = label;
+	public NodeWeightLabel(String name, String label) {
+		this(name, new Parameter[] { new StringParameter("label", label) });
+	}
+
+	public NodeWeightLabel(String name, Parameter[] params) {
+		this.name = name;
+		this.label = "w=" + weightReplacement;
+
+		for (Parameter p : params) {
+			if (p.getName().toLowerCase().equals("label")) {
+				this.label = p.getValue();
+			}
+		}
 	}
 
 	@Override
