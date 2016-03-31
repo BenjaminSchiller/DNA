@@ -30,6 +30,7 @@ import dna.series.SeriesGeneration;
 import dna.series.SeriesStats;
 import dna.series.aggdata.AggregatedSeries;
 import dna.series.data.BatchData;
+import dna.series.data.RunData;
 import dna.series.data.RunTime;
 import dna.series.data.SeriesData;
 import dna.series.lists.RunTimeList;
@@ -288,14 +289,15 @@ public aspect TimerAspects {
 			call(* SeriesGeneration.generateRun(Series, int, int, boolean, boolean, long))
 			);
 
-	void around() : runGeneration() {
+	RunData around() : runGeneration() {
 		// System.out.println("STARTING RUN GENERATION...");
 
 		this.metricTimers = new HashMap<String, Timer>();
 		Timer t = new Timer("runGeneration");
-		proceed();
+		RunData run = proceed();
 		t.end();
 		Log.info(t.toString());
+		return run;
 	}
 
 	/**
