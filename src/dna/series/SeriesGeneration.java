@@ -28,6 +28,7 @@ import dna.series.Series.RandomSeedReset;
 import dna.series.aggdata.AggregatedSeries;
 import dna.series.data.BatchData;
 import dna.series.data.MetricData;
+import dna.series.data.RunData;
 import dna.series.data.SeriesData;
 import dna.series.data.Value;
 import dna.series.data.distr.BinnedDistr;
@@ -197,14 +198,16 @@ public class SeriesGeneration {
 			MetricNotApplicableException {
 		int runs = to - from;
 
-		for (int i = 0; i <= runs; i++) {
-			SeriesGeneration.generateRun(series, from + i, batches, compare,
-					write, batchGenerationTime);
+		SeriesData sd;
+		RunData[] runData = new RunData[runs];
+		for (int i = 0; i < runs; i++) {
+			RunData temp = SeriesGeneration.generateRun(series, from + i,
+					batches, compare, write, batchGenerationTime);
+			runData[i] = temp;
 		}
-		
-		// read structure
-		SeriesData sd = SeriesData.read(series.getDir(), series.getName(), false, false);
-		
+
+		sd = new SeriesData(series.getDir(), series.getName(), runData);
+
 		// compare metrics
 		if (compare) {
 			try {
@@ -213,7 +216,7 @@ public class SeriesGeneration {
 				Log.warn("Error on comparing metrics");
 			}
 		}
-		
+
 		// return
 		return sd;
 	}
@@ -240,7 +243,7 @@ public class SeriesGeneration {
 	 * @throws IOException
 	 * @throws MetricNotApplicableException
 	 */
-	public static void generateRun(Series series, int run, int batches,
+	public static RunData generateRun(Series series, int run, int batches,
 			boolean compare, boolean write, long batchGenerationTime)
 			throws IOException, MetricNotApplicableException {
 
@@ -251,6 +254,8 @@ public class SeriesGeneration {
 		for (IMetric m : series.getMetrics()) {
 			m.reset();
 		}
+
+		BatchData[] structureBatches = new BatchData[batches + 1];
 
 		Log.infoSep();
 		Log.info("run " + run + " (" + batches + " batches)");
@@ -282,6 +287,8 @@ public class SeriesGeneration {
 			initialData.writeIntelligent(Dir.getBatchDataDir(series.getDir(),
 					run, initialData.getTimestamp()));
 		}
+
+		structureBatches[0] = initialData.cloneStructure();
 
 		// garbage collection counter
 		int gcCounter = 1;
@@ -361,12 +368,17 @@ public class SeriesGeneration {
 				}
 			}
 
+			structureBatches[i] = batchData.cloneStructure();
+
 			// call garbage collection
 			if (series.isCallGC() && i == series.getGcOccurence() * gcCounter) {
 				System.gc();
 				gcCounter++;
 			}
 		}
+
+		// return structure run without data
+		return new RunData(run, structureBatches);
 	}
 
 	private static boolean compareMetrics(Series series) {
