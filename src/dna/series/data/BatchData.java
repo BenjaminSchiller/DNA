@@ -10,6 +10,7 @@ import dna.io.filesystem.Files;
 import dna.plot.PlottingUtils;
 import dna.series.aggdata.AggregatedBatch.BatchReadMode;
 import dna.series.data.distr.BinnedDistr;
+import dna.series.data.distr.BinnedIntDistr;
 import dna.series.data.distr.Distr;
 import dna.series.data.distr.Distr.DistrType;
 import dna.series.data.nodevaluelists.NodeNodeValueList;
@@ -600,4 +601,46 @@ public class BatchData implements IBatch {
 		return true;
 	}
 
+	/** Returns a clone of the batch-data object. **/
+		ValueList values = new ValueList(this.stats.size());
+		for (Value v : this.stats.getList())
+			values.add(new Value(v.getName(), 0));
+
+		RunTimeList generalRuntimes = new RunTimeList(
+				this.generalRuntimes.size());
+		for (RunTime gen : this.generalRuntimes.getList())
+			generalRuntimes.add(new RunTime(gen.getName(), 0));
+
+		RunTimeList metricRuntimes = new RunTimeList(this.metricRuntimes.size());
+		for (RunTime met : this.metricRuntimes.getList())
+			generalRuntimes.add(new RunTime(met.getName(), 0));
+
+		MetricDataList metrics = new MetricDataList(this.metrics.size());
+		for (MetricData m : metrics.getList()) {
+			ValueList metricValues = new ValueList(m.getValues().size());
+			for (Value v : m.getValues().getList())
+				metricValues.add(new Value(v.getName(), 0));
+
+			DistributionList distributions = new DistributionList(m
+					.getDistributions().size());
+			for (Distr<?, ?> d : m.getDistributions().getList())
+				distributions.add(new BinnedIntDistr(d.getName()));
+
+			NodeValueListList nvls = new NodeValueListList(m.getNodeValues()
+					.size());
+			for (NodeValueList nvl : m.getNodeValues().getList())
+				nvls.add(new NodeValueList(nvl.getName(), 0));
+
+			NodeNodeValueListList nnvls = new NodeNodeValueListList(m
+					.getNodeNodeValues().size());
+			for (NodeNodeValueList nnvl : m.getNodeNodeValues().getList())
+				nnvls.add(new NodeNodeValueList(nnvl.getName(), 0));
+
+			metrics.add(new MetricData(m.getName(), m.getType(), metricValues,
+					distributions, nvls, nnvls));
+		}
+
+		return new BatchData(this.timestamp, values, generalRuntimes,
+				metricRuntimes, metrics);
+	}
 }
