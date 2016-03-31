@@ -602,6 +602,7 @@ public class BatchData implements IBatch {
 	}
 
 	/** Returns a clone of the batch-data object. **/
+	public BatchData cloneStructure() {
 		ValueList values = new ValueList(this.stats.size());
 		for (Value v : this.stats.getList())
 			values.add(new Value(v.getName(), 0));
