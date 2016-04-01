@@ -20,7 +20,7 @@ public abstract class Metric extends ParameterList implements IMetric {
 
 	public Metric(String name, IMetric.MetricType metricType,
 			String[] nodeTypes, Parameter... p) {
-		super(name, p);
+		super(name, append(p, nodeTypes));
 		this.metricType = metricType;
 		this.nodeTypes = nodeTypes;
 		this.nodeTypeFilter = null;
