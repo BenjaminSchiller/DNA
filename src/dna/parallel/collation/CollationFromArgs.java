@@ -5,6 +5,7 @@ import dna.parallel.collation.centrality.BetweennessCentralityCompleteCollation;
 import dna.parallel.collation.clustering.UndirectedClusteringCoefficientCompleteCollation;
 import dna.parallel.collation.clustering.UndirectedClusteringCoefficientOverlappingCollation;
 import dna.parallel.collation.clustering.UndirectedClusteringCoefficientSeparatedCollation;
+import dna.parallel.collation.connectivity.WCBasicOverlappingCollation;
 import dna.parallel.collation.connectivity.WCSimpleSeparatedCollation;
 import dna.parallel.collation.degree.DegreeDistributionOverlappingCollation;
 import dna.parallel.collation.paths.UnweightedAllPairsShortestPathsCompleteCollation;
@@ -25,7 +26,7 @@ import dna.parallel.util.Sleeper;
  */
 public class CollationFromArgs {
 	public static enum CollationType {
-		AssortativityComplete, BetweennessCentralityComplete, DegreeDistributionOverlapping, UndirectedClusteringCoefficientSeparated, UndirectedClusteringCoefficientOverlapping, UndirectedClusteringCoefficientComplete, UnweightedAllPairsShortestPathsSeparated, UnweightedAllPairsShortestPathsOverlapping, UnweightedAllPairsShortestPathsComplete, WCSimpleSeparated
+		AssortativityComplete, BetweennessCentralityComplete, DegreeDistributionOverlapping, UndirectedClusteringCoefficientSeparated, UndirectedClusteringCoefficientOverlapping, UndirectedClusteringCoefficientComplete, UnweightedAllPairsShortestPathsSeparated, UnweightedAllPairsShortestPathsOverlapping, UnweightedAllPairsShortestPathsComplete, WCSimpleSeparated, WCBasicOverlapping
 	}
 
 	/**
@@ -83,6 +84,9 @@ public class CollationFromArgs {
 					partitionCount, run, sleeper);
 		case AssortativityComplete:
 			return new AssortativityCompleteCollation(auxDir, inputDir,
+					partitionCount, run, sleeper);
+		case WCBasicOverlapping:
+			return new WCBasicOverlappingCollation(auxDir, inputDir,
 					partitionCount, run, sleeper);
 		default:
 			throw new IllegalArgumentException("invalid collation type: "
