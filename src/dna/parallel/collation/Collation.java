@@ -130,42 +130,71 @@ public abstract class Collation<M extends Metric, T extends Partition> extends
 							+ run
 							+ "/batch." + this.g.getTimestamp() + ".zip";
 
-					if (Config.get("GENERATION_AS_ZIP").equals("batches")
-							&& (new File(batchZip)).exists()) {
-						// Thread.sleep(100);
-						// System.out.println("readING " + this.g.getTimestamp()
-						// + " for worker " + i + " (as zip)");
-						bd[i] = BatchData.readIntelligent(batchDir,
-								this.g.getTimestamp(),
-								BatchReadMode.readAllValues);
-						System.out.println("read " + this.g.getTimestamp()
-								+ " for worker " + i + " (as zip)");
-					} else if (Config.get("GENERATION_AS_ZIP").equals("none")
-							&& (new File(batchDir)).exists()) {
-						// Thread.sleep(100);
-						// System.out.println("readING " + this.g.getTimestamp()
-						// + " for worker " + i + " (as dir)");
-						bd[i] = BatchData.read(batchDir, this.g.getTimestamp(),
-								BatchReadMode.readAllValues);
-						System.out.println("read " + this.g.getTimestamp()
-								+ " for worker " + i + " (as dir)");
-					} else {
-						missing = true;
-						bd[i] = null;
-						System.out.println("could not read "
-								+ this.g.getTimestamp() + " for worker " + i);
+					if (Config.get("GENERATION_AS_ZIP").equals("batches")) {
+						if ((new File(batchZip)).exists()) {
+							bd[i] = BatchData.readIntelligent(batchDir,
+									this.g.getTimestamp(),
+									BatchReadMode.readAllValues);
+							System.out.println("read " + this.g.getTimestamp()
+									+ " for worker " + i + " (as zip)");
+						} else {
+							missing = true;
+							bd[i] = null;
+							System.out
+									.println("zip to read from does not exists: "
+											+ batchZip);
+						}
+					} else if (Config.get("GENERATION_AS_ZIP").equals("none")) {
+						if ((new File(batchDir)).exists()) {
+							bd[i] = BatchData.read(batchDir,
+									this.g.getTimestamp(),
+									BatchReadMode.readAllValues);
+							System.out.println("read " + this.g.getTimestamp()
+									+ " for worker " + i + " (as dir)");
+						} else {
+							missing = true;
+							bd[i] = null;
+							System.out
+									.println("dir to read from does not exists: "
+											+ batchDir);
+						}
 					}
-					if (!this.continsAllData(bd[i])) {
+
+					// if (Config.get("GENERATION_AS_ZIP").equals("batches")
+					// && (new File(batchZip)).exists()) {
+					// bd[i] = BatchData.readIntelligent(batchDir,
+					// this.g.getTimestamp(),
+					// BatchReadMode.readAllValues);
+					// System.out.println("read " + this.g.getTimestamp()
+					// + " for worker " + i + " (as zip)");
+					// } else if (Config.get("GENERATION_AS_ZIP").equals("none")
+					// && (new File(batchDir)).exists()) {
+					// // Thread.sleep(100);
+					// // System.out.println("readING " + this.g.getTimestamp()
+					// // + " for worker " + i + " (as dir)");
+					// bd[i] = BatchData.read(batchDir, this.g.getTimestamp(),
+					// BatchReadMode.readAllValues);
+					// System.out.println("read " + this.g.getTimestamp()
+					// + " for worker " + i + " (as dir)");
+					// } else {
+					// missing = true;
+					// bd[i] = null;
+					// System.out.println("could not read "
+					// + this.g.getTimestamp() + " for worker " + i);
+					// }
+					if (!this.continsAllData(bd[i], i)) {
 						missing = true;
 						bd[i] = null;
-						System.out.println("could not read all data yet for "
-								+ i);
+						System.out
+								.println("could not read all data yet for worker "
+										+ i);
 					}
 				} catch (Exception e) {
 					missing = true;
 					bd[i] = null;
-					System.out.println("could not read all data yet for " + i
-							+ " (some exception)");
+					System.out
+							.println("could not read all data yet for worker "
+									+ i + " (some exception)");
 					e.printStackTrace(System.out);
 				}
 			}
@@ -209,7 +238,7 @@ public abstract class Collation<M extends Metric, T extends Partition> extends
 				} catch (Exception e) {
 					missing = true;
 					aux = null;
-					System.out.println("aux reading exception:");
+					System.out.println("aux reading exception:" + e.toString());
 					// e.printStackTrace();
 				}
 			}
@@ -248,30 +277,38 @@ public abstract class Collation<M extends Metric, T extends Partition> extends
 		return null;
 	}
 
-	protected boolean continsAllData(BatchData bd) {
+	protected boolean continsAllData(BatchData bd, int worker) {
 		MetricData md = getSource(bd);
+		if (bd == null) {
+			System.out.println("batchData is null for worker " + worker);
+			return false;
+		}
 		if (md == null) {
-			System.out.println("metricData not found");
+			System.out.println("no metricData found in batch "
+					+ bd.getTimestamp() + " from worker " + worker);
 			return false;
 		}
 		for (String v : this.values) {
 			if (md.getValues().get(v) == null) {
 				System.out.println("value " + v + " not found in "
-						+ md.getValues().getNames());
+						+ md.getValues().getNames() + " in batch "
+						+ bd.getTimestamp() + " from worker " + worker);
 				return false;
 			}
 		}
 		for (String d : this.distributions) {
 			if (md.getDistributions().get(d) == null) {
 				System.out.println("distribution " + d + " not found in "
-						+ md.getDistributions().getNames());
+						+ md.getDistributions().getNames() + " in batch "
+						+ bd.getTimestamp() + " from worker " + worker);
 				return false;
 			}
 		}
 		for (String nvl : this.nodeValueLists) {
 			if (md.getNodeValues().get(nvl) == null) {
 				System.out.println("nodeValueList " + nvl + " not found in "
-						+ md.getNodeValues().getNames());
+						+ md.getNodeValues().getNames() + " in batch "
+						+ bd.getTimestamp() + " from worker " + worker);
 				return false;
 			}
 		}
