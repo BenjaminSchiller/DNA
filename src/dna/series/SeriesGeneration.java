@@ -196,7 +196,7 @@ public class SeriesGeneration {
 			int batches, boolean compare, boolean write,
 			long batchGenerationTime) throws IOException,
 			MetricNotApplicableException {
-		int runs = to - from;
+		int runs = to - from + 1;
 
 		SeriesData sd;
 		RunData[] runData = new RunData[runs];
