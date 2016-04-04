@@ -250,26 +250,38 @@ public abstract class Assortativity extends Metric implements IMetric {
 	 * Computing for graphs with directed edges based only on current snapshot.
 	 */
 	private boolean computeForDirectedUnweightedGraph() {
-		DirectedEdge edge;
 		int srcNodeDegree = 0, dstNodeDegree = 0;
 		this.totalEdgeWeight = 0;
-		for (IElement iElement : this.g.getEdges()) {
-			edge = (DirectedEdge) iElement;
-			if (!this.shouldEdgeBeProcessed(edge)) {
-				continue;
-			}
-			if (this.directedDegreeType.equals(DirectedDegreeType.OUT)) {
-				srcNodeDegree = edge.getSrc().getOutDegree();
-				dstNodeDegree = edge.getDst().getOutDegree();
-			} else if (this.directedDegreeType.equals(DirectedDegreeType.IN)) {
-				srcNodeDegree = edge.getSrc().getInDegree();
-				dstNodeDegree = edge.getDst().getInDegree();
-			}
+		for (IElement n_ : this.getNodesOfAssignedTypes()) {
+			DirectedNode n = (DirectedNode) n_;
+			for (IElement e_ : n.getOutgoingEdges()) {
+				DirectedEdge e = (DirectedEdge) e_;
+				if (this.directedDegreeType.equals(DirectedDegreeType.OUT)) {
+					srcNodeDegree = e.getSrc().getOutDegree();
+					dstNodeDegree = e.getDst().getOutDegree();
+				} else if (this.directedDegreeType
+						.equals(DirectedDegreeType.IN)) {
+					srcNodeDegree = e.getSrc().getInDegree();
+					dstNodeDegree = e.getDst().getInDegree();
+				}
 
-			this.increaseSum123(srcNodeDegree, dstNodeDegree);
-			this.totalEdgeWeight++;
+				this.increaseSum123(srcNodeDegree, dstNodeDegree);
+				this.totalEdgeWeight++;
+			}
 		}
 
+		// for (IElement iElement : this.g.getEdges()) {
+		// DirectedEdge edge = (DirectedEdge) iElement;
+		// if (this.directedDegreeType.equals(DirectedDegreeType.OUT)) {
+		// srcNodeDegree = edge.getSrc().getOutDegree();
+		// dstNodeDegree = edge.getDst().getOutDegree();
+		// } else if (this.directedDegreeType.equals(DirectedDegreeType.IN)) {
+		// srcNodeDegree = edge.getSrc().getInDegree();
+		// dstNodeDegree = edge.getDst().getInDegree();
+		// }
+		// this.increaseSum123(srcNodeDegree, dstNodeDegree);
+		// this.totalEdgeWeight++;
+		// }
 		// this.totalEdgeWeight = this.g.getEdgeCount();
 
 		this.setR();
@@ -282,20 +294,26 @@ public abstract class Assortativity extends Metric implements IMetric {
 	 * edges.
 	 */
 	private boolean computeForDirectedWeightedGraph() {
-		DirectedWeightedEdge edge;
 		double edgeWeight;
-		for (IElement iElement : this.g.getEdges()) {
-			edge = (DirectedWeightedEdge) iElement;
-			if (!this.shouldEdgeBeProcessed(edge)) {
-				continue;
+
+		for (IElement n_ : this.getNodesOfAssignedTypes()) {
+			DirectedNode n = (DirectedNode) n_;
+			for (IElement e_ : n.getOutgoingEdges()) {
+				DirectedWeightedEdge e = (DirectedWeightedEdge) e_;
+				edgeWeight = this.weight(e.getWeight());
+				this.increaseSum123(this.weightedDegree(e.getSrc()),
+						this.weightedDegree(e.getDst()), edgeWeight);
 			}
-
-			edgeWeight = this.weight(edge.getWeight());
-			this.totalEdgeWeight += edgeWeight;
-
-			this.increaseSum123(this.weightedDegree(edge.getSrc()),
-					this.weightedDegree(edge.getDst()), edgeWeight);
 		}
+
+		// for (IElement iElement : this.g.getEdges()) {
+		// DirectedWeightedEdge edge = (DirectedWeightedEdge) iElement;
+		// edgeWeight = this.weight(edge.getWeight());
+		// this.totalEdgeWeight += edgeWeight;
+		//
+		// this.increaseSum123(this.weightedDegree(edge.getSrc()),
+		// this.weightedDegree(edge.getDst()), edgeWeight);
+		// }
 
 		this.setR();
 
@@ -307,19 +325,24 @@ public abstract class Assortativity extends Metric implements IMetric {
 	 * snapshot.
 	 */
 	private boolean computeForUndirectedUnweightedGraph() {
-		UndirectedEdge edge;
 		this.totalEdgeWeight = 0;
-		for (IElement iElement : this.g.getEdges()) {
-			edge = (UndirectedEdge) iElement;
-			if (!this.shouldEdgeBeProcessed(edge)) {
-				continue;
-			}
 
-			this.increaseSum123(edge.getNode1().getDegree(), edge.getNode2()
-					.getDegree());
-			this.totalEdgeWeight++;
+		for (IElement n_ : this.getNodesOfAssignedTypes()) {
+			UndirectedNode n = (UndirectedNode) n_;
+			for (IElement e_ : n.getEdges()) {
+				UndirectedEdge e = (UndirectedEdge) e_;
+				this.increaseSum123(e.getNode1().getDegree(), e.getNode2()
+						.getDegree());
+				this.totalEdgeWeight++;
+			}
 		}
 
+		// for (IElement iElement : this.g.getEdges()) {
+		// UndirectedEdge edge = (UndirectedEdge) iElement;
+		// this.increaseSum123(edge.getNode1().getDegree(), edge.getNode2()
+		// .getDegree());
+		// this.totalEdgeWeight++;
+		// }
 		// this.totalEdgeWeight = this.g.getEdgeCount();
 
 		this.setR();
@@ -332,20 +355,26 @@ public abstract class Assortativity extends Metric implements IMetric {
 	 * edges.
 	 */
 	private boolean computeForUndirectedWeightedGraph() {
-		UndirectedWeightedEdge edge;
 		double edgeWeight;
-		for (IElement iElement : this.g.getEdges()) {
-			edge = (UndirectedWeightedEdge) iElement;
-			if (!this.shouldEdgeBeProcessed(edge)) {
-				continue;
+
+		for (IElement n_ : this.getNodesOfAssignedTypes()) {
+			UndirectedNode n = (UndirectedNode) n_;
+			for (IElement e_ : n.getEdges()) {
+				UndirectedWeightedEdge e = (UndirectedWeightedEdge) e_;
+				edgeWeight = this.weight(e.getWeight());
+				this.increaseSum123(this.weightedDegree(e.getNode1()),
+						this.weightedDegree(e.getNode2()), edgeWeight);
+				this.totalEdgeWeight += edgeWeight;
 			}
-
-			edgeWeight = this.weight(edge.getWeight());
-			this.totalEdgeWeight += edgeWeight;
-
-			this.increaseSum123(this.weightedDegree(edge.getNode1()),
-					this.weightedDegree(edge.getNode2()), edgeWeight);
 		}
+
+		// for (IElement iElement : this.g.getEdges()) {
+		// UndirectedWeightedEdge edge = (UndirectedWeightedEdge) iElement;
+		// edgeWeight = this.weight(edge.getWeight());
+		// this.increaseSum123(this.weightedDegree(edge.getNode1()),
+		// this.weightedDegree(edge.getNode2()), edgeWeight);
+		// this.totalEdgeWeight += edgeWeight;
+		// }
 
 		this.setR();
 
