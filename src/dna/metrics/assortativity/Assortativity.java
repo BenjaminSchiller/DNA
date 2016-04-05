@@ -23,6 +23,7 @@ import dna.series.data.distr.Distr;
 import dna.series.data.nodevaluelists.NodeNodeValueList;
 import dna.series.data.nodevaluelists.NodeValueList;
 import dna.updates.batch.Batch;
+import dna.util.DataUtils;
 import dna.util.Log;
 import dna.util.parameters.Parameter;
 import dna.util.parameters.StringParameter;
@@ -209,6 +210,7 @@ public abstract class Assortativity extends Metric implements IMetric {
 	 *         done because graph does not fit.
 	 */
 	boolean compute() {
+
 		if (DirectedWeightedEdge.class.isAssignableFrom(this.g
 				.getGraphDatastructures().getEdgeType())) {
 
@@ -396,8 +398,18 @@ public abstract class Assortativity extends Metric implements IMetric {
 
 	@Override
 	public boolean equals(IMetric m) {
-		return this.isComparableTo(m)
-				&& Math.abs(((Assortativity) m).r - this.r) <= ACCEPTED_ERROR_FOR_EQUALITY;
+		if (!this.isComparableTo(m)) {
+			return false;
+		}
+		boolean success = true;
+		Assortativity m_ = (Assortativity) m;
+		success &= DataUtils.equals(this.r, m_.r, "r");
+		success &= DataUtils.equals(this.totalEdgeWeight, m_.totalEdgeWeight,
+				"totalEdgeWeight");
+		success &= DataUtils.equals(this.sum1, m_.sum1, "sum1");
+		success &= DataUtils.equals(this.sum2, m_.sum2, "sum2");
+		success &= DataUtils.equals(this.sum3, m_.sum3, "sum3");
+		return success;
 	}
 
 	@Override
