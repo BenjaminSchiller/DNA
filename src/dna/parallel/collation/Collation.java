@@ -21,6 +21,7 @@ import dna.series.data.nodevaluelists.NodeNodeValueList;
 import dna.series.data.nodevaluelists.NodeValueList;
 import dna.updates.batch.Batch;
 import dna.util.Config;
+import dna.util.Log;
 import dna.util.parameters.Parameter;
 
 /**
@@ -100,7 +101,7 @@ public abstract class Collation<M extends Metric, T extends Partition> extends
 
 	@Override
 	public boolean recompute() {
-		System.out.println("collating " + this.getName());
+		Log.debug("collating " + this.getName());
 		return this.collate(this.readCollationData());
 	}
 
@@ -135,67 +136,40 @@ public abstract class Collation<M extends Metric, T extends Partition> extends
 							bd[i] = BatchData.readIntelligent(batchDir,
 									this.g.getTimestamp(),
 									BatchReadMode.readAllValues);
-							System.out.println("read " + this.g.getTimestamp()
+							Log.debug("read " + this.g.getTimestamp()
 									+ " for worker " + i + " (as zip)");
 						} else {
 							missing = true;
 							bd[i] = null;
-							System.out
-									.println("zip to read from does not exists: "
-											+ batchZip);
+							Log.debug("zip to read from does not exists: "
+									+ batchZip);
 						}
 					} else if (Config.get("GENERATION_AS_ZIP").equals("none")) {
 						if ((new File(batchDir)).exists()) {
 							bd[i] = BatchData.read(batchDir,
 									this.g.getTimestamp(),
 									BatchReadMode.readAllValues);
-							System.out.println("read " + this.g.getTimestamp()
+							Log.debug("read " + this.g.getTimestamp()
 									+ " for worker " + i + " (as dir)");
 						} else {
 							missing = true;
 							bd[i] = null;
-							System.out
-									.println("dir to read from does not exists: "
-											+ batchDir);
+							Log.debug("dir to read from does not exists: "
+									+ batchDir);
 						}
 					}
 
-					// if (Config.get("GENERATION_AS_ZIP").equals("batches")
-					// && (new File(batchZip)).exists()) {
-					// bd[i] = BatchData.readIntelligent(batchDir,
-					// this.g.getTimestamp(),
-					// BatchReadMode.readAllValues);
-					// System.out.println("read " + this.g.getTimestamp()
-					// + " for worker " + i + " (as zip)");
-					// } else if (Config.get("GENERATION_AS_ZIP").equals("none")
-					// && (new File(batchDir)).exists()) {
-					// // Thread.sleep(100);
-					// // System.out.println("readING " + this.g.getTimestamp()
-					// // + " for worker " + i + " (as dir)");
-					// bd[i] = BatchData.read(batchDir, this.g.getTimestamp(),
-					// BatchReadMode.readAllValues);
-					// System.out.println("read " + this.g.getTimestamp()
-					// + " for worker " + i + " (as dir)");
-					// } else {
-					// missing = true;
-					// bd[i] = null;
-					// System.out.println("could not read "
-					// + this.g.getTimestamp() + " for worker " + i);
-					// }
 					if (!this.continsAllData(bd[i], i)) {
 						missing = true;
 						bd[i] = null;
-						System.out
-								.println("could not read all data yet for worker "
-										+ i);
+						Log.debug("could not read all data yet for worker " + i);
 					}
 				} catch (Exception e) {
 					missing = true;
 					bd[i] = null;
-					System.out
-							.println("could not read all data yet for worker "
-									+ i + " (some exception)");
-					e.printStackTrace(System.out);
+					Log.debug("could not read all data yet for worker " + i
+							+ " (some exception)");
+					// e.printStackTrace();
 				}
 			}
 			if (aux == null) {
@@ -209,7 +183,7 @@ public abstract class Collation<M extends Metric, T extends Partition> extends
 										+ AuxData.getSuffix(partitionType,
 												AuxWriteType.Init));
 						aux = this.aux;
-						System.out.println("read aux from "
+						Log.debug("read aux from "
 								+ auxDir
 								+ g.getTimestamp()
 								+ AuxData.getSuffix(partitionType,
@@ -232,13 +206,13 @@ public abstract class Collation<M extends Metric, T extends Partition> extends
 						this.aux.add(auxAdd);
 						this.aux.remove(auxRemove);
 						aux = this.aux;
-						System.out.println("read aux add/remove from " + auxDir
+						Log.debug("read aux add/remove from " + auxDir
 								+ g.getTimestamp());
 					}
 				} catch (Exception e) {
 					missing = true;
 					aux = null;
-					System.out.println("aux reading exception:" + e.toString());
+					Log.debug("aux reading exception:" + e.toString());
 					// e.printStackTrace();
 				}
 			}
@@ -280,17 +254,17 @@ public abstract class Collation<M extends Metric, T extends Partition> extends
 	protected boolean continsAllData(BatchData bd, int worker) {
 		MetricData md = getSource(bd);
 		if (bd == null) {
-			System.out.println("batchData is null for worker " + worker);
+			Log.debug("batchData is null for worker " + worker);
 			return false;
 		}
 		if (md == null) {
-			System.out.println("no metricData found in batch "
-					+ bd.getTimestamp() + " from worker " + worker);
+			Log.debug("no metricData found in batch " + bd.getTimestamp()
+					+ " from worker " + worker);
 			return false;
 		}
 		for (String v : this.values) {
 			if (md.getValues().get(v) == null) {
-				System.out.println("value " + v + " not found in "
+				Log.debug("value " + v + " not found in "
 						+ md.getValues().getNames() + " in batch "
 						+ bd.getTimestamp() + " from worker " + worker);
 				return false;
@@ -298,7 +272,7 @@ public abstract class Collation<M extends Metric, T extends Partition> extends
 		}
 		for (String d : this.distributions) {
 			if (md.getDistributions().get(d) == null) {
-				System.out.println("distribution " + d + " not found in "
+				Log.debug("distribution " + d + " not found in "
 						+ md.getDistributions().getNames() + " in batch "
 						+ bd.getTimestamp() + " from worker " + worker);
 				return false;
@@ -306,7 +280,7 @@ public abstract class Collation<M extends Metric, T extends Partition> extends
 		}
 		for (String nvl : this.nodeValueLists) {
 			if (md.getNodeValues().get(nvl) == null) {
-				System.out.println("nodeValueList " + nvl + " not found in "
+				Log.debug("nodeValueList " + nvl + " not found in "
 						+ md.getNodeValues().getNames() + " in batch "
 						+ bd.getTimestamp() + " from worker " + worker);
 				return false;

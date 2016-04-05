@@ -40,7 +40,6 @@ public class UndirectedClusteringCoefficientCompleteCollation extends
 		m.localCC = new NodeValueList("localCC", 0);
 		int i = 0;
 		for (MetricData md : this.getSources(cd)) {
-			System.out.println(i + ": " + md);
 			for (Node n : (Set<Node>) cd.aux.nodes[i]) {
 				m.localCC.setValue(n.getIndex(),
 						md.getNodeValues().get("localCC")

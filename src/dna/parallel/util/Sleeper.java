@@ -1,5 +1,7 @@
 package dna.parallel.util;
 
+import dna.util.Log;
+
 public class Sleeper {
 
 	protected long millis;
@@ -42,8 +44,8 @@ public class Sleeper {
 	 */
 	public void sleep() {
 		try {
-			System.out.println("SLEEPER: sleeping: " + this.millis + "."
-					+ this.nanos + " ms");
+			Log.debug("SLEEPER: sleeping: " + this.millis + "." + this.nanos
+					+ " ms");
 			Thread.sleep(this.millis, this.nanos);
 		} catch (InterruptedException e) {
 			e.printStackTrace();

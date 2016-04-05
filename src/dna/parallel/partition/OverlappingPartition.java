@@ -615,13 +615,14 @@ public class OverlappingPartition extends Partition {
 					.getEdgeAddition((Edge) ((EdgeRemoval) u).getEdge());
 			if (addition != null) {
 				batches[index].remove(addition);
-				System.out.println("CANCEL OUT: removing " + addition
-						+ " instead of adding " + u);
+				// System.out.println("CANCEL OUT: removing " + addition
+				// + " instead of adding " + u);
 				return;
 			}
 		}
-		System.out.println(name + " - " + index + ": " + u + " for " + current
-				+ " @ " + g.getTimestamp());
+		// System.out.println(name + " - " + index + ": " + u + " for " +
+		// current
+		// + " @ " + g.getTimestamp());
 		batches[index].add(u);
 	}
 }

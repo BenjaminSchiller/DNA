@@ -109,7 +109,7 @@ public class CompletePartition extends Partition {
 		}
 
 		AllChanges changes = new AllChanges(b, batches, auxAdd, auxRemove);
-		System.out.println("changes: " + changes);
+		// System.out.println("changes: " + changes);
 		return changes;
 	}
 }

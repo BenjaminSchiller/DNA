@@ -86,16 +86,6 @@ public class WCBasicOverlappingCollation extends
 			}
 		}
 
-		System.out.println("COMPONENTS:");
-		for (WCComponent component : components) {
-			System.out.println(component);
-		}
-
-		System.out.println("MAPPING:");
-		for (int key : mapping.keySet()) {
-			System.out.println("  " + key + " => " + mapping.get(key));
-		}
-
 		m.ids = new NodeValueList("ids", maxIndex + 1);
 		for (int i = 0; i < aux.nodes.length; i++) {
 			for (Node n : (Set<Node>) aux.nodes[i]) {
