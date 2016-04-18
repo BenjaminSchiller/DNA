@@ -2,6 +2,7 @@ package dna.series;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 
 import dna.io.Writer;
 import dna.io.filesystem.Dir;
@@ -264,7 +265,8 @@ public class SeriesGeneration {
 			m.reset();
 		}
 
-		BatchData[] structureBatches = new BatchData[batches + 1];
+		// list of structure batches
+		ArrayList<BatchData> structBatches = new ArrayList<BatchData>();
 
 		Log.infoSep();
 		Log.info("run " + run + " (" + batches + " batches)");
@@ -322,7 +324,8 @@ public class SeriesGeneration {
 					run, initialData.getTimestamp()));
 		}
 
-		structureBatches[0] = initialData.cloneStructure();
+		// add init batch-structure
+		structBatches.add(initialData.cloneStructure());
 
 		// garbage collection counter
 		int gcCounter = 1;
@@ -414,7 +417,8 @@ public class SeriesGeneration {
 				}
 			}
 
-			structureBatches[i] = batchData.cloneStructure();
+			// add structure batch to list
+			structBatches.add(batchData.cloneStructure());
 
 			// call garbage collection
 			if (series.isCallGC() && i == series.getGcOccurence() * gcCounter) {
@@ -428,7 +432,8 @@ public class SeriesGeneration {
 			labelListWriter.close();
 		
 		// return structure run without data
-		return new RunData(run, structureBatches);
+		return new RunData(run,
+				structBatches.toArray(new BatchData[structBatches.size()]));
 	}
 
 	private static boolean compareMetrics(Series series) {
