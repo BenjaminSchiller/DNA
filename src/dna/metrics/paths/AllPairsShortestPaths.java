@@ -14,18 +14,26 @@ public abstract class AllPairsShortestPaths extends Metric {
 	// TODO INIT!!!
 	// this.apsp = new DistributionLong("APSP");
 
+	@SuppressWarnings("rawtypes")
 	public BinnedDistr apsp;
 
-	public AllPairsShortestPaths(String name) {
-		super(name, MetricType.exact);
+	public AllPairsShortestPaths(String name, MetricType metricType) {
+		super(name, metricType);
 	}
 
-	public AllPairsShortestPaths(String name, String[] nodeTypes) {
-		super(name, MetricType.exact, nodeTypes);
+	public AllPairsShortestPaths(String name, MetricType metricType,
+			Parameter... p) {
+		super(name, metricType, p);
 	}
 
-	public AllPairsShortestPaths(String name, Parameter... p) {
-		super(name, MetricType.exact, p);
+	public AllPairsShortestPaths(String name, MetricType metricType,
+			String[] nodeTypes) {
+		super(name, metricType, nodeTypes);
+	}
+
+	public AllPairsShortestPaths(String name, MetricType metricType,
+			String[] nodeTypes, Parameter... p) {
+		super(name, metricType, nodeTypes, p);
 	}
 
 	protected abstract double getCharacteristicPathLength();

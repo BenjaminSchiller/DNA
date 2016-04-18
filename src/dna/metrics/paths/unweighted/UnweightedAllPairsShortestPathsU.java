@@ -1,4 +1,4 @@
-package dna.metrics.paths;
+package dna.metrics.paths.unweighted;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -18,6 +18,7 @@ import dna.metrics.algorithms.IAfterEA;
 import dna.metrics.algorithms.IAfterER;
 import dna.metrics.algorithms.IAfterNA;
 import dna.metrics.algorithms.IAfterNR;
+import dna.metrics.paths.QueueElement;
 import dna.series.data.distr.BinnedIntDistr;
 import dna.updates.update.EdgeAddition;
 import dna.updates.update.EdgeRemoval;
@@ -33,11 +34,11 @@ public class UnweightedAllPairsShortestPathsU extends
 	protected int sum;
 
 	public UnweightedAllPairsShortestPathsU() {
-		super("UnweightedAllPairsShortestPathsU");
+		super("UnweightedAllPairsShortestPathsU", MetricType.exact);
 	}
 
 	public UnweightedAllPairsShortestPathsU(String[] nodeTypes) {
-		super("UnweightedAllPairsShortestPathsU", nodeTypes);
+		super("UnweightedAllPairsShortestPathsU", MetricType.exact, nodeTypes);
 	}
 
 	@Override

@@ -1,17 +1,19 @@
-package dna.metrics.paths;
+package dna.metrics.paths.weighted.doubleWeighted;
 
 import dna.graph.Graph;
 import dna.graph.weights.IWeightedEdge;
 import dna.graph.weights.doubleW.DoubleWeight;
 import dna.metrics.IMetric;
+import dna.metrics.paths.AllPairsShortestPaths;
 import dna.updates.batch.Batch;
 import dna.util.parameters.Parameter;
 
 public abstract class DoubleWeightedAllPairsShortestPaths extends
 		AllPairsShortestPaths {
 
-	public DoubleWeightedAllPairsShortestPaths(String name, Parameter... p) {
-		super(name, p);
+	public DoubleWeightedAllPairsShortestPaths(String name,
+			MetricType metricType, Parameter... p) {
+		super(name, metricType, p);
 	}
 
 	protected double characteristicPathLength;

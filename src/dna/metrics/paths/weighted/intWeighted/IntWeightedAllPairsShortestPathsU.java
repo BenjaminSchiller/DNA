@@ -1,4 +1,4 @@
-package dna.metrics.paths;
+package dna.metrics.paths.weighted.intWeighted;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -20,6 +20,7 @@ import dna.metrics.algorithms.IAfterER;
 import dna.metrics.algorithms.IAfterEW;
 import dna.metrics.algorithms.IAfterNA;
 import dna.metrics.algorithms.IAfterNR;
+import dna.metrics.paths.QueueElement;
 import dna.series.data.distr.BinnedIntDistr;
 import dna.updates.update.EdgeAddition;
 import dna.updates.update.EdgeRemoval;
@@ -37,7 +38,7 @@ public class IntWeightedAllPairsShortestPathsU extends
 	private int breakLoop = 10000;
 
 	public IntWeightedAllPairsShortestPathsU() {
-		super("IntWeightedAllPairsShortestPathsU");
+		super("IntWeightedAllPairsShortestPathsU", MetricType.exact);
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })

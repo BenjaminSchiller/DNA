@@ -18,8 +18,8 @@ import dna.metrics.degree.DegreeDistributionR;
 import dna.metrics.degree.DegreeDistributionU;
 import dna.metrics.motifs.UndirectedMotifsR;
 import dna.metrics.motifs.UndirectedMotifsU;
-import dna.metrics.paths.UnweightedAllPairsShortestPathsR;
-import dna.metrics.paths.UnweightedAllPairsShortestPathsU;
+import dna.metrics.paths.unweighted.UnweightedAllPairsShortestPathsR;
+import dna.metrics.paths.unweighted.UnweightedAllPairsShortestPathsU;
 import dna.metrics.richClub.RichClubConnectivityByDegreeR;
 import dna.metrics.richClub.RichClubConnectivityByDegreeU;
 

@@ -1,7 +1,7 @@
 package dna.parallel.collation.paths;
 
-import dna.metrics.paths.UnweightedAllPairsShortestPaths;
-import dna.metrics.paths.UnweightedAllPairsShortestPathsR;
+import dna.metrics.paths.unweighted.UnweightedAllPairsShortestPaths;
+import dna.metrics.paths.unweighted.UnweightedAllPairsShortestPathsR;
 import dna.parallel.collation.Collation;
 import dna.parallel.collation.CollationData;
 import dna.parallel.partition.Partition.PartitionType;

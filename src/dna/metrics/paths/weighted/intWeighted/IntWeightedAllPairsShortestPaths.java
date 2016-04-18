@@ -1,16 +1,17 @@
-package dna.metrics.paths;
+package dna.metrics.paths.weighted.intWeighted;
 
 import dna.graph.Graph;
 import dna.graph.weights.IWeightedEdge;
 import dna.graph.weights.intW.IntWeight;
 import dna.metrics.IMetric;
+import dna.metrics.paths.AllPairsShortestPaths;
 import dna.updates.batch.Batch;
 
 public abstract class IntWeightedAllPairsShortestPaths extends
 		AllPairsShortestPaths {
 
-	public IntWeightedAllPairsShortestPaths(String name) {
-		super(name);
+	public IntWeightedAllPairsShortestPaths(String name, MetricType metricType) {
+		super(name, metricType);
 	}
 
 	@Override

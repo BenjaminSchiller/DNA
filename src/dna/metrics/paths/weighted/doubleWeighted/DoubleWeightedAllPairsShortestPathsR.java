@@ -1,4 +1,4 @@
-package dna.metrics.paths;
+package dna.metrics.paths.weighted.doubleWeighted;
 
 import java.util.Comparator;
 import java.util.PriorityQueue;
@@ -21,8 +21,8 @@ public class DoubleWeightedAllPairsShortestPathsR extends
 	protected double binSize;
 
 	public DoubleWeightedAllPairsShortestPathsR(double binSize) {
-		super("DoubleWeightedAllPairsShortestPathsR", new DoubleParameter(
-				"binSize", binSize));
+		super("DoubleWeightedAllPairsShortestPathsR", MetricType.exact,
+				new DoubleParameter("binSize", binSize));
 		this.binSize = binSize;
 	}
 

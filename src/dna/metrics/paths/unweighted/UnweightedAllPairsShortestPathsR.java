@@ -1,4 +1,4 @@
-package dna.metrics.paths;
+package dna.metrics.paths.unweighted;
 
 import dna.graph.IElement;
 import dna.graph.nodes.Node;
@@ -9,11 +9,11 @@ public class UnweightedAllPairsShortestPathsR extends
 		UnweightedAllPairsShortestPaths implements IRecomputation {
 
 	public UnweightedAllPairsShortestPathsR() {
-		super("UnweightedAllPairsShortestPathsR");
+		super("UnweightedAllPairsShortestPathsR", MetricType.exact);
 	}
 
 	public UnweightedAllPairsShortestPathsR(String[] nodeTypes) {
-		super("UnweightedAllPairsShortestPathsR", nodeTypes);
+		super("UnweightedAllPairsShortestPathsR", MetricType.exact, nodeTypes);
 	}
 
 	@Override

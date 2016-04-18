@@ -1,4 +1,4 @@
-package dna.metrics.paths;
+package dna.metrics.paths.weighted.intWeighted;
 
 import java.util.Comparator;
 import java.util.PriorityQueue;
@@ -18,7 +18,7 @@ public class IntWeightedAllPairsShortestPathsR extends
 		IntWeightedAllPairsShortestPaths implements IRecomputation {
 
 	public IntWeightedAllPairsShortestPathsR() {
-		super("IntWeightedAllPairsShortestPathsR");
+		super("IntWeightedAllPairsShortestPathsR", MetricType.exact);
 	}
 
 	@Override

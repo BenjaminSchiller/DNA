@@ -1,4 +1,4 @@
-package dna.metrics.paths;
+package dna.metrics.paths.unweighted;
 
 import java.util.LinkedList;
 
@@ -10,17 +10,30 @@ import dna.graph.nodes.DirectedNode;
 import dna.graph.nodes.Node;
 import dna.graph.nodes.UndirectedNode;
 import dna.metrics.IMetric;
+import dna.metrics.paths.AllPairsShortestPaths;
 import dna.updates.batch.Batch;
+import dna.util.parameters.Parameter;
 
 public abstract class UnweightedAllPairsShortestPaths extends
 		AllPairsShortestPaths {
 
-	public UnweightedAllPairsShortestPaths(String name) {
-		super(name);
+	public UnweightedAllPairsShortestPaths(String name, MetricType metricType) {
+		super(name, metricType);
 	}
 
-	public UnweightedAllPairsShortestPaths(String name, String[] nodeTypes) {
-		super(name, nodeTypes);
+	public UnweightedAllPairsShortestPaths(String name, MetricType metricType,
+			Parameter... p) {
+		super(name, metricType, p);
+	}
+
+	public UnweightedAllPairsShortestPaths(String name, MetricType metricType,
+			String[] nodeTypes) {
+		super(name, metricType, nodeTypes);
+	}
+
+	public UnweightedAllPairsShortestPaths(String name, MetricType metricType,
+			String[] nodeTypes, Parameter... p) {
+		super(name, metricType, nodeTypes, p);
 	}
 
 	@Override
