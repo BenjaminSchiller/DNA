@@ -172,48 +172,57 @@ public class SeriesData {
 			}
 		}
 
-		// iterate over heuristics, compare each once
-		for (MetricData heuristic : heuristics.getList()) {
-			// log out
-			if (!printed) {
-				Log.info("comparing metrics");
-				printed = true;
-			}
+		if (!exacts.getList().isEmpty()) {
+			// iterate over heuristics, compare each once
+			for (MetricData heuristic : heuristics.getList()) {
+				// log out
+				if (!printed) {
+					Log.info("comparing metrics");
+					printed = true;
+				}
 
-			// get best matching comparison metric
-			MetricData exact = exacts
-					.getBestMatchingComparisonMetric(heuristic);
+				// get best matching comparison metric
+				MetricData exact = exacts
+						.getBestMatchingComparisonMetric(heuristic);
 
-			// compare
-			if (MetricData.isComparable(heuristic, exact)) {
-				Log.info("  => heuristic \"" + heuristic.getName()
-						+ "\" with exact \"" + exact.getName() + "\"");
+				if (exact == null)
+					continue;
 
-				// iterate over runs
-				for (RunData run : this.getRuns()) {
-					// iterate over batches
-					for (BatchData batch : run.getBatches().getList()) {
-						// read batch
-						BatchData tempBatch = BatchData.readIntelligent(Dir
-								.getBatchDataDir(this.dir, run.getRun(),
-										batch.getTimestamp()), batch
-								.getTimestamp(), BatchReadMode.readAllValues);
+				// compare
+				if (MetricData.isComparable(heuristic, exact)) {
+					Log.info("  => heuristic \"" + heuristic.getName()
+							+ "\" with exact \"" + exact.getName() + "\"");
 
-						// compare metrics
-						MetricData quality = MetricData.compare(tempBatch
-								.getMetrics().get(exact.getName()), tempBatch
-								.getMetrics().get(heuristic.getName()));
+					// iterate over runs
+					for (RunData run : this.getRuns()) {
+						// iterate over batches
+						for (BatchData batch : run.getBatches().getList()) {
+							// read batch
+							BatchData tempBatch = BatchData.readIntelligent(Dir
+									.getBatchDataDir(this.dir, run.getRun(),
+											batch.getTimestamp()), batch
+									.getTimestamp(),
+									BatchReadMode.readAllValues);
 
-						// add quality metric to current structure
-						batch.getMetrics().add(quality);
-						tempBatch.getMetrics().add(quality);
+							// compare metrics
+							MetricData quality = MetricData
+									.compare(
+											tempBatch.getMetrics().get(
+													exact.getName()),
+											tempBatch.getMetrics().get(
+													heuristic.getName()));
 
-						// write
-						if (writeValues)
-							tempBatch.writeIntelligent(Dir.getBatchDataDir(
-									this.dir, run.getRun(),
-									tempBatch.getTimestamp()));
+							// add quality metric to current structure
+							batch.getMetrics().add(quality);
+							tempBatch.getMetrics().add(quality);
 
+							// write
+							if (writeValues)
+								tempBatch.writeIntelligent(Dir.getBatchDataDir(
+										this.dir, run.getRun(),
+										tempBatch.getTimestamp()));
+
+						}
 					}
 				}
 			}
