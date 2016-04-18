@@ -20,6 +20,7 @@ import dna.updates.update.EdgeRemoval;
 import dna.updates.update.NodeAddition;
 import dna.updates.update.NodeRemoval;
 import dna.updates.update.Update;
+import dna.util.Log;
 
 public class OverlappingPartition extends Partition {
 
@@ -379,8 +380,11 @@ public class OverlappingPartition extends Partition {
 			add(all.g, batches, p, er, "ER4", er);
 			decr(degree[p], n1, n2);
 			if (degree[p].get(n1) <= 0 && degree[p].get(n2) <= 0) {
-				throw new IllegalStateException(
-						"cannot have only a single edge between neighbors");
+				// throw new IllegalStateException(
+				// "cannot have only a single edge between neighbors");
+				Log.warn((new IllegalStateException(
+						"cannot have only a single edge between neighbors"))
+						.getMessage());
 			}
 		}
 	}
