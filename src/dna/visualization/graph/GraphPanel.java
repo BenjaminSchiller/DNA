@@ -211,22 +211,27 @@ public class GraphPanel extends JPanel {
 		Viewer v = new Viewer(graph,
 				Viewer.ThreadingModel.GRAPH_IN_ANOTHER_THREAD);
 
-		boolean useLayouter3dMode = Config.getBoolean("GRAPH_VIS_LAYOUT_3D");
-
 		// create and configure layouter
-		if (Config.getBoolean("GRAPH_VIS_AUTO_LAYOUT_ENABLED")) {
-			Layout layouter = new SpringBox(useLayouter3dMode);
-			if (Config.getBoolean("GRAPH_VIS_LAYOUT_LINLOG"))
-				layouter = new LinLog(useLayouter3dMode);
-
-			layouter.setForce(Config.getDouble("GRAPH_VIS_LAYOUT_FORCE"));
-			v.enableAutoLayout(layouter);
-
-			this.layouter = layouter;
-		} else {
+		switch (config.getLayouter()) {
+		case auto:
+			this.layouter = new SpringBox();
+			this.layouter.setForce(config.getAutoLayoutForce());
+			break;
+		case linlog:
+			this.layouter = new LinLog();
+			break;
+		case none:
 			this.layouter = null;
-			v.disableAutoLayout();
+			break;
+		default:
+			this.layouter = new SpringBox();
+			break;
 		}
+
+		if (this.layouter != null)
+			v.enableAutoLayout(this.layouter);
+		else
+			v.disableAutoLayout();
 
 		// get view
 		View view = v.addDefaultView(false);
@@ -1303,7 +1308,10 @@ public class GraphPanel extends JPanel {
 	 * 1.0 means its completely stabilized and not moving.
 	 **/
 	public double getStabilization() {
-		return this.layouter.getStabilization();
+		if (this.layouter == null)
+			return 1.0;
+		else
+			return this.layouter.getStabilization();
 	}
 
 }
