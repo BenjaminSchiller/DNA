@@ -32,6 +32,9 @@ public class GraphPanelConfig {
 	protected int height;
 	protected boolean fullscreen;
 
+	protected boolean statPanelEnabled;
+	protected boolean textPanelEnabled;
+
 	protected String timestampFormat;
 	protected boolean renderHQ;
 	protected boolean renderAA;
@@ -49,6 +52,7 @@ public class GraphPanelConfig {
 	protected CaptureConfig captureConfig;
 
 	public GraphPanelConfig(int width, int height, boolean fullscreen,
+			boolean statPanelEnabled, boolean textPanelEnabled,
 			String timestampFormat, boolean renderHQ, boolean renderAA,
 			double zoomSpeed, double scrollSpeed, boolean toolTipsEnabled,
 			boolean directedEdgeArrowsEnabled, double nodeSize,
@@ -57,6 +61,8 @@ public class GraphPanelConfig {
 		this.width = width;
 		this.height = height;
 		this.fullscreen = fullscreen;
+		this.statPanelEnabled = statPanelEnabled;
+		this.textPanelEnabled = textPanelEnabled;
 		this.timestampFormat = timestampFormat;
 		this.renderHQ = renderHQ;
 		this.renderAA = renderAA;
@@ -89,6 +95,8 @@ public class GraphPanelConfig {
 		int width = 1024;
 		int height = 768;
 		boolean fullscreen = false;
+		boolean statPanelEnabled = true;
+		boolean textPanelEnabled = true;
 		String timestampFormat = null;
 		boolean renderHQ = false;
 		boolean renderAA = false;
@@ -108,6 +116,8 @@ public class GraphPanelConfig {
 			width = def.getWidth();
 			height = def.getHeight();
 			fullscreen = def.isFullscreen();
+			statPanelEnabled = def.isStatPanelEnabled();
+			textPanelEnabled = def.isTextPanelEnabled();
 			timestampFormat = def.getTimestampFormat();
 			renderHQ = def.isRenderHQ();
 			renderAA = def.isRenderAA();
@@ -158,6 +168,12 @@ public class GraphPanelConfig {
 				case "ScrollSpeed":
 					scrollSpeed = o.getDouble(s);
 					break;
+				case "StatPanelEnabled":
+					statPanelEnabled = o.getBoolean(s);
+					break;
+				case "TextPanelEnabled":
+					textPanelEnabled = o.getBoolean(s);
+					break;
 				case "TimestampFormat":
 					timestampFormat = o.getString(s);
 					break;
@@ -174,8 +190,9 @@ public class GraphPanelConfig {
 			}
 		}
 
-		return new GraphPanelConfig(width, height, fullscreen, timestampFormat,
-				renderHQ, renderAA, zoomSpeed, scrollSpeed, toolTipsEnabled,
+		return new GraphPanelConfig(width, height, fullscreen,
+				statPanelEnabled, textPanelEnabled, timestampFormat, renderHQ,
+				renderAA, zoomSpeed, scrollSpeed, toolTipsEnabled,
 				directedEdgeArrowsEnabled, nodeSize, nodeColor, edgeSize,
 				captureConfig, rules);
 	}
@@ -271,6 +288,14 @@ public class GraphPanelConfig {
 		return fullscreen;
 	}
 
+	public boolean isStatPanelEnabled() {
+		return statPanelEnabled;
+	}
+
+	public boolean isTextPanelEnabled() {
+		return textPanelEnabled;
+	}
+
 	public String getTimestampFormat() {
 		return timestampFormat;
 	}
@@ -302,4 +327,5 @@ public class GraphPanelConfig {
 	public CaptureConfig getCaptureConfig() {
 		return captureConfig;
 	}
+
 }
