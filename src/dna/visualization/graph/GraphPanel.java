@@ -269,8 +269,6 @@ public class GraphPanel extends JPanel {
 		addMoveListener();
 		changeMouseManager();
 
-		
-		
 		// add rules
 		addGraphStyleRules(config.getRules().getRules());
 	}
@@ -476,7 +474,7 @@ public class GraphPanel extends JPanel {
 			this.setRecordArea(RecordArea.graph);
 			recordAreasBox.setSelectedIndex(2);
 			break;
-		default:
+		case "full":
 			this.setRecordArea(RecordArea.full);
 			recordAreasBox.setSelectedIndex(0);
 			break;

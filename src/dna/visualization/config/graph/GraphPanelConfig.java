@@ -46,11 +46,14 @@ public class GraphPanelConfig {
 	protected String nodeColor;
 	protected double edgeSize;
 
+	protected CaptureConfig captureConfig;
+
 	public GraphPanelConfig(int width, int height, boolean fullscreen,
 			String timestampFormat, boolean renderHQ, boolean renderAA,
 			double zoomSpeed, double scrollSpeed, boolean toolTipsEnabled,
 			boolean directedEdgeArrowsEnabled, double nodeSize,
-			String nodeColor, double edgeSize, RulesConfig rules) {
+			String nodeColor, double edgeSize, CaptureConfig captureConfig,
+			RulesConfig rules) {
 		this.width = width;
 		this.height = height;
 		this.fullscreen = fullscreen;
@@ -64,6 +67,7 @@ public class GraphPanelConfig {
 		this.nodeSize = nodeSize;
 		this.nodeColor = nodeColor;
 		this.edgeSize = edgeSize;
+		this.captureConfig = captureConfig;
 		this.rules = rules;
 	}
 
@@ -79,9 +83,9 @@ public class GraphPanelConfig {
 	public static GraphPanelConfig getFromJSONObject(JSONObject o) {
 		GraphPanelConfig def = GraphPanelConfig.defaultGraphPanelConfig;
 
-
 		// init values
 		RulesConfig rules = null;
+		CaptureConfig captureConfig = null;
 		int width = 1024;
 		int height = 768;
 		boolean fullscreen = false;
@@ -100,6 +104,7 @@ public class GraphPanelConfig {
 		if (def != null) {
 			// read default values
 			rules = def.getRules();
+			captureConfig = def.getCaptureConfig();
 			width = def.getWidth();
 			height = def.getHeight();
 			fullscreen = def.isFullscreen();
@@ -118,6 +123,10 @@ public class GraphPanelConfig {
 		if (JSONObject.getNames(o) != null) {
 			for (String s : JSONObject.getNames(o)) {
 				switch (s) {
+				case "CaptureConfig":
+					captureConfig = CaptureConfig.getFromJSONObject(o
+							.getJSONObject(s));
+					break;
 				case "DirectedEdgeArrowsEnabled":
 					directedEdgeArrowsEnabled = o.getBoolean(s);
 					break;
@@ -167,7 +176,8 @@ public class GraphPanelConfig {
 
 		return new GraphPanelConfig(width, height, fullscreen, timestampFormat,
 				renderHQ, renderAA, zoomSpeed, scrollSpeed, toolTipsEnabled,
-				directedEdgeArrowsEnabled, nodeSize, nodeColor, edgeSize, rules);
+				directedEdgeArrowsEnabled, nodeSize, nodeColor, edgeSize,
+				captureConfig, rules);
 	}
 
 	public static GraphPanelConfig getDefaultConfig() {
@@ -287,5 +297,9 @@ public class GraphPanelConfig {
 
 	public boolean isDirectedEdgeArrowsEnabled() {
 		return directedEdgeArrowsEnabled;
+	}
+
+	public CaptureConfig getCaptureConfig() {
+		return captureConfig;
 	}
 }
