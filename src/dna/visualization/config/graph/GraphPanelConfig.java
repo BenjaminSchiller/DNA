@@ -51,12 +51,20 @@ public class GraphPanelConfig {
 
 	protected CaptureConfig captureConfig;
 
+	protected GraphLayouter layouter;
+	protected double autoLayoutForce;
+
+	public enum GraphLayouter {
+		none, auto, linlog
+	}
+
 	public GraphPanelConfig(int width, int height, boolean fullscreen,
 			boolean statPanelEnabled, boolean textPanelEnabled,
 			String timestampFormat, boolean renderHQ, boolean renderAA,
 			double zoomSpeed, double scrollSpeed, boolean toolTipsEnabled,
 			boolean directedEdgeArrowsEnabled, double nodeSize,
-			String nodeColor, double edgeSize, CaptureConfig captureConfig,
+			String nodeColor, double edgeSize, GraphLayouter layouter,
+			double autoLayoutForce, CaptureConfig captureConfig,
 			RulesConfig rules) {
 		this.width = width;
 		this.height = height;
@@ -73,6 +81,8 @@ public class GraphPanelConfig {
 		this.nodeSize = nodeSize;
 		this.nodeColor = nodeColor;
 		this.edgeSize = edgeSize;
+		this.layouter = layouter;
+		this.autoLayoutForce = autoLayoutForce;
 		this.captureConfig = captureConfig;
 		this.rules = rules;
 	}
@@ -109,6 +119,9 @@ public class GraphPanelConfig {
 		String nodeColor = null;
 		double edgeSize = 0.2;
 
+		GraphLayouter layouter = GraphLayouter.auto;
+		double autoLayoutForce = 1.0;
+
 		if (def != null) {
 			// read default values
 			rules = def.getRules();
@@ -128,11 +141,19 @@ public class GraphPanelConfig {
 			nodeSize = def.getNodeSize();
 			nodeColor = def.getNodeColor();
 			edgeSize = def.getEdgeSize();
+			layouter = def.getLayouter();
+			autoLayoutForce = def.getAutoLayoutForce();
 		}
 
 		if (JSONObject.getNames(o) != null) {
 			for (String s : JSONObject.getNames(o)) {
 				switch (s) {
+				case "Layouter":
+					layouter = GraphLayouter.valueOf(o.getString(s));
+					break;
+				case "AutoLayoutForce":
+					autoLayoutForce = o.getDouble(s);
+					break;
 				case "CaptureConfig":
 					captureConfig = CaptureConfig.getFromJSONObject(o
 							.getJSONObject(s));
@@ -194,7 +215,7 @@ public class GraphPanelConfig {
 				statPanelEnabled, textPanelEnabled, timestampFormat, renderHQ,
 				renderAA, zoomSpeed, scrollSpeed, toolTipsEnabled,
 				directedEdgeArrowsEnabled, nodeSize, nodeColor, edgeSize,
-				captureConfig, rules);
+				layouter, autoLayoutForce, captureConfig, rules);
 	}
 
 	public static GraphPanelConfig getDefaultConfig() {
@@ -326,6 +347,14 @@ public class GraphPanelConfig {
 
 	public CaptureConfig getCaptureConfig() {
 		return captureConfig;
+	}
+
+	public GraphLayouter getLayouter() {
+		return layouter;
+	}
+
+	public double getAutoLayoutForce() {
+		return autoLayoutForce;
 	}
 
 }
