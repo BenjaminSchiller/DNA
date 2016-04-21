@@ -84,6 +84,9 @@ public class GraphPanel extends JPanel {
 	protected boolean tooltips;
 	protected SpriteManager spriteManager;
 
+	// config
+	protected GraphPanelConfig config;
+
 	// rules
 	protected ArrayList<GraphStyleRule> rules;
 	protected ArrayList<Boolean> rulesFlags;
@@ -111,12 +114,10 @@ public class GraphPanel extends JPanel {
 	protected JLabel nodesValue;
 	protected JLabel edgesValue;
 	protected SimpleDateFormat dateFormat;
-	public boolean timestampAsDate;
 
 	// speed factors
-	protected double zoomSpeedFactor = Config.getDouble("GRAPH_VIS_ZOOM_SPEED");
-	protected double scrollSpeecFactor = Config
-			.getDouble("GRAPH_VIS_SCROLL_SPEED");
+	protected double zoomSpeedFactor;
+	protected double scrollSpeecFactor;
 
 	// used for dragging
 	protected Point dragPos;
@@ -188,9 +189,8 @@ public class GraphPanel extends JPanel {
 		this.mode = mode;
 		this.graphGeneratorName = graphGeneratorName;
 		this.timestamp = 0;
-		this.dateFormat = new SimpleDateFormat(
-				Config.get("GRAPH_VIS_DATETIME_FORMAT"));
-		this.timestampAsDate = Config.getBoolean("GRAPH_VIS_TIMESTAMP_AS_DATE");
+		this.config = config;
+		this.dateFormat = new SimpleDateFormat(config.getTimestampFormat());
 		this.rules = new ArrayList<GraphStyleRule>();
 		this.rulesFlags = new ArrayList<Boolean>();
 		this.nextRuleIndex = 0;
@@ -199,7 +199,10 @@ public class GraphPanel extends JPanel {
 		this.paused = false;
 		this.tooltips = false;
 
-		if (Config.getBoolean("GRAPH_VIS_TOOLTIPS_ENABLED")) {
+		this.zoomSpeedFactor = config.getZoomSpeed();
+		this.scrollSpeecFactor = config.getScrollSpeed();
+
+		if (config.isToolTipsEnabled()) {
 			this.spriteManager = new SpriteManager(graph);
 			this.tooltips = true;
 		}
@@ -258,6 +261,8 @@ public class GraphPanel extends JPanel {
 		addMoveListener();
 		changeMouseManager();
 
+		
+		
 		// add rules
 		addGraphStyleRules(config.getRules().getRules());
 	}
@@ -691,11 +696,8 @@ public class GraphPanel extends JPanel {
 
 	/** Updates the timestamp label. **/
 	protected void setTimestampLabel(long timestamp) {
-		if (this.timestampAsDate)
-			this.timestampValue.setText(this.dateFormat.format(new Date(
-					timestamp)));
-		else
-			this.timestampValue.setText("" + timestamp);
+		this.timestampValue
+				.setText(this.dateFormat.format(new Date(timestamp)));
 	}
 
 	/** Increments the nodes-count label. **/
@@ -800,10 +802,8 @@ public class GraphPanel extends JPanel {
 	public void addNode(dna.graph.nodes.Node n) {
 		// add node to graph
 		Node node = this.graph.addNode("" + n.getIndex());
-		node.addAttribute(GraphVisualization.sizeKey,
-				Config.getDouble("GRAPH_VIS_NODE_DEFAULT_SIZE"));
-		node.addAttribute(GraphVisualization.colorKey,
-				Config.getColor("GRAPH_VIS_NODE_DEFAULT_COLOR"));
+		node.addAttribute(GraphVisualization.sizeKey, config.getNodeSize());
+		node.addAttribute(GraphVisualization.colorKey, config.getNodeColor());
 
 		// init weight
 		Weight w = null;
@@ -920,8 +920,7 @@ public class GraphPanel extends JPanel {
 	/** Adds edge e to graph g. **/
 	public void addEdge(dna.graph.edges.Edge e) {
 		// get directed flag
-		boolean directedEdges = Config
-				.getBoolean("GRAPH_VIS_SHOW_DIRECTED_EDGE_ARROWS")
+		boolean directedEdges = config.isDirectedEdgeArrowsEnabled()
 				&& (boolean) this.graph
 						.getAttribute(GraphVisualization.directedKey);
 
@@ -942,8 +941,7 @@ public class GraphPanel extends JPanel {
 			}
 
 			// set edge size / thickness
-			edge.setAttribute(GraphVisualization.sizeKey,
-					Config.getDouble("GRAPH_VIS_EDGE_DEFAULT_SIZE"));
+			edge.setAttribute(GraphVisualization.sizeKey, config.getEdgeSize());
 			edge.setAttribute(GraphVisualization.styleKey,
 					"size: " + edge.getAttribute(GraphVisualization.sizeKey)
 							+ "px;");

@@ -45,11 +45,6 @@ public class GraphVisualization {
 	public static final String zKey = "dna.z";
 	public static final String frozenKey = "layout.frozen";
 
-	// GUI CONFIG
-	protected static final Dimension size = new Dimension(
-			Config.getInt("GRAPH_VIS_FRAME_WIDTH"),
-			Config.getInt("GRAPH_VIS_FRAME_HEIGHT"));
-
 	// graph map
 	protected static HashMap<Graph, GraphPanel> map = new HashMap<Graph, GraphPanel>();
 
@@ -82,12 +77,6 @@ public class GraphVisualization {
 		else
 			graph.addAttribute(directedKey, false);
 
-		// rendering options
-		if (Config.getBoolean("GRAPH_VIS_RENDERING_HQ"))
-			graph.addAttribute(GraphVisualization.qualityKey);
-		if (Config.getBoolean("GRAPH_VIS_RENDERING_ANTIALIAS"))
-			graph.addAttribute(GraphVisualization.antialiasKey);
-
 		// check nodeweighttypes for position modes
 		PositionMode mode = PositionMode.auto;
 		Class<? extends Weight> nwt = g.getGraphDatastructures()
@@ -105,23 +94,32 @@ public class GraphVisualization {
 
 		// main frame
 		JFrame mainFrame = new JFrame("Graph-Vis Mainframe");
+		GraphPanelConfig cfg = GraphPanelConfig.defaultGraphPanelConfig;
 		GraphPanel panel = new GraphPanel(mainFrame, graph, name, name, mode,
-				GraphPanelConfig.getDefaultConfig());
+				cfg);
+
+		// rendering options
+		if (cfg.isRenderHQ())
+			graph.addAttribute(GraphVisualization.qualityKey);
+		if (cfg.isRenderAA())
+			graph.addAttribute(GraphVisualization.antialiasKey);
 
 		// add style rules
-		if (Config.getBoolean("GRAPH_VIS_TOOLTIPS_ENABLED"))
+		if (cfg.isToolTipsEnabled())
 			panel.addToolTipManager(new DefaultToolTipManager(panel));
-
-		// panel.addGraphStyleRule(new
-		// ToolTipUpdater(panel.getSpriteManager()));
 
 		// create main frame
 		mainFrame.add(panel);
 		mainFrame.setName(name);
 		mainFrame.setTitle(name);
 		mainFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-		mainFrame.setSize(size);
+		mainFrame.setSize(new Dimension(cfg.getWidth(), cfg.getHeight()));
 		mainFrame.setLocationRelativeTo(null);
+
+		if (cfg.isFullscreen()) {
+			mainFrame.setExtendedState(mainFrame.getExtendedState()
+					| JFrame.MAXIMIZED_BOTH);
+		}
 
 		// set visible
 		mainFrame.setVisible(true);
