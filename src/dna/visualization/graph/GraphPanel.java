@@ -115,10 +115,6 @@ public class GraphPanel extends JPanel {
 	protected JLabel edgesValue;
 	protected SimpleDateFormat dateFormat;
 
-	// speed factors
-	protected double zoomSpeedFactor;
-	protected double scrollSpeecFactor;
-
 	// used for dragging
 	protected Point dragPos;
 
@@ -131,40 +127,8 @@ public class GraphPanel extends JPanel {
 	protected RecordArea recordArea;
 
 	// enable 3d projection
-	protected boolean enable3dProjection = Config
-			.getBoolean("GRAPH_VIS_3D_PROJECTION_ENABLED");
 	protected boolean enable3dProjectionNodeSizing = Config
 			.getBoolean("GRAPH_VIS_SIZE_NODES_BY_Z_COORDINATE");
-	protected boolean useVanishingPoint = Config
-			.getBoolean("GRAPH_VIS_3D_PROJECTION_USE_VANISHING_POINT");
-
-	// scaling matrix
-	protected final double s0_x = Config
-			.getDouble("GRAPH_VIS_3D_PROJECTION_S0_X");
-	protected final double s0_y = Config
-			.getDouble("GRAPH_VIS_3D_PROJECTION_S0_Y");
-	protected final double s0_z = Config
-			.getDouble("GRAPH_VIS_3D_PROJECTION_S0_Z");
-
-	protected final double s1_x = Config
-			.getDouble("GRAPH_VIS_3D_PROJECTION_S1_X");
-	protected final double s1_y = Config
-			.getDouble("GRAPH_VIS_3D_PROJECTION_S1_Y");
-	protected final double s1_z = Config
-			.getDouble("GRAPH_VIS_3D_PROJECTION_S1_Z");
-
-	// offset vector
-	protected final double offset_x = Config
-			.getDouble("GRAPH_VIS_3D_PROJECTION_OFFSET_X");
-	protected final double offset_y = Config
-			.getDouble("GRAPH_VIS_3D_PROJECTION_OFFSET_Y");
-
-	// vanishing point
-	protected double vp_x = Config.getDouble("GRAPH_VIS_3D_PROJECTION_VP_X");
-	protected double vp_y = Config.getDouble("GRAPH_VIS_3D_PROJECTION_VP_Y");
-	protected double vp_z = Config.getDouble("GRAPH_VIS_3D_PROJECTION_VP_Z");
-	protected double vp_scalingFactor = Config
-			.getDouble("GRAPH_VIS_3D_PROJECTION_VP_SCALING");
 
 	protected static double minX = Double.NaN;
 	protected static double maxX = Double.NaN;
@@ -198,9 +162,6 @@ public class GraphPanel extends JPanel {
 		this.recording = false;
 		this.paused = false;
 		this.tooltips = false;
-
-		this.zoomSpeedFactor = config.getZoomSpeed();
-		this.scrollSpeecFactor = config.getScrollSpeed();
 
 		if (config.isToolTipsEnabled()) {
 			this.spriteManager = new SpriteManager(graph);
@@ -382,7 +343,7 @@ public class GraphPanel extends JPanel {
 				.getSize() - 3));
 		screenshotButton
 				.setToolTipText("Captures a screenshot and saves it to '"
-						+ Config.get("GRAPH_VIS_SCREENSHOT_DIR") + "'");
+						+ config.getCaptureConfig().getScreenshotDir() + "'");
 		screenshotButton.setFocusPainted(false);
 		screenshotButton.addActionListener(new ActionListener() {
 			@Override
@@ -412,7 +373,7 @@ public class GraphPanel extends JPanel {
 		captureButton.setFont(new Font(font.getName(), font.getStyle(), font
 				.getSize() - 3));
 		captureButton.setToolTipText("Captures a video and saves it to '"
-				+ Config.get("GRAPH_VIS_VIDEO_DIR") + "'");
+				+ config.getCaptureConfig().getVideoDir() + "'");
 		captureButton.setFocusPainted(false);
 		this.captureButtonFontColor = captureButton.getForeground();
 		captureButton.addActionListener(new ActionListener() {
@@ -458,16 +419,16 @@ public class GraphPanel extends JPanel {
 		textPanel.add(recordAreasBox);
 
 		// get record area mode
-		switch (Config.get("GRAPH_VIS_DEFAULT_RECORD_AREA")) {
-		case "content":
+		switch (config.getCaptureConfig().getCaptureArea()) {
+		case content:
 			this.setRecordArea(RecordArea.content);
 			recordAreasBox.setSelectedIndex(1);
 			break;
-		case "graph":
+		case graph:
 			this.setRecordArea(RecordArea.graph);
 			recordAreasBox.setSelectedIndex(2);
 			break;
-		case "full":
+		case full:
 			this.setRecordArea(RecordArea.full);
 			recordAreasBox.setSelectedIndex(0);
 			break;
@@ -490,14 +451,14 @@ public class GraphPanel extends JPanel {
 				if (currentZoom < 0.3) {
 					if (currentZoom < 0.1) {
 						if (currentZoom < 0.01)
-							speed = zoomSpeedFactor / 30;
+							speed = config.getZoomSpeed() / 30;
 						else
-							speed = zoomSpeedFactor / 10;
+							speed = config.getZoomSpeed() / 10;
 					} else {
-						speed = zoomSpeedFactor / 3;
+						speed = config.getZoomSpeed() / 3;
 					}
 				} else {
-					speed = zoomSpeedFactor;
+					speed = config.getZoomSpeed();
 				}
 
 				// calc new zoom amount
@@ -532,11 +493,11 @@ public class GraphPanel extends JPanel {
 					// calc new position
 					double x_new = currentCenter.x
 							+ (dragPos.getX() - arg0.getX())
-							* scrollSpeecFactor * getZoomPercent()
+							* config.getScrollSpeed() * getZoomPercent()
 							* getGraphDimension() / 13;
 					double y_new = currentCenter.y
 							- (dragPos.getY() - arg0.getY())
-							* scrollSpeecFactor * getZoomPercent()
+							* config.getScrollSpeed() * getZoomPercent()
 							* getGraphDimension() / 13;
 
 					// set viewcenter
@@ -650,34 +611,36 @@ public class GraphPanel extends JPanel {
 
 	/** Returns the vanishing point as {x, y, z}. **/
 	public double[] getVanishingPoint() {
-		return new double[] { this.vp_x, this.vp_y, this.vp_z };
+		return new double[] { config.getProjectionConfig().getVp_X(),
+				config.getProjectionConfig().getVp_Y(),
+				config.getProjectionConfig().getVp_Z() };
 	}
 
 	/** Sets the vanishing point. **/
 	public void setVanishingPoint(double x, double y, double z) {
-		this.vp_x = x;
-		this.vp_y = y;
-		this.vp_z = z;
+		config.getProjectionConfig().setVp_X(x);
+		config.getProjectionConfig().setVp_Y(y);
+		config.getProjectionConfig().setVp_Z(z);
 	}
 
 	/** Returns if 3d projection is enabled. **/
 	public boolean is3dProjectionEnabled() {
-		return this.enable3dProjection;
+		return config.getProjectionConfig().isEnabled();
 	}
 
 	/** Returns if vanishing point is used for 3d projection. **/
 	public boolean isVanishingPointUsed() {
-		return this.useVanishingPoint;
+		return config.getProjectionConfig().isUseVanishingPoint();
 	}
 
 	/** Enables/Disables 3d pojeton. **/
 	public void set3dProjection(boolean enabled) {
-		this.enable3dProjection = enabled;
+		config.getProjectionConfig().setEnabled(enabled);
 	}
 
 	/** Sets if vanishing points will be used for 3d projection. **/
 	public void setVanishingPointUse(boolean enabled) {
-		this.useVanishingPoint = enabled;
+		config.getProjectionConfig().setUseVanishingPoint(enabled);
 	}
 
 	/** Sets the text-label to the input text. **/
@@ -823,7 +786,7 @@ public class GraphPanel extends JPanel {
 			// statRecord(coords);
 
 			// if 3d projection is enabled, project coordinates
-			if (this.enable3dProjection) {
+			if (config.getProjectionConfig().isEnabled()) {
 				double[] projected2DCoordinates = project3DPointToCoordinates(
 						coords[0], coords[1], coords[2]);
 				node.addAttribute(GraphVisualization.zKey, coords[2]);
@@ -890,7 +853,7 @@ public class GraphPanel extends JPanel {
 			// statRecord(coords);
 
 			// if 3d projection is enabled, project coordinates
-			if (this.enable3dProjection) {
+			if (config.getProjectionConfig().isEnabled()) {
 				double[] projected2DCoordinates = project3DPointToCoordinates(
 						coords[0], coords[1], coords[2]);
 				node.addAttribute(GraphVisualization.zKey, coords[2]);
@@ -1016,9 +979,9 @@ public class GraphPanel extends JPanel {
 
 	/** Makes a screenshot of the current graph. **/
 	public void captureScreenshotUsingGraphstream() {
-		String screenshotsDir = Config.get("GRAPH_VIS_SCREENSHOT_DIR");
+		String screenshotsDir = config.getCaptureConfig().getScreenshotDir();
 		String screenshotsSuffix = "."
-				+ Config.get("GRAPH_VIS_SCREENSHOT_FORMAT");
+				+ config.getCaptureConfig().getScreenshotFormat();
 		// create dir
 		File f = new File(screenshotsDir);
 		if (!f.exists() && !f.isFile())
@@ -1046,16 +1009,16 @@ public class GraphPanel extends JPanel {
 
 	/** Makes a screenshot of the current JFrame. **/
 	public void captureScreenshot(boolean waitForStabilization) {
-		this.captureScreenshot(waitForStabilization,
-				Config.get("GRAPH_VIS_SCREENSHOT_DIR"), null,
-				Config.getInt("GRAPH_VIS_SCREENSHOT_FOREGROUND_DELAY"));
+		this.captureScreenshot(waitForStabilization, config.getCaptureConfig()
+				.getScreenshotDir(), null, config.getCaptureConfig()
+				.getScreenshotForegroundDelay());
 	}
 
 	/** Makes a screenshot of the current JFrame. **/
 	public void captureScreenshot(boolean waitForStabilization, String dstDir,
 			String filename) {
-		this.captureScreenshot(waitForStabilization, dstDir, filename,
-				Config.getInt("GRAPH_VIS_SCREENSHOT_FOREGROUND_DELAY"));
+		this.captureScreenshot(waitForStabilization, dstDir, filename, config
+				.getCaptureConfig().getScreenshotForegroundDelay());
 	}
 
 	/** Makes a screenshot of the current JFrame. **/
@@ -1063,10 +1026,10 @@ public class GraphPanel extends JPanel {
 			String filename, long screenshotDelay) {
 		if (waitForStabilization) {
 			long start = System.currentTimeMillis();
-			long timeout = Config
-					.getInt("GRAPH_VIS_SCREENSHOT_STABILITY_TIMEOUT");
-			double stabilityThreshold = Config
-					.getDouble("GRAPH_VIS_SCREENSHOT_STABILITY_THRESHOLD");
+			long timeout = config.getCaptureConfig()
+					.getScreenshotStabilityTimeout();
+			double stabilityThreshold = config.getCaptureConfig()
+					.getScreenshotStabilityThreshold();
 
 			// while not stable or timeout not reached, wait
 			while ((this.getLayouter().getStabilization() < stabilityThreshold)
@@ -1259,12 +1222,13 @@ public class GraphPanel extends JPanel {
 		double y2;
 
 		// projection using vanishing point
-		if (this.useVanishingPoint) {
+		if (config.getProjectionConfig().isUseVanishingPoint()) {
 			// calc scaling
-			double scale = z / this.vp_z * this.vp_scalingFactor;
+			double scale = z / config.getProjectionConfig().getVp_Z()
+					* config.getProjectionConfig().getVpScalingFactor();
 
 			// use logarithmic scaling
-			if (Config.getBoolean("GRAPH_VIS_3D_PROJECTION_VP_LOGSCALE"))
+			if (config.getProjectionConfig().isVanishingPointLogScale())
 				scale = Math.log(scale + 1);
 
 			// keep boundaries
@@ -1274,12 +1238,18 @@ public class GraphPanel extends JPanel {
 				scale = 0;
 
 			// calc coordinates
-			x2 = x + scale * (this.vp_x - x);
-			y2 = y + scale * (this.vp_y - y);
+			x2 = x + scale * (config.getProjectionConfig().getVp_X() - x);
+			y2 = y + scale * (config.getProjectionConfig().getVp_Y() - y);
 		} else {
 			// ortographic projection
-			x2 = this.s0_x * x + this.s0_y * y + this.s0_z * z + this.offset_x;
-			y2 = this.s1_x * x + this.s1_y * y + this.s1_z * z + this.offset_y;
+			x2 = config.getProjectionConfig().getS0_X() * x
+					+ config.getProjectionConfig().getS0_Y() * y
+					+ config.getProjectionConfig().getS0_Z() * z
+					+ config.getProjectionConfig().getOffset_X();
+			y2 = config.getProjectionConfig().getS1_X() * x
+					+ config.getProjectionConfig().getS1_Y() * y
+					+ config.getProjectionConfig().getS1_Z() * z
+					+ config.getProjectionConfig().getOffset_Y();
 		}
 
 		// return

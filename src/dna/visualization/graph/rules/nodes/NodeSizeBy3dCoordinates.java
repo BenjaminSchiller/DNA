@@ -28,10 +28,8 @@ public class NodeSizeBy3dCoordinates extends GraphStyleRule {
 
 	public NodeSizeBy3dCoordinates(String name, Parameter[] params) {
 		this.name = name;
-		this.baseGrowth = Config
-				.getDouble("GRAPH_VIS_3D_PROJECTION_NODE_GROWTH");
-		this.shrinkFactor = Config
-				.getDouble("GRAPH_VIS_3D_PROJECTION_NODE_SHRINK_FACTOR");
+		this.baseGrowth = 2.0;
+		this.shrinkFactor = 0.15;
 
 		for (Parameter p : params) {
 			switch (p.getName().toLowerCase()) {
