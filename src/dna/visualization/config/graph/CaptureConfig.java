@@ -172,4 +172,53 @@ public class CaptureConfig {
 		return screenshotForegroundDelay;
 	}
 
+	public void setCaptureArea(CaptureArea captureArea) {
+		this.captureArea = captureArea;
+	}
+
+	public void setVideoDir(String videoDir) {
+		this.videoDir = videoDir;
+	}
+
+	public void setVideoSuffix(String videoSuffix) {
+		this.videoSuffix = videoSuffix;
+	}
+
+	public void setVideoFilename(String videoFilename) {
+		this.videoFilename = videoFilename;
+	}
+
+	public void setVideoMaximumLength(int videoMaximumLength) {
+		this.videoMaximumLength = videoMaximumLength;
+	}
+
+	public void setVideoRecordFps(int videoRecordFps) {
+		this.videoRecordFps = videoRecordFps;
+	}
+
+	public void setVideoAutoRecord(boolean videoAutoRecord) {
+		this.videoAutoRecord = videoAutoRecord;
+	}
+
+	public void setScreenshotDir(String screenshotDir) {
+		this.screenshotDir = screenshotDir;
+	}
+
+	public void setScreenshotFormat(String screenshotFormat) {
+		this.screenshotFormat = screenshotFormat;
+	}
+
+	public void setScreenshotStabilityThreshold(
+			double screenshotStabilityThreshold) {
+		this.screenshotStabilityThreshold = screenshotStabilityThreshold;
+	}
+
+	public void setScreenshotStabilityTimeout(int screenshotStabilityTimeout) {
+		this.screenshotStabilityTimeout = screenshotStabilityTimeout;
+	}
+
+	public void setScreenshotForegroundDelay(int screenshotForegroundDelay) {
+		this.screenshotForegroundDelay = screenshotForegroundDelay;
+	}
+
 }

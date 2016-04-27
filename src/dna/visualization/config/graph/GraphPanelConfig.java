@@ -49,6 +49,8 @@ public class GraphPanelConfig {
 	protected String nodeColor;
 	protected double edgeSize;
 
+	protected ProjectionConfig projectionConfig;
+
 	protected CaptureConfig captureConfig;
 
 	protected GraphLayouter layouter;
@@ -64,8 +66,8 @@ public class GraphPanelConfig {
 			double zoomSpeed, double scrollSpeed, boolean toolTipsEnabled,
 			boolean directedEdgeArrowsEnabled, double nodeSize,
 			String nodeColor, double edgeSize, GraphLayouter layouter,
-			double autoLayoutForce, CaptureConfig captureConfig,
-			RulesConfig rules) {
+			double autoLayoutForce, ProjectionConfig projectionConfig,
+			CaptureConfig captureConfig, RulesConfig rules) {
 		this.width = width;
 		this.height = height;
 		this.fullscreen = fullscreen;
@@ -83,6 +85,7 @@ public class GraphPanelConfig {
 		this.edgeSize = edgeSize;
 		this.layouter = layouter;
 		this.autoLayoutForce = autoLayoutForce;
+		this.projectionConfig = projectionConfig;
 		this.captureConfig = captureConfig;
 		this.rules = rules;
 	}
@@ -102,6 +105,7 @@ public class GraphPanelConfig {
 		// init values
 		RulesConfig rules = null;
 		CaptureConfig captureConfig = null;
+		ProjectionConfig projectionConfig = null;
 		int width = 1024;
 		int height = 768;
 		boolean fullscreen = false;
@@ -126,6 +130,7 @@ public class GraphPanelConfig {
 			// read default values
 			rules = def.getRules();
 			captureConfig = def.getCaptureConfig();
+			projectionConfig = def.getProjectionConfig();
 			width = def.getWidth();
 			height = def.getHeight();
 			fullscreen = def.isFullscreen();
@@ -148,8 +153,9 @@ public class GraphPanelConfig {
 		if (JSONObject.getNames(o) != null) {
 			for (String s : JSONObject.getNames(o)) {
 				switch (s) {
-				case "Layouter":
-					layouter = GraphLayouter.valueOf(o.getString(s));
+				case "3dProjectionConfig":
+					projectionConfig = ProjectionConfig.getFromJSONObject(o
+							.getJSONObject(s));
 					break;
 				case "AutoLayoutForce":
 					autoLayoutForce = o.getDouble(s);
@@ -169,6 +175,9 @@ public class GraphPanelConfig {
 					break;
 				case "Height":
 					height = o.getInt(s);
+					break;
+				case "Layouter":
+					layouter = GraphLayouter.valueOf(o.getString(s));
 					break;
 				case "NodeColor":
 					nodeColor = o.getString(s);
@@ -215,7 +224,8 @@ public class GraphPanelConfig {
 				statPanelEnabled, textPanelEnabled, timestampFormat, renderHQ,
 				renderAA, zoomSpeed, scrollSpeed, toolTipsEnabled,
 				directedEdgeArrowsEnabled, nodeSize, nodeColor, edgeSize,
-				layouter, autoLayoutForce, captureConfig, rules);
+				layouter, autoLayoutForce, projectionConfig, captureConfig,
+				rules);
 	}
 
 	public static GraphPanelConfig getDefaultConfig() {
@@ -357,4 +367,87 @@ public class GraphPanelConfig {
 		return autoLayoutForce;
 	}
 
+	public ProjectionConfig getProjectionConfig() {
+		return projectionConfig;
+	}
+
+	public void setRules(RulesConfig rules) {
+		this.rules = rules;
+	}
+
+	public void setWidth(int width) {
+		this.width = width;
+	}
+
+	public void setHeight(int height) {
+		this.height = height;
+	}
+
+	public void setFullscreen(boolean fullscreen) {
+		this.fullscreen = fullscreen;
+	}
+
+	public void setStatPanelEnabled(boolean statPanelEnabled) {
+		this.statPanelEnabled = statPanelEnabled;
+	}
+
+	public void setTextPanelEnabled(boolean textPanelEnabled) {
+		this.textPanelEnabled = textPanelEnabled;
+	}
+
+	public void setTimestampFormat(String timestampFormat) {
+		this.timestampFormat = timestampFormat;
+	}
+
+	public void setRenderHQ(boolean renderHQ) {
+		this.renderHQ = renderHQ;
+	}
+
+	public void setRenderAA(boolean renderAA) {
+		this.renderAA = renderAA;
+	}
+
+	public void setZoomSpeed(double zoomSpeed) {
+		this.zoomSpeed = zoomSpeed;
+	}
+
+	public void setScrollSpeed(double scrollSpeed) {
+		this.scrollSpeed = scrollSpeed;
+	}
+
+	public void setToolTipsEnabled(boolean toolTipsEnabled) {
+		this.toolTipsEnabled = toolTipsEnabled;
+	}
+
+	public void setDirectedEdgeArrowsEnabled(boolean directedEdgeArrowsEnabled) {
+		this.directedEdgeArrowsEnabled = directedEdgeArrowsEnabled;
+	}
+
+	public void setNodeSize(double nodeSize) {
+		this.nodeSize = nodeSize;
+	}
+
+	public void setNodeColor(String nodeColor) {
+		this.nodeColor = nodeColor;
+	}
+
+	public void setEdgeSize(double edgeSize) {
+		this.edgeSize = edgeSize;
+	}
+
+	public void setProjectionConfig(ProjectionConfig projectionConfig) {
+		this.projectionConfig = projectionConfig;
+	}
+
+	public void setCaptureConfig(CaptureConfig captureConfig) {
+		this.captureConfig = captureConfig;
+	}
+
+	public void setLayouter(GraphLayouter layouter) {
+		this.layouter = layouter;
+	}
+
+	public void setAutoLayoutForce(double autoLayoutForce) {
+		this.autoLayoutForce = autoLayoutForce;
+	}
 }
