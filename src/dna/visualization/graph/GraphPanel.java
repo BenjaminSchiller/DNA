@@ -44,7 +44,6 @@ import org.graphstream.ui.view.util.DefaultMouseManager;
 import dna.graph.weights.IWeightedEdge;
 import dna.graph.weights.IWeightedNode;
 import dna.graph.weights.Weight;
-import dna.util.Config;
 import dna.util.Log;
 import dna.visualization.VisualizationUtils;
 import dna.visualization.VisualizationUtils.VideoRecorder;
@@ -125,10 +124,6 @@ public class GraphPanel extends JPanel {
 	protected boolean recording;
 	protected VideoRecorder videoRecorder;
 	protected RecordArea recordArea;
-
-	// enable 3d projection
-	protected boolean enable3dProjectionNodeSizing = Config
-			.getBoolean("GRAPH_VIS_SIZE_NODES_BY_Z_COORDINATE");
 
 	protected static double minX = Double.NaN;
 	protected static double maxX = Double.NaN;
@@ -1282,6 +1277,11 @@ public class GraphPanel extends JPanel {
 			return 1.0;
 		else
 			return this.layouter.getStabilization();
+	}
+
+	/** Returns the config object. **/
+	public GraphPanelConfig getGraphPanelConfig() {
+		return config;
 	}
 
 }
