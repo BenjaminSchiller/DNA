@@ -369,6 +369,42 @@ public class VisualizationUtils {
 		return file.getPath();
 	}
 
+	/** Returns the video path for the component. **/
+	public static String getVideoPath(Component c) {
+		String dir;
+		String suffix;
+		String filename;
+		if (c instanceof GraphPanel) {
+			dir = ((GraphPanel) c).getGraphPanelConfig().getCaptureConfig()
+					.getVideoDir();
+			suffix = ((GraphPanel) c).getGraphPanelConfig().getCaptureConfig()
+					.getVideoSuffix();
+			filename = ((GraphPanel) c).getGraphPanelConfig()
+					.getCaptureConfig().getVideoFilename();
+		} else {
+			dir = Config.get("GRAPH_VIS_VIDEO_DIR");
+			suffix = Config.get("GRAPH_VIS_VIDEO_SUFFIX");
+			filename = Config.get("GRAPH_VIS_VIDEO_FILENAME");
+		}
+
+		if (!filename.equals("null"))
+			return dir + filename + suffix;
+
+		// craft filename
+		DateFormat df = new SimpleDateFormat("yyyy_MM_dd-HH_mm_ss");
+		filename = c.getName() + "-" + df.format(new Date());
+
+		// get name
+		File file = new File(dir + filename + suffix);
+		int id = 0;
+		while (file.exists()) {
+			id++;
+			file = new File(dir + filename + "_" + id + suffix);
+		}
+
+		return file.getPath();
+	}
+
 	/** Captures a screenshot from the given JFrame. **/
 	public static BufferedImage getScreenshot(Component c) {
 		try {
@@ -423,8 +459,7 @@ public class VisualizationUtils {
 
 		// constructors
 		public VideoRecorder(Component srcComponent) {
-			this(srcComponent, VisualizationUtils.getVideoPath(srcComponent
-					.getName()));
+			this(srcComponent, VisualizationUtils.getVideoPath(srcComponent));
 		}
 
 		public VideoRecorder(Component srcComponent, String dstPath) {
