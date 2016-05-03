@@ -12,6 +12,7 @@ import dna.parallel.collation.degree.DegreeDistributionOverlappingCollation;
 import dna.parallel.collation.paths.UnweightedAllPairsShortestPathsCompleteCollation;
 import dna.parallel.collation.paths.UnweightedAllPairsShortestPathsOverlappingCollation;
 import dna.parallel.collation.paths.UnweightedAllPairsShortestPathsSeparatedCollation;
+import dna.parallel.collation.paths.UnweightedMultiSourceShortestPathsCompleteCollation;
 import dna.parallel.util.Sleeper;
 
 /**
@@ -27,7 +28,7 @@ import dna.parallel.util.Sleeper;
  */
 public class CollationFromArgs {
 	public static enum CollationType {
-		AssortativityComplete, BetweennessCentralityComplete, DegreeDistributionOverlapping, UndirectedClusteringCoefficientSeparated, UndirectedClusteringCoefficientOverlapping, UndirectedClusteringCoefficientComplete, UnweightedAllPairsShortestPathsSeparated, UnweightedAllPairsShortestPathsOverlapping, UnweightedAllPairsShortestPathsComplete, WCSimpleSeparated, WCBasicOverlapping, WCBasicSeparated
+		AssortativityComplete, BetweennessCentralityComplete, DegreeDistributionOverlapping, UndirectedClusteringCoefficientSeparated, UndirectedClusteringCoefficientOverlapping, UndirectedClusteringCoefficientComplete, UnweightedAllPairsShortestPathsSeparated, UnweightedAllPairsShortestPathsOverlapping, UnweightedAllPairsShortestPathsComplete, UnweightedMultiSourceShortestPathsComplete, WCSimpleSeparated, WCBasicOverlapping, WCBasicSeparated
 	}
 
 	/**
@@ -65,6 +66,9 @@ public class CollationFromArgs {
 		case UndirectedClusteringCoefficientComplete:
 			return new UndirectedClusteringCoefficientCompleteCollation(auxDir,
 					inputDir, partitionCount, run, sleeper);
+		case UnweightedMultiSourceShortestPathsComplete:
+			return new UnweightedMultiSourceShortestPathsCompleteCollation(
+					auxDir, inputDir, partitionCount, run, sleeper);
 		case UnweightedAllPairsShortestPathsComplete:
 			return new UnweightedAllPairsShortestPathsCompleteCollation(auxDir,
 					inputDir, partitionCount, run, sleeper);

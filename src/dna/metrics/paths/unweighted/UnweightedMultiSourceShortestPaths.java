@@ -6,8 +6,6 @@ import java.util.HashSet;
 import dna.graph.IElement;
 import dna.graph.nodes.Node;
 import dna.util.Rand;
-import dna.util.parameters.IntParameter;
-import dna.util.parameters.StringParameter;
 
 public abstract class UnweightedMultiSourceShortestPaths extends
 		UnweightedAllPairsShortestPaths {
@@ -18,10 +16,20 @@ public abstract class UnweightedMultiSourceShortestPaths extends
 
 	public int sources;
 
+	public UnweightedMultiSourceShortestPaths(String name, int sources,
+			String[] nodeTypes) {
+		super(name, MetricType.heuristic, nodeTypes);
+		// super(name, MetricType.heuristic, nodeTypes, new StringParameter(
+		// "sourceSelection", SourceSelection.RANDOM.toString()),
+		// new IntParameter("sources", sources));
+		this.sources = sources;
+	}
+
 	public UnweightedMultiSourceShortestPaths(String name, int sources) {
-		super(name, MetricType.heuristic, new StringParameter(
-				"sourceSelection", SourceSelection.RANDOM.toString()),
-				new IntParameter("sources", sources));
+		super(name, MetricType.heuristic);
+		// super(name, MetricType.heuristic, new StringParameter(
+		// "sourceSelection", SourceSelection.RANDOM.toString()),
+		// new IntParameter("sources", sources));
 		this.sources = sources;
 	}
 

@@ -20,12 +20,13 @@ import dna.metrics.motifs.UndirectedMotifsR;
 import dna.metrics.motifs.UndirectedMotifsU;
 import dna.metrics.paths.unweighted.UnweightedAllPairsShortestPathsR;
 import dna.metrics.paths.unweighted.UnweightedAllPairsShortestPathsU;
+import dna.metrics.paths.unweighted.UnweightedMultiSourceShortestPathsR;
 import dna.metrics.richClub.RichClubConnectivityByDegreeR;
 import dna.metrics.richClub.RichClubConnectivityByDegreeU;
 
 public class MetricFromArgs {
 	public static enum MetricType {
-		DegreeDistributionR, DegreeDistributionU, UndirectedClusteringCoefficientR, UndirectedClusteringCoefficientU, PartitionedUndirectedClusteringCoefficientR, UnweightedAllPairsShortestPathsR, UnweightedAllPairsShortestPathsU, WeakConnectivityR, WeakConnectivityU, WeakConnectivityB, UndirectedMotifsR, UndirectedMotifsU, AssortativityR, AssortativityU, BetweennessCentralityR, BetweennessCentralityU, RichClubConnectivityByDegreeR, RichClubConnectivityByDegreeU, WCSimpleR, WCSimpleU, WCBasicR, WCBasicU
+		DegreeDistributionR, DegreeDistributionU, UndirectedClusteringCoefficientR, UndirectedClusteringCoefficientU, PartitionedUndirectedClusteringCoefficientR, UnweightedAllPairsShortestPathsR, UnweightedAllPairsShortestPathsU, UnweightedMultiSourceShortestPathsR, WeakConnectivityR, WeakConnectivityU, WeakConnectivityB, UndirectedMotifsR, UndirectedMotifsU, AssortativityR, AssortativityU, BetweennessCentralityR, BetweennessCentralityU, RichClubConnectivityByDegreeR, RichClubConnectivityByDegreeU, WCSimpleR, WCSimpleU, WCBasicR, WCBasicU
 	}
 
 	public static Metric[] parse(String[] metricTypes) {
@@ -63,6 +64,9 @@ public class MetricFromArgs {
 			return new UnweightedAllPairsShortestPathsR(nodeTypes);
 		case UnweightedAllPairsShortestPathsU:
 			return new UnweightedAllPairsShortestPathsU(nodeTypes);
+		case UnweightedMultiSourceShortestPathsR:
+			return new UnweightedMultiSourceShortestPathsR(
+					Integer.parseInt(args[0]), nodeTypes);
 		case WeakConnectivityB:
 			return new WeakConnectivityB();
 		case WeakConnectivityR:

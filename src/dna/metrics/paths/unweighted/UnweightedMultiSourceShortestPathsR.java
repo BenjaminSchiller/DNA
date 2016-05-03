@@ -11,6 +11,10 @@ public class UnweightedMultiSourceShortestPathsR extends
 		super("UnweightedMultiSourceShortestPathsR", sources);
 	}
 
+	public UnweightedMultiSourceShortestPathsR(int sources, String[] nodeTypes) {
+		super("UnweightedMultiSourceShortestPathsR", sources, nodeTypes);
+	}
+
 	@Override
 	public boolean recompute() {
 		this.apsp = new BinnedIntDistr("APSP");
