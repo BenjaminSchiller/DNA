@@ -153,7 +153,7 @@ public class GraphPanelConfig {
 		if (JSONObject.getNames(o) != null) {
 			for (String s : JSONObject.getNames(o)) {
 				switch (s) {
-				case "3dProjectionConfig":
+				case "ProjectionConfig":
 					projectionConfig = ProjectionConfig.getFromJSONObject(o
 							.getJSONObject(s));
 					break;
