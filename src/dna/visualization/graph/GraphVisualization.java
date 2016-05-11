@@ -3,7 +3,6 @@ package dna.visualization.graph;
 import java.awt.Dimension;
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.concurrent.TimeUnit;
 
 import javax.swing.JFrame;
 
@@ -94,7 +93,9 @@ public class GraphVisualization {
 
 		// main frame
 		JFrame mainFrame = new JFrame("Graph-Vis Mainframe");
+
 		GraphPanelConfig cfg = GraphPanelConfig.defaultGraphPanelConfig;
+		cfg = GraphPanelConfig.readConfig("config/gvis/min.cfg");
 		GraphPanel panel = new GraphPanel(mainFrame, graph, name, name, mode,
 				cfg);
 
@@ -131,7 +132,7 @@ public class GraphVisualization {
 		map.put(g, panel);
 
 		// start recording if automatic recording is set
-		if (Config.getBoolean("GRAPH_VIS_VIDEO_AUTO_RECORD")) {
+		if (cfg.getCaptureConfig().isVideoAutoRecord()) {
 			if (!panel.isRecording())
 				try {
 					Thread.sleep(100);
@@ -148,28 +149,16 @@ public class GraphVisualization {
 
 	/** Adds node n to graph g. **/
 	public static void addNode(Graph g, Node n) {
-		// wait some time
-		waitTime(Config.getInt("GRAPH_VIS_WAIT_NODE_ADDITION"));
-
-		// add node
 		map.get(g).addNode(n);
 	}
 
 	/** Removes node n from graph g. **/
 	public static void removeNode(Graph g, Node n) {
-		// wait some time
-		waitTime(Config.getInt("GRAPH_VIS_WAIT_NODE_REMOVAL"));
-
-		// get graph
 		map.get(g).removeNode(n);
 	}
 
 	/** Changes node weight on node n IN CURRENT GRAPH!!. **/
 	public static void changeNodeWeight(IWeightedNode n, Weight w) {
-		// wait some time
-		waitTime(Config.getInt("GRAPH_VIS_WAIT_NODE_WEIGHT_CHANGE"));
-
-		// get graph
 		currentGraphPanel.changeNodeWeight(n, w);
 	}
 
@@ -179,45 +168,22 @@ public class GraphVisualization {
 
 	/** Adds edge e to graph g. **/
 	public static void addEdge(Graph g, Edge e) {
-		// wait some time
-		waitTime(Config.getInt("GRAPH_VIS_WAIT_EDGE_ADDITION"));
-
-		// add edge
 		map.get(g).addEdge(e);
 	}
 
 	/** Removes edge e from graph g. **/
 	public static void removeEdge(Graph g, Edge e) {
-		// wait some time
-		waitTime(Config.getInt("GRAPH_VIS_WAIT_EDGE_REMOVAL"));
-
-		// get graph
 		map.get(g).removeEdge(e);
 	}
 
 	/** Changes edge weight on edge e IN CURRENT GRAPH!!. **/
 	public static void changeEdgeWeight(IWeightedEdge e, Weight w) {
-		// wait some time
-		waitTime(Config.getInt("GRAPH_VIS_WAIT_EDGE_WEIGHT_CHANGE"));
-
-		// get graph
 		currentGraphPanel.changeEdgeWeight(e, w);
 	}
 
 	/*
 	 * MISC
 	 */
-
-	/** Wait for specified time in milliseconds. **/
-	protected static void waitTime(long milliseconds) {
-		if (Config.getBoolean("GRAPH_VIS_WAIT_ENABLED")) {
-			try {
-				TimeUnit.MILLISECONDS.sleep(milliseconds);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
-		}
-	}
 
 	/** Sets the description text for the given graph. **/
 	public static void setText(Graph g, String text) {

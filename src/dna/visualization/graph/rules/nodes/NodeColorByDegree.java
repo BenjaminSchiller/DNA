@@ -6,7 +6,6 @@ import org.graphstream.graph.Edge;
 import org.graphstream.graph.Node;
 
 import dna.graph.weights.Weight;
-import dna.util.Config;
 import dna.util.parameters.DoubleParameter;
 import dna.util.parameters.Parameter;
 import dna.visualization.graph.rules.GraphStyleRule;
@@ -27,7 +26,7 @@ public class NodeColorByDegree extends GraphStyleRule {
 
 	public NodeColorByDegree(String name, Parameter[] params) {
 		this.name = name;
-		this.amplification = Config.getDouble("GRAPH_VIS_COLOR_AMPLIFICATION");
+		this.amplification = 20;
 
 		for (Parameter p : params) {
 			if (p.getName().toLowerCase().equals("amplification")) {

@@ -4,7 +4,6 @@ import org.graphstream.graph.Edge;
 import org.graphstream.graph.Node;
 
 import dna.graph.weights.Weight;
-import dna.util.Config;
 import dna.util.parameters.DoubleParameter;
 import dna.util.parameters.Parameter;
 import dna.visualization.graph.rules.GraphStyleRule;
@@ -26,8 +25,7 @@ public class NodeSizeByDegree extends GraphStyleRule {
 
 	public NodeSizeByDegree(String name, Parameter[] params) {
 		this.name = name;
-		this.growthFactor = Config
-				.getDouble("GRAPH_VIS_NODE_GROWTH_PER_DEGREE");
+		this.growthFactor = 0.3;
 
 		for (Parameter p : params) {
 			if (p.getName().toLowerCase().equals("growth"))

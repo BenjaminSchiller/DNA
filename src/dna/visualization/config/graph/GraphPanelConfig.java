@@ -49,6 +49,8 @@ public class GraphPanelConfig {
 	protected String nodeColor;
 	protected double edgeSize;
 
+	protected WaitConfig waitConfig;
+
 	protected ProjectionConfig projectionConfig;
 
 	protected CaptureConfig captureConfig;
@@ -66,8 +68,9 @@ public class GraphPanelConfig {
 			double zoomSpeed, double scrollSpeed, boolean toolTipsEnabled,
 			boolean directedEdgeArrowsEnabled, double nodeSize,
 			String nodeColor, double edgeSize, GraphLayouter layouter,
-			double autoLayoutForce, ProjectionConfig projectionConfig,
-			CaptureConfig captureConfig, RulesConfig rules) {
+			double autoLayoutForce, WaitConfig waitConfig,
+			ProjectionConfig projectionConfig, CaptureConfig captureConfig,
+			RulesConfig rules) {
 		this.width = width;
 		this.height = height;
 		this.fullscreen = fullscreen;
@@ -85,6 +88,7 @@ public class GraphPanelConfig {
 		this.edgeSize = edgeSize;
 		this.layouter = layouter;
 		this.autoLayoutForce = autoLayoutForce;
+		this.waitConfig = waitConfig;
 		this.projectionConfig = projectionConfig;
 		this.captureConfig = captureConfig;
 		this.rules = rules;
@@ -103,6 +107,7 @@ public class GraphPanelConfig {
 		GraphPanelConfig def = GraphPanelConfig.defaultGraphPanelConfig;
 
 		// init values
+		WaitConfig waitConfig = null;
 		RulesConfig rules = null;
 		CaptureConfig captureConfig = null;
 		ProjectionConfig projectionConfig = null;
@@ -128,6 +133,7 @@ public class GraphPanelConfig {
 
 		if (def != null) {
 			// read default values
+			waitConfig = def.getWaitConfig();
 			rules = def.getRules();
 			captureConfig = def.getCaptureConfig();
 			projectionConfig = def.getProjectionConfig();
@@ -192,8 +198,7 @@ public class GraphPanelConfig {
 					renderHQ = o.getBoolean(s);
 					break;
 				case "RulesConfig":
-					rules = RulesConfig.getFromJSONObject(o
-							.getJSONObject("RulesConfig"));
+					rules = RulesConfig.getFromJSONObject(o.getJSONObject(s));
 					break;
 				case "ScrollSpeed":
 					scrollSpeed = o.getDouble(s);
@@ -210,6 +215,10 @@ public class GraphPanelConfig {
 				case "ToolTipsEnabled":
 					toolTipsEnabled = o.getBoolean(s);
 					break;
+				case "WaitConfig":
+					waitConfig = WaitConfig.getFromJSONObject(o
+							.getJSONObject(s));
+					break;
 				case "Width":
 					width = o.getInt(s);
 					break;
@@ -224,8 +233,8 @@ public class GraphPanelConfig {
 				statPanelEnabled, textPanelEnabled, timestampFormat, renderHQ,
 				renderAA, zoomSpeed, scrollSpeed, toolTipsEnabled,
 				directedEdgeArrowsEnabled, nodeSize, nodeColor, edgeSize,
-				layouter, autoLayoutForce, projectionConfig, captureConfig,
-				rules);
+				layouter, autoLayoutForce, waitConfig, projectionConfig,
+				captureConfig, rules);
 	}
 
 	public static GraphPanelConfig getDefaultConfig() {
@@ -450,4 +459,13 @@ public class GraphPanelConfig {
 	public void setAutoLayoutForce(double autoLayoutForce) {
 		this.autoLayoutForce = autoLayoutForce;
 	}
+
+	public WaitConfig getWaitConfig() {
+		return waitConfig;
+	}
+
+	public void setWaitConfig(WaitConfig waitConfig) {
+		this.waitConfig = waitConfig;
+	}
+
 }
