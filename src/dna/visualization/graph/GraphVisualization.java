@@ -94,8 +94,17 @@ public class GraphVisualization {
 		// main frame
 		JFrame mainFrame = new JFrame("Graph-Vis Mainframe");
 
-		GraphPanelConfig cfg = GraphPanelConfig.defaultGraphPanelConfig;
-		cfg = GraphPanelConfig.readConfig("config/gvis/min.cfg");
+		// GraphPanelConfig cfg = GraphPanelConfig.defaultGraphPanelConfig;
+
+		// read config or take default config
+		String configPath = getConfigPath();
+		GraphPanelConfig cfg = null;
+		if (configPath != null && !configPath.equals("null"))
+			cfg = GraphPanelConfig.readConfig(configPath);
+		if (cfg == null)
+			cfg = GraphPanelConfig.defaultGraphPanelConfig;
+
+		// init graph panel
 		GraphPanel panel = new GraphPanel(mainFrame, graph, name, name, mode,
 				cfg);
 
@@ -288,4 +297,15 @@ public class GraphVisualization {
 
 		return new float[] { x, y, z };
 	}
+
+	/** Sets the config path to be used. **/
+	public static void setConfigPath(String path) {
+		Config.overwrite("GRAPH_VIS_CONFIG_PATH", path);
+	}
+
+	/** Returns the current config path. **/
+	public static String getConfigPath() {
+		return Config.get("GRAPH_VIS_CONFIG_PATH");
+	}
+
 }
