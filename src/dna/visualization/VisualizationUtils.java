@@ -27,6 +27,7 @@ import dna.io.filesystem.Files;
 import dna.io.filter.SuffixFilenameFilter;
 import dna.util.Config;
 import dna.util.Log;
+import dna.visualization.config.graph.CaptureConfig;
 import dna.visualization.graph.GraphPanel;
 import dna.visualization.graph.GraphVisualization;
 
@@ -473,6 +474,14 @@ public class VisualizationUtils {
 					RecordMode.normal);
 		}
 
+		public VideoRecorder(Component srcComponent, CaptureConfig cfg,
+				RecordMode recordMode) {
+			this(srcComponent, VisualizationUtils.getVideoPath(srcComponent),
+					cfg.getVideoMaximumLength(), cfg.getVideoRecordFps(), cfg
+							.getVideoFileFps(), cfg.isVideoBufferImagesOnFs(),
+					recordMode);
+		}
+
 		public VideoRecorder(Component srcComponent, String dstPath,
 				int timeInSeconds, int recordFps, int videoFps,
 				boolean bufferOnFilesystem, RecordMode mode) {
@@ -623,9 +632,22 @@ public class VisualizationUtils {
 					.getName());
 		}
 
+		/** Updates the destination path. **/
+		public void updateDestinationPath(Component srcComponent) {
+			this.dstPath = VisualizationUtils.getVideoPath(srcComponent);
+		}
+
 		/** Updates the recording component. **/
 		public void updateSourceComponent(Component srcComponent) {
 			this.srcComponent = srcComponent;
+		}
+
+		/** Updates the configurable parameters. **/
+		public void updateConfiguration(CaptureConfig cfg) {
+			this.timeInSeconds = cfg.getVideoMaximumLength();
+			this.recordFps = cfg.getVideoRecordFps();
+			this.videoFps = cfg.getVideoFileFps();
+			this.bufferOnFilesystem = cfg.isVideoBufferImagesOnFs();
 		}
 
 		/** Captures the video step by step. **/

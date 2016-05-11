@@ -1,38 +1,43 @@
 package dna.visualization.config.graph;
 
 import dna.visualization.config.JSON.JSONObject;
+import dna.visualization.graph.GraphPanel.RecordArea;
 
 public class CaptureConfig {
 
-	public enum CaptureArea {
-		content, graph, full
-	}
-
-	protected CaptureArea captureArea;
+	protected RecordArea recordArea;
 	protected String videoDir;
 	protected String videoSuffix;
 	protected String videoFilename;
 	protected int videoMaximumLength;
 	protected int videoRecordFps;
+	protected int videoFileFps;
 	protected boolean videoAutoRecord;
+	protected boolean videoUseCodec;
+	protected boolean videoBufferImagesOnFs;
 	protected String screenshotDir;
 	protected String screenshotFormat;
 	protected double screenshotStabilityThreshold;
 	protected int screenshotStabilityTimeout;
 	protected int screenshotForegroundDelay;
 
-	public CaptureConfig(CaptureArea captureArea, String videoDir,
+	public CaptureConfig(RecordArea recordArea, String videoDir,
 			String videoSuffix, String videoFilename, int videoMaximumLength,
-			int videoRecordFps, boolean videoAutoRecord, String screenshotDir,
-			String screenshotFormat, double screenshotStabilityThreshold,
+			int videoRecordFps, int videoFileFps, boolean videoAutoRecord,
+			boolean videoUseCodec, boolean videoBufferImagesOnFs,
+			String screenshotDir, String screenshotFormat,
+			double screenshotStabilityThreshold,
 			int screenshotStabilityTimeout, int screenshotForegroundDelay) {
-		this.captureArea = captureArea;
+		this.recordArea = recordArea;
 		this.videoDir = videoDir;
 		this.videoSuffix = videoSuffix;
 		this.videoFilename = videoFilename;
 		this.videoMaximumLength = videoMaximumLength;
 		this.videoRecordFps = videoRecordFps;
+		this.videoFileFps = videoFileFps;
 		this.videoAutoRecord = videoAutoRecord;
+		this.videoUseCodec = videoUseCodec;
+		this.videoBufferImagesOnFs = videoBufferImagesOnFs;
 		this.screenshotDir = screenshotDir;
 		this.screenshotFormat = screenshotFormat;
 		this.screenshotStabilityThreshold = screenshotStabilityThreshold;
@@ -43,13 +48,16 @@ public class CaptureConfig {
 	public static CaptureConfig getFromJSONObject(JSONObject o) {
 		GraphPanelConfig defGraphPanelConfig = GraphPanelConfig.defaultGraphPanelConfig;
 
-		CaptureArea captureArea = CaptureArea.content;
+		RecordArea recordArea = RecordArea.content;
 		String videoDir = "videos/";
 		String videoSuffix = ".avi";
 		String videoFilename = "null";
 		int videoMaximumLength = 30;
 		int videoRecordFps = 15;
+		int videoFileFps = 15;
 		boolean videoAutoRecord = false;
+		boolean videoUseCodec = true;
+		boolean videoBufferImagesOnFs = true;
 		String screenshotDir = "images/";
 		String screenshotFormat = "png";
 		double screenshotStabilityThreshold = 0.9;
@@ -59,13 +67,16 @@ public class CaptureConfig {
 		if (defGraphPanelConfig != null) {
 			CaptureConfig def = defGraphPanelConfig.getCaptureConfig();
 			// get default values
-			captureArea = def.getCaptureArea();
+			recordArea = def.getRecordArea();
 			videoDir = def.getVideoDir();
 			videoSuffix = def.getVideoSuffix();
 			videoFilename = def.getVideoFilename();
 			videoMaximumLength = def.getVideoMaximumLength();
 			videoRecordFps = def.getVideoRecordFps();
+			videoFileFps = def.getVideoFileFps();
 			videoAutoRecord = def.isVideoAutoRecord();
+			videoUseCodec = def.isVideoUseCodec();
+			videoBufferImagesOnFs = def.isVideoBufferImagesOnFs();
 			screenshotDir = def.getScreenshotDir();
 			screenshotFormat = def.getScreenshotFormat();
 			screenshotStabilityThreshold = def
@@ -77,8 +88,8 @@ public class CaptureConfig {
 		if (JSONObject.getNames(o) != null) {
 			for (String s : JSONObject.getNames(o)) {
 				switch (s) {
-				case "CaptureArea":
-					captureArea = CaptureArea.valueOf(o.getString(s));
+				case "RecordArea":
+					recordArea = RecordArea.valueOf(o.getString(s));
 					break;
 				case "ScreenshotDir":
 					screenshotDir = o.getString(s);
@@ -98,8 +109,14 @@ public class CaptureConfig {
 				case "VideoAutoRecord":
 					videoAutoRecord = o.getBoolean(s);
 					break;
+				case "VideoBufferImagesOnFs":
+					videoBufferImagesOnFs = o.getBoolean(s);
+					break;
 				case "VideoDir":
 					videoDir = o.getString(s);
+					break;
+				case "VideoFileFps":
+					videoFileFps = o.getInt(s);
 					break;
 				case "VideoFilename":
 					videoFilename = o.getString(s);
@@ -113,19 +130,23 @@ public class CaptureConfig {
 				case "VideoSuffix":
 					videoSuffix = o.getString(s);
 					break;
+				case "VideoUseCodec":
+					videoUseCodec = o.getBoolean(s);
+					break;
 				}
 			}
 		}
 
-		return new CaptureConfig(captureArea, videoDir, videoSuffix,
+		return new CaptureConfig(recordArea, videoDir, videoSuffix,
 				videoFilename, videoMaximumLength, videoRecordFps,
-				videoAutoRecord, screenshotDir, screenshotFormat,
+				videoFileFps, videoAutoRecord, videoUseCodec,
+				videoBufferImagesOnFs, screenshotDir, screenshotFormat,
 				screenshotStabilityThreshold, screenshotStabilityTimeout,
 				screenshotForegroundDelay);
 	}
 
-	public CaptureArea getCaptureArea() {
-		return captureArea;
+	public RecordArea getRecordArea() {
+		return recordArea;
 	}
 
 	public String getVideoDir() {
@@ -172,8 +193,8 @@ public class CaptureConfig {
 		return screenshotForegroundDelay;
 	}
 
-	public void setCaptureArea(CaptureArea captureArea) {
-		this.captureArea = captureArea;
+	public void setRecordArea(RecordArea recordArea) {
+		this.recordArea = recordArea;
 	}
 
 	public void setVideoDir(String videoDir) {
@@ -221,4 +242,27 @@ public class CaptureConfig {
 		this.screenshotForegroundDelay = screenshotForegroundDelay;
 	}
 
+	public boolean isVideoUseCodec() {
+		return videoUseCodec;
+	}
+
+	public void setVideoUseCodec(boolean videoUseCodec) {
+		this.videoUseCodec = videoUseCodec;
+	}
+
+	public int getVideoFileFps() {
+		return videoFileFps;
+	}
+
+	public void setVideoFileFps(int videoFileFps) {
+		this.videoFileFps = videoFileFps;
+	}
+
+	public boolean isVideoBufferImagesOnFs() {
+		return videoBufferImagesOnFs;
+	}
+
+	public void setVideoBufferImagesOnFs(boolean videoBufferImagesOnFs) {
+		this.videoBufferImagesOnFs = videoBufferImagesOnFs;
+	}
 }
