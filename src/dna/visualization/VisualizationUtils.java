@@ -49,15 +49,15 @@ public class VisualizationUtils {
 	/** Capture a screenshot of the JFrame. **/
 	public static void captureScreenshot(Component c) {
 		VisualizationUtils.captureScreenshot(c,
-				Config.get("GRAPH_VIS_SCREENSHOT_DIR"), null,
-				Config.get("GRAPH_VIS_SCREENSHOT_FORMAT"));
+				Config.get("VIS_SCREENSHOT_DIR"), null,
+				Config.get("VIS_SCREENSHOT_FORMAT"));
 	}
 
 	/** Capture a screenshot of the JFrame. **/
 	public static void captureScreenshot(Component c, String dstDir,
 			String filename) {
 		VisualizationUtils.captureScreenshot(c, dstDir, filename,
-				Config.get("GRAPH_VIS_SCREENSHOT_FORMAT"));
+				Config.get("VIS_SCREENSHOT_FORMAT"));
 	}
 
 	/** Captures a screenshot after some milliseconds. **/
@@ -69,7 +69,7 @@ public class VisualizationUtils {
 			e.printStackTrace();
 		}
 		VisualizationUtils.captureScreenshot(c, dstDir, filename,
-				Config.get("GRAPH_VIS_SCREENSHOT_FORMAT"));
+				Config.get("VIS_SCREENSHOT_FORMAT"));
 	}
 
 	/** Capture a screenshot of the JFrame. **/
@@ -128,8 +128,8 @@ public class VisualizationUtils {
 		VisualizationUtils.captureVideo(p,
 				VisualizationUtils.getVideoPath(p.getName()), null,
 				lengthInSeconds,
-				Config.getInt("GRAPH_VIS_VIDEO_DEFAULT_RECORDING_FPS"),
-				Config.getInt("GRAPH_VIS_VIDEO_DEFAULT_FPS"));
+				Config.getInt("VIS_VIDEO_DEFAULT_RECORDING_FPS"),
+				Config.getInt("VIS_VIDEO_DEFAULT_FPS"));
 	}
 
 	/** Captures a video of the most current GraphVisualization-Frame. **/
@@ -161,26 +161,26 @@ public class VisualizationUtils {
 			IOException {
 		VisualizationUtils.captureVideo(c,
 				VisualizationUtils.getVideoPath(c.getName()), null,
-				Config.getInt("GRAPH_VIS_VIDEO_MAXIMUM_LENGTH_IN_SECONDS"),
-				Config.getInt("GRAPH_VIS_VIDEO_DEFAULT_RECORDING_FPS"),
-				Config.getInt("GRAPH_VIS_VIDEO_DEFAULT_FPS"));
+				Config.getInt("VIS_VIDEO_MAXIMUM_LENGTH_IN_SECONDS"),
+				Config.getInt("VIS_VIDEO_DEFAULT_RECORDING_FPS"),
+				Config.getInt("VIS_VIDEO_DEFAULT_FPS"));
 	}
 
 	/** Captures a video from the given Component to the destination-path. **/
 	public static void captureVideo(Component c, String dstDir)
 			throws InterruptedException, IOException {
 		VisualizationUtils.captureVideo(c, dstDir, null,
-				Config.getInt("GRAPH_VIS_VIDEO_MAXIMUM_LENGTH_IN_SECONDS"),
-				Config.getInt("GRAPH_VIS_VIDEO_DEFAULT_RECORDING_FPS"),
-				Config.getInt("GRAPH_VIS_VIDEO_DEFAULT_FPS"));
+				Config.getInt("VIS_VIDEO_MAXIMUM_LENGTH_IN_SECONDS"),
+				Config.getInt("VIS_VIDEO_DEFAULT_RECORDING_FPS"),
+				Config.getInt("VIS_VIDEO_DEFAULT_FPS"));
 	}
 
 	/** Captures a video from the given Component to the destination-path. **/
 	public static void captureVideo(Component c, String dstDir,
 			int lengthInSeconds) throws InterruptedException, IOException {
 		VisualizationUtils.captureVideo(c, dstDir, null, lengthInSeconds,
-				Config.getInt("GRAPH_VIS_VIDEO_DEFAULT_RECORDING_FPS"),
-				Config.getInt("GRAPH_VIS_VIDEO_DEFAULT_FPS"));
+				Config.getInt("VIS_VIDEO_DEFAULT_RECORDING_FPS"),
+				Config.getInt("VIS_VIDEO_DEFAULT_FPS"));
 	}
 
 	/** Captures a video from the given Component to the destination-path. **/
@@ -219,24 +219,22 @@ public class VisualizationUtils {
 	public static void renderVideo(File file, BufferedImage[] frames)
 			throws IOException {
 		VisualizationUtils.renderVideo(file, frames,
-				Config.getInt("GRAPH_VIS_VIDEO_DEFAULT_FPS"),
-				Config.getBoolean("GRAPH_VIS_VIDEO_USE_TECHSMITH"));
+				Config.getInt("VIS_VIDEO_DEFAULT_FPS"),
+				Config.getBoolean("VIS_VIDEO_USE_TECHSMITH"));
 	}
 
 	/** Renders a video from the given jpeg frames. **/
 	public static void renderVideo(File file, BufferedImage[] frames, int fps)
 			throws IOException {
 		VisualizationUtils.renderVideo(file, frames, fps,
-				Config.getBoolean("GRAPH_VIS_VIDEO_USE_TECHSMITH"));
+				Config.getBoolean("VIS_VIDEO_USE_TECHSMITH"));
 	}
 
 	/** Renders a video from the given jpeg frames. **/
 	public static void renderVideo(File file, BufferedImage[] frames,
 			boolean useTecHSmithCodec) throws IOException {
-		VisualizationUtils
-				.renderVideo(file, frames,
-						Config.getInt("GRAPH_VIS_VIDEO_DEFAULT_FPS"),
-						useTecHSmithCodec);
+		VisualizationUtils.renderVideo(file, frames,
+				Config.getInt("VIS_VIDEO_DEFAULT_FPS"), useTecHSmithCodec);
 	}
 
 	/** Renders a video from the given jpeg frames. **/
@@ -351,13 +349,13 @@ public class VisualizationUtils {
 	/** Returns the video path for the name. **/
 	public static String getVideoPath(String name) {
 		// craft filename
-		String dir = Config.get("GRAPH_VIS_VIDEO_DIR");
-		String suffix = Config.get("GRAPH_VIS_VIDEO_SUFFIX");
+		String dir = Config.get("VIS_VIDEO_DIR");
+		String suffix = Config.get("VIS_VIDEO_SUFFIX");
 		DateFormat df = new SimpleDateFormat("yyyy_MM_dd-HH_mm_ss");
 		String filename = name + "-" + df.format(new Date());
 
-		if (!Config.get("GRAPH_VIS_VIDEO_FILENAME").equals("null"))
-			return dir + Config.get("GRAPH_VIS_VIDEO_FILENAME") + suffix;
+		if (!Config.get("VIS_VIDEO_FILENAME").equals("null"))
+			return dir + Config.get("VIS_VIDEO_FILENAME") + suffix;
 
 		// get name
 		File file = new File(dir + filename + suffix);
@@ -383,9 +381,9 @@ public class VisualizationUtils {
 			filename = ((GraphPanel) c).getGraphPanelConfig()
 					.getCaptureConfig().getVideoFilename();
 		} else {
-			dir = Config.get("GRAPH_VIS_VIDEO_DIR");
-			suffix = Config.get("GRAPH_VIS_VIDEO_SUFFIX");
-			filename = Config.get("GRAPH_VIS_VIDEO_FILENAME");
+			dir = Config.get("VIS_VIDEO_DIR");
+			suffix = Config.get("VIS_VIDEO_SUFFIX");
+			filename = Config.get("VIS_VIDEO_FILENAME");
 		}
 
 		if (!filename.equals("null"))
@@ -464,13 +462,11 @@ public class VisualizationUtils {
 		}
 
 		public VideoRecorder(Component srcComponent, String dstPath) {
-			this(
-					srcComponent,
-					dstPath,
-					Config.getInt("GRAPH_VIS_VIDEO_MAXIMUM_LENGTH_IN_SECONDS"),
-					Config.getInt("GRAPH_VIS_VIDEO_DEFAULT_RECORDING_FPS"),
-					Config.getInt("GRAPH_VIS_VIDEO_DEFAULT_FPS"),
-					Config.getBoolean("GRAPH_VIS_VIDEO_BUFFER_IMAGES_ON_FILESYSTEM"),
+			this(srcComponent, dstPath, Config
+					.getInt("VIS_VIDEO_MAXIMUM_LENGTH_IN_SECONDS"), Config
+					.getInt("VIS_VIDEO_DEFAULT_RECORDING_FPS"), Config
+					.getInt("VIS_VIDEO_DEFAULT_FPS"), Config
+					.getBoolean("VIS_VIDEO_BUFFER_IMAGES_ON_FILESYSTEM"),
 					RecordMode.normal);
 		}
 
@@ -705,7 +701,7 @@ public class VisualizationUtils {
 
 			// render video
 			this.renderVideo(imagesList, format, dstPath, videoFps,
-					Config.getBoolean("GRAPH_VIS_VIDEO_USE_TECHSMITH"));
+					Config.getBoolean("VIS_VIDEO_USE_TECHSMITH"));
 		}
 
 		/** Captures a video from the given JFrame to the destination-path. **/
@@ -811,7 +807,7 @@ public class VisualizationUtils {
 
 				// render video
 				this.renderVideo(imagesList, "png", dstPath, videoFps,
-						Config.getBoolean("GRAPH_VIS_VIDEO_USE_TECHSMITH"));
+						Config.getBoolean("VIS_VIDEO_USE_TECHSMITH"));
 			}
 		}
 
@@ -961,7 +957,7 @@ public class VisualizationUtils {
 		protected String createTempDir() {
 			DateFormat df = new SimpleDateFormat("yyyy_MM_dd-HH_mm_ss");
 
-			String tempDir = Config.get("GRAPH_VIS_VIDEO_DIR") + this.id
+			String tempDir = Config.get("VIS_VIDEO_DIR") + this.id
 					+ Config.get("FILE_NAME_DELIMITER") + df.format(new Date())
 					+ Dir.tempSuffix + Dir.delimiter;
 
