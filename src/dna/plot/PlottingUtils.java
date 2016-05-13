@@ -3826,69 +3826,6 @@ public class PlottingUtils {
 		for (Plot p : defaultPlots)
 			p.writeScriptHeader();
 
-		// iterate over batches
-
-		// for(int i = 0; i< seriesData.length; i++) {
-		//
-		// }
-		//
-		//
-		//
-		//
-		// for (int i = 0; i < batches.length; i++) {
-		// System.out.println("BATCH." + i + "\ttimestamp: " + timestamps[i]
-		// + "\t* " + batches[i]);
-		// long timestamp = Dir.getTimestamp(batches[i]);
-		//
-		// IBatch[] batchData = new IBatch[seriesData.length];
-		//
-		// // read batches for each series
-		// for (int j = 0; j < seriesData.length; j++) {
-		// SeriesData series = seriesData[j];
-		// String tempDir = "";
-		//
-		// // read
-		// try {
-		// if (aggregatedBatches) {
-		// tempDir = Dir.getAggregationDataDir(series.getDir());
-		// batchData[j] = AggregatedBatch.readIntelligent(
-		// Dir.getBatchDataDir(tempDir, timestamp),
-		// timestamp, BatchReadMode.readOnlySingleValues);
-		// } else {
-		// tempDir = Dir
-		// .getRunDataDir(series.getDir(), indizes[j]);
-		// batchData[j] = BatchData.readIntelligent(
-		// Dir.getBatchDataDir(tempDir, timestamp),
-		// timestamp, BatchReadMode.readOnlySingleValues);
-		// }
-		// } catch (FileNotFoundException e) {
-		// if (zippedBatches || zippedRuns) {
-		// if (ZipReader.isZipOpen())
-		// ZipReader.closeReadFilesystem();
-		// String remDir = tempDir
-		// + Config.get("PREFIX_BATCHDATA_DIR")
-		// + timestamp + Config.get("SUFFIX_ZIP_FILE");
-		// Log.debug("removing unnecessary zipfile: " + remDir);
-		// Files.delete(new File(remDir));
-		// }
-		//
-		// batchData[j] = null;
-		// }
-		// }
-		//
-		// // feed data to plots
-		//
-		// // add data to custom plots
-		// for (Plot p : plots) {
-		// System.out.println("DEBUG: i: " + i + "\t" + p.getKey());
-		// // check how often the series is used in the plot
-		// for (int j = 0; j < p.getSeriesDataQuantity(i); j++) {
-		// // add data to plot
-		// p.addDataSequentially(batchData);
-		// }
-		// }
-		// }
-
 		// add data to plots
 		for (int i = 0; i < seriesData.length; i++) {
 			SeriesData series = seriesData[i];
