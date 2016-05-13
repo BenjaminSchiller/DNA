@@ -23,6 +23,8 @@ public class PlotLabel {
 	public static final String LABEL_VALUE_PLACEHOLDER = "$label_value$";
 
 	public static final String gnuplotDefaultKeyPlotLabelText = "GNUPLOT_DEFAULT_PLOT_LABEL_TEXT";
+	public static final String gnuplotFirstPlotLabelText = "GNUPLOT_LABEL_FIRST_TEXT";
+	public static final String gnuplotSuccessivePlotLabelText = "GNUPLOT_LABEL_SUCCESSIVE_TEXT_FIRST";
 
 	public static final double idOffset = Config
 			.getDouble("GNUPLOT_LABEL_Y_OFFSET");
@@ -152,6 +154,12 @@ public class PlotLabel {
 	/** Crafts a PlotLabel based on the given Label. **/
 	public static PlotLabel generatePlotLabel(double timestamp, Label label,
 			int id, boolean beneathGraph) {
+		return generatePlotLabel(timestamp, label, id, "2", beneathGraph);
+	}
+
+	/** Crafts a PlotLabel based on the given Label. **/
+	public static PlotLabel generatePlotLabel(double timestamp, Label label,
+			int id, String pointType, boolean beneathGraph) {
 		String timestampString;
 		if (Config.getBoolean("GNUPLOT_LABEL_BIG_TIMESTAMPS")) {
 			timestampString = '"' + "" + timestamp + '"';
@@ -159,9 +167,13 @@ public class PlotLabel {
 			timestampString = "" + timestamp;
 		}
 
-		return new PlotLabel("", timestampString, "graph "
+		String plotLabelText = Config
+				.getBoolean("GNUPLOT_LABEL_SHOW_TEXT_ONLY_ONCE") ? ""
+				: getSuccessivePlotLabelText(label);
+
+		return new PlotLabel(plotLabelText, timestampString, "graph "
 				+ calculatePosition(id, beneathGraph), Orientation.right, "lt "
-				+ (id + lineTypeOffset) + " pt 2");
+				+ (id + lineTypeOffset) + " pt " + pointType);
 	}
 
 	/** Crafts the first PlotLabel based on the given Label. **/
@@ -180,7 +192,11 @@ public class PlotLabel {
 			timestampString = "" + timestamp;
 		}
 
-		return new PlotLabel(getPlotLabelText(label), timestampString, "graph "
+		String plotLabelText = Config
+				.getBoolean("GNUPLOT_LABEL_SHOW_TEXT_ONLY_ONCE") ? getDefaultPlotLabelText(label)
+				: getFirstPlotLabelText(label);
+
+		return new PlotLabel(plotLabelText, timestampString, "graph "
 				+ calculatePosition(id, beneathGraph), Orientation.right, "lt "
 				+ (id + lineTypeOffset) + " pt " + pointType);
 	}
@@ -194,11 +210,27 @@ public class PlotLabel {
 	}
 
 	/** Generates the plot-label text. **/
-	public static String getPlotLabelText(Label l) {
-		return Config.get(gnuplotDefaultKeyPlotLabelText)
-				.replace(LABEL_NAME_PLACEHOLDER, l.getName())
+	public static String getDefaultPlotLabelText(Label l) {
+		return getPlotLabelText(Config.get(gnuplotDefaultKeyPlotLabelText), l);
+	}
+
+	/** Generates the first plot-label text for multiple texts **/
+	public static String getFirstPlotLabelText(Label l) {
+		return getPlotLabelText(Config.get(gnuplotFirstPlotLabelText), l);
+	}
+
+	/** Generates the successive plot-label texts. **/
+	public static String getSuccessivePlotLabelText(Label l) {
+		return getPlotLabelText(Config.get(gnuplotSuccessivePlotLabelText), l);
+	}
+
+	/**
+	 * Replaces the placeholders in the replaceString with the proper label
+	 * values.
+	 **/
+	public static String getPlotLabelText(String replaceString, Label l) {
+		return replaceString.replace(LABEL_NAME_PLACEHOLDER, l.getName())
 				.replace(LABEL_TYPE_PLACEHOLDER, l.getType())
 				.replace(LABEL_VALUE_PLACEHOLDER, l.getValue());
 	}
-
 }

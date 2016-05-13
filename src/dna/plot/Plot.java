@@ -1778,7 +1778,8 @@ public class Plot {
 		String[] filteredLabelsArray = Config.keys("GNUPLOT_LABEL_FILTER_LIST");
 		List<String> filteredLabels = Arrays.asList(filteredLabelsArray);
 
-		boolean labelInGraph = Config.getBoolean("GNUPLOT_LABEL_IN_GRAPH");
+		boolean labelBeneathGraph = Config
+				.getBoolean("GNUPLOT_LABEL_BENEATH_GRAPH");
 
 		for (BatchData batch : batchData) {
 			double timestamp = batch.getTimestamp();
@@ -1803,15 +1804,21 @@ public class Plot {
 
 				if (plottedLabels.contains(identifier)) {
 					plotLabel = PlotLabel.generatePlotLabel(timestamp, l,
-							plottedLabels.indexOf(identifier), labelInGraph);
+							plottedLabels.indexOf(identifier),
+							labelBeneathGraph);
 				} else {
 					plottedLabels.add(identifier);
 					plotLabel = PlotLabel.generateFirstPlotLabel(timestamp, l,
-							plottedLabels.indexOf(identifier), labelInGraph);
+							plottedLabels.indexOf(identifier),
+							labelBeneathGraph);
 				}
 				this.addPlotLabel(plotLabel);
 			}
 		}
+
+		// if labels beneath graph -> extend bottom margin
+		if (labelBeneathGraph && this.plottedLabels.size() > 0)
+			this.marginBottom = calculateMarginBottom(this.plottedLabels.size());
 	}
 
 	/** Adds plot-labels to the plot. **/
@@ -1931,6 +1938,11 @@ public class Plot {
 							arrowStyleAdded = true;
 						}
 
+						// add text
+						this.addPlotLabel(PlotLabel.generatePlotLabel(
+								intervalStart.get(index), l, index,
+								"0", labelBeneathGraph));
+						
 						// add arrow
 						PlotArrow a = PlotArrow.getPlotArrowInterval(index,
 								arrowStyleId, start, end, labelBeneathGraph);
