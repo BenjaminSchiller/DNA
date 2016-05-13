@@ -1,6 +1,7 @@
 package dna.metrics.workload;
 
 import dna.graph.Graph;
+import dna.graph.datastructures.count.Counting;
 
 /**
  * 
@@ -42,8 +43,15 @@ public class Workload {
 	 *            g
 	 */
 	public void init(Graph g) {
+		boolean enabled = Counting.isEnabled();
+		if (enabled) {
+			Counting.disable();
+		}
 		for (Operation o : this.operations) {
 			o.init(g);
+		}
+		if (enabled) {
+			Counting.enable();
 		}
 	}
 
