@@ -19,18 +19,22 @@ import dna.updates.generators.BatchGenerator;
 public class IntervalLabeler extends Labeler {
 
 	private static String name = "IntervalLabeler";
+	private static String value = "1";
 
 	private String type;
+	private String v;
 	private long from;
 	private long to;
 
 	public IntervalLabeler(String type, long from, long to) {
-		this(name, type, from, to);
+		this(name, type, value, from, to);
 	}
 
-	public IntervalLabeler(String name, String type, long from, long to) {
+	public IntervalLabeler(String name, String type, String value, long from,
+			long to) {
 		super(name);
 		this.type = type;
+		this.v = value;
 		this.from = from;
 		this.to = to;
 	}
@@ -48,7 +52,7 @@ public class IntervalLabeler extends Labeler {
 
 		if (this.from <= batchData.getTimestamp()
 				&& batchData.getTimestamp() <= this.to)
-			list.add(new Label(name, type, "1"));
+			list.add(new Label(this.getName(), this.type, this.v));
 
 		return list;
 	}
