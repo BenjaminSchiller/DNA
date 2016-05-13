@@ -52,7 +52,9 @@ public class WorkloadMetric extends Metric implements IRecomputation {
 	@Override
 	public boolean recompute() {
 		System.out.println("EXECUTING WORKLOAD: "
-				+ this.workloads[this.currentIndex]);
+				+ this.workloads[this.currentIndex] + " on "
+				+ this.g.getNodes().getClass().getSimpleName() + " / "
+				+ this.g.getEdges().getClass().getSimpleName());
 		Timer initTimer = new Timer();
 		this.workloads[this.currentIndex].init(g);
 		initTimer.end();
@@ -68,6 +70,9 @@ public class WorkloadMetric extends Metric implements IRecomputation {
 			this.currentIndex = (this.currentIndex + 1) % this.workloads.length;
 			this.round = 0;
 		}
+
+		Iterable workloadV = this.g.getNodes();
+		Iterable workloadE = this.g.getEdges();
 
 		return true;
 	}

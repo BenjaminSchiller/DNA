@@ -14,6 +14,7 @@ import dna.graph.datastructures.count.OperationCount;
 import dna.graph.datastructures.count.OperationCounts;
 import dna.graph.datastructures.count.OperationCountsDirected;
 import dna.graph.datastructures.count.OperationCountsUndirected;
+import dna.util.Timer;
 
 /**
  * 
@@ -94,14 +95,19 @@ public class Recommendation {
 			OperationCount oc, int batches, int amortization,
 			Class<? extends IDataStructure> current) {
 		if (oc.isNodes()) {
+			Timer t = new Timer();
 			Collections.sort(this.listNodes,
 					new HotswapComparator(this.map.get(current).nodes, oc,
 							batches, amortization));
+			System.out.println("  nodes: " + t.end());
 			return this.listNodes.get(0).ds;
 		} else {
-			Collections.sort(this.listEdges,
-					new HotswapComparator(this.map.get(current).edges, oc,
-							batches, amortization));
+			Timer t = new Timer();
+			HotswapComparator comp = new HotswapComparator(
+					this.map.get(current).edges, oc, batches, amortization);
+			Collections.sort(this.listEdges, comp);
+			System.out.println("  edges: " + t.end() + " @ "
+					+ comp.t.toString() + " @@ " + comp.count);
 			return this.listEdges.get(0).ds;
 		}
 	}
@@ -137,12 +143,14 @@ public class Recommendation {
 			OperationCountsUndirected ocs, int batches, int amortization,
 			DSConfigUndirected current) {
 		Class<? extends IDataStructure> V, E, adj;
+		Timer t = new Timer();
 		V = this.recommendFastestDatastructure(ocs.V, batches, amortization,
 				current.V);
 		E = this.recommendFastestDatastructure(ocs.E, batches, amortization,
 				current.E);
 		adj = this.recommendFastestDatastructure(ocs.adj, batches,
 				amortization, current.adj);
+		System.out.println("RECOMMENDATION: " + t.end());
 		return new DSConfigUndirected(V, E, adj);
 	}
 }

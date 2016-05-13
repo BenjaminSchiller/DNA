@@ -5,9 +5,11 @@ import java.io.IOException;
 import dna.graph.Graph;
 import dna.graph.datastructures.DArray;
 import dna.graph.datastructures.DArrayList;
+import dna.graph.datastructures.DHashArrayList;
 import dna.graph.datastructures.DHashMap;
 import dna.graph.datastructures.DHashSet;
 import dna.graph.datastructures.DHashTable;
+import dna.graph.datastructures.DLinkedList;
 import dna.graph.datastructures.DataStructure;
 import dna.graph.datastructures.GraphDataStructure;
 import dna.graph.datastructures.IDataStructure;
@@ -41,8 +43,17 @@ public class Hotswap {
 		return enabled;
 	}
 
-	public static int amortization = 10000000;
-	public static int batches = 4;
+	public static int amortization = 1;
+	public static int batches = 1;
+	public static boolean preventUnusedChanges = true;
+
+	public static boolean includeArray = true;
+	public static boolean includeArrayList = true;
+	public static boolean includeHashSet = true;
+	public static boolean includeHashMap = true;
+	public static boolean includeHashTable = true;
+	public static boolean includeHashArrayList = true;
+	public static boolean includeLinkedList = true;
 
 	public static int counter = 0;
 
@@ -55,16 +66,35 @@ public class Hotswap {
 		final String measurements = "measurements_thinner/";
 		CostFunctionsSMap map = new CostFunctionsSMap();
 		try {
-			map.add(CostFunctionsS.read(measurements, DArray.class,
-					DirectedNode.class, DirectedEdge.class));
-			map.add(CostFunctionsS.read(measurements, DArrayList.class,
-					DirectedNode.class, DirectedEdge.class));
-			map.add(CostFunctionsS.read(measurements, DHashSet.class,
-					DirectedNode.class, DirectedEdge.class));
-			map.add(CostFunctionsS.read(measurements, DHashMap.class,
-					DirectedNode.class, DirectedEdge.class));
-			map.add(CostFunctionsS.read(measurements, DHashTable.class,
-					DirectedNode.class, DirectedEdge.class));
+			if (includeArrayList) {
+				map.add(CostFunctionsS.read(measurements, DArray.class,
+						DirectedNode.class, DirectedEdge.class));
+			}
+			if (includeArrayList) {
+				map.add(CostFunctionsS.read(measurements, DArrayList.class,
+						DirectedNode.class, DirectedEdge.class));
+			}
+			if (includeHashSet) {
+				map.add(CostFunctionsS.read(measurements, DHashSet.class,
+						DirectedNode.class, DirectedEdge.class));
+			}
+
+			if (includeHashMap) {
+				map.add(CostFunctionsS.read(measurements, DHashMap.class,
+						DirectedNode.class, DirectedEdge.class));
+			}
+			if (includeHashTable) {
+				map.add(CostFunctionsS.read(measurements, DHashTable.class,
+						DirectedNode.class, DirectedEdge.class));
+			}
+			if (includeHashArrayList) {
+				map.add(CostFunctionsS.read(measurements, DHashArrayList.class,
+						DirectedNode.class, DirectedEdge.class));
+			}
+			if (includeLinkedList) {
+				map.add(CostFunctionsS.read(measurements, DLinkedList.class,
+						DirectedNode.class, DirectedEdge.class));
+			}
 		} catch (NumberFormatException | IOException e) {
 			e.printStackTrace();
 		}
@@ -87,7 +117,8 @@ public class Hotswap {
 		return r.recommendFastestConfig(ocs, batches, amortization, current);
 	}
 
-	public static boolean execute(Graph g, OperationCounts ocs, DSConfig current, DSConfig cfg) {
+	public static boolean execute(Graph g, OperationCounts ocs,
+			DSConfig current, DSConfig cfg) {
 		// System.out.println("HOTSWAP - EXECUTE");
 		double costCurrent = CostEstimation.estimateCosts(current, ocs, r.map);
 		double costRecommendation = CostEstimation.estimateCosts(cfg, ocs,
@@ -96,9 +127,25 @@ public class Hotswap {
 		counter++;
 
 		System.out.println("HOT SWAP (nr " + counter + ") @ "
-				+ (costRecommendation / costCurrent));
+				+ (costRecommendation / costCurrent) + " timestamp = "
+				+ g.getTimestamp());
 		System.out.println("     " + current);
 		System.out.println("  => " + cfg);
+
+		if (!current.V.equals(cfg.V)) {
+			System.out.println("V: " + current.V.getSimpleName() + " => "
+					+ cfg.V.getSimpleName());
+		}
+		if (!current.E.equals(cfg.E)) {
+			System.out.println("E: " + current.E.getSimpleName() + " => "
+					+ cfg.E.getSimpleName());
+		}
+
+		System.out.println("  BEFORE: " + g.getNodes().getClass() + " / "
+				+ g.getEdges().getClass());
+
+		Iterable beforeV = g.getNodes();
+		Iterable beforeE = g.getEdges();
 
 		Counting.disable();
 		DataStructure.disableContainsOnAddition();
@@ -106,11 +153,17 @@ public class Hotswap {
 		DataStructure.enableContainsOnAddition();
 		Counting.enable();
 
+		System.out.println("  AFTER: " + g.getNodes().getClass() + " / "
+				+ g.getEdges().getClass());
+
 		// if (current instanceof DSConfigDirected) {
 		// execute(g, (DSConfigDirected) current, (DSConfigDirected) cfg);
 		// } else {
 		// execute(g, (DSConfigUndirected) current, (DSConfigUndirected) cfg);
 		// }
+
+		Iterable afterV = g.getNodes();
+		Iterable afterE = g.getEdges();
 
 		return true;
 	}
