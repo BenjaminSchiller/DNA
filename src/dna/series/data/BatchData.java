@@ -258,6 +258,7 @@ public class BatchData implements IBatch {
 		case readOnlyLabels:
 			readSingles = false;
 			readLabels = true;
+			break;
 		case readOnlySingleValues:
 			readSingles = true;
 			readLabels = false;
