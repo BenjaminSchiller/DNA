@@ -24,7 +24,7 @@ public class PlotLabel {
 
 	public static final String gnuplotDefaultKeyPlotLabelText = "GNUPLOT_DEFAULT_PLOT_LABEL_TEXT";
 	public static final String gnuplotFirstPlotLabelText = "GNUPLOT_LABEL_FIRST_TEXT";
-	public static final String gnuplotSuccessivePlotLabelText = "GNUPLOT_LABEL_SUCCESSIVE_TEXT_FIRST";
+	public static final String gnuplotSuccessivePlotLabelText = "GNUPLOT_LABEL_SUCCESSIVE_TEXT";
 
 	public static final double idOffset = Config
 			.getDouble("GNUPLOT_LABEL_Y_OFFSET");
