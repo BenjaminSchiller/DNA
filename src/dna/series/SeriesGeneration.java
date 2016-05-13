@@ -430,7 +430,7 @@ public class SeriesGeneration {
 		// finally close labellistwriter
 		if (labelListWriter != null)
 			labelListWriter.close();
-		
+
 		// return structure run without data
 		return new RunData(run,
 				structBatches.toArray(new BatchData[structBatches.size()]));
@@ -581,8 +581,11 @@ public class SeriesGeneration {
 		return initialData;
 	}
 
-	private static BatchData computeNextBatch(Batch b, Series series,
+	private static BatchData computeNextBatch(Series series,
 			Algorithms algorithms) throws MetricNotApplicableException {
+		// generate next batch
+		Batch b = series.getBatchGenerator().generate(series.getGraph());
+
 		// check applicability to batch
 		for (IMetric m : series.getMetrics()) {
 			if (!m.isApplicable(b)) {
@@ -665,12 +668,9 @@ public class SeriesGeneration {
 
 	public static BatchData generateNextBatch(Series series,
 			Algorithms algorithms) throws MetricNotApplicableException {
-		// generate next batch
-		Batch b = series.getBatchGenerator().generate(series.getGraph());
-		Log.info("    " + b.toString());
 
 		// compute next batchdata
-		BatchData batchData = computeNextBatch(b, series, algorithms);
+		BatchData batchData = computeNextBatch(series, algorithms);
 
 		// add values
 		batchData.getValues().add(
