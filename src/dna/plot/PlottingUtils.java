@@ -3820,10 +3820,62 @@ public class PlottingUtils {
 					timestampMap);
 		}
 
+		// add labels to plots
+		for (int i = 0; i < seriesData.length; i++) {
+			SeriesData series = seriesData[i];
+			String tempDir = "";
+			if (aggregatedBatches)
+				tempDir = Dir.getAggregationDataDir(series.getDir());
+			else
+				tempDir = Dir.getRunDataDir(series.getDir(), indizes[i]);
+
+			// read single values
+			IBatch[] batchData;
+			if (aggregatedBatches) {
+				// no labels in aggregated batches
+				batchData = new AggregatedBatch[0];
+			} else {
+				batchData = new BatchData[batches.length];
+				for (int j = 0; j < batches.length; j++) {
+					long timestamp = Dir.getTimestamp(batches[j]);
+					try {
+						batchData[j] = BatchData.readIntelligent(
+								Dir.getBatchDataDir(tempDir, timestamp),
+								timestamp, BatchReadMode.readOnlyLabels);
+					} catch (FileNotFoundException e) {
+						if (zippedBatches) {
+							ZipReader.closeReadFilesystem();
+							String remDir = tempDir
+									+ Config.get("PREFIX_BATCHDATA_DIR")
+									+ timestamp + Config.get("SUFFIX_ZIP_FILE");
+							Log.debug("removing unnecessary zipfile: " + remDir);
+							Files.delete(new File(remDir));
+						}
+
+						batchData[j] = null;
+					}
+				}
+			}
+
+			// add labels to default plots
+			for (Plot p : defaultPlots) {
+				// add labels
+				if (p.isPlotLabels())
+					p.addPlotLabels(batchData);
+			}
+
+			// add labels to custom plots
+			for (Plot p : plots) {
+				// add labels
+				if (p.isPlotLabels())
+					p.addPlotLabels(batchData);
+			}
+		}
+
 		// write script headers
-		for (Plot p : plots)
-			p.writeScriptHeader();
 		for (Plot p : defaultPlots)
+			p.writeScriptHeader();
+		for (Plot p : plots)
 			p.writeScriptHeader();
 
 		// add data to plots
@@ -3889,6 +3941,7 @@ public class PlottingUtils {
 					// add data to plot
 					p.addDataSequentially(batchData);
 				}
+
 			}
 
 			// add data to custom plots

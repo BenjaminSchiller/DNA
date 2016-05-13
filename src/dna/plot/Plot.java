@@ -66,7 +66,7 @@ public class Plot {
 	private ArrayList<PlotLabel> plotLabels;
 	private ArrayList<PlotArrow> plotArrows;
 	private ArrayList<String> plotArrowStyles;
-	private ArrayList<String> plottedLabels;
+	private ArrayList<String> overallPlottedLabels;
 
 	// sorting
 	private boolean sorted;
@@ -133,7 +133,7 @@ public class Plot {
 		this.plotLabels = new ArrayList<PlotLabel>();
 		this.plotArrows = new ArrayList<PlotArrow>();
 		this.plotArrowStyles = new ArrayList<String>();
-		this.plottedLabels = new ArrayList<String>();
+		this.overallPlottedLabels = new ArrayList<String>();
 		this.marginBottom = 0;
 		this.sorted = false;
 
@@ -1802,14 +1802,14 @@ public class Plot {
 				if (filteredLabels.contains(identifier))
 					continue;
 
-				if (plottedLabels.contains(identifier)) {
+				if (overallPlottedLabels.contains(identifier)) {
 					plotLabel = PlotLabel.generatePlotLabel(timestamp, l,
-							plottedLabels.indexOf(identifier),
+							overallPlottedLabels.indexOf(identifier),
 							labelBeneathGraph);
 				} else {
-					plottedLabels.add(identifier);
+					overallPlottedLabels.add(identifier);
 					plotLabel = PlotLabel.generateFirstPlotLabel(timestamp, l,
-							plottedLabels.indexOf(identifier),
+							overallPlottedLabels.indexOf(identifier),
 							labelBeneathGraph);
 				}
 				this.addPlotLabel(plotLabel);
@@ -1817,8 +1817,9 @@ public class Plot {
 		}
 
 		// if labels beneath graph -> extend bottom margin
-		if (labelBeneathGraph && this.plottedLabels.size() > 0)
-			this.marginBottom = calculateMarginBottom(this.plottedLabels.size());
+		if (labelBeneathGraph && overallPlottedLabels.size() > 0)
+			this.marginBottom = calculateMarginBottom(this.overallPlottedLabels
+					.size());
 	}
 
 	/** Adds plot-labels to the plot. **/
@@ -1837,6 +1838,8 @@ public class Plot {
 
 		ArrayList<Double> intervalStart = new ArrayList<Double>();
 		ArrayList<Double> intervalEnd = new ArrayList<Double>();
+
+		ArrayList<String> plottedLabels = new ArrayList<String>();
 
 		String[] filteredLabelsArray = Config.keys("GNUPLOT_LABEL_FILTER_LIST");
 		List<String> filteredLabels = Arrays.asList(filteredLabelsArray);
@@ -1873,14 +1876,18 @@ public class Plot {
 					continue;
 
 				if (!plottedLabels.contains(identifier)) {
+					if (!this.overallPlottedLabels.contains(identifier))
+						this.overallPlottedLabels.add(identifier);
+
 					plottedLabels.add(identifier);
 					this.addPlotLabel(PlotLabel.generateFirstPlotLabel(
-							timestamp, l, plottedLabels.indexOf(identifier),
-							"0", labelBeneathGraph));
-					intervalStart.add(plottedLabels.indexOf(identifier),
-							timestamp);
-					intervalEnd.add(plottedLabels.indexOf(identifier),
-							timestamp);
+							timestamp, l,
+							overallPlottedLabels.indexOf(identifier), "0",
+							labelBeneathGraph));
+
+					int index = plottedLabels.indexOf(identifier);
+					intervalStart.add(index, timestamp);
+					intervalEnd.add(index, timestamp);
 				}
 			}
 
@@ -1888,6 +1895,9 @@ public class Plot {
 			for (Label l : llist.getList()) {
 				// get index of label
 				String identifier = l.getName() + ":" + l.getType();
+
+				int overallIndex = this.overallPlottedLabels
+						.indexOf(identifier);
 
 				// if supposed to filter -> filter
 				if (filteredLabels.contains(identifier))
@@ -1929,7 +1939,7 @@ public class Plot {
 					if (start == end) {
 						// add point
 						this.addPlotLabel(PlotLabel.generatePlotLabel(
-								timestamp, l, index, labelBeneathGraph));
+								timestamp, l, overallIndex, labelBeneathGraph));
 					} else {
 						if (!arrowStyleAdded) {
 							String arrowStyle = PlotArrow
@@ -1940,12 +1950,13 @@ public class Plot {
 
 						// add text
 						this.addPlotLabel(PlotLabel.generatePlotLabel(
-								intervalStart.get(index), l, index,
-								"0", labelBeneathGraph));
-						
+								intervalStart.get(index), l, overallIndex, "0",
+								labelBeneathGraph));
+
 						// add arrow
-						PlotArrow a = PlotArrow.getPlotArrowInterval(index,
-								arrowStyleId, start, end, labelBeneathGraph);
+						PlotArrow a = PlotArrow.getPlotArrowInterval(
+								overallIndex, arrowStyleId, start, end,
+								labelBeneathGraph);
 						this.addPlotArrow(a);
 					}
 
@@ -1956,8 +1967,9 @@ public class Plot {
 		}
 
 		// if labels beneath graph -> extend bottom margin
-		if (labelBeneathGraph && this.plottedLabels.size() > 0)
-			this.marginBottom = calculateMarginBottom(this.plottedLabels.size());
+		if (labelBeneathGraph && this.overallPlottedLabels.size() > 0)
+			this.marginBottom = calculateMarginBottom(overallPlottedLabels
+					.size());
 	}
 
 	/** Calculates the bottom margin based on the amount of labels. **/
