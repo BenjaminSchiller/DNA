@@ -268,4 +268,12 @@ public class OperationCount {
 				|| this.lt.equals(ListType.LocalNodeList);
 	}
 
+	public long getSum() {
+		return this.INIT + this.ADD_SUCCESS + this.ADD_FAILURE
+				+ this.RANDOM_ELEMENT + this.SIZE + this.ITERATE
+				+ this.CONTAINS_SUCCESS + this.CONTAINS_FAILURE
+				+ this.GET_SUCCESS + this.GET_FAILURE + this.REMOVE_SUCCESS
+				+ this.REMOVE_FAILURE;
+	}
+
 }

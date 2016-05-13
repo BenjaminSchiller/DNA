@@ -43,6 +43,16 @@ public class GDS {
 				UndirectedNode.class, UndirectedEdge.class);
 	}
 
+	public static GraphDataStructure undirected(
+			Class<? extends IDataStructure> V,
+			Class<? extends IDataStructure> E,
+			Class<? extends IDataStructure> adj) {
+		return new GraphDataStructure(GraphDataStructure.getList(
+				ListType.GlobalNodeList, V, ListType.GlobalEdgeList, E,
+				ListType.LocalEdgeList, adj), UndirectedNode.class,
+				UndirectedEdge.class);
+	}
+
 	public static GraphDataStructure directedV(Class<? extends Weight> nw,
 			WeightSelection nws) {
 		return gds(DirectedWeightedNode.class, DirectedEdge.class, nw, nws,
