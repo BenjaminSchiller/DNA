@@ -1,4 +1,4 @@
-package dna.labels.labeler.test;
+package dna.labels.labeler.util;
 
 import java.util.ArrayList;
 

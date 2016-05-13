@@ -1,4 +1,4 @@
-package dna.labels.labeler.test;
+package dna.labels.labeler.util;
 
 import java.util.ArrayList;
 
@@ -12,7 +12,7 @@ import dna.updates.batch.Batch;
 import dna.updates.generators.BatchGenerator;
 
 /**
- * A labeler who always puts his label. <br>
+ * A labeler who puts his label on to every second batch. <br>
  * <br>
  * 
  * Primarily used for testing purposes.
@@ -20,14 +20,16 @@ import dna.updates.generators.BatchGenerator;
  * @author Rwilmes
  * 
  */
-public class AlwaysLabeler extends Labeler {
+public class AlternatingLabeler extends Labeler {
 
-	private static String name = "AlwaysLabeler";
+	private static String name = "AlternatingLabeler";
+	private static Label alternatingLabel = new Label(name, "type", "true");
 
-	private static Label alwaysLabel = new Label(name, "label", "1");
+	public boolean flag;
 
-	public AlwaysLabeler() {
+	public AlternatingLabeler() {
 		super(name);
+		flag = true;
 	}
 
 	@Override
@@ -40,7 +42,10 @@ public class AlwaysLabeler extends Labeler {
 	public ArrayList<Label> computeLabels(Graph g, Batch batch,
 			BatchData batchData, IMetric[] metrics) {
 		ArrayList<Label> list = new ArrayList<Label>();
-		list.add(alwaysLabel);
+		if (flag)
+			list.add(alternatingLabel);
+
+		flag = !flag;
 		return list;
 	}
 
