@@ -25,6 +25,7 @@ import dna.graph.datastructures.count.OperationCounts;
 import dna.graph.datastructures.recommendation.Recommendation;
 import dna.graph.edges.DirectedEdge;
 import dna.graph.nodes.DirectedNode;
+import dna.labels.labeler.util.HotswapLabeler;
 
 public class Hotswap {
 
@@ -135,10 +136,22 @@ public class Hotswap {
 		if (!current.V.equals(cfg.V)) {
 			System.out.println("V: " + current.V.getSimpleName() + " => "
 					+ cfg.V.getSimpleName());
+			HotswapLabeler.setV(cfg.V);
 		}
 		if (!current.E.equals(cfg.E)) {
 			System.out.println("E: " + current.E.getSimpleName() + " => "
 					+ cfg.E.getSimpleName());
+			HotswapLabeler.setE(cfg.E);
+		}
+		if (current instanceof DSConfigUndirected) {
+			if (!((DSConfigUndirected) current).adj
+					.equals(((DSConfigUndirected) cfg).adj)) {
+				System.out.println("adj: "
+						+ ((DSConfigUndirected) current).adj.getSimpleName()
+						+ " => "
+						+ ((DSConfigUndirected) cfg).adj.getSimpleName());
+				HotswapLabeler.setAdj(((DSConfigUndirected) cfg).adj);
+			}
 		}
 
 		System.out.println("  BEFORE: " + g.getNodes().getClass() + " / "
