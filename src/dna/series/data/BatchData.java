@@ -239,24 +239,47 @@ public class BatchData implements IBatch {
 	 **/
 	public static BatchData read(String dir, long timestamp,
 			BatchReadMode batchReadMode) throws IOException {
-		boolean readValues;
-		if (batchReadMode.equals(BatchReadMode.readNoValues)
-				|| batchReadMode.equals(BatchReadMode.readOnlyDistAndNvl))
-			readValues = false;
-		else
-			readValues = true;
+		boolean readSingles;
+		boolean readLabels;
 
-		ValueList values = ValueList.read(dir,
-				Files.getValuesFilename(Config.get("BATCH_STATS")), readValues);
+		switch (batchReadMode) {
+		case readAllValues:
+			readSingles = true;
+			readLabels = true;
+			break;
+		case readNoValues:
+			readSingles = false;
+			readLabels = false;
+			break;
+		case readOnlyDistAndNvl:
+			readSingles = false;
+			readLabels = false;
+			break;
+		case readOnlyLabels:
+			readSingles = false;
+			readLabels = true;
+		case readOnlySingleValues:
+			readSingles = true;
+			readLabels = false;
+			break;
+		default:
+			readSingles = false;
+			readLabels = false;
+			break;
+		}
+
+		ValueList values = ValueList
+				.read(dir, Files.getValuesFilename(Config.get("BATCH_STATS")),
+						readSingles);
 		RunTimeList generalRuntimes = RunTimeList
 				.read(dir, Files.getRuntimesFilename(Config
-						.get("BATCH_GENERAL_RUNTIMES")), readValues);
+						.get("BATCH_GENERAL_RUNTIMES")), readSingles);
 		RunTimeList metricRuntimes = RunTimeList.read(dir,
 				Files.getRuntimesFilename(Config.get("BATCH_METRIC_RUNTIMES")),
-				readValues);
+				readSingles);
 		LabelList labels = LabelList
 				.read(dir, Files.getLabelsFilename(Config.get("BATCH_LABELS")),
-						readValues);
+						readLabels);
 		MetricDataList metrics = MetricDataList.read(dir, batchReadMode);
 		return new BatchData(timestamp, values, generalRuntimes,
 				metricRuntimes, metrics, labels);

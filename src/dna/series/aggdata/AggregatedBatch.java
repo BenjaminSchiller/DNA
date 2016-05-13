@@ -21,7 +21,7 @@ public class AggregatedBatch implements IBatch {
 
 	// read enumeration
 	public static enum BatchReadMode {
-		readAllValues, readOnlySingleValues, readOnlyDistAndNvl, readNoValues
+		readAllValues, readOnlySingleValues, readOnlyDistAndNvl, readNoValues, readOnlyLabels
 	};
 
 	// member variables
