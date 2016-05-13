@@ -1802,7 +1802,8 @@ public class Plot {
 			LabelList llist = batch.getLabels();
 			for (Label l : llist.getList()) {
 				PlotLabel plotLabel;
-				String identifier = l.getName() + ":" + l.getType();
+				String identifier = seriesName + "_" + l.getName() + ":"
+						+ l.getType();
 
 				// if supposed to filter -> filter
 				if (filteredLabels.contains(identifier))
@@ -1876,10 +1877,11 @@ public class Plot {
 
 			// check first for new labels
 			for (Label l : llist.getList()) {
-				String identifier = l.getName() + ":" + l.getType();
+				String identifier = seriesName + "_" + l.getName() + ":"
+						+ l.getType();
 
 				// if supposed to filter -> filter
-				if (filteredLabels.contains(identifier))
+				if (filteredLabels.contains(l.getName() + ":" + l.getType()))
 					continue;
 
 				if (!plottedLabels.contains(identifier)) {
@@ -1901,13 +1903,14 @@ public class Plot {
 			// iterate over labels
 			for (Label l : llist.getList()) {
 				// get index of label
-				String identifier = l.getName() + ":" + l.getType();
+				String identifier = seriesName + "_" + l.getName() + ":"
+						+ l.getType();
 
 				int overallIndex = this.overallPlottedLabels
 						.indexOf(identifier);
 
 				// if supposed to filter -> filter
-				if (filteredLabels.contains(identifier))
+				if (filteredLabels.contains(l.getName() + ":" + l.getType()))
 					continue;
 
 				int index = plottedLabels.indexOf(identifier);
@@ -1931,7 +1934,8 @@ public class Plot {
 
 					LabelList nextLabelList = nextBatch.getLabels();
 					for (Label nl : nextLabelList.getList()) {
-						String nId = nl.getName() + ":" + nl.getType();
+						String nId = seriesName + "_" + nl.getName() + ":"
+								+ nl.getType();
 						if (nId.equals(identifier)) {
 							intervalEnd.set(index, nextTimestamp);
 							labelInNextBatch = true;
