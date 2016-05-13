@@ -1762,10 +1762,15 @@ public class Plot {
 					- this.functionQuantity];
 	}
 
-	/** Adds data to the plot **/
 	public void addPlotLabels(IBatch[] batchData) throws IOException {
+		this.addPlotLabels(batchData, "");
+	}
+
+	/** Adds data to the plot **/
+	public void addPlotLabels(IBatch[] batchData, String seriesName)
+			throws IOException {
 		if (batchData[0] instanceof BatchData)
-			this.addPlotLabels((BatchData[]) batchData);
+			this.addPlotLabels((BatchData[]) batchData, seriesName);
 
 		// no labels in aggregated batches yet
 
@@ -1774,7 +1779,8 @@ public class Plot {
 	}
 
 	/** Adds plot-labels to the plot. **/
-	public void addPlotLabelsWithoutArrows(BatchData[] batchData) {
+	public void addPlotLabelsWithoutArrows(BatchData[] batchData,
+			String seriesName) {
 		String[] filteredLabelsArray = Config.keys("GNUPLOT_LABEL_FILTER_LIST");
 		List<String> filteredLabels = Arrays.asList(filteredLabelsArray);
 
@@ -1803,12 +1809,13 @@ public class Plot {
 					continue;
 
 				if (overallPlottedLabels.contains(identifier)) {
-					plotLabel = PlotLabel.generatePlotLabel(timestamp, l,
+					plotLabel = PlotLabel.generatePlotLabel(timestamp, "", l,
 							overallPlottedLabels.indexOf(identifier),
 							labelBeneathGraph);
 				} else {
 					overallPlottedLabels.add(identifier);
-					plotLabel = PlotLabel.generateFirstPlotLabel(timestamp, l,
+					plotLabel = PlotLabel.generateFirstPlotLabel(timestamp,
+							seriesName, l,
 							overallPlottedLabels.indexOf(identifier),
 							labelBeneathGraph);
 				}
@@ -1823,16 +1830,16 @@ public class Plot {
 	}
 
 	/** Adds plot-labels to the plot. **/
-	public void addPlotLabels(BatchData[] batchData) {
+	public void addPlotLabels(BatchData[] batchData, String seriesName) {
 		if (Config.getBoolean("GNUPLOT_PLOT_LABEL_INTERVALS_AS_ARROWS")) {
-			addPlotLabelsWithArrows(batchData);
+			addPlotLabelsWithArrows(batchData, seriesName);
 		} else {
-			addPlotLabelsWithoutArrows(batchData);
+			addPlotLabelsWithoutArrows(batchData, seriesName);
 		}
 	}
 
 	/** Adds plot-labels to the plot. **/
-	public void addPlotLabelsWithArrows(BatchData[] batchData) {
+	public void addPlotLabelsWithArrows(BatchData[] batchData, String seriesName) {
 		boolean arrowStyleAdded = false;
 		int arrowStyleId = 1;
 
@@ -1881,7 +1888,7 @@ public class Plot {
 
 					plottedLabels.add(identifier);
 					this.addPlotLabel(PlotLabel.generateFirstPlotLabel(
-							timestamp, l,
+							timestamp, seriesName, l,
 							overallPlottedLabels.indexOf(identifier), "0",
 							labelBeneathGraph));
 
@@ -1939,7 +1946,8 @@ public class Plot {
 					if (start == end) {
 						// add point
 						this.addPlotLabel(PlotLabel.generatePlotLabel(
-								timestamp, l, overallIndex, labelBeneathGraph));
+								timestamp, "", l, overallIndex,
+								labelBeneathGraph));
 					} else {
 						if (!arrowStyleAdded) {
 							String arrowStyle = PlotArrow
@@ -1950,8 +1958,8 @@ public class Plot {
 
 						// add text
 						this.addPlotLabel(PlotLabel.generatePlotLabel(
-								intervalStart.get(index), l, overallIndex, "0",
-								labelBeneathGraph));
+								intervalStart.get(index), "", l, overallIndex,
+								"0", labelBeneathGraph));
 
 						// add arrow
 						PlotArrow a = PlotArrow.getPlotArrowInterval(

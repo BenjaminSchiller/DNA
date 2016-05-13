@@ -3861,14 +3861,14 @@ public class PlottingUtils {
 			for (Plot p : defaultPlots) {
 				// add labels
 				if (p.isPlotLabels())
-					p.addPlotLabels(batchData);
+					p.addPlotLabels(batchData, seriesData[i].getName());
 			}
 
 			// add labels to custom plots
 			for (Plot p : plots) {
 				// add labels
 				if (p.isPlotLabels())
-					p.addPlotLabels(batchData);
+					p.addPlotLabels(batchData, seriesData[i].getName());
 			}
 		}
 
