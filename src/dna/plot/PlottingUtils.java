@@ -46,6 +46,12 @@ public class PlottingUtils {
 	// internally used delimiter
 	private static final String PLOTTING_UTILS_DELIMITER = "§§§";
 
+	// internally used replacement strings
+	private static final String PLOTTING_UTILS_DOMAIN_REPLACEMENT = "$domain$";
+	private static final String PLOTTING_UTILS_VALUE_REPLACEMENT = "$value$";
+	private static final String PLOTTING_UTILS_SERIES_REPLACEMENT = "$series$";
+	private static final String PLOTTING_UTILS_RUN_REPLACEMENT = "$run$";
+
 	/** Returns the first value inside the expression. **/
 	public static String getValueFromExpression(String expr) {
 		String[] split = expr.split("\\$");
@@ -343,10 +349,8 @@ public class PlottingUtils {
 				for (int k = 0; k < values.length; k++) {
 					String value = values[k];
 					String domain = domains[k];
-					String title = value + " (" + seriesData[j].getName();
-					if (!aggregatedBatches)
-						title += " @ run." + indizes[j];
-					title += ")";
+					String title = getValuePlotLineTitle(seriesData, indizes,
+							j, domain, value, aggregatedBatches);
 
 					// iterate over values to be plotted
 					if (domain.equals(PlotConfig.customPlotDomainExpression)) {
@@ -368,15 +372,11 @@ public class PlottingUtils {
 								.getDomainFromExpression(value,
 										config.getGeneralDomain()),
 								PlottingUtils.getValueFromExpression(value))) {
-							String runAddition = "";
-							if (!aggregatedBatches)
-								runAddition = " @ run." + indizes[j];
 							dataList.add(new ExpressionData(exprName,
-									expressionSplit[1], style, exprName
-											.replace("$", "")
-											+ " ("
-											+ seriesData[j].getName()
-											+ runAddition + ")", config
+									expressionSplit[1], style,
+									getValuePlotLineTitle(seriesData, indizes,
+											j, "", exprName.replace("$", ""),
+											aggregatedBatches), config
 											.getGeneralDomain(), seriesData[j]
 											.getDir()));
 							seriesDataQuantities[j]++;
@@ -676,12 +676,12 @@ public class PlottingUtils {
 					runtimeNames = ((BatchData) initBatches[j])
 							.getGeneralRuntimes().getNames();
 				if (runtimeNames.contains(runtime)) {
-					String runAddition = "";
-					if (!aggregatedBatches)
-						runAddition = " @ run." + indizes[j];
-					data[index] = PlotData.get(runtime,
-							PlotConfig.customPlotDomainGeneralRuntimes, style,
-							seriesData[j].getName() + runAddition, type,
+					data[index] = PlotData.get(
+							runtime,
+							PlotConfig.customPlotDomainGeneralRuntimes,
+							style,
+							getValuePlotLineTitle(seriesData, indizes, j, "",
+									runtime, aggregatedBatches), type,
 							seriesData[j].getDir());
 					seriesDataQuantities[j]++;
 					index++;
@@ -725,19 +725,21 @@ public class PlottingUtils {
 				Collection<String> runtimeNames;
 				if (aggregatedBatches)
 					runtimeNames = ((AggregatedBatch) initBatches[j])
-							.getGeneralRuntimes().getNames();
+							.getMetricRuntimes().getNames();
 				else
 					runtimeNames = ((BatchData) initBatches[j])
-							.getGeneralRuntimes().getNames();
+							.getMetricRuntimes().getNames();
+
 				if (runtimeNames.contains(runtime)) {
-					String runAddition = "";
-					if (!aggregatedBatches)
-						runAddition = " @ run." + indizes[j];
-					data[index] = PlotData.get(runtime,
-							PlotConfig.customPlotDomainMetricRuntimes, style,
-							seriesData[j].getName() + runAddition, type,
+					data[index] = PlotData.get(
+							runtime,
+							PlotConfig.customPlotDomainMetricRuntimes,
+							style,
+							getValuePlotLineTitle(seriesData, indizes, j, "",
+									runtime, aggregatedBatches), type,
 							seriesData[j].getDir());
 					seriesDataQuantities[j]++;
+					data[index].setDataLocation(PlotDataLocation.scriptFile);
 					index++;
 				}
 			}
@@ -796,22 +798,8 @@ public class PlottingUtils {
 
 				// iterate over domains that contain the value
 				for (String d : domains) {
-					String lineTitle;
-					String runAddition = "";
-					if (!aggregatedBatches)
-						runAddition = " @ run." + indizes[j];
-					if (simpleTitles) {
-						lineTitle = seriesData[j].getName();
-					} else {
-						if (d.equals(PlotConfig.customPlotDomainStatistics))
-							lineTitle = value + " (" + seriesData[j].getName()
-									+ runAddition + ")";
-						else
-							lineTitle = d
-									+ PlotConfig.customPlotDomainDelimiter
-									+ value + " (" + seriesData[j].getName()
-									+ runAddition + ")";
-					}
+					String lineTitle = getValuePlotLineTitle(seriesData,
+							indizes, j, d, value, aggregatedBatches);
 
 					// check if series j contains value as a statistic
 					if (d.equals(PlotConfig.customPlotDomainStatistics)) {
@@ -1003,13 +991,14 @@ public class PlottingUtils {
 									.getNames();
 
 						if (metricValueNames.contains(value)) {
-							String runAddition = "";
-							if (!aggregatedBatches)
-								runAddition = " @ run." + indizes[i];
-							// create "line"
-							PlotData data = PlotData.get(value, metric, style,
-									seriesData[i].getName() + runAddition,
-									type, seriesData[i].getDir());
+							PlotData data = PlotData.get(
+									value,
+									metric,
+									style,
+									getMetricValuePlotLineTitle(seriesData,
+											indizes, i, metric, value,
+											aggregatedBatches), type,
+									seriesData[i].getDir());
 							lines.add(data);
 							seriesDataQuantities[i]++;
 						}
@@ -3832,7 +3821,7 @@ public class PlottingUtils {
 		}
 
 		// read labels and add to plots
-		if (readLabels) {
+		if (!aggregatedBatches && readLabels) {
 			for (int i = 0; i < seriesData.length; i++) {
 				SeriesData series = seriesData[i];
 				String tempDir = "";
@@ -3979,6 +3968,47 @@ public class PlottingUtils {
 			p.close();
 			p.execute();
 		}
+	}
+
+	/**
+	 * Returns a line-title for a metric-value-plot based on the given
+	 * parameters.
+	 **/
+	protected static String getMetricValuePlotLineTitle(SeriesData[] series,
+			int[] indizes, int index, String domain, String value,
+			boolean aggregation) {
+		if (aggregation)
+			return replaceStrings(
+					Config.get("GNUPLOT_DEFAULT_METRIC_VALUE_AGGR_PLOT_LINE"),
+					series[index].getName(), "", domain, value);
+		else
+			return replaceStrings(
+					Config.get("GNUPLOT_DEFAULT_METRIC_ VALUE_RUNS_PLOT_LINE"),
+					series[index].getName(), "" + indizes[index], domain, value);
+	}
+
+	/** Returns a line-title for a value-plot based on the given parameters. **/
+	protected static String getValuePlotLineTitle(SeriesData[] series,
+			int[] indizes, int index, String domain, String value,
+			boolean aggregation) {
+		if (aggregation)
+			return replaceStrings(
+					Config.get("GNUPLOT_DEFAULT_VALUE_AGGR_PLOT_LINE"),
+					series[index].getName(), "", domain, value);
+		else
+			return replaceStrings(
+					Config.get("GNUPLOT_DEFAULT_VALUE_RUNS_PLOT_LINE"),
+					series[index].getName(), "" + indizes[index], domain, value);
+	}
+
+	/** Replaces substring in the replacement string by the respective values. **/
+	protected static String replaceStrings(String replacementString,
+			String series, String run, String domain, String value) {
+		return replacementString
+				.replace(PLOTTING_UTILS_DOMAIN_REPLACEMENT, domain)
+				.replace(PLOTTING_UTILS_RUN_REPLACEMENT, "" + run)
+				.replace(PLOTTING_UTILS_SERIES_REPLACEMENT, series)
+				.replace(PLOTTING_UTILS_VALUE_REPLACEMENT, value);
 	}
 
 }
