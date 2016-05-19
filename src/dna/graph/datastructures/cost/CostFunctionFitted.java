@@ -10,6 +10,7 @@ import dna.graph.datastructures.count.OperationCount.Operation;
 import dna.graph.edges.Edge;
 import dna.graph.nodes.Node;
 import dna.util.Config;
+import dna.util.Log;
 
 public class CostFunctionFitted extends CostFunction {
 	public static enum DataType {
@@ -105,18 +106,28 @@ public class CostFunctionFitted extends CostFunction {
 	public double getCost(int listSize) {
 		// System.out.println(this.toString() + " for " + listSize);
 		for (int i = 0; i < this.sizes.length - 1; i++) {
-			if (listSize <= this.sizes[i]) {
+			if (listSize <= this.sizes[i] && this.functions[i] != null) {
 				double v = this.evalFunction(i, listSize);
 				// System.out.println("  => " + v + " @ " + i);
 				return v;
 			}
 		}
-		double v = this.evalFunction(this.functions.length - 1, listSize);
+		double v = this.evalFunction(this.getMaxNonNullIndex(), listSize);
 		// System.out.println("  => " + v + " @ last: " + (functions.length - 1)
 		// + " vs. " + (sizes.length - 1) + " with "
 		// + this.sizes[functions.length - 1] + " using "
 		// + this.functions[this.functions.length - 1]);
 		return v;
+	}
+
+	protected int getMaxNonNullIndex() {
+		for (int i = this.functions.length - 1; i >= 0; i--) {
+			if (this.functions[i] != null) {
+				return i;
+			}
+		}
+		Log.error("no function available");
+		return -1;
 	}
 
 	private double evalFunction(int index, int listSize) {
@@ -149,7 +160,7 @@ public class CostFunctionFitted extends CostFunction {
 			System.out.println("\n\nORIGINAL: " + original + "\n\n");
 			System.out.println("\n\nEXPR: " + expr + "\n\n");
 			e.printStackTrace();
-//			System.exit(0);
+			// System.exit(0);
 			return 0;
 		}
 	}

@@ -585,6 +585,7 @@ public class SeriesGeneration {
 			Algorithms algorithms) throws MetricNotApplicableException {
 		// generate next batch
 		Batch b = series.getBatchGenerator().generate(series.getGraph());
+		Log.info("    " + b.toString());
 
 		// check applicability to batch
 		for (IMetric m : series.getMetrics()) {
