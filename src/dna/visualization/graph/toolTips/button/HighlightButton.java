@@ -6,6 +6,7 @@ import org.graphstream.graph.Node;
 import org.graphstream.ui.spriteManager.Sprite;
 
 import dna.graph.weights.Weight;
+import dna.util.parameters.Parameter;
 import dna.visualization.graph.rules.GraphStyleUtils;
 import dna.visualization.graph.toolTips.ToolTip;
 
@@ -35,10 +36,18 @@ public class HighlightButton extends Button {
 	private final int maxLevel = 3;
 
 	/** HighlightButton constructor. **/
-	public HighlightButton(Sprite s, String name, String attachementId,
-			double growth) {
-		super(s, name, attachementId);
-		this.growth = growth;
+	public HighlightButton(Sprite s, String name, Node n, Parameter[] params) {
+		super(s, name, n, params);
+
+		this.growth = defaultGrowth;
+
+		for (Parameter p : params) {
+			switch (p.getName().toLowerCase()) {
+			case "growth":
+				this.growth = Double.parseDouble(p.getValue());
+				break;
+			}
+		}
 
 		// check if node is already highlighted -> get level
 		int level = 0;
@@ -49,11 +58,6 @@ public class HighlightButton extends Button {
 		}
 		// set style according to level
 		setStyleByLevel(level);
-	}
-
-	/** Constructor using default-growth. **/
-	public HighlightButton(Sprite s, String name, String attachementId) {
-		this(s, name, attachementId, defaultGrowth);
 	}
 
 	@Override

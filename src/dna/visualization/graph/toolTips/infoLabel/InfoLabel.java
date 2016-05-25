@@ -1,7 +1,9 @@
 package dna.visualization.graph.toolTips.infoLabel;
 
+import org.graphstream.graph.Node;
 import org.graphstream.ui.spriteManager.Sprite;
 
+import dna.util.parameters.Parameter;
 import dna.visualization.graph.GraphVisualization;
 import dna.visualization.graph.toolTips.ToolTip;
 
@@ -27,31 +29,40 @@ public abstract class InfoLabel extends ToolTip {
 
 	/** Different types that can be stored. **/
 	public enum LabelValueType {
-		DOUBLE, INT, LONG
+		STRING, DOUBLE, INT, LONG
 	}
 
 	/** Type of the value that is stored. **/
 	private LabelValueType valueType;
 
 	/** InfoLabel constructor. **/
-	public InfoLabel(Sprite s, String name, String attachementId,
-			LabelValueType valueType, String value) {
+	public InfoLabel(Sprite s, String name, Node n, Parameter[] params) {
 		this.s = s;
 		setName(name);
 		setType();
-		this.valueType = valueType;
+
+		// default type = STRING
+		this.valueType = LabelValueType.STRING;
+
+		for (Parameter p : params) {
+			switch (p.getName().toLowerCase()) {
+			case "valuetype":
+				this.valueType = LabelValueType.valueOf(p.getValue());
+				break;
+			case "value":
+				setValue(p.getValue());
+				break;
+			}
+		}
 
 		// set default style
 		setDefaultStyle();
 
 		// attach
-		attachToNode(attachementId);
+		attachToNode("" + n.getIndex());
 
 		// store value type
 		this.s.setAttribute(LabelValueTypeKey, valueType);
-
-		// set value
-		setValue(value);
 
 		// store on sprite
 		storeThisOnSprite();
