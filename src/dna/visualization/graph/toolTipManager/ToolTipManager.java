@@ -177,6 +177,11 @@ public class ToolTipManager extends GraphStyleRule {
 		setToolTipsActive(node);
 	}
 
+	/** Called when a left-click on a node occurs. **/
+	public void onMouseLeftClick(GraphicNode graphicNode) {
+		// DO NOTHING
+	}
+
 	/** Called when a right-click on a node occurs. **/
 	public void onMouseRightClick(GraphicNode graphicNode) {
 		if (this.toolTipsNames.size() < 1)
