@@ -342,7 +342,9 @@ public class GraphPanel extends JPanel {
 		this.zoomLabel = new JLabel();
 		zoomLabel.setFont(font);
 		zoomLabel.setText("100%  ");
-		zoomLabel.setToolTipText("Zoom");
+		zoomLabel
+				.setToolTipText("Shows the current zoom. Click to reset zoom and camera position!");
+		zoomLabel.addMouseListener(getZoomLabelMouseListener());
 		textPanel.add(zoomLabel);
 
 		// screenshot button
@@ -444,6 +446,35 @@ public class GraphPanel extends JPanel {
 		}
 
 		panel.add(textPanel);
+	}
+
+	/** Returns a ZoomLabel-MouseListener. **/
+	protected MouseListener getZoomLabelMouseListener() {
+		MouseListener ml = new MouseListener() {
+
+			@Override
+			public void mouseReleased(MouseEvent e) {
+			}
+
+			@Override
+			public void mousePressed(MouseEvent e) {
+				resetView();
+			}
+
+			@Override
+			public void mouseExited(MouseEvent e) {
+			}
+
+			@Override
+			public void mouseEntered(MouseEvent e) {
+			}
+
+			@Override
+			public void mouseClicked(MouseEvent e) {
+			}
+		};
+
+		return ml;
 	}
 
 	/** Adds the zoom listener. **/
@@ -580,6 +611,13 @@ public class GraphPanel extends JPanel {
 	/** Returns the current zoom in percent. **/
 	public double getZoomPercent() {
 		return this.view.getCamera().getViewPercent();
+	}
+
+	/** Resets the camera to center and 100 zoom level. **/
+	public void resetView() {
+		this.view.getCamera().resetView();
+		if (this.zoomLabel != null)
+			this.zoomLabel.setText("100%  ");
 	}
 
 	/** Returns the current view center. **/
