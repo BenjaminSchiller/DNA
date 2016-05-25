@@ -39,7 +39,7 @@ public abstract class InfoLabel extends ToolTip {
 	public InfoLabel(Sprite s, String name, Node n, Parameter[] params) {
 		this.s = s;
 		setName(name);
-		setType();
+		setClass(this.getClass());
 
 		// default type = STRING
 		this.valueType = LabelValueType.STRING;
