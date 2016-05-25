@@ -9,6 +9,7 @@ import org.graphstream.ui.spriteManager.Sprite;
 import org.graphstream.ui.spriteManager.SpriteManager;
 
 import dna.graph.weights.Weight;
+import dna.util.parameters.Parameter;
 import dna.visualization.graph.GraphPanel;
 import dna.visualization.graph.rules.GraphStyleRule;
 import dna.visualization.graph.toolTips.ToolTip;
@@ -149,16 +150,16 @@ public class ToolTipManager extends GraphStyleRule {
 		// switch on type
 		switch (ttt) {
 		case BUTTON_FREEZE:
-			tt = new FreezeButton(sprite, name, nodeId);
+			tt = new FreezeButton(sprite, name, node, new Parameter[0]);
 			break;
 		case BUTTON_HIGHLIGHT:
-			tt = new HighlightButton(sprite, name, nodeId);
+			tt = new HighlightButton(sprite, name, node, new Parameter[0]);
 			break;
 		case INFO_NODE_DEGREE:
-			tt = new NodeDegreeLabel(sprite, name, node);
+			tt = new NodeDegreeLabel(sprite, name, node, new Parameter[0]);
 			break;
 		case INFO_NODE_ID:
-			tt = new NodeIdLabel(sprite, name, nodeId);
+			tt = new NodeIdLabel(sprite, name, node, new Parameter[0]);
 			break;
 		case INFO_NODE_TYPE_WEIGHT:
 			tt = new NodeTypeWeightLabel(sprite, name, node);
