@@ -89,8 +89,8 @@ public class GraphVisMouseManager extends DefaultMouseManager {
 	@Override
 	public void mouseDragged(MouseEvent event) {
 		// if dragged with right mouse down -> dont do anything
-		boolean leftMouseButtonPressed = (event.getModifiersEx() & InputEvent.BUTTON3_DOWN_MASK) == InputEvent.BUTTON3_DOWN_MASK;
-		if (leftMouseButtonPressed)
+		boolean rightMouseButtonPressed = (event.getModifiersEx() & InputEvent.BUTTON3_DOWN_MASK) == InputEvent.BUTTON3_DOWN_MASK;
+		if (rightMouseButtonPressed)
 			return;
 
 		if (curElement != null) {

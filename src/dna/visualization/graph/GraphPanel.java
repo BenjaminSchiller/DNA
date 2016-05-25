@@ -338,6 +338,8 @@ public class GraphPanel extends JPanel {
 		JPanel dummy = new JPanel();
 		textPanel.add(dummy);
 
+		// rotation slider
+
 		// zoom label
 		this.zoomLabel = new JLabel();
 		zoomLabel.setFont(font);
@@ -526,7 +528,19 @@ public class GraphPanel extends JPanel {
 
 			@Override
 			public void mouseDragged(MouseEvent arg0) {
-				if ((arg0.getModifiersEx() & InputEvent.BUTTON3_DOWN_MASK) == InputEvent.BUTTON3_DOWN_MASK) {
+				boolean rightMouseButtonPressed = (arg0.getModifiersEx() & InputEvent.BUTTON3_DOWN_MASK) == InputEvent.BUTTON3_DOWN_MASK;
+				boolean shiftPressed = (arg0.getModifiersEx() & InputEvent.SHIFT_DOWN_MASK) == InputEvent.SHIFT_DOWN_MASK;
+
+				if (shiftPressed && rightMouseButtonPressed) {
+					// calc new position
+					double rot = getRotation();
+					double rot_new = rot + (arg0.getY() - dragPos.getY()) * 0.5;
+
+					// set new position
+					setRotation(rot_new);
+
+					dragPos = arg0.getPoint();
+				} else if (rightMouseButtonPressed) {
 					Point3 currentCenter = getViewCenter();
 
 					// calc new position
@@ -599,6 +613,17 @@ public class GraphPanel extends JPanel {
 	/** Returns the enabled flags of rules. **/
 	public ArrayList<Boolean> getGraphStyleRulesFlags() {
 		return this.rulesFlags;
+	}
+
+	/** Sets the camera rotation. **/
+	public void setRotation(double rotation) {
+		double rot = rotation % 360;
+		this.view.getCamera().setViewRotation(rot);
+	}
+
+	/** Returns the current camera rotation. **/
+	public double getRotation() {
+		return this.view.getCamera().getViewRotation();
 	}
 
 	/** Sets the zoom. **/
@@ -1169,8 +1194,6 @@ public class GraphPanel extends JPanel {
 	/** Returns the component that should be recorded. **/
 	protected Component getRecordComponent() {
 		Component c;
-		System.out.println("getRecordComponent!");
-		System.out.println(this.recordArea);
 		switch (this.recordArea) {
 		case full:
 			c = this.parentFrame;
