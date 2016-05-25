@@ -1,11 +1,9 @@
 package dna.visualization.graph.toolTips.button;
 
-import org.graphstream.graph.Edge;
 import org.graphstream.graph.Element;
 import org.graphstream.graph.Node;
 import org.graphstream.ui.spriteManager.Sprite;
 
-import dna.graph.weights.Weight;
 import dna.util.parameters.Parameter;
 import dna.visualization.graph.rules.GraphStyleUtils;
 import dna.visualization.graph.toolTips.ToolTip;
@@ -58,11 +56,6 @@ public class HighlightButton extends Button {
 		}
 		// set style according to level
 		setStyleByLevel(level);
-	}
-
-	@Override
-	public ToolTipType getType() {
-		return ToolTipType.BUTTON_HIGHLIGHT;
 	}
 
 	/** Returns this Button from a sprite. **/
@@ -169,21 +162,6 @@ public class HighlightButton extends Button {
 	@Override
 	protected String getPressedLabel() {
 		return pressedLabel;
-	}
-
-	@Override
-	public void onNodeWeightChange(Node n, Weight wNew, Weight wOld) {
-		// DO NOTHING
-	}
-
-	@Override
-	public void onEdgeAddition(Edge e, Node n1, Node n2) {
-		// DO NOTHING
-	}
-
-	@Override
-	public void onEdgeRemoval(Edge e, Node n1, Node n2) {
-		// DO NOTHING
 	}
 
 }
