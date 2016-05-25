@@ -5,13 +5,17 @@ import org.graphstream.graph.Node;
 import org.graphstream.ui.spriteManager.Sprite;
 
 import dna.graph.weights.Weight;
+import dna.util.parameters.Parameter;
+import dna.util.parameters.StringParameter;
 
 /** The NodeDegreeLabel shows the Degree of the Node it is attached to. **/
 public class NodeDegreeLabel extends InfoLabel {
 
 	// constructor
-	public NodeDegreeLabel(Sprite s, String name, Node node) {
-		super(s, name, node.getId(), LabelValueType.INT, "" + node.getDegree());
+	public NodeDegreeLabel(Sprite s, String name, Node n, Parameter[] params) {
+		super(s, name, n, new Parameter[] {
+				new StringParameter("ValueType", "INT"),
+				new StringParameter("Value", "" + n.getDegree()) });
 	}
 
 	@Override

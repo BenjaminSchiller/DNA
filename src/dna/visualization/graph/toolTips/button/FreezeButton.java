@@ -6,6 +6,7 @@ import org.graphstream.graph.Node;
 import org.graphstream.ui.spriteManager.Sprite;
 
 import dna.graph.weights.Weight;
+import dna.util.parameters.Parameter;
 import dna.visualization.graph.GraphVisualization;
 import dna.visualization.graph.toolTips.ToolTip;
 
@@ -23,8 +24,8 @@ public class FreezeButton extends Button {
 	private static final String pressedLabel = "Unfreeze";
 
 	/** FreezeButton constructor. **/
-	public FreezeButton(Sprite s, String name, String attachementId) {
-		super(s, name, attachementId);
+	public FreezeButton(Sprite s, String name, Node n, Parameter[] params) {
+		super(s, name, n, params);
 
 		// if node is frozen -> use pressed style
 		Element e = s.getAttachment();

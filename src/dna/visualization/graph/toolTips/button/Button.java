@@ -1,7 +1,9 @@
 package dna.visualization.graph.toolTips.button;
 
+import org.graphstream.graph.Node;
 import org.graphstream.ui.spriteManager.Sprite;
 
+import dna.util.parameters.Parameter;
 import dna.visualization.graph.GraphVisualization;
 import dna.visualization.graph.toolTips.ToolTip;
 
@@ -26,11 +28,11 @@ public abstract class Button extends ToolTip {
 	 *            The id of the GraphStream object the Button will be attached
 	 *            too. E.g. the node the tooltip will show up at.
 	 */
-	public Button(Sprite s, String name, String attachementId) {
+	public Button(Sprite s, String name, Node n, Parameter[] params) {
 		this.s = s;
 		setName(name);
 		setType();
-		attachToNode(attachementId);
+		attachToNode("" + n.getIndex());
 
 		// store on sprite
 		storeThisOnSprite();

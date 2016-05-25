@@ -5,13 +5,17 @@ import org.graphstream.graph.Node;
 import org.graphstream.ui.spriteManager.Sprite;
 
 import dna.graph.weights.Weight;
+import dna.util.parameters.Parameter;
+import dna.util.parameters.StringParameter;
 
 /** The NodeIdLabel displays the NodeId of the Node it is attached to. **/
 public class NodeIdLabel extends InfoLabel {
 
 	// constructor
-	public NodeIdLabel(Sprite s, String name, String attachementId) {
-		super(s, name, attachementId, LabelValueType.INT, attachementId);
+	public NodeIdLabel(Sprite s, String name, Node n, Parameter[] params) {
+		super(s, name, n, new Parameter[] {
+				new StringParameter("ValueType", "INT"),
+				new StringParameter("Value", "" + n.getIndex()) });
 	}
 
 	@Override
