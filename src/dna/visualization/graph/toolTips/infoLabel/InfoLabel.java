@@ -18,9 +18,9 @@ import dna.visualization.graph.toolTips.ToolTip;
  * 
  * <p>
  * 
- * On initialization one can choose to either store a Double, Long or Int value.
- * However, all values handed over has to be in form of a parse-able String. In
- * addition it offers basic increment and decrement operations on the value.
+ * On initialization one can choose to either store a String, Double, Long or
+ * Int value. When choosing numerical values basic operations like increment and
+ * decrement can be used.
  **/
 public abstract class InfoLabel extends ToolTip {
 

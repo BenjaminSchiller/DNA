@@ -20,13 +20,42 @@ import dna.visualization.graph.GraphVisualization;
  * 
  * <p>
  * 
+ * In order to implement own ToolTips one has to give a constructor as follows:
+ * 
+ * <p>
+ * 
+ * public constructor(Sprite s, String name, Node n, Parameter[] params)
+ * 
+ * <p>
+ * 
+ * It will be called on initialization with exactly this parameters.<br>
+ * The Parameter[] array can be used to pass additional parameters.<br>
+ * Beside the constructor each ToolTip implementation<br>
+ * (in this example the class would be "BananaToolTip")<br>
+ * has to have a method:
+ * 
+ * <p>
+ * 
+ * <pre>
+ * <code>
+ * public static BananaToolTip getFromSprite(Sprite s) {<br>
+ * 	return (BananaToolTip) ToolTip.getToolTipFromSprite(s);<br>
+ * }
+ * </code>
+ * </pre>
+ * <p>
+ * 
+ * For additional functionality, like mouse interactions, one can overwrite the<br>
+ * onLeftClick() and onRightClick() methods.
+ * 
+ * <p>
+ * 
  * Note that each ToolTip will uniquely identify one Sprite. Due to the nature
  * of Sprite handling in GraphStream this requires to save some data on each
- * Sprite: The ToolTipType and the ToolTips name. Therefore each implementation
- * of ToolTip should be represented by its own unique ToolTipType.
+ * Sprite: The ToolTips class path and the ToolTips name.
  * 
  * @author Rwilmes
- * @date 15.12.2015
+ * @date 25.05.2016
  */
 public abstract class ToolTip {
 

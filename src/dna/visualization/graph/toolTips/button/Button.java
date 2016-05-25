@@ -17,17 +17,7 @@ import dna.visualization.graph.toolTips.ToolTip;
  */
 public abstract class Button extends ToolTip {
 
-	/**
-	 * The constructor.
-	 * 
-	 * @param s
-	 *            The GraphStream Sprite the button will wrap.
-	 * @param name
-	 *            Name of the button. Will be used for identification.
-	 * @param attachementId
-	 *            The id of the GraphStream object the Button will be attached
-	 *            too. E.g. the node the tooltip will show up at.
-	 */
+	/** Constructor **/
 	public Button(Sprite s, String name, Node n, Parameter[] params) {
 		this.s = s;
 		setName(name);
