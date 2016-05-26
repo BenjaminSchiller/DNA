@@ -55,6 +55,7 @@ import dna.visualization.config.graph.GraphPanelConfig;
 import dna.visualization.config.graph.rules.GraphStyleRuleConfig;
 import dna.visualization.graph.rules.GraphStyleRule;
 import dna.visualization.graph.rules.GraphStyleUtils;
+import dna.visualization.graph.toolTipManager.DefaultToolTipManager;
 import dna.visualization.graph.toolTipManager.ToolTipManager;
 import dna.visualization.graph.util.GraphVisMouseManager;
 
@@ -167,6 +168,12 @@ public class GraphPanel extends JPanel {
 		if (config.isToolTipsEnabled()) {
 			this.spriteManager = new SpriteManager(graph);
 			this.tooltips = true;
+
+			// add style rules
+			ToolTipManager ttm = new DefaultToolTipManager(this);
+			ttm.addToolTips(config.getToolTipsConfig().getToolTips());
+			addToolTipManager(ttm);
+
 		}
 
 		// create viewer and show graph

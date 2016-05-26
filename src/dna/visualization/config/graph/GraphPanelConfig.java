@@ -14,6 +14,7 @@ import dna.util.Log;
 import dna.visualization.config.JSON.JSONObject;
 import dna.visualization.config.JSON.JSONTokener;
 import dna.visualization.config.graph.rules.RulesConfig;
+import dna.visualization.config.graph.toolTips.ToolTipsConfig;
 
 /**
  * Configuration object holding all values used to configure a GraphPanel.
@@ -56,6 +57,8 @@ public class GraphPanelConfig {
 
 	protected CaptureConfig captureConfig;
 
+	protected ToolTipsConfig toolTips;
+
 	protected GraphLayouter layouter;
 	protected double autoLayoutForce;
 
@@ -71,7 +74,8 @@ public class GraphPanelConfig {
 			double nodeSize, String nodeColor, double edgeSize,
 			GraphLayouter layouter, double autoLayoutForce,
 			WaitConfig waitConfig, ProjectionConfig projectionConfig,
-			CaptureConfig captureConfig, RulesConfig rules) {
+			CaptureConfig captureConfig, RulesConfig rules,
+			ToolTipsConfig toolTips) {
 		this.width = width;
 		this.height = height;
 		this.fullscreen = fullscreen;
@@ -94,14 +98,7 @@ public class GraphPanelConfig {
 		this.projectionConfig = projectionConfig;
 		this.captureConfig = captureConfig;
 		this.rules = rules;
-	}
-
-	public void read(String dir, String filename) {
-		// TODO!
-	}
-
-	public void write(String dir, String filename) {
-		// TODO!
+		this.toolTips = toolTips;
 	}
 
 	/** Creates a main display config object from a given json object. **/
@@ -113,6 +110,7 @@ public class GraphPanelConfig {
 		RulesConfig rules = null;
 		CaptureConfig captureConfig = null;
 		ProjectionConfig projectionConfig = null;
+		ToolTipsConfig toolTips = null;
 		int width = 1024;
 		int height = 768;
 		boolean fullscreen = false;
@@ -140,6 +138,7 @@ public class GraphPanelConfig {
 			rules = def.getRules();
 			captureConfig = def.getCaptureConfig();
 			projectionConfig = def.getProjectionConfig();
+			toolTips = def.getToolTipsConfig();
 			width = def.getWidth();
 			height = def.getHeight();
 			fullscreen = def.isFullscreen();
@@ -219,8 +218,9 @@ public class GraphPanelConfig {
 				case "TimestampFormat":
 					timestampFormat = o.getString(s);
 					break;
-				case "ToolTipsEnabled":
-					toolTipsEnabled = o.getBoolean(s);
+				case "ToolTipsConfig":
+					toolTips = ToolTipsConfig.getFromJSONObject(o
+							.getJSONObject(s));
 					break;
 				case "WaitConfig":
 					waitConfig = WaitConfig.getFromJSONObject(o
@@ -236,12 +236,14 @@ public class GraphPanelConfig {
 			}
 		}
 
+		toolTipsEnabled = toolTips.isEnabled();
+
 		return new GraphPanelConfig(width, height, fullscreen,
 				statPanelEnabled, textPanelEnabled, timestampFormat, renderHQ,
 				renderAA, zoomSpeed, scrollSpeed, rotationSpeed,
 				toolTipsEnabled, directedEdgeArrowsEnabled, nodeSize,
 				nodeColor, edgeSize, layouter, autoLayoutForce, waitConfig,
-				projectionConfig, captureConfig, rules);
+				projectionConfig, captureConfig, rules, toolTips);
 	}
 
 	public static GraphPanelConfig getDefaultConfig() {
@@ -477,6 +479,14 @@ public class GraphPanelConfig {
 
 	public void setWaitConfig(WaitConfig waitConfig) {
 		this.waitConfig = waitConfig;
+	}
+
+	public ToolTipsConfig getToolTipsConfig() {
+		return toolTips;
+	}
+
+	public void setToolTipsConfig(ToolTipsConfig toolTips) {
+		this.toolTips = toolTips;
 	}
 
 }

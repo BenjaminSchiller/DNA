@@ -1,10 +1,6 @@
 package dna.visualization.graph.toolTipManager;
 
 import dna.visualization.graph.GraphPanel;
-import dna.visualization.graph.toolTips.button.FreezeButton;
-import dna.visualization.graph.toolTips.button.HighlightButton;
-import dna.visualization.graph.toolTips.infoLabel.NodeDegreeLabel;
-import dna.visualization.graph.toolTips.infoLabel.NodeIdLabel;
 
 /**
  * The default ToolTipManager used in the GraphVisualization.
@@ -22,12 +18,6 @@ public class DefaultToolTipManager extends ToolTipManager {
 	public DefaultToolTipManager(GraphPanel panel) {
 		super("DefaultToolTipManager", panel.getSpriteManager(), panel,
 				distance, offset, angle);
-
-		// add additional tooltips here
-		addToolTip("Node", NodeIdLabel.class);
-		addToolTip("Degree", NodeDegreeLabel.class);
-		addToolTip("Freeze", FreezeButton.class);
-		addToolTip("Highlight", HighlightButton.class);
 	}
 
 }

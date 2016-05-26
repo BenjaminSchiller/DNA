@@ -3,6 +3,7 @@ package dna.visualization.graph.toolTipManager;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import org.graphstream.graph.Edge;
 import org.graphstream.graph.Node;
@@ -13,6 +14,7 @@ import org.graphstream.ui.spriteManager.SpriteManager;
 import dna.graph.weights.Weight;
 import dna.util.Log;
 import dna.util.parameters.Parameter;
+import dna.visualization.config.graph.toolTips.ToolTipConfig;
 import dna.visualization.graph.GraphPanel;
 import dna.visualization.graph.rules.GraphStyleRule;
 import dna.visualization.graph.toolTips.ToolTip;
@@ -69,6 +71,46 @@ public class ToolTipManager extends GraphStyleRule {
 		this.toolTipsNames.add(name);
 		this.toolTipsClasses.add(cl);
 		this.toolTipsParams.add(params);
+	}
+
+	/** Adds a tooltip from the given tool-tip-config. **/
+	public void addToolTip(ToolTipConfig ttCfg) {
+		try {
+			addToolTip(ttCfg.getName(), Class.forName(ttCfg.getKey()),
+					ttCfg.getParams());
+		} catch (ClassNotFoundException e) {
+			Log.warn("ToolTip class: " + ttCfg.getKey() + " not found!");
+			e.printStackTrace();
+		}
+	}
+
+	/** Adds multiple tooltips from their configs. **/
+	public void addToolTips(ArrayList<ToolTipConfig> toolTips) {
+		// sort by index
+		HashMap<Integer, ArrayList<ToolTipConfig>> indexListMap = new HashMap<Integer, ArrayList<ToolTipConfig>>();
+		ArrayList<ToolTipConfig> lastlyAdded = new ArrayList<ToolTipConfig>();
+
+		for (ToolTipConfig ttCfg : toolTips) {
+			int index = ttCfg.getIndex();
+
+			if (index >= 0) {
+				if (!indexListMap.containsKey(index))
+					indexListMap.put(index, new ArrayList<ToolTipConfig>());
+
+				indexListMap.get(index).add(ttCfg);
+			} else {
+				lastlyAdded.add(ttCfg);
+			}
+		}
+
+		for (Integer index : indexListMap.keySet()) {
+			for (ToolTipConfig ttCfg : indexListMap.get(index)) {
+				addToolTip(ttCfg);
+			}
+		}
+		for (ToolTipConfig ttCfg : lastlyAdded) {
+			addToolTip(ttCfg);
+		}
 	}
 
 	/** Removes the tooltip from the manager. **/

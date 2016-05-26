@@ -114,10 +114,6 @@ public class GraphVisualization {
 		if (cfg.isRenderAA())
 			graph.addAttribute(GraphVisualization.antialiasKey);
 
-		// add style rules
-		if (cfg.isToolTipsEnabled())
-			panel.addToolTipManager(new DefaultToolTipManager(panel));
-
 		// create main frame
 		mainFrame.add(panel);
 		mainFrame.setName(name);
