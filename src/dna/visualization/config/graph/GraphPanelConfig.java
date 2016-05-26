@@ -41,6 +41,7 @@ public class GraphPanelConfig {
 
 	protected double zoomSpeed;
 	protected double scrollSpeed;
+	protected double rotationSpeed;
 	protected boolean toolTipsEnabled;
 
 	protected boolean directedEdgeArrowsEnabled;
@@ -65,12 +66,12 @@ public class GraphPanelConfig {
 	public GraphPanelConfig(int width, int height, boolean fullscreen,
 			boolean statPanelEnabled, boolean textPanelEnabled,
 			String timestampFormat, boolean renderHQ, boolean renderAA,
-			double zoomSpeed, double scrollSpeed, boolean toolTipsEnabled,
-			boolean directedEdgeArrowsEnabled, double nodeSize,
-			String nodeColor, double edgeSize, GraphLayouter layouter,
-			double autoLayoutForce, WaitConfig waitConfig,
-			ProjectionConfig projectionConfig, CaptureConfig captureConfig,
-			RulesConfig rules) {
+			double zoomSpeed, double scrollSpeed, double rotationSpeed,
+			boolean toolTipsEnabled, boolean directedEdgeArrowsEnabled,
+			double nodeSize, String nodeColor, double edgeSize,
+			GraphLayouter layouter, double autoLayoutForce,
+			WaitConfig waitConfig, ProjectionConfig projectionConfig,
+			CaptureConfig captureConfig, RulesConfig rules) {
 		this.width = width;
 		this.height = height;
 		this.fullscreen = fullscreen;
@@ -81,6 +82,7 @@ public class GraphPanelConfig {
 		this.renderAA = renderAA;
 		this.zoomSpeed = zoomSpeed;
 		this.scrollSpeed = scrollSpeed;
+		this.rotationSpeed = rotationSpeed;
 		this.toolTipsEnabled = toolTipsEnabled;
 		this.directedEdgeArrowsEnabled = directedEdgeArrowsEnabled;
 		this.nodeSize = nodeSize;
@@ -121,6 +123,7 @@ public class GraphPanelConfig {
 		boolean renderAA = false;
 		double zoomSpeed = 0.03;
 		double scrollSpeed = 0.02;
+		double rotationSpeed = 0.5;
 		boolean toolTipsEnabled = true;
 		boolean directedEdgeArrowsEnabled = true;
 
@@ -147,6 +150,7 @@ public class GraphPanelConfig {
 			renderAA = def.isRenderAA();
 			zoomSpeed = def.getZoomSpeed();
 			scrollSpeed = def.getScrollSpeed();
+			rotationSpeed = def.getRotationSpeed();
 			toolTipsEnabled = def.isToolTipsEnabled();
 			directedEdgeArrowsEnabled = def.isDirectedEdgeArrowsEnabled();
 			nodeSize = def.getNodeSize();
@@ -197,6 +201,9 @@ public class GraphPanelConfig {
 				case "RenderHQ":
 					renderHQ = o.getBoolean(s);
 					break;
+				case "RotationSpeed":
+					rotationSpeed = o.getDouble(s);
+					break;
 				case "RulesConfig":
 					rules = RulesConfig.getFromJSONObject(o.getJSONObject(s));
 					break;
@@ -231,10 +238,10 @@ public class GraphPanelConfig {
 
 		return new GraphPanelConfig(width, height, fullscreen,
 				statPanelEnabled, textPanelEnabled, timestampFormat, renderHQ,
-				renderAA, zoomSpeed, scrollSpeed, toolTipsEnabled,
-				directedEdgeArrowsEnabled, nodeSize, nodeColor, edgeSize,
-				layouter, autoLayoutForce, waitConfig, projectionConfig,
-				captureConfig, rules);
+				renderAA, zoomSpeed, scrollSpeed, rotationSpeed,
+				toolTipsEnabled, directedEdgeArrowsEnabled, nodeSize,
+				nodeColor, edgeSize, layouter, autoLayoutForce, waitConfig,
+				projectionConfig, captureConfig, rules);
 	}
 
 	public static GraphPanelConfig getDefaultConfig() {
@@ -354,6 +361,10 @@ public class GraphPanelConfig {
 
 	public double getScrollSpeed() {
 		return scrollSpeed;
+	}
+
+	public double getRotationSpeed() {
+		return rotationSpeed;
 	}
 
 	public boolean isToolTipsEnabled() {
