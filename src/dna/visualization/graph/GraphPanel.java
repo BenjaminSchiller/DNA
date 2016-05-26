@@ -29,6 +29,7 @@ import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.SwingConstants;
 
 import org.graphstream.graph.Edge;
 import org.graphstream.graph.Graph;
@@ -98,7 +99,9 @@ public class GraphPanel extends JPanel {
 	protected final JPanel graphView;
 	protected JPanel textPanel;
 	protected JLabel textLabel;
+	protected JLabel rotationLabel;
 	protected JLabel zoomLabel;
+	protected JLabel zoomPercentLabel;
 	protected final Layout layouter;
 	protected JButton captureButton;
 	protected JButton screenshotButton;
@@ -330,15 +333,25 @@ public class GraphPanel extends JPanel {
 		JPanel dummy = new JPanel();
 		textPanel.add(dummy);
 
-		// rotation slider
+		// rotation label
+		this.rotationLabel = new JLabel();
+		rotationLabel.setFont(font);
+		rotationLabel.setText("0.0°");
+		rotationLabel
+				.setToolTipText("Shows the current camera rotation. Click to reset rotation!");
+		rotationLabel.addMouseListener(getRotationLabelMouseListener());
+		rotationLabel.setPreferredSize(new Dimension(49, 18));
+		textPanel.add(rotationLabel);
 
 		// zoom label
 		this.zoomLabel = new JLabel();
 		zoomLabel.setFont(font);
 		zoomLabel.setText("100%  ");
+		zoomLabel.setHorizontalAlignment(SwingConstants.RIGHT);
 		zoomLabel
 				.setToolTipText("Shows the current zoom. Click to reset zoom and camera position!");
 		zoomLabel.addMouseListener(getZoomLabelMouseListener());
+		zoomLabel.setPreferredSize(new Dimension(61, 18));
 		textPanel.add(zoomLabel);
 
 		// screenshot button
@@ -471,6 +484,35 @@ public class GraphPanel extends JPanel {
 		return ml;
 	}
 
+	/** Returns a ZoomLabel-MouseListener. **/
+	protected MouseListener getRotationLabelMouseListener() {
+		MouseListener ml = new MouseListener() {
+
+			@Override
+			public void mouseReleased(MouseEvent e) {
+			}
+
+			@Override
+			public void mousePressed(MouseEvent e) {
+				resetRotation();
+			}
+
+			@Override
+			public void mouseExited(MouseEvent e) {
+			}
+
+			@Override
+			public void mouseEntered(MouseEvent e) {
+			}
+
+			@Override
+			public void mouseClicked(MouseEvent e) {
+			}
+		};
+
+		return ml;
+	}
+
 	/** Adds the zoom listener. **/
 	protected void addZoomListener() {
 		this.graphView.addMouseWheelListener(new MouseWheelListener() {
@@ -536,23 +578,43 @@ public class GraphPanel extends JPanel {
 					Point3 currentCenter = getViewCenter();
 
 					// calc new position
-					double x_new = currentCenter.x
-							+ (dragPos.getX() - arg0.getX())
-							* config.getScrollSpeed() * getZoomPercent()
-							* getGraphDimension() / 13;
-					double y_new = currentCenter.y
-							- (dragPos.getY() - arg0.getY())
-							* config.getScrollSpeed() * getZoomPercent()
-							* getGraphDimension() / 13;
+					Point3 p = calculateNewPoint(currentCenter, dragPos, arg0);
 
 					// set viewcenter
-					setViewCenter(x_new, y_new, currentCenter.z);
+					setViewCenter(p.x, p.y, currentCenter.z);
 
 					// update new position
 					dragPos = arg0.getPoint();
 				}
 			}
 		});
+	}
+
+	protected Point3 calculateNewPoint(Point3 currentCenter, Point dragPos,
+			MouseEvent newPos) {
+		// calc vectors
+		double xAdd = (dragPos.getX() - newPos.getX())
+				* config.getScrollSpeed() * getZoomPercent()
+				* getGraphDimension() / 13;
+		double yAdd = (dragPos.getY() - newPos.getY())
+				* config.getScrollSpeed() * getZoomPercent()
+				* getGraphDimension() / 13;
+
+		// convert angle into radians
+		double A = -getRotation() * Math.PI / 180;
+
+		// rotate vectors
+		//
+		// rotation matrix of angle A
+		//
+		// cos A -sin A
+		// sin A cos A
+		double xAddRotated = xAdd * Math.cos(A) - yAdd * Math.sin(A);
+		double yAddRotated = xAdd * Math.sin(A) + yAdd * Math.cos(A);
+
+		Point3 p = new Point3(currentCenter.x + xAddRotated, currentCenter.y
+				- yAddRotated, 0.0);
+		return p;
 	}
 
 	/**
@@ -610,6 +672,11 @@ public class GraphPanel extends JPanel {
 	/** Sets the camera rotation. **/
 	public void setRotation(double rotation) {
 		double rot = rotation % 360;
+		if (rot < 0)
+			rot += 360;
+
+		if (this.rotationLabel != null)
+			this.rotationLabel.setText(Math.floor(rot * 10) / 10 + "°");
 		this.view.getCamera().setViewRotation(rot);
 	}
 
@@ -632,9 +699,18 @@ public class GraphPanel extends JPanel {
 
 	/** Resets the camera to center and 100 zoom level. **/
 	public void resetView() {
+		// keep rotation and set it after view reset
+		double rotation = getRotation();
 		this.view.getCamera().resetView();
+		setRotation(rotation);
+
 		if (this.zoomLabel != null)
 			this.zoomLabel.setText("100%  ");
+	}
+
+	/** Resets the cameras rotation to 0.0. **/
+	public void resetRotation() {
+		this.setRotation(0.0);
 	}
 
 	/** Returns the current view center. **/
