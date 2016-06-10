@@ -3,7 +3,6 @@ package dna.visualization.graph;
 import java.awt.Dimension;
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.concurrent.TimeUnit;
 
 import javax.swing.JFrame;
 
@@ -24,10 +23,8 @@ import dna.graph.weights.longW.Long2dWeight;
 import dna.graph.weights.longW.Long3dWeight;
 import dna.util.Config;
 import dna.util.Log;
+import dna.visualization.config.graph.GraphPanelConfig;
 import dna.visualization.graph.GraphPanel.PositionMode;
-import dna.visualization.graph.rules.NodeColorByDegree;
-import dna.visualization.graph.rules.NodeSizeBy3dCoordinates;
-import dna.visualization.graph.rules.NodeSizeByDegree;
 import dna.visualization.graph.toolTipManager.DefaultToolTipManager;
 
 /** The GraphVisualization class offers methods to visualize graphs used in DNA. **/
@@ -46,11 +43,6 @@ public class GraphVisualization {
 	public static final String updateKey = "dna.update";
 	public static final String zKey = "dna.z";
 	public static final String frozenKey = "layout.frozen";
-
-	// GUI CONFIG
-	protected static final Dimension size = new Dimension(
-			Config.getInt("GRAPH_VIS_FRAME_WIDTH"),
-			Config.getInt("GRAPH_VIS_FRAME_HEIGHT"));
 
 	// graph map
 	protected static HashMap<Graph, GraphPanel> map = new HashMap<Graph, GraphPanel>();
@@ -84,12 +76,6 @@ public class GraphVisualization {
 		else
 			graph.addAttribute(directedKey, false);
 
-		// rendering options
-		if (Config.getBoolean("GRAPH_VIS_RENDERING_HQ"))
-			graph.addAttribute(GraphVisualization.qualityKey);
-		if (Config.getBoolean("GRAPH_VIS_RENDERING_ANTIALIAS"))
-			graph.addAttribute(GraphVisualization.antialiasKey);
-
 		// check nodeweighttypes for position modes
 		PositionMode mode = PositionMode.auto;
 		Class<? extends Weight> nwt = g.getGraphDatastructures()
@@ -107,30 +93,39 @@ public class GraphVisualization {
 
 		// main frame
 		JFrame mainFrame = new JFrame("Graph-Vis Mainframe");
-		GraphPanel panel = new GraphPanel(mainFrame, graph, name, name, mode);
 
-		// add style rules
-		if (Config.getBoolean("GRAPH_VIS_SIZE_NODES_BY_DEGREE"))
-			panel.addGraphStyleRule(new NodeSizeByDegree("NODE_SIZE_BY_DEGREE"));
-		if (Config.getBoolean("GRAPH_VIS_3D_PROJECTION_ENABLED")
-				&& Config.getBoolean("GRAPH_VIS_SIZE_NODES_BY_Z_COORDINATE"))
-			panel.addGraphStyleRule(new NodeSizeBy3dCoordinates(
-					"NODE_SIZE_BY_3D_COORDINATES"));
-		if (Config.getBoolean("GRAPH_VIS_COLOR_NODES_BY_DEGREE"))
-			panel.addGraphStyleRule(new NodeColorByDegree(
-					"NODE_COLOR_BY_DEGREE"));
-		if (Config.getBoolean("GRAPH_VIS_TOOLTIPS_ENABLED"))
-			panel.addToolTipManager(new DefaultToolTipManager(panel));
-		// panel.addGraphStyleRule(new
-		// ToolTipUpdater(panel.getSpriteManager()));
+		// GraphPanelConfig cfg = GraphPanelConfig.defaultGraphPanelConfig;
+
+		// read config or take default config
+		String configPath = getConfigPath();
+		GraphPanelConfig cfg = null;
+		if (configPath != null && !configPath.equals("null"))
+			cfg = GraphPanelConfig.readConfig(configPath);
+		if (cfg == null)
+			cfg = GraphPanelConfig.defaultGraphPanelConfig;
+
+		// init graph panel
+		GraphPanel panel = new GraphPanel(mainFrame, graph, name, name, mode,
+				cfg);
+
+		// rendering options
+		if (cfg.isRenderHQ())
+			graph.addAttribute(GraphVisualization.qualityKey);
+		if (cfg.isRenderAA())
+			graph.addAttribute(GraphVisualization.antialiasKey);
 
 		// create main frame
 		mainFrame.add(panel);
 		mainFrame.setName(name);
 		mainFrame.setTitle(name);
 		mainFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-		mainFrame.setSize(size);
+		mainFrame.setSize(new Dimension(cfg.getWidth(), cfg.getHeight()));
 		mainFrame.setLocationRelativeTo(null);
+
+		if (cfg.isFullscreen()) {
+			mainFrame.setExtendedState(mainFrame.getExtendedState()
+					| JFrame.MAXIMIZED_BOTH);
+		}
 
 		// set visible
 		mainFrame.setVisible(true);
@@ -142,7 +137,7 @@ public class GraphVisualization {
 		map.put(g, panel);
 
 		// start recording if automatic recording is set
-		if (Config.getBoolean("GRAPH_VIS_VIDEO_AUTO_RECORD")) {
+		if (cfg.getCaptureConfig().isVideoAutoRecord()) {
 			if (!panel.isRecording())
 				try {
 					Thread.sleep(100);
@@ -159,28 +154,16 @@ public class GraphVisualization {
 
 	/** Adds node n to graph g. **/
 	public static void addNode(Graph g, Node n) {
-		// wait some time
-		waitTime(Config.getInt("GRAPH_VIS_WAIT_NODE_ADDITION"));
-
-		// add node
 		map.get(g).addNode(n);
 	}
 
 	/** Removes node n from graph g. **/
 	public static void removeNode(Graph g, Node n) {
-		// wait some time
-		waitTime(Config.getInt("GRAPH_VIS_WAIT_NODE_REMOVAL"));
-
-		// get graph
 		map.get(g).removeNode(n);
 	}
 
 	/** Changes node weight on node n IN CURRENT GRAPH!!. **/
 	public static void changeNodeWeight(IWeightedNode n, Weight w) {
-		// wait some time
-		waitTime(Config.getInt("GRAPH_VIS_WAIT_NODE_WEIGHT_CHANGE"));
-
-		// get graph
 		currentGraphPanel.changeNodeWeight(n, w);
 	}
 
@@ -190,45 +173,22 @@ public class GraphVisualization {
 
 	/** Adds edge e to graph g. **/
 	public static void addEdge(Graph g, Edge e) {
-		// wait some time
-		waitTime(Config.getInt("GRAPH_VIS_WAIT_EDGE_ADDITION"));
-
-		// add edge
 		map.get(g).addEdge(e);
 	}
 
 	/** Removes edge e from graph g. **/
 	public static void removeEdge(Graph g, Edge e) {
-		// wait some time
-		waitTime(Config.getInt("GRAPH_VIS_WAIT_EDGE_REMOVAL"));
-
-		// get graph
 		map.get(g).removeEdge(e);
 	}
 
 	/** Changes edge weight on edge e IN CURRENT GRAPH!!. **/
 	public static void changeEdgeWeight(IWeightedEdge e, Weight w) {
-		// wait some time
-		waitTime(Config.getInt("GRAPH_VIS_WAIT_EDGE_WEIGHT_CHANGE"));
-
-		// get graph
 		currentGraphPanel.changeEdgeWeight(e, w);
 	}
 
 	/*
 	 * MISC
 	 */
-
-	/** Wait for specified time in milliseconds. **/
-	protected static void waitTime(long milliseconds) {
-		if (Config.getBoolean("GRAPH_VIS_WAIT_ENABLED")) {
-			try {
-				TimeUnit.MILLISECONDS.sleep(milliseconds);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
-		}
-	}
 
 	/** Sets the description text for the given graph. **/
 	public static void setText(Graph g, String text) {
@@ -333,4 +293,15 @@ public class GraphVisualization {
 
 		return new float[] { x, y, z };
 	}
+
+	/** Sets the config path to be used. **/
+	public static void setConfigPath(String path) {
+		Config.overwrite("GRAPH_VIS_CONFIG_PATH", path);
+	}
+
+	/** Returns the current config path. **/
+	public static String getConfigPath() {
+		return Config.get("GRAPH_VIS_CONFIG_PATH");
+	}
+
 }

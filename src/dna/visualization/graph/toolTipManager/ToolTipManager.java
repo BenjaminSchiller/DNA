@@ -1,6 +1,9 @@
 package dna.visualization.graph.toolTipManager;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import org.graphstream.graph.Edge;
 import org.graphstream.graph.Node;
@@ -9,14 +12,12 @@ import org.graphstream.ui.spriteManager.Sprite;
 import org.graphstream.ui.spriteManager.SpriteManager;
 
 import dna.graph.weights.Weight;
+import dna.util.Log;
+import dna.util.parameters.Parameter;
+import dna.visualization.config.graph.toolTips.ToolTipConfig;
 import dna.visualization.graph.GraphPanel;
 import dna.visualization.graph.rules.GraphStyleRule;
 import dna.visualization.graph.toolTips.ToolTip;
-import dna.visualization.graph.toolTips.ToolTip.ToolTipType;
-import dna.visualization.graph.toolTips.button.FreezeButton;
-import dna.visualization.graph.toolTips.button.HighlightButton;
-import dna.visualization.graph.toolTips.infoLabel.NodeDegreeLabel;
-import dna.visualization.graph.toolTips.infoLabel.NodeIdLabel;
 
 /**
  * The ToolTipManager handles the ToolTips used in the GraphVisualization.
@@ -38,7 +39,8 @@ public class ToolTipManager extends GraphStyleRule {
 	// class fields
 	private String name;
 	private ArrayList<String> toolTipsNames;
-	private ArrayList<ToolTipType> toolTipsTypes;
+	private ArrayList<Class<?>> toolTipsClasses;
+	private ArrayList<Parameter[]> toolTipsParams;
 
 	// configuration
 	private int distance;
@@ -55,22 +57,70 @@ public class ToolTipManager extends GraphStyleRule {
 		this.offset = offset;
 		this.angle = angle;
 		this.toolTipsNames = new ArrayList<String>();
-		this.toolTipsTypes = new ArrayList<ToolTipType>();
+		this.toolTipsClasses = new ArrayList<Class<?>>();
+		this.toolTipsParams = new ArrayList<Parameter[]>();
 	}
 
-	/** Adds a tooltip of the given name and type to the manager. **/
-	public void addToolTip(String name, ToolTipType type) {
+	/** Adds a tooltip of the given name and class to the manager. **/
+	public void addToolTip(String name, Class<?> cl) {
+		addToolTip(name, cl, new Parameter[0]);
+	}
+
+	/** Adds a tooltip of the given name, class and params to the manager. **/
+	public void addToolTip(String name, Class<?> cl, Parameter[] params) {
 		this.toolTipsNames.add(name);
-		this.toolTipsTypes.add(type);
+		this.toolTipsClasses.add(cl);
+		this.toolTipsParams.add(params);
+	}
+
+	/** Adds a tooltip from the given tool-tip-config. **/
+	public void addToolTip(ToolTipConfig ttCfg) {
+		try {
+			addToolTip(ttCfg.getName(), Class.forName(ttCfg.getKey()),
+					ttCfg.getParams());
+		} catch (ClassNotFoundException e) {
+			Log.warn("ToolTip class: " + ttCfg.getKey() + " not found!");
+			e.printStackTrace();
+		}
+	}
+
+	/** Adds multiple tooltips from their configs. **/
+	public void addToolTips(ArrayList<ToolTipConfig> toolTips) {
+		// sort by index
+		HashMap<Integer, ArrayList<ToolTipConfig>> indexListMap = new HashMap<Integer, ArrayList<ToolTipConfig>>();
+		ArrayList<ToolTipConfig> lastlyAdded = new ArrayList<ToolTipConfig>();
+
+		for (ToolTipConfig ttCfg : toolTips) {
+			int index = ttCfg.getIndex();
+
+			if (index >= 0) {
+				if (!indexListMap.containsKey(index))
+					indexListMap.put(index, new ArrayList<ToolTipConfig>());
+
+				indexListMap.get(index).add(ttCfg);
+			} else {
+				lastlyAdded.add(ttCfg);
+			}
+		}
+
+		for (Integer index : indexListMap.keySet()) {
+			for (ToolTipConfig ttCfg : indexListMap.get(index)) {
+				addToolTip(ttCfg);
+			}
+		}
+		for (ToolTipConfig ttCfg : lastlyAdded) {
+			addToolTip(ttCfg);
+		}
 	}
 
 	/** Removes the tooltip from the manager. **/
-	public void removeToolTip(String name, ToolTipType type) {
-		for (int i = 0; i < this.toolTipsTypes.size(); i++) {
-			if (this.toolTipsTypes.get(i).equals(type)
+	public void removeToolTip(String name, Class<?> cl) {
+		for (int i = 0; i < this.toolTipsClasses.size(); i++) {
+			if (this.toolTipsClasses.get(i).equals(cl)
 					&& this.toolTipsNames.get(i).equals(name)) {
 				this.toolTipsNames.remove(i);
-				this.toolTipsTypes.remove(i);
+				this.toolTipsClasses.remove(i);
+				this.toolTipsParams.remove(i);
 			}
 		}
 	}
@@ -95,18 +145,23 @@ public class ToolTipManager extends GraphStyleRule {
 		node.removeAttribute(ToolTip.GraphVisToolTipActiveKey);
 	}
 
+	/** Returns the ToolTip id for tooltip with index i and node n. **/
+	protected String getToolTipId(int i, Node n) {
+		return getToolTipId(this.toolTipsNames.get(i),
+				this.toolTipsClasses.get(i), n.getId());
+	}
+
 	/** Returns the ToolTip id based on the parameters. **/
-	protected static String getToolTipId(String name, ToolTipType type,
+	protected static String getToolTipId(String name, Class<?> toolTipClass,
 			String nodeId) {
-		return type + "_" + name + "_" + nodeId;
+		return name + "_" + toolTipClass.getSimpleName() + "_" + nodeId;
 	}
 
 	/** Gathers all ToolTips on the given node. **/
 	protected ArrayList<ToolTip> getAllToolTips(Node node) {
 		ArrayList<ToolTip> list = new ArrayList<ToolTip>();
-		for (int i = 0; i < this.toolTipsTypes.size(); i++) {
-			String toolTipId = getToolTipId(this.toolTipsNames.get(i),
-					this.toolTipsTypes.get(i), node.getId());
+		for (int i = 0; i < this.toolTipsClasses.size(); i++) {
+			String toolTipId = getToolTipId(i, node);
 			if (sm.hasSprite(toolTipId))
 				list.add(ToolTip.getFromSprite(sm.getSprite(toolTipId)));
 		}
@@ -116,9 +171,9 @@ public class ToolTipManager extends GraphStyleRule {
 
 	/** Hides all ToolTips from the given node. **/
 	protected void hideAllToolTips(Node node) {
-		for (int i = 0; i < this.toolTipsTypes.size(); i++) {
+		for (int i = 0; i < this.toolTipsClasses.size(); i++) {
 			String toolTipId = getToolTipId(this.toolTipsNames.get(i),
-					this.toolTipsTypes.get(i), node.getId());
+					this.toolTipsClasses.get(i), node.getId());
 			if (sm.hasSprite(toolTipId))
 				sm.removeSprite(toolTipId);
 		}
@@ -127,40 +182,26 @@ public class ToolTipManager extends GraphStyleRule {
 		setToolTipsInactive(node);
 	}
 
-	/**
-	 * Initializes a ToolTip.
-	 * 
-	 * <p>
-	 * 
-	 * Note: Integrate new ToolTip implementations in this method, else they
-	 * wont be rendered.
-	 */
-	protected void initToolTip(String name, ToolTipType ttt, Node node,
-			int offset) {
+	/** Init class tooltip. **/
+	protected void initToolTip(String name, Class<?> ttCl, Parameter[] params,
+			Node node, int offset) {
 		String nodeId = node.getId();
 		ToolTip tt = null;
 
 		// craft sprite
-		String ttId = getToolTipId(name, ttt, nodeId);
+		String ttId = getToolTipId(name, ttCl, nodeId);
 		Sprite sprite = sm.addSprite(ttId);
 
-		// switch on type
-		switch (ttt) {
-		case BUTTON_FREEZE:
-			tt = new FreezeButton(sprite, name, nodeId);
-			break;
-		case BUTTON_HIGHLIGHT:
-			tt = new HighlightButton(sprite, name, nodeId);
-			break;
-		case INFO_NODE_DEGREE:
-			tt = new NodeDegreeLabel(sprite, name, node);
-			break;
-		case INFO_NODE_ID:
-			tt = new NodeIdLabel(sprite, name, nodeId);
-			break;
-		case NONE:
-			sm.removeSprite(ttId);
-			break;
+		try {
+			Constructor<?> cons = ttCl.getConstructor(Sprite.class,
+					String.class, Node.class, Parameter[].class);
+			tt = (ToolTip) cons.newInstance(sprite, name, node, params);
+		} catch (NoSuchMethodException | SecurityException
+				| InstantiationException | IllegalAccessException
+				| IllegalArgumentException | InvocationTargetException e) {
+			Log.error("problem when instantiating ToolTip: " + name
+					+ " of class " + ttCl);
+			e.printStackTrace();
 		}
 
 		tt.setPosition(distance + offset, angle);
@@ -169,9 +210,9 @@ public class ToolTipManager extends GraphStyleRule {
 	/** Shows all ToolTips on the given node. **/
 	protected void showAllToolTips(Node node) {
 		// iterate over all set tooltips
-		for (int i = 0; i < this.toolTipsTypes.size(); i++) {
-			initToolTip(this.toolTipsNames.get(i), this.toolTipsTypes.get(i),
-					node, i * offset);
+		for (int i = 0; i < this.toolTipsClasses.size(); i++) {
+			initToolTip(this.toolTipsNames.get(i), this.toolTipsClasses.get(i),
+					this.toolTipsParams.get(i), node, i * offset);
 		}
 
 		// set tooltips-active flag
@@ -199,11 +240,6 @@ public class ToolTipManager extends GraphStyleRule {
 			// if not active -> create
 			showAllToolTips(node);
 		}
-	}
-
-	/** Called when a node is being added. **/
-	public void onNodeAddition(Node n) {
-		// DO NOTHING
 	}
 
 	/** Called when a node is being removed. **/
@@ -234,11 +270,6 @@ public class ToolTipManager extends GraphStyleRule {
 
 		for (ToolTip tt : getAllToolTips(n2))
 			tt.onEdgeRemoval(e, n1, n2);
-	}
-
-	/** Called when an edge weight changes. **/
-	public void onEdgeWeightChange(Edge e, Weight wNew, Weight wOld) {
-		// DO NOTHING
 	}
 
 	@Override

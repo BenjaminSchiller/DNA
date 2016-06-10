@@ -1,11 +1,14 @@
-package dna.visualization.graph.rules;
+package dna.visualization.graph.rules.nodes;
 
-import org.graphstream.graph.Edge;
 import org.graphstream.graph.Node;
 
 import dna.graph.weights.Weight;
 import dna.util.Config;
+import dna.util.parameters.DoubleParameter;
+import dna.util.parameters.Parameter;
 import dna.visualization.graph.GraphVisualization;
+import dna.visualization.graph.rules.GraphStyleRule;
+import dna.visualization.graph.rules.GraphStyleUtils;
 
 public class NodeSizeBy3dCoordinates extends GraphStyleRule {
 
@@ -13,28 +16,40 @@ public class NodeSizeBy3dCoordinates extends GraphStyleRule {
 	protected double shrinkFactor;
 
 	public NodeSizeBy3dCoordinates(String name) {
-		this(name, Config.getDouble("GRAPH_VIS_3D_PROJECTION_NODE_GROWTH"),
-				Config.getDouble("GRAPH_VIS_3D_PROJECTION_NODE_SHRINK_FACTOR"));
+		this(name, new Parameter[0]);
 	}
 
 	public NodeSizeBy3dCoordinates(String name, double growthFactor,
 			double shrinkFactor) {
+		this(name, new Parameter[] {
+				new DoubleParameter("baseGrowth", growthFactor),
+				new DoubleParameter("shrinkFactor", shrinkFactor) });
+	}
+
+	public NodeSizeBy3dCoordinates(String name, Parameter[] params) {
 		this.name = name;
-		this.baseGrowth = growthFactor;
-		this.shrinkFactor = shrinkFactor;
+		this.baseGrowth = 2.0;
+		this.shrinkFactor = 0.15;
+
+		for (Parameter p : params) {
+			switch (p.getName().toLowerCase()) {
+			case "basegrowth":
+				this.baseGrowth = Double.parseDouble(p.getValue());
+				break;
+			case "shrinkfactor":
+				this.shrinkFactor = Double.parseDouble(p.getValue());
+				break;
+			}
+		}
 	}
 
 	@Override
-	public void onNodeAddition(Node n) {
+	public void onNodeAddition(Node n, Weight w) {
 		// increase size by base growth and reduze by z*shrinkfactor
 		float z = n.getAttribute(GraphVisualization.zKey);
 
 		GraphStyleUtils.increaseSize(n,
 				this.baseGrowth - Math.floor(z * this.shrinkFactor));
-	}
-
-	@Override
-	public void onNodeRemoval(Node n) {
 	}
 
 	@Override
@@ -46,18 +61,6 @@ public class NodeSizeBy3dCoordinates extends GraphStyleRule {
 		// calc shrink based on z-diff
 		float zDiff = zNew - zOld;
 		GraphStyleUtils.decreaseSize(n, Math.floor(zDiff * this.shrinkFactor));
-	}
-
-	@Override
-	public void onEdgeAddition(Edge e, Node n1, Node n2) {
-	}
-
-	@Override
-	public void onEdgeRemoval(Edge e, Node n1, Node n2) {
-	}
-
-	@Override
-	public void onEdgeWeightChange(Edge e, Weight wNew, Weight wOld) {
 	}
 
 	@Override

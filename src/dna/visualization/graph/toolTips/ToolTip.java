@@ -1,16 +1,16 @@
 package dna.visualization.graph.toolTips;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+
 import org.graphstream.graph.Edge;
 import org.graphstream.graph.Node;
 import org.graphstream.ui.graphicGraph.stylesheet.StyleConstants.Units;
 import org.graphstream.ui.spriteManager.Sprite;
 
 import dna.graph.weights.Weight;
+import dna.util.Log;
 import dna.visualization.graph.GraphVisualization;
-import dna.visualization.graph.toolTips.button.FreezeButton;
-import dna.visualization.graph.toolTips.button.HighlightButton;
-import dna.visualization.graph.toolTips.infoLabel.NodeDegreeLabel;
-import dna.visualization.graph.toolTips.infoLabel.NodeIdLabel;
 
 /**
  * ToolTip is a wrapper class for the GraphStream Sprite class. Sprites are
@@ -20,40 +20,55 @@ import dna.visualization.graph.toolTips.infoLabel.NodeIdLabel;
  * 
  * <p>
  * 
+ * In order to implement own ToolTips one has to give a constructor as follows:
+ * 
+ * <p>
+ * 
+ * public constructor(Sprite s, String name, Node n, Parameter[] params)
+ * 
+ * <p>
+ * 
+ * It will be called on initialization with exactly this parameters.<br>
+ * The Parameter[] array can be used to pass additional parameters.<br>
+ * Beside the constructor each ToolTip implementation<br>
+ * (in this example the class would be "BananaToolTip")<br>
+ * has to have a method:
+ * 
+ * <p>
+ * 
+ * <pre>
+ * <code>
+ * public static BananaToolTip getFromSprite(Sprite s) {<br>
+ * 	return (BananaToolTip) ToolTip.getToolTipFromSprite(s);<br>
+ * }
+ * </code>
+ * </pre>
+ * <p>
+ * 
+ * For additional functionality, like mouse interactions, one can overwrite the<br>
+ * onLeftClick() and onRightClick() methods.
+ * 
+ * <p>
+ * 
  * Note that each ToolTip will uniquely identify one Sprite. Due to the nature
  * of Sprite handling in GraphStream this requires to save some data on each
- * Sprite: The ToolTipType and the ToolTips name. Therefore each implementation
- * of ToolTip should be represented by its own unique ToolTipType.
+ * Sprite: The ToolTips class path and the ToolTips name.
  * 
  * @author Rwilmes
- * @date 15.12.2015
+ * @date 25.05.2016
  */
 public abstract class ToolTip {
 
-	/** ToolTipType used to identify different ToolTip implementations. **/
-	public enum ToolTipType {
-		BUTTON_FREEZE, BUTTON_HIGHLIGHT, INFO_NODE_ID, INFO_NODE_DEGREE, NONE
-	}
-
-	public static final String GraphVisToolTipTypeKey = "dna.ttt";
+	public static final String GraphVisToolTipClassKey = "dna.tt.class";
 	public static final String GraphVisToolTipNameKey = "dna.tt.name";
 
 	public static final String GraphVisToolTipActiveKey = "dna.tt.active";
 
 	public static final String GraphVisToolTipStorageKey = "dna.tooltip.storage";
 
-	public static final String spriteSuffixNodeId = "SPRITE1_";
-	public static final String spriteSuffixDegree = "SPRITE2_";
-	public static final String spriteSuffixButtonFreeze = "TT_BUTTON_FREEZE_";
-	public static final String spriteSuffixButtonHighlight = "TT_BUTTON_HIGHLIGHT_";
-	public static final String spriteSuffixButton = "TT_BUTTON_";
-
-	/** Returns the objects ToolTipType. **/
-	public abstract ToolTipType getType();
-
-	/** Sets the ToolTipType on the Sprite. **/
-	protected void setType() {
-		this.s.setAttribute(ToolTip.GraphVisToolTipTypeKey, getType());
+	/** Sets the class on the Sprite as its ToolTip-Class. **/
+	protected void setClass(Class<?> cl) {
+		this.s.setAttribute(ToolTip.GraphVisToolTipClassKey, cl.getName());
 	}
 
 	/** Sprite the ToolTip is wrapped around. **/
@@ -92,33 +107,29 @@ public abstract class ToolTip {
 	 * belongs to a specific sprite.
 	 **/
 	public static ToolTip getFromSprite(Sprite s) {
-		ToolTipType ttt = getToolTipTypeFromSprite(s);
-		if (ttt != null) {
-			switch (ttt) {
-			case BUTTON_FREEZE:
-				return FreezeButton.getFromSprite(s);
-			case BUTTON_HIGHLIGHT:
-				return HighlightButton.getFromSprite(s);
-			case INFO_NODE_DEGREE:
-				return NodeDegreeLabel.getFromSprite(s);
-			case INFO_NODE_ID:
-				return NodeIdLabel.getFromSprite(s);
-			}
+		String ttClassPath = getToolTipClassPathFromSprite(s);
+		ToolTip tt = null;
+		try {
+			Class<?> ttCl = Class.forName(ttClassPath);
+			Method m = ttCl.getDeclaredMethod("getFromSprite", Sprite.class);
+			tt = (ToolTip) m.invoke(Sprite.class, s);
+		} catch (ClassNotFoundException | NoSuchMethodException
+				| SecurityException | IllegalAccessException
+				| IllegalArgumentException | InvocationTargetException e) {
+			Log.error("problem when instantiating ToolTip from class: "
+					+ ttClassPath);
+			e.printStackTrace();
 		}
 
-		// return null
-		return null;
+		return tt;
 	}
 
-	/**
-	 * Returns the ToolTipType from a Sprite s. For more ToolTip implementations
-	 * add more ToolTipTypes.
-	 **/
-	public static ToolTipType getToolTipTypeFromSprite(Sprite s) {
-		if (!s.hasAttribute(GraphVisToolTipTypeKey))
-			return ToolTipType.NONE;
+	/** Returns the ToolTip class from a Sprite s. **/
+	public static String getToolTipClassPathFromSprite(Sprite s) {
+		if (!s.hasAttribute(GraphVisToolTipClassKey))
+			return null;
 
-		return s.getAttribute(GraphVisToolTipTypeKey, ToolTipType.class);
+		return s.getAttribute(GraphVisToolTipClassKey);
 	}
 
 	/** Default style of a tool-tip. **/
@@ -143,10 +154,41 @@ public abstract class ToolTip {
 	/*
 	 * METHODS FOR DYNAMIC EVENTS IN GRAPH
 	 */
-	public abstract void onNodeWeightChange(Node n, Weight wNew, Weight wOld);
+	public void onNodeWeightChange(Node n, Weight wNew, Weight wOld) {
 
-	public abstract void onEdgeAddition(Edge e, Node n1, Node n2);
+	}
 
-	public abstract void onEdgeRemoval(Edge e, Node n1, Node n2);
+	public void onEdgeAddition(Edge e, Node n1, Node n2) {
 
+	}
+
+	public void onEdgeRemoval(Edge e, Node n1, Node n2) {
+
+	}
+
+	/*
+	 * MOUSE INTERACTIONS
+	 */
+
+	/**
+	 * Called when the button is clicked with the left mouse-button.
+	 * 
+	 * <p>
+	 * 
+	 * Overwrite to add actual logic to your tooltip.
+	 * **/
+	public void onLeftClick() {
+
+	}
+
+	/**
+	 * Called when the button is clicked with the right mouse-button.
+	 * 
+	 * <p>
+	 * 
+	 * Overwrite to add actual logic to your tooltip.
+	 * **/
+	public void onRightClick() {
+
+	}
 }

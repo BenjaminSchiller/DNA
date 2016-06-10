@@ -10,8 +10,6 @@ import org.graphstream.ui.view.util.DefaultMouseManager;
 
 import dna.visualization.graph.GraphPanel;
 import dna.visualization.graph.toolTips.ToolTip;
-import dna.visualization.graph.toolTips.button.FreezeButton;
-import dna.visualization.graph.toolTips.button.HighlightButton;
 
 /**
  * The GraphVisMouseManager extends the GraphStream DefaultMouseManager. It
@@ -90,15 +88,17 @@ public class GraphVisMouseManager extends DefaultMouseManager {
 	 **/
 	@Override
 	public void mouseDragged(MouseEvent event) {
+		// if dragged with right mouse down -> dont do anything
+		boolean rightMouseButtonPressed = (event.getModifiersEx() & InputEvent.BUTTON3_DOWN_MASK) == InputEvent.BUTTON3_DOWN_MASK;
+		if (rightMouseButtonPressed)
+			return;
+
 		if (curElement != null) {
 			if (!(curElement instanceof GraphicSprite))
 				elementMoving(curElement, event);
 		} else {
-			// if dragged with right mouse down -> dont grow selection
-			if ((event.getModifiersEx() & InputEvent.BUTTON3_DOWN_MASK) == InputEvent.BUTTON3_DOWN_MASK)
-				return;
-
-			view.selectionGrowsAt(event.getX(), event.getY());
+			// ADD SELECTION LOGIC HERE
+			// view.selectionGrowsAt(event.getX(), event.getY());
 		}
 	}
 
@@ -109,14 +109,7 @@ public class GraphVisMouseManager extends DefaultMouseManager {
 			SpriteManager sm = this.panel.getSpriteManager();
 			if (sm.hasSprite(spriteId)) {
 				ToolTip tt = ToolTip.getFromSprite(sm.getSprite(spriteId));
-				switch (tt.getType()) {
-				case BUTTON_FREEZE:
-					((FreezeButton) tt).onRightClick();
-					break;
-				case BUTTON_HIGHLIGHT:
-					((HighlightButton) tt).onRightClick();
-					break;
-				}
+				tt.onRightClick();
 			}
 		}
 	}
@@ -128,14 +121,7 @@ public class GraphVisMouseManager extends DefaultMouseManager {
 			SpriteManager sm = this.panel.getSpriteManager();
 			if (sm.hasSprite(spriteId)) {
 				ToolTip tt = ToolTip.getFromSprite(sm.getSprite(spriteId));
-				switch (tt.getType()) {
-				case BUTTON_FREEZE:
-					((FreezeButton) tt).onLeftClick();
-					break;
-				case BUTTON_HIGHLIGHT:
-					((HighlightButton) tt).onLeftClick();
-					break;
-				}
+				tt.onLeftClick();
 			}
 		}
 	}

@@ -1,7 +1,9 @@
 package dna.visualization.graph.toolTips.button;
 
+import org.graphstream.graph.Node;
 import org.graphstream.ui.spriteManager.Sprite;
 
+import dna.util.parameters.Parameter;
 import dna.visualization.graph.GraphVisualization;
 import dna.visualization.graph.toolTips.ToolTip;
 
@@ -15,22 +17,12 @@ import dna.visualization.graph.toolTips.ToolTip;
  */
 public abstract class Button extends ToolTip {
 
-	/**
-	 * The constructor.
-	 * 
-	 * @param s
-	 *            The GraphStream Sprite the button will wrap.
-	 * @param name
-	 *            Name of the button. Will be used for identification.
-	 * @param attachementId
-	 *            The id of the GraphStream object the Button will be attached
-	 *            too. E.g. the node the tooltip will show up at.
-	 */
-	public Button(Sprite s, String name, String attachementId) {
+	/** Constructor **/
+	public Button(Sprite s, String name, Node n, Parameter[] params) {
 		this.s = s;
 		setName(name);
-		setType();
-		attachToNode(attachementId);
+		setClass(this.getClass());
+		attachToNode("" + n.getIndex());
 
 		// store on sprite
 		storeThisOnSprite();
@@ -40,15 +32,6 @@ public abstract class Button extends ToolTip {
 	public void setLabel(String label) {
 		this.s.setAttribute(GraphVisualization.labelKey, label);
 	}
-
-	/** Returns the ToolTipType. Override to return a specific type. **/
-	public abstract ToolTipType getType();
-
-	/** Returns the default label. **/
-	protected abstract String getDefaultLabel();
-
-	/** Returns the label when the button is pressed. **/
-	protected abstract String getPressedLabel();
 
 	/** Sets the default style. **/
 	public void setDefaultStyle() {
@@ -62,23 +45,31 @@ public abstract class Button extends ToolTip {
 		setLabel(getPressedLabel());
 	}
 
-	/**
-	 * Called when the button is clicked with the left mouse-button.
-	 * 
-	 * <p>
-	 * 
-	 * Use to add actual logic to your button.
-	 * **/
-	public abstract void onLeftClick();
+	/*
+	 * STATICS
+	 */
 
-	/**
-	 * Called when the button is clicked with the right mouse-button.
-	 * 
-	 * <p>
-	 * 
-	 * Use to add actual logic to your button.
-	 * **/
-	public abstract void onRightClick();
+	/** The default style. **/
+	protected static final String defaultStyle = "" + "shape:rounded-box; "
+			+ "size:100px,30px; " + "fill-mode:plain; "
+			+ "fill-color: rgba(155,155,155, 150); " + "stroke-mode:dots; "
+			+ "stroke-color: rgb(40, 40, 40); " + "text-alignment:center;";
+
+	/** The default style when the button is shown pressed. **/
+	protected static final String pressedStyle = "" + "shape:rounded-box; "
+			+ "size:100px,30px; " + "fill-mode:plain; "
+			+ "fill-color: rgba(200,0,0, 150); " + "stroke-mode:dots; "
+			+ "stroke-color: rgb(40, 40, 40); " + "text-alignment:center;";
+
+	/*
+	 * ABSTRACT METHODS
+	 */
+
+	/** Returns the default label. **/
+	protected abstract String getDefaultLabel();
+
+	/** Returns the label when the button is pressed. **/
+	protected abstract String getPressedLabel();
 
 	/**
 	 * Returns the default-style.
@@ -97,17 +88,5 @@ public abstract class Button extends ToolTip {
 	 * Override to use other styles.
 	 **/
 	protected abstract String getPressedStyle();
-
-	/** The default style. **/
-	protected static final String defaultStyle = "" + "shape:rounded-box; "
-			+ "size:100px,30px; " + "fill-mode:plain; "
-			+ "fill-color: rgba(155,155,155, 150); " + "stroke-mode:dots; "
-			+ "stroke-color: rgb(40, 40, 40); " + "text-alignment:center;";
-
-	/** The default style when the button is shown pressed. **/
-	protected static final String pressedStyle = "" + "shape:rounded-box; "
-			+ "size:100px,30px; " + "fill-mode:plain; "
-			+ "fill-color: rgba(200,0,0, 150); " + "stroke-mode:dots; "
-			+ "stroke-color: rgb(40, 40, 40); " + "text-alignment:center;";
 
 }

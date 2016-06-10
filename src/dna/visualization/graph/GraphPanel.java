@@ -20,6 +20,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.concurrent.TimeUnit;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
@@ -28,6 +29,7 @@ import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.SwingConstants;
 
 import org.graphstream.graph.Edge;
 import org.graphstream.graph.Graph;
@@ -41,19 +43,19 @@ import org.graphstream.ui.view.View;
 import org.graphstream.ui.view.Viewer;
 import org.graphstream.ui.view.util.DefaultMouseManager;
 
-import dna.graph.edges.DirectedWeightedEdge;
-import dna.graph.edges.UndirectedWeightedEdge;
-import dna.graph.nodes.DirectedWeightedNode;
-import dna.graph.nodes.UndirectedWeightedNode;
 import dna.graph.weights.IWeightedEdge;
 import dna.graph.weights.IWeightedNode;
 import dna.graph.weights.Weight;
-import dna.util.Config;
 import dna.util.Log;
 import dna.visualization.VisualizationUtils;
 import dna.visualization.VisualizationUtils.VideoRecorder;
+import dna.visualization.VisualizationUtils.VideoRecorder.RecordMode;
+import dna.visualization.config.graph.CaptureConfig;
+import dna.visualization.config.graph.GraphPanelConfig;
+import dna.visualization.config.graph.rules.GraphStyleRuleConfig;
 import dna.visualization.graph.rules.GraphStyleRule;
 import dna.visualization.graph.rules.GraphStyleUtils;
+import dna.visualization.graph.toolTipManager.DefaultToolTipManager;
 import dna.visualization.graph.toolTipManager.ToolTipManager;
 import dna.visualization.graph.util.GraphVisMouseManager;
 
@@ -86,15 +88,21 @@ public class GraphPanel extends JPanel {
 	protected boolean tooltips;
 	protected SpriteManager spriteManager;
 
+	// config
+	protected GraphPanelConfig config;
+
 	// rules
 	protected ArrayList<GraphStyleRule> rules;
+	protected ArrayList<Boolean> rulesFlags;
 	protected int nextRuleIndex;
 
 	// panels
 	protected final JPanel graphView;
 	protected JPanel textPanel;
 	protected JLabel textLabel;
+	protected JLabel rotationLabel;
 	protected JLabel zoomLabel;
+	protected JLabel zoomPercentLabel;
 	protected final Layout layouter;
 	protected JButton captureButton;
 	protected JButton screenshotButton;
@@ -112,12 +120,6 @@ public class GraphPanel extends JPanel {
 	protected JLabel nodesValue;
 	protected JLabel edgesValue;
 	protected SimpleDateFormat dateFormat;
-	public boolean timestampAsDate;
-
-	// speed factors
-	protected double zoomSpeedFactor = Config.getDouble("GRAPH_VIS_ZOOM_SPEED");
-	protected double scrollSpeecFactor = Config
-			.getDouble("GRAPH_VIS_SCROLL_SPEED");
 
 	// used for dragging
 	protected Point dragPos;
@@ -130,42 +132,6 @@ public class GraphPanel extends JPanel {
 	protected VideoRecorder videoRecorder;
 	protected RecordArea recordArea;
 
-	// enable 3d projection
-	protected boolean enable3dProjection = Config
-			.getBoolean("GRAPH_VIS_3D_PROJECTION_ENABLED");
-	protected boolean enable3dProjectionNodeSizing = Config
-			.getBoolean("GRAPH_VIS_SIZE_NODES_BY_Z_COORDINATE");
-	protected boolean useVanishingPoint = Config
-			.getBoolean("GRAPH_VIS_3D_PROJECTION_USE_VANISHING_POINT");
-
-	// scaling matrix
-	protected final double s0_x = Config
-			.getDouble("GRAPH_VIS_3D_PROJECTION_S0_X");
-	protected final double s0_y = Config
-			.getDouble("GRAPH_VIS_3D_PROJECTION_S0_Y");
-	protected final double s0_z = Config
-			.getDouble("GRAPH_VIS_3D_PROJECTION_S0_Z");
-
-	protected final double s1_x = Config
-			.getDouble("GRAPH_VIS_3D_PROJECTION_S1_X");
-	protected final double s1_y = Config
-			.getDouble("GRAPH_VIS_3D_PROJECTION_S1_Y");
-	protected final double s1_z = Config
-			.getDouble("GRAPH_VIS_3D_PROJECTION_S1_Z");
-
-	// offset vector
-	protected final double offset_x = Config
-			.getDouble("GRAPH_VIS_3D_PROJECTION_OFFSET_X");
-	protected final double offset_y = Config
-			.getDouble("GRAPH_VIS_3D_PROJECTION_OFFSET_Y");
-
-	// vanishing point
-	protected double vp_x = Config.getDouble("GRAPH_VIS_3D_PROJECTION_VP_X");
-	protected double vp_y = Config.getDouble("GRAPH_VIS_3D_PROJECTION_VP_Y");
-	protected double vp_z = Config.getDouble("GRAPH_VIS_3D_PROJECTION_VP_Z");
-	protected double vp_scalingFactor = Config
-			.getDouble("GRAPH_VIS_3D_PROJECTION_VP_SCALING");
-
 	protected static double minX = Double.NaN;
 	protected static double maxX = Double.NaN;
 	protected static double minY = Double.NaN;
@@ -177,58 +143,64 @@ public class GraphPanel extends JPanel {
 	public GraphPanel(JFrame parentFrame, final Graph graph, final String name,
 			final String graphGeneratorName, PositionMode mode) {
 		this(parentFrame, graph, name, graphGeneratorName, mode,
-				new ArrayList<GraphStyleRule>(0));
+				GraphPanelConfig.getDefaultConfig());
 	}
 
 	public GraphPanel(JFrame parentFrame, final Graph graph, final String name,
 			final String graphGeneratorName, PositionMode mode,
-			ArrayList<GraphStyleRule> rules) {
+			GraphPanelConfig config) {
 		this.parentFrame = parentFrame;
 		this.setName(name);
 		this.graph = graph;
 		this.mode = mode;
 		this.graphGeneratorName = graphGeneratorName;
 		this.timestamp = 0;
-		this.dateFormat = new SimpleDateFormat(
-				Config.get("GRAPH_VIS_DATETIME_FORMAT"));
-		this.timestampAsDate = Config.getBoolean("GRAPH_VIS_TIMESTAMP_AS_DATE");
-		this.rules = rules;
+		this.config = config;
+		this.dateFormat = new SimpleDateFormat(config.getTimestampFormat());
+		this.rules = new ArrayList<GraphStyleRule>();
+		this.rulesFlags = new ArrayList<Boolean>();
 		this.nextRuleIndex = 0;
 
 		this.recording = false;
 		this.paused = false;
 		this.tooltips = false;
 
-		if (Config.getBoolean("GRAPH_VIS_TOOLTIPS_ENABLED")) {
+		if (config.isToolTipsEnabled()) {
 			this.spriteManager = new SpriteManager(graph);
 			this.tooltips = true;
-		}
 
-		boolean addStatPanel = Config
-				.getBoolean("GRAPH_VIS_STAT_PANEL_ENABLED");
-		boolean addTextPanel = Config
-				.getBoolean("GRAPH_VIS_TEXT_PANEL_ENABLED");
+			// add style rules
+			ToolTipManager ttm = new DefaultToolTipManager(this);
+			ttm.addToolTips(config.getToolTipsConfig().getToolTips());
+			addToolTipManager(ttm);
+
+		}
 
 		// create viewer and show graph
 		Viewer v = new Viewer(graph,
 				Viewer.ThreadingModel.GRAPH_IN_ANOTHER_THREAD);
 
-		boolean useLayouter3dMode = Config.getBoolean("GRAPH_VIS_LAYOUT_3D");
-
 		// create and configure layouter
-		if (Config.getBoolean("GRAPH_VIS_AUTO_LAYOUT_ENABLED")) {
-			Layout layouter = new SpringBox(useLayouter3dMode);
-			if (Config.getBoolean("GRAPH_VIS_LAYOUT_LINLOG"))
-				layouter = new LinLog(useLayouter3dMode);
-
-			layouter.setForce(Config.getDouble("GRAPH_VIS_LAYOUT_FORCE"));
-			v.enableAutoLayout(layouter);
-
-			this.layouter = layouter;
-		} else {
+		switch (config.getLayouter()) {
+		case auto:
+			this.layouter = new SpringBox();
+			this.layouter.setForce(config.getAutoLayoutForce());
+			break;
+		case linlog:
+			this.layouter = new LinLog();
+			break;
+		case none:
 			this.layouter = null;
-			v.disableAutoLayout();
+			break;
+		default:
+			this.layouter = new SpringBox();
+			break;
 		}
+
+		if (this.layouter != null)
+			v.enableAutoLayout(this.layouter);
+		else
+			v.disableAutoLayout();
 
 		// get view
 		View view = v.addDefaultView(false);
@@ -244,11 +216,15 @@ public class GraphPanel extends JPanel {
 		JPanel bottomPanel = new JPanel();
 		bottomPanel.setLayout(new BoxLayout(bottomPanel, BoxLayout.Y_AXIS));
 
+		// set record area
+		this.setRecordArea(config.getCaptureConfig().getRecordArea());
+
 		// add panels to bottom pannel
-		if (addStatPanel)
+		if (config.isStatPanelEnabled())
 			addStatPanel(bottomPanel);
-		if (addTextPanel)
-			addTextPanel(bottomPanel, (addStatPanel) ? false : true);
+		if (config.isTextPanelEnabled())
+			addTextPanel(bottomPanel, (config.isStatPanelEnabled()) ? false
+					: true);
 
 		// add bottom panel to frame
 		this.add(bottomPanel, BorderLayout.PAGE_END);
@@ -257,6 +233,18 @@ public class GraphPanel extends JPanel {
 		addZoomListener();
 		addMoveListener();
 		changeMouseManager();
+
+		// add rules
+		addGraphStyleRules(config.getRules().getRules());
+	}
+
+	protected void addGraphStyleRules(ArrayList<GraphStyleRuleConfig> rules) {
+		for (GraphStyleRuleConfig rCfg : rules) {
+			GraphStyleRule rule = GraphStyleRule.getRule(rCfg);
+
+			if (rule != null)
+				addGraphStyleRule(rule, rCfg.isEnabled());
+		}
 	}
 
 	/** Adds the stat-panel. **/
@@ -352,11 +340,25 @@ public class GraphPanel extends JPanel {
 		JPanel dummy = new JPanel();
 		textPanel.add(dummy);
 
+		// rotation label
+		this.rotationLabel = new JLabel();
+		rotationLabel.setFont(font);
+		rotationLabel.setText("0.0°");
+		rotationLabel
+				.setToolTipText("Shows the current camera rotation. Click to reset rotation!");
+		rotationLabel.addMouseListener(getRotationLabelMouseListener());
+		rotationLabel.setPreferredSize(new Dimension(49, 18));
+		textPanel.add(rotationLabel);
+
 		// zoom label
 		this.zoomLabel = new JLabel();
 		zoomLabel.setFont(font);
 		zoomLabel.setText("100%  ");
-		zoomLabel.setToolTipText("Zoom");
+		zoomLabel.setHorizontalAlignment(SwingConstants.RIGHT);
+		zoomLabel
+				.setToolTipText("Shows the current zoom. Click to reset zoom and camera position!");
+		zoomLabel.addMouseListener(getZoomLabelMouseListener());
+		zoomLabel.setPreferredSize(new Dimension(61, 18));
 		textPanel.add(zoomLabel);
 
 		// screenshot button
@@ -366,7 +368,7 @@ public class GraphPanel extends JPanel {
 				.getSize() - 3));
 		screenshotButton
 				.setToolTipText("Captures a screenshot and saves it to '"
-						+ Config.get("GRAPH_VIS_SCREENSHOT_DIR") + "'");
+						+ config.getCaptureConfig().getScreenshotDir() + "'");
 		screenshotButton.setFocusPainted(false);
 		screenshotButton.addActionListener(new ActionListener() {
 			@Override
@@ -396,7 +398,7 @@ public class GraphPanel extends JPanel {
 		captureButton.setFont(new Font(font.getName(), font.getStyle(), font
 				.getSize() - 3));
 		captureButton.setToolTipText("Captures a video and saves it to '"
-				+ Config.get("GRAPH_VIS_VIDEO_DIR") + "'");
+				+ config.getCaptureConfig().getVideoDir() + "'");
 		captureButton.setFocusPainted(false);
 		this.captureButtonFontColor = captureButton.getForeground();
 		captureButton.addActionListener(new ActionListener() {
@@ -442,23 +444,80 @@ public class GraphPanel extends JPanel {
 		textPanel.add(recordAreasBox);
 
 		// get record area mode
-		switch (Config.get("GRAPH_VIS_DEFAULT_RECORD_AREA")) {
-		case "content":
+		switch (config.getCaptureConfig().getRecordArea()) {
+		case content:
 			this.setRecordArea(RecordArea.content);
 			recordAreasBox.setSelectedIndex(1);
 			break;
-		case "graph":
+		case graph:
 			this.setRecordArea(RecordArea.graph);
 			recordAreasBox.setSelectedIndex(2);
 			break;
-		default:
+		case full:
 			this.setRecordArea(RecordArea.full);
 			recordAreasBox.setSelectedIndex(0);
 			break;
 		}
 
 		panel.add(textPanel);
+	}
 
+	/** Returns a ZoomLabel-MouseListener. **/
+	protected MouseListener getZoomLabelMouseListener() {
+		MouseListener ml = new MouseListener() {
+
+			@Override
+			public void mouseReleased(MouseEvent e) {
+			}
+
+			@Override
+			public void mousePressed(MouseEvent e) {
+				resetView();
+			}
+
+			@Override
+			public void mouseExited(MouseEvent e) {
+			}
+
+			@Override
+			public void mouseEntered(MouseEvent e) {
+			}
+
+			@Override
+			public void mouseClicked(MouseEvent e) {
+			}
+		};
+
+		return ml;
+	}
+
+	/** Returns a ZoomLabel-MouseListener. **/
+	protected MouseListener getRotationLabelMouseListener() {
+		MouseListener ml = new MouseListener() {
+
+			@Override
+			public void mouseReleased(MouseEvent e) {
+			}
+
+			@Override
+			public void mousePressed(MouseEvent e) {
+				resetRotation();
+			}
+
+			@Override
+			public void mouseExited(MouseEvent e) {
+			}
+
+			@Override
+			public void mouseEntered(MouseEvent e) {
+			}
+
+			@Override
+			public void mouseClicked(MouseEvent e) {
+			}
+		};
+
+		return ml;
 	}
 
 	/** Adds the zoom listener. **/
@@ -474,14 +533,14 @@ public class GraphPanel extends JPanel {
 				if (currentZoom < 0.3) {
 					if (currentZoom < 0.1) {
 						if (currentZoom < 0.01)
-							speed = zoomSpeedFactor / 30;
+							speed = config.getZoomSpeed() / 30;
 						else
-							speed = zoomSpeedFactor / 10;
+							speed = config.getZoomSpeed() / 10;
 					} else {
-						speed = zoomSpeedFactor / 3;
+						speed = config.getZoomSpeed() / 3;
 					}
 				} else {
-					speed = zoomSpeedFactor;
+					speed = config.getZoomSpeed();
 				}
 
 				// calc new zoom amount
@@ -510,27 +569,60 @@ public class GraphPanel extends JPanel {
 
 			@Override
 			public void mouseDragged(MouseEvent arg0) {
-				if ((arg0.getModifiersEx() & InputEvent.BUTTON3_DOWN_MASK) == InputEvent.BUTTON3_DOWN_MASK) {
+				boolean rightMouseButtonPressed = (arg0.getModifiersEx() & InputEvent.BUTTON3_DOWN_MASK) == InputEvent.BUTTON3_DOWN_MASK;
+				boolean shiftPressed = (arg0.getModifiersEx() & InputEvent.SHIFT_DOWN_MASK) == InputEvent.SHIFT_DOWN_MASK;
+
+				if (shiftPressed && rightMouseButtonPressed) {
+					// calc new position
+					double rot = getRotation();
+					double rot_new = rot + (arg0.getY() - dragPos.getY())
+							* config.getRotationSpeed();
+
+					// set new position
+					setRotation(rot_new);
+
+					dragPos = arg0.getPoint();
+				} else if (rightMouseButtonPressed) {
 					Point3 currentCenter = getViewCenter();
 
 					// calc new position
-					double x_new = currentCenter.x
-							+ (dragPos.getX() - arg0.getX())
-							* scrollSpeecFactor * getZoomPercent()
-							* getGraphDimension() / 13;
-					double y_new = currentCenter.y
-							- (dragPos.getY() - arg0.getY())
-							* scrollSpeecFactor * getZoomPercent()
-							* getGraphDimension() / 13;
+					Point3 p = calculateNewPoint(currentCenter, dragPos, arg0);
 
 					// set viewcenter
-					setViewCenter(x_new, y_new, currentCenter.z);
+					setViewCenter(p.x, p.y, currentCenter.z);
 
 					// update new position
 					dragPos = arg0.getPoint();
 				}
 			}
 		});
+	}
+
+	protected Point3 calculateNewPoint(Point3 currentCenter, Point dragPos,
+			MouseEvent newPos) {
+		// calc vectors
+		double xAdd = (dragPos.getX() - newPos.getX())
+				* config.getScrollSpeed() * getZoomPercent()
+				* getGraphDimension() / 13;
+		double yAdd = (dragPos.getY() - newPos.getY())
+				* config.getScrollSpeed() * getZoomPercent()
+				* getGraphDimension() / 13;
+
+		// convert angle into radians
+		double A = -getRotation() * Math.PI / 180;
+
+		// rotate vectors
+		//
+		// rotation matrix of angle A
+		//
+		// cos A -sin A
+		// sin A cos A
+		double xAddRotated = xAdd * Math.cos(A) - yAdd * Math.sin(A);
+		double yAddRotated = xAdd * Math.sin(A) + yAdd * Math.cos(A);
+
+		Point3 p = new Point3(currentCenter.x + xAddRotated, currentCenter.y
+				- yAddRotated, 0.0);
+		return p;
 	}
 
 	/**
@@ -554,14 +646,16 @@ public class GraphPanel extends JPanel {
 	}
 
 	/** Adds a graph style rule. **/
-	public void addGraphStyleRule(GraphStyleRule r) {
+	public void addGraphStyleRule(GraphStyleRule r, boolean enabled) {
 		this.rules.add(r);
+		this.rulesFlags.add(enabled);
 		r.setIndex(this.getNextIndex());
 	}
 
 	/** Adds a ToolTipManager. **/
 	public void addToolTipManager(ToolTipManager ttm) {
 		this.rules.add(ttm);
+		this.rulesFlags.add(true);
 		this.toolTipManager = ttm;
 		ttm.setIndex(this.getNextIndex());
 	}
@@ -573,14 +667,30 @@ public class GraphPanel extends JPanel {
 		return temp;
 	}
 
-	/** Sets the graph style rules. **/
-	public void setGraphStyleRules(ArrayList<GraphStyleRule> rules) {
-		this.rules = rules;
-	}
-
 	/** Returns the graph style rules. **/
 	public ArrayList<GraphStyleRule> getGraphStyleRules() {
 		return this.rules;
+	}
+
+	/** Returns the enabled flags of rules. **/
+	public ArrayList<Boolean> getGraphStyleRulesFlags() {
+		return this.rulesFlags;
+	}
+
+	/** Sets the camera rotation. **/
+	public void setRotation(double rotation) {
+		double rot = rotation % 360;
+		if (rot < 0)
+			rot += 360;
+
+		if (this.rotationLabel != null)
+			this.rotationLabel.setText(Math.floor(rot * 10) / 10 + "°");
+		this.view.getCamera().setViewRotation(rot);
+	}
+
+	/** Returns the current camera rotation. **/
+	public double getRotation() {
+		return this.view.getCamera().getViewRotation();
 	}
 
 	/** Sets the zoom. **/
@@ -593,6 +703,22 @@ public class GraphPanel extends JPanel {
 	/** Returns the current zoom in percent. **/
 	public double getZoomPercent() {
 		return this.view.getCamera().getViewPercent();
+	}
+
+	/** Resets the camera to center and 100 zoom level. **/
+	public void resetView() {
+		// keep rotation and set it after view reset
+		double rotation = getRotation();
+		this.view.getCamera().resetView();
+		setRotation(rotation);
+
+		if (this.zoomLabel != null)
+			this.zoomLabel.setText("100%  ");
+	}
+
+	/** Resets the cameras rotation to 0.0. **/
+	public void resetRotation() {
+		this.setRotation(0.0);
 	}
 
 	/** Returns the current view center. **/
@@ -632,34 +758,36 @@ public class GraphPanel extends JPanel {
 
 	/** Returns the vanishing point as {x, y, z}. **/
 	public double[] getVanishingPoint() {
-		return new double[] { this.vp_x, this.vp_y, this.vp_z };
+		return new double[] { config.getProjectionConfig().getVp_X(),
+				config.getProjectionConfig().getVp_Y(),
+				config.getProjectionConfig().getVp_Z() };
 	}
 
 	/** Sets the vanishing point. **/
 	public void setVanishingPoint(double x, double y, double z) {
-		this.vp_x = x;
-		this.vp_y = y;
-		this.vp_z = z;
+		config.getProjectionConfig().setVp_X(x);
+		config.getProjectionConfig().setVp_Y(y);
+		config.getProjectionConfig().setVp_Z(z);
 	}
 
 	/** Returns if 3d projection is enabled. **/
 	public boolean is3dProjectionEnabled() {
-		return this.enable3dProjection;
+		return config.getProjectionConfig().isEnabled();
 	}
 
 	/** Returns if vanishing point is used for 3d projection. **/
 	public boolean isVanishingPointUsed() {
-		return this.useVanishingPoint;
+		return config.getProjectionConfig().isUseVanishingPoint();
 	}
 
 	/** Enables/Disables 3d pojeton. **/
 	public void set3dProjection(boolean enabled) {
-		this.enable3dProjection = enabled;
+		config.getProjectionConfig().setEnabled(enabled);
 	}
 
 	/** Sets if vanishing points will be used for 3d projection. **/
 	public void setVanishingPointUse(boolean enabled) {
-		this.useVanishingPoint = enabled;
+		config.getProjectionConfig().setUseVanishingPoint(enabled);
 	}
 
 	/** Sets the text-label to the input text. **/
@@ -677,11 +805,8 @@ public class GraphPanel extends JPanel {
 
 	/** Updates the timestamp label. **/
 	protected void setTimestampLabel(long timestamp) {
-		if (this.timestampAsDate)
-			this.timestampValue.setText(this.dateFormat.format(new Date(
-					timestamp)));
-		else
-			this.timestampValue.setText("" + timestamp);
+		this.timestampValue
+				.setText(this.dateFormat.format(new Date(timestamp)));
 	}
 
 	/** Increments the nodes-count label. **/
@@ -786,18 +911,13 @@ public class GraphPanel extends JPanel {
 	public void addNode(dna.graph.nodes.Node n) {
 		// add node to graph
 		Node node = this.graph.addNode("" + n.getIndex());
-		node.addAttribute(GraphVisualization.sizeKey,
-				Config.getDouble("GRAPH_VIS_NODE_DEFAULT_SIZE"));
-		node.addAttribute(GraphVisualization.colorKey,
-				Config.getColor("GRAPH_VIS_NODE_DEFAULT_COLOR"));
+		node.addAttribute(GraphVisualization.sizeKey, config.getNodeSize());
+		node.addAttribute(GraphVisualization.colorKey, config.getNodeColor());
 
 		// init weight
 		Weight w = null;
-		if (n instanceof DirectedWeightedNode) {
-			w = ((DirectedWeightedNode) n).getWeight();
-			node.addAttribute(GraphVisualization.weightKey, w);
-		} else if (n instanceof UndirectedWeightedNode) {
-			w = ((UndirectedWeightedNode) n).getWeight();
+		if (n instanceof IWeightedNode) {
+			w = ((IWeightedNode) n).getWeight();
 			node.addAttribute(GraphVisualization.weightKey, w);
 		}
 
@@ -813,7 +933,7 @@ public class GraphPanel extends JPanel {
 			// statRecord(coords);
 
 			// if 3d projection is enabled, project coordinates
-			if (this.enable3dProjection) {
+			if (config.getProjectionConfig().isEnabled()) {
 				double[] projected2DCoordinates = project3DPointToCoordinates(
 						coords[0], coords[1], coords[2]);
 				node.addAttribute(GraphVisualization.zKey, coords[2]);
@@ -830,18 +950,19 @@ public class GraphPanel extends JPanel {
 		if (!node.hasAttribute(GraphVisualization.zKey))
 			node.setAttribute(GraphVisualization.zKey, 0F);
 
-		// update label
-		updateLabel(node);
-
 		// apply style rules
 		for (GraphStyleRule r : rules)
-			r.onNodeAddition(node);
+			if (isRuleEnabled(r))
+				r.onNodeAddition(node, w);
 
 		// update style
 		GraphStyleUtils.updateStyle(node);
 
 		// update node count
 		this.incrementNodesCount();
+
+		// wait some time
+		waitTime(config.getWaitConfig().getNodeAddition());
 	}
 
 	/** Removes node n from graph g. **/
@@ -849,13 +970,17 @@ public class GraphPanel extends JPanel {
 		Node node = this.graph.removeNode("" + n.getIndex());
 
 		for (GraphStyleRule r : rules)
-			r.onNodeRemoval(node);
+			if (isRuleEnabled(r))
+				r.onNodeRemoval(node);
 
 		// update style
 		GraphStyleUtils.updateStyle(node);
 
 		// update node count
 		this.decrementNodesCount();
+
+		// wait some time
+		waitTime(config.getWaitConfig().getNodeRemoval());
 	}
 
 	/** Changes node weight on node n IN CURRENT GRAPH!!. **/
@@ -881,7 +1006,7 @@ public class GraphPanel extends JPanel {
 			// statRecord(coords);
 
 			// if 3d projection is enabled, project coordinates
-			if (this.enable3dProjection) {
+			if (config.getProjectionConfig().isEnabled()) {
 				double[] projected2DCoordinates = project3DPointToCoordinates(
 						coords[0], coords[1], coords[2]);
 				node.addAttribute(GraphVisualization.zKey, coords[2]);
@@ -894,20 +1019,16 @@ public class GraphPanel extends JPanel {
 					coords[1], coords[2]);
 		}
 
-		// show weight
-		if (Config.getBoolean("GRAPH_VIS_SHOW_NODE_WEIGHTS")) {
-			if (node.hasAttribute(GraphVisualization.labelKey))
-				node.changeAttribute(GraphVisualization.labelKey, w.toString());
-			else
-				node.addAttribute(GraphVisualization.labelKey, w.toString());
-		}
-
 		// apply style rules
 		for (GraphStyleRule r : rules)
-			r.onNodeWeightChange(node, w, wOld);
+			if (isRuleEnabled(r))
+				r.onNodeWeightChange(node, w, wOld);
 
 		// update style
 		GraphStyleUtils.updateStyle(node);
+
+		// wait some time
+		waitTime(config.getWaitConfig().getNodeWeightChange());
 	}
 
 	/*
@@ -917,8 +1038,7 @@ public class GraphPanel extends JPanel {
 	/** Adds edge e to graph g. **/
 	public void addEdge(dna.graph.edges.Edge e) {
 		// get directed flag
-		boolean directedEdges = Config
-				.getBoolean("GRAPH_VIS_SHOW_DIRECTED_EDGE_ARROWS")
+		boolean directedEdges = config.isDirectedEdgeArrowsEnabled()
 				&& (boolean) this.graph
 						.getAttribute(GraphVisualization.directedKey);
 
@@ -932,20 +1052,14 @@ public class GraphPanel extends JPanel {
 					directedEdges);
 
 			// init weight
-			if (e instanceof DirectedWeightedEdge) {
-				Weight w = ((DirectedWeightedEdge) e).getWeight();
-				edge.addAttribute(GraphVisualization.weightKey, w);
-			} else if (e instanceof UndirectedWeightedEdge) {
-				Weight w = ((UndirectedWeightedEdge) e).getWeight();
+			Weight w = null;
+			if (e instanceof IWeightedEdge) {
+				w = ((IWeightedEdge) e).getWeight();
 				edge.addAttribute(GraphVisualization.weightKey, w);
 			}
 
-			// update label
-			updateLabel(edge);
-
 			// set edge size / thickness
-			edge.setAttribute(GraphVisualization.sizeKey,
-					Config.getDouble("GRAPH_VIS_EDGE_DEFAULT_SIZE"));
+			edge.setAttribute(GraphVisualization.sizeKey, config.getEdgeSize());
 			edge.setAttribute(GraphVisualization.styleKey,
 					"size: " + edge.getAttribute(GraphVisualization.sizeKey)
 							+ "px;");
@@ -954,7 +1068,8 @@ public class GraphPanel extends JPanel {
 			Node node1 = this.graph.getNode("" + n1);
 			Node node2 = this.graph.getNode("" + n2);
 			for (GraphStyleRule r : rules)
-				r.onEdgeAddition(edge, node1, node2);
+				if (isRuleEnabled(r))
+					r.onEdgeAddition(edge, w, node1, node2);
 
 			// update styles
 			GraphStyleUtils.updateStyle(edge);
@@ -964,6 +1079,24 @@ public class GraphPanel extends JPanel {
 
 		// update edge count
 		this.incrementEdgesCount();
+
+		// wait some time
+		waitTime(config.getWaitConfig().getEdgeAddition());
+	}
+
+	/** Wait for specified time in milliseconds. **/
+	protected void waitTime(long milliseconds) {
+		if (config.getWaitConfig().isEnabled()) {
+			try {
+				TimeUnit.MILLISECONDS.sleep(milliseconds);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		}
+	}
+
+	public boolean isRuleEnabled(GraphStyleRule r) {
+		return this.rulesFlags.get(this.rules.indexOf(r));
 	}
 
 	/** Removes edge e from graph g. **/
@@ -980,7 +1113,8 @@ public class GraphPanel extends JPanel {
 		Node node1 = this.graph.getNode("" + n1);
 		Node node2 = this.graph.getNode("" + n2);
 		for (GraphStyleRule r : rules)
-			r.onEdgeRemoval(edge, node1, node2);
+			if (isRuleEnabled(r))
+				r.onEdgeRemoval(edge, node1, node2);
 
 		// update styles
 		GraphStyleUtils.updateStyle(node1);
@@ -988,6 +1122,9 @@ public class GraphPanel extends JPanel {
 
 		// update edge count
 		this.decrementEdgesCount();
+
+		// wait some time
+		waitTime(config.getWaitConfig().getEdgeRemoval());
 	}
 
 	/** Changes edge weight on edge e IN CURRENT GRAPH!!. **/
@@ -1005,21 +1142,22 @@ public class GraphPanel extends JPanel {
 		// change weight
 		edge.changeAttribute(GraphVisualization.weightKey, w);
 
-		// update label
-		updateLabel(edge);
-
 		for (GraphStyleRule r : rules)
-			r.onEdgeWeightChange(edge, w, wOld);
+			if (isRuleEnabled(r))
+				r.onEdgeWeightChange(edge, w, wOld);
 
 		// update styles
 		GraphStyleUtils.updateStyle(edge);
+
+		// wait some time
+		waitTime(config.getWaitConfig().getEdgeWeightChange());
 	}
 
 	/** Makes a screenshot of the current graph. **/
 	public void captureScreenshotUsingGraphstream() {
-		String screenshotsDir = Config.get("GRAPH_VIS_SCREENSHOT_DIR");
+		String screenshotsDir = config.getCaptureConfig().getScreenshotDir();
 		String screenshotsSuffix = "."
-				+ Config.get("GRAPH_VIS_SCREENSHOT_FORMAT");
+				+ config.getCaptureConfig().getScreenshotFormat();
 		// create dir
 		File f = new File(screenshotsDir);
 		if (!f.exists() && !f.isFile())
@@ -1047,16 +1185,16 @@ public class GraphPanel extends JPanel {
 
 	/** Makes a screenshot of the current JFrame. **/
 	public void captureScreenshot(boolean waitForStabilization) {
-		this.captureScreenshot(waitForStabilization,
-				Config.get("GRAPH_VIS_SCREENSHOT_DIR"), null,
-				Config.getInt("GRAPH_VIS_SCREENSHOT_FOREGROUND_DELAY"));
+		this.captureScreenshot(waitForStabilization, config.getCaptureConfig()
+				.getScreenshotDir(), null, config.getCaptureConfig()
+				.getScreenshotForegroundDelay());
 	}
 
 	/** Makes a screenshot of the current JFrame. **/
 	public void captureScreenshot(boolean waitForStabilization, String dstDir,
 			String filename) {
-		this.captureScreenshot(waitForStabilization, dstDir, filename,
-				Config.getInt("GRAPH_VIS_SCREENSHOT_FOREGROUND_DELAY"));
+		this.captureScreenshot(waitForStabilization, dstDir, filename, config
+				.getCaptureConfig().getScreenshotForegroundDelay());
 	}
 
 	/** Makes a screenshot of the current JFrame. **/
@@ -1064,10 +1202,10 @@ public class GraphPanel extends JPanel {
 			String filename, long screenshotDelay) {
 		if (waitForStabilization) {
 			long start = System.currentTimeMillis();
-			long timeout = Config
-					.getInt("GRAPH_VIS_SCREENSHOT_STABILITY_TIMEOUT");
-			double stabilityThreshold = Config
-					.getDouble("GRAPH_VIS_SCREENSHOT_STABILITY_THRESHOLD");
+			long timeout = config.getCaptureConfig()
+					.getScreenshotStabilityTimeout();
+			double stabilityThreshold = config.getCaptureConfig()
+					.getScreenshotStabilityThreshold();
 
 			// while not stable or timeout not reached, wait
 			while ((this.getLayouter().getStabilization() < stabilityThreshold)
@@ -1096,11 +1234,15 @@ public class GraphPanel extends JPanel {
 
 	/** Makes a video of the JFrame the panel is embedded in. **/
 	public void captureVideo() throws InterruptedException, IOException {
+		CaptureConfig ccfg = config.getCaptureConfig();
+
 		if (this.videoRecorder == null) {
-			this.videoRecorder = new VideoRecorder(this.getRecordComponent());
+			this.videoRecorder = new VideoRecorder(this.getRecordComponent(),
+					ccfg, RecordMode.normal);
 			this.videoRecorder.registerComponent(this);
 		} else {
-			this.videoRecorder.updateDestinationPath();
+			this.videoRecorder.updateConfiguration(ccfg);
+			this.videoRecorder.updateDestinationPath(this);
 			this.videoRecorder.updateSourceComponent(this.getRecordComponent());
 		}
 		this.videoRecorder.start();
@@ -1254,61 +1396,19 @@ public class GraphPanel extends JPanel {
 		return this.paused;
 	}
 
-	/** Updates the label on node n. **/
-	private static void updateLabel(Node n) {
-		if (Config.getBoolean("GRAPH_VIS_SHOW_NODE_INDEX")
-				|| Config.getBoolean("GRAPH_VIS_SHOW_NODE_WEIGHTS")) {
-			String label = "";
-			if (Config.getBoolean("GRAPH_VIS_SHOW_NODE_INDEX")) {
-				if (Config.getBoolean("GRAPH_VIS_SHOW_NODE_INDEX_VERBOSE"))
-					label += n.getIndex();
-				else
-					label += "Node " + n.getIndex();
-			}
-			if (Config.getBoolean("GRAPH_VIS_SHOW_NODE_WEIGHTS")) {
-				if (n.getAttribute(GraphVisualization.weightKey) != null) {
-					if (!label.equals(""))
-						label += ", ";
-					if (Config
-							.getBoolean("GRAPH_VIS_SHOW_NODE_WEIGHTS_VERBOSE"))
-						label += n.getAttribute(GraphVisualization.weightKey);
-					else
-						label += "w="
-								+ n.getAttribute(GraphVisualization.weightKey);
-				}
-			}
-
-			n.addAttribute(GraphVisualization.labelKey, label);
-		} else {
-			if (n.hasAttribute(GraphVisualization.labelKey))
-				n.removeAttribute(GraphVisualization.labelKey);
-		}
-	}
-
-	/** Updates the label on edge e. **/
-	private static void updateLabel(Edge e) {
-		if (Config.getBoolean("GRAPH_VIS_SHOW_EDGE_WEIGHTS")) {
-			if (e.getAttribute(GraphVisualization.weightKey) != null)
-				e.addAttribute(GraphVisualization.labelKey,
-						"" + e.getAttribute(GraphVisualization.weightKey));
-		} else {
-			if (e.hasAttribute(GraphVisualization.labelKey))
-				e.removeAttribute(GraphVisualization.labelKey);
-		}
-	}
-
 	/** Projects the (x,y,z)-coordinates to (x,y). **/
 	public double[] project3DPointToCoordinates(double x, double y, double z) {
 		double x2;
 		double y2;
 
 		// projection using vanishing point
-		if (this.useVanishingPoint) {
+		if (config.getProjectionConfig().isUseVanishingPoint()) {
 			// calc scaling
-			double scale = z / this.vp_z * this.vp_scalingFactor;
+			double scale = z / config.getProjectionConfig().getVp_Z()
+					* config.getProjectionConfig().getVpScalingFactor();
 
 			// use logarithmic scaling
-			if (Config.getBoolean("GRAPH_VIS_3D_PROJECTION_VP_LOGSCALE"))
+			if (config.getProjectionConfig().isVanishingPointLogScale())
 				scale = Math.log(scale + 1);
 
 			// keep boundaries
@@ -1318,12 +1418,18 @@ public class GraphPanel extends JPanel {
 				scale = 0;
 
 			// calc coordinates
-			x2 = x + scale * (this.vp_x - x);
-			y2 = y + scale * (this.vp_y - y);
+			x2 = x + scale * (config.getProjectionConfig().getVp_X() - x);
+			y2 = y + scale * (config.getProjectionConfig().getVp_Y() - y);
 		} else {
 			// ortographic projection
-			x2 = this.s0_x * x + this.s0_y * y + this.s0_z * z + this.offset_x;
-			y2 = this.s1_x * x + this.s1_y * y + this.s1_z * z + this.offset_y;
+			x2 = config.getProjectionConfig().getS0_X() * x
+					+ config.getProjectionConfig().getS0_Y() * y
+					+ config.getProjectionConfig().getS0_Z() * z
+					+ config.getProjectionConfig().getOffset_X();
+			y2 = config.getProjectionConfig().getS1_X() * x
+					+ config.getProjectionConfig().getS1_Y() * y
+					+ config.getProjectionConfig().getS1_Z() * z
+					+ config.getProjectionConfig().getOffset_Y();
 		}
 
 		// return
@@ -1352,7 +1458,15 @@ public class GraphPanel extends JPanel {
 	 * 1.0 means its completely stabilized and not moving.
 	 **/
 	public double getStabilization() {
-		return this.layouter.getStabilization();
+		if (this.layouter == null)
+			return 1.0;
+		else
+			return this.layouter.getStabilization();
+	}
+
+	/** Returns the config object. **/
+	public GraphPanelConfig getGraphPanelConfig() {
+		return config;
 	}
 
 }
