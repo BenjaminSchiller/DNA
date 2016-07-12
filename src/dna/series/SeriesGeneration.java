@@ -958,15 +958,18 @@ public class SeriesGeneration {
 			String name = d.getName();
 			long[] valuesArray = d.getValues();
 
+			int min = d.getMinNonZeroIndex();
+			int max = d.getMaxNonZeroIndex();
+
 			// add values
 			if (flags[0])
-				values.add(new Value(name + "_MIN", ArrayUtils.min(valuesArray)));
+				values.add(new Value(name + "_MIN", min));
 			if (flags[1])
-				values.add(new Value(name + "_MAX", ArrayUtils.min(valuesArray)));
+				values.add(new Value(name + "_MAX", max));
 			if (flags[2])
-				values.add(new Value(name + "_MED", ArrayUtils.med(valuesArray)));
+				values.add(new Value(name + "_MED", (min * 1.0 + max) / 2));
 			if (flags[3])
-				values.add(new Value(name + "_AVG", ArrayUtils.avg(valuesArray)));
+				values.add(new Value(name + "_AVG", d.computeAverage()));
 			if (flags[4])
 				values.add(new Value(name + "_DENOMINATOR", d.getDenominator()));
 			if (flags[5]) {
