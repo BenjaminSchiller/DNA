@@ -168,6 +168,32 @@ public abstract class BinnedDistr<T> extends Distr<T, long[]> {
 		return (double) sum / (double) this.denominator;
 	}
 
+	/**
+	 * computes an upper bound for the given percent of values, e.g.: when
+	 * percent = 95, the returned value will be an upper bound for 95% of the
+	 * values.
+	 * 
+	 * @return upper bound for the given percent of values (-1 in case it is
+	 *         undefined)
+	 */
+	public double computeUpperBound(double percent) {
+		long number = (long) Math
+				.floor((double) this.denominator * (1 - percent));
+		int maxIndex = this.getMaxNonZeroIndex();
+
+		long count = 0;
+		int index = 0;
+		// iterate from maxIndex downwards
+		for (int i = maxIndex; i >= 0; i--) {
+			count += this.values[i];
+			index = i;
+			if(count >= number)
+				break;
+		}
+		
+		return index;
+	}
+
 	@Override
 	public void print() {
 		System.out.println("name: " + this.getName());

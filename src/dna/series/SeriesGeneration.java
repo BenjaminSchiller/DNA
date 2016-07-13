@@ -956,34 +956,41 @@ public class SeriesGeneration {
 			BinnedDistr<?> d = (BinnedDistr<?>) d1;
 
 			String name = d.getName();
-			long[] valuesArray = d.getValues();
 
 			int min = d.getMinNonZeroIndex();
 			int max = d.getMaxNonZeroIndex();
 
+			double binsize = 1.0;
+
+			if (type.equals(DistrType.BINNED_DOUBLE))
+				binsize = ((BinnedDoubleDistr) d).getBinSize();
+			if (type.equals(DistrType.BINNED_INT))
+				binsize = ((BinnedIntDistr) d).getBinSize();
+			if (type.equals(DistrType.BINNED_LONG))
+				binsize = ((BinnedLongDistr) d).getBinSize();
+
 			// add values
 			if (flags[0])
-				values.add(new Value(name + "_MIN", min));
+				values.add(new Value(name + "_MIN", min * binsize));
 			if (flags[1])
-				values.add(new Value(name + "_MAX", max));
+				values.add(new Value(name + "_MAX", max * binsize));
 			if (flags[2])
-				values.add(new Value(name + "_MED", (min * 1.0 + max) / 2));
+				values.add(new Value(name + "_MED", (min * 1.0 + max) * binsize
+						/ 2));
 			if (flags[3])
 				values.add(new Value(name + "_AVG", d.computeAverage()));
 			if (flags[4])
 				values.add(new Value(name + "_DENOMINATOR", d.getDenominator()));
-			if (flags[5]) {
-				if (type.equals(DistrType.BINNED_DOUBLE))
-					values.add(new Value(name + "_BINSIZE",
-							((BinnedDoubleDistr) d).getBinSize()));
-
-				if (type.equals(DistrType.BINNED_INT))
-					values.add(new Value(name + "_BINSIZE",
-							((BinnedIntDistr) d).getBinSize()));
-
-				if (type.equals(DistrType.BINNED_LONG))
-					values.add(new Value(name + "_BINSIZE",
-							((BinnedLongDistr) d).getBinSize()));
+			if (flags[5])
+				values.add(new Value(name + "_BINSIZE", binsize));
+			if (flags[6]) {
+				String[] extraPercentValues = Config
+						.keys("EXTRA_VALUE_DISTRIBUTION_PERCENT");
+				for (String p : extraPercentValues) {
+					double percent = Double.parseDouble(p) / 100;
+					values.add(new Value(name + "_" + p + "p", d
+							.computeUpperBound(percent) * binsize));
+				}
 			}
 		}
 	}

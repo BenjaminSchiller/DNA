@@ -454,6 +454,7 @@ public class Config extends PropertiesHolder {
 				Config.getBoolean("GENERATE_DISTRIBUTION_MED"),
 				Config.getBoolean("GENERATE_DISTRIBUTION_AVG"),
 				Config.getBoolean("GENERATE_DISTRIBUTION_DENOMINATOR"),
-				Config.getBoolean("GENERATE_DISTRIBUTION_BINSIZE") };
+				Config.getBoolean("GENERATE_DISTRIBUTION_BINSIZE"),
+				Config.getBoolean("GENERATE_DISTRIBUTION_PERCENT_VALUES") };
 	}
 }
