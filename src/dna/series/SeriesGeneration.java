@@ -975,8 +975,8 @@ public class SeriesGeneration {
 			if (flags[1])
 				values.add(new Value(name + "_MAX", max * binsize));
 			if (flags[2])
-				values.add(new Value(name + "_MED", (min * 1.0 + max) * binsize
-						/ 2));
+				values.add(new Value(name + "_MED", d
+						.computeMedian() * binsize));
 			if (flags[3])
 				values.add(new Value(name + "_AVG", d.computeAverage()));
 			if (flags[4])
