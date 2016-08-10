@@ -599,11 +599,15 @@ public class SeriesGeneration {
 			m.applyBeforeBatch(b);
 		}
 
-		BatchSanitizationStats sanitizationStats = BatchSanitization
-				.sanitize(b);
-		if (sanitizationStats.getTotal() > 0) {
-			Log.info("      " + sanitizationStats);
-			Log.info("      => " + b.toString());
+		BatchSanitizationStats sanitizationStats = null;
+		if (Config.getBoolean("GENERATION_BATCH_SANITIZATION")) {
+			sanitizationStats = BatchSanitization.sanitize(b);
+			if (sanitizationStats.getTotal() > 0) {
+				Log.info("      " + sanitizationStats);
+				Log.info("      => " + b.toString());
+			}
+		} else {
+			sanitizationStats = new BatchSanitizationStats();
 		}
 
 		int removedNodes = SeriesGeneration.applyNRs(series, algorithms,
