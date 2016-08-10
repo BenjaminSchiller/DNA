@@ -15,8 +15,11 @@ import dna.graph.weights.Weight;
 import dna.graph.weights.Weight.WeightSelection;
 
 public class GDS {
-	public static Class<? extends IDataStructure> nodes = DArrayList.class;
-	public static Class<? extends IDataStructure> edges = DHashMap.class;
+	// public static Class<? extends IDataStructure> nodes = DArrayList.class;
+	// public static Class<? extends IDataStructure> edges = DHashMap.class;
+	// public static Class<? extends IDataStructure> local = DArrayList.class;
+	public static Class<? extends IDataStructure> nodes = DArray.class;
+	public static Class<? extends IDataStructure> edges = DHashArrayList.class;
 	public static Class<? extends IDataStructure> local = DArrayList.class;
 
 	public static GraphDataStructure directed() {
