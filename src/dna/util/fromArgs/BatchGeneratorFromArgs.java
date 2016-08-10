@@ -12,6 +12,7 @@ import dna.updates.generators.evolvingNetworks.PositiveFeedbackPreferenceBatch;
 import dna.updates.generators.evolvingNetworks.RandomGrowth;
 import dna.updates.generators.evolvingNetworks.RandomScalingBatch;
 import dna.updates.generators.konect.KonectBatch;
+import dna.updates.generators.random.GrowingRandomEdgeExchange;
 import dna.updates.generators.random.RandomBatch;
 import dna.updates.generators.random.RandomEdgeExchange;
 import dna.updates.generators.timestamped.TimestampedBatch;
@@ -19,7 +20,7 @@ import dna.updates.generators.timestamped.TimestampedBatch.TimestampedBatchType;
 
 public class BatchGeneratorFromArgs {
 	public static enum BatchType {
-		BarabasiAlbert, PositiveFeedbackPreference, RandomGrowth, RandomScaling, Random, RandomW, RandomEdgeExchange, Timestamped, Konect
+		BarabasiAlbert, PositiveFeedbackPreference, RandomGrowth, RandomScaling, Random, RandomW, RandomEdgeExchange, Timestamped, Konect, GrowingRandomEdgeExchange
 	}
 
 	public static BatchGenerator parse(GraphGenerator gg, BatchType batchType,
@@ -78,6 +79,9 @@ public class BatchGeneratorFromArgs {
 		case Konect:
 			return new KonectBatch(((KonectGraph) gg).getReader(),
 					KonectBatchType.valueOf(args[0]), args[1]);
+		case GrowingRandomEdgeExchange:
+			return new GrowingRandomEdgeExchange(Integer.valueOf(args[0]),
+					Integer.valueOf(args[1]));
 		default:
 			throw new IllegalArgumentException("unknown batch type: "
 					+ batchType);
