@@ -245,10 +245,8 @@ public class GraphPanel extends JPanel {
 		bottomPanel.setLayout(new BoxLayout(bottomPanel, BoxLayout.Y_AXIS));
 
 		// add panels to bottom pannel
-		if (addStatPanel)
-			addStatPanel(bottomPanel);
-		if (addTextPanel)
-			addTextPanel(bottomPanel, (addStatPanel) ? false : true);
+		addStatPanel(bottomPanel, addStatPanel);
+		addTextPanel(bottomPanel, (addStatPanel) ? false : true, addTextPanel);
 
 		// add bottom panel to frame
 		this.add(bottomPanel, BorderLayout.PAGE_END);
@@ -260,7 +258,7 @@ public class GraphPanel extends JPanel {
 	}
 
 	/** Adds the stat-panel. **/
-	protected void addStatPanel(JPanel panel) {
+	protected void addStatPanel(JPanel panel, boolean show) {
 		// init statpanel
 		JPanel statPanel = new JPanel();
 		statPanel.setLayout(new BoxLayout(statPanel, BoxLayout.X_AXIS));
@@ -330,11 +328,12 @@ public class GraphPanel extends JPanel {
 		dummy4.setPreferredSize(new Dimension(2, 25));
 		statPanel.add(dummy4);
 
-		panel.add(statPanel);
+		if (show)
+			panel.add(statPanel);
 	}
 
 	/** Adds the text-panel. **/
-	protected void addTextPanel(JPanel panel, boolean border) {
+	protected void addTextPanel(JPanel panel, boolean border, boolean show) {
 		// init textpanel
 		this.textPanel = new JPanel();
 		textPanel.setLayout(new BoxLayout(textPanel, BoxLayout.X_AXIS));
@@ -457,7 +456,8 @@ public class GraphPanel extends JPanel {
 			break;
 		}
 
-		panel.add(textPanel);
+		if (show)
+			panel.add(textPanel);
 
 	}
 
