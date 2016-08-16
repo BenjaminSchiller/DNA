@@ -13,18 +13,18 @@ import dna.graph.generators.canonical.HoneyCombGraph.ClosedType;
 import dna.graph.generators.canonical.RingGraph;
 import dna.graph.generators.canonical.RingStarGraph;
 import dna.graph.generators.canonical.StarGraph;
-import dna.graph.generators.evolvingNetworks.BarabasiAlbertGraph;
-import dna.graph.generators.evolvingNetworks.PositiveFeedbackPreferenceGraph;
-import dna.graph.generators.konect.KonectGraph;
-import dna.graph.generators.konect.KonectReader;
-import dna.graph.generators.konect.KonectReader.KonectEdgeType;
-import dna.graph.generators.konect.KonectReader.KonectGraphType;
-import dna.graph.generators.random.RandomGraph;
-import dna.graph.generators.timestamped.TimestampedGraph;
-import dna.graph.generators.timestamped.TimestampedGraph.TimestampedGraphType;
-import dna.graph.generators.timestamped.TimestampedReader;
+import dna.graph.generators.model.BarabasiAlbertGraph;
+import dna.graph.generators.model.PositiveFeedbackPreferenceGraph;
+import dna.graph.generators.model.RandomGraph;
+import dna.graph.generators.reading.KonectGraph;
+import dna.graph.generators.reading.KonectReader;
+import dna.graph.generators.reading.ReadableEdgeListFileGraph;
+import dna.graph.generators.reading.TimestampedGraph;
+import dna.graph.generators.reading.TimestampedReader;
+import dna.graph.generators.reading.KonectReader.KonectEdgeType;
+import dna.graph.generators.reading.KonectReader.KonectGraphType;
+import dna.graph.generators.reading.TimestampedGraph.TimestampedGraphType;
 import dna.graph.generators.util.EmptyGraph;
-import dna.graph.generators.util.ReadableEdgeListFileGraph;
 
 public class GraphGeneratorFromArgs {
 	public static enum GraphType {

@@ -1,22 +1,22 @@
 package dna.util.fromArgs;
 
 import dna.graph.generators.GraphGenerator;
-import dna.graph.generators.konect.KonectGraph;
-import dna.graph.generators.konect.KonectReader.KonectBatchType;
-import dna.graph.generators.timestamped.TimestampedGraph;
-import dna.graph.generators.timestamped.TimestampedReader;
+import dna.graph.generators.reading.KonectGraph;
+import dna.graph.generators.reading.TimestampedGraph;
+import dna.graph.generators.reading.TimestampedReader;
+import dna.graph.generators.reading.KonectReader.KonectBatchType;
 import dna.graph.weights.Weight.WeightSelection;
 import dna.updates.generators.BatchGenerator;
-import dna.updates.generators.evolvingNetworks.BarabasiAlbertBatch;
-import dna.updates.generators.evolvingNetworks.PositiveFeedbackPreferenceBatch;
-import dna.updates.generators.evolvingNetworks.RandomGrowth;
-import dna.updates.generators.evolvingNetworks.RandomScalingBatch;
-import dna.updates.generators.konect.KonectBatch;
+import dna.updates.generators.evolving.BarabasiAlbertBatch;
+import dna.updates.generators.evolving.PositiveFeedbackPreferenceBatch;
+import dna.updates.generators.evolving.RandomGrowth;
 import dna.updates.generators.random.GrowingRandomEdgeExchange;
 import dna.updates.generators.random.RandomBatch;
 import dna.updates.generators.random.RandomEdgeExchange;
-import dna.updates.generators.timestamped.TimestampedBatch;
-import dna.updates.generators.timestamped.TimestampedBatch.TimestampedBatchType;
+import dna.updates.generators.random.RandomScalingBatch;
+import dna.updates.generators.reading.KonectBatch;
+import dna.updates.generators.reading.TimestampedBatch;
+import dna.updates.generators.reading.TimestampedBatch.TimestampedBatchType;
 
 public class BatchGeneratorFromArgs {
 	public static enum BatchType {

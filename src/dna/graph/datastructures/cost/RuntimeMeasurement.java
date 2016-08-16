@@ -22,7 +22,7 @@ import dna.graph.edges.DirectedEdge;
 import dna.graph.edges.Edge;
 import dna.graph.edges.UndirectedEdge;
 import dna.graph.generators.GraphGenerator;
-import dna.graph.generators.random.RandomGraph;
+import dna.graph.generators.model.RandomGraph;
 import dna.graph.nodes.DirectedNode;
 import dna.graph.nodes.Node;
 import dna.graph.nodes.UndirectedNode;
