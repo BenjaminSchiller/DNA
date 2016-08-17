@@ -3,6 +3,7 @@ package dna.series;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import dna.io.Writer;
 import dna.io.filesystem.Dir;
@@ -975,8 +976,7 @@ public class SeriesGeneration {
 			if (flags[1])
 				values.add(new Value(name + "_MAX", max * binsize));
 			if (flags[2])
-				values.add(new Value(name + "_MED", d
-						.computeMedian() * binsize));
+				values.add(new Value(name + "_MED", d.computeMedian() * binsize));
 			if (flags[3])
 				values.add(new Value(name + "_AVG", d.computeAverage()));
 			if (flags[4])
@@ -1014,17 +1014,26 @@ public class SeriesGeneration {
 			Value v = new Value(n.getName() + "_MAX", val);
 			values.add(v);
 		}
-		if (Config.getBoolean("GENERATE_NODEVALUELIST_MED")) {
-			if (n.getValues().length != 0)
-				val = ArrayUtils.med(n.getValues());
-			Value v = new Value(n.getName() + "_MED", val);
-			values.add(v);
-		}
 		if (Config.getBoolean("GENERATE_NODEVALUELIST_AVG")) {
 			if (n.getValues().length != 0)
 				val = ArrayUtils.avg(n.getValues());
 			Value v = new Value(n.getName() + "_AVG", val);
 			values.add(v);
+		}
+		if (Config.getBoolean("GENERATE_NODEVALUELIST_PERCENT_VALUES")) {
+			String[] extraPercentValues = Config
+					.keys("EXTRA_VALUE_NODEVALUELIST_PERCENT");
+
+			// copy array and sort it once
+			double[] v = Arrays.copyOf(n.getValues(), n.getValues().length);
+			Arrays.sort(v);
+
+			// for each percent value calculate upper bound
+			for (String p : extraPercentValues) {
+				double percent = Double.parseDouble(p) / 100;
+				int index = (int) Math.ceil(v.length * percent);
+				values.add(new Value(n.getName() + "_" + p + "p", v[index]));
+			}
 		}
 	}
 
