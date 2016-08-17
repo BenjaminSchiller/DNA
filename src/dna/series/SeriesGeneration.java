@@ -976,14 +976,12 @@ public class SeriesGeneration {
 			if (flags[1])
 				values.add(new Value(name + "_MAX", max * binsize));
 			if (flags[2])
-				values.add(new Value(name + "_MED", d.computeMedian() * binsize));
-			if (flags[3])
 				values.add(new Value(name + "_AVG", d.computeAverage()));
-			if (flags[4])
+			if (flags[3])
 				values.add(new Value(name + "_DENOMINATOR", d.getDenominator()));
-			if (flags[5])
+			if (flags[4])
 				values.add(new Value(name + "_BINSIZE", binsize));
-			if (flags[6]) {
+			if (flags[5]) {
 				String[] extraPercentValues = Config
 						.keys("EXTRA_VALUE_DISTRIBUTION_PERCENT");
 				for (String p : extraPercentValues) {
