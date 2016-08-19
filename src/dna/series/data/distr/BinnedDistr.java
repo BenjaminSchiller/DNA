@@ -168,6 +168,59 @@ public abstract class BinnedDistr<T> extends Distr<T, long[]> {
 		return (double) sum / (double) this.denominator;
 	}
 
+	/**
+	 * computes the median.
+	 * 
+	 * @return median of the property reflected by this distribution
+	 */
+	public double computeMedian() {
+		boolean even = (this.denominator % 2 == 0);
+		long number = (long) Math.floor(this.denominator * 0.5);
+
+		long count = 0;
+		double index = 0;
+
+		for (int i = 0; i < this.values.length; i++) {
+			count += this.values[i];
+
+			if (count > number) {
+				if (!even)
+					index = i;
+				else
+					index = (i + (i - 1)*1.0) / 2;
+				break;
+			}
+		}
+
+		return index;
+	}
+
+	/**
+	 * computes the value of upper bound for the given percent of values, e.g.:
+	 * when percent = 95, the returned value will be the value splitting the
+	 * data into the lower 95% and the upper 5% part.
+	 * 
+	 * @return upper bound for the given percent of values (-1 in case it is
+	 *         undefined)
+	 */
+	public double computeUpperBound(double percent) {
+		long number = (long) Math.floor((double) this.denominator
+				* (1 - percent));
+		int maxIndex = this.getMaxNonZeroIndex();
+
+		long count = 0;
+		int index = 0;
+		// iterate from maxIndex downwards
+		for (int i = maxIndex; i >= 0; i--) {
+			count += this.values[i];
+			index = i;
+			if (count >= number)
+				break;
+		}
+
+		return index;
+	}
+
 	@Override
 	public void print() {
 		System.out.println("name: " + this.getName());

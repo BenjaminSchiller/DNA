@@ -3,6 +3,7 @@ package dna.series;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import dna.io.Writer;
 import dna.io.filesystem.Dir;
@@ -956,31 +957,38 @@ public class SeriesGeneration {
 			BinnedDistr<?> d = (BinnedDistr<?>) d1;
 
 			String name = d.getName();
-			long[] valuesArray = d.getValues();
+
+			int min = d.getMinNonZeroIndex();
+			int max = d.getMaxNonZeroIndex();
+
+			double binsize = 1.0;
+
+			if (type.equals(DistrType.BINNED_DOUBLE))
+				binsize = ((BinnedDoubleDistr) d).getBinSize();
+			if (type.equals(DistrType.BINNED_INT))
+				binsize = ((BinnedIntDistr) d).getBinSize();
+			if (type.equals(DistrType.BINNED_LONG))
+				binsize = ((BinnedLongDistr) d).getBinSize();
 
 			// add values
 			if (flags[0])
-				values.add(new Value(name + "_MIN", ArrayUtils.min(valuesArray)));
+				values.add(new Value(name + "_MIN", min * binsize));
 			if (flags[1])
-				values.add(new Value(name + "_MAX", ArrayUtils.min(valuesArray)));
+				values.add(new Value(name + "_MAX", max * binsize));
 			if (flags[2])
-				values.add(new Value(name + "_MED", ArrayUtils.med(valuesArray)));
+				values.add(new Value(name + "_AVG", d.computeAverage()));
 			if (flags[3])
-				values.add(new Value(name + "_AVG", ArrayUtils.avg(valuesArray)));
-			if (flags[4])
 				values.add(new Value(name + "_DENOMINATOR", d.getDenominator()));
+			if (flags[4])
+				values.add(new Value(name + "_BINSIZE", binsize));
 			if (flags[5]) {
-				if (type.equals(DistrType.BINNED_DOUBLE))
-					values.add(new Value(name + "_BINSIZE",
-							((BinnedDoubleDistr) d).getBinSize()));
-
-				if (type.equals(DistrType.BINNED_INT))
-					values.add(new Value(name + "_BINSIZE",
-							((BinnedIntDistr) d).getBinSize()));
-
-				if (type.equals(DistrType.BINNED_LONG))
-					values.add(new Value(name + "_BINSIZE",
-							((BinnedLongDistr) d).getBinSize()));
+				String[] extraPercentValues = Config
+						.keys("EXTRA_VALUE_DISTRIBUTION_PERCENT");
+				for (String p : extraPercentValues) {
+					double percent = Double.parseDouble(p) / 100;
+					values.add(new Value(name + "_" + p + "p", d
+							.computeUpperBound(percent) * binsize));
+				}
 			}
 		}
 	}
@@ -1004,17 +1012,26 @@ public class SeriesGeneration {
 			Value v = new Value(n.getName() + "_MAX", val);
 			values.add(v);
 		}
-		if (Config.getBoolean("GENERATE_NODEVALUELIST_MED")) {
-			if (n.getValues().length != 0)
-				val = ArrayUtils.med(n.getValues());
-			Value v = new Value(n.getName() + "_MED", val);
-			values.add(v);
-		}
 		if (Config.getBoolean("GENERATE_NODEVALUELIST_AVG")) {
 			if (n.getValues().length != 0)
 				val = ArrayUtils.avg(n.getValues());
 			Value v = new Value(n.getName() + "_AVG", val);
 			values.add(v);
+		}
+		if (Config.getBoolean("GENERATE_NODEVALUELIST_PERCENT_VALUES")) {
+			String[] extraPercentValues = Config
+					.keys("EXTRA_VALUE_NODEVALUELIST_PERCENT");
+
+			// copy array and sort it once
+			double[] v = Arrays.copyOf(n.getValues(), n.getValues().length);
+			Arrays.sort(v);
+
+			// for each percent value calculate upper bound
+			for (String p : extraPercentValues) {
+				double percent = Double.parseDouble(p) / 100;
+				int index = (int) Math.ceil(v.length * percent);
+				values.add(new Value(n.getName() + "_" + p + "p", v[index]));
+			}
 		}
 	}
 
