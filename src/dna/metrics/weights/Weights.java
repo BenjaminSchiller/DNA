@@ -3,7 +3,7 @@ package dna.metrics.weights;
 import dna.graph.weights.Weight;
 import dna.graph.weights.doubleW.DoubleWeight;
 import dna.graph.weights.intW.IntWeight;
-import dna.graph.weights.multi.MultiWeight;
+import dna.graph.weights.multi.DoubleMultiWeight;
 import dna.metrics.IMetric;
 import dna.metrics.Metric;
 import dna.series.data.Value;
@@ -59,8 +59,8 @@ public abstract class Weights extends Metric {
 	}
 
 	protected double getWeight(Weight w, int index) {
-		if (w instanceof MultiWeight) {
-			return getWeight(((MultiWeight) w).getWeight(index));
+		if (w instanceof DoubleMultiWeight) {
+			return ((DoubleMultiWeight) w).getWeight(index);
 		} else {
 			return Double.NaN;
 		}

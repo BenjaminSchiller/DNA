@@ -4,7 +4,7 @@ import dna.graph.Graph;
 import dna.graph.IElement;
 import dna.graph.edges.IEdge;
 import dna.graph.weights.IWeightedEdge;
-import dna.graph.weights.multi.MultiWeight;
+import dna.graph.weights.multi.DoubleMultiWeight;
 import dna.metrics.algorithms.IBeforeEA;
 import dna.metrics.algorithms.IBeforeER;
 import dna.metrics.algorithms.IBeforeEW;
@@ -68,13 +68,13 @@ public class EdgeWeightsMultiU extends EdgeWeights implements IBeforeEA,
 	public boolean isApplicable(Graph g) {
 		return g.getGraphDatastructures().isEdgeType(IWeightedEdge.class)
 				&& g.getGraphDatastructures().isEdgeWeightType(
-						MultiWeight.class);
+						DoubleMultiWeight.class);
 	}
 
 	@Override
 	public boolean isApplicable(Batch b) {
 		return b.getGraphDatastructures().isEdgeType(IWeightedEdge.class)
 				&& b.getGraphDatastructures().isEdgeWeightType(
-						MultiWeight.class);
+						DoubleMultiWeight.class);
 	}
 }
