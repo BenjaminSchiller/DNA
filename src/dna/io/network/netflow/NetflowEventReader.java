@@ -17,6 +17,27 @@ import dna.io.network.netflow.NetflowEvent.NetflowDirection;
 import dna.io.network.netflow.NetflowEvent.NetflowEventField;
 import dna.util.Config;
 
+/**
+ * The NetflowEventReader is a sophisticated implementation of the
+ * NetworkReader. It is used for reading NetflowEvents from a netflow file. <br>
+ * <br>
+ * 
+ * It iterates through the given file and always buffers the n+1-th list entry.
+ * This way it can be distinguished whether new events are available. However,
+ * this requires the netflow list to be sorted by timestamp.<br>
+ * <br>
+ * 
+ * Furthermore, it contains a queue of UpdateEvent's for additional event
+ * handling, i.e. in order to queue changes made to the graph and revert them at
+ * a later time.<br>
+ * <br>
+ * 
+ * Additional configuration fields for netflow-based graph modeling are also
+ * available, like batch-length and edge-lifetime.
+ * 
+ * @author Rwilmes
+ * 
+ */
 public class NetflowEventReader extends NetworkReader {
 
 	// statics
@@ -47,7 +68,7 @@ public class NetflowEventReader extends NetworkReader {
 	// event queue
 	protected LinkedList<UpdateEvent> eventQueue = new LinkedList<UpdateEvent>();
 
-	protected boolean debug;;
+	protected boolean debug;
 
 	// reader
 	protected boolean finished;
@@ -188,14 +209,17 @@ public class NetflowEventReader extends NetworkReader {
 		eventQueue.add(e);
 	}
 
+	/** Returns the first event from the queue. **/
 	public UpdateEvent getFirstEventFromQueue() {
 		return eventQueue.getFirst();
 	}
 
+	/** Removes and returns the first event from the queue. **/
 	public UpdateEvent popFirstEventFromQueue() {
 		return eventQueue.removeFirst();
 	}
 
+	/** Returns true if the event queue is empty. **/
 	public boolean isEventQueueEmpty() {
 		return eventQueue.isEmpty();
 	}
@@ -230,6 +254,7 @@ public class NetflowEventReader extends NetworkReader {
 		return events;
 	}
 
+	/** Returns the next event read from the reader. **/
 	public NetflowEvent getNextEvent() {
 		NetflowEvent e = this.bufferedEvent;
 
@@ -257,14 +282,17 @@ public class NetflowEventReader extends NetworkReader {
 		return e;
 	}
 
+	/** Returns false when no new event can be retrieved. **/
 	public boolean isNextEventPossible() {
 		return !finished || bufferedEvent != null;
 	}
 
+	/** Set debug-mode for additional log prints. **/
 	public void setDebug(boolean debug) {
 		this.debug = debug;
 	}
 
+	/** Parses the given line and returns a new NetflowEvent object. **/
 	protected NetflowEvent parseLine(String line) {
 		if (debug)
 			System.out.println(line);
@@ -375,109 +403,138 @@ public class NetflowEventReader extends NetworkReader {
 				bytesToDestination, label);
 	}
 
+	/** Returns the set directory. **/
 	public String getDir() {
 		return dir;
 	}
 
+	/** Returns the set filename. **/
 	public String getFilename() {
 		return filename;
 	}
 
+	/** Returns the batch-interval in seconds. **/
 	public int getBatchIntervalSeconds() {
 		return batchIntervalSeconds;
 	}
 
+	/** Returns the fields used for netflow parsing. **/
 	public NetflowEventField[] getFields() {
 		return fields;
 	}
 
+	/** Sets the fields for netflow parsing. **/
 	public void setFields(NetflowEventField[] fields) {
 		this.fields = fields;
 	}
 
+	/** Returns the edge-lifetime in seconds. **/
 	public int getEdgeLifeTimeSeconds() {
 		return edgeLifeTimeSeconds;
 	}
 
+	/** Sets the edge-lifetime in seconds. **/
 	public void setEdgeLifeTimeSeconds(int edgeLifeTimeSeconds) {
 		this.edgeLifeTimeSeconds = edgeLifeTimeSeconds;
 	}
 
+	/** Returns if empty batches will be generated. **/
 	public boolean isGenerateEmptyBatches() {
 		return generateEmptyBatches;
 	}
 
+	/** Sets if empty batches will be generated. **/
 	public void setGenerateEmptyBatches(boolean generateEmptyBatches) {
 		this.generateEmptyBatches = generateEmptyBatches;
 	}
 
+	/** Returns if nodes with zero degree should be removed. **/
 	public boolean isRemoveZeroDegreeNodes() {
 		return removeZeroDegreeNodes;
 	}
 
+	/** Sets if nodes with zero degree should be removed. **/
 	public void setRemoveZeroDegreeNodes(boolean removeZeroDegreeNodes) {
 		this.removeZeroDegreeNodes = removeZeroDegreeNodes;
 	}
 
+	/** Returns if edges with zero weight should be removed. **/
 	public boolean isRemoveZeroWeightEdges() {
 		return removeZeroWeightEdges;
 	}
 
+	/** Sets if edges with zero weight should be removed. **/
 	public void setRemoveZeroWeightEdges(boolean removeZeroWeightEdges) {
 		this.removeZeroWeightEdges = removeZeroWeightEdges;
 	}
 
+	/**
+	 * Returns true when the reader is finished, i.e. it has reached the
+	 * end-of-file or it has been manually set to be finished. (For example when
+	 * the desired number of batches has been reached.)
+	 **/
 	public boolean isFinished() {
 		return finished;
 	}
 
+	/** Sets if the reader is finished. **/
 	public void setFinished(boolean finished) {
 		this.finished = finished;
 	}
 
+	/** Sets the batch interval in seconds. **/
 	public void setBatchIntervalSeconds(int batchIntervalSeconds) {
 		this.batchIntervalSeconds = batchIntervalSeconds;
 	}
 
+	/** Returns the init timestamp. **/
 	public DateTime getInitTimestamp() {
 		return this.initTimestamp;
 	}
 
+	/** Sets the minimum timestamp. **/
 	public void setMinimumTimestamp(String date) {
 		this.minimumTimestamp = this.timeFormat.parseDateTime(date)
 				.plusSeconds(NetflowEventReader.gnuplotOffset);
 		skipToInitEvent();
 	}
 
+	/** Sets the minimum timestamp. **/
 	public void setMinimumTimestamp(long timestampMillis) {
 		this.minimumTimestamp = new DateTime(timestampMillis)
 				.plusSeconds(NetflowEventReader.gnuplotOffset);
 		skipToInitEvent();
 	}
 
+	/** Sets the minimum timestamp. **/
 	public void setMinimumTimestamp(DateTime date) {
 		this.minimumTimestamp = date;
 		this.skipToInitEvent();
 	}
 
+	/** Sets the maximum timestamp. **/
 	public void setMaximumTimestamp(String date) {
 		this.maximumTimestamp = this.timeFormat.parseDateTime(date)
 				.plusSeconds(NetflowEventReader.gnuplotOffset);
 	}
 
+	/** Sets the maximum timestamp. **/
 	public void setMaximumTimestamp(long timestampMillis) {
 		this.maximumTimestamp = new DateTime(timestampMillis)
 				.plusSeconds(NetflowEventReader.gnuplotOffset);
 	}
 
+	/** Sets the maximum timestamp. **/
 	public void setMaximumTimestamp(DateTime date) {
 		this.maximumTimestamp = date;
 	}
 
+	/** Returns the data offsert in seconds. **/
 	public int getDataOffset() {
 		return this.dataOffsetSeconds;
 	}
 
+	/** Sets the data offsert in seconds. **/
 	public void setDataOffset(int seconds) {
 		this.dataOffsetSeconds = seconds;
 	}

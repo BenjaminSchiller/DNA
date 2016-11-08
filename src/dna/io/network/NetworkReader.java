@@ -10,6 +10,14 @@ import dna.graph.edges.network.NetworkEdge;
 import dna.io.Reader;
 import dna.io.network.netflow.UpdateEvent;
 
+/**
+ * The NetworkReader extends the common Reader class and is an abstract class
+ * for a reader, which reads Network events from a certain file. It defines all
+ * methods a NetworkReader has to implement.
+ * 
+ * @author Rwilmes
+ * 
+ */
 public abstract class NetworkReader extends Reader {
 
 	public NetworkReader(String dir, String filename)
