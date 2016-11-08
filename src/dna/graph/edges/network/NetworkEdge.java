@@ -2,8 +2,6 @@ package dna.graph.edges.network;
 
 import java.util.ArrayList;
 
-import dna.io.network.netflow.UpdateEvent;
-
 /**
  * Class which represents one edge in a network-graph. <br>
  * 

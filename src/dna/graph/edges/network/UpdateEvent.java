@@ -1,5 +1,12 @@
-package dna.io.network.netflow;
+package dna.graph.edges.network;
 
+/**
+ * An UpdateEvent is a very basic object representing a single event occurring
+ * at a given time t.
+ * 
+ * @author Rwilmes
+ * 
+ */
 public class UpdateEvent {
 
 	protected long time;

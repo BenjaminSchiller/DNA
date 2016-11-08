@@ -7,8 +7,8 @@ import java.util.HashMap;
 import org.joda.time.DateTime;
 
 import dna.graph.edges.network.NetworkEdge;
+import dna.graph.edges.network.UpdateEvent;
 import dna.io.Reader;
-import dna.io.network.netflow.UpdateEvent;
 
 /**
  * The NetworkReader extends the common Reader class and is an abstract class

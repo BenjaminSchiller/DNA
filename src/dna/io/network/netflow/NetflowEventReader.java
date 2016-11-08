@@ -11,6 +11,7 @@ import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
 import dna.graph.edges.network.NetworkEdge;
+import dna.graph.edges.network.UpdateEvent;
 import dna.io.network.NetworkEvent;
 import dna.io.network.NetworkReader;
 import dna.io.network.netflow.NetflowEvent.NetflowDirection;
