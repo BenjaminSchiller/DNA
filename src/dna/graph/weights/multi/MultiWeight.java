@@ -1,7 +1,6 @@
 package dna.graph.weights.multi;
 
 import dna.graph.weights.Weight;
-import dna.graph.weights.Weight.WeightSelection;
 
 public class MultiWeight extends Weight {
 
@@ -13,6 +12,10 @@ public class MultiWeight extends Weight {
 
 	public Weight[] getWeights() {
 		return weights;
+	}
+
+	public Weight getWeight(int index) {
+		return weights[index];
 	}
 
 	public void setWeights(Weight[] weights) {
