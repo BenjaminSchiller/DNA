@@ -2,6 +2,8 @@ package dna.io.network.netflow;
 
 import org.joda.time.DateTime;
 
+import dna.graph.generators.network.jars.NetflowAnalysis.EdgeWeightValue;
+import dna.graph.generators.network.jars.NetflowAnalysis.NodeWeightValue;
 import dna.io.network.NetworkEvent;
 
 /**
@@ -184,5 +186,73 @@ public class NetflowEvent extends NetworkEvent {
 		}
 
 		return null;
+	}
+
+	public double getEdgeWeight(EdgeWeightValue value,
+			NetflowDirection direction) {
+		switch (value) {
+		case Bytes:
+			if (direction.equals(NetflowDirection.forward))
+				return this.bytesToDestination;
+			else
+				return this.bytesToSrc;
+		case numberOfNetflows:
+			if (this.direction.equals(NetflowDirection.bidirectional)
+					|| this.direction.equals(direction))
+				return 1;
+		case Packets:
+			if (direction.equals(NetflowDirection.forward))
+				return this.packetsToDestination;
+			else
+				return this.packetsToSrc;
+		default:
+			return 0;
+		}
+	}
+
+	public double getSrcNodeWeight2(NodeWeightValue value,
+			NetflowDirection direction) {
+		switch (value) {
+		case numberOfNetflowsOut:
+			if (this.direction.equals(NetflowDirection.bidirectional)
+					|| this.direction.equals(direction)) {
+				return 1;
+			}
+		case PacketsOut:
+			if (direction.equals(NetflowDirection.forward))
+				return this.packetsToDestination;
+			else
+				return this.packetsToSrc;
+		case BytesOut:
+			if (direction.equals(NetflowDirection.forward))
+				return this.bytesToDestination;
+			else
+				return this.bytesToSrc;
+		default:
+			return 0;
+		}
+	}
+
+	public double getDstNodeWeight2(NodeWeightValue value,
+			NetflowDirection direction) {
+		switch (value) {
+		case numberOfNetflowsIn:
+			if (this.direction.equals(NetflowDirection.bidirectional)
+					|| this.direction.equals(direction)) {
+				return 1;
+			}
+		case PacketsIn:
+			if (direction.equals(NetflowDirection.forward))
+				return this.packetsToDestination;
+			else
+				return this.packetsToSrc;
+		case BytesIn:
+			if (direction.equals(NetflowDirection.forward))
+				return this.bytesToDestination;
+			else
+				return this.bytesToSrc;
+		default:
+			return 0;
+		}
 	}
 }
