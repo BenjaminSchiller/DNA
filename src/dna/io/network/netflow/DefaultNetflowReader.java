@@ -5,6 +5,13 @@ import java.io.FileNotFoundException;
 import dna.io.network.netflow.NetflowEvent.NetflowEventField;
 import dna.util.Config;
 
+/**
+ * The DefaultNetflowReader extends the NetflowEventReader with a certain
+ * specification of NetflowEventFields.
+ * 
+ * @author Rwilmes
+ * 
+ */
 public class DefaultNetflowReader extends NetflowEventReader {
 
 	// FORMAT:
