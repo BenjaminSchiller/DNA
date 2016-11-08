@@ -4,6 +4,13 @@ import dna.graph.weights.Weight;
 import dna.util.Log;
 import dna.util.Rand;
 
+/**
+ * The DoubleMultiWeight class represents a weight object containing an abitrary
+ * number of double-weights. They can be accessed via their index.
+ * 
+ * @author Rwilmes
+ * 
+ */
 public class DoubleMultiWeight extends Weight {
 
 	protected double[] weights;

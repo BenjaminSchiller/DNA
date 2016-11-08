@@ -15,6 +15,13 @@ import dna.updates.update.EdgeRemoval;
 import dna.updates.update.EdgeWeight;
 import dna.updates.update.NodeRemoval;
 
+/**
+ * Computes the EdgeWeights metric update-based for a weight with given index of
+ * given DoubleMultiWeight.
+ * 
+ * @author Rwilmes
+ * 
+ */
 public class EdgeWeightsMultiU extends EdgeWeights implements IBeforeEA,
 		IBeforeER, IBeforeEW, IBeforeNR {
 

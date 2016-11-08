@@ -18,6 +18,13 @@ import dna.series.data.nodevaluelists.NodeValueList;
 import dna.updates.batch.Batch;
 import dna.util.parameters.Parameter;
 
+/**
+ * A metric computing the weighted degree distribution of a certain index of a
+ * given DoubleMultiWeight.
+ * 
+ * @author Rwilmes
+ * 
+ */
 public abstract class WeightedDegreeDistributionMulti extends Metric {
 
 	protected BinnedIntDistr weightedDegree;

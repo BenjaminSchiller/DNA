@@ -20,6 +20,15 @@ import dna.series.data.nodevaluelists.NodeValueList;
 import dna.updates.batch.Batch;
 import dna.util.parameters.Parameter;
 
+/**
+ * A metric computing the weighted degree distribution over nodes of the graph.
+ * Covers the following distributions: weighted-degree, weighted-in-degree,
+ * weighted-out-degree and weighted-degree-balance-pos and
+ * weighted-degree-balance-neg.
+ * 
+ * @author Rwilmes
+ * 
+ */
 public abstract class WeightedDegreeDistribution extends Metric {
 
 	protected BinnedIntDistr weightedDegree;
