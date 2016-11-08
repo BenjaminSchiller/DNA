@@ -3,6 +3,7 @@ package dna.metrics.weights;
 import dna.graph.weights.Weight;
 import dna.graph.weights.doubleW.DoubleWeight;
 import dna.graph.weights.intW.IntWeight;
+import dna.graph.weights.multi.DoubleMultiWeight;
 import dna.metrics.IMetric;
 import dna.metrics.Metric;
 import dna.series.data.Value;
@@ -55,6 +56,14 @@ public abstract class Weights extends Metric {
 			return false;
 		}
 		return this.distr.equalsVerbose(((Weights) m).distr);
+	}
+
+	protected double getWeight(Weight w, int index) {
+		if (w instanceof DoubleMultiWeight) {
+			return ((DoubleMultiWeight) w).getWeight(index);
+		} else {
+			return Double.NaN;
+		}
 	}
 
 	protected double getWeight(Weight w) {

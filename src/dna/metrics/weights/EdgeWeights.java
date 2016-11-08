@@ -44,6 +44,10 @@ public abstract class EdgeWeights extends Weights {
 						DoubleWeight.class);
 	}
 
+	protected double getWeight(IEdge e, int index) {
+		return this.getWeight(((IWeightedEdge) e).getWeight(), index);
+	}
+
 	protected double getWeight(IEdge e) {
 		return this.getWeight(((IWeightedEdge) e).getWeight());
 	}
