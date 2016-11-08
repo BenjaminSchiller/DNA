@@ -11,6 +11,13 @@ import dna.updates.update.NodeAddition;
 import dna.updates.update.NodeRemoval;
 import dna.updates.update.NodeWeight;
 
+/**
+ * Computes the NodeWeights metric update-based for a weight with given index of
+ * given DoubleMultiWeight.
+ * 
+ * @author Rwilmes
+ * 
+ */
 public class NodeWeightsMultiU extends NodeWeights implements IBeforeNA,
 		IBeforeNR, IBeforeNW {
 
