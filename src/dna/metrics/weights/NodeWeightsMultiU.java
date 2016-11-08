@@ -1,4 +1,4 @@
-package dna.metrics.weights.multi;
+package dna.metrics.weights;
 
 import dna.graph.Graph;
 import dna.graph.weights.IWeightedEdge;
@@ -6,7 +6,6 @@ import dna.graph.weights.multi.DoubleMultiWeight;
 import dna.metrics.algorithms.IBeforeNA;
 import dna.metrics.algorithms.IBeforeNR;
 import dna.metrics.algorithms.IBeforeNW;
-import dna.metrics.weights.NodeWeights;
 import dna.updates.batch.Batch;
 import dna.updates.update.NodeAddition;
 import dna.updates.update.NodeRemoval;

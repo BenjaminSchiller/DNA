@@ -1,4 +1,4 @@
-package dna.metrics.weights.multi;
+package dna.metrics.weights;
 
 import dna.graph.Graph;
 import dna.graph.IElement;
@@ -9,7 +9,6 @@ import dna.metrics.algorithms.IBeforeEA;
 import dna.metrics.algorithms.IBeforeER;
 import dna.metrics.algorithms.IBeforeEW;
 import dna.metrics.algorithms.IBeforeNR;
-import dna.metrics.weights.EdgeWeights;
 import dna.updates.batch.Batch;
 import dna.updates.update.EdgeAddition;
 import dna.updates.update.EdgeRemoval;
