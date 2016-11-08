@@ -12,8 +12,6 @@ import org.joda.time.DateTime;
 import dna.graph.Graph;
 import dna.graph.IElement;
 import dna.graph.edges.network.UpdateEvent;
-import dna.graph.generators.network.jars.NetflowAnalysis.EdgeWeightValue;
-import dna.graph.generators.network.jars.NetflowAnalysis.NodeWeightValue;
 import dna.graph.nodes.Node;
 import dna.graph.weights.IWeightedEdge;
 import dna.graph.weights.IWeightedNode;
@@ -32,6 +30,8 @@ import dna.updates.update.EdgeWeight;
 import dna.updates.update.NodeAddition;
 import dna.updates.update.NodeRemoval;
 import dna.updates.update.NodeWeight;
+import dna.util.network.NetflowAnalysis.EdgeWeightValue;
+import dna.util.network.NetflowAnalysis.NodeWeightValue;
 
 public class NetflowBatch extends NetworkBatch {
 

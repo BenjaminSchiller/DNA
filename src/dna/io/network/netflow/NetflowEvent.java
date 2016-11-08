@@ -2,9 +2,9 @@ package dna.io.network.netflow;
 
 import org.joda.time.DateTime;
 
-import dna.graph.generators.network.jars.NetflowAnalysis.EdgeWeightValue;
-import dna.graph.generators.network.jars.NetflowAnalysis.NodeWeightValue;
 import dna.io.network.NetworkEvent;
+import dna.util.network.NetflowAnalysis.EdgeWeightValue;
+import dna.util.network.NetflowAnalysis.NodeWeightValue;
 
 /**
  * Reprenents one netflow event.

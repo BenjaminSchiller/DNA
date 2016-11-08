@@ -1,4 +1,4 @@
-package dna.graph.generators.network.jars;
+package dna.util.network;
 
 import java.io.IOException;
 import java.lang.reflect.Constructor;
@@ -53,7 +53,6 @@ import dna.series.data.SeriesData;
 import dna.updates.generators.BatchGenerator;
 import dna.util.Config;
 import dna.util.Log;
-import dna.util.network.DatasetUtils;
 import dna.util.network.DatasetUtils.TimestampFormat;
 import dna.visualization.BatchHandler.ZipMode;
 import dna.visualization.graph.GraphVisualization;
