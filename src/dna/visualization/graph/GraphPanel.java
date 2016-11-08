@@ -112,7 +112,9 @@ public class GraphPanel extends JPanel {
 	protected JLabel nodesValue;
 	protected JLabel edgesValue;
 	protected SimpleDateFormat dateFormat;
-	public boolean timestampAsDate;
+	protected boolean timestampAsDate;
+	protected boolean timestampInSeconds;
+	protected int timestampOffset;
 
 	// speed factors
 	protected double zoomSpeedFactor = Config.getDouble("GRAPH_VIS_ZOOM_SPEED");
@@ -192,6 +194,9 @@ public class GraphPanel extends JPanel {
 		this.dateFormat = new SimpleDateFormat(
 				Config.get("GRAPH_VIS_DATETIME_FORMAT"));
 		this.timestampAsDate = Config.getBoolean("GRAPH_VIS_TIMESTAMP_AS_DATE");
+		this.timestampInSeconds = Config
+				.getBoolean("GRAPH_VIS_TIMESTAMP_IN_SECONDS");
+		this.timestampOffset = Config.getInt("GRAPH_VIS_TIMESTAMP_OFFSET");
 		this.rules = rules;
 		this.nextRuleIndex = 0;
 
@@ -245,8 +250,10 @@ public class GraphPanel extends JPanel {
 		bottomPanel.setLayout(new BoxLayout(bottomPanel, BoxLayout.Y_AXIS));
 
 		// add panels to bottom pannel
-		addStatPanel(bottomPanel, addStatPanel);
-		addTextPanel(bottomPanel, (addStatPanel) ? false : true, addTextPanel);
+		if (addStatPanel)
+			addStatPanel(bottomPanel);
+		if (addTextPanel)
+			addTextPanel(bottomPanel, (addStatPanel) ? false : true);
 
 		// add bottom panel to frame
 		this.add(bottomPanel, BorderLayout.PAGE_END);
@@ -258,7 +265,7 @@ public class GraphPanel extends JPanel {
 	}
 
 	/** Adds the stat-panel. **/
-	protected void addStatPanel(JPanel panel, boolean show) {
+	protected void addStatPanel(JPanel panel) {
 		// init statpanel
 		JPanel statPanel = new JPanel();
 		statPanel.setLayout(new BoxLayout(statPanel, BoxLayout.X_AXIS));
@@ -299,7 +306,7 @@ public class GraphPanel extends JPanel {
 		statPanel.add(statDummy);
 
 		// timestamp
-		timestampValue.setPreferredSize(new Dimension(95, 25));
+		timestampValue.setPreferredSize(new Dimension(100, 25));
 		statPanel.add(timestampLabel);
 		statPanel.add(timestampValue);
 
@@ -328,12 +335,11 @@ public class GraphPanel extends JPanel {
 		dummy4.setPreferredSize(new Dimension(2, 25));
 		statPanel.add(dummy4);
 
-		if (show)
-			panel.add(statPanel);
+		panel.add(statPanel);
 	}
 
 	/** Adds the text-panel. **/
-	protected void addTextPanel(JPanel panel, boolean border, boolean show) {
+	protected void addTextPanel(JPanel panel, boolean border) {
 		// init textpanel
 		this.textPanel = new JPanel();
 		textPanel.setLayout(new BoxLayout(textPanel, BoxLayout.X_AXIS));
@@ -456,8 +462,7 @@ public class GraphPanel extends JPanel {
 			break;
 		}
 
-		if (show)
-			panel.add(textPanel);
+		panel.add(textPanel);
 
 	}
 
@@ -670,9 +675,13 @@ public class GraphPanel extends JPanel {
 
 	/** Updates the timestamp. **/
 	public void setTimestamp(long timestamp) {
-		this.timestamp = timestamp;
+		long t = timestamp + this.timestampOffset;
+		if (this.timestampInSeconds)
+			t *= 1000;
+		this.timestamp = t;
+
 		if (this.timestampValue != null)
-			this.setTimestampLabel(timestamp);
+			this.setTimestampLabel(t);
 	}
 
 	/** Updates the timestamp label. **/
@@ -863,6 +872,10 @@ public class GraphPanel extends JPanel {
 		// get node
 		Node node = this.graph.getNode("" + n.getIndex());
 
+		// if node not in graph, dont do anything
+		if (node == null)
+			return;
+
 		// get old weight
 		Weight wOld = node.getAttribute(GraphVisualization.weightKey);
 
@@ -926,9 +939,14 @@ public class GraphPanel extends JPanel {
 		int n1 = e.getN1Index();
 		int n2 = e.getN2Index();
 
+		// get nodes and edges
+		Node node1 = this.graph.getNode("" + n1);
+		Node node2 = this.graph.getNode("" + n2);
+		Edge edge = node1.getEdgeBetween(node2);
+
 		// if edge not there, add it
-		if (this.graph.getNode("" + n1).getEdgeBetween("" + n2) == null) {
-			Edge edge = this.graph.addEdge(n1 + "-" + n2, "" + n1, "" + n2,
+		if ((edge == null) || (directedEdges && node2.equals(edge.getNode0()))) {
+			edge = this.graph.addEdge(n1 + "-" + n2, "" + n1, "" + n2,
 					directedEdges);
 
 			// init weight
@@ -951,8 +969,6 @@ public class GraphPanel extends JPanel {
 							+ "px;");
 
 			// apply style rules
-			Node node1 = this.graph.getNode("" + n1);
-			Node node2 = this.graph.getNode("" + n2);
 			for (GraphStyleRule r : rules)
 				r.onEdgeAddition(edge, node1, node2);
 
@@ -996,8 +1012,16 @@ public class GraphPanel extends JPanel {
 		int n1 = e.getN1().getIndex();
 		int n2 = e.getN2().getIndex();
 
+		// if one of the nodes is null -> return
+		if (this.graph.getNode("" + n1) == null
+				|| this.graph.getNode("" + n2) == null)
+			return;
+
 		// get edge
 		Edge edge = this.graph.getNode("" + n1).getEdgeBetween("" + n2);
+
+		if (edge == null)
+			return;
 
 		// get old weight
 		Weight wOld = edge.getAttribute(GraphVisualization.weightKey);

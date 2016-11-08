@@ -53,9 +53,56 @@ public class GraphStyleUtils {
 		e.setAttribute(GraphVisualization.sizeKey, size);
 	}
 
+	/** Different supported shapes for graphstream elements. **/
+	public enum ElementShape {
+		circle, box, rounded_box, diamond, triangle, cross
+	}
+
+	/** Sets a shape to an element. **/
+	public static void setShape(Element e, ElementShape shape) {
+		e.setAttribute(GraphVisualization.shapeKey,
+				GraphStyleUtils.getStringFromShape(shape));
+	}
+
+	/** Returns the shape of an element. **/
+	public static ElementShape getShape(Element e) {
+		String shape = e.getAttribute(GraphVisualization.shapeKey);
+		switch (shape) {
+		case "circle":
+			return ElementShape.circle;
+		case "box":
+			return ElementShape.box;
+		case "rounded-box":
+			return ElementShape.rounded_box;
+		case "diamond":
+			return ElementShape.diamond;
+		case "triangle":
+			return ElementShape.triangle;
+		case "cross":
+			return ElementShape.cross;
+		default:
+			return null;
+		}
+	}
+
+	/** Returns a string representing the shape. **/
+	public static String getStringFromShape(ElementShape shape) {
+		switch (shape) {
+		case rounded_box:
+			return "rounded-box";
+		default:
+			return shape.toString();
+		}
+	}
+
 	/** Updates the elements style. **/
 	public static void updateStyle(Element e) {
 		String style = "";
+		// add shape
+		if (e.hasAttribute(GraphVisualization.shapeKey))
+			style += "shape: " + e.getAttribute(GraphVisualization.shapeKey)
+					+ ";";
+
 		// add color
 		if (e.hasAttribute(GraphVisualization.colorKey)) {
 			Color c = e.getAttribute(GraphVisualization.colorKey);

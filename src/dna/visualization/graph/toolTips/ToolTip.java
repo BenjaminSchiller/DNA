@@ -9,8 +9,10 @@ import dna.graph.weights.Weight;
 import dna.visualization.graph.GraphVisualization;
 import dna.visualization.graph.toolTips.button.FreezeButton;
 import dna.visualization.graph.toolTips.button.HighlightButton;
+import dna.visualization.graph.toolTips.infoLabel.NetworkNodeKeyLabel;
 import dna.visualization.graph.toolTips.infoLabel.NodeDegreeLabel;
 import dna.visualization.graph.toolTips.infoLabel.NodeIdLabel;
+import dna.visualization.graph.toolTips.infoLabel.NodeTypeWeightLabel;
 
 /**
  * ToolTip is a wrapper class for the GraphStream Sprite class. Sprites are
@@ -32,7 +34,7 @@ public abstract class ToolTip {
 
 	/** ToolTipType used to identify different ToolTip implementations. **/
 	public enum ToolTipType {
-		BUTTON_FREEZE, BUTTON_HIGHLIGHT, INFO_NODE_ID, INFO_NODE_DEGREE, NONE
+		BUTTON_FREEZE, BUTTON_HIGHLIGHT, INFO_NODE_ID, INFO_NODE_DEGREE, INFO_NODE_TYPE_WEIGHT, INFO_NETWORK_NODE_KEY, NONE
 	}
 
 	public static final String GraphVisToolTipTypeKey = "dna.ttt";
@@ -103,6 +105,10 @@ public abstract class ToolTip {
 				return NodeDegreeLabel.getFromSprite(s);
 			case INFO_NODE_ID:
 				return NodeIdLabel.getFromSprite(s);
+			case INFO_NODE_TYPE_WEIGHT:
+				return NodeTypeWeightLabel.getFromSprite(s);
+			case INFO_NETWORK_NODE_KEY:
+				return NetworkNodeKeyLabel.getFromSprite(s);
 			}
 		}
 

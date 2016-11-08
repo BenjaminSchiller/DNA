@@ -27,7 +27,7 @@ public abstract class InfoLabel extends ToolTip {
 
 	/** Different types that can be stored. **/
 	public enum LabelValueType {
-		DOUBLE, INT, LONG
+		DOUBLE, INT, LONG, STRING
 	}
 
 	/** Type of the value that is stored. **/
@@ -94,6 +94,8 @@ public abstract class InfoLabel extends ToolTip {
 		case LONG:
 			Long l = Long.parseLong(value);
 			this.setValue("" + (l + steps));
+			break;
+		case STRING:
 			break;
 		}
 
