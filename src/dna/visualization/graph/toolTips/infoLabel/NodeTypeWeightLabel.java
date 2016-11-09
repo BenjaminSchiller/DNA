@@ -4,6 +4,7 @@ import org.graphstream.graph.Edge;
 import org.graphstream.graph.Node;
 import org.graphstream.ui.spriteManager.Sprite;
 
+import dna.graph.weights.TypedWeight;
 import dna.graph.weights.Weight;
 import dna.visualization.graph.GraphVisualization;
 
@@ -17,10 +18,14 @@ public class NodeTypeWeightLabel extends InfoLabel {
 
 	public static String getType(Node n) {
 		Weight weight = n.getAttribute(GraphVisualization.weightKey);
-		if (weight != null)
-			return weight.toString();
-		else
-			return "null!";
+		String type = "null!";
+		if (weight != null) {
+			if (weight instanceof TypedWeight)
+				type = ((TypedWeight) weight).getType();
+			else
+				type = weight.toString();
+		}
+		return type;
 	}
 
 	@Override
