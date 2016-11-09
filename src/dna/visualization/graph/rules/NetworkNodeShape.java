@@ -7,7 +7,6 @@ import org.graphstream.graph.Node;
 
 import dna.graph.weights.TypedWeight;
 import dna.graph.weights.Weight;
-import dna.graph.weights.network.NetworkMultiWeight;
 import dna.util.Config;
 import dna.visualization.graph.GraphVisualization;
 import dna.visualization.graph.rules.GraphStyleUtils.ElementShape;
@@ -58,8 +57,6 @@ public class NetworkNodeShape extends GraphStyleRule {
 	@Override
 	public void onNodeAddition(Node n) {
 		Weight weight = n.getAttribute(GraphVisualization.weightKey);
-		if (weight instanceof NetworkMultiWeight)
-			weight = ((NetworkMultiWeight) weight).getType();
 		if (weight instanceof TypedWeight) {
 			TypedWeight w = (TypedWeight) weight;
 			if (w.getType().equals("HOST")) {
