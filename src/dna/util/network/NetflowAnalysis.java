@@ -442,9 +442,8 @@ public class NetflowAnalysis {
 
 		// normal
 		GraphGenerator gg = new EmptyNetwork(GDS.directedVE(
-				NetworkNodeWeight.class, WeightSelection.None,
-				DoubleMultiWeight.class, WeightSelection.None),
-				timestampSeconds);
+				NetworkNodeWeight.class, WeightSelection.NaN,
+				DoubleMultiWeight.class, WeightSelection.NaN), timestampSeconds);
 
 		// GraphGenerator gg = new
 		// EmptyNetwork(GDS.directedVE(TypedWeight.class,
