@@ -7,6 +7,7 @@ import dna.graph.Graph;
 import dna.graph.datastructures.GraphDataStructure;
 import dna.graph.generators.GraphGenerator;
 import dna.io.GraphReader;
+import dna.util.Timer;
 
 /**
  * 
@@ -27,6 +28,12 @@ public class ReadableFileWaitingGraph extends GraphGenerator {
 	private String filename;
 
 	protected Sleeper sleeper;
+
+	public long idleTime = 0;
+	public long readTime = 0;
+
+	public static final String idleTimeName = "GraphGeneratorIdleTime";
+	public static final String readTimeName = "GraphGeneratorReadTime";
 
 	/**
 	 * 
@@ -61,6 +68,7 @@ public class ReadableFileWaitingGraph extends GraphGenerator {
 
 	@Override
 	public Graph generate() {
+		Timer t1 = new Timer();
 		this.sleeper.reset();
 		while (!this.sleeper.isTimedOut()) {
 			if (!(new File(this.dir + this.filename)).exists()) {
@@ -68,11 +76,15 @@ public class ReadableFileWaitingGraph extends GraphGenerator {
 				continue;
 			}
 			try {
-				if (this.gds == null) {
-					return GraphReader.read(this.dir, this.filename);
-				} else {
-					return GraphReader.read(this.dir, this.filename, this.gds);
-				}
+				t1.end();
+				this.idleTime = t1.getDutation();
+				Timer t2 = new Timer();
+				Graph g = this.gds == null ? GraphReader.read(this.dir,
+						this.filename) : GraphReader.read(this.dir,
+						this.filename, this.gds);
+				t2.end();
+				this.readTime = t2.getDutation();
+				return g;
 			} catch (IOException | ClassNotFoundException e) {
 				e.printStackTrace();
 			}

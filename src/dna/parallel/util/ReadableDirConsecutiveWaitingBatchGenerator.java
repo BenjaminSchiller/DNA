@@ -6,6 +6,7 @@ import dna.graph.Graph;
 import dna.io.BatchReader;
 import dna.updates.batch.Batch;
 import dna.updates.generators.BatchGenerator;
+import dna.util.Timer;
 
 public class ReadableDirConsecutiveWaitingBatchGenerator extends BatchGenerator {
 
@@ -13,6 +14,12 @@ public class ReadableDirConsecutiveWaitingBatchGenerator extends BatchGenerator 
 	protected String suffix;
 
 	protected Sleeper sleeper;
+
+	public long idleTime = 0;
+	public long readTime = 0;
+
+	public static final String idleTimeName = "BatchGeneratorIdleTime";
+	public static final String readTimeName = "BatchGeneratorReadTime";
 
 	public ReadableDirConsecutiveWaitingBatchGenerator(String name, String dir,
 			String suffix, Sleeper sleeper) {
@@ -24,12 +31,19 @@ public class ReadableDirConsecutiveWaitingBatchGenerator extends BatchGenerator 
 
 	@Override
 	public Batch generate(Graph g) {
+		Timer t1 = new Timer();
 		this.sleeper.reset();
 		String filename = (g.getTimestamp() + 1) + this.suffix;
 		while (!this.sleeper.isTimedOut()) {
 			if (((new File(dir + filename))).exists()) {
 				this.sleeper.reset();
-				return BatchReader.read(this.dir, filename, g);
+				t1.end();
+				this.idleTime = t1.getDutation();
+				Timer t2 = new Timer();
+				Batch b = BatchReader.read(this.dir, filename, g);
+				t2.end();
+				this.readTime = t2.getDutation();
+				return b;
 			}
 			this.sleeper.sleep();
 		}
