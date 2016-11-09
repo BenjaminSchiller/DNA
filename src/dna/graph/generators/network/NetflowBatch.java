@@ -42,7 +42,31 @@ import dna.util.network.NetflowAnalysis.NodeWeightValue;
  * It extends the NetworkBatch class, therefore its purpose is the modeling of
  * network events as graph updates for a single batch given the updates. All
  * timestamp, queue-checking etc. is already handled by the NetworkBatch class.
- * Therefore, only the given events have to be processed accordingly.
+ * Therefore, only the given events have to be processed accordingly.<br>
+ * <br>
+ * 
+ * The graph modeling can be specified by the parameters handed over to the
+ * NetflowBatch constructor. That is the edges and edgeDirections. <br>
+ * <br>
+ * 
+ * The first dimension of the <b>edges</b> array represents paths induced by a
+ * single flow. All fields contained in a single path represent nodes in the
+ * graph. <br>
+ * <br>
+ * 
+ * The <b>edgeDirections</b> refer to the same paths defined in the edges array.
+ * They define the direction of the respective paths.<br>
+ * <br>
+ * 
+ * Note that the edgeWeights and nodeWeights are left over from previous version
+ * and are (for now) kept for backwards compatibility. Furthermore, they are
+ * still handed over in all the methods but not actually used. This allows for
+ * proper integration of new functionalities in the future. For now the weights
+ * of nodes and edges have the following structure:<br>
+ * - <b>Nodes</b>: (flows_in, flows_out, packets_in, packets_out, bytes_in,
+ * bytes_out) <br>
+ * - <b>Edges</b>: (flows, packets, bytes)<br>
+ * <br>
  * 
  * @author Rwilmes
  * 
@@ -57,8 +81,8 @@ public class NetflowBatch extends NetworkBatch {
 	// edgeWEights and nodeWeights
 	protected NetflowEventField[][] edges;
 	protected NetflowDirection[] edgeDirections;
-	protected EdgeWeightValue[] edgeWeights;
-	protected NodeWeightValue[] nodeWeights;
+	protected EdgeWeightValue[] edgeWeights; // no longer used
+	protected NodeWeightValue[] nodeWeights; // no longer used
 
 	protected boolean substituteMissingPortsAsProtocols = false;
 
