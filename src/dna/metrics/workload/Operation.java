@@ -55,15 +55,15 @@ public abstract class Operation extends ParameterList {
 	public void createWorkload(Graph g) {
 		switch (this.list) {
 		case E:
-			System.out.println("OPERATION " + this.getDescription()
-					+ " for E @ " + g.getEdges().getClass().getSimpleName());
+			// System.out.println("OPERATION " + this.getDescription()
+			// + " for E @ " + g.getEdges().getClass().getSimpleName());
 			for (int i = 0; i < this.times; i++) {
 				this.createWorkloadE(g);
 			}
 			break;
 		case V:
-			System.out.println("OPERATION " + this.getDescription()
-					+ " for V @ " + g.getNodes().getClass().getSimpleName());
+			// System.out.println("OPERATION " + this.getDescription()
+			// + " for V @ " + g.getNodes().getClass().getSimpleName());
 			for (int i = 0; i < this.times; i++) {
 				this.createWorkloadV(g);
 			}
