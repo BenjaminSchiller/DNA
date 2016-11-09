@@ -2,8 +2,9 @@ package dna.util.fromArgs;
 
 import java.util.EnumMap;
 
+import dna.graph.datastructures.DArray;
 import dna.graph.datastructures.DArrayList;
-import dna.graph.datastructures.DHashMap;
+import dna.graph.datastructures.DHashArrayList;
 import dna.graph.datastructures.DataStructure.ListType;
 import dna.graph.datastructures.GraphDataStructure;
 import dna.graph.datastructures.IDataStructure;
@@ -23,8 +24,8 @@ public class GraphDataStructuresFromArgs {
 	}
 
 	public static GraphDataStructure parse(GdsType gdsType, String... args) {
-		Class<? extends IDataStructure> GlobalNodeList = DArrayList.class;
-		Class<? extends IDataStructure> GlobalEdgeList = DHashMap.class;
+		Class<? extends IDataStructure> GlobalNodeList = DArray.class;
+		Class<? extends IDataStructure> GlobalEdgeList = DHashArrayList.class;
 		Class<? extends IDataStructure> LocalEdgeList = DArrayList.class;
 
 		EnumMap<ListType, Class<? extends IDataStructure>> listTypes = GraphDataStructure
