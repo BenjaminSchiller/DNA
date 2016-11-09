@@ -362,7 +362,7 @@ public class NetflowAnalysis {
 
 		// limit extra value generation
 		Config.overwrite("EXTRA_VALUE_DISTRIBUTION_PERCENT",
-				"99, 98, 97, 96, 95, 90, 85, 80, 70");
+				"99, 98, 97, 96, 95, 90, 85, 80, 70, 50");
 
 		String destinationName = name;
 		if (this.descr != null && !this.descr.equals("null"))
