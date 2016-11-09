@@ -36,7 +36,13 @@ import dna.util.network.NetflowAnalysis.NodeWeightValue;
 
 /**
  * A batch-generator which creates batches based on netflow events read by a
- * NetflowEventReader from a netflow-list file.
+ * NetflowEventReader from a netflow-list file. <br>
+ * <br>
+ * 
+ * It extends the NetworkBatch class, therefore its purpose is the modeling of
+ * network events as graph updates for a single batch given the updates. All
+ * timestamp, queue-checking etc. is already handled by the NetworkBatch class.
+ * Therefore, only the given events have to be processed accordingly.
  * 
  * @author Rwilmes
  * 
@@ -47,6 +53,8 @@ public class NetflowBatch extends NetworkBatch {
 		none, both, srcOnly, dstOnly
 	};
 
+	// definition of the graph model based on the edges, edgeDirections,
+	// edgeWEights and nodeWeights
 	protected NetflowEventField[][] edges;
 	protected NetflowDirection[] edgeDirections;
 	protected EdgeWeightValue[] edgeWeights;
@@ -77,6 +85,35 @@ public class NetflowBatch extends NetworkBatch {
 		this.counter = 0;
 	}
 
+	/**
+	 * The craftBatch method is the heart of a class extending NetworkBatch. It
+	 * operates on the given Graph and the NetworkEvents, which is a list of all
+	 * events to be processed and encapsulated in the batch to be crafted.<br>
+	 * <br>
+	 * 
+	 * Note that edges with zero weight and nodes with zero degree are supposed
+	 * to be deleted. (If not configured otherwise) Therefore, we keep track of
+	 * all changes made to the edges and nodes throughout the event processing.
+	 * This allows us to combine the given graph with the new graph updates and
+	 * the revert updates in order to determine the resulting weight and degree
+	 * of edges and nodes. This information is then being used in order to
+	 * remove zero degree nodes and zero weight edges.
+	 * 
+	 * @param g
+	 *            The given graph.
+	 * @param timestamp
+	 *            The timestamp of the batch to be generated. Is also being used
+	 *            to compute the time of reverted graph updates.
+	 * @param events
+	 *            The events that happened and should be modelled and
+	 *            ecnapsulated by the batch to be generated.
+	 * @param decrementEvents
+	 *            The events which happened before and have to be reverted in
+	 *            this batch. This events can either be NetworkEdges,
+	 *            representing the revertion of edges (and edge-weights) or
+	 *            NodeUpdates, representing the revertion of noddes (and
+	 *            node-weights)
+	 */
 	@Override
 	public Batch craftBatch(Graph g, DateTime timestamp,
 			ArrayList<NetworkEvent> events,
@@ -87,16 +124,25 @@ public class NetflowBatch extends NetworkBatch {
 				TimeUnit.MILLISECONDS.toSeconds(timestamp.getMillis()), 0, 0,
 				0, 0, 0, 0);
 
+		// a map used to keep track of the node degrees.
 		HashMap<Integer, Integer> nodesDegreeMap = new HashMap<Integer, Integer>();
 
+		// a map used to keep track of newly added nodes
 		HashMap<Integer, Node> addedNodes = new HashMap<Integer, Node>();
 
+		// a map used to keep track of nodes weights
 		HashMap<Integer, double[]> nodesWeightMap = new HashMap<Integer, double[]>();
 
+		// a list used to keep track of newly added edges
 		ArrayList<NetworkEdge> addedEdges = new ArrayList<NetworkEdge>();
 
+		// a list containing the decrement edges (or edge revertions)
 		ArrayList<NetworkEdge> decrementEdges = new ArrayList<NetworkEdge>();
+
+		// a list containing the decrmeent nodes (or node revertions)
 		ArrayList<NodeUpdate> decrementNodes = new ArrayList<NodeUpdate>();
+
+		// fill lists based on the given update events
 		for (UpdateEvent ue : decrementEvents) {
 			if (ue instanceof NetworkEdge)
 				decrementEdges.add((NetworkEdge) ue);
@@ -104,20 +150,26 @@ public class NetflowBatch extends NetworkBatch {
 				decrementNodes.add((NodeUpdate) ue);
 		}
 
+		// iterate over each network event and process them based on the model
 		for (NetworkEvent networkEvent : events) {
 			NetflowEvent event = (NetflowEvent) networkEvent;
 
+			// if direction is null (i.e. who-has lookups) or src == dst -->
+			// skip this event
 			if (event.getSrcAddress().equals(event.getDstAddress())
 					|| event.getDirection() == null)
 				continue;
 
 			NetflowDirection direction = event.getDirection();
 
+			// iterate over edges specified in the model
 			for (int i = 0; i < this.edgeDirections.length; i++) {
 				NetflowDirection edgeDir = this.edgeDirections[i];
 
+				// only apply events to edges with fitting direction
 				if (edgeDir.equals(direction)
 						|| direction.equals(NetflowDirection.bidirectional)) {
+					// actual processing method
 					processEvents(event, this.edges[i], this.edgeWeights,
 							edgeDir, this.nodeWeights, addedNodes,
 							nodesWeightMap, addedEdges, b, g);
@@ -125,10 +177,15 @@ public class NetflowBatch extends NetworkBatch {
 			}
 		}
 
+		// add newly added nodes to nodes degree map
 		for (Integer nodeId : addedNodes.keySet()) {
 			nodesDegreeMap.put(nodeId, 0);
 		}
 
+		// iterate over edge revertions. For each edge present in the graph but
+		// not in the revertions: add a dummy revert edge with weight-change 0.
+		// This
+		// allows for easier processing later
 		for (NetworkEdge dne : decrementEdges) {
 			boolean present = false;
 			for (NetworkEdge ne : addedEdges) {
@@ -143,7 +200,10 @@ public class NetflowBatch extends NetworkBatch {
 						new double[this.edgeWeights.length]));
 		}
 
+		// Iterate over all newly added edges and call edge to batch, handing
+		// the new added edge as well as the respective revertion edge
 		for (NetworkEdge ne : addedEdges) {
+			// get revertion edge
 			NetworkEdge decrementNe = new NetworkEdge(ne.getSrc(), ne.getDst(),
 					0, new double[this.edgeWeights.length]);
 			for (NetworkEdge dne : decrementEdges) {
@@ -153,6 +213,8 @@ public class NetflowBatch extends NetworkBatch {
 				}
 			}
 
+			// actual addition method creating the graph updates and adding them
+			// to the batch
 			addEdgeToBatch(b, g, ne, decrementNe, addedNodes, nodesDegreeMap);
 		}
 
@@ -163,19 +225,18 @@ public class NetflowBatch extends NetworkBatch {
 		return b;
 	}
 
-	protected double[] getZeroArray(int length) {
-		double[] array = new double[length];
-		for (int i = 0; i < array.length; i++)
-			array[i] = 0.0;
-		return array;
-	}
-
+	/**
+	 * This method is the last step of the batch generation process. It computes
+	 * the nodes resulting degrees and weights. If a node degree turns out to be
+	 * 0, the node will be removed. If its degree remains > 0 only its weight
+	 * will be changed.
+	 */
 	protected void computeNodeDegreesAndWeights(
 			HashMap<Integer, Node> addedNodes,
 			HashMap<Integer, Integer> nodeDegreeMap,
 			HashMap<Integer, double[]> nodesWeightMap,
 			ArrayList<NodeUpdate> decrementNodeUpdates, Graph g, Batch b) {
-		// lit of all nodes to be updated
+		// gather a list of nodes considered for weight updates
 		ArrayList<Integer> nodes = new ArrayList<Integer>();
 
 		for (Integer index : addedNodes.keySet()) {
@@ -193,15 +254,22 @@ public class NetflowBatch extends NetworkBatch {
 				nodes.add(nu.getIndex());
 		}
 
+		// iterate over all nodes in the graph and compute resulting degree
+		// based on current degree and the degrees contained in the map
+		// if the degree results in zero, remove the node
 		Iterator<IElement> ite = g.getNodes().iterator();
 		while (ite.hasNext()) {
 			Node n = (Node) ite.next();
 			int index = n.getIndex();
+
+			// increment degree based on current degree
 			incrementNodeDegree(nodeDegreeMap, index, n.getDegree());
 
+			// get degree after batch application
 			int degree = nodeDegreeMap.get(index);
 
 			if (degree == 0) {
+				// if zero and removeZeroDegreeNodes flag is set, remove node
 				if (reader instanceof NetflowEventReader
 						&& ((NetflowEventReader) reader)
 								.isRemoveZeroDegreeNodes()) {
@@ -213,11 +281,13 @@ public class NetflowBatch extends NetworkBatch {
 						nodes.remove(new Integer(index));
 				}
 			} else {
+				// if degree is > 0, add node to list of considered nodes
 				if (!nodes.contains(index))
 					nodes.add(index);
 			}
 		}
 
+		// iterate over considered nodes and update weights
 		for (Integer index : nodes) {
 			boolean added = addedNodes.containsKey(index);
 			boolean weightChanged = nodesWeightMap.containsKey(index);
@@ -270,19 +340,10 @@ public class NetflowBatch extends NetworkBatch {
 		}
 	}
 
-	public String printe(double[] input) {
-		String buff = "";
-		if (input.length > 0)
-			buff += input[0];
-		for (int i = 1; i < input.length; i++)
-			buff += "\t" + input[i];
-		return buff;
-	}
-
 	/**
 	 * This method is called for each NetflowEvent of a batch and creates the
-	 * respective edges and nodes and updates their weights in case they already
-	 * got created.
+	 * respective edges and nodes and updates their weights in case they have
+	 * already been created.
 	 **/
 	protected void processEvents(NetflowEvent event,
 			NetflowEventField[] eventFields, EdgeWeightValue[] edgeWeights,
@@ -293,10 +354,14 @@ public class NetflowBatch extends NetworkBatch {
 		if (eventFields == null || eventFields.length < 2)
 			return;
 
+		// iterate over eventFields, each represents a node in the resulting
+		// graph
 		for (int i = 0; i < eventFields.length - 1; i++) {
 			String string0 = event.get(eventFields[i]);
 			String string1 = event.get(eventFields[i + 1]);
 
+			// if either of the fields is not present (== null) try to appply
+			// defined substitution rules
 			if (string0 == null || string0.equals("null")) {
 				if (substituteMissingPortsAsProtocols
 						&& (eventFields[i].equals(NetflowEventField.DstPort) || eventFields[i]
@@ -313,6 +378,7 @@ public class NetflowBatch extends NetworkBatch {
 				}
 			}
 
+			// get mapping of nodes
 			int mapping0 = map(string0);
 			int mapping1 = map(string1);
 
@@ -345,9 +411,34 @@ public class NetflowBatch extends NetworkBatch {
 		}
 	}
 
+	/**
+	 * This method creates actual graph updates based on the processed events
+	 * and adds them to the batch.<br>
+	 * <br>
+	 * 
+	 * The maps of added nodes and the node degrees will be updated accordingly,
+	 * i.e. when an edge will be removed based on the weight decrement updates,
+	 * the degree of the nodes the edge is attached to will be decremented
+	 * accordingly. This is necessary to be able to remove zero degree nodes
+	 * later.
+	 * 
+	 * @param b
+	 *            Batch the updates will be added to.
+	 * @param g
+	 *            Current graph.
+	 * @param ne
+	 *            The network edge to be added or changed
+	 * @param dne
+	 *            The corresponding revertion edge.
+	 * @param addedNodes
+	 *            Map of added nodes.
+	 * @param nodeDegreeMap
+	 *            Map of node degrees.
+	 */
 	protected void addEdgeToBatch(Batch b, Graph g, NetworkEdge ne,
 			NetworkEdge dne, HashMap<Integer, Node> addedNodes,
 			HashMap<Integer, Integer> nodeDegreeMap) {
+		// get src and dst nodes from graph or added nodes list
 		Node srcNode = g.getNode(ne.getSrc());
 		if (srcNode == null)
 			srcNode = addedNodes.get(ne.getSrc());
@@ -356,56 +447,88 @@ public class NetflowBatch extends NetworkBatch {
 		if (dstNode == null)
 			dstNode = addedNodes.get(ne.getDst());
 
+		// get edge
 		IWeightedEdge e = (IWeightedEdge) g.getEdge(srcNode, dstNode);
 
 		// check if weight changed
 		boolean weightChange = !ne.isZero();
 		boolean decrement = !dne.isZero();
 
+		// if weightChange flag is true, that is when a netflow event actually
+		// induced a positive weight changed on the given edge, we will add this
+		// as a reverted edge update (aka decrementEdge) to the event queue for
+		// later revertion.
 		if (reader instanceof NetflowEventReader && weightChange)
 			addEdgeWeightDecrementalToQueue((NetflowEventReader) reader, ne);
 
 		// check if edge exists, if not create new edge instance
 		if (e == null) {
+			// init edge instance
 			e = (IWeightedEdge) g.getGraphDatastructures().newEdgeInstance(
 					srcNode, dstNode);
 
+			// set weight as addition of positive weight change and potential
+			// weight revertion
 			e.setWeight(new DoubleMultiWeight(addition(ne.getEdgeWeights(),
 					dne.getEdgeWeights())));
+
+			// add edge to batch
 			b.add(new EdgeAddition(e));
+
+			// update node degree map accordingly
 			incrementNodeDegree(nodeDegreeMap, ne.getSrc());
 			incrementNodeDegree(nodeDegreeMap, ne.getDst());
 		} else {
 			// edge exists --> update weights and degrees
+
+			// get old weight from present edge
 			DoubleMultiWeight wOld = (DoubleMultiWeight) ((IWeightedEdge) e)
 					.getWeight();
+
+			// compute new weight by addition
 			double[] weightsNew = addition(wOld.getWeights(),
 					ne.getEdgeWeights());
+
+			// if decrement update available: add it to the new weight (note
+			// that decrement updates contain negative weights)
 			if (decrement)
 				weightsNew = addition(weightsNew, dne.getEdgeWeights());
 
+			// init new weight object
 			DoubleMultiWeight wNew = new DoubleMultiWeight(weightsNew);
 
+			// check if first weight (containing the number of flows) is zero
 			if (wNew.getWeight(0) == 0) {
+				// if wieght is zero, remove edge from batch
 				b.add(new EdgeRemoval(e));
+
+				// decrement node degrees accordingly
 				decrementNodeDegree(nodeDegreeMap, ne.getSrc());
 				decrementNodeDegree(nodeDegreeMap, ne.getDst());
 			} else {
+				// weight > 0: add edge weight update to batch
 				b.add(new EdgeWeight(e, wNew));
 			}
 		}
 	}
 
+	/** Decrements the nodes degree in the map. **/
 	protected void decrementNodeDegree(HashMap<Integer, Integer> nodeDegreeMap,
 			int nodeId) {
 		incrementNodeDegree(nodeDegreeMap, nodeId, -1);
 	}
 
+	/** Increments the nodes degree in the map. **/
 	protected void incrementNodeDegree(HashMap<Integer, Integer> nodeDegreeMap,
 			int nodeId) {
 		incrementNodeDegree(nodeDegreeMap, nodeId, 1);
 	}
 
+	/**
+	 * Increments the degree of the given node in the map by the given count. If
+	 * node is not present in the map it will be added with the given count as
+	 * its degree.
+	 **/
 	protected void incrementNodeDegree(HashMap<Integer, Integer> nodeDegreeMap,
 			int nodeId, int count) {
 		if (nodeDegreeMap.containsKey(nodeId)) {
@@ -415,6 +538,11 @@ public class NetflowBatch extends NetworkBatch {
 		}
 	}
 
+	/**
+	 * Decrements the degree of the given node in the map by the given count. If
+	 * node is not present in the map it will be added with the given count as
+	 * its degree.
+	 **/
 	protected void addNodeWeightDecrementalToQueue(NetflowEventReader r,
 			NodeUpdate update) {
 		double[] nodeWeightsArray = new double[update.getUpdates().length];
@@ -427,6 +555,10 @@ public class NetflowBatch extends NetworkBatch {
 				nodeWeightsArray));
 	}
 
+	/**
+	 * Adds an edge decremental event to the queue at time t + edgeLifetime.
+	 * Weights will be multiplied by (-1).
+	 **/
 	protected void addEdgeWeightDecrementalToQueue(NetflowEventReader r,
 			NetworkEdge e) {
 		double[] edgeWeightsArray = new double[e.getEdgeWeights().length];
@@ -439,6 +571,10 @@ public class NetflowBatch extends NetworkBatch {
 				edgeWeightsArray));
 	}
 
+	/**
+	 * Adds a new edge to the list of network edges. If the edge is already
+	 * present the weights will be cumulated.
+	 */
 	protected void addEdge(ArrayList<NetworkEdge> addedEdges, int src, int dst,
 			long time, double[] edgeWeights) {
 		boolean alreadyAdded = false;
@@ -456,6 +592,7 @@ public class NetflowBatch extends NetworkBatch {
 		}
 	}
 
+	/** Adds a node to the given batch and node map. **/
 	protected Node addNode(HashMap<Integer, Node> addedNodes,
 			HashMap<Integer, double[]> nodeWeightsMap, Batch b, Graph g,
 			int nodeToAdd, NetflowEventField type, double[] nodeWeights) {
@@ -492,6 +629,7 @@ public class NetflowBatch extends NetworkBatch {
 				nodeWeights);
 	}
 
+	/** Adds a node to the given batch and node map. **/
 	protected Node addNode(HashMap<Integer, Node> addedNodes,
 			HashMap<Integer, double[]> nodeWeightsMap, Batch b, Graph g,
 			int nodeToAdd, ElementType type, double[] nodeWeights) {
@@ -516,6 +654,7 @@ public class NetflowBatch extends NetworkBatch {
 		}
 	}
 
+	/** Convenience method for addition of double arrays of same length. **/
 	public double[] addition(double[] d1, double[] d2) {
 		double[] d3 = new double[Math.max(d1.length, d2.length)];
 		for (int i = 0; i < d3.length; i++) {
@@ -526,6 +665,17 @@ public class NetflowBatch extends NetworkBatch {
 		return d3;
 	}
 
+	// convenience method for double array printing
+	public String printe(double[] input) {
+		String buff = "";
+		if (input.length > 0)
+			buff += input[0];
+		for (int i = 1; i < input.length; i++)
+			buff += "\t" + input[i];
+		return buff;
+	}
+
+	/** Maps the given node string to an int. **/
 	protected int map(String key) {
 		if (this.map.keySet().contains(key))
 			return this.map.get(key);
@@ -536,10 +686,12 @@ public class NetflowBatch extends NetworkBatch {
 		}
 	}
 
-	protected int counter;
+	protected int counter; // int counter for new mappings
 
+	// map containing the actual mapping from string --> int
 	protected HashMap<String, Integer> map;
 
+	/** Get key for the given mapping. **/
 	public String getKey(Integer mapping) {
 		Set<String> keys = map.keySet();
 

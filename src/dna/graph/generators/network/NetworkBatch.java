@@ -18,7 +18,8 @@ import dna.util.parameters.Parameter;
 
 /**
  * A batch-generator which creates batches based on network events read by a
- * NetworkEventReader.
+ * NetworkEventReader. It builds a framework for BatchGenerators based on
+ * network events.
  * 
  * @author Rwilmes
  * 
@@ -64,6 +65,24 @@ public abstract class NetworkBatch extends BatchGenerator {
 		threshold = threshold.plusSeconds(batchIntervalSeconds * multiplier);
 	}
 
+	/**
+	 * The generate method will be called by DNA to generate a new batch. <br>
+	 * <br>
+	 * 
+	 * The NetworkBatch generate method builds a framework for batch generation
+	 * methods using network data, as it checks for new available events, either
+	 * contained in the readers update queues or as new readable events. If
+	 * there are no new events the timestamp will increased iteratively until
+	 * new events are available. <br>
+	 * If there aren't any more events, i.e. the reader has reached the end of
+	 * the file and all queued updates have been processed, the finished-flag
+	 * will be set true and the isFurtherBatchPossible-method will return false,
+	 * signalling DNA that no new batches can be generated. <br>
+	 * <br>
+	 * 
+	 * A NetworkBatch implementation should implement the craftBatch-method and
+	 * solely work on the available parameters to model the graph.
+	 */
 	public Batch generate(Graph graph) {
 		if (!init) {
 			this.threshold = new DateTime(TimeUnit.SECONDS.toMillis(graph
