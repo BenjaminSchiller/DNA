@@ -17,8 +17,8 @@ import dna.util.Log;
 import dna.util.parameters.Parameter;
 
 /**
- * A batch-generator which creates batches based on netflow events read by a
- * NetflowEventReader from a netflow-list file.
+ * A batch-generator which creates batches based on network events read by a
+ * NetworkEventReader.
  * 
  * @author Rwilmes
  * 

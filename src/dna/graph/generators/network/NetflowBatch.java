@@ -11,6 +11,7 @@ import org.joda.time.DateTime;
 
 import dna.graph.Graph;
 import dna.graph.IElement;
+import dna.graph.edges.network.NetworkEdge;
 import dna.graph.edges.network.UpdateEvent;
 import dna.graph.nodes.Node;
 import dna.graph.weights.IWeightedEdge;
@@ -33,6 +34,13 @@ import dna.updates.update.NodeWeight;
 import dna.util.network.NetflowAnalysis.EdgeWeightValue;
 import dna.util.network.NetflowAnalysis.NodeWeightValue;
 
+/**
+ * A batch-generator which creates batches based on netflow events read by a
+ * NetflowEventReader from a netflow-list file.
+ * 
+ * @author Rwilmes
+ * 
+ */
 public class NetflowBatch extends NetworkBatch {
 
 	public enum NodeWeightMode {
