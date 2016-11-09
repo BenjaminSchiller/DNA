@@ -2,7 +2,10 @@ package dna.metrics.weights;
 
 import dna.graph.Graph;
 import dna.graph.weights.IWeightedEdge;
-import dna.graph.weights.multi.DoubleMultiWeight;
+import dna.graph.weights.IWeightedNode;
+import dna.graph.weights.doubleW.DoubleWeight;
+import dna.graph.weights.intW.IntWeight;
+import dna.graph.weights.network.NetworkNodeWeight;
 import dna.metrics.algorithms.IBeforeNA;
 import dna.metrics.algorithms.IBeforeNR;
 import dna.metrics.algorithms.IBeforeNW;
@@ -60,15 +63,15 @@ public class NodeWeightsMultiU extends NodeWeights implements IBeforeNA,
 
 	@Override
 	public boolean isApplicable(Graph g) {
-		return g.getGraphDatastructures().isEdgeType(IWeightedEdge.class)
-				&& g.getGraphDatastructures().isEdgeWeightType(
-						DoubleMultiWeight.class);
+		return g.getGraphDatastructures().isNodeType(IWeightedNode.class)
+				&& g.getGraphDatastructures().isNodeWeightType(
+						NetworkNodeWeight.class);
 	}
 
 	@Override
 	public boolean isApplicable(Batch b) {
-		return b.getGraphDatastructures().isEdgeType(IWeightedEdge.class)
-				&& b.getGraphDatastructures().isEdgeWeightType(
-						DoubleMultiWeight.class);
+		return b.getGraphDatastructures().isNodeType(IWeightedNode.class)
+				&& b.getGraphDatastructures().isNodeWeightType(
+						NetworkNodeWeight.class);
 	}
 }

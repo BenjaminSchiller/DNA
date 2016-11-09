@@ -22,7 +22,7 @@ import dna.graph.generators.GraphGenerator;
 import dna.graph.generators.network.EmptyNetwork;
 import dna.graph.generators.network.NetflowBatch;
 import dna.graph.weights.Weight.WeightSelection;
-import dna.graph.weights.network.NetworkEdgeWeight;
+import dna.graph.weights.multi.DoubleMultiWeight;
 import dna.graph.weights.network.NetworkNodeWeight;
 import dna.io.network.netflow.NetflowEvent.NetflowDirection;
 import dna.io.network.netflow.NetflowEvent.NetflowEventField;
@@ -431,7 +431,7 @@ public class NetflowAnalysis {
 		// normal
 		GraphGenerator gg = new EmptyNetwork(GDS.directedVE(
 				NetworkNodeWeight.class, WeightSelection.None,
-				NetworkEdgeWeight.class, WeightSelection.None),
+				DoubleMultiWeight.class, WeightSelection.None),
 				timestampSeconds);
 
 		// GraphGenerator gg = new

@@ -16,7 +16,7 @@ import dna.graph.edges.network.UpdateEvent;
 import dna.graph.nodes.Node;
 import dna.graph.weights.IWeightedEdge;
 import dna.graph.weights.IWeightedNode;
-import dna.graph.weights.network.NetworkEdgeWeight;
+import dna.graph.weights.multi.DoubleMultiWeight;
 import dna.graph.weights.network.NetworkNodeWeight;
 import dna.graph.weights.network.NetworkWeight.ElementType;
 import dna.io.network.NetworkEvent;
@@ -370,21 +370,21 @@ public class NetflowBatch extends NetworkBatch {
 			e = (IWeightedEdge) g.getGraphDatastructures().newEdgeInstance(
 					srcNode, dstNode);
 
-			e.setWeight(new NetworkEdgeWeight(addition(ne.getEdgeWeights(),
+			e.setWeight(new DoubleMultiWeight(addition(ne.getEdgeWeights(),
 					dne.getEdgeWeights())));
 			b.add(new EdgeAddition(e));
 			incrementNodeDegree(nodeDegreeMap, ne.getSrc());
 			incrementNodeDegree(nodeDegreeMap, ne.getDst());
 		} else {
 			// edge exists --> update weights and degrees
-			NetworkEdgeWeight wOld = (NetworkEdgeWeight) ((IWeightedEdge) e)
+			DoubleMultiWeight wOld = (DoubleMultiWeight) ((IWeightedEdge) e)
 					.getWeight();
 			double[] weightsNew = addition(wOld.getWeights(),
 					ne.getEdgeWeights());
 			if (decrement)
 				weightsNew = addition(weightsNew, dne.getEdgeWeights());
 
-			NetworkEdgeWeight wNew = new NetworkEdgeWeight(weightsNew);
+			DoubleMultiWeight wNew = new DoubleMultiWeight(weightsNew);
 
 			if (wNew.getWeight(0) == 0) {
 				b.add(new EdgeRemoval(e));
