@@ -31,6 +31,8 @@ import dna.metrics.algorithms.IBeforeNR;
 import dna.metrics.algorithms.IBeforeNW;
 import dna.metrics.algorithms.IDynamicAlgorithm;
 import dna.metrics.algorithms.IRecomputation;
+import dna.parallel.util.ReadableDirConsecutiveWaitingBatchGenerator;
+import dna.parallel.util.ReadableFileWaitingGraph;
 import dna.series.Series.RandomSeedReset;
 import dna.series.aggdata.AggregatedSeries;
 import dna.series.data.BatchData;
@@ -579,6 +581,17 @@ public class SeriesGeneration {
 		initialData.getValues().add(
 				new Value(SeriesStats.edges, series.getGraph().getEdgeCount()));
 
+		if (series.getGraphGenerator() instanceof ReadableFileWaitingGraph) {
+			initialData.getValues().add(
+					new Value(ReadableFileWaitingGraph.idleTimeName,
+							((ReadableFileWaitingGraph) series
+									.getGraphGenerator()).idleTime));
+			initialData.getValues().add(
+					new Value(ReadableFileWaitingGraph.readTimeName,
+							((ReadableFileWaitingGraph) series
+									.getGraphGenerator()).readTime));
+		}
+
 		return initialData;
 	}
 
@@ -668,6 +681,21 @@ public class SeriesGeneration {
 				new Value(SeriesStats.removedEdges, removedEdges));
 		batchData.getValues().add(
 				new Value(SeriesStats.updatedEdgeWeights, updatedEdgeWeights));
+
+		if (series.getBatchGenerator() instanceof ReadableDirConsecutiveWaitingBatchGenerator) {
+			batchData
+					.getValues()
+					.add(new Value(
+							ReadableDirConsecutiveWaitingBatchGenerator.idleTimeName,
+							((ReadableDirConsecutiveWaitingBatchGenerator) series
+									.getBatchGenerator()).idleTime));
+			batchData
+					.getValues()
+					.add(new Value(
+							ReadableDirConsecutiveWaitingBatchGenerator.readTimeName,
+							((ReadableDirConsecutiveWaitingBatchGenerator) series
+									.getBatchGenerator()).readTime));
+		}
 
 		return batchData;
 	}

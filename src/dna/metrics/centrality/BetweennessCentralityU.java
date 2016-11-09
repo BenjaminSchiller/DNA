@@ -40,11 +40,11 @@ public class BetweennessCentralityU extends BetweennessCentrality implements
 	protected HashMap<Node, HashMap<Node, Double>> accSums;
 
 	public BetweennessCentralityU() {
-		super("BetweennessCentralityU");
+		super("BetweennessCentralityU", MetricType.exact);
 	}
 
 	public BetweennessCentralityU(String[] nodeTypes) {
-		super("BetweennessCentralityU", nodeTypes);
+		super("BetweennessCentralityU", MetricType.exact, nodeTypes);
 	}
 
 	@SuppressWarnings("unchecked")

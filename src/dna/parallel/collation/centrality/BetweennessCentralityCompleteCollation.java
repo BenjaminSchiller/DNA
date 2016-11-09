@@ -19,15 +19,17 @@ public class BetweennessCentralityCompleteCollation extends
 		super("BetweennessCentralityCollation", MetricType.exact,
 				PartitionType.Complete, new BetweennessCentralityR(), auxDir,
 				inputDir, partitionCount, run, sleeper, new String[] {
-						"BetweennessCentralityR", "BetweennessCentralityU" },
-				new String[] { "bCSum", "sumShortestPaths" },
-				new String[] { "Normalized-BC" }, new String[] { "BC_Score" });
+						"BetweennessCentralityR", "BetweennessCentralityU",
+						"BetweennessCentralityRH" }, new String[] { "bCSum",
+						"sumShortestPaths" }, new String[] { "Normalized-BC" },
+				new String[] { "BC_Score" });
 	}
 
 	@Override
 	public boolean collate(CollationData cd) {
-		m.bCC = new NodeValueList("BC_Score",
-				new double[this.g.getMaxNodeIndex() + 1]);
+		m.bCC = new NodeValueList("BC_Score", new double[this
+				.getSource(cd.bd[0]).getNodeValues().get("BC_Score")
+				.getValues().length]);
 		m.binnedBC = new BinnedDoubleDistr("Normalized-BC", 0.01d);
 		m.bCSum = 0;
 		m.sumShortestPaths = 0;
@@ -41,11 +43,11 @@ public class BetweennessCentralityCompleteCollation extends
 			m.bCSum += md.getValues().get("bCSum").getValue();
 			m.sumShortestPaths += md.getValues().get("sumShortestPaths")
 					.getValue();
-			BinnedDoubleDistr binnedBC = (BinnedDoubleDistr) md
-					.getDistributions().get("Normalized-BC");
-			for (int j = 0; j <= binnedBC.getMaxNonZeroIndex(); j++) {
-				m.binnedBC.incr(0.01d * j, (int) binnedBC.getValues()[j]);
-			}
+			// BinnedDoubleDistr binnedBC = (BinnedDoubleDistr) md
+			// .getDistributions().get("Normalized-BC");
+			// for (int j = 0; j <= binnedBC.getMaxNonZeroIndex(); j++) {
+			// m.binnedBC.incr(0.01d * j, (int) binnedBC.getValues()[j]);
+			// }
 		}
 		return true;
 	}

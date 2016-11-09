@@ -4,6 +4,7 @@ import dna.metrics.Metric;
 import dna.metrics.assortativity.AssortativityR;
 import dna.metrics.assortativity.AssortativityU;
 import dna.metrics.centrality.BetweennessCentralityR;
+import dna.metrics.centrality.BetweennessCentralityRH;
 import dna.metrics.centrality.BetweennessCentralityU;
 import dna.metrics.clustering.UndirectedClusteringCoefficientR;
 import dna.metrics.clustering.UndirectedClusteringCoefficientU;
@@ -26,7 +27,7 @@ import dna.metrics.richClub.RichClubConnectivityByDegreeU;
 
 public class MetricFromArgs {
 	public static enum MetricType {
-		DegreeDistributionR, DegreeDistributionU, UndirectedClusteringCoefficientR, UndirectedClusteringCoefficientU, PartitionedUndirectedClusteringCoefficientR, UnweightedAllPairsShortestPathsR, UnweightedAllPairsShortestPathsU, UnweightedMultiSourceShortestPathsR, WeakConnectivityR, WeakConnectivityU, WeakConnectivityB, UndirectedMotifsR, UndirectedMotifsU, AssortativityR, AssortativityU, BetweennessCentralityR, BetweennessCentralityU, RichClubConnectivityByDegreeR, RichClubConnectivityByDegreeU, WCSimpleR, WCSimpleU, WCBasicR, WCBasicU
+		DegreeDistributionR, DegreeDistributionU, UndirectedClusteringCoefficientR, UndirectedClusteringCoefficientU, PartitionedUndirectedClusteringCoefficientR, UnweightedAllPairsShortestPathsR, UnweightedAllPairsShortestPathsU, UnweightedMultiSourceShortestPathsR, WeakConnectivityR, WeakConnectivityU, WeakConnectivityB, UndirectedMotifsR, UndirectedMotifsU, AssortativityR, AssortativityU, BetweennessCentralityR, BetweennessCentralityRH, BetweennessCentralityU, RichClubConnectivityByDegreeR, RichClubConnectivityByDegreeU, WCSimpleR, WCSimpleU, WCBasicR, WCBasicU
 	}
 
 	public static Metric[] parse(String[] metricTypes) {
@@ -83,6 +84,9 @@ public class MetricFromArgs {
 			return new AssortativityU(nodeTypes);
 		case BetweennessCentralityR:
 			return new BetweennessCentralityR(nodeTypes);
+		case BetweennessCentralityRH:
+			return new BetweennessCentralityRH(Integer.parseInt(args[0]),
+					nodeTypes);
 		case BetweennessCentralityU:
 			return new BetweennessCentralityU(nodeTypes);
 		case RichClubConnectivityByDegreeR:

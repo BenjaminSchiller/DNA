@@ -22,6 +22,7 @@ import dna.series.data.nodevaluelists.NodeValueList;
 import dna.updates.batch.Batch;
 import dna.util.Config;
 import dna.util.Log;
+import dna.util.Timer;
 import dna.util.parameters.Parameter;
 
 /**
@@ -65,10 +66,18 @@ public abstract class Collation<M extends Metric, T extends Partition> extends
 
 	protected Sleeper sleeper;
 
+	protected long idle = 0;
+	protected long read = 0;
+	protected long collate = 0;
+
 	protected String[] sourceMetrics;
 	protected String[] values;
 	protected String[] distributions;
 	protected String[] nodeValueLists;
+
+	public static final String idleTimerName = "collationIdleTime";
+	public static final String readingTimerName = "collationReadingTime";
+	public static final String collationTimerName = "collationCollationTime";
 
 	public Collation(String name, MetricType metricType, Parameter[] p,
 			PartitionType partitionType, M m, String auxDir, String inputDir,
@@ -102,7 +111,19 @@ public abstract class Collation<M extends Metric, T extends Partition> extends
 	@Override
 	public boolean recompute() {
 		Log.debug("collating " + this.getName());
-		return this.collate(this.readCollationData());
+
+		this.read = 0;
+		Timer t1 = new Timer();
+		CollationData cd = this.readCollationData();
+		t1.end();
+		this.idle = t1.getDutation() - this.read;
+
+		Timer t2 = new Timer();
+		boolean success = this.collate(cd);
+		t2.end();
+		this.collate = t2.getDutation();
+
+		return success;
 	}
 
 	@SuppressWarnings("rawtypes")
@@ -120,6 +141,7 @@ public abstract class Collation<M extends Metric, T extends Partition> extends
 					continue;
 				}
 				try {
+					Timer t1 = new Timer();
 					String batchDir = inputDir
 							.replace(partitionKeyword, "" + i)
 							+ "run."
@@ -164,6 +186,8 @@ public abstract class Collation<M extends Metric, T extends Partition> extends
 						bd[i] = null;
 						Log.debug("could not read all data yet for worker " + i);
 					}
+					t1.end();
+					this.read += t1.getDutation();
 				} catch (Exception e) {
 					missing = true;
 					bd[i] = null;
@@ -174,7 +198,13 @@ public abstract class Collation<M extends Metric, T extends Partition> extends
 			}
 			if (aux == null) {
 				try {
+					Timer t2 = new Timer();
 					if (this.aux == null) {
+						Log.debug("reading aux from "
+								+ auxDir
+								+ g.getTimestamp()
+								+ AuxData.getSuffix(partitionType,
+										AuxWriteType.Init));
 						this.aux = AuxData.read(
 								g.getGraphDatastructures(),
 								this.partitionCount,
@@ -189,6 +219,8 @@ public abstract class Collation<M extends Metric, T extends Partition> extends
 								+ AuxData.getSuffix(partitionType,
 										AuxWriteType.Init));
 					} else {
+						Log.debug("reading aux add/remove from " + auxDir
+								+ g.getTimestamp());
 						AuxData auxAdd = AuxData.read(
 								g.getGraphDatastructures(),
 								this.partitionCount,
@@ -209,6 +241,8 @@ public abstract class Collation<M extends Metric, T extends Partition> extends
 						Log.debug("read aux add/remove from " + auxDir
 								+ g.getTimestamp());
 					}
+					t2.end();
+					this.read += t2.getDutation();
 				} catch (Exception e) {
 					missing = true;
 					aux = null;
@@ -293,7 +327,16 @@ public abstract class Collation<M extends Metric, T extends Partition> extends
 
 	@Override
 	public Value[] getValues() {
-		return this.m.getValues();
+		Value[] values = this.m.getValues();
+		Value[] values_ = new Value[values.length + 3];
+		for (int i = 0; i < values.length; i++) {
+			values_[i] = values[i];
+		}
+		values_[values_.length - 3] = new Value(idleTimerName, this.idle);
+		values_[values_.length - 2] = new Value(readingTimerName, this.read);
+		values_[values_.length - 1] = new Value(collationTimerName,
+				this.collate);
+		return values_;
 	}
 
 	@Override
