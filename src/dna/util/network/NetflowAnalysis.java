@@ -58,6 +58,17 @@ import dna.visualization.BatchHandler.ZipMode;
 import dna.visualization.graph.GraphVisualization;
 import dna.visualization.graph.toolTips.infoLabel.NetworkNodeKeyLabel;
 
+/**
+ * The NetflowAnalysis class is used as the main-class for actual analysis using
+ * gIDS. It can be build using the specified build file. <br>
+ * <br>
+ * 
+ * This class makes use of ArgList in order to create a runnable .jar with a
+ * convenient arguments interface.
+ * 
+ * @author Rwilmes
+ * 
+ */
 public class NetflowAnalysis {
 
 	public enum NodeWeightValue {
@@ -377,6 +388,7 @@ public class NetflowAnalysis {
 				edgeWeights, nodeWeights);
 	}
 
+	/** Actual DNA Series generation. **/
 	public static SeriesData generate(String srcDir, String srcFilename,
 			String dstDir, String name, boolean writeDistributions,
 			int dataOffsetSeconds, int batchLengthSeconds,
@@ -593,6 +605,10 @@ public class NetflowAnalysis {
 			new WeightedDegreeDistributionR(DatasetUtils.metricPortFilter),
 			new WeightedDegreeDistributionR() };
 
+	/*
+	 * PARSING
+	 */
+
 	/**
 	 * Parses a String array where each String has the format:<br>
 	 * <br>
@@ -618,6 +634,7 @@ public class NetflowAnalysis {
 		return edges;
 	}
 
+	/** Parses edge weight values. **/
 	protected EdgeWeightValue[] parseEdgeWeightValues(String[] input) {
 		EdgeWeightValue[] edgeWeights = new EdgeWeightValue[input.length];
 		for (int i = 0; i < input.length; i++) {
@@ -626,6 +643,7 @@ public class NetflowAnalysis {
 		return edgeWeights;
 	}
 
+	/** Parses node weight values. **/
 	protected NodeWeightValue[] parseNodeWeightValues(String[] input) {
 		NodeWeightValue[] nodeWeights = new NodeWeightValue[input.length];
 		for (int i = 0; i < input.length; i++) {
@@ -634,6 +652,7 @@ public class NetflowAnalysis {
 		return nodeWeights;
 	}
 
+	/** Parses edge directions. **/
 	protected NetflowDirection[] parseEdgeDirections(String[] inputDirections) {
 		NetflowDirection[] directions = new NetflowDirection[inputDirections.length];
 		for (int i = 0; i < inputDirections.length; i++) {
@@ -645,6 +664,7 @@ public class NetflowAnalysis {
 		return directions;
 	}
 
+	/** Used for automated name generation. **/
 	protected String map(NodeWeightValue key) {
 		switch (key) {
 		case BytesIn:
@@ -664,6 +684,7 @@ public class NetflowAnalysis {
 		}
 	}
 
+	/** Used for automated name generation. **/
 	protected String map(NetflowEventField key) {
 		switch (key) {
 		case Bytes:
@@ -711,6 +732,10 @@ public class NetflowAnalysis {
 		}
 	}
 
+	/**
+	 * Automated name-generation based on the given model. Will only be used
+	 * when no specific name is being passed.
+	 **/
 	protected String generateName(String[] edges, String[] edgeDirections,
 			String[] edgeWeights, String[] nodeWeights,
 			Integer batchLengthSeconds, Integer edgeLifeTimeSeconds) {

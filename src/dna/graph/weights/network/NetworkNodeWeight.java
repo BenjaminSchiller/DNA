@@ -2,6 +2,14 @@ package dna.graph.weights.network;
 
 import dna.graph.weights.TypedWeight;
 
+/**
+ * A NetworkNodeWeight is like a DoubleMultiWeight which extends a TypedWeight.
+ * It can contain an arbitrary number of doubles while also holding a specific
+ * node-type.
+ * 
+ * @author Rwilmes
+ * 
+ */
 public class NetworkNodeWeight extends TypedWeight {
 
 	protected double[] weights;

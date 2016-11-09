@@ -26,6 +26,14 @@ import dna.series.data.SeriesData;
 import dna.util.Config;
 import dna.visualization.graph.GraphVisualization;
 
+/**
+ * A utility class containing several enumerations, configurations and
+ * convenience methods used by gIDS for tha analysis of different types of
+ * datasets.
+ * 
+ * @author Rwilmes
+ * 
+ */
 public class DatasetUtils {
 
 	/*
