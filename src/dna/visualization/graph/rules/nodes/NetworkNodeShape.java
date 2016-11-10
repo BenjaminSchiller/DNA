@@ -1,4 +1,4 @@
-package dna.visualization.graph.rules;
+package dna.visualization.graph.rules.nodes;
 
 import java.awt.Color;
 
@@ -8,7 +8,8 @@ import org.graphstream.graph.Node;
 import dna.graph.weights.TypedWeight;
 import dna.graph.weights.Weight;
 import dna.util.Config;
-import dna.visualization.graph.GraphVisualization;
+import dna.visualization.graph.rules.GraphStyleRule;
+import dna.visualization.graph.rules.GraphStyleUtils;
 import dna.visualization.graph.rules.GraphStyleUtils.ElementShape;
 
 /**
@@ -55,8 +56,7 @@ public class NetworkNodeShape extends GraphStyleRule {
 	}
 
 	@Override
-	public void onNodeAddition(Node n) {
-		Weight weight = n.getAttribute(GraphVisualization.weightKey);
+	public void onNodeAddition(Node n, Weight weight) {
 		if (weight instanceof TypedWeight) {
 			TypedWeight w = (TypedWeight) weight;
 			if (w.getType().equals("HOST")) {
@@ -122,7 +122,7 @@ public class NetworkNodeShape extends GraphStyleRule {
 	}
 
 	@Override
-	public void onEdgeAddition(Edge e, Node n1, Node n2) {
+	public void onEdgeAddition(Edge e, Weight w, Node n1, Node n2) {
 		// DO NOTHING
 	}
 
