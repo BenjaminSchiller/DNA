@@ -25,8 +25,6 @@ import dna.util.Config;
 import dna.util.Log;
 import dna.visualization.config.graph.GraphPanelConfig;
 import dna.visualization.graph.GraphPanel.PositionMode;
-import dna.visualization.graph.toolTipManager.DefaultToolTipManager;
-import dna.visualization.graph.toolTipManager.NetflowToolTipManager;
 
 /** The GraphVisualization class offers methods to visualize graphs used in DNA. **/
 public class GraphVisualization {
