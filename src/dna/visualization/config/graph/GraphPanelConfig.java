@@ -37,6 +37,9 @@ public class GraphPanelConfig {
 	protected boolean textPanelEnabled;
 
 	protected String timestampFormat;
+	protected long timestampOffset;
+	protected boolean timestampInSeconds;
+
 	protected boolean renderHQ;
 	protected boolean renderAA;
 
@@ -68,7 +71,8 @@ public class GraphPanelConfig {
 
 	public GraphPanelConfig(int width, int height, boolean fullscreen,
 			boolean statPanelEnabled, boolean textPanelEnabled,
-			String timestampFormat, boolean renderHQ, boolean renderAA,
+			String timestampFormat, long timestampOffset,
+			boolean timestampInSeconds, boolean renderHQ, boolean renderAA,
 			double zoomSpeed, double scrollSpeed, double rotationSpeed,
 			boolean toolTipsEnabled, boolean directedEdgeArrowsEnabled,
 			double nodeSize, String nodeColor, double edgeSize,
@@ -82,6 +86,8 @@ public class GraphPanelConfig {
 		this.statPanelEnabled = statPanelEnabled;
 		this.textPanelEnabled = textPanelEnabled;
 		this.timestampFormat = timestampFormat;
+		this.timestampOffset = timestampOffset;
+		this.timestampInSeconds = timestampInSeconds;
 		this.renderHQ = renderHQ;
 		this.renderAA = renderAA;
 		this.zoomSpeed = zoomSpeed;
@@ -117,6 +123,8 @@ public class GraphPanelConfig {
 		boolean statPanelEnabled = true;
 		boolean textPanelEnabled = true;
 		String timestampFormat = null;
+		long timestampOffset = 0;
+		boolean timestampInSeconds = false;
 		boolean renderHQ = false;
 		boolean renderAA = false;
 		double zoomSpeed = 0.03;
@@ -145,6 +153,8 @@ public class GraphPanelConfig {
 			statPanelEnabled = def.isStatPanelEnabled();
 			textPanelEnabled = def.isTextPanelEnabled();
 			timestampFormat = def.getTimestampFormat();
+			timestampOffset = def.getTimestampOffset();
+			timestampInSeconds = def.isTimestampInSeconds();
 			renderHQ = def.isRenderHQ();
 			renderAA = def.isRenderAA();
 			zoomSpeed = def.getZoomSpeed();
@@ -218,6 +228,12 @@ public class GraphPanelConfig {
 				case "TimestampFormat":
 					timestampFormat = o.getString(s);
 					break;
+				case "TimestampInSeconds":
+					timestampInSeconds = o.getBoolean(s);
+					break;
+				case "TimestampOffset":
+					timestampOffset = o.getLong(s);
+					break;
 				case "ToolTipsConfig":
 					toolTips = ToolTipsConfig.getFromJSONObject(o
 							.getJSONObject(s));
@@ -239,11 +255,12 @@ public class GraphPanelConfig {
 		toolTipsEnabled = toolTips.isEnabled();
 
 		return new GraphPanelConfig(width, height, fullscreen,
-				statPanelEnabled, textPanelEnabled, timestampFormat, renderHQ,
-				renderAA, zoomSpeed, scrollSpeed, rotationSpeed,
-				toolTipsEnabled, directedEdgeArrowsEnabled, nodeSize,
-				nodeColor, edgeSize, layouter, autoLayoutForce, waitConfig,
-				projectionConfig, captureConfig, rules, toolTips);
+				statPanelEnabled, textPanelEnabled, timestampFormat,
+				timestampOffset, timestampInSeconds, renderHQ, renderAA,
+				zoomSpeed, scrollSpeed, rotationSpeed, toolTipsEnabled,
+				directedEdgeArrowsEnabled, nodeSize, nodeColor, edgeSize,
+				layouter, autoLayoutForce, waitConfig, projectionConfig,
+				captureConfig, rules, toolTips);
 	}
 
 	public static GraphPanelConfig getDefaultConfig() {
@@ -347,6 +364,14 @@ public class GraphPanelConfig {
 
 	public String getTimestampFormat() {
 		return timestampFormat;
+	}
+
+	public long getTimestampOffset() {
+		return timestampOffset;
+	}
+
+	public boolean isTimestampInSeconds() {
+		return timestampInSeconds;
 	}
 
 	public boolean isRenderHQ() {

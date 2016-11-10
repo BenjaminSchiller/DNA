@@ -120,10 +120,8 @@ public class GraphPanel extends JPanel {
 	protected JLabel nodesValue;
 	protected JLabel edgesValue;
 	protected SimpleDateFormat dateFormat;
-	protected boolean timestampAsDate;
 	protected boolean timestampInSeconds;
-	protected int timestampOffset;
-
+	protected long timestampOffset;
 
 	// used for dragging
 	protected Point dragPos;
@@ -159,12 +157,10 @@ public class GraphPanel extends JPanel {
 		this.mode = mode;
 		this.graphGeneratorName = graphGeneratorName;
 		this.timestamp = 0;
-		this.timestampAsDate = Config.getBoolean("GRAPH_VIS_TIMESTAMP_AS_DATE");
-		this.timestampInSeconds = Config
-				.getBoolean("GRAPH_VIS_TIMESTAMP_IN_SECONDS");
-		this.timestampOffset = Config.getInt("GRAPH_VIS_TIMESTAMP_OFFSET");
-		this.config = config;
 		this.dateFormat = new SimpleDateFormat(config.getTimestampFormat());
+		this.timestampOffset = config.getTimestampOffset();
+		this.timestampInSeconds = config.isTimestampInSeconds();
+		this.config = config;
 		this.rules = new ArrayList<GraphStyleRule>();
 		this.rulesFlags = new ArrayList<Boolean>();
 		this.nextRuleIndex = 0;
