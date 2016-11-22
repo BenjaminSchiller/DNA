@@ -739,6 +739,9 @@ public class MainDisplay extends JFrame {
 			if (c instanceof MultiScalarVisualizer) {
 				((MultiScalarVisualizer) c).reset();
 			}
+			if (c instanceof LabelVisualizer) {
+				((LabelVisualizer) c).reset();
+			}
 		}
 	}
 
