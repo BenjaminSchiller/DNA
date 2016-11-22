@@ -685,8 +685,9 @@ public class MenuBar extends JPanel implements ChangeListener {
 		this.coordsPanel.add(xCoordsLabel, coordsPanelConstraints);
 		// x coords value
 		this.xCoordsValue = new JLabel();
-		if (MainDisplay.config.getMetricVisualizerConfigs()[0].getxAxisType()
-				.equals("date") && (this.parent instanceof MetricVisualizer)) {
+		if ((this.parent instanceof MetricVisualizer)
+				&& MainDisplay.config.getMetricVisualizerConfigs()[0]
+						.getxAxisType().equals("date")) {
 			SimpleDateFormat tempDateFormat = new SimpleDateFormat(
 					MainDisplay.config.getMetricVisualizerConfigs()[0]
 							.getxAxisFormat());
@@ -744,9 +745,9 @@ public class MenuBar extends JPanel implements ChangeListener {
 	 */
 	public void updateCoordsPanel(int x, double y) {
 		if (this.coordsPanel != null) {
-			if (MainDisplay.config.getMetricVisualizerConfigs()[0]
-					.getxAxisType().equals("date")
-					&& (this.parent instanceof MetricVisualizer)) {
+			if ((this.parent instanceof MetricVisualizer)
+					&& MainDisplay.config.getMetricVisualizerConfigs()[0]
+							.getxAxisType().equals("date")) {
 				SimpleDateFormat tempDateFormat = new SimpleDateFormat(
 						MainDisplay.config.getMetricVisualizerConfigs()[0]
 								.getxAxisFormat());

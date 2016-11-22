@@ -82,7 +82,9 @@ public class Visualizer extends JPanel {
 		// init chart
 		this.chart = new Chart2D();
 		this.chart.setPreferredSize(chartSize);
-
+		//TODO: add anti alias to config
+//		this.chart.setUseAntialiasing(true);
+		
 		/*
 		 * axis configuration
 		 */

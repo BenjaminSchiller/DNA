@@ -1,5 +1,9 @@
 package dna.visualization.config.components;
 
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Font;
+
 import dna.visualization.config.JSON.JSONObject;
 
 /**
@@ -13,13 +17,13 @@ public class LabelVisualizerConfig {
 	protected String name;
 
 	// x axis
-	private String x1AxisTitle;
-	private String xAxisType;
-	private String xAxisFormat;
+	protected String x1AxisTitle;
+	protected String xAxisType;
+	protected String xAxisFormat;
 
 	// y axis
-	private String y1AxisTitle;
-	private String y2AxisTitle;
+	protected String y1AxisTitle;
+	protected String y2AxisTitle;
 
 	protected int positionX;
 	protected int positionY;
@@ -28,11 +32,12 @@ public class LabelVisualizerConfig {
 
 	protected boolean traceModeLtd;
 
+	protected MenuBarConfig menuBarConfig;
+
 	public LabelVisualizerConfig(String name, int positionX, int positionY,
 			int rowSpan, int colSpan, String x1AxisTitle, String xAxisType,
 			String xAxisFormat, String y1AxisTitle, String y2AxisTitle,
-			boolean traceModeLtd) {
-		System.out.println("init lv config");
+			boolean traceModeLtd, MenuBarConfig menuBarConfig) {
 		this.name = name;
 		this.positionX = positionX;
 		this.positionY = positionY;
@@ -46,6 +51,8 @@ public class LabelVisualizerConfig {
 		this.y2AxisTitle = y2AxisTitle;
 
 		this.traceModeLtd = traceModeLtd;
+
+		this.menuBarConfig = menuBarConfig;
 	}
 
 	public String getName() {
@@ -92,6 +99,10 @@ public class LabelVisualizerConfig {
 		return traceModeLtd;
 	}
 
+	public MenuBarConfig getMenuBarConfig() {
+		return menuBarConfig;
+	}
+
 	public static LabelVisualizerConfig createLabelVisualizerConfigFromJSONObject(
 			JSONObject o) {
 		String name = "Label Visualizer 1";
@@ -101,9 +112,9 @@ public class LabelVisualizerConfig {
 		int colSpan = 1;
 
 		// x axis
-		String x1AxisTitle = "x";
+		String x1AxisTitle = "Timestamp";
 		String xAxisType = "date";
-		String xAxisFormat = "s";
+		String xAxisFormat = "hh:mm:ss:SS";
 
 		// y axis
 		String y1AxisTitle = "y1";
@@ -111,9 +122,27 @@ public class LabelVisualizerConfig {
 
 		boolean traceModeLtd = true;
 
+		MenuBarConfig menuBarConfig = new MenuBarConfig(new Dimension(635, 50),
+				new Font("Dialog", Font.PLAIN, 11), Color.BLACK, true, true,
+				true, true);
+		// "MenuBar": {
+		// "Width": 635,
+		// "Height": 50,
+		// "showIntervalPanel": true,
+		// "showXOptionsPanel": true,
+		// "showYOptionsPanel": true,
+		// "showCoordsPanel": true,
+		// "CoordsFont": {
+		// "Name": "Dialog",
+		// "Style": "PLAIN",
+		// "Size": 11,
+		// "Color": "BLACK"
+		// }
+		// },
+
 		return new LabelVisualizerConfig(name, positionX, positionY, rowSpan,
 				colSpan, x1AxisTitle, xAxisType, xAxisFormat, y1AxisTitle,
-				y2AxisTitle, traceModeLtd);
+				y2AxisTitle, traceModeLtd, menuBarConfig);
 	}
 
 }

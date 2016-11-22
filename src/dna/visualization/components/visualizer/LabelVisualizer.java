@@ -2,22 +2,28 @@ package dna.visualization.components.visualizer;
 
 import info.monitorenter.gui.chart.IAxis.AxisTitle;
 import info.monitorenter.gui.chart.ITrace2D;
+import info.monitorenter.gui.chart.ITracePoint2D;
 import info.monitorenter.gui.chart.axis.scalepolicy.AxisScalePolicyAutomaticBestFit;
+import info.monitorenter.gui.chart.axis.scalepolicy.AxisScalePolicyManualTicks;
 import info.monitorenter.gui.chart.labelformatters.LabelFormatterDate;
+import info.monitorenter.gui.chart.rangepolicies.RangePolicyFixedViewport;
 import info.monitorenter.gui.chart.traces.Trace2DLtd;
-import info.monitorenter.gui.chart.traces.Trace2DSimple;
 import info.monitorenter.gui.chart.traces.painters.TracePainterLine;
 import info.monitorenter.util.Range;
 
+import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseMotionListener;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.SortedSet;
 
 import javax.swing.BorderFactory;
 import javax.swing.border.EtchedBorder;
@@ -39,6 +45,7 @@ public class LabelVisualizer extends Visualizer {
 
 	protected HashMap<String, ITrace2D> traces;
 	protected HashMap<String, ITrace2D> currentTraces;
+	protected HashMap<String, ArrayList<ITrace2D>> removedTraces;
 	protected HashMap<String, Integer> mapping;
 	protected HashMap<String, Color> colorMap;
 	protected int mappingCounter;
@@ -65,6 +72,7 @@ public class LabelVisualizer extends Visualizer {
 		this.mainDisplay = mainDisplay;
 		this.traces = new HashMap<String, ITrace2D>();
 		this.currentTraces = new HashMap<String, ITrace2D>();
+		this.removedTraces = new HashMap<String, ArrayList<ITrace2D>>();
 		this.mapping = new HashMap<String, Integer>();
 		this.colorMap = new HashMap<String, Color>();
 		this.mappingCounter = 1;
@@ -103,25 +111,29 @@ public class LabelVisualizer extends Visualizer {
 					.setAxisScalePolicy(new AxisScalePolicyAutomaticBestFit());
 		}
 
+		this.yAxis1.setAxisScalePolicy(new AxisScalePolicyManualTicks());
+		this.yAxis1
+				.setRangePolicy(new RangePolicyFixedViewport(new Range(0, 1)));
+
 		// add menu bar
-		// super.addMenuBar(config.getMenuBarConfig());
+		super.addMenuBar(config.getMenuBarConfig());
 
 		// add coordinate parsing to mouseover on chart
-		// this.chart.addMouseMotionListener(new MouseMotionListener() {
-		// @Override
-		// public void mouseMoved(MouseEvent e) {
-		// if (chart.getPointFinder().getNearestPoint(e, chart) != null) {
-		// ITracePoint2D tempPointFinder = chart.getPointFinder()
-		// .getNearestPoint(e, chart);
-		// menuBar.updateCoordsPanel(
-		// (int) Math.floor(tempPointFinder.getX()),
-		// tempPointFinder.getY());
-		// }
-		// }
-		//
-		// public void mouseDragged(MouseEvent e) {
-		// }
-		// });
+		this.chart.addMouseMotionListener(new MouseMotionListener() {
+			@Override
+			public void mouseMoved(MouseEvent e) {
+				if (chart.getPointFinder().getNearestPoint(e, chart) != null) {
+					ITracePoint2D tempPointFinder = chart.getPointFinder()
+							.getNearestPoint(e, chart);
+					menuBar.updateCoordsPanel(
+							(int) Math.floor(tempPointFinder.getX()),
+							tempPointFinder.getY());
+				}
+			}
+
+			public void mouseDragged(MouseEvent e) {
+			}
+		});
 
 		// apply config
 		// this.chart.setPreferredSize(config.getChartSize());
@@ -222,24 +234,27 @@ public class LabelVisualizer extends Visualizer {
 	public void addTrace(String name, Color color) {
 		if (!this.traces.containsKey(name)) {
 			if (config.isTraceModeLtd()) {
-				Trace2DLtd newTrace = new Trace2DLtd(this.TRACE_LENGTH);
-				newTrace.setColor(color);
-				this.traces.put(name, newTrace);
-				this.chart.addTrace(newTrace);
+				// Trace2DLtd newTrace = new Trace2DLtd(this.TRACE_LENGTH);
+				// newTrace.setColor(color);
+				this.traces.put(name, null);
+				// this.chart.addTrace(newTrace);
 				this.getLabelerTypeKeyMapping(name);
 				this.colorMap.put(name, color);
-				TracePainterLine tracePainter = new TracePainterLine();
-				newTrace.addTracePainter(new TracePainterLine());
+				this.removedTraces.put(name, new ArrayList<ITrace2D>());
+				// TracePainterLine tracePainter = new TracePainterLine();
+				// newTrace.addTracePainter(new TracePainterLine());
 			} else {
-				Trace2DSimple newTrace = new Trace2DSimple();
-				newTrace.setColor(color);
-				this.traces.put(name, newTrace);
-				this.chart.addTrace(newTrace);
-				this.getLabelerTypeKeyMapping(name);
-				this.colorMap.put(name, color);
-				newTrace.addTracePainter(new TracePainterLine());
+				// Trace2DSimple newTrace = new Trace2DSimple();
+				// newTrace.setColor(color);
+				// this.traces.put(name, newTrace);
+				// // this.chart.addTrace(newTrace);
+				// this.getLabelerTypeKeyMapping(name);
+				// this.colorMap.put(name, color);
+				// newTrace.addTracePainter(new TracePainterLine());
 			}
 		}
+		this.yAxis1.setRangePolicy(new RangePolicyFixedViewport(new Range(0,
+				this.traces.size() + 1)));
 	}
 
 	/**
@@ -261,15 +276,34 @@ public class LabelVisualizer extends Visualizer {
 	 * removes a trace from the chart and the traces-list and the current traces
 	 **/
 	public void removeTrace(String name) {
+		System.out.println("removing:\t" + name);
+		SortedSet<ITrace2D> traces = this.chart.getTraces();
+		System.out.println("traces: " + traces.size());
+		// System.out.println("contains: " + (traces.contains(name)));
+
+		System.out.println(">");
+		Iterator<ITrace2D> ite = traces.iterator();
+		while (ite.hasNext()) {
+			ITrace2D x = ite.next();
+			System.out.println("\t" + x);
+		}
+		System.out.println("<");
+
 		if (this.traces.containsKey(name)) {
-			this.chart.removeTrace(this.traces.get(name));
+			// this.chart.removeTrace(this.traces.get(name));
 			this.traces.remove(name);
 		}
 		if (this.currentTraces.containsKey(name)) {
+			this.chart.removeTrace(this.currentTraces.get(name));
 			this.currentTraces.remove(name);
 		}
+		for (ITrace2D trace : this.removedTraces.get(name))
+			this.chart.removeTrace(trace);
+
 		this.toggleXAxisVisibility();
 		this.toggleYAxisVisibility();
+
+		this.yAxis1.setRange(new Range(0, this.mappingCounter));
 	}
 
 	/**
@@ -316,13 +350,12 @@ public class LabelVisualizer extends Visualizer {
 
 			double offsetX = 0;
 
-			
 			// update values
 
 			// iterate over all added traces
 			LabelList labels = b.getLabels();
 
-//			System.out.println(timestampDouble);
+			// System.out.println(timestampDouble);
 			for (String key : this.traces.keySet()) {
 				double tempValue = this.mapping.get(key);
 				Color tempColor = this.colorMap.get(key);
@@ -338,7 +371,8 @@ public class LabelVisualizer extends Visualizer {
 					if (k.equals(key))
 						containedInBatch = true;
 				}
-//				System.out.println("\t" + key + "\t" + containedInBatch + "\t" + currentlyActive);
+				// System.out.println("\t" + key + "\t" + containedInBatch +
+				// "\t" + currentlyActive);
 				if (containedInBatch) {
 					if (currentlyActive) {
 						this.currentTraces.get(key).addPoint(
@@ -349,95 +383,22 @@ public class LabelVisualizer extends Visualizer {
 						newTrace.setColor(tempColor);
 						this.currentTraces.put(key, newTrace);
 						this.chart.addTrace(newTrace);
-						// TracePainterLine x = new TracePainterLine();
-						// PointPainterLine y = x.getPointPainter();
-						// Stroke z = y.getStroke();
-						
+						newTrace.setStroke(new BasicStroke(10));
+
 						newTrace.addTracePainter(new TracePainterLine());
-						newTrace.addPoint(
-								timestampDouble + offsetX, tempValue);
+						newTrace.addPoint(timestampDouble + offsetX, tempValue);
 						this.legend.updateItem(key, tempValue);
 					}
 				} else {
 					if (currentlyActive) {
-//						this.chart.removeTrace(this.currentTraces.get(key));
+						// this.chart.removeTrace(this.currentTraces.get(key));
+						this.removedTraces.get(key).add(
+								this.currentTraces.get(key));
 						this.currentTraces.remove(key);
 					}
 				}
 			}
 
-			// for (Label label : b.getLabels().getList()) {
-			// String name = label.getName();
-			// String type = label.getType();
-			//
-			// String key = name + "." + type;
-			//
-			// System.out.println("\t" + key);
-			// if (this.traces.containsKey(key)) {
-			// double tempValue = this.mapping.get(key);
-			// this.traces.get(key).addPoint(timestampDouble + offsetX,
-			// tempValue);
-			// this.legend.updateItem(key, tempValue);
-			// }
-			// }
-			// for (String metric : b.getMetrics().getNames()) {
-			// for (String value : b.getMetrics().get(metric).getValues()
-			// .getNames()) {
-			// if (this.traces.containsKey(metric + "." + value)) {
-			// String tempName = metric + "." + value;
-			// double tempValue = b.getMetrics().get(metric)
-			// .getValues().get(value).getValue();
-			// this.traces.get(tempName).addPoint(
-			// timestampDouble + offsetX, tempValue);
-			// offsetX += this.xAxisOffset;
-			// this.legend.updateItem(tempName, tempValue);
-			// }
-			// }
-			// }
-			// // update general runtimes
-			// for (String runtime : b.getGeneralRuntimes().getNames()) {
-			// if (this.traces
-			// .containsKey(MetricVisualizer.generalRuntimesPrefix
-			// + runtime)) {
-			// String tempName = MetricVisualizer.generalRuntimesPrefix
-			// + runtime;
-			// double tempValue = b.getGeneralRuntimes().get(runtime)
-			// .getRuntime();
-			// this.traces.get(tempName).addPoint(
-			// timestampDouble + offsetX, tempValue);
-			// offsetX += this.xAxisOffset;
-			// this.legend.updateItem(tempName, tempValue);
-			// }
-			// }
-			// // update metric runtimes
-			// for (String runtime : b.getMetricRuntimes().getNames()) {
-			// if (this.traces
-			// .containsKey(MetricVisualizer.metricRuntimesPrefix
-			// + runtime)) {
-			// String tempName = MetricVisualizer.metricRuntimesPrefix
-			// + runtime;
-			// double tempValue = b.getMetricRuntimes().get(runtime)
-			// .getRuntime();
-			//
-			// this.traces.get(tempName).addPoint(
-			// timestampDouble + offsetX, tempValue);
-			// offsetX += this.xAxisOffset;
-			// this.legend.updateItem(tempName, tempValue);
-			// }
-			// }
-			// // update statistics
-			// for (String value : b.getValues().getNames()) {
-			// if (this.traces.containsKey(MetricVisualizer.statisticsPrefix
-			// + value)) {
-			// String tempName = MetricVisualizer.statisticsPrefix + value;
-			// double tempValue = b.getValues().get(value).getValue();
-			//
-			// this.traces.get(tempName).addPoint(
-			// timestampDouble + offsetX, tempValue);
-			// offsetX += this.xAxisOffset;
-			// this.legend.updateItem(tempName, tempValue);
-			// }
-			// }
 			// timestamp adjustmens for x-axis tick calculation
 			if (config.isTraceModeLtd() && !this.FIXED_VIEWPORT) {
 				this.maxShownTimestamp = this.maxTimestamp;
@@ -477,6 +438,7 @@ public class LabelVisualizer extends Visualizer {
 			// update chart axis ticks
 			this.updateTicks();
 		}
+
 		this.validate();
 	}
 
@@ -502,4 +464,24 @@ public class LabelVisualizer extends Visualizer {
 		// unset reload flag
 		this.reload = false;
 	}
+
+	/** resets the metric visualizer **/
+	public void reset() {
+		this.minShownTimestamp = 0;
+		this.maxShownTimestamp = 10;
+		for (String trace : this.traces.keySet()) {
+			if (this.currentTraces.containsKey(trace)) {
+				this.chart.removeTrace(this.currentTraces.get(trace));
+			}
+			if (this.removedTraces.containsKey(trace)) {
+				for (ITrace2D t : this.removedTraces.get(trace)) {
+					this.chart.removeTrace(t);
+				}
+			}
+		}
+		this.batchBuffer.clear();
+		this.availableValues.clear();
+		this.chart.updateUI();
+	}
+
 }
