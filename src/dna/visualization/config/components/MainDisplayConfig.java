@@ -32,7 +32,8 @@ public class MainDisplayConfig {
 			StatsDisplayConfig statsDisplayConfig,
 			LogDisplayConfig[] logDisplayConfigs,
 			MetricVisualizerConfig[] metricVisualizerConfigs,
-			MultiScalarVisualizerConfig[] multiScalarVisualizerConfigs) {
+			MultiScalarVisualizerConfig[] multiScalarVisualizerConfigs,
+			LabelVisualizerConfig[] labelVisualizerConfigs) {
 		this.name = name;
 		this.size = size;
 		this.liveDisplayMode = liveDisplayMode;
@@ -51,6 +52,7 @@ public class MainDisplayConfig {
 		this.logDisplayConfigs = logDisplayConfigs;
 		this.metricVisualizerConfigs = metricVisualizerConfigs;
 		this.multiScalarVisualizerConfigs = multiScalarVisualizerConfigs;
+		this.labelVisualizerConfigs = labelVisualizerConfigs;
 	}
 
 	private String name;
@@ -73,6 +75,7 @@ public class MainDisplayConfig {
 	private LogDisplayConfig[] logDisplayConfigs;
 	private MetricVisualizerConfig[] metricVisualizerConfigs;
 	private MultiScalarVisualizerConfig[] multiScalarVisualizerConfigs;
+	private LabelVisualizerConfig[] labelVisualizerConfigs;
 
 	// get methods
 	public String getName() {
@@ -169,6 +172,10 @@ public class MainDisplayConfig {
 		return this.multiScalarVisualizerConfigs;
 	}
 
+	public LabelVisualizerConfig[] getLabelVisualizerConfigs() {
+		return this.labelVisualizerConfigs;
+	}
+
 	/*
 	 * STATIC METHODS
 	 */
@@ -212,6 +219,7 @@ public class MainDisplayConfig {
 		LogDisplayConfig[] logDisplayConfigs = new LogDisplayConfig[0];
 		MetricVisualizerConfig[] metricVisualizerConfigs = new MetricVisualizerConfig[0];
 		MultiScalarVisualizerConfig[] multiScalarVisualizerConfigs = new MultiScalarVisualizerConfig[0];
+		LabelVisualizerConfig[] labelVisualizerConfigs = new LabelVisualizerConfig[0];
 
 		// set default values
 		if (MainDisplay.DefaultConfig == null) {
@@ -494,12 +502,32 @@ public class MainDisplayConfig {
 					.get(i);
 		}
 
+		// gather label visualizer configs
+		ArrayList<LabelVisualizerConfig> labelVisualizerConfigsArray = new ArrayList<LabelVisualizerConfig>();
+		try {
+			JSONObject mvo = o.getJSONObject("LabelVisualizerConfigs");
+			for (String labelVis : JSONObject.getNames(mvo)) {
+				try {
+					labelVisualizerConfigsArray.add(LabelVisualizerConfig
+							.createLabelVisualizerConfigFromJSONObject(mvo
+									.getJSONObject(labelVis)));
+				} catch (Exception e) {
+				}
+			}
+		} catch (Exception e) {
+		}
+		labelVisualizerConfigs = new LabelVisualizerConfig[labelVisualizerConfigsArray
+				.size()];
+		for (int i = 0; i < labelVisualizerConfigsArray.size(); i++) {
+			labelVisualizerConfigs[i] = labelVisualizerConfigsArray.get(i);
+		}
+
 		return new MainDisplayConfig(name, size, liveDisplayMode, fullscreen,
 				zipMode, defaultDir, defaultFont, defaultFontColor, buttonSize,
 				logoDir, logoSize, scalingExpression, visualizerPanelSize,
 				innerVisualizerPanelSize, statsDisplayConfig,
 				logDisplayConfigs, metricVisualizerConfigs,
-				multiScalarVisualizerConfigs);
+				multiScalarVisualizerConfigs, labelVisualizerConfigs);
 	}
 
 	/**

@@ -38,9 +38,11 @@ import dna.util.Log;
 import dna.visualization.BatchHandler.ZipMode;
 import dna.visualization.components.LogDisplay;
 import dna.visualization.components.statsdisplay.StatsDisplay;
+import dna.visualization.components.visualizer.LabelVisualizer;
 import dna.visualization.components.visualizer.MetricVisualizer;
 import dna.visualization.components.visualizer.MultiScalarVisualizer;
 import dna.visualization.components.visualizer.Visualizer;
+import dna.visualization.config.components.LabelVisualizerConfig;
 import dna.visualization.config.components.LogDisplayConfig;
 import dna.visualization.config.components.MainDisplayConfig;
 import dna.visualization.config.components.MetricVisualizerConfig;
@@ -268,7 +270,7 @@ public class MainDisplay extends JFrame {
 	public MainDisplay(boolean liveDisplay, ZipMode zipMode,
 			MainDisplayConfig config) {
 		MainDisplay.config = config;
-		
+
 		// init
 		setTitle(config.getName());
 		setSize(config.getSize());
@@ -565,6 +567,38 @@ public class MainDisplay extends JFrame {
 					visualizerPanelConstraints);
 			this.registerDataComponent(metricVisualizerTemp);
 		}
+		// add label visualizers
+		for (LabelVisualizerConfig labelVisConfig : config
+				.getLabelVisualizerConfigs()) {
+			LabelVisualizer labelVisualizerTemp = new LabelVisualizer(this,
+					labelVisConfig);
+
+			if (labelVisConfig.getPositionX() >= 0
+					&& labelVisConfig.getPositionY() >= 0) {
+				visualizerPanelConstraints.gridx = labelVisConfig
+						.getPositionX();
+				visualizerPanelConstraints.gridy = labelVisConfig
+						.getPositionY();
+				if (visualizerPanelConstraints.gridy > maxYPosition)
+					maxYPosition = visualizerPanelConstraints.gridy;
+			} else {
+				visualizerPanelConstraints.gridy = maxYPosition++;
+			}
+			if (labelVisConfig.getColSpan() >= 1
+					&& labelVisConfig.getRowSpan() >= 1) {
+				visualizerPanelConstraints.gridwidth = labelVisConfig
+						.getColSpan();
+				visualizerPanelConstraints.gridheight = labelVisConfig
+						.getRowSpan();
+			} else {
+				visualizerPanelConstraints.gridwidth = 1;
+				visualizerPanelConstraints.gridheight = 1;
+			}
+
+			this.visualizerPanel.add(labelVisualizerTemp,
+					visualizerPanelConstraints);
+			this.registerDataComponent(labelVisualizerTemp);
+		}
 		// add log display
 		for (LogDisplayConfig logDisConfig : config.getLogDisplayConfigs()) {
 			LogDisplay logDisplayTemp = new LogDisplay(this, logDisConfig);
@@ -642,6 +676,9 @@ public class MainDisplay extends JFrame {
 			if (c instanceof MultiScalarVisualizer) {
 				((MultiScalarVisualizer) c).updateData(tempBatch);
 			}
+			if (c instanceof LabelVisualizer) {
+				((LabelVisualizer) c).updateData(tempBatch);
+			}
 		}
 	}
 
@@ -678,6 +715,9 @@ public class MainDisplay extends JFrame {
 			}
 			if (c instanceof MultiScalarVisualizer) {
 				((MultiScalarVisualizer) c).initData(tempBatch);
+			}
+			if (c instanceof LabelVisualizer) {
+				((LabelVisualizer) c).initData(tempBatch);
 			}
 		}
 	}
