@@ -19,6 +19,7 @@ import javax.swing.border.EtchedBorder;
 
 import dna.visualization.MainDisplay;
 import dna.visualization.config.VisualizerListConfig.yAxisSelection;
+import dna.visualization.config.components.LabelVisualizerConfig;
 import dna.visualization.config.components.MetricVisualizerConfig;
 import dna.visualization.config.components.MultiScalarVisualizerConfig;
 
@@ -76,8 +77,18 @@ public class LegendItem extends JPanel {
 			this.valueLabelSize = config.getLegendItemValueLabelSize();
 			this.valueFont = config.getLegendItemValueFont();
 			this.valueFontColor = config.getLegendItemValueFontColor();
-		} else {
+		} else if(parent.parent.parent instanceof MultiScalarVisualizer) {
 			MultiScalarVisualizerConfig config = ((MultiScalarVisualizer) parent.parent.parent).config;
+			this.buttonPanelSize = config.getLegendItemButtonPanelSize();
+			this.buttonSize = config.getLegendItemButtonSize();
+			this.size = config.getLegendItemSize();
+			this.nameLabelSize = config.getLegendItemNameLabelSize();
+			this.valueLabelSize = config.getLegendItemValueLabelSize();
+			this.valueFont = config.getLegendItemValueFont();
+			this.valueFontColor = config.getLegendItemValueFontColor();
+		} else if(parent.parent.parent instanceof LabelVisualizer) {
+//			LabelVisualizerConfig config = ((LabelVisualizer) parent.parent.parent).config;
+			MetricVisualizerConfig config = MainDisplay.DefaultConfig.getMetricVisualizerConfigs()[0];
 			this.buttonPanelSize = config.getLegendItemButtonPanelSize();
 			this.buttonSize = config.getLegendItemButtonSize();
 			this.size = config.getLegendItemSize();

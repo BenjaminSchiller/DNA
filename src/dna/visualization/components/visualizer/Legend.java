@@ -102,6 +102,33 @@ public class Legend extends JPanel {
 		this.validate();
 	}
 
+	/** adds a label item to the list, if its already added nothing will happen **/
+	public void addLabelItemToList(String name) {
+		boolean alreadyAdded = false;
+		for (Component c : this.list.getComponents()) {
+			if (c instanceof LegendItem) {
+				if (c.getName().equals(name)) {
+					alreadyAdded = true;
+				}
+			}
+		}
+
+		if (!alreadyAdded) {
+			Color color = this.colorHandler.getNextColor();
+
+			LegendItem i = new LegendItemLabel(this.list, name, color);
+			i.setToolTipText(Legend.getToolTipText(name));
+			this.list.add(i);
+			if (this.parent instanceof LabelVisualizer)
+				((LabelVisualizer) this.parent).addTrace(name, color);
+
+			this.parent.updateTicks();
+		}
+		this.parent.toggleXAxisVisibility();
+		this.parent.toggleYAxisVisibility();
+		this.validate();
+	}
+
 	/** adds a value item to the list, if its already added nothing will happen **/
 	public void addValueItemToList(String name) {
 		boolean alreadyAdded = false;
@@ -410,6 +437,8 @@ public class Legend extends JPanel {
 			((MetricVisualizer) this.parent).removeTrace(name);
 		if (this.parent instanceof MultiScalarVisualizer)
 			((MultiScalarVisualizer) this.parent).removeTrace(name);
+		if (this.parent instanceof LabelVisualizer)
+			((LabelVisualizer) this.parent).removeTrace(name);
 		this.colorHandler.removeColor(color);
 	}
 
@@ -612,6 +641,70 @@ public class Legend extends JPanel {
 						else
 							this.addNodeValueListItemToList(this.addBoxMenu[selectionIndex]
 									.substring(6));
+					}
+				}
+			}
+		}
+		// if its a label visualizer -> add label-legenditems
+		if (this.parent instanceof LabelVisualizer) {
+			// if selected element is a category
+			if (this.addBoxMenu[selectionIndex].charAt(0) != '-') {
+				// if selected element is "labels" category
+				// means it probably has different metrics with different values
+				// each
+				if (this.addBoxMenu[selectionIndex].equals("labels")) {
+					int x = selectionIndex + 1;
+					while (x != this.addBoxMenu.length
+							&& this.addBoxMenu[x].charAt(0) == '-') {
+						if (this.addBoxMenu[x].substring(0, 6).equals("----- ")) {
+							this.addLabelItemToList(this.addBoxMenu[x]
+									.substring(6));
+						}
+						x++;
+					}
+				} else {
+					// if selected element is a category other than "labels"
+					int x = selectionIndex + 1;
+					while (x != this.addBoxMenu.length
+							&& this.addBoxMenu[x].charAt(0) == '-') {
+						this.addLabelItemToList(this.addBoxMenu[selectionIndex]
+								+ "." + this.addBoxMenu[x].substring(3));
+						x++;
+					}
+				}
+			}
+			// if selected element starts with "---"
+			if (this.addBoxMenu[selectionIndex].substring(0, 3).equals("---")) {
+				// if selected element starts with "--- "
+				// means element is labeler with different types
+				if (this.addBoxMenu[selectionIndex].substring(0, 4).equals(
+						"--- ")) {
+					int x = selectionIndex + 1;
+					while (x != this.addBoxMenu.length
+							&& this.addBoxMenu[x].substring(0, 6).equals(
+									"----- ")) {
+						this.addLabelItemToList(this.addBoxMenu[x].substring(6));
+						x++;
+					}
+				} else {
+					// if selected element is single element starting with
+					// "----- "
+					// means it is a labeler type pair without sub-elements
+					if (this.addBoxMenu[selectionIndex].substring(0, 6).equals(
+							"----- ")) {
+						this.addLabelItemToList(this.addBoxMenu[selectionIndex]
+								.substring(6));
+					} else {
+						// if selected element starts with "---"
+						// means it is a value of runtimes or batch statistics
+						int x = selectionIndex - 1;
+						while (x > 0
+								&& (this.addBoxMenu[x].substring(0, 3)
+										.equals("---"))) {
+							x--;
+						}
+						this.addLabelItemToList(this.addBoxMenu[x] + "."
+								+ this.addBoxMenu[selectionIndex].substring(3));
 					}
 				}
 			}
