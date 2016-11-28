@@ -476,4 +476,15 @@ public class LabelVisualizer extends Visualizer {
 		this.chart.updateUI();
 	}
 
+	/** shows/hides a trace from the chart without deleting it **/
+	public void toggleTraceVisibility(String name) {
+		if (this.labelTraces.containsKey(name)) {
+			LabelTrace trace = this.labelTraces.get(name);
+			if (trace.isVisible())
+				trace.setVisible(false);
+			else
+				trace.setVisible(true);
+		}
+		this.chart.setRequestedRepaint(true);
+	}
 }

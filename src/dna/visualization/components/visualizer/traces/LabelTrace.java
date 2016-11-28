@@ -28,6 +28,7 @@ public class LabelTrace {
 
 	protected int yMapping;
 
+	protected boolean visible;
 	protected int size;
 	protected Color color;
 
@@ -46,6 +47,7 @@ public class LabelTrace {
 		this.yMapping = yMapping;
 		this.size = size;
 		this.color = color;
+		this.visible = true;
 
 		this.initTimestamp = initTimestamp;
 		this.lastTimestamp = initTimestamp;
@@ -182,6 +184,22 @@ public class LabelTrace {
 		for (ITrace2D trace : this.removedTraces) {
 			trace.setStroke(new BasicStroke(this.size, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL));
 		}
+	}
+
+	/** Returns whether the traces are currently shown or not **/
+	public boolean isVisible() {
+		return this.visible;
+	}
+
+	/** Sets the visibility of the traces. **/
+	public void setVisible(boolean visible) {
+		for (Double y : this.currentTraces.keySet()) {
+			this.currentTraces.get(y).setVisible(visible);
+		}
+		for (ITrace2D trace : this.removedTraces) {
+			trace.setVisible(visible);
+		}
+		this.visible = visible;
 	}
 
 }
