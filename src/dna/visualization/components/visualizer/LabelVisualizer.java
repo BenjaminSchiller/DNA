@@ -279,7 +279,9 @@ public class LabelVisualizer extends Visualizer {
 		this.toggleXAxisVisibility();
 		this.toggleYAxisVisibility();
 
-		this.yAxis1.setRange(new Range(0, this.mappingCounter));
+		int numberTraces = this.traces.keySet().size();
+		// System.out.println(this.traces.keySet().size());
+		this.yAxis1.setRange(new Range(1, (-1) * numberTraces));
 	}
 
 	/**
