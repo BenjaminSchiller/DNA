@@ -107,10 +107,20 @@ public class LabelTrace {
 				newTrace.setStroke(new BasicStroke(this.size, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL));
 				this.chart.addTrace(newTrace);
 				newTrace.addTracePainter(new TracePainterLine());
-				newTrace.addPoint(this.lastTimestamp, y);
+
+				// add point t-1
+				if (this.lastTimestamp == timestamp)
+					newTrace.addPoint(timestamp - 1, y);
+				else
+					newTrace.addPoint(lastTimestamp, y);
+
+				// add point t
 				newTrace.addPoint(timestamp, y);
+
+				// add trace to current traces
 				this.currentTraces.put(y, newTrace);
 
+				// mark as active
 				this.active = true;
 			}
 		} else {
@@ -155,6 +165,23 @@ public class LabelTrace {
 	/** Returns the traces y-mapping. **/
 	public int getYMapping() {
 		return this.yMapping;
+	}
+
+	/** Sets a new size and updates all traces. **/
+	public void setSize(int size) {
+		this.size = size;
+		updateTraceSizes();
+	}
+
+	/** Updates the size of all traces. **/
+	protected void updateTraceSizes() {
+		for (Double y : this.currentTraces.keySet()) {
+			ITrace2D trace = this.currentTraces.get(y);
+			trace.setStroke(new BasicStroke(this.size, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL));
+		}
+		for (ITrace2D trace : this.removedTraces) {
+			trace.setStroke(new BasicStroke(this.size, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL));
+		}
 	}
 
 }
