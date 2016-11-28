@@ -60,6 +60,8 @@ public class LabelVisualizer extends Visualizer {
 	protected MainDisplay mainDisplay;
 	protected LabelVisualizerConfig config;
 
+	protected boolean automaticAddition;
+
 	public LabelVisualizer(MainDisplay mainDisplay, LabelVisualizerConfig config) {
 		// super(config.getChartSize(), config.getLegendSize());
 		super(new Dimension(450, 320), new Dimension(190, 330));
@@ -77,6 +79,7 @@ public class LabelVisualizer extends Visualizer {
 		this.bufferSize = 1000;
 		this.TRACE_LENGTH = 1000;
 		this.config = config;
+		this.automaticAddition = true;
 
 		// batch buffer
 		this.batchBuffer = new LinkedList<BatchData>();
@@ -155,7 +158,11 @@ public class LabelVisualizer extends Visualizer {
 
 		// gather all available values
 		for (Label label : b.getLabels().getList()) {
-			this.availableValues.add(getLabelKey(label.getName(), label.getType()));
+			String key = getLabelKey(label.getName(), label.getType());
+			this.availableValues.add(key);
+
+			if (this.automaticAddition)
+				this.legend.addLabelItemToList(key);
 		}
 
 		// init addbox
@@ -386,6 +393,9 @@ public class LabelVisualizer extends Visualizer {
 				if (!this.availableValues.contains(key)) {
 					newLabelFound = true;
 					this.availableValues.add(key);
+
+					if (this.automaticAddition)
+						this.legend.addLabelItemToList(key);
 				}
 			}
 
