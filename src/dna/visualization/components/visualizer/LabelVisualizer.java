@@ -223,14 +223,13 @@ public class LabelVisualizer extends Visualizer {
 	public void addTrace(String name, Color color) {
 		if (!this.labelTraces.containsKey(name)) {
 			int yMapping = this.getLabelerTypeKeyMapping(name);
-			
 			this.colorMap.put(name, color);
-
-			LabelTrace labelTrace = new LabelTrace(this, this.chart, name, yMapping, 10, color,
-					this.currentTimestamp);
+			LabelTrace labelTrace = new LabelTrace(this, this.chart, name, yMapping, 10, color, this.currentTimestamp);
 			this.labelTraces.put(name, labelTrace);
 		}
-		this.yAxis1.setRangePolicy(new RangePolicyFixedViewport(getYAxisRange()));
+
+		this.updateTraceSizes();
+		this.updateYAxisRange();
 	}
 
 	/**
@@ -261,17 +260,48 @@ public class LabelVisualizer extends Visualizer {
 		this.toggleXAxisVisibility();
 		this.toggleYAxisVisibility();
 
-		this.yAxis1.setRange(getYAxisRange());
+		this.updateTraceSizes();
+		this.updateYAxisRange();
+	}
+
+	/** Updates the trace sizes. **/
+	protected void updateTraceSizes() {
+		int traces = this.labelTraces.size();
+		for (String name : this.labelTraces.keySet()) {
+			LabelTrace trace = this.labelTraces.get(name);
+			trace.setSize(this.getTraceSize(traces));
+		}
+	}
+
+	/** Returns the trace size of a trace based on the number of traces. **/
+	protected int getTraceSize(int traces) {
+		// int chartHeight = this.config.getChart..
+		int chartHeight = 320 - 20; // minus paddings ~~
+		int individualHeight = (int) Math.floor((0.5 * chartHeight) / traces);
+
+		return individualHeight;
+	}
+
+	/** Updates the YAxisRange. **/
+	protected void updateYAxisRange() {
+		this.yAxis1.setRangePolicy(new RangePolicyFixedViewport(getYAxisRange()));
 	}
 
 	/** Returns the y-axis range based on the number of traces. **/
-	public Range getYAxisRange() {
+	protected Range getYAxisRange() {
 		int max = 0;
 		int min = 0;
+		boolean first = true;
 		for (String name : this.labelTraces.keySet()) {
 			int y = this.labelTraces.get(name).getYMapping();
-			max = Math.max(max, y);
-			min = Math.min(min, y);
+			if (first) {
+				max = y;
+				min = y;
+				first = false;
+			} else {
+				max = Math.max(max, y);
+				min = Math.min(min, y);
+			}
 		}
 		return new Range(min - 1, max + 1);
 	}
@@ -441,7 +471,6 @@ public class LabelVisualizer extends Visualizer {
 			LabelTrace trace = this.labelTraces.get(name);
 			trace.clear();
 		}
-
 		this.batchBuffer.clear();
 		this.availableValues.clear();
 		this.chart.updateUI();
