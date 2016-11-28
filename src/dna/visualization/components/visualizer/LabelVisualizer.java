@@ -19,6 +19,7 @@ import javax.swing.border.TitledBorder;
 import dna.labels.Label;
 import dna.labels.LabelList;
 import dna.series.data.BatchData;
+import dna.util.Config;
 import dna.visualization.MainDisplay;
 import dna.visualization.components.visualizer.traces.LabelTrace;
 import dna.visualization.config.VisualizerListConfig;
@@ -62,6 +63,13 @@ public class LabelVisualizer extends Visualizer {
 
 	protected boolean automaticAddition;
 
+	public enum LabelAdditionPolicy {
+		AUTOMATIC_ADDITION_ALL, AUTOMATIC_ADDITION_LIST, MANUAL
+	}
+
+	protected LabelAdditionPolicy labelAdditionPolicy;
+	protected String[] labelAdditionList;
+
 	public LabelVisualizer(MainDisplay mainDisplay, LabelVisualizerConfig config) {
 		// super(config.getChartSize(), config.getLegendSize());
 		super(new Dimension(450, 320), new Dimension(190, 330));
@@ -75,6 +83,22 @@ public class LabelVisualizer extends Visualizer {
 		// this.listConfig = config.getListConfig();
 		// this.bufferSize = config.getTraceLength();
 		// this.TRACE_LENGTH = config.getTraceLength();
+
+		String policyString = Config.get("LABEL_VIS_ADDITION_POLICY");
+		switch (policyString) {
+		case "all":
+			this.labelAdditionPolicy = LabelAdditionPolicy.AUTOMATIC_ADDITION_ALL;
+			break;
+		case "list":
+			this.labelAdditionPolicy = LabelAdditionPolicy.AUTOMATIC_ADDITION_LIST;
+			break;
+		default:
+			this.labelAdditionPolicy = LabelAdditionPolicy.MANUAL;
+			break;
+		}
+
+		this.labelAdditionList = Config.keys("LABEL_VIS_ADDITION_LIST");
+
 		this.listConfig = new VisualizerListConfig();
 		this.bufferSize = 1000;
 		this.TRACE_LENGTH = 1000;
@@ -161,8 +185,9 @@ public class LabelVisualizer extends Visualizer {
 			String key = getLabelKey(label.getName(), label.getType());
 			this.availableValues.add(key);
 
-			if (this.automaticAddition)
-				this.legend.addLabelItemToList(key);
+			this.handleAutomaticAdditions(key);
+			// if (this.automaticAddition)
+			// this.legend.addLabelItemToList(key);
 		}
 
 		// init addbox
@@ -394,8 +419,9 @@ public class LabelVisualizer extends Visualizer {
 					newLabelFound = true;
 					this.availableValues.add(key);
 
-					if (this.automaticAddition)
-						this.legend.addLabelItemToList(key);
+					this.handleAutomaticAdditions(key);
+					// if (this.automaticAddition)
+					// this.legend.addLabelItemToList(key);
 				}
 			}
 
@@ -404,6 +430,33 @@ public class LabelVisualizer extends Visualizer {
 		}
 
 		this.validate();
+	}
+
+	/** Handles the automatic additions given the policy. **/
+	protected void handleAutomaticAdditions(String key) {
+		switch (this.labelAdditionPolicy) {
+		case AUTOMATIC_ADDITION_ALL:
+			this.addLabelItemToList(key);
+			break;
+		case AUTOMATIC_ADDITION_LIST:
+			for (String s : this.labelAdditionList) {
+				if (s.equals(key)) {
+					this.addLabelItemToList(key);
+					break;
+				}
+			}
+			break;
+		case MANUAL:
+			// do nothing
+			break;
+		}
+	}
+
+	/**
+	 * Adds a label item to the legend list (same as when selected from addbox.
+	 **/
+	protected void addLabelItemToList(String key) {
+		this.legend.addLabelItemToList(key);
 	}
 
 	/** Gathers all currently available addbox-choices. **/
