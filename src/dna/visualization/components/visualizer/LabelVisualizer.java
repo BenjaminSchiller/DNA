@@ -73,7 +73,7 @@ public class LabelVisualizer extends Visualizer {
 		this.removedTraces = new HashMap<String, ArrayList<ITrace2D>>();
 		this.mapping = new HashMap<String, Integer>();
 		this.colorMap = new HashMap<String, Color>();
-		this.mappingCounter = 1;
+		this.mappingCounter = 0;
 		this.availableValues = new ArrayList<String>();
 		// this.listConfig = config.getListConfig();
 		// this.bufferSize = config.getTraceLength();
@@ -243,7 +243,7 @@ public class LabelVisualizer extends Visualizer {
 				// newTrace.addTracePainter(new TracePainterLine());
 			}
 		}
-		this.yAxis1.setRangePolicy(new RangePolicyFixedViewport(new Range(0, this.traces.size() + 1)));
+		this.yAxis1.setRangePolicy(new RangePolicyFixedViewport(new Range(1, (-1) * this.traces.size())));
 	}
 
 	/**
@@ -256,7 +256,7 @@ public class LabelVisualizer extends Visualizer {
 
 		int newMapping = this.mappingCounter;
 		this.mapping.put(labelerTypeKey, newMapping);
-		this.mappingCounter++;
+		this.mappingCounter--;
 
 		return newMapping;
 	}
