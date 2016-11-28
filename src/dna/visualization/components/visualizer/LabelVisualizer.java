@@ -1,16 +1,5 @@
 package dna.visualization.components.visualizer;
 
-import info.monitorenter.gui.chart.IAxis.AxisTitle;
-import info.monitorenter.gui.chart.ITrace2D;
-import info.monitorenter.gui.chart.ITracePoint2D;
-import info.monitorenter.gui.chart.axis.scalepolicy.AxisScalePolicyAutomaticBestFit;
-import info.monitorenter.gui.chart.axis.scalepolicy.AxisScalePolicyManualTicks;
-import info.monitorenter.gui.chart.labelformatters.LabelFormatterDate;
-import info.monitorenter.gui.chart.rangepolicies.RangePolicyFixedViewport;
-import info.monitorenter.gui.chart.traces.Trace2DLtd;
-import info.monitorenter.gui.chart.traces.painters.TracePainterLine;
-import info.monitorenter.util.Range;
-
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -23,7 +12,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
-import java.util.SortedSet;
 
 import javax.swing.BorderFactory;
 import javax.swing.border.EtchedBorder;
@@ -35,6 +23,16 @@ import dna.series.data.BatchData;
 import dna.visualization.MainDisplay;
 import dna.visualization.config.VisualizerListConfig;
 import dna.visualization.config.components.LabelVisualizerConfig;
+import info.monitorenter.gui.chart.IAxis.AxisTitle;
+import info.monitorenter.gui.chart.ITrace2D;
+import info.monitorenter.gui.chart.ITracePoint2D;
+import info.monitorenter.gui.chart.axis.scalepolicy.AxisScalePolicyAutomaticBestFit;
+import info.monitorenter.gui.chart.axis.scalepolicy.AxisScalePolicyManualTicks;
+import info.monitorenter.gui.chart.labelformatters.LabelFormatterDate;
+import info.monitorenter.gui.chart.rangepolicies.RangePolicyFixedViewport;
+import info.monitorenter.gui.chart.traces.Trace2DLtd;
+import info.monitorenter.gui.chart.traces.painters.TracePainterLine;
+import info.monitorenter.util.Range;
 
 public class LabelVisualizer extends Visualizer {
 
@@ -91,10 +89,8 @@ public class LabelVisualizer extends Visualizer {
 
 		// set title and border of the metric visualizer
 		TitledBorder title = BorderFactory.createTitledBorder(config.getName());
-		title.setBorder(BorderFactory
-				.createEtchedBorder((EtchedBorder.LOWERED)));
-		title.setTitleFont(new Font(
-				this.mainDisplay.getDefaultFont().getName(), Font.BOLD,
+		title.setBorder(BorderFactory.createEtchedBorder((EtchedBorder.LOWERED)));
+		title.setTitleFont(new Font(this.mainDisplay.getDefaultFont().getName(), Font.BOLD,
 				this.mainDisplay.getDefaultFont().getSize()));
 		title.setTitleColor(this.mainDisplay.getDefaultFontColor());
 		this.setBorder(title);
@@ -103,17 +99,14 @@ public class LabelVisualizer extends Visualizer {
 		this.xAxisTypeTimestamp = true;
 		if (config.getxAxisType().equals("date")) {
 			this.xAxisTypeTimestamp = false;
-			this.xAxis1.setFormatter(new LabelFormatterDate(
-					new SimpleDateFormat(config.getxAxisFormat())));
+			this.xAxis1.setFormatter(new LabelFormatterDate(new SimpleDateFormat(config.getxAxisFormat())));
 			this.xAxis1.setMajorTickSpacing(5);
 			this.xAxis1.setMinorTickSpacing(1);
-			this.xAxis1
-					.setAxisScalePolicy(new AxisScalePolicyAutomaticBestFit());
+			this.xAxis1.setAxisScalePolicy(new AxisScalePolicyAutomaticBestFit());
 		}
 
 		this.yAxis1.setAxisScalePolicy(new AxisScalePolicyManualTicks());
-		this.yAxis1
-				.setRangePolicy(new RangePolicyFixedViewport(new Range(0, 1)));
+		this.yAxis1.setRangePolicy(new RangePolicyFixedViewport(new Range(0, 1)));
 
 		// add menu bar
 		super.addMenuBar(config.getMenuBarConfig());
@@ -123,11 +116,8 @@ public class LabelVisualizer extends Visualizer {
 			@Override
 			public void mouseMoved(MouseEvent e) {
 				if (chart.getPointFinder().getNearestPoint(e, chart) != null) {
-					ITracePoint2D tempPointFinder = chart.getPointFinder()
-							.getNearestPoint(e, chart);
-					menuBar.updateCoordsPanel(
-							(int) Math.floor(tempPointFinder.getX()),
-							tempPointFinder.getY());
+					ITracePoint2D tempPointFinder = chart.getPointFinder().getNearestPoint(e, chart);
+					menuBar.updateCoordsPanel((int) Math.floor(tempPointFinder.getX()), tempPointFinder.getY());
 				}
 			}
 
@@ -166,7 +156,7 @@ public class LabelVisualizer extends Visualizer {
 
 		// gather all available values
 		for (Label label : b.getLabels().getList()) {
-			this.availableValues.add(label.getName() + "." + label.getType());
+			this.availableValues.add(getLabelKey(label.getName(), label.getType()));
 		}
 
 		// init addbox
@@ -253,8 +243,7 @@ public class LabelVisualizer extends Visualizer {
 				// newTrace.addTracePainter(new TracePainterLine());
 			}
 		}
-		this.yAxis1.setRangePolicy(new RangePolicyFixedViewport(new Range(0,
-				this.traces.size() + 1)));
+		this.yAxis1.setRangePolicy(new RangePolicyFixedViewport(new Range(0, this.traces.size() + 1)));
 	}
 
 	/**
@@ -276,19 +265,6 @@ public class LabelVisualizer extends Visualizer {
 	 * removes a trace from the chart and the traces-list and the current traces
 	 **/
 	public void removeTrace(String name) {
-		System.out.println("removing:\t" + name);
-		SortedSet<ITrace2D> traces = this.chart.getTraces();
-		System.out.println("traces: " + traces.size());
-		// System.out.println("contains: " + (traces.contains(name)));
-
-		System.out.println(">");
-		Iterator<ITrace2D> ite = traces.iterator();
-		while (ite.hasNext()) {
-			ITrace2D x = ite.next();
-			System.out.println("\t" + x);
-		}
-		System.out.println("<");
-
 		if (this.traces.containsKey(name)) {
 			// this.chart.removeTrace(this.traces.get(name));
 			this.traces.remove(name);
@@ -320,8 +296,7 @@ public class LabelVisualizer extends Visualizer {
 		// backwards
 		if (timestamp < this.currentTimestamp) {
 			while (this.batchBuffer.size() > 0) {
-				if (this.batchBuffer.getLast().getTimestamp() <= b
-						.getTimestamp()) {
+				if (this.batchBuffer.getLast().getTimestamp() <= b.getTimestamp()) {
 					break;
 				} else {
 					this.batchBuffer.removeLast();
@@ -329,7 +304,7 @@ public class LabelVisualizer extends Visualizer {
 			}
 			// reload data
 			this.reloadData();
-			this.updateData(b);
+			// this.updateData(b);
 		} else {
 			// if reload flag is set, dont add batch to buffer
 			if (!this.reload) {
@@ -375,8 +350,7 @@ public class LabelVisualizer extends Visualizer {
 				// "\t" + currentlyActive);
 				if (containedInBatch) {
 					if (currentlyActive) {
-						this.currentTraces.get(key).addPoint(
-								timestampDouble + offsetX, tempValue);
+						this.currentTraces.get(key).addPoint(timestampDouble + offsetX, tempValue);
 						this.legend.updateItem(key, tempValue);
 					} else {
 						Trace2DLtd newTrace = new Trace2DLtd(this.TRACE_LENGTH);
@@ -392,8 +366,7 @@ public class LabelVisualizer extends Visualizer {
 				} else {
 					if (currentlyActive) {
 						// this.chart.removeTrace(this.currentTraces.get(key));
-						this.removedTraces.get(key).add(
-								this.currentTraces.get(key));
+						this.removedTraces.get(key).add(this.currentTraces.get(key));
 						this.currentTraces.remove(key);
 					}
 				}
@@ -403,19 +376,15 @@ public class LabelVisualizer extends Visualizer {
 			if (config.isTraceModeLtd() && !this.FIXED_VIEWPORT) {
 				this.maxShownTimestamp = this.maxTimestamp;
 				if (this.maxShownTimestamp - this.TRACE_LENGTH > 0)
-					this.minShownTimestamp = this.maxShownTimestamp
-							- this.TRACE_LENGTH;
+					this.minShownTimestamp = this.maxShownTimestamp - this.TRACE_LENGTH;
 				else
 					this.minShownTimestamp = 0;
-				this.xAxis1.setRange(new Range(this.minShownTimestamp,
-						this.maxShownTimestamp));
+				this.xAxis1.setRange(new Range(this.minShownTimestamp, this.maxShownTimestamp));
 			} else {
 				if (this.FIXED_VIEWPORT) {
-					double lowP = 1.0 * this.menuBar.getIntervalSlider()
-							.getValue() / 100;
-					double highP = 1.0 * (this.menuBar.getIntervalSlider()
-							.getValue() + this.menuBar.getIntervalSlider()
-							.getModel().getExtent()) / 100;
+					double lowP = 1.0 * this.menuBar.getIntervalSlider().getValue() / 100;
+					double highP = 1.0 * (this.menuBar.getIntervalSlider().getValue()
+							+ this.menuBar.getIntervalSlider().getModel().getExtent()) / 100;
 					double minD = 0;
 					double maxD = 0;
 
@@ -437,9 +406,68 @@ public class LabelVisualizer extends Visualizer {
 			}
 			// update chart axis ticks
 			this.updateTicks();
+
+			// check if new label contained in the batch
+			boolean newLabelFound = false;
+
+			for (Label l : labels.getList()) {
+				String name = l.getName();
+				String type = l.getType();
+
+				String key = getLabelKey(name, type);
+
+				if (!this.availableValues.contains(key)) {
+					newLabelFound = true;
+					this.availableValues.add(key);
+				}
+			}
+
+			if (newLabelFound)
+				this.legend.updateAddBox(this.gatherAddBoxChoicesFromAvailableValues());
 		}
 
 		this.validate();
+	}
+
+	/** Gathers all currently available addbox-choices. **/
+	protected String[] gatherAddBoxChoicesFromAvailableValues() {
+		ArrayList<String> addBoxList = new ArrayList<String>();
+		addBoxList.add("labels");
+
+		HashMap<String, ArrayList<String>> labelers = new HashMap<String, ArrayList<String>>();
+
+		// split available value-keys by .
+		for (String keys : this.availableValues) {
+			String[] splits = keys.split("\\.");
+			String name = splits[0];
+			String type = splits[1];
+
+			for (int i = 2; i < splits.length; i++)
+				type += "." + splits[i];
+
+			ArrayList<String> tempList;
+			if (labelers.containsKey(name)) {
+				tempList = labelers.get(name);
+			} else {
+				tempList = new ArrayList<String>();
+				labelers.put(name, tempList);
+			}
+
+			tempList.add(type);
+		}
+
+		for (String l : labelers.keySet()) {
+			addBoxList.add("--- " + l);
+			for (String t : labelers.get(l))
+				addBoxList.add("----- " + getLabelKey(l, t));
+		}
+
+		String[] tempValues = addBoxList.toArray(new String[addBoxList.size()]);
+		return tempValues;
+	}
+
+	protected String getLabelKey(String name, String type) {
+		return name + "." + type;
 	}
 
 	/** reloads all data included in the batchBuffer **/
