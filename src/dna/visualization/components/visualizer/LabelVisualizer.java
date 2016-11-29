@@ -31,6 +31,7 @@ import info.monitorenter.gui.chart.axis.scalepolicy.AxisScalePolicyAutomaticBest
 import info.monitorenter.gui.chart.axis.scalepolicy.AxisScalePolicyManualTicks;
 import info.monitorenter.gui.chart.labelformatters.LabelFormatterDate;
 import info.monitorenter.gui.chart.rangepolicies.RangePolicyFixedViewport;
+import info.monitorenter.gui.chart.rangepolicies.RangePolicyUnbounded;
 import info.monitorenter.util.Range;
 
 public class LabelVisualizer extends Visualizer {
@@ -381,10 +382,6 @@ public class LabelVisualizer extends Visualizer {
 			if (timestamp > this.maxTimestamp)
 				this.maxTimestamp = timestamp;
 
-			// double offsetX = 0;
-
-			// update values
-
 			// iterate over all added traces
 			LabelList labels = b.getLabels();
 
@@ -405,6 +402,38 @@ public class LabelVisualizer extends Visualizer {
 
 			}
 
+			// timestamp adjustmens for x-axis tick calculation
+			if (config.isTraceModeLtd() && !this.FIXED_VIEWPORT) {
+				this.maxShownTimestamp = this.maxTimestamp;
+				if (this.maxShownTimestamp - this.TRACE_LENGTH > 0)
+					this.minShownTimestamp = this.maxShownTimestamp - this.TRACE_LENGTH;
+				else
+					this.minShownTimestamp = 0;
+				this.xAxis1.setRange(new Range(this.minShownTimestamp, this.maxShownTimestamp));
+			} else {
+				if (this.FIXED_VIEWPORT) {
+					double lowP = 1.0 * this.menuBar.getIntervalSlider().getValue() / 100;
+					double highP = 1.0 * (this.menuBar.getIntervalSlider().getValue()
+							+ this.menuBar.getIntervalSlider().getModel().getExtent()) / 100;
+					double minD = 0;
+					double maxD = 0;
+
+					for (String s : this.labelTraces.keySet()) {
+						minD = this.labelTraces.get(s).getMinX();
+						maxD = this.labelTraces.get(s).getMaxX();
+						if (this.labelTraces.get(s).getMinX() < this.minTimestamp)
+							minD = this.labelTraces.get(s).getMinX();
+						if (this.labelTraces.get(s).getMaxX() > this.maxTimestamp)
+							maxD = this.labelTraces.get(s).getMaxX();
+					}
+					double tMinNew = minD + (lowP * (maxD - minD));
+					double tMaxNew = minD + (highP * (maxD - minD));
+
+					this.xAxis1.setRange(new Range(tMinNew, tMaxNew));
+					this.setMinShownTimestamp((long) tMinNew);
+					this.setMaxShownTimestamp((long) tMaxNew);
+				}
+			}
 			// update chart axis ticks
 			this.updateTicks();
 
@@ -539,6 +568,34 @@ public class LabelVisualizer extends Visualizer {
 		this.batchBuffer.clear();
 		this.availableValues.clear();
 		this.chart.updateUI();
+	}
+
+	/** handles the ticks that are shown on the x axis **/
+	@Override
+	protected void updateX1Ticks() {
+		if (this.xAxisTypeTimestamp) {
+			double minTemp = 0;
+			double maxTemp = 10;
+			if (this.xAxis1.getRangePolicy() instanceof RangePolicyUnbounded) {
+				minTemp = this.minTimestamp * 1.0;
+				maxTemp = this.maxTimestamp * 1.0;
+			} else {
+				if (this.xAxis1.getRangePolicy() instanceof RangePolicyFixedViewport) {
+					minTemp = this.minShownTimestamp;
+					maxTemp = this.maxShownTimestamp;
+				}
+			}
+			if (maxTemp > minTemp) {
+				double range = maxTemp - minTemp;
+				if (range > 0) {
+					double tickSpacingNew = Math.floor(range / 10);
+					if (tickSpacingNew < 1)
+						tickSpacingNew = 1.0;
+					this.xAxis1.setMajorTickSpacing(tickSpacingNew);
+					this.xAxis1.setMinorTickSpacing(tickSpacingNew);
+				}
+			}
+		}
 	}
 
 	/** shows/hides a trace from the chart without deleting it **/
