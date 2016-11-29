@@ -19,7 +19,7 @@ public class LegendItemValue extends LegendItem {
 	}
 
 	/** sets the value of an item **/
-	public void setValue(double value) {
+	public void setValue(String value) {
 		this.valueLabel.setText("V=" + value);
 		this.valueLabel.setToolTipText("V=" + value);
 	}

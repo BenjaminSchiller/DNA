@@ -1,5 +1,15 @@
 package dna.visualization.components.visualizer;
 
+import java.awt.Dimension;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
+
+import javax.swing.JPanel;
+
+import dna.visualization.MainDisplay;
+import dna.visualization.config.components.MenuBarConfig;
 import info.monitorenter.gui.chart.Chart2D;
 import info.monitorenter.gui.chart.IAxis;
 import info.monitorenter.gui.chart.IAxis.AxisTitle;
@@ -11,17 +21,6 @@ import info.monitorenter.gui.chart.rangepolicies.RangePolicyFixedViewport;
 import info.monitorenter.gui.chart.rangepolicies.RangePolicyUnbounded;
 import info.monitorenter.gui.chart.traces.Trace2DLtd;
 import info.monitorenter.gui.chart.traces.Trace2DSimple;
-
-import java.awt.Dimension;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.text.DecimalFormat;
-import java.text.NumberFormat;
-
-import javax.swing.JPanel;
-
-import dna.visualization.MainDisplay;
-import dna.visualization.config.components.MenuBarConfig;
 
 @SuppressWarnings("serial")
 public class Visualizer extends JPanel {
@@ -65,8 +64,7 @@ public class Visualizer extends JPanel {
 		// this.setPreferredSize(GuiOptions.visualizerDefaultSize);
 		this.paused = true;
 
-		this.TRACE_LENGTH = MainDisplay.DefaultConfig
-				.getMetricVisualizerConfigs()[0].getTraceLength();
+		this.TRACE_LENGTH = MainDisplay.DefaultConfig.getMetricVisualizerConfigs()[0].getTraceLength();
 		this.FIXED_VIEWPORT = false;
 		this.minTimestamp = 0;
 		this.maxTimestamp = 0;
@@ -82,9 +80,9 @@ public class Visualizer extends JPanel {
 		// init chart
 		this.chart = new Chart2D();
 		this.chart.setPreferredSize(chartSize);
-		//TODO: add anti alias to config
-//		this.chart.setUseAntialiasing(true);
-		
+		// TODO: add anti alias to config
+		// this.chart.setUseAntialiasing(true);
+
 		/*
 		 * axis configuration
 		 */
@@ -95,8 +93,7 @@ public class Visualizer extends JPanel {
 		// y1
 		this.yAxis1 = this.chart.getAxisY();
 		this.yAxis1.setAxisTitle(new AxisTitle("y1"));
-		this.yAxis1.setFormatter(new LabelFormatterNumber(new DecimalFormat(
-				"0.0")));
+		this.yAxis1.setFormatter(new LabelFormatterNumber(new DecimalFormat("0.0")));
 
 		// x2
 		this.xAxis2 = new AxisLinear();
@@ -104,8 +101,7 @@ public class Visualizer extends JPanel {
 		this.chart.addAxisXBottom((AAxis) this.xAxis2);
 
 		// y2
-		this.yAxis2 = new AxisLinear(new LabelFormatterNumber(
-				new DecimalFormat("0.0")));
+		this.yAxis2 = new AxisLinear(new LabelFormatterNumber(new DecimalFormat("0.0")));
 		this.yAxis2 = new AxisLinear();
 		this.yAxis2.setVisible(false);
 		this.yAxis2.setAxisTitle(new AxisTitle("y2"));
@@ -135,14 +131,13 @@ public class Visualizer extends JPanel {
 		this.xAxis2.setAxisScalePolicy(manualTickScalePolicy);
 	}
 
-	protected void addMenuBar(Dimension size, boolean addCoordsPanel,
-			boolean addIntervalPanel, boolean addXOptionsPanel,
-			boolean addYLeftOptionsPanel) {
+	protected void addMenuBar(Dimension size, boolean addCoordsPanel, boolean addIntervalPanel,
+			boolean addXOptionsPanel, boolean addYLeftOptionsPanel) {
 		this.mainConstraints.gridx = 0;
 		this.mainConstraints.gridy = 1;
 		this.mainConstraints.gridwidth = 2;
-		this.menuBar = new MenuBar(this, size, addCoordsPanel,
-				addIntervalPanel, addXOptionsPanel, addYLeftOptionsPanel);
+		this.menuBar = new MenuBar(this, size, addCoordsPanel, addIntervalPanel, addXOptionsPanel,
+				addYLeftOptionsPanel);
 		this.add(this.menuBar, this.mainConstraints);
 	}
 
@@ -465,7 +460,9 @@ public class Visualizer extends JPanel {
 		this.locked = locked;
 	}
 
-	/** Called when the visualizer gets locked by the main lock in maindisplay. **/
+	/**
+	 * Called when the visualizer gets locked by the main lock in maindisplay.
+	 **/
 	public void setLockedByMainDisplay(boolean locked) {
 		this.legend.setLocked(locked);
 		this.locked = locked;

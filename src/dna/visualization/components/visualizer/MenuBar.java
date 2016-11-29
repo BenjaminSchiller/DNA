@@ -1,11 +1,5 @@
 package dna.visualization.components.visualizer;
 
-import info.monitorenter.gui.chart.rangepolicies.RangePolicyFixedViewport;
-import info.monitorenter.gui.chart.rangepolicies.RangePolicyUnbounded;
-import info.monitorenter.gui.chart.traces.Trace2DLtd;
-import info.monitorenter.gui.chart.traces.Trace2DSimple;
-import info.monitorenter.util.Range;
-
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
@@ -34,6 +28,11 @@ import javax.swing.event.ChangeListener;
 
 import dna.visualization.MainDisplay;
 import dna.visualization.config.components.MenuBarConfig;
+import info.monitorenter.gui.chart.rangepolicies.RangePolicyFixedViewport;
+import info.monitorenter.gui.chart.rangepolicies.RangePolicyUnbounded;
+import info.monitorenter.gui.chart.traces.Trace2DLtd;
+import info.monitorenter.gui.chart.traces.Trace2DSimple;
+import info.monitorenter.util.Range;
 
 /**
  * The menubar is a bar containing several options for a visualizer, for example
@@ -52,16 +51,11 @@ public class MenuBar extends JPanel implements ChangeListener {
 	private Color coordsFontColor = Color.BLACK;
 
 	// sizes
-	public static final Dimension menuBarCoordsPanelSize = new Dimension(145,
-			45);
-	public static final Dimension menuBarXOptionsPanelSize = new Dimension(65,
-			45);
-	public static final Dimension menuBarYOptionsPanelSize = new Dimension(65,
-			45);
-	public static final Dimension menuBarYRightOptionsPanelSize = new Dimension(
-			65, 45);
-	public static final Dimension menuBarIntervalPanelSize = new Dimension(210,
-			45);
+	public static final Dimension menuBarCoordsPanelSize = new Dimension(145, 45);
+	public static final Dimension menuBarXOptionsPanelSize = new Dimension(65, 45);
+	public static final Dimension menuBarYOptionsPanelSize = new Dimension(65, 45);
+	public static final Dimension menuBarYRightOptionsPanelSize = new Dimension(65, 45);
+	public static final Dimension menuBarIntervalPanelSize = new Dimension(210, 45);
 
 	// creates the default menu with all panels
 	public MenuBar(Visualizer parent, Dimension d) {
@@ -70,15 +64,13 @@ public class MenuBar extends JPanel implements ChangeListener {
 
 	// creates the menu with a given config
 	public MenuBar(Visualizer parent, MenuBarConfig config) {
-		this(parent, config.getSize(), config.isAddCoordsPanel(), config
-				.isAddIntervalPanel(), config.isAddXOptionsPanel(), config
-				.isAddYOptionsPanel());
+		this(parent, config.getSize(), config.isAddCoordsPanel(), config.isAddIntervalPanel(),
+				config.isAddXOptionsPanel(), config.isAddYOptionsPanel());
 	}
 
 	// constructor
-	public MenuBar(Visualizer parent, Dimension size, boolean addCoordsPanel,
-			boolean addIntervalPanel, boolean addXOptionsPanel,
-			boolean addYOptionsPanel) {
+	public MenuBar(Visualizer parent, Dimension size, boolean addCoordsPanel, boolean addIntervalPanel,
+			boolean addXOptionsPanel, boolean addYOptionsPanel) {
 		this.parent = parent;
 		this.thisMenuBar = this;
 		this.setLayout(new GridBagLayout());
@@ -110,7 +102,9 @@ public class MenuBar extends JPanel implements ChangeListener {
 
 	// menu bar elements
 	private JPanel coordsPanel;
+	private JLabel xCoordsLabel;
 	private JLabel xCoordsValue;
+	private JLabel yCoordsLabel;
 	private JLabel yCoordsValue;
 	private JPanel xOptionsPanel;
 	private JPanel yLeftOptionsPanel;
@@ -142,8 +136,8 @@ public class MenuBar extends JPanel implements ChangeListener {
 
 		/** upper panel **/
 		final JPanel upperPanel = new JPanel();
-		upperPanel.setPreferredSize(new Dimension((int) (size.getWidth() - 5),
-				(int) Math.floor((size.getHeight() - 5) / 2)));
+		upperPanel.setPreferredSize(
+				new Dimension((int) (size.getWidth() - 5), (int) Math.floor((size.getHeight() - 5) / 2)));
 		upperPanel.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
 
 		// x1 label
@@ -172,8 +166,7 @@ public class MenuBar extends JPanel implements ChangeListener {
 					double minTemp = 0;
 					double maxTemp = 1;
 					parent.setFixedViewport(true);
-					parent.xAxis1
-							.setRangePolicy(new RangePolicyFixedViewport());
+					parent.xAxis1.setRangePolicy(new RangePolicyFixedViewport());
 					if (parent instanceof MultiScalarVisualizer) {
 						for (Object t : parent.xAxis1.getTraces()) {
 							if (t instanceof Trace2DSimple) {
@@ -198,15 +191,12 @@ public class MenuBar extends JPanel implements ChangeListener {
 						}
 					}
 					double lowP = 1.0 * x1IntervalScrollBar.getValue() / 100;
-					double highP = 1.0 * (x1IntervalScrollBar.getValue() + x1IntervalScrollBar
-							.getModel().getExtent()) / 100;
+					double highP = 1.0 * (x1IntervalScrollBar.getValue() + x1IntervalScrollBar.getModel().getExtent())
+							/ 100;
 
-					int minTimestampNew = (int) Math.floor(minTemp)
-							+ (int) Math.floor(lowP * (maxTemp - minTemp));
-					int maxTimestampNew = (int) Math.floor(minTemp)
-							+ (int) Math.floor(highP * (maxTemp - minTemp));
-					parent.xAxis1.setRange(new Range(minTimestampNew,
-							maxTimestampNew));
+					int minTimestampNew = (int) Math.floor(minTemp) + (int) Math.floor(lowP * (maxTemp - minTemp));
+					int maxTimestampNew = (int) Math.floor(minTemp) + (int) Math.floor(highP * (maxTemp - minTemp));
+					parent.xAxis1.setRange(new Range(minTimestampNew, maxTimestampNew));
 					x1IntervalScrollBar.setEnabled(true);
 					x1SizeSlider.setEnabled(true);
 				}
@@ -223,53 +213,45 @@ public class MenuBar extends JPanel implements ChangeListener {
 		this.x1SizeSlider.setToolTipText("Set size of shown interval");
 
 		// interval scroll bar
-		this.x1IntervalScrollBar = new JScrollBar(JScrollBar.HORIZONTAL, 0, 50,
-				0, 100);
+		this.x1IntervalScrollBar = new JScrollBar(JScrollBar.HORIZONTAL, 0, 50, 0, 100);
 		this.x1IntervalScrollBar.setPreferredSize(new Dimension(100, 20));
 		this.x1IntervalScrollBar.setEnabled(false);
-		this.x1IntervalScrollBar
-				.addAdjustmentListener(new AdjustmentListener() {
-					@Override
-					public void adjustmentValueChanged(AdjustmentEvent e) {
-						if (parent.chart.getAxisX().getRangePolicy() instanceof RangePolicyFixedViewport) {
-							double lowP = 1.0 * x1IntervalScrollBar.getValue() / 100;
-							double highP = 1.0 * (x1IntervalScrollBar
-									.getValue() + x1IntervalScrollBar
-									.getModel().getExtent()) / 100;
+		this.x1IntervalScrollBar.addAdjustmentListener(new AdjustmentListener() {
+			@Override
+			public void adjustmentValueChanged(AdjustmentEvent e) {
+				if (parent.chart.getAxisX().getRangePolicy() instanceof RangePolicyFixedViewport) {
+					double lowP = 1.0 * x1IntervalScrollBar.getValue() / 100;
+					double highP = 1.0 * (x1IntervalScrollBar.getValue() + x1IntervalScrollBar.getModel().getExtent())
+							/ 100;
 
-							double minTemp = 0;
-							double maxTemp = 1;
+					double minTemp = 0;
+					double maxTemp = 1;
 
-							// get range of plotted data
-							for (Object t : parent.xAxis1.getTraces()) {
-								if (t instanceof Trace2DSimple) {
-									double minX = ((Trace2DSimple) t).getMinX();
-									double maxX = ((Trace2DSimple) t).getMaxX();
-									if (minTemp > minX)
-										minTemp = minX;
-									if (maxTemp < maxX)
-										maxTemp = maxX;
-								} else if (t instanceof Trace2DLtd) {
-									minTemp = ((Trace2DLtd) t).getMinX();
-									maxTemp = ((Trace2DLtd) t).getMaxX();
-								}
-							}
-							int minTimestampNew = (int) Math.floor(minTemp)
-									+ (int) Math.floor(lowP
-											* (maxTemp - minTemp));
-							int maxTimestampNew = (int) Math.floor(minTemp)
-									+ (int) Math.floor(highP
-											* (maxTemp - minTemp));
-							parent.setMinShownTimestamp((long) minTimestampNew);
-							parent.setMaxShownTimestamp((long) maxTimestampNew);
-							parent.xAxis1.setRange(new Range(minTimestampNew,
-									maxTimestampNew));
-							// update x ticks
-							parent.updateX1Ticks();
+					// get range of plotted data
+					for (Object t : parent.xAxis1.getTraces()) {
+						if (t instanceof Trace2DSimple) {
+							double minX = ((Trace2DSimple) t).getMinX();
+							double maxX = ((Trace2DSimple) t).getMaxX();
+							if (minTemp > minX)
+								minTemp = minX;
+							if (maxTemp < maxX)
+								maxTemp = maxX;
+						} else if (t instanceof Trace2DLtd) {
+							minTemp = ((Trace2DLtd) t).getMinX();
+							maxTemp = ((Trace2DLtd) t).getMaxX();
 						}
 					}
+					int minTimestampNew = (int) Math.floor(minTemp) + (int) Math.floor(lowP * (maxTemp - minTemp));
+					int maxTimestampNew = (int) Math.floor(minTemp) + (int) Math.floor(highP * (maxTemp - minTemp));
+					parent.setMinShownTimestamp((long) minTimestampNew);
+					parent.setMaxShownTimestamp((long) maxTimestampNew);
+					parent.xAxis1.setRange(new Range(minTimestampNew, maxTimestampNew));
+					// update x ticks
+					parent.updateX1Ticks();
+				}
+			}
 
-				});
+		});
 
 		// add components
 		upperPanel.add(x1Label);
@@ -287,9 +269,8 @@ public class MenuBar extends JPanel implements ChangeListener {
 		if (parent instanceof MultiScalarVisualizer) {
 			// lower panel
 			final JPanel lowerPanel = new JPanel();
-			lowerPanel.setPreferredSize(new Dimension(
-					(int) (size.getWidth() - 5), (int) Math.floor((size
-							.getHeight() - 5) / 2)));
+			lowerPanel.setPreferredSize(
+					new Dimension((int) (size.getWidth() - 5), (int) Math.floor((size.getHeight() - 5) / 2)));
 			lowerPanel.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
 
 			// x1 label
@@ -309,27 +290,24 @@ public class MenuBar extends JPanel implements ChangeListener {
 						// if selected: disable bar and slider and set x2 to
 						// unbounded policy
 						if (parent instanceof MultiScalarVisualizer)
-							((MultiScalarVisualizer) parent).xAxis2
-									.setRangePolicy(new RangePolicyUnbounded());
+							((MultiScalarVisualizer) parent).xAxis2.setRangePolicy(new RangePolicyUnbounded());
 						x2IntervalScrollBar.setEnabled(false);
 						x2SizeSlider.setEnabled(false);
 					} else {
 						// if not selected: enable bar and slider and set x2 to
 						// fixedviewport policy
 						if (parent instanceof MultiScalarVisualizer) {
-							((MultiScalarVisualizer) parent).xAxis2
-									.setRangePolicy(new RangePolicyFixedViewport());
+							((MultiScalarVisualizer) parent).xAxis2.setRangePolicy(new RangePolicyFixedViewport());
 							double lowP = 1.0 * x2IntervalScrollBar.getValue() / 100;
-							double highP = 1.0 * (x2IntervalScrollBar
-									.getValue() + x2IntervalScrollBar
-									.getModel().getExtent()) / 100;
+							double highP = 1.0
+									* (x2IntervalScrollBar.getValue() + x2IntervalScrollBar.getModel().getExtent())
+									/ 100;
 
 							double minTemp = 0;
 							double maxTemp = 10;
 
 							// get range of plotted data
-							for (Object t : ((MultiScalarVisualizer) parent).xAxis2
-									.getTraces()) {
+							for (Object t : ((MultiScalarVisualizer) parent).xAxis2.getTraces()) {
 								if (t instanceof Trace2DSimple) {
 									double minX = ((Trace2DSimple) t).getMinX();
 									double maxX = ((Trace2DSimple) t).getMaxX();
@@ -341,15 +319,12 @@ public class MenuBar extends JPanel implements ChangeListener {
 							}
 
 							int minTimestampNew = (int) Math.floor(minTemp)
-									+ (int) Math.floor(lowP
-											* (maxTemp - minTemp));
+									+ (int) Math.floor(lowP * (maxTemp - minTemp));
 							int maxTimestampNew = (int) Math.floor(minTemp)
-									+ (int) Math.floor(highP
-											* (maxTemp - minTemp));
+									+ (int) Math.floor(highP * (maxTemp - minTemp));
 
 							((MultiScalarVisualizer) parent).xAxis2
-									.setRange(new Range(minTimestampNew,
-											maxTimestampNew));
+									.setRange(new Range(minTimestampNew, maxTimestampNew));
 							// update x2 ticks
 							((MultiScalarVisualizer) parent).updateX2Ticks();
 						}
@@ -369,57 +344,46 @@ public class MenuBar extends JPanel implements ChangeListener {
 			this.x2SizeSlider.setToolTipText("Set size of shown interval");
 
 			// interval scroll bar
-			this.x2IntervalScrollBar = new JScrollBar(JScrollBar.HORIZONTAL, 0,
-					50, 0, 100);
+			this.x2IntervalScrollBar = new JScrollBar(JScrollBar.HORIZONTAL, 0, 50, 0, 100);
 			this.x2IntervalScrollBar.setPreferredSize(new Dimension(100, 20));
 			this.x2IntervalScrollBar.setEnabled(false);
-			this.x2IntervalScrollBar
-					.addAdjustmentListener(new AdjustmentListener() {
-						@Override
-						public void adjustmentValueChanged(AdjustmentEvent e) {
-							if (parent instanceof MultiScalarVisualizer) {
-								if (((MultiScalarVisualizer) parent).xAxis2
-										.getRangePolicy() instanceof RangePolicyFixedViewport) {
-									double lowP = 1.0 * x2IntervalScrollBar
-											.getValue() / 100;
-									double highP = 1.0 * (x2IntervalScrollBar
-											.getValue() + x2IntervalScrollBar
-											.getModel().getExtent()) / 100;
+			this.x2IntervalScrollBar.addAdjustmentListener(new AdjustmentListener() {
+				@Override
+				public void adjustmentValueChanged(AdjustmentEvent e) {
+					if (parent instanceof MultiScalarVisualizer) {
+						if (((MultiScalarVisualizer) parent).xAxis2
+								.getRangePolicy() instanceof RangePolicyFixedViewport) {
+							double lowP = 1.0 * x2IntervalScrollBar.getValue() / 100;
+							double highP = 1.0
+									* (x2IntervalScrollBar.getValue() + x2IntervalScrollBar.getModel().getExtent())
+									/ 100;
 
-									double minTemp = 0;
-									double maxTemp = 10;
+							double minTemp = 0;
+							double maxTemp = 10;
 
-									// get range of plotted data
-									for (Object t : ((MultiScalarVisualizer) parent).xAxis2
-											.getTraces()) {
-										if (t instanceof Trace2DSimple) {
-											double minX = ((Trace2DSimple) t)
-													.getMinX();
-											double maxX = ((Trace2DSimple) t)
-													.getMaxX();
-											if (minTemp > minX)
-												minTemp = minX;
-											if (maxTemp < maxX)
-												maxTemp = maxX;
-										}
-									}
-
-									int minTimestampNew = (int) Math.floor(lowP
-											* (maxTemp - minTemp));
-									int maxTimestampNew = (int) Math
-											.floor(highP * (maxTemp - minTemp));
-
-									((MultiScalarVisualizer) parent).xAxis2
-											.setRange(new Range(
-													minTimestampNew,
-													maxTimestampNew));
-									// update x2 ticks
-									((MultiScalarVisualizer) parent)
-											.updateX2Ticks();
+							// get range of plotted data
+							for (Object t : ((MultiScalarVisualizer) parent).xAxis2.getTraces()) {
+								if (t instanceof Trace2DSimple) {
+									double minX = ((Trace2DSimple) t).getMinX();
+									double maxX = ((Trace2DSimple) t).getMaxX();
+									if (minTemp > minX)
+										minTemp = minX;
+									if (maxTemp < maxX)
+										maxTemp = maxX;
 								}
 							}
+
+							int minTimestampNew = (int) Math.floor(lowP * (maxTemp - minTemp));
+							int maxTimestampNew = (int) Math.floor(highP * (maxTemp - minTemp));
+
+							((MultiScalarVisualizer) parent).xAxis2
+									.setRange(new Range(minTimestampNew, maxTimestampNew));
+							// update x2 ticks
+							((MultiScalarVisualizer) parent).updateX2Ticks();
 						}
-					});
+					}
+				}
+			});
 
 			// add components
 			lowerPanel.add(x2Label);
@@ -433,8 +397,7 @@ public class MenuBar extends JPanel implements ChangeListener {
 		} else {
 			// if parent not multiscalarvisualizer -> add dummy panel
 			JPanel dummyPanel = new JPanel();
-			dummyPanel.setPreferredSize(new Dimension(size.width - 5,
-					(int) Math.floor((size.height - 5) / 2)));
+			dummyPanel.setPreferredSize(new Dimension(size.width - 5, (int) Math.floor((size.height - 5) / 2)));
 
 			/** add dummy panel **/
 			c.gridy = 1;
@@ -462,59 +425,50 @@ public class MenuBar extends JPanel implements ChangeListener {
 		final JButton toggleGridYLeftButton = new JButton("y1");
 		toggleGridYLeftButton.setFont(MainDisplay.config.getDefaultFont());
 		toggleGridYLeftButton.setForeground(Color.GRAY);
-		toggleGridYLeftButton.setPreferredSize(new Dimension(size.width - 5,
-				(int) Math.floor((size.getHeight() - 5) / 2)));
+		toggleGridYLeftButton
+				.setPreferredSize(new Dimension(size.width - 5, (int) Math.floor((size.getHeight() - 5) / 2)));
 		toggleGridYLeftButton.setMargin(new Insets(0, 0, 0, 0));
 		toggleGridYLeftButton.setToolTipText("Show grid of left y-axis (y1).");
 		toggleGridYLeftButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent event) {
 				if (toggleGridYLeftButton.getForeground().equals(Color.GRAY)) {
-					toggleGridYLeftButton.setForeground(MainDisplay.config
-							.getDefaultFontColor());
-					toggleGridYLeftButton
-							.setToolTipText("Hide grid of left y-axis (y1).");
+					toggleGridYLeftButton.setForeground(MainDisplay.config.getDefaultFontColor());
+					toggleGridYLeftButton.setToolTipText("Hide grid of left y-axis (y1).");
 				} else {
 					toggleGridYLeftButton.setForeground(Color.GRAY);
-					toggleGridYLeftButton
-							.setToolTipText("Show grid of left y-axis (y1).");
+					toggleGridYLeftButton.setToolTipText("Show grid of left y-axis (y1).");
 				}
 				parent.toggleY1Grid();
 			}
 		});
 		yLeftOptionsPanelConstraints.gridx = 0;
 		yLeftOptionsPanelConstraints.gridy = 0;
-		this.yLeftOptionsPanel.add(toggleGridYLeftButton,
-				yLeftOptionsPanelConstraints);
+		this.yLeftOptionsPanel.add(toggleGridYLeftButton, yLeftOptionsPanelConstraints);
 
 		// toggle right y axis grid button
 		final JButton toggleGridYRightButton = new JButton("y2");
 		toggleGridYRightButton.setFont(MainDisplay.config.getDefaultFont());
 		toggleGridYRightButton.setForeground(Color.GRAY);
-		toggleGridYRightButton.setPreferredSize(new Dimension(new Dimension(
-				size.width - 5, (int) Math.floor((size.getHeight() - 5) / 2))));
+		toggleGridYRightButton.setPreferredSize(
+				new Dimension(new Dimension(size.width - 5, (int) Math.floor((size.getHeight() - 5) / 2))));
 		toggleGridYRightButton.setMargin(new Insets(0, 0, 0, 0));
-		toggleGridYRightButton
-				.setToolTipText("Show grid of right y-axis (y2).");
+		toggleGridYRightButton.setToolTipText("Show grid of right y-axis (y2).");
 		toggleGridYRightButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent event) {
 				if (toggleGridYRightButton.getForeground().equals(Color.GRAY)) {
-					toggleGridYRightButton.setForeground(MainDisplay.config
-							.getDefaultFontColor());
-					toggleGridYRightButton
-							.setToolTipText("Hide grid of right y-axis (y2).");
+					toggleGridYRightButton.setForeground(MainDisplay.config.getDefaultFontColor());
+					toggleGridYRightButton.setToolTipText("Hide grid of right y-axis (y2).");
 				} else {
 					toggleGridYRightButton.setForeground(Color.GRAY);
-					toggleGridYRightButton
-							.setToolTipText("Show grid of right y-axis (y2).");
+					toggleGridYRightButton.setToolTipText("Show grid of right y-axis (y2).");
 				}
 				parent.toggleY2Grid();
 			}
 		});
 		yLeftOptionsPanelConstraints.gridy = 1;
-		this.yLeftOptionsPanel.add(toggleGridYRightButton,
-				yLeftOptionsPanelConstraints);
+		this.yLeftOptionsPanel.add(toggleGridYRightButton, yLeftOptionsPanelConstraints);
 
 		// add to menu bar
 		this.add(this.yLeftOptionsPanel);
@@ -537,43 +491,37 @@ public class MenuBar extends JPanel implements ChangeListener {
 		final JButton toggleGridYRightButton = new JButton("y2");
 		toggleGridYRightButton.setFont(MainDisplay.config.getDefaultFont());
 		toggleGridYRightButton.setForeground(Color.GRAY);
-		toggleGridYRightButton.setPreferredSize(new Dimension(new Dimension(
-				size.width - 5, (int) Math.floor((size.getHeight() - 5) / 2))));
+		toggleGridYRightButton.setPreferredSize(
+				new Dimension(new Dimension(size.width - 5, (int) Math.floor((size.getHeight() - 5) / 2))));
 		toggleGridYRightButton.setMargin(new Insets(0, 0, 0, 0));
-		toggleGridYRightButton
-				.setToolTipText("Show grid of right y-axis (y2).");
+		toggleGridYRightButton.setToolTipText("Show grid of right y-axis (y2).");
 		toggleGridYRightButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent event) {
 				if (toggleGridYRightButton.getForeground().equals(Color.GRAY)) {
-					toggleGridYRightButton.setForeground(MainDisplay.config
-							.getDefaultFontColor());
-					toggleGridYRightButton
-							.setToolTipText("Hide grid of right y-axis (y2).");
+					toggleGridYRightButton.setForeground(MainDisplay.config.getDefaultFontColor());
+					toggleGridYRightButton.setToolTipText("Hide grid of right y-axis (y2).");
 				} else {
 					toggleGridYRightButton.setForeground(Color.GRAY);
-					toggleGridYRightButton
-							.setToolTipText("Show grid of right y-axis (y2).");
+					toggleGridYRightButton.setToolTipText("Show grid of right y-axis (y2).");
 				}
 				parent.toggleY2Grid();
 			}
 		});
 		yRightOptionsPanelConstraints.gridx = 0;
 		yRightOptionsPanelConstraints.gridy = 0;
-		this.yRightOptionsPanel.add(toggleGridYRightButton,
-				yRightOptionsPanelConstraints);
+		this.yRightOptionsPanel.add(toggleGridYRightButton, yRightOptionsPanelConstraints);
 
 		// toggle right y axis log button
 		final JButton toggleLogYRightButton = new JButton("+log y1");
 		toggleLogYRightButton.setFont(MainDisplay.config.getDefaultFont());
 		toggleLogYRightButton.setForeground(Color.GRAY);
-		toggleLogYRightButton.setPreferredSize(new Dimension(new Dimension(
-				size.width - 5, (int) Math.floor((size.getHeight() - 5) / 2))));
+		toggleLogYRightButton.setPreferredSize(
+				new Dimension(new Dimension(size.width - 5, (int) Math.floor((size.getHeight() - 5) / 2))));
 		toggleLogYRightButton.setMargin(new Insets(0, 0, 0, 0));
 		yRightOptionsPanelConstraints.gridx = 0;
 		yRightOptionsPanelConstraints.gridy = 1;
-		this.yRightOptionsPanel.add(toggleLogYRightButton,
-				yRightOptionsPanelConstraints);
+		this.yRightOptionsPanel.add(toggleLogYRightButton, yRightOptionsPanelConstraints);
 
 		// add to menu bar
 		this.add(this.yRightOptionsPanel);
@@ -596,16 +544,15 @@ public class MenuBar extends JPanel implements ChangeListener {
 		final JButton toggleGridX1Button = new JButton("x1");
 		toggleGridX1Button.setFont(MainDisplay.config.getDefaultFont());
 		toggleGridX1Button.setForeground(Color.GRAY);
-		toggleGridX1Button.setPreferredSize(new Dimension(new Dimension(
-				size.width - 5, (int) Math.floor((size.getHeight() - 5) / 2))));
+		toggleGridX1Button.setPreferredSize(
+				new Dimension(new Dimension(size.width - 5, (int) Math.floor((size.getHeight() - 5) / 2))));
 		toggleGridX1Button.setMargin(new Insets(0, 0, 0, 0));
 		toggleGridX1Button.setToolTipText("Show grid of x1.");
 		toggleGridX1Button.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent event) {
 				if (toggleGridX1Button.getForeground().equals(Color.GRAY)) {
-					toggleGridX1Button.setForeground(MainDisplay.config
-							.getDefaultFontColor());
+					toggleGridX1Button.setForeground(MainDisplay.config.getDefaultFontColor());
 					toggleGridX1Button.setToolTipText("Hide grid of x1.");
 				} else {
 					toggleGridX1Button.setForeground(Color.GRAY);
@@ -616,25 +563,22 @@ public class MenuBar extends JPanel implements ChangeListener {
 		});
 		xAxisOptionsPanelConstraints.gridx = 0;
 		xAxisOptionsPanelConstraints.gridy = 0;
-		this.xOptionsPanel
-				.add(toggleGridX1Button, xAxisOptionsPanelConstraints);
+		this.xOptionsPanel.add(toggleGridX1Button, xAxisOptionsPanelConstraints);
 
 		// if parent is multiscalarvisualizer -> add grid button for x2
 		if (parent instanceof MultiScalarVisualizer) {
 			final JButton toggleGridX2Button = new JButton("x2");
 			toggleGridX2Button.setFont(MainDisplay.config.getDefaultFont());
 			toggleGridX2Button.setForeground(Color.GRAY);
-			toggleGridX2Button.setPreferredSize(new Dimension(new Dimension(
-					size.width - 5,
-					(int) Math.floor((size.getHeight() - 5) / 2))));
+			toggleGridX2Button.setPreferredSize(
+					new Dimension(new Dimension(size.width - 5, (int) Math.floor((size.getHeight() - 5) / 2))));
 			toggleGridX2Button.setMargin(new Insets(0, 0, 0, 0));
 			toggleGridX2Button.setToolTipText("Show grid of x2.");
 			toggleGridX2Button.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent event) {
 					if (toggleGridX2Button.getForeground().equals(Color.GRAY)) {
-						toggleGridX2Button.setForeground(MainDisplay.config
-								.getDefaultFontColor());
+						toggleGridX2Button.setForeground(MainDisplay.config.getDefaultFontColor());
 						toggleGridX2Button.setToolTipText("Hide grid of x2.");
 					} else {
 						toggleGridX2Button.setForeground(Color.GRAY);
@@ -645,13 +589,12 @@ public class MenuBar extends JPanel implements ChangeListener {
 			});
 			xAxisOptionsPanelConstraints.gridx = 0;
 			xAxisOptionsPanelConstraints.gridy = 1;
-			this.xOptionsPanel.add(toggleGridX2Button,
-					xAxisOptionsPanelConstraints);
+			this.xOptionsPanel.add(toggleGridX2Button, xAxisOptionsPanelConstraints);
 		} else {
 			// else add dummy panel
 			JPanel dummyP = new JPanel();
-			dummyP.setPreferredSize(new Dimension(new Dimension(size.width - 5,
-					(int) Math.floor((size.getHeight() - 5) / 2))));
+			dummyP.setPreferredSize(
+					new Dimension(new Dimension(size.width - 5, (int) Math.floor((size.getHeight() - 5) / 2))));
 			xAxisOptionsPanelConstraints.gridx = 0;
 			xAxisOptionsPanelConstraints.gridy = 1;
 			this.xOptionsPanel.add(dummyP, xAxisOptionsPanelConstraints);
@@ -678,7 +621,7 @@ public class MenuBar extends JPanel implements ChangeListener {
 		coordsPanelConstraints.gridy = 0;
 
 		// x coords label
-		JLabel xCoordsLabel = new JLabel("x:");
+		xCoordsLabel = new JLabel("x:");
 		xCoordsLabel.setFont(this.coordsFont);
 		xCoordsLabel.setForeground(this.coordsFontColor);
 		xCoordsLabel.setPreferredSize(new Dimension(10, 20));
@@ -686,11 +629,9 @@ public class MenuBar extends JPanel implements ChangeListener {
 		// x coords value
 		this.xCoordsValue = new JLabel();
 		if ((this.parent instanceof MetricVisualizer)
-				&& MainDisplay.config.getMetricVisualizerConfigs()[0]
-						.getxAxisType().equals("date")) {
+				&& MainDisplay.config.getMetricVisualizerConfigs()[0].getxAxisType().equals("date")) {
 			SimpleDateFormat tempDateFormat = new SimpleDateFormat(
-					MainDisplay.config.getMetricVisualizerConfigs()[0]
-							.getxAxisFormat());
+					MainDisplay.config.getMetricVisualizerConfigs()[0].getxAxisFormat());
 			this.xCoordsValue.setText(tempDateFormat.format(new Date(0)));
 		} else {
 			this.xCoordsValue.setText("0");
@@ -703,7 +644,7 @@ public class MenuBar extends JPanel implements ChangeListener {
 		this.coordsPanel.add(this.xCoordsValue, coordsPanelConstraints);
 
 		// y coords label
-		JLabel yCoordsLabel = new JLabel("y:");
+		yCoordsLabel = new JLabel("y:");
 		yCoordsLabel.setFont(this.coordsFont);
 		yCoordsLabel.setForeground(this.coordsFontColor);
 		yCoordsLabel.setPreferredSize(new Dimension(10, 20));
@@ -743,19 +684,31 @@ public class MenuBar extends JPanel implements ChangeListener {
 	 * @param y
 	 *            y-value
 	 */
-	public void updateCoordsPanel(int x, double y) {
+	public void updateCoordsPanel(double x, double y) {
 		if (this.coordsPanel != null) {
-			if ((this.parent instanceof MetricVisualizer)
-					&& MainDisplay.config.getMetricVisualizerConfigs()[0]
-							.getxAxisType().equals("date")) {
-				SimpleDateFormat tempDateFormat = new SimpleDateFormat(
-						MainDisplay.config.getMetricVisualizerConfigs()[0]
-								.getxAxisFormat());
-				this.xCoordsValue.setText(tempDateFormat.format(new Date(x)));
+			if (this.parent instanceof LabelVisualizer) {
+				if (MainDisplay.config.getMetricVisualizerConfigs()[0].getxAxisType().equals("date")) {
+					SimpleDateFormat tempDateFormat = new SimpleDateFormat(
+							MainDisplay.config.getMetricVisualizerConfigs()[0].getxAxisFormat());
+					this.xCoordsValue.setText(tempDateFormat.format(new Date((long) Math.floor(x))));
+				} else {
+					this.xCoordsValue.setText("" + x);
+				}
+
+				LabelVisualizer labelVisualizer = (LabelVisualizer) this.parent;
+				String yValueString = labelVisualizer.getValue(x, y);
+				this.yCoordsValue.setText("" + yValueString);
 			} else {
-				this.xCoordsValue.setText("" + x);
+				if ((this.parent instanceof MetricVisualizer)
+						&& MainDisplay.config.getMetricVisualizerConfigs()[0].getxAxisType().equals("date")) {
+					SimpleDateFormat tempDateFormat = new SimpleDateFormat(
+							MainDisplay.config.getMetricVisualizerConfigs()[0].getxAxisFormat());
+					this.xCoordsValue.setText(tempDateFormat.format(new Date((long) Math.floor(x))));
+				} else {
+					this.xCoordsValue.setText("" + x);
+				}
+				this.yCoordsValue.setText("" + y);
 			}
-			this.yCoordsValue.setText("" + y);
 		}
 	}
 
@@ -783,9 +736,8 @@ public class MenuBar extends JPanel implements ChangeListener {
 				intervalScrollBar = this.x2IntervalScrollBar;
 
 			// check if slider is set on the right end
-			if (intervalScrollBar.getValue()
-					+ intervalScrollBar.getModel().getExtent() == intervalScrollBar
-						.getMaximum()) {
+			if (intervalScrollBar.getValue() + intervalScrollBar.getModel().getExtent() == intervalScrollBar
+					.getMaximum()) {
 				int oldValue = intervalScrollBar.getValue();
 				int oldExtent = intervalScrollBar.getModel().getExtent();
 
@@ -795,11 +747,10 @@ public class MenuBar extends JPanel implements ChangeListener {
 				intervalScrollBar.getModel().setExtent(source.getValue());
 
 				// if slider is not set on right end anymore, adjust value
-				if (intervalScrollBar.getValue()
-						+ intervalScrollBar.getModel().getExtent() != intervalScrollBar
-							.getMaximum()) {
-					intervalScrollBar.setValue(intervalScrollBar.getMaximum()
-							- intervalScrollBar.getModel().getExtent());
+				if (intervalScrollBar.getValue() + intervalScrollBar.getModel().getExtent() != intervalScrollBar
+						.getMaximum()) {
+					intervalScrollBar
+							.setValue(intervalScrollBar.getMaximum() - intervalScrollBar.getModel().getExtent());
 				}
 				// if slider is in between, just resize it
 			} else {
@@ -814,6 +765,16 @@ public class MenuBar extends JPanel implements ChangeListener {
 	/** returns the intervalslider **/
 	public JScrollBar getIntervalSlider() {
 		return this.x1IntervalScrollBar;
+	}
+
+	/** Sets the x-coords label text. **/
+	public void setXCoordsLabelText(String text) {
+		this.xCoordsLabel.setText(text);
+	}
+
+	/** Sets the y-coords label text. **/
+	public void setYCoordsLabelText(String text) {
+		this.yCoordsLabel.setText(text);
 	}
 
 }

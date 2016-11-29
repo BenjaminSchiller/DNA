@@ -668,6 +668,11 @@ public class Legend extends JPanel {
 
 	/** updates the value of an item **/
 	public void updateItem(String name, double value) {
+		this.list.updateItem(name, "" + value);
+	}
+
+	/** updates the value of an item **/
+	public void updateItem(String name, String value) {
 		this.list.updateItem(name, value);
 	}
 
